@@ -307,8 +307,13 @@ jobs:
               readelf -h "trunk/romfs/sbin/$tool" | grep -q 'Machine:.*MIPS'
             done
             test -s trunk/romfs/lib/libudev.so.1
+            python3 ../overlay/padavan-4.4/scripts/verify-usbip-elf.py \
+              trunk/romfs ../usbip-elf-dependencies.json
           fi
           grep -a -q 'YouHua WR1200JS' trunk/linux-4.4.x/vmlinux
+          cp trunk/.config ../firmware-effective.config
+          cp trunk/linux-4.4.x/.config ../kernel-effective.config
+          cp ../configs.build/wr1200js.config ../firmware-requested.config
           shopt -s nullglob
           images=(trunk/images/*.trx)
           (("${#images[@]}" > 0))
@@ -341,4 +346,8 @@ jobs:
             padavan-4.4/trunk/images/*.trx
             toolchain-sha256.txt
             unsupported-firmware-options.txt
+            firmware-requested.config
+            firmware-effective.config
+            kernel-effective.config
+            usbip-elf-dependencies.json
 
