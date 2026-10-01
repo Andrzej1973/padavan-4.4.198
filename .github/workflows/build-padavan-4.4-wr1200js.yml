@@ -51,6 +51,10 @@ jobs:
           cp overlay/padavan-4.4/trunk/libs/libqrencode/Makefile \
             padavan-4.4/trunk/libs/libqrencode/Makefile
           python3 overlay/padavan-4.4/scripts/add-qrencode.py padavan-4.4
+          mkdir -p padavan-4.4/trunk/user/ndisc6
+          cp overlay/padavan-4.4/trunk/user/ndisc6/Makefile \
+            padavan-4.4/trunk/user/ndisc6/Makefile
+          python3 overlay/padavan-4.4/scripts/add-ndisc6.py padavan-4.4
           cp overlay/padavan-4.4/trunk/user/ntfs-3g/Makefile \
             padavan-4.4/trunk/user/ntfs-3g/Makefile
           cp overlay/padavan-4.4/trunk/configs/boards/WR1200JS/board.h \
@@ -250,6 +254,13 @@ jobs:
             grep -q "^CONFIG_FIRMWARE_INCLUDE_${option}=y$" trunk/.config
           done
           grep -q '^CONFIG_FIRMWARE_ENABLE_USB=y$' trunk/.config
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_NDISC6_RDISC6=y$' trunk/.config; then
+            grep -q '^CONFIG_FIRMWARE_ENABLE_IPV6=y$' trunk/.config
+            for tool in ndisc6 rdisc6; do
+              test -x "trunk/romfs/usr/bin/$tool"
+              readelf -h "trunk/romfs/usr/bin/$tool" | grep -q 'Machine:.*MIPS'
+            done
+          fi
           if grep -q '^CONFIG_FIRMWARE_INCLUDE_QRENCODE=y$' trunk/.config; then
             test -x trunk/romfs/usr/bin/qrencode
             readelf -h trunk/romfs/usr/bin/qrencode | grep -q 'Machine:.*MIPS'
