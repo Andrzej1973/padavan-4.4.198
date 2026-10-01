@@ -47,6 +47,10 @@ jobs:
           patch --batch --forward -p1 -d padavan-4.4 \
             < overlay/padavan-4.4/patches/zram-service.diff
           python3 overlay/padavan-4.4/scripts/fix-web-event-masks.py padavan-4.4
+          mkdir -p padavan-4.4/trunk/libs/libqrencode
+          cp overlay/padavan-4.4/trunk/libs/libqrencode/Makefile \
+            padavan-4.4/trunk/libs/libqrencode/Makefile
+          python3 overlay/padavan-4.4/scripts/add-qrencode.py padavan-4.4
           cp overlay/padavan-4.4/trunk/user/ntfs-3g/Makefile \
             padavan-4.4/trunk/user/ntfs-3g/Makefile
           cp overlay/padavan-4.4/trunk/configs/boards/WR1200JS/board.h \
@@ -246,6 +250,10 @@ jobs:
             grep -q "^CONFIG_FIRMWARE_INCLUDE_${option}=y$" trunk/.config
           done
           grep -q '^CONFIG_FIRMWARE_ENABLE_USB=y$' trunk/.config
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_QRENCODE=y$' trunk/.config; then
+            test -x trunk/romfs/usr/bin/qrencode
+            readelf -h trunk/romfs/usr/bin/qrencode | grep -q 'Machine:.*MIPS'
+          fi
           grep -q '^CONFIG_FIRMWARE_ENABLE_EXT4=y$' trunk/.config
           grep -q '^CONFIG_FIRMWARE_INCLUDE_SSWAN=y$' trunk/.config
           grep -q '^CONFIG_FIRMWARE_INCLUDE_ZEROTIER=y$' trunk/.config
