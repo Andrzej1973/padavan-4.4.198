@@ -109,3 +109,6 @@ replace_once("include/net/sch_generic.h", """static inline int qdisc_enqueue_roo
 replace_once("drivers/net/imq.c",
              "qdisc_enqueue_root(skb_shared, q, &to_free); /* might kfree_skb */",
              "qdisc_enqueue_root(skb_shared, q); /* might kfree_skb */")
+
+# vipshmily 4.4 provides the queue-specific watchdog updater.
+replace_once("drivers/net/imq.c", "netif_trans_update(dev);", "txq_trans_update(txq);")
