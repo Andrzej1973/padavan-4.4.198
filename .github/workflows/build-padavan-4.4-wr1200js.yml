@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - experimental/hadzhioglu-compare
+      - experimental/Padavan-4.4.198
 
 permissions:
   contents: read
