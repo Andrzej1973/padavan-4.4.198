@@ -78,6 +78,7 @@ jobs:
             padavan-4.4/trunk/linux-4.4.x/tools/usb/usbip/src/
           python3 overlay/padavan-4.4/scripts/add-usbip.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/add-amneziawg.py padavan-4.4 amnezia-source
+          python3 overlay/padavan-4.4/scripts/add-amneziawg-nvram.py padavan-4.4
           cp overlay/padavan-4.4/trunk/user/rp-l2tp/Makefile \
             padavan-4.4/trunk/user/rp-l2tp/Makefile
           cp overlay/padavan-4.4/trunk/user/ntfs-3g/Makefile \
