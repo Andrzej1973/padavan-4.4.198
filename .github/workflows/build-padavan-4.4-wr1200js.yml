@@ -55,6 +55,7 @@ jobs:
               < overlay/padavan-4.4/patches/linux-4.4-imq.diff; then
             find padavan-4.4/trunk/linux-4.4.x -name '*.rej' -print -exec cat {} + \
               > imq-patch-rejects.txt
+            cat imq-patch-rejects.txt
             exit 1
           fi
           # Merge only USB/PHY configuration from the one-USB reference board,
