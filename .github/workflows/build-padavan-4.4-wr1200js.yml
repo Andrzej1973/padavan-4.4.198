@@ -137,6 +137,8 @@ jobs:
               "CONFIG_IMQ_BEHAVIOR_AB": "y",
               "CONFIG_NETFILTER_XT_TARGET_IMQ": "m",
           }
+          if "CONFIG_FIRMWARE_INCLUDE_ZRAM=y" in Path("configs.build/wr1200js.config").read_text().splitlines():
+              values.update({"CONFIG_ZSMALLOC": "y", "CONFIG_ZRAM": "m"})
           for key, value in values.items():
               lines = [line for line in lines if not line.startswith(key + "=")
                        and line != "# " + key + " is not set"]
