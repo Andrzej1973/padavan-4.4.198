@@ -67,7 +67,11 @@ jobs:
           for line in source.splitlines():
               match = re.match(r"^(?:# )?(CONFIG_[A-Za-z0-9_]+)(?:=(.*)| is not set)$", line)
               if match and (match.group(1).startswith("CONFIG_USB")
-                            or match.group(1) == "CONFIG_PHY_MTK_TPHY"):
+                            or match.group(1) == "CONFIG_PHY_MTK_TPHY"
+                            or match.group(1) in {
+                                "CONFIG_SCSI", "CONFIG_SCSI_DMA",
+                                "CONFIG_SCSI_PROC_FS", "CONFIG_BLK_DEV_SD",
+                            }):
                   source_values[match.group(1)] = line
           keys = set(source_values)
           merged = []
@@ -173,7 +177,169 @@ jobs:
             padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
           grep -q '^CONFIG_USB_EHCI_HCD=m$' \
             padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
-          grep -q '^CONFIG_USB_STORAGE=m$' \
+          grep -q '^CONFIG_USB_STORAGE=m
+          if grep -q 'CAKE' padavan-4.4/trunk/configs/templates/WR1200JS.config; then
+            echo "CAKE must remain excluded from the Linux 4.4 target."
+            exit 1
+          fi
+          mkdir -p padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink
+          cp -a overlay/padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/wr1200js.dts \
+            padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/
+          cp -a overlay/padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/mt7621-spi-16m-wr1200js-layout.dtsi \
+            padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/
+          grep -q 'mt7621-spi-16m-wr1200js-layout.dtsi' \
+            padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/wr1200js.dts \
+            || sed -i 's/#include "mt7621-spi-16m-layout.dtsi"/#include "mt7621-spi-16m-wr1200js-layout.dtsi"/' \
+              padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/wr1200js.dts
+          grep -q 'firmware.*0xf70000' \
+            padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/mt7621-spi-16m-wr1200js-layout.dtsi
+          grep -q 'WR1200JS' padavan-4.4/trunk/configs/boards/WR1200JS/board.mk
+          grep -q 'CONFIG_RALINK_BUILTIN_DTB_NAME="wr1200js"' \
+            padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
+
+      - name: Download the pinned uClibc toolchain
+        run: |
+          mkdir -p padavan-4.4/toolchain/toolchain-mipsel
+          curl --fail --location --retry 5 \
+            --output padavan-4.4/toolchain-mipsel.tar.xz \
+            https://github.com/vipshmily/padavan-4.4/releases/download/toolchain/mipsel-linux-uclibc.tar.xz
+          sha256sum padavan-4.4/toolchain-mipsel.tar.xz | tee toolchain-sha256.txt
+          tar -xJf padavan-4.4/toolchain-mipsel.tar.xz \
+            -C padavan-4.4/toolchain/toolchain-mipsel
+
+      - name: Build WR1200JS firmware
+        run: |
+          cd padavan-4.4
+          make WR1200JS TOOLCHAIN=mipsel-linux-uclibc
+          for option in USB QOS IMQ IFB IPSET XFRM; do
+            grep -q "^CONFIG_FIRMWARE_INCLUDE_${option}=y$" trunk/.config
+          done
+          grep -q '^CONFIG_FIRMWARE_ENABLE_USB=y$' trunk/.config
+          grep -q '^CONFIG_FIRMWARE_ENABLE_EXT4=y$' trunk/.config
+          grep -q '^CONFIG_FIRMWARE_INCLUDE_SSWAN=y$' trunk/.config
+          grep -q '^CONFIG_FIRMWARE_INCLUDE_ZEROTIER=y$' trunk/.config
+          grep -q '^CONFIG_IMQ=m$' trunk/linux-4.4.x/.config
+          grep -q '^CONFIG_NETFILTER_XT_TARGET_IMQ=m$' trunk/linux-4.4.x/.config
+          grep -q '^CONFIG_IFB=m$' trunk/linux-4.4.x/.config
+          grep -q '^CONFIG_IP_SET=m$' trunk/linux-4.4.x/.config
+          grep -q '^CONFIG_USB_STORAGE=m$' trunk/linux-4.4.x/.config
+          grep -a -q 'YouHua WR1200JS' trunk/linux-4.4.x/vmlinux
+          shopt -s nullglob
+          images=(trunk/images/*.trx)
+          (("${#images[@]}" > 0))
+          for image in "${images[@]}"; do
+            test -s "$image"
+            size="$(stat -c %s "$image")"
+            max_size=$((0xf70000))
+            if ((size > max_size)); then
+              echo "Firmware image exceeds the WR1200JS 0xF70000 partition."
+              exit 1
+            fi
+            sha256sum "$image"
+          done
+
+      - name: Upload IMQ patch rejects
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: imq-patch-rejects
+          retention-days: 14
+          if-no-files-found: ignore
+          path: imq-patch-rejects.txt
+
+      - name: Upload WR1200JS images and toolchain checksum
+        uses: actions/upload-artifact@v7
+        with:
+          name: padavan-linux-4.4.198-wr1200js
+          retention-days: 14
+          path: |
+            padavan-4.4/trunk/images/*.trx
+            toolchain-sha256.txt
+            unsupported-firmware-options.txt
+
+ \
+            padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
+          grep -q '^CONFIG_BLK_DEV_SD=y
+          if grep -q 'CAKE' padavan-4.4/trunk/configs/templates/WR1200JS.config; then
+            echo "CAKE must remain excluded from the Linux 4.4 target."
+            exit 1
+          fi
+          mkdir -p padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink
+          cp -a overlay/padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/wr1200js.dts \
+            padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/
+          cp -a overlay/padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/mt7621-spi-16m-wr1200js-layout.dtsi \
+            padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/
+          grep -q 'mt7621-spi-16m-wr1200js-layout.dtsi' \
+            padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/wr1200js.dts \
+            || sed -i 's/#include "mt7621-spi-16m-layout.dtsi"/#include "mt7621-spi-16m-wr1200js-layout.dtsi"/' \
+              padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/wr1200js.dts
+          grep -q 'firmware.*0xf70000' \
+            padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/mt7621-spi-16m-wr1200js-layout.dtsi
+          grep -q 'WR1200JS' padavan-4.4/trunk/configs/boards/WR1200JS/board.mk
+          grep -q 'CONFIG_RALINK_BUILTIN_DTB_NAME="wr1200js"' \
+            padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
+
+      - name: Download the pinned uClibc toolchain
+        run: |
+          mkdir -p padavan-4.4/toolchain/toolchain-mipsel
+          curl --fail --location --retry 5 \
+            --output padavan-4.4/toolchain-mipsel.tar.xz \
+            https://github.com/vipshmily/padavan-4.4/releases/download/toolchain/mipsel-linux-uclibc.tar.xz
+          sha256sum padavan-4.4/toolchain-mipsel.tar.xz | tee toolchain-sha256.txt
+          tar -xJf padavan-4.4/toolchain-mipsel.tar.xz \
+            -C padavan-4.4/toolchain/toolchain-mipsel
+
+      - name: Build WR1200JS firmware
+        run: |
+          cd padavan-4.4
+          make WR1200JS TOOLCHAIN=mipsel-linux-uclibc
+          for option in USB QOS IMQ IFB IPSET XFRM; do
+            grep -q "^CONFIG_FIRMWARE_INCLUDE_${option}=y$" trunk/.config
+          done
+          grep -q '^CONFIG_FIRMWARE_ENABLE_USB=y$' trunk/.config
+          grep -q '^CONFIG_FIRMWARE_ENABLE_EXT4=y$' trunk/.config
+          grep -q '^CONFIG_FIRMWARE_INCLUDE_SSWAN=y$' trunk/.config
+          grep -q '^CONFIG_FIRMWARE_INCLUDE_ZEROTIER=y$' trunk/.config
+          grep -q '^CONFIG_IMQ=m$' trunk/linux-4.4.x/.config
+          grep -q '^CONFIG_NETFILTER_XT_TARGET_IMQ=m$' trunk/linux-4.4.x/.config
+          grep -q '^CONFIG_IFB=m$' trunk/linux-4.4.x/.config
+          grep -q '^CONFIG_IP_SET=m$' trunk/linux-4.4.x/.config
+          grep -q '^CONFIG_USB_STORAGE=m$' trunk/linux-4.4.x/.config
+          grep -a -q 'YouHua WR1200JS' trunk/linux-4.4.x/vmlinux
+          shopt -s nullglob
+          images=(trunk/images/*.trx)
+          (("${#images[@]}" > 0))
+          for image in "${images[@]}"; do
+            test -s "$image"
+            size="$(stat -c %s "$image")"
+            max_size=$((0xf70000))
+            if ((size > max_size)); then
+              echo "Firmware image exceeds the WR1200JS 0xF70000 partition."
+              exit 1
+            fi
+            sha256sum "$image"
+          done
+
+      - name: Upload IMQ patch rejects
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: imq-patch-rejects
+          retention-days: 14
+          if-no-files-found: ignore
+          path: imq-patch-rejects.txt
+
+      - name: Upload WR1200JS images and toolchain checksum
+        uses: actions/upload-artifact@v7
+        with:
+          name: padavan-linux-4.4.198-wr1200js
+          retention-days: 14
+          path: |
+            padavan-4.4/trunk/images/*.trx
+            toolchain-sha256.txt
+            unsupported-firmware-options.txt
+
+ \
             padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
           if grep -q 'CAKE' padavan-4.4/trunk/configs/templates/WR1200JS.config; then
             echo "CAKE must remain excluded from the Linux 4.4 target."
