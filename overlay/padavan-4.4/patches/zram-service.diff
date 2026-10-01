@@ -1,0 +1,241 @@
+--- a/trunk/user/rc/services.c
++++ b/trunk/user/rc/services.c
+@@ -23,6 +23,7 @@
+ #include <errno.h>
+ #include <sys/stat.h>
+ #include <sys/types.h>
++#include <sys/sysinfo.h>
+ 
+ #include "rc.h"
+ 
+@@ -747,9 +748,55 @@
+ 		module_smart_load("rt_timer_wdg", NULL);
+ }
+ 
++#if defined(SUPPORT_ZRAM)
++int
++get_zram_disksize(void)
++{
++	int result = 0;
++	struct sysinfo info;
++	int mode = nvram_get_int("zram_enable");
++	if (mode > 0 && mode < 3 && sysinfo(&info) == 0) {
++		result = (int)(((unsigned long long)info.totalram * info.mem_unit) >> (3 - mode));
++	}
++	return result;
++}
++
++void
++stop_zram(void)
++{
++	if (is_module_loaded("zram")) {
++		doSystem("swapoff /dev/zram0");
++		module_smart_unload("zram", 1);
++	}
++}
++
++void
++start_zram(void)
++{
++	int disksize = get_zram_disksize();
++	if (disksize) {
++		module_smart_load("zram", "num_devices=1");
++		sleep(1);
++		fput_int("/sys/block/zram0/disksize", disksize);
++		doSystem("mkswap /dev/zram0");
++		doSystem("swapon -p 32767 -d /dev/zram0");
++	}
++}
++
++void
++restart_zram(void)
++{
++	stop_zram();
++	start_zram();
++}
++#endif
++
+ int
+ start_services_once(int is_ap_mode)
+ {
++#if defined(SUPPORT_ZRAM)
++	start_zram();
++#endif
+ 	start_8021x_wl();
+ 	start_8021x_rt();
+ 	start_httpd(0);
+@@ -809,6 +856,9 @@
+ void
+ stop_services(int stopall)
+ {
++#if defined(SUPPORT_ZRAM)
++	stop_zram();
++#endif
+ 	if (stopall) {
+ 		stop_telnetd();
+ #if defined (APP_SSHD)
+--- a/trunk/user/rc/rc.h
++++ b/trunk/user/rc/rc.h
+@@ -510,6 +510,12 @@
+ void stop_logger(void);
+ void start_watchdog_cpu(void);
+ void restart_watchdog_cpu(void);
++#if defined(SUPPORT_ZRAM)
++int get_zram_disksize(void);
++void start_zram(void);
++void stop_zram(void);
++void restart_zram(void);
++#endif
+ int start_services_once(int is_ap_mode);
+ void stop_services(int stopall);
+ void stop_services_lan_wan(void);
+--- a/trunk/user/shared/defaults.c
++++ b/trunk/user/shared/defaults.c
+@@ -987,6 +987,9 @@
+ 	{ "adsc_enable", "0" },
+ 	{ "crond_enable", "1" },
+ 	{ "crond_log", "0" },
++#if defined(SUPPORT_ZRAM)
++	{ "zram_enable", "0" },
++#endif
+ 
+ #if defined(BOARD_N65U)
+ 	{ "inic_disable", "0" },
+--- a/trunk/user/shared/cflags.mk
++++ b/trunk/user/shared/cflags.mk
+@@ -259,3 +259,7 @@
+ ifeq ($(CONFIG_32M_REBOOT_FIXUP),y)
+ CFLAGS += -DMTD_FLASH_32M_REBOOT_BUG
+ endif
++
++ifeq ($(CONFIG_FIRMWARE_INCLUDE_ZRAM),y)
++CFLAGS += -DSUPPORT_ZRAM
++endif
+--- a/trunk/user/rc/rc.c
++++ b/trunk/user/rc/rc.c
+@@ -1247,6 +1247,12 @@
+ 			reapply_vpn_server();
+ 		}
+ #endif
++#if defined(SUPPORT_ZRAM)
++		else if (strcmp(entry->d_name, RCN_RESTART_ZRAM) == 0)
++		{
++			restart_zram();
++		}
++#endif
+ 		else if (strcmp(entry->d_name, RCN_RESTART_LLTD) == 0)
+ 		{
+ 			restart_lltd();
+--- a/trunk/user/shared/notify_rc.h
++++ b/trunk/user/shared/notify_rc.h
+@@ -101,3 +101,5 @@
+ 
+ 
+ #endif /* NOTIFY_RC_H */
++
++#define RCN_RESTART_ZRAM "restart_zram"
+--- a/trunk/user/httpd/common.h
++++ b/trunk/user/httpd/common.h
+@@ -208,3 +208,6 @@
+ 
+ 
+ #endif /* _COMMON_H_ */
++
++#define EVM_RESTART_ZRAM (1ULL << 55)
++#define EVT_RESTART_ZRAM 1
+--- a/trunk/user/httpd/variables.c
++++ b/trunk/user/httpd/variables.c
+@@ -636,6 +636,9 @@
+ 			{"adsc_enable", "", NULL, EVM_RESTART_ADSC},
+ 			{"crond_enable", "", NULL, EVM_RESTART_CROND},
+ 			{"crond_log", "", NULL, EVM_RESTART_CROND},
++#if defined(SUPPORT_ZRAM)
++			{"zram_enable", "", NULL, EVM_RESTART_ZRAM},
++#endif
+ 			{"crontab.login", "File", NULL, EVM_RESTART_CROND|EVM_BLOCK_UNSAFE},
+ 			{"scripts.authorized_keys", "File", NULL, EVM_RESTART_SSHD|EVM_BLOCK_UNSAFE},
+ 			{"ether_igmp", "", NULL, EVM_RESTART_SWITCH_CFG},
+@@ -1420,6 +1423,9 @@
+ 		{EVM_RESTART_LLTD,		EVT_RESTART_LLTD,		RCN_RESTART_LLTD,	0},
+ 		{EVM_RESTART_ADSC,		EVT_RESTART_ADSC,		RCN_RESTART_ADSC,	0},
+ 		{EVM_RESTART_CROND,		EVT_RESTART_CROND,		RCN_RESTART_CROND,	0},
++#if defined(SUPPORT_ZRAM)
++		{EVM_RESTART_ZRAM, EVT_RESTART_ZRAM, RCN_RESTART_ZRAM, 0},
++#endif
+ 		{EVM_RESTART_SYSCTL,		EVT_RESTART_SYSCTL,		RCN_RESTART_SYSCTL,	0},
+ 		{EVM_RESTART_TWEAKS,		EVT_RESTART_TWEAKS,		RCN_RESTART_TWEAKS,	0},
+ 		{EVM_RESTART_WDG,		EVT_RESTART_WDG,		RCN_RESTART_WDG,	0},
+--- a/trunk/user/httpd/web_ex.c
++++ b/trunk/user/httpd/web_ex.c
+@@ -2783,6 +2783,7 @@
+ 		"function found_app_shadowsocks() { return %d;}\n"
+ 		"function found_app_sqm() { return %d;}\n"
+ 		"function found_app_wireguard() { return %d;}\n"
++		"function found_support_zram() { return %d;}\n"
+ 		"function found_app_xupnpd() { return %d;}\n"
+ 		"function found_app_mentohust() { return %d;}\n"
+ 		"function found_app_adbyby() { return %d;}\n"
+@@ -2817,6 +2818,11 @@
+ 		found_app_shadowsocks,
+ 		found_app_sqm,
+ 		found_app_wireguard,
++#if defined(SUPPORT_ZRAM)
++		1,
++#else
++		0,
++#endif
+ 		found_app_xupnpd,
+ 		found_app_mentohust,
+ 		found_app_adbyby,
+--- a/trunk/user/www/n56u_ribbon_fixed/Advanced_System_Content.asp
++++ b/trunk/user/www/n56u_ribbon_fixed/Advanced_System_Content.asp
+@@ -71,6 +71,7 @@
+ 		showhide_div('row_pass2', 1);
+ 	}
+ 
++	if (!found_support_zram()) showhide_div("row_zram", 0);
+ 	load_body();
+ }
+ 
+@@ -487,6 +488,16 @@
+                                         <tr>
+                                             <th colspan="2" style="background-color: #E3E3E3;"><#t2Misc#></th>
+                                         </tr>
++                                        <tr id="row_zram">
++                                            <th>zram</th>
++                                            <td>
++                                                <select name="zram_enable" class="input">
++                                                    <option value="0"   <% nvram_match_x("","zram_enable",  "0","selected"); %>><#btn_Disable#></option>
++                                                    <option value="1"   <% nvram_match_x("","zram_enable",  "1","selected"); %>>25% Ram</option>
++                                                    <option value="2"   <% nvram_match_x("","zram_enable",  "2","selected"); %>>50% Ram</option>
++                                                </select>
++                                            </td>
++                                        </tr>
+                                         <tr id="reboot_schedule_enable_tr">
+                                             <th width="50%" style="border-top: 0 none;"><#Reboot_Schedule#></th>
+                                             <td>
+--- a/trunk/configure
++++ b/trunk/configure
+@@ -118,6 +118,13 @@
+ if [ -n "$CONFIG_RTC_CLASS" ] ; then
+ 	func_enable_busybox_param "CONFIG_HWCLOCK"
+ fi
++# Compressed RAM swap support; requested size is controlled by zram_enable.
++if [ "$CONFIG_FIRMWARE_INCLUDE_ZRAM" = "y" ]; then
++	func_enable_kernel_param "CONFIG_ZSMALLOC"
++	func_enable_kernel_param "CONFIG_ZRAM" "m"
++else
++	func_disable_kernel_param "CONFIG_ZRAM"
++fi
+ # SFE
+ if [ "$CONFIG_FIRMWARE_INCLUDE_SFE" = "y" ] ; then
+ 	func_enable_kernel_param "CONFIG_SHORTCUT_FE"
+--- a/trunk/configs/templates/WR1200JS.config
++++ b/trunk/configs/templates/WR1200JS.config
+@@ -285,3 +285,5 @@
+ CONFIG_FIRMWARE_INCLUDE_OC=n
+ ### Clock Rate: 1000Mhz=0x312 1100Mhz=0x362 1120Mhz=0x372 1200Mhz=0x3B2
+ CONFIG_FIRMWARE_MT7621_OC="0x312"
++
++CONFIG_FIRMWARE_INCLUDE_ZRAM=n
+

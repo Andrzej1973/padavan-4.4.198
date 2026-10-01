@@ -44,6 +44,8 @@ jobs:
 
       - name: Apply WR1200JS board port
         run: |
+          patch --batch --forward -p1 -d padavan-4.4 \
+            < overlay/padavan-4.4/patches/zram-service.diff
           python3 overlay/padavan-4.4/scripts/fix-web-event-masks.py padavan-4.4
           cp overlay/padavan-4.4/trunk/configs/boards/WR1200JS/board.h \
             padavan-4.4/trunk/configs/boards/WR1200JS/board.h
@@ -248,6 +250,12 @@ jobs:
           grep -q '^CONFIG_IMQ=m$' trunk/linux-4.4.x/.config
           grep -q '^CONFIG_NETFILTER_XT_TARGET_IMQ=m$' trunk/linux-4.4.x/.config
           grep -q '^CONFIG_IFB=m$' trunk/linux-4.4.x/.config
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_ZRAM=y$' trunk/.config; then
+            grep -q '^CONFIG_ZRAM=m$' trunk/linux-4.4.x/.config
+            grep -q '^CONFIG_ZSMALLOC=y$' trunk/linux-4.4.x/.config
+            test -n "$(find trunk/romfs/lib/modules -name zram.ko -print -quit)"
+            grep -q 'name="zram_enable"' trunk/romfs/www/Advanced_System_Content.asp
+          fi
           grep -q '^CONFIG_IP_SET=m$' trunk/linux-4.4.x/.config
           grep -q '^CONFIG_USB_STORAGE=m$' trunk/linux-4.4.x/.config
           grep -a -q 'YouHua WR1200JS' trunk/linux-4.4.x/vmlinux
