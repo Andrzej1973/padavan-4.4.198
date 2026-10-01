@@ -60,6 +60,8 @@ jobs:
             padavan-4.4/trunk/libs/libudev/Makefile
           cp overlay/padavan-4.4/trunk/user/usbip/Makefile \
             padavan-4.4/trunk/user/usbip/Makefile
+          cp overlay/padavan-4.4/trunk/linux-4.4.x/tools/usb/usbip/src/usbip_network.{c,h} \
+            padavan-4.4/trunk/linux-4.4.x/tools/usb/usbip/src/
           python3 overlay/padavan-4.4/scripts/add-usbip.py padavan-4.4
           cp overlay/padavan-4.4/trunk/user/rp-l2tp/Makefile \
             padavan-4.4/trunk/user/rp-l2tp/Makefile
