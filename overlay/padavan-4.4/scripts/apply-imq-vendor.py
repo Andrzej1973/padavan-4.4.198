@@ -111,4 +111,4 @@ replace_once("drivers/net/imq.c",
              "qdisc_enqueue_root(skb_shared, q); /* might kfree_skb */")
 
 # vipshmily 4.4 provides the queue-specific watchdog updater.
-replace_once("drivers/net/imq.c", "netif_trans_update(dev);", "txq_trans_update(txq);")
+replace_once("drivers/net/imq.c", "netif_trans_update(dev);", "txq_trans_update(netdev_get_tx_queue(dev, 0));")
