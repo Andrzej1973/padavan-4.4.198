@@ -47,6 +47,8 @@ jobs:
           patch --batch --forward -p1 -d padavan-4.4 \
             < overlay/padavan-4.4/patches/zram-service.diff
           python3 overlay/padavan-4.4/scripts/fix-web-event-masks.py padavan-4.4
+          cp overlay/padavan-4.4/trunk/user/ntfs-3g/Makefile \
+            padavan-4.4/trunk/user/ntfs-3g/Makefile
           cp overlay/padavan-4.4/trunk/configs/boards/WR1200JS/board.h \
             padavan-4.4/trunk/configs/boards/WR1200JS/board.h
           cp overlay/padavan-4.4/trunk/configs/boards/WR1200JS/partitions.config \
