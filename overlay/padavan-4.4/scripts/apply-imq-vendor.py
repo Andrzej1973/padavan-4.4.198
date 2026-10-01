@@ -24,27 +24,15 @@ replace_once("net/core/dev.c", "#include <linux/netfilter_ingress.h>",
 #if defined(CONFIG_IMQ) || defined(CONFIG_IMQ_MODULE)
 #include <linux/imq.h>
 #endif""")
-replace_once("net/core/dev.c", """#ifdef CONFIG_SHORTCUT_FE
-\tif (!skb->fast_forwarded) {
-#endif
-\tif (!list_empty(&ptype_all) || !list_empty(&dev->ptype_all))
+replace_once("net/core/dev.c", """\tif (!list_empty(&ptype_all) || !list_empty(&dev->ptype_all))
 \t\tdev_queue_xmit_nit(skb, dev);
-#ifdef CONFIG_SHORTCUT_FE
-\t}
-#endif
-""", """#ifdef CONFIG_SHORTCUT_FE
-\tif (!skb->fast_forwarded) {
-#endif
-#if defined(CONFIG_IMQ) || defined(CONFIG_IMQ_MODULE)
+""", """#if defined(CONFIG_IMQ) || defined(CONFIG_IMQ_MODULE)
 \tif ((!list_empty(&ptype_all) || !list_empty(&dev->ptype_all)) &&
 \t    !(skb->imq_flags & IMQ_F_ENQUEUE))
 #else
 \tif (!list_empty(&ptype_all) || !list_empty(&dev->ptype_all))
 #endif
 \t\tdev_queue_xmit_nit(skb, dev);
-#ifdef CONFIG_SHORTCUT_FE
-\t}
-#endif
 """)
 replace_once("net/netfilter/core.c", """} else if ((verdict & NF_VERDICT_MASK) == NF_QUEUE) {
 \t\tint err = nf_queue(skb, elem, state,
