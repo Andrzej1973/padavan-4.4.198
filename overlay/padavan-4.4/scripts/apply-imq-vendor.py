@@ -91,3 +91,21 @@ replace_once("net/netfilter/nf_queue.c", """\tcase NF_QUEUE:
 #endif
 \t\tif (err < 0) {
 """)
+
+# The 4.9 patch carries the newer qdisc API; Padavan 4.4 keeps the
+# two-argument enqueue interface used by the 4.4 IMQ backport.
+replace_once("include/net/sch_generic.h", """static inline int qdisc_enqueue_root(struct sk_buff *skb, struct Qdisc *sch,
+\t\t\t\t      struct sk_buff **to_free)
+{
+    qdisc_skb_cb(skb)->pkt_len = skb->len;
+    return qdisc_enqueue(skb, sch, to_free) & NET_XMIT_MASK;
+}
+""", """static inline int qdisc_enqueue_root(struct sk_buff *skb, struct Qdisc *sch)
+{
+    qdisc_skb_cb(skb)->pkt_len = skb->len;
+    return qdisc_enqueue(skb, sch) & NET_XMIT_MASK;
+}
+""")
+replace_once("drivers/net/imq.c",
+             "qdisc_enqueue_root(skb_shared, q, &to_free); /* might kfree_skb */",
+             "qdisc_enqueue_root(skb_shared, q); /* might kfree_skb */")
