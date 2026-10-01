@@ -707,14 +707,7 @@ struct __compat_dummy_container { char dev; };
 #define genl_dump_check_consistent(a, b) genl_dump_check_consistent(a, b, &genl_family)
 #endif
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 13, 0) && !defined(ISRHEL7)
-static inline void *skb_put_data(struct sk_buff *skb, const void *data, unsigned int len)
-{
-	void *tmp = skb_put(skb, len);
-	memcpy(tmp, data, len);
-	return tmp;
-}
-#endif
+/* skb_put_data is provided by the pinned vendor Linux 4.4 kernel. */
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3, 19, 0) && !defined(ISRHEL7)
 #define napi_complete_done(n, work_done) napi_complete(n)

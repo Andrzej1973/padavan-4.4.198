@@ -15,6 +15,15 @@ shutil.copyfile(overlay / "trunk/linux-4.4.x/net/amneziawg/compat/compat.h",
                 destination / "compat/compat.h")
 shutil.copyfile(overlay / "trunk/linux-4.4.x/net/amneziawg/Kconfig",
                 destination / "Kconfig")
+chacha_dir = destination / "compat/crypto/chacha/include/crypto"
+chacha_dir.mkdir(parents=True)
+shutil.copyfile(overlay / "trunk/linux-4.4.x/net/amneziawg/compat/crypto/chacha/include/crypto/chacha.h",
+                chacha_dir / "chacha.h")
+kbuild = destination / "compat/Kbuild.include"
+kbuild.write_text(kbuild.read_text() +
+    '\nifeq ($(wildcard $(srctree)/include/crypto/chacha.h),)\n'
+    'ccflags-y += -I$(kbuild-dir)/compat/crypto/chacha/include\nendif\n')
+
 
 def append_once(path, marker, addition):
     text = path.read_text()
