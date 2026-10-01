@@ -44,6 +44,7 @@ jobs:
 
       - name: Apply WR1200JS board port
         run: |
+          python3 overlay/padavan-4.4/scripts/fix-web-event-masks.py padavan-4.4
           cp overlay/padavan-4.4/trunk/configs/boards/WR1200JS/board.h \
             padavan-4.4/trunk/configs/boards/WR1200JS/board.h
           cp overlay/padavan-4.4/trunk/configs/boards/WR1200JS/partitions.config \
