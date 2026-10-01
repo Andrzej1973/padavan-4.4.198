@@ -19,16 +19,11 @@ replace_once("include/linux/skbuff.h", """\t__u8\t\t\tremcsum_offload:1;
 #endif
 \t/* 2 or 4 bit hole */
 """)
-replace_once("net/core/dev.c", """#include <linux/netfilter_ingress.h>
-
-#include "net-sysfs.h"
-""", """#include <linux/netfilter_ingress.h>
+replace_once("net/core/dev.c", "#include <linux/netfilter_ingress.h>",
+"""#include <linux/netfilter_ingress.h>
 #if defined(CONFIG_IMQ) || defined(CONFIG_IMQ_MODULE)
 #include <linux/imq.h>
-#endif
-
-#include "net-sysfs.h"
-""")
+#endif""")
 replace_once("net/core/dev.c", """#ifdef CONFIG_SHORTCUT_FE
 \tif (!skb->fast_forwarded) {
 #endif
