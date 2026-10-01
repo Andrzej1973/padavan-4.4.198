@@ -53,7 +53,7 @@ jobs:
           if ! patch --batch --forward -p1 \
               -d padavan-4.4/trunk/linux-4.4.x \
               < overlay/padavan-4.4/patches/linux-4.4-imq.diff; then
-            find padavan-4.4/trunk/linux-4.4.x -name '*.rej' -print -exec cat {} \; \
+            find padavan-4.4/trunk/linux-4.4.x -name '*.rej' -print -exec cat {} + \
               > imq-patch-rejects.txt
             exit 1
           fi
