@@ -42,6 +42,20 @@ jobs:
           git -C padavan-4.4 checkout --detach FETCH_HEAD
           test "$(git -C padavan-4.4 rev-parse HEAD)" = "$PADAVAN_COMMIT"
 
+      - name: Fetch pinned AmneziaWG module source
+        env:
+          AMNEZIA_SOURCE_COMMIT: d2c5846299949c57a4e867284069900b561dd2a4
+        run: |
+          git init amnezia-source
+          git -C amnezia-source remote add origin https://github.com/nilabsent/padavan-ng.git
+          git -C amnezia-source config remote.origin.promisor true
+          git -C amnezia-source config remote.origin.partialclonefilter blob:none
+          git -C amnezia-source sparse-checkout init --cone
+          git -C amnezia-source sparse-checkout set trunk/linux-3.4.x/net/amneziawg
+          git -C amnezia-source fetch --filter=blob:none --depth=1 origin "$AMNEZIA_SOURCE_COMMIT"
+          git -C amnezia-source checkout --detach FETCH_HEAD
+          test "$(git -C amnezia-source rev-parse HEAD)" = "$AMNEZIA_SOURCE_COMMIT"
+
       - name: Apply WR1200JS board port
         run: |
           patch --batch --forward -p1 -d padavan-4.4 \
@@ -63,6 +77,7 @@ jobs:
           cp overlay/padavan-4.4/trunk/linux-4.4.x/tools/usb/usbip/src/usbip_network.{c,h} \
             padavan-4.4/trunk/linux-4.4.x/tools/usb/usbip/src/
           python3 overlay/padavan-4.4/scripts/add-usbip.py padavan-4.4
+          python3 overlay/padavan-4.4/scripts/add-amneziawg.py padavan-4.4 amnezia-source
           cp overlay/padavan-4.4/trunk/user/rp-l2tp/Makefile \
             padavan-4.4/trunk/user/rp-l2tp/Makefile
           cp overlay/padavan-4.4/trunk/user/ntfs-3g/Makefile \
@@ -150,6 +165,8 @@ jobs:
           if "CONFIG_FIRMWARE_INCLUDE_USBIP=y" in Path("configs.build/wr1200js.config").read_text().splitlines():
               values.update({"CONFIG_USBIP_CORE": "m", "CONFIG_USBIP_HOST": "m",
                              "CONFIG_USBIP_VHCI_HCD": "m"})
+          if "CONFIG_FIRMWARE_INCLUDE_AMNEZIAWG=y" in Path("configs.build/wr1200js.config").read_text().splitlines():
+              values.update({"CONFIG_AMNEZIAWG": "m"})
           for key, value in values.items():
               lines = [line for line in lines if not line.startswith(key + "=")
                        and line != "# " + key + " is not set"]
@@ -309,6 +326,14 @@ jobs:
             test -s trunk/romfs/lib/libudev.so.1
             python3 ../overlay/padavan-4.4/scripts/verify-usbip-elf.py \
               trunk/romfs ../usbip-elf-dependencies.json
+          fi
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_AMNEZIAWG=y$' trunk/.config; then
+            grep -q '^CONFIG_AMNEZIAWG=m$' trunk/linux-4.4.x/.config
+            awg_module="$(find trunk/romfs/lib/modules -name amneziawg.ko -print -quit)"
+            test -n "$awg_module"
+            modinfo -F vermagic "$awg_module" | grep -q '^4\.4\.198'
+            test -x trunk/romfs/usr/bin/awg
+            readelf -h trunk/romfs/usr/bin/awg | grep -q 'Machine:.*MIPS'
           fi
           grep -a -q 'YouHua WR1200JS' trunk/linux-4.4.x/vmlinux
           cp trunk/.config ../firmware-effective.config
