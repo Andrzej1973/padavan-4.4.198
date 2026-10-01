@@ -55,6 +55,8 @@ jobs:
           cp overlay/padavan-4.4/trunk/user/ndisc6/Makefile \
             padavan-4.4/trunk/user/ndisc6/Makefile
           python3 overlay/padavan-4.4/scripts/add-ndisc6.py padavan-4.4
+          cp overlay/padavan-4.4/trunk/user/rp-l2tp/Makefile \
+            padavan-4.4/trunk/user/rp-l2tp/Makefile
           cp overlay/padavan-4.4/trunk/user/ntfs-3g/Makefile \
             padavan-4.4/trunk/user/ntfs-3g/Makefile
           cp overlay/padavan-4.4/trunk/configs/boards/WR1200JS/board.h \
@@ -250,7 +252,8 @@ jobs:
         run: |
           cd padavan-4.4
           make WR1200JS TOOLCHAIN=mipsel-linux-uclibc
-          for option in USB QOS IMQ IFB IPSET XFRM; do
+          set -x
+          for option in QOS IMQ IFB IPSET XFRM; do
             grep -q "^CONFIG_FIRMWARE_INCLUDE_${option}=y$" trunk/.config
           done
           grep -q '^CONFIG_FIRMWARE_ENABLE_USB=y$' trunk/.config
