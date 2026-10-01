@@ -1,0 +1,243 @@
+name: Padavan Linux 4.4.198 WR1200JS
+run-name: "WR1200JS Linux 4.4.198 build"
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-wr1200js:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 120
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            autoconf automake autopoint cmake bison build-essential flex \
+            gawk gettext git gperf libtool libtool-bin pkg-config fakeroot \
+            kmod cpio texinfo help2man libncurses5-dev zlib1g-dev \
+            libsqlite3-dev gcc-multilib curl dos2unix unzip wget xxd \
+            libltdl-dev libgmp-dev libmpfr-dev libarchive-tools libblkid-dev \
+            python3-docutils
+
+      - name: Fetch pinned Padavan 4.4.198 source
+        env:
+          PADAVAN_COMMIT: c25283e915a2a00a763774dd255b14aff997285e
+        run: |
+          git init padavan-4.4
+          git -C padavan-4.4 remote add origin https://github.com/vipshmily/padavan-4.4.git
+          git -C padavan-4.4 fetch --depth=1 origin "$PADAVAN_COMMIT"
+          git -C padavan-4.4 checkout --detach FETCH_HEAD
+          test "$(git -C padavan-4.4 rev-parse HEAD)" = "$PADAVAN_COMMIT"
+
+      - name: Apply WR1200JS board port
+        run: |
+          cp overlay/padavan-4.4/trunk/configs/boards/WR1200JS/board.h \
+            padavan-4.4/trunk/configs/boards/WR1200JS/board.h
+          cp overlay/padavan-4.4/trunk/configs/boards/WR1200JS/partitions.config \
+            padavan-4.4/trunk/configs/boards/WR1200JS/partitions.config
+          patch --batch --forward --dry-run -p1 \
+            -d padavan-4.4/trunk/linux-4.4.x \
+            < overlay/padavan-4.4/patches/linux-4.4-imq.diff
+          patch --batch --forward -p1 \
+            -d padavan-4.4/trunk/linux-4.4.x \
+            < overlay/padavan-4.4/patches/linux-4.4-imq.diff
+          # Merge only USB/PHY configuration from the one-USB reference board,
+          # retaining the complete WR1200JS radio and board-specific kernel config.
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          source = Path("padavan-4.4/trunk/configs/boards/K2P-USB/kernel-4.4.x.config").read_text()
+          target_path = Path("padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config")
+          target = target_path.read_text()
+          source_values = {}
+          for line in source.splitlines():
+              match = re.match(r"^(?:# )?(CONFIG_[A-Za-z0-9_]+)(?:=(.*)| is not set)$", line)
+              if match and (match.group(1).startswith("CONFIG_USB")
+                            or match.group(1) == "CONFIG_PHY_MTK_TPHY"):
+                  source_values[match.group(1)] = line
+          keys = set(source_values)
+          merged = []
+          seen = set()
+          for line in target.splitlines():
+              match = re.match(r"^(?:# )?(CONFIG_[A-Za-z0-9_]+)", line)
+              if match and match.group(1) in keys:
+                  key = match.group(1)
+                  merged.append(source_values.get(key, "# " + key + " is not set"))
+                  seen.add(key)
+              else:
+                  merged.append(line)
+          for key in sorted(keys - seen):
+              merged.append(source_values[key])
+          for key in ("CONFIG_USB_XHCI_MTK", "CONFIG_USB_XHCI_HCD"):
+              merged = [line for line in merged
+                        if not line.startswith(key + "=")
+                        and line != "# " + key + " is not set"]
+              merged.append("# " + key + " is not set")
+          target_path.write_text("\n".join(merged) + "\n")
+          PY
+          grep -q '^CONFIG_RALINK_BUILTIN_DTB_NAME="wr1200js"$' \
+            padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
+          grep -q '^CONFIG_FIRST_IF_MT7603E=y$' \
+            padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
+          grep -q '^CONFIG_RT_SECOND_IF_MT7612E=y$' \
+            padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
+          grep -q '^CONFIG_RT_FIRST_IF_RF_OFFSET=0x0$' \
+            padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
+          grep -q '^CONFIG_RT_SECOND_IF_RF_OFFSET=0x8000$' \
+            padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path("padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config")
+          lines = path.read_text().splitlines()
+          values = {
+              "CONFIG_IP_SET": "m",
+              "CONFIG_IP_SET_BITMAP_IP": "m",
+              "CONFIG_IP_SET_BITMAP_PORT": "m",
+              "CONFIG_IP_SET_HASH_IP": "m",
+              "CONFIG_IP_SET_HASH_IPPORT": "m",
+              "CONFIG_IP_SET_HASH_IPPORTIP": "m",
+              "CONFIG_IP_SET_HASH_IPPORTNET": "m",
+              "CONFIG_IP_SET_HASH_NET": "m",
+              "CONFIG_IP_SET_HASH_NETPORT": "m",
+              "CONFIG_IFB": "m",
+              "CONFIG_IMQ": "m",
+              "CONFIG_IMQ_BEHAVIOR_AB": "y",
+              "CONFIG_NETFILTER_XT_TARGET_IMQ": "m",
+          }
+          for key, value in values.items():
+              lines = [line for line in lines if not line.startswith(key + "=")
+                       and line != "# " + key + " is not set"]
+              lines.append(key + "=" + value)
+          path.write_text("\n".join(lines) + "\n")
+          PY
+          python3 - <<'PY'
+          from pathlib import Path
+          import os
+          import re
+          config = Path("padavan-4.4/trunk/configs/templates/WR1200JS.config")
+          source = Path("configs.build/wr1200js.config").read_text().splitlines()
+          text = config.read_text().splitlines()
+          desired = {}
+          for line in source:
+              match = re.match(r"^(CONFIG_FIRMWARE_[A-Za-z0-9_]+)=(.*)$", line)
+              if match and not match.group(1).startswith("CONFIG_CAKE_"):
+                  desired[match.group(1)] = match.group(2)
+          # Keep the destination fork's Ralink/MT7621 board identity.
+          desired.pop("CONFIG_FIRMWARE_PRODUCT_ID", None)
+          copied = set()
+          for index, line in enumerate(text):
+              match = re.match(r"^(?:# )?(CONFIG_FIRMWARE_[A-Za-z0-9_]+)(?:=| is not set$)", line)
+              if match and match.group(1) in desired:
+                  key = match.group(1)
+                  value = desired[key]
+                  text[index] = ("# " + key + " is not set" if value in ("n", "\"n\"")
+                                 else key + "=" + value)
+                  copied.add(key)
+          missing = sorted(set(desired) - copied)
+          Path("unsupported-firmware-options.txt").write_text(
+              "\n".join(missing) + ("\n" if missing else "")
+          )
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
+              summary.write(f"Copied {len(copied)} matching firmware options. "
+                            f"{len(missing)} user options need separate ports.\n")
+              if missing:
+                  summary.write("\nOptions without a matching target selector:\n")
+                  summary.write("\n".join(f"- {key}" for key in missing) + "\n")
+          config.write_text("\n".join(text) + "\n")
+          PY
+          grep -q '^CONFIG_IP_SET=m$' \
+            padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
+          grep -q '^CONFIG_IFB=m$' \
+            padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
+          grep -q '^CONFIG_IP_SET_HASH_NET=m$' \
+            padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
+          grep -q '^CONFIG_IP_SET_HASH_NETPORT=m$' \
+            padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
+          grep -q '^CONFIG_USB_SUPPORT=y$' \
+            padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
+          grep -q '^# CONFIG_USB_XHCI_MTK is not set$' \
+            padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
+          grep -q '^CONFIG_USB_EHCI_HCD=m$' \
+            padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
+          grep -q '^CONFIG_USB_STORAGE=m$' \
+            padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
+          if grep -q 'CAKE' padavan-4.4/trunk/configs/templates/WR1200JS.config; then
+            echo "CAKE must remain excluded from the Linux 4.4 target."
+            exit 1
+          fi
+          mkdir -p padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink
+          cp -a overlay/padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/wr1200js.dts \
+            padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/
+          cp -a overlay/padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/mt7621-spi-16m-wr1200js-layout.dtsi \
+            padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/
+          grep -q 'mt7621-spi-16m-wr1200js-layout.dtsi' \
+            padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/wr1200js.dts \
+            || sed -i 's/#include "mt7621-spi-16m-layout.dtsi"/#include "mt7621-spi-16m-wr1200js-layout.dtsi"/' \
+              padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/wr1200js.dts
+          grep -q 'firmware.*0xf70000' \
+            padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/mt7621-spi-16m-wr1200js-layout.dtsi
+          grep -q 'WR1200JS' padavan-4.4/trunk/configs/boards/WR1200JS/board.mk
+          grep -q 'CONFIG_RALINK_BUILTIN_DTB_NAME="wr1200js"' \
+            padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
+
+      - name: Download the pinned uClibc toolchain
+        run: |
+          mkdir -p padavan-4.4/toolchain/toolchain-mipsel
+          curl --fail --location --retry 5 \
+            --output padavan-4.4/toolchain-mipsel.tar.xz \
+            https://github.com/vipshmily/padavan-4.4/releases/download/toolchain/mipsel-linux-uclibc.tar.xz
+          sha256sum padavan-4.4/toolchain-mipsel.tar.xz | tee toolchain-sha256.txt
+          tar -xJf padavan-4.4/toolchain-mipsel.tar.xz \
+            -C padavan-4.4/toolchain/toolchain-mipsel
+
+      - name: Build WR1200JS firmware
+        run: |
+          cd padavan-4.4
+          make WR1200JS TOOLCHAIN=mipsel-linux-uclibc
+          for option in USB QOS IMQ IFB IPSET XFRM; do
+            grep -q "^CONFIG_FIRMWARE_INCLUDE_${option}=y$" trunk/.config
+          done
+          grep -q '^CONFIG_FIRMWARE_ENABLE_USB=y$' trunk/.config
+          grep -q '^CONFIG_FIRMWARE_ENABLE_EXT4=y$' trunk/.config
+          grep -q '^CONFIG_FIRMWARE_INCLUDE_SSWAN=y$' trunk/.config
+          grep -q '^CONFIG_FIRMWARE_INCLUDE_ZEROTIER=y$' trunk/.config
+          grep -q '^CONFIG_IMQ=m$' trunk/linux-4.4.x/.config
+          grep -q '^CONFIG_NETFILTER_XT_TARGET_IMQ=m$' trunk/linux-4.4.x/.config
+          grep -q '^CONFIG_IFB=m$' trunk/linux-4.4.x/.config
+          grep -q '^CONFIG_IP_SET=m$' trunk/linux-4.4.x/.config
+          grep -q '^CONFIG_USB_STORAGE=m$' trunk/linux-4.4.x/.config
+          grep -a -q 'YouHua WR1200JS' trunk/linux-4.4.x/vmlinux
+          shopt -s nullglob
+          images=(trunk/images/*.trx)
+          (("${#images[@]}" > 0))
+          for image in "${images[@]}"; do
+            test -s "$image"
+            size="$(stat -c %s "$image")"
+            max_size=$((0xf70000))
+            if ((size > max_size)); then
+              echo "Firmware image exceeds the WR1200JS 0xF70000 partition."
+              exit 1
+            fi
+            sha256sum "$image"
+          done
+
+      - name: Upload WR1200JS images and toolchain checksum
+        uses: actions/upload-artifact@v7
+        with:
+          name: padavan-linux-4.4.198-wr1200js
+          retention-days: 14
+          path: |
+            padavan-4.4/trunk/images/*.trx
+            toolchain-sha256.txt
+            unsupported-firmware-options.txt
+

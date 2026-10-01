@@ -1,0 +1,63 @@
+name: Padavan Linux 4.4.198 control build
+run-name: "Padavan 4.4.198 control build"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-control:
+    # This verifies the pinned upstream base and toolchain with its known K2P
+    # target. It does not produce a WR1200JS firmware image.
+    runs-on: ubuntu-22.04
+    timeout-minutes: 120
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            autoconf automake autopoint cmake bison build-essential flex \
+            gawk gettext git gperf libtool libtool-bin pkg-config fakeroot \
+            kmod cpio texinfo help2man libncurses5-dev zlib1g-dev \
+            libsqlite3-dev gcc-multilib curl dos2unix unzip wget xxd \
+            libltdl-dev libgmp-dev libmpfr-dev libarchive-tools libblkid-dev \
+            python3-docutils
+
+      - name: Fetch pinned Padavan 4.4.198 source
+        run: |
+          git clone https://github.com/hanwckf/padavan-4.4.git padavan-4.4
+          git -C padavan-4.4 checkout --detach ff77acc51a4ad5d88660f0ac25a34a1f6f9060c6
+          test "$(git -C padavan-4.4 rev-parse HEAD)" = "ff77acc51a4ad5d88660f0ac25a34a1f6f9060c6"
+
+      - name: Fetch the upstream MIPS little-endian toolchain
+        run: |
+          cd padavan-4.4/toolchain-mipsel
+          curl --fail --location --retry 5 --output mipsel-linux-uclibc.tar.xz \
+            https://github.com/hanwckf/padavan-toolchain/releases/download/linux-4.4-v1.0/mipsel-linux-uclibc.tar.xz
+          sha256sum mipsel-linux-uclibc.tar.xz | tee toolchain-sha256.txt
+          mkdir -p toolchain-4.4.x
+          tar -xJf mipsel-linux-uclibc.tar.xz -C toolchain-4.4.x
+
+      - name: Build upstream K2P control image
+        run: |
+          cd padavan-4.4/trunk
+          mkdir -p images
+          fakeroot ./build_firmware_ci K2P
+          image="$(find images -maxdepth 1 -type f -name '*.trx' -print -quit)"
+          test -n "$image" && test -s "$image"
+          sha256sum "$image"
+
+      - name: Upload control image and toolchain checksum
+        uses: actions/upload-artifact@v7
+        with:
+          name: padavan-linux-4.4.198-k2p-control
+          retention-days: 7
+          path: |
+            padavan-4.4/trunk/images/*.trx
+            padavan-4.4/toolchain-mipsel/toolchain-sha256.txt
+
