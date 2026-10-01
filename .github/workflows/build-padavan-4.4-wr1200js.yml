@@ -3,6 +3,9 @@ run-name: "WR1200JS Linux 4.4.198 build"
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - experimental/hadzhioglu-compare
 
 permissions:
   contents: read
