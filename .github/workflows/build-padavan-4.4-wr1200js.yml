@@ -48,12 +48,15 @@ jobs:
             padavan-4.4/trunk/configs/boards/WR1200JS/board.h
           cp overlay/padavan-4.4/trunk/configs/boards/WR1200JS/partitions.config \
             padavan-4.4/trunk/configs/boards/WR1200JS/partitions.config
-          patch --batch --forward --dry-run -p1 \
-            -d padavan-4.4/trunk/linux-4.4.x \
-            < overlay/padavan-4.4/patches/linux-4.4-imq.diff
-          patch --batch --forward -p1 \
-            -d padavan-4.4/trunk/linux-4.4.x \
-            < overlay/padavan-4.4/patches/linux-4.4-imq.diff
+          # Keep rejected hunks for the vendor-kernel adaptation if a
+          # third-party IMQ backport does not match this pinned tree.
+          if ! patch --batch --forward -p1 \
+              -d padavan-4.4/trunk/linux-4.4.x \
+              < overlay/padavan-4.4/patches/linux-4.4-imq.diff; then
+            find padavan-4.4/trunk/linux-4.4.x -name '*.rej' -print -exec cat {} \; \
+              > imq-patch-rejects.txt
+            exit 1
+          fi
           # Merge only USB/PHY configuration from the one-USB reference board,
           # retaining the complete WR1200JS radio and board-specific kernel config.
           python3 - <<'PY'
@@ -233,6 +236,15 @@ jobs:
             fi
             sha256sum "$image"
           done
+
+      - name: Upload IMQ patch rejects
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: imq-patch-rejects
+          retention-days: 14
+          if-no-files-found: ignore
+          path: imq-patch-rejects.txt
 
       - name: Upload WR1200JS images and toolchain checksum
         uses: actions/upload-artifact@v7
