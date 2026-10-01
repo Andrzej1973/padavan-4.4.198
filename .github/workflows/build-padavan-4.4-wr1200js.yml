@@ -53,10 +53,7 @@ jobs:
           if ! patch --batch --forward -p1 \
               -d padavan-4.4/trunk/linux-4.4.x \
               < overlay/padavan-4.4/patches/linux-4.4-imq.diff; then
-            find padavan-4.4/trunk/linux-4.4.x -name '*.rej' -print -exec cat {} + \
-              > imq-patch-rejects.txt
-            cat imq-patch-rejects.txt
-            exit 1
+            python3 overlay/padavan-4.4/scripts/apply-imq-vendor.py
           fi
           # Merge only USB/PHY configuration from the one-USB reference board,
           # retaining the complete WR1200JS radio and board-specific kernel config.
