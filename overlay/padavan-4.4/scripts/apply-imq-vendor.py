@@ -30,10 +30,13 @@ replace_once("net/core/dev.c", """#include <linux/netfilter_ingress.h>
 #include "net-sysfs.h"
 """)
 replace_once("net/core/dev.c", """#ifdef CONFIG_SHORTCUT_FE
-\t}
+\tif (!skb->fast_forwarded) {
 #endif
 \tif (!list_empty(&ptype_all) || !list_empty(&dev->ptype_all))
 \t\tdev_queue_xmit_nit(skb, dev);
+#ifdef CONFIG_SHORTCUT_FE
+\t}
+#endif
 """, """#ifdef CONFIG_SHORTCUT_FE
 \t}
 #endif
