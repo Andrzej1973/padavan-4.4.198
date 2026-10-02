@@ -1,5 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /* Preserve the source firmware's VPN lifecycle and interface names. */
+#include <stdio.h>
+#include <stdlib.h>
 #include "rc.h"
 
 int start_wireguard_client(void)
