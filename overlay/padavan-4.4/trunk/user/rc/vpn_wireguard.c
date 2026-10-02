@@ -34,3 +34,21 @@ void restart_wireguard_server(void)
 {
 	eval("/usr/bin/wgs.sh", "restart");
 }
+
+static int is_enabled_wireguard_client(void)
+{
+	return nvram_get_int("vpnc_enable") == 1 &&
+	       nvram_get_int("vpnc_type") == 3;
+}
+
+void update_wireguard_client(void)
+{
+	if (is_enabled_wireguard_client())
+		eval("/usr/bin/wgc.sh", "update");
+}
+
+void watchdog_wireguard_client(void)
+{
+	if (is_enabled_wireguard_client())
+		doSystem("/usr/bin/wgc.sh watchdog &");
+}

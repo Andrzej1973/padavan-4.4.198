@@ -59,7 +59,15 @@ path = trunk / "user/rc/rc.h"
 path.write_text(path.read_text() + '\n#if defined(APP_AMNEZIAWG)\n'
     'int start_wireguard_client(void);\nvoid stop_wireguard_client(void);\n'
     'int start_wireguard_server(void);\nvoid stop_wireguard_server(void);\n'
-    'void restart_wireguard_server(void);\n#endif\n')
+    'void restart_wireguard_server(void);\n'
+    'void update_wireguard_client(void);\nvoid watchdog_wireguard_client(void);\n#endif\n')
+edit("user/rc/watchdog.c",
+     '\tinet_handler(is_ap_mode);',
+     '#if defined(APP_AMNEZIAWG)\n\tif (!is_ap_mode)\n'
+     '\t\twatchdog_wireguard_client();\n#endif\n\tinet_handler(is_ap_mode);')
+edit("user/rc/firewall_ex.c", '\t/* enable IPv4 forward */',
+     '#if defined(APP_AMNEZIAWG)\n\tupdate_wireguard_client();\n#endif\n'
+     '\t/* enable IPv4 forward */')
 shutil.copyfile(overlay / "trunk/user/rc/vpn_wireguard.c",
                 trunk / "user/rc/vpn_wireguard.c")
 for name in ("wgc.sh", "wgs.sh", "amneziawg.json"):
