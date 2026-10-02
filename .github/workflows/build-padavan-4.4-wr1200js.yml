@@ -80,6 +80,7 @@ jobs:
           python3 overlay/padavan-4.4/scripts/add-amneziawg.py padavan-4.4 amnezia-source
           python3 overlay/padavan-4.4/scripts/prepare-openssl35.py padavan-4.4 amnezia-source
           python3 overlay/padavan-4.4/scripts/prepare-quic.py padavan-4.4 amnezia-source
+          python3 overlay/padavan-4.4/scripts/add-lua-selector.py padavan-4.4
           python3 overlay/padavan-4.4/ports/sqm/prepare-lifecycle.py padavan-4.4
           python3 overlay/padavan-4.4/ports/sqm/prepare-web.py padavan-4.4
           python3 overlay/padavan-4.4/ports/sqm/prepare-packaging.py padavan-4.4
@@ -369,6 +370,14 @@ jobs:
             readelf -h trunk/romfs/usr/bin/curl | grep -q 'Machine:.*MIPS'
             python3 ../overlay/padavan-4.4/scripts/verify-curl-elf.py \
               trunk/romfs ../curl-elf-dependencies.json
+          fi
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_LUA=y$' trunk/.config; then
+            test -x trunk/romfs/usr/bin/lua
+            readelf -h trunk/romfs/usr/bin/lua | grep -q 'Machine:.*MIPS'
+            test -s trunk/romfs/lib/liblua.so.5.1.5
+            readelf -h trunk/romfs/lib/liblua.so.5.1.5 | grep -q 'Machine:.*MIPS'
+            test -s trunk/romfs/etc_ro/lua/5.1/lib/cjson.so
+            test -s trunk/romfs/etc_ro/lua/5.1/lib/nixio.so
           fi
           if grep -q '^CONFIG_FIRMWARE_INCLUDE_SQM=y$' trunk/.config; then
             grep -q '^CONFIG_NET_SCH_CAKE=m$' trunk/linux-4.4.x/.config
