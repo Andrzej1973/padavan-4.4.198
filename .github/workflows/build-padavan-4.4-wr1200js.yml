@@ -97,6 +97,7 @@ jobs:
           python3 overlay/padavan-4.4/scripts/add-amneziawg-pages.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/preserve-ddns-defaults.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/add-logo-ddns-selectors.py padavan-4.4 amnezia-source
+          python3 overlay/padavan-4.4/scripts/integrate-eoip.py padavan-4.4
           cp overlay/padavan-4.4/trunk/user/rp-l2tp/Makefile \
             padavan-4.4/trunk/user/rp-l2tp/Makefile
           cp overlay/padavan-4.4/trunk/user/ntfs-3g/Makefile \
@@ -426,6 +427,14 @@ jobs:
               fi
             done
             grep -a -q 'wr1200js-sqm.lock' trunk/romfs/sbin/rc
+          fi
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_EOIP=y$' trunk/.config; then
+            eoip_module="$(find trunk/romfs/lib/modules -name eoip.ko -print -quit)"
+            test -n "$eoip_module"
+            modinfo -F vermagic "$eoip_module" | grep -q '^4\.4\.198'
+            test -x trunk/romfs/usr/bin/eoip-ctl
+            readelf -h trunk/romfs/usr/bin/eoip-ctl | grep -q 'Machine:.*MIPS'
+            grep -a -q 'remove name' trunk/romfs/usr/bin/eoip-ctl
           fi
           if grep -q '^CONFIG_FIRMWARE_INCLUDE_VENDOR_LOGO=y$' trunk/.config; then
             cmp trunk/user/www/logo/padavan.png trunk/romfs/www/bootstrap/img/logo.png
