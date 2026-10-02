@@ -20,6 +20,7 @@ if 'SRC_NAME = curl-8.20.0' not in curl:
     raise SystemExit('Unexpected pinned curl recipe')
 # Use the CA bundle already installed by the target, preserving trust behavior.
 curl = curl.replace('/etc/ssl/cert.pem', '/etc/ssl/certs/ca-certificates.crt')
+curl = curl.replace('\t./configure \\', '\tPKG_CONFIG_SYSROOT_DIR="$(STAGEDIR)" ./configure \\')
 curl = '''ifneq (,$(filter y,$(CONFIG_FIRMWARE_INCLUDE_OPENSSL_35) $(CONFIG_FIRMWARE_INCLUDE_QUIC)))
 SSL_VER = 3.5
 else
