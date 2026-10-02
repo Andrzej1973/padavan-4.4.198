@@ -485,6 +485,13 @@ jobs:
           test -s "$candidate/eoip.ko"
           readelf -h "$candidate/eoip.ko" | grep -q 'Machine:.*MIPS'
           modinfo -F vermagic "$candidate/eoip.ko" | grep -q '^4\.4\.198'
+          tool="${candidate%/unified}"
+          "$compiler" -Os -std=gnu99 -Wall -Wextra -o "$tool/eoip" \
+            "$tool/eoipcr.c" "$tool/libnetlink.c" 2>&1 | tee eoip-tool-compile.log
+          test -s "$tool/eoip"
+          readelf -h "$tool/eoip" | grep -q 'Machine:.*MIPS'
+          readelf -l "$tool/eoip" | grep -q '/lib/ld-uClibc.so.0'
+
 
       - name: Upload EoIP candidate diagnostics
         if: always()
@@ -495,7 +502,9 @@ jobs:
           retention-days: 14
           path: |
             eoip-compile.log
+            eoip-tool-compile.log
             overlay/padavan-4.4/candidates/eoip/unified/eoip.ko
+            overlay/padavan-4.4/candidates/eoip/eoip
 
       - name: Compile MT7621 systick candidate objects
         run: |
