@@ -530,6 +530,44 @@ jobs:
             overlay/padavan-4.4/candidates/eoip/unified/eoip.ko
             overlay/padavan-4.4/candidates/eoip/eoip
 
+      - name: Compile PCRE2 candidate for modern Privoxy
+        run: |
+          set -euo pipefail
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          cross="${compiler%gcc}"
+          mkdir -p pcre2-candidate-build
+          cd pcre2-candidate-build
+          curl --fail --location --retry 3 --output pcre2-10.49.tar.bz2 \
+            https://github.com/PCRE2Project/pcre2/releases/download/pcre2-10.49/pcre2-10.49.tar.bz2
+          echo '53c156e1ba416a20da8e65395daa132da0d80e76910424caca3fcdae7831d384  pcre2-10.49.tar.bz2' | sha256sum -c -
+          tar xjf pcre2-10.49.tar.bz2
+          cd pcre2-10.49
+          CC="$compiler" AR="${cross}ar" RANLIB="${cross}ranlib" \
+            CFLAGS="-Os -fPIC -mips32r2" \
+            ./configure --host=mipsel-linux-uclibc --build="$(gcc -dumpmachine)" \
+              --prefix=/ --libdir=/lib --includedir=/include \
+              --enable-pcre2-8 --disable-pcre2-16 --disable-pcre2-32 \
+              --enable-unicode --disable-jit --enable-shared --enable-static \
+              --disable-pcre2grep-libz --disable-pcre2grep-libbz2 \
+              2>&1 | tee ../configure.log
+          make -j2 2>&1 | tee ../compile.log
+          make install DESTDIR="$PWD/../stage"
+          readelf -h ../stage/lib/libpcre2-8.so.0 | grep -q 'Machine:.*MIPS'
+          readelf -d ../stage/lib/libpcre2-8.so.0 > ../elf-dependencies.txt
+
+      - name: Upload PCRE2 candidate diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: pcre2-candidate
+          if-no-files-found: ignore
+          retention-days: 14
+          path: |
+            pcre2-candidate-build/*.log
+            pcre2-candidate-build/elf-dependencies.txt
+            pcre2-candidate-build/stage/lib/libpcre2-8.so*
+
       - name: Compile MT7621 systick candidate objects
         run: |
           set -euo pipefail
