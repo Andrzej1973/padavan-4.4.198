@@ -18,6 +18,7 @@ curl --fail --location --retry 3 --output "$archive" \
 echo "6f91267f81f626c416994db89ab62f4d09246eebf4754b81186e13a18ee9028f  $archive" | sha256sum -c -
 tar xzf "$archive"
 cd privoxy-4.2.0-stable
+autoheader
 autoconf
 CC="$TARGET_CC" \
 CFLAGS="$TARGET_CFLAGS" \
@@ -29,8 +30,10 @@ PKG_CONFIG_LIBDIR="$PCRE2_STAGE/lib/pkgconfig:$TARGET_STAGE/lib/pkgconfig" \
   --prefix=/usr --sysconfdir=/etc/storage/privoxy \
   --disable-pcre-jit-compilation \
   --without-openssl --without-mbedtls --without-wolfssl \
-  > ../configure.log 2>&1
-make -j2 > ../compile.log 2>&1
+  > ../configure.log 2>&1 || { cat ../configure.log; exit 1; }
+cat ../configure.log
+make -j2 > ../compile.log 2>&1 || { cat ../compile.log; exit 1; }
+cat ../compile.log
 readelf -h privoxy > ../elf-header.txt
 grep -q 'Machine:.*MIPS' ../elf-header.txt
 readelf -d privoxy > ../elf-dependencies.txt
