@@ -96,6 +96,7 @@ jobs:
           python3 overlay/padavan-4.4/scripts/add-amneziawg-vpn-labels.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/add-amneziawg-pages.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/preserve-ddns-defaults.py padavan-4.4
+          python3 overlay/padavan-4.4/scripts/add-logo-ddns-selectors.py padavan-4.4 amnezia-source
           cp overlay/padavan-4.4/trunk/user/rp-l2tp/Makefile \
             padavan-4.4/trunk/user/rp-l2tp/Makefile
           cp overlay/padavan-4.4/trunk/user/ntfs-3g/Makefile \
@@ -426,6 +427,10 @@ jobs:
             done
             grep -a -q 'wr1200js-sqm.lock' trunk/romfs/sbin/rc
           fi
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_VENDOR_LOGO=y$' trunk/.config; then
+            cmp trunk/user/www/logo/padavan.png trunk/romfs/www/bootstrap/img/logo.png
+          fi
+          grep -q '^CONFIG_FIRMWARE_INCLUDE_DDNS_SSL=y$' trunk/.config
           python3 ../overlay/padavan-4.4/scripts/verify-ddns-elf.py \
             trunk/romfs ../ddns-elf-dependencies.json
           grep -a -q 'YouHua WR1200JS' trunk/linux-4.4.x/vmlinux
