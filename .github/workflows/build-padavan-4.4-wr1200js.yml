@@ -353,6 +353,8 @@ jobs:
             ! grep -q '/lib/modules/3.4.113/' trunk/romfs/usr/bin/wgs.sh
             readelf -h trunk/romfs/usr/bin/awg | grep -q 'Machine:.*MIPS'
           fi
+          python3 ../overlay/padavan-4.4/scripts/verify-ddns-elf.py \
+            trunk/romfs ../ddns-elf-dependencies.json
           grep -a -q 'YouHua WR1200JS' trunk/linux-4.4.x/vmlinux
           cp trunk/.config ../firmware-effective.config
           cp trunk/linux-4.4.x/.config ../kernel-effective.config
@@ -393,4 +395,5 @@ jobs:
             firmware-effective.config
             kernel-effective.config
             usbip-elf-dependencies.json
+            ddns-elf-dependencies.json
 
