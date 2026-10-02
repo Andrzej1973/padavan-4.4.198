@@ -29,6 +29,31 @@ for relative, category in (("user/shared/defaults.c", "defaults"),
         match = matches[0]
         text = text[:match.end()] + addition + text[match.end():]
     path.write_text(text)
+
+# WireGuard client private/public keys are 44-character base64 strings.
+# Keep the existing five ACL columns in order and append the public key.
+path = trunk / "user/httpd/variables.c"
+text = path.read_text()
+pattern = re.compile(r"(struct variable variables_LANHostConfig_VPNSACLList\[\] = \{)(.*?)(\n\s*\};)", re.S)
+matches = list(pattern.finditer(text))
+if len(matches) != 1:
+    raise SystemExit("Missing or ambiguous VPN server ACL schema")
+match = matches[0]
+body = match.group(2)
+old_password = '{"vpns_pass_x", "32", NULL, FALSE}'
+if body.count(old_password) != 1 or '"vpns_public_x"' in body:
+    raise SystemExit("Unexpected VPN server ACL columns")
+body = body.replace(old_password, '{"vpns_pass_x", "44", NULL, FALSE}')
+terminator = "\t\t\t{0,0,0,0}"
+if body.count(terminator) != 1:
+    raise SystemExit("Missing VPN server ACL terminator")
+body = body.replace(terminator, '#if defined(APP_AMNEZIAWG)\n'
+                    '\t\t\t{"vpns_public_x", "44", NULL, FALSE},\n'
+                    '#endif\n' + terminator)
+text = text[:match.start(2)] + body + text[match.end(2):]
+path.write_text(text)
+print("Preserved VPN server ACL columns and 44-character key fields")
+
 path = trunk / "user/shared/cflags.mk"
 text = path.read_text()
 if "APP_AMNEZIAWG" in text:
