@@ -144,6 +144,40 @@ static int list(void) {
 	return 0;
 }
 
+static int eoip_remove(const char *name) {
+	struct {
+		struct nlmsghdr msg;
+		struct ifinfomsg ifi;
+	} req;
+	struct rtnl_handle rth = { .fd = -1 };
+	unsigned int index;
+	int result;
+	if (!name || !*name || strlen(name) >= IFNAMSIZ ||
+	    strchr(name, '/') || strchr(name, ':') || strchr(name, ' ') ||
+	    strchr(name, '\t') || strchr(name, '\n')) {
+		fprintf(stderr, "invalid interface name\n");
+		return 1;
+	}
+	index = if_nametoindex(name);
+	if (!index) {
+		fprintf(stderr, "unable to get interface %s index: %s\n", name, strerror(errno));
+		return 3;
+	}
+	memset(&req, 0, sizeof(req));
+	req.msg.nlmsg_len = NLMSG_LENGTH(sizeof(req.ifi));
+	req.msg.nlmsg_type = RTM_DELLINK;
+	req.msg.nlmsg_flags = NLM_F_REQUEST;
+	req.ifi.ifi_family = AF_UNSPEC;
+	req.ifi.ifi_index = index;
+	if (rtnl_open(&rth, 0) < 0) {
+		rtnl_close(&rth);
+		return 2;
+	}
+	result = rtnl_talk(&rth, &req.msg, 0, 0, NULL);
+	rtnl_close(&rth);
+	return result < 0 ? 2 : 0;
+}
+
 static int eoip_add(int excl,char *name,uint32_t tunnelid,int af,void *sip,void *dip,uint32_t link,uint8_t ttl,uint8_t tos,int kaset,uint32_t kai,uint8_t kar) {
 	struct {
 		struct nlmsghdr msg;
@@ -239,6 +273,7 @@ typedef enum {
 	C_LIST,
 	C_ADD,
 	C_SET,
+	C_REMOVE,
 	C_VER,
 	C_HELP,
 	P_LOCAL,
@@ -263,6 +298,7 @@ static s_cmd cmds[] = {
 	{ .cmd = "new", .cid = C_ADD, },
 	{ .cmd = "set", .cid = C_SET, },
 	{ .cmd = "change", .cid = C_SET, },
+	{ .cmd = "remove", .cid = C_REMOVE, },
 	{ .cmd = "version", .cid = C_VER, },
 	{ .cmd = "--version", .cid = C_VER, },
 	{ .cmd = "-v", .cid = C_VER, },
@@ -322,12 +358,13 @@ static void usage(char *me) {
 	printf("usage:\n"
 		"\t%s add [name <name>] tunnel-id <id> [local <ip>] remote <ip> [ttl <ttl>] [tos <tos>] [link <ifindex|ifname>] [keepalive none|<secs>[,<retries>]]\n"
 		"\t%s set  name <name>  tunnel-id <id> [local <ip>] remote <ip> [ttl <ttl>] [tos <tos>] [link <ifindex|ifname>] [keepalive none|<secs>[,<retries>]]\n"
+		"\t%s remove name <name>\n"
 		"\t%s list\n"
 		"\t%s version\n"
 		"notes:\n"
 		"\tIPv6 local/remote addresses select the eoipv6 tunnel kind (tunnel-id 0..4095)\n"
 		"\tkeepalive is off by default; retries defaults to 10 (the RouterOS default is 10,10); retries 0 means send-only\n"
-		,me,me,me,me);
+		,me,me,me,me,me);
 }
 
 int main(int argc,char **argv) {
@@ -350,6 +387,12 @@ int main(int argc,char **argv) {
 				if (argc > 2)
 					goto dafeutl;
 				return list()?1:0;
+			case C_REMOVE:
+				if (argc != 4 || find_cmd(prms, argv[2]) != P_NAME) {
+					usage(argv[0]);
+					return 1;
+				}
+				return eoip_remove(argv[3]);
 			case C_SET:
 				excl = 0;
 				// fall through
