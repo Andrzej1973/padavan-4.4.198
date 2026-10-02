@@ -51,7 +51,7 @@ jobs:
           git -C amnezia-source config remote.origin.promisor true
           git -C amnezia-source config remote.origin.partialclonefilter blob:none
           git -C amnezia-source sparse-checkout init --cone
-          git -C amnezia-source sparse-checkout set trunk/linux-3.4.x/net/amneziawg trunk/libs/libssl/3.5 trunk/libs/libcurl trunk/libs/libngtcp2 trunk/libs/libnghttp3 trunk/libs/libnghttp2 trunk/user/www/logo
+          git -C amnezia-source sparse-checkout set trunk/linux-3.4.x/net/amneziawg trunk/libs/libssl/3.5 trunk/libs/libcurl trunk/libs/libngtcp2 trunk/libs/libnghttp3 trunk/libs/libnghttp2 trunk/user/www/logo trunk/user/dnsmasq
           git -C amnezia-source fetch --filter=blob:none --depth=1 origin "$AMNEZIA_SOURCE_COMMIT"
           git -C amnezia-source checkout --detach FETCH_HEAD
           test "$(git -C amnezia-source rev-parse HEAD)" = "$AMNEZIA_SOURCE_COMMIT"
@@ -100,6 +100,7 @@ jobs:
           python3 overlay/padavan-4.4/scripts/preserve-ddns-defaults.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/add-logo-ddns-selectors.py padavan-4.4 amnezia-source
           python3 overlay/padavan-4.4/scripts/integrate-eoip.py padavan-4.4
+          python3 overlay/padavan-4.4/scripts/integrate-dnsmasq-regex.py padavan-4.4 amnezia-source
           cp overlay/padavan-4.4/trunk/user/rp-l2tp/Makefile \
             padavan-4.4/trunk/user/rp-l2tp/Makefile
           cp overlay/padavan-4.4/trunk/user/ntfs-3g/Makefile \
@@ -429,6 +430,13 @@ jobs:
               fi
             done
             grep -a -q 'wr1200js-sqm.lock' trunk/romfs/sbin/rc
+          fi
+          if grep -q '^CONFIG_FIRMWARE_ENABLE_DNSMASQ_REGEX=y$' trunk/.config; then
+            test -x trunk/romfs/usr/sbin/dnsmasq
+            readelf -h trunk/romfs/usr/sbin/dnsmasq | grep -q 'Machine:.*MIPS'
+            readelf -d trunk/romfs/usr/sbin/dnsmasq | grep -q 'Shared library:.*libpcre'
+            find trunk/romfs/lib -name 'libpcre.so.*' -type f | grep -q .
+            grep -a -q 'regex' trunk/romfs/usr/sbin/dnsmasq
           fi
           if grep -q '^CONFIG_FIRMWARE_INCLUDE_EOIP=y$' trunk/.config; then
             eoip_module="$(find trunk/romfs/lib/modules -name eoip.ko -print -quit)"
