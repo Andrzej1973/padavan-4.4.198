@@ -20,5 +20,9 @@ romfs:
 	$(ROMFSINST) -s awg /usr/bin/wg
 	$(ROMFSINST) -s ../bin/awg /usr/sbin/wg
 
+	$(ROMFSINST) -p +x wgc.sh /usr/bin/wgc.sh
+	$(ROMFSINST) -p +x wgs.sh /usr/bin/wgs.sh
+	$(ROMFSINST) amneziawg.json /www/amneziawg.json
+
 clean:
 	if [ -f $(SRC_NAME)/src/Makefile ]; then $(MAKE) -C $(SRC_NAME)/src clean; fi

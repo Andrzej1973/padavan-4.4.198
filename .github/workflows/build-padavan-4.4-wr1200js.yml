@@ -79,6 +79,7 @@ jobs:
           python3 overlay/padavan-4.4/scripts/add-usbip.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/add-amneziawg.py padavan-4.4 amnezia-source
           python3 overlay/padavan-4.4/scripts/add-amneziawg-nvram.py padavan-4.4
+          python3 overlay/padavan-4.4/scripts/add-amneziawg-lifecycle.py padavan-4.4
           cp overlay/padavan-4.4/trunk/user/rp-l2tp/Makefile \
             padavan-4.4/trunk/user/rp-l2tp/Makefile
           cp overlay/padavan-4.4/trunk/user/ntfs-3g/Makefile \
@@ -334,6 +335,11 @@ jobs:
             test -n "$awg_module"
             modinfo -F vermagic "$awg_module" | grep -q '^4\.4\.198'
             test -x trunk/romfs/usr/bin/awg
+            test -x trunk/romfs/usr/bin/wgc.sh
+            test -x trunk/romfs/usr/bin/wgs.sh
+            test -L trunk/romfs/sbin/update_resolvconf
+            ! grep -q '/lib/modules/3.4.113/' trunk/romfs/usr/bin/wgc.sh
+            ! grep -q '/lib/modules/3.4.113/' trunk/romfs/usr/bin/wgs.sh
             readelf -h trunk/romfs/usr/bin/awg | grep -q 'Machine:.*MIPS'
           fi
           grep -a -q 'YouHua WR1200JS' trunk/linux-4.4.x/vmlinux
