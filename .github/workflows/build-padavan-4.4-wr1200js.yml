@@ -367,6 +367,8 @@ jobs:
             grep -q '^#define USE_NGHTTP3 1$' trunk/libs/libcurl/curl-8.20.0/lib/curl_config.h
             test -x trunk/romfs/usr/bin/curl
             readelf -h trunk/romfs/usr/bin/curl | grep -q 'Machine:.*MIPS'
+            python3 ../overlay/padavan-4.4/scripts/verify-curl-elf.py \
+              trunk/romfs ../curl-elf-dependencies.json
           fi
           if grep -q '^CONFIG_FIRMWARE_INCLUDE_SQM=y$' trunk/.config; then
             grep -q '^CONFIG_NET_SCH_CAKE=m$' trunk/linux-4.4.x/.config
@@ -382,8 +384,11 @@ jobs:
             ! grep -q 'nvram commit' trunk/romfs/usr/lib/sqm/run.sh
             ! grep -q 'hwqos.sh' trunk/romfs/usr/lib/sqm/run.sh
             grep -q 'SQM_CAKE_Enable' trunk/romfs/www/Advanced_SQM.asp
-            for language in EN UK RU; do
-              grep -q '^SQM_CAKE_Enable=' "trunk/romfs/www/$language.dict"
+            grep -q '^SQM_CAKE_Enable=' trunk/romfs/www/EN.dict
+            for language in UK RU; do
+              if grep -q "^CONFIG_FIRMWARE_INCLUDE_LANG_${language}=y$" trunk/.config; then
+                grep -q '^SQM_CAKE_Enable=' "trunk/romfs/www/$language.dict"
+              fi
             done
             grep -a -q 'wr1200js-sqm.lock' trunk/romfs/sbin/rc
           fi
@@ -430,6 +435,7 @@ jobs:
             kernel-effective.config
             usbip-elf-dependencies.json
             ddns-elf-dependencies.json
+            curl-elf-dependencies.json
 
 
       - name: Compile MT7621 systick candidate objects
