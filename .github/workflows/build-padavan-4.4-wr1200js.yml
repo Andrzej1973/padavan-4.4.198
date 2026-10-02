@@ -85,6 +85,7 @@ jobs:
           python3 overlay/padavan-4.4/scripts/add-amneziawg-web-actions.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/add-amneziawg-web-assets.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/add-amneziawg-vpn-labels.py padavan-4.4
+          python3 overlay/padavan-4.4/scripts/add-amneziawg-pages.py padavan-4.4
           cp overlay/padavan-4.4/trunk/user/rp-l2tp/Makefile \
             padavan-4.4/trunk/user/rp-l2tp/Makefile
           cp overlay/padavan-4.4/trunk/user/ntfs-3g/Makefile \
@@ -335,6 +336,10 @@ jobs:
               trunk/romfs ../usbip-elf-dependencies.json
           fi
           if grep -q '^CONFIG_FIRMWARE_INCLUDE_AMNEZIAWG=y$' trunk/.config; then
+            for page in vpncli.asp vpnsrv.asp; do
+              test -s "trunk/romfs/www/$page"
+              grep -q 'found_app_awg' "trunk/romfs/www/$page"
+            done
             grep -q '^CONFIG_AMNEZIAWG=m$' trunk/linux-4.4.x/.config
             awg_module="$(find trunk/romfs/lib/modules -name amneziawg.ko -print -quit)"
             test -n "$awg_module"
