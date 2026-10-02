@@ -198,7 +198,7 @@ jobs:
           desired = {}
           enabled_requests = set()
           for line in source:
-              match = re.match(r"^(#\\s*)?(CONFIG_FIRMWARE_[A-Za-z0-9_]+)=(.*)$", line)
+              match = re.match(r"^(#\s*)?(CONFIG_FIRMWARE_[A-Za-z0-9_]+)=(.*)$", line)
               if match:
                   key, value = match.group(2), match.group(3)
                   value = "n" if match.group(1) else value
@@ -219,14 +219,14 @@ jobs:
                   "y" if any(desired.get(key) == "y" for key in ss_modes) else "n")
           # Do not inherit optional services or languages from the target board.
           for line in text:
-              match = re.match(r"^(?:#\\s*)?(CONFIG_FIRMWARE_INCLUDE_[A-Za-z0-9_]+)=", line)
+              match = re.match(r"^(?:#\s*)?(CONFIG_FIRMWARE_INCLUDE_[A-Za-z0-9_]+)=", line)
               if match:
                   desired.setdefault(match.group(1), "n")
           # Keep the destination fork's Ralink/MT7621 board identity.
           desired.pop("CONFIG_FIRMWARE_PRODUCT_ID", None)
           copied = set()
           for index, line in enumerate(text):
-              match = re.match(r"^(?:# )?(CONFIG_FIRMWARE_[A-Za-z0-9_]+)(?:=| is not set$)", line)
+              match = re.match(r"^(?:#\s*)?(CONFIG_FIRMWARE_[A-Za-z0-9_]+)(?:=| is not set$)", line)
               if match and match.group(1) in desired:
                   key = match.group(1)
                   value = desired[key]
