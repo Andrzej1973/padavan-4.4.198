@@ -82,6 +82,7 @@ jobs:
           python3 overlay/padavan-4.4/scripts/add-amneziawg-lifecycle.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/add-amneziawg-firewall.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/add-amneziawg-web-capabilities.py padavan-4.4
+          python3 overlay/padavan-4.4/scripts/add-amneziawg-web-actions.py padavan-4.4
           cp overlay/padavan-4.4/trunk/user/rp-l2tp/Makefile \
             padavan-4.4/trunk/user/rp-l2tp/Makefile
           cp overlay/padavan-4.4/trunk/user/ntfs-3g/Makefile \
