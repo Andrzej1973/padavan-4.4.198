@@ -82,6 +82,7 @@ jobs:
           python3 overlay/padavan-4.4/scripts/prepare-quic.py padavan-4.4 amnezia-source
           python3 overlay/padavan-4.4/scripts/add-lua-selector.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/add-fs-tools-selector.py padavan-4.4
+          python3 overlay/padavan-4.4/scripts/add-tproxy-selector.py padavan-4.4
           python3 overlay/padavan-4.4/ports/sqm/prepare-lifecycle.py padavan-4.4
           python3 overlay/padavan-4.4/ports/sqm/prepare-web.py padavan-4.4
           python3 overlay/padavan-4.4/ports/sqm/prepare-packaging.py padavan-4.4
@@ -371,6 +372,17 @@ jobs:
             readelf -h trunk/romfs/usr/bin/curl | grep -q 'Machine:.*MIPS'
             python3 ../overlay/padavan-4.4/scripts/verify-curl-elf.py \
               trunk/romfs ../curl-elf-dependencies.json
+          fi
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_TPROXY=y$' trunk/.config; then
+            grep -q '^CONFIG_NETFILTER_XT_TARGET_TPROXY=m$' trunk/linux-4.4.x/.config
+            tproxy_module="$(find trunk/romfs/lib/modules -name xt_TPROXY.ko -print -quit)"
+            test -n "$tproxy_module"
+            modinfo -F vermagic "$tproxy_module" | grep -q '^4.4.198'
+            readelf -h "$tproxy_module" | grep -q 'Machine:.*MIPS'
+            test -x trunk/romfs/bin/xtables-multi
+            grep -a -q TPROXY trunk/romfs/bin/xtables-multi
+            test -s trunk/user/iptables/iptables-1.8.7/extensions/libxt_TPROXY.o
+            test -s trunk/user/iptables/iptables-1.8.7/extensions/libxt_socket.o
           fi
           if grep -q '^CONFIG_FIRMWARE_INCLUDE_FS_TOOLS=y$' trunk/.config; then
             if grep -Eq '^CONFIG_FIRMWARE_ENABLE_EXT[234]=y$' trunk/.config; then
