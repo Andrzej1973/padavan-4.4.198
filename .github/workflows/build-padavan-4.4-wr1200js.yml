@@ -51,7 +51,7 @@ jobs:
           git -C amnezia-source config remote.origin.promisor true
           git -C amnezia-source config remote.origin.partialclonefilter blob:none
           git -C amnezia-source sparse-checkout init --cone
-          git -C amnezia-source sparse-checkout set trunk/linux-3.4.x/net/amneziawg
+          git -C amnezia-source sparse-checkout set trunk/linux-3.4.x/net/amneziawg trunk/libs/libssl/3.5
           git -C amnezia-source fetch --filter=blob:none --depth=1 origin "$AMNEZIA_SOURCE_COMMIT"
           git -C amnezia-source checkout --detach FETCH_HEAD
           test "$(git -C amnezia-source rev-parse HEAD)" = "$AMNEZIA_SOURCE_COMMIT"
@@ -78,6 +78,7 @@ jobs:
             padavan-4.4/trunk/linux-4.4.x/tools/usb/usbip/src/
           python3 overlay/padavan-4.4/scripts/add-usbip.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/add-amneziawg.py padavan-4.4 amnezia-source
+          python3 overlay/padavan-4.4/scripts/prepare-openssl35.py padavan-4.4 amnezia-source
           python3 overlay/padavan-4.4/scripts/add-amneziawg-nvram.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/add-amneziawg-lifecycle.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/add-amneziawg-firewall.py padavan-4.4
@@ -352,6 +353,162 @@ jobs:
             ! grep -q '/lib/modules/3.4.113/' trunk/romfs/usr/bin/wgc.sh
             ! grep -q '/lib/modules/3.4.113/' trunk/romfs/usr/bin/wgs.sh
             readelf -h trunk/romfs/usr/bin/awg | grep -q 'Machine:.*MIPS'
+          fi
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_OPENSSL_35=y \
+            trunk/romfs ../ddns-elf-dependencies.json
+          grep -a -q 'YouHua WR1200JS' trunk/linux-4.4.x/vmlinux
+          cp trunk/.config ../firmware-effective.config
+          cp trunk/linux-4.4.x/.config ../kernel-effective.config
+          cp ../configs.build/wr1200js.config ../firmware-requested.config
+          shopt -s nullglob
+          images=(trunk/images/*.trx)
+          (("${#images[@]}" > 0))
+          for image in "${images[@]}"; do
+            test -s "$image"
+            size="$(stat -c %s "$image")"
+            max_size=$((0xf70000))
+            if ((size > max_size)); then
+              echo "Firmware image exceeds the WR1200JS 0xF70000 partition."
+              exit 1
+            fi
+            sha256sum "$image"
+          done
+
+      - name: Upload IMQ patch rejects
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: imq-patch-rejects
+          retention-days: 14
+          if-no-files-found: ignore
+          path: imq-patch-rejects.txt
+
+      - name: Upload WR1200JS images and toolchain checksum
+        uses: actions/upload-artifact@v7
+        with:
+          name: padavan-linux-4.4.198-wr1200js
+          retention-days: 14
+          path: |
+            padavan-4.4/trunk/images/*.trx
+            toolchain-sha256.txt
+            unsupported-firmware-options.txt
+            firmware-requested.config
+            firmware-effective.config
+            kernel-effective.config
+            usbip-elf-dependencies.json
+            ddns-elf-dependencies.json
+
+
+      - name: Compile MT7621 systick candidate objects
+        run: |
+          set -euo pipefail
+          kernel="$PWD/padavan-4.4/trunk/linux-4.4.x"
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          cross="${compiler%gcc}"
+          candidate="$PWD/overlay/padavan-4.4/candidates/cpu-sleep"
+          cp "$candidate/cevt-mt7621-draft.c" "$kernel/arch/mips/ralink/cevt-mt7621.c"
+          cp "$candidate/cevt-r4k-draft.c" "$kernel/arch/mips/kernel/cevt-r4k.c"
+          cp "$candidate/csrc-r4k-draft.c" "$kernel/arch/mips/kernel/csrc-r4k.c"
+          cp "$candidate/mips-gic-timer-draft.c" "$kernel/drivers/clocksource/mips-gic-timer.c"
+          make -C "$kernel" ARCH=mips CROSS_COMPILE="$cross" \
+            KCFLAGS=-DCONFIG_CLKEVT_MT7621_SYSTICK \
+            arch/mips/ralink/cevt-mt7621.o arch/mips/kernel/cevt-r4k.o \
+            arch/mips/kernel/csrc-r4k.o drivers/clocksource/mips-gic-timer.o \
+            2>&1 | tee cpu-sleep-compile.log
+          for object in arch/mips/ralink/cevt-mt7621.o arch/mips/kernel/cevt-r4k.o arch/mips/kernel/csrc-r4k.o drivers/clocksource/mips-gic-timer.o; do
+            test -s "$kernel/$object"
+            readelf -h "$kernel/$object" | grep -q 'Machine:.*MIPS'
+          done
+
+      - name: Upload candidate compile diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: mt7621-systick-compile
+          if-no-files-found: ignore
+          retention-days: 14
+          path: cpu-sleep-compile.log
+ trunk/.config; then
+            test -s trunk/romfs/lib/libssl.so.3
+            test -s trunk/romfs/lib/libcrypto.so.3
+            test -s trunk/romfs/lib/libatomic.so.1
+            grep -q '^SRC_NAME = openssl-3.5.7 \
+            trunk/romfs ../ddns-elf-dependencies.json
+          grep -a -q 'YouHua WR1200JS' trunk/linux-4.4.x/vmlinux
+          cp trunk/.config ../firmware-effective.config
+          cp trunk/linux-4.4.x/.config ../kernel-effective.config
+          cp ../configs.build/wr1200js.config ../firmware-requested.config
+          shopt -s nullglob
+          images=(trunk/images/*.trx)
+          (("${#images[@]}" > 0))
+          for image in "${images[@]}"; do
+            test -s "$image"
+            size="$(stat -c %s "$image")"
+            max_size=$((0xf70000))
+            if ((size > max_size)); then
+              echo "Firmware image exceeds the WR1200JS 0xF70000 partition."
+              exit 1
+            fi
+            sha256sum "$image"
+          done
+
+      - name: Upload IMQ patch rejects
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: imq-patch-rejects
+          retention-days: 14
+          if-no-files-found: ignore
+          path: imq-patch-rejects.txt
+
+      - name: Upload WR1200JS images and toolchain checksum
+        uses: actions/upload-artifact@v7
+        with:
+          name: padavan-linux-4.4.198-wr1200js
+          retention-days: 14
+          path: |
+            padavan-4.4/trunk/images/*.trx
+            toolchain-sha256.txt
+            unsupported-firmware-options.txt
+            firmware-requested.config
+            firmware-effective.config
+            kernel-effective.config
+            usbip-elf-dependencies.json
+            ddns-elf-dependencies.json
+
+
+      - name: Compile MT7621 systick candidate objects
+        run: |
+          set -euo pipefail
+          kernel="$PWD/padavan-4.4/trunk/linux-4.4.x"
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          cross="${compiler%gcc}"
+          candidate="$PWD/overlay/padavan-4.4/candidates/cpu-sleep"
+          cp "$candidate/cevt-mt7621-draft.c" "$kernel/arch/mips/ralink/cevt-mt7621.c"
+          cp "$candidate/cevt-r4k-draft.c" "$kernel/arch/mips/kernel/cevt-r4k.c"
+          cp "$candidate/csrc-r4k-draft.c" "$kernel/arch/mips/kernel/csrc-r4k.c"
+          cp "$candidate/mips-gic-timer-draft.c" "$kernel/drivers/clocksource/mips-gic-timer.c"
+          make -C "$kernel" ARCH=mips CROSS_COMPILE="$cross" \
+            KCFLAGS=-DCONFIG_CLKEVT_MT7621_SYSTICK \
+            arch/mips/ralink/cevt-mt7621.o arch/mips/kernel/cevt-r4k.o \
+            arch/mips/kernel/csrc-r4k.o drivers/clocksource/mips-gic-timer.o \
+            2>&1 | tee cpu-sleep-compile.log
+          for object in arch/mips/ralink/cevt-mt7621.o arch/mips/kernel/cevt-r4k.o arch/mips/kernel/csrc-r4k.o drivers/clocksource/mips-gic-timer.o; do
+            test -s "$kernel/$object"
+            readelf -h "$kernel/$object" | grep -q 'Machine:.*MIPS'
+          done
+
+      - name: Upload candidate compile diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: mt7621-systick-compile
+          if-no-files-found: ignore
+          retention-days: 14
+          path: cpu-sleep-compile.log
+ trunk/libs/libssl/3.5/Makefile
           fi
           python3 ../overlay/padavan-4.4/scripts/verify-ddns-elf.py \
             trunk/romfs ../ddns-elf-dependencies.json
