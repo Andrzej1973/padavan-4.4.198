@@ -397,3 +397,34 @@ jobs:
             usbip-elf-dependencies.json
             ddns-elf-dependencies.json
 
+
+      - name: Compile MT7621 systick candidate objects
+        run: |
+          set -euo pipefail
+          kernel="$PWD/padavan-4.4/trunk/linux-4.4.x"
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          cross="${compiler%gcc}"
+          candidate="$PWD/overlay/padavan-4.4/candidates/cpu-sleep"
+          cp "$candidate/cevt-mt7621-draft.c" "$kernel/arch/mips/ralink/cevt-mt7621.c"
+          cp "$candidate/cevt-r4k-draft.c" "$kernel/arch/mips/kernel/cevt-r4k.c"
+          cp "$candidate/csrc-r4k-draft.c" "$kernel/arch/mips/kernel/csrc-r4k.c"
+          cp "$candidate/mips-gic-timer-draft.c" "$kernel/drivers/clocksource/mips-gic-timer.c"
+          make -C "$kernel" ARCH=mips CROSS_COMPILE="$cross" \
+            KCFLAGS=-DCONFIG_CLKEVT_MT7621_SYSTICK \
+            arch/mips/ralink/cevt-mt7621.o arch/mips/kernel/cevt-r4k.o \
+            arch/mips/kernel/csrc-r4k.o drivers/clocksource/mips-gic-timer.o \
+            2>&1 | tee cpu-sleep-compile.log
+          for object in arch/mips/ralink/cevt-mt7621.o arch/mips/kernel/cevt-r4k.o arch/mips/kernel/csrc-r4k.o drivers/clocksource/mips-gic-timer.o; do
+            test -s "$kernel/$object"
+            readelf -h "$kernel/$object" | grep -q 'Machine:.*MIPS'
+          done
+
+      - name: Upload candidate compile diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: mt7621-systick-compile
+          if-no-files-found: ignore
+          retention-days: 14
+          path: cpu-sleep-compile.log
