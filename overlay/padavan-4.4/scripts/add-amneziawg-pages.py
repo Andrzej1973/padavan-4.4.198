@@ -26,3 +26,12 @@ for name in ("vpncli.asp", "vpnsrv.asp"):
         raise SystemExit("Missing native VPN page: " + name)
     shutil.copyfile(overlay / name, target / name)
 print("Pinned source VPN client/server pages installed")
+
+# These shared pages also serve native PPTP/L2TP and AmneziaWG.
+makefile = root / "www/Makefile"
+text = makefile.read_text()
+removal = "ifneq ($(CONFIG_FIRMWARE_INCLUDE_SOFTETHERVPN_SERVER),y)\n\trm -f $(INSTALLDIR)/www/vpnsrv.asp\nendif\nifneq ($(CONFIG_FIRMWARE_INCLUDE_SOFTETHERVPN_CLIENT),y)\n\trm -f $(INSTALLDIR)/www/vpn_clients.asp\n\trm -f $(INSTALLDIR)/www/vpncli.asp\nendif"
+if text.count(removal) != 1:
+    raise SystemExit("Unexpected shared VPN page removal rules")
+makefile.write_text(text.replace(removal, "# Shared VPN pages retained for native VPN and AmneziaWG"))
+print("Shared VPN pages retained independently of SoftEther")
