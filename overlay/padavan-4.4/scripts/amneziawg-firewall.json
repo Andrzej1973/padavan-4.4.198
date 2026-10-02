@@ -33,5 +33,15 @@
     "old": "\t\t\t\tint i_vpns_actl = nvram_get_int(\"vpns_actl\");\n#if defined (APP_OPENVPN)",
     "new": "\t\t\t\tint i_vpns_actl = nvram_get_int(\"vpns_actl\");\n#if defined (APP_AMNEZIAWG)\n\t\t\t\tif (i_vpns_type == 3) {\n\t\t\t\t\tif (i_vpns_actl == 0 || i_vpns_actl == 1 || i_vpns_actl == 4) {\n\t\t\t\t\t\tinclude_masquerade(fp, wan_if, wan_ip, vpn_net);\n\n\t\t\t\t\t\t/* masquerade WG client connection for WG server clients */\n\t\t\t\t\t\tif (vpnc_if)\n\t\t\t\t\t\t\tinclude_masquerade(fp, vpnc_if, NULL, vpn_net);\n\t\t\t\t\t}\n\t\t\t\t\tif (i_vpns_vuse == 2)\n\t\t\t\t\t\tinclude_masquerade(fp, lan_if, lan_ip, vpn_net);\n\t\t\t\t} else\n#endif\n#if defined (APP_OPENVPN)",
     "count": 1
+  },
+  {
+    "old": "\t\t\tfprintf(fp, \"-I %s -i %s -p udp --dport 53 -j DNAT --to %s\\n\", \"PREROUTING\", lan_if, lan_ip);",
+    "new": "\t\t\tfprintf(fp, \"-I %s -i %s -p udp --dport 53 -j DNAT --to %s\\n\", \"PREROUTING\", lan_if, lan_ip);\n#if defined (APP_AMNEZIAWG)\n\t\t\tif (i_vpns_enable && i_vpns_type == 3) {\n\t\t\t\tfprintf(fp, \"-I %s -i %s -p tcp --dport 53 -j DNAT --to %s\\n\", \"PREROUTING\", \"wg1\", lan_ip);\n\t\t\t\tfprintf(fp, \"-I %s -i %s -p udp --dport 53 -j DNAT --to %s\\n\", \"PREROUTING\", \"wg1\", lan_ip);\n\t\t\t}\n#endif",
+    "count": 1
+  },
+  {
+    "old": "\t\t\t/* DNAT all other packets to DMZ host (except ICMP - use Port Forwarding to redirect ICMP) */",
+    "new": "#if defined (APP_AMNEZIAWG)\n\t\t\t/* Keep the local AmneziaWG server port out of DMZ DNAT. */\n\t\t\tif (i_vpns_enable && i_vpns_type == 3) {\n\t\t\t\tint port = nvram_safe_get_int(\"vpns_wg_port\", 51820, 1, 65535);\n\t\t\t\tfprintf(fp, \"-A %s -p udp --dport %d -j RETURN\\n\", dtype, port);\n\t\t\t}\n#endif\n\t\t\t/* DNAT all other packets to DMZ host (except ICMP - use Port Forwarding to redirect ICMP) */",
+    "count": 1
   }
 ]
