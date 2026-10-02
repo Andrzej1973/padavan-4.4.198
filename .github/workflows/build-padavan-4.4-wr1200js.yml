@@ -86,6 +86,7 @@ jobs:
           python3 overlay/padavan-4.4/scripts/add-amneziawg-web-assets.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/add-amneziawg-vpn-labels.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/add-amneziawg-pages.py padavan-4.4
+          python3 overlay/padavan-4.4/scripts/preserve-ddns-defaults.py padavan-4.4
           cp overlay/padavan-4.4/trunk/user/rp-l2tp/Makefile \
             padavan-4.4/trunk/user/rp-l2tp/Makefile
           cp overlay/padavan-4.4/trunk/user/ntfs-3g/Makefile \
