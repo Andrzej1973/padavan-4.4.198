@@ -544,7 +544,7 @@ jobs:
           tar xjf pcre2-10.49.tar.bz2
           cd pcre2-10.49
           CC="$compiler" AR="${cross}ar" RANLIB="${cross}ranlib" \
-            CFLAGS="-Os -fPIC -mips32r2" \
+            CFLAGS="-O2 -fPIC -mips32r2" \
             ./configure --host=mipsel-linux-uclibc --build="$(gcc -dumpmachine)" \
               --prefix=/ --libdir=/lib --includedir=/include \
               --enable-pcre2-8 --disable-pcre2-16 --disable-pcre2-32 \
@@ -567,6 +567,33 @@ jobs:
             pcre2-candidate-build/*.log
             pcre2-candidate-build/elf-dependencies.txt
             pcre2-candidate-build/stage/lib/libpcre2-8.so*
+            pcre2-candidate-build/stage/lib/libpcre2-posix.so*
+
+      - name: Compile Privoxy 4.2 candidate
+        run: |
+          set -euo pipefail
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          PRIVOXY_CANDIDATE_DIR="$PWD/privoxy-candidate-build" \
+          TARGET_CC="$compiler" \
+          TARGET_STAGE="$PWD/padavan-4.4/trunk/stage" \
+          PCRE2_STAGE="$PWD/pcre2-candidate-build/stage" \
+          TARGET_CFLAGS="-O2 -mips32r2" \
+            sh overlay/padavan-4.4/candidates/privoxy/compile-privoxy.sh
+
+      - name: Upload Privoxy candidate diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: privoxy-candidate
+          if-no-files-found: ignore
+          retention-days: 14
+          path: |
+            privoxy-candidate-build/*.log
+            privoxy-candidate-build/elf-*.txt
+            privoxy-candidate-build/privoxy-4.2.0-stable/config.log
+            privoxy-candidate-build/privoxy-4.2.0-stable/config.h
+            privoxy-candidate-build/privoxy-4.2.0-stable/privoxy
 
       - name: Compile MT7621 systick candidate objects
         run: |
