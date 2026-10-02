@@ -54,6 +54,22 @@ text = text[:match.start(2)] + body + text[match.end(2):]
 path.write_text(text)
 print("Preserved VPN server ACL columns and 44-character key fields")
 
+
+# Native HTTPD persists scripts.* textareas under /etc/storage.
+# Vendor 4.4 has no separate VPN client reapply event; restart applies changes.
+path = trunk / "user/httpd/variables.c"
+text = path.read_text()
+anchor = '\t\t\t{"scripts.vpnc_server_script.sh", "File", NULL, EVM_RESTART_VPNCLI},'
+fields = ("vpnc_remote_network.list", "vpnc_exclude_network.list", "vpnc_post_script.sh")
+if text.count(anchor) != 1 or any('"scripts.' + name + '"' in text for name in fields):
+    raise SystemExit("Unexpected VPN client file schema")
+addition = "\n#if defined(APP_AMNEZIAWG)\n" + "\n".join(
+    '\t\t\t{"scripts.' + name + '", "File", NULL, EVM_RESTART_VPNCLI},'
+    for name in fields) + "\n#endif"
+text = text.replace(anchor, anchor + addition)
+path.write_text(text)
+print("Registered VPN client route lists and post script")
+
 path = trunk / "user/shared/cflags.mk"
 text = path.read_text()
 if "APP_AMNEZIAWG" in text:
