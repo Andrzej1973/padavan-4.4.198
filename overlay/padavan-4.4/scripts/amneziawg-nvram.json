@@ -40,7 +40,11 @@
     "\t{ \"vpnc_awg_maxhandshakeattempts\", \"3\" },",
     "\t{ \"vpnc_awg_headerprotectionkey\", \"\" },",
     "\t{ \"vpnc_awg_randomtrailers\", \"0\" },",
-    "\t{ \"vpnc_awg_disablecookies\", \"0\" },"
+    "\t{ \"vpnc_awg_disablecookies\", \"0\" },",
+    "\t{ \"vpnc_clients\", \"192.168.1.0/24,10.8.0.0/24\" },",
+    "\t{ \"vpnc_clients_allowed\", \"\" },",
+    "\t{ \"vpnc_ipset\", \"unblock\" },",
+    "\t{ \"vpnc_ipset_allowed\", \"unblock\" },"
   ],
   "variables": [
     "\t\t\t{\"vpns_wg_port\", \"\", NULL, EVM_RESTART_VPNSVR},",
@@ -83,6 +87,10 @@
     "\t\t\t{\"vpnc_awg_maxhandshakeattempts\", \"\", NULL, EVM_RESTART_VPNCLI},",
     "\t\t\t{\"vpnc_awg_headerprotectionkey\", \"\", NULL, EVM_RESTART_VPNCLI},",
     "\t\t\t{\"vpnc_awg_randomtrailers\", \"\", NULL, EVM_RESTART_VPNCLI},",
-    "\t\t\t{\"vpnc_awg_disablecookies\", \"\", NULL, EVM_RESTART_VPNCLI},"
+    "\t\t\t{\"vpnc_awg_disablecookies\", \"\", NULL, EVM_RESTART_VPNCLI},",
+    "\t\t\t{\"vpnc_clients\", \"\", NULL, FALSE},",
+    "\t\t\t{\"vpnc_clients_allowed\", \"\", NULL, EVM_RESTART_VPNCLI},",
+    "\t\t\t{\"vpnc_ipset\", \"\", NULL, FALSE},",
+    "\t\t\t{\"vpnc_ipset_allowed\", \"\", NULL, EVM_RESTART_VPNCLI},"
   ]
 }
