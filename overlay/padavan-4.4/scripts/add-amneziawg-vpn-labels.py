@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 import sys
 
-root = Path(sys.argv[1]) / "trunk/user/www/n56u_ribbon_fixed"
+root = Path(sys.argv[1]) / "trunk/user/www/dict"
 data = json.loads(Path(__file__).with_name("amneziawg-vpn-labels.json").read_text(encoding="utf-8"))
 for language, entries in data["languages"].items():
     path = root / ("EN.footer" if language == "EN" else language + ".dict")
