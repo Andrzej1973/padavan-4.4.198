@@ -1,0 +1,37 @@
+[
+  {
+    "old": "\t\treturn \"ppp+\";",
+    "new": "#if defined (APP_AMNEZIAWG)\n\tif (vpns_type == 3)\n\t\treturn \"wg+\";\n\telse\n#endif\n\t\treturn \"ppp+\";",
+    "count": 1
+  },
+  {
+    "old": "\t\treturn IFNAME_CLIENT_PPP;",
+    "new": "#if defined (APP_AMNEZIAWG)\n\tif (vpnc_type == 3)\n\t\treturn \"wg0\";\n\telse\n#endif\n\t\treturn IFNAME_CLIENT_PPP;",
+    "count": 1
+  },
+  {
+    "old": "\tvpnc_if = NULL;\n\tif (i_vpnc_enable) {\n#if defined (APP_OPENVPN)",
+    "new": "\tvpnc_if = NULL;\n\tif (i_vpnc_enable) {\n#if defined (APP_AMNEZIAWG)\n\t\tif (i_vpnc_type == 3) {\n\t\t\tvpnc_if = \"wg0\";\n\t\t} else\n#endif\n#if defined (APP_OPENVPN)",
+    "count": 2
+  },
+  {
+    "old": "\t\t\tint i_need_vpnlist = 1;\n#if defined (APP_OPENVPN)\n\t\t\tif (i_vpns_type == 2) {",
+    "new": "\t\t\tint i_need_vpnlist = 1;\n#if defined (APP_AMNEZIAWG)\n\t\t\tif (i_vpns_type == 3) {\n\t\t\t\tint i_wg_port = nvram_safe_get_int(\"vpns_wg_port\", 51820, 1, 65535);\n\t\t\t\tfprintf(fp, \"-A %s -p %s --dport %d -j %s\\n\", dtype, \"udp\", i_wg_port, logaccept);\n\t\t\t} else\n#endif\n#if defined (APP_OPENVPN)\n\t\t\tif (i_vpns_type == 2) {",
+    "count": 1
+  },
+  {
+    "old": "\t\t\tint i_vpns_type = nvram_get_int(\"vpns_type\");\n#if defined (APP_OPENVPN)",
+    "new": "\t\t\tint i_vpns_type = nvram_get_int(\"vpns_type\");\n#if defined (APP_AMNEZIAWG)\n\t\t\tif (i_vpns_type == 3) {\n\t\t\t\tint i_wg_port = nvram_safe_get_int(\"vpns_wg_port\", 51820, 1, 65535);\n\t\t\t\tfprintf(fp, \"-A %s -p %s --dport %d -j %s\\n\", dtype, \"udp\", i_wg_port, logaccept);\n\t\t\t} else\n#endif\n#if defined (APP_OPENVPN)",
+    "count": 1
+  },
+  {
+    "old": "\t\t\tinclude_vpns_clients(fp);",
+    "new": "#if defined (APP_AMNEZIAWG)\n\t\tif (i_vpns_type == 3)\n\t\t\tfprintf(fp, \"-A %s -i %s -j %s\\n\", dtype, \"wg1\", ftype);\n\t\telse\n#endif\n\t\t\tinclude_vpns_clients(fp);",
+    "count": 1
+  },
+  {
+    "old": "\t\t\t\tint i_vpns_actl = nvram_get_int(\"vpns_actl\");\n#if defined (APP_OPENVPN)",
+    "new": "\t\t\t\tint i_vpns_actl = nvram_get_int(\"vpns_actl\");\n#if defined (APP_AMNEZIAWG)\n\t\t\t\tif (i_vpns_type == 3) {\n\t\t\t\t\tif (i_vpns_actl == 0 || i_vpns_actl == 1 || i_vpns_actl == 4) {\n\t\t\t\t\t\tinclude_masquerade(fp, wan_if, wan_ip, vpn_net);\n\n\t\t\t\t\t\t/* masquerade WG client connection for WG server clients */\n\t\t\t\t\t\tif (vpnc_if)\n\t\t\t\t\t\t\tinclude_masquerade(fp, vpnc_if, NULL, vpn_net);\n\t\t\t\t\t}\n\t\t\t\t\tif (i_vpns_vuse == 2)\n\t\t\t\t\t\tinclude_masquerade(fp, lan_if, lan_ip, vpn_net);\n\t\t\t\t} else\n#endif\n#if defined (APP_OPENVPN)",
+    "count": 1
+  }
+]
