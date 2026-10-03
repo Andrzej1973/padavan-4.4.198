@@ -48,12 +48,23 @@ for name in options:
     matches = [i for i, line in enumerate(lines)
                if re.fullmatch(re.escape(name) + r'=[ymn]', line)
                or line == '# ' + name + ' is not set']
-    if len(matches) != 1:
+    if len(matches) > 1:
         raise SystemExit('Inspect kernel template symbol: ' + name)
-    lines[matches[0]] = name + '=y' if options[name] else '# ' + name + ' is not set'
+    replacement = name + '=y' if options[name] else '# ' + name + ' is not set'
+    if matches:
+        lines[matches[0]] = replacement
+    else:
+        lines.append(replacement)
 if client or server:
-    if 'CONFIG_NETWORK_FILESYSTEMS=y' not in lines:
-        raise SystemExit('NFS requires NETWORK_FILESYSTEMS in the board template')
+    matches = [i for i, line in enumerate(lines)
+               if line.startswith('CONFIG_NETWORK_FILESYSTEMS=')
+               or line == '# CONFIG_NETWORK_FILESYSTEMS is not set']
+    if len(matches) > 1:
+        raise SystemExit('Duplicate NETWORK_FILESYSTEMS in the board template')
+    if matches:
+        lines[matches[0]] = 'CONFIG_NETWORK_FILESYSTEMS=y'
+    else:
+        lines.append('CONFIG_NETWORK_FILESYSTEMS=y')
 args.kernel_template.write_text('\n'.join(lines) + '\n', encoding='utf-8')
 print('NFS template: client=%s server=%s; verify effective config after olddefconfig' %
       ('y' if client else 'n', 'y' if server else 'n'))
