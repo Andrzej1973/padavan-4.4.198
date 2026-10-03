@@ -33,6 +33,15 @@ if netlink.count(old) != 2:
 netlink = netlink.replace(old, old + '\t\trtl += rtap->rta_len;\n')
 with netlink_path.open('w', encoding='utf-8', newline='\n') as output:
     output.write(netlink)
+# uClibc toolchain does not expose C99 round in std:: (CI 37152606135).
+# Retain inja's rounding feature through the available C-library function.
+inja_path = args.source / 'ext' / 'inja' / 'inja.hpp'
+inja = inja_path.read_text(encoding='utf-8')
+if inja.count('std::round(') != 1:
+    raise SystemExit('Unexpected pinned inja rounding implementation')
+inja = inja.replace('std::round(', '::round(')
+with inja_path.open('w', encoding='utf-8', newline='\n') as output:
+    output.write(inja)
 with path.open('w', encoding='utf-8', newline='\n') as output:
     output.write(text)
 print('Prepared bundled NAT-PMP, OpenTelemetry dependencies and RTA_SRC length accounting.')
