@@ -797,6 +797,8 @@ jobs:
           git -C zerotier-candidate fetch --depth=1 https://github.com/zerotier/ZeroTierOne.git fe29cd88886e4f58547ba7f740b2d73eb49ab222
           git -C zerotier-candidate checkout --detach FETCH_HEAD
           test "$(git -C zerotier-candidate rev-parse HEAD)" = fe29cd88886e4f58547ba7f740b2d73eb49ab222
+          python3 tools/prepare-zerotier-source.py zerotier-candidate
+          sha256sum zerotier-candidate/make-linux.mk > zerotier-candidate-prepared.sha256
           compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
           test -n "$compiler"
           cross="${compiler%gcc}"
@@ -823,6 +825,8 @@ jobs:
             zerotier-candidate-build.log
             zerotier-candidate-elf.txt
             zerotier-candidate-dependencies.txt
+            zerotier-candidate-prepared.sha256
+            zerotier-candidate/make-linux.mk
             zerotier-candidate/zerotier-one
 
       - name: Record WR1200JS board build status
