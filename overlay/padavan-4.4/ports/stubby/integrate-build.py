@@ -102,6 +102,15 @@ def main():
     edits[rc] = rc_text.replace(dispatch_anchor,
         '#if defined(APP_STUBBY)\n\t\telse if (strcmp(entry->d_name, "restart_stubby") == 0)\n'
         '\t\t{\n\t\t\trestart_stubby();\n\t\t}\n#endif\n' + dispatch_anchor, 1)
+    watchdog = trunk / "user/rc/watchdog.c"
+    watchdog_text = watchdog.read_text(encoding="utf-8")
+    clock_anchor = '\t\tnvram_set_int("ntp_ready", 1);\n'
+    if watchdog_text.count(clock_anchor) != 1 or 'notify_rc("restart_stubby")' in watchdog_text:
+        raise RuntimeError("Inspect NTP clock-step Stubby restart anchor")
+    edits[watchdog] = watchdog_text.replace(clock_anchor, clock_anchor +
+        '#if defined(APP_STUBBY)\n'
+        '\t\tif (!get_ap_mode() && nvram_get_int("stubby_enable") == 1)\n'
+        '\t\t\tnotify_rc("restart_stubby");\n#endif\n', 1)
     dns = trunk / "user/rc/services_ex.c"
     dns_text = dns.read_text(encoding="utf-8")
     include_anchor = "int\nstart_dns_dhcpd(int is_ap_mode)"
@@ -212,3 +221,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
