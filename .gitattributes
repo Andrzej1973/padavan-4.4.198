@@ -1,2 +1,2 @@
-configs.build/*.config export-ignore
-configs.release/*.config export-ignore
+# Keep router configurations in source archives for downloads and forks.
+# Do not mark configs.build or configs.release configurations export-ignore.
