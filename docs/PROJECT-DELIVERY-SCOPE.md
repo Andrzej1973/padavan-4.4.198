@@ -216,3 +216,11 @@ results from expectations. Preserve existing router settings. Report missing
 baseline measurements and avoid claiming an improvement without evidence.
 These configuration checks and runtime comparisons have not been performed here.
 
+## Priority clarification — user instruction 2026-10-03
+
+Focus primary implementation and completion work on YOUHUA WR1200JS firmware. Continue Mi Mini only during spare time or WR1200JS build waits, when it does not delay WR1200JS completion. Mi Mini remains an accepted second-priority deliverable. All development remains in Andrzej1973/padavan-4.4.198, branch main.
+
+
+## Final delivery: unchanged upstream router configurations — user instruction 2026-10-03
+
+At the end of the project, include the original router/board configurations supplied by the pinned primary Padavan 4.4 source. Copy them byte-for-byte without adapting, normalizing, enabling packages or independently porting those boards. Record the upstream repository, exact commit and original paths; preserve applicable license notices. Present them as upstream reference configurations available for users to adapt in their own forks. Their presence does not establish compatibility with this project's added features or verified builds/runtime. Do not automatically enable them in the normal build matrix. This replaces the earlier requirement to adapt all remaining nilabsent router configurations: broader board adaptation is outside this project's required completion scope. Complete the agreed WR1200JS work, secondary Mi Mini work, source/local-backup preservation and final documentation before declaring the project complete.
