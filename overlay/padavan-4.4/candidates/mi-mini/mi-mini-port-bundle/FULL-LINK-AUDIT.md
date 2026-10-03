@@ -10,13 +10,27 @@ The compile proceeded to LD vmlinux.o and final link; unresolved symbols:
   the pinned 4.4 link. The isolated Mi Mini candidate now owns a private
   pointer for its existing /proc/mt7620 directory. Other legacy builds retain
   their external declaration. The VIDEO_TURBINE feature remains disabled.
-- `ra_mtd_write_nm`: still unresolved; requires checked Factory write binding.
+- `ra_mtd_write_nm`: current candidate binds to a separate checked Factory
+  adapter. Compilation/link evidence for this new binding is pending.
 
-These first two repairs are source candidates, not a successful kernel link.
+These repairs are source candidates, not a successful kernel link.
 Clean reconstruction matches all 273 candidate files. Do not enable the board
 for firmware-image builds until the remaining full port and image checks pass.
 
 ## Factory write requirements before next full-link probe
+
+The new candidate implements Factory-relative bounds, NOR/writeability and
+uniform erase-geometry checks, complete block backup, serialized read/erase/
+write and a shared lock for its Factory reads. Cross-block updates are rejected
+before erase. Completion follows the Linux 4.4 MTD callback contract; short
+reads/writes and failed erase state return errors. Full block readback compares
+all bytes, including unrelated calibration. Unchanged data does not erase.
+Candidate commit APIs return real errors and update the driver's cached EEPROM
+only after success. The legacy branch retains its original API.
+
+No device writes have tested this implementation. Power-loss atomicity cannot
+be promised for in-place SPI NOR erase/write. Other radio consumers still need
+their own checked binding and shared transaction review before full board use.
 
 The pinned bridge exports mt_mtd_write_nm_wifi, but its implementation only
 checks len <= erasesize, uses memcpy(bak + to, buf, len) without checking

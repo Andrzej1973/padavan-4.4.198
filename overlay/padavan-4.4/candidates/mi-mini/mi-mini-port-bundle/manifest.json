@@ -8,14 +8,17 @@
     "common/rtmp_init_inf.c",
     "Makefile",
     "os/linux/rbus_main_dev.c",
-    "os/linux/rt_proc.c"
+    "os/linux/rt_proc.c",
+    "os/linux/rt_linux.c",
+    "include/rt_os_util.h",
+    "include/eeprom.h"
   ],
   "new_file_sha256": {
     "Kconfig": "de6176e33328188a0307059bb4a2ae30a4736da5e163cb4649b319f558675f89",
-    "os/linux/mi_mini_factory.c": "209d3c3ddbd34319fd7dd6823b93e2452ea24a2dc3efc5a70bbe3d5d5f7440a3",
+    "os/linux/mi_mini_factory.c": "b6d7cff08c74ef84729b5cd308fb3e28bd65d9e9380c70e2bc97b6f8cfb6d756",
     "os/linux/mi_mini_platform.c": "74742ad1e52b255ab8519c2408c408666716d03585161b4ce7326b327a8eebed",
     "rt2860v2-ap.Kconfig": "6cb81fbcbddc656090e6ab673e8769239441f828d75674c7fe08167fbf9d7ca8"
   },
-  "patch_sha256": "b6c85a3710f7f7da0bab36faf75463c6769b3eae9d241d48c359ee34cf64df37",
-  "status": "Current candidate: GPIO/procfs link repairs staged. Previous full link reached unresolved __gpiod_export, procRegDir and ra_mtd_write_nm. Checked Factory write binding still pending; no image or runtime evidence."
+  "patch_sha256": "14fb86cc9d44f1335570caafb001e67df188fa9126622fa5aa9ce57979433714",
+  "status": "Current candidate includes GPIO/procfs repairs and checked Factory read/write binding; pending full kernel compilation/link and runtime verification."
 }

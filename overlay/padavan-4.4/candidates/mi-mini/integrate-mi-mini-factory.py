@@ -24,13 +24,15 @@ def main():
     if 'wifi_utility-objs := mt_wifi_mtd.o pci_mediatek_rbus.o' not in build:
         parser.error('Unsupported wifi_utility build layout')
     helper = args.helper.read_text(encoding='utf-8')
-    if helper.count('int mi_mini_factory_read(') != 1 or 'EXPORT_SYMBOL' in helper:
+    if (helper.count('int mi_mini_factory_read(') != 1 or
+            helper.count('int mi_mini_factory_write(') != 1 or 'EXPORT_SYMBOL' in helper):
         parser.error('Unexpected adapter definition')
     if 'mt_mtd_write_nm_wifi' not in source.decode('utf-8'):
         parser.error('Original MTD APIs missing')
     appended = ('\n/* Isolated MI-MINI Factory adapter, selected only for MT7620. */\n'
                 '#ifdef CONFIG_SOC_MT7620\n' + helper +
                 '\nEXPORT_SYMBOL(mi_mini_factory_read);\n'
+                'EXPORT_SYMBOL(mi_mini_factory_write);\n'
                 '#endif /* CONFIG_SOC_MT7620 */\n')
     target.write_bytes(canonical(source) + appended.encode('utf-8'))
     print('Appended checked Factory API to isolated kernel bridge')

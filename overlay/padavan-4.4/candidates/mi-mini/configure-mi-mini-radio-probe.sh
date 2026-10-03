@@ -39,7 +39,7 @@ make ARCH=mips CROSS_COMPILE="$cross" -j2 \
 echo 'Radio and MTD objects compiled; starting isolated full vmlinux link.'
 make ARCH=mips CROSS_COMPILE="$cross" -j2 vmlinux
 "${cross}nm" vmlinux > mi-mini-vmlinux-symbols.txt
-for symbol in mi_mini_factory_read mi_mini_radio_attach mi_mini_probe; do
+for symbol in mi_mini_factory_read mi_mini_factory_write mi_mini_radio_attach mi_mini_probe; do
     grep -Eq " [tT] ${symbol}$" mi-mini-vmlinux-symbols.txt || {
         echo "Candidate symbol missing from linked kernel: $symbol" >&2
         exit 1

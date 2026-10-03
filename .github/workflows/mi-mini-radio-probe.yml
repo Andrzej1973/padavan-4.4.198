@@ -2,7 +2,7 @@ name: 'Diagnostic: Mi Mini kernel candidate (no firmware image)'
 on:
   workflow_dispatch:
   push:
-    branches: [experimental/Padavan-4.4.198]
+    branches: [main]
     paths:
       - '.github/workflows/mi-mini-radio-probe.yml'
       - 'overlay/padavan-4.4/candidates/mi-mini/**'
