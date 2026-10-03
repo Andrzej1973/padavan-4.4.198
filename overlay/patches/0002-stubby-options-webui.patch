@@ -1,0 +1,42 @@
+diff --git a/trunk/user/httpd/variables.c b/trunk/user/httpd/variables.c
+--- a/trunk/user/httpd/variables.c
++++ b/trunk/user/httpd/variables.c
+@@ -545,5 +545,6 @@
+ 			{"stubby_round_robin", "", NULL, EVM_RESTART_STUBBY},
+ 			{"stubby_mode", "", NULL, EVM_RESTART_STUBBY|EVM_RESTART_DHCPD},
++			{"stubby_opt", "", NULL, EVM_RESTART_STUBBY},
+ #endif
+ #if defined(APP_ZAPRET)
+ 			{"zapret_enable", "", NULL, EVM_RESTART_ZAPRET},
+
+diff --git a/trunk/user/shared/defaults.c b/trunk/user/shared/defaults.c
+--- a/trunk/user/shared/defaults.c
++++ b/trunk/user/shared/defaults.c
+@@ -638,7 +638,8 @@
+ 	{ "stubby_listen_port", "5453" },
+ 	{ "stubby_listen_mode", "0" },
+ 	{ "stubby_round_robin", "1" },
+ 	{ "stubby_mode", "1" },
++	{ "stubby_opt", "" },
+ #endif
+ #if defined (APP_ZAPRET)
+ 	{ "zapret_enable", "0" },
+
+diff --git a/trunk/user/stubby/stubby.sh b/trunk/user/stubby/stubby.sh
+--- a/trunk/user/stubby/stubby.sh
++++ b/trunk/user/stubby/stubby.sh
+@@ -100,1 +100,1 @@
+-        $STUBBY_BIN -g
++        $STUBBY_BIN -g $(nvram get stubby_opt)
+diff --git a/trunk/user/www/n56u_ribbon_fixed/Advanced_Services_DoT.asp b/trunk/user/www/n56u_ribbon_fixed/Advanced_Services_DoT.asp
+--- a/trunk/user/www/n56u_ribbon_fixed/Advanced_Services_DoT.asp
++++ b/trunk/user/www/n56u_ribbon_fixed/Advanced_Services_DoT.asp
+@@ -194,2 +194,8 @@
++                                        <tr>
++                                            <th>Stubby options:</th>
++                                            <td>
++                                                <input type="text" class="input" size="10" style="width: 210px;" maxlength="55" name="stubby_opt" value="<% nvram_get_x(\"\", \"stubby_opt\"); %>" onkeypress="return is_string(this,event);"/>
++                                            </td>
++                                        </tr>
+                                         <tr>
+                                             <th colspan="2" style="background-color: #E3E3E3;"><#Service_Stubby_Resolvers_Header#></th>

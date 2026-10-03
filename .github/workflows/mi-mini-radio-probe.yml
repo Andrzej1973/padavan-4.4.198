@@ -1,0 +1,92 @@
+name: MI-MINI MT7620 radio compile probe
+on:
+  workflow_dispatch:
+  push:
+    branches: [experimental/Padavan-4.4.198]
+    paths:
+      - '.github/workflows/mi-mini-radio-probe.yml'
+      - 'overlay/padavan-4.4/candidates/mi-mini/**'
+permissions:
+  contents: read
+jobs:
+  compile-radio:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 40
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install compiler prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential bison flex libncurses5-dev libelf-dev curl xz-utils
+      - name: Fetch pinned kernel and radio sources
+        run: |
+          git init kernel-source
+          git -C kernel-source remote add origin https://github.com/vipshmily/padavan-4.4.git
+          git -C kernel-source sparse-checkout init --cone
+          git -C kernel-source sparse-checkout set trunk/linux-4.4.x
+          git -C kernel-source fetch --filter=blob:none --depth=1 origin c25283e915a2a00a763774dd255b14aff997285e
+          git -C kernel-source checkout --detach FETCH_HEAD
+          test "$(git -C kernel-source rev-parse HEAD)" = c25283e915a2a00a763774dd255b14aff997285e
+          git init radio-source
+          git -C radio-source remote add origin https://github.com/nilabsent/padavan-ng.git
+          git -C radio-source sparse-checkout init --cone
+          git -C radio-source sparse-checkout set trunk/proprietary/rt_wifi/rtsoc/2.7.X.X/rt2860v2
+          git -C radio-source fetch --filter=blob:none --depth=1 origin d2c5846299949c57a4e867284069900b561dd2a4
+          git -C radio-source checkout --detach FETCH_HEAD
+          test "$(git -C radio-source rev-parse HEAD)" = d2c5846299949c57a4e867284069900b561dd2a4
+      - name: Reconstruct checked candidate
+        run: |
+          port="$PWD/overlay/padavan-4.4/candidates/mi-mini"
+          cp -a radio-source/trunk/proprietary/rt_wifi/rtsoc/2.7.X.X/rt2860v2 candidate
+          git apply --check --directory=candidate "$port/mi-mini-port-bundle/radio-source.diff"
+          git apply --directory=candidate "$port/mi-mini-port-bundle/radio-source.diff"
+          python3 - <<'PY'
+          import hashlib, json, shutil
+          from pathlib import Path
+          bundle = Path('overlay/padavan-4.4/candidates/mi-mini/mi-mini-port-bundle')
+          manifest = json.loads((bundle / 'manifest.json').read_text())
+          assert hashlib.sha256((bundle / 'radio-source.diff').read_bytes()).hexdigest() == manifest['patch_sha256']
+          for name, digest in manifest['new_file_sha256'].items():
+              source = bundle / 'new-files' / name
+              assert hashlib.sha256(source.read_bytes()).hexdigest() == digest
+              target = Path('candidate') / name
+              target.parent.mkdir(parents=True, exist_ok=True)
+              shutil.copyfile(source, target)
+          PY
+          python3 "$port/install-mi-mini-radio-candidate.py" kernel-source/trunk/linux-4.4.x candidate
+      - name: Fetch toolchain
+        run: |
+          mkdir toolchain
+          curl --fail --location --retry 3 -o toolchain.tar.xz https://github.com/vipshmily/padavan-4.4/releases/download/toolchain/mipsel-linux-uclibc.tar.xz
+          sha256sum toolchain.tar.xz > toolchain.sha256
+          tar -xJf toolchain.tar.xz -C toolchain
+      - name: Compile MT7620 radio and link isolated kernel
+        run: |
+          set -euo pipefail
+          compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          cross="${compiler%gcc}"
+          bash overlay/padavan-4.4/candidates/mi-mini/configure-mi-mini-radio-probe.sh \
+            "$PWD/kernel-source/trunk/linux-4.4.x" "$cross" 2>&1 | tee mi-mini-radio-compile.log
+          "${cross}readelf" -h kernel-source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mi-mini/rt2860v2_ap.o > mi-mini-radio-elf.txt
+          grep -q 'Machine:.*MIPS' mi-mini-radio-elf.txt
+          "${cross}readelf" -h kernel-source/trunk/linux-4.4.x/vmlinux > mi-mini-vmlinux-elf.txt
+          grep -q 'Machine:.*MIPS' mi-mini-vmlinux-elf.txt
+      - name: Upload diagnostics only
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: mi-mini-radio-compile-probe
+          retention-days: 14
+          if-no-files-found: ignore
+          include-hidden-files: true
+          path: |
+            mi-mini-radio-compile.log
+            mi-mini-radio-elf.txt
+            mi-mini-vmlinux-elf.txt
+            kernel-source/trunk/linux-4.4.x/mi-mini-vmlinux-symbols.txt
+            toolchain.sha256
+            kernel-source/trunk/linux-4.4.x/.config

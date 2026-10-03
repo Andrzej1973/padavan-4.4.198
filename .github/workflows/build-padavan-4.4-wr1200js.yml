@@ -1,0 +1,733 @@
+name: Padavan Linux 4.4.198 WR1200JS
+run-name: "WR1200JS Linux 4.4.198 build"
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - experimental/Padavan-4.4.198
+
+permissions:
+  contents: read
+
+jobs:
+  build-wr1200js:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 120
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            autoconf automake autopoint cmake bison build-essential flex \
+            gawk gettext git gperf libtool libtool-bin pkg-config fakeroot \
+            kmod cpio texinfo help2man libncurses5-dev zlib1g-dev \
+            libsqlite3-dev gcc-multilib curl dos2unix unzip wget xxd \
+            libltdl-dev libgmp-dev libmpfr-dev libarchive-tools libblkid-dev \
+            python3-docutils
+
+      - name: Fetch pinned Padavan 4.4.198 source
+        env:
+          PADAVAN_COMMIT: c25283e915a2a00a763774dd255b14aff997285e
+        run: |
+          git init padavan-4.4
+          git -C padavan-4.4 remote add origin https://github.com/vipshmily/padavan-4.4.git
+          git -C padavan-4.4 fetch --depth=1 origin "$PADAVAN_COMMIT"
+          git -C padavan-4.4 checkout --detach FETCH_HEAD
+          test "$(git -C padavan-4.4 rev-parse HEAD)" = "$PADAVAN_COMMIT"
+
+      - name: Fetch pinned AmneziaWG module source
+        env:
+          AMNEZIA_SOURCE_COMMIT: d2c5846299949c57a4e867284069900b561dd2a4
+        run: |
+          git init amnezia-source
+          git -C amnezia-source remote add origin https://github.com/nilabsent/padavan-ng.git
+          git -C amnezia-source config remote.origin.promisor true
+          git -C amnezia-source config remote.origin.partialclonefilter blob:none
+          git -C amnezia-source sparse-checkout init --cone
+          git -C amnezia-source sparse-checkout set trunk/linux-3.4.x/net/amneziawg trunk/libs/libssl/3.5 trunk/libs/libcurl trunk/libs/libngtcp2 trunk/libs/libnghttp3 trunk/libs/libnghttp2 trunk/user/www/logo trunk/user/dnsmasq
+          git -C amnezia-source fetch --filter=blob:none --depth=1 origin "$AMNEZIA_SOURCE_COMMIT"
+          git -C amnezia-source checkout --detach FETCH_HEAD
+          test "$(git -C amnezia-source rev-parse HEAD)" = "$AMNEZIA_SOURCE_COMMIT"
+          test -s amnezia-source/trunk/user/www/logo/padavan.png
+          test "$(git -C amnezia-source hash-object trunk/user/www/logo/padavan.png)" = ec7b6bcd9e27c41fd564832e860791a568587e20
+
+      - name: Apply WR1200JS board port
+        run: |
+          patch --batch --forward -p1 -d padavan-4.4 \
+            < overlay/padavan-4.4/patches/zram-service.diff
+          python3 overlay/padavan-4.4/scripts/fix-web-event-masks.py padavan-4.4
+          mkdir -p padavan-4.4/trunk/libs/libqrencode
+          cp overlay/padavan-4.4/trunk/libs/libqrencode/Makefile \
+            padavan-4.4/trunk/libs/libqrencode/Makefile
+          python3 overlay/padavan-4.4/scripts/add-qrencode.py padavan-4.4
+          mkdir -p padavan-4.4/trunk/user/ndisc6
+          cp overlay/padavan-4.4/trunk/user/ndisc6/Makefile \
+            padavan-4.4/trunk/user/ndisc6/Makefile
+          python3 overlay/padavan-4.4/scripts/add-ndisc6.py padavan-4.4
+          mkdir -p padavan-4.4/trunk/libs/libudev padavan-4.4/trunk/user/usbip
+          cp overlay/padavan-4.4/trunk/libs/libudev/Makefile \
+            padavan-4.4/trunk/libs/libudev/Makefile
+          cp overlay/padavan-4.4/trunk/user/usbip/Makefile \
+            padavan-4.4/trunk/user/usbip/Makefile
+          cp overlay/padavan-4.4/trunk/linux-4.4.x/tools/usb/usbip/src/usbip_network.{c,h} \
+            padavan-4.4/trunk/linux-4.4.x/tools/usb/usbip/src/
+          python3 overlay/padavan-4.4/scripts/add-usbip.py padavan-4.4
+          cp overlay/padavan-4.4/trunk/linux-4.4.x/tools/usb/usbip/libsrc/usbip_common.c \
+            padavan-4.4/trunk/linux-4.4.x/tools/usb/usbip/libsrc/usbip_common.c
+          python3 overlay/padavan-4.4/scripts/add-amneziawg.py padavan-4.4 amnezia-source
+          python3 overlay/padavan-4.4/scripts/prepare-openssl35.py padavan-4.4 amnezia-source
+          python3 overlay/padavan-4.4/scripts/prepare-quic.py padavan-4.4 amnezia-source
+          python3 overlay/padavan-4.4/scripts/add-lua-selector.py padavan-4.4
+          python3 overlay/padavan-4.4/scripts/add-fs-tools-selector.py padavan-4.4
+          python3 overlay/padavan-4.4/scripts/add-tproxy-selector.py padavan-4.4
+          python3 overlay/padavan-4.4/ports/sqm/prepare-lifecycle.py padavan-4.4
+          python3 overlay/padavan-4.4/ports/sqm/prepare-web.py padavan-4.4
+          python3 overlay/padavan-4.4/ports/sqm/prepare-packaging.py padavan-4.4
+          sh -n padavan-4.4/trunk/user/sqm-qos/scripts/run.sh
+          python3 overlay/padavan-4.4/scripts/add-amneziawg-nvram.py padavan-4.4
+          python3 overlay/padavan-4.4/scripts/add-amneziawg-lifecycle.py padavan-4.4
+          python3 overlay/padavan-4.4/scripts/add-amneziawg-firewall.py padavan-4.4
+          python3 overlay/padavan-4.4/scripts/add-amneziawg-web-capabilities.py padavan-4.4
+          python3 overlay/padavan-4.4/scripts/add-amneziawg-web-actions.py padavan-4.4
+          python3 overlay/padavan-4.4/scripts/add-amneziawg-web-assets.py padavan-4.4
+          python3 overlay/padavan-4.4/scripts/add-amneziawg-vpn-labels.py padavan-4.4
+          python3 overlay/padavan-4.4/scripts/add-amneziawg-pages.py padavan-4.4
+          python3 overlay/padavan-4.4/scripts/preserve-ddns-defaults.py padavan-4.4
+          python3 overlay/padavan-4.4/scripts/add-logo-ddns-selectors.py padavan-4.4 amnezia-source
+          python3 overlay/padavan-4.4/scripts/integrate-eoip.py padavan-4.4
+          python3 overlay/padavan-4.4/scripts/integrate-dnsmasq-regex.py padavan-4.4 amnezia-source
+          python3 overlay/padavan-4.4/scripts/integrate-wpad.py padavan-4.4
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_STUBBY=y$' configs.build/wr1200js.config; then
+            python3 overlay/padavan-4.4/ports/stubby/integrate-build.py padavan-4.4 \
+              --config configs.build/wr1200js.config
+          fi
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_PRIVOXY=y$' configs.build/wr1200js.config; then
+            python3 overlay/padavan-4.4/ports/privoxy/integrate-port.py padavan-4.4 \
+              --config configs.build/wr1200js.config
+          fi
+          cp overlay/padavan-4.4/trunk/user/rp-l2tp/Makefile \
+            padavan-4.4/trunk/user/rp-l2tp/Makefile
+          cp overlay/padavan-4.4/trunk/user/ntfs-3g/Makefile \
+            padavan-4.4/trunk/user/ntfs-3g/Makefile
+          cp overlay/padavan-4.4/trunk/configs/boards/WR1200JS/board.h \
+            padavan-4.4/trunk/configs/boards/WR1200JS/board.h
+          cp overlay/padavan-4.4/trunk/configs/boards/WR1200JS/partitions.config \
+            padavan-4.4/trunk/configs/boards/WR1200JS/partitions.config
+          # Keep rejected hunks for the vendor-kernel adaptation if a
+          # third-party IMQ backport does not match this pinned tree.
+          if ! patch --batch --forward -p1 \
+              -d padavan-4.4/trunk/linux-4.4.x \
+              < overlay/padavan-4.4/patches/linux-4.4-imq.diff; then
+            python3 overlay/padavan-4.4/scripts/apply-imq-vendor.py
+          fi
+          # Merge only USB/PHY configuration from the one-USB reference board,
+          # retaining the complete WR1200JS radio and board-specific kernel config.
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          source = Path("padavan-4.4/trunk/configs/boards/K2P-USB/kernel-4.4.x.config").read_text()
+          target_path = Path("padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config")
+          target = target_path.read_text()
+          source_values = {}
+          for line in source.splitlines():
+              match = re.match(r"^(?:# )?(CONFIG_[A-Za-z0-9_]+)(?:=(.*)| is not set)$", line)
+              if match and (match.group(1).startswith("CONFIG_USB")
+                            or match.group(1) == "CONFIG_PHY_MTK_TPHY"
+                            or match.group(1) in {
+                                "CONFIG_SCSI", "CONFIG_SCSI_DMA",
+                                "CONFIG_SCSI_PROC_FS", "CONFIG_BLK_DEV_SD",
+                            }):
+                  source_values[match.group(1)] = line
+          keys = set(source_values)
+          merged = []
+          seen = set()
+          for line in target.splitlines():
+              match = re.match(r"^(?:# )?(CONFIG_[A-Za-z0-9_]+)", line)
+              if match and match.group(1) in keys:
+                  key = match.group(1)
+                  merged.append(source_values.get(key, "# " + key + " is not set"))
+                  seen.add(key)
+              else:
+                  merged.append(line)
+          for key in sorted(keys - seen):
+              merged.append(source_values[key])
+          for key in ("CONFIG_USB_XHCI_MTK", "CONFIG_USB_XHCI_HCD"):
+              merged = [line for line in merged
+                        if not line.startswith(key + "=")
+                        and line != "# " + key + " is not set"]
+              merged.append("# " + key + " is not set")
+          target_path.write_text("\n".join(merged) + "\n")
+          PY
+          grep -q '^CONFIG_RALINK_BUILTIN_DTB_NAME="wr1200js"$' \
+            padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
+          grep -q '^CONFIG_FIRST_IF_MT7603E=y$' \
+            padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
+          grep -q '^CONFIG_RT_SECOND_IF_MT7612E=y$' \
+            padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
+          grep -q '^CONFIG_RT_FIRST_IF_RF_OFFSET=0x0$' \
+            padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
+          grep -q '^CONFIG_RT_SECOND_IF_RF_OFFSET=0x8000$' \
+            padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path("padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config")
+          lines = path.read_text().splitlines()
+          values = {
+              "CONFIG_IP_SET": "m",
+              "CONFIG_IP_SET_BITMAP_IP": "m",
+              "CONFIG_IP_SET_BITMAP_PORT": "m",
+              "CONFIG_IP_SET_HASH_IP": "m",
+              "CONFIG_IP_SET_HASH_IPPORT": "m",
+              "CONFIG_IP_SET_HASH_IPPORTIP": "m",
+              "CONFIG_IP_SET_HASH_IPPORTNET": "m",
+              "CONFIG_IP_SET_HASH_NET": "m",
+              "CONFIG_IP_SET_HASH_NETPORT": "m",
+              "CONFIG_IFB": "m",
+              "CONFIG_IMQ": "m",
+              "CONFIG_IMQ_BEHAVIOR_AB": "y",
+              "CONFIG_NETFILTER_XT_TARGET_IMQ": "m",
+          }
+          if "CONFIG_FIRMWARE_INCLUDE_ZRAM=y" in Path("configs.build/wr1200js.config").read_text().splitlines():
+              values.update({"CONFIG_ZSMALLOC": "y", "CONFIG_ZRAM": "m"})
+          if "CONFIG_FIRMWARE_INCLUDE_USBIP=y" in Path("configs.build/wr1200js.config").read_text().splitlines():
+              values.update({"CONFIG_USBIP_CORE": "m", "CONFIG_USBIP_HOST": "m",
+                             "CONFIG_USBIP_VHCI_HCD": "m"})
+          if "CONFIG_FIRMWARE_INCLUDE_AMNEZIAWG=y" in Path("configs.build/wr1200js.config").read_text().splitlines():
+              values.update({"CONFIG_AMNEZIAWG": "m"})
+          for key, value in values.items():
+              lines = [line for line in lines if not line.startswith(key + "=")
+                       and line != "# " + key + " is not set"]
+              lines.append(key + "=" + value)
+          path.write_text("\n".join(lines) + "\n")
+          PY
+          python3 - <<'PY'
+          from pathlib import Path
+          import os
+          import re
+          config = Path("padavan-4.4/trunk/configs/templates/WR1200JS.config")
+          source = Path("configs.build/wr1200js.config").read_text().splitlines()
+          text = config.read_text().splitlines()
+          desired = {}
+          enabled_requests = set()
+          for line in source:
+              match = re.match(r"^(#\s*)?(CONFIG_FIRMWARE_[A-Za-z0-9_]+)=(.*)$", line)
+              if match:
+                  key, value = match.group(2), match.group(3)
+                  value = "n" if match.group(1) else value
+                  desired[key] = value
+                  if value == "y":
+                      enabled_requests.add(key)
+          # Aliases verified against the pinned target Makefiles.
+          aliases = {
+              "CONFIG_FIRMWARE_INCLUDE_SHORTCUT_FE": "CONFIG_FIRMWARE_INCLUDE_SFE",
+          }
+          for old, new in aliases.items():
+              if old in desired:
+                  desired[new] = desired[old]
+          ss_modes = ("CONFIG_FIRMWARE_INCLUDE_SSREDIR",
+                      "CONFIG_FIRMWARE_INCLUDE_SSLOCAL")
+          if any(key in desired for key in ss_modes):
+              desired["CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS"] = (
+                  "y" if any(desired.get(key) == "y" for key in ss_modes) else "n")
+          # Do not inherit optional services or languages from the target board.
+          for line in text:
+              match = re.match(r"^(?:#\s*)?(CONFIG_FIRMWARE_INCLUDE_[A-Za-z0-9_]+)=", line)
+              if match:
+                  desired.setdefault(match.group(1), "n")
+          # Keep the destination fork's Ralink/MT7621 board identity.
+          desired.pop("CONFIG_FIRMWARE_PRODUCT_ID", None)
+          copied = set()
+          for index, line in enumerate(text):
+              match = re.match(r"^(?:#\s*)?(CONFIG_FIRMWARE_[A-Za-z0-9_]+)(?:=| is not set$)", line)
+              if match and match.group(1) in desired:
+                  key = match.group(1)
+                  value = desired[key]
+                  text[index] = ("# " + key + " is not set" if value in ("n", "\"n\"")
+                                 else key + "=" + value)
+                  copied.add(key)
+          mapped_requests = set(aliases) | set(ss_modes)
+          missing = sorted(enabled_requests - copied - mapped_requests)
+          Path("unsupported-firmware-options.txt").write_text(
+              "\n".join(missing) + ("\n" if missing else "")
+          )
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
+              summary.write(f"Copied {len(copied)} matching firmware options. "
+                            f"{len(missing)} user options need separate ports.\n")
+              if missing:
+                  summary.write("\nOptions without a matching target selector:\n")
+                  summary.write("\n".join(f"- {key}" for key in missing) + "\n")
+          config.write_text("\n".join(text) + "\n")
+          PY
+          grep -q '^CONFIG_IP_SET=m$' \
+            padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
+          grep -q '^CONFIG_IFB=m$' \
+            padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
+          grep -q '^CONFIG_IP_SET_HASH_NET=m$' \
+            padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
+          grep -q '^CONFIG_IP_SET_HASH_NETPORT=m$' \
+            padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
+          grep -q '^CONFIG_USB_SUPPORT=y$' \
+            padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
+          grep -q '^# CONFIG_USB_XHCI_MTK is not set$' \
+            padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
+          grep -q '^CONFIG_USB_EHCI_HCD=m$' \
+            padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
+          grep -q '^CONFIG_USB_STORAGE=m$' \
+            padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
+          grep -q '^CONFIG_BLK_DEV_SD=y$' \
+            padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
+          grep -q '{ "sqm_enable", "0" }' padavan-4.4/trunk/user/shared/defaults.c
+          mkdir -p padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink
+          cp -a overlay/padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/wr1200js.dts \
+            padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/
+          cp -a overlay/padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/mt7621-spi-16m-wr1200js-layout.dtsi \
+            padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/
+          grep -q 'mt7621-spi-16m-wr1200js-layout.dtsi' \
+            padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/wr1200js.dts \
+            || sed -i 's/#include "mt7621-spi-16m-layout.dtsi"/#include "mt7621-spi-16m-wr1200js-layout.dtsi"/' \
+              padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/wr1200js.dts
+          grep -q 'firmware.*0xf70000' \
+            padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/mt7621-spi-16m-wr1200js-layout.dtsi
+          grep -q 'WR1200JS' padavan-4.4/trunk/configs/boards/WR1200JS/board.mk
+          grep -q 'CONFIG_RALINK_BUILTIN_DTB_NAME="wr1200js"' \
+            padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
+
+      - name: Download the pinned uClibc toolchain
+        run: |
+          mkdir -p padavan-4.4/toolchain/toolchain-mipsel
+          curl --fail --location --retry 5 \
+            --output padavan-4.4/toolchain-mipsel.tar.xz \
+            https://github.com/vipshmily/padavan-4.4/releases/download/toolchain/mipsel-linux-uclibc.tar.xz
+          sha256sum padavan-4.4/toolchain-mipsel.tar.xz | tee toolchain-sha256.txt
+          tar -xJf padavan-4.4/toolchain-mipsel.tar.xz \
+            -C padavan-4.4/toolchain/toolchain-mipsel
+
+      - name: Apply requested userspace optimization policy
+        run: |
+          python3 overlay/padavan-4.4/scripts/set-userspace-performance.py \
+            padavan-4.4/trunk configs.build/wr1200js.config
+          grep -E '^(UOPT|LOPT)[[:space:]]*=' padavan-4.4/trunk/config.arch
+
+      - name: Configure optional NFS kernel support
+        run: |
+          python3 overlay/padavan-4.4/scripts/set-nfs-kernel-options.py \
+            configs.build/wr1200js.config \
+            padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
+
+      - name: Build WR1200JS firmware
+        run: |
+          cd padavan-4.4
+          make WR1200JS TOOLCHAIN=mipsel-linux-uclibc
+          python3 ../overlay/padavan-4.4/scripts/set-nfs-kernel-options.py \
+            ../configs.build/wr1200js.config trunk/linux-4.4.x/.config --verify
+          set -x
+          for option in QOS IMQ IFB IPSET XFRM; do
+            grep -q "^CONFIG_FIRMWARE_INCLUDE_${option}=y$" trunk/.config
+          done
+          grep -q '^CONFIG_FIRMWARE_ENABLE_USB=y$' trunk/.config
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_NDISC6_RDISC6=y$' trunk/.config; then
+            grep -q '^CONFIG_FIRMWARE_ENABLE_IPV6=y$' trunk/.config
+            for tool in ndisc6 rdisc6; do
+              test -x "trunk/romfs/usr/bin/$tool"
+              readelf -h "trunk/romfs/usr/bin/$tool" | grep -q 'Machine:.*MIPS'
+            done
+          fi
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_QRENCODE=y$' trunk/.config; then
+            test -x trunk/romfs/usr/bin/qrencode
+            readelf -h trunk/romfs/usr/bin/qrencode | grep -q 'Machine:.*MIPS'
+          fi
+          grep -q '^CONFIG_FIRMWARE_ENABLE_EXT4=y$' trunk/.config
+          grep -q '^CONFIG_FIRMWARE_INCLUDE_SSWAN=y$' trunk/.config
+          grep -q '^CONFIG_FIRMWARE_INCLUDE_ZEROTIER=y$' trunk/.config
+          grep -q '^CONFIG_IMQ=m$' trunk/linux-4.4.x/.config
+          grep -q '^CONFIG_NETFILTER_XT_TARGET_IMQ=m$' trunk/linux-4.4.x/.config
+          grep -q '^CONFIG_IFB=m$' trunk/linux-4.4.x/.config
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_ZRAM=y$' trunk/.config; then
+            grep -q '^CONFIG_ZRAM=m$' trunk/linux-4.4.x/.config
+            grep -q '^CONFIG_ZSMALLOC=y$' trunk/linux-4.4.x/.config
+            test -n "$(find trunk/romfs/lib/modules -name zram.ko -print -quit)"
+            grep -q 'name="zram_enable"' trunk/romfs/www/Advanced_System_Content.asp
+          fi
+          grep -q '^CONFIG_IP_SET=m$' trunk/linux-4.4.x/.config
+          grep -q '^CONFIG_USB_STORAGE=m$' trunk/linux-4.4.x/.config
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_USBIP=y$' trunk/.config; then
+            for symbol in USBIP_CORE USBIP_HOST USBIP_VHCI_HCD; do
+              grep -q "^CONFIG_$symbol=m$" trunk/linux-4.4.x/.config
+            done
+            for module in usbip-core usbip-host vhci-hcd; do
+              test -n "$(find trunk/romfs/lib/modules -name "$module.ko" -print -quit)"
+            done
+            for tool in usbip usbipd; do
+              test -x "trunk/romfs/sbin/$tool"
+              readelf -h "trunk/romfs/sbin/$tool" | grep -q 'Machine:.*MIPS'
+            done
+            test -s trunk/romfs/lib/libudev.so.1
+            python3 ../overlay/padavan-4.4/scripts/verify-usbip-elf.py \
+              trunk/romfs ../usbip-elf-dependencies.json
+          fi
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_AMNEZIAWG=y$' trunk/.config; then
+            for page in vpncli.asp vpnsrv.asp; do
+              test -s "trunk/romfs/www/$page"
+              grep -q 'found_app_awg' "trunk/romfs/www/$page"
+            done
+            grep -q '^CONFIG_AMNEZIAWG=m$' trunk/linux-4.4.x/.config
+            awg_module="$(find trunk/romfs/lib/modules -name amneziawg.ko -print -quit)"
+            test -n "$awg_module"
+            modinfo -F vermagic "$awg_module" | grep -q '^4\.4\.198'
+            test -x trunk/romfs/usr/bin/awg
+            test -x trunk/romfs/usr/bin/wgc.sh
+            test -x trunk/romfs/usr/bin/wgs.sh
+            test -L trunk/romfs/sbin/update_resolvconf
+            ! grep -q '/lib/modules/3.4.113/' trunk/romfs/usr/bin/wgc.sh
+            ! grep -q '/lib/modules/3.4.113/' trunk/romfs/usr/bin/wgs.sh
+            readelf -h trunk/romfs/usr/bin/awg | grep -q 'Machine:.*MIPS'
+          fi
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_OPENSSL_35=y$' trunk/.config; then
+            test -s trunk/romfs/lib/libssl.so.3
+            test -s trunk/romfs/lib/libcrypto.so.3
+            test -s trunk/romfs/lib/libatomic.so.1
+            grep -q '^SRC_NAME = openssl-3.5.7$' trunk/libs/libssl/3.5/Makefile
+          fi
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_QUIC=y$' trunk/.config; then
+            grep -q '^#define USE_NGTCP2 1$' trunk/libs/libcurl/curl-8.20.0/lib/curl_config.h
+            grep -q '^#define USE_NGHTTP3 1$' trunk/libs/libcurl/curl-8.20.0/lib/curl_config.h
+            test -x trunk/romfs/usr/bin/curl
+            readelf -h trunk/romfs/usr/bin/curl | grep -q 'Machine:.*MIPS'
+            python3 ../overlay/padavan-4.4/scripts/verify-curl-elf.py \
+              trunk/romfs ../curl-elf-dependencies.json
+          fi
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_TPROXY=y$' trunk/.config; then
+            grep -q '^CONFIG_NETFILTER_XT_TARGET_TPROXY=m$' trunk/linux-4.4.x/.config
+            tproxy_module="$(find trunk/romfs/lib/modules -name xt_TPROXY.ko -print -quit)"
+            test -n "$tproxy_module"
+            modinfo -F vermagic "$tproxy_module" | grep -q '^4.4.198'
+            readelf -h "$tproxy_module" | grep -q 'Machine:.*MIPS'
+            test -x trunk/romfs/bin/xtables-multi
+            grep -a -q TPROXY trunk/romfs/bin/xtables-multi
+            test -s trunk/user/iptables/iptables-1.8.7/extensions/libxt_TPROXY.o
+            test -s trunk/user/iptables/iptables-1.8.7/extensions/libxt_socket.o
+          fi
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_FS_TOOLS=y$' trunk/.config; then
+            if grep -Eq '^CONFIG_FIRMWARE_ENABLE_EXT[234]=y$' trunk/.config; then
+              for utility in e2fsck badblocks e2undo mke2fs tune2fs; do
+                test -x "trunk/romfs/sbin/$utility"
+                readelf -h "trunk/romfs/sbin/$utility" | grep -q 'Machine:.*MIPS'
+              done
+            fi
+            if grep -Eq '^CONFIG_FIRMWARE_ENABLE_(FAT|EXFAT)=y$' trunk/.config; then
+              test -x trunk/romfs/sbin/dosfsck
+              readelf -h trunk/romfs/sbin/dosfsck | grep -q 'Machine:.*MIPS'
+            fi
+          fi
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_LUA=y$' trunk/.config; then
+            test -x trunk/romfs/usr/bin/lua
+            readelf -h trunk/romfs/usr/bin/lua | grep -q 'Machine:.*MIPS'
+            test -s trunk/romfs/lib/liblua.so.5.1.5
+            readelf -h trunk/romfs/lib/liblua.so.5.1.5 | grep -q 'Machine:.*MIPS'
+            test -s trunk/romfs/etc_ro/lua/5.1/lib/cjson.so
+            test -s trunk/romfs/etc_ro/lua/5.1/lib/nixio.so
+          fi
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_SQM=y$' trunk/.config; then
+            grep -q '^CONFIG_NET_SCH_CAKE=m$' trunk/linux-4.4.x/.config
+            cake_module="$(find trunk/romfs/lib/modules -name sch_cake.ko -print -quit)"
+            test -n "$cake_module"
+            modinfo -F vermagic "$cake_module" | grep -q '^4\.4\.198'
+            test -x trunk/romfs/bin/tc
+            readelf -h trunk/romfs/bin/tc | grep -q 'Machine:.*MIPS'
+            grep -a -q 'ack-filter' trunk/romfs/bin/tc
+            test -x trunk/romfs/usr/lib/sqm/run.sh
+            sh -n trunk/romfs/usr/lib/sqm/run.sh
+            grep -q 'valid_rate' trunk/romfs/usr/lib/sqm/run.sh
+            ! grep -q 'nvram commit' trunk/romfs/usr/lib/sqm/run.sh
+            ! grep -q 'hwqos.sh' trunk/romfs/usr/lib/sqm/run.sh
+            grep -q 'SQM_CAKE_Enable' trunk/romfs/www/Advanced_SQM.asp
+            grep -q '^SQM_CAKE_Enable=' trunk/romfs/www/EN.dict
+            for language in UK RU; do
+              if grep -q "^CONFIG_FIRMWARE_INCLUDE_LANG_${language}=y$" trunk/.config; then
+                grep -q '^SQM_CAKE_Enable=' "trunk/romfs/www/$language.dict"
+              fi
+            done
+            grep -a -q 'wr1200js-sqm.lock' trunk/romfs/sbin/rc
+          fi
+          if grep -q '^CONFIG_FIRMWARE_ENABLE_DNSMASQ_REGEX=y$' trunk/.config; then
+            test -x trunk/romfs/usr/sbin/dnsmasq
+            readelf -h trunk/romfs/usr/sbin/dnsmasq | grep -q 'Machine:.*MIPS'
+            readelf -d trunk/romfs/usr/sbin/dnsmasq | grep -q 'Shared library:.*libpcre'
+            find trunk/romfs/lib -name 'libpcre.so.*' -type f | grep -q .
+            grep -a -q 'regex' trunk/romfs/usr/sbin/dnsmasq
+          fi
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_EOIP=y$' trunk/.config; then
+            eoip_module="$(find trunk/romfs/lib/modules -name eoip.ko -print -quit)"
+            test -n "$eoip_module"
+            modinfo -F vermagic "$eoip_module" | grep -q '^4\.4\.198'
+            test -x trunk/romfs/usr/bin/eoip-ctl
+            readelf -h trunk/romfs/usr/bin/eoip-ctl | grep -q 'Machine:.*MIPS'
+            grep -a -q 'remove name' trunk/romfs/usr/bin/eoip-ctl
+          fi
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_VENDOR_LOGO=y$' trunk/.config; then
+            cmp trunk/user/www/logo/padavan.png trunk/romfs/www/bootstrap/img/logo.png
+          fi
+          grep -q '^CONFIG_FIRMWARE_INCLUDE_DDNS_SSL=y$' trunk/.config
+          python3 ../overlay/padavan-4.4/scripts/verify-ddns-elf.py \
+            trunk/romfs ../ddns-elf-dependencies.json
+          grep -a -q 'YouHua WR1200JS' trunk/linux-4.4.x/vmlinux
+          cp trunk/.config ../firmware-effective.config
+          cp trunk/linux-4.4.x/.config ../kernel-effective.config
+          cp ../configs.build/wr1200js.config ../firmware-requested.config
+          shopt -s nullglob
+          images=(trunk/images/*.trx)
+          (("${#images[@]}" > 0))
+          for image in "${images[@]}"; do
+            test -s "$image"
+            size="$(stat -c %s "$image")"
+            max_size=$((0xf70000))
+            if ((size > max_size)); then
+              echo "Firmware image exceeds the WR1200JS 0xF70000 partition."
+              exit 1
+            fi
+            sha256sum "$image"
+          done
+
+      - name: Verify WR1200JS image upload structure
+        run: |
+          python3 overlay/padavan-4.4/scripts/verify-wr1200js-image.py \
+            padavan-4.4/trunk/images/WR1200JS_4.4.198.9-100.trx \
+            --report firmware-image-checks.json
+
+      - name: Verify WPAD image packaging
+        run: |
+          python3 overlay/padavan-4.4/scripts/verify-wpad.py \
+            padavan-4.4/trunk wpad-image-checks.json
+
+      - name: Verify Stubby image packaging and ELF dependencies
+        run: |
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_STUBBY=y$' configs.build/wr1200js.config; then
+            python3 overlay/padavan-4.4/ports/stubby/verify-image.py \
+              padavan-4.4/trunk stubby-image-checks.json
+          fi
+
+      - name: Upload Stubby image diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: stubby-image-checks
+          retention-days: 14
+          if-no-files-found: ignore
+          path: stubby-image-checks.json
+
+      - name: Verify Privoxy image packaging and ELF dependencies
+        run: |
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_PRIVOXY=y$' configs.build/wr1200js.config; then
+            python3 overlay/padavan-4.4/ports/privoxy/verify-image.py \
+              padavan-4.4/trunk privoxy-image-checks.json
+          fi
+
+      - name: Upload Privoxy image diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: privoxy-image-checks
+          retention-days: 14
+          if-no-files-found: ignore
+          path: privoxy-image-checks.json
+
+      - name: Upload IMQ patch rejects
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: imq-patch-rejects
+          retention-days: 14
+          if-no-files-found: ignore
+          path: imq-patch-rejects.txt
+
+      - name: Upload WR1200JS images and toolchain checksum
+        uses: actions/upload-artifact@v7
+        with:
+          name: padavan-linux-4.4.198-wr1200js
+          retention-days: 14
+          path: |
+            padavan-4.4/trunk/images/*.trx
+            toolchain-sha256.txt
+            unsupported-firmware-options.txt
+            firmware-requested.config
+            firmware-image-checks.json
+            wpad-image-checks.json
+            stubby-image-checks.json
+            privoxy-image-checks.json
+            firmware-effective.config
+            kernel-effective.config
+            usbip-elf-dependencies.json
+            ddns-elf-dependencies.json
+            curl-elf-dependencies.json
+
+
+      - name: Compile EoIP IPv4 candidate module
+        run: |
+          set -euo pipefail
+          kernel="$PWD/padavan-4.4/trunk/linux-4.4.x"
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          cross="${compiler%gcc}"
+          candidate="$PWD/overlay/padavan-4.4/candidates/eoip/unified"
+          make -C "$kernel" ARCH=mips CROSS_COMPILE="$cross" M="$candidate" modules \
+            2>&1 | tee eoip-compile.log
+          test -s "$candidate/eoip.ko"
+          readelf -h "$candidate/eoip.ko" | grep -q 'Machine:.*MIPS'
+          modinfo -F vermagic "$candidate/eoip.ko" | grep -q '^4\.4\.198'
+          tool="${candidate%/unified}"
+          "$compiler" -Os -std=gnu99 -Wall -Wextra -o "$tool/eoip" \
+            "$tool/eoipcr.c" "$tool/libnetlink.c" 2>&1 | tee eoip-tool-compile.log
+          test -s "$tool/eoip"
+          readelf -h "$tool/eoip" | grep -q 'Machine:.*MIPS'
+          readelf -l "$tool/eoip" | grep -q '/lib/ld-uClibc.so.0'
+
+
+      - name: Upload EoIP candidate diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: eoip-candidate-compile
+          if-no-files-found: ignore
+          retention-days: 14
+          path: |
+            eoip-compile.log
+            eoip-tool-compile.log
+            overlay/padavan-4.4/candidates/eoip/unified/eoip.ko
+            overlay/padavan-4.4/candidates/eoip/eoip
+
+      - name: Compile PCRE2 candidate for modern Privoxy
+        run: |
+          set -euo pipefail
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          cross="${compiler%gcc}"
+          mkdir -p pcre2-candidate-build
+          cd pcre2-candidate-build
+          curl --fail --location --retry 3 --output pcre2-10.49.tar.bz2 \
+            https://github.com/PCRE2Project/pcre2/releases/download/pcre2-10.49/pcre2-10.49.tar.bz2
+          echo '53c156e1ba416a20da8e65395daa132da0d80e76910424caca3fcdae7831d384  pcre2-10.49.tar.bz2' | sha256sum -c -
+          tar xjf pcre2-10.49.tar.bz2
+          cd pcre2-10.49
+          CC="$compiler" AR="${cross}ar" RANLIB="${cross}ranlib" \
+            CFLAGS="-O2 -fPIC -mips32r2" \
+            ./configure --host=mipsel-linux-uclibc --build="$(gcc -dumpmachine)" \
+              --prefix=/ --libdir=/lib --includedir=/include \
+              --enable-pcre2-8 --disable-pcre2-16 --disable-pcre2-32 \
+              --enable-unicode --disable-jit --enable-shared --enable-static \
+              --disable-pcre2grep-libz --disable-pcre2grep-libbz2 \
+              2>&1 | tee ../configure.log
+          make -j2 2>&1 | tee ../compile.log
+          make install DESTDIR="$PWD/../stage"
+          readelf -h ../stage/lib/libpcre2-8.so.0 | grep -q 'Machine:.*MIPS'
+          readelf -d ../stage/lib/libpcre2-8.so.0 > ../elf-dependencies.txt
+
+      - name: Upload PCRE2 candidate diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: pcre2-candidate
+          if-no-files-found: ignore
+          retention-days: 14
+          path: |
+            pcre2-candidate-build/*.log
+            pcre2-candidate-build/elf-dependencies.txt
+            pcre2-candidate-build/stage/lib/libpcre2-8.so*
+            pcre2-candidate-build/stage/lib/libpcre2-posix.so*
+
+      - name: Compile Privoxy 4.2 candidate
+        run: |
+          set -euo pipefail
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          PRIVOXY_CANDIDATE_DIR="$PWD/privoxy-candidate-build" \
+          TARGET_CC="$compiler" \
+          TARGET_STAGE="$PWD/padavan-4.4/trunk/stage" \
+          PCRE2_STAGE="$PWD/pcre2-candidate-build/stage" \
+          TARGET_CFLAGS="-O2 -mips32r2" \
+            sh overlay/padavan-4.4/candidates/privoxy/compile-privoxy.sh
+
+      - name: Upload Privoxy candidate diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: privoxy-candidate
+          if-no-files-found: ignore
+          retention-days: 14
+          path: |
+            privoxy-candidate-build/*.log
+            privoxy-candidate-build/elf-*.txt
+            privoxy-candidate-build/privoxy-4.2.0-stable/config.log
+            privoxy-candidate-build/privoxy-4.2.0-stable/config.h
+            privoxy-candidate-build/privoxy-4.2.0-stable/privoxy
+
+      - name: Compile Stubby DoT candidate
+        run: |
+          set -euo pipefail
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          TARGET_CC="$compiler" \
+          TARGET_STAGE="$PWD/padavan-4.4/trunk/stage" \
+          STUBBY_CANDIDATE_DIR="$PWD/stubby-candidate-build" \
+            bash overlay/padavan-4.4/candidates/stubby/compile-stubby.sh
+
+      - name: Upload Stubby candidate diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: stubby-candidate
+          if-no-files-found: ignore
+          retention-days: 14
+          path: |
+            stubby-candidate-build/*.log
+            stubby-candidate-build/elf-*.txt
+            stubby-candidate-build/stubby-mips
+            stubby-candidate-build/build/CMakeCache.txt
+            stubby-candidate-build/build/CMakeFiles/CMake*.log
+
+      - name: Link isolated MT7621 systick candidate kernel
+        run: |
+          set -euo pipefail
+          source_kernel="$PWD/padavan-4.4/trunk/linux-4.4.x"
+          kernel="$RUNNER_TEMP/wr1200js-systick-link"
+          test ! -e "$kernel"
+          cp -a "$source_kernel" "$kernel"
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          cross="${compiler%gcc}"
+          candidate="$PWD/overlay/padavan-4.4/candidates/cpu-sleep"
+          python3 "$candidate/prepare-link-candidate.py" "$kernel"
+          python3 "$candidate/activate-link-config.py" "$kernel"
+          make -C "$kernel" ARCH=mips CROSS_COMPILE="$cross" olddefconfig \
+            2>&1 | tee cpu-sleep-config.log
+          grep -qx 'CONFIG_CLKEVT_MT7621_SYSTICK=y' "$kernel/.config"
+          make -C "$kernel" ARCH=mips CROSS_COMPILE="$cross" -j2 vmlinux \
+            2>&1 | tee cpu-sleep-link.log
+          test -s "$kernel/vmlinux"
+          "${cross}readelf" -h "$kernel/vmlinux" > cpu-sleep-elf.txt
+          grep -q 'Machine:.*MIPS' cpu-sleep-elf.txt
+          "${cross}nm" "$kernel/vmlinux" > cpu-sleep-symbols.txt
+          grep -Eq '[[:space:]]mt7621_systick_early_init$' cpu-sleep-symbols.txt
+          cp "$kernel/.config" cpu-sleep-link.config
+          sha256sum "$kernel/vmlinux" > cpu-sleep-vmlinux.sha256
+
+      - name: Upload isolated kernel link diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: mt7621-systick-link
+          if-no-files-found: ignore
+          retention-days: 14
+          path: |
+            cpu-sleep-config.log
+            cpu-sleep-link.log
+            cpu-sleep-elf.txt
+            cpu-sleep-symbols.txt
+            cpu-sleep-link.config
+            cpu-sleep-vmlinux.sha256

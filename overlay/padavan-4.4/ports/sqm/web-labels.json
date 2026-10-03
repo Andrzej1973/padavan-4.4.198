@@ -1,0 +1,35 @@
+{
+  "EN": {
+    "SQM_CAKE_Enable": "Enable CAKE",
+    "SQM_CAKE_On": "Enabled",
+    "SQM_CAKE_Off": "Disabled",
+    "SQM_CAKE_Download": "Download limit",
+    "SQM_CAKE_Upload": "Upload limit",
+    "SQM_CAKE_Description": "CAKE manages traffic queues to reduce latency when the connection is busy. It uses the current WAN interface automatically.",
+    "SQM_CAKE_RateHelp": "Enter whole numbers from 0 to 2000000 kbit/s. Zero disables shaping in that direction. At least one limit must be nonzero. Set limits below measured connection speeds.",
+    "SQM_CAKE_Performance": "CAKE uses CPU resources and can reduce maximum throughput. Hardware and software acceleration are suspended while CAKE is active and restored when it is disabled.",
+    "SQM_CAKE_InvalidRate": "Enter valid speed limits in kbit/s. At least one limit must be greater than zero."
+  },
+  "UK": {
+    "SQM_CAKE_Enable": "Увімкнути CAKE",
+    "SQM_CAKE_On": "Увімкнено",
+    "SQM_CAKE_Off": "Вимкнено",
+    "SQM_CAKE_Download": "Обмеження завантаження",
+    "SQM_CAKE_Upload": "Обмеження відвантаження",
+    "SQM_CAKE_Description": "CAKE керує чергами трафіку для зменшення затримок під навантаженням. Поточний WAN-інтерфейс визначається автоматично.",
+    "SQM_CAKE_RateHelp": "Введіть цілі числа від 0 до 2000000 кбіт/с. Нуль вимикає обмеження в цьому напрямку. Хоча б одне обмеження має бути ненульовим. Установіть значення нижче виміряної швидкості з’єднання.",
+    "SQM_CAKE_Performance": "CAKE використовує ресурси процесора й може зменшити максимальну швидкість. Під час роботи CAKE апаратне та програмне прискорення призупиняються, а після вимкнення відновлюються.",
+    "SQM_CAKE_InvalidRate": "Введіть коректні обмеження швидкості у кбіт/с. Хоча б одне значення має бути більшим за нуль."
+  },
+  "RU": {
+    "SQM_CAKE_Enable": "Включить CAKE",
+    "SQM_CAKE_On": "Включено",
+    "SQM_CAKE_Off": "Выключено",
+    "SQM_CAKE_Download": "Ограничение загрузки",
+    "SQM_CAKE_Upload": "Ограничение отдачи",
+    "SQM_CAKE_Description": "CAKE управляет очередями трафика для уменьшения задержек под нагрузкой. Текущий WAN-интерфейс определяется автоматически.",
+    "SQM_CAKE_RateHelp": "Введите целые числа от 0 до 2000000 кбит/с. Ноль отключает ограничение в этом направлении. Хотя бы одно ограничение должно быть ненулевым. Установите значения ниже измеренной скорости соединения.",
+    "SQM_CAKE_Performance": "CAKE использует ресурсы процессора и может снизить максимальную скорость. Во время работы CAKE аппаратное и программное ускорение приостанавливаются, а после отключения восстанавливаются.",
+    "SQM_CAKE_InvalidRate": "Введите корректные ограничения скорости в кбит/с. Хотя бы одно значение должно быть больше нуля."
+  }
+}

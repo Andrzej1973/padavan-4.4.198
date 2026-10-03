@@ -1,0 +1,3 @@
+https://github.com/bbonev/eoip
+Commit: ac996b337f2798f7db00f34317d147b7ecce61db
+Candidate only: IPv4 compile probe, not packaged in firmware.

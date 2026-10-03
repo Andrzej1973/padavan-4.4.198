@@ -1,0 +1,58 @@
+{
+  "source": "nilabsent/padavan-ng@d2c5846299949c57a4e867284069900b561dd2a4",
+  "note": "Preserve original defaults; add missing empty server_ip3 used by original helper and HTTP fields.",
+  "entries": [
+    {
+      "name": "stubby_enable",
+      "default": "0"
+    },
+    {
+      "name": "stubby_server0",
+      "default": "dns.google"
+    },
+    {
+      "name": "stubby_server1",
+      "default": ""
+    },
+    {
+      "name": "stubby_server2",
+      "default": ""
+    },
+    {
+      "name": "stubby_server3",
+      "default": ""
+    },
+    {
+      "name": "stubby_server_ip0",
+      "default": "8.8.8.8"
+    },
+    {
+      "name": "stubby_server_ip1",
+      "default": ""
+    },
+    {
+      "name": "stubby_server_ip2",
+      "default": ""
+    },
+    {
+      "name": "stubby_server_ip3",
+      "default": ""
+    },
+    {
+      "name": "stubby_listen_port",
+      "default": "5453"
+    },
+    {
+      "name": "stubby_listen_mode",
+      "default": "0"
+    },
+    {
+      "name": "stubby_round_robin",
+      "default": "1"
+    },
+    {
+      "name": "stubby_mode",
+      "default": "1"
+    }
+  ]
+}

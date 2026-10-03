@@ -1,0 +1,14 @@
+Adm_Svc_dnscrypt_all=All IP addresses
+Services_Menu_4=DNS-over-TLS
+Service_Stubby_Desc=Stubby is a confidential DNS query service (DNS-over-TLS technology).<br/><br/>This protocol encrypts DNS requests and wraps them through the TLS protocol.
+Service_Stubby_DNSList_Help=Add several DNS servers, up to a maximum of four.
+Service_Stubby_Enable=Enable Stubby?
+Service_Stubby_Mode=Operating mode
+Service_Stubby_Mode_Desc=<b>Strict</b>: only the TLS encryption protocol is used.<br><b>Opportunistic</b>: in addition to TLS, a regular unsecured UDP/TCP connection is used.<br><b>Standalone</b>: the service works by itself.<br><b>Router's DNS</b>: integrates with the router's built-in DNS server to resolve domain names. The provider DNS is ignored.
+Service_Stubby_Mode_Menu0=Strict, standalone
+Service_Stubby_Mode_Menu1=Strict, router's DNS
+Service_Stubby_Mode_Menu2=Opportunistic, standalone
+Service_Stubby_Mode_Menu3=Opportunistic, router's DNS
+Service_Stubby_RoundRobin=Round robin queries
+Service_Stubby_Resolvers_Header=List of resolvers
+Service_Stubby_Alert_Empty=The list of resolvers is empty, add at least one.

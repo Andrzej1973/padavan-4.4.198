@@ -1,0 +1,95 @@
+name: Make toolchain release
+run-name: "Make toolchain release #${{ github.run_number }}"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+
+    defaults:
+      run:
+        shell: bash
+
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        fetch-depth: 0
+
+    - name: Set up build tools
+      run: |
+        sudo apt update
+        sudo apt install --no-install-recommends -y \
+            autoconf automake autopoint cmake \
+            bison build-essential flex gawk \
+            gettext git gperf libtool libtool-bin \
+            pkg-config fakeroot kmod cpio doxygen \
+            texinfo help2man libncurses5-dev \
+            zlib1g-dev libsqlite3-dev gcc-multilib \
+            curl dos2unix unzip wget locales xxd libltdl-dev \
+            libgmp3-dev libmpfr-dev libarchive-tools libblkid-dev
+
+    - name: Get variables
+      run: |
+        sed -i 's|\r$||g' variables
+        grep -hE '^\s*PADAVAN_[A-Z0-9_]+=' variables >> "$GITHUB_ENV"
+        echo "BUILD_TIMESTAMP=$(date '+%Y.%m.%d_%H.%M.%S')" >> $GITHUB_ENV
+
+    - name: Download sources and toolchain
+      run: |
+        git config --global --add safe.directory '*'
+        git clone -b "${{ env.PADAVAN_BRANCH }}" "${{ env.PADAVAN_REPO }}" padavan-ng --depth=1
+        git -C padavan-ng checkout "${{ env.PADAVAN_COMMIT }}"
+
+    - name: Get Padavan variables
+      run: |
+        pushd padavan-ng/trunk
+
+        echo "LIBC_DIR=$(make -sC libc print-SRC_NAME)" >> $GITHUB_ENV
+
+        sed -i 's|\r$||g' versions.inc
+        grep -hE '^\s*FIRMWARE_[A-Z0-9_]+=' versions.inc >> "$GITHUB_ENV"
+        echo "FIRMWARE_BUILDS_REV=$(git rev-parse --short HEAD 2>/dev/null)" >> $GITHUB_ENV
+
+    - name: Build toolchain
+      run: |
+        mkdir -p release
+
+        cd padavan-ng/toolchain
+
+        echo "Building toolchain ${LIBC_DIR}"
+        echo "Waiting for the last 589 lines of logs (~25-40 minutes)..."
+
+        TEMP_LOG=$(mktemp)
+        ./clean_sources.sh >/dev/null 2>&1
+        ./build_toolchain.sh > "$TEMP_LOG" 2>&1
+
+        echo "Showing last 589 lines:"
+        tail -n 589 "$TEMP_LOG"
+        rm -f $TEMP_LOG
+
+        cd ..
+
+        tar cf - toolchain/out | xz -9 > ../release/toolchain_${LIBC_DIR}.tar.xz
+
+    - name: Check if release files exist
+      run: |
+        if ! ls release/*.tar.xz >/dev/null 2>&1; then
+          echo "❌ No files found in release directory"
+          exit 1
+        fi
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v3
+      with:
+        tag_name: release-${{ env.BUILD_TIMESTAMP }}
+        name: Toolchain ${{ env.LIBC_DIR }}
+        files: release/*
+        draft: false
+        prerelease: false
+        body: |
+          Repository used: ${{ env.PADAVAN_REPO }}

@@ -1,0 +1,163 @@
+name: Build firmware
+run-name: "Build firmware #${{ github.run_number }}"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    - uses: actions/checkout@v7
+
+    - name: Set up build tools
+      run: |
+        sudo apt update
+        sudo apt install --no-install-recommends -y \
+            autoconf automake autopoint cmake \
+            bison build-essential flex gawk \
+            gettext git gperf libtool libtool-bin \
+            pkg-config fakeroot kmod cpio doxygen \
+            texinfo help2man libncurses5-dev \
+            zlib1g-dev libsqlite3-dev gcc-multilib \
+            curl dos2unix unzip wget locales xxd libltdl-dev \
+            libgmp3-dev libmpfr-dev libarchive-tools libblkid-dev
+        sudo locale-gen --no-purge en_US.UTF-8 ru_RU.UTF-8
+        export LANG="en_US.UTF-8"
+        export LC_ALL="en_US.UTF-8"
+
+    - name: Get variables
+      run: |
+        sed -i 's|\r$||g' variables
+        grep -hE '^\s*PADAVAN_[A-Z0-9_]+=' variables >> "$GITHUB_ENV"
+
+    - name: Download sources and toolchain
+      run: |
+        git config --global --add safe.directory '*'
+        git clone -b "${{ env.PADAVAN_BRANCH }}" "${{ env.PADAVAN_REPO }}" padavan-ng --depth=1
+        git -C padavan-ng checkout "${{ env.PADAVAN_COMMIT }}"
+
+        ARCH=""
+        case "${{ env.PADAVAN_TOOLCHAIN_URL }}" in
+            *.tzst|*.tar.zst) ARCH="--zstd" ;;
+            *.txz|*.tar.xz) ARCH="--xz" ;;
+        esac
+        wget -qO- "${{ env.PADAVAN_TOOLCHAIN_URL }}" | tar -C padavan-ng $ARCH -xf - || :
+
+    - name: Run custom pre-build script
+      run: 'bash ./pre-build.sh'
+
+    - name: Build toolchain
+      if: ${{ hashFiles('padavan-ng/toolchain/out/mipsel-linux-uclibc/sysroot/lib/libuClibc-*.so') == '' }}
+      run: |
+        cd padavan-ng/toolchain
+        ./clean_sources.sh
+        ./build_toolchain.sh
+
+    - name: Build firmware
+      run: |
+        set +e
+        for cfg in $(ls configs.build/*.config); do
+            cp -f "$cfg" padavan-ng/trunk/.config
+            echo "::group::Build $(basename "$cfg" .config)"
+            echo "Waiting for the last 589 lines of logs (~10-20 minutes per config)..."
+
+            pushd padavan-ng/trunk
+
+            sed -i 's|\r$||g' .config
+            . <(grep -hE '^\s*CONFIG_(VENDOR|FIRMWARE_PRODUCT_ID)=' .config)
+
+            TEMP_LOG=$(mktemp)
+            ./clear_tree.sh >/dev/null 2>&1
+            ./build_firmware.sh > "$TEMP_LOG" 2>&1
+
+            echo "Showing last 589 lines:"
+            tail -n 589 "$TEMP_LOG"
+            rm -f "$TEMP_LOG"
+
+            popd
+
+            FW_FILE_NAME="$(find padavan-ng/trunk/images -type f -regextype posix-extended -iregex ".*\.(trx|bin)$" \
+                            -printf "%T@\t%f\n" | sort -V | tail -1 | cut -f2)"
+            [[ -n $FW_FILE_NAME ]] || { echo "Firmware file not found"; continue; }
+
+            partitions="padavan-ng/trunk/configs/boards/$CONFIG_VENDOR/$CONFIG_FIRMWARE_PRODUCT_ID/partitions.config"
+            max_fw_size="$(awk '/Firmware/ { getline; getline; sub(",", ""); print strtonum($2); }' "$partitions")"
+            fw_size="$(stat -c %s "padavan-ng/trunk/images/$FW_FILE_NAME")"
+
+            if ((fw_size > max_fw_size)); then
+              fw_size_fmtd="$(numfmt --grouping "$fw_size") bytes"
+              max_fw_size_fmtd="$(numfmt --grouping "$max_fw_size") bytes"
+              echo "Firmware size ($fw_size_fmtd) exceeds max size ($max_fw_size_fmtd) for your target device"
+              continue
+            fi
+
+            FW_PATH="release/${FW_FILE_NAME%.*}"
+            [[ -d "$FW_PATH" ]] && FW_PATH="${FW_PATH}_$(basename "$cfg" .config)"
+            mkdir -p "$FW_PATH"
+            cp -f "padavan-ng/trunk/images/$FW_FILE_NAME" "$FW_PATH"
+            cp -f "$cfg" "$FW_PATH"
+        done
+
+    - name: Run custom post-build script
+      run: '[[ -f post-build.sh ]] && . post-build.sh || :'
+
+    - name: Check if release files exist
+      run: |
+        if ! ls release/* >/dev/null 2>&1; then
+          echo "❌ No files found in release directory"
+          exit 1
+        fi
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v7
+      with:
+        name: all_firmware_releases
+        retention-days: 7
+        path: |
+          release/*
+
+  prepare-matrix:
+    runs-on: ubuntu-latest
+    needs: build
+    outputs:
+      files: ${{ steps.collect.outputs.files }}
+    steps:
+      - name: Download releases
+        uses: actions/download-artifact@v8
+        with:
+          name: all_firmware_releases
+          path: release
+
+      - id: collect
+        run: |
+          FILES=$(ls -d release/*/ 2>/dev/null | xargs -n1 basename \
+            | jq -R -cs 'split("\n")[:-1]')
+          echo "files=$FILES" >> $GITHUB_OUTPUT
+
+  upload-artifacts:
+    runs-on: ubuntu-latest
+    needs: prepare-matrix
+    if: needs.prepare-matrix.outputs.files != '[]'
+    strategy:
+      matrix:
+        file: ${{ fromJson(needs.prepare-matrix.outputs.files) }}
+
+    steps:
+      - name: Download releases
+        uses: actions/download-artifact@v8
+        with:
+          name: all_firmware_releases
+          path: release
+
+      - name: Upload artifact ${{ matrix.file }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.file }}
+          path: release/${{ matrix.file }}
+          retention-days: 7

@@ -1,0 +1,26 @@
+config MI_MINI_RADIO
+	bool "Experimental MI-MINI MT7620 built-in radio candidate"
+	depends on SOC_MT7620 && OF
+	select RT2860V2_AP
+	select WIRELESS_EXT
+	select WEXT_SPY
+	select WEXT_PRIV
+	default n
+	help
+	  Compile the isolated MT7620 vendor-driver port candidate. This does not
+	  provide a complete MI-MINI board port or a verified flashable image.
+	  Requires the checked Factory helper in built-in wifi_utility and the
+	  board radio node. IRQ, reset/clock and EEPROM runtime checks are pending.
+
+if MI_MINI_RADIO
+config MI_MINI_RADIO_RAM_MB
+	int "Board RAM in MiB for legacy radio ring sizing"
+	range 16 256
+	default 128
+	help
+	  The pinned nilabsent MI-MINI board config specifies 128 MiB. This
+	  controls radio ring allocation only; it does not configure kernel RAM
+	  detection or prove the identity of the user's physical router.
+
+source "drivers/net/wireless/mediatek/mi-mini/rt2860v2-ap.Kconfig"
+endif

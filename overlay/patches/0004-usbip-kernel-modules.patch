@@ -1,0 +1,16 @@
+diff --git a/trunk/configs/boards/YOUHUA/WR1200JS/kernel-3.4.x.config b/trunk/configs/boards/YOUHUA/WR1200JS/kernel-3.4.x.config
+--- a/trunk/configs/boards/YOUHUA/WR1200JS/kernel-3.4.x.config
++++ b/trunk/configs/boards/YOUHUA/WR1200JS/kernel-3.4.x.config
+@@ -190,5 +190,5 @@
+ # General setup
+ #
+-# CONFIG_EXPERIMENTAL is not set
++CONFIG_EXPERIMENTAL=y
+ CONFIG_INIT_ENV_ARG_LIMIT=32
+ CONFIG_CROSS_COMPILE=""
+@@ -2174,1 +2174,5 @@
+ CONFIG_MTK_XHCI=y
++# USB/IP support for the WR1200JS userspace tools.
++CONFIG_USBIP_CORE=m
++CONFIG_USBIP_VHCI_HCD=m
++CONFIG_USBIP_HOST=m

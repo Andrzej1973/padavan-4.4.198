@@ -1,0 +1,251 @@
+diff --git a/trunk/user/httpd/common.h b/trunk/user/httpd/common.h
+--- a/trunk/user/httpd/common.h
++++ b/trunk/user/httpd/common.h
+@@ -93,4 +93,5 @@
+ #define EVM_RELOAD_TOR			(1ULL << 52)
+ #define EVM_FLUSH_IPSET_DHCPD		(1ULL << 53)
++#define EVM_RESTART_VLMCSD		(1ULL << 54)
+ 
+ #define EVM_RELOAD_FIREWALL		(1ULL << 60)
+@@ -175,1 +175,2 @@
+ #define EVT_RESTART_PRIVOXY		1
++#define EVT_RESTART_VLMCSD		1
+
+ diff --git a/trunk/user/shared/cflags.mk b/trunk/user/shared/cflags.mk
+--- a/trunk/user/shared/cflags.mk
++++ b/trunk/user/shared/cflags.mk
+@@ -283,3 +283,7 @@
+ ifeq ($(CONFIG_FIRMWARE_INCLUDE_OPENSSL_EC),y)
+ CFLAGS += -DSUPPORT_OPENSSL_EC
+ endif
++
++ifeq ($(CONFIG_FIRMWARE_INCLUDE_VLMCSD),y)
++CFLAGS += -DAPP_VLMCSD
++endif
+
+ diff --git a/trunk/user/shared/notify_rc.h b/trunk/user/shared/notify_rc.h
+--- a/trunk/user/shared/notify_rc.h
++++ b/trunk/user/shared/notify_rc.h
+@@ -52,5 +52,6 @@
+ #define RCN_RESTART_PRIVOXY		"restart_privoxy"
+ #define RCN_RESTART_DNSCRYPT		"restart_dnscrypt"
++#define RCN_RESTART_VLMCSD		"restart_vlmcsd"
+ #define RCN_RESTART_WINS		"restart_wins"
+ #define RCN_RESTART_LLTD		"restart_lltd"
+ #define RCN_RESTART_ADSC		"restart_adsc"
+
+ diff --git a/trunk/user/rc/rc.h b/trunk/user/rc/rc.h
+--- a/trunk/user/rc/rc.h
++++ b/trunk/user/rc/rc.h
+@@ -567,6 +567,12 @@
+ void start_dnscrypt(void);
+ void restart_dnscrypt(void);
+ #endif
++#if defined(APP_VLMCSD)
++int is_vlmcsd_run(void);
++void stop_vlmcsd(void);
++void start_vlmcsd(void);
++void restart_vlmcsd(void);
++#endif
+ 
+ /* services_ex.c */
+ int fill_dnsmasq_servers(void);
+
+ diff --git a/trunk/user/rc/services.c b/trunk/user/rc/services.c
+--- a/trunk/user/rc/services.c
++++ b/trunk/user/rc/services.c
+@@ -464,6 +464,39 @@
+ }
+ #endif
+ 
++#if defined(APP_VLMCSD)
++int
++is_vlmcsd_run(void)
++{
++	if (check_if_file_exist("/usr/bin/vlmcsd"))
++	{
++		if (pids("vlmcsd"))
++			return 1;
++	}
++	return 0;
++}
++
++void
++stop_vlmcsd(void)
++{
++	eval("/usr/bin/vlmcsd.sh", "stop");
++}
++
++void
++start_vlmcsd(void)
++{
++	if (nvram_get_int("vlmcsd_enable") == 1)
++		eval("/usr/bin/vlmcsd.sh", "start");
++}
++
++void
++restart_vlmcsd(void)
++{
++	stop_vlmcsd();
++	start_vlmcsd();
++}
++#endif
++
+ void
+ start_httpd(int restart_fw)
+ {
+@@ -680,6 +708,9 @@
+ #if defined(APP_ZAPRET)
+ 		start_zapret();
+ #endif
++#if defined(APP_VLMCSD)
++		start_vlmcsd();
++#endif
+ #if defined(APP_PRIVOXY)
+ 		start_privoxy();
+ #endif
+@@ -715,6 +746,9 @@
+ #if defined(APP_DNSCRYPT)
+ 	stop_dnscrypt();
+ #endif
++#if defined(APP_VLMCSD)
++	stop_vlmcsd();
++#endif
+ #if defined(APP_ZAPRET)
+ 	stop_zapret();
+ #endif
+
+ diff --git a/trunk/user/rc/rc.c b/trunk/user/rc/rc.c
+--- a/trunk/user/rc/rc.c
++++ b/trunk/user/rc/rc.c
+@@ -1311,7 +1311,14 @@
+ 		{
+ 			restart_zram();
+ 		}
+ #endif
++#if defined(APP_VLMCSD)
++		else if (strcmp(entry->d_name, RCN_RESTART_VLMCSD) == 0)
++		{
++			restart_vlmcsd();
++			restart_dhcpd();
++		}
++#endif
+ 		else if (strcmp(entry->d_name, RCN_RESTART_LLTD) == 0)
+ 		{
+ 			restart_lltd();
+
+ diff --git a/trunk/user/rc/services_ex.c b/trunk/user/rc/services_ex.c
+--- a/trunk/user/rc/services_ex.c
++++ b/trunk/user/rc/services_ex.c
+@@ -544,6 +544,10 @@
+ #if defined(APP_SMBD) || defined(APP_NMBD)
+ 		else if (nvram_get_int("wins_enable"))
+ 			fprintf(fp, "dhcp-option=tag:%s,%d,%s\n", DHCPD_RANGE_DEF_TAG, 44, ipaddr);
+ #endif
++#if defined(APP_VLMCSD)
++		if (nvram_get_int("vlmcsd_enable"))
++			fprintf(fp, "srv-host=%s.%s,%s,%d\n", "_VLMCS", "_tcp", ipaddr, 1688);
++#endif
+ 		if (i_verbose == 0 || i_verbose == 2)
+ 			fprintf(fp, "quiet-dhcp\n");
+
+ diff --git a/trunk/user/shared/defaults.c b/trunk/user/shared/defaults.c
+--- a/trunk/user/shared/defaults.c
++++ b/trunk/user/shared/defaults.c
+@@ -660,5 +660,8 @@
+ 	{ "dnscrypt_mode", "1" },
+ #endif
++#if defined (APP_VLMCSD)
++	{ "vlmcsd_enable", "0" },
++#endif
+ 	{ "lltd_enable", "1" },
+ 	{ "adsc_enable", "0" },
+ 	{ "crond_enable", "0" },
+
+ diff --git a/trunk/user/httpd/variables.c b/trunk/user/httpd/variables.c
+--- a/trunk/user/httpd/variables.c
++++ b/trunk/user/httpd/variables.c
+@@ -127,6 +127,9 @@
+ #if defined (USE_NAND_FLASH)
+ 			{"mtd_rwfs_mount", "", NULL, FALSE},
+ #endif
++#if defined (APP_VLMCSD)
++			{"vlmcsd_enable", "", NULL, EVM_RESTART_VLMCSD},
++#endif
+ 			{"http_username", "", NULL, EVM_RESTART_CROND|EVM_BLOCK_UNSAFE},
+ 			{"http_passwd", "", NULL, EVM_BLOCK_UNSAFE},
+ 			{"modem_rule", "", NULL, EVM_RESTART_MODEM},
+@@ -1051,4 +1054,7 @@
+ #if defined(APP_DNSCRYPT)
+ 		{EVM_RESTART_DNSCRYPT,		EVT_RESTART_DNSCRYPT,		RCN_RESTART_DNSCRYPT,	EVM_RESTART_FIREWALL},
+ #endif
++#if defined(APP_VLMCSD)
++		{EVM_RESTART_VLMCSD,		EVT_RESTART_VLMCSD,		RCN_RESTART_VLMCSD,		EVM_RESTART_DHCPD},
++#endif
+ 		{EVM_RESTART_TELNETD,		EVT_RESTART_TELNETD,		RCN_RESTART_TELNETD,	0},
+
+ diff --git a/trunk/user/httpd/web_ex.c b/trunk/user/httpd/web_ex.c
+--- a/trunk/user/httpd/web_ex.c
++++ b/trunk/user/httpd/web_ex.c
+@@ -2160,6 +2160,11 @@
+ #else
+ 	int found_app_xupnpd = 0;
+ #endif
++#if defined(APP_VLMCSD)
++	int found_app_vlmcsd = 1;
++#else
++	int found_app_vlmcsd = 0;
++#endif
+ #if defined(SUPPORT_ZRAM)
+ 	int found_support_zram = 1;
+ #else
+@@ -2191,4 +2191,5 @@
+ 		"function found_app_privoxy() { return %d;}\n"
+ 		"function found_app_dnscrypt() { return %d;}\n"
++		"function found_app_vlmcsd() { return %d;}\n"
+ 		"function found_support_wpad() { return %d;}\n"
+ 		"function found_support_zram() { return %d;}\n"
+@@ -2205,6 +2206,7 @@
+ 		found_app_tor,
+ 		found_app_privoxy,
+ 		found_app_dnscrypt,
++		found_app_vlmcsd,
+ 		found_support_wpad,
+ 		found_support_zram,
+ 		found_support_ipset,
+
+ diff --git a/trunk/user/www/n56u_ribbon_fixed/Advanced_Services_Content.asp b/trunk/user/www/n56u_ribbon_fixed/Advanced_Services_Content.asp
+--- a/trunk/user/www/n56u_ribbon_fixed/Advanced_Services_Content.asp
++++ b/trunk/user/www/n56u_ribbon_fixed/Advanced_Services_Content.asp
+@@ -27,5 +27,6 @@
+ 	init_itoggle('lltd_enable');
+ 	init_itoggle('adsc_enable');
+ 	init_itoggle('crond_enable', change_crond_enabled);
++	init_itoggle('vlmcsd_enable');
+ 	init_itoggle('watchdog_cpu');
+ });
+@@ -88,5 +89,8 @@
+ 	}
+ 	change_crond_enabled();
++
++	if(!found_app_vlmcsd())
++		showhide_div('row_vlmcsd', 0);
+ }
+ 
+ function applyRule(){
+@@ -531,1 +531,15 @@
++						<tr id="row_vlmcsd">
++							<th>KMS Activation server</th>
++							<td>
++								<div class="main_itoggle">
++									<div id="vlmcsd_enable_on_of">
++										<input type="checkbox" id="vlmcsd_enable_fake" <% nvram_match_x("", "vlmcsd_enable", "1", "value=1 checked"); %><% nvram_match_x("", "vlmcsd_enable", "0", "value=0"); %>>
++									</div>
++								</div>
++								<div style="position: absolute; margin-left: -10000px;">
++									<input type="radio" name="vlmcsd_enable" id="vlmcsd_enable_1" class="input" value="1" <% nvram_match_x("", "vlmcsd_enable", "1", "checked"); %>/><#checkbox_Yes#>
++									<input type="radio" name="vlmcsd_enable" id="vlmcsd_enable_0" class="input" value="0" <% nvram_match_x("", "vlmcsd_enable", "0", "checked"); %>/><#checkbox_No#>
++								</div>
++							</td>
++						</tr>
+                                        <tr id="row_crontabs" style="display:none">

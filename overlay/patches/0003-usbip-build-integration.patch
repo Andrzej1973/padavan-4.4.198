@@ -1,0 +1,8 @@
+diff --git a/trunk/user/Makefile b/trunk/user/Makefile
+--- a/trunk/user/Makefile
++++ b/trunk/user/Makefile
+@@ -172,2 +172,4 @@
+ dir_$(CONFIG_FIRMWARE_INCLUDE_U2EC)		+= u2ec
++dir_$(CONFIG_FIRMWARE_INCLUDE_USBIP)		+= sysfsutils
++dir_$(CONFIG_FIRMWARE_INCLUDE_USBIP)		+= usbip
+ endif
