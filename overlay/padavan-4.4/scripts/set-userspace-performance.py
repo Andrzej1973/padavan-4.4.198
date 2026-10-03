@@ -12,12 +12,24 @@ lines = args.config.read_text(encoding='utf-8').splitlines()
 size = [line.strip() for line in lines if line.strip().startswith('CONFIG_CC_OPTIMIZE_FOR_SIZE=')]
 if len(size) > 1:
     raise SystemExit('Duplicate size selector')
+# Apply the central selector to the board kernel config before firmware build.
+kernel = args.trunk / 'configs/boards/WR1200JS/kernel-4.4.x.config'
+kernel_source = kernel.read_text(encoding='utf-8')
+kernel_pattern = r'^(?:CONFIG_CC_OPTIMIZE_FOR_SIZE=.*|# CONFIG_CC_OPTIMIZE_FOR_SIZE is not set)$'
+kernel_value = ('CONFIG_CC_OPTIMIZE_FOR_SIZE=y' if size == ['CONFIG_CC_OPTIMIZE_FOR_SIZE=y']
+                else '# CONFIG_CC_OPTIMIZE_FOR_SIZE is not set')
+if size and size not in (['CONFIG_CC_OPTIMIZE_FOR_SIZE=y'], ['CONFIG_CC_OPTIMIZE_FOR_SIZE=n']):
+    raise SystemExit('Unsupported size selector value')
+if len(re.findall(kernel_pattern, kernel_source, re.M)) != 1:
+    raise SystemExit('Inspect kernel optimization selector')
+kernel.write_text(re.sub(kernel_pattern, kernel_value, kernel_source,
+                         count=1, flags=re.M), encoding='utf-8')
 if size == ['CONFIG_CC_OPTIMIZE_FOR_SIZE=y']:
     print('Size optimization selected; shared userspace flags preserved')
     raise SystemExit(0)
 if size and size != ['CONFIG_CC_OPTIMIZE_FOR_SIZE=n']:
     raise SystemExit('Unsupported size selector value')
-if not size and '# CONFIG_CC_OPTIMIZE_FOR_SIZE is not set' not in lines:
+if not size and not any(line.strip() in ('# CONFIG_CC_OPTIMIZE_FOR_SIZE is not set', '# CONFIG_CC_OPTIMIZE_FOR_SIZE=y') for line in lines):
     raise SystemExit('Explicit size/performance policy required')
 path = args.trunk / 'config.arch'
 source = path.read_text(encoding='utf-8')
