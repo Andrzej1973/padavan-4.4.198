@@ -471,6 +471,12 @@ jobs:
             sha256sum "$image"
           done
 
+      - name: Verify WR1200JS image upload structure
+        run: |
+          python3 overlay/padavan-4.4/scripts/verify-wr1200js-image.py \
+            padavan-4.4/trunk/images/WR1200JS_4.4.198.9-100.trx \
+            --report firmware-image-checks.json
+
       - name: Verify WPAD image packaging
         run: |
           python3 overlay/padavan-4.4/scripts/verify-wpad.py \
@@ -495,6 +501,7 @@ jobs:
             toolchain-sha256.txt
             unsupported-firmware-options.txt
             firmware-requested.config
+            firmware-image-checks.json
             wpad-image-checks.json
             firmware-effective.config
             kernel-effective.config
