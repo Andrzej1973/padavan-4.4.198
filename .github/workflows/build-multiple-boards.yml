@@ -11,6 +11,14 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/build-multiple-boards.yml'
+      - '.github/workflows/build-padavan-4.4-wr1200js.yml'
+      - 'configs.build/wr1200js.config'
+      - 'overlay/padavan-4.4/ports/**'
+      - 'overlay/padavan-4.4/scripts/**'
+      - 'overlay/padavan-4.4/trunk/**'
+      - 'overlay/padavan-4.4/patches/**'
+      - 'sources.lock.json'
+      - 'tools/verify-source-archive.py'
       - 'boards.json'
       - 'tools/board-catalog.py'
       - 'tools/collect-board-downloads.py'
