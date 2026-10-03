@@ -609,6 +609,30 @@ jobs:
             privoxy-candidate-build/privoxy-4.2.0-stable/config.h
             privoxy-candidate-build/privoxy-4.2.0-stable/privoxy
 
+      - name: Compile Stubby DoT candidate
+        run: |
+          set -euo pipefail
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          TARGET_CC="$compiler" \
+          TARGET_STAGE="$PWD/padavan-4.4/trunk/stage" \
+          STUBBY_CANDIDATE_DIR="$PWD/stubby-candidate-build" \
+            bash overlay/padavan-4.4/candidates/stubby/compile-stubby.sh
+
+      - name: Upload Stubby candidate diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: stubby-candidate
+          if-no-files-found: ignore
+          retention-days: 14
+          path: |
+            stubby-candidate-build/*.log
+            stubby-candidate-build/elf-*.txt
+            stubby-candidate-build/stubby-mips
+            stubby-candidate-build/build/CMakeCache.txt
+            stubby-candidate-build/build/CMakeFiles/CMake*.log
+
       - name: Compile MT7621 systick candidate objects
         run: |
           set -euo pipefail
