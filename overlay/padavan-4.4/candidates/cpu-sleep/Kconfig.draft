@@ -1,0 +1,11 @@
+# Draft integration; do not enable until per-CPU broadcast changes validated.
+config CLKEVT_MT7621_SYSTICK
+    bool "MT7621 independent systick for CPU sleep"
+    depends on SOC_MT7621 && GENERIC_CLOCKEVENTS_BROADCAST
+    select CLKSRC_OF
+    select CLKSRC_MMIO
+    default n
+
+# Proposed Makefile hook:
+# obj-$(CONFIG_CLKEVT_MT7621_SYSTICK) += cevt-mt7621.o
+# Must also coordinate CEVT_SYSTICK_QUIRK / R4K timer registration.

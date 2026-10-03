@@ -691,33 +691,43 @@ jobs:
             stubby-candidate-build/build/CMakeCache.txt
             stubby-candidate-build/build/CMakeFiles/CMake*.log
 
-      - name: Compile MT7621 systick candidate objects
+      - name: Link isolated MT7621 systick candidate kernel
         run: |
           set -euo pipefail
-          kernel="$PWD/padavan-4.4/trunk/linux-4.4.x"
+          source_kernel="$PWD/padavan-4.4/trunk/linux-4.4.x"
+          kernel="$RUNNER_TEMP/wr1200js-systick-link"
+          test ! -e "$kernel"
+          cp -a "$source_kernel" "$kernel"
           compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
           test -n "$compiler"
           cross="${compiler%gcc}"
           candidate="$PWD/overlay/padavan-4.4/candidates/cpu-sleep"
-          cp "$candidate/cevt-mt7621-draft.c" "$kernel/arch/mips/ralink/cevt-mt7621.c"
-          cp "$candidate/cevt-r4k-draft.c" "$kernel/arch/mips/kernel/cevt-r4k.c"
-          cp "$candidate/csrc-r4k-draft.c" "$kernel/arch/mips/kernel/csrc-r4k.c"
-          cp "$candidate/mips-gic-timer-draft.c" "$kernel/drivers/clocksource/mips-gic-timer.c"
-          make -C "$kernel" ARCH=mips CROSS_COMPILE="$cross" \
-            KCFLAGS=-DCONFIG_CLKEVT_MT7621_SYSTICK \
-            arch/mips/ralink/cevt-mt7621.o arch/mips/kernel/cevt-r4k.o \
-            arch/mips/kernel/csrc-r4k.o drivers/clocksource/mips-gic-timer.o \
-            2>&1 | tee cpu-sleep-compile.log
-          for object in arch/mips/ralink/cevt-mt7621.o arch/mips/kernel/cevt-r4k.o arch/mips/kernel/csrc-r4k.o drivers/clocksource/mips-gic-timer.o; do
-            test -s "$kernel/$object"
-            readelf -h "$kernel/$object" | grep -q 'Machine:.*MIPS'
-          done
+          python3 "$candidate/prepare-link-candidate.py" "$kernel"
+          python3 "$candidate/activate-link-config.py" "$kernel"
+          make -C "$kernel" ARCH=mips CROSS_COMPILE="$cross" olddefconfig \
+            2>&1 | tee cpu-sleep-config.log
+          grep -qx 'CONFIG_CLKEVT_MT7621_SYSTICK=y' "$kernel/.config"
+          make -C "$kernel" ARCH=mips CROSS_COMPILE="$cross" -j2 vmlinux \
+            2>&1 | tee cpu-sleep-link.log
+          test -s "$kernel/vmlinux"
+          "${cross}readelf" -h "$kernel/vmlinux" > cpu-sleep-elf.txt
+          grep -q 'Machine:.*MIPS' cpu-sleep-elf.txt
+          "${cross}nm" "$kernel/vmlinux" > cpu-sleep-symbols.txt
+          grep -Eq '[[:space:]]mt7621_systick_early_init$' cpu-sleep-symbols.txt
+          cp "$kernel/.config" cpu-sleep-link.config
+          sha256sum "$kernel/vmlinux" > cpu-sleep-vmlinux.sha256
 
-      - name: Upload candidate compile diagnostics
+      - name: Upload isolated kernel link diagnostics
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: mt7621-systick-compile
+          name: mt7621-systick-link
           if-no-files-found: ignore
           retention-days: 14
-          path: cpu-sleep-compile.log
+          path: |
+            cpu-sleep-config.log
+            cpu-sleep-link.log
+            cpu-sleep-elf.txt
+            cpu-sleep-symbols.txt
+            cpu-sleep-link.config
+            cpu-sleep-vmlinux.sha256
