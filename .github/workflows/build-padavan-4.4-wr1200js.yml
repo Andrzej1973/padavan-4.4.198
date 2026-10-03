@@ -315,10 +315,18 @@ jobs:
             padavan-4.4/trunk configs.build/wr1200js.config
           grep -E '^(UOPT|LOPT)[[:space:]]*=' padavan-4.4/trunk/config.arch
 
+      - name: Configure optional NFS kernel support
+        run: |
+          python3 overlay/padavan-4.4/scripts/set-nfs-kernel-options.py \
+            configs.build/wr1200js.config \
+            padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
+
       - name: Build WR1200JS firmware
         run: |
           cd padavan-4.4
           make WR1200JS TOOLCHAIN=mipsel-linux-uclibc
+          python3 ../overlay/padavan-4.4/scripts/set-nfs-kernel-options.py \
+            ../configs.build/wr1200js.config trunk/linux-4.4.x/.config --verify
           set -x
           for option in QOS IMQ IFB IPSET XFRM; do
             grep -q "^CONFIG_FIRMWARE_INCLUDE_${option}=y$" trunk/.config
