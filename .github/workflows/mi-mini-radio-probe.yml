@@ -62,6 +62,7 @@ jobs:
           mkdir toolchain
           curl --fail --location --retry 3 -o toolchain.tar.xz https://github.com/vipshmily/padavan-4.4/releases/download/toolchain/mipsel-linux-uclibc.tar.xz
           sha256sum toolchain.tar.xz > toolchain.sha256
+          python3 tools/verify-source-archive.py mipsel-linux-uclibc-toolchain toolchain.tar.xz
           tar -xJf toolchain.tar.xz -C toolchain
       - name: Compile MT7620 radio and link isolated kernel
         run: |

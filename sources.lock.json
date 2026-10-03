@@ -38,10 +38,13 @@
       "id": "mipsel-linux-uclibc-toolchain",
       "kind": "archive",
       "origin": "https://github.com/vipshmily/padavan-4.4/releases/download/toolchain/mipsel-linux-uclibc.tar.xz",
-      "sha256": null,
-      "preservation_status": "pending-archive-and-verified-hash",
+      "sha256": "de412846a5d057faf132b2463aa29c24f77c79c744f4181c1a287bbeaf1d7256",
+      "preservation_status": "local-archive-verified; owned-release-copy-pending",
       "owned_copy": null,
-      "license_inventory_status": "pending-component-inventory"
+      "license_inventory_status": "pending-component-inventory",
+      "size_bytes": 28358192,
+      "local_backup_relative_path": "sources/archives/mipsel-linux-uclibc.tar.xz",
+      "checksum_evidence": "Successful run 37133812785, job 111234099261; independently matched local download on 2026-10-03"
     },
     {
       "id": "pcre2",

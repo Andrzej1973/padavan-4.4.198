@@ -18,7 +18,17 @@ for board in selected:
         raise SystemExit('Invalid board ID')
     artifact = Path('board-artifacts') / ('padavan-linux-4.4.198-' + board_id)
     status_file = Path('board-status') / ('board-build-status-' + board_id) / 'board-build-status.json'
-    status = json.loads(status_file.read_text())['status'] if status_file.is_file() else 'missing-status'
+    # download-artifact extracts a single matched artifact directly into path.
+    # This fallback is only unambiguous when exactly one board was selected.
+    if len(selected) == 1:
+        if not artifact.exists():
+            artifact = Path('board-artifacts')
+        if not status_file.is_file():
+            status_file = Path('board-status/board-build-status.json')
+    status_record = json.loads(status_file.read_text()) if status_file.is_file() else None
+    if status_record and status_record.get('board') != board_id:
+        raise SystemExit('Status artifact belongs to a different board')
+    status = status_record['status'] if status_record else 'missing-status'
     target = out / board_id
     images = list(artifact.rglob('*.trx')) if artifact.exists() else []
     record = {'board': board_id, 'build_status': status, 'images': []}

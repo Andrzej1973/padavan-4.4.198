@@ -22,8 +22,11 @@ as the per-board status before treating an image as build-verified.
 - Toolchain archive:
   https://github.com/vipshmily/padavan-4.4/releases/download/toolchain/mipsel-linux-uclibc.tar.xz
 - The build uses `TOOLCHAIN=mipsel-linux-uclibc` and records the downloaded
-  toolchain SHA256 in its artifact. The archive content is not yet enforced
-  against a committed expected SHA256; source preservation must close this gap.
+  toolchain SHA256 in its artifact. Firmware and Mi Mini candidate workflows
+  enforce the committed expected digest from sources.lock.json before extraction.
+  The archive is also preserved and hash-verified locally; its owned Release
+  copy is still pending. The upstream K2P diagnostic uses a separate hanwckf
+  toolchain URL and is not evidence about the WR1200JS toolchain.
 
 The old nilabsent uClibc-ng 1.0.58 URL in the archived `variables` file is
 historical input to the former build system. It is not used by the active

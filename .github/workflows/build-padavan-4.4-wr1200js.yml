@@ -303,6 +303,7 @@ jobs:
             --output padavan-4.4/toolchain-mipsel.tar.xz \
             https://github.com/vipshmily/padavan-4.4/releases/download/toolchain/mipsel-linux-uclibc.tar.xz
           sha256sum padavan-4.4/toolchain-mipsel.tar.xz | tee toolchain-sha256.txt
+          python3 tools/verify-source-archive.py mipsel-linux-uclibc-toolchain padavan-4.4/toolchain-mipsel.tar.xz
           tar -xJf padavan-4.4/toolchain-mipsel.tar.xz \
             -C padavan-4.4/toolchain/toolchain-mipsel
 
