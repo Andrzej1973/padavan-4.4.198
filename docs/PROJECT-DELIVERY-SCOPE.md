@@ -7,6 +7,15 @@ preserving the user's configuration and required features. The earlier CAKE
 exclusion is superseded by the user's approval below.
 Compilation alone does not establish a successful device port.
 
+## Authoritative development location — user confirmation 2026-10-03
+
+All subsequent implementation, configuration, package, board-port and build
+system work belongs in Andrzej1973/padavan-4.4.198, branch main. Preserve
+Andrzej1973/youhua-wr1200js-nilab and its experimental/Padavan-4.4.198 branch
+as a historical reference and control point; do not continue primary
+development there. This changes the development location, not the accepted
+firmware requirements or outstanding verification and preservation work.
+
 ## Second router and dual-image CI — user instruction 2026-10-03
 
 Latest user confirmation: include this task in the project goal. The Mi Mini
@@ -206,3 +215,4 @@ revisions, acceleration mode and measurement conditions, and distinguish measure
 results from expectations. Preserve existing router settings. Report missing
 baseline measurements and avoid claiming an improvement without evidence.
 These configuration checks and runtime comparisons have not been performed here.
+
