@@ -580,6 +580,17 @@ jobs:
           if-no-files-found: ignore
           path: imq-patch-rejects.txt
 
+      - name: Verify RSSI Kick image controls and driver commands
+        run: python3 tools/verify-rssi-image.py padavan-4.4
+
+      - name: Upload RSSI image diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: rssi-image-checks
+          if-no-files-found: ignore
+          path: rssi-image-checks.json
+
       - name: Upload WR1200JS images and toolchain checksum
         uses: actions/upload-artifact@v7
         with:
