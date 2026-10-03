@@ -78,3 +78,27 @@ jobs:
         run: |
           test "$BUILD_RESULT" = success
           python3 -c "import json; assert json.load(open('downloads/index.json'))['all_selected_images_built']"
+
+  firmware-zip:
+    needs: [select, build]
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.select.outputs.matrix) }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v8
+        with:
+          name: padavan-linux-4.4.198-${{ matrix.board }}
+          path: firmware-input
+      - name: Prepare firmware and configuration only
+        id: package
+        env:
+          BOARD_ID: ${{ matrix.board }}
+        run: python3 tools/stage-firmware-download.py firmware-input firmware-download "$BOARD_ID"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.package.outputs.archive_name }}
+          path: firmware-download/*
+          if-no-files-found: error
+          retention-days: 14
