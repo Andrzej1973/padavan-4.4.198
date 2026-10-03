@@ -58,11 +58,22 @@ branch = '''            }
                 if (get_login_safe() && privoxy_file_allowed(file_name) &&
                     write_textarea_to_file(value, "/etc/storage/privoxy", file_name)) {
                     request_restart_events(event_mask, event_mask_extended);
-                    need_mtd_write = 1;
+                    privoxy_storage_changed = 1;
                 }
             }
 #endif
             else if (!strncmp(v->name, "scripts.", 8)) {'''
 s = s.replace(anchor, branch, 1)
+anchor = 'validate_asp_apply(webs_t wp, int sid)\n{\n'
+if s.count(anchor) != 1:
+    raise SystemExit('Inspect apply function storage flag')
+s = s.replace(anchor, anchor + '#if defined(APP_PRIVOXY)\n\tint privoxy_storage_changed = 0;\n#endif\n', 1)
+anchor = '\treturn (nvram_modified || restart_needed_bits || restart_needed_extended) ? 1 : 0;'
+if s.count(anchor) != 1:
+    raise SystemExit('Inspect apply function return')
+s = s.replace(anchor, '#if defined(APP_PRIVOXY)\n'
+    '\tif (privoxy_storage_changed && eval("/sbin/mtd_storage.sh", "save") != 0)\n'
+    '\t\tlogmessage("Privoxy", "Configuration storage save failed");\n#endif\n' + anchor, 1)
 args.web.write_text(s, encoding='utf-8')
 print('Privoxy editor file routing added; runtime validation pending')
+
