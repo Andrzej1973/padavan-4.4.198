@@ -721,9 +721,17 @@ jobs:
           make -C "$kernel" ARCH=mips CROSS_COMPILE="$cross" olddefconfig \
             2>&1 | tee cpu-sleep-config.log
           grep -qx 'CONFIG_CLKEVT_MT7621_SYSTICK=y' "$kernel/.config"
+          python3 "$candidate/activate-link-dts.py" "$kernel"
           make -C "$kernel" ARCH=mips CROSS_COMPILE="$cross" -j2 vmlinux \
             2>&1 | tee cpu-sleep-link.log
           test -s "$kernel/vmlinux"
+          grep -a -q 'mediatek,mt7621-systick' "$kernel/vmlinux"
+          cp "$kernel/arch/mips/boot/dts/ralink/wr1200js.dts" cpu-sleep-board.dts
+          dtb="$(find "$kernel/arch/mips/boot" -name wr1200js.dtb -type f -print -quit)"
+          test -n "$dtb"
+          test -s "$dtb"
+          cp "$dtb" cpu-sleep-board.dtb
+          "$kernel/scripts/dtc/dtc" -I dtb -O dts "$dtb" > cpu-sleep-compiled-board.dts
           "${cross}readelf" -h "$kernel/vmlinux" > cpu-sleep-elf.txt
           grep -q 'Machine:.*MIPS' cpu-sleep-elf.txt
           "${cross}nm" "$kernel/vmlinux" > cpu-sleep-symbols.txt
@@ -745,6 +753,9 @@ jobs:
             cpu-sleep-symbols.txt
             cpu-sleep-link.config
             cpu-sleep-vmlinux.sha256
+            cpu-sleep-board.dts
+            cpu-sleep-board.dtb
+            cpu-sleep-compiled-board.dts
 
       - name: Record WR1200JS board build status
         if: always()
