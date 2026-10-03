@@ -11,13 +11,13 @@ bash scripts/config --disable SOC_RT305X --disable SOC_RT288X \
     --enable WL_MEDIATEK --enable WIFI_DRIVER --enable MI_MINI_RADIO \
     --set-val MI_MINI_RADIO_RAM_MB 128 --disable RT_MEMORY_OPTIMIZATION \
     --disable CC_OPTIMIZE_FOR_SIZE \
-    --enable MTD --enable MTD_PARTITIONS --enable PCI \
+    --enable MTD --enable MTD_PARTITIONS --enable PCI --enable GPIO_SYSFS \
     --enable RT2860V2_AP_LLTD --enable RT2860V2_AP_WDS \
     --enable RT2860V2_AP_MBSS --enable RT2860V2_AP_MBSS_NEW_MBSSID_MODE \
     --enable RT2860V2_AP_APCLI --enable RT2860V2_AP_GREENAP \
     --disable RT_ATE --disable RT_VIDEO_TURBINE --disable RA_HW_NAT_WIFI
 make ARCH=mips CROSS_COMPILE="$cross" olddefconfig
-for key in SOC_MT7620 PCI MI_MINI_RADIO RT2860V2_AP RT2860V2_AP_WDS \
+for key in SOC_MT7620 PCI GPIO_SYSFS MI_MINI_RADIO RT2860V2_AP RT2860V2_AP_WDS \
            RT2860V2_AP_MBSS RT2860V2_AP_APCLI; do
     grep -qx "CONFIG_${key}=y" .config || {
         echo "Required compile-probe selection did not survive Kconfig: $key" >&2
@@ -46,4 +46,3 @@ for symbol in mi_mini_factory_read mi_mini_radio_attach mi_mini_probe; do
     }
 done
 echo 'Isolated vmlinux linked with the candidate; no board boot or firmware-image validation.'
-

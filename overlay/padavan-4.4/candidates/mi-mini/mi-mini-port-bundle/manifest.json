@@ -7,7 +7,8 @@
     "common/rtmp_init.c",
     "common/rtmp_init_inf.c",
     "Makefile",
-    "os/linux/rbus_main_dev.c"
+    "os/linux/rbus_main_dev.c",
+    "os/linux/rt_proc.c"
   ],
   "new_file_sha256": {
     "Kconfig": "de6176e33328188a0307059bb4a2ae30a4736da5e163cb4649b319f558675f89",
@@ -15,6 +16,6 @@
     "os/linux/mi_mini_platform.c": "74742ad1e52b255ab8519c2408c408666716d03585161b4ce7326b327a8eebed",
     "rt2860v2-ap.Kconfig": "6cb81fbcbddc656090e6ab673e8769239441f828d75674c7fe08167fbf9d7ca8"
   },
-  "patch_sha256": "1ce6091531a642763bf0bc655b5374936fa5b4577a42f5c31b847d26ffada4e0",
-  "status": "Previous candidate: probe 3 compiled MIPS radio/Factory objects. Current RAM sizing and full-kernel-link probe: pending CI; no firmware image or device runtime evidence."
+  "patch_sha256": "b6c85a3710f7f7da0bab36faf75463c6769b3eae9d241d48c359ee34cf64df37",
+  "status": "Current candidate: GPIO/procfs link repairs staged. Previous full link reached unresolved __gpiod_export, procRegDir and ra_mtd_write_nm. Checked Factory write binding still pending; no image or runtime evidence."
 }

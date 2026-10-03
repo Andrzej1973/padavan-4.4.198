@@ -1159,3 +1159,18 @@
  	
  #if defined(CONFIG_RA_CLASSIFIER)&&(!defined(CONFIG_RA_CLASSIFIER_MODULE))
  	proc_ptr = proc_ralink_wl_video;
+--- a/os/linux/rt_proc.c
++++ b/os/linux/rt_proc.c
+@@ -69,7 +69,12 @@
+ #endif /* PROCREG_DIR */
+ 
+ #ifdef CONFIG_PROC_FS
++#ifdef MI_MINI_FACTORY_READ
++/* This built-in port owns /proc/mt7620; the legacy RDM global is absent. */
++static struct proc_dir_entry *procRegDir;
++#else
+ extern struct proc_dir_entry *procRegDir;
++#endif
+ 
+ #ifdef VIDEO_TURBINE_SUPPORT
+ extern BOOLEAN UpdateFromGlobal;
