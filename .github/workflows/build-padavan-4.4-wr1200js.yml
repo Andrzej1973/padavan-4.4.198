@@ -486,6 +486,22 @@ jobs:
           python3 overlay/padavan-4.4/scripts/verify-wpad.py \
             padavan-4.4/trunk wpad-image-checks.json
 
+      - name: Verify Stubby image packaging and ELF dependencies
+        run: |
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_STUBBY=y$' configs.build/wr1200js.config; then
+            python3 overlay/padavan-4.4/ports/stubby/verify-image.py \
+              padavan-4.4/trunk stubby-image-checks.json
+          fi
+
+      - name: Upload Stubby image diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: stubby-image-checks
+          retention-days: 14
+          if-no-files-found: ignore
+          path: stubby-image-checks.json
+
       - name: Upload IMQ patch rejects
         if: always()
         uses: actions/upload-artifact@v7
@@ -507,6 +523,7 @@ jobs:
             firmware-requested.config
             firmware-image-checks.json
             wpad-image-checks.json
+            stubby-image-checks.json
             firmware-effective.config
             kernel-effective.config
             usbip-elf-dependencies.json
