@@ -224,3 +224,14 @@ Focus primary implementation and completion work on YOUHUA WR1200JS firmware. Co
 ## Final delivery: unchanged upstream router configurations — user instruction 2026-10-03
 
 At the end of the project, include the original router/board configurations supplied by the pinned primary Padavan 4.4 source. Copy them byte-for-byte without adapting, normalizing, enabling packages or independently porting those boards. Record the upstream repository, exact commit and original paths; preserve applicable license notices. Present them as upstream reference configurations available for users to adapt in their own forks. Their presence does not establish compatibility with this project's added features or verified builds/runtime. Do not automatically enable them in the normal build matrix. This replaces the earlier requirement to adapt all remaining nilabsent router configurations: broader board adaptation is outside this project's required completion scope. Complete the agreed WR1200JS work, secondary Mi Mini work, source/local-backup preservation and final documentation before declaring the project complete.
+
+
+## WAN port reassignment — user requirement 2026-10-03
+
+Implement a WR1200JS WebUI option to replace a damaged physical WAN socket with one selected LAN socket. Provide a selector for the original WAN or LAN1–LAN4, Apply and Restore original WAN controls, and a clear indication that the selected socket is no longer available to the LAN. Keep the original WAN selected by default, including after a factory reset.
+
+Reassign switch/VLAN membership and WAN link detection coherently; changing the existing `wan_src_phy` link-monitor setting alone is insufficient. Preserve IPoE/DHCP, WAN MAC, DNS and existing connection settings. Validate the actual board port mapping and IPTV/VLAN conflicts without silently resetting existing configuration. Account for firewall and hardware NAT updates and isolate the old WAN socket where supported.
+
+Warn before applying a reassignment that the connection may be interrupted and the WAN cable must be connected to the selected socket. This requirement does not authorize changing ports on the user's current remote router.
+
+Acceptance requires a successful firmware build plus device evidence for DHCP on the selected socket, LAN/WAN isolation, remaining LAN sockets, hardware acceleration, VLAN/IPTV compatibility where configured, reboot persistence and restoration of the original WAN assignment. Until these checks are complete, report this feature as pending, not operationally verified.
