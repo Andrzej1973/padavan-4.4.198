@@ -10,8 +10,8 @@
       "origin": "https://github.com/Andrzej1973/youhua-wr1200js-nilab.git",
       "revision": "ad5ab44cfc4e021027c9cfbbd1679324e86d929f",
       "branch": "experimental/Padavan-4.4.198",
-      "preservation_status": "pending-history-import",
-      "owned_copy": null,
+      "preservation_status": "history-imported; local-git-bundle-created",
+      "owned_copy": "https://github.com/Andrzej1973/padavan-4.4.198/tree/experimental/Padavan-4.4.198",
       "license_inventory_status": "pending-component-inventory"
     },
     {
