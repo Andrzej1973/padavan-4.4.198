@@ -493,6 +493,21 @@ jobs:
             sha256sum "$image"
           done
 
+      - name: Verify requested and effective WR1200JS configuration
+        run: |
+          python3 tools/verify-wr1200js-config.py \
+            configs.build/wr1200js.config firmware-effective.config kernel-effective.config \
+            --report firmware-config-checks.json
+
+      - name: Upload configuration policy diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: wr1200js-config-checks
+          path: firmware-config-checks.json
+          if-no-files-found: ignore
+          retention-days: 14
+
       - name: Verify WR1200JS image upload structure
         run: |
           python3 overlay/padavan-4.4/scripts/verify-wr1200js-image.py \
@@ -556,6 +571,7 @@ jobs:
             unsupported-firmware-options.txt
             firmware-requested.config
             firmware-image-checks.json
+            firmware-config-checks.json
             wpad-image-checks.json
             stubby-image-checks.json
             privoxy-image-checks.json
