@@ -1,0 +1,20 @@
+{
+  "upstream_repository": "nilabsent/padavan-ng",
+  "upstream_commit": "d2c5846299949c57a4e867284069900b561dd2a4",
+  "source_tree_sha": "ee88f6d0b37bab21bbc2ec34eb7c49480e297818",
+  "changed_source_files": [
+    "common/ee_flash.c",
+    "common/rtmp_init.c",
+    "common/rtmp_init_inf.c",
+    "Makefile",
+    "os/linux/rbus_main_dev.c"
+  ],
+  "new_file_sha256": {
+    "Kconfig": "232e592c9865118e6803c4a45ce755c86710275321b8a2c1199bef848308b401",
+    "os/linux/mi_mini_factory.c": "209d3c3ddbd34319fd7dd6823b93e2452ea24a2dc3efc5a70bbe3d5d5f7440a3",
+    "os/linux/mi_mini_platform.c": "74742ad1e52b255ab8519c2408c408666716d03585161b4ce7326b327a8eebed",
+    "rt2860v2-ap.Kconfig": "6cb81fbcbddc656090e6ab673e8769239441f828d75674c7fe08167fbf9d7ca8"
+  },
+  "patch_sha256": "7de7c207df6d5ba4077f150baee23bb66efa90653a701d89f20aa3ea0118d122",
+  "status": "candidate only; no C compilation, link or runtime evidence"
+}

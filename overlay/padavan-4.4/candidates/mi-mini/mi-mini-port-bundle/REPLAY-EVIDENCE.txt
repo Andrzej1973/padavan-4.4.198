@@ -1,0 +1,2 @@
+Clean verified upstream source + git apply + hashed new files = byte-identical candidate: 273 files.
+This proves source reconstruction only; no C compilation or runtime verification.
