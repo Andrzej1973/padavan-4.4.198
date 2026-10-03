@@ -40,10 +40,16 @@ function change_privoxy_enabled() {
 }
 function applyRule() {
     if (!login_safe() || !found_app_privoxy()) return;
-    showLoading();
     document.form.action_mode.value = ' Apply ';
     document.form.current_page.value = '/Advanced_Services_Privoxy.asp';
     document.form.next_page.value = '';
+    // The native apply handler reads a fixed 65535-byte encoded POST buffer.
+    // Check successful form controls together, including percent encoding.
+    if ($j(document.form).serialize().length > 65000) {
+        alert('The configuration is too large to save in the web interface. No changes were sent.');
+        return;
+    }
+    showLoading();
     document.form.submit();
 }
 function done_validating(action) { refreshpage(); }
@@ -122,7 +128,7 @@ function done_validating(action) { refreshpage(); }
                                             <td colspan="2">
                                                 <a href="javascript:spoiler_toggle('spoiler_privoxy_conf')"><span><#CustomConf#> "config"</span></a>
                                                 <div id="spoiler_privoxy_conf" style="display:none;">
-                                                    <textarea rows="16" wrap="off" spellcheck="false" maxlength="8192" class="span12" name="privoxy.config" style="font-family:'Courier New'; font-size:12px; resize:vertical;"><% nvram_dump("privoxy.config",""); %></textarea>
+                                                    <textarea rows="16" wrap="off" spellcheck="false" class="span12" name="privoxy.config" style="font-family:'Courier New'; font-size:12px; resize:vertical;"><% nvram_dump("privoxy.config",""); %></textarea>
                                                 </div>
                                             </td>
                                         </tr>
@@ -130,7 +136,7 @@ function done_validating(action) { refreshpage(); }
                                             <td colspan="2">
                                                 <a href="javascript:spoiler_toggle('spoiler_privoxy_action')"><span><#CustomConf#> "user.action"</span></a>
                                                 <div id="spoiler_privoxy_action" style="display:none;">
-                                                    <textarea rows="16" wrap="off" spellcheck="false" maxlength="8192" class="span12" name="privoxy.user.action" style="font-family:'Courier New'; font-size:12px; resize:vertical;"><% nvram_dump("privoxy.user.action",""); %></textarea>
+                                                    <textarea rows="16" wrap="off" spellcheck="false" class="span12" name="privoxy.user.action" style="font-family:'Courier New'; font-size:12px; resize:vertical;"><% nvram_dump("privoxy.user.action",""); %></textarea>
                                                 </div>
                                             </td>
                                         </tr>
@@ -138,7 +144,7 @@ function done_validating(action) { refreshpage(); }
                                             <td colspan="2">
                                                 <a href="javascript:spoiler_toggle('spoiler_privoxy_filter')"><span><#CustomConf#> "user.filter"</span></a>
                                                 <div id="spoiler_privoxy_filter" style="display:none;">
-                                                    <textarea rows="16" wrap="off" spellcheck="false" maxlength="8192" class="span12" name="privoxy.user.filter" style="font-family:'Courier New'; font-size:12px; resize:vertical;"><% nvram_dump("privoxy.user.filter",""); %></textarea>
+                                                    <textarea rows="16" wrap="off" spellcheck="false" class="span12" name="privoxy.user.filter" style="font-family:'Courier New'; font-size:12px; resize:vertical;"><% nvram_dump("privoxy.user.filter",""); %></textarea>
                                                 </div>
                                             </td>
                                         </tr>
@@ -146,7 +152,7 @@ function done_validating(action) { refreshpage(); }
                                             <td colspan="2">
                                                 <a href="javascript:spoiler_toggle('spoiler_privoxy_trust')"><span><#CustomConf#> "user.trust"</span></a>
                                                 <div id="spoiler_privoxy_trust" style="display:none;">
-                                                    <textarea rows="16" wrap="off" spellcheck="false" maxlength="8192" class="span12" name="privoxy.user.trust" style="font-family:'Courier New'; font-size:12px; resize:vertical;"><% nvram_dump("privoxy.user.trust",""); %></textarea>
+                                                    <textarea rows="16" wrap="off" spellcheck="false" class="span12" name="privoxy.user.trust" style="font-family:'Courier New'; font-size:12px; resize:vertical;"><% nvram_dump("privoxy.user.trust",""); %></textarea>
                                                 </div>
                                             </td>
                                         </tr>

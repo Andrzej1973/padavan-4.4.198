@@ -44,6 +44,8 @@ branch = '''#if defined(APP_PRIVOXY)
         if (!get_login_safe() || !privoxy_file_allowed(file+8))
             return 0;
         snprintf(filename, sizeof(filename), "%s/%s", "/etc/storage/privoxy", file+8);
+        if (!f_exists(filename))
+            snprintf(filename, sizeof(filename), "%s/%s", "/usr/share/privoxy/privoxy", file+8);
         return privoxy_dump_textarea(wp, filename);
     }
 #endif
@@ -76,4 +78,3 @@ s = s.replace(anchor, '#if defined(APP_PRIVOXY)\n'
     '\t\tlogmessage("Privoxy", "Configuration storage save failed");\n#endif\n' + anchor, 1)
 args.web.write_text(s, encoding='utf-8')
 print('Privoxy editor file routing added; runtime validation pending')
-

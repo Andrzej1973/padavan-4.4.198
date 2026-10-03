@@ -24,6 +24,7 @@ for script, target in [('integrate-build.py', args.tree.resolve()),
                        ('extend-event-bank.py', httpd),
                        ('register-http-fields.py', httpd),
                        ('register-file-routing.py', httpd / 'web_ex.c'),
+                       ('reject-incomplete-apply.py', httpd / 'web_ex.c'),
                        ('register-ui.py', trunk)]:
     subprocess.run([sys.executable, str(assets / script), str(target)], check=True)
 print('Privoxy full source port applied; image and runtime checks remain required')

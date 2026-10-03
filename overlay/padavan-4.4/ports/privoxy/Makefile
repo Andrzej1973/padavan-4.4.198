@@ -44,6 +44,8 @@ romfs:
 	cp -f $(SRC_NAME)/config $(SRC_NAME)/default.filter $(SRC_NAME)/user.filter \
 		$(SRC_NAME)/default.action $(SRC_NAME)/match-all.action $(SRC_NAME)/user.action configs/
 	cp -f $(SRC_NAME)/trust configs/user.trust
+	# Compact only the new ROMFS seed; never rewrite existing user storage files.
+	awk '!/^[[:space:]]*#/ && !/^[[:space:]]*$$/' $(SRC_NAME)/config > configs/config
 	sed -i 's/^logfile/#logfile/;s|^logdir.*|logdir /tmp|;s|^confdir.*|confdir /etc/storage/privoxy|;s/^#trustfile.*/#trustfile user.trust/;s/^enable-edit-actions.*/enable-edit-actions 1/' configs/config
 	printf '\n## Forward to TOR\n#forward-socks5t / 127.0.0.1:9050 .\n#forward-socks5t .onion 127.0.0.1:9050 .\n#forward 192.168.*.*/ .\n#forward 10.*.*.*/ .\n' >> configs/config
 	mkdir -p $(INSTALLDIR)/usr/share/privoxy/privoxy
