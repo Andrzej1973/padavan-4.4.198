@@ -55,6 +55,19 @@
       "preservation_status": "pending-archive-and-verified-hash",
       "owned_copy": null,
       "license_inventory_status": "pending-component-inventory"
+    },
+    {
+      "id": "https-dns-proxy-donor-archive",
+      "kind": "source-archive",
+      "origin": "https://github.com/nilabsent/padavan-ng/blob/d2c5846299949c57a4e867284069900b561dd2a4/trunk/user/doh_proxy/https_dns_proxy-0ba0525.tar.gz",
+      "revision": "d2c5846299949c57a4e867284069900b561dd2a4",
+      "sha256": "d3723d0e14612d2d2cab1f64150558a2a9804b54b2108afbb3e08949b4220ba6",
+      "size_bytes": 43165,
+      "git_blob_sha1": "22e9fd2568ae142ea83fac528da3f1ffb47107cf",
+      "preservation_status": "preserved-exact-archive-owned-repository-and-local",
+      "owned_copy": "sources/archives/https_dns_proxy-0ba0525.tar.gz",
+      "license_inventory_status": "MIT-preserved-in-archive-and-sources/licenses/https-dns-proxy-LICENSE",
+      "note": "Donor filename does not independently prove upstream commit; exact archive bytes are pinned."
     }
   ]
 }

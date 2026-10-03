@@ -109,6 +109,10 @@ jobs:
             python3 overlay/padavan-4.4/ports/privoxy/integrate-port.py padavan-4.4 \
               --config configs.build/wr1200js.config
           fi
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_DOH=y$' configs.build/wr1200js.config; then
+            python3 overlay/padavan-4.4/ports/doh/integrate-port.py padavan-4.4 \
+              --config configs.build/wr1200js.config
+          fi
           cp overlay/padavan-4.4/trunk/user/rp-l2tp/Makefile \
             padavan-4.4/trunk/user/rp-l2tp/Makefile
           cp overlay/padavan-4.4/trunk/user/ntfs-3g/Makefile \
@@ -551,6 +555,22 @@ jobs:
           if-no-files-found: ignore
           path: privoxy-image-checks.json
 
+      - name: Verify DoH image packaging and ELF dependencies
+        run: |
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_DOH=y$' configs.build/wr1200js.config; then
+            python3 overlay/padavan-4.4/ports/doh/verify-image.py \
+              padavan-4.4/trunk doh-image-checks.json
+          fi
+
+      - name: Upload DoH image diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: doh-image-checks
+          retention-days: 14
+          if-no-files-found: ignore
+          path: doh-image-checks.json
+
       - name: Upload IMQ patch rejects
         if: always()
         uses: actions/upload-artifact@v7
@@ -575,6 +595,7 @@ jobs:
             wpad-image-checks.json
             stubby-image-checks.json
             privoxy-image-checks.json
+            doh-image-checks.json
             firmware-effective.config
             kernel-effective.config
             usbip-elf-dependencies.json
