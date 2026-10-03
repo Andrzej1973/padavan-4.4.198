@@ -23,6 +23,8 @@ configure: source-check $(SRC_NAME)/.source-ready
 	test -f "$(STAGEDIR)/include/ares.h"
 	test -f "$(STAGEDIR)/include/ev.h"
 	test -f "$(STAGEDIR)/include/curl/curl.h"
+	test -f "$(STAGEDIR)/lib/libssl.so"
+	test -f "$(STAGEDIR)/lib/libcrypto.so"
 	test -f "$(CONFIG_CMAKE_TOOLCHAIN_FILE)"
 	cmake -S $(SRC_NAME) -B $(SRC_NAME)/build \
 		-DCMAKE_TOOLCHAIN_FILE="$(CONFIG_CMAKE_TOOLCHAIN_FILE)" \
@@ -32,6 +34,7 @@ configure: source-check $(SRC_NAME)/.source-ready
 		-DLIBCARES_INCLUDE_DIR="$(STAGEDIR)/include" \
 		-DLIBEV_INCLUDE_DIR="$(STAGEDIR)/include" \
 		-DCUSTOM_LIBCURL_INSTALL_PATH="$(STAGEDIR)" \
+		-DCMAKE_C_STANDARD_LIBRARIES="$(STAGEDIR)/lib/libssl.so $(STAGEDIR)/lib/libcrypto.so" \
 		-DCMAKE_INSTALL_PREFIX=/usr -DSW_VERSION=donor-archive-d3723d0e \
 		-DGIT_EXECUTABLE= -DUSE_CLANG_TIDY=OFF -DHAVE_SD_DAEMON_H=0
 
