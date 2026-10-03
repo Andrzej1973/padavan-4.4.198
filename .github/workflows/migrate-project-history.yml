@@ -1,0 +1,62 @@
+name: Import preserved project history
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/migrate-project-history.yml']
+permissions:
+  contents: write
+jobs:
+  import-history:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Fetch and verify pinned source history
+        shell: bash
+        run: |
+          set -euo pipefail
+          git remote add migration-source https://github.com/Andrzej1973/youhua-wr1200js-nilab.git
+          git fetch migration-source refs/heads/experimental/Padavan-4.4.198:refs/remotes/migration-source/port
+          source_sha=ad5ab44cfc4e021027c9cfbbd1679324e86d929f
+          git cat-file -e "$source_sha^{commit}"
+          git merge-base --is-ancestor "$source_sha" refs/remotes/migration-source/port
+          git fsck --full
+          test "$(git rev-list --count "$source_sha")" = 206
+          if git ls-remote --exit-code origin refs/heads/experimental/Padavan-4.4.198 > imported-ref.txt; then
+            test "$(cut -f1 imported-ref.txt)" = "$source_sha"
+          else
+            git push origin "$source_sha:refs/heads/experimental/Padavan-4.4.198"
+          fi
+          test "$(git ls-remote origin refs/heads/experimental/Padavan-4.4.198 | cut -f1)" = "$source_sha"
+      - name: Combine imported project with repository delivery records
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          source_sha=ad5ab44cfc4e021027c9cfbbd1679324e86d929f
+          if ! git merge-base --is-ancestor "$source_sha" HEAD; then
+            if ! git merge --no-commit --no-ff --allow-unrelated-histories "$source_sha"; then
+              mapfile -t conflicts < <(git diff --name-only --diff-filter=U)
+              test "${#conflicts[@]}" = 1
+              test "${conflicts[0]}" = README.md
+              git checkout --ours -- README.md
+              git add README.md
+            fi
+            git diff --name-only --diff-filter=U | grep . && exit 1 || true
+            git commit -m 'Import complete pinned firmware project history and preserve delivery records'
+            git push origin HEAD:refs/heads/main
+          fi
+          git merge-base --is-ancestor "$source_sha" HEAD
+          git diff --exit-code "$source_sha" HEAD -- configs.build overlay tools
+          printf 'Preserved source commit: %s\nSource commits: %s\nMerged commit: %s\n' \
+            "$source_sha" "$(git rev-list --count "$source_sha")" "$(git rev-parse HEAD)" > migration-evidence.txt
+      - uses: actions/upload-artifact@v7
+        with:
+          name: project-history-migration-evidence
+          path: migration-evidence.txt
+          if-no-files-found: error
+
