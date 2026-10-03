@@ -14,7 +14,7 @@ builds independently. At the end, download **padavan-4.4.198-router-downloads**
 for the combined index, per-board image files, SHA256 checksums and build
 status. Individual board artifacts remain available separately.
 
-The first combined workflow is under verification. A failed or missing board
+The combined workflow is under verification. A failed or missing board
 must not appear as a successful build in the download index.
 
 ## Router profiles
@@ -28,6 +28,14 @@ and Aria are disabled. Its full Linux 4.4 board port is pending, so it is not
 yet admitted to firmware builds. Radio object compilation alone does not
 prove a bootable firmware image. Further boards will be admitted individually
 after their build and image checks are implemented.
+
+## Build system and historical files
+
+The active 4.4 build uses the vipshmily mipsel-linux-uclibc toolchain.
+Historical nilabsent variables and build/release workflows are archived under
+`docs/archive/legacy-3.4/` and are not active build entry points. The completed
+import workflow is archived too. See [build system and toolchain](docs/BUILD-SYSTEM.md)
+for source pins, diagnostic jobs and the remaining preservation work.
 
 ## Source preservation
 

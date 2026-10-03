@@ -1,5 +1,5 @@
-name: Padavan Linux 4.4.198 control build
-run-name: "Padavan 4.4.198 control build"
+name: 'Diagnostic: upstream K2P control build'
+run-name: "Diagnostic K2P upstream build — not WR1200JS"
 
 on:
   workflow_dispatch:

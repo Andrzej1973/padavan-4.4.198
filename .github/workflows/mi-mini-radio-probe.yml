@@ -1,4 +1,4 @@
-name: MI-MINI MT7620 radio compile probe
+name: 'Diagnostic: Mi Mini kernel candidate (no firmware image)'
 on:
   workflow_dispatch:
   push:

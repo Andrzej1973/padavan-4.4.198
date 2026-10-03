@@ -2,11 +2,7 @@ name: Padavan Linux 4.4.198 WR1200JS
 run-name: "WR1200JS Linux 4.4.198 build"
 
 on:
-  workflow_dispatch:
   workflow_call:
-  push:
-    branches:
-      - experimental/Padavan-4.4.198
 
 permissions:
   contents: read
@@ -300,7 +296,7 @@ jobs:
           grep -q 'CONFIG_RALINK_BUILTIN_DTB_NAME="wr1200js"' \
             padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
 
-      - name: Download the pinned uClibc toolchain
+      - name: Download the Linux 4.4 uClibc toolchain
         run: |
           mkdir -p padavan-4.4/toolchain/toolchain-mipsel
           curl --fail --location --retry 5 \

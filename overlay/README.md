@@ -1,21 +1,18 @@
-# Experimental Hadzhioglu package overlay
+# Firmware port overlays
 
-This overlay is applied by pre-build.sh into the cloned padavan-ng source tree before clear_tree.sh.
+`padavan-4.4/` contains the active Linux 4.4.198 port: source changes,
+package integration, patches and integration helpers. The reusable WR1200JS
+build workflow defines which overlays are applied to the pinned base.
 
-Current packages:
+`padavan-4.4/candidates/` holds experimental code and isolated probes. A
+candidate's presence or successful compilation does not establish inclusion
+in the firmware or successful device runtime.
 
-- vlmcsd: KMS server, based on Hadzhioglu package trunk/user/vlmcsd
-- ndisc6: ndisc6 + rdisc6
-- socat: lightweight socket relay utility
+`padavan-ng/` and the older root `patches/` retain historical migration inputs.
+They are not a complete description of the active 4.4 build. Source imports
+from these paths must follow the current workflow and integration scripts.
 
-The original Hadzhioglu package Makefiles expect pre-downloaded source archives in the repository. The experimental overlay makes the three packages self-contained by downloading and extracting their pinned source versions during the build.
-
-Build hooks added to trunk/user/Makefile by pre-build.sh:
-
-- CONFIG_FIRMWARE_INCLUDE_VLMCSD -> vlmcsd
-- CONFIG_FIRMWARE_INCLUDE_NDISC6_RDISC6 -> ndisc6
-- CONFIG_FIRMWARE_INCLUDE_SOCAT -> socat
-
-obfs4 is deliberately NOT enabled in this first experiment because the current Hadzhioglu package pulls an Entware obfs4proxy package and the user's estimated package size (~6 MB) can materially affect the WR1200JS 16 MB flash budget.
-
-No binary blobs are committed to this repository by the overlay; the package Makefiles download their upstream sources during the firmware build.
+Package sources still include external build-time downloads. This repository
+is not yet a self-contained source mirror. Track origins and preservation
+status in [sources.lock.json](../sources.lock.json) and read
+[build system](../docs/BUILD-SYSTEM.md) for actual toolchain inputs.
