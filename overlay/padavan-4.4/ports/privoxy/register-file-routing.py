@@ -15,16 +15,39 @@ static int privoxy_file_allowed(const char *name)
     return !strcmp(name, "config") || !strcmp(name, "user.action") ||
            !strcmp(name, "user.filter") || !strcmp(name, "user.trust");
 }
-static int privoxy_dump_textarea(webs_t wp, const char *filename)
+static int privoxy_dump_textarea(webs_t wp, const char *filename, int default_config)
 {
     FILE *fp = fopen(filename, "r");
-    int ch, result = 0;
+    char line[1024];
+    const char *address = nvram_safe_get("lan_ipaddr");
+    struct in_addr lan;
+    int result = 0, line_start = 1;
+    int use_lan = default_config && inet_pton(AF_INET, address, &lan) == 1 &&
+                  lan.s_addr != INADDR_ANY && lan.s_addr != INADDR_BROADCAST;
     if (!fp) return 0;
-    while ((ch = fgetc(fp)) != EOF) {
-        if (ch == '&') result += websWrite(wp, "%s", "&amp;");
-        else if (ch == '<') result += websWrite(wp, "%s", "&lt;");
-        else if (ch == '>') result += websWrite(wp, "%s", "&gt;");
-        else result += websWrite(wp, "%c", ch);
+    while (fgets(line, sizeof(line), fp)) {
+        const unsigned char *text = (const unsigned char *)line;
+        size_t length = strlen(line);
+        if (use_lan && line_start && !strncmp(line, "listen-address", 14) &&
+            (line[14] == ' ' || line[14] == '\\t')) {
+            /* The packaged seed is displayed with the configured LAN address.
+             * Existing storage files are never rewritten by the editor. */
+            result += websWrite(wp, "listen-address  %s:8118\\n", address);
+            if (length && line[length - 1] != '\\n') {
+                int ch;
+                while ((ch = fgetc(fp)) != EOF && ch != '\\n') {}
+            }
+            line_start = 1;
+            continue;
+        }
+        while (*text) {
+            if (*text == '&') result += websWrite(wp, "%s", "&amp;");
+            else if (*text == '<') result += websWrite(wp, "%s", "&lt;");
+            else if (*text == '>') result += websWrite(wp, "%s", "&gt;");
+            else result += websWrite(wp, "%c", *text);
+            text++;
+        }
+        line_start = length && line[length - 1] == '\\n';
     }
     fclose(fp);
     return result;
@@ -44,9 +67,11 @@ branch = '''#if defined(APP_PRIVOXY)
         if (!get_login_safe() || !privoxy_file_allowed(file+8))
             return 0;
         snprintf(filename, sizeof(filename), "%s/%s", "/etc/storage/privoxy", file+8);
-        if (!f_exists(filename))
+        if (!f_exists(filename)) {
             snprintf(filename, sizeof(filename), "%s/%s", "/usr/share/privoxy/privoxy", file+8);
-        return privoxy_dump_textarea(wp, filename);
+            return privoxy_dump_textarea(wp, filename, !strcmp(file+8, "config"));
+        }
+        return privoxy_dump_textarea(wp, filename, 0);
     }
 #endif
 '''
