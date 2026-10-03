@@ -28,6 +28,6 @@ if grep -qx 'CONFIG_SOC_MT7621=y' .config; then
 fi
 make ARCH=mips CROSS_COMPILE="$cross" prepare
 make ARCH=mips CROSS_COMPILE="$cross" -j2 \
-    drivers/net/wireless/mediatek/mi-mini/rt2860v2_ap.o \
+    drivers/net/wireless/mediatek/mi-mini/ \
     drivers/net/wireless/wifi_utility/mt_wifi_mtd.o
 echo 'Radio and MTD objects compiled; full vmlinux link and device runtime not verified.'

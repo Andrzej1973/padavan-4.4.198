@@ -80,6 +80,7 @@ jobs:
           name: mi-mini-radio-compile-probe
           retention-days: 14
           if-no-files-found: ignore
+          include-hidden-files: true
           path: |
             mi-mini-radio-compile.log
             mi-mini-radio-elf.txt

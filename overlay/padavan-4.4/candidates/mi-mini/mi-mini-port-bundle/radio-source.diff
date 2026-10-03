@@ -106,7 +106,7 @@
 +        DBGPRINT_ERR(("MI-MINI: calibration unavailable; radio startup aborted\n"));
 +        goto err6;
 +    }
-+#endif	
++#endif
  #ifdef CONFIG_STA_SUPPORT
  #endif /* CONFIG_STA_SUPPORT */
  
