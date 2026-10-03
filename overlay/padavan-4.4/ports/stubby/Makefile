@@ -84,3 +84,4 @@ romfs:
 	$(ROMFSINST) $(SRC_NAME)/build/stubby/stubby /usr/sbin/stubby
 	$(ROMFSINST) -p +x /usr/bin/stubby.sh
 	$(ROMFSINST) -d /www/dot.json
+	$(ROMFSINST) -d -S -p 644 cacert-2026-09-25.pem /usr/share/stubby/ca-certificates.crt

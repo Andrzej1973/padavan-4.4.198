@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Register Stubby build assets; service/backend/UI integration is separate."""
 import argparse
+import hashlib
 import json
 import re
 from pathlib import Path
@@ -27,6 +28,9 @@ def main():
         raise RuntimeError("Integration requires one explicit Stubby=y selection")
     trunk = args.tree.resolve() / "trunk"
     assets = Path(__file__).resolve().parent
+    ca_bundle = (assets / "cacert-2026-09-25.pem").read_bytes()
+    if hashlib.sha256(ca_bundle).hexdigest() != "a41b5d356aea97a529fe27e0f7316d2f9d946d75927476cf9cf1b90637d00505":
+        raise RuntimeError("Pinned Stubby CA bundle checksum mismatch")
     edits = {}
     template = trunk / "configs/templates/WR1200JS.config"
     template_text = template.read_text(encoding="utf-8")
@@ -189,6 +193,7 @@ def main():
         (assets / "Makefile", trunk / "user/stubby/Makefile"),
         (assets / "stubby.sh", trunk / "user/stubby/stubby.sh"),
         (assets / "dot.json", trunk / "user/stubby/dot.json"),
+        (assets / "cacert-2026-09-25.pem", trunk / "user/stubby/cacert-2026-09-25.pem"),
         (assets / "services-stubby.c", trunk / "user/rc/services-stubby.c"),
         (assets / "dnsmasq-stubby.c", trunk / "user/rc/dnsmasq-stubby.c"),
         (assets / "Advanced_Services_DoT.asp", trunk / "user/www/n56u_ribbon_fixed/Advanced_Services_DoT.asp"),

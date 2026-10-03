@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import re
 import subprocess
+import tarfile
 
 
 def main():
@@ -62,6 +63,12 @@ def main():
         busybox_config = (args.trunk / "user/busybox/busybox-1.24.x/.config").read_text()
         checks["busybox_prerequisites"] = all("CONFIG_" + key + "=y" in busybox_config.splitlines()
             for key in ["MKTEMP", "FLOCK", "PIDOF", "AWK", "ASH"])
+        ca = target_file("/usr/share/stubby/ca-certificates.crt").read_bytes()
+        import hashlib
+        checks["stubby_ca_bundle"] = hashlib.sha256(ca).hexdigest() == "a41b5d356aea97a529fe27e0f7316d2f9d946d75927476cf9cf1b90637d00505"
+        checks["stubby_ca_count"] = ca.count(b"-----BEGIN CERTIFICATE-----") == 121
+        checks["stubby_explicit_ca_path"] = "CA_FILE=/usr/share/stubby/ca-certificates.crt" in helper and "tls_ca_file:" in helper
+        details["ca_runtime_status"] = "Pinned ROMFS bundle and generated YAML path checked; TLS handshake unverified"
 
         queue = [binary]
         visited = set()
@@ -87,7 +94,7 @@ def main():
         checks["loader"] = len(interpreters) == 1 and target_file(interpreters[0]).is_file()
         checks["shared_library_closure"] = not missing
         details.update(dependencies=dependencies, missing_libraries=sorted(set(missing)), interpreters=interpreters)
-    except (OSError, ValueError, RuntimeError, subprocess.CalledProcessError) as error:
+    except (OSError, ValueError, RuntimeError, tarfile.TarError, subprocess.CalledProcessError) as error:
         checks["inspection_completed"] = False
         details["error"] = str(error)
     report = {"scope": "Stubby ROMFS packaging and ELF closure; target runtime unverified", "checks": checks, "details": details}
@@ -100,4 +107,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

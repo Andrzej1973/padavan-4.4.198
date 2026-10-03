@@ -3,6 +3,7 @@
 STUBBY_BIN=/usr/sbin/stubby
 STUBBY_CONFIG=/etc/storage/stubby/stubby.yml
 PID_FILE=/var/run/stubby.pid
+CA_FILE=/usr/share/stubby/ca-certificates.crt
 
 fail() { logger -t stubby "$*"; echo "$*" >&2; exit 1; }
 
@@ -57,6 +58,7 @@ make_config()
         2|3) auth=GETDNS_AUTHENTICATION_NONE;;
         *) fail 'Invalid Stubby privacy mode';;
     esac
+    [ -r "$CA_FILE" ] || fail "Stubby CA bundle is missing: $CA_FILE"
     mkdir -p /etc/storage/stubby || fail 'Cannot create Stubby configuration directory'
     config_tmp_dir=$(mktemp -d /etc/storage/stubby/.stubby.XXXXXX) || fail 'Cannot create temporary configuration directory'
     config_tmp="$config_tmp_dir/stubby.yml"
@@ -65,6 +67,7 @@ make_config()
     {
         printf '%s\n' 'resolution_type: GETDNS_RESOLUTION_STUB' \
             'tls_query_padding_blocksize: 128' 'edns_client_subnet_private: 1' 'idle_timeout: 10000'
+        printf 'tls_ca_file: "%s"\n' "$CA_FILE"
         printf 'round_robin_upstreams: %s\ntls_authentication: %s\n' "$round_robin" "$auth"
         printf '%s\n' 'dns_transport_list:' '  - GETDNS_TRANSPORT_TLS'
         case "$mode" in 2|3) printf '%s\n' '  - GETDNS_TRANSPORT_UDP' '  - GETDNS_TRANSPORT_TCP';; esac
