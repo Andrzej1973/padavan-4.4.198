@@ -96,4 +96,3 @@ int mt_mtd_read_nm_wifi(char *name, loff_t from, size_t len, u_char *buf)
 	return ret;
 }
 EXPORT_SYMBOL(mt_mtd_read_nm_wifi);
-

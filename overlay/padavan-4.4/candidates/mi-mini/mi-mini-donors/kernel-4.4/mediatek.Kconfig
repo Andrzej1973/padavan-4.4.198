@@ -196,4 +196,3 @@ endif
 
 endif # WIFI_DRIVER
 endif # WL_MEDIATEK
-
