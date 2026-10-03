@@ -1,0 +1,16 @@
+{
+  "status": "candidate-not-integrated-or-cross-compiled",
+  "origin": "https://github.com/zerotier/ZeroTierOne",
+  "version": "1.16.2",
+  "revision": "fe29cd88886e4f58547ba7f740b2d73eb49ab222",
+  "archive_sha256": null,
+  "required_target": "MT7621 MIPS32 little-endian uClibc Linux 4.4.198",
+  "notes": [
+    "C++17 target compilation required",
+    "Audit donor libatomic patch; provide target library after objects",
+    "Do not blindly apply donor tap MAC ioctl removal",
+    "Preserve identity and memberships on stop; firmware path adaptation can be handled by explicit daemon home",
+    "Audit netlink fix against exact candidate source",
+    "Compile support differs from runtime/device verification"
+  ]
+}
