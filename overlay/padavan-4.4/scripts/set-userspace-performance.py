@@ -26,6 +26,14 @@ for option in ['UOPT', 'LOPT']:
     if len(re.findall(pattern, source, re.M)) != 1:
         raise SystemExit('Inspect shared optimization assignment: ' + option)
     source = re.sub(pattern, option + ' = -O2', source, count=1, flags=re.M)
+busybox = args.trunk / 'user/busybox/busybox-1.24.x/Makefile.flags'
+busy_source = busybox.read_text(encoding='utf-8')
+busy_anchor = 'CFLAGS += $(call cc-option,-Os,$(call cc-option,-O2,))'
+if busy_source.count(busy_anchor) != 2:
+    raise SystemExit('Inspect BusyBox target optimization anchors')
+busy_source = busy_source.replace(busy_anchor, 'CFLAGS += $(call cc-option,-O2,)')
+# Check both source contracts before changing either file.
 path.write_text(source, encoding='utf-8')
-print('Shared userspace policy: UOPT=-O2 LOPT=-O2; package overrides require separate audit')
+busybox.write_text(busy_source, encoding='utf-8')
+print('Performance policy: UOPT=-O2 LOPT=-O2 BusyBox target=-O2; other package overrides require separate audit')
 
