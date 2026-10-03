@@ -10,11 +10,11 @@
     "os/linux/rbus_main_dev.c"
   ],
   "new_file_sha256": {
-    "Kconfig": "232e592c9865118e6803c4a45ce755c86710275321b8a2c1199bef848308b401",
+    "Kconfig": "de6176e33328188a0307059bb4a2ae30a4736da5e163cb4649b319f558675f89",
     "os/linux/mi_mini_factory.c": "209d3c3ddbd34319fd7dd6823b93e2452ea24a2dc3efc5a70bbe3d5d5f7440a3",
     "os/linux/mi_mini_platform.c": "74742ad1e52b255ab8519c2408c408666716d03585161b4ce7326b327a8eebed",
     "rt2860v2-ap.Kconfig": "6cb81fbcbddc656090e6ab673e8769239441f828d75674c7fe08167fbf9d7ca8"
   },
-  "patch_sha256": "d74f51de8845e0a03cffa378cb553d13021110b00ad0aa2c4c09f0439ed1d3fd",
-  "status": "candidate only; no C compilation, link or runtime evidence"
+  "patch_sha256": "1ce6091531a642763bf0bc655b5374936fa5b4577a42f5c31b847d26ffada4e0",
+  "status": "Previous candidate: probe 3 compiled MIPS radio/Factory objects. Current RAM sizing and full-kernel-link probe: pending CI; no firmware image or device runtime evidence."
 }

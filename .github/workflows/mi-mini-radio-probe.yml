@@ -63,7 +63,7 @@ jobs:
           curl --fail --location --retry 3 -o toolchain.tar.xz https://github.com/vipshmily/padavan-4.4/releases/download/toolchain/mipsel-linux-uclibc.tar.xz
           sha256sum toolchain.tar.xz > toolchain.sha256
           tar -xJf toolchain.tar.xz -C toolchain
-      - name: Compile MT7620 radio and Factory objects
+      - name: Compile MT7620 radio and link isolated kernel
         run: |
           set -euo pipefail
           compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
@@ -73,6 +73,8 @@ jobs:
             "$PWD/kernel-source/trunk/linux-4.4.x" "$cross" 2>&1 | tee mi-mini-radio-compile.log
           "${cross}readelf" -h kernel-source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mi-mini/rt2860v2_ap.o > mi-mini-radio-elf.txt
           grep -q 'Machine:.*MIPS' mi-mini-radio-elf.txt
+          "${cross}readelf" -h kernel-source/trunk/linux-4.4.x/vmlinux > mi-mini-vmlinux-elf.txt
+          grep -q 'Machine:.*MIPS' mi-mini-vmlinux-elf.txt
       - name: Upload diagnostics only
         if: always()
         uses: actions/upload-artifact@v7
@@ -84,5 +86,7 @@ jobs:
           path: |
             mi-mini-radio-compile.log
             mi-mini-radio-elf.txt
+            mi-mini-vmlinux-elf.txt
+            kernel-source/trunk/linux-4.4.x/mi-mini-vmlinux-symbols.txt
             toolchain.sha256
             kernel-source/trunk/linux-4.4.x/.config

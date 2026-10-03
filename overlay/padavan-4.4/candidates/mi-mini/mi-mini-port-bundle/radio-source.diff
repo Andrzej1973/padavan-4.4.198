@@ -112,7 +112,7 @@
  
 --- a/Makefile
 +++ b/Makefile
-@@ -1,522 +1,461 @@
+@@ -1,522 +1,462 @@
 -ifeq ($(WIFI_MODE),)
 -RT28xx_MODE = APSTA
 +# Built-in MT7620 candidate; requires integration into an MT7620 kernel.
@@ -1093,6 +1093,7 @@
 +# Legacy MMIO/platform symbols are mapped within this driver only.
 +ifeq ($(CONFIG_SOC_MT7620),y)
 +EXTRA_CFLAGS += -DCONFIG_RALINK_MT7620
++EXTRA_CFLAGS += -DCONFIG_RALINK_RAM_SIZE=$(CONFIG_MI_MINI_RADIO_RAM_MB)
 +endif
 --- a/os/linux/rbus_main_dev.c
 +++ b/os/linux/rbus_main_dev.c

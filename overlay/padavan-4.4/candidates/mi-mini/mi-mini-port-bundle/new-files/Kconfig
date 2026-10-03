@@ -13,5 +13,14 @@ config MI_MINI_RADIO
 	  board radio node. IRQ, reset/clock and EEPROM runtime checks are pending.
 
 if MI_MINI_RADIO
+config MI_MINI_RADIO_RAM_MB
+	int "Board RAM in MiB for legacy radio ring sizing"
+	range 16 256
+	default 128
+	help
+	  The pinned nilabsent MI-MINI board config specifies 128 MiB. This
+	  controls radio ring allocation only; it does not configure kernel RAM
+	  detection or prove the identity of the user's physical router.
+
 source "drivers/net/wireless/mediatek/mi-mini/rt2860v2-ap.Kconfig"
 endif
