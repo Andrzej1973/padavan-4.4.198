@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "owned_repository": "https://github.com/Andrzej1973/padavan-4.4.198",
+  "inventory_status": "initial-direct-workflow-dependencies; nested-recipes-pending",
+  "self_contained_build_verified": false,
+  "sources": [
+    {
+      "id": "project-history",
+      "kind": "git",
+      "origin": "https://github.com/Andrzej1973/youhua-wr1200js-nilab.git",
+      "revision": "ad5ab44cfc4e021027c9cfbbd1679324e86d929f",
+      "branch": "experimental/Padavan-4.4.198",
+      "preservation_status": "pending-history-import",
+      "owned_copy": null,
+      "license_inventory_status": "pending-component-inventory"
+    },
+    {
+      "id": "padavan-kernel-userspace-base",
+      "kind": "git",
+      "origin": "https://github.com/vipshmily/padavan-4.4.git",
+      "revision": "c25283e915a2a00a763774dd255b14aff997285e",
+      "preservation_status": "pending-owned-source-copy",
+      "owned_copy": null,
+      "license_inventory_status": "pending-component-inventory"
+    },
+    {
+      "id": "nilabsent-package-and-mt7620-radio-donor",
+      "kind": "git",
+      "origin": "https://github.com/nilabsent/padavan-ng.git",
+      "revision": "d2c5846299949c57a4e867284069900b561dd2a4",
+      "radio_tree_sha": "ee88f6d0b37bab21bbc2ec34eb7c49480e297818",
+      "local_verified_radio_source": "../config-normalization/mi-mini-driver-full",
+      "preservation_status": "radio-source-local; full-donor-pending",
+      "owned_copy": null,
+      "license_inventory_status": "pending-component-inventory"
+    },
+    {
+      "id": "mipsel-linux-uclibc-toolchain",
+      "kind": "archive",
+      "origin": "https://github.com/vipshmily/padavan-4.4/releases/download/toolchain/mipsel-linux-uclibc.tar.xz",
+      "sha256": null,
+      "preservation_status": "pending-archive-and-verified-hash",
+      "owned_copy": null,
+      "license_inventory_status": "pending-component-inventory"
+    },
+    {
+      "id": "pcre2",
+      "kind": "archive",
+      "version": "10.49",
+      "origin": "https://github.com/PCRE2Project/pcre2/releases/download/pcre2-10.49/pcre2-10.49.tar.bz2",
+      "sha256": null,
+      "preservation_status": "pending-archive-and-verified-hash",
+      "owned_copy": null,
+      "license_inventory_status": "pending-component-inventory"
+    }
+  ]
+}
