@@ -37,7 +37,8 @@ configure:
 	test -f "$(TARGET_STAGE)/include/openssl/ssl.h"
 	test -f "$(TARGET_STAGE)/lib/libssl.so"
 	test -f "$(TARGET_STAGE)/lib/libcrypto.so"
-	@target_cc="$$(command -v '$(CC)')" && test -x "$$target_cc" && \
+	@target_cc="$(CONFIG_CROSS_COMPILER_PATH)/$(CROSS_COMPILE)gcc" && \
+	test -x "$$target_cc" || { echo "Missing target compiler: $$target_cc" >&2; exit 1; }; \
 	target_sysroot="$$("$$target_cc" -print-sysroot)" && \
 	PKG_CONFIG_PATH= PKG_CONFIG_LIBDIR="$(TARGET_STAGE)/lib/pkgconfig" \
 	PKG_CONFIG_SYSROOT_DIR="$(TARGET_STAGE)" \
@@ -85,3 +86,4 @@ romfs:
 	$(ROMFSINST) -p +x /usr/bin/stubby.sh
 	$(ROMFSINST) -d /www/dot.json
 	$(ROMFSINST) -d -S -p 644 cacert-2026-09-25.pem /usr/share/stubby/ca-certificates.crt
+
