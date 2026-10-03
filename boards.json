@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "boards": [
+    {"id": "wr1200js", "name": "YOUHUA WR1200JS", "config": "configs.build/wr1200js.config", "build_enabled": true, "recipe": "wr1200js", "status": "image-build-verified; device-runtime-pending"},
+    {"id": "mi-mini", "name": "Xiaomi Mi Mini", "config": "configs.build/mi-mini.config", "build_enabled": false, "recipe": null, "status": "board-port-pending; radio-object-probe-only"}
+  ]
+}

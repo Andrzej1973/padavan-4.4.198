@@ -1,0 +1,72 @@
+name: Build selected router firmware
+on:
+  workflow_dispatch:
+    inputs:
+      boards:
+        description: Router profiles to build
+        type: choice
+        options: [all-supported, wr1200js]
+        default: all-supported
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-multiple-boards.yml'
+      - 'boards.json'
+      - 'tools/board-catalog.py'
+      - 'tools/collect-board-downloads.py'
+permissions:
+  contents: read
+jobs:
+  select:
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.boards.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v6
+      - id: boards
+        env:
+          BOARD_SELECTION: ${{ inputs.boards || 'all-supported' }}
+        run: python3 tools/board-catalog.py "$BOARD_SELECTION"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: selected-board-profiles
+          path: selected-boards.json
+  build:
+    needs: select
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.select.outputs.matrix) }}
+    uses: ./.github/workflows/build-padavan-4.4-wr1200js.yml
+  downloads:
+    if: always() && needs.select.result == 'success'
+    needs: [select, build]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v8
+        with:
+          name: selected-board-profiles
+          path: selection
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: padavan-linux-4.4.198-*
+          path: board-artifacts
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: board-build-status-*
+          path: board-status
+      - name: Create common download index and checksums
+        env:
+          BUILD_RESULT: ${{ needs.build.result }}
+        run: python3 tools/collect-board-downloads.py
+      - uses: actions/upload-artifact@v7
+        with:
+          name: padavan-4.4.198-router-downloads
+          path: downloads/
+          if-no-files-found: error
+      - name: Require all selected firmware builds
+        env:
+          BUILD_RESULT: ${{ needs.build.result }}
+        run: |
+          test "$BUILD_RESULT" = success
+          python3 -c "import json; assert json.load(open('downloads/index.json'))['all_selected_images_built']"
