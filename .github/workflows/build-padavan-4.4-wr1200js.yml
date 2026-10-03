@@ -778,6 +778,42 @@ jobs:
             cpu-sleep-board.dtb
             cpu-sleep-compiled-board.dts
 
+
+      - name: Compile ZeroTier 1.16.2 source candidate
+        run: |
+          set -euo pipefail
+          git init zerotier-candidate
+          git -C zerotier-candidate fetch --depth=1 https://github.com/zerotier/ZeroTierOne.git fe29cd88886e4f58547ba7f740b2d73eb49ab222
+          git -C zerotier-candidate checkout --detach FETCH_HEAD
+          test "$(git -C zerotier-candidate rev-parse HEAD)" = fe29cd88886e4f58547ba7f740b2d73eb49ab222
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          cross="${compiler%gcc}"
+          make -C zerotier-candidate -j2 zerotier-one \
+            CC="$compiler" CXX="${cross}g++" AR="${cross}ar" \
+            ZT_EMBEDDED=1 ZT_SSO_SUPPORTED=0 ZT_NONFREE=0 ZT_CONTROLLER=0 ZT_OTEL=0 \
+            MINIUPNPC_IS_NEW_ENOUGH=0 \
+            CFLAGS="-O2 -mips32r2 -ffunction-sections -fdata-sections" \
+            CXXFLAGS="-O2 -mips32r2 -ffunction-sections -fdata-sections" \
+            LDFLAGS="-Wl,--gc-sections -static-libstdc++" LDLIBS="-latomic" \
+            2>&1 | tee zerotier-candidate-build.log
+          readelf -h zerotier-candidate/zerotier-one | tee zerotier-candidate-elf.txt
+          grep -q 'Machine:.*MIPS' zerotier-candidate-elf.txt
+          readelf -d zerotier-candidate/zerotier-one > zerotier-candidate-dependencies.txt
+
+      - name: Upload ZeroTier source candidate diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: zerotier-1.16.2-candidate
+          if-no-files-found: ignore
+          retention-days: 14
+          path: |
+            zerotier-candidate-build.log
+            zerotier-candidate-elf.txt
+            zerotier-candidate-dependencies.txt
+            zerotier-candidate/zerotier-one
+
       - name: Record WR1200JS board build status
         if: always()
         env:
