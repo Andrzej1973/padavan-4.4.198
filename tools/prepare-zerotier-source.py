@@ -22,8 +22,19 @@ for old, new in changes:
     text = text.replace(old, new)
 # miniupnpc is controlled explicitly by the build invocation:
 # MINIUPNPC_IS_NEW_ENOUGH=0. Do not detect host target libraries.
+# Both addRoute and delRoute append RTA_SRC but omit it from nlmsg_len.
+# IPv4/IPv6 payload lengths are 8/20 bytes including rtattr, already aligned.
+# Preserve route selection semantics and account for the complete attribute.
+netlink_path = args.source / 'osdep' / 'LinuxNetLink.cpp'
+netlink = netlink_path.read_text(encoding='utf-8')
+old = '\t\treq.rt.rtm_src_len = src.netmaskBits();\n'
+if netlink.count(old) != 2:
+    raise SystemExit('Unexpected pinned RTA_SRC accounting source')
+netlink = netlink.replace(old, old + '\t\trtl += rtap->rta_len;\n')
+with netlink_path.open('w', encoding='utf-8', newline='\n') as output:
+    output.write(netlink)
 with path.open('w', encoding='utf-8', newline='\n') as output:
     output.write(text)
-print('Prepared bundled NAT-PMP and OpenTelemetry header dependency paths.')
+print('Prepared bundled NAT-PMP, OpenTelemetry dependencies and RTA_SRC length accounting.')
 
 
