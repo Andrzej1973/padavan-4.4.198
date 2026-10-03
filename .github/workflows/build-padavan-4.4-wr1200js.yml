@@ -303,6 +303,12 @@ jobs:
           tar -xJf padavan-4.4/toolchain-mipsel.tar.xz \
             -C padavan-4.4/toolchain/toolchain-mipsel
 
+      - name: Apply requested userspace optimization policy
+        run: |
+          python3 overlay/padavan-4.4/scripts/set-userspace-performance.py \
+            padavan-4.4/trunk configs.build/wr1200js.config
+          grep -E '^(UOPT|LOPT)[[:space:]]*=' padavan-4.4/trunk/config.arch
+
       - name: Build WR1200JS firmware
         run: |
           cd padavan-4.4
