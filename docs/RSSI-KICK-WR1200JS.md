@@ -1,6 +1,6 @@
 # WR1200JS RSSI Kick: source evidence and acceptance
 
-Status: driver implementation located; firmware control integration and device behavior remain unverified.
+Status: driver, WebUI, NVRAM registration and startup application located in the pinned base; compiled image and device behavior remain unverified.
 
 ## Pinned source
 
@@ -72,3 +72,24 @@ Start remote work with read-only inspection. Use a separate test client that
 does not carry the remote management connection. No flash or reboot is
 authorized by this verification item. If a suitable device/client test cannot
 be performed, retain the explicit runtime-unverified status at delivery.
+
+## Audit correction: existing control path found
+
+A full search of the locally preserved source found controls on the **main**
+Wireless pages, not on the WAdvanced pages:
+
+- `Advanced_Wireless_Content.asp` / `Advanced_Wireless2g_Content.asp`,
+  around lines 552–561, expose the per-radio kick and association thresholds.
+- `trunk/user/httpd/variables.c` registers the four names with the respective
+  EVM_RESTART_WIFI5 / EVM_RESTART_WIFI2 events.
+- `trunk/user/rc/net_wifi.c`, around lines 834–858, reads the per-radio NVRAM
+  values and issues the private commands from start_8021x_wl/rt.
+  This application is outside the conditional check that starts the 802.1X daemon.
+
+Thus commented .dat example output does **not** mean that firmware lacks an
+application path. Do not implement duplicate controls or a second daemon.
+The earlier observations about the inspected WAdvanced pages remain accurate,
+but the inference that the WebUI/control chain was absent was incomplete.
+
+Next audit the actual prepared image, startup/restart call sites, validation,
+main/guest-interface behavior and physical-device results. Keep zero defaults.
