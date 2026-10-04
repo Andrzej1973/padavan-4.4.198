@@ -10,6 +10,9 @@ on:
       - 'tools/band-steering/protocol.c'
       - 'tools/band-steering/protocol.h'
       - 'tools/band-steering/check-protocol.c'
+      - 'tools/band-steering/transport.c'
+      - 'tools/band-steering/transport.h'
+      - 'tools/band-steering/check-transport.c'
 permissions:
   contents: read
 jobs:
@@ -61,6 +64,13 @@ jobs:
           test -n "$compiler"
           "$compiler" -std=c11 -Wall -Wextra -Werror -mips32r2 -mabi=32 \
             -msoft-float -O2 -c tools/band-steering/protocol.c -o abi-results/protocol-mips.o
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            tools/band-steering/protocol.c tools/band-steering/transport.c \
+            tools/band-steering/check-transport.c -Wl,--wrap=ioctl \
+            -o abi-results/check-transport
+          abi-results/check-transport | tee abi-results/transport-checks.txt
+          "$compiler" -std=c11 -Wall -Wextra -Werror -mips32r2 -mabi=32 \
+            -msoft-float -O2 -c tools/band-steering/transport.c -o abi-results/transport-mips.o
       - name: Upload ABI diagnostics
         if: always()
         uses: actions/upload-artifact@v7
