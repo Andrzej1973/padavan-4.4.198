@@ -32,6 +32,10 @@ int wr_band_encode(enum wr_band_protocol protocol, const struct wr_band_request 
     case WR_ENABLE: action = protocol == WR_MT76X2 ? 11 : 12; break;
     case WR_ADD: action = 2; break;
     case WR_DELETE: action = 3; break;
+    case WR_IDLE_QUERY:
+        if (!r->cookie || r->table_index >= 64) return -1;
+        action = protocol == WR_MT76X2 ? 4 : 0x70;
+        break;
     case WR_HEARTBEAT:
         if (protocol != WR_MT76X3) return -1;
         action = 16; /* HEARTBEAT_MONITOR in the pinned mt76x3 ACTION_CODE. */
@@ -60,6 +64,15 @@ int wr_band_encode(enum wr_band_protocol protocol, const struct wr_band_request 
             out[8] = r->table_index;
             memcpy(out + 9, r->mac, 6);
         }
+    }
+    if (r->command == WR_IDLE_QUERY) {
+        size_t index = protocol == WR_MT76X2 ? 2 : 8;
+        size_t mac = protocol == WR_MT76X2 ? 24 : 10;
+        unsigned i;
+        out[index] = r->table_index;
+        memcpy(out + mac, r->mac, 6);
+        /* Legacy handler echoes its unused Time field; modern extension Cookie. */
+        for (i = 0; i < 4; ++i) out[16 + i] = (uint8_t)(r->cookie >> (8 * i));
     }
     return (int)size;
 }

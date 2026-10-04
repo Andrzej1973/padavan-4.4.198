@@ -40,6 +40,17 @@ int main(void)
     p[0] = 15; p[WR_MT76X3_DATA_REJECT_BODY_DAEMONPID] = 0x34;
     p[WR_MT76X3_DATA_REJECT_BODY_DAEMONPID + 1] = 0x12;
     assert(wr_band_decode(WR_MT76X3, p, 80, &e) == 1 && e.owner_pid == 0x1234);
+    memset(p, 0, sizeof(p));
+    p[0] = 5; p[WR_MT76X2_TALBEINDEX] = 7; p[WR_MT76X2_RETURNCODE] = 8;
+    p[WR_MT76X2_TIME] = 1;
+    assert(wr_band_decode(WR_MT76X2, p, 32, &e) == 1 && e.type == WR_EVENT_IDLE && e.idle_state == 1 && e.cookie == 1);
+    p[WR_MT76X2_RETURNCODE] = 0;
+    assert(wr_band_decode(WR_MT76X2, p, 32, &e) == 1 && e.idle_state == 0);
+    memset(p, 0, sizeof(p));
+    p[0] = 0x71; p[WR_MT76X3_DATA_IDLE_TABLEINDEX] = 7; p[WR_MT76X3_DATA_IDLE_COOKIE] = 1;
+    assert(wr_band_decode(WR_MT76X3, p, 80, &e) == 1 && e.type == WR_EVENT_IDLE && e.table_index == 7 && e.cookie == 1);
+    p[WR_MT76X3_DATA_IDLE_RETURNCODE] = 3;
+    assert(wr_band_decode(WR_MT76X3, p, 80, &e) == -1);
     for (n = 0; n < sizeof(p); ++n) {
         if (n != 80) assert(wr_band_decode(WR_MT76X3, p, n, &e) == -1);
         if (n != 32) assert(wr_band_decode(WR_MT76X2, p, n, &e) == -1);

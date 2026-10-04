@@ -33,6 +33,14 @@ int main(void)
     assert(out[0] == 2 && out[8] == 63 && memcmp(out + 9, r.mac, 6) == 0);
     r.command = WR_DELETE;
     assert(wr_band_encode(WR_MT76X3, &r, out, 80) == 80 && out[0] == 3);
+    r.command = WR_IDLE_QUERY; r.cookie = 0x12345678;
+    assert(wr_band_encode(WR_MT76X2, &r, out, 32) == 32 && out[0] == 4);
+    assert(out[2] == 63 && out[16] == 0x78 && out[19] == 0x12 && memcmp(out + 24, r.mac, 6) == 0);
+    assert(wr_band_encode(WR_MT76X3, &r, out, 80) == 80 && out[0] == 0x70);
+    assert(out[8] == 63 && out[16] == 0x78 && out[19] == 0x12 && memcmp(out + 10, r.mac, 6) == 0);
+    r.cookie = 0; assert(wr_band_encode(WR_MT76X3, &r, out, 80) == -1);
+    r.cookie = 1; r.table_index = 64; assert(wr_band_encode(WR_MT76X3, &r, out, 80) == -1);
+    r.table_index = 63;
     assert(wr_band_encode(WR_MT76X3, &r, out, 79) == -1);
     assert(wr_band_encode(99, &r, out, 80) == -1);
     r.enabled = 2;

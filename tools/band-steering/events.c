@@ -1,6 +1,11 @@
 #include "events.h"
 #include "protocol-layout.h"
 #include <string.h>
+static uint32_t read_cookie(const uint8_t *p)
+{
+    return (uint32_t)p[0] | ((uint32_t)p[1] << 8) |
+           ((uint32_t)p[2] << 16) | ((uint32_t)p[3] << 24);
+}
 static int copy_interface(char *out, const uint8_t *in)
 {
     size_t n;
@@ -31,6 +36,15 @@ int wr_band_decode(enum wr_band_protocol protocol, const uint8_t *p,
     result.action = p[0];
     if (protocol == WR_MT76X2) {
         switch (p[0]) {
+        case 5:
+            result.type = WR_EVENT_IDLE;
+            result.table_index = p[WR_MT76X2_TALBEINDEX];
+            result.idle_state = p[WR_MT76X2_RETURNCODE] == 0 ? 0 :
+                               (p[WR_MT76X2_RETURNCODE] == 8 ? 1 : 2);
+            memcpy(result.mac, p + WR_MT76X2_ADDR, 6);
+            result.cookie = read_cookie(p + WR_MT76X2_TIME);
+            if (!result.cookie || result.table_index >= 64) return -1;
+            break;
         case 1:
             result.type = WR_EVENT_CLIENT;
             result.band = p[WR_MT76X2_BAND];
@@ -55,6 +69,14 @@ int wr_band_decode(enum wr_band_protocol protocol, const uint8_t *p,
         }
     } else {
         switch (p[0]) {
+        case 0x71:
+            result.type = WR_EVENT_IDLE;
+            result.table_index = p[WR_MT76X3_DATA_IDLE_TABLEINDEX];
+            result.idle_state = p[WR_MT76X3_DATA_IDLE_RETURNCODE];
+            result.cookie = read_cookie(p + WR_MT76X3_DATA_IDLE_COOKIE);
+            memcpy(result.mac, p + WR_MT76X3_DATA_IDLE_ADDR, 6);
+            if (!result.cookie || result.table_index >= 64 || result.idle_state > 2) return -1;
+            break;
         case 1:
             result.type = WR_EVENT_CLIENT;
             result.frame_type = p[WR_MT76X3_DATA_CLI_EVENT_FRAMETYPE];
