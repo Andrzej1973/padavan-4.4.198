@@ -51,7 +51,8 @@ for radio in ('mt76x2', 'mt76x3'):
                    'data.heartbeat.ucIfName', 'data.cli_event.FrameType',
                    'data.cli_event.Band', 'data.cli_event.Channel', 'data.cli_event.Addr',
                    'data.cli_event.data.cli_probe.Rssi', 'data.cli_event.data.cli_auth.Rssi',
-                   'data.inf_status_rsp.band', 'data.reject_body.DaemonPid']
+                   'data.inf_status_rsp.band', 'data.reject_body.DaemonPid',
+                   'data.idle.TableIndex', 'data.idle.ReturnCode', 'data.idle.Addr', 'data.idle.Cookie']
     values = ['0x424e4441u', 'sizeof(void *)', 'sizeof(ULONG)', 'sizeof(UINT64)',
               'sizeof(BNDSTRG_MSG)', '__alignof__(BNDSTRG_MSG)'] + [
               'offsetof(BNDSTRG_MSG, ' + f + ')' for f in fields]
