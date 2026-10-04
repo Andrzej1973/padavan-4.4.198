@@ -9,6 +9,7 @@ struct wr_band_session {
     enum wr_band_phase phase;
     struct wr_band_radio_config radios[2];
     uint8_t ready[2], enabled[2], attempted[2], channel[2];
+    uint8_t off_acknowledged[2];
     uint64_t deadline, next_query, next_heartbeat, last_tick, last_time, last_status[2];
     wr_band_send_callback send;
     void *context;
@@ -23,5 +24,6 @@ int wr_band_session_tick(struct wr_band_session *, uint64_t now);
 int wr_band_session_event(struct wr_band_session *, size_t radio,
                           const struct wr_band_event *, uint64_t now);
 int wr_band_session_stop(struct wr_band_session *, uint64_t now);
+int wr_band_session_off_confirmed(const struct wr_band_session *);
 void wr_band_session_fault(struct wr_band_session *);
 #endif

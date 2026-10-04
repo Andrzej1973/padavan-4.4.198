@@ -58,7 +58,9 @@ int main(void)
     assert(wr_band_session_tick(&s, 2040) == 0 && f.heartbeat[0] == 2);
     assert(wr_band_session_stop(&s, 2050) == 0 && s.phase == WR_STOPPING);
     enabled(&s, 0, 0, 2060); assert(s.phase == WR_STOPPING);
+    assert(!wr_band_session_off_confirmed(&s));
     enabled(&s, 1, 0, 2070); assert(s.phase == WR_STOPPED);
+    assert(wr_band_session_off_confirmed(&s));
     assert(wr_band_session_tick(&s, 9000) == 0);
     start(&s, &f);
     assert(wr_band_session_tick(&s, 5040) == -1 && s.phase == WR_FAILED);
@@ -88,6 +90,8 @@ int main(void)
     memset(&e, 0, sizeof(e)); e.type = WR_EVENT_READY; e.ready = 1; e.band = 2;
     strcpy(e.interface_name, "ra1");
     assert(wr_band_session_event(&s, 0, &e, 1) == 0 && !s.ready[0]);
+    assert(!wr_band_session_stop(&s, 2) && s.phase == WR_STOPPED);
+    assert(!wr_band_session_off_confirmed(&s));
     puts("PASS: two-radio readiness, enable acknowledgements, heartbeat, shutdown and failures; no driver calls");
     return 0;
 }

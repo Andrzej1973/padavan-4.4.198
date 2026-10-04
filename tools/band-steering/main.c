@@ -121,7 +121,10 @@ int main(int argc, char **argv)
     }
     if (wr_band_coordinator_init(&coordinator, radios, &policy, now, send_command, &runtime)) goto done;
     result = wr_band_loop_run(&coordinator, &io, &runtime) ? 1 : 0;
-    if (result) fprintf(stderr, "Steering failed; disable was best effort and radio OFF is unverified.\n");
+    if (!result && !wr_band_session_off_confirmed(&coordinator.session)) {
+        result = 3;
+        fprintf(stderr, "Session completed without both OFF acknowledgements; radio OFF is unverified.\n");
+    } else if (result) fprintf(stderr, "Steering failed; disable was best effort and radio OFF is unverified.\n");
 done:
     wr_band_control_close(&runtime.control);
     if (runtime.command_fd >= 0) close(runtime.command_fd);

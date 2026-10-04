@@ -11,7 +11,9 @@ struct wr_band_loop_io {
 /* One process owns both command socket and coordinator. Callbacks never
  * reenter the loop. Receive is nonblocking, validates sender/framing, and
  * preserves errno. Datagram/time budgets prevent event floods starving ticks.
- * 0 = both OFF acknowledgements (or never enabled); -1 = unverified failure.
+ * 0 = session completed; caller must check wr_band_session_off_confirmed.
+ * A never-enabled session can finish without either driver's OFF proof.
+ * -1 = unverified failure.
  */
 int wr_band_loop_run(struct wr_band_coordinator *, const struct wr_band_loop_io *, void *);
 #endif

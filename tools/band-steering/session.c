@@ -51,6 +51,10 @@ int wr_band_session_stop(struct wr_band_session *s, uint64_t now)
     if (!s->attempted[0] && !s->attempted[1]) s->phase = WR_STOPPED;
     return 0;
 }
+int wr_band_session_off_confirmed(const struct wr_band_session *s)
+{
+    return s && s->phase == WR_STOPPED && s->off_acknowledged[0] && s->off_acknowledged[1];
+}
 int wr_band_session_tick(struct wr_band_session *s, uint64_t now)
 {
     size_t i;
@@ -104,6 +108,7 @@ int wr_band_session_event(struct wr_band_session *s, size_t i, const struct wr_b
     }
     if (e->type == WR_EVENT_ENABLED) {
         if (s->phase == WR_STOPPING && !e->enabled) {
+            s->off_acknowledged[i] = 1;
             s->attempted[i] = 0; s->enabled[i] = 0;
             if (!s->attempted[0] && !s->attempted[1]) s->phase = WR_STOPPED;
         } else if (s->phase == WR_ENABLING) {
