@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <string.h>
 #include <sys/ioctl.h>
+#include <sys/socket.h>
 #include <linux/wireless.h>
 
 int wr_band_send(int fd, enum wr_band_protocol protocol,

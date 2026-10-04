@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <string.h>
+#include <sys/socket.h>
 #include <linux/wireless.h>
 #include <stdio.h>
 static int calls, fail_ioctl, expected_length, expected_action;
