@@ -29,6 +29,7 @@ on:
       - 'tools/band-steering/prepare-main-bss.py'
       - 'tools/band-steering/prepare-wps-guards.py'
       - 'tools/band-steering/prepare-channel-stats.py'
+      - 'tools/band-steering/prepare-off-ack.py'
       - 'tools/band-steering/prepare-profile-integration.py'
       - 'tools/band-steering/profile-policy.c'
       - 'tools/band-steering/profile-policy.h'
