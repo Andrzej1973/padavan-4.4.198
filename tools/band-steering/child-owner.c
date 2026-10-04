@@ -1,5 +1,6 @@
 #define _POSIX_C_SOURCE 200809L
 #include "child-owner.h"
+#include "control-client.h"
 #include <errno.h>
 #include <signal.h>
 #include <stdint.h>
@@ -58,6 +59,31 @@ int wr_band_child_track(pid_t pid)
 void wr_band_child_reaped(pid_t pid, int status)
 {
     if (tracked_pid && pid==(pid_t)tracked_pid) { exit_status=status; completed=1; }
+}
+static int owned_alive(pid_t pid)
+{
+    int status;
+    pid_t found;
+    if (pid <= 1 || pid != (pid_t)tracked_pid) { errno = EINVAL; return -1; }
+    if (completed) { errno = ECHILD; return -1; }
+    do { found = waitpid(pid, &status, WNOHANG); } while (found < 0 && errno == EINTR);
+    if (found == pid) {
+        wr_band_child_reaped(pid, status);
+        errno = ECHILD; return -1;
+    }
+    return found < 0 ? -1 : 0;
+}
+int wr_band_child_ready(pid_t owned_pid)
+{
+    sigset_t blocked, previous;
+    int result = -1, saved;
+    sigemptyset(&blocked); sigaddset(&blocked, SIGCHLD);
+    if (sigprocmask(SIG_BLOCK, &blocked, &previous)) return -1;
+    if (!owned_alive(owned_pid) && !wr_band_control_active(owned_pid))
+        result = owned_alive(owned_pid);
+    saved = errno;
+    if (sigprocmask(SIG_SETMASK, &previous, 0)) return -1;
+    errno = saved; return result;
 }
 static int finish(pid_t *pid, int status)
 {

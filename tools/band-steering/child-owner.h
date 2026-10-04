@@ -15,4 +15,7 @@ void wr_band_child_reaped(pid_t pid, int status);
 /* Fixed executable and argument list; success means spawned, not ready/active.
  * Caller must then await service/driver readiness and handle exec failure. */
 int wr_band_child_spawn(pid_t *, const char *radio2g, const char *radio5g);
+/* One bounded observation of our tracked live child and its authenticated
+ * ACTIVE phase. Failure never discards ownership or proves driver OFF. */
+int wr_band_child_ready(pid_t owned_pid);
 #endif
