@@ -7,6 +7,9 @@ on:
       - '.github/workflows/band-steering-abi.yml'
       - 'tools/band-steering/prepare-abi-probe.py'
       - 'tools/band-steering/read-abi-probe.py'
+      - 'tools/band-steering/protocol.c'
+      - 'tools/band-steering/protocol.h'
+      - 'tools/band-steering/check-protocol.c'
 permissions:
   contents: read
 jobs:
@@ -46,6 +49,18 @@ jobs:
               "abi-results/$radio-abi.c" -o "abi-results/$radio-abi.o"
           done
           python3 tools/band-steering/read-abi-probe.py abi-results
+      - name: Verify byte encoders and compile the MIPS adapter
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            tools/band-steering/protocol.c tools/band-steering/check-protocol.c \
+            -o abi-results/check-protocol
+          abi-results/check-protocol | tee abi-results/encoder-checks.txt
+          compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          "$compiler" -std=c11 -Wall -Wextra -Werror -mips32r2 -mabi=32 \
+            -msoft-float -O2 -c tools/band-steering/protocol.c -o abi-results/protocol-mips.o
       - name: Upload ABI diagnostics
         if: always()
         uses: actions/upload-artifact@v7
