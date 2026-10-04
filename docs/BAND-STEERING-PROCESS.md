@@ -1,0 +1,13 @@
+# Foreground Band Steering process candidate
+
+`main.c` joins the normalized coordinator with the real nonblocking kernel-event listener and a persistent AF_INET command socket. Both interfaces are selected explicitly; expected families are mt76x3 2.4 GHz and mt76x2 5 GHz. Interface names and distinct indices are checked. One process submits every ioctl, including modern ownership/heartbeat messages. No fork or child worker changes that PID.
+
+The process is a candidate, not installed in the normal firmware image. It requires prepared drivers and verified exclusive profiles before `--foreground` startup. It performs no profile setup, NVRAM modification or rc service integration. The new owner lock prevents a second instance of this binary, not an unrelated legacy vendor daemon. Full profile/other-daemon exclusion must be implemented before production. `--help` returns before root/lock/socket operations and is the only actual host CLI invocation in CI.
+
+A root-owned regular, private, single-link `/var/run/wr-band-steering.lock` is opened with CLOEXEC and NOFOLLOW and locked exclusively/nonblocking. The lock inode is retained after exit to prevent unlink/recreate races. Its PID text is informational and must not be used as a trusted standalone signal target; future service stop logic must verify process identity/birth or use a suitable control channel.
+
+The listener opens before coordinator startup commands. SIGTERM/SIGINT only set a flag; shutdown and driver commands occur through the same event loop. The loop waits for both OFF acknowledgements and exits successfully only after STOPPED (including never-enabled startup cancellation). Missing acknowledgements or a protocol/transport failure exit with an explicit unverified-OFF diagnostic. Best-effort disable does not establish hardware state.
+
+Each drain cycle is bounded by 32 datagrams or 50 elapsed milliseconds, then a coordinator tick and a poll of at most 100 milliseconds follow. Receive remains nonblocking. EAGAIN/EINTR allow tick/stop handling; ENOBUFS, invalid/truncated events, clock regression/failure and fatal poll errors fault the session. A stuck synchronous vendor ioctl is not bounded by this userspace loop; full driver and device validation remain required.
+
+The loop fixture uses real coordinator/component modules with scripted clock, transport and events. It covers normal/immediate stop, missing OFF replies, continuous event traffic, both drain budgets, EINTR, event loss and clock/wait faults under ASan/UBSan. The workflow also links the complete userspace executable for MIPS and records its ELF interpreter/dependencies. Linking alone does not establish ROMFS dependency closure, runtime profile correctness, Wi-Fi behavior or service/WebUI integration.

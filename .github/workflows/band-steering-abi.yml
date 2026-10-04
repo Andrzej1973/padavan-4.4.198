@@ -39,6 +39,10 @@ on:
       - 'tools/band-steering/coordinator.c'
       - 'tools/band-steering/coordinator.h'
       - 'tools/band-steering/check-coordinator.c'
+      - 'tools/band-steering/loop.c'
+      - 'tools/band-steering/loop.h'
+      - 'tools/band-steering/main.c'
+      - 'tools/band-steering/check-loop.c'
       - 'tools/band-steering/clients.h'
       - 'tools/band-steering/check-clients.c'
       - 'tools/band-steering/prepare-idle-aging.py'
@@ -214,6 +218,33 @@ jobs:
           test -n "$compiler"
           "$compiler" -std=c11 -Wall -Wextra -Werror -mips32r2 -mabi=32 \
             -msoft-float -O2 -c tools/band-steering/coordinator.c -o abi-results/coordinator-mips.o
+      - name: Verify process event loop and link the daemon for MIPS
+        shell: bash
+        run: |
+          set -euo pipefail
+          base=(
+            tools/band-steering/protocol.c tools/band-steering/session.c
+            tools/band-steering/clients.c tools/band-steering/aging.c
+            tools/band-steering/policy.c tools/band-steering/grants.c
+            tools/band-steering/coordinator.c tools/band-steering/loop.c
+          )
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            "${base[@]}" tools/band-steering/check-loop.c -o abi-results/check-loop
+          abi-results/check-loop | tee abi-results/loop-checks.txt
+          all=(
+            "${base[@]}" tools/band-steering/events.c tools/band-steering/framing.c
+            tools/band-steering/listener.c tools/band-steering/transport.c tools/band-steering/main.c
+          )
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -Iabi-results \
+            "${all[@]}" -lrt -o abi-results/wr-band-steering-host
+          abi-results/wr-band-steering-host --help | tee abi-results/daemon-help.txt
+          compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          "$compiler" -std=c11 -Wall -Wextra -Werror -mips32r2 -mabi=32 \
+            -msoft-float -O2 -Iabi-results "${all[@]}" -lrt -o abi-results/wr-band-steering-mips
+          readelf="$(dirname "$compiler")/mipsel-linux-uclibc-readelf"
+          test -x "$readelf"
+          "$readelf" -h -l -d abi-results/wr-band-steering-mips > abi-results/daemon-mips-elf.txt
       - name: Check the prepared idle driver case
         shell: bash
         run: |
