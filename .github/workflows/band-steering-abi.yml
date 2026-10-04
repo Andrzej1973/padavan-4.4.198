@@ -30,6 +30,9 @@ on:
       - 'tools/band-steering/aging.c'
       - 'tools/band-steering/aging.h'
       - 'tools/band-steering/check-aging.c'
+      - 'tools/band-steering/policy.c'
+      - 'tools/band-steering/policy.h'
+      - 'tools/band-steering/check-policy.c'
       - 'tools/band-steering/clients.h'
       - 'tools/band-steering/check-clients.c'
       - 'tools/band-steering/prepare-idle-aging.py'
@@ -160,6 +163,18 @@ jobs:
           test -n "$compiler"
           "$compiler" -std=c11 -Wall -Wextra -Werror -mips32r2 -mabi=32 \
             -msoft-float -O2 -c tools/band-steering/aging.c -o abi-results/aging-mips.o
+      - name: Verify preconnection policy and compile for MIPS
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            tools/band-steering/clients.c tools/band-steering/policy.c \
+            tools/band-steering/check-policy.c -o abi-results/check-policy
+          abi-results/check-policy | tee abi-results/policy-checks.txt
+          compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          "$compiler" -std=c11 -Wall -Wextra -Werror -mips32r2 -mabi=32 \
+            -msoft-float -O2 -c tools/band-steering/policy.c -o abi-results/policy-mips.o
       - name: Check the prepared idle driver case
         shell: bash
         run: |
