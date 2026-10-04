@@ -8,11 +8,15 @@
 #include <sys/stat.h>
 #include <sys/un.h>
 #include <unistd.h>
+#ifndef WR_CONTROL_DIRECTORY
+#define WR_CONTROL_DIRECTORY "/var/run/wr-band-steering"
+#endif
+#define WR_CONTROL_ENDPOINT WR_CONTROL_DIRECTORY "/control"
 
 /* Candidate local administration client. No driver IOCTLs or profile changes. */
 int main(int argc, char **argv)
 {
-    const char *request, *endpoint = "/var/run/wr-band-steering/control";
+    const char *request, *endpoint = WR_CONTROL_ENDPOINT;
     struct sockaddr_un local, server;
     struct stat st;
     struct pollfd ready;
@@ -34,7 +38,7 @@ int main(int argc, char **argv)
     }
     if (geteuid() != 0) { fprintf(stderr, "Root is required.\n"); return 2; }
     request = !strcmp(argv[1], "status") ? "STATUS\n" : "STOP\n";
-    if (lstat("/var/run/wr-band-steering", &st) || !S_ISDIR(st.st_mode) ||
+    if (lstat(WR_CONTROL_DIRECTORY, &st) || !S_ISDIR(st.st_mode) ||
         st.st_uid != 0 || (st.st_mode & 0777) != 0700) {
         fprintf(stderr, "Control directory unavailable or invalid; radio state unverified.\n"); return 1;
     }

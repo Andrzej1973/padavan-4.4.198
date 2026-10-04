@@ -58,6 +58,8 @@ on:
       - 'tools/band-steering/prepare-profile-check.py'
       - 'tools/band-steering/control.c'
       - 'tools/band-steering/ctl.c'
+      - 'tools/band-steering/control-fixture-server.c'
+      - 'tools/band-steering/check-control-client.py'
       - 'tools/band-steering/control.h'
       - 'tools/band-steering/check-control.c'
 permissions:
@@ -291,6 +293,23 @@ jobs:
             -msoft-float -O2 tools/band-steering/ctl.c -o abi-results/wr-band-steering-ctl-mips
           "$(dirname "$compiler")/mipsel-linux-uclibc-readelf" -h -l -d \
             abi-results/wr-band-steering-ctl-mips > abi-results/control-client-mips-elf.txt
+      - name: Verify actual administration client and local server exchange
+        shell: bash
+        run: |
+          set -euo pipefail
+          test_dir="$(mktemp -d /tmp/wr-ctl-check-XXXXXX)"
+          sudo chown root:root "$test_dir"
+          gcc -std=c11 -Wall -Wextra -Werror -O2 \
+            -DWR_CONTROL_DIRECTORY=\""$test_dir"\" tools/band-steering/ctl.c \
+            -o abi-results/wr-control-client-fixture
+          gcc -std=c11 -Wall -Wextra -Werror -O2 \
+            tools/band-steering/control.c tools/band-steering/control-fixture-server.c \
+            -o abi-results/wr-control-server-fixture
+          sudo python3 tools/band-steering/check-control-client.py \
+            "$PWD/abi-results/wr-control-client-fixture" \
+            "$PWD/abi-results/wr-control-server-fixture" "$test_dir" \
+            | tee abi-results/control-client-exchange.txt
+          sudo rmdir "$test_dir"
       - name: Verify process event loop and link the daemon for MIPS
         shell: bash
         run: |
