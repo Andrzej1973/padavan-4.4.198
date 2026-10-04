@@ -17,7 +17,7 @@ include = '#include "rc.h"\n'
 old = '\n\tfprintf(fp, "BandSteering=%d\\n", 0);\n'
 if text.count(include) != 1 or text.count(old) != 1 or 'wr_band_write_profile' in text:
     raise ValueError('Profile anchors changed; no files written')
-if make.count('EXEC = rc\n') != 1 or 'wr-band-profile-policy.o' in make:
+if make.count('all: $(OBJS) Makefile\n') != 1 or 'wr-band-profile-policy.o' in make:
     raise ValueError('rc build anchors changed; no files written')
 policy = {name: (Path(__file__).parent / name).read_bytes()
           for name in ('profile-policy.c', 'profile-policy.h')}
@@ -58,7 +58,8 @@ OBJS += wr-band-profile-policy.o
 endif
 
 '''
-new_make = make.replace('EXEC = rc\n', gate + 'EXEC = rc\n')
+# Place the addition after the base OBJS assignment, which otherwise overwrites it.
+new_make = make.replace('all: $(OBJS) Makefile\n', gate + 'all: $(OBJS) Makefile\n')
 report = {'runtime_verified': False, 'enabled_by_default': False, 'files': []}
 for path, data in [(source, new_text.encode()), (makefile, new_make.encode()),
                    (rc / 'wr-band-profile-policy.c', policy['profile-policy.c'].replace(

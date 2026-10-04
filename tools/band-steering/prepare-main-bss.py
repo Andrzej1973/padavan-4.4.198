@@ -25,8 +25,9 @@ call = '*_pRet = BndStrg_CheckConnectionReq('
 body = '\tCHAR Rssi = RTMPAvgRssi(pAd, &pEntry->RssiSample);'
 if old_header.count(call) != 1 or old_source.count(body) != 1:
     raise ValueError('Legacy admission/kick source anchors changed; no files written')
-new_header = old_header.replace(call,
-    '*_pRet = (!(_wdev) || (_wdev)->func_idx != MAIN_MBSSID) ? TRUE : BndStrg_CheckConnectionReq(')
+new_header = old_header.replace('CHAR Rssi[3] = {0};',
+    'struct wifi_dev *wr_bss_wdev = (_wdev); ' + chr(92) + '\n\tCHAR Rssi[3] = {0};').replace(call,
+    '*_pRet = (!wr_bss_wdev || wr_bss_wdev->func_idx != MAIN_MBSSID) ? TRUE : BndStrg_CheckConnectionReq(')
 new_source = old_source.replace(body,
     '\tCHAR Rssi;\n'
     '\t/* Guest networks must retain their independent admission and RSSI policy. */\n'

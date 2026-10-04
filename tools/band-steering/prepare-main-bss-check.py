@@ -14,7 +14,7 @@ s = (d / 'ap/ap_band_steering.c').read_text()
 start = h.index('#define BND_STRG_CHECK_CONNECTION_REQ(')
 macro = h[start:h.index('\n#ifdef BND_STRG_DBG', start)]
 body = s[s.index('BOOLEAN BndStrg_IsClientStay('):s.index('\nINT BndStrg_MsgHandle(')]
-if '(_wdev)->func_idx != MAIN_MBSSID' not in macro or 'pEntry->wdev->func_idx != MAIN_MBSSID' not in body:
+if 'wr_bss_wdev->func_idx != MAIN_MBSSID' not in macro or 'pEntry->wdev->func_idx != MAIN_MBSSID' not in body:
     raise ValueError('Prepared main-BSS guards missing')
 allowed = {'BndStrg_IsClientStay', 'if', 'sizeof', 'RTMPAvgRssi', 'COPY_MAC_ADDR', 'BND_STRG_DBGPRINT',
            'YLW', 'PRINT_MAC', 'RtmpOSWrielessEventSend', 'TableEntryDel'}
@@ -80,9 +80,12 @@ int main(void) {
     struct ops ops = {remove_entry}; struct entry entry = {&guest, -90, {2}};
     fixture_table.AlgCtrl.ConditionCheck = 1; fixture_table.Band = 1;
     fixture_table.RssiLow = -70; fixture_table.Ops = &ops;
+    { UCHAR mac[6] = {2}; BOOLEAN result = FALSE;
+      BND_STRG_CHECK_CONNECTION_REQ(&ad, NULL, mac, 3, -60, -61, -62, &result);
+      assert(result && !checked); }
     assert(admission(&ad, &guest) && !checked);
     assert(admission(&ad, NULL) && !checked);
-    assert(!admission(&ad, &main) && checked == 1 && converted == 9);
+    assert(!admission(&ad, &main) && checked == 1 && converted == 12);
     assert(BndStrg_IsClientStay(&ad, &entry) && !averaged && !sent && !deleted);
     entry.wdev = NULL;
     assert(BndStrg_IsClientStay(&ad, &entry) && !averaged);
