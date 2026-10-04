@@ -11,6 +11,10 @@ a = p.parse_args()
 d = a.source / 'trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x2'
 h = (d / 'include/band_steering.h').read_text()
 s = (d / 'ap/ap_band_steering.c').read_text()
+auth = (d / 'ap/ap_auth.c').read_text()
+auth_call = 'BND_STRG_CHECK_CONNECTION_REQ(\tpAd,\n\t\t\t\t\t\t\t\t\t\twdev,'
+if auth.count(auth_call) != 1:
+    raise ValueError('Authentication must pass the resolved BSS device')
 start = h.index('#define BND_STRG_CHECK_CONNECTION_REQ(')
 macro = h[start:h.index('\n#ifdef BND_STRG_DBG', start)]
 body = s[s.index('BOOLEAN BndStrg_IsClientStay('):s.index('\nINT BndStrg_MsgHandle(')]

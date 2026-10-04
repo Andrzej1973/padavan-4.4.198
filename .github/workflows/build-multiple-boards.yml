@@ -26,6 +26,12 @@ on:
       - 'boards.json'
       - 'tools/board-catalog.py'
       - 'tools/collect-board-downloads.py'
+      - 'tools/band-steering/prepare-main-bss.py'
+      - 'tools/band-steering/prepare-wps-guards.py'
+      - 'tools/band-steering/prepare-profile-integration.py'
+      - 'tools/band-steering/profile-policy.c'
+      - 'tools/band-steering/profile-policy.h'
+      - 'tools/band-steering/compile-rc-profile.sh'
 permissions:
   contents: read
 jobs:

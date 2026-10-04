@@ -11,20 +11,27 @@ root = p.parse_args().source
 driver = root / 'trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x2'
 header = driver / 'include/band_steering.h'
 source = driver / 'ap/ap_band_steering.c'
+auth = driver / 'ap/ap_auth.c'
 old_header = header.read_text()
 old_source = source.read_text()
+old_auth = auth.read_text()
 expected_header = 'f9ea2fb868c3fe32bdc2e7a98ed1b15e835aedbbd082eb45c689cbb850695503'
 expected_sources = {
     '0a914a042f31419cc92da3ed51e5b642b4b6ec4ff9b3c656ec8c0973bad11a0c',
     '35ed4a20e91bbc6139e05267575e76c4908e4fdc851d7c5f2bdf9aaffc503460',
 }
 if (hashlib.sha256(header.read_bytes()).hexdigest() != expected_header or
-        hashlib.sha256(source.read_bytes()).hexdigest() not in expected_sources):
+        hashlib.sha256(source.read_bytes()).hexdigest() not in expected_sources or
+        hashlib.sha256(auth.read_bytes()).hexdigest() != '74d8365438fd261012694d53bcf84f3937c7b0a2cb95d95407e53d0aada491fb'):
     raise ValueError('Unrecognized pinned/prepared legacy sources; no files written')
 call = '*_pRet = BndStrg_CheckConnectionReq('
 body = '\tCHAR Rssi = RTMPAvgRssi(pAd, &pEntry->RssiSample);'
 if old_header.count(call) != 1 or old_source.count(body) != 1:
     raise ValueError('Legacy admission/kick source anchors changed; no files written')
+auth_call = 'BND_STRG_CHECK_CONNECTION_REQ(\tpAd,\n\t\t\t\t\t\t\t\t\t\tNULL,'
+if old_auth.count(auth_call) != 1 or old_auth.count('wdev = &pMbss->wdev;') != 1:
+    raise ValueError('Legacy authentication BSS anchors changed; no files written')
+new_auth = old_auth.replace(auth_call, auth_call.replace('NULL,', 'wdev,'))
 new_header = old_header.replace('CHAR Rssi[3] = {0};',
     'struct wifi_dev *wr_bss_wdev = (_wdev); ' + chr(92) + '\n\tCHAR Rssi[3] = {0};').replace(call,
     '*_pRet = (!wr_bss_wdev || wr_bss_wdev->func_idx != MAIN_MBSSID) ? TRUE : BndStrg_CheckConnectionReq(')
@@ -35,7 +42,7 @@ new_source = old_source.replace(body,
     '\t\treturn TRUE;\n'
     '\tRssi = RTMPAvgRssi(pAd, &pEntry->RssiSample);')
 report = {'runtime_verified': False, 'files': []}
-for path, before, after in [(header, old_header, new_header), (source, old_source, new_source)]:
+for path, before, after in [(header, old_header, new_header), (source, old_source, new_source), (auth, old_auth, new_auth)]:
     with path.open('w', encoding='utf-8', newline='\n') as out:
         out.write(after)
     report['files'].append({'path': str(path.relative_to(root)),
