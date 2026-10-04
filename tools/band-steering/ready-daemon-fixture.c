@@ -17,7 +17,14 @@ int main(int argc, char **argv)
     struct sigaction action = {0};
     enum wr_band_phase phase;
     int requested = 0;
-    if (argc != 4 || strcmp(argv[1], "--foreground") || strcmp(argv[3], "rai0")) return 5;
+    if (argc != 4 || strcmp(argv[3], "rai0")) return 5;
+    if (!strcmp(argv[1], "--quiesce")) {
+        /* Stand-in exit contract only; actual driver ACKs are session-tested. */
+        if (!strcmp(argv[2], "ra0")) return 0;
+        if (!strcmp(argv[2], "ra1")) return 3;
+        return 5;
+    }
+    if (strcmp(argv[1], "--foreground")) return 5;
     if (!strcmp(argv[2], "ra0")) phase = WR_ACTIVE;
     else if (!strcmp(argv[2], "ra1")) phase = WR_QUERYING;
     else return 5;

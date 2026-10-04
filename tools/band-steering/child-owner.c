@@ -23,7 +23,7 @@ static int interface_valid(const char *name)
     for(i=0;i<n;++i) if (!isalnum((unsigned char)name[i]) && name[i]!='_' && name[i]!='-' && name[i]!='.') return 0;
     return 1;
 }
-int wr_band_child_spawn(pid_t *owned_pid, const char *radio2g, const char *radio5g)
+static int spawn_mode(pid_t *owned_pid, const char *radio2g, const char *radio5g, const char *mode)
 {
     sigset_t blocked, previous, clean; pid_t pid; long maxfd, fd; int saved;
     if (!owned_pid || *owned_pid || tracked_pid || !interface_valid(radio2g) ||
@@ -36,7 +36,7 @@ int wr_band_child_spawn(pid_t *owned_pid, const char *radio2g, const char *radio
         sigemptyset(&clean);
         if(sigprocmask(SIG_SETMASK,&clean,0)) _exit(127);
         for(fd=3;fd<maxfd;++fd) close((int)fd);
-        execl(WR_BAND_DAEMON_PATH,"wr-band-steering","--foreground",radio2g,radio5g,(char *)0);
+        execl(WR_BAND_DAEMON_PATH,"wr-band-steering",mode,radio2g,radio5g,(char *)0);
         _exit(127);
     }
     saved=errno;
@@ -47,6 +47,10 @@ int wr_band_child_spawn(pid_t *owned_pid, const char *radio2g, const char *radio
     }
     if(sigprocmask(SIG_SETMASK,&previous,0)) return -1;
     errno=saved; return pid<0 ? -1 : 0;
+}
+int wr_band_child_spawn(pid_t *owned_pid, const char *radio2g, const char *radio5g)
+{
+    return spawn_mode(owned_pid, radio2g, radio5g, "--foreground");
 }
 int wr_band_child_track(pid_t pid)
 {
@@ -114,7 +118,7 @@ int wr_band_child_start_verified(pid_t *owned_pid, const char *radio2g,
         (void)nanosleep(&delay, 0);
     }
 }
-static int wait_owned(pid_t *owned_pid, unsigned timeout_ms)
+static int wait_owned(pid_t *owned_pid, unsigned timeout_ms, int terminate)
 {
     uint64_t start, now; int status, signalled = 0; pid_t found;
     struct timespec delay = {0, 20000000};
@@ -133,7 +137,7 @@ static int wait_owned(pid_t *owned_pid, unsigned timeout_ms)
             return -1;
         }
         /* The unreaped child cannot have its PID reused between wait/kill. */
-        if (!signalled) {
+        if (terminate && !signalled) {
             if (kill(*owned_pid, SIGTERM) && errno != ESRCH) return -1;
             signalled = 1;
         }
@@ -142,13 +146,23 @@ static int wait_owned(pid_t *owned_pid, unsigned timeout_ms)
         (void)nanosleep(&delay, 0);
     }
 }
-int wr_band_child_stop(pid_t *owned_pid, unsigned timeout_ms)
+static int observe_owned(pid_t *owned_pid, unsigned timeout_ms, int terminate)
 {
     sigset_t blocked, previous; int result, saved;
     sigemptyset(&blocked); sigaddset(&blocked, SIGCHLD);
     /* rc's generic reaper must not consume this child's status while waiting. */
     if (sigprocmask(SIG_BLOCK, &blocked, &previous)) return -1;
-    result = wait_owned(owned_pid, timeout_ms); saved = errno;
+    result = wait_owned(owned_pid, timeout_ms, terminate); saved = errno;
     if (sigprocmask(SIG_SETMASK, &previous, 0)) return -1;
     errno = saved; return result;
+}
+int wr_band_child_stop(pid_t *owned_pid, unsigned timeout_ms)
+{
+    return observe_owned(owned_pid, timeout_ms, 1);
+}
+int wr_band_child_quiesce(pid_t *owned_pid, const char *radio2g, const char *radio5g)
+{
+    if (spawn_mode(owned_pid, radio2g, radio5g, "--quiesce")) return -1;
+    /* Do not SIGTERM a newly spawned process before its handlers/init exist. */
+    return observe_owned(owned_pid, 5000, 0);
 }

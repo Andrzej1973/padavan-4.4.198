@@ -23,4 +23,8 @@ int wr_band_child_ready(pid_t owned_pid);
  * and exit record for verified stop/cleanup. Caller must not alter profiles
  * until cleanup confirms OFF. Maximum time is timeout_ms plus one 2s query. */
 int wr_band_child_start_verified(pid_t *, const char *, const char *, unsigned timeout_ms);
+/* Requires no existing owned child. Spawn fixed --quiesce and observe normal
+ * exit0 (both OFF acknowledgements), without signalling the new process.
+ * Timeout preserves ownership for later cleanup. No shell or SIGKILL. */
+int wr_band_child_quiesce(pid_t *, const char *, const char *);
 #endif

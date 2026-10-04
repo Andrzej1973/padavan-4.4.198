@@ -16,6 +16,8 @@ int main(void)
     assert(wr_band_child_start_verified(&pid, "ra2", "rai0", 3000) == -1);
     assert(errno == ECHILD && pid > 1);
     assert(wr_band_child_stop(&pid, 1000) == -1 && errno == EIO && !pid);
+    assert(!wr_band_child_quiesce(&pid, "ra0", "rai0") && !pid);
+    assert(wr_band_child_quiesce(&pid, "ra1", "rai0") == -1 && errno == EIO && !pid);
     puts("PASS actual foreground spawn, authenticated ACTIVE wait, timeout retains ownership and failed child cleanup; no driver access");
     return 0;
 }
