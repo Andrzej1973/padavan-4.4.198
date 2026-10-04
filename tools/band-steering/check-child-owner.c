@@ -8,6 +8,7 @@
 #include <unistd.h>
 static volatile sig_atomic_t stop;
 static void requested(int sig) { (void)sig; stop=1; }
+static void reaper(int sig) { int saved=errno; (void)sig; while(waitpid(-1,0,WNOHANG)>0) {} errno=saved; }
 static pid_t child(int mode) {
     int pipefd[2]; char ready; pid_t pid; struct sigaction a; sigset_t blocked, previous;
     assert(!pipe(pipefd)); pid=fork(); assert(pid>=0);
@@ -23,7 +24,14 @@ static pid_t child(int mode) {
     close(pipefd[1]); assert(read(pipefd[0],&ready,1)==1); close(pipefd[0]); return pid;
 }
 int main(void) {
+    struct sigaction a={0}; sigset_t before, after;
     pid_t pid=child(0); assert(!wr_band_child_stop(&pid,1000) && pid==0);
+    a.sa_handler=reaper; sigemptyset(&a.sa_mask); assert(!sigaction(SIGCHLD,&a,0));
+    assert(!sigprocmask(SIG_SETMASK,0,&before));
+    pid=child(0); assert(!wr_band_child_stop(&pid,1000) && pid==0);
+    assert(!sigprocmask(SIG_SETMASK,0,&after));
+    assert(sigismember(&before,SIGCHLD)==sigismember(&after,SIGCHLD));
+    a.sa_handler=SIG_DFL; assert(!sigaction(SIGCHLD,&a,0));
     pid=child(1); assert(wr_band_child_stop(&pid,1000)==-1 && errno==EIO && pid==0);
     pid=child(2); assert(wr_band_child_stop(&pid,50)==-1 && errno==ETIMEDOUT && pid>1);
     assert(!kill(pid,SIGKILL)); assert(waitpid(pid,0,0)==pid);

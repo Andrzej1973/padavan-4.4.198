@@ -12,7 +12,7 @@ static int milliseconds(uint64_t *out)
     *out = (uint64_t)t.tv_sec * 1000 + (uint64_t)t.tv_nsec / 1000000;
     return 0;
 }
-int wr_band_child_stop(pid_t *owned_pid, unsigned timeout_ms)
+static int wait_owned(pid_t *owned_pid, unsigned timeout_ms)
 {
     uint64_t start, now; int status, signalled = 0; pid_t found;
     struct timespec delay = {0, 20000000};
@@ -40,4 +40,14 @@ int wr_band_child_stop(pid_t *owned_pid, unsigned timeout_ms)
         if (now < start || now - start >= timeout_ms) { errno = ETIMEDOUT; return -1; }
         (void)nanosleep(&delay, 0);
     }
+}
+int wr_band_child_stop(pid_t *owned_pid, unsigned timeout_ms)
+{
+    sigset_t blocked, previous; int result, saved;
+    sigemptyset(&blocked); sigaddset(&blocked, SIGCHLD);
+    /* rc's generic reaper must not consume this child's status while waiting. */
+    if (sigprocmask(SIG_BLOCK, &blocked, &previous)) return -1;
+    result = wait_owned(owned_pid, timeout_ms); saved = errno;
+    if (sigprocmask(SIG_SETMASK, &previous, 0)) return -1;
+    errno = saved; return result;
 }
