@@ -50,8 +50,8 @@ struct table { struct { unsigned ConditionCheck; } AlgCtrl; int Band, RssiLow; s
 typedef struct table *PBND_STRG_CLI_TABLE;
 struct adapter { int unused; void *net_dev; };
 typedef struct adapter *PRTMP_ADAPTER;
-static struct table table;
-#define P_BND_STRG_TABLE (&table)
+static struct table fixture_table;
+#define P_BND_STRG_TABLE (&fixture_table)
 static int checked, converted, averaged, sent, deleted;
 static CHAR ConvertToRssi(PRTMP_ADAPTER ad, CHAR rssi, int chain) {
     (void)ad; (void)chain; ++converted; return rssi;
@@ -78,7 +78,8 @@ static BOOLEAN admission(PRTMP_ADAPTER ad, struct wifi_dev *wdev) {
 int main(void) {
     struct adapter ad = {0}; struct wifi_dev main = {0}, guest = {1};
     struct ops ops = {remove_entry}; struct entry entry = {&guest, -90, {2}};
-    table.AlgCtrl.ConditionCheck = 1; table.Band = 1; table.RssiLow = -70; table.Ops = &ops;
+    fixture_table.AlgCtrl.ConditionCheck = 1; fixture_table.Band = 1;
+    fixture_table.RssiLow = -70; fixture_table.Ops = &ops;
     assert(admission(&ad, &guest) && !checked);
     assert(admission(&ad, NULL) && !checked);
     assert(!admission(&ad, &main) && checked == 1 && converted == 9);
