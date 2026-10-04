@@ -1,0 +1,23 @@
+{
+  "source_commit": "c25283e915a2a00a763774dd255b14aff997285e",
+  "prepared_sha256": "f8026abf24e2899115129b9197bd0355ae4fe09e11ad6a102f2dd87481e2024c",
+  "definitions": [
+    {
+      "line": 4949,
+      "gates": [
+        "#ifndef CONFIG_QA",
+        "#if defined(BAND_STEERING) || defined(CUSTOMER_DCC_FEATURE)"
+      ]
+    },
+    {
+      "line": 5112,
+      "gates": [
+        "#ifdef CONFIG_ATE",
+        "#ifdef CONFIG_QA"
+      ]
+    }
+  ],
+  "runtime_verified": false,
+  "full_build_verified": false
+}
+
