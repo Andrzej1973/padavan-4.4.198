@@ -9,11 +9,11 @@ int main(int argc, char **argv)
     pid_t expected_pid = 0;
     char reply[64];
     if (argc == 2 && !strcmp(argv[1], "--help")) {
-        puts("Usage: wr-band-steering-ctl status|stop|status-pid PID\n"
+        puts("Usage: wr-band-steering-ctl status|stop|status-pid PID|ready-pid PID\n"
              "STOP acknowledges a request, not proof that radios stopped steering.");
         return 0;
     }
-    if (argc == 3 && !strcmp(argv[1], "status-pid")) {
+    if (argc == 3 && (!strcmp(argv[1], "status-pid") || !strcmp(argv[1], "ready-pid"))) {
         char *end;
         long parsed;
         const char *digit;
@@ -28,6 +28,10 @@ int main(int argc, char **argv)
         fprintf(stderr, "Use --help for usage.\n"); return 2;
     }
     if (geteuid() != 0) { fprintf(stderr, "Root is required.\n"); return 2; }
+    if (!strcmp(argv[1], "ready-pid")) {
+        if (wr_band_control_active(expected_pid)) return 1;
+        return puts("active") == EOF ? 1 : 0;
+    }
     if (wr_band_control_request(expected_pid, !strcmp(argv[1], "stop"), reply)) return 1;
     return fputs(reply, stdout) == EOF ? 1 : 0;
 }

@@ -97,3 +97,12 @@ error:
 done:
     close(fd); return result;
 }
+
+int wr_band_control_active(pid_t expected_pid)
+{
+    char reply[64];
+    if (expected_pid <= 1) { errno = EINVAL; return -1; }
+    if (wr_band_control_request(expected_pid, 0, reply)) return -1;
+    if (strcmp(reply, "active\n")) { errno = EAGAIN; return -1; }
+    return 0;
+}
