@@ -661,6 +661,7 @@ jobs:
           python3 tools/band-steering/prepare-channel-stats.py "$root"
           python3 tools/band-steering/prepare-main-bss.py "$root"
           python3 tools/band-steering/prepare-off-ack.py "$root"
+          python3 tools/band-steering/prepare-uninitialized-off.py "$root"
           python3 tools/band-steering/configure-driver-probe.py "$kernel"
           compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
           test -n "$compiler"
