@@ -12,7 +12,7 @@ struct wr_band_event {
     uint32_t owner_pid;
     uint32_t cookie;
     uint8_t table_index, idle_state; /* 0 absent/removed, 1 MAC present, 2 error */
-    uint8_t grant_state; /* 0 record absent, 1 present, 2 index/error; not association proof */
+    uint8_t grant_state; /* 0 absent, 1 present, 2 error, 3 modern record in ASSOC state; not link proof */
     char interface_name[16];
 };
 /* Complete driver payload only; caller selects protocol from event interface.

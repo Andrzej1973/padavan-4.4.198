@@ -61,6 +61,11 @@ int main(void)
     p[0] = 0x73; p[WR_MT76X3_DATA_IDLE_TABLEINDEX] = 7;
     p[WR_MT76X3_DATA_IDLE_RETURNCODE] = 2; p[WR_MT76X3_DATA_IDLE_COOKIE] = 9;
     assert(wr_band_decode(WR_MT76X3, p, 80, &e) == 1 && e.type == WR_EVENT_GRANT && e.grant_state == 2 && e.table_index == 7);
+    p[WR_MT76X3_DATA_IDLE_RETURNCODE] = 3;
+    assert(wr_band_decode(WR_MT76X3, p, 80, &e) == 1 && e.grant_state == 3);
+    p[WR_MT76X3_DATA_IDLE_RETURNCODE] = 4;
+    assert(wr_band_decode(WR_MT76X3, p, 80, &e) == -1);
+    p[WR_MT76X3_DATA_IDLE_RETURNCODE] = 1;
     p[WR_MT76X3_DATA_IDLE_COOKIE] = 0;
     assert(wr_band_decode(WR_MT76X3, p, 80, &e) == -1);
     for (n = 0; n < sizeof(p); ++n) {

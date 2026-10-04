@@ -38,6 +38,7 @@ static int query(struct wr_band_grants *g, size_t slot, size_t radio,
     struct wr_grant_radio *r = &g->slots[slot].radio[radio];
     if (!g->next_cookie) return fail(g);
     r->cookie = g->next_cookie++;
+    if (phase == WR_GRANT_QUERYING) r->repair_sent = 0;
     r->activity = g->book->entries[slot].activity;
     r->deadline = now + REPLY_MS; r->phase = phase;
     return send_command(g, slot, radio, WR_GRANT_QUERY, r->cookie);
@@ -74,7 +75,7 @@ int wr_band_grants_sync(struct wr_band_grants *g, size_t slot, uint8_t desired, 
         r->wanted = (uint8_t)((desired >> radio) & 1u);
         if (!r->wanted) { r->phase = WR_GRANT_NONE; continue; }
         if (r->phase != WR_GRANT_NONE) continue;
-        if (!r->confirmed || g->book->entries[slot].record_needs_sync[radio] ||
+        if (!r->confirmed || r->reauth || g->book->entries[slot].record_needs_sync[radio] ||
             now - r->verified_at >= REFRESH_MS)
             if (query(g, slot, radio, WR_GRANT_QUERYING, now)) return -1;
     }
@@ -88,6 +89,18 @@ int wr_band_grants_invalidate(struct wr_band_grants *g, size_t slot, size_t radi
     r = &adopt(g, slot)->radio[radio];
     memset(r, 0, sizeof(*r)); g->book->entries[slot].record_needs_sync[radio] = 1;
     g->last_time = now; g->book->last_time = now; return 0;
+}
+int wr_band_grants_auth(struct wr_band_grants *g, size_t slot, size_t radio,
+                        const struct wr_band_event *e, uint64_t now)
+{
+    if (!time_ok(g, now) || !e || slot >= WR_BAND_CLIENT_LIMIT || radio >= 2 ||
+        !g->book->entries[slot].used) return -1;
+    if (g->book->radios[radio].protocol != WR_MT76X3 || e->type != WR_EVENT_CLIENT ||
+        e->frame_type != 3) return 0;
+    if (e->band != g->book->radios[radio].band ||
+        memcmp(e->mac, g->book->entries[slot].mac, 6)) return -1;
+    adopt(g, slot)->radio[radio].reauth = 1;
+    g->last_time = now; g->book->last_time = now; return 1;
 }
 uint8_t wr_band_grants_confirmed(const struct wr_band_grants *g, size_t slot)
 {
@@ -106,7 +119,8 @@ int wr_band_grants_event(struct wr_band_grants *g, size_t radio,
     struct wr_band_client *c;
     if (!time_ok(g, now) || !e || radio >= 2) return -1;
     if (e->type != WR_EVENT_GRANT) return 0;
-    if (e->table_index >= WR_BAND_CLIENT_LIMIT || !e->cookie || e->grant_state > 2) return -1;
+    if (e->table_index >= WR_BAND_CLIENT_LIMIT || !e->cookie || e->grant_state > 3 ||
+        (e->grant_state == 3 && g->book->radios[radio].protocol != WR_MT76X3)) return -1;
     g->last_time = now; g->book->last_time = now;
     s = &g->slots[e->table_index]; c = &g->book->entries[e->table_index];
     r = &s->radio[radio];
@@ -117,14 +131,19 @@ int wr_band_grants_event(struct wr_band_grants *g, size_t radio,
         r->phase = WR_GRANT_NONE; r->confirmed = 0; return 0;
     }
     if (e->grant_state == 2) return fail(g);
-    if (e->grant_state == 1) {
+    if (r->phase == WR_GRANT_AFTER_ADD && r->repair_sent && e->grant_state == 3)
+        return fail(g); /* The rejected-auth state was not shown to be reset. */
+    if (e->grant_state == 1 || (e->grant_state == 3 && !r->reauth)) {
         r->confirmed = 1; r->verified_at = now; r->phase = WR_GRANT_NONE;
+        r->reauth = 0; r->repair_sent = 0;
         c->record_needs_sync[radio] = 0; return 1;
     }
     r->confirmed = 0;
     if (r->phase == WR_GRANT_AFTER_ADD) return fail(g);
     if (!g->next_cookie) return fail(g);
-    /* Absence established first: do not reset an existing modern entry. */
+    /* ADD only after absence or a proven ASSOC entry with an auth request. */
+    r->repair_sent = (uint8_t)(e->grant_state == 3);
+    r->reauth = 0;
     if (send_command(g, e->table_index, radio, WR_ADD, 0)) return -1;
     if (query(g, e->table_index, radio, WR_GRANT_AFTER_ADD, now)) return -1;
     return 1;

@@ -33,7 +33,8 @@ MODERN_CASE = '''\t\tcase 0x72: { /* WR_GRANT_QUERY: inspect only; never insert 
             response.data.idle = request;
             found = BndStrg_TableLookup(table, request.Addr);
             response.data.idle.ReturnCode = !found ? 0 :
-                (found->TableIndex == request.TableIndex ? 1 : 2);
+                (found->TableIndex != request.TableIndex ? 2 :
+                 (found->BndStrg_Sta_State == BNDSTRG_STA_ASSOC ? 3 : 1));
             BndStrgSendMsg(pAd, &response);
             break;
         }

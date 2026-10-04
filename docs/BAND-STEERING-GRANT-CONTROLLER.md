@@ -8,6 +8,10 @@ A client observation in the same millisecond advances the activity generation an
 
 Integration contract: single non-reentrant event-loop owner in an ACTIVE driver session, prepared readback handlers on both radios, fresh/drained listener on init, no grant synchronization for a slot while its idle proof is active, and client slots recycled only after dual-radio absence. Controller and aging cookies are interpreted through distinct reply action types; neither controller may reuse its own cookies within the process instance.
 
-The persistent coordinator must enforce those contracts, propagate errors to session shutdown, and handle modern associated-entry reauthentication explicitly. This module does not implement that repair, profile/start-stop wiring, WebUI or full vendor-driver compilation. Router runtime verification remains pending.
+The persistent coordinator must enforce those contracts, propagate errors to session shutdown, and deliver modern auth-request events after client observation. The module now marks those events for readback and repairs an entry only when the reply also reports modern ASSOC state. It requires a second readback proving that the blocking ASSOC state is no longer present, otherwise the controller fails. Ordinary ASSOC readbacks without auth intent never trigger CLI_ADD. Profile/start-stop wiring, WebUI and full vendor-driver compilation remain pending. Router runtime verification remains pending.
 
 The isolated workflow runs ASan/UBSan fixtures covering query/add/readback order, pending deduplication, identity/generation checks, refresh, dirty-record invalidation, timeout/send failure and failed post-add proof, then cross-compiles grants.c for MIPS.
+
+## Reauthentication verification scope
+
+Fixtures cover modern ASSOC state without auth (no reset), auth with an already non-ASSOC record (no reset), auth plus ASSOC (one reset followed by readback), and a failed reset whose readback remains ASSOC (controller failure). Driver-case fixtures use the enum extracted from the pinned prepared header. This is isolated source/fixture evidence; full vendor-driver compilation, persistent coordinator integration and actual router reconnect tests remain required.

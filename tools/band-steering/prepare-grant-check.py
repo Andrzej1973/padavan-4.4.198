@@ -20,6 +20,10 @@ for radio in ('mt76x2', 'mt76x3'):
         raise ValueError('Unexpected operation in grant query: ' + repr(calls - allowed))
     declarations = (args.probes / (radio + '-abi.c')).read_text().split('_Static_assert', 1)[0]
     legacy = radio == 'mt76x2'
+    state_enum = ''
+    if not legacy:
+        header = (args.source / ('trunk/linux-4.4.x/drivers/net/wireless/mediatek/' + radio + '/include/band_steering_def.h')).read_text()
+        state_enum = re.search(r'enum BND_STRG_STA_STATE\s*\{.*?\};', header, re.S).group(0)
     wrapper = ''
     wrapper_tests = ''
     if legacy:
@@ -48,15 +52,17 @@ for radio in ('mt76x2', 'mt76x3'):
 #define FALSE 0
 typedef void *PRTMP_ADAPTER;
 typedef int INT;
-typedef struct { UINT8 TableIndex; } BND_STRG_CLI_ENTRY, *PBND_STRG_CLI_ENTRY;
+__STATEENUM__
+typedef struct { UINT8 TableIndex; int BndStrg_Sta_State; } BND_STRG_CLI_ENTRY, *PBND_STRG_CLI_ENTRY;
 typedef struct { struct { struct { unsigned length; void *pointer; } data; } u; } RTMP_IOCTL_INPUT_STRUCT;
 struct ops { PBND_STRG_CLI_ENTRY (*TableLookup)(void *, UCHAR *); void (*MsgHandle)(void *, BNDSTRG_MSG *); };
 typedef struct { int bInitialized; struct ops *Ops; } TABLE, *PBND_STRG_CLI_TABLE;
-static int has_entry, index_value, sent, dispatched, copy_failure;
+static int has_entry, index_value, state_value, sent, dispatched, copy_failure;
 static BNDSTRG_MSG response;
 static BND_STRG_CLI_ENTRY entry;
 static PBND_STRG_CLI_ENTRY lookup(void *table, UCHAR *mac) {
-    (void)table; (void)mac; entry.TableIndex = (UINT8)index_value; return has_entry ? &entry : NULL;
+    (void)table; (void)mac; entry.TableIndex = (UINT8)index_value; entry.BndStrg_Sta_State = state_value;
+    return has_entry ? &entry : NULL;
 }
 __LOOKUP__
 __SEND__
@@ -114,7 +120,9 @@ int main(void) {
             '__STATE__': 'response.data.idle.ReturnCode', '__COOKIE__': 'response.data.idle.Cookie',
             '__INDEX__': 'response.data.idle.TableIndex', '__ADDR__': 'response.data.idle.Addr',
             '__INPUTADDR__': 'msg.data.idle.Addr',
-            '__EXTRA__': '''index_value = 8;
+            '__EXTRA__': '''state_value = BNDSTRG_STA_ASSOC;
+    assert(exercise(&msg, sizeof(msg), 0) == 0 && response.data.idle.ReturnCode == 3);
+    state_value = BNDSTRG_STA_INIT; index_value = 8;
     assert(exercise(&msg, sizeof(msg), 0) == 0 && response.data.idle.ReturnCode == 2);''',
             '__INVALID__': '''sent = 0;
     assert(exercise(&msg, sizeof(msg) - 1, 0) == BND_STRG_INVALID_ARG && !sent);
@@ -126,7 +134,8 @@ int main(void) {
     (void)operations; (void)copy_failure;''',
         }
     replacements.update({'__CASE__': case, '__WRAPPER__': wrapper,
-                         '__WRAPPER_TESTS__': wrapper_tests, '__RADIO__': radio})
+                         '__WRAPPER_TESTS__': wrapper_tests, '__RADIO__': radio,
+                         '__STATEENUM__': state_enum})
     for key, value in replacements.items():
         test = test.replace(key, value)
     with (args.probes / ('check-grant-' + radio + '.c')).open('w', encoding='utf-8', newline='\n') as out:

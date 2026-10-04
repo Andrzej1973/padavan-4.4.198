@@ -83,7 +83,7 @@ int wr_band_decode(enum wr_band_protocol protocol, const uint8_t *p,
             result.grant_state = p[WR_MT76X3_DATA_IDLE_RETURNCODE];
             result.cookie = read_cookie(p + WR_MT76X3_DATA_IDLE_COOKIE);
             memcpy(result.mac, p + WR_MT76X3_DATA_IDLE_ADDR, 6);
-            if (!result.cookie || result.table_index >= 64 || result.grant_state > 2) return -1;
+            if (!result.cookie || result.table_index >= 64 || result.grant_state > 3) return -1;
             break;
         case 0x71:
             result.type = WR_EVENT_IDLE;

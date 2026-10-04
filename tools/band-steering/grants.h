@@ -4,7 +4,7 @@
 enum wr_grant_phase { WR_GRANT_NONE, WR_GRANT_QUERYING, WR_GRANT_AFTER_ADD };
 struct wr_grant_radio {
     enum wr_grant_phase phase;
-    uint8_t wanted, confirmed;
+    uint8_t wanted, confirmed, reauth, repair_sent;
     uint32_t cookie;
     uint64_t activity, deadline, verified_at;
 };
@@ -35,9 +35,15 @@ int wr_band_grants_sync(struct wr_band_grants *, size_t slot, uint8_t desired_ma
 int wr_band_grants_event(struct wr_band_grants *, size_t radio, const struct wr_band_event *, uint64_t);
 int wr_band_grants_tick(struct wr_band_grants *, uint64_t);
 int wr_band_grants_invalidate(struct wr_band_grants *, size_t slot, size_t radio, uint64_t);
+/* Called after observing a modern auth-request event in clients. Marks a
+ * readback, not an unconditional add/reset. ASSOC readback + auth intent is
+ * required before CLI_ADD repairs that entry; post-repair proof is required.
+ */
+int wr_band_grants_auth(struct wr_band_grants *, size_t slot, size_t radio,
+                        const struct wr_band_event *, uint64_t);
 uint8_t wr_band_grants_confirmed(const struct wr_band_grants *, size_t slot);
 /* Send failure, timeout, index error or failed post-add proof sets failed.
  * The owner must stop/disable the session; it must not claim recovery merely
- * from ioctl success. Modern associated-entry reauthentication is separate.
+ * from ioctl success. An unverified reauthentication repair also fails.
  */
 #endif

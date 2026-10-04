@@ -110,6 +110,33 @@ int main(void)
     assert(wr_band_grants_sync(&g, 0, 1, 0) == 0 && !g.next_cookie);
     e = reply(&f, 0, 0);
     assert(wr_band_grants_event(&g, 0, &e, 1) == -1 && f.count == 1); /* No unverified add. */
-    puts("PASS: query/add/readback ordering, pending dedup, generation/identity correlation, periodic refresh, invalidation, transport/timeouts and failed post-add proof; no deletes");
+    /* ASSOC state alone never resets an existing modern grant. */
+    init(&b, &g, &f); assert(wr_band_grants_sync(&g, 0, 1, 0) == 0);
+    e = reply(&f, 0, 3);
+    assert(wr_band_grants_event(&g, 0, &e, 0) == 1 && f.count == 1);
+    assert(wr_band_grants_confirmed(&g, 0) == 1);
+    activity.frame_type = 3;
+    assert(wr_band_clients_observe(&b, 0, &activity, 1) == 0);
+    assert(wr_band_grants_auth(&g, 0, 0, &activity, 1) == 1);
+    assert(wr_band_grants_sync(&g, 0, 1, 1) == 0 && f.count == 2);
+    e = reply(&f, 0, 3);
+    assert(wr_band_grants_event(&g, 0, &e, 1) == 1 && f.count == 4);
+    assert(f.sent[2].command == WR_ADD && f.sent[3].command == WR_GRANT_QUERY);
+    e = reply(&f, 0, 1);
+    assert(wr_band_grants_event(&g, 0, &e, 2) == 1 && wr_band_grants_confirmed(&g, 0) == 1);
+    /* Another auth request when the record is already INIT needs no reset. */
+    assert(wr_band_clients_observe(&b, 0, &activity, 3) == 0);
+    assert(wr_band_grants_auth(&g, 0, 0, &activity, 3) == 1);
+    assert(wr_band_grants_sync(&g, 0, 1, 3) == 0 && f.count == 5);
+    e = reply(&f, 0, 1);
+    assert(wr_band_grants_event(&g, 0, &e, 3) == 1 && f.count == 5);
+    assert(wr_band_grants_auth(&g, 0, 1, &activity, 3) == 0);
+    /* A reset whose post-readback still says ASSOC is not verified. */
+    assert(wr_band_clients_observe(&b, 0, &activity, 4) == 0);
+    assert(wr_band_grants_auth(&g, 0, 0, &activity, 4) == 1);
+    assert(wr_band_grants_sync(&g, 0, 1, 4) == 0);
+    e = reply(&f, 0, 3); assert(wr_band_grants_event(&g, 0, &e, 4) == 1);
+    e = reply(&f, 0, 3); assert(wr_band_grants_event(&g, 0, &e, 5) == -1 && g.failed);
+    puts("PASS: correlated grant ordering/dedup, refresh/invalidation, failures, and modern reauth reset only after auth plus ASSOC proof; no deletes");
     return 0;
 }
