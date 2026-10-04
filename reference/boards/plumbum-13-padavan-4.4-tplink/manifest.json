@@ -1,0 +1,596 @@
+{
+  "import_date": "2026-10-04",
+  "source_repository": "https://github.com/Plumbum-13/padavan-4.4-tplink",
+  "source_kind": "user-provided local extracted folder",
+  "source_commit": null,
+  "provenance_note": "Local extraction has no Git metadata. File hashes identify the imported bytes; upstream commit and runtime support are not inferred.",
+  "preserved_unmodified": true,
+  "excluded": "Incidental .txt notes/boot logs; firmware sources and toolchain outside trunk/configs.",
+  "boards": [
+    {
+      "id": "ARCHER-C50",
+      "template": "trunk/configs/templates/ARCHER-C50.config",
+      "vendor": "TPLINK",
+      "soc": "MT7620",
+      "linuxdir": "linux-4.4.x",
+      "board_definitions": [
+        "#define BOARD_PID               \"C50-V4\"",
+        "#define BOARD_NAME              \"C50-V4\"",
+        "#define BOARD_DESC              \"TP-Link Archer C50 Wireless Router\"",
+        "#define BOARD_VENDOR_NAME       \"TP-LINK Technologies CO., LTD.\"",
+        "#define BOARD_VENDOR_URL        \"http://www.tp-link.com/en\"",
+        "#define BOARD_MODEL_URL         \"http://www.tp-link.com/en/download/Archer-C50_V4.html\"",
+        "#define BOARD_BOOT_TIME         25",
+        "#define BOARD_FLASH_TIME        120",
+        "#define BOARD_HAS_5G_11AC       1",
+        "#define BOARD_NUM_ANT_5G_TX     2",
+        "#define BOARD_NUM_ANT_5G_RX     2",
+        "#define BOARD_NUM_ANT_2G_TX     2",
+        "#define BOARD_NUM_ANT_2G_RX     2",
+        "#define BOARD_NUM_ETH_LEDS      0",
+        "#define BOARD_HAS_EPHY_L1000    0",
+        "#define BOARD_HAS_EPHY_W1000    0"
+      ],
+      "board_make": "##################################################################\n# Board PID # Board Name       # PRODUCT # Note\n##################################################################\n# TP-Link # Archer C50v4  # MT7628  #\n##################################################################\n\nCFLAGS += -DBOARD_C50_V4 -DVENDOR_TPLINK\nBOARD_NUM_USB_PORTS=0\nCONFIG_BOARD_RAM_SIZE=64\n\n### TP-LINK firmware description ###\nTPLINK_HWID=0x001D589B\nTPLINK_HWREV=0x93\nTPLINK_HWREVADD=0x2\nTPLINK_FLASHLAYOUT=16MSUmtk\nTPLINK_HVERSION=3\n",
+      "build_enabled": false,
+      "runtime_verified": false
+    },
+    {
+      "id": "MI-4",
+      "template": "trunk/configs/templates/MI-4.config",
+      "vendor": "Ralink",
+      "soc": "MT7621",
+      "linuxdir": "linux-4.4.x",
+      "board_definitions": [
+        "#define BOARD_PID\t\t\"MI-4\"",
+        "#define BOARD_NAME\t\t\"MI-4\"",
+        "#define BOARD_DESC\t\t\"Xiaomi Mi 4 Wireless Router\"",
+        "#define BOARD_VENDOR_NAME\t\"Beijing Xiaomi Technology Co., Ltd.\"",
+        "#define BOARD_VENDOR_URL\t\"https://www.mi.com/\"",
+        "#define BOARD_MODEL_URL\t\t\"https://www.mi.com/miwifi4\"",
+        "#define BOARD_BOOT_TIME\t\t20",
+        "#define BOARD_FLASH_TIME\t120",
+        "#define BOARD_GPIO_BTN_RESET\t18",
+        "#define BOARD_GPIO_LED_POWER\t8\t/* 6: red, 10: yellow, 8: blue */",
+        "#define BOARD_GPIO_LED_LAN\t10",
+        "#define BOARD_HAS_5G_11AC\t1",
+        "#define BOARD_NUM_ANT_5G_TX\t2",
+        "#define BOARD_NUM_ANT_5G_RX\t2",
+        "#define BOARD_NUM_ANT_2G_TX\t2",
+        "#define BOARD_NUM_ANT_2G_RX\t2",
+        "#define BOARD_NUM_ETH_LEDS\t1",
+        "#define BOARD_NUM_ETH_EPHY\t3",
+        "#define BOARD_HAS_EPHY_L1000\t1",
+        "#define BOARD_HAS_EPHY_W1000\t1"
+      ],
+      "board_make": "##################################################################\n# Board PID # Board Name       # PRODUCT # Note\n##################################################################\n# MI-4 # Xiaomi Mi 4   # MT7621  #\n##################################################################\n\nCFLAGS += -DBOARD_MI-4\nBOARD_NUM_USB_PORTS=0\nCONFIG_BOARD_RAM_SIZE=128\n",
+      "build_enabled": false,
+      "runtime_verified": false
+    },
+    {
+      "id": "MI-R3G",
+      "template": "trunk/configs/templates/MI-R3G.config",
+      "vendor": "Ralink",
+      "soc": "MT7621",
+      "linuxdir": "linux-4.4.x",
+      "board_definitions": [
+        "#define BOARD_PID\t\t\"MI-R3G\"",
+        "#define BOARD_NAME\t\t\"MI-R3G\"",
+        "#define BOARD_DESC\t\t\"Xiaomi Mi R3G Wireless Router\"",
+        "#define BOARD_VENDOR_NAME\t\"Beijing Xiaomi Technology Co., Ltd.\"",
+        "#define BOARD_VENDOR_URL\t\"http://www.mi.com/\"",
+        "#define BOARD_MODEL_URL\t\t\"http://www.mi.com/miwifir3g\"",
+        "#define BOARD_BOOT_TIME\t\t20",
+        "#define BOARD_FLASH_TIME\t120",
+        "#define BOARD_HAS_5G_11AC\t1",
+        "#define BOARD_NUM_ANT_5G_TX\t2",
+        "#define BOARD_NUM_ANT_5G_RX\t2",
+        "#define BOARD_NUM_ANT_2G_TX\t2",
+        "#define BOARD_NUM_ANT_2G_RX\t2",
+        "#define BOARD_NUM_ETH_LEDS\t1",
+        "#define BOARD_NUM_ETH_EPHY\t3",
+        "#define BOARD_HAS_EPHY_L1000\t1",
+        "#define BOARD_HAS_EPHY_W1000\t1",
+        "#define BOARD_NUM_UPHY_USB3\t1"
+      ],
+      "board_make": "##################################################################\n# Board PID # Board Name       # PRODUCT # Note\n##################################################################\n# MI-R3P # Xiaomi R3G  # MT7621  #\n##################################################################\n\nCFLAGS += -DBOARD_MIR3G\nBOARD_NUM_USB_PORTS=1\nCONFIG_BOARD_RAM_SIZE=256\n",
+      "build_enabled": false,
+      "runtime_verified": false
+    },
+    {
+      "id": "MI-R3P",
+      "template": "trunk/configs/templates/MI-R3P.config",
+      "vendor": "Ralink",
+      "soc": "MT7621",
+      "linuxdir": "linux-4.4.x",
+      "board_definitions": [
+        "#define BOARD_PID\t\t\"MI-R3P\"",
+        "#define BOARD_NAME\t\t\"MI-R3P\"",
+        "#define BOARD_DESC\t\t\"Xiaomi Mi R3P Wireless Router\"",
+        "#define BOARD_VENDOR_NAME\t\"Beijing Xiaomi Technology Co., Ltd.\"",
+        "#define BOARD_VENDOR_URL\t\"http://www.mi.com/\"",
+        "#define BOARD_MODEL_URL\t\t\"http://www.mi.com/miwifir3p\"",
+        "#define BOARD_BOOT_TIME\t\t20",
+        "#define BOARD_FLASH_TIME\t120",
+        "#define BOARD_HAS_5G_11AC\t\t1",
+        "#define BOARD_NUM_ANT_5G_TX\t\t4",
+        "#define BOARD_NUM_ANT_5G_RX\t\t4",
+        "#define BOARD_NUM_ANT_2G_TX\t\t4",
+        "#define BOARD_NUM_ANT_2G_RX\t\t4",
+        "#define BOARD_NUM_ETH_LEDS\t\t1",
+        "#define BOARD_NUM_ETH_EPHY\t\t4",
+        "#define BOARD_HAS_EPHY_L1000\t\t1",
+        "#define BOARD_HAS_EPHY_W1000\t\t1",
+        "#define BOARD_NUM_UPHY_USB3\t\t1"
+      ],
+      "board_make": "##################################################################\n# Board PID # Board Name       # PRODUCT # Note\n##################################################################\n# MI-R3P # Xiaomi R3P  # MT7621  #\n##################################################################\n\nCFLAGS += -DBOARD_MIR3P\nBOARD_NUM_USB_PORTS=1\nCONFIG_BOARD_RAM_SIZE=512\n",
+      "build_enabled": false,
+      "runtime_verified": false
+    },
+    {
+      "id": "MI-R3P-PB",
+      "template": "trunk/configs/templates/MI-R3P-PB.config",
+      "vendor": "Ralink",
+      "soc": "MT7621",
+      "linuxdir": "linux-4.4.x",
+      "board_definitions": [
+        "#define BOARD_PID\t\t\"MI-R3P\"",
+        "#define BOARD_NAME\t\t\"MI-R3P\"",
+        "#define BOARD_DESC\t\t\"Xiaomi Mi R3P Wireless Router\"",
+        "#define BOARD_VENDOR_NAME\t\"Beijing Xiaomi Technology Co., Ltd.\"",
+        "#define BOARD_VENDOR_URL\t\"http://www.mi.com/\"",
+        "#define BOARD_MODEL_URL\t\t\"http://www.mi.com/miwifir3p\"",
+        "#define BOARD_BOOT_TIME\t\t20",
+        "#define BOARD_FLASH_TIME\t120",
+        "#define BOARD_HAS_5G_11AC\t\t1",
+        "#define BOARD_NUM_ANT_5G_TX\t\t4",
+        "#define BOARD_NUM_ANT_5G_RX\t\t4",
+        "#define BOARD_NUM_ANT_2G_TX\t\t4",
+        "#define BOARD_NUM_ANT_2G_RX\t\t4",
+        "#define BOARD_NUM_ETH_LEDS\t\t1",
+        "#define BOARD_NUM_ETH_EPHY\t\t4",
+        "#define BOARD_HAS_EPHY_L1000\t\t1",
+        "#define BOARD_HAS_EPHY_W1000\t\t1",
+        "#define BOARD_NUM_UPHY_USB3\t\t1"
+      ],
+      "board_make": "##################################################################\n# Board PID # Board Name       # PRODUCT # Note\n##################################################################\n# MI-R3P # Xiaomi R3P  # MT7621  #\n##################################################################\n\nCFLAGS += -DBOARD_MIR3P\nBOARD_NUM_USB_PORTS=1\nCONFIG_BOARD_RAM_SIZE=512\n",
+      "build_enabled": false,
+      "runtime_verified": false
+    },
+    {
+      "id": "MI-R3P-SPI",
+      "template": "trunk/configs/templates/MI-R3P-SPI.config",
+      "vendor": "Ralink",
+      "soc": "MT7621",
+      "linuxdir": "linux-4.4.x",
+      "board_definitions": [
+        "#define BOARD_PID\t\t\"MI-R3P\"",
+        "#define BOARD_NAME\t\t\"MI-R3P\"",
+        "#define BOARD_DESC\t\t\"Xiaomi Mi R3P Wireless Router\"",
+        "#define BOARD_VENDOR_NAME\t\"Beijing Xiaomi Technology Co., Ltd.\"",
+        "#define BOARD_VENDOR_URL\t\"http://www.mi.com/\"",
+        "#define BOARD_MODEL_URL\t\t\"http://www.mi.com/miwifir3p\"",
+        "#define BOARD_BOOT_TIME\t\t20",
+        "#define BOARD_FLASH_TIME\t120",
+        "#define BOARD_HAS_5G_11AC\t\t1",
+        "#define BOARD_NUM_ANT_5G_TX\t\t4",
+        "#define BOARD_NUM_ANT_5G_RX\t\t4",
+        "#define BOARD_NUM_ANT_2G_TX\t\t4",
+        "#define BOARD_NUM_ANT_2G_RX\t\t4",
+        "#define BOARD_NUM_ETH_LEDS\t\t1",
+        "#define BOARD_NUM_ETH_EPHY\t\t4",
+        "#define BOARD_HAS_EPHY_L1000\t\t1",
+        "#define BOARD_HAS_EPHY_W1000\t\t1",
+        "#define BOARD_NUM_UPHY_USB3\t\t1",
+        "#define BOARD_USB_PORT_SWAP\t\t0"
+      ],
+      "board_make": "##################################################################\n# Board PID # Board Name       # PRODUCT # Note\n##################################################################\n# MI-R3P # Xiaomi R3P  # MT7621  #\n##################################################################\n\nCFLAGS += -DBOARD_MIR3P\nBOARD_NUM_USB_PORTS=1\nCONFIG_BOARD_RAM_SIZE=512\n",
+      "build_enabled": false,
+      "runtime_verified": false
+    },
+    {
+      "id": "MI-R4A",
+      "template": "trunk/configs/templates/MI-R4A.config",
+      "vendor": "Ralink",
+      "soc": "MT7621",
+      "linuxdir": "linux-4.4.x",
+      "board_definitions": [
+        "#define BOARD_PID\t\t\"MI-R4A\"",
+        "#define BOARD_NAME\t\t\"MI-R4A\"",
+        "#define BOARD_DESC\t\t\"Xiaomi Mi R4A Wireless Router\"",
+        "#define BOARD_VENDOR_NAME\t\"Beijing Xiaomi Technology Co., Ltd.\"",
+        "#define BOARD_VENDOR_URL\t\"https://www.mi.com/\"",
+        "#define BOARD_MODEL_URL\t\t\"https://www.mi.com/miwifi4ac\"",
+        "#define BOARD_BOOT_TIME\t\t30",
+        "#define BOARD_FLASH_TIME\t120",
+        "#define BOARD_HAS_5G_11AC\t1",
+        "#define BOARD_NUM_ANT_5G_TX\t2",
+        "#define BOARD_NUM_ANT_5G_RX\t2",
+        "#define BOARD_NUM_ANT_2G_TX\t2",
+        "#define BOARD_NUM_ANT_2G_RX\t2",
+        "#define BOARD_NUM_ETH_LEDS\t1",
+        "#define BOARD_HAS_EPHY_L1000\t1",
+        "#define BOARD_HAS_EPHY_W1000\t1",
+        "#define BOARD_NUM_ETH_EPHY\t3",
+        "#define BOARD_NUM_UPHY_USB3\t0",
+        "#define BOARD_USB_PORT_SWAP\t0"
+      ],
+      "board_make": "##################################################################\n# Board PID # Board Name       # PRODUCT # Note\n##################################################################\n# MI-R4A # Xiaomi Mi R4A   # MT7621  #\n##################################################################\n\nCFLAGS += -DBOARD_MI-R4A\nBOARD_NUM_USB_PORTS=0\n",
+      "build_enabled": false,
+      "runtime_verified": false
+    },
+    {
+      "id": "TL_C50-V4",
+      "template": "trunk/configs/templates/TL_C50-V4.config",
+      "vendor": "TPLINK",
+      "soc": "MT7628",
+      "linuxdir": "linux-4.4.x",
+      "board_definitions": [
+        "#define BOARD_PID               \"TL_C50-V4\"",
+        "#define BOARD_NAME              \"TL_C50-V4\"",
+        "#define BOARD_DESC              \"TP-Link Archer C50 Wireless Router\"",
+        "#define BOARD_VENDOR_NAME       \"TP-LINK Technologies CO., LTD.\"",
+        "#define BOARD_VENDOR_URL        \"http://www.tp-link.com/en\"",
+        "#define BOARD_MODEL_URL         \"http://www.tp-link.com/en/download/Archer-C50_V4.html\"",
+        "#define BOARD_BOOT_TIME         25",
+        "#define BOARD_FLASH_TIME        120",
+        "#define BOARD_HAS_5G_11AC       1",
+        "#define BOARD_NUM_ANT_5G_TX     2",
+        "#define BOARD_NUM_ANT_5G_RX     2",
+        "#define BOARD_NUM_ANT_2G_TX     2",
+        "#define BOARD_NUM_ANT_2G_RX     2",
+        "#define BOARD_NUM_ETH_LEDS      0",
+        "#define BOARD_HAS_EPHY_L1000    0",
+        "#define BOARD_HAS_EPHY_W1000    0"
+      ],
+      "board_make": "##################################################################\n# Board PID # Board Name       # PRODUCT # Note\n##################################################################\n# ARCHERC50  # TP-LINK ARCHER C50    # MT7628  #\n##################################################################\n\nCFLAGS += -DBOARD_ARCHER_C50 -DVENDOR_TPLINK\nBOARD_NUM_USB_PORTS=0\n\n### TP-LINK firmware description ###\nTPLINK_HWID=0x001D589B\nTPLINK_HWREV=0x93\nTPLINK_HWREVADD=0x2\nTPLINK_FLASHLAYOUT=16MSUmtk\nTPLINK_HVERSION=3\n",
+      "build_enabled": false,
+      "runtime_verified": false
+    },
+    {
+      "id": "TL_C50-V4-16M",
+      "template": null,
+      "vendor": null,
+      "soc": null,
+      "linuxdir": null,
+      "board_definitions": [
+        "#define BOARD_PID               \"TL_C50-V4\"",
+        "#define BOARD_NAME              \"TL_C50-V4\"",
+        "#define BOARD_DESC              \"TP-Link Archer C50 Wireless Router\"",
+        "#define BOARD_VENDOR_NAME       \"TP-LINK Technologies CO., LTD.\"",
+        "#define BOARD_VENDOR_URL        \"http://www.tp-link.com/en\"",
+        "#define BOARD_MODEL_URL         \"http://www.tp-link.com/en/download/Archer-C50_V4.html\"",
+        "#define BOARD_BOOT_TIME         25",
+        "#define BOARD_FLASH_TIME        120",
+        "#define BOARD_HAS_5G_11AC       1",
+        "#define BOARD_NUM_ANT_5G_TX     2",
+        "#define BOARD_NUM_ANT_5G_RX     2",
+        "#define BOARD_NUM_ANT_2G_TX     2",
+        "#define BOARD_NUM_ANT_2G_RX     2",
+        "#define BOARD_NUM_ETH_LEDS      0",
+        "#define BOARD_HAS_EPHY_L1000    0",
+        "#define BOARD_HAS_EPHY_W1000    0"
+      ],
+      "board_make": "##################################################################\n# Board PID # Board Name       # PRODUCT # Note\n##################################################################\n# ARCHERC50  # TP-LINK ARCHER C50    # MT7628  #\n##################################################################\n\nCFLAGS += -DBOARD_ARCHER_C50 -DVENDOR_TPLINK\nBOARD_NUM_USB_PORTS=0\n\n### TP-LINK firmware description ###\nTPLINK_HWID=0x001D589B\nTPLINK_HWREV=0x93\nTPLINK_HWREVADD=0x2\nTPLINK_FLASHLAYOUT=16MSUmtk\nTPLINK_HVERSION=3\n",
+      "build_enabled": false,
+      "runtime_verified": false
+    }
+  ],
+  "files": [
+    {
+      "path": "trunk/configs/boards/ARCHER-C50/board.h",
+      "size": 737,
+      "sha256": "187c4cb99508380ae183d6cf297cba9b2bfd1ad717d3cf76d024e49643806e8b"
+    },
+    {
+      "path": "trunk/configs/boards/ARCHER-C50/board.mk",
+      "size": 521,
+      "sha256": "fa67c7b3aa1cb58328f848351a77dde27ce0629616eeac108e3d7749ad5a809b"
+    },
+    {
+      "path": "trunk/configs/boards/ARCHER-C50/kernel-4.4.x.config",
+      "size": 72393,
+      "sha256": "0be5f51a3f5c69c89e7cf93516c0214e82385de9ff3e413ee790fe67ae780297"
+    },
+    {
+      "path": "trunk/configs/boards/busybox.config",
+      "size": 35095,
+      "sha256": "d85fdc0dc297fe28f0a605b0ff1936e4babaef1dfb5a9e29161745b8251584d0"
+    },
+    {
+      "path": "trunk/configs/boards/MI-4/board.h",
+      "size": 878,
+      "sha256": "d4aaf71dcc2d96b5de54b1517fbf48553c54a5210e1e8aee1052649b90f2f6fd"
+    },
+    {
+      "path": "trunk/configs/boards/MI-4/board.mk",
+      "size": 356,
+      "sha256": "e5fe90cdb2343ff1d64c587b622fcf5accaab33c2888a1b77903b2c1aa20691a"
+    },
+    {
+      "path": "trunk/configs/boards/MI-4/kernel-4.4.x.config",
+      "size": 67407,
+      "sha256": "a049852eae3fb172440f53dde93c7882f4186aac2638ceacb3c645ad22f222ff"
+    },
+    {
+      "path": "trunk/configs/boards/MI-4/l1profile.dat",
+      "size": 241,
+      "sha256": "d2073d325bc004cd42b27fe0a483c3287185b9a061c1de759ef165bbeb7887d4"
+    },
+    {
+      "path": "trunk/configs/boards/MI-R3G/board.h",
+      "size": 651,
+      "sha256": "fa8e0e5118e76090721bcdf324b51df7f6bf594146c66daca8bf40ab3c9df4d5"
+    },
+    {
+      "path": "trunk/configs/boards/MI-R3G/board.mk",
+      "size": 357,
+      "sha256": "4c278730eb628ffd20a63efa892c131b025e5f4fb46d882501983276678a1689"
+    },
+    {
+      "path": "trunk/configs/boards/MI-R3G/kernel-4.4.x.config",
+      "size": 73922,
+      "sha256": "97bd94eda35d3bb7050594b1fff41f78285d3ce81ee6894e51e0509974cd3db7"
+    },
+    {
+      "path": "trunk/configs/boards/MI-R3G/l1profile.dat",
+      "size": 242,
+      "sha256": "bdbda747cd3963318263ddb8b058046b258b70a201eed093a22954d023155d90"
+    },
+    {
+      "path": "trunk/configs/boards/MI-R3P/board.h",
+      "size": 661,
+      "sha256": "bada91cfed74cc7cd88aaef2a7372e650e18755b6a15715ffc1e794d861a89ad"
+    },
+    {
+      "path": "trunk/configs/boards/MI-R3P/board.mk",
+      "size": 357,
+      "sha256": "822c8d0506ddc529ac7da6f1ff7ee5885392a33e1ffbbc827cca1ee7f8821e57"
+    },
+    {
+      "path": "trunk/configs/boards/MI-R3P/kernel-4.4.x.config",
+      "size": 73016,
+      "sha256": "31e571f11c1a9779f3f3385ea3783b8eb9b5f1ff7eec790b909a7fff2619dbe2"
+    },
+    {
+      "path": "trunk/configs/boards/MI-R3P/l1profile.dat",
+      "size": 742,
+      "sha256": "90428f657b8ccb5faa01647583f2ecb6ce01579020686808ebd9a8913a2a6c3a"
+    },
+    {
+      "path": "trunk/configs/boards/MI-R3P/SingleSKU_mt7615e-sku-bf.dat",
+      "size": 11626,
+      "sha256": "0761e995b3ebde7f38670079ac97dd9cddd1473c2fa81d9b1874033c6c35d968"
+    },
+    {
+      "path": "trunk/configs/boards/MI-R3P/SingleSKU_mt7615e-sku.dat",
+      "size": 11626,
+      "sha256": "0761e995b3ebde7f38670079ac97dd9cddd1473c2fa81d9b1874033c6c35d968"
+    },
+    {
+      "path": "trunk/configs/boards/MI-R3P-PB/board.h",
+      "size": 661,
+      "sha256": "bada91cfed74cc7cd88aaef2a7372e650e18755b6a15715ffc1e794d861a89ad"
+    },
+    {
+      "path": "trunk/configs/boards/MI-R3P-PB/board.mk",
+      "size": 357,
+      "sha256": "822c8d0506ddc529ac7da6f1ff7ee5885392a33e1ffbbc827cca1ee7f8821e57"
+    },
+    {
+      "path": "trunk/configs/boards/MI-R3P-PB/kernel-4.4.x.config",
+      "size": 73021,
+      "sha256": "3329605adf49923d6f420c525e0c1b6986a03f1371e915e7aba0afbac6983f54"
+    },
+    {
+      "path": "trunk/configs/boards/MI-R3P-PB/l1profile.dat",
+      "size": 742,
+      "sha256": "90428f657b8ccb5faa01647583f2ecb6ce01579020686808ebd9a8913a2a6c3a"
+    },
+    {
+      "path": "trunk/configs/boards/MI-R3P-PB/SingleSKU_mt7615e-sku-bf.dat",
+      "size": 11626,
+      "sha256": "0761e995b3ebde7f38670079ac97dd9cddd1473c2fa81d9b1874033c6c35d968"
+    },
+    {
+      "path": "trunk/configs/boards/MI-R3P-PB/SingleSKU_mt7615e-sku.dat",
+      "size": 11626,
+      "sha256": "0761e995b3ebde7f38670079ac97dd9cddd1473c2fa81d9b1874033c6c35d968"
+    },
+    {
+      "path": "trunk/configs/boards/MI-R3P-SPI/board.h",
+      "size": 691,
+      "sha256": "487f5006897e1f32fb65efcc8f8ca07feb512dc2ba24e6ce6d8564a15e94fd4f"
+    },
+    {
+      "path": "trunk/configs/boards/MI-R3P-SPI/board.mk",
+      "size": 357,
+      "sha256": "822c8d0506ddc529ac7da6f1ff7ee5885392a33e1ffbbc827cca1ee7f8821e57"
+    },
+    {
+      "path": "trunk/configs/boards/MI-R3P-SPI/kernel-4.4.x.config",
+      "size": 73562,
+      "sha256": "eb6c2d5af32ea01fac55a87656ee6ccc0d1ea70cb4c9e48e95cbd27b031a5e16"
+    },
+    {
+      "path": "trunk/configs/boards/MI-R3P-SPI/l1profile.dat",
+      "size": 742,
+      "sha256": "90428f657b8ccb5faa01647583f2ecb6ce01579020686808ebd9a8913a2a6c3a"
+    },
+    {
+      "path": "trunk/configs/boards/MI-R3P-SPI/SingleSKU_mt7615e-sku-bf.dat",
+      "size": 11626,
+      "sha256": "0761e995b3ebde7f38670079ac97dd9cddd1473c2fa81d9b1874033c6c35d968"
+    },
+    {
+      "path": "trunk/configs/boards/MI-R3P-SPI/SingleSKU_mt7615e-sku.dat",
+      "size": 11626,
+      "sha256": "0761e995b3ebde7f38670079ac97dd9cddd1473c2fa81d9b1874033c6c35d968"
+    },
+    {
+      "path": "trunk/configs/boards/MI-R4A/board.h",
+      "size": 683,
+      "sha256": "f2f1eec199390d5843238311e3c000625f85044451d3f37fe826a83c37ed1c2e"
+    },
+    {
+      "path": "trunk/configs/boards/MI-R4A/board.mk",
+      "size": 336,
+      "sha256": "8cea8365ab92e48d2c08a62e415ce3f06546dee992fcf84c4bfc32d7412ff493"
+    },
+    {
+      "path": "trunk/configs/boards/MI-R4A/kernel-4.4.x.config",
+      "size": 65397,
+      "sha256": "a139ffedcbd9b23cccc7795f6da8879683c3372aa5a455662612d86a387c37c4"
+    },
+    {
+      "path": "trunk/configs/boards/MI-R4A/l1profile.dat",
+      "size": 241,
+      "sha256": "d2073d325bc004cd42b27fe0a483c3287185b9a061c1de759ef165bbeb7887d4"
+    },
+    {
+      "path": "trunk/configs/boards/TL_C50-V4/board.h",
+      "size": 743,
+      "sha256": "590d4b195bc3c092951f1b2c74883103cac34468551b96fae2ddda6e5e1656b8"
+    },
+    {
+      "path": "trunk/configs/boards/TL_C50-V4/board.mk",
+      "size": 511,
+      "sha256": "f2d166cf5778f7807e2175054553f350c880a57490f7c06a89e158a7ce05d87d"
+    },
+    {
+      "path": "trunk/configs/boards/TL_C50-V4/kernel-4.4.x.config",
+      "size": 63869,
+      "sha256": "56e5bb362637634cfbbeaa92dc26f7ce24d85e37d911ea1c02da182be9731907"
+    },
+    {
+      "path": "trunk/configs/boards/TL_C50-V4/kernel-5.15.150.config",
+      "size": 74919,
+      "sha256": "0408e48199c09c0322e3609be6124c8f2bec657fcbfd39b62be1f089d08d03e9"
+    },
+    {
+      "path": "trunk/configs/boards/TL_C50-V4/partitions.config",
+      "size": 559,
+      "sha256": "0492f10ff9c03320c9e6de1d6514f60f547864573c4e3654c5622e55dbdc19a8"
+    },
+    {
+      "path": "trunk/configs/boards/TL_C50-V4-16M/123/mt7628an.dtsi",
+      "size": 8443,
+      "sha256": "b08820ae37d181d96c2e291672c2dcb743befcbbb635b4d2389a7cfd916df680"
+    },
+    {
+      "path": "trunk/configs/boards/TL_C50-V4-16M/123/mt7628an_tplink_8m-split-uboot.dtsi",
+      "size": 1578,
+      "sha256": "19f0b766dc8334e44ffc30a059f1c561fb4ca8dda7f842120b2dd1cc01d947c4"
+    },
+    {
+      "path": "trunk/configs/boards/TL_C50-V4-16M/123/mt7628an_tplink_8m.dtsi",
+      "size": 1231,
+      "sha256": "4802d8b8b702a3e6413478bbf5b109b7574e41df3f565dc445829d15f6079de9"
+    },
+    {
+      "path": "trunk/configs/boards/TL_C50-V4-16M/123/mt7628an_tplink_archer-c50-v4.dts",
+      "size": 1699,
+      "sha256": "23e18ae1055985c9cf9967435d1eee784e3cf385ebc59e1f27e135a13204add3"
+    },
+    {
+      "path": "trunk/configs/boards/TL_C50-V4-16M/123/mt7628an_tplink_tl-wr842n-v5.dts",
+      "size": 1373,
+      "sha256": "363906410204c872f7c32b55e74d9a1d3c5ae776c662e52aa3edaf31e2ca99eb"
+    },
+    {
+      "path": "trunk/configs/boards/TL_C50-V4-16M/archer-c50.dts",
+      "size": 3545,
+      "sha256": "5b0957baf7c66cc9d0e97cbc4e7e83a56b24d8ec59a7c0681b75bfc2c021cc76"
+    },
+    {
+      "path": "trunk/configs/boards/TL_C50-V4-16M/board.h",
+      "size": 743,
+      "sha256": "590d4b195bc3c092951f1b2c74883103cac34468551b96fae2ddda6e5e1656b8"
+    },
+    {
+      "path": "trunk/configs/boards/TL_C50-V4-16M/board.mk",
+      "size": 511,
+      "sha256": "f2d166cf5778f7807e2175054553f350c880a57490f7c06a89e158a7ce05d87d"
+    },
+    {
+      "path": "trunk/configs/boards/TL_C50-V4-16M/kernel-4.4.x.config",
+      "size": 63900,
+      "sha256": "e4c3ce9ea2ea4d683be64d7798153179c0c004214da4a443923c34d1a9d958e6"
+    },
+    {
+      "path": "trunk/configs/boards/TL_C50-V4-16M/mt7620a.dtsi",
+      "size": 1073,
+      "sha256": "1ed45c7b6cb1e96fae37145e43490b5f51affe189111c7ebbe88c95fc66cf0e1"
+    },
+    {
+      "path": "trunk/configs/boards/TL_C50-V4-16M/mt7628an.dtsi",
+      "size": 9009,
+      "sha256": "4d9897e0e75bd1226c19c9ee27c7564c892eaadca2fbaef4a236c8f7bdef25ee"
+    },
+    {
+      "path": "trunk/configs/boards/TL_C50-V4-16M/partitions.config",
+      "size": 559,
+      "sha256": "0492f10ff9c03320c9e6de1d6514f60f547864573c4e3654c5622e55dbdc19a8"
+    },
+    {
+      "path": "trunk/configs/boards/TL_C50-V4-16M/tl_c50-v4.dts",
+      "size": 3334,
+      "sha256": "77b212eb319eb4f7b8c1afb85cd75dbf50908ae55e3c188078c0a30d9188a907"
+    },
+    {
+      "path": "trunk/configs/boards/uclibc-mipsel.config",
+      "size": 6249,
+      "sha256": "c5d52de0983e8980ad44588edcf55d4e5e6e0c7686a39cca15f895026f59c696"
+    },
+    {
+      "path": "trunk/configs/templates/ARCHER-C50.config",
+      "size": 7078,
+      "sha256": "f7c64bbb01e0eba54063c082bbeb3fd2a6897e209a1454d5417bc61701c89e60"
+    },
+    {
+      "path": "trunk/configs/templates/MI-4.config",
+      "size": 6053,
+      "sha256": "02a4feeefe9e9878955f6cbcb1fc40628cb104bd698e7718905e1cefa98f57b8"
+    },
+    {
+      "path": "trunk/configs/templates/MI-R3G.config",
+      "size": 7106,
+      "sha256": "d6d5f53b0fcbebd820cd69c757af03586f06956d56edf166040d1653ee94f3b7"
+    },
+    {
+      "path": "trunk/configs/templates/MI-R3P-PB.config",
+      "size": 7509,
+      "sha256": "8d3c38816467bd620b15f1fdb0c55b1d1c155a21fa53e5fd5cb96d51672526f0"
+    },
+    {
+      "path": "trunk/configs/templates/MI-R3P-SPI.config",
+      "size": 7509,
+      "sha256": "cf7cafc64a20fe43ef5cecb4efbe17d370238b3950f5958fdbe70465bd84ff29"
+    },
+    {
+      "path": "trunk/configs/templates/MI-R3P.config",
+      "size": 7475,
+      "sha256": "3e56a0f83b9a7bef7a2aab2bbd0d9a2d0777d6dd0ca6b7198ff68f596d5a701d"
+    },
+    {
+      "path": "trunk/configs/templates/MI-R4A.config",
+      "size": 7502,
+      "sha256": "7fa8fd891b164c0c2f09b67a3c33763370289ff47fb5d7f6f0ec2e2f04988793"
+    },
+    {
+      "path": "trunk/configs/templates/TL_C50-V4.config",
+      "size": 7114,
+      "sha256": "4658e2e78e7f37a53de29ec5633544b306e22f1e769c74157778b8ca273daf99"
+    },
+    {
+      "path": "UPSTREAM-LICENSE",
+      "size": 35149,
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+    },
+    {
+      "path": "UPSTREAM-README.md",
+      "size": 142,
+      "sha256": "24a2aa4aad20b615ecc62a9f5ab80854badf3f65976645a9c9d6f6b151aec900"
+    }
+  ]
+}
