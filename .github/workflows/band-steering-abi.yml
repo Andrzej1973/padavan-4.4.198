@@ -51,6 +51,9 @@ on:
       - 'tools/band-steering/prepare-grant-check.py'
       - 'tools/band-steering/prepare-main-bss.py'
       - 'tools/band-steering/prepare-main-bss-check.py'
+      - 'tools/band-steering/profile-policy.c'
+      - 'tools/band-steering/profile-policy.h'
+      - 'tools/band-steering/check-profile-policy.c'
 permissions:
   contents: read
 jobs:
@@ -107,6 +110,18 @@ jobs:
           abi-results/check-main-bss | tee abi-results/main-bss-checks.txt
           "$compiler" -std=c11 -Wall -Wextra -Werror -mips32r2 -mabi=32 \
             -msoft-float -O2 -c abi-results/main-bss-check.c -o abi-results/main-bss-mips.o
+      - name: Verify read-only profile compatibility policy
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            tools/band-steering/profile-policy.c tools/band-steering/check-profile-policy.c \
+            -o abi-results/check-profile-policy
+          abi-results/check-profile-policy | tee abi-results/profile-policy-checks.txt
+          compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          "$compiler" -std=c11 -Wall -Wextra -Werror -mips32r2 -mabi=32 \
+            -msoft-float -O2 -c tools/band-steering/profile-policy.c -o abi-results/profile-policy-mips.o
       - name: Verify byte encoders and compile the MIPS adapter
         shell: bash
         run: |
