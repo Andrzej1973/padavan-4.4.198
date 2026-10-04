@@ -1,0 +1,48 @@
+#!/bin/bash
+# Invoke from repository root after a successful normal WR1200JS firmware build.
+set -euo pipefail
+trunk="$(realpath "$1")"
+probe="$2"
+compiler="$(realpath "$3")"
+test -s "$trunk/.config"
+test -s "$trunk/config.arch"
+test -s "$trunk/linux-4.4.x/.config"
+test -s "$trunk/user/rc/rc"
+test -x "$compiler"
+test ! -e "$probe"
+mkdir -p "$probe/trunk/user" "$probe/results"
+cp -a "$trunk/user/rc" "$probe/trunk/user/rc"
+probe="$(realpath "$probe")"
+sha256sum "$trunk/.config" "$trunk/linux-4.4.x/.config" > "$probe/results/baseline-config.sha256"
+python3 tools/band-steering/prepare-profile-integration.py "$probe"
+cross="${compiler%gcc}"
+cat > "$probe/Makefile" <<'MAKE'
+.DEFAULT_GOAL := wr-profile-probe
+include $(ROOTDIR)/versions.inc
+FIRMWARE_KERNEL_VER="4.4"
+include $(ROOTDIR)/user/Makefile
+.PHONY: wr-profile-probe
+wr-profile-probe:
+	$(MAKE) -C $(WR_PROBE_RC) clean
+	$(MAKE) -C $(WR_PROBE_RC) -j2 all CONFIG_FIRMWARE_INCLUDE_WR_BAND_STEERING=y
+MAKE
+make -f "$probe/Makefile" wr-profile-probe \
+  ROOTDIR="$trunk" LINUXDIR=linux-4.4.x \
+  PROJECT_CONFIG="$trunk/.config" LINUX_CONFIG="$trunk/linux-4.4.x/.config" \
+  ARCH_CONFIG="$trunk/config.arch" WR_PROBE_RC="$probe/trunk/user/rc" \
+  CC="$compiler" STRIP="${cross}strip" AR="${cross}ar" \
+  2>&1 | tee "$probe/results/build.log"
+rc="$probe/trunk/user/rc"
+test -s "$rc/rc"
+test -s "$rc/wr-band-profile-policy.o"
+grep -q -- '-DUSE_WR_BAND_STEERING_PROFILE' "$probe/results/build.log"
+"${cross}nm" "$rc/wr-band-profile-policy.o" > "$probe/results/policy-symbols.txt"
+grep -Eq '[[:space:]]wr_band_profile_from_settings$' "$probe/results/policy-symbols.txt"
+"${cross}readelf" -h "$rc/rc" > "$probe/results/rc-elf.txt"
+grep -q 'Machine:.*MIPS' "$probe/results/rc-elf.txt"
+"${cross}readelf" -d "$rc/rc" > "$probe/results/rc-dependencies.txt"
+cp "$rc/rc" "$rc/wr-band-profile-policy.o" "$probe/results/"
+cp "$probe/band-steering-profile-integration.json" "$probe/results/"
+sha256sum "$probe/results/rc" > "$probe/results/rc.sha256"
+sha256sum -c "$probe/results/baseline-config.sha256"
+
