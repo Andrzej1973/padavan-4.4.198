@@ -33,14 +33,22 @@ for radio in ('mt76x2', 'mt76x3'):
     fields = ['Action']
     if radio == 'mt76x2':
         definitions = message.group(0)
-        fields += ['ReturnCode', 'OnOff', 'Rssi', 'Time', 'ConditionCheck', 'Addr']
+        fields += ['ReturnCode', 'TalbeIndex', 'OnOff', 'Band', 'b2GInfReady', 'b5GInfReady',
+                   'Rssi', 'RssiDiff', 'RssiLow', 'FrameType', 'Time', 'ConditionCheck', 'Addr']
     else:
         nvram = re.search(r'typedef struct _bndstrg_nvram_client\s*\{.*?\}\s*BNDSTRG_NVRAM_CLIENT\s*,\s*\*PBNDSTRG_NVRAM_CLIENT\s*;', header, re.S)
         if not nvram:
             raise SystemExit('Missing actual nested NVRAM declaration')
         begin = header.index('struct bnd_msg_heartbeat {')
         definitions = nvram.group(0) + '\n' + header[begin:message.end()]
-        fields += ['data', 'data.cli_event', 'data.inf_status_rsp', 'data.onoff', 'data.heartbeat']
+        fields += ['data', 'data.cli_event', 'data.inf_status_rsp', 'data.onoff', 'data.heartbeat',
+                   'data.onoff.Band', 'data.onoff.Channel', 'data.onoff.OnOff',
+                   'data.onoff.BndStrgMode', 'data.onoff.ucIfName',
+                   'data.cli_add.Addr', 'data.cli_add.TableIndex',
+                   'data.cli_del.Addr', 'data.cli_del.TableIndex',
+                   'data.inf_status_req.ucIfName', 'data.inf_status_rsp.bInfReady',
+                   'data.inf_status_rsp.Channel', 'data.inf_status_rsp.ucIfName',
+                   'data.heartbeat.ucIfName']
     values = ['0x424e4441u', 'sizeof(void *)', 'sizeof(ULONG)', 'sizeof(UINT64)',
               'sizeof(BNDSTRG_MSG)', '__alignof__(BNDSTRG_MSG)'] + [
               'offsetof(BNDSTRG_MSG, ' + f + ')' for f in fields]
