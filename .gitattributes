@@ -1,2 +1,28 @@
+# Preserve Linux line endings in checkouts and source archives, including on Windows.
+* text=auto eol=lf
+*.sh text eol=lf
+*.py text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.config text eol=lf
+*.patch text eol=lf
+*.diff text eol=lf
+Makefile text eol=lf
+
+# Keep binary assets byte-for-byte.
+*.zip binary
+*.tar binary
+*.gz binary
+*.xz binary
+*.bz2 binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+
 # Keep router configurations in source archives for downloads and forks.
 # Do not mark configs.build or configs.release configurations export-ignore.
+
