@@ -54,6 +54,8 @@ on:
       - 'tools/band-steering/profile-policy.c'
       - 'tools/band-steering/profile-policy.h'
       - 'tools/band-steering/check-profile-policy.c'
+      - 'tools/band-steering/prepare-profile-integration.py'
+      - 'tools/band-steering/prepare-profile-check.py'
 permissions:
   contents: read
 jobs:
@@ -68,6 +70,7 @@ jobs:
           ref: c25283e915a2a00a763774dd255b14aff997285e
           path: source
           sparse-checkout: |
+            trunk/user/rc
             trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x2/include
             trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x2/ap
             trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/include
@@ -122,6 +125,22 @@ jobs:
           test -n "$compiler"
           "$compiler" -std=c11 -Wall -Wextra -Werror -mips32r2 -mabi=32 \
             -msoft-float -O2 -c tools/band-steering/profile-policy.c -o abi-results/profile-policy-mips.o
+      - name: Verify rc profile integration candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/band-steering/prepare-profile-integration.py source
+          python3 tools/band-steering/prepare-profile-check.py source abi-results
+          cp source/band-steering-profile-integration.json abi-results/
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -Iabi-results \
+            abi-results/wr-band-profile-policy.c abi-results/profile-integration-check.c \
+            -o abi-results/check-profile-integration
+          abi-results/check-profile-integration | tee abi-results/profile-integration-checks.txt
+          compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          "$compiler" -std=c11 -Wall -Wextra -Werror -mips32r2 -mabi=32 \
+            -msoft-float -O2 -Iabi-results -c abi-results/profile-integration-check.c \
+            -o abi-results/profile-integration-mips.o
       - name: Verify byte encoders and compile the MIPS adapter
         shell: bash
         run: |
