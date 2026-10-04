@@ -1,0 +1,55 @@
+name: Band Steering driver ABI
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/band-steering-abi.yml'
+      - 'tools/band-steering/prepare-abi-probe.py'
+      - 'tools/band-steering/read-abi-probe.py'
+permissions:
+  contents: read
+jobs:
+  inspect-driver-abi:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
+        with:
+          repository: vipshmily/padavan-4.4
+          ref: c25283e915a2a00a763774dd255b14aff997285e
+          path: source
+          sparse-checkout: |
+            trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x2/include
+            trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/include
+      - name: Download and verify the firmware toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir toolchain
+          curl --fail --location --retry 3 --output toolchain.tar.xz \
+            https://github.com/vipshmily/padavan-4.4/releases/download/toolchain/mipsel-linux-uclibc.tar.xz
+          echo 'de412846a5d057faf132b2463aa29c24f77c79c744f4181c1a287bbeaf1d7256  toolchain.tar.xz' | sha256sum -c -
+          tar -xJf toolchain.tar.xz -C toolchain
+      - name: Generate and compile target ABI probes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/band-steering/prepare-abi-probe.py source --output abi-results
+          compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          "$compiler" --version > abi-results/compiler-version.txt
+          git -C source rev-parse HEAD > abi-results/source-revision.txt
+          for radio in mt76x2 mt76x3; do
+            "$compiler" -std=gnu11 -mips32r2 -mabi=32 -msoft-float -O2 -c \
+              "abi-results/$radio-abi.c" -o "abi-results/$radio-abi.o"
+          done
+          python3 tools/band-steering/read-abi-probe.py abi-results
+      - name: Upload ABI diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: band-steering-mips-abi
+          path: abi-results/
+          if-no-files-found: warn
