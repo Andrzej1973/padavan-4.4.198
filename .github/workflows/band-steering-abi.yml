@@ -49,6 +49,8 @@ on:
       - 'tools/band-steering/prepare-idle-check.py'
       - 'tools/band-steering/prepare-grant-readback.py'
       - 'tools/band-steering/prepare-grant-check.py'
+      - 'tools/band-steering/prepare-main-bss.py'
+      - 'tools/band-steering/prepare-main-bss-check.py'
 permissions:
   contents: read
 jobs:
@@ -71,6 +73,8 @@ jobs:
         run: python3 tools/band-steering/prepare-idle-aging.py source
       - name: Prepare read-only grant queries
         run: python3 tools/band-steering/prepare-grant-readback.py source
+      - name: Prepare main-network-only legacy steering
+        run: python3 tools/band-steering/prepare-main-bss.py source
       - name: Download and verify the firmware toolchain
         shell: bash
         run: |
@@ -96,6 +100,13 @@ jobs:
               "abi-results/$radio-abi.c" -o "abi-results/$radio-abi.o"
           done
           python3 tools/band-steering/read-abi-probe.py abi-results
+          cp source/band-steering-main-bss-preparation.json abi-results/
+          python3 tools/band-steering/prepare-main-bss-check.py source abi-results
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            abi-results/main-bss-check.c -o abi-results/check-main-bss
+          abi-results/check-main-bss | tee abi-results/main-bss-checks.txt
+          "$compiler" -std=c11 -Wall -Wextra -Werror -mips32r2 -mabi=32 \
+            -msoft-float -O2 -c abi-results/main-bss-check.c -o abi-results/main-bss-mips.o
       - name: Verify byte encoders and compile the MIPS adapter
         shell: bash
         run: |
