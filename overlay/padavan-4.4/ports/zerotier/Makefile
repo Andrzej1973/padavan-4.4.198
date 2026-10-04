@@ -42,9 +42,10 @@ clean:
 romfs:
 	$(ROMFSINST) -p +x $(THISDIR)/$(SRC_NAME)/zerotier-one /usr/bin/zerotier-one
 	$(ROMFSINST) -p +x $(THISDIR)/zerotier.sh /usr/bin/zerotier.sh
+	$(ROMFSINST) -p +x $(THISDIR)/zerotier-monitor.sh /usr/bin/zerotier-monitor.sh
+	$(ROMFSINST) -p +x $(THISDIR)/zerotier-policy.sh /usr/bin/zerotier-policy.sh
 	ln -sf zerotier-one $(ROMFSDIR)/usr/bin/zerotier-cli
 	ln -sf zerotier-one $(ROMFSDIR)/usr/bin/zerotier-idtool
 	@library="$$($(ZT_CC) -print-file-name=libatomic.so.1)"; \
 		test "$$library" != "libatomic.so.1" && test -s "$$library" && \
 		$(ROMFSINST) -p +x "$$(readlink -f "$$library")" /lib/libatomic.so.1
-

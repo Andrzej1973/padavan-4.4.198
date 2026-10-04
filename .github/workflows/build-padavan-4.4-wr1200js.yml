@@ -102,6 +102,7 @@ jobs:
           python3 overlay/padavan-4.4/scripts/integrate-dnsmasq-regex.py padavan-4.4 amnezia-source
           python3 overlay/padavan-4.4/scripts/integrate-wpad.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/harden-zerotier-lifecycle.py padavan-4.4
+          python3 overlay/padavan-4.4/ports/zerotier/prepare-ui-lifecycle.py padavan-4.4
           python3 overlay/padavan-4.4/ports/zerotier/prepare-build.py padavan-4.4 \
             --prepare-script tools/prepare-zerotier-source.py
           sh -n padavan-4.4/trunk/user/zerotier/zerotier.sh

@@ -75,10 +75,33 @@ try:
     checks['target_binary_and_dependency_closure']=True
     if not (romfs/'usr/bin/zerotier.sh').is_file(): raise ValueError('Missing lifecycle helper')
     checks['lifecycle_helper']=True
+    for name in ['zerotier.sh','zerotier-monitor.sh','zerotier-policy.sh']:
+        image_helper=romfs/'usr/bin'/name
+        source_helper=a.source/'trunk/user/zerotier'/name
+        if image_helper.read_bytes()!=source_helper.read_bytes():
+            raise ValueError('Missing or altered lifecycle asset: '+name)
+        subprocess.run(['sh','-n',str(image_helper)],check=True)
+    checks['lifecycle_monitor_and_policy_assets']=True
+    page=(romfs/'www/n56u_ribbon_fixed/Advanced_zerotier.asp')
+    if not page.exists(): page=romfs/'www/Advanced_zerotier.asp'
+    web=page.read_text(encoding='utf-8')
+    for control in ['zerotier_router_access','zerotier_lan_access','leaveManagedNetwork','zerotier_cached_status']:
+        if control not in web: raise ValueError('Missing ZeroTier WebUI control: '+control)
+    httpd=target(romfs/'usr/sbin/httpd')
+    if b'zerotier_cached_status' not in httpd.read_bytes():
+        raise ValueError('Missing HTTP cached status handler')
+    checks['web_controls_and_cached_status_handler']=True
+    defaults=(a.source/'trunk/user/shared/defaults.c').read_text(encoding='utf-8')
+    for key in ['zerotier_enable','zerotier_router_access','zerotier_lan_access']:
+        if not re.search(r'\{\s*"'+key+r'"\s*,\s*"0"\s*\}',defaults):
+            raise ValueError('Expected disabled factory default: '+key)
+    rc=target(romfs/'sbin/rc').read_bytes()
+    for chain in [b'ZTWR_INPUT',b'ZTWR_FORWARD']:
+        if chain not in rc: raise ValueError('Missing base firewall overlay guard: '+chain.decode())
+    checks['factory_defaults_and_compiled_firewall_guards']=True
 except (ValueError,OSError,subprocess.CalledProcessError) as error:
     errors.append(str(error))
 result={'package':'zerotier','candidate_version':'1.16.2','checks':checks,'elf_files':visited,'errors':errors,'runtime_verified':False}
 a.output.write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8')
 print(json.dumps(result,indent=2))
 raise SystemExit(1 if errors else 0)
-
