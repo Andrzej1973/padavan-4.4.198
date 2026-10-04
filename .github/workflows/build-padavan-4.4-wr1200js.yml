@@ -102,6 +102,8 @@ jobs:
           python3 overlay/padavan-4.4/scripts/integrate-dnsmasq-regex.py padavan-4.4 amnezia-source
           python3 overlay/padavan-4.4/scripts/integrate-wpad.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/harden-zerotier-lifecycle.py padavan-4.4
+          python3 overlay/padavan-4.4/ports/zerotier/prepare-build.py padavan-4.4 \
+            --prepare-script tools/prepare-zerotier-source.py
           sh -n padavan-4.4/trunk/user/zerotier/zerotier.sh
           if grep -q '^CONFIG_FIRMWARE_INCLUDE_STUBBY=y$' configs.build/wr1200js.config; then
             python3 overlay/padavan-4.4/ports/stubby/integrate-build.py padavan-4.4 \
@@ -592,6 +594,20 @@ jobs:
           name: rssi-image-checks
           if-no-files-found: ignore
           path: rssi-image-checks.json
+
+      - name: Verify ZeroTier source-built image and dependency closure
+        run: |
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_ZEROTIER=y$' configs.build/wr1200js.config; then
+            python3 overlay/padavan-4.4/ports/zerotier/verify-image.py padavan-4.4
+          fi
+
+      - name: Upload ZeroTier image diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: zerotier-image-checks
+          if-no-files-found: ignore
+          path: zerotier-image-checks.json
 
       - name: Upload WR1200JS images and toolchain checksum
         uses: actions/upload-artifact@v7

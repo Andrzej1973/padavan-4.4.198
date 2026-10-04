@@ -1,5 +1,5 @@
 {
-  "status": "candidate-not-integrated-or-cross-compiled",
+  "status": "source-cross-compiled-production-image-integration-awaiting-build",
   "origin": "https://github.com/zerotier/ZeroTierOne",
   "version": "1.16.2",
   "revision": "fe29cd88886e4f58547ba7f740b2d73eb49ab222",
@@ -11,6 +11,23 @@
     "Do not blindly apply donor tap MAC ioctl removal",
     "Preserve identity and memberships on stop; firmware path adaptation can be handled by explicit daemon home",
     "Audit netlink fix against exact candidate source",
-    "Compile support differs from runtime/device verification"
-  ]
+    "Compile support differs from runtime/device verification",
+    "Preparation corrects bundled NAT-PMP selection, OpenTelemetry dependency path, RTA_SRC message length and uClibc inja round namespace",
+    "Production recipe replaces inherited prebuilt 1.14.0; image gate and actual image size remain pending",
+    "SSO, controller, nonfree controller and OpenTelemetry exporters disabled explicitly in embedded target build"
+  ],
+  "evidence": {
+    "run_id": 37154558057,
+    "job_id": 111295194273,
+    "artifact_id": 11285552272,
+    "artifact_zip_sha256": "2bc3e33f632c445de82358d7e4b3fe6c59beb168333d23e9f3bc594a36e8d5bc",
+    "elf": "ELF32 little-endian MIPS32r2 o32 EXEC",
+    "needed": [
+      "libatomic.so.1",
+      "libgcc_s.so.1",
+      "libc.so.0",
+      "ld-uClibc.so.1"
+    ],
+    "runtime_verified": false
+  }
 }
