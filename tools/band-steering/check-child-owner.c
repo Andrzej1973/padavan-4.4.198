@@ -1,0 +1,33 @@
+#define _POSIX_C_SOURCE 200809L
+#include "child-owner.h"
+#include <assert.h>
+#include <errno.h>
+#include <signal.h>
+#include <stdio.h>
+#include <sys/wait.h>
+#include <unistd.h>
+static volatile sig_atomic_t stop;
+static void requested(int sig) { (void)sig; stop=1; }
+static pid_t child(int mode) {
+    int pipefd[2]; char ready; pid_t pid; struct sigaction a; sigset_t blocked, previous;
+    assert(!pipe(pipefd)); pid=fork(); assert(pid>=0);
+    if (!pid) {
+        sigemptyset(&blocked); sigaddset(&blocked,SIGTERM);
+        assert(!sigprocmask(SIG_BLOCK,&blocked,&previous));
+        close(pipefd[0]); a=(struct sigaction){0}; sigemptyset(&a.sa_mask);
+        a.sa_handler=mode==2 ? SIG_IGN : requested; assert(!sigaction(SIGTERM,&a,0));
+        assert(write(pipefd[1],"R",1)==1); close(pipefd[1]);
+        while(!stop) { sigsuspend(&previous); }
+        _exit(mode==1 ? 1 : 0);
+    }
+    close(pipefd[1]); assert(read(pipefd[0],&ready,1)==1); close(pipefd[0]); return pid;
+}
+int main(void) {
+    pid_t pid=child(0); assert(!wr_band_child_stop(&pid,1000) && pid==0);
+    pid=child(1); assert(wr_band_child_stop(&pid,1000)==-1 && errno==EIO && pid==0);
+    pid=child(2); assert(wr_band_child_stop(&pid,50)==-1 && errno==ETIMEDOUT && pid>1);
+    assert(!kill(pid,SIGKILL)); assert(waitpid(pid,0,0)==pid);
+    assert(wr_band_child_stop(&pid,50)==-1 && errno==ECHILD);
+    pid=0; assert(wr_band_child_stop(&pid,50)==-1 && errno==EINVAL);
+    puts("PASS owned child normal/error exit, timeout preserves ownership, missing child unverified"); return 0;
+}
