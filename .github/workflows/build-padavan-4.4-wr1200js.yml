@@ -633,6 +633,60 @@ jobs:
             curl-elf-dependencies.json
 
 
+      - name: Compile isolated full Band Steering drivers
+        run: |
+          set -euo pipefail
+          source_kernel="$PWD/padavan-4.4/trunk/linux-4.4.x"
+          root="$RUNNER_TEMP/wr1200js-steering-driver-probe"
+          test ! -e "$root"
+          mkdir -p "$root/trunk" band-steering-driver-results
+          cp -a "$source_kernel" "$root/trunk/linux-4.4.x"
+          kernel="$root/trunk/linux-4.4.x"
+          sha256sum "$source_kernel/.config" > band-steering-driver-results/baseline-config.sha256
+          python3 tools/band-steering/prepare-idle-aging.py "$root"
+          python3 tools/band-steering/prepare-grant-readback.py "$root"
+          python3 tools/band-steering/configure-driver-probe.py "$kernel"
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          cross="${compiler%gcc}"
+          make -C "$kernel" ARCH=mips CROSS_COMPILE="$cross" olddefconfig \
+            2>&1 | tee band-steering-driver-results/config.log
+          grep -qx 'CONFIG_MT7603E_BAND_STEERING_7603=y' "$kernel/.config"
+          grep -qx 'CONFIG_RT_BAND_STEERING=y' "$kernel/.config"
+          make -C "$kernel" ARCH=mips CROSS_COMPILE="$cross" -j2 vmlinux modules \
+            2>&1 | tee band-steering-driver-results/build.log
+          for radio in mt76x2 mt76x3; do
+            module="$kernel/drivers/net/wireless/mediatek/${radio}_ap/${radio}_ap.ko"
+            object="$kernel/drivers/net/wireless/mediatek/$radio/ap/ap_band_steering.o"
+            test -s "$module"
+            test -s "$object"
+            "${cross}nm" "$module" > "band-steering-driver-results/$radio-symbols.txt"
+            grep -Eq '[[:space:]]BndStrg_MsgHandle$' "band-steering-driver-results/$radio-symbols.txt"
+            grep -Eq '[[:space:]]BndStrg_CheckConnectionReq$' "band-steering-driver-results/$radio-symbols.txt"
+            command_file="${object%/*}/.ap_band_steering.o.cmd"
+            test -s "$command_file"
+            grep -q -- '-DBAND_STEERING' "$command_file"
+            cp "$command_file" "band-steering-driver-results/$radio-command.txt"
+            "${cross}readelf" -h "$module" > "band-steering-driver-results/$radio-elf.txt"
+            grep -q 'Machine:.*MIPS' "band-steering-driver-results/$radio-elf.txt"
+            cp "$module" band-steering-driver-results/
+            cp "$object" "band-steering-driver-results/$radio-band-steering.o"
+          done
+          cp "$kernel/.config" band-steering-driver-results/kernel.config
+          cp "$root"/band-steering-*-preparation.json band-steering-driver-results/
+          cp "$kernel/band-steering-driver-config.json" band-steering-driver-results/
+          sha256sum band-steering-driver-results/*.ko > band-steering-driver-results/modules.sha256
+          sha256sum "$kernel/vmlinux" > band-steering-driver-results/vmlinux.sha256
+          sha256sum -c band-steering-driver-results/baseline-config.sha256
+
+      - name: Upload full Band Steering driver diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: band-steering-full-driver-probe
+          path: band-steering-driver-results/
+          if-no-files-found: ignore
+
       - name: Compile EoIP IPv4 candidate module
         run: |
           set -euo pipefail
