@@ -15,6 +15,7 @@ cp -a "$trunk/user/rc" "$probe/trunk/user/rc"
 probe="$(realpath "$probe")"
 sha256sum "$trunk/.config" "$trunk/linux-4.4.x/.config" > "$probe/results/baseline-config.sha256"
 python3 tools/band-steering/prepare-profile-integration.py "$probe"
+python3 tools/band-steering/prepare-child-reaper.py "$probe"
 cross="${compiler%gcc}"
 cat > "$probe/Makefile" <<'MAKE'
 .DEFAULT_GOAL := wr-profile-probe

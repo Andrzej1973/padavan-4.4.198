@@ -24,8 +24,15 @@ static pid_t child(int mode) {
     close(pipefd[1]); assert(read(pipefd[0],&ready,1)==1); close(pipefd[0]); return pid;
 }
 int main(void) {
-    struct sigaction a={0}; sigset_t before, after;
+    struct sigaction a={0}; sigset_t before, after, blocked; int status;
     pid_t pid=child(0); assert(!wr_band_child_stop(&pid,1000) && pid==0);
+    sigemptyset(&blocked); sigaddset(&blocked,SIGCHLD);
+    assert(!sigprocmask(SIG_BLOCK,&blocked,&before));
+    pid=child(0); assert(!wr_band_child_track(pid));
+    assert(!kill(pid,SIGTERM)); assert(waitpid(pid,&status,0)==pid);
+    wr_band_child_reaped(pid,status);
+    assert(!sigprocmask(SIG_SETMASK,&before,0));
+    assert(!wr_band_child_stop(&pid,1000) && pid==0);
     a.sa_handler=reaper; sigemptyset(&a.sa_mask); assert(!sigaction(SIGCHLD,&a,0));
     assert(!sigprocmask(SIG_SETMASK,0,&before));
     pid=child(0); assert(!wr_band_child_stop(&pid,1000) && pid==0);

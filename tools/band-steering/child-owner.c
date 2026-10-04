@@ -5,6 +5,26 @@
 #include <stdint.h>
 #include <sys/wait.h>
 #include <time.h>
+static volatile sig_atomic_t tracked_pid, completed, exit_status;
+int wr_band_child_track(pid_t pid)
+{
+    sigset_t current;
+    if (pid <= 1 || (pid_t)(sig_atomic_t)pid != pid || tracked_pid) { errno=EINVAL; return -1; }
+    if (sigprocmask(SIG_SETMASK, 0, &current)) return -1;
+    if (sigismember(&current, SIGCHLD) != 1) { errno=EPERM; return -1; }
+    completed=0; exit_status=0; tracked_pid=(sig_atomic_t)pid; return 0;
+}
+void wr_band_child_reaped(pid_t pid, int status)
+{
+    if (tracked_pid && pid==(pid_t)tracked_pid) { exit_status=status; completed=1; }
+}
+static int finish(pid_t *pid, int status)
+{
+    if (*pid==(pid_t)tracked_pid) { tracked_pid=0; completed=0; }
+    *pid=0;
+    if (WIFEXITED(status) && WEXITSTATUS(status)==0) return 0;
+    errno=EIO; return -1;
+}
 static int milliseconds(uint64_t *out)
 {
     struct timespec t;
@@ -21,11 +41,10 @@ static int wait_owned(pid_t *owned_pid, unsigned timeout_ms)
     }
     if (milliseconds(&start)) return -1;
     for (;;) {
+        if (completed && *owned_pid==(pid_t)tracked_pid) return finish(owned_pid,exit_status);
         found = waitpid(*owned_pid, &status, WNOHANG);
         if (found == *owned_pid) {
-            *owned_pid = 0;
-            if (WIFEXITED(status) && WEXITSTATUS(status) == 0) return 0;
-            errno = EIO; return -1;
+            return finish(owned_pid,status);
         }
         if (found < 0) {
             if (errno == EINTR) continue;
