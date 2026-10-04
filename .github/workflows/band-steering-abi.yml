@@ -294,12 +294,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          gcc -std=c11 -Wall -Wextra -Werror -O2 tools/band-steering/ctl.c -o abi-results/wr-band-steering-ctl-host
+          gcc -std=c11 -Wall -Wextra -Werror -O2 tools/band-steering/ctl.c tools/band-steering/control-client.c -o abi-results/wr-band-steering-ctl-host
           abi-results/wr-band-steering-ctl-host --help > abi-results/control-client-help.txt
           compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
           test -n "$compiler"
           "$compiler" -std=c11 -Wall -Wextra -Werror -mips32r2 -mabi=32 \
-            -msoft-float -O2 tools/band-steering/ctl.c -o abi-results/wr-band-steering-ctl-mips
+            -msoft-float -O2 tools/band-steering/ctl.c tools/band-steering/control-client.c -o abi-results/wr-band-steering-ctl-mips
           "$(dirname "$compiler")/mipsel-linux-uclibc-readelf" -h -l -d \
             abi-results/wr-band-steering-ctl-mips > abi-results/control-client-mips-elf.txt
       - name: Verify actual administration client and local server exchange
@@ -309,7 +309,7 @@ jobs:
           test_dir="$(mktemp -d /tmp/wr-ctl-check-XXXXXX)"
           sudo chown root:root "$test_dir"
           gcc -std=c11 -Wall -Wextra -Werror -O2 \
-            -DWR_CONTROL_DIRECTORY=\""$test_dir"\" tools/band-steering/ctl.c \
+            -DWR_CONTROL_DIRECTORY=\""$test_dir"\" tools/band-steering/ctl.c tools/band-steering/control-client.c \
             -o abi-results/wr-control-client-fixture
           gcc -std=c11 -Wall -Wextra -Werror -O2 \
             tools/band-steering/control.c tools/band-steering/control-fixture-server.c \

@@ -17,8 +17,8 @@ $(BUILD_DIR):
 	mkdir -p "$@"
 $(BUILD_DIR)/wr-band-steering: $(DAEMON_FILES) $(HEADERS) $(LAYOUT_DIR)/protocol-layout.h | $(BUILD_DIR)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(WARNINGS) $(DAEMON_FILES) $(LDFLAGS) -lrt $(LDLIBS) -o "$@"
-$(BUILD_DIR)/wr-band-steering-ctl: $(SOURCE_DIR)/ctl.c | $(BUILD_DIR)
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(WARNINGS) $< $(LDFLAGS) $(LDLIBS) -o "$@"
+$(BUILD_DIR)/wr-band-steering-ctl: $(SOURCE_DIR)/ctl.c $(SOURCE_DIR)/control-client.c $(SOURCE_DIR)/control-client.h | $(BUILD_DIR)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(WARNINGS) $(SOURCE_DIR)/ctl.c $(SOURCE_DIR)/control-client.c $(LDFLAGS) $(LDLIBS) -o "$@"
 romfs: all
 	install -d "$(INSTALLDIR)/usr/sbin"
 	install -m 0755 "$(BUILD_DIR)/wr-band-steering" "$(INSTALLDIR)/usr/sbin/wr-band-steering"
