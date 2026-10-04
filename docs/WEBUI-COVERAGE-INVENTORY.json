@@ -1,0 +1,4704 @@
+{
+  "project_commit": "fcc4e1b08674236a1b5e0cd7e790c1a8f97fc2a7",
+  "base_commit": "c25283e915a2a00a763774dd255b14aff997285e",
+  "scope": "Source inventory, not evidence of runtime or complete backend correctness. Overlay pages and patch-generated pages require workflow integration.",
+  "config_options": [
+    {
+      "option": "CONFIG_VENDOR",
+      "value": "Ralink",
+      "enabled": true,
+      "line": 7,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_PRODUCT",
+      "value": "MT7621",
+      "enabled": true,
+      "line": 8,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_PRODUCT_ID",
+      "value": "\"WR1200JS\"",
+      "enabled": true,
+      "line": 11,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_LINUXDIR",
+      "value": "linux-4.4.x",
+      "enabled": true,
+      "line": 14,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_TYPE_ROOTFS_IN_RAM",
+      "value": "y",
+      "enabled": false,
+      "line": 23,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_WIFI2_DRIVER",
+      "value": "4.1",
+      "enabled": true,
+      "line": 30,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_WIFI5_DRIVER",
+      "value": "3.0",
+      "enabled": true,
+      "line": 31,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_ENABLE_IPV6",
+      "value": "y",
+      "enabled": true,
+      "line": 34,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_ENABLE_USB",
+      "value": "y",
+      "enabled": true,
+      "line": 37,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_FS_TOOLS",
+      "value": "y",
+      "enabled": true,
+      "line": 40,
+      "category": "diagnostics/storage utility; shared UI candidate"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_ENABLE_FAT",
+      "value": "y",
+      "enabled": true,
+      "line": 43,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_ENABLE_EXFAT",
+      "value": "y",
+      "enabled": true,
+      "line": 46,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_ENABLE_EXT2",
+      "value": "y",
+      "enabled": false,
+      "line": 49,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_ENABLE_EXT3",
+      "value": "y",
+      "enabled": false,
+      "line": 52,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_ENABLE_EXT4",
+      "value": "y",
+      "enabled": true,
+      "line": 55,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_ENABLE_XFS",
+      "value": "y",
+      "enabled": false,
+      "line": 58,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_ENABLE_HFS",
+      "value": "y",
+      "enabled": false,
+      "line": 61,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_ENABLE_FUSE",
+      "value": "y",
+      "enabled": true,
+      "line": 64,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_ENABLE_SWAP",
+      "value": "y",
+      "enabled": true,
+      "line": 67,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_UVC",
+      "value": "y",
+      "enabled": false,
+      "line": 70,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_HID",
+      "value": "y",
+      "enabled": true,
+      "line": 73,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_SERIAL",
+      "value": "y",
+      "enabled": false,
+      "line": 76,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_AUDIO",
+      "value": "y",
+      "enabled": false,
+      "line": 79,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_XFRM",
+      "value": "y",
+      "enabled": true,
+      "line": 82,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_QOS",
+      "value": "y",
+      "enabled": true,
+      "line": 85,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_IMQ",
+      "value": "y",
+      "enabled": true,
+      "line": 88,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_IFB",
+      "value": "y",
+      "enabled": true,
+      "line": 91,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_IPSET",
+      "value": "y",
+      "enabled": true,
+      "line": 94,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_NFSD",
+      "value": "y",
+      "enabled": false,
+      "line": 97,
+      "category": "existing base UI; integration/device verification pending"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_NFSC",
+      "value": "y",
+      "enabled": false,
+      "line": 100,
+      "category": "diagnostics/storage utility; shared UI candidate"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_CIFS",
+      "value": "y",
+      "enabled": false,
+      "line": 103,
+      "category": "diagnostics/storage utility; shared UI candidate"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_SFE",
+      "value": "y",
+      "enabled": true,
+      "line": 106,
+      "category": "existing base UI; integration/device verification pending"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_ENABLE_BACKPORTED",
+      "value": "y",
+      "enabled": false,
+      "line": 109,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_BACKPORTED",
+      "value": "y",
+      "enabled": false,
+      "line": 112,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_LANG_BR",
+      "value": "y",
+      "enabled": false,
+      "line": 119,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_LANG_CN",
+      "value": "y",
+      "enabled": false,
+      "line": 120,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_LANG_CZ",
+      "value": "y",
+      "enabled": false,
+      "line": 121,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_LANG_DA",
+      "value": "y",
+      "enabled": false,
+      "line": 122,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_LANG_DE",
+      "value": "y",
+      "enabled": false,
+      "line": 123,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_LANG_ES",
+      "value": "y",
+      "enabled": false,
+      "line": 124,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_LANG_FI",
+      "value": "y",
+      "enabled": false,
+      "line": 125,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_LANG_FR",
+      "value": "y",
+      "enabled": false,
+      "line": 126,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_LANG_NO",
+      "value": "y",
+      "enabled": false,
+      "line": 127,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_LANG_PL",
+      "value": "y",
+      "enabled": false,
+      "line": 128,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_LANG_RU",
+      "value": "y",
+      "enabled": true,
+      "line": 129,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_LANG_SV",
+      "value": "y",
+      "enabled": false,
+      "line": 130,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_LANG_UK",
+      "value": "y",
+      "enabled": true,
+      "line": 131,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_VENDOR_LOGO",
+      "value": "y",
+      "enabled": true,
+      "line": 134,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_ENABLE_DNSMASQ_REGEX",
+      "value": "y",
+      "enabled": true,
+      "line": 137,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_NTFS_3G",
+      "value": "y",
+      "enabled": true,
+      "line": 140,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_LPRD",
+      "value": "y",
+      "enabled": false,
+      "line": 143,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_U2EC",
+      "value": "y",
+      "enabled": true,
+      "line": 146,
+      "category": "existing basic controls; extend status"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_USBIP",
+      "value": "y",
+      "enabled": true,
+      "line": 149,
+      "category": "missing service UI"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_TCPDUMP",
+      "value": "y",
+      "enabled": true,
+      "line": 152,
+      "category": "diagnostics/storage utility; shared UI candidate"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_SOCAT",
+      "value": "y",
+      "enabled": true,
+      "line": 155,
+      "category": "diagnostics/storage utility; shared UI candidate"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_NDISC6_RDISC6",
+      "value": "y",
+      "enabled": true,
+      "line": 158,
+      "category": "diagnostics/storage utility; shared UI candidate"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_HDPARM",
+      "value": "y",
+      "enabled": false,
+      "line": 161,
+      "category": "diagnostics/storage utility; shared UI candidate"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_PARTED",
+      "value": "y",
+      "enabled": false,
+      "line": 164,
+      "category": "diagnostics/storage utility; shared UI candidate"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_SMBD",
+      "value": "y",
+      "enabled": false,
+      "line": 167,
+      "category": "existing base UI; integration/device verification pending"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_SMBD36",
+      "value": "y",
+      "enabled": false,
+      "line": 170,
+      "category": "existing base UI; integration/device verification pending"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_WINS",
+      "value": "y",
+      "enabled": false,
+      "line": 173,
+      "category": "existing base UI; integration/device verification pending"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_SMBD_SYSLOG",
+      "value": "y",
+      "enabled": false,
+      "line": 176,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_TESTPARM",
+      "value": "y",
+      "enabled": false,
+      "line": 179,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_FTPD",
+      "value": "y",
+      "enabled": false,
+      "line": 182,
+      "category": "existing base UI; integration/device verification pending"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_FTPD_SSL",
+      "value": "y",
+      "enabled": false,
+      "line": 183,
+      "category": "existing base UI; integration/device verification pending"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_RPL2TP",
+      "value": "y",
+      "enabled": false,
+      "line": 186,
+      "category": "optional service UI backlog; disabled"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_EAP_PEAP",
+      "value": "y",
+      "enabled": true,
+      "line": 189,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_DDNS_SSL",
+      "value": "y",
+      "enabled": true,
+      "line": 192,
+      "category": "existing base UI; integration/device verification pending"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_HTTPS",
+      "value": "y",
+      "enabled": true,
+      "line": 195,
+      "category": "existing base UI; integration/device verification pending"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_SFTP",
+      "value": "y",
+      "enabled": false,
+      "line": 198,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_DROPBEAR",
+      "value": "y",
+      "enabled": true,
+      "line": 201,
+      "category": "existing base UI; integration/device verification pending"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_DROPBEAR_FAST_CODE",
+      "value": "y",
+      "enabled": true,
+      "line": 204,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_OPENSSH",
+      "value": "y",
+      "enabled": false,
+      "line": 207,
+      "category": "existing base UI; integration/device verification pending"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_OPENVPN",
+      "value": "y",
+      "enabled": false,
+      "line": 210,
+      "category": "existing base UI; integration/device verification pending"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_SSWAN",
+      "value": "y",
+      "enabled": true,
+      "line": 213,
+      "category": "missing service UI"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_WIREGUARD",
+      "value": "y",
+      "enabled": true,
+      "line": 216,
+      "category": "existing base UI; integration/device verification pending"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_AMNEZIAWG",
+      "value": "y",
+      "enabled": true,
+      "line": 219,
+      "category": "project UI integration; device verification pending"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_OPENSSL_EC",
+      "value": "y",
+      "enabled": true,
+      "line": 222,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_OPENSSL_EXE",
+      "value": "y",
+      "enabled": true,
+      "line": 225,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_TOR",
+      "value": "y",
+      "enabled": false,
+      "line": 229,
+      "category": "optional service UI backlog; disabled"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_TOR_GEOIP",
+      "value": "y",
+      "enabled": false,
+      "line": 233,
+      "category": "optional service UI backlog; disabled"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_TOR_GEOIPV6",
+      "value": "y",
+      "enabled": false,
+      "line": 237,
+      "category": "optional service UI backlog; disabled"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_OBFS4",
+      "value": "y",
+      "enabled": false,
+      "line": 240,
+      "category": "optional service UI backlog; disabled"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_PRIVOXY",
+      "value": "y",
+      "enabled": true,
+      "line": 243,
+      "category": "project UI integration; device verification pending"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_DNSCRYPT",
+      "value": "y",
+      "enabled": false,
+      "line": 246,
+      "category": "optional service UI backlog; disabled"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_SMARTDNS",
+      "value": "y",
+      "enabled": false,
+      "line": 251,
+      "category": "existing base UI; integration/device verification pending"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_STUBBY",
+      "value": "y",
+      "enabled": true,
+      "line": 254,
+      "category": "project UI integration; device verification pending"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_DOH",
+      "value": "y",
+      "enabled": true,
+      "line": 257,
+      "category": "project UI integration; device verification pending"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_CURL",
+      "value": "y",
+      "enabled": true,
+      "line": 260,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_QUIC",
+      "value": "y",
+      "enabled": true,
+      "line": 263,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_QUIC_NGTCP2",
+      "value": "y",
+      "enabled": false,
+      "line": 266,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_OPENSSL_10",
+      "value": "y",
+      "enabled": false,
+      "line": 270,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_OPENSSL_11",
+      "value": "y",
+      "enabled": false,
+      "line": 272,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_OPENSSL_35",
+      "value": "y",
+      "enabled": true,
+      "line": 274,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_WPAD",
+      "value": "y",
+      "enabled": true,
+      "line": 277,
+      "category": "project UI integration; device verification pending"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_ZRAM",
+      "value": "y",
+      "enabled": true,
+      "line": 280,
+      "category": "project UI integration; device verification pending"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_ADB",
+      "value": "y",
+      "enabled": false,
+      "line": 283,
+      "category": "diagnostics/storage utility; shared UI candidate"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_LUA",
+      "value": "y",
+      "enabled": true,
+      "line": 286,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_EOIP",
+      "value": "y",
+      "enabled": true,
+      "line": 289,
+      "category": "missing service UI"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_VLMCSD",
+      "value": "y",
+      "enabled": true,
+      "line": 292,
+      "category": "existing basic controls; extend status"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_IPERF3",
+      "value": "y",
+      "enabled": true,
+      "line": 295,
+      "category": "existing basic controls; extend status"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_NFQWS",
+      "value": "y",
+      "enabled": false,
+      "line": 299,
+      "category": "optional service UI backlog; disabled"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_TPROXY",
+      "value": "y",
+      "enabled": true,
+      "line": 302,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_ZAPRET",
+      "value": "y",
+      "enabled": false,
+      "line": 306,
+      "category": "optional service UI backlog; disabled"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_ZAPRET2",
+      "value": "y",
+      "enabled": false,
+      "line": 310,
+      "category": "optional service UI backlog; disabled"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_QRENCODE",
+      "value": "y",
+      "enabled": true,
+      "line": 313,
+      "category": "local Wi-Fi QR UI planned"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_REDSOCKS2",
+      "value": "y",
+      "enabled": false,
+      "line": 316,
+      "category": "optional service UI backlog; disabled"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_ZEROTIER",
+      "value": "y",
+      "enabled": true,
+      "line": 319,
+      "category": "project UI integration; device verification pending"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_SSREDIR",
+      "value": "y",
+      "enabled": true,
+      "line": 323,
+      "category": "existing base UI; integration/device verification pending"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_SSLOCAL",
+      "value": "y",
+      "enabled": true,
+      "line": 326,
+      "category": "existing base UI; integration/device verification pending"
+    },
+    {
+      "option": "CONFIG_CC_OPTIMIZE_FOR_SIZE",
+      "value": "y",
+      "enabled": false,
+      "line": 331,
+      "category": "build/platform/library/kernel capability; no standalone service UI inferred"
+    },
+    {
+      "option": "CONFIG_FIRMWARE_INCLUDE_SQM",
+      "value": "y",
+      "enabled": true,
+      "line": 334,
+      "category": "project UI integration; device verification pending"
+    }
+  ],
+  "source_pages": [
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Ad_action.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "redirectForm"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_ACL2g_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "current_page",
+        "form",
+        "goto5",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "rt_ACLList",
+        "rt_ACLList2",
+        "rt_ACLList_s",
+        "rt_macdesc_x_0",
+        "rt_maclist_x_0",
+        "rt_macmode",
+        "rt_macnum_x_0",
+        "sid_list"
+      ],
+      "capabilities": [
+        "support_5g_radio("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_ACL_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "ACLList",
+        "ACLList2",
+        "ACLList_s",
+        "action_mode",
+        "action_script",
+        "current_page",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "sid_list",
+        "wl_macdesc_x_0",
+        "wl_maclist_x_0",
+        "wl_macmode",
+        "wl_macnum_x_0"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_adbyby.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "AdIPList",
+        "AdIPList_s",
+        "AdRULESList",
+        "AdRULESList_s",
+        "ManualDHCPList2",
+        "ManualRULESList2",
+        "action_mode",
+        "action_script",
+        "adbyby_action",
+        "adbyby_enable",
+        "adbyby_ip_x",
+        "adbyby_rules_x",
+        "adbyby_set",
+        "adbyby_update",
+        "adbyby_update_hour",
+        "adbyby_update_min",
+        "adbybyip_ip_road_x_0",
+        "adbybyip_ip_x_0",
+        "adbybyip_mac_x_0",
+        "adbybyip_name_x_0",
+        "adbybyip_staticnum_x_0",
+        "adbybyrules_road_x_0",
+        "adbybyrules_staticnum_x_0",
+        "adbybyrules_x_0",
+        "anti_ad",
+        "anti_ad_link",
+        "bkye",
+        "block_douyin",
+        "block_ios",
+        "connect_action",
+        "current_page",
+        "form",
+        "group_id",
+        "group_id2",
+        "hidden_frame",
+        "hosts_ad",
+        "next_host",
+        "next_page",
+        "scripts.adbyby_adblack.sh",
+        "scripts.adbyby_adesc.sh",
+        "scripts.adbyby_adhost.sh",
+        "scripts.adbyby_blockip.sh",
+        "scripts.adbyby_host.sh",
+        "scripts.adbyby_rules.sh",
+        "sid_list"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_adguardhome.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "adg_enable",
+        "adg_redirect",
+        "current_page",
+        "dhcp_end",
+        "dhcp_start",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "sid_list",
+        "wan_ipaddr",
+        "wan_netmask"
+      ],
+      "capabilities": [
+        "found_app_smartdns("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_AiDisk_ftp.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "account",
+        "aidiskForm",
+        "changePermissionBtn",
+        "flag",
+        "folder",
+        "hidden_frame",
+        "layer_order",
+        "motion",
+        "permission",
+        "pool",
+        "protocol",
+        "submit_fake"
+      ],
+      "capabilities": [
+        "found_app_smbd("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_AiDisk_others.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "<% nvram_get_x(",
+        "achk_enable",
+        "action_mode",
+        "action_script",
+        "apps_dms",
+        "apps_itunes",
+        "aria_enable",
+        "aria_pport",
+        "aria_rport",
+        "current_page",
+        "dlna_disc",
+        "dlna_rescan",
+        "dlna_root",
+        "dlna_sort",
+        "dlna_src1",
+        "dlna_src2",
+        "dlna_src3",
+        "enable_ftp",
+        "enable_samba",
+        "form",
+        "group_id",
+        "hdd_apmoff",
+        "hdd_spindt",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "nfsd_enable",
+        "optw_enable",
+        "pcache_reclaim",
+        "sid_list",
+        "st_ftp_anmr",
+        "st_ftp_log",
+        "st_ftp_mode",
+        "st_ftp_pmax",
+        "st_ftp_pmin",
+        "st_max_user",
+        "st_samba_fp",
+        "st_samba_lmb",
+        "st_samba_mode",
+        "st_samba_workgroup",
+        "trmd_enable",
+        "trmd_pport",
+        "trmd_rport",
+        "usb3_disable"
+      ],
+      "capabilities": [
+        "found_app_aria(",
+        "found_app_dlna(",
+        "found_app_ffly(",
+        "found_app_ftpd(",
+        "found_app_nfsd(",
+        "found_app_smbd(",
+        "found_app_torr(",
+        "support_usb3("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_AiDisk_samba.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "account",
+        "aidiskForm",
+        "changePermissionBtn",
+        "flag",
+        "folder",
+        "hidden_frame",
+        "layer_order",
+        "mode",
+        "motion",
+        "permission",
+        "pool",
+        "protocol",
+        "submit_fake"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_aliddns.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "aliddns_ak",
+        "aliddns_domain",
+        "aliddns_domain2",
+        "aliddns_domain6",
+        "aliddns_enable",
+        "aliddns_interval",
+        "aliddns_name",
+        "aliddns_name2",
+        "aliddns_name6",
+        "aliddns_sk",
+        "aliddns_ttl",
+        "current_page",
+        "dhcp_end",
+        "dhcp_start",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "scripts.ddns_script.sh",
+        "sid_list",
+        "wan_ipaddr",
+        "wan_netmask"
+      ],
+      "capabilities": [
+        "found_app_ddnsto(",
+        "found_app_wireguard(",
+        "found_app_zerotier("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_aliyundrive.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "ald_auth_password",
+        "ald_auth_user",
+        "ald_cache_size",
+        "ald_cache_ttl",
+        "ald_domain_id",
+        "ald_host",
+        "ald_no_trash",
+        "ald_port",
+        "ald_read_buffer_size",
+        "ald_read_only",
+        "ald_refresh_token",
+        "ald_root",
+        "aliyundrive_enable",
+        "current_page",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "sid_list"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_APLAN_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "current_page",
+        "dhcp_end",
+        "dhcp_start",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "lan_dns1",
+        "lan_dns2",
+        "lan_dns_x",
+        "lan_domain",
+        "lan_gateway",
+        "lan_ipaddr",
+        "lan_netmask",
+        "lan_proto_x",
+        "next_host",
+        "next_page",
+        "sid_list"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_BasicFirewall_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "aria_ropen",
+        "button",
+        "current_page",
+        "form",
+        "ftpd_wopen",
+        "ftpd_wport",
+        "fw_dos_x",
+        "fw_enable_x",
+        "fw_log_x",
+        "fw_syn_cook",
+        "group_id",
+        "hidden_frame",
+        "https_wopen",
+        "https_wport",
+        "misc_http_x",
+        "misc_httpport_x",
+        "misc_ping_x",
+        "next_host",
+        "next_page",
+        "sid_list",
+        "sshd_wbfp",
+        "sshd_wopen",
+        "sshd_wport",
+        "trmd_ropen",
+        "udpxy_wopen",
+        "udpxy_wport"
+      ],
+      "capabilities": [
+        "found_app_aria(",
+        "found_app_ftpd(",
+        "found_app_sshd(",
+        "found_app_torr(",
+        "support_http_ssl("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_Console_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "SystemCmd",
+        "action",
+        "action_mode",
+        "action_script",
+        "current_page",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "sid_list"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_DDNS_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "<% nvram_get_x(",
+        "DDNSName",
+        "action_mode",
+        "action_script",
+        "current_page",
+        "ddns2_checkip",
+        "ddns2_hname",
+        "ddns2_pass",
+        "ddns2_server",
+        "ddns2_ssl",
+        "ddns2_user",
+        "ddns2_wildcard_x",
+        "ddns_checkip",
+        "ddns_cst_svr",
+        "ddns_cst_url",
+        "ddns_enable_x",
+        "ddns_forced",
+        "ddns_hostname2_x",
+        "ddns_hostname3_x",
+        "ddns_hostname_x",
+        "ddns_ipv6",
+        "ddns_passwd_x",
+        "ddns_period",
+        "ddns_server_x",
+        "ddns_source",
+        "ddns_ssl",
+        "ddns_username_x",
+        "ddns_verbose",
+        "ddns_wildcard_x",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "sid_list",
+        "x_DDNS2_link",
+        "x_DDNSHostCheck",
+        "x_DDNSStatus",
+        "x_DDNS_link"
+      ],
+      "capabilities": [
+        "support_ddns_ssl(",
+        "support_ipv6("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_ddnsto.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "current_page",
+        "ddnsto_enable",
+        "ddnsto_id",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "sid_list"
+      ],
+      "capabilities": [
+        "found_app_aliddns(",
+        "found_app_wireguard(",
+        "found_app_zerotier("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_DHCP_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "ManualDHCPList",
+        "ManualDHCPList2",
+        "ManualDHCPList_s",
+        "action_mode",
+        "action_script",
+        "button",
+        "current_page",
+        "dhcp_all_servers",
+        "dhcp_dns1_x",
+        "dhcp_dns2_x",
+        "dhcp_dns3_x",
+        "dhcp_dnsv61_x",
+        "dhcp_dnsv6_x",
+        "dhcp_enable_x",
+        "dhcp_end",
+        "dhcp_filter_aaaa",
+        "dhcp_gateway_x",
+        "dhcp_lease",
+        "dhcp_proxy_dnssec",
+        "dhcp_start",
+        "dhcp_static_arp",
+        "dhcp_static_x",
+        "dhcp_staticip_x_0",
+        "dhcp_staticmac_x_0",
+        "dhcp_staticname_x_0",
+        "dhcp_staticnum_x_0",
+        "dhcp_stop_dns_rebind",
+        "dhcp_strict_order",
+        "dhcp_verbose",
+        "dhcp_wins_x",
+        "dnsmasq.dhcp.conf",
+        "dnsmasq.dnsmasq.conf",
+        "dnsmasq.dnsmasq.servers",
+        "dnsmasq.hosts",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "lan_dhcpd_x",
+        "lan_domain",
+        "lan_ipaddr",
+        "lan_netmask",
+        "next_host",
+        "next_page",
+        "redirect_all_dns",
+        "sid_list"
+      ],
+      "capabilities": [
+        "support_ipv6("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_Exposed_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "button",
+        "current_page",
+        "dmz_ip",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "sid_list",
+        "sp_battle_ips"
+      ],
+      "capabilities": [
+        "support_ipv6("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_Firewall_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "LWFilterList",
+        "LWFilterList2",
+        "LWFilterList_s",
+        "LWKnownApps",
+        "action_mode",
+        "action_script",
+        "button",
+        "current_page",
+        "filter_lw_date_x",
+        "filter_lw_date_x_Fri",
+        "filter_lw_date_x_Mon",
+        "filter_lw_date_x_Sat",
+        "filter_lw_date_x_Sun",
+        "filter_lw_date_x_Thu",
+        "filter_lw_date_x_Tue",
+        "filter_lw_date_x_Wed",
+        "filter_lw_default_x",
+        "filter_lw_dstip_x_0",
+        "filter_lw_dstport_x_0",
+        "filter_lw_icmp_x",
+        "filter_lw_num_x_0",
+        "filter_lw_proto_x_0",
+        "filter_lw_protono_x_0",
+        "filter_lw_srcip_x_0",
+        "filter_lw_srcport_x_0",
+        "filter_lw_time_x",
+        "filter_lw_time_x_endhour",
+        "filter_lw_time_x_endmin",
+        "filter_lw_time_x_starthour",
+        "filter_lw_time_x_startmin",
+        "form",
+        "fw_lw_enable_x",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "sid_list"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_FirmwareUpgrade_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "bigtmp_action",
+        "bingtmp",
+        "button",
+        "connect_action",
+        "current_page",
+        "file",
+        "firmver",
+        "form",
+        "hidden_frame",
+        "next_page"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_frp.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "current_page",
+        "dhcp_end",
+        "dhcp_start",
+        "form",
+        "frpc_enable",
+        "frps_enable",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "scripts.frp_script.sh",
+        "sid_list",
+        "wan_ipaddr",
+        "wan_netmask"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_frp_log.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "hidden_frame"
+      ],
+      "capabilities": [
+        "found_app_mentohust(",
+        "found_app_scutclient("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_GWStaticRoute_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "GWStatic",
+        "GWStatic2",
+        "GWStatic_s",
+        "action_mode",
+        "action_script",
+        "button",
+        "current_page",
+        "dr_enable_x",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "sid_list",
+        "sr_enable_x",
+        "sr_gateway_x_0",
+        "sr_if_x_0",
+        "sr_ipaddr_x_0",
+        "sr_matric_x_0",
+        "sr_netmask_x_0",
+        "sr_num_x_0"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_InetDetect_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "current_page",
+        "di_addr0",
+        "di_addr1",
+        "di_addr2",
+        "di_addr3",
+        "di_addr4",
+        "di_addr5",
+        "di_lost_action",
+        "di_lost_delay",
+        "di_poll_mode",
+        "di_port0",
+        "di_port1",
+        "di_port2",
+        "di_port3",
+        "di_port4",
+        "di_port5",
+        "di_recon_pause",
+        "di_time_done",
+        "di_time_fail",
+        "di_timeout",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "scripts.inet_state_script.sh",
+        "sid_list"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_IPTV_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "button",
+        "controlrate_broadcast",
+        "controlrate_multicast",
+        "controlrate_unknown_multicast",
+        "controlrate_unknown_unicast",
+        "current_page",
+        "ether_igmp",
+        "ether_m2u",
+        "ether_uport",
+        "force_igmp",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "mr_enable_x",
+        "mr_qleave_x",
+        "next_host",
+        "next_page",
+        "rt_IgmpSnEnable",
+        "sid_list",
+        "udpxy_enable_x",
+        "wl_IgmpSnEnable",
+        "xupnpd_enable_x",
+        "xupnpd_udpxy"
+      ],
+      "capabilities": [
+        "found_app_xupnpd(",
+        "support_2g_inic_mii(",
+        "support_5g_radio(",
+        "support_num_ephy(",
+        "support_switch_type("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_IPv6_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "button",
+        "current_page",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "ip6_6in4_remote",
+        "ip6_6rd_dhcp",
+        "ip6_6rd_relay",
+        "ip6_6rd_size",
+        "ip6_6to4_relay",
+        "ip6_dns1",
+        "ip6_dns2",
+        "ip6_dns3",
+        "ip6_dns_auto",
+        "ip6_lan_addr",
+        "ip6_lan_auto",
+        "ip6_lan_dhcp",
+        "ip6_lan_radv",
+        "ip6_lan_sflt",
+        "ip6_lan_sfpe",
+        "ip6_lan_sfpe_fake",
+        "ip6_lan_sfps",
+        "ip6_lan_sfps_fake",
+        "ip6_lan_size",
+        "ip6_service",
+        "ip6_sit_mtu",
+        "ip6_sit_ttl",
+        "ip6_wan_addr",
+        "ip6_wan_dhcp",
+        "ip6_wan_gate",
+        "ip6_wan_if",
+        "ip6_wan_priv",
+        "ip6_wan_size",
+        "next_host",
+        "next_page",
+        "sid_list",
+        "wan_proto"
+      ],
+      "capabilities": [
+        "support_ipv6("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_LAN_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "current_page",
+        "dhcp_end",
+        "dhcp_start",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "lan_ipaddr",
+        "lan_netmask",
+        "lan_stp",
+        "next_host",
+        "next_page",
+        "sid_list",
+        "wan_ipaddr",
+        "wan_netmask"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_MACFilter_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "MFList",
+        "MFList2",
+        "MFList_s",
+        "action_mode",
+        "action_script",
+        "button",
+        "current_page",
+        "form",
+        "fw_mac_drop",
+        "group_id",
+        "hidden_frame",
+        "macfilter_date_x_0",
+        "macfilter_date_x_Fri",
+        "macfilter_date_x_Mon",
+        "macfilter_date_x_Sat",
+        "macfilter_date_x_Sun",
+        "macfilter_date_x_Thu",
+        "macfilter_date_x_Tue",
+        "macfilter_date_x_Wed",
+        "macfilter_enable_x",
+        "macfilter_list_x_0",
+        "macfilter_num_x_0",
+        "macfilter_time_x_0",
+        "macfilter_time_x_endhour",
+        "macfilter_time_x_endmin",
+        "macfilter_time_x_starthour",
+        "macfilter_time_x_startmin",
+        "next_host",
+        "next_page",
+        "sid_list"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_Modem_others.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "button",
+        "current_page",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "modem_apn",
+        "modem_cmd",
+        "modem_country",
+        "modem_dialnum",
+        "modem_dnsa",
+        "modem_isp",
+        "modem_mtu",
+        "modem_nets",
+        "modem_node",
+        "modem_pass",
+        "modem_pin",
+        "modem_rule",
+        "modem_type",
+        "modem_user",
+        "modem_zcd",
+        "next_host",
+        "next_page",
+        "sid_list",
+        "wan_dns1_x",
+        "wan_dns2_x",
+        "wan_dns3_x"
+      ],
+      "capabilities": [
+        "found_app_ftpd(",
+        "found_app_smbd("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_Netfilter_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "current_page",
+        "form",
+        "fw_pt_pppoe",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "nf_alg_ftp0",
+        "nf_alg_ftp1",
+        "nf_alg_h323",
+        "nf_alg_pptp",
+        "nf_alg_sip",
+        "nf_max_conn",
+        "nf_nat_loop",
+        "nf_nat_type",
+        "sid_list",
+        "wan_nat_x"
+      ],
+      "capabilities": [
+        "support_max_conn("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_OperationMode_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "button",
+        "current_page",
+        "flag",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "lan_ipaddr",
+        "next_page",
+        "prev_page",
+        "sid_list",
+        "sw_mode"
+      ],
+      "capabilities": [
+        "support_btn_mode("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_Printer_others.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "current_page",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "lprd_enable",
+        "next_host",
+        "next_page",
+        "rawd_enable",
+        "sid_list",
+        "u2ec_enable"
+      ],
+      "capabilities": [
+        "found_app_ftpd(",
+        "found_app_smbd("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_Scripts_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "current_page",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "scripts.ez_buttons_script.sh",
+        "scripts.post_iptables_script.sh",
+        "scripts.post_wan_script.sh",
+        "scripts.shutdown_script.sh",
+        "scripts.start_script.sh",
+        "scripts.started_script.sh",
+        "sid_list"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_Services_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "adsc_enable",
+        "crond_enable",
+        "crontab.login",
+        "current_page",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "http_access",
+        "http_lanport",
+        "http_proto",
+        "https_clist",
+        "https_lport",
+        "httpssl.ca.crt",
+        "httpssl.dh1024.pem",
+        "httpssl.server.crt",
+        "httpssl.server.key",
+        "iperf3_enable",
+        "lltd_enable",
+        "next_host",
+        "next_page",
+        "scripts.authorized_keys",
+        "sid_list",
+        "sshd_enable",
+        "st_samba_lmb",
+        "st_samba_workgroup",
+        "telnetd",
+        "ttyd_enable",
+        "ttyd_port",
+        "vlmcsd_enable",
+        "watchdog_cpu",
+        "wins_enable"
+      ],
+      "capabilities": [
+        "found_app_iperf3(",
+        "found_app_nmbd(",
+        "found_app_sshd(",
+        "found_app_ttyd(",
+        "found_app_vlmcsd(",
+        "support_http_ssl(",
+        "support_openssl_ec("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_SettingBackup_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action1",
+        "action2",
+        "action_mode",
+        "action_script",
+        "commit_nvram",
+        "commit_storage",
+        "current_page",
+        "file_nv",
+        "file_st",
+        "form",
+        "hidden_frame",
+        "mtd_rwfs_mount",
+        "mtd_rwfs_mount_fake",
+        "next_host",
+        "next_page",
+        "nvram_manual",
+        "nvram_manual_fake",
+        "productid",
+        "rstats_stored",
+        "rstats_stored_fake",
+        "sid_list",
+        "st_action1",
+        "st_action2",
+        "stime_stored",
+        "stime_stored_fake",
+        "submit_fake",
+        "upload_nv",
+        "upload_st"
+      ],
+      "capabilities": [
+        "support_mtd_rwfs("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_smartdns.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "ManualRULESList2",
+        "SdnsList",
+        "SdnsList_s",
+        "action_mode",
+        "action_script",
+        "current_page",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "scripts.smartdns_address.conf",
+        "scripts.smartdns_blacklist-ip.conf",
+        "scripts.smartdns_custom.conf",
+        "scripts.smartdns_whitelist-ip.conf",
+        "sdns_adblock",
+        "sdns_adblock_url",
+        "sdns_address",
+        "sdns_as",
+        "sdns_black",
+        "sdns_cache",
+        "sdns_cache_persist",
+        "sdns_coredump",
+        "sdns_dualstack_ip_allow_force_aaaa",
+        "sdns_enable",
+        "sdns_exp",
+        "sdns_exp_prefetch_time",
+        "sdns_exp_ttl",
+        "sdns_exp_ttl_max",
+        "sdns_force_aaaa_soa",
+        "sdns_force_qtype_soa",
+        "sdns_ip_change",
+        "sdns_ip_change_time",
+        "sdns_ipset",
+        "sdns_ipset_timeout",
+        "sdns_ipv6_server",
+        "sdns_max_reply_ip_num",
+        "sdns_name",
+        "sdns_ns",
+        "sdns_port",
+        "sdns_prefetch_domain",
+        "sdns_redirect",
+        "sdns_rr_ttl",
+        "sdns_rr_ttl_max",
+        "sdns_rr_ttl_min",
+        "sdns_rr_ttl_reply_max",
+        "sdns_speed",
+        "sdns_speed_mode",
+        "sdns_tcp_idle_time",
+        "sdns_tcp_server",
+        "sdns_white",
+        "sdnse_address",
+        "sdnse_as",
+        "sdnse_cache",
+        "sdnse_enable",
+        "sdnse_ipc",
+        "sdnse_ipset",
+        "sdnse_name",
+        "sdnse_ns",
+        "sdnse_port",
+        "sdnse_speed",
+        "sdnse_tcp_server",
+        "sdnss_enable_x_0",
+        "sdnss_ip_x_0",
+        "sdnss_ipc_x_0",
+        "sdnss_ipset_x_0",
+        "sdnss_name_x_0",
+        "sdnss_named_x_0",
+        "sdnss_non_x_0",
+        "sdnss_port_x_0",
+        "sdnss_staticnum_x_0",
+        "sdnss_type_x_0",
+        "sid_list"
+      ],
+      "capabilities": [
+        "found_app_adguardhome("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_SQM.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "current_page",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "sid_list",
+        "sqm_debug_log",
+        "sqm_down_speed",
+        "sqm_enable",
+        "sqm_flag",
+        "sqm_log_level",
+        "sqm_qdisc",
+        "sqm_script",
+        "sqm_up_speed"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_Switch_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "button",
+        "current_page",
+        "ether_eee",
+        "ether_flow_lan1",
+        "ether_flow_lan2",
+        "ether_flow_lan3",
+        "ether_flow_lan4",
+        "ether_flow_lan5",
+        "ether_flow_lan6",
+        "ether_flow_lan7",
+        "ether_flow_wan",
+        "ether_green",
+        "ether_jumbo",
+        "ether_link_lan1",
+        "ether_link_lan2",
+        "ether_link_lan3",
+        "ether_link_lan4",
+        "ether_link_lan5",
+        "ether_link_lan6",
+        "ether_link_lan7",
+        "ether_link_wan",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "sid_list"
+      ],
+      "capabilities": [
+        "support_ephy_l1000(",
+        "support_ephy_w1000(",
+        "support_led_phy(",
+        "support_num_ephy(",
+        "support_switch_type("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_System_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "computer_name",
+        "computer_name2",
+        "current_page",
+        "form",
+        "group_id",
+        "help_enable",
+        "hidden_frame",
+        "http_passwd",
+        "http_passwd2",
+        "http_username",
+        "log_float_ui",
+        "log_ipaddr",
+        "log_port",
+        "next_host",
+        "next_page",
+        "ntp_period",
+        "ntp_server0",
+        "ntp_server1",
+        "preferred_lang",
+        "reboot_date_x_Fri",
+        "reboot_date_x_Mon",
+        "reboot_date_x_Sat",
+        "reboot_date_x_Sun",
+        "reboot_date_x_Thu",
+        "reboot_date_x_Tue",
+        "reboot_date_x_Wed",
+        "reboot_schedule",
+        "reboot_schedule_enable",
+        "reboot_schedule_enable_x",
+        "reboot_time_x_hour",
+        "reboot_time_x_min",
+        "select_lang",
+        "sid_list",
+        "time_zone",
+        "v_password2",
+        "x_NTPServer1_link",
+        "x_NTP_SyncNow"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_System_Info.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "hidden_frame"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_Tweaks_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "current_page",
+        "ether_led0",
+        "ether_led1",
+        "ez_action_long",
+        "ez_action_short",
+        "fn1_action_long",
+        "fn1_action_short",
+        "fn2_action_long",
+        "fn2_action_short",
+        "form",
+        "front_led_all",
+        "front_led_lan",
+        "front_led_pwr",
+        "front_led_usb",
+        "front_led_wan",
+        "front_led_wif",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "sid_list"
+      ],
+      "capabilities": [
+        "support_5g_radio(",
+        "support_but_fn1(",
+        "support_but_fn2(",
+        "support_but_wps(",
+        "support_led_lan(",
+        "support_led_phy(",
+        "support_led_pwr(",
+        "support_led_usb(",
+        "support_led_usb_trig(",
+        "support_led_wan(",
+        "support_led_wif(",
+        "support_num_usb(",
+        "support_switch_type("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_URLFilter_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "UrlList",
+        "UrlList_s",
+        "action_mode",
+        "action_script",
+        "button",
+        "current_page",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "sid_list",
+        "url_date_x",
+        "url_date_x_Fri",
+        "url_date_x_Mon",
+        "url_date_x_Sat",
+        "url_date_x_Sun",
+        "url_date_x_Thu",
+        "url_date_x_Tue",
+        "url_date_x_Wed",
+        "url_enable_x",
+        "url_inv_fake",
+        "url_inv_x",
+        "url_keyword_x_0",
+        "url_mac_x",
+        "url_num_x_0",
+        "url_time_x",
+        "url_time_x_endhour",
+        "url_time_x_endmin",
+        "url_time_x_starthour",
+        "url_time_x_startmin"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_VirtualServer_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "KnownApps",
+        "KnownGames",
+        "VSList",
+        "VSList2",
+        "VSList_s",
+        "action_mode",
+        "action_script",
+        "button",
+        "current_page",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "sid_list",
+        "upnp_clean_int",
+        "upnp_clean_min",
+        "upnp_enable_x",
+        "upnp_eport_max",
+        "upnp_eport_min",
+        "upnp_iport_max",
+        "upnp_iport_min",
+        "upnp_proto",
+        "upnp_secure",
+        "vts_desc_x_0",
+        "vts_enable_x",
+        "vts_ipaddr_x_0",
+        "vts_lport_x_0",
+        "vts_num_x_0",
+        "vts_port_x_0",
+        "vts_proto_x_0",
+        "vts_protono_x_0",
+        "vts_srcip_x_0"
+      ],
+      "capabilities": [
+        "support_ipv6("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_WAdvanced2g_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "current_page",
+        "form",
+        "goto5",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "rt_APSDCapable",
+        "rt_HT_80211KV",
+        "rt_HT_80211R",
+        "rt_HT_AMSDU",
+        "rt_HT_AutoBA",
+        "rt_HT_OpMode",
+        "rt_HT_RDG",
+        "rt_PktAggregate",
+        "rt_TxBurst",
+        "rt_VgaClamp",
+        "rt_airtimefairness",
+        "rt_ap_isolate",
+        "rt_band_steering",
+        "rt_bcn",
+        "rt_dtim",
+        "rt_frag",
+        "rt_gmode",
+        "rt_greenap",
+        "rt_ldpc",
+        "rt_mrate",
+        "rt_preamble",
+        "rt_rts",
+        "rt_stream_rx",
+        "rt_stream_tx",
+        "rt_turbo_qam",
+        "rt_wme",
+        "rt_wme_no_ack",
+        "sid_list"
+      ],
+      "capabilities": [
+        "support_2g_airtimefairness(",
+        "support_2g_band_steering(",
+        "support_2g_inic_mii(",
+        "support_2g_stream_rx(",
+        "support_2g_stream_tx(",
+        "support_2g_turbo_qam(",
+        "support_2g_wid(",
+        "support_5g_radio("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_WAdvanced_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "current_page",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "sid_list",
+        "wl_APSDCapable",
+        "wl_HT_80211KV",
+        "wl_HT_80211R",
+        "wl_HT_AMSDU",
+        "wl_HT_AutoBA",
+        "wl_HT_OpMode",
+        "wl_HT_RDG",
+        "wl_PktAggregate",
+        "wl_TxBurst",
+        "wl_VgaClamp",
+        "wl_ap_isolate",
+        "wl_band_steering",
+        "wl_bcn",
+        "wl_dtim",
+        "wl_frag",
+        "wl_gmode",
+        "wl_greenap",
+        "wl_ldpc",
+        "wl_mumimo",
+        "wl_preamble",
+        "wl_rts",
+        "wl_stream_rx",
+        "wl_stream_tx",
+        "wl_txbf",
+        "wl_wme",
+        "wl_wme_no_ack"
+      ],
+      "capabilities": [
+        "support_5g_band_steering(",
+        "support_5g_mumimo(",
+        "support_5g_stream_rx(",
+        "support_5g_stream_tx(",
+        "support_5g_txbf(",
+        "support_5g_wid("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_WAN_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "ManualDHCPList2",
+        "action_mode",
+        "action_script",
+        "button",
+        "current_page",
+        "form",
+        "group_id",
+        "gw_arp_ping",
+        "hidden_frame",
+        "hw_nat_mode",
+        "lan_ipaddr",
+        "lan_netmask",
+        "next_host",
+        "next_page",
+        "pppoe_num",
+        "pppoemwanIPList",
+        "pppoemwanIPList_s",
+        "pppoemwan_443",
+        "pppoemwan_enable",
+        "pppoemwan_interface_x_0",
+        "pppoemwan_ip_x_0",
+        "pppoemwan_mac_x_0",
+        "pppoemwan_name_x_0",
+        "pppoemwan_rules_x",
+        "pppoemwan_staticnum_x_0",
+        "pppoesync_enable",
+        "sfe_enable",
+        "sid_list",
+        "untag_lan1",
+        "untag_lan2",
+        "untag_lan3",
+        "untag_lan4",
+        "viptv_gateway",
+        "viptv_ipaddr",
+        "viptv_mode",
+        "viptv_netmask",
+        "vlan_filter",
+        "vlan_pri_cpu",
+        "vlan_pri_iptv",
+        "vlan_pri_lan1",
+        "vlan_pri_lan2",
+        "vlan_pri_lan3",
+        "vlan_pri_lan4",
+        "vlan_tag_lan1",
+        "vlan_tag_lan2",
+        "vlan_tag_lan3",
+        "vlan_tag_lan4",
+        "vlan_vid_cpu",
+        "vlan_vid_iptv",
+        "vlan_vid_lan1",
+        "vlan_vid_lan2",
+        "vlan_vid_lan3",
+        "vlan_vid_lan4",
+        "wan_auth_host",
+        "wan_auth_mode",
+        "wan_auth_pass",
+        "wan_auth_user",
+        "wan_dns1_x",
+        "wan_dns2_x",
+        "wan_dns3_x",
+        "wan_dnsenable_x",
+        "wan_gateway",
+        "wan_hostname",
+        "wan_hwaddr_x",
+        "wan_ipaddr",
+        "wan_l2tp_mru",
+        "wan_l2tp_mtu",
+        "wan_l2tpd",
+        "wan_mtu",
+        "wan_netmask",
+        "wan_ppp_alcp",
+        "wan_ppp_auth",
+        "wan_ppp_lcp",
+        "wan_ppp_mppe",
+        "wan_ppp_peer",
+        "wan_ppp_pppd",
+        "wan_pppoe_ac",
+        "wan_pppoe_idletime",
+        "wan_pppoe_man",
+        "wan_pppoe_mru",
+        "wan_pppoe_mtu",
+        "wan_pppoe_passwd",
+        "wan_pppoe_service",
+        "wan_pppoe_username",
+        "wan_pptp_mru",
+        "wan_pptp_mtu",
+        "wan_proto",
+        "wan_src_phy",
+        "wan_stb_iso",
+        "wan_stb_x",
+        "wan_ttl_fix",
+        "wan_ttl_value",
+        "wan_vci",
+        "x_DHCPClient"
+      ],
+      "capabilities": [
+        "found_app_l2tp(",
+        "support_ipv4_ppe(",
+        "support_min_vlan(",
+        "support_num_ephy(",
+        "support_peap_ssl(",
+        "support_sfe(",
+        "support_switch_type("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_WGuest2g_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "current_page",
+        "form",
+        "goto5",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "rt_country_code",
+        "rt_gmode",
+        "rt_guest_ap_isolate",
+        "rt_guest_auth_mode",
+        "rt_guest_closed",
+        "rt_guest_crypto",
+        "rt_guest_date_x",
+        "rt_guest_date_x_Fri",
+        "rt_guest_date_x_Mon",
+        "rt_guest_date_x_Sat",
+        "rt_guest_date_x_Sun",
+        "rt_guest_date_x_Thu",
+        "rt_guest_date_x_Tue",
+        "rt_guest_date_x_Wed",
+        "rt_guest_enable",
+        "rt_guest_lan_isolate",
+        "rt_guest_macrule",
+        "rt_guest_mcs_mode",
+        "rt_guest_ssid",
+        "rt_guest_ssid_org",
+        "rt_guest_time2_x",
+        "rt_guest_time2_x_endhour",
+        "rt_guest_time2_x_endmin",
+        "rt_guest_time2_x_starthour",
+        "rt_guest_time2_x_startmin",
+        "rt_guest_time_x",
+        "rt_guest_time_x_endhour",
+        "rt_guest_time_x_endmin",
+        "rt_guest_time_x_starthour",
+        "rt_guest_time_x_startmin",
+        "rt_guest_wpa_mode",
+        "rt_guest_wpa_psk",
+        "rt_guest_wpa_psk_org",
+        "sid_list"
+      ],
+      "capabilities": [
+        "support_5g_radio(",
+        "support_lan_ap_isolate("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_WGuest_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "current_page",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "sid_list",
+        "wl_country_code",
+        "wl_gmode",
+        "wl_guest_ap_isolate",
+        "wl_guest_auth_mode",
+        "wl_guest_closed",
+        "wl_guest_crypto",
+        "wl_guest_date_x",
+        "wl_guest_date_x_Fri",
+        "wl_guest_date_x_Mon",
+        "wl_guest_date_x_Sat",
+        "wl_guest_date_x_Sun",
+        "wl_guest_date_x_Thu",
+        "wl_guest_date_x_Tue",
+        "wl_guest_date_x_Wed",
+        "wl_guest_enable",
+        "wl_guest_lan_isolate",
+        "wl_guest_macrule",
+        "wl_guest_mcs_mode",
+        "wl_guest_ssid",
+        "wl_guest_ssid_org",
+        "wl_guest_time2_x",
+        "wl_guest_time2_x_endhour",
+        "wl_guest_time2_x_endmin",
+        "wl_guest_time2_x_starthour",
+        "wl_guest_time2_x_startmin",
+        "wl_guest_time_x",
+        "wl_guest_time_x_endhour",
+        "wl_guest_time_x_endmin",
+        "wl_guest_time_x_starthour",
+        "wl_guest_time_x_startmin",
+        "wl_guest_wpa_mode",
+        "wl_guest_wpa_psk",
+        "wl_guest_wpa_psk_org"
+      ],
+      "capabilities": [
+        "support_5g_11ac(",
+        "support_lan_ap_isolate("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_wireguard.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "current_page",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "sid_list",
+        "wireguard_enable",
+        "wireguard_localip",
+        "wireguard_localkey",
+        "wireguard_peerip",
+        "wireguard_peerkey"
+      ],
+      "capabilities": [
+        "found_app_aliddns(",
+        "found_app_ddnsto(",
+        "found_app_zerotier("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_Wireless2g_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "current_page",
+        "form",
+        "goto5",
+        "group_id",
+        "hidden_frame",
+        "key_des",
+        "next_host",
+        "next_page",
+        "rt_AssocReqRssiThres",
+        "rt_HT_BW",
+        "rt_HT_EXTCHA",
+        "rt_HT_EXTCHA_old",
+        "rt_KickStaRssiLow",
+        "rt_TxPower",
+        "rt_auth_mode",
+        "rt_channel",
+        "rt_channel_orig",
+        "rt_closed",
+        "rt_country_code",
+        "rt_crypto",
+        "rt_gmode",
+        "rt_gmode_protection",
+        "rt_key",
+        "rt_key1",
+        "rt_key1_org",
+        "rt_key2",
+        "rt_key2_org",
+        "rt_key3",
+        "rt_key3_org",
+        "rt_key4",
+        "rt_key4_org",
+        "rt_key_type",
+        "rt_mcs_mode",
+        "rt_mode_x",
+        "rt_nmode",
+        "rt_phrase_x",
+        "rt_phrase_x_org",
+        "rt_radio_date_x",
+        "rt_radio_date_x_Fri",
+        "rt_radio_date_x_Mon",
+        "rt_radio_date_x_Sat",
+        "rt_radio_date_x_Sun",
+        "rt_radio_date_x_Thu",
+        "rt_radio_date_x_Tue",
+        "rt_radio_date_x_Wed",
+        "rt_radio_time2_x",
+        "rt_radio_time2_x_endhour",
+        "rt_radio_time2_x_endmin",
+        "rt_radio_time2_x_starthour",
+        "rt_radio_time2_x_startmin",
+        "rt_radio_time_x",
+        "rt_radio_time_x_endhour",
+        "rt_radio_time_x_endmin",
+        "rt_radio_time_x_starthour",
+        "rt_radio_time_x_startmin",
+        "rt_radio_x",
+        "rt_ssid",
+        "rt_ssid2",
+        "rt_wep_x",
+        "rt_wpa_gtk_rekey",
+        "rt_wpa_mode",
+        "rt_wpa_psk",
+        "rt_wpa_psk_org",
+        "sid_list"
+      ],
+      "capabilities": [
+        "support_2g_11ax(",
+        "support_5g_radio("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_Wireless_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "current_page",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "key_des",
+        "next_host",
+        "next_page",
+        "sid_list",
+        "wl_AssocReqRssiThres",
+        "wl_HT_BW",
+        "wl_HT_EXTCHA",
+        "wl_KickStaRssiLow",
+        "wl_TxPower",
+        "wl_auth_mode",
+        "wl_channel",
+        "wl_channel_orig",
+        "wl_closed",
+        "wl_country_code",
+        "wl_crypto",
+        "wl_gmode",
+        "wl_key",
+        "wl_key1",
+        "wl_key1_org",
+        "wl_key2",
+        "wl_key2_org",
+        "wl_key3",
+        "wl_key3_org",
+        "wl_key4",
+        "wl_key4_org",
+        "wl_key_type",
+        "wl_mcs_mode",
+        "wl_mode_x",
+        "wl_nmode",
+        "wl_phrase_x",
+        "wl_phrase_x_org",
+        "wl_radio_date_x",
+        "wl_radio_date_x_Fri",
+        "wl_radio_date_x_Mon",
+        "wl_radio_date_x_Sat",
+        "wl_radio_date_x_Sun",
+        "wl_radio_date_x_Thu",
+        "wl_radio_date_x_Tue",
+        "wl_radio_date_x_Wed",
+        "wl_radio_time2_x",
+        "wl_radio_time2_x_endhour",
+        "wl_radio_time2_x_endmin",
+        "wl_radio_time2_x_starthour",
+        "wl_radio_time2_x_startmin",
+        "wl_radio_time_x",
+        "wl_radio_time_x_endhour",
+        "wl_radio_time_x_endmin",
+        "wl_radio_time_x_starthour",
+        "wl_radio_time_x_startmin",
+        "wl_radio_x",
+        "wl_ssid",
+        "wl_ssid2",
+        "wl_wep_x",
+        "wl_wpa_gtk_rekey",
+        "wl_wpa_mode",
+        "wl_wpa_psk",
+        "wl_wpa_psk_org"
+      ],
+      "capabilities": [
+        "support_5g_11ac(",
+        "support_5g_11ax(",
+        "support_5g_160mhz("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_WMode2g_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "auto_seek_fake",
+        "current_page",
+        "form",
+        "goto5",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "rt_RBRList",
+        "rt_RBRList2",
+        "rt_RBRList_s",
+        "rt_channel",
+        "rt_channel_org",
+        "rt_country_code",
+        "rt_mode_x",
+        "rt_sta_auth_mode",
+        "rt_sta_auto",
+        "rt_sta_crypto",
+        "rt_sta_ssid",
+        "rt_sta_ssid_org",
+        "rt_sta_wisp",
+        "rt_sta_wpa_mode",
+        "rt_sta_wpa_psk",
+        "rt_sta_wpa_psk_org",
+        "rt_wdsapply_x",
+        "rt_wdslist_x_0",
+        "rt_wdsnum_x_0",
+        "scripts.ap_script.sh",
+        "sid_list"
+      ],
+      "capabilities": [
+        "support_2g_inic_mii(",
+        "support_2g_wid(",
+        "support_5g_radio("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_WMode_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "RBRList",
+        "RBRList2",
+        "RBRList_s",
+        "action_mode",
+        "action_script",
+        "auto_seek_fake",
+        "current_page",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "scripts.ap_script.sh",
+        "sid_list",
+        "wl_channel",
+        "wl_channel_org",
+        "wl_country_code",
+        "wl_mode_x",
+        "wl_sta_auth_mode",
+        "wl_sta_auto",
+        "wl_sta_crypto",
+        "wl_sta_ssid",
+        "wl_sta_ssid_org",
+        "wl_sta_wisp",
+        "wl_sta_wpa_mode",
+        "wl_sta_wpa_psk",
+        "wl_sta_wpa_psk_org",
+        "wl_wdsapply_x",
+        "wl_wdslist_x_0",
+        "wl_wdsnum_x_0"
+      ],
+      "capabilities": [
+        "support_5g_wid("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_WOL_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "current_page",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "sid_list",
+        "wol_mac"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_WSecurity2g_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "current_page",
+        "form",
+        "goto5",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "rt_radius_ipaddr",
+        "rt_radius_key",
+        "rt_radius_port",
+        "sid_list"
+      ],
+      "capabilities": [
+        "support_5g_radio("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_WSecurity_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "current_page",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "sid_list",
+        "wl_radius_ipaddr",
+        "wl_radius_key",
+        "wl_radius_port"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_zerotier.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "ZeroList",
+        "ZeroList_s",
+        "action_mode",
+        "action_script",
+        "current_page",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "markGroupRULES2",
+        "next_host",
+        "next_page",
+        "sid_list",
+        "zero_enable_x_0",
+        "zero_ip_x_0",
+        "zero_route_x_0",
+        "zero_staticnum_x_0",
+        "zerotier_enable",
+        "zerotier_id",
+        "zerotier_moonid",
+        "zerotier_nat",
+        "zerotiermoon_enable",
+        "zerotiermoon_id",
+        "zerotiermoon_ip"
+      ],
+      "capabilities": [
+        "found_app_aliddns(",
+        "found_app_ddnsto(",
+        "found_app_wireguard("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/aidisk/Aidisk-1.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "<% nvram_get_x(",
+        "flag",
+        "redirectForm"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/aidisk/Aidisk-1_help.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/aidisk/Aidisk-2.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "account0",
+        "account1",
+        "accountNum",
+        "dummyoption",
+        "passwd0",
+        "passwd1",
+        "permission0",
+        "permission1",
+        "smartForm",
+        "userpasswd1",
+        "userpasswd2"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/aidisk/Aidisk-3.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "DDNSForm",
+        "DDNSName",
+        "action_mode",
+        "action_script",
+        "asusddns_tos_agreement",
+        "check_asus_ddns",
+        "current_page",
+        "ddns_hostname_x",
+        "ddns_server_x",
+        "flag",
+        "group_id",
+        "hidden_frame",
+        "next_page",
+        "sid_list"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/aidisk/Aidisk-4.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "redirectForm"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/aidisk/ASUS_DDNS_TOS.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/aidisk/create_account.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/aidisk/create_sharedfolder.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/aidisk/delete_account.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/aidisk/delete_sharedfolder.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/aidisk/getfolderarray.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/aidisk/getsharearray.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/aidisk/initial_account.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/aidisk/modify_account.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/aidisk/modify_sharedfolder.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/aidisk/popCreateAccount.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "account",
+        "button",
+        "confirm_password",
+        "createAccountForm",
+        "password"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/aidisk/popCreateFolder.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "createFolderForm",
+        "folder",
+        "pool"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/aidisk/popDeleteAccount.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "account",
+        "deleteAccountForm"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/aidisk/popDeleteFolder.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "deleteFolderForm",
+        "folder",
+        "pool"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/aidisk/popModifyAccount.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "account",
+        "button",
+        "confirm_password",
+        "modifyAccountForm",
+        "new_account",
+        "new_password"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/aidisk/popModifyFolder.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "folder",
+        "modifyFolderForm",
+        "new_folder",
+        "pool"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/aidisk/set_account_permission.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/aidisk/switch_AiDisk_app.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/aidisk/switch_share_mode.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/aidisk.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "account",
+        "account0",
+        "account1",
+        "accountNum",
+        "action_mode",
+        "applyForm",
+        "current_page",
+        "ddnsForm",
+        "ddns_enable_x",
+        "dummyShareway",
+        "flag",
+        "folder",
+        "form",
+        "hidden_frame",
+        "hint_form",
+        "mode",
+        "next_page",
+        "parameterForm",
+        "passwd0",
+        "passwd1",
+        "password",
+        "permission",
+        "permission0",
+        "permission1",
+        "pool",
+        "protocol",
+        "sid_list",
+        "statusframe"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/ajax_ddnscode.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/aplist.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/as.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "hidden_frame"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/bit_action.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "redirectForm"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/console_response.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/device-map/clients.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "MFList_s",
+        "action_mode",
+        "action_script",
+        "applyFrame",
+        "current_page",
+        "flag",
+        "form",
+        "group_id",
+        "macfilterForm",
+        "macfilter_date_x_0",
+        "macfilter_enable_x",
+        "macfilter_list_x_0",
+        "macfilter_time_x_0",
+        "modified",
+        "next_page",
+        "sid_list"
+      ],
+      "capabilities": [
+        "support_2g_radio(",
+        "support_5g_radio("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/device-map/disk.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "<% nvram_get_x(",
+        "devn",
+        "diskForm",
+        "port"
+      ],
+      "capabilities": [
+        "found_app_ftpd(",
+        "found_app_smbd("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/device-map/hub.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "current_page",
+        "devn",
+        "diskForm",
+        "next_page",
+        "port",
+        "prnForm"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/device-map/internet.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "internetForm",
+        "modem_prio",
+        "wan_action"
+      ],
+      "capabilities": [
+        "support_ipv6(",
+        "support_usb("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/device-map/intranet.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/device-map/modem.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "devn",
+        "diskForm",
+        "port"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/device-map/printer.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "current_page",
+        "form",
+        "next_page"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/device-map/router.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "current_page",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "next_page",
+        "sid_list",
+        "wl_asuskey1",
+        "wl_auth_mode",
+        "wl_auth_mode_orig",
+        "wl_closed",
+        "wl_crypto",
+        "wl_gmode",
+        "wl_key",
+        "wl_key1",
+        "wl_key1_org",
+        "wl_key2",
+        "wl_key2_org",
+        "wl_key3",
+        "wl_key3_org",
+        "wl_key4",
+        "wl_key4_org",
+        "wl_key_type",
+        "wl_radio_x",
+        "wl_ssid",
+        "wl_ssid2",
+        "wl_wep_x",
+        "wl_wep_x_orig",
+        "wl_wpa_mode",
+        "wl_wpa_mode_orig",
+        "wl_wpa_psk",
+        "wl_wpa_psk_org"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/device-map/router2g.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "current_page",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "next_page",
+        "rt_asuskey1",
+        "rt_auth_mode",
+        "rt_auth_mode_orig",
+        "rt_closed",
+        "rt_crypto",
+        "rt_gmode",
+        "rt_key",
+        "rt_key1",
+        "rt_key1_org",
+        "rt_key2",
+        "rt_key2_org",
+        "rt_key3",
+        "rt_key3_org",
+        "rt_key4",
+        "rt_key4_org",
+        "rt_key_type",
+        "rt_radio_x",
+        "rt_ssid",
+        "rt_ssid2",
+        "rt_wep_x",
+        "rt_wep_x_orig",
+        "rt_wpa_mode",
+        "rt_wpa_mode_orig",
+        "rt_wpa_psk",
+        "rt_wpa_psk_org",
+        "sid_list"
+      ],
+      "capabilities": [
+        "support_5g_radio("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/device-map/safely_remove_disk.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/device-map/sata.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "devn",
+        "diskForm",
+        "port"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/device-map/wan_action.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "flag",
+        "redirectForm"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/dns-forwarder.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "current_page",
+        "dns_forwarder_bind",
+        "dns_forwarder_enable",
+        "dns_forwarder_port",
+        "dns_forwarder_server",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "sid_list"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/index.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "current_page",
+        "form",
+        "hidden_frame",
+        "icon",
+        "iconClient",
+        "iconRouter",
+        "preferred_lang",
+        "rt_asuskey1",
+        "rt_auth_mode",
+        "rt_crypto",
+        "rt_form",
+        "rt_key",
+        "rt_key1",
+        "rt_key2",
+        "rt_key3",
+        "rt_key4",
+        "rt_key_type",
+        "rt_ssid",
+        "rt_ssid2",
+        "rt_wep_x",
+        "rt_wpa_mode",
+        "rt_wpa_psk",
+        "statusframe",
+        "wl_asuskey1",
+        "wl_auth_mode",
+        "wl_crypto",
+        "wl_form",
+        "wl_gmode",
+        "wl_key",
+        "wl_key1",
+        "wl_key2",
+        "wl_key3",
+        "wl_key4",
+        "wl_key_type",
+        "wl_ssid",
+        "wl_ssid2",
+        "wl_wep_x",
+        "wl_wpa_mode",
+        "wl_wpa_psk"
+      ],
+      "capabilities": [
+        "support_2g_radio(",
+        "support_5g_radio("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/lan_clients.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/log_content.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Logout.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Main_CTStatus_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "hidden_frame"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Main_DHCPStatus_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "hidden_frame"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Main_EStatus_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "hidden_frame"
+      ],
+      "capabilities": [
+        "support_2g_radio(",
+        "support_5g_radio("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Main_IPTStatus_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "hidden_frame"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Main_LogStatus_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "current_page",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "sid_list"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Main_RouteStatus_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "hidden_frame"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Main_TrafficMonitor_daily.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "hidden_frame"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Main_TrafficMonitor_last24.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "hidden_frame"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Main_TrafficMonitor_realtime.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "hidden_frame"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Main_WStatus2g_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "hidden_frame"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Main_WStatus_Content.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "hidden_frame"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/mentohust.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "connect_action",
+        "current_page",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "mentohust_action",
+        "mentohust_daemon",
+        "mentohust_datafile",
+        "mentohust_dhcp",
+        "mentohust_dhcpscript",
+        "mentohust_dns",
+        "mentohust_enable",
+        "mentohust_gw",
+        "mentohust_interval",
+        "mentohust_ip",
+        "mentohust_mask",
+        "mentohust_maxfail",
+        "mentohust_password",
+        "mentohust_pinghost",
+        "mentohust_restart_wait",
+        "mentohust_service",
+        "mentohust_startmode",
+        "mentohust_timeout",
+        "mentohust_username",
+        "mentohust_ver",
+        "next_host",
+        "next_page",
+        "sid_list"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/mentohust_action.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "redirectForm"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/mentohust_log.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "hidden_frame"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Nologin.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Restarting.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/scutclient.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "connect_action",
+        "current_page",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "scutclient_action",
+        "scutclient_debug",
+        "scutclient_enable",
+        "scutclient_hash",
+        "scutclient_hostname",
+        "scutclient_password",
+        "scutclient_server_auth_ip",
+        "scutclient_skip_udp_hb",
+        "scutclient_username",
+        "scutclient_version",
+        "scutclient_watchcat",
+        "scutclient_wdg_force",
+        "sid_list"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/scutclient_action.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "redirectForm"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/scutclient_log.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "hidden_frame"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Shadowsocks.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "ManualRULESList2",
+        "Shadowsocks_action",
+        "action_mode",
+        "action_script",
+        "button",
+        "china_dns",
+        "connect_action",
+        "current_page",
+        "d_type",
+        "form",
+        "global_server",
+        "group_id",
+        "hidden_frame",
+        "lan_con",
+        "next_host",
+        "next_page",
+        "pdnsd_enable",
+        "s5_aut",
+        "s5_password",
+        "s5_type",
+        "s5_username",
+        "s_dports",
+        "scripts.ss_dlink.sh",
+        "scripts.ss_dom.sh",
+        "scripts.ss_ip.sh",
+        "scripts.ss_lan_bip.sh",
+        "scripts.ss_lan_gmip.sh",
+        "scripts.ss_lan_ip.sh",
+        "scripts.ss_wan_ip.sh",
+        "scripts.uss_dom.sh",
+        "sid_list",
+        "socks5_enable",
+        "socks5_port",
+        "ss_adblock",
+        "ss_adblock_url",
+        "ss_cgoups_cpu_s",
+        "ss_cgoups_mem_s",
+        "ss_cgroups",
+        "ss_chdns",
+        "ss_chnroute_url",
+        "ss_date_x_Fri",
+        "ss_date_x_Mon",
+        "ss_date_x_Sat",
+        "ss_date_x_Sun",
+        "ss_date_x_Thu",
+        "ss_date_x_Tue",
+        "ss_date_x_Wed",
+        "ss_enable",
+        "ss_gfwlist_url",
+        "ss_keyword",
+        "ss_list_mode",
+        "ss_method",
+        "ss_obfs",
+        "ss_obfs_param",
+        "ss_password",
+        "ss_plugin",
+        "ss_plugin_opts",
+        "ss_protocol",
+        "ss_protocol_param",
+        "ss_run_mode",
+        "ss_schedule",
+        "ss_schedule_enable",
+        "ss_schedule_enable_x",
+        "ss_threads",
+        "ss_time_x_hour",
+        "ss_time_x_min",
+        "ss_update_chnroute",
+        "ss_update_gfwlist",
+        "ss_watchcat",
+        "ssp_dns_ip",
+        "ssp_insecure",
+        "ssp_name",
+        "ssp_prot",
+        "ssp_server",
+        "ssp_staticnum_x_0",
+        "ssp_tls_host",
+        "ssp_type",
+        "switch_enable_x_0",
+        "tunnel_forward",
+        "ud_type",
+        "udp_relay_server",
+        "v2_alter_id",
+        "v2_downlink_capacity",
+        "v2_flow",
+        "v2_grpc_path",
+        "v2_h2_host",
+        "v2_h2_path",
+        "v2_http_host",
+        "v2_http_path",
+        "v2_kcp_guise",
+        "v2_mtu",
+        "v2_mux",
+        "v2_quic_guise",
+        "v2_quic_key",
+        "v2_quic_security",
+        "v2_read_buffer_size",
+        "v2_security",
+        "v2_tcp_guise",
+        "v2_tls",
+        "v2_transport",
+        "v2_tti",
+        "v2_uplink_capacity",
+        "v2_vmess_id",
+        "v2_write_buffer_size",
+        "v2_ws_host",
+        "v2_ws_path"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Shadowsocks_action.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "redirectForm"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Shadowsocks_log.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "hidden_frame"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/status_eth_mib.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/status_internet.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/status_lanlink.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/status_wanlink.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/system_status_data.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/UpdateError.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Updating.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/UploadDone.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/UploadError.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Uploading.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/vpn_clients.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/vpncli.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "button",
+        "button2",
+        "current_page",
+        "flag",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "ovpncli.ca.crt",
+        "ovpncli.client.conf",
+        "ovpncli.client.crt",
+        "ovpncli.client.key",
+        "ovpncli.ta.key",
+        "scripts.vpnc_server_script.sh",
+        "sid_list",
+        "vpnc_auth",
+        "vpnc_dgw",
+        "vpnc_enable",
+        "vpnc_mppe",
+        "vpnc_mru",
+        "vpnc_mtu",
+        "vpnc_ov_atls",
+        "vpnc_ov_auth",
+        "vpnc_ov_ciph",
+        "vpnc_ov_cnat",
+        "vpnc_ov_compress",
+        "vpnc_ov_mdig",
+        "vpnc_ov_mode",
+        "vpnc_ov_ncp_clist",
+        "vpnc_ov_port",
+        "vpnc_ov_prot",
+        "vpnc_pass",
+        "vpnc_pdns",
+        "vpnc_peer",
+        "vpnc_pppd",
+        "vpnc_rmsk",
+        "vpnc_rnet",
+        "vpnc_sfw",
+        "vpnc_type",
+        "vpnc_user"
+      ],
+      "capabilities": [
+        "found_app_ovpn(",
+        "support_ipv6("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/vpnsrv.asp",
+      "provenance": "pinned base",
+      "fields": [
+        "VPNSACLList",
+        "VPNSACLList2",
+        "VPNSACLList_s",
+        "action_mode",
+        "action_script",
+        "button",
+        "button2",
+        "button3",
+        "current_page",
+        "flag",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "ovpnsvr.ca.crt",
+        "ovpnsvr.dh1024.pem",
+        "ovpnsvr.server.conf",
+        "ovpnsvr.server.crt",
+        "ovpnsvr.server.key",
+        "ovpnsvr.stc2.key",
+        "ovpnsvr.ta.key",
+        "scripts.vpns_client_script.sh",
+        "sid_list",
+        "vpns_actl",
+        "vpns_addr_x_0",
+        "vpns_auth",
+        "vpns_cast",
+        "vpns_cli0",
+        "vpns_cli1",
+        "vpns_enable",
+        "vpns_mppe",
+        "vpns_mru",
+        "vpns_mtu",
+        "vpns_num_x_0",
+        "vpns_ov_atls",
+        "vpns_ov_ciph",
+        "vpns_ov_compress",
+        "vpns_ov_mdig",
+        "vpns_ov_mode",
+        "vpns_ov_ncp_clist",
+        "vpns_ov_port",
+        "vpns_ov_prot",
+        "vpns_ov_rdgw",
+        "vpns_ov_tcv2",
+        "vpns_pass_x_0",
+        "vpns_rmsk_x_0",
+        "vpns_rnet_x_0",
+        "vpns_type",
+        "vpns_user_x_0",
+        "vpns_vnet",
+        "vpns_vuse"
+      ],
+      "capabilities": [
+        "found_app_ovpn(",
+        "support_ipv6(",
+        "support_openssl_ec("
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/wds_aplist.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/wds_aplist_2g.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/wol_action.asp",
+      "provenance": "pinned base",
+      "fields": [],
+      "capabilities": []
+    },
+    {
+      "path": "padavan-4.4/ports/doh/Advanced_Services_DoH.asp",
+      "provenance": "project overlay/ports",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "current_page",
+        "doh_bootstrap_dns",
+        "doh_enable",
+        "doh_listen_mode",
+        "doh_listen_port",
+        "doh_mode",
+        "doh_quic",
+        "doh_server0",
+        "doh_server1",
+        "doh_server2",
+        "doh_server3",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "sid_list"
+      ],
+      "capabilities": [
+        "found_app_doh("
+      ]
+    },
+    {
+      "path": "padavan-4.4/ports/privoxy/Advanced_Services_Privoxy.asp",
+      "provenance": "project overlay/ports",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "current_page",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "privoxy.config",
+        "privoxy.user.action",
+        "privoxy.user.filter",
+        "privoxy.user.trust",
+        "privoxy_enable",
+        "sid_list"
+      ],
+      "capabilities": [
+        "found_app_privoxy("
+      ]
+    },
+    {
+      "path": "padavan-4.4/ports/sqm/Advanced_SQM.asp",
+      "provenance": "project overlay/ports",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "current_page",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "sid_list",
+        "sqm_down_speed",
+        "sqm_enable",
+        "sqm_up_speed"
+      ],
+      "capabilities": []
+    },
+    {
+      "path": "padavan-4.4/ports/stubby/Advanced_Services_DoT.asp",
+      "provenance": "project overlay/ports",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "current_page",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "sid_list",
+        "stubby_enable",
+        "stubby_listen_mode",
+        "stubby_listen_port",
+        "stubby_mode",
+        "stubby_round_robin",
+        "stubby_server${i}",
+        "stubby_server_ip${i}"
+      ],
+      "capabilities": [
+        "found_app_stubby("
+      ]
+    },
+    {
+      "path": "padavan-4.4/trunk/user/www/n56u_ribbon_fixed/vpncli.asp",
+      "provenance": "project overlay/ports",
+      "fields": [
+        "action_mode",
+        "action_script",
+        "button",
+        "button2",
+        "current_page",
+        "dnsmasq.dnsmasq.ipset",
+        "flag",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "ovpncli.ca.crt",
+        "ovpncli.client.conf",
+        "ovpncli.client.crt",
+        "ovpncli.client.key",
+        "ovpncli.ta.key",
+        "scripts.vpnc_exclude_network.list",
+        "scripts.vpnc_post_script.sh",
+        "scripts.vpnc_remote_network.list",
+        "scripts.vpnc_server_script.sh",
+        "sid_list",
+        "vpnc_auth",
+        "vpnc_awg_contentpaddingaddition",
+        "vpnc_awg_disablecookies",
+        "vpnc_awg_h1",
+        "vpnc_awg_h2",
+        "vpnc_awg_h3",
+        "vpnc_awg_h4",
+        "vpnc_awg_headerprotectionkey",
+        "vpnc_awg_i1",
+        "vpnc_awg_i2",
+        "vpnc_awg_i3",
+        "vpnc_awg_i4",
+        "vpnc_awg_i5",
+        "vpnc_awg_jc",
+        "vpnc_awg_jmax",
+        "vpnc_awg_jmin",
+        "vpnc_awg_keepalivetimeout",
+        "vpnc_awg_maxhandshakeattempts",
+        "vpnc_awg_randomtrailers",
+        "vpnc_awg_rejectaftertime",
+        "vpnc_awg_rekeyaftertime",
+        "vpnc_awg_rekeytimeout",
+        "vpnc_awg_s1",
+        "vpnc_awg_s2",
+        "vpnc_awg_s3",
+        "vpnc_awg_s4",
+        "vpnc_clients",
+        "vpnc_clients_allowed",
+        "vpnc_dgw",
+        "vpnc_enable",
+        "vpnc_ipset",
+        "vpnc_ipset_allowed",
+        "vpnc_mppe",
+        "vpnc_mru",
+        "vpnc_mtu",
+        "vpnc_ov_atls",
+        "vpnc_ov_auth",
+        "vpnc_ov_ciph",
+        "vpnc_ov_cnat",
+        "vpnc_ov_compress",
+        "vpnc_ov_import",
+        "vpnc_ov_mdig",
+        "vpnc_ov_mode",
+        "vpnc_ov_ncp_clist",
+        "vpnc_ov_port",
+        "vpnc_ov_prot",
+        "vpnc_pass",
+        "vpnc_pdns",
+        "vpnc_peer",
+        "vpnc_pppd",
+        "vpnc_rmsk",
+        "vpnc_rnet",
+        "vpnc_sfw",
+        "vpnc_type",
+        "vpnc_user",
+        "vpnc_wg_if_addr",
+        "vpnc_wg_if_dns",
+        "vpnc_wg_if_preshared",
+        "vpnc_wg_if_private",
+        "vpnc_wg_if_public",
+        "vpnc_wg_import",
+        "vpnc_wg_mtu",
+        "vpnc_wg_peer_allowedips",
+        "vpnc_wg_peer_endpoint",
+        "vpnc_wg_peer_keepalive",
+        "vpnc_wg_peer_port",
+        "vpnc_wg_peer_public"
+      ],
+      "capabilities": [
+        "found_app_awg(",
+        "found_app_ovpn(",
+        "found_app_wg(",
+        "found_support_ipset(",
+        "support_ipv6("
+      ]
+    },
+    {
+      "path": "padavan-4.4/trunk/user/www/n56u_ribbon_fixed/vpnsrv.asp",
+      "provenance": "project overlay/ports",
+      "fields": [
+        "VPNSACLList",
+        "VPNSACLList2",
+        "VPNSACLList_s",
+        "action_mode",
+        "action_script",
+        "button",
+        "button2",
+        "button3",
+        "current_page",
+        "flag",
+        "form",
+        "group_id",
+        "hidden_frame",
+        "next_host",
+        "next_page",
+        "ovpnsvr.ca.crt",
+        "ovpnsvr.dh1024.pem",
+        "ovpnsvr.server.conf",
+        "ovpnsvr.server.crt",
+        "ovpnsvr.server.key",
+        "ovpnsvr.stc2.key",
+        "ovpnsvr.ta.key",
+        "scripts.vpns_client_script.sh",
+        "sid_list",
+        "vpns_actl",
+        "vpns_addr_x_0",
+        "vpns_auth",
+        "vpns_cast",
+        "vpns_cli0",
+        "vpns_cli1",
+        "vpns_enable",
+        "vpns_mppe",
+        "vpns_mru",
+        "vpns_mtu",
+        "vpns_num_x_0",
+        "vpns_ov_atls",
+        "vpns_ov_ciph",
+        "vpns_ov_compress",
+        "vpns_ov_mdig",
+        "vpns_ov_mode",
+        "vpns_ov_ncp_clist",
+        "vpns_ov_port",
+        "vpns_ov_prot",
+        "vpns_ov_rdgw",
+        "vpns_ov_tcv2",
+        "vpns_pass_x_0",
+        "vpns_rmsk_x_0",
+        "vpns_rnet_x_0",
+        "vpns_type",
+        "vpns_user_x_0",
+        "vpns_vnet",
+        "vpns_vuse",
+        "vpns_wg_ext_addr",
+        "vpns_wg_mtu",
+        "vpns_wg_port",
+        "vpns_wg_private",
+        "vpns_wg_public"
+      ],
+      "capabilities": [
+        "found_app_awg(",
+        "found_app_ovpn(",
+        "found_app_wg(",
+        "support_ipv6(",
+        "support_openssl_ec("
+      ]
+    }
+  ],
+  "base_menu_definitions": [
+    {
+      "line": 391,
+      "source": "var tablink = new Array(20);",
+      "targets": []
+    },
+    {
+      "line": 436,
+      "source": "tablink[0] = new Array(\"\", \"Advanced_Wireless2g_Content.asp\", \"Advanced_WGuest2g_Content.asp\", \"Advanced_WMode2g_Content.asp\", \"Advanced_ACL2g_Content.asp\", \"Advanced_WSecurity2g_Content.asp\", \"Advanced_WAdvanced2g_Content.asp\");",
+      "targets": [
+        "Advanced_Wireless2g_Content.asp",
+        "Advanced_WGuest2g_Content.asp",
+        "Advanced_WMode2g_Content.asp",
+        "Advanced_ACL2g_Content.asp",
+        "Advanced_WSecurity2g_Content.asp",
+        "Advanced_WAdvanced2g_Content.asp"
+      ]
+    },
+    {
+      "line": 437,
+      "source": "tablink[1] = new Array(\"\", \"Advanced_Wireless_Content.asp\", \"Advanced_WGuest_Content.asp\", \"Advanced_WMode_Content.asp\", \"Advanced_ACL_Content.asp\", \"Advanced_WSecurity_Content.asp\", \"Advanced_WAdvanced_Content.asp\");",
+      "targets": [
+        "Advanced_Wireless_Content.asp",
+        "Advanced_WGuest_Content.asp",
+        "Advanced_WMode_Content.asp",
+        "Advanced_ACL_Content.asp",
+        "Advanced_WSecurity_Content.asp",
+        "Advanced_WAdvanced_Content.asp"
+      ]
+    },
+    {
+      "line": 438,
+      "source": "tablink[2] = new Array(\"\", \"Advanced_LAN_Content.asp\", \"Advanced_DHCP_Content.asp\", \"Advanced_GWStaticRoute_Content.asp\", \"Advanced_IPTV_Content.asp\", \"Advanced_Switch_Content.asp\", \"Advanced_WOL_Content.asp\");",
+      "targets": [
+        "Advanced_LAN_Content.asp",
+        "Advanced_DHCP_Content.asp",
+        "Advanced_GWStaticRoute_Content.asp",
+        "Advanced_IPTV_Content.asp",
+        "Advanced_Switch_Content.asp",
+        "Advanced_WOL_Content.asp"
+      ]
+    },
+    {
+      "line": 439,
+      "source": "tablink[3] = new Array(\"\", \"Advanced_WAN_Content.asp\", \"Advanced_IPv6_Content.asp\", \"Advanced_VirtualServer_Content.asp\", \"Advanced_Exposed_Content.asp\", \"Advanced_DDNS_Content.asp\");",
+      "targets": [
+        "Advanced_WAN_Content.asp",
+        "Advanced_IPv6_Content.asp",
+        "Advanced_VirtualServer_Content.asp",
+        "Advanced_Exposed_Content.asp",
+        "Advanced_DDNS_Content.asp"
+      ]
+    },
+    {
+      "line": 440,
+      "source": "tablink[4] = new Array(\"\", \"Advanced_BasicFirewall_Content.asp\", \"Advanced_Netfilter_Content.asp\", \"Advanced_URLFilter_Content.asp\", \"Advanced_MACFilter_Content.asp\", \"Advanced_Firewall_Content.asp\");",
+      "targets": [
+        "Advanced_BasicFirewall_Content.asp",
+        "Advanced_Netfilter_Content.asp",
+        "Advanced_URLFilter_Content.asp",
+        "Advanced_MACFilter_Content.asp",
+        "Advanced_Firewall_Content.asp"
+      ]
+    },
+    {
+      "line": 441,
+      "source": "tablink[5] = new Array(\"\", \"Advanced_AiDisk_others.asp\", \"Advanced_AiDisk_samba.asp\", \"Advanced_AiDisk_ftp.asp\", \"Advanced_Modem_others.asp\", \"Advanced_Printer_others.asp\");",
+      "targets": [
+        "Advanced_AiDisk_others.asp",
+        "Advanced_AiDisk_samba.asp",
+        "Advanced_AiDisk_ftp.asp",
+        "Advanced_Modem_others.asp",
+        "Advanced_Printer_others.asp"
+      ]
+    },
+    {
+      "line": 442,
+      "source": "tablink[6] = new Array(\"\", \"Advanced_System_Content.asp\", \"Advanced_Services_Content.asp\", \"Advanced_OperationMode_Content.asp\", \"Advanced_FirmwareUpgrade_Content.asp\", \"Advanced_SettingBackup_Content.asp\", \"Advanced_Console_Content.asp\");",
+      "targets": [
+        "Advanced_System_Content.asp",
+        "Advanced_Services_Content.asp",
+        "Advanced_OperationMode_Content.asp",
+        "Advanced_FirmwareUpgrade_Content.asp",
+        "Advanced_SettingBackup_Content.asp",
+        "Advanced_Console_Content.asp"
+      ]
+    },
+    {
+      "line": 443,
+      "source": "tablink[7] = new Array(\"\", \"Advanced_Tweaks_Content.asp\", \"Advanced_Scripts_Content.asp\", \"Advanced_InetDetect_Content.asp\");",
+      "targets": [
+        "Advanced_Tweaks_Content.asp",
+        "Advanced_Scripts_Content.asp",
+        "Advanced_InetDetect_Content.asp"
+      ]
+    },
+    {
+      "line": 444,
+      "source": "tablink[8] = new Array(\"\", \"Main_WStatus2g_Content.asp\", \"Main_WStatus_Content.asp\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\");",
+      "targets": [
+        "Main_WStatus2g_Content.asp",
+        "Main_WStatus_Content.asp"
+      ]
+    },
+    {
+      "line": 445,
+      "source": "tablink[9] = new Array(\"\", \"Main_LogStatus_Content.asp\", \"Main_DHCPStatus_Content.asp\", \"Main_IPTStatus_Content.asp\", \"Main_RouteStatus_Content.asp\", \"Main_CTStatus_Content.asp\");",
+      "targets": [
+        "Main_LogStatus_Content.asp",
+        "Main_DHCPStatus_Content.asp",
+        "Main_IPTStatus_Content.asp",
+        "Main_RouteStatus_Content.asp",
+        "Main_CTStatus_Content.asp"
+      ]
+    },
+    {
+      "line": 448,
+      "source": "tablink[10] = (scutclient_array);",
+      "targets": []
+    },
+    {
+      "line": 452,
+      "source": "tablink[11] = (dns_forwarder_array);",
+      "targets": []
+    },
+    {
+      "line": 456,
+      "source": "tablink[12] = (shadowsocks_array);",
+      "targets": []
+    },
+    {
+      "line": 460,
+      "source": "tablink[13] = (mentohust_array);",
+      "targets": []
+    },
+    {
+      "line": 464,
+      "source": "tablink[14] = (ad_array);",
+      "targets": []
+    },
+    {
+      "line": 468,
+      "source": "tablink[15] = (smartdns_array);",
+      "targets": []
+    },
+    {
+      "line": 471,
+      "source": "tablink[15] = (adg_array);",
+      "targets": []
+    },
+    {
+      "line": 475,
+      "source": "tablink[16] = (aliddns_array);",
+      "targets": []
+    },
+    {
+      "line": 478,
+      "source": "tablink[16] = (zerotier_array);",
+      "targets": []
+    },
+    {
+      "line": 481,
+      "source": "tablink[16] = (ddnsto_array);",
+      "targets": []
+    },
+    {
+      "line": 484,
+      "source": "tablink[16] = (wireguard_array);",
+      "targets": []
+    },
+    {
+      "line": 488,
+      "source": "tablink[17] = (aldriver_arry);",
+      "targets": []
+    },
+    {
+      "line": 492,
+      "source": "tablink[18] = (sqm_array);",
+      "targets": []
+    },
+    {
+      "line": 496,
+      "source": "tablink[19] = (frp_array);",
+      "targets": []
+    },
+    {
+      "line": 498,
+      "source": "tablink[9].push('Advanced_frp_log.asp');",
+      "targets": [
+        "Advanced_frp_log.asp"
+      ]
+    },
+    {
+      "line": 544,
+      "source": "menuL2_link  = new Array(\"\", tablink[0][1], tablink[1][1], tablink[2][1], tablink[3][1], tablink[4][1], tablink[5][1], tablink[6][1], tablink[7][1], support_2g_radio() ? tablink[8][1] : \"Main_EStatus_Content.asp\", tablink[9][1]);",
+      "targets": [
+        "Main_EStatus_Content.asp"
+      ]
+    },
+    {
+      "line": 546,
+      "source": "menuL2_link.push(scutclient_array[1]);",
+      "targets": []
+    },
+    {
+      "line": 547,
+      "source": "} else menuL2_link.push(\"\");",
+      "targets": []
+    },
+    {
+      "line": 550,
+      "source": "menuL2_link.push(dns_forwarder_array[1]);",
+      "targets": []
+    },
+    {
+      "line": 551,
+      "source": "} else menuL2_link.push(\"\");",
+      "targets": []
+    },
+    {
+      "line": 554,
+      "source": "menuL2_link.push(shadowsocks_array[1]);",
+      "targets": []
+    },
+    {
+      "line": 555,
+      "source": "} else menuL2_link.push(\"\");",
+      "targets": []
+    },
+    {
+      "line": 558,
+      "source": "menuL2_link.push(mentohust_array[1]);",
+      "targets": []
+    },
+    {
+      "line": 559,
+      "source": "} else menuL2_link.push(\"\");",
+      "targets": []
+    },
+    {
+      "line": 562,
+      "source": "menuL2_link.push(ad_array[1]);",
+      "targets": []
+    },
+    {
+      "line": 563,
+      "source": "}  else menuL2_link.push(\"\");",
+      "targets": []
+    },
+    {
+      "line": 566,
+      "source": "menuL2_link.push(smartdns_array[1]);",
+      "targets": []
+    },
+    {
+      "line": 568,
+      "source": "menuL2_link.push(adg_array[1]);",
+      "targets": []
+    },
+    {
+      "line": 569,
+      "source": "} else menuL2_link.push(\"\");",
+      "targets": []
+    },
+    {
+      "line": 572,
+      "source": "menuL2_link.push(aliddns_array[1]);",
+      "targets": []
+    },
+    {
+      "line": 574,
+      "source": "menuL2_link.push(zerotier_array[1]);",
+      "targets": []
+    },
+    {
+      "line": 576,
+      "source": "menuL2_link.push(ddnsto_array[1]);",
+      "targets": []
+    },
+    {
+      "line": 578,
+      "source": "menuL2_link.push(wireguard_array[1]);",
+      "targets": []
+    },
+    {
+      "line": 579,
+      "source": "} else menuL2_link.push(\"\");",
+      "targets": []
+    },
+    {
+      "line": 582,
+      "source": "menuL2_link.push(aldriver_arry[1]);",
+      "targets": []
+    },
+    {
+      "line": 583,
+      "source": "} else menuL2_link.push(\"\");",
+      "targets": []
+    },
+    {
+      "line": 586,
+      "source": "menuL2_link.push(sqm_array[1]);",
+      "targets": []
+    },
+    {
+      "line": 587,
+      "source": "} else menuL2_link.push(\"\");",
+      "targets": []
+    },
+    {
+      "line": 590,
+      "source": "menuL2_link.push(frp_array[1]);",
+      "targets": []
+    },
+    {
+      "line": 591,
+      "source": "} else menuL2_link.push(\"\");",
+      "targets": []
+    },
+    {
+      "line": 595,
+      "source": "menuL1_link = new Array(\"\", \"index.asp\", \"\", \"vpnsrv.asp\", \"vpncli.asp\", \"Main_TrafficMonitor_realtime.asp\", \"Advanced_System_Info.asp\", \"as.asp\");",
+      "targets": [
+        "index.asp",
+        "vpnsrv.asp",
+        "vpncli.asp",
+        "Main_TrafficMonitor_realtime.asp",
+        "Advanced_System_Info.asp",
+        "as.asp"
+      ]
+    },
+    {
+      "line": 600,
+      "source": "menuL1_link[3] = '';",
+      "targets": []
+    },
+    {
+      "line": 605,
+      "source": "menuL1_link[4] = '';",
+      "targets": []
+    },
+    {
+      "line": 618,
+      "source": "tablink[2].splice(3,1);",
+      "targets": []
+    },
+    {
+      "line": 620,
+      "source": "tablink[3].splice(1,5);",
+      "targets": []
+    },
+    {
+      "line": 622,
+      "source": "tablink[4].splice(1,5);",
+      "targets": []
+    },
+    {
+      "line": 624,
+      "source": "tablink[5].splice(4,1);",
+      "targets": []
+    },
+    {
+      "line": 626,
+      "source": "tablink[9].splice(2,4);",
+      "targets": []
+    },
+    {
+      "line": 627,
+      "source": "tablink[2][1] = \"Advanced_APLAN_Content.asp\";",
+      "targets": [
+        "Advanced_APLAN_Content.asp"
+      ]
+    },
+    {
+      "line": 628,
+      "source": "menuL2_link[3] = tablink[2][1];",
+      "targets": []
+    },
+    {
+      "line": 629,
+      "source": "menuL2_link[4] = \"\";  //remove WAN",
+      "targets": []
+    },
+    {
+      "line": 631,
+      "source": "menuL2_link[5] = \"\";  //remove Firewall",
+      "targets": []
+    },
+    {
+      "line": 636,
+      "source": "tablink[2].splice(2,1);",
+      "targets": []
+    },
+    {
+      "line": 640,
+      "source": "tablink[3].splice(3,2);",
+      "targets": []
+    },
+    {
+      "line": 644,
+      "source": "tablink[3].splice(2,1);",
+      "targets": []
+    },
+    {
+      "line": 650,
+      "source": "tablink[8][i+3] = \"Main_EStatus_Content.asp#\"+i.toString();",
+      "targets": []
+    },
+    {
+      "line": 657,
+      "source": "tablink[8].splice(3+num_ephy,8-num_ephy);",
+      "targets": []
+    },
+    {
+      "line": 661,
+      "source": "menuL2_link[1] = \"\";  //remove 2G",
+      "targets": []
+    },
+    {
+      "line": 664,
+      "source": "tablink[0].splice(1,6);",
+      "targets": []
+    },
+    {
+      "line": 666,
+      "source": "tablink[8].splice(1,1);",
+      "targets": []
+    },
+    {
+      "line": 670,
+      "source": "menuL2_link[2] = \"\";  //remove 5GHz",
+      "targets": []
+    },
+    {
+      "line": 673,
+      "source": "tablink[1].splice(1,6);",
+      "targets": []
+    },
+    {
+      "line": 676,
+      "source": "tablink[8].splice(idx,1);",
+      "targets": []
+    },
+    {
+      "line": 681,
+      "source": "tablink[5].splice(1,5);",
+      "targets": []
+    },
+    {
+      "line": 682,
+      "source": "menuL2_link[6] = \"\";  //remove USB",
+      "targets": []
+    },
+    {
+      "line": 687,
+      "source": "tablink[5].splice(4,2);",
+      "targets": []
+    },
+    {
+      "line": 691,
+      "source": "tablink[5].splice(2,2);",
+      "targets": []
+    },
+    {
+      "line": 695,
+      "source": "tablink[5].splice(2,1);",
+      "targets": []
+    },
+    {
+      "line": 699,
+      "source": "tablink[5].splice(3,1);",
+      "targets": []
+    },
+    {
+      "line": 709,
+      "source": "menu1_code += '<li id=\"option'+i+'\"><a href=\"'+menuL1_link[i]+'\" title=\"'+menuL1_link[i]+'\"><i class=\"'+menuL1_icon[i]+'\"></i>&nbsp;&nbsp;'+menuL1_title[i]+'</a></li>\\n';",
+      "targets": []
+    },
+    {
+      "line": 720,
+      "source": "menu2_code += '<a href=\"'+menuL2_link[i]+'\"><i class=\"icon-minus\"></i>&nbsp;&nbsp;'+menuL2_title[i]+'</a>\\n';",
+      "targets": []
+    },
+    {
+      "line": 731,
+      "source": "if (L2==9 && i>0 && tablink[L2-1][i].indexOf(\"#\")>0)",
+      "targets": []
+    },
+    {
+      "line": 732,
+      "source": "tab_ref = tablink[L2-1][i];",
+      "targets": []
+    },
+    {
+      "line": 735,
+      "source": "tab_code += '<li><a href=\"' +tablink[L2-1][i]+ '\">'+tabtitle[L2-1][i]+'</a></li>\\n';",
+      "targets": []
+    }
+  ]
+}

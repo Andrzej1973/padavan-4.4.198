@@ -1,0 +1,113 @@
+option,value,enabled,line,category
+CONFIG_VENDOR,Ralink,True,7,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_PRODUCT,MT7621,True,8,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_PRODUCT_ID,"""WR1200JS""",True,11,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_LINUXDIR,linux-4.4.x,True,14,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_TYPE_ROOTFS_IN_RAM,y,False,23,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_WIFI2_DRIVER,4.1,True,30,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_WIFI5_DRIVER,3.0,True,31,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_ENABLE_IPV6,y,True,34,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_ENABLE_USB,y,True,37,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_FS_TOOLS,y,True,40,diagnostics/storage utility; shared UI candidate
+CONFIG_FIRMWARE_ENABLE_FAT,y,True,43,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_ENABLE_EXFAT,y,True,46,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_ENABLE_EXT2,y,False,49,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_ENABLE_EXT3,y,False,52,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_ENABLE_EXT4,y,True,55,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_ENABLE_XFS,y,False,58,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_ENABLE_HFS,y,False,61,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_ENABLE_FUSE,y,True,64,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_ENABLE_SWAP,y,True,67,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_UVC,y,False,70,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_HID,y,True,73,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_SERIAL,y,False,76,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_AUDIO,y,False,79,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_XFRM,y,True,82,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_QOS,y,True,85,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_IMQ,y,True,88,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_IFB,y,True,91,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_IPSET,y,True,94,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_NFSD,y,False,97,existing base UI; integration/device verification pending
+CONFIG_FIRMWARE_INCLUDE_NFSC,y,False,100,diagnostics/storage utility; shared UI candidate
+CONFIG_FIRMWARE_INCLUDE_CIFS,y,False,103,diagnostics/storage utility; shared UI candidate
+CONFIG_FIRMWARE_INCLUDE_SFE,y,True,106,existing base UI; integration/device verification pending
+CONFIG_FIRMWARE_ENABLE_BACKPORTED,y,False,109,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_BACKPORTED,y,False,112,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_LANG_BR,y,False,119,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_LANG_CN,y,False,120,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_LANG_CZ,y,False,121,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_LANG_DA,y,False,122,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_LANG_DE,y,False,123,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_LANG_ES,y,False,124,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_LANG_FI,y,False,125,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_LANG_FR,y,False,126,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_LANG_NO,y,False,127,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_LANG_PL,y,False,128,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_LANG_RU,y,True,129,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_LANG_SV,y,False,130,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_LANG_UK,y,True,131,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_VENDOR_LOGO,y,True,134,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_ENABLE_DNSMASQ_REGEX,y,True,137,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_NTFS_3G,y,True,140,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_LPRD,y,False,143,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_U2EC,y,True,146,existing basic controls; extend status
+CONFIG_FIRMWARE_INCLUDE_USBIP,y,True,149,missing service UI
+CONFIG_FIRMWARE_INCLUDE_TCPDUMP,y,True,152,diagnostics/storage utility; shared UI candidate
+CONFIG_FIRMWARE_INCLUDE_SOCAT,y,True,155,diagnostics/storage utility; shared UI candidate
+CONFIG_FIRMWARE_INCLUDE_NDISC6_RDISC6,y,True,158,diagnostics/storage utility; shared UI candidate
+CONFIG_FIRMWARE_INCLUDE_HDPARM,y,False,161,diagnostics/storage utility; shared UI candidate
+CONFIG_FIRMWARE_INCLUDE_PARTED,y,False,164,diagnostics/storage utility; shared UI candidate
+CONFIG_FIRMWARE_INCLUDE_SMBD,y,False,167,existing base UI; integration/device verification pending
+CONFIG_FIRMWARE_INCLUDE_SMBD36,y,False,170,existing base UI; integration/device verification pending
+CONFIG_FIRMWARE_INCLUDE_WINS,y,False,173,existing base UI; integration/device verification pending
+CONFIG_FIRMWARE_INCLUDE_SMBD_SYSLOG,y,False,176,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_TESTPARM,y,False,179,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_FTPD,y,False,182,existing base UI; integration/device verification pending
+CONFIG_FIRMWARE_INCLUDE_FTPD_SSL,y,False,183,existing base UI; integration/device verification pending
+CONFIG_FIRMWARE_INCLUDE_RPL2TP,y,False,186,optional service UI backlog; disabled
+CONFIG_FIRMWARE_INCLUDE_EAP_PEAP,y,True,189,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_DDNS_SSL,y,True,192,existing base UI; integration/device verification pending
+CONFIG_FIRMWARE_INCLUDE_HTTPS,y,True,195,existing base UI; integration/device verification pending
+CONFIG_FIRMWARE_INCLUDE_SFTP,y,False,198,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_DROPBEAR,y,True,201,existing base UI; integration/device verification pending
+CONFIG_FIRMWARE_INCLUDE_DROPBEAR_FAST_CODE,y,True,204,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_OPENSSH,y,False,207,existing base UI; integration/device verification pending
+CONFIG_FIRMWARE_INCLUDE_OPENVPN,y,False,210,existing base UI; integration/device verification pending
+CONFIG_FIRMWARE_INCLUDE_SSWAN,y,True,213,missing service UI
+CONFIG_FIRMWARE_INCLUDE_WIREGUARD,y,True,216,existing base UI; integration/device verification pending
+CONFIG_FIRMWARE_INCLUDE_AMNEZIAWG,y,True,219,project UI integration; device verification pending
+CONFIG_FIRMWARE_INCLUDE_OPENSSL_EC,y,True,222,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_OPENSSL_EXE,y,True,225,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_TOR,y,False,229,optional service UI backlog; disabled
+CONFIG_FIRMWARE_INCLUDE_TOR_GEOIP,y,False,233,optional service UI backlog; disabled
+CONFIG_FIRMWARE_INCLUDE_TOR_GEOIPV6,y,False,237,optional service UI backlog; disabled
+CONFIG_FIRMWARE_INCLUDE_OBFS4,y,False,240,optional service UI backlog; disabled
+CONFIG_FIRMWARE_INCLUDE_PRIVOXY,y,True,243,project UI integration; device verification pending
+CONFIG_FIRMWARE_INCLUDE_DNSCRYPT,y,False,246,optional service UI backlog; disabled
+CONFIG_FIRMWARE_INCLUDE_SMARTDNS,y,False,251,existing base UI; integration/device verification pending
+CONFIG_FIRMWARE_INCLUDE_STUBBY,y,True,254,project UI integration; device verification pending
+CONFIG_FIRMWARE_INCLUDE_DOH,y,True,257,project UI integration; device verification pending
+CONFIG_FIRMWARE_INCLUDE_CURL,y,True,260,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_QUIC,y,True,263,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_QUIC_NGTCP2,y,False,266,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_OPENSSL_10,y,False,270,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_OPENSSL_11,y,False,272,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_OPENSSL_35,y,True,274,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_WPAD,y,True,277,project UI integration; device verification pending
+CONFIG_FIRMWARE_INCLUDE_ZRAM,y,True,280,project UI integration; device verification pending
+CONFIG_FIRMWARE_INCLUDE_ADB,y,False,283,diagnostics/storage utility; shared UI candidate
+CONFIG_FIRMWARE_INCLUDE_LUA,y,True,286,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_EOIP,y,True,289,missing service UI
+CONFIG_FIRMWARE_INCLUDE_VLMCSD,y,True,292,existing basic controls; extend status
+CONFIG_FIRMWARE_INCLUDE_IPERF3,y,True,295,existing basic controls; extend status
+CONFIG_FIRMWARE_INCLUDE_NFQWS,y,False,299,optional service UI backlog; disabled
+CONFIG_FIRMWARE_INCLUDE_TPROXY,y,True,302,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_ZAPRET,y,False,306,optional service UI backlog; disabled
+CONFIG_FIRMWARE_INCLUDE_ZAPRET2,y,False,310,optional service UI backlog; disabled
+CONFIG_FIRMWARE_INCLUDE_QRENCODE,y,True,313,local Wi-Fi QR UI planned
+CONFIG_FIRMWARE_INCLUDE_REDSOCKS2,y,False,316,optional service UI backlog; disabled
+CONFIG_FIRMWARE_INCLUDE_ZEROTIER,y,True,319,project UI integration; device verification pending
+CONFIG_FIRMWARE_INCLUDE_SSREDIR,y,True,323,existing base UI; integration/device verification pending
+CONFIG_FIRMWARE_INCLUDE_SSLOCAL,y,True,326,existing base UI; integration/device verification pending
+CONFIG_CC_OPTIMIZE_FOR_SIZE,y,False,331,build/platform/library/kernel capability; no standalone service UI inferred
+CONFIG_FIRMWARE_INCLUDE_SQM,y,True,334,project UI integration; device verification pending
