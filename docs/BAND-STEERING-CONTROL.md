@@ -1,0 +1,7 @@
+# Candidate local service control
+
+The foreground daemon opens /var/run/wr-band-steering/control after acquiring its owner lock. AF_UNIX datagrams are nonblocking/CLOEXEC, in an owner-only directory (0700) with a 0600 socket. SO_PASSCRED kernel credentials must match the daemon effective UID; production main requires root. Existing regular/symlink or unsafe directory paths are refused. Socket cleanup checks recorded device/inode. The owner-lock prerequisite prevents two supported daemon instances replacing the endpoint.
+
+Exact STATUS and STOP newline-delimited requests are accepted; unknown, oversized or truncated requests do not alter state. STOP replies stop_requested_off_unverified, sets the loop stop flag, and uses the existing orderly two-radio shutdown. Replies to slow/vanished clients are best effort. A maximum four datagrams per poll preserves heartbeat progress. Failed/unknown status explicitly leaves hardware OFF unverified. stopped_session_complete means the session finished shutdown or had not attempted activation, not an unconditional assertion that every router radio has been checked.
+
+Real host Unix socket fixtures and target compilation/full daemon linkage are requested in isolated CI. No host router ioctl is executed. Local YAML validation is not proof of these C checks. This endpoint is not installed in firmware; a client CLI, terminal-state reporting after process exit, rc lifecycle/profile ownership and WebUI integration remain pending. Socket disappearance or a saved PID alone must never be interpreted as verified OFF.

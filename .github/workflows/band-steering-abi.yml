@@ -56,6 +56,9 @@ on:
       - 'tools/band-steering/check-profile-policy.c'
       - 'tools/band-steering/prepare-profile-integration.py'
       - 'tools/band-steering/prepare-profile-check.py'
+      - 'tools/band-steering/control.c'
+      - 'tools/band-steering/control.h'
+      - 'tools/band-steering/check-control.c'
 permissions:
   contents: read
 jobs:
@@ -263,6 +266,18 @@ jobs:
           test -n "$compiler"
           "$compiler" -std=c11 -Wall -Wextra -Werror -mips32r2 -mabi=32 \
             -msoft-float -O2 -c tools/band-steering/coordinator.c -o abi-results/coordinator-mips.o
+      - name: Verify local control socket and compile it for MIPS
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            tools/band-steering/control.c tools/band-steering/check-control.c \
+            -o abi-results/check-control
+          abi-results/check-control | tee abi-results/control-checks.txt
+          compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          "$compiler" -std=c11 -Wall -Wextra -Werror -mips32r2 -mabi=32 \
+            -msoft-float -O2 -c tools/band-steering/control.c -o abi-results/control-mips.o
       - name: Verify process event loop and link the daemon for MIPS
         shell: bash
         run: |
@@ -278,7 +293,7 @@ jobs:
           abi-results/check-loop | tee abi-results/loop-checks.txt
           all=(
             "${base[@]}" tools/band-steering/events.c tools/band-steering/framing.c
-            tools/band-steering/listener.c tools/band-steering/transport.c tools/band-steering/main.c
+            tools/band-steering/listener.c tools/band-steering/transport.c tools/band-steering/control.c tools/band-steering/main.c
           )
           gcc -std=c11 -Wall -Wextra -Werror -O2 -Iabi-results \
             "${all[@]}" -lrt -o abi-results/wr-band-steering-host

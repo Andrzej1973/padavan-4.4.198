@@ -2,6 +2,7 @@
 #include "loop.h"
 #include "listener.h"
 #include "transport.h"
+#include "control.h"
 #include <errno.h>
 #include <fcntl.h>
 #include <net/if.h>
@@ -17,6 +18,8 @@
 static volatile sig_atomic_t stopping;
 struct runtime {
     int command_fd, listener_fd;
+    struct wr_band_control control;
+    struct wr_band_coordinator *coordinator;
     struct wr_band_route routes[2];
     uint8_t buffer[65536];
 };
@@ -43,12 +46,21 @@ static int receive_events(void *ctx, wr_band_event_callback callback, void *owne
 }
 static int wait_events(void *ctx, int milliseconds)
 {
-    struct runtime *r = ctx; struct pollfd p;
-    int result;
-    memset(&p, 0, sizeof(p)); p.fd = r->listener_fd; p.events = POLLIN;
-    result = poll(&p, 1, milliseconds);
+    struct runtime *r = ctx; struct pollfd p[2];
+    int result, stop = 0; unsigned count;
+    memset(p, 0, sizeof(p)); p[0].fd = r->listener_fd; p[0].events = POLLIN;
+    p[1].fd = r->control.fd; p[1].events = POLLIN;
+    result = poll(p, 2, milliseconds);
     if (result < 0) return -1;
-    if (p.revents & (POLLERR | POLLHUP | POLLNVAL)) { errno = EIO; return -1; }
+    if ((p[0].revents | p[1].revents) & (POLLERR | POLLHUP | POLLNVAL)) { errno = EIO; return -1; }
+    if (p[1].revents & POLLIN) {
+        for (count = 0; count < 4; ++count) {
+            int received = wr_band_control_receive(&r->control, r->coordinator->session.phase, &stop);
+            if (received < 0) return -1;
+            if (!received) break;
+        }
+        if (stop) stopping = 1;
+    }
     return result;
 }
 static int requested_stop(void *ctx) { (void)ctx; return stopping != 0; }
@@ -80,6 +92,7 @@ int main(int argc, char **argv)
     uint8_t bytes[80]; uint64_t now; size_t i;
     int lock_fd = -1, result = 1;
     runtime.command_fd = runtime.listener_fd = -1;
+    runtime.control.fd = -1; runtime.coordinator = &coordinator;
     if (argc == 2 && !strcmp(argv[1], "--help")) {
         puts("Usage: wr-band-steering --foreground <mt76x3-2g-interface> <mt76x2-5g-interface>\n"
              "Candidate: requires prepared drivers and exclusive initialized profiles; no profile setup is performed.");
@@ -103,12 +116,17 @@ int main(int argc, char **argv)
     if (runtime.listener_fd < 0) { perror("event listener"); goto done; }
     runtime.command_fd = socket(AF_INET, SOCK_DGRAM | SOCK_CLOEXEC, 0);
     if (runtime.command_fd < 0 || clock_ms(NULL, &now)) { perror("command/clock setup"); goto done; }
+    if (wr_band_control_open(&runtime.control, "/var/run/wr-band-steering/control")) {
+        perror("control endpoint"); goto done;
+    }
     if (wr_band_coordinator_init(&coordinator, radios, &policy, now, send_command, &runtime)) goto done;
     result = wr_band_loop_run(&coordinator, &io, &runtime) ? 1 : 0;
     if (result) fprintf(stderr, "Steering failed; disable was best effort and radio OFF is unverified.\n");
 done:
+    wr_band_control_close(&runtime.control);
     if (runtime.command_fd >= 0) close(runtime.command_fd);
     if (runtime.listener_fd >= 0) close(runtime.listener_fd);
     if (lock_fd >= 0) close(lock_fd);
     return result;
 }
+
