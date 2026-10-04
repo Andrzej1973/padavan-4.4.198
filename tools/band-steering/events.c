@@ -36,6 +36,14 @@ int wr_band_decode(enum wr_band_protocol protocol, const uint8_t *p,
     result.action = p[0];
     if (protocol == WR_MT76X2) {
         switch (p[0]) {
+        case 0x73:
+            result.type = WR_EVENT_GRANT;
+            result.table_index = p[WR_MT76X2_TALBEINDEX];
+            result.grant_state = p[WR_MT76X2_RETURNCODE];
+            memcpy(result.mac, p + WR_MT76X2_ADDR, 6);
+            result.cookie = read_cookie(p + WR_MT76X2_TIME);
+            if (!result.cookie || result.table_index >= 64 || result.grant_state > 2) return -1;
+            break;
         case 5:
             result.type = WR_EVENT_IDLE;
             result.table_index = p[WR_MT76X2_TALBEINDEX];
@@ -69,6 +77,14 @@ int wr_band_decode(enum wr_band_protocol protocol, const uint8_t *p,
         }
     } else {
         switch (p[0]) {
+        case 0x73:
+            result.type = WR_EVENT_GRANT;
+            result.table_index = p[WR_MT76X3_DATA_IDLE_TABLEINDEX];
+            result.grant_state = p[WR_MT76X3_DATA_IDLE_RETURNCODE];
+            result.cookie = read_cookie(p + WR_MT76X3_DATA_IDLE_COOKIE);
+            memcpy(result.mac, p + WR_MT76X3_DATA_IDLE_ADDR, 6);
+            if (!result.cookie || result.table_index >= 64 || result.grant_state > 2) return -1;
+            break;
         case 0x71:
             result.type = WR_EVENT_IDLE;
             result.table_index = p[WR_MT76X3_DATA_IDLE_TABLEINDEX];

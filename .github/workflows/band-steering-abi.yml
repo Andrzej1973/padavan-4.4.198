@@ -37,6 +37,8 @@ on:
       - 'tools/band-steering/check-clients.c'
       - 'tools/band-steering/prepare-idle-aging.py'
       - 'tools/band-steering/prepare-idle-check.py'
+      - 'tools/band-steering/prepare-grant-readback.py'
+      - 'tools/band-steering/prepare-grant-check.py'
 permissions:
   contents: read
 jobs:
@@ -52,10 +54,13 @@ jobs:
           path: source
           sparse-checkout: |
             trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x2/include
+            trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x2/ap
             trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/include
             trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/ap
       - name: Prepare non-deauth idle-entry protocol
         run: python3 tools/band-steering/prepare-idle-aging.py source
+      - name: Prepare read-only grant queries
+        run: python3 tools/band-steering/prepare-grant-readback.py source
       - name: Download and verify the firmware toolchain
         shell: bash
         run: |
@@ -71,6 +76,7 @@ jobs:
           set -euo pipefail
           python3 tools/band-steering/prepare-abi-probe.py source --output abi-results
           cp source/band-steering-idle-preparation.json abi-results/
+          cp source/band-steering-grant-preparation.json abi-results/
           compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
           test -n "$compiler"
           "$compiler" --version > abi-results/compiler-version.txt
@@ -187,6 +193,20 @@ jobs:
           test -n "$compiler"
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -mips32r2 -mabi=32 \
             -msoft-float -O2 -c abi-results/check-idle-driver.c -o abi-results/idle-driver-case-mips.o
+      - name: Check the actual read-only grant cases
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/band-steering/prepare-grant-check.py source abi-results
+          compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          for radio in mt76x2 mt76x3; do
+            gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+              "abi-results/check-grant-$radio.c" -o "abi-results/check-grant-$radio"
+            "abi-results/check-grant-$radio" | tee "abi-results/grant-$radio-checks.txt"
+            "$compiler" -std=gnu11 -Wall -Wextra -Werror -mips32r2 -mabi=32 \
+              -msoft-float -O2 -c "abi-results/check-grant-$radio.c" -o "abi-results/grant-case-$radio-mips.o"
+          done
       - name: Upload ABI diagnostics
         if: always()
         uses: actions/upload-artifact@v7
