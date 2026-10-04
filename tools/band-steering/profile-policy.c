@@ -55,4 +55,45 @@ int wr_band_profile_validate(int requested, const struct wr_band_credentials ban
         strcmp(bands[0].crypto, bands[1].crypto) || strcmp(bands[0].psk, bands[1].psk))) return WR_PROFILE_MISMATCH;
     return WR_PROFILE_COMPATIBLE;
 }
+static int copy_setting(char *out, size_t capacity, const char *value)
+{
+    size_t length;
+    if (!bounded_text(value, capacity - 1, &length)) return 0;
+    memcpy(out, value, length + 1);
+    return 1;
+}
+static int integer_setting(const char *s, int maximum, int *out)
+{
+    if (!s || s[0] < '0' || s[0] > '0' + maximum || s[1]) return 0;
+    *out = s[0] - '0'; return 1;
+}
+int wr_band_profile_from_settings(int requested, wr_band_setting_getter get, void *context)
+{
+    struct snapshot { char ssid[33], auth[17], crypto[17], psk[65]; } storage[2];
+    struct wr_band_credentials bands[2];
+    size_t i, j; int result = WR_PROFILE_INVALID;
+    if (!requested) return WR_PROFILE_DISABLED;
+    if (requested != 1 || !get) return WR_PROFILE_INVALID;
+    memset(storage, 0, sizeof(storage)); memset(bands, 0, sizeof(bands));
+    for (i = 0; i < 2; ++i) {
+        struct snapshot *s = &storage[i]; struct wr_band_credentials *b = &bands[i];
+        if (!copy_setting(s->ssid, sizeof(s->ssid), get((int)i, "ssid", context)) ||
+            !copy_setting(s->auth, sizeof(s->auth), get((int)i, "auth_mode", context)) ||
+            !copy_setting(s->crypto, sizeof(s->crypto), get((int)i, "crypto", context)) ||
+            !copy_setting(s->psk, sizeof(s->psk), get((int)i, "wpa_psk", context)) ||
+            !integer_setting(get((int)i, "radio_x", context), 1, &b->radio_enabled) ||
+            !integer_setting(get((int)i, "closed", context), 1, &b->hidden) ||
+            !integer_setting(get((int)i, "wep_x", context), 2, &b->wep_enabled) ||
+            !integer_setting(get((int)i, "wpa_mode", context), 4, &b->wpa_mode)) goto done;
+        b->ssid = s->ssid; b->auth_mode = s->auth; b->crypto = s->crypto; b->psk = s->psk;
+    }
+    result = wr_band_profile_validate(requested, bands);
+done:
+    /* Do not leave copied PSKs in stack storage after returning a reason code. */
+    for (i = 0; i < 2; ++i) {
+        volatile char *secret = storage[i].psk;
+        for (j = 0; j < sizeof(storage[i].psk); ++j) secret[j] = 0;
+    }
+    return result;
+}
 

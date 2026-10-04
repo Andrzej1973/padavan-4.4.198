@@ -11,5 +11,8 @@ enum wr_band_profile_result {
 };
 /* Read-only: validates borrowed configuration strings; never modifies NVRAM. */
 int wr_band_profile_validate(int requested, const struct wr_band_credentials bands[2]);
+typedef const char *(*wr_band_setting_getter)(int band, const char *name, void *context);
+/* The caller must serialize settings updates across this snapshot and activation. */
+int wr_band_profile_from_settings(int requested, wr_band_setting_getter get, void *context);
 #endif
 

@@ -2,6 +2,19 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
+static int reads, mismatch, invalid;
+static const char *setting(int band, const char *name, void *context)
+{
+    static char reused[80]; const char *value = "0";
+    (void)context; ++reads;
+    if (!strcmp(name, "ssid")) value = band && mismatch ? "different" : "same";
+    else if (!strcmp(name, "auth_mode")) value = "psk";
+    else if (!strcmp(name, "crypto")) value = "aes";
+    else if (!strcmp(name, "wpa_psk")) value = "abcdefgh";
+    else if (!strcmp(name, "radio_x")) value = invalid ? "1junk" : "1";
+    else if (!strcmp(name, "wpa_mode")) value = "2";
+    strcpy(reused, value); return reused;
+}
 int main(void)
 {
     struct wr_band_credentials b[2] = {
@@ -9,6 +22,11 @@ int main(void)
         {1, 0, 0, 2, "same", "psk", "aes", "abcdefgh"}
     };
     char key[66], ssid[34]; int mode;
+    assert(wr_band_profile_from_settings(0, setting, NULL) == WR_PROFILE_DISABLED && !reads);
+    assert(wr_band_profile_from_settings(1, NULL, NULL) == WR_PROFILE_INVALID);
+    assert(wr_band_profile_from_settings(1, setting, NULL) == WR_PROFILE_COMPATIBLE && reads == 16);
+    mismatch = 1; assert(wr_band_profile_from_settings(1, setting, NULL) == WR_PROFILE_MISMATCH);
+    mismatch = 0; invalid = 1; assert(wr_band_profile_from_settings(1, setting, NULL) == WR_PROFILE_INVALID);
     assert(wr_band_profile_validate(0, NULL) == WR_PROFILE_DISABLED);
     assert(wr_band_profile_validate(2, b) == WR_PROFILE_INVALID);
     assert(wr_band_profile_validate(1, NULL) == WR_PROFILE_INVALID);
