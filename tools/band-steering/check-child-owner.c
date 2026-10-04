@@ -44,5 +44,7 @@ int main(void) {
     assert(!kill(pid,SIGKILL)); assert(waitpid(pid,0,0)==pid);
     assert(wr_band_child_stop(&pid,50)==-1 && errno==ECHILD);
     pid=0; assert(wr_band_child_stop(&pid,50)==-1 && errno==EINVAL);
+    assert(wr_band_child_spawn(&pid,"ra0","ra0")==-1 && pid==0);
+    assert(wr_band_child_spawn(&pid,"ra0;bad","rai0")==-1 && pid==0);
     puts("PASS owned child normal/error exit, timeout preserves ownership, missing child unverified"); return 0;
 }

@@ -12,4 +12,7 @@ int wr_band_child_stop(pid_t *owned_pid, unsigned timeout_ms);
  * restoring the pre-fork mask. The reaper records its waitpid status. */
 int wr_band_child_track(pid_t pid);
 void wr_band_child_reaped(pid_t pid, int status);
+/* Fixed executable and argument list; success means spawned, not ready/active.
+ * Caller must then await service/driver readiness and handle exec failure. */
+int wr_band_child_spawn(pid_t *, const char *radio2g, const char *radio5g);
 #endif

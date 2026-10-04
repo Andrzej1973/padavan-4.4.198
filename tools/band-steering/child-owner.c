@@ -5,7 +5,45 @@
 #include <stdint.h>
 #include <sys/wait.h>
 #include <time.h>
+#include <unistd.h>
+#include <ctype.h>
+#include <string.h>
+#include <net/if.h>
 static volatile sig_atomic_t tracked_pid, completed, exit_status;
+static int interface_valid(const char *name)
+{
+    size_t i, n;
+    if (!name) return 0;
+    n=strnlen(name,IF_NAMESIZE);
+    if (!n || n>=IF_NAMESIZE) return 0;
+    for(i=0;i<n;++i) if (!isalnum((unsigned char)name[i]) && name[i]!='_' && name[i]!='-' && name[i]!='.') return 0;
+    return 1;
+}
+int wr_band_child_spawn(pid_t *owned_pid, const char *radio2g, const char *radio5g)
+{
+    sigset_t blocked, previous, clean; pid_t pid; long maxfd, fd; int saved;
+    if (!owned_pid || *owned_pid || tracked_pid || !interface_valid(radio2g) ||
+        !interface_valid(radio5g) || !strcmp(radio2g,radio5g)) { errno=EINVAL; return -1; }
+    maxfd=sysconf(_SC_OPEN_MAX); if(maxfd<0) return -1;
+    sigemptyset(&blocked); sigaddset(&blocked,SIGCHLD);
+    if(sigprocmask(SIG_BLOCK,&blocked,&previous)) return -1;
+    pid=fork();
+    if(pid==0) {
+        sigemptyset(&clean);
+        if(sigprocmask(SIG_SETMASK,&clean,0)) _exit(127);
+        for(fd=3;fd<maxfd;++fd) close((int)fd);
+        execl("/usr/sbin/wr-band-steering","wr-band-steering","--foreground",radio2g,radio5g,(char *)0);
+        _exit(127);
+    }
+    saved=errno;
+    if(pid>0) {
+        /* Registration precedes unblocking, so even an immediate exec failure
+         * cannot be consumed by the generic reaper before ownership exists. */
+        completed=0; exit_status=0; tracked_pid=(sig_atomic_t)pid; *owned_pid=pid;
+    }
+    if(sigprocmask(SIG_SETMASK,&previous,0)) return -1;
+    errno=saved; return pid<0 ? -1 : 0;
+}
 int wr_band_child_track(pid_t pid)
 {
     sigset_t current;
