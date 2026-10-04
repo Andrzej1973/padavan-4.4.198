@@ -9,6 +9,9 @@
 #include <ctype.h>
 #include <string.h>
 #include <net/if.h>
+#ifndef WR_BAND_DAEMON_PATH
+#define WR_BAND_DAEMON_PATH "/usr/sbin/wr-band-steering"
+#endif
 static volatile sig_atomic_t tracked_pid, completed, exit_status;
 static int interface_valid(const char *name)
 {
@@ -32,7 +35,7 @@ int wr_band_child_spawn(pid_t *owned_pid, const char *radio2g, const char *radio
         sigemptyset(&clean);
         if(sigprocmask(SIG_SETMASK,&clean,0)) _exit(127);
         for(fd=3;fd<maxfd;++fd) close((int)fd);
-        execl("/usr/sbin/wr-band-steering","wr-band-steering","--foreground",radio2g,radio5g,(char *)0);
+        execl(WR_BAND_DAEMON_PATH,"wr-band-steering","--foreground",radio2g,radio5g,(char *)0);
         _exit(127);
     }
     saved=errno;
