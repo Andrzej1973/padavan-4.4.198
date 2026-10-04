@@ -8,6 +8,8 @@ struct wr_band_client {
     int8_t best_rssi[2];
     enum wr_band_connection connection[2];
     uint64_t first_seen, last_seen[2], last_rssi[2];
+    uint64_t activity;
+    uint8_t record_needs_sync[2]; /* An idle reply may remove a driver record even after new activity. */
 };
 struct wr_band_clients {
     struct wr_band_radio_config radios[2];

@@ -35,6 +35,8 @@ int wr_band_clients_observe(struct wr_band_clients *book, size_t radio,
         memcpy(book->entries[slot].mac, event->mac, 6);
         book->entries[slot].first_seen = now;
     }
+    if (book->entries[slot].activity == UINT64_MAX) return -1;
+    book->entries[slot].activity++;
     book->last_time = now;
     client = &book->entries[slot]; client->seen[radio] = 1; client->last_seen[radio] = now;
     if (event->type == WR_EVENT_DELETED) {
