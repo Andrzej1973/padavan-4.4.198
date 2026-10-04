@@ -1,7 +1,29 @@
 {
   "schema_version": 1,
   "boards": [
-    {"id": "wr1200js", "name": "YOUHUA WR1200JS", "config": "configs.build/wr1200js.config", "build_enabled": true, "recipe": "wr1200js", "status": "image-build-verified; device-runtime-pending"},
-    {"id": "mi-mini", "name": "Xiaomi Mi Mini", "config": "configs.build/mi-mini.config", "build_enabled": false, "recipe": null, "status": "board-port-pending; radio-object-probe-only"}
+    {
+      "id": "wr1200js",
+      "name": "YOUHUA WR1200JS",
+      "config": "configs.build/wr1200js.config",
+      "build_enabled": true,
+      "recipe": "wr1200js",
+      "status": "image-build-verified; device-runtime-pending"
+    },
+    {
+      "id": "mi-mini",
+      "name": "Xiaomi Mi Mini",
+      "config": "configs.build/mi-mini.config",
+      "build_enabled": false,
+      "recipe": null,
+      "status": "board-port-pending; radio-object-probe-only"
+    },
+    {
+      "id": "mi-4",
+      "name": "Xiaomi Mi 4",
+      "config": "configs.build/mi-4.config",
+      "build_enabled": false,
+      "recipe": null,
+      "status": "package-profile-added; board-recipe-and-image-build-pending"
+    }
   ]
 }
