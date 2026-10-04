@@ -62,6 +62,9 @@ on:
       - 'tools/band-steering/control-fixture-server.c'
       - 'tools/band-steering/check-control-client.py'
       - 'tools/band-steering/control.h'
+      - 'tools/band-steering/lifecycle.c'
+      - 'tools/band-steering/lifecycle.h'
+      - 'tools/band-steering/check-lifecycle.c'
       - 'tools/band-steering/check-control.c'
 permissions:
   contents: read
@@ -359,6 +362,17 @@ jobs:
               assert data[:6] == b'\x7fELF\x01\x01' and struct.unpack_from('<H', data, 18)[0] == 8
           print('PASS two MIPS package binaries staged without startup hooks')
           PY
+      - name: Verify coordinated profile lifecycle ordering
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            tools/band-steering/lifecycle.c tools/band-steering/check-lifecycle.c \
+            -o abi-results/check-lifecycle
+          abi-results/check-lifecycle | tee abi-results/lifecycle-checks.txt
+          compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
+          "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 \
+            -msoft-float -c tools/band-steering/lifecycle.c -o abi-results/lifecycle-mips.o
       - name: Check the prepared idle driver case
         shell: bash
         run: |
