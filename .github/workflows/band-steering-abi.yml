@@ -13,6 +13,9 @@ on:
       - 'tools/band-steering/transport.c'
       - 'tools/band-steering/transport.h'
       - 'tools/band-steering/check-transport.c'
+      - 'tools/band-steering/events.c'
+      - 'tools/band-steering/events.h'
+      - 'tools/band-steering/check-events.c'
 permissions:
   contents: read
 jobs:
@@ -71,6 +74,12 @@ jobs:
           abi-results/check-transport | tee abi-results/transport-checks.txt
           "$compiler" -std=c11 -Wall -Wextra -Werror -mips32r2 -mabi=32 \
             -msoft-float -O2 -c tools/band-steering/transport.c -o abi-results/transport-mips.o
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            -Iabi-results tools/band-steering/events.c tools/band-steering/check-events.c \
+            -o abi-results/check-events
+          abi-results/check-events | tee abi-results/event-checks.txt
+          "$compiler" -std=c11 -Wall -Wextra -Werror -mips32r2 -mabi=32 \
+            -msoft-float -O2 -Iabi-results -c tools/band-steering/events.c -o abi-results/events-mips.o
       - name: Upload ABI diagnostics
         if: always()
         uses: actions/upload-artifact@v7

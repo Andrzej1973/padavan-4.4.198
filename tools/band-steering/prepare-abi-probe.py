@@ -48,7 +48,10 @@ for radio in ('mt76x2', 'mt76x3'):
                    'data.cli_del.Addr', 'data.cli_del.TableIndex',
                    'data.inf_status_req.ucIfName', 'data.inf_status_rsp.bInfReady',
                    'data.inf_status_rsp.Channel', 'data.inf_status_rsp.ucIfName',
-                   'data.heartbeat.ucIfName']
+                   'data.heartbeat.ucIfName', 'data.cli_event.FrameType',
+                   'data.cli_event.Band', 'data.cli_event.Channel', 'data.cli_event.Addr',
+                   'data.cli_event.data.cli_probe.Rssi', 'data.cli_event.data.cli_auth.Rssi',
+                   'data.inf_status_rsp.band', 'data.reject_body.DaemonPid']
     values = ['0x424e4441u', 'sizeof(void *)', 'sizeof(ULONG)', 'sizeof(UINT64)',
               'sizeof(BNDSTRG_MSG)', '__alignof__(BNDSTRG_MSG)'] + [
               'offsetof(BNDSTRG_MSG, ' + f + ')' for f in fields]

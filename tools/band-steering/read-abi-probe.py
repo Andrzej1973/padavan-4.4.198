@@ -5,6 +5,7 @@ from pathlib import Path
 import json
 import struct
 import hashlib
+import re
 
 def read_layout(path, fields):
     data = path.read_bytes()
@@ -50,4 +51,14 @@ if __name__ == '__main__':
     output = {'target_compilation_verified': True, 'runtime_verified': False,
               'source_manifest': manifest, 'radios': results}
     (a.directory / 'abi-results.json').write_text(json.dumps(output, indent=2) + '\n', encoding='utf-8')
+    header = ['/* Generated from compiler-emitted MIPS ABI constants. */',
+              '#ifndef WR_BAND_LAYOUT_H', '#define WR_BAND_LAYOUT_H']
+    for radio, result in results.items():
+        prefix = 'WR_' + radio.upper() + '_'
+        header.append('#define ' + prefix + 'MESSAGE_SIZE ' + str(result['layout']['message_size']))
+        for field in manifest['radios'][radio]['fields'][6:]:
+            name = re.sub(r'[^A-Z0-9_]', '_', field.upper())
+            header.append('#define ' + prefix + name + ' ' + str(result['layout'][field]))
+    header.append('#endif')
+    (a.directory / 'protocol-layout.h').write_text('\n'.join(header) + '\n', encoding='utf-8')
     print(json.dumps(results, indent=2))
