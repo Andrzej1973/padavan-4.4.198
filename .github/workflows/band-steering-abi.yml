@@ -16,6 +16,10 @@ on:
       - 'tools/band-steering/events.c'
       - 'tools/band-steering/events.h'
       - 'tools/band-steering/check-events.c'
+      - 'tools/band-steering/framing.c'
+      - 'tools/band-steering/framing.h'
+      - 'tools/band-steering/check-framing.c'
+      - 'tools/band-steering/wext-abi.c'
 permissions:
   contents: read
 jobs:
@@ -80,6 +84,14 @@ jobs:
           abi-results/check-events | tee abi-results/event-checks.txt
           "$compiler" -std=c11 -Wall -Wextra -Werror -mips32r2 -mabi=32 \
             -msoft-float -O2 -Iabi-results -c tools/band-steering/events.c -o abi-results/events-mips.o
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            -Iabi-results tools/band-steering/events.c tools/band-steering/framing.c \
+            tools/band-steering/check-framing.c -o abi-results/check-framing
+          abi-results/check-framing | tee abi-results/framing-checks.txt
+          for file in framing wext-abi; do
+            "$compiler" -std=c11 -Wall -Wextra -Werror -mips32r2 -mabi=32 \
+              -msoft-float -O2 -Iabi-results -c "tools/band-steering/$file.c" -o "abi-results/$file-mips.o"
+          done
       - name: Upload ABI diagnostics
         if: always()
         uses: actions/upload-artifact@v7
