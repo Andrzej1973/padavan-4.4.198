@@ -24,6 +24,9 @@ int wr_band_session_tick(struct wr_band_session *, uint64_t now);
 int wr_band_session_event(struct wr_band_session *, size_t radio,
                           const struct wr_band_event *, uint64_t now);
 int wr_band_session_stop(struct wr_band_session *, uint64_t now);
+/* Exclusive-owner recovery: issue OFF to both radios without enabling either.
+ * Success of this call means sent only; both acknowledgements are required. */
+int wr_band_session_quiesce(struct wr_band_session *, uint64_t now);
 int wr_band_session_off_confirmed(const struct wr_band_session *);
 void wr_band_session_fault(struct wr_band_session *);
 #endif

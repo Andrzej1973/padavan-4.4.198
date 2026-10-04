@@ -90,15 +90,18 @@ int main(int argc, char **argv)
     const struct wr_band_loop_io io = {clock_ms, receive_events, wait_events, requested_stop};
     struct sigaction action; struct wr_band_request check = {0};
     uint8_t bytes[80]; uint64_t now; size_t i;
-    int lock_fd = -1, result = 1;
+    int lock_fd = -1, result = 1, quiesce = 0;
     runtime.command_fd = runtime.listener_fd = -1;
     runtime.control.fd = -1; runtime.coordinator = &coordinator;
     if (argc == 2 && !strcmp(argv[1], "--help")) {
-        puts("Usage: wr-band-steering --foreground <mt76x3-2g-interface> <mt76x2-5g-interface>\n"
+        puts("Usage: wr-band-steering --foreground|--quiesce <mt76x3-2g-interface> <mt76x2-5g-interface>\n"
              "Candidate: requires prepared drivers and exclusive initialized profiles; no profile setup is performed.");
         return 0;
     }
-    if (argc != 4 || strcmp(argv[1], "--foreground")) { fprintf(stderr, "Use --help for usage.\n"); return 2; }
+    if (argc != 4 || (strcmp(argv[1], "--foreground") && strcmp(argv[1], "--quiesce"))) {
+        fprintf(stderr, "Use --help for usage.\n"); return 2;
+    }
+    quiesce = !strcmp(argv[1], "--quiesce");
     if (geteuid() != 0) { fprintf(stderr, "Root is required.\n"); return 2; }
     for (i = 0; i < 2; ++i) {
         check.command = WR_QUERY; check.interface_name = argv[2 + i];
@@ -120,6 +123,7 @@ int main(int argc, char **argv)
         perror("control endpoint"); goto done;
     }
     if (wr_band_coordinator_init(&coordinator, radios, &policy, now, send_command, &runtime)) goto done;
+    if (quiesce && wr_band_session_quiesce(&coordinator.session, now)) goto done;
     result = wr_band_loop_run(&coordinator, &io, &runtime) ? 1 : 0;
     if (!result && !wr_band_session_off_confirmed(&coordinator.session)) {
         result = 3;

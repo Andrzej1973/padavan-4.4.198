@@ -55,6 +55,13 @@ int wr_band_session_off_confirmed(const struct wr_band_session *s)
 {
     return s && s->phase == WR_STOPPED && s->off_acknowledged[0] && s->off_acknowledged[1];
 }
+int wr_band_session_quiesce(struct wr_band_session *s, uint64_t now)
+{
+    if (!s || s->phase != WR_QUERYING || now < s->last_time ||
+        now > UINT64_MAX - 60000) return -1;
+    s->attempted[0] = s->attempted[1] = 1;
+    return wr_band_session_stop(s, now);
+}
 int wr_band_session_tick(struct wr_band_session *s, uint64_t now)
 {
     size_t i;

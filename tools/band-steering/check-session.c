@@ -92,6 +92,19 @@ int main(void)
     assert(wr_band_session_event(&s, 0, &e, 1) == 0 && !s.ready[0]);
     assert(!wr_band_session_stop(&s, 2) && s.phase == WR_STOPPED);
     assert(!wr_band_session_off_confirmed(&s));
+    memset(&f, 0, sizeof(f));
+    assert(!wr_band_session_init(&s, radios, 0, send_command, &f));
+    assert(!wr_band_session_quiesce(&s, 1) && s.phase == WR_STOPPING);
+    assert(f.disable[0] == 1 && f.disable[1] == 1 && !f.enable[0] && !f.enable[1]);
+    enabled(&s, 0, 0, 2);
+    assert(!wr_band_session_off_confirmed(&s));
+    enabled(&s, 1, 0, 3);
+    assert(wr_band_session_off_confirmed(&s));
+    assert(!wr_band_session_tick(&s, 4) && !f.enable[0] && !f.enable[1]);
+    memset(&f, 0, sizeof(f));
+    assert(!wr_band_session_init(&s, radios, 0, send_command, &f));
+    assert(!wr_band_session_quiesce(&s, 1));
+    assert(wr_band_session_tick(&s, 3001) == -1 && !wr_band_session_off_confirmed(&s));
     puts("PASS: two-radio readiness, enable acknowledgements, heartbeat, shutdown and failures; no driver calls");
     return 0;
 }
