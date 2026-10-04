@@ -329,6 +329,7 @@ jobs:
             padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
 
       - name: Build WR1200JS firmware
+        id: firmware_build
         run: |
           cd padavan-4.4
           make WR1200JS TOOLCHAIN=mipsel-linux-uclibc
@@ -645,6 +646,8 @@ jobs:
           sha256sum "$source_kernel/.config" > band-steering-driver-results/baseline-config.sha256
           python3 tools/band-steering/prepare-idle-aging.py "$root"
           python3 tools/band-steering/prepare-grant-readback.py "$root"
+          python3 tools/band-steering/prepare-wps-guards.py "$root"
+          python3 tools/band-steering/prepare-main-bss.py "$root"
           python3 tools/band-steering/configure-driver-probe.py "$kernel"
           compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
           test -n "$compiler"
@@ -685,6 +688,22 @@ jobs:
         with:
           name: band-steering-full-driver-probe
           path: band-steering-driver-results/
+          if-no-files-found: ignore
+
+      - name: Compile complete isolated rc with steering profile integration
+        if: ${{ !cancelled() && steps.firmware_build.conclusion == 'success' }}
+        run: |
+          set -euo pipefail
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          bash tools/band-steering/compile-rc-profile.sh "$PWD/padavan-4.4/trunk" \
+            "$RUNNER_TEMP/wr1200js-steering-rc-probe" "$compiler"
+      - name: Upload full rc profile integration diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: band-steering-full-rc-profile-probe
+          path: ${{ runner.temp }}/wr1200js-steering-rc-probe/results/
           if-no-files-found: ignore
 
       - name: Compile EoIP IPv4 candidate module
