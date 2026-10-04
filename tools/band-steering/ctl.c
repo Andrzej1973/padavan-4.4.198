@@ -3,6 +3,7 @@
 #include <poll.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
@@ -28,16 +29,28 @@ int main(int argc, char **argv)
     char reply[64];
     ssize_t n;
     int fd, one = 1, result = 1, authenticated = 0;
+    pid_t expected_pid = 0;
     if (argc == 2 && !strcmp(argv[1], "--help")) {
-        puts("Usage: wr-band-steering-ctl status|stop\n"
+        puts("Usage: wr-band-steering-ctl status|stop|status-pid PID\n"
              "STOP acknowledges a request, not proof that radios stopped steering.");
         return 0;
     }
-    if (argc != 2 || (strcmp(argv[1], "status") && strcmp(argv[1], "stop"))) {
+    if (argc == 3 && !strcmp(argv[1], "status-pid")) {
+        char *end;
+        long parsed;
+        const char *digit;
+        if (!argv[2][0]) return 2;
+        for (digit = argv[2]; *digit; ++digit)
+            if (*digit < '0' || *digit > '9') return 2;
+        errno = 0;
+        parsed = strtol(argv[2], &end, 10);
+        expected_pid = (pid_t)parsed;
+        if (errno || *end || parsed <= 1 || (long)expected_pid != parsed) return 2;
+    } else if (argc != 2 || (strcmp(argv[1], "status") && strcmp(argv[1], "stop"))) {
         fprintf(stderr, "Use --help for usage.\n"); return 2;
     }
     if (geteuid() != 0) { fprintf(stderr, "Root is required.\n"); return 2; }
-    request = !strcmp(argv[1], "status") ? "STATUS\n" : "STOP\n";
+    request = !strcmp(argv[1], "stop") ? "STOP\n" : "STATUS\n";
     if (lstat(WR_CONTROL_DIRECTORY, &st) || !S_ISDIR(st.st_mode) ||
         st.st_uid != 0 || (st.st_mode & 0777) != 0700) {
         fprintf(stderr, "Control directory unavailable or invalid; radio state unverified.\n"); return 1;
@@ -77,7 +90,8 @@ int main(int argc, char **argv)
         if (header->cmsg_level == SOL_SOCKET && header->cmsg_type == SCM_CREDENTIALS &&
             header->cmsg_len == CMSG_LEN(sizeof(credentials))) {
             memcpy(&credentials, CMSG_DATA(header), sizeof(credentials));
-            authenticated = credentials.uid == 0 && credentials.pid > 0;
+            authenticated = credentials.uid == 0 && credentials.pid > 0 &&
+                (!expected_pid || credentials.pid == expected_pid);
         }
     }
     if (!authenticated) goto invalid;

@@ -3,8 +3,8 @@ import os, subprocess, sys
 from pathlib import Path
 client, server, directory = sys.argv[1:]
 assert os.geteuid() == 0
-def invoke(command):
-    return subprocess.run([client, command], capture_output=True, text=True, timeout=4)
+def invoke(*commands):
+    return subprocess.run([client, *commands], capture_output=True, text=True, timeout=4)
 missing = invoke('status')
 assert missing.returncode == 1 and not missing.stdout and 'unverified' in missing.stderr
 p = subprocess.Popen([server, str(Path(directory)/'control')], stdout=subprocess.PIPE, text=True)
@@ -14,6 +14,13 @@ try:
     assert p.stdout.readline() == 'READY\n'
     active = invoke('status')
     assert active.returncode == 0 and active.stdout == 'active\n', active
+    owned = invoke('status-pid', str(p.pid))
+    assert owned.returncode == 0 and owned.stdout == 'active\n', owned
+    other = invoke('status-pid', str(p.pid + 1))
+    assert other.returncode == 1 and not other.stdout and 'unverified' in other.stderr, other
+    for bad in ('0', '1', '-1', '+2', '2x', '', '999999999999999999999999999'):
+        invalid_pid = invoke('status-pid', bad)
+        assert invalid_pid.returncode == 2 and not invalid_pid.stdout, invalid_pid
     invalid = invoke('invalid')
     assert invalid.returncode == 2 and not invalid.stdout
     stop = invoke('stop')
@@ -23,4 +30,4 @@ try:
     assert invoke('status').returncode == 1
 finally:
     if p.poll() is None: p.kill(); p.wait()
-print('PASS actual local client/server status and stop acknowledgement; radio behavior unverified')
+print('PASS actual local client/server status, expected daemon PID and stop acknowledgement; radio behavior unverified')
