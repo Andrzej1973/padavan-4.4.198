@@ -99,6 +99,23 @@ try:
     for chain in [b'ZTWR_INPUT',b'ZTWR_FORWARD']:
         if chain not in rc: raise ValueError('Missing base firewall overlay guard: '+chain.decode())
     checks['factory_defaults_and_compiled_firewall_guards']=True
+    storage=romfs/'sbin/mtd_storage.sh'
+    storage_source=a.source/'trunk/user/scripts/mtd_storage.sh'
+    if storage.read_bytes()!=storage_source.read_bytes():
+        raise ValueError('Missing or altered storage helper')
+    subprocess.run(['sh','-n',str(storage)],check=True)
+    storage_text=storage.read_text(encoding='utf-8')
+    for item in ['storage-transaction.lock','zerotier-one/peers.d','${hsh}.new']:
+        if item not in storage_text: raise ValueError('Missing persistence protection: '+item)
+    flock_path=next((x for x in [romfs/'usr/bin/flock',romfs/'bin/flock'] if x.exists() or x.is_symlink()),None)
+    if flock_path is None: raise ValueError('Missing target flock applet')
+    target(flock_path)
+    if b'flock' not in target(romfs/'bin/busybox').read_bytes():
+        raise ValueError('BusyBox lacks flock applet')
+    lifecycle=(romfs/'usr/bin/zerotier.sh').read_text(encoding='utf-8')
+    if 'persist_state_if_changed' not in lifecycle:
+        raise ValueError('Missing ZeroTier persistent-change handler')
+    checks['storage_assets_and_persistence_protections']=True
 except (ValueError,OSError,subprocess.CalledProcessError) as error:
     errors.append(str(error))
 result={'package':'zerotier','candidate_version':'1.16.2','checks':checks,'elf_files':visited,'errors':errors,'runtime_verified':False}

@@ -14,6 +14,7 @@ for helper in (
     'prepare-action-lock.py', 'prepare-monitor-lifecycle.py',
     'prepare-policy-lifecycle.py', 'prepare-firewall-hook.py',
     'prepare-service-dispatch.py',
+    'prepare-storage-persistence.py', 'prepare-persistence-events.py',
 ):
     subprocess.run([sys.executable, str(here / helper), str(root)], check=True)
 print('ZeroTier WebUI, lifecycle, monitor and firewall integrated; runtime verification pending')
