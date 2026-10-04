@@ -62,6 +62,7 @@ int wr_band_control_request(pid_t expected_pid, int stop, char output[64])
     /* A signal or timeout is an observation failure; do not resend STOP. */
     if (poll(&ready, 1, 2000) != 1 || !(ready.revents & POLLIN) ||
         (ready.revents & (POLLERR | POLLHUP | POLLNVAL))) {
+        errno = ETIMEDOUT;
         fprintf(stderr, "No valid control response; radio state unverified.\n"); goto done;
     }
     memset(&message, 0, sizeof(message));
@@ -91,6 +92,7 @@ int wr_band_control_request(pid_t expected_pid, int stop, char output[64])
     memcpy(output, reply, (size_t)n + 1);
     result = 0; goto done;
 invalid:
+    errno = EPROTO;
     fprintf(stderr, "Invalid control response; radio state unverified.\n"); goto done;
 error:
     perror("control request");

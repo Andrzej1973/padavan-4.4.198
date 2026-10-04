@@ -18,4 +18,8 @@ int wr_band_child_spawn(pid_t *, const char *radio2g, const char *radio5g);
 /* One bounded observation of our tracked live child and its authenticated
  * ACTIVE phase. Failure never discards ownership or proves driver OFF. */
 int wr_band_child_ready(pid_t owned_pid);
+/* Spawn and await ACTIVE from the tracked child. On failure preserve its PID
+ * and exit record for verified stop/cleanup. Caller must not alter profiles
+ * until cleanup confirms OFF. Maximum time is timeout_ms plus one 2s query. */
+int wr_band_child_start_verified(pid_t *, const char *, const char *, unsigned timeout_ms);
 #endif

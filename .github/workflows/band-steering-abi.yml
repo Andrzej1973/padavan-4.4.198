@@ -71,6 +71,8 @@ on:
       - 'tools/band-steering/child-owner.h'
       - 'tools/band-steering/check-child-owner.c'
       - 'tools/band-steering/check-child-ready.c'
+      - 'tools/band-steering/ready-daemon-fixture.c'
+      - 'tools/band-steering/check-start.c'
       - 'tools/band-steering/spawn-fixture.c'
       - 'tools/band-steering/check-spawn.c'
       - 'tools/band-steering/check-control.c'
@@ -405,6 +407,23 @@ jobs:
             -o abi-results/check-child-ready
           sudo timeout 15 abi-results/check-child-ready "$test_dir/control" \
             | tee abi-results/child-ready-checks.txt
+          sudo rmdir "$test_dir"
+      - name: Verify foreground spawn and authenticated readiness
+        shell: bash
+        run: |
+          set -euo pipefail
+          test_dir="$(mktemp -d /tmp/wr-start-check-XXXXXX)"
+          sudo chown root:root "$test_dir"
+          gcc -std=c11 -Wall -Wextra -Werror -O2 \
+            -DWR_READY_ENDPOINT=\""$test_dir/control"\" \
+            tools/band-steering/control.c tools/band-steering/ready-daemon-fixture.c \
+            -o abi-results/ready-daemon-fixture
+          gcc -std=c11 -Wall -Wextra -Werror -O2 \
+            -DWR_CONTROL_DIRECTORY=\""$test_dir"\" \
+            -DWR_BAND_DAEMON_PATH=\""$PWD/abi-results/ready-daemon-fixture"\" \
+            tools/band-steering/control-client.c tools/band-steering/child-owner.c \
+            tools/band-steering/check-start.c -o abi-results/check-start
+          sudo timeout 15 abi-results/check-start | tee abi-results/start-ready-checks.txt
           sudo rmdir "$test_dir"
       - name: Verify actual fixed executable spawn contract
         shell: bash

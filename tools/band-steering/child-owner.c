@@ -99,6 +99,21 @@ static int milliseconds(uint64_t *out)
     *out = (uint64_t)t.tv_sec * 1000 + (uint64_t)t.tv_nsec / 1000000;
     return 0;
 }
+int wr_band_child_start_verified(pid_t *owned_pid, const char *radio2g,
+                                  const char *radio5g, unsigned timeout_ms)
+{
+    uint64_t start, now;
+    struct timespec delay = {0, 20000000};
+    if (!timeout_ms || timeout_ms > 10000) { errno = EINVAL; return -1; }
+    if (milliseconds(&start) || wr_band_child_spawn(owned_pid, radio2g, radio5g)) return -1;
+    for (;;) {
+        if (!wr_band_child_ready(*owned_pid)) return 0;
+        if (errno == ECHILD || errno == EINVAL || errno == EPERM) return -1;
+        if (milliseconds(&now)) return -1;
+        if (now < start || now - start >= timeout_ms) { errno = ETIMEDOUT; return -1; }
+        (void)nanosleep(&delay, 0);
+    }
+}
 static int wait_owned(pid_t *owned_pid, unsigned timeout_ms)
 {
     uint64_t start, now; int status, signalled = 0; pid_t found;
