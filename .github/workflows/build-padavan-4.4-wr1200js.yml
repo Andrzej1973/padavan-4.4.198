@@ -64,6 +64,7 @@ jobs:
           cp overlay/padavan-4.4/trunk/libs/libqrencode/Makefile \
             padavan-4.4/trunk/libs/libqrencode/Makefile
           python3 overlay/padavan-4.4/scripts/add-qrencode.py padavan-4.4
+          python3 overlay/padavan-4.4/scripts/add-udpxy-selector.py padavan-4.4
           mkdir -p padavan-4.4/trunk/user/ndisc6
           cp overlay/padavan-4.4/trunk/user/ndisc6/Makefile \
             padavan-4.4/trunk/user/ndisc6/Makefile
@@ -333,6 +334,9 @@ jobs:
         run: |
           cd padavan-4.4
           make WR1200JS TOOLCHAIN=mipsel-linux-uclibc
+          test ! -e trunk/romfs/usr/sbin/udpxy
+          test ! -e trunk/romfs/usr/bin/msd_lite
+          test ! -e trunk/romfs/etc_ro/msd_lite.conf
           python3 ../overlay/padavan-4.4/scripts/set-nfs-kernel-options.py \
             ../configs.build/wr1200js.config trunk/linux-4.4.x/.config --verify
           set -x
