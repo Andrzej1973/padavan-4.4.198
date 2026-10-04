@@ -1,0 +1,19 @@
+{
+  "run": 37205898200,
+  "artifact": 11305311394,
+  "zip_sha256": "c9cd333744c6c6743cabf82bbadb13f248c68bc405a366acc29a152cf9033393",
+  "entries": [
+    {
+      "name": "WR1200JS_4.4.198.9-100.trx",
+      "bytes": 13275029,
+      "sha256": "11ce2afaacb39e146a923e99d4fb4c8d977bb5bc264afedce1ea8f852d94f4ba"
+    },
+    {
+      "name": "wr1200js.config",
+      "bytes": 10500,
+      "sha256": "36e1980aaf7df26526bbce21ff57093d731e57ae4cfc01a76042284a2a06944e"
+    }
+  ],
+  "runtime_verified": false
+}
+
