@@ -65,6 +65,7 @@ jobs:
             padavan-4.4/trunk/libs/libqrencode/Makefile
           python3 overlay/padavan-4.4/scripts/add-qrencode.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/add-udpxy-selector.py padavan-4.4
+          python3 overlay/padavan-4.4/scripts/prepare-ttyd-optional.py padavan-4.4
           mkdir -p padavan-4.4/trunk/user/ndisc6
           cp overlay/padavan-4.4/trunk/user/ndisc6/Makefile \
             padavan-4.4/trunk/user/ndisc6/Makefile
@@ -337,6 +338,12 @@ jobs:
           test ! -e trunk/romfs/usr/sbin/udpxy
           test ! -e trunk/romfs/usr/bin/msd_lite
           test ! -e trunk/romfs/etc_ro/msd_lite.conf
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_TTYD=y$' trunk/.config; then
+            test -x trunk/romfs/usr/bin/ttyd
+            test -x trunk/romfs/usr/bin/ttyd.sh
+            readelf -h trunk/romfs/usr/bin/ttyd | grep -q 'Machine:.*MIPS'
+            grep -q 'ttyd -- -W -i br0' trunk/romfs/usr/bin/ttyd.sh
+          fi
           python3 ../overlay/padavan-4.4/scripts/set-nfs-kernel-options.py \
             ../configs.build/wr1200js.config trunk/linux-4.4.x/.config --verify
           set -x
