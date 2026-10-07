@@ -55,6 +55,8 @@ on:
       - 'tools/band-steering/profile-policy.h'
       - 'tools/band-steering/check-profile-policy.c'
       - 'tools/band-steering/prepare-profile-integration.py'
+      - 'tools/band-steering/prepare-profile-snapshot.py'
+      - 'tools/band-steering/prepare-profile-snapshot-check.py'
       - 'tools/band-steering/prepare-profile-check.py'
       - 'tools/band-steering/prepare-wifi-lifecycle.py'
       - 'tools/band-steering/prepare-wifi-check.py'
@@ -207,6 +209,21 @@ jobs:
           compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
           "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 \
             -msoft-float -c tools/band-steering/settings-snapshot.c -o abi-results/settings-snapshot-mips.o
+      - name: Verify actual profile snapshot wrappers
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/band-steering/prepare-profile-snapshot.py source
+          python3 tools/band-steering/prepare-profile-snapshot-check.py source abi-results
+          cp source/band-steering-profile-snapshot.json abi-results/
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -Iabi-results \
+            abi-results/wr-band-settings-snapshot.c abi-results/profile-snapshot-check.c \
+            -o abi-results/check-profile-snapshot
+          abi-results/check-profile-snapshot | tee abi-results/profile-snapshot-checks.txt
+          compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
+          "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 \
+            -msoft-float -Iabi-results -c abi-results/profile-snapshot-check.c \
+            -o abi-results/profile-snapshot-mips.o
       - name: Verify byte encoders and compile the MIPS adapter
         shell: bash
         run: |
