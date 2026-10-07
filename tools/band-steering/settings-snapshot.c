@@ -70,10 +70,11 @@ const char *wr_band_snapshot_wlan_get(const struct wr_band_settings_snapshot *s,
     char key[64];
     size_t length;
     int written;
-    if ((band!=0 && band!=1) || !name || !*name || strchr(name,'=')) return 0;
+    if ((band!=0 && band!=1) || !name || !*name) return 0;
     /* Bounded read: prefix + underscore + name + terminating NUL. */
     for(length=0;length<sizeof(key)-3 && name[length];++length) {}
     if(length>=sizeof(key)-3) return 0;
+    if(memchr(name,'=',length)) return 0;
     written=snprintf(key,sizeof(key),"%s_%s",band?"wl":"rt",name);
     if(written<0 || (size_t)written>=sizeof(key)) return 0;
     return wr_band_snapshot_get(s,key);
