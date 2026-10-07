@@ -33,6 +33,24 @@ if dispatch.count(shutdown_anchor) != 1:
     raise ValueError('Shutdown ordering anchor changed; no files written')
 dispatch = dispatch.replace(shutdown_anchor,
     '#ifdef USE_WR_BAND_STEERING_PROFILE\n\twr_band_wifi_shutdown();\n#endif\n' + shutdown_anchor)
+boot_anchor = '\tgen_ralink_config_2g(0);\n\tgen_ralink_config_5g(0);\n\tload_wireless_modules();\n'
+ready_anchor = '\tstart_services_once(is_ap_mode);\n'
+if dispatch.count(boot_anchor) != 1 or dispatch.count(ready_anchor) != 1:
+    raise ValueError('Boot Wi-Fi ordering anchors changed; no files written')
+boot = '''#ifdef USE_WR_BAND_STEERING_PROFILE
+\tnvram_set_int_temp("wr_bs_boot_profiles_ready", 0);
+\tif (!wr_band_generate_profiles(0)) {
+\t\tload_wireless_modules();
+\t\tnvram_set_int_temp("wr_bs_boot_profiles_ready", 1);
+\t} else {
+\t\tlogmessage("Band Steering", "Boot profile write failed; wireless modules not loaded");
+\t}
+#else
+''' + boot_anchor + '#endif\n'
+dispatch = dispatch.replace(boot_anchor, boot).replace(ready_anchor,
+    ready_anchor + '#ifdef USE_WR_BAND_STEERING_PROFILE\n\twr_band_wifi_startup();\n#endif\n')
+dispatch = dispatch.replace('#include "wr-band-wifi-lifecycle.h"\n',
+    '#include "wr-band-wifi-lifecycle.h"\n#include "wr-band-profile-io.h"\n')
 if text.count('#include "rc.h"\n') != 1 or 'wr_band_apply_wifi_settings' in text:
     raise ValueError('Wi-Fi integration anchor changed; no files written')
 for name in ['wr-band-profile-io.h', 'wr-band-service-owner.h']:
@@ -45,6 +63,7 @@ helper = r'''
 #include "wr-band-profile-policy.h"
 static struct wr_band_service_owner wr_wifi_owner;
 static int wr_wifi_applying;
+static int wr_wifi_last_status;
 struct wr_wifi_apply_context { int radio2g, radio5g; };
 static const char *wr_wifi_setting(int band, const char *name, void *context)
 {
@@ -113,6 +132,7 @@ int wr_band_handle_wifi_restart(int band, int radio_on)
     /* Incompatible settings/radio schedules disable steering, preserving the
      * user's new Wi-Fi settings and persistent requested enable flag. */
     status = wr_band_apply_wifi_settings(enabled, !!radio2g, !!radio5g, &result);
+    wr_wifi_last_status = status;
     nvram_set_int_temp("wr_bs_apply_state", result.state);
     nvram_set_int_temp("wr_bs_off_confirmed", result.off_confirmed);
     if (status)
@@ -134,6 +154,19 @@ int wr_band_wifi_shutdown(void)
         logmessage("Band Steering", "Shutdown OFF acknowledgement unverified");
     return status;
 }
+int wr_band_wifi_startup(void)
+{
+    int radio2g;
+    if (!nvram_match("wr_bs_enable", "1")) return 0;
+    if (!nvram_match("wr_bs_boot_profiles_ready", "1")) {
+        nvram_set_int_temp("wr_bs_apply_state", WR_APPLY_PROFILE_ERROR);
+        nvram_set_int_temp("wr_bs_off_confirmed", 0);
+        return -1;
+    }
+    radio2g = get_enabled_radio_rt();
+    if (radio2g) radio2g = is_radio_allowed_rt();
+    return wr_band_handle_wifi_restart(0, !!radio2g) ? wr_wifi_last_status : -1;
+}
 #endif
 '''
 for name, band in [('restart_wifi_rt', 0), ('restart_wifi_wl', 1)]:
@@ -154,6 +187,7 @@ int wr_band_apply_wifi_settings(int enabled, int radio2g, int radio5g,
                                struct wr_band_apply_result *result);
 int wr_band_handle_wifi_restart(int band, int radio_on);
 int wr_band_wifi_shutdown(void);
+int wr_band_wifi_startup(void);
 #endif
 ''')
 print('Paired rc callbacks and dedicated steering apply event installed; global settings serialization pending')
