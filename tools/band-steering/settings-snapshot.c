@@ -3,6 +3,7 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 void wr_band_snapshot_release(struct wr_band_settings_snapshot *s)
 {
     size_t i;
@@ -63,4 +64,17 @@ const char *wr_band_snapshot_get(const struct wr_band_settings_snapshot *s,const
         if ((size_t)(eq-s->data-offset)==length && !memcmp(s->data+offset,key,length)) return eq+1;
     }
     return 0;
+}
+const char *wr_band_snapshot_wlan_get(const struct wr_band_settings_snapshot *s,int band,const char *name)
+{
+    char key[64];
+    size_t length;
+    int written;
+    if ((band!=0 && band!=1) || !name || !*name || strchr(name,'=')) return 0;
+    /* Bounded read: prefix + underscore + name + terminating NUL. */
+    for(length=0;length<sizeof(key)-3 && name[length];++length) {}
+    if(length>=sizeof(key)-3) return 0;
+    written=snprintf(key,sizeof(key),"%s_%s",band?"wl":"rt",name);
+    if(written<0 || (size_t)written>=sizeof(key)) return 0;
+    return wr_band_snapshot_get(s,key);
 }
