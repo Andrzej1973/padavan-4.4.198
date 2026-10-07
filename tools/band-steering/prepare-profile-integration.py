@@ -52,6 +52,30 @@ new_text = text.replace(include, include + helper).replace(old,
     '\n#ifdef USE_WR_BAND_STEERING_PROFILE\n'
     '\twr_band_write_profile(fp, is_aband, i_ssid_num);\n'
     '#else' + old + '#endif\n')
+profile_end = '''\tload_user_config(fp, "/etc/storage/wlan", (is_aband) ? "AP_5G.dat" : "AP.dat", NULL);
+
+\tfclose(fp);
+
+\treturn 0;
+}'''
+if new_text.count(profile_end) != 1:
+    raise ValueError('Profile completion anchor changed; no files written')
+checked_end = '''\tload_user_config(fp, "/etc/storage/wlan", (is_aband) ? "AP_5G.dat" : "AP.dat", NULL);
+
+#ifdef USE_WR_BAND_STEERING_PROFILE
+\t{
+\t\tint failed = ferror(fp);
+\t\t/* fclose must run even when an earlier buffered write failed. */
+\t\tif (fclose(fp) != 0)
+\t\t\tfailed = 1;
+\t\treturn failed ? -1 : 0;
+\t}
+#else
+\tfclose(fp);
+\treturn 0;
+#endif
+}'''
+new_text = new_text.replace(profile_end, checked_end)
 gate = '''ifeq ($(CONFIG_FIRMWARE_INCLUDE_WR_BAND_STEERING),y)
 CFLAGS += -DUSE_WR_BAND_STEERING_PROFILE
 OBJS += wr-band-profile-policy.o
