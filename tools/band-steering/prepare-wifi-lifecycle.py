@@ -28,6 +28,11 @@ event = r'''#ifdef USE_WR_BAND_STEERING_PROFILE
 #endif
 '''
 dispatch = dispatch.replace('#include "rc.h"\n', '#include "rc.h"\n#ifdef USE_WR_BAND_STEERING_PROFILE\n#include "wr-band-wifi-lifecycle.h"\n#endif\n').replace(anchor, event + anchor)
+shutdown_anchor = '\tstop_8021x_all();\n\tstop_wifi_all_wl();\n\tstop_wifi_all_rt();\n'
+if dispatch.count(shutdown_anchor) != 1:
+    raise ValueError('Shutdown ordering anchor changed; no files written')
+dispatch = dispatch.replace(shutdown_anchor,
+    '#ifdef USE_WR_BAND_STEERING_PROFILE\n\twr_band_wifi_shutdown();\n#endif\n' + shutdown_anchor)
 if text.count('#include "rc.h"\n') != 1 or 'wr_band_apply_wifi_settings' in text:
     raise ValueError('Wi-Fi integration anchor changed; no files written')
 for name in ['wr-band-profile-io.h', 'wr-band-service-owner.h']:
@@ -116,6 +121,19 @@ int wr_band_handle_wifi_restart(int band, int radio_on)
     /* Never bypass failed OFF proof with an ordinary uncoordinated restart. */
     return 1;
 }
+int wr_band_wifi_shutdown(void)
+{
+    int status;
+    /* No work when steering has never been requested or owned. This is not
+     * a driver OFF observation and does not publish OFF confirmation. */
+    if (!wr_wifi_owner.pid && !nvram_match("wr_bs_enable", "1")) return 0;
+    status = wr_band_service_quiesce(&wr_wifi_owner, IFNAME_2G_MAIN, IFNAME_5G_MAIN);
+    nvram_set_int_temp("wr_bs_apply_state", status ? WR_APPLY_OFF_UNVERIFIED : WR_APPLY_OFF_CONFIRMED);
+    nvram_set_int_temp("wr_bs_off_confirmed", !status);
+    if (status)
+        logmessage("Band Steering", "Shutdown OFF acknowledgement unverified");
+    return status;
+}
 #endif
 '''
 for name, band in [('restart_wifi_rt', 0), ('restart_wifi_wl', 1)]:
@@ -135,6 +153,7 @@ dispatch_path.write_text(dispatch)
 int wr_band_apply_wifi_settings(int enabled, int radio2g, int radio5g,
                                struct wr_band_apply_result *result);
 int wr_band_handle_wifi_restart(int band, int radio_on);
+int wr_band_wifi_shutdown(void);
 #endif
 ''')
 print('Paired rc callbacks and dedicated steering apply event installed; global settings serialization pending')

@@ -15,6 +15,10 @@ test=r'''
 #define IFNAME_5G_MAIN "rai0"
 static int calls[32], count, incompatible, write_failed, interface_failed;
 static int requested;
+static int stop_failed;
+static void mark(int v);
+int wr_band_service_quiesce(struct wr_band_service_owner *owner,const char *a,const char *b)
+{ assert(owner && !strcmp(a,IFNAME_2G_MAIN) && !strcmp(b,IFNAME_5G_MAIN)); mark(9); if(!stop_failed)owner->pid=0;return stop_failed; }
 static int nvram_match(const char *key,const char *value)
 { assert(!strcmp(key,"wr_bs_enable") && !strcmp(value,"1"));return requested; }
 static int get_enabled_radio_rt(void) { return 1; }
@@ -77,6 +81,12 @@ int main(void)
  assert(wr_band_handle_wifi_restart(0,1)==1);
  assert(calls[0]==1 && calls[1]==2 && calls[count-1]==2);
  for (int i=0;i<count;++i) assert(calls[i]!=8);
+ count=0;requested=0;
+ assert(!wr_band_wifi_shutdown() && !count);
+ wr_wifi_owner.pid=42;stop_failed=-1;
+ assert(wr_band_wifi_shutdown()==-1 && count==1 && calls[0]==9 && wr_wifi_owner.pid==42);
+ count=0;stop_failed=0;
+ assert(!wr_band_wifi_shutdown() && count==1 && !wr_wifi_owner.pid);
  puts("PASS actual rc callback ordering/failure paths with mocked radio/service operations; device behavior unverified");
  return 0;
 }
