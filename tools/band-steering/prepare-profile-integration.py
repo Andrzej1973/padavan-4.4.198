@@ -60,7 +60,16 @@ profile_end = '''\tload_user_config(fp, "/etc/storage/wlan", (is_aband) ? "AP_5G
 }'''
 if new_text.count(profile_end) != 1:
     raise ValueError('Profile completion anchor changed; no files written')
-checked_end = '''\tload_user_config(fp, "/etc/storage/wlan", (is_aband) ? "AP_5G.dat" : "AP.dat", NULL);
+checked_end = '''#ifdef USE_WR_BAND_STEERING_PROFILE
+\t{
+\t\t/* These fields belong to the coordinated service, including OFF and
+\t\t * main-BSS-only policy. Retain unrelated user profile additions. */
+\t\tconst char *forbidden[] = { "BandSteering", "BndStrgBssIdx", NULL };
+\t\tload_user_config(fp, "/etc/storage/wlan", (is_aband) ? "AP_5G.dat" : "AP.dat", forbidden);
+\t}
+#else
+\tload_user_config(fp, "/etc/storage/wlan", (is_aband) ? "AP_5G.dat" : "AP.dat", NULL);
+#endif
 
 #ifdef USE_WR_BAND_STEERING_PROFILE
 \t{
