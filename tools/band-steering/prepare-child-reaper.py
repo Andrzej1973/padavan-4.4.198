@@ -20,9 +20,9 @@ new='''\tpid_t pid;
 \t\tdprintf("Reaped %d\\n", pid);
 #endif'''
 include='#ifdef USE_WR_BAND_STEERING_PROFILE\n#include "wr-band-child-owner.h"\n#endif\n'
-copies={name:(Path(__file__).parent/name).read_bytes() for name in ['child-owner.c','child-owner.h','control-client.c','control-client.h','lifecycle.c','lifecycle.h']}
+copies={name:(Path(__file__).parent/name).read_bytes() for name in ['child-owner.c','child-owner.h','control-client.c','control-client.h','lifecycle.c','lifecycle.h','service-owner.c','service-owner.h']}
 init.write_text(include+text.replace(old,new))
-make.write_text(mk.replace('OBJS += wr-band-profile-policy.o\n','OBJS += wr-band-profile-policy.o wr-band-child-owner.o wr-band-control-client.o wr-band-lifecycle.o\n'))
+make.write_text(mk.replace('OBJS += wr-band-profile-policy.o\n','OBJS += wr-band-profile-policy.o wr-band-child-owner.o wr-band-control-client.o wr-band-lifecycle.o wr-band-service-owner.o\n'))
 for name,data in copies.items():
-    (rc/('wr-band-'+name)).write_bytes(data.replace(b'"child-owner.h"',b'"wr-band-child-owner.h"').replace(b'"control-client.h"',b'"wr-band-control-client.h"').replace(b'"lifecycle.h"',b'"wr-band-lifecycle.h"'))
+    (rc/('wr-band-'+name)).write_bytes(data.replace(b'"child-owner.h"',b'"wr-band-child-owner.h"').replace(b'"control-client.h"',b'"wr-band-control-client.h"').replace(b'"lifecycle.h"',b'"wr-band-lifecycle.h"').replace(b'"service-owner.h"',b'"wr-band-service-owner.h"'))
 print('Registered gated owned-child reaper; spawn/lifecycle binding still pending')
