@@ -22,9 +22,10 @@ make = make_path.read_text()
 header = rc / 'wr-band-profile-io.h'
 declarations = header.read_text()
 anchor = '#include "rc.h"\n'
+object_lines = re.findall(r'^OBJS \+= wr-band-profile-policy\.o[^\n]*\n', make, re.M)
 if (text.count(anchor) != 1 or 'wr_profile_snapshot' in text or
         text.count('int wr_band_generate_profiles(int enabled)') != 1 or
-        make.count('OBJS += wr-band-profile-policy.o\n') != 1 or
+        len(object_lines) != 1 or 'wr-band-settings-snapshot.o' in make or
         declarations.count('int wr_band_generate_profiles(int enabled);') != 1):
     raise ValueError('Prepared profile anchors changed; no files written')
 if (text.count('nvram_wlan_set(is_aband, "key_type", "1");') != 1 or
@@ -94,8 +95,8 @@ static void wr_profile_wlan_set(int band, const char *name, char *value)
 #endif
 '''
 text = text.replace(anchor, anchor + helper)
-make = make.replace('OBJS += wr-band-profile-policy.o\n',
-                    'OBJS += wr-band-profile-policy.o wr-band-settings-snapshot.o\n')
+make = make.replace(object_lines[0], object_lines[0].rstrip('\n') +
+                    ' wr-band-settings-snapshot.o\n')
 declarations = declarations.replace('int wr_band_generate_profiles(int enabled);',
     'struct wr_band_settings_snapshot;\n'
     '/* Capture must remain valid and immutable until unbound. Caller serializes\n'
