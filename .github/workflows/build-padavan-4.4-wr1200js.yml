@@ -850,6 +850,7 @@ jobs:
           kernel="$RUNNER_TEMP/wr1200js-systick-link"
           test ! -e "$kernel"
           cp -a "$source_kernel" "$kernel"
+          python3 tools/band-steering/prepare-nvram-snapshot.py --kernel-root "$kernel"
           compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
           test -n "$compiler"
           cross="${compiler%gcc}"
@@ -863,6 +864,10 @@ jobs:
           make -C "$kernel" ARCH=mips CROSS_COMPILE="$cross" -j2 vmlinux \
             2>&1 | tee cpu-sleep-link.log
           test -s "$kernel/vmlinux"
+          test -s "$kernel/drivers/nvram/nvram.o"
+          "${cross}objdump" -dr "$kernel/drivers/nvram/nvram.o" > nvram-snapshot-kernel-disassembly.txt
+          "${cross}nm" "$kernel/vmlinux" > nvram-snapshot-kernel-symbols.txt
+          grep -Eq '[[:space:]]_nvram_getall$' nvram-snapshot-kernel-symbols.txt
           grep -a -q 'mediatek,mt7621-systick' "$kernel/vmlinux"
           cp "$kernel/arch/mips/boot/dts/ralink/wr1200js.dts" cpu-sleep-board.dts
           dtb="$(find "$kernel/arch/mips/boot" -name wr1200js.dtb -type f -print -quit)"
@@ -876,6 +881,7 @@ jobs:
           grep -Eq '[[:space:]]mt7621_systick_early_init$' cpu-sleep-symbols.txt
           cp "$kernel/.config" cpu-sleep-link.config
           sha256sum "$kernel/vmlinux" > cpu-sleep-vmlinux.sha256
+          sha256sum "$kernel/drivers/nvram/nvram.c" "$kernel/drivers/nvram/nvram.o" > nvram-snapshot-kernel-sha256.txt
 
       - name: Upload isolated kernel link diagnostics
         if: always()
@@ -894,6 +900,9 @@ jobs:
             cpu-sleep-board.dts
             cpu-sleep-board.dtb
             cpu-sleep-compiled-board.dts
+            nvram-snapshot-kernel-disassembly.txt
+            nvram-snapshot-kernel-symbols.txt
+            nvram-snapshot-kernel-sha256.txt
 
 
       - name: Compile ZeroTier 1.16.2 source candidate
