@@ -56,6 +56,8 @@ on:
       - 'tools/band-steering/check-profile-policy.c'
       - 'tools/band-steering/prepare-profile-integration.py'
       - 'tools/band-steering/prepare-profile-check.py'
+      - 'tools/band-steering/prepare-wifi-lifecycle.py'
+      - 'tools/band-steering/prepare-wifi-check.py'
       - 'tools/band-steering/control.c'
       - 'tools/band-steering/ctl.c'
       - 'tools/band-steering/control-client.c'
@@ -164,6 +166,17 @@ jobs:
           "$compiler" -std=c11 -Wall -Wextra -Werror -mips32r2 -mabi=32 \
             -msoft-float -O2 -Iabi-results -c abi-results/profile-integration-check.c \
             -o abi-results/profile-integration-mips.o
+      - name: Verify actual rc Wi-Fi lifecycle callbacks
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/band-steering/prepare-child-reaper.py source
+          python3 tools/band-steering/prepare-wifi-lifecycle.py source
+          python3 tools/band-steering/prepare-wifi-check.py source abi-results
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -Iabi-results \
+            abi-results/wr-band-lifecycle.c abi-results/wifi-lifecycle-check.c \
+            -o abi-results/check-wifi-lifecycle
+          abi-results/check-wifi-lifecycle | tee abi-results/wifi-lifecycle-checks.txt
       - name: Verify byte encoders and compile the MIPS adapter
         shell: bash
         run: |
