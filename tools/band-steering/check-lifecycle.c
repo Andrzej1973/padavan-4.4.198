@@ -23,8 +23,14 @@ int main(void) {
     f=(struct fixture){0}; f.fail=5; f.cleanup_fail=1;
     assert(wr_band_lifecycle_apply(&ops,&f,1,&r)==-1 && !r.off_confirmed);
     f=(struct fixture){0};
-    assert(!wr_band_lifecycle_apply(&ops,&f,0,&r) && r.off_confirmed && f.count==3);
-    assert(f.calls[0]==2 && f.calls[1]==3 && f.calls[2]==4);
+    assert(!wr_band_lifecycle_apply(&ops,&f,0,&r) && r.off_confirmed && f.count==4);
+    assert(f.calls[0]==2 && f.calls[1]==3 && f.calls[2]==4 && f.calls[3]==2);
+    f=(struct fixture){0}; f.cleanup_fail=1;
+    assert(wr_band_lifecycle_apply(&ops,&f,0,&r)==-1 && !r.off_confirmed);
+    assert(r.state==WR_APPLY_OFF_UNVERIFIED && f.count==4);
+    f=(struct fixture){0}; f.fail=4; f.cleanup_fail=1;
+    assert(wr_band_lifecycle_apply(&ops,&f,0,&r)==-1 && !r.off_confirmed);
+    assert(r.state==WR_APPLY_START_ERROR && f.calls[f.count-1]==2);
     puts("PASS lifecycle ordering and failure cleanup with mocked operations; rc/device integration pending");
     return 0;
 }

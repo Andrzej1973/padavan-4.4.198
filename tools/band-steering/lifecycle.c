@@ -14,12 +14,20 @@ int wr_band_lifecycle_apply(const struct wr_band_lifecycle_ops *ops, void *conte
     if (ops->write_both_profiles(context, enabled)) {
         result->state = WR_APPLY_PROFILE_ERROR; return -1;
     }
-    /* Initializing enabled profiles can change driver state even on failure. */
-    result->off_confirmed = !enabled;
+    /* Reinitialization invalidates the earlier observation for either profile.
+     * Configuration alone cannot prove the new driver instances are OFF. */
+    result->off_confirmed = 0;
     if (ops->initialize_both_radios(context) || (enabled && ops->start_verified(context))) {
         result->state = WR_APPLY_START_ERROR;
         result->off_confirmed = !ops->quiesce_verified(context);
         return -1;
+    }
+    if (!enabled) {
+        if (ops->quiesce_verified(context)) {
+            result->state = WR_APPLY_OFF_UNVERIFIED;
+            return -1;
+        }
+        result->off_confirmed = 1;
     }
     result->state = enabled ? WR_APPLY_RUNNING : WR_APPLY_OFF_CONFIRMED;
     return 0;
