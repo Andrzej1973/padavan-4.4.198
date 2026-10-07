@@ -17,6 +17,7 @@ static int calls[32], count, incompatible, write_failed, interface_failed;
 static int requested;
 static int boot_ready;
 static int stop_failed;
+static int off_failed, active_failed, last_state, last_off;
 static void mark(int v);
 int wr_band_service_quiesce(struct wr_band_service_owner *owner,const char *a,const char *b)
 { assert(owner && !strcmp(a,IFNAME_2G_MAIN) && !strcmp(b,IFNAME_5G_MAIN)); mark(9); if(!stop_failed)owner->pid=0;return stop_failed; }
@@ -38,14 +39,15 @@ int wr_band_generate_profiles(int enabled)
 static void nvram_set_int_temp(const char *key,int value)
 {
  if (!strcmp(key,"reload_svc_rt")||!strcmp(key,"reload_svc_wl")) assert(value==1);
- else assert(!strcmp(key,"wr_bs_apply_state")||!strcmp(key,"wr_bs_off_confirmed"));
+ else if (!strcmp(key,"wr_bs_apply_state")) last_state=value;
+ else { assert(!strcmp(key,"wr_bs_off_confirmed"));last_off=value; }
 }
 static void restart_wifi_rt(int on,int reload) { assert((on==0||on==1)&&!reload);mark(4); }
 static void restart_wifi_wl(int on,int reload) { assert((on==0||on==1)&&!reload);mark(5); }
 static int is_interface_up(const char *name)
 { mark(!strcmp(name,IFNAME_2G_MAIN)?6:7); return !interface_failed; }
-static int off(void *p) { (void)p;mark(2);return 0; }
-static int active(void *p) { (void)p;mark(8);return 0; }
+static int off(void *p) { (void)p;mark(2);return off_failed; }
+static int active(void *p) { (void)p;mark(8);return active_failed; }
 int wr_band_service_apply(struct wr_band_service_owner *owner,const char *a,const char *b,
  const struct wr_band_lifecycle_ops *ops,void *context,int enabled,struct wr_band_apply_result *r)
 {
@@ -92,6 +94,21 @@ int main(void)
  assert(!wr_band_wifi_startup() && !count);
  requested=1;
  assert(wr_band_wifi_startup()==-1 && !count);
+ assert(last_state==WR_APPLY_PROFILE_ERROR && !last_off);
+ boot_ready=1;incompatible=0;
+ assert(!wr_band_wifi_startup() && calls[count-1]==8);
+ assert(last_state==WR_APPLY_RUNNING && !last_off);
+ count=0;write_failed=-1;
+ assert(wr_band_wifi_startup()==-1 && calls[count-1]==3);
+ assert(last_state==WR_APPLY_PROFILE_ERROR && last_off);
+ count=0;write_failed=0;active_failed=-1;
+ assert(wr_band_wifi_startup()==-1 && calls[count-1]==2);
+ assert(last_state==WR_APPLY_START_ERROR && last_off);
+ count=0;off_failed=-1;
+ assert(wr_band_wifi_startup()==-1 && calls[count-1]==2);
+ assert(last_state==WR_APPLY_OFF_UNVERIFIED && !last_off);
+ count=0;off_failed=active_failed=0;
+ assert(!wr_band_wifi_startup() && calls[count-1]==8);
  puts("PASS actual rc callback ordering/failure paths with mocked radio/service operations; device behavior unverified");
  return 0;
 }
