@@ -6,9 +6,12 @@ a=p.parse_args();rc=a.source/'trunk/user/rc';s=(rc/'net_wifi.c').read_text()
 start=s.index('static struct wr_band_service_owner wr_wifi_owner;')
 helper=s[start:s.index('\n#endif',start)]
 test=r'''
+#define _POSIX_C_SOURCE 200809L
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/wait.h>
+#include <signal.h>
 #include "wr-band-service-owner.h"
 #include "wr-band-profile-policy.h"
 #define IFNAME_2G_MAIN "ra0"
@@ -98,6 +101,20 @@ int main(void)
  boot_ready=1;incompatible=0;
  assert(!wr_band_wifi_startup() && calls[count-1]==8);
  assert(last_state==WR_APPLY_RUNNING && !last_off);
+ wr_wifi_owner.pid=42;
+ wr_band_wifi_child_exit(99,0);
+ wr_band_wifi_refresh_exit_status();
+ assert(last_state==WR_APPLY_RUNNING && wr_wifi_owner.pid==42);
+ wr_band_wifi_child_exit(42,0);
+ wr_band_wifi_refresh_exit_status();
+ assert(last_state==WR_APPLY_OFF_CONFIRMED && last_off && wr_wifi_owner.pid==42);
+ wr_band_wifi_child_exit(42,3<<8);
+ wr_band_wifi_refresh_exit_status();
+ assert(last_state==WR_APPLY_OFF_UNVERIFIED && !last_off && wr_wifi_owner.pid==42);
+ wr_band_wifi_child_exit(42,15);
+ wr_band_wifi_refresh_exit_status();
+ assert(last_state==WR_APPLY_OFF_UNVERIFIED && !last_off);
+ wr_wifi_owner.pid=0;
  count=0;write_failed=-1;
  assert(wr_band_wifi_startup()==-1 && calls[count-1]==3);
  assert(last_state==WR_APPLY_PROFILE_ERROR && last_off);

@@ -4,6 +4,13 @@ from pathlib import Path
 p = argparse.ArgumentParser(); p.add_argument('source', type=Path)
 rc = p.parse_args().source / 'trunk/user/rc'
 path = rc / 'net_wifi.c'; text = path.read_text()
+init_path = rc / 'init.c'; init = init_path.read_text()
+reaped = '\t\twr_band_child_reaped(pid, status);\n'
+if init.count(reaped) != 1 or init.count('#include "wr-band-child-owner.h"\n') != 1:
+    raise ValueError('Owned child reaper anchor changed; no files written')
+init = init.replace('#include "wr-band-child-owner.h"\n',
+    '#include "wr-band-child-owner.h"\n#include "wr-band-wifi-lifecycle.h"\n').replace(reaped,
+    reaped + '\t\twr_band_wifi_child_exit(pid, status);\n')
 dispatch_path = rc / 'rc.c'; dispatch = dispatch_path.read_text()
 anchor = '\t\telse if (!strcmp(entry->d_name, RCN_RESTART_WIFI5))\n'
 if dispatch.count(anchor) != 1 or dispatch.count('#include "rc.h"\n') != 1:
@@ -51,6 +58,11 @@ dispatch = dispatch.replace(boot_anchor, boot).replace(ready_anchor,
     ready_anchor + '#ifdef USE_WR_BAND_STEERING_PROFILE\n\twr_band_wifi_startup();\n#endif\n')
 dispatch = dispatch.replace('#include "wr-band-wifi-lifecycle.h"\n',
     '#include "wr-band-wifi-lifecycle.h"\n#include "wr-band-profile-io.h"\n')
+notify_anchor = '\tDIR *directory = opendir(DIR_RC_NOTIFY);\n'
+if dispatch.count(notify_anchor) != 1:
+    raise ValueError('Notification context anchor changed; no files written')
+dispatch = dispatch.replace(notify_anchor, notify_anchor +
+    '#ifdef USE_WR_BAND_STEERING_PROFILE\n\twr_band_wifi_refresh_exit_status();\n#endif\n')
 if text.count('#include "rc.h"\n') != 1 or 'wr_band_apply_wifi_settings' in text:
     raise ValueError('Wi-Fi integration anchor changed; no files written')
 for name in ['wr-band-profile-io.h', 'wr-band-service-owner.h']:
@@ -61,9 +73,12 @@ helper = r'''
 #include "wr-band-profile-io.h"
 #include "wr-band-service-owner.h"
 #include "wr-band-profile-policy.h"
+#include <sys/wait.h>
+#include <signal.h>
 static struct wr_band_service_owner wr_wifi_owner;
 static int wr_wifi_applying;
 static int wr_wifi_last_status;
+static volatile sig_atomic_t wr_wifi_exit_pending;
 struct wr_wifi_apply_context { int radio2g, radio5g; };
 static const char *wr_wifi_setting(int band, const char *name, void *context)
 {
@@ -154,6 +169,26 @@ int wr_band_wifi_shutdown(void)
         logmessage("Band Steering", "Shutdown OFF acknowledgement unverified");
     return status;
 }
+void wr_band_wifi_child_exit(pid_t pid, int status)
+{
+    if (pid != wr_wifi_owner.pid || pid <= 1) return;
+    /* SIGCHLD path: no NVRAM, allocation or logging from the handler. */
+    wr_wifi_exit_pending = WIFEXITED(status) && WEXITSTATUS(status) == 0 ? 1 : 2;
+}
+void wr_band_wifi_refresh_exit_status(void)
+{
+    sigset_t mask, previous;
+    int pending, confirmed;
+    sigemptyset(&mask); sigaddset(&mask, SIGCHLD);
+    if (sigprocmask(SIG_BLOCK, &mask, &previous)) return;
+    pending = wr_wifi_exit_pending; wr_wifi_exit_pending = 0;
+    if (sigprocmask(SIG_SETMASK, &previous, NULL)) return;
+    if (!pending) return;
+    confirmed = pending == 1;
+    nvram_set_int_temp("wr_bs_apply_state", confirmed ? WR_APPLY_OFF_CONFIRMED : WR_APPLY_OFF_UNVERIFIED);
+    nvram_set_int_temp("wr_bs_off_confirmed", confirmed);
+    /* Keep ownership until child-owner consumes the cached wait status. */
+}
 int wr_band_wifi_startup(void)
 {
     int radio2g;
@@ -178,9 +213,11 @@ for name, band in [('restart_wifi_rt', 0), ('restart_wifi_wl', 1)]:
 text = text.replace('#include "rc.h"\n', '#include "rc.h"\n#ifdef USE_WR_BAND_STEERING_PROFILE\n#include "wr-band-wifi-lifecycle.h"\n#endif\n')
 path.write_text(text + helper)
 dispatch_path.write_text(dispatch)
+init_path.write_text(init)
 (rc / 'wr-band-wifi-lifecycle.h').write_text('''#ifndef WR_BAND_WIFI_LIFECYCLE_H
 #define WR_BAND_WIFI_LIFECYCLE_H
 #include "wr-band-lifecycle.h"
+#include <sys/types.h>
 /* rc caller serializes NVRAM updates and supplies actual scheduled states.
  * No event dispatcher or WebUI integration is installed by this header. */
 int wr_band_apply_wifi_settings(int enabled, int radio2g, int radio5g,
@@ -188,6 +225,9 @@ int wr_band_apply_wifi_settings(int enabled, int radio2g, int radio5g,
 int wr_band_handle_wifi_restart(int band, int radio_on);
 int wr_band_wifi_shutdown(void);
 int wr_band_wifi_startup(void);
+void wr_band_wifi_child_exit(pid_t pid, int status);
+/* Call from normal rc/WebUI status handling, never from a signal handler. */
+void wr_band_wifi_refresh_exit_status(void);
 #endif
 ''')
 print('Paired rc callbacks and dedicated steering apply event installed; global settings serialization pending')
