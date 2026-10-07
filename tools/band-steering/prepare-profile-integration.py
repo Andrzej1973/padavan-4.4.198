@@ -24,9 +24,12 @@ policy = {name: (Path(__file__).parent / name).read_bytes()
 helper = r'''
 #ifdef USE_WR_BAND_STEERING_PROFILE
 #include "wr-band-profile-policy.h"
+#include "wr-band-profile-io.h"
 #if !defined(USE_WID_2G) || USE_WID_2G != 7603 || !defined(USE_WID_5G) || USE_WID_5G != 7612
 #error "WR Band Steering profile candidate requires MT7603E plus MT7612E"
 #endif
+/* rc must serialize NVRAM updates and this paired generation. */
+static int wr_band_profile_override = -1;
 static const char *wr_band_profile_setting(int band, const char *name, void *context)
 {
     (void)context;
@@ -35,8 +38,9 @@ static const char *wr_band_profile_setting(int band, const char *name, void *con
 static void wr_band_write_profile(FILE *fp, int is_aband, int ssid_count)
 {
     int i;
+    int requested = wr_band_profile_override >= 0 ? wr_band_profile_override : nvram_match("wr_bs_enable", "1");
     int enabled = wr_band_profile_from_settings(
-        nvram_match("wr_bs_enable", "1"), wr_band_profile_setting, NULL) == WR_PROFILE_COMPATIBLE;
+        requested, wr_band_profile_setting, NULL) == WR_PROFILE_COMPATIBLE;
     fprintf(fp, "BandSteering=%d\n", enabled);
     if (!is_aband) {
         /* Explicitly exclude every guest BSS from the modern driver. */
@@ -85,6 +89,26 @@ checked_end = '''#ifdef USE_WR_BAND_STEERING_PROFILE
 #endif
 }'''
 new_text = new_text.replace(profile_end, checked_end)
+paired = r'''
+#ifdef USE_WR_BAND_STEERING_PROFILE
+int wr_band_generate_profiles(int enabled)
+{
+    int failed;
+    if ((enabled != 0 && enabled != 1) || wr_band_profile_override != -1)
+        return -1;
+    if (enabled && wr_band_profile_from_settings(1, wr_band_profile_setting, NULL) != WR_PROFILE_COMPATIBLE)
+        return -1;
+    wr_band_profile_override = enabled;
+    failed = gen_ralink_config_2g(0);
+    if (!failed)
+        failed = gen_ralink_config_5g(0);
+    wr_band_profile_override = -1;
+    /* A partial write is not success; caller must not initialize radios. */
+    return failed ? -1 : 0;
+}
+#endif
+'''
+new_text += paired
 gate = '''ifeq ($(CONFIG_FIRMWARE_INCLUDE_WR_BAND_STEERING),y)
 CFLAGS += -DUSE_WR_BAND_STEERING_PROFILE
 OBJS += wr-band-profile-policy.o
@@ -103,6 +127,13 @@ for path, data in [(source, new_text.encode()), (makefile, new_make.encode()),
     report['files'].append({'path': path.relative_to(root).as_posix(),
         'before_sha256': hashlib.sha256(before).hexdigest(),
         'after_sha256': hashlib.sha256(data).hexdigest()})
+(rc / 'wr-band-profile-io.h').write_text('''#ifndef WR_BAND_PROFILE_IO_H
+#define WR_BAND_PROFILE_IO_H
+/* Caller holds settings serialization for validation and both writes.
+ * Failure may leave one profile updated; do not initialize radios then. */
+int wr_band_generate_profiles(int enabled);
+#endif
+''')
 (root / 'band-steering-profile-integration.json').write_text(json.dumps(report, indent=2) + '\n')
 print(json.dumps(report, indent=2))
 

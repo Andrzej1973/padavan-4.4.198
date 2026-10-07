@@ -46,6 +46,8 @@ grep -Eq '[[:space:]]T[[:space:]]wr_band_lifecycle_apply$' "$probe/results/lifec
 "${cross}nm" "$rc/wr-band-service-owner.o" > "$probe/results/service-owner-symbols.txt"
 grep -Eq '[[:space:]]T[[:space:]]wr_band_service_quiesce$' "$probe/results/service-owner-symbols.txt"
 grep -Eq '[[:space:]]T[[:space:]]wr_band_service_start$' "$probe/results/service-owner-symbols.txt"
+"${cross}nm" "$rc/ralink.o" > "$probe/results/profile-io-symbols.txt"
+grep -Eq '[[:space:]]T[[:space:]]wr_band_generate_profiles$' "$probe/results/profile-io-symbols.txt"
 "${cross}readelf" -h "$rc/rc" > "$probe/results/rc-elf.txt"
 grep -q 'Machine:.*MIPS' "$probe/results/rc-elf.txt"
 "${cross}readelf" -d "$rc/rc" > "$probe/results/rc-dependencies.txt"
