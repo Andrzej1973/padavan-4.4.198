@@ -14,6 +14,15 @@ test=r'''
 #define IFNAME_2G_MAIN "ra0"
 #define IFNAME_5G_MAIN "rai0"
 static int calls[32], count, incompatible, write_failed, interface_failed;
+static int requested;
+static int nvram_match(const char *key,const char *value)
+{ assert(!strcmp(key,"wr_bs_enable") && !strcmp(value,"1"));return requested; }
+static int get_enabled_radio_rt(void) { return 1; }
+static int get_enabled_radio_wl(void) { return 1; }
+static int is_radio_allowed_rt(void) { return 1; }
+static int is_radio_allowed_wl(void) { return 1; }
+static void logmessage(const char *name,const char *format,...)
+{ assert(name && format); }
 static void mark(int v) { assert(count<32); calls[count++]=v; }
 static const char *nvram_wlan_get(int band, const char *key)
 { assert((band==0||band==1) && key); return "fixture"; }
@@ -22,7 +31,10 @@ int wr_band_profile_from_settings(int enabled, wr_band_setting_getter get, void 
 int wr_band_generate_profiles(int enabled)
 { assert(enabled==0||enabled==1); mark(3); return write_failed; }
 static void nvram_set_int_temp(const char *key,int value)
-{ assert((!strcmp(key,"reload_svc_rt")||!strcmp(key,"reload_svc_wl")) && value==1); }
+{
+ if (!strcmp(key,"reload_svc_rt")||!strcmp(key,"reload_svc_wl")) assert(value==1);
+ else assert(!strcmp(key,"wr_bs_apply_state")||!strcmp(key,"wr_bs_off_confirmed"));
+}
 static void restart_wifi_rt(int on,int reload) { assert((on==0||on==1)&&!reload);mark(4); }
 static void restart_wifi_wl(int on,int reload) { assert((on==0||on==1)&&!reload);mark(5); }
 static int is_interface_up(const char *name)
@@ -59,6 +71,12 @@ int main(void)
  assert(wr_band_apply_wifi_settings(0,2,1,&r)==-1 && !count);
  wr_wifi_applying=1;
  assert(wr_band_apply_wifi_settings(0,1,1,&r)==-1 && !count);
+ wr_wifi_applying=0;
+ assert(!wr_band_handle_wifi_restart(0,1) && !count);
+ requested=1;incompatible=1;
+ assert(wr_band_handle_wifi_restart(0,1)==1);
+ assert(calls[0]==1 && calls[1]==2 && calls[count-1]==2);
+ for (int i=0;i<count;++i) assert(calls[i]!=8);
  puts("PASS actual rc callback ordering/failure paths with mocked radio/service operations; device behavior unverified");
  return 0;
 }

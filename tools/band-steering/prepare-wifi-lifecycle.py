@@ -92,8 +92,39 @@ int wr_band_apply_wifi_settings(int enabled, int radio2g, int radio5g,
     wr_wifi_applying = 0;
     return status;
 }
+int wr_band_handle_wifi_restart(int band, int radio_on)
+{
+    struct wr_band_apply_result result;
+    int radio2g, radio5g, enabled, status;
+    if (wr_wifi_applying || (!wr_wifi_owner.pid && !nvram_match("wr_bs_enable", "1")))
+        return 0;
+    radio2g = get_enabled_radio_rt();
+    radio5g = get_enabled_radio_wl();
+    if (radio2g) radio2g = is_radio_allowed_rt();
+    if (radio5g) radio5g = is_radio_allowed_wl();
+    if (band) radio5g = radio_on; else radio2g = radio_on;
+    enabled = nvram_match("wr_bs_enable", "1") && radio2g && radio5g &&
+        wr_band_profile_from_settings(1, wr_wifi_setting, NULL) == WR_PROFILE_COMPATIBLE;
+    /* Incompatible settings/radio schedules disable steering, preserving the
+     * user's new Wi-Fi settings and persistent requested enable flag. */
+    status = wr_band_apply_wifi_settings(enabled, !!radio2g, !!radio5g, &result);
+    nvram_set_int_temp("wr_bs_apply_state", result.state);
+    nvram_set_int_temp("wr_bs_off_confirmed", result.off_confirmed);
+    if (status)
+        logmessage("Band Steering", "Wi-Fi restart failed: state=%d off_confirmed=%d",
+                   result.state, result.off_confirmed);
+    /* Never bypass failed OFF proof with an ordinary uncoordinated restart. */
+    return 1;
+}
 #endif
 '''
+for name, band in [('restart_wifi_rt', 0), ('restart_wifi_wl', 1)]:
+    anchor = 'void\n%s(int radio_on, int need_reload_conf)\n{\n' % name
+    if text.count(anchor) != 1:
+        raise ValueError('Radio restart entry changed; no files written')
+    text = text.replace(anchor, anchor + '#ifdef USE_WR_BAND_STEERING_PROFILE\n'
+        '\tif (wr_band_handle_wifi_restart(%d, radio_on)) return;\n' % band + '#endif\n')
+text = text.replace('#include "rc.h"\n', '#include "rc.h"\n#ifdef USE_WR_BAND_STEERING_PROFILE\n#include "wr-band-wifi-lifecycle.h"\n#endif\n')
 path.write_text(text + helper)
 dispatch_path.write_text(dispatch)
 (rc / 'wr-band-wifi-lifecycle.h').write_text('''#ifndef WR_BAND_WIFI_LIFECYCLE_H
@@ -103,6 +134,7 @@ dispatch_path.write_text(dispatch)
  * No event dispatcher or WebUI integration is installed by this header. */
 int wr_band_apply_wifi_settings(int enabled, int radio2g, int radio5g,
                                struct wr_band_apply_result *result);
+int wr_band_handle_wifi_restart(int band, int radio_on);
 #endif
 ''')
 print('Paired rc callbacks and dedicated steering apply event installed; global settings serialization pending')
