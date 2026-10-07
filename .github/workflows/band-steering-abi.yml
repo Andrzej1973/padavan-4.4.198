@@ -58,6 +58,8 @@ on:
       - 'tools/band-steering/prepare-profile-check.py'
       - 'tools/band-steering/prepare-wifi-lifecycle.py'
       - 'tools/band-steering/prepare-wifi-check.py'
+      - 'tools/band-steering/prepare-nvram-snapshot.py'
+      - 'tools/band-steering/prepare-nvram-check.py'
       - 'tools/band-steering/control.c'
       - 'tools/band-steering/ctl.c'
       - 'tools/band-steering/control-client.c'
@@ -96,6 +98,7 @@ jobs:
           path: source
           sparse-checkout: |
             trunk/user/rc
+            trunk/linux-4.4.x/drivers/nvram
             trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x2/include
             trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x2/ap
             trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/include
@@ -177,6 +180,19 @@ jobs:
             abi-results/wr-band-lifecycle.c abi-results/wifi-lifecycle-check.c \
             -o abi-results/check-wifi-lifecycle
           abi-results/check-wifi-lifecycle | tee abi-results/wifi-lifecycle-checks.txt
+      - name: Verify complete NVRAM snapshot overflow handling
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/band-steering/prepare-nvram-snapshot.py source
+          python3 tools/band-steering/prepare-nvram-check.py source abi-results
+          # Preserve the kernel's existing signed/size_t comparison unchanged.
+          gcc -std=c11 -Wall -Wextra -Werror -Wno-sign-compare -O2 -fsanitize=address,undefined \
+            abi-results/nvram-dump-check.c -o abi-results/check-nvram-dump
+          abi-results/check-nvram-dump | tee abi-results/nvram-dump-checks.txt
+          compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
+          "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 \
+            -Wno-sign-compare -msoft-float -c abi-results/nvram-dump-check.c -o abi-results/nvram-dump-mips.o
       - name: Verify byte encoders and compile the MIPS adapter
         shell: bash
         run: |
