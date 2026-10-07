@@ -60,6 +60,9 @@ on:
       - 'tools/band-steering/prepare-wifi-check.py'
       - 'tools/band-steering/prepare-nvram-snapshot.py'
       - 'tools/band-steering/prepare-nvram-check.py'
+      - 'tools/band-steering/settings-snapshot.c'
+      - 'tools/band-steering/settings-snapshot.h'
+      - 'tools/band-steering/check-settings-snapshot.c'
       - 'tools/band-steering/control.c'
       - 'tools/band-steering/ctl.c'
       - 'tools/band-steering/control-client.c'
@@ -193,6 +196,17 @@ jobs:
           compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
           "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 \
             -Wno-sign-compare -msoft-float -c abi-results/nvram-dump-check.c -o abi-results/nvram-dump-mips.o
+      - name: Verify immutable settings snapshot reader
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            tools/band-steering/settings-snapshot.c tools/band-steering/check-settings-snapshot.c \
+            -o abi-results/check-settings-snapshot
+          abi-results/check-settings-snapshot | tee abi-results/settings-snapshot-checks.txt
+          compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
+          "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 \
+            -msoft-float -c tools/band-steering/settings-snapshot.c -o abi-results/settings-snapshot-mips.o
       - name: Verify byte encoders and compile the MIPS adapter
         shell: bash
         run: |
