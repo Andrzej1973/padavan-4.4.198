@@ -16,6 +16,7 @@ probe="$(realpath "$probe")"
 sha256sum "$trunk/.config" "$trunk/linux-4.4.x/.config" > "$probe/results/baseline-config.sha256"
 python3 tools/band-steering/prepare-profile-integration.py "$probe"
 python3 tools/band-steering/prepare-child-reaper.py "$probe"
+python3 tools/band-steering/prepare-wifi-lifecycle.py "$probe"
 cross="${compiler%gcc}"
 cat > "$probe/Makefile" <<'MAKE'
 .DEFAULT_GOAL := wr-profile-probe
@@ -48,6 +49,8 @@ grep -Eq '[[:space:]]T[[:space:]]wr_band_service_quiesce$' "$probe/results/servi
 grep -Eq '[[:space:]]T[[:space:]]wr_band_service_start$' "$probe/results/service-owner-symbols.txt"
 "${cross}nm" "$rc/ralink.o" > "$probe/results/profile-io-symbols.txt"
 grep -Eq '[[:space:]]T[[:space:]]wr_band_generate_profiles$' "$probe/results/profile-io-symbols.txt"
+"${cross}nm" "$rc/net_wifi.o" > "$probe/results/wifi-lifecycle-symbols.txt"
+grep -Eq '[[:space:]]T[[:space:]]wr_band_apply_wifi_settings$' "$probe/results/wifi-lifecycle-symbols.txt"
 "${cross}readelf" -h "$rc/rc" > "$probe/results/rc-elf.txt"
 grep -q 'Machine:.*MIPS' "$probe/results/rc-elf.txt"
 "${cross}readelf" -d "$rc/rc" > "$probe/results/rc-dependencies.txt"

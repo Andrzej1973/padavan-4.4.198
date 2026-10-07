@@ -32,6 +32,7 @@ on:
       - 'tools/band-steering/prepare-off-ack.py'
       - 'tools/band-steering/prepare-uninitialized-off.py'
       - 'tools/band-steering/prepare-profile-integration.py'
+      - 'tools/band-steering/prepare-wifi-lifecycle.py'
       - 'tools/band-steering/profile-policy.c'
       - 'tools/band-steering/profile-policy.h'
       - 'tools/band-steering/compile-rc-profile.sh'
