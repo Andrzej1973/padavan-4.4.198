@@ -4,6 +4,30 @@ from pathlib import Path
 p = argparse.ArgumentParser(); p.add_argument('source', type=Path)
 rc = p.parse_args().source / 'trunk/user/rc'
 path = rc / 'net_wifi.c'; text = path.read_text()
+dispatch_path = rc / 'rc.c'; dispatch = dispatch_path.read_text()
+anchor = '\t\telse if (!strcmp(entry->d_name, RCN_RESTART_WIFI5))\n'
+if dispatch.count(anchor) != 1 or dispatch.count('#include "rc.h"\n') != 1:
+    raise ValueError('rc event anchors changed; no files written')
+event = r'''#ifdef USE_WR_BAND_STEERING_PROFILE
+        else if (!strcmp(entry->d_name, "restart_wr_band_steering"))
+        {
+            struct wr_band_apply_result result;
+            int radio2g = get_enabled_radio_rt();
+            int radio5g = get_enabled_radio_wl();
+            int status;
+            if (radio2g) radio2g = is_radio_allowed_rt();
+            if (radio5g) radio5g = is_radio_allowed_wl();
+            status = wr_band_apply_wifi_settings(nvram_match("wr_bs_enable", "1"),
+                                                 !!radio2g, !!radio5g, &result);
+            nvram_set_int_temp("wr_bs_apply_state", result.state);
+            nvram_set_int_temp("wr_bs_off_confirmed", result.off_confirmed);
+            if (status)
+                logmessage("Band Steering", "Apply failed: state=%d off_confirmed=%d",
+                           result.state, result.off_confirmed);
+        }
+#endif
+'''
+dispatch = dispatch.replace('#include "rc.h"\n', '#include "rc.h"\n#ifdef USE_WR_BAND_STEERING_PROFILE\n#include "wr-band-wifi-lifecycle.h"\n#endif\n').replace(anchor, event + anchor)
 if text.count('#include "rc.h"\n') != 1 or 'wr_band_apply_wifi_settings' in text:
     raise ValueError('Wi-Fi integration anchor changed; no files written')
 for name in ['wr-band-profile-io.h', 'wr-band-service-owner.h']:
@@ -71,6 +95,7 @@ int wr_band_apply_wifi_settings(int enabled, int radio2g, int radio5g,
 #endif
 '''
 path.write_text(text + helper)
+dispatch_path.write_text(dispatch)
 (rc / 'wr-band-wifi-lifecycle.h').write_text('''#ifndef WR_BAND_WIFI_LIFECYCLE_H
 #define WR_BAND_WIFI_LIFECYCLE_H
 #include "wr-band-lifecycle.h"
@@ -80,4 +105,4 @@ int wr_band_apply_wifi_settings(int enabled, int radio2g, int radio5g,
                                struct wr_band_apply_result *result);
 #endif
 ''')
-print('Actual paired rc profile/radio callbacks installed; event dispatch/settings serialization pending')
+print('Paired rc callbacks and dedicated steering apply event installed; global settings serialization pending')
