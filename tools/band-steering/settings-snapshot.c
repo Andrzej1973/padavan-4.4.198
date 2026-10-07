@@ -79,3 +79,23 @@ const char *wr_band_snapshot_wlan_get(const struct wr_band_settings_snapshot *s,
     if(written<0 || (size_t)written>=sizeof(key)) return 0;
     return wr_band_snapshot_get(s,key);
 }
+const char *wr_band_snapshot_wlan_key_type(const struct wr_band_settings_snapshot *s,int band)
+{
+    const char *selected, *key;
+    char name[] = "key1";
+    long index;
+    size_t length;
+    if (!s || !s->data || (band!=0 && band!=1)) return 0;
+    selected=wr_band_snapshot_wlan_get(s,band,"key");
+    /* The original generator defaults an absent/out-of-range selector to 1.
+     * strtol also preserves its accepted leading whitespace/sign/number text,
+     * while avoiding undefined integer conversion on an oversized selector. */
+    index=selected?strtol(selected,0,10):1;
+    if(index<1 || index>4) index=1;
+    name[3]=(char)('0'+index);
+    key=wr_band_snapshot_wlan_get(s,band,name);
+    length=key?strlen(key):0;
+    if(length==5 || length==13) return "1";
+    if(length==10 || length==26) return "0";
+    return wr_band_snapshot_wlan_get(s,band,"key_type");
+}

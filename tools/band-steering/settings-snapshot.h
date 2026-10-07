@@ -10,5 +10,9 @@ const char *wr_band_snapshot_get(const struct wr_band_settings_snapshot *, const
 /* Same rt_/wl_ key mapping as the pinned shared nvram_wlan_get helper.
  * Invalid band or a key exceeding its 64-byte buffer is rejected. */
 const char *wr_band_snapshot_wlan_get(const struct wr_band_settings_snapshot *, int band, const char *);
+/* Match the profile generator's selected WEP key derivation without changing
+ * either the immutable capture or live NVRAM. Invalid key lengths retain the
+ * captured key_type, including a missing value (NULL). */
+const char *wr_band_snapshot_wlan_key_type(const struct wr_band_settings_snapshot *, int band);
 void wr_band_snapshot_release(struct wr_band_settings_snapshot *);
 #endif
