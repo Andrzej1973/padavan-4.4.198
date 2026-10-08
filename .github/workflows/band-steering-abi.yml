@@ -865,6 +865,15 @@ jobs:
           sudo unshare --net ip6tables-legacy-restore --test < abi-results/iot-filter.v6
           printf '%s\n' 'PASS host-kernel IPv4 and IPv6 restore grammar in isolated namespaces; target kernel and packet behavior unverified' | tee abi-results/iot-firewall-kernel-parser.txt
 
+      - name: Exercise IoT isolation with host-kernel TCP packets
+        shell: bash
+        run: |
+          set -euo pipefail
+          command -v ip
+          parent_netns="$(readlink /proc/self/ns/net)"
+          sudo env WR_IOT_PARENT_NETNS="$parent_netns" unshare --net --mount --fork \
+            python3 tools/iot/check-firewall-packets.py "$PWD/abi-results"
+
       - name: Upload ABI diagnostics
         if: always()
         uses: actions/upload-artifact@v7
