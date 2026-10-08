@@ -130,7 +130,64 @@ int main(void)
  return 0;
 }
 '''
+snapshot_mode = 'wr_band_snapshot_capture(&snapshot' in helper
+if snapshot_mode:
+    support = r'''
+#include "wr-band-settings-snapshot.h"
+#include <errno.h>
+static const struct wr_band_settings_snapshot *bound_snapshot;
+static int capture_failed, bind_failed, capture_calls, bind_calls, unbind_calls;
+static int nvram_getall(char *data,int capacity,int temporary)
+{
+ const char dump[]="rt_ssid=fixture\0wl_ssid=fixture\0";
+ assert(capacity==0x20000 && temporary==1);++capture_calls;
+ if(capture_failed) { errno=ENOSPC;return -1; }
+ memcpy(data,dump,sizeof(dump));return 0;
+}
+int wr_band_profile_bind_snapshot(const struct wr_band_settings_snapshot *s)
+{
+ ++bind_calls;assert(s && s->data && !bound_snapshot);
+ if(bind_failed)return -1;
+ bound_snapshot=s;return 0;
+}
+void wr_band_profile_unbind_snapshot(void)
+{ assert(bound_snapshot);bound_snapshot=NULL;++unbind_calls; }
+'''
+    test=test.replace('#define IFNAME_2G_MAIN',support+'\n#define IFNAME_2G_MAIN')
+    test=test.replace('{ assert((band==0||band==1) && key); return "fixture"; }',
+        '{ assert(!bound_snapshot && (band==0||band==1) && key); return "fixture"; }')
+    test=test.replace('{ assert(enabled==0||enabled==1); mark(3); return write_failed; }',
+        '{ assert(bound_snapshot && (enabled==0||enabled==1)); '
+        'assert(!strcmp(wr_band_snapshot_wlan_get(bound_snapshot,0,"ssid"),"fixture")); '
+        'mark(3); return write_failed; }')
+    marker=' puts("PASS actual rc callback ordering/failure paths with mocked radio/service operations; device behavior unverified");'
+    extra=r'''
+ assert(!bound_snapshot && capture_calls==bind_calls && bind_calls==unbind_calls);
+ count=0;capture_failed=1;
+ {
+  int previous=bind_calls;
+  assert(wr_band_apply_wifi_settings(1,1,1,&r)==-1 && count==0);
+  assert(r.state==WR_APPLY_REJECTED && !r.off_confirmed && !bound_snapshot);
+  assert(bind_calls==previous && !wr_wifi_applying);
+ }
+ count=0;capture_failed=0;bind_failed=1;
+ {
+  int previous=unbind_calls;
+  assert(wr_band_apply_wifi_settings(1,1,1,&r)==-1 && count==0);
+  assert(r.state==WR_APPLY_REJECTED && !r.off_confirmed && !bound_snapshot);
+  assert(unbind_calls==previous && !wr_wifi_applying);
+ }
+ count=0;bind_failed=0;
+ assert(!wr_band_apply_wifi_settings(1,1,1,&r) && !bound_snapshot && !wr_wifi_applying);
+ puts("PASS actual snapshot capture and cleanup through Wi-Fi apply; kernel reader and hardware responses mocked");
+'''
+    if test.count(marker)!=1:
+        raise ValueError('Snapshot fixture assertion anchor changed')
+    test=test.replace(marker,extra+marker)
 a.output.mkdir(parents=True,exist_ok=True)
 (a.output/'wifi-lifecycle-check.c').write_text(test.replace('__HELPER__',helper))
 for name in ['wr-band-service-owner.h','wr-band-profile-policy.h','wr-band-lifecycle.h','wr-band-lifecycle.c']:
     (a.output/name).write_bytes((rc/name).read_bytes())
+if snapshot_mode:
+    for name in ['wr-band-settings-snapshot.c','wr-band-settings-snapshot.h']:
+        (a.output/name).write_bytes((rc/name).read_bytes())
