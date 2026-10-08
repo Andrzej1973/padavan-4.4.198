@@ -9,3 +9,7 @@ Record each supplied repository at an exact revision, distinguish source flags f
 - [yummy026/padavan4.4-2](YUMMY026-PADAVAN44-2.md): Linux 4.4.198; GCC 13/libc and package-build candidates, offline and ABI constraints.
 
 - [tsl0922/padavan](TSL0922-PADAVAN.md): Linux 4.4.198, GCC 13 and structured package/ttyd/SmartDNS integration references.
+
+## Adoption priority
+
+Complete and verify the current WR1200JS firmware first. Keep donor improvements as recorded candidates for later evaluation when time and credits permit. No production toolchain/libc migration or extra router build is implied by these audits.

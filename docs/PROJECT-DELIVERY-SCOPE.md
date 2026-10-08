@@ -242,3 +242,11 @@ Preserve all project and upstream sources offline, including every selected and 
 Preserve the complete build environment as well: the required WSL 2 Linux distribution/version, host tools and offline-installable system packages or an exported prepared distribution, together with the pinned compiler and all build caches needed from a clean build directory. Inventory all recursive fetches, verify every retained dependency by checksum and report the local backup location and total size. Keep credentials and private router configuration out of public source archives.
 
 Provide a documented WSL 2 command that builds the same firmware profile solely from the retained local files. Test with networking disabled from a clean build directory so implicit downloads cannot hide missing files. Compare the resulting image/configuration against the reference build, record any reproducibility differences and do not claim byte-identical output without a successful hash comparison. The offline kit must be transferable to another storage location and include a restore/verification procedure.
+
+## WR1200JS completion before donor expansion — user instruction 2026-10-08
+
+Finish the agreed YOUHUA WR1200JS Linux 4.4.198 firmware and its build/image/runtime acceptance before starting other router work or optional donor-driven migrations. Preserve the current configuration and required features; CAKE remains excluded. Required in-progress WR1200JS work remains in scope.
+
+Retain the pinned donor audits and original reference configurations. When time and credits permit, return to the recorded candidates and choose improvements based on compatibility, measurable benefit and evidence. Auditing a donor does not authorize replacing the production toolchain, switching libc, enabling optional packages or expanding the build matrix. Do not let optional donor exploration delay delivery of the current WR1200JS firmware.
+
+Keep verified findings, remaining checks and adoption decisions in docs/donor-audits. Source flags and successful compilation are separate from device runtime verification. Secondary Mi Mini and other accepted later work remain scheduled after the WR1200JS priority stage.
