@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Preprocess with an actual Kbuild command; ceiling evidence, not live capacity."""
-import argparse,json,re,shlex,subprocess
+import argparse,json,re,shlex,subprocess,shutil
 from pathlib import Path
 p=argparse.ArgumentParser();p.add_argument('kernel',type=Path);p.add_argument('radio',choices=['mt76x2','mt76x3']);p.add_argument('--compiler',type=Path,required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args()
 root=a.kernel.resolve();driver='drivers/net/wireless/mediatek/'+a.radio
@@ -8,7 +8,12 @@ cmdfile=root/(driver+'/chips/.rtmp_chip.o.cmd')
 s=cmdfile.read_text(encoding='utf-8');commands=re.findall(r'^cmd_.*? := (.+)$',s,re.M)
 if len(commands)!=1:raise SystemExit('Expected one actual Kbuild compiler command')
 args=shlex.split(commands[0]);compiler=Path(args[0])
-if not compiler.is_absolute():compiler=(root/compiler)
+if not compiler.is_absolute():
+ if '/' in args[0]:compiler=root/compiler
+ else:
+  resolved=shutil.which(args[0])
+  if not resolved:raise SystemExit('Kbuild compiler is absent from the build PATH')
+  compiler=Path(resolved)
 if compiler.resolve()!=a.compiler.resolve():raise SystemExit('Kbuild compiler does not match requested pinned compiler')
 if any(x in (';','&&','||','|','>','<') for x in args):raise SystemExit('Unexpected compound Kbuild command')
 filtered=[];i=1
