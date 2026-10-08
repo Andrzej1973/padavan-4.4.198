@@ -15,7 +15,7 @@ code=r'''
 #ifdef APP_WR_BAND_STEERING
 /* refresh schedules rc only; callers must await a changed observation serial.
  * State 2 means last verified OFF, not a new driver readback. */
-static int ej_wr_band_observation(int eid, webs_t wp, int argc, char_t **argv)
+static int ej_wr_band_observation(int eid, webs_t wp, int argc, char **argv)
 {
  (void)eid;
  int serial = nvram_get_int("wr_bs_observation_serial");

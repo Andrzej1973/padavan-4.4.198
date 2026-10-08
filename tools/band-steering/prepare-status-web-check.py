@@ -16,7 +16,6 @@ a.output.write_text(r'''#include <assert.h>
 #include <stdio.h>
 #include <stdarg.h>
 typedef void *webs_t;
-typedef char char_t;
 static int serial_value, state_value, apply_value, reads, race, notifications;
 static char output[128];
 static int nvram_get_int(const char *key) {

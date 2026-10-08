@@ -29,8 +29,11 @@ for symbol in ('MT7603E_BAND_STEERING_7603', 'RT_BAND_STEERING'):
 anchor = '\t{ "wl_band_steering", "0" },'
 if text.count(anchor) != 1 or text.count('{ "rt_band_steering", "0" }') != 1 or 'wr_bs_enable' in text:
     raise ValueError('Factory-OFF defaults changed; no files written')
-text = text.replace(anchor,
-                    '\t{ "wr_bs_enable", "0" }, /* coordinated WR steering: factory OFF */\n'+anchor)
+array_anchor = 'struct nvram_pair router_defaults[] = {\n'
+if text.count(array_anchor) != 1:
+    raise ValueError('Defaults array anchor changed; no files written')
+text = text.replace(array_anchor, array_anchor+
+                    '\t{ "wr_bs_enable", "0" }, /* coordinated WR steering: factory OFF */\n')
 board.write_text(config, encoding='utf-8')
 defaults.write_text(text, encoding='utf-8')
 report = {'runtime_verified': False, 'factory_enabled': False,
