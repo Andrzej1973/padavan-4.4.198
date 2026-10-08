@@ -220,6 +220,11 @@ jobs:
           import os
           import re
           config = Path("padavan-4.4/trunk/configs/templates/WR1200JS.config")
+          # The corresponding source hook is applied after toolchain extraction.
+          baseline = config.read_text()
+          if 'CONFIG_FIRMWARE_INCLUDE_WR_BAND_STEERING' in baseline:
+              raise SystemExit('Unexpected existing WR steering template selector')
+          config.write_text(baseline + '\n# CONFIG_FIRMWARE_INCLUDE_WR_BAND_STEERING is not set\n')
           source = Path("configs.build/wr1200js.config").read_text().splitlines()
           text = config.read_text().splitlines()
           desired = {}
@@ -318,6 +323,20 @@ jobs:
           tar -xJf padavan-4.4/toolchain-mipsel.tar.xz \
             -C padavan-4.4/toolchain/toolchain-mipsel
 
+      - name: Prepare requested WR Band Steering integration
+        id: steering_prepare
+        run: |
+          set -euo pipefail
+          enabled=n
+          if grep -qx 'CONFIG_FIRMWARE_INCLUDE_WR_BAND_STEERING=y' configs.build/wr1200js.config; then
+            compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+            test -n "$compiler"
+            python3 tools/band-steering/prepare-source-integration.py padavan-4.4 \
+              --config configs.build/wr1200js.config --compiler "$compiler"
+            enabled=y
+          fi
+          echo "enabled=$enabled" >> "$GITHUB_OUTPUT"
+
       - name: Apply requested userspace optimization policy
         run: |
           python3 overlay/padavan-4.4/scripts/set-userspace-performance.py \
@@ -335,6 +354,23 @@ jobs:
         run: |
           cd padavan-4.4
           make WR1200JS TOOLCHAIN=mipsel-linux-uclibc
+          if grep -qx 'CONFIG_FIRMWARE_INCLUDE_WR_BAND_STEERING=y' trunk/.config; then
+            grep -qx 'CONFIG_MT7603E_BAND_STEERING_7603=y' trunk/linux-4.4.x/.config
+            grep -qx 'CONFIG_RT_BAND_STEERING=y' trunk/linux-4.4.x/.config
+            for binary in wr-band-steering wr-band-steering-ctl; do
+              test -x "trunk/romfs/usr/sbin/$binary"
+              readelf -h "trunk/romfs/usr/sbin/$binary" | grep -q 'Machine:.*MIPS'
+            done
+            grep -a -q '/usr/sbin/wr-band-steering' trunk/romfs/sbin/rc
+            grep -a -q 'wr_bs_enable' trunk/romfs/lib/libshared.so
+            python3 ../tools/band-steering/verify-package-closure.py trunk/romfs trunk/romfs \
+              --production-image --output ../firmware-steering-closure.json
+            python3 ../tools/band-steering/verify-package-closure.py trunk/romfs trunk/romfs \
+              --production-image --binary sbin/rc --output ../firmware-steering-rc-closure.json
+          else
+            test ! -e trunk/romfs/usr/sbin/wr-band-steering
+            test ! -e trunk/romfs/usr/sbin/wr-band-steering-ctl
+          fi
           test ! -e trunk/romfs/usr/sbin/udpxy
           test ! -e trunk/romfs/usr/bin/msd_lite
           test ! -e trunk/romfs/etc_ro/msd_lite.conf
@@ -647,9 +683,14 @@ jobs:
             usbip-elf-dependencies.json
             ddns-elf-dependencies.json
             curl-elf-dependencies.json
+            firmware-steering-closure.json
+            firmware-steering-rc-closure.json
+            padavan-4.4/band-steering-source-integration.json
+            padavan-4.4/band-steering-board-defaults.json
 
 
       - name: Compile isolated full Band Steering drivers
+        if: ${{ !cancelled() && steps.firmware_build.conclusion == 'success' && steps.steering_prepare.outputs.enabled != 'y' }}
         run: |
           set -euo pipefail
           source_kernel="$PWD/padavan-4.4/trunk/linux-4.4.x"
@@ -709,7 +750,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Compile complete isolated rc with steering profile integration
-        if: ${{ !cancelled() && steps.firmware_build.conclusion == 'success' }}
+        if: ${{ !cancelled() && steps.firmware_build.conclusion == 'success' && steps.steering_prepare.outputs.enabled != 'y' }}
         run: |
           set -euo pipefail
           compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
@@ -759,7 +800,7 @@ jobs:
             overlay/padavan-4.4/candidates/eoip/eoip
 
       - name: Compile package against actual isolated steering drivers
-        if: ${{ !cancelled() && steps.firmware_build.conclusion == 'success' }}
+        if: ${{ !cancelled() && steps.firmware_build.conclusion == 'success' && steps.steering_prepare.outputs.enabled != 'y' }}
         run: |
           set -euo pipefail
           compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
@@ -875,6 +916,7 @@ jobs:
             stubby-candidate-build/build/CMakeFiles/CMake*.log
 
       - name: Link isolated MT7621 systick candidate kernel
+        if: ${{ !cancelled() && steps.firmware_build.conclusion == 'success' && steps.steering_prepare.outputs.enabled != 'y' }}
         run: |
           set -euo pipefail
           source_kernel="$PWD/padavan-4.4/trunk/linux-4.4.x"

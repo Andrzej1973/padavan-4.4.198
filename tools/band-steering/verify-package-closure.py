@@ -106,6 +106,8 @@ def main():
     p.add_argument('image', type=Path)
     p.add_argument('--readelf', default='readelf')
     p.add_argument('--binary', action='append', help='Relative staged executable; repeat for multiple seeds')
+    p.add_argument('--production-image', action='store_true',
+                   help='Candidates are files in the built normal ROMFS; runtime still unverified')
     p.add_argument('--output', type=Path, required=True)
     a = p.parse_args()
     result = {'runtime_verified': False, 'production_installed': False,
@@ -113,6 +115,7 @@ def main():
     try:
         result['elf_files'] = verify(a.staged.resolve(), a.image.resolve(), a.readelf, a.binary)
         result['dependency_closure_verified'] = True
+        result['production_installed'] = a.production_image
     except (OSError, ValueError, subprocess.CalledProcessError) as error:
         result['errors'].append(str(error))
     a.output.write_text(json.dumps(result, indent=2) + '\n')
