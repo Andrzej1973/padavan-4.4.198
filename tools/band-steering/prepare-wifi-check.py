@@ -184,6 +184,30 @@ void wr_band_profile_unbind_snapshot(void)
     if test.count(marker)!=1:
         raise ValueError('Snapshot fixture assertion anchor changed')
     test=test.replace(marker,extra+marker)
+if 'wr_radio_snapshot = &snapshot;' in helper:
+    radio_start=s.index('static const struct wr_band_settings_snapshot *wr_radio_snapshot;')
+    radio_helper=s[radio_start:s.index('\n#else',radio_start)]
+    anchor='int wr_band_generate_profiles(int enabled)'
+    support='''static int nvram_get_int(const char *name)
+{ assert(!strcmp(name,"mlme_radio_rt") || !strcmp(name,"mlme_radio_wl"));return 1; }
+'''
+    test=test.replace(anchor,support+radio_helper+'\n'+anchor)
+    test=test.replace('rt_ssid=fixture\\0wl_ssid=fixture\\0',
+                      'rt_ssid=fixture\\0wl_ssid=fixture\\0rt_guest_enable=1\\0')
+    test=test.replace('static void restart_wifi_rt(int on,int reload) {',
+        'static void restart_wifi_rt(int on,int reload) { '
+        'assert(wr_radio_snapshot==bound_snapshot && wr_radio_snapshot); '
+        'assert(!strcmp(wr_radio_wlan_get(0,"ssid"),"fixture")); '
+        'assert(wr_radio_wlan_get_int(0,"guest_enable")==1); '
+        'assert(wr_radio_get_int("mlme_radio_rt")==1);')
+    test=test.replace('static void restart_wifi_wl(int on,int reload) {',
+        'static void restart_wifi_wl(int on,int reload) { '
+        'assert(wr_radio_snapshot==bound_snapshot && wr_radio_snapshot); '
+        'assert(!strcmp(wr_radio_wlan_get(1,"ssid"),"fixture"));')
+    test=test.replace('assert(!bound_snapshot && capture_calls',
+                      'assert(!wr_radio_snapshot && !bound_snapshot && capture_calls')
+    test=test.replace('!bound_snapshot && !wr_wifi_applying',
+                      '!wr_radio_snapshot && !bound_snapshot && !wr_wifi_applying')
 a.output.mkdir(parents=True,exist_ok=True)
 (a.output/'wifi-lifecycle-check.c').write_text(test.replace('__HELPER__',helper))
 for name in ['wr-band-service-owner.h','wr-band-profile-policy.h','wr-band-lifecycle.h','wr-band-lifecycle.c']:

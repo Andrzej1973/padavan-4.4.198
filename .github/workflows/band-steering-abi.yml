@@ -57,6 +57,8 @@ on:
       - 'tools/band-steering/prepare-profile-integration.py'
       - 'tools/band-steering/prepare-profile-snapshot.py'
       - 'tools/band-steering/prepare-wifi-snapshot.py'
+      - 'tools/band-steering/prepare-radio-snapshot.py'
+      - 'tools/band-steering/prepare-radio-snapshot-check.py'
       - 'tools/band-steering/prepare-profile-snapshot-check.py'
       - 'tools/band-steering/prepare-profile-check.py'
       - 'tools/band-steering/prepare-wifi-lifecycle.py'
@@ -240,6 +242,26 @@ jobs:
           "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 \
             -msoft-float -Iabi-results/wifi-snapshot -c abi-results/wifi-snapshot/wifi-lifecycle-check.c \
             -o abi-results/wifi-snapshot-mips.o
+      - name: Verify original radio snapshot settings and live status
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/band-steering/prepare-radio-snapshot.py source
+          python3 tools/band-steering/prepare-radio-snapshot-check.py source abi-results/radio-snapshot
+          python3 tools/band-steering/prepare-wifi-check.py source abi-results/radio-wifi-snapshot
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -Iabi-results/radio-snapshot \
+            abi-results/radio-snapshot/wr-band-settings-snapshot.c \
+            abi-results/radio-snapshot/radio-snapshot-check.c -o abi-results/check-radio-snapshot
+          abi-results/check-radio-snapshot | tee abi-results/radio-snapshot-checks.txt
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -Iabi-results/radio-wifi-snapshot \
+            abi-results/radio-wifi-snapshot/wr-band-lifecycle.c \
+            abi-results/radio-wifi-snapshot/wr-band-settings-snapshot.c \
+            abi-results/radio-wifi-snapshot/wifi-lifecycle-check.c -o abi-results/check-radio-wifi-snapshot
+          abi-results/check-radio-wifi-snapshot | tee abi-results/radio-wifi-snapshot-checks.txt
+          compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
+          "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 \
+            -msoft-float -Iabi-results/radio-snapshot -c abi-results/radio-snapshot/radio-snapshot-check.c \
+            -o abi-results/radio-snapshot-mips.o
       - name: Verify byte encoders and compile the MIPS adapter
         shell: bash
         run: |
