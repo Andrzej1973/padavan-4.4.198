@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
     paths:
+      - 'tools/shared-wifi/**'
       - '.github/workflows/band-steering-abi.yml'
       - 'tools/band-steering/prepare-abi-probe.py'
       - 'tools/band-steering/read-abi-probe.py'
@@ -706,6 +707,19 @@ jobs:
             "$compiler" -std=gnu11 -Wall -Wextra -Werror -mips32r2 -mabi=32 \
               -msoft-float -O2 -c "abi-results/check-grant-$radio.c" -o "abi-results/grant-case-$radio-mips.o"
           done
+      - name: Check shared Wi-Fi validation without NVRAM mutation
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            tools/shared-wifi/check-validate.c -o abi-results/check-shared-wifi
+          abi-results/check-shared-wifi | tee abi-results/shared-wifi-validation.txt
+          compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          "$compiler" -std=gnu11 -Wall -Wextra -Werror -mips32r2 -mabi=32 \
+            -msoft-float -O2 -c tools/shared-wifi/check-validate.c \
+            -o abi-results/shared-wifi-validation-mips.o
+
       - name: Upload ABI diagnostics
         if: always()
         uses: actions/upload-artifact@v7
