@@ -60,6 +60,8 @@ on:
       - 'tools/band-steering/prepare-profile-snapshot.py'
       - 'tools/band-steering/prepare-wifi-snapshot.py'
       - 'tools/band-steering/prepare-radio-snapshot.py'
+      - 'tools/band-steering/prepare-board-defaults.py'
+      - 'tools/band-steering/check-board-defaults.py'
       - 'tools/band-steering/check-radio-read-guard.py'
       - 'tools/band-steering/prepare-radio-snapshot-check.py'
       - 'tools/band-steering/prepare-profile-snapshot-check.py'
@@ -109,6 +111,7 @@ jobs:
           path: source
           sparse-checkout: |
             trunk/user/rc
+            trunk/user/shared
             trunk/linux-4.4.x/drivers/nvram
             trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x2/include
             trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x2/ap
@@ -116,6 +119,11 @@ jobs:
             trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/ap
       - name: Verify steering package dependency checker logic
         run: python3 tools/band-steering/check-package-closure.py
+      - name: Verify WR board steering selectors and factory OFF
+        run: |
+          python3 tools/band-steering/check-board-defaults.py source \
+            overlay/padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config \
+            board-defaults-checks
       - name: Prepare non-deauth idle-entry protocol
         run: python3 tools/band-steering/prepare-idle-aging.py source
       - name: Prepare read-only grant queries
