@@ -135,7 +135,10 @@ int wr_band_handle_wifi_restart(int band, int radio_on)
 {
     struct wr_band_apply_result result;
     int radio2g, radio5g, enabled, status;
-    if (wr_wifi_applying || (!wr_wifi_owner.pid && !nvram_match("wr_bs_enable", "1")))
+    /* A previous failed apply still needs verified OFF, even after the user
+     * disables the request and no child PID remains. */
+    if (wr_wifi_applying || (!wr_wifi_owner.pid && !wr_wifi_last_status &&
+                            !nvram_match("wr_bs_enable", "1")))
         return 0;
     radio2g = get_enabled_radio_rt();
     radio5g = get_enabled_radio_wl();

@@ -89,6 +89,13 @@ int main(void)
  assert(calls[0]==1 && calls[1]==2 && calls[count-1]==2);
  for (int i=0;i<count;++i) assert(calls[i]!=8);
  count=0;requested=0;
+ wr_wifi_last_status=-1;off_failed=-1;
+ assert(wr_band_handle_wifi_restart(0,1)==1);
+ assert(count==1 && calls[0]==2 && wr_wifi_last_status==-1 && !last_off);
+ count=0;off_failed=0;
+ assert(wr_band_handle_wifi_restart(0,1)==1);
+ assert(count==5 && calls[0]==2 && calls[count-1]==2 && !wr_wifi_last_status && last_off);
+ count=0;
  assert(!wr_band_wifi_shutdown() && !count);
  wr_wifi_owner.pid=42;stop_failed=-1;
  assert(wr_band_wifi_shutdown()==-1 && count==1 && calls[0]==9 && wr_wifi_owner.pid==42);
