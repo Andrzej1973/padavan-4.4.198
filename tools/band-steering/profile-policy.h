@@ -7,7 +7,8 @@ struct wr_band_credentials {
 enum wr_band_profile_result {
     WR_PROFILE_DISABLED = 0, WR_PROFILE_COMPATIBLE = 1,
     WR_PROFILE_INVALID = -1, WR_PROFILE_RADIO_OFF = -2,
-    WR_PROFILE_MISMATCH = -3, WR_PROFILE_UNSUPPORTED_SECURITY = -4
+    WR_PROFILE_MISMATCH = -3, WR_PROFILE_UNSUPPORTED_SECURITY = -4,
+    WR_PROFILE_AP_UNAVAILABLE = -5
 };
 /* Read-only: validates borrowed configuration strings; never modifies NVRAM. */
 int wr_band_profile_validate(int requested, const struct wr_band_credentials bands[2]);

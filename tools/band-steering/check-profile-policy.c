@@ -2,7 +2,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
-static int reads, mismatch, invalid;
+static int reads, mismatch, invalid, ap_mode, mode_band;
 static const char *setting(int band, const char *name, void *context)
 {
     static char reused[80]; const char *value = "0";
@@ -13,6 +13,10 @@ static const char *setting(int band, const char *name, void *context)
     else if (!strcmp(name, "wpa_psk")) value = "abcdefgh";
     else if (!strcmp(name, "radio_x")) value = invalid ? "1junk" : "1";
     else if (!strcmp(name, "wpa_mode")) value = "2";
+    else if (!strcmp(name, "mode_x")) {
+        static const char *modes[] = {"0","1","2","3","4","5"};
+        value = band==mode_band ? modes[ap_mode] : "0";
+    }
     strcpy(reused, value); return reused;
 }
 int main(void)
@@ -24,9 +28,18 @@ int main(void)
     char key[66], ssid[34]; int mode;
     assert(wr_band_profile_from_settings(0, setting, NULL) == WR_PROFILE_DISABLED && !reads);
     assert(wr_band_profile_from_settings(1, NULL, NULL) == WR_PROFILE_INVALID);
-    assert(wr_band_profile_from_settings(1, setting, NULL) == WR_PROFILE_COMPATIBLE && reads == 16);
+    assert(wr_band_profile_from_settings(1, setting, NULL) == WR_PROFILE_COMPATIBLE && reads == 18);
     mismatch = 1; assert(wr_band_profile_from_settings(1, setting, NULL) == WR_PROFILE_MISMATCH);
     mismatch = 0; invalid = 1; assert(wr_band_profile_from_settings(1, setting, NULL) == WR_PROFILE_INVALID);
+    invalid = 0;
+    for (mode_band=0;mode_band<2;++mode_band) {
+        for (ap_mode=0;ap_mode<5;++ap_mode)
+            assert(wr_band_profile_from_settings(1,setting,NULL)==
+                (ap_mode==1 || ap_mode==3 ? WR_PROFILE_AP_UNAVAILABLE : WR_PROFILE_COMPATIBLE));
+        ap_mode=5;
+        assert(wr_band_profile_from_settings(1,setting,NULL)==WR_PROFILE_INVALID);
+    }
+    ap_mode=mode_band=0;
     assert(wr_band_profile_validate(0, NULL) == WR_PROFILE_DISABLED);
     assert(wr_band_profile_validate(2, b) == WR_PROFILE_INVALID);
     assert(wr_band_profile_validate(1, NULL) == WR_PROFILE_INVALID);

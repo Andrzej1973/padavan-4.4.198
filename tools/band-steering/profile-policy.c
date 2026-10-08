@@ -77,6 +77,7 @@ int wr_band_profile_from_settings(int requested, wr_band_setting_getter get, voi
     memset(storage, 0, sizeof(storage)); memset(bands, 0, sizeof(bands));
     for (i = 0; i < 2; ++i) {
         struct snapshot *s = &storage[i]; struct wr_band_credentials *b = &bands[i];
+        int ap_mode;
         if (!copy_setting(s->ssid, sizeof(s->ssid), get((int)i, "ssid", context)) ||
             !copy_setting(s->auth, sizeof(s->auth), get((int)i, "auth_mode", context)) ||
             !copy_setting(s->crypto, sizeof(s->crypto), get((int)i, "crypto", context)) ||
@@ -85,6 +86,10 @@ int wr_band_profile_from_settings(int requested, wr_band_setting_getter get, voi
             !integer_setting(get((int)i, "closed", context), 1, &b->hidden) ||
             !integer_setting(get((int)i, "wep_x", context), 2, &b->wep_enabled) ||
             !integer_setting(get((int)i, "wpa_mode", context), 4, &b->wpa_mode)) goto done;
+        if (!integer_setting(get((int)i, "mode_x", context), 4, &ap_mode)) goto done;
+        /* Original start_wifi_ap_rt/wl do not bring up a main AP in WDS-only
+         * (1) or APCLI-only (3) mode. Keep AP+WDS and AP+APCLI available. */
+        if (ap_mode == 1 || ap_mode == 3) { result = WR_PROFILE_AP_UNAVAILABLE; goto done; }
         b->ssid = s->ssid; b->auth_mode = s->auth; b->crypto = s->crypto; b->psk = s->psk;
     }
     result = wr_band_profile_validate(requested, bands);
