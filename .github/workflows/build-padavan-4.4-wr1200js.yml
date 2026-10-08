@@ -767,6 +767,10 @@ jobs:
           bash tools/band-steering/compile-driver-package.sh \
             "$RUNNER_TEMP/wr1200js-steering-driver-probe" \
             "$PWD/band-steering-driver-package-results" "$compiler"
+          python3 tools/band-steering/verify-package-closure.py \
+            "$PWD/band-steering-driver-package-results/romfs" "$PWD/padavan-4.4/trunk/romfs" \
+            --readelf "${compiler%gcc}readelf" \
+            --output "$PWD/band-steering-driver-package-results/dependency-closure.json"
 
       - name: Upload driver-matched steering package diagnostics
         if: always()

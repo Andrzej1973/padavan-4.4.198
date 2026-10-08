@@ -52,6 +52,8 @@ on:
       - 'tools/band-steering/prepare-main-bss.py'
       - 'tools/band-steering/prepare-main-bss-check.py'
       - 'tools/band-steering/profile-policy.c'
+      - 'tools/band-steering/verify-package-closure.py'
+      - 'tools/band-steering/check-package-closure.py'
       - 'tools/band-steering/profile-policy.h'
       - 'tools/band-steering/check-profile-policy.c'
       - 'tools/band-steering/prepare-profile-integration.py'
@@ -111,6 +113,8 @@ jobs:
             trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x2/ap
             trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/include
             trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/ap
+      - name: Verify steering package dependency checker logic
+        run: python3 tools/band-steering/check-package-closure.py
       - name: Prepare non-deauth idle-entry protocol
         run: python3 tools/band-steering/prepare-idle-aging.py source
       - name: Prepare read-only grant queries
