@@ -62,6 +62,8 @@ on:
       - 'tools/band-steering/prepare-radio-snapshot.py'
       - 'tools/band-steering/prepare-board-defaults.py'
       - 'tools/band-steering/check-board-defaults.py'
+      - 'tools/prepare-wifi-hwnat-mode.py'
+      - 'tools/band-steering/prepare-hwnat-check.py'
       - 'tools/band-steering/prepare-source-integration.py'
       - 'tools/band-steering/prepare-package-integration.py'
       - 'tools/band-steering/prepare-web-controls.py'
@@ -155,6 +157,17 @@ jobs:
             https://github.com/vipshmily/padavan-4.4/releases/download/toolchain/mipsel-linux-uclibc.tar.xz
           echo 'de412846a5d057faf132b2463aa29c24f77c79c744f4181c1a287bbeaf1d7256  toolchain.tar.xz' | sha256sum -c -
           tar -xJf toolchain.tar.xz -C toolchain
+      - name: Verify Wi-Fi HNAT mode on interface bring-up
+        run: |
+          cp -a source hwnat-mode-source
+          python3 tools/prepare-wifi-hwnat-mode.py hwnat-mode-source
+          mkdir -p hwnat-mode-checks
+          python3 tools/band-steering/prepare-hwnat-check.py hwnat-mode-source --output hwnat-mode-checks/check.c
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined hwnat-mode-checks/check.c -o hwnat-mode-checks/check
+          ASAN_OPTIONS=detect_leaks=1 hwnat-mode-checks/check
+          compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -c hwnat-mode-checks/check.c -o hwnat-mode-checks/check-mips.o
       - name: Verify complete source preparation and registered target package
         shell: bash
         run: |
