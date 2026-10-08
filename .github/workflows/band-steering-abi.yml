@@ -69,6 +69,9 @@ on:
       - 'tools/band-steering/prepare-status-check.py'
       - 'tools/band-steering/prepare-status-web.py'
       - 'tools/band-steering/prepare-status-web-check.py'
+      - 'tools/band-steering/prepare-status-ui.py'
+      - 'tools/band-steering/status-ui.js'
+      - 'tools/band-steering/check-status-ui.js'
       - 'tools/band-steering/check-radio-read-guard.py'
       - 'tools/band-steering/prepare-radio-snapshot-check.py'
       - 'tools/band-steering/prepare-profile-snapshot-check.py'
@@ -323,6 +326,11 @@ jobs:
           "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 \
             -msoft-float -Iabi-results/wifi-snapshot -c abi-results/wifi-snapshot/wifi-lifecycle-check.c \
             -o abi-results/wifi-snapshot-mips.o
+      - name: Verify status refresh UI behavior
+        run: |
+          node tools/band-steering/check-status-ui.js
+          python3 tools/band-steering/prepare-status-ui.py source-integration
+          cmp tools/band-steering/status-ui.js source-integration/trunk/user/www/n56u_ribbon_fixed/wr-band-status.js
       - name: Verify read-only steering status observation
         shell: bash
         run: |
