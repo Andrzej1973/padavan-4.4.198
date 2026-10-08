@@ -474,6 +474,10 @@ jobs:
               fi
             done
             grep -a -q 'wr1200js-sqm.lock' trunk/romfs/sbin/rc
+          else
+            # The current project scope excludes CAKE from the image.
+            ! grep -Eq '^CONFIG_NET_SCH_CAKE=(y|m)$' trunk/linux-4.4.x/.config
+            test -z "$(find trunk/romfs/lib/modules -name sch_cake.ko -print -quit)"
           fi
           if grep -q '^CONFIG_FIRMWARE_ENABLE_DNSMASQ_REGEX=y$' trunk/.config; then
             test -x trunk/romfs/usr/sbin/dnsmasq
