@@ -9,6 +9,7 @@ p = argparse.ArgumentParser()
 p.add_argument('source', type=Path)
 p.add_argument('board_config', type=Path)
 p.add_argument('output', type=Path)
+p.add_argument('--preprocessor', help='Host C preprocessor for actual MT7612/MT7603 conditionals')
 a = p.parse_args()
 board = a.board_config.read_bytes()
 defaults = (a.source / 'trunk/user/shared/defaults.c').read_bytes()
@@ -47,6 +48,31 @@ for name, b, d, success in cases:
                                      '# CONFIG_RT_BAND_STEERING is not set', 'CONFIG_RT_BAND_STEERING=y')
         assert bt.splitlines() == expected.splitlines()
         assert all('{ "'+k+'", "0" }' in dt for k in ('wr_bs_enable','wl_band_steering','rt_band_steering'))
+        # The coordinated default must precede conditional radio entries.
+        array_start = dt.index('struct nvram_pair router_defaults[] = {')
+        coordinated = dt.index('{ "wr_bs_enable", "0" }')
+        assert array_start < coordinated < dt.index('#if', array_start)
+        if a.preprocessor:
+            headers = root / 'preprocessor-headers'
+            headers.mkdir()
+            for header in ('ralink_boards.h','nvram_linux.h','netutils.h','defaults.h'):
+                (headers/header).write_text('/* Isolated preprocessing fixture. */\n')
+            pp = subprocess.run([a.preprocessor, '-E', '-P', '-I'+str(headers),
+                                 '-DUSE_WID_5G=7612', '-DUSE_WID_2G=7603',
+                                 str(dp)], capture_output=True, text=True, check=True)
+            assert pp.stdout.count('{ "wr_bs_enable", "0" }') == 1
+            (root/'defaults-mt7612-preprocessed.c').write_text(pp.stdout)
+            # Prove this gate catches the previous erroneous insertion.
+            old = dt.replace('\t{ "wr_bs_enable", "0" }, /* coordinated WR steering: factory OFF */\n','')
+            old = old.replace('\t{ "wl_band_steering", "0" },',
+                              '\t{ "wr_bs_enable", "0" },\n\t{ "wl_band_steering", "0" },')
+            previous = dp.with_name('previous-conditional-default.c')
+            previous.write_text(old)
+            pp_old = subprocess.run([a.preprocessor, '-E', '-P', '-I'+str(headers),
+                                     '-DUSE_WID_5G=7612', '-DUSE_WID_2G=7603',
+                                     str(previous)], capture_output=True, text=True, check=True)
+            assert 'wr_bs_enable' not in pp_old.stdout
+            print('Actual MT7612/MT7603 preprocessing and previous-bug rejection: PASS')
         prepared = bp.read_bytes(), dp.read_bytes()
         again = subprocess.run([sys.executable, str(script), str(root)], capture_output=True)
         assert again.returncode and prepared == (bp.read_bytes(), dp.read_bytes())

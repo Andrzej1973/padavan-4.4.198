@@ -133,7 +133,7 @@ jobs:
         run: |
           python3 tools/band-steering/check-board-defaults.py source \
             overlay/padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config \
-            board-defaults-checks
+            board-defaults-checks --preprocessor gcc
       - name: Prepare non-deauth idle-entry protocol
         run: |
           mkdir source-integration
