@@ -4,8 +4,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <arpa/inet.h>
-struct wr_iot_range { uint32_t first,last; };
-struct wr_iot_subnet { uint32_t gateway,mask,network,broadcast,start,end; };
+#include "types.h"
 static int wr_iot_ipv4(const char *s,uint32_t *value) {
  struct in_addr a;
  if(!s||inet_pton(AF_INET,s,&a)!=1)return 0;

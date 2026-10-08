@@ -874,6 +874,22 @@ jobs:
           sudo env WR_IOT_PARENT_NETNS="$parent_netns" unshare --net --mount --fork \
             python3 tools/iot/check-firewall-packets.py "$PWD/abi-results"
 
+      - name: Check owned IoT bridge ioctls and guarded lifecycle
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            tools/iot/bridge.c tools/iot/check-bridge.c -o abi-results/check-iot-bridge
+          compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          for source_file in bridge check-bridge; do
+            "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+              -c "tools/iot/$source_file.c" -o "abi-results/iot-$source_file-mips.o"
+          done
+          parent_netns="$(readlink /proc/self/ns/net)"
+          sudo env WR_IOT_PARENT_NETNS="$parent_netns" unshare --net --mount --fork \
+            python3 tools/iot/check-bridge-kernel.py "$PWD/abi-results"
+
       - name: Upload ABI diagnostics
         if: always()
         uses: actions/upload-artifact@v7

@@ -1,0 +1,27 @@
+import os,subprocess,sys,json
+from pathlib import Path
+if os.geteuid()!=0 or not os.environ.get('WR_IOT_PARENT_NETNS') or os.readlink('/proc/self/ns/net')==os.environ['WR_IOT_PARENT_NETNS']:
+ raise SystemExit('Requires new isolated network namespace')
+r=Path(sys.argv[1]).resolve();binary=str(r/'check-iot-bridge');checks={}
+def run(*a):return subprocess.run(a,check=True,capture_output=True,text=True)
+def expect(key,operation,success):
+ p=subprocess.run([binary,operation]);checks[key]=(p.returncode==0)==success;assert checks[key],key
+run('mount','--make-rprivate','/');run('mount','-t','sysfs','sysfs','/sys')
+expect('missing_remove_noop','remove',True)
+run('ip','link','add','br-iot','type','bridge')
+expect('foreign_bridge_prepare_rejected','prepare',False);expect('foreign_bridge_remove_rejected','remove',False)
+assert Path('/sys/class/net/br-iot').exists();run('ip','link','delete','br-iot')
+expect('owned_create_prepare','prepare',True)
+info=json.loads(run('ip','-j','address','show','dev','br-iot').stdout)[0]
+checks['created_down']='UP' not in info['flags'];assert checks['created_down']
+checks['address_mask']=any(x.get('local')=='192.168.50.1' and x.get('prefixlen')==24 for x in info['addr_info']);assert checks['address_mask']
+assert Path('/sys/class/net/br-iot/ifalias').read_text().strip()=='wr1200js-iot-v1'
+if Path('/proc/sys/net/ipv6/conf/all/disable_ipv6').exists():
+ checks['ipv6_disabled']=Path('/proc/sys/net/ipv6/conf/br-iot/disable_ipv6').read_text().strip()=='1';assert checks['ipv6_disabled']
+run('ip','link','set','br-iot','up');expect('active_bridge_remove_rejected','remove',False);expect('active_bridge_prepare_rejected','prepare',False)
+run('ip','link','set','br-iot','down');run('ip','link','add','test-port','type','dummy');run('ip','link','set','test-port','master','br-iot')
+expect('attached_bridge_remove_rejected','remove',False);expect('attached_bridge_prepare_rejected','prepare',False)
+run('ip','link','set','test-port','nomaster');run('ip','link','delete','test-port');expect('owned_empty_down_remove','remove',True)
+assert not Path('/sys/class/net/br-iot').exists()
+(r/'iot-bridge-kernel.json').write_text(json.dumps({'checks':checks,'scope':'Host-kernel owned bridge ioctl lifecycle; target Wi-Fi and production RC integration unverified','runtime_verified':False},indent=2)+'\n')
+print('PASS owned IoT bridge creation stays down, conflict and active/attached guards, safe removal')
