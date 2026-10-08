@@ -864,8 +864,9 @@ jobs:
           make -C "$kernel" ARCH=mips CROSS_COMPILE="$cross" -j2 vmlinux \
             2>&1 | tee cpu-sleep-link.log
           test -s "$kernel/vmlinux"
-          test -s "$kernel/drivers/nvram/nvram.o"
-          "${cross}objdump" -dr "$kernel/drivers/nvram/nvram.o" > nvram-snapshot-kernel-disassembly.txt
+          # nvram_linux.c includes nvram.c; Kbuild emits no standalone nvram.o.
+          test -s "$kernel/drivers/nvram/nvram_linux.o"
+          "${cross}objdump" -dr "$kernel/drivers/nvram/nvram_linux.o" > nvram-snapshot-kernel-disassembly.txt
           "${cross}nm" "$kernel/vmlinux" > nvram-snapshot-kernel-symbols.txt
           grep -Eq '[[:space:]]_nvram_getall$' nvram-snapshot-kernel-symbols.txt
           grep -a -q 'mediatek,mt7621-systick' "$kernel/vmlinux"
@@ -881,7 +882,7 @@ jobs:
           grep -Eq '[[:space:]]mt7621_systick_early_init$' cpu-sleep-symbols.txt
           cp "$kernel/.config" cpu-sleep-link.config
           sha256sum "$kernel/vmlinux" > cpu-sleep-vmlinux.sha256
-          sha256sum "$kernel/drivers/nvram/nvram.c" "$kernel/drivers/nvram/nvram.o" > nvram-snapshot-kernel-sha256.txt
+          sha256sum "$kernel/drivers/nvram/nvram.c" "$kernel/drivers/nvram/nvram_linux.o" > nvram-snapshot-kernel-sha256.txt
 
       - name: Upload isolated kernel link diagnostics
         if: always()
