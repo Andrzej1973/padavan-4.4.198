@@ -21,7 +21,10 @@ for old,new in [('nvram_wlan_get','wr_radio_wlan_get'),
                 ('nvram_wlan_get_int','wr_radio_wlan_get_int'),
                 ('nvram_get_int','wr_radio_get_int')]:
     prefix, counts[old] = re.subn(r'\b'+old+r'(?=\s*\()',new,prefix)
-    if not counts[old]: raise ValueError('Missing audited radio read API: '+old)
+expected_counts = {'nvram_wlan_get': 10, 'nvram_wlan_get_int': 22,
+                   'nvram_get_int': 8}
+if counts != expected_counts:
+    raise ValueError('Audited radio read counts changed; no files written: '+str(counts))
 reads = set(re.findall(r'wr_radio_get_int\("([^"]+)"\)', prefix))
 if reads != {'mlme_radio_wl','mlme_radio_rt','inic_disable','wl_KickStaRssiLow',
              'wl_AssocReqRssiThres','rt_KickStaRssiLow','rt_AssocReqRssiThres'}:
@@ -65,3 +68,4 @@ suffix = suffix.replace(cleanup, '    wr_radio_snapshot = NULL;\n'+cleanup)
 prefix = prefix.replace(anchor,anchor+helper)
 path.write_text(prefix+marker+suffix)
 print('Prepared original radio settings reads from transaction capture; live mlme status retained; counts='+str(counts))
+
