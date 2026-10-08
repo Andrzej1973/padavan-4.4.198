@@ -705,7 +705,7 @@ jobs:
             padavan-4.4/trunk/romfs/www/RU.dict
             padavan-4.4/band-steering-*.json
             padavan-4.4/wifi-hwnat-source.json
-            padavan-4.4/wifi-qr-image.json
+            wifi-qr-image.json
             firmware-steering-*.json
           include-hidden-files: true
 
@@ -736,7 +736,7 @@ jobs:
             padavan-4.4/band-steering-source-integration.json
             padavan-4.4/band-steering-board-defaults.json
             padavan-4.4/wifi-hwnat-source.json
-            padavan-4.4/wifi-qr-image.json
+            wifi-qr-image.json
 
 
       - name: Compile isolated full Band Steering drivers
