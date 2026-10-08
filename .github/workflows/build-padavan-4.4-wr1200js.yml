@@ -352,6 +352,7 @@ jobs:
       - name: Build WR1200JS firmware
         id: firmware_build
         run: |
+          trap 'printf "Firmware build verification failed: %s\n" "$BASH_COMMAND" >&2' ERR
           cd padavan-4.4
           make WR1200JS TOOLCHAIN=mipsel-linux-uclibc
           if grep -qx 'CONFIG_FIRMWARE_INCLUDE_WR_BAND_STEERING=y' trunk/.config; then
@@ -661,6 +662,25 @@ jobs:
           name: zerotier-image-checks
           if-no-files-found: ignore
           path: zerotier-image-checks.json
+
+      - name: Preserve failed firmware build evidence
+        if: ${{ !cancelled() && steps.firmware_build.conclusion == 'failure' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: failed-firmware-build-evidence-wr1200js
+          retention-days: 14
+          if-no-files-found: warn
+          path: |
+            padavan-4.4/trunk/.config
+            padavan-4.4/trunk/linux-4.4.x/.config
+            padavan-4.4/trunk/images/*.trx
+            padavan-4.4/trunk/romfs/usr/sbin/wr-band-steering
+            padavan-4.4/trunk/romfs/usr/sbin/wr-band-steering-ctl
+            padavan-4.4/trunk/romfs/sbin/rc
+            padavan-4.4/trunk/romfs/lib/libshared.so
+            padavan-4.4/band-steering-*.json
+            firmware-steering-*.json
+          include-hidden-files: true
 
       - name: Upload WR1200JS images and toolchain checksum
         uses: actions/upload-artifact@v7
