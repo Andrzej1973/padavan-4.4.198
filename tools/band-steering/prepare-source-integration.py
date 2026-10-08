@@ -47,7 +47,7 @@ for name in ('prepare-idle-aging.py', 'prepare-grant-readback.py',
              'prepare-profile-integration.py', 'prepare-child-reaper.py',
              'prepare-wifi-lifecycle.py', 'prepare-profile-snapshot.py',
              'prepare-wifi-snapshot.py', 'prepare-radio-snapshot.py',
-             'prepare-board-defaults.py'):
+             'prepare-board-defaults.py', 'prepare-web-controls.py'):
     run(name, root)
 run('prepare-abi-probe.py', root, '--output', abi)
 for radio in ('mt76x2', 'mt76x3'):

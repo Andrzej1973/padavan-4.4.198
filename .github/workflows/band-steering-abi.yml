@@ -64,6 +64,7 @@ on:
       - 'tools/band-steering/check-board-defaults.py'
       - 'tools/band-steering/prepare-source-integration.py'
       - 'tools/band-steering/prepare-package-integration.py'
+      - 'tools/band-steering/prepare-web-controls.py'
       - 'tools/band-steering/check-radio-read-guard.py'
       - 'tools/band-steering/prepare-radio-snapshot-check.py'
       - 'tools/band-steering/prepare-profile-snapshot-check.py'
@@ -114,6 +115,8 @@ jobs:
           sparse-checkout: |
             trunk/user/rc
             trunk/user/shared
+            trunk/user/httpd
+            trunk/user/www
             trunk/linux-4.4.x/drivers/nvram
             trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x2
             trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3
@@ -175,7 +178,7 @@ jobs:
           root = Path('source-integration')
           r = json.loads((root/'band-steering-source-integration.json').read_text())
           assert r['preparation_complete'] and not r['factory_enabled']
-          assert not r['runtime_verified'] and len(r['steps']) == 18
+          assert not r['runtime_verified'] and len(r['steps']) == 19
           files = {}
           for name in ('wr-band-steering', 'wr-band-steering-ctl'):
               data = (root/'romfs/usr/sbin'/name).read_bytes()
@@ -656,4 +659,3 @@ jobs:
           name: band-steering-mips-abi
           path: abi-results/
           if-no-files-found: warn
-
