@@ -28,6 +28,25 @@
   if(result.source)names.forEach(function(name){form.elements[band+"_"+name].disabled=false;});
   return true;
  }
- root.WRSharedWifi={plan:plan,prepare:prepare};
+ function initAdvanced(){
+  if(!root.document)return;
+  var choice=root.document.querySelector("[data-wr-shared-choice]");if(!choice)return;
+  var form=choice.closest("form"),names=["channel","HT_BW","HT_EXTCHA","gmode","gmode_protection","mcs_mode","TxPower","KickStaRssiLow","AssocReqRssiThres","country_code","radio_x","wpa_gtk_rekey"];
+  ["rt","wl"].forEach(function(band){names.forEach(function(name){
+   var inputs=form.querySelectorAll('[name="'+band+'_'+name+'"]');
+   Array.prototype.forEach.call(inputs,function(input){var row=input.closest("tr");if(row){row.setAttribute("data-wr-advanced","");row.hidden=true;}});
+  });
+   var schedule=form.querySelectorAll('[name^="'+band+'_radio_date_x_"],[name^="'+band+'_radio_time_x_"],[name^="'+band+'_radio_time2_x_"]');
+   Array.prototype.forEach.call(schedule,function(input){var row=input.closest("tr");if(row){row.setAttribute("data-wr-advanced","");row.hidden=true;}});
+  });
+ }
+ function advanced(button){
+  var expanded=button.getAttribute("aria-expanded")!=="true";
+  button.setAttribute("aria-expanded",expanded?"true":"false");
+  var rows=button.closest("form").querySelectorAll("[data-wr-advanced]");
+  Array.prototype.forEach.call(rows,function(row){row.hidden=!expanded;});
+ }
+ if(root.document)root.document.addEventListener("DOMContentLoaded",initAdvanced);
+ root.WRSharedWifi={plan:plan,prepare:prepare,initAdvanced:initAdvanced,advanced:advanced};
  if(typeof module!=="undefined")module.exports=root.WRSharedWifi;
 })(typeof window!=="undefined"?window:globalThis);

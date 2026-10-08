@@ -7,11 +7,13 @@ assert (r/'shared-wifi.js').read_bytes()==(Path(__file__).parent/'ui.js').read_b
 for band,name in [('rt','Advanced_Wireless2g_Content.asp'),('wl','Advanced_Wireless_Content.asp')]:
  s=(r/name).read_text(encoding='utf-8')
  assert s.count('data-wr-shared-choice')==1
+ assert s.count('onclick="WRSharedWifi.advanced(this)"')==1
+ assert '[data-wr-advanced][hidden]{display:none!important}' in s
  assert s.count('src="/shared-wifi.js"')==1
  assert 'name="wr_wifi_shared" value="0" disabled' in s
  assert 'name="wr_wifi_source" value="'+band+'" disabled' in s
  assert s.index('WRSharedWifi.prepare(document.form, "'+band+'")')<s.index('showLoading();')
 for lang in ('EN','UK','RU'):
  s=(r/(lang+'.dict')).read_text(encoding='utf-8')
- for key in ('Label','Off','On','Note','Keep','Error'):assert 'WR_WIFI_SHARED_'+key+'=' in s
+ for key in ('Label','Off','On','Note','Keep','Error','Advanced'):assert 'WR_WIFI_SHARED_'+key+'=' in s
 print('PASS shared Wi-Fi actual ROMFS UI assets and request hooks; runtime unverified')
