@@ -60,6 +60,7 @@ on:
       - 'tools/band-steering/prepare-profile-snapshot.py'
       - 'tools/band-steering/prepare-wifi-snapshot.py'
       - 'tools/band-steering/prepare-radio-snapshot.py'
+      - 'tools/band-steering/check-radio-read-guard.py'
       - 'tools/band-steering/prepare-radio-snapshot-check.py'
       - 'tools/band-steering/prepare-profile-snapshot-check.py'
       - 'tools/band-steering/prepare-profile-check.py'
@@ -250,6 +251,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          python3 tools/band-steering/check-radio-read-guard.py source abi-results/radio-read-guard
           python3 tools/band-steering/prepare-radio-snapshot.py source
           python3 tools/band-steering/prepare-radio-snapshot-check.py source abi-results/radio-snapshot
           python3 tools/band-steering/prepare-wifi-check.py source abi-results/radio-wifi-snapshot
