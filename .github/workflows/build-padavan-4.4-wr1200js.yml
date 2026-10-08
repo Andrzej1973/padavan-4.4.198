@@ -368,6 +368,8 @@ jobs:
               --production-image --output ../firmware-steering-closure.json
             python3 ../tools/band-steering/verify-package-closure.py trunk/romfs trunk/romfs \
               --production-image --binary sbin/rc --output ../firmware-steering-rc-closure.json
+            python3 ../tools/band-steering/verify-status-image.py trunk/romfs \
+              --output ../firmware-steering-status-image.json
           else
             test ! -e trunk/romfs/usr/sbin/wr-band-steering
             test ! -e trunk/romfs/usr/sbin/wr-band-steering-ctl
@@ -678,6 +680,12 @@ jobs:
             padavan-4.4/trunk/romfs/usr/sbin/wr-band-steering-ctl
             padavan-4.4/trunk/romfs/sbin/rc
             padavan-4.4/trunk/romfs/lib/libshared.so
+            padavan-4.4/trunk/romfs/usr/sbin/httpd
+            padavan-4.4/trunk/romfs/www/Advanced_WAdvanced2g_Content.asp
+            padavan-4.4/trunk/romfs/www/wr-band-status.js
+            padavan-4.4/trunk/romfs/www/EN.dict
+            padavan-4.4/trunk/romfs/www/UK.dict
+            padavan-4.4/trunk/romfs/www/RU.dict
             padavan-4.4/band-steering-*.json
             firmware-steering-*.json
           include-hidden-files: true
@@ -705,6 +713,7 @@ jobs:
             curl-elf-dependencies.json
             firmware-steering-closure.json
             firmware-steering-rc-closure.json
+            firmware-steering-status-image.json
             padavan-4.4/band-steering-source-integration.json
             padavan-4.4/band-steering-board-defaults.json
 
