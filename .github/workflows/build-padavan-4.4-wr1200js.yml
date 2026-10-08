@@ -353,6 +353,8 @@ jobs:
 
       - name: Prepare default-off shared Wi-Fi HTTP handling
         run: |
+          node tools/shared-wifi/check-ui.js
+          python3 tools/shared-wifi/prepare-ui.py padavan-4.4
           python3 tools/prepare-shared-wifi.py padavan-4.4
           python3 tools/shared-wifi/check-source-integration.py padavan-4.4
           python3 tools/shared-wifi/prepare-http-check.py padavan-4.4 --output shared-wifi-http-check.c
@@ -398,6 +400,7 @@ jobs:
             test ! -e trunk/romfs/usr/sbin/wr-band-steering
             test ! -e trunk/romfs/usr/sbin/wr-band-steering-ctl
           fi
+          python3 ../tools/shared-wifi/verify-ui-image.py trunk/romfs
           test -x trunk/romfs/usr/sbin/httpd
           readelf -h trunk/romfs/usr/sbin/httpd | grep -q 'Machine:.*MIPS'
           grep -a -F -q 'Invalid shared Wi-Fi request. No settings were saved.' trunk/romfs/usr/sbin/httpd

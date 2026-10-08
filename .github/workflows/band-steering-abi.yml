@@ -751,6 +751,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          node tools/shared-wifi/check-ui.js
           cp -a source shared-wifi-http-source
           python3 tools/prepare-shared-wifi.py shared-wifi-http-source
           python3 tools/shared-wifi/check-source-integration.py shared-wifi-http-source | tee abi-results/shared-wifi-source.txt
