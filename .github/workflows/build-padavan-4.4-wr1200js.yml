@@ -758,6 +758,25 @@ jobs:
             overlay/padavan-4.4/candidates/eoip/unified/eoip.ko
             overlay/padavan-4.4/candidates/eoip/eoip
 
+      - name: Compile package against actual isolated steering drivers
+        if: ${{ !cancelled() && steps.firmware_build.conclusion == 'success' }}
+        run: |
+          set -euo pipefail
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          bash tools/band-steering/compile-driver-package.sh \
+            "$RUNNER_TEMP/wr1200js-steering-driver-probe" \
+            "$PWD/band-steering-driver-package-results" "$compiler"
+
+      - name: Upload driver-matched steering package diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: band-steering-driver-package-probe
+          path: band-steering-driver-package-results/
+          if-no-files-found: ignore
+          retention-days: 14
+
       - name: Compile PCRE2 candidate for modern Privoxy
         run: |
           set -euo pipefail
