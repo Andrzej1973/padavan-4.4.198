@@ -31,3 +31,24 @@ MT7603 `mt7603_chip_init` calls `mt_bcn_buf_init`; the latter assigns BcnMaxHwNu
 MT76x2 initialization calls `rlt_bcn_buf_init`. Its MT76x2 branch assigns hardware beacon count 8. With APCLI_SUPPORT it sets BcnMaxNum to 8 minus MAX_MESH_NUM; the inspected header defines MAX_MESH_NUM as 0. This gives a source-level candidate capacity of eight, not proof of eight working networks.
 
 The effective kernel configuration downloaded from successful WR1200JS run 37823022372 enables CONFIG_MT7603E_MBSS_SUPPORT and CONFIG_MT76X2_AP_MBSS. Effective driver preprocessing, target capacity probes and a third-BSS device test remain required. No production profile has been changed by this audit.
+
+## Lifecycle integration requirements — 2026-10-08
+
+The pinned `stop_wifi_all_rt` stops the AP-client, four WDS interfaces, guest and main BSS explicitly. It does not stop a third BSS. `start_wifi_ap_rt` attaches main and guest to `IFNAME_BR`; inserting IoT into this existing bridge loop would violate the isolated-subnet requirement. Radio scheduling, manual radio control, profile regeneration and full LAN restart must all quiesce IoT explicitly.
+
+Activation order:
+
+1. Serialize configuration/profile generation and validate effective router/radio mode, credentials, complete active-subnet inventory, interface identity and ownership. An existing unrelated `br-iot` must cause rejection.
+2. Stop and detach the third BSS before changing its profile or network. Confirm it is down; abort on failure.
+3. Prepare the complete profile, create/verify the owned IoT bridge with its address, and install IPv4/IPv6 isolation before the BSS can carry traffic.
+4. Rebuild DHCP/DNS while retaining main-LAN settings. IoT DHCP must set the existing service's DHCP-used flag even when main-LAN DHCP is disabled. Check configuration and service startup.
+5. Attach only the third BSS to the IoT bridge, then enable it. Report active only after interface/bridge/service/firewall observations succeed.
+
+Failure and shutdown order:
+
+- Disable the third BSS first, then detach it. If either fails, retain isolation rules and report failure; do not remove guards from a potentially live interface.
+- Rebuild the shared DHCP configuration without IoT, preserving LAN DHCP/DNS. Remove only resources positively owned by IoT.
+- Firewall reload, WAN changes and DHCP restart must regenerate the IoT policy before generic accept rules, including the default filter builders and the case where the main firewall is disabled.
+- Do not enable IoT in AP-client-only, WDS-only or radio-off modes. Repeater/AP-mode support requires a separate decision and evidence; reject unsupported combinations clearly.
+
+Host evidence so far: run 37832869879 verifies eight IPv4 TCP checks, including WAN replies, LAN/router isolation and blocking a preexisting LAN connection with generic ACCEPT policies. It does not prove production lifecycle, DHCP lease transactions, Wi-Fi driver behavior or target-device runtime. Extended UDP/IPv6 checks are pending.
