@@ -380,6 +380,12 @@ jobs:
           trap 'printf "Firmware build verification failed: %s\n" "$BASH_COMMAND" >&2' ERR
           cd padavan-4.4
           make WR1200JS TOOLCHAIN=mipsel-linux-uclibc
+          compiler="$(find "$PWD/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          for radio in mt76x2 mt76x3; do
+            python3 ../tools/iot/check-capacity.py trunk/linux-4.4.x "$radio" \
+              --compiler "$compiler" --output "../iot-capacity-$radio.json"
+          done
           if grep -qx 'CONFIG_FIRMWARE_INCLUDE_WR_BAND_STEERING=y' trunk/.config; then
             grep -qx 'CONFIG_MT7603E_BAND_STEERING_7603=y' trunk/linux-4.4.x/.config
             grep -qx 'CONFIG_RT_BAND_STEERING=y' trunk/linux-4.4.x/.config
@@ -723,6 +729,7 @@ jobs:
             padavan-4.4/band-steering-*.json
             padavan-4.4/wifi-hwnat-source.json
             wifi-qr-image.json
+            iot-capacity-*.json
             firmware-steering-*.json
           include-hidden-files: true
 
@@ -754,6 +761,7 @@ jobs:
             padavan-4.4/band-steering-board-defaults.json
             padavan-4.4/wifi-hwnat-source.json
             wifi-qr-image.json
+            iot-capacity-*.json
 
 
       - name: Compile isolated full Band Steering drivers
