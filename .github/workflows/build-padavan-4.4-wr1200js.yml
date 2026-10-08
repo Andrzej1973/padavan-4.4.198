@@ -382,6 +382,7 @@ jobs:
           make WR1200JS TOOLCHAIN=mipsel-linux-uclibc
           compiler="$(find "$PWD/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
           test -n "$compiler"
+          export PATH="$(dirname "$compiler"):$PATH"
           for radio in mt76x2 mt76x3; do
             python3 ../tools/iot/check-capacity.py trunk/linux-4.4.x "$radio" \
               --compiler "$compiler" --output "../iot-capacity-$radio.json"
