@@ -4,6 +4,7 @@ import argparse
 from pathlib import Path
 p=argparse.ArgumentParser()
 p.add_argument('source',type=Path)
+p.add_argument('--lan-only-default',action='store_true',help='WR factory default only; never writes live NVRAM')
 a=p.parse_args()
 f=a.source/'trunk/user/rc/net_wifi.c'
 s=f.read_text(encoding='utf-8')
@@ -41,6 +42,20 @@ replacement=r'''#if defined (USE_HW_NAT)
 	}
 '''.rstrip('\n')
 n=n[:b]+replacement+n[e:]
-f.write_text(s.replace(old,new),encoding='utf-8')
-network.write_text(n,encoding='utf-8')
+log_old='hwnat_status = "Enabled, IPoE/PPPoE offload [WAN]<->[LAN/WLAN]";'
+if n.count(log_old)!=1:
+ raise ValueError('HNAT status label changed; no files written')
+n=n.replace(log_old, 'hwnat_status = nvram_get_int("hw_nat_mode") == 1 ?\n'
+ '        "Enabled module, requested offload [WAN]<->[LAN/WLAN]" :\n'
+ '        "Enabled module, requested offload [WAN]<->[LAN]";')
+changes=[(f,s.replace(old,new)),(network,n)]
+if a.lan_only_default:
+ defaults=a.source/'trunk/user/shared/defaults.c'
+ d=defaults.read_text(encoding='utf-8')
+ anchor='{ "hw_nat_mode", "1" }'
+ if d.count(anchor)!=1:
+  raise ValueError('HNAT factory default changed; no files written')
+ changes.append((defaults,d.replace(anchor,'{ "hw_nat_mode", "2" }')))
+for path,text in changes:
+ path.write_text(text,encoding='utf-8')
 print('Wireless bring-up respects HNAT mode: only mode 1 registers Wi-Fi')

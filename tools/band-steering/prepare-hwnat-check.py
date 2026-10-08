@@ -95,3 +95,32 @@ int main(void) {
 }
 ''',encoding='utf-8')
 print('Generated actual network HNAT setup fixture: 32 allow/loaded/mode/IPv6 cases')
+
+b=n.index('static void\nhwnat_configure(void)')
+e=n.index('\n#endif /* USE_HW_NAT */',b)
+actual_log=n[b:e]
+a.output.with_name(a.output.stem+'-log.c').write_text(r'''#include <assert.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <string.h>
+#define LOGNAME "fixture"
+static int mode, loaded;
+static char message[160];
+static int is_module_loaded(const char *name) { assert(!strcmp(name,"hw_nat")); return loaded; }
+static int nvram_get_int(const char *name) { assert(!strcmp(name,"hw_nat_mode")); return mode; }
+static void logmessage(const char *name, const char *format, ...) {
+ va_list args; (void)name;
+ va_start(args,format); vsnprintf(message,sizeof(message),format,args); va_end(args);
+}
+''' + actual_log + r'''
+int main(void) {
+ for (mode=0; mode<4; ++mode) for (loaded=0; loaded<2; ++loaded) {
+  hwnat_configure();
+  if (!loaded) assert(!strcmp(message,"Hardware NAT/Routing: Disabled"));
+  else if (mode==1) assert(strstr(message,"requested offload [WAN]<->[LAN/WLAN]"));
+  else assert(strstr(message,"requested offload [WAN]<->[LAN]"));
+ }
+ return 0;
+}
+''',encoding='utf-8')
+print('Generated actual HNAT log fixture: 8 mode/module cases')

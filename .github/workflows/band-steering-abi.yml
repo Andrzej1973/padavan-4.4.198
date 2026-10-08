@@ -161,17 +161,21 @@ jobs:
       - name: Verify Wi-Fi HNAT mode on interface bring-up
         run: |
           cp -a source hwnat-mode-source
-          python3 tools/prepare-wifi-hwnat-mode.py hwnat-mode-source
+          python3 tools/prepare-wifi-hwnat-mode.py hwnat-mode-source --lan-only-default
+          grep -q '{ "hw_nat_mode", "2" }' hwnat-mode-source/trunk/user/shared/defaults.c
           mkdir -p hwnat-mode-checks
           python3 tools/band-steering/prepare-hwnat-check.py hwnat-mode-source --output hwnat-mode-checks/check.c
           gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined hwnat-mode-checks/check.c -o hwnat-mode-checks/check
           ASAN_OPTIONS=detect_leaks=1 hwnat-mode-checks/check
           gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined hwnat-mode-checks/check-network.c -o hwnat-mode-checks/check-network
           ASAN_OPTIONS=detect_leaks=1 hwnat-mode-checks/check-network
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined hwnat-mode-checks/check-log.c -o hwnat-mode-checks/check-log
+          ASAN_OPTIONS=detect_leaks=1 hwnat-mode-checks/check-log
           compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
           test -n "$compiler"
           "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -c hwnat-mode-checks/check.c -o hwnat-mode-checks/check-mips.o
           "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -c hwnat-mode-checks/check-network.c -o hwnat-mode-checks/check-network-mips.o
+          "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -c hwnat-mode-checks/check-log.c -o hwnat-mode-checks/check-log-mips.o
       - name: Verify complete source preparation and registered target package
         shell: bash
         run: |
