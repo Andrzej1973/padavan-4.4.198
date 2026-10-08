@@ -164,16 +164,42 @@ jobs:
           make -C source-integration/trunk/user/wr-band-steering \
             CC="$compiler" CFLAGS="-O2 -mips32r2 -mabi=32 -msoft-float" \
             INSTALLDIR="$PWD/source-integration/romfs" romfs
+          for name in wr-band-steering wr-band-steering-ctl; do
+            "${compiler%gcc}readelf" -h "source-integration/romfs/usr/sbin/$name" \
+              > "source-integration/$name-elf.txt"
+            grep -q 'Machine:.*MIPS' "source-integration/$name-elf.txt"
+          done
           python3 - <<'PY'
-          import json
+          import hashlib, json
           from pathlib import Path
           root = Path('source-integration')
           r = json.loads((root/'band-steering-source-integration.json').read_text())
           assert r['preparation_complete'] and not r['factory_enabled']
           assert not r['runtime_verified'] and len(r['steps']) == 18
+          files = {}
           for name in ('wr-band-steering', 'wr-band-steering-ctl'):
-              assert (root/'romfs/usr/sbin'/name).stat().st_size > 0
+              data = (root/'romfs/usr/sbin'/name).read_bytes()
+              assert len(data) > 0
+              files[name] = {'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+          (root/'package-checks.json').write_text(json.dumps({
+              'target_compilation_verified': True, 'production_installed': False,
+              'runtime_verified': False, 'factory_enabled': False, 'binaries': files,
+              'scope': 'Complete source preparation and userspace package, not a complete integrated image'
+          }, indent=2)+'\n')
           PY
+      - name: Preserve complete source integration diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: band-steering-complete-source-integration
+          path: |
+            source-integration/band-steering-*.json
+            source-integration/package-checks.json
+            source-integration/*-elf.txt
+            source-integration/band-steering-source-abi/
+            source-integration/romfs/
+          if-no-files-found: ignore
+          retention-days: 14
       - name: Generate and compile target ABI probes
         shell: bash
         run: |
