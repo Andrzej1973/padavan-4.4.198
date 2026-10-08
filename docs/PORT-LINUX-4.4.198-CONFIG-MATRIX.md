@@ -31,7 +31,7 @@ Performance is preferred; CONFIG_CC_OPTIMIZE_FOR_SIZE is disabled. Do not switch
 
 RPL2TP, DNSCrypt and redsocks2 remain documented optional disabled requests. TOR/GeoIP/GeoIPv6/Zapret/Zapret2 are deferred to stage 2. Storage/server/ADB optional selectors remain commented in the normal profile.
 
-Later user approval superseded the original CAKE exclusion: optional SQM/CAKE is now selected by the central config with router activation disabled by default. Its runtime and acceleration interaction are unverified. Conditional Auto mode remains deferred until its runtime prerequisites pass; it is not an implemented feature.
+The active thread objective excludes CAKE. The central WR1200JS profile and matching MI-4 package profile set CONFIG_FIRMWARE_INCLUDE_SQM=n. FQ-CoDel remains an independent kernel setting. Earlier optional CAKE/Auto proposals are historical; their runtime and acceleration interaction were not verified. The workflow now checks that a disabled SQM build contains neither an enabled CAKE kernel option nor sch_cake.ko.
 
 WR1200JS completion is primary. Mi Mini remains secondary. At the final delivery stage, copy original upstream router configurations unchanged with provenance rather than adapting every other board or enabling unverified matrix targets.
 

@@ -38,7 +38,7 @@ The WR1200JS profile currently requests:
 - OpenSSL 3.5, HTTPS and TLS support for dynamic DNS.
 - Stubby DNS-over-TLS, DoH proxy and Privoxy.
 - WPAD, vendor logo and Russian / Ukrainian web resources.
-- Optional CAKE SQM, with web controls and disabled runtime defaults.
+- FQ-CoDel in the kernel configuration; CAKE/SQM is excluded from the current profile.
 - IPv6, USB support and selected filesystem / networking utilities.
 - VLMCSD, iPerf3, ZeroTier and Shadowsocks components.
 
@@ -50,9 +50,14 @@ start its service.
 
 SmartDNS and size optimization are documented as commented options.
 TOR, its GeoIP databases and ZAPRET packages are deferred to a later stage.
-CPU sleep remains a port request with isolated kernel investigation; it is
-**not yet a verified production runtime feature**.
+CPU sleep, CPU frequency scaling and the 900 MHz overclock selector are absent
+from the central WR1200JS profile. Isolated MT7621 systick investigation does
+not establish a production runtime feature.
 RSSI Kick and other roaming behavior still require final verification.
+Band Steering driver, daemon and coordinated Wi-Fi changes are isolated
+candidates. Snapshot tests and isolated compilation do not establish their
+installation in the normal image or operation on a router. See the
+[radio snapshot evidence](docs/evidence/RADIO-SNAPSHOT-37718587396.md).
 
 Compilation, image inspection and operation on a physical router are tracked
 separately. A successful build does not establish that every selected service
@@ -64,6 +69,7 @@ has been tested on the device.
 | --- | --- |
 | YOUHUA WR1200JS | Enabled; successful firmware builds recorded, Linux 4.4 device runtime verification pending |
 | Xiaomi Mi Mini | Reduced configuration available; board port pending, excluded from normal firmware builds |
+| Xiaomi Mi 4 | Matching package profile available; board recipe and image build pending, excluded from normal builds |
 
 The catalogue is [boards.json](boards.json); profiles are in
 [configs.build](configs.build). WR1200JS is the current priority.

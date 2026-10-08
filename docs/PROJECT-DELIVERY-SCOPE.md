@@ -3,8 +3,9 @@
 User-approved extension, 2026-10-02.
 
 Primary objective remains the Linux 4.4.198 port of YOUHUA WR1200JS,
-preserving the user's configuration and required features. The earlier CAKE
-exclusion is superseded by the user's approval below.
+preserving the user's configuration and required features, excluding CAKE
+under the active thread objective reaffirmed on 2026-10-08. Earlier CAKE
+proposals below are retained as history and are outside the current delivery.
 Compilation alone does not establish a successful device port.
 
 ## Authoritative development location — user confirmation 2026-10-03
@@ -160,7 +161,7 @@ settings. Do not substitute RSSI disconnection for verified FT roaming.
 Validate driver, inter-AP coordination and real client behavior; FT tests require
 two access points and a compatible client. These features are not implemented yet.
 
-## Optional CAKE mode
+## Historical optional CAKE proposal — outside the active scope
 
 User approved reconsidering CAKE and the proposed optional mode on 2026-10-02.
 Include the backported sch_cake implementation and compatible tc/SQM control
@@ -181,7 +182,7 @@ ROMFS dependency closure and runtime behavior. Track versions explicitly.
 Kernel 4.4 alone does not establish future package compatibility. Current
 OpenSSL 3.5.7 port builds; evaluate newer 3.5 LTS maintenance releases next.
 
-## Final conditional automatic CAKE/acceleration mode
+## Historical automatic CAKE/acceleration proposal — outside the active scope
 
 User approved this extension in the side conversation on 2026-10-02.
 Keep the existing implementation sequence. Only after CAKE/SQM and hardware
