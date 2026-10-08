@@ -221,11 +221,9 @@ These configuration checks and runtime comparisons have not been performed here.
 
 Focus primary implementation and completion work on YOUHUA WR1200JS firmware. Continue Mi Mini only during spare time or WR1200JS build waits, when it does not delay WR1200JS completion. Mi Mini remains an accepted second-priority deliverable. All development remains in Andrzej1973/padavan-4.4.198, branch main.
 
-
 ## Final delivery: unchanged upstream router configurations — user instruction 2026-10-03
 
 At the end of the project, include the original router/board configurations supplied by the pinned primary Padavan 4.4 source. Copy them byte-for-byte without adapting, normalizing, enabling packages or independently porting those boards. Record the upstream repository, exact commit and original paths; preserve applicable license notices. Present them as upstream reference configurations available for users to adapt in their own forks. Their presence does not establish compatibility with this project's added features or verified builds/runtime. Do not automatically enable them in the normal build matrix. This replaces the earlier requirement to adapt all remaining nilabsent router configurations: broader board adaptation is outside this project's required completion scope. Complete the agreed WR1200JS work, secondary Mi Mini work, source/local-backup preservation and final documentation before declaring the project complete.
-
 
 ## WAN port reassignment — user requirement 2026-10-03
 
@@ -236,3 +234,11 @@ Reassign switch/VLAN membership and WAN link detection coherently; changing the 
 Warn before applying a reassignment that the connection may be interrupted and the WAN cable must be connected to the selected socket. This requirement does not authorize changing ports on the user's current remote router.
 
 Acceptance requires a successful firmware build plus device evidence for DHCP on the selected socket, LAN/WAN isolation, remaining LAN sockets, hardware acceleration, VLAN/IPTV compatibility where configured, reboot persistence and restoration of the original WAN assignment. Until these checks are complete, report this feature as pending, not operationally verified.
+
+## Complete offline preservation and WSL 2 build — user requirement 2026-10-08
+
+Preserve all project and upstream sources offline, including every selected and documented optional package, full pinned firmware/kernel/driver trees, donor trees, patches, submodules and nested downloads, generated-source prerequisites, toolchain archives and sources, build helpers, licenses, provenance and checksums. An online URL or a Git history copy alone is not an offline dependency archive.
+
+Preserve the complete build environment as well: the required WSL 2 Linux distribution/version, host tools and offline-installable system packages or an exported prepared distribution, together with the pinned compiler and all build caches needed from a clean build directory. Inventory all recursive fetches, verify every retained dependency by checksum and report the local backup location and total size. Keep credentials and private router configuration out of public source archives.
+
+Provide a documented WSL 2 command that builds the same firmware profile solely from the retained local files. Test with networking disabled from a clean build directory so implicit downloads cannot hide missing files. Compare the resulting image/configuration against the reference build, record any reproducibility differences and do not claim byte-identical output without a successful hash comparison. The offline kit must be transferable to another storage location and include a restore/verification procedure.

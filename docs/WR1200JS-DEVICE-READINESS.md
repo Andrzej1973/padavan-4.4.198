@@ -29,7 +29,6 @@ Review reports before sharing: IP/MAC addresses and kernel logs may contain priv
 2. Confirm Linux 4.4.198, WebUI/SSH, WAN IPoE, LAN and retained settings.
 3. Confirm AmneziaWG restores access, routes and DNS using the existing profile.
 4. Verify both radio bands and calibrated MAC addresses. Save boot logs and logs/counters after sustained Wi-Fi traffic. Compilation does not prove the kthread/HWNAT problem resolved.
-5. Verify USB and required existing services, including VLMCSD.
 6. Confirm reset/WPS/FN1 detection and configured actions with an operator present. Do not test reset or destructive button actions remotely.
 7. Confirm power/USB indicators and settings; inspect GPIO6 separately.
 8. Verify WPAD PAC handling, Stubby and optional Privoxy editor/save/start/stop behavior. The Privoxy first-enable fix requires an actual browser and LAN-client check.

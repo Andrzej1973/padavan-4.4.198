@@ -697,13 +697,6 @@
       "category": "missing service UI"
     },
     {
-      "option": "CONFIG_FIRMWARE_INCLUDE_VLMCSD",
-      "value": "y",
-      "enabled": true,
-      "line": 292,
-      "category": "existing basic controls; extend status"
-    },
-    {
       "option": "CONFIG_FIRMWARE_INCLUDE_IPERF3",
       "value": "y",
       "enabled": true,
@@ -1790,7 +1783,6 @@
         "telnetd",
         "ttyd_enable",
         "ttyd_port",
-        "vlmcsd_enable",
         "watchdog_cpu",
         "wins_enable"
       ],
@@ -1799,7 +1791,6 @@
         "found_app_nmbd(",
         "found_app_sshd(",
         "found_app_ttyd(",
-        "found_app_vlmcsd(",
         "support_http_ssl(",
         "support_openssl_ec("
       ]

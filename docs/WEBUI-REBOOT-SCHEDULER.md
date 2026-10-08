@@ -39,8 +39,6 @@ The current experimental branch should retain:
 
 ## 4. Related WebUI work that IS real
 
-The VLMCSD transplant remains a genuine missing component. It adds the Hadzhioglu-style `KMS Activation server` switch to `Advanced_Services_Content.asp`, `vlmcsd_enable`, restart notification wiring, and the runtime package.
-
 The branch also stages the current Hadzhioglu userspace packages `socat` and `ndisc6/rdisc6` because the WR1200JS configuration already has `CONFIG_FIRMWARE_INCLUDE_SOCAT=y` and `CONFIG_FIRMWARE_INCLUDE_NDISC6_RDISC6=y`.
 
 These package integrations still require build verification before they are considered complete.

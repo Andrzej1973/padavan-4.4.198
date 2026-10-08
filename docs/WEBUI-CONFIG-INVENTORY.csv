@@ -98,7 +98,6 @@ CONFIG_FIRMWARE_INCLUDE_ZRAM,y,True,280,project UI integration; device verificat
 CONFIG_FIRMWARE_INCLUDE_ADB,y,False,283,diagnostics/storage utility; shared UI candidate
 CONFIG_FIRMWARE_INCLUDE_LUA,y,True,286,build/platform/library/kernel capability; no standalone service UI inferred
 CONFIG_FIRMWARE_INCLUDE_EOIP,y,True,289,missing service UI
-CONFIG_FIRMWARE_INCLUDE_VLMCSD,y,True,292,existing basic controls; extend status
 CONFIG_FIRMWARE_INCLUDE_IPERF3,y,True,295,existing basic controls; extend status
 CONFIG_FIRMWARE_INCLUDE_NFQWS,y,False,299,optional service UI backlog; disabled
 CONFIG_FIRMWARE_INCLUDE_TPROXY,y,True,302,build/platform/library/kernel capability; no standalone service UI inferred

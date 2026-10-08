@@ -32,7 +32,6 @@ The application inventory also contains inherited AdGuard Home, FRP, adbyby, scu
 | StrongSwan / IPsec | CONFIG_FIRMWARE_INCLUDE_SSWAN=y; base user/strongswan/Makefile installs ipsec/charon/starter/stroke and uses /etc/storage/strongswan. No StrongSwan/IPsec UI or matching service integration found in the inspected rc/httpd sources. | First establish managed start/stop, persistence and firewall integration, then profiles, credentials/certificates, remote networks, connection state and useful logs. Do not label the packaged binaries as an operational VPN. |
 | EoIP | Enabled; overlay scripts/integrate-eoip.py registers kernel/eoip-ctl build assets. No matching WebUI found. | Tunnel table, endpoints, tunnel ID, MTU, optional bridge assignment, enable/autostart, lifecycle and status. Validate conflicts and preserve unrelated interfaces. |
 | USBIP | Enabled; add-usbip build integration found, no corresponding ASP management found. | Device inventory, explicit export/unexport, service state and persistence; distinguish USBIP from the existing U2EC printer service. |
-| VLMCSD | Advanced_Services_Content.asp provides an enable switch. | Show actual process/listener state and errors; expose supported useful parameters rather than inventing options unsupported by the daemon. |
 | iPerf3 | Advanced_Services_Content.asp provides an enable switch. | Server status and selected supported parameters; bounded start/stop of diagnostics and readable results. Performance tests consume link capacity and must be user initiated. |
 | WPAD | integrate-wpad.py adds a capability-gated PAC editor to DHCP and persists wpad.dat. It explicitly adds no DHCP/DNS advertisement. | Explain PAC use and current advertisement behavior; a normal configuration wizard or optional advertisement needs separate integration and validation. |
 | qrencode | Included utility, but no integrated Wi-Fi QR view found in the base wireless pages. | Implement the already accepted authenticated local QR view, payload escaping and shared/per-band settings behavior. |
@@ -61,8 +60,15 @@ The application inventory also contains inherited AdGuard Home, FRP, adbyby, scu
 
 1. Finish current WR1200JS driver/service integration and protect remote access; complete Band Steering source/runtime work before enabling it on a router.
 2. Implement shared Wi-Fi settings, local QR and Band Steering WebUI, preserving existing independent settings; verify RSSI Kick.
-3. Add the missing StrongSwan, EoIP and USBIP managed backends and WebUIs in separate reviewable changes; extend VLMCSD/iPerf3 status and shared diagnostics.
 4. Review every existing enabled-service page against backend field registration, validation, capability gate, restart dispatch, persistence and actual image packaging; fix navigation discoverability and stale labels.
 5. Verify optional commented features separately without enabling heavy packages in the main image. Keep WPS last. Secondary Mi Mini work must not delay WR1200JS.
 
 For each managed service: documented enable/configuration, validated inputs, actual running/error status, start/stop/restart semantics, autostart and persistence, appropriate logs, translated help and capability-gated navigation. New services are off at first flash unless an explicitly accepted policy says otherwise. Missing packages must have no operational-looking controls. Completion requires build evidence, image-content checks and later router acceptance; source inspection is the current evidence level. Preserve the active central configuration during this audit.
+
+## Verified build update — 2026-10-08
+
+The original inventory above remains a dated source snapshot. Coordinated WR Band Steering now has a requested-state switch on the 2.4 GHz advanced page and an explicit status-refresh button for both radios. [Status semantics](BAND-STEERING-STATUS.md) and [image evidence](evidence/WR-IMAGE-37787484281.md) distinguish packaged controls from runtime proof. Shared SSID configuration, Wi-Fi QR integration and client/runtime acceptance remain outstanding.
+
+[Build 37790206125](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/37790206125) passed with Wi-Fi HNAT mode handling and a factory LAN-only default. The existing WAN mode selector remains available. This does not establish Wi-Fi stability or modify a user's saved runtime NVRAM.
+
+Next wireless UI work remains shared main-network settings and authenticated local Wi-Fi QR; StrongSwan, EoIP and USBIP managed backends/pages remain subsequent separate tasks. No missing-service completion is inferred from the Band Steering changes.

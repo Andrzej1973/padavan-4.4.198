@@ -31,10 +31,6 @@ Decision: **🔵 keep nilabsent**. It is a newer feature and must not be treated
 
 ## KMS
 
-Searches for `kms` in nilabsent primarily hit Linux DRM Kernel Mode Setting. This is unrelated to a Windows KMS server. Searches of the Hadzhioglu source did not find `vlmcsd` or a Windows KMS implementation.
-
-Decision: **do not copy anything for KMS yet**. If the KMS server was present in a specific prebuilt Hadzhioglu-based firmware, we need that exact source/package before transplanting it.
-
 ## Important conclusion
 
 So far, the comparison is showing that nilabsent is not simply a stripped Hadzhioglu tree. It has substantial newer functionality (WireGuard/AmneziaWG, newer rc integration, extra services). Therefore the safe direction is **selective backporting from Hadzhioglu into nilabsent**, not replacing nilabsent files wholesale.

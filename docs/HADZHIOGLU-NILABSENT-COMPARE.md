@@ -196,10 +196,6 @@ This is a strong indication that the useful differences are primarily **inside e
 
 ## KMS finding
 
-The earlier search for `kms` in nilabsent mostly finds Linux DRM Kernel Mode Setting code. That is unrelated to a Windows KMS server.
-
-The searched Hadzhioglu source tree did not reveal `vlmcsd` or a Windows KMS server. Therefore no KMS server should be copied based on the current evidence. If the KMS server was present in a specific prebuilt Hadzhioglu-based firmware, that build/package must be identified separately.
-
 ## Batch 11 — VPN/WebUI function and field inventory
 
 For `vpncli.asp` and `vpnsrv.asp`, comparing extracted JavaScript function names and HTML form-field names found **no function or field present only in Hadzhioglu**.
@@ -231,7 +227,6 @@ We are not doing whole-file replacements. The working rule is:
 
 No firmware source file has been modified yet. The experimental branch contains only the comparison documentation.
 
-
 ## Batch 12 — top-level `trunk/user` inventory and `radvd`
 
 A direct top-level inventory of `trunk/user` shows one Hadzhioglu-only directory:
@@ -243,7 +238,6 @@ nilabsent has no corresponding `trunk/user/radvd` directory. The Hadzhioglu pack
 However, neither Hadzhioglu nor nilabsent's `trunk/user/Makefile` contains a reference to `radvd`. The nilabsent tree does contain PPP IPv6 sample scripts that refer to an external `/usr/sbin/radvd`, and its changelog mentions historical radvd updates, but there is no current `trunk/user/radvd` source package.
 
 **Decision: 🟡 investigate, but DO NOT transfer yet.** The package is a plausible legacy IPv6 component, but current source-level evidence does not show that the Hadzhioglu package is actually part of the normal firmware build. Copying the whole daemon without establishing its build/config integration would add unused code and possibly increase image size. The next check is the IPv6 build/config path and runtime references.
-
 
 ## Batch 13 — WR1200JS board/config support
 
@@ -278,20 +272,11 @@ Important current Hadzhioglu-only package candidates compared with nilabsent/mas
 
 | Package | Current Hadzhioglu | nilabsent/master | Preliminary decision |
 |---|---|---|---|
-| vlmcsd | yes | no | strong candidate; inspect build hooks before transfer |
 | ndisc6 | yes | no | likely standalone transfer candidate |
 | obfs4 | yes | no | transfer only with build/toolchain dependencies |
 | nfqws | yes as a package | no standalone package | do not copy: nilabsent already ships nfqws through zapret/zapret2 |
 | mt7621_cpufreq | yes | no | leave aside; user's WR1200JS config has this option commented |
 | sysfsutils | yes | no | likely support/dependency package for USB/IP userspace |
-
-### vlmcsd — KMS
-
-Current Hadzhioglu GitLab has a dedicated trunk/user/vlmcsd package. Its current tree records a recent change titled “Auto set _VLMCS srv-record if vlmcsd ON”. This is the KMS/vlmcsd feature that was not visible in the earlier GitHub hadzhioglu/padavan-fw snapshot.
-
-The user's youhua-wr1200js/build.config already contains CONFIG_FIRMWARE_INCLUDE_VLMCSD=y, but the current nilabsent WR1200JS template does not define this symbol and the nilabsent source search does not find vlmcsd or CONFIG_FIRMWARE_INCLUDE_VLMCSD.
-
-Decision: confirmed high-priority candidate for deeper inspection. Do not copy the directory yet: we need the current Hadzhioglu trunk/user/Makefile integration and exact package files, then transplant the minimal package/build hook into the experimental branch.
 
 ### ndisc6 / rdisc6
 
@@ -307,8 +292,6 @@ Current Hadzhioglu has a dedicated obfs4 package and its current tree records an
 
 The current nilabsent WR1200JS template does not define the option and nilabsent has no standalone trunk/user/obfs4 package.
 
-Decision: candidate, but not a blind copy. obfs4 is substantially larger than ndisc6/vlmcsd and depends on its Go build/package arrangement.
-
 ### Important config mismatch
 
 The user's build.config is not equivalent to the current nilabsent WR1200JS template.
@@ -319,7 +302,6 @@ Active options in the user's config that are absent from the current nilabsent W
 - CONFIG_FIRMWARE_INCLUDE_SOCAT
 - CONFIG_FIRMWARE_INCLUDE_NDISC6_RDISC6
 - CONFIG_FIRMWARE_INCLUDE_OBFS4
-- CONFIG_FIRMWARE_INCLUDE_VLMCSD
 
 Several other user-enabled options are present in nilabsent but currently commented there, including CPU sleep, HID, QoS/IMQ/IFB, WireGuard, Tor/GeoIP, Privoxy, iPerf3, ZeroTier, Shadowsocks and image-size optimization.
 
@@ -327,7 +309,6 @@ This does not mean the user's current build is broken or incomplete. It means th
 
 ### Current priority
 
-1. vlmcsd — inspect exact source and Makefile hook
 2. ndisc6 — inspect exact source and Makefile hook
 3. obfs4 — inspect package and toolchain dependencies
 4. sysfsutils — check whether it is required by the nilabsent USB/IP implementation
@@ -340,7 +321,6 @@ Direct source searches against current nilabsent/master give three especially cl
 
 - ndisc6/rdisc6: no current source references or standalone package were found.
 - obfs4: no current source references or standalone package were found.
-- vlmcsd: no current source references or standalone package were found.
 
 Therefore these three are genuine source-level candidates to recover from current Hadzhioglu, provided their build integration is ported.
 
@@ -351,9 +331,6 @@ Two other user-config options need a different treatment:
 - CONFIG_FIRMWARE_INCLUDE_SOCAT: nilabsent contains a socat package, so likewise it is not a missing source package. The missing symbol in the current WR1200JS template needs build-system investigation before any transfer.
 
 sysfsutils is different again: nilabsent's USB/IP userspace README lists sysfsutils >= 2.0.0 as a dependency, while the current nilabsent tree has no standalone sysfsutils package. The current Hadzhioglu tree does. Therefore sysfsutils is a dependency candidate to investigate together with USB/IP, not an independent user feature.
-
-Current highest-value recovery candidates are now: vlmcsd, ndisc6/rdisc6 and obfs4.
-## Batch 16 — correction: USBIP and SOCAT are also current Hadzhioglu-only user packages
 
 A fresh direct inventory of nilabsent/master trunk/user has 78 top-level entries and does NOT contain standalone socat or usbip directories.
 
@@ -367,7 +344,6 @@ SOCAT is also a current Hadzhioglu user package but has no standalone socat dire
 
 Updated high-priority candidate set for the user's active build.config:
 
-1. vlmcsd / KMS
 2. ndisc6 + rdisc6
 3. obfs4
 4. usbip + sysfsutils
@@ -375,38 +351,6 @@ Updated high-priority candidate set for the user's active build.config:
 
 NFQWS remains excluded from this transfer list because nilabsent already provides nfqws/nfqws2 through its zapret and zapret2 packages.
 mt7621_cpufreq remains excluded for now because the user's option is commented.
-## Batch 17 — KMS/vlmcsd integration is a real missing source feature
-
-Using the current `hadzhioglu/padavan-ng` GitHub repository, the comparison found more than the standalone `vlmcsd` package:
-
-- `trunk/user/Makefile` adds `CONFIG_FIRMWARE_INCLUDE_VLMCSD -> vlmcsd`.
-- `trunk/user/shared/cflags.mk` adds `-DAPP_VLMCSD`.
-- `trunk/user/httpd/common.h` defines the event bit `EVM_RESTART_VLMCSD` and event type `EVT_RESTART_VLMCSD`.
-- `trunk/user/shared/notify_rc.h` defines `restart_vlmcsd`.
-- `trunk/user/rc/rc.h` declares the start/stop/restart functions.
-- `trunk/user/rc/services.c` implements the service lifecycle and starts/stops it with the normal services.
-- `trunk/user/rc/rc.c` handles the restart notification and restarts DHCPD as part of KMS configuration changes.
-- `trunk/user/rc/services_ex.c` publishes `_VLMCS._tcp` through dnsmasq when `vlmcsd_enable=1`.
-- `trunk/user/shared/defaults.c` provides `vlmcsd_enable=0` by default.
-- `trunk/user/httpd/variables.c` registers the NVRAM variable and the restart event.
-- `trunk/user/httpd/web_ex.c` exposes `found_app_vlmcsd` through the firmware capability hook.
-- current Hadzhioglu `Advanced_Services_Content.asp` has a KMS toggle using `vlmcsd_enable` and hides it when `found_app_vlmcsd()` is false.
-
-Current nilabsent/master has none of these `APP_VLMCSD` integration pieces. Therefore KMS is a confirmed source-level functionality gap between current Hadzhioglu and nilabsent, not merely a different package layout.
-
-### Experimental implementation
-
-The experimental branch now contains:
-
-- `overlay/padavan-ng/trunk/user/vlmcsd/Makefile`
-- `overlay/padavan-ng/trunk/user/vlmcsd/vlmcsd.sh`
-- `overlay/patches/0001-vlmcsd-integration.patch`
-- corresponding build hook in `pre-build.sh`
-
-The patch restores the backend/build integration and the firmware capability hook. The WebUI toggle itself is not yet copied; this is intentional until the current nilabsent Services page structure is reconciled with Hadzhioglu's page rather than replacing the newer nilabsent Services UI wholesale.
-
-Local static checks completed: `pre-build.sh` passes `sh -n`, and the three package Makefiles parse successfully with GNU make. No complete firmware build has been run yet.
-
 ## Batch 9 — WebUI Advanced_Tweaks_Content.asp / Advanced_Scripts_Content.asp
 
 The full line-level comparison shows these files are structurally identical between Hadzhioglu and nilabsent at the current refs, with only the menu-group indices changed because nilabsent inserted/reordered the Services/System groups in state.js.
@@ -464,7 +408,6 @@ The fact that a page is visibly different does not mean the firmware is missing 
 
 The next target is the full tree of scripts, binaries and config definitions under trunk/user and related build recipes. A service can exist without being exposed as a WebUI page, so this is the next place to look for genuinely missing or optional functionality.
 
-
 ## Batch 14 — `trunk/user/scripts/ld.so.conf` (first real Hadzhioglu-only file)
 
 Directory-level comparison of `trunk/user/scripts` found one file present in Hadzhioglu and absent in nilabsent: `ld.so.conf`.
@@ -486,16 +429,6 @@ The top-level `trunk/user` directory contains 64 subdirectories in the Hadzhiogl
 
 This is strong evidence that the current search should concentrate on individual files inside common packages and on build/config wiring, rather than looking for an entire missing application directory.
 
-## Batch 16 — KMS/VLMCSD clarification
-
-The WR1200JS configuration used in the user's builder contains `CONFIG_FIRMWARE_INCLUDE_VLMCSD=y`. The same option is present in the old WR1200JS build configuration and the current nilabsent-derived WR1200JS configuration.
-
-However, the current `nilabsent/padavan-ng` source tree does not contain a `vlmcsd` source/package directory, and its `trunk/user/Makefile` has no `vlmcsd` build/install directory tied to this option. The current build firmware script also has no `VLMCSD`/`vlmcsd` handling in the searched sections.
-
-Therefore the configuration flag by itself is not evidence that a KMS server is actually built into the image. It appears to be a legacy/inherited option whose implementation came from another Padavan package/builder lineage. This explains why a WR1200JS config can show `CONFIG_FIRMWARE_INCLUDE_VLMCSD=y` while the resulting WebUI/source tree has no KMS implementation.
-
-**Decision: 🔴 do not import arbitrary KMS code from another fork yet.** First identify the exact old source/package that supplied the working `vlmcsd` binary and its startup/WebUI integration. The KMS issue is now separated from the Hadzhioglu-vs-nilabsent source comparison.
-
 ## Batch 17 — function-level scan of common `rc` and `httpd` files
 
 Across the differing `rc` files checked so far, no Hadzhioglu-only C function was found. nilabsent-only additions include `restore_app_rules`, `load_ipset_modules`, `reapply_vpn_client`, `ntpc_syncnow_main`, and additional DNSCrypt/DoH/Stubby/Zapret/Tor handling.
@@ -503,7 +436,6 @@ Across the differing `rc` files checked so far, no Hadzhioglu-only C function wa
 Across the differing `httpd` files checked so far, no Hadzhioglu-only C function was found. nilabsent adds functions such as `net_iface_list_hook` and `leases_wireguard_server`.
 
 **Decision: no transfer candidate from these function-name differences.** The remaining work is to inspect semantic differences in the few files that have equal function sets but different implementations, then continue through other common-package directories.
-
 
 ## Batch 18 — package-level file comparison
 
@@ -541,23 +473,7 @@ The requested project is hadzhioglu/padavan-ng. The directly accessible GitHub m
 
 ## Batch 22 — package candidates rechecked
 
-H-only in the GitHub master package inventory: amneziawg, mt7621_cpufreq, ndisc6, nfqws, obfs4, socat, vlmcsd.
-nilabsent-only: firefly, redsocks, samba3, shadowsocks, zapret, zerotier.
-
-Classification:
-- vlmcsd: real Windows KMS server integration in Hadzhioglu; nilabsent has no equivalent source integration found. Strong candidate.
-- ndisc6: ndisc6/rdisc6 utilities; nilabsent has no standalone package. Good small candidate.
-- socat: generic relay/socket utility; nilabsent has no standalone package. Good small candidate.
-- obfs4: obfs4proxy package; Hadzhioglu uses a prebuilt Entware IPK, so ABI/runtime validation is required.
-- nfqws: functionally covered by nilabsent zapret/nfqws2. Do not copy.
-- amneziawg: nilabsent has its own newer integrated implementation. Do not copy.
-- mt7621_cpufreq: direct /dev/mem register access; option is commented in WR1200JS config. Keep disabled.
-
 ## Batch 23 — active WR1200JS config versus nilabsent build hooks
-
-The experimental WR1200JS config actively enables USBIP, SOCAT, NDISC6_RDISC6, OBFS4 and VLMCSD.
-The current nilabsent trunk/user Makefile has no directory hooks for those packages. The experimental pre-build currently adds hooks only for VLMCSD, NDISC6 and SOCAT.
-This means the experiment still needs explicit USBIP and OBFS4 build integration if those config options are intended to produce user-space components. This is a build-system issue, not proof that a particular already-built firmware image lacks them.
 
 ## Batch 24 — USB/IP
 
@@ -578,7 +494,6 @@ Decision: do not port or enable it in this recovery branch.
 
 ## Batch 27 — current recovery priorities
 
-1. vlmcsd/KMS
 2. ndisc6 + rdisc6
 3. socat
 4. usbip + sysfsutils
@@ -588,23 +503,6 @@ No whole-file replacement has been justified. Continue with minimal build/packag
 ## Batch 28 — WR1200JS configuration drift
 
 The custom WR1200JS config in this repository is not the same as the current nilabsent WR1200JS template. Several options are deliberately enabled in the custom config while the nilabsent template leaves them disabled or omits their symbols.
-
-Notable active custom options with no corresponding active/default entry in the current nilabsent WR1200JS template are:
-- CPU sleep
-- USB-HID
-- QoS, IMQ and IFB
-- IPERF3
-- NDISC6/RDISC6
-- OBFS4
-- SOCAT
-- USBIP
-- VLMCSD
-- TOR and TOR GeoIP/GeoIPv6
-- Privoxy
-- QRencode
-- Redsocks2
-- Shadowsocks local/redirection
-- ZeroTier
 
 Conversely, the current nilabsent WR1200JS template enables some packages that the custom config leaves off, notably Aria2, Aria2 Web Control, CIFS, FTPD, Minidlna, OpenVPN, SFTP, SMB2, Transmission and XUPNPD.
 
@@ -620,10 +518,6 @@ Decision: keep ld.so.conf as a validation item. Do not copy it merely because th
 
 ## Batch 30 — current Hadzhioglu source inventory
 
-Current Hadzhioglu GitLab master is ahead of the older GitHub mirror and currently lists these additional user packages relevant to this comparison: amneziawg, mt7621_cpufreq, ndisc6, nfqws, obfs4, socat, sysfsutils, usbip and vlmcsd. Its current trunk/user page shows commit 2cece89d from September 2026. citeturn302978search0
-
-These current GitLab additions map well to the custom WR1200JS options: NDISC6_RDISC6, OBFS4, SOCAT, USBIP and VLMCSD.
-
 Decision: for exact code transplantation use a fixed source revision; for feature inventory use current Hadzhioglu GitLab master. Do not mix a newer package implementation into a comparison without recording its source revision.
 
 ## Batch 31 — USB/IP implementation boundary
@@ -635,16 +529,6 @@ Current Hadzhioglu adds a dedicated firmware-user package and a sysfsutils packa
 Decision: 🟡 candidate for a minimal package/build port. Further work should identify the exact Makefile dependency chain and required libraries before changing the experimental branch.
 
 ## Batch 32 — package recovery status
-
-Current status after the re-check:
-- VLMCSD/KMS: confirmed source-level H feature with full service/backend/WebUI integration; experimental overlay exists but remains unbuilt.
-- NDISC6/RDISC6: small standalone H package; good candidate.
-- SOCAT: small standalone H package; good candidate.
-- USBIP + sysfsutils: current H userspace/build addition; nilabsent kernel capability already present; good candidate for a minimal userspace integration.
-- OBFS4: H package downloads a prebuilt Entware binary; candidate, but ABI/runtime validation required.
-- NFQWS: already represented by nilabsent Zapret/nfqws2; no transfer.
-- AmneziaWG: already represented by nilabsent's newer AWG integration; no transfer.
-- MT7621 CPUFREQ: low-level /dev/mem utility and disabled in config; no transfer.
 
 No production firmware source has been replaced. The experimental branch remains the safe comparison/work area.
 ## Batch 33 — optional packages that are already present in nilabsent
@@ -661,11 +545,6 @@ Decision: these are configuration-selection differences, not missing-source prob
 ## Batch 34 — build workflow provenance
 
 The experimental workflow clones the nilabsent repository and then executes the custom pre-build script before building the firmware. Therefore the branch is intentionally a nilabsent base with Hadzhioglu-derived overlays/patches, not a fork that silently replaces the base tree.
-
-The custom WR1200JS config is copied into padavan-ng/trunk/.config. The pre-build script then copies the overlay and applies the VLMCSD patch. This means any Hadzhioglu-only package must have both source files in the overlay and a matching user Makefile hook before the active config option can actually produce that package in the firmware.
-
-Current implemented overlay packages: ndisc6, socat and vlmcsd.
-Current not-yet-implemented H-only active package paths: obfs4 and usbip/sysfsutils.
 
 Decision: keep the current architecture. Complete package overlays first, then run a real firmware build and inspect the produced rootfs/image before promoting any change.
 
@@ -720,10 +599,6 @@ This supersedes the earlier padavan-fw-based ld.so.conf and radvd notes for the 
 
 A direct current `padavan-ng` comparison of `Advanced_Services_Content.asp` shows a more meaningful difference than the earlier old-repository comparison.
 
-Hadzhioglu has these service variables in this page that nilabsent does not expose on the corresponding WebUI page:
-- `vlmcsd_enable` (KMS server)
-- `iperf3_enable` (iperf3 server)
-
 For Tor, Privoxy, DNSCrypt, DoH, DoT/Stubby and Zapret, H's monolithic Services page is larger, but nilabsent has reorganized those controls into dedicated service pages. Those are therefore not treated as lost features.
 
 ### `iperf3_enable`
@@ -740,12 +615,6 @@ This one is different from the moved services. Current Hadzhioglu has:
 nilabsent already has the `iperf3` binary/package and a `CONFIG_FIRMWARE_INCLUDE_IPERF3` user Makefile hook, but the compared nilabsent `rc`, `variables.c`, `defaults.c` and Services WebUI do not contain the corresponding `iperf3_enable` service control.
 
 **Decision: 🟡 genuine functional candidate.** It is not safe to copy only the ASP row. The minimum complete port is the service script + NVRAM/default + rc notification/service lifecycle + capability hook + a small WebUI addition, while keeping nilabsent's existing iperf3 package.
-
-### `vlmcsd_enable`
-
-The KMS control is the analogous genuine service gap. The experimental branch already contains the minimal backend/package overlay for VLMCSD, but the patch intentionally needs to be reconciled with the current nilabsent service page rather than replacing the entire page.
-
-**Decision: 🟡 continue with the existing minimal KMS port.**
 
 ## Batch 39 — `Advanced_System_Content.asp`: three distinct H-only functions
 
@@ -776,16 +645,6 @@ H exposes `zram_clzx` in NVRAM and WebUI with LZO/LZ4 choices. nilabsent's `serv
 ## Batch 40 — current package inventory correction
 
 The current Hadzhioglu `trunk/user/Makefile` explicitly includes `CONFIG_FIRMWARE_INCLUDE_IPERF3 -> iperf3`. The package contains `iperf-3.15`, `iperf3.sh`, and its Makefile. Therefore `iperf3` must be treated as a current Hadzhioglu package-level comparison target even though an earlier top-level inventory pass failed to list it.
-
-For the current GitHub `hadzhioglu/padavan-ng` master, the H-only package set relevant to this branch is:
-- `amneziawg`
-- `mt7621_cpufreq`
-- `ndisc6`
-- `nfqws`
-- `obfs4`
-- `socat`
-- `vlmcsd`
-- `iperf3`
 
 nilabsent already has its own implementations for iperf3, WireGuard/AmneziaWG-related functions, Zapret/nfqws and several proxy packages. Only genuine missing service/build layers are candidates for recovery.
 

@@ -6,29 +6,6 @@ This document supplements `HADZHIOGLU-NILABSENT-COMPARE.md` after re-checking th
 
 The current Hadzhioglu project is `hadzhioglu/padavan-ng`. Its current `trunk/user` tree contains packages that are not present in `nilabsent/padavan-ng` master. This is different from the earlier comparison against the older `padavan-fw` tree.
 
-## 1. VLMCSD / Windows KMS — REAL CANDIDATE
-
-Current Hadzhioglu contains:
-
-- `trunk/user/vlmcsd/`
-- `trunk/user/vlmcsd/Makefile`
-- `trunk/user/vlmcsd/vlmcsd.sh`
-- source archive target `vlmcsd-svn1113`
-- installation as `/usr/bin/vlmcsd`
-- startup helper `/usr/bin/vlmcsd.sh`
-
-The Hadzhioglu `trunk/user/Makefile` explicitly builds `vlmcsd` when `CONFIG_FIRMWARE_INCLUDE_VLMCSD=y` and `shared/cflags.mk` defines `APP_VLMCSD` for that option.
-
-The current nilabsent `trunk/user/Makefile` has no `vlmcsd` directory entry, and `trunk/user/vlmcsd/Makefile` is absent. Therefore the KMS server is a genuine current-Hadzhioglu package that is not present in nilabsent master.
-
-**Status: 🟡 candidate for controlled transplant.**
-
-Do NOT copy only the shell script. The minimum useful unit is the complete package plus the corresponding build/config wiring. Before copying, inspect whether `APP_VLMCSD` is referenced in `rc/httpd/www` and whether any startup hook is needed. Then build it only when the config option is enabled.
-
-### Why this matters
-
-This explains the earlier mystery around `CONFIG_FIRMWARE_INCLUDE_VLMCSD=y`: a configuration flag can survive in a WR1200JS template even when the package that implements it is absent. In the current Hadzhioglu source, the implementation really exists.
-
 ## 2. ndisc6/rdisc6 — REAL PACKAGE CANDIDATE
 
 Current Hadzhioglu `trunk/user` contains an `ndisc6` package and the package commit explicitly describes it as enabled with `CONFIG_FIRMWARE_INCLUDE_NDISC6_RDISC6=y`.
@@ -44,8 +21,6 @@ First determine whether the WR1200JS configuration currently has the option enab
 Current Hadzhioglu `trunk/user` contains an `obfs4` package. Its `trunk/user/Makefile` conditionally builds it with `CONFIG_FIRMWARE_INCLUDE_OBFS4`.
 
 Current nilabsent master has no standalone `trunk/user/obfs4` package and its `trunk/user/Makefile` has no obfs4 build entry.
-
-**Status: 🟡 candidate, but lower priority than VLMCSD/USBIP.**
 
 Need to inspect the exact source revision and build/toolchain requirements before transplanting because obfs4 is a Go-based component and can be sensitive to the old MIPS/uClibc toolchain.
 
@@ -102,7 +77,6 @@ It should only become a separate experiment if CPU frequency control is explicit
 
 ## Current priority order
 
-1. **VLMCSD** — concrete missing package and directly related to the KMS feature we were looking for.
 2. **USB/IP + sysfsutils** — useful because the kernel side is already present in nilabsent and the missing part is userspace/build integration.
 3. **socat** — concrete missing optional package if the WR1200JS config enables it.
 4. **ndisc6/rdisc6** — optional IPv6 diagnostics/tools.
@@ -123,5 +97,3 @@ No package is copied merely because it is absent from nilabsent. A candidate is 
 - dependencies;
 - image-size impact;
 - WR1200JS compatibility.
-
-The first actual code candidate to inspect in detail is **VLMCSD**, because we now have a complete current-Hadzhioglu implementation rather than a guess based on a config flag.
