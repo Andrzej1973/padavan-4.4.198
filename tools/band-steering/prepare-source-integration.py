@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Prepare the complete steering source sequence before the normal build.
 
-Not yet called by production CI. Failed preparation must abort the build;
+Called by the normal build when explicitly selected. Failed preparation must abort the build;
 discard that source checkout rather than continuing from partial patches.
 """
 import argparse
@@ -47,7 +47,9 @@ for name in ('prepare-idle-aging.py', 'prepare-grant-readback.py',
              'prepare-profile-integration.py', 'prepare-child-reaper.py',
              'prepare-wifi-lifecycle.py', 'prepare-profile-snapshot.py',
              'prepare-wifi-snapshot.py', 'prepare-radio-snapshot.py',
-             'prepare-board-defaults.py', 'prepare-web-controls.py'):
+             'prepare-board-defaults.py', 'prepare-web-controls.py',
+             'prepare-status-query.py', 'prepare-status-web.py',
+             'prepare-status-ui.py'):
     run(name, root)
 run('prepare-abi-probe.py', root, '--output', abi)
 for radio in ('mt76x2', 'mt76x3'):

@@ -185,7 +185,7 @@ jobs:
           root = Path('source-integration')
           r = json.loads((root/'band-steering-source-integration.json').read_text())
           assert r['preparation_complete'] and not r['factory_enabled']
-          assert not r['runtime_verified'] and len(r['steps']) == 19
+          assert not r['runtime_verified'] and len(r['steps']) == 22
           files = {}
           for name in ('wr-band-steering', 'wr-band-steering-ctl'):
               data = (root/'romfs/usr/sbin'/name).read_bytes()
@@ -329,7 +329,6 @@ jobs:
       - name: Verify status refresh UI behavior
         run: |
           node tools/band-steering/check-status-ui.js
-          python3 tools/band-steering/prepare-status-ui.py source-integration
           cmp tools/band-steering/status-ui.js source-integration/trunk/user/www/n56u_ribbon_fixed/wr-band-status.js
       - name: Verify read-only steering status observation
         shell: bash
