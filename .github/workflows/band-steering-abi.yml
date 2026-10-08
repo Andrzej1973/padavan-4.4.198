@@ -814,6 +814,18 @@ jobs:
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
             -c tools/iot/check-profile-file.c -o abi-results/iot-profile-file-mips.o
 
+      - name: Check IoT subnet and DHCP address validation
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            tools/iot/check-subnet.c -o abi-results/check-iot-subnet
+          abi-results/check-iot-subnet | tee abi-results/iot-subnet.txt
+          compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+            -c tools/iot/check-subnet.c -o abi-results/iot-subnet-mips.o
+
       - name: Upload ABI diagnostics
         if: always()
         uses: actions/upload-artifact@v7
