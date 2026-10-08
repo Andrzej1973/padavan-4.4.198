@@ -62,6 +62,8 @@ on:
       - 'tools/band-steering/prepare-radio-snapshot.py'
       - 'tools/band-steering/prepare-board-defaults.py'
       - 'tools/band-steering/check-board-defaults.py'
+      - 'tools/band-steering/prepare-source-integration.py'
+      - 'tools/band-steering/prepare-package-integration.py'
       - 'tools/band-steering/check-radio-read-guard.py'
       - 'tools/band-steering/prepare-radio-snapshot-check.py'
       - 'tools/band-steering/prepare-profile-snapshot-check.py'
@@ -125,7 +127,13 @@ jobs:
             overlay/padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config \
             board-defaults-checks
       - name: Prepare non-deauth idle-entry protocol
-        run: python3 tools/band-steering/prepare-idle-aging.py source
+        run: |
+          mkdir source-integration
+          cp -a source/trunk source-integration/
+          mkdir -p source-integration/trunk/configs/boards/WR1200JS
+          cp overlay/padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config \
+            source-integration/trunk/configs/boards/WR1200JS/
+          python3 tools/band-steering/prepare-idle-aging.py source
       - name: Prepare read-only grant queries
         run: python3 tools/band-steering/prepare-grant-readback.py source
       - name: Prepare main-network-only legacy steering
@@ -139,6 +147,35 @@ jobs:
             https://github.com/vipshmily/padavan-4.4/releases/download/toolchain/mipsel-linux-uclibc.tar.xz
           echo 'de412846a5d057faf132b2463aa29c24f77c79c744f4181c1a287bbeaf1d7256  toolchain.tar.xz' | sha256sum -c -
           tar -xJf toolchain.tar.xz -C toolchain
+      - name: Verify complete source preparation and registered target package
+        shell: bash
+        run: |
+          set -euo pipefail
+          compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('configs.build/wr1200js.config')
+          lines = [l for l in p.read_text().splitlines()
+                   if 'CONFIG_FIRMWARE_INCLUDE_WR_BAND_STEERING=' not in l]
+          Path('source-integration/requested.config').write_text(
+              '\n'.join(lines)+ '\nCONFIG_FIRMWARE_INCLUDE_WR_BAND_STEERING=y\n')
+          PY
+          python3 tools/band-steering/prepare-source-integration.py source-integration \
+            --config source-integration/requested.config --compiler "$compiler"
+          make -C source-integration/trunk/user/wr-band-steering \
+            CC="$compiler" CFLAGS="-O2 -mips32r2 -mabi=32 -msoft-float" \
+            INSTALLDIR="$PWD/source-integration/romfs" romfs
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('source-integration')
+          r = json.loads((root/'band-steering-source-integration.json').read_text())
+          assert r['preparation_complete'] and not r['factory_enabled']
+          assert not r['runtime_verified'] and len(r['steps']) == 18
+          for name in ('wr-band-steering', 'wr-band-steering-ctl'):
+              assert (root/'romfs/usr/sbin'/name).stat().st_size > 0
+          PY
       - name: Generate and compile target ABI probes
         shell: bash
         run: |
