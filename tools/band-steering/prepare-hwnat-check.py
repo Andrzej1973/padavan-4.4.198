@@ -43,3 +43,55 @@ int main(void) {
 }
 ''',encoding='utf-8')
 print('Generated actual Wi-Fi HNAT helper fixture: 16 mode/up/module cases')
+
+n=(a.source/'trunk/user/rc/net.c').read_text(encoding='utf-8')
+b=n.index('#if defined (USE_HW_NAT)\n\tif (hwnat_allow)')
+e=n.index('\n\thwnat_configure();\n#endif',b)
+block=n[b:e]+'\n#endif\n'
+network=a.output.with_name(a.output.stem+'-network.c')
+network.write_text(r'''#include <assert.h>
+#include <stdarg.h>
+#include <stddef.h>
+#include <string.h>
+#define USE_HW_NAT 1
+#define USE_MT76X2_AP 1
+#define IFNAME_2G_MAIN "ra0"
+#define IFNAME_5G_MAIN "rai0"
+static int hwnat_allow, hwnat_loaded, hw_nat_mode, ipv6_nat;
+static int loads, registrations, ipv6_calls, values[2];
+static void module_smart_load(const char *name, const char *args) {
+ assert(!strcmp(name,"hw_nat") && args==NULL); ++loads;
+}
+static int doSystem(const char *format, ...) {
+ va_list args;
+ if (!strcmp(format,"iwpriv %s set hw_nat_register=%d")) {
+  const char *iface;
+  va_start(args,format); iface=va_arg(args,const char *);
+  assert(registrations<2);
+  assert(!strcmp(iface,registrations?"rai0":"ra0"));
+  values[registrations++]=va_arg(args,int); va_end(args);
+ } else {
+  assert(!strcmp(format,ipv6_nat==1?"echo 7 1 > /sys/kernel/debug/hnat/hnat_setting":"echo 7 0 > /sys/kernel/debug/hnat/hnat_setting"));
+  ++ipv6_calls;
+ }
+ return 0;
+}
+static void apply_mode(void) {
+''' + block + r'''
+}
+int main(void) {
+ for (hwnat_allow=0; hwnat_allow<2; ++hwnat_allow)
+ for (hwnat_loaded=0; hwnat_loaded<2; ++hwnat_loaded)
+ for (hw_nat_mode=0; hw_nat_mode<4; ++hw_nat_mode)
+ for (ipv6_nat=0; ipv6_nat<2; ++ipv6_nat) {
+  loads=registrations=ipv6_calls=0;
+  apply_mode();
+  assert(loads==(hwnat_allow&&!hwnat_loaded));
+  assert(ipv6_calls==loads);
+  assert(registrations==2*hwnat_allow);
+  if (hwnat_allow) assert(values[0]==(hw_nat_mode==1) && values[1]==(hw_nat_mode==1));
+ }
+ return 0;
+}
+''',encoding='utf-8')
+print('Generated actual network HNAT setup fixture: 32 allow/loaded/mode/IPv6 cases')
