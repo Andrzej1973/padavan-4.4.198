@@ -69,6 +69,14 @@ with tempfile.TemporaryDirectory(prefix='wr-steering-closure-', dir=Path.cwd()) 
         result = module.verify(staged, image, 'mock-readelf')
         assert len(result) == 5 and 'image:lib/ld-real.so' in result
         assert result['image:lib/libc-real.so']['needed'] == ['libm.so.0']
+        (staged / 'usr/sbin/rc').write_bytes(elf)
+        rc_result = module.verify(staged, image, 'mock-readelf', ['usr/sbin/rc'])
+        assert len(rc_result) == 4 and 'candidate:usr/sbin/rc' in rc_result
+        expect_error(lambda: module.verify(staged, image, 'mock-readelf', []),
+                     'No candidate')
+        for invalid in ('/usr/sbin/rc', '../rc', 'usr/../rc'):
+            expect_error(lambda: module.verify(staged, image, 'mock-readelf', [invalid]),
+                         'relative to staging root')
         (image / 'otherlib').mkdir()
         (image / 'otherlib/usr-only.so').write_bytes(elf)
         links[image / 'usr/lib'] = '/otherlib'

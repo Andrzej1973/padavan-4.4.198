@@ -73,5 +73,10 @@ sha256sum "$rc/net_wifi.c" "$rc/net_wifi.o" > "$probe/results/radio-snapshot-sou
 cp "$probe/band-steering-profile-snapshot.json" "$probe/results/"
 cp "$probe/band-steering-profile-integration.json" "$probe/results/"
 sha256sum "$probe/results/rc" > "$probe/results/rc.sha256"
+mkdir -p "$probe/staged/usr/sbin"
+cp "$rc/rc" "$probe/staged/usr/sbin/rc"
+python3 tools/band-steering/verify-package-closure.py "$probe/staged" "$trunk/romfs" \
+  --binary usr/sbin/rc --readelf "${cross}readelf" \
+  --output "$probe/results/rc-dependency-closure.json"
 sha256sum -c "$probe/results/baseline-config.sha256"
 

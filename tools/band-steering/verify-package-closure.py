@@ -41,7 +41,7 @@ def resolve_image(root, relative):
     return path
 
 
-def verify(staged, image, readelf):
+def verify(staged, image, readelf, binaries=None):
     visited = {}
     environment = dict(os.environ, LC_ALL='C')
 
@@ -89,8 +89,14 @@ def verify(staged, image, readelf):
         elif kind == 'candidate' and needed:
             raise ValueError('Dynamic executable has no interpreter: ' + name)
 
-    for binary in ('wr-band-steering', 'wr-band-steering-ctl'):
-        inspect(staged, 'usr/sbin/' + binary, 'candidate')
+    if binaries is None:
+        binaries = ('usr/sbin/wr-band-steering', 'usr/sbin/wr-band-steering-ctl')
+    if not binaries:
+        raise ValueError('No candidate executable selected')
+    for binary in binaries:
+        if binary.startswith('/') or '..' in binary.split('/'):
+            raise ValueError('Candidate path must stay relative to staging root')
+        inspect(staged, binary, 'candidate')
     return visited
 
 
@@ -99,12 +105,13 @@ def main():
     p.add_argument('staged', type=Path)
     p.add_argument('image', type=Path)
     p.add_argument('--readelf', default='readelf')
+    p.add_argument('--binary', action='append', help='Relative staged executable; repeat for multiple seeds')
     p.add_argument('--output', type=Path, required=True)
     a = p.parse_args()
     result = {'runtime_verified': False, 'production_installed': False,
               'dependency_closure_verified': False, 'elf_files': {}, 'errors': []}
     try:
-        result['elf_files'] = verify(a.staged.resolve(), a.image.resolve(), a.readelf)
+        result['elf_files'] = verify(a.staged.resolve(), a.image.resolve(), a.readelf, a.binary)
         result['dependency_closure_verified'] = True
     except (OSError, ValueError, subprocess.CalledProcessError) as error:
         result['errors'].append(str(error))
