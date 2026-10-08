@@ -347,6 +347,11 @@ jobs:
           "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 \
             -msoft-float -Iabi-results/wifi-snapshot -c abi-results/wifi-snapshot/wifi-lifecycle-check.c \
             -o abi-results/wifi-snapshot-mips.o
+      - name: Prepare HNAT mode with coordinated source adapters
+        run: |
+          python3 tools/prepare-wifi-hwnat-mode.py source-integration --lan-only-default
+          grep -q 'wifname, wr_radio_get_int("hw_nat_mode") == 1' source-integration/trunk/user/rc/net_wifi.c
+          grep -q '{ "hw_nat_mode", "2" }' source-integration/trunk/user/shared/defaults.c
       - name: Verify status refresh UI behavior
         run: |
           node tools/band-steering/check-status-ui.js
