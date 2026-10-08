@@ -11,7 +11,7 @@ DAEMON_SOURCES = protocol session clients aging policy grants coordinator loop \
                  events framing listener transport control main
 DAEMON_FILES = $(addprefix $(SOURCE_DIR)/,$(addsuffix .c,$(DAEMON_SOURCES)))
 HEADERS = $(wildcard $(SOURCE_DIR)/*.h)
-.PHONY: all romfs
+.PHONY: all romfs clean
 all: $(BUILD_DIR)/wr-band-steering $(BUILD_DIR)/wr-band-steering-ctl
 $(BUILD_DIR):
 	mkdir -p "$@"
@@ -23,3 +23,5 @@ romfs: all
 	install -d "$(INSTALLDIR)/usr/sbin"
 	install -m 0755 "$(BUILD_DIR)/wr-band-steering" "$(INSTALLDIR)/usr/sbin/wr-band-steering"
 	install -m 0755 "$(BUILD_DIR)/wr-band-steering-ctl" "$(INSTALLDIR)/usr/sbin/wr-band-steering-ctl"
+clean:
+	rm -f "$(BUILD_DIR)/wr-band-steering" "$(BUILD_DIR)/wr-band-steering-ctl"

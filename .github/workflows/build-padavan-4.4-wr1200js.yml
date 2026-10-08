@@ -771,6 +771,10 @@ jobs:
             "$PWD/band-steering-driver-package-results/romfs" "$PWD/padavan-4.4/trunk/romfs" \
             --readelf "${compiler%gcc}readelf" \
             --output "$PWD/band-steering-driver-package-results/dependency-closure.json"
+          bash tools/band-steering/compile-registered-package.sh \
+            "$PWD/padavan-4.4/trunk" \
+            "$PWD/band-steering-driver-package-results/abi/protocol-layout.h" \
+            "$PWD/band-steering-driver-package-results/registered" "$compiler"
 
       - name: Upload driver-matched steering package diagnostics
         if: always()
