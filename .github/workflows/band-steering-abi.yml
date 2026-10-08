@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'tools/shared-wifi/**'
+      - 'tools/prepare-shared-wifi.py'
       - '.github/workflows/band-steering-abi.yml'
       - 'tools/band-steering/prepare-abi-probe.py'
       - 'tools/band-steering/read-abi-probe.py'
@@ -745,6 +746,14 @@ jobs:
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -mips32r2 -mabi=32 \
             -msoft-float -O2 -c tools/shared-wifi/check-adapter.c \
             -o abi-results/shared-wifi-adapter-mips.o
+
+      - name: Check shared Wi-Fi HTTP source preparation
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp -a source shared-wifi-http-source
+          python3 tools/prepare-shared-wifi.py shared-wifi-http-source
+          python3 tools/shared-wifi/check-source-integration.py shared-wifi-http-source | tee abi-results/shared-wifi-source.txt
 
       - name: Upload ABI diagnostics
         if: always()
