@@ -115,10 +115,8 @@ jobs:
             trunk/user/rc
             trunk/user/shared
             trunk/linux-4.4.x/drivers/nvram
-            trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x2/include
-            trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x2/ap
-            trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/include
-            trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/ap
+            trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x2
+            trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3
       - name: Verify steering package dependency checker logic
         run: python3 tools/band-steering/check-package-closure.py
       - name: Verify WR board steering selectors and factory OFF
@@ -632,3 +630,4 @@ jobs:
           name: band-steering-mips-abi
           path: abi-results/
           if-no-files-found: warn
+
