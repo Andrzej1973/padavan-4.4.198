@@ -29,5 +29,4 @@ English, Ukrainian, and Russian labels are supplied. Browser rendering and hardw
 - [Factory-OFF regression CI](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/37787756190): passed. It preprocesses the real defaults source for MT7612/MT7603 and confirms that reproducing the former conditional placement removes the key.
 - Full-image verification checks page bindings, the exact JavaScript asset, language keys, and compiled HTTP/rc string presence. These checks do not prove runtime operation.
 
-Pending: successful complete firmware build with the fixes, actual ROMFS evidence, rendered-page verification, and recoverable on-device tests. No router flashing or reboot is performed by these build checks.
-
+Complete firmware build and actual ROMFS checks passed for [run 37787484281](evidence/WR-IMAGE-37787484281.md). That revision precedes the wireless HNAT changes. Pending: rendered-page verification and recoverable on-device tests. No router flashing or reboot is performed by these build checks.
