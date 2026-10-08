@@ -7,3 +7,5 @@ Record each supplied repository at an exact revision, distinguish source flags f
 - [RikudouPatrickstar/padavan-fusion](PADAVAN-FUSION.md): Linux 3.4.113; actual roaming UI/backend/profile candidate, driver and default constraints; no newer toolchain established.
 
 - [yummy026/padavan4.4-2](YUMMY026-PADAVAN44-2.md): Linux 4.4.198; GCC 13/libc and package-build candidates, offline and ABI constraints.
+
+- [tsl0922/padavan](TSL0922-PADAVAN.md): Linux 4.4.198, GCC 13 and structured package/ttyd/SmartDNS integration references.
