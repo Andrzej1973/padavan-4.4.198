@@ -351,6 +351,15 @@ jobs:
             python3 tools/prepare-wifi-qr-ui.py padavan-4.4
           fi
 
+      - name: Prepare default-off shared Wi-Fi HTTP handling
+        run: |
+          python3 tools/prepare-shared-wifi.py padavan-4.4
+          python3 tools/shared-wifi/check-source-integration.py padavan-4.4
+          python3 tools/shared-wifi/prepare-http-check.py padavan-4.4 --output shared-wifi-http-check.c
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            -Itools/shared-wifi shared-wifi-http-check.c -o shared-wifi-http-check
+          ./shared-wifi-http-check
+
       - name: Apply requested userspace optimization policy
         run: |
           python3 overlay/padavan-4.4/scripts/set-userspace-performance.py \
@@ -389,6 +398,11 @@ jobs:
             test ! -e trunk/romfs/usr/sbin/wr-band-steering
             test ! -e trunk/romfs/usr/sbin/wr-band-steering-ctl
           fi
+          test -x trunk/romfs/usr/sbin/httpd
+          readelf -h trunk/romfs/usr/sbin/httpd | grep -q 'Machine:.*MIPS'
+          grep -a -F -q 'Invalid shared Wi-Fi request. No settings were saved.' trunk/romfs/usr/sbin/httpd
+          grep -a -F -q 'Shared Wi-Fi changes require coordinated apply.' trunk/romfs/usr/sbin/httpd
+          grep -a -F -q 'wr_wifi_shared' trunk/romfs/lib/libshared.so
           test ! -e trunk/romfs/usr/sbin/udpxy
           test ! -e trunk/romfs/usr/bin/msd_lite
           test ! -e trunk/romfs/etc_ro/msd_lite.conf
