@@ -25,8 +25,8 @@ link('iot','iot-port','iot-peer','br-iot','192.168.50.1/24','192.168.50.20/24')
 link('lan','lan-port','lan-peer','br0','192.168.1.1/24','192.168.1.2/24')
 link('wan','eth2.2','wan-peer',None,'203.0.113.1/24','203.0.113.2/24')
 run('sysctl','-w','net.ipv4.ip_forward=1')
-run('ip','-6','addr','add','fd50::1/64','dev','br-iot')
-run('ip','-n','iot','-6','addr','add','fd50::20/64','dev','eth0')
+run('ip','-6','addr','add','fd50::1/64','dev','br-iot','nodad')
+run('ip','-n','iot','-6','addr','add','fd50::20/64','dev','eth0','nodad')
 server_code="""import socket,threading,sys
 s=socket.socket(socket.AF_INET6 if ':' in sys.argv[1] else socket.AF_INET);s.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1);s.bind((sys.argv[1],int(sys.argv[2])));s.listen();print('READY',flush=True)
 def echo(c):
