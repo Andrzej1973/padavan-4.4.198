@@ -18,6 +18,7 @@ python3 tools/band-steering/prepare-profile-integration.py "$probe"
 python3 tools/band-steering/prepare-child-reaper.py "$probe"
 python3 tools/band-steering/prepare-wifi-lifecycle.py "$probe"
 python3 tools/band-steering/prepare-profile-snapshot.py "$probe"
+python3 tools/band-steering/prepare-wifi-snapshot.py "$probe"
 cross="${compiler%gcc}"
 cat > "$probe/Makefile" <<'MAKE'
 .DEFAULT_GOAL := wr-profile-probe
@@ -55,6 +56,9 @@ grep -Eq '[[:space:]]T[[:space:]]wr_band_profile_bind_snapshot$' "$probe/results
 grep -Eq '[[:space:]]T[[:space:]]wr_band_profile_unbind_snapshot$' "$probe/results/profile-io-symbols.txt"
 "${cross}nm" "$rc/net_wifi.o" > "$probe/results/wifi-lifecycle-symbols.txt"
 grep -Eq '[[:space:]]T[[:space:]]wr_band_apply_wifi_settings$' "$probe/results/wifi-lifecycle-symbols.txt"
+grep -Eq '[[:space:]]U[[:space:]]nvram_getall$' "$probe/results/wifi-lifecycle-symbols.txt"
+grep -Eq '[[:space:]]U[[:space:]]wr_band_profile_bind_snapshot$' "$probe/results/wifi-lifecycle-symbols.txt"
+grep -Eq '[[:space:]]U[[:space:]]wr_band_snapshot_capture$' "$probe/results/wifi-lifecycle-symbols.txt"
 "${cross}readelf" -h "$rc/rc" > "$probe/results/rc-elf.txt"
 grep -q 'Machine:.*MIPS' "$probe/results/rc-elf.txt"
 "${cross}readelf" -d "$rc/rc" > "$probe/results/rc-dependencies.txt"
