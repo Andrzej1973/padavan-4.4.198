@@ -95,6 +95,45 @@ static void wr_profile_wlan_set(int band, const char *name, char *value)
 #endif
 '''
 text = text.replace(anchor, anchor + helper)
+paired_start = text.index('int wr_band_generate_profiles(int enabled)')
+paired_end = text.index('\n#endif', paired_start)
+old_pair = text[paired_start:paired_end]
+if old_pair.count('failed = gen_ralink_config_2g(0);') != 1 or old_pair.count('wr_band_profile_override = -1;') != 1:
+    raise ValueError('Paired generation anchors changed; no files written')
+new_pair = r'''int wr_band_generate_profiles(int enabled)
+{
+    struct wr_band_settings_snapshot owned = {0};
+    int failed = -1, owns_capture = 0;
+    if ((enabled != 0 && enabled != 1) || wr_band_profile_override != -1)
+        return -1;
+    if (!wr_profile_snapshot) {
+        /* Boot and standalone paired writes also use one complete capture.
+         * Reuse the Wi-Fi transaction's capture when already bound. */
+        if (wr_band_snapshot_capture(&owned, 0x20000, nvram_getall))
+            return -1;
+        if (wr_band_profile_bind_snapshot(&owned)) {
+            wr_band_snapshot_release(&owned);
+            return -1;
+        }
+        owns_capture = 1;
+    }
+    if (enabled && wr_band_profile_from_settings(1, wr_band_profile_setting, NULL) != WR_PROFILE_COMPATIBLE)
+        goto out;
+    wr_band_profile_override = enabled;
+    failed = gen_ralink_config_2g(0);
+    if (!failed)
+        failed = gen_ralink_config_5g(0);
+    wr_band_profile_override = -1;
+out:
+    if (owns_capture) {
+        wr_band_profile_unbind_snapshot();
+        wr_band_snapshot_release(&owned);
+    }
+    /* External captures stay bound for the caller's remaining transaction. */
+    return failed ? -1 : 0;
+}
+'''
+text = text[:paired_start] + new_pair + text[paired_end:]
 make = make.replace(object_lines[0], object_lines[0].rstrip('\n') +
                     ' wr-band-settings-snapshot.o\n')
 declarations = declarations.replace('int wr_band_generate_profiles(int enabled);',
