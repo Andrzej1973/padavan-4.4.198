@@ -65,6 +65,7 @@ int main(void)
 {
  struct wr_band_apply_result r;
  const int sequence[]={1,2,3,4,5,6,7,8};
+ const int disabled_retry_sequence[]={2,3,4,5,6,7,2};
  assert(!wr_band_apply_wifi_settings(1,1,1,&r));
  assert(count==8 && !memcmp(calls,sequence,sizeof(sequence)) && r.state==WR_APPLY_RUNNING);
  count=0;incompatible=1;
@@ -94,7 +95,7 @@ int main(void)
  assert(count==1 && calls[0]==2 && wr_wifi_last_status==-1 && !last_off);
  count=0;off_failed=0;
  assert(wr_band_handle_wifi_restart(0,1)==1);
- assert(count==5 && calls[0]==2 && calls[count-1]==2 && !wr_wifi_last_status && last_off);
+ assert(count==7 && !memcmp(calls,disabled_retry_sequence,sizeof(disabled_retry_sequence)) && !wr_wifi_last_status && last_off);
  count=0;
  assert(!wr_band_wifi_shutdown() && !count);
  wr_wifi_owner.pid=42;stop_failed=-1;
@@ -223,3 +224,4 @@ for name in ['wr-band-service-owner.h','wr-band-profile-policy.h','wr-band-lifec
 if snapshot_mode:
     for name in ['wr-band-settings-snapshot.c','wr-band-settings-snapshot.h']:
         (a.output/name).write_bytes((rc/name).read_bytes())
+
