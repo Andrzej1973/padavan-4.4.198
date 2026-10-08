@@ -342,6 +342,15 @@ jobs:
           python3 tools/prepare-wifi-hwnat-mode.py padavan-4.4 --lan-only-default
           grep -q '{ "hw_nat_mode", "2" }' padavan-4.4/trunk/user/shared/defaults.c
 
+      - name: Prepare local Wi-Fi QR previews when QR support is selected
+        run: |
+          if grep -qx 'CONFIG_FIRMWARE_INCLUDE_QRENCODE=y' configs.build/wr1200js.config; then
+            node tools/check-wifi-qr-payload.js
+            node tools/check-wifi-qr-renderer.js
+            node tools/check-wifi-qr-preview.js
+            python3 tools/prepare-wifi-qr-ui.py padavan-4.4
+          fi
+
       - name: Apply requested userspace optimization policy
         run: |
           python3 overlay/padavan-4.4/scripts/set-userspace-performance.py \
@@ -406,6 +415,8 @@ jobs:
           if grep -q '^CONFIG_FIRMWARE_INCLUDE_QRENCODE=y$' trunk/.config; then
             test -x trunk/romfs/usr/bin/qrencode
             readelf -h trunk/romfs/usr/bin/qrencode | grep -q 'Machine:.*MIPS'
+            python3 ../tools/verify-wifi-qr-image.py trunk/romfs \
+              --output ../wifi-qr-image.json
           fi
           grep -q '^CONFIG_FIRMWARE_ENABLE_EXT4=y$' trunk/.config
           grep -q '^CONFIG_FIRMWARE_INCLUDE_SSWAN=y$' trunk/.config
@@ -694,6 +705,7 @@ jobs:
             padavan-4.4/trunk/romfs/www/RU.dict
             padavan-4.4/band-steering-*.json
             padavan-4.4/wifi-hwnat-source.json
+            padavan-4.4/wifi-qr-image.json
             firmware-steering-*.json
           include-hidden-files: true
 
@@ -724,6 +736,7 @@ jobs:
             padavan-4.4/band-steering-source-integration.json
             padavan-4.4/band-steering-board-defaults.json
             padavan-4.4/wifi-hwnat-source.json
+            padavan-4.4/wifi-qr-image.json
 
 
       - name: Compile isolated full Band Steering drivers
