@@ -115,8 +115,11 @@ checks remain in separate diagnostic artifacts. The
 `padavan-4.4.198-router-downloads` artifact is a combined index and checksums,
 rather than the minimal per-router ZIP.
 
-Minimal ZIP packaging has been implemented; its first resulting Actions run
-still needs verification. Failed or missing builds must not be reported as
+The minimal per-router ZIP contract was verified by inspecting a successful
+artifact and matching its configuration bytes to the source revision. See the
+[build and ZIP evidence](docs/evidence/BUILD-37717393036-AND-ZIP-CONTRACT.md).
+This packaging result does not establish current firmware feature selection or
+router runtime behavior. Failed or missing builds must not be reported as
 successful firmware downloads.
 
 ## Repository layout
