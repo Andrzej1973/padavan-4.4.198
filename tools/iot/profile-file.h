@@ -6,6 +6,9 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#ifndef WR_IOT_MKSTEMP
+#define WR_IOT_MKSTEMP mkstemp
+#endif
 #ifndef WR_IOT_FSYNC
 #define WR_IOT_FSYNC fsync
 #endif
@@ -16,7 +19,7 @@
 #define WR_IOT_CLOSE fclose
 #endif
 static int wr_iot_profile_replace(const char *path,const char *ssid,const char *password,int enabled) {
- FILE *input=NULL,*temporary=NULL;int in_fd=-1,out_fd=-1,committed=0;char *name=NULL;
+ FILE *input=NULL,*temporary=NULL;int in_fd=-1,out_fd=-1,committed=0,created=0;char *name=NULL;
  struct stat original,current;size_t n;
  if(!enabled)return 1;
  if(!path||!ssid||!password)return 0;
@@ -26,7 +29,7 @@ static int wr_iot_profile_replace(const char *path,const char *ssid,const char *
  in_fd=open(path,O_RDONLY|O_NOFOLLOW);if(in_fd<0)goto done;
  if(fstat(in_fd,&original)||!S_ISREG(original.st_mode))goto done;
  input=fdopen(in_fd,"r");if(!input)goto done;in_fd=-1;
- out_fd=mkstemp(name);if(out_fd<0)goto done;
+ out_fd=WR_IOT_MKSTEMP(name);if(out_fd<0)goto done;created=1;
  temporary=fdopen(out_fd,"w");if(!temporary)goto done;out_fd=-1;
  if(!wr_iot_profile_stream(input,temporary,ssid,password,1))goto done;
  if(fflush(temporary)||WR_IOT_FSYNC(fileno(temporary)))goto done;
@@ -39,7 +42,7 @@ static int wr_iot_profile_replace(const char *path,const char *ssid,const char *
  done:
  if(input)fclose(input);else if(in_fd>=0)close(in_fd);
  if(temporary)fclose(temporary);else if(out_fd>=0)close(out_fd);
- if(name){if(!committed)unlink(name);free(name);}
+ if(name){if(created&&!committed)unlink(name);free(name);}
  return committed;
 }
 #endif
