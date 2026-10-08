@@ -720,6 +720,19 @@ jobs:
             -msoft-float -O2 -c tools/shared-wifi/check-validate.c \
             -o abi-results/shared-wifi-validation-mips.o
 
+      - name: Check shared Wi-Fi request planning before persistence
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            tools/shared-wifi/check-plan.c -o abi-results/check-shared-wifi-plan
+          abi-results/check-shared-wifi-plan | tee abi-results/shared-wifi-plan.txt
+          compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          "$compiler" -std=gnu11 -Wall -Wextra -Werror -mips32r2 -mabi=32 \
+            -msoft-float -O2 -c tools/shared-wifi/check-plan.c \
+            -o abi-results/shared-wifi-plan-mips.o
+
       - name: Upload ABI diagnostics
         if: always()
         uses: actions/upload-artifact@v7
