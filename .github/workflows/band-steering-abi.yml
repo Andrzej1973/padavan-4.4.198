@@ -850,6 +850,21 @@ jobs:
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
             -c tools/iot/check-firewall.c -o abi-results/iot-firewall-mips.o
 
+      - name: Parse IoT rules with the host kernel in an isolated network namespace
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v iptables-legacy-restore >/dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y iptables
+          fi
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 tools/iot/emit-firewall.c -o abi-results/emit-iot-firewall
+          abi-results/emit-iot-firewall 4 > abi-results/iot-filter.v4
+          abi-results/emit-iot-firewall 6 > abi-results/iot-filter.v6
+          sudo unshare --net iptables-legacy-restore --test < abi-results/iot-filter.v4
+          sudo unshare --net ip6tables-legacy-restore --test < abi-results/iot-filter.v6
+          printf '%s\n' 'PASS host-kernel IPv4 and IPv6 restore grammar in isolated namespaces; target kernel and packet behavior unverified' | tee abi-results/iot-firewall-kernel-parser.txt
+
       - name: Upload ABI diagnostics
         if: always()
         uses: actions/upload-artifact@v7
