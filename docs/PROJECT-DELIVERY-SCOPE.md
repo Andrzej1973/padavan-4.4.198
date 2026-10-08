@@ -250,3 +250,17 @@ Finish the agreed YOUHUA WR1200JS Linux 4.4.198 firmware and its build/image/run
 Retain the pinned donor audits and original reference configurations. When time and credits permit, return to the recorded candidates and choose improvements based on compatibility, measurable benefit and evidence. Auditing a donor does not authorize replacing the production toolchain, switching libc, enabling optional packages or expanding the build matrix. Do not let optional donor exploration delay delivery of the current WR1200JS firmware.
 
 Keep verified findings, remaining checks and adoption decisions in docs/donor-audits. Source flags and successful compilation are separate from device runtime verification. Secondary Mi Mini and other accepted later work remain scheduled after the WR1200JS priority stage.
+
+
+## Separate IoT Wi-Fi — user-approved WR1200JS deliverable, 2026-10-08
+
+Add a third main use-case network alongside the existing primary and guest Wi-Fi; preserve both existing networks and their configuration. Schedule within the WR1200JS Wi-Fi/WebUI stage. The pinned ralink.c currently generates BssidNum=2 (AP plus GuestAP); a third network is not yet implemented or proven supported.
+
+- Confirm effective MT7603E/MT7612E virtual-AP limits, interface allocation and compatibility with existing guest AP, Band Steering and optional roaming before claiming support.
+- Provide a dedicated IoT WebUI section with enable switch, SSID, password, authenticated local QR, persistence and actual status. Default OFF after flashing; do not repurpose the guest network.
+- Prefer 2.4 GHz, 20 MHz and WPA2-Personal/AES for compatibility. Keep WPS and Band Steering off for IoT by default. Preserve channel constraints shared by virtual APs on the same physical radio; do not imply independent RF channels.
+- Wire the third BSS into driver profile generation, interface lifecycle, a separate bridge/subnet, DHCP and firewall. Block IoT access to the primary LAN and router administration by default while permitting the required DHCP/DNS and internet access.
+- Provide explicit scoped access exceptions for a controller such as Home Assistant. Assess discovery/mDNS requirements separately; do not promise discovery or enable unrestricted inter-network access.
+- Verify compilation, actual ROMFS inclusion, default/persistence behavior, three simultaneous SSIDs, DHCP, isolation, allowed exceptions and reconnection on the device. Test device-to-device isolation policy with the intended IoT use cases.
+
+Status: approved planned work; runtime support unverified. No remote router changes or flashing are authorized by this planning update. WR1200JS remains the priority before secondary router work; CAKE remains excluded.
