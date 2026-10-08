@@ -9,6 +9,7 @@ test=r'''
 #define _POSIX_C_SOURCE 200809L
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/wait.h>
 #include <signal.h>
@@ -33,7 +34,7 @@ static int is_radio_allowed_wl(void) { return 1; }
 static void logmessage(const char *name,const char *format,...)
 { assert(name && format); }
 static void mark(int v) { assert(count<32); calls[count++]=v; }
-static const char *nvram_wlan_get(int band, const char *key)
+static char *nvram_wlan_get(int band, const char *key)
 { assert((band==0||band==1) && key); return "fixture"; }
 int wr_band_profile_from_settings(int enabled, wr_band_setting_getter get, void *p)
 { assert(enabled==1 && !strcmp(get(0,"ssid",p),"fixture")); mark(1); return incompatible ? WR_PROFILE_MISMATCH : WR_PROFILE_COMPATIBLE; }
