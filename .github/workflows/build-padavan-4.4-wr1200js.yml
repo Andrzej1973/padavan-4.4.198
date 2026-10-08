@@ -337,6 +337,11 @@ jobs:
           fi
           echo "enabled=$enabled" >> "$GITHUB_OUTPUT"
 
+      - name: Respect WR wireless HNAT mode and default to LAN-only
+        run: |
+          python3 tools/prepare-wifi-hwnat-mode.py padavan-4.4 --lan-only-default
+          grep -q '{ "hw_nat_mode", "2" }' padavan-4.4/trunk/user/shared/defaults.c
+
       - name: Apply requested userspace optimization policy
         run: |
           python3 overlay/padavan-4.4/scripts/set-userspace-performance.py \
@@ -364,6 +369,7 @@ jobs:
             done
             grep -a -q '/usr/sbin/wr-band-steering' trunk/romfs/sbin/rc
             grep -a -q 'wr_bs_enable' trunk/romfs/lib/libshared.so
+            grep -a -F -q 'Enabled module, requested offload [WAN]<->[LAN]' trunk/romfs/sbin/rc
             python3 ../tools/band-steering/verify-package-closure.py trunk/romfs trunk/romfs \
               --production-image --output ../firmware-steering-closure.json
             python3 ../tools/band-steering/verify-package-closure.py trunk/romfs trunk/romfs \
@@ -687,6 +693,7 @@ jobs:
             padavan-4.4/trunk/romfs/www/UK.dict
             padavan-4.4/trunk/romfs/www/RU.dict
             padavan-4.4/band-steering-*.json
+            padavan-4.4/wifi-hwnat-source.json
             firmware-steering-*.json
           include-hidden-files: true
 
@@ -716,6 +723,7 @@ jobs:
             firmware-steering-status-image.json
             padavan-4.4/band-steering-source-integration.json
             padavan-4.4/band-steering-board-defaults.json
+            padavan-4.4/wifi-hwnat-source.json
 
 
       - name: Compile isolated full Band Steering drivers

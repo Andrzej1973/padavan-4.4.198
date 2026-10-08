@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Respect the existing HNAT mode when a wireless interface is brought up."""
 import argparse
+import hashlib
+import json
 from pathlib import Path
 p=argparse.ArgumentParser()
 p.add_argument('source',type=Path)
@@ -62,4 +64,9 @@ if a.lan_only_default:
  changes.append((defaults,d.replace(anchor,'{ "hw_nat_mode", "2" }')))
 for path,text in changes:
  path.write_text(text,encoding='utf-8')
+report={'runtime_verified':False,'factory_lan_only':a.lan_only_default,
+        'coordinated_snapshot_adapter':getter=='wr_radio_get_int',
+        'scope':'source preparation; no measured offload state or Wi-Fi stability proof',
+        'files':{str(path.relative_to(a.source)):{'sha256':hashlib.sha256(path.read_bytes()).hexdigest()} for path,_ in changes}}
+(a.source/'wifi-hwnat-source.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
 print('Wireless bring-up respects HNAT mode: only mode 1 registers Wi-Fi')
