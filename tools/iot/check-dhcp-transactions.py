@@ -67,9 +67,10 @@ def lease(name,mac,gateway,prefix,xid):
   def exchange(kind,extra,wanted):
    packet=header+cookie+b'\x35\x01'+bytes([kind])+common+extra+b'\xff'
    for _ in range(3):
-    s.sendto(packet,('255.255.255.255',67));deadline=time.monotonic()+1
+    s.sendto(packet,('255.255.255.255',67));deadline=time.monotonic()+4 # Pinned dnsmasq PING_WAIT is 3 seconds.
     while time.monotonic()<deadline:
      try:
+      receiver.settimeout(max(0.01,deadline-time.monotonic()))
       frame,_=receiver.recvfrom(8192);frames.append({"client":name,"length":len(frame),"head":frame[:64].hex()});data=dhcp_payload(frame)
      except TimeoutError:break
      if len(data)<240 or data[0]!=2 or struct.unpack('!I',data[4:8])[0]!=xid or data[28:34]!=mac or data[236:240]!=cookie:continue
