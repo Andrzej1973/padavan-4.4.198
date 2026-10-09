@@ -861,6 +861,28 @@ jobs:
             "$1" --custom-table
           ' fixture "$probe" | tee abi-results/iot-inventory-custom-table.txt
 
+      - name: Check actual IoT network validator and owned bridge handling
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            tools/iot/network-check.c tools/iot/bridge.c tools/iot/check-network.c -o abi-results/check-iot-network
+          probe="$PWD/abi-results/check-iot-network"
+          parent_netns="$(readlink /proc/self/ns/net)"
+          sudo env WR_IOT_PARENT_NETNS="$parent_netns" unshare --net --mount -- bash -euc '
+            mount --make-rprivate /
+            mount -t sysfs sysfs /sys
+            ip link set lo up
+            ip link add lan-test type dummy
+            ip addr add 192.168.1.1/24 dev lan-test
+            ip link set lan-test up
+            ip link add vpn-test type dummy
+            ip addr add 10.77.0.1/24 dev vpn-test
+            ip link set vpn-test up
+            ip route add table 123 10.88.0.0/24 dev vpn-test
+            "$1"
+          ' fixture "$probe" | tee abi-results/iot-network-validator.txt
+
       - name: Check scoped IoT DHCP configuration fragment
         shell: bash
         run: |
