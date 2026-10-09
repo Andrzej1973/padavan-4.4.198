@@ -10,6 +10,9 @@
 #ifndef WR_IOT_DNS_PROBE
 #define WR_IOT_DNS_PROBE wr_iot_dns_handler_ready
 #endif
+#ifndef WR_IOT_DNS_LAN_PROBE
+#define WR_IOT_DNS_LAN_PROBE wr_iot_dns_handler_ready_at
+#endif
 #ifndef WR_IOT_DHCP_PROBE
 #define WR_IOT_DHCP_PROBE(address) wr_iot_dhcp_ready_at(address,67)
 #endif
@@ -45,7 +48,7 @@ static int wr_iot_restart_service_wait(unsigned int port,int dhcp4,const char *g
 {
  int i;
  for(i=0;i<20;i++){
-  if(is_dns_dhcpd_run()&&(!port||WR_IOT_DNS_PROBE(port))&&(!dhcp4||WR_IOT_DHCP_PROBE(gateway)))return 1;
+  if(is_dns_dhcpd_run()&&(!port||WR_IOT_DNS_PROBE(port)||(gateway[0]&&WR_IOT_DNS_LAN_PROBE(gateway,port)))&&(!dhcp4||WR_IOT_DHCP_PROBE(gateway)))return 1;
   usleep(50000);
  }
  return 0;
@@ -97,7 +100,7 @@ static int wr_iot_restart_transaction(void)
  }
  wr_iot_restart_old_running=!!is_dns_dhcpd_run();wr_iot_restart_old_port=0;wr_iot_restart_old_dhcp4=0;wr_iot_restart_old_gateway[0]=0;
  if(wr_iot_restart_old_running&&!wr_iot_dns_config_services(WR_IOT_DNS_CONFIG_PATH,&wr_iot_restart_old_port,&wr_iot_restart_old_dhcp4))return EINVAL;
- if(wr_iot_restart_old_dhcp4&&!WR_IOT_DHCP_GATEWAY(IFNAME_BR,wr_iot_restart_old_gateway))return EINVAL;
+ if((wr_iot_restart_old_port||wr_iot_restart_old_dhcp4)&&!WR_IOT_DHCP_GATEWAY(IFNAME_BR,wr_iot_restart_old_gateway)&&wr_iot_restart_old_dhcp4)return EINVAL;
  wr_iot_restart_guard=wr_iot_service_guard_enter(1);
  if(wr_iot_restart_guard!=1)return EBUSY;
  wr_iot_service_state_init(&wr_iot_restart_state);
@@ -129,7 +132,7 @@ static int wr_iot_restart_transaction(void)
  }
  else if(!result)result=EIO;
  if(!result&&(wr_iot_writer_journal_failed()||!wr_iot_dns_config_services(WR_IOT_DNS_CONFIG_PATH,&new_port,&new_dhcp4)||
-    (new_dhcp4&&!WR_IOT_DHCP_GATEWAY(IFNAME_BR,new_gateway))||
+    ((new_port||new_dhcp4)&&!WR_IOT_DHCP_GATEWAY(IFNAME_BR,new_gateway)&&new_dhcp4)||
     !wr_iot_restart_service_wait(new_port,new_dhcp4,new_gateway)||
     !wr_iot_service_state_seal(&wr_iot_restart_state,WR_IOT_SERVICE_LOCK_PATH)))result=EIO;
  if(!result&&wr_iot_restart_finish())return 0;

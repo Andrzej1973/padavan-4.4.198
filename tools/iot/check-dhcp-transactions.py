@@ -130,6 +130,17 @@ try:
   if process.poll() is not None or time.monotonic()>deadline:raise RuntimeError('DNS handler did not respond with no-hosts/no-ident')
   time.sleep(0.05)
  checks['local_dns_handler_no_hosts_no_ident']=True
+ process.terminate();process.wait(timeout=3)
+ conf.write_text(config+'no-hosts\nno-ident\nexcept-interface=lo\n')
+ process=subprocess.Popen([str(daemon),'--keep-in-foreground','--user=root','--conf-file='+str(conf),'--pid-file='+str(r/'iot-dnsmasq.pid'),'--dhcp-leasefile='+str(lease_path)],stdout=log,stderr=log)
+ deadline=time.monotonic()+5
+ while True:
+  result=subprocess.run([str(r/'check-iot-dns-handler'),'53','192.168.1.1'],capture_output=True,text=True)
+  if result.returncode==0:break
+  if process.poll() is not None or time.monotonic()>deadline:raise RuntimeError('DNS handler did not respond on LAN with loopback excluded')
+  time.sleep(0.05)
+ assert subprocess.run([str(r/'check-iot-dns-handler'),'53'],capture_output=True).returncode!=0
+ checks['local_dns_handler_lan_with_loopback_excluded']=True
  (r/'iot-dhcp-transactions.json').write_text(json.dumps({'checks':checks,'scope':'Pinned native dnsmasq host DHCP OFFER/ACK and DNS over isolated IoT/LAN with generated firewall; production RC and target runtime unverified','runtime_verified':False},indent=2)+'\n')
  print('PASS pinned dnsmasq IoT and main LAN DHCP/DNS transactions with isolation rules')
 finally:

@@ -8,6 +8,7 @@
 #include <netinet/in.h>
 #include <poll.h>
 #include <errno.h>
+#include <arpa/inet.h>
 /* Verify every declared record is present before treating a packet as ready. */
 static inline int wr_iot_dns_name_span(const unsigned char *data,size_t size,size_t *offset){
  size_t p,end=0;unsigned int steps=0;
@@ -72,14 +73,15 @@ static inline int wr_iot_dns_handler_reply(const unsigned char *reply,size_t siz
  while(pos<end){length=reply[pos++];if(end-pos<length)return 0;pos+=length;}
  return pos==end;
 }
-static inline int wr_iot_dns_handler_ready(unsigned int port){
+/* Caller must supply an address owned by the router (the controller reads SIOCGIFADDR). */
+static inline int wr_iot_dns_handler_ready_at(const char *local_address,unsigned int port){
  unsigned char query[30]={0,0,0,0,0,1,0,0,0,0,0,0,7,'v','e','r','s','i','o','n',4,'b','i','n','d',0,0,16,0,3};
  unsigned char reply[512];struct sockaddr_in address;struct pollfd wait;
  static uint16_t sequence;int fd,ok=0;ssize_t size;
- if(!port||port>65535)return 0;
+ if(!local_address||!port||port>65535)return 0;
  sequence++;query[0]=(unsigned char)((sequence^(uint16_t)getpid())>>8);query[1]=(unsigned char)(sequence^(uint16_t)getpid());
  fd=socket(AF_INET,SOCK_DGRAM,0);if(fd<0)return 0;
- memset(&address,0,sizeof(address));address.sin_family=AF_INET;address.sin_port=htons((uint16_t)port);address.sin_addr.s_addr=htonl(INADDR_LOOPBACK);
+ memset(&address,0,sizeof(address));address.sin_family=AF_INET;address.sin_port=htons((uint16_t)port);if(inet_pton(AF_INET,local_address,&address.sin_addr)!=1)goto done;
  if(connect(fd,(struct sockaddr *)&address,sizeof(address))||send(fd,query,sizeof(query),0)!=(ssize_t)sizeof(query))goto done;
  wait.fd=fd;wait.events=POLLIN;wait.revents=0;
  if(poll(&wait,1,200)!=1||!(wait.revents&POLLIN))goto done;
@@ -87,6 +89,7 @@ static inline int wr_iot_dns_handler_ready(unsigned int port){
  if(size>=0&&(size_t)size<=sizeof(reply))ok=wr_iot_dns_handler_reply(reply,(size_t)size,query,sizeof(query));
  done:close(fd);return ok;
 }
+static inline int wr_iot_dns_handler_ready(unsigned int port){return wr_iot_dns_handler_ready_at("127.0.0.1",port);}
 static inline int wr_iot_dns_ready(unsigned int port){
  unsigned char query[27]={0,0,1,0,0,1,0,0,0,0,0,0,9,'l','o','c','a','l','h','o','s','t',0,0,1,0,1};
  unsigned char reply[512];struct sockaddr_in address;struct pollfd wait;
