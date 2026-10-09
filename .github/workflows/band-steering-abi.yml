@@ -839,6 +839,28 @@ jobs:
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
             -c tools/iot/check-inventory.c -o abi-results/iot-inventory-mips.o
 
+      - name: Check IoT inventory with a separate VPN routing table
+        shell: bash
+        run: |
+          set -euo pipefail
+          probe="$PWD/abi-results/check-iot-inventory"
+          sudo unshare --net -- bash -euc '
+            ip link set lo up
+            ip link add lan-test type dummy
+            ip addr add 192.168.1.1/24 dev lan-test
+            ip link set lan-test up
+            ip link add wan-test type dummy
+            ip addr add 203.0.113.1/24 dev wan-test
+            ip link set wan-test up
+            ip link add vpn-test type dummy
+            ip addr add 10.77.0.1/24 dev vpn-test
+            ip link set vpn-test up
+            ip route add table 123 10.88.0.0/24 dev vpn-test
+            ip route add default dev wan-test
+            ip route add table 123 default dev vpn-test
+            "$1" --custom-table
+          ' fixture "$probe" | tee abi-results/iot-inventory-custom-table.txt
+
       - name: Check scoped IoT DHCP configuration fragment
         shell: bash
         run: |
