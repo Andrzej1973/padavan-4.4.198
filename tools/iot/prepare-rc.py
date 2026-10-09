@@ -352,6 +352,27 @@ arpbind_clear(void)
 }
 """
 source=source[:begin]+body+wrapper+source[end:];path.write_text(source,encoding='utf-8')
+# Capture real stdio failures within owned auxiliary writer bodies.
+for filename,names in [('services_ex.c',['fill_static_ethers_owned_body','wr_iot_fill_dnsmasq_servers_raw_owned_body']),('net_wan.c',['wr_iot_update_hosts_router_raw_owned_body','wr_iot_update_resolvconf_raw_owned_body'])]:
+ path=rc/filename;source=path.read_text(encoding='utf-8')
+ source=source.replace('#include "rc.h"',"""#include "rc.h"
+#if defined(BOARD_WR1200JS)
+#define WR_IOT_FOPEN wr_iot_writer_fopen
+#define WR_IOT_FCLOSE wr_iot_writer_fclose
+#else
+#define WR_IOT_FOPEN fopen
+#define WR_IOT_FCLOSE fclose
+#endif""",1)
+ for name in names:
+  start=source.index('\n'+name+'(');end=source.index('\n}\n',start)+3
+  body=source[start:end].replace('fopen(','WR_IOT_FOPEN(').replace('fclose(','WR_IOT_FCLOSE(')
+  source=source[:start]+body+source[end:]
+ if filename=='services_ex.c':
+  anchor='\tif (is_dns_used)\n\t\tfill_dnsmasq_servers();'
+  if source.count(anchor)!=1:raise SystemExit('DNS servers startup anchor changed')
+  source=source.replace(anchor,anchor+'\n#if defined(BOARD_WR1200JS)\n if(wr_iot_writer_journal_failed()){if(*iot_candidate)unlink(iot_candidate);return EIO;}\n#endif',1)
+ path.write_text(source,encoding='utf-8')
+report['owned_auxiliary_stdio_failures_latched']=True
 report['uts_and_permanent_arp_writer_bodies_instrumented']=True
 report['auxiliary_dns_writer_bodies_journal_instrumented']=True
 report['writer_journal_lifecycle_bound']=False

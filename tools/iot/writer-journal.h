@@ -8,6 +8,8 @@ int wr_iot_writer_journal_unbind(struct wr_iot_service_transaction *transaction)
 int wr_iot_writer_journal_begin(unsigned int mask);
 int wr_iot_writer_journal_end(unsigned int mask);
 int wr_iot_writer_journal_failed(void);
+FILE *wr_iot_writer_fopen(const char *path,const char *mode);
+int wr_iot_writer_fclose(FILE *stream);
 struct wr_iot_service_state;
 int wr_iot_writer_journal_bind_state(struct wr_iot_service_state *state);
 int wr_iot_writer_journal_kernel_begin(void);

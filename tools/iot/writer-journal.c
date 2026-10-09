@@ -64,3 +64,14 @@ int wr_iot_writer_journal_kernel_end(void){
  if(!valid()||!kernel_state||!wr_iot_service_state_kernel_end(kernel_state,WR_IOT_SERVICE_LOCK_PATH)){failed=1;return 0;}
  return 1;
 }
+
+/* Raw writer bodies close their streams before journal_end captures the result.
+ * Failed/partial writes remain owned but must not be committed as successful. */
+FILE *wr_iot_writer_fopen(const char *path,const char *mode){
+ FILE *stream=fopen(path,mode);if(!stream&&bound)failed=1;return stream;
+}
+int wr_iot_writer_fclose(FILE *stream){
+ int stream_failed=ferror(stream),result=fclose(stream);
+ if(bound&&(stream_failed||result))failed=1;
+ return result;
+}

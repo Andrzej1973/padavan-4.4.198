@@ -12,6 +12,8 @@ int main(void){
  for(i=0;i<8;i++){put(paths[i],"old\n");}
  assert(wr_iot_bundle_capture(&t.files,paths,8));t.active=1;
  assert(wr_iot_writer_journal_bind(&t));assert(!wr_iot_writer_journal_bind(&t));
+ assert(!wr_iot_writer_journal_failed());{FILE *full=wr_iot_writer_fopen("/dev/full","w");assert(full);(void)fputs("partial",full);assert(wr_iot_writer_fclose(full)==EOF);assert(wr_iot_writer_journal_failed());}
+ assert(!wr_iot_writer_fopen("missing-directory/file","w"));assert(wr_iot_writer_journal_failed());
  assert(wr_iot_writer_journal_begin(14));put("b","changed\n");assert(!wr_iot_writer_journal_unbind(&t));
  assert(!wr_iot_writer_journal_begin(6));assert(t.files.pending==14);assert(wr_iot_writer_journal_failed());
  assert(wr_iot_writer_journal_end(14));assert(wr_iot_bundle_restore(&t.files));
