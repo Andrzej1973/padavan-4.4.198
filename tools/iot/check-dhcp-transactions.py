@@ -99,6 +99,14 @@ try:
   try:dns(None,'192.168.1.1');break
   except (TimeoutError,OSError):
    if time.monotonic()>deadline:raise
+ lease_path=r/'iot-dnsmasq.leases'
+ before=lease_path.read_bytes() if lease_path.exists() else None
+ run(str(r/'check-iot-dhcp-ready'),'67','192.168.1.1')
+ run(str(r/'check-iot-dhcp-ready'),'67','192.168.50.1')
+ time.sleep(0.1)
+ after=lease_path.read_bytes() if lease_path.exists() else None
+ assert before==after, 'DHCPINFORM changed lease file'
+ checks['local_dhcp_inform_without_lease_changes']=True
  lease('iot',bytes.fromhex('020000000050'),'192.168.50.1','192.168.50.',0x50505050)
  lease('lan',bytes.fromhex('020000000001'),'192.168.1.1','192.168.1.',0x10101010)
  dns('iot','192.168.50.1');checks['iot_dns_transaction']=True
