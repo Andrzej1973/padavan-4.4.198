@@ -12,14 +12,16 @@ run('ip','link','add','br0','type','bridge');run('ip','addr','add','192.168.1.1/
 for name,port,peer in [('iot','ra2','iot-peer'),('lan','lan-port','lan-peer')]:
  run('ip','netns','add',name);run('ip','-n',name,'link','set','lo','up')
  run('ip','link','add',port,'type','veth','peer','name',peer);run('ip','link','set',peer,'netns',name)
- run('ip','-n',name,'link','set',peer,'name','eth0');run('ip','-n',name,'link','set','eth0','up')
+ run('ip','-n',name,'link','set',peer,'name','eth0')
+ run('ip','-n',name,'link','set','eth0','address','02:00:00:00:00:50' if name=='iot' else '02:00:00:00:00:01')
+ run('ip','-n',name,'link','set','eth0','up')
  if name=='iot':run(str(r/'check-iot-bridge'),'attach')
  else:run('ip','link','set',port,'master','br0')
 for version,restore in [('4','iptables-legacy-restore'),('6','ip6tables-legacy-restore')]:
  with (r/('iot-filter.v'+version)).open() as f:subprocess.run([restore],stdin=f,check=True)
 for device in ('br0','br-iot','lan-port','ra2'):run('ip','link','set',device,'up')
 config=(r/'iot-dnsmasq.conf').read_text().replace('port=0','port=53')
-config+='no-resolv\nhost-record=iot-fixture.invalid,192.0.2.10\ndhcp-option=tag:lan,3,192.168.1.1\ndhcp-option=tag:lan,6,192.168.1.1\n'
+config+='log-facility=-\nlog-dhcp\nno-resolv\nhost-record=iot-fixture.invalid,192.0.2.10\ndhcp-option=tag:lan,3,192.168.1.1\ndhcp-option=tag:lan,6,192.168.1.1\n'
 conf=r/'iot-dnsmasq-transactions.conf';conf.write_text(config)
 original=os.open('/proc/self/ns/net',os.O_RDONLY)
 def switch(fd):
