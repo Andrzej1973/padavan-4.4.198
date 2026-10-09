@@ -1076,6 +1076,19 @@ jobs:
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
             -c tools/iot/check-write-journal.c -o abi-results/iot-write-journal-mips.o
 
+      - name: Check real DNS writer journal binding
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -I tools/iot \
+            '-DWR_IOT_SERVICE_LOCK_PATH="service.lock"' tools/iot/check-writer-journal.c tools/iot/writer-journal.c tools/iot/service-guard.c -o abi-results/check-iot-writers-journal
+          abi-results/check-iot-writers-journal | tee abi-results/iot-writers-journal.txt
+          compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
+          for unit in writer-journal check-writer-journal; do
+            "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -I tools/iot \
+              -c "tools/iot/$unit.c" -o "abi-results/iot-$unit-mips.o"
+          done
+
       - name: Check bounded permanent LAN ARP capture
         shell: bash
         run: |

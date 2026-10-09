@@ -281,6 +281,33 @@ report['lan_ipv6_full_restart_sequences_serialized_when_iot_gated']=True
 
 
 
+# Instrument actual writer bodies, including early returns and failed writes.
+# No lifecycle controller binds a journal yet; unbound operation stays unchanged.
+def journal_writer(text,name,args,call,mask,returns_int=True):
+ prefix='static int' if returns_int else 'static void'
+ signature=prefix+'\n'+name+'('+args+')\n{'
+ if text.count(signature)!=1:raise SystemExit('Journal writer anchor changed: '+name)
+ begin=text.index(signature);end=text.index('\n}\n',begin)+3
+ body=text[begin:end].replace(signature,prefix+'\n'+name+'_owned_body('+args+')\n{',1)
+ refusal='return EIO;' if returns_int else 'return;'
+ invoke=('int result='+name+'_owned_body('+call+');' if returns_int else name+'_owned_body('+call+');')
+ finish=('if(!wr_iot_writer_journal_end('+str(mask)+'U))return EIO;return result;' if returns_int else '(void)wr_iot_writer_journal_end('+str(mask)+'U);')
+ wrapper='\n'+prefix+'\n'+name+'('+args+')\n{\n#if defined(BOARD_WR1200JS)\n if(!wr_iot_writer_journal_begin('+str(mask)+'U)){'+refusal+'}\n { '+invoke+finish+' }\n#else\n '+('return ' if returns_int else '')+name+'_owned_body('+call+');\n#endif\n}\n'
+ return text[:begin]+body+wrapper+text[end:]
+for filename,entries in [
+ ('services_ex.c',[('fill_static_ethers','const char *lan_ip, const char *lan_mask','lan_ip,lan_mask',14,False),('wr_iot_fill_dnsmasq_servers_raw','void','',64,True)]),
+ ('net_wan.c',[('wr_iot_update_resolvconf_raw','int is_first_run, int do_not_notify','is_first_run,do_not_notify',128,True),('wr_iot_update_hosts_router_raw','const char *lan_ipaddr','lan_ipaddr',48,True)]),
+ ('net_lan.c',[('wr_iot_lan_up_manual_raw','char *lan_ifname, char *lan_dname','lan_ifname,lan_dname',128,False),('wr_iot_lan_up_auto_raw','char *lan_ifname, char *lan_gateway, char *lan_dname','lan_ifname,lan_gateway,lan_dname',128,False),('wr_iot_lan_down_auto_raw','char *lan_ifname','lan_ifname',128,False)])]:
+ path=rc/filename;source=path.read_text(encoding='utf-8')
+ source=source.replace('#include "rc.h"','#include "rc.h"\n#if defined(BOARD_WR1200JS)\n#include "wr-iot/writer-journal.h"\n#endif',1)
+ for entry in entries:source=journal_writer(source,*entry)
+ path.write_text(source,encoding='utf-8')
+report['auxiliary_dns_writer_bodies_journal_instrumented']=True
+report['writer_journal_lifecycle_bound']=False
+(headers/'writer-journal.h').write_bytes((local/'writer-journal.h').read_bytes())
+(rc/'wr-iot-writer-journal.c').write_text((local/'writer-journal.c').read_text(encoding='utf-8').replace('#include "writer-journal.h"','#include "wr-iot/writer-journal.h"'),encoding='utf-8')
+m.write_text(m.read_text(encoding='utf-8').replace('OBJS += wr-iot-bridge.o','OBJS += wr-iot-writer-journal.o wr-iot-bridge.o'),encoding='utf-8')
+
 for name in ('service-state.h','service-transaction.h','service-lock.h','dnsmasq-files.h','saved-bundle.h','saved-file.h','restore-file.h','uts-state.h','arp-state.h','arp-restore.h'):
  (headers/name).write_bytes((local/name).read_bytes())
 (headers/'service-guard.h').write_bytes((local/'service-guard.h').read_bytes())

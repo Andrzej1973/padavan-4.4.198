@@ -25,6 +25,7 @@ on:
       - 'tools/iot/service-transaction.h'
       - 'tools/iot/service-lock.h'
       - 'tools/iot/service-guard.*'
+      - 'tools/iot/writer-journal.*'
       - 'tools/iot/dnsmasq-files.h'
       - 'tools/iot/saved-bundle.h'
       - 'tools/iot/saved-file.h'
