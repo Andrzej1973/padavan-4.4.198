@@ -29,7 +29,7 @@ static int controller_dns_lan(const char *address,unsigned int port){assert(!str
 #define WR_IOT_DHCP_GATEWAY controller_gateway
 static int controller_socket_ready(unsigned int port,int dhcp4){assert(port==53&&(dhcp4==0||dhcp4==1));return !controller_socket_bad;}
 #define WR_IOT_SOCKET_READY controller_socket_ready
-static int controller_dns_ready(unsigned int port){assert(port==53);return !controller_dns_bad&&!controller_loop_bad,controller_socket_bad;}
+static int controller_dns_ready(unsigned int port){assert(port==53);return !controller_dns_bad&&!controller_loop_bad;}
 static int is_dns_dhcpd_run(void){return controller_running;}
 static int get_ap_mode(void){return 0;}
 static void logmessage(const char *a,const char *b){assert(a&&b);}
