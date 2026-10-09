@@ -1,13 +1,20 @@
 /* Installed into services_ex.c, after the raw start/stop definitions.
- * DNS is probed at the configured port; DHCP protocol readiness remains pending. */
+ * Verify configured DNS and DHCPv4 handlers before commit and after recovery. */
 #if defined(BOARD_WR1200JS)
 #include "dns-ready.h"
 #include "dns-config.h"
+#include "dhcp-ready.h"
 #ifndef WR_IOT_DNS_CONFIG_PATH
 #define WR_IOT_DNS_CONFIG_PATH "/etc/dnsmasq.conf"
 #endif
 #ifndef WR_IOT_DNS_PROBE
 #define WR_IOT_DNS_PROBE wr_iot_dns_ready
+#endif
+#ifndef WR_IOT_DHCP_PROBE
+#define WR_IOT_DHCP_PROBE(address) wr_iot_dhcp_ready_at(address,67)
+#endif
+#ifndef WR_IOT_DHCP_GATEWAY
+#define WR_IOT_DHCP_GATEWAY wr_iot_dhcp_gateway
 #endif
 #ifndef WR_IOT_SERVICE_LOCK_PATH
 #define WR_IOT_SERVICE_LOCK_PATH "/var/run/wr-iot-services.lock"
@@ -16,6 +23,8 @@ static struct wr_iot_service_state wr_iot_restart_state;
 static int wr_iot_restart_active,wr_iot_restart_guard,wr_iot_restart_bound;
 static int wr_iot_restart_old_running,wr_iot_restart_stopped_candidate;
 static unsigned int wr_iot_restart_old_port;
+static int wr_iot_restart_old_dhcp4;
+static char wr_iot_restart_old_gateway[16];
 #ifndef WR_IOT_LEASE_PATH
 #define WR_IOT_LEASE_PATH "/tmp/dnsmasq.leases"
 #endif
@@ -32,11 +41,11 @@ static int wr_iot_restart_wait(int running)
  }
  return 0;
 }
-static int wr_iot_restart_dns_wait(unsigned int port)
+static int wr_iot_restart_service_wait(unsigned int port,int dhcp4,const char *gateway)
 {
  int i;
  for(i=0;i<20;i++){
-  if(is_dns_dhcpd_run()&&(!port||WR_IOT_DNS_PROBE(port)))return 1;
+  if(is_dns_dhcpd_run()&&(!port||WR_IOT_DNS_PROBE(port))&&(!dhcp4||WR_IOT_DHCP_PROBE(gateway)))return 1;
   usleep(50000);
  }
  return 0;
@@ -74,20 +83,21 @@ static int wr_iot_restart_recover(void)
  if(wr_iot_restart_old_running){
   /* Start from restored files, without generating another configuration. */
   if(!is_dns_dhcpd_run()&&eval("/usr/sbin/dnsmasq"))return 0;
-  if(!wr_iot_restart_dns_wait(wr_iot_restart_old_port))return 0;
+  if(!wr_iot_restart_service_wait(wr_iot_restart_old_port,wr_iot_restart_old_dhcp4,wr_iot_restart_old_gateway))return 0;
  }else if(!wr_iot_restart_wait(0))return 0;
  return wr_iot_restart_finish();
 }
 static int wr_iot_restart_transaction(void)
 {
- int result;unsigned int new_port;
+ int result,new_dhcp4;unsigned int new_port;char new_gateway[16]={0};
  if(wr_iot_restart_active){
   if(!wr_iot_restart_recover())return EBUSY;
   /* Recovery retry does not immediately attempt another new configuration. */
   return EAGAIN;
  }
- wr_iot_restart_old_running=!!is_dns_dhcpd_run();wr_iot_restart_old_port=0;
- if(wr_iot_restart_old_running&&!wr_iot_dns_config_port(WR_IOT_DNS_CONFIG_PATH,&wr_iot_restart_old_port))return EINVAL;
+ wr_iot_restart_old_running=!!is_dns_dhcpd_run();wr_iot_restart_old_port=0;wr_iot_restart_old_dhcp4=0;wr_iot_restart_old_gateway[0]=0;
+ if(wr_iot_restart_old_running&&!wr_iot_dns_config_services(WR_IOT_DNS_CONFIG_PATH,&wr_iot_restart_old_port,&wr_iot_restart_old_dhcp4))return EINVAL;
+ if(wr_iot_restart_old_dhcp4&&!WR_IOT_DHCP_GATEWAY(IFNAME_BR,wr_iot_restart_old_gateway))return EINVAL;
  wr_iot_restart_guard=wr_iot_service_guard_enter(1);
  if(wr_iot_restart_guard!=1)return EBUSY;
  wr_iot_service_state_init(&wr_iot_restart_state);
@@ -118,8 +128,9 @@ static int wr_iot_restart_transaction(void)
   }
  }
  else if(!result)result=EIO;
- if(!result&&(wr_iot_writer_journal_failed()||!wr_iot_dns_config_port(WR_IOT_DNS_CONFIG_PATH,&new_port)||
-    !wr_iot_restart_dns_wait(new_port)||
+ if(!result&&(wr_iot_writer_journal_failed()||!wr_iot_dns_config_services(WR_IOT_DNS_CONFIG_PATH,&new_port,&new_dhcp4)||
+    (new_dhcp4&&!WR_IOT_DHCP_GATEWAY(IFNAME_BR,new_gateway))||
+    !wr_iot_restart_service_wait(new_port,new_dhcp4,new_gateway)||
     !wr_iot_service_state_seal(&wr_iot_restart_state,WR_IOT_SERVICE_LOCK_PATH)))result=EIO;
  if(!result&&wr_iot_restart_finish())return 0;
  if(!result)result=EIO;

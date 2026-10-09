@@ -9,6 +9,8 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <poll.h>
+#include <net/if.h>
+#include <sys/ioctl.h>
 static inline int wr_iot_dhcp_inform_reply(const unsigned char *reply,size_t size,const unsigned char *query){
  size_t p=240;int ack=0,server=0,ended=0;
  if(!reply||!query||size<240||reply[0]!=2||reply[1]!=1||reply[2]!=6||
@@ -27,6 +29,17 @@ static inline int wr_iot_dhcp_inform_reply(const unsigned char *reply,size_t siz
   p+=n;
  }
  return ack&&server&&ended;
+}
+static inline int wr_iot_dhcp_gateway(const char *interface,char out[16]){
+ struct ifreq request;struct sockaddr_in *address;int fd,ok=0;
+ if(!interface||!out||strlen(interface)>=IFNAMSIZ)return 0;
+ fd=socket(AF_INET,SOCK_DGRAM,0);if(fd<0)return 0;
+ memset(&request,0,sizeof(request));strcpy(request.ifr_name,interface);
+ if(!ioctl(fd,SIOCGIFADDR,&request)){
+  address=(struct sockaddr_in *)&request.ifr_addr;
+  if(address->sin_family==AF_INET&&address->sin_addr.s_addr&&inet_ntop(AF_INET,&address->sin_addr,out,16))ok=1;
+ }
+ close(fd);return ok;
 }
 static inline int wr_iot_dhcp_ready_at(const char *client_address,unsigned int port){
  unsigned char query[300]={0},reply[1024];struct in_addr client;

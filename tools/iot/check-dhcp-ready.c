@@ -12,6 +12,7 @@ int main(int argc,char **argv){
  unsigned char query[300]={0},reply[300];struct sockaddr_in address,client;
  socklen_t len=sizeof(address);pid_t child;int fd,status;
  if(argc==3){int ok=wr_iot_dhcp_ready_at(argv[2],(unsigned int)strtoul(argv[1],NULL,10));puts(ok?"PASS local DHCPINFORM handler response":"FAIL local DHCPINFORM handler response");return ok?0:1;}
+ {char gateway[16];assert(wr_iot_dhcp_gateway("lo",gateway)&&!strcmp(gateway,"127.0.0.1"));assert(!wr_iot_dhcp_gateway("nonexistent",gateway));}
  query[0]=1;query[1]=1;query[2]=6;query[4]=1;query[12]=192;query[13]=168;query[14]=1;query[15]=1;query[28]=2;query[33]=253;
  query[236]=99;query[237]=130;query[238]=83;query[239]=99;
  response(reply,query);assert(wr_iot_dhcp_inform_reply(reply,300,query));
