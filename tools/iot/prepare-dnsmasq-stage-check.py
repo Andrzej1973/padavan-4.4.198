@@ -32,6 +32,9 @@ static FILE *injected_tmpfile(void){if(fault==7){errno=EMFILE;return NULL;}retur
 static int injected_fsync(int fd){if(fault==3){errno=EIO;return -1;}return fsync(fd);}
 static int injected_fclose(FILE *fp){int result=fclose(fp);close_calls++;return (fault==4&&close_calls==2)||(fault==8&&close_calls==1)?EOF:result;}
 static int injected_eval(const char *binary,const char *option,const char *config){assert(!strcmp(binary,"/usr/sbin/dnsmasq"));assert(!strcmp(option,"--test"));assert(!strncmp(config,"--conf-file=./dnsmasq.iot.",24));parser_calls++;return fault==5;}
+static int journal_pending,journal_begin_calls,journal_end_calls;
+static int wr_iot_writer_journal_begin(unsigned int mask){assert(mask==1U);journal_begin_calls++;if(fault==10)return 0;assert(!journal_pending);journal_pending=1;return 1;}
+static int wr_iot_writer_journal_end(unsigned int mask){assert(mask==1U&&journal_pending);journal_end_calls++;if(fault==11)return 0;journal_pending=0;return 1;}
 static int injected_rename(const char *from,const char *to){if(fault==6){errno=EACCES;return -1;}return rename(from,to);}
 #define tmpfile injected_tmpfile
 #define mkstemp injected_mkstemp
@@ -54,14 +57,17 @@ post=r"""
 static void content(const char *expected){char text[64];FILE *fp=fopen("dnsmasq.conf","r");assert(fp);assert(fgets(text,sizeof(text),fp));assert(!strcmp(text,expected));assert(!fclose(fp));}
 static void no_candidates(void){DIR *dir=opendir(".");struct dirent *entry;assert(dir);while((entry=readdir(dir)))assert(strncmp(entry->d_name,"dnsmasq.iot.",12));closedir(dir);}
 int main(void){char directory[]="/tmp/iot-dnsmasq-stage-XXXXXX";int mode;assert(mkdtemp(directory));assert(!chdir(directory));
- for(mode=0;mode<=9;mode++){
-  FILE *fp;fault=0;parser_calls=0;close_calls=0;helper_calls=0;dhcp_calls=0;fp=fopen("dnsmasq.conf","w");assert(fp);assert(fputs("old\n",fp)>=0);assert(!fclose(fp));fault=mode;
-  if(mode){assert(installed_stage()!=0);content("old\n");}else{assert(!installed_stage());content("new\n");assert(parser_calls==1);}
+ for(mode=0;mode<=11;mode++){
+  FILE *fp;journal_pending=0;journal_begin_calls=0;journal_end_calls=0;fault=0;parser_calls=0;close_calls=0;helper_calls=0;dhcp_calls=0;fp=fopen("dnsmasq.conf","w");assert(fp);assert(fputs("old\n",fp)>=0);assert(!fclose(fp));fault=mode;
+  if(mode){assert(installed_stage()!=0);content(mode==11?"new\n":"old\n");}else{assert(!installed_stage());content("new\n");assert(parser_calls==1);}
   assert(helper_calls==((mode==2||mode==7||mode==8)?0:1));no_candidates();
+  assert(journal_begin_calls==((mode==0||mode==6||mode==10||mode==11)?1:0));
+  assert(journal_end_calls==((mode==0||mode==6||mode==11)?1:0));
+  assert(journal_pending==(mode==11));
  }
  fault=0;gate=0;parser_calls=0;assert(!installed_stage());content("new\n");assert(!parser_calls);no_candidates();
  assert(!unlink("dnsmasq.conf"));assert(!chdir("/tmp"));assert(!rmdir(directory));
- puts("PASS installed RC staging: candidate success; mkstemp/fragment/fsync/close/parser/rename failures retain previous config; no leftovers; legacy OFF path retained. Early invalid network/tmpfile/close failures stop before helper marker; parser result injected; real service rollback unverified.");return 0;
+ puts("PASS installed RC staging: candidate success; mkstemp/fragment/fsync/close/parser/rename failures retain previous config; no leftovers; legacy OFF path retained. Early invalid network/tmpfile/close failures stop before helper marker; parser result injected; journal begin refuses before rename; failed rename closes intent; failed end retains pending mutation; real service rollback unverified.");return 0;
 }
 """
 a.output.write_text(pre+early+'\n helper_calls++;\n'+opening+'\n fputs("new\\n",fp);\n'+fragment+'\n'+closing+'\n'+commit+post,encoding='utf-8')

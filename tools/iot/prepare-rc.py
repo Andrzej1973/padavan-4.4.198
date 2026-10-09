@@ -178,7 +178,11 @@ commit=r"""#if defined(BOARD_WR1200JS)
   char option[64];int saved;
   snprintf(option,sizeof(option),"--conf-file=%s",iot_candidate);
   if(eval("/usr/sbin/dnsmasq","--test",option)){unlink(iot_candidate);return EINVAL;}
-  if(rename(iot_candidate,"/etc/dnsmasq.conf")){saved=errno;unlink(iot_candidate);return saved;}
+  if(!wr_iot_writer_journal_begin(1U)){unlink(iot_candidate);return EIO;}
+  if(rename(iot_candidate,"/etc/dnsmasq.conf")){
+   saved=errno;(void)wr_iot_writer_journal_end(1U);unlink(iot_candidate);return saved;
+  }
+  if(!wr_iot_writer_journal_end(1U))return EIO;
  }
 #endif
 """
