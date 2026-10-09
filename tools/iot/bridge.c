@@ -66,3 +66,34 @@ int wr_iot_bridge_remove(void) {
  ok=down_bridge(fd)&&empty_bridge()&&ioctl(fd,SIOCBRDELBR,IOT_BRIDGE)==0;
  close(fd);return ok;
 }
+
+/* WR1200JS 2.4 GHz third-BSS candidate; actual driver creation still needs proof. */
+#define IOT_BSS "ra2"
+static int bss_down(int fd) {
+ struct ifreq req;memset(&req,0,sizeof(req));strcpy(req.ifr_name,IOT_BSS);
+ return ioctl(fd,SIOCGIFFLAGS,&req)==0&&!(req.ifr_flags&IFF_UP);
+}
+static int bss_master(void) {
+ char path[256],*last;ssize_t n=readlink("/sys/class/net/ra2/master",path,sizeof(path)-1);
+ if(n<0)return errno==ENOENT?0:-1;
+ if((size_t)n>=sizeof(path)-1)return -1;
+ path[n]=0;last=strrchr(path,'/');return !strcmp(last?last+1:path,IOT_BRIDGE)?1:-1;
+}
+static int membership(int fd,unsigned long operation) {
+ struct ifreq req;unsigned int index=if_nametoindex(IOT_BSS);if(!index)return 0;
+ memset(&req,0,sizeof(req));strcpy(req.ifr_name,IOT_BRIDGE);req.ifr_ifindex=(int)index;
+ return ioctl(fd,operation,&req)==0;
+}
+int wr_iot_bridge_attach(void) {
+ int fd,ok;if(!owned())return 0;
+ fd=socket(AF_INET,SOCK_DGRAM,0);if(fd<0)return 0;
+ ok=down_bridge(fd)&&empty_bridge()&&bss_down(fd)&&bss_master()==0&&membership(fd,SIOCBRADDIF);
+ close(fd);return ok;
+}
+int wr_iot_bridge_detach(void) {
+ int fd,master,ok;if(!if_nametoindex(IOT_BSS))return 1;
+ master=bss_master();if(master==0)return 1;
+ if(master<0||!owned())return 0;
+ fd=socket(AF_INET,SOCK_DGRAM,0);if(fd<0)return 0;
+ ok=bss_down(fd)&&membership(fd,SIOCBRDELIF);close(fd);return ok;
+}
