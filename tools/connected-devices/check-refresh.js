@@ -17,6 +17,9 @@ requests[6].done(null,snapshot(1));assert.strictEqual(states.at(-1).state,'Stale
 tick(5000);requests[7].done(null,snapshot(0,'boot-B'));assert.strictEqual(rows.length,3); // New collector epoch may reset sequence.
 tick(5000);const timed=requests[8];tick(5000);assert.ok(timed.aborted);assert.strictEqual(states.at(-1).state,'Stale');timed.done(null,snapshot(100,'boot-B'));assert.strictEqual(rows.length,3);
 poller.stop();tick(60000);assert.strictEqual(requests.length,9);assert.strictEqual(timers.size,0);
+let staleCallback,staleStates=[];
+const serverStale=refresh.create({request:done=>{staleCallback=done;return ()=>{};},setTimer:()=>1,clearTimer:()=>{},onState:s=>staleStates.push(s)});
+serverStale.start();const staleSnapshot=snapshot(1);staleSnapshot.cacheState='stale';staleCallback(null,staleSnapshot);assert.strictEqual(staleStates.at(-1).state,'Stale');serverStale.stop();
 assert.ok(!refresh.validSnapshot(snapshot(-1)));assert.ok(!refresh.validSnapshot({epoch:'a',sequence:1,devices:Array(129)}));
 assert.ok(!refresh.validSnapshot({epoch:'a',sequence:NaN,devices:[]}));
 let callback,renderStates=[],renderTimers=new Map(),renderId=0;

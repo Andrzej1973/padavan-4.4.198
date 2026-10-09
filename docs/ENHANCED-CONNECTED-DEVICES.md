@@ -1,4 +1,4 @@
-# Enhanced Connected Devices Р В Р’В Р вЂ™Р’В Р В Р’В Р Р†Р вЂљР’В Р В Р’В Р вЂ™Р’В Р В Р вЂ Р В РІР‚С™Р РЋРІвЂћСћР В Р’В Р В РІР‚В Р В Р’В Р Р†Р вЂљРЎв„ўР В Р Р‹Р РЋРЎв„ў implementation contract
+# Enhanced Connected Devices Р В Р’В Р вЂ™Р’В Р В РІР‚в„ўР вЂ™Р’В Р В Р’В Р вЂ™Р’В Р В Р вЂ Р В РІР‚С™Р вЂ™Р’В Р В Р’В Р вЂ™Р’В Р В РІР‚в„ўР вЂ™Р’В Р В Р’В Р В РІР‚В Р В Р’В Р Р†Р вЂљРЎв„ўР В Р Р‹Р Р†РІР‚С›РЎС›Р В Р’В Р вЂ™Р’В Р В Р’В Р Р†Р вЂљР’В Р В Р’В Р вЂ™Р’В Р В Р вЂ Р В РІР‚С™Р РЋРІвЂћСћР В Р’В Р В Р вЂ№Р В Р Р‹Р РЋРІвЂћСћ implementation contract
 
 User request accepted 2026-10-09. WR1200JS homepage after login: readable, automatically refreshed device classification without excessive router work. The conservative browser classification core is implemented; collection, homepage integration, refresh and target runtime remain unverified.
 
@@ -36,7 +36,7 @@ Compute lightweight classification and grouping in the browser using a small loc
 
 Schedule in WR1200JS WebUI work, preserving firmware-port and current service-recovery priorities. No live router writes or flashing authorized by this feature request.
 
-## Mandatory automatic refresh and schedule Р В Р’В Р вЂ™Р’В Р В Р’В Р Р†Р вЂљР’В Р В Р’В Р вЂ™Р’В Р В Р вЂ Р В РІР‚С™Р РЋРІвЂћСћР В Р’В Р В РІР‚В Р В Р’В Р Р†Р вЂљРЎв„ўР В Р Р‹Р РЋРЎв„ў clarified 2026-10-09
+## Mandatory automatic refresh and schedule Р В Р’В Р вЂ™Р’В Р В РІР‚в„ўР вЂ™Р’В Р В Р’В Р вЂ™Р’В Р В Р вЂ Р В РІР‚С™Р вЂ™Р’В Р В Р’В Р вЂ™Р’В Р В РІР‚в„ўР вЂ™Р’В Р В Р’В Р В РІР‚В Р В Р’В Р Р†Р вЂљРЎв„ўР В Р Р‹Р Р†РІР‚С›РЎС›Р В Р’В Р вЂ™Р’В Р В Р’В Р Р†Р вЂљР’В Р В Р’В Р вЂ™Р’В Р В Р вЂ Р В РІР‚С™Р РЋРІвЂћСћР В Р’В Р В Р вЂ№Р В Р Р‹Р РЋРІвЂћСћ clarified 2026-10-09
 
 Implement these device/roaming UI deliverables immediately after the current DNS/DHCP recovery integration and its verification, within the WR1200JS stage and before secondary-router expansion. Both components share a refresh lifecycle. Manual page reload is not an acceptable normal update mechanism: refresh visible data automatically, approximately every 5 seconds, retry after failures, show freshness/error state, preserve filters/expanded groups/scroll, and refresh immediately when a hidden tab becomes visible. One request in flight and a shared bounded cache prevent overlapping or per-browser repeated collection. History recording continues independently of hidden tabs.
 
@@ -91,3 +91,13 @@ Pinned `shared/bin_sem_asus.c` implements `file_lock("networkmap")` with an excl
 The collector opens the source without following symlinks, accepts regular files only, uses the bounded reader and checks source/lock identities before accepting the result. Symlinks and FIFOs fail. Results are copied to the caller only on complete success. Production callers must use fixed internal paths; there is no request-supplied file path.
 
 A forked-process fixture holds the actual POSIX lock while the collector attempts a read, checks unchanged output and stale cache retention, then verifies recovery after release. It also covers lock metadata preservation and source symlink/FIFO rejection. Native sanitizer execution and MIPS compilation are CI gates. ABI 216 succeeded for the preceding shared cache checks. HTTP registration, source-age metadata, radio/neighbor/DHCP merging and homepage wiring still remain to be implemented.
+
+## HTTP integration checkpoint
+
+`prepare-http.py` installs a WR1200JS-only `wr_devices.json` MIME route with `application/json`, the existing no-cache headers and `need_auth=1`. The pinned httpd checks external requests through `auth_check` before invoking such handlers; its existing localhost exception is unchanged. The handler does not read user-supplied paths or invoke scanning, NVRAM mutation or service commands.
+
+A single process RAM cache is shared by requests. Its instance epoch uses PID and initialization time so an httpd restart can reset sequence independently of the router boot. Responses include cache state, collection age and the source file's update time. Source update is not a per-client last-seen timestamp or proof of current connectivity. Source-age changes are evidence changes for the snapshot sequence. Initial collection failure returns an error object; later failures return the last snapshot marked stale. Browser refresh now respects the server stale state.
+
+Standalone HTTP fixtures check valid JSON, escaped names, cache reuse, source-failure retention and source update metadata. Preparation was applied to the actual pinned `web_ex.c` locally; the generated route has `need_auth=1`. CI compiles native/MIPS fixtures and checks generated route registration. The full firmware workflow now prepares this hook after shared-Wi-Fi integration. Full httpd linking and live HTTP authentication remain unverified until the new full build/device checks complete.
+
+ABI 217 succeeded for the preceding nonblocking source collector and cache-composition checks. No homepage assets are installed yet, and the new endpoint still only contains networkmap evidence. Radio/neighbor/DHCP merging, vendor-class/OUI evidence, connect/disconnect behavior, homepage rendering and roaming history remain required.

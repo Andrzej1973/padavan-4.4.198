@@ -34,7 +34,7 @@
      try{if(options.onData)options.onData(snapshot);}catch(error){failures=1;state(last?'Stale':'Unavailable');later(5000);return;}
      last=snapshot;
     }
-    state('Current');later(5000);
+    state(snapshot.cacheState==='stale'?'Stale':'Current');later(5000);
    }
    entry.timeout=schedule(function(){
     if(flight!==entry)return;

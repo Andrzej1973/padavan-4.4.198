@@ -182,11 +182,20 @@ jobs:
           abi-results/check-device-cache | tee abi-results/device-cache.txt
           gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined tools/connected-devices/check-source-collector.c -o abi-results/check-device-source
           abi-results/check-device-source | tee abi-results/device-source.txt
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined tools/connected-devices/check-http-hook.c -o abi-results/check-device-http
+          abi-results/check-device-http | tee abi-results/device-http.txt
+          abi-results/check-device-http --json >abi-results/device-http-sample.json
+          python3 -c 'import json; from pathlib import Path; value=json.loads(Path("abi-results/device-http-sample.json").read_text()); assert value["cacheState"]=="current" and value["sourceUpdatedAt"]>0 and value["devices"][0]["hostname"]=="<script>"' 
+          mkdir -p abi-results/device-http-patch/trunk/user/httpd
+          cp source/trunk/user/httpd/web_ex.c abi-results/device-http-patch/trunk/user/httpd/web_ex.c
+          python3 tools/connected-devices/prepare-http.py abi-results/device-http-patch
+          python3 -c 'from pathlib import Path; s=Path("abi-results/device-http-patch/trunk/user/httpd/web_ex.c").read_text(); assert s.count("do_wr_devices_json,")==1; assert "application/json" in s; assert "NULL, do_wr_devices_json, 1" in s' 
           compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -c tools/connected-devices/check-networkmap.c -o abi-results/device-networkmap-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -c tools/connected-devices/check-snapshot-json.c -o abi-results/device-json-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -c tools/connected-devices/check-snapshot-cache.c -o abi-results/device-cache-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -c tools/connected-devices/check-source-collector.c -o abi-results/device-source-mips.o
+          "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -c tools/connected-devices/check-http-hook.c -o abi-results/device-http-mips.o
 
       - name: Compile IoT readiness headers after actual Padavan shared headers
         shell: bash

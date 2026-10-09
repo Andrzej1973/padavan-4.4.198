@@ -29,7 +29,7 @@ static inline int wr_device_networkmap_collect(struct wr_device_snapshot *out,vo
  if(fd>=0&&close(fd))ok=0;
  /* Do not truncate/write the upstream lock's PID metadata. Closing releases our lock. */
  if(close(guard))ok=0;
- if(ok)*out=candidate;
+ if(ok){candidate.source_updated_at=before.st_mtime>0?(uint64_t)before.st_mtime:0;*out=candidate;}
  return ok;
 }
 #endif

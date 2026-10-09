@@ -23,7 +23,7 @@ static inline int wr_device_snapshot_valid(const struct wr_device_snapshot *snap
 }
 static inline int wr_device_snapshot_same(const struct wr_device_snapshot *a,const struct wr_device_snapshot *b){
  unsigned int i;
- if(a->count!=b->count||a->invalid!=b->invalid||!!a->truncated!=!!b->truncated)return 0;
+ if(a->source_updated_at!=b->source_updated_at||a->count!=b->count||a->invalid!=b->invalid||!!a->truncated!=!!b->truncated)return 0;
  for(i=0;i<a->count;i++){
   const struct wr_device_record *x=&a->records[i],*y=&b->records[i];
   if(strcmp(x->ip,y->ip)||strcmp(x->mac,y->mac)||strcmp(x->name,y->name)||x->legacy_type!=y->legacy_type||!!x->http!=!!y->http||!!x->networkmap_stale!=!!y->networkmap_stale)return 0;
