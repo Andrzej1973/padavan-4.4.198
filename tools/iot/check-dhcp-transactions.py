@@ -121,3 +121,5 @@ finally:
   try:process.wait(timeout=3)
   except subprocess.TimeoutExpired:process.kill();process.wait()
  log.close();os.close(original)
+ capture=r/'iot-dhcp-daemon.pcap'
+ if capture.exists():capture.chmod(0o644) # Synthetic, disposable fixture traffic only; allow artifact upload.
