@@ -18,6 +18,11 @@ int main(int argc,char **argv){
  reply[4]++;assert(!wr_iot_dhcp_inform_reply(reply,300,query));response(reply,query);
  reply[16]=192;assert(!wr_iot_dhcp_inform_reply(reply,300,query));response(reply,query);
  reply[242]=2;assert(!wr_iot_dhcp_inform_reply(reply,300,query));response(reply,query);
+ reply[12]++;assert(!wr_iot_dhcp_inform_reply(reply,300,query));response(reply,query);
+ reply[33]++;assert(!wr_iot_dhcp_inform_reply(reply,300,query));response(reply,query);
+ reply[236]++;assert(!wr_iot_dhcp_inform_reply(reply,300,query));response(reply,query);
+ memset(reply+245,0,4);assert(!wr_iot_dhcp_inform_reply(reply,300,query));response(reply,query);
+ reply[249]=52;reply[250]=1;reply[251]=1;assert(!wr_iot_dhcp_inform_reply(reply,300,query));response(reply,query);
  assert(!wr_iot_dhcp_inform_reply(reply,249,query));
  reply[249]=51;reply[250]=4;assert(!wr_iot_dhcp_inform_reply(reply,300,query));response(reply,query);
  fd=socket(AF_INET,SOCK_DGRAM,0);assert(fd>=0);memset(&address,0,sizeof(address));address.sin_family=AF_INET;address.sin_addr.s_addr=htonl(INADDR_LOOPBACK);

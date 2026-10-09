@@ -109,6 +109,13 @@ try:
  checks['local_dhcp_inform_without_lease_changes']=True
  lease('iot',bytes.fromhex('020000000050'),'192.168.50.1','192.168.50.',0x50505050)
  lease('lan',bytes.fromhex('020000000001'),'192.168.1.1','192.168.1.',0x10101010)
+ time.sleep(0.1)
+ before=lease_path.read_bytes()
+ run(str(r/'check-iot-dhcp-ready'),'67','192.168.1.1')
+ run(str(r/'check-iot-dhcp-ready'),'67','192.168.50.1')
+ time.sleep(0.1)
+ assert before==lease_path.read_bytes(), 'DHCPINFORM changed existing client leases'
+ checks['local_dhcp_inform_preserves_existing_client_leases']=True
  dns('iot','192.168.50.1');checks['iot_dns_transaction']=True
  dns('lan','192.168.1.1');checks['main_lan_dns_preserved']=True
  (r/'iot-dhcp-transactions.json').write_text(json.dumps({'checks':checks,'scope':'Pinned native dnsmasq host DHCP OFFER/ACK and DNS over isolated IoT/LAN with generated firewall; production RC and target runtime unverified','runtime_verified':False},indent=2)+'\n')
