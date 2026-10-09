@@ -75,6 +75,7 @@ if service.count(anchor)!=1:raise SystemExit('DHCP service anchor changed')
 helper=r"""#if defined(BOARD_WR1200JS)
 #include "wr-iot/dhcp-write.h"
 #include "wr-iot/network-check.h"
+#include "wr-iot/service-state.h"
 static int wr_iot_dnsmasq(FILE *fp,int is_ap_mode,const char *lan_ip,const char *lan_mask)
 {
  const char *keys[]={"wr_iot_gateway_t","wr_iot_mask_t","wr_iot_start_t","wr_iot_end_t"};
@@ -182,6 +183,10 @@ commit=r"""#if defined(BOARD_WR1200JS)
 """
 part=part.replace(anchor,commit+anchor,1)
 service=service[:begin]+part+service[end:];f.write_text(service,encoding='utf-8')
+for name in ('service-state.h','service-transaction.h','service-lock.h','dnsmasq-files.h','saved-bundle.h','saved-file.h','restore-file.h','uts-state.h','arp-state.h','arp-restore.h'):
+ (headers/name).write_bytes((local/name).read_bytes())
+report['service_state_headers_installed']=True
+report['service_state_lifecycle_bound']=False
 report['iot_main_dnsmasq_config_staged']=True
 report['dnsmasq_service_rollback_complete']=False
 (a.source/'iot-rc-source.json').write_text(json.dumps(report,indent=2)+'\n')
