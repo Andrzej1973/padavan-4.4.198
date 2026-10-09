@@ -238,6 +238,22 @@ service=service.replace(anchor,wrappers,1)
 f.write_text(service,encoding='utf-8')
 report['dnsmasq_entry_points_serialized_when_iot_gated']=True
 report['all_dnsmasq_writers_serialized']=False
+# These public writers are also called outside start_dns_dhcpd.
+def guarded_writer(text,name,args,call):
+ signature='int\n'+name+'('+args+')\n{'
+ if text.count(signature)!=1:raise SystemExit('DNS writer anchor changed: '+name)
+ begin=text.index(signature);end=text.index('\n}\n',begin)+3
+ raw=text[begin:end].replace(signature,'static int\nwr_iot_'+name+'_raw('+args+')\n{',1)
+ wrapper='\n/* WR_IOT_WRITE_WRAPPER_START '+name+' */\n#if defined(BOARD_WR1200JS)\n#include "wr-iot/service-guard.h"\n#endif\nint\n'+name+'('+args+')\n{\n#if defined(BOARD_WR1200JS)\n int token=wr_iot_service_guard_enter(nvram_get_int("wr_iot_network_t")==1),result;\n if(!token)return EBUSY;\n result=wr_iot_'+name+'_raw('+call+');wr_iot_service_guard_leave(token);return result;\n#else\n return wr_iot_'+name+'_raw('+call+');\n#endif\n}\n/* WR_IOT_WRITE_WRAPPER_END '+name+' */\n'
+ return text[:begin]+raw+wrapper+text[end:]
+service=guarded_writer(service,'fill_dnsmasq_servers','void','')
+f.write_text(service,encoding='utf-8')
+wan=rc/'net_wan.c';text=wan.read_text(encoding='utf-8')
+text=guarded_writer(text,'update_resolvconf','int is_first_run, int do_not_notify','is_first_run,do_not_notify')
+text=guarded_writer(text,'update_hosts_router','const char *lan_ipaddr','lan_ipaddr')
+wan.write_text(text,encoding='utf-8')
+report['wan_resolv_hosts_and_dnsmasq_servers_serialized_when_iot_gated']=True
+
 for name in ('service-state.h','service-transaction.h','service-lock.h','dnsmasq-files.h','saved-bundle.h','saved-file.h','restore-file.h','uts-state.h','arp-state.h','arp-restore.h'):
  (headers/name).write_bytes((local/name).read_bytes())
 (headers/'service-guard.h').write_bytes((local/'service-guard.h').read_bytes())
