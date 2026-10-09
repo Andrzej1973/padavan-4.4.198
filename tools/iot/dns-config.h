@@ -25,7 +25,7 @@ static inline int wr_iot_dns_config_read(const char *path,unsigned int depth,str
   char *key,*equal,*value,*end,*comment;size_t n=strlen(line);unsigned long parsed;
   budget->bytes+=n;if(budget->bytes>262144||(!strchr(line,'\n')&&!feof(fp))){ok=0;break;}
   comment=strchr(line,'#');if(comment)*comment=0;key=wr_iot_dns_trim(line);if(!*key)continue;
-  equal=strchr(key,'=');if(!equal){if(!strcmp(key,"conf-dir")||!strcmp(key,"conf-file")||!strcmp(key,"port")){ok=0;break;}continue;}
+  equal=strchr(key,'=');if(!equal){if(!strcmp(key,"conf-dir")||!strcmp(key,"conf-script")||!strcmp(key,"conf-file")||!strcmp(key,"port")){ok=0;break;}continue;}
   *equal=0;key=wr_iot_dns_trim(key);value=wr_iot_dns_trim(equal+1);
   if(!strcmp(key,"port")){
    if(!*value){ok=0;break;}
@@ -35,7 +35,7 @@ static inline int wr_iot_dns_config_read(const char *path,unsigned int depth,str
   }else if(!strcmp(key,"conf-file")){
    if(!*value)continue;
    if(strchr(value,',')||strchr(value,'"')||!wr_iot_dns_config_read(value,depth+1,budget,port)){ok=0;break;}
-  }else if(!strcmp(key,"conf-dir")){ok=0;break;}
+  }else if(!strcmp(key,"conf-dir")||!strcmp(key,"conf-script")){ok=0;break;}
  }
  if(ferror(fp))ok=0;
  if(fclose(fp))ok=0;
