@@ -7,6 +7,13 @@
 static struct wr_iot_service_state wr_iot_restart_state;
 static int wr_iot_restart_active,wr_iot_restart_guard,wr_iot_restart_bound;
 static int wr_iot_restart_old_running,wr_iot_restart_stopped_candidate;
+#ifndef WR_IOT_LEASE_PATH
+#define WR_IOT_LEASE_PATH "/tmp/dnsmasq.leases"
+#endif
+static struct wr_iot_saved_file wr_iot_restart_lease;
+static struct wr_iot_generated_file wr_iot_restart_lease_generated;
+static int wr_iot_restart_lease_captured,wr_iot_restart_lease_owned;
+static int wr_iot_restart_lease_observed,wr_iot_restart_lease_restored;
 static int wr_iot_restart_wait(int running)
 {
  int i;
@@ -23,6 +30,7 @@ static int wr_iot_restart_finish(void)
   wr_iot_restart_bound=0;
  }
  if(!wr_iot_service_state_finish(&wr_iot_restart_state,WR_IOT_SERVICE_LOCK_PATH))return 0;
+ wr_iot_saved_release(&wr_iot_restart_lease);
  wr_iot_restart_active=0;
  wr_iot_service_guard_leave(wr_iot_restart_guard);wr_iot_restart_guard=0;
  return 1;
@@ -35,6 +43,16 @@ static int wr_iot_restart_recover(void)
   wr_iot_restart_stopped_candidate=1;
  }
  if(!wr_iot_service_state_recover(&wr_iot_restart_state,WR_IOT_SERVICE_LOCK_PATH))return 0;
+ if(wr_iot_restart_lease_captured&&wr_iot_restart_lease_owned&&!wr_iot_restart_lease_restored){
+  /* Only observe the candidate daemon's lease output after it is stopped.
+   * Retain that identity on retry rather than adopting a later foreign write. */
+  if(!wr_iot_restart_lease_observed){
+   if(!wr_iot_generated_capture(&wr_iot_restart_lease_generated,WR_IOT_LEASE_PATH))return 0;
+   wr_iot_restart_lease_observed=1;
+  }
+  if(!wr_iot_saved_restore(&wr_iot_restart_lease,&wr_iot_restart_lease_generated,WR_IOT_LEASE_PATH))return 0;
+  wr_iot_restart_lease_restored=1;
+ }
  if(wr_iot_restart_old_running){
   /* Start from restored files, without generating another configuration. */
   if(!is_dns_dhcpd_run()&&eval("/usr/sbin/dnsmasq"))return 0;
@@ -64,11 +82,21 @@ static int wr_iot_restart_transaction(void)
   wr_iot_restart_state.transaction.active=0;
   wr_iot_service_guard_leave(wr_iot_restart_guard);wr_iot_restart_guard=0;return EIO;
  }
+ wr_iot_restart_lease_captured=0;wr_iot_restart_lease_owned=0;
+ wr_iot_restart_lease_observed=0;wr_iot_restart_lease_restored=0;
+ memset(&wr_iot_restart_lease,0,sizeof(wr_iot_restart_lease));
  wr_iot_restart_active=1;wr_iot_restart_bound=1;
  wr_iot_restart_old_running=!!is_dns_dhcpd_run();wr_iot_restart_stopped_candidate=0;
  wr_iot_stop_dns_raw();
  result=wr_iot_restart_wait(0)?0:EBUSY;
- if(!result&&!wr_iot_writer_journal_failed())result=wr_iot_start_dns_raw(get_ap_mode());
+ if(!result&&!wr_iot_writer_journal_failed()){
+  /* Capture after old daemon exit so its final lease flush is included. */
+  if(!wr_iot_saved_capture(&wr_iot_restart_lease,WR_IOT_LEASE_PATH))result=EIO;
+  else {
+   wr_iot_restart_lease_captured=1;wr_iot_restart_lease_owned=1;
+   result=wr_iot_start_dns_raw(get_ap_mode());
+  }
+ }
  else if(!result)result=EIO;
  if(!result&&(wr_iot_writer_journal_failed()||!wr_iot_restart_wait(1)||
     !wr_iot_service_state_seal(&wr_iot_restart_state,WR_IOT_SERVICE_LOCK_PATH)))result=EIO;

@@ -16,6 +16,7 @@ static int injected_ioctl(int fd,unsigned long cmd,struct arpreq *req){
 }
 #define BOARD_WR1200JS 1
 #define IFNAME_BR "br0"
+#define WR_IOT_LEASE_PATH "tmp/dnsmasq.leases"
 static int controller_running,controller_fault;
 static int is_dns_dhcpd_run(void){return controller_running;}
 static int get_ap_mode(void){return 0;}
@@ -25,6 +26,7 @@ static int wr_iot_start_dns_raw(int ap){
  FILE *fp;assert(!ap);assert(wr_iot_writer_journal_begin(1U));
  fp=wr_iot_writer_fopen("etc/dnsmasq.conf","w");assert(fp);assert(fputs("controller-new\n",fp)>=0);assert(!wr_iot_writer_fclose(fp));
  assert(wr_iot_writer_journal_end(1U));
+ fp=fopen(WR_IOT_LEASE_PATH,"w");assert(fp);assert(fputs("lease-new\n",fp)>=0);assert(!fclose(fp));
  if(controller_fault==1||controller_fault==2)return EIO;
  if(controller_fault==3)wr_iot_writer_journal_error();
  controller_running=1;return 0;
@@ -101,12 +103,14 @@ int main(void){
   assert(wr_iot_writer_journal_unbind(&state.transaction));
   assert(wr_iot_service_state_finish(&state,"service.lock"));wr_iot_service_guard_leave(1);
   /* Execute the actual installed controller with injected daemon callbacks. */
+  fp=fopen(WR_IOT_LEASE_PATH,"w");assert(fp);assert(fputs("lease-old\n",fp)>=0);assert(!fclose(fp));
   controller_running=1;controller_fault=1;assert(wr_iot_service_guard_enter(1)==1);
   assert(wr_iot_restart_transaction()==EIO);assert(!wr_iot_restart_active&&controller_running);
   wr_iot_service_guard_leave(1);
   fp=fopen("etc/dnsmasq.conf","r");assert(fp);assert(fgets(text,sizeof(text),fp));assert(!strcmp(text,"previous\n"));assert(!fclose(fp));
   controller_fault=3;assert(wr_iot_service_guard_enter(1)==1);
   assert(wr_iot_restart_transaction()==EIO);assert(!wr_iot_restart_active&&controller_running);wr_iot_service_guard_leave(1);
+  fp=fopen(WR_IOT_LEASE_PATH,"r");assert(fp);assert(fgets(text,sizeof(text),fp));assert(!strcmp(text,"lease-old\n"));assert(!fclose(fp));
   controller_fault=2;assert(wr_iot_service_guard_enter(1)==1);
   assert(wr_iot_restart_transaction()==EIO);assert(wr_iot_restart_active&&!controller_running);
   wr_iot_service_guard_leave(1);assert(wr_iot_restart_guard==1);
@@ -114,7 +118,7 @@ int main(void){
   assert(wr_iot_restart_transaction()==EAGAIN);assert(!wr_iot_restart_active&&controller_running);
   wr_iot_service_guard_leave(1);
   assert(wr_iot_service_guard_enter(1)==1);assert(!wr_iot_restart_transaction());assert(!wr_iot_restart_active&&controller_running);wr_iot_service_guard_leave(1);
-  assert(!unlink("service.lock"));assert(!unlink("etc/dnsmasq.conf"));assert(!rmdir("etc/dnsmasq/dhcp"));assert(!rmdir("etc/dnsmasq"));assert(!rmdir("etc"));assert(!rmdir("tmp"));assert(!chdir("/tmp"));assert(!rmdir(directory));
+  assert(!unlink("service.lock"));assert(!unlink("etc/dnsmasq.conf"));assert(!rmdir("etc/dnsmasq/dhcp"));assert(!rmdir("etc/dnsmasq"));assert(!rmdir("etc"));assert(!unlink(WR_IOT_LEASE_PATH));assert(!rmdir("tmp"));assert(!chdir("/tmp"));assert(!rmdir(directory));
  }
 
  puts("PASS actual permanent LAN ARP restore in private NET namespace; partial ioctl failure retried, dynamic LAN and other interface preserved and foreign LAN change rejected; RC binding pending");return 0;
