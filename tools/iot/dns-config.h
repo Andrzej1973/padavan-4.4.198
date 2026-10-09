@@ -13,8 +13,8 @@
 #include <errno.h>
 struct wr_iot_dns_config_budget {unsigned int files;size_t bytes;};
 static inline char *wr_iot_dns_trim(char *value){
- char *end;while(isspace((unsigned char)*value))value++;
- end=value+strlen(value);while(end>value&&isspace((unsigned char)end[-1]))*--end=0;
+ char *end;while(*value==' ')value++;
+ end=value+strlen(value);while(end>value&&end[-1]==' ')*--end=0;
  return value;
 }
 /* Match the pinned dnsmasq quote grammar; hide delimiters until option parsing. */
