@@ -49,7 +49,9 @@ static inline int wr_iot_dns_config_dhcp4(char *value){
  char *token,*save=NULL;struct in_addr address;
  for(token=strtok_r(value,",",&save);token;token=strtok_r(NULL,",",&save)){
   wr_iot_dns_unhide(token);
-  if(!strncmp(token,"set:",4)||!strncmp(token,"tag:",4))continue;
+  if(!strncmp(token,"set:",4)||!strncmp(token,"tag:",4)||!strncmp(token,"net:",4))continue;
+  /* dnsmasq also accepts a legacy unprefixed tag before the address. */
+  if(strspn(token," .:abcdefABCDEF0123456789")!=strlen(token))continue;
   return inet_pton(AF_INET,token,&address)==1;
  }
  return 0;
