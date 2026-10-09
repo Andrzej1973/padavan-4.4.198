@@ -4,7 +4,7 @@ import ctypes,json,os,socket,struct,subprocess,sys,time
 from pathlib import Path
 if os.geteuid()!=0 or not os.environ.get('WR_IOT_PARENT_NETNS') or os.readlink('/proc/self/ns/net')==os.environ['WR_IOT_PARENT_NETNS']:
  raise SystemExit('Requires root in a new isolated network namespace')
-r=Path(sys.argv[1]).resolve();daemon=Path(sys.argv[2]).resolve();checks={};libc=ctypes.CDLL(None,use_errno=True)
+r=Path(sys.argv[1]).resolve();daemon=Path(sys.argv[2]).resolve();checks={};frames=[];libc=ctypes.CDLL(None,use_errno=True)
 def run(*args):return subprocess.run(args,check=True,capture_output=True,text=True)
 run('mount','--make-rprivate','/');run('mount','-t','sysfs','sysfs','/sys');run('mount','-t','tmpfs','tmpfs','/run/netns')
 run('ip','link','set','lo','up');run(str(r/'check-iot-bridge'),'prepare')
@@ -69,7 +69,8 @@ def lease(name,mac,gateway,prefix,xid):
    for _ in range(3):
     s.sendto(packet,('255.255.255.255',67));deadline=time.monotonic()+1
     while time.monotonic()<deadline:
-     try:frame,_=receiver.recvfrom(8192);data=dhcp_payload(frame)
+     try:
+      frame,_=receiver.recvfrom(8192);frames.append({"client":name,"length":len(frame),"head":frame[:64].hex()});data=dhcp_payload(frame)
      except TimeoutError:break
      if len(data)<240 or data[0]!=2 or struct.unpack('!I',data[4:8])[0]!=xid or data[28:34]!=mac or data[236:240]!=cookie:continue
      opt=options(data)
@@ -103,6 +104,10 @@ try:
  (r/'iot-dhcp-transactions.json').write_text(json.dumps({'checks':checks,'scope':'Pinned native dnsmasq host DHCP OFFER/ACK and DNS over isolated IoT/LAN with generated firewall; production RC and target runtime unverified','runtime_verified':False},indent=2)+'\n')
  print('PASS pinned dnsmasq IoT and main LAN DHCP/DNS transactions with isolation rules')
 finally:
+ (r/'iot-dhcp-client-frames.json').write_text(json.dumps(frames,indent=2)+'\n')
+ for label,args in [('filter-counters',['iptables-legacy-save','-c']),('links',['ip','-details','-statistics','link','show']),('bridge',['bridge','-details','link','show'])]:
+  result=subprocess.run(args,capture_output=True,text=True)
+  (r/('iot-dhcp-'+label+'.txt')).write_text(result.stdout+result.stderr)
  if process:
   process.terminate()
   try:process.wait(timeout=3)
