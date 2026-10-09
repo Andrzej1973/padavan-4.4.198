@@ -15,7 +15,7 @@ static int failing_rename(const char *from,const char *to){if(restore_fault==5){
 #define WR_IOT_RESTORE_FSYNC failing_fsync
 #define WR_IOT_RESTORE_CLOSE failing_close
 #define WR_IOT_RESTORE_RENAME failing_rename
-#include "restore-file.h"
+#include "saved-bundle.h"
 #include <assert.h>
 #include <stdio.h>
 int main(void){
@@ -56,6 +56,20 @@ wr_iot_saved_release(&saved);
  assert(!symlink("config","link"));before=saved;assert(!wr_iot_saved_capture(&saved,"link"));assert(!memcmp(&saved,&before,sizeof(saved)));
  assert(!wr_iot_saved_capture(&saved,"."));assert(!mkfifo("fifo",0600));assert(!wr_iot_saved_capture(&saved,"fifo"));
  fd=open("large",O_WRONLY|O_CREAT,0600);assert(fd>=0);assert(!ftruncate(fd,WR_IOT_SAVED_LIMIT+1));assert(!close(fd));assert(!wr_iot_saved_capture(&saved,"large"));
+ {
+  struct wr_iot_saved_bundle bundle;const char *paths[]={"config","absent-helper"};char text[32];
+  memset(&bundle,0,sizeof(bundle));assert(wr_iot_bundle_capture(&bundle,paths,2));
+  assert(!wr_iot_bundle_restore(&bundle));
+  fp=fopen("config","w");assert(fp);assert(fputs("generated\n",fp)>=0);assert(!fclose(fp));
+  fp=fopen("absent-helper","w");assert(fp);assert(fputs("helper\n",fp)>=0);assert(!fclose(fp));
+  assert(wr_iot_bundle_seal(&bundle));assert(!wr_iot_bundle_seal(&bundle));
+  restore_fault=5;assert(!wr_iot_bundle_restore(&bundle));assert(bundle.saved[0].data);restore_fault=0;
+  assert(wr_iot_bundle_restore(&bundle));assert(wr_iot_bundle_restore(&bundle));
+  fp=fopen("config","r");assert(fp);assert(fgets(text,sizeof(text),fp));assert(!strcmp(text,"foreign\n"));assert(!fclose(fp));
+  assert(access("absent-helper",F_OK)!=0);wr_iot_bundle_release(&bundle);assert(!bundle.count);
+  {const char *duplicates[]={"config","config"};assert(!wr_iot_bundle_capture(&bundle,duplicates,2));assert(!bundle.count);}
+  {const char *invalid[]={"config","fifo"};assert(!wr_iot_bundle_capture(&bundle,invalid,2));assert(!bundle.count);}
+ }
  assert(!unlink("config"));assert(!unlink("link"));assert(!unlink("fifo"));assert(!unlink("large"));assert(!chdir("/tmp"));assert(!rmdir(directory));
- puts("PASS bounded previous-file capture: contents, metadata, absent file, no overwrite of existing snapshot, symlink/nonregular/oversize rejection. Atomic contents/mode restore and foreign inode rejection passed; restore failure cleanup and prior absence verified; service integration pending.");return 0;
+ puts("PASS bounded previous-file capture: contents, metadata, absent file, no overwrite of existing snapshot, symlink/nonregular/oversize rejection. Atomic contents/mode restore and foreign inode rejection passed; restore failure cleanup and prior absence verified; bundle capture/partial restore retry verified; service integration pending.");return 0;
 }
