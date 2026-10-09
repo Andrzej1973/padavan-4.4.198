@@ -3,13 +3,24 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <assert.h>
+#include <sys/wait.h>
 int main(int argc,char **argv){
  struct sockaddr_in address;socklen_t len=sizeof(address);struct wr_iot_dns_sockets state={999,99};int tcp,udp;
+ if(argc==3&&!strcmp(argv[1],"--executable")){if(!wr_iot_dns_selected_sockets(argv[2],&state))return 1;printf("{\"dns_port\":%u,\"dhcp_standard\":%d}\n",state.dns_port,state.dhcp_standard);return 0;}
  if(argc==2||argc==3){pid_t pid=(pid_t)strtol(argv[1],NULL,10);if(!(argc==3?wr_iot_dns_daemon_sockets(pid,argv[2],&state):wr_iot_dns_process_sockets(pid,&state)))return 1;printf("{\"dns_port\":%u,\"dhcp_standard\":%d}\n",state.dns_port,state.dhcp_standard);return 0;}
  {struct wr_iot_dns_process_identity first,second;unsigned long long start=99;
   assert(wr_iot_dns_process_identity(getpid(),&first));assert(wr_iot_dns_process_identity(getpid(),&second));assert(wr_iot_dns_same_process(&first,&second));
   second.start++;assert(!wr_iot_dns_same_process(&first,&second));
   assert(!wr_iot_dns_start_time("invalid",&start)&&start==99);
+ }
+ {pid_t selected=-1,child;int pipes[2],status;char signal;
+  assert(wr_iot_dns_unique_daemon("/proc/self/exe",&selected)&&selected==getpid());
+  assert(!wr_iot_dns_unique_daemon("/dev/null",&selected)&&selected==getpid());
+  assert(!pipe(pipes));child=fork();assert(child>=0);
+  if(!child){close(pipes[1]);if(read(pipes[0],&signal,1)!=1)_exit(2);close(pipes[0]);_exit(0);}
+  close(pipes[0]);selected=-1;assert(!wr_iot_dns_unique_daemon("/proc/self/exe",&selected)&&selected==-1);
+  assert(write(pipes[1],"x",1)==1);close(pipes[1]);assert(waitpid(child,&status,0)==child&&WIFEXITED(status)&&!WEXITSTATUS(status));
+  assert(wr_iot_dns_selected_sockets("/proc/self/exe",&state)&&!state.dns_port);
  }
  assert(wr_iot_dns_daemon_sockets(getpid(),"/proc/self/exe",&state)&&!state.dns_port);
  state.dns_port=999;assert(!wr_iot_dns_daemon_sockets(getpid(),"/dev/null",&state)&&state.dns_port==999);

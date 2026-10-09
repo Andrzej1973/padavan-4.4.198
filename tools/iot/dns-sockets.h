@@ -110,4 +110,39 @@ static inline int wr_iot_dns_daemon_sockets(pid_t pid,const char *executable,str
     again.st_dev!=expected.st_dev||again.st_ino!=expected.st_ino)return 0;
  *out=result;return 1;
 }
+/* Bounded process snapshot: only one matching executable in our net namespace.
+ * Process names and pidfile contents are not accepted as identity evidence. */
+static inline int wr_iot_dns_unique_daemon(const char *executable,pid_t *out){
+ struct stat expected,again,actual;struct wr_iot_dns_process_identity identity;
+ DIR *dir;struct dirent *entry;unsigned int entries=0;pid_t found=0;int ok=1;
+ if(!executable||!out||stat(executable,&expected)||!S_ISREG(expected.st_mode))return 0;
+ dir=opendir("/proc");if(!dir)return 0;
+ errno=0;
+ while((entry=readdir(dir))){
+  char path[64],*end;long number;
+  if(entry->d_name[0]<'0'||entry->d_name[0]>'9'){errno=0;continue;}
+  if(++entries>4096){ok=0;break;}
+  errno=0;number=strtol(entry->d_name,&end,10);
+  if(errno||*end||number<=0||(long)(pid_t)number!=number){errno=0;continue;}
+  snprintf(path,sizeof(path),"/proc/%ld/exe",number);
+  if(!stat(path,&actual)&&actual.st_dev==expected.st_dev&&actual.st_ino==expected.st_ino&&
+     wr_iot_dns_process_identity((pid_t)number,&identity)){
+   if(identity.device!=expected.st_dev||identity.executable!=expected.st_ino){ok=0;break;}
+   if(found){ok=0;break;}found=(pid_t)number;
+  }
+  errno=0;
+ }
+ if(errno)ok=0;
+ if(closedir(dir))ok=0;
+ if(!ok||!found||stat(executable,&again)||again.st_dev!=expected.st_dev||again.st_ino!=expected.st_ino||
+    !wr_iot_dns_process_identity(found,&identity)||identity.device!=expected.st_dev||identity.executable!=expected.st_ino)return 0;
+ *out=found;return 1;
+}
+static inline int wr_iot_dns_selected_sockets(const char *executable,struct wr_iot_dns_sockets *out){
+ pid_t before,after;struct wr_iot_dns_sockets result;struct wr_iot_dns_process_identity first,last;
+ if(!out||!wr_iot_dns_unique_daemon(executable,&before)||!wr_iot_dns_process_identity(before,&first)||!wr_iot_dns_daemon_sockets(before,executable,&result)||
+    !wr_iot_dns_unique_daemon(executable,&after)||before!=after||!wr_iot_dns_process_identity(after,&last)||!wr_iot_dns_same_process(&first,&last))return 0;
+ *out=result;return 1;
+}
+
 #endif
