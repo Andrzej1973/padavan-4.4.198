@@ -4,7 +4,7 @@ import argparse,re
 from pathlib import Path
 p=argparse.ArgumentParser();p.add_argument('source',type=Path);p.add_argument('output',type=Path);a=p.parse_args()
 s=(a.source/'trunk/user/rc/services_ex.c').read_text(encoding='utf-8')
-s=s[s.index('int\nstart_dns_dhcpd(int is_ap_mode)'):s.index('\nvoid\nstop_dns_dhcpd(void)')]
+s=s[s.index('static int\nwr_iot_start_dns_raw(int is_ap_mode)'):s.index('\nstatic void\nwr_iot_stop_dns_raw(void)')]
 def block(pattern):
  result=re.search(pattern,s,re.S)
  if not result:raise SystemExit('Installed staging source changed: '+pattern)

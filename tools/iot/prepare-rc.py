@@ -182,7 +182,61 @@ commit=r"""#if defined(BOARD_WR1200JS)
 #endif
 """
 part=part.replace(anchor,commit+anchor,1)
-service=service[:begin]+part+service[end:];f.write_text(service,encoding='utf-8')
+service=service[:begin]+part+service[end:]
+# Serialize these entry points only while the internal IoT network gate is set.
+# Other hosts/resolv writers and a complete restart rollback still need integration.
+service=service.replace('int\nstart_dns_dhcpd(int is_ap_mode)', 'static int\nwr_iot_start_dns_raw(int is_ap_mode)',1)
+service=service.replace('void\nstop_dns_dhcpd(void)', 'static void\nwr_iot_stop_dns_raw(void)',1)
+anchor='int\nrestart_dhcpd(void)\n{\n\tstop_dns_dhcpd();\n\treturn start_dns_dhcpd(get_ap_mode());\n}'
+if service.count(anchor)!=1:raise SystemExit('DNS restart serialization anchor changed')
+wrappers=r"""#if defined(BOARD_WR1200JS)
+static int wr_iot_dns_lock(struct wr_iot_service_lock *lock)
+{
+ if(nvram_get_int("wr_iot_network_t")!=1)return 1;
+ if(wr_iot_service_lock_take(lock,"/var/run/wr-iot-services.lock"))return 1;
+ logmessage("IoT Wi-Fi","DNS/DHCP transaction busy; service operation deferred");
+ return 0;
+}
+#endif
+int
+start_dns_dhcpd(int is_ap_mode)
+{
+#if defined(BOARD_WR1200JS)
+ struct wr_iot_service_lock lock={-1};int result;
+ if(!wr_iot_dns_lock(&lock))return EBUSY;
+ result=wr_iot_start_dns_raw(is_ap_mode);wr_iot_service_lock_release(&lock);return result;
+#else
+ return wr_iot_start_dns_raw(is_ap_mode);
+#endif
+}
+void
+stop_dns_dhcpd(void)
+{
+#if defined(BOARD_WR1200JS)
+ struct wr_iot_service_lock lock={-1};
+ if(!wr_iot_dns_lock(&lock))return;
+ wr_iot_stop_dns_raw();wr_iot_service_lock_release(&lock);
+#else
+ wr_iot_stop_dns_raw();
+#endif
+}
+int
+restart_dhcpd(void)
+{
+#if defined(BOARD_WR1200JS)
+ struct wr_iot_service_lock lock={-1};int result;
+ if(!wr_iot_dns_lock(&lock))return EBUSY;
+ wr_iot_stop_dns_raw();result=wr_iot_start_dns_raw(get_ap_mode());
+ wr_iot_service_lock_release(&lock);return result;
+#else
+ wr_iot_stop_dns_raw();return wr_iot_start_dns_raw(get_ap_mode());
+#endif
+}
+"""
+service=service.replace(anchor,wrappers,1)
+f.write_text(service,encoding='utf-8')
+report['dnsmasq_entry_points_serialized_when_iot_gated']=True
+report['all_dnsmasq_writers_serialized']=False
 for name in ('service-state.h','service-transaction.h','service-lock.h','dnsmasq-files.h','saved-bundle.h','saved-file.h','restore-file.h','uts-state.h','arp-state.h','arp-restore.h'):
  (headers/name).write_bytes((local/name).read_bytes())
 report['service_state_headers_installed']=True
