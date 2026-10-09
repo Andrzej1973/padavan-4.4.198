@@ -125,6 +125,19 @@ service=f.read_text(encoding='utf-8')
 begin=service.index('int\nstart_dns_dhcpd(int is_ap_mode)')
 end=service.index('\nvoid\nstop_dns_dhcpd(void)',begin)
 part=service[begin:end]
+anchor='\t/* touch dnsmasq.leases if not exist */'
+if part.count(anchor)!=1:raise SystemExit('DHCP early preflight anchor changed')
+early=r"""#if defined(BOARD_WR1200JS)
+ if(nvram_get_int("wr_iot_network_t") == 1) {
+  FILE *scratch=tmpfile();int checked,failed;
+  if(!scratch)return errno;
+  checked=wr_iot_dnsmasq(scratch,is_ap_mode,ipaddr,netmask);
+  failed=ferror(scratch);if(fclose(scratch))failed=1;
+  if(checked!=1||failed)return EINVAL;
+ }
+#endif
+"""
+part=part.replace(anchor,early+anchor,1)
 anchor='\tFILE *fp;'
 if part.count(anchor)!=1:raise SystemExit('DHCP staging local anchor changed')
 part=part.replace(anchor,anchor+'\n#if defined(BOARD_WR1200JS)\n char iot_candidate[32]="";\n#endif',1)
