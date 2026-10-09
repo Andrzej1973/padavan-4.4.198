@@ -8,7 +8,7 @@
 #define WR_IOT_DNS_CONFIG_PATH "/etc/dnsmasq.conf"
 #endif
 #ifndef WR_IOT_DNS_PROBE
-#define WR_IOT_DNS_PROBE wr_iot_dns_ready
+#define WR_IOT_DNS_PROBE wr_iot_dns_handler_ready
 #endif
 #ifndef WR_IOT_DHCP_PROBE
 #define WR_IOT_DHCP_PROBE(address) wr_iot_dhcp_ready_at(address,67)
