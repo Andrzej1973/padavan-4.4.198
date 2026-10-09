@@ -1,4 +1,4 @@
-# Enhanced Connected Devices РІР‚вЂќ implementation contract
+# Enhanced Connected Devices Р Р†Р вЂљРІР‚Сњ implementation contract
 
 User request accepted 2026-10-09. WR1200JS homepage after login: readable, automatically refreshed device classification without excessive router work. The conservative browser classification core is implemented; collection, homepage integration, refresh and target runtime remain unverified.
 
@@ -36,7 +36,7 @@ Compute lightweight classification and grouping in the browser using a small loc
 
 Schedule in WR1200JS WebUI work, preserving firmware-port and current service-recovery priorities. No live router writes or flashing authorized by this feature request.
 
-## Mandatory automatic refresh and schedule РІР‚вЂќ clarified 2026-10-09
+## Mandatory automatic refresh and schedule Р Р†Р вЂљРІР‚Сњ clarified 2026-10-09
 
 Implement these device/roaming UI deliverables immediately after the current DNS/DHCP recovery integration and its verification, within the WR1200JS stage and before secondary-router expansion. Both components share a refresh lifecycle. Manual page reload is not an acceptable normal update mechanism: refresh visible data automatically, approximately every 5 seconds, retry after failures, show freshness/error state, preserve filters/expanded groups/scroll, and refresh immediately when a hidden tab becomes visible. One request in flight and a shared bounded cache prevent overlapping or per-browser repeated collection. History recording continues independently of hidden tabs.
 
@@ -57,3 +57,11 @@ Local Node tests pass for ambiguous/conflicting clues, Apple manufacturer/OS sep
 Snapshots require a bounded collector epoch, integer sequence and at most 128 device records. Same-epoch older responses are rejected; unchanged cached sequences do not redraw rows or renew source observation timestamps. Collector epoch changes permit a sequence reset. Errors retain the last displayed dataset with a stale state. Rendering callback failure schedules recovery instead of permanently stopping the loop.
 
 Local deterministic Node tests cover overlapping requests, retries/backoff/recovery, hidden pause/resume, delayed callbacks, timeout abort, stale data, collector epoch reset and rendering errors. This is lifecycle code, not homepage integration: the JSON endpoint, collector cache, observation timestamps, DOM rendering and actual browser/router checks remain required.
+
+## Passive networkmap source checkpoint
+
+`tools/connected-devices/networkmap.h` reads the pinned six-field source format without invoking networkmap or initiating a scan. It validates IPv4 and MAC syntax, canonicalizes MAC letter case and reads the final three numeric fields from the right so commas in device names remain part of the name. Limits are 128 retained records, 128 name bytes, 511-byte input chunks and 64 KiB total input. Invalid/oversized/partial records are counted; capacity/input truncation is explicit.
+
+The caller must hold the existing networkmap source lock or supply a consistent snapshot. A source read error invalidates the output. The record exposes the networkmap stale flag without asserting current connection state. No DHCP vendor class, network role or radio observation is invented. Tests cover valid/stale data, comma-containing names, malformed IP/MAC, oversized lines, incomplete tail and record truncation; native sanitizer execution and MIPS compilation run in CI.
+
+This parser is not yet integrated with HTTP. Authenticated bounded JSON emission, source freshness, merging radio/neighbor/DHCP observations, a shared cache and the homepage remain incomplete.

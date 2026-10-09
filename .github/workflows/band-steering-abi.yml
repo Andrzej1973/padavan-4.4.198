@@ -168,6 +168,13 @@ jobs:
           node tools/connected-devices/check-classify.js
           node tools/connected-devices/check-refresh.js
 
+      - name: Check bounded passive connected-device source parser
+        run: |
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined tools/connected-devices/check-networkmap.c -o abi-results/check-device-networkmap
+          abi-results/check-device-networkmap | tee abi-results/device-networkmap.txt
+          compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
+          "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -c tools/connected-devices/check-networkmap.c -o abi-results/device-networkmap-mips.o
+
       - name: Compile IoT readiness headers after actual Padavan shared headers
         shell: bash
         run: |
