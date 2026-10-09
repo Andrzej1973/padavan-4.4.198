@@ -99,6 +99,9 @@ try:
   try:dns(None,'192.168.1.1');break
   except (TimeoutError,OSError):
    if time.monotonic()>deadline:raise
+ inventory=json.loads(run(str(r/'check-iot-dns-sockets'),str(process.pid)).stdout)
+ assert inventory=={'dns_port':53,'dhcp_standard':1}
+ checks['process_owned_dns_dhcp_socket_inventory']=True
  lease_path=r/'iot-dnsmasq.leases'
  before=lease_path.read_bytes() if lease_path.exists() else None
  run(str(r/'check-iot-dhcp-ready'),'67','192.168.1.1')
