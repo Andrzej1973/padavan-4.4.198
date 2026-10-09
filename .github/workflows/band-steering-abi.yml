@@ -127,6 +127,7 @@ jobs:
           path: source
           sparse-checkout: |
             trunk/user/rc
+            trunk/user/dnsmasq
             trunk/user/shared
             trunk/user/httpd
             trunk/user/www
@@ -950,6 +951,18 @@ jobs:
           gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
             tools/iot/dhcp-write.c tools/iot/check-dhcp-write.c -o abi-results/check-iot-dhcp-write
           abi-results/check-iot-dhcp-write | tee abi-results/iot-dhcp-write.txt
+
+      - name: Parse generated IoT DHCP with pinned dnsmasq source
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 tools/iot/dhcp-write.c tools/iot/emit-dhcp.c -o abi-results/emit-iot-dhcp
+          abi-results/emit-iot-dhcp > abi-results/iot-dnsmasq.conf
+          cp -a source/trunk/user/dnsmasq/dnsmasq-2.90 iot-dnsmasq-native
+          make -s -j2 -C iot-dnsmasq-native CC=gcc CFLAGS=-O2 \
+            COPTS="-DHAVE_BROKEN_RTC -DNO_INOTIFY -DNO_AUTH -DNO_LOOP -DNO_IPSET"
+          iot-dnsmasq-native/src/dnsmasq --version | head -n 1 | tee abi-results/iot-dnsmasq-version.txt
+          iot-dnsmasq-native/src/dnsmasq --test --conf-file="$PWD/abi-results/iot-dnsmasq.conf" 2>&1 | tee abi-results/iot-dnsmasq-parser.txt
 
       - name: Upload ABI diagnostics
         if: always()
