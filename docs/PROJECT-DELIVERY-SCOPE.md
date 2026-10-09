@@ -264,3 +264,7 @@ Add a third main use-case network alongside the existing primary and guest Wi-Fi
 - Verify compilation, actual ROMFS inclusion, default/persistence behavior, three simultaneous SSIDs, DHCP, isolation, allowed exceptions and reconnection on the device. Test device-to-device isolation policy with the intended IoT use cases.
 
 Status: approved planned work; runtime support unverified. No remote router changes or flashing are authorized by this planning update. WR1200JS remains the priority before secondary router work; CAKE remains excluded.
+
+## Enhanced Connected Devices — homepage classification, 2026-10-09
+
+User-approved deliverable: grouped connected-device list on the first page after login, categories Android/Windows/Apple/Smart TV/Unknown, evidence-based confidence and automatic refresh without manual reload. Preserve uncertainty and distinguish manufacturer from OS. Use bounded cached existing device/DHCP/radio data and browser classification; avoid continuous scans and cloud lookups. Provide visible stale/error status and automatic retry, pause polling in hidden tabs, and verify actual router overhead and connect/disconnect transitions. Full implementation contract: `ENHANCED-CONNECTED-DEVICES.md`. Planned; not yet implemented or runtime verified.
