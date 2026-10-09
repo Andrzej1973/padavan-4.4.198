@@ -904,6 +904,22 @@ jobs:
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
             -c iot-rc-source/trunk/user/rc/wr-iot-bridge.c -o abi-results/iot-rc-bridge-mips.o
 
+      - name: Check actual RC radio-stop behavior with and without WR ownership
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/iot/prepare-stop-check.py iot-rc-source abi-results/check-iot-stop.c
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -DBOARD_WR1200JS \
+            abi-results/check-iot-stop.c -o abi-results/check-iot-stop-wr
+          abi-results/check-iot-stop-wr | tee abi-results/iot-stop-wr.txt
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            abi-results/check-iot-stop.c -o abi-results/check-iot-stop-other
+          abi-results/check-iot-stop-other | tee abi-results/iot-stop-other.txt
+          compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -DBOARD_WR1200JS \
+            -c abi-results/check-iot-stop.c -o abi-results/iot-stop-mips.o
+
       - name: Upload ABI diagnostics
         if: always()
         uses: actions/upload-artifact@v7
