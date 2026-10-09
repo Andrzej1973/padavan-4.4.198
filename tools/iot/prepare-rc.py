@@ -266,6 +266,19 @@ for name,args,call in [('lan_up_manual','char *lan_ifname, char *lan_dname','lan
  text=guarded_lan_writer(text,name,args,call)
 lan.write_text(text,encoding='utf-8')
 report['lan_resolv_writer_callbacks_serialized_when_iot_gated']=True
+def guarded_sequence(text,name,args,call,signature):
+ if text.count(signature)!=1:raise SystemExit('Service sequence anchor changed: '+name)
+ begin=text.index(signature);end=text.index('\n}\n',begin)+3
+ raw=text[begin:end].replace(signature,'static void\nwr_iot_'+name+'_raw('+args+')\n{',1)
+ wrapper='\n/* WR_IOT_SEQUENCE_START '+name+' */\n#if defined(BOARD_WR1200JS)\n#include "wr-iot/service-guard.h"\n#endif\nvoid\n'+name+'('+args+')\n{\n#if defined(BOARD_WR1200JS)\n int token=wr_iot_service_guard_enter(nvram_get_int("wr_iot_network_t")==1);\n if(!token){logmessage("IoT Wi-Fi","Service transaction busy; restart skipped");return;}\n wr_iot_'+name+'_raw('+call+');wr_iot_service_guard_leave(token);\n#else\n wr_iot_'+name+'_raw('+call+');\n#endif\n}\n/* WR_IOT_SEQUENCE_END '+name+' */\n'
+ return text[:begin]+raw+wrapper+text[end:]
+text=guarded_sequence(text,'full_restart_lan','void','','void \nfull_restart_lan(void)\n{')
+lan.write_text(text,encoding='utf-8')
+ipv6=rc/'net6.c';six=ipv6.read_text(encoding='utf-8')
+six=guarded_sequence(six,'full_restart_ipv6','int ipv6_type_old','ipv6_type_old','void full_restart_ipv6(int ipv6_type_old)\n{')
+ipv6.write_text(six,encoding='utf-8')
+report['lan_ipv6_full_restart_sequences_serialized_when_iot_gated']=True
+
 
 
 for name in ('service-state.h','service-transaction.h','service-lock.h','dnsmasq-files.h','saved-bundle.h','saved-file.h','restore-file.h','uts-state.h','arp-state.h','arp-restore.h'):
