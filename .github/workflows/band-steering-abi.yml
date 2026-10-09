@@ -1015,6 +1015,17 @@ jobs:
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
             -c tools/iot/check-uts-state.c -o abi-results/iot-uts-state-mips.o
 
+      - name: Check bounded permanent LAN ARP capture
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            tools/iot/check-arp-state.c -o abi-results/check-iot-arp-state
+          abi-results/check-iot-arp-state | tee abi-results/iot-arp-state.txt
+          compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
+          "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+            -c tools/iot/check-arp-state.c -o abi-results/iot-arp-state-mips.o
+
       - name: Check exclusive IoT service transaction lock
         shell: bash
         run: |
