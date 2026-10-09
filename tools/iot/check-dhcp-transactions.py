@@ -118,6 +118,18 @@ try:
  checks['local_dhcp_inform_preserves_existing_client_leases']=True
  dns('iot','192.168.50.1');checks['iot_dns_transaction']=True
  dns('lan','192.168.1.1');checks['main_lan_dns_preserved']=True
+ run(str(r/'check-iot-dns-handler'),'53')
+ checks['local_dns_handler_default']=True
+ process.terminate();process.wait(timeout=3)
+ conf.write_text(config+'no-hosts\nno-ident\n')
+ process=subprocess.Popen([str(daemon),'--keep-in-foreground','--user=root','--conf-file='+str(conf),'--pid-file='+str(r/'iot-dnsmasq.pid'),'--dhcp-leasefile='+str(lease_path)],stdout=log,stderr=log)
+ deadline=time.monotonic()+5
+ while True:
+  result=subprocess.run([str(r/'check-iot-dns-handler'),'53'],capture_output=True,text=True)
+  if result.returncode==0:break
+  if process.poll() is not None or time.monotonic()>deadline:raise RuntimeError('DNS handler did not respond with no-hosts/no-ident')
+  time.sleep(0.05)
+ checks['local_dns_handler_no_hosts_no_ident']=True
  (r/'iot-dhcp-transactions.json').write_text(json.dumps({'checks':checks,'scope':'Pinned native dnsmasq host DHCP OFFER/ACK and DNS over isolated IoT/LAN with generated firewall; production RC and target runtime unverified','runtime_verified':False},indent=2)+'\n')
  print('PASS pinned dnsmasq IoT and main LAN DHCP/DNS transactions with isolation rules')
 finally:
