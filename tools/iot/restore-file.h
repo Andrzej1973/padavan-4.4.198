@@ -3,6 +3,21 @@
 #define WR_IOT_RESTORE_FILE_H
 #include "saved-file.h"
 #include <stdio.h>
+#ifndef WR_IOT_RESTORE_MKSTEMP
+#define WR_IOT_RESTORE_MKSTEMP mkstemp
+#endif
+#ifndef WR_IOT_RESTORE_WRITE
+#define WR_IOT_RESTORE_WRITE write
+#endif
+#ifndef WR_IOT_RESTORE_FSYNC
+#define WR_IOT_RESTORE_FSYNC fsync
+#endif
+#ifndef WR_IOT_RESTORE_CLOSE
+#define WR_IOT_RESTORE_CLOSE close
+#endif
+#ifndef WR_IOT_RESTORE_RENAME
+#define WR_IOT_RESTORE_RENAME rename
+#endif
 struct wr_iot_generated_file {int existed;struct stat metadata;};
 static inline int wr_iot_generated_capture(struct wr_iot_generated_file *out,const char *path){
  struct wr_iot_generated_file candidate;memset(&candidate,0,sizeof(candidate));
@@ -30,17 +45,17 @@ static inline int wr_iot_saved_restore(const struct wr_iot_saved_file *saved,con
  if(!saved->existed)return !expected->existed||unlink(path)==0;
  n=snprintf(candidate,sizeof(candidate),"%s.iot-restore.XXXXXX",path);
  if(n<0||(size_t)n>=sizeof(candidate))return 0;
- fd=mkstemp(candidate);if(fd<0)return 0;
- while(used<saved->size){ssize_t written=write(fd,saved->data+used,saved->size-used);
+ fd=WR_IOT_RESTORE_MKSTEMP(candidate);if(fd<0)return 0;
+ while(used<saved->size){ssize_t written=WR_IOT_RESTORE_WRITE(fd,saved->data+used,saved->size-used);
   if(written<0&&errno==EINTR)continue;
   if(written<=0)goto done;
   used+=(size_t)written;
  }
  if(fchown(fd,saved->metadata.st_uid,saved->metadata.st_gid)||
-    fchmod(fd,saved->metadata.st_mode&0777)||fsync(fd))goto done;
- if(close(fd)){fd=-1;goto done;}fd=-1;
- if(!wr_iot_generated_matches(expected,path)||rename(candidate,path))goto done;
+    fchmod(fd,saved->metadata.st_mode&0777)||WR_IOT_RESTORE_FSYNC(fd))goto done;
+ if(WR_IOT_RESTORE_CLOSE(fd)){fd=-1;goto done;}fd=-1;
+ if(!wr_iot_generated_matches(expected,path)||WR_IOT_RESTORE_RENAME(candidate,path))goto done;
  ok=1;
-done:if(fd>=0)close(fd);if(!ok)unlink(candidate);return ok;
+done:if(fd>=0)WR_IOT_RESTORE_CLOSE(fd);if(!ok)unlink(candidate);return ok;
 }
 #endif
