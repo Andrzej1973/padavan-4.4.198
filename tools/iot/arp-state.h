@@ -34,9 +34,12 @@ static inline int wr_iot_arp_stream(FILE *fp,const char *interface,struct wr_iot
  *out=candidate;return 1;
 }
 static inline int wr_iot_arp_capture(const char *interface,struct wr_iot_arp_state *out){
- struct wr_iot_arp_state candidate;FILE *fp=fopen("/proc/net/arp","r");int ok;
+ struct wr_iot_arp_state candidate;FILE *fp;int ok;
+ if(!out)return 0;
+ fp=fopen("/proc/net/arp","r");
  if(!fp)return 0;
  ok=wr_iot_arp_stream(fp,interface,&candidate);if(fclose(fp))ok=0;
- if(ok)*out=candidate;return ok;
+ if(ok)*out=candidate;
+ return ok;
 }
 #endif
