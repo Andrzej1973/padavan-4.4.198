@@ -1,6 +1,6 @@
 # WR1200JS DNS header regression
 
-Status checked on 2026-10-09: the compilation regression is reproduced and the corrected headers pass native and MIPS compilation. The full firmware build remains pending; device behavior is unverified.
+Status checked on 2026-10-09: the compilation regression is reproduced and the corrected headers pass native and MIPS compilation. Full build 117 completed successfully and its final firmware/config artifact was downloaded; device behavior is unverified.
 
 ## Failure evidence
 
@@ -28,6 +28,6 @@ These are compile-check objects, not a firmware image or a device test.
 
 ## Remaining verification
 
-Full build [117](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/37979803101), using commit `99ceeb84d95d18cf6e683d250dce4718b4991ddc`, is compiling the firmware. Inspect its actual conclusion and final TRX/config archive before reporting a successful full build. Do not restart a live run because an observation times out.
+Full build [117](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/37979803101), using commit `99ceeb84d95d18cf6e683d250dce4718b4991ddc`, completed successfully, including firmware packaging. Downloaded artifact `WR1200JS_4.4.198.9-100` (ID `11642031344`) contains exactly two files: `WR1200JS_4.4.198.9-100.trx` (13,089,578 bytes) and `wr1200js.config` (11,091 bytes). Firmware SHA-256: `e5b133be2b5abd63e711f4858e462f41f16726c53f54135150b69b7294eafad2`. The filename uses the firmware version suffix `100`; the workflow run number is 117. The image is 3,652 bytes larger than the inspected build-100 image. This proves the full compilation regression is resolved for this run.
 
 Header compilation does not prove complete RC linking, ROMFS contents, DNS/DHCP recovery on the router or tunnel reconnection. Those acceptance checks remain required. No router flashing or live configuration changes were performed for this correction.
