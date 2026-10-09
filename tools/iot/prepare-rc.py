@@ -231,6 +231,13 @@ restart_dhcpd(void)
 #if defined(BOARD_WR1200JS)
  int token=wr_iot_dns_lock(),result;
  if(!token)return EBUSY;
+ if(nvram_get_int("wr_iot_network_t")==1){
+  FILE *scratch=tmpfile();int checked,failed;
+  if(!scratch){result=errno;wr_iot_service_guard_leave(token);return result;}
+  checked=wr_iot_dnsmasq(scratch,get_ap_mode(),nvram_safe_get("lan_ipaddr"),nvram_safe_get("lan_netmask"));
+  failed=ferror(scratch);if(fclose(scratch))failed=1;
+  if(checked!=1||failed){wr_iot_service_guard_leave(token);return EINVAL;}
+ }
  wr_iot_stop_dns_raw();result=wr_iot_start_dns_raw(get_ap_mode());
  wr_iot_service_guard_leave(token);return result;
 #else

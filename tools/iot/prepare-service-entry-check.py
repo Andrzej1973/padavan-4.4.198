@@ -16,7 +16,9 @@ pre=r"""
 #include <assert.h>
 #include "service-lock.h"
 #include "service-guard.h"
-static int gate=1,starts,stops,logs;
+static int gate=1,starts,stops,logs,invalid;
+static const char *nvram_safe_get(const char *key){assert(!strcmp(key,"lan_ipaddr")||!strcmp(key,"lan_netmask"));return !strcmp(key,"lan_ipaddr")?"192.168.1.1":"255.255.255.0";}
+static int wr_iot_dnsmasq(FILE *fp,int ap,const char *ip,const char *mask){assert(fp&&ap==0&&!strcmp(ip,"192.168.1.1")&&!strcmp(mask,"255.255.255.0"));return invalid?-1:1;}
 static int nvram_get_int(const char *key){assert(!strcmp(key,"wr_iot_network_t"));return gate;}
 static int get_ap_mode(void){return 0;}
 static void logmessage(const char *a,const char *b){assert(a&&b);logs++;}
@@ -32,8 +34,10 @@ int main(void){char dir[]="/tmp/iot-service-entry-XXXXXX";struct wr_iot_service_
  wr_iot_service_lock_release(&held);assert(restart_dhcpd()==0);assert(starts==3&&stops==3);
  assert(wr_iot_service_guard_enter(1)==1);assert(wr_iot_service_guard_enter(1)==1);
  assert(!wr_iot_service_lock_take(&held,"./service.lock"));wr_iot_service_guard_leave(1);assert(!wr_iot_service_lock_take(&held,"./service.lock"));wr_iot_service_guard_leave(1);
+ invalid=1;assert(restart_dhcpd()==EINVAL);assert(starts==3&&stops==3);
+ assert(wr_iot_service_lock_take(&held,"./service.lock"));wr_iot_service_lock_release(&held);invalid=0;
  gate=0;assert(wr_iot_service_lock_take(&held,"./service.lock"));assert(start_dns_dhcpd(0)==0);stop_dns_dhcpd();assert(starts==4&&stops==4);wr_iot_service_lock_release(&held);
  assert(!unlink("service.lock"));assert(!chdir("/tmp"));assert(!rmdir(dir));
- puts("PASS actual RC gated entry serialization: start/stop/restart contention leaves raw callbacks untouched, restart avoids nested lock, OFF legacy path; other writers and daemon rollback pending");return 0;}
+ puts("PASS actual RC gated entry serialization: start/stop/restart contention leaves raw callbacks untouched, restart avoids nested lock, OFF legacy path; invalid IoT preflight leaves existing daemon untouched and releases guard; other writers and daemon rollback pending");return 0;}
 """
 a.output.write_text(pre+body+post,encoding='utf-8')
