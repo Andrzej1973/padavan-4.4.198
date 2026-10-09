@@ -8,6 +8,33 @@
 #include <netinet/in.h>
 #include <poll.h>
 #include <errno.h>
+/* Verify every declared record is present before treating a packet as ready. */
+static inline int wr_iot_dns_name_span(const unsigned char *data,size_t size,size_t *offset){
+ size_t p,end=0;unsigned int steps=0;
+ if(!data||!offset||*offset>=size)return 0;
+ p=*offset;
+ while(p<size&&++steps<=128){
+  unsigned int n=data[p];
+  if(!n){if(!end)end=p+1;*offset=end;return 1;}
+  if((n&192)==192){size_t target;if(size-p<2)return 0;target=((size_t)(n&63)<<8)|data[p+1];if(target<12||target>=p)return 0;if(!end)end=p+2;p=target;continue;}
+  if(n>63||size-p-1<n)return 0;
+  p+=n+1;
+ }
+ return 0;
+}
+static inline int wr_iot_dns_records_complete(const unsigned char *data,size_t size,size_t offset){
+ unsigned int count,i;size_t n;
+ if(!data||size<12||offset>size)return 0;
+ count=((unsigned int)data[6]<<8)|data[7];count+=((unsigned int)data[8]<<8)|data[9];count+=((unsigned int)data[10]<<8)|data[11];
+ if(count>64)return 0;
+ for(i=0;i<count;i++){
+  if(!wr_iot_dns_name_span(data,size,&offset)||size-offset<10)return 0;
+  n=((size_t)data[offset+8]<<8)|data[offset+9];offset+=10;
+  if(size-offset<n)return 0;
+  offset+=n;
+ }
+ return offset==size;
+}
 static inline int wr_iot_dns_reply(const unsigned char *reply,size_t size,const unsigned char *query,size_t query_size){
  if(!reply||!query||query_size!=27||size<query_size||reply[0]!=query[0]||reply[1]!=query[1]||
     !(reply[2]&128)||(reply[2]&120)||(reply[2]&2)||(reply[3]&15)||
@@ -20,7 +47,7 @@ static inline int wr_iot_dns_reply(const unsigned char *reply,size_t size,const 
   if(size-pos<10)return 0;
   if(reply[pos]!=0||reply[pos+1]!=1||reply[pos+2]!=0||reply[pos+3]!=1)return 0;
   length=((unsigned int)reply[pos+8]<<8)|reply[pos+9];
-  return length==4&&size-pos-10>=length;
+  return length==4&&size-pos-10>=length&&wr_iot_dns_records_complete(reply,size,query_size);
  }
 }
 static inline int wr_iot_dns_ready(unsigned int port){
