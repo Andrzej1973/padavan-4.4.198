@@ -8,10 +8,14 @@ int main(void){char dir[]="/tmp/iot-dns-config-XXXXXX";unsigned int port=999;
  put("extra","port=65536\n");port=999;assert(!wr_iot_dns_config_port("main",&port)&&port==999);
  put("extra","conf-file=main\n");assert(!wr_iot_dns_config_port("main",&port));
  put("main","conf-script=/bin/echo port=1053\n");assert(!wr_iot_dns_config_port("main",&port));
+ put("hash#config","port=1055\n");put("main","conf-file=hash#config # trailing comment\n");assert(wr_iot_dns_config_port("main",&port)&&port==1055);assert(!unlink("hash#config"));
+ put("main","port=1053#invalid\n");port=999;assert(!wr_iot_dns_config_port("main",&port)&&port==999);
+ put("main","txt-record=name,\"value # literal\"\nport=1056\n");assert(wr_iot_dns_config_port("main",&port)&&port==1056);
+ put("main","txt-record=name,\"unterminated\nport=1056\n");port=999;assert(!wr_iot_dns_config_port("main",&port)&&port==999);
  assert(!mkdir("additional",0700));put("additional/b.conf","port=1054\n");put("additional/a.conf","port=1053\n");put("additional/.hidden","port=65536\n");put("additional/c.bak","port=65536\n");
  put("main","conf-dir=additional,*.conf,.bak\n");assert(wr_iot_dns_config_port("main",&port)&&port==1054);
  assert(!unlink("additional/a.conf"));assert(!unlink("additional/b.conf"));assert(!unlink("additional/.hidden"));assert(!unlink("additional/c.bak"));assert(!rmdir("additional"));
  assert(!symlink("extra","link"));assert(!wr_iot_dns_config_port("link",&port));assert(!unlink("link"));
  assert(!unlink("main"));assert(!unlink("extra"));assert(!chdir("/tmp"));assert(!rmdir(dir));
- puts("PASS bounded effective DNS port reader: default, nested override, disabled DNS, invalid port, include cycle and symlink rejection; controller integration pending");return 0;
+ puts("PASS bounded effective DNS port reader: default, nested override, disabled DNS, invalid port, include cycle and symlink rejection; comment boundaries and quoted literals");return 0;
 }

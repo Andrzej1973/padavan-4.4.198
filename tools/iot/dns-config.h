@@ -17,6 +17,22 @@ static inline char *wr_iot_dns_trim(char *value){
  end=value+strlen(value);while(end>value&&isspace((unsigned char)end[-1]))*--end=0;
  return value;
 }
+/* dnsmasq comments start at a whitespace boundary outside double quotes.
+ * Preserve quote syntax for the option-specific parser rather than truncating paths. */
+static inline int wr_iot_dns_config_comments(char *line){
+ char *p;int quoted=0,white=1;
+ for(p=line;*p;p++){
+  if(quoted){
+   if(*p=='\\'&&p[1]&&strchr("\"tnebr\\",p[1])){p++;continue;}
+   if(*p=='"')quoted=0;
+   continue;
+  }
+  if(*p=='"'){quoted=1;white=0;continue;}
+  if(white&&*p=='#'){*p=0;break;}
+  white=isspace((unsigned char)*p)!=0;
+ }
+ return !quoted;
+}
 static inline int wr_iot_dns_config_read(const char *,unsigned int,struct wr_iot_dns_config_budget *,unsigned int *);
 static inline int wr_iot_dns_config_dir(char *spec,unsigned int depth,struct wr_iot_dns_config_budget *budget,unsigned int *port){
  char *filters[8],*save=NULL,*directory,*token;char paths[8][512],temp[512];
@@ -58,9 +74,9 @@ static inline int wr_iot_dns_config_read(const char *path,unsigned int depth,str
  if(fstat(fd,&st)||!S_ISREG(st.st_mode)||st.st_size<0||st.st_size>262144){close(fd);return 0;}
  fp=fdopen(fd,"r");if(!fp){close(fd);return 0;}
  while(fgets(line,sizeof(line),fp)){
-  char *key,*equal,*value,*end,*comment;size_t n=strlen(line);unsigned long parsed;
+  char *key,*equal,*value,*end;size_t n=strlen(line);unsigned long parsed;
   budget->bytes+=n;if(budget->bytes>262144||(!strchr(line,'\n')&&!feof(fp))){ok=0;break;}
-  comment=strchr(line,'#');if(comment)*comment=0;key=wr_iot_dns_trim(line);if(!*key)continue;
+  if(!wr_iot_dns_config_comments(line)){ok=0;break;}key=wr_iot_dns_trim(line);if(!*key)continue;
   equal=strchr(key,'=');if(!equal){if(!strcmp(key,"conf-dir")||!strcmp(key,"conf-script")||!strcmp(key,"conf-file")||!strcmp(key,"port")){ok=0;break;}continue;}
   *equal=0;key=wr_iot_dns_trim(key);value=wr_iot_dns_trim(equal+1);
   if(!strcmp(key,"port")){
