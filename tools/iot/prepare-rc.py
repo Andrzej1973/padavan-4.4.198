@@ -253,6 +253,20 @@ text=guarded_writer(text,'update_resolvconf','int is_first_run, int do_not_notif
 text=guarded_writer(text,'update_hosts_router','const char *lan_ipaddr','lan_ipaddr')
 wan.write_text(text,encoding='utf-8')
 report['wan_resolv_hosts_and_dnsmasq_servers_serialized_when_iot_gated']=True
+def guarded_lan_writer(text,name,args,call):
+ prefix='void' if name=='lan_up_manual' else 'static void'
+ signature=prefix+'\n'+name+'('+args+')\n{'
+ if text.count(signature)!=1:raise SystemExit('LAN DNS writer anchor changed: '+name)
+ begin=text.index(signature);end=text.index('\n}\n',begin)+3
+ raw=text[begin:end].replace(signature,'static void\nwr_iot_'+name+'_raw('+args+')\n{',1)
+ wrapper='\n/* WR_IOT_LAN_WRAPPER_START '+name+' */\n#if defined(BOARD_WR1200JS)\n#include "wr-iot/service-guard.h"\n#endif\n'+prefix+'\n'+name+'('+args+')\n{\n#if defined(BOARD_WR1200JS)\n int token=wr_iot_service_guard_enter(nvram_get_int("wr_iot_network_t")==1);\n if(!token){logmessage("IoT Wi-Fi","LAN DNS transaction busy; operation skipped");return;}\n wr_iot_'+name+'_raw('+call+');wr_iot_service_guard_leave(token);\n#else\n wr_iot_'+name+'_raw('+call+');\n#endif\n}\n/* WR_IOT_LAN_WRAPPER_END '+name+' */\n'
+ return text[:begin]+raw+wrapper+text[end:]
+lan=rc/'net_lan.c';text=lan.read_text(encoding='utf-8')
+for name,args,call in [('lan_up_manual','char *lan_ifname, char *lan_dname','lan_ifname,lan_dname'),('lan_up_auto','char *lan_ifname, char *lan_gateway, char *lan_dname','lan_ifname,lan_gateway,lan_dname'),('lan_down_auto','char *lan_ifname','lan_ifname')]:
+ text=guarded_lan_writer(text,name,args,call)
+lan.write_text(text,encoding='utf-8')
+report['lan_resolv_writer_callbacks_serialized_when_iot_gated']=True
+
 
 for name in ('service-state.h','service-transaction.h','service-lock.h','dnsmasq-files.h','saved-bundle.h','saved-file.h','restore-file.h','uts-state.h','arp-state.h','arp-restore.h'):
  (headers/name).write_bytes((local/name).read_bytes())
