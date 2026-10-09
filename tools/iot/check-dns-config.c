@@ -18,6 +18,12 @@ int main(void){char dir[]="/tmp/iot-dns-config-XXXXXX";unsigned int port=999;
  {char final_quote[]="port=\"1060\"";assert(wr_iot_dns_config_comments(final_quote));}
  put("\ttabbed\t","port=1061\n");put("main","conf-file=\"\\ttabbed\\t\"\n");assert(wr_iot_dns_config_port("main",&port)&&port==1061);assert(!unlink("\ttabbed\t"));
  put("quote\"file","port=1062\n");put("main","conf-file=\"quote\\\"file\"\n");assert(wr_iot_dns_config_port("main",&port)&&port==1062);assert(!unlink("quote\"file"));
+ {int dhcp4=99;
+  put("main","port=0\ndhcp-range=set:wr-iot,192.168.50.20,192.168.50.200,255.255.255.0,3600\n");assert(wr_iot_dns_config_services("main",&port,&dhcp4)&&port==0&&dhcp4==1);
+  put("main","dhcp-range=set:ipv6,::,constructor:br0,ra-stateless\n");assert(wr_iot_dns_config_services("main",&port,&dhcp4)&&port==53&&dhcp4==0);
+  put("extra","dhcp-range=tag:known,set:lan,192.168.1.20,192.168.1.200,3600\n");put("main","conf-file=extra\n");assert(wr_iot_dns_config_services("main",&port,&dhcp4)&&dhcp4==1);
+  put("main","port=65536\n");port=999;dhcp4=99;assert(!wr_iot_dns_config_services("main",&port,&dhcp4)&&port==999&&dhcp4==99);
+ }
  assert(!mkdir("additional",0700));put("additional/b.conf","port=1054\n");put("additional/a.conf","port=1053\n");put("additional/.hidden","port=65536\n");put("additional/c.bak","port=65536\n");
  put("main","conf-dir=additional,*.conf,.bak\n");assert(wr_iot_dns_config_port("main",&port)&&port==1054);
  assert(!unlink("additional/a.conf"));assert(!unlink("additional/b.conf"));assert(!unlink("additional/.hidden"));assert(!unlink("additional/c.bak"));assert(!rmdir("additional"));

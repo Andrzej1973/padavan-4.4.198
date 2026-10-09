@@ -11,7 +11,8 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <errno.h>
-struct wr_iot_dns_config_budget {unsigned int files;size_t bytes;};
+#include <arpa/inet.h>
+struct wr_iot_dns_config_budget {unsigned int files;size_t bytes;int dhcp4;};
 static inline char *wr_iot_dns_trim(char *value){
  char *end;while(*value==' ')value++;
  end=value+strlen(value);while(end>value&&end[-1]==' ')*--end=0;
@@ -41,6 +42,17 @@ static inline int wr_iot_dns_config_comments(char *line){
   else {if(white&&*p=='#'){*p=0;break;}white=0;}
  }
  return 1;
+}
+/* IPv4 ranges create the DHCPv4 handler; tags precede the first address.
+ * IPv6 ranges alone must not require a DHCPv4 ACK. */
+static inline int wr_iot_dns_config_dhcp4(char *value){
+ char *token,*save=NULL;struct in_addr address;
+ for(token=strtok_r(value,",",&save);token;token=strtok_r(NULL,",",&save)){
+  wr_iot_dns_unhide(token);
+  if(!strncmp(token,"set:",4)||!strncmp(token,"tag:",4))continue;
+  return inet_pton(AF_INET,token,&address)==1;
+ }
+ return 0;
 }
 static inline int wr_iot_dns_config_read(const char *,unsigned int,struct wr_iot_dns_config_budget *,unsigned int *);
 static inline int wr_iot_dns_config_dir(char *spec,unsigned int depth,struct wr_iot_dns_config_budget *budget,unsigned int *port){
@@ -101,14 +113,18 @@ static inline int wr_iot_dns_config_read(const char *path,unsigned int depth,str
    if(!wr_iot_dns_config_read(value,depth+1,budget,port)){ok=0;break;}
   }else if(!strcmp(key,"conf-dir")){if(!wr_iot_dns_config_dir(value,depth,budget,port)){ok=0;break;}}
   else if(!strcmp(key,"conf-script")){ok=0;break;}
+  else if(!strcmp(key,"dhcp-range")){if(wr_iot_dns_config_dhcp4(value))budget->dhcp4=1;}
  }
  if(ferror(fp))ok=0;
  if(fclose(fp))ok=0;
  return ok;
 }
-static inline int wr_iot_dns_config_port(const char *path,unsigned int *out){
- struct wr_iot_dns_config_budget budget={0,0};unsigned int port=53;
+static inline int wr_iot_dns_config_services(const char *path,unsigned int *out,int *dhcp4){
+ struct wr_iot_dns_config_budget budget={0,0,0};unsigned int port=53;
  if(!path||!out||!wr_iot_dns_config_read(path,0,&budget,&port))return 0;
- *out=port;return 1;
+ *out=port;if(dhcp4)*dhcp4=budget.dhcp4;return 1;
+}
+static inline int wr_iot_dns_config_port(const char *path,unsigned int *out){
+ return wr_iot_dns_config_services(path,out,NULL);
 }
 #endif
