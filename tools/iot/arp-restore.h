@@ -41,17 +41,30 @@ static inline int wr_iot_arp_write(int fd,const char *interface,const struct wr_
 }
 /* Verify the generated state before any write. Dynamic and other-interface
  * entries are outside this snapshot and remain outside this operation. */
-static inline int wr_iot_arp_restore(const struct wr_iot_arp_state *saved,const struct wr_iot_arp_state *generated){
+/* expected is updated after each successful owned write, enabling a retry
+ * after partial failure while still rejecting foreign intervening changes. */
+static inline int wr_iot_arp_recover(const struct wr_iot_arp_state *saved,struct wr_iot_arp_state *expected){
  struct wr_iot_arp_state current;size_t i;int fd,ok=1;
- if(!wr_iot_arp_valid(saved)||!wr_iot_arp_valid(generated)||
-    !memchr(saved->interface,0,IFNAMSIZ)||!memchr(generated->interface,0,IFNAMSIZ)||
-    strcmp(saved->interface,generated->interface)||
-    !wr_iot_arp_capture(generated->interface,&current)||!wr_iot_arp_same(generated,&current))return 0;
+ if(!wr_iot_arp_valid(saved)||!wr_iot_arp_valid(expected)||
+    strcmp(saved->interface,expected->interface)||
+    !wr_iot_arp_capture(expected->interface,&current)||!wr_iot_arp_same(expected,&current))return 0;
+ if(wr_iot_arp_same(saved,expected))return 1;
  fd=socket(AF_INET,SOCK_DGRAM,0);if(fd<0)return 0;
- for(i=0;i<generated->count;i++)if(!wr_iot_arp_write(fd,generated->interface,&generated->entries[i],1)){ok=0;break;}
- if(ok)for(i=0;i<saved->count;i++)if(!wr_iot_arp_write(fd,saved->interface,&saved->entries[i],0)){ok=0;break;}
+ while(expected->count){
+  if(!wr_iot_arp_write(fd,expected->interface,&expected->entries[expected->count-1],1)){ok=0;break;}
+  expected->count--;
+ }
+ if(ok)for(i=0;i<saved->count;i++){
+  if(!wr_iot_arp_write(fd,saved->interface,&saved->entries[i],0)){ok=0;break;}
+  expected->entries[expected->count++]=saved->entries[i];
+ }
  if(close(fd))ok=0;
  if(ok)ok=wr_iot_arp_capture(saved->interface,&current)&&wr_iot_arp_same(saved,&current);
  return ok;
+}
+static inline int wr_iot_arp_restore(const struct wr_iot_arp_state *saved,const struct wr_iot_arp_state *generated){
+ struct wr_iot_arp_state expected;
+ if(!generated)return 0;
+ expected=*generated;return wr_iot_arp_recover(saved,&expected);
 }
 #endif
