@@ -38,7 +38,7 @@ def client_socket(name,port=0,broadcast=False):
 def dhcp_receiver(name):
  fd=os.open('/run/netns/'+name,os.O_RDONLY)
  try:
-  switch(fd);s=socket.socket(socket.AF_PACKET,socket.SOCK_RAW,socket.htons(0x0800));s.bind(('eth0',0));s.settimeout(1);return s
+  switch(fd);s=socket.socket(socket.AF_PACKET,socket.SOCK_RAW,socket.htons(0x0800));s.bind(('eth0',0x0800));s.settimeout(1);return s
  finally:switch(original);os.close(fd)
 
 def dhcp_payload(frame):
