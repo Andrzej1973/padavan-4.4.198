@@ -3,9 +3,10 @@
 #define WR_IOT_ROUTE_PREFIX_H
 #include "inventory.h"
 #include <linux/rtnetlink.h>
-static int wr_iot_route_prefix(struct wr_iot_inventory *out,const struct nlmsghdr *message,size_t available) {
+static int wr_iot_route_prefix_owned(struct wr_iot_inventory *out,const struct nlmsghdr *message,size_t available,
+ unsigned int owned_index,uint32_t owned_network,uint32_t owned_mask) {
  const struct rtmsg *route;struct rtattr *attribute;struct wr_iot_inventory candidate;
- uint32_t address=0,mask;int length,seen=0;
+ uint32_t address=0,mask,output_index=0;int length,seen=0,seen_output=0,indirect=0;
  if(!out||!message||available<sizeof(*message)||message->nlmsg_len>available||
     message->nlmsg_len<NLMSG_LENGTH(sizeof(*route))||message->nlmsg_type!=RTM_NEWROUTE||
     (message->nlmsg_flags&NLM_F_DUMP_INTR))return 0;
@@ -18,7 +19,10 @@ static int wr_iot_route_prefix(struct wr_iot_inventory *out,const struct nlmsghd
    uint32_t wire;
    if(seen||RTA_PAYLOAD(attribute)!=sizeof(wire))return 0;
    memcpy(&wire,RTA_DATA(attribute),sizeof(wire));address=ntohl(wire);seen=1;
-  }
+  } else if(attribute->rta_type==RTA_OIF) {
+   if(seen_output||RTA_PAYLOAD(attribute)!=sizeof(output_index))return 0;
+   memcpy(&output_index,RTA_DATA(attribute),sizeof(output_index));seen_output=1;
+  } else if(attribute->rta_type==RTA_GATEWAY||attribute->rta_type==RTA_MULTIPATH)indirect=1;
  }
  if(length)return 0;
  /* Default routes express egress policy, not ownership of every IPv4 address. */
@@ -27,8 +31,15 @@ static int wr_iot_route_prefix(struct wr_iot_inventory *out,const struct nlmsghd
  if(route->rtm_type!=RTN_UNICAST)return 1;
  mask=0xffffffffU<<(32-route->rtm_dst_len);
  if(address&~mask)return 0;
+ /* Ownership is a caller precondition. Exclude only this exact connected
+  * kernel prefix; preserve same-prefix routes through other interfaces. */
+ if(owned_index&&output_index==owned_index&&address==owned_network&&mask==owned_mask&&
+    route->rtm_protocol==RTPROT_KERNEL&&route->rtm_scope==RT_SCOPE_LINK&&!indirect)return 1;
  candidate=*out;
  if(!wr_iot_inventory_add(&candidate,address,mask))return 0;
  *out=candidate;return 1;
+}
+static int wr_iot_route_prefix(struct wr_iot_inventory *out,const struct nlmsghdr *message,size_t available) {
+ return wr_iot_route_prefix_owned(out,message,available,0,0,0);
 }
 #endif

@@ -48,6 +48,24 @@ int main(int argc,char **argv) {
   assert(!wr_iot_route_prefix(&inventory,&packet.h,sizeof(packet)));
   packet.h.nlmsg_flags=0;packet.address=htonl(0x0a320001U);
   assert(!wr_iot_route_prefix(&inventory,&packet.h,sizeof(packet)));
+  {
+   union {struct nlmsghdr alignment;unsigned char bytes[128];} expanded;
+   struct nlmsghdr *h=(struct nlmsghdr *)expanded.bytes;struct rtmsg *route;struct rtattr *oif;
+   uint32_t index=42;
+   packet.address=htonl(0x0a320000U);
+   memset(&expanded,0,sizeof(expanded));memcpy(expanded.bytes,&packet,sizeof(packet));
+   h->nlmsg_len=sizeof(packet)+RTA_LENGTH(sizeof(index));route=(struct rtmsg *)NLMSG_DATA(h);
+   route->rtm_protocol=RTPROT_KERNEL;route->rtm_scope=RT_SCOPE_LINK;
+   oif=(struct rtattr *)(expanded.bytes+sizeof(packet));oif->rta_type=RTA_OIF;oif->rta_len=RTA_LENGTH(sizeof(index));
+   memcpy(RTA_DATA(oif),&index,sizeof(index));
+   memset(&inventory,0,sizeof(inventory));
+   assert(wr_iot_route_prefix_owned(&inventory,h,h->nlmsg_len,42,0x0a320000U,0xffffff00U)&&inventory.count==0);
+   assert(wr_iot_route_prefix_owned(&inventory,h,h->nlmsg_len,43,0x0a320000U,0xffffff00U)&&inventory.count==1);
+   memset(&inventory,0,sizeof(inventory));route->rtm_protocol=RTPROT_STATIC;
+   assert(wr_iot_route_prefix_owned(&inventory,h,h->nlmsg_len,42,0x0a320000U,0xffffff00U)&&inventory.count==1);
+   memset(&inventory,0,sizeof(inventory));route->rtm_protocol=RTPROT_KERNEL;route->rtm_scope=RT_SCOPE_UNIVERSE;
+   assert(wr_iot_route_prefix_owned(&inventory,h,h->nlmsg_len,42,0x0a320000U,0xffffff00U)&&inventory.count==1);
+  }
   packet.address=htonl(0x0a320000U);packet.dst.rta_len=RTA_LENGTH(3);
   assert(!wr_iot_route_prefix(&inventory,&packet.h,sizeof(packet)));
  }
