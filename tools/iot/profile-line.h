@@ -8,7 +8,7 @@ static int wr_iot_profile_line(char *out,size_t capacity,const char *line,const 
   {"AuthMode","WPA2PSK"},{"EncrypType","AES"},{"WmmCapable","1"},
   {"DLSCapable","0"},{"NoForwarding","1"},{"HideSSID","0"},
   {"StationKeepAlive","0"},{"PreAuth","0"},{"IEEE8021X","0"},
-  {"FixedTxMode","0"},{"HT_MCS","33"}
+  {"FixedTxMode","0"},{"HT_MCS","33"},{"BndStrgBssIdx","0"}
  };
  const char *eq,*replacement=NULL;size_t length,key_size,i,value_size,total;int newline;
  char value[1024],extended[1200];
