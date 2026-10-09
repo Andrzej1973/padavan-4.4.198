@@ -120,5 +120,56 @@ for name in ('network-check.h','bridge.h','route-snapshot.h','subnet.h'):
 m.write_text(m.read_text(encoding='utf-8').replace('wr-iot-dhcp.o','wr-iot-dhcp.o wr-iot-network.o'),encoding='utf-8')
 report['dhcp_network_inventory_check']=True
 report['network_activation_guard']='wr_iot_network_t; interface and all-table route precheck installed; serialization and startup still pending'
+# Stage the main config only for the internal IoT gate; legacy OFF path is retained.
+service=f.read_text(encoding='utf-8')
+begin=service.index('int\nstart_dns_dhcpd(int is_ap_mode)')
+end=service.index('\nvoid\nstop_dns_dhcpd(void)',begin)
+part=service[begin:end]
+anchor='\tFILE *fp;'
+if part.count(anchor)!=1:raise SystemExit('DHCP staging local anchor changed')
+part=part.replace(anchor,anchor+'\n#if defined(BOARD_WR1200JS)\n char iot_candidate[32]="";\n#endif',1)
+anchor='\tif (!(fp = fopen("/etc/dnsmasq.conf", "w")))\n\t\treturn errno;'
+if part.count(anchor)!=1:raise SystemExit('DHCP config open anchor changed')
+opening=r"""#if defined(BOARD_WR1200JS)
+ if (nvram_get_int("wr_iot_network_t") == 1) {
+  int fd,saved;
+  strcpy(iot_candidate,"/etc/dnsmasq.iot.XXXXXX");
+  fd=mkstemp(iot_candidate);if(fd<0)return errno;
+  fp=fdopen(fd,"w");
+  if(!fp){saved=errno;close(fd);unlink(iot_candidate);return saved;}
+ } else
+#endif
+"""
+part=part.replace(anchor,opening+anchor,1)
+anchor='if (result<0) {fclose(fp);return EINVAL;}'
+if part.count(anchor)!=1:raise SystemExit('DHCP candidate rejection anchor changed')
+part=part.replace(anchor,'if (result<0) {fclose(fp);if(*iot_candidate)unlink(iot_candidate);return EINVAL;}',1)
+anchor='\tfclose(fp);\n\tif (is_dns_used)'
+if part.count(anchor)!=1:raise SystemExit('DHCP staged close anchor changed')
+closing=r"""#if defined(BOARD_WR1200JS)
+ if(*iot_candidate) {
+  int failed=ferror(fp);
+  if(fflush(fp)||fsync(fileno(fp)))failed=1;
+  if(fclose(fp))failed=1;
+  if(failed){unlink(iot_candidate);return EIO;}
+ } else
+#endif
+"""
+part=part.replace(anchor,closing+anchor,1)
+anchor='\tif (is_dns_used || is_dhcp_used)'
+if part.count(anchor)!=1:raise SystemExit('DHCP candidate parse anchor changed')
+commit=r"""#if defined(BOARD_WR1200JS)
+ if(*iot_candidate) {
+  char option[64];int saved;
+  snprintf(option,sizeof(option),"--conf-file=%s",iot_candidate);
+  if(eval("/usr/sbin/dnsmasq","--test",option)){unlink(iot_candidate);return EINVAL;}
+  if(rename(iot_candidate,"/etc/dnsmasq.conf")){saved=errno;unlink(iot_candidate);return saved;}
+ }
+#endif
+"""
+part=part.replace(anchor,commit+anchor,1)
+service=service[:begin]+part+service[end:];f.write_text(service,encoding='utf-8')
+report['iot_main_dnsmasq_config_staged']=True
+report['dnsmasq_service_rollback_complete']=False
 (a.source/'iot-rc-source.json').write_text(json.dumps(report,indent=2)+'\n')
 print('PASS WR-only IoT bridge object and owned quiescence source integration; activation pending')
