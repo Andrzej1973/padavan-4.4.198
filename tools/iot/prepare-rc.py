@@ -36,7 +36,9 @@ report={'board':'WR1200JS','candidate_bss':'ra2','bridge_object_installed':True,
 # Profile activation remains gated by an internal temporary preparation state.
 f=rc/'ralink.c';radio=f.read_text(encoding='utf-8')
 anchor='\tfclose(fp);\n\n\treturn 0;\n}\n\nint\ngen_ralink_config_2g'
-if radio.count(anchor)!=1:raise SystemExit('Profile completion anchor changed')
+coordinated='#ifdef USE_WR_BAND_STEERING_PROFILE\n\t{\n\t\tint failed = ferror(fp);'
+if radio.count(coordinated)==1:anchor=coordinated
+elif radio.count(anchor)!=1:raise SystemExit('Profile completion anchor changed')
 radio=radio.replace('static int\ngen_ralink_config(', '#if defined(BOARD_WR1200JS)\n#include "wr-iot/profile.h"\n#endif\n\nstatic int\ngen_ralink_config(',1)
 hook=r"""#if defined(BOARD_WR1200JS)
  if (!is_aband && nvram_get_int("wr_iot_profile_t") == 1) {
