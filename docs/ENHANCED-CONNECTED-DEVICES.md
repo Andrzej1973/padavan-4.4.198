@@ -1,4 +1,4 @@
-# Enhanced Connected Devices Р В Р вЂ Р В РІР‚С™Р Р†Р вЂљРЎСљ implementation contract
+# Enhanced Connected Devices Р В Р’В Р В РІР‚В Р В Р’В Р Р†Р вЂљРЎв„ўР В Р вЂ Р В РІР‚С™Р РЋРЎС™ implementation contract
 
 User request accepted 2026-10-09. WR1200JS homepage after login: readable, automatically refreshed device classification without excessive router work. The conservative browser classification core is implemented; collection, homepage integration, refresh and target runtime remain unverified.
 
@@ -36,7 +36,7 @@ Compute lightweight classification and grouping in the browser using a small loc
 
 Schedule in WR1200JS WebUI work, preserving firmware-port and current service-recovery priorities. No live router writes or flashing authorized by this feature request.
 
-## Mandatory automatic refresh and schedule Р В Р вЂ Р В РІР‚С™Р Р†Р вЂљРЎСљ clarified 2026-10-09
+## Mandatory automatic refresh and schedule Р В Р’В Р В РІР‚В Р В Р’В Р Р†Р вЂљРЎв„ўР В Р вЂ Р В РІР‚С™Р РЋРЎС™ clarified 2026-10-09
 
 Implement these device/roaming UI deliverables immediately after the current DNS/DHCP recovery integration and its verification, within the WR1200JS stage and before secondary-router expansion. Both components share a refresh lifecycle. Manual page reload is not an acceptable normal update mechanism: refresh visible data automatically, approximately every 5 seconds, retry after failures, show freshness/error state, preserve filters/expanded groups/scroll, and refresh immediately when a hidden tab becomes visible. One request in flight and a shared bounded cache prevent overlapping or per-browser repeated collection. History recording continues independently of hidden tabs.
 
@@ -73,3 +73,13 @@ This parser is not yet integrated with HTTP. Authenticated bounded JSON emission
 The fixtures exercise a 128-record maximum, small output buffers, hostile names, Unicode, emoji and invalid UTF-8, including a Python JSON round-trip. Native sanitizer execution and MIPS compilation are CI gates; the serializer is not an HTTP endpoint or a safe DOM renderer.
 
 The original parser CI directory-order error in ABI 213 was corrected; ABI 214 completed successfully. HTTP authentication, consistent locked input, cache generation and source freshness, radio/neighbor/DHCP merging, automatic homepage integration and runtime measurements remain incomplete.
+
+## Shared RAM cache checkpoint
+
+The pinned `httpd.c` uses a shared select/accept request loop; source inspection found no per-request fork or worker thread. `snapshot-cache.h` is designed for one cache in that process, shared across browser sessions. It invokes the supplied passive collector no more than once per five seconds, including after failures. Read failure preserves the last successful snapshot with Stale status; before any success it reports Unavailable. Recovery restores Current status.
+
+Content equality uses explicit record fields instead of structure padding. Unchanged content keeps its sequence; changed evidence increments it. Collection time is separate from source observation time and is not represented as proof that clients were just seen. The caller must supply a distinct collector/httpd-instance epoch after restart, rather than reusing only a boot ID with reset sequences. Clock rollback expires the cache deadline.
+
+Deterministic C fixtures cover repeated callers, unchanged sequences, failures/stale retention, recovery and instance reset. Native sanitizer execution and MIPS compilation are CI gates. The cache is not yet called by httpd; source locking/authentication, source-age evidence, HTTP status/JSON delivery, radio/neighbor/DHCP merging and homepage integration remain pending.
+
+ABI 215 completed successfully for the preceding JSON serializer and Unicode round-trip tests. Target behavior remains unverified.
