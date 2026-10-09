@@ -194,8 +194,8 @@ service=service.replace('int\nstart_dns_dhcpd(int is_ap_mode)', 'static int\nwr_
 service=service.replace('void\nstop_dns_dhcpd(void)', 'static void\nwr_iot_stop_dns_raw(void)',1)
 anchor='int\nrestart_dhcpd(void)\n{\n\tstop_dns_dhcpd();\n\treturn start_dns_dhcpd(get_ap_mode());\n}'
 if service.count(anchor)!=1:raise SystemExit('DNS restart serialization anchor changed')
-controller=(local/"restart-controller.inc").read_text(encoding="utf-8").replace('#include "dns-ready.h"','#include "wr-iot/dns-ready.h"').replace('#include "dns-config.h"','#include "wr-iot/dns-config.h"').replace('#include "dhcp-ready.h"','#include "wr-iot/dhcp-ready.h"')
-for name in ("dns-ready.h","dns-config.h","dhcp-ready.h"):(headers/name).write_bytes((local/name).read_bytes())
+controller=(local/"restart-controller.inc").read_text(encoding="utf-8").replace('#include "dns-ready.h"','#include "wr-iot/dns-ready.h"').replace('#include "dns-config.h"','#include "wr-iot/dns-config.h"').replace('#include "dhcp-ready.h"','#include "wr-iot/dhcp-ready.h"').replace('#include "dns-sockets.h"','#include "wr-iot/dns-sockets.h"')
+for name in ("dns-ready.h","dns-config.h","dhcp-ready.h","dns-sockets.h"):(headers/name).write_bytes((local/name).read_bytes())
 wrappers=r"""#if defined(BOARD_WR1200JS)
 static int wr_iot_dns_lock(void)
 {

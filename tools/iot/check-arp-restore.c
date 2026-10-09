@@ -20,18 +20,20 @@ static int injected_ioctl(int fd,unsigned long cmd,struct arpreq *req){
 #define WR_IOT_DNS_CONFIG_PATH "etc/dnsmasq.conf"
 static int controller_dns_ready(unsigned int port);
 #define WR_IOT_DNS_PROBE controller_dns_ready
-static int controller_running,controller_fault,controller_dns_bad,controller_dhcp_bad,controller_loop_bad;
+static int controller_running,controller_fault,controller_dns_bad,controller_dhcp_bad,controller_loop_bad,controller_socket_bad;
 static int controller_dhcp_ready(const char *address){assert(!strcmp(address,"192.168.1.1"));return !controller_dhcp_bad;}
 static int controller_gateway(const char *interface,char out[16]){assert(!strcmp(interface,"br0"));strcpy(out,"192.168.1.1");return 1;}
 static int controller_dns_lan(const char *address,unsigned int port){assert(!strcmp(address,"192.168.1.1")&&port==53);return !controller_dns_bad;}
 #define WR_IOT_DNS_LAN_PROBE controller_dns_lan
 #define WR_IOT_DHCP_PROBE controller_dhcp_ready
 #define WR_IOT_DHCP_GATEWAY controller_gateway
-static int controller_dns_ready(unsigned int port){assert(port==53);return !controller_dns_bad&&!controller_loop_bad;}
+static int controller_socket_ready(unsigned int port,int dhcp4){assert(port==53&&(dhcp4==0||dhcp4==1));return !controller_socket_bad;}
+#define WR_IOT_SOCKET_READY controller_socket_ready
+static int controller_dns_ready(unsigned int port){assert(port==53);return !controller_dns_bad&&!controller_loop_bad,controller_socket_bad;}
 static int is_dns_dhcpd_run(void){return controller_running;}
 static int get_ap_mode(void){return 0;}
 static void logmessage(const char *a,const char *b){assert(a&&b);}
-static void wr_iot_stop_dns_raw(void){controller_running=0;controller_dns_bad=0;controller_dhcp_bad=0;controller_loop_bad=0;}
+static void wr_iot_stop_dns_raw(void){controller_running=0;controller_dns_bad=0;controller_dhcp_bad=0;controller_loop_bad=0;controller_socket_bad=0;}
 static int wr_iot_start_dns_raw(int ap){
  FILE *fp;assert(!ap);assert(wr_iot_writer_journal_begin(1U));
  fp=wr_iot_writer_fopen("etc/dnsmasq.conf","w");assert(fp);assert(fputs("controller-new\ndhcp-range=192.168.1.20,192.168.1.200,3600\n",fp)>=0);assert(!wr_iot_writer_fclose(fp));
@@ -39,7 +41,7 @@ static int wr_iot_start_dns_raw(int ap){
  fp=fopen(WR_IOT_LEASE_PATH,"w");assert(fp);assert(fputs("lease-new\n",fp)>=0);assert(!fclose(fp));
  if(controller_fault==1||controller_fault==2)return EIO;
  if(controller_fault==3)wr_iot_writer_journal_error();
- controller_running=1;controller_dns_bad=controller_fault==4;controller_dhcp_bad=controller_fault==5;controller_loop_bad=controller_fault==7;return 0;
+ controller_running=1;controller_dns_bad=controller_fault==4;controller_dhcp_bad=controller_fault==5;controller_loop_bad=controller_fault==7;controller_socket_bad=controller_fault==8;return 0;
 }
 static int controller_launch(const char *path){assert(!strcmp(path,"/usr/sbin/dnsmasq"));if(controller_fault==2)return EIO;controller_running=1;return 0;}
 #define eval controller_launch
@@ -123,6 +125,8 @@ int main(void){
   fp=fopen(WR_IOT_LEASE_PATH,"r");assert(fp);assert(fgets(text,sizeof(text),fp));assert(!strcmp(text,"lease-old\n"));assert(!fclose(fp));
   controller_fault=4;assert(wr_iot_service_guard_enter(1)==1);
   assert(wr_iot_restart_transaction()==EIO);assert(!wr_iot_restart_active&&controller_running&&!controller_dns_bad);wr_iot_service_guard_leave(1);
+  controller_fault=8;assert(wr_iot_service_guard_enter(1)==1);
+  assert(wr_iot_restart_transaction()==EIO);assert(!wr_iot_restart_active&&controller_running&&!controller_socket_bad);wr_iot_service_guard_leave(1);
   controller_fault=5;assert(wr_iot_service_guard_enter(1)==1);
   assert(wr_iot_restart_transaction()==EIO);assert(!wr_iot_restart_active&&controller_running&&!controller_dhcp_bad);wr_iot_service_guard_leave(1);
   controller_fault=2;assert(wr_iot_service_guard_enter(1)==1);

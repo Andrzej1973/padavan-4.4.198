@@ -4,6 +4,7 @@
 #include "dns-ready.h"
 #include "dns-config.h"
 #include "dhcp-ready.h"
+#include "dns-sockets.h"
 #ifndef WR_IOT_DNS_CONFIG_PATH
 #define WR_IOT_DNS_CONFIG_PATH "/etc/dnsmasq.conf"
 #endif
@@ -18,6 +19,14 @@
 #endif
 #ifndef WR_IOT_DHCP_GATEWAY
 #define WR_IOT_DHCP_GATEWAY wr_iot_dhcp_gateway
+#endif
+#ifndef WR_IOT_SOCKET_READY
+static int wr_iot_restart_socket_ready(unsigned int port,int dhcp4)
+{
+ struct wr_iot_dns_sockets sockets;
+ return wr_iot_dns_selected_sockets("/usr/sbin/dnsmasq",&sockets)&&sockets.dns_port==port&&(!dhcp4||sockets.dhcp_standard);
+}
+#define WR_IOT_SOCKET_READY wr_iot_restart_socket_ready
 #endif
 #ifndef WR_IOT_SERVICE_LOCK_PATH
 #define WR_IOT_SERVICE_LOCK_PATH "/var/run/wr-iot-services.lock"
@@ -48,7 +57,7 @@ static int wr_iot_restart_service_wait(unsigned int port,int dhcp4,const char *g
 {
  int i;
  for(i=0;i<20;i++){
-  if(is_dns_dhcpd_run()&&(!port||WR_IOT_DNS_PROBE(port)||(gateway[0]&&WR_IOT_DNS_LAN_PROBE(gateway,port)))&&(!dhcp4||WR_IOT_DHCP_PROBE(gateway)))return 1;
+  if(is_dns_dhcpd_run()&&WR_IOT_SOCKET_READY(port,dhcp4)&&(!port||WR_IOT_DNS_PROBE(port)||(gateway[0]&&WR_IOT_DNS_LAN_PROBE(gateway,port)))&&(!dhcp4||WR_IOT_DHCP_PROBE(gateway)))return 1;
   usleep(50000);
  }
  return 0;
