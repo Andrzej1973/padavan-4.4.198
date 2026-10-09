@@ -16,7 +16,7 @@
  * Config grammar uses ASCII whitespace and decimal digits, independent of locale. */
 static inline int wr_iot_dns_space(unsigned char c){return c==' '||(c>=9&&c<=13);}
 static inline int wr_iot_dns_digit(unsigned char c){return c>='0'&&c<='9';}
-struct wr_iot_dns_config_budget {unsigned int files;size_t bytes;int dhcp4;};
+struct wr_iot_dns_config_budget {unsigned int files;size_t bytes;int dhcp4;unsigned int dhcp_server;};
 static inline char *wr_iot_dns_trim(char *value){
  char *end;while(*value==' ')value++;
  end=value+strlen(value);while(end>value&&end[-1]==' ')*--end=0;
@@ -59,6 +59,20 @@ static inline int wr_iot_dns_config_dhcp4(char *value){
   return inet_pton(AF_INET,token,&address)==1;
  }
  return 0;
+}
+static inline int wr_iot_dns_config_dhcp_ports(char *value,unsigned int *server){
+ char *comma=strchr(value,','),*end;unsigned long first,second;
+ if(comma)*comma++=0;
+ wr_iot_dns_unhide(value);if(comma)wr_iot_dns_unhide(comma);
+ if(!*value)return 0;
+ for(end=value;*end;end++)if(!wr_iot_dns_digit((unsigned char)*end))return 0;
+ first=strtoul(value,&end,10);if(*end||first>65535)return 0;
+ if(comma){
+  if(!*comma)return 0;
+  for(end=comma;*end;end++)if(!wr_iot_dns_digit((unsigned char)*end))return 0;
+  second=strtoul(comma,&end,10);if(*end||second>65535)return 0;
+ }
+ *server=(unsigned int)first;return 1;
 }
 static inline int wr_iot_dns_config_read(const char *,unsigned int,struct wr_iot_dns_config_budget *,unsigned int *);
 static inline int wr_iot_dns_config_dir(char *spec,unsigned int depth,struct wr_iot_dns_config_budget *budget,unsigned int *port){
@@ -105,7 +119,7 @@ static inline int wr_iot_dns_config_read(const char *path,unsigned int depth,str
   char *key,*equal,*value,*end;size_t n=strlen(line);unsigned long parsed;
   budget->bytes+=n;if(budget->bytes>262144||(!strchr(line,'\n')&&!feof(fp))){ok=0;break;}
   if(!wr_iot_dns_config_comments(line)){ok=0;break;}key=wr_iot_dns_trim(line);if(!*key)continue;
-  equal=strchr(key,'=');if(!equal){if(!strcmp(key,"conf-dir")||!strcmp(key,"conf-script")||!strcmp(key,"conf-file")||!strcmp(key,"port")){ok=0;break;}continue;}
+  equal=strchr(key,'=');if(!equal){if(!strcmp(key,"dhcp-alternate-port")){budget->dhcp_server=1067;continue;}if(!strcmp(key,"conf-dir")||!strcmp(key,"conf-script")||!strcmp(key,"conf-file")||!strcmp(key,"port")){ok=0;break;}continue;}
   *equal=0;key=wr_iot_dns_trim(key);value=wr_iot_dns_trim(equal+1);
   if(!strcmp(key,"port")){
    wr_iot_dns_unhide(value);
@@ -119,16 +133,20 @@ static inline int wr_iot_dns_config_read(const char *path,unsigned int depth,str
    if(!wr_iot_dns_config_read(value,depth+1,budget,port)){ok=0;break;}
   }else if(!strcmp(key,"conf-dir")){if(!wr_iot_dns_config_dir(value,depth,budget,port)){ok=0;break;}}
   else if(!strcmp(key,"conf-script")){ok=0;break;}
+  else if(!strcmp(key,"dhcp-alternate-port")){if(!wr_iot_dns_config_dhcp_ports(value,&budget->dhcp_server)){ok=0;break;}}
   else if(!strcmp(key,"dhcp-range")){if(wr_iot_dns_config_dhcp4(value))budget->dhcp4=1;}
  }
  if(ferror(fp))ok=0;
  if(fclose(fp))ok=0;
  return ok;
 }
-static inline int wr_iot_dns_config_services(const char *path,unsigned int *out,int *dhcp4){
- struct wr_iot_dns_config_budget budget={0,0,0};unsigned int port=53;
+static inline int wr_iot_dns_config_services_at(const char *path,unsigned int *out,int *dhcp4,unsigned int *dhcp_server){
+ struct wr_iot_dns_config_budget budget={0,0,0,67};unsigned int port=53;
  if(!path||!out||!wr_iot_dns_config_read(path,0,&budget,&port))return 0;
- *out=port;if(dhcp4)*dhcp4=budget.dhcp4;return 1;
+ *out=port;if(dhcp4)*dhcp4=budget.dhcp4;if(dhcp_server)*dhcp_server=budget.dhcp_server;return 1;
+}
+static inline int wr_iot_dns_config_services(const char *path,unsigned int *out,int *dhcp4){
+ return wr_iot_dns_config_services_at(path,out,dhcp4,NULL);
 }
 static inline int wr_iot_dns_config_port(const char *path,unsigned int *out){
  return wr_iot_dns_config_services(path,out,NULL);

@@ -27,6 +27,14 @@ int main(void){char dir[]="/tmp/iot-dns-config-XXXXXX";unsigned int port=999;
   put("main","dhcp-range=lan,192.168.1.20,192.168.1.200,3600\n");assert(wr_iot_dns_config_services("main",&port,&dhcp4)&&dhcp4==1);
   put("main","port=65536\n");port=999;dhcp4=99;assert(!wr_iot_dns_config_services("main",&port,&dhcp4)&&port==999&&dhcp4==99);
  }
+ {unsigned int server=999;int dhcp4=99;
+  put("main","dhcp-alternate-port\n");assert(wr_iot_dns_config_services_at("main",&port,&dhcp4,&server)&&server==1067);
+  put("main","dhcp-alternate-port=2067,2068\n");assert(wr_iot_dns_config_services_at("main",&port,&dhcp4,&server)&&server==2067);
+  put("extra","dhcp-alternate-port=3067\n");put("main","conf-file=extra\n");assert(wr_iot_dns_config_services_at("main",&port,&dhcp4,&server)&&server==3067);
+  put("main","dhcp-alternate-port=65536\n");port=999;dhcp4=99;server=999;assert(!wr_iot_dns_config_services_at("main",&port,&dhcp4,&server)&&port==999&&dhcp4==99&&server==999);
+  put("main","dhcp-alternate-port=1067,invalid\n");assert(!wr_iot_dns_config_services_at("main",&port,&dhcp4,&server)&&server==999);
+  put("main","cache-size=100\n");assert(wr_iot_dns_config_services_at("main",&port,&dhcp4,&server)&&server==67);
+ }
  assert(!mkdir("additional",0700));put("additional/b.conf","port=1054\n");put("additional/a.conf","port=1053\n");put("additional/.hidden","port=65536\n");put("additional/c.bak","port=65536\n");
  put("main","conf-dir=additional,*.conf,.bak\n");assert(wr_iot_dns_config_port("main",&port)&&port==1054);
  assert(!unlink("additional/a.conf"));assert(!unlink("additional/b.conf"));assert(!unlink("additional/.hidden"));assert(!unlink("additional/c.bak"));assert(!rmdir("additional"));
