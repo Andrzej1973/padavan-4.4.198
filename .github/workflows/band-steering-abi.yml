@@ -905,6 +905,8 @@ jobs:
             -c iot-rc-source/trunk/user/rc/wr-iot-bridge.c -o abi-results/iot-rc-bridge-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
             -c iot-rc-source/trunk/user/rc/wr-iot-profile.c -o abi-results/iot-rc-profile-mips.o
+          "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+            -c iot-rc-source/trunk/user/rc/wr-iot-dhcp.c -o abi-results/iot-rc-dhcp-mips.o
 
       - name: Check actual RC radio-stop behavior with and without WR ownership
         shell: bash
@@ -940,6 +942,14 @@ jobs:
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
             -DBOARD_WR1200JS -DUSE_WR_BAND_STEERING_PROFILE -Itools/shared-wifi \
             -c abi-results/check-iot-profile-completion.c -o abi-results/iot-profile-completion-mips.o
+
+      - name: Check IoT DHCP writer preservation and validation
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            tools/iot/dhcp-write.c tools/iot/check-dhcp-write.c -o abi-results/check-iot-dhcp-write
+          abi-results/check-iot-dhcp-write | tee abi-results/iot-dhcp-write.txt
 
       - name: Upload ABI diagnostics
         if: always()

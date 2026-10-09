@@ -23,6 +23,8 @@ on:
       - 'tools/iot/prepare-rc.py'
       - 'tools/iot/profile*.h'
       - 'tools/iot/profile.c'
+      - 'tools/iot/dhcp-write.c'
+      - 'tools/iot/dhcp*.h'
       - 'tools/iot/bridge.*'
       - 'tools/iot/types.h'
       - 'tools/iot/subnet.h'

@@ -66,5 +66,46 @@ m.write_text(m.read_text(encoding='utf-8').replace('OBJS += wr-iot-bridge.o','OB
 f.write_text(radio,encoding='utf-8')
 report['profile_hook_installed']=True
 report['profile_activation_guard']='wr_iot_profile_t; no startup sets this state yet'
+# Only a future validated network snapshot may activate this service fragment.
+f=rc/'services_ex.c';service=f.read_text(encoding='utf-8')
+anchor='int\nstart_dns_dhcpd(int is_ap_mode)'
+if service.count(anchor)!=1:raise SystemExit('DHCP service anchor changed')
+helper=r"""#if defined(BOARD_WR1200JS)
+#include "wr-iot/dhcp-write.h"
+static int wr_iot_dnsmasq(FILE *fp,int is_ap_mode,const char *lan_ip,const char *lan_mask)
+{
+ const char *keys[]={"wr_iot_gateway_t","wr_iot_mask_t","wr_iot_start_t","wr_iot_end_t"};
+ char values[4][16];const char *value;size_t i,n;
+ if (nvram_get_int("wr_iot_network_t") != 1) return 0;
+ for (i=0;i<4;i++) {
+  value=nvram_safe_get(keys[i]);n=strlen(value);
+  if (n>=sizeof(values[i])) return -1;
+  memcpy(values[i],value,n+1);
+ }
+ return wr_iot_dhcp_write(fp,!is_ap_mode,values[0],values[1],values[2],values[3],lan_ip,lan_mask)?1:-1;
+}
+#endif
+
+"""
+service=service.replace(anchor,helper+anchor,1)
+anchor='\tif (is_dhcp_used & 0x1) {'
+if service.count(anchor)!=1:raise SystemExit('DHCP lease configuration anchor changed')
+hook=r"""#if defined(BOARD_WR1200JS)
+ {
+  int result=wr_iot_dnsmasq(fp,is_ap_mode,ipaddr,netmask);
+  if (result<0) {fclose(fp);return EINVAL;}
+  if (result>0) is_dhcp_used |= 0x1;
+ }
+#endif
+
+"""
+service=service.replace(anchor,hook+anchor,1)
+for name in ('dhcp-write.h','dhcp.h'):(headers/name).write_bytes((local/name).read_bytes())
+writer=(local/'dhcp-write.c').read_text(encoding='utf-8').replace('#include "dhcp-write.h"','#include "wr-iot/dhcp-write.h"').replace('#include "dhcp.h"','#include "wr-iot/dhcp.h"')
+(rc/'wr-iot-dhcp.c').write_text(writer,encoding='utf-8')
+m.write_text(m.read_text(encoding='utf-8').replace('wr-iot-bridge.o wr-iot-profile.o','wr-iot-bridge.o wr-iot-profile.o wr-iot-dhcp.o'),encoding='utf-8')
+f.write_text(service,encoding='utf-8')
+report['dhcp_hook_installed']=True
+report['network_activation_guard']='wr_iot_network_t; no startup sets this state yet; full route/VPN validation still required'
 (a.source/'iot-rc-source.json').write_text(json.dumps(report,indent=2)+'\n')
 print('PASS WR-only IoT bridge object and owned quiescence source integration; activation pending')
