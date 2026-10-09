@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Pinned native dnsmasq DHCP/DNS transactions in disposable namespaces."""
-import ctypes,json,os,socket,struct,subprocess,sys,time
+import ctypes,json,os,socket,struct,subprocess,sys,time,select
 from pathlib import Path
 if os.geteuid()!=0 or not os.environ.get('WR_IOT_PARENT_NETNS') or os.readlink('/proc/self/ns/net')==os.environ['WR_IOT_PARENT_NETNS']:
  raise SystemExit('Requires root in a new isolated network namespace')
-r=Path(sys.argv[1]).resolve();daemon=Path(sys.argv[2]).resolve();checks={};frames=[];libc=ctypes.CDLL(None,use_errno=True)
+r=Path(sys.argv[1]).resolve();daemon=Path(sys.argv[2]).resolve();checks={};frames=[];root_frames=[];libc=ctypes.CDLL(None,use_errno=True)
 def run(*args):return subprocess.run(args,check=True,capture_output=True,text=True)
 run('mount','--make-rprivate','/');run('mount','-t','sysfs','sysfs','/sys');run('mount','-t','tmpfs','tmpfs','/run/netns')
 run('ip','link','set','lo','up');run(str(r/'check-iot-bridge'),'prepare')
@@ -38,7 +38,7 @@ def client_socket(name,port=0,broadcast=False):
 def dhcp_receiver(name):
  fd=os.open('/run/netns/'+name,os.O_RDONLY)
  try:
-  switch(fd);s=socket.socket(socket.AF_PACKET,socket.SOCK_RAW,socket.htons(0x0800));s.bind(('eth0',0x0800));s.settimeout(1);return s
+  switch(fd);s=socket.socket(socket.AF_PACKET,socket.SOCK_RAW,socket.htons(0x0003));s.bind(('eth0',0x0003));s.settimeout(1);return s
  finally:switch(original);os.close(fd)
 
 def dhcp_payload(frame):
@@ -88,9 +88,10 @@ def dns(name,gateway):
  with client_socket(name) as s:s.sendto(query,(gateway,53));data,_=s.recvfrom(4096)
  ident,flags,qd,an,_,_=struct.unpack('!6H',data[:12]);assert ident==0x1234 and flags&0x8000 and flags&15==0 and qd==1 and an>=1
  assert data[-4:]==socket.inet_aton('192.0.2.10')
+root_receiver=socket.socket(socket.AF_PACKET,socket.SOCK_RAW,socket.htons(0x0003));root_receiver.setblocking(False)
 log=(r/'iot-dnsmasq-transactions.log').open('w');process=None
 try:
- process=subprocess.Popen([str(daemon),'--keep-in-foreground','--user=root','--conf-file='+str(conf),'--pid-file='+str(r/'iot-dnsmasq.pid'),'--dhcp-leasefile='+str(r/'iot-dnsmasq.leases')],stdout=log,stderr=log)
+ process=subprocess.Popen([str(daemon),'--keep-in-foreground','--user=root','--conf-file='+str(conf),'--pid-file='+str(r/'iot-dnsmasq.pid'),'--dhcp-leasefile='+str(r/'iot-dnsmasq.leases'),'--dumpfile='+str(r/'iot-dhcp-daemon.pcap'),'--dumpmask=0x1000'],stdout=log,stderr=log)
  deadline=time.monotonic()+5
  while True:
   if process.poll() is not None:raise RuntimeError('dnsmasq exited; inspect transaction log')
@@ -104,6 +105,13 @@ try:
  (r/'iot-dhcp-transactions.json').write_text(json.dumps({'checks':checks,'scope':'Pinned native dnsmasq host DHCP OFFER/ACK and DNS over isolated IoT/LAN with generated firewall; production RC and target runtime unverified','runtime_verified':False},indent=2)+'\n')
  print('PASS pinned dnsmasq IoT and main LAN DHCP/DNS transactions with isolation rules')
 finally:
+ while select.select([root_receiver],[],[],0)[0]:
+  frame,info=root_receiver.recvfrom(8192);root_frames.append({'interface':info[0],'kind':info[2],'length':len(frame),'head':frame[:96].hex()})
+ root_receiver.close()
+ (r/'iot-dhcp-root-frames.json').write_text(json.dumps(root_frames,indent=2)+'\n')
+ for name in ('iot','lan'):
+  result=subprocess.run(['ip','-n',name,'-details','-statistics','link','show'],capture_output=True,text=True)
+  (r/('iot-dhcp-client-'+name+'-links.txt')).write_text(result.stdout+result.stderr)
  (r/'iot-dhcp-client-frames.json').write_text(json.dumps(frames,indent=2)+'\n')
  for label,args in [('filter-counters',['iptables-legacy-save','-c']),('links',['ip','-details','-statistics','link','show']),('bridge',['bridge','-details','link','show'])]:
   result=subprocess.run(args,capture_output=True,text=True)
