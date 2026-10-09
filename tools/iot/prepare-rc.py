@@ -375,6 +375,13 @@ for filename,names in [('services_ex.c',['fill_static_ethers_owned_body','wr_iot
   if source.count(anchor)!=1:raise SystemExit('DNS servers startup anchor changed')
   source=source.replace(anchor,anchor+'\n#if defined(BOARD_WR1200JS)\n if(wr_iot_writer_journal_failed()){if(*iot_candidate)unlink(iot_candidate);return EIO;}\n#endif',1)
  path.write_text(source,encoding='utf-8')
+path=rc/'net_wan.c';source=path.read_text(encoding='utf-8')
+for call in ['sethostname(lan_hname, strlen(lan_hname))','setdomainname(lan_dname, strlen(lan_dname))']:
+ anchor='\t'+call+';'
+ if source.count(anchor)!=1:raise SystemExit('UTS setter anchor changed: '+call)
+ source=source.replace(anchor,'#if defined(BOARD_WR1200JS)\n if('+call+')wr_iot_writer_journal_error();\n#else\n'+anchor+'\n#endif',1)
+path.write_text(source,encoding='utf-8')
+report['uts_setter_errors_latched']=True
 report['owned_auxiliary_stdio_failures_latched']=True
 report['uts_and_permanent_arp_writer_bodies_instrumented']=True
 report['auxiliary_dns_writer_bodies_journal_instrumented']=True

@@ -25,7 +25,8 @@ static int wr_iot_start_dns_raw(int ap){
  FILE *fp;assert(!ap);assert(wr_iot_writer_journal_begin(1U));
  fp=wr_iot_writer_fopen("etc/dnsmasq.conf","w");assert(fp);assert(fputs("controller-new\n",fp)>=0);assert(!wr_iot_writer_fclose(fp));
  assert(wr_iot_writer_journal_end(1U));
- if(controller_fault)return EIO;
+ if(controller_fault==1||controller_fault==2)return EIO;
+ if(controller_fault==3)wr_iot_writer_journal_error();
  controller_running=1;return 0;
 }
 static int controller_launch(const char *path){assert(!strcmp(path,"/usr/sbin/dnsmasq"));if(controller_fault==2)return EIO;controller_running=1;return 0;}
@@ -104,6 +105,8 @@ int main(void){
   assert(wr_iot_restart_transaction()==EIO);assert(!wr_iot_restart_active&&controller_running);
   wr_iot_service_guard_leave(1);
   fp=fopen("etc/dnsmasq.conf","r");assert(fp);assert(fgets(text,sizeof(text),fp));assert(!strcmp(text,"previous\n"));assert(!fclose(fp));
+  controller_fault=3;assert(wr_iot_service_guard_enter(1)==1);
+  assert(wr_iot_restart_transaction()==EIO);assert(!wr_iot_restart_active&&controller_running);wr_iot_service_guard_leave(1);
   controller_fault=2;assert(wr_iot_service_guard_enter(1)==1);
   assert(wr_iot_restart_transaction()==EIO);assert(wr_iot_restart_active&&!controller_running);
   wr_iot_service_guard_leave(1);assert(wr_iot_restart_guard==1);

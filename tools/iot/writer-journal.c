@@ -75,3 +75,5 @@ int wr_iot_writer_fclose(FILE *stream){
  if(bound&&(stream_failed||result))failed=1;
  return result;
 }
+
+void wr_iot_writer_journal_error(void){if(bound)failed=1;}
