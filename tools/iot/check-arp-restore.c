@@ -50,7 +50,12 @@ int main(void){
   wr_iot_service_state_init(&state);assert(wr_iot_uts_capture(&old_uts));assert(wr_iot_service_state_begin(&state,"service.lock","br0"));
   fp=fopen("etc/dnsmasq.conf","w");assert(fp);assert(fputs("candidate\n",fp)>=0);assert(!fclose(fp));
   assert(!sethostname("iot-candidate",13));assert(!setdomainname("candidate.invalid",17));
-  assert(wr_iot_service_state_seal(&state,"service.lock"));assert(wr_iot_service_state_recover(&state,"service.lock"));
+  assert(wr_iot_service_state_seal(&state,"service.lock"));
+  assert(!sethostname("foreign-writer",14));
+  assert(!wr_iot_service_state_recover(&state,"service.lock"));
+  assert(!wr_iot_service_state_finish(&state,"service.lock"));assert(state.transaction.active&&state.transaction.lock.fd>=0);
+  /* Simulate the foreign writer undoing its own change before recovery retry. */
+  assert(!sethostname("iot-candidate",13));assert(wr_iot_service_state_recover(&state,"service.lock"));
   assert(wr_iot_uts_capture(&now));assert(!strcmp(old_uts.hostname,now.hostname)&&!strcmp(old_uts.domain,now.domain));
   fp=fopen("etc/dnsmasq.conf","r");assert(fp);assert(fgets(text,sizeof(text),fp));assert(!strcmp(text,"previous\n"));assert(!fclose(fp));
   assert(wr_iot_service_state_finish(&state,"service.lock"));

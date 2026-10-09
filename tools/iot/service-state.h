@@ -9,7 +9,7 @@ struct wr_iot_service_state {
  struct wr_iot_service_transaction transaction;
  struct wr_iot_uts_state saved_uts,expected_uts;
  struct wr_iot_arp_state saved_arp,expected_arp;
- int sealed,uts_done;
+ int sealed,uts_done,recover_started,recovered;
 };
 static inline void wr_iot_service_state_init(struct wr_iot_service_state *s){
  memset(s,0,sizeof(*s));wr_iot_service_transaction_init(&s->transaction);
@@ -19,7 +19,7 @@ static inline int wr_iot_service_state_begin(struct wr_iot_service_state *s,cons
  if(!wr_iot_uts_capture(&s->saved_uts)||!wr_iot_arp_capture(lan,&s->saved_arp)||!wr_iot_arp_valid(&s->saved_arp)){
   wr_iot_bundle_release(&s->transaction.files);wr_iot_service_lock_release(&s->transaction.lock);s->transaction.active=0;return 0;
  }
- s->sealed=0;s->uts_done=0;return 1;
+ s->sealed=0;s->uts_done=0;s->recover_started=0;s->recovered=0;return 1;
 }
 static inline int wr_iot_service_state_seal(struct wr_iot_service_state *s,const char *lock){
  struct wr_iot_uts_state uts;struct wr_iot_arp_state arp;
@@ -31,6 +31,7 @@ static inline int wr_iot_service_state_seal(struct wr_iot_service_state *s,const
 static inline int wr_iot_service_state_recover(struct wr_iot_service_state *s,const char *lock){
  struct wr_iot_uts_state current;int files,arp,uts=0;
  if(!s||!s->sealed||!s->transaction.active||!wr_iot_service_lock_valid(&s->transaction.lock,lock))return 0;
+ s->recover_started=1;s->recovered=0;
  files=wr_iot_service_transaction_restore(&s->transaction,lock);
  arp=wr_iot_arp_recover(&s->saved_arp,&s->expected_arp);
  if(wr_iot_uts_capture(&current)&&!strcmp(current.hostname,s->expected_uts.hostname)&&!strcmp(current.domain,s->expected_uts.domain)){
@@ -42,11 +43,11 @@ static inline int wr_iot_service_state_recover(struct wr_iot_service_state *s,co
    }
   }
  }
- s->uts_done=uts;return files&&arp&&uts;
+ s->uts_done=uts;s->recovered=files&&arp&&uts;return s->recovered;
 }
 /* Caller verifies daemon recovery/start before releasing retained backups. */
 static inline int wr_iot_service_state_finish(struct wr_iot_service_state *s,const char *lock){
- if(!s||!s->sealed||!wr_iot_service_transaction_finish(&s->transaction,lock))return 0;
+ if(!s||!s->sealed||(s->recover_started&&!s->recovered)||!wr_iot_service_transaction_finish(&s->transaction,lock))return 0;
  s->sealed=0;return 1;
 }
 #endif
