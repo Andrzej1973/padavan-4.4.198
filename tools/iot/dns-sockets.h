@@ -10,7 +10,12 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-struct wr_iot_dns_sockets {unsigned int dns_port;int dhcp_standard;};
+struct wr_iot_dns_sockets {unsigned int dns_port;int dhcp_standard;unsigned int udp_ports[256],udp_count;};
+static inline int wr_iot_dns_has_udp_port(const struct wr_iot_dns_sockets *state,unsigned int port){
+ unsigned int i;if(!state||state->udp_count>256||!port||port>65535)return 0;
+ for(i=0;i<state->udp_count;i++)if(state->udp_ports[i]==port)return 1;
+ return 0;
+}
 struct wr_iot_dns_process_identity {unsigned long long start;dev_t device;ino_t executable;};
 static inline int wr_iot_dns_start_time(const char *line,unsigned long long *out){
  const char *p;char *end;unsigned int field;unsigned long long start;
@@ -66,7 +71,10 @@ static inline int wr_iot_dns_socket_table(const char *path,int tcp,const unsigne
    if(state->dns_port&&state->dns_port!=port){ok=0;break;}
    state->dns_port=(unsigned int)port;
   }
-  if(!tcp&&port==67)state->dhcp_standard=1;
+  if(!tcp&&port){
+   if(!wr_iot_dns_has_udp_port(state,(unsigned int)port)){if(state->udp_count==256){ok=0;break;}state->udp_ports[state->udp_count++]=(unsigned int)port;}
+   if(port==67)state->dhcp_standard=1;
+  }
  }
  if(ferror(fp))ok=0;
  if(fclose(fp))ok=0;
@@ -74,7 +82,7 @@ static inline int wr_iot_dns_socket_table(const char *path,int tcp,const unsigne
 }
 static inline int wr_iot_dns_process_sockets(pid_t pid,struct wr_iot_dns_sockets *out){
  char path[64],link[512];unsigned long long owned[256];unsigned int count=0,entries=0;DIR *dir;struct dirent *entry;int ok=1;
- struct wr_iot_dns_sockets result={0,0};struct wr_iot_dns_process_identity before,after;
+ struct wr_iot_dns_sockets result={0};struct wr_iot_dns_process_identity before,after;
  if(pid<=0||!out||!wr_iot_dns_process_identity(pid,&before))return 0;
  if(snprintf(path,sizeof(path),"/proc/%ld/fd",(long)pid)<0)return 0;
  dir=opendir(path);if(!dir)return 0;

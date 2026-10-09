@@ -145,6 +145,23 @@ try:
   time.sleep(0.05)
  assert subprocess.run([str(r/'check-iot-dns-handler'),'53'],capture_output=True).returncode!=0
  checks['local_dns_handler_lan_with_loopback_excluded']=True
+ process.terminate();process.wait(timeout=3)
+ conf.write_text(config+'dhcp-alternate-port=1067,1068\n')
+ process=subprocess.Popen([str(daemon),'--keep-in-foreground','--user=root','--conf-file='+str(conf),'--pid-file='+str(r/'iot-dnsmasq.pid'),'--dhcp-leasefile='+str(lease_path)],stdout=log,stderr=log)
+ deadline=time.monotonic()+5
+ while True:
+  result=subprocess.run([str(r/'check-iot-dhcp-ready'),'1067','192.168.1.1'],capture_output=True,text=True)
+  if result.returncode==0:break
+  if process.poll() is not None or time.monotonic()>deadline:raise RuntimeError('DHCPINFORM handler did not respond on alternate server port')
+  time.sleep(0.05)
+ run(str(r/'check-iot-dns-sockets'),'--udp-port',str(daemon),'1067')
+ assert subprocess.run([str(r/'check-iot-dns-sockets'),'--udp-port',str(daemon),'67'],capture_output=True).returncode!=0
+ before=lease_path.read_bytes() if lease_path.exists() else None
+ run(str(r/'check-iot-dhcp-ready'),'1067','192.168.1.1')
+ run(str(r/'check-iot-dhcp-ready'),'1067','192.168.50.1')
+ time.sleep(0.1)
+ assert before==(lease_path.read_bytes() if lease_path.exists() else None), 'Alternate-port DHCPINFORM changed leases'
+ checks['alternate_dhcp_server_port_socket_and_inform']=True
  (r/'iot-dhcp-transactions.json').write_text(json.dumps({'checks':checks,'scope':'Pinned native dnsmasq host DHCP OFFER/ACK and DNS over isolated IoT/LAN with generated firewall; production RC and target runtime unverified','runtime_verified':False},indent=2)+'\n')
  print('PASS pinned dnsmasq IoT and main LAN DHCP/DNS transactions with isolation rules')
 finally:

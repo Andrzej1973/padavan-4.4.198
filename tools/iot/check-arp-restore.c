@@ -21,13 +21,13 @@ static int injected_ioctl(int fd,unsigned long cmd,struct arpreq *req){
 static int controller_dns_ready(unsigned int port);
 #define WR_IOT_DNS_PROBE controller_dns_ready
 static int controller_running,controller_fault,controller_dns_bad,controller_dhcp_bad,controller_loop_bad,controller_socket_bad;
-static int controller_dhcp_ready(const char *address){assert(!strcmp(address,"192.168.1.1"));return !controller_dhcp_bad;}
+static int controller_dhcp_ready(const char *address,unsigned int port){assert(!strcmp(address,"192.168.1.1")&&(port==67||port==1067));return !controller_dhcp_bad;}
 static int controller_gateway(const char *interface,char out[16]){assert(!strcmp(interface,"br0"));strcpy(out,"192.168.1.1");return 1;}
 static int controller_dns_lan(const char *address,unsigned int port){assert(!strcmp(address,"192.168.1.1")&&port==53);return !controller_dns_bad;}
 #define WR_IOT_DNS_LAN_PROBE controller_dns_lan
 #define WR_IOT_DHCP_PROBE controller_dhcp_ready
 #define WR_IOT_DHCP_GATEWAY controller_gateway
-static int controller_socket_ready(unsigned int port,int dhcp4){assert(port==53&&(dhcp4==0||dhcp4==1));return !controller_socket_bad;}
+static int controller_socket_ready(unsigned int port,int dhcp4,unsigned int dhcp_port){assert(port==53&&(dhcp4==0||dhcp4==1)&&(dhcp_port==67||dhcp_port==1067));return !controller_socket_bad;}
 #define WR_IOT_SOCKET_READY controller_socket_ready
 static int controller_dns_ready(unsigned int port){assert(port==53);return !controller_dns_bad&&!controller_loop_bad;}
 static int is_dns_dhcpd_run(void){return controller_running;}
@@ -129,6 +129,9 @@ int main(void){
   assert(wr_iot_restart_transaction()==EIO);assert(!wr_iot_restart_active&&controller_running&&!controller_socket_bad);wr_iot_service_guard_leave(1);
   controller_fault=5;assert(wr_iot_service_guard_enter(1)==1);
   assert(wr_iot_restart_transaction()==EIO);assert(!wr_iot_restart_active&&controller_running&&!controller_dhcp_bad);wr_iot_service_guard_leave(1);
+  fp=fopen("etc/dnsmasq.conf","w");assert(fp);assert(fputs("dhcp-range=192.168.1.20,192.168.1.200,3600\ndhcp-alternate-port\n",fp)>=0);assert(!fclose(fp));
+  controller_fault=8;assert(wr_iot_service_guard_enter(1)==1);
+  assert(wr_iot_restart_transaction()==EIO);assert(!wr_iot_restart_active&&controller_running&&wr_iot_restart_old_dhcp_port==1067);wr_iot_service_guard_leave(1);
   controller_fault=2;assert(wr_iot_service_guard_enter(1)==1);
   assert(wr_iot_restart_transaction()==EIO);assert(wr_iot_restart_active&&!controller_running);
   wr_iot_service_guard_leave(1);assert(wr_iot_restart_guard==1);
