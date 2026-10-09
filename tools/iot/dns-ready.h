@@ -61,8 +61,8 @@ static inline int wr_iot_dns_ready(unsigned int port){
  if(connect(fd,(struct sockaddr *)&address,sizeof(address))||send(fd,query,sizeof(query),0)!=(ssize_t)sizeof(query))goto done;
  wait.fd=fd;wait.events=POLLIN;wait.revents=0;
  if(poll(&wait,1,200)!=1||!(wait.revents&POLLIN))goto done;
- size=recv(fd,reply,sizeof(reply),MSG_DONTWAIT);
- if(size>=0)ok=wr_iot_dns_reply(reply,(size_t)size,query,sizeof(query));
+ size=recv(fd,reply,sizeof(reply),MSG_DONTWAIT|MSG_TRUNC);
+ if(size>=0&&(size_t)size<=sizeof(reply))ok=wr_iot_dns_reply(reply,(size_t)size,query,sizeof(query));
  done:close(fd);return ok;
 }
 #endif
