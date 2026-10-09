@@ -1002,6 +1002,19 @@ jobs:
             -DBOARD_WR1200JS -DUSE_WR_BAND_STEERING_PROFILE -Itools/shared-wifi \
             -c abi-results/check-iot-profile-completion.c -o abi-results/iot-profile-completion-mips.o
 
+      - name: Check hostname and domain rollback in a private UTS namespace
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            tools/iot/check-uts-state.c -o abi-results/check-iot-uts-state
+          parent_utsns="$(readlink /proc/self/ns/uts)"
+          sudo env WR_IOT_PARENT_UTSNS="$parent_utsns" unshare --uts -- \
+            abi-results/check-iot-uts-state | tee abi-results/iot-uts-state.txt
+          compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
+          "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+            -c tools/iot/check-uts-state.c -o abi-results/iot-uts-state-mips.o
+
       - name: Check exclusive IoT service transaction lock
         shell: bash
         run: |
