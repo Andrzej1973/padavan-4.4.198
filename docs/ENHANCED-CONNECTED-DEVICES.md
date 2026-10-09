@@ -1,4 +1,4 @@
-# Enhanced Connected Devices Р Р†Р вЂљРІР‚Сњ implementation contract
+# Enhanced Connected Devices Р В Р вЂ Р В РІР‚С™Р Р†Р вЂљРЎСљ implementation contract
 
 User request accepted 2026-10-09. WR1200JS homepage after login: readable, automatically refreshed device classification without excessive router work. The conservative browser classification core is implemented; collection, homepage integration, refresh and target runtime remain unverified.
 
@@ -36,7 +36,7 @@ Compute lightweight classification and grouping in the browser using a small loc
 
 Schedule in WR1200JS WebUI work, preserving firmware-port and current service-recovery priorities. No live router writes or flashing authorized by this feature request.
 
-## Mandatory automatic refresh and schedule Р Р†Р вЂљРІР‚Сњ clarified 2026-10-09
+## Mandatory automatic refresh and schedule Р В Р вЂ Р В РІР‚С™Р Р†Р вЂљРЎСљ clarified 2026-10-09
 
 Implement these device/roaming UI deliverables immediately after the current DNS/DHCP recovery integration and its verification, within the WR1200JS stage and before secondary-router expansion. Both components share a refresh lifecycle. Manual page reload is not an acceptable normal update mechanism: refresh visible data automatically, approximately every 5 seconds, retry after failures, show freshness/error state, preserve filters/expanded groups/scroll, and refresh immediately when a hidden tab becomes visible. One request in flight and a shared bounded cache prevent overlapping or per-browser repeated collection. History recording continues independently of hidden tabs.
 
@@ -65,3 +65,11 @@ Local deterministic Node tests cover overlapping requests, retries/backoff/recov
 The caller must hold the existing networkmap source lock or supply a consistent snapshot. A source read error invalidates the output. The record exposes the networkmap stale flag without asserting current connection state. No DHCP vendor class, network role or radio observation is invented. Tests cover valid/stale data, comma-containing names, malformed IP/MAC, oversized lines, incomplete tail and record truncation; native sanitizer execution and MIPS compilation run in CI.
 
 This parser is not yet integrated with HTTP. Authenticated bounded JSON emission, source freshness, merging radio/neighbor/DHCP observations, a shared cache and the homepage remain incomplete.
+
+## Bounded JSON checkpoint
+
+`snapshot-json.h` serializes the bounded passive records into caller-owned memory. It exposes the collector epoch and sequence, invalid-record count, truncation and record evidence. It does not invent radio, network role or observation timestamps. JSON strings escape controls, quotes, backslashes and HTML delimiters; valid UTF-8 round-trips through Unicode escapes, invalid/truncated sequences use U+FFFD. Browser sequence values are limited to the exact JavaScript integer range. Insufficient output capacity fails; callers must discard failed output and send only successful results.
+
+The fixtures exercise a 128-record maximum, small output buffers, hostile names, Unicode, emoji and invalid UTF-8, including a Python JSON round-trip. Native sanitizer execution and MIPS compilation are CI gates; the serializer is not an HTTP endpoint or a safe DOM renderer.
+
+The original parser CI directory-order error in ABI 213 was corrected; ABI 214 completed successfully. HTTP authentication, consistent locked input, cache generation and source freshness, radio/neighbor/DHCP merging, automatic homepage integration and runtime measurements remain incomplete.
