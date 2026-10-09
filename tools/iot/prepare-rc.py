@@ -387,7 +387,12 @@ for name in ('service-state.h','service-transaction.h','service-lock.h','dnsmasq
  (headers/name).write_bytes((local/name).read_bytes())
 (headers/'service-guard.h').write_bytes((local/'service-guard.h').read_bytes())
 (rc/'wr-iot-service-guard.c').write_text((local/'service-guard.c').read_text(encoding='utf-8').replace('#include \"service-lock.h\"','#include \"wr-iot/service-lock.h\"').replace('#include \"service-guard.h\"','#include \"wr-iot/service-guard.h\"'),encoding='utf-8')
-m.write_text(m.read_text(encoding='utf-8').replace('OBJS += wr-iot-bridge.o','OBJS += wr-iot-service-guard.o wr-iot-bridge.o'),encoding='utf-8')
+make_source=m.read_text(encoding='utf-8')
+anchor='OBJS += wr-iot-writer-journal.o wr-iot-bridge.o'
+if make_source.count(anchor)!=1:raise SystemExit('IoT linked object anchor changed')
+make_source=make_source.replace(anchor,'OBJS += wr-iot-service-guard.o wr-iot-writer-journal.o wr-iot-bridge.o',1)
+if make_source.count('wr-iot-service-guard.o')!=1:raise SystemExit('IoT service guard missing or duplicated in RC link')
+m.write_text(make_source,encoding='utf-8')
 report['service_state_headers_installed']=True
 report['service_state_lifecycle_bound']=True
 report['dnsmasq_readiness']='process presence only; protocol probes and lease preservation pending'
