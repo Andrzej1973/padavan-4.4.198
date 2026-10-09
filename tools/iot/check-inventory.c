@@ -1,4 +1,4 @@
-#include "route-prefix.h"
+#include "route-snapshot.h"
 #include "subnet.h"
 #include <assert.h>
 #include <stdio.h>
@@ -16,6 +16,8 @@ int main(void) {
  for(i=0;i<WR_IOT_INVENTORY_MAX;i++)assert(wr_iot_inventory_add(&inventory,0x0a000001U+(uint32_t)(i<<8),0xffffff00U));
  before=inventory;assert(!wr_iot_inventory_add(&inventory,0xac100001U,0xffffff00U));assert(!memcmp(&before,&inventory,sizeof(before)));
  assert(wr_iot_inventory_interfaces(&inventory,0));
+ assert(inventory.count>0&&inventory.count<=WR_IOT_INVENTORY_MAX);
+ assert(wr_iot_route_snapshot(&inventory));
  assert(inventory.count>0&&inventory.count<=WR_IOT_INVENTORY_MAX);
  {
   struct {struct nlmsghdr h;struct rtmsg route;struct rtattr dst;uint32_t address;} packet;
