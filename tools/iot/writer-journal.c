@@ -1,7 +1,9 @@
 #include "writer-journal.h"
+#include "service-state.h"
 #include <unistd.h>
 static struct wr_iot_service_transaction *bound;
 static pid_t owner;
+static struct wr_iot_service_state *kernel_state;
 static int failed;
 static int held(struct wr_iot_service_transaction *t){
  struct stat guard,transaction;int ok,fd=wr_iot_service_guard_dup();
@@ -16,8 +18,8 @@ int wr_iot_writer_journal_bind(struct wr_iot_service_transaction *transaction){
  bound=transaction;owner=getpid();failed=0;return 1;
 }
 int wr_iot_writer_journal_unbind(struct wr_iot_service_transaction *transaction){
- if(bound!=transaction||!valid()||bound->files.pending)return 0;
- bound=NULL;owner=0;return 1;
+ if(bound!=transaction||!valid()||bound->files.pending||(kernel_state&&kernel_state->kernel_pending))return 0;
+ bound=NULL;kernel_state=NULL;owner=0;return 1;
 }
 int wr_iot_writer_journal_begin(unsigned int mask){
  unsigned int started=0;size_t i;
@@ -42,3 +44,23 @@ int wr_iot_writer_journal_end(unsigned int mask){
  return ok;
 }
 int wr_iot_writer_journal_failed(void){return bound&&failed;}
+
+int wr_iot_writer_journal_bind_state(struct wr_iot_service_state *state){
+ if(!state||!state->tracked||state->kernel_pending||state->recover_started||
+    !wr_iot_writer_journal_bind(&state->transaction))return 0;
+ kernel_state=state;return 1;
+}
+/* State lock path is fixed; fixture uses the guard's compile-time path override. */
+#ifndef WR_IOT_SERVICE_LOCK_PATH
+#define WR_IOT_SERVICE_LOCK_PATH "/var/run/wr-iot-services.lock"
+#endif
+int wr_iot_writer_journal_kernel_begin(void){
+ if(!bound)return 1;
+ if(!valid()||!kernel_state||!wr_iot_service_state_kernel_begin(kernel_state,WR_IOT_SERVICE_LOCK_PATH)){failed=1;return 0;}
+ return 1;
+}
+int wr_iot_writer_journal_kernel_end(void){
+ if(!bound)return 1;
+ if(!valid()||!kernel_state||!wr_iot_service_state_kernel_end(kernel_state,WR_IOT_SERVICE_LOCK_PATH)){failed=1;return 0;}
+ return 1;
+}

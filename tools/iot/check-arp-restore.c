@@ -6,6 +6,7 @@ static int injected_ioctl(int fd,unsigned long cmd,struct arpreq *req);
 #define WR_IOT_ARP_IOCTL injected_ioctl
 #define WR_IOT_DNSMASQ_FIXTURE_ROOT "."
 #include "service-state.h"
+#include "writer-journal.h"
 #include <assert.h>
 #include <stdlib.h>
 static int fail_at, calls;
@@ -64,19 +65,21 @@ int main(void){
   wr_iot_service_state_init(&state);assert(wr_iot_service_guard_enter(1)==1);
   assert(wr_iot_service_state_begin_guarded(&state,"service.lock","br0"));
   assert(wr_iot_service_state_track(&state,"service.lock"));
-  assert(wr_iot_bundle_write_begin(&state.transaction.files,0));
+  assert(wr_iot_writer_journal_bind_state(&state));
+  assert(wr_iot_writer_journal_begin(1U));
   fp=fopen("etc/dnsmasq.conf","w");assert(fp);assert(fputs("early-candidate\n",fp)>=0);assert(!fclose(fp));
-  assert(wr_iot_bundle_write_end(&state.transaction.files,0));
-  assert(wr_iot_service_state_kernel_begin(&state,"service.lock"));
+  assert(wr_iot_writer_journal_end(1U));
+  assert(wr_iot_writer_journal_kernel_begin());
   assert(!sethostname("partial-owned",13));
   assert(!wr_iot_service_state_seal(&state,"service.lock"));
   assert(!wr_iot_service_state_recover(&state,"service.lock"));
   assert(!wr_iot_service_state_finish(&state,"service.lock"));
   fp=fopen("etc/dnsmasq.conf","r");assert(fp);assert(fgets(text,sizeof(text),fp));assert(!strcmp(text,"previous\n"));assert(!fclose(fp));
   assert(wr_iot_uts_capture(&now));assert(!strcmp(now.hostname,"partial-owned"));
-  assert(wr_iot_service_state_kernel_end(&state,"service.lock"));
+  assert(wr_iot_writer_journal_kernel_end());
   assert(wr_iot_service_state_recover(&state,"service.lock"));
   assert(wr_iot_uts_capture(&now));assert(!strcmp(old_uts.hostname,now.hostname)&&!strcmp(old_uts.domain,now.domain));
+  assert(wr_iot_writer_journal_unbind(&state.transaction));
   assert(wr_iot_service_state_finish(&state,"service.lock"));wr_iot_service_guard_leave(1);
   assert(!unlink("service.lock"));assert(!unlink("etc/dnsmasq.conf"));assert(!rmdir("etc/dnsmasq/dhcp"));assert(!rmdir("etc/dnsmasq"));assert(!rmdir("etc"));assert(!rmdir("tmp"));assert(!chdir("/tmp"));assert(!rmdir(directory));
  }

@@ -1105,7 +1105,7 @@ jobs:
         run: |
           set -euo pipefail
           gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
-            '-DWR_IOT_SERVICE_LOCK_PATH="service.lock"' tools/iot/check-arp-restore.c tools/iot/service-guard.c -o abi-results/check-iot-arp-restore
+            '-DWR_IOT_SERVICE_LOCK_PATH="service.lock"' tools/iot/check-arp-restore.c tools/iot/service-guard.c tools/iot/writer-journal.c -o abi-results/check-iot-arp-restore
           parent="$(readlink /proc/self/ns/net)"
           sudo env WR_IOT_PARENT_NETNS="$parent" WR_IOT_PARENT_UTSNS="$(readlink /proc/self/ns/uts)" unshare --net --uts bash -euc '
             ip link add br0 type dummy
