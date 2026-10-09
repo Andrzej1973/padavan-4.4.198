@@ -355,6 +355,7 @@ jobs:
         run: |
           node tools/shared-wifi/check-ui.js
           python3 tools/shared-wifi/prepare-ui.py padavan-4.4
+          python3 tools/iot/prepare-rc.py padavan-4.4
           python3 tools/prepare-shared-wifi.py padavan-4.4
           python3 tools/shared-wifi/check-source-integration.py padavan-4.4
           python3 tools/shared-wifi/prepare-http-check.py padavan-4.4 --output shared-wifi-http-check.c
@@ -758,6 +759,7 @@ jobs:
             firmware-steering-closure.json
             firmware-steering-rc-closure.json
             firmware-steering-status-image.json
+            padavan-4.4/iot-rc-source.json
             padavan-4.4/band-steering-source-integration.json
             padavan-4.4/band-steering-board-defaults.json
             padavan-4.4/wifi-hwnat-source.json

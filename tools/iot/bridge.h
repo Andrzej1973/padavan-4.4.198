@@ -5,6 +5,7 @@
 #include "types.h"
 int wr_iot_bridge_prepare(const char *,const char *,const char *,const char *,const struct wr_iot_range *,size_t);
 int wr_iot_bridge_remove(void);
+int wr_iot_bridge_is_owned(void);
 int wr_iot_bridge_attach(void);
 int wr_iot_bridge_detach(void);
 #endif

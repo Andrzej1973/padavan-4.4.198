@@ -97,3 +97,5 @@ int wr_iot_bridge_detach(void) {
  fd=socket(AF_INET,SOCK_DGRAM,0);if(fd<0)return 0;
  ok=bss_down(fd)&&membership(fd,SIOCBRDELIF);close(fd);return ok;
 }
+
+int wr_iot_bridge_is_owned(void) {return owned();}
