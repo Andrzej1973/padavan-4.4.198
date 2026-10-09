@@ -52,7 +52,7 @@ for path in /sys/devices/system/cpu/online /sys/devices/system/cpu/possible /pro
     fi
 done
 section 'Selected service process IDs only'
-for service in httpd dnsmasq vlmcsd inadyn stubby privoxy; do
+for service in httpd dnsmasq inadyn stubby privoxy; do
     printf '%s: ' "$service"
     pidof "$service" 2>/dev/null || printf 'not running\n'
 done
