@@ -31,5 +31,36 @@ for name in ('bridge.h','subnet.h','types.h'):(headers/name).write_bytes((local/
 bridge=(local/'bridge.c').read_text(encoding='utf-8').replace('#include "bridge.h"','#include "wr-iot/bridge.h"',1).replace('#include "subnet.h"','#include "wr-iot/subnet.h"',1)
 (rc/'wr-iot-bridge.c').write_text(bridge,encoding='utf-8');f.write_text(s,encoding='utf-8');m.write_text(make,encoding='utf-8')
 report={'board':'WR1200JS','candidate_bss':'ra2','bridge_object_installed':True,'owned_quiescence_before_radio_stop':True,'activation_integrated':False,'runtime_verified':False}
+# Profile activation remains gated by an internal temporary preparation state.
+f=rc/'ralink.c';radio=f.read_text(encoding='utf-8')
+anchor='\tfclose(fp);\n\n\treturn 0;\n}\n\nint\ngen_ralink_config_2g'
+if radio.count(anchor)!=1:raise SystemExit('Profile completion anchor changed')
+radio=radio.replace('static int\ngen_ralink_config(', '#if defined(BOARD_WR1200JS)\n#include "wr-iot/profile.h"\n#endif\n\nstatic int\ngen_ralink_config(',1)
+hook=r"""#if defined(BOARD_WR1200JS)
+ if (!is_aband && nvram_get_int("wr_iot_profile_t") == 1) {
+  char ssid[33],password[65];const char *value;size_t n;int failed=ferror(fp);
+  if (fclose(fp)) failed=1;
+  if (failed || !is_soc_ap || get_ap_mode() || i_mode_x==1 || i_mode_x==3) return -1;
+  value=nvram_safe_get("wr_iot_ssid");n=strlen(value);
+  if (n>=sizeof(ssid)) return -1;
+  memcpy(ssid,value,n+1);
+  value=nvram_safe_get("wr_iot_psk");n=strlen(value);
+  if (n>=sizeof(password)) return -1;
+  memcpy(password,value,n+1);
+  return wr_iot_profile_apply(dat_file,ssid,password)?0:-1;
+ }
+#endif
+"""
+radio=radio.replace(anchor,hook+anchor,1)
+for name in ('profile.h','profile-list.h','profile-line.h','profile-stream.h','profile-file.h'):
+ (headers/name).write_bytes((local/name).read_bytes())
+shared=rc/'shared-wifi';shared.mkdir(exist_ok=True)
+(shared/'validate.h').write_bytes((local.parent/'shared-wifi/validate.h').read_bytes())
+profile=(local/'profile.c').read_text(encoding='utf-8').replace('#include "profile.h"','#include "wr-iot/profile.h"').replace('#include "profile-file.h"','#include "wr-iot/profile-file.h"')
+(rc/'wr-iot-profile.c').write_text(profile,encoding='utf-8')
+m.write_text(m.read_text(encoding='utf-8').replace('OBJS += wr-iot-bridge.o','OBJS += wr-iot-bridge.o wr-iot-profile.o'),encoding='utf-8')
+f.write_text(radio,encoding='utf-8')
+report['profile_hook_installed']=True
+report['profile_activation_guard']='wr_iot_profile_t; no startup sets this state yet'
 (a.source/'iot-rc-source.json').write_text(json.dumps(report,indent=2)+'\n')
 print('PASS WR-only IoT bridge object and owned quiescence source integration; activation pending')

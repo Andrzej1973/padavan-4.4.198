@@ -903,6 +903,8 @@ jobs:
           test -n "$compiler"
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
             -c iot-rc-source/trunk/user/rc/wr-iot-bridge.c -o abi-results/iot-rc-bridge-mips.o
+          "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+            -c iot-rc-source/trunk/user/rc/wr-iot-profile.c -o abi-results/iot-rc-profile-mips.o
 
       - name: Check actual RC radio-stop behavior with and without WR ownership
         shell: bash
