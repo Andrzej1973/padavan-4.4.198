@@ -164,7 +164,9 @@ jobs:
           echo 'de412846a5d057faf132b2463aa29c24f77c79c744f4181c1a287bbeaf1d7256  toolchain.tar.xz' | sha256sum -c -
           tar -xJf toolchain.tar.xz -C toolchain
       - name: Check conservative connected-device classification
-        run: node tools/connected-devices/check-classify.js
+        run: |
+          node tools/connected-devices/check-classify.js
+          node tools/connected-devices/check-refresh.js
 
       - name: Compile IoT readiness headers after actual Padavan shared headers
         shell: bash

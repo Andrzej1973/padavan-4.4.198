@@ -1,4 +1,4 @@
-# Enhanced Connected Devices вЂ” implementation contract
+# Enhanced Connected Devices РІР‚вЂќ implementation contract
 
 User request accepted 2026-10-09. WR1200JS homepage after login: readable, automatically refreshed device classification without excessive router work. The conservative browser classification core is implemented; collection, homepage integration, refresh and target runtime remain unverified.
 
@@ -36,7 +36,7 @@ Compute lightweight classification and grouping in the browser using a small loc
 
 Schedule in WR1200JS WebUI work, preserving firmware-port and current service-recovery priorities. No live router writes or flashing authorized by this feature request.
 
-## Mandatory automatic refresh and schedule вЂ” clarified 2026-10-09
+## Mandatory automatic refresh and schedule РІР‚вЂќ clarified 2026-10-09
 
 Implement these device/roaming UI deliverables immediately after the current DNS/DHCP recovery integration and its verification, within the WR1200JS stage and before secondary-router expansion. Both components share a refresh lifecycle. Manual page reload is not an acceptable normal update mechanism: refresh visible data automatically, approximately every 5 seconds, retry after failures, show freshness/error state, preserve filters/expanded groups/scroll, and refresh immediately when a hidden tab becomes visible. One request in flight and a shared bounded cache prevent overlapping or per-browser repeated collection. History recording continues independently of hidden tabs.
 
@@ -49,3 +49,11 @@ Low load is a design goal, not measured evidence. Reuse existing data; do not tr
 The pinned networkmap writer emits six CSV fields: IPv4 address, MAC, device name, legacy type, HTTP flag and stale flag. The existing `lan_clients.asp` returns JavaScript rather than bounded JSON. It does not supply DHCP vendor class or current observation timestamps. Those facts must remain unavailable until the new collector provides evidence; the classification module does not invent them.
 
 Local Node tests pass for ambiguous/conflicting clues, Apple manufacturer/OS separation, random MACs, Android TV form factor, bounded strings and manual correction. This module is not yet included in ROMFS or the homepage. Rendering must use text nodes, and safe JSON, authentication, shared cache, automatic refresh, DHCP metadata, local OUI assets and runtime load measurements still require implementation.
+
+## Refresh lifecycle checkpoint
+
+`tools/connected-devices/refresh.js` implements an abortable single-request lifecycle shared by device and roaming views. It polls after completion at five-second cadence, times out after five seconds, retries failures at 5/10/20/30 seconds, pauses and aborts on hidden-tab notification, and immediately refreshes on return. The caller must connect page visibility events and supply an abortable authenticated transport. Stop invalidates callbacks and removes timers.
+
+Snapshots require a bounded collector epoch, integer sequence and at most 128 device records. Same-epoch older responses are rejected; unchanged cached sequences do not redraw rows or renew source observation timestamps. Collector epoch changes permit a sequence reset. Errors retain the last displayed dataset with a stale state. Rendering callback failure schedules recovery instead of permanently stopping the loop.
+
+Local deterministic Node tests cover overlapping requests, retries/backoff/recovery, hidden pause/resume, delayed callbacks, timeout abort, stale data, collector epoch reset and rendering errors. This is lifecycle code, not homepage integration: the JSON endpoint, collector cache, observation timestamps, DOM rendering and actual browser/router checks remain required.
