@@ -12,6 +12,10 @@ int main(void){char dir[]="/tmp/iot-dns-config-XXXXXX";unsigned int port=999;
  put("main","port=1053#invalid\n");port=999;assert(!wr_iot_dns_config_port("main",&port)&&port==999);
  put("main","txt-record=name,\"value # literal\"\nport=1056\n");assert(wr_iot_dns_config_port("main",&port)&&port==1056);
  put("main","txt-record=name,\"unterminated\nport=1056\n");port=999;assert(!wr_iot_dns_config_port("main",&port)&&port==999);
+ put("quoted ,#file","port=1057\n");put("main","conf-file=\"quoted ,#file\" # comment\n");assert(wr_iot_dns_config_port("main",&port)&&port==1057);assert(!unlink("quoted ,#file"));
+ put("main","port=\"1058\"\n");assert(wr_iot_dns_config_port("main",&port)&&port==1058);
+ assert(!mkdir("dir ,#quoted",0700));put("dir ,#quoted/one.conf","port=1059\n");put("main","conf-dir=\"dir ,#quoted\",*.conf\n");assert(wr_iot_dns_config_port("main",&port)&&port==1059);assert(!unlink("dir ,#quoted/one.conf"));assert(!rmdir("dir ,#quoted"));
+ {char final_quote[]="port=\"1060\"";assert(wr_iot_dns_config_comments(final_quote));}
  assert(!mkdir("additional",0700));put("additional/b.conf","port=1054\n");put("additional/a.conf","port=1053\n");put("additional/.hidden","port=65536\n");put("additional/c.bak","port=65536\n");
  put("main","conf-dir=additional,*.conf,.bak\n");assert(wr_iot_dns_config_port("main",&port)&&port==1054);
  assert(!unlink("additional/a.conf"));assert(!unlink("additional/b.conf"));assert(!unlink("additional/.hidden"));assert(!unlink("additional/c.bak"));assert(!rmdir("additional"));
