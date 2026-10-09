@@ -19,7 +19,12 @@ The DNS configuration header introduced `<ctype.h>` after `rc.h` had already loa
 
 [Commit 6659f1](https://github.com/Andrzej1973/padavan-4.4.198/commit/6659f1f4420adc331cd5ca766994152822a80b61) adds an early check using the actual pinned `services_ex.c` system-include order, `shutils.h`, `defaults.h` and WR1200JS board header. It compiles the DNS/DHCP readiness headers for native and MIPS targets. A negative MIPS fixture must reproduce the original `isblank` collision; failure for another reason does not satisfy that check.
 
-The `Compile IoT readiness headers after actual Padavan shared headers` step in [ABI run 37980231788](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/37980231788) passed. The overall run was still in progress at the time of this report.
+The `Compile IoT readiness headers after actual Padavan shared headers` step in [ABI run 37980231788](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/37980231788) passed. The overall ABI run completed successfully. Its `band-steering-mips-abi` artifact (ID `11640432793`) was downloaded and inspected: the negative fixture contains the original `isblank` compiler error, and the positive native/MIPS objects are valid ELF files.
+
+- Native object: ELF machine 62, 1,296 bytes; SHA-256 `f90c196d8c34814f7c131e781ae59a7e3cdb171b47d371d074a4a1c199f6e644`.
+- MIPS object: ELF machine 8, 1,244 bytes; SHA-256 `1a9e6ba60b21623dbc6d92563fffb5acda5767de76ad76a4e65a3f778791a9b8`.
+
+These are compile-check objects, not a firmware image or a device test.
 
 ## Remaining verification
 
