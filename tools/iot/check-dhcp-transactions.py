@@ -35,6 +35,20 @@ def client_socket(name,port=0,broadcast=False):
  finally:
   switch(original)
   if name:os.close(fd)
+def dhcp_receiver(name):
+ fd=os.open('/run/netns/'+name,os.O_RDONLY)
+ try:
+  switch(fd);s=socket.socket(socket.AF_PACKET,socket.SOCK_RAW,socket.htons(0x0800));s.bind(('eth0',0));s.settimeout(1);return s
+ finally:switch(original);os.close(fd)
+
+def dhcp_payload(frame):
+ if len(frame)<42 or frame[12:14]!=b'\x08\x00':return b''
+ ip=frame[14:];ihl=(ip[0]&15)*4
+ if ip[0]>>4!=4 or ihl<20 or len(ip)<ihl+8 or ip[9]!=17:return b''
+ source,dest,length,_=struct.unpack('!4H',ip[ihl:ihl+8])
+ if source!=67 or dest!=68 or length<8 or len(ip)<ihl+length:return b''
+ return ip[ihl+8:ihl+length]
+
 def options(data):
  result={};i=240
  while i<len(data):
@@ -49,13 +63,13 @@ def options(data):
 def lease(name,mac,gateway,prefix,xid):
  header=struct.pack('!BBBBIHH4s4s4s4s16s64s128s',1,1,6,0,xid,0,0x8000,b'\0'*4,b'\0'*4,b'\0'*4,b'\0'*4,mac+b'\0'*10,b'\0'*64,b'\0'*128)
  cookie=b'\x63\x82\x53\x63';common=b'\x3d\x07\x01'+mac+b'\x37\x04\x01\x03\x06\x36'
- with client_socket(name,68,True) as s:
+ with client_socket(name,68,True) as s,dhcp_receiver(name) as receiver:
   def exchange(kind,extra,wanted):
    packet=header+cookie+b'\x35\x01'+bytes([kind])+common+extra+b'\xff'
    for _ in range(3):
     s.sendto(packet,('255.255.255.255',67));deadline=time.monotonic()+1
     while time.monotonic()<deadline:
-     try:data,_=s.recvfrom(4096)
+     try:frame,_=receiver.recvfrom(8192);data=dhcp_payload(frame)
      except TimeoutError:break
      if len(data)<240 or data[0]!=2 or struct.unpack('!I',data[4:8])[0]!=xid or data[28:34]!=mac or data[236:240]!=cookie:continue
      opt=options(data)
