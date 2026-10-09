@@ -19,7 +19,7 @@ static inline int wr_iot_saved_capture(struct wr_iot_saved_file *out,const char 
  memset(&candidate,0,sizeof(candidate));fd=open(path,O_RDONLY|O_NOFOLLOW|O_NONBLOCK);
  if(fd<0){if(errno!=ENOENT)return 0;*out=candidate;return 1;}
  if(fstat(fd,&candidate.metadata)||!S_ISREG(candidate.metadata.st_mode)||candidate.metadata.st_size<0||
-    candidate.metadata.st_size>WR_IOT_SAVED_LIMIT)goto fail;
+    (unsigned long)candidate.metadata.st_size>WR_IOT_SAVED_LIMIT)goto fail;
  candidate.existed=1;candidate.size=(size_t)candidate.metadata.st_size;
  candidate.data=malloc(candidate.size?candidate.size:1);if(!candidate.data)goto fail;
  while(used<candidate.size){
