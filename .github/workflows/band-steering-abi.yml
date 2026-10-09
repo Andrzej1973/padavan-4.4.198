@@ -1026,6 +1026,26 @@ jobs:
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
             -c tools/iot/check-arp-state.c -o abi-results/iot-arp-state-mips.o
 
+      - name: Check actual permanent LAN ARP recovery
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            tools/iot/check-arp-restore.c -o abi-results/check-iot-arp-restore
+          parent="$(readlink /proc/self/ns/net)"
+          sudo env WR_IOT_PARENT_NETNS="$parent" unshare --net bash -euc '
+            ip link add br0 type dummy
+            ip link add br1 type dummy
+            ip addr add 192.0.2.1/24 dev br0
+            ip addr add 198.51.100.1/24 dev br1
+            ip link set br0 up
+            ip link set br1 up
+            exec abi-results/check-iot-arp-restore
+          ' | tee abi-results/iot-arp-restore.txt
+          compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
+          "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+            -c tools/iot/check-arp-restore.c -o abi-results/iot-arp-restore-mips.o
+
       - name: Check exclusive IoT service transaction lock
         shell: bash
         run: |
