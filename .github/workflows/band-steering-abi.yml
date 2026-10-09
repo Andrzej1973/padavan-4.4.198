@@ -1002,6 +1002,17 @@ jobs:
             -DBOARD_WR1200JS -DUSE_WR_BAND_STEERING_PROFILE -Itools/shared-wifi \
             -c abi-results/check-iot-profile-completion.c -o abi-results/iot-profile-completion-mips.o
 
+      - name: Check bounded dnsmasq previous-file capture
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            tools/iot/check-saved-file.c -o abi-results/check-iot-saved-file
+          abi-results/check-iot-saved-file | tee abi-results/iot-saved-file.txt
+          compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
+          "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+            -c tools/iot/check-saved-file.c -o abi-results/iot-saved-file-mips.o
+
       - name: Check installed RC dnsmasq staged file failures
         shell: bash
         run: |
