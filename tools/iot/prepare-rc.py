@@ -194,6 +194,7 @@ service=service.replace('int\nstart_dns_dhcpd(int is_ap_mode)', 'static int\nwr_
 service=service.replace('void\nstop_dns_dhcpd(void)', 'static void\nwr_iot_stop_dns_raw(void)',1)
 anchor='int\nrestart_dhcpd(void)\n{\n\tstop_dns_dhcpd();\n\treturn start_dns_dhcpd(get_ap_mode());\n}'
 if service.count(anchor)!=1:raise SystemExit('DNS restart serialization anchor changed')
+controller=(local/"restart-controller.inc").read_text(encoding="utf-8")
 wrappers=r"""#if defined(BOARD_WR1200JS)
 static int wr_iot_dns_lock(void)
 {
@@ -231,6 +232,7 @@ restart_dhcpd(void)
 #if defined(BOARD_WR1200JS)
  int token=wr_iot_dns_lock(),result;
  if(!token)return EBUSY;
+ if(wr_iot_restart_active){result=wr_iot_restart_transaction();wr_iot_service_guard_leave(token);return result;}
  if(nvram_get_int("wr_iot_network_t")==1){
   FILE *scratch=tmpfile();int checked,failed;
   if(!scratch){result=errno;wr_iot_service_guard_leave(token);return result;}
@@ -238,14 +240,15 @@ restart_dhcpd(void)
   failed=ferror(scratch);if(fclose(scratch))failed=1;
   if(checked!=1||failed){wr_iot_service_guard_leave(token);return EINVAL;}
  }
- wr_iot_stop_dns_raw();result=wr_iot_start_dns_raw(get_ap_mode());
+ if(nvram_get_int("wr_iot_network_t")==1)result=wr_iot_restart_transaction();
+ else {wr_iot_stop_dns_raw();result=wr_iot_start_dns_raw(get_ap_mode());}
  wr_iot_service_guard_leave(token);return result;
 #else
  wr_iot_stop_dns_raw();return wr_iot_start_dns_raw(get_ap_mode());
 #endif
 }
 """
-service=service.replace(anchor,wrappers,1)
+service=service.replace(anchor,controller+wrappers,1)
 f.write_text(service,encoding='utf-8')
 report['dnsmasq_entry_points_serialized_when_iot_gated']=True
 report['all_dnsmasq_writers_serialized']=False
@@ -386,7 +389,8 @@ for name in ('service-state.h','service-transaction.h','service-lock.h','dnsmasq
 (rc/'wr-iot-service-guard.c').write_text((local/'service-guard.c').read_text(encoding='utf-8').replace('#include \"service-lock.h\"','#include \"wr-iot/service-lock.h\"').replace('#include \"service-guard.h\"','#include \"wr-iot/service-guard.h\"'),encoding='utf-8')
 m.write_text(m.read_text(encoding='utf-8').replace('OBJS += wr-iot-bridge.o','OBJS += wr-iot-service-guard.o wr-iot-bridge.o'),encoding='utf-8')
 report['service_state_headers_installed']=True
-report['service_state_lifecycle_bound']=False
+report['service_state_lifecycle_bound']=True
+report['dnsmasq_readiness']='process presence only; protocol probes and lease preservation pending'
 report['iot_main_dnsmasq_config_staged']=True
 report['dnsmasq_service_rollback_complete']=False
 (a.source/'iot-rc-source.json').write_text(json.dumps(report,indent=2)+'\n')

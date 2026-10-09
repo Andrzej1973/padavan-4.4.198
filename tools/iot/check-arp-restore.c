@@ -14,6 +14,24 @@ static int injected_ioctl(int fd,unsigned long cmd,struct arpreq *req){
  calls++;if(fail_at&&calls==fail_at){errno=EIO;return -1;}
  return ioctl(fd,cmd,req);
 }
+#define BOARD_WR1200JS 1
+#define IFNAME_BR "br0"
+static int controller_running,controller_fault;
+static int is_dns_dhcpd_run(void){return controller_running;}
+static int get_ap_mode(void){return 0;}
+static void logmessage(const char *a,const char *b){assert(a&&b);}
+static void wr_iot_stop_dns_raw(void){controller_running=0;}
+static int wr_iot_start_dns_raw(int ap){
+ FILE *fp;assert(!ap);assert(wr_iot_writer_journal_begin(1U));
+ fp=wr_iot_writer_fopen("etc/dnsmasq.conf","w");assert(fp);assert(fputs("controller-new\n",fp)>=0);assert(!wr_iot_writer_fclose(fp));
+ assert(wr_iot_writer_journal_end(1U));
+ if(controller_fault)return EIO;
+ controller_running=1;return 0;
+}
+static int controller_launch(const char *path){assert(!strcmp(path,"/usr/sbin/dnsmasq"));if(controller_fault==2)return EIO;controller_running=1;return 0;}
+#define eval controller_launch
+#include "restart-controller.inc"
+#undef eval
 int main(void){
  struct wr_iot_arp_state saved,generated,current,foreign;struct wr_iot_arp_entry entry;
  char ns[128];const char *parent=getenv("WR_IOT_PARENT_NETNS");ssize_t n;int fd;struct arpreq dynamic;struct sockaddr_in *dip;
@@ -81,6 +99,18 @@ int main(void){
   assert(wr_iot_uts_capture(&now));assert(!strcmp(old_uts.hostname,now.hostname)&&!strcmp(old_uts.domain,now.domain));
   assert(wr_iot_writer_journal_unbind(&state.transaction));
   assert(wr_iot_service_state_finish(&state,"service.lock"));wr_iot_service_guard_leave(1);
+  /* Execute the actual installed controller with injected daemon callbacks. */
+  controller_running=1;controller_fault=1;assert(wr_iot_service_guard_enter(1)==1);
+  assert(wr_iot_restart_transaction()==EIO);assert(!wr_iot_restart_active&&controller_running);
+  wr_iot_service_guard_leave(1);
+  fp=fopen("etc/dnsmasq.conf","r");assert(fp);assert(fgets(text,sizeof(text),fp));assert(!strcmp(text,"previous\n"));assert(!fclose(fp));
+  controller_fault=2;assert(wr_iot_service_guard_enter(1)==1);
+  assert(wr_iot_restart_transaction()==EIO);assert(wr_iot_restart_active&&!controller_running);
+  wr_iot_service_guard_leave(1);assert(wr_iot_restart_guard==1);
+  controller_fault=0;assert(wr_iot_service_guard_enter(1)==1);
+  assert(wr_iot_restart_transaction()==EAGAIN);assert(!wr_iot_restart_active&&controller_running);
+  wr_iot_service_guard_leave(1);
+  assert(wr_iot_service_guard_enter(1)==1);assert(!wr_iot_restart_transaction());assert(!wr_iot_restart_active&&controller_running);wr_iot_service_guard_leave(1);
   assert(!unlink("service.lock"));assert(!unlink("etc/dnsmasq.conf"));assert(!rmdir("etc/dnsmasq/dhcp"));assert(!rmdir("etc/dnsmasq"));assert(!rmdir("etc"));assert(!rmdir("tmp"));assert(!chdir("/tmp"));assert(!rmdir(directory));
  }
 

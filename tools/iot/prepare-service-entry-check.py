@@ -24,6 +24,8 @@ static int get_ap_mode(void){return 0;}
 static void logmessage(const char *a,const char *b){assert(a&&b);logs++;}
 static int wr_iot_start_dns_raw(int ap){assert(ap==0);starts++;return 0;}
 static void wr_iot_stop_dns_raw(void){stops++;}
+static int wr_iot_restart_active;
+static int wr_iot_restart_transaction(void){wr_iot_stop_dns_raw();return wr_iot_start_dns_raw(get_ap_mode());}
 """
 post=r"""
 int main(void){char dir[]="/tmp/iot-service-entry-XXXXXX";struct wr_iot_service_lock held={-1};
