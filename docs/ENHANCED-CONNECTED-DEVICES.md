@@ -1,4 +1,4 @@
-# Enhanced Connected Devices Р В Р’В Р В РІР‚В Р В Р’В Р Р†Р вЂљРЎв„ўР В Р вЂ Р В РІР‚С™Р РЋРЎС™ implementation contract
+# Enhanced Connected Devices Р В Р’В Р вЂ™Р’В Р В Р’В Р Р†Р вЂљР’В Р В Р’В Р вЂ™Р’В Р В Р вЂ Р В РІР‚С™Р РЋРІвЂћСћР В Р’В Р В РІР‚В Р В Р’В Р Р†Р вЂљРЎв„ўР В Р Р‹Р РЋРЎв„ў implementation contract
 
 User request accepted 2026-10-09. WR1200JS homepage after login: readable, automatically refreshed device classification without excessive router work. The conservative browser classification core is implemented; collection, homepage integration, refresh and target runtime remain unverified.
 
@@ -36,7 +36,7 @@ Compute lightweight classification and grouping in the browser using a small loc
 
 Schedule in WR1200JS WebUI work, preserving firmware-port and current service-recovery priorities. No live router writes or flashing authorized by this feature request.
 
-## Mandatory automatic refresh and schedule Р В Р’В Р В РІР‚В Р В Р’В Р Р†Р вЂљРЎв„ўР В Р вЂ Р В РІР‚С™Р РЋРЎС™ clarified 2026-10-09
+## Mandatory automatic refresh and schedule Р В Р’В Р вЂ™Р’В Р В Р’В Р Р†Р вЂљР’В Р В Р’В Р вЂ™Р’В Р В Р вЂ Р В РІР‚С™Р РЋРІвЂћСћР В Р’В Р В РІР‚В Р В Р’В Р Р†Р вЂљРЎв„ўР В Р Р‹Р РЋРЎв„ў clarified 2026-10-09
 
 Implement these device/roaming UI deliverables immediately after the current DNS/DHCP recovery integration and its verification, within the WR1200JS stage and before secondary-router expansion. Both components share a refresh lifecycle. Manual page reload is not an acceptable normal update mechanism: refresh visible data automatically, approximately every 5 seconds, retry after failures, show freshness/error state, preserve filters/expanded groups/scroll, and refresh immediately when a hidden tab becomes visible. One request in flight and a shared bounded cache prevent overlapping or per-browser repeated collection. History recording continues independently of hidden tabs.
 
@@ -83,3 +83,11 @@ Content equality uses explicit record fields instead of structure padding. Uncha
 Deterministic C fixtures cover repeated callers, unchanged sequences, failures/stale retention, recovery and instance reset. Native sanitizer execution and MIPS compilation are CI gates. The cache is not yet called by httpd; source locking/authentication, source-age evidence, HTTP status/JSON delivery, radio/neighbor/DHCP merging and homepage integration remain pending.
 
 ABI 215 completed successfully for the preceding JSON serializer and Unicode round-trip tests. Target behavior remains unverified.
+
+## Consistent source collection checkpoint
+
+Pinned `shared/bin_sem_asus.c` implements `file_lock("networkmap")` with an exclusive POSIX `fcntl` lock on `/var/lock/networkmap.lock`; `flock` would not coordinate with it. `source-collector.h` uses the same whole-file POSIX lock with nonblocking `F_SETLK`. Busy acquisition fails promptly so the shared cache can retain its last successful dataset. It does not rewrite/truncate the upstream lock's PID metadata.
+
+The collector opens the source without following symlinks, accepts regular files only, uses the bounded reader and checks source/lock identities before accepting the result. Symlinks and FIFOs fail. Results are copied to the caller only on complete success. Production callers must use fixed internal paths; there is no request-supplied file path.
+
+A forked-process fixture holds the actual POSIX lock while the collector attempts a read, checks unchanged output and stale cache retention, then verifies recovery after release. It also covers lock metadata preservation and source symlink/FIFO rejection. Native sanitizer execution and MIPS compilation are CI gates. ABI 216 succeeded for the preceding shared cache checks. HTTP registration, source-age metadata, radio/neighbor/DHCP merging and homepage wiring still remain to be implemented.
