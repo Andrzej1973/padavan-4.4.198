@@ -1033,7 +1033,7 @@ jobs:
           gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
             tools/iot/check-arp-restore.c -o abi-results/check-iot-arp-restore
           parent="$(readlink /proc/self/ns/net)"
-          sudo env WR_IOT_PARENT_NETNS="$parent" unshare --net bash -euc '
+          sudo env WR_IOT_PARENT_NETNS="$parent" WR_IOT_PARENT_UTSNS="$(readlink /proc/self/ns/uts)" unshare --net --uts bash -euc '
             ip link add br0 type dummy
             ip link add br1 type dummy
             ip addr add 192.0.2.1/24 dev br0

@@ -4,7 +4,8 @@
 #include <errno.h>
 static int injected_ioctl(int fd,unsigned long cmd,struct arpreq *req);
 #define WR_IOT_ARP_IOCTL injected_ioctl
-#include "arp-restore.h"
+#define WR_IOT_DNSMASQ_FIXTURE_ROOT "."
+#include "service-state.h"
 #include <assert.h>
 #include <stdlib.h>
 static int fail_at, calls;
@@ -40,5 +41,21 @@ int main(void){
  entry=saved.entries[0];entry.mac[5]=0x77;assert(wr_iot_arp_write(fd,"br0",&entry,0));
  assert(!wr_iot_arp_restore(&saved,&saved));assert(wr_iot_arp_capture("br0",&current));assert(current.count==1&&current.entries[0].mac[5]==0x77);
  assert(!close(fd));
+ {
+  struct wr_iot_service_state state;struct wr_iot_uts_state old_uts,now;
+  char directory[]="/tmp/iot-service-state-XXXXXX",text[32],utsns[128];FILE *fp;const char *utsparent=getenv("WR_IOT_PARENT_UTSNS");
+  n=readlink("/proc/self/ns/uts",utsns,sizeof(utsns)-1);assert(utsparent&&n>=0);utsns[n]=0;assert(strcmp(utsns,utsparent));
+  assert(mkdtemp(directory));assert(!chdir(directory));assert(!mkdir("etc",0700));assert(!mkdir("etc/dnsmasq",0700));assert(!mkdir("etc/dnsmasq/dhcp",0700));assert(!mkdir("tmp",0700));
+  fp=fopen("etc/dnsmasq.conf","w");assert(fp);assert(fputs("previous\n",fp)>=0);assert(!fclose(fp));
+  wr_iot_service_state_init(&state);assert(wr_iot_uts_capture(&old_uts));assert(wr_iot_service_state_begin(&state,"service.lock","br0"));
+  fp=fopen("etc/dnsmasq.conf","w");assert(fp);assert(fputs("candidate\n",fp)>=0);assert(!fclose(fp));
+  assert(!sethostname("iot-candidate",13));assert(!setdomainname("candidate.invalid",17));
+  assert(wr_iot_service_state_seal(&state,"service.lock"));assert(wr_iot_service_state_recover(&state,"service.lock"));
+  assert(wr_iot_uts_capture(&now));assert(!strcmp(old_uts.hostname,now.hostname)&&!strcmp(old_uts.domain,now.domain));
+  fp=fopen("etc/dnsmasq.conf","r");assert(fp);assert(fgets(text,sizeof(text),fp));assert(!strcmp(text,"previous\n"));assert(!fclose(fp));
+  assert(wr_iot_service_state_finish(&state,"service.lock"));
+  assert(!unlink("service.lock"));assert(!unlink("etc/dnsmasq.conf"));assert(!rmdir("etc/dnsmasq/dhcp"));assert(!rmdir("etc/dnsmasq"));assert(!rmdir("etc"));assert(!rmdir("tmp"));assert(!chdir("/tmp"));assert(!rmdir(directory));
+ }
+
  puts("PASS actual permanent LAN ARP restore in private NET namespace; partial ioctl failure retried, dynamic LAN and other interface preserved and foreign LAN change rejected; RC binding pending");return 0;
 }
