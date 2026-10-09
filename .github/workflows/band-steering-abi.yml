@@ -6,6 +6,7 @@ on:
     paths:
       - 'tools/shared-wifi/**'
       - 'tools/iot/**'
+      - 'tools/connected-devices/**'
       - 'tools/prepare-shared-wifi.py'
       - '.github/workflows/band-steering-abi.yml'
       - 'tools/band-steering/prepare-abi-probe.py'
@@ -162,6 +163,9 @@ jobs:
             https://github.com/vipshmily/padavan-4.4/releases/download/toolchain/mipsel-linux-uclibc.tar.xz
           echo 'de412846a5d057faf132b2463aa29c24f77c79c744f4181c1a287bbeaf1d7256  toolchain.tar.xz' | sha256sum -c -
           tar -xJf toolchain.tar.xz -C toolchain
+      - name: Check conservative connected-device classification
+        run: node tools/connected-devices/check-classify.js
+
       - name: Compile IoT readiness headers after actual Padavan shared headers
         shell: bash
         run: |

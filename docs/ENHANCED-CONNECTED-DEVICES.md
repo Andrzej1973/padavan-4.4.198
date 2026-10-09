@@ -1,6 +1,6 @@
-# Enhanced Connected Devices — implementation contract
+# Enhanced Connected Devices вЂ” implementation contract
 
-User request accepted 2026-10-09. WR1200JS homepage after login: readable, automatically refreshed device classification without excessive router work. Planned, not implemented or runtime verified.
+User request accepted 2026-10-09. WR1200JS homepage after login: readable, automatically refreshed device classification without excessive router work. The conservative browser classification core is implemented; collection, homepage integration, refresh and target runtime remain unverified.
 
 ## Presentation
 
@@ -36,8 +36,16 @@ Compute lightweight classification and grouping in the browser using a small loc
 
 Schedule in WR1200JS WebUI work, preserving firmware-port and current service-recovery priorities. No live router writes or flashing authorized by this feature request.
 
-## Mandatory automatic refresh and schedule — clarified 2026-10-09
+## Mandatory automatic refresh and schedule вЂ” clarified 2026-10-09
 
 Implement these device/roaming UI deliverables immediately after the current DNS/DHCP recovery integration and its verification, within the WR1200JS stage and before secondary-router expansion. Both components share a refresh lifecycle. Manual page reload is not an acceptable normal update mechanism: refresh visible data automatically, approximately every 5 seconds, retry after failures, show freshness/error state, preserve filters/expanded groups/scroll, and refresh immediately when a hidden tab becomes visible. One request in flight and a shared bounded cache prevent overlapping or per-browser repeated collection. History recording continues independently of hidden tabs.
 
 Low load is a design goal, not measured evidence. Reuse existing data; do not trigger full scans or networkmap restarts per refresh. Keep classification/rendering in the browser, bounded passive recording/cache on the router and no continual flash writes. Before acceptance compare baseline and enabled CPU, process RSS, request latency and network traffic with identical client counts in idle and loaded conditions and with multiple browser sessions; include collector cost while no UI is open. Check that forwarding/Wi-Fi throughput and latency do not regress. Report actual measurements and tune collection intervals/limits if necessary; do not claim a percentage CPU cost or fixed RAM footprint before measuring.
+
+## Classification core checkpoint
+
+`tools/connected-devices/classify.js` separates category, confidence, manufacturer, OS, form factor and evidence. Hostname or DHCP vendor class alone is only a Possible OS clue; corroborating hostname and vendor-class clues allow High confidence, which is still heuristic and spoofable. Conflicting Android/Windows clues retain Unknown classification. Apple OUI indicates manufacturer only; locally administered or multicast MACs never establish a manufacturer. Manual category overrides are explicitly labeled User specified. Input text is bounded to 128 characters and explanatory evidence to six entries.
+
+The pinned networkmap writer emits six CSV fields: IPv4 address, MAC, device name, legacy type, HTTP flag and stale flag. The existing `lan_clients.asp` returns JavaScript rather than bounded JSON. It does not supply DHCP vendor class or current observation timestamps. Those facts must remain unavailable until the new collector provides evidence; the classification module does not invent them.
+
+Local Node tests pass for ambiguous/conflicting clues, Apple manufacturer/OS separation, random MACs, Android TV form factor, bounded strings and manual correction. This module is not yet included in ROMFS or the homepage. Rendering must use text nodes, and safe JSON, authentication, shared cache, automatic refresh, DHCP metadata, local OUI assets and runtime load measurements still require implementation.
