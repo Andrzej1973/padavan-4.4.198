@@ -41,4 +41,4 @@ int wr_iot_writer_journal_end(unsigned int mask){
  if(!ok)failed=1;
  return ok;
 }
-int wr_iot_writer_journal_failed(void){return failed;}
+int wr_iot_writer_journal_failed(void){return bound&&failed;}

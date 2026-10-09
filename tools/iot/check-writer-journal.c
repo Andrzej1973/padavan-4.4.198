@@ -15,7 +15,7 @@ int main(void){
  assert(wr_iot_writer_journal_begin(14));put("b","changed\n");assert(!wr_iot_writer_journal_unbind(&t));
  assert(!wr_iot_writer_journal_begin(6));assert(t.files.pending==14);assert(wr_iot_writer_journal_failed());
  assert(wr_iot_writer_journal_end(14));assert(wr_iot_bundle_restore(&t.files));
- assert(wr_iot_writer_journal_unbind(&t));assert(wr_iot_service_transaction_finish(&t,"service.lock"));wr_iot_service_guard_leave(token);
+ assert(wr_iot_writer_journal_unbind(&t));assert(!wr_iot_writer_journal_failed());assert(wr_iot_service_transaction_finish(&t,"service.lock"));wr_iot_service_guard_leave(token);
  for(i=0;i<8;i++){assert(!unlink(paths[i]));}
  assert(!unlink("service.lock"));assert(!chdir("/tmp"));assert(!rmdir(dir));
  puts("PASS journal binding requires matching held guard; nested overlap refuses without clearing outer intents; confirmed writes recover; binding retains pending state; controller integration pending");return 0;

@@ -306,6 +306,22 @@ for filename,entries in [
  source=source.replace('#include "rc.h"','#include "rc.h"\n#if defined(BOARD_WR1200JS)\n#include "wr-iot/writer-journal.h"\n#endif',1)
  for entry in entries:source=journal_writer(source,*entry)
  path.write_text(source,encoding='utf-8')
+# Propagate journal failures from legacy void helpers before starting a daemon.
+path=rc/'services_ex.c';source=path.read_text(encoding='utf-8')
+for call in ['fill_static_ethers(ipaddr, netmask);','update_hosts_router(ipaddr);']:
+ if source.count(call)!=1:raise SystemExit('DNS startup helper anchor changed: '+call)
+ source=source.replace(call,call+'\n#if defined(BOARD_WR1200JS)\n if(wr_iot_writer_journal_failed())return EIO;\n#endif',1)
+anchor='create_file(DNS_RESOLV_CONF);'
+if source.count(anchor)!=1:raise SystemExit('DNS resolver touch anchor changed')
+source=source.replace(anchor,"""#if defined(BOARD_WR1200JS)
+        if(!wr_iot_writer_journal_begin(128U))return EIO;
+#endif
+        create_file(DNS_RESOLV_CONF);
+#if defined(BOARD_WR1200JS)
+        if(!wr_iot_writer_journal_end(128U))return EIO;
+#endif""",1)
+path.write_text(source,encoding='utf-8')
+report['startup_auxiliary_journal_failure_propagated']=True
 report['auxiliary_dns_writer_bodies_journal_instrumented']=True
 report['writer_journal_lifecycle_bound']=False
 (headers/'writer-journal.h').write_bytes((local/'writer-journal.h').read_bytes())
