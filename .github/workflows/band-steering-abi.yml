@@ -922,6 +922,25 @@ jobs:
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -DBOARD_WR1200JS \
             -c abi-results/check-iot-stop.c -o abi-results/iot-stop-mips.o
 
+      - name: Check actual RC profile completion and credential snapshots
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/iot/prepare-profile-check.py iot-rc-source abi-results/check-iot-profile-completion.c
+          for mode in coordinated original; do
+            define=()
+            if [ "$mode" = coordinated ]; then define=(-DUSE_WR_BAND_STEERING_PROFILE); fi
+            gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+              -DBOARD_WR1200JS "${define[@]}" -Itools/shared-wifi \
+              abi-results/check-iot-profile-completion.c -o "abi-results/check-iot-profile-$mode"
+            "abi-results/check-iot-profile-$mode" | tee "abi-results/iot-profile-completion-$mode.txt"
+          done
+          compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+            -DBOARD_WR1200JS -DUSE_WR_BAND_STEERING_PROFILE -Itools/shared-wifi \
+            -c abi-results/check-iot-profile-completion.c -o abi-results/iot-profile-completion-mips.o
+
       - name: Upload ABI diagnostics
         if: always()
         uses: actions/upload-artifact@v7
