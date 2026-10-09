@@ -29,7 +29,13 @@ static int wr_iot_profile_apply(const char *path,const char *ssid,const char *pa
  assert(!strcmp(path,"radio.dat"));assert(!strcmp(ssid,ssid_value));assert(!strcmp(password,password_value));applies++;
  return apply_ok&&wr_shared_wifi_validate(&f)==WR_SHARED_WIFI_OK;
 }
+#ifdef ferror
+#undef ferror
+#endif
 #define ferror test_ferror
+#ifdef fclose
+#undef fclose
+#endif
 #define fclose test_fclose
 static int complete(FILE *fp,int is_aband,int is_soc_ap,int i_mode_x,const char *dat_file){
 """
