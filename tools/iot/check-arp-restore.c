@@ -17,11 +17,15 @@ static int injected_ioctl(int fd,unsigned long cmd,struct arpreq *req){
 #define BOARD_WR1200JS 1
 #define IFNAME_BR "br0"
 #define WR_IOT_LEASE_PATH "tmp/dnsmasq.leases"
-static int controller_running,controller_fault;
+#define WR_IOT_DNS_CONFIG_PATH "etc/dnsmasq.conf"
+static int controller_dns_ready(unsigned int port);
+#define WR_IOT_DNS_PROBE controller_dns_ready
+static int controller_running,controller_fault,controller_dns_bad;
+static int controller_dns_ready(unsigned int port){assert(port==53);return !controller_dns_bad;}
 static int is_dns_dhcpd_run(void){return controller_running;}
 static int get_ap_mode(void){return 0;}
 static void logmessage(const char *a,const char *b){assert(a&&b);}
-static void wr_iot_stop_dns_raw(void){controller_running=0;}
+static void wr_iot_stop_dns_raw(void){controller_running=0;controller_dns_bad=0;}
 static int wr_iot_start_dns_raw(int ap){
  FILE *fp;assert(!ap);assert(wr_iot_writer_journal_begin(1U));
  fp=wr_iot_writer_fopen("etc/dnsmasq.conf","w");assert(fp);assert(fputs("controller-new\n",fp)>=0);assert(!wr_iot_writer_fclose(fp));
@@ -29,7 +33,7 @@ static int wr_iot_start_dns_raw(int ap){
  fp=fopen(WR_IOT_LEASE_PATH,"w");assert(fp);assert(fputs("lease-new\n",fp)>=0);assert(!fclose(fp));
  if(controller_fault==1||controller_fault==2)return EIO;
  if(controller_fault==3)wr_iot_writer_journal_error();
- controller_running=1;return 0;
+ controller_running=1;controller_dns_bad=controller_fault==4;return 0;
 }
 static int controller_launch(const char *path){assert(!strcmp(path,"/usr/sbin/dnsmasq"));if(controller_fault==2)return EIO;controller_running=1;return 0;}
 #define eval controller_launch
@@ -111,6 +115,8 @@ int main(void){
   controller_fault=3;assert(wr_iot_service_guard_enter(1)==1);
   assert(wr_iot_restart_transaction()==EIO);assert(!wr_iot_restart_active&&controller_running);wr_iot_service_guard_leave(1);
   fp=fopen(WR_IOT_LEASE_PATH,"r");assert(fp);assert(fgets(text,sizeof(text),fp));assert(!strcmp(text,"lease-old\n"));assert(!fclose(fp));
+  controller_fault=4;assert(wr_iot_service_guard_enter(1)==1);
+  assert(wr_iot_restart_transaction()==EIO);assert(!wr_iot_restart_active&&controller_running&&!controller_dns_bad);wr_iot_service_guard_leave(1);
   controller_fault=2;assert(wr_iot_service_guard_enter(1)==1);
   assert(wr_iot_restart_transaction()==EIO);assert(wr_iot_restart_active&&!controller_running);
   wr_iot_service_guard_leave(1);assert(wr_iot_restart_guard==1);

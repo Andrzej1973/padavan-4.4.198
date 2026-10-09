@@ -27,6 +27,8 @@ on:
       - 'tools/iot/service-guard.*'
       - 'tools/iot/writer-journal.*'
       - 'tools/iot/restart-controller.inc'
+      - 'tools/iot/dns-ready.h'
+      - 'tools/iot/dns-config.h'
       - 'tools/iot/dnsmasq-files.h'
       - 'tools/iot/saved-bundle.h'
       - 'tools/iot/saved-file.h'

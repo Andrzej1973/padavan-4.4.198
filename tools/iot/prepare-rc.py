@@ -194,7 +194,8 @@ service=service.replace('int\nstart_dns_dhcpd(int is_ap_mode)', 'static int\nwr_
 service=service.replace('void\nstop_dns_dhcpd(void)', 'static void\nwr_iot_stop_dns_raw(void)',1)
 anchor='int\nrestart_dhcpd(void)\n{\n\tstop_dns_dhcpd();\n\treturn start_dns_dhcpd(get_ap_mode());\n}'
 if service.count(anchor)!=1:raise SystemExit('DNS restart serialization anchor changed')
-controller=(local/"restart-controller.inc").read_text(encoding="utf-8")
+controller=(local/"restart-controller.inc").read_text(encoding="utf-8").replace('#include "dns-ready.h"','#include "wr-iot/dns-ready.h"').replace('#include "dns-config.h"','#include "wr-iot/dns-config.h"')
+for name in ("dns-ready.h","dns-config.h"):(headers/name).write_bytes((local/name).read_bytes())
 wrappers=r"""#if defined(BOARD_WR1200JS)
 static int wr_iot_dns_lock(void)
 {
@@ -402,7 +403,7 @@ if make_source.count('wr-iot-service-guard.o')!=1:raise SystemExit('IoT service 
 m.write_text(make_source,encoding='utf-8')
 report['service_state_headers_installed']=True
 report['service_state_lifecycle_bound']=True
-report['dnsmasq_readiness']='process presence only; lease recovery integrated, protocol probes pending'
+report['dnsmasq_readiness']='configured-port DNS probe and lease recovery integrated; DHCP protocol readiness pending'
 report['iot_main_dnsmasq_config_staged']=True
 report['dnsmasq_service_rollback_complete']=False
 (a.source/'iot-rc-source.json').write_text(json.dumps(report,indent=2)+'\n')
