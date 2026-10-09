@@ -59,6 +59,25 @@ int main(void){
   assert(wr_iot_uts_capture(&now));assert(!strcmp(old_uts.hostname,now.hostname)&&!strcmp(old_uts.domain,now.domain));
   fp=fopen("etc/dnsmasq.conf","r");assert(fp);assert(fgets(text,sizeof(text),fp));assert(!strcmp(text,"previous\n"));assert(!fclose(fp));
   assert(wr_iot_service_state_finish(&state,"service.lock"));wr_iot_service_guard_leave(1);
+  /* Failure before final seal: restore known files while retaining an unfinished
+   * owned kernel mutation, then recover after its result is captured. */
+  wr_iot_service_state_init(&state);assert(wr_iot_service_guard_enter(1)==1);
+  assert(wr_iot_service_state_begin_guarded(&state,"service.lock","br0"));
+  assert(wr_iot_service_state_track(&state,"service.lock"));
+  assert(wr_iot_bundle_write_begin(&state.transaction.files,0));
+  fp=fopen("etc/dnsmasq.conf","w");assert(fp);assert(fputs("early-candidate\n",fp)>=0);assert(!fclose(fp));
+  assert(wr_iot_bundle_write_end(&state.transaction.files,0));
+  assert(wr_iot_service_state_kernel_begin(&state,"service.lock"));
+  assert(!sethostname("partial-owned",13));
+  assert(!wr_iot_service_state_seal(&state,"service.lock"));
+  assert(!wr_iot_service_state_recover(&state,"service.lock"));
+  assert(!wr_iot_service_state_finish(&state,"service.lock"));
+  fp=fopen("etc/dnsmasq.conf","r");assert(fp);assert(fgets(text,sizeof(text),fp));assert(!strcmp(text,"previous\n"));assert(!fclose(fp));
+  assert(wr_iot_uts_capture(&now));assert(!strcmp(now.hostname,"partial-owned"));
+  assert(wr_iot_service_state_kernel_end(&state,"service.lock"));
+  assert(wr_iot_service_state_recover(&state,"service.lock"));
+  assert(wr_iot_uts_capture(&now));assert(!strcmp(old_uts.hostname,now.hostname)&&!strcmp(old_uts.domain,now.domain));
+  assert(wr_iot_service_state_finish(&state,"service.lock"));wr_iot_service_guard_leave(1);
   assert(!unlink("service.lock"));assert(!unlink("etc/dnsmasq.conf"));assert(!rmdir("etc/dnsmasq/dhcp"));assert(!rmdir("etc/dnsmasq"));assert(!rmdir("etc"));assert(!rmdir("tmp"));assert(!chdir("/tmp"));assert(!rmdir(directory));
  }
 

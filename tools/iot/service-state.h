@@ -9,7 +9,7 @@ struct wr_iot_service_state {
  struct wr_iot_service_transaction transaction;
  struct wr_iot_uts_state saved_uts,expected_uts;
  struct wr_iot_arp_state saved_arp,expected_arp;
- int sealed,uts_done,recover_started,recovered;
+ int sealed,uts_done,recover_started,recovered,tracked,kernel_pending;
 };
 static inline void wr_iot_service_state_init(struct wr_iot_service_state *s){
  memset(s,0,sizeof(*s));wr_iot_service_transaction_init(&s->transaction);
@@ -19,7 +19,8 @@ static inline int wr_iot_service_state_begin(struct wr_iot_service_state *s,cons
  if(!wr_iot_uts_capture(&s->saved_uts)||!wr_iot_arp_capture(lan,&s->saved_arp)||!wr_iot_arp_valid(&s->saved_arp)){
   wr_iot_bundle_release(&s->transaction.files);wr_iot_service_lock_release(&s->transaction.lock);s->transaction.active=0;return 0;
  }
- s->sealed=0;s->uts_done=0;s->recover_started=0;s->recovered=0;return 1;
+ s->expected_uts=s->saved_uts;s->expected_arp=s->saved_arp;
+ s->sealed=0;s->uts_done=0;s->recover_started=0;s->recovered=0;s->tracked=0;s->kernel_pending=0;return 1;
 }
 /* External guard remains caller-owned, including on snapshot failure. */
 static inline int wr_iot_service_state_begin_guarded(struct wr_iot_service_state *s,const char *lock,const char *lan){
@@ -27,22 +28,47 @@ static inline int wr_iot_service_state_begin_guarded(struct wr_iot_service_state
  if(!wr_iot_uts_capture(&s->saved_uts)||!wr_iot_arp_capture(lan,&s->saved_arp)||!wr_iot_arp_valid(&s->saved_arp)){
   wr_iot_bundle_release(&s->transaction.files);wr_iot_service_lock_release(&s->transaction.lock);s->transaction.active=0;return 0;
  }
- s->sealed=0;s->uts_done=0;s->recover_started=0;s->recovered=0;return 1;
+ s->expected_uts=s->saved_uts;s->expected_arp=s->saved_arp;
+ s->sealed=0;s->uts_done=0;s->recover_started=0;s->recovered=0;s->tracked=0;s->kernel_pending=0;return 1;
+}
+/* Record only this caller's serialized kernel mutations. An unfinished mutation
+ * blocks kernel recovery; known file writes can still recover independently. */
+static inline int wr_iot_service_state_track(struct wr_iot_service_state *s,const char *lock){
+ if(!s||!s->transaction.active||s->sealed||s->recover_started||s->transaction.files.dirty||
+    !wr_iot_service_lock_valid(&s->transaction.lock,lock))return 0;
+ s->tracked=1;s->transaction.files.journalled=1;return 1;
+}
+static inline int wr_iot_service_state_kernel_begin(struct wr_iot_service_state *s,const char *lock){
+ struct wr_iot_uts_state uts;struct wr_iot_arp_state arp;
+ if(!s||!s->tracked||s->sealed||s->recover_started||s->kernel_pending||!s->transaction.active||
+    !wr_iot_service_lock_valid(&s->transaction.lock,lock)||!wr_iot_uts_capture(&uts)||
+    !wr_iot_arp_capture(s->saved_arp.interface,&arp)||!wr_iot_arp_valid(&arp)||
+    strcmp(uts.hostname,s->expected_uts.hostname)||strcmp(uts.domain,s->expected_uts.domain)||
+    !wr_iot_arp_same(&arp,&s->expected_arp))return 0;
+ s->kernel_pending=1;return 1;
+}
+static inline int wr_iot_service_state_kernel_end(struct wr_iot_service_state *s,const char *lock){
+ struct wr_iot_uts_state uts;struct wr_iot_arp_state arp;
+ if(!s||!s->tracked||!s->kernel_pending||!s->transaction.active||
+    !wr_iot_service_lock_valid(&s->transaction.lock,lock)||!wr_iot_uts_capture(&uts)||
+    !wr_iot_arp_capture(s->saved_arp.interface,&arp)||!wr_iot_arp_valid(&arp))return 0;
+ s->expected_uts=uts;s->expected_arp=arp;s->kernel_pending=0;return 1;
 }
 static inline int wr_iot_service_state_seal(struct wr_iot_service_state *s,const char *lock){
  struct wr_iot_uts_state uts;struct wr_iot_arp_state arp;
- if(!s||s->sealed||!s->transaction.active||!wr_iot_service_lock_valid(&s->transaction.lock,lock)||
+ if(!s||s->sealed||s->kernel_pending||s->recover_started||!s->transaction.active||!wr_iot_service_lock_valid(&s->transaction.lock,lock)||
     !wr_iot_uts_capture(&uts)||!wr_iot_arp_capture(s->saved_arp.interface,&arp)||!wr_iot_arp_valid(&arp)||
+    (s->tracked&&(strcmp(uts.hostname,s->expected_uts.hostname)||strcmp(uts.domain,s->expected_uts.domain)||!wr_iot_arp_same(&arp,&s->expected_arp)))||
     !wr_iot_service_transaction_seal(&s->transaction,lock))return 0;
  s->expected_uts=uts;s->expected_arp=arp;s->sealed=1;return 1;
 }
 static inline int wr_iot_service_state_recover(struct wr_iot_service_state *s,const char *lock){
  struct wr_iot_uts_state current;int files,arp,uts=0;
- if(!s||!s->sealed||!s->transaction.active||!wr_iot_service_lock_valid(&s->transaction.lock,lock))return 0;
+ if(!s||(!s->sealed&&!s->tracked)||!s->transaction.active||!wr_iot_service_lock_valid(&s->transaction.lock,lock))return 0;
  s->recover_started=1;s->recovered=0;
  files=wr_iot_service_transaction_restore(&s->transaction,lock);
- arp=wr_iot_arp_recover(&s->saved_arp,&s->expected_arp);
- if(wr_iot_uts_capture(&current)&&!strcmp(current.hostname,s->expected_uts.hostname)&&!strcmp(current.domain,s->expected_uts.domain)){
+ arp=!s->kernel_pending&&wr_iot_arp_recover(&s->saved_arp,&s->expected_arp);
+ if(!s->kernel_pending&&wr_iot_uts_capture(&current)&&!strcmp(current.hostname,s->expected_uts.hostname)&&!strcmp(current.domain,s->expected_uts.domain)){
   if(!sethostname(s->saved_uts.hostname,strlen(s->saved_uts.hostname))){
    strcpy(s->expected_uts.hostname,s->saved_uts.hostname);
    if(!setdomainname(s->saved_uts.domain,strlen(s->saved_uts.domain))){
@@ -51,7 +77,9 @@ static inline int wr_iot_service_state_recover(struct wr_iot_service_state *s,co
    }
   }
  }
- s->uts_done=uts;s->recovered=files&&arp&&uts;return s->recovered;
+ s->uts_done=uts;s->recovered=files&&arp&&uts;
+ if(s->recovered)s->sealed=1;
+ return s->recovered;
 }
 /* Caller verifies daemon recovery/start before releasing retained backups. */
 static inline int wr_iot_service_state_finish(struct wr_iot_service_state *s,const char *lock){
