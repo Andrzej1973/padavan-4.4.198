@@ -14,6 +14,8 @@ helper="""#if defined(BOARD_WR1200JS)
 #include "wr-iot/bridge.h"
 static void wr_iot_quiesce(void)
 {
+ if (nvram_get_int("wr_iot_network_t"))
+  nvram_set_int_temp("wr_iot_network_t", 0);
  if (nvram_get_int("wr_iot_profile_t"))
   nvram_set_int_temp("wr_iot_profile_t", 0);
  if (!wr_iot_bridge_is_owned()) return;
