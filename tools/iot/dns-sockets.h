@@ -98,4 +98,16 @@ static inline int wr_iot_dns_process_sockets(pid_t pid,struct wr_iot_dns_sockets
  if(result.dns_port==67)result.dhcp_standard=0;
  *out=result;return 1;
 }
+/* Require the caller's trusted executable, not a process-name match alone.
+ * Publish metadata only after executable and process identity remain stable. */
+static inline int wr_iot_dns_daemon_sockets(pid_t pid,const char *executable,struct wr_iot_dns_sockets *out){
+ struct stat expected,again;struct wr_iot_dns_process_identity before,after;
+ struct wr_iot_dns_sockets result;
+ if(!executable||!out||stat(executable,&expected)||!S_ISREG(expected.st_mode)||
+    !wr_iot_dns_process_identity(pid,&before)||before.device!=expected.st_dev||before.executable!=expected.st_ino)return 0;
+ if(!wr_iot_dns_process_sockets(pid,&result)||!wr_iot_dns_process_identity(pid,&after)||
+    !wr_iot_dns_same_process(&before,&after)||stat(executable,&again)||
+    again.st_dev!=expected.st_dev||again.st_ino!=expected.st_ino)return 0;
+ *out=result;return 1;
+}
 #endif
