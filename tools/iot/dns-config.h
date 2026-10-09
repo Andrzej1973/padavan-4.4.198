@@ -5,13 +5,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
 #include <dirent.h>
 #include <errno.h>
 #include <arpa/inet.h>
+/* Padavan shutils.h defines isblank before this header is included.
+ * Loading ctype.h here expands that macro inside uClibc declarations.
+ * Config grammar uses ASCII whitespace and decimal digits, independent of locale. */
+static inline int wr_iot_dns_space(unsigned char c){return c==' '||(c>=9&&c<=13);}
+static inline int wr_iot_dns_digit(unsigned char c){return c>='0'&&c<='9';}
 struct wr_iot_dns_config_budget {unsigned int files;size_t bytes;int dhcp4;};
 static inline char *wr_iot_dns_trim(char *value){
  char *end;while(*value==' ')value++;
@@ -38,7 +42,7 @@ static inline int wr_iot_dns_config_comments(char *line){
    memmove(p,p+1,strlen(p+1)+1);
    if(!*p)break;
   }
-  if(isspace((unsigned char)*p)){*p=' ';white=1;}
+  if(wr_iot_dns_space((unsigned char)*p)){*p=' ';white=1;}
   else {if(white&&*p=='#'){*p=0;break;}white=0;}
  }
  return 1;
@@ -106,7 +110,7 @@ static inline int wr_iot_dns_config_read(const char *path,unsigned int depth,str
   if(!strcmp(key,"port")){
    wr_iot_dns_unhide(value);
    if(!*value){ok=0;break;}
-   for(end=value;*end;end++)if(!isdigit((unsigned char)*end)){ok=0;break;}
+   for(end=value;*end;end++)if(!wr_iot_dns_digit((unsigned char)*end)){ok=0;break;}
    if(!ok)break;
    parsed=strtoul(value,&end,10);if(*end||parsed>65535){ok=0;break;}*port=(unsigned int)parsed;
   }else if(!strcmp(key,"conf-file")){

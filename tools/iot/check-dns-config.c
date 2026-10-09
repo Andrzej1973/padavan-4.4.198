@@ -1,4 +1,6 @@
 #define _GNU_SOURCE
+/* Reproduce pinned shutils.h:141 include order used by services_ex.c. */
+#define isblank(c) ((c) == ' ' || (c) == '\t')
 #include "dns-config.h"
 #include <assert.h>
 static void put(const char *path,const char *value){FILE *fp=fopen(path,"w");assert(fp);assert(fputs(value,fp)>=0);assert(!fclose(fp));}
