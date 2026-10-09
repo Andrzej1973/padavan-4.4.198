@@ -76,6 +76,7 @@ helper=r"""#if defined(BOARD_WR1200JS)
 #include "wr-iot/dhcp-write.h"
 #include "wr-iot/network-check.h"
 #include "wr-iot/service-state.h"
+#include "wr-iot/service-guard.h"
 static int wr_iot_dnsmasq(FILE *fp,int is_ap_mode,const char *lan_ip,const char *lan_mask)
 {
  const char *keys[]={"wr_iot_gateway_t","wr_iot_mask_t","wr_iot_start_t","wr_iot_end_t"};
@@ -190,10 +191,10 @@ service=service.replace('void\nstop_dns_dhcpd(void)', 'static void\nwr_iot_stop_
 anchor='int\nrestart_dhcpd(void)\n{\n\tstop_dns_dhcpd();\n\treturn start_dns_dhcpd(get_ap_mode());\n}'
 if service.count(anchor)!=1:raise SystemExit('DNS restart serialization anchor changed')
 wrappers=r"""#if defined(BOARD_WR1200JS)
-static int wr_iot_dns_lock(struct wr_iot_service_lock *lock)
+static int wr_iot_dns_lock(void)
 {
- if(nvram_get_int("wr_iot_network_t")!=1)return 1;
- if(wr_iot_service_lock_take(lock,"/var/run/wr-iot-services.lock"))return 1;
+ int token=wr_iot_service_guard_enter(nvram_get_int("wr_iot_network_t")==1);
+ if(token)return token;
  logmessage("IoT Wi-Fi","DNS/DHCP transaction busy; service operation deferred");
  return 0;
 }
@@ -202,9 +203,9 @@ int
 start_dns_dhcpd(int is_ap_mode)
 {
 #if defined(BOARD_WR1200JS)
- struct wr_iot_service_lock lock={-1};int result;
- if(!wr_iot_dns_lock(&lock))return EBUSY;
- result=wr_iot_start_dns_raw(is_ap_mode);wr_iot_service_lock_release(&lock);return result;
+ int token=wr_iot_dns_lock(),result;
+ if(!token)return EBUSY;
+ result=wr_iot_start_dns_raw(is_ap_mode);wr_iot_service_guard_leave(token);return result;
 #else
  return wr_iot_start_dns_raw(is_ap_mode);
 #endif
@@ -213,9 +214,9 @@ void
 stop_dns_dhcpd(void)
 {
 #if defined(BOARD_WR1200JS)
- struct wr_iot_service_lock lock={-1};
- if(!wr_iot_dns_lock(&lock))return;
- wr_iot_stop_dns_raw();wr_iot_service_lock_release(&lock);
+ int token=wr_iot_dns_lock();
+ if(!token)return;
+ wr_iot_stop_dns_raw();wr_iot_service_guard_leave(token);
 #else
  wr_iot_stop_dns_raw();
 #endif
@@ -224,10 +225,10 @@ int
 restart_dhcpd(void)
 {
 #if defined(BOARD_WR1200JS)
- struct wr_iot_service_lock lock={-1};int result;
- if(!wr_iot_dns_lock(&lock))return EBUSY;
+ int token=wr_iot_dns_lock(),result;
+ if(!token)return EBUSY;
  wr_iot_stop_dns_raw();result=wr_iot_start_dns_raw(get_ap_mode());
- wr_iot_service_lock_release(&lock);return result;
+ wr_iot_service_guard_leave(token);return result;
 #else
  wr_iot_stop_dns_raw();return wr_iot_start_dns_raw(get_ap_mode());
 #endif
@@ -239,6 +240,9 @@ report['dnsmasq_entry_points_serialized_when_iot_gated']=True
 report['all_dnsmasq_writers_serialized']=False
 for name in ('service-state.h','service-transaction.h','service-lock.h','dnsmasq-files.h','saved-bundle.h','saved-file.h','restore-file.h','uts-state.h','arp-state.h','arp-restore.h'):
  (headers/name).write_bytes((local/name).read_bytes())
+(headers/'service-guard.h').write_bytes((local/'service-guard.h').read_bytes())
+(rc/'wr-iot-service-guard.c').write_text((local/'service-guard.c').read_text(encoding='utf-8').replace('#include \"service-lock.h\"','#include \"wr-iot/service-lock.h\"').replace('#include \"service-guard.h\"','#include \"wr-iot/service-guard.h\"'),encoding='utf-8')
+m.write_text(m.read_text(encoding='utf-8').replace('OBJS += wr-iot-bridge.o','OBJS += wr-iot-service-guard.o wr-iot-bridge.o'),encoding='utf-8')
 report['service_state_headers_installed']=True
 report['service_state_lifecycle_bound']=False
 report['iot_main_dnsmasq_config_staged']=True

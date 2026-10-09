@@ -15,6 +15,7 @@ pre=r"""
 #include <errno.h>
 #include <assert.h>
 #include "service-lock.h"
+#include "service-guard.h"
 static int gate=1,starts,stops,logs;
 static int nvram_get_int(const char *key){assert(!strcmp(key,"wr_iot_network_t"));return gate;}
 static int get_ap_mode(void){return 0;}
@@ -29,6 +30,8 @@ int main(void){char dir[]="/tmp/iot-service-entry-XXXXXX";struct wr_iot_service_
  assert(wr_iot_service_lock_take(&held,"./service.lock"));
  assert(start_dns_dhcpd(0)==EBUSY);stop_dns_dhcpd();assert(restart_dhcpd()==EBUSY);assert(starts==2&&stops==2&&logs==3);
  wr_iot_service_lock_release(&held);assert(restart_dhcpd()==0);assert(starts==3&&stops==3);
+ assert(wr_iot_service_guard_enter(1)==1);assert(wr_iot_service_guard_enter(1)==1);
+ assert(!wr_iot_service_lock_take(&held,"./service.lock"));wr_iot_service_guard_leave(1);assert(!wr_iot_service_lock_take(&held,"./service.lock"));wr_iot_service_guard_leave(1);
  gate=0;assert(wr_iot_service_lock_take(&held,"./service.lock"));assert(start_dns_dhcpd(0)==0);stop_dns_dhcpd();assert(starts==4&&stops==4);wr_iot_service_lock_release(&held);
  assert(!unlink("service.lock"));assert(!chdir("/tmp"));assert(!rmdir(dir));
  puts("PASS actual RC gated entry serialization: start/stop/restart contention leaves raw callbacks untouched, restart avoids nested lock, OFF legacy path; other writers and daemon rollback pending");return 0;}
