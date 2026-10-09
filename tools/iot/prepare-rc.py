@@ -74,6 +74,7 @@ anchor='int\nstart_dns_dhcpd(int is_ap_mode)'
 if service.count(anchor)!=1:raise SystemExit('DHCP service anchor changed')
 helper=r"""#if defined(BOARD_WR1200JS)
 #include "wr-iot/dhcp-write.h"
+#include "wr-iot/network-check.h"
 static int wr_iot_dnsmasq(FILE *fp,int is_ap_mode,const char *lan_ip,const char *lan_mask)
 {
  const char *keys[]={"wr_iot_gateway_t","wr_iot_mask_t","wr_iot_start_t","wr_iot_end_t"};
@@ -84,6 +85,7 @@ static int wr_iot_dnsmasq(FILE *fp,int is_ap_mode,const char *lan_ip,const char 
   if (n>=sizeof(values[i])) return -1;
   memcpy(values[i],value,n+1);
  }
+ if (is_ap_mode || !wr_iot_network_check(values[0],values[1],values[2],values[3])) return -1;
  return wr_iot_dhcp_write(fp,!is_ap_mode,values[0],values[1],values[2],values[3],lan_ip,lan_mask)?1:-1;
 }
 #endif
@@ -109,5 +111,14 @@ m.write_text(m.read_text(encoding='utf-8').replace('wr-iot-bridge.o wr-iot-profi
 f.write_text(service,encoding='utf-8')
 report['dhcp_hook_installed']=True
 report['network_activation_guard']='wr_iot_network_t; no startup sets this state yet; full route/VPN validation still required'
+for name in ('network-check.h','inventory.h','route-prefix.h','route-snapshot.h'):
+ (headers/name).write_bytes((local/name).read_bytes())
+network=(local/'network-check.c').read_text(encoding='utf-8')
+for name in ('network-check.h','bridge.h','route-snapshot.h','subnet.h'):
+ network=network.replace('#include "'+name+'"','#include "wr-iot/'+name+'"')
+(rc/'wr-iot-network.c').write_text(network,encoding='utf-8')
+m.write_text(m.read_text(encoding='utf-8').replace('wr-iot-dhcp.o','wr-iot-dhcp.o wr-iot-network.o'),encoding='utf-8')
+report['dhcp_network_inventory_check']=True
+report['network_activation_guard']='wr_iot_network_t; interface and all-table route precheck installed; serialization and startup still pending'
 (a.source/'iot-rc-source.json').write_text(json.dumps(report,indent=2)+'\n')
 print('PASS WR-only IoT bridge object and owned quiescence source integration; activation pending')

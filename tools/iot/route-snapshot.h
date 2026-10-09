@@ -4,7 +4,7 @@
 #include "route-prefix.h"
 #include <poll.h>
 #include <errno.h>
-static int wr_iot_route_snapshot_owned(struct wr_iot_inventory *out,unsigned int owned_index,uint32_t owned_network,uint32_t owned_mask) {
+static inline int wr_iot_route_snapshot_owned(struct wr_iot_inventory *out,unsigned int owned_index,uint32_t owned_network,uint32_t owned_mask) {
  struct {struct nlmsghdr header;struct rtmsg route;} request;
  struct sockaddr_nl local,kernel;struct wr_iot_inventory candidate;
  union {struct nlmsghdr alignment;unsigned char bytes[32768];} buffer;
@@ -46,7 +46,7 @@ static int wr_iot_route_snapshot_owned(struct wr_iot_inventory *out,unsigned int
  }
 done:close(fd);return ok;
 }
-static int wr_iot_route_snapshot(struct wr_iot_inventory *out) {
+static inline int wr_iot_route_snapshot(struct wr_iot_inventory *out) {
  return wr_iot_route_snapshot_owned(out,0,0,0);
 }
 #endif

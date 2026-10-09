@@ -10,7 +10,7 @@
 #include <unistd.h>
 #define WR_IOT_INVENTORY_MAX 16
 struct wr_iot_inventory {struct wr_iot_range ranges[WR_IOT_INVENTORY_MAX];size_t count;};
-static int wr_iot_inventory_add(struct wr_iot_inventory *out,uint32_t address,uint32_t mask) {
+static inline int wr_iot_inventory_add(struct wr_iot_inventory *out,uint32_t address,uint32_t mask) {
  struct wr_iot_range range;uint32_t inverse=~mask;size_t i;
  if(!out||out->count>WR_IOT_INVENTORY_MAX||!mask||(inverse&(inverse+1)))return 0;
  range.first=address&mask;range.last=range.first|inverse;
@@ -21,7 +21,7 @@ static int wr_iot_inventory_add(struct wr_iot_inventory *out,uint32_t address,ui
 /* Snapshot all UP IPv4 interfaces, including aliases and point-to-point endpoints.
  * ignore_owned_iot is permitted only after a separate positive ownership check.
  * Failure leaves output untouched; no interface or route is modified. */
-static int wr_iot_inventory_interfaces(struct wr_iot_inventory *out,int ignore_owned_iot) {
+static inline int wr_iot_inventory_interfaces(struct wr_iot_inventory *out,int ignore_owned_iot) {
  struct ifreq entries[128],request;struct ifconf configuration;
  struct wr_iot_inventory candidate;int fd,ok=0;size_t i,n;
  if(!out)return 0;

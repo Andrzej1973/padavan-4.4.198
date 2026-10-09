@@ -3,7 +3,7 @@
 #define WR_IOT_ROUTE_PREFIX_H
 #include "inventory.h"
 #include <linux/rtnetlink.h>
-static int wr_iot_route_prefix_owned(struct wr_iot_inventory *out,const struct nlmsghdr *message,size_t available,
+static inline int wr_iot_route_prefix_owned(struct wr_iot_inventory *out,const struct nlmsghdr *message,size_t available,
  unsigned int owned_index,uint32_t owned_network,uint32_t owned_mask) {
  const struct rtmsg *route;struct rtattr *attribute;struct wr_iot_inventory candidate;
  uint32_t address=0,mask,output_index=0;int length,seen=0,seen_output=0,indirect=0;
@@ -39,7 +39,7 @@ static int wr_iot_route_prefix_owned(struct wr_iot_inventory *out,const struct n
  if(!wr_iot_inventory_add(&candidate,address,mask))return 0;
  *out=candidate;return 1;
 }
-static int wr_iot_route_prefix(struct wr_iot_inventory *out,const struct nlmsghdr *message,size_t available) {
+static inline int wr_iot_route_prefix(struct wr_iot_inventory *out,const struct nlmsghdr *message,size_t available) {
  return wr_iot_route_prefix_owned(out,message,available,0,0,0);
 }
 #endif
