@@ -1081,7 +1081,7 @@ jobs:
         run: |
           set -euo pipefail
           gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
-            tools/iot/check-arp-restore.c -o abi-results/check-iot-arp-restore
+            '-DWR_IOT_SERVICE_LOCK_PATH="service.lock"' tools/iot/check-arp-restore.c tools/iot/service-guard.c -o abi-results/check-iot-arp-restore
           parent="$(readlink /proc/self/ns/net)"
           sudo env WR_IOT_PARENT_NETNS="$parent" WR_IOT_PARENT_UTSNS="$(readlink /proc/self/ns/uts)" unshare --net --uts bash -euc '
             ip link add br0 type dummy
@@ -1123,7 +1123,7 @@ jobs:
         run: |
           set -euo pipefail
           gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
-            tools/iot/check-dnsmasq-files.c -o abi-results/check-iot-dnsmasq-files
+            '-DWR_IOT_SERVICE_LOCK_PATH="service.lock"' tools/iot/check-dnsmasq-files.c tools/iot/service-guard.c -o abi-results/check-iot-dnsmasq-files
           abi-results/check-iot-dnsmasq-files | tee abi-results/iot-dnsmasq-files.txt
           compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \

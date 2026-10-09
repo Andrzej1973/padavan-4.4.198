@@ -29,7 +29,15 @@ int main(void){
   assert(wr_iot_service_transaction_finish(&first,"service.lock"));
   assert(!wr_iot_service_transaction_finish(&first,"service.lock"));
   assert(wr_iot_service_transaction_begin(&second,"service.lock"));assert(wr_iot_service_transaction_seal(&second,"service.lock"));
-  assert(wr_iot_service_transaction_finish(&second,"service.lock"));assert(!unlink("service.lock"));
+  assert(wr_iot_service_transaction_finish(&second,"service.lock"));assert(!wr_iot_service_transaction_begin_guarded(&first,"service.lock"));
+  assert(wr_iot_service_guard_enter(1)==1);assert(!wr_iot_service_transaction_begin_guarded(&first,"wrong.lock"));assert(first.lock.fd==-1);assert(wr_iot_service_transaction_begin_guarded(&first,"service.lock"));
+  assert(!wr_iot_service_transaction_begin(&second,"service.lock"));
+  assert(wr_iot_service_guard_enter(1)==1);wr_iot_service_guard_leave(1);
+  assert(wr_iot_service_transaction_seal(&first,"service.lock"));assert(wr_iot_service_transaction_restore(&first,"service.lock"));
+  assert(wr_iot_service_transaction_finish(&first,"service.lock"));
+  assert(!wr_iot_service_transaction_begin(&second,"service.lock"));
+  wr_iot_service_guard_leave(1);assert(wr_iot_service_transaction_begin(&second,"service.lock"));
+  assert(wr_iot_service_transaction_seal(&second,"service.lock"));assert(wr_iot_service_transaction_finish(&second,"service.lock"));assert(!unlink("service.lock"));
  }
 
  assert(!unlink("etc/dnsmasq.conf"));assert(!unlink("etc/ethers"));assert(!rmdir("etc/dnsmasq/dhcp"));assert(!rmdir("etc/dnsmasq"));assert(!rmdir("etc"));assert(!rmdir("tmp"));assert(!chdir("/tmp"));assert(!rmdir(directory));

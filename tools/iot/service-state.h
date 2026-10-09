@@ -21,6 +21,14 @@ static inline int wr_iot_service_state_begin(struct wr_iot_service_state *s,cons
  }
  s->sealed=0;s->uts_done=0;s->recover_started=0;s->recovered=0;return 1;
 }
+/* External guard remains caller-owned, including on snapshot failure. */
+static inline int wr_iot_service_state_begin_guarded(struct wr_iot_service_state *s,const char *lock,const char *lan){
+ if(!s||!wr_iot_service_transaction_begin_guarded(&s->transaction,lock))return 0;
+ if(!wr_iot_uts_capture(&s->saved_uts)||!wr_iot_arp_capture(lan,&s->saved_arp)||!wr_iot_arp_valid(&s->saved_arp)){
+  wr_iot_bundle_release(&s->transaction.files);wr_iot_service_lock_release(&s->transaction.lock);s->transaction.active=0;return 0;
+ }
+ s->sealed=0;s->uts_done=0;s->recover_started=0;s->recovered=0;return 1;
+}
 static inline int wr_iot_service_state_seal(struct wr_iot_service_state *s,const char *lock){
  struct wr_iot_uts_state uts;struct wr_iot_arp_state arp;
  if(!s||s->sealed||!s->transaction.active||!wr_iot_service_lock_valid(&s->transaction.lock,lock)||

@@ -24,3 +24,8 @@ void wr_iot_service_guard_leave(int token){
  if(token!=1||owner!=getpid()||!depth)return;
  if(!--depth)wr_iot_service_lock_release(&held);
 }
+
+int wr_iot_service_guard_dup(void){
+ if(owner!=getpid()||!depth||!wr_iot_service_lock_valid(&held,WR_IOT_SERVICE_LOCK_PATH))return -1;
+ return fcntl(held.fd,F_DUPFD_CLOEXEC,0);
+}

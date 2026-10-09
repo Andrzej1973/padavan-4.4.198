@@ -47,7 +47,7 @@ int main(void){
   n=readlink("/proc/self/ns/uts",utsns,sizeof(utsns)-1);assert(utsparent&&n>=0);utsns[n]=0;assert(strcmp(utsns,utsparent));
   assert(mkdtemp(directory));assert(!chdir(directory));assert(!mkdir("etc",0700));assert(!mkdir("etc/dnsmasq",0700));assert(!mkdir("etc/dnsmasq/dhcp",0700));assert(!mkdir("tmp",0700));
   fp=fopen("etc/dnsmasq.conf","w");assert(fp);assert(fputs("previous\n",fp)>=0);assert(!fclose(fp));
-  wr_iot_service_state_init(&state);assert(wr_iot_uts_capture(&old_uts));assert(wr_iot_service_state_begin(&state,"service.lock","br0"));
+  wr_iot_service_state_init(&state);assert(wr_iot_uts_capture(&old_uts));assert(wr_iot_service_guard_enter(1)==1);assert(wr_iot_service_state_begin_guarded(&state,"service.lock","br0"));
   fp=fopen("etc/dnsmasq.conf","w");assert(fp);assert(fputs("candidate\n",fp)>=0);assert(!fclose(fp));
   assert(!sethostname("iot-candidate",13));assert(!setdomainname("candidate.invalid",17));
   assert(wr_iot_service_state_seal(&state,"service.lock"));
@@ -58,7 +58,7 @@ int main(void){
   assert(!sethostname("iot-candidate",13));assert(wr_iot_service_state_recover(&state,"service.lock"));
   assert(wr_iot_uts_capture(&now));assert(!strcmp(old_uts.hostname,now.hostname)&&!strcmp(old_uts.domain,now.domain));
   fp=fopen("etc/dnsmasq.conf","r");assert(fp);assert(fgets(text,sizeof(text),fp));assert(!strcmp(text,"previous\n"));assert(!fclose(fp));
-  assert(wr_iot_service_state_finish(&state,"service.lock"));
+  assert(wr_iot_service_state_finish(&state,"service.lock"));wr_iot_service_guard_leave(1);
   assert(!unlink("service.lock"));assert(!unlink("etc/dnsmasq.conf"));assert(!rmdir("etc/dnsmasq/dhcp"));assert(!rmdir("etc/dnsmasq"));assert(!rmdir("etc"));assert(!rmdir("tmp"));assert(!chdir("/tmp"));assert(!rmdir(directory));
  }
 
