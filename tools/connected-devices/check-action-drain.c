@@ -28,9 +28,15 @@ int main(void){
  assert(!flock(fd,LOCK_UN));e.sequence=261;assert(wr_action_send(pair[0],&e));
  wr_action_drain_owned(&log,pair[1],temporary,"/proc/self/exe","/proc",geteuid(),0);
  assert(!log.owner_available&&log.rejected==22&&log.session.sequence==260);
+ assert(log.gap&&log.interruptions==2&&log.count==256);
+ wr_action_drain_owned(&log,pair[1],temporary,"/proc/self/exe","/proc",geteuid(),0);assert(log.interruptions==2);
+ assert(!flock(fd,LOCK_EX|LOCK_NB));e.sequence=262;assert(wr_action_send(pair[0],&e));
+ wr_action_drain_owned(&log,pair[1],temporary,"/proc/self/exe","/proc",geteuid(),0);
+ assert(log.owner_available&&!log.gap&&log.interruptions==2&&log.session.missing==1&&log.session.sequence==262&&log.count==256&&log.dropped==5);
+
  close(fd);unlink(temporary);
  }
- {char json[131072],tiny[2];size_t length;assert(wr_action_json(&log,json,sizeof(json),&length));assert(strstr(json,"\"outcome\":\"unknown\""));assert(strstr(json,"\"dropped\":\"4\""));assert(!wr_action_json(&log,tiny,sizeof(tiny),&length)&&!length);}
+ {char json[131072],tiny[2];size_t length;assert(wr_action_json(&log,json,sizeof(json),&length));assert(strstr(json,"\"outcome\":\"unknown\""));assert(strstr(json,"\"dropped\":\"5\""));assert(!wr_action_json(&log,tiny,sizeof(tiny),&length)&&!length);}
  close(pair[0]);close(pair[1]);
  puts("PASS actual owned process receipt, bounded drain, ring overflow, replay and stopped-owner rejection");return 0;
 }

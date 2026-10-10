@@ -53,3 +53,7 @@ view.filter.value='FF';view.filter.events.input();assert.equal(view.actionList.c
 h.actions.ownerAvailable=false;view.filter.value='';view.render(h);assert(root.textContent.includes('retained commands may be old'));
 view.exportButton.events.click();assert.equal(exported.actions.events.length,1);
 console.log('PASS separate command timeline, evidence labels, shared MAC filter, retained-state notice and action export');
+
+h.actions.monitoringGap=true;h.actions.interruptions='2';view.render(h);assert(root.textContent.includes('Monitoring currently incomplete'));assert(root.textContent.includes('Collection interruptions: 2'));
+h.actions.ownerAvailable=true;h.actions.monitoringGap=false;view.render(h);assert(!root.textContent.includes('Monitoring currently incomplete'));assert(root.textContent.includes('Collection interruptions: 2'));
+console.log('PASS action collection gap recovery and retained interruption count');

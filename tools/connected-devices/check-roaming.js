@@ -26,3 +26,5 @@ let counters=sample();counters.clientDropped=1;assert.equal(api.relation(sample(
  a.events[0].session='0000000000000000';assert(!r.actionsValid(a,5));
  console.log('PASS bounded action browser schema, exact 64-bit identities, replay and invented outcome rejection');
 })();
+
+(function(){var r=require('./roaming.js'),assert=require('assert');var a={ownerAvailable:true,dropped:'0',rejected:'0',missing:'0',events:[],monitoringGap:true,interruptions:'2'};assert(r.actionsValid(a,0));a.monitoringGap='false';assert(!r.actionsValid(a,0));a.monitoringGap=false;a.interruptions='-1';assert(!r.actionsValid(a,0));console.log('PASS explicit collection gap and bounded interruption schema');})();
