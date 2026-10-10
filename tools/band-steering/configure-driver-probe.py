@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Enable actual Padavan wrapper symbols only in an isolated kernel copy."""
+"""Validate or enable actual Padavan wrapper symbols in an isolated kernel copy."""
 import argparse
 import hashlib
 import json
@@ -24,9 +24,11 @@ for driver, symbol in checks:
     if 'ifeq ($(CONFIG_' + symbol + '),y)' not in makefile or '-DBAND_STEERING' not in makefile:
         raise ValueError('Missing wrapper compile hook: ' + symbol)
     old = '# CONFIG_' + symbol + ' is not set'
-    if text.splitlines().count(old) != 1:
-        raise ValueError('Expected disabled baseline selector: ' + symbol)
-    text = text.replace(old, 'CONFIG_' + symbol + '=y')
+    enabled = 'CONFIG_' + symbol + '=y'
+    if text.splitlines().count(old) + text.splitlines().count(enabled) != 1:
+        raise ValueError('Expected exactly one disabled or enabled selector: ' + symbol)
+    if text.splitlines().count(old):
+        text = text.replace(old, enabled)
 for symbol in ('CONFIG_MT76X3_AP=m', 'CONFIG_MT76X2_AP=m'):
     if text.splitlines().count(symbol) != 1:
         raise ValueError('WR1200JS module configuration changed: ' + symbol)
