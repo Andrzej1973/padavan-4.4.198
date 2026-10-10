@@ -5,6 +5,8 @@
 
 struct entry {const char *key;char value[80];};
 static int held,busy,enters,leaves;
+static unsigned int bridge_index;
+unsigned int if_nametoindex(const char *name){assert(held&&!strcmp(name,"br-iot"));return bridge_index;}
 int wr_iot_service_guard_enter(int enabled){assert(enabled==1&&!held);enters++;if(busy)return 0;held=1;return 1;}
 void wr_iot_service_guard_leave(int token){assert(token==1&&held);held=0;leaves++;}
 static struct entry values[]={
@@ -32,6 +34,10 @@ int main(void){
   if(failure>=8)assert(!strcmp(find("wr_iot_profile_t")->value,"0")&&!strcmp(find("wr_iot_network_t")->value,"0")&&!strcmp(find("wr_iot_firewall_t")->value,"0"));
  }
  assert(!held&&enters==leaves);
+ reset();writes=0;fail_write=0;bridge_index=7;
+ assert(!wr_iot_request_stage(1,1,0)&&!writes&&!held);
+ assert(!strcmp(find("wr_iot_profile_t")->value,"stale"));
+ bridge_index=0;
  reset();writes=0;busy=1;
  assert(!wr_iot_request_stage(1,1,0)&&!writes&&!held&&enters==leaves+1);
  assert(!strcmp(find("wr_iot_profile_t")->value,"stale"));

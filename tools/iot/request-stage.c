@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <net/if.h>
 #include "request-stage.h"
 #include "request.h"
 #include "service-guard.h"
@@ -27,6 +28,9 @@ static int wr_iot_request_clear(void)
 static int wr_iot_request_stage_locked(int router_mode,int radio_on,int radio_mode)
 {
  struct wr_iot_request request;
+ /* Existing bridges belong to the activation/recovery controller. Staging
+  * must never clear the live service gates or adopt a foreign bridge. */
+ if(if_nametoindex("br-iot"))return 0;
  if(!wr_iot_request_read(&request,wr_iot_request_nvram,NULL,router_mode,radio_on,
                          radio_mode,NULL,0))return 0;
  if(!wr_iot_request_clear())return 0;
