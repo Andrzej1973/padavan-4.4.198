@@ -210,5 +210,17 @@ int main(void)
   mode=3;assert(!wr_rssi_query_client("ra0",&q,fake_rssi_query,&mode,&out));assert(!memcmp(&before,&out,sizeof out));
  }
  puts("PASS RSSI client transport failure, stale session and truncated response rejection");
+ {
+  struct wr_rssi_query_request q={0},next={0},saved;
+  struct wr_rssi_query_response r={0};unsigned int i;
+  q.capacity=64;r.session[0]=1;r.sequence=100;r.count=64;
+  for(i=0;i<64;i++)r.records[i].sequence=i+1;
+  assert(wr_rssi_query_next_cursor(&q,&r,&next));assert(next.after==64&&next.session[0]==1);
+  q=next;r.count=0;saved=next;
+  assert(!wr_rssi_query_next_cursor(&q,&r,&next));assert(!memcmp(&saved,&next,sizeof next));
+  r.sequence=64;assert(wr_rssi_query_next_cursor(&q,&r,&next)&&next.after==64);
+  r.session[0]=2;assert(!wr_rssi_query_next_cursor(&q,&r,&next));
+ }
+ puts("PASS RSSI bounded-page cursor does not skip unreturned records and rejects stale sessions");
  return 0;
 }

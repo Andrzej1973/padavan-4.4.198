@@ -3,7 +3,7 @@
 #include <sys/socket.h>
 #include <linux/wireless.h>
 #include <string.h>
-#include "rssi-query-decode.h"
+#include "rssi-query-cursor.h"
 #define WR_RSSI_READ_IOCTL (SIOCIWFIRSTPRIV+1)
 #define WR_RSSI_READ_OID 0x7e01
 typedef int (*wr_rssi_ioctl_fn)(const char *,int,struct iwreq *,void *);
@@ -15,7 +15,7 @@ static inline int wr_rssi_query_client(const char *interface,
  struct wr_rssi_query_response *output)
 {
  unsigned char bytes[WR_RSSI_QUERY_RESPONSE_MAX_BYTES];struct iwreq request;
- struct wr_rssi_query_response decoded;unsigned int i;
+ struct wr_rssi_query_response decoded;struct wr_rssi_query_request next;unsigned int i;
  if(!interface||!query||!invoke||!output)return 0;
  for(i=0;i<IFNAMSIZ&&interface[i];i++){}
  if(!i||i==IFNAMSIZ)return 0;
@@ -28,7 +28,7 @@ static inline int wr_rssi_query_client(const char *interface,
     !wr_rssi_query_response_decode(bytes,request.u.data.length,query->radio,&decoded)||
     decoded.count>query->capacity||decoded.sequence<query->after||
     !wr_rssi_query_session_matches(query,decoded.session))return 0;
- for(i=0;i<decoded.count;i++)if(decoded.records[i].sequence<=query->after)return 0;
+ if(!wr_rssi_query_next_cursor(query,&decoded,&next))return 0;
  *output=decoded;return 1;
 }
 #endif
