@@ -42,6 +42,18 @@ static inline int wr_device_json_string(struct wr_device_json_buffer *out,const 
  }
  return wr_device_json_append(out,"\"");
 }
+/* WR's separate MT76x2/MT76x3 radios use main BSS 0 and guest BSS 1.
+ * Unknown/conflicting BSS observations must never be guessed as IoT. */
+static inline const char *wr_device_radio_role(const struct wr_device_radio_evidence *radio){
+ unsigned int band;int index=-1;
+ if(!radio->band_mask||radio->band_mask>3)return "unknown";
+ for(band=0;band<2;band++)if(radio->band_mask&(1U<<band)){
+  if(radio->ap_index[band]>1)return "unknown";
+  if(index>=0&&index!=radio->ap_index[band])return "unknown";
+  index=radio->ap_index[band];
+ }
+ return index==0?"primary":"guest";
+}
 static inline int wr_device_snapshot_json(const struct wr_device_snapshot *snapshot,const char *epoch,uint64_t sequence,char *buffer,size_t capacity,size_t *length){
  struct wr_device_json_buffer out={buffer,capacity,0};unsigned int i;
  if(!snapshot||!epoch||!epoch[0]||!buffer||!capacity||!length||snapshot->count>WR_DEVICE_LIMIT||sequence>9007199254740991ULL)return 0;
@@ -57,6 +69,7 @@ static inline int wr_device_snapshot_json(const struct wr_device_snapshot *snaps
   if(record->radio.band_mask>3)return 0;
   if(record->radio.band_mask){
    unsigned int band;int first=1;
+   if(!wr_device_json_format(&out,",\"networkRole\":\"%s\"",wr_device_radio_role(&record->radio)))return 0;
    if(!wr_device_json_append(&out,",\"presence\":\"associated\",\"radios\":["))return 0;
    for(band=0;band<2;band++)if(record->radio.band_mask&(1U<<band)){
     int rssi=record->radio.rssi[band];

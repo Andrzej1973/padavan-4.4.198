@@ -47,3 +47,6 @@ view.setState({state:'Updating'});
 assert(root.textContent.includes('Last available evidence: Wi-Fi association'));
 view.setState({state:'Current'});
 assert(!root.textContent.includes('Last available evidence:'));
+
+view.render({devices:[{mac:'02:00:00:00:00:11',networkRole:'primary'},{mac:'02:00:00:00:00:12',networkRole:'guest'}]});
+assert(all(root).filter(n=>n.tagName==='details'&&n.style.display!=='none').length===2);
