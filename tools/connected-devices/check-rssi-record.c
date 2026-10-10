@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "rssi-record.h"
+#include "rssi-identity.h"
 int main(void)
 {
  struct wr_rssi_records ring={0},before;
@@ -50,5 +51,18 @@ int main(void)
   assert(identity.attempt==2);
  }
  puts("PASS distinct RSSI attempt reservation, invalid identity and exhaustion without reuse");
+ {
+  unsigned long long births=0;unsigned char mac[6]={2,0,0,0,0,1};
+  struct wr_rssi_identity first,recycled,saved;
+  assert(wr_rssi_identity_create(&births,7,mac,&first));saved=first;
+  assert(wr_rssi_identity_matches(&first,&saved));
+  assert(wr_rssi_identity_create(&births,7,mac,&recycled));
+  assert(!wr_rssi_identity_matches(&first,&recycled));
+  saved.wcid=8;assert(!wr_rssi_identity_matches(&first,&saved));
+  saved=first;saved.mac[5]=2;assert(!wr_rssi_identity_matches(&first,&saved));
+  mac[0]=1;assert(!wr_rssi_identity_create(&births,7,mac,&saved));assert(births==2);
+  births=~0ULL;mac[0]=2;assert(!wr_rssi_identity_create(&births,7,mac,&saved));
+ }
+ puts("PASS reused station slot and identical MAC rejected by client birth identity");
  return 0;
 }
