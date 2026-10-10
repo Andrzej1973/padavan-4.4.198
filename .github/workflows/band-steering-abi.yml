@@ -1095,6 +1095,8 @@ jobs:
             -c iot-rc-source/trunk/user/rc/wr-iot-dhcp.c -o abi-results/iot-rc-dhcp-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
             -c iot-rc-source/trunk/user/rc/wr-iot-network.c -o abi-results/iot-rc-network-mips.o
+          "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+            -c iot-rc-source/trunk/user/rc/wr-iot-request-stage.c -o abi-results/iot-rc-request-stage-mips.o
           python3 tools/iot/prepare-activation-header-check.py iot-rc-source abi-results/check-iot-activation-headers.c
           include_flags=(-I"$PWD/iot-rc-source/trunk/user/rc" -I"$PWD/iot-rc-source/trunk/user/shared")
           gcc -std=gnu11 -Wall -Wextra -Werror -O2 "${include_flags[@]}" -c abi-results/check-iot-activation-headers.c -o abi-results/iot-activation-headers-native.o
@@ -1140,6 +1142,20 @@ jobs:
           test -n "$compiler"
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -Itools/iot \
             -c tools/iot/check-request.c -o abi-results/iot-request-mips.o
+
+      - name: Check IoT request staging before activation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/iot/prepare-request-stage-check.py abi-results/iot-request-stage-headers
+          include_flags=(-I"$PWD/abi-results/iot-request-stage-headers" -I"$PWD/tools/iot")
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined "${include_flags[@]}" \
+            tools/iot/check-request-stage.c tools/iot/request-stage.c -o abi-results/check-iot-request-stage
+          abi-results/check-iot-request-stage | tee abi-results/iot-request-stage.txt
+          compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float "${include_flags[@]}" \
+            -c tools/iot/request-stage.c -o abi-results/iot-request-stage-mips.o
 
       - name: Check installed IoT firewall policy and quarantine
         shell: bash

@@ -35,12 +35,16 @@ for name in ('bridge.h','subnet.h','types.h'):(headers/name).write_bytes((local/
 # Keep the activation state machine and the immutable request parser beside the
 # RC objects that will own them.  They are still deliberately unbound here;
 # staging them first makes the real RC include environment a compile gate.
-for name in ('activation.h','request.h'):(headers/name).write_bytes((local/name).read_bytes())
+for name in ('activation.h','request.h','request-stage.h'):(headers/name).write_bytes((local/name).read_bytes())
 bridge=(local/'bridge.c').read_text(encoding='utf-8').replace('#include "bridge.h"','#include "wr-iot/bridge.h"',1).replace('#include "subnet.h"','#include "wr-iot/subnet.h"',1)
 (rc/'wr-iot-bridge.c').write_text(bridge,encoding='utf-8');f.write_text(s,encoding='utf-8');m.write_text(make,encoding='utf-8')
+stage=(local/'request-stage.c').read_text(encoding='utf-8').replace('#include "request-stage.h"','#include "wr-iot/request-stage.h"',1).replace('#include "request.h"','#include "wr-iot/request.h"',1)
+(rc/'wr-iot-request-stage.c').write_text(stage,encoding='utf-8')
+m.write_text(m.read_text(encoding='utf-8').replace('OBJS += wr-iot-bridge.o','OBJS += wr-iot-request-stage.o wr-iot-bridge.o'),encoding='utf-8')
 report={'board':'WR1200JS','candidate_bss':'ra2','bridge_object_installed':True,'owned_quiescence_before_radio_stop':True,'activation_integrated':False,'runtime_verified':False}
 report['activation_headers_staged']=True
 report['request_snapshot_header_staged']=True
+report['request_snapshot_runtime_adapter_staged']=True
 # Profile activation remains gated by an internal temporary preparation state.
 f=rc/'ralink.c';radio=f.read_text(encoding='utf-8')
 anchor='\tfclose(fp);\n\n\treturn 0;\n}\n\nint\ngen_ralink_config_2g'
@@ -70,7 +74,7 @@ shared=rc/'shared-wifi';shared.mkdir(exist_ok=True)
 (shared/'validate.h').write_bytes((local.parent/'shared-wifi/validate.h').read_bytes())
 profile=(local/'profile.c').read_text(encoding='utf-8').replace('#include "profile.h"','#include "wr-iot/profile.h"').replace('#include "profile-file.h"','#include "wr-iot/profile-file.h"')
 (rc/'wr-iot-profile.c').write_text(profile,encoding='utf-8')
-m.write_text(m.read_text(encoding='utf-8').replace('OBJS += wr-iot-bridge.o','OBJS += wr-iot-bridge.o wr-iot-profile.o'),encoding='utf-8')
+m.write_text(m.read_text(encoding='utf-8').replace('OBJS += wr-iot-request-stage.o wr-iot-bridge.o','OBJS += wr-iot-request-stage.o wr-iot-bridge.o wr-iot-profile.o'),encoding='utf-8')
 f.write_text(radio,encoding='utf-8')
 report['profile_hook_installed']=True
 report['profile_activation_guard']='wr_iot_profile_t; no startup sets this state yet'
@@ -395,16 +399,16 @@ report['auxiliary_dns_writer_bodies_journal_instrumented']=True
 report['writer_journal_lifecycle_bound']=False
 (headers/'writer-journal.h').write_bytes((local/'writer-journal.h').read_bytes())
 (rc/'wr-iot-writer-journal.c').write_text((local/'writer-journal.c').read_text(encoding='utf-8').replace('#include "writer-journal.h"','#include "wr-iot/writer-journal.h"').replace('#include "service-state.h"','#include "wr-iot/service-state.h"'),encoding='utf-8')
-m.write_text(m.read_text(encoding='utf-8').replace('OBJS += wr-iot-bridge.o','OBJS += wr-iot-writer-journal.o wr-iot-bridge.o'),encoding='utf-8')
+m.write_text(m.read_text(encoding='utf-8').replace('OBJS += wr-iot-request-stage.o wr-iot-bridge.o wr-iot-profile.o wr-iot-dhcp.o wr-iot-network.o','OBJS += wr-iot-request-stage.o wr-iot-writer-journal.o wr-iot-bridge.o wr-iot-profile.o wr-iot-dhcp.o wr-iot-network.o'),encoding='utf-8')
 
 for name in ('service-state.h','service-transaction.h','service-lock.h','dnsmasq-files.h','saved-bundle.h','saved-file.h','restore-file.h','uts-state.h','arp-state.h','arp-restore.h'):
  (headers/name).write_bytes((local/name).read_bytes())
 (headers/'service-guard.h').write_bytes((local/'service-guard.h').read_bytes())
 (rc/'wr-iot-service-guard.c').write_text((local/'service-guard.c').read_text(encoding='utf-8').replace('#include \"service-lock.h\"','#include \"wr-iot/service-lock.h\"').replace('#include \"service-guard.h\"','#include \"wr-iot/service-guard.h\"'),encoding='utf-8')
 make_source=m.read_text(encoding='utf-8')
-anchor='OBJS += wr-iot-writer-journal.o wr-iot-bridge.o'
+anchor='OBJS += wr-iot-request-stage.o wr-iot-writer-journal.o wr-iot-bridge.o wr-iot-profile.o wr-iot-dhcp.o wr-iot-network.o'
 if make_source.count(anchor)!=1:raise SystemExit('IoT linked object anchor changed')
-make_source=make_source.replace(anchor,'OBJS += wr-iot-service-guard.o wr-iot-writer-journal.o wr-iot-bridge.o',1)
+make_source=make_source.replace(anchor,'OBJS += wr-iot-request-stage.o wr-iot-service-guard.o wr-iot-writer-journal.o wr-iot-bridge.o wr-iot-profile.o wr-iot-dhcp.o wr-iot-network.o',1)
 if make_source.count('wr-iot-service-guard.o')!=1:raise SystemExit('IoT service guard missing or duplicated in RC link')
 m.write_text(make_source,encoding='utf-8')
 report['service_state_headers_installed']=True
