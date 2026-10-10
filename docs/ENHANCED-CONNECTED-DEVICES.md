@@ -123,3 +123,12 @@ A local browser fixture using the actual presentation/classification/refresh scr
 The browser displayed hostile HTML-like names as literal text. Selecting Android filtered the unknown row; automatic source-time updates continued while the selected category remained Android. This fixture uses simplified CSS and a local mock endpoint, so it does not establish integration with the full Padavan page, real authentication, wireless association or target CPU/RAM use. The corrected assets now total 14,274 raw bytes; the earlier 14,165-byte measurement precedes the encoding fix.
 
 ABI 221 succeeded for the preceding source/ROMFS-gate commit. Full build 123 is still compiling; its staged ROMFS verification and final image are not yet confirmed. Device validation remains required.
+
+
+## Wireless evidence source checkpoint
+
+Inspection of pinned source `c25283e915a2a00a763774dd255b14aff997285e` found the existing `ej_wl_auth_list` in `trunk/user/httpd/ralink.c`. For the normal dual-radio path it queries each main radio with `RTPRIV_IOCTL_GET_MAC_TABLE_STRUCT`; this is a station-table query, not the separate active scan routine. `shared/include/ralink_priv.h` defines each entry's MAC, `ApIdx`, three RSSI values and connected time. The existing helper chooses the strongest nonzero RSSI among the configured receive streams.
+
+The current JavaScript-oriented authentication list loses band and BSS identity. It must not be parsed or evaluated as the new JSON source. A bounded collector should retain band and `ApIdx`, reject impossible counts/lengths, distinguish failed radio queries from a successful empty table, and merge by MAC with networkmap records. The original reader uses a 4096-byte buffer and loops to the returned count; copying that loop without independent bounds validation would be inappropriate. Driver-side structure/word-size agreement and WR-specific BSS mapping must be verified before treating entries as current association or network-role evidence. The IoT BSS remains unactivated, so an assumed third BSS is not proof of a working IoT network.
+
+This establishes a source integration direction only. The radio collector, JSON fields, merge tests and target verification are not implemented yet.
