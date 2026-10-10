@@ -34,7 +34,7 @@ static inline int wr_action_lock_matches(const char *line,pid_t pid,
  unsigned long long id,actual_inode;unsigned maj,min;long owner;char kind[16],mode[16],access[16],start[16],finish[16],extra;
  if(!line||pid<=0)return 0;
  if(sscanf(line,"%llu: %15s %15s %15s %ld %x:%x:%llu %15s %15s %c",
- &id,kind,mode,access,&owner,&maj,&min,&actual_inode,start,finish,&extra)!=9)return 0;
+ &id,kind,mode,access,&owner,&maj,&min,&actual_inode,start,finish,&extra)!=10)return 0;
  return !strcmp(kind,"FLOCK")&&!strcmp(mode,"ADVISORY")&&!strcmp(access,"WRITE")&&
  owner==(long)pid&&maj==device_major&&min==device_minor&&actual_inode==inode&&
  !strcmp(start,"0")&&!strcmp(finish,"EOF");
