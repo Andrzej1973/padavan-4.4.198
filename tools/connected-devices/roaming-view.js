@@ -3,6 +3,7 @@
  function createView(doc,root){
   function node(tag,text,parent){var n=doc.createElement(tag);if(text)n.textContent=text;(parent||root).appendChild(n);return n;}
   node('h3','Wi-Fi observation history');var status=node('p','Unavailable'),notice=node('p',''),label=node('label','Client MAC: '),filter=node('input','',label),details=node('details',''),summary=node('summary','Recent events',details),list=node('ol','',details),last=null;
+  var actionDetails=node('details',''),actionSummary=node('summary','Band Steering commands',actionDetails),actionNotice=node('p','',actionDetails),actionList=node('ol','',actionDetails);actionDetails.open=false;actionList.style.maxHeight='280px';actionList.style.overflowY='auto';
   var exportButton=node('button','Export history JSON');exportButton.type='button';exportButton.disabled=true;
   filter.type='text';filter.maxLength=17;filter.setAttribute('aria-label','Filter history by client MAC');details.open=false;list.style.maxHeight='280px';list.style.overflowY='auto';
   node('p','Observed changes do not prove Band Steering or RSSI Kick caused them. External access points are not observed.');
@@ -14,6 +15,18 @@
     node('li',Math.floor(e.uptimeMs/1000)+' s uptime | '+(e.mac?e.mac+' | ':'')+message,list);count++;
    }
    summary.textContent='Recent events ('+count+')';list.scrollTop=scroll;
+   var actionScroll=actionList.scrollTop,actionCount=0,a=h.actions;
+   while(actionList.firstChild)actionList.removeChild(actionList.firstChild);
+   if(a){
+    for(var j=a.events.length-1;j>=0;j--){var command=a.events[j];if(match&&command.mac.indexOf(match)<0)continue;
+     var stage=command.stage==='intent'?'Command requested':command.stage==='ioctl_accepted'?'Driver ioctl accepted':command.stage==='ioctl_failed'?'Driver ioctl failed':'Driver acknowledgement';
+     var operation=command.operation==='allow'?'allow candidate':'remove candidate';
+     node('li',Math.floor(command.uptimeMs/1000)+' s uptime | '+command.mac+' | '+(command.radio===0?'2.4 GHz':'5 GHz')+' | '+operation+' | '+stage+' (result '+command.result+'). Roaming outcome unknown.',actionList);actionCount++;
+    }
+    actionNotice.textContent=(a.ownerAvailable?'Producer verified at last collection.':'Producer unavailable; retained commands may be old.')+' Overwritten: '+a.dropped+'; rejected: '+a.rejected+'; missing in current producer session: '+a.missing+'. Command acceptance does not prove a client moved.';
+   }else actionNotice.textContent='Command monitoring is unavailable in this firmware.';
+   actionSummary.textContent='Band Steering commands ('+actionCount+')';actionList.scrollTop=actionScroll;
+
    notice.textContent='History is held in RAM for collector session '+h.epoch+'. Overwritten events: '+h.dropped+'; omitted client observations: '+h.clientDropped+'; reused inactive client slots: '+h.clientEvictions+(h.gap?'. Observation currently incomplete.':'');
   }
   filter.addEventListener('input',function(){if(last)render(last);});
@@ -28,7 +41,7 @@
    finally{if(link&&link.parentNode)link.parentNode.removeChild(link);if(url)win.setTimeout(function(){win.URL.revokeObjectURL(url);},1000);}
   });
   var stale=false;
-  return {render:render,setState:function(s){if(s.state==='Stale')stale=true;else if(s.state==='Current')stale=false;status.textContent=s.state+(stale?' \u2014 showing last available history':'');},filter:filter,details:details,list:list,exportButton:exportButton};
+  return {render:render,setState:function(s){if(s.state==='Stale')stale=true;else if(s.state==='Current')stale=false;status.textContent=s.state+(stale?' \u2014 showing last available history':'');},filter:filter,details:details,list:list,actionDetails:actionDetails,actionList:actionList,exportButton:exportButton};
  }
  function mount(doc,root,refresh,history){var view=createView(doc,root),poller=history.create(refresh,{request:function(done){
   var xhr=new XMLHttpRequest(),settled=false;function finish(error,value){if(settled)return;settled=true;done(error,value);}

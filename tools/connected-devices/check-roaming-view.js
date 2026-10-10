@@ -45,3 +45,11 @@ Element.prototype.click=function(){assert.equal(this.download,'wr1200js-wifi-his
 assert.equal(view.exportButton.disabled,false);view.exportButton.events.click();assert.equal(clicked,1);assert.equal(revoked,1);assert.equal(exported.epoch,'session');assert(!all(root).some(n=>n.tagName==='a'));
 const empty=homepage.createView(doc,new Element('section'));assert.equal(empty.exportButton.disabled,true);empty.exportButton.events.click();assert.equal(clicked,1);
 console.log('PASS explicit local JSON export, empty-history guard and object URL/DOM cleanup');
+
+h.actions={ownerAvailable:true,dropped:'4',rejected:'2',missing:'1',events:[{uptimeMs:5000,mac:'02:00:00:00:00:01',radio:1,operation:'allow',stage:'ioctl_accepted',result:0}]};
+view.filter.value='';view.actionDetails.open=true;view.actionList.scrollTop=17;view.render(h);
+assert.equal(view.actionList.children.length,1);assert(root.textContent.includes('Driver ioctl accepted'));assert(root.textContent.includes('Roaming outcome unknown'));assert.equal(view.actionDetails.open,true);assert.equal(view.actionList.scrollTop,17);
+view.filter.value='FF';view.filter.events.input();assert.equal(view.actionList.children.length,0);assert.equal(view.actionDetails.open,true);
+h.actions.ownerAvailable=false;view.filter.value='';view.render(h);assert(root.textContent.includes('retained commands may be old'));
+view.exportButton.events.click();assert.equal(exported.actions.events.length,1);
+console.log('PASS separate command timeline, evidence labels, shared MAC filter, retained-state notice and action export');
