@@ -1,0 +1,12 @@
+stubby_enable=1
+stubby_listen_port=5453
+stubby_server0=dns.google
+stubby_server1=one.one.one.one
+stubby_server2=dns.quad9.net
+stubby_server3=
+stubby_server_ip0=8.8.8.8
+stubby_server_ip1=1.1.1.1
+stubby_server_ip2=9.9.9.9
+stubby_round_robin=1
+stubby_listen_mode=0
+stubby_mode=1

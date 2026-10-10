@@ -721,6 +721,14 @@ jobs:
               padavan-4.4/trunk stubby-image-checks.json
           fi
 
+      - name: Resolve names through the image Stubby under QEMU
+        run: |
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_STUBBY=y$' configs.build/wr1200js.config; then
+            sudo apt-get install --no-install-recommends -y qemu-user-static dnsutils iptables
+            sh overlay/padavan-4.4/ports/stubby/check-stubby-runtime.sh \
+              padavan-4.4/trunk/romfs --outage 2>&1 | tee stubby-runtime.txt
+          fi
+
       - name: Upload Stubby image diagnostics
         if: always()
         uses: actions/upload-artifact@v7
@@ -728,7 +736,9 @@ jobs:
           name: stubby-image-checks
           retention-days: 14
           if-no-files-found: ignore
-          path: stubby-image-checks.json
+          path: |
+            stubby-image-checks.json
+            stubby-runtime.txt
 
       - name: Verify Privoxy image packaging and ELF dependencies
         run: |

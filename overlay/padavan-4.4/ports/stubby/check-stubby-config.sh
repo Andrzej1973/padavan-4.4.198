@@ -8,46 +8,7 @@
 #                                       the output of: nvram show | grep -E '^(stubby_|lan_ipaddr_t=)'
 set -u
 here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-work=$(mktemp -d) || exit 1
-trap 'rm -rf "$work"' EXIT
-mkdir -p "$work/bin" "$work/storage" "$work/share" "$work/run"
-
-cat > "$work/bin/nvram" <<'EOF'
-#!/bin/sh
-[ "$1" = get ] || exit 1
-grep "^$2=" "$NVRAM_FILE" | head -n 1 | cut -d= -f2-
-EOF
-cat > "$work/bin/logger" <<'EOF'
-#!/bin/sh
-[ "$1" = -t ] && shift 2
-printf '%s\n' "$*" >> "$LOG_FILE"
-EOF
-cat > "$work/bin/stubby" <<'EOF'
-#!/bin/sh
-[ "$1" = -C ] && [ "$3" = -i ] || exit 64
-cp "$2" "$CHECKED_FILE"
-exit "${STUBBY_CHECK_STATUS:-0}"
-EOF
-chmod +x "$work/bin/nvram" "$work/bin/logger" "$work/bin/stubby"
-: > "$work/share/ca.crt"
-
-# Library copy: router paths redirected, lifecycle dispatch removed.
-lib="$work/stubby-lib.sh"
-sed -e "s|^STUBBY_BIN=/usr/sbin/stubby\$|STUBBY_BIN=$work/bin/stubby|" \
-    -e "s|^STUBBY_CONFIG=/etc/storage/stubby/stubby.yml\$|STUBBY_CONFIG=$work/storage/stubby/stubby.yml|" \
-    -e "s|^PID_FILE=/var/run/stubby.pid\$|PID_FILE=$work/run/stubby.pid|" \
-    -e "s|^CA_FILE=/usr/share/stubby/ca-certificates.crt\$|CA_FILE=\${TEST_CA_FILE}|" \
-    -e "s|/etc/storage/stubby|$work/storage/stubby|g" \
-    -e '/^# One lock covers the entire restart/,$d' \
-    "$here/stubby.sh" > "$lib"
-for expected in "STUBBY_BIN=$work/bin/stubby" "STUBBY_CONFIG=$work/storage/stubby/stubby.yml" \
-    'CA_FILE=${TEST_CA_FILE}' "mktemp -d $work/storage/stubby/.stubby.XXXXXX"; do
-    grep -qF "$expected" "$lib" || { echo "FAIL stubby.sh layout changed; cannot redirect: $expected"; exit 1; }
-done
-if grep -qE '/etc/storage|^exec 9>|^case "\$1"' "$lib"; then
-    echo 'FAIL stubby.sh layout changed; router paths or dispatch remain in the test copy'
-    exit 1
-fi
+. "$here/stubby-test-env.sh"
 
 failures=0
 DEFAULTS='stubby_server0=dns.google
@@ -57,25 +18,6 @@ stubby_listen_mode=0
 stubby_round_robin=1
 stubby_mode=1
 lan_ipaddr_t=192.168.1.1'
-
-# generate NVRAM [CHECK_STATUS] [CA_FILE]: sets status, config and messages.
-generate()
-{
-    printf '%s\n' "$1" > "$work/nvram"
-    : > "$work/log"
-    rm -f "$work/checked.yml"
-    (
-        PATH="$work/bin:$PATH" NVRAM_FILE="$work/nvram" LOG_FILE="$work/log" \
-        CHECKED_FILE="$work/checked.yml" STUBBY_CHECK_STATUS="${2:-0}" \
-        TEST_CA_FILE="${3:-$work/share/ca.crt}"
-        export PATH NVRAM_FILE LOG_FILE CHECKED_FILE STUBBY_CHECK_STATUS TEST_CA_FILE
-        . "$lib"
-        make_config
-    ) 2>> "$work/log"
-    status=$?
-    config="$work/storage/stubby/stubby.yml"
-    messages=$(cat "$work/log")
-}
 
 fail_case() { echo "FAIL $1: $2"; [ -n "$messages" ] && printf '  %s\n' "$messages"; failures=$((failures + 1)); }
 
