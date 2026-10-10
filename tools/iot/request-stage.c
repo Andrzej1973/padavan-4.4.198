@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "request-stage.h"
 #include "request.h"
 #include "rc.h"
