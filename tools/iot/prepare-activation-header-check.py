@@ -1,0 +1,31 @@
+#!/usr/bin/env python3
+"""Generate a compile probe for the activation headers as staged by RC prep."""
+import argparse
+from pathlib import Path
+
+p=argparse.ArgumentParser()
+p.add_argument('source',type=Path)
+p.add_argument('output',type=Path)
+a=p.parse_args()
+rc=a.source/'trunk/user/rc'
+for name in ('activation.h','request.h','bridge.h','subnet.h','types.h'):
+    if not (rc/'wr-iot'/name).is_file():
+        raise SystemExit('missing staged IoT header: '+name)
+if not (rc/'shared-wifi'/'validate.h').is_file():
+    raise SystemExit('missing staged shared Wi-Fi validator')
+service=(rc/'services_ex.c').read_text(encoding='utf-8')
+prefix='\n'.join(line for line in service.split('#include "rc.h"',1)[0].splitlines() if line.startswith('#include '))+'\n'
+if not prefix.startswith('#include <stdio.h>'):
+    raise SystemExit('RC include order changed')
+a.output.parent.mkdir(parents=True,exist_ok=True)
+a.output.write_text(prefix+'''#include "wr-iot/activation.h"
+#include "wr-iot/request.h"
+int main(void) {
+ struct wr_iot_request request;
+ struct wr_iot_activation activation;
+ memset(&request,0,sizeof(request));
+ memset(&activation,0,sizeof(activation));
+ return request.enabled || activation.locked;
+}
+''',encoding='utf-8')
+print('Prepared staged RC activation/request header compile probe')

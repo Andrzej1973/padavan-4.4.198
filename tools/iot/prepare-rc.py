@@ -32,9 +32,15 @@ if make.count(anchor)!=1:raise SystemExit('RC object anchor changed')
 make=make.replace(anchor,anchor+'\nifneq ($(findstring -DBOARD_WR1200JS,$(CFLAGS)),)\nOBJS += wr-iot-bridge.o\nendif',1)
 headers=rc/'wr-iot';headers.mkdir(exist_ok=True)
 for name in ('bridge.h','subnet.h','types.h'):(headers/name).write_bytes((local/name).read_bytes())
+# Keep the activation state machine and the immutable request parser beside the
+# RC objects that will own them.  They are still deliberately unbound here;
+# staging them first makes the real RC include environment a compile gate.
+for name in ('activation.h','request.h'):(headers/name).write_bytes((local/name).read_bytes())
 bridge=(local/'bridge.c').read_text(encoding='utf-8').replace('#include "bridge.h"','#include "wr-iot/bridge.h"',1).replace('#include "subnet.h"','#include "wr-iot/subnet.h"',1)
 (rc/'wr-iot-bridge.c').write_text(bridge,encoding='utf-8');f.write_text(s,encoding='utf-8');m.write_text(make,encoding='utf-8')
 report={'board':'WR1200JS','candidate_bss':'ra2','bridge_object_installed':True,'owned_quiescence_before_radio_stop':True,'activation_integrated':False,'runtime_verified':False}
+report['activation_headers_staged']=True
+report['request_snapshot_header_staged']=True
 # Profile activation remains gated by an internal temporary preparation state.
 f=rc/'ralink.c';radio=f.read_text(encoding='utf-8')
 anchor='\tfclose(fp);\n\n\treturn 0;\n}\n\nint\ngen_ralink_config_2g'
