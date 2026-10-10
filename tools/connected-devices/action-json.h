@@ -10,8 +10,8 @@ static inline int wr_action_json(const struct wr_action_log *log,char *data,
  if(length)*length=0;
  if(!log||!data||!length||!capacity||log->count>WR_ACTION_RING_MAX||log->first>=WR_ACTION_RING_MAX)return 0;
  data[0]=0;
- if(!wr_device_json_format(&out,"{\"ownerAvailable\":%s,\"dropped\":\"%llu\",\"rejected\":\"%llu\",\"missing\":\"%llu\",\"events\":[",
- log->owner_available?"true":"false",(unsigned long long)log->dropped,(unsigned long long)log->rejected,(unsigned long long)log->session.missing))return 0;
+ if(!wr_device_json_format(&out,"{\"ownerAvailable\":%s,\"dropped\":\"%llu\",\"rejected\":\"%llu\",\"missing\":\"%llu\",\"monitoringGap\":%s,\"interruptions\":\"%llu\",\"events\":[",
+ log->owner_available?"true":"false",(unsigned long long)log->dropped,(unsigned long long)log->rejected,(unsigned long long)log->session.missing,log->gap?"true":"false",(unsigned long long)log->interruptions))return 0;
  for(i=0;i<log->count;i++){
   const struct wr_action_event *e=&log->events[(log->first+i)%WR_ACTION_RING_MAX];const char *stage;
   if(!wr_action_valid(e)||e->source!=WR_ACTION_STEERING)return 0;

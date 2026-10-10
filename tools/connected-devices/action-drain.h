@@ -7,9 +7,10 @@
 #define WR_ACTION_DRAIN_MAX 16
 struct wr_action_log {
  struct wr_action_session session;struct wr_action_event events[WR_ACTION_RING_MAX];
- size_t first,count;uint64_t dropped,rejected;int owner_available;
+ size_t first,count;uint64_t dropped,rejected,interruptions;int owner_available,gap;
 };
 static inline void wr_action_count(uint64_t *n){if(*n<UINT64_MAX)(*n)++;}
+static inline void wr_action_gap(struct wr_action_log *log){if(!log->gap){wr_action_count(&log->interruptions);log->gap=1;}}
 /* Caller supplies an already opened credential-enabled nonblocking socket.
  * At most sixteen datagrams are consumed per tick. Ownership is rechecked
  * after receipt before evidence is committed; failures retain old RAM history. */
@@ -19,6 +20,8 @@ static inline void wr_action_drain_owned(struct wr_action_log *log,int fd,
  unsigned i,n=0;int result;
  if(!log||fd<0)return;
  log->owner_available=wr_action_owner_verify(lock,executable,proc,expected_uid,&before);
+ if(!log->owner_available)wr_action_gap(log);
+ else if(log->session.pid&&(log->session.pid!=before.pid||log->session.birth!=before.birth))wr_action_gap(log);
  for(i=0;i<WR_ACTION_DRAIN_MAX;i++){
   result=wr_action_receive(fd,log->owner_available?before.pid:1,expected_uid,&batch[n]);
   if(!result)break;
@@ -29,8 +32,9 @@ static inline void wr_action_drain_owned(struct wr_action_log *log,int fd,
   * while ownership is uncertain. Two proc scans replace seventeen per tick. */
  if(n&&(!wr_action_owner_verify(lock,executable,proc,expected_uid,&after)||
         before.pid!=after.pid||before.birth!=after.birth)){
-  log->owner_available=0;for(i=0;i<n;i++)wr_action_count(&log->rejected);return;
+  log->owner_available=0;wr_action_gap(log);for(i=0;i<n;i++)wr_action_count(&log->rejected);return;
  }
+ if(log->owner_available)log->gap=0;
  for(i=0;i<n;i++){
   if(!wr_action_session_accept(&log->session,before.pid,before.birth,now,&batch[i])){
    wr_action_count(&log->rejected);continue;

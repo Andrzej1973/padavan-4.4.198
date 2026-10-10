@@ -23,7 +23,7 @@
      var operation=command.operation==='allow'?'allow candidate':'remove candidate';
      node('li',Math.floor(command.uptimeMs/1000)+' s uptime | '+command.mac+' | '+(command.radio===0?'2.4 GHz':'5 GHz')+' | '+operation+' | '+stage+' (result '+command.result+'). Roaming outcome unknown.',actionList);actionCount++;
     }
-    actionNotice.textContent=(a.ownerAvailable?'Producer verified at last collection.':'Producer unavailable; retained commands may be old.')+' Overwritten: '+a.dropped+'; rejected: '+a.rejected+'; missing in current producer session: '+a.missing+'. Command acceptance does not prove a client moved.';
+    actionNotice.textContent=(a.ownerAvailable?'Producer verified at last collection.':'Producer unavailable; retained commands may be old.')+' Overwritten: '+a.dropped+'; rejected: '+a.rejected+'; missing in current producer session: '+a.missing+(a.monitoringGap?'. Monitoring currently incomplete.':'')+(a.interruptions!==undefined?' Collection interruptions: '+a.interruptions+'.':'')+'. Command acceptance does not prove a client moved.';
    }else actionNotice.textContent='Command monitoring is unavailable in this firmware.';
    actionSummary.textContent='Band Steering commands ('+actionCount+')';actionList.scrollTop=actionScroll;
 

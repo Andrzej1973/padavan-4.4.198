@@ -5,6 +5,7 @@
  function decimal64(s){return typeof s==='string'&&/^(0|[1-9][0-9]{0,19})$/.test(s)&&(s.length<20||s<='18446744073709551615');}
  function actionsValid(a,now){
   if(!a||typeof a.ownerAvailable!=='boolean'||!decimal64(a.dropped)||!decimal64(a.rejected)||!decimal64(a.missing)||!Array.isArray(a.events)||a.events.length>256)return false;
+  if(a.monitoringGap!==undefined&&(typeof a.monitoringGap!=='boolean'||!decimal64(a.interruptions)))return false;
   var sequences={},times={};
   for(var i=0;i<a.events.length;i++){
    var e=a.events[i];
