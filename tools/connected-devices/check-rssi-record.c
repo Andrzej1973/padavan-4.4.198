@@ -3,6 +3,7 @@
 #include <string.h>
 #include "rssi-record.h"
 #include "rssi-identity.h"
+#include "rssi-query-request.h"
 int main(void)
 {
  struct wr_rssi_records ring={0},before;
@@ -64,5 +65,19 @@ int main(void)
   births=~0ULL;mac[0]=2;assert(!wr_rssi_identity_create(&births,7,mac,&saved));
  }
  puts("PASS reused station slot and identical MAC rejected by client birth identity");
+ {
+  unsigned char buffer[41]={0},*q=buffer+1;
+  struct wr_rssi_query_request request={0},saved;
+  memcpy(q,"WRSQ",4);q[4]=1;q[6]=64;q[8]=1;
+  assert(wr_rssi_query_decode(q,40,&request));assert(request.capacity==64&&request.radio==1);
+  saved=request;q[9]=1;
+  assert(!wr_rssi_query_decode(q,40,&request));assert(!memcmp(&saved,&request,sizeof saved));q[9]=0;
+  q[16]=1;assert(!wr_rssi_query_decode(q,40,&request));
+  q[24]=2;assert(wr_rssi_query_decode(q,40,&request)&&request.after==1&&request.session[0]==2);
+  q[6]=65;assert(!wr_rssi_query_decode(q,40,&request));q[6]=64;
+  assert(!wr_rssi_query_decode(q,39,&request));assert(!wr_rssi_query_decode(q,41,&request));
+  assert(!wr_rssi_query_decode(0,40,&request));assert(!wr_rssi_query_decode(q,40,0));
+ }
+ puts("PASS RSSI request fixed encoding, unaligned input, bounds and invalid-output immutability");
  return 0;
 }
