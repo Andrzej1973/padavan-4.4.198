@@ -410,9 +410,29 @@ path=rc/'firewall_ex.c';firewall=path.read_text(encoding='utf-8')
 helper=r"""
 #if defined(BOARD_WR1200JS)
 #include "wr-iot/bridge.h"
-static int wr_iot_firewall_quarantine(FILE *fp)
+#include "wr-iot/firewall.h"
+#include "wr-iot/route-snapshot.h"
+static int wr_iot_firewall_quarantine(FILE *fp,int allow_policy,const char *lan,const char *wan)
 {
+ const char *keys[]={"wr_iot_gateway_t","wr_iot_mask_t","wr_iot_start_t","wr_iot_end_t"};
+ char values[4][16];size_t i,n;const char *value;
+ struct wr_iot_firewall rules;struct wr_iot_subnet subnet;struct wr_iot_inventory inventory;
+ unsigned int index;
  if(!wr_iot_bridge_is_owned())return 1;
+ if(allow_policy&&nvram_get_int("wr_iot_firewall_t")==1&&nvram_get_int("wr_iot_network_t")==1&&!get_ap_mode()){
+  for(i=0;i<4;i++){
+   value=nvram_safe_get(keys[i]);n=strlen(value);
+   if(n>=sizeof(values[i]))goto quarantine;
+   memcpy(values[i],value,n+1);
+  }
+  index=if_nametoindex("br-iot");
+  if(!index||!wr_iot_subnet_plan(&subnet,values[0],values[1],values[2],values[3],NULL,0)||
+     !wr_iot_inventory_interfaces(&inventory,1)||
+     !wr_iot_route_snapshot_owned(&inventory,index,subnet.network,subnet.mask)||
+     !wr_iot_firewall_plan(&rules,1,lan,wan,values[0],values[1],values[2],values[3],inventory.ranges,inventory.count))goto quarantine;
+  return fputs(rules.ipv4,fp)>=0;
+ }
+ quarantine:
  return fputs("-A INPUT -i br-iot -j DROP\n"
               "-A FORWARD -i br-iot -j DROP\n"
               "-A FORWARD -o br-iot -j DROP\n"
@@ -426,15 +446,17 @@ static int wr_iot_firewall_quarantine(FILE *fp)
 anchor='#include "rc.h"'
 if firewall.count(anchor)!=1:raise SystemExit('Firewall RC include anchor changed')
 firewall=firewall.replace(anchor,anchor+'\n'+helper,1)
-for name,marker,result in [('ipt_filter_rules','\t// maclist chain','return 0;'),('ipt_filter_default','\t/* INPUT chain */','return;'),('ip6t_filter_rules','\t// maclist chain','return 0;'),('ip6t_filter_default','\t// INPUT chain','return;')]:
+(headers/'firewall.h').write_bytes((local/'firewall.h').read_bytes())
+for name,marker,result,arguments in [('ipt_filter_rules','\t// maclist chain','return 0;','1,lan_if,wan_if'),('ipt_filter_default','\t/* INPUT chain */','return;','0,NULL,NULL'),('ip6t_filter_rules','\t// maclist chain','return 0;','0,NULL,NULL'),('ip6t_filter_default','\t// INPUT chain','return;','0,NULL,NULL')]:
  begin=firewall.index('\n'+name+'(');end=firewall.index('\n}\n',begin)+3
  body=firewall[begin:end]
  if body.count(marker)!=1:raise SystemExit('Firewall rule insertion anchor changed: '+name)
- hook='#if defined(BOARD_WR1200JS)\n\tif(!wr_iot_firewall_quarantine(fp)){fclose(fp);logmessage("IoT Wi-Fi","Firewall quarantine write failed");'+result+'}\n#endif\n'
+ hook='#if defined(BOARD_WR1200JS)\n\tif(!wr_iot_firewall_quarantine(fp,'+arguments+')){fclose(fp);logmessage("IoT Wi-Fi","Firewall quarantine write failed");'+result+'}\n#endif\n'
  body=body.replace(marker,hook+marker,1);firewall=firewall[:begin]+body+firewall[end:]
 path.write_text(firewall,encoding='utf-8')
-report['owned_bridge_firewall_quarantine']='IPv4/IPv6 normal/default filter builders; before generic accepts; active allow policy pending'
+report['owned_bridge_firewall_quarantine']='IPv4/IPv6 normal/default builders before generic accepts; IPv4 allow policy requires wr_iot_firewall_t and wr_iot_network_t; activation controller pending'
 report['iot_main_dnsmasq_config_staged']=True
 report['dnsmasq_service_rollback_complete']=False
 (a.source/'iot-rc-source.json').write_text(json.dumps(report,indent=2)+'\n')
 print('PASS WR-only IoT bridge object and owned quiescence source integration; activation pending')
+
