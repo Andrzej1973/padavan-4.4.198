@@ -1,0 +1,14 @@
+'use strict';
+var assert=require('assert'),fs=require('fs'),schema=require('./rssi.js');
+var rows=fs.readFileSync(process.argv[2],'utf8').trim().split('\n').map(JSON.parse);
+assert.strictEqual(rows.length,3);
+rows.forEach(function(h){assert(schema.valid(h));});
+assert.strictEqual(rows[0].cacheState,'unavailable');
+assert.strictEqual(rows[1].cacheState,'stale');
+assert.strictEqual(rows[2].cacheState,'current');
+assert.strictEqual(rows[2].events.length,256);
+assert.strictEqual(rows[2].events[255].session,'ffffffffffffffffffffffffffffffff');
+assert.strictEqual(rows[2].events[255].uptimeMs,'18446744073709551615');
+assert.strictEqual(rows[2].evicted,'18446744073709551615');
+assert.strictEqual(new Set(rows[2].events.map(function(e){return e.stage;})).size,4);
+console.log('PASS actual C RSSI JSON accepted by browser schema: 256 events, maximum counters and all source states');

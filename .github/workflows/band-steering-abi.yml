@@ -180,6 +180,9 @@ jobs:
           mkdir -p abi-results
           gcc -std=gnu11 -Wall -Wextra -Werror -fsanitize=address,undefined tools/connected-devices/check-rssi-record.c -o abi-results/check-rssi-record
           abi-results/check-rssi-record
+          gcc -std=gnu11 -Wall -Wextra -Werror -fsanitize=address,undefined tools/connected-devices/check-rssi-json-roundtrip.c -o abi-results/check-rssi-json-roundtrip
+          abi-results/check-rssi-json-roundtrip > abi-results/rssi-json-samples.jsonl
+          node tools/connected-devices/check-rssi-json-roundtrip.js abi-results/rssi-json-samples.jsonl
           gcc -std=gnu11 -Wall -Wextra -Werror -fsanitize=address,undefined tools/connected-devices/check-action-event.c -o abi-results/check-action-event
           abi-results/check-action-event
           gcc -std=gnu11 -Wall -Wextra -Werror -fsanitize=address,undefined tools/connected-devices/check-action-wire.c -o abi-results/check-action-wire
