@@ -48,10 +48,36 @@ static int send_command(size_t radio, enum wr_band_protocol protocol,
     return wr_action_steering_command(&r->observations.reporter,(unsigned int)radio,now,
                                     protocol,request,actual_command,r);
 }
+struct observed_dispatch {struct runtime *runtime;wr_band_event_callback callback;void *owner;};
+static void observed_event(size_t radio,const struct wr_band_event *event,void *context)
+{
+    struct observed_dispatch *d=context;struct wr_band_coordinator *c=d->runtime->coordinator;
+    int pending=0,saved;struct wr_action_event evidence;
+    if(c&&c->session.phase==WR_ACTIVE&&radio<2&&event->type==WR_EVENT_GRANT&&event->table_index<WR_BAND_CLIENT_LIMIT){
+        const struct wr_grant_radio *g=&c->grants.slots[event->table_index].radio[radio];
+        pending=g->phase!=WR_GRANT_NONE&&g->wanted&&g->cookie==event->cookie;
+    }
+    d->callback(radio,event,d->owner);saved=errno;
+    if(pending&&c->session.phase==WR_ACTIVE){
+        const struct wr_grant_slot *slot=&c->grants.slots[event->table_index];
+        const struct wr_grant_radio *g=&slot->radio[radio];
+        if(g->phase==WR_GRANT_NONE&&g->confirmed&&g->cookie==event->cookie&&
+           !memcmp(slot->mac,event->mac,6)&&g->verified_at==c->grants.last_time){
+            memset(&evidence,0,sizeof(evidence));evidence.source=WR_ACTION_STEERING;
+            evidence.operation=WR_ACTION_ALLOW;evidence.stage=WR_ACTION_DRIVER_ACK;
+            evidence.radio=(unsigned char)radio;evidence.cookie=event->cookie;
+            evidence.uptime_ms=g->verified_at;memcpy(evidence.mac,event->mac,6);
+            /* This proves candidate-table state only, never association/roam. */
+            wr_action_report(&d->runtime->observations.reporter,&evidence);
+        }
+    }
+    errno=saved;
+}
 static int receive_events(void *ctx, wr_band_event_callback callback, void *owner)
 {
     struct runtime *r = ctx;
-    return wr_band_receive(r->listener_fd, r->buffer, sizeof(r->buffer), r->routes, 2, callback, owner);
+    struct observed_dispatch dispatch={r,callback,owner};
+    return wr_band_receive(r->listener_fd, r->buffer, sizeof(r->buffer), r->routes, 2, observed_event, &dispatch);
 }
 static int wait_events(void *ctx, int milliseconds)
 {

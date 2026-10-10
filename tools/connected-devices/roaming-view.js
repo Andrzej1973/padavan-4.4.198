@@ -19,7 +19,7 @@
    while(actionList.firstChild)actionList.removeChild(actionList.firstChild);
    if(a){
     for(var j=a.events.length-1;j>=0;j--){var command=a.events[j];if(match&&command.mac.indexOf(match)<0)continue;
-     var stage=command.stage==='intent'?'Command requested':command.stage==='ioctl_accepted'?'Driver ioctl accepted':command.stage==='ioctl_failed'?'Driver ioctl failed':'Driver acknowledgement';
+     var stage=command.stage==='intent'?'Command requested':command.stage==='ioctl_accepted'?'Driver ioctl accepted':command.stage==='ioctl_failed'?'Driver ioctl failed':'Driver candidate-table state verified';
      var operation=command.operation==='allow'?'allow candidate':'remove candidate';
      node('li',Math.floor(command.uptimeMs/1000)+' s uptime | '+command.mac+' | '+(command.radio===0?'2.4 GHz':'5 GHz')+' | '+operation+' | '+stage+' (result '+command.result+'). Roaming outcome unknown.',actionList);actionCount++;
     }
