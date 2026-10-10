@@ -9,6 +9,16 @@ assert s.startswith(prefix),'GNU credential API selection must precede actual HT
 assert 'do_wr_roaming_json' in s and 'wr_device_background_close' in s
 assert '{ "wr_rssi.json", "application/json", no_cache_IE, NULL, do_wr_rssi_json, 1 }' in s
 assert 'wr_device_collect_rssi(&wr_device_http_rssi,now)' in s
+# httpd closes every accepted-but-silent connection when select() times out,
+# so a shorter wakeup needs an idle guard to keep the MAX_CONN_TIMEOUT expiry.
+h=(a.source/'trunk/user/httpd/httpd.c').read_text()
+loop=h[h.index('\twhile (!daemon_exit) {'):]
+import re
+timeouts=re.findall(r'tv\.tv_sec = ([^;]+);',loop[:loop.index('select(max_fd')])
+assert 'MAX_CONN_TIMEOUT' in timeouts,'httpd select timeout anchor changed'
+if set(timeouts)!={'MAX_CONN_TIMEOUT'}:
+ guard='\t\tif (selected)\n\t\t\twr_device_idle_since = uptime();\n\t\telse if (uptime() - wr_device_idle_since < MAX_CONN_TIMEOUT)\n\t\t\tcontinue;\n'
+ assert guard in loop and loop.index('select(max_fd')<loop.index(guard)<loop.index('/* Check and process pending or expired requests */'),'short select wakeups would expire idle connections before MAX_CONN_TIMEOUT'
 headers=a.source/'trunk/user/httpd/wr-devices'
 import re
 for header in headers.glob('*.h'):
