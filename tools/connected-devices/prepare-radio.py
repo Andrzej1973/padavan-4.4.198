@@ -12,6 +12,20 @@ s = f.read_text(encoding='utf-8')
 anchor = 'int \nej_wl_auth_list(int eid, webs_t wp, int argc, char **argv)'
 if s.count(anchor) != 1 or 'wr_device_collect_radio' in s:
     raise SystemExit('Radio integration anchor changed; no files written')
+include_anchor = '#include "common.h"'
+if s.count(include_anchor) != 1:
+    raise SystemExit('Shared header anchor changed; no files written')
+# Shared ralink_priv.h defaults to 32 when the kernel selector is absent
+# from userspace CFLAGS. Set it before any common/shared header is parsed.
+capacity = """#if defined(BOARD_WR1200JS)
+#ifndef CONFIG_RT_MAX_CLIENTS
+#define CONFIG_RT_MAX_CLIENTS 64
+#elif CONFIG_RT_MAX_CLIENTS != 64
+#error WR1200JS station capacity differs from the driver ABI
+#endif
+#endif
+"""
+s = s.replace(include_anchor, capacity + include_anchor, 1)
 code = (local / 'radio-hook.inc').read_text(encoding='utf-8')
 headers = http / 'wr-devices'
 headers.mkdir(exist_ok=True)
