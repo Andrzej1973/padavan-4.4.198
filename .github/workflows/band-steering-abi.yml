@@ -166,6 +166,7 @@ jobs:
       - name: Check conservative connected-device classification
         run: |
           node tools/connected-devices/check-classify.js
+          node tools/connected-devices/check-roaming-view.js
           node tools/connected-devices/check-roaming.js
           node tools/connected-devices/check-refresh.js
           node tools/connected-devices/check-homepage.js
