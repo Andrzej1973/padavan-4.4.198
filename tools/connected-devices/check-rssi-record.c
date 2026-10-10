@@ -7,6 +7,18 @@
 #include "rssi-query-record.h"
 #include "rssi-query-response.h"
 #include "rssi-query-decode.h"
+#include "rssi-query-client.h"
+static int fake_rssi_query(const char *name,int command,struct iwreq *r,void *context)
+{
+ int mode=*(int *)context;unsigned long long session[2]={11,22};struct wr_rssi_query_request q;
+ struct wr_rssi_record record={0};unsigned int size;
+ assert(!strcmp(name,"ra0")&&command==WR_RSSI_READ_IOCTL&&r->u.data.flags==WR_RSSI_READ_OID);
+ assert(wr_rssi_query_decode(r->u.data.pointer,40,&q));if(mode==1)return -1;
+ record.sequence=q.after+1;record.attempt=1;record.mac[0]=2;record.radio=q.radio;record.stage=1;
+ if(mode==2)session[1]=23;
+ size=wr_rssi_query_response_encode(r->u.data.pointer,r->u.data.length,session,record.sequence,0,q.radio,&record,1);
+ assert(size==80);r->u.data.length=(mode==3)?79:80;return 0;
+}
 int main(void)
 {
  struct wr_rssi_records ring={0},before;
@@ -188,5 +200,15 @@ int main(void)
   q.capacity=64;assert(!wr_rssi_query_request_encode(out+1,39,&q));assert(!memcmp(saved,out,sizeof out));
  }
  puts("PASS RSSI request encode/decode roundtrip, maximum values and invalid-output immutability");
+ {
+  struct wr_rssi_query_request q={0};struct wr_rssi_query_response out={0},before;int mode=0;
+  q.capacity=64;assert(wr_rssi_query_client("ra0",&q,fake_rssi_query,&mode,&out)==1);
+  assert(out.count==1&&out.records[0].sequence==1);before=out;
+  q.after=1;q.session[0]=11;q.session[1]=22;
+  mode=1;assert(wr_rssi_query_client("ra0",&q,fake_rssi_query,&mode,&out)==-1);assert(!memcmp(&before,&out,sizeof out));
+  mode=2;assert(!wr_rssi_query_client("ra0",&q,fake_rssi_query,&mode,&out));assert(!memcmp(&before,&out,sizeof out));
+  mode=3;assert(!wr_rssi_query_client("ra0",&q,fake_rssi_query,&mode,&out));assert(!memcmp(&before,&out,sizeof out));
+ }
+ puts("PASS RSSI client transport failure, stale session and truncated response rejection");
  return 0;
 }
