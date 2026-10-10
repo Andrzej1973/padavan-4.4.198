@@ -132,3 +132,12 @@ Inspection of pinned source `c25283e915a2a00a763774dd255b14aff997285e` found the
 The current JavaScript-oriented authentication list loses band and BSS identity. It must not be parsed or evaluated as the new JSON source. A bounded collector should retain band and `ApIdx`, reject impossible counts/lengths, distinguish failed radio queries from a successful empty table, and merge by MAC with networkmap records. The original reader uses a 4096-byte buffer and loops to the returned count; copying that loop without independent bounds validation would be inappropriate. Driver-side structure/word-size agreement and WR-specific BSS mapping must be verified before treating entries as current association or network-role evidence. The IoT BSS remains unactivated, so an assumed third BSS is not proof of a working IoT network.
 
 This establishes a source integration direction only. The radio collector, JSON fields, merge tests and target verification are not implemented yet.
+
+
+## Verified full image checkpoint: build 123
+
+[Full build 123](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38008275318) succeeded at `18e84f59c26953bfbf742e38f991a07d12e08449`. Its actual build log reports `PASS staged homepage, exact assets and linked JSON route; raw asset bytes: 14165`. This establishes staged ROMFS installation and full compilation for that commit, not device runtime.
+
+The downloaded final artifact contains exactly `WR1200JS_4.4.198.9-100.trx` and `wr1200js.config`. The image is 13,099,159 bytes, SHA-256 `2db127ac3a8b2f6e796d7807797ceece46e11e3a868a4f9eec409ed6e4fcd12f`; the config is 11,091 bytes, SHA-256 `0885e7885216ba8d170cb122553836bd8ab48981b79ad15bc6b2e68fb8e0dfee`. The config hash matches build 120. The image is 7,461 bytes larger than build 120; this is a build-to-build change, not an isolated optimization benchmark.
+
+Build 123 predates the icon-encoding fix and radio collector, so it is not the current final candidate. Build 124 at `3d5b18c8c007197bae6858eb9051023a440e3b40` is still running with those changes. Its radio HTTP integration uses fixed interface names and the shared five-second cache; query failures preserve the previous dataset marked stale. ABI 235's connected-device step passed the associated native sanitizer fixtures and MIPS compilation, while the entire ABI run and full firmware remain pending. BSS network-role mapping and target radio behavior remain unverified.
