@@ -14,7 +14,6 @@ local = Path(__file__).resolve().parent
 relative = Path('trunk/user/www/n56u_ribbon_fixed/index.asp')
 original = (a.source / relative).read_text(encoding='utf-8')
 http = (a.source / 'trunk/user/httpd/web_ex.c').read_text(encoding='utf-8')
-assert http.startswith('#ifndef _GNU_SOURCE\n#define _GNU_SOURCE 1\n#endif\n'), 'Credential API feature macro must precede actual HTTP includes'
 
 assert '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">' in original
 assert '{ "**.js",  "text/javascript", no_cache_IE, NULL, do_ej, 1 }' in http

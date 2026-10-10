@@ -223,6 +223,9 @@ jobs:
           python3 tools/connected-devices/prepare-radio.py abi-results/device-http-patch
           cp source/trunk/user/httpd/httpd.c abi-results/device-http-patch/trunk/user/httpd/httpd.c
           python3 tools/connected-devices/prepare-background.py abi-results/device-http-patch
+          python3 tools/connected-devices/check-prepare-http.py abi-results/device-http-patch abi-results/http-credentials.c
+          gcc -std=c11 -Wall -Wextra -Werror abi-results/http-credentials.c -o abi-results/check-http-credentials
+          abi-results/check-http-credentials
           python3 tools/connected-devices/check-prepare-ui.py source
           python3 tools/connected-devices/check-radio-source.py source
           python3 tools/connected-devices/check-kick-source.py source
@@ -254,6 +257,7 @@ jobs:
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -c tools/connected-devices/check-snapshot-cache.c -o abi-results/device-cache-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -c tools/connected-devices/check-source-collector.c -o abi-results/device-source-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -c tools/connected-devices/check-http-hook.c -o abi-results/device-http-mips.o
+          "$compiler" -std=c11 -Wall -Wextra -Werror -mips32r2 -mabi=32 -msoft-float -c abi-results/http-credentials.c -o abi-results/http-credentials-mips.o
 
       - name: Compile IoT readiness headers after actual Padavan shared headers
         shell: bash
