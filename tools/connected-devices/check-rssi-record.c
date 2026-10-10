@@ -254,6 +254,22 @@ int main(void)
  }
  puts("PASS RSSI collector malformed-page retention, deferred ESTALE recovery and bounded two-radio tick");
  {
+  struct wr_rssi_history h,before;struct wr_rssi_query_response r={0};
+  wr_rssi_history_init(&h);r.session[0]=7;r.session[1]=8;r.count=1;r.sequence=1;
+  r.records[0].sequence=1;r.records[0].attempt=1;r.records[0].mac[0]=2;r.records[0].stage=1;
+  assert(wr_rssi_history_accept(&h,0,&r));wr_rssi_history_restart(&h,0);
+  r.count=2;r.sequence=2;r.records[1]=r.records[0];r.records[1].sequence=2;
+  assert(wr_rssi_history_accept(&h,0,&r));
+  assert(h.count==2&&h.radios[0].cursor.after==2&&h.radios[0].missing==0);
+  wr_rssi_history_restart(&h,0);before=h;r.sequence=1;r.count=1;
+  assert(!wr_rssi_history_accept(&h,0,&r));assert(!memcmp(&before,&h,sizeof h));
+  r.sequence=2;r.count=2;r.records[0].stage=5;
+  assert(!wr_rssi_history_accept(&h,0,&r));assert(!memcmp(&before,&h,sizeof h));
+  r.records[0].stage=1;r.session[1]=9;
+  assert(wr_rssi_history_accept(&h,0,&r));assert(h.count==4&&h.events[2].session[1]==9);
+ }
+ puts("PASS RSSI mixed replay/new page, regressed metadata rejection and new session separation");
+ {
   struct wr_rssi_collector c;struct wr_rssi_query_response r={0};char json[100000];size_t length=99;unsigned int i;
   wr_rssi_collector_init(&c);r.count=1;r.session[0]=~0ULL;r.session[1]=~0ULL;
   r.records[0].attempt=1;r.records[0].mac[0]=2;r.records[0].stage=3;
