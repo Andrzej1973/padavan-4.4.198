@@ -190,6 +190,8 @@ jobs:
           mkdir -p abi-results/device-http-patch/trunk/user/httpd
           cp source/trunk/user/httpd/web_ex.c abi-results/device-http-patch/trunk/user/httpd/web_ex.c
           python3 tools/connected-devices/prepare-http.py abi-results/device-http-patch
+          cp source/trunk/user/httpd/ralink.c abi-results/device-http-patch/trunk/user/httpd/ralink.c
+          python3 tools/connected-devices/prepare-radio.py abi-results/device-http-patch
           python3 tools/connected-devices/check-prepare-ui.py source
           python3 tools/connected-devices/check-radio-source.py source
           python3 tools/connected-devices/prepare-radio-layout.py source --output abi-results/device-radio-layout.c
