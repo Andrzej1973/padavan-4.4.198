@@ -10,6 +10,8 @@ test -s "$kernel/vmlinux"
 test ! -e "$output"
 mkdir -p "$output"
 output="$(realpath "$output")"
+# The single-object target bypasses the modules target directory setup.
+mkdir -p "$output/.tmp_versions"
 tools="$(cd "$(dirname "$0")" && pwd)"
 cp "$tools/rssi-kernel.h" "$tools/rssi-record.h" "$output/"
 cp "$tools/check-rssi-kernel.c" "$output/wr-rssi-kernel-probe.c"
