@@ -18,7 +18,7 @@ struct wr_rssi_record {
 struct wr_rssi_records {
  struct wr_rssi_record entries[WR_RSSI_RECORD_CAPACITY];
  unsigned long long sequence, overwritten;
- unsigned int next,count;
+ unsigned int next,count,attempt_sequence;
 };
 static inline int wr_rssi_record_append(struct wr_rssi_records *ring,
  const struct wr_rssi_record *record)
@@ -36,6 +36,21 @@ static inline int wr_rssi_record_append(struct wr_rssi_records *ring,
  ring->next=(ring->next+1)%WR_RSSI_RECORD_CAPACITY;
  if(ring->count<WR_RSSI_RECORD_CAPACITY)ring->count++;
  else if(ring->overwritten!=~0ULL)ring->overwritten++;
+ return 1;
+}
+/* Reserve a never-reused attempt within this observer lifetime and append
+ * its decision atomically under the caller's observer lock. Exhaustion
+ * disables new observation attempts; it must not change driver behavior.
+ * A separate driver-instance session is required across adapter restarts. */
+static inline int wr_rssi_record_begin(struct wr_rssi_records *ring,
+ struct wr_rssi_record *identity)
+{
+ struct wr_rssi_record value;
+ if(!ring||!identity||ring->attempt_sequence==~0U)return 0;
+ value=*identity;value.attempt=ring->attempt_sequence+1;
+ value.stage=WR_RSSI_DECISION;
+ if(!wr_rssi_record_append(ring,&value))return 0;
+ ring->attempt_sequence=value.attempt;*identity=value;
  return 1;
 }
 /* Copy oldest available records after the caller's cursor. Hold the same

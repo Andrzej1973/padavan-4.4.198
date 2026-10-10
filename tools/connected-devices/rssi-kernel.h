@@ -33,6 +33,16 @@ static inline int wr_rssi_kernel_append(struct wr_rssi_kernel *observer,
  spin_unlock_irqrestore(&observer->lock,flags);
  return result;
 }
+static inline int wr_rssi_kernel_begin(struct wr_rssi_kernel *observer,
+ struct wr_rssi_record *identity)
+{
+ unsigned long flags;int result;
+ if(!observer||!identity)return 0;
+ spin_lock_irqsave(&observer->lock,flags);
+ result=wr_rssi_record_begin(&observer->records,identity);
+ spin_unlock_irqrestore(&observer->lock,flags);
+ return result;
+}
 static inline int wr_rssi_kernel_snapshot(struct wr_rssi_kernel *observer,
  unsigned long long after,struct wr_rssi_record *output,unsigned int capacity,
  struct wr_rssi_snapshot_meta *meta)

@@ -37,5 +37,18 @@ int main(void)
  ring.sequence=1;ring.next=64;assert(!wr_rssi_record_append(&ring,&e));
  assert(!wr_rssi_record_append(0,&e));assert(!wr_rssi_record_append(&ring,0));
  puts("PASS bounded RSSI records, copied identity, stages, overflow and rejected-input immutability");
+ {
+  struct wr_rssi_records attempts={0},saved;
+  struct wr_rssi_record identity={0};identity.mac[0]=2;
+  assert(wr_rssi_record_begin(&attempts,&identity));
+  assert(identity.attempt==1&&identity.stage==WR_RSSI_DECISION);
+  assert(wr_rssi_record_begin(&attempts,&identity)&&identity.attempt==2);
+  identity.mac[0]=1;saved=attempts;
+  assert(!wr_rssi_record_begin(&attempts,&identity));assert(!memcmp(&attempts,&saved,sizeof saved));
+  identity.mac[0]=2;attempts.attempt_sequence=~0U;saved=attempts;
+  assert(!wr_rssi_record_begin(&attempts,&identity));assert(!memcmp(&attempts,&saved,sizeof saved));
+  assert(identity.attempt==2);
+ }
+ puts("PASS distinct RSSI attempt reservation, invalid identity and exhaustion without reuse");
  return 0;
 }
