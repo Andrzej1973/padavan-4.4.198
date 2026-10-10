@@ -20,8 +20,8 @@ static void wr_iot_quiesce(void)
   nvram_set_int_temp("wr_iot_profile_t", 0);
  if (!wr_iot_bridge_is_owned()) return;
  wif_control("ra2", 0);
- if (!wr_iot_bridge_detach())
-  logmessage("IoT Wi-Fi", "Interface stop not confirmed; isolation must be retained");
+ if (!wr_iot_bridge_set_up(0) || !wr_iot_bridge_detach())
+  logmessage("IoT Wi-Fi", "Interface/bridge stop not confirmed; isolation must be retained");
 }
 #endif
 

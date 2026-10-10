@@ -17,7 +17,7 @@ assert stop.index('wr_iot_quiesce();')<stop.index('wif_control(IFNAME_2G_APCLI, 
 prefix=r"""#include <assert.h>
 #include <string.h>
 #include <stdio.h>
-static int owner,detach_ok,calls,detaches,logs,leds,profile_state,network_state,state_writes;
+static int owner,detach_ok,down_ok,downs,calls,detaches,logs,leds,profile_state,network_state,state_writes;
 static const char *names[16];
 #define IFNAME_2G_APCLI "apcli0"
 #define IFNAME_2G_WDS3 "wds3"
@@ -34,11 +34,12 @@ static void wif_control(const char *name,int up){assert(up==0&&calls<16);names[c
 static int nvram_get_int(const char *key){if(!strcmp(key,"wr_iot_network_t"))return network_state;assert(!strcmp(key,"wr_iot_profile_t"));return profile_state;}
 static void nvram_set_int_temp(const char *key,int value){assert(value==0&&calls==0);if(!strcmp(key,"wr_iot_network_t"))network_state=value;else {assert(!strcmp(key,"wr_iot_profile_t"));profile_state=value;}state_writes++;}
 static int wr_iot_bridge_is_owned(void){return owner;}
-static int wr_iot_bridge_detach(void){assert(calls==1&&!strcmp(names[0],"ra2"));detaches++;return detach_ok;}
+static int wr_iot_bridge_set_up(int enabled){assert(enabled==0&&calls==1&&!strcmp(names[0],"ra2")&&!detaches);downs++;return down_ok;}
+static int wr_iot_bridge_detach(void){assert(calls==1&&!strcmp(names[0],"ra2")&&downs==1&&down_ok);detaches++;return detach_ok;}
 static void logmessage(const char *tag,const char *text){assert(!strcmp(tag,"IoT Wi-Fi")&&strstr(text,"isolation"));logs++;}
 """
 tail=r"""
-static void reset(int owned,int result){owner=owned;detach_ok=result;calls=detaches=logs=leds=profile_state=network_state=state_writes=0;}
+static void reset(int owned,int result){owner=owned;detach_ok=result;down_ok=1;downs=0;calls=detaches=logs=leds=profile_state=network_state=state_writes=0;}
 static void baseline(int offset){
  const char *expected[]={"apcli0","wds3","wds2","wds1","wds0","ra1","ra0"};int i;
  assert(calls==7+offset&&leds==1);
@@ -60,8 +61,9 @@ int main(void){
 #endif
  reset(1,1);profile_state=network_state=1;stop_wifi_all_rt();
 #if defined(BOARD_WR1200JS)
- baseline(1);assert(!strcmp(names[0],"ra2")&&detaches==1&&!logs&&!profile_state&&!network_state&&state_writes==2);
- reset(1,0);stop_wifi_all_rt();baseline(1);assert(detaches==1&&logs==1);
+ baseline(1);assert(downs==1&&!strcmp(names[0],"ra2")&&detaches==1&&!logs&&!profile_state&&!network_state&&state_writes==2);
+ reset(1,0);stop_wifi_all_rt();baseline(1);assert(downs==1&&detaches==1&&logs==1);
+ reset(1,1);down_ok=0;stop_wifi_all_rt();baseline(1);assert(downs==1&&!detaches&&logs==1);
 #else
  baseline(0);assert(!detaches&&!logs);
 #endif
