@@ -53,7 +53,23 @@ static inline int wr_device_snapshot_json(const struct wr_device_snapshot *snaps
   if((i&&!wr_device_json_append(&out,","))||!wr_device_json_append(&out,"{\"ip\":")||!wr_device_json_string(&out,record->ip,15)||
      !wr_device_json_append(&out,",\"mac\":")||!wr_device_json_string(&out,record->mac,17)||
      !wr_device_json_append(&out,",\"hostname\":")||!wr_device_json_string(&out,record->name,128)||
-     !wr_device_json_format(&out,",\"legacyType\":%u,\"http\":%s,\"networkmapStale\":%s}",record->legacy_type,record->http?"true":"false",record->networkmap_stale?"true":"false"))return 0;
+     !wr_device_json_format(&out,",\"legacyType\":%u,\"http\":%s,\"networkmapStale\":%s",record->legacy_type,record->http?"true":"false",record->networkmap_stale?"true":"false"))return 0;
+  if(record->radio.band_mask>3)return 0;
+  if(record->radio.band_mask){
+   unsigned int band;int first=1;
+   if(!wr_device_json_append(&out,",\"presence\":\"associated\",\"radios\":["))return 0;
+   for(band=0;band<2;band++)if(record->radio.band_mask&(1U<<band)){
+    int rssi=record->radio.rssi[band];
+    if(rssi<-127||rssi>0)return 0;
+    if(!wr_device_json_format(&out,"%s{\"band\":\"%s\",\"apIndex\":%u,\"rssi\":",first?"":",",band?"5g":"2g",(unsigned int)record->radio.ap_index[band]))return 0;
+    if(rssi==-127||rssi==0){if(!wr_device_json_append(&out,"null"))return 0;}
+    else if(!wr_device_json_format(&out,"%d",rssi))return 0;
+    if(!wr_device_json_append(&out,"}"))return 0;
+    first=0;
+   }
+   if(!wr_device_json_append(&out,"]"))return 0;
+  }
+  if(!wr_device_json_append(&out,"}"))return 0;
  }
  if(!wr_device_json_append(&out,"]}"))return 0;
  *length=out.length;return 1;

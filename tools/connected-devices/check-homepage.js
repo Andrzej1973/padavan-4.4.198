@@ -36,3 +36,7 @@ options.request(error=>received=error);XHR.last.reply('<html>login</html>');asse
 console.log('PASS safe DOM text insertion, stable rows/filter/groups/scroll, stale feedback, visibility wiring and JSON XHR transport');
 
 assert(require("fs").readFileSync(require("path").join(__dirname,"homepage.js"),"utf8").split("").every(c=>c.charCodeAt(0)<128),"Presentation source must use ASCII Unicode escapes");
+
+view.render({devices:[{mac:'02:00:00:00:00:99',presence:'associated',radios:[{band:'2g',rssi:-60},{band:'5g',rssi:null}]}]});
+assert(root.textContent.includes('2.4 GHz -60 dBm') && root.textContent.includes('5 GHz'));
+assert(!root.textContent.includes('null dBm'));

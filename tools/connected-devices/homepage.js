@@ -51,6 +51,11 @@
     var connection=record.presence==='associated'?'Wi-Fi association':(record.networkmapStale===true?'Last known observation':record.networkmapStale===false?'Seen by networkmap':'Connection unknown');
     if(record.band==='2g')connection+=' \u00b7 2.4 GHz';else if(record.band==='5g')connection+=' \u00b7 5 GHz';
     if(typeof record.rssi==='number'&&isFinite(record.rssi)&&record.rssi>=-127&&record.rssi<=0)connection+=' \u00b7 '+record.rssi+' dBm';
+    if(Array.isArray(record.radios))record.radios.slice(0,2).forEach(function(radio){
+     if(!radio||(radio.band!=='2g'&&radio.band!=='5g'))return;
+     connection+=' \u00b7 '+(radio.band==='2g'?'2.4 GHz':'5 GHz');
+     if(typeof radio.rssi==='number'&&isFinite(radio.rssi)&&radio.rssi>-127&&radio.rssi<0)connection+=' '+radio.rssi+' dBm';
+    });
     set(row.cells[1],connection);set(row.cells[2],icons[result.category]+' '+result.category);set(row.cells[3],result.confidence);
     row.cells[3].title=result.evidence.join('; ')||'No reliable classification evidence';
    });
