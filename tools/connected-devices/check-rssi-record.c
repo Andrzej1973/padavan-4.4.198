@@ -9,12 +9,13 @@
 #include "rssi-query-decode.h"
 #include "rssi-query-client.h"
 #include "rssi-history.h"
+#include "rssi-collector.h"
 static int fake_rssi_query(const char *name,int command,struct iwreq *r,void *context)
 {
  int mode=*(int *)context;unsigned long long session[2]={11,22};struct wr_rssi_query_request q;
  struct wr_rssi_record record={0};unsigned int size;
  assert(!strcmp(name,"ra0")&&command==WR_RSSI_READ_IOCTL&&r->u.data.flags==WR_RSSI_READ_OID);
- assert(wr_rssi_query_decode(r->u.data.pointer,40,&q));if(mode==1)return -1;
+ assert(wr_rssi_query_decode(r->u.data.pointer,40,&q));if(mode==1){errno=ESTALE;return -1;}
  record.sequence=q.after+1;record.attempt=1;record.mac[0]=2;record.radio=q.radio;record.stage=1;
  if(mode==2)session[1]=23;
  size=wr_rssi_query_response_encode(r->u.data.pointer,r->u.data.length,session,record.sequence,0,q.radio,&record,1);
@@ -238,5 +239,18 @@ int main(void)
   assert(h.count==256&&h.evicted==47&&h.radios[0].restarts==1);
  }
  puts("PASS RSSI bounded history, independent radio cursors, full sessions, gaps and eviction");
+ {
+  struct wr_rssi_collector c;const char *names[2]={"ra0","ra0"};int mode=0;
+  wr_rssi_collector_init(&c);wr_rssi_collector_tick(&c,names,fake_rssi_query,&mode,5000);
+  assert(c.history.count==2&&c.health[0].available&&c.health[1].available);
+  mode=3;wr_rssi_collector_tick(&c,names,fake_rssi_query,&mode,10000);
+  assert(c.history.count==2&&c.history.radios[0].cursor.after==1);
+  assert(!c.health[0].available&&c.health[0].error==EPROTO);
+  mode=1;wr_rssi_collector_tick(&c,names,fake_rssi_query,&mode,15000);
+  assert(c.history.count==2&&c.history.radios[0].cursor.after==0&&c.history.radios[1].restarts==1);
+  mode=0;wr_rssi_collector_tick(&c,names,fake_rssi_query,&mode,20000);
+  assert(c.history.count==4&&c.health[0].recoveries==1&&c.health[0].last_success_ms==20000);
+ }
+ puts("PASS RSSI collector malformed-page retention, deferred ESTALE recovery and bounded two-radio tick");
  return 0;
 }
