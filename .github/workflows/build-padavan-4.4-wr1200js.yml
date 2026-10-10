@@ -793,6 +793,7 @@ jobs:
           python3 tools/band-steering/prepare-uninitialized-off.py "$root"
           # Candidate observation storage is tested only in this isolated driver tree.
           python3 tools/connected-devices/prepare-rssi-adapter.py "$root"
+          python3 tools/connected-devices/prepare-rssi-identity.py "$root"
           python3 tools/connected-devices/prepare-rssi-decision.py "$root"
           python3 tools/band-steering/configure-driver-probe.py "$kernel"
           compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
