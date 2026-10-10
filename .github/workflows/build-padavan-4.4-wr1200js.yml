@@ -705,7 +705,10 @@ jobs:
           path: imq-patch-rejects.txt
 
       - name: Verify RSSI Kick image controls and driver commands
-        run: python3 tools/verify-rssi-image.py padavan-4.4
+        run: |
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          python3 tools/verify-rssi-image.py padavan-4.4 --nm "${compiler%gcc}nm"
 
       - name: Upload RSSI image diagnostics
         if: always()
