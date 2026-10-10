@@ -16,6 +16,19 @@ Compilation alone does not establish a successful device port.
 
 Defer offline preservation and donor/database expansion until stage 3. Retain existing backups. This changes task order; it does not remove any accepted deliverable. Report concrete completed steps and maintain a short working checkpoint.
 
+## WR1200JS execution sequence — user approval 2026-10-10
+
+Complete these steps in order, carrying all existing acceptance requirements forward:
+
+1. IoT Wi-Fi: finish activation/shutdown and recovery; integrate the third BSS, owned bridge, DHCP/DNS, isolation/firewall and scoped WAN NAT; add authenticated enable/SSID/credentials/subnet/status/local QR controls; verify simultaneous main/guest/IoT operation and isolation.
+2. Wi-Fi and roaming: finish shared 2.4/5 GHz controls and QR, Band Steering, RSSI Kick and automatically refreshed monitoring. Establish actual supported 802.11k/v/r behavior; never equate compilation or RSSI disconnection with FT roaming.
+3. Service WebUI coverage: complete lifecycle, validation, persistence, status and navigation for accepted enabled services, including outstanding IPsec/EoIP/USBIP/diagnostics work and existing ZeroTier/VPN integration.
+4. WAN socket reassignment: finish authenticated selection and verify selected WAN/remaining LAN isolation and persistence.
+5. Final configuration/image audit: preserve required features, verify optional commented selectors separately and keep WPS optional verification last. Deliver one user download ZIP containing firmware and its config. CAKE stays excluded.
+6. Recoverable device acceptance: verify Linux 4.4.198 boot, WAN/LAN, both Wi-Fi bands under load, restored AmneziaWG, settings/services and restart persistence. User agreement on task order is not authorization to flash or disrupt the remote router.
+
+After this WR1200JS sequence, complete Mi Mini, then the local databases/offline project. Record build/image evidence separately from device acceptance; leave unverified items open.
+
 ## Authoritative development location — user confirmation 2026-10-03
 
 All subsequent implementation, configuration, package, board-port and build
