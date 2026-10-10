@@ -24,6 +24,9 @@ static int wr_iot_request_clear(void)
  failed |= nvram_set_temp("wr_iot_mask_t","")!=0;
  failed |= nvram_set_temp("wr_iot_start_t","")!=0;
  failed |= nvram_set_temp("wr_iot_end_t","")!=0;
+ if(strcmp(nvram_safe_get("wr_iot_profile_t"),"0")||
+    strcmp(nvram_safe_get("wr_iot_network_t"),"0")||
+    strcmp(nvram_safe_get("wr_iot_firewall_t"),"0"))failed=1;
  return !failed;
 }
 
@@ -48,7 +51,14 @@ static int wr_iot_request_stage_locked(int router_mode,int radio_on,int radio_mo
  }
  /* Profile generation may now add ra2. Network/firewall stay quarantined until
   * the activation backend has proven bridge, dnsmasq and firewall readiness. */
- if(nvram_set_int_temp("wr_iot_profile_t",1)){
+ if(strcmp(nvram_safe_get("wr_iot_ssid_t"),request.ssid)||
+    strcmp(nvram_safe_get("wr_iot_psk_t"),request.password)||
+    strcmp(nvram_safe_get("wr_iot_gateway_t"),request.gateway)||
+    strcmp(nvram_safe_get("wr_iot_mask_t"),request.mask)||
+    strcmp(nvram_safe_get("wr_iot_start_t"),request.first)||
+    strcmp(nvram_safe_get("wr_iot_end_t"),request.last)||
+    nvram_set_int_temp("wr_iot_profile_t",1)||
+    strcmp(nvram_safe_get("wr_iot_profile_t"),"1")){
   (void)wr_iot_request_clear();return 0;
  }
  return 1;

@@ -42,6 +42,8 @@ int main(void){
  assert(!wr_iot_request_stage(1,1,0)&&!writes&&!held);
  assert(!strcmp(find("wr_iot_profile_t")->value,"stale"));
  bridge_index=0;
+ reset();writes=0;fail_write=0;
+ assert(wr_iot_request_stage(1,1,0)&&!held);
  reset();writes=0;busy=1;
  assert(!wr_iot_request_stage(1,1,0)&&!writes&&!held&&enters==leaves+1);
  assert(!strcmp(find("wr_iot_profile_t")->value,"stale"));
