@@ -142,6 +142,25 @@ int main(void)
   assert(wr_rssi_query_response_encode(out+1,48,session,0,0,0,0,0)==48);
   assert(!wr_rssi_query_response_encode(out+1,47,session,0,0,0,0,0));
  }
+ {
+  unsigned char out[WR_RSSI_QUERY_RESPONSE_MAX_BYTES+2],saved[WR_RSSI_QUERY_RESPONSE_MAX_BYTES+2];
+  struct wr_rssi_record records[64];unsigned long long session[2]={~0ULL,~0ULL};unsigned int i;
+  memset(records,0,sizeof records);memset(out,0xa5,sizeof out);
+  for(i=0;i<64;i++) {
+   records[i].sequence=i+1;records[i].attempt=i+1;records[i].mac[0]=2;
+   records[i].mac[5]=(unsigned char)i;records[i].radio=1;records[i].bss=15;records[i].stage=4;
+  }
+  assert(wr_rssi_query_response_encode(out+1,2096,session,64,~0ULL,1,records,64)==2096);
+  assert(out[0]==0xa5&&out[2097]==0xa5&&out[7]==64);
+  memcpy(saved,out,sizeof out);records[63].stage=5;
+  assert(!wr_rssi_query_response_encode(out+1,2096,session,64,~0ULL,1,records,64));
+  assert(!memcmp(saved,out,sizeof out));records[63].stage=4;
+  assert(!wr_rssi_query_response_encode(out+1,2095,session,64,0,1,records,64));
+  assert(!memcmp(saved,out,sizeof out));
+  assert(!wr_rssi_query_response_encode(out+1,2096,session,64,0,1,records,65));
+  assert(!memcmp(saved,out,sizeof out));
+ }
+ puts("PASS maximum 64-record RSSI response, buffer canaries and final-record preflight rejection");
  puts("PASS bounded RSSI response encoding, radio/sequence checks and all-input preflight");
  return 0;
 }
