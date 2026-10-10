@@ -411,6 +411,7 @@ jobs:
             test ! -e trunk/romfs/usr/sbin/wr-band-steering-ctl
           fi
           python3 ../tools/shared-wifi/verify-ui-image.py trunk/romfs
+          python3 ../tools/connected-devices/verify-ui-image.py trunk/romfs
           test -x trunk/romfs/usr/sbin/httpd
           readelf -h trunk/romfs/usr/sbin/httpd | grep -q 'Machine:.*MIPS'
           grep -a -F -q 'Invalid shared Wi-Fi request. No settings were saved.' trunk/romfs/usr/sbin/httpd
