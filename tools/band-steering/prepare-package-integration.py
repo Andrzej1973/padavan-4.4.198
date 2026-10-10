@@ -29,6 +29,16 @@ modules = ('protocol session clients aging policy grants coordinator loop '
            'events framing listener transport control main ctl control-client').split()
 files = {name+'.c': (tools / (name+'.c')).read_bytes() for name in modules}
 files.update({f.name: f.read_bytes() for f in tools.glob('*.h')})
+# Keep shared observation helpers in a bounded private package subdirectory.
+observations = tools.parent / 'connected-devices'
+for name in ('action-event.h', 'action-wire.h', 'action-send.h', 'steering-action.h'):
+    content = (observations / name).read_text(encoding='utf-8')
+    if name == 'steering-action.h':
+        original = '#include "../band-steering/protocol.h"'
+        if content.count(original) != 1:
+            raise ValueError('Action protocol include changed; no files written')
+        content = content.replace(original, '#include "../protocol.h"', 1)
+    files['observations/' + name] = content.encode('utf-8')
 files['protocol-layout.h'] = layout
 files['package.mk'] = recipe.encode('utf-8')
 files['Makefile'] = ("SOURCE_DIR = .\nLAYOUT_DIR = .\nBUILD_DIR = build\n"
@@ -36,6 +46,7 @@ files['Makefile'] = ("SOURCE_DIR = .\nLAYOUT_DIR = .\nBUILD_DIR = build\n"
 registration = 'dir_$(CONFIG_FIRMWARE_INCLUDE_WR_BAND_STEERING) += wr-band-steering\n\n'
 destination.mkdir()
 for name, data in files.items():
+    (destination / name).parent.mkdir(parents=True, exist_ok=True)
     (destination / name).write_bytes(data)
 makefile.write_text(text.replace(anchor, registration + anchor))
 print('Registered WR Band Steering package; selector and runtime state unchanged')

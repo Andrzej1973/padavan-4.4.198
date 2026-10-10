@@ -10,7 +10,7 @@ WARNINGS = -std=c11 -Wall -Wextra -Werror
 DAEMON_SOURCES = protocol session clients aging policy grants coordinator loop \
                  events framing listener transport control main
 DAEMON_FILES = $(addprefix $(SOURCE_DIR)/,$(addsuffix .c,$(DAEMON_SOURCES)))
-HEADERS = $(wildcard $(SOURCE_DIR)/*.h)
+HEADERS = $(wildcard $(SOURCE_DIR)/*.h $(SOURCE_DIR)/observations/*.h $(SOURCE_DIR)/../connected-devices/action*.h $(SOURCE_DIR)/../connected-devices/steering-action.h)
 .PHONY: all romfs clean
 all: $(BUILD_DIR)/wr-band-steering $(BUILD_DIR)/wr-band-steering-ctl
 $(BUILD_DIR):

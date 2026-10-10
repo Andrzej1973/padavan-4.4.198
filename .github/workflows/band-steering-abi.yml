@@ -287,6 +287,8 @@ jobs:
           PY
           python3 tools/band-steering/prepare-source-integration.py source-integration \
             --config source-integration/requested.config --compiler "$compiler"
+          printf '%s\n' '#define _GNU_SOURCE' '#include "observations/steering-action.h"' '#include "observations/action-send.h"' 'int main(void){return 0;}' > source-integration/action-header-check.c
+          "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -Isource-integration/trunk/user/wr-band-steering -c source-integration/action-header-check.c -o source-integration/action-header-check.o
           make -C source-integration/trunk/user/wr-band-steering \
             CC="$compiler" CFLAGS="-O2 -mips32r2 -mabi=32 -msoft-float" \
             INSTALLDIR="$PWD/source-integration/romfs" romfs
