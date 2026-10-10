@@ -38,4 +38,22 @@ static inline int wr_rssi_record_append(struct wr_rssi_records *ring,
  else if(ring->overwritten!=~0ULL)ring->overwritten++;
  return 1;
 }
+/* Copy oldest available records after the caller's cursor. Hold the same
+ * observer lock as append. Capacity bounds CPU work and output writes.
+ * Caller also exports overwritten/sequence so missing history is explicit.
+ * A future cursor is rejected: it may belong to a previous driver session. */
+static inline int wr_rssi_record_read(const struct wr_rssi_records *ring,
+ unsigned long long after,struct wr_rssi_record *output,unsigned int capacity)
+{
+ unsigned int i,index,count=0;
+ if(!ring||!output||!capacity||capacity>WR_RSSI_RECORD_CAPACITY||
+    ring->next>=WR_RSSI_RECORD_CAPACITY||ring->count>WR_RSSI_RECORD_CAPACITY||
+    after>ring->sequence)return -1;
+ index=(ring->next+WR_RSSI_RECORD_CAPACITY-ring->count)%WR_RSSI_RECORD_CAPACITY;
+ for(i=0;i<ring->count&&count<capacity;i++){
+  const struct wr_rssi_record *entry=&ring->entries[(index+i)%WR_RSSI_RECORD_CAPACITY];
+  if(entry->sequence>after)output[count++]=*entry;
+ }
+ return (int)count;
+}
 #endif

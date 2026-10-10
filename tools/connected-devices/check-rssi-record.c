@@ -12,6 +12,19 @@ int main(void)
  for(i=1;i<70;i++){e.uptime_ms=i;e.stage=1+i%4;assert(wr_rssi_record_append(&ring,&e));}
  assert(ring.count==64&&ring.next==6&&ring.overwritten==6&&ring.sequence==70);
  assert(ring.entries[ring.next].sequence==7);
+ {
+  struct wr_rssi_record out[64];int n;
+  before=ring;n=wr_rssi_record_read(&ring,0,out,64);assert(n==64);
+  for(i=0;i<64;i++)assert(out[i].sequence==7+i);
+  assert(!memcmp(&ring,&before,sizeof ring));
+  assert(wr_rssi_record_read(&ring,68,out,64)==2&&out[0].sequence==69&&out[1].sequence==70);
+  assert(wr_rssi_record_read(&ring,0,out,1)==1&&out[0].sequence==7);
+  assert(wr_rssi_record_read(&ring,70,out,64)==0);
+  assert(wr_rssi_record_read(&ring,71,out,64)==-1);
+  assert(wr_rssi_record_read(&ring,0,out,65)==-1);
+  assert(wr_rssi_record_read(&ring,0,out,0)==-1);
+  assert(wr_rssi_record_read(&ring,0,0,64)==-1);
+ }
  before=ring;e.mac[0]=1;assert(!wr_rssi_record_append(&ring,&e));
  assert(!memcmp(&ring,&before,sizeof ring));e.mac[0]=2;
  e.stage=5;assert(!wr_rssi_record_append(&ring,&e));e.stage=1;
