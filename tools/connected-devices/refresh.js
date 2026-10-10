@@ -12,6 +12,8 @@
  }
  function create(options){
   var schedule=options.setTimer||setTimeout,cancel=options.clearTimer||clearTimeout;
+  var validate=options.validate||valid;
+  function relation(previous,next){if(options.relation)return options.relation(previous,next);if(!previous||previous.epoch!==next.epoch)return "new_session";return next.sequence<previous.sequence?"older":next.sequence===previous.sequence?"unchanged":"updated";}
   var running=false,visible=true,timer=null,flight=null,generation=0,failures=0,last=null;
   function state(name){if(options.onState){try{options.onState({state:name,hasData:last!==null,failures:failures});}catch(ignore){/* UI callbacks must not stop retries. */}}}
   function clear(){if(timer!==null){cancel(timer);timer=null;}}
@@ -26,15 +28,18 @@
    function finish(error,snapshot){
     if(!flight||flight!==entry||id!==generation)return;
     flight=null;cancel(entry.timeout);
-    if(!error&&!valid(snapshot))error=new Error('Invalid device snapshot');
-    if(!error&&last&&snapshot.epoch===last.epoch&&snapshot.sequence<last.sequence)error=new Error('Older device snapshot');
+    if(!error&&!validate(snapshot))error=new Error('Invalid device snapshot');
+    var change=!error?relation(last,snapshot):"invalid";
+    if(!error&&(change==="older"||change==="invalid"))error=new Error("Older or invalid snapshot");
     if(error){failures=Math.min(failures+1,4);state(last?'Stale':'Unavailable');later(Math.min(30000,5000*Math.pow(2,failures-1)));return;}
     failures=0;
-    if(!last||snapshot.epoch!==last.epoch||snapshot.sequence!==last.sequence){
+    if(change!=="unchanged"){
      try{if(options.onData)options.onData(snapshot);}catch(error){failures=1;state(last?'Stale':'Unavailable');later(5000);return;}
      last=snapshot;
     }
-    state(snapshot.cacheState==='stale'?'Stale':'Current');later(5000);
+    /* Keep newest freshness metadata even if event rows did not change. */
+    last=snapshot;
+    state(snapshot.cacheState==='stale'?'Stale':snapshot.cacheState==='unavailable'?'Unavailable':'Current');later(5000);
    }
    entry.timeout=schedule(function(){
     if(flight!==entry)return;

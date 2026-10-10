@@ -5,3 +5,12 @@ for(const mutate of [x=>x.events[0].mac='<img>',x=>x.events[0].cause='steering',
 let next=sample();next.epoch='restart';assert.equal(api.relation(h,next),'new_session');next=sample();next.serverUptimeMs=4000;assert.equal(api.relation(h,next),'older');
 next=sample();next.events.push({sequence:2,uptimeMs:5000,kind:'band_change',mac:'02:00:00:00:00:01',before:1,after:2,cause:'unknown'});assert.equal(api.relation(h,next),'updated');
 console.log('PASS bounded roaming history, session reset, old response and evidence validation');
+
+let callback,states=[],data=[],timers=new Map(),id=0;
+const poller=api.create(require('./refresh.js'),{request:done=>{callback=done;return ()=>{};},setTimer:(fn,delay)=>{let n=++id;timers.set(n,{fn,delay});return n;},clearTimer:n=>timers.delete(n),onData:x=>data.push(x),onState:x=>states.push(x.state)});
+poller.start();callback(null,sample());assert.equal(data.length,1);
+poller.retry();let newer=sample();newer.serverUptimeMs=10000;callback(null,newer);assert.equal(data.length,1);
+poller.retry();callback(null,sample());assert.equal(states.at(-1),'Stale');assert.equal(data.length,1);
+poller.setVisible(false);assert.equal(states.at(-1),'Paused');poller.setVisible(true);newer=sample();newer.epoch='restarted';callback(null,newer);assert.equal(data.length,2);
+poller.stop();assert.equal(timers.size,0);
+console.log('PASS shared history refresh, unchanged-event metadata, old-response rejection and new session');

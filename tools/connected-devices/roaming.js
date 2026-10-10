@@ -25,5 +25,9 @@
   var current=next.events.length?next.events[next.events.length-1].sequence:0;
   return current<old?'older':current===old?'unchanged':'updated';
  }
- return {valid:valid,relation:relation};
+ function create(refresh,options){
+  var adapted={},key;for(key in options)if(Object.prototype.hasOwnProperty.call(options,key))adapted[key]=options[key];
+  adapted.validate=valid;adapted.relation=relation;return refresh.create(adapted);
+ }
+ return {valid:valid,relation:relation,create:create};
 });
