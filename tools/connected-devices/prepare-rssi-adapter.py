@@ -20,7 +20,8 @@ for radio in ('mt76x2','mt76x3'):
  h='#include "wr-rssi-kernel.h"\n'+h.replace(field,field+'\n\tstruct wr_rssi_kernel wr_rssi_observer;')
  s=s.replace(publish,'\t\twr_rssi_kernel_init(&pAd->wr_rssi_observer);\n'+publish)
  planned.extend([(header,h),(init,s),
-                 (root/'include/wr-rssi-kernel.h',(tools/'rssi-kernel.h').read_text().replace('"rssi-record.h"','"wr-rssi-record.h"')),
-                 (root/'include/wr-rssi-record.h',(tools/'rssi-record.h').read_text())])
+                 (root/'include/wr-rssi-kernel.h',(tools/'rssi-kernel.h').read_text().replace('"rssi-record.h"','"wr-rssi-record.h"').replace('"rssi-query-request.h"','"wr-rssi-query-request.h"')),
+                 (root/'include/wr-rssi-record.h',(tools/'rssi-record.h').read_text()),
+                 (root/'include/wr-rssi-query-request.h',(tools/'rssi-query-request.h').read_text())])
 for path,text in planned:path.write_text(text)
 print('Prepared embedded per-adapter RSSI storage before adapter publication; driver compile and runtime unverified')

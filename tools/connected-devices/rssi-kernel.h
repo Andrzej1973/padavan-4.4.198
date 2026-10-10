@@ -7,6 +7,7 @@
 #include <linux/string.h>
 #include <linux/random.h>
 #include "rssi-record.h"
+#include "rssi-query-request.h"
 /* One instance per adapter. Initialize before publishing the adapter and
  * quiesce producers/readers before teardown. Do not reset a live instance.
  * Lock order: station-table lock may precede this observer lock; never call
@@ -59,6 +60,27 @@ static inline int wr_rssi_kernel_snapshot(struct wr_rssi_kernel *observer,
               meta->overwritten=observer->records.overwritten;
               meta->session[0]=observer->session[0];
               meta->session[1]=observer->session[1];}
+ spin_unlock_irqrestore(&observer->lock,flags);
+ return result;
+}
+/* Query fields are decoded before this call. -2 denotes instance mismatch;
+ * -1 denotes invalid bounds/cursor. Neither failure modifies output/meta. */
+static inline int wr_rssi_kernel_query(struct wr_rssi_kernel *observer,
+ const struct wr_rssi_query_request *request,struct wr_rssi_record *output,
+ struct wr_rssi_snapshot_meta *meta)
+{
+ unsigned long flags;int result;
+ if(!observer||!request||!meta||!output)return -1;
+ spin_lock_irqsave(&observer->lock,flags);
+ if(!wr_rssi_query_session_matches(request,observer->session))result=-2;
+ else {
+  result=wr_rssi_record_read(&observer->records,request->after,output,request->capacity);
+  if(result>=0) {
+   meta->sequence=observer->records.sequence;
+   meta->overwritten=observer->records.overwritten;
+   meta->session[0]=observer->session[0];meta->session[1]=observer->session[1];
+  }
+ }
  spin_unlock_irqrestore(&observer->lock,flags);
  return result;
 }
