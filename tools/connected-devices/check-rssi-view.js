@@ -16,3 +16,20 @@ assert.strictEqual(view.list.children.length,1);assert(view.list.textContent.inc
 assert(view.details.open&&view.list.scrollTop===18);view.setState({state:'Stale'});assert(root.textContent.includes('last available data'));
 view.render(h);assert.strictEqual(view.list.children.length,1);assert(view.details.open);
 console.log('PASS RSSI DOM filtering, stage labels, stale notice and retained expansion/scroll');
+
+(function(){
+ let options,xhr,callbacks=0,stops=0,visibility=[];
+ doc.hidden=false;doc.events={};doc.addEventListener=(k,fn)=>doc.events[k]=fn;doc.removeEventListener=k=>delete doc.events[k];
+ global.XMLHttpRequest=class {constructor(){xhr=this;this.aborted=0;}open(method,url,async){assert.strictEqual(method,'GET');assert(url.startsWith('/wr_rssi.json?'));assert(async);}setRequestHeader(k,v){assert.strictEqual(k,'Accept');assert.strictEqual(v,'application/json');}send(){}abort(){this.aborted++;if(this.onabort)this.onabort();}};
+ const schema={create:function(refresh,o){options=o;return {setVisible:v=>visibility.push(v),start:()=>{},stop:()=>stops++};}};
+ const mounted=rssi.mount(doc,new Element('section'),{},schema);
+ let abort=options.request(function(error){callbacks++;assert(error);});
+ xhr.onprogress({loaded:100001});assert.strictEqual(xhr.aborted,1);assert.strictEqual(callbacks,1);
+ xhr.onerror();assert.strictEqual(callbacks,1);abort();assert.strictEqual(callbacks,1);
+ callbacks=0;options.request(function(error,value){callbacks++;assert(!error);assert.deepStrictEqual(value,{events:[]});});
+ xhr.readyState=4;xhr.status=200;xhr.responseText='{"events":[]}';xhr.onreadystatechange();xhr.onreadystatechange();assert.strictEqual(callbacks,1);
+ callbacks=0;options.request(function(error){callbacks++;assert(error);});xhr.readyState=4;xhr.status=503;xhr.onreadystatechange();assert.strictEqual(callbacks,1);
+ doc.hidden=true;doc.events.visibilitychange();assert.deepStrictEqual(visibility,[true,false]);mounted.stop();assert.strictEqual(stops,1);assert(!doc.events.visibilitychange);
+ delete global.XMLHttpRequest;
+ console.log('PASS RSSI actual view transport bounds, exactly-once completion, HTTP error, hidden pause and unload cleanup');
+})();
