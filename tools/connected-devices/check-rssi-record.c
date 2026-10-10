@@ -250,7 +250,7 @@ int main(void)
   mode=1;wr_rssi_collector_tick(&c,names,fake_rssi_query,&mode,15000);
   assert(c.history.count==2&&c.history.radios[0].cursor.after==0&&c.history.radios[1].restarts==1);
   mode=0;wr_rssi_collector_tick(&c,names,fake_rssi_query,&mode,20000);
-  assert(c.history.count==4&&c.health[0].recoveries==1&&c.health[0].last_success_ms==20000);
+  assert(c.history.count==2&&c.history.radios[0].cursor.after==1&&c.health[0].recoveries==1&&c.health[0].last_success_ms==20000);
  }
  puts("PASS RSSI collector malformed-page retention, deferred ESTALE recovery and bounded two-radio tick");
  {
