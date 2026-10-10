@@ -13,7 +13,17 @@ a = p.parse_args()
 local = Path(__file__).resolve().parent
 relative = Path('trunk/user/www/n56u_ribbon_fixed/index.asp')
 original = (a.source / relative).read_text(encoding='utf-8')
+http = (a.source / 'trunk/user/httpd/web_ex.c').read_text(encoding='utf-8')
+assert '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">' in original
+assert '{ "**.js",  "text/javascript", no_cache_IE, NULL, do_ej, 1 }' in http
+assert '{ "**.css", "text/css", NULL, NULL, do_file, 0 }' in http
 assets = ['classify', 'refresh', 'homepage', 'boot']
+asset_bytes = 0
+for name in assets:
+    data = (local / (name + '.js')).read_bytes()
+    assert b'<%' not in data, 'Static JavaScript must not invoke the EJ template parser'
+    asset_bytes += len(data)
+asset_bytes += (local / 'homepage.css').stat().st_size
 root = Path.cwd() / ('homepage-check-' + uuid.uuid4().hex)
 assert root.resolve().parent == Path.cwd().resolve()
 root.mkdir()
@@ -38,3 +48,4 @@ finally:
     assert root.resolve().parent == Path.cwd().resolve()
     shutil.rmtree(root)
 print('PASS actual homepage preserved, assets installed in dependency order, duplicate preparation rejected')
+print('PASS UTF-8 homepage and pinned JS/CSS delivery routes; raw asset bytes:', asset_bytes)
