@@ -36,6 +36,11 @@ for name in ('bridge.h','subnet.h','types.h'):(headers/name).write_bytes((local/
 # RC objects that will own them.  They are still deliberately unbound here;
 # staging them first makes the real RC include environment a compile gate.
 for name in ('activation.h','request.h','request-stage.h'):(headers/name).write_bytes((local/name).read_bytes())
+(headers/'request-snapshot.h').write_bytes((local/'request-snapshot.h').read_bytes())
+snapshot=(local/'request-snapshot.c').read_text(encoding='utf-8')
+for name in ('request-snapshot.h','service-guard.h'):
+ snapshot=snapshot.replace('#include "'+name+'"','#include "wr-iot/'+name+'"',1)
+(rc/'wr-iot-request-snapshot.c').write_text(snapshot,encoding='utf-8')
 bridge=(local/'bridge.c').read_text(encoding='utf-8').replace('#include "bridge.h"','#include "wr-iot/bridge.h"',1).replace('#include "subnet.h"','#include "wr-iot/subnet.h"',1)
 (rc/'wr-iot-bridge.c').write_text(bridge,encoding='utf-8');f.write_text(s,encoding='utf-8');m.write_text(make,encoding='utf-8')
 stage=(local/'request-stage.c').read_text(encoding='utf-8').replace('#include "request-stage.h"','#include "wr-iot/request-stage.h"',1).replace('#include "request.h"','#include "wr-iot/request.h"',1)
@@ -411,6 +416,7 @@ make_source=m.read_text(encoding='utf-8')
 anchor='OBJS += wr-iot-request-stage.o wr-iot-writer-journal.o wr-iot-bridge.o wr-iot-profile.o wr-iot-dhcp.o wr-iot-network.o'
 if make_source.count(anchor)!=1:raise SystemExit('IoT linked object anchor changed')
 make_source=make_source.replace(anchor,'OBJS += wr-iot-request-stage.o wr-iot-service-guard.o wr-iot-writer-journal.o wr-iot-bridge.o wr-iot-profile.o wr-iot-dhcp.o wr-iot-network.o',1)
+make_source=make_source.replace('OBJS += wr-iot-request-stage.o','OBJS += wr-iot-request-snapshot.o wr-iot-request-stage.o',1)
 if make_source.count('wr-iot-service-guard.o')!=1:raise SystemExit('IoT service guard missing or duplicated in RC link')
 m.write_text(make_source,encoding='utf-8')
 report['service_state_headers_installed']=True
