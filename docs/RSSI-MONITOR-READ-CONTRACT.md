@@ -23,3 +23,7 @@ The collector must report overwritten records, unavailable queries, session chan
 Keep RSSI decision, allocation failure, frame submission and matched station-entry clearing separate. Entry clearing does not prove reception of the deauthentication frame, reconnection or a roam. Passive association observations remain separate evidence.
 
 Required tests cover malformed/oversized input, privilege rejection, recycled station identity, cursor/session mismatch, ring overwrite, repeated reads without consumption, concurrent append/read and adapter teardown. Compile the complete handler in both real driver modules, verify image inclusion, then test on the actual router with a separate client. Current firmware boot and RSSI runtime behavior remain unverified.
+
+## Pinned Linux dispatch evidence
+
+Source `c25283e915a2a00a763774dd255b14aff997285e`, `trunk/linux-4.4.x/net/wireless/wext-core.c`: `wext_ioctl_dispatch` acquires RTNL around `wireless_process_ioctl`; the latter can call `netdev_ops->ndo_do_ioctl` after checking device presence. `wext_permission_check` requires `CAP_NET_ADMIN` for set commands and selected encoding reads, rather than every read. The new RSSI handler therefore requires its own explicit administrator check. RTNL coverage of this entry point alone does not prove all MediaTek adapter release paths are synchronized; that driver lifetime audit remains pending.
