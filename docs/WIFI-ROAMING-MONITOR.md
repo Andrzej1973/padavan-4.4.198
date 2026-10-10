@@ -1,6 +1,6 @@
 # Wi-Fi Roaming Monitor
 
-User-approved WR1200JS feature, 2026-10-09. Planned, not implemented or runtime verified. Integrate with Enhanced Connected Devices on the homepage and provide a detailed monitor page.
+User-approved WR1200JS feature, 2026-10-09. Partially implemented; target runtime is not verified. Integrate with Enhanced Connected Devices on the homepage and provide a detailed monitor page.
 
 ## What to display
 
@@ -39,3 +39,13 @@ The UI must show an observed result rather than merely the presence of configura
 Implement these device/roaming UI deliverables immediately after the current DNS/DHCP recovery integration and its verification, within the WR1200JS stage and before secondary-router expansion. Both components share a refresh lifecycle. Manual page reload is not an acceptable normal update mechanism: refresh visible data automatically, approximately every 5 seconds, retry after failures, show freshness/error state, preserve filters/expanded groups/scroll, and refresh immediately when a hidden tab becomes visible. One request in flight and a shared bounded cache prevent overlapping or per-browser repeated collection. History recording continues independently of hidden tabs.
 
 Low load is a design goal, not measured evidence. Reuse existing data; do not trigger full scans or networkmap restarts per refresh. Keep classification/rendering in the browser, bounded passive recording/cache on the router and no continual flash writes. Before acceptance compare baseline and enabled CPU, process RSS, request latency and network traffic with identical client counts in idle and loaded conditions and with multiple browser sessions; include collector cost while no UI is open. Check that forwarding/Wi-Fi throughput and latency do not regress. Report actual measurements and tune collection intervals/limits if necessary; do not claim a percentage CPU cost or fixed RAM footprint before measuring.
+
+## Implementation evidence — 2026-10-10
+
+Commit `8c67e1554dc41c6b33eae379ba0d1d7cd3ab7a0e` connects the WR-only HTTP event-loop callback to a shared five-second association cache and bounded RAM history. The callback runs without browser requests; HTTP reads reuse the cache. Connection expiration remains unchanged. Blocking handlers can delay observations; missed intervals are recorded as gaps. No continual flash writes are introduced.
+
+[ABI run 241](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38011112083) passed. Its source-parser gate covers native sanitizer fixtures, MIPS compilation, actual driver-layout extraction, radio query/merge validation and HTTP fixtures. The background fixture calls the callback before any HTTP request and checks a failed-source gap followed by a successful observed association. This is source and fixture evidence, not a real-router measurement.
+
+The recorder bounds history to 256 events and 128 remembered client identities, reports overwrite/drop counts, requires two distinct successful samples before recording a band change, and treats simultaneous associations and collection gaps explicitly. It does not identify a steering cause or an external destination AP.
+
+Still required: authenticated history JSON, homepage summary and detailed timeline with automatic refresh, actual steering/kick action instrumentation and outcome correlation, on-demand export, and target association/load measurements. Full build 124 failed the station-table ABI assertion: the userspace shared header defaulted to 32 clients while the WR drivers use 64. The WR-only selector fix preserves the assertion. ABI 244 passed the new native/MIPS probe that includes the untouched shared header using the prepared source prefix. Full build 126 now verifies the corrected code; neither a passing fixture nor a compiled image proves successful roaming on hardware.
