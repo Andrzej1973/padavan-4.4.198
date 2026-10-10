@@ -400,7 +400,7 @@ jobs:
           for radio in mt76x2 mt76x3; do
             module="trunk/linux-4.4.x/drivers/net/wireless/mediatek/${radio}_ap/${radio}_ap.ko"
             test -s "$module"
-            "${compiler%gcc}nm" "$module" | grep -Eq '[[:space:]]wr_rssi_delete_entry$'
+            "${compiler%gcc}nm" "$module" | grep -E '[[:space:]]wr_rssi_delete_entry$'
             grep -q 'case WR_RSSI_QUERY_OID:' "trunk/linux-4.4.x/drivers/net/wireless/mediatek/$radio/ap/ap_cfg.c"
           done
           grep -a -F -q 'wr_rssi.json' trunk/romfs/usr/sbin/httpd
