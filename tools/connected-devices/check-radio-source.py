@@ -21,6 +21,11 @@ for radio in ('mt76x2', 'mt76x3'):
     text = (root / 'common/cmm_info.c').read_text(encoding='utf-8')
     body = text[text.index('VOID RTMPIoctlGetMacTable('):]
     body = body[:body.index('\nVOID ', 1)] if '\nVOID ' in body[1:] else body
-    for evidence in ('wrq->u.data.length = 0;', 'wrq_len < sizeof(RT_802_11_MAC_TABLE)', 'pEntry->Sst == SST_ASSOC', 'pDst->ApIdx = (UCHAR)pEntry->apidx;', 'wrq->u.data.length = sizeof(RT_802_11_MAC_TABLE);'):
+    required = ['pEntry->Sst == SST_ASSOC', 'wrq->u.data.length = sizeof(RT_802_11_MAC_TABLE);']
+    if radio == 'mt76x2':
+        required += ['wrq->u.data.length = 0;', 'wrq_len < sizeof(RT_802_11_MAC_TABLE)', 'pDst->ApIdx = (UCHAR)pEntry->apidx;']
+    else:
+        required += ['pDst->ApIdx = (UCHAR)pEntry->func_tb_idx;']
+    for evidence in required:
         assert evidence in body, (radio, evidence)
 print('PASS both pinned drivers expose matching station fields and associated-client table semantics; target ABI/runtime unverified')
