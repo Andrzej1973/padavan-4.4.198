@@ -202,6 +202,7 @@ jobs:
           python3 tools/connected-devices/prepare-background.py abi-results/device-http-patch
           python3 tools/connected-devices/check-prepare-ui.py source
           python3 tools/connected-devices/check-radio-source.py source
+          python3 tools/connected-devices/check-kick-source.py source
           python3 tools/connected-devices/prepare-radio-header-check.py source abi-results/device-http-patch --output abi-results/device-radio-header.c
           gcc -std=gnu11 -Wall -Wextra -Werror abi-results/device-radio-header.c -o abi-results/device-radio-header
           abi-results/device-radio-header
