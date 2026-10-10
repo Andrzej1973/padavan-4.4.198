@@ -10,6 +10,7 @@
 #include "rssi-query-client.h"
 #include "rssi-history.h"
 #include "rssi-collector.h"
+#include "rssi-json.h"
 static int fake_rssi_query(const char *name,int command,struct iwreq *r,void *context)
 {
  int mode=*(int *)context;unsigned long long session[2]={11,22};struct wr_rssi_query_request q;
@@ -252,5 +253,17 @@ int main(void)
   assert(c.history.count==4&&c.health[0].recoveries==1&&c.health[0].last_success_ms==20000);
  }
  puts("PASS RSSI collector malformed-page retention, deferred ESTALE recovery and bounded two-radio tick");
+ {
+  struct wr_rssi_collector c;struct wr_rssi_query_response r={0};char json[100000];size_t length=99;unsigned int i;
+  wr_rssi_collector_init(&c);r.count=1;r.session[0]=~0ULL;r.session[1]=~0ULL;
+  r.records[0].attempt=1;r.records[0].mac[0]=2;r.records[0].stage=3;
+  for(i=0;i<256;i++){r.sequence=i+1;r.records[0].sequence=i+1;assert(wr_rssi_history_accept(&c.history,0,&r));}
+  assert(wr_rssi_json(&c,json,sizeof json,&length)&&length<sizeof json);
+  assert(strstr(json,"ffffffffffffffffffffffffffffffff"));
+  assert(strstr(json,"frame_submitted")&&strstr(json,"unknown"));
+  assert(!wr_rssi_json(&c,json,10,&length)&&length==0);
+  c.history.events[0].record.stage=5;assert(!wr_rssi_json(&c,json,sizeof json,&length)&&length==0);
+ }
+ puts("PASS maximum RSSI history JSON, exact session strings, buffer and invalid-stage rejection");
  return 0;
 }
