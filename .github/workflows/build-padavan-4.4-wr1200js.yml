@@ -774,7 +774,8 @@ jobs:
 
 
       - name: Compile isolated full Band Steering drivers
-        if: ${{ !cancelled() && steps.firmware_build.conclusion == 'success' && steps.steering_prepare.outputs.enabled != 'y' }}
+        # Candidate RSSI instrumentation needs its own compile even when production steering is enabled.
+        if: ${{ !cancelled() && steps.firmware_build.conclusion == 'success' }}
         run: |
           set -euo pipefail
           source_kernel="$PWD/padavan-4.4/trunk/linux-4.4.x"
