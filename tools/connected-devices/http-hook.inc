@@ -40,6 +40,7 @@ static enum wr_device_cache_state wr_device_http_update(void)
  else wr_roam_observe(&wr_device_http_history,NULL,now,0);
  return state;
 }
+void wr_device_background_close(void){wr_action_runtime_close(&wr_device_http_actions);}
 void wr_device_background_tick(void){(void)wr_device_http_update();wr_action_runtime_tick(&wr_device_http_actions,(uint64_t)uptime()*1000);}
 static void do_wr_roaming_json(const char *url,FILE *stream)
 {

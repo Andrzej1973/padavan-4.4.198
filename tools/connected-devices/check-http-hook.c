@@ -37,6 +37,7 @@ int main(int argc,char **argv){char directory[]="/tmp/device-http-XXXXXX",out[40
  radio_failure=0;
  assert(!unlink("source"));current_uptime=15;response(out,sizeof(out));assert(strstr(out,"\"cacheState\":\"stale\"")&&wr_device_http_cache.sequence==1);
  assert(strstr(out,"\"collectionAgeMs\":10000"));assert(!unlink("networkmap.lock"));assert(!chdir("/tmp"));assert(!rmdir(directory));
+ wr_device_background_close();
  if(argc!=2){puts("PASS read-only HTTP hook: valid current/stale JSON, shared cache, failed-source retention and escaped names; live authentication unverified");}
  return 0;
 }
