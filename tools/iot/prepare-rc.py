@@ -39,6 +39,7 @@ for name in ('activation.h','request.h','request-stage.h'):(headers/name).write_
 bridge=(local/'bridge.c').read_text(encoding='utf-8').replace('#include "bridge.h"','#include "wr-iot/bridge.h"',1).replace('#include "subnet.h"','#include "wr-iot/subnet.h"',1)
 (rc/'wr-iot-bridge.c').write_text(bridge,encoding='utf-8');f.write_text(s,encoding='utf-8');m.write_text(make,encoding='utf-8')
 stage=(local/'request-stage.c').read_text(encoding='utf-8').replace('#include "request-stage.h"','#include "wr-iot/request-stage.h"',1).replace('#include "request.h"','#include "wr-iot/request.h"',1)
+stage=stage.replace('#include "service-guard.h"','#include "wr-iot/service-guard.h"',1)
 (rc/'wr-iot-request-stage.c').write_text(stage,encoding='utf-8')
 m.write_text(m.read_text(encoding='utf-8').replace('OBJS += wr-iot-bridge.o','OBJS += wr-iot-request-stage.o wr-iot-bridge.o'),encoding='utf-8')
 report={'board':'WR1200JS','candidate_bss':'ra2','bridge_object_installed':True,'owned_quiescence_before_radio_stop':True,'activation_integrated':False,'runtime_verified':False}

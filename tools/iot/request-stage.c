@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "request-stage.h"
 #include "request.h"
+#include "service-guard.h"
 #include "rc.h"
 #include <string.h>
 
@@ -23,7 +24,7 @@ static int wr_iot_request_clear(void)
  return !failed;
 }
 
-int wr_iot_request_stage(int router_mode,int radio_on,int radio_mode)
+static int wr_iot_request_stage_locked(int router_mode,int radio_on,int radio_mode)
 {
  struct wr_iot_request request;
  if(!wr_iot_request_read(&request,wr_iot_request_nvram,NULL,router_mode,radio_on,
@@ -43,4 +44,13 @@ int wr_iot_request_stage(int router_mode,int radio_on,int radio_mode)
   (void)wr_iot_request_clear();return 0;
  }
  return 1;
+}
+
+int wr_iot_request_stage(int router_mode,int radio_on,int radio_mode)
+{
+ int token=wr_iot_service_guard_enter(1),result;
+ if(token!=1)return 0;
+ result=wr_iot_request_stage_locked(router_mode,radio_on,radio_mode);
+ wr_iot_service_guard_leave(token);
+ return result;
 }
