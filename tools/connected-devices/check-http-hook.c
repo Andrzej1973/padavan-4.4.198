@@ -17,11 +17,19 @@ int wr_device_collect_radio(struct wr_device_snapshot *snapshot){
  if(snapshot->count){snapshot->records[0].radio.band_mask=1;snapshot->records[0].radio.rssi[0]=-60;}
  return 1;
 }
+static unsigned int rssi_ticks;
+void wr_device_collect_rssi(struct wr_rssi_collector *collector,unsigned long long now){
+ rssi_ticks++;collector->health[0].attempted=1;collector->health[0].available=0;
+ collector->health[0].error=EOPNOTSUPP;collector->health[0].last_success_ms=now;
+}
+static void rssi_response(char *out,size_t capacity){FILE *fp=tmpfile();size_t n;assert(fp);do_wr_rssi_json("wr_rssi.json",fp);rewind(fp);n=fread(out,1,capacity-1,fp);out[n]=0;assert(!ferror(fp));assert(!fclose(fp));}
 static void response(char *out,size_t capacity){FILE *fp=tmpfile();size_t n;assert(fp);do_wr_devices_json("wr_devices.json",fp);rewind(fp);n=fread(out,1,capacity-1,fp);out[n]=0;assert(!ferror(fp));assert(!fclose(fp));}
 static void history_response(char *out,size_t capacity){FILE *fp=tmpfile();size_t n;assert(fp);do_wr_roaming_json("wr_roaming.json",fp);rewind(fp);n=fread(out,1,capacity-1,fp);out[n]=0;assert(!ferror(fp));assert(!fclose(fp));}
 int main(int argc,char **argv){char directory[]="/tmp/device-http-XXXXXX",out[4096];FILE *fp;(void)argv;
  assert(mkdtemp(directory));assert(!chdir(directory));
  wr_device_background_tick();assert(wr_device_http_history.gap);
+ rssi_response(out,sizeof(out));assert(strstr(out,"\"available\":false")&&rssi_ticks==1);
+ rssi_response(out,sizeof(out));assert(rssi_ticks==1);
  response(out,sizeof(out));assert(strstr(out,"source_unavailable"));
  current_uptime=5;fp=fopen("source","w");assert(fp);assert(fputs("192.168.1.2,00:11:22:33:44:55,<script>,1,0,0\n",fp)>=0);assert(!fclose(fp));
  wr_device_background_tick();assert(wr_device_http_history.event_count==2 && !wr_device_http_history.gap);
