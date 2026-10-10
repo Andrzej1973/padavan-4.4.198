@@ -9,6 +9,7 @@ def expect(key,operation,success):
 run('mount','--make-rprivate','/');run('mount','-t','sysfs','sysfs','/sys')
 expect('missing_remove_noop','remove',True)
 run('ip','link','add','br-iot','type','bridge')
+expect('foreign_bridge_up_rejected','up',False);expect('foreign_bridge_down_rejected','down',False)
 expect('foreign_bridge_prepare_rejected','prepare',False);expect('foreign_bridge_remove_rejected','remove',False)
 assert Path('/sys/class/net/br-iot').exists();run('ip','link','delete','br-iot')
 expect('owned_create_prepare','prepare',True)
@@ -20,6 +21,7 @@ if Path('/proc/sys/net/ipv6/conf/all/disable_ipv6').exists():
  checks['ipv6_disabled']=Path('/proc/sys/net/ipv6/conf/br-iot/disable_ipv6').read_text().strip()=='1';assert checks['ipv6_disabled']
 run('ip','link','set','br-iot','up');expect('active_bridge_remove_rejected','remove',False);expect('active_bridge_prepare_rejected','prepare',False)
 run('ip','link','set','br-iot','down');run('ip','link','add','test-port','type','dummy');run('ip','link','set','test-port','master','br-iot')
+expect('foreign_member_up_rejected','up',False);expect('foreign_member_down_rejected','down',False)
 expect('attached_bridge_remove_rejected','remove',False);expect('attached_bridge_prepare_rejected','prepare',False)
 run('ip','link','set','test-port','nomaster');run('ip','link','delete','test-port')
 expect('missing_bss_attach_rejected','attach',False);expect('missing_bss_detach_noop','detach',True)
@@ -28,8 +30,13 @@ expect('active_bss_attach_rejected','attach',False);run('ip','link','set','ra2',
 run('ip','link','add','other-br','type','bridge');run('ip','link','set','ra2','master','other-br')
 expect('foreign_master_attach_rejected','attach',False);expect('foreign_master_detach_rejected','detach',False)
 run('ip','link','set','ra2','nomaster');run('ip','link','delete','other-br')
-expect('down_bss_attach_owned','attach',True);expect('attached_owned_remove_rejected','remove',False)
-run('ip','link','set','ra2','up');expect('active_bss_detach_rejected','detach',False)
+expect('empty_bridge_up_rejected','up',False)
+expect('down_bss_attach_owned','attach',True);expect('owned_attached_up','up',True)
+assert 'UP' in json.loads(run('ip','-j','link','show','dev','br-iot').stdout)[0]['flags']
+expect('owned_attached_down','down',True)
+assert 'UP' not in json.loads(run('ip','-j','link','show','dev','br-iot').stdout)[0]['flags']
+expect('attached_owned_remove_rejected','remove',False)
+run('ip','link','set','ra2','up');expect('active_bss_bridge_up_rejected','up',False);expect('active_bss_bridge_down_rejected','down',False);expect('active_bss_detach_rejected','detach',False)
 run('ip','link','set','ra2','down');expect('down_owned_bss_detach','detach',True)
 run('ip','link','delete','ra2');expect('owned_empty_down_remove','remove',True)
 assert not Path('/sys/class/net/br-iot').exists()

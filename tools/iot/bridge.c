@@ -99,3 +99,29 @@ int wr_iot_bridge_detach(void) {
 }
 
 int wr_iot_bridge_is_owned(void) {return owned();}
+
+/* Operate only on the owned bridge with no foreign members. This does not
+ * establish firewall readiness; the activation controller must prove it first. */
+int wr_iot_bridge_set_up(int enabled) {
+ DIR *directory;struct dirent *entry;struct ifreq request;
+ int fd,ok=0,members=0,foreign=0;
+ if((enabled!=0&&enabled!=1)||!owned())return 0;
+ directory=opendir("/sys/class/net/br-iot/brif");if(!directory)return 0;
+ while((entry=readdir(directory))) {
+  if(!strcmp(entry->d_name,".")||!strcmp(entry->d_name,".."))continue;
+  members++;
+  if(strcmp(entry->d_name,IOT_BSS))foreign=1;
+ }
+ closedir(directory);
+ if(foreign||(enabled&&members!=1))return 0;
+ fd=socket(AF_INET,SOCK_DGRAM,0);if(fd<0)return 0;
+ if(members&&(bss_master()!=1||!bss_down(fd)))goto done;
+ memset(&request,0,sizeof(request));strcpy(request.ifr_name,IOT_BRIDGE);
+ if(ioctl(fd,SIOCGIFFLAGS,&request))goto done;
+ if(enabled)request.ifr_flags|=IFF_UP;
+ else request.ifr_flags&=~IFF_UP;
+ if(ioctl(fd,SIOCSIFFLAGS,&request))goto done;
+ if(ioctl(fd,SIOCGIFFLAGS,&request))goto done;
+ ok=!!(request.ifr_flags&IFF_UP)==enabled;
+ done:close(fd);return ok;
+}

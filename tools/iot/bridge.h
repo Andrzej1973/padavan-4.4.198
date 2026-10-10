@@ -8,4 +8,6 @@ int wr_iot_bridge_remove(void);
 int wr_iot_bridge_is_owned(void);
 int wr_iot_bridge_attach(void);
 int wr_iot_bridge_detach(void);
+/* Caller installs isolation before UP and stops ra2 before either transition. */
+int wr_iot_bridge_set_up(int enabled);
 #endif
