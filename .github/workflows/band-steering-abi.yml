@@ -1083,6 +1083,7 @@ jobs:
           cp -a source iot-rc-source
           mkdir -p iot-rc-source/trunk/configs/boards/WR1200JS
           cp overlay/padavan-4.4/trunk/configs/boards/WR1200JS/l1profile.dat iot-rc-source/trunk/configs/boards/WR1200JS/
+          cp overlay/padavan-4.4/trunk/configs/boards/WR1200JS/board.h iot-rc-source/trunk/user/rc/ralink_boards.h
           python3 tools/iot/prepare-rc.py iot-rc-source
           cp iot-rc-source/iot-rc-source.json abi-results/
           compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
@@ -1095,7 +1096,7 @@ jobs:
             -c iot-rc-source/trunk/user/rc/wr-iot-dhcp.c -o abi-results/iot-rc-dhcp-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
             -c iot-rc-source/trunk/user/rc/wr-iot-network.c -o abi-results/iot-rc-network-mips.o
-          "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+          "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -I"$PWD/iot-rc-source/trunk/user/rc" -I"$PWD/iot-rc-source/trunk/user/shared" \
             -c iot-rc-source/trunk/user/rc/wr-iot-request-stage.c -o abi-results/iot-rc-request-stage-mips.o
           python3 tools/iot/prepare-activation-header-check.py iot-rc-source abi-results/check-iot-activation-headers.c
           include_flags=(-I"$PWD/iot-rc-source/trunk/user/rc" -I"$PWD/iot-rc-source/trunk/user/shared")
@@ -1118,6 +1119,12 @@ jobs:
           test -n "$compiler"
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -DBOARD_WR1200JS \
             -c abi-results/check-iot-stop.c -o abi-results/iot-stop-mips.o
+
+      - name: Check IoT request staging before 2.4GHz profile regeneration
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/iot/check-request-stage-rc.py iot-rc-source | tee abi-results/iot-request-stage-rc.txt
 
       - name: Check IoT activation sequencing and retained recovery
         shell: bash
