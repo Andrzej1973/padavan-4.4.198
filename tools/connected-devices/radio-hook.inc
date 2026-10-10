@@ -1,6 +1,9 @@
 #if defined(BOARD_WR1200JS)
 #include "wr-devices/radio-query.h"
 #include "wr-devices/radio-merge.h"
+#if defined(__mips__)
+_Static_assert(sizeof(RT_802_11_MAC_TABLE)==1796,"WR station table must match the 64-client driver ABI");
+#endif
 static int wr_device_radio_ioctl(const char *interface, int command,
                                  struct iwreq *request, void *context)
 {
