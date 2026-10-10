@@ -17,3 +17,7 @@ The downloaded `WR1200JS_4.4.198.9-100` artifact contains exactly the TRX and ce
 - `WR1200JS_4.4.198.9-100.trx`: 13125415 bytes; SHA-256 `45a9925cbbc125a046d8792f7f94f9f1bf3ca1071f4022f8e0cd59953137423a`.
 
 The config hash matches the earlier verified build 144 config. These checks establish artifact contents and identity, not router compatibility at runtime.
+
+## Independent container checks
+
+The downloaded image passes both U-Boot header CRC32 and payload CRC32 checks. Its payload length is 13,125,351 bytes, exactly the file length minus the 64-byte header. A SquashFS 4.0 superblock starts at offset 1,980,992; its declared extent is contained in the image. Filesystem contents have not yet been independently extracted.
