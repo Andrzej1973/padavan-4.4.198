@@ -28,6 +28,7 @@ code += '#include <assert.h>\n#define RT_802_11_MAC_TABLE shared_RT_802_11_MAC_T
 code += '#include "' + str(Path(__file__).resolve().parent / 'radio-table.h').replace('\\', '/') + '"\n'
 code += '#define RTPRIV_IOCTL_GET_MAC_TABLE_STRUCT (SIOCIWFIRSTPRIV + 0x1F)\n'
 code += '#include "' + str(Path(__file__).resolve().parent / 'radio-query.h').replace('\\', '/') + '"\n'
+code += '#include "' + str(Path(__file__).resolve().parent / 'radio-merge.h').replace('\\', '/') + '"\n'
 code += r"""
 static int mock_query(const char *interface, int command, struct iwreq *request, void *context) {
  int mode=*(int *)context;
@@ -72,6 +73,24 @@ int main(void) {
   }
   mode=0;
   assert(wr_radio_query("ra0",2,mock_query,&mode,&output) && output.count==0);
+ }
+ {
+  struct wr_device_snapshot base;
+  struct wr_radio_snapshot two, five;
+  static struct wr_device_joined_snapshot joined;
+  memset(&base,0,sizeof(base)); memset(&two,0,sizeof(two)); memset(&five,0,sizeof(five));
+  base.count=1; strcpy(base.records[0].mac,"02:00:00:00:00:01"); strcpy(base.records[0].name,"known");
+  two.count=1; two.clients[0].mac[0]=2; two.clients[0].mac[5]=1; two.clients[0].rssi=-60;
+  five=two; five.clients[0].rssi=-45;
+  assert(wr_device_radio_merge(&base,&two,&five,&joined));
+  assert(joined.networkmap.count==1 && joined.radio[0].band_mask==3 && joined.radio[0].rssi[1]==-45);
+  five.clients[0].mac[5]=2;
+  assert(wr_device_radio_merge(&base,&two,&five,&joined));
+  assert(joined.networkmap.count==2 && joined.networkmap.records[1].ip[0]==0);
+  assert(joined.radio[1].band_mask==2 && !strcmp(joined.networkmap.records[0].name,"known"));
+  base.count=128;
+  assert(wr_device_radio_merge(&base,&two,&five,&joined));
+  assert(joined.networkmap.count==128 && joined.networkmap.truncated);
  }
  return 0;
 }
