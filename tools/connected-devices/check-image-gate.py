@@ -3,7 +3,7 @@
 import subprocess,sys,tempfile
 from pathlib import Path
 local=Path(__file__).resolve().parent
-with tempfile.TemporaryDirectory() as directory:
+with tempfile.TemporaryDirectory(dir=Path.cwd()) as directory:
  root=Path(directory);www=root/'www';www.mkdir();(root/'usr/sbin').mkdir(parents=True)
  page='<section id="wr-connected-devices"></section><section id="wr-roaming-history"></section><iframe id="statusframe"></iframe>'
  for name in ('classify','refresh','homepage','roaming','roaming-view','boot'):

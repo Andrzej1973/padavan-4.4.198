@@ -10,6 +10,10 @@ if '{ "update.cgi*", "text/javascript", no_cache_IE, do_html_apply_post, do_upda
 code=(local/'http-hook.inc').read_text(encoding='utf-8')
 route='#if defined(BOARD_WR1200JS)\n\t{ "wr_devices.json", "application/json", no_cache_IE, NULL, do_wr_devices_json, 1 },\n\t{ "wr_roaming.json", "application/json", no_cache_IE, NULL, do_wr_roaming_json, 1 },\n#endif\n'
 s=s.replace(anchor,code+'\n'+anchor+route,1)
+# Feature selection must precede every libc header in the actual translation unit.
+# The standalone fixture already enables GNU APIs; production web_ex.c did not.
+s = '#ifndef _GNU_SOURCE\n#define _GNU_SOURCE 1\n#endif\n' + s
+
 headers=http/'wr-devices';headers.mkdir(exist_ok=True)
 for name in ('networkmap.h','source-collector.h','snapshot-cache.h','snapshot-json.h','roaming-history.h','roaming-json.h','action-runtime.h','action-json.h','action-endpoint.h','action-drain.h','action-owner.h','action-receive.h','action-session.h','action-wire.h','action-event.h'):(headers/name).write_bytes((local/name).read_bytes())
 f.write_text(s,encoding='utf-8')
