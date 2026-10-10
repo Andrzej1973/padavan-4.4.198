@@ -1,0 +1,41 @@
+#ifndef WR_RSSI_RECORD_H
+#define WR_RSSI_RECORD_H
+/* Kernel-compatible bounded evidence storage. The caller must hold its
+ * observer lock for every append/read. No allocation, logging or I/O here.
+ * Capture identity before clearing the station table; radio/BSS identify
+ * the original client. Submission never means over-the-air acknowledgement.
+ * Not integrated into either driver yet. */
+#define WR_RSSI_RECORD_CAPACITY 64
+#define WR_RSSI_DECISION 1
+#define WR_RSSI_ALLOCATION_FAILED 2
+#define WR_RSSI_FRAME_SUBMITTED 3
+#define WR_RSSI_ENTRY_CLEARED 4
+struct wr_rssi_record {
+ unsigned long long sequence, uptime_ms;
+ unsigned int attempt;
+ unsigned char mac[6],radio,bss,stage;
+};
+struct wr_rssi_records {
+ struct wr_rssi_record entries[WR_RSSI_RECORD_CAPACITY];
+ unsigned long long sequence, overwritten;
+ unsigned int next,count;
+};
+static inline int wr_rssi_record_append(struct wr_rssi_records *ring,
+ const struct wr_rssi_record *record)
+{
+ unsigned int i; unsigned char any=0;
+ struct wr_rssi_record value;
+ if(!ring||!record||ring->next>=WR_RSSI_RECORD_CAPACITY||
+    ring->count>WR_RSSI_RECORD_CAPACITY||!record->attempt||
+    record->radio>1||record->bss>15||record->stage<WR_RSSI_DECISION||
+    record->stage>WR_RSSI_ENTRY_CLEARED||(record->mac[0]&1))return 0;
+ for(i=0;i<6;i++)any|=record->mac[i];
+ if(!any||ring->sequence==~0ULL)return 0;
+ value=*record;value.sequence=++ring->sequence;
+ ring->entries[ring->next]=value;
+ ring->next=(ring->next+1)%WR_RSSI_RECORD_CAPACITY;
+ if(ring->count<WR_RSSI_RECORD_CAPACITY)ring->count++;
+ else if(ring->overwritten!=~0ULL)ring->overwritten++;
+ return 1;
+}
+#endif
