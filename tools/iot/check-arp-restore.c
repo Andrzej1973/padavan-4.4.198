@@ -114,6 +114,21 @@ int main(void){
   assert(wr_iot_uts_capture(&now));assert(!strcmp(old_uts.hostname,now.hostname)&&!strcmp(old_uts.domain,now.domain));
   assert(wr_iot_writer_journal_unbind(&state.transaction));
   assert(wr_iot_service_state_finish(&state,"service.lock"));wr_iot_service_guard_leave(1);
+  /* Preflight failures must not stop a running daemon or retain a guard. */
+  {
+   struct wr_iot_service_lock held={-1};
+   controller_running=1;
+   assert(wr_iot_service_lock_take(&held,"service.lock"));
+   assert(wr_iot_restart_transaction()==EBUSY);
+   assert(controller_running&&!wr_iot_restart_active&&!wr_iot_restart_guard);
+   wr_iot_service_lock_release(&held);
+   assert(!rename("etc/dnsmasq.conf","etc/dnsmasq.previous"));
+   assert(wr_iot_restart_transaction()==EINVAL);
+   assert(controller_running&&!wr_iot_restart_active&&!wr_iot_restart_guard);
+   assert(wr_iot_service_lock_take(&held,"service.lock"));
+   wr_iot_service_lock_release(&held);
+   assert(!rename("etc/dnsmasq.previous","etc/dnsmasq.conf"));
+  }
   /* Execute the actual installed controller with injected daemon callbacks. */
   fp=fopen(WR_IOT_LEASE_PATH,"w");assert(fp);assert(fputs("lease-old\n",fp)>=0);assert(!fclose(fp));
   controller_running=1;controller_fault=1;assert(wr_iot_service_guard_enter(1)==1);
