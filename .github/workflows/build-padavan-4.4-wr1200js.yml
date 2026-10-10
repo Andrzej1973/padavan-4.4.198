@@ -776,6 +776,8 @@ jobs:
       - name: Compile isolated full Band Steering drivers
         # Candidate RSSI instrumentation needs its own compile even when production steering is enabled.
         if: ${{ !cancelled() && steps.firmware_build.conclusion == 'success' }}
+        env:
+          STEERING_PREPARED: ${{ steps.steering_prepare.outputs.enabled }}
         run: |
           set -euo pipefail
           source_kernel="$PWD/padavan-4.4/trunk/linux-4.4.x"
@@ -785,13 +787,18 @@ jobs:
           cp -a "$source_kernel" "$root/trunk/linux-4.4.x"
           kernel="$root/trunk/linux-4.4.x"
           sha256sum "$source_kernel/.config" > band-steering-driver-results/baseline-config.sha256
-          python3 tools/band-steering/prepare-idle-aging.py "$root"
-          python3 tools/band-steering/prepare-grant-readback.py "$root"
-          python3 tools/band-steering/prepare-wps-guards.py "$root"
-          python3 tools/band-steering/prepare-channel-stats.py "$root"
-          python3 tools/band-steering/prepare-main-bss.py "$root"
-          python3 tools/band-steering/prepare-off-ack.py "$root"
-          python3 tools/band-steering/prepare-uninitialized-off.py "$root"
+          if [ "$STEERING_PREPARED" = y ]; then
+            # The copied production tree already contains these exact patches.
+            cp padavan-4.4/band-steering-*-preparation.json "$root/"
+          else
+            python3 tools/band-steering/prepare-idle-aging.py "$root"
+            python3 tools/band-steering/prepare-grant-readback.py "$root"
+            python3 tools/band-steering/prepare-wps-guards.py "$root"
+            python3 tools/band-steering/prepare-channel-stats.py "$root"
+            python3 tools/band-steering/prepare-main-bss.py "$root"
+            python3 tools/band-steering/prepare-off-ack.py "$root"
+            python3 tools/band-steering/prepare-uninitialized-off.py "$root"
+          fi
           # Candidate observation storage is tested only in this isolated driver tree.
           python3 tools/connected-devices/prepare-rssi-adapter.py "$root"
           python3 tools/connected-devices/prepare-rssi-identity.py "$root"
