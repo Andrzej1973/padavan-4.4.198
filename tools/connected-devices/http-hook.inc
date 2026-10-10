@@ -4,6 +4,7 @@
 #include "wr-devices/snapshot-cache.h"
 #include "wr-devices/snapshot-json.h"
 #include "wr-devices/roaming-history.h"
+#include "wr-devices/roaming-json.h"
 #ifndef WR_DEVICE_SOURCE_PATH
 #define WR_DEVICE_SOURCE_PATH "/tmp/static_ip.inf"
 #endif
@@ -36,6 +37,20 @@ static enum wr_device_cache_state wr_device_http_update(void)
  return state;
 }
 void wr_device_background_tick(void){(void)wr_device_http_update();}
+static void do_wr_roaming_json(const char *url,FILE *stream)
+{
+ size_t length;enum wr_device_cache_state state;(void)url;
+ state=wr_device_http_update();
+ if(!wr_device_http_cache.initialized || !wr_roam_json(&wr_device_http_history,
+ wr_device_http_cache.epoch,wr_device_http_json,sizeof(wr_device_http_json),&length)){
+  fputs("{\"error\":\"history_unavailable\"}",stream);return;
+ }
+ /* A stale source does not erase history. Expose its current validity. */
+ wr_device_http_json[length-1]=0;
+ fprintf(stream,"%s,\"cacheState\":\"%s\",\"serverUptimeMs\":%llu}",wr_device_http_json,
+ state==WR_DEVICE_CURRENT?"current":state==WR_DEVICE_STALE?"stale":"unavailable",
+ (unsigned long long)((uint64_t)uptime()*1000));
+}
 static void do_wr_devices_json(const char *url,FILE *stream)
 {
  uint64_t now,age;size_t length;enum wr_device_cache_state state;
