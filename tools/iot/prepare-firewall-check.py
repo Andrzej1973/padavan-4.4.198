@@ -15,6 +15,13 @@ while depth:
     depth += (s[end] == '{') - (s[end] == '}')
     end += 1
 body = s[start:end]
+start = s.index('static int wr_iot_nat_policy(')
+opening = s.index('{', start)
+depth, end = 1, opening + 1
+while depth:
+    depth += (s[end] == '{') - (s[end] == '}')
+    end += 1
+body += '\n' + s[start:end]
 prefix = r'''
 #define _GNU_SOURCE
 #include "firewall.h"
@@ -37,6 +44,8 @@ static unsigned int fixture_index(const char *name){assert(!strcmp(name,"br-iot"
 static int fixture_services(const char *path,unsigned int *dns,int *dhcp,unsigned int *port){assert(!strcmp(path,"/etc/dnsmasq.conf"));*dns=dns_port;*dhcp=dhcp4;*port=dhcp_port;return dns_ok;}
 static int fixture_inventory(struct wr_iot_inventory *out,int ignore){assert(ignore==1);memset(out,0,sizeof(*out));out->ranges[0].first=0xc0a80100;out->ranges[0].last=0xc0a801ff;out->count=1;return inventory_ok;}
 static int fixture_routes(struct wr_iot_inventory *out,unsigned int index,uint32_t net,uint32_t mask){assert(index==3&&net==0xc0a83200&&mask==0xffffff00);if(overlap){out->ranges[1].first=net;out->ranges[1].last=net|255;out->count=2;}return route_ok;}
+#define IFNAME_BR "br0"
+static int wr_iot_network_check(const char *g,const char *mask,const char *first,const char *last){assert(g&&mask&&first&&last);return inventory_ok&&route_ok&&!overlap&&index_value!=0;}
 #define if_nametoindex fixture_index
 #define wr_iot_dns_config_services_at fixture_services
 #define wr_iot_inventory_interfaces fixture_inventory
@@ -52,7 +61,22 @@ static void check(int allow,const char *wan,int expected){
  if(expected==1){assert(!strstr(text,"-j ACCEPT"));assert(strstr(text,"-A FORWARD -o ra2 -j DROP"));}
  else {assert(strstr(text,"--dport 53 -j ACCEPT"));assert(strstr(text,"--dport 67 -j ACCEPT"));assert(strstr(text,"--dst-range 192.168.1.0-192.168.1.255 -j DROP"));assert(!strstr(text,"--dport 22"));}
 }
+static void check_nat(const char *wan,int expected){
+ char text[1024];size_t n;FILE *fp=tmpfile();assert(fp);
+ assert(wr_iot_nat_policy(fp,wan));assert(!fflush(fp));rewind(fp);
+ n=fread(text,1,sizeof(text)-1,fp);assert(!ferror(fp));text[n]=0;assert(!fclose(fp));
+ if(!expected){assert(!n);return;}
+ assert(!strcmp(text,"-A POSTROUTING -s 192.168.50.0/255.255.255.0 -o eth2.2 -j MASQUERADE\n"));
+}
 int main(void){
+ check_nat("eth2.2",1);
+ owned=0;check_nat("eth2.2",0);owned=1;gate=0;check_nat("eth2.2",0);gate=1;
+ network=0;check_nat("eth2.2",0);network=1;ap=1;check_nat("eth2.2",0);ap=0;
+ dns_port=5353;check_nat("eth2.2",0);dns_port=53;dhcp_port=1067;check_nat("eth2.2",0);dhcp_port=67;
+ dhcp4=0;check_nat("eth2.2",0);dhcp4=1;dns_ok=0;check_nat("eth2.2",0);dns_ok=1;
+ inventory_ok=0;check_nat("eth2.2",0);inventory_ok=1;route_ok=0;check_nat("eth2.2",0);route_ok=1;
+ overlap=1;check_nat("eth2.2",0);overlap=0;gateway="invalid";check_nat("eth2.2",0);gateway="192.168.50.1";
+ check_nat("",0);check_nat("br0",0);check_nat("br-iot",0);check_nat("eth2.2\n-j ACCEPT",0);check_nat("eth2.2",1);
  owned=0;check(1,"eth2.2",0);owned=1;check(0,"eth2.2",1);check(1,"eth2.2",2);
  gate=0;check(1,"eth2.2",1);gate=1;network=0;check(1,"eth2.2",1);network=1;
  ap=1;check(1,"eth2.2",1);ap=0;dns_ok=0;check(1,"eth2.2",1);dns_ok=1;
@@ -62,7 +86,7 @@ int main(void){
  route_ok=0;check(1,"eth2.2",1);route_ok=1;overlap=1;check(1,"eth2.2",1);overlap=0;
  gateway="invalid";check(1,"eth2.2",1);gateway="192.168.50.1";check(1,"eth2.2\n-j ACCEPT",1);
  check(1,"",2);check(1,"eth2.2",2);
- puts("PASS installed IoT firewall helper: scoped allow, ownership/gates, DNS/DHCP ports, inventory failures and overlap quarantine; kernel observations injected");return 0;
+ puts("PASS installed IoT firewall and scoped NAT helpers: scoped allow, ownership/gates, DNS/DHCP ports, inventory failures and overlap quarantine; kernel observations injected");return 0;
 }
 '''
 a.output.write_text(prefix + body + '\n' + tail)
