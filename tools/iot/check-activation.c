@@ -46,7 +46,7 @@ int main(void){
   memset(&state,0,sizeof(state));memset(&f,0,sizeof(f));
   assert(wr_iot_activation_start(&state,&backend,&f));f.recovery_fail=fail;
   assert(!wr_iot_activation_stop(&state));assert(state.state==WR_IOT_RECOVERY&&f.locked&&state.snapshot);
-  f.recovery_fail=0;assert(wr_iot_activation_stop(&state));assert(state.state==WR_IOT_INACTIVE&&!f.locked&&!f.guard);
+  f.recovery_fail=0;assert(wr_iot_activation_stop(&state));assert(state.state==WR_IOT_INACTIVE&&!f.locked&&!f.guard&&f.restores==1);
  }
  puts("PASS IoT activation sequencing and retained recovery: injected backend; production bindings and runtime unverified");return 0;
 }

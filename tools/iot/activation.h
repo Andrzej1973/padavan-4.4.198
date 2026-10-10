@@ -19,6 +19,7 @@ struct wr_iot_activation {
  const struct wr_iot_activation_backend *backend;
  void *context;
  int locked,snapshot;
+ unsigned int recovery_step;
 };
 static inline int wr_iot_activation_call(struct wr_iot_activation *state,enum wr_iot_activation_operation op){
  return state->backend->perform(state->context,op)==1;
@@ -36,9 +37,16 @@ static inline int wr_iot_activation_recover(struct wr_iot_activation *state){
  };
  unsigned int i;
  if(!state||state->state!=WR_IOT_RECOVERY||!state->locked||!state->snapshot)return 0;
- for(i=0;i<sizeof(operations)/sizeof(operations[0]);i++)
+ /* Recheck BSS quiescence on every retry; completed destructive stages
+  * must not be repeated after their owned resource has disappeared. */
+ if(state->recovery_step>sizeof(operations)/sizeof(operations[0]))return 0;
+ if(!wr_iot_activation_call(state,WR_IOT_QUIESCE))return 0;
+ if(!state->recovery_step)state->recovery_step=1;
+ for(i=state->recovery_step;i<sizeof(operations)/sizeof(operations[0]);i++){
   if(!wr_iot_activation_call(state,operations[i]))return 0;
- state->snapshot=0;wr_iot_activation_release(state);state->state=WR_IOT_INACTIVE;return 1;
+  state->recovery_step=i+1;
+ }
+ state->snapshot=0;state->recovery_step=0;wr_iot_activation_release(state);state->state=WR_IOT_INACTIVE;return 1;
 }
 static inline int wr_iot_activation_start(struct wr_iot_activation *state,const struct wr_iot_activation_backend *backend,void *context){
  static const enum wr_iot_activation_operation operations[]={
@@ -57,7 +65,7 @@ static inline int wr_iot_activation_start(struct wr_iot_activation *state,const 
  state->snapshot=1;state->state=WR_IOT_STARTING;
  for(i=0;i<sizeof(operations)/sizeof(operations[0]);i++){
   if(!wr_iot_activation_call(state,operations[i])){
-   state->state=WR_IOT_RECOVERY;wr_iot_activation_recover(state);return 0;
+   state->recovery_step=0;state->state=WR_IOT_RECOVERY;wr_iot_activation_recover(state);return 0;
   }
  }
  state->state=WR_IOT_ACTIVE;wr_iot_activation_release(state);return 1;
@@ -67,7 +75,7 @@ static inline int wr_iot_activation_stop(struct wr_iot_activation *state){
  if(state->state==WR_IOT_INACTIVE)return !state->locked&&!state->snapshot;
  if(state->state==WR_IOT_ACTIVE){
   if(!wr_iot_activation_call(state,WR_IOT_LOCK))return 0;
-  state->locked=1;state->state=WR_IOT_RECOVERY;
+  state->locked=1;state->recovery_step=0;state->state=WR_IOT_RECOVERY;
  }
  return wr_iot_activation_recover(state);
 }
