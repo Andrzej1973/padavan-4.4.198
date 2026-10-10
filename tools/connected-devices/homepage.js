@@ -56,6 +56,7 @@
      connection+=' \u00b7 '+(radio.band==='2g'?'2.4 GHz':'5 GHz');
      if(typeof radio.rssi==='number'&&isFinite(radio.rssi)&&radio.rssi>-127&&radio.rssi<0)connection+=' '+radio.rssi+' dBm';
     });
+    row.connection=connection;
     set(row.cells[1],connection);set(row.cells[2],icons[result.category]+' '+result.category);set(row.cells[3],result.confidence);
     row.cells[3].title=result.evidence.join('; ')||'No reliable classification evidence';
    });
@@ -68,7 +69,12 @@
    Object.keys(groups).forEach(function(key){groups[key].scroll.scrollTop=positions[key];});
    if(viewport&&typeof viewport.scrollTo==='function')viewport.scrollTo(x,y);
   }
-  return {render:render,setState:function(value){set(status,value.state+(value.state==='Stale'?' \u2014 showing last available observations':''));},retry:retry,filter:filter};
+  var evidenceStale=false;
+  return {render:render,setState:function(value){
+   set(status,value.state+(value.state==='Stale'?' \u2014 showing last available observations':''));
+   if(value.state==='Stale')evidenceStale=true;else if(value.state==='Current')evidenceStale=false;
+   Object.keys(rows).forEach(function(key){var row=rows[key];set(row.cells[1],(evidenceStale?'Last available evidence: ':'')+row.connection);});
+  },retry:retry,filter:filter};
  }
  function mount(doc,root,refresh){
   var view=createView(doc,root),poller=refresh.create({request:function(done){

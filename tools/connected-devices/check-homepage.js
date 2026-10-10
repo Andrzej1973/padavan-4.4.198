@@ -40,3 +40,10 @@ assert(require("fs").readFileSync(require("path").join(__dirname,"homepage.js"),
 view.render({devices:[{mac:'02:00:00:00:00:99',presence:'associated',radios:[{band:'2g',rssi:-60},{band:'5g',rssi:null}]}]});
 assert(root.textContent.includes('2.4 GHz -60 dBm') && root.textContent.includes('5 GHz'));
 assert(!root.textContent.includes('null dBm'));
+
+view.setState({state:'Stale'});
+assert(root.textContent.includes('Last available evidence: Wi-Fi association'));
+view.setState({state:'Updating'});
+assert(root.textContent.includes('Last available evidence: Wi-Fi association'));
+view.setState({state:'Current'});
+assert(!root.textContent.includes('Last available evidence:'));
