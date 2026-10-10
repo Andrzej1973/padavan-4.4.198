@@ -5,6 +5,7 @@
 #include "rssi-identity.h"
 #include "rssi-query-request.h"
 #include "rssi-query-record.h"
+#include "rssi-query-response.h"
 int main(void)
 {
  struct wr_rssi_records ring={0},before;
@@ -126,5 +127,21 @@ int main(void)
   assert(!memcmp(saved,out,sizeof out));assert(!wr_rssi_query_record_encode(0,32,&r));
  }
  puts("PASS fixed RSSI record byte layout, unaligned encoding and rejected-output immutability");
+ {
+  unsigned char out[113],saved[113];unsigned long long session[2]={1,2};
+  struct wr_rssi_record records[2]={{0},{0}};unsigned int i;
+  memset(out,0xa5,sizeof out);
+  for(i=0;i<2;i++){records[i].sequence=i+1;records[i].attempt=i+1;records[i].mac[0]=2;records[i].stage=1;}
+  assert(wr_rssi_query_response_encode(out+1,112,session,2,5,0,records,2)==112);
+  assert(out[0]==0xa5&&out[1]=='W'&&out[7]==2&&out[9]==1&&out[17]==2&&out[25]==2&&out[33]==5);
+  memcpy(saved,out,sizeof out);records[1].radio=1;
+  assert(!wr_rssi_query_response_encode(out+1,112,session,2,5,0,records,2));
+  assert(!memcmp(saved,out,sizeof out));records[1].radio=0;records[1].sequence=1;
+  assert(!wr_rssi_query_response_encode(out+1,112,session,2,5,0,records,2));
+  assert(!memcmp(saved,out,sizeof out));
+  assert(wr_rssi_query_response_encode(out+1,48,session,0,0,0,0,0)==48);
+  assert(!wr_rssi_query_response_encode(out+1,47,session,0,0,0,0,0));
+ }
+ puts("PASS bounded RSSI response encoding, radio/sequence checks and all-input preflight");
  return 0;
 }
