@@ -4,6 +4,7 @@
 #include "rssi-record.h"
 #include "rssi-identity.h"
 #include "rssi-query-request.h"
+#include "rssi-query-record.h"
 int main(void)
 {
  struct wr_rssi_records ring={0},before;
@@ -111,5 +112,19 @@ int main(void)
  }
  puts("PASS RSSI stale adapter session, initial cursor and invalid instance rejection");
  puts("PASS RSSI request fixed encoding, unaligned input, bounds and invalid-output immutability");
+ {
+  unsigned char out[34],saved[34];struct wr_rssi_record r={0};
+  memset(out,0xa5,sizeof out);r.sequence=~0ULL;r.uptime_ms=0x0102030405060708ULL;
+  r.attempt=0x11223344;r.mac[0]=2;r.mac[5]=3;r.radio=1;r.bss=15;r.stage=4;
+  assert(wr_rssi_query_record_encode(out+1,32,&r));
+  assert(out[0]==0xa5&&out[33]==0xa5&&out[1]==255&&out[9]==8&&out[16]==1);
+  assert(out[17]==0x44&&out[20]==0x11&&out[21]==2&&out[26]==3);
+  assert(out[27]==1&&out[28]==15&&out[29]==4&&!out[30]&&!out[31]&&!out[32]);
+  memcpy(saved,out,sizeof out);r.stage=5;
+  assert(!wr_rssi_query_record_encode(out+1,32,&r));assert(!memcmp(saved,out,sizeof out));
+  r.stage=4;assert(!wr_rssi_query_record_encode(out+1,31,&r));
+  assert(!memcmp(saved,out,sizeof out));assert(!wr_rssi_query_record_encode(0,32,&r));
+ }
+ puts("PASS fixed RSSI record byte layout, unaligned encoding and rejected-output immutability");
  return 0;
 }
