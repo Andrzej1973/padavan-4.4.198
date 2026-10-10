@@ -234,6 +234,7 @@ jobs:
           python3 tools/connected-devices/check-rssi-adapter.py source abi-results/rssi-adapter-source
           python3 tools/connected-devices/check-rssi-decision.py source abi-results/rssi-decision-source
           python3 tools/connected-devices/check-rssi-identity.py source abi-results/rssi-identity-source
+          python3 tools/connected-devices/check-rssi-removal.py source abi-results/rssi-removal-source
           python3 tools/connected-devices/prepare-radio-header-check.py source abi-results/device-http-patch --output abi-results/device-radio-header.c
           gcc -std=gnu11 -Wall -Wextra -Werror abi-results/device-radio-header.c -o abi-results/device-radio-header
           abi-results/device-radio-header
