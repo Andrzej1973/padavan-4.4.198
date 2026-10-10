@@ -7,7 +7,7 @@
 #include "wr-devices/roaming-json.h"
 #include "wr-devices/action-runtime.h"
 #include "wr-devices/action-json.h"
-static char wr_device_http_action_json[131072];
+static char wr_device_http_action_json[65536];
 static struct wr_action_runtime wr_device_http_actions;
 #ifndef WR_DEVICE_SOURCE_PATH
 #define WR_DEVICE_SOURCE_PATH "/tmp/static_ip.inf"
