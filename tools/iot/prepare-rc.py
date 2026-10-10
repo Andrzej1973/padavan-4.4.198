@@ -413,6 +413,7 @@ helper=r"""
 #include "wr-iot/firewall.h"
 #include "wr-iot/route-snapshot.h"
 #include "wr-iot/dns-config.h"
+#include "wr-iot/network-check.h"
 static int wr_iot_firewall_quarantine(FILE *fp,int allow_policy,const char *lan,const char *wan)
 {
  const char *keys[]={"wr_iot_gateway_t","wr_iot_mask_t","wr_iot_start_t","wr_iot_end_t"};
@@ -443,6 +444,23 @@ static int wr_iot_firewall_quarantine(FILE *fp,int allow_policy,const char *lan,
               "-A FORWARD -i ra2 -j DROP\n"
               "-A FORWARD -o ra2 -j DROP\n",fp)>=0;
 }
+static int wr_iot_nat_policy(FILE *fp,const char *wan)
+{
+ const char *keys[]={"wr_iot_gateway_t","wr_iot_mask_t","wr_iot_start_t","wr_iot_end_t"};
+ char values[4][16],network[16],mask[16];const char *value;size_t i,n;
+ struct wr_iot_subnet subnet;unsigned int dns_port,dhcp_port;int dhcp4;
+ if(!wr_iot_bridge_is_owned()||nvram_get_int("wr_iot_firewall_t")!=1||nvram_get_int("wr_iot_network_t")!=1||get_ap_mode())return 1;
+ if(!wan||!*wan||!wr_iot_fw_ifname(wan)||!strcmp(wan,IFNAME_BR))return 1;
+ for(i=0;i<4;i++){
+  value=nvram_safe_get(keys[i]);n=strlen(value);if(n>=sizeof(values[i]))return 1;memcpy(values[i],value,n+1);
+ }
+ if(!wr_iot_dns_config_services_at("/etc/dnsmasq.conf",&dns_port,&dhcp4,&dhcp_port)||dns_port!=53||!dhcp4||dhcp_port!=67||
+    !wr_iot_network_check(values[0],values[1],values[2],values[3])||
+    !wr_iot_subnet_plan(&subnet,values[0],values[1],values[2],values[3],NULL,0))return 1;
+ wr_iot_fw_address(network,subnet.network);wr_iot_fw_address(mask,subnet.mask);
+ return fprintf(fp,"-A POSTROUTING -s %s/%s -o %s -j MASQUERADE\n",network,mask,wan)>=0;
+}
+
 #endif
 
 """
@@ -456,7 +474,12 @@ for name,marker,result,arguments in [('ipt_filter_rules','\t// maclist chain','r
  if body.count(marker)!=1:raise SystemExit('Firewall rule insertion anchor changed: '+name)
  hook='#if defined(BOARD_WR1200JS)\n\tif(!wr_iot_firewall_quarantine(fp,'+arguments+')){fclose(fp);logmessage("IoT Wi-Fi","Firewall quarantine write failed");'+result+'}\n#endif\n'
  body=body.replace(marker,hook+marker,1);firewall=firewall[:begin]+body+firewall[end:]
+anchor='\t\t/* masquerade WAN connection for LAN clients */'
+if firewall.count(anchor)!=1:raise SystemExit('WAN NAT insertion anchor changed')
+hook='#if defined(BOARD_WR1200JS)\n\t\tif(!wr_iot_nat_policy(fp,wan_if)){fclose(fp);logmessage("IoT Wi-Fi","NAT policy write failed");return 0;}\n#endif\n'
+firewall=firewall.replace(anchor,hook+anchor,1)
 path.write_text(firewall,encoding='utf-8')
+report['iot_wan_nat']='Scoped classic MASQUERADE before existing LAN WAN NAT; requires validated internal IoT gates and WAN NAT enabled'
 report['owned_bridge_firewall_quarantine']='IPv4/IPv6 normal/default builders before generic accepts; IPv4 allow policy requires wr_iot_firewall_t and wr_iot_network_t; activation controller pending'
 report['iot_main_dnsmasq_config_staged']=True
 report['dnsmasq_service_rollback_complete']=False
