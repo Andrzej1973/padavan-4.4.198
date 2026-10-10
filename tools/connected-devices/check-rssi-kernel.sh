@@ -13,7 +13,7 @@ output="$(realpath "$output")"
 # The single-object target bypasses the modules target directory setup.
 mkdir -p "$output/.tmp_versions"
 tools="$(cd "$(dirname "$0")" && pwd)"
-cp "$tools/rssi-kernel.h" "$tools/rssi-record.h" "$tools/rssi-query-request.h" "$output/"
+cp "$tools/rssi-kernel.h" "$tools/rssi-record.h" "$tools/rssi-query-request.h" "$tools/rssi-query-record.h" "$tools/rssi-query-response.h" "$tools/rssi-query-handler.h" "$output/"
 cp "$tools/check-rssi-kernel.c" "$output/wr-rssi-kernel-probe.c"
 printf '%s\n' 'obj-m := wr-rssi-kernel-probe.o' > "$output/Makefile"
 cross="${compiler%gcc}"
