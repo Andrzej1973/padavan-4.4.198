@@ -18,7 +18,14 @@ for radio in ('mt76x2','mt76x3'):
  failed=disconnect.index('NStatus != NDIS_STATUS_SUCCESS',allocation)
  continuation=disconnect.index('continue;',failed)
  send=disconnect.index('MiniportMMRequest',continuation)
+ deletion=disconnect.index('MacTableDeleteEntry',send)
+ assert send<deletion
+ assert 'pEntry->wcid, pEntry->Addr' in disconnect[deletion:deletion+100]
+ if radio=='mt76x3':
+  assert 'WH_EZ_SETUP' in disconnect[send:deletion]
+  assert 'ez_set_delete_peer_in_differed_context' in disconnect[send:deletion]
  assert allocation<failed<continuation<send
  assert 'IW_AGEOUT_EVENT_FLAG' in disconnect[:allocation]
  print('PASS',radio,'RSSI decision precedes generic ageout; allocation failure skips deauth submission')
+ print('PASS',radio,'deauth submission precedes table deletion call; call alone is not completion evidence')
 print('Source evidence only: no client removal, frame acknowledgement or runtime result verified')

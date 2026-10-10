@@ -12,3 +12,4 @@ Verified on 2026-10-10:
 - The inspected browser warning/error log was empty.
 
 The fixture uses simplified page styling. Real router boot, Wi-Fi stability, collection CPU cost and action-to-roaming behavior remain unverified. RSSI Kick action instrumentation remains incomplete.
+- A controlled HTTP 503 history outage retained the last event rows, expanded history and MAC filter, with an explicit stale label. Removing the outage restored Current and newer rows automatically without reloading.

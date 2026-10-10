@@ -22,3 +22,7 @@ Maximum-width serializer fixtures check the combined response against the browse
 [ABI 281](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38028371272) and [ABI 284](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38028824555) completed successfully, including registered target-package compilation, correlated grant-controller checks and actual prepared HTTP credential API probes. [Full build 137](WR1200JS-BUILD-137-EVIDENCE.md) successfully compiled the firmware and passed staged-image action observer checks.
 
 Full firmware builds and real-device behavior must be verified separately. RSSI Kick action instrumentation is not connected to this command log yet. External access-point transitions are not observed. An accepted command or candidate-table confirmation must never be presented as successful roaming.
+
+## RSSI enforcement source boundaries
+
+Pinned MT76x2 and MT76x3 sources emit generic age-out before allocating a deauthentication frame. Allocation failure skips submission and table deletion. Frame submission is not a frame acknowledgement. MT76x3 also has a conditional WH_EZ_SETUP path that defers peer deletion. A future observer must capture MAC, BSS and client identity before deletion, report the RSSI reason separately from inactivity, and verify the actual deletion result. A call to MacTableDeleteEntry alone must not be reported as completed removal.
