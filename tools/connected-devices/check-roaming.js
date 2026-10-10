@@ -16,3 +16,13 @@ poller.stop();assert.equal(timers.size,0);
 console.log('PASS shared history refresh, unchanged-event metadata, old-response rejection and new session');
 
 let counters=sample();counters.clientDropped=1;assert.equal(api.relation(sample(),counters),'updated');counters=sample();counters.gap=true;assert.equal(api.relation(sample(),counters),'updated');
+
+(function(){
+ var r=require('./roaming.js'),assert=require('assert');
+ var a={ownerAvailable:true,dropped:'0',rejected:'0',missing:'0',events:[{session:'ffffffffffffffff',sequence:1,uptimeMs:5,mac:'02:00:00:00:00:01',radio:0,bss:0,cookie:1,operation:'allow',stage:'ioctl_accepted',result:0,outcome:'unknown'}]};
+ assert(r.actionsValid(a,5));a.events[0].outcome='roamed';assert(!r.actionsValid(a,5));a.events[0].outcome='unknown';
+ a.events.push(Object.assign({},a.events[0]));assert(!r.actionsValid(a,5));a.events.pop();
+ a.dropped='18446744073709551616';assert(!r.actionsValid(a,5));a.dropped='18446744073709551615';assert(r.actionsValid(a,5));
+ a.events[0].session='0000000000000000';assert(!r.actionsValid(a,5));
+ console.log('PASS bounded action browser schema, exact 64-bit identities, replay and invented outcome rejection');
+})();
