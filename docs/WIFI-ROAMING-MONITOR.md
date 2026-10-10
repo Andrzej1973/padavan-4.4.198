@@ -60,8 +60,14 @@ Next implementation must provide bounded authenticated local event delivery from
 
 ## Daemon integration requirements — source inspection 2026-10-10
 
-The production staging path is `tools/band-steering/prepare-source-integration.py` -> `prepare-package-integration.py`. The latter explicitly copies daemon C modules and only headers from `tools/band-steering/*.h` into `trunk/user/wr-band-steering`. Therefore the new `tools/connected-devices` action headers are currently absent from the target package. Isolated builds use `package/Makefile` with the original tools directory and must support the same integration.
+The production staging path is `tools/band-steering/prepare-source-integration.py` -> `prepare-package-integration.py`. The latter explicitly copies daemon C modules and only headers from `tools/band-steering/*.h` into `trunk/user/wr-band-steering`. The dependency gap was corrected by commit `9b6c034af4697c0f3287b0386125c21e05131329`: the four required action headers are now copied into the target package `observations/` directory, with the staged protocol include rewritten for that layout. Isolated builds use `package/Makefile` with the original tools directory and must support the same integration.
 
 Before modifying `main.c:send_command`, stage the complete action header dependency set and rewrite the protocol include for the staged layout. Verify both the original tools-tree build and the generated package build; passing a standalone action fixture is insufficient. The production wrapper must call the original transport exactly once and preserve its return/errno, with passive reporting optional when no collector is available. Queries and candidate deletion are not client roaming.
 
 A complete integration also requires an owned local collector socket, verified sender lifetime/session, bounded draining and drop accounting, reconnect behavior after HTTP-daemon restart, actual grant acknowledgements, driver-side RSSI reason/outcome events and JSON/UI presentation. The HTTP observer must not control Steering lifecycle or make its startup depend on having a browser open. No live daemon integration has yet been delivered.
+
+### Staged package verification
+
+[ABI 260](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38026209692) passed the complete source preparation and registered target package step. That step compiles a MIPS translation unit including both staged `observations/steering-action.h` and `observations/action-send.h`, then builds the actual generated daemon and control executable. The standalone command-wrapper tests passed in ABI 259, and the nonblocking send tests passed in ABI 258. This establishes dependency and compilation coverage, not live event recording.
+
+Still missing: opening/owning the collector endpoint, verifying service process lifetime, connecting and reconnecting after collector restart, wiring `main.c:send_command` and actual driver acknowledgements, bounded HTTP draining/history/JSON action presentation, and driver-side RSSI removal outcomes. Do not mark action monitoring complete until the whole path is exercised.
