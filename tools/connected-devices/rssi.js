@@ -10,7 +10,7 @@
   for(i=0;i<2;i++){
    r=h.radios[i];
    if(!r||r.radio!==i||typeof r.available!=='boolean'||typeof r.attempted!=='boolean'||!uint(r.error,2147483647)||
-      !u64(r.failures)||!u64(r.recoveries)||!u64(r.lastSuccessMs)||!u64(r.missing)||!u64(r.restarts)||
+      !u64(r.failures)||!u64(r.recoveries)||!u64(r.lastSuccessMs)||!u64(r.missing)||!u64(r.restarts)||!u64(r.driverOverwritten)||
       (r.available&&(!r.attempted||r.error!==0)))return false;
   }
   var expected=h.radios[0].available&&h.radios[1].available?'current':h.events.length?'stale':'unavailable';

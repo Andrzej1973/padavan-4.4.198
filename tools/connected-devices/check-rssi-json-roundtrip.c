@@ -8,7 +8,7 @@ int main(void)
  char json[100000];size_t length;unsigned int i;
  wr_rssi_collector_init(&c);
  assert(wr_rssi_json(&c,json,sizeof json,&length));puts(json);
- r.count=1;r.session[0]=~0ULL;r.session[1]=~0ULL;
+ r.overwritten=~0ULL;r.count=1;r.session[0]=~0ULL;r.session[1]=~0ULL;
  r.records[0].mac[0]=2;r.records[0].attempt=~0U;
  r.records[0].uptime_ms=~0ULL;
  for(i=0;i<256;i++) {

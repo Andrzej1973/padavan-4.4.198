@@ -13,7 +13,7 @@
     node('li',e.uptimeMs+' ms uptime | '+e.mac+' | '+(e.radio===0?'2.4 GHz':'5 GHz')+' | '+labels[e.stage]+' | attempt '+e.attempt,list);count++;
    }
    summary.textContent='RSSI Kick driver events ('+count+')';list.scrollTop=scroll;
-   notice.textContent=h.radios.map(function(r){return (r.radio===0?'2.4 GHz':'5 GHz')+': '+(r.available?'available':r.attempted?'unavailable':'not collected')+'; missing '+r.missing+'; restarts '+r.restarts;}).join(' | ')+' | Evicted from RAM: '+h.evicted;
+   notice.textContent=h.radios.map(function(r){return (r.radio===0?'2.4 GHz':'5 GHz')+': '+(r.available?'available':r.attempted?'unavailable':'not collected')+'; missing '+r.missing+'; restarts '+r.restarts+'; driver overwritten '+r.driverOverwritten;}).join(' | ')+' | Evicted from RAM: '+h.evicted;
   }
   filter.addEventListener('input',function(){if(last)render(last);});
   return {render:render,setState:function(s){status.textContent=s.state+(s.state==='Stale'?' — showing last available data':'');},filter:filter,details:details,list:list};

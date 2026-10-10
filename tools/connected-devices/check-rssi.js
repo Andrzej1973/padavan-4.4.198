@@ -1,7 +1,7 @@
 'use strict';
 var assert=require('assert'),schema=require('./rssi.js');
 var h={cacheState:'current',evicted:'0',radios:[],events:[]};
-for(var i=0;i<2;i++)h.radios.push({radio:i,available:true,attempted:true,error:0,failures:'0',recoveries:'0',lastSuccessMs:'0',missing:'0',restarts:'0'});
+for(var i=0;i<2;i++)h.radios.push({radio:i,available:true,attempted:true,error:0,failures:'0',recoveries:'0',lastSuccessMs:'0',missing:'0',restarts:'0',driverOverwritten:'0'});
 assert(schema.valid(h));
 var e={session:'ffffffffffffffffffffffffffffffff',sequence:'18446744073709551615',uptimeMs:'18446744073709551615',attempt:4294967295,mac:'02:11:22:33:44:55',radio:0,bss:15,stage:'frame_submitted',outcome:'unknown'};
 h.events=[e];assert(schema.valid(h));

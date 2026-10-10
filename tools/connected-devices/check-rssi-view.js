@@ -9,7 +9,7 @@ class Element {
  setAttribute(k,v){this.attributes[k]=v;}addEventListener(k,v){this.events[k]=v;}removeEventListener(k){delete this.events[k];}
 }
 const doc={createElement:tag=>new Element(tag)},root=new Element('section'),view=rssi.createView(doc,root);
-const h={evicted:'0',radios:[{radio:0,available:false,attempted:true,missing:'1',restarts:'0'},{radio:1,available:true,attempted:true,missing:'0',restarts:'0'}],events:[{mac:'02:11:22:33:44:55',radio:0,uptimeMs:'999',attempt:1,stage:'frame_submitted'},{mac:'02:22:33:44:55:66',radio:1,uptimeMs:'1000',attempt:2,stage:'entry_cleared'}]};
+const h={evicted:'0',radios:[{radio:0,available:false,attempted:true,missing:'1',restarts:'0',driverOverwritten:'0'},{radio:1,available:true,attempted:true,missing:'0',restarts:'0',driverOverwritten:'0'}],events:[{mac:'02:11:22:33:44:55',radio:0,uptimeMs:'999',attempt:1,stage:'frame_submitted'},{mac:'02:22:33:44:55:66',radio:1,uptimeMs:'1000',attempt:2,stage:'entry_cleared'}]};
 view.render(h);assert.strictEqual(view.list.children.length,2);assert(view.list.textContent.includes('Station table entry cleared'));
 view.details.open=true;view.list.scrollTop=18;view.filter.value='02:11';view.filter.events.input();
 assert.strictEqual(view.list.children.length,1);assert(view.list.textContent.includes('Disconnect frame submitted'));

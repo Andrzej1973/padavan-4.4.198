@@ -8,7 +8,7 @@ struct wr_rssi_history_event {
 };
 struct wr_rssi_history_radio {
  struct wr_rssi_query_request cursor;
- unsigned long long missing,restarts,last_session[2],last_after;
+ unsigned long long missing,restarts,driver_overwritten,last_session[2],last_after;
 };
 struct wr_rssi_history {
  struct wr_rssi_history_radio radios[2];
@@ -69,6 +69,7 @@ static inline int wr_rssi_history_accept(struct wr_rssi_history *h,
   else h->evicted=wr_rssi_history_add(h->evicted,1);
  }
  if(next.after<retained)next.after=retained;
+ s->driver_overwritten=r->overwritten;
  s->last_session[0]=r->session[0];s->last_session[1]=r->session[1];s->last_after=next.after;
  s->missing=wr_rssi_history_add(s->missing,missing);s->cursor=next;return 1;
 }

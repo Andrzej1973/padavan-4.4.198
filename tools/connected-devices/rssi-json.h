@@ -16,9 +16,9 @@ static inline int wr_rssi_json(const struct wr_rssi_collector *c,char *data,
  for(i=0;i<2;i++) {
   const struct wr_rssi_collector_health *h=&c->health[i];
   const struct wr_rssi_history_radio *r=&c->history.radios[i];
-  if(!wr_device_json_format(&out,"%s{\"radio\":%u,\"available\":%s,\"attempted\":%s,\"error\":%d,\"failures\":\"%llu\",\"recoveries\":\"%llu\",\"lastSuccessMs\":\"%llu\",\"missing\":\"%llu\",\"restarts\":\"%llu\"}",
+  if(!wr_device_json_format(&out,"%s{\"radio\":%u,\"available\":%s,\"attempted\":%s,\"error\":%d,\"failures\":\"%llu\",\"recoveries\":\"%llu\",\"lastSuccessMs\":\"%llu\",\"missing\":\"%llu\",\"restarts\":\"%llu\",\"driverOverwritten\":\"%llu\"}",
    i?",":"",i,h->available?"true":"false",h->attempted?"true":"false",h->error,
-   h->failures,h->recoveries,h->last_success_ms,r->missing,r->restarts))return 0;
+   h->failures,h->recoveries,h->last_success_ms,r->missing,r->restarts,r->driver_overwritten))return 0;
  }
  if(!wr_device_json_append(&out,"],\"events\":["))return 0;
  first=(c->history.next+256-c->history.count)%256;

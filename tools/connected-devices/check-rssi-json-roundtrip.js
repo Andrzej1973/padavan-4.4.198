@@ -9,6 +9,7 @@ assert.strictEqual(rows[2].cacheState,'current');
 assert.strictEqual(rows[2].events.length,256);
 assert.strictEqual(rows[2].events[255].session,'ffffffffffffffffffffffffffffffff');
 assert.strictEqual(rows[2].events[255].uptimeMs,'18446744073709551615');
+assert.strictEqual(rows[2].radios[0].driverOverwritten,'18446744073709551615');
 assert.strictEqual(rows[2].evicted,'18446744073709551615');
 assert.strictEqual(new Set(rows[2].events.map(function(e){return e.stage;})).size,4);
 console.log('PASS actual C RSSI JSON accepted by browser schema: 256 events, maximum counters and all source states');
