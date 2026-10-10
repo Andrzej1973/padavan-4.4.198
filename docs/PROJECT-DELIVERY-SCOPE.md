@@ -8,6 +8,14 @@ under the active thread objective reaffirmed on 2026-10-08. Earlier CAKE
 proposals below are retained as history and are outside the current delivery.
 Compilation alone does not establish a successful device port.
 
+## Delivery order — user confirmation 2026-10-10
+
+1. Finish YOUHUA WR1200JS first: complete the accepted firmware and WebUI work, verify the target build and image, then verify device behavior with the user. Compilation alone is insufficient. Preserve the central configuration and keep CAKE excluded.
+2. Immediately after WR1200JS, complete Xiaomi Mi Mini with the reduced profile and stable 5 GHz wireless uplink/repeater requirements already recorded below.
+3. After both router stages, finish the local source/reference databases and complete offline preservation and the verified WSL 2 offline build project.
+
+Defer offline preservation and donor/database expansion until stage 3. Retain existing backups. This changes task order; it does not remove any accepted deliverable. Report concrete completed steps and maintain a short working checkpoint.
+
 ## Authoritative development location — user confirmation 2026-10-03
 
 All subsequent implementation, configuration, package, board-port and build
