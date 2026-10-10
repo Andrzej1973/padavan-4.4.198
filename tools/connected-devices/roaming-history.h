@@ -8,7 +8,7 @@ struct wr_roam_client {char mac[18];unsigned char band,pending,confirmations,see
 struct wr_roam_history {
  struct wr_roam_client clients[WR_DEVICE_LIMIT];
  struct wr_roam_event events[WR_ROAM_EVENTS];
- unsigned int count,next,event_count,dropped;
+ unsigned int count,next,event_count,dropped,client_dropped,client_evictions;
  uint64_t sequence,last_ms;int has_sample,gap;
 };
 static inline void wr_roam_event_add(struct wr_roam_history *h,uint64_t now,
@@ -52,11 +52,18 @@ static inline int wr_roam_observe(struct wr_roam_history *h,
  for(i=0;i<snapshot->count;i++){
   const struct wr_device_record *r=&snapshot->records[i];
   struct wr_roam_client *c;unsigned int band=r->radio.band_mask;
+  /* Aggregate all addresses for the MAC before any event is committed. */
+  for(j=0;j<snapshot->count;j++)if(!strcmp(snapshot->records[j].mac,r->mac))
+   band |= snapshot->records[j].radio.band_mask;
   if(!band||!r->mac[0])continue;
   for(j=0;j<h->count;j++)if(!strcmp(h->clients[j].mac,r->mac))break;
   if(j==h->count){
-   if(h->count==WR_DEVICE_LIMIT){h->dropped++;continue;}
-   c=&h->clients[h->count++];memset(c,0,sizeof(*c));memcpy(c->mac,r->mac,18);
+   if(h->count==WR_DEVICE_LIMIT){
+    for(j=0;j<h->count;j++)if(!h->clients[j].band&&!h->clients[j].seen)break;
+    if(j==h->count){h->client_dropped++;continue;}
+    c=&h->clients[j];h->client_evictions++;
+   }else c=&h->clients[h->count++];
+   memset(c,0,sizeof(*c));memcpy(c->mac,r->mac,18);
   }else c=&h->clients[j];
   /* Multiple IP records for one MAC are one observation, not confirmations. */
   if(c->seen){
