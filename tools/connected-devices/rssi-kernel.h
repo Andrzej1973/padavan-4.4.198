@@ -5,6 +5,7 @@
 #endif
 #include <linux/spinlock.h>
 #include <linux/string.h>
+#include <linux/random.h>
 #include "rssi-record.h"
 /* One instance per adapter. Initialize before publishing the adapter and
  * quiesce producers/readers before teardown. Do not reset a live instance.
@@ -13,15 +14,18 @@
  * this observer lock. Snapshot buffers belong to kernel callers. */
 struct wr_rssi_kernel {
  spinlock_t lock;
+ unsigned long long session[2];
  struct wr_rssi_records records;
 };
 struct wr_rssi_snapshot_meta {
- unsigned long long sequence,overwritten;
+ unsigned long long sequence,overwritten,session[2];
 };
 static inline void wr_rssi_kernel_init(struct wr_rssi_kernel *observer)
 {
  memset(&observer->records,0,sizeof observer->records);
  spin_lock_init(&observer->lock);
+ /* Instance tag, not an authentication secret. Zero remains invalid for reads. */
+ get_random_bytes(observer->session,sizeof observer->session);
 }
 static inline int wr_rssi_kernel_append(struct wr_rssi_kernel *observer,
  const struct wr_rssi_record *record)
@@ -52,7 +56,9 @@ static inline int wr_rssi_kernel_snapshot(struct wr_rssi_kernel *observer,
  spin_lock_irqsave(&observer->lock,flags);
  result=wr_rssi_record_read(&observer->records,after,output,capacity);
  if(result>=0){meta->sequence=observer->records.sequence;
-              meta->overwritten=observer->records.overwritten;}
+              meta->overwritten=observer->records.overwritten;
+              meta->session[0]=observer->session[0];
+              meta->session[1]=observer->session[1];}
  spin_unlock_irqrestore(&observer->lock,flags);
  return result;
 }
