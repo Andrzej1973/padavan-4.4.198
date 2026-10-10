@@ -181,6 +181,8 @@ jobs:
           abi-results/check-action-wire
           gcc -std=gnu11 -Wall -Wextra -Werror -fsanitize=address,undefined tools/connected-devices/check-action-receive.c -o abi-results/check-action-receive
           abi-results/check-action-receive
+          gcc -std=gnu11 -Wall -Wextra -Werror -fsanitize=address,undefined tools/connected-devices/check-action-send.c -o abi-results/check-action-send
+          abi-results/check-action-send
           gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined tools/connected-devices/check-networkmap.c -o abi-results/check-device-networkmap
           abi-results/check-device-networkmap | tee abi-results/device-networkmap.txt
           gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined tools/connected-devices/check-snapshot-json.c -o abi-results/check-device-json
@@ -221,6 +223,7 @@ jobs:
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -mips32r2 -mabi=32 -msoft-float -c tools/connected-devices/check-action-event.c -o abi-results/action-event-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -mips32r2 -mabi=32 -msoft-float -c tools/connected-devices/check-action-wire.c -o abi-results/action-wire-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -mips32r2 -mabi=32 -msoft-float -c tools/connected-devices/check-action-receive.c -o abi-results/action-receive-mips.o
+          "$compiler" -std=gnu11 -Wall -Wextra -Werror -mips32r2 -mabi=32 -msoft-float -c tools/connected-devices/check-action-send.c -o abi-results/action-send-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -mips32r2 -mabi=32 -msoft-float -c abi-results/device-radio-layout.c -o abi-results/device-radio-layout-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -c tools/connected-devices/check-roaming-history.c -o abi-results/roaming-history-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -c tools/connected-devices/check-roaming-json.c -o abi-results/roaming-json-mips.o
