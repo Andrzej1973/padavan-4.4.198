@@ -37,3 +37,11 @@ options.request(error=>result=error);XHR.last.onprogress({loaded:131073});assert
 options.request(error=>result=error);XHR.last.status=401;XHR.last.reply('{}');assert(result instanceof Error);
 assert(require('fs').readFileSync(require('path').join(__dirname,'roaming-view.js'),'utf8').split('').every(c=>c.charCodeAt(0)<128));
 console.log('PASS history mount/visibility/cleanup, single completion, login/error rejection and bounded abortable JSON transport');
+
+let exported,clicked=0,revoked=0;
+doc.defaultView.Blob=class{constructor(parts,options){exported=JSON.parse(parts.join(''));assert.equal(options.type,'application/json');}};
+doc.defaultView.URL={createObjectURL:()=> 'blob:local-history',revokeObjectURL:url=>{assert.equal(url,'blob:local-history');revoked++;}};doc.defaultView.setTimeout=fn=>fn();
+Element.prototype.click=function(){assert.equal(this.download,'wr1200js-wifi-history.json');clicked++;};
+assert.equal(view.exportButton.disabled,false);view.exportButton.events.click();assert.equal(clicked,1);assert.equal(revoked,1);assert.equal(exported.epoch,'session');assert(!all(root).some(n=>n.tagName==='a'));
+const empty=homepage.createView(doc,new Element('section'));assert.equal(empty.exportButton.disabled,true);empty.exportButton.events.click();assert.equal(clicked,1);
+console.log('PASS explicit local JSON export, empty-history guard and object URL/DOM cleanup');

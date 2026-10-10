@@ -3,10 +3,11 @@
  function createView(doc,root){
   function node(tag,text,parent){var n=doc.createElement(tag);if(text)n.textContent=text;(parent||root).appendChild(n);return n;}
   node('h3','Wi-Fi observation history');var status=node('p','Unavailable'),notice=node('p',''),label=node('label','Client MAC: '),filter=node('input','',label),details=node('details',''),summary=node('summary','Recent events',details),list=node('ol','',details),last=null;
+  var exportButton=node('button','Export history JSON');exportButton.type='button';exportButton.disabled=true;
   filter.type='text';filter.maxLength=17;filter.setAttribute('aria-label','Filter history by client MAC');details.open=false;list.style.maxHeight='280px';list.style.overflowY='auto';
   node('p','Observed changes do not prove Band Steering or RSSI Kick caused them. External access points are not observed.');
   function band(n){return n===1?'2.4 GHz':n===2?'5 GHz':n===3?'both bands / ambiguous':'unknown';}
-  function render(h){last=h;var scroll=list.scrollTop;while(list.firstChild)list.removeChild(list.firstChild);
+  function render(h){last=h;exportButton.disabled=false;var scroll=list.scrollTop;while(list.firstChild)list.removeChild(list.firstChild);
    var match=filter.value.trim().toUpperCase(),count=0;
    for(var i=h.events.length-1;i>=0;i--){var e=h.events[i];if(match&&e.kind!=='gap'&&e.mac.indexOf(match)<0)continue;
     var message=e.kind==='gap'?'Observation gap':e.kind==='band_change'?'Observed band change: '+band(e.before)+' to '+band(e.after):e.kind==='ambiguous'?'Simultaneous or ambiguous association':'Association observed: '+band(e.after);
@@ -16,8 +17,18 @@
    notice.textContent='History is held in RAM for collector session '+h.epoch+'. Overwritten events: '+h.dropped+'; omitted client observations: '+h.clientDropped+'; reused inactive client slots: '+h.clientEvictions+(h.gap?'. Observation currently incomplete.':'');
   }
   filter.addEventListener('input',function(){if(last)render(last);});
+  exportButton.addEventListener('click',function(){
+   if(!last)return;
+   var win=doc.defaultView,link=null,url=null;
+   if(!win||!win.Blob||!win.URL||!win.URL.createObjectURL){status.textContent='Export unavailable in this browser';return;}
+   try{
+    url=win.URL.createObjectURL(new win.Blob([JSON.stringify(last,null,2)],{type:'application/json'}));
+    link=node('a','');link.href=url;link.download='wr1200js-wifi-history.json';link.style.display='none';link.click();
+   }catch(error){status.textContent='History export failed';}
+   finally{if(link&&link.parentNode)link.parentNode.removeChild(link);if(url)win.setTimeout(function(){win.URL.revokeObjectURL(url);},1000);}
+  });
   var stale=false;
-  return {render:render,setState:function(s){if(s.state==='Stale')stale=true;else if(s.state==='Current')stale=false;status.textContent=s.state+(stale?' \u2014 showing last available history':'');},filter:filter,details:details,list:list};
+  return {render:render,setState:function(s){if(s.state==='Stale')stale=true;else if(s.state==='Current')stale=false;status.textContent=s.state+(stale?' \u2014 showing last available history':'');},filter:filter,details:details,list:list,exportButton:exportButton};
  }
  function mount(doc,root,refresh,history){var view=createView(doc,root),poller=history.create(refresh,{request:function(done){
   var xhr=new XMLHttpRequest(),settled=false;function finish(error,value){if(settled)return;settled=true;done(error,value);}
