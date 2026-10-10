@@ -5,7 +5,7 @@
  'use strict';
  var categories=['All','Android','Windows','Apple','Smart TV','Unknown'];
  var labels={primary:'Primary network',guest:'Guest network',iot:'IoT network',unknown:'Network not identified'};
- var icons={'Android':'рџџў','Windows':'рџџЎ','Apple':'рџЌЋ','Smart TV':'рџ“є','Unknown':'вќ”'};
+ var icons={'Android':'\uD83D\uDFE2','Windows':'\uD83D\uDFE1','Apple':'\uD83C\uDF4E','Smart TV':'\uD83D\uDCFA','Unknown':'\u2754'};
  function text(value){return typeof value==='string'?value.slice(0,128):'';}
  function createView(doc,root){
   var groups={},rows=Object.create(null),current=[],warning='',source=null;
@@ -47,10 +47,10 @@
     if(!row){var tr=node('tr'),cells=[];for(var i=0;i<4;i++)cells.push(node('td',undefined,tr));row=rows[key]={node:tr,cells:cells};}
     if(row.node.parentNode!==groups[group].body)groups[group].body.appendChild(row.node);
     row.group=group;row.category=result.category;groups[group].total++;
-    set(row.cells[0],(text(record.hostname)||'Unnamed device')+' В· '+ip+' В· '+mac);
+    set(row.cells[0],(text(record.hostname)||'Unnamed device')+' \u00b7 '+ip+' \u00b7 '+mac);
     var connection=record.presence==='associated'?'Wi-Fi association':(record.networkmapStale===true?'Last known observation':record.networkmapStale===false?'Seen by networkmap':'Connection unknown');
-    if(record.band==='2g')connection+=' В· 2.4 GHz';else if(record.band==='5g')connection+=' В· 5 GHz';
-    if(typeof record.rssi==='number'&&isFinite(record.rssi)&&record.rssi>=-127&&record.rssi<=0)connection+=' В· '+record.rssi+' dBm';
+    if(record.band==='2g')connection+=' \u00b7 2.4 GHz';else if(record.band==='5g')connection+=' \u00b7 5 GHz';
+    if(typeof record.rssi==='number'&&isFinite(record.rssi)&&record.rssi>=-127&&record.rssi<=0)connection+=' \u00b7 '+record.rssi+' dBm';
     set(row.cells[1],connection);set(row.cells[2],icons[result.category]+' '+result.category);set(row.cells[3],result.confidence);
     row.cells[3].title=result.evidence.join('; ')||'No reliable classification evidence';
    });
@@ -63,7 +63,7 @@
    Object.keys(groups).forEach(function(key){groups[key].scroll.scrollTop=positions[key];});
    if(viewport&&typeof viewport.scrollTo==='function')viewport.scrollTo(x,y);
   }
-  return {render:render,setState:function(value){set(status,value.state+(value.state==='Stale'?' вЂ” showing last available observations':''));},retry:retry,filter:filter};
+  return {render:render,setState:function(value){set(status,value.state+(value.state==='Stale'?' \u2014 showing last available observations':''));},retry:retry,filter:filter};
  }
  function mount(doc,root,refresh){
   var view=createView(doc,root),poller=refresh.create({request:function(done){

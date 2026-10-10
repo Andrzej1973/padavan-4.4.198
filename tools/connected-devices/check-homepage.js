@@ -34,3 +34,5 @@ global.XMLHttpRequest=XHR;
 let received;const abort=options.request((error,data)=>received={error,data});XHR.last.reply(JSON.stringify({devices:[],epoch:'e',sequence:1}));assert.ok(!received.error);assert.strictEqual(received.data.sequence,1);abort();assert.ok(!received.error);
 options.request(error=>received=error);XHR.last.reply('<html>login</html>');assert.ok(received instanceof Error);
 console.log('PASS safe DOM text insertion, stable rows/filter/groups/scroll, stale feedback, visibility wiring and JSON XHR transport');
+
+assert(require("fs").readFileSync(require("path").join(__dirname,"homepage.js"),"utf8").split("").every(c=>c.charCodeAt(0)<128),"Presentation source must use ASCII Unicode escapes");
