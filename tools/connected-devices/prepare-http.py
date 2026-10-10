@@ -11,6 +11,6 @@ code=(local/'http-hook.inc').read_text(encoding='utf-8')
 route='#if defined(BOARD_WR1200JS)\n\t{ "wr_devices.json", "application/json", no_cache_IE, NULL, do_wr_devices_json, 1 },\n\t{ "wr_roaming.json", "application/json", no_cache_IE, NULL, do_wr_roaming_json, 1 },\n#endif\n'
 s=s.replace(anchor,code+'\n'+anchor+route,1)
 headers=http/'wr-devices';headers.mkdir(exist_ok=True)
-for name in ('networkmap.h','source-collector.h','snapshot-cache.h','snapshot-json.h','roaming-history.h','roaming-json.h','action-runtime.h','action-endpoint.h','action-drain.h','action-owner.h','action-receive.h','action-session.h','action-wire.h','action-event.h'):(headers/name).write_bytes((local/name).read_bytes())
+for name in ('networkmap.h','source-collector.h','snapshot-cache.h','snapshot-json.h','roaming-history.h','roaming-json.h','action-runtime.h','action-json.h','action-endpoint.h','action-drain.h','action-owner.h','action-receive.h','action-session.h','action-wire.h','action-event.h'):(headers/name).write_bytes((local/name).read_bytes())
 f.write_text(s,encoding='utf-8')
 print('Installed WR-only passive JSON route with need_auth=1; no scanning or service restart')

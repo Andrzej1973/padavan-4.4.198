@@ -1,6 +1,7 @@
 #define _GNU_SOURCE
 #include "action-drain.h"
 #include "action-send.h"
+#include "action-json.h"
 #include <assert.h>
 #include <sys/file.h>
 int main(void){
@@ -29,6 +30,7 @@ int main(void){
  assert(!log.owner_available&&log.rejected==22&&log.session.sequence==260);
  close(fd);unlink(temporary);
  }
+ {char json[131072],tiny[2];size_t length;assert(wr_action_json(&log,json,sizeof(json),&length));assert(strstr(json,"\"outcome\":\"unknown\""));assert(strstr(json,"\"dropped\":\"4\""));assert(!wr_action_json(&log,tiny,sizeof(tiny),&length)&&!length);}
  close(pair[0]);close(pair[1]);
  puts("PASS actual owned process receipt, bounded drain, ring overflow, replay and stopped-owner rejection");return 0;
 }
