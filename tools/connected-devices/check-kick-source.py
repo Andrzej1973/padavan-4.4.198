@@ -28,4 +28,13 @@ for radio in ('mt76x2','mt76x3'):
  assert 'IW_AGEOUT_EVENT_FLAG' in disconnect[:allocation]
  print('PASS',radio,'RSSI decision precedes generic ageout; allocation failure skips deauth submission')
  print('PASS',radio,'deauth submission precedes table deletion call; call alone is not completion evidence')
+ table=(root.parent/'mgmt/mgmt_entrytb.c').read_text(encoding='utf-8')
+ begin=table.index('BOOLEAN MacTableDeleteEntry(')
+ clear=table.index('NdisZeroMemory(pEntry->Addr, MAC_ADDR_LEN)',begin)
+ none=table.index('SET_ENTRY_NONE(pEntry)',clear)
+ unlock=table.index('NdisReleaseSpinLock(&pAd->MacTabLock)',none)
+ done=table.index('return TRUE;',unlock)
+ assert 'MAC_ADDR_EQUAL(pEntry->Addr, pAddr)' in table[begin:clear]
+ assert clear<none<unlock<done
+ print('PASS',radio,'address cleared before entry-none under table lock; final TRUE alone is not removal evidence')
 print('Source evidence only: no client removal, frame acknowledgement or runtime result verified')

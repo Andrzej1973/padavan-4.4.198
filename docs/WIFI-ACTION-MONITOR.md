@@ -26,3 +26,4 @@ Full firmware builds and real-device behavior must be verified separately. RSSI 
 ## RSSI enforcement source boundaries
 
 Pinned MT76x2 and MT76x3 sources emit generic age-out before allocating a deauthentication frame. Allocation failure skips submission and table deletion. Frame submission is not a frame acknowledgement. MT76x3 also has a conditional WH_EZ_SETUP path that defers peer deletion. A future observer must capture MAC, BSS and client identity before deletion, report the RSSI reason separately from inactivity, and verify the actual deletion result. A call to MacTableDeleteEntry alone must not be reported as completed removal.
+Both pinned MacTableDeleteEntry implementations clear the address before SET_ENTRY_NONE under the table lock and end with return TRUE. Therefore a TRUE return is insufficient evidence that the requested client was removed. Instrumentation must use the actual matched-entry clearing branch and preserve the address before it is zeroed.
