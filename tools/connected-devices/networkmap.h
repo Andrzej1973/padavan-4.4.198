@@ -8,7 +8,8 @@
 #include <arpa/inet.h>
 #include <stdint.h>
 #define WR_DEVICE_LIMIT 128
-struct wr_device_record {char ip[16],mac[18],name[129];unsigned int legacy_type;int http,networkmap_stale;};
+struct wr_device_radio_evidence {unsigned int band_mask;unsigned char ap_index[2];int rssi[2];};
+struct wr_device_record {char ip[16],mac[18],name[129];unsigned int legacy_type;int http,networkmap_stale;struct wr_device_radio_evidence radio;};
 struct wr_device_snapshot {struct wr_device_record records[WR_DEVICE_LIMIT];unsigned int count,invalid;int truncated;uint64_t source_updated_at;};
 static inline int wr_device_number(const char *s,unsigned int max,unsigned int *out){
  unsigned long n=0;if(!s||!*s)return 0;

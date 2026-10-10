@@ -20,5 +20,17 @@ int main(void){uint64_t sequence;
  assert(wr_device_cache_init(&cache,"httpd-instance-B")&&cache.sequence==0&&!cache.has_data);
  failure=1;assert(wr_device_cache_get(&cache,0,collect,&calls)==WR_DEVICE_UNAVAILABLE);
  assert(wr_device_cache_get(&cache,1,collect,&calls)==WR_DEVICE_UNAVAILABLE&&calls==6);
+ {
+  static struct wr_device_snapshot a,b;
+  a.count=1; b=a;
+  assert(wr_device_snapshot_same(&a,&b));
+  b.records[0].radio.band_mask=1; b.records[0].radio.rssi[0]=-60;
+  assert(!wr_device_snapshot_same(&a,&b));
+  a=b; b.records[0].radio.rssi[0]=-59;
+  assert(!wr_device_snapshot_same(&a,&b));
+  a=b; b.records[0].radio.ap_index[0]=1;
+  assert(!wr_device_snapshot_same(&a,&b));
+  b.records[0].radio.band_mask=4; assert(!wr_device_snapshot_valid(&b));
+ }
  puts("PASS shared RAM snapshot cache: five-second collection bound, stable unchanged sequence, stale retention, retry recovery and epoch reset");return 0;
 }

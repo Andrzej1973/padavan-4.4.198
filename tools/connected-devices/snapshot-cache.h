@@ -17,6 +17,9 @@ static inline int wr_device_snapshot_valid(const struct wr_device_snapshot *snap
  unsigned int i;if(snapshot->count>WR_DEVICE_LIMIT)return 0;
  for(i=0;i<snapshot->count;i++){
   const struct wr_device_record *r=&snapshot->records[i];
+  if(r->radio.band_mask>3)return 0;
+  {unsigned int band;for(band=0;band<2;band++)if(r->radio.band_mask&(1U<<band))
+   if(r->radio.rssi[band]<-127||r->radio.rssi[band]>0)return 0;}
   if(strnlen(r->ip,sizeof(r->ip))==sizeof(r->ip)||strnlen(r->mac,sizeof(r->mac))==sizeof(r->mac)||strnlen(r->name,sizeof(r->name))==sizeof(r->name))return 0;
  }
  return 1;
@@ -27,6 +30,9 @@ static inline int wr_device_snapshot_same(const struct wr_device_snapshot *a,con
  for(i=0;i<a->count;i++){
   const struct wr_device_record *x=&a->records[i],*y=&b->records[i];
   if(strcmp(x->ip,y->ip)||strcmp(x->mac,y->mac)||strcmp(x->name,y->name)||x->legacy_type!=y->legacy_type||!!x->http!=!!y->http||!!x->networkmap_stale!=!!y->networkmap_stale)return 0;
+  if(x->radio.band_mask!=y->radio.band_mask)return 0;
+  {unsigned int band;for(band=0;band<2;band++)if(x->radio.band_mask&(1U<<band))
+   if(x->radio.ap_index[band]!=y->radio.ap_index[band]||x->radio.rssi[band]!=y->radio.rssi[band])return 0;}
  }
  return 1;
 }

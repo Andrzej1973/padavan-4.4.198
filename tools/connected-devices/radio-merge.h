@@ -2,14 +2,8 @@
 #define WR_DEVICE_RADIO_MERGE_H
 #include "networkmap.h"
 #include "radio-table.h"
-struct wr_device_radio_evidence {
-    unsigned int band_mask;
-    unsigned char ap_index[2];
-    int rssi[2];
-};
 struct wr_device_joined_snapshot {
     struct wr_device_snapshot networkmap;
-    struct wr_device_radio_evidence radio[WR_DEVICE_LIMIT];
 };
 /* Both radio snapshots must represent successful queries, including empty ones.
  * Failed queries must be handled by the caller's stale-cache policy. */
@@ -28,6 +22,8 @@ static inline int wr_device_radio_merge(const struct wr_device_snapshot *base,
             sizeof(base->records[i].mac)) return 0;
     memset(&candidate, 0, sizeof(candidate));
     candidate.networkmap = *base;
+    for (i = 0; i < candidate.networkmap.count; i++)
+        memset(&candidate.networkmap.records[i].radio, 0, sizeof(candidate.networkmap.records[i].radio));
     bands[0] = two; bands[1] = five;
     for (band = 0; band < 2; band++) {
         for (i = 0; i < bands[band]->count; i++) {
@@ -37,7 +33,7 @@ static inline int wr_device_radio_merge(const struct wr_device_snapshot *base,
                      client->mac[0], client->mac[1], client->mac[2],
                      client->mac[3], client->mac[4], client->mac[5]);
             for (j = 0; j < candidate.networkmap.count; j++) {
-                struct wr_device_radio_evidence *evidence = &candidate.radio[j];
+                struct wr_device_radio_evidence *evidence = &candidate.networkmap.records[j].radio;
                 if (strcmp(candidate.networkmap.records[j].mac, mac)) continue;
                 evidence->band_mask |= 1U << band;
                 evidence->ap_index[band] = client->ap_index;
@@ -55,7 +51,7 @@ static inline int wr_device_radio_merge(const struct wr_device_snapshot *base,
                 memset(record, 0, sizeof(*record));
                 strcpy(record->mac, mac);
                 record->networkmap_stale = 1; /* No networkmap evidence for this MAC. */
-                evidence = &candidate.radio[j];
+                evidence = &candidate.networkmap.records[j].radio;
                 evidence->band_mask = 1U << band;
                 evidence->ap_index[band] = client->ap_index;
                 evidence->rssi[band] = client->rssi;

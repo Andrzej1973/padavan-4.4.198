@@ -83,11 +83,11 @@ int main(void) {
   two.count=1; two.clients[0].mac[0]=2; two.clients[0].mac[5]=1; two.clients[0].rssi=-60;
   five=two; five.clients[0].rssi=-45;
   assert(wr_device_radio_merge(&base,&two,&five,&joined));
-  assert(joined.networkmap.count==1 && joined.radio[0].band_mask==3 && joined.radio[0].rssi[1]==-45);
+  assert(joined.networkmap.count==1 && joined.networkmap.records[0].radio.band_mask==3 && joined.networkmap.records[0].radio.rssi[1]==-45);
   five.clients[0].mac[5]=2;
   assert(wr_device_radio_merge(&base,&two,&five,&joined));
   assert(joined.networkmap.count==2 && joined.networkmap.records[1].ip[0]==0);
-  assert(joined.radio[1].band_mask==2 && !strcmp(joined.networkmap.records[0].name,"known"));
+  assert(joined.networkmap.records[1].radio.band_mask==2 && !strcmp(joined.networkmap.records[0].name,"known"));
   base.count=128;
   assert(wr_device_radio_merge(&base,&two,&five,&joined));
   assert(joined.networkmap.count==128 && joined.networkmap.truncated);
