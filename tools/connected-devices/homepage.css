@@ -1,0 +1,7 @@
+#wr-connected-devices { margin-top: 14px; padding: 16px; }
+#wr-connected-devices h3 { margin-top: 0; }
+#wr-connected-devices label { display: inline-block; margin-right: 12px; }
+#wr-connected-devices summary { cursor: pointer; padding: 8px 0; font-weight: bold; }
+#wr-connected-devices .wr-device-scroll { max-height: 340px; overflow: auto; }
+#wr-connected-devices td { overflow-wrap: anywhere; }
+#wr-connected-devices td:first-child { min-width: 160px; }

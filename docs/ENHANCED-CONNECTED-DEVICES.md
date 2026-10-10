@@ -101,3 +101,14 @@ A single process RAM cache is shared by requests. Its instance epoch uses PID an
 Standalone HTTP fixtures check valid JSON, escaped names, cache reuse, source-failure retention and source update metadata. Preparation was applied to the actual pinned `web_ex.c` locally; the generated route has `need_auth=1`. CI compiles native/MIPS fixtures and checks generated route registration. The full firmware workflow now prepares this hook after shared-Wi-Fi integration. Full httpd linking and live HTTP authentication remain unverified until the new full build/device checks complete.
 
 ABI 217 succeeded for the preceding nonblocking source collector and cache-composition checks. No homepage assets are installed yet, and the new endpoint still only contains networkmap evidence. Radio/neighbor/DHCP merging, vendor-class/OUI evidence, connect/disconnect behavior, homepage rendering and roaming history remain required.
+
+
+## Homepage integration checkpoint
+
+ABI 218 and full firmware build 121 succeeded at commit `e92f83ceff9e33dbef3d2d7590a1ef2a96d798e3`, confirming the HTTP integration compiles. Live authentication and target behavior remain unverified.
+
+The WR1200JS preparation now installs a connected-device section above the existing homepage network map, together with classification, polling and presentation assets. The existing homepage content is preserved. Rows show address, category, confidence and evidence; unknown network roles remain explicitly unidentified. This source currently only supplies networkmap observations, so it cannot prove current association or primary/guest/IoT membership. Classification remains a heuristic, not a reliable operating-system identification.
+
+Polling uses authenticated same-origin JSON requests, one active request, five-second cadence, bounded response size, retry backoff and a stale-data indication. Hidden pages pause polling. Rendering uses text nodes for device names and preserves row identity, filters, expanded groups and scroll position. It does not scan clients or write flash.
+
+Node fixtures cover these DOM/transport contracts with a simulated DOM. A separate preparation fixture uses the actual pinned `index.asp`, verifies the original content is preserved, checks installed asset bytes/order and rejects repeated preparation. These checks do not prove real browser rendering, ROMFS installation or router runtime. The next full build must verify the new homepage assets. Localization, manual category editing, radio/neighbor/DHCP merging, OUI metadata, roaming history and measured target load remain unfinished.
