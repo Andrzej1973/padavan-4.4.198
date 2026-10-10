@@ -31,7 +31,7 @@ files = {name+'.c': (tools / (name+'.c')).read_bytes() for name in modules}
 files.update({f.name: f.read_bytes() for f in tools.glob('*.h')})
 # Keep shared observation helpers in a bounded private package subdirectory.
 observations = tools.parent / 'connected-devices'
-for name in ('action-event.h', 'action-wire.h', 'action-send.h', 'steering-action.h'):
+for name in ('action-event.h', 'action-wire.h', 'action-send.h', 'action-channel.h', 'steering-action.h'):
     content = (observations / name).read_text(encoding='utf-8')
     if name == 'steering-action.h':
         original = '#include "../band-steering/protocol.h"'
@@ -39,6 +39,13 @@ for name in ('action-event.h', 'action-wire.h', 'action-send.h', 'steering-actio
             raise ValueError('Action protocol include changed; no files written')
         content = content.replace(original, '#include "../protocol.h"', 1)
     files['observations/' + name] = content.encode('utf-8')
+observer = files['action-observer.h'].decode('utf-8')
+for name in ('action-channel.h', 'steering-action.h'):
+    original = '#include "../connected-devices/' + name + '"'
+    if observer.count(original) != 1:
+        raise ValueError('Observer include graph changed; no files written')
+    observer = observer.replace(original, '#include "observations/' + name + '"', 1)
+files['action-observer.h'] = observer.encode('utf-8')
 files['protocol-layout.h'] = layout
 files['package.mk'] = recipe.encode('utf-8')
 files['Makefile'] = ("SOURCE_DIR = .\nLAYOUT_DIR = .\nBUILD_DIR = build\n"

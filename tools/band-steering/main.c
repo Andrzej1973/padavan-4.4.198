@@ -3,6 +3,7 @@
 #include "listener.h"
 #include "transport.h"
 #include "control.h"
+#include "action-observer.h"
 #include <errno.h>
 #include <fcntl.h>
 #include <net/if.h>
@@ -18,6 +19,7 @@
 static volatile sig_atomic_t stopping;
 struct runtime {
     int command_fd, listener_fd;
+    struct wr_band_action_observer observations;
     struct wr_band_control control;
     struct wr_band_coordinator *coordinator;
     struct wr_band_route routes[2];
@@ -32,12 +34,19 @@ static int clock_ms(void *ctx, uint64_t *out)
         t.tv_nsec < 0 || t.tv_nsec >= 1000000000) { errno = EOVERFLOW; return -1; }
     *out = (uint64_t)t.tv_sec * 1000 + (uint64_t)t.tv_nsec / 1000000; return 0;
 }
+static int actual_command(enum wr_band_protocol protocol,const struct wr_band_request *request,void *context)
+{
+    struct runtime *r=context;return wr_band_send(r->command_fd,protocol,request);
+}
 static int send_command(size_t radio, enum wr_band_protocol protocol,
                          const struct wr_band_request *request, void *ctx)
 {
     struct runtime *r = ctx;
     if (radio >= 2 || protocol != r->routes[radio].protocol) { errno = EINVAL; return -1; }
-    return wr_band_send(r->command_fd, protocol, request);
+    uint64_t now;
+    if(clock_ms(NULL,&now))return wr_band_send(r->command_fd,protocol,request);
+    return wr_action_steering_command(&r->observations.reporter,(unsigned int)radio,now,
+                                    protocol,request,actual_command,r);
 }
 static int receive_events(void *ctx, wr_band_event_callback callback, void *owner)
 {
@@ -92,6 +101,7 @@ int main(int argc, char **argv)
     uint8_t bytes[80]; uint64_t now; size_t i;
     int lock_fd = -1, result = 1, quiesce = 0;
     runtime.command_fd = runtime.listener_fd = -1;
+    wr_band_action_init(&runtime.observations);
     runtime.control.fd = -1; runtime.coordinator = &coordinator;
     if (argc == 2 && !strcmp(argv[1], "--help")) {
         puts("Usage: wr-band-steering --foreground|--quiesce <mt76x3-2g-interface> <mt76x2-5g-interface>\n"
@@ -130,6 +140,7 @@ int main(int argc, char **argv)
         fprintf(stderr, "Session completed without both OFF acknowledgements; radio OFF is unverified.\n");
     } else if (result) fprintf(stderr, "Steering failed; disable was best effort and radio OFF is unverified.\n");
 done:
+    wr_action_channel_close(&runtime.observations.channel);
     wr_band_control_close(&runtime.control);
     if (runtime.command_fd >= 0) close(runtime.command_fd);
     if (runtime.listener_fd >= 0) close(runtime.listener_fd);
