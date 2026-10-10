@@ -6,6 +6,7 @@
 #include "rssi-query-request.h"
 #include "rssi-query-record.h"
 #include "rssi-query-response.h"
+#include "rssi-query-decode.h"
 int main(void)
 {
  struct wr_rssi_records ring={0},before;
@@ -152,6 +153,17 @@ int main(void)
   }
   assert(wr_rssi_query_response_encode(out+1,2096,session,64,~0ULL,1,records,64)==2096);
   assert(out[0]==0xa5&&out[2097]==0xa5&&out[7]==64);
+  {
+   struct wr_rssi_query_response decoded={0},before;
+   assert(wr_rssi_query_response_decode(out+1,2096,1,&decoded));
+   assert(decoded.count==64&&decoded.records[63].attempt==64&&decoded.overwritten==~0ULL);
+   before=decoded;out[1+48+63*32+29]=1;
+   assert(!wr_rssi_query_response_decode(out+1,2096,1,&decoded));
+   assert(!memcmp(&before,&decoded,sizeof decoded));out[1+48+63*32+29]=0;
+   assert(!wr_rssi_query_response_decode(out+1,2095,1,&decoded));
+   assert(!wr_rssi_query_response_decode(out+1,2096,0,&decoded));
+   assert(!memcmp(&before,&decoded,sizeof decoded));
+  }
   memcpy(saved,out,sizeof out);records[63].stage=5;
   assert(!wr_rssi_query_response_encode(out+1,2096,session,64,~0ULL,1,records,64));
   assert(!memcmp(saved,out,sizeof out));records[63].stage=4;
