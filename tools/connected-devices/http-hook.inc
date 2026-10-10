@@ -7,6 +7,11 @@
 #include "wr-devices/roaming-json.h"
 #include "wr-devices/action-runtime.h"
 #include "wr-devices/action-json.h"
+#include "wr-devices/rssi-json.h"
+static struct wr_rssi_collector wr_device_http_rssi;
+static int wr_device_http_rssi_initialized;
+static char wr_device_http_rssi_json[100000];
+extern void wr_device_collect_rssi(struct wr_rssi_collector *,unsigned long long);
 static char wr_device_http_action_json[65536];
 static struct wr_action_runtime wr_device_http_actions;
 #ifndef WR_DEVICE_SOURCE_PATH
@@ -41,7 +46,20 @@ static enum wr_device_cache_state wr_device_http_update(void)
  return state;
 }
 void wr_device_background_close(void){wr_action_runtime_close(&wr_device_http_actions);}
-void wr_device_background_tick(void){(void)wr_device_http_update();wr_action_runtime_tick(&wr_device_http_actions,(uint64_t)uptime()*1000);}
+void wr_device_background_tick(void){
+ unsigned long long now=(unsigned long long)uptime()*1000;
+ (void)wr_device_http_update();wr_action_runtime_tick(&wr_device_http_actions,now);
+ if(!wr_device_http_rssi_initialized){wr_rssi_collector_init(&wr_device_http_rssi);wr_device_http_rssi_initialized=1;}
+ wr_device_collect_rssi(&wr_device_http_rssi,now);
+}
+static void do_wr_rssi_json(const char *url,FILE *stream)
+{
+ size_t length;(void)url;
+ if(!wr_rssi_json(&wr_device_http_rssi,wr_device_http_rssi_json,sizeof(wr_device_http_rssi_json),&length)){
+  fputs("{\"error\":\"rssi_unavailable\"}",stream);return;
+ }
+ fputs(wr_device_http_rssi_json,stream);
+}
 static void do_wr_roaming_json(const char *url,FILE *stream)
 {
  size_t length,action_length;enum wr_device_cache_state state;(void)url;

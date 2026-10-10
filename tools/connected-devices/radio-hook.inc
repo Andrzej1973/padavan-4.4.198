@@ -1,6 +1,7 @@
 #if defined(BOARD_WR1200JS)
 #include "wr-devices/radio-query.h"
 #include "wr-devices/radio-merge.h"
+#include "wr-devices/rssi-collector.h"
 #if defined(__mips__)
 _Static_assert(sizeof(RT_802_11_MAC_TABLE)==1796,"WR station table must match the 64-client driver ABI");
 #endif
@@ -9,6 +10,11 @@ static int wr_device_radio_ioctl(const char *interface, int command,
 {
     (void)context;
     return wl_ioctl(interface, command, request);
+}
+void wr_device_collect_rssi(struct wr_rssi_collector *collector,unsigned long long now)
+{
+ const char *interfaces[2]={IFNAME_2G_MAIN,IFNAME_5G_MAIN};
+ wr_rssi_collector_tick(collector,interfaces,wr_device_radio_ioctl,NULL,now);
 }
 int wr_device_collect_radio(struct wr_device_snapshot *networkmap)
 {

@@ -8,13 +8,13 @@ anchor='struct mime_handler mime_handlers[] = {\n'
 if s.count(anchor)!=1 or 'do_wr_devices_json' in s:raise SystemExit('HTTP route anchors changed; no files written')
 if '{ "update.cgi*", "text/javascript", no_cache_IE, do_html_apply_post, do_update_cgi, 1 }' not in s:raise SystemExit('Pinned authenticated update route changed')
 code=(local/'http-hook.inc').read_text(encoding='utf-8')
-route='#if defined(BOARD_WR1200JS)\n\t{ "wr_devices.json", "application/json", no_cache_IE, NULL, do_wr_devices_json, 1 },\n\t{ "wr_roaming.json", "application/json", no_cache_IE, NULL, do_wr_roaming_json, 1 },\n#endif\n'
+route='#if defined(BOARD_WR1200JS)\n\t{ "wr_devices.json", "application/json", no_cache_IE, NULL, do_wr_devices_json, 1 },\n\t{ "wr_roaming.json", "application/json", no_cache_IE, NULL, do_wr_roaming_json, 1 },\n\t{ "wr_rssi.json", "application/json", no_cache_IE, NULL, do_wr_rssi_json, 1 },\n#endif\n'
 s=s.replace(anchor,code+'\n'+anchor+route,1)
 # Feature selection must precede every libc header in the actual translation unit.
 # The standalone fixture already enables GNU APIs; production web_ex.c did not.
 s = '#ifndef _GNU_SOURCE\n#define _GNU_SOURCE 1\n#endif\n' + s
 
 headers=http/'wr-devices';headers.mkdir(exist_ok=True)
-for name in ('networkmap.h','source-collector.h','snapshot-cache.h','snapshot-json.h','roaming-history.h','roaming-json.h','action-runtime.h','action-json.h','action-endpoint.h','action-drain.h','action-owner.h','action-receive.h','action-session.h','action-wire.h','action-event.h'):(headers/name).write_bytes((local/name).read_bytes())
+for name in ('networkmap.h','source-collector.h','snapshot-cache.h','snapshot-json.h','roaming-history.h','roaming-json.h','action-runtime.h','action-json.h','action-endpoint.h','action-drain.h','action-owner.h','action-receive.h','action-session.h','action-wire.h','action-event.h','rssi-json.h','rssi-collector.h','rssi-history.h','rssi-query-client.h','rssi-query-cursor.h','rssi-query-decode.h','rssi-query-request.h','rssi-query-response.h','rssi-query-record.h','rssi-record.h'):(headers/name).write_bytes((local/name).read_bytes())
 f.write_text(s,encoding='utf-8')
 print('Installed WR-only passive JSON route with need_auth=1; no scanning or service restart')
