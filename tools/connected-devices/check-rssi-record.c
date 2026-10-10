@@ -100,6 +100,16 @@ int main(void)
    memcpy(q,valid,40);
   }
  }
+ {
+  struct wr_rssi_query_request q={0};unsigned long long session[2]={1,2};
+  assert(wr_rssi_query_session_matches(&q,session));
+  q.after=1;assert(!wr_rssi_query_session_matches(&q,session));
+  q.session[0]=1;q.session[1]=2;assert(wr_rssi_query_session_matches(&q,session));
+  session[1]=3;assert(!wr_rssi_query_session_matches(&q,session));
+  session[0]=0;session[1]=0;assert(!wr_rssi_query_session_matches(&q,session));
+  assert(!wr_rssi_query_session_matches(0,session));assert(!wr_rssi_query_session_matches(&q,0));
+ }
+ puts("PASS RSSI stale adapter session, initial cursor and invalid instance rejection");
  puts("PASS RSSI request fixed encoding, unaligned input, bounds and invalid-output immutability");
  return 0;
 }

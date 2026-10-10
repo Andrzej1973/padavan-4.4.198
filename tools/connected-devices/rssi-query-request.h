@@ -31,4 +31,13 @@ static inline int wr_rssi_query_decode(const unsigned char *p,unsigned int size,
  if(value.after&&!value.session[0]&&!value.session[1])return 0;
  *out=value;return 1;
 }
+/* Initial requests have zero session and cursor. An issued instance session
+ * must be nonzero; stale requests cannot resume another adapter instance. */
+static inline int wr_rssi_query_session_matches(const struct wr_rssi_query_request *q,
+ const unsigned long long *session)
+{
+ if(!q||!session||(!session[0]&&!session[1]))return 0;
+ if(!q->session[0]&&!q->session[1])return q->after==0;
+ return q->session[0]==session[0]&&q->session[1]==session[1];
+}
 #endif
