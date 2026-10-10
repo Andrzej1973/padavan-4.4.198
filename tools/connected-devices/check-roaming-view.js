@@ -18,3 +18,22 @@ view.render(h);assert.equal(view.filter.value,'FF');view.setState({state:'Stale'
 console.log('PASS roaming timeline, MAC filter, gap visibility, expanded state and scroll preservation');
 
 view.setState({state:'Updating'});assert(root.textContent.includes('last available history'));view.setState({state:'Current'});assert(!root.textContent.includes('last available history'));assert.equal(view.list.style.overflowY,'auto');
+
+let options,started=0,stopped=0,visible;
+const mounted=homepage.mount(doc,new Element('section'),{}, {create:(refresh,o)=>{options=o;return {start:()=>started++,stop:()=>stopped++,setVisible:v=>visible=v};}});
+assert.equal(started,1);assert.equal(visible,true);doc.hidden=true;doc.events.visibilitychange();assert.equal(visible,false);doc.hidden=false;doc.events.visibilitychange();assert.equal(visible,true);mounted.stop();assert.equal(stopped,1);assert(!doc.events.visibilitychange);
+class XHR {
+ constructor(){XHR.last=this;this.readyState=0;this.status=200;this.responseText='';this.aborted=false;}
+ open(method,url){assert.equal(method,'GET');assert(url.startsWith('/wr_roaming.json'));}
+ setRequestHeader(name,value){assert.equal(name,'Accept');assert.equal(value,'application/json');}send(){}abort(){this.aborted=true;if(this.onabort)this.onabort();}
+ reply(value){this.responseText=value;this.readyState=4;this.onreadystatechange();}
+}
+global.XMLHttpRequest=XHR;
+let calls=0,result;
+const abort=options.request((error,data)=>{calls++;result={error,data};});XHR.last.reply(JSON.stringify({epoch:'session'}));assert(!result.error);assert.equal(result.data.epoch,'session');abort();assert.equal(calls,1);
+options.request(error=>result=error);XHR.last.reply('<html>login</html>');assert(result instanceof Error);
+options.request(error=>result=error);XHR.last.reply('x'.repeat(131073));assert(result instanceof Error);
+options.request(error=>result=error);XHR.last.onprogress({loaded:131073});assert(result instanceof Error);assert(XHR.last.aborted);
+options.request(error=>result=error);XHR.last.status=401;XHR.last.reply('{}');assert(result instanceof Error);
+assert(require('fs').readFileSync(require('path').join(__dirname,'roaming-view.js'),'utf8').split('').every(c=>c.charCodeAt(0)<128));
+console.log('PASS history mount/visibility/cleanup, single completion, login/error rejection and bounded abortable JSON transport');
