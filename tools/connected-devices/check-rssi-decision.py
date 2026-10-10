@@ -8,15 +8,17 @@ if a.output.exists():raise ValueError('Fresh output required')
 a.output.mkdir(parents=True)
 original={}
 for radio in ('mt76x2','mt76x3'):
- for file in ('include/rtmp.h','common/rtmp_init.c','ap/ap.c'):
+ for file in ('include/rtmp.h','common/rtmp_init.c','ap/ap.c','mgmt/mgmt_entrytb.c'):
   rel=Path('trunk/linux-4.4.x/drivers/net/wireless/mediatek')/radio/file
   dest=a.output/rel;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes((a.source/rel).read_bytes())
   if file=='ap/ap.c':original[radio]=dest.read_text()
-for script in ('prepare-rssi-adapter.py','prepare-rssi-decision.py'):
+for script in ('prepare-rssi-adapter.py','prepare-rssi-identity.py','prepare-rssi-decision.py'):
  subprocess.run([sys.executable,str(tools/script),str(a.output)],check=True)
 for radio,band,bss in (('mt76x2',1,'apidx'),('mt76x3',0,'func_tb_idx')):
  path=a.output/'trunk/linux-4.4.x/drivers/net/wireless/mediatek'/radio/'ap/ap.c';s=path.read_text()
  assert s.count('wr_rssi_kernel_begin(')==1
+ assert 'wr_rssi_identity_matches(&wr_rssi_client, &pEntry->wr_rssi_identity)' in s
+ assert s.index('wr_rssi_client = pEntry->wr_rssi_identity;')<s.index('wr_rssi_kernel_begin(')
  assert s.count('bDisconnectSta = TRUE;')==original[radio].count('bDisconnectSta = TRUE;')
  assert s.count('MiniportMMRequest(')==original[radio].count('MiniportMMRequest(')
  assert f'wr_rssi_attempt.radio = {band};' in s and f'wr_rssi_attempt.bss = pEntry->{bss};' in s
