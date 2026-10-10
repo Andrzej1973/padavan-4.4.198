@@ -77,6 +77,28 @@ int main(void)
   q[6]=65;assert(!wr_rssi_query_decode(q,40,&request));q[6]=64;
   assert(!wr_rssi_query_decode(q,39,&request));assert(!wr_rssi_query_decode(q,41,&request));
   assert(!wr_rssi_query_decode(0,40,&request));assert(!wr_rssi_query_decode(q,40,0));
+  {
+   unsigned int i;unsigned char valid[40];
+   memcpy(valid,q,40);saved=request;
+   for(i=0;i<9;i++) {
+    unsigned char old=q[i];q[i]=(i==6)?0:(unsigned char)(old+1);
+    if(i==8)q[i]=2;
+    assert(!wr_rssi_query_decode(q,40,&request));
+    assert(!memcmp(&saved,&request,sizeof saved));q[i]=old;
+   }
+   for(i=9;i<16;i++) {
+    q[i]=255;assert(!wr_rssi_query_decode(q,40,&request));
+    assert(!memcmp(&saved,&request,sizeof saved));q[i]=0;
+   }
+   for(i=0;i<81;i++)if(i!=40) {
+    assert(!wr_rssi_query_decode(q,i,&request));
+    assert(!memcmp(&saved,&request,sizeof saved));
+   }
+   memset(q+16,255,24);
+   assert(wr_rssi_query_decode(q,40,&request));
+   assert(request.after==~0ULL&&request.session[0]==~0ULL&&request.session[1]==~0ULL);
+   memcpy(q,valid,40);
+  }
  }
  puts("PASS RSSI request fixed encoding, unaligned input, bounds and invalid-output immutability");
  return 0;
