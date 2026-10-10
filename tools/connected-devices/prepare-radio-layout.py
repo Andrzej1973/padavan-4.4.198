@@ -54,6 +54,7 @@ static int wl_ioctl(const char *name,int cmd,struct iwreq *request) {
  return 0;
 }
 """
+code += '#include "' + str(Path(__file__).resolve().parent / 'rssi-collector.h').replace('\\', '/') + '"\n'
 hook = (Path(__file__).resolve().parent / 'radio-hook.inc').read_text(encoding='utf-8')
 code += '\n'.join(line for line in hook.splitlines() if not line.startswith('#include')) + '\n'
 code += r"""
