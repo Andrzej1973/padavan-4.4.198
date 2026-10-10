@@ -21,3 +21,7 @@ The config hash matches the earlier verified build 144 config. These checks esta
 ## Independent container checks
 
 The downloaded image passes both U-Boot header CRC32 and payload CRC32 checks. Its payload length is 13,125,351 bytes, exactly the file length minus the 64-byte header. A SquashFS 4.0 superblock starts at offset 1,980,992; its declared extent is contained in the image. Filesystem contents have not yet been independently extracted.
+
+## Independent extraction from the downloaded TRX
+
+7-Zip extracted both radio modules directly from the SquashFS inside the downloaded TRX. Their independently computed SHA-256 values exactly match the ROMFS module hashes above; both contain `wr_rssi_delete_entry`. The extracted HTTP server contains `wr_rssi.json`, and the homepage contains the RSSI section. All eight JavaScript assets match the local sources after CRLF/LF normalization (the repository image uses LF). This proves final artifact inclusion without executing firmware.
