@@ -51,10 +51,13 @@
       "kind": "archive",
       "version": "10.49",
       "origin": "https://github.com/PCRE2Project/pcre2/releases/download/pcre2-10.49/pcre2-10.49.tar.bz2",
-      "sha256": null,
-      "preservation_status": "pending-archive-and-verified-hash",
+      "sha256": "53c156e1ba416a20da8e65395daa132da0d80e76910424caca3fcdae7831d384",
+      "preservation_status": "local-archive-verified; owned-release-copy-pending",
       "owned_copy": null,
-      "license_inventory_status": "pending-component-inventory"
+      "license_inventory_status": "pending-component-inventory",
+      "size_bytes": 2185271,
+      "local_backup_relative_path": "sources/archives/pcre2-10.49.tar.bz2",
+      "checksum_evidence": "Local archive independently matched official GitHub Release asset SHA-256 and size on 2026-10-10; current workflow verifies the same SHA-256 before extraction"
     },
     {
       "id": "https-dns-proxy-donor-archive",
