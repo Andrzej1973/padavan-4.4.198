@@ -57,3 +57,13 @@ console.log('PASS separate command timeline, evidence labels, shared MAC filter,
 h.actions.monitoringGap=true;h.actions.interruptions='2';view.render(h);assert(root.textContent.includes('Monitoring currently incomplete'));assert(root.textContent.includes('Collection interruptions: 2'));
 h.actions.ownerAvailable=true;h.actions.monitoringGap=false;view.render(h);assert(!root.textContent.includes('Monitoring currently incomplete'));assert(root.textContent.includes('Collection interruptions: 2'));
 console.log('PASS action collection gap recovery and retained interruption count');
+assert(!root.textContent.includes('..'));console.log('PASS action notice punctuation after gap recovery');
+for (const gap of [false,true]) {
+ h.actions.monitoringGap=gap;
+ for (const counter of [undefined,'0','2']) {
+  h.actions.interruptions=counter;view.render(h);
+  assert(!root.textContent.includes('..'));
+  assert(root.textContent.includes('session: 1.'));
+ }
+}
+console.log('PASS punctuation for optional interruption counters and both gap states');
