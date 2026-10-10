@@ -1,5 +1,6 @@
 #ifndef WR_DEVICE_RADIO_QUERY_H
 #define WR_DEVICE_RADIO_QUERY_H
+#include <sys/socket.h>
 #include <linux/wireless.h>
 #include "radio-table.h"
 typedef int (*wr_radio_ioctl_fn)(const char *, int, struct iwreq *, void *);
