@@ -19,9 +19,19 @@
       "kind": "git",
       "origin": "https://github.com/vipshmily/padavan-4.4.git",
       "revision": "c25283e915a2a00a763774dd255b14aff997285e",
-      "preservation_status": "pending-owned-source-copy",
+      "preservation_status": "exact-local-git-archive-verified; owned-source-copy-pending",
       "owned_copy": null,
-      "license_inventory_status": "pending-component-inventory"
+      "license_inventory_status": "pending-component-inventory",
+      "local_snapshot": {
+        "archive": "firmware-source-backup/padavan-4.4-c25283e-git-exact.tar",
+        "sha256": "d209008e97e3a50b6b02054578546df17c5e90f87116a793b739f94e18bf5008",
+        "size_bytes": 1263728640,
+        "creation": "git archive --format=tar from pinned revision",
+        "verification": "All 77448 archived regular files and symbolic links matched pinned Git blob identities on 2026-10-10; no gitlink entries",
+        "history": "separate shallow bare Git snapshot retained",
+        "nested_downloads_preserved": false,
+        "offline_build_verified": false
+      }
     },
     {
       "id": "nilabsent-package-and-mt7620-radio-donor",
