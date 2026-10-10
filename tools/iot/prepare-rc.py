@@ -412,12 +412,13 @@ helper=r"""
 #include "wr-iot/bridge.h"
 #include "wr-iot/firewall.h"
 #include "wr-iot/route-snapshot.h"
+#include "wr-iot/dns-config.h"
 static int wr_iot_firewall_quarantine(FILE *fp,int allow_policy,const char *lan,const char *wan)
 {
  const char *keys[]={"wr_iot_gateway_t","wr_iot_mask_t","wr_iot_start_t","wr_iot_end_t"};
  char values[4][16];size_t i,n;const char *value;
  struct wr_iot_firewall rules;struct wr_iot_subnet subnet;struct wr_iot_inventory inventory;
- unsigned int index;
+ unsigned int index,dns_port,dhcp_port;int dhcp4;
  if(!wr_iot_bridge_is_owned())return 1;
  if(allow_policy&&nvram_get_int("wr_iot_firewall_t")==1&&nvram_get_int("wr_iot_network_t")==1&&!get_ap_mode()){
   for(i=0;i<4;i++){
@@ -425,6 +426,8 @@ static int wr_iot_firewall_quarantine(FILE *fp,int allow_policy,const char *lan,
    if(n>=sizeof(values[i]))goto quarantine;
    memcpy(values[i],value,n+1);
   }
+  /* The current policy permits standard DNS/DHCP ports only. */
+  if(!wr_iot_dns_config_services_at("/etc/dnsmasq.conf",&dns_port,&dhcp4,&dhcp_port)||dns_port!=53||!dhcp4||dhcp_port!=67)goto quarantine;
   index=if_nametoindex("br-iot");
   if(!index||!wr_iot_subnet_plan(&subnet,values[0],values[1],values[2],values[3],NULL,0)||
      !wr_iot_inventory_interfaces(&inventory,1)||
