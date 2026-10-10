@@ -174,5 +174,19 @@ int main(void)
  }
  puts("PASS maximum 64-record RSSI response, buffer canaries and final-record preflight rejection");
  puts("PASS bounded RSSI response encoding, radio/sequence checks and all-input preflight");
+ {
+  unsigned char out[42],saved[42];
+  struct wr_rssi_query_request q={0},decoded={0};
+  q.capacity=64;q.radio=1;q.after=~0ULL;q.session[0]=~0ULL;q.session[1]=1;
+  memset(out,0xa5,sizeof out);
+  assert(wr_rssi_query_request_encode(out+1,40,&q));
+  assert(out[0]==0xa5&&out[41]==0xa5);
+  assert(wr_rssi_query_decode(out+1,40,&decoded));
+  assert(decoded.after==q.after&&decoded.session[0]==q.session[0]&&decoded.session[1]==1&&decoded.radio==1&&decoded.capacity==64);
+  memcpy(saved,out,sizeof out);q.capacity=65;
+  assert(!wr_rssi_query_request_encode(out+1,40,&q));assert(!memcmp(saved,out,sizeof out));
+  q.capacity=64;assert(!wr_rssi_query_request_encode(out+1,39,&q));assert(!memcmp(saved,out,sizeof out));
+ }
+ puts("PASS RSSI request encode/decode roundtrip, maximum values and invalid-output immutability");
  return 0;
 }

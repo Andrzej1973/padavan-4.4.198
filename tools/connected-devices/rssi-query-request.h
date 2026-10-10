@@ -40,4 +40,18 @@ static inline int wr_rssi_query_session_matches(const struct wr_rssi_query_reque
  if(!q->session[0]&&!q->session[1])return q->after==0;
  return q->session[0]==session[0]&&q->session[1]==session[1];
 }
+static inline int wr_rssi_query_request_encode(unsigned char *p,unsigned int capacity,
+ const struct wr_rssi_query_request *q)
+{
+ struct wr_rssi_query_request value;unsigned int i,j;
+ if(!p||!q||capacity<40||!q->capacity||q->capacity>64||q->radio>1||
+    (q->after&&!q->session[0]&&!q->session[1]))return 0;
+ value=*q;
+ for(i=0;i<40;i++)p[i]=0;
+ p[0]='W';p[1]='R';p[2]='S';p[3]='Q';p[4]=1;
+ p[6]=(unsigned char)value.capacity;p[8]=(unsigned char)value.radio;
+ for(i=0;i<8;i++)p[16+i]=(unsigned char)(value.after>>(8*i));
+ for(j=0;j<2;j++)for(i=0;i<8;i++)p[24+j*8+i]=(unsigned char)(value.session[j]>>(8*i));
+ return 1;
+}
 #endif
