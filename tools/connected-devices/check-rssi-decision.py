@@ -21,7 +21,11 @@ for radio,band,bss in (('mt76x2',1,'apidx'),('mt76x3',0,'func_tb_idx')):
  assert s.count('MiniportMMRequest(')==original[radio].count('MiniportMMRequest(')
  assert f'wr_rssi_attempt.radio = {band};' in s and f'wr_rssi_attempt.bss = pEntry->{bss};' in s
  marker='if (overRssiThresCount >= CHECK_DATA_RSSI_UP_BOUND)' if band==1 else 'if ((pMbss->RssiLowForStaKickOut != 0) &&'
- assert s.index(marker)<s.index('wr_rssi_kernel_begin(')<s.index('(void)wr_rssi_tracking;')
+ assert s.index(marker)<s.index('wr_rssi_kernel_begin(')<s.index('if (bDisconnectSta)',s.index(marker))
+ failure=s.index('WR_RSSI_ALLOCATION_FAILED');submit=s.index('WR_RSSI_FRAME_SUBMITTED')
+ assert s.index('NStatus != NDIS_STATUS_SUCCESS',s.index(marker))<failure<s.index('continue;',failure)<submit
+ assert s.index('MiniportMMRequest(pAd, 0, pOutBuffer, FrameLen);',s.index(marker))<submit<s.index('MlmeFreeMemory',submit)
+ assert s.count('WR_RSSI_ALLOCATION_FAILED')==1 and s.count('WR_RSSI_FRAME_SUBMITTED')==1
 before={p:p.read_bytes() for p in a.output.rglob('*') if p.is_file()}
 r=subprocess.run([sys.executable,str(tools/'prepare-rssi-decision.py'),str(a.output)],capture_output=True)
 assert r.returncode!=0 and all(p.read_bytes()==data for p,data in before.items())
