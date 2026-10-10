@@ -19,7 +19,7 @@
   return {render:render,setState:function(s){status.textContent=s.state+(s.state==='Stale'?' — showing last available data':'');},filter:filter,details:details,list:list};
  }
  function mount(doc,root,refresh,schema){
-  var view=createView(doc,root),poller=refresh.create({validate:schema.valid,relation:function(a,b){return JSON.stringify(a)===JSON.stringify(b)?'unchanged':'updated';},request:function(done){
+  var view=createView(doc,root),poller=schema.create(refresh,{request:function(done){
    var xhr=new XMLHttpRequest(),settled=false;
    function finish(error,value){if(settled)return;settled=true;done(error,value);}
    xhr.open('GET','/wr_rssi.json?_='+Date.now(),true);xhr.setRequestHeader('Accept','application/json');

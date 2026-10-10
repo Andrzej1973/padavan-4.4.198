@@ -15,3 +15,16 @@ reject(function(x){x.radios[0].available=true;});
 h.events.push(Object.assign({},e,{radio:1}));assert(schema.valid(h));
 h.events.push(Object.assign({},e,{session:'00000000000000000000000000000001',sequence:'1'}));assert(schema.valid(h));
 console.log('PASS RSSI browser schema: exact maximum counters, separate radios/sessions, invalid and duplicate rejection');
+
+(function(){
+ var callback,states=[],data=[],timers=new Map(),id=0,aborts=0;
+ var poller=schema.create(require('./refresh.js'),{request:function(done){callback=done;return function(){aborts++;};},setTimer:function(fn,delay){var n=++id;timers.set(n,{fn:fn,delay:delay});return n;},clearTimer:function(n){timers.delete(n);},onData:function(x){data.push(x);},onState:function(x){states.push(x.state);}});
+ poller.start();callback(null,h);assert.strictEqual(data.length,1);
+ poller.retry();callback(new Error('503'));assert.strictEqual(states.at(-1),'Stale');assert.strictEqual(data.length,1);
+ poller.retry();var bad=JSON.parse(JSON.stringify(h));bad.events[0].stage='roamed';callback(null,bad);assert.strictEqual(states.at(-1),'Stale');assert.strictEqual(data.length,1);
+ poller.retry();callback(null,h);assert.strictEqual(states.at(-1),'Current');assert.strictEqual(data.length,1);
+ poller.retry();poller.setVisible(false);assert.strictEqual(states.at(-1),'Paused');assert.strictEqual(aborts,1);
+ poller.setVisible(true);var newer=JSON.parse(JSON.stringify(h));newer.evicted='1';callback(null,newer);assert.strictEqual(data.length,2);
+ poller.stop();assert.strictEqual(timers.size,0);
+ console.log('PASS RSSI shared refresh retains data on network/schema failure, recovers, pauses and cancels timers');
+})();

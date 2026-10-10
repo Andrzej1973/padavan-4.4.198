@@ -26,5 +26,7 @@
   }
   return true;
  }
- return {valid:valid};
+ function relation(a,b){if(!valid(b))return 'invalid';return JSON.stringify(a)===JSON.stringify(b)?'unchanged':'updated';}
+ function create(refresh,options){var adapted={},key;for(key in options)if(Object.prototype.hasOwnProperty.call(options,key))adapted[key]=options[key];adapted.validate=valid;adapted.relation=relation;return refresh.create(adapted);}
+ return {valid:valid,relation:relation,create:create};
 });
