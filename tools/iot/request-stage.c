@@ -2,6 +2,7 @@
 #include <net/if.h>
 #include "request-stage.h"
 #include "request.h"
+#include "network-check.h"
 #include "service-guard.h"
 #include "rc.h"
 #include <string.h>
@@ -38,6 +39,10 @@ static int wr_iot_request_stage_locked(int router_mode,int radio_on,int radio_mo
  if(if_nametoindex("br-iot"))return 0;
  if(!wr_iot_request_read(&request,wr_iot_request_nvram,NULL,router_mode,radio_on,
                          radio_mode,NULL,0))return 0;
+ /* Validate live interface and route overlaps before any writes.
+  * Activation must repeat validation if routing changes afterwards. */
+ if(request.enabled&&!wr_iot_network_check(request.gateway,request.mask,
+                                          request.first,request.last))return 0;
  if(!wr_iot_request_clear())return 0;
  if(!request.enabled)return 1;
  /* Each destination is fixed-size and the request parser already bounded it. */
