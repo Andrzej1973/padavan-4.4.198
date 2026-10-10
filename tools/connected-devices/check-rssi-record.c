@@ -8,6 +8,7 @@
 #include "rssi-query-response.h"
 #include "rssi-query-decode.h"
 #include "rssi-query-client.h"
+#include "rssi-history.h"
 static int fake_rssi_query(const char *name,int command,struct iwreq *r,void *context)
 {
  int mode=*(int *)context;unsigned long long session[2]={11,22};struct wr_rssi_query_request q;
@@ -222,5 +223,20 @@ int main(void)
   r.session[0]=2;assert(!wr_rssi_query_next_cursor(&q,&r,&next));
  }
  puts("PASS RSSI bounded-page cursor does not skip unreturned records and rejects stale sessions");
+ {
+  struct wr_rssi_history h,before;struct wr_rssi_query_response r={0};unsigned int i;
+  wr_rssi_history_init(&h);r.session[0]=11;r.session[1]=22;r.count=1;r.sequence=3;
+  r.records[0].sequence=3;r.records[0].attempt=1;r.records[0].mac[0]=2;r.records[0].stage=1;
+  assert(wr_rssi_history_accept(&h,0,&r));assert(h.count==1&&h.radios[0].missing==2);
+  before=h;r.records[0].stage=5;
+  assert(!wr_rssi_history_accept(&h,0,&r));assert(!memcmp(&h,&before,sizeof h));
+  r.records[0].stage=1;r.radio=1;r.records[0].radio=1;r.sequence=1;r.records[0].sequence=1;
+  assert(wr_rssi_history_accept(&h,1,&r));assert(h.radios[0].cursor.after==3&&h.radios[1].cursor.after==1);
+  wr_rssi_history_restart(&h,0);r.radio=0;r.records[0].radio=0;r.session[1]=23;
+  assert(wr_rssi_history_accept(&h,0,&r));assert(h.events[0].session[1]==22&&h.events[2].session[1]==23);
+  for(i=0;i<300;i++){r.sequence++;r.records[0].sequence=r.sequence;assert(wr_rssi_history_accept(&h,0,&r));}
+  assert(h.count==256&&h.evicted==47&&h.radios[0].restarts==1);
+ }
+ puts("PASS RSSI bounded history, independent radio cursors, full sessions, gaps and eviction");
  return 0;
 }
