@@ -114,3 +114,12 @@ Polling uses authenticated same-origin JSON requests, one active request, five-s
 Node fixtures cover these DOM/transport contracts with a simulated DOM. A separate preparation fixture uses the actual pinned `index.asp`, verifies the original content is preserved, checks installed asset bytes/order and rejects repeated preparation. These checks do not prove real browser rendering, ROMFS installation or router runtime. The next full build must verify the new homepage assets. Localization, manual category editing, radio/neighbor/DHCP merging, OUI metadata, roaming history and measured target load remain unfinished.
 
 The source preparation gate also verifies the pinned UTF-8 homepage and authenticated JavaScript/static CSS MIME routes. Scripts contain no EJ template markers. The five installed assets total 14,165 raw bytes; this is not a measured compressed TRX increase. Browser compatibility and router CPU/RAM measurements remain pending.
+
+
+## Browser verification checkpoint
+
+A local browser fixture using the actual presentation/classification/refresh scripts and synthetic networkmap observations exposed corrupted literal icon/separator encoding. Commit `9e8f49b2cc14a946b3d27f0c32f463e3833c0f92` replaces these literals with ASCII Unicode escapes and adds an ASCII-source regression check. Reloading the fixture displayed the Android/unknown icons and separators correctly.
+
+The browser displayed hostile HTML-like names as literal text. Selecting Android filtered the unknown row; automatic source-time updates continued while the selected category remained Android. This fixture uses simplified CSS and a local mock endpoint, so it does not establish integration with the full Padavan page, real authentication, wireless association or target CPU/RAM use. The corrected assets now total 14,274 raw bytes; the earlier 14,165-byte measurement precedes the encoding fix.
+
+ABI 221 succeeded for the preceding source/ROMFS-gate commit. Full build 123 is still compiling; its staged ROMFS verification and final image are not yet confirmed. Device validation remains required.
