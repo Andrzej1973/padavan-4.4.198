@@ -23,7 +23,9 @@
   if(next.serverUptimeMs<previous.serverUptimeMs)return 'older';
   var old=previous.events.length?previous.events[previous.events.length-1].sequence:0;
   var current=next.events.length?next.events[next.events.length-1].sequence:0;
-  return current<old?'older':current===old?'unchanged':'updated';
+  if(current<old)return 'older';
+  if(next.gap!==previous.gap||next.dropped!==previous.dropped||next.clientDropped!==previous.clientDropped||next.clientEvictions!==previous.clientEvictions)return 'updated';
+  return current===old?'unchanged':'updated';
  }
  function create(refresh,options){
   var adapted={},key;for(key in options)if(Object.prototype.hasOwnProperty.call(options,key))adapted[key]=options[key];

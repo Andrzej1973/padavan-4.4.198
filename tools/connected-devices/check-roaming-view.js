@@ -16,3 +16,5 @@ view.render(h);assert.equal(view.list.children.length,2);assert(root.textContent
 view.details.open=true;view.list.scrollTop=25;view.filter.value='FF';view.filter.events.input();assert.equal(view.list.children.length,1);assert.equal(view.details.open,true);assert.equal(view.list.scrollTop,25);
 view.render(h);assert.equal(view.filter.value,'FF');view.setState({state:'Stale'});assert(root.textContent.includes('last available history'));
 console.log('PASS roaming timeline, MAC filter, gap visibility, expanded state and scroll preservation');
+
+view.setState({state:'Updating'});assert(root.textContent.includes('last available history'));view.setState({state:'Current'});assert(!root.textContent.includes('last available history'));assert.equal(view.list.style.overflowY,'auto');

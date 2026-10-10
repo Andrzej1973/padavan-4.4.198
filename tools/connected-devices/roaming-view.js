@@ -3,7 +3,7 @@
  function createView(doc,root){
   function node(tag,text,parent){var n=doc.createElement(tag);if(text)n.textContent=text;(parent||root).appendChild(n);return n;}
   node('h3','Wi-Fi observation history');var status=node('p','Unavailable'),notice=node('p',''),label=node('label','Client MAC: '),filter=node('input','',label),details=node('details',''),summary=node('summary','Recent events',details),list=node('ol','',details),last=null;
-  filter.type='text';filter.maxLength=17;filter.setAttribute('aria-label','Filter history by client MAC');details.open=false;
+  filter.type='text';filter.maxLength=17;filter.setAttribute('aria-label','Filter history by client MAC');details.open=false;list.style.maxHeight='280px';list.style.overflowY='auto';
   node('p','Observed changes do not prove Band Steering or RSSI Kick caused them. External access points are not observed.');
   function band(n){return n===1?'2.4 GHz':n===2?'5 GHz':n===3?'both bands / ambiguous':'unknown';}
   function render(h){last=h;var scroll=list.scrollTop;while(list.firstChild)list.removeChild(list.firstChild);
@@ -16,7 +16,8 @@
    notice.textContent='History is held in RAM for collector session '+h.epoch+'. Overwritten events: '+h.dropped+'; omitted client observations: '+h.clientDropped+'; reused inactive client slots: '+h.clientEvictions+(h.gap?'. Observation currently incomplete.':'');
   }
   filter.addEventListener('input',function(){if(last)render(last);});
-  return {render:render,setState:function(s){status.textContent=s.state+(s.state==='Stale'?' \u2014 showing last available history':'');},filter:filter,details:details,list:list};
+  var stale=false;
+  return {render:render,setState:function(s){if(s.state==='Stale')stale=true;else if(s.state==='Current')stale=false;status.textContent=s.state+(stale?' \u2014 showing last available history':'');},filter:filter,details:details,list:list};
  }
  function mount(doc,root,refresh,history){var view=createView(doc,root),poller=history.create(refresh,{request:function(done){
   var xhr=new XMLHttpRequest(),settled=false;function finish(error,value){if(settled)return;settled=true;done(error,value);}

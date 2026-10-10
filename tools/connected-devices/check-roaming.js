@@ -14,3 +14,5 @@ poller.retry();callback(null,sample());assert.equal(states.at(-1),'Stale');asser
 poller.setVisible(false);assert.equal(states.at(-1),'Paused');poller.setVisible(true);newer=sample();newer.epoch='restarted';callback(null,newer);assert.equal(data.length,2);
 poller.stop();assert.equal(timers.size,0);
 console.log('PASS shared history refresh, unchanged-event metadata, old-response rejection and new session');
+
+let counters=sample();counters.clientDropped=1;assert.equal(api.relation(sample(),counters),'updated');counters=sample();counters.gap=true;assert.equal(api.relation(sample(),counters),'updated');
