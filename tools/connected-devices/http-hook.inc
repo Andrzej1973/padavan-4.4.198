@@ -5,6 +5,8 @@
 #include "wr-devices/snapshot-json.h"
 #include "wr-devices/roaming-history.h"
 #include "wr-devices/roaming-json.h"
+#include "wr-devices/action-runtime.h"
+static struct wr_action_runtime wr_device_http_actions;
 #ifndef WR_DEVICE_SOURCE_PATH
 #define WR_DEVICE_SOURCE_PATH "/tmp/static_ip.inf"
 #endif
@@ -36,7 +38,7 @@ static enum wr_device_cache_state wr_device_http_update(void)
  else wr_roam_observe(&wr_device_http_history,NULL,now,0);
  return state;
 }
-void wr_device_background_tick(void){(void)wr_device_http_update();}
+void wr_device_background_tick(void){(void)wr_device_http_update();wr_action_runtime_tick(&wr_device_http_actions,(uint64_t)uptime()*1000);}
 static void do_wr_roaming_json(const char *url,FILE *stream)
 {
  size_t length;enum wr_device_cache_state state;(void)url;

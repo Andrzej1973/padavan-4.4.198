@@ -1,5 +1,6 @@
 #define _GNU_SOURCE
 #define BOARD_WR1200JS 1
+#define WR_ACTION_DIRECTORY "/nonexistent-wr-action-test/observer"
 #define WR_DEVICE_SOURCE_PATH "source"
 #define WR_DEVICE_LOCK_PATH "networkmap.lock"
 #include <stdio.h>
