@@ -198,6 +198,10 @@ jobs:
           python3 tools/connected-devices/prepare-background.py abi-results/device-http-patch
           python3 tools/connected-devices/check-prepare-ui.py source
           python3 tools/connected-devices/check-radio-source.py source
+          python3 tools/connected-devices/prepare-radio-header-check.py source abi-results/device-http-patch --output abi-results/device-radio-header.c
+          gcc -std=gnu11 -Wall -Wextra -Werror abi-results/device-radio-header.c -o abi-results/device-radio-header
+          abi-results/device-radio-header
+          "$compiler" -std=gnu11 -Wall -Wextra -Werror -mips32r2 -mabi=32 -msoft-float -c abi-results/device-radio-header.c -o abi-results/device-radio-header-mips.o
           python3 tools/connected-devices/prepare-radio-layout.py source --output abi-results/device-radio-layout.c
           gcc -std=gnu11 -Wall -Wextra -Werror -fsanitize=address,undefined abi-results/device-radio-layout.c -o abi-results/device-radio-layout
           abi-results/device-radio-layout
