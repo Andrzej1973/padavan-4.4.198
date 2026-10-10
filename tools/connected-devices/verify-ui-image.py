@@ -25,5 +25,13 @@ assert page.count('href="/wr-device-homepage.css"') == 1
 daemon = (a.romfs / 'usr/sbin/httpd').read_bytes()
 assert b'wr_devices.json' in daemon
 assert b'wr_roaming.json' in daemon
+# Actual HTTP binary must contain the background endpoint, verified producer
+# paths and separate command-evidence serializer, not just the old route.
+for marker in (b'/var/run/wr-device-observer/actions', b'/var/run/wr-band-steering.lock',
+               b'/usr/sbin/wr-band-steering', b'monitoringGap', b'interruptions',
+               b'ioctl_accepted', b'ioctl_failed', b'driver_ack', b'remove_candidate'):
+    assert marker in daemon, 'Missing linked action observer marker: ' + marker.decode('ascii')
+assert b'Band Steering commands' in (www / 'wr-device-roaming-view.js').read_bytes()
+
 assert page.count('id="wr-roaming-history"') == 1
-print('PASS staged homepage, exact assets and linked JSON route; raw asset bytes:', total + len(css))
+print('PASS staged homepage, exact assets and linked observation/action JSON markers; raw asset bytes:', total + len(css))
