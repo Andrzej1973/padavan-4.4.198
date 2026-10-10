@@ -18,6 +18,8 @@ static int wr_iot_request_clear(void)
  failed |= nvram_set_int_temp("wr_iot_profile_t",0)!=0;
  failed |= nvram_set_int_temp("wr_iot_network_t",0)!=0;
  failed |= nvram_set_int_temp("wr_iot_firewall_t",0)!=0;
+ failed |= nvram_set_temp("wr_iot_ssid_t","")!=0;
+ failed |= nvram_set_temp("wr_iot_psk_t","")!=0;
  failed |= nvram_set_temp("wr_iot_gateway_t","")!=0;
  failed |= nvram_set_temp("wr_iot_mask_t","")!=0;
  failed |= nvram_set_temp("wr_iot_start_t","")!=0;
@@ -36,7 +38,9 @@ static int wr_iot_request_stage_locked(int router_mode,int radio_on,int radio_mo
  if(!wr_iot_request_clear())return 0;
  if(!request.enabled)return 1;
  /* Each destination is fixed-size and the request parser already bounded it. */
- if(nvram_set_temp("wr_iot_gateway_t",request.gateway)||
+ if(nvram_set_temp("wr_iot_ssid_t",request.ssid)||
+    nvram_set_temp("wr_iot_psk_t",request.password)||
+    nvram_set_temp("wr_iot_gateway_t",request.gateway)||
     nvram_set_temp("wr_iot_mask_t",request.mask)||
     nvram_set_temp("wr_iot_start_t",request.first)||
     nvram_set_temp("wr_iot_end_t",request.last)){

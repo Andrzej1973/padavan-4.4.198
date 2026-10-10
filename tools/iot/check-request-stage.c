@@ -14,6 +14,7 @@ static struct entry values[]={
  {"wr_iot_gateway","192.168.50.1"},{"wr_iot_mask","255.255.255.0"},
  {"wr_iot_start","192.168.50.20"},{"wr_iot_end","192.168.50.200"},
  {"wr_iot_profile_t","stale"},{"wr_iot_network_t","stale"},{"wr_iot_firewall_t","stale"},
+ {"wr_iot_ssid_t","stale"},{"wr_iot_psk_t","stale"},
  {"wr_iot_gateway_t","stale"},{"wr_iot_mask_t","stale"},{"wr_iot_start_t","stale"},{"wr_iot_end_t","stale"}
 };
 static struct entry *find(const char *key){size_t i;for(i=0;i<sizeof(values)/sizeof(values[0]);i++)if(!strcmp(values[i].key,key))return &values[i];assert(0);return NULL;}
@@ -28,10 +29,13 @@ int main(void){
  reset();strcpy(find("wr_iot_enable")->value,"0");assert(wr_iot_request_stage(0,0,3));assert(!strcmp(find("wr_iot_profile_t")->value,"0")&&!find("wr_iot_gateway_t")->value[0]);
  reset();strcpy(find("wr_iot_psk")->value,"short");assert(!wr_iot_request_stage(1,1,0));assert(!strcmp(find("wr_iot_profile_t")->value,"stale"));
  reset();assert(!wr_iot_request_stage(0,1,0));assert(!strcmp(find("wr_iot_profile_t")->value,"stale"));
- for(failure=1;failure<=12;failure++){
+ reset();assert(wr_iot_request_stage(1,1,0));
+ strcpy(find("wr_iot_psk")->value,"newpassword");
+ assert(!strcmp(find("wr_iot_psk_t")->value,"password123"));
+ for(failure=1;failure<=16;failure++){
   reset();writes=0;fail_write=failure;
   assert(!wr_iot_request_stage(1,1,0));
-  if(failure>=8)assert(!strcmp(find("wr_iot_profile_t")->value,"0")&&!strcmp(find("wr_iot_network_t")->value,"0")&&!strcmp(find("wr_iot_firewall_t")->value,"0"));
+  if(failure>=10)assert(!strcmp(find("wr_iot_profile_t")->value,"0")&&!strcmp(find("wr_iot_network_t")->value,"0")&&!strcmp(find("wr_iot_firewall_t")->value,"0")&&!find("wr_iot_psk_t")->value[0]);
  }
  assert(!held&&enters==leaves);
  reset();writes=0;fail_write=0;bridge_index=7;

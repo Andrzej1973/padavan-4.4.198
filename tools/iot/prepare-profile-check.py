@@ -18,8 +18,8 @@ static int nvram_get_int(const char *key){assert(!strcmp(key,"wr_iot_profile_t")
 static int get_ap_mode(void){return ap_mode;}
 static const char *nvram_safe_get(const char *key){
  const char *value;reads++;
- if(!strcmp(key,"wr_iot_ssid"))value=ssid_value;
- else {assert(!strcmp(key,"wr_iot_psk"));value=password_value;}
+ if(!strcmp(key,"wr_iot_ssid_t"))value=ssid_value;
+ else {assert(!strcmp(key,"wr_iot_psk_t"));value=password_value;}
  assert(strlen(value)<sizeof(scratch));strcpy(scratch,value);return scratch;
 }
 static int test_ferror(FILE *fp){(void)fp;return write_error;}

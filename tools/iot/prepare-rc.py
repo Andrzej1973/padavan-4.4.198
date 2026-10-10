@@ -58,10 +58,10 @@ hook=r"""#if defined(BOARD_WR1200JS)
   char ssid[33],password[65];const char *value;size_t n;int failed=ferror(fp);
   if (fclose(fp)) failed=1;
   if (failed || !is_soc_ap || get_ap_mode() || i_mode_x==1 || i_mode_x==3) return -1;
-  value=nvram_safe_get("wr_iot_ssid");n=strlen(value);
+  value=nvram_safe_get("wr_iot_ssid_t");n=strlen(value);
   if (n>=sizeof(ssid)) return -1;
   memcpy(ssid,value,n+1);
-  value=nvram_safe_get("wr_iot_psk");n=strlen(value);
+  value=nvram_safe_get("wr_iot_psk_t");n=strlen(value);
   if (n>=sizeof(password)) return -1;
   memcpy(password,value,n+1);
   return wr_iot_profile_apply(dat_file,ssid,password)?0:-1;
