@@ -1,4 +1,5 @@
 #include "grants.h"
+#include "grant-evidence.h"
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
@@ -41,7 +42,15 @@ int main(void)
     assert(!wr_band_grants_confirmed(&g, 0));
     assert(wr_band_grants_sync(&g, 0, 3, 1) == 0 && f.count == 2);
     e = reply(&f, 0, 1);
+    assert(wr_band_grant_evidence(&g,0,&e,0));assert(!wr_band_grant_evidence(&g,0,&e,1));
+    old=e;old.cookie++;assert(!wr_band_grant_evidence(&g,0,&old,0));
+    old=e;old.mac[5]++;assert(!wr_band_grant_evidence(&g,0,&old,0));
+    b.entries[0].activity++;assert(!wr_band_grant_evidence(&g,0,&e,0));b.entries[0].activity--;
     assert(wr_band_grants_event(&g, 0, &e, 1) == 1 && wr_band_grants_confirmed(&g, 0) == 1);
+    assert(wr_band_grant_evidence(&g,0,&e,1));assert(!wr_band_grant_evidence(&g,0,&e,0));
+    old=e;old.mac[5]++;assert(!wr_band_grant_evidence(&g,0,&old,1));
+    b.entries[0].first_seen++;assert(!wr_band_grant_evidence(&g,0,&e,1));b.entries[0].first_seen--;
+
     e = reply(&f, 1, 0); old = e;
     assert(wr_band_grants_event(&g, 1, &e, 1) == 1 && f.count == 4);
     assert(f.sent[2].command == WR_ADD && f.sent[3].command == WR_GRANT_QUERY);

@@ -4,6 +4,7 @@
 #include "transport.h"
 #include "control.h"
 #include "action-observer.h"
+#include "grant-evidence.h"
 #include <errno.h>
 #include <fcntl.h>
 #include <net/if.h>
@@ -54,15 +55,12 @@ static void observed_event(size_t radio,const struct wr_band_event *event,void *
     struct observed_dispatch *d=context;struct wr_band_coordinator *c=d->runtime->coordinator;
     int pending=0,saved;struct wr_action_event evidence;
     if(c&&c->session.phase==WR_ACTIVE&&radio<2&&event->type==WR_EVENT_GRANT&&event->table_index<WR_BAND_CLIENT_LIMIT){
-        const struct wr_grant_radio *g=&c->grants.slots[event->table_index].radio[radio];
-        pending=g->phase!=WR_GRANT_NONE&&g->wanted&&g->cookie==event->cookie;
+        pending=wr_band_grant_evidence(&c->grants,radio,event,0);
     }
     d->callback(radio,event,d->owner);saved=errno;
     if(pending&&c->session.phase==WR_ACTIVE){
-        const struct wr_grant_slot *slot=&c->grants.slots[event->table_index];
         const struct wr_grant_radio *g=&slot->radio[radio];
-        if(g->phase==WR_GRANT_NONE&&g->confirmed&&g->cookie==event->cookie&&
-           !memcmp(slot->mac,event->mac,6)&&g->verified_at==c->grants.last_time){
+        if(wr_band_grant_evidence(&c->grants,radio,event,1)){
             memset(&evidence,0,sizeof(evidence));evidence.source=WR_ACTION_STEERING;
             evidence.operation=WR_ACTION_ALLOW;evidence.stage=WR_ACTION_DRIVER_ACK;
             evidence.radio=(unsigned char)radio;evidence.cookie=event->cookie;
