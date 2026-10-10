@@ -27,3 +27,9 @@ Required tests cover malformed/oversized input, privilege rejection, recycled st
 ## Pinned Linux dispatch evidence
 
 Source `c25283e915a2a00a763774dd255b14aff997285e`, `trunk/linux-4.4.x/net/wireless/wext-core.c`: `wext_ioctl_dispatch` acquires RTNL around `wireless_process_ioctl`; the latter can call `netdev_ops->ndo_do_ioctl` after checking device presence. `wext_permission_check` requires `CAP_NET_ADMIN` for set commands and selected encoding reads, rather than every read. The new RSSI handler therefore requires its own explicit administrator check. RTNL coverage of this entry point alone does not prove all MediaTek adapter release paths are synchronized; that driver lifetime audit remains pending.
+
+## PCI removal audit
+
+For both `mt76x2` and `mt76x3`, pinned `os/linux/pci_main_dev.c` calls `RtmpPhyNetDevExit` before `RtmpRaDevCtrlExit`; the latter in `common/rtmp_init.c` ends with `RTMPFreeAdapter`. `RtmpPhyNetDevExit` removes APCLI, WDS and MBSSID interfaces and unregisters the root interface. In the inspected `ap/ap_apcli.c`, `ap/ap_wds.c` and `ap/ap_mbss.c`, each existing virtual interface is detached between `RtmpOSNetDevProtect(1)` and `(0)` before freeing it. In `os/linux/rt_linux.c`, protection maps to RTNL and detach calls `unregister_netdevice`.
+
+These findings establish the inspected PCI remove ordering relative to synchronous WEXT ioctl dispatch. The new query must finish copying before returning and must not retain adapter pointers or schedule asynchronous reads. Alternate bus, registration-error and configuration-dependent removal paths still require checking against the actual WR1200JS module configuration before production integration.
