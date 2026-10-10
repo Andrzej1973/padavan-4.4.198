@@ -359,6 +359,7 @@ jobs:
           python3 tools/prepare-shared-wifi.py padavan-4.4
           python3 tools/connected-devices/prepare-http.py padavan-4.4
           python3 tools/connected-devices/prepare-radio.py padavan-4.4
+          python3 tools/connected-devices/prepare-background.py padavan-4.4
           python3 tools/connected-devices/prepare-ui.py padavan-4.4
           python3 tools/shared-wifi/check-source-integration.py padavan-4.4
           python3 tools/shared-wifi/prepare-http-check.py padavan-4.4 --output shared-wifi-http-check.c
