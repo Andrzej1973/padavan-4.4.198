@@ -13,6 +13,8 @@
       !u64(r.failures)||!u64(r.recoveries)||!u64(r.lastSuccessMs)||!u64(r.missing)||!u64(r.restarts)||
       (r.available&&(!r.attempted||r.error!==0)))return false;
   }
+  var expected=h.radios[0].available&&h.radios[1].available?'current':h.events.length?'stale':'unavailable';
+  if(h.cacheState!==expected)return false;
   for(i=0;i<h.events.length;i++){
    e=h.events[i];
    if(!e||typeof e.session!=='string'||!/^[0-9a-f]{32}$/.test(e.session)||/^0{32}$/.test(e.session)||
