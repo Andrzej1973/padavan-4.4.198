@@ -185,6 +185,8 @@ jobs:
           abi-results/check-action-send
           gcc -std=gnu11 -Wall -Wextra -Werror -fsanitize=address,undefined tools/connected-devices/check-action-endpoint.c -o abi-results/check-action-endpoint
           abi-results/check-action-endpoint
+          gcc -std=gnu11 -Wall -Wextra -Werror -fsanitize=address,undefined tools/connected-devices/check-action-channel.c -o abi-results/check-action-channel
+          abi-results/check-action-channel
           gcc -std=gnu11 -Wall -Wextra -Werror -fsanitize=address,undefined tools/connected-devices/check-steering-action.c -o abi-results/check-steering-action
           abi-results/check-steering-action
           gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined tools/connected-devices/check-networkmap.c -o abi-results/check-device-networkmap
@@ -229,6 +231,7 @@ jobs:
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -mips32r2 -mabi=32 -msoft-float -c tools/connected-devices/check-action-receive.c -o abi-results/action-receive-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -mips32r2 -mabi=32 -msoft-float -c tools/connected-devices/check-action-send.c -o abi-results/action-send-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -mips32r2 -mabi=32 -msoft-float -c tools/connected-devices/check-action-endpoint.c -o abi-results/action-endpoint-mips.o
+          "$compiler" -std=gnu11 -Wall -Wextra -Werror -mips32r2 -mabi=32 -msoft-float -c tools/connected-devices/check-action-channel.c -o abi-results/action-channel-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -mips32r2 -mabi=32 -msoft-float -c tools/connected-devices/check-steering-action.c -o abi-results/steering-action-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -mips32r2 -mabi=32 -msoft-float -c abi-results/device-radio-layout.c -o abi-results/device-radio-layout-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -c tools/connected-devices/check-roaming-history.c -o abi-results/roaming-history-mips.o
