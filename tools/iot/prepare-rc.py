@@ -404,6 +404,36 @@ m.write_text(make_source,encoding='utf-8')
 report['service_state_headers_installed']=True
 report['service_state_lifecycle_bound']=True
 report['dnsmasq_readiness']='configured-port DNS probe and lease recovery integrated; DHCP protocol readiness pending'
+# Keep an owned IoT bridge blocked across normal and default firewall reloads.
+# The activation controller must later replace this quarantine with verified policy.
+path=rc/'firewall_ex.c';firewall=path.read_text(encoding='utf-8')
+helper=r"""
+#if defined(BOARD_WR1200JS)
+#include "wr-iot/bridge.h"
+static int wr_iot_firewall_quarantine(FILE *fp)
+{
+ if(!wr_iot_bridge_is_owned())return 1;
+ return fputs("-A INPUT -i br-iot -j DROP\n"
+              "-A FORWARD -i br-iot -j DROP\n"
+              "-A FORWARD -o br-iot -j DROP\n"
+              "-A INPUT -i ra2 -j DROP\n"
+              "-A FORWARD -i ra2 -j DROP\n"
+              "-A FORWARD -o ra2 -j DROP\n",fp)>=0;
+}
+#endif
+
+"""
+anchor='#include "rc.h"'
+if firewall.count(anchor)!=1:raise SystemExit('Firewall RC include anchor changed')
+firewall=firewall.replace(anchor,anchor+'\n'+helper,1)
+for name,marker,result in [('ipt_filter_rules','\t// maclist chain','return 0;'),('ipt_filter_default','\t/* INPUT chain */','return;'),('ip6t_filter_rules','\t// maclist chain','return 0;'),('ip6t_filter_default','\t// INPUT chain','return;')]:
+ begin=firewall.index('\n'+name+'(');end=firewall.index('\n}\n',begin)+3
+ body=firewall[begin:end]
+ if body.count(marker)!=1:raise SystemExit('Firewall rule insertion anchor changed: '+name)
+ hook='#if defined(BOARD_WR1200JS)\n\tif(!wr_iot_firewall_quarantine(fp)){fclose(fp);logmessage("IoT Wi-Fi","Firewall quarantine write failed");'+result+'}\n#endif\n'
+ body=body.replace(marker,hook+marker,1);firewall=firewall[:begin]+body+firewall[end:]
+path.write_text(firewall,encoding='utf-8')
+report['owned_bridge_firewall_quarantine']='IPv4/IPv6 normal/default filter builders; before generic accepts; active allow policy pending'
 report['iot_main_dnsmasq_config_staged']=True
 report['dnsmasq_service_rollback_complete']=False
 (a.source/'iot-rc-source.json').write_text(json.dumps(report,indent=2)+'\n')
