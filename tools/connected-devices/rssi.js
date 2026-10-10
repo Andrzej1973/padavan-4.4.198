@@ -5,7 +5,7 @@
  function greater(a,b){return a.length>b.length||(a.length===b.length&&a>b);}
  function uint(n,max){return typeof n==='number'&&isFinite(n)&&n>=0&&n<=max&&Math.floor(n)===n;}
  function valid(h){
-  if(!h||!u64(h.evicted)||!Array.isArray(h.radios)||h.radios.length!==2||!Array.isArray(h.events)||h.events.length>256)return false;
+  if(!h||['current','stale','unavailable'].indexOf(h.cacheState)<0||!u64(h.evicted)||!Array.isArray(h.radios)||h.radios.length!==2||!Array.isArray(h.events)||h.events.length>256)return false;
   var i,r,e,key,last=Object.create(null);
   for(i=0;i<2;i++){
    r=h.radios[i];

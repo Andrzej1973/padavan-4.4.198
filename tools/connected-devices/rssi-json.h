@@ -11,7 +11,8 @@ static inline int wr_rssi_json(const struct wr_rssi_collector *c,char *data,
  if(length)*length=0;
  if(!c||!data||!length||!capacity||c->history.count>256||c->history.next>=256)return 0;
  data[0]=0;
- if(!wr_device_json_format(&out,"{\"evicted\":\"%llu\",\"radios\":[",c->history.evicted))return 0;
+ if(!wr_device_json_format(&out,"{\"cacheState\":\"%s\",\"evicted\":\"%llu\",\"radios\":[",
+  c->health[0].available&&c->health[1].available?"current":c->history.count?"stale":"unavailable",c->history.evicted))return 0;
  for(i=0;i<2;i++) {
   const struct wr_rssi_collector_health *h=&c->health[i];
   const struct wr_rssi_history_radio *r=&c->history.radios[i];

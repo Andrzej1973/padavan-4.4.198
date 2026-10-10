@@ -1,6 +1,6 @@
 'use strict';
 var assert=require('assert'),schema=require('./rssi.js');
-var h={evicted:'0',radios:[],events:[]};
+var h={cacheState:'current',evicted:'0',radios:[],events:[]};
 for(var i=0;i<2;i++)h.radios.push({radio:i,available:false,attempted:false,error:0,failures:'0',recoveries:'0',lastSuccessMs:'0',missing:'0',restarts:'0'});
 assert(schema.valid(h));
 var e={session:'ffffffffffffffffffffffffffffffff',sequence:'18446744073709551615',uptimeMs:'18446744073709551615',attempt:4294967295,mac:'02:11:22:33:44:55',radio:0,bss:15,stage:'frame_submitted',outcome:'unknown'};
@@ -25,6 +25,7 @@ console.log('PASS RSSI browser schema: exact maximum counters, separate radios/s
  poller.retry();callback(null,h);assert.strictEqual(states.at(-1),'Current');assert.strictEqual(data.length,1);
  poller.retry();poller.setVisible(false);assert.strictEqual(states.at(-1),'Paused');assert.strictEqual(aborts,1);
  poller.setVisible(true);var newer=JSON.parse(JSON.stringify(h));newer.evicted='1';callback(null,newer);assert.strictEqual(data.length,2);
+ poller.retry();var stale=JSON.parse(JSON.stringify(newer));stale.cacheState='stale';callback(null,stale);assert.strictEqual(states.at(-1),'Stale');
  poller.stop();assert.strictEqual(timers.size,0);
  console.log('PASS RSSI shared refresh retains data on network/schema failure, recovers, pauses and cancels timers');
 })();

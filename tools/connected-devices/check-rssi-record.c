@@ -261,6 +261,9 @@ int main(void)
   assert(wr_rssi_json(&c,json,sizeof json,&length)&&length<sizeof json);
   assert(strstr(json,"ffffffffffffffffffffffffffffffff"));
   assert(strstr(json,"frame_submitted")&&strstr(json,"unknown"));
+  assert(strstr(json,"\"cacheState\":\"stale\""));
+  c.health[0].available=c.health[1].available=1;
+  assert(wr_rssi_json(&c,json,sizeof json,&length)&&strstr(json,"\"cacheState\":\"current\""));
   assert(!wr_rssi_json(&c,json,10,&length)&&length==0);
   c.history.events[0].record.stage=5;assert(!wr_rssi_json(&c,json,sizeof json,&length)&&length==0);
  }
