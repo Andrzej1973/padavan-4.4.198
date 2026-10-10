@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('assert'),rssi=require('./rssi-view.js');
 class Element {
- constructor(tag){this.tagName=tag;this.children=[];this.parentNode=null;this.style={};this.attributes={};this.events={};this._text='';this.scrollTop=0;}
+ constructor(tag){this.tagName=tag;this.children=[];this.parentNode=null;this.style={};this.attributes={};this.events={};this.value='';this._text='';this.scrollTop=0;}
  set textContent(value){this._text=String(value);this.children=[];}get textContent(){return this._text+this.children.map(n=>n.textContent).join('');}
  get firstChild(){return this.children[0]||null;}
  appendChild(n){if(n.parentNode)n.parentNode.removeChild(n);this.children.push(n);n.parentNode=this;return n;}
