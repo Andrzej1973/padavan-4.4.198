@@ -107,11 +107,14 @@ static int wr_iot_restart_transaction(void)
   /* Recovery retry does not immediately attempt another new configuration. */
   return EAGAIN;
  }
- wr_iot_restart_old_running=!!is_dns_dhcpd_run();wr_iot_restart_old_port=0;wr_iot_restart_old_dhcp_port=67;wr_iot_restart_old_dhcp4=0;wr_iot_restart_old_gateway[0]=0;
- if(wr_iot_restart_old_running&&!wr_iot_dns_config_services_at(WR_IOT_DNS_CONFIG_PATH,&wr_iot_restart_old_port,&wr_iot_restart_old_dhcp4,&wr_iot_restart_old_dhcp_port))return EINVAL;
- if((wr_iot_restart_old_port||wr_iot_restart_old_dhcp4)&&!WR_IOT_DHCP_GATEWAY(IFNAME_BR,wr_iot_restart_old_gateway)&&wr_iot_restart_old_dhcp4)return EINVAL;
+ /* Capture the previous daemon/configuration only while the service lock is held. */
  wr_iot_restart_guard=wr_iot_service_guard_enter(1);
  if(wr_iot_restart_guard!=1)return EBUSY;
+ wr_iot_restart_old_running=!!is_dns_dhcpd_run();wr_iot_restart_old_port=0;wr_iot_restart_old_dhcp_port=67;wr_iot_restart_old_dhcp4=0;wr_iot_restart_old_gateway[0]=0;
+ if((wr_iot_restart_old_running&&!wr_iot_dns_config_services_at(WR_IOT_DNS_CONFIG_PATH,&wr_iot_restart_old_port,&wr_iot_restart_old_dhcp4,&wr_iot_restart_old_dhcp_port))||
+    ((wr_iot_restart_old_port||wr_iot_restart_old_dhcp4)&&!WR_IOT_DHCP_GATEWAY(IFNAME_BR,wr_iot_restart_old_gateway)&&wr_iot_restart_old_dhcp4)){
+  wr_iot_service_guard_leave(wr_iot_restart_guard);wr_iot_restart_guard=0;return EINVAL;
+ }
  wr_iot_service_state_init(&wr_iot_restart_state);
  if(!wr_iot_service_state_begin_guarded(&wr_iot_restart_state,WR_IOT_SERVICE_LOCK_PATH,IFNAME_BR)){
   wr_iot_service_guard_leave(wr_iot_restart_guard);wr_iot_restart_guard=0;return EIO;
