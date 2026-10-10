@@ -59,7 +59,7 @@ static void observed_event(size_t radio,const struct wr_band_event *event,void *
     }
     d->callback(radio,event,d->owner);saved=errno;
     if(pending&&c->session.phase==WR_ACTIVE){
-        const struct wr_grant_radio *g=&slot->radio[radio];
+        const struct wr_grant_radio *g=&c->grants.slots[event->table_index].radio[radio];
         if(wr_band_grant_evidence(&c->grants,radio,event,1)){
             memset(&evidence,0,sizeof(evidence));evidence.source=WR_ACTION_STEERING;
             evidence.operation=WR_ACTION_ALLOW;evidence.stage=WR_ACTION_DRIVER_ACK;
