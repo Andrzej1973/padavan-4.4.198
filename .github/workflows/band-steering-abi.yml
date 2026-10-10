@@ -170,6 +170,7 @@ jobs:
           python3 tools/connected-devices/check-image-gate.py
           node tools/connected-devices/check-roaming.js
           node tools/connected-devices/check-rssi.js
+          node tools/connected-devices/check-rssi-view.js
           node tools/connected-devices/check-refresh.js
           node tools/connected-devices/check-homepage.js
 

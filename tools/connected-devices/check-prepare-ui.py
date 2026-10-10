@@ -18,7 +18,7 @@ http = (a.source / 'trunk/user/httpd/web_ex.c').read_text(encoding='utf-8')
 assert '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">' in original
 assert '{ "**.js",  "text/javascript", no_cache_IE, NULL, do_ej, 1 }' in http
 assert '{ "**.css", "text/css", NULL, NULL, do_file, 0 }' in http
-assets = ['classify', 'refresh', 'homepage', 'roaming', 'roaming-view', 'boot']
+assets = ['classify', 'refresh', 'homepage', 'roaming', 'roaming-view', 'rssi', 'rssi-view', 'boot']
 asset_bytes = 0
 for name in assets:
     data = (local / (name + '.js')).read_bytes()
@@ -38,6 +38,7 @@ try:
     includes += ''.join('<script src="/wr-device-' + name + '.js"></script>\n' for name in assets)
     section = '\n                <section id="wr-connected-devices" class="well" aria-label="Connected devices"></section>'
     section += '\n                <section id="wr-roaming-history" class="well" aria-label="Wi-Fi history"></section>'
+    section += '\n                <section id="wr-rssi-history" class="well" aria-label="RSSI history"></section>'
     assert installed.count(includes) == 1 and installed.count(section) == 1
     assert installed.replace(includes, '', 1).replace(section, '', 1) == original
     for name in assets:
