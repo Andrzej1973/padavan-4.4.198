@@ -28,6 +28,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Check WebUI route verifier regressions before compilation
+        run: python3 tools/check-web-routes-test.py
+
       - name: Install build dependencies
         run: |
           sudo apt-get update
