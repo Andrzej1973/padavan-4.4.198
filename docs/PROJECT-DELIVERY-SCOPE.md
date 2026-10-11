@@ -399,3 +399,39 @@ Complete and record these checks:
 
 Continue remaining accepted WR1200JS features afterward, then Mi Mini, and
 finally local databases and the offline WSL 2 project. CAKE remains excluded.
+
+## Nilabsent upstream update integration — final-stage requirement, 2026-10-11
+
+Use [nilabsent/padavan-ng](https://github.com/nilabsent/padavan-ng) as the
+explicit donor for the complete WireGuard/AmneziaWG WebUI, client/server
+configuration, import/export, local QR and translations. Preserve existing
+tunnel settings during adaptation and verify each control against the 4.4 port.
+
+After the main firmware is stable, implement automated upstream discovery:
+compare the last recorded donor SHA with current upstream commits, retain
+source links and changes locally, and prepare selected compatible updates in
+a separate branch/PR with provenance and checks. Define an allowlist of ported
+components; do not automatically merge the 3.4 kernel, drivers, toolchain or
+unrelated files into the 4.4 tree. Resolve patch conflicts and verify build,
+image and affected runtime behavior before accepting an update.
+
+Subsequent firmware builds consume the accepted, pinned donor revision from
+our repository/manifest. They must not silently build arbitrary upstream HEAD.
+Provide an explicit optional candidate-update build and rollback to the last
+accepted revision. Record imported donor changes and hashes, retain licenses,
+and include accepted donor sources in the final offline archive. An upstream
+outage must not prevent building a previously preserved version.
+
+Latest inspected donor commits on 2026-10-11:
+- [14e4fac1, 2026-10-04](https://github.com/nilabsent/padavan-ng/commit/14e4fac1ca24ab15278378d3e994db82fc9bcdda):
+  changes the imported AmneziaWG default i1 template for ProtonVPN compatibility
+  in trunk/user/wireguard/amneziawg.json. Candidate for the WebUI/import port;
+  not yet verified or adopted in this firmware.
+- [d2c58462, 2026-09-19](https://github.com/nilabsent/padavan-ng/commit/d2c5846299949c57a4e867284069900b561dd2a4):
+  updates nfqws2 to 1.0.5.2 and corrects default interface detection in zapret.sh.
+  Retain for the previously deferred package stage.
+- [8be99123, 2026-09-06](https://github.com/nilabsent/padavan-ng/commit/8be99123a72880f67cd65e98dafea5f1dce8cc3e):
+  updates AmneziaWG to 3.1.20260906. Runtime logs already report that version
+  on WR1200JS; this does not prove complete WebUI parity.
+
+This update mechanism is planned for the end of the project; it is not active.
