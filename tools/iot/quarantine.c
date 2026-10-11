@@ -26,3 +26,6 @@ static int eligible(int bridge_down){
 }
 int wr_iot_quarantine_can_apply(void){return eligible(1);}
 int wr_iot_quarantine_ready(void){return eligible(0)&&wr_iot_quarantine_live(0)&&wr_iot_quarantine_live(1);}
+int wr_iot_policy_rules_ready(const char *ipv4,const char *ipv6){
+ return eligible(0)&&wr_iot_policy_live(0,ipv4)&&wr_iot_policy_live(1,ipv6);
+}

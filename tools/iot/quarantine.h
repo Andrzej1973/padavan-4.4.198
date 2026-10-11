@@ -7,4 +7,8 @@ int wr_iot_quarantine_ready(void);
 int wr_iot_quarantine_can_apply(void);
 /* Installed in firewall_ex.c. Caller retains service guard throughout. */
 int wr_iot_quarantine_apply(void);
+/* Trusted expected rules only; holds guard, owned bridge, BSS still DOWN. */
+int wr_iot_policy_rules_ready(const char *ipv4,const char *ipv6);
+/* Rebuild expected policy from current configuration and live inventory. */
+int wr_iot_active_filter_ready(const char *lan,const char *wan);
 #endif
