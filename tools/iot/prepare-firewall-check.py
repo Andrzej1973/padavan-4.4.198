@@ -8,13 +8,20 @@ p.add_argument('source', type=Path)
 p.add_argument('output', type=Path)
 a = p.parse_args()
 s = (a.source / 'trunk/user/rc/firewall_ex.c').read_text()
-start = s.index('static int wr_iot_firewall_quarantine(')
+start = s.index('static int wr_iot_active_filter_plan(')
 opening = s.index('{', start)
 depth, end = 1, opening + 1
 while depth:
     depth += (s[end] == '{') - (s[end] == '}')
     end += 1
 body = s[start:end]
+start = s.index('static int wr_iot_firewall_quarantine(')
+opening = s.index('{', start)
+depth, end = 1, opening + 1
+while depth:
+    depth += (s[end] == '{') - (s[end] == '}')
+    end += 1
+body += '\n' + s[start:end]
 start = s.index('static int wr_iot_nat_policy(')
 opening = s.index('{', start)
 depth, end = 1, opening + 1

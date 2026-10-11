@@ -455,29 +455,35 @@ helper=r"""
 #include "wr-iot/route-snapshot.h"
 #include "wr-iot/dns-config.h"
 #include "wr-iot/network-check.h"
-static int wr_iot_firewall_quarantine(FILE *fp,int allow_policy,const char *lan,const char *wan)
+static int wr_iot_active_filter_plan(struct wr_iot_firewall *rules,const char *lan,const char *wan)
 {
  const char *keys[]={"wr_iot_gateway_t","wr_iot_mask_t","wr_iot_start_t","wr_iot_end_t"};
  char values[4][16];size_t i,n;const char *value;
- struct wr_iot_firewall rules;struct wr_iot_subnet subnet;struct wr_iot_inventory inventory;
+ struct wr_iot_subnet subnet;struct wr_iot_inventory inventory;
  unsigned int index,dns_port,dhcp_port;int dhcp4;
- if(!wr_iot_bridge_is_owned())return 1;
- if(allow_policy&&nvram_get_int("wr_iot_firewall_t")==1&&nvram_get_int("wr_iot_network_t")==1&&!get_ap_mode()){
+ if(!wr_iot_bridge_is_owned())return 0;
+ if(nvram_get_int("wr_iot_firewall_t")==1&&nvram_get_int("wr_iot_network_t")==1&&!get_ap_mode()){
   for(i=0;i<4;i++){
    value=nvram_safe_get(keys[i]);n=strlen(value);
-   if(n>=sizeof(values[i]))goto quarantine;
+   if(n>=sizeof(values[i]))return 0;
    memcpy(values[i],value,n+1);
   }
   /* The current policy permits standard DNS/DHCP ports only. */
-  if(!wr_iot_dns_config_services_at("/etc/dnsmasq.conf",&dns_port,&dhcp4,&dhcp_port)||dns_port!=53||!dhcp4||dhcp_port!=67)goto quarantine;
+  if(!wr_iot_dns_config_services_at("/etc/dnsmasq.conf",&dns_port,&dhcp4,&dhcp_port)||dns_port!=53||!dhcp4||dhcp_port!=67)return 0;
   index=if_nametoindex("br-iot");
   if(!index||!wr_iot_subnet_plan(&subnet,values[0],values[1],values[2],values[3],NULL,0)||
      !wr_iot_inventory_interfaces(&inventory,1)||
      !wr_iot_route_snapshot_owned(&inventory,index,subnet.network,subnet.mask)||
-     !wr_iot_firewall_plan(&rules,1,lan,wan,values[0],values[1],values[2],values[3],inventory.ranges,inventory.count))goto quarantine;
-  return fputs(rules.ipv4,fp)>=0;
+     !wr_iot_firewall_plan(rules,1,lan,wan,values[0],values[1],values[2],values[3],inventory.ranges,inventory.count))return 0;
+  return 1;
  }
- quarantine:
+ return 0;
+}
+static int wr_iot_firewall_quarantine(FILE *fp,int allow_policy,const char *lan,const char *wan)
+{
+ struct wr_iot_firewall rules;
+ if(!wr_iot_bridge_is_owned())return 1;
+ if(allow_policy&&wr_iot_active_filter_plan(&rules,lan,wan))return fputs(rules.ipv4,fp)>=0;
  return fputs("-A INPUT -i br-iot -j DROP\n"
               "-A FORWARD -i br-iot -j DROP\n"
               "-A FORWARD -o br-iot -j DROP\n"
