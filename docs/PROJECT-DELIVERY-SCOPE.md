@@ -554,3 +554,38 @@ credentials or QR codes.
   persistence and actual device behavior. The screenshot is a design reference,
   not evidence of implementation. This remains WR1200JS work and must preserve
   the existing stable-management-access priority.
+
+## Model capability filtering and function help — user approval 2026-10-11
+
+Gradually audit configuration selectors, compiled components and WebUI controls
+against each board's actual hardware, driver version and integrated userspace
+implementation. Create a shared per-model capability manifest used by build
+selection, server-side validation and WebUI visibility; do not filter solely
+by model name or hide a control while leaving unsupported settings applicable.
+
+Distinguish unsupported, supported-but-runtime-unverified, and verified
+capabilities, with source/revision evidence. Hide confirmed unsupported controls
+and exclude their board-specific build features/dependencies where independent
+of required components. Do not remove shared code needed by other boards.
+For supported features, include the necessary implementation and expose suitable
+controls, subject to existing optional package selectors and runtime defaults.
+Support does not imply automatic runtime enablement: preserve WPS/IoT/steering
+default-off and documented optional commented packages. Unknown support must
+remain explicit rather than being claimed as functional or silently discarded.
+
+Prioritize WR1200JS radio UI: validate advertised MU-MIMO, channel widths,
+beamforming and 802.11k/v/r against its MT7603E/MT7612E drivers. A generic menu
+option or chipset marketing capability alone does not prove that this image
+implements it. Verify effective settings after Apply and retain management access.
+
+For every exposed function provide localized EN/UK/RU help explaining purpose,
+valid values/units, dependencies, default, expected tradeoffs and any restart
+or connectivity interruption. Explain unsupported/experimental status where
+applicable; use concise basic help with expandable technical details. Verify
+capability-filtered pages, backend rejection of unsupported values, optional
+feature combinations and actual board behavior.
+
+Also replace the inherited firmware version suffix with project build identity
+(number plus short commit SHA) while preserving accurate kernel/version details
+and upstream attribution in the credits/licenses. Ensure UI, image naming and
+diagnostic reports identify the same build. Implementation remains pending.
