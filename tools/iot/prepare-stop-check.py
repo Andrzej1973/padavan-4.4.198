@@ -40,7 +40,7 @@ static int firewall_state,set_failure,silent_failure;
 static void wif_control(const char *name,int up){assert(up==0&&calls<16);names[calls++]=name;}
 #if defined(BOARD_WR1200JS)
 static int wr_iot_last_stop_result=1;
-static int nvram_get_int(const char *key){if(!strcmp(key,"wr_iot_network_t"))return network_state;if(!strcmp(key,"wr_iot_firewall_t"))return firewall_state;assert(!strcmp(key,"wr_iot_profile_t"));return profile_state;}
+static int nvram_match(const char *key,const char *value){int state;if(!strcmp(key,"wr_iot_network_t"))state=network_state;else if(!strcmp(key,"wr_iot_firewall_t"))state=firewall_state;else {assert(!strcmp(key,"wr_iot_profile_t"));state=profile_state;}return !strcmp(value,"0")&&state==0;}
 static int nvram_set_int_temp(const char *key,int value){assert(value==0&&calls==1&&bss_ok&&down_ok&&detach_ok&&detaches==1);state_writes++;if(set_failure)return -1;if(silent_failure)return 0;if(!strcmp(key,"wr_iot_network_t"))network_state=value;else if(!strcmp(key,"wr_iot_firewall_t"))firewall_state=value;else {assert(!strcmp(key,"wr_iot_profile_t"));profile_state=value;}return 0;}
 static int wr_iot_bridge_is_owned(void){return owner;}
 static int wr_iot_bss_set_down(void){assert(calls==1&&!strcmp(names[0],"ra2"));return bss_ok;}
@@ -82,6 +82,7 @@ int main(void){
  reset(1,1);profile_state=network_state=1;bss_ok=0;assert(!wr_iot_quiesce());assert(calls==1&&!downs&&!detaches&&profile_state&&network_state&&!state_writes);
  reset(1,1);assert(wr_iot_quiesce());assert(downs==1&&detaches==1);
  reset(0,1);firewall_state=1;assert(wr_iot_quiesce());assert(!firewall_state&&state_writes==1);
+ reset(0,1);firewall_state=2;assert(wr_iot_quiesce());assert(!firewall_state&&state_writes==1&&calls==1);
  reset(1,1);profile_state=network_state=firewall_state=1;set_failure=1;assert(!wr_iot_quiesce());assert(logs==1&&state_writes==3&&firewall_state);
  reset(1,1);profile_state=network_state=firewall_state=1;silent_failure=1;assert(!wr_iot_quiesce());assert(logs==1&&state_writes==3&&firewall_state);
  reset(1,1);profile_state=network_state=1;bss_ok=0;restart_progress=0;
