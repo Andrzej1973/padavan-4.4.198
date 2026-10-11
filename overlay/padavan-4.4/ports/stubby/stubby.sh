@@ -133,7 +133,7 @@ case "$1" in
     start|stop|restart) ;;
     *) echo "Usage: $0 {start|stop|restart}" >&2; exit 1;;
 esac
-command -v flock >/dev/null || fail 'Required lifecycle locking utility missing'
+type flock >/dev/null 2>&1 || fail 'Required lifecycle locking utility missing'
 exec 9>/var/run/stubby-service.lock || fail 'Cannot open Stubby lifecycle lock'
 flock -x -n 9 || fail 'Another Stubby lifecycle operation is in progress'
 

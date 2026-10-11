@@ -7,8 +7,8 @@ zt_policy_family() {
 	zt_ipt="$1"
 	zt_family="$2"
 	zt_restore="${zt_ipt}-restore"
-	command -v "$zt_ipt" >/dev/null 2>&1 || return 1
-	command -v "$zt_restore" >/dev/null 2>&1 || return 1
+	type "$zt_ipt" >/dev/null 2>&1 || return 1
+	type "$zt_restore" >/dev/null 2>&1 || return 1
 	zt_existing_input=$("$zt_ipt" -S INPUT) || return 1
 	zt_existing_forward=$("$zt_ipt" -S FORWARD) || return 1
 	zt_input_hooks=$(printf '%s\n' "$zt_existing_input" | awk '$0 == "-A INPUT -j ZTWR_INPUT" {n++} END {print n+0}')
@@ -81,10 +81,10 @@ zt_policy_apply() {
 	zt_policy_nat || return 1
 	zt_policy_family iptables 4 || return 1
 	# A kernel exposing IPv6 must never run an unfiltered overlay family.
-	if [ -d /proc/sys/net/ipv6 ] && ! command -v ip6tables >/dev/null 2>&1; then
+	if [ -d /proc/sys/net/ipv6 ] && ! type ip6tables >/dev/null 2>&1; then
 		return 1
 	fi
-	if command -v ip6tables >/dev/null 2>&1; then
+	if type ip6tables >/dev/null 2>&1; then
 		zt_policy_family ip6tables 6 || return 1
 	fi
 }
@@ -94,7 +94,7 @@ zt_policy_remove() {
 	iptables -t nat -F ZTWR_NAT 2>/dev/null
 	iptables -t nat -X ZTWR_NAT 2>/dev/null
 	for zt_ipt in iptables ip6tables; do
-		command -v "$zt_ipt" >/dev/null 2>&1 || continue
+		type "$zt_ipt" >/dev/null 2>&1 || continue
 		for zt_parent in INPUT FORWARD; do
 			case "$zt_parent" in INPUT) zt_chain=ZTWR_INPUT ;; FORWARD) zt_chain=ZTWR_FORWARD ;; esac
 			# Remove exactly the hook owned by this policy; never flush parent chains.
