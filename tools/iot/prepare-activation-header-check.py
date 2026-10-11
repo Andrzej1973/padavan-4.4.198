@@ -8,7 +8,7 @@ p.add_argument('source',type=Path)
 p.add_argument('output',type=Path)
 a=p.parse_args()
 rc=a.source/'trunk/user/rc'
-for name in ('activation.h','request.h','bridge.h','subnet.h','types.h','network-check.h'):
+for name in ('activation.h','request.h','bridge.h','subnet.h','types.h','network-check.h','radio-profile-state.h'):
     if not (rc/'wr-iot'/name).is_file():
         raise SystemExit('missing staged IoT header: '+name)
 if not (rc/'shared-wifi'/'validate.h').is_file():
@@ -30,12 +30,20 @@ a.output.write_text(prefix+'''#include "rc.h"
 #include "wr-iot/network-check.h"
 #include "wr-iot/activation.h"
 #include "wr-iot/request.h"
+#include "wr-iot/radio-profile-state.h"
 '''+installed+'''
 int main(void) {
  struct wr_iot_request request;
  struct wr_iot_activation activation;
+ struct wr_iot_radio_profile_state profile;
  memset(&request,0,sizeof(request));
  memset(&activation,0,sizeof(activation));
+ memset(&profile,0,sizeof(profile));
+ if (wr_iot_radio_profile_take(&profile)) {
+  (void)wr_iot_radio_profile_generate(&profile,gen_ralink_config_2g);
+  if (wr_iot_radio_profile_restore(&profile))
+   (void)wr_iot_radio_profile_finish(&profile);
+ }
  return request.enabled || activation.locked || wr_iot_restart_candidate_ready();
 }
 ''',encoding='utf-8')

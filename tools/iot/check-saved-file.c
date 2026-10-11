@@ -18,6 +18,15 @@ static int failing_rename(const char *from,const char *to){if(restore_fault==5){
 #include "saved-bundle.h"
 #include <assert.h>
 #include <stdio.h>
+static int profile_guard=1,profile_fault;
+int wr_iot_service_guard_dup(void){return profile_guard?open("/dev/null",O_RDONLY):-1;}
+#define WR_IOT_RADIO_PROFILE_PATH "config"
+#include "radio-profile-state.h"
+static int generate_profile(int disabled){
+ FILE *f;assert(disabled==0);f=fopen("config","w");assert(f);
+ assert(fputs("candidate-profile\n",f)>=0);assert(!fclose(f));
+ return profile_fault?-1:0;
+}
 int main(void){
  char directory[]="/tmp/iot-saved-file-XXXXXX";struct wr_iot_saved_file saved,before;FILE *fp;int fd;
  assert(mkdtemp(directory));assert(!chdir(directory));memset(&saved,0,sizeof(saved));
@@ -69,6 +78,23 @@ wr_iot_saved_release(&saved);
   assert(access("absent-helper",F_OK)!=0);wr_iot_bundle_release(&bundle);assert(!bundle.count);
   {const char *duplicates[]={"config","config"};assert(!wr_iot_bundle_capture(&bundle,duplicates,2));assert(!bundle.count);}
   {const char *invalid[]={"config","fifo"};assert(!wr_iot_bundle_capture(&bundle,invalid,2));assert(!bundle.count);}
+ }
+ {
+  struct wr_iot_radio_profile_state state;char text[32];int fault;
+  for(fault=0;fault<=1;fault++){
+   memset(&state,0,sizeof(state));profile_guard=0;
+   assert(!wr_iot_radio_profile_take(&state));profile_guard=1;
+   assert(wr_iot_radio_profile_take(&state));assert(!wr_iot_radio_profile_take(&state));
+   assert(!wr_iot_radio_profile_finish(&state));profile_fault=fault;
+   assert(wr_iot_radio_profile_generate(&state,generate_profile)==!fault);
+   assert(!wr_iot_radio_profile_finish(&state));
+   restore_fault=5;assert(!wr_iot_radio_profile_restore(&state));
+   assert(state.active&&state.files.saved[0].data);restore_fault=0;
+   assert(wr_iot_radio_profile_restore(&state));assert(wr_iot_radio_profile_finish(&state));
+   fp=fopen("config","r");assert(fp);assert(fgets(text,sizeof(text),fp));
+   assert(!strcmp(text,"foreign\n"));assert(!fclose(fp));
+  }
+  puts("PASS retained radio profile: guarded capture before generation, partial generation rollback, failed restore retry, baseline retained until recovered; generator injected");
  }
  assert(!unlink("config"));assert(!unlink("link"));assert(!unlink("fifo"));assert(!unlink("large"));assert(!chdir("/tmp"));assert(!rmdir(directory));
  puts("PASS bounded previous-file capture: contents, metadata, absent file, no overwrite of existing snapshot, symlink/nonregular/oversize rejection. Atomic contents/mode restore and foreign inode rejection passed; restore failure cleanup and prior absence verified; bundle capture/partial restore retry verified; service integration pending.");return 0;
