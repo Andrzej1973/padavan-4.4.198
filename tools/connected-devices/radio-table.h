@@ -4,7 +4,12 @@
 #include <limits.h>
 #include <stddef.h>
 #include <string.h>
-#define WR_RADIO_LIMIT 64
+#define WR_RADIO_LIMIT 116
+/* Largest table in the pinned driver family; entry ABI is checked separately. */
+struct wr_radio_wire_table {
+    unsigned long Num;
+    RT_802_11_MAC_ENTRY Entry[WR_RADIO_LIMIT];
+};
 struct wr_radio_client {
     unsigned char mac[6];
     unsigned char ap_index;
@@ -20,18 +25,19 @@ static inline void wr_radio_prepare(RT_802_11_MAC_TABLE *table)
     /* MT76x3 allocation failure can leave input length unchanged. */
     table->Num = ULONG_MAX;
 }
-static inline int wr_radio_decode(const RT_802_11_MAC_TABLE *table,
-                                 size_t length, int streams,
+static inline int wr_radio_decode_entries(unsigned long count,
+                                 const RT_802_11_MAC_ENTRY *entries,
+                                 size_t capacity, int streams,
                                  struct wr_radio_snapshot *output)
 {
     struct wr_radio_snapshot candidate;
-    size_t i, j, capacity = sizeof(table->Entry) / sizeof(table->Entry[0]);
-    if (!table || !output || length != sizeof(*table) || streams < 1 || streams > 3)
+    size_t i, j;
+    if (!entries || !output || capacity > WR_RADIO_LIMIT || streams < 1 || streams > 3)
         return 0;
-    if (table->Num > capacity || table->Num > WR_RADIO_LIMIT) return 0;
+    if (count > capacity || count > WR_RADIO_LIMIT) return 0;
     memset(&candidate, 0, sizeof(candidate));
-    for (i = 0; i < table->Num; i++) {
-        const RT_802_11_MAC_ENTRY *entry = &table->Entry[i];
+    for (i = 0; i < count; i++) {
+        const RT_802_11_MAC_ENTRY *entry = &entries[i];
         struct wr_radio_client *client = &candidate.clients[i];
         int any = 0, rssi = -127;
         signed char values[3];
@@ -51,8 +57,29 @@ static inline int wr_radio_decode(const RT_802_11_MAC_TABLE *table,
         client->ap_index = entry->ApIdx;
         client->rssi = rssi; /* -127 is unknown; UI must not label it measured. */
     }
-    candidate.count = table->Num;
+    candidate.count = count;
     *output = candidate;
     return 1;
+}
+static inline int wr_radio_decode(const RT_802_11_MAC_TABLE *table,
+                                 size_t length, int streams,
+                                 struct wr_radio_snapshot *output)
+{
+    if (!table || length != sizeof(*table)) return 0;
+    return wr_radio_decode_entries(table->Num, table->Entry,
+        sizeof(table->Entry) / sizeof(table->Entry[0]), streams, output);
+}
+static inline int wr_radio_decode_wire(const struct wr_radio_wire_table *table,
+                                      size_t length, int streams,
+                                      struct wr_radio_snapshot *output)
+{
+    size_t header = offsetof(struct wr_radio_wire_table, Entry), capacity;
+    if (!table || length < header || length > sizeof(*table) ||
+        (length - header) % sizeof(table->Entry[0])) return 0;
+    capacity = (length - header) / sizeof(table->Entry[0]);
+    /* Pinned WR export variants; never accept an arbitrary truncated table. */
+    if (capacity != 64 && capacity != 75 && capacity != 58 && capacity != 41)
+        return 0;
+    return wr_radio_decode_entries(table->Num, table->Entry, capacity, streams, output);
 }
 #endif

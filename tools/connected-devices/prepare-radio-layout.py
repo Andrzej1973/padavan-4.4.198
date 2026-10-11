@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Extract actual station types for target layout checks, without rate decoding."""
+"""Check entry layouts and bounded wire decoding; capacity macros need a separate probe."""
 import argparse
 import re
 from pathlib import Path
@@ -47,8 +47,9 @@ static int wl_ioctl(const char *name,int cmd,struct iwreq *request) {
  RT_802_11_MAC_TABLE *table=request->u.data.pointer;
  assert(!strcmp(name,IFNAME_2G_MAIN)||!strcmp(name,IFNAME_5G_MAIN));
  assert(cmd==RTPRIV_IOCTL_GET_MAC_TABLE_STRUCT);
- assert(table->Num==ULONG_MAX && request->u.data.length==sizeof(*table));
+ assert(table->Num==ULONG_MAX && request->u.data.length==sizeof(struct wr_radio_wire_table));
  radio_calls++; if(radio_fail)return -1;
+ request->u.data.length=sizeof(*table);
  table->Num=1;table->Entry[0].Addr[0]=2;table->Entry[0].Addr[5]=9;
  table->Entry[0].AvgRssi0=-65;table->Entry[0].AvgRssi1=-50;
  return 0;
@@ -63,14 +64,33 @@ static int mock_query(const char *interface, int command, struct iwreq *request,
  RT_802_11_MAC_TABLE *table=request->u.data.pointer;
  assert(!strcmp(interface,"ra0"));
  assert(command==RTPRIV_IOCTL_GET_MAC_TABLE_STRUCT);
- assert(request->u.data.length==sizeof(*table) && table->Num==ULONG_MAX);
+ assert(request->u.data.length==sizeof(struct wr_radio_wire_table) && table->Num==ULONG_MAX);
  if(mode==1) return -1;
  if(mode==2) return 0;
  table->Num=0;
+ request->u.data.length=sizeof(*table);
  if(mode==3) request->u.data.length=0;
  return 0;
 }
 int main(void) {
+ {
+  struct wr_radio_wire_table wire;
+  struct wr_radio_snapshot result, before;
+  size_t i, bytes=offsetof(struct wr_radio_wire_table,Entry)+75*sizeof(wire.Entry[0]);
+  memset(&wire,0,sizeof(wire));wire.Num=75;
+  for(i=0;i<75;i++){wire.Entry[i].Addr[0]=2;wire.Entry[i].Addr[5]=(unsigned char)(i+1);wire.Entry[i].AvgRssi0=-60;}
+  assert(wr_radio_decode_wire(&wire,bytes,2,&result));
+  assert(result.count==75 && result.clients[74].mac[5]==75);
+  before=result;
+  assert(!wr_radio_decode_wire(&wire,bytes-1,2,&result));
+  assert(!memcmp(&before,&result,sizeof(result)));
+  wire.Num=76;
+  assert(!wr_radio_decode_wire(&wire,bytes,2,&result));
+  assert(!memcmp(&before,&result,sizeof(result)));
+  wire.Num=0;
+  assert(!wr_radio_decode_wire(&wire,bytes+sizeof(wire.Entry[0]),2,&result));
+  assert(!wr_radio_decode_wire(&wire,sizeof(wire)+1,2,&result));
+ }
  RT_802_11_MAC_TABLE table;
  struct wr_radio_snapshot output, before;
  memset(&output, 0x55, sizeof(output)); before=output;
