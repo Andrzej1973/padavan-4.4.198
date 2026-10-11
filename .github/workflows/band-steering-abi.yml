@@ -80,6 +80,7 @@ on:
       - 'tools/band-steering/prepare-status-web.py'
       - 'tools/band-steering/prepare-status-web-check.py'
       - 'tools/band-steering/prepare-status-ui.py'
+      - 'tools/band-steering/prepare-quiet-status-log.py'
       - 'tools/band-steering/status-ui.js'
       - 'tools/band-steering/check-status-ui.js'
       - 'tools/band-steering/check-radio-read-guard.py'
@@ -348,7 +349,9 @@ jobs:
           root = Path('source-integration')
           r = json.loads((root/'band-steering-source-integration.json').read_text())
           assert r['preparation_complete'] and not r['factory_enabled']
-          assert not r['runtime_verified'] and len(r['steps']) == 22
+          assert not r['runtime_verified'] and len(r['steps']) == 23
+          assert r['steps'].count('prepare-quiet-status-log.py') == 1
+          assert r['steps'].index('prepare-quiet-status-log.py') < r['steps'].index('prepare-abi-probe.py')
           files = {}
           for name in ('wr-band-steering', 'wr-band-steering-ctl'):
               data = (root/'romfs/usr/sbin'/name).read_bytes()
