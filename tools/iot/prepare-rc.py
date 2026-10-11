@@ -15,8 +15,9 @@ helper="""#if defined(BOARD_WR1200JS)
 static int wr_iot_last_stop_result=1;
 static int wr_iot_quiesce(void)
 {
+ int failed=0;
  if (!wr_iot_bridge_is_owned() && !nvram_get_int("wr_iot_network_t") &&
-     !nvram_get_int("wr_iot_profile_t")) return 1;
+     !nvram_get_int("wr_iot_profile_t") && !nvram_get_int("wr_iot_firewall_t")) return 1;
  wif_control("ra2", 0);
  if (!wr_iot_bss_set_down()) {
   logmessage("IoT Wi-Fi", "BSS stop not confirmed; isolation must be retained");
@@ -27,10 +28,15 @@ static int wr_iot_quiesce(void)
   return 0;
  }
  if (nvram_get_int("wr_iot_network_t"))
-  nvram_set_int_temp("wr_iot_network_t", 0);
+  failed |= nvram_set_int_temp("wr_iot_network_t", 0)!=0;
  if (nvram_get_int("wr_iot_profile_t"))
-  nvram_set_int_temp("wr_iot_profile_t", 0);
- return 1;
+  failed |= nvram_set_int_temp("wr_iot_profile_t", 0)!=0;
+ if (nvram_get_int("wr_iot_firewall_t"))
+  failed |= nvram_set_int_temp("wr_iot_firewall_t", 0)!=0;
+ failed |= nvram_get_int("wr_iot_network_t")!=0 ||
+           nvram_get_int("wr_iot_profile_t")!=0 || nvram_get_int("wr_iot_firewall_t")!=0;
+ if(failed)logmessage("IoT Wi-Fi","Service gates not closed; isolation must be retained");
+ return !failed;
 }
 #endif
 
