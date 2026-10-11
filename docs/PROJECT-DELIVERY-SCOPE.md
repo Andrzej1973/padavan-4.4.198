@@ -589,3 +589,33 @@ Also replace the inherited firmware version suffix with project build identity
 (number plus short commit SHA) while preserving accurate kernel/version details
 and upstream attribution in the credits/licenses. Ensure UI, image naming and
 diagnostic reports identify the same build. Implementation remains pending.
+
+## Per-router setup guide in final ZIP — user requirement 2026-10-11
+
+For each completed, verified router profile, provide a UTF-8 plain-text setup
+guide in the final user download ZIP alongside its firmware and build config.
+This explicitly extends the earlier two-file TRX/config packaging requirement;
+retain one user-facing download archive and exclude unrelated diagnostics.
+Reference-only upstream boards must not receive invented verified instructions.
+
+Write model-specific instructions for a 100 Mbps internet connection and for
+a 1 Gbps connection where hardware supports it. Explain actual WAN/LAN port
+limits, practical Wi-Fi limits and software/VPN processing constraints; a
+gigabit subscription does not make a 100 Mbps port or wireless repeater gigabit.
+Give clearly separated steps for WAN type, LAN/DHCP, Wi-Fi bands/security/channel
+width, supported acceleration, DNS and required service controls. Adapt to
+router/repeater use where verified and keep optional services distinct from
+necessary setup. Preserve safe defaults and avoid blanket tuning advice.
+
+Use verified firmware UI names, identify model and build, document settings
+backup/restore and recovery prerequisites, and explain which Apply actions
+interrupt connectivity. Cover maintaining SSH/VPN management access without
+embedding private credentials. Record known limitations and unverified features;
+do not promise performance without measurements. Start with Ukrainian guidance
+and provide English alongside it for public users; share no private settings.
+Name the document SETUP_<board>.txt (or a clearly identified language variant).
+
+Generate/package the guide from the maintained model-specific source and verify
+the final ZIP contains the correct firmware, config and matching instructions.
+Prepare final wording when that board's firmware and controls are ready; keep
+WR1200JS first, Mi Mini second, offline preservation last.
