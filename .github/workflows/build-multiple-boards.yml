@@ -51,6 +51,8 @@ on:
       - 'overlay/padavan-4.4/patches/**'
       - 'sources.lock.json'
       - 'tools/verify-source-archive.py'
+      - 'tools/prepare-wifi-hwnat-mode.py'
+      - 'tools/prepare-wifi-hwnat-ui.py'
       - 'tools/iot/check-capacity.py'
       - 'tools/iot/prepare-rc.py'
       - 'tools/iot/service-state.h'
