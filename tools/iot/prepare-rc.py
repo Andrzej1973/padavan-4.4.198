@@ -14,18 +14,21 @@ helper="""#if defined(BOARD_WR1200JS)
 #include "wr-iot/bridge.h"
 static void wr_iot_quiesce(void)
 {
- if (nvram_get_int("wr_iot_network_t"))
-  nvram_set_int_temp("wr_iot_network_t", 0);
- if (nvram_get_int("wr_iot_profile_t"))
-  nvram_set_int_temp("wr_iot_profile_t", 0);
- if (!wr_iot_bridge_is_owned()) return;
+ if (!wr_iot_bridge_is_owned() && !nvram_get_int("wr_iot_network_t") &&
+     !nvram_get_int("wr_iot_profile_t")) return;
  wif_control("ra2", 0);
  if (!wr_iot_bss_set_down()) {
   logmessage("IoT Wi-Fi", "BSS stop not confirmed; isolation must be retained");
   return;
  }
- if (!wr_iot_bridge_set_up(0) || !wr_iot_bridge_detach())
+ if (!wr_iot_bridge_set_up(0) || !wr_iot_bridge_detach()) {
   logmessage("IoT Wi-Fi", "Interface/bridge stop not confirmed; isolation must be retained");
+  return;
+ }
+ if (nvram_get_int("wr_iot_network_t"))
+  nvram_set_int_temp("wr_iot_network_t", 0);
+ if (nvram_get_int("wr_iot_profile_t"))
+  nvram_set_int_temp("wr_iot_profile_t", 0);
 }
 #endif
 
