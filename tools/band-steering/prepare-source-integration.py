@@ -49,7 +49,7 @@ for name in ('prepare-idle-aging.py', 'prepare-grant-readback.py',
              'prepare-wifi-snapshot.py', 'prepare-radio-snapshot.py',
              'prepare-board-defaults.py', 'prepare-web-controls.py',
              'prepare-status-query.py', 'prepare-status-web.py',
-             'prepare-status-ui.py'):
+             'prepare-status-ui.py', 'prepare-quiet-status-log.py'):
     run(name, root)
 run('prepare-abi-probe.py', root, '--output', abi)
 for radio in ('mt76x2', 'mt76x3'):
