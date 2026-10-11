@@ -166,8 +166,11 @@ static void register_dev(void *dev) { assert(dev); ++registered; }
 static void unregister_dev(void *dev) { assert(dev); ++removed; }
 static void (*ppe_dev_register_hook)(void *) = register_dev;
 static void (*ppe_dev_unregister_hook)(void *) = unregister_dev;
-static long simple_strtol(const char *value, void *end, int base) {
- assert(end==NULL && base==10); return strtol(value,NULL,base);
+/* MT76x2 declares PSTRING *arg although PSTRING itself is char *.
+ * Keep that actual vendor signature; model its byte-string conversion at
+ * the opaque ABI boundary without dereferencing it as a pointer array. */
+static long simple_strtol(const void *value, void *end, int base) {
+ assert(end==NULL && base==10); return strtol((const char *)value,NULL,base);
 }
 ''' + macros + '\n' + handler + r'''
 int main(void) {
@@ -180,13 +183,13 @@ int main(void) {
  assert(registered==0 && removed==1);
  for(i=0;i<sizeof(requests)/sizeof(requests[0]);++i) {
   removed=registered=0;
-  assert(set_hnat_register(&adapter,requests[i])==TRUE);
+  assert(set_hnat_register(&adapter,(void *)requests[i])==TRUE);
   assert(registered==0 && removed==2);
  }
  ppe_dev_unregister_hook=NULL;
  RT_MOD_HNAT_REG(&dev);
  removed=registered=0;
- assert(set_hnat_register(&adapter,"1")==TRUE);
+ assert(set_hnat_register(&adapter,(void *)"1")==TRUE);
  assert(registered==0 && removed==0);
  return 0;
 }
