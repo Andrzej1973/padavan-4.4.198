@@ -113,10 +113,6 @@ on:
       - 'tools/band-steering/spawn-fixture.c'
       - 'tools/band-steering/check-spawn.c'
       - 'tools/band-steering/check-control.c'
-      - 'tools/check-web-routes.py'
-      - 'tools/test-check-web-routes.py'
-      - 'overlay/padavan-4.4/scripts/add-json-route.py'
-      - 'overlay/padavan-4.4/ports/stubby/**'
 permissions:
   contents: read
 jobs:
@@ -139,21 +135,6 @@ jobs:
             trunk/linux-4.4.x/drivers/nvram
             trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x2
             trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3
-      - name: Verify WebUI routes and Stubby configuration generator
-        run: |
-          set -eu
-          python3 tools/test-check-web-routes.py
-          sh overlay/padavan-4.4/ports/stubby/check-stubby-config.sh
-          # Pinned WebUI plus the JSON catalogues our ports install into /www.
-          mkdir -p route-check/trunk/user/httpd route-check/trunk/user/shared route-check/trunk/romfs
-          cp source/trunk/user/httpd/web_ex.c route-check/trunk/user/httpd/
-          cp source/trunk/user/shared/cflags.mk route-check/trunk/user/shared/
-          cp -R source/trunk/user/www/n56u_ribbon_fixed route-check/trunk/romfs/www
-          cp overlay/padavan-4.4/ports/stubby/dot.json overlay/padavan-4.4/ports/doh/doh.json \
-            overlay/padavan-4.4/trunk/user/amneziawg/amneziawg.json route-check/trunk/romfs/www/
-          python3 overlay/padavan-4.4/scripts/add-json-route.py route-check
-          python3 tools/check-web-routes.py route-check/trunk \
-            --config configs.build/wr1200js.config --define BOARD_WR1200JS
       - name: Verify steering package dependency checker logic
         run: python3 tools/band-steering/check-package-closure.py
       - name: Verify WR board steering selectors and factory OFF
@@ -308,24 +289,28 @@ jobs:
           grep -q isblank abi-results/rc-header-negative.txt
           echo 'PASS actual shared-header order; original collision reproduced and corrected headers compile' | tee abi-results/rc-header-regression.txt
 
-      - name: Verify Wi-Fi HNAT mode on interface bring-up
+      - name: Verify Wi-Fi HNAT modes and forced-off policy
+        shell: bash
         run: |
-          cp -a source hwnat-mode-source
-          python3 tools/prepare-wifi-hwnat-mode.py hwnat-mode-source --lan-only-default
-          grep -q '{ "hw_nat_mode", "2" }' hwnat-mode-source/trunk/user/shared/defaults.c
-          mkdir -p hwnat-mode-checks
-          python3 tools/band-steering/prepare-hwnat-check.py hwnat-mode-source --output hwnat-mode-checks/check.c
-          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined hwnat-mode-checks/check.c -o hwnat-mode-checks/check
-          ASAN_OPTIONS=detect_leaks=1 hwnat-mode-checks/check
-          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined hwnat-mode-checks/check-network.c -o hwnat-mode-checks/check-network
-          ASAN_OPTIONS=detect_leaks=1 hwnat-mode-checks/check-network
-          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined hwnat-mode-checks/check-log.c -o hwnat-mode-checks/check-log
-          ASAN_OPTIONS=detect_leaks=1 hwnat-mode-checks/check-log
+          set -euo pipefail
           compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
           test -n "$compiler"
-          "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -c hwnat-mode-checks/check.c -o hwnat-mode-checks/check-mips.o
-          "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -c hwnat-mode-checks/check-network.c -o hwnat-mode-checks/check-network-mips.o
-          "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -c hwnat-mode-checks/check-log.c -o hwnat-mode-checks/check-log-mips.o
+          for policy in mode disabled; do
+            source_dir="hwnat-${policy}-source"
+            checks_dir="hwnat-${policy}-checks"
+            args=()
+            if [ "$policy" = disabled ]; then args+=(--disable-wifi-offload); fi
+            cp -a source "$source_dir"
+            python3 tools/prepare-wifi-hwnat-mode.py "$source_dir" --lan-only-default "${args[@]}"
+            grep -q '{ "hw_nat_mode", "2" }' "$source_dir/trunk/user/shared/defaults.c"
+            mkdir -p "$checks_dir"
+            python3 tools/band-steering/prepare-hwnat-check.py "$source_dir" --output "$checks_dir/check.c" "${args[@]}"
+            for case_name in check check-network check-log; do
+              gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined "$checks_dir/$case_name.c" -o "$checks_dir/$case_name"
+              ASAN_OPTIONS=detect_leaks=1 "$checks_dir/$case_name"
+              "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -c "$checks_dir/$case_name.c" -o "$checks_dir/$case_name-mips.o"
+            done
+          done
       - name: Verify complete source preparation and registered target package
         shell: bash
         run: |

@@ -7,6 +7,7 @@ from pathlib import Path
 p=argparse.ArgumentParser()
 p.add_argument('source',type=Path)
 p.add_argument('--lan-only-default',action='store_true',help='WR factory default only; never writes live NVRAM')
+p.add_argument('--disable-wifi-offload',action='store_true',help='Keep wireless registration disabled even with saved mode 1; wired offload remains available')
 a=p.parse_args()
 f=a.source/'trunk/user/rc/net_wifi.c'
 s=f.read_text(encoding='utf-8')
@@ -55,6 +56,11 @@ n=n.replace(log_old, 'hwnat_status = nvram_get_int("hw_nat_mode") == 1 ?\n'
  '        "Enabled module, requested offload [WAN]<->[LAN/WLAN]" :\n'
  '        "Enabled module, requested offload [WAN]<->[LAN]";')
 changes=[(f,s.replace(old,new)),(network,n)]
+if a.disable_wifi_offload:
+ # Retain mode reads and coordinated snapshots, but never register wireless.
+ # This is a build policy, not a write to the user's saved NVRAM.
+ changes[0]=(f,changes[0][1].replace(getter+'("hw_nat_mode") == 1', '('+getter+'("hw_nat_mode") == 1 && 0)'))
+ changes[1]=(network,changes[1][1].replace('hw_nat_mode == 1);','(hw_nat_mode == 1 && 0));').replace('nvram_get_int("hw_nat_mode") == 1 ?', '(nvram_get_int("hw_nat_mode") == 1 && 0) ?'))
 if a.lan_only_default:
  defaults=a.source/'trunk/user/shared/defaults.c'
  d=defaults.read_text(encoding='utf-8')
@@ -65,8 +71,9 @@ if a.lan_only_default:
 for path,text in changes:
  path.write_text(text,encoding='utf-8')
 report={'runtime_verified':False,'factory_lan_only':a.lan_only_default,
+        'wireless_offload_disabled':a.disable_wifi_offload,
         'coordinated_snapshot_adapter':getter=='wr_radio_get_int',
         'scope':'source preparation; no measured offload state or Wi-Fi stability proof',
         'files':{str(path.relative_to(a.source)):{'sha256':hashlib.sha256(path.read_bytes()).hexdigest()} for path,_ in changes}}
 (a.source/'wifi-hwnat-source.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
-print('Wireless bring-up respects HNAT mode: only mode 1 registers Wi-Fi')
+print('Wireless offload disabled by build policy' if a.disable_wifi_offload else 'Wireless bring-up respects HNAT mode: only mode 1 registers Wi-Fi')

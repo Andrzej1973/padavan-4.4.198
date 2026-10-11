@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 """Extract actual wif_control for isolated HNAT mode regression checks."""
 import argparse
+import json
 from pathlib import Path
 p=argparse.ArgumentParser()
 p.add_argument('source',type=Path)
 p.add_argument('--output',type=Path,required=True)
+p.add_argument('--disable-wifi-offload',action='store_true')
 a=p.parse_args()
+report=json.loads((a.source/'wifi-hwnat-source.json').read_text())
+if report.get('wireless_offload_disabled',False)!=a.disable_wifi_offload:
+ raise ValueError('Fixture expectation must match the prepared wireless offload policy')
 s=(a.source/'trunk/user/rc/net_wifi.c').read_text(encoding='utf-8')
 b=s.index('static int\nwif_control(')
 e=s.index('\nvoid\nmlme_state_wl',b)
@@ -124,3 +129,12 @@ int main(void) {
 }
 ''',encoding='utf-8')
 print('Generated actual HNAT log fixture: 8 mode/module cases')
+if a.disable_wifi_offload:
+ # Exercise the same extracted source with legacy mode 1 still stored.
+ for path in [a.output, network, a.output.with_name(a.output.stem+'-log.c')]:
+  text=path.read_text(encoding='utf-8')
+  text=text.replace('requested==(mode==1)', 'requested==0')
+  text=text.replace('values[0]==(hw_nat_mode==1) && values[1]==(hw_nat_mode==1)', 'values[0]==0 && values[1]==0')
+  text=text.replace('else if (mode==1) assert(strstr(message,"requested offload [WAN]<->[LAN/WLAN]"));', '')
+  path.write_text(text,encoding='utf-8')
+ print('Forced-off policy: all saved modes expect zero wireless registrations; wired module cases retained')
