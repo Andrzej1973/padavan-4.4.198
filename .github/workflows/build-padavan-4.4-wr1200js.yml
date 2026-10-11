@@ -80,6 +80,7 @@ jobs:
           patch --batch --forward -p1 -d padavan-4.4 \
             < overlay/padavan-4.4/patches/zram-service.diff
           python3 overlay/padavan-4.4/scripts/fix-web-event-masks.py padavan-4.4
+          python3 overlay/padavan-4.4/scripts/add-json-route.py padavan-4.4
           mkdir -p padavan-4.4/trunk/libs/libqrencode
           cp overlay/padavan-4.4/trunk/libs/libqrencode/Makefile \
             padavan-4.4/trunk/libs/libqrencode/Makefile
@@ -649,6 +650,21 @@ jobs:
             configs.build/wr1200js.config firmware-effective.config kernel-effective.config \
             --report firmware-config-checks.json
 
+      - name: Verify every served WebUI file has an httpd route
+        run: |
+          python3 tools/check-web-routes.py padavan-4.4/trunk \
+            --config firmware-effective.config --define BOARD_WR1200JS \
+            --report web-route-checks.json
+
+      - name: Upload WebUI route diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: wr1200js-web-route-checks
+          path: web-route-checks.json
+          if-no-files-found: ignore
+          retention-days: 14
+
       - name: Upload configuration policy diagnostics
         if: always()
         uses: actions/upload-artifact@v7
@@ -705,6 +721,14 @@ jobs:
               padavan-4.4/trunk stubby-image-checks.json
           fi
 
+      - name: Resolve names through the image Stubby under QEMU
+        run: |
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_STUBBY=y$' configs.build/wr1200js.config; then
+            sudo apt-get install --no-install-recommends -y qemu-user-static dnsutils iptables
+            sh overlay/padavan-4.4/ports/stubby/check-stubby-runtime.sh \
+              padavan-4.4/trunk/romfs --outage 2>&1 | tee stubby-runtime.txt
+          fi
+
       - name: Upload Stubby image diagnostics
         if: always()
         uses: actions/upload-artifact@v7
@@ -712,7 +736,9 @@ jobs:
           name: stubby-image-checks
           retention-days: 14
           if-no-files-found: ignore
-          path: stubby-image-checks.json
+          path: |
+            stubby-image-checks.json
+            stubby-runtime.txt
 
       - name: Verify Privoxy image packaging and ELF dependencies
         run: |

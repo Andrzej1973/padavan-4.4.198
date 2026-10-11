@@ -113,6 +113,10 @@ on:
       - 'tools/band-steering/spawn-fixture.c'
       - 'tools/band-steering/check-spawn.c'
       - 'tools/band-steering/check-control.c'
+      - 'tools/check-web-routes.py'
+      - 'tools/test-check-web-routes.py'
+      - 'overlay/padavan-4.4/scripts/add-json-route.py'
+      - 'overlay/padavan-4.4/ports/stubby/**'
 permissions:
   contents: read
 jobs:
@@ -135,6 +139,21 @@ jobs:
             trunk/linux-4.4.x/drivers/nvram
             trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x2
             trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3
+      - name: Verify WebUI routes and Stubby configuration generator
+        run: |
+          set -eu
+          python3 tools/test-check-web-routes.py
+          sh overlay/padavan-4.4/ports/stubby/check-stubby-config.sh
+          # Pinned WebUI plus the JSON catalogues our ports install into /www.
+          mkdir -p route-check/trunk/user/httpd route-check/trunk/user/shared route-check/trunk/romfs
+          cp source/trunk/user/httpd/web_ex.c route-check/trunk/user/httpd/
+          cp source/trunk/user/shared/cflags.mk route-check/trunk/user/shared/
+          cp -R source/trunk/user/www/n56u_ribbon_fixed route-check/trunk/romfs/www
+          cp overlay/padavan-4.4/ports/stubby/dot.json overlay/padavan-4.4/ports/doh/doh.json \
+            overlay/padavan-4.4/trunk/user/amneziawg/amneziawg.json route-check/trunk/romfs/www/
+          python3 overlay/padavan-4.4/scripts/add-json-route.py route-check
+          python3 tools/check-web-routes.py route-check/trunk \
+            --config configs.build/wr1200js.config --define BOARD_WR1200JS
       - name: Verify steering package dependency checker logic
         run: python3 tools/band-steering/check-package-closure.py
       - name: Verify WR board steering selectors and factory OFF

@@ -10,6 +10,7 @@
 #include "wr-devices/rssi-json.h"
 static struct wr_rssi_collector wr_device_http_rssi;
 static int wr_device_http_rssi_initialized;
+static unsigned long long wr_device_http_rssi_next;
 static char wr_device_http_rssi_json[100000];
 extern void wr_device_collect_rssi(struct wr_rssi_collector *,unsigned long long);
 static char wr_device_http_action_json[65536];
@@ -50,6 +51,10 @@ void wr_device_background_tick(void){
  unsigned long long now=(unsigned long long)uptime()*1000;
  (void)wr_device_http_update();wr_action_runtime_tick(&wr_device_http_actions,now);
  if(!wr_device_http_rssi_initialized){wr_rssi_collector_init(&wr_device_http_rssi);wr_device_http_rssi_initialized=1;}
+ /* httpd ticks on every select pass, i.e. per connection and per served file.
+  * Synchronous driver queries keep the 5 s schedule of the other collectors. */
+ if(now<wr_device_http_rssi_next)return;
+ wr_device_http_rssi_next=now+5000;
  wr_device_collect_rssi(&wr_device_http_rssi,now);
 }
 static void do_wr_rssi_json(const char *url,FILE *stream)
