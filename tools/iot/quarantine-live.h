@@ -13,6 +13,12 @@
 #include <errno.h>
 #include <sys/wait.h>
 #include <dirent.h>
+#ifndef WR_IOT_IPTABLES_SAVE
+#define WR_IOT_IPTABLES_SAVE "/bin/iptables-save"
+#endif
+#ifndef WR_IOT_IP6TABLES_SAVE
+#define WR_IOT_IP6TABLES_SAVE "/bin/ip6tables-save"
+#endif
 static inline long long wr_iot_quarantine_clock(void){
  struct timespec t;if(clock_gettime(CLOCK_MONOTONIC,&t))return -1;
  return (long long)t.tv_sec*1000+t.tv_nsec/1000000;
@@ -20,7 +26,7 @@ static inline long long wr_iot_quarantine_clock(void){
 static inline int wr_iot_quarantine_live(int ipv6){
  const size_t limit=256U*1024U;char *data;int pipes[2],status=0,exited=0,eof=0,ok=0;
  pid_t child;size_t used=0;long long start,now;
- const char *path=ipv6?"/bin/ip6tables-save":"/bin/iptables-save";
+ const char *path=ipv6?WR_IOT_IP6TABLES_SAVE:WR_IOT_IPTABLES_SAVE;
  if(ipv6!=0&&ipv6!=1)return 0;
  start=wr_iot_quarantine_clock();if(start<0)return 0;
  data=malloc(limit+1);if(!data)return 0;
