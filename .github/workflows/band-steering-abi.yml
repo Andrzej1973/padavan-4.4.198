@@ -231,6 +231,8 @@ jobs:
           cp source/trunk/user/httpd/web_ex.c abi-results/device-http-patch/trunk/user/httpd/web_ex.c
           python3 tools/connected-devices/prepare-http.py abi-results/device-http-patch
           cp source/trunk/user/httpd/ralink.c abi-results/device-http-patch/trunk/user/httpd/ralink.c
+          mkdir -p abi-results/device-http-patch/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/common
+          cp source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/common/cmm_info.c abi-results/device-http-patch/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/common/
           python3 tools/connected-devices/prepare-radio.py abi-results/device-http-patch
           cp source/trunk/user/httpd/httpd.c abi-results/device-http-patch/trunk/user/httpd/httpd.c
           python3 tools/connected-devices/prepare-background.py abi-results/device-http-patch
