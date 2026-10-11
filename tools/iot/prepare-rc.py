@@ -133,7 +133,7 @@ report['network_activation_guard']='wr_iot_network_t; no startup sets this state
 for name in ('network-check.h','inventory.h','route-prefix.h','route-snapshot.h'):
  (headers/name).write_bytes((local/name).read_bytes())
 network=(local/'network-check.c').read_text(encoding='utf-8')
-for name in ('network-check.h','bridge.h','route-snapshot.h','subnet.h'):
+for name in ('network-check.h','bridge.h','route-snapshot.h','subnet.h','dns-ready.h','dhcp-ready.h','dns-sockets.h'):
  network=network.replace('#include "'+name+'"','#include "wr-iot/'+name+'"')
 (rc/'wr-iot-network.c').write_text(network,encoding='utf-8')
 m.write_text(m.read_text(encoding='utf-8').replace('wr-iot-dhcp.o','wr-iot-dhcp.o wr-iot-network.o'),encoding='utf-8')
