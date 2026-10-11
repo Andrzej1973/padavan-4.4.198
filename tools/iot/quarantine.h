@@ -11,4 +11,7 @@ int wr_iot_quarantine_apply(void);
 int wr_iot_policy_rules_ready(const char *ipv4,const char *ipv6);
 /* Rebuild expected policy from current configuration and live inventory. */
 int wr_iot_active_filter_ready(const char *lan,const char *wan);
+int wr_iot_policy_can_apply(void);
+/* Caller has staged enabled gates; does not open the BSS or release snapshots. */
+int wr_iot_active_filter_apply(const char *lan,const char *wan);
 #endif

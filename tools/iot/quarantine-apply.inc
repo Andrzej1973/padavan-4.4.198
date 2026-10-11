@@ -28,4 +28,20 @@ int wr_iot_quarantine_apply(void)
  return 0;
 #endif
 }
+int wr_iot_active_filter_apply(const char *lan,const char *wan)
+{
+#if defined(USE_IPV6)
+ struct wr_iot_firewall rules;
+ if (!nvram_match("wr_iot_network_t","1") ||
+     !nvram_match("wr_iot_firewall_t","1") ||
+     !wr_iot_policy_can_apply() ||
+     !wr_iot_active_filter_plan(&rules,lan,wan)) return 0;
+ start_firewall_ex();
+ /* Scripts may have changed configuration or installed rules. Recompute and
+  * observe after every writer; keep BSS closed and recovery state on failure. */
+ return wr_iot_active_filter_ready(lan,wan);
+#else
+ return 0;
+#endif
+}
 #endif
