@@ -28,6 +28,14 @@ static void reset(void){size_t i;assert(!depth);for(i=7;i<10;i++)strcpy(values[i
 static void prepared(struct wr_iot_request_snapshot *s){reset();memset(s,0,sizeof(*s));assert(wr_iot_request_snapshot_take(s)&&depth==1&&writes==0);assert(wr_iot_request_stage(1,1,0)&&depth==1);assert(!strcmp(find("wr_iot_profile_t")->value,"1"));writes=0;}
 int main(void){
  struct wr_iot_request_snapshot s={0};int failure;
+ prepared(&s);assert(wr_iot_request_snapshot_suspend(&s)&&!depth&&s.active&&!s.token);
+ assert(!wr_iot_request_snapshot_suspend(&s)&&!wr_iot_request_snapshot_restore(&s)&&!wr_iot_request_snapshot_finish(&s));
+ busy=1;assert(!wr_iot_request_snapshot_resume(&s)&&!depth&&s.active);
+ busy=0;s.owner++;assert(!wr_iot_request_snapshot_resume(&s)&&!depth);s.owner=getpid();
+ assert(wr_iot_request_snapshot_resume(&s)&&depth==1);
+ assert(!wr_iot_request_snapshot_resume(&s)&&depth==1);
+ assert(wr_iot_request_snapshot_restore(&s));assert(!wr_iot_request_snapshot_suspend(&s));
+ assert(wr_iot_request_snapshot_finish(&s)&&!depth);
  prepared(&s);assert(wr_iot_request_snapshot_restore(&s)&&depth==1);
  assert(!strcmp(find("wr_iot_profile_t")->value,"0")&&!strcmp(find("wr_iot_psk_t")->value,"old password"));
  assert(wr_iot_request_snapshot_finish(&s)&&!depth&&!s.active&&!s.values[4][0]);

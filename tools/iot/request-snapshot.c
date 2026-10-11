@@ -62,3 +62,18 @@ int wr_iot_request_snapshot_finish(struct wr_iot_request_snapshot *s)
  memset(s,0,sizeof(*s));
  wr_iot_service_guard_leave(token);return 1;
 }
+int wr_iot_request_snapshot_suspend(struct wr_iot_request_snapshot *s)
+{
+ if(!valid(s)||s->recovering)return 0;
+ s->token=0;
+ wr_iot_service_guard_leave(1);
+ return 1;
+}
+int wr_iot_request_snapshot_resume(struct wr_iot_request_snapshot *s)
+{
+ int token;
+ if(!s||!s->active||s->token||s->owner!=getpid()||s->recovering)return 0;
+ token=wr_iot_service_guard_enter(1);
+ if(token!=1)return 0;
+ s->token=token;return 1;
+}
