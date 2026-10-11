@@ -87,6 +87,7 @@ wr_iot_saved_release(&saved);
    assert(wr_iot_radio_profile_take(&state));assert(!wr_iot_radio_profile_take(&state));
    assert(!wr_iot_radio_profile_finish(&state));profile_fault=fault;
    assert(wr_iot_radio_profile_generate(&state,generate_profile)==!fault);
+   assert(!wr_iot_radio_profile_generate(&state,generate_profile));
    assert(!wr_iot_radio_profile_finish(&state));
    restore_fault=5;assert(!wr_iot_radio_profile_restore(&state));
    assert(state.active&&state.files.saved[0].data);restore_fault=0;
@@ -94,7 +95,14 @@ wr_iot_saved_release(&saved);
    fp=fopen("config","r");assert(fp);assert(fgets(text,sizeof(text),fp));
    assert(!strcmp(text,"foreign\n"));assert(!fclose(fp));
   }
-  puts("PASS retained radio profile: guarded capture before generation, partial generation rollback, failed restore retry, baseline retained until recovered; generator injected");
+  memset(&state,0,sizeof(state));assert(wr_iot_radio_profile_take(&state));
+  state.owner++;assert(!wr_iot_radio_profile_restore(&state));state.owner=getpid();
+  assert(wr_iot_radio_profile_restore(&state));assert(wr_iot_radio_profile_restore(&state));
+  fp=fopen("replacement","w");assert(fp);assert(fputs("foreign-after-restore\n",fp)>=0);
+  assert(!fclose(fp));assert(!rename("replacement","config"));
+  assert(!wr_iot_radio_profile_restore(&state));assert(!wr_iot_radio_profile_finish(&state));
+  assert(state.active&&state.files.saved[0].data);wr_iot_bundle_release(&state.files);
+  puts("PASS retained radio profile: guarded capture before generation, partial generation rollback, failed restore retry, repeat generation refused, foreign PID/file refused, baseline retained until recovered; generator injected");
  }
  assert(!unlink("config"));assert(!unlink("link"));assert(!unlink("fifo"));assert(!unlink("large"));assert(!chdir("/tmp"));assert(!rmdir(directory));
  puts("PASS bounded previous-file capture: contents, metadata, absent file, no overwrite of existing snapshot, symlink/nonregular/oversize rejection. Atomic contents/mode restore and foreign inode rejection passed; restore failure cleanup and prior absence verified; bundle capture/partial restore retry verified; service integration pending.");return 0;

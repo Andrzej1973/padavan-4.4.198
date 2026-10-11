@@ -12,6 +12,7 @@
 #endif
 struct wr_iot_radio_profile_state {
  struct wr_iot_saved_bundle files;
+ struct wr_iot_generated_file restored_file;
  int active,generated,recovering,recovered;
  pid_t owner;
 };
@@ -36,7 +37,7 @@ static inline int wr_iot_radio_profile_take(struct wr_iot_radio_profile_state *s
 static inline int wr_iot_radio_profile_generate(struct wr_iot_radio_profile_state *s,
  int (*generate)(int)){
  int result;
- if(!wr_iot_radio_profile_owned(s)||!generate||s->generated||s->recovering||
+ if(!wr_iot_radio_profile_owned(s)||!generate||s->generated||s->files.journalled||s->recovering||
     !wr_iot_bundle_write_begin(&s->files,0))return 0;
  result=generate(0);
  if(!wr_iot_bundle_write_end(&s->files,0))return 0;
@@ -45,17 +46,20 @@ static inline int wr_iot_radio_profile_generate(struct wr_iot_radio_profile_stat
 }
 static inline int wr_iot_radio_profile_restore(struct wr_iot_radio_profile_state *s){
  if(!wr_iot_radio_profile_owned(s))return 0;
+ if(s->recovered)return wr_iot_generated_matches(&s->restored_file,s->files.paths[0]);
  s->recovering=1;s->recovered=0;
  /* Failure before generation made no owned file writes. */
  if(!s->files.journalled){
   if(!wr_iot_generated_matches(&s->files.generated[0],s->files.paths[0]))return 0;
  }else if(!wr_iot_bundle_restore(&s->files))return 0;
+ if(!wr_iot_generated_capture(&s->restored_file,s->files.paths[0]))return 0;
  s->recovered=1;return 1;
 }
 /* Successful activation retains the baseline until stop/recovery. Release
  * only after profile restoration and previous radio/service readiness. */
 static inline int wr_iot_radio_profile_finish(struct wr_iot_radio_profile_state *s){
- if(!wr_iot_radio_profile_owned(s)||!s->recovering||!s->recovered)return 0;
+ if(!wr_iot_radio_profile_owned(s)||!s->recovering||!s->recovered||
+    !wr_iot_generated_matches(&s->restored_file,s->files.paths[0]))return 0;
  wr_iot_bundle_release(&s->files);memset(s,0,sizeof(*s));return 1;
 }
 #endif
