@@ -12,9 +12,9 @@ static int operation(void *context,enum wr_iot_activation_operation op){
  switch(op){
  case WR_IOT_QUIESCE:f->live=0;break;
  case WR_IOT_ISOLATE:f->guard=1;break;
- case WR_IOT_DHCP_START:assert(f->guard);f->dhcp=1;break;
- case WR_IOT_ATTACH:assert(!f->live&&f->guard&&f->dhcp);f->attached=1;break;
- case WR_IOT_BRIDGE_UP:assert(f->attached&&f->guard&&f->dhcp);f->bridge=1;break;
+ case WR_IOT_DHCP_START:assert(!f->live&&f->guard&&f->attached&&f->bridge);f->dhcp=1;break;
+ case WR_IOT_ATTACH:assert(!f->live&&f->guard&&!f->dhcp);f->attached=1;break;
+ case WR_IOT_BRIDGE_UP:assert(!f->live&&f->attached&&f->guard&&!f->dhcp);f->bridge=1;break;
  case WR_IOT_BSS_UP:assert(f->attached&&f->bridge&&f->guard&&f->dhcp);f->live=1;break;
  case WR_IOT_OBSERVE:assert(f->live&&f->guard&&f->dhcp);break;
  case WR_IOT_BRIDGE_DOWN:assert(!f->live);f->bridge=0;break;
