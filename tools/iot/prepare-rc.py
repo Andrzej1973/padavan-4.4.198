@@ -12,28 +12,35 @@ anchor='void \nstop_wifi_all_rt(void)\n{'
 if s.count(anchor)!=1 or 'wr_iot_quiesce' in s:raise SystemExit('Wi-Fi stop anchor changed or already prepared')
 helper="""#if defined(BOARD_WR1200JS)
 #include "wr-iot/bridge.h"
-static void wr_iot_quiesce(void)
+static int wr_iot_quiesce(void)
 {
  if (!wr_iot_bridge_is_owned() && !nvram_get_int("wr_iot_network_t") &&
-     !nvram_get_int("wr_iot_profile_t")) return;
+     !nvram_get_int("wr_iot_profile_t")) return 1;
  wif_control("ra2", 0);
  if (!wr_iot_bss_set_down()) {
   logmessage("IoT Wi-Fi", "BSS stop not confirmed; isolation must be retained");
-  return;
+  return 0;
  }
  if (!wr_iot_bridge_set_up(0) || !wr_iot_bridge_detach()) {
   logmessage("IoT Wi-Fi", "Interface/bridge stop not confirmed; isolation must be retained");
-  return;
+  return 0;
  }
  if (nvram_get_int("wr_iot_network_t"))
   nvram_set_int_temp("wr_iot_network_t", 0);
  if (nvram_get_int("wr_iot_profile_t"))
   nvram_set_int_temp("wr_iot_profile_t", 0);
+ return 1;
 }
 #endif
 
 """
 s=s.replace(anchor,helper+anchor+'\n#if defined(BOARD_WR1200JS)\n wr_iot_quiesce();\n#endif',1)
+restart_anchor='void\nrestart_wifi_rt(int radio_on, int need_reload_conf)\n{'
+if s.count(restart_anchor)!=1:raise SystemExit('2.4 GHz restart anchor changed')
+s=s.replace(restart_anchor,restart_anchor+'''\n#if defined(BOARD_WR1200JS)
+ /* Refuse profile generation/reopening if the previous IoT BSS did not stop. */
+ if (!wr_iot_quiesce()) return;
+#endif''',1)
 m=rc/'Makefile';make=m.read_text(encoding='utf-8');anchor='OBJS += gpio_btn.o btn_action.o'
 if make.count(anchor)!=1:raise SystemExit('RC object anchor changed')
 make=make.replace(anchor,anchor+'\nifneq ($(findstring -DBOARD_WR1200JS,$(CFLAGS)),)\nOBJS += wr-iot-bridge.o\nendif',1)

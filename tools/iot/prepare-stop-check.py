@@ -11,14 +11,20 @@ def function(anchor):
   elif s[end]=='}':depth-=1
   end+=1
  return s[start:end]
-helper=function('static void wr_iot_quiesce(void)')
+helper=function('static int wr_iot_quiesce(void)')
 stop=function('void \nstop_wifi_all_rt(void)')
 assert stop.index('wr_iot_quiesce();')<stop.index('wif_control(IFNAME_2G_APCLI, 0);')
+restart=function('void\nrestart_wifi_rt(int radio_on, int need_reload_conf)')
+assert restart.index('if (!wr_iot_quiesce()) return;')<restart.index('stop_8021x_rt();')<restart.index('gen_ralink_config_2g(0);')
+# Execute the exact installed restart preflight; the remainder is represented
+# by a marker, not a claim that the full radio startup was exercised.
+restart_entry=restart[:restart.index('\tstop_8021x_rt();')]+'''\n (void)radio_on;(void)need_reload_conf;restart_progress++;\n}\n'''
 prefix=r"""#include <assert.h>
 #include <string.h>
 #include <stdio.h>
 static int owner,detach_ok,down_ok,bss_ok,downs,calls,detaches,logs,leds,profile_state,network_state,state_writes;
 static const char *names[16];
+static int restart_progress;
 #define IFNAME_2G_APCLI "apcli0"
 #define IFNAME_2G_WDS3 "wds3"
 #define IFNAME_2G_WDS2 "wds2"
@@ -70,10 +76,15 @@ int main(void){
  reset(1,0);profile_state=network_state=1;stop_wifi_all_rt();baseline(1);assert(downs==1&&detaches==1&&logs==1&&profile_state&&network_state&&!state_writes);
  reset(1,1);profile_state=network_state=1;down_ok=0;stop_wifi_all_rt();baseline(1);assert(downs==1&&!detaches&&logs==1&&profile_state&&network_state&&!state_writes);
  reset(1,1);profile_state=network_state=1;bss_ok=0;stop_wifi_all_rt();baseline(1);assert(!downs&&!detaches&&logs==1&&profile_state&&network_state&&!state_writes);
+ reset(1,1);profile_state=network_state=1;bss_ok=0;assert(!wr_iot_quiesce());assert(calls==1&&!downs&&!detaches&&profile_state&&network_state&&!state_writes);
+ reset(1,1);assert(wr_iot_quiesce());assert(downs==1&&detaches==1);
+ reset(1,1);profile_state=network_state=1;bss_ok=0;restart_progress=0;
+ restart_wifi_rt(1,1);assert(!restart_progress&&profile_state&&network_state&&!state_writes);
+ reset(0,1);restart_wifi_rt(1,1);assert(restart_progress==1&&!calls);
 #else
  baseline(0);assert(!detaches&&!logs);
 #endif
  puts("PASS actual RC stop fixture: original radio stop sequence retained, WR owned BSS quiesced first, failure reported, other boards unchanged");return 0;
 }
 """
-a.output.write_text(prefix+helper+'\n#endif\n'+stop+'\n'+tail,encoding='utf-8')
+a.output.write_text(prefix+helper+'\n#endif\n'+stop+'\n'+restart_entry+'\n'+tail,encoding='utf-8')
