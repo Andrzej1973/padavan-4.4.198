@@ -337,3 +337,65 @@ Mi Mini driver research approved: after completing the primary WR1200JS stage, i
 ## Confirmed stage order — 2026-10-09
 
 The user confirms that all preceding Mi Mini configuration, dependency, repeater stability, shared Wi-Fi settings and driver-research requirements belong to the project goal. Complete the primary YOUHUA WR1200JS firmware first, including its agreed acceptance checks, before starting Mi Mini implementation or driver migration. Mi Mini work is deferred until that stage is complete; build waits alone do not open the secondary stage. Retain the dependency review and driver research contract above. The spoken source/driver names “OpenVR” and “Nvidia” are unconfirmed; verify the intended source and actual MT7620 hardware compatibility before importing any driver.
+
+## Runtime findings and corrective work — user confirmation 2026-10-11
+
+This section updates the immediate WR1200JS sequence after the actual flashed
+firmware test. The primary acceptance criterion is stable operation with
+preserved internet and router management access. The earlier numbered sequence
+does not require finishing IoT before fixing the observed DNS/access failures.
+
+Evidence: [read-only runtime collection and DNS recovery](runtime/WR1200JS-2026-10-11.md).
+The owner's screenshots additionally show mixed Ukrainian/English labels, a
+Chinese navigation item and unclear service switches. Screenshots and raw logs
+remain private; publish only sanitized findings. A green build is not device
+acceptance, and the current test image is not yet qualified as stable.
+
+Complete and record these checks:
+
+1. **DNS and access recovery first.** Fix Stubby's missing lifecycle locking
+   dependency in the image and verify actual start/stop/restart. Restore usable
+   DoT/DoH provider lists, time bootstrap and functional Apply/disable controls.
+   Detect legacy custom dnsmasq loopback forwarding that survives service
+   toggles; provide a backed-up, explicit migration rather than overwriting
+   custom rules. Keep DoT/DoH disabled during recovery. Verify ordinary DNS,
+   optional encrypted DNS, WAN connectivity and AmneziaWG management access
+   after restart. Any ordinary-DNS fallback must be an explicit user choice.
+2. **Wi-Fi HNAT and driver diagnostics.** Investigate module-level wireless
+   external-device registration in addition to RC/driver guards, record actual
+   acceleration mode and prove Wi-Fi offload is disabled while retaining
+   supported wired acceleration. Examine repeated HNAT drop and ADDBA messages;
+   neither message alone proves a hang. Verify both radios under sustained
+   traffic and reconnects, with logs and continued management access.
+3. **ZRAM.** Repair the mismatch between enabled settings and absent active swap.
+   Verify block-device initialization, actual /proc/swaps state, status display,
+   enable/disable lifecycle and reboot persistence; report failure visibly.
+4. **Coherent service WebUI.** Audit all enabled-service menu routes and pages.
+   Complete Ukrainian and Russian translations, preserve English, remove
+   unintended Chinese labels from the active localized UI, and group DNS, VPN,
+   router access and system services clearly. Provide readable enabled/disabled
+   labels separately from actual running/stopped/error status. Verify Apply,
+   validation, persistence and actual daemon lifecycle for each affected page.
+   Verify safe-session settings/storage backup, restore and flash-save controls;
+   preserve authentication and login_safe restrictions. Verify AmneziaWG is
+   identifiable and configurable separately from ordinary WireGuard.
+5. **Complete IoT as an accepted deliverable.** Carry forward
+   [the IoT implementation contract](IOT-WIFI-IMPLEMENTATION-CONTRACT.md):
+   a separate third SSID, preferably 2.4 GHz, default OFF, with SSID/password,
+   local QR, enable/disable and actual status; preserve main and guest networks.
+   Verify driver/BSS lifecycle, isolated bridge/subnet, DHCP/DNS, WAN access,
+   administration/LAN isolation and scoped controller exceptions. Exercise
+   shutdown/recovery and simultaneous main/guest/IoT operation. The recovery
+   test profile may continue to exclude IoT until these checks pass.
+6. **Wireless usability and acceptance.** Finish shared dual-band configuration,
+   QR, Band Steering and RSSI Kick, default new features OFF, and automatically
+   refreshed connected-device/roaming monitoring. Verify observed behavior and
+   bounded CPU/RAM use. Evaluate actual 802.11k/v/r support without treating
+   source flags as proof of seamless roaming.
+7. **Next test delivery.** Include verified corrections and translations, record
+   remaining limitations, and deliver firmware plus its config. Test boot,
+   WAN/LAN, DNS, Wi-Fi, VPN access, service controls and settings persistence
+   before calling the image stable. Keep unfinished items open.
+
+Continue remaining accepted WR1200JS features afterward, then Mi Mini, and
+finally local databases and the offline WSL 2 project. CAKE remains excluded.
