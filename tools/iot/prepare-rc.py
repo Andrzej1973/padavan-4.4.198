@@ -511,6 +511,7 @@ firewall=firewall.replace(anchor,anchor+'\n'+helper,1)
 (headers/'firewall.h').write_bytes((local/'firewall.h').read_bytes())
 (headers/'quarantine-check.h').write_bytes((local/'quarantine-check.h').read_bytes())
 (headers/'quarantine-live.h').write_bytes((local/'quarantine-live.h').read_bytes())
+(headers/'policy-normalize.h').write_bytes((local/'policy-normalize.h').read_bytes())
 for name,marker,result,arguments in [('ipt_filter_rules','\t// maclist chain','return 0;','1,lan_if,wan_if'),('ipt_filter_default','\t/* INPUT chain */','return;','0,NULL,NULL'),('ip6t_filter_rules','\t// maclist chain','return 0;','0,NULL,NULL'),('ip6t_filter_default','\t// INPUT chain','return;','0,NULL,NULL')]:
  begin=firewall.index('\n'+name+'(');end=firewall.index('\n}\n',begin)+3
  body=firewall[begin:end]
