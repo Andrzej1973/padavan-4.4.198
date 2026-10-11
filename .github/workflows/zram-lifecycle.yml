@@ -1,0 +1,27 @@
+name: ZRAM lifecycle failure paths
+on:
+  push:
+    paths:
+      - 'overlay/padavan-4.4/patches/zram-service.diff'
+      - 'tools/prepare-zram-lifecycle-check.py'
+      - '.github/workflows/zram-lifecycle.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lifecycle:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v6
+      - name: Execute patched RC failure paths
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/prepare-zram-lifecycle-check.py --output checks/zram.c
+          gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined checks/zram.c -o checks/zram
+          ASAN_OPTIONS=detect_leaks=1 checks/zram
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: zram-lifecycle-check
+          path: checks/zram.c

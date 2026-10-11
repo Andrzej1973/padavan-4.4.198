@@ -8,7 +8,7 @@
  
  #include "rc.h"
  
-@@ -747,9 +748,55 @@
+@@ -747,9 +748,128 @@
  		module_smart_load("rt_timer_wdg", NULL);
  }
  
@@ -25,33 +25,106 @@
 +	return result;
 +}
 +
++/* Return -1 on an unreadable state: never initialize an unknown device. */
++static int
++zram_active(void)
++{
++	FILE *fp = fopen("/proc/swaps", "r");
++	char line[512], device[128];
++	int active = 0;
++	if (!fp)
++		return -1;
++	while (fgets(line, sizeof(line), fp)) {
++		if (sscanf(line, "%127s", device) == 1 &&
++		    strcmp(device, "/dev/zram0") == 0)
++			active = 1;
++	}
++	if (ferror(fp))
++		active = -1;
++	fclose(fp);
++	return active;
++}
++
++static int
++zram_stop_checked(void)
++{
++	int active = zram_active();
++	if (active < 0 || (active && doSystem("swapoff /dev/zram0") != 0) ||
++	    zram_active() != 0) {
++		logmessage("ZRAM", "Cannot stop swap; preserving device");
++		return -1;
++	}
++	if (is_module_loaded("zram"))
++		module_smart_unload("zram", 1);
++	if (is_module_loaded("zram")) {
++		logmessage("ZRAM", "Cannot unload module; restart aborted");
++		return -1;
++	}
++	return 0;
++}
++
 +void
 +stop_zram(void)
 +{
-+	if (is_module_loaded("zram")) {
-+		doSystem("swapoff /dev/zram0");
-+		module_smart_unload("zram", 1);
-+	}
++	zram_stop_checked();
 +}
 +
 +void
 +start_zram(void)
 +{
 +	int disksize = get_zram_disksize();
++	int active = zram_active();
++	FILE *size_file;
++	unsigned long long actual_size = 0;
++	if (active == 1)
++		return;
++	if (active < 0) {
++		logmessage("ZRAM", "Cannot read swap state; start aborted");
++		return;
++	}
 +	if (disksize) {
++		/* A leftover initialized device must be removed before mkswap. */
++		if (zram_stop_checked() != 0)
++			return;
 +		module_smart_load("zram", "num_devices=1");
 +		sleep(1);
-+		fput_int("/sys/block/zram0/disksize", disksize);
-+		doSystem("mkswap /dev/zram0");
-+		doSystem("swapon -p 32767 -d /dev/zram0");
++		if (!is_module_loaded("zram") ||
++		    access("/sys/block/zram0/disksize", W_OK) != 0) {
++			logmessage("ZRAM", "Module or device unavailable");
++			return;
++		}
++		if (fput_int("/sys/block/zram0/disksize", disksize) != 0) {
++			logmessage("ZRAM", "Cannot write requested swap size");
++			zram_stop_checked();
++			return;
++		}
++		size_file = fopen("/sys/block/zram0/disksize", "r");
++		if (size_file) {
++			if (fscanf(size_file, "%llu", &actual_size) != 1)
++				actual_size = 0;
++			fclose(size_file);
++		}
++		if (actual_size != (unsigned long long)disksize) {
++			logmessage("ZRAM", "Cannot initialize requested swap size");
++			zram_stop_checked();
++			return;
++		}
++		if (doSystem("mkswap /dev/zram0") != 0 ||
++		    doSystem("swapon -p 32767 -d /dev/zram0") != 0 ||
++		    zram_active() != 1) {
++			logmessage("ZRAM", "Swap activation failed");
++			zram_stop_checked();
++			return;
++		}
++		logmessage("ZRAM", "Compressed swap active");
 +	}
 +}
 +
 +void
 +restart_zram(void)
 +{
-+	stop_zram();
-+	start_zram();
++	if (zram_stop_checked() == 0)
++		start_zram();
 +}
 +#endif
 +
@@ -64,7 +137,7 @@
  	start_8021x_wl();
  	start_8021x_rt();
  	start_httpd(0);
-@@ -809,6 +856,9 @@
+@@ -809,6 +929,9 @@
  void
  stop_services(int stopall)
  {
