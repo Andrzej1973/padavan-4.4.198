@@ -779,6 +779,20 @@ jobs:
               padavan-4.4/trunk/romfs --outage 2>&1 | tee stubby-runtime.txt
           fi
 
+      - name: Verify zram dependencies and shipped swap priority support
+        run: |
+          sudo apt-get install --no-install-recommends -y qemu-user-static
+          set -o pipefail
+          python3 tools/verify-zram-image.py padavan-4.4 | tee zram-image-checks.txt
+
+      - name: Preserve zram image diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: zram-image-checks
+          path: zram-image-checks.txt
+          if-no-files-found: warn
+
       - name: Upload Stubby image diagnostics
         if: always()
         uses: actions/upload-artifact@v7

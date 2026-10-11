@@ -216,12 +216,17 @@
                                              <td>
 --- a/trunk/configure
 +++ b/trunk/configure
-@@ -118,6 +118,13 @@
+@@ -118,6 +118,18 @@
  if [ -n "$CONFIG_RTC_CLASS" ] ; then
  	func_enable_busybox_param "CONFIG_HWCLOCK"
  fi
 +# Compressed RAM swap support; requested size is controlled by zram_enable.
 +if [ "$CONFIG_FIRMWARE_INCLUDE_ZRAM" = "y" ]; then
++	func_enable_kernel_param "CONFIG_SWAP"
++	func_enable_busybox_param "CONFIG_MKSWAP"
++	func_enable_busybox_param "CONFIG_SWAPONOFF"
++	func_enable_busybox_param "CONFIG_FEATURE_SWAPON_PRI"
++	func_enable_busybox_param "CONFIG_FEATURE_SWAPON_DISCARD"
 +	func_enable_kernel_param "CONFIG_ZSMALLOC"
 +	func_enable_kernel_param "CONFIG_ZRAM" "m"
 +else
