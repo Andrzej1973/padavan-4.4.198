@@ -526,6 +526,16 @@ report['iot_wan_nat']='Scoped classic MASQUERADE before existing LAN WAN NAT; re
 report['owned_bridge_firewall_quarantine']='IPv4/IPv6 normal/default builders before generic accepts; IPv4 allow policy requires wr_iot_firewall_t and wr_iot_network_t; activation controller pending'
 report['iot_main_dnsmasq_config_staged']=True
 report['dnsmasq_service_rollback_complete']=False
+(headers/'quarantine.h').write_bytes((local/'quarantine.h').read_bytes())
+quarantine=(local/'quarantine.c').read_text(encoding='utf-8')
+for name in ('quarantine.h','quarantine-live.h','bridge.h','service-guard.h'):
+ quarantine=quarantine.replace('#include "'+name+'"','#include "wr-iot/'+name+'"')
+(rc/'wr-iot-quarantine.c').write_text(quarantine,encoding='utf-8')
+make=m.read_text(encoding='utf-8')
+if make.count('wr-iot-network.o')!=1:raise SystemExit('Quarantine object link anchor changed')
+make=make.replace('wr-iot-network.o','wr-iot-network.o wr-iot-quarantine.o\nLDFLAGS += -lrt',1)
+m.write_text(make,encoding='utf-8')
+report['quarantine_readback_object_linked']=True
 (a.source/'iot-rc-source.json').write_text(json.dumps(report,indent=2)+'\n')
 print('PASS WR-only IoT bridge object and owned quiescence source integration; activation pending')
 
