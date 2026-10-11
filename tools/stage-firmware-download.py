@@ -20,5 +20,5 @@ output.mkdir(parents=True)
 shutil.copyfile(images[0], output / images[0].name)
 shutil.copyfile(configs[0], output / (board + '.config'))
 with open(os.environ['GITHUB_OUTPUT'], 'a') as result:
-    result.write('archive_name=' + images[0].stem + '\n')
+    result.write('archive_name=' + images[0].stem + '_TEST\n')
 print('Staged firmware and configuration only')

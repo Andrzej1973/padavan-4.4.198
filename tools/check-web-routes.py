@@ -133,6 +133,13 @@ def served_files(www):
         # The custom link points at /opt on the router and is empty in ROMFS.
         dirs[:] = [d for d in dirs if not os.path.islink(os.path.join(directory, d))]
         for name in names:
+            path = os.path.join(directory, name)
+            # A dangling directory symlink is listed in names by os.walk.
+            # Exclude only the stock external custom directory, not file links.
+            if (os.path.relpath(path, www).replace(os.sep, '/') == 'custom'
+                    and os.path.islink(path)
+                    and os.readlink(path) == '/opt/share/www/custom'):
+                continue
             # File links such as dlink.js resolve on the router and are served.
             relative = os.path.relpath(os.path.join(directory, name), www).replace(os.sep, '/')
             if not INTERNAL.search(relative):
@@ -183,3 +190,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+

@@ -1,4 +1,5 @@
 name: Build selected router firmware
+run-name: TEST Padavan 4.4.198 — build ${{ github.run_number }}
 on:
   workflow_dispatch:
     inputs:
