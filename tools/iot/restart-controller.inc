@@ -20,6 +20,14 @@
 #ifndef WR_IOT_DHCP_GATEWAY
 #define WR_IOT_DHCP_GATEWAY wr_iot_dhcp_gateway
 #endif
+#ifndef WR_IOT_CANDIDATE_READY
+static int wr_iot_restart_candidate_ready(void)
+{
+ return nvram_get_int("wr_iot_network_t")!=1 ||
+        wr_iot_network_services_ready(nvram_safe_get("wr_iot_gateway_t"));
+}
+#define WR_IOT_CANDIDATE_READY wr_iot_restart_candidate_ready
+#endif
 #ifndef WR_IOT_SOCKET_READY
 static int wr_iot_restart_socket_ready(unsigned int port,int dhcp4,unsigned int dhcp_port)
 {
@@ -146,6 +154,7 @@ static int wr_iot_restart_transaction(void)
  if(!result&&(wr_iot_writer_journal_failed()||!wr_iot_dns_config_services_at(WR_IOT_DNS_CONFIG_PATH,&new_port,&new_dhcp4,&new_dhcp_port)||
     ((new_port||new_dhcp4)&&!WR_IOT_DHCP_GATEWAY(IFNAME_BR,new_gateway)&&new_dhcp4)||
     !wr_iot_restart_service_wait(new_port,new_dhcp4,new_dhcp_port,new_gateway)||
+    !WR_IOT_CANDIDATE_READY()||
     !wr_iot_service_state_seal(&wr_iot_restart_state,WR_IOT_SERVICE_LOCK_PATH)))result=EIO;
  if(!result&&wr_iot_restart_finish())return 0;
  if(!result)result=EIO;

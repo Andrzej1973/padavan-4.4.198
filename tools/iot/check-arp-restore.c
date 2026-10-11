@@ -29,6 +29,9 @@ static int controller_dns_lan(const char *address,unsigned int port){assert(!str
 #define WR_IOT_DHCP_GATEWAY controller_gateway
 static int controller_socket_ready(unsigned int port,int dhcp4,unsigned int dhcp_port){assert(port==53&&(dhcp4==0||dhcp4==1)&&(dhcp_port==67||dhcp_port==1067));return !controller_socket_bad;}
 #define WR_IOT_SOCKET_READY controller_socket_ready
+static int controller_iot_checks;
+static int controller_iot_ready(void){controller_iot_checks++;return controller_fault!=9;}
+#define WR_IOT_CANDIDATE_READY controller_iot_ready
 static int controller_dns_ready(unsigned int port){assert(port==53);return !controller_dns_bad&&!controller_loop_bad;}
 static int is_dns_dhcpd_run(void){return controller_running;}
 static int get_ap_mode(void){return 0;}
@@ -159,6 +162,15 @@ int main(void){
   /* The prior successful candidate now has DHCPv4: recovery must probe it too. */
   controller_fault=5;assert(wr_iot_service_guard_enter(1)==1);
   assert(wr_iot_restart_transaction()==EIO);assert(!wr_iot_restart_active&&controller_running&&wr_iot_restart_old_dhcp4);wr_iot_service_guard_leave(1);
+  controller_fault=9;controller_iot_checks=0;
+  assert(wr_iot_service_guard_enter(1)==1);
+  assert(wr_iot_restart_transaction()==EIO&&controller_iot_checks==1);
+  assert(!wr_iot_restart_active&&controller_running);
+  wr_iot_service_guard_leave(1);
+  controller_fault=0;controller_iot_checks=0;
+  assert(wr_iot_service_guard_enter(1)==1);
+  assert(!wr_iot_restart_transaction()&&controller_iot_checks==1);
+  wr_iot_service_guard_leave(1);
   assert(!unlink("service.lock"));assert(!unlink("etc/dnsmasq.conf"));assert(!rmdir("etc/dnsmasq/dhcp"));assert(!rmdir("etc/dnsmasq"));assert(!rmdir("etc"));assert(!unlink(WR_IOT_LEASE_PATH));assert(!rmdir("tmp"));assert(!chdir("/tmp"));assert(!rmdir(directory));
  }
 
