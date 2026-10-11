@@ -62,4 +62,24 @@ int wr_iot_active_filter_apply_current(void)
  return wr_iot_policy_current_wan(after) && !strcmp(before,after) &&
         wr_iot_active_filter_ready(IFNAME_BR,after);
 }
+int wr_iot_policy_enable_current(void)
+{
+ char gateway[16];const char *value;size_t n;
+ if(!nvram_match("wr_iot_network_t","1") ||
+    !nvram_match("wr_iot_firewall_t","0") ||
+    !wr_iot_policy_can_apply())return 0;
+ value=nvram_safe_get("wr_iot_gateway_t");n=strlen(value);
+ if(n>=sizeof(gateway))return 0;
+ memcpy(gateway,value,n+1);
+ if(!wr_iot_network_services_ready(gateway))return 0;
+ if(!nvram_set_int_temp("wr_iot_firewall_t",1) &&
+    nvram_match("wr_iot_firewall_t","1") &&
+    wr_iot_active_filter_apply_current())return 1;
+ /* Close the permission gate even after a partially successful setter or
+  * firewall reload. This best effort never substitutes for full recovery. */
+ if(!nvram_set_int_temp("wr_iot_firewall_t",0) &&
+    nvram_match("wr_iot_firewall_t","0") && wr_iot_policy_can_apply())
+  start_firewall_ex();
+ return 0;
+}
 #endif

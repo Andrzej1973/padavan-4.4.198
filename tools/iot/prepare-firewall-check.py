@@ -42,7 +42,8 @@ while depth:
     depth+=(s[end]=='{')-(s[end]=='}');end+=1
 active_apply=s[start:end]
 for anchor in ('static int wr_iot_policy_current_wan(char out[16])\n{',
-               'int wr_iot_active_filter_apply_current(void)\n{'):
+               'int wr_iot_active_filter_apply_current(void)\n{',
+               'int wr_iot_policy_enable_current(void)\n{'):
     if s.count(anchor)!=1:raise SystemExit('Installed WAN policy adapter missing or duplicated')
     start=s.index(anchor);opening=s.index('{',start);depth=1;end=opening+1
     while depth:
@@ -70,6 +71,9 @@ static int nvram_get_int(const char *key){if(!strcmp(key,"wr_iot_firewall_t"))re
 static int apply_allowed=1,apply_ready=1,apply_calls,apply_changed,apply_invalid,active_changed;
 static int nvram_match(const char *key,const char *value){assert(!strcmp(value,"0")||!strcmp(value,"1"));return !apply_invalid&&nvram_get_int(key)==atoi(value);}
 static int policy_ready=1,policy_calls;
+static int services_ready=1,set_failed;
+static int nvram_set_int_temp(const char *key,int value){assert(!strcmp(key,"wr_iot_firewall_t"));gate=value;return set_failed;}
+static int wr_iot_network_services_ready(const char *g){assert(!strcmp(g,gateway));return services_ready;}
 static const char *current_wan="eth2.2";static int change_wan;
 static char *get_wan_unit_value(int unit,const char *key){assert(unit==0&&!strcmp(key,"ifname_t"));return (char *)current_wan;}
 static void get_wan_ifname(char out[16]){strcpy(out,"eth2.2");}
@@ -116,6 +120,11 @@ static void check_nat(const char *wan,int expected){
  assert(!strcmp(text,"-A POSTROUTING -s 192.168.50.0/255.255.255.0 -o eth2.2 -j MASQUERADE\n"));
 }
 int main(void){
+ gate=0;services_ready=0;assert(!wr_iot_policy_enable_current());assert(!gate&&!apply_calls);
+ services_ready=1;assert(wr_iot_policy_enable_current());assert(gate==1);
+ gate=0;policy_ready=0;assert(!wr_iot_policy_enable_current());assert(gate==0);policy_ready=1;
+ set_failed=1;assert(!wr_iot_policy_enable_current());assert(gate==0);set_failed=0;
+ gate=1;apply_calls=policy_calls=0;
  assert(wr_iot_active_filter_apply_current());
  current_wan="";assert(wr_iot_active_filter_apply_current());
  current_wan="01234567890123456";assert(!wr_iot_active_filter_apply_current());
