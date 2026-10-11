@@ -1430,6 +1430,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            "-DWR_IOT_DNSMASQ_EXECUTABLE=\"$PWD/iot-dnsmasq-native/src/dnsmasq\"" \
+            tools/iot/network-check.c tools/iot/bridge.c tools/iot/check-network-services.c \
+            -o abi-results/check-iot-network-services
           parent_netns="$(readlink /proc/self/ns/net)"
           sudo env WR_IOT_PARENT_NETNS="$parent_netns" unshare --net --mount --fork \
             python3 tools/iot/check-dhcp-transactions.py "$PWD/abi-results" "$PWD/iot-dnsmasq-native/src/dnsmasq"

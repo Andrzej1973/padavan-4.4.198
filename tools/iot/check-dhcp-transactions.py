@@ -105,6 +105,9 @@ try:
  checks['process_owned_dns_dhcp_socket_inventory']=True
  lease_path=r/'iot-dnsmasq.leases'
  before=lease_path.read_bytes() if lease_path.exists() else None
+ run(str(r/'check-iot-network-services'),'192.168.50.1')
+ assert subprocess.run([str(r/'check-iot-network-services'),'192.168.51.1'],capture_output=True).returncode!=0
+ checks['iot_owned_gateway_protocol_readiness']=True
  run(str(r/'check-iot-dhcp-ready'),'67','192.168.1.1')
  run(str(r/'check-iot-dhcp-ready'),'67','192.168.50.1')
  time.sleep(0.1)
@@ -125,6 +128,8 @@ try:
  run(str(r/'check-iot-dns-handler'),'53')
  checks['local_dns_handler_default']=True
  process.terminate();process.wait(timeout=3)
+ assert subprocess.run([str(r/'check-iot-network-services'),'192.168.50.1'],capture_output=True).returncode!=0
+ checks['iot_gateway_stopped_daemon_rejected']=True
  conf.write_text(config+'no-hosts\nno-ident\n')
  process=subprocess.Popen([str(daemon),'--keep-in-foreground','--user=root','--conf-file='+str(conf),'--pid-file='+str(r/'iot-dnsmasq.pid'),'--dhcp-leasefile='+str(lease_path)],stdout=log,stderr=log)
  deadline=time.monotonic()+5

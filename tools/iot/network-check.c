@@ -5,6 +5,9 @@
 #include "dns-ready.h"
 #include "dhcp-ready.h"
 #include "dns-sockets.h"
+#ifndef WR_IOT_DNSMASQ_EXECUTABLE
+#define WR_IOT_DNSMASQ_EXECUTABLE "/usr/sbin/dnsmasq"
+#endif
 int wr_iot_network_check(const char *gateway,const char *mask,const char *start,const char *end) {
  struct wr_iot_inventory inventory;struct wr_iot_subnet plan;unsigned int owned_index=0;
  if(!wr_iot_subnet_plan(&plan,gateway,mask,start,end,NULL,0))return 0;
@@ -29,7 +32,7 @@ int wr_iot_network_services_ready(const char *gateway) {
     inet_pton(AF_INET,address,&actual)!=1||actual.s_addr!=expected.s_addr)return 0;
  /* Socket ownership is necessary but not sufficient: require real replies.
   * DHCPINFORM does not allocate a lease. IoT uses fixed DNS/DHCP ports 53/67. */
- return wr_iot_dns_selected_sockets("/usr/sbin/dnsmasq",&sockets)&&
+ return wr_iot_dns_selected_sockets(WR_IOT_DNSMASQ_EXECUTABLE,&sockets)&&
         sockets.dns_port==53&&wr_iot_dns_has_udp_port(&sockets,67)&&
         wr_iot_dns_handler_ready_at(gateway,53)&&wr_iot_dhcp_ready_at(gateway,67);
 }
