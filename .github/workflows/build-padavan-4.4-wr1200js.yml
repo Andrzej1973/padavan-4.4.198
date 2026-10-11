@@ -395,6 +395,7 @@ jobs:
         run: |
           python3 tools/tmp-upload/check-tmp-upload-preparation.py padavan-4.4
           python3 tools/tmp-upload/prepare-tmp-upload.py padavan-4.4
+          python3 tools/tmp-upload/check-tmp-image-verifier.py padavan-4.4
 
       - name: Prepare default-off shared Wi-Fi HTTP handling
         run: |
@@ -656,6 +657,19 @@ jobs:
             fi
             sha256sum "$image"
           done
+
+      - name: Verify staged firmware upload tmpfs action
+        run: |
+          set -o pipefail
+          python3 tools/tmp-upload/verify-tmp-upload-image.py padavan-4.4/trunk/romfs | tee tmp-upload-image-check.txt
+
+      - name: Preserve tmpfs upload image verification
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: tmp-upload-image-checks
+          path: tmp-upload-image-check.txt
+          if-no-files-found: warn
 
       - name: Verify station capacities from compiled radio flags
         run: |
