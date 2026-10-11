@@ -8,7 +8,8 @@ enum wr_iot_activation_operation {
  WR_IOT_PROFILE,WR_IOT_BRIDGE_PREPARE,WR_IOT_ISOLATE,WR_IOT_DHCP_START,
  WR_IOT_ATTACH,WR_IOT_BRIDGE_UP,WR_IOT_BSS_UP,WR_IOT_OBSERVE,
  WR_IOT_BRIDGE_DOWN,WR_IOT_DETACH,WR_IOT_RESTORE,
- WR_IOT_BRIDGE_REMOVE,WR_IOT_GUARD_REMOVE
+ WR_IOT_BRIDGE_REMOVE,WR_IOT_GUARD_REMOVE,
+ WR_IOT_POLICY
 };
 struct wr_iot_activation_backend {
  int (*perform)(void *,enum wr_iot_activation_operation);
@@ -54,12 +55,14 @@ static inline int wr_iot_activation_recover(struct wr_iot_activation *state){
 static inline int wr_iot_activation_start(struct wr_iot_activation *state,const struct wr_iot_activation_backend *backend,void *context){
  static const enum wr_iot_activation_operation operations[]={
   WR_IOT_QUIESCE,WR_IOT_PROFILE,WR_IOT_BRIDGE_PREPARE,WR_IOT_ISOLATE,
-  WR_IOT_ATTACH,WR_IOT_BRIDGE_UP,WR_IOT_DHCP_START,WR_IOT_BSS_UP,WR_IOT_OBSERVE
+  WR_IOT_ATTACH,WR_IOT_BRIDGE_UP,WR_IOT_DHCP_START,WR_IOT_POLICY,WR_IOT_BSS_UP,WR_IOT_OBSERVE
  };
  unsigned int i;
  /* Bring up the isolated gateway before probing DHCP/DNS on its subnet.
   * ra2 stays DOWN throughout; client access opens only after service readiness.
   * DHCP_START must prove protocol readiness, not merely launch a process. */
+ /* POLICY applies and observes the scoped DHCP/DNS/WAN policy while BSS is
+  * still down. The earlier ISOLATE operation establishes full quarantine. */
  if(!state||!backend||!backend->perform||!backend->unlock||state->state!=WR_IOT_INACTIVE||state->locked||state->snapshot)return 0;
  state->backend=backend;state->context=context;
  if(!wr_iot_activation_call(state,WR_IOT_LOCK))return 0;
