@@ -3,6 +3,11 @@ run-name: "WR1200JS Linux 4.4.198 build"
 
 on:
   workflow_call:
+    inputs:
+      run_candidate_checks:
+        description: Compile isolated experimental candidates after firmware verification
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -385,7 +390,7 @@ jobs:
         run: |
           node tools/shared-wifi/check-ui.js
           python3 tools/shared-wifi/prepare-ui.py padavan-4.4
-          python3 tools/iot/prepare-rc.py padavan-4.4
+          # IoT integration is deferred from this device test firmware.
           python3 tools/prepare-shared-wifi.py padavan-4.4
           python3 tools/connected-devices/prepare-http.py padavan-4.4
           python3 tools/connected-devices/prepare-radio.py padavan-4.4
@@ -414,6 +419,8 @@ jobs:
         run: |
           trap 'printf "Firmware build verification failed: %s\n" "$BASH_COMMAND" >&2' ERR
           cd padavan-4.4
+          test ! -e trunk/user/rc/wr-iot-profile.c
+          test ! -d trunk/user/rc/wr-iot
           make WR1200JS TOOLCHAIN=mipsel-linux-uclibc CONFIG_CCACHE=y
           grep -qx 'CONFIG_CCACHE=y' trunk/.config
           test "$(readlink toolchain/toolchain-mipsel/lib/ccache/mipsel-linux-uclibc-gcc)" = /usr/bin/ccache
@@ -428,10 +435,6 @@ jobs:
           done
           grep -a -F -q 'wr_rssi.json' trunk/romfs/usr/sbin/httpd
           bash ../tools/connected-devices/check-rssi-kernel.sh trunk/linux-4.4.x "$compiler" ../rssi-kernel-probe
-          for radio in mt76x2 mt76x3; do
-            python3 ../tools/iot/check-capacity.py trunk/linux-4.4.x "$radio" \
-              --compiler "$compiler" --output "../iot-capacity-$radio.json"
-          done
           if grep -qx 'CONFIG_FIRMWARE_INCLUDE_WR_BAND_STEERING=y' trunk/.config; then
             grep -qx 'CONFIG_MT7603E_BAND_STEERING_7603=y' trunk/linux-4.4.x/.config
             grep -qx 'CONFIG_RT_BAND_STEERING=y' trunk/linux-4.4.x/.config
@@ -819,6 +822,7 @@ jobs:
           path: |
             padavan-4.4/trunk/.config
             padavan-4.4/trunk/linux-4.4.x/.config
+            padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
             padavan-4.4/trunk/images/*.trx
             padavan-4.4/trunk/romfs/usr/sbin/wr-band-steering
             padavan-4.4/trunk/romfs/usr/sbin/wr-band-steering-ctl
@@ -870,6 +874,7 @@ jobs:
 
 
       - name: Compile isolated full Band Steering drivers
+        if: ${{ inputs.run_candidate_checks }}
         # Candidate RSSI instrumentation needs its own compile even when production steering is enabled.
         if: ${{ !cancelled() && steps.firmware_build.conclusion == 'success' }}
         env:
@@ -934,7 +939,7 @@ jobs:
           sha256sum -c band-steering-driver-results/baseline-config.sha256
 
       - name: Upload full Band Steering driver diagnostics
-        if: always()
+        if: ${{ inputs.run_candidate_checks && (always()) }}
         uses: actions/upload-artifact@v7
         with:
           name: band-steering-full-driver-probe
@@ -942,7 +947,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Compile complete isolated rc with steering profile integration
-        if: ${{ !cancelled() && steps.firmware_build.conclusion == 'success' && steps.steering_prepare.outputs.enabled != 'y' }}
+        if: ${{ inputs.run_candidate_checks && (!cancelled() && steps.firmware_build.conclusion == 'success' && steps.steering_prepare.outputs.enabled != 'y') }}
         run: |
           set -euo pipefail
           compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
@@ -950,7 +955,7 @@ jobs:
           bash tools/band-steering/compile-rc-profile.sh "$PWD/padavan-4.4/trunk" \
             "$RUNNER_TEMP/wr1200js-steering-rc-probe" "$compiler"
       - name: Upload full rc profile integration diagnostics
-        if: always()
+        if: ${{ inputs.run_candidate_checks && (always()) }}
         uses: actions/upload-artifact@v7
         with:
           name: band-steering-full-rc-profile-probe
@@ -958,6 +963,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Compile EoIP IPv4 candidate module
+        if: ${{ inputs.run_candidate_checks }}
         run: |
           set -euo pipefail
           kernel="$PWD/padavan-4.4/trunk/linux-4.4.x"
@@ -979,7 +985,7 @@ jobs:
 
 
       - name: Upload EoIP candidate diagnostics
-        if: always()
+        if: ${{ inputs.run_candidate_checks && (always()) }}
         uses: actions/upload-artifact@v7
         with:
           name: eoip-candidate-compile
@@ -992,7 +998,7 @@ jobs:
             overlay/padavan-4.4/candidates/eoip/eoip
 
       - name: Compile package against actual isolated steering drivers
-        if: ${{ !cancelled() && steps.firmware_build.conclusion == 'success' && steps.steering_prepare.outputs.enabled != 'y' }}
+        if: ${{ inputs.run_candidate_checks && (!cancelled() && steps.firmware_build.conclusion == 'success' && steps.steering_prepare.outputs.enabled != 'y') }}
         run: |
           set -euo pipefail
           compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
@@ -1010,7 +1016,7 @@ jobs:
             "$PWD/band-steering-driver-package-results/registered" "$compiler"
 
       - name: Upload driver-matched steering package diagnostics
-        if: always()
+        if: ${{ inputs.run_candidate_checks && (always()) }}
         uses: actions/upload-artifact@v7
         with:
           name: band-steering-driver-package-probe
@@ -1019,6 +1025,7 @@ jobs:
           retention-days: 14
 
       - name: Compile PCRE2 candidate for modern Privoxy
+        if: ${{ inputs.run_candidate_checks }}
         run: |
           set -euo pipefail
           compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
@@ -1045,7 +1052,7 @@ jobs:
           readelf -d ../stage/lib/libpcre2-8.so.0 > ../elf-dependencies.txt
 
       - name: Upload PCRE2 candidate diagnostics
-        if: always()
+        if: ${{ inputs.run_candidate_checks && (always()) }}
         uses: actions/upload-artifact@v7
         with:
           name: pcre2-candidate
@@ -1058,6 +1065,7 @@ jobs:
             pcre2-candidate-build/stage/lib/libpcre2-posix.so*
 
       - name: Compile Privoxy 4.2 candidate
+        if: ${{ inputs.run_candidate_checks }}
         run: |
           set -euo pipefail
           compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
@@ -1070,7 +1078,7 @@ jobs:
             sh overlay/padavan-4.4/candidates/privoxy/compile-privoxy.sh
 
       - name: Upload Privoxy candidate diagnostics
-        if: always()
+        if: ${{ inputs.run_candidate_checks && (always()) }}
         uses: actions/upload-artifact@v7
         with:
           name: privoxy-candidate
@@ -1084,6 +1092,7 @@ jobs:
             privoxy-candidate-build/privoxy-4.2.0-stable/privoxy
 
       - name: Compile Stubby DoT candidate
+        if: ${{ inputs.run_candidate_checks }}
         run: |
           set -euo pipefail
           compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
@@ -1094,7 +1103,7 @@ jobs:
             bash overlay/padavan-4.4/candidates/stubby/compile-stubby.sh
 
       - name: Upload Stubby candidate diagnostics
-        if: always()
+        if: ${{ inputs.run_candidate_checks && (always()) }}
         uses: actions/upload-artifact@v7
         with:
           name: stubby-candidate
@@ -1108,7 +1117,7 @@ jobs:
             stubby-candidate-build/build/CMakeFiles/CMake*.log
 
       - name: Link isolated MT7621 systick candidate kernel
-        if: ${{ !cancelled() && steps.firmware_build.conclusion == 'success' && steps.steering_prepare.outputs.enabled != 'y' }}
+        if: ${{ inputs.run_candidate_checks && (!cancelled() && steps.firmware_build.conclusion == 'success' && steps.steering_prepare.outputs.enabled != 'y') }}
         run: |
           set -euo pipefail
           source_kernel="$PWD/padavan-4.4/trunk/linux-4.4.x"
@@ -1150,7 +1159,7 @@ jobs:
           sha256sum "$kernel/drivers/nvram/nvram.c" "$kernel/drivers/nvram/nvram_linux.o" > nvram-snapshot-kernel-sha256.txt
 
       - name: Upload isolated kernel link diagnostics
-        if: always()
+        if: ${{ inputs.run_candidate_checks && (always()) }}
         uses: actions/upload-artifact@v7
         with:
           name: mt7621-systick-link
@@ -1172,6 +1181,7 @@ jobs:
 
 
       - name: Compile ZeroTier 1.16.2 source candidate
+        if: ${{ inputs.run_candidate_checks }}
         run: |
           set -euo pipefail
           git init zerotier-candidate
@@ -1196,7 +1206,7 @@ jobs:
           readelf -d zerotier-candidate/zerotier-one > zerotier-candidate-dependencies.txt
 
       - name: Upload ZeroTier source candidate diagnostics
-        if: always()
+        if: ${{ inputs.run_candidate_checks && (always()) }}
         uses: actions/upload-artifact@v7
         with:
           name: zerotier-1.16.2-candidate

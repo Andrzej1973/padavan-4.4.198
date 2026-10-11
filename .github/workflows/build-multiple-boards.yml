@@ -6,7 +6,11 @@ on:
         description: Router profiles to build
         type: choice
         options: [all-supported, wr1200js]
-        default: all-supported
+        default: wr1200js
+      run_candidate_checks:
+        description: Run additional isolated experimental compilations
+        type: boolean
+        default: false
   push:
     branches: [main]
     paths:
@@ -113,6 +117,8 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJSON(needs.select.outputs.matrix) }}
     uses: ./.github/workflows/build-padavan-4.4-wr1200js.yml
+    with:
+      run_candidate_checks: ${{ inputs.run_candidate_checks || false }}
   downloads:
     if: always() && needs.select.result == 'success'
     needs: [select, build]
