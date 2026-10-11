@@ -480,3 +480,21 @@ Complete these in the WR1200JS stage before Mi Mini and offline preservation.
 Source presence, visible buttons and successful compilation are not substitutes
 for working device behavior. Main acceptance remains stability and preserved
 management/internet access.
+
+## Shared Wi-Fi asymmetric Apply defect — device report 2026-10-11
+
+The owner reports that shared Wi-Fi settings propagate to both bands only when
+applied from the 2.4 GHz page. Applying from the 5 GHz page does not update both
+bands. Treat this as an open device-reported defect; its exact cause has not
+yet been isolated.
+
+When shared mode is enabled, SSID, password and security changes must update
+both bands consistently from either page. Channel and channel width remain
+per-radio settings. Verify the form submission, server-side validation/NVRAM
+mapping and both radio restart paths. Do not merely mirror the displayed form.
+
+Acceptance: test 2.4-to-5 and 5-to-2.4 changes, saved values and effective driver
+settings, reopening both pages, restart persistence and separate mode. Preserve
+guest/IoT separation and management access. Temporary workaround: apply shared
+parameters from 2.4 GHz and verify the 5 GHz result. Screenshot log shows Band
+Steering starting; it does not establish successful client steering.
