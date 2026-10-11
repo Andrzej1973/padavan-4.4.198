@@ -524,3 +524,33 @@ Verify connect/disconnect and movement between actual attachment groups,
 manual refresh, first entry, hidden-tab behavior and CPU/RAM overhead on the
 router. The screenshot is an intended layout, not evidence of implemented
 topology or working collection.
+
+## Unified settings navigation — user approval 2026-10-11
+
+The owner approves the preceding Wi-Fi layout proposal and requests a central
+network settings page with related tabs, using the Funbox screenshots as layout
+references. Record requirements without publishing screenshots containing Wi-Fi
+credentials or QR codes.
+
+- Provide one Wi-Fi overview listing primary, guest and IoT networks with
+  explicit enable/state and configuration links. In shared mode use one form
+  for 2.4/5 GHz SSID, password, security and SSID visibility plus local QR.
+  In separate mode provide independent forms for each band.
+- Keep advanced per-radio channel, width and transmit-power settings under
+  Advanced. Preserve required underlying controls. Shared credentials do not
+  automatically enable Band Steering; give it a separate control.
+- Provide a central Network section with related tabs such as LAN/DHCP,
+  NAT/port forwarding, DNS, UPnP, dynamic DNS, DMZ and time/NTP. Final grouping
+  must follow the actual supported services and existing permission boundaries;
+  avoid duplicate inconsistent editors. VPN/service pages may link from this
+  overview while retaining their distinct settings and validation.
+- DHCP view should combine DHCP configuration, static lease management and
+  dynamic leases, with clear device names, addresses and save/apply behavior.
+- Maintain coherent theme and Ukrainian/Russian/English localization across
+  tabs, identify unsaved changes, and distinguish Save/Apply and service status.
+  Reuse proven ported backends and existing authorization instead of replacing
+  networking logic merely to change navigation.
+- Verify navigation, direct routes, conditional service inclusion, validation,
+  persistence and actual device behavior. The screenshot is a design reference,
+  not evidence of implementation. This remains WR1200JS work and must preserve
+  the existing stable-management-access priority.
