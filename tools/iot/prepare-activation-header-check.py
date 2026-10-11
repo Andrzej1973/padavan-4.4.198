@@ -25,6 +25,13 @@ end=service.index('\n}',begin)+2
 installed=service[begin:end]
 if 'wr_iot_network_services_ready' not in installed:
     raise SystemExit('installed candidate readiness does not use protocol check')
+firewall=(rc/'firewall_ex.c').read_text(encoding='utf-8')
+anchor='int wr_iot_quarantine_apply(void)\n{'
+if firewall.count(anchor)!=1:raise SystemExit('installed quarantine apply missing or duplicated')
+begin=firewall.index(anchor);end=firewall.index('\n}',begin)+2
+apply=firewall[begin:end]
+if 'start_firewall_ex();' not in apply or 'wr_iot_quarantine_ready()' not in apply:
+    raise SystemExit('installed quarantine apply does not check final policy')
 a.output.parent.mkdir(parents=True,exist_ok=True)
 a.output.write_text(prefix+'''#include "rc.h"
 #include "wr-iot/network-check.h"
@@ -32,7 +39,11 @@ a.output.write_text(prefix+'''#include "rc.h"
 #include "wr-iot/request.h"
 #include "wr-iot/radio-profile-state.h"
 #include "wr-iot/quarantine-live.h"
-'''+installed+'''
+#include "wr-iot/quarantine.h"
+#ifndef USE_IPV6
+#define USE_IPV6
+#endif
+'''+installed+'\n'+apply+'''
 int main(void) {
  struct wr_iot_request request;
  struct wr_iot_activation activation;
@@ -45,7 +56,7 @@ int main(void) {
   if (wr_iot_radio_profile_restore(&profile))
    (void)wr_iot_radio_profile_finish(&profile);
  }
- return request.enabled || activation.locked || wr_iot_restart_candidate_ready() || wr_iot_quarantine_live(0);
+ return request.enabled || activation.locked || wr_iot_restart_candidate_ready() || wr_iot_quarantine_live(0) || wr_iot_quarantine_apply();
 }
 ''',encoding='utf-8')
 print('Prepared staged RC activation/request header compile probe')

@@ -536,6 +536,11 @@ if make.count('wr-iot-network.o')!=1:raise SystemExit('Quarantine object link an
 make=make.replace('wr-iot-network.o','wr-iot-network.o wr-iot-quarantine.o\nLDFLAGS += -lrt',1)
 m.write_text(make,encoding='utf-8')
 report['quarantine_readback_object_linked']=True
+firewall=path.read_text(encoding='utf-8')
+if 'int wr_iot_quarantine_apply(void)' in firewall:raise SystemExit('Quarantine apply already installed')
+firewall+='\n'+(local/'quarantine-apply.inc').read_text(encoding='utf-8')
+path.write_text(firewall,encoding='utf-8')
+report['quarantine_checked_apply_installed']=True
 (a.source/'iot-rc-source.json').write_text(json.dumps(report,indent=2)+'\n')
 print('PASS WR-only IoT bridge object and owned quiescence source integration; activation pending')
 
