@@ -2,6 +2,7 @@
 #include <assert.h>
 #include "quarantine-check.h"
 #include "policy-normalize.h"
+#include "policy-check.h"
 int main(void) {
  {
   char a[1024],b[1024];
@@ -22,6 +23,19 @@ int main(void) {
  struct wr_iot_firewall out,before;struct wr_iot_range lan={0xc0a80100,0xc0a801ff};
  assert(wr_iot_firewall_plan(&out,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0));assert(!out.ipv4[0]&&!out.ipv6[0]);
  assert(wr_iot_firewall_plan(&out,1,"br0","eth2.2","192.168.50.1","255.255.255.0","192.168.50.20","192.168.50.200",&lan,1));
+ {
+  char snapshot[16384],bad[16384],*port;
+  snprintf(snapshot,sizeof(snapshot),"*filter\n:INPUT ACCEPT [0:0]\n:FORWARD ACCEPT [0:0]\n%sCOMMIT\n",out.ipv4);
+  assert(wr_iot_policy_snapshot(snapshot,strlen(snapshot),out.ipv4));
+  snprintf(bad,sizeof(bad),"*filter\n-A INPUT -j ACCEPT\n%sCOMMIT\n",out.ipv4);
+  assert(!wr_iot_policy_snapshot(bad,strlen(bad),out.ipv4));
+  strcpy(bad,snapshot);port=strstr(bad,"--dport 53");assert(port);port[9]='4';
+  assert(!wr_iot_policy_snapshot(bad,strlen(bad),out.ipv4));
+  assert(!wr_iot_policy_snapshot(snapshot,strlen(snapshot)-8,out.ipv4));
+  snprintf(snapshot,sizeof(snapshot),"*filter\n%sCOMMIT\n",out.ipv6);
+  assert(wr_iot_policy_snapshot(snapshot,strlen(snapshot),out.ipv6));
+  puts("PASS expected active policy prefixes: complete IPv4/IPv6 plan, prior accept and changed DNS port rejected; live capture not bound");
+ }
  assert(strstr(out.ipv4,"--dst-range 192.168.1.0-192.168.1.255 -j DROP"));
  assert(strstr(out.ipv4,"-A INPUT -i br-iot -j DROP"));
  assert(strstr(out.ipv4,"-A FORWARD -i br-iot -o eth2.2 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT"));
