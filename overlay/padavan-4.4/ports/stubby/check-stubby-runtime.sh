@@ -36,7 +36,13 @@ command -v dig >/dev/null || { echo 'FAIL dig required'; exit 1; }
 [ -f "$romfs/bin/busybox" ] || { echo 'FAIL image BusyBox missing'; exit 1; }
 "$qemu" -L "$romfs" "$romfs/bin/busybox" sh -c 'type type >/dev/null' ||
     { echo 'FAIL image shell lacks the dependency-check builtin'; exit 1; }
-for script in "$here/stubby.sh" "$here/../privoxy/privoxy.sh" "$here/../zerotier/firewall-policy.sh"; do
+for pair in "stubby.sh:usr/bin/stubby.sh" "../privoxy/privoxy.sh:usr/bin/privoxy.sh" "../zerotier/firewall-policy.sh:usr/bin/zerotier-policy.sh"; do
+    source_script="$here/${pair%%:*}"
+    script="$romfs/${pair#*:}"
+    [ -f "$script" ] && [ -x "$script" ] ||
+        { echo "FAIL shipped service script missing or not executable: $script"; exit 1; }
+    cmp -s "$source_script" "$script" ||
+        { echo "FAIL shipped service script differs from tested source: $script"; exit 1; }
     "$qemu" -L "$romfs" "$romfs/bin/busybox" sh -n "$script" ||
         { echo "FAIL image shell rejects $script"; exit 1; }
     if grep -Eq 'command[[:space:]]+-v' "$script"; then
