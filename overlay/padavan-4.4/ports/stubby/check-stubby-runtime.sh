@@ -31,6 +31,21 @@ done
 qemu=$(command -v qemu-mipsel-static || command -v qemu-mipsel) || { echo 'FAIL qemu-mipsel(-static) required'; exit 1; }
 command -v dig >/dev/null || { echo 'FAIL dig required'; exit 1; }
 
+# Execute shell compatibility checks with the image shell, not the host shell.
+# This catches missing builtins; full service lifecycle tests remain separate.
+[ -f "$romfs/bin/busybox" ] || { echo 'FAIL image BusyBox missing'; exit 1; }
+"$qemu" -L "$romfs" "$romfs/bin/busybox" sh -c 'type type >/dev/null' ||
+    { echo 'FAIL image shell lacks the dependency-check builtin'; exit 1; }
+for script in "$here/stubby.sh" "$here/../privoxy/privoxy.sh" "$here/../zerotier/firewall-policy.sh"; do
+    "$qemu" -L "$romfs" "$romfs/bin/busybox" sh -n "$script" ||
+        { echo "FAIL image shell rejects $script"; exit 1; }
+    if grep -Eq 'command[[:space:]]+-v' "$script"; then
+        "$qemu" -L "$romfs" "$romfs/bin/busybox" sh -c 'command -v type >/dev/null' ||
+            { echo "FAIL unsupported command -v dependency check in $script"; exit 1; }
+    fi
+done
+echo 'PASS image BusyBox builtin and three service-script syntax checks'
+
 . "$here/stubby-test-env.sh"
 STUBBY_REAL="$qemu -L $romfs $romfs/usr/sbin/stubby"
 export STUBBY_REAL
