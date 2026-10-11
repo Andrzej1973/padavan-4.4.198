@@ -22,8 +22,15 @@ while depth:
     depth += (s[end] == '{') - (s[end] == '}')
     end += 1
 body += '\n' + s[start:end]
+anchor='int wr_iot_quarantine_apply(void)\n{'
+if s.count(anchor)!=1:raise SystemExit('Installed quarantine apply missing or duplicated')
+start=s.index(anchor);opening=s.index('{',start);depth=1;end=opening+1
+while depth:
+    depth+=(s[end]=='{')-(s[end]=='}');end+=1
+body+='\n'+s[start:end]
 prefix = r'''
 #define _GNU_SOURCE
+#define USE_IPV6 1
 #include "firewall.h"
 #include "route-snapshot.h"
 #include "dns-config.h"
@@ -34,6 +41,11 @@ static const char *gateway="192.168.50.1";
 static int wr_iot_bridge_is_owned(void){return owned;}
 static int get_ap_mode(void){return ap;}
 static int nvram_get_int(const char *key){if(!strcmp(key,"wr_iot_firewall_t"))return gate;assert(!strcmp(key,"wr_iot_network_t"));return network;}
+static int apply_allowed=1,apply_ready=1,apply_calls,apply_changed,apply_invalid;
+static int nvram_match(const char *key,const char *value){assert(!strcmp(value,"0"));return !apply_invalid&&nvram_get_int(key)==0;}
+static int wr_iot_quarantine_can_apply(void){return apply_allowed;}
+static void start_firewall_ex(void){apply_calls++;if(apply_changed)gate=1;}
+static int wr_iot_quarantine_ready(void){assert(apply_calls);return apply_ready;}
 static const char *nvram_safe_get(const char *key){
  if(!strcmp(key,"wr_iot_gateway_t"))return gateway;
  if(!strcmp(key,"wr_iot_mask_t"))return "255.255.255.0";
@@ -86,6 +98,15 @@ int main(void){
  route_ok=0;check(1,"eth2.2",1);route_ok=1;overlap=1;check(1,"eth2.2",1);overlap=0;
  gateway="invalid";check(1,"eth2.2",1);gateway="192.168.50.1";check(1,"eth2.2\n-j ACCEPT",1);
  check(1,"",2);check(1,"eth2.2",2);
+ gate=network=0;assert(wr_iot_quarantine_apply());assert(apply_calls==1);
+ gate=1;assert(!wr_iot_quarantine_apply());assert(apply_calls==1);gate=0;
+ network=1;assert(!wr_iot_quarantine_apply());assert(apply_calls==1);network=0;
+ apply_allowed=0;assert(!wr_iot_quarantine_apply());assert(apply_calls==1);apply_allowed=1;
+ apply_invalid=1;assert(!wr_iot_quarantine_apply());assert(apply_calls==1);apply_invalid=0;
+ apply_ready=0;assert(!wr_iot_quarantine_apply());assert(apply_calls==2);apply_ready=1;
+ apply_changed=1;assert(!wr_iot_quarantine_apply());assert(apply_calls==3&&gate==1);
+ apply_changed=0;gate=0;assert(wr_iot_quarantine_apply());assert(apply_calls==4);
+ puts("PASS installed quarantine apply: disabled gates and eligible bridge required, final policy failure and post-script gate change rejected; firewall execution injected");
  puts("PASS installed IoT firewall and scoped NAT helpers: scoped allow, ownership/gates, DNS/DHCP ports, inventory failures and overlap quarantine; kernel observations injected");return 0;
 }
 '''

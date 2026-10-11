@@ -10,7 +10,8 @@ int wr_iot_quarantine_apply(void)
  /* Includes the configured post-firewall scripts. Validate their final rules,
   * since successful generation alone does not establish installed isolation. */
  start_firewall_ex();
- return wr_iot_quarantine_ready();
+ return nvram_match("wr_iot_network_t","0") &&
+        nvram_match("wr_iot_firewall_t","0") && wr_iot_quarantine_ready();
 #else
  return 0;
 #endif
