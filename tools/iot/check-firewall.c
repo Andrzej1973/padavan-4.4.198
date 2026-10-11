@@ -7,7 +7,7 @@ int main(void) {
  {
   char a[1024],b[1024];
   assert(wr_iot_policy_normalize(a,sizeof(a),"-A INPUT -i br-iot -d 192.168.50.1 -p udp --dport 53 -j ACCEPT"));
-  assert(wr_iot_policy_normalize(b,sizeof(b),"-A INPUT -i br-iot -d 192.168.50.1/32 -p udp -m udp --dport 53 -j ACCEPT"));
+  assert(wr_iot_policy_normalize(b,sizeof(b),"-A INPUT -d 192.168.50.1/32 -i br-iot -p udp -m udp --dport 53 -j ACCEPT"));
   assert(!strcmp(a,b));
   assert(wr_iot_policy_normalize(a,sizeof(a),"-A FORWARD ! -s 192.168.50.0/255.255.255.0 -m state --state NEW,ESTABLISHED,RELATED -j DROP"));
   assert(wr_iot_policy_normalize(b,sizeof(b),"-A FORWARD ! -s 192.168.50.0/24 -m state --state RELATED,NEW,ESTABLISHED -j DROP"));

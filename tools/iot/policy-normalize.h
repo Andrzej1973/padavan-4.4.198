@@ -1,5 +1,6 @@
 /* Normalize only known equivalent renderings from legacy iptables-save.
- * Preserve chain, option order, negation, ports and targets for exact comparison.
+ * Canonicalize recognized independent option groups; preserve chain, negation,
+ * ports and targets. Duplicate or unsupported option groups are refused.
  * Unsupported/oversized forms fail; this is not an installed-policy proof. */
 #ifndef WR_IOT_POLICY_NORMALIZE_H
 #define WR_IOT_POLICY_NORMALIZE_H
@@ -48,6 +49,43 @@ static inline int wr_iot_policy_states(char out[64],const char *text){
  }
  return bits!=0;
 }
+static inline int wr_iot_policy_order(char *out,size_t capacity,char *rule){
+ char groups[32][128],result[1024],*save,*token,*chain;size_t count=0,i,j,used;
+ static const char *const options[]={"-s","-d","-i","-o","-p","-m","--state","--sport","--dport","--dst-range","-j"};
+ token=strtok_r(rule," ",&save);if(!token||strcmp(token,"-A"))return 0;
+ chain=strtok_r(NULL," ",&save);if(!chain)return 0;
+ while((token=strtok_r(NULL," ",&save))){
+  int negate=!strcmp(token,"!");char *argument;int n;
+  if(negate)token=strtok_r(NULL," ",&save);
+  if(!token||count==32)return 0;
+  for(i=0;i<sizeof(options)/sizeof(options[0]);i++)if(!strcmp(token,options[i]))break;
+  if(i==sizeof(options)/sizeof(options[0]))return 0;
+  if(negate&&strcmp(token,"-s")&&strcmp(token,"-d")&&strcmp(token,"-i")&&strcmp(token,"-o")&&strcmp(token,"-p"))return 0;
+  argument=strtok_r(NULL," ",&save);if(!argument)return 0;
+  n=snprintf(groups[count],sizeof(groups[count]),"%s%s %s",negate?"! ":"",token,argument);
+  if(n<0||(size_t)n>=sizeof(groups[count]))return 0;
+  for(j=0;j<count;j++){
+   const char *prior=groups[j]+(!strncmp(groups[j],"! ",2)?2:0);
+   if(!strncmp(prior,token,strlen(token))&&prior[strlen(token)]==' ')return 0;
+  }
+  count++;
+ }
+ for(i=0;i<count;i++)for(j=i+1;j<count;j++)if(strcmp(groups[i],groups[j])>0){
+  char swap[128];strcpy(swap,groups[i]);strcpy(groups[i],groups[j]);strcpy(groups[j],swap);
+ }
+ {
+  int n=snprintf(result,sizeof(result),"-A %s",chain);
+  if(n<0||(size_t)n>=sizeof(result))return 0;
+  used=(size_t)n;
+ }
+ for(i=0;i<count;i++){
+  int n=snprintf(result+used,sizeof(result)-used," %s",groups[i]);
+  if(n<0||(size_t)n>=sizeof(result)-used)return 0;
+  used+=(size_t)n;
+ }
+ if(used>=capacity)return 0;
+ memcpy(out,result,used+1);return 1;
+}
 static inline int wr_iot_policy_normalize(char *out,size_t capacity,const char *rule){
  char copy[1024],result[1024],value[64],*tokens[128],*save,*token;
  const char *protocol=NULL;size_t count=0,i,used=0;
@@ -78,7 +116,6 @@ static inline int wr_iot_policy_normalize(char *out,size_t capacity,const char *
   if(n<0||(size_t)n>=sizeof(result)-used)return 0;
   used+=(size_t)n;
  }
- if(used>=capacity)return 0;
- memcpy(out,result,used+1);return 1;
+ return wr_iot_policy_order(out,capacity,result);
 }
 #endif
