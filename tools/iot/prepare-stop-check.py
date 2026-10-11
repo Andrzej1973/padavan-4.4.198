@@ -13,9 +13,10 @@ def function(anchor):
  return s[start:end]
 helper=function('static int wr_iot_quiesce(void)')
 stop=function('void \nstop_wifi_all_rt(void)')
-assert stop.index('wr_iot_quiesce();')<stop.index('wif_control(IFNAME_2G_APCLI, 0);')
+assert stop.index('wr_iot_last_stop_result=wr_iot_quiesce();')<stop.index('wif_control(IFNAME_2G_APCLI, 0);')
 restart=function('void\nrestart_wifi_rt(int radio_on, int need_reload_conf)')
 assert restart.index('if (!wr_iot_quiesce()) return;')<restart.index('stop_8021x_rt();')<restart.index('gen_ralink_config_2g(0);')
+assert restart.index('stop_wifi_all_rt();')<restart.index('if (!wr_iot_last_stop_result) return;')<restart.index('gen_ralink_config_2g(0);')
 # Execute the exact installed restart preflight; the remainder is represented
 # by a marker, not a claim that the full radio startup was exercised.
 restart_entry=restart[:restart.index('\tstop_8021x_rt();')]+'''\n (void)radio_on;(void)need_reload_conf;restart_progress++;\n}\n'''
@@ -37,6 +38,7 @@ static int restart_progress;
 #define LED_CONTROL(a,b) ((void)(a),(void)(b),leds++)
 static void wif_control(const char *name,int up){assert(up==0&&calls<16);names[calls++]=name;}
 #if defined(BOARD_WR1200JS)
+static int wr_iot_last_stop_result=1;
 static int nvram_get_int(const char *key){if(!strcmp(key,"wr_iot_network_t"))return network_state;assert(!strcmp(key,"wr_iot_profile_t"));return profile_state;}
 static void nvram_set_int_temp(const char *key,int value){assert(value==0&&calls==1&&bss_ok&&down_ok&&detach_ok&&detaches==1);if(!strcmp(key,"wr_iot_network_t"))network_state=value;else {assert(!strcmp(key,"wr_iot_profile_t"));profile_state=value;}state_writes++;}
 static int wr_iot_bridge_is_owned(void){return owner;}
