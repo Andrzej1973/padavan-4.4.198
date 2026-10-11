@@ -34,6 +34,7 @@ static void wif_control(const char *name,int up){assert(up==0&&calls<16);names[c
 static int nvram_get_int(const char *key){if(!strcmp(key,"wr_iot_network_t"))return network_state;assert(!strcmp(key,"wr_iot_profile_t"));return profile_state;}
 static void nvram_set_int_temp(const char *key,int value){assert(value==0&&calls==0);if(!strcmp(key,"wr_iot_network_t"))network_state=value;else {assert(!strcmp(key,"wr_iot_profile_t"));profile_state=value;}state_writes++;}
 static int wr_iot_bridge_is_owned(void){return owner;}
+static int wr_iot_bss_set_down(void){assert(calls==1&&!strcmp(names[0],"ra2"));return 1;}
 static int wr_iot_bridge_set_up(int enabled){assert(enabled==0&&calls==1&&!strcmp(names[0],"ra2")&&!detaches);downs++;return down_ok;}
 static int wr_iot_bridge_detach(void){assert(calls==1&&!strcmp(names[0],"ra2")&&downs==1&&down_ok);detaches++;return detach_ok;}
 static void logmessage(const char *tag,const char *text){assert(!strcmp(tag,"IoT Wi-Fi")&&strstr(text,"isolation"));logs++;}

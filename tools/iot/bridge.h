@@ -8,6 +8,9 @@ int wr_iot_bridge_remove(void);
 int wr_iot_bridge_is_owned(void);
 int wr_iot_bridge_attach(void);
 int wr_iot_bridge_detach(void);
+/* Administrative DOWN with readback; vendor radio quiescence needs device proof.
+ * Caller holds the service guard and owns the candidate ra2 generation. */
+int wr_iot_bss_set_down(void);
 /* Caller installs isolation before UP and stops ra2 before either transition. */
 int wr_iot_bridge_set_up(int enabled);
 #endif

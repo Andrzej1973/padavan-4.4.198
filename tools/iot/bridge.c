@@ -84,6 +84,19 @@ static int membership(int fd,unsigned long operation) {
  memset(&req,0,sizeof(req));strcpy(req.ifr_name,IOT_BRIDGE);req.ifr_ifindex=(int)index;
  return ioctl(fd,operation,&req)==0;
 }
+int wr_iot_bss_set_down(void) {
+ struct ifreq request;int fd,master,ok=0;
+ if(!if_nametoindex(IOT_BSS))return 1;
+ master=bss_master();
+ if(master<0||(master==1&&!owned()))return 0;
+ fd=socket(AF_INET,SOCK_DGRAM,0);if(fd<0)return 0;
+ memset(&request,0,sizeof(request));strcpy(request.ifr_name,IOT_BSS);
+ if(ioctl(fd,SIOCGIFFLAGS,&request))goto done;
+ request.ifr_flags&=~IFF_UP;
+ if(ioctl(fd,SIOCSIFFLAGS,&request))goto done;
+ ok=bss_down(fd);
+ done:close(fd);return ok;
+}
 int wr_iot_bridge_attach(void) {
  int fd,ok;if(!owned())return 0;
  fd=socket(AF_INET,SOCK_DGRAM,0);if(fd<0)return 0;
