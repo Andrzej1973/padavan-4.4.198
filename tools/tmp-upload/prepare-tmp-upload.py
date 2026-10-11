@@ -15,6 +15,7 @@ def prepare(root):
     web = root / 'trunk/user/www/n56u_ribbon_fixed'
     source = http / 'web_ex.c'
     page = web / 'bit_action.asp'
+    upgrade = web / 'Advanced_FirmwareUpgrade_Content.asp'
     original = source.read_text(encoding='utf-8')
     old = '\t\tsystem("mount -t tmpfs -o remount,rw,size=50M tmpfs /tmp");'
     new = '''\t\tunsigned long long limit_mib = 0;
@@ -30,6 +31,8 @@ def prepare(root):
             (window.wrTmpResult === -2 ? '<#TMP_result_memory#>' : '<#TMP_result_failed#>');
         alert(text + ' ' + window.wrTmpLimit + ' MiB');
     }''')
+    upgrade_content = replace_once(upgrade.read_text(encoding='utf-8'),
+        'style="width:50px display:none;"', 'style="margin-left:8px;"')
     labels = {
         'EN.footer': ('Increase /tmp', 'Temporarily increase the /tmp upload limit if memory permits. This does not add RAM.', 'Available /tmp limit:', 'Insufficient free memory. Unchanged /tmp limit:', 'Could not verify an increased /tmp limit. Reported limit:'),
         'UK.dict': ('Збільшити /tmp', 'Тимчасово збільшити ліміт /tmp для завантаження прошивки, якщо вистачає пам’яті. Це не додає RAM.', 'Доступний ліміт /tmp:', 'Недостатньо вільної пам’яті. Ліміт /tmp не змінено:', 'Не вдалося підтвердити збільшення /tmp. Отриманий ліміт:'),
@@ -54,6 +57,7 @@ def prepare(root):
         shutil.copyfile(Path(__file__).with_name(name), http / name)
     source.write_text(modified, encoding='utf-8')
     page.write_text(response, encoding='utf-8')
+    upgrade.write_text(upgrade_content, encoding='utf-8')
     for path, content in dictionaries:
         path.write_text(content, encoding='utf-8')
 

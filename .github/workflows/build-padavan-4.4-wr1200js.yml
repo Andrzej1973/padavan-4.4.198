@@ -391,6 +391,11 @@ jobs:
             python3 tools/prepare-wifi-qr-ui.py padavan-4.4
           fi
 
+      - name: Prepare guarded firmware upload tmpfs action
+        run: |
+          python3 tools/tmp-upload/check-tmp-upload-preparation.py padavan-4.4
+          python3 tools/tmp-upload/prepare-tmp-upload.py padavan-4.4
+
       - name: Prepare default-off shared Wi-Fi HTTP handling
         run: |
           node tools/shared-wifi/check-ui.js

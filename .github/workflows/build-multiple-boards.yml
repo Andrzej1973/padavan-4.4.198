@@ -21,6 +21,8 @@ on:
       - '.github/workflows/build-multiple-boards.yml'
       - '.github/workflows/build-padavan-4.4-wr1200js.yml'
       - 'configs.build/wr1200js.config'
+      - 'tools/tmp-upload/**'
+      - 'tools/connected-devices/check-built-radio-capacity.py'
       - 'tools/connected-devices/prepare-http.py'
       - 'tools/connected-devices/prepare-radio.py'
       - 'tools/connected-devices/prepare-background.py'
