@@ -435,3 +435,48 @@ Latest inspected donor commits on 2026-10-11:
   on WR1200JS; this does not prove complete WebUI parity.
 
 This update mechanism is planned for the end of the project; it is not active.
+
+## Screenshot-specific WebUI defects — user confirmation 2026-10-11
+
+Retain these observations alongside the runtime report above. They are open
+acceptance requirements, not completed fixes. Do not publish the original
+screenshots, logs or private router settings.
+
+- **ZeroTier:** the actual page mixes Ukrainian, English and Chinese. Translate
+  all labels, list choices, help text and errors for Ukrainian/Russian while
+  retaining English. Replace the instruction to manually reload status with
+  bounded automatic refresh, freshness/error indication and retry. Reconcile
+  router-access, LAN-access and legacy NAT controls against the actual firewall
+  implementation so their interaction is explicit. Group Moon and routes under
+  advanced controls. Verify Apply, daemon lifecycle, membership preservation,
+  permissions and actual network connectivity. The screenshot only establishes
+  a disabled/stopped UI state, not working connectivity.
+- **WireGuard/AmneziaWG:** the installed page is only a simplified WireGuard
+  client form. Full Nilabsent interface parity has NOT been ported. Carry
+  forward the donor requirement: client/server management, AmneziaWG parameters,
+  import/export, adding/removing peers, authenticated local QR, real status,
+  startup and translations. Verify kernel/userspace compatibility and preserve
+  the existing remote tunnel. An operational tunnel does not establish WebUI
+  completeness; applying an empty legacy form must not erase unrelated settings.
+- **Proxy services:** the screenshot shows Chinese proxy/DNS settings consistent
+  with the Shadowsocks page; confirm the actual route and compiled components
+  before porting. Translate labels, help and every option value. Inspect suitable
+  Nilabsent implementations and verify proxy lifecycle, DNS routing, selected
+  modes and clean restoration of ordinary DNS/internet when disabled. Keep the
+  recovery profile's proxy services disabled until verified.
+- **General service page:** mixed labels and ambiguous switches require readable
+  enabled/disabled state plus separately reported running/stopped/error state.
+  Every Apply control must be tested for validation, actual changes and
+  persistence. Audit navigation and safe settings/storage backup/restore controls.
+- **Wireless evidence:** screenshots repeat ADDBA response-policy warnings and
+  HNAT drop messages. Correlate them with association/reconnect events, traffic
+  and acceleration state; do not equate a warning with a proven kthread hang.
+  Retain the runtime Wi-Fi HNAT verification requirement.
+- **IoT remains required:** the DNS/access recovery work does not remove the
+  separate IoT SSID, isolation, DHCP/DNS, local QR, WebUI lifecycle and
+  simultaneous main/guest/IoT device acceptance already specified above.
+
+Complete these in the WR1200JS stage before Mi Mini and offline preservation.
+Source presence, visible buttons and successful compilation are not substitutes
+for working device behavior. Main acceptance remains stability and preserved
+management/internet access.
