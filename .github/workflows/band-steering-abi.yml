@@ -305,7 +305,9 @@ jobs:
             grep -q '{ "hw_nat_mode", "2" }' "$source_dir/trunk/user/shared/defaults.c"
             mkdir -p "$checks_dir"
             python3 tools/band-steering/prepare-hwnat-check.py "$source_dir" --output "$checks_dir/check.c" "${args[@]}"
-            for case_name in check check-network check-log; do
+            cases=(check check-network check-log)
+            if [ "$policy" = disabled ]; then cases+=(check-driver-mt76x2 check-driver-mt76x3); fi
+            for case_name in "${cases[@]}"; do
               gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined "$checks_dir/$case_name.c" -o "$checks_dir/$case_name"
               ASAN_OPTIONS=detect_leaks=1 "$checks_dir/$case_name"
               "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -c "$checks_dir/$case_name.c" -o "$checks_dir/$case_name-mips.o"

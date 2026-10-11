@@ -138,3 +138,58 @@ if a.disable_wifi_offload:
   text=text.replace('else if (mode==1) assert(strstr(message,"requested offload [WAN]<->[LAN/WLAN]"));', '')
   path.write_text(text,encoding='utf-8')
  print('Forced-off policy: all saved modes expect zero wireless registrations; wired module cases retained')
+ for driver in ('mt76x2','mt76x3'):
+  base=a.source/'trunk/linux-4.4.x/drivers/net/wireless/mediatek'/driver
+  h=(base/'include/os/rt_linux.h').read_text(encoding='utf-8')
+  start=h.index('#define RT_MOD_HNAT_DEREG(_net_dev)')
+  end=h.index('\n#endif',start)
+  macros=h[start:end]
+  c=(base/'ap/ap_cfg.c').read_text(encoding='utf-8')
+  start=c.rindex('INT set_hnat_register(')
+  end=c.index('\n#endif /* (CONFIG_RA_HW_NAT_WIFI_NEW_ARCH) */',start)
+  handler=c[start:end]
+  fixture=r'''#include <assert.h>
+#include <stdlib.h>
+typedef int INT;
+typedef unsigned int UINT32;
+typedef char *PSTRING;
+typedef char RTMP_STRING;
+struct wifi_dev { void *if_dev; int wdev_idx; };
+typedef struct { struct wifi_dev *wdev_list[3]; } RTMP_ADAPTER;
+#define WDEV_NUM_MAX 3
+#define TRUE 1
+#define CONFIG_RA_HW_NAT_WIFI_NEW_ARCH 1
+#define DBGPRINT(...) ((void)0)
+#define MTWF_LOG(...) ((void)0)
+static int registered, removed;
+static void register_dev(void *dev) { assert(dev); ++registered; }
+static void unregister_dev(void *dev) { assert(dev); ++removed; }
+static void (*ppe_dev_register_hook)(void *) = register_dev;
+static void (*ppe_dev_unregister_hook)(void *) = unregister_dev;
+static long simple_strtol(const char *value, void *end, int base) {
+ assert(end==NULL && base==10); return strtol(value,NULL,base);
+}
+''' + macros + '\n' + handler + r'''
+int main(void) {
+ int dev;
+ struct wifi_dev first={&dev,0}, second={&dev,1};
+ RTMP_ADAPTER adapter={{&first,NULL,&second}};
+ char *requests[]={"0","1","2","-1"};
+ unsigned int i;
+ RT_MOD_HNAT_REG(&dev);
+ assert(registered==0 && removed==1);
+ for(i=0;i<sizeof(requests)/sizeof(requests[0]);++i) {
+  removed=registered=0;
+  assert(set_hnat_register(&adapter,requests[i])==TRUE);
+  assert(registered==0 && removed==2);
+ }
+ ppe_dev_unregister_hook=NULL;
+ RT_MOD_HNAT_REG(&dev);
+ removed=registered=0;
+ assert(set_hnat_register(&adapter,"1")==TRUE);
+ assert(registered==0 && removed==0);
+ return 0;
+}
+'''
+  a.output.with_name('check-driver-'+driver+'.c').write_text(fixture,encoding='utf-8')
+ print('Generated actual driver macro/ioctl fixtures for mt76x2 and mt76x3')
