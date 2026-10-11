@@ -1,8 +1,16 @@
 #include "quarantine-live.h"
 #include "quarantine.h"
 #include "service-guard.h"
+#include "firewall.h"
 int main(int argc,char **argv){
  if(argc!=2)return 2;
+ if(!strcmp(argv[1],"policy4")||!strcmp(argv[1],"policy6")){
+  struct wr_iot_firewall rules;struct wr_iot_range lan={0xc0a80100,0xc0a801ff};
+  int ipv6=!strcmp(argv[1],"policy6");
+  if(!wr_iot_firewall_plan(&rules,1,"br0","eth2.2","192.168.50.1","255.255.255.0",
+      "192.168.50.20","192.168.50.200",&lan,1))return 2;
+  return wr_iot_policy_live(ipv6,ipv6?rules.ipv6:rules.ipv4)?0:1;
+ }
  if(!strcmp(argv[1],"owned")||!strcmp(argv[1],"can-apply")){
   int token=wr_iot_service_guard_enter(1),ready;
   if(token!=1)return 1;

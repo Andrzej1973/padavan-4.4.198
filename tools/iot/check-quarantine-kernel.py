@@ -39,5 +39,19 @@ expect('down_bridge_can_apply','can-apply',True)
 subprocess.run(['ip','link','set','br-iot','up'],check=True)
 expect('active_bridge_apply_rejected','can-apply',False)
 subprocess.run(['ip','link','set','br-iot','down'],check=True)
+for family in (4,6):
+    executable='ip6tables-legacy-restore' if family==6 else 'iptables-legacy-restore'
+    policy=(root/f'iot-filter.v{family}').read_text()
+    def apply(text):subprocess.run([executable],input=text,text=True,check=True)
+    apply(policy);expect(f'v{family}_active_policy_observed',f'policy{family}',True)
+    changed=policy.replace(':OUTPUT ACCEPT [0:0]\n',':OUTPUT ACCEPT [0:0]\n-A INPUT -j ACCEPT\n',1)
+    apply(changed);expect(f'v{family}_active_prior_accept_rejected',f'policy{family}',False)
+    changed=policy.replace('--dport 53','--dport 54') if family==4 else policy.replace('-A FORWARD -o br-iot -j DROP','-A FORWARD -o br-iot -j ACCEPT')
+    assert changed!=policy
+    apply(changed);expect(f'v{family}_active_changed_rule_rejected',f'policy{family}',False)
+    if family==4:
+        apply(policy.replace('eth2.2','eth2.3'));expect('v4_wrong_wan_rejected','policy4',False)
+    apply(policy);expect(f'v{family}_active_policy_restored',f'policy{family}',True)
 (root/'iot-quarantine-kernel.json').write_text(json.dumps({'checks':checks,'scope':'Host legacy netfilter readback; router kernel/offload/activation unverified'},indent=2)+'\n')
 print('PASS live IPv4/IPv6 quarantine readback: actual kernel rules, early accepts and wrong BSS rejected')
+print('PASS live active policy readback: IPv4 scoped DHCP/DNS/WAN and IPv6 drops, prior accept and changed rules/WAN rejected')

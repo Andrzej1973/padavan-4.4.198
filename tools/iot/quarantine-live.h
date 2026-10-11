@@ -4,6 +4,7 @@
 #ifndef WR_IOT_QUARANTINE_LIVE_H
 #define WR_IOT_QUARANTINE_LIVE_H
 #include "quarantine-check.h"
+#include "policy-check.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -23,7 +24,7 @@ static inline long long wr_iot_quarantine_clock(void){
  struct timespec t;if(clock_gettime(CLOCK_MONOTONIC,&t))return -1;
  return (long long)t.tv_sec*1000+t.tv_nsec/1000000;
 }
-static inline int wr_iot_quarantine_live(int ipv6){
+static inline int wr_iot_filter_live(int ipv6,const char *expected){
  const size_t limit=256U*1024U;char *data;int pipes[2],status=0,exited=0,eof=0,ok=0;
  pid_t child;size_t used=0;long long start,now;
  const char *path=ipv6?WR_IOT_IP6TABLES_SAVE:WR_IOT_IPTABLES_SAVE;
@@ -64,11 +65,19 @@ static inline int wr_iot_quarantine_live(int ipv6){
    if(result==child)exited=1;
    else if(result<0&&errno!=EINTR){if(errno==ECHILD)exited=1;break;}
   }
-  if(exited&&eof){ok=WIFEXITED(status)&&WEXITSTATUS(status)==0&&wr_iot_quarantine_snapshot(data,used);break;}
+  if(exited&&eof){
+   ok=WIFEXITED(status)&&WEXITSTATUS(status)==0&&
+      (expected?wr_iot_policy_snapshot(data,used,expected):wr_iot_quarantine_snapshot(data,used));
+   break;
+  }
   if(eof)ready.fd=-1;
   if(poll(&ready,1,20)<0&&errno!=EINTR)break;
  }
  if(!exited){kill(child,SIGKILL);while(waitpid(child,&status,0)<0&&errno==EINTR){} }
  close(pipes[0]);free(data);return ok;
+}
+static inline int wr_iot_quarantine_live(int ipv6){return wr_iot_filter_live(ipv6,NULL);}
+static inline int wr_iot_policy_live(int ipv6,const char *expected){
+ return expected&&*expected&&wr_iot_filter_live(ipv6,expected);
 }
 #endif
