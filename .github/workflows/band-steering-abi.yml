@@ -7,6 +7,7 @@ on:
   push:
     branches: [main]
     paths:
+      - 'tools/tmp-upload/**'
       - 'tools/shared-wifi/**'
       - 'tools/iot/**'
       - 'tools/connected-devices/**'
@@ -1469,6 +1470,21 @@ jobs:
           parent_netns="$(readlink /proc/self/ns/net)"
           sudo env WR_IOT_PARENT_NETNS="$parent_netns" unshare --net --mount --fork \
             python3 tools/iot/check-dhcp-transactions.py "$PWD/abi-results" "$PWD/iot-dnsmasq-native/src/dnsmasq"
+
+      - name: Check guarded firmware upload tmpfs limit
+        shell: bash
+        run: |
+          set -euo pipefail
+          for case_name in policy guard; do
+            gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+              "tools/tmp-upload/test-tmp-upload-$case_name.c" -o "abi-results/check-tmp-upload-$case_name"
+            "abi-results/check-tmp-upload-$case_name"
+          done
+          compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          printf '%s\n' '#include "tmp-upload-guard.h"' 'int main(void) { unsigned long long limit; return wr_tmp_upload_increase(&limit); }' > abi-results/tmp-upload-target.c
+          "$compiler" -std=gnu99 -Wall -Wextra -Werror -Os -mips32r2 -mabi=32 -msoft-float \
+            -Itools/tmp-upload -c abi-results/tmp-upload-target.c -o abi-results/tmp-upload-target.o
 
       - name: Upload ABI diagnostics
         if: always()
