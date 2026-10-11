@@ -49,6 +49,14 @@ echo 'PASS image BusyBox builtin and three service-script syntax checks'
 . "$here/stubby-test-env.sh"
 STUBBY_REAL="$qemu -L $romfs $romfs/usr/sbin/stubby"
 export STUBBY_REAL
+# The configuration functions must also run in the shipped MIPS shell.
+STUBBY_IMAGE_SHELL="$work/image-shell"
+cat > "$STUBBY_IMAGE_SHELL" <<EOF
+#!/bin/sh
+exec "$qemu" -L "$romfs" "$romfs/bin/busybox" sh "\$@"
+EOF
+chmod +x "$STUBBY_IMAGE_SHELL"
+export STUBBY_IMAGE_SHELL
 
 daemon=
 blocked=0

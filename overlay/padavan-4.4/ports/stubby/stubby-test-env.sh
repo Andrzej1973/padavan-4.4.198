@@ -58,8 +58,14 @@ generate()
         CHECKED_FILE="$work/checked.yml" STUBBY_CHECK_STATUS="${2:-0}" \
         TEST_CA_FILE="${3:-$work/share/ca.crt}"
         export PATH NVRAM_FILE LOG_FILE CHECKED_FILE STUBBY_CHECK_STATUS TEST_CA_FILE
-        . "$lib"
-        make_config
+        if [ -n "${STUBBY_IMAGE_SHELL:-}" ]; then
+            # Explicit runner: image shell executes the real configuration code.
+            # Fixture commands remain host stubs; this is not a boot/lifecycle test.
+            "$STUBBY_IMAGE_SHELL" -c '. "$1"; make_config' sh "$lib"
+        else
+            . "$lib"
+            make_config
+        fi
     ) 2>> "$work/log"
     status=$?
     config="$work/storage/stubby/stubby.yml"
