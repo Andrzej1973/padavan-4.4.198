@@ -498,3 +498,29 @@ settings, reopening both pages, restart persistence and separate mode. Preserve
 guest/IoT separation and management access. Temporary workaround: apply shared
 parameters from 2.4 GHz and verify the 5 GHz result. Screenshot log shows Band
 Steering starting; it does not establish successful client steering.
+
+## Connected-device map and refresh revision — user instruction 2026-10-11
+
+Use the supplied Funbox screenshot as a layout reference: provide Map/List views,
+grouping devices by main Wi-Fi (2.4/5 GHz), guest Wi-Fi, IoT Wi-Fi and wired LAN.
+Show names, IP, connection location and available signal/status evidence with
+the previously accepted classification/confidence. Display a physical LAN port
+or external AP only when authoritative telemetry identifies it; otherwise show
+unknown instead of guessing. USB peripherals, if presented, are a separate
+section and are not assumed to be network clients.
+
+Fetch current data on page entry and return to the visible page, add an explicit
+Refresh button and last-update/error/stale indication. The user relaxes the
+previous five-second refresh requirement: use a provisional 30-second visible
+page interval, adjustable after overhead measurements. Pause polling in hidden
+tabs, prevent overlapping requests and share bounded server-side snapshots.
+Manual refresh is required alongside less frequent automatic refresh.
+This supersedes earlier statements that manual refresh was insufficient as a
+control or that five-second polling was mandatory; timely initial display
+and honest freshness remain required.
+
+Preserve the working stock client list while fixing source_unavailable.
+Verify connect/disconnect and movement between actual attachment groups,
+manual refresh, first entry, hidden-tab behavior and CPU/RAM overhead on the
+router. The screenshot is an intended layout, not evidence of implemented
+topology or working collection.
