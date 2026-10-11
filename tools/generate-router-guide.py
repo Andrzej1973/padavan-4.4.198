@@ -75,6 +75,15 @@ SERVICE_GUIDES = {
         "links": [("Офіційна документація Amnezia", "https://docs.amnezia.org/documentation/"),
                   ("Документація AmneziaWG", "https://docs.amnezia.org/documentation/amnezia-wg/")],
     },
+    "CONFIG_FIRMWARE_INCLUDE_SSWAN": {
+        "title": "IPsec / StrongSwan",
+        "body": [
+            "IPsec використовуйте для сумісності з корпоративними або site-to-site мережами. До вмикання узгодьте з адміністратором адресу шлюзу, локальні й віддалені підмережі, метод автентифікації та маршрути.",
+            "Не замінюйте робочий WAN-маршрут маршрутом тунелю без локального резервного доступу. Після застосування перевірте встановлення SA, доступ до потрібної підмережі й DNS.",
+        ],
+        "links": [("Офіційна документація strongSwan", "https://docs.strongswan.org/"),
+                  ("Посібник strongSwan щодо site-to-site VPN", "https://docs.strongswan.org/docs/latest/howtos/siteToSite.html")],
+    },
     "CONFIG_FIRMWARE_INCLUDE_ZRAM": {
         "title": "ZRAM",
         "body": [
@@ -121,6 +130,14 @@ SERVICE_GUIDES = {
         ],
         "links": [("Документація USB/IP у Linux", "https://docs.kernel.org/usb/usbip_protocol.html")],
     },
+    "CONFIG_FIRMWARE_INCLUDE_U2EC": {
+        "title": "USB-принтер (U2EC)",
+        "body": [
+            "Підключіть принтер до USB, увімкніть службу лише в LAN і додайте принтер на комп'ютерах за адресою роутера та портом, показаними в WebUI. Не відкривайте друк у WAN.",
+            "Після перезавантаження надрукуйте тестову сторінку. Якщо пристрій не визначається, від'єднайте USB, перезавантажте роутер і підключіть принтер після повного запуску.",
+        ],
+        "links": [],
+    },
     "CONFIG_FIRMWARE_INCLUDE_EOIP": {
         "title": "EoIP",
         "body": [
@@ -140,6 +157,16 @@ SERVICE_GUIDES = {
         "body": ["Спершу перевірте тунель для одного клієнта. Лише після успішного DNS, маршрутизації та доступу до WebUI розширюйте правила на інші пристрої."],
         "links": [("Shadowsocks", "https://shadowsocks.org/")],
     },
+    "CONFIG_FIRMWARE_INCLUDE_SSLOCAL": {
+        "title": "Shadowsocks SOCKS5-клієнт",
+        "body": ["SOCKS5-клієнт слухає лише там, де він справді потрібен. Не робіть його доступним із WAN; перевірте DNS та один клієнт перед тим, як вмикати перенаправлення для мережі."],
+        "links": [("Shadowsocks", "https://shadowsocks.org/")],
+    },
+    "CONFIG_FIRMWARE_INCLUDE_VLMCSD": {
+        "title": "vlmcsd",
+        "body": ["Служба призначена тільки для сумісних лабораторних сценаріїв у власній LAN. Не відкривайте її у WAN і не використовуйте для обходу ліцензування. Якщо така потреба відсутня, залишайте службу вимкненою."],
+        "links": [("Вихідний проєкт vlmcsd", "https://github.com/Wind4/vlmcsd")],
+    },
     "CONFIG_FIRMWARE_INCLUDE_WPAD": {
         "title": "WPAD / PAC",
         "body": ["WPAD автоматично повідомляє браузерам налаштування проксі. Тримайте його вимкненим, якщо проксі не використовується; неправильний PAC може позбавити клієнтів доступу до Інтернету."],
@@ -150,6 +177,25 @@ SERVICE_GUIDES = {
         "body": ["Увімкніть після того, як 2.4 і 5 ГГц мають однакові SSID, захист і пароль. Перевіряйте переміщення клієнта по будинку; старі або IoT-клієнти можуть потребувати окремої 2.4 ГГц мережі."],
         "links": [],
     },
+}
+
+# Every enabled INCLUDE selector must be classified.  A future selector cannot
+# silently appear in a final package without either a user guide or an explicit
+# statement that it is a library/driver rather than a service.
+COMPONENT_FLAGS = {
+    "CONFIG_FIRMWARE_INCLUDE_FS_TOOLS", "CONFIG_FIRMWARE_INCLUDE_NTFS_3G",
+    "CONFIG_FIRMWARE_INCLUDE_HID", "CONFIG_FIRMWARE_INCLUDE_XFRM",
+    "CONFIG_FIRMWARE_INCLUDE_IMQ", "CONFIG_FIRMWARE_INCLUDE_IFB",
+    "CONFIG_FIRMWARE_INCLUDE_IPSET", "CONFIG_FIRMWARE_INCLUDE_LANG_RU",
+    "CONFIG_FIRMWARE_INCLUDE_LANG_UK", "CONFIG_FIRMWARE_INCLUDE_VENDOR_LOGO",
+    "CONFIG_FIRMWARE_INCLUDE_TCPDUMP", "CONFIG_FIRMWARE_INCLUDE_SOCAT",
+    "CONFIG_FIRMWARE_INCLUDE_NDISC6_RDISC6", "CONFIG_FIRMWARE_INCLUDE_EAP_PEAP",
+    "CONFIG_FIRMWARE_INCLUDE_DDNS_SSL", "CONFIG_FIRMWARE_INCLUDE_HTTPS",
+    "CONFIG_FIRMWARE_INCLUDE_DROPBEAR_FAST_CODE", "CONFIG_FIRMWARE_INCLUDE_OPENSSL_EC",
+    "CONFIG_FIRMWARE_INCLUDE_OPENSSL_EXE", "CONFIG_FIRMWARE_INCLUDE_CURL",
+    "CONFIG_FIRMWARE_INCLUDE_QUIC", "CONFIG_FIRMWARE_INCLUDE_OPENSSL_35",
+    "CONFIG_FIRMWARE_INCLUDE_LUA", "CONFIG_FIRMWARE_INCLUDE_TPROXY",
+    "CONFIG_FIRMWARE_INCLUDE_QRENCODE",
 }
 
 
@@ -181,7 +227,13 @@ def build_guide(model, config, plain):
             out.append(link(label, url, plain))
         out.append(f"Параметр профілю: {key}=y")
     covered = set(SERVICE_GUIDES)
-    leftovers = sorted(key for key, value in config.items() if value == "y" and key.startswith("CONFIG_FIRMWARE_INCLUDE_") and key not in covered)
+    leftovers = sorted(key for key, value in config.items()
+                       if value == "y" and key in COMPONENT_FLAGS)
+    unknown = sorted(key for key, value in config.items()
+                     if value == "y" and key.startswith("CONFIG_FIRMWARE_INCLUDE_")
+                     and key not in covered and key not in COMPONENT_FLAGS)
+    if unknown:
+        raise ValueError("Enabled selectors need a guide or component classification: " + ", ".join(unknown))
     heading("Включені компоненти без окремого веб-сервісу", 2)
     if leftovers:
         out += ["Ці компоненти входять до образу як підтримка протоколу, мови, утиліта або залежність. Вони не означають, що служба запущена.",
@@ -191,7 +243,7 @@ def build_guide(model, config, plain):
     heading("Збереження доступу", 2)
     out += ["Після кожної зміни перевірте WebUI, DNS на клієнті та SSH з LAN. Для DNS/VPN міняйте одну службу за раз.",
             "Не публікуйте конфігураційні архіви, приватні ключі, QR-коди, паролі або коди відновлення."]
-    return "\n\n".join(out) + "\n", [key for key, _ in enabled]
+    return "\n\n".join(out) + "\n", [key for key, _ in enabled], leftovers
 
 
 def main():
@@ -203,14 +255,16 @@ def main():
     parser.add_argument("--report", required=True, type=Path)
     args = parser.parse_args()
     config = read_config(args.config)
-    markdown, enabled = build_guide(args.model, config, plain=False)
-    text, _ = build_guide(args.model, config, plain=True)
+    markdown, enabled, components = build_guide(args.model, config, plain=False)
+    text, _, _ = build_guide(args.model, config, plain=True)
     args.markdown.parent.mkdir(parents=True, exist_ok=True)
     args.text.parent.mkdir(parents=True, exist_ok=True)
     args.markdown.write_text(markdown, encoding="utf-8")
     args.text.write_text(text, encoding="utf-8")
-    args.report.write_text("{\n  \"model\": \"%s\",\n  \"guided_services\": [%s]\n}\n" %
-                           (args.model, ", ".join('"%s"' % key for key in enabled)), encoding="utf-8")
+    args.report.write_text(
+        "{\n  \"model\": \"%s\",\n  \"guided_services\": [%s],\n  \"classified_components\": [%s]\n}\n" %
+        (args.model, ", ".join('"%s"' % key for key in enabled),
+         ", ".join('"%s"' % key for key in components)), encoding="utf-8")
 
 
 if __name__ == "__main__":
