@@ -32,12 +32,15 @@ static inline void wr_iot_activation_release(struct wr_iot_activation *state){
  * therefore runs every stage, even when activation failed before that stage. */
 static inline int wr_iot_activation_recover(struct wr_iot_activation *state){
  static const enum wr_iot_activation_operation operations[]={
-  WR_IOT_QUIESCE,WR_IOT_BRIDGE_DOWN,WR_IOT_DETACH,WR_IOT_RESTORE,
-  WR_IOT_BRIDGE_REMOVE,WR_IOT_GUARD_REMOVE
+  WR_IOT_QUIESCE,WR_IOT_BRIDGE_DOWN,WR_IOT_DETACH,WR_IOT_BRIDGE_REMOVE,
+  WR_IOT_RESTORE,WR_IOT_GUARD_REMOVE
  };
  unsigned int i;
  if(!state||state->state!=WR_IOT_RECOVERY||!state->locked||!state->snapshot)return 0;
- /* Recheck BSS quiescence on every retry; completed destructive stages
+ /* The captured baseline has no IoT bridge. Remove the owned, down, empty
+  * bridge before restoring temporary settings, which refuse a live bridge.
+  * Keep isolation until settings and previous services are restored.
+  * Recheck BSS quiescence on every retry; completed destructive stages
   * must not be repeated after their owned resource has disappeared. */
  if(state->recovery_step>sizeof(operations)/sizeof(operations[0]))return 0;
  if(!wr_iot_activation_call(state,WR_IOT_QUIESCE))return 0;
