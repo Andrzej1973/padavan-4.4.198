@@ -874,9 +874,8 @@ jobs:
 
 
       - name: Compile isolated full Band Steering drivers
-        if: ${{ inputs.run_candidate_checks }}
         # Candidate RSSI instrumentation needs its own compile even when production steering is enabled.
-        if: ${{ !cancelled() && steps.firmware_build.conclusion == 'success' }}
+        if: ${{ inputs.run_candidate_checks && (!cancelled() && steps.firmware_build.conclusion == 'success') }}
         env:
           STEERING_PREPARED: ${{ steps.steering_prepare.outputs.enabled }}
         run: |
