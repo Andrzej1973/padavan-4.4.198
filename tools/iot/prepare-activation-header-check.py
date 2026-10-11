@@ -31,6 +31,7 @@ a.output.write_text(prefix+'''#include "rc.h"
 #include "wr-iot/activation.h"
 #include "wr-iot/request.h"
 #include "wr-iot/radio-profile-state.h"
+#include "wr-iot/quarantine-live.h"
 '''+installed+'''
 int main(void) {
  struct wr_iot_request request;
@@ -44,7 +45,7 @@ int main(void) {
   if (wr_iot_radio_profile_restore(&profile))
    (void)wr_iot_radio_profile_finish(&profile);
  }
- return request.enabled || activation.locked || wr_iot_restart_candidate_ready();
+ return request.enabled || activation.locked || wr_iot_restart_candidate_ready() || wr_iot_quarantine_live(0);
 }
 ''',encoding='utf-8')
 print('Prepared staged RC activation/request header compile probe')
