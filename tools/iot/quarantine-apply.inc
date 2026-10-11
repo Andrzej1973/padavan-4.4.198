@@ -28,6 +28,16 @@ int wr_iot_quarantine_apply(void)
  return 0;
 #endif
 }
+static int wr_iot_policy_current_wan(char out[16])
+{
+ const char *value=get_wan_unit_value(0,"ifname_t");
+ size_t n=strlen(value);
+ if(n>=16)return 0;
+ memset(out,0,16);
+ if(n)memcpy(out,value,n+1);
+ else get_wan_ifname(out);
+ return strnlen(out,16)<16 && wr_iot_fw_ifname(out) && strcmp(out,IFNAME_BR);
+}
 int wr_iot_active_filter_apply(const char *lan,const char *wan)
 {
 #if defined(USE_IPV6)
@@ -43,5 +53,13 @@ int wr_iot_active_filter_apply(const char *lan,const char *wan)
 #else
  return 0;
 #endif
+}
+int wr_iot_active_filter_apply_current(void)
+{
+ char before[16],after[16];
+ if(!wr_iot_policy_current_wan(before) ||
+    !wr_iot_active_filter_apply(IFNAME_BR,before))return 0;
+ return wr_iot_policy_current_wan(after) && !strcmp(before,after) &&
+        wr_iot_active_filter_ready(IFNAME_BR,after);
 }
 #endif

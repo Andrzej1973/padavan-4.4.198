@@ -14,4 +14,6 @@ int wr_iot_active_filter_ready(const char *lan,const char *wan);
 int wr_iot_policy_can_apply(void);
 /* Caller has staged enabled gates; does not open the BSS or release snapshots. */
 int wr_iot_active_filter_apply(const char *lan,const char *wan);
+/* Uses the same WAN selection as start_firewall_ex, refuses changes mid-apply. */
+int wr_iot_active_filter_apply_current(void);
 #endif

@@ -41,6 +41,13 @@ start=s.index(anchor);opening=s.index('{',start);depth=1;end=opening+1
 while depth:
     depth+=(s[end]=='{')-(s[end]=='}');end+=1
 active_apply=s[start:end]
+for anchor in ('static int wr_iot_policy_current_wan(char out[16])\n{',
+               'int wr_iot_active_filter_apply_current(void)\n{'):
+    if s.count(anchor)!=1:raise SystemExit('Installed WAN policy adapter missing or duplicated')
+    start=s.index(anchor);opening=s.index('{',start);depth=1;end=opening+1
+    while depth:
+        depth+=(s[end]=='{')-(s[end]=='}');end+=1
+    active_apply+='\n'+s[start:end]
 anchor='int wr_iot_active_filter_ready(const char *lan,const char *wan)\n{'
 if s.count(anchor)!=1:raise SystemExit('Installed active filter readiness missing or duplicated')
 start=s.index(anchor);opening=s.index('{',start);depth=1;end=opening+1
@@ -63,13 +70,16 @@ static int nvram_get_int(const char *key){if(!strcmp(key,"wr_iot_firewall_t"))re
 static int apply_allowed=1,apply_ready=1,apply_calls,apply_changed,apply_invalid,active_changed;
 static int nvram_match(const char *key,const char *value){assert(!strcmp(value,"0")||!strcmp(value,"1"));return !apply_invalid&&nvram_get_int(key)==atoi(value);}
 static int policy_ready=1,policy_calls;
+static const char *current_wan="eth2.2";static int change_wan;
+static char *get_wan_unit_value(int unit,const char *key){assert(unit==0&&!strcmp(key,"ifname_t"));return (char *)current_wan;}
+static void get_wan_ifname(char out[16]){strcpy(out,"eth2.2");}
 static int wr_iot_policy_rules_ready(const char *v4,const char *v6){
  assert(strstr(v4,"--dport 53 -j ACCEPT")&&strstr(v4,"-o eth2.2"));
  assert(strstr(v6,"-A INPUT -i br-iot -j DROP"));policy_calls++;return policy_ready;
 }
 static int wr_iot_quarantine_can_apply(void){return apply_allowed;}
 static int wr_iot_policy_can_apply(void){return apply_allowed;}
-static void start_firewall_ex(void){apply_calls++;if(apply_changed)gate=1;if(active_changed)gate=0;}
+static void start_firewall_ex(void){apply_calls++;if(apply_changed)gate=1;if(active_changed)gate=0;if(change_wan)current_wan="eth2.3";}
 static int wr_iot_quarantine_ready(void){assert(apply_calls);return apply_ready;}
 static const char *nvram_safe_get(const char *key){
  if(!strcmp(key,"wr_iot_gateway_t"))return gateway;
@@ -106,6 +116,12 @@ static void check_nat(const char *wan,int expected){
  assert(!strcmp(text,"-A POSTROUTING -s 192.168.50.0/255.255.255.0 -o eth2.2 -j MASQUERADE\n"));
 }
 int main(void){
+ assert(wr_iot_active_filter_apply_current());
+ current_wan="";assert(wr_iot_active_filter_apply_current());
+ current_wan="01234567890123456";assert(!wr_iot_active_filter_apply_current());
+ current_wan="br0";assert(!wr_iot_active_filter_apply_current());
+ current_wan="eth2.2";change_wan=1;assert(!wr_iot_active_filter_apply_current());
+ change_wan=0;current_wan="eth2.2";apply_calls=policy_calls=0;
  assert(wr_iot_active_filter_apply("br0","eth2.2"));assert(apply_calls==1);
  apply_allowed=0;assert(!wr_iot_active_filter_apply("br0","eth2.2"));assert(apply_calls==1);apply_allowed=1;
  route_ok=0;assert(!wr_iot_active_filter_apply("br0","eth2.2"));assert(apply_calls==1);route_ok=1;
