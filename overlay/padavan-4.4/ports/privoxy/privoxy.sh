@@ -93,7 +93,7 @@ case "${1:-}" in
     start|stop|restart|check) ;;
     *) echo "Usage: $0 {start|stop|restart|check}" >&2; exit 1;;
 esac
-command -v flock >/dev/null || { echo 'Privoxy requires flock' >&2; exit 1; }
+type flock >/dev/null || { echo 'Privoxy requires flock' >&2; exit 1; }
 exec 9>/var/run/privoxy-service.lock
 flock -x -n 9 || { echo 'Another Privoxy operation is in progress' >&2; exit 1; }
 
