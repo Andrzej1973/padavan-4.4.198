@@ -34,10 +34,16 @@ The 4.4.198 firmware has not yet been re-flashed for runtime validation.
 ## DNSCrypt and source comparison
 
 `CONFIG_FIRMWARE_INCLUDE_DNSCRYPT` remains commented in the WR1200JS build
-config, as requested. The pinned Padavan base and the reviewed Nilabsent source
-contain separate DNSCrypt support and a separate page; this port does not turn
-DNSCrypt on or mix it with Stubby/DoH. It is an optional later choice, not a
-prerequisite for either encrypted DNS service.
+config. The pinned Padavan 4.4.198 source does **not** register a DNSCrypt
+package. The Nilabsent donor at commit
+[`14e4fac`](https://github.com/nilabsent/padavan-ng/tree/14e4fac1ca24ab15278378d3e994db82fc9bcdda)
+does: it supplies a 1.9.5 recipe, resolver CSV and a separate DNSCrypt page.
+That old recipe uses the resolver-list v1 format; the current official client
+line is 2.x and the current resolver list is v3. Therefore the commented
+selector is documentation only today; uncommenting it does not yet build
+DNSCrypt. Port the existing donor implementation as an optional service, but
+first verify target compatibility and choose a maintained client/list format.
+Do not enable it by default or conflate it with Stubby/DoH.
 
 The Stubby package follows the official getdns/Stubby source recipe pinned in
 `ports/stubby/PORT-CONTRACT.md`; DoH follows the preserved Nilabsent archive

@@ -27,6 +27,34 @@ Complete these steps in order, carrying all existing acceptance requirements for
 5. Final configuration/image audit: preserve required features, verify optional commented selectors separately and keep WPS optional verification last. Deliver one user download ZIP containing firmware and its config. CAKE stays excluded.
 6. Recoverable device acceptance: verify Linux 4.4.198 boot, WAN/LAN, both Wi-Fi bands under load, restored AmneziaWG, settings/services and restart persistence. User agreement on task order is not authorization to flash or disrupt the remote router.
 
+## Preserve and port existing services — user instruction 2026-10-11
+
+Treat the job as a port of the existing Padavan firmware, not a replacement
+WebUI or a collection of newly invented daemons. Audit the enabled services,
+conditional/disabled service selectors, resolver and strategy lists, menu
+routes, translations, save/restore behavior and image contents against the
+pinned base and the named Nilabsent donor. Reuse working donor implementations
+when their source version and target dependencies are suitable; record version,
+origin and data-list hashes. Never infer that a commented selector can build
+until its package recipe and runtime integration are verified.
+
+Retain the existing Administrator/Settings backup page and verify that the
+compiled ROMFS contains its menu route, NVRAM reset/save/restore controls,
+`/etc/storage` reset/backup/restore controls, commit setting and persistence
+controls. The Padavan source deliberately hides destructive/backup actions
+until `login_safe()` accepts the management session; preserve this gate and
+test the page from safe LAN or HTTPS after the firmware is running. Missing
+controls in an unsafe session must be diagnosed without weakening the gate.
+
+DNS findings and the service-by-service source map are tracked in
+`DNS-DOT-DOH-LOCALIZATION-AUDIT.md` and
+`SERVICE-PORT-AND-SETTINGS-AUDIT.md`. DoT/DoH runtime behavior, provider lists,
+time bootstrap and no-plaintext fallback require router verification. DNSCrypt
+must remain disabled until its optional Nilabsent-derived port and maintained
+resolver-list compatibility are proven. Tor and Zapret/Zapret2 remain Stage 2
+work after WR1200JS device acceptance, as previously agreed; their lists and
+source revisions must be preserved when that stage begins.
+
 After this WR1200JS sequence, complete Mi Mini, then the local databases/offline project. Record build/image evidence separately from device acceptance; leave unverified items open.
 
 ## Authoritative development location — user confirmation 2026-10-03

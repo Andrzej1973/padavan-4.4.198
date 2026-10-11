@@ -647,6 +647,20 @@ jobs:
           python3 overlay/padavan-4.4/scripts/verify-wpad.py \
             padavan-4.4/trunk wpad-image-checks.json
 
+      - name: Verify inherited settings backup and restore page
+        run: |
+          python3 overlay/padavan-4.4/scripts/verify-settings-backup.py \
+            padavan-4.4/trunk/romfs settings-backup-image-checks.json
+
+      - name: Upload settings backup and restore diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: settings-backup-image-checks
+          path: settings-backup-image-checks.json
+          if-no-files-found: ignore
+          retention-days: 14
+
       - name: Verify Stubby image packaging and ELF dependencies
         run: |
           if grep -q '^CONFIG_FIRMWARE_INCLUDE_STUBBY=y$' configs.build/wr1200js.config; then
