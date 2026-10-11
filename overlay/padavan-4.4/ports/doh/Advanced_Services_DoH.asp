@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title><#Web_Title#> - DoH</title>
+<title><#Web_Title#> - <#Service_DoH_Title#></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="-1">
@@ -25,7 +25,7 @@ var $j = jQuery.noConflict();
 <% login_state_hook(); %>
 $j(document).ready(function() { init_itoggle('doh_enable', change_doh_enabled); });
 function initial() {
-    show_banner(1); show_menu(5,6,2); show_footer(); load_body();
+    show_banner(1); show_menu(5,7,2); show_footer(); load_body();
     showhide_div('tbl_anon', found_app_doh());
     change_doh_enabled();
     load_doh_catalog();
@@ -38,16 +38,24 @@ function change_doh_enabled() {
 }
 function load_doh_catalog() {
     $j.getJSON('/doh.json', function(items) {
+        if (!Array.isArray(items) || !items.length) {
+            document.getElementById('doh_catalog_status').style.display='';
+            return;
+        }
+        var added=0;
         for(var i=0;i<4;i++) {
             var select=document.getElementById('doh_catalog_'+i);
             for(var j=0;j<items.length;j++) {
-                if(typeof items[j].url==='string' && items[j].url.indexOf('https://')===0) {
+                if(items[j] && typeof items[j].name==='string' && typeof items[j].url==='string' && items[j].url.indexOf('https://')===0) {
                     var option=new Option(items[j].name,items[j].url);
                     option.selected=(document.form['doh_server'+i].value===items[j].url);
-                    select.add(option);
+                    select.add(option); added++;
                 }
             }
         }
+        document.getElementById('doh_catalog_status').style.display=added ? 'none' : '';
+    }).fail(function() {
+        document.getElementById('doh_catalog_status').style.display='';
     });
 }
 function choose_doh(index, value) {
@@ -57,10 +65,10 @@ function applyRule() {
     if (!login_safe() || !found_app_doh()) return;
     if (document.form.doh_enable[0].checked) {
         var port = document.form.doh_listen_port.value;
-        if (!/^[0-9]{1,5}$/.test(port) || Number(port)<1 || Number(port)>65532) { alert('Listener port must be 1–65532.'); return; }
+        if (!/^[0-9]{1,5}$/.test(port) || Number(port)<1 || Number(port)>65532) { alert("<#Service_DoH_Alert_Port#>"); return; }
         var count=0;
-        for(var i=0;i<4;i++) { var url=document.form['doh_server'+i].value; if(url) { if(!/^https:\/\/.+/.test(url)) { alert('Use an HTTPS resolver URL.'); return; } count++; } }
-        if(!count) { alert('Configure at least one HTTPS resolver.'); return; }
+        for(var i=0;i<4;i++) { var url=document.form['doh_server'+i].value; if(url) { if(!/^https:\/\/.+/.test(url)) { alert("<#Service_DoH_Alert_URL#>"); return; } count++; } }
+        if(!count) { alert("<#Service_DoH_Alert_Empty#>"); return; }
     }
     document.form.action_mode.value = ' Apply ';
     document.form.current_page.value = '/Advanced_Services_DoH.asp';
@@ -68,7 +76,7 @@ function applyRule() {
     // The native apply handler reads a fixed 65535-byte encoded POST buffer.
     // Check successful form controls together, including percent encoding.
     if ($j(document.form).serialize().length > 65000) {
-        alert('The configuration is too large to save in the web interface. No changes were sent.');
+        alert("<#Service_DoH_Alert_Size#>");
         return;
     }
     showLoading();
@@ -121,19 +129,19 @@ function done_validating(action) { refreshpage(); }
                 <div class="row-fluid">
                     <div class="span12">
                         <div class="box well grad_colour_dark_blue">
-                            <h2 class="box_head round_top"><#menu5_6_5#> - DoH</h2>
+                            <h2 class="box_head round_top"><#menu5_6_5#> - <#Service_DoH_Title#></h2>
                             <div class="round_bottom">
                                 <div class="row-fluid">
                                     <div id="tabMenu" class="submenuBlock"></div>
-                                    <div class="alert alert-info" style="margin: 10px;"><#Adm_Svc_desc#></div>
+                                    <div class="alert alert-info" style="margin: 10px;"><#Service_DoH_Desc#></div>
 
                                     <table width="100%" cellpadding="4" cellspacing="0" class="table" id="tbl_anon" style="display:none">
                                         <tr>
-                                            <th colspan="2" style="background-color: #E3E3E3;">DoH</th>
+                                            <th colspan="2" style="background-color: #E3E3E3;"><#Service_DoH_Title#></th>
                                         </tr>
 
                                         <tr id="row_doh">
-                                            <th width="50%">Enable DNS-over-HTTPS</th>
+                                            <th width="50%"><#Service_DoH_Enable#></th>
                                             <td>
                                                 <div class="main_itoggle">
                                                     <div id="doh_enable_on_of">
@@ -146,16 +154,16 @@ function done_validating(action) { refreshpage(); }
                                                 </div>
                                             </td>
                                         </tr>
-<tr id="row_doh_settings"><td colspan="2"><table class="table"><tr><th>HTTPS resolver 1</th><td><select id="doh_catalog_0" onchange="choose_doh(0, this.value)"><option value="">Custom URL</option></select><input type="text" name="doh_server0" value="<% doh_value("doh_server0"); %>" maxlength="1024" class="span12"></td></tr>
-<tr><th>HTTPS resolver 2</th><td><select id="doh_catalog_1" onchange="choose_doh(1, this.value)"><option value="">Custom URL</option></select><input type="text" name="doh_server1" value="<% doh_value("doh_server1"); %>" maxlength="1024" class="span12"></td></tr>
-<tr><th>HTTPS resolver 3</th><td><select id="doh_catalog_2" onchange="choose_doh(2, this.value)"><option value="">Custom URL</option></select><input type="text" name="doh_server2" value="<% doh_value("doh_server2"); %>" maxlength="1024" class="span12"></td></tr>
-<tr><th>HTTPS resolver 4</th><td><select id="doh_catalog_3" onchange="choose_doh(3, this.value)"><option value="">Custom URL</option></select><input type="text" name="doh_server3" value="<% doh_value("doh_server3"); %>" maxlength="1024" class="span12"></td></tr>
-<tr><th>Bootstrap DNS servers</th><td><input type="text" name="doh_bootstrap_dns" value="<% doh_value("doh_bootstrap_dns"); %>" maxlength="1024" class="span12"></td></tr>
-<tr><th>First listener port</th><td><input type="text" name="doh_listen_port" value="<% doh_value("doh_listen_port"); %>" maxlength="5" class="span12"></td></tr>
-<tr><th>Listener</th><td><select name="doh_listen_mode"><option value="0" <% nvram_match_x("", "doh_listen_mode", "0", "selected"); %>>Loopback</option><option value="1" <% nvram_match_x("", "doh_listen_mode", "1", "selected"); %>>LAN address</option><option value="2" <% nvram_match_x("", "doh_listen_mode", "2", "selected"); %>>All IPv4 addresses</option></select></td></tr>
-<tr><th>Mode</th><td><select name="doh_mode"><option value="0" <% nvram_match_x("", "doh_mode", "0", "selected"); %>>Standalone</option><option value="1" <% nvram_match_x("", "doh_mode", "1", "selected"); %>>Use with dnsmasq</option></select></td></tr>
-<tr><th>HTTPS transport</th><td><select name="doh_quic"><option value="0" <% nvram_match_x("", "doh_quic", "0", "selected"); %>>HTTP/2</option><option value="1" <% nvram_match_x("", "doh_quic", "1", "selected"); %>>HTTP/3 (QUIC)</option></select></td></tr>
-</table></td></tr>
+<tr id="row_doh_settings"><td colspan="2"><table class="table"><tr><th><#Service_DoH_Resolver#> 1</th><td><select id="doh_catalog_0" onchange="choose_doh(0, this.value)"><option value=""><#Service_DoH_Custom_URL#></option></select><input type="text" name="doh_server0" value="<% doh_value("doh_server0"); %>" maxlength="1024" class="span12"></td></tr>
+<tr><th><#Service_DoH_Resolver#> 2</th><td><select id="doh_catalog_1" onchange="choose_doh(1, this.value)"><option value=""><#Service_DoH_Custom_URL#></option></select><input type="text" name="doh_server1" value="<% doh_value("doh_server1"); %>" maxlength="1024" class="span12"></td></tr>
+<tr><th><#Service_DoH_Resolver#> 3</th><td><select id="doh_catalog_2" onchange="choose_doh(2, this.value)"><option value=""><#Service_DoH_Custom_URL#></option></select><input type="text" name="doh_server2" value="<% doh_value("doh_server2"); %>" maxlength="1024" class="span12"></td></tr>
+<tr><th><#Service_DoH_Resolver#> 4</th><td><select id="doh_catalog_3" onchange="choose_doh(3, this.value)"><option value=""><#Service_DoH_Custom_URL#></option></select><input type="text" name="doh_server3" value="<% doh_value("doh_server3"); %>" maxlength="1024" class="span12"></td></tr>
+<tr><th><#Service_DoH_Bootstrap#></th><td><input type="text" name="doh_bootstrap_dns" value="<% doh_value("doh_bootstrap_dns"); %>" maxlength="1024" class="span12"></td></tr>
+<tr><th><#Service_DoH_Listener_Port#></th><td><input type="text" name="doh_listen_port" value="<% doh_value("doh_listen_port"); %>" maxlength="5" class="span12"></td></tr>
+<tr><th><#Service_DoH_Listener#></th><td><select name="doh_listen_mode"><option value="0" <% nvram_match_x("", "doh_listen_mode", "0", "selected"); %>><#Service_DoH_Loopback#></option><option value="1" <% nvram_match_x("", "doh_listen_mode", "1", "selected"); %>><#Service_DoH_LAN_Address#></option><option value="2" <% nvram_match_x("", "doh_listen_mode", "2", "selected"); %>><#Service_DoH_All_Addresses#></option></select></td></tr>
+<tr><th><#Service_DoH_Mode#></th><td><select name="doh_mode"><option value="0" <% nvram_match_x("", "doh_mode", "0", "selected"); %>><#Service_DoH_Standalone#></option><option value="1" <% nvram_match_x("", "doh_mode", "1", "selected"); %>><#Service_DoH_Use_Dnsmasq#></option></select></td></tr>
+<tr><th><#Service_DoH_Transport#></th><td><select name="doh_quic"><option value="0" <% nvram_match_x("", "doh_quic", "0", "selected"); %>><#Service_DoH_HTTP2#></option><option value="1" <% nvram_match_x("", "doh_quic", "1", "selected"); %>><#Service_DoH_HTTP3#></option></select></td></tr>
+</table><div id="doh_catalog_status" class="help-block" role="status" style="display:none"><#Service_DoH_Catalog_Unavailable#></div></td></tr>
                                     </table>
 
                                     <table class="table">

@@ -34,7 +34,7 @@ doh_dnsmasq_config(FILE *fp)
 			snprintf(key, sizeof(key), "doh_server%d", i);
 			value = nvram_safe_get(key);
 			if (!strncmp(value, "https://", 8) && strlen(value) > 8)
-				fprintf(fp, "server=%s#%d\\n", listen_addr, port + i);
+				fprintf(fp, "server=%s#%d\n", listen_addr, port + i);
 		}
 	} else {
 		logmessage("DoH", "Invalid listener; ordinary upstream DNS remains disabled");

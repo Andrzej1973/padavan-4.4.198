@@ -52,6 +52,15 @@ try:
     page = target('/www/Advanced_Services_DoH.asp').read_text()
     keys = ['doh_enable', 'doh_server0', 'doh_server1', 'doh_server2', 'doh_server3', 'doh_quic', 'doh_bootstrap_dns', 'doh_listen_port', 'doh_listen_mode', 'doh_mode']
     checks['webui'] = all(key in page for key in keys) and 'login_safe()' in page and 'found_app_doh()' in page
+    source_page = (args.trunk / 'user/www/n56u_ribbon_fixed/Advanced_Services_DoH.asp').read_text()
+    checks['services_menu_index'] = 'show_menu(5,7,2)' in source_page
+    dnsmasq_source = (args.trunk / 'user/rc/dnsmasq-doh.c').read_text()
+    checks['dnsmasq_server_line_uses_newline'] = '"server=%s#%d\\n"' in dnsmasq_source and '"server=%s#%d\\\\n"' not in dnsmasq_source
+    localized_keys = set(re.findall(r'<#(Service_DoH_[^#]+)#>', source_page))
+    for locale, dictionary in (('EN', 'EN.footer'), ('UK', 'UK.dict'), ('RU', 'RU.dict')):
+        text = (args.trunk / 'user/www/dict' / dictionary).read_text(encoding='utf-8')
+        available = {line.split('=', 1)[0] for line in text.splitlines() if '=' in line}
+        checks['locale_' + locale.lower()] = localized_keys <= available
     catalogue = json.loads(target('/www/doh.json').read_text())
     checks['resolver_catalogue'] = isinstance(catalogue, list) and bool(catalogue) and all(isinstance(item.get('name'), str) and item.get('url', '').startswith('https://') for item in catalogue)
     rc = target('/sbin/rc').read_bytes()

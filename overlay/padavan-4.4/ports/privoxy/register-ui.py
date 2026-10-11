@@ -33,16 +33,20 @@ s = menu.read_text(encoding='utf-8')
 if s.count('\tload_body();\n') != 1 or s.count('<form method="post"') != 1 or 'privoxy_settings_link' in s:
     raise SystemExit('Inspect Services link anchors')
 s = s.replace('\tload_body();\n', "\tload_body();\n\tshowhide_div('privoxy_settings_link', found_app_privoxy());\n", 1)
-edits[menu] = s.replace('<form method="post"', '<div id="privoxy_settings_link" style="display:none; margin:10px"><a href="Advanced_Services_Privoxy.asp">Privoxy</a></div>\n<form method="post"', 1)
+edits[menu] = s.replace('<form method="post"', '<div id="privoxy_settings_link" style="display:none; margin:10px"><a href="Advanced_Services_Privoxy.asp"><#Service_Privoxy_Title#></a></div>\n<form method="post"', 1)
 page = args.trunk / 'user/www/n56u_ribbon_fixed/Advanced_Services_Privoxy.asp'
 source = assets / 'Advanced_Services_Privoxy.asp'
 if page.exists() or not source.is_file():
     raise SystemExit('Inspect page destination/source')
-footer = args.trunk / 'user/www/dict/EN.footer'
-f = footer.read_text(encoding='utf-8')
-keys = {line.split('=', 1)[0] for line in f.splitlines() if '=' in line}
-additions = {'Adm_Svc_privoxy': 'Enable Privoxy proxy', 'CustomConf': 'Custom configuration'}
-edits[footer] = f.rstrip() + '\n' + ''.join(key + '=' + value + '\n' for key, value in additions.items() if key not in keys)
+for filename, language in (('EN.footer', 'EN-privoxy.footer'),
+                           ('UK.dict', 'UK-privoxy.dict'),
+                           ('RU.dict', 'RU-privoxy.dict')):
+    dictionary = args.trunk / 'user/www/dict' / filename
+    text = dictionary.read_text(encoding='utf-8')
+    keys = {line.split('=', 1)[0] for line in text.splitlines() if '=' in line}
+    additions = [line for line in (assets / language).read_text(encoding='utf-8').splitlines()
+                 if line.split('=', 1)[0] not in keys]
+    edits[dictionary] = text.rstrip() + '\n' + '\n'.join(additions) + '\n'
 for path, text in edits.items():
     path.write_text(text, encoding='utf-8')
 shutil.copyfile(source, page)

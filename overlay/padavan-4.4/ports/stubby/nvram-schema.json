@@ -12,11 +12,11 @@
     },
     {
       "name": "stubby_server1",
-      "default": ""
+      "default": "one.one.one.one"
     },
     {
       "name": "stubby_server2",
-      "default": ""
+      "default": "dns.quad9.net"
     },
     {
       "name": "stubby_server3",
@@ -28,11 +28,11 @@
     },
     {
       "name": "stubby_server_ip1",
-      "default": ""
+      "default": "1.1.1.1"
     },
     {
       "name": "stubby_server_ip2",
-      "default": ""
+      "default": "9.9.9.9"
     },
     {
       "name": "stubby_server_ip3",

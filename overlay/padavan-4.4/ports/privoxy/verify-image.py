@@ -47,6 +47,13 @@ try:
     checks['templates'] = target('/usr/share/privoxy/templates').is_dir()
     page = target('/www/Advanced_Services_Privoxy.asp').read_text()
     checks['webui'] = 'found_app_privoxy()' in page and 'login_safe()' in page and all('privoxy.' + name in page for name in ['config', 'user.action', 'user.filter', 'user.trust'])
+    source_page = (args.trunk / 'user/www/n56u_ribbon_fixed/Advanced_Services_Privoxy.asp').read_text()
+    checks['services_menu_index'] = 'show_menu(5,7,2)' in source_page
+    localized_keys = set(re.findall(r'<#(Service_Privoxy_[^#]+)#>', source_page))
+    for locale, dictionary in (('EN', 'EN.footer'), ('UK', 'UK.dict'), ('RU', 'RU.dict')):
+        text = (args.trunk / 'user/www/dict' / dictionary).read_text(encoding='utf-8')
+        available = {line.split('=', 1)[0] for line in text.splitlines() if '=' in line}
+        checks['locale_' + locale.lower()] = localized_keys <= available
     httpd = target('/usr/sbin/httpd').read_bytes()
     rc = target('/sbin/rc').read_bytes()
     checks['httpd'] = b'found_app_privoxy' in httpd and b'privoxy.user.trust' in httpd and b'restart_privoxy' in httpd

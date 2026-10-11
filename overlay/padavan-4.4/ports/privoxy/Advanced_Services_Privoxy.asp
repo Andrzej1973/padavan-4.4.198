@@ -25,7 +25,7 @@ var $j = jQuery.noConflict();
 <% login_state_hook(); %>
 $j(document).ready(function() { init_itoggle('privoxy_enable', change_privoxy_enabled); });
 function initial() {
-    show_banner(1); show_menu(5,6,2); show_footer(); load_body();
+    show_banner(1); show_menu(5,7,2); show_footer(); load_body();
     showhide_div('tbl_anon', found_app_privoxy());
     change_privoxy_enabled();
 }
@@ -46,7 +46,7 @@ function applyRule() {
     // The native apply handler reads a fixed 65535-byte encoded POST buffer.
     // Check successful form controls together, including percent encoding.
     if ($j(document.form).serialize().length > 65000) {
-        alert('The configuration is too large to save in the web interface. No changes were sent.');
+        alert("<#Service_Privoxy_Alert_Size#>");
         return;
     }
     showLoading();
@@ -99,7 +99,7 @@ function done_validating(action) { refreshpage(); }
                 <div class="row-fluid">
                     <div class="span12">
                         <div class="box well grad_colour_dark_blue">
-                            <h2 class="box_head round_top"><#menu5_6_5#> - Privoxy</h2>
+                            <h2 class="box_head round_top"><#menu5_6_5#> - <#Service_Privoxy_Title#></h2>
                             <div class="round_bottom">
                                 <div class="row-fluid">
                                     <div id="tabMenu" class="submenuBlock"></div>

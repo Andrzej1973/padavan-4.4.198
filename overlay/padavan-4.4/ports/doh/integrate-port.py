@@ -132,9 +132,18 @@ def main():
     set_edit('user/httpd/web_ex.c', web)
     www = read('user/www/Makefile')
     set_edit('user/www/Makefile', replace(www, 'clean:\n', 'ifneq ($(CONFIG_FIRMWARE_INCLUDE_DOH),y)\n\trm -f $(INSTALLDIR)/www/Advanced_Services_DoH.asp\nendif\nclean:\n'))
+    for filename, language in (('EN.footer', 'EN-doh.footer'),
+                               ('UK.dict', 'UK-doh.dict'),
+                               ('RU.dict', 'RU-doh.dict')):
+        dictionary = trunk / 'user/www/dict' / filename
+        content = dictionary.read_text(encoding='utf-8')
+        existing = {line.split('=', 1)[0] for line in content.splitlines() if '=' in line}
+        additions = [line for line in (assets / language).read_text(encoding='utf-8').splitlines()
+                     if line.split('=', 1)[0] not in existing]
+        set_edit('user/www/dict/' + filename, content.rstrip() + '\n' + '\n'.join(additions) + '\n')
     menu = read('user/www/n56u_ribbon_fixed/Advanced_Services_Content.asp')
     menu = replace(menu, '\tload_body();\n', '\tload_body();\n\tshowhide_div("doh_settings_link", found_app_doh());\n')
-    menu = replace(menu, '<form method="post"', '<div id="doh_settings_link" style="display:none; margin:10px"><a href="Advanced_Services_DoH.asp">DNS-over-HTTPS</a></div>\n<form method="post"')
+    menu = replace(menu, '<form method="post"', '<div id="doh_settings_link" style="display:none; margin:10px"><a href="Advanced_Services_DoH.asp"><#Service_DoH_Title#></a></div>\n<form method="post"')
     set_edit('user/www/n56u_ribbon_fixed/Advanced_Services_Content.asp', menu)
     copies = [(assets / name, trunk / 'user/doh_proxy' / name) for name in ('Makefile', 'doh_proxy.sh', 'doh.json')]
     copies += [(certificate, trunk / 'user/doh_proxy/cacert.pem'),

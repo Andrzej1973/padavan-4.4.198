@@ -170,12 +170,15 @@ def main():
     edits[www] = www_text.replace("clean:\n",
         'ifneq ($(CONFIG_FIRMWARE_INCLUDE_STUBBY),y)\n'
         '\trm -f $(INSTALLDIR)/www/Advanced_Services_DoT.asp\nendif\nclean:\n', 1)
-    footer = trunk / "user/www/dict/EN.footer"
-    footer_text = footer.read_text(encoding="utf-8")
-    existing_keys = {line.split("=", 1)[0] for line in footer_text.splitlines() if "=" in line}
-    additions = [line for line in (assets / "EN-stubby.footer").read_text(encoding="utf-8").splitlines()
-                 if line.split("=", 1)[0] not in existing_keys]
-    edits[footer] = footer_text.rstrip() + "\n" + "\n".join(additions) + "\n"
+    for filename, language in (("EN.footer", "EN-stubby.footer"),
+                               ("UK.dict", "UK-stubby.dict"),
+                               ("RU.dict", "RU-stubby.dict")):
+        dictionary = trunk / "user/www/dict" / filename
+        dictionary_text = dictionary.read_text(encoding="utf-8")
+        existing_keys = {line.split("=", 1)[0] for line in dictionary_text.splitlines() if "=" in line}
+        additions = [line for line in (assets / language).read_text(encoding="utf-8").splitlines()
+                     if line.split("=", 1)[0] not in existing_keys]
+        edits[dictionary] = dictionary_text.rstrip() + "\n" + "\n".join(additions) + "\n"
     services_page = trunk / "user/www/n56u_ribbon_fixed/Advanced_Services_Content.asp"
     page_text = services_page.read_text(encoding="utf-8")
     menu_anchor = "\tload_body();\n"
@@ -186,7 +189,7 @@ def main():
         "\tshowhide_div('stubby_settings_link', found_app_stubby());\n", 1)
     edits[services_page] = page_text.replace(form_anchor,
         '<div id="stubby_settings_link" style="display:none; margin:10px">'
-        '<a href="Advanced_Services_DoT.asp"><#Services_Menu_4#> (Stubby)</a></div>\n' + form_anchor, 1)
+        '<a href="Advanced_Services_DoT.asp"><#Service_Stubby_Title#></a></div>\n' + form_anchor, 1)
     busybox = trunk / "configs/boards/busybox.config"
     bb_text = busybox.read_text(encoding="utf-8")
     for option in ["FLOCK", "PIDOF", "AWK", "ASH"]:

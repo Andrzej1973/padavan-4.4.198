@@ -1,0 +1,4 @@
+Adm_Svc_privoxy=Увімкнути проксі Privoxy
+CustomConf=Власна конфігурація
+Service_Privoxy_Title=Проксі Privoxy
+Service_Privoxy_Alert_Size=Налаштування завеликі для збереження через вебінтерфейс. Зміни не надсилалися.

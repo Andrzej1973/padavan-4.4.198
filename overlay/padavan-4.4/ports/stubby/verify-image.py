@@ -53,8 +53,16 @@ def main():
         checks["serialized_lifecycle"] = "flock -x -n 9" in helper and "9>&-" in helper
         page = target_file("/www/Advanced_Services_DoT.asp").read_text()
         checks["webui"] = "found_app_stubby()" in page and "if (!login_safe())" in page
+        source_page = (args.trunk / "user/www/n56u_ribbon_fixed/Advanced_Services_DoT.asp").read_text()
+        checks["services_menu_index"] = "show_menu(5,7,2)" in source_page
+        localized_keys = set(re.findall(r"<#(Service_Stubby_[^#]+)#>", source_page))
+        for locale, dictionary in (("EN", "EN.footer"), ("UK", "UK.dict"), ("RU", "RU.dict")):
+            text = (args.trunk / "user/www/dict" / dictionary).read_text(encoding="utf-8")
+            available = {line.split("=", 1)[0] for line in text.splitlines() if "=" in line}
+            checks["locale_" + locale.lower()] = localized_keys <= available
         resolvers = json.loads(target_file("/www/dot.json").read_text())
         checks["resolver_list"] = isinstance(resolvers, list) and bool(resolvers)
+        checks["resolver_catalogue_has_router_choices"] = {"dns.google", "one.one.one.one", "dns.quad9.net"} <= {item.get("url") for item in resolvers}
         httpd = target_file("/usr/sbin/httpd").read_bytes()
         checks["httpd_fields"] = b"stubby_enable" in httpd and b"stubby_server_ip3" in httpd
         checks["httpd_capability"] = b"found_app_stubby" in httpd
@@ -68,6 +76,12 @@ def main():
         checks["stubby_ca_bundle"] = hashlib.sha256(ca).hexdigest() == "a41b5d356aea97a529fe27e0f7316d2f9d946d75927476cf9cf1b90637d00505"
         checks["stubby_ca_count"] = ca.count(b"-----BEGIN CERTIFICATE-----") == 121
         checks["stubby_explicit_ca_path"] = "CA_FILE=/usr/share/stubby/ca-certificates.crt" in helper and "tls_ca_file:" in helper
+        defaults = (args.trunk / "user/shared/defaults.c").read_text()
+        checks["current_router_resolvers_are_factory_defaults"] = all(
+            f'{{ "{key}", "{value}" }}' in defaults for key, value in (
+                ("stubby_server0", "dns.google"), ("stubby_server_ip0", "8.8.8.8"),
+                ("stubby_server1", "one.one.one.one"), ("stubby_server_ip1", "1.1.1.1"),
+                ("stubby_server2", "dns.quad9.net"), ("stubby_server_ip2", "9.9.9.9")))
         details["ca_runtime_status"] = "Pinned ROMFS bundle and generated YAML path checked; TLS handshake unverified"
 
         queue = [binary]

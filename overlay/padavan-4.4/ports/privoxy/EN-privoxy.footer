@@ -1,0 +1,4 @@
+Adm_Svc_privoxy=Enable Privoxy proxy
+CustomConf=Custom configuration
+Service_Privoxy_Title=Privoxy proxy
+Service_Privoxy_Alert_Size=The configuration is too large to save in the web interface. No changes were sent.
