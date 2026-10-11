@@ -105,7 +105,11 @@ int wr_iot_bridge_is_owned(void) {return owned();}
 int wr_iot_bridge_set_up(int enabled) {
  DIR *directory;struct dirent *entry;struct ifreq request;
  int fd,ok=0,members=0,foreign=0;
- if((enabled!=0&&enabled!=1)||!owned())return 0;
+ if(enabled!=0&&enabled!=1)return 0;
+ /* Recovery also runs after failures before bridge creation. An absent bridge
+  * is already down; trying to bring an absent bridge up must still fail. */
+ if(!if_nametoindex(IOT_BRIDGE))return !enabled;
+ if(!owned())return 0;
  directory=opendir("/sys/class/net/br-iot/brif");if(!directory)return 0;
  while((entry=readdir(directory))) {
   if(!strcmp(entry->d_name,".")||!strcmp(entry->d_name,".."))continue;

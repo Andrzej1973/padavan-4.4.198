@@ -8,6 +8,8 @@ def expect(key,operation,success):
  p=subprocess.run([binary,operation]);checks[key]=(p.returncode==0)==success;assert checks[key],key
 run('mount','--make-rprivate','/');run('mount','-t','sysfs','sysfs','/sys')
 expect('missing_remove_noop','remove',True)
+expect('missing_down_noop','down',True)
+expect('missing_up_rejected','up',False)
 run('ip','link','add','br-iot','type','bridge')
 expect('foreign_bridge_up_rejected','up',False);expect('foreign_bridge_down_rejected','down',False)
 expect('foreign_bridge_prepare_rejected','prepare',False);expect('foreign_bridge_remove_rejected','remove',False)
@@ -40,5 +42,6 @@ run('ip','link','set','ra2','up');expect('active_bss_bridge_up_rejected','up',Fa
 run('ip','link','set','ra2','down');expect('down_owned_bss_detach','detach',True)
 run('ip','link','delete','ra2');expect('owned_empty_down_remove','remove',True)
 assert not Path('/sys/class/net/br-iot').exists()
+expect('removed_bridge_down_retry_noop','down',True)
 (r/'iot-bridge-kernel.json').write_text(json.dumps({'checks':checks,'scope':'Host-kernel owned bridge ioctl lifecycle; target Wi-Fi and production RC integration unverified','runtime_verified':False},indent=2)+'\n')
 print('PASS owned IoT bridge creation stays down, conflict and active/attached guards, safe removal')
