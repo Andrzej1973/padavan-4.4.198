@@ -41,6 +41,7 @@ static int wr_iot_restart_socket_ready(unsigned int port,int dhcp4,unsigned int 
 #endif
 static struct wr_iot_service_state wr_iot_restart_state;
 static int wr_iot_restart_active,wr_iot_restart_guard,wr_iot_restart_bound;
+static int wr_iot_restart_prepared;
 static int wr_iot_restart_old_running,wr_iot_restart_stopped_candidate;
 static unsigned int wr_iot_restart_old_port,wr_iot_restart_old_dhcp_port;
 static int wr_iot_restart_old_dhcp4;
@@ -79,6 +80,7 @@ static int wr_iot_restart_finish(void)
  if(!wr_iot_service_state_finish(&wr_iot_restart_state,WR_IOT_SERVICE_LOCK_PATH))return 0;
  wr_iot_saved_release(&wr_iot_restart_lease);
  wr_iot_restart_active=0;
+ wr_iot_restart_prepared=0;
  wr_iot_service_guard_leave(wr_iot_restart_guard);wr_iot_restart_guard=0;
  return 1;
 }
@@ -107,10 +109,11 @@ static int wr_iot_restart_recover(void)
  }else if(!wr_iot_restart_wait(0))return 0;
  return wr_iot_restart_finish();
 }
-static int wr_iot_restart_transaction(void)
+static int wr_iot_restart_transaction_mode(int retain)
 {
  int result,new_dhcp4;unsigned int new_port,new_dhcp_port;char new_gateway[16]={0};
  if(wr_iot_restart_active){
+  if(wr_iot_restart_prepared)return EBUSY;
   if(!wr_iot_restart_recover())return EBUSY;
   /* Recovery retry does not immediately attempt another new configuration. */
   return EAGAIN;
@@ -156,10 +159,44 @@ static int wr_iot_restart_transaction(void)
     !wr_iot_restart_service_wait(new_port,new_dhcp4,new_dhcp_port,new_gateway)||
     !WR_IOT_CANDIDATE_READY()||
     !wr_iot_service_state_seal(&wr_iot_restart_state,WR_IOT_SERVICE_LOCK_PATH)))result=EIO;
+ /* The radio activation caller must retain recovery state until BSS startup
+  * and final observation succeed. Ordinary service restarts still commit here. */
+ if(!result&&retain){wr_iot_restart_prepared=1;return 0;}
  if(!result&&wr_iot_restart_finish())return 0;
  if(!result)result=EIO;
  if(!wr_iot_restart_recover())
   logmessage("IoT Wi-Fi","DNS/DHCP recovery incomplete; snapshots and service lock retained");
  return result;
+}
+static int wr_iot_restart_transaction(void){return wr_iot_restart_transaction_mode(0);}
+int wr_iot_dns_activation_prepare(void)
+{
+ int guard=wr_iot_service_guard_dup();
+ if(guard<0)return EBUSY;
+ close(guard);
+ return wr_iot_restart_transaction_mode(1);
+}
+int wr_iot_dns_activation_commit(void)
+{
+ unsigned int port,dhcp_port;int dhcp4,guard;char gateway[16]={0};size_t i;
+ if(!wr_iot_restart_active||!wr_iot_restart_prepared)return 0;
+ guard=wr_iot_service_guard_dup();if(guard<0)return 0;close(guard);
+ if(wr_iot_writer_journal_failed()||
+    !wr_iot_service_lock_valid(&wr_iot_restart_state.transaction.lock,WR_IOT_SERVICE_LOCK_PATH))return 0;
+ for(i=0;i<wr_iot_restart_state.transaction.files.count;i++)
+  if(!wr_iot_generated_matches(&wr_iot_restart_state.transaction.files.generated[i],
+      wr_iot_restart_state.transaction.files.paths[i]))return 0;
+ if(!wr_iot_dns_config_services_at(WR_IOT_DNS_CONFIG_PATH,&port,&dhcp4,&dhcp_port)||
+    ((port||dhcp4)&&!WR_IOT_DHCP_GATEWAY(IFNAME_BR,gateway)&&dhcp4)||
+    !wr_iot_restart_service_wait(port,dhcp4,dhcp_port,gateway)||!WR_IOT_CANDIDATE_READY())return 0;
+ return wr_iot_restart_finish();
+}
+int wr_iot_dns_activation_abort(void)
+{
+ int guard;
+ if(!wr_iot_restart_active)return 0;
+ guard=wr_iot_service_guard_dup();if(guard<0)return 0;close(guard);
+ wr_iot_restart_prepared=0;
+ return wr_iot_restart_recover();
 }
 #endif

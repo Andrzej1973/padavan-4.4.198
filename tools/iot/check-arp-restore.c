@@ -171,6 +171,19 @@ int main(void){
   assert(wr_iot_service_guard_enter(1)==1);
   assert(!wr_iot_restart_transaction()&&controller_iot_checks==1);
   wr_iot_service_guard_leave(1);
+  assert(wr_iot_dns_activation_prepare()==EBUSY);
+  assert(wr_iot_service_guard_enter(1)==1);
+  assert(!wr_iot_dns_activation_prepare());
+  assert(wr_iot_restart_active&&wr_iot_restart_prepared&&wr_iot_restart_lease_captured);
+  assert(wr_iot_restart_transaction()==EBUSY);
+  assert(wr_iot_dns_activation_abort());assert(!wr_iot_restart_active&&controller_running);
+  assert(!wr_iot_dns_activation_prepare());
+  controller_fault=9;assert(!wr_iot_dns_activation_commit());
+  assert(wr_iot_restart_active&&wr_iot_restart_prepared);
+  controller_fault=0;assert(wr_iot_dns_activation_commit());
+  assert(!wr_iot_restart_active&&!wr_iot_restart_prepared&&controller_running);
+  wr_iot_service_guard_leave(1);
+  puts("PASS deferred DNS activation: prepared snapshots retained, regular restart refused, abort restores previous service, failed final readiness retains state and commit retries; daemon injected");
   assert(!unlink("service.lock"));assert(!unlink("etc/dnsmasq.conf"));assert(!rmdir("etc/dnsmasq/dhcp"));assert(!rmdir("etc/dnsmasq"));assert(!rmdir("etc"));assert(!unlink(WR_IOT_LEASE_PATH));assert(!rmdir("tmp"));assert(!chdir("/tmp"));assert(!rmdir(directory));
  }
 
