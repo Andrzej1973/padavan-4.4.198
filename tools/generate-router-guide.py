@@ -207,11 +207,13 @@ COMPONENT_FLAGS = {
 }
 
 
-def build_guide(model, config, plain):
+def build_guide(model, config, plain, identity=None):
     out = []
     def heading(text, level=1):
         out.append(("#" * level + " " if not plain else "\n" + ("=" if level == 1 else "-") * len(text) + "\n") + text)
     heading(f"Налаштування {model}")
+    if identity:
+        out.append(identity)
     out += ["Цей посібник сформовано з увімкнених параметрів профілю прошивки.",
             "Він описує склад збірки, але не підтверджує роботу на конкретному роутері. Перед оновленням збережіть налаштування та забезпечте локальний спосіб відновлення."]
     heading("Початкова мережа і швидкість", 2)
@@ -261,10 +263,19 @@ def main():
     parser.add_argument("--markdown", required=True, type=Path)
     parser.add_argument("--text", required=True, type=Path)
     parser.add_argument("--report", required=True, type=Path)
+    parser.add_argument("--build-number")
+    parser.add_argument("--commit")
     args = parser.parse_args()
+    identity = None
+    if args.build_number or args.commit:
+        if not args.build_number or not args.commit:
+            parser.error('build-number and commit must be supplied together')
+        if not re.fullmatch(r'[1-9][0-9]{0,3}', args.build_number) or not re.fullmatch(r'[0-9a-f]{40}', args.commit):
+            parser.error('invalid build identity')
+        identity = f"Тестова збірка: {args.build_number}; позначення у версії: {args.build_number}_{args.commit[:8]}; коміт: {args.commit}."
     config = read_config(args.config)
-    markdown, enabled, components = build_guide(args.model, config, plain=False)
-    text, _, _ = build_guide(args.model, config, plain=True)
+    markdown, enabled, components = build_guide(args.model, config, plain=False, identity=identity)
+    text, _, _ = build_guide(args.model, config, plain=True, identity=identity)
     args.markdown.parent.mkdir(parents=True, exist_ok=True)
     args.text.parent.mkdir(parents=True, exist_ok=True)
     args.markdown.write_text(markdown, encoding="utf-8")

@@ -697,6 +697,7 @@ jobs:
         run: |
           python3 tools/generate-router-guide.py firmware-effective.config \
             --model WR1200JS \
+            --build-number "$GITHUB_RUN_NUMBER" --commit "$GITHUB_SHA" \
             --markdown SETUP_WR1200JS.md \
             --text SETUP_WR1200JS.txt \
             --report router-guide-report.json
