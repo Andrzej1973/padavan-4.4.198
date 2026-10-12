@@ -23,6 +23,7 @@ on:
       - 'configs.build/wr1200js.config'
       - 'tools/tmp-upload/**'
       - 'tools/generate-router-guide.py'
+      - 'tools/prepare-build-identity.py'
       - 'tools/check-router-guide.py'
       - 'docs/setup/**'
       - 'tools/connected-devices/check-built-radio-capacity.py'
