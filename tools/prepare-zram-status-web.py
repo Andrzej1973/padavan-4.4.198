@@ -26,7 +26,11 @@ static int ej_wr_zram_state(int eid, webs_t wp, int argc, char **argv)
  if (fp) {
   while (fgets(line, sizeof(line), fp)) {
    if (++rows > 256 || !strchr(line, '\n')) { failed = 1; break; }
-   if (sscanf(line, "%127s", device) == 1 && !strcmp(device, "/dev/zram0")) active = 1;
+   if (sscanf(line, "%127s", device) != 1) { failed = 1; break; }
+   if (rows == 1) {
+    if (strcmp(device, "Filename")) failed = 1;
+    if (failed) break;
+   } else if (!strcmp(device, "/dev/zram0")) active = 1;
   }
   if (ferror(fp)) failed = 1;
   if (fclose(fp)) failed = 1;

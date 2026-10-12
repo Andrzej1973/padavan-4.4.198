@@ -4,6 +4,8 @@ on:
     paths:
       - 'overlay/padavan-4.4/patches/zram-service.diff'
       - 'tools/prepare-zram-lifecycle-check.py'
+      - 'tools/prepare-zram-status-web.py'
+      - 'tools/prepare-zram-status-check.py'
       - '.github/workflows/zram-lifecycle.yml'
   workflow_dispatch:
 permissions:
@@ -20,8 +22,11 @@ jobs:
           python3 tools/prepare-zram-lifecycle-check.py --output checks/zram.c
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined checks/zram.c -o checks/zram
           ASAN_OPTIONS=detect_leaks=1 checks/zram
+          python3 tools/prepare-zram-status-check.py --output checks/zram-status.c
+          gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined checks/zram-status.c -o checks/zram-status
+          ASAN_OPTIONS=detect_leaks=1 checks/zram-status
       - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: zram-lifecycle-check
-          path: checks/zram.c
+          path: checks/*.c
