@@ -90,6 +90,7 @@ jobs:
           patch --batch --forward -p1 -d padavan-4.4 \
             < overlay/padavan-4.4/patches/zram-service.diff
           python3 overlay/padavan-4.4/scripts/fix-web-event-masks.py padavan-4.4
+          python3 tools/prepare-zram-status-web.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/add-json-route.py padavan-4.4
           mkdir -p padavan-4.4/trunk/libs/libqrencode
           cp overlay/padavan-4.4/trunk/libs/libqrencode/Makefile \

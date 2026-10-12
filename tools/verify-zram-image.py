@@ -21,6 +21,11 @@ for value in ('CONFIG_MKSWAP=y', 'CONFIG_SWAPONOFF=y', 'CONFIG_FEATURE_SWAPON_PR
     if value not in config:
         raise SystemExit('FAIL zram BusyBox dependency: ' + value)
 romfs = trunk / 'romfs'
+page = (romfs / 'www/Advanced_System_Content.asp').read_text()
+if 'wr_zram_state();' not in page or 'id="wr_zram_status"' not in page:
+    raise SystemExit('FAIL shipped ZRAM observed-state UI missing')
+if b'wr_zram_state' not in (romfs / 'usr/sbin/httpd').read_bytes():
+    raise SystemExit('FAIL linked ZRAM status handler missing')
 binary = (romfs / 'sbin/rc').read_bytes()
 if b'swapon -p 32767 -d /dev/zram0' not in binary:
     raise SystemExit('FAIL shipped rc zram startup command missing')
