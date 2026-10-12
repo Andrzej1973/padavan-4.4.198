@@ -39,3 +39,13 @@ Subsequent verification: [full build 224](https://github.com/Andrzej1973/padavan
 ## Stubby and DoH process observation
 
 Commit `64fa50b` adds separate EN/UK/RU labels for process presence beside requested settings on both DNS pages. A present process is explicitly labelled DNS-unverified. This does not implement functional resolver checks, TLS health, complete DoH child-process coverage or continuous polling. [CI 38272444310](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38272444310) passed native ASan/UBSan execution of the emitted handler for enabled/disabled, present/absent, inaccessible proc and invalid-selector cases. Full build 226 and physical-router/browser verification remain pending.
+
+## VPN source findings and implementation requirements
+
+The imported `vpncli.asp` currently hides WireGuard state when the reported state is zero or the requested enable switch is off; state 1 renders a green Connected label. This prevents users seeing disabled-but-still-present or inactive states. Keep the actual-state indicator visible for the selected supported VPN type, with requested configuration shown separately.
+
+The imported `wgc.sh` initializes `wg_latest_handshakes_t` to the current time during startup, before a successful handshake. Its later successful connection check updates that value, but the variable alone cannot establish a real peer handshake. Do not repurpose it as runtime peer evidence or alter its watchdog behavior merely to add UI status.
+
+Client interface is `wg0`. Observe real interface presence separately from actual WireGuard/AmneziaWG peer handshake data. Missing handshake or an idle/old handshake must be described accurately; a recent handshake does not prove all routes or Internet traffic work. An observer must use bounded read-only operations, disclose sampling age, and avoid exposing peer/private keys. Interface and handshake observations remain unimplemented at this stage.
+
+The subsequent interface observer reads fixed sysfs flags for client `wg0` and server `wg1`. It reports absent/UP/DOWN/unknown states separately from requested configuration, labels peer connectivity unverified and changes the client controller badge to an explicitly historical label. EN/UK/RU labels, source preparation and native observer tests are wired into CI; build and test results are pending. Actual peer-handshake observation, continuous refresh and router/browser execution remain unimplemented or unverified.
