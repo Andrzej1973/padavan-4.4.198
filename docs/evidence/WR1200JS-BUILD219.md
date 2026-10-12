@@ -1,5 +1,7 @@
 # WR1200JS test build 219
 
+Superseded for ZRAM lifecycle verification: build 219 compares the unrounded requested disksize with the kernel's page-aligned value. On the observed 123652 KiB RAM device this can reject successful initialization and deactivate swap. Commit `932424a34ef13498803aa2ec20840250666e6547` corrects the comparison using the runtime page size. Its [regression run](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38261975395) passed with the actual memory size; [full test build 220](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38261975445) remains pending. The packaging evidence below remains valid.
+
 [Run 38171596542](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38171596542) completed successfully on commit b642bd6. The board build, downloads and firmware-zip jobs all passed. Build 218 also completed successfully following the Shadowsocks guide selector correction.
 
 Downloaded final artifact `WR1200JS_4.4.198.9-100_TEST` contains:
