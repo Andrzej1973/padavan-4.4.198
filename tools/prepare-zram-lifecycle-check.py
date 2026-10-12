@@ -21,9 +21,11 @@ static int active, loaded, mode, fail_read, fail_off, fail_unload;
 static int fail_load, fail_write, fail_mkswap, fail_swapon, false_success;
 static int formats, starts, unloads, logs;
 static unsigned long long device_size;
+static unsigned long ram_size;
 static int mock_nvram(const char *name) { assert(!strcmp(name,"zram_enable")); return mode; }
 static int mock_loaded(const char *name) { assert(!strcmp(name,"zram")); return loaded; }
-static int mock_info(struct sysinfo *info) { memset(info,0,sizeof(*info)); info->totalram=128*1024*1024; info->mem_unit=1; return 0; }
+static int mock_info(struct sysinfo *info) { memset(info,0,sizeof(*info)); info->totalram=ram_size; info->mem_unit=1; return 0; }
+static long mock_sysconf(int name) { assert(name==_SC_PAGESIZE); return 4096; }
 static FILE *mock_open(const char *path,const char *access_mode) {
     FILE *fp;
     assert(!strcmp(access_mode,"r"));
@@ -46,11 +48,12 @@ static int mock_command(const char *command) {
 }
 static int mock_load(const char *name,const char *args) { assert(!strcmp(name,"zram")); assert(!strcmp(args,"num_devices=1")); if(!fail_load)loaded=1; return fail_load; }
 static int mock_unload(const char *name,int recurse) { assert(!strcmp(name,"zram")); assert(recurse==1); assert(!active); unloads++; if(!fail_unload){loaded=0;device_size=0;} return fail_unload; }
-static int mock_write(const char *path,int size) { assert(!strcmp(path,"/sys/block/zram0/disksize")); if(fail_write)return 1; device_size=size; return 0; }
+static int mock_write(const char *path,int size) { assert(!strcmp(path,"/sys/block/zram0/disksize")); if(fail_write)return 1; device_size=((unsigned long long)size+4095)/4096*4096; return 0; }
 static int mock_access(const char *path,int flags) { assert(!strcmp(path,"/sys/block/zram0/disksize")); assert(flags==W_OK); return loaded?0:-1; }
 static unsigned mock_sleep(unsigned seconds) { (void)seconds; return 0; }
 static void mock_log(const char *tag,const char *message) { assert(!strcmp(tag,"ZRAM")); assert(message && *message); logs++; }
 #define nvram_get_int mock_nvram
+#define sysconf mock_sysconf
 #define sysinfo mock_info
 /* Preserve the structure tag while replacing only the function call. */
 #undef sysinfo
@@ -69,7 +72,7 @@ suffix = r'''
 static void reset(void) {
     active=loaded=fail_read=fail_off=fail_unload=fail_load=fail_write=0;
     fail_mkswap=fail_swapon=false_success=formats=starts=unloads=logs=0;
-    device_size=0; mode=1;
+    device_size=0; mode=1; ram_size=128*1024*1024;
 }
 int main(void) {
     reset(); start_zram(); assert(active && formats==1 && starts==1);
@@ -85,6 +88,7 @@ int main(void) {
     reset(); false_success=1; start_zram(); assert(starts==1 && !active && !loaded && logs);
     reset(); mode=0; start_zram(); assert(!loaded && !formats);
     reset(); mode=2; start_zram(); assert(active && device_size==64*1024*1024);
+    reset(); ram_size=123652*1024; start_zram(); assert(active && device_size==31657984);
     puts("PASS ZRAM lifecycle failure paths; mocked runtime, router activation unverified");
     return 0;
 }

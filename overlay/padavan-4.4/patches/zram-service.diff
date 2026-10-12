@@ -8,7 +8,7 @@
  
  #include "rc.h"
  
-@@ -747,9 +748,128 @@
+@@ -747,9 +748,131 @@
  		module_smart_load("rt_timer_wdg", NULL);
  }
  
@@ -76,6 +76,9 @@
 +	int active = zram_active();
 +	FILE *size_file;
 +	unsigned long long actual_size = 0;
++	long page_size = sysconf(_SC_PAGESIZE);
++	unsigned long long expected_size = page_size > 0 ?
++		((unsigned long long)disksize + page_size - 1) / page_size * page_size : 0;
 +	if (active == 1)
 +		return;
 +	if (active < 0) {
@@ -104,7 +107,7 @@
 +				actual_size = 0;
 +			fclose(size_file);
 +		}
-+		if (actual_size != (unsigned long long)disksize) {
++		if (!expected_size || actual_size != expected_size) {
 +			logmessage("ZRAM", "Cannot initialize requested swap size");
 +			zram_stop_checked();
 +			return;
@@ -137,7 +140,7 @@
  	start_8021x_wl();
  	start_8021x_rt();
  	start_httpd(0);
-@@ -809,6 +929,9 @@
+@@ -809,6 +932,9 @@
  void
  stop_services(int stopall)
  {
