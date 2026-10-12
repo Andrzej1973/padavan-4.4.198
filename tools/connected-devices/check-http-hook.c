@@ -30,7 +30,7 @@ int main(int argc,char **argv){char directory[]="/tmp/device-http-XXXXXX",out[40
  wr_device_background_tick();assert(wr_device_http_history.gap);
  rssi_response(out,sizeof(out));assert(strstr(out,"\"available\":false")&&rssi_ticks==1);
  rssi_response(out,sizeof(out));assert(rssi_ticks==1);
- response(out,sizeof(out));assert(strstr(out,"source_unavailable"));
+ response(out,sizeof(out));assert(strstr(out,"source_unavailable")&&strstr(out,"\"stage\":\"networkmap\""));
  current_uptime=5;fp=fopen("source","w");assert(fp);assert(fputs("192.168.1.2,00:11:22:33:44:55,<script>,1,0,0\n",fp)>=0);assert(!fclose(fp));
  wr_device_background_tick();assert(wr_device_http_history.event_count==2 && !wr_device_http_history.gap);
  response(out,sizeof(out));assert(strstr(out,"\"cacheState\":\"current\"")&&wr_device_http_cache.sequence==1);
@@ -51,6 +51,13 @@ int main(int argc,char **argv){char directory[]="/tmp/device-http-XXXXXX",out[40
   wr_device_background_tick();wr_device_background_tick();assert(rssi_ticks==before);
   current_uptime=25;wr_device_background_tick();assert(rssi_ticks==before+1);}
  assert(!unlink("networkmap.lock"));assert(!chdir("/tmp"));assert(!rmdir(directory));
+ /* A failed radio query before any successful snapshot has a distinct stage. */
+ {struct wr_device_snapshot snapshot;struct wr_device_source_paths paths;
+  char source[]="/tmp/device-stage-XXXXXX";int fd=mkstemp(source);assert(fd>=0);
+  fp=fdopen(fd,"w");assert(fp);fputs("192.168.1.2,00:11:22:33:44:55,test,1,0,0\n",fp);assert(!fclose(fp));
+  paths.source=source;paths.lock=source;radio_failure=1;
+  assert(!wr_device_http_collect(&snapshot,&paths));assert(!strcmp(wr_device_http_failure_stage,"radio"));
+  assert(!unlink(source));}
  wr_device_background_close();
  if(argc!=2){puts("PASS read-only HTTP hook: valid current/stale JSON, shared cache, failed-source retention, escaped names and scheduled RSSI queries; live authentication unverified");}
  return 0;

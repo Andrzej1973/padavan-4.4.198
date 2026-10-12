@@ -22,14 +22,19 @@ static struct wr_action_runtime wr_device_http_actions;
 #define WR_DEVICE_LOCK_PATH "/var/lock/networkmap.lock"
 #endif
 static struct wr_device_cache wr_device_http_cache;
+static const char *wr_device_http_failure_stage="initialization";
 static struct wr_roam_history wr_device_http_history;
 static char wr_device_http_json[131072];
 static struct wr_device_source_paths wr_device_http_paths={WR_DEVICE_SOURCE_PATH,WR_DEVICE_LOCK_PATH};
 extern int wr_device_collect_radio(struct wr_device_snapshot *networkmap);
 static int wr_device_http_collect(struct wr_device_snapshot *snapshot,void *context)
 {
+ wr_device_http_failure_stage="networkmap";
  if(!wr_device_networkmap_collect(snapshot,context))return 0;
- return wr_device_collect_radio(snapshot);
+ wr_device_http_failure_stage="radio";
+ if(!wr_device_collect_radio(snapshot))return 0;
+ wr_device_http_failure_stage="none";
+ return 1;
 }
 static enum wr_device_cache_state wr_device_http_update(void)
 {
@@ -85,7 +90,7 @@ static void do_wr_devices_json(const char *url,FILE *stream)
  uint64_t now,age;size_t length;enum wr_device_cache_state state;
  (void)url;
  state=wr_device_http_update();now=(uint64_t)uptime()*1000;
- if(state==WR_DEVICE_UNAVAILABLE){fputs("{\"error\":\"source_unavailable\"}",stream);return;}
+ if(state==WR_DEVICE_UNAVAILABLE){fprintf(stream,"{\"error\":\"source_unavailable\",\"stage\":\"%s\"}",wr_device_http_failure_stage);return;}
  if(!wr_device_snapshot_json(&wr_device_http_cache.snapshot,wr_device_http_cache.epoch,wr_device_http_cache.sequence,
                              wr_device_http_json,sizeof(wr_device_http_json),&length)||!length){fputs("{\"error\":\"snapshot_unavailable\"}",stream);return;}
  /* Append cache metadata to a successfully serialized object only. */
