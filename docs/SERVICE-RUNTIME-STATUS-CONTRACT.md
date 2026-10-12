@@ -27,3 +27,9 @@ Controls for Enable/Disable continue to use the existing service lifecycle. A fa
 Start with ZRAM, where live evidence shows enabled setting with zero active swap. Then cover Stubby/DoH, VPN services and radio/acceleration controls, followed by the remaining selected services. Preserve every applicable existing control and model-specific capability gate.
 
 Verify enabled-but-dead, disabled-but-live, unavailable observation, normal operation, start/stop failure, stale cache and reboot states. UI must match the runtime adapter and retain the requested setting. Full coverage remains pending; this document does not claim implementation.
+
+## ZRAM implementation progress
+
+Commits `b952b16` and `793241e` add a page-load observation of `/proc/swaps`, a separate actual-state label beside the unchanged requested setting, EN/UK/RU labels, and linked-handler/page image gates. The inherited Apply completion calls `refreshpage()`, so the server observation is obtained again after Apply. This is a page-load snapshot, not continuous monitoring; manual browser refresh obtains another observation.
+
+[CI run 38271573998](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38271573998) passed ASan/UBSan execution of the emitted HTTP handler for all five operational states, missing/empty/malformed input and unrelated swap devices. The same run passed lifecycle failure-path checks. Full images 224/225 and physical-router/browser checks are pending. Other service and driver adapters remain unimplemented under this contract.
