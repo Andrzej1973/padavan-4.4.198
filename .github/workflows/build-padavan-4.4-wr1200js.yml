@@ -153,6 +153,7 @@ jobs:
             python3 overlay/padavan-4.4/ports/doh/integrate-port.py padavan-4.4 \
               --config configs.build/wr1200js.config
           fi
+          python3 tools/prepare-dns-process-status.py padavan-4.4
           cp overlay/padavan-4.4/trunk/user/rp-l2tp/Makefile \
             padavan-4.4/trunk/user/rp-l2tp/Makefile
           cp overlay/padavan-4.4/trunk/user/ntfs-3g/Makefile \

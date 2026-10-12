@@ -62,6 +62,7 @@ on:
       - 'sources.lock.json'
       - 'tools/verify-zram-image.py'
       - 'tools/prepare-zram-status-web.py'
+      - 'tools/prepare-dns-process-status.py'
       - 'tools/verify-source-archive.py'
       - 'tools/check-web-routes.py'
       - 'tools/check-web-routes-test.py'
