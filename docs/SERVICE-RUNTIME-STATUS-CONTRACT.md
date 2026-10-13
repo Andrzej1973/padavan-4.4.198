@@ -42,6 +42,8 @@ Commit `64fa50b` adds separate EN/UK/RU labels for process presence beside reque
 
 ## VPN source findings and implementation requirements
 
+DNS follow-up: commit `981bed4` adds manual process-state refresh and a 30-second visible-page interval for Stubby and DoH. Requests use the existing authenticated update route, do not overlap and do not modify services. Request failure renders unknown. Commit `385d57d` adds shipped-page, linked-handler and shipped EN/UK/RU status-label checks to both service image verifiers. [CI 38428683542](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38428683542) passed the native process observer checks. Commit `f24166a` executes the emitted refresh function under controlled AJAX/browser state; [CI 38429109908](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38429109908) passed concurrent-click, hidden-page, request failure, invalid response and disabled-state cases. Physical browser behavior, complete DoH child coverage and functional DNS/TLS health are still pending.
+
 The imported `vpncli.asp` currently hides WireGuard state when the reported state is zero or the requested enable switch is off; state 1 renders a green Connected label. This prevents users seeing disabled-but-still-present or inactive states. Keep the actual-state indicator visible for the selected supported VPN type, with requested configuration shown separately.
 
 The imported `wgc.sh` initializes `wg_latest_handshakes_t` to the current time during startup, before a successful handshake. Its later successful connection check updates that value, but the variable alone cannot establish a real peer handshake. Do not repurpose it as runtime peer evidence or alter its watchdog behavior merely to add UI status.
