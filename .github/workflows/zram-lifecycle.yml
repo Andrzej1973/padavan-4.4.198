@@ -14,6 +14,8 @@ on:
       - 'overlay/padavan-4.4/ports/doh/Advanced_Services_DoH.asp'
       - 'tools/retry-source-command.py'
       - 'tools/check-source-retry.py'
+      - 'tools/check-sqm-config-policy.py'
+      - 'tools/verify-wr1200js-config.py'
       - 'tools/prepare-vpn-interface-status.py'
       - 'tools/prepare-vpn-interface-check.py'
       - 'tools/vpn-status/**'
@@ -31,6 +33,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 tools/check-source-retry.py
+          python3 tools/check-sqm-config-policy.py
           python3 tools/prepare-zram-lifecycle-check.py --output checks/zram.c
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined checks/zram.c -o checks/zram
           ASAN_OPTIONS=detect_leaks=1 checks/zram
