@@ -63,8 +63,8 @@ jobs:
         run: |
           git init padavan-4.4
           git -C padavan-4.4 remote add origin https://github.com/vipshmily/padavan-4.4.git
-          git -C padavan-4.4 fetch --depth=1 origin "$PADAVAN_COMMIT"
-          git -C padavan-4.4 checkout --detach FETCH_HEAD
+          python3 tools/retry-source-command.py git -C padavan-4.4 fetch --depth=1 origin "$PADAVAN_COMMIT"
+          python3 tools/retry-source-command.py git -C padavan-4.4 checkout --detach FETCH_HEAD
           test "$(git -C padavan-4.4 rev-parse HEAD)" = "$PADAVAN_COMMIT"
 
       - name: Fetch pinned AmneziaWG module source
@@ -77,8 +77,8 @@ jobs:
           git -C amnezia-source config remote.origin.partialclonefilter blob:none
           git -C amnezia-source sparse-checkout init --cone
           git -C amnezia-source sparse-checkout set trunk/linux-3.4.x/net/amneziawg trunk/libs/libssl/3.5 trunk/libs/libcurl trunk/libs/libngtcp2 trunk/libs/libnghttp3 trunk/libs/libnghttp2 trunk/user/www/logo trunk/user/dnsmasq
-          git -C amnezia-source fetch --filter=blob:none --depth=1 origin "$AMNEZIA_SOURCE_COMMIT"
-          git -C amnezia-source checkout --detach FETCH_HEAD
+          python3 tools/retry-source-command.py git -C amnezia-source fetch --filter=blob:none --depth=1 origin "$AMNEZIA_SOURCE_COMMIT"
+          python3 tools/retry-source-command.py git -C amnezia-source checkout --detach FETCH_HEAD
           test "$(git -C amnezia-source rev-parse HEAD)" = "$AMNEZIA_SOURCE_COMMIT"
           test -s amnezia-source/trunk/user/www/logo/padavan.png
           test "$(git -C amnezia-source hash-object trunk/user/www/logo/padavan.png)" = ec7b6bcd9e27c41fd564832e860791a568587e20
