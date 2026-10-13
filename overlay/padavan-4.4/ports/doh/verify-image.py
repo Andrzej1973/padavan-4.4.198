@@ -52,6 +52,10 @@ try:
     page = target('/www/Advanced_Services_DoH.asp').read_text()
     keys = ['doh_enable', 'doh_server0', 'doh_server1', 'doh_server2', 'doh_server3', 'doh_quic', 'doh_bootstrap_dns', 'doh_listen_port', 'doh_listen_mode', 'doh_mode']
     checks['webui'] = all(key in page for key in keys) and 'login_safe()' in page and 'found_app_doh()' in page
+    checks['observed_process_ui'] = all(marker in page for marker in ('id="wr_dns_process_status"', 'output:"wr_dns_process_state"', 'arg0:"doh"', 'window.setInterval(wrDNSRefresh,30000)', 'document.hidden', 'onclick="wrDNSRefresh()"'))
+    for locale in ('EN', 'UK', 'RU'):
+        shipped = target('/www/' + locale + '.dict').read_text(encoding='utf-8')
+        checks['observed_locale_' + locale.lower()] = all('\nWRDNS' + key + '=' in shipped for key in ('Off', 'Present', 'Absent', 'Unknown', 'StillPresent', 'Note', 'Refresh'))
     source_page = (args.trunk / 'user/www/n56u_ribbon_fixed/Advanced_Services_DoH.asp').read_text()
     checks['services_menu_index'] = 'show_menu(5,7,2)' in source_page
     dnsmasq_source = (args.trunk / 'user/rc/dnsmasq-doh.c').read_text()
@@ -65,6 +69,7 @@ try:
     checks['resolver_catalogue'] = isinstance(catalogue, list) and bool(catalogue) and all(isinstance(item.get('name'), str) and item.get('url', '').startswith('https://') for item in catalogue)
     rc = target('/sbin/rc').read_bytes()
     httpd = target('/usr/sbin/httpd').read_bytes()
+    checks['observed_process_backend'] = b'wr_dns_process_state' in httpd
     checks['rc'] = b'/usr/bin/doh_proxy.sh' in rc and b'restart_doh' in rc
     checks['backend'] = b'found_app_doh' in httpd and b'doh_value' in httpd and all(key.encode() in httpd for key in keys)
     queue, visited, missing, invalid_elf = [binary], set(), [], []

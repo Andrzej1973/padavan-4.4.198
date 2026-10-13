@@ -53,6 +53,10 @@ def main():
         checks["serialized_lifecycle"] = "flock -x -n 9" in helper and "9>&-" in helper
         page = target_file("/www/Advanced_Services_DoT.asp").read_text()
         checks["webui"] = "found_app_stubby()" in page and "if (!login_safe())" in page
+        checks["observed_process_ui"] = all(marker in page for marker in ('id="wr_dns_process_status"', 'output:"wr_dns_process_state"', 'arg0:"stubby"', 'window.setInterval(wrDNSRefresh,30000)', 'document.hidden', 'onclick="wrDNSRefresh()"'))
+        for locale in ("EN", "UK", "RU"):
+            shipped = target_file('/www/' + locale + '.dict').read_text(encoding='utf-8')
+            checks['observed_locale_' + locale.lower()] = all('\nWRDNS' + key + '=' in shipped for key in ('Off', 'Present', 'Absent', 'Unknown', 'StillPresent', 'Note', 'Refresh'))
         source_page = (args.trunk / "user/www/n56u_ribbon_fixed/Advanced_Services_DoT.asp").read_text()
         checks["services_menu_index"] = "show_menu(5,7,2)" in source_page
         localized_keys = set(re.findall(r"<#(Service_Stubby_[^#]+)#>", source_page))
@@ -64,6 +68,7 @@ def main():
         checks["resolver_list"] = isinstance(resolvers, list) and bool(resolvers)
         checks["resolver_catalogue_has_router_choices"] = {"dns.google", "one.one.one.one", "dns.quad9.net"} <= {item.get("url") for item in resolvers}
         httpd = target_file("/usr/sbin/httpd").read_bytes()
+        checks["observed_process_backend"] = b"wr_dns_process_state" in httpd
         checks["httpd_fields"] = b"stubby_enable" in httpd and b"stubby_server_ip3" in httpd
         checks["httpd_capability"] = b"found_app_stubby" in httpd
         rc = target_file("/sbin/rc").read_bytes()
