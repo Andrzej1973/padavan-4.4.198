@@ -26,10 +26,17 @@ labels={
  'RU.dict':['Данные handshake недоступны','Данные handshake устарели','Узлы','Handshake за последние 300 секунд при сборе','Ещё без handshake','Более старые handshake','Время опережает часы роутера','Возраст данных','Возраст самого свежего handshake','с','Данные handshake обновляются раз в 30 секунд, пока страница видима. Они не подтверждают работу маршрутов или доступ к интернету.','Обновить состояние'],
 }
 ui=(local/'handshake-ui.js').read_text(encoding='utf-8')
+interface_notes={
+ 'EN.footer':'Interface state is read again on status refresh. Interface UP does not prove a handshake or working routes.',
+ 'UK.dict':'Стан інтерфейсу перечитується при оновленні статусу. Увімкнений інтерфейс не підтверджує handshake або роботу маршрутів.',
+ 'RU.dict':'Состояние интерфейса считывается заново при обновлении статуса. Включённый интерфейс не подтверждает handshake или работу маршрутов.',
+}
 for name,values in labels.items():
     path=a.source/'trunk/user/www/dict'/name
     content=path.read_text(encoding='utf-8')
     if 'WRHSUnknown=' in content:raise SystemExit('Handshake labels already present')
+    content,count=re.subn(r'^WRVPNNote=.*$',lambda m:'WRVPNNote='+interface_notes[name],content,flags=re.M)
+    if count!=1:raise SystemExit('VPN interface explanation anchor changed: '+name)
     changes.append((path,content.rstrip('\n')+'\n'+'\n'.join('WRHS'+k+'='+v for k,v in zip(keys,values))+'\n'))
 for page,role in [('vpncli.asp','client'),('vpnsrv.asp','server')]:
     path=a.source/'trunk/user/www/n56u_ribbon_fixed'/page
