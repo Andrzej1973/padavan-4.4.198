@@ -45,6 +45,7 @@ jobs:
           cp tools/vpn-status/http-status.inc tools/vpn-status/check-http-status.c checks/
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined checks/check-http-status.c -o checks/vpn-http
           ASAN_OPTIONS=detect_leaks=1 checks/vpn-http
+          node tools/vpn-status/check-handshake-ui.js
       - uses: actions/upload-artifact@v7
         if: always()
         with:

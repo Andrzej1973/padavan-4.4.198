@@ -1,0 +1,11 @@
+const assert = require('assert');
+const text = require('./handshake-ui.js');
+const labels = ['unknown','stale','peers','recent','never','old','future','sample','handshake','seconds'];
+const sample = {state:1,peers:2,recent:1,never:1,old:0,future:0,sample_age:4,has_age:1,youngest_age:50};
+assert(text(sample,labels).includes('handshake: 54 seconds'));
+assert(text({...sample,state:2},labels).startsWith('stale.'));
+assert.strictEqual(text({...sample,peers:3},labels),'unknown');
+assert.strictEqual(text({...sample,recent:-1},labels),'unknown');
+assert.strictEqual(text({state:0},labels),'unknown');
+assert.strictEqual(text({...sample,youngest_age:Infinity},labels),'unknown');
+console.log('PASS handshake labels distinguish missing, stale and observed timestamps');
