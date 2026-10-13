@@ -31,6 +31,8 @@ It collects the kernel version, partitions, RAM, routes/interface counters, wire
 
 Review reports before sharing: IP/MAC addresses and kernel logs may contain private information. The script has not yet been run on the user's router.
 
+Diagnostic follow-up, 2026-10-13: the collector now uses the router-supported `type` check, includes `/proc/swaps`, reads only the three requested enable switches `stubby_enable`, `doh_enable` and `zram_enable`, and identifies active global custom DNS lines for localhost ports 5453/65053 without printing domain lists or annotations. [CI 38439347604](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38439347604) passed shell syntax and execution of the actual AWK filter for comments, exact ports and unrelated directives. This does not test the script under the installed router shell. The latest attempted collection exited SSH 255 because connection establishment timed out; no runtime report or router change resulted.
+
 ## Hardware checks after installation with recovery available
 
 1. Record exact TRX checksum, effective firmware/kernel configs and build commit.
