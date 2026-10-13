@@ -9,6 +9,8 @@ on:
       - 'tools/prepare-dns-process-status.py'
       - 'tools/prepare-dns-process-check.py'
       - 'tools/check-dns-refresh.py'
+      - 'tools/retry-source-command.py'
+      - 'tools/check-source-retry.py'
       - 'tools/prepare-vpn-interface-status.py'
       - 'tools/prepare-vpn-interface-check.py'
       - 'tools/vpn-status/**'
@@ -25,6 +27,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          python3 tools/check-source-retry.py
           python3 tools/prepare-zram-lifecycle-check.py --output checks/zram.c
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined checks/zram.c -o checks/zram
           ASAN_OPTIONS=detect_leaks=1 checks/zram
