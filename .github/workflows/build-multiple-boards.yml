@@ -67,6 +67,7 @@ on:
       - 'tools/prepare-vpn-handshake-status.py'
       - 'tools/vpn-status/**'
       - 'tools/verify-source-archive.py'
+      - 'tools/retry-source-command.py'
       - 'tools/check-web-routes.py'
       - 'tools/check-web-routes-test.py'
       - 'tools/prepare-wifi-hwnat-mode.py'
