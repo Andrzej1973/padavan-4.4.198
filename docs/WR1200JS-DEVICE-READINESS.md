@@ -4,6 +4,8 @@ Updated 2026-10-13. A successful build does not establish a working device port.
 
 ## Current evidence and authorization
 
+Physical follow-up, 2026-10-13: SSH was restored and direct read-only commands confirmed the installed Linux 4.4.198 firmware is operating in **test mode**, as designated by the owner. See [installed test-mode baseline](runtime/WR1200JS-2026-10-13-TEST-MODE.md). Ordinary local DNS answered; Stubby/DoH remain disabled and ZRAM remains requested but inactive. Exact installed CI artifact identity and final port acceptance are not established. Earlier timeout observations below are historical and superseded by this connection.
+
 The latest independently downloaded and hashed artifact recorded here is test build 239, `WR1200JS_4.4.198.9-239_3d1e53b1.trx`, SHA256 `6a15fe74692c9896b32e965d3a445cbe4c3149705396f47d0b4c6c63dbc2317f`. See [build 239 evidence](evidence/WR1200JS-BUILD239.md) for profile/guide identity and exact verification limits. Builds 240–242 were still active on the latest check; obtain their current GitHub status and exact artifact identity before selecting a later candidate.
 
 The user deferred installation and requested continued code work. Read-only SSH checks are authorized; flashing, rebooting and enabling disabled DNS services are not authorized by that instruction. Preserve the AmneziaWG tunnel. The latest SSH attempt to `192.168.20.1:22` timed out, so current physical runtime state has not been refreshed. Previous read-only observations on Linux 4.4.198 do not establish runtime behavior of the newly built images.
