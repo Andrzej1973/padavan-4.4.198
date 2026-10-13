@@ -14,6 +14,24 @@ cat /proc/mtd
 section 'CPU and memory'
 cat /proc/cpuinfo
 cat /proc/meminfo
+section 'Actual swap activity'
+cat /proc/swaps
+section 'Selected requested service switches only'
+for setting in stubby_enable doh_enable zram_enable; do
+    printf '%s: ' "$setting"
+    nvram get "$setting"
+done
+section 'Custom DNS forwarding indicators without domain lists'
+dns_custom=/etc/storage/dnsmasq/dnsmasq.conf
+if [ -r "$dns_custom" ]; then
+    awk '
+        /^[ \t]*no-resolv([ \t]*$|[ \t]+#)/ {printf "line %d: no-resolv\n", NR}
+        /^[ \t]*server=127\.0\.0\.1#5453([ \t]*$|[ \t]+#)/ {printf "line %d: global local DNS port 5453\n", NR}
+        /^[ \t]*server=127\.0\.0\.1#65053([ \t]*$|[ \t]+#)/ {printf "line %d: global local DNS port 65053\n", NR}
+    ' "$dns_custom"
+else
+    printf 'Custom DNS configuration unavailable\n'
+fi
 section 'Mounted filesystems and temporary space'
 cat /proc/mounts
 df -h /tmp
@@ -31,14 +49,14 @@ ip -6 rule show
 ip -6 route show table all
 section 'Tunnel tool paths and interface names only'
 for tool in wg awg; do
-    if command -v "$tool" >/dev/null 2>&1; then
-        command -v "$tool"
+    if type "$tool" >/dev/null 2>&1; then
+        type "$tool"
         "$tool" show interfaces 2>&1
     fi
 done
 # Do not use showconf, dump, or an NVRAM export here: those can expose keys.
 section 'Wireless interfaces'
-if command -v iwconfig >/dev/null 2>&1; then iwconfig 2>&1; fi
+if type iwconfig >/dev/null 2>&1; then iwconfig 2>&1; fi
 section 'Loaded kernel modules'
 cat /proc/modules
 section 'Interrupt and softirq counters'
@@ -52,7 +70,7 @@ for path in /sys/devices/system/cpu/online /sys/devices/system/cpu/possible /pro
     fi
 done
 section 'Selected service process IDs only'
-for service in httpd dnsmasq inadyn stubby privoxy; do
+for service in httpd dnsmasq inadyn stubby https_dns_proxy privoxy; do
     printf '%s: ' "$service"
     pidof "$service" 2>/dev/null || printf 'not running\n'
 done
@@ -72,7 +90,7 @@ for name in reset wps fn1 fn2; do
     node="$dt/gpio-keys-polled/$name"
     if [ -d "$node" ]; then
         printf '%s: present\n' "$name"
-        if command -v od >/dev/null 2>&1; then
+        if type od >/dev/null 2>&1; then
             for property in gpios linux,code; do
                 if [ -r "$node/$property" ]; then
                     printf '%s (raw bytes, device-tree big endian): ' "$property"
