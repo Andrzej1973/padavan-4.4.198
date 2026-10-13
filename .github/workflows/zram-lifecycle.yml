@@ -8,6 +8,7 @@ on:
       - 'tools/prepare-zram-status-check.py'
       - 'tools/prepare-dns-process-status.py'
       - 'tools/prepare-dns-process-check.py'
+      - 'tools/check-dns-refresh.py'
       - 'tools/prepare-vpn-interface-status.py'
       - 'tools/prepare-vpn-interface-check.py'
       - 'tools/vpn-status/**'
@@ -33,6 +34,7 @@ jobs:
           python3 tools/prepare-dns-process-check.py --output checks/dns-process.c
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined checks/dns-process.c -o checks/dns-process
           ASAN_OPTIONS=detect_leaks=1 checks/dns-process
+          python3 tools/check-dns-refresh.py
           python3 tools/prepare-vpn-interface-check.py --output checks/vpn-interface.c
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined checks/vpn-interface.c -o checks/vpn-interface
           ASAN_OPTIONS=detect_leaks=1 checks/vpn-interface
