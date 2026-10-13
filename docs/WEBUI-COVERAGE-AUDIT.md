@@ -45,7 +45,7 @@ The application inventory also contains inherited AdGuard Home, FRP, adbyby, scu
 * **Stubby DoT, DoH, Privoxy:** dedicated project pages and integration scripts are present. Stubby integrate-build.py actually registers UI assets/menu and other integration despite its stale completion message saying runtime/backend/UI are still required. Review the applied tree and resulting image, not that message alone. Avoid new duplicate implementations.
 * **ZRAM:** project service patch modifies existing administration controls. Confirm applied configuration and runtime reporting.
 * **SSH/Dropbear, HTTPS, DDNS over TLS, SFE:** existing service/WAN/DDNS/firewall controls. Library flags (OpenSSL variants, EC, curl/QUIC) do not need individual daemon switches. They require accurate dependent-service capabilities and diagnostics.
-* **SQM:** central config currently contains CONFIG_FIRMWARE_INCLUDE_SQM=y; base and project contain Advanced_SQM.asp and lifecycle integration. This contradicts the earlier goal wording excluding CAKE. This audit does not change the setting or claim shaping is running: reconcile the documented scope with the current config in the SQM task. Upstream Linux 4.4 alone is not proof of native CAKE availability; project backports/integration are the evidence to check.
+* **SQM:** the original audit snapshot contained CONFIG_FIRMWARE_INCLUDE_SQM=y; base and project contain Advanced_SQM.asp and lifecycle integration. The current requested WR1200JS profile sets CONFIG_FIRMWARE_INCLUDE_SQM=n, matching the goal excluding CAKE. Image checks reject enabled CAKE kernel selection and a shipped sch_cake.ko. Existing optional source is not evidence that the feature is enabled in this profile or running on the router.
 
 ## Disabled optional packages
 
@@ -72,3 +72,9 @@ The original inventory above remains a dated source snapshot. Coordinated WR Ban
 [Build 37790206125](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/37790206125) passed with Wi-Fi HNAT mode handling and a factory LAN-only default. The existing WAN mode selector remains available. This does not establish Wi-Fi stability or modify a user's saved runtime NVRAM.
 
 Next wireless UI work remains shared main-network settings and authenticated local Wi-Fi QR; StrongSwan, EoIP and USBIP managed backends/pages remain subsequent separate tasks. No missing-service completion is inferred from the Band Steering changes.
+
+## Current status observations — 2026-10-13
+
+The dated source snapshots above are not the current implementation inventory. See [actual-state contract](SERVICE-RUNTIME-STATUS-CONTRACT.md) and [build 239 evidence](evidence/WR1200JS-BUILD239.md). Current code includes background VPN handshake observations, joint interface/handshake refresh, Stubby/DoH process-state refresh and ZRAM active-swap refresh. These have native tests and selected image gates; physical browser/device acceptance remains pending. DNS process presence is not DNS/TLS health, and handshake statistics are not routing proof.
+
+Existing shared Wi-Fi and local QR preparation/image checks are now wired into the normal build. Source/image inclusion does not establish correct behavior for the user's retained settings, both radio-page entry points or real client connections. Continue the full existing-page/backend/lifecycle/localization and hardware acceptance requirements above, including deferred optional ports and the WPS-last policy. Do not mark this audit complete based only on current green builds.
