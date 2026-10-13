@@ -1,8 +1,16 @@
 # WR1200JS device readiness and first Linux 4.4 validation
 
-Updated 2026-10-03. A successful build does not establish a working device port.
+Updated 2026-10-13. A successful build does not establish a working device port.
 
-## Candidate identity
+## Current evidence and authorization
+
+The latest independently downloaded and hashed artifact recorded here is test build 239, `WR1200JS_4.4.198.9-239_3d1e53b1.trx`, SHA256 `6a15fe74692c9896b32e965d3a445cbe4c3149705396f47d0b4c6c63dbc2317f`. See [build 239 evidence](evidence/WR1200JS-BUILD239.md) for profile/guide identity and exact verification limits. Builds 240–242 were still active on the latest check; obtain their current GitHub status and exact artifact identity before selecting a later candidate.
+
+The user deferred installation and requested continued code work. Read-only SSH checks are authorized; flashing, rebooting and enabling disabled DNS services are not authorized by that instruction. Preserve the AmneziaWG tunnel. The latest SSH attempt to `192.168.20.1:22` timed out, so current physical runtime state has not been refreshed. Previous read-only observations on Linux 4.4.198 do not establish runtime behavior of the newly built images.
+
+VPN handshake/interface observation, DNS process-state refresh and ZRAM swap-state refresh now have source/native/image evidence. They still require physical browser and router verification. Process presence does not establish DNS/TLS health; a handshake does not establish routing. Keep the full hardware/configuration/features checklist below open, including reboot persistence and sustained traffic stability. CAKE/SQM is excluded from the requested profile.
+
+## Historical candidate identity — 2026-10-03
 
 The completed reference run [37135784110](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/37135784110) produced:
 - `WR1200JS_4.4.198.9-100.trx`, 13,301,885 bytes.
@@ -11,9 +19,9 @@ The completed reference run [37135784110](https://github.com/Andrzej1973/padavan
 
 See [build evidence](evidence/WR1200JS-BUILD-37135784110.md). These hashes refer to that exact run, not later images sharing its filename. Later commits change initial Privoxy editor rendering and add the FN1 Device Tree node. Runs 37139023256 and 37139282570 were still in progress when this document was prepared; their images must be checked separately.
 
-## Current access constraints
+## Historical access constraints — 2026-10-03
 
-The router runs the user's working Padavan 3.4 firmware. Access is through an AmneziaWG tunnel; Breed is installed, but physical access and a recovery operator are unavailable. No flash operation or reboot is performed by this procedure. Before a first 4.4 installation, establish an actual recovery route and preserve the current firmware, settings and tunnel configuration privately.
+At that observation the router ran the user's working Padavan 3.4 firmware. Access was through an AmneziaWG tunnel; Breed was installed, but physical access and a recovery operator were unavailable. This is historical context, not a current access assessment. Before an authorized installation, establish the actual recovery route and preserve firmware, settings and tunnel configuration privately.
 
 ## Read-only baseline report
 
@@ -29,6 +37,7 @@ Review reports before sharing: IP/MAC addresses and kernel logs may contain priv
 2. Confirm Linux 4.4.198, WebUI/SSH, WAN IPoE, LAN and retained settings.
 3. Confirm AmneziaWG restores access, routes and DNS using the existing profile.
 4. Verify both radio bands and calibrated MAC addresses. Save boot logs and logs/counters after sustained Wi-Fi traffic. Compilation does not prove the kthread/HWNAT problem resolved.
+5. Verify wired routing/NAT and the actual selected acceleration mode separately from Wi-Fi. Confirm retained configuration, DHCP/DNS, backup/restore controls and management access under traffic; do not infer driver support from a visible switch.
 6. Confirm reset/WPS/FN1 detection and configured actions with an operator present. Do not test reset or destructive button actions remotely.
 7. Confirm power/USB indicators and settings; inspect GPIO6 separately.
 8. Verify WPAD PAC handling, Stubby and optional Privoxy editor/save/start/stop behavior. The Privoxy first-enable fix requires an actual browser and LAN-client check.
