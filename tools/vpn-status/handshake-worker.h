@@ -13,6 +13,22 @@
 #ifndef WR_HANDSHAKE_TOOL
 #define WR_HANDSHAKE_TOOL "/usr/bin/wg"
 #endif
+/* Release inherited HTTP sockets/IPC; retain only stdio and one result pipe. */
+static inline int wr_handshake_close_extra_fds(int keep)
+{
+ DIR *fds;struct dirent *entry;unsigned count=0;int ok=1;
+ fds=opendir("/proc/self/fd");if(!fds)return 0;
+ for(;;){
+  char *end;long fd;
+  errno=0;entry=readdir(fds);
+  if(!entry){if(errno)ok=0;break;}
+  if(++count>1024){ok=0;break;}
+  errno=0;fd=strtol(entry->d_name,&end,10);
+  if(!errno && !*end && fd>2 && fd<=INT_MAX && fd!=keep && fd!=dirfd(fds))close((int)fd);
+ }
+ if(closedir(fds))ok=0;
+ return ok;
+}
 /* Only invoke in a supervised worker, never synchronously in the HTTP loop.
  * Supervisor must bound runtime and kill/reap the worker process group. */
 static inline int wr_handshake_worker_query(const char *interface,uint64_t now,
@@ -25,23 +41,14 @@ static inline int wr_handshake_worker_query(const char *interface,uint64_t now,
  child=fork();
  if(child<0){close(pipes[0]);close(pipes[1]);return 0;}
  if(!child){
-  DIR *fds;struct dirent *entry;unsigned count=0;int nullfd;
+  int nullfd;
   signal(SIGPIPE,SIG_DFL);signal(SIGCHLD,SIG_DFL);signal(SIGTERM,SIG_DFL);
   close(pipes[0]);
   if(dup2(pipes[1],STDOUT_FILENO)<0)_exit(126);
   nullfd=open("/dev/null",O_RDWR);if(nullfd<0)_exit(126);
   if(dup2(nullfd,STDIN_FILENO)<0||dup2(nullfd,STDERR_FILENO)<0)_exit(126);
   /* Do not let the utility retain HTTP listeners, client sockets or IPC. */
-  fds=opendir("/proc/self/fd");if(!fds)_exit(126);
-  for(;;){
-   char *end;long fd;
-   errno=0;entry=readdir(fds);
-   if(!entry){if(errno)_exit(126);break;}
-   if(++count>1024)_exit(126);
-   errno=0;fd=strtol(entry->d_name,&end,10);
-   if(!errno && !*end && fd>2 && fd<=INT_MAX && fd!=dirfd(fds))close((int)fd);
-  }
-  closedir(fds);
+  if(!wr_handshake_close_extra_fds(-1))_exit(126);
   execl(WR_HANDSHAKE_TOOL,WR_HANDSHAKE_TOOL,"show",interface,"latest-handshakes",(char *)NULL);
   _exit(127);
  }

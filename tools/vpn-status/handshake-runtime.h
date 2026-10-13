@@ -31,6 +31,7 @@ static inline int wr_handshake_runtime_start(struct wr_handshake_runtime *r,
   close(p[0]);
   if(setpgid(0,0))_exit(126);
   signal(SIGTERM,SIG_DFL);signal(SIGPIPE,SIG_DFL);signal(SIGCHLD,SIG_DFL);
+  if(!wr_handshake_close_extra_fds(p[1]))_exit(126);
   memset(&packet,0,sizeof(packet));
   packet.ok=wr_handshake_worker_query(interface,wall_now,&packet.observation);
   while(offset<sizeof(packet)){

@@ -39,7 +39,7 @@ int main(int argc,char **argv)
  assert(!setenv("WR_TEST_MODE","empty",1));
  assert(wr_handshake_worker_query("wg0",1000,&out)&&out.peers==0);
  {
-  struct wr_handshake_runtime runtime;unsigned attempts;
+  struct wr_handshake_runtime runtime;unsigned attempts;int guard[2];char byte;
   wr_handshake_runtime_init(&runtime);
   assert(!setenv("WR_TEST_MODE","success",1));
   assert(wr_handshake_runtime_start(&runtime,"wg0",10,1000));
@@ -57,8 +57,13 @@ int main(int argc,char **argv)
   }
   assert(!runtime.pid&&runtime.cache.last_attempt_ok&&runtime.cache.sampled_at==10);
   assert(!setenv("WR_TEST_MODE","hang",1));
+  assert(!pipe(guard));
+  assert(fcntl(guard[0],F_SETFL,O_NONBLOCK)!=-1);
   assert(wr_handshake_runtime_start(&runtime,"wg0",16,1000));
+  assert(!close(guard[1]));
   usleep(20000);
+  /* Neither worker nor wg may retain unrelated HTTP-like pipe writers. */
+  assert(read(guard[0],&byte,1)==0);assert(!close(guard[0]));
   for(attempts=0;attempts<1000&&runtime.pid;attempts++){
    wr_handshake_runtime_tick(&runtime,19);usleep(1000);
   }
