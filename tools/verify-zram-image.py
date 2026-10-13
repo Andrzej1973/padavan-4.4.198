@@ -24,6 +24,11 @@ romfs = trunk / 'romfs'
 page = (romfs / 'www/Advanced_System_Content.asp').read_text()
 if 'wr_zram_state();' not in page or 'id="wr_zram_status"' not in page:
     raise SystemExit('FAIL shipped ZRAM observed-state UI missing')
+for marker in ('output:"wr_zram_state"','onclick="wrZramRefresh()"','window.setInterval(wrZramRefresh,30000)','document.hidden'):
+    if marker not in page:raise SystemExit('FAIL shipped ZRAM refresh control missing: '+marker)
+for locale in ('EN','UK','RU'):
+    if '\nWRZramRefresh=' not in (romfs/'www'/(locale+'.dict')).read_text(encoding='utf-8'):
+        raise SystemExit('FAIL shipped ZRAM refresh translation missing: '+locale)
 if b'wr_zram_state' not in (romfs / 'usr/sbin/httpd').read_bytes():
     raise SystemExit('FAIL linked ZRAM status handler missing')
 binary = (romfs / 'sbin/rc').read_bytes()

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Expose observed ZRAM swap state without changing requested configuration."""
 import argparse
+import re
 from pathlib import Path
 
 p = argparse.ArgumentParser()
@@ -48,23 +49,32 @@ page = root / 'www/n56u_ribbon_fixed/Advanced_System_Content.asp'
 html = page.read_text(encoding='utf-8')
 init = '\tif (!found_support_zram()) showhide_div("row_zram", 0);'
 select = '<select name="zram_enable" class="input">'
-if html.count(init) != 1 or html.count(select) != 1:
+if html.count(init) != 1 or html.count(select) != 1 or len(re.findall(r'function initial\(\)\s*\{',html))!=1:
     raise SystemExit('ZRAM page anchors changed')
 labels = ['Off', 'Active', 'Failed', 'Unknown', 'StillActive']
-html = html.replace(init, init + '\n\tvar zs = <% wr_zram_state(); %>;\n\tvar zl = [' + ','.join('"<#WRZram' + x + '#>"' for x in labels) + '];\n\t$j("#wr_zram_status").text(zl[zs] || zl[3]);')
-html = html.replace(select, '<div id="wr_zram_status" role="status"><#WRZramUnknown#></div>\n                                                ' + select)
+refresh='\nvar wrZramBusy=false;\nfunction wrZramRefresh(){\n'
+refresh+=' if(wrZramBusy || document.hidden || !found_support_zram())return;\n wrZramBusy=true;\n'
+refresh+=' var labels=['+','.join('"<#WRZram'+x+'#>"' for x in labels)+'];\n'
+refresh+=' $j.ajax({url:"/update.cgi",data:{output:"wr_zram_state"},dataType:"json",cache:false,timeout:5000})\n'
+refresh+=' .done(function(state){$j("#wr_zram_status").text(typeof state === "number" && labels[state] || labels[3]);})\n'
+refresh+=' .fail(function(){$j("#wr_zram_status").text(labels[3]);})\n'
+refresh+=' .always(function(){wrZramBusy=false;});\n}\n'
+html=re.sub(r'(function initial\(\)\s*\{)',lambda m:refresh+m[1],html,count=1)
+html = html.replace(init, init + '\n\tvar zs = <% wr_zram_state(); %>;\n\tvar zl = [' + ','.join('"<#WRZram' + x + '#>"' for x in labels) + '];\n\t$j("#wr_zram_status").text(zl[zs] || zl[3]);\n\tif(found_support_zram()) window.setInterval(wrZramRefresh,30000);')
+html = html.replace(select, '<div id="wr_zram_status" role="status"><#WRZramUnknown#></div><button type="button" class="btn" onclick="wrZramRefresh()"><#WRZramRefresh#></button>\n                                                ' + select)
 translations = {
  'EN.footer': ['Disabled', 'Working: swap active', 'Not working: swap inactive', 'State unknown', 'Still working despite disabled setting'],
  'UK.dict': ['Вимкнено', 'Працює: swap активний', 'Не працює: swap не активний', 'Стан невідомий', 'Ще працює попри вимкнення в налаштуваннях'],
  'RU.dict': ['Выключено', 'Работает: swap активен', 'Не работает: swap не активен', 'Состояние неизвестно', 'Ещё работает при выключенной настройке'],
 }
 changes = [(web, updated), (page, html)]
+refresh_labels={'EN.footer':'Refresh status','UK.dict':'Оновити стан','RU.dict':'Обновить состояние'}
 for filename, values in translations.items():
     path = root / 'www/dict' / filename
     content = path.read_text(encoding='utf-8')
     if 'WRZramUnknown=' in content:
         raise SystemExit('ZRAM labels already present')
-    changes.append((path, content.rstrip('\n') + '\n' + '\n'.join('WRZram' + key + '=' + value for key, value in zip(labels, values)) + '\n'))
+    changes.append((path, content.rstrip('\n') + '\n' + '\n'.join('WRZram' + key + '=' + value for key, value in zip(labels, values)) + '\nWRZramRefresh='+refresh_labels[filename]+'\n'))
 for path, content in changes:
     path.write_text(content, encoding='utf-8')
-print('Prepared observed ZRAM page state; refreshed on page load, runtime unverified')
+print('Prepared observed ZRAM page state with manual/visible-page refresh; runtime unverified')
