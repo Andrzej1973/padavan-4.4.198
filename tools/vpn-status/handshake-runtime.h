@@ -54,7 +54,6 @@ static inline int wr_handshake_runtime_tick(struct wr_handshake_runtime *r,uint6
 {
  int status;pid_t result;ssize_t n;struct wr_handshake_packet packet;
  if(r->pid<=0)return 0;
- if(!r->failed&&(now<r->started||now-r->started>=3))wr_handshake_runtime_cancel(r);
  if(r->fd>=0&&!r->eof){
   n=read(r->fd,r->bytes+r->received,sizeof(r->bytes)-r->received);
   if(n>0){r->received+=(size_t)n;if(r->received>sizeof(packet))wr_handshake_runtime_cancel(r);}
@@ -62,7 +61,11 @@ static inline int wr_handshake_runtime_tick(struct wr_handshake_runtime *r,uint6
   else if(errno!=EINTR&&errno!=EAGAIN&&errno!=EWOULDBLOCK)wr_handshake_runtime_cancel(r);
  }
  result=waitpid(r->pid,&status,WNOHANG);
- if(!result||(result<0&&errno==EINTR))return 0;
+ if(!result){
+  if(!r->failed&&(now<r->started||now-r->started>=3))wr_handshake_runtime_cancel(r);
+  return 0;
+ }
+ if(result<0&&errno==EINTR)return 0;
  /* On exit, all bytes already written are readable without blocking. */
  if(result==r->pid&&!r->failed&&r->fd>=0&&!r->eof){
   n=read(r->fd,r->bytes+r->received,sizeof(r->bytes)-r->received);
@@ -71,7 +74,9 @@ static inline int wr_handshake_runtime_tick(struct wr_handshake_runtime *r,uint6
  }
  if(result!=r->pid||!WIFEXITED(status)||WEXITSTATUS(status)||r->received!=sizeof(packet))r->failed=1;
  if(!r->failed){memcpy(&packet,r->bytes,sizeof(packet));if(packet.ok!=1)r->failed=1;}
- wr_handshake_cache_publish(&r->cache,now,!r->failed,r->failed?NULL:&packet.observation);
+ /* Timestamp ages were computed against wall_now at worker start. */
+ if(now<r->started)r->failed=1;
+ wr_handshake_cache_publish(&r->cache,r->failed?now:r->started,!r->failed,r->failed?NULL:&packet.observation);
  if(r->fd>=0)close(r->fd);
  r->fd=-1;r->pid=0;
  return 1;

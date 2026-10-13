@@ -49,14 +49,21 @@ int main(int argc,char **argv)
   }
   assert(!runtime.pid&&runtime.fd==-1&&runtime.cache.has_sample);
   assert(runtime.cache.observation.recent==1);
+  /* HTTP can be idle for five seconds: a completed utility is not a timeout. */
+  assert(wr_handshake_runtime_start(&runtime,"wg0",10,1000));
+  usleep(100000);
+  for(attempts=0;attempts<1000&&runtime.pid;attempts++){
+   wr_handshake_runtime_tick(&runtime,15);usleep(1000);
+  }
+  assert(!runtime.pid&&runtime.cache.last_attempt_ok&&runtime.cache.sampled_at==10);
   assert(!setenv("WR_TEST_MODE","hang",1));
-  assert(wr_handshake_runtime_start(&runtime,"wg0",11,1000));
+  assert(wr_handshake_runtime_start(&runtime,"wg0",16,1000));
   usleep(20000);
   for(attempts=0;attempts<1000&&runtime.pid;attempts++){
-   wr_handshake_runtime_tick(&runtime,14);usleep(1000);
+   wr_handshake_runtime_tick(&runtime,19);usleep(1000);
   }
   assert(!runtime.pid&&runtime.fd==-1);
-  assert(wr_handshake_cache_get(&runtime.cache,14,30,NULL)==WR_HS_STALE);
+  assert(wr_handshake_cache_get(&runtime.cache,19,30,NULL)==WR_HS_STALE);
   errno=0;assert(waitpid(-1,NULL,WNOHANG)==-1&&errno==ECHILD);
  }
  assert(fcntl(fd,F_GETFD)!=-1);assert(!close(fd));
