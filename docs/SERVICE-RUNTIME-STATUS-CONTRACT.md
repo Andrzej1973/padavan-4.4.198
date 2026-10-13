@@ -38,6 +38,10 @@ Subsequent verification: [full build 224](https://github.com/Andrzej1973/padavan
 
 ## Stubby and DoH process observation
 
+ZRAM follow-up, 2026-10-13: commit `4ff8fee` adds manual refresh and a 30-second visible-page interval, with no overlapping requests and no requests on unsupported models. Request failure renders unknown. The image gate now checks refresh controls and shipped EN/UK/RU button labels. [Native CI 38430285721](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38430285721) passed observer/lifecycle checks. [CI 38431626049](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38431626049) executes the emitted browser function with capability, hidden-page, duplicate-click, error and invalid-response fixtures.
+
+[Full build 238](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38430285996) completed successfully. Its log `C:\Users\ANDRZEJ\Documents\Codex\2026-09-29\build238-log.txt` records the ZRAM image gate passing at 16:33:09 UTC and the handshake image gate at 16:32:51 UTC. The workflow manifest reports `WR1200JS_4.4.198.9-238_4ff8feee.trx`, 13,139,623 bytes, SHA256 `3e1151285ebc4a68bdde9816383089b4aa211f2d48e5b75fff5d1d76cd03d76f`; this is a manifest value, not a locally recomputed image hash. ZRAM activation after flashing/reboot and physical browser execution remain unverified.
+
 Commit `64fa50b` adds separate EN/UK/RU labels for process presence beside requested settings on both DNS pages. A present process is explicitly labelled DNS-unverified. This does not implement functional resolver checks, TLS health, complete DoH child-process coverage or continuous polling. [CI 38272444310](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38272444310) passed native ASan/UBSan execution of the emitted handler for enabled/disabled, present/absent, inaccessible proc and invalid-selector cases. Full build 226 and physical-router/browser verification remain pending.
 
 ## VPN source findings and implementation requirements
