@@ -10,6 +10,8 @@ on:
       - 'tools/prepare-dns-process-status.py'
       - 'tools/prepare-dns-process-check.py'
       - 'tools/check-dns-refresh.py'
+      - 'overlay/padavan-4.4/ports/stubby/Advanced_Services_DoT.asp'
+      - 'overlay/padavan-4.4/ports/doh/Advanced_Services_DoH.asp'
       - 'tools/retry-source-command.py'
       - 'tools/check-source-retry.py'
       - 'tools/prepare-vpn-interface-status.py'
