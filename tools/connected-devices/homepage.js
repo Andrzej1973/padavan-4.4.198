@@ -71,7 +71,9 @@
   }
   var evidenceStale=false;
   return {render:render,setState:function(value){
-   set(status,value.state+(value.state==='Stale'?' \u2014 showing last available observations':''));
+   var reasons={networkmap:'Device observation source unavailable',radio:'Wi-Fi observation source unavailable',initialization:'Observation initialization failed'};
+   set(status,value.state+(value.state==='Stale'?' \u2014 showing last available observations':'')+
+    (Object.prototype.hasOwnProperty.call(reasons,value.sourceStage)?' \u2014 '+reasons[value.sourceStage]:''));
    if(value.state==='Stale')evidenceStale=true;else if(value.state==='Current')evidenceStale=false;
    Object.keys(rows).forEach(function(key){var row=rows[key];set(row.cells[1],(evidenceStale?'Last available evidence: ':'')+row.connection);});
   },retry:retry,filter:filter};

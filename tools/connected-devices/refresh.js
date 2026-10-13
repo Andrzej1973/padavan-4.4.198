@@ -17,7 +17,7 @@
   if(typeof interval!=='number'||!isFinite(interval)||Math.floor(interval)!==interval||interval<5000||interval>300000)interval=5000;
   function relation(previous,next){if(options.relation)return options.relation(previous,next);if(!previous||previous.epoch!==next.epoch)return "new_session";return next.sequence<previous.sequence?"older":next.sequence===previous.sequence?"unchanged":"updated";}
   var running=false,visible=true,timer=null,flight=null,generation=0,failures=0,last=null;
-  function state(name){if(options.onState){try{options.onState({state:name,hasData:last!==null,failures:failures});}catch(ignore){/* UI callbacks must not stop retries. */}}}
+  function state(name,sourceStage){if(options.onState){try{options.onState({state:name,hasData:last!==null,failures:failures,sourceStage:sourceStage||null});}catch(ignore){/* UI callbacks must not stop retries. */}}}
   function clear(){if(timer!==null){cancel(timer);timer=null;}}
   function later(delay){clear();if(running&&visible)timer=schedule(function(){timer=null;poll();},delay);}
   function abandon(){
@@ -30,10 +30,12 @@
    function finish(error,snapshot){
     if(!flight||flight!==entry||id!==generation)return;
     flight=null;cancel(entry.timeout);
+    var sourceStage=!error&&snapshot&&snapshot.error==='source_unavailable'&&
+     (snapshot.stage==='networkmap'||snapshot.stage==='radio'||snapshot.stage==='initialization')?snapshot.stage:null;
     if(!error&&!validate(snapshot))error=new Error('Invalid device snapshot');
     var change=!error?relation(last,snapshot):"invalid";
     if(!error&&(change==="older"||change==="invalid"))error=new Error("Older or invalid snapshot");
-    if(error){failures=Math.min(failures+1,4);state(last?'Stale':'Unavailable');later(Math.min(30000,5000*Math.pow(2,failures-1)));return;}
+    if(error){failures=Math.min(failures+1,4);state(last?'Stale':'Unavailable',sourceStage);later(Math.min(30000,5000*Math.pow(2,failures-1)));return;}
     failures=0;
     if(change!=="unchanged"){
      try{if(options.onData)options.onData(snapshot);}catch(error){failures=1;state(last?'Stale':'Unavailable');later(5000);return;}

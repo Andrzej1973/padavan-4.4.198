@@ -21,6 +21,8 @@ view.filter.value='Android';view.filter.events.change();assert.strictEqual(rows[
 view.render({devices:[Object.assign({},devices[0],{hostname:'android-updated'}),devices[1]],sourceUpdatedAt:1700000001});
 rows=all(root).filter(n=>n.tagName==='tr'&&n.parentNode.tagName==='tbody');assert.strictEqual(rows[0],first);assert.strictEqual(view.filter.value,'Android');assert.strictEqual(group.open,false);assert.strictEqual(scroll.scrollTop,25);
 view.setState({state:'Stale'});assert.ok(root.textContent.includes('showing last available'));
+view.setState({state:'Unavailable',sourceStage:'radio'});assert.ok(root.textContent.includes('Wi-Fi observation source unavailable'));
+view.setState({state:'Unavailable',sourceStage:'<untrusted>'});assert.ok(!root.textContent.includes('<untrusted>'));
 view.render({devices:[devices[0]],truncated:true,invalid:2});assert.strictEqual(all(root).filter(n=>n.tagName==='tr'&&n.parentNode.tagName==='tbody').length,1);assert.ok(root.textContent.includes('Snapshot truncated'));
 let options,started=0,stopped=0,visible;
 const mounted=homepage.mount(doc,new Element('section'),{create:o=>{options=o;return {start:()=>started++,stop:()=>stopped++,setVisible:v=>visible=v,retry:()=>{}};}});
