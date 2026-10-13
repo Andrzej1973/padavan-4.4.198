@@ -1,0 +1,58 @@
+{
+  "scope": "Stubby ROMFS packaging and ELF closure; target runtime unverified",
+  "checks": {
+    "effective_selector": true,
+    "mips_elf": true,
+    "binary_executable": true,
+    "explicit_config": true,
+    "helper_executable": true,
+    "serialized_lifecycle": true,
+    "webui": true,
+    "observed_process_ui": true,
+    "observed_locale_en": true,
+    "observed_locale_uk": true,
+    "observed_locale_ru": true,
+    "services_menu_index": true,
+    "locale_en": true,
+    "locale_uk": true,
+    "locale_ru": true,
+    "resolver_list": true,
+    "resolver_catalogue_has_router_choices": true,
+    "observed_process_backend": true,
+    "httpd_fields": true,
+    "httpd_capability": true,
+    "rc_dispatcher": true,
+    "busybox_prerequisites": true,
+    "stubby_ca_bundle": true,
+    "stubby_ca_count": true,
+    "stubby_explicit_ca_path": true,
+    "current_router_resolvers_are_factory_defaults": true,
+    "loader": true,
+    "shared_library_closure": true
+  },
+  "details": {
+    "ca_runtime_status": "Pinned ROMFS bundle and generated YAML path checked; TLS handshake unverified",
+    "dependencies": {
+      "usr/sbin/stubby": [
+        "libssl.so.3",
+        "libcrypto.so.3",
+        "libc.so.0"
+      ],
+      "lib/libuClibc-1.0.43.so": [
+        "ld-uClibc.so.1"
+      ],
+      "lib/ld-uClibc-1.0.43.so": [],
+      "lib/libcrypto.so.3": [
+        "libc.so.0"
+      ],
+      "lib/libssl.so.3": [
+        "libcrypto.so.3",
+        "libc.so.0"
+      ]
+    },
+    "missing_libraries": [],
+    "interpreters": [
+      "/lib/ld-uClibc.so.0"
+    ]
+  }
+}
