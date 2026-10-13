@@ -14,6 +14,8 @@ on:
       - 'overlay/padavan-4.4/ports/doh/Advanced_Services_DoH.asp'
       - 'tools/retry-source-command.py'
       - 'tools/check-source-retry.py'
+      - 'tools/collect-wr1200js-readiness.sh'
+      - 'tools/check-readiness-dns-filter.py'
       - 'tools/check-sqm-config-policy.py'
       - 'tools/verify-wr1200js-config.py'
       - 'tools/prepare-vpn-interface-status.py'
@@ -33,6 +35,8 @@ jobs:
         run: |
           set -euo pipefail
           python3 tools/check-source-retry.py
+          sh -n tools/collect-wr1200js-readiness.sh
+          python3 tools/check-readiness-dns-filter.py
           python3 tools/check-sqm-config-policy.py
           python3 tools/prepare-zram-lifecycle-check.py --output checks/zram.c
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined checks/zram.c -o checks/zram
