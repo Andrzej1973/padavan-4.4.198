@@ -40,6 +40,11 @@ jobs:
           ASAN_OPTIONS=detect_leaks=1 checks/handshake
           gcc -std=gnu99 -Wall -Wextra -Werror tools/vpn-status/check-handshake-worker.c -o checks/handshake-worker
           timeout 15s checks/handshake-worker
+          mkdir -p checks/wr-vpn
+          cp tools/vpn-status/*.h checks/wr-vpn/
+          cp tools/vpn-status/http-status.inc tools/vpn-status/check-http-status.c checks/
+          gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined checks/check-http-status.c -o checks/vpn-http
+          ASAN_OPTIONS=detect_leaks=1 checks/vpn-http
       - uses: actions/upload-artifact@v7
         if: always()
         with:
