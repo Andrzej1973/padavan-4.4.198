@@ -48,4 +48,12 @@ static int ej_wr_vpn_handshake_state(int eid,webs_t wp,int argc,char **argv)
  return websWrite(wp,"{\"state\":%d,\"sample_age\":%llu,\"peers\":%u,\"never\":%u,\"recent\":%u,\"old\":%u,\"future\":%u,\"has_age\":%d,\"youngest_age\":%llu}",
   (int)state,(unsigned long long)age,o->peers,o->never,o->recent,o->old,o->future,o->has_age,(unsigned long long)o->youngest_age);
 }
+static int ej_wr_vpn_status(int eid,webs_t wp,int argc,char **argv)
+{
+ int written=websWrite(wp,"{\"interface\":");
+ written+=ej_wr_vpn_interface_state(eid,wp,argc,argv);
+ written+=websWrite(wp,",\"handshake\":");
+ written+=ej_wr_vpn_handshake_state(eid,wp,argc,argv);
+ return written+websWrite(wp,"}");
+}
 #endif

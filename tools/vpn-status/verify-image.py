@@ -8,7 +8,7 @@ www=a.romfs/'www'
 ui=Path(__file__).with_name('handshake-ui.js').read_text(encoding='utf-8')
 for name,role in [('vpncli.asp','client'),('vpnsrv.asp','server')]:
     page=(www/name).read_text(encoding='utf-8')
-    for marker in [ui,'id="wr_vpn_handshake_status"','arg0:"'+role+'"','output:"wr_vpn_handshake_state"','window.setInterval(wrHSRefresh,30000)','document.hidden']:
+    for marker in [ui,'id="wr_vpn_handshake_status"','arg0:"'+role+'"','output:"wr_vpn_status"','window.setInterval(wrHSRefresh,30000)','document.hidden']:
         if marker not in page:raise SystemExit('FAIL shipped handshake page: '+name+' missing '+marker[:70])
 for name in ['EN.dict','UK.dict','RU.dict']:
     content=(www/name).read_text(encoding='utf-8')

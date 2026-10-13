@@ -15,7 +15,7 @@ close='\twr_device_background_close();'
 if any(text.count(value)!=1 for text,value in [(s,anchor),(s,entry),(d,tick),(d,close)]) or 'wr_vpn_background_tick' in d:
     raise SystemExit('VPN handshake integration anchors changed; no files written')
 code=(local/'http-status.inc').read_text(encoding='utf-8')
-s=s.replace(anchor,code+'\n'+anchor).replace(entry,entry+'#if defined(BOARD_WR1200JS)\n\t{ "wr_vpn_handshake_state", ej_wr_vpn_handshake_state},\n#endif\n')
+s=s.replace(anchor,code+'\n'+anchor).replace(entry,entry+'#if defined(BOARD_WR1200JS)\n\t{ "wr_vpn_handshake_state", ej_wr_vpn_handshake_state},\n\t{ "wr_vpn_status", ej_wr_vpn_status},\n#endif\n')
 d='#if defined(BOARD_WR1200JS)\nextern void wr_vpn_background_tick(void);\nextern void wr_vpn_background_close(void);\n#endif\n'+d
 d=d.replace(tick,tick+'\n\t\twr_vpn_background_tick();').replace(close,close+'\n\twr_vpn_background_close();')
 changes=[(web,s),(daemon,d)]
@@ -40,9 +40,10 @@ for page,role in [('vpncli.asp','client'),('vpnsrv.asp','server')]:
     script=ui+'\nvar wrHSBusy=false;\nfunction wrHSRefresh(){\n'
     script+=' if(wrHSBusy || document.hidden)return;\n wrHSBusy=true;\n'
     script+=' var labels=['+','.join('"<#WRHS'+k+'#>"' for k in keys[:10])+'];\n'
-    script+=' $j.ajax({url:"/update.cgi",data:{output:"wr_vpn_handshake_state",arg0:"'+role+'"},dataType:"json",cache:false,timeout:5000})\n'
-    script+=' .done(function(o){$j("#wr_vpn_handshake_status").text(wrVPNHandshakeText(o,labels));})\n'
-    script+=' .fail(function(){$j("#wr_vpn_handshake_status").text(labels[0]);})\n'
+    script+=' var interfaces=['+','.join('"<#WRVPN'+k+'#>"' for k in ['Off','Up','Missing','Unknown','StillUp','Down'])+'];\n'
+    script+=' $j.ajax({url:"/update.cgi",data:{output:"wr_vpn_status",arg0:"'+role+'"},dataType:"json",cache:false,timeout:5000})\n'
+    script+=' .done(function(o){$j("#wr_vpn_handshake_status").text(wrVPNHandshakeText(o && o.handshake,labels));$j("#wr_vpn_interface_status").text(o && typeof o.interface === "number" && interfaces[o.interface] || interfaces[3]);})\n'
+    script+=' .fail(function(){$j("#wr_vpn_handshake_status").text(labels[0]);$j("#wr_vpn_interface_status").text(interfaces[3]);})\n'
     script+=' .always(function(){wrHSBusy=false;});\n}\n'
     html=re.sub(r'(function initial\(\)\s*\{)',lambda m:script+m[1]+'\n wrHSRefresh();\n window.setInterval(wrHSRefresh,30000);\n',html,count=1)
     html=html.replace(anchor,anchor+'<div id="wr_vpn_handshake_status" role="status"><#WRHSUnknown#></div><p class="help-block"><#WRHSNote#></p><button type="button" class="btn" onclick="wrHSRefresh()"><#WRHSRefresh#></button>')
