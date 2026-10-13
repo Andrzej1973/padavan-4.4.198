@@ -30,7 +30,7 @@ static int ej_wr_dns_process_state(int eid, webs_t wp, int argc, char **argv)
 }
 '''
 changes = [(path, s.replace(anchor, code + '\n' + anchor).replace(entry, entry + '\t{ "wr_dns_process_state", ej_wr_dns_process_state},\n'))]
-keys = ['Off', 'Present', 'Absent', 'Unknown', 'StillPresent', 'Note']
+keys = ['Off', 'Present', 'Absent', 'Unknown', 'StillPresent', 'Note', 'Refresh']
 for page, service in [('Advanced_Services_DoT.asp', 'stubby'), ('Advanced_Services_DoH.asp', 'doh')]:
     path = root / 'www/n56u_ribbon_fixed' / page
     if not path.exists():
@@ -40,13 +40,20 @@ for page, service in [('Advanced_Services_DoT.asp', 'stubby'), ('Advanced_Servic
     if html.count(table) != 1 or len(re.findall(r'function initial\(\)\s*\{', html)) != 1:
         raise SystemExit('DNS status page anchors changed: ' + page)
     js = '\n var ds = <% wr_dns_process_state("' + service + '"); %>;\n var dl = [' + ','.join('"<#WRDNS' + k + '#>"' for k in keys[:5]) + '];\n $j("#wr_dns_process_status").text(dl[ds] || dl[3]);\n'
-    html = re.sub(r'(function initial\(\)\s*\{)', lambda m:m[1]+js, html, count=1)
-    html = html.replace(table, '<div id="wr_dns_process_status" role="status"><#WRDNSUnknown#></div><p class="help-block"><#WRDNSNote#></p>\n' + table)
+    refresh='\nvar wrDNSBusy=false;\nfunction wrDNSRefresh(){\n'
+    refresh+=' if(wrDNSBusy || document.hidden)return;\n wrDNSBusy=true;\n'
+    refresh+=' var labels=['+','.join('"<#WRDNS'+k+'#>"' for k in keys[:5])+'];\n'
+    refresh+=' $j.ajax({url:"/update.cgi",data:{output:"wr_dns_process_state",arg0:"'+service+'"},dataType:"json",cache:false,timeout:5000})\n'
+    refresh+=' .done(function(state){$j("#wr_dns_process_status").text(typeof state === "number" && labels[state] || labels[3]);})\n'
+    refresh+=' .fail(function(){$j("#wr_dns_process_status").text(labels[3]);})\n'
+    refresh+=' .always(function(){wrDNSBusy=false;});\n}\n'
+    html = re.sub(r'(function initial\(\)\s*\{)', lambda m:refresh+m[1]+js+'\n window.setInterval(wrDNSRefresh,30000);\n', html, count=1)
+    html = html.replace(table, '<div id="wr_dns_process_status" role="status"><#WRDNSUnknown#></div><p class="help-block"><#WRDNSNote#></p><button type="button" class="btn" onclick="wrDNSRefresh()"><#WRDNSRefresh#></button>\n' + table)
     changes.append((path, html))
 labels = {
- 'EN.footer':['Disabled; process not found','Process present; DNS not verified','Enabled; process not found','Process state unknown','Process present despite disabled setting','Observed on page load. DNS response and TLS validation require separate verification.'],
- 'UK.dict':['Вимкнено; процес не знайдено','Процес запущений; DNS не перевірено','Увімкнено; процес не знайдено','Стан процесу невідомий','Процес запущений попри вимкнення','Стан на момент відкриття сторінки. Відповідь DNS та перевірка TLS потребують окремого підтвердження.'],
- 'RU.dict':['Выключено; процесс не найден','Процесс запущен; DNS не проверен','Включено; процесс не найден','Состояние процесса неизвестно','Процесс запущен при выключенной настройке','Состояние при открытии страницы. Ответ DNS и проверка TLS требуют отдельного подтверждения.'],
+ 'EN.footer':['Disabled; process not found','Process present; DNS not verified','Enabled; process not found','Process state unknown','Process present despite disabled setting','Process state refreshes every 30 seconds while this page is visible. DNS response and TLS validation require separate verification.','Refresh status'],
+ 'UK.dict':['Вимкнено; процес не знайдено','Процес запущений; DNS не перевірено','Увімкнено; процес не знайдено','Стан процесу невідомий','Процес запущений попри вимкнення','Стан процесу оновлюється раз на 30 секунд, коли сторінка видима. Відповідь DNS та перевірка TLS потребують окремого підтвердження.','Оновити стан'],
+ 'RU.dict':['Выключено; процесс не найден','Процесс запущен; DNS не проверен','Включено; процесс не найден','Состояние процесса неизвестно','Процесс запущен при выключенной настройке','Состояние процесса обновляется раз в 30 секунд, пока страница видима. Ответ DNS и проверка TLS требуют отдельного подтверждения.','Обновить состояние'],
 }
 for name, values in labels.items():
     path = root / 'www/dict' / name
