@@ -26,4 +26,11 @@ let callback,renderStates=[],renderTimers=new Map(),renderId=0;
 const renderFault=refresh.create({request:done=>{callback=done;return ()=>{throw new Error('transport abort error');};},setTimer:(fn,delay)=>{const id=++renderId;renderTimers.set(id,{fn,delay});return id;},clearTimer:id=>renderTimers.delete(id),onData:()=>{throw new Error('render failure');},onState:s=>renderStates.push(s)});
 renderFault.start();callback(null,snapshot(1));assert.strictEqual(renderStates.at(-1).state,'Unavailable');assert.strictEqual(renderTimers.size,1);
 renderFault.retry();renderFault.setVisible(false);assert.strictEqual(renderStates.at(-1).state,'Paused');renderFault.stop();assert.strictEqual(renderTimers.size,0);
-console.log('PASS single-flight refresh, cache sequence, error recovery/backoff, hidden pause/resume, timeout abort, stale preservation and collector epoch reset');
+let slowCallback,slowRequests=0,slowTimers=new Map(),slowId=0;
+const slow=refresh.create({intervalMs:30000,request:done=>{slowCallback=done;slowRequests++;return ()=>{};},
+ setTimer:(fn,delay)=>{const id=++slowId;slowTimers.set(id,{fn,delay});return id;},clearTimer:id=>slowTimers.delete(id)});
+slow.start();assert.strictEqual(slowRequests,1);slowCallback(null,snapshot(1));
+assert.strictEqual(slowTimers.size,1);assert.strictEqual([...slowTimers.values()][0].delay,30000);
+slow.retry();assert.strictEqual(slowRequests,2);slow.retry();assert.strictEqual(slowRequests,2);
+slow.stop();assert.strictEqual(slowTimers.size,0);
+console.log('PASS refresh lifecycle, explicit 30-second interval and immediate/manual single-flight requests');

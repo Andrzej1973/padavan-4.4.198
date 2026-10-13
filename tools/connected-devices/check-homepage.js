@@ -24,6 +24,7 @@ view.setState({state:'Stale'});assert.ok(root.textContent.includes('showing last
 view.render({devices:[devices[0]],truncated:true,invalid:2});assert.strictEqual(all(root).filter(n=>n.tagName==='tr'&&n.parentNode.tagName==='tbody').length,1);assert.ok(root.textContent.includes('Snapshot truncated'));
 let options,started=0,stopped=0,visible;
 const mounted=homepage.mount(doc,new Element('section'),{create:o=>{options=o;return {start:()=>started++,stop:()=>stopped++,setVisible:v=>visible=v,retry:()=>{}};}});
+assert.strictEqual(options.intervalMs,30000);
 assert.strictEqual(started,1);assert.strictEqual(visible,true);doc.hidden=true;doc.events.visibilitychange();assert.strictEqual(visible,false);mounted.stop();assert.strictEqual(stopped,1);
 class XHR {
  constructor(){XHR.last=this;this.readyState=0;this.status=200;this.responseText='';}

@@ -77,7 +77,7 @@
   },retry:retry,filter:filter};
  }
  function mount(doc,root,refresh){
-  var view=createView(doc,root),poller=refresh.create({request:function(done){
+  var view=createView(doc,root),poller=refresh.create({intervalMs:30000,request:function(done){
    var xhr=new XMLHttpRequest(),settled=false;
    function finish(error,value){if(settled)return;settled=true;done(error,value);}
    xhr.open('GET','/wr_devices.json?_='+Date.now(),true);xhr.setRequestHeader('Accept','application/json');

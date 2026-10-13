@@ -13,6 +13,8 @@
  function create(options){
   var schedule=options.setTimer||setTimeout,cancel=options.clearTimer||clearTimeout;
   var validate=options.validate||valid;
+  var interval=options.intervalMs;
+  if(typeof interval!=='number'||!isFinite(interval)||Math.floor(interval)!==interval||interval<5000||interval>300000)interval=5000;
   function relation(previous,next){if(options.relation)return options.relation(previous,next);if(!previous||previous.epoch!==next.epoch)return "new_session";return next.sequence<previous.sequence?"older":next.sequence===previous.sequence?"unchanged":"updated";}
   var running=false,visible=true,timer=null,flight=null,generation=0,failures=0,last=null;
   function state(name){if(options.onState){try{options.onState({state:name,hasData:last!==null,failures:failures});}catch(ignore){/* UI callbacks must not stop retries. */}}}
@@ -39,7 +41,7 @@
     }
     /* Keep newest freshness metadata even if event rows did not change. */
     last=snapshot;
-    state(snapshot.cacheState==='stale'?'Stale':snapshot.cacheState==='unavailable'?'Unavailable':'Current');later(5000);
+    state(snapshot.cacheState==='stale'?'Stale':snapshot.cacheState==='unavailable'?'Unavailable':'Current');later(interval);
    }
    entry.timeout=schedule(function(){
     if(flight!==entry)return;
