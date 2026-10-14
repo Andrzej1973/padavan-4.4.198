@@ -90,6 +90,17 @@ Implement device inventory, explicit export/unexport, validated persistent
 configuration and authenticated actions together with failure recovery. These
 remain required work; the current observation panel does not fulfill them.
 
+`tools/usbip/firewall-policy.sh` is an uninstalled component for the managed
+IPv4 daemon. It owns `WRUSBIP_INPUT`, installs a first INPUT hook atomically
+through `iptables-restore --noflush`, accepts TCP 3240 on loopback and the
+validated LAN interface, and drops that port on other interfaces. Other traffic
+returns to the original policy. It must be applied before `usbipd -4` starts
+and removed only after confirmed stop; retaining an empty owned chain avoids
+deleting references from other tools. VPN access is not implicitly granted.
+The isolated test executes the shell functions with mocked command results;
+real netfilter behavior, firewall rebuild integration and lifecycle sequencing
+still require verification before packaging.
+
 ## Manual commands and risk boundary
 
 The relevant commands for later physical validation are:

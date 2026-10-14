@@ -11,6 +11,7 @@ on:
       - 'tools/prepare-usbip-status.py'
       - 'tools/check-usbip-status.py'
       - 'tools/prepare-usbip-status-check.py'
+      - 'tools/usbip/**'
       - 'tools/prepare-dns-process-check.py'
       - 'tools/check-dns-refresh.py'
       - 'tools/doh-instance-status.h'
@@ -41,6 +42,8 @@ jobs:
       - uses: actions/checkout@v6
       - name: Check USB/IP runtime status integration
         run: |
+          sh -n tools/usbip/firewall-policy.sh
+          python3 tools/usbip/check-firewall.py
           python3 tools/check-usbip-status.py
           python3 tools/prepare-usbip-status-check.py --output checks/usbip-status.c
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined checks/usbip-status.c -o checks/usbip-status
