@@ -546,7 +546,7 @@ jobs:
             done
             test -s trunk/romfs/lib/libudev.so.1
             grep -q 'wr_usbip_state' trunk/romfs/www/Advanced_Printer_others.asp
-            grep -q '^WRUSBIPTitle=' trunk/romfs/www/EN.footer
+            grep -q '^WRUSBIPTitle=' trunk/romfs/www/EN.dict
             grep -q '^WRUSBIPTitle=' trunk/romfs/www/UK.dict
             grep -q '^WRUSBIPTitle=' trunk/romfs/www/RU.dict
             grep -a -q 'wr_usbip_state' trunk/romfs/usr/sbin/httpd

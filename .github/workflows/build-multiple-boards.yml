@@ -64,6 +64,8 @@ on:
       - 'tools/verify-strongswan-image.py'
       - 'tools/prepare-zram-status-web.py'
       - 'tools/prepare-dns-process-status.py'
+      - 'tools/prepare-usbip-status.py'
+      - 'tools/check-usbip-status.py'
       - 'tools/doh-instance-status.h'
       - 'tools/doh-instance-view.js'
       - 'tools/prepare-vpn-interface-status.py'
