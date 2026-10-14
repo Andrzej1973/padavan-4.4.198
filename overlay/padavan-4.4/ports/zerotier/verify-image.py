@@ -85,11 +85,14 @@ try:
     page=(romfs/'www/n56u_ribbon_fixed/Advanced_zerotier.asp')
     if not page.exists(): page=romfs/'www/Advanced_zerotier.asp'
     web=page.read_text(encoding='utf-8')
-    for control in ['zerotier_router_access','zerotier_lan_access','leaveManagedNetwork','zerotier_cached_status']:
+    for control in ['zerotier_router_access','zerotier_lan_access','leaveManagedNetwork','zerotier_cached_status',
+                    'wrZerotierRefresh','zerotier_state_info']:
         if control not in web: raise ValueError('Missing ZeroTier WebUI control: '+control)
     httpd=target(romfs/'usr/sbin/httpd')
-    if b'zerotier_cached_status' not in httpd.read_bytes():
-        raise ValueError('Missing HTTP cached status handler')
+    httpd_image=httpd.read_bytes()
+    for handler in (b'zerotier_cached_status',b'zerotier_state'):
+        if handler not in httpd_image:
+            raise ValueError('Missing HTTP handler: '+handler.decode())
     checks['web_controls_and_cached_status_handler']=True
     defaults=(a.source/'trunk/user/shared/defaults.c').read_text(encoding='utf-8')
     for key in ['zerotier_enable','zerotier_router_access','zerotier_lan_access']:

@@ -385,6 +385,11 @@ Complete and record these checks:
    Verify safe-session settings/storage backup, restore and flash-save controls;
    preserve authentication and login_safe restrictions. Verify AmneziaWG is
    identifiable and configurable separately from ordinary WireGuard.
+   Progress 2026-10-14: the ZeroTier page is translated for EN/UK/RU in source
+   and its manual reload is replaced by a bounded refresh; see
+   [ZeroTier page localization](evidence/ZEROTIER-PAGE-LOCALIZATION-2026-10-14.md).
+   Chinese text still remains on the Shadowsocks, SmartDNS and SQM pages and in
+   the `menu5_*` and `SmartDNS_*` dictionary entries.
 5. **Complete IoT as an accepted deliverable.** Carry forward
    [the IoT implementation contract](IOT-WIFI-IMPLEMENTATION-CONTRACT.md):
    a separate third SSID, preferably 2.4 GHz, default OFF, with SSID/password,
@@ -457,6 +462,13 @@ screenshots, logs or private router settings.
   advanced controls. Verify Apply, daemon lifecycle, membership preservation,
   permissions and actual network connectivity. The screenshot only establishes
   a disabled/stopped UI state, not working connectivity.
+  Progress 2026-10-14: labels, options, help and errors are translated in source
+  for EN/UK/RU, and the manual reload is replaced by a bounded 30 s visible-tab
+  refresh with freshness, error text and retry
+  ([evidence](evidence/ZEROTIER-PAGE-LOCALIZATION-2026-10-14.md)). Still open:
+  grouping Moon and routes under advanced controls, reconciling the legacy NAT
+  switch against the access switches and the firewall, and verifying Apply,
+  lifecycle, membership, permissions and connectivity on the device.
 - **WireGuard/AmneziaWG:** the installed page is only a simplified WireGuard
   client form. Full Nilabsent interface parity has NOT been ported. Carry
   forward the donor requirement: client/server management, AmneziaWG parameters,
