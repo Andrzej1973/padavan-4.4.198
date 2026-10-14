@@ -51,6 +51,8 @@ jobs:
         run: |
           sh -n tools/usbip/firewall-policy.sh
           python3 tools/usbip/check-firewall.py
+          sh -n tools/usbip/service.sh
+          python3 tools/usbip/check-service.py
           python3 tools/check-usbip-status.py
           python3 tools/prepare-usbip-status-check.py --output checks/usbip-status.c
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined checks/usbip-status.c -o checks/usbip-status

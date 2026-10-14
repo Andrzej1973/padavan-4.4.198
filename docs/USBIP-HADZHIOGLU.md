@@ -101,6 +101,18 @@ The isolated test executes the shell functions with mocked command results;
 real netfilter behavior, firewall rebuild integration and lifecycle sequencing
 still require verification before packaging.
 
+`tools/usbip/service.sh` now provides an uninstalled start/stop/restart/status
+candidate. It serializes actions with flock, checks the explicit PID file and
+executable, rejects untracked processes, applies the LAN policy before module
+loading and daemon startup, and invokes IPv4-only `usbipd -4 -D --pid=...`.
+Stop waits up to ten polling intervals after SIGTERM; failure retains the
+restrictive policy and aborts restart. The script does not bind/unbind devices,
+write NVRAM, force-kill workers, or infer transfer success from a running PID.
+Its isolated fixture replaces process paths and signal delivery; tests cannot
+establish real process races, USB behavior or netfilter behavior. Packaging,
+boot/persistent configuration, firewall rebuild ordering and authenticated UI
+actions remain open.
+
 ## Manual commands and risk boundary
 
 The relevant commands for later physical validation are:
