@@ -1,0 +1,44 @@
+{
+  "scope": "DoH packaging/configuration/ELF; browser, DNS, TLS and runtime unverified",
+  "checks": {
+    "selector": true,
+    "binary": true,
+    "lifecycle": true,
+    "helper_syntax": true,
+    "ca_bundle": true,
+    "license": true,
+    "webui": true,
+    "observed_process_ui": true,
+    "observed_locale_en": true,
+    "observed_locale_uk": true,
+    "observed_locale_ru": true,
+    "services_menu_index": true,
+    "dnsmasq_server_line_uses_newline": true,
+    "locale_en": true,
+    "locale_uk": true,
+    "locale_ru": true,
+    "resolver_catalogue": true,
+    "observed_process_backend": true,
+    "observed_instance_backend": true,
+    "rc": true,
+    "backend": true,
+    "shared_libraries": true,
+    "loader": true,
+    "default_disabled": true
+  },
+  "details": {
+    "missing_libraries": [],
+    "invalid_elf": [],
+    "inspected_elf_files": [
+      "lib/ld-uClibc-1.0.43.so",
+      "lib/libcares.so.2.17.3",
+      "lib/libcrypto.so.3",
+      "lib/libcurl.so.4.8.0",
+      "lib/libev.so.4.0.0",
+      "lib/libssl.so.3",
+      "lib/libuClibc-1.0.43.so",
+      "lib/libz.so.1.3.1",
+      "usr/sbin/https_dns_proxy"
+    ]
+  }
+}
