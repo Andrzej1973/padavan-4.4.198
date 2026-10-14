@@ -19,6 +19,17 @@ After the owner restored access, a read-only SSH retry succeeded. The router rep
 
 ## Evidence and remaining work
 
+### Physical execution of current standalone collectors
+
+Static MIPS diagnostics from ABI run `38503774639`, commit `87a3ae385df7d7adaa3f43463fd73d06be0e31c9`, were copied into owner-only `/tmp/wrdiag-87a3ae3` and run once over SSH. SHA256 values matched locally and on the router: networkmap `def94128a89076f6b0d28c2da3cb815f3e485c6c60e01998fb1a9fc405c3c11a`, radio `b46e9801db2f95b9fd9112ca94280f8a9ca2d4bf043645e708a9f2bdc589da40`.
+
+- Production networkmap collector: `collected`, records 19, invalid 0, truncated false, exit 0.
+- Radio 0 (`ra0`): ioctl 0, errno 0, returned 1628 bytes, decode valid, records 0.
+- Radio 1 (`rai0`): ioctl 0, errno 0, returned 1796 bytes, decode valid, records 3. Radio diagnostic exit 0.
+- Device uptime after the probes: `214188.86` seconds; no reboot or service restart was performed.
+
+These results execute the current source collector and wire decoder on the physical router, separately from the installed older httpd. The 1628-byte response corresponds to 58 entries with a four-byte header and 28-byte entries; the 1796-byte response corresponds to 64 entries. Both are explicitly accepted by the current decoder. A decoder requiring only `sizeof(RT_802_11_MAC_TABLE)` at 1796 bytes would reject the first response, but the exact installed httpd source identity has not been established. Thus the live source/lock/query failures are not reproduced by these probes; the installed endpoint's `source_unavailable` remains to be reconciled with its code and execution context. This is not yet a successful rendered-page or full firmware runtime test.
+
 An additional live read found `rt_stream_rx=2`, `wl_stream_rx=2`, and all four queried radio switches (`rt_radio_x`, `wl_radio_x`, `mlme_radio_rt`, `mlme_radio_wl`) equal to 1. These values satisfy the current radio collector's stream-count precondition and do not select its disabled-radio path. `/wr_rssi.json` reported `cacheState=current`, both radios available/attempted with error zero; radio 0 retained one historical failure and one recovery, radio 1 none. This is evidence for the independent RSSI collector only. The separate structured station-table ioctl, networkmap parser and POSIX lock acquisition remain unverified on the installed image. Do not infer station collection success from RSSI health or the presence of the BusyBox `flock` command: the C networkmap collector uses `fcntl(F_SETLK)` directly.
 
 A private SSH copy of the source was inspected locally without publishing device names or addresses. All 19 rows satisfied the expected IPv4/MAC and rightmost type/HTTP/stale field structure; the longest copied row was 51 bytes. This independent format check does not execute the installed C parser or acquire its POSIX lock, and copying through PowerShell normalizes text encoding/newlines. It therefore does not exclude a live read/locking race, but provides no evidence for malformed record fields. The private copy is outside the repository at `private-router-check/networkmap-20261014.csv` in the parent workspace.
