@@ -12,6 +12,7 @@ page = (www / 'index.asp').read_text(encoding='utf-8')
 assert page.count('id="wr-connected-devices"') == 1
 keys=('state-current','state-stale','state-unavailable','state-updating','state-paused','state-stopped','last-observations','source-networkmap','source-radio','source-initialization','title','description','retry','source-time-unavailable','empty','no-match','source-time')
 keys+=('column-device','column-connection','column-category','column-confidence','connection-associated','connection-last','connection-seen','connection-unknown','confidence-unknown','confidence-possible','confidence-high','confidence-manufacturer','confidence-user','unnamed','classification-none','last-evidence')
+keys+=('network-primary','network-guest','network-iot','network-unknown','category-all','category-unknown','category-tv','notice-truncated','notice-invalid','evidence-android-host','evidence-android-dhcp','evidence-windows-host','evidence-windows-dhcp','evidence-tv-host','evidence-conflict','evidence-manual','evidence-manufacturer')
 for key in keys:
     assert 'data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' in page,key
     for locale in ('EN','UK','RU'):

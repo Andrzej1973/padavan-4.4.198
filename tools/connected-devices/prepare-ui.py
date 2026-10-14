@@ -32,7 +32,16 @@ table_labels={
 }
 keys+=table_keys
 for name in translations:translations[name]+=table_labels[name]
+detail_keys=['network-primary','network-guest','network-iot','network-unknown','category-all','category-unknown','category-tv','notice-truncated','notice-invalid','evidence-android-host','evidence-android-dhcp','evidence-windows-host','evidence-windows-dhcp','evidence-tv-host','evidence-conflict','evidence-manual','evidence-manufacturer']
+detail_labels={
+ 'EN.footer':['Primary network','Guest network','IoT network','Network not identified','All','Unknown','Smart TV','Snapshot truncated to bounded source limits','Invalid source records','Hostname suggests Android','DHCP vendor class suggests Android','Hostname suggests Windows','DHCP vendor class suggests Windows','Hostname suggests a television','Conflicting OS clues','Manual user correction','Local OUI manufacturer'],
+ 'UK.dict':['Основна мережа','Гостьова мережа','Мережа IoT','Мережу не визначено','Усі','Невідомо','Смарттелевізор','Знімок скорочено до встановлених обмежень джерела','Некоректні записи джерела','Назва пристрою вказує на Android','Клас постачальника DHCP вказує на Android','Назва пристрою вказує на Windows','Клас постачальника DHCP вказує на Windows','Назва пристрою вказує на телевізор','Суперечливі ознаки ОС','Ручне уточнення користувачем','Виробник за локальним OUI'],
+ 'RU.dict':['Основная сеть','Гостевая сеть','Сеть IoT','Сеть не определена','Все','Неизвестно','Смарттелевизор','Снимок сокращён до установленных ограничений источника','Некорректные записи источника','Имя устройства указывает на Android','Класс поставщика DHCP указывает на Android','Имя устройства указывает на Windows','Класс поставщика DHCP указывает на Windows','Имя устройства указывает на телевизор','Противоречивые признаки ОС','Ручное уточнение пользователем','Производитель по локальному OUI'],
+}
+keys+=detail_keys
+for name in translations:translations[name]+=detail_labels[name]
 for name,values in translations.items():
+    if len(values)!=len(keys):raise SystemExit('Device translation count mismatch: '+name)
     path=a.source/'trunk/user/www/dict'/name
     content=path.read_text(encoding='utf-8')
     if 'WRDeviceStatus_state-current=' in content:raise SystemExit('Device status labels already installed')

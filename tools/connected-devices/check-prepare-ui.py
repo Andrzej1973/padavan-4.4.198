@@ -42,6 +42,7 @@ try:
     keys=['state-current','state-stale','state-unavailable','state-updating','state-paused','state-stopped','last-observations','source-networkmap','source-radio','source-initialization']
     keys+=['title','description','retry','source-time-unavailable','empty','no-match','source-time']
     keys+=['column-device','column-connection','column-category','column-confidence','connection-associated','connection-last','connection-seen','connection-unknown','confidence-unknown','confidence-possible','confidence-high','confidence-manufacturer','confidence-user','unnamed','classification-none','last-evidence']
+    keys+=['network-primary','network-guest','network-iot','network-unknown','category-all','category-unknown','category-tv','notice-truncated','notice-invalid','evidence-android-host','evidence-android-dhcp','evidence-windows-host','evidence-windows-dhcp','evidence-tv-host','evidence-conflict','evidence-manual','evidence-manufacturer']
     attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in keys)
     section = '\n                <section id="wr-connected-devices" class="well" aria-label="Connected devices"'+attributes+'></section>'
     section += '\n                <section id="wr-roaming-history" class="well" aria-label="Wi-Fi history"></section>'

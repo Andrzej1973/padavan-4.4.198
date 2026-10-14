@@ -10,18 +10,26 @@
  function createView(doc,root){
   var groups={},rows=Object.create(null),current=[],warning='',source=null;
   function translated(key,fallback){var value=root.getAttribute?root.getAttribute('data-wr-'+key):null;return typeof value==='string'&&value&&value.indexOf('<#')<0?value:fallback;}
+  function categoryLabel(category){return category==='All'?translated('category-all',category):category==='Unknown'?translated('category-unknown',category):category==='Smart TV'?translated('category-tv',category):category;}
+  var networkLabels={};Object.keys(labels).forEach(function(key){networkLabels[key]=translated('network-'+key,labels[key]);});
+  function evidenceLabel(value){
+   var keys={'Hostname suggests Android':'evidence-android-host','DHCP vendor class suggests Android':'evidence-android-dhcp','Hostname suggests Windows':'evidence-windows-host','DHCP vendor class suggests Windows':'evidence-windows-dhcp','Hostname suggests a television':'evidence-tv-host','Conflicting OS clues':'evidence-conflict','Manual user correction':'evidence-manual'};
+   if(Object.prototype.hasOwnProperty.call(keys,value))return translated(keys[value],value);
+   if(value.indexOf('Local OUI manufacturer: ')===0)return translated('evidence-manufacturer','Local OUI manufacturer')+': '+value.slice('Local OUI manufacturer: '.length);
+   return value;
+  }
   function node(tag,label,parent){var n=doc.createElement(tag);if(label!==undefined)n.textContent=label;if(parent)parent.appendChild(n);return n;}
   function set(n,value){value=String(value);if(n.textContent!==value)n.textContent=value;}
   node('h3',translated('title','Connected devices'),root);
   node('p',translated('description','Passive observations; current connection and network role may be unknown.'),root);
-  var controls=node('div',undefined,root),filterLabel=node('label','Category ',controls),filter=node('select',undefined,filterLabel);
-  filter.setAttribute('aria-label','Device category');categories.forEach(function(c){var opt=node('option',c,filter);opt.value=c;});filter.value='All';
+  var controls=node('div',undefined,root),filterLabel=node('label',translated('column-category','Category')+' ',controls),filter=node('select',undefined,filterLabel);
+  filter.setAttribute('aria-label',translated('column-category','Device category'));categories.forEach(function(c){var opt=node('option',categoryLabel(c),filter);opt.value=c;});filter.value='All';
   var retry=node('button',translated('retry','Retry'),controls);retry.type='button';retry.className='btn';
   var status=node('p',translated('state-updating','Updating'),root);status.setAttribute('role','status');status.setAttribute('aria-live','polite');
   var freshness=node('p',translated('source-time-unavailable','Source update time unavailable'),root),notice=node('p','',root),empty=node('p',translated('empty','No observations available'),root);
   Object.keys(labels).forEach(function(key){
    var details=node('details',undefined,root);details.open=key==='primary'||key==='unknown';details.setAttribute('data-network',key);
-   var summary=node('summary',labels[key],details),scroll=node('div',undefined,details);scroll.className='wr-device-scroll';
+   var summary=node('summary',networkLabels[key],details),scroll=node('div',undefined,details);scroll.className='wr-device-scroll';
    var table=node('table',undefined,scroll);table.className='table table-striped';
    var header=node('tr',undefined,node('thead',undefined,table));
    ['Device / address','Connection evidence','Category','Confidence'].forEach(function(label,index){node('th',translated(['column-device','column-connection','column-category','column-confidence'][index],label),header);});
@@ -30,7 +38,7 @@
   function applyFilter(){
    Object.keys(groups).forEach(function(key){groups[key].shown=0;});
    Object.keys(rows).forEach(function(key){var row=rows[key],show=filter.value==='All'||row.category===filter.value;row.node.style.display=show?'':'none';if(show)groups[row.group].shown++;});
-   var count=0,total=0;Object.keys(groups).forEach(function(key){var g=groups[key];set(g.summary,labels[key]+' ('+g.shown+' / '+g.total+')');g.details.style.display=g.total?'':'none';count+=g.shown;total+=g.total;});
+   var count=0,total=0;Object.keys(groups).forEach(function(key){var g=groups[key];set(g.summary,networkLabels[key]+' ('+g.shown+' / '+g.total+')');g.details.style.display=g.total?'':'none';count+=g.shown;total+=g.total;});
    empty.style.display=count?'none':'';set(empty,total?translated('no-match','No devices match this category'):translated('empty','No observations available'));
   }
   filter.addEventListener('change',applyFilter);
@@ -59,11 +67,11 @@
     });
     row.connection=connection;
     var confidenceKeys={'Unknown':'confidence-unknown','Possible':'confidence-possible','High':'confidence-high','Manufacturer identified':'confidence-manufacturer','User specified':'confidence-user'};
-    set(row.cells[1],connection);set(row.cells[2],icons[result.category]+' '+result.category);set(row.cells[3],translated(confidenceKeys[result.confidence]||'confidence-unknown',result.confidence));
-    row.cells[3].title=result.evidence.join('; ')||translated('classification-none','No reliable classification evidence');
+    set(row.cells[1],connection);set(row.cells[2],icons[result.category]+' '+categoryLabel(result.category));set(row.cells[3],translated(confidenceKeys[result.confidence]||'confidence-unknown',result.confidence));
+    row.cells[3].title=result.evidence.map(evidenceLabel).join('; ')||translated('classification-none','No reliable classification evidence');
    });
    Object.keys(rows).forEach(function(key){if(!seen[key]){var n=rows[key].node;if(n.parentNode)n.parentNode.removeChild(n);delete rows[key];}});
-   warning=(snapshot.truncated?'Snapshot truncated to bounded source limits. ':'')+(snapshot.invalid?'Invalid source records: '+snapshot.invalid+'.':'');
+   warning=(snapshot.truncated?translated('notice-truncated','Snapshot truncated to bounded source limits')+'. ':'')+(snapshot.invalid?translated('notice-invalid','Invalid source records')+': '+snapshot.invalid+'.':'');
    set(notice,warning);
    source=typeof snapshot.sourceUpdatedAt==='number'&&snapshot.sourceUpdatedAt>0?snapshot.sourceUpdatedAt:null;
    set(freshness,source?translated('source-time','Source updated')+': '+new Date(source*1000).toLocaleString():translated('source-time-unavailable','Source update time unavailable'));
