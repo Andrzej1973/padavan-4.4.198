@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Verify actual staged homepage assets; this does not prove device runtime."""
 import argparse
+import re
 from pathlib import Path
 
 p = argparse.ArgumentParser()
@@ -13,6 +14,11 @@ assert page.count('id="wr-connected-devices"') == 1
 keys=('state-current','state-stale','state-unavailable','state-updating','state-paused','state-stopped','last-observations','source-networkmap','source-radio','source-initialization','title','description','retry','source-time-unavailable','empty','no-match','source-time')
 keys+=('column-device','column-connection','column-category','column-confidence','connection-associated','connection-last','connection-seen','connection-unknown','confidence-unknown','confidence-possible','confidence-high','confidence-manufacturer','confidence-user','unnamed','classification-none','last-evidence')
 keys+=('network-primary','network-guest','network-iot','network-unknown','category-all','category-unknown','category-tv','notice-truncated','notice-invalid','evidence-android-host','evidence-android-dhcp','evidence-windows-host','evidence-windows-dhcp','evidence-tv-host','evidence-conflict','evidence-manual','evidence-manufacturer')
+for section in ('wr-roaming-history','wr-rssi-history'):
+    tags=re.findall(r'<section\b[^>]*id="'+section+r'".*?</section>',page,re.S)
+    assert len(tags)==1,section
+    for key in keys[:7]:
+        assert 'data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' in tags[0],(section,key)
 for key in keys:
     assert 'data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' in page,key
     for locale in ('EN','UK','RU'):

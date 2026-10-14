@@ -21,7 +21,8 @@ with fixture_directory() as directory:
  keys+=('column-device','column-connection','column-category','column-confidence','connection-associated','connection-last','connection-seen','connection-unknown','confidence-unknown','confidence-possible','confidence-high','confidence-manufacturer','confidence-user','unnamed','classification-none','last-evidence')
  keys+=('network-primary','network-guest','network-iot','network-unknown','category-all','category-unknown','category-tv','notice-truncated','notice-invalid','evidence-android-host','evidence-android-dhcp','evidence-windows-host','evidence-windows-dhcp','evidence-tv-host','evidence-conflict','evidence-manual','evidence-manufacturer')
  attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in keys)
- page='<section id="wr-connected-devices"'+attributes+'></section><section id="wr-roaming-history"></section><section id="wr-rssi-history"></section><iframe id="statusframe"></iframe>'
+ state_attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in keys[:7])
+ page='<section id="wr-connected-devices"'+attributes+'></section><section id="wr-roaming-history"'+state_attributes+'></section><section id="wr-rssi-history"'+state_attributes+'></section><iframe id="statusframe"></iframe>'
  dictionary='\n'+''.join('WRDeviceStatus_'+key+'=fixture label\n' for key in keys)
  for locale in ('EN','UK','RU'):(www/(locale+'.dict')).write_text(dictionary,encoding='utf-8')
  for name in ('classify','refresh','homepage','roaming','roaming-view','rssi','rssi-view','boot'):

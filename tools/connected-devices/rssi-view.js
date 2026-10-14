@@ -1,8 +1,10 @@
 (function(root,factory){if(typeof module==='object'&&module.exports)module.exports=factory();else root.WRRssiView=factory();})(typeof window!=='undefined'?window:this,function(){
  'use strict';
  function createView(doc,root){
+  function translated(key,fallback){var value=root.getAttribute&&root.getAttribute('data-wr-'+key);return value&&value.indexOf('<#')<0?value:fallback;}
+  var stale=false;
   function node(tag,text,parent){var n=doc.createElement(tag);n.textContent=text;(parent||root).appendChild(n);return n;}
-  var status=node('p','Unavailable'),notice=node('p',''),details=node('details',''),summary=node('summary','RSSI Kick driver events',details),list=node('ol','',details);
+  var status=node('p',translated('state-unavailable','Unavailable')),notice=node('p',''),details=node('details',''),summary=node('summary','RSSI Kick driver events',details),list=node('ol','',details);
   var filter=node('input',''),last=null;filter.maxLength=17;filter.setAttribute('aria-label','Filter RSSI events by MAC');
   list.style.maxHeight='280px';list.style.overflowY='auto';details.open=false;
   node('p','Driver observations do not prove delivery of a disconnect frame or successful roaming.');
@@ -16,7 +18,7 @@
    notice.textContent=h.radios.map(function(r){return (r.radio===0?'2.4 GHz':'5 GHz')+': '+(r.available?'available':r.attempted?'unavailable':'not collected')+'; missing '+r.missing+'; restarts '+r.restarts+'; driver overwritten '+r.driverOverwritten;}).join(' | ')+' | Evicted from RAM: '+h.evicted;
   }
   filter.addEventListener('input',function(){if(last)render(last);});
-  return {render:render,setState:function(s){status.textContent=s.state+(s.state==='Stale'?' — showing last available data':'');},filter:filter,details:details,list:list};
+  return {render:render,setState:function(s){if(s.state==='Stale')stale=true;else if(s.state==='Current')stale=false;status.textContent=translated('state-'+s.state.toLowerCase(),s.state)+(stale?' — '+translated('last-observations','showing last available data'):'');},filter:filter,details:details,list:list};
  }
  function mount(doc,root,refresh,schema){
   var view=createView(doc,root),poller=schema.create(refresh,{request:function(done){

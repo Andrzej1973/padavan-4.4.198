@@ -45,8 +45,9 @@ try:
     keys+=['network-primary','network-guest','network-iot','network-unknown','category-all','category-unknown','category-tv','notice-truncated','notice-invalid','evidence-android-host','evidence-android-dhcp','evidence-windows-host','evidence-windows-dhcp','evidence-tv-host','evidence-conflict','evidence-manual','evidence-manufacturer']
     attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in keys)
     section = '\n                <section id="wr-connected-devices" class="well" aria-label="Connected devices"'+attributes+'></section>'
-    section += '\n                <section id="wr-roaming-history" class="well" aria-label="Wi-Fi history"></section>'
-    section += '\n                <section id="wr-rssi-history" class="well" aria-label="RSSI history"></section>'
+    state_attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in keys[:7])
+    section += '\n                <section id="wr-roaming-history" class="well" aria-label="Wi-Fi history"'+state_attributes+'></section>'
+    section += '\n                <section id="wr-rssi-history" class="well" aria-label="RSSI history"'+state_attributes+'></section>'
     assert installed.count(includes) == 1 and installed.count(section) == 1
     assert installed.replace(includes, '', 1).replace(section, '', 1) == original
     for name in ('EN.footer','UK.dict','RU.dict'):

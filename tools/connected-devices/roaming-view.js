@@ -1,6 +1,7 @@
 (function(root,factory){if(typeof module==='object'&&module.exports)module.exports=factory();else root.WRRoamingView=factory();})(typeof window!=='undefined'?window:this,function(){
  'use strict';
  function createView(doc,root){
+  function translated(key,fallback){var value=root.getAttribute&&root.getAttribute('data-wr-'+key);return value&&value.indexOf('<#')<0?value:fallback;}
   function node(tag,text,parent){var n=doc.createElement(tag);if(text)n.textContent=text;(parent||root).appendChild(n);return n;}
   node('h3','Wi-Fi observation history');var status=node('p','Unavailable'),notice=node('p',''),label=node('label','Client MAC: '),filter=node('input','',label),details=node('details',''),summary=node('summary','Recent events',details),list=node('ol','',details),last=null;
   var actionDetails=node('details',''),actionSummary=node('summary','Band Steering commands',actionDetails),actionNotice=node('p','',actionDetails),actionList=node('ol','',actionDetails);actionDetails.open=false;actionList.style.maxHeight='280px';actionList.style.overflowY='auto';
@@ -41,7 +42,7 @@
    finally{if(link&&link.parentNode)link.parentNode.removeChild(link);if(url)win.setTimeout(function(){win.URL.revokeObjectURL(url);},1000);}
   });
   var stale=false;
-  return {render:render,setState:function(s){if(s.state==='Stale')stale=true;else if(s.state==='Current')stale=false;status.textContent=s.state+(stale?' \u2014 showing last available history':'');},filter:filter,details:details,list:list,actionDetails:actionDetails,actionList:actionList,exportButton:exportButton};
+  return {render:render,setState:function(s){if(s.state==='Stale')stale=true;else if(s.state==='Current')stale=false;status.textContent=translated('state-'+s.state.toLowerCase(),s.state)+(stale?' \u2014 '+translated('last-observations','showing last available history'):'');},filter:filter,details:details,list:list,actionDetails:actionDetails,actionList:actionList,exportButton:exportButton};
  }
  function mount(doc,root,refresh,history){var view=createView(doc,root),poller=history.create(refresh,{request:function(done){
   var xhr=new XMLHttpRequest(),settled=false;function finish(error,value){if(settled)return;settled=true;done(error,value);}

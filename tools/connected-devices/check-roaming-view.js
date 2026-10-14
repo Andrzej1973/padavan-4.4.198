@@ -11,6 +11,10 @@ class Element {
 const doc={createElement:tag=>new Element(tag),events:{},hidden:false,addEventListener:function(k,v){this.events[k]=v;},removeEventListener:function(k){delete this.events[k];},defaultView:{pageXOffset:0,pageYOffset:40,scrollTo:function(x,y){assert.strictEqual(y,40);}}};
 function all(n){return [n].concat(...n.children.map(all));}
 const root=new Element('section'),view=homepage.createView(doc,root);view.filter.value='';
+const localizedRoot=new Element('section');localizedRoot.getAttribute=k=>({'data-wr-state-stale':'Устаревшие данные','data-wr-state-updating':'Обновление','data-wr-state-current':'Актуальные данные','data-wr-last-observations':'последние наблюдения'})[k];
+const localizedView=homepage.createView(doc,localizedRoot);
+localizedView.setState({state:'Stale'});localizedView.setState({state:'Updating'});assert(localizedRoot.textContent.includes('Обновление — последние наблюдения'));
+localizedView.setState({state:'Current'});assert(!localizedRoot.textContent.includes('последние наблюдения'));
 const h={epoch:'session',dropped:4,clientDropped:2,clientEvictions:1,gap:false,events:[{kind:'observed',mac:'02:00:00:00:00:01',uptimeMs:5000,after:1},{kind:'gap',mac:'',uptimeMs:10000}]};
 view.render(h);assert.equal(view.list.children.length,2);assert(root.textContent.includes('Observation gap'));assert(root.textContent.includes('Overwritten events: 4'));
 view.details.open=true;view.list.scrollTop=25;view.filter.value='FF';view.filter.events.input();assert.equal(view.list.children.length,1);assert.equal(view.details.open,true);assert.equal(view.list.scrollTop,25);

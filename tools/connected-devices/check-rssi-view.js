@@ -16,6 +16,11 @@ assert.strictEqual(view.list.children.length,1);assert(view.list.textContent.inc
 assert(view.details.open&&view.list.scrollTop===18);view.setState({state:'Stale'});assert(root.textContent.includes('last available data'));
 view.render(h);assert.strictEqual(view.list.children.length,1);assert(view.details.open);
 console.log('PASS RSSI DOM filtering, stage labels, stale notice and retained expansion/scroll');
+const localizedRoot=new Element('section');localizedRoot.getAttribute=k=>({'data-wr-state-stale':'Застарілі дані','data-wr-state-updating':'Оновлення','data-wr-state-current':'Актуальні дані','data-wr-last-observations':'останні спостереження'})[k];
+const localizedView=rssi.createView(doc,localizedRoot);
+localizedView.setState({state:'Stale'});assert(localizedRoot.textContent.includes('Застарілі дані — останні спостереження'));
+localizedView.setState({state:'Updating'});assert(localizedRoot.textContent.includes('Оновлення — останні спостереження'));
+localizedView.setState({state:'Current'});assert(localizedRoot.textContent.includes('Актуальні дані'));assert(!localizedRoot.textContent.includes('останні спостереження'));
 
 (function(){
  let options,xhr,callbacks=0,stops=0,visibility=[];
