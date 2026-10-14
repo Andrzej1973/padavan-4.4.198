@@ -68,14 +68,31 @@ for page, service in [('Advanced_Services_DoT.asp', 'stubby'), ('Advanced_Servic
     refresh+=' .done(function(state){$j("#wr_dns_process_status").text(typeof state === "number" && labels[state] || labels[3]);})\n'
     refresh+=' .fail(function(){$j("#wr_dns_process_status").text(labels[3]);})\n'
     refresh+=' .always(function(){wrDNSBusy=false;});\n}\n'
+    if service=='doh':
+        renderer=Path(__file__).with_name('doh-instance-view.js').read_text(encoding='utf-8')
+        refresh=refresh.replace('var wrDNSBusy=false;', 'var wrDNSBusy=false;\n'+renderer)
+        refresh=refresh.replace('data:{output:"wr_dns_process_state",arg0:"doh"}', 'data:{output:"wr_doh_instance_state"}')
+        refresh=refresh.replace('$j("#wr_dns_process_status").text(typeof state === "number" && labels[state] || labels[3]);','wrDoHRender(state);')
+        refresh=refresh.replace('$j("#wr_dns_process_status").text(labels[3]);','wrDoHRender(null);')
+        js='\n wrDoHRender(<% wr_doh_instance_state(); %>);\n'
     html = re.sub(r'(function initial\(\)\s*\{)', lambda m:refresh+m[1]+js+'\n window.setInterval(wrDNSRefresh,30000);\n', html, count=1)
     html = html.replace(table, '<div id="wr_dns_process_status" role="status"><#WRDNSUnknown#></div><p class="help-block"><#WRDNSNote#></p><button type="button" class="btn" onclick="wrDNSRefresh()"><#WRDNSRefresh#></button>\n' + table)
+    if service=='doh':
+        html=html.replace('<div id="wr_dns_process_status"', '<div id="wr_doh_instances" role="status"><#WRDNSUnknown#></div><p class="help-block"><#WRDNSInstanceNote#></p><div id="wr_dns_process_status"',1)
     changes.append((path, html))
 labels = {
  'EN.footer':['Disabled; process not found','Process present; DNS not verified','Enabled; process not found','Process state unknown','Process present despite disabled setting','Process state refreshes every 30 seconds while this page is visible. DNS response and TLS validation require separate verification.','Refresh status'],
  'UK.dict':['Вимкнено; процес не знайдено','Процес запущений; DNS не перевірено','Увімкнено; процес не знайдено','Стан процесу невідомий','Процес запущений попри вимкнення','Стан процесу оновлюється раз на 30 секунд, коли сторінка видима. Відповідь DNS та перевірка TLS потребують окремого підтвердження.','Оновити стан'],
  'RU.dict':['Выключено; процесс не найден','Процесс запущен; DNS не проверен','Включено; процесс не найден','Состояние процесса неизвестно','Процесс запущен при выключенной настройке','Состояние процесса обновляется раз в 30 секунд, пока страница видима. Ответ DNS и проверка TLS требуют отдельного подтверждения.','Обновить состояние'],
 }
+instance_keys=['NoSlots','ConfiguredSlots','OwnedSlots','MissingSlots','UnknownSlots','UnexpectedSlots','DuplicateSlots','InstanceNote']
+instance_labels={
+ 'EN.footer':['none','Configured slots','Slots with verified process ownership','Configured slots without a confirmed process','Unverified slots','Processes in unconfigured slots','Duplicate PID slots','PID-file and executable ownership only; listener, resolver profile and DNS/TLS functionality are not verified. Slot numbers match resolver fields 1–4.'],
+ 'UK.dict':['немає','Налаштовані слоти','Слоти з підтвердженою належністю процесу','Налаштовані слоти без підтвердженого процесу','Неперевірені слоти','Процеси в неналаштованих слотах','Слоти з повторним PID','Перевіряються лише PID-файл і виконуваний файл процесу; порт, профіль резолвера та робота DNS/TLS не перевірені. Номери слотів відповідають полям резолверів 1–4.'],
+ 'RU.dict':['нет','Настроенные слоты','Слоты с подтверждённой принадлежностью процесса','Настроенные слоты без подтверждённого процесса','Непроверенные слоты','Процессы в ненастроенных слотах','Слоты с повторным PID','Проверяются только PID-файл и исполняемый файл процесса; порт, профиль резолвера и работа DNS/TLS не проверены. Номера слотов соответствуют полям резолверов 1–4.'],
+}
+keys+=instance_keys
+for name in labels:labels[name]+=instance_labels[name]
 for name, values in labels.items():
     path = root / 'www/dict' / name
     content = path.read_text(encoding='utf-8')

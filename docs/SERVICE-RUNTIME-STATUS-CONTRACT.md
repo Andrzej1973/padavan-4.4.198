@@ -1,5 +1,11 @@
 # Actual service and driver state in WebUI
 
+## DoH instance ownership follow-up
+
+The observer introduced in `670c12b` passed native ASan/UBSan CI [38505941650](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38505941650). The subsequent read-only HTTP handler passed emitted-handler tests in [38506100513](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38506100513). It reports four-bit masks for configured slots, PID-file/executable ownership, unknown observations and duplicate PIDs without exporting resolver URLs or PID values.
+
+The DoH page now consumes that handler on entry, manual refresh and its existing 30-second visible-page interval. EN/UK/RU descriptions distinguish configured slots without confirmed processes, unknown slots, duplicate PIDs and owned processes in unconfigured slots. A malformed/failed response clears the displayed observation to unknown. Existing Stubby numeric process state remains unchanged. Local emitted-page tests cover these cases and request single-flight/hidden behavior; shipped-image checks require the new handler, renderer and locale keys. Full image and physical page verification remain pending for this change. PID ownership alone does not verify a listener, the process's resolver profile, DNS responses or TLS validation. The live router's DoH remains intentionally disabled.
+
 User requirement, 2026-10-12: every exposed service, feature and driver must show its actual operational state. An enabled configuration switch must never be presented as proof that the service is working.
 
 Keep the saved enable switch as the requested setting. Place an actual-state badge beside it, with a short reason and the time of the last successful observation. Do not silently change the saved setting after a start failure.

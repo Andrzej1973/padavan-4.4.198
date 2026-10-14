@@ -64,6 +64,7 @@ on:
       - 'tools/prepare-zram-status-web.py'
       - 'tools/prepare-dns-process-status.py'
       - 'tools/doh-instance-status.h'
+      - 'tools/doh-instance-view.js'
       - 'tools/prepare-vpn-interface-status.py'
       - 'tools/prepare-vpn-handshake-status.py'
       - 'tools/vpn-status/**'
