@@ -7,7 +7,11 @@ from pathlib import Path
 
 parser = argparse.ArgumentParser()
 parser.add_argument("source", type=Path)
+parser.add_argument("--config", type=Path, required=True)
 args = parser.parse_args()
+if "CONFIG_FIRMWARE_INCLUDE_USBIP=y" not in args.config.read_text(encoding="utf-8").splitlines():
+    print("USB/IP not selected; no endpoint or panel added")
+    raise SystemExit(0)
 root = args.source / "trunk/user"
 
 web_ex = root / "httpd/web_ex.c"
@@ -24,6 +28,9 @@ endpoint = r'''
 static int wr_usbip_path_state(const char *path)
 {
  struct stat st;
+ /* An unavailable sysfs mount is unknown, not evidence of an unloaded module. */
+ if (stat("/sys/module", &st) != 0 || !S_ISDIR(st.st_mode) ||
+     access("/sys/module", R_OK | X_OK) != 0) return 2;
  if (stat(path, &st) == 0) return 1;
  return (errno == ENOENT || errno == ENOTDIR) ? 0 : 2;
 }

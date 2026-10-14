@@ -60,6 +60,12 @@ request and every 30 seconds while visible. It does not infer connectivity,
 listener reachability, exported-device state, authentication, or successful
 data transfer from process presence.
 
+The status integrator requires the requested profile and adds nothing when
+`CONFIG_FIRMWARE_INCLUDE_USBIP=y` is absent or commented out. A missing or
+unreadable `/sys/module` source yields unknown module states rather than three
+claims that modules are unloaded. These refinements follow build 265 and need
+their own full-build evidence.
+
 No page action starts the daemon, loads a module, binds a device, or changes
 persistent configuration. That separation prevents a status refresh from
 changing USB ownership.

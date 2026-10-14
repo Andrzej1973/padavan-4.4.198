@@ -33,10 +33,19 @@ try:
     for name in ("EN.footer", "UK.dict", "RU.dict"):
         (user / "www/dict" / name).write_text("Existing=value\n", encoding="utf-8")
 
-    command = [sys.executable, str(repo / "tools/prepare-usbip-status.py"), str(stage)]
+    config = stage / "profile.config"
+    config.write_text("# CONFIG_FIRMWARE_INCLUDE_USBIP=y\n", encoding="utf-8")
+    command = [sys.executable, str(repo / "tools/prepare-usbip-status.py"), str(stage),
+               "--config", str(config)]
+    before = {p: p.read_bytes() for p in user.rglob("*") if p.is_file()}
+    subprocess.run(command, check=True)
+    assert before == {p: p.read_bytes() for p in user.rglob("*") if p.is_file()}
+    config.write_text("CONFIG_FIRMWARE_INCLUDE_USBIP=y\n", encoding="utf-8")
     subprocess.run(command, check=True)
     web = (user / "httpd/web_ex.c").read_text(encoding="utf-8")
     assert '"wr_usbip_state", ej_wr_usbip_state' in web
+    assert 'stat("/sys/module", &st)' in web
+    assert 'access("/sys/module", R_OK | X_OK)' in web
     for marker in ("/sys/module/usbip_core", "/sys/module/usbip_host",
                    "/sys/module/vhci_hcd", 'pids("usbipd")', 'argc != 0'):
         assert marker in web
