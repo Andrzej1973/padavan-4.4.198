@@ -5,7 +5,12 @@ from pathlib import Path
 local=Path(__file__).resolve().parent
 with tempfile.TemporaryDirectory(dir=Path.cwd()) as directory:
  root=Path(directory);www=root/'www';www.mkdir();(root/'usr/sbin').mkdir(parents=True)
- page='<section id="wr-connected-devices"></section><section id="wr-roaming-history"></section><section id="wr-rssi-history"></section><iframe id="statusframe"></iframe>'
+ assert root.resolve().parent==Path.cwd().resolve()
+ keys=('state-current','state-stale','state-unavailable','state-updating','state-paused','state-stopped','last-observations','source-networkmap','source-radio','source-initialization')
+ attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in keys)
+ page='<section id="wr-connected-devices"'+attributes+'></section><section id="wr-roaming-history"></section><section id="wr-rssi-history"></section><iframe id="statusframe"></iframe>'
+ dictionary='\n'+''.join('WRDeviceStatus_'+key+'=fixture label\n' for key in keys)
+ for locale in ('EN','UK','RU'):(www/(locale+'.dict')).write_text(dictionary,encoding='utf-8')
  for name in ('classify','refresh','homepage','roaming','roaming-view','rssi','rssi-view','boot'):
   target='wr-device-'+name+'.js';(www/target).write_bytes((local/(name+'.js')).read_bytes());page+='<script src="/'+target+'"></script>'
  (www/'wr-device-homepage.css').write_bytes((local/'homepage.css').read_bytes());page+='<link href="/wr-device-homepage.css">';(www/'index.asp').write_text(page)
@@ -15,6 +20,11 @@ with tempfile.TemporaryDirectory(dir=Path.cwd()) as directory:
   result=subprocess.run([sys.executable,str(local/'verify-ui-image.py'),str(root)],capture_output=True)
   assert (result.returncode==0)==ok,result.stderr.decode()
  daemon.write_bytes(b'\0'.join(markers));check(True)
+ for locale in ('EN','UK','RU'):
+  target=www/(locale+'.dict')
+  for key in keys:
+   target.write_text(dictionary.replace('WRDeviceStatus_'+key+'=fixture label\n',''),encoding='utf-8');check(False)
+  target.write_text(dictionary,encoding='utf-8');check(True)
  for missing in markers:
   daemon.write_bytes(b'\0'.join(m for m in markers if m!=missing));check(False)
  daemon.write_bytes(b'\0'.join(markers))
