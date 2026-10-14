@@ -86,7 +86,7 @@ try:
     if not page.exists(): page=romfs/'www/Advanced_zerotier.asp'
     web=page.read_text(encoding='utf-8')
     for control in ['zerotier_router_access','zerotier_lan_access','leaveManagedNetwork','zerotier_cached_status',
-                    'wrZerotierRefresh','zerotier_state_info']:
+                    'wrZerotierRefresh','zerotier_state_info','zt_advanced','zerotier_advanced_toggle']:
         if control not in web: raise ValueError('Missing ZeroTier WebUI control: '+control)
     httpd=target(romfs/'usr/sbin/httpd')
     httpd_image=httpd.read_bytes()

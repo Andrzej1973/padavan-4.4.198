@@ -6,7 +6,9 @@ This integration targets WR1200JS on the pinned Linux 4.4.198 base. ZeroTier 1.1
 
 ZeroTier, router access and routed LAN access are disabled by factory default. The page provides a validated 16-hex Network ID, explicit Leave network, independent router/LAN permissions, and cached node/network status. Authorize the node in the network controller. A controller route to the LAN is required for routed LAN access. The existing NAT setting is retained; masquerading applies only from overlay IPv4 source prefixes toward LAN when LAN access and NAT are both enabled. This policy does not grant overlay transit to WAN or other VPNs.
 
-The status cache is read from a fixed path with bounded input and HTML escaping. HTTP does not execute CLI or read identity secrets. Reload the page to update its displayed cache; the timestamp identifies the sample time.
+Moon, static routes and the legacy NAT switch are grouped in one advanced section that the page script collapses; without scripting they stay visible, so no control becomes unreachable. The single Apply control sits outside that group and stays visible while it is collapsed. Apply is not persisted as a remembered UI preference; each page load starts collapsed.
+
+The status cache is read from a fixed path with bounded input and HTML escaping. HTTP does not execute CLI or read identity secrets. The page refreshes the cache itself every 30 s while visible; the reported age identifies the sample time.
 
 ## Lifecycle and persistence
 

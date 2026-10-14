@@ -927,6 +927,11 @@ jobs:
           if grep -q '^CONFIG_FIRMWARE_INCLUDE_ZEROTIER=y$' configs.build/wr1200js.config; then
             python3 overlay/padavan-4.4/ports/zerotier/localize-ui-page.py padavan-4.4 --verify-image
           fi
+      - name: Verify grouped ZeroTier advanced controls
+        run: |
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_ZEROTIER=y$' configs.build/wr1200js.config; then
+            python3 overlay/padavan-4.4/ports/zerotier/prepare-advanced-controls.py padavan-4.4 --verify-image
+          fi
 
       - name: Upload ZeroTier image diagnostics
         if: always()

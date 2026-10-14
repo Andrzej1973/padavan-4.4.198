@@ -465,10 +465,15 @@ screenshots, logs or private router settings.
   Progress 2026-10-14: labels, options, help and errors are translated in source
   for EN/UK/RU, and the manual reload is replaced by a bounded 30 s visible-tab
   refresh with freshness, error text and retry
-  ([evidence](evidence/ZEROTIER-PAGE-LOCALIZATION-2026-10-14.md)). Still open:
-  grouping Moon and routes under advanced controls, reconciling the legacy NAT
-  switch against the access switches and the firewall, and verifying Apply,
-  lifecycle, membership, permissions and connectivity on the device.
+  ([evidence](evidence/ZEROTIER-PAGE-LOCALIZATION-2026-10-14.md)); build 271
+  compiled that page and its status handler and re-verified the shipped image
+  strings. Moon, static routes and the legacy NAT switch are now grouped under
+  one collapsed advanced section, the Moon header is translated and the single
+  Apply control was moved out of the group so it stays reachable
+  ([evidence](evidence/ZEROTIER-ADVANCED-CONTROLS-2026-10-14.md)); the legacy
+  NAT help states that it only masquerades overlay IPv4 sources toward the LAN
+  while LAN access is on. Still open: verifying Apply, lifecycle, membership,
+  permissions and connectivity on the device.
 - **WireGuard/AmneziaWG:** the installed page is only a simplified WireGuard
   client form. Full Nilabsent interface parity has NOT been ported. Carry
   forward the donor requirement: client/server management, AmneziaWG parameters,

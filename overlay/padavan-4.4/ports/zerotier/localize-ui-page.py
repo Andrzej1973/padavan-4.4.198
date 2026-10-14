@@ -3,10 +3,11 @@
 bounded, visible-tab status refresh.
 
 Chinese captions, list options and help text inherited from the pinned Padavan
-page are replaced with dictionary keys; Moon and static-route controls keep
-their existing grouping. The status panel gains an authenticated JSON state
-endpoint (/update.cgi?output=zerotier_state), a 30 s refresh that pauses in
-hidden tabs, freshness text and an explicit retry control.
+page are replaced with dictionary keys; Moon, static routes and the legacy NAT
+switch are grouped afterwards by prepare-advanced-controls.py. The status panel
+gains an authenticated JSON state endpoint (/update.cgi?output=zerotier_state),
+a 30 s refresh that pauses in hidden tabs, freshness text and an explicit retry
+control.
 
 This changes source only. Device runtime behaviour is not verified here.
 """
@@ -37,11 +38,21 @@ LABELS = [
     ('ZT_Enabled', 'Enabled', 'Увімкнено', 'Включено'),
     ('ZT_EnableClient', 'Enable ZeroTier client', 'Увімкнути клієнт ZeroTier', 'Включить клиент ZeroTier'),
     ('ZT_ClientID', 'ZeroTier client ID', 'Ідентифікатор клієнта ZeroTier', 'Идентификатор клиента ZeroTier'),
-    ('ZT_AllowNAT', 'Client NAT (legacy)', 'NAT для клієнтів (застаріле)', 'NAT для клиентов (устаревшее)'),
+    ('ZT_AllowNAT', 'Masquerade overlay clients to LAN (legacy)',
+     'Маскування клієнтів overlay у LAN (застаріле)',
+     'Маскирование клиентов overlay в LAN (устаревшее)'),
     ('ZT_NatHelp',
-     'Legacy switch kept for existing configurations. LAN reachability is controlled by the access switches on this page.',
-     'Застарілий перемикач, збережений для наявних налаштувань. Доступ до LAN керують перемикачі доступу на цій сторінці.',
-     'Устаревший переключатель, сохранённый для существующих настроек. Доступом к LAN управляют переключатели доступа на этой странице.'),
+     'Legacy switch kept for existing configurations. It takes effect only while Allow access to LAN is On: overlay IPv4 source addresses are then masqueraded toward the LAN, as the older firmware did. It never exposes the WAN or other VPNs.',
+     'Застарілий перемикач, збережений для наявних налаштувань. Він діє лише тоді, коли ввімкнено «Дозволити доступ до LAN»: IPv4-адреси джерел overlay тоді маскуються до LAN, як у старій прошивці. Він ніколи не відкриває WAN чи інші VPN.',
+     'Устаревший переключатель, сохранённый для существующих настроек. Он действует только при включённом «Разрешить доступ к LAN»: IPv4-адреса источников overlay тогда маскируются в LAN, как в старой прошивке. Он никогда не открывает WAN или другие VPN.'),
+    ('ZT_AdvancedHeading', 'Advanced settings', 'Додаткові налаштування', 'Дополнительные настройки'),
+    ('ZT_AdvancedShow', 'Show advanced settings', 'Показати додаткові налаштування', 'Показать дополнительные настройки'),
+    ('ZT_AdvancedHide', 'Hide advanced settings', 'Сховати додаткові налаштування', 'Скрыть дополнительные настройки'),
+    ('ZT_AdvancedHelp',
+     'Moon server, static routes and the legacy NAT switch. Collapsed so the page stays short; the Apply control remains visible.',
+     'Сервер Moon, статичні маршрути та застарілий перемикач NAT. Згорнуто, щоб сторінка була коротшою; кнопка «Застосувати» залишається видимою.',
+     'Сервер Moon, статические маршруты и устаревший переключатель NAT. Свёрнуто, чтобы страница была короче; кнопка «Применить» остаётся видимой.'),
+    ('ZT_MoonNetworkID', 'ZeroTier Moon network ID', 'Ідентифікатор мережі ZeroTier Moon', 'Идентификатор сети ZeroTier Moon'),
     ('ZT_MoonEnable', 'Enable ZeroTier Moon server', 'Увімкнути сервер ZeroTier Moon', 'Включить сервер ZeroTier Moon'),
     ('ZT_MoonEndpoint', 'ZeroTier Moon server IP or domain name',
      'IP-адреса або доменне ім’я сервера ZeroTier Moon', 'IP-адрес или доменное имя сервера ZeroTier Moon'),
