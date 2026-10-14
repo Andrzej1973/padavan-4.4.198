@@ -13,6 +13,8 @@ on:
       - 'tools/doh-instance-status.h'
       - 'tools/doh-instance-view.js'
       - 'tools/check-doh-instance-status.c'
+      - 'tools/verify-strongswan-image.py'
+      - 'tools/check-strongswan-image.py'
       - 'overlay/padavan-4.4/ports/stubby/Advanced_Services_DoT.asp'
       - 'overlay/padavan-4.4/ports/doh/Advanced_Services_DoH.asp'
       - 'tools/retry-source-command.py'
@@ -38,6 +40,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 tools/check-source-retry.py
+          python3 tools/check-strongswan-image.py
           sh -n tools/collect-wr1200js-readiness.sh
           python3 tools/check-readiness-dns-filter.py
           python3 tools/check-sqm-config-policy.py

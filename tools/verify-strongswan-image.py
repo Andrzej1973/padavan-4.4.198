@@ -40,7 +40,8 @@ try:
         details['files'][relative]=hashlib.sha256(path.read_bytes()).hexdigest()
         dynamic=subprocess.check_output(['readelf','-d',str(path)],text=True)
         details['dynamic_search_paths'][relative]=re.findall(r'\((?:RPATH|RUNPATH)\).*\[([^\]]+)\]',dynamic)
-        for name in re.findall(r'\(NEEDED\).*\[([^\]]+)\]',dynamic):
+        needed=re.findall(r'\(NEEDED\).*\[([^\]]+)\]',dynamic)
+        for name in needed:
             if '/' in name or name in ('.','..'):raise ValueError('Invalid library name')
             found=None
             for directory in ('lib','usr/lib','usr/lib/ipsec'):
@@ -51,7 +52,11 @@ try:
             if found is None:details['missing_libraries'].append(name)
             else:queue.append(found)
         headers=subprocess.check_output(['readelf','-l',str(path)],text=True)
-        for loader in re.findall(r'Requesting program interpreter:\s*([^\]]+)\]',headers):
+        loaders=re.findall(r'Requesting program interpreter:\s*([^\]]+)\]',headers)
+        if relative.startswith('usr/libexec/') and needed and len(loaders)!=1:
+            raise ValueError('Dynamic IPsec executable requires one loader: '+relative)
+        for loader in loaders:
+            if not loader.strip().startswith('/'):raise ValueError('IPsec loader must be absolute')
             queue.append(file(loader.strip()))
     checks['dependency_files_present']=not details['missing_libraries']
     checks['mips_files_inspected']=len(seen)>=3
