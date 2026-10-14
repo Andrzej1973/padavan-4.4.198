@@ -133,6 +133,7 @@ jobs:
           python3 overlay/padavan-4.4/scripts/add-amneziawg-vpn-labels.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/add-amneziawg-pages.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/localize-wireguard-page.py padavan-4.4
+          python3 overlay/padavan-4.4/scripts/localize-inherited-dicts.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/preserve-ddns-defaults.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/add-logo-ddns-selectors.py padavan-4.4 amnezia-source
           python3 overlay/padavan-4.4/scripts/integrate-eoip.py padavan-4.4
@@ -805,6 +806,9 @@ jobs:
           if grep -qx 'CONFIG_FIRMWARE_INCLUDE_WIREGUARD=y' padavan-4.4/trunk/.config; then
             python3 overlay/padavan-4.4/scripts/localize-wireguard-page.py padavan-4.4 --verify-image
           fi
+
+      - name: Verify inherited dictionary translations
+        run: python3 overlay/padavan-4.4/scripts/localize-inherited-dicts.py padavan-4.4 --verify-image
 
       - name: Verify Stubby image packaging and ELF dependencies
         run: |
