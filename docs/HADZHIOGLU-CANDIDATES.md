@@ -1,5 +1,10 @@
 # Current Hadzhioglu → nilabsent package candidates
 
+Related donor review, 2026-10-14: [xiaobei207/padavan-4.4-2](XIAOBEI207-PADAVAN44-AUDIT.md).
+Tracked candidates: MT76x2 file-read guard, WireGuard compat, pinned package
+recipes and isolated HWNAT queue/binding analysis. Reviewed source only; no
+automatic merge or production dependency was added.
+
 This document supplements `HADZHIOGLU-NILABSENT-COMPARE.md` after re-checking the **current** `hadzhioglu/padavan-ng` tree (GitLab/GitHub mirror) rather than the older `hadzhioglu/padavan-fw` snapshot.
 
 ## Important correction

@@ -1,0 +1,30 @@
+{
+  "review_date": "2026-10-14",
+  "repository": "https://github.com/xiaobei207/padavan-4.4-2",
+  "branch": "main",
+  "revision": "5e48032affbdf678d18ce7071e654f8dc0d61d68",
+  "parent_revision": "c142aced25f7afc190cadb079d14b897c49c5b38",
+  "our_base_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "comparison": {"ahead": 55, "behind": 84, "changed_paths_since_merge_base": 12},
+  "subtree_lists_truncated": false,
+  "tree_pairs_donor_then_base": {
+    "wireless": ["27a274484fefc12ed1b83279b5d8907009db3241", "9d82504cafe46f958346a332266af3e95e76b5ab"],
+    "ethernet": ["48f15be5404be1e32d396caaade87e9673a49956", "4492f65cf24a3a14d203c6d4c39556f882600d4b"],
+    "nat": ["ba0cc50cc5bdb6aeb346ba8c82a561cbdaeb384e", "4e83a8e6ea7d0454011c1e81563dbc6fd7b99247"],
+    "wireguard": ["b10a915a9bf067583c613f20a7b2826c55322e9e", "87db3bc622c2026b55f6e7b0f72b7a44a094bbe3"]
+  },
+  "identical_trees": {
+    "netfilter": "575c5c04f21e816e43b9ec0a5112a0d006594908",
+    "shortcut-fe": "176d8691ea5d466303f07ae5458313441b197b9c"
+  },
+  "identical_wr1200js_blobs": {
+    "board.h": "bfed58acc9616a5c77849e86547ae76174daec99",
+    "board.mk": "537b840c43cdf00d3e92fc382493707a6debddb7",
+    "l1profile.dat": "b4bacca3ce4b0348c3266b5b9879d6d99320e72d"
+  },
+  "method": "GitHub repository/contents/compare/tree APIs; raw text diffs of selected files; local overlay and configuration search",
+  "compiled": false,
+  "runtime_verified": false,
+  "code_imported": false,
+  "production_dependency_added": false
+}
