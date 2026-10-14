@@ -27,6 +27,8 @@ The application inventory also contains inherited AdGuard Home, FRP, adbyby, scu
 
 ## Enabled services with concrete gaps
 
+Owner scope update, 2026-10-14: StrongSwan is now commented out in the active WR1200JS profile and deferred to final optional-service work. The table below is the historical inventory, not a requirement to finish StrongSwan before current testing. See [dependency analysis and deferral](STRONGSWAN-DEFERRED.md). Its private package is independent of the retained WireGuard/AmneziaWG, ZeroTier, DNS and Wi-Fi features.
+
 | Service | Findings and evidence | Required deliverable |
 |---|---|---|
 | StrongSwan / IPsec | CONFIG_FIRMWARE_INCLUDE_SSWAN=y; base user/strongswan/Makefile installs ipsec/charon/starter/stroke and uses /etc/storage/strongswan. No StrongSwan/IPsec UI or matching service integration found in the inspected rc/httpd sources. | First establish managed start/stop, persistence and firewall integration, then profiles, credentials/certificates, remote networks, connection state and useful logs. Do not label the packaged binaries as an operational VPN. |

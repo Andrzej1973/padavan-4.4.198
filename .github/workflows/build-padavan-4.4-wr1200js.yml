@@ -510,7 +510,16 @@ jobs:
               --output ../wifi-qr-image.json
           fi
           grep -q '^CONFIG_FIRMWARE_ENABLE_EXT4=y$' trunk/.config
-          grep -q '^CONFIG_FIRMWARE_INCLUDE_SSWAN=y$' trunk/.config
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_SSWAN=y$' ../configs.build/wr1200js.config; then
+            grep -q '^CONFIG_FIRMWARE_INCLUDE_SSWAN=y$' trunk/.config
+          else
+            ! grep -Eq '^CONFIG_FIRMWARE_INCLUDE_SSWAN=(y|m)$' trunk/.config
+            for binary in usr/sbin/ipsec usr/libexec/ipsec/charon usr/libexec/ipsec/starter usr/libexec/ipsec/stroke; do
+              test ! -e "trunk/romfs/$binary"
+            done
+            test ! -e trunk/romfs/usr/lib/ipsec/libstrongswan.so.0
+            test ! -e trunk/romfs/usr/lib/ipsec/libcharon.so.0
+          fi
           grep -q '^CONFIG_FIRMWARE_INCLUDE_ZEROTIER=y$' trunk/.config
           grep -q '^CONFIG_IMQ=m$' trunk/linux-4.4.x/.config
           grep -q '^CONFIG_NETFILTER_XT_TARGET_IMQ=m$' trunk/linux-4.4.x/.config

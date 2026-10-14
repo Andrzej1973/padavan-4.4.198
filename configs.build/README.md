@@ -6,7 +6,9 @@ from the repository's **Actions** page, on branch **main**.
 Admission to builds is explicit in [boards.json](../boards.json):
 
 - `wr1200js.config`: active WR1200JS Linux 4.4.198 image-build profile.
-  Its full feature configuration is preserved. Device runtime remains pending.
+  Features follow the owner's current profile. StrongSwan/IPsec is commented out
+  and deferred to final optional-service work; shared cryptography and XFRM remain
+  selected. Device runtime acceptance remains pending.
 - `mi-mini.config`: reduced Xiaomi Mi Mini profile, full board port pending.
   It is not yet admitted to firmware image builds. Samba/WINS, miniDLNA,
   Transmission and Aria selectors remain documented and disabled.
