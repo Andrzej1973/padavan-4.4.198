@@ -7,6 +7,7 @@ with tempfile.TemporaryDirectory(dir=Path.cwd()) as directory:
  root=Path(directory);www=root/'www';www.mkdir();(root/'usr/sbin').mkdir(parents=True)
  assert root.resolve().parent==Path.cwd().resolve()
  keys=('state-current','state-stale','state-unavailable','state-updating','state-paused','state-stopped','last-observations','source-networkmap','source-radio','source-initialization')
+ keys+=('title','description','retry','source-time-unavailable','empty','no-match','source-time')
  attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in keys)
  page='<section id="wr-connected-devices"'+attributes+'></section><section id="wr-roaming-history"></section><section id="wr-rssi-history"></section><iframe id="statusframe"></iframe>'
  dictionary='\n'+''.join('WRDeviceStatus_'+key+'=fixture label\n' for key in keys)

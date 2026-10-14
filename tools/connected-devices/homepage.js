@@ -12,13 +12,13 @@
   function translated(key,fallback){var value=root.getAttribute?root.getAttribute('data-wr-'+key):null;return typeof value==='string'&&value&&value.indexOf('<#')<0?value:fallback;}
   function node(tag,label,parent){var n=doc.createElement(tag);if(label!==undefined)n.textContent=label;if(parent)parent.appendChild(n);return n;}
   function set(n,value){value=String(value);if(n.textContent!==value)n.textContent=value;}
-  node('h3','Connected devices',root);
-  node('p','Passive observations; current connection and network role may be unknown.',root);
+  node('h3',translated('title','Connected devices'),root);
+  node('p',translated('description','Passive observations; current connection and network role may be unknown.'),root);
   var controls=node('div',undefined,root),filterLabel=node('label','Category ',controls),filter=node('select',undefined,filterLabel);
   filter.setAttribute('aria-label','Device category');categories.forEach(function(c){var opt=node('option',c,filter);opt.value=c;});filter.value='All';
-  var retry=node('button','Retry',controls);retry.type='button';retry.className='btn';
-  var status=node('p','Updating',root);status.setAttribute('role','status');status.setAttribute('aria-live','polite');
-  var freshness=node('p','Source update time unavailable',root),notice=node('p','',root),empty=node('p','No observations available',root);
+  var retry=node('button',translated('retry','Retry'),controls);retry.type='button';retry.className='btn';
+  var status=node('p',translated('state-updating','Updating'),root);status.setAttribute('role','status');status.setAttribute('aria-live','polite');
+  var freshness=node('p',translated('source-time-unavailable','Source update time unavailable'),root),notice=node('p','',root),empty=node('p',translated('empty','No observations available'),root);
   Object.keys(labels).forEach(function(key){
    var details=node('details',undefined,root);details.open=key==='primary'||key==='unknown';details.setAttribute('data-network',key);
    var summary=node('summary',labels[key],details),scroll=node('div',undefined,details);scroll.className='wr-device-scroll';
@@ -31,7 +31,7 @@
    Object.keys(groups).forEach(function(key){groups[key].shown=0;});
    Object.keys(rows).forEach(function(key){var row=rows[key],show=filter.value==='All'||row.category===filter.value;row.node.style.display=show?'':'none';if(show)groups[row.group].shown++;});
    var count=0,total=0;Object.keys(groups).forEach(function(key){var g=groups[key];set(g.summary,labels[key]+' ('+g.shown+' / '+g.total+')');g.details.style.display=g.total?'':'none';count+=g.shown;total+=g.total;});
-   empty.style.display=count?'none':'';set(empty,total?'No devices match this category':'No observations available');
+   empty.style.display=count?'none':'';set(empty,total?translated('no-match','No devices match this category'):translated('empty','No observations available'));
   }
   filter.addEventListener('change',applyFilter);
   function render(snapshot){
@@ -65,7 +65,7 @@
    warning=(snapshot.truncated?'Snapshot truncated to bounded source limits. ':'')+(snapshot.invalid?'Invalid source records: '+snapshot.invalid+'.':'');
    set(notice,warning);
    source=typeof snapshot.sourceUpdatedAt==='number'&&snapshot.sourceUpdatedAt>0?snapshot.sourceUpdatedAt:null;
-   set(freshness,source?'Source updated: '+new Date(source*1000).toLocaleString():'Source update time unavailable');
+   set(freshness,source?translated('source-time','Source updated')+': '+new Date(source*1000).toLocaleString():translated('source-time-unavailable','Source update time unavailable'));
    applyFilter();
    Object.keys(groups).forEach(function(key){groups[key].scroll.scrollTop=positions[key];});
    if(viewport&&typeof viewport.scrollTo==='function')viewport.scrollTo(x,y);

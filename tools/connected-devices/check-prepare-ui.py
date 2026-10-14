@@ -40,6 +40,7 @@ try:
     includes = '<link rel="stylesheet" href="/wr-device-homepage.css">\n'
     includes += ''.join('<script src="/wr-device-' + name + '.js"></script>\n' for name in assets)
     keys=['state-current','state-stale','state-unavailable','state-updating','state-paused','state-stopped','last-observations','source-networkmap','source-radio','source-initialization']
+    keys+=['title','description','retry','source-time-unavailable','empty','no-match','source-time']
     attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in keys)
     section = '\n                <section id="wr-connected-devices" class="well" aria-label="Connected devices"'+attributes+'></section>'
     section += '\n                <section id="wr-roaming-history" class="well" aria-label="Wi-Fi history"></section>'

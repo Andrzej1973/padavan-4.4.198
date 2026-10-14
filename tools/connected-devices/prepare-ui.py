@@ -16,6 +16,14 @@ translations={
  'RU.dict':['Актуальные данные','Устаревшие данные','Недоступно','Обновление','Приостановлено','Остановлено','показаны последние доступные наблюдения','Источник данных об устройствах недоступен','Источник наблюдений Wi-Fi недоступен','Не удалось инициализировать наблюдения'],
 }
 dictionary_changes=[]
+extra_keys=['title','description','retry','source-time-unavailable','empty','no-match','source-time']
+extra_labels={
+ 'EN.footer':['Connected devices','Passive observations; current connection and network role may be unknown.','Refresh','Source update time unavailable','No observations available','No devices match this category','Source updated'],
+ 'UK.dict':['Підключені пристрої','Пасивні спостереження; поточне підключення та роль у мережі можуть бути невідомими.','Оновити','Час оновлення джерела недоступний','Немає доступних спостережень','Немає пристроїв цієї категорії','Джерело оновлено'],
+ 'RU.dict':['Подключённые устройства','Пассивные наблюдения; текущее подключение и роль в сети могут быть неизвестны.','Обновить','Время обновления источника недоступно','Нет доступных наблюдений','Нет устройств этой категории','Источник обновлён'],
+}
+keys+=extra_keys
+for name in translations:translations[name]+=extra_labels[name]
 for name,values in translations.items():
     path=a.source/'trunk/user/www/dict'/name
     content=path.read_text(encoding='utf-8')
