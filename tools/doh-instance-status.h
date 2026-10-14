@@ -18,7 +18,7 @@ static inline long wr_doh_owned_pid(const char *pidroot,const char *procroot,uns
  if(fd<0)return errno==ENOENT?0:-1;
  if(fstat(fd,&st)||!S_ISREG(st.st_mode)||st.st_size<1||st.st_size>16){close(fd);return -1;}
  count=read(fd,text,sizeof(text));error=close(fd);
- if(error||count<1||count>16)return -1;
+ if(error||count<1||count>16||count!=st.st_size)return -1;
  if(text[count-1]=='\n')count--;
  if(!count)return -1;
  for(i=0;i<(size_t)count;i++){

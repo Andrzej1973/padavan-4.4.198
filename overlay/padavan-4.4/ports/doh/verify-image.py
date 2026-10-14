@@ -70,6 +70,7 @@ try:
     rc = target('/sbin/rc').read_bytes()
     httpd = target('/usr/sbin/httpd').read_bytes()
     checks['observed_process_backend'] = b'wr_dns_process_state' in httpd
+    checks['observed_instance_backend'] = b'wr_doh_instance_state' in httpd and b'configuredMask' in httpd and b'duplicateMask' in httpd
     checks['rc'] = b'/usr/bin/doh_proxy.sh' in rc and b'restart_doh' in rc
     checks['backend'] = b'found_app_doh' in httpd and b'doh_value' in httpd and all(key.encode() in httpd for key in keys)
     queue, visited, missing, invalid_elf = [binary], set(), [], []

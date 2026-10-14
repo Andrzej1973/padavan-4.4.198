@@ -15,6 +15,7 @@ entry = '\t{ "json_system_status", ej_system_status_hook},\n'
 if s.count(anchor) != 1 or s.count(entry) != 1 or 'ej_wr_dns_process_state' in s:
     raise SystemExit('DNS process status anchors changed')
 code = r'''
+#include "wr-doh-instances.h"
 /* Process observation only: never equate a PID with successful DNS/TLS. */
 static int ej_wr_dns_process_state(int eid, webs_t wp, int argc, char **argv)
 {
@@ -28,8 +29,28 @@ static int ej_wr_dns_process_state(int eid, webs_t wp, int argc, char **argv)
  active = pids(process) > 0; requested = nvram_get_int(key) > 0;
  return websWrite(wp, "%d", active ? (requested ? 1 : 4) : (requested ? 2 : 0));
 }
+static int ej_wr_doh_instance_state(int eid, webs_t wp, int argc, char **argv)
+{
+ struct wr_doh_instances observed;unsigned configured=0,i;char key[24];int requested,active,state;
+ (void)eid;(void)argv;
+ if(argc!=0)return websWrite(wp,"{\"error\":\"invalid_request\"}");
+ for(i=0;i<4;i++){
+  snprintf(key,sizeof(key),"doh_server%u",i);
+  if(*nvram_safe_get(key))configured|=1U<<i;
+ }
+ requested=nvram_get_int("doh_enable")>0;
+ if(access("/proc/self/stat",R_OK)){
+  memset(&observed,0,sizeof(observed));observed.configured=configured;observed.unknown=15;state=3;
+ }else{
+  observed=wr_doh_observe(configured,"/var/run/doh-proxy","/proc");
+  active=pids("https_dns_proxy")>0;state=active?(requested?1:4):(requested?2:0);
+ }
+ return websWrite(wp,"{\"state\":%d,\"requested\":%d,\"configuredMask\":%u,\"ownedMask\":%u,\"unknownMask\":%u,\"duplicateMask\":%u}",
+                  state,requested,observed.configured,observed.owned,observed.unknown,observed.duplicate);
+}
 '''
-changes = [(path, s.replace(anchor, code + '\n' + anchor).replace(entry, entry + '\t{ "wr_dns_process_state", ej_wr_dns_process_state},\n'))]
+changes = [(path, s.replace(anchor, code + '\n' + anchor).replace(entry, entry + '\t{ "wr_dns_process_state", ej_wr_dns_process_state},\n\t{ "wr_doh_instance_state", ej_wr_doh_instance_state},\n'))]
+changes.append((root/'httpd/wr-doh-instances.h',Path(__file__).with_name('doh-instance-status.h').read_text(encoding='utf-8')))
 keys = ['Off', 'Present', 'Absent', 'Unknown', 'StillPresent', 'Note', 'Refresh']
 for page, service in [('Advanced_Services_DoT.asp', 'stubby'), ('Advanced_Services_DoH.asp', 'doh')]:
     path = root / 'www/n56u_ribbon_fixed' / page

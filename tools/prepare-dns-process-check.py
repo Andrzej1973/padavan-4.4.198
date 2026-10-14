@@ -16,9 +16,15 @@ prefix = r'''
 #include <string.h>
 #include <stdarg.h>
 #include <unistd.h>
+#include "wr-doh-instances.h"
 typedef FILE *webs_t;
 static int requested, present, unavailable;
-static char observed[32];
+static char observed[256];
+static unsigned configured_mask;
+static struct wr_doh_instances slots;
+static const char *nvram_safe_get(const char *key){unsigned index;assert(sscanf(key,"doh_server%u",&index)==1&&index<4);return configured_mask&(1U<<index)?"private-resolver-url":"";}
+static struct wr_doh_instances mock_doh_observe(unsigned configured,const char *pids_root,const char *proc_root){assert(configured==configured_mask);assert(!strcmp(pids_root,"/var/run/doh-proxy")&&!strcmp(proc_root,"/proc"));slots.configured=configured;return slots;}
+#define wr_doh_observe mock_doh_observe
 static int mock_access(const char *path,int mode) {assert(!strcmp(path,"/proc/self/stat"));assert(mode==R_OK);return unavailable;}
 static int pids(char *name) {assert(!strcmp(name,"stubby")||!strcmp(name,"https_dns_proxy"));return present;}
 static int nvram_get_int(const char *key) {assert(!strcmp(key,"stubby_enable")||!strcmp(key,"doh_enable"));return requested;}
@@ -42,8 +48,16 @@ int main(void) {
  }
  ej_wr_dns_process_state(0,NULL,1,invalid);assert(!strcmp(observed,"3"));
  ej_wr_dns_process_state(0,NULL,0,NULL);assert(!strcmp(observed,"3"));
+ configured_mask=5;requested=1;present=1;unavailable=0;slots.owned=1;
+ ej_wr_doh_instance_state(0,NULL,0,NULL);
+ assert(!strcmp(observed,"{\"state\":1,\"requested\":1,\"configuredMask\":5,\"ownedMask\":1,\"unknownMask\":0,\"duplicateMask\":0}"));
+ requested=0;slots.owned=5;slots.unknown=2;slots.duplicate=2;
+ ej_wr_doh_instance_state(0,NULL,0,NULL);assert(strstr(observed,"\"state\":4")&&strstr(observed,"\"unknownMask\":2")&&strstr(observed,"\"duplicateMask\":2"));
+ unavailable=1;ej_wr_doh_instance_state(0,NULL,0,NULL);assert(strstr(observed,"\"state\":3")&&strstr(observed,"\"unknownMask\":15")&&strstr(observed,"\"ownedMask\":0"));
+ ej_wr_doh_instance_state(0,NULL,1,invalid);assert(!strcmp(observed,"{\"error\":\"invalid_request\"}"));
  puts("PASS DNS process observations; DNS/TLS functionality not inferred");return 0;
 }
 '''
 a.output.parent.mkdir(parents=True, exist_ok=True)
+(a.output.parent/'wr-doh-instances.h').write_bytes(Path(__file__).with_name('doh-instance-status.h').read_bytes())
 a.output.write_text(prefix + code + suffix)

@@ -63,6 +63,7 @@ on:
       - 'tools/verify-zram-image.py'
       - 'tools/prepare-zram-status-web.py'
       - 'tools/prepare-dns-process-status.py'
+      - 'tools/doh-instance-status.h'
       - 'tools/prepare-vpn-interface-status.py'
       - 'tools/prepare-vpn-handshake-status.py'
       - 'tools/vpn-status/**'
