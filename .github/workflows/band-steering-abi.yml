@@ -276,6 +276,21 @@ jobs:
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -c tools/connected-devices/check-snapshot-json.c -o abi-results/device-json-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -c tools/connected-devices/check-snapshot-cache.c -o abi-results/device-cache-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -c tools/connected-devices/check-source-collector.c -o abi-results/device-source-mips.o
+          "$compiler" -std=gnu11 -Wall -Wextra -Werror -Os -static -mips32r2 -mabi=32 -msoft-float tools/connected-devices/networkmap-diagnostic.c -o abi-results/wr-networkmap-diagnostic
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 tools/connected-devices/networkmap-diagnostic.c -o abi-results/networkmap-diagnostic-native
+          if abi-results/networkmap-diagnostic-native > abi-results/networkmap-diagnostic-missing.json; then
+            echo 'Unexpected production source on CI runner' >&2
+            exit 1
+          fi
+          python3 -c 'import json; from pathlib import Path; r=json.loads(Path("abi-results/networkmap-diagnostic-missing.json").read_text()); assert r == {"networkmap":"unavailable","preflight":"lock_missing_or_not_regular"}'
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 \
+            '-DWR_DIAGNOSTIC_SOURCE="abi-results/diagnostic-source"' \
+            '-DWR_DIAGNOSTIC_LOCK="abi-results/diagnostic-lock"' \
+            tools/connected-devices/networkmap-diagnostic.c -o abi-results/networkmap-diagnostic-fixture
+          printf '%s\n' '192.0.2.1,02:00:00:00:00:01,private-fixture-name,1,0,0' > abi-results/diagnostic-source
+          printf '%s\n' 'fixture-lock-metadata' > abi-results/diagnostic-lock
+          abi-results/networkmap-diagnostic-fixture > abi-results/networkmap-diagnostic-success.json
+          python3 -c 'import json; from pathlib import Path; r=json.loads(Path("abi-results/networkmap-diagnostic-success.json").read_text()); assert r == {"networkmap":"collected","records":1,"invalid":0,"truncated":False}; assert Path("abi-results/diagnostic-lock").read_text() == "fixture-lock-metadata\n"'
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -c tools/connected-devices/check-http-hook.c -o abi-results/device-http-mips.o
           "$compiler" -std=c11 -Wall -Wextra -Werror -mips32r2 -mabi=32 -msoft-float -c abi-results/http-credentials.c -o abi-results/http-credentials-mips.o
 
