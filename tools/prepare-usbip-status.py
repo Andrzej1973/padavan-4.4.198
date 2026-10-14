@@ -31,7 +31,7 @@ static int wr_usbip_path_state(const char *path)
  /* An unavailable sysfs mount is unknown, not evidence of an unloaded module. */
  if (stat("/sys/module", &st) != 0 || !S_ISDIR(st.st_mode) ||
      access("/sys/module", R_OK | X_OK) != 0) return 2;
- if (stat(path, &st) == 0) return 1;
+ if (stat(path, &st) == 0) return S_ISDIR(st.st_mode) ? 1 : 2;
  return (errno == ENOENT || errno == ENOTDIR) ? 0 : 2;
 }
 

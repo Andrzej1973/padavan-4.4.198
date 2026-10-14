@@ -70,6 +70,26 @@ No page action starts the daemon, loads a module, binds a device, or changes
 persistent configuration. That separation prevents a status refresh from
 changing USB ownership.
 
+## Remaining managed-service implementation
+
+Inspection of pinned `tools/usb/usbip/src/usbipd.c` confirms that PID-file
+creation is opt-in: `pid_file` starts as NULL. A controller must pass an explicit
+`--pid=/var/run/...` argument; `-D` alone does not establish owned PID state.
+The daemon accepts IPv4/IPv6 family selection and a TCP port, but those options
+do not restrict it to a LAN interface. Before exposing a start action, integrate
+an explicit LAN/VPN access policy with the firewall lifecycle.
+
+SIGTERM/SIGINT interrupt `ppoll`; its error path exits the main loop and removes
+the configured PID file. A controller still needs executable/PID ownership
+verification, a bounded wait, rejection of an unrelated or untracked process,
+and no automatic force-kill fallback. Stopping the parent does not itself prove
+that an exported USB device has been unbound or that an existing kernel transfer
+has ended; service stop and device export state require separate handling.
+
+Implement device inventory, explicit export/unexport, validated persistent
+configuration and authenticated actions together with failure recovery. These
+remain required work; the current observation panel does not fulfill them.
+
 ## Manual commands and risk boundary
 
 The relevant commands for later physical validation are:
@@ -99,6 +119,11 @@ requires a second USB/IP-capable host.
   mixed module/process states, malformed replies, failure clearing, hidden-page
   suppression, one outstanding request and recovery pass. It mocks AJAX and DOM;
   it does not execute C, a real browser, or the router HTTP server.
+- [Service run 38607744181](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38607744181)
+  executed the extracted C endpoint with native address/undefined-behavior
+  sanitizers and mocked sysfs/proc observations. Source failures, module absence,
+  process states and invalid arguments passed. This is not physical sysfs or
+  process-enumeration validation.
 - [Build 265](evidence/WR1200JS-BUILD265.md) proves compilation of the new HTTP
   endpoint and packaging of the page and dictionary title keys. Full rendering
   and refresh behavior remain unverified on a device.

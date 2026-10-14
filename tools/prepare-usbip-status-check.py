@@ -19,7 +19,7 @@ harness = r'''
 #include <sys/stat.h>
 #include <unistd.h>
 typedef void *webs_t;
-static int root_error, root_file, root_denied, module_error, proc_denied, running;
+static int root_error, root_file, root_denied, module_error, module_file, proc_denied, running;
 static char reply[256];
 static int fake_stat(const char *path, struct stat *st) {
  memset(st,0,sizeof(*st));
@@ -28,7 +28,7 @@ static int fake_stat(const char *path, struct stat *st) {
   st->st_mode=root_file?S_IFREG:S_IFDIR;return 0;
  }
  if(module_error){errno=module_error;return -1;}
- st->st_mode=S_IFDIR;return 0;
+ st->st_mode=module_file?S_IFREG:S_IFDIR;return 0;
 }
 static int fake_access(const char *path,int mode) {
  (void)mode;
@@ -53,6 +53,8 @@ static void expect(const char *json) {
 int main(void) {
  expect("{\"core\":1,\"host\":1,\"vhci\":1,\"daemon\":0}");
  running=1;expect("{\"core\":1,\"host\":1,\"vhci\":1,\"daemon\":1}");
+ module_file=1;expect("{\"core\":2,\"host\":2,\"vhci\":2,\"daemon\":1}");
+ module_file=0;
  module_error=ENOENT;expect("{\"core\":0,\"host\":0,\"vhci\":0,\"daemon\":1}");
  module_error=EACCES;expect("{\"core\":2,\"host\":2,\"vhci\":2,\"daemon\":1}");
  module_error=ENOENT;root_error=ENOENT;
