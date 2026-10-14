@@ -14,4 +14,6 @@ The normal build must accept the commented selector, reject an effectively enabl
 
 The next completed image must confirm exclusion and continued compilation of required features. No exact size or build-time saving is claimed before comparing built artifacts. This profile change does not stop processes, edit existing `/etc/storage/strongswan` files, change VPN tunnels or replace the currently installed router firmware.
 
+[Build 263](evidence/WR1200JS-BUILD263.md) subsequently completed successfully with this profile. Its downloaded profile is byte-identical to the requested one; the disabled-package image gate passed. This confirms the requested exclusion in a built candidate, not installation or device acceptance.
+
 Later work remains: managed lifecycle integration, explicitly selected autostart, validated profiles and credentials, firewall/persistence integration, translated capability-gated UI, actual SA/routing state and device acceptance. The current standalone controller is a candidate under isolated tests, not an installed operational service.
