@@ -92,6 +92,8 @@ function wrUSBIPRender(value) {
 function wrUSBIPRefresh() {
  if (wrUSBIPBusy || document.hidden) return;
  wrUSBIPBusy = true;
+ /* Previous observations are not evidence about the pending request. */
+ wrUSBIPRender(null);
  $j.ajax({url:"/update.cgi", data:{output:"wr_usbip_state"}, dataType:"json", cache:false, timeout:5000})
   .done(function(value) { wrUSBIPRender(value); })
   .fail(function() { wrUSBIPRender(null); })

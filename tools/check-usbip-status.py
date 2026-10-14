@@ -90,11 +90,13 @@ for(const bad of [null,{},[],{error:'invalid_request'},
 }
 document.hidden=true; wrUSBIPRefresh(); assert.strictEqual(requests,0);
 document.hidden=false; wrUSBIPRefresh(); assert.strictEqual(requests,1);
+allUnknown();
 assert.strictEqual(options.data.output,'wr_usbip_state');
 assert.strictEqual(options.timeout,5000); assert.strictEqual(options.cache,false);
 wrUSBIPRefresh(); assert.strictEqual(requests,1);
 handlers.done({core:1,host:1,vhci:0,daemon:1}); handlers.always();
 wrUSBIPRefresh(); assert.strictEqual(requests,2);
+allUnknown();
 handlers.fail(); allUnknown(); handlers.always();
 wrUSBIPRefresh(); handlers.done({core:1}); allUnknown(); handlers.always();
 wrUSBIPRefresh(); handlers.done({core:1,host:1,vhci:1,daemon:0}); handlers.always();
