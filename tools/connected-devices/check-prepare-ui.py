@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Check installation against an actual source homepage in a temporary copy."""
 import argparse
+import json
 import subprocess
 import sys
 import shutil
@@ -43,11 +44,14 @@ try:
     keys+=['title','description','retry','source-time-unavailable','empty','no-match','source-time']
     keys+=['column-device','column-connection','column-category','column-confidence','connection-associated','connection-last','connection-seen','connection-unknown','confidence-unknown','confidence-possible','confidence-high','confidence-manufacturer','confidence-user','unnamed','classification-none','last-evidence']
     keys+=['network-primary','network-guest','network-iot','network-unknown','category-all','category-unknown','category-tv','notice-truncated','notice-invalid','evidence-android-host','evidence-android-dhcp','evidence-windows-host','evidence-windows-dhcp','evidence-tv-host','evidence-conflict','evidence-manual','evidence-manufacturer']
+    rssi_keys=list(json.loads((local/'rssi-labels.json').read_text(encoding='utf-8')))
+    keys+=rssi_keys
     attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in keys)
     section = '\n                <section id="wr-connected-devices" class="well" aria-label="Connected devices"'+attributes+'></section>'
     state_attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in keys[:7])
     section += '\n                <section id="wr-roaming-history" class="well" aria-label="Wi-Fi history"'+state_attributes+'></section>'
-    section += '\n                <section id="wr-rssi-history" class="well" aria-label="RSSI history"'+state_attributes+'></section>'
+    rssi_attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in rssi_keys)
+    section += '\n                <section id="wr-rssi-history" class="well" aria-label="RSSI history"'+state_attributes+rssi_attributes+'></section>'
     assert installed.count(includes) == 1 and installed.count(section) == 1
     assert installed.replace(includes, '', 1).replace(section, '', 1) == original
     for name in ('EN.footer','UK.dict','RU.dict'):

@@ -4,18 +4,19 @@
   function translated(key,fallback){var value=root.getAttribute&&root.getAttribute('data-wr-'+key);return value&&value.indexOf('<#')<0?value:fallback;}
   var stale=false;
   function node(tag,text,parent){var n=doc.createElement(tag);n.textContent=text;(parent||root).appendChild(n);return n;}
-  var status=node('p',translated('state-unavailable','Unavailable')),notice=node('p',''),details=node('details',''),summary=node('summary','RSSI Kick driver events',details),list=node('ol','',details);
-  var filter=node('input',''),last=null;filter.maxLength=17;filter.setAttribute('aria-label','Filter RSSI events by MAC');
+  var title=translated('rssi-title','RSSI Kick driver events');
+  var status=node('p',translated('state-unavailable','Unavailable')),notice=node('p',''),details=node('details',''),summary=node('summary',title,details),list=node('ol','',details);
+  var filter=node('input',''),last=null;filter.maxLength=17;filter.setAttribute('aria-label',translated('rssi-filter','Filter RSSI events by MAC'));
   list.style.maxHeight='280px';list.style.overflowY='auto';details.open=false;
-  node('p','Driver observations do not prove delivery of a disconnect frame or successful roaming.');
+  node('p',translated('rssi-help','Driver observations do not prove delivery of a disconnect frame or successful roaming.'));
   function render(h){last=h;var scroll=list.scrollTop,count=0,match=filter.value.trim().toUpperCase();
    while(list.firstChild)list.removeChild(list.firstChild);
-   var labels={decision:'Low RSSI decision',allocation_failed:'Disconnect frame allocation failed',frame_submitted:'Disconnect frame submitted',entry_cleared:'Station table entry cleared'};
+   var labels={decision:translated('rssi-decision','Low RSSI decision'),allocation_failed:translated('rssi-allocation-failed','Disconnect frame allocation failed'),frame_submitted:translated('rssi-frame-submitted','Disconnect frame submitted'),entry_cleared:translated('rssi-entry-cleared','Station table entry cleared')};
    for(var i=h.events.length-1;i>=0;i--){var e=h.events[i];if(match&&e.mac.indexOf(match)<0)continue;
-    node('li',e.uptimeMs+' ms uptime | '+e.mac+' | '+(e.radio===0?'2.4 GHz':'5 GHz')+' | '+labels[e.stage]+' | attempt '+e.attempt,list);count++;
+    node('li',e.uptimeMs+' '+translated('rssi-uptime','ms uptime')+' | '+e.mac+' | '+(e.radio===0?'2.4 GHz':'5 GHz')+' | '+labels[e.stage]+' | '+translated('rssi-attempt','attempt')+' '+e.attempt,list);count++;
    }
-   summary.textContent='RSSI Kick driver events ('+count+')';list.scrollTop=scroll;
-   notice.textContent=h.radios.map(function(r){return (r.radio===0?'2.4 GHz':'5 GHz')+': '+(r.available?'available':r.attempted?'unavailable':'not collected')+'; missing '+r.missing+'; restarts '+r.restarts+'; driver overwritten '+r.driverOverwritten;}).join(' | ')+' | Evicted from RAM: '+h.evicted;
+   summary.textContent=title+' ('+count+')';list.scrollTop=scroll;
+   notice.textContent=h.radios.map(function(r){return (r.radio===0?'2.4 GHz':'5 GHz')+': '+(r.available?translated('rssi-available','available'):r.attempted?translated('rssi-unavailable','unavailable'):translated('rssi-not-collected','not collected'))+'; '+translated('rssi-missing','missing')+' '+r.missing+'; '+translated('rssi-restarts','restarts')+' '+r.restarts+'; '+translated('rssi-overwritten','driver overwritten')+' '+r.driverOverwritten;}).join(' | ')+' | '+translated('rssi-evicted','Evicted from RAM')+': '+h.evicted;
   }
   filter.addEventListener('input',function(){if(last)render(last);});
   return {render:render,setState:function(s){if(s.state==='Stale')stale=true;else if(s.state==='Current')stale=false;status.textContent=translated('state-'+s.state.toLowerCase(),s.state)+(stale?' — '+translated('last-observations','showing last available data'):'');},filter:filter,details:details,list:list};

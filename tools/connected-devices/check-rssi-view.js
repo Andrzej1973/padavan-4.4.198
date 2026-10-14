@@ -21,6 +21,16 @@ const localizedView=rssi.createView(doc,localizedRoot);
 localizedView.setState({state:'Stale'});assert(localizedRoot.textContent.includes('Застарілі дані — останні спостереження'));
 localizedView.setState({state:'Updating'});assert(localizedRoot.textContent.includes('Оновлення — останні спостереження'));
 localizedView.setState({state:'Current'});assert(localizedRoot.textContent.includes('Актуальні дані'));assert(!localizedRoot.textContent.includes('останні спостереження'));
+const rssiLabels=require('./rssi-labels.json');
+for(const column of [1,2]){
+ const translatedRoot=new Element('section');translatedRoot.getAttribute=k=>rssiLabels[k.replace(/^data-wr-/,'')]?.[column];
+ const translatedView=rssi.createView(doc,translatedRoot);
+ const history=JSON.parse(JSON.stringify(h));history.events.push({...h.events[0],stage:'decision'},{...h.events[0],stage:'allocation_failed'});
+ translatedView.render(history);
+ for(const key of Object.keys(rssiLabels).filter(k=>k!=='rssi-filter'&&k!=='rssi-not-collected'))assert(translatedRoot.textContent.includes(rssiLabels[key][column]),key);
+ assert.strictEqual(translatedView.filter.attributes['aria-label'],rssiLabels['rssi-filter'][column]);
+ history.radios[0].attempted=false;translatedView.render(history);assert(translatedRoot.textContent.includes(rssiLabels['rssi-not-collected'][column]));
+}
 
 (function(){
  let options,xhr,callbacks=0,stops=0,visibility=[];

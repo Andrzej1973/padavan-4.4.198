@@ -1,0 +1,18 @@
+{
+  "rssi-title": ["RSSI Kick driver events", "Події драйвера RSSI Kick", "События драйвера RSSI Kick"],
+  "rssi-filter": ["Filter RSSI events by MAC", "Фільтр подій RSSI за MAC", "Фильтр событий RSSI по MAC"],
+  "rssi-help": ["Driver observations do not prove delivery of a disconnect frame or successful roaming.", "Спостереження драйвера не підтверджують доставлення кадру відключення або успішний перехід клієнта.", "Наблюдения драйвера не подтверждают доставку кадра отключения или успешный переход клиента."],
+  "rssi-decision": ["Low RSSI decision", "Рішення через слабкий RSSI", "Решение из-за слабого RSSI"],
+  "rssi-allocation-failed": ["Disconnect frame allocation failed", "Не вдалося виділити пам’ять для кадру відключення", "Не удалось выделить память для кадра отключения"],
+  "rssi-frame-submitted": ["Disconnect frame submitted", "Кадр відключення передано драйверу", "Кадр отключения передан драйверу"],
+  "rssi-entry-cleared": ["Station table entry cleared", "Запис у таблиці станцій очищено", "Запись в таблице станций очищена"],
+  "rssi-uptime": ["ms uptime", "мс від запуску", "мс от запуска"],
+  "rssi-attempt": ["attempt", "спроба", "попытка"],
+  "rssi-available": ["available", "доступно", "доступно"],
+  "rssi-unavailable": ["unavailable", "недоступно", "недоступно"],
+  "rssi-not-collected": ["not collected", "дані ще не зібрано", "данные ещё не собраны"],
+  "rssi-missing": ["missing", "пропущено", "пропущено"],
+  "rssi-restarts": ["restarts", "перезапуски", "перезапуски"],
+  "rssi-overwritten": ["driver overwritten", "перезаписано драйвером", "перезаписано драйвером"],
+  "rssi-evicted": ["Evicted from RAM", "Вилучено з ОЗП", "Удалено из ОЗУ"]
+}
