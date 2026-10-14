@@ -8,6 +8,8 @@ on:
       - 'tools/prepare-zram-status-check.py'
       - 'tools/check-zram-refresh.py'
       - 'tools/prepare-dns-process-status.py'
+      - 'tools/prepare-usbip-status.py'
+      - 'tools/check-usbip-status.py'
       - 'tools/prepare-dns-process-check.py'
       - 'tools/check-dns-refresh.py'
       - 'tools/doh-instance-status.h'
@@ -36,6 +38,8 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v6
+      - name: Check USB/IP runtime status integration
+        run: python3 tools/check-usbip-status.py
       - name: Execute patched RC failure paths
         shell: bash
         run: |

@@ -16,7 +16,7 @@ See [configuration inventory](WEBUI-CONFIG-INVENTORY.csv) and [pages, form field
 | LAN | LAN, DHCP, static routes, IPTV, switch, WOL | Add usable EoIP tunnel management; WAN reassignment requires actual board/switch mapping and recovery-aware apply. |
 | WAN | WAN, IPv6, forwarding, DMZ, DDNS | SFE and Hardware NAT already have selectors on Advanced_WAN_Content.asp; do not claim their UI is absent. Verify offload policy with Wi-Fi and shaping. |
 | Firewall | Basic firewall, netfilter, URL, MAC, rules | Integrate service-specific rules with lifecycle. IPSet/TPROXY/XFRM/IMQ/IFB are capabilities, not independent daemons requiring empty pages. |
-| USB/storage | Disk functions, Samba, FTP, modem, printer | U2EC has controls; USBIP is a separate missing feature. Disabled NFS/SMB/FTP must remain gated. Optional network-mount and partition tools need bounded shared storage controls. |
+| USB/storage | Disk functions, Samba, FTP, modem, printer; USB/IP now reports core/export/client modules and `usbipd` process separately on the printer/USB page. | USB/IP export/unexport and persistence remain missing. Disabled NFS/SMB/FTP must remain gated. Optional network-mount and partition tools need bounded shared storage controls. |
 | Administration | System, services, mode, upgrade, backup, console | Extend sparse service status; finish temporary upload-space feature through its existing project task. |
 | Customization | Tweaks, scripts, internet detection | Keep scripts/console as advanced tools, not the only normal configuration path for supported services. |
 | Monitoring | Wireless/Ethernet, logs, DHCP leases, firewall/routes/connections, traffic pages | Add process/listener/error state for managed services and bounded diagnostics. |
@@ -33,7 +33,7 @@ Owner scope update, 2026-10-14: StrongSwan is now commented out in the active WR
 |---|---|---|
 | StrongSwan / IPsec | CONFIG_FIRMWARE_INCLUDE_SSWAN=y; base user/strongswan/Makefile installs ipsec/charon/starter/stroke and uses /etc/storage/strongswan. No StrongSwan/IPsec UI or matching service integration found in the inspected rc/httpd sources. | First establish managed start/stop, persistence and firewall integration, then profiles, credentials/certificates, remote networks, connection state and useful logs. Do not label the packaged binaries as an operational VPN. |
 | EoIP | Enabled; overlay scripts/integrate-eoip.py registers kernel/eoip-ctl build assets. No matching WebUI found. | Tunnel table, endpoints, tunnel ID, MTU, optional bridge assignment, enable/autostart, lifecycle and status. Validate conflicts and preserve unrelated interfaces. |
-| USBIP | Enabled; add-usbip build integration found, no corresponding ASP management found. | Device inventory, explicit export/unexport, service state and persistence; distinguish USBIP from the existing U2EC printer service. |
+| USBIP | Enabled; build integration and a read-only localized runtime panel are present. The panel distinguishes three module states from the `usbipd` process and does not claim connectivity. | Device inventory, explicit guarded export/unexport, listener/connectivity evidence and persistence; distinguish USB/IP from U2EC. Runtime panel still requires device validation. |
 | iPerf3 | Advanced_Services_Content.asp provides an enable switch. | Server status and selected supported parameters; bounded start/stop of diagnostics and readable results. Performance tests consume link capacity and must be user initiated. |
 | WPAD | integrate-wpad.py adds a capability-gated PAC editor to DHCP and persists wpad.dat. It explicitly adds no DHCP/DNS advertisement. | Explain PAC use and current advertisement behavior; a normal configuration wizard or optional advertisement needs separate integration and validation. |
 | qrencode | Included utility, but no integrated Wi-Fi QR view found in the base wireless pages. | Implement the already accepted authenticated local QR view, payload escaping and shared/per-band settings behavior. |
@@ -73,7 +73,7 @@ The original inventory above remains a dated source snapshot. Coordinated WR Ban
 
 [Build 37790206125](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/37790206125) passed with Wi-Fi HNAT mode handling and a factory LAN-only default. The existing WAN mode selector remains available. This does not establish Wi-Fi stability or modify a user's saved runtime NVRAM.
 
-Next wireless UI work remains shared main-network settings and authenticated local Wi-Fi QR; StrongSwan, EoIP and USBIP managed backends/pages remain subsequent separate tasks. No missing-service completion is inferred from the Band Steering changes.
+Next wireless UI work remains shared main-network settings and authenticated local Wi-Fi QR; EoIP and USB/IP managed actions remain subsequent separate tasks. StrongSwan is deferred by owner decision. No missing-service completion is inferred from the Band Steering or read-only USB/IP status changes.
 
 ## Current status observations — 2026-10-13
 

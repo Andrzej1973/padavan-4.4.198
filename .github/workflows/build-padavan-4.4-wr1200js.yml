@@ -110,6 +110,7 @@ jobs:
           cp overlay/padavan-4.4/trunk/linux-4.4.x/tools/usb/usbip/src/usbip_network.{c,h} \
             padavan-4.4/trunk/linux-4.4.x/tools/usb/usbip/src/
           python3 overlay/padavan-4.4/scripts/add-usbip.py padavan-4.4
+          python3 tools/prepare-usbip-status.py padavan-4.4
           cp overlay/padavan-4.4/trunk/linux-4.4.x/tools/usb/usbip/libsrc/usbip_common.c \
             padavan-4.4/trunk/linux-4.4.x/tools/usb/usbip/libsrc/usbip_common.c
           python3 overlay/padavan-4.4/scripts/add-amneziawg.py padavan-4.4 amnezia-source
@@ -544,6 +545,11 @@ jobs:
               readelf -h "trunk/romfs/sbin/$tool" | grep -q 'Machine:.*MIPS'
             done
             test -s trunk/romfs/lib/libudev.so.1
+            grep -q 'wr_usbip_state' trunk/romfs/www/Advanced_Printer_others.asp
+            grep -q '^WRUSBIPTitle=' trunk/romfs/www/EN.footer
+            grep -q '^WRUSBIPTitle=' trunk/romfs/www/UK.dict
+            grep -q '^WRUSBIPTitle=' trunk/romfs/www/RU.dict
+            grep -a -q 'wr_usbip_state' trunk/romfs/usr/sbin/httpd
             python3 ../overlay/padavan-4.4/scripts/verify-usbip-elf.py \
               trunk/romfs ../usbip-elf-dependencies.json
           fi

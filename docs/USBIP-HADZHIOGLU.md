@@ -1,38 +1,39 @@
 # USB/IP integration audit
 
-## Comparison result
+## Current port boundary
 
-| Function | Hadzhioglu `master` | nilabsent WR1200JS base | Action |
-| --- | --- | --- | --- |
-| USB/IP kernel source | Present under `drivers/staging/usbip` | Present | Keep nilabsent kernel source; copy none |
-| USB/IP kernel configuration | Enabled where selected by board configuration | Source exists, but WR1200JS had `CONFIG_EXPERIMENTAL` disabled and no USB/IP module selections | Enable only the prerequisite and three USB/IP modules for WR1200JS |
-| USB/IP userspace | `trunk/user/usbip` | Missing | Import upstream package sources |
-| `libsysfs` dependency | `trunk/user/sysfsutils` | Missing | Import and build before USB/IP |
-| Build hooks | `sysfsutils` and `usbip` under USB support, gated by `CONFIG_FIRMWARE_INCLUDE_USBIP` | Missing | Patch the existing USB support block |
-| Startup / WebUI | No USB/IP service or WebUI integration found in the package or rc references | None | Keep daemon manual; add no page or startup policy |
+| Component | Current WR1200JS port | Decision |
+| --- | --- | --- |
+| Kernel source | Pinned Linux 4.4.198 `drivers/usb/usbip` | Keep the kernel implementation unchanged |
+| Kernel configuration | `usbip-core`, `usbip-host`, and `vhci-hcd` selected as modules | Build only when `CONFIG_FIRMWARE_INCLUDE_USBIP=y` |
+| Userspace | `usbip` and `usbipd` built from the matching Linux 4.4 source | Keep kernel/userspace ABI aligned |
+| Runtime dependency | Minimal `libudev.so.1` package | Verify the complete ELF dependency closure |
+| Startup | No automatic daemon startup | Keep `usbipd` stopped by default |
+| WebUI | Localized, read-only module and process status on the USB/printer page | Add guarded device management only after runtime validation |
 
-## Upstream source and package details
+## Source and package details
 
-The source is pinned to Hadzhioglu `master` commit `503a6f0064bc5999bf92e47a902a732693a1a4f5` (2026-09-06). The build imports only `trunk/user/usbip` and `trunk/user/sysfsutils`; it verifies the checked-out commit before copying those directories. This makes future upstream changes explicit rather than silently changing the firmware build.
+The firmware source is pinned to `vipshmily/padavan-4.4` commit
+`c25283e915a2a00a763774dd255b14aff997285e`. The port builds the userspace tools
+from that tree's Linux 4.4 USB/IP source and supplies the required minimal
+`libudev` package. This avoids mixing the older Linux 3.4 staging ABI with the
+4.4.198 kernel.
 
-`sysfsutils/Makefile` builds `libsysfs.so` from its listed library objects and installs it as `/lib/libsysfs.so`, with compatibility symlinks `.so.2` and `.so.2.1.0`.
-
-`usbip/Makefile` builds `libusbip.so` and the two programs. The library is built from `names.c`, `usbip_host_driver.c`, `usbip_common.c`, and `vhci_driver.c`; it links against `libsysfs`. The programs also link against `libsysfs` and `libusbip`. Upstream installs:
+The image installs:
 
 - `/sbin/usbip`
 - `/sbin/usbipd`
-- `/lib/libusbip.so` and compatibility symlinks
-- `/lib/libsysfs.so` and compatibility symlinks
+- `/lib/libudev.so.1` and its verified dependencies
+- `usbip-core.ko`, `usbip-host.ko`, and `vhci-hcd.ko`
 
-The earlier status note listed `/usr/bin/usbip`; that path was incorrect. Upstream installs both programs in `/sbin`.
-
-The build is direct Makefile logic with no autotools/configure step. `usbip` includes `list`, `bind`, `unbind`, `attach`, `detach`, and port reporting commands. `usbipd` serves exported USB devices over TCP port 3240. Upstream documentation states the daemon has no client authentication or authorization.
+The `usbip` command supplies `list`, `bind`, `unbind`, `attach`, `detach`, and
+port reporting. `usbipd` serves exported USB devices on TCP port 3240. This
+protocol has no built-in client authentication or authorization, so the daemon
+must not be exposed to WAN and is not started automatically.
 
 ## Kernel support
 
-The nilabsent kernel already contains `usbip-core`, `vhci-hcd`, and `usbip-host` sources in `trunk/linux-3.4.x/drivers/staging/usbip`. The WR1200JS kernel config already enables `CONFIG_USB=y`, `CONFIG_NET=y`, `CONFIG_SYSFS=y`, and modules. It did not select USB/IP, and the base Kconfig makes `USBIP_CORE` depend on `EXPERIMENTAL`.
-
-The overlay therefore enables `CONFIG_EXPERIMENTAL=y` and builds these existing nilabsent drivers as modules:
+The WR1200JS overlay requests the following modules:
 
 ```text
 CONFIG_USBIP_CORE=m
@@ -40,13 +41,32 @@ CONFIG_USBIP_VHCI_HCD=m
 CONFIG_USBIP_HOST=m
 ```
 
-This supplies `usbip-core.ko`, `vhci-hcd.ko`, and `usbip-host.ko` without copying or modifying kernel source. The board build must confirm these modules are included in the firmware image.
+The full firmware build checks that all three modules exist in ROMFS, that their
+userspace tools are MIPS executables, and that every required shared library is
+present. These checks prove image contents, not that the modules can load on a
+physical router.
 
-## Runtime and service behavior
+## Runtime status contract
 
-No Hadzhioglu USB/IP rc startup hook or WebUI was found. The package only installs the daemon; it does not start it. Use `usbipd -D` on a device sharing USB peripherals, after loading `usbip-host`. Use `usbip attach` on a client after loading `vhci-hcd`. `usbip bind` and `usbip unbind` control the server-side device driver association.
+The USB/printer page reports four observations separately:
 
-The relevant checks on a built router are:
+- core module: `/sys/module/usbip_core`
+- export module: `/sys/module/usbip_host`
+- client module: `/sys/module/vhci_hcd`
+- daemon process: `usbipd`
+
+Each item is rendered as present, absent, or unknown. The page refreshes on
+request and every 30 seconds while visible. It does not infer connectivity,
+listener reachability, exported-device state, authentication, or successful
+data transfer from process presence.
+
+No page action starts the daemon, loads a module, binds a device, or changes
+persistent configuration. That separation prevents a status refresh from
+changing USB ownership.
+
+## Manual commands and risk boundary
+
+The relevant commands for later physical validation are:
 
 ```sh
 lsmod | grep -E 'usbip|vhci'
@@ -59,10 +79,18 @@ usbip detach -p <port>
 usbipd -D
 ```
 
-`bind`, `unbind`, `attach`, and `detach` change kernel device associations or remote device attachments. These commands are documented for post-build validation only; they were not run against a real router. A remote-access test also requires a second USB/IP-capable host.
+`bind`, `unbind`, `attach`, and `detach` change kernel device association or
+remote attachment. They are documentation for a supervised validation window;
+they have not been run on the user's router. A complete transfer test also
+requires a second USB/IP-capable host.
 
 ## Validation status
 
-- Source trees, Makefiles, install paths, kernel Kconfig dependencies, and WR1200JS kernel settings were inspected.
-- Both new patches passed an apply check against the inspected nilabsent source contexts.
-- Cross-compilation, firmware contents, module loading, and network runtime behavior still require a full WR1200JS build and device or emulator validation.
+- Build 263 proved the USB/IP tools, modules, and ELF dependency closure in the
+  complete WR1200JS image.
+- The new endpoint, page integration, bounded refresh behavior, and EN/UK/RU
+  labels have local regression coverage.
+- The next full build must prove that the new HTTP endpoint compiles and that
+  the page and translations are packaged.
+- Module loading, daemon operation, export, connection, data transfer, and
+  persistence still require physical-router validation.
