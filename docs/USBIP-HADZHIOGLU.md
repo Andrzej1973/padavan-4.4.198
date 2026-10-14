@@ -113,6 +113,14 @@ establish real process races, USB behavior or netfilter behavior. Packaging,
 boot/persistent configuration, firewall rebuild ordering and authenticated UI
 actions remain open.
 
+[CI 38639330507](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38639330507)
+passed at `33c5d91a0a67047256274f2809d391920a5d34a0`: shell syntax,
+isolated lifecycle/policy checks and the existing service checks. The daemon
+launch closes lock descriptor 9; the fixture rejects inherited descriptor 9.
+This prevents the daemon from keeping the controller lock after startup.
+The tests mock daemon, signals, module loading and policy application; no live
+router lifecycle action was performed.
+
 ## Manual commands and risk boundary
 
 The relevant commands for later physical validation are:
