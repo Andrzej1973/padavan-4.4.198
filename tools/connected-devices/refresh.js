@@ -30,7 +30,7 @@
    function finish(error,snapshot){
     if(!flight||flight!==entry||id!==generation)return;
     flight=null;cancel(entry.timeout);
-    var sourceStage=!error&&snapshot&&snapshot.error==='source_unavailable'&&
+    var sourceStage=!error&&snapshot&&(snapshot.error==='source_unavailable'||snapshot.cacheState==='stale')&&
      (snapshot.stage==='networkmap'||snapshot.stage==='radio'||snapshot.stage==='initialization')?snapshot.stage:null;
     if(!error&&!validate(snapshot))error=new Error('Invalid device snapshot');
     var change=!error?relation(last,snapshot):"invalid";
@@ -43,7 +43,7 @@
     }
     /* Keep newest freshness metadata even if event rows did not change. */
     last=snapshot;
-    state(snapshot.cacheState==='stale'?'Stale':snapshot.cacheState==='unavailable'?'Unavailable':'Current');later(interval);
+    state(snapshot.cacheState==='stale'?'Stale':snapshot.cacheState==='unavailable'?'Unavailable':'Current',sourceStage);later(interval);
    }
    entry.timeout=schedule(function(){
     if(flight!==entry)return;

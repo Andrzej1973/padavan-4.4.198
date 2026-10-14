@@ -41,10 +41,12 @@ int main(int argc,char **argv){char directory[]="/tmp/device-http-XXXXXX",out[40
  assert(strstr(out,"\"kind\":\"observed\"")&&strstr(out,"\"cause\":\"unknown\"")&&strstr(out,"\"cacheState\":\"current\""));
  radio_failure=1;current_uptime=10;response(out,sizeof(out));
  assert(strstr(out,"\"cacheState\":\"stale\"") && strstr(out,"\"rssi\":-60") && wr_device_http_cache.sequence==1);
+ assert(strstr(out,"\"stage\":\"radio\""));
  history_response(out,sizeof(out));assert(strstr(out,"\"gap\":true")&&strstr(out,"\"cacheState\":\"stale\""));
  radio_failure=0;
  assert(!unlink("source"));current_uptime=15;response(out,sizeof(out));assert(strstr(out,"\"cacheState\":\"stale\"")&&wr_device_http_cache.sequence==1);
  assert(strstr(out,"\"collectionAgeMs\":10000"));
+ assert(strstr(out,"\"stage\":\"networkmap\""));
  /* httpd runs the tick on every select pass, i.e. per accepted connection and
   * per served file. Driver RSSI queries must follow the 5 s schedule instead. */
  {unsigned int before;current_uptime=20;wr_device_background_tick();before=rssi_ticks;

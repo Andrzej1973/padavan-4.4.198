@@ -95,8 +95,9 @@ static void do_wr_devices_json(const char *url,FILE *stream)
                              wr_device_http_json,sizeof(wr_device_http_json),&length)||!length){fputs("{\"error\":\"snapshot_unavailable\"}",stream);return;}
  /* Append cache metadata to a successfully serialized object only. */
  wr_device_http_json[length-1]=0;age=now>=wr_device_http_cache.collected_at?now-wr_device_http_cache.collected_at:0;
- fprintf(stream,"%s,\"cacheState\":\"%s\",\"collectionAgeMs\":%llu,\"sourceUpdatedAt\":",wr_device_http_json,
-         state==WR_DEVICE_STALE?"stale":"current",(unsigned long long)age);
+ fprintf(stream,"%s,\"cacheState\":\"%s\",\"collectionAgeMs\":%llu,\"stage\":\"%s\",\"sourceUpdatedAt\":",wr_device_http_json,
+         state==WR_DEVICE_STALE?"stale":"current",(unsigned long long)age,
+         state==WR_DEVICE_STALE?wr_device_http_failure_stage:"none");
  if(wr_device_http_cache.snapshot.source_updated_at)fprintf(stream,"%llu",(unsigned long long)wr_device_http_cache.snapshot.source_updated_at);
  else fputs("null",stream);
  fputc('}',stream);
