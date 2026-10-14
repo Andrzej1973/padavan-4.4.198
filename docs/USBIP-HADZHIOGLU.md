@@ -95,7 +95,10 @@ requires a second USB/IP-capable host.
 - Build 263 proved the USB/IP tools, modules, and ELF dependency closure in the
   complete WR1200JS image.
 - Source transformation and EN/UK/RU label insertion have local regression
-  coverage. The current regression check does not execute C or browser behavior.
+  coverage. A Node fixture executes the emitted renderer and refresh functions:
+  mixed module/process states, malformed replies, failure clearing, hidden-page
+  suppression, one outstanding request and recovery pass. It mocks AJAX and DOM;
+  it does not execute C, a real browser, or the router HTTP server.
 - [Build 265](evidence/WR1200JS-BUILD265.md) proves compilation of the new HTTP
   endpoint and packaging of the page and dictionary title keys. Full rendering
   and refresh behavior remain unverified on a device.
