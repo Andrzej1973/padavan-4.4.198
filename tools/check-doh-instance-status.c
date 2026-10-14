@@ -1,7 +1,19 @@
+#include <unistd.h>
+static ssize_t changing_read(int,void *,size_t);
+#define read changing_read
 #include "doh-instance-status.h"
+#undef read
 #include <assert.h>
 #include <stdlib.h>
 static void put(const char *path,const char *text){FILE *f=fopen(path,"w");assert(f);assert(fputs(text,f)>=0);assert(!fclose(f));}
+static int change_pid_file;
+static ssize_t changing_read(int fd,void *buffer,size_t size)
+{
+ ssize_t result=read(fd,buffer,size);
+ if(change_pid_file==1){assert(!rename("pids/0.pid","pids/0.old"));put("pids/0.pid","123\n");}
+ else if(change_pid_file==2)put("pids/0.pid","");
+ change_pid_file=0;return result;
+}
 int main(void)
 {
  char work[]="/tmp/wr-doh-observer-XXXXXX";struct wr_doh_instances state;
@@ -9,6 +21,8 @@ int main(void)
  assert(!mkdir("proc/123",0700));assert(!symlink("/usr/sbin/https_dns_proxy","proc/123/exe"));
  state=wr_doh_observe(3,"pids","proc");assert(state.configured==3&&!state.owned&&!state.unknown);
  put("pids/0.pid","123\n");state=wr_doh_observe(3,"pids","proc");assert(state.owned==1&&!state.unknown);
+ change_pid_file=1;state=wr_doh_observe(3,"pids","proc");assert(!state.owned&&state.unknown==1);assert(!unlink("pids/0.old"));
+ change_pid_file=2;state=wr_doh_observe(3,"pids","proc");assert(!state.owned&&state.unknown==1);put("pids/0.pid","123\n");
  put("pids/1.pid","123\n");state=wr_doh_observe(3,"pids","proc");assert(state.owned==1&&state.duplicate==2&&state.unknown==2);
  put("pids/1.pid","124\n");assert(!mkdir("proc/124",0700));assert(!symlink("/usr/sbin/https_dns_proxy","proc/124/exe"));
  state=wr_doh_observe(3,"pids","proc");assert(state.owned==3&&!state.unknown);

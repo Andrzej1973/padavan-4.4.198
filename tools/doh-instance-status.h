@@ -11,13 +11,18 @@
 struct wr_doh_instances {unsigned configured, owned, unknown, duplicate;};
 static inline long wr_doh_owned_pid(const char *pidroot,const char *procroot,unsigned slot)
 {
- char path[512],text[17],exe[128];struct stat st;int fd,error;ssize_t count;unsigned long pid=0;size_t i;
+ char path[512],text[17],exe[128];struct stat st,after,current;int fd,error;ssize_t count;unsigned long pid=0;size_t i;
  if(slot>3)return -1;
  if(snprintf(path,sizeof(path),"%s/%u.pid",pidroot,slot)>=(int)sizeof(path))return -1;
  fd=open(path,O_RDONLY|O_NONBLOCK|O_NOFOLLOW|O_CLOEXEC);
  if(fd<0)return errno==ENOENT?0:-1;
  if(fstat(fd,&st)||!S_ISREG(st.st_mode)||st.st_size<1||st.st_size>16){close(fd);return -1;}
- count=read(fd,text,sizeof(text));error=close(fd);
+ count=read(fd,text,sizeof(text));
+ error=fstat(fd,&after)||lstat(path,&current);
+ if(!error)error=st.st_dev!=after.st_dev||st.st_ino!=after.st_ino||st.st_size!=after.st_size||
+                  st.st_mtime!=after.st_mtime||st.st_ctime!=after.st_ctime||
+                  current.st_dev!=after.st_dev||current.st_ino!=after.st_ino||!S_ISREG(current.st_mode);
+ if(close(fd))error=1;
  if(error||count<1||count>16||count!=st.st_size)return -1;
  if(text[count-1]=='\n')count--;
  if(!count)return -1;
