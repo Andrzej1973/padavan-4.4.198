@@ -10,6 +10,10 @@ www = a.romfs / 'www'
 local = Path(__file__).resolve().parent
 page = (www / 'index.asp').read_text(encoding='utf-8')
 assert page.count('id="wr-connected-devices"') == 1
+for key in ('state-current','state-stale','state-unavailable','state-updating','state-paused','state-stopped','last-observations','source-networkmap','source-radio','source-initialization'):
+    assert 'data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' in page,key
+    for locale in ('EN','UK','RU'):
+        assert '\nWRDeviceStatus_'+key+'=' in (www/(locale+'.dict')).read_text(encoding='utf-8'),(locale,key)
 assert 'id="statusframe"' in page
 assert page.index('id="wr-connected-devices"') < page.index('id="statusframe"')
 total = 0

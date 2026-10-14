@@ -32,15 +32,23 @@ try:
     target = root / relative
     target.parent.mkdir(parents=True)
     target.write_text(original, encoding='utf-8')
+    dictionaries=root/'trunk/user/www/dict';dictionaries.mkdir()
+    for name in ('EN.footer','UK.dict','RU.dict'):
+        (dictionaries/name).write_bytes((a.source/'trunk/user/www/dict'/name).read_bytes())
     subprocess.run([sys.executable, str(local / 'prepare-ui.py'), str(root)], check=True)
     installed = target.read_text(encoding='utf-8')
     includes = '<link rel="stylesheet" href="/wr-device-homepage.css">\n'
     includes += ''.join('<script src="/wr-device-' + name + '.js"></script>\n' for name in assets)
-    section = '\n                <section id="wr-connected-devices" class="well" aria-label="Connected devices"></section>'
+    keys=['state-current','state-stale','state-unavailable','state-updating','state-paused','state-stopped','last-observations','source-networkmap','source-radio','source-initialization']
+    attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in keys)
+    section = '\n                <section id="wr-connected-devices" class="well" aria-label="Connected devices"'+attributes+'></section>'
     section += '\n                <section id="wr-roaming-history" class="well" aria-label="Wi-Fi history"></section>'
     section += '\n                <section id="wr-rssi-history" class="well" aria-label="RSSI history"></section>'
     assert installed.count(includes) == 1 and installed.count(section) == 1
     assert installed.replace(includes, '', 1).replace(section, '', 1) == original
+    for name in ('EN.footer','UK.dict','RU.dict'):
+        content=(dictionaries/name).read_text(encoding='utf-8')
+        assert all('\nWRDeviceStatus_'+key+'=' in content for key in keys)
     for name in assets:
         assert (target.parent / ('wr-device-' + name + '.js')).read_bytes() == (local / (name + '.js')).read_bytes()
     assert (target.parent / 'wr-device-homepage.css').read_bytes() == (local / 'homepage.css').read_bytes()

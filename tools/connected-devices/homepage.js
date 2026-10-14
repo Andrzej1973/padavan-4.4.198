@@ -9,6 +9,7 @@
  function text(value){return typeof value==='string'?value.slice(0,128):'';}
  function createView(doc,root){
   var groups={},rows=Object.create(null),current=[],warning='',source=null;
+  function translated(key,fallback){var value=root.getAttribute?root.getAttribute('data-wr-'+key):null;return typeof value==='string'&&value&&value.indexOf('<#')<0?value:fallback;}
   function node(tag,label,parent){var n=doc.createElement(tag);if(label!==undefined)n.textContent=label;if(parent)parent.appendChild(n);return n;}
   function set(n,value){value=String(value);if(n.textContent!==value)n.textContent=value;}
   node('h3','Connected devices',root);
@@ -72,8 +73,8 @@
   var evidenceStale=false;
   return {render:render,setState:function(value){
    var reasons={networkmap:'Device observation source unavailable',radio:'Wi-Fi observation source unavailable',initialization:'Observation initialization failed'};
-   set(status,value.state+(value.state==='Stale'?' \u2014 showing last available observations':'')+
-    (Object.prototype.hasOwnProperty.call(reasons,value.sourceStage)?' \u2014 '+reasons[value.sourceStage]:''));
+   set(status,translated('state-'+value.state.toLowerCase(),value.state)+(value.state==='Stale'?' \u2014 '+translated('last-observations','showing last available observations'):'')+
+    (Object.prototype.hasOwnProperty.call(reasons,value.sourceStage)?' \u2014 '+translated('source-'+value.sourceStage,reasons[value.sourceStage]):''));
    if(value.state==='Stale')evidenceStale=true;else if(value.state==='Current')evidenceStale=false;
    Object.keys(rows).forEach(function(key){var row=rows[key];set(row.cells[1],(evidenceStale?'Last available evidence: ':'')+row.connection);});
   },retry:retry,filter:filter};

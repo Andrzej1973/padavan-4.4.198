@@ -23,6 +23,9 @@ rows=all(root).filter(n=>n.tagName==='tr'&&n.parentNode.tagName==='tbody');asser
 view.setState({state:'Stale'});assert.ok(root.textContent.includes('showing last available'));
 view.setState({state:'Unavailable',sourceStage:'radio'});assert.ok(root.textContent.includes('Wi-Fi observation source unavailable'));
 view.setState({state:'Unavailable',sourceStage:'<untrusted>'});assert.ok(!root.textContent.includes('<untrusted>'));
+root.getAttribute=key=>({'data-wr-state-unavailable':'Недоступно','data-wr-source-radio':'Дані Wi-Fi недоступні'})[key]||null;
+view.setState({state:'Unavailable',sourceStage:'radio'});assert.ok(root.textContent.includes('Недоступно \u2014 Дані Wi-Fi недоступні'));
+delete root.getAttribute;
 view.render({devices:[devices[0]],truncated:true,invalid:2});assert.strictEqual(all(root).filter(n=>n.tagName==='tr'&&n.parentNode.tagName==='tbody').length,1);assert.ok(root.textContent.includes('Snapshot truncated'));
 let options,started=0,stopped=0,visible;
 const mounted=homepage.mount(doc,new Element('section'),{create:o=>{options=o;return {start:()=>started++,stop:()=>stopped++,setVisible:v=>visible=v,retry:()=>{}};}});
