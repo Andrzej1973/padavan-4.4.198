@@ -4,6 +4,8 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include "radio-table.h"
+/* Fixed read command from pinned httpd/ralink.c, not a private set ioctl. */
+#define RTPRIV_IOCTL_GET_MAC_TABLE_STRUCT (SIOCIWFIRSTPRIV + 0x1F)
 #include "radio-query.h"
 int main(int argc, char **argv)
 {
