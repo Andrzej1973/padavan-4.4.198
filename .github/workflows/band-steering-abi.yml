@@ -277,6 +277,8 @@ jobs:
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -c tools/connected-devices/check-snapshot-cache.c -o abi-results/device-cache-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -c tools/connected-devices/check-source-collector.c -o abi-results/device-source-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -Os -static -mips32r2 -mabi=32 -msoft-float tools/connected-devices/networkmap-diagnostic.c -o abi-results/wr-networkmap-diagnostic
+          python3 tools/connected-devices/prepare-radio-diagnostic.py abi-results/device-radio-header.c abi-results/radio-diagnostic.c
+          "$compiler" -std=gnu11 -Wall -Wextra -Werror -Os -static -mips32r2 -mabi=32 -msoft-float -Itools/connected-devices abi-results/radio-diagnostic.c -o abi-results/wr-radio-diagnostic
           gcc -std=gnu11 -Wall -Wextra -Werror -O2 tools/connected-devices/networkmap-diagnostic.c -o abi-results/networkmap-diagnostic-native
           if abi-results/networkmap-diagnostic-native > abi-results/networkmap-diagnostic-missing.json; then
             echo 'Unexpected production source on CI runner' >&2
