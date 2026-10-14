@@ -42,7 +42,7 @@ start_service()
     lan=$(nvram get lan_ifname)
     wr_usbip_policy_apply "$lan" || { fail 'LAN policy failed'; return 1; }
     # The policy protects IPv4 only. Never start the default dual-stack daemon.
-    if ! modprobe usbip-host || ! "$daemon" -4 -D --pid="$pidfile"; then
+    if ! modprobe usbip-host || ! "$daemon" -4 -D --pid="$pidfile" 9>&-; then
         fail 'Startup failed; restrictive policy retained'
         return 1
     fi

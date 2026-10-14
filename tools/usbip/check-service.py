@@ -22,6 +22,7 @@ wr_usbip_policy_remove() { echo remove-policy >> "$EVENTS"; }
         'sleep':':\n',
         'pidof':'for p in "$PROC"/*; do test ! -d "$p" || basename "$p"; done\n',
         'usbipd':'''echo "daemon:$*" >> "$EVENTS"
+test ! -e /proc/self/fd/9 || exit 4
 test "$1" = -4 && test "$2" = -D && test "$3" = "--pid=$PID" || exit 3
 test "${FAIL_START:-0}" = 0 || exit 1
 mkdir -p "$PROC/234"
