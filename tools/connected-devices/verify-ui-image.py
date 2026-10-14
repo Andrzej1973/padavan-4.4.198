@@ -12,12 +12,16 @@ www = a.romfs / 'www'
 local = Path(__file__).resolve().parent
 page = (www / 'index.asp').read_text(encoding='utf-8')
 assert page.count('id="wr-connected-devices"') == 1
+connected_tags=re.findall(r'<section\b[^>]*id="wr-connected-devices".*?</section>',page,re.S)
+assert len(connected_tags)==1
 keys=('state-current','state-stale','state-unavailable','state-updating','state-paused','state-stopped','last-observations','source-networkmap','source-radio','source-initialization','title','description','retry','source-time-unavailable','empty','no-match','source-time')
 keys+=('column-device','column-connection','column-category','column-confidence','connection-associated','connection-last','connection-seen','connection-unknown','confidence-unknown','confidence-possible','confidence-high','confidence-manufacturer','confidence-user','unnamed','classification-none','last-evidence')
 keys+=('network-primary','network-guest','network-iot','network-unknown','category-all','category-unknown','category-tv','notice-truncated','notice-invalid','evidence-android-host','evidence-android-dhcp','evidence-windows-host','evidence-windows-dhcp','evidence-tv-host','evidence-conflict','evidence-manual','evidence-manufacturer')
-rssi_keys=tuple(json.loads((local/'rssi-labels.json').read_text(encoding='utf-8')))
+rssi_labels=json.loads((local/'rssi-labels.json').read_text(encoding='utf-8'))
+rssi_keys=tuple(rssi_labels)
 keys+=rssi_keys
-history_keys=tuple(json.loads((local/'history-labels.json').read_text(encoding='utf-8')))
+history_labels=json.loads((local/'history-labels.json').read_text(encoding='utf-8'))
+history_keys=tuple(history_labels)
 keys+=history_keys
 for section in ('wr-roaming-history','wr-rssi-history'):
     tags=re.findall(r'<section\b[^>]*id="'+section+r'".*?</section>',page,re.S)
@@ -25,13 +29,16 @@ for section in ('wr-roaming-history','wr-rssi-history'):
     for key in keys[:7]+(rssi_keys if section=='wr-rssi-history' else history_keys):
         assert 'data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' in tags[0],(section,key)
 for key in keys:
-    assert 'data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' in page,key
-    for locale in ('EN','UK','RU'):
+    assert 'data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' in connected_tags[0],key
+    for column,locale in enumerate(('EN','UK','RU')):
         prefix = 'WRDeviceStatus_'+key+'='
         values = [line[len(prefix):].strip() for line in
                   (www/(locale+'.dict')).read_text(encoding='utf-8').splitlines()
                   if line.startswith(prefix)]
         assert len(values) == 1 and values[0] and '<#' not in values[0], (locale,key,'missing, duplicate or unresolved label')
+        expected={**rssi_labels,**history_labels}.get(key)
+        if expected is not None:
+            assert values[0]==expected[column].strip(),(locale,key,'shipped translation differs from source')
 assert 'id="statusframe"' in page
 assert page.index('id="wr-connected-devices"') < page.index('id="statusframe"')
 total = 0
