@@ -2,6 +2,7 @@
 """Install WR homepage device observations without replacing the network map."""
 import argparse
 import json
+import re
 from pathlib import Path
 p=argparse.ArgumentParser();p.add_argument('source',type=Path);a=p.parse_args()
 local=Path(__file__).resolve().parent;root=a.source/'trunk/user/www/n56u_ribbon_fixed';f=root/'index.asp';s=f.read_text(encoding='utf-8')
@@ -46,6 +47,12 @@ keys+=list(rssi_labels)
 for column,name in enumerate(('EN.footer','UK.dict','RU.dict')):
     translations[name]+=[values[column] for values in rssi_labels.values()]
 history_labels=json.loads((local/'history-labels.json').read_text(encoding='utf-8'))
+for label,values in {**rssi_labels,**history_labels}.items():
+    if len(values)!=3 or any(not isinstance(value,str) or not value.strip() for value in values):
+        raise SystemExit('Invalid observation label: '+label)
+    tokens=[set(re.findall(r'\{[A-Za-z]+\}',value)) for value in values]
+    if tokens[0]!=tokens[1] or tokens[0]!=tokens[2]:
+        raise SystemExit('Observation translation placeholders differ: '+label)
 keys+=list(history_labels)
 for column,name in enumerate(('EN.footer','UK.dict','RU.dict')):
     translations[name]+=[values[column] for values in history_labels.values()]

@@ -27,6 +27,17 @@ for(const column of [1,2]){
  const failureRoot=new Element('section');failureRoot.getAttribute=translatedRoot.getAttribute;
  const failureView=homepage.createView(failureDoc,failureRoot);failureView.filter.value='';failureView.render(h);
  failureView.exportButton.events.click();assert(failureRoot.textContent.includes(labels['history-export-failed'][column]));
+ const full=JSON.parse(JSON.stringify(h));full.gap=true;
+ full.events.push({kind:'band_change',mac:'02:00:00:00:00:01',uptimeMs:6000,before:3,after:0},{kind:'ambiguous',mac:'02:00:00:00:00:01',uptimeMs:7000,after:3});
+ full.actions={ownerAvailable:false,dropped:2,rejected:3,missing:4,monitoringGap:true,interruptions:5,events:['intent','ioctl_accepted','ioctl_failed','driver_ack'].map((stage,i)=>({stage,operation:i%2?'remove':'allow',radio:i%2,uptimeMs:8000,mac:'02:00:00:00:00:01',result:i}))};
+ translatedView.render(full);
+ for(const key of ['history-gap','history-ambiguous','history-uptime','history-intent','history-accepted','history-failed','history-verified','history-allow','history-remove','history-producer-unavailable','history-monitoring-gap','history-command-limit','history-incomplete'])assert(translatedRoot.textContent.includes(labels[key][column]),key);
+ assert(translatedRoot.textContent.includes(labels['history-band-change'][column].replace('{before}',labels['history-band-both'][column]).replace('{after}',labels['history-band-unknown'][column])));
+ assert(translatedRoot.textContent.includes(labels['history-command-result'][column].replace('{result}','3')));
+ assert(translatedRoot.textContent.includes(labels['history-interruptions'][column].replace('{count}','5')));
+ assert(!/\{(?:epoch|before|after|band|result|count|dropped|rejected|missing|clientDropped|clientEvictions)\}/.test(translatedRoot.textContent));
+ full.actions.ownerAvailable=true;translatedView.render(full);assert(translatedRoot.textContent.includes(labels['history-producer-current'][column]));
+ delete full.actions;translatedView.render(full);assert(translatedRoot.textContent.includes(labels['history-command-unavailable'][column]));
 }
 view.render(h);assert.equal(view.list.children.length,2);assert(root.textContent.includes('Observation gap'));assert(root.textContent.includes('Overwritten events: 4'));
 view.details.open=true;view.list.scrollTop=25;view.filter.value='FF';view.filter.events.input();assert.equal(view.list.children.length,1);assert.equal(view.details.open,true);assert.equal(view.list.scrollTop,25);
