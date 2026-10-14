@@ -10,6 +10,8 @@ on:
       - 'tools/prepare-dns-process-status.py'
       - 'tools/prepare-dns-process-check.py'
       - 'tools/check-dns-refresh.py'
+      - 'tools/doh-instance-status.h'
+      - 'tools/check-doh-instance-status.c'
       - 'overlay/padavan-4.4/ports/stubby/Advanced_Services_DoT.asp'
       - 'overlay/padavan-4.4/ports/doh/Advanced_Services_DoH.asp'
       - 'tools/retry-source-command.py'
@@ -48,6 +50,8 @@ jobs:
           python3 tools/prepare-dns-process-check.py --output checks/dns-process.c
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined checks/dns-process.c -o checks/dns-process
           ASAN_OPTIONS=detect_leaks=1 checks/dns-process
+          gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined tools/check-doh-instance-status.c -o checks/doh-instances
+          ASAN_OPTIONS=detect_leaks=1 checks/doh-instances
           python3 tools/check-dns-refresh.py
           python3 tools/prepare-vpn-interface-check.py --output checks/vpn-interface.c
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined checks/vpn-interface.c -o checks/vpn-interface
