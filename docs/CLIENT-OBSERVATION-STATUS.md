@@ -15,7 +15,7 @@ Updated 2026-10-14. The client list is part of the full WR1200JS port; its sourc
 
 The JSON error includes an allowlisted stage: `networkmap`, `radio` or `initialization`. The page shows the corresponding localized explanation; unknown stage text is not displayed. An older installed image may return no stage. An authenticated page read or authorized local read of `/wr_devices.json` is needed to determine the actual failing stage. Networkmap file presence alone does not prove successful collection, and a successful RSSI endpoint does not prove the separate station-table query works.
 
-The latest attempted physical read timed out at SSH connection establishment; no new source-stage result was obtained. The live router remains an older test image, not these newly compiled changes.
+After the owner restored access, a read-only SSH retry succeeded. The router reported kernel `4.4.198`, uptime `213533.79` seconds, networkmap PID 805, a regular 828-byte `/tmp/static_ip.inf` containing 19 lines, and both `ra0` and `rai0` network interfaces. A loopback HTTP read of `/wr_devices.json` returned exactly `{"error":"source_unavailable"}` without a stage. This confirms the endpoint still fails on the installed image; file presence and interface presence do not establish parser or station-query success. Stubby and DoH switches remained zero and `/proc/swaps` had only its header. No settings or services were changed. The live router remains an older test image, not these newly compiled changes.
 
 ## Evidence and remaining work
 

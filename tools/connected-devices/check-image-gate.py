@@ -1,9 +1,19 @@
 #!/usr/bin/env python3
 """Synthetic negative tests for the image gate, not firmware proof."""
-import subprocess,sys,tempfile
+import subprocess,sys,uuid,shutil
+from contextlib import contextmanager
 from pathlib import Path
 local=Path(__file__).resolve().parent
-with tempfile.TemporaryDirectory(dir=Path.cwd()) as directory:
+@contextmanager
+def fixture_directory():
+ directory=Path.cwd()/('image-gate-'+uuid.uuid4().hex)
+ directory.mkdir()
+ try:
+  yield directory
+ finally:
+  assert directory.resolve().parent==Path.cwd().resolve()
+  shutil.rmtree(directory)
+with fixture_directory() as directory:
  root=Path(directory);www=root/'www';www.mkdir();(root/'usr/sbin').mkdir(parents=True)
  assert root.resolve().parent==Path.cwd().resolve()
  keys=('state-current','state-stale','state-unavailable','state-updating','state-paused','state-stopped','last-observations','source-networkmap','source-radio','source-initialization')
@@ -27,6 +37,10 @@ with tempfile.TemporaryDirectory(dir=Path.cwd()) as directory:
   target=www/(locale+'.dict')
   for key in keys:
    target.write_text(dictionary.replace('WRDeviceStatus_'+key+'=fixture label\n',''),encoding='utf-8');check(False)
+  key=keys[0]
+  for replacement in ('', '   ', '<#unresolved#>'):
+   target.write_text(dictionary.replace('WRDeviceStatus_'+key+'=fixture label', 'WRDeviceStatus_'+key+'='+replacement),encoding='utf-8');check(False)
+  target.write_text(dictionary+'WRDeviceStatus_'+key+'=duplicate\n',encoding='utf-8');check(False)
   target.write_text(dictionary,encoding='utf-8');check(True)
  for missing in markers:
   daemon.write_bytes(b'\0'.join(m for m in markers if m!=missing));check(False)

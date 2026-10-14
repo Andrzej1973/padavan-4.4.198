@@ -16,7 +16,11 @@ keys+=('network-primary','network-guest','network-iot','network-unknown','catego
 for key in keys:
     assert 'data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' in page,key
     for locale in ('EN','UK','RU'):
-        assert '\nWRDeviceStatus_'+key+'=' in (www/(locale+'.dict')).read_text(encoding='utf-8'),(locale,key)
+        prefix = 'WRDeviceStatus_'+key+'='
+        values = [line[len(prefix):].strip() for line in
+                  (www/(locale+'.dict')).read_text(encoding='utf-8').splitlines()
+                  if line.startswith(prefix)]
+        assert len(values) == 1 and values[0] and '<#' not in values[0], (locale,key,'missing, duplicate or unresolved label')
 assert 'id="statusframe"' in page
 assert page.index('id="wr-connected-devices"') < page.index('id="statusframe"')
 total = 0
