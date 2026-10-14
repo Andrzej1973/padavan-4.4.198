@@ -297,6 +297,22 @@ jobs:
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -c tools/connected-devices/check-http-hook.c -o abi-results/device-http-mips.o
           "$compiler" -std=c11 -Wall -Wextra -Werror -mips32r2 -mabi=32 -msoft-float -c abi-results/http-credentials.c -o abi-results/http-credentials-mips.o
 
+      - name: Publish standalone read-only client diagnostics
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd abi-results
+          sha256sum wr-networkmap-diagnostic wr-radio-diagnostic > client-diagnostics.sha256
+      - name: Upload standalone client diagnostics
+        uses: actions/upload-artifact@v7
+        with:
+          name: wr1200js-client-diagnostics
+          path: |
+            abi-results/wr-networkmap-diagnostic
+            abi-results/wr-radio-diagnostic
+            abi-results/client-diagnostics.sha256
+          if-no-files-found: error
+
       - name: Compile IoT readiness headers after actual Padavan shared headers
         shell: bash
         run: |
