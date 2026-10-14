@@ -8,6 +8,7 @@ with tempfile.TemporaryDirectory(dir=Path.cwd()) as directory:
  assert root.resolve().parent==Path.cwd().resolve()
  keys=('state-current','state-stale','state-unavailable','state-updating','state-paused','state-stopped','last-observations','source-networkmap','source-radio','source-initialization')
  keys+=('title','description','retry','source-time-unavailable','empty','no-match','source-time')
+ keys+=('column-device','column-connection','column-category','column-confidence','connection-associated','connection-last','connection-seen','connection-unknown','confidence-unknown','confidence-possible','confidence-high','confidence-manufacturer','confidence-user','unnamed','classification-none','last-evidence')
  attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in keys)
  page='<section id="wr-connected-devices"'+attributes+'></section><section id="wr-roaming-history"></section><section id="wr-rssi-history"></section><iframe id="statusframe"></iframe>'
  dictionary='\n'+''.join('WRDeviceStatus_'+key+'=fixture label\n' for key in keys)

@@ -24,6 +24,14 @@ extra_labels={
 }
 keys+=extra_keys
 for name in translations:translations[name]+=extra_labels[name]
+table_keys=['column-device','column-connection','column-category','column-confidence','connection-associated','connection-last','connection-seen','connection-unknown','confidence-unknown','confidence-possible','confidence-high','confidence-manufacturer','confidence-user','unnamed','classification-none','last-evidence']
+table_labels={
+ 'EN.footer':['Device / address','Connection evidence','Category','Confidence','Wi-Fi association','Last known observation','Seen by networkmap','Connection unknown','Unknown','Possible','High','Manufacturer identified','User specified','Unnamed device','No reliable classification evidence','Last available evidence'],
+ 'UK.dict':['Пристрій / адреса','Ознаки підключення','Категорія','Достовірність','Асоціація Wi-Fi','Останнє відоме спостереження','Помічено в networkmap','Підключення невідоме','Невідомо','Можливо','Висока','Виробника визначено','Задано користувачем','Пристрій без назви','Немає надійних ознак для класифікації','Останні доступні ознаки'],
+ 'RU.dict':['Устройство / адрес','Признаки подключения','Категория','Достоверность','Ассоциация Wi-Fi','Последнее известное наблюдение','Замечено в networkmap','Подключение неизвестно','Неизвестно','Возможно','Высокая','Производитель определён','Задано пользователем','Устройство без имени','Нет надёжных признаков для классификации','Последние доступные признаки'],
+}
+keys+=table_keys
+for name in translations:translations[name]+=table_labels[name]
 for name,values in translations.items():
     path=a.source/'trunk/user/www/dict'/name
     content=path.read_text(encoding='utf-8')

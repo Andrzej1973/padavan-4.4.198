@@ -24,7 +24,7 @@
    var summary=node('summary',labels[key],details),scroll=node('div',undefined,details);scroll.className='wr-device-scroll';
    var table=node('table',undefined,scroll);table.className='table table-striped';
    var header=node('tr',undefined,node('thead',undefined,table));
-   ['Device / address','Connection evidence','Category','Confidence'].forEach(function(label){node('th',label,header);});
+   ['Device / address','Connection evidence','Category','Confidence'].forEach(function(label,index){node('th',translated(['column-device','column-connection','column-category','column-confidence'][index],label),header);});
    groups[key]={details:details,summary:summary,body:node('tbody',undefined,table),scroll:scroll,total:0,shown:0};details.style.display='none';
   });
   function applyFilter(){
@@ -48,8 +48,8 @@
     if(!row){var tr=node('tr'),cells=[];for(var i=0;i<4;i++)cells.push(node('td',undefined,tr));row=rows[key]={node:tr,cells:cells};}
     if(row.node.parentNode!==groups[group].body)groups[group].body.appendChild(row.node);
     row.group=group;row.category=result.category;groups[group].total++;
-    set(row.cells[0],(text(record.hostname)||'Unnamed device')+' \u00b7 '+ip+' \u00b7 '+mac);
-    var connection=record.presence==='associated'?'Wi-Fi association':(record.networkmapStale===true?'Last known observation':record.networkmapStale===false?'Seen by networkmap':'Connection unknown');
+    set(row.cells[0],(text(record.hostname)||translated('unnamed','Unnamed device'))+' \u00b7 '+ip+' \u00b7 '+mac);
+    var connection=record.presence==='associated'?translated('connection-associated','Wi-Fi association'):(record.networkmapStale===true?translated('connection-last','Last known observation'):record.networkmapStale===false?translated('connection-seen','Seen by networkmap'):translated('connection-unknown','Connection unknown'));
     if(record.band==='2g')connection+=' \u00b7 2.4 GHz';else if(record.band==='5g')connection+=' \u00b7 5 GHz';
     if(typeof record.rssi==='number'&&isFinite(record.rssi)&&record.rssi>=-127&&record.rssi<=0)connection+=' \u00b7 '+record.rssi+' dBm';
     if(Array.isArray(record.radios))record.radios.slice(0,2).forEach(function(radio){
@@ -58,8 +58,9 @@
      if(typeof radio.rssi==='number'&&isFinite(radio.rssi)&&radio.rssi>-127&&radio.rssi<0)connection+=' '+radio.rssi+' dBm';
     });
     row.connection=connection;
-    set(row.cells[1],connection);set(row.cells[2],icons[result.category]+' '+result.category);set(row.cells[3],result.confidence);
-    row.cells[3].title=result.evidence.join('; ')||'No reliable classification evidence';
+    var confidenceKeys={'Unknown':'confidence-unknown','Possible':'confidence-possible','High':'confidence-high','Manufacturer identified':'confidence-manufacturer','User specified':'confidence-user'};
+    set(row.cells[1],connection);set(row.cells[2],icons[result.category]+' '+result.category);set(row.cells[3],translated(confidenceKeys[result.confidence]||'confidence-unknown',result.confidence));
+    row.cells[3].title=result.evidence.join('; ')||translated('classification-none','No reliable classification evidence');
    });
    Object.keys(rows).forEach(function(key){if(!seen[key]){var n=rows[key].node;if(n.parentNode)n.parentNode.removeChild(n);delete rows[key];}});
    warning=(snapshot.truncated?'Snapshot truncated to bounded source limits. ':'')+(snapshot.invalid?'Invalid source records: '+snapshot.invalid+'.':'');
@@ -76,7 +77,7 @@
    set(status,translated('state-'+value.state.toLowerCase(),value.state)+(value.state==='Stale'?' \u2014 '+translated('last-observations','showing last available observations'):'')+
     (Object.prototype.hasOwnProperty.call(reasons,value.sourceStage)?' \u2014 '+translated('source-'+value.sourceStage,reasons[value.sourceStage]):''));
    if(value.state==='Stale')evidenceStale=true;else if(value.state==='Current')evidenceStale=false;
-   Object.keys(rows).forEach(function(key){var row=rows[key];set(row.cells[1],(evidenceStale?'Last available evidence: ':'')+row.connection);});
+   Object.keys(rows).forEach(function(key){var row=rows[key];set(row.cells[1],(evidenceStale?translated('last-evidence','Last available evidence')+': ':'')+row.connection);});
   },retry:retry,filter:filter};
  }
  function mount(doc,root,refresh){

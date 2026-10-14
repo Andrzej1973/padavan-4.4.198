@@ -30,6 +30,9 @@ const localRoot=new Element('section');localRoot.getAttribute=key=>({'data-wr-ti
 const localView=homepage.createView(doc,localRoot);localView.render({devices:[]});
 assert.ok(localRoot.textContent.includes('Підключені пристрої')&&localRoot.textContent.includes('Немає спостережень'));
 assert.strictEqual(localView.retry.textContent,'Оновити');
+localRoot.getAttribute=key=>({'data-wr-column-connection':'Ознаки підключення','data-wr-connection-associated':'Асоціація Wi-Fi','data-wr-confidence-unknown':'Невідомо'})[key]||null;
+localView.render({devices:[{mac:'02:11:22:33:44:99',ip:'192.168.1.9',presence:'associated'}]});
+assert.ok(localRoot.textContent.includes('Асоціація Wi-Fi')&&localRoot.textContent.includes('Невідомо'));
 view.render({devices:[devices[0]],truncated:true,invalid:2});assert.strictEqual(all(root).filter(n=>n.tagName==='tr'&&n.parentNode.tagName==='tbody').length,1);assert.ok(root.textContent.includes('Snapshot truncated'));
 let options,started=0,stopped=0,visible;
 const mounted=homepage.mount(doc,new Element('section'),{create:o=>{options=o;return {start:()=>started++,stop:()=>stopped++,setVisible:v=>visible=v,retry:()=>{}};}});
