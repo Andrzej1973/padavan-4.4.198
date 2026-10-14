@@ -16,6 +16,18 @@ const localizedView=homepage.createView(doc,localizedRoot);
 localizedView.setState({state:'Stale'});localizedView.setState({state:'Updating'});assert(localizedRoot.textContent.includes('Обновление — последние наблюдения'));
 localizedView.setState({state:'Current'});assert(!localizedRoot.textContent.includes('последние наблюдения'));
 const h={epoch:'session',dropped:4,clientDropped:2,clientEvictions:1,gap:false,events:[{kind:'observed',mac:'02:00:00:00:00:01',uptimeMs:5000,after:1},{kind:'gap',mac:'',uptimeMs:10000}]};
+for(const column of [1,2]){
+ const labels=require('./history-labels.json'),translatedRoot=new Element('section');
+ translatedRoot.getAttribute=k=>labels[k.replace(/^data-wr-/,'')]?.[column];
+ const translatedView=homepage.createView(doc,translatedRoot);translatedView.filter.value='';translatedView.render(h);
+ for(const key of ['history-title','history-client','history-recent','history-commands','history-export','history-help'])assert(translatedRoot.textContent.includes(labels[key][column]),key);
+ assert.strictEqual(translatedView.filter.attributes['aria-label'],labels['history-filter'][column]);
+ translatedView.exportButton.events.click();assert(translatedRoot.textContent.includes(labels['history-export-unavailable'][column]));
+ const failureDoc={...doc,defaultView:{Blob:function(){},URL:{createObjectURL:function(){throw new Error('fixture failure');}}}};
+ const failureRoot=new Element('section');failureRoot.getAttribute=translatedRoot.getAttribute;
+ const failureView=homepage.createView(failureDoc,failureRoot);failureView.filter.value='';failureView.render(h);
+ failureView.exportButton.events.click();assert(failureRoot.textContent.includes(labels['history-export-failed'][column]));
+}
 view.render(h);assert.equal(view.list.children.length,2);assert(root.textContent.includes('Observation gap'));assert(root.textContent.includes('Overwritten events: 4'));
 view.details.open=true;view.list.scrollTop=25;view.filter.value='FF';view.filter.events.input();assert.equal(view.list.children.length,1);assert.equal(view.details.open,true);assert.equal(view.list.scrollTop,25);
 view.render(h);assert.equal(view.filter.value,'FF');view.setState({state:'Stale'});assert(root.textContent.includes('last available history'));

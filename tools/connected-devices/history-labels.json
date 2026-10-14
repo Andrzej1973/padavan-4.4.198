@@ -1,0 +1,11 @@
+{
+  "history-title": ["Wi-Fi observation history", "Історія спостережень Wi-Fi", "История наблюдений Wi-Fi"],
+  "history-client": ["Client MAC: ", "MAC клієнта: ", "MAC клиента: "],
+  "history-recent": ["Recent events", "Останні події", "Последние события"],
+  "history-commands": ["Band Steering commands", "Команди Band Steering", "Команды Band Steering"],
+  "history-export": ["Export history JSON", "Експортувати історію JSON", "Экспортировать историю JSON"],
+  "history-filter": ["Filter history by client MAC", "Фільтр історії за MAC клієнта", "Фильтр истории по MAC клиента"],
+  "history-help": ["Observed changes do not prove Band Steering or RSSI Kick caused them. External access points are not observed.", "Спостережувані зміни не доводять, що їх спричинив Band Steering або RSSI Kick. Зовнішні точки доступу не відстежуються.", "Наблюдаемые изменения не доказывают, что их вызвал Band Steering или RSSI Kick. Внешние точки доступа не отслеживаются."],
+  "history-export-unavailable": ["Export unavailable in this browser", "Експорт недоступний у цьому браузері", "Экспорт недоступен в этом браузере"],
+  "history-export-failed": ["History export failed", "Не вдалося експортувати історію", "Не удалось экспортировать историю"]
+}

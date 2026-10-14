@@ -22,10 +22,13 @@ with fixture_directory() as directory:
  keys+=('network-primary','network-guest','network-iot','network-unknown','category-all','category-unknown','category-tv','notice-truncated','notice-invalid','evidence-android-host','evidence-android-dhcp','evidence-windows-host','evidence-windows-dhcp','evidence-tv-host','evidence-conflict','evidence-manual','evidence-manufacturer')
  rssi_keys=tuple(json.loads((local/'rssi-labels.json').read_text(encoding='utf-8')))
  keys+=rssi_keys
+ history_keys=tuple(json.loads((local/'history-labels.json').read_text(encoding='utf-8')))
+ keys+=history_keys
  attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in keys)
  state_attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in keys[:7])
  rssi_attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in rssi_keys)
- page='<section id="wr-connected-devices"'+attributes+'></section><section id="wr-roaming-history"'+state_attributes+'></section><section id="wr-rssi-history"'+state_attributes+rssi_attributes+'></section><iframe id="statusframe"></iframe>'
+ history_attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in history_keys)
+ page='<section id="wr-connected-devices"'+attributes+'></section><section id="wr-roaming-history"'+state_attributes+history_attributes+'></section><section id="wr-rssi-history"'+state_attributes+rssi_attributes+'></section><iframe id="statusframe"></iframe>'
  dictionary='\n'+''.join('WRDeviceStatus_'+key+'=fixture label\n' for key in keys)
  for locale in ('EN','UK','RU'):(www/(locale+'.dict')).write_text(dictionary,encoding='utf-8')
  for name in ('classify','refresh','homepage','roaming','roaming-view','rssi','rssi-view','boot'):

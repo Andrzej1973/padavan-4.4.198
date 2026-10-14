@@ -45,6 +45,10 @@ rssi_labels=json.loads((local/'rssi-labels.json').read_text(encoding='utf-8'))
 keys+=list(rssi_labels)
 for column,name in enumerate(('EN.footer','UK.dict','RU.dict')):
     translations[name]+=[values[column] for values in rssi_labels.values()]
+history_labels=json.loads((local/'history-labels.json').read_text(encoding='utf-8'))
+keys+=list(history_labels)
+for column,name in enumerate(('EN.footer','UK.dict','RU.dict')):
+    translations[name]+=[values[column] for values in history_labels.values()]
 for name,values in translations.items():
     if len(values)!=len(keys):raise SystemExit('Device translation count mismatch: '+name)
     path=a.source/'trunk/user/www/dict'/name
@@ -54,7 +58,8 @@ for name,values in translations.items():
 attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in keys)
 state_attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in keys[:7])
 rssi_attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in rssi_labels)
-s=s.replace(anchor,anchor+'\n                <section id="wr-connected-devices" class="well" aria-label="Connected devices"'+attributes+'></section>\n                <section id="wr-roaming-history" class="well" aria-label="Wi-Fi history"'+state_attributes+'></section>\n                <section id="wr-rssi-history" class="well" aria-label="RSSI history"'+state_attributes+rssi_attributes+'></section>',1)
+history_attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in history_labels)
+s=s.replace(anchor,anchor+'\n                <section id="wr-connected-devices" class="well" aria-label="Connected devices"'+attributes+'></section>\n                <section id="wr-roaming-history" class="well" aria-label="Wi-Fi history"'+state_attributes+history_attributes+'></section>\n                <section id="wr-rssi-history" class="well" aria-label="RSSI history"'+state_attributes+rssi_attributes+'></section>',1)
 for name,source in assets.items():(root/name).write_bytes((local/source).read_bytes())
 f.write_text(s,encoding='utf-8')
 for path,content in dictionary_changes:path.write_text(content,encoding='utf-8')

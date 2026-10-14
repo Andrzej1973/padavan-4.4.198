@@ -17,10 +17,12 @@ keys+=('column-device','column-connection','column-category','column-confidence'
 keys+=('network-primary','network-guest','network-iot','network-unknown','category-all','category-unknown','category-tv','notice-truncated','notice-invalid','evidence-android-host','evidence-android-dhcp','evidence-windows-host','evidence-windows-dhcp','evidence-tv-host','evidence-conflict','evidence-manual','evidence-manufacturer')
 rssi_keys=tuple(json.loads((local/'rssi-labels.json').read_text(encoding='utf-8')))
 keys+=rssi_keys
+history_keys=tuple(json.loads((local/'history-labels.json').read_text(encoding='utf-8')))
+keys+=history_keys
 for section in ('wr-roaming-history','wr-rssi-history'):
     tags=re.findall(r'<section\b[^>]*id="'+section+r'".*?</section>',page,re.S)
     assert len(tags)==1,section
-    for key in keys[:7]+(rssi_keys if section=='wr-rssi-history' else ()):
+    for key in keys[:7]+(rssi_keys if section=='wr-rssi-history' else history_keys):
         assert 'data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' in tags[0],(section,key)
 for key in keys:
     assert 'data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' in page,key

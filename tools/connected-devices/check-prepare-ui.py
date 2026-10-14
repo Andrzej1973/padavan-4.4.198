@@ -46,10 +46,13 @@ try:
     keys+=['network-primary','network-guest','network-iot','network-unknown','category-all','category-unknown','category-tv','notice-truncated','notice-invalid','evidence-android-host','evidence-android-dhcp','evidence-windows-host','evidence-windows-dhcp','evidence-tv-host','evidence-conflict','evidence-manual','evidence-manufacturer']
     rssi_keys=list(json.loads((local/'rssi-labels.json').read_text(encoding='utf-8')))
     keys+=rssi_keys
+    history_keys=list(json.loads((local/'history-labels.json').read_text(encoding='utf-8')))
+    keys+=history_keys
     attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in keys)
     section = '\n                <section id="wr-connected-devices" class="well" aria-label="Connected devices"'+attributes+'></section>'
     state_attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in keys[:7])
-    section += '\n                <section id="wr-roaming-history" class="well" aria-label="Wi-Fi history"'+state_attributes+'></section>'
+    history_attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in history_keys)
+    section += '\n                <section id="wr-roaming-history" class="well" aria-label="Wi-Fi history"'+state_attributes+history_attributes+'></section>'
     rssi_attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in rssi_keys)
     section += '\n                <section id="wr-rssi-history" class="well" aria-label="RSSI history"'+state_attributes+rssi_attributes+'></section>'
     assert installed.count(includes) == 1 and installed.count(section) == 1
