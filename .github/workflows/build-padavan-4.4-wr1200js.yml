@@ -862,6 +862,21 @@ jobs:
           if-no-files-found: ignore
           path: doh-image-checks.json
 
+      - name: Verify StrongSwan packaged commands and dependency files
+        run: |
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_SSWAN=y$' configs.build/wr1200js.config; then
+            python3 tools/verify-strongswan-image.py padavan-4.4/trunk strongswan-image-checks.json
+          fi
+
+      - name: Upload StrongSwan image diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: strongswan-image-checks
+          retention-days: 14
+          if-no-files-found: ignore
+          path: strongswan-image-checks.json
+
       - name: Upload IMQ patch rejects
         if: always()
         uses: actions/upload-artifact@v7

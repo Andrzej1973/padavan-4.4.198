@@ -61,6 +61,7 @@ on:
       - 'overlay/padavan-4.4/patches/**'
       - 'sources.lock.json'
       - 'tools/verify-zram-image.py'
+      - 'tools/verify-strongswan-image.py'
       - 'tools/prepare-zram-status-web.py'
       - 'tools/prepare-dns-process-status.py'
       - 'tools/doh-instance-status.h'
