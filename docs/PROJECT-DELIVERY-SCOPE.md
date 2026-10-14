@@ -8,6 +8,12 @@ under the active thread objective reaffirmed on 2026-10-08. Earlier CAKE
 proposals below are retained as history and are outside the current delivery.
 Compilation alone does not establish a successful device port.
 
+User instruction, 2026-10-14: consolidate and adopt the best suitable solutions
+from previously reviewed donors. See [donor adoption plan](DONOR-ADOPTION-PLAN.md)
+for decisions, integration order and evidence requirements. Prefer proven
+target-compatible behavior over version numbers; existing exclusions and
+explicitly deferred stages remain applicable.
+
 ## Delivery order — user confirmation 2026-10-10
 
 1. Finish YOUHUA WR1200JS first: complete the accepted firmware and WebUI work, verify the target build and image, then verify device behavior with the user. Compilation alone is insufficient. Preserve the central configuration and keep CAKE excluded.

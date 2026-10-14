@@ -12,4 +12,9 @@ Record each supplied repository at an exact revision, distinguish source flags f
 
 ## Adoption priority
 
+Owner update, 2026-10-14: [consolidated adoption plan](../DONOR-ADOPTION-PLAN.md)
+now selects suitable solutions from all recorded donors for incremental work.
+It supersedes the blanket deferral below for focused fixes within WR1200JS;
+toolchain/offline migration and unrelated board expansion remain later stages.
+
 Complete and verify the current WR1200JS firmware first. Keep donor improvements as recorded candidates for later evaluation when time and credits permit. No production toolchain/libc migration or extra router build is implied by these audits.
