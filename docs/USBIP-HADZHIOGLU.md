@@ -88,9 +88,10 @@ requires a second USB/IP-capable host.
 
 - Build 263 proved the USB/IP tools, modules, and ELF dependency closure in the
   complete WR1200JS image.
-- The new endpoint, page integration, bounded refresh behavior, and EN/UK/RU
-  labels have local regression coverage.
-- The next full build must prove that the new HTTP endpoint compiles and that
-  the page and translations are packaged.
+- Source transformation and EN/UK/RU label insertion have local regression
+  coverage. The current regression check does not execute C or browser behavior.
+- [Build 265](evidence/WR1200JS-BUILD265.md) proves compilation of the new HTTP
+  endpoint and packaging of the page and dictionary title keys. Full rendering
+  and refresh behavior remain unverified on a device.
 - Module loading, daemon operation, export, connection, data transfer, and
   persistence still require physical-router validation.
