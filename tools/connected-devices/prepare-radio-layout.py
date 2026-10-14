@@ -33,7 +33,7 @@ code += r"""
 #define BOARD_WR1200JS 1
 #define IFNAME_2G_MAIN "ra0"
 #define IFNAME_5G_MAIN "rai0"
-static int radio_disabled[2], radio_fail, radio_calls;
+static int radio_disabled[2], radio_fail, radio_calls, radio_live_shape;
 static int nvram_match(const char *key,const char *value) {
  assert(!strcmp(value,"0"));
  if(!strcmp(key,"rt_radio_x")) return radio_disabled[0];
@@ -48,7 +48,19 @@ static int wl_ioctl(const char *name,int cmd,struct iwreq *request) {
  assert(!strcmp(name,IFNAME_2G_MAIN)||!strcmp(name,IFNAME_5G_MAIN));
  assert(cmd==RTPRIV_IOCTL_GET_MAC_TABLE_STRUCT);
  assert(table->Num==ULONG_MAX && request->u.data.length==sizeof(struct wr_radio_wire_table));
- radio_calls++; if(radio_fail)return -1;
+ radio_calls++; if(radio_fail==1 || (radio_fail==2 && !strcmp(name,IFNAME_5G_MAIN)))return -1;
+ if(radio_live_shape){
+  unsigned int i;
+  int first=!strcmp(name,IFNAME_2G_MAIN);
+  request->u.data.length=offsetof(struct wr_radio_wire_table,Entry)+(first?58:64)*sizeof(table->Entry[0]);
+  if(first && radio_live_shape==2)request->u.data.length--;
+  table->Num=first?0:3;
+  for(i=0;i<table->Num;i++){
+   table->Entry[i].Addr[0]=2;table->Entry[i].Addr[5]=(unsigned char)(i+1);
+   table->Entry[i].AvgRssi0=-65;table->Entry[i].AvgRssi1=-50;
+  }
+  return 0;
+ }
  request->u.data.length=sizeof(*table);
  table->Num=1;table->Entry[0].Addr[0]=2;table->Entry[0].Addr[5]=9;
  table->Entry[0].AvgRssi0=-65;table->Entry[0].AvgRssi1=-50;
@@ -152,6 +164,26 @@ int main(void) {
   radio_calls=0;radio_disabled[1]=1;
   assert(wr_device_collect_radio(&snapshot));
   assert(radio_calls==0 && snapshot.records[0].radio.band_mask==0);
+ }
+ {
+  static struct wr_device_snapshot snapshot,before;
+  unsigned int i;
+  radio_disabled[0]=radio_disabled[1]=0;radio_calls=0;radio_live_shape=1;
+  snapshot.count=19;
+  for(i=0;i<snapshot.count;i++){
+   snprintf(snapshot.records[i].mac,sizeof(snapshot.records[i].mac),"02:00:00:00:00:%02X",i+1);
+   strcpy(snapshot.records[i].name,"preserved-networkmap-name");
+  }
+  assert(wr_device_collect_radio(&snapshot));
+  assert(radio_calls==2 && snapshot.count==19);
+  for(i=0;i<snapshot.count;i++){
+   assert(snapshot.records[i].radio.band_mask==(i<3?2U:0U));
+   assert(!strcmp(snapshot.records[i].name,"preserved-networkmap-name"));
+  }
+  before=snapshot;radio_fail=2;
+  assert(!wr_device_collect_radio(&snapshot));assert(!memcmp(&snapshot,&before,sizeof(snapshot)));
+  radio_fail=0;radio_live_shape=2;
+  assert(!wr_device_collect_radio(&snapshot));assert(!memcmp(&snapshot,&before,sizeof(snapshot)));
  }
  return 0;
 }
