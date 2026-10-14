@@ -243,6 +243,7 @@ jobs:
           python3 tools/connected-devices/check-prepare-ui.py source
           python3 tools/connected-devices/check-radio-source.py source
           python3 tools/connected-devices/check-kick-source.py source
+          python3 tools/band-steering/check-quiet-status-log.py source
           python3 tools/connected-devices/check-rssi-adapter.py source abi-results/rssi-adapter-source
           python3 tools/connected-devices/check-rssi-decision.py source abi-results/rssi-decision-source
           python3 tools/connected-devices/check-rssi-identity.py source abi-results/rssi-identity-source
