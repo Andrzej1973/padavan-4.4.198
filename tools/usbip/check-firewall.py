@@ -32,8 +32,8 @@ with tempfile.TemporaryDirectory(prefix='wr-usbip-policy-') as directory:
     assert invoke('wr_usbip_policy_apply').returncode == 0
     rules = capture.read_text().splitlines()
     assert rules == ['*filter', ':WRUSBIP_INPUT - [0:0]',
-                     '-A WRUSBIP_INPUT -i lo -p tcp --dport 3240 -j ACCEPT',
-                     '-A WRUSBIP_INPUT -i br0 -p tcp --dport 3240 -j ACCEPT',
+                     '-A WRUSBIP_INPUT -i lo -p tcp --dport 3240 -j RETURN',
+                     '-A WRUSBIP_INPUT -i br0 -p tcp --dport 3240 -j RETURN',
                      '-A WRUSBIP_INPUT -p tcp --dport 3240 -j DROP',
                      '-A WRUSBIP_INPUT -j RETURN',
                      '-I INPUT 1 -j WRUSBIP_INPUT','COMMIT']

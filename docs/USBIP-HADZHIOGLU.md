@@ -92,8 +92,8 @@ remain required work; the current observation panel does not fulfill them.
 
 `tools/usbip/firewall-policy.sh` is an uninstalled component for the managed
 IPv4 daemon. It owns `WRUSBIP_INPUT`, installs a first INPUT hook atomically
-through `iptables-restore --noflush`, accepts TCP 3240 on loopback and the
-validated LAN interface, and drops that port on other interfaces. Other traffic
+through `iptables-restore --noflush`, returns TCP 3240 on loopback and the
+validated LAN interface to the existing policy, and drops that port on other interfaces. Other traffic
 returns to the original policy. It must be applied before `usbipd -4` starts
 and removed only after confirmed stop; retaining an empty owned chain avoids
 deleting references from other tools. VPN access is not implicitly granted.
@@ -112,6 +112,17 @@ Its isolated fixture replaces process paths and signal delivery; tests cannot
 establish real process races, USB behavior or netfilter behavior. Packaging,
 boot/persistent configuration, firewall rebuild ordering and authenticated UI
 actions remain open.
+
+Firewall rebuild integration now uses `tools/usbip/prepare-firewall.py` when
+USB/IP is selected. All four stock IPv4/IPv6 normal/default filter generators
+declare `WRUSBIP_BASE` and emit its INPUT hook before established-connection
+acceptance. LAN and loopback return to the stock rules, preserving MAC policy;
+other interfaces drop TCP 3240 even when the global firewall is disabled.
+Invalid LAN names fail closed for non-loopback traffic. The chain and hook are
+committed with the complete filter table, avoiding a post-restore exposure gap.
+Local transformation of the actual baseline passed; native emitter CI and the
+next complete firmware build must pass before claiming compilation/packaging.
+Persistent enable settings, boot actions and managed UI are still absent.
 
 [CI 38639330507](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38639330507)
 passed at `33c5d91a0a67047256274f2809d391920a5d34a0`: shell syntax,

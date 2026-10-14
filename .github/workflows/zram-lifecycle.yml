@@ -53,6 +53,9 @@ jobs:
           python3 tools/usbip/check-firewall.py
           sh -n tools/usbip/service.sh
           python3 tools/usbip/check-service.py
+          python3 tools/usbip/prepare-firewall-check.py --output checks/usbip-firewall.c
+          gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined checks/usbip-firewall.c -o checks/usbip-firewall
+          ASAN_OPTIONS=detect_leaks=1 checks/usbip-firewall
           python3 tools/check-usbip-status.py
           python3 tools/prepare-usbip-status-check.py --output checks/usbip-status.c
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined checks/usbip-status.c -o checks/usbip-status

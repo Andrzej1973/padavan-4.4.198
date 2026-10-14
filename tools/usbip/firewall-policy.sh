@@ -19,8 +19,8 @@ wr_usbip_policy_apply()
     test "$wr_usbip_hooks" -le 32 || return 1
     {
         printf '*filter\n:WRUSBIP_INPUT - [0:0]\n'
-        printf '%s\n' '-A WRUSBIP_INPUT -i lo -p tcp --dport 3240 -j ACCEPT'
-        printf '%s\n' "-A WRUSBIP_INPUT -i $wr_usbip_lan -p tcp --dport 3240 -j ACCEPT"
+        printf '%s\n' '-A WRUSBIP_INPUT -i lo -p tcp --dport 3240 -j RETURN'
+        printf '%s\n' "-A WRUSBIP_INPUT -i $wr_usbip_lan -p tcp --dport 3240 -j RETURN"
         printf '%s\n' '-A WRUSBIP_INPUT -p tcp --dport 3240 -j DROP'
         printf '%s\n' '-A WRUSBIP_INPUT -j RETURN'
         while test "$wr_usbip_hooks" -gt 0; do

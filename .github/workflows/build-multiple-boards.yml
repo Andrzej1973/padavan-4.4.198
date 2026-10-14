@@ -66,6 +66,7 @@ on:
       - 'tools/prepare-dns-process-status.py'
       - 'tools/prepare-mt76x2-file-read.py'
       - 'tools/prepare-usbip-status.py'
+      - 'tools/usbip/prepare-firewall.py'
       - 'tools/check-usbip-status.py'
       - 'tools/doh-instance-status.h'
       - 'tools/doh-instance-view.js'

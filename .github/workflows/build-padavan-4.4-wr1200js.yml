@@ -112,6 +112,7 @@ jobs:
             padavan-4.4/trunk/linux-4.4.x/tools/usb/usbip/src/
           python3 overlay/padavan-4.4/scripts/add-usbip.py padavan-4.4
           python3 tools/prepare-usbip-status.py padavan-4.4 --config configs.build/wr1200js.config
+          python3 tools/usbip/prepare-firewall.py padavan-4.4 --config configs.build/wr1200js.config
           cp overlay/padavan-4.4/trunk/linux-4.4.x/tools/usb/usbip/libsrc/usbip_common.c \
             padavan-4.4/trunk/linux-4.4.x/tools/usb/usbip/libsrc/usbip_common.c
           python3 overlay/padavan-4.4/scripts/add-amneziawg.py padavan-4.4 amnezia-source
