@@ -2,6 +2,12 @@
 
 Padavan firmware for **YOUHUA WR1200JS**, based on [vipshmily/padavan-4.4](https://github.com/vipshmily/padavan-4.4/tree/c25283e915a2a00a763774dd255b14aff997285e), with selected components from [nilabsent/padavan-ng](https://github.com/nilabsent/padavan-ng). Original project: [Padavan / rt-n56u](https://bitbucket.org/padavan/rt-n56u).
 
+## Working on this repository
+
+Start with [docs/AGENT-BOOTSTRAP.md](docs/AGENT-BOOTSTRAP.md). It records the
+approved goal, the agent roles, the current verified and unverified state, the
+environment quirks of the development machine and the first checks to run.
+
 ## Selected packages and features
 
 The [WR1200JS configuration](configs.build/wr1200js.config) enables:
