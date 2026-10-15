@@ -73,6 +73,8 @@ on:
       - 'tools/usbip/inventory.inc'
       - 'tools/usbip/service.sh'
       - 'tools/usbip/firewall-policy.sh'
+      - 'tools/usbip/device-policy.sh'
+      - 'tools/usbip/device-action.sh'
       - 'tools/check-usbip-status.py'
       - 'tools/doh-instance-status.h'
       - 'tools/doh-instance-view.js'

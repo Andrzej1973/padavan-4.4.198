@@ -1,6 +1,6 @@
 #!/bin/sh
 # Manual controller: boot/persistent enable and WebUI are not connected yet.
-# No USB bind/unbind, automatic exports, NVRAM writes or force-kill fallback.
+# Explicit guarded bind/unbind only; no automatic exports, NVRAM writes or force-kill fallback.
 set -eu
 umask 077
 daemon=/sbin/usbipd
@@ -71,13 +71,23 @@ stop_service()
     fi
     wr_usbip_policy_remove
 }
-test "$#" -eq 1 || exit 2
-case "$1" in start|stop|restart|status|reconcile) ;; *) exit 2;; esac
+test "$#" -gt 0 || exit 2
+case "$1" in
+    bind|unbind) test "$#" -eq 4 || exit 2;;
+    start|stop|restart|status|reconcile) test "$#" -eq 1 || exit 2;;
+    *) exit 2;;
+esac
 test -r "$policy" || { fail 'Policy unavailable'; exit 1; }
 . "$policy"
 exec 9>"$lock"
 flock -x -n 9 || { fail 'Lifecycle busy'; exit 1; }
 case "$1" in
+    bind|unbind)
+        test -r /usr/libexec/wr-usbip/device-policy.sh &&
+        test -r /usr/libexec/wr-usbip/device-action.sh || exit 1
+        . /usr/libexec/wr-usbip/device-policy.sh
+        . /usr/libexec/wr-usbip/device-action.sh
+        wr_usbip_device_action "$@" || { fail 'Device action failed or unconfirmed'; exit 1; };;
     start) start_service;;
     stop) stop_service;;
     restart) stop_service && start_service;;

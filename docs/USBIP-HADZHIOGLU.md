@@ -220,6 +220,23 @@ atomic guarantee against hotplug or newly opened/mounted devices. The future
 action must hold the lifecycle lock, verify the owned daemon, recheck device
 identity and expose results through the authenticated mutation path.
 
+The next controller increment packages the preflight and `device-action.sh`.
+Manual syntax is `wr-usbip bind BUSID VENDOR PRODUCT` or `wr-usbip unbind BUSID
+VENDOR PRODUCT`, using the observed bus ID and four-digit hexadecimal vendor
+and product IDs. It holds the existing lifecycle lock, requires an owned daemon
+for bind, runs preflight, checks identity before and after execution, passes
+arguments directly to `/sbin/usbip`, and observes the resulting driver binding.
+Unbind additionally requires `usbip_status=1` (available), refusing used/error/
+unknown states. The pinned kernel UAPI defines available=1 and used=2; the
+pinned bind implementation accepts `-b`. Descriptor 9 is closed in the child.
+No automatic re-export or WebUI mutation handler has been added. Hotplug,
+new mounts/opens and a client connecting between checks remain physical race
+limitations; identity checks and preflight are not an atomic kernel lock.
+Fixture compilation passed locally; Linux action fixture and full packaging
+of this increment are pending. No device action was performed on the router.
+
+The preflight Linux fixture passed in service run 38743018133 at `dab0502`.
+
 [CI 38639330507](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38639330507)
 passed at `33c5d91a0a67047256274f2809d391920a5d34a0`: shell syntax,
 isolated lifecycle/policy checks and the existing service checks. The daemon
