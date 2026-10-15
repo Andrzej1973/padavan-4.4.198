@@ -269,6 +269,15 @@ read-only query answered `slot absent 0`. A local fixture run of
 `integrate-eoip.py` produced the package with the worker, the Makefile targets
 and a complete quoted-include closure.
 
+The first full firmware build with the packaged worker (288, at the previous
+commit) failed on the target toolchain: the uClibc sysroot's
+`linux/if_tunnel.h` expects `IFNAMSIZ` and `struct iphdr` to have been included
+by the translation unit. `net/if.h` and `linux/ip.h` now precede that header in
+`observation.h`, and `configure.h` takes `IFF_UP` from `net/if.h`. Full build 289
+(commit `cc140d3`) completed successfully, so `eoip-service` compiles for
+MIPS/uClibc and is packaged into the firmware. This is compilation evidence
+only: no EoIP interface has been created on any router.
+
 ## Required next work
 
 Implement owned-interface start/stop and cleanup, safe disabled defaults,
