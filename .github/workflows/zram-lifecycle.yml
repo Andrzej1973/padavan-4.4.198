@@ -98,6 +98,7 @@ jobs:
           cp tools/eoip/config.h tools/eoip/table.h tools/eoip/settings.h tools/eoip/runtime-state.h checks/eoip-http/wr-eoip/
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined -Itools/eoip -Ichecks/eoip-http tools/eoip/check-http-settings.c -o checks/eoip-http-settings
           ASAN_OPTIONS=detect_leaks=1 checks/eoip-http-settings
+          ASAN_OPTIONS=detect_leaks=1 python3 tools/eoip/check-http-json.py checks/eoip-http-settings
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined tools/eoip/check-status-runtime.c -o checks/eoip-status-runtime
           ASAN_OPTIONS=detect_leaks=1 timeout 10s checks/eoip-status-runtime
           ASAN_OPTIONS=detect_leaks=1 timeout 15s checks/eoip-worker

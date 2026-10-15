@@ -280,6 +280,15 @@ only: no EoIP interface has been created on any router.
 
 ## Required next work
 
+HTTP fixture coverage follow-up: the GET snapshot is now captured from the real
+serializer and parsed by Python's JSON decoder, checking all eight slots and
+quote/backslash round trips independently of C substring checks. Request-input
+tests now include truncated and malformed percent escapes, short bodies,
+embedded NUL and an accepted well-formed escape. CGI decoding and storage are
+still mocked; this does not establish a real authenticated browser exchange.
+These expanded tests await CI. No production behavior or router setting was
+changed by this test increment.
+
 Guide follow-up: the generated EoIP instructions now explain the actual editor
 route, independent slot enable/autostart behavior, confirmation, all-table
 recreation, RAM vs explicit flash save, manual observation refresh, independent
