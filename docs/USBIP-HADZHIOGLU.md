@@ -237,6 +237,22 @@ of this increment are pending. No device action was performed on the router.
 
 The preflight Linux fixture passed in service run 38743018133 at `dab0502`.
 
+`tools/usbip/job-worker.h` is an uninstalled candidate asynchronous executor.
+It validates action/identity arguments, requires a private owned directory,
+acquires one nonblocking job lock, assigns a random 128-bit job ID and atomically
+publishes a running record. A forked supervisor detaches, resets signals,
+redirects stdio, closes inherited descriptors (retaining only the job lock),
+and executes the controller in a separate child with direct argv. The command
+does not inherit the job lock. The supervisor records controller exit status
+and retains its lock until the command is reaped. The caller must reap the
+supervisor asynchronously; no HTTP request should wait for the command.
+There is no forced cancellation of a possibly blocked kernel USB operation.
+Old running records must be presented as unconfirmed; failed publication must
+not be inferred as success. HTTP registration, CSRF/session gates, result
+reading/age validation and UI actions remain unfinished. The native fixture
+uses a release-file barrier, checks lock exclusion and FD closure, and is
+scheduled under ASan/UBSan with a 15-second CI watchdog. Results are pending.
+
 [CI 38639330507](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38639330507)
 passed at `33c5d91a0a67047256274f2809d391920a5d34a0`: shell syntax,
 isolated lifecycle/policy checks and the existing service checks. The daemon

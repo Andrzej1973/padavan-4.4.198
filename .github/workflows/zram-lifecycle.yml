@@ -57,6 +57,8 @@ jobs:
           python3 tools/usbip/check-device-policy.py
           sh -n tools/usbip/device-action.sh
           python3 tools/usbip/check-device-action.py
+          gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined tools/usbip/check-job-worker.c -o checks/usbip-job-worker
+          ASAN_OPTIONS=detect_leaks=1 timeout 15s checks/usbip-job-worker
           python3 tools/usbip/check-web.py
           python3 tools/usbip/check-inventory.py --output checks/usbip-inventory.c
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined checks/usbip-inventory.c -o checks/usbip-inventory
