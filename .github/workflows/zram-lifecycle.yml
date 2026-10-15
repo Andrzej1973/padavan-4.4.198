@@ -88,6 +88,8 @@ jobs:
           node tools/eoip/check-status-view.js
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined tools/eoip/check-settings.c -o checks/eoip-settings
           ASAN_OPTIONS=detect_leaks=1 checks/eoip-settings
+          gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined tools/eoip/check-stored.c -o checks/eoip-stored
+          ASAN_OPTIONS=detect_leaks=1 checks/eoip-stored
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined tools/eoip/check-status-runtime.c -o checks/eoip-status-runtime
           ASAN_OPTIONS=detect_leaks=1 timeout 10s checks/eoip-status-runtime
           ASAN_OPTIONS=detect_leaks=1 timeout 15s checks/eoip-worker

@@ -280,6 +280,21 @@ only: no EoIP interface has been created on any router.
 
 ## Required next work
 
+Locked snapshot candidate: `tools/eoip/stored.h` adds a callback-based stored
+boot/Apply adapter. It holds operation-lock while copying all NVRAM fields and
+executing the complete table command, so a settings writer using that same
+lock cannot interleave. Each returned NVRAM pointer is copied before the next
+read. Disabled boot returns before creating runtime files; disabled Apply uses
+profile-independent stop-table. Lock contention refuses rather than reading a
+partial profile. This helper is not yet installed or connected to libshared;
+the existing shell reader remains in the image until the target adapter is
+integrated and verified. Module loading and target adapter linkage must be
+preserved when that replacement is made.
+
+The new native fixture checks that every profile read sees operation-lock
+held, uses a deliberately reused getter buffer, checks disabled behavior and
+contention, and invokes no network mutation. Execution is pending CI.
+
 Settings transaction candidate: `tools/eoip/settings.h` builds an allowlisted
 plan of 73 EoIP keys from a complete form snapshot, validates enabled profiles
 and tuple uniqueness before writes, bounds values and rejects control bytes.
