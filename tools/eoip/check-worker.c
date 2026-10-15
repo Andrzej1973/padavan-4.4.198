@@ -82,6 +82,7 @@ static int mock_talk(void *context, const void *request, size_t length, uint32_t
 {
     const unsigned char *bytes = request;
     const struct rtattr *attribute, *linkinfo, *kind, *data;
+    const struct rtattr *local_attr, *remote_attr, *keepalive_attr, *retries_attr;
     const unsigned char *payload, *children;
     struct nlmsghdr header;
     struct ifinfomsg info;
@@ -112,11 +113,22 @@ static int mock_talk(void *context, const void *request, size_t length, uint32_t
         assert(kind && !strcmp((const char *)kind + RTA_LENGTH(0), "eoip"));
         data = attr_find(children, children_length, IFLA_INFO_DATA);
         assert(data);
+        children = (const unsigned char *)data + RTA_LENGTH(0);
+        children_length = data->rta_len - RTA_LENGTH(0);
+        local_attr = attr_find(children, children_length, IFLA_GRE_LOCAL);
+        remote_attr = attr_find(children, children_length, IFLA_GRE_REMOTE);
+        keepalive_attr = attr_find(children, children_length, WR_EOIP_KA_INTERVAL_ATTR);
+        retries_attr = attr_find(children, children_length, WR_EOIP_KA_RETRIES_ATTR);
+        assert(local_attr && remote_attr && keepalive_attr && retries_attr);
         links[0].present = 1;
         links[0].index = 42;
         links[0].flags = 0;
-        links[0].tunnel_id = attr_u32(attr_find((const unsigned char *)data + RTA_LENGTH(0),
-                                                data->rta_len - RTA_LENGTH(0), IFLA_GRE_IKEY));
+        links[0].tunnel_id = attr_u32(attr_find(children, children_length, IFLA_GRE_IKEY));
+        memcpy(&links[0].local, (const unsigned char *)local_attr + RTA_LENGTH(0), 4);
+        memcpy(&links[0].remote, (const unsigned char *)remote_attr + RTA_LENGTH(0), 4);
+        links[0].keepalive = attr_u32(keepalive_attr);
+        links[0].retries = 0;
+        memcpy(&links[0].retries, (const unsigned char *)retries_attr + RTA_LENGTH(0), 1);
         return 0;
     }
     attribute = attr_find(payload, payload_length, IFLA_MTU);
