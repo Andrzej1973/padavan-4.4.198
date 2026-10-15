@@ -62,6 +62,7 @@ jobs:
           python3 tools/usbip/check-http-actions.py --output checks/usbip-http-actions.c
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined checks/usbip-http-actions.c -o checks/usbip-http-actions
           ASAN_OPTIONS=detect_leaks=1 checks/usbip-http-actions
+          node tools/usbip/check-action-view.js
           python3 tools/usbip/check-web.py
           python3 tools/usbip/check-inventory.py --output checks/usbip-inventory.c
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined checks/usbip-inventory.c -o checks/usbip-inventory

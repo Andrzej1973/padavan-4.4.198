@@ -277,6 +277,21 @@ execution separately from the real worker fixture. Source transformation and
 fixture generation passed locally; HTTP fixture CI and full compilation are
 pending. Device buttons/confirmation/result rendering have not been added yet.
 
+The next UI increment adds a selection populated only from validated inventory,
+explicit driver-change acknowledgement, bind/unbind buttons, and manual result
+checking. Inventory refresh clears the prior selection; submission requires
+data no older than 30 seconds and a token. Bind additionally requires an
+observed running daemon. Each action resets acknowledgement and permits only
+one local submission. Accepted jobs are polled every two seconds while visible
+for up to 60 seconds; failures, mismatched IDs and timeouts become unconfirmed,
+with no automatic re-submission. Manual checking can resume observation.
+Completion refreshes inventory/process facts and explicitly does not claim a
+USB transfer. All new strings have EN/UK/RU entries. Local baseline page
+transformation, Python/JS syntax and the mocked Node action-view fixture passed.
+The fixture covers stale selection, daemon state, confirmation, POST payload,
+single flight, mismatched/valid results and transport timeout. Browser rendering,
+full compilation and real device action remain unverified for this increment.
+
 [CI 38639330507](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38639330507)
 passed at `33c5d91a0a67047256274f2809d391920a5d34a0`: shell syntax,
 isolated lifecycle/policy checks and the existing service checks. The daemon
