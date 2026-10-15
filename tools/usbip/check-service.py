@@ -16,7 +16,7 @@ with tempfile.TemporaryDirectory(prefix='wr-usbip-service-') as directory:
 wr_usbip_policy_remove() { echo remove-policy >> "$EVENTS"; }
 ''')
     commands={
-        'nvram':'echo br0\n',
+        'nvram':'if test "$2" = usbip_enable; then echo "${ENABLE:-0}"; else echo br0; fi\n',
         'logger':'echo "log:$*" >> "$EVENTS"\n',
         'modprobe':'echo "module:$*" >> "$EVENTS"\ntest "${FAIL_MODULE:-0}" = 0\n',
         'sleep':':\n',
@@ -67,4 +67,8 @@ rm "$PID"
     (proc/'999/exe').unlink();(proc/'999').rmdir()
     rc,trace=run('restart');assert rc==0 and trace.index('remove-policy')<trace.index('policy:')
     assert run('stop')[0]==0
+    rc,trace=run('reconcile',ENABLE='1');assert rc==0 and 'daemon:' in trace
+    rc,trace=run('reconcile',ENABLE='1');assert rc==0 and trace==''
+    rc,trace=run('reconcile',ENABLE='0',STOP_TIMEOUT='1');assert rc and 'remove-policy' not in trace
+    rc,trace=run('reconcile',ENABLE='0');assert rc==0 and 'signal:' in trace
 print('PASS USB/IP lifecycle: ownership, policy ordering, failed starts, stop timeout and restart guard')

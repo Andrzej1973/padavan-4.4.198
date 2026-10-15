@@ -72,7 +72,7 @@ stop_service()
     wr_usbip_policy_remove
 }
 test "$#" -eq 1 || exit 2
-case "$1" in start|stop|restart|status) ;; *) exit 2;; esac
+case "$1" in start|stop|restart|status|reconcile) ;; *) exit 2;; esac
 test -r "$policy" || { fail 'Policy unavailable'; exit 1; }
 . "$policy"
 exec 9>"$lock"
@@ -81,5 +81,12 @@ case "$1" in
     start) start_service;;
     stop) stop_service;;
     restart) stop_service && start_service;;
+    reconcile)
+        if test "$(nvram get usbip_enable)" = 1; then
+            snapshot || exit 1
+            if test -z "$owned_pid"; then start_service; fi
+        else
+            stop_service
+        fi;;
     status) snapshot && test -n "$owned_pid";;
 esac

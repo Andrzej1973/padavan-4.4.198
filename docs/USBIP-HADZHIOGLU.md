@@ -162,6 +162,19 @@ The transformation passed locally against baseline C/ASP with fixture
 dictionaries; Python compilation passed. Full compilation, browser Apply,
 authentication behavior, data transfer and reboot persistence remain unverified.
 
+Correction after full run 38740589879: preparation rejected bit 55 because the
+ZRAM patch already reserves it; Stubby uses the last remaining bit 56. No
+firmware was produced by that run. USB/IP now uses `EVM_RESTART_SPOOLER`, the
+existing USB-service Apply transaction, with a 25-second wait estimate. Its RC
+handler calls `wr-usbip reconcile`: enabled and already owned means no restart;
+enabled and stopped starts; disabled stops. Ownership failures remain errors.
+The existing printer-spooler refresh also runs for a USB/IP setting change;
+this is an explicit shared-event dependency, not an independent USB/IP event.
+No ZRAM, Stubby or ZeroTier event is changed. A source fixture covers a disabled
+profile, preservation of an occupied bit, labels, event wiring, and duplicate
+rejection. The Linux lifecycle fixture additionally checks reconciliation and
+stop timeout. These checks do not establish physical USB behavior.
+
 [CI 38639330507](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38639330507)
 passed at `33c5d91a0a67047256274f2809d391920a5d34a0`: shell syntax,
 isolated lifecycle/policy checks and the existing service checks. The daemon

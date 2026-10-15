@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Wire USB/IP into the existing authenticated General Apply path."""
 import argparse
-import re
 from pathlib import Path
+import re
 
 p = argparse.ArgumentParser()
 p.add_argument('source', type=Path)
@@ -20,28 +20,22 @@ def insert(name, anchor, addition):
         raise SystemExit('USB/IP Apply anchor changed: ' + name)
     pending[path] = text.replace(anchor, addition + anchor)
 
-common = (root / 'httpd/common.h').read_text()
-if 'EVM_RESTART_USBIP' in common or re.search(r'1ULL\s*<<\s*55\s*\)', common):
-    raise SystemExit('USB/IP event bit 55 already occupied')
-insert('httpd/common.h', '#define EVM_RESTART_FIREWALL',
-       '#define EVM_RESTART_USBIP (1ULL << 55)\n#define EVT_RESTART_USBIP 25\n\n')
-insert('shared/notify_rc.h', '#define RCN_RESTART_IPERF3',
-       '#define RCN_RESTART_USBIP "restart_usbip"\n')
+# The complete profile uses all 64 event bits, including ZRAM and Stubby.
+# Share the existing USB service transaction instead of allocating a collision.
+path = root / 'httpd/common.h'
+common, count = re.subn(r'(^#define\s+EVT_RESTART_SPOOLER\s+)1$', r'\g<1>25', path.read_text(), flags=re.M)
+if count != 1:
+    raise SystemExit('USB/IP USB service wait anchor changed')
+pending[path] = common
 insert('httpd/variables.c', '\t\t\t{"iperf3_enable", "", NULL, EVM_RESTART_IPERF3},',
        '#endif\n#if defined(APP_USBIP)\n'
-       '\t\t\t{"usbip_enable", "", NULL, EVM_RESTART_USBIP},\n'
+       '\t\t\t{"usbip_enable", "", NULL, EVM_RESTART_SPOOLER},\n'
        '#endif\n#if defined(APP_IPERF3)\n')
-insert('httpd/variables.c', '\t\t{EVM_RESTART_IPERF3,',
-       '#endif\n#if defined(APP_USBIP)\n'
-       '\t\t{EVM_RESTART_USBIP, EVT_RESTART_USBIP, RCN_RESTART_USBIP, 0},\n'
-       '#endif\n#if defined(APP_IPERF3)\n')
-insert('rc/rc.c', '#if defined(APP_IPERF3)\n\t\telse if',
+insert('rc/rc.c', '\t\t\trestart_usb_printer_spoolers();',
        '#if defined(APP_USBIP)\n'
-       '\t\telse if (strcmp(entry->d_name, RCN_RESTART_USBIP) == 0)\n'
-       '\t\t{\n'
-       '\t\t\tif (eval("/usr/sbin/wr-usbip", nvram_match("usbip_enable", "1") ? "restart" : "stop") != 0)\n'
+       '\t\t\tif (eval("/usr/sbin/wr-usbip", "reconcile") != 0)\n'
        '\t\t\t\tlogmessage("USB/IP", "Apply failed; inspect service state and wr-usbip log");\n'
-       '\t\t}\n#endif\n')
+       '#endif\n')
 page = 'www/n56u_ribbon_fixed/Advanced_Printer_others.asp'
 insert(page, '                                        <tr><th><#WRUSBIPCore#>',
        '''                                        <tr><th><#WRUSBIPEnable#></th><td>
