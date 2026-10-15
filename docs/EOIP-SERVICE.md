@@ -280,6 +280,19 @@ only: no EoIP interface has been created on any router.
 
 ## Required next work
 
+Structured runtime observation: `eoip-service status-json` now returns schema 1
+with eight slot observations. States are `absent`, `unknown`, `foreign`, `up`
+or `down`; up/down are only the owned interface's IFF_UP flag. Owned observations
+include ifindex, MTU and master. No endpoint, alias, credentials or arbitrary
+kernel strings are emitted. A valid JSON response can contain unknown slots;
+successful serialization does not establish tunnel health, keepalive success,
+peer reachability or frame transfer. The read-only command bypasses operation
+locking and has no NVRAM/flash writes. Individual netlink queries are sequential,
+so this is not an atomic kernel snapshot. WebUI integration remains pending.
+The fixture includes owned-up and unknown serialization paths; its new version
+has not yet run. Service CI 38784060437 succeeded on `ca67932`; full build
+38784060440 was in progress when inspected. No device acceptance is claimed.
+
 Follow-up: disabled single-slot start now bypasses endpoint/MTU validation and
 uses only a validated slot and disabled flag for cleanup, matching the stop
 contract. Fixture coverage includes disabling a running slot with corrupt

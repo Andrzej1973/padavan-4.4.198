@@ -22,7 +22,7 @@
 
 #define WR_EOIP_WORKER_DIRECTORY "/var/run/wr-eoip"
 #define WR_EOIP_WORKER_PROFILE_FIELDS 10
-#define WR_EOIP_WORKER_MESSAGE 192
+#define WR_EOIP_WORKER_MESSAGE 2048
 
 /* 64 and above keep the codes clear of shell conventions. */
 enum wr_eoip_worker_result {
@@ -138,6 +138,43 @@ static int wr_eoip_worker_status(struct wr_eoip_worker *worker, unsigned slot,
     return WR_EOIP_WORKER_OK;
 }
 
+/* Structured observations for the WebUI. A successful JSON response means the
+ * observation was serialized, not that tunnels work or peers are reachable.
+ * Strings are fixed literals; no interface names, aliases or endpoints from
+ * the kernel/configuration are interpolated into JSON. */
+static int wr_eoip_worker_status_json(struct wr_eoip_worker *worker,
+                                     char *message, size_t size)
+{
+    unsigned slot;
+    size_t used = 0;
+    int n;
+    n = snprintf(message, size, "{\"schema\":1,\"slots\":[");
+    if (n < 0 || (size_t)n >= size) return WR_EOIP_WORKER_UNCONFIRMED;
+    used = (size_t)n;
+    for (slot = 0; slot < WR_EOIP_SLOTS; slot++) {
+        struct wr_eoip_observation observed;
+        int present = wr_eoip_controller_query(worker->transport, slot, &observed);
+        const char *state = present == 1 ? "absent" :
+            present != 2 ? "unknown" : !observed.owned ? "foreign" :
+            (observed.flags & 1U) ? "up" : "down";
+        if (present == 2 && observed.owned)
+            n = snprintf(message + used, size - used,
+                "%s{\"slot\":%u,\"state\":\"%s\",\"ifindex\":%d,\"mtu\":%u,\"master\":%u}",
+                slot ? "," : "", slot, state, observed.ifindex, observed.mtu, observed.master);
+        else
+            n = snprintf(message + used, size - used,
+                "%s{\"slot\":%u,\"state\":\"%s\"}", slot ? "," : "", slot, state);
+        if (n < 0 || (size_t)n >= size - used) goto truncated;
+        used += (size_t)n;
+    }
+    n = snprintf(message + used, size - used, "]}");
+    if (n < 0 || (size_t)n >= size - used) goto truncated;
+    return WR_EOIP_WORKER_OK;
+truncated:
+    wr_eoip_worker_report(message, size, "status output buffer too small", -1);
+    return WR_EOIP_WORKER_UNCONFIRMED;
+}
+
 /* Returns one of the wr_eoip_worker_result codes and never exits the process. */
 static int wr_eoip_worker_dispatch_unlocked(struct wr_eoip_worker *worker, int argc, char **argv,
                                    char *message, size_t size)
@@ -151,9 +188,13 @@ static int wr_eoip_worker_dispatch_unlocked(struct wr_eoip_worker *worker, int a
         wr_eoip_worker_report(message, size, "worker not configured", -1);
         return WR_EOIP_WORKER_USAGE;
     }
-    if (argc < 2 || !argv) {
+    if (argc < 2 || !argv || !argv[1]) {
         wr_eoip_worker_report(message, size, "usage: start|stop|status", -1);
         return WR_EOIP_WORKER_USAGE;
+    }
+    if (!strcmp(argv[1], "status-json")) {
+        if (argc != 2) return WR_EOIP_WORKER_USAGE;
+        return wr_eoip_worker_status_json(worker, message, size);
     }
     if (!strcmp(argv[1], "boot-table")) {
         struct wr_eoip_config profiles[WR_EOIP_SLOTS];

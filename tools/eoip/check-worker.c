@@ -154,6 +154,7 @@ int main(void)
     char *start[] = { "eoip-service", "start", "0", "1", "0", "0.0.0.0", "10.0.0.2", "7", "1458", "30", "3", "br0" };
     char *disable[] = { "eoip-service", "start", "0", "0", "0", "0.0.0.0", "10.0.0.2", "7", "1458", "30", "3", "br0" };
     char *status[] = { "eoip-service", "status", "0" };
+    char *status_json[] = { "eoip-service", "status-json" };
     char *stop[] = { "eoip-service", "stop", "0" };
     char *bad_slot[] = { "eoip-service", "stop", "9" };
 
@@ -216,6 +217,9 @@ int main(void)
     assert(links[0].mtu == 1458 && links[0].master == 9 && (links[0].flags & 1U));
     assert(wr_eoip_worker_dispatch(&worker, 3, status, message, sizeof(message)) == WR_EOIP_WORKER_OK);
     assert(strstr(message, "owned index 42") && strstr(message, "mtu 1458"));
+    assert(wr_eoip_worker_dispatch(&worker, 2, status_json, message, sizeof(message)) == WR_EOIP_WORKER_OK);
+    assert(strstr(message, "\"schema\":1") && strstr(message, "\"state\":\"up\""));
+    assert(strstr(message, "\"ifindex\":42") && !strstr(message, "10.0.0.2"));
 
     /* An existing managed interface is refused, not replaced. */
     assert(wr_eoip_worker_dispatch(&worker, 12, start, message, sizeof(message)) == WR_EOIP_WORKER_REFUSED);
@@ -235,6 +239,8 @@ int main(void)
     query_unknown = 1;
     assert(wr_eoip_worker_dispatch(&worker, 3, status, message, sizeof(message)) == WR_EOIP_WORKER_UNCONFIRMED);
     assert(strstr(message, "unknown"));
+    assert(wr_eoip_worker_dispatch(&worker, 2, status_json, message, sizeof(message)) == WR_EOIP_WORKER_OK);
+    assert(strstr(message, "\"state\":\"unknown\"") && !strstr(message, "\"ifindex\""));
     assert(wr_eoip_worker_dispatch(&worker, 3, stop, message, sizeof(message)) == WR_EOIP_WORKER_REFUSED);
     query_unknown = 0;
 
