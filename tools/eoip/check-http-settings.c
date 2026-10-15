@@ -29,9 +29,8 @@ static const char *websGetVar(FILE *stream, const char *key, const char *fallbac
 static char *nvram_get(const char *key)
 {
     struct wr_eoip_state contender = {.fd = -1};
-    assert(!strcmp(key, "eoip_enable"));
     assert(!wr_eoip_state_lock_named(directory, &contender, "operation-lock"));
-    return "1";
+    return !strcmp(key, "eoip_enable") ? "1" : "\"quoted\\value";
 }
 static int nvram_set(const char *key, const char *value)
 { assert(!strcmp(key, "eoip_enable") && !strcmp(value, "0")); writes++; return 0; }
@@ -53,6 +52,7 @@ int main(void)
     assert(out && mkdtemp(directory));
     strcpy(wr_eoip_csrf, "0123456789abcdef0123456789abcdef");
     assert(ej_wr_eoip_token(0, out, 0, NULL) > 0);
+    assert(ej_wr_eoip_settings(0, out, 0, NULL) > 0);
     wr_eoip_settings_output("", out); assert(!writes && !notified);
     wr_eoip_post_valid = 1; safe = 0;
     wr_eoip_settings_output("", out); assert(!writes); safe = 1;

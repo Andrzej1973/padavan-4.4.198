@@ -72,6 +72,49 @@ static int wr_eoip_settings_write_nvram(void *context, const char *key, const ch
     (void)context;
     return (value ? nvram_set(key, value) : nvram_unset(key)) == 0;
 }
+static int wr_eoip_json_string(webs_t stream, const char *value)
+{
+    int written = websWrite(stream, "\"");
+    const unsigned char *p = (const unsigned char *)value;
+    for (; *p; p++) {
+        if (*p == '"' || *p == '\\') written += websWrite(stream, "\\%c", *p);
+        else if (*p < 32) written += websWrite(stream, "\\u%04x", (unsigned)*p);
+        else written += websWrite(stream, "%c", *p);
+    }
+    return written + websWrite(stream, "\"");
+}
+static int ej_wr_eoip_settings(int eid, webs_t wp, int argc, char **argv)
+{
+    static const char *keys[9] = {"enable", "autostart", "local", "remote", "id", "mtu", "keepalive", "retries", "bridge"};
+    char values[73][48], key[32];
+    struct wr_eoip_state lock = {.fd = -1};
+    unsigned slot, field;
+    int exists, valid = 1, written;
+    (void)eid; (void)argv;
+    if (argc || !get_login_safe()) return websWrite(wp, "{\"error\":\"unsafe_request\"}");
+    if (!wr_eoip_state_lock_named(WR_EOIP_SETTINGS_DIRECTORY, &lock, "operation-lock"))
+        return websWrite(wp, "{\"error\":\"busy_or_unavailable\"}");
+    if (!wr_eoip_settings_read_nvram(NULL, "eoip_enable", values[0], sizeof(values[0]), &exists)) valid = 0;
+    else if (!exists) strcpy(values[0], "0");
+    for (slot = 0; slot < 8; slot++) for (field = 0; field < 9; field++) {
+        snprintf(key, sizeof(key), "eoip_slot%u_%s", slot, keys[field]);
+        if (!wr_eoip_settings_read_nvram(NULL, key, values[1 + slot*9 + field], 48, &exists)) valid = 0;
+    }
+    wr_eoip_state_unlock(&lock);
+    if (!valid) return websWrite(wp, "{\"error\":\"stored_settings_unavailable\"}");
+    written = websWrite(wp, "{\"schema\":1,\"master\":");
+    written += wr_eoip_json_string(wp, values[0]);
+    written += websWrite(wp, ",\"slots\":[");
+    for (slot = 0; slot < 8; slot++) {
+        written += websWrite(wp, "%s{\"slot\":%u", slot ? "," : "", slot);
+        for (field = 0; field < 9; field++) {
+            written += websWrite(wp, ",\"%s\":", keys[field]);
+            written += wr_eoip_json_string(wp, values[1 + slot*9 + field]);
+        }
+        written += websWrite(wp, "}");
+    }
+    return written + websWrite(wp, "]}");
+}
 static void wr_eoip_settings_output(const char *url, FILE *stream)
 {
     static const char *keys[9] = {"enable", "autostart", "local", "remote", "id", "mtu", "keepalive", "retries", "bridge"};

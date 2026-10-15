@@ -25,7 +25,7 @@ if 'wr_eoip_settings_output' in w or 'wr_eoip_request_is_post' in m:
 w = w.replace(anchor, (here / 'http-settings.inc').read_text() + '\n' + anchor)
 w = w.replace(route, '#if defined(BOARD_WR1200JS) && defined(APP_EOIP)\n'
     '\t{ "wr_eoip_settings.cgi*", "application/json", no_cache_IE, wr_eoip_settings_input, wr_eoip_settings_output, 1 },\n#endif\n' + route)
-w = w.replace(entry, entry + '\t{ "wr_eoip_token", ej_wr_eoip_token},\n')
+w = w.replace(entry, entry + '\t{ "wr_eoip_token", ej_wr_eoip_token},\n\t{ "wr_eoip_settings", ej_wr_eoip_settings},\n')
 declarations = ('\n#if defined(BOARD_WR1200JS) && defined(APP_EOIP)\n'
                 'static int wr_eoip_method_post;\n'
                 'int wr_eoip_request_is_post(void) { return wr_eoip_method_post; }\n#endif\n')

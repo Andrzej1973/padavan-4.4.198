@@ -5,10 +5,18 @@
 <title><#Web_Title#> - EoIP</title>
 <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
 <link rel="stylesheet" href="/bootstrap/css/main.css">
+<style>
+.wr-eoip-editor details {border-top:1px solid #ddd;padding:10px 0}
+.wr-eoip-editor summary {cursor:pointer;font-weight:bold}
+.wr-eoip-editor fieldset label {display:inline-block;vertical-align:top;width:45%;margin:8px 3% 0 0}
+.wr-eoip-editor fieldset input,.wr-eoip-editor fieldset select {display:block;max-width:95%}
+.wr-eoip-editor button {margin:4px 6px 4px 0}
+</style>
 <script src="/jquery.js"></script><script src="/state.js"></script>
 <script src="/general.js"></script><script src="/popup.js"></script>
 <script src="/help.js"></script><script src="/bootstrap/js/bootstrap.min.js"></script>
 <script src="/bootstrap/js/wr-eoip-status.js"></script>
+<script src="/bootstrap/js/wr-eoip-editor.js"></script>
 <script>
 var $j = jQuery.noConflict();
 <% login_state_hook(); %>
@@ -39,6 +47,18 @@ var wrEoIPRefresh = WREoIPStatus.refresher(wrEoIPLoad,function(rows){
 function initial() {
  show_banner(1); show_menu(5,7,2); show_footer();
  wrEoIPRefresh();
+ WREoIPEditor.mount(document.getElementById('wr_eoip_settings_editor'), {
+  slot:"<#WREOIPSlot#>",on:"<#checkbox_Yes#>",off:"<#checkbox_No#>",
+  masterEnable:"<#WREOIPMasterEnable#>",enable:"<#WREOIPEnable#>",autostart:"<#WREOIPAutostart#>",
+  local:"<#WREOIPLocal#>",remote:"<#WREOIPRemote#>",id:"<#WREOIPID#>",mtu:"MTU",
+  keepalive:"<#WREOIPKeepalive#>",retries:"<#WREOIPRetries#>",bridge:"<#WREOIPBridge#>",
+  confirm:"<#WREOIPConfirm#>",save:"<#WREOIPSave#>",disable:"<#WREOIPDisable#>",reload:"<#WREOIPReload#>",
+  unavailable:"<#WREOIPUnavailable#>",loading:"<#WREOIPLoading#>",loaded:"<#WREOIPLoaded#>",
+  saving:"<#WREOIPSaving#>",saved:"<#WREOIPSaved#>",rejected:"<#WREOIPRejected#>",uncertain:"<#WREOIPUncertain#>"
+ }, {
+  read:function(output){return $j.ajax({url:'/update.cgi',data:{output:output},dataType:'json',cache:false,timeout:5000});},
+  save:function(payload){return $j.ajax({url:'/wr_eoip_settings.cgi',type:'POST',data:payload,dataType:'json',cache:false,timeout:10000});}
+ });
 }
 </script></head>
 <body onload="initial();">
@@ -59,6 +79,8 @@ function initial() {
    <div id="wr_eoip_observed" role="status"><#WREOIPUnknown#></div>
    <button type="button" class="btn btn-primary" onclick="wrEoIPRefresh()"><#WREOIPRefresh#></button>
    <a class="btn" href="/Advanced_Services_Content.asp"><#WREOIPBack#></a>
+   <hr><h3><#WREOIPSettings#></h3>
+   <div id="wr_eoip_settings_editor"></div>
   </div></div>
  </div></div><div id="footer"></div>
 </div></body></html>

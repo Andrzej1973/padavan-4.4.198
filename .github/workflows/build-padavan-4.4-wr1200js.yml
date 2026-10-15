@@ -701,6 +701,7 @@ jobs:
             cmp ../tools/eoip/boot.sh trunk/romfs/usr/bin/wr-eoip-boot
             test -s trunk/romfs/www/Advanced_Services_EoIP.asp
             cmp ../tools/eoip/status-view.js trunk/romfs/www/bootstrap/js/wr-eoip-status.js
+            cmp ../tools/eoip/settings-editor.js trunk/romfs/www/bootstrap/js/wr-eoip-editor.js
             grep -q 'wr_eoip_status' trunk/romfs/www/Advanced_Services_EoIP.asp
             grep -q 'Advanced_Services_EoIP.asp' trunk/romfs/www/Advanced_Services_Content.asp
             grep -q '^WREOIPTitle=' trunk/romfs/www/UK.dict

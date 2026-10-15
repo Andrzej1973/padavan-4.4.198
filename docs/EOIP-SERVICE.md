@@ -280,6 +280,26 @@ only: no EoIP interface has been created on any router.
 
 ## Required next work
 
+Editable page increment: safe-session EJ output wr_eoip_settings snapshots all
+stored values under operation-lock and JSON-escapes them after releasing it.
+The page obtains a token, loads a validated eight-row snapshot, assigns values
+through DOM properties and shows collapsible per-slot controls plus a master
+switch. Save requires explicit confirmation, submits the full fixed-key table
+and distinguishes saved-in-RAM/Apply-requested from actual tunnel health.
+Disable submits only the master flag and remains available with a valid token
+even if stored profile loading failed. Failure to receive a response is shown
+as uncertain, with no automatic resubmission. Reloading stored values is manual.
+EN/UK/RU explanations cover autostart, endpoints, ID, keepalive, bridge, RAM
+versus flash persistence and potential EoIP disconnection during Apply.
+
+Local Node mocked-DOM/transport tests passed for schema, loading, confirmation,
+single-flight save, uncertain response and independent disable. Page preparation
+against pinned services/dictionaries succeeded, every WREOIP page key existed
+in EN/UK/RU, and inline JS syntax passed Node. CI 38788594497 passed the previous
+HTTP writer at df9c8d8. These new GET/editor changes still need CI, full target
+compilation, rendered browser review and device acceptance. No live router
+settings were changed, and no successful physical port is claimed.
+
 Authenticated settings integration: `prepare-settings.py` installs the
 safe-session route wr_eoip_settings.cgi with a bounded 12 KiB POST body,
 actual HTTP-method observation, a process-local random token and explicit
