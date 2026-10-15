@@ -35,7 +35,8 @@ path.write_text(text)
 package = root / "user/eoip-ctl"
 package.mkdir(exist_ok=True)
 helpers = Path(__file__).resolve().parents[3] / "tools/eoip"
-for name in ("observation.h", "netlink-query.h"):
+for name in ("observation.h", "netlink-query.h", "config.h", "configure.h",
+             "runtime-state.h", "lifecycle.h", "controller.h", "worker.c"):
     shutil.copyfile(helpers / name, package / name)
 for name in ("eoipcr.c", "libnetlink.c", "libnetlink.h", "eoip_version.h"):
     shutil.copyfile(assets / name, package / name)
@@ -43,14 +44,18 @@ for name in ("eoipcr.c", "libnetlink.c", "libnetlink.h", "eoip_version.h"):
 shutil.copyfile(assets / "unified/eoip_proto.h", package / "unified/eoip_proto.h")
 (package / "Makefile").write_text("""CFLAGS += -Os -std=gnu99 -ffunction-sections -fdata-sections -fno-strict-aliasing
 LDFLAGS += -Wl,--gc-sections
-all: eoip-ctl
+all: eoip-ctl eoip-service
 eoip-ctl: eoipcr.o libnetlink.o
 	$(CC) $(LDFLAGS) -o $@ $^
+eoip-service: worker.o
+	$(CC) $(LDFLAGS) -o $@ $^
+worker.o: worker.c controller.h configure.h lifecycle.h runtime-state.h config.h observation.h netlink-query.h
 eoipcr.o: netlink-query.h observation.h
 clean:
-	rm -f eoip-ctl eoipcr.o libnetlink.o
+	rm -f eoip-ctl eoip-service eoipcr.o libnetlink.o worker.o
 romfs:
 	$(ROMFSINST) eoip-ctl /usr/bin/eoip-ctl
+	$(ROMFSINST) eoip-service /usr/bin/eoip-service
 """)
 path = root / "user/Makefile"
 text = path.read_text()
@@ -58,4 +63,4 @@ anchor = "all: $(patsubst %,%_only,$(dir_y))"
 if text.count(anchor) != 1:
     raise SystemExit("User package list anchor changed")
 path.write_text(text.replace(anchor, "dir_$(CONFIG_FIRMWARE_INCLUDE_EOIP) += eoip-ctl\n\n" + anchor))
-print("EoIP IPv4 module and legacy CLI packaging integrated")
+print("EoIP IPv4 module, legacy CLI and managed-service worker packaging integrated")
