@@ -15,6 +15,7 @@ $(SRC_DIR)/Makefile: $(SRC_DIR)/configure
 		--host=$(HOST_TARGET) --build=$(HOST_BUILD)
 
 romfs:
+	mkdir -p $(ROMFSDIR)/usr/libexec/wr-usbip
 	$(ROMFSINST) -p +x $(SRC_DIR)/src/usbip /sbin/usbip
 	$(ROMFSINST) -p +x $(SRC_DIR)/src/usbipd /sbin/usbipd
 	$(ROMFSINST) -p +x service.sh /usr/sbin/wr-usbip

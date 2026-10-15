@@ -175,6 +175,14 @@ profile, preservation of an occupied bit, labels, event wiring, and duplicate
 rejection. The Linux lifecycle fixture additionally checks reconciliation and
 stop timeout. These checks do not establish physical USB behavior.
 
+Service CI 38741251046 passed at `55f2702`, including the new Apply fixture and
+reconciliation tests. Full run 38739882902 at the earlier `397ac99` failed
+during ROMFS installation: romfs-inst does not create the nested policy
+directory. The package now explicitly creates `$(ROMFSDIR)/usr/libexec/wr-usbip`
+before installation. Compilation/packaging of this correction remains pending.
+The generated model guide now documents the toggle, managed commands, LAN-only
+policy, shared printer event, and the unverified export/persistence boundaries.
+
 [CI 38639330507](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38639330507)
 passed at `33c5d91a0a67047256274f2809d391920a5d34a0`: shell syntax,
 isolated lifecycle/policy checks and the existing service checks. The daemon
