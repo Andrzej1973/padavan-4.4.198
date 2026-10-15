@@ -236,6 +236,39 @@ mutate an interface.
 
 Controller CI 38775647354 passed at `22b83b3`.
 
+## Service worker increment
+
+`tools/eoip/worker.c` is the service entry point: one command performs one
+complete action for one slot.
+
+- `start SLOT ENABLED AUTOSTART LOCAL REMOTE ID MTU KEEPALIVE RETRIES BRIDGE`
+  validates the profile with the configuration validator and then drives the
+  lifecycle. A profile whose ENABLED field is not 1 is not "started off": the
+  slot is stopped through the same verified cleanup path, so a half created
+  interface is never left behind.
+- `stop SLOT` performs cleanup only. It needs no endpoint, MTU or keepalive
+  field, so it still works after a stored profile became invalid.
+- `status SLOT` reports the observed state: absent, owned with index, MTU,
+  master and admin state, a name held by a foreign interface, or unknown.
+
+Result codes stay separated (usage 64, invalid profile 65, refused 66,
+unconfirmed 67, rolled back 68) so a caller can tell "did nothing" from "did
+something and could not confirm it". Messages carry no credentials.
+
+The transport is injected: the fixture drives every path with a mock transport
+while `main` supplies the socket transport and takes the state directory from
+`WR_EOIP_STATE_DIR`, defaulting to `/var/run/wr-eoip`. The integrated package now
+also builds the worker: `integrate-eoip.py` copies the validator, controller,
+lifecycle, runtime-record and observer headers, adds `eoip-service` to the
+package Makefile and installs it to `/usr/bin/eoip-service`.
+
+Service CI 38776427458 compiled and ran the fixture
+(`PASS EoIP worker: usage, profile validation, start, status, disable cleanup,
+foreign and unknown refusal`) and also built the standalone binary, whose real
+read-only query answered `slot absent 0`. A local fixture run of
+`integrate-eoip.py` produced the package with the worker, the Makefile targets
+and a complete quoted-include closure.
+
 ## Required next work
 
 Implement owned-interface start/stop and cleanup, safe disabled defaults,
