@@ -182,6 +182,13 @@ ENOENT/ENODEV відрізняються від unknown. Fixture включає 
 запити lo/відсутнього інтерфейсу на Linux CI runner, без мережевих змін.
 CI ще очікується; MIPS/роутер і lifecycle не перевірено. Далі — owned start/stop.
 
+Query CI 38752406828 успішний. Наявний eoip-ctl розширено owner-параметром:
+мітка IFLA_IFALIAS входить у той самий exclusive RTM_NEWLINK, що name/kind.
+Дозволено лише add IPv4 wr-eoip0..7 із відповідною міткою; set не може
+привласнити сторонній інтерфейс. Fixture перевіряє реальний CLI request із
+mock netlink, без створення інтерфейсів. Додано trigger full build для EoIP
+candidate source. CI/повна компіляція ще очікуються; далі owned stop/rollback.
+
 Локалізація успадкованих значень словників: 33 китайські значення в
 `trunk/user/www/dict/EN.footer` замінено англійськими, а `UK.dict` і `RU.dict`
 доповнено відповідними перекладами. Новий крок

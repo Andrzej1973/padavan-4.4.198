@@ -71,6 +71,27 @@ MIPS/uClibc operation or a physical router's EoIP support. The transport is not
 installed in firmware yet and must run in a supervised service worker, not
 synchronously in the HTTP request loop. Start/stop and persistence remain open.
 
+Netlink query CI 38752406828 passed at `ff38cd6`, including the real read-only
+Linux runner queries.
+
+## Owned creation increment
+
+The existing `eoip-ctl` now accepts optional `owner wr-eoip:<slot>:v1` only for
+exclusive IPv4 `add name wr-eoip<slot>` (slots 0..7). It places IFLA_IFALIAS
+in the same RTM_NEWLINK request as the name, tunnel parameters and `eoip` kind.
+The tool no longer needs a second command to attach this ownership marker.
+`set` cannot use this option to claim an existing interface. Foreign names,
+mismatched slots, malformed/duplicate owners and IPv6 owned creation are
+rejected before netlink. Legacy commands without the owner option remain.
+Name and kind attributes now include their terminating NUL.
+
+A sanitizer fixture wraps netlink open/talk/close, inspects the actual CLI's
+request and tests rejection/send failure. It creates no real interface.
+CI and full firmware compilation are pending at introduction. This is the
+creation primitive, not a completed manager: owned cleanup, parameter/status
+comparison, table persistence, boot policy and WebUI remain open. Atomic
+request construction does not prove kernel rollback or runtime ownership races.
+
 ## Required next work
 
 Implement owned-interface start/stop and cleanup, safe disabled defaults,

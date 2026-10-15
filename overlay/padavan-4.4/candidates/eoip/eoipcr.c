@@ -178,7 +178,7 @@ static int eoip_remove(const char *name) {
 	return result < 0 ? 2 : 0;
 }
 
-static int eoip_add(int excl,char *name,uint32_t tunnelid,int af,void *sip,void *dip,uint32_t link,uint8_t ttl,uint8_t tos,int kaset,uint32_t kai,uint8_t kar) {
+static int eoip_add(int excl,char *name,uint32_t tunnelid,int af,void *sip,void *dip,uint32_t link,uint8_t ttl,uint8_t tos,int kaset,uint32_t kai,uint8_t kar,const char *owner) {
 	struct {
 		struct nlmsghdr msg;
 		struct ifinfomsg ifi;
@@ -199,10 +199,12 @@ static int eoip_add(int excl,char *name,uint32_t tunnelid,int af,void *sip,void 
 	// an empty IFLA_IFNAME fails kernel policy validation with ERANGE;
 	// omit the attribute and the kernel will pick a free eoip%d name
 	if (*name)
-		addattr_l(&req.msg, sizeof(req), IFLA_IFNAME, name, strlen(name));
+		addattr_l(&req.msg, sizeof(req), IFLA_IFNAME, name, strlen(name)+1);
+	if (*owner)
+		addattr_l(&req.msg, sizeof(req), IFLA_IFALIAS, owner, strlen(owner)+1);
 	lnfo = NLMSG_TAIL(&req.msg);
 	addattr_l(&req.msg, sizeof(req), IFLA_LINKINFO, NULL, 0);
-	addattr_l(&req.msg, sizeof(req), IFLA_INFO_KIND, kind, strlen(kind));
+	addattr_l(&req.msg, sizeof(req), IFLA_INFO_KIND, kind, strlen(kind)+1);
 	data = NLMSG_TAIL(&req.msg);
 	addattr_l(&req.msg, sizeof(req), IFLA_INFO_DATA, NULL, 0);
 
@@ -284,6 +286,7 @@ typedef enum {
 	P_LINK,
 	P_NAME,
 	P_KEEPALIVE,
+	P_OWNER,
 } e_cmd;
 
 typedef struct {
@@ -318,6 +321,7 @@ static s_cmd prms[] = {
 	{ .cmd = "link", .cid = P_LINK, },
 	{ .cmd = "name", .cid = P_NAME, },
 	{ .cmd = "keepalive", .cid = P_KEEPALIVE, },
+	{ .cmd = "owner", .cid = P_OWNER, },
 	{ .cmd = NULL, .cid = 0, },
 };
 
@@ -364,6 +368,7 @@ static void usage(char *me) {
 		"notes:\n"
 		"\tIPv6 local/remote addresses select the eoipv6 tunnel kind (tunnel-id 0..4095)\n"
 		"\tkeepalive is off by default; retries defaults to 10 (the RouterOS default is 10,10); retries 0 means send-only\n"
+		"\towner wr-eoip:<0..7>:v1 is permitted only with add name wr-eoip<slot> over IPv4\n"
 		,me,me,me,me,me);
 }
 
@@ -398,6 +403,7 @@ int main(int argc,char **argv) {
 				// fall through
 			case C_ADD: {
 				char ifname[IFNAMSIZ + 1] = "";
+				char owner[13] = "";
 				unsigned char sip[16]={0},dip[16]={0};
 				int saf=0,daf=0,af;
 				uint32_t tid = ~0;
@@ -440,6 +446,14 @@ int main(int argc,char **argv) {
 							}
 							strcpy(ifname,argv[i+1]);
 							break;
+						case P_OWNER:
+							if (*owner || strlen(argv[i+1])!=12 ||
+							    strncmp(argv[i+1],"wr-eoip:",8) ||
+							    argv[i+1][8]<'0' || argv[i+1][8]>'7' ||
+							    strcmp(argv[i+1]+9,":v1")) {
+								fprintf(stderr,"invalid managed owner\n");return 1;
+							}
+							strcpy(owner,argv[i+1]);break;
 						case P_TTL:
 							if (parse_num(argv[i+1],0xff,&num)) {
 								printf("invalid ttl value: %s\n",argv[i+1]);
@@ -529,12 +543,19 @@ int main(int argc,char **argv) {
 				}
 				// IPv6 addresses select the eoipv6 tunnel kind
 				af=saf?saf:daf?daf:AF_INET;
+				if (*owner) {
+					char expected[16];
+					snprintf(expected,sizeof(expected),"wr-eoip%c",owner[8]);
+					if (!excl || af!=AF_INET || strcmp(ifname,expected)) {
+						fprintf(stderr,"owner requires exclusive matching IPv4 interface creation\n");return 1;
+					}
+				}
 				if (af==AF_INET6&&tid>EOIP6_TID_MAX) {
 					printf("tunnel-id must be 0..%d for eoipv6\n",EOIP6_TID_MAX);
 					return 1;
 				}
 				// tunnel id is in host byte order, addresses are in net byte order
-				return eoip_add(excl,ifname,tid,af,sip,dip,link,ttl,tos,kaset,kai,kar)?1:0;
+				return eoip_add(excl,ifname,tid,af,sip,dip,link,ttl,tos,kaset,kai,kar,owner)?1:0;
 			}
 		}
 	}
