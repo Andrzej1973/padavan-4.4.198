@@ -54,6 +54,32 @@ control has been activated by this increment.
 
 ## Required remaining work
 
+### VLAN-table transformation candidate
+
+tools/wan-port/vlan-plan.h now transforms a freshly generated original-role
+VLAN table into a selected-port plan. It copies original WAN membership,
+untag/swap behavior and PVID to the selected normal LAN socket, removes that
+socket from its old LAN entry and excludes the damaged original WAN from all
+active VLAN entries. CPU bits, VLAN IDs and other sockets' egress/PVID values
+remain unchanged. Tagged Internet/IPTV rules on the WAN and IPTV reservations
+on different LAN sockets are preserved.
+
+Selecting an IPTV/tagged/reserved socket refuses with a conflict rather than
+clearing its rules. Merged LAN/WAN baseline membership also refuses replacement.
+Duplicate VLAN IDs, invalid egress masks, CPU/external overlap and missing
+baseline LAN membership are rejected. Restoration means regenerating the
+original-role baseline from preserved configuration, not transforming an
+already remapped output back again. In-place transformation is not supported.
+
+The result separately reports actual LAN VLAN membership and reserved external
+sockets: the lower-level generic LAN inventory mask alone must not be used as
+a forwarding matrix when IPTV reservations exist. Old-WAN isolation still
+requires the driver to apply ingress security/port-matrix controls in addition
+to VLAN membership exclusion. No registers, PVIDs or NVRAM are written by this
+candidate. Its sanitizer fixture is wired into CI; first execution is pending.
+
+### Driver/controller integration still open
+
 Inspect effective board/GMAC/CPU switch topology, then implement coherent
 runtime driver support for WAN/LAN masks, VLAN membership/PVIDs, UAPI port
 mapping and status. Preserve existing IPTV/VLAN rules and reject conflicting

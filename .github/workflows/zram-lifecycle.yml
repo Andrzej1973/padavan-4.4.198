@@ -54,6 +54,8 @@ jobs:
         run: |
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined tools/wan-port/check-plan.c -o checks/wan-port-plan
           ASAN_OPTIONS=detect_leaks=1 checks/wan-port-plan
+          gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined tools/wan-port/check-vlan-plan.c -o checks/wan-vlan-plan
+          ASAN_OPTIONS=detect_leaks=1 checks/wan-vlan-plan
       - name: Check USB/IP runtime status integration
         run: |
           sh -n tools/usbip/firewall-policy.sh
