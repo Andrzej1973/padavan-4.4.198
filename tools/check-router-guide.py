@@ -16,6 +16,8 @@ def main():
             raise SystemExit("guide lacks enabled ZeroTier or Stubby chapter")
         if "Не публікуйте" not in value:
             raise SystemExit("guide lacks credential-safety instruction")
+        if "Заміна порту WAN" not in value or "switch 67" not in value:
+            raise SystemExit("guide lacks the WAN socket replacement guidance")
         if "CONFIG_FIRMWARE_INCLUDE_DOH=y" in value:
             for required in ("Слоти DoH 1–4", "повторний PID", "/var/run/doh-proxy/0.log", "не перевірка порту", "ручним редагуванням PID-файлів"):
                 if required not in value:
