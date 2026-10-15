@@ -206,6 +206,36 @@ Configuration CI 38772832369 passed at `2211bf0`; the first run of the fixture
 reporting failure, which hid the unconfirmed-post-state path. The adapter
 itself refused correctly; only the fixture changed.
 
+## Managed controller increment
+
+`tools/eoip/controller.h` maps one slot to its fixed interface name
+`wr-eoip<slot>` and ownership alias `wr-eoip:<slot>:v1`, and implements the four
+lifecycle operations against the kernel. The netlink transport is injected, so
+the same controller code runs behind a test transport and, in firmware, behind
+the daemon's socket; nothing in the controller opens a socket of its own except
+the optional generic transport it also provides.
+
+Creation sends one exclusive RTM_NEWLINK in which the name, the ownership
+alias, `IFLA_INFO_KIND=eoip` and every tunnel parameter travel together, so no
+window exists in which an unowned interface carries a managed name. Deletion
+addresses only an index that a fresh observation confirmed as owned and equal
+to the expected index; an already absent interface is an idempotent success and
+an unknown or foreign one is refused. Acknowledged requests are accepted only
+for a zero-error echo of the echoed message type and the same sequence, and the
+generic transport reads that type back from the request it sends.
+
+The fixture drives the controller through the real lifecycle orchestration with
+only the kernel transport mocked: slot mapping for all eight slots and the
+out-of-range refusal, the full attribute layout of the create request (name,
+alias, kind, tunnel id, both addresses, keepalive interval and retries), the
+delete request, the complete create-observe-record-configure-verify path, a
+foreign interface holding the managed name, an index that no longer matches the
+record, an absent interface, and missing transport or output arguments. It also
+sends a real delete for an unknown index over a real socket, which cannot
+mutate an interface.
+
+Controller CI 38775647354 passed at `22b83b3`.
+
 ## Required next work
 
 Implement owned-interface start/stop and cleanup, safe disabled defaults,
