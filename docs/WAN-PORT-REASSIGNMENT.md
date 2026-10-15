@@ -24,6 +24,22 @@ Pinned base: c25283e915a2a00a763774dd255b14aff997285e.
 
 ## Current code
 
+The initial planner CI passed: run 38793467150 at f745a93. The downloaded
+kernel-effective.config from successful build 309 confirms WAN=0 and
+LAN1..LAN4=1..4. However, effective topology is not determined by that config
+alone: esw_common.h explicitly defines CONFIG_MT7530_GSW,
+CONFIG_GE2_INTERNAL_GMAC_P5 and CONFIG_RAETH_BOTH_GMAC. The corresponding
+ioctl_mt762x.h branch defines CPU WAN=5 and CPU LAN=6. Never assume a shared
+CPU port merely because these definitions are absent from the Kconfig file.
+
+collect-topology.py now compiles a small host-only program against the exact
+driver/common headers and relevant effective Kconfig defines. It records
+resolved CPU/external masks and all five plans, plus config/header hashes,
+as wan-port-topology.json in the full build. No switch access is performed.
+Its first compiler execution is pending CI; the Windows environment has no
+gcc in PATH, so a local compiled result is not claimed. The report remains
+source_only=true and runtime_verified=false even after a successful run.
+
 tools/wan-port/plan.h is a pure, uninstalled planner for external membership:
 selection 0 restores original WAN; selections 1..4 use the supplied labelled
 LAN mapping. The selected socket is removed from LAN and the old WAN is kept

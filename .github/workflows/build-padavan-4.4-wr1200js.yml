@@ -768,6 +768,23 @@ jobs:
             configs.build/wr1200js.config firmware-effective.config kernel-effective.config \
             --report firmware-config-checks.json
 
+      # The switch header adds topology definitions not present in Kconfig.
+      # Evaluate that exact header rather than duplicating its branches.
+      - name: Record effective WAN switch topology
+        run: |
+          python3 tools/wan-port/collect-topology.py \
+            --kernel-config kernel-effective.config \
+            --header padavan-4.4/trunk/linux-4.4.x/drivers/net/ethernet/raeth/mtk_esw/ioctl_mt762x.h \
+            --output wan-port-topology.json
+
+      - name: Preserve WAN switch topology evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: wan-port-topology
+          path: wan-port-topology.json
+          if-no-files-found: ignore
+
       - name: Generate model setup guide from enabled services
         run: |
           python3 tools/generate-router-guide.py firmware-effective.config \
