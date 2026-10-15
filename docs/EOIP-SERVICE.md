@@ -280,6 +280,18 @@ only: no EoIP interface has been created on any router.
 
 ## Required next work
 
+Follow-up: disabled single-slot start now bypasses endpoint/MTU validation and
+uses only a validated slot and disabled flag for cleanup, matching the stop
+contract. Fixture coverage includes disabling a running slot with corrupt
+endpoint/MTU values, an entirely disabled table with empty endpoints, and
+enabled duplicate tuples refused before create. Updated tests await CI.
+
+Full build push triggers now include all `tools/eoip/**` inputs, fixing the
+missing rebuild on worker/controller-only changes. Image checks now require the
+MIPS/uClibc worker, boot-table command, exact executable boot script, disabled
+defaults and RC boot/stop calls. CI 38783883607 passed on `f47e10c`; those earlier
+checks do not establish the new coverage or physical behavior.
+
 Managed worker mutations now hold a private `operation-lock` across an entire
 start, stop or boot-table command. This is separate from the lifecycle registry
 lock, avoiding recursive flock acquisition while preventing two managed worker

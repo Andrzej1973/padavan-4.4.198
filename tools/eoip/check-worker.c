@@ -182,6 +182,29 @@ int main(void)
     assert(wr_eoip_worker_dispatch(&worker, 12, bad_bridge, message, sizeof(message)) == WR_EOIP_WORKER_INVALID);
     assert(create_calls == 0);
 
+    /* Validate the whole table before the first mutation. Disabled slots may
+     * contain empty endpoints; enabled duplicate tuples must refuse. */
+    {
+        char *table[82] = {"eoip-service", "boot-table"};
+        char slots[8][2];
+        unsigned n, field;
+        for (n = 0; n < 8; n++) {
+            slots[n][0] = (char)('0' + n);
+            slots[n][1] = 0;
+            for (field = 0; field < 10; field++) table[2 + n * 10 + field] = "";
+            table[2 + n * 10] = slots[n];
+            table[3 + n * 10] = "0";
+            table[4 + n * 10] = "0";
+        }
+        assert(wr_eoip_worker_dispatch(&worker, 82, table, message, sizeof(message)) == WR_EOIP_WORKER_OK);
+        for (n = 0; n < 2; n++) {
+            for (field = 1; field < 10; field++) table[2 + n * 10 + field] = start[2 + field];
+            table[4 + n * 10] = "1";
+        }
+        assert(wr_eoip_worker_dispatch(&worker, 82, table, message, sizeof(message)) == WR_EOIP_WORKER_INVALID);
+        assert(strstr(message, "conflicts") && create_calls == 0);
+    }
+
     /* A slot that does not exist is reported as absent, not as an error. */
     assert(wr_eoip_worker_dispatch(&worker, 3, status, message, sizeof(message)) == WR_EOIP_WORKER_OK);
     assert(strstr(message, "absent"));
@@ -199,6 +222,8 @@ int main(void)
     assert(strstr(message, "refused") && create_calls == 1);
 
     /* Disabling the profile removes the interface through the same path. */
+    disable[5] = "broken endpoint";
+    disable[8] = "broken mtu";
     assert(wr_eoip_worker_dispatch(&worker, 12, disable, message, sizeof(message)) == WR_EOIP_WORKER_OK);
     assert(strstr(message, "stopped"));
     assert(delete_calls == 1 && last_delete_index == 42 && links[0].present == 0);

@@ -77,15 +77,20 @@ static int wr_eoip_worker_start(struct wr_eoip_worker *worker, const char *const
 {
     struct wr_eoip_ops ops;
     struct wr_eoip_config config;
+    unsigned slot, enabled;
     int result;
 
+    /* Turning a slot off must work even if its old endpoint is corrupt. */
+    if (!wr_eoip_worker_slot(fields[0], &slot) ||
+        !wr_eoip_decimal(fields[1], 1, &enabled)) {
+        wr_eoip_worker_report(message, size, "profile invalid", -1);
+        return WR_EOIP_WORKER_INVALID;
+    }
+    if (!enabled) return wr_eoip_worker_stop_slot(worker, slot, message, size);
     if (!wr_eoip_validate(fields[0], fields[1], fields[2], fields[3], fields[4], fields[5],
                           fields[6], fields[7], fields[8], fields[9], &config)) {
         wr_eoip_worker_report(message, size, "profile invalid", -1);
         return WR_EOIP_WORKER_INVALID;
-    }
-    if (config.enabled != 1) {
-        return wr_eoip_worker_stop_slot(worker, config.slot, message, size);
     }
     wr_eoip_controller_ops(&ops, worker->transport);
     result = wr_eoip_lifecycle_start(worker->directory, &config, &ops);
@@ -155,20 +160,26 @@ static int wr_eoip_worker_dispatch_unlocked(struct wr_eoip_worker *worker, int a
         unsigned n, enabled, autostart;
         int combined = WR_EOIP_WORKER_OK;
         /* Exactly eight snapshots, ten fields per slot, before any mutation. */
-        if (argc != 2 + WR_EOIP_SLOTS * WR_EOIP_WORKER_PROFILE_FIELDS)
+        if (argc != 2 + WR_EOIP_SLOTS * WR_EOIP_WORKER_PROFILE_FIELDS) {
+            wr_eoip_worker_report(message, size, "boot table needs eight profiles", -1);
             return WR_EOIP_WORKER_USAGE;
+        }
         memset(profiles, 0, sizeof(profiles));
         for (n = 0; n < WR_EOIP_SLOTS; n++) {
             const char *const *f = (const char *const *)&argv[2 + n * 10];
             if (!wr_eoip_worker_slot(f[0], &slot) || slot != n ||
                 !wr_eoip_decimal(f[1], 1, &enabled) ||
-                !wr_eoip_decimal(f[2], 1, &autostart))
+                !wr_eoip_decimal(f[2], 1, &autostart)) {
+                wr_eoip_worker_report(message, size, "boot table flags invalid", (int)n);
                 return WR_EOIP_WORKER_INVALID;
+            }
             profiles[n].slot = slot;
             if (!enabled) continue; /* Empty disabled endpoints are valid. */
             if (!wr_eoip_validate(f[0], f[1], f[2], f[3], f[4], f[5],
-                                  f[6], f[7], f[8], f[9], &profiles[n]))
+                                  f[6], f[7], f[8], f[9], &profiles[n])) {
+                wr_eoip_worker_report(message, size, "boot table profile invalid", (int)n);
                 return WR_EOIP_WORKER_INVALID;
+            }
         }
         if (!wr_eoip_table_valid(profiles, WR_EOIP_SLOTS)) {
             wr_eoip_worker_report(message, size, "profile table conflicts", -1);

@@ -688,6 +688,16 @@ jobs:
             readelf -h trunk/romfs/usr/bin/eoip-ctl | grep -q 'Machine:.*MIPS'
             grep -a -q 'remove name' trunk/romfs/usr/bin/eoip-ctl
             grep -a -q 'owned-remove' trunk/romfs/usr/bin/eoip-ctl
+            test -x trunk/romfs/usr/bin/eoip-service
+            readelf -h trunk/romfs/usr/bin/eoip-service | grep -q 'Machine:.*MIPS'
+            readelf -l trunk/romfs/usr/bin/eoip-service | grep -q '/lib/ld-uClibc.so.0'
+            grep -a -q 'boot-table' trunk/romfs/usr/bin/eoip-service
+            test -x trunk/romfs/usr/bin/wr-eoip-boot
+            cmp ../tools/eoip/boot.sh trunk/romfs/usr/bin/wr-eoip-boot
+            grep -q '"eoip_enable", "0"' trunk/user/shared/defaults.c
+            grep -q '"eoip_slot7_autostart", "0"' trunk/user/shared/defaults.c
+            grep -q 'eval("/usr/bin/wr-eoip-boot", "boot")' trunk/user/rc/services.c
+            grep -q 'eval("/usr/bin/wr-eoip-boot", "stop")' trunk/user/rc/services.c
           fi
           if grep -q '^CONFIG_FIRMWARE_INCLUDE_VENDOR_LOGO=y$' trunk/.config; then
             cmp trunk/user/www/logo/padavan.png trunk/romfs/www/bootstrap/img/logo.png
