@@ -280,6 +280,25 @@ only: no EoIP interface has been created on any router.
 
 ## Required next work
 
+Settings transaction candidate: `tools/eoip/settings.h` builds an allowlisted
+plan of 73 EoIP keys from a complete form snapshot, validates enabled profiles
+and tuple uniqueness before writes, bounds values and rejects control bytes.
+Master-off creates a one-key plan and ignores malformed endpoint fields.
+The storage callback layer snapshots all old values/presence before writing,
+publishes the master key last and restores every attempted key in reverse on
+failure (including a failed callback that may already have changed its key).
+Outcomes distinguish refusal, successful rollback and unconfirmed rollback.
+
+The caller must hold the configuration transaction lock and supply bounded
+RAM-NVRAM adapters. No flash commit or rc notification occurs in this helper.
+This is best-effort rollback, not atomicity across a process crash/power loss
+or protection against external writers that ignore the lock. The helper is
+not yet wired to HTTP or installed into firmware; no live setting changed.
+`check-settings.c` is wired into sanitizer CI for validation, master-off,
+snapshot failures, absent-key restoration and rollback failure. Its first CI
+execution remains pending. HTTP authentication/CSRF, lock coordination with
+NVRAM snapshot reads and the editable form remain required.
+
 Apply notification preparation: the selected-profile generator now declares
 `RCN_APPLY_EOIP` as `apply_eoip` and adds its own guarded rc notification branch
 calling the EoIP policy's `apply` action. It uses no General Apply bit and does
