@@ -151,6 +151,14 @@ Verification so far is local only: the patch applies cleanly to the pinned tree
 the patched tree while failing on the unpatched tree. The MIPS cross-compile in
 the full build is pending, and no device behaviour is claimed.
 
+The first full build carrying the patch, №311
+([run 38804963887](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38804963887)
+at `09b08f9`, artifact `WR1200JS_4.4.198.9-311_09b08f99_TEST`), succeeded, so the
+switch driver with the runtime override compiles for MIPS/uClibc and the image
+verifiers pass. Builds for the corrected patch together with the rc wiring and
+the switch-tool commands were still running when this line was written, and the
+package of a build matching the current `main` has not been examined yet.
+
 #### rc wiring
 
 `overlay/padavan-4.4/scripts/integrate-wan-port.py` adds `phy_wan_port_x_set()`
