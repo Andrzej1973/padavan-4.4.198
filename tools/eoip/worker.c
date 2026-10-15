@@ -1,0 +1,201 @@
+/* Service entry point for the managed EoIP slots.
+ *
+ * One command performs one complete action for one slot:
+ *   start  SLOT ENABLED AUTOSTART LOCAL REMOTE ID MTU KEEPALIVE RETRIES BRIDGE
+ *   stop   SLOT
+ *   status SLOT
+ *
+ * A start with the profile disabled means "this slot must not exist": the slot
+ * is stopped through the same verified cleanup path instead of leaving a half
+ * created interface. Nothing is created for a slot that was never started, and
+ * a name held by a foreign interface is refused rather than adopted.
+ *
+ * The netlink transport is injected, and main supplies the socket transport,
+ * so this file is the same code in the firmware binary and in the test.
+ * No tunnel is created here: the caller decides which slots start, and the
+ * disabled-by-default boot policy and persistence are separate work. */
+#include "controller.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define WR_EOIP_WORKER_DIRECTORY "/var/run/wr-eoip"
+#define WR_EOIP_WORKER_PROFILE_FIELDS 10
+#define WR_EOIP_WORKER_MESSAGE 192
+
+/* 64 and above keep the codes clear of shell conventions. */
+enum wr_eoip_worker_result {
+    WR_EOIP_WORKER_OK = 0,
+    WR_EOIP_WORKER_USAGE = 64,
+    WR_EOIP_WORKER_INVALID = 65,
+    WR_EOIP_WORKER_REFUSED = 66,
+    WR_EOIP_WORKER_UNCONFIRMED = 67,
+    WR_EOIP_WORKER_ROLLED_BACK = 68
+};
+
+struct wr_eoip_worker {
+    struct wr_eoip_transport *transport;
+    const char *directory;
+};
+
+static void wr_eoip_worker_report(char *message, size_t size, const char *text, int value)
+{
+    if (!message || !size) return;
+    if (value >= 0) snprintf(message, size, "%s %d", text, value);
+    else snprintf(message, size, "%s", text);
+}
+
+static int wr_eoip_worker_slot(const char *text, unsigned *slot)
+{
+    return text && slot && wr_eoip_decimal(text, WR_EOIP_SLOTS - 1, slot);
+}
+
+static int wr_eoip_worker_stop_slot(struct wr_eoip_worker *worker, unsigned slot,
+                                    char *message, size_t size)
+{
+    struct wr_eoip_ops ops;
+    int result;
+
+    wr_eoip_controller_ops(&ops, worker->transport);
+    result = wr_eoip_lifecycle_stop(worker->directory, slot, &ops);
+    switch (result) {
+    case WR_EOIP_OK:
+        wr_eoip_worker_report(message, size, "slot stopped", (int)slot);
+        return WR_EOIP_WORKER_OK;
+    case WR_EOIP_UNCONFIRMED:
+        wr_eoip_worker_report(message, size, "cleanup unconfirmed for slot", (int)slot);
+        return WR_EOIP_WORKER_UNCONFIRMED;
+    default:
+        wr_eoip_worker_report(message, size, "cleanup refused for slot", (int)slot);
+        return WR_EOIP_WORKER_REFUSED;
+    }
+}
+
+static int wr_eoip_worker_start(struct wr_eoip_worker *worker, const char *const *fields,
+                                char *message, size_t size)
+{
+    struct wr_eoip_ops ops;
+    struct wr_eoip_config config;
+    int result;
+
+    if (!wr_eoip_validate(fields[0], fields[1], fields[2], fields[3], fields[4], fields[5],
+                          fields[6], fields[7], fields[8], fields[9], &config)) {
+        wr_eoip_worker_report(message, size, "profile invalid", -1);
+        return WR_EOIP_WORKER_INVALID;
+    }
+    if (config.enabled != 1) {
+        return wr_eoip_worker_stop_slot(worker, config.slot, message, size);
+    }
+    wr_eoip_controller_ops(&ops, worker->transport);
+    result = wr_eoip_lifecycle_start(worker->directory, &config, &ops);
+    switch (result) {
+    case WR_EOIP_OK: {
+        struct wr_eoip_observation observed;
+        unsigned index = 0;
+        if (wr_eoip_controller_query(worker->transport, config.slot, &observed) == 2)
+            index = (unsigned)observed.ifindex;
+        snprintf(message, size, "slot started index %u", index);
+        return WR_EOIP_WORKER_OK;
+    }
+    case WR_EOIP_REFUSED:
+        wr_eoip_worker_report(message, size, "start refused for slot", (int)config.slot);
+        return WR_EOIP_WORKER_REFUSED;
+    case WR_EOIP_ROLLED_BACK:
+        wr_eoip_worker_report(message, size, "start rolled back for slot", (int)config.slot);
+        return WR_EOIP_WORKER_ROLLED_BACK;
+    default:
+        wr_eoip_worker_report(message, size, "start unconfirmed for slot", (int)config.slot);
+        return WR_EOIP_WORKER_UNCONFIRMED;
+    }
+}
+
+static int wr_eoip_worker_status(struct wr_eoip_worker *worker, unsigned slot,
+                                 char *message, size_t size)
+{
+    struct wr_eoip_observation observed;
+    int present = wr_eoip_controller_query(worker->transport, slot, &observed);
+
+    if (present == 1) {
+        wr_eoip_worker_report(message, size, "slot absent", (int)slot);
+        return WR_EOIP_WORKER_OK;
+    }
+    if (present != 2) {
+        wr_eoip_worker_report(message, size, "status unknown for slot", (int)slot);
+        return WR_EOIP_WORKER_UNCONFIRMED;
+    }
+    if (!observed.owned) {
+        wr_eoip_worker_report(message, size, "slot name held by a foreign interface", (int)slot);
+        return WR_EOIP_WORKER_REFUSED;
+    }
+    snprintf(message, size, "slot owned index %d mtu %u master %u admin-up %u",
+             observed.ifindex, observed.mtu, observed.master, observed.flags & 1U);
+    return WR_EOIP_WORKER_OK;
+}
+
+/* Returns one of the wr_eoip_worker_result codes and never exits the process. */
+static int wr_eoip_worker_dispatch(struct wr_eoip_worker *worker, int argc, char **argv,
+                                   char *message, size_t size)
+{
+    const char *fields[WR_EOIP_WORKER_PROFILE_FIELDS];
+    unsigned slot;
+    int i;
+
+    if (message && size) message[0] = '\0';
+    if (!worker || !worker->transport || !worker->directory || !message || size < 1) {
+        wr_eoip_worker_report(message, size, "worker not configured", -1);
+        return WR_EOIP_WORKER_USAGE;
+    }
+    if (argc < 2 || !argv) {
+        wr_eoip_worker_report(message, size, "usage: start|stop|status", -1);
+        return WR_EOIP_WORKER_USAGE;
+    }
+    if (!strcmp(argv[1], "start")) {
+        if (argc != 2 + WR_EOIP_WORKER_PROFILE_FIELDS) {
+            wr_eoip_worker_report(message, size, "usage: start needs 10 profile fields", -1);
+            return WR_EOIP_WORKER_USAGE;
+        }
+        for (i = 0; i < WR_EOIP_WORKER_PROFILE_FIELDS; i++) fields[i] = argv[2 + i];
+        return wr_eoip_worker_start(worker, fields, message, size);
+    }
+    if (!strcmp(argv[1], "stop") || !strcmp(argv[1], "status")) {
+        if (argc != 3 || !wr_eoip_worker_slot(argv[2], &slot)) {
+            wr_eoip_worker_report(message, size, "usage: stop|status SLOT", -1);
+            return WR_EOIP_WORKER_USAGE;
+        }
+        if (!strcmp(argv[1], "stop")) return wr_eoip_worker_stop_slot(worker, slot, message, size);
+        return wr_eoip_worker_status(worker, slot, message, size);
+    }
+    wr_eoip_worker_report(message, size, "usage: start|stop|status", -1);
+    return WR_EOIP_WORKER_USAGE;
+}
+
+#ifndef WR_EOIP_WORKER_NO_MAIN
+static int wr_eoip_socket_query(void *context, const char *name, const char *owner,
+                                struct wr_eoip_observation *out)
+{
+    (void)context;
+    return wr_eoip_query_link(name, owner, out);
+}
+
+int main(int argc, char **argv)
+{
+    struct wr_eoip_transport transport;
+    struct wr_eoip_worker worker;
+    const char *directory = getenv("WR_EOIP_STATE_DIR");
+    char message[WR_EOIP_WORKER_MESSAGE];
+    int result;
+
+    transport.context = NULL;
+    transport.talk = wr_eoip_socket_talk;
+    transport.query = wr_eoip_socket_query;
+    worker.transport = &transport;
+    worker.directory = (directory && *directory) ? directory : WR_EOIP_WORKER_DIRECTORY;
+    result = wr_eoip_worker_dispatch(&worker, argc, argv, message, sizeof(message));
+    if (result == WR_EOIP_WORKER_OK) {
+        fprintf(stdout, "%s\n", message);
+    } else {
+        fprintf(stderr, "%s\n", message);
+    }
+    return result;
+}
+#endif
