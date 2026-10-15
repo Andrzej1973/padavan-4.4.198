@@ -90,6 +90,11 @@ jobs:
             --number "$GITHUB_RUN_NUMBER" --commit "$GITHUB_SHA"
           patch --batch --forward -p1 -d padavan-4.4 \
             < overlay/padavan-4.4/patches/zram-service.diff
+          # Runtime WAN role override: lets rc move the WAN role to another
+          # external socket while the board's original socket stays isolated.
+          patch --batch --forward -p1 -d padavan-4.4 \
+            < overlay/padavan-4.4/patches/wan-port-runtime.diff
+          python3 tools/wan-port/verify-runtime-patch.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/fix-web-event-masks.py padavan-4.4
           python3 tools/prepare-zram-status-web.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/add-json-route.py padavan-4.4

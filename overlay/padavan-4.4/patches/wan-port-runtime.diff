@@ -1,0 +1,395 @@
+diff --git a/trunk/linux-4.4.x/drivers/net/ethernet/raeth/mtk_esw/ioctl.c b/trunk/linux-4.4.x/drivers/net/ethernet/raeth/mtk_esw/ioctl.c
+index 908f890..44fd477 100644
+--- a/trunk/linux-4.4.x/drivers/net/ethernet/raeth/mtk_esw/ioctl.c
++++ b/trunk/linux-4.4.x/drivers/net/ethernet/raeth/mtk_esw/ioctl.c
+@@ -135,6 +135,14 @@ static long mtk_esw_ioctl(struct file *file, unsigned int req, unsigned long arg
+ 		ioctl_result = change_vlan_rule(uint_param, uint_value);
+ 		break;
+ 
++	case MTK_ESW_IOCTL_WAN_PORT_X_SET: /* used by rc */
++		ioctl_result = change_wan_port_x(uint_param);
++		break;
++	case MTK_ESW_IOCTL_WAN_PORT_X_GET: /* used by rc */
++		uint_result = g_wan_port_x;
++		put_user(uint_result, (unsigned int __user *)arg);
++		break;
++
+ 	case MTK_ESW_IOCTL_STORM_BROADCAST:  /* used by rc */
+ 		copy_from_user(&uint_value, (int __user *)arg, sizeof(int));
+ 		change_storm_control_broadcast(uint_value);
+diff --git a/trunk/linux-4.4.x/drivers/net/ethernet/raeth/mtk_esw/ioctl.h b/trunk/linux-4.4.x/drivers/net/ethernet/raeth/mtk_esw/ioctl.h
+index a3b8098..03286a5 100644
+--- a/trunk/linux-4.4.x/drivers/net/ethernet/raeth/mtk_esw/ioctl.h
++++ b/trunk/linux-4.4.x/drivers/net/ethernet/raeth/mtk_esw/ioctl.h
+@@ -70,6 +70,13 @@
+ #define MTK_ESW_IOCTL_VLAN_CREATE_ENTRY		64
+ #define MTK_ESW_IOCTL_VLAN_RULE_SET		65
+ 
++/////////////////////////////////////////////////
++// WAN ROLE CONTROL
++/////////////////////////////////////////////////
++
++#define MTK_ESW_IOCTL_WAN_PORT_X_SET		66
++#define MTK_ESW_IOCTL_WAN_PORT_X_GET		67
++
+ /////////////////////////////////////////////////
+ // USER CONTROL
+ /////////////////////////////////////////////////
+diff --git a/trunk/linux-4.4.x/drivers/net/ethernet/raeth/mtk_esw/ioctl_mt762x.c b/trunk/linux-4.4.x/drivers/net/ethernet/raeth/mtk_esw/ioctl_mt762x.c
+index b9288cc..2b9a946 100644
+--- a/trunk/linux-4.4.x/drivers/net/ethernet/raeth/mtk_esw/ioctl_mt762x.c
++++ b/trunk/linux-4.4.x/drivers/net/ethernet/raeth/mtk_esw/ioctl_mt762x.c
+@@ -59,6 +59,26 @@ static u32 g_port_phy_power[ESW_EPHY_ID_MAX+1]   = {0, 0, 0, 0, 0};
+ static u32 g_vlan_rule[SWAPI_VLAN_RULE_NUM]      = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
+ static u32 g_vlan_rule_user[SWAPI_VLAN_RULE_NUM] = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
+ 
++/*
++ * External port that carries the WAN role, and its switch mask. Both default
++ * to the board mapping, so an untouched system keeps the compile-time
++ * behaviour and only an explicit MTK_ESW_IOCTL_WAN_PORT_X_SET changes them.
++ * The CPU ports never move: the WAN role only changes which external PHY is
++ * bridged to the CPU WAN port.
++ */
++static u32 g_wan_port_x                          = WAN_PORT_X;
++static u32 g_mask_wan_port_x                     = MASK_WAN_PORT_X;
++
++/*
++ * While the WAN role lives on another socket, the board's original WAN socket
++ * must stay isolated instead of silently becoming a LAN port. The value is out
++ * of range whenever the WAN role is still on its board socket.
++ */
++static u32 get_isolated_port_x(void)
++{
++	return (g_wan_port_x == WAN_PORT_X) ? (ESW_PORT_ID_MAX + 1) : WAN_PORT_X;
++}
++
+ ////////////////////////////////////////////////////////////////////////////////////
+ 
+ static atomic_t g_switch_inited                  = ATOMIC_INIT(0);
+@@ -143,6 +163,16 @@ u32 get_ports_mask_lan(u32 include_cpu, int is_phy_id)
+ 	if (include_cpu)
+ 		portmask_lan |= MASK_LAN_PORT_CPU;
+ 
++	/*
++	 * The WAN role owns its external port and the original WAN socket stays
++	 * isolated: never leave either of them on the LAN side, otherwise LAN
++	 * ports would keep forwarding into a WAN socket. The
++	 * SWAPI_WAN_BRIDGE_DISABLE_WAN case below deliberately adds the WAN port
++	 * back.
++	 */
++	portmask_lan &= ~g_mask_wan_port_x;
++	portmask_lan &= ~(1u << get_isolated_port_x());
++
+ 	for (i = 0; i <= ESW_EPHY_ID_MAX; i++) {
+ 		if (g_bwan_member[wan_bridge_mode][i].bwan)
+ 			portmask_lan &= ~(1u << i);
+@@ -150,9 +180,9 @@ u32 get_ports_mask_lan(u32 include_cpu, int is_phy_id)
+ 
+ 	if (wan_bridge_mode == SWAPI_WAN_BRIDGE_DISABLE_WAN) {
+ 		if (is_phy_id)
+-			portmask_lan |= (1u << WAN_PORT_X);
++			portmask_lan |= (1u << g_wan_port_x);
+ 		else
+-			portmask_lan |= MASK_WAN_PORT_X;
++			portmask_lan |= g_mask_wan_port_x;
+ 	}
+ 
+ 	return portmask_lan;
+@@ -167,9 +197,9 @@ static u32 get_ports_mask_wan(u32 include_cpu, int is_phy_id)
+ 		return 0;
+ 
+ 	if (is_phy_id)
+-		portmask_wan = (1u << WAN_PORT_X);
++		portmask_wan = (1u << g_wan_port_x);
+ 	else
+-		portmask_wan = MASK_WAN_PORT_X;
++		portmask_wan = g_mask_wan_port_x;
+ 
+ 	if (include_cpu)
+ 		portmask_wan |= MASK_WAN_PORT_CPU;
+@@ -188,9 +218,9 @@ static u32 get_ports_mask_from_uapi(u32 port_mask_uapi, int is_phy_id)
+ 
+ 	if (port_mask_uapi & SWAPI_PORTMASK_WAN) {
+ 		if (is_phy_id)
+-			gsw_ports_mask |= (1u << WAN_PORT_X);
++			gsw_ports_mask |= (1u << g_wan_port_x);
+ 		else
+-			gsw_ports_mask |= MASK_WAN_PORT_X;
++			gsw_ports_mask |= g_mask_wan_port_x;
+ 	}
+ 	if (port_mask_uapi & SWAPI_PORTMASK_LAN1)
+ 		gsw_ports_mask |= MASK_LAN_PORT_1;
+@@ -215,7 +245,7 @@ static u32 get_port_from_uapi(u32 port_id_uapi)
+ 	switch (port_id_uapi)
+ 	{
+ 	case SWAPI_PORT_WAN:
+-		return WAN_PORT_X;
++		return g_wan_port_x;
+ 	case SWAPI_PORT_LAN1:
+ 		return LAN_PORT_1;
+ 	case SWAPI_PORT_LAN2:
+@@ -241,11 +271,12 @@ static const char* get_port_desc(u32 port_id)
+ {
+ 	const char *port_desc;
+ 
++	/* The WAN role follows the runtime override, so it is not a case label. */
++	if (port_id == g_wan_port_x)
++		return "WAN";
++
+ 	switch (port_id)
+ 	{
+-	case WAN_PORT_X:
+-		port_desc = "WAN";
+-		break;
+ 	case LAN_PORT_1:
+ 		port_desc = "LAN1";
+ 		break;
+@@ -606,6 +637,7 @@ static void esw_vlan_apply_rules(u32 wan_bridge_mode, u32 wan_bwan_isolation)
+ 	u32 prio[SWAPI_VLAN_RULE_NUM] = {0};
+ 	u32 tagg[SWAPI_VLAN_RULE_NUM] = {0};
+ 	u32 i, cvid, next_fid, untg_vid, vlan_idx, vlan_filter_on;
++	u32 isolated_port_x = get_isolated_port_x();
+ 
+ #if defined (CONFIG_P4_RGMII_TO_MT7530_GMAC_P5) || defined (CONFIG_GE2_INTERNAL_GMAC_P5)
+ 	pvlan_member_t pvlan_member_cpu_wan;
+@@ -652,7 +684,7 @@ static void esw_vlan_apply_rules(u32 wan_bridge_mode, u32 wan_bwan_isolation)
+ 	}
+ 
+ 	/* fill WAN port (use PVID 2 for handle untagged traffic -> VID2) */
+-	pvlan_member[WAN_PORT_X].pvid = untg_vid;
++	pvlan_member[g_wan_port_x].pvid = untg_vid;
+ 
+ #if defined (CONFIG_P4_RGMII_TO_MT7530_GMAC_P5) || defined (CONFIG_GE2_INTERNAL_GMAC_P5)
+ 	/* fill CPU WAN port (use PVID 2 for handle untagged traffic -> VID2) */
+@@ -674,8 +706,8 @@ static void esw_vlan_apply_rules(u32 wan_bridge_mode, u32 wan_bwan_isolation)
+ 	vlan_entry[1].valid = 1;
+ 	vlan_entry[1].fid = 2;
+ 	vlan_entry[1].cvid = untg_vid;
+-	vlan_entry[1].port_member |= (MASK_WAN_PORT_X | MASK_WAN_PORT_CPU);
+-	vlan_entry[1].port_untag  |=  MASK_WAN_PORT_X;
++	vlan_entry[1].port_member |= (g_mask_wan_port_x | MASK_WAN_PORT_CPU);
++	vlan_entry[1].port_untag  |=  g_mask_wan_port_x;
+ 
+ #if defined (CONFIG_P4_MAC_TO_MT7530_GPHY_P0) || defined (CONFIG_P4_RGMII_TO_MT7530_GMAC_P5) || \
+     defined (CONFIG_P4_MAC_TO_MT7530_GPHY_P4)
+@@ -706,8 +738,8 @@ static void esw_vlan_apply_rules(u32 wan_bridge_mode, u32 wan_bwan_isolation)
+ 				mt7620_esw_vlan_set_idx(2, cvid, 0xd0);
+ #endif
+ 			}
+-			vlan_entry[vlan_idx].port_member |= (MASK_WAN_PORT_X | MASK_WAN_PORT_CPU);
+-			pvlan_member[WAN_PORT_X].tagg = 1;
++			vlan_entry[vlan_idx].port_member |= (g_mask_wan_port_x | MASK_WAN_PORT_CPU);
++			pvlan_member[g_wan_port_x].tagg = 1;
+ 		}
+ 	}
+ 
+@@ -727,8 +759,8 @@ static void esw_vlan_apply_rules(u32 wan_bridge_mode, u32 wan_bwan_isolation)
+ 				mt7620_esw_vlan_set_idx(3, cvid, 0xd0);
+ #endif
+ 			}
+-			vlan_entry[vlan_idx].port_member |= (MASK_WAN_PORT_X | MASK_WAN_PORT_CPU);
+-			pvlan_member[WAN_PORT_X].tagg = 1;
++			vlan_entry[vlan_idx].port_member |= (g_mask_wan_port_x | MASK_WAN_PORT_CPU);
++			pvlan_member[g_wan_port_x].tagg = 1;
+ 		}
+ 	}
+ 
+@@ -756,7 +788,7 @@ static void esw_vlan_apply_rules(u32 wan_bridge_mode, u32 wan_bwan_isolation)
+ 	for (i = 0; i <= ESW_EPHY_ID_MAX; i++) {
+ 		int rule_id;
+ 		
+-		if (i == WAN_PORT_X)
++		if (i == g_wan_port_x || i == isolated_port_x)
+ 			continue;
+ 		
+ 		if ((1u << i) & ESW_MASK_EXCLUDE)
+@@ -788,7 +820,7 @@ static void esw_vlan_apply_rules(u32 wan_bridge_mode, u32 wan_bwan_isolation)
+ 					vlan_entry[vlan_idx].fid = next_fid++;
+ 					vlan_entry[vlan_idx].cvid = cvid;
+ 				}
+-				vlan_entry[vlan_idx].port_member |= ((1u << i) | MASK_WAN_PORT_X);
++				vlan_entry[vlan_idx].port_member |= ((1u << i) | g_mask_wan_port_x);
+ #if !defined (RAETH_GE2_MAC_TO_GPHY)
+ 				if (wan_bwan_isolation != SWAPI_WAN_BWAN_ISOLATION_FROM_CPU)
+ #endif
+@@ -806,7 +838,7 @@ static void esw_vlan_apply_rules(u32 wan_bridge_mode, u32 wan_bwan_isolation)
+ 				pvlan_member[i].prio = prio[rule_id];
+ 				pvlan_member[i].tagg = tagg[rule_id];
+ 				
+-				pvlan_member[WAN_PORT_X].tagg = 1;
++				pvlan_member[g_wan_port_x].tagg = 1;
+ 			} else {
+ 				pvlan_member[i].pvid = untg_vid;
+ 				
+@@ -939,6 +971,7 @@ static void esw_vlan_init_vid1(void)
+ static void esw_mask_bridge_isolate(u32 wan_bridge_mode, u32 wan_bwan_isolation)
+ {
+ 	u32 i;
++	u32 isolated_port_x = get_isolated_port_x();
+ 	u32 fwd_mask_bwan_lan;
+ 	u32 fwd_mask_lan, fwd_mask_wan, fwd_mask;
+ 
+@@ -953,6 +986,10 @@ static void esw_mask_bridge_isolate(u32 wan_bridge_mode, u32 wan_bwan_isolation)
+ 		}
+ 	}
+ 
++	/* Keep the board's original WAN socket out of every forwarding path. */
++	if (isolated_port_x <= ESW_EPHY_ID_MAX)
++		esw_port_matrix_set(isolated_port_x, 0, PVLAN_INGRESS_MODE_SECURITY);
++
+ 	/* clear forward mask for P5 */
+ #if (MASK_WAN_PORT_CPU == 0)
+ 	esw_port_matrix_set(5, 0, PVLAN_INGRESS_MODE_SECURITY);
+@@ -960,14 +997,14 @@ static void esw_mask_bridge_isolate(u32 wan_bridge_mode, u32 wan_bwan_isolation)
+ 
+ 	/* clear forward mask for P4/P0 */
+ #if (MASK_WAN_PORT_X == 0 && WAN_PORT_X < 5)
+-	esw_port_matrix_set(WAN_PORT_X, 0, PVLAN_INGRESS_MODE_SECURITY);
++	esw_port_matrix_set(g_wan_port_x, 0, PVLAN_INGRESS_MODE_SECURITY);
+ #endif
+ 
+ 	if (wan_bridge_mode == SWAPI_WAN_BRIDGE_DISABLE_WAN)
+ 		return;
+ 
+ 	fwd_mask_wan = get_ports_mask_wan(1, 0);
+-	fwd_mask_bwan_lan = fwd_mask_wan & ~(MASK_WAN_PORT_X|MASK_WAN_PORT_CPU);
++	fwd_mask_bwan_lan = fwd_mask_wan & ~(g_mask_wan_port_x|MASK_WAN_PORT_CPU);
+ 
+ #if defined (RAETH_GE2_MAC_TO_GPHY)
+ 	if (wan_bridge_mode != SWAPI_WAN_BRIDGE_DISABLE)
+@@ -997,7 +1034,7 @@ static void esw_mask_bridge_isolate(u32 wan_bridge_mode, u32 wan_bwan_isolation)
+ #endif
+ 			if (wan_bwan_isolation == SWAPI_WAN_BWAN_ISOLATION_BETWEEN) {
+ 				if (i <= ESW_EPHY_ID_MAX) {
+-					fwd_mask &= ~(MASK_WAN_PORT_X|MASK_LAN_PORTS_ALL);
++					fwd_mask &= ~(g_mask_wan_port_x|MASK_LAN_PORTS_ALL);
+ 					fwd_mask |= (1u << i);
+ 				}
+ 			}
+@@ -1041,7 +1078,7 @@ static void esw_mac_to_phy_enable(void)
+ 	/* full AN */
+ 	reg_pmcr = 0x00056330;
+ 
+-	mac_mask = MASK_WAN_PORT_X | MASK_LAN_PORTS_ALL;
++	mac_mask = g_mask_wan_port_x | MASK_LAN_PORTS_ALL;
+ 
+ 	for (i = 0; i <= ESW_EPHY_ID_MAX; i++) {
+ 		if ((mac_mask >> i) & 0x1)
+@@ -1176,11 +1213,11 @@ static u32 esw_status_link_port(u32 port_id)
+ 	u32 reg_pmsr;
+ 
+ #if defined (RAETH_GE2_MAC_TO_GPHY)
+-	if (port_id == WAN_PORT_X)
++	if (port_id == g_wan_port_x)
+ 		reg_pmsr = sysRegRead(REG_ETH_GE2_MAC_STATUS);	// read state from GE2
+ 	else
+ #elif defined (CONFIG_P4_MAC_TO_MT7530_GPHY_P0) || defined (CONFIG_P4_MAC_TO_MT7530_GPHY_P4)
+-	if (port_id == WAN_PORT_X)
++	if (port_id == g_wan_port_x)
+ 		reg_pmsr = sysRegRead(RALINK_ETH_SW_BASE+REG_ESW_MAC_PMSR_P0 + 0x100*4);	// read state from P4
+ 	else
+ #endif
+@@ -1200,14 +1237,14 @@ static u32 esw_status_speed_port_uapi(u32 port_id_uapi)
+ 		return 0;
+ 
+ #if defined (RAETH_GE2_MAC_TO_GPHY)
+-	if (port_id == WAN_PORT_X) {
++	if (port_id == g_wan_port_x) {
+ 		reg_pmsr = sysRegRead(REG_ETH_GE2_MAC_STATUS);	// read state from GE2
+ #if defined (CONFIG_GE2_RGMII_AN)
+ 		reg_pmsr |= ext_gphy_fill_pmsr(CONFIG_MAC_TO_GIGAPHY_MODE_ADDR2);
+ #endif
+ 	} else
+ #elif defined (CONFIG_P4_MAC_TO_MT7530_GPHY_P0) || defined (CONFIG_P4_MAC_TO_MT7530_GPHY_P4)
+-	if (port_id == WAN_PORT_X)
++	if (port_id == g_wan_port_x)
+ 		reg_pmsr = sysRegRead(RALINK_ETH_SW_BASE+REG_ESW_MAC_PMSR_P0 + 0x100*4);	// read state from P4
+ 	else
+ #endif
+@@ -1277,7 +1314,7 @@ static int esw_status_mib_port_uapi(u32 port_id_uapi, esw_mib_counters_t *mibc)
+ 		return -EINVAL;
+ 
+ #if defined (RAETH_GE2_MAC_TO_GPHY)
+-	if (port_id == WAN_PORT_X || port_id == WAN_PORT_CPU) {
++	if (port_id == g_wan_port_x || port_id == WAN_PORT_CPU) {
+ 		port_bytes_t pb;
+ 		memset(mibc, 0, sizeof(esw_mib_counters_t));
+ 		if (VirtualIF_get_bytes(&pb) == 0) {
+@@ -1326,7 +1363,7 @@ static int esw_status_bytes_port_uapi(u32 port_id_uapi, port_bytes_t *pb)
+ 		return -EINVAL;
+ 
+ #if defined (RAETH_GE2_MAC_TO_GPHY)
+-	if (port_id == WAN_PORT_X || port_id == WAN_PORT_CPU)
++	if (port_id == g_wan_port_x || port_id == WAN_PORT_CPU)
+ 		return VirtualIF_get_bytes(pb);
+ #endif
+ 
+@@ -1369,6 +1406,52 @@ static int change_wan_lan_ports_power(u32 power_on, u32 is_wan)
+ 	return power_changed;
+ }
+ 
++/*
++ * Move the WAN role to another external port at runtime.
++ *
++ * The requested port must be an external PHY, must not be a CPU port and must
++ * not be excluded by the board mapping. After the override the existing bridge
++ * and VLAN rebuild runs again, so every mask, VLAN entry, PVID and the port
++ * matrix are recomputed for the new port; the former WAN port leaves all of
++ * them, which is the isolation the reassignment requirement asks for.
++ */
++static int change_wan_port_x(u32 port_x)
++{
++	int power_changed;
++
++	if (port_x > ESW_EPHY_ID_MAX)
++		return -EINVAL;
++
++	if (port_x == WAN_PORT_CPU || port_x == LAN_PORT_CPU)
++		return -EINVAL;
++
++	if ((1u << port_x) & ESW_MASK_EXCLUDE)
++		return -EINVAL;
++
++	if (port_x == g_wan_port_x)
++		return 0;
++
++	if (atomic_read(&g_switch_inited) == 0)
++		return -EAGAIN;
++
++	/* Same power sequencing the bridge-mode change already relies on. */
++	power_changed = change_wan_lan_ports_power(0, 1);
++	if (power_changed)
++		msleep(500);
++
++	g_wan_port_x = port_x;
++	g_mask_wan_port_x = (1u << port_x);
++
++	esw_mask_bridge_isolate(g_wan_bridge_mode, g_wan_bwan_isolation);
++	esw_vlan_bridge_isolate(g_wan_bridge_mode, g_wan_bwan_isolation, 1, 1, 1);
++	esw_mac_table_clear();
++
++	if (power_changed)
++		change_wan_lan_ports_power(1, 1);
++
++	return 0;
++}
++
+ static int change_bridge_mode(u32 wan_bwan_isolation, u32 wan_bridge_mode)
+ {
+ 	int i, bridge_changed, br_iso_changed, vlan_rule_changed, power_changed;
+@@ -1817,11 +1900,11 @@ int esw_get_traffic_port_wan(struct rtnl_link_stats64 *stats)
+ {
+ 	ULARGE_INTEGER rx_goct, tx_goct;
+ 
+-	rx_goct.u.LowPart = esw_get_port_mib_rgoc(WAN_PORT_X, &rx_goct.u.HighPart);
+-	tx_goct.u.LowPart = esw_get_port_mib_tgoc(WAN_PORT_X, &tx_goct.u.HighPart);
++	rx_goct.u.LowPart = esw_get_port_mib_rgoc(g_wan_port_x, &rx_goct.u.HighPart);
++	tx_goct.u.LowPart = esw_get_port_mib_tgoc(g_wan_port_x, &tx_goct.u.HighPart);
+ 
+-	stats->rx_packets = esw_get_port_mib_rgpc(WAN_PORT_X);
+-	stats->tx_packets = esw_get_port_mib_tgpc(WAN_PORT_X);
++	stats->rx_packets = esw_get_port_mib_rgpc(g_wan_port_x);
++	stats->tx_packets = esw_get_port_mib_tgpc(g_wan_port_x);
+ 
+ 	stats->rx_bytes = rx_goct.QuadPart;
+ 	stats->tx_bytes = tx_goct.QuadPart;

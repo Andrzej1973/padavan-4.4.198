@@ -123,17 +123,50 @@ primary mechanism: it cannot re-point the WAN rule and PVID space, it is
 re-applied inconsistently across `full_restart_wan()`, and it would have to
 mirror internal masks that only the driver knows.
 
-## Status and verification plan
+## Status
 
-Nothing in this plan is implemented yet. The increments, each with its own
-evidence, are:
+### Implemented, awaiting CI compile evidence
 
-1. Driver patch with the runtime override and an unchanged default path; evidence
-   = MIPS cross-compile in the full build plus a host fixture for the validation
-   logic, mirroring the existing `tools/wan-port/` fixtures.
-2. `rc` integration: apply and restore, observed versus requested state,
-   authenticated write, default-original NVRAM and the model guide.
-3. Image-level evidence from the project verifiers already used for builds
+`overlay/padavan-4.4/patches/wan-port-runtime.diff` carries the change and the
+full build applies it and then runs `tools/wan-port/verify-runtime-patch.py`:
+
+- `g_wan_port_x` and `g_mask_wan_port_x` replace `WAN_PORT_X` and
+  `MASK_WAN_PORT_X` at every runtime use. Both initialise from the board macros,
+  so an untouched system behaves exactly as before; preprocessor conditions keep
+  the original macros, and the WAN identifier was moved out of the one `case`
+  label it appeared in.
+- `MTK_ESW_IOCTL_WAN_PORT_X_SET` (66) validates the requested port (external PHY,
+  not a CPU port, not excluded by the board mapping) and, once the switch is
+  initialised, re-runs the existing bridge and VLAN rebuild plus a MAC table
+  clear. `MTK_ESW_IOCTL_WAN_PORT_X_GET` (67) reads the effective port back.
+- `get_ports_mask_lan()` and the VLAN builder keep the WAN port out of the LAN
+  side, and `get_isolated_port_x()` marks the board's original WAN socket while
+  the WAN role is elsewhere: it is skipped by the LAN VLAN entry and its port
+  matrix is forced to zero, so the damaged socket is isolated instead of
+  silently becoming a LAN port. Restoring the board socket clears the isolation
+  because the value is derived from `g_wan_port_x`, not stored.
+
+Verification so far is local only: the patch applies cleanly to the pinned tree
+(`git apply --check` on all three files), and the structural verifier passes on
+the patched tree while failing on the unpatched tree. The MIPS cross-compile in
+the full build is pending, and no device behaviour is claimed.
+
+### Known limits
+
+- Only external PHYs can carry the WAN role; CPU ports and board-excluded ports
+  are rejected.
+- The `RAETH_GE2_MAC_TO_GPHY` branches of the status and MIB helpers still treat
+  the WAN port as GE2; WR1200JS does not define that macro, and those branches
+  are untouched.
+- `SWAPI_WAN_BRIDGE_DISABLE_WAN` keeps its existing meaning, where the WAN socket
+  acts as a LAN port.
+
+### Remaining
+
+1. `rc` integration: apply and restore commands, observed versus requested state,
+   authenticated write, default-original NVRAM, keeping `wan_src_phy` in step for
+   link monitoring, and the model guide.
+2. Image-level evidence from the project verifiers already used for builds
    294–310, then physical acceptance on the device with explicit permission.
 
 Physical acceptance still has to establish labelled socket mapping, DHCP/IPoE on

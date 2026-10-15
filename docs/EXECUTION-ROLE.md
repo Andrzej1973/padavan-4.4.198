@@ -11,9 +11,10 @@
   перепризначення WAN. Історію нижче збережено.
 - Перед прийняттям ролі незалежно перевірено пакет збірки №310 (`5e3c62e`);
   докази — `docs/evidence/WR1200JS-BUILD310.md`.
-- Наступний робочий блок: runtime ABI перепризначення WAN — маски WAN/LAN,
-  членство VLAN і PVID, UAPI-мапінг портів, перевірки конфліктів
-  (`docs/WAN-PORT-REASSIGNMENT.md`).
+- Наступний робочий блок: підключення `rc` до runtime-перепризначення WAN
+  (apply/restore, бажаний і спостережений стан, NVRAM, `wan_src_phy`) — після
+  збірки, яка компілює `overlay/padavan-4.4/patches/wan-port-runtime.diff`
+  (див. `docs/WAN-RUNTIME-ABI.md`).
 - Сторонній diff `tools/prepare-wifi-hwnat-mode.py` збережено без змін.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
 

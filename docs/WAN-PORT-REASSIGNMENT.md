@@ -80,6 +80,11 @@ candidate. Its sanitizer fixture is wired into CI; first execution is pending.
 
 ### Driver/controller integration still open
 
+The driver part is now written: `overlay/padavan-4.4/patches/wan-port-runtime.diff`
+adds a runtime WAN-port override with an unchanged default path, and
+`docs/WAN-RUNTIME-ABI.md` records the verified ABI and the remaining work. The
+paragraph below still describes what is missing after that patch.
+
 Inspect effective board/GMAC/CPU switch topology, then implement coherent
 runtime driver support for WAN/LAN masks, VLAN membership/PVIDs, UAPI port
 mapping and status. Preserve existing IPTV/VLAN rules and reject conflicting
