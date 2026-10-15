@@ -1,5 +1,5 @@
 #!/bin/sh
-# Candidate boot policy. Not installed until RC integration is complete.
+# Boot/shutdown policy; no Apply/restart implementation.
 # NVRAM is read only: persistence remains the firmware's explicit save operation.
 # Never evaluate configuration as shell code; pass each field as one argument.
 
@@ -12,6 +12,8 @@ result=0
 master=0
 if [ "$action" = boot ]; then
     master=$(nvram get eoip_enable) || exit 67
+    # Default-off boot performs no kernel operations or runtime-file writes.
+    [ "$master" = 1 ] || exit 0
 fi
 slot=0
 set -- boot-table
@@ -38,6 +40,7 @@ while [ "$slot" -lt 8 ]; do
     slot=$((slot + 1))
 done
 if [ "$action" = boot ] && [ "$master" = 1 ]; then
+    modprobe eoip || exit 67
     /usr/bin/eoip-service "$@" || result=67
 fi
 exit "$result"

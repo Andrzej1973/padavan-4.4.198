@@ -35,6 +35,8 @@ path.write_text(text)
 package = root / "user/eoip-ctl"
 package.mkdir(exist_ok=True)
 helpers = Path(__file__).resolve().parents[3] / "tools/eoip"
+shutil.copyfile(helpers / "boot.sh", package / "wr-eoip-boot")
+(package / "wr-eoip-boot").chmod(0o755)
 for name in ("observation.h", "netlink-query.h", "config.h", "configure.h",
              "runtime-state.h", "lifecycle.h", "controller.h", "table.h", "worker.c"):
     shutil.copyfile(helpers / name, package / name)
@@ -56,6 +58,7 @@ clean:
 romfs:
 	$(ROMFSINST) eoip-ctl /usr/bin/eoip-ctl
 	$(ROMFSINST) eoip-service /usr/bin/eoip-service
+	$(ROMFSINST) wr-eoip-boot /usr/bin/wr-eoip-boot
 """)
 path = root / "user/Makefile"
 text = path.read_text()

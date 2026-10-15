@@ -280,6 +280,21 @@ only: no EoIP interface has been created on any router.
 
 ## Required next work
 
+Boot/shutdown integration increment: `prepare-defaults.py` now also adds
+APP_EOIP-guarded RC calls after the existing iPerf3 startup/shutdown anchors.
+The package installs executable `/usr/bin/wr-eoip-boot`. Disabled master at boot
+returns without kernel operations or runtime files; enabled boot loads `eoip`
+and submits the full snapshot to the worker. Stop visits all managed slots
+without reading NVRAM, does not unload the shared module, and reports incomplete
+cleanup. RC logs failures but does not restart or reconfigure other services.
+Generator anchor checks are completed before writing its files.
+
+Service CI 38783437373 passed at `fd3b029`; full build 38783437472 was still
+in progress when inspected. Those results predate these new RC/package hooks.
+Target compilation, boot order on the device, persistence across reboot,
+snapshot serialization against future Apply, and WebUI remain unverified or
+unfinished. No router changes were performed.
+
 The worker now accepts `boot-table` with exactly eight ten-field profiles.
 It validates all enabled profiles and tuple uniqueness before any start; empty
 endpoints of disabled slots are allowed. Only enabled autostart slots are then

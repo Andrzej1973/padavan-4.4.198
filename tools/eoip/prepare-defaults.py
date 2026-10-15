@@ -37,6 +37,20 @@ def prepare(source: Path, config: Path) -> None:
         if text.count(anchor) != 1:
             raise SystemExit(f'EoIP defaults anchor changed: {path}')
         prepared.append((path, text.replace(anchor, addition + anchor)))
+    path = user / 'rc/services.c'
+    text = path.read_text()
+    if 'APP_EOIP' in text:
+        raise SystemExit(f'EoIP lifecycle already present: {path}')
+    for anchor, action in [('\tstart_iperf3();\n#endif\n', 'boot'),
+                           ('\tstop_iperf3();\n#endif\n', 'stop')]:
+        if text.count(anchor) != 1:
+            raise SystemExit(f'EoIP lifecycle anchor changed: {path}')
+        addition = ('#if defined(APP_EOIP)\n'
+                    f'\tif (eval("/usr/bin/wr-eoip-boot", "{action}") != 0)\n'
+                    '\t\tlogmessage("EoIP", "Lifecycle action incomplete; inspect slot status");\n'
+                    '#endif\n')
+        text = text.replace(anchor, anchor + addition)
+    prepared.append((path, text))
     for path, text in prepared:
         path.write_text(text)
     print('Prepared disabled EoIP master and eight persistent slot defaults')
