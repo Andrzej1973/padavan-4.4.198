@@ -280,6 +280,17 @@ only: no EoIP interface has been created on any router.
 
 ## Required next work
 
+Web status view candidate: `tools/eoip/status-view.js` validates schema 1 and
+exactly eight unique slots, bounds numeric observations and rejects unknown
+state labels. It renders with DOM textContent and provides a single-flight
+manual refresh helper; failed/invalid refresh clears previous observations.
+There is no periodic timer or automatic action. Local Node model checks passed
+on 2026-10-15 for schema, uniqueness, numeric fields, parallel refusal and error
+clearing; full browser rendering is not verified. The asset is not yet installed
+or attached to an HTTP status source/page, so no finished WebUI is claimed.
+The same check is now wired into service CI. Shell-policy CI 38784871587 passed
+on `2c1f7fb`, including the isolated mocked boot/apply/stop scenarios.
+
 Offline shell-policy coverage is now wired into service CI through
 `tools/eoip/check-policy.py`: default-off no-op, profile-independent full stop,
 disabled Apply, invalid master, NVRAM failures before mutation, full eight-slot
