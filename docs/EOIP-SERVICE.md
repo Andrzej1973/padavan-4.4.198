@@ -280,6 +280,13 @@ only: no EoIP interface has been created on any router.
 
 ## Required next work
 
+`tools/eoip/table.h` now defines requested-table uniqueness: slots must be
+distinct and enabled profiles must not share local/remote/tunnel-id tuples.
+The identity follows `eoip_tunnel_find` in the pinned module: managed tunnels
+use the same link=0 and Ethernet type. MTU or bridge differences therefore do
+not make duplicate tuples valid. The helper expects individually validated
+profiles and is not yet wired into boot or Apply. No execution test is claimed.
+
 The build now invokes `tools/eoip/prepare-defaults.py` for selected EoIP
 profiles. It adds the compile selector APP_EOIP, a disabled master switch and
 eight disabled slot profiles to the firmware defaults table. Remote addresses
