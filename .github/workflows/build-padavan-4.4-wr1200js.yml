@@ -145,6 +145,7 @@ jobs:
           python3 overlay/padavan-4.4/scripts/preserve-ddns-defaults.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/add-logo-ddns-selectors.py padavan-4.4 amnezia-source
           python3 overlay/padavan-4.4/scripts/integrate-eoip.py padavan-4.4
+          python3 tools/eoip/prepare-defaults.py padavan-4.4 --config configs.build/wr1200js.config
           python3 overlay/padavan-4.4/scripts/integrate-dnsmasq-regex.py padavan-4.4 amnezia-source
           python3 overlay/padavan-4.4/scripts/integrate-wpad.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/harden-zerotier-lifecycle.py padavan-4.4

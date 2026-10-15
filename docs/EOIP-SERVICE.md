@@ -280,6 +280,15 @@ only: no EoIP interface has been created on any router.
 
 ## Required next work
 
+The build now invokes `tools/eoip/prepare-defaults.py` for selected EoIP
+profiles. It adds the compile selector APP_EOIP, a disabled master switch and
+eight disabled slot profiles to the firmware defaults table. Remote addresses
+and bridge assignments start empty; MTU defaults to 1458 (not a measurement of
+the actual path). No boot hook or WebUI apply event is enabled by this step.
+Existing stored values are not migrated or overwritten by this generator;
+physical backup/restore and persistence still require acceptance testing.
+Compilation of this increment has not yet been confirmed.
+
 Execution resumed by Sol on 2026-10-15 after the user's explicit role transfer.
 `tools/eoip/boot.sh` is an **uninstalled candidate** for the NVRAM boot policy.
 It starts only slots with master, slot enable and autostart exactly `1`, passes
