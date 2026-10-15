@@ -114,6 +114,26 @@ kernel identity changes between query and deletion remain a runtime race.
 The higher-level manager must serialize its own actions and preserve its
 recorded identity; table lifecycle/persistence/WebUI are not implemented yet.
 
+Owned-remove sanitizer CI 38753499644 passed at `ed6ac50`.
+
+## Runtime recovery records increment
+
+`tools/eoip/runtime-state.h` is an uninstalled lifecycle component. It uses a
+private owned directory, one nonblocking exclusive lock and close-on-exec lock
+descriptor. Per-slot records store a versioned expected interface index and
+are replaced atomically. Reads are bounded, canonical, regular-file-only,
+owner/permission checked, and reject symlinks. Unknown/corrupt records are not
+overwritten; a different recorded index cannot be silently replaced or cleared.
+An already absent record can be cleared idempotently. Callers initialize the
+state descriptor to -1 and hold the lock through the whole lifecycle action.
+
+Records belong under volatile `/var/run`, not flash. They are recovery identity
+for the current boot, not saved user profiles, tunnel liveness or authorization
+to delete without a fresh kernel observation. Persistent configuration remains
+separate future work. The sanitizer fixture covers lock exclusion, descriptor
+flags, record replacement/refusal, corrupt/symlink data and private-directory
+checks. Its CI is pending; no firmware packaging or live action was added.
+
 ## Required next work
 
 Implement owned-interface start/stop and cleanup, safe disabled defaults,

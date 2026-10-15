@@ -196,6 +196,12 @@ Query headers пакуються з eoip-ctl; додано wrapped fixture і fu
 Нові CI ще очікуються. Далі вищий lifecycle із lock/recorded identity,
 rollback, persistence та UI; query/delete race ще не усунуто. Роутер не змінено.
 
+Owned-remove CI 38753499644 успішний. Додано кандидат runtime-state: private
+directory, nonblocking flock, CLOEXEC, versioned per-slot ifindex, atomic write,
+відмова mismatch/corrupt/symlink. Це volatile recovery state, не persistent
+профілі. Не пакується. Sanitizer fixture додано, CI ще очікується. Далі
+об’єднати create/configure/remove під одним lock із rollback і kernel postcheck.
+
 Локалізація успадкованих значень словників: 33 китайські значення в
 `trunk/user/www/dict/EN.footer` замінено англійськими, а `UK.dict` і `RU.dict`
 доповнено відповідними перекладами. Новий крок
