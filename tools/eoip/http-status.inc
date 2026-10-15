@@ -21,6 +21,12 @@ void wr_eoip_background_close(void)
     wr_eoip_background_tick();
     /* On HTTP shutdown, init inherits any killed child not yet reapable. */
 }
+void wr_eoip_status_invalidate(void)
+{
+    if (!wr_eoip_http_initialized) return;
+    wr_eoip_status_cancel(&wr_eoip_http_runtime);
+    wr_eoip_http_runtime.valid = 0;
+}
 static int ej_wr_eoip_status(int eid, webs_t wp, int argc, char **argv)
 {
     uint64_t now = (uint64_t)uptime();

@@ -280,6 +280,27 @@ only: no EoIP interface has been created on any router.
 
 ## Required next work
 
+Authenticated settings integration: `prepare-settings.py` installs the
+safe-session route wr_eoip_settings.cgi with a bounded 12 KiB POST body,
+actual HTTP-method observation, a process-local random token and explicit
+ack=1. It rejects malformed percent escapes and embedded/encoded NUL before
+calling the base CGI decoder. Only fixed EoIP keys enter the validated plan.
+The handler snapshots/writes RAM NVRAM under the same operation-lock as the
+stored-profile worker, attempts rollback on setter errors and never commits
+flash. It releases the lock before requesting independent rc Apply.
+
+Success reports saved_in_ram and apply_requested, with applied=null because
+the existing notify_rc API returns no queue/application acknowledgement. It
+does not equate an accepted request with a working tunnel. Cached status is
+invalidated after a successful write. A new native HTTP fixture uses fake
+NVRAM and a private temporary lock directory to check session/method/token,
+confirmation, lock contention, NUL rejection, one-key disable and notification
+after unlock. These new tests and target HTTP compilation are pending.
+Prior target-entry CI 38787916030 passed on `61eecb3`.
+
+The editable page, safe reading of stored values, error/result display,
+browser verification and device persistence remain unfinished.
+
 Target NVRAM integration supersedes the earlier shell snapshot: the package
 now builds `nvram-entry.c` linked to libshared and includes stored.h. The shell
 policy only execs boot-stored/apply-stored/stop-table, so profile values never

@@ -92,6 +92,10 @@ jobs:
           ASAN_OPTIONS=detect_leaks=1 checks/eoip-stored
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined -Itools/eoip/native-fixture tools/eoip/nvram-entry.c tools/eoip/native-fixture/nvram.c -o checks/eoip-target-entry
           ASAN_OPTIONS=detect_leaks=1 timeout 5s checks/eoip-target-entry boot-stored
+          mkdir -p checks/eoip-http/wr-eoip
+          cp tools/eoip/config.h tools/eoip/table.h tools/eoip/settings.h tools/eoip/runtime-state.h checks/eoip-http/wr-eoip/
+          gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined -Itools/eoip -Ichecks/eoip-http tools/eoip/check-http-settings.c -o checks/eoip-http-settings
+          ASAN_OPTIONS=detect_leaks=1 checks/eoip-http-settings
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined tools/eoip/check-status-runtime.c -o checks/eoip-status-runtime
           ASAN_OPTIONS=detect_leaks=1 timeout 10s checks/eoip-status-runtime
           ASAN_OPTIONS=detect_leaks=1 timeout 15s checks/eoip-worker

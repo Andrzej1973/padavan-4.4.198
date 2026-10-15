@@ -11,7 +11,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 struct wr_eoip_state {int fd;char directory[PATH_MAX];};
-static int wr_eoip_state_lock_named(const char *directory,struct wr_eoip_state *state,const char *name)
+static inline int wr_eoip_state_lock_named(const char *directory,struct wr_eoip_state *state,const char *name)
 {
  struct stat st;char path[PATH_MAX];int fd;
  if(!directory||!state||state->fd>=0||strlen(directory)>=sizeof(state->directory))return 0;
@@ -24,20 +24,20 @@ static int wr_eoip_state_lock_named(const char *directory,struct wr_eoip_state *
     st.st_nlink!=1||(st.st_mode&077)||flock(fd,LOCK_EX|LOCK_NB)){close(fd);return 0;}
  strcpy(state->directory,directory);state->fd=fd;return 1;
 }
-static int wr_eoip_state_lock(const char *directory,struct wr_eoip_state *state)
+static inline int wr_eoip_state_lock(const char *directory,struct wr_eoip_state *state)
 {
  return wr_eoip_state_lock_named(directory,state,"lock");
 }
-static void wr_eoip_state_unlock(struct wr_eoip_state *state)
+static inline void wr_eoip_state_unlock(struct wr_eoip_state *state)
 {
  if(state&&state->fd>=0){close(state->fd);state->fd=-1;state->directory[0]=0;}
 }
-static int wr_eoip_state_path(struct wr_eoip_state *state,unsigned slot,char path[PATH_MAX])
+static inline int wr_eoip_state_path(struct wr_eoip_state *state,unsigned slot,char path[PATH_MAX])
 {
  return state&&state->fd>=0&&slot<8&&snprintf(path,PATH_MAX,"%s/%u",state->directory,slot)<PATH_MAX;
 }
 /* 0 unknown/corrupt, 1 absent, 2 valid recorded ifindex. Caller holds lock. */
-static int wr_eoip_state_read(struct wr_eoip_state *state,unsigned slot,unsigned *index)
+static inline int wr_eoip_state_read(struct wr_eoip_state *state,unsigned slot,unsigned *index)
 {
  char path[PATH_MAX],body[32],canonical[32],*end;struct stat st;int fd,n;ssize_t length;unsigned long value;
  if(!index)return 0;
@@ -53,7 +53,7 @@ static int wr_eoip_state_read(struct wr_eoip_state *state,unsigned slot,unsigned
  if(n!=length||strcmp(body,canonical))return 0;
  *index=(unsigned)value;return 2;
 }
-static int wr_eoip_state_write(struct wr_eoip_state *state,unsigned slot,unsigned index)
+static inline int wr_eoip_state_write(struct wr_eoip_state *state,unsigned slot,unsigned index)
 {
  char path[PATH_MAX],temporary[PATH_MAX],body[32];unsigned prior;int read_state,fd,n,ok;
  if(!index||index>INT_MAX||!wr_eoip_state_path(state,slot,path))return 0;
@@ -66,7 +66,7 @@ static int wr_eoip_state_write(struct wr_eoip_state *state,unsigned slot,unsigne
  if(ok&&rename(temporary,path)==0)return 1;
  unlink(temporary);return 0;
 }
-static int wr_eoip_state_clear(struct wr_eoip_state *state,unsigned slot,unsigned expected)
+static inline int wr_eoip_state_clear(struct wr_eoip_state *state,unsigned slot,unsigned expected)
 {
  char path[PATH_MAX];unsigned index;int result;
  if(!expected||!wr_eoip_state_path(state,slot,path))return 0;
