@@ -17,6 +17,8 @@ $(SRC_DIR)/Makefile: $(SRC_DIR)/configure
 romfs:
 	$(ROMFSINST) -p +x $(SRC_DIR)/src/usbip /sbin/usbip
 	$(ROMFSINST) -p +x $(SRC_DIR)/src/usbipd /sbin/usbipd
+	$(ROMFSINST) -p +x service.sh /usr/sbin/wr-usbip
+	$(ROMFSINST) -p 600 firewall-policy.sh /usr/libexec/wr-usbip/firewall-policy.sh
 
 clean:
 	if [ -f $(SRC_DIR)/Makefile ]; then $(MAKE) -C $(SRC_DIR) distclean; fi

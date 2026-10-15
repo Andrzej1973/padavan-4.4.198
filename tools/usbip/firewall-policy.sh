@@ -1,5 +1,5 @@
 #!/bin/sh
-# Not installed yet. Caller must serialize lifecycle and start usbipd with -4.
+# Sourced by wr-usbip. Caller must serialize lifecycle and start usbipd with -4.
 # Apply before startup; remove only after the owned daemon is confirmed stopped.
 # Owns WRUSBIP_INPUT only; never flush INPUT or change its default policy.
 

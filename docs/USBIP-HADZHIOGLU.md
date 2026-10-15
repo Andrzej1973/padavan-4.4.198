@@ -124,6 +124,22 @@ Local transformation of the actual baseline passed; native emitter CI and the
 next complete firmware build must pass before claiming compilation/packaging.
 Persistent enable settings, boot actions and managed UI are still absent.
 
+Build 274 at `8d634d7a2dd83dcb62e69c80e18999556dd744a4` completed successfully:
+[full build](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38639823148).
+The [service checks](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38639823051)
+also passed. This proves compilation of the firewall integration, not physical
+netfilter behavior or a USB transfer. The final artifact has not been downloaded
+or hashed in this step.
+
+The next increment packages the existing controller as `/usr/sbin/wr-usbip`
+and its policy as `/usr/libexec/wr-usbip/firewall-policy.sh`. Image gates compare
+both installed files byte for byte with their sources and check the executable
+controller. No boot hook or persistent enable setting is added in this increment;
+the daemon does not start automatically. Packaging awaits its own complete build.
+For supervised manual operation use `wr-usbip start|stop|restart|status` rather
+than invoking the daemon directly. Status exit zero means an owned daemon was
+observed, not successful USB data transfer. USB export remains a separate action.
+
 [CI 38639330507](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38639330507)
 passed at `33c5d91a0a67047256274f2809d391920a5d34a0`: shell syntax,
 isolated lifecycle/policy checks and the existing service checks. The daemon

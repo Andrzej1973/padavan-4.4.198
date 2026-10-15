@@ -1,5 +1,5 @@
 #!/bin/sh
-# Candidate controller: not packaged or connected to boot/WebUI yet.
+# Manual controller: boot/persistent enable and WebUI are not connected yet.
 # No USB bind/unbind, automatic exports, NVRAM writes or force-kill fallback.
 set -eu
 umask 077

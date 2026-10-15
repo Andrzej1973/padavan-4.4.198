@@ -67,6 +67,8 @@ on:
       - 'tools/prepare-mt76x2-file-read.py'
       - 'tools/prepare-usbip-status.py'
       - 'tools/usbip/prepare-firewall.py'
+      - 'tools/usbip/service.sh'
+      - 'tools/usbip/firewall-policy.sh'
       - 'tools/check-usbip-status.py'
       - 'tools/doh-instance-status.h'
       - 'tools/doh-instance-view.js'
