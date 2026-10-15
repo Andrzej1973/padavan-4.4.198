@@ -209,6 +209,17 @@ Full builds 38741650267 (packaging correction) and 38742194875 (inventory) were
 still active at this check, without reported failed steps; no final image or
 artifact identity is claimed for either run yet.
 
+`tools/usbip/device-policy.sh` is a candidate bind preflight, not installed or
+called by WebUI. It validates the complete bus ID (including rejection of
+newlines), requires a known non-hub class and readable mount/swap sources,
+checks descendant block partitions against mountinfo major:minor and active
+swap devices, and rejects USB devices with network or TTY descendants. Missing
+required observations fail closed. An isolated Linux fixture covers these
+cases; its CI result is pending. It performs no bind/unbind and is not an
+atomic guarantee against hotplug or newly opened/mounted devices. The future
+action must hold the lifecycle lock, verify the owned daemon, recheck device
+identity and expose results through the authenticated mutation path.
+
 [CI 38639330507](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38639330507)
 passed at `33c5d91a0a67047256274f2809d391920a5d34a0`: shell syntax,
 isolated lifecycle/policy checks and the existing service checks. The daemon
