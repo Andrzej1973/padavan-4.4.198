@@ -280,6 +280,17 @@ only: no EoIP interface has been created on any router.
 
 ## Required next work
 
+Execution resumed by Sol on 2026-10-15 after the user's explicit role transfer.
+`tools/eoip/boot.sh` is an **uninstalled candidate** for the NVRAM boot policy.
+It starts only slots with master, slot enable and autostart exactly `1`, passes
+fields as separate arguments to the validating worker, and aggregates failures.
+Explicit stop does not read NVRAM and needs no valid endpoint. No NVRAM writes,
+flash saves, firewall or route changes are performed by the policy. Existing
+interfaces are subject to the worker's refusal rules; this is not an Apply or
+restart implementation. Defaults generation, module loading, cross-slot
+conflict checks, boot/RC integration and target-shell verification remain open.
+This candidate has not been executed on a router or packaged into an image.
+
 Implement owned-interface start/stop and cleanup, safe disabled defaults,
 persistent table/backup behavior, conflict checks across the table and actual
 interface-kind/parameter observations. Stop must remain possible even when
