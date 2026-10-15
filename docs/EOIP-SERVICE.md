@@ -51,6 +51,26 @@ receive truncation/errors and request/reply handling. Lifecycle must also
 recheck identity before a mutation; this observation alone is not an atomic
 ownership lock or authorization to delete an interface.
 
+Observation CI 38752028099 passed at `1916f15`.
+
+## Read-only netlink transport increment
+
+`tools/eoip/netlink-query.h` sends only RTM_GETLINK on a fresh NETLINK_ROUTE
+socket, without multicast subscriptions, and sets one-second send/receive
+timeouts. It validates kernel sender port 0, sender address size/family,
+datagram truncation, response sequence and length. Only matching kernel
+ENODEV/ENOENT replies establish absence; permission failures, timeouts and
+other errors remain unknown. A present foreign interface remains distinct
+from an owned EoIP interface. Socket descriptors are closed on all paths.
+
+The native sanitizer test includes real read-only queries for loopback and a
+nonexistent interface in the Linux CI runner, plus synthetic origin/error/
+truncation cases. This performs no interface creation, modification or removal.
+Execution is pending at introduction. These native observations do not prove
+MIPS/uClibc operation or a physical router's EoIP support. The transport is not
+installed in firmware yet and must run in a supervised service worker, not
+synchronously in the HTTP request loop. Start/stop and persistence remain open.
+
 ## Required next work
 
 Implement owned-interface start/stop and cleanup, safe disabled defaults,

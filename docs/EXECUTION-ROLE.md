@@ -176,6 +176,12 @@ ifindex/flags/MTU/master/kind/alias із визначенням власност
 далі kernel-origin transport/identity та власні start/stop. Живі інтерфейси
 не змінювалися.
 
+Observer CI 38752028099 успішний. Додано read-only RTM_GETLINK transport:
+kernel sender, sequence, length/truncation, 1-секундні send/receive timeouts;
+ENOENT/ENODEV відрізняються від unknown. Fixture включає справжні read-only
+запити lo/відсутнього інтерфейсу на Linux CI runner, без мережевих змін.
+CI ще очікується; MIPS/роутер і lifecycle не перевірено. Далі — owned start/stop.
+
 Локалізація успадкованих значень словників: 33 китайські значення в
 `trunk/user/www/dict/EN.footer` замінено англійськими, а `UK.dict` і `RU.dict`
 доповнено відповідними перекладами. Новий крок
