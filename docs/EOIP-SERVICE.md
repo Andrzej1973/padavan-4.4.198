@@ -280,6 +280,20 @@ only: no EoIP interface has been created on any router.
 
 ## Required next work
 
+Managed worker mutations now hold a private `operation-lock` across an entire
+start, stop or boot-table command. This is separate from the lifecycle registry
+lock, avoiding recursive flock acquisition while preventing two managed worker
+commands from interleaving slots of a table. Busy commands refuse without
+mutation; read-only status does not acquire this lock. Lock files use the same
+owner, permissions, no-symlink and close-on-exec checks as registry locks.
+The worker fixture now includes contention refusal and cleans up both files;
+execution of the updated fixture is pending CI. Legacy eoip-ctl and external
+netlink writers do not participate in this lock. NVRAM snapshots still need
+coordination with future WebUI Apply writes.
+
+CI 38783698084 passed for `f2f2719`; full build 38783698201 was still running
+when inspected. These results do not cover the new operation-lock increment.
+
 Boot/shutdown integration increment: `prepare-defaults.py` now also adds
 APP_EOIP-guarded RC calls after the existing iPerf3 startup/shutdown anchors.
 The package installs executable `/usr/bin/wr-eoip-boot`. Disabled master at boot

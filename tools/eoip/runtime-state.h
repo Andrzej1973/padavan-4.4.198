@@ -11,17 +11,22 @@
 #include <sys/stat.h>
 #include <unistd.h>
 struct wr_eoip_state {int fd;char directory[PATH_MAX];};
-static int wr_eoip_state_lock(const char *directory,struct wr_eoip_state *state)
+static int wr_eoip_state_lock_named(const char *directory,struct wr_eoip_state *state,const char *name)
 {
  struct stat st;char path[PATH_MAX];int fd;
  if(!directory||!state||state->fd>=0||strlen(directory)>=sizeof(state->directory))return 0;
  if(mkdir(directory,0700)&&errno!=EEXIST)return 0;
  if(lstat(directory,&st)||!S_ISDIR(st.st_mode)||st.st_uid!=geteuid()||(st.st_mode&077))return 0;
- if(snprintf(path,sizeof(path),"%s/lock",directory)>=(int)sizeof(path))return 0;
+ if(!name||(strcmp(name,"lock")&&strcmp(name,"operation-lock")))return 0;
+ if(snprintf(path,sizeof(path),"%s/%s",directory,name)>=(int)sizeof(path))return 0;
  fd=open(path,O_RDWR|O_CREAT|O_NOFOLLOW,0600);if(fd<0)return 0;
  if(fcntl(fd,F_SETFD,FD_CLOEXEC)||fstat(fd,&st)||!S_ISREG(st.st_mode)||st.st_uid!=geteuid()||
     st.st_nlink!=1||(st.st_mode&077)||flock(fd,LOCK_EX|LOCK_NB)){close(fd);return 0;}
  strcpy(state->directory,directory);state->fd=fd;return 1;
+}
+static int wr_eoip_state_lock(const char *directory,struct wr_eoip_state *state)
+{
+ return wr_eoip_state_lock_named(directory,state,"lock");
 }
 static void wr_eoip_state_unlock(struct wr_eoip_state *state)
 {

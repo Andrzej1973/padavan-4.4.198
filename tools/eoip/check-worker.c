@@ -222,7 +222,17 @@ int main(void)
     assert(wr_eoip_worker_dispatch(&worker, 12, start, message, sizeof(message)) == WR_EOIP_WORKER_REFUSED);
     assert(create_calls == 1 && delete_calls == 1 && links[0].present == 1);
 
+    {
+        struct wr_eoip_state held = {.fd = -1};
+        assert(wr_eoip_state_lock_named(directory, &held, "operation-lock"));
+        assert(wr_eoip_worker_dispatch(&worker, 12, start, message, sizeof(message)) == WR_EOIP_WORKER_REFUSED);
+        assert(strstr(message, "operation busy"));
+        assert(create_calls == 1 && delete_calls == 1);
+        wr_eoip_state_unlock(&held);
+    }
     snprintf(path, sizeof(path), "%s/lock", directory);
+    unlink(path);
+    snprintf(path, sizeof(path), "%s/operation-lock", directory);
     unlink(path);
     assert(rmdir(directory) == 0);
     puts("PASS EoIP worker: usage, profile validation, start, status, disable cleanup, foreign and unknown refusal");

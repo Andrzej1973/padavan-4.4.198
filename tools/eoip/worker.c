@@ -134,7 +134,7 @@ static int wr_eoip_worker_status(struct wr_eoip_worker *worker, unsigned slot,
 }
 
 /* Returns one of the wr_eoip_worker_result codes and never exits the process. */
-static int wr_eoip_worker_dispatch(struct wr_eoip_worker *worker, int argc, char **argv,
+static int wr_eoip_worker_dispatch_unlocked(struct wr_eoip_worker *worker, int argc, char **argv,
                                    char *message, size_t size)
 {
     const char *fields[WR_EOIP_WORKER_PROFILE_FIELDS];
@@ -203,6 +203,27 @@ static int wr_eoip_worker_dispatch(struct wr_eoip_worker *worker, int argc, char
     }
     wr_eoip_worker_report(message, size, "usage: start|stop|status", -1);
     return WR_EOIP_WORKER_USAGE;
+}
+
+/* All managed mutations share one operation lock, including the complete table.
+ * The per-slot lifecycle still acquires the distinct registry lock internally.
+ * Status remains read-only and never waits for a mutation to finish. */
+static int wr_eoip_worker_dispatch(struct wr_eoip_worker *worker, int argc, char **argv,
+                                   char *message, size_t size)
+{
+    struct wr_eoip_state operation = {.fd = -1};
+    int result;
+    if (!worker || !worker->directory || !argv || argc < 2 || !argv[1] ||
+        (!strcmp(argv[1], "status")) ||
+        (strcmp(argv[1], "start") && strcmp(argv[1], "stop") && strcmp(argv[1], "boot-table")))
+        return wr_eoip_worker_dispatch_unlocked(worker, argc, argv, message, size);
+    if (!wr_eoip_state_lock_named(worker->directory, &operation, "operation-lock")) {
+        wr_eoip_worker_report(message, size, "operation busy or state directory unavailable", -1);
+        return WR_EOIP_WORKER_REFUSED;
+    }
+    result = wr_eoip_worker_dispatch_unlocked(worker, argc, argv, message, size);
+    wr_eoip_state_unlock(&operation);
+    return result;
 }
 
 #ifndef WR_EOIP_WORKER_NO_MAIN
