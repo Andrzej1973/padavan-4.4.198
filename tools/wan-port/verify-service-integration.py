@@ -35,10 +35,15 @@ def main() -> int:
 
     require("int phy_wan_port_x_set(unsigned int port_x);" in header,
             "switch.h does not declare phy_wan_port_x_set")
-    require(adapter.count("MTK_ESW_IOCTL_WAN_PORT_X_SET") == 1,
-            "switch_mtk_esw.c does not issue exactly one override command")
+    require(adapter.count("MTK_ESW_IOCTL_WAN_PORT_X_SET") >= 2,
+            "switch_mtk_esw.c does not issue the override command")
     require("int phy_wan_port_x_set(unsigned int port_x)" in adapter,
             "phy_wan_port_x_set is not implemented")
+    require(adapter.count("MTK_ESW_IOCTL_WAN_PORT_X_GET") == 2,
+            "the switch tool does not read the effective port back")
+    require('"   66 [PORT]        Move the WAN role to an external port' in adapter
+            and '"   67               Show the effective WAN port' in adapter,
+            "the switch tool usage text does not document the new commands")
 
     require("int\nwan_switch_port(void)" in lan,
             "wan_switch_port is missing")

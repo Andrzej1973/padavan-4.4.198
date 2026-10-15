@@ -168,6 +168,9 @@ selection is in place before the rebuild that consumes it:
 - Behaviour change to be explicit about: a non-zero `wan_src_phy` now moves the
   WAN role. With the key unset or zero the previous behaviour is unchanged, and
   the WAN page normalises the field back to `WAN` when `wan_stb_x` is 0.
+- The shipped switch tool gains the two commands: `switch 66 [0..4]` moves the
+  WAN role and prints the effective port, `switch 67` only reads it. Acceptance
+  can therefore compare the requested and effective socket from a shell.
 
 Local end-to-end check on a copy of the pinned tree: the patch applies, the
 service verifier fails before the integration step and passes after it.
@@ -184,9 +187,10 @@ service verifier fails before the integration step and passes after it.
 
 ### Remaining
 
-1. An apply path that reports requested versus effective state (the read-back
-   command exists but nothing consumes it yet), an authenticated way to change
-   `wan_src_phy`, and the model guide entry.
+1. Surface the selection in the WAN page the way a socket replacement needs it:
+   the source-port field is only rendered while `wan_stb_x` is non-zero, so the
+   page does not currently invite that change, and the requested versus
+   effective socket is not shown there. The model guide entry belongs with it.
 2. Image-level evidence from the project verifiers already used for builds
    294–310, then physical acceptance on the device with explicit permission.
 

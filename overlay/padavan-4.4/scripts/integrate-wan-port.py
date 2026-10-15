@@ -97,6 +97,56 @@ def main() -> int:
            "\tphy_wan_port_x_set(wan_switch_port());\n"
            "\n")
 
+    # 4. Let the shipped switch tool change the socket and read back the
+    #    effective one, so acceptance can be verified from a shell.
+    change("switch_mtk_esw.c",
+           "\t\"   64 [MASK] [DATA] Create VLAN entry\\n\"\n",
+           "\t\"   66 [PORT]        Move the WAN role to an external port\\n\"\n"
+           "\t\"   67               Show the effective WAN port\\n\"\n",
+           after=True)
+
+    change("switch_mtk_esw.c",
+           "static int show_vlan_pvid_wan(void)\n"
+           "{\n"
+           "\tint retVal;\n"
+           "\tunsigned int arg = 2;\n"
+           "\n"
+           "\tretVal = mtk_esw_ioctl(MTK_ESW_IOCTL_VLAN_PVID_WAN_GET, 0, &arg);\n"
+           "\tif (retVal != 0)\n"
+           "\t\targ = 2;\n"
+           "\n"
+           "\tprintf(\"%d\\n\", arg);\n"
+           "\n"
+           "\treturn retVal;\n"
+           "}\n",
+           "\nstatic int show_wan_port_x(void)\n"
+           "{\n"
+           "\tint retVal;\n"
+           "\tunsigned int port_x = 0;\n"
+           "\n"
+           "\tretVal = mtk_esw_ioctl(MTK_ESW_IOCTL_WAN_PORT_X_GET, 0, &port_x);\n"
+           "\tif (retVal != 0)\n"
+           "\t\treturn retVal;\n"
+           "\n"
+           "\tprintf(\"%u\\n\", port_x);\n"
+           "\n"
+           "\treturn retVal;\n"
+           "}\n",
+           after=True)
+
+    change("switch_mtk_esw.c",
+           "\tcase MTK_ESW_IOCTL_VLAN_PVID_WAN_GET:\n"
+           "\t\treturn show_vlan_pvid_wan();\n",
+           "\n"
+           "\tcase MTK_ESW_IOCTL_WAN_PORT_X_SET:\n"
+           "\t\tif (mtk_esw_ioctl(MTK_ESW_IOCTL_WAN_PORT_X_SET, arg, &arg) != 0)\n"
+           "\t\t\treturn 1;\n"
+           "\t\treturn show_wan_port_x();\n"
+           "\n"
+           "\tcase MTK_ESW_IOCTL_WAN_PORT_X_GET:\n"
+           "\t\treturn show_wan_port_x();\n",
+           after=True)
+
     for target, text in edits.items():
         target.write_text(text, encoding="utf-8", newline="\n")
 
