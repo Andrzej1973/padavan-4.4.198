@@ -1,9 +1,13 @@
 #ifndef WR_EOIP_OBSERVATION_H
 #define WR_EOIP_OBSERVATION_H
 /* Decode one bounded kernel RTM_NEWLINK observation; no network mutation. */
+#include <net/if.h>
 #include <linux/netlink.h>
 #include <linux/rtnetlink.h>
 #include <linux/if_link.h>
+/* The target sysroot's if_tunnel.h expects IFNAMSIZ and struct iphdr
+ * to arrive from the including translation unit. */
+#include <linux/ip.h>
 #include <linux/if_tunnel.h>
 #include <stdint.h>
 #include <string.h>

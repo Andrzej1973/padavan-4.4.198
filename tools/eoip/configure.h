@@ -12,7 +12,7 @@
 #include "config.h"
 #include "netlink-query.h"
 #include <fcntl.h>
-#include <linux/if.h>
+#include <net/if.h>
 #include <stdint.h>
 #include <sys/socket.h>
 #include <sys/time.h>
