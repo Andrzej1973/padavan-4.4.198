@@ -128,6 +128,11 @@ Native fixture додано у sanitizer CI; локально перевірен
 очікується на Linux CI. Не пакується/не викликається з HTTPD. Далі перевірити
 CI, реалізувати читання/вік результату й async reap перед WebUI реєстрацією.
 
+CI 38745059831 на `5ff4723` успішний: журнал підтвердив native sanitizer
+background-job fixture (nonblocking start, one job, ID/result, failure, FD
+closure, private directory). Повна збірка №281, run 38743571489 на `f2ad65c`,
+також успішна; її фінальний пакет у цьому інкременті ще не завантажено.
+
 Локалізація успадкованих значень словників: 33 китайські значення в
 `trunk/user/www/dict/EN.footer` замінено англійськими, а `UK.dict` і `RU.dict`
 доповнено відповідними перекладами. Новий крок
