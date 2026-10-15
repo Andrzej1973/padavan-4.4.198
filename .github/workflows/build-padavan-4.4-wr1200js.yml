@@ -425,6 +425,7 @@ jobs:
           python3 tools/connected-devices/prepare-background.py padavan-4.4
           python3 tools/prepare-vpn-handshake-status.py padavan-4.4
           python3 tools/eoip/prepare-status.py padavan-4.4 --config configs.build/wr1200js.config
+          python3 tools/eoip/prepare-page.py padavan-4.4 --config configs.build/wr1200js.config
           python3 tools/connected-devices/prepare-ui.py padavan-4.4
           python3 tools/shared-wifi/check-source-integration.py padavan-4.4
           python3 tools/shared-wifi/prepare-http-check.py padavan-4.4 --output shared-wifi-http-check.c
@@ -695,6 +696,12 @@ jobs:
             grep -a -q 'boot-table' trunk/romfs/usr/bin/eoip-service
             test -x trunk/romfs/usr/bin/wr-eoip-boot
             cmp ../tools/eoip/boot.sh trunk/romfs/usr/bin/wr-eoip-boot
+            test -s trunk/romfs/www/Advanced_Services_EoIP.asp
+            cmp ../tools/eoip/status-view.js trunk/romfs/www/bootstrap/js/wr-eoip-status.js
+            grep -q 'wr_eoip_status' trunk/romfs/www/Advanced_Services_EoIP.asp
+            grep -q 'Advanced_Services_EoIP.asp' trunk/romfs/www/Advanced_Services_Content.asp
+            grep -q '^WREOIPTitle=' trunk/romfs/www/UK.dict
+            grep -q '^WREOIPTitle=' trunk/romfs/www/RU.dict
             grep -q '"eoip_enable", "0"' trunk/user/shared/defaults.c
             grep -q '"eoip_slot7_autostart", "0"' trunk/user/shared/defaults.c
             grep -q 'eval("/usr/bin/wr-eoip-boot", "boot")' trunk/user/rc/services.c

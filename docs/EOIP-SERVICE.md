@@ -280,6 +280,21 @@ only: no EoIP interface has been created on any router.
 
 ## Required next work
 
+Read-only page integration: selected builds install
+`Advanced_Services_EoIP.asp`, linked from Administration/Services, and the
+status view asset with EN/UK/RU labels. Initial loading and manual refresh use
+the authenticated EJ source. Initial unavailable/pending collection is retried
+with a bounded 25-second request deadline (one in-flight AJAX timeout may add
+up to five seconds); hidden-page requests stop. No recurring polling timer is
+installed. Explanations explicitly distinguish IFF_UP from peer/frame health
+and state that editing is not connected. This delivers the observation page,
+not the required full EoIP configuration interface.
+
+Image checks now require the installed page, navigation link, matching JS and
+UK/RU labels. These page/image changes have not yet completed a full build or
+browser/device validation. Background status CI 38785515921 passed at
+`be3ae98`, including the native read-only worker collection/cancellation test.
+
 HTTP status integration increment: selected WR1200JS EoIP builds now run
 `prepare-status.py` after the VPN status generator. It registers authenticated
 EJ output `wr_eoip_status` through existing update.cgi and hooks background tick
