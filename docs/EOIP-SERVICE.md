@@ -201,6 +201,11 @@ unknown interface index, which cannot mutate an interface. The test creates,
 modifies and removes no interface. This is still not a service controller:
 firmware wiring, table persistence, boot policy and the WebUI remain absent.
 
+Configuration CI 38772832369 passed at `2211bf0`; the first run of the fixture
+(38772632919) failed because the mock transport applied the change while
+reporting failure, which hid the unconfirmed-post-state path. The adapter
+itself refused correctly; only the fixture changed.
+
 ## Required next work
 
 Implement owned-interface start/stop and cleanup, safe disabled defaults,
