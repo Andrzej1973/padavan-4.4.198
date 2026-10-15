@@ -280,6 +280,17 @@ only: no EoIP interface has been created on any router.
 
 ## Required next work
 
+The worker now accepts `boot-table` with exactly eight ten-field profiles.
+It validates all enabled profiles and tuple uniqueness before any start; empty
+endpoints of disabled slots are allowed. Only enabled autostart slots are then
+started, using the existing ownership lifecycle. Per-slot failures are reported
+as an incomplete boot table; successful earlier starts are not rolled back.
+The candidate boot script collects all fields into quoted argv before calling
+this command, rather than starting while reading NVRAM. These reads are not an
+atomic NVRAM transaction; integration must serialize against Apply. Whole-table
+runtime locking, module loading and RC hooks remain unfinished. This code has
+not yet been compiled or exercised on the target.
+
 `tools/eoip/table.h` now defines requested-table uniqueness: slots must be
 distinct and enabled profiles must not share local/remote/tunnel-id tuples.
 The identity follows `eoip_tunnel_find` in the pinned module: managed tunnels

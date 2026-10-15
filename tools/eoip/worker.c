@@ -15,6 +15,7 @@
  * No tunnel is created here: the caller decides which slots start, and the
  * disabled-by-default boot policy and persistence are separate work. */
 #include "controller.h"
+#include "table.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -148,6 +149,41 @@ static int wr_eoip_worker_dispatch(struct wr_eoip_worker *worker, int argc, char
     if (argc < 2 || !argv) {
         wr_eoip_worker_report(message, size, "usage: start|stop|status", -1);
         return WR_EOIP_WORKER_USAGE;
+    }
+    if (!strcmp(argv[1], "boot-table")) {
+        struct wr_eoip_config profiles[WR_EOIP_SLOTS];
+        unsigned n, enabled, autostart;
+        int combined = WR_EOIP_WORKER_OK;
+        /* Exactly eight snapshots, ten fields per slot, before any mutation. */
+        if (argc != 2 + WR_EOIP_SLOTS * WR_EOIP_WORKER_PROFILE_FIELDS)
+            return WR_EOIP_WORKER_USAGE;
+        memset(profiles, 0, sizeof(profiles));
+        for (n = 0; n < WR_EOIP_SLOTS; n++) {
+            const char *const *f = (const char *const *)&argv[2 + n * 10];
+            if (!wr_eoip_worker_slot(f[0], &slot) || slot != n ||
+                !wr_eoip_decimal(f[1], 1, &enabled) ||
+                !wr_eoip_decimal(f[2], 1, &autostart))
+                return WR_EOIP_WORKER_INVALID;
+            profiles[n].slot = slot;
+            if (!enabled) continue; /* Empty disabled endpoints are valid. */
+            if (!wr_eoip_validate(f[0], f[1], f[2], f[3], f[4], f[5],
+                                  f[6], f[7], f[8], f[9], &profiles[n]))
+                return WR_EOIP_WORKER_INVALID;
+        }
+        if (!wr_eoip_table_valid(profiles, WR_EOIP_SLOTS)) {
+            wr_eoip_worker_report(message, size, "profile table conflicts", -1);
+            return WR_EOIP_WORKER_INVALID;
+        }
+        for (n = 0; n < WR_EOIP_SLOTS; n++) {
+            int code;
+            if (!profiles[n].enabled || !profiles[n].autostart) continue;
+            code = wr_eoip_worker_start(worker,
+                (const char *const *)&argv[2 + n * 10], message, size);
+            if (code != WR_EOIP_WORKER_OK) combined = code;
+        }
+        wr_eoip_worker_report(message, size,
+            combined ? "boot table incomplete" : "boot table applied", -1);
+        return combined;
     }
     if (!strcmp(argv[1], "start")) {
         if (argc != 2 + WR_EOIP_WORKER_PROFILE_FIELDS) {

@@ -36,7 +36,7 @@ package = root / "user/eoip-ctl"
 package.mkdir(exist_ok=True)
 helpers = Path(__file__).resolve().parents[3] / "tools/eoip"
 for name in ("observation.h", "netlink-query.h", "config.h", "configure.h",
-             "runtime-state.h", "lifecycle.h", "controller.h", "worker.c"):
+             "runtime-state.h", "lifecycle.h", "controller.h", "table.h", "worker.c"):
     shutil.copyfile(helpers / name, package / name)
 for name in ("eoipcr.c", "libnetlink.c", "libnetlink.h", "eoip_version.h"):
     shutil.copyfile(assets / name, package / name)
@@ -49,7 +49,7 @@ eoip-ctl: eoipcr.o libnetlink.o
 	$(CC) $(LDFLAGS) -o $@ $^
 eoip-service: worker.o
 	$(CC) $(LDFLAGS) -o $@ $^
-worker.o: worker.c controller.h configure.h lifecycle.h runtime-state.h config.h observation.h netlink-query.h
+worker.o: worker.c controller.h configure.h lifecycle.h runtime-state.h config.h observation.h netlink-query.h table.h
 eoipcr.o: netlink-query.h observation.h
 clean:
 	rm -f eoip-ctl eoip-service eoipcr.o libnetlink.o worker.o

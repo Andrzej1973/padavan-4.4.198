@@ -14,6 +14,7 @@ if [ "$action" = boot ]; then
     master=$(nvram get eoip_enable) || exit 67
 fi
 slot=0
+set -- boot-table
 while [ "$slot" -lt 8 ]; do
     if [ "$action" = stop ] || [ "$master" != 1 ]; then
         # Cleanup must not depend on a valid endpoint or profile.
@@ -22,7 +23,7 @@ while [ "$slot" -lt 8 ]; do
         prefix="eoip_slot${slot}"
         enabled=$(nvram get "${prefix}_enable") || exit 67
         autostart=$(nvram get "${prefix}_autostart") || exit 67
-        if [ "$enabled" = 1 ] && [ "$autostart" = 1 ]; then
+        # Snapshot every profile before the worker performs any mutation.
             local_address=$(nvram get "${prefix}_local") || exit 67
             remote_address=$(nvram get "${prefix}_remote") || exit 67
             tunnel_id=$(nvram get "${prefix}_id") || exit 67
@@ -30,11 +31,13 @@ while [ "$slot" -lt 8 ]; do
             keepalive=$(nvram get "${prefix}_keepalive") || exit 67
             retries=$(nvram get "${prefix}_retries") || exit 67
             bridge=$(nvram get "${prefix}_bridge") || exit 67
-            /usr/bin/eoip-service start "$slot" 1 1 "$local_address" \
+            set -- "$@" "$slot" "$enabled" "$autostart" "$local_address" \
                 "$remote_address" "$tunnel_id" "$mtu" "$keepalive" \
-                "$retries" "$bridge" || result=67
-        fi
+                "$retries" "$bridge"
     fi
     slot=$((slot + 1))
 done
+if [ "$action" = boot ] && [ "$master" = 1 ]; then
+    /usr/bin/eoip-service "$@" || result=67
+fi
 exit "$result"
