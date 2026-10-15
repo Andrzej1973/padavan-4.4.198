@@ -198,6 +198,17 @@ ASan/UBSan fixture, full firmware compilation, browser behavior and physical
 sysfs observation remain unverified until their respective checks complete.
 Bind/unbind actions and persistence of device exports are still unfinished.
 
+Verified on 2026-10-15: [service run 38742194847](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38742194847)
+passed at `51777f00860764056d1f86436b0bc0e00bd25461`. Its log confirms execution
+of the lifecycle fixture, Apply fixture and actual inventory C implementation
+under native ASan/UBSan. Inventory cases include valid bus IDs, hub/interface
+exclusion, export-driver observation, invalid handler arguments and unavailable
+sysfs. The fixture uses synthetic filesystem entries, not a USB controller.
+It does not verify truncation, hotplug races, browser rendering or USB transfer.
+Full builds 38741650267 (packaging correction) and 38742194875 (inventory) were
+still active at this check, without reported failed steps; no final image or
+artifact identity is claimed for either run yet.
+
 [CI 38639330507](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38639330507)
 passed at `33c5d91a0a67047256274f2809d391920a5d34a0`: shell syntax,
 isolated lifecycle/policy checks and the existing service checks. The daemon
