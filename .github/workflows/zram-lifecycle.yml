@@ -79,6 +79,8 @@ jobs:
           ASAN_OPTIONS=detect_leaks=1 checks/eoip-runtime-state
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined tools/eoip/check-lifecycle.c -o checks/eoip-lifecycle
           ASAN_OPTIONS=detect_leaks=1 checks/eoip-lifecycle
+          gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined tools/eoip/check-configure.c -o checks/eoip-configure
+          ASAN_OPTIONS=detect_leaks=1 timeout 15s checks/eoip-configure
           python3 tools/usbip/check-web.py
           python3 tools/usbip/check-inventory.py --output checks/usbip-inventory.c
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined checks/usbip-inventory.c -o checks/usbip-inventory

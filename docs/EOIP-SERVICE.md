@@ -172,6 +172,35 @@ cleanup rather than profile success. Tests include nested parameter decoding,
 foreign kinds and a tunnel-ID mismatch rollback. CI/full build of this change
 are pending; no real configuration adapter or router activation was added.
 
+## Owned configuration increment
+
+`tools/eoip/configure.h` applies MTU, admin state and one explicit bridge master
+to an interface that was already observed as owned. Every call re-observes the
+interface by name and refuses unless the kernel still reports the requested
+ownership alias, `kind=eoip` and the expected interface index, so a name reused
+by another interface is never reconfigured. A bridge candidate must exist,
+report `kind=bridge`, have a valid index and differ from the interface itself.
+An empty bridge is the only way to request no master, and an interface that
+already has a master is refused rather than detached. When the requested state
+is already present the adapter sends nothing.
+
+The change is one bounded RTM_NEWLINK that addresses the interface by index
+only: admin-up flags plus IFLA_MTU and, when requested, IFLA_MASTER. A kernel
+acknowledgement is accepted only for a zero-error echo of that exact sequence
+from port 0; permission errors, timeouts, truncation and a different sequence
+stay failures. A second observation must confirm index, ownership, MTU, admin
+state and master before the call reports success, so an unacknowledged or
+unverified change is never treated as configured.
+
+The sanitizer fixture drives the adapter through mock observation and transport
+callbacks: already-configured no-op, MTU change, bridge attach, foreign
+interface and index mismatch refusal, absent or non-bridge bridge candidates,
+implicit detach refusal, transport failure, unconfirmed post-state and
+malformed requests. It also exercises the real socket transport against an
+unknown interface index, which cannot mutate an interface. The test creates,
+modifies and removes no interface. This is still not a service controller:
+firmware wiring, table persistence, boot policy and the WebUI remain absent.
+
 ## Required next work
 
 Implement owned-interface start/stop and cleanup, safe disabled defaults,
