@@ -15,6 +15,7 @@ on:
       - 'tools/prepare-usbip-status-check.py'
       - 'tools/usbip/**'
       - 'tools/eoip/**'
+      - 'tools/wan-port/**'
       - 'overlay/padavan-4.4/candidates/eoip/**'
       - 'tools/prepare-dns-process-check.py'
       - 'tools/check-dns-refresh.py'
@@ -49,6 +50,10 @@ jobs:
           python3 tools/check-mt76x2-file-read.py --output checks/mt76x2-read.c
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined checks/mt76x2-read.c -o checks/mt76x2-read
           ASAN_OPTIONS=detect_leaks=1 checks/mt76x2-read
+      - name: Check WAN socket reassignment plan
+        run: |
+          gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined tools/wan-port/check-plan.c -o checks/wan-port-plan
+          ASAN_OPTIONS=detect_leaks=1 checks/wan-port-plan
       - name: Check USB/IP runtime status integration
         run: |
           sh -n tools/usbip/firewall-policy.sh
