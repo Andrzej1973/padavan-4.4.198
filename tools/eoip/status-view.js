@@ -13,6 +13,7 @@
     function parse(reply) {
         var rows = [], seen = {}, i, row, owned;
         if (!reply || reply.schema !== 1 || !Array.isArray(reply.slots) || reply.slots.length !== 8) return null;
+        if (Object.prototype.hasOwnProperty.call(reply, 'sample_age') && !integer(reply.sample_age, 0, 60)) return null;
         for (i = 0; i < reply.slots.length; i++) {
             row = reply.slots[i];
             if (!row || !integer(row.slot, 0, 7) || seen[row.slot] ||

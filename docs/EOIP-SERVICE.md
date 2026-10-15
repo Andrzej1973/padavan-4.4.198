@@ -280,6 +280,29 @@ only: no EoIP interface has been created on any router.
 
 ## Required next work
 
+HTTP status integration increment: selected WR1200JS EoIP builds now run
+`prepare-status.py` after the VPN status generator. It registers authenticated
+EJ output `wr_eoip_status` through existing update.cgi and hooks background tick
+and shutdown. The request starts at most one read-only child; only that child
+performs eight bounded netlink queries. HTTP uses a nonblocking pipe and
+WNOHANG for its own PID. Inherited HTTP descriptors are closed in the child,
+stdio is redirected to /dev/null, and timeout cancels after 20 seconds on ticks.
+There are no shell commands, interface mutations, NVRAM writes or disk cache.
+
+Observations are sampled on demand, reused for 10 seconds, and rejected after
+60 seconds or monotonic-clock rollback. First request may return
+source_unavailable with pending=true; consumers must retry manually or with a
+bounded completion mechanism, not display success. A valid response includes
+sample_age and pending; UI parsing now rejects out-of-range sample ages.
+Rows marked up still mean IFF_UP only. Failed collection invalidates the cache.
+No persistent background polling is scheduled. Shutdown does not block waiting
+for a child; init inherits a killed child not yet reapable at process exit.
+
+CI now compiles/runs `check-status-runtime.c` for real read-only netlink sampling,
+single-child refusal and cancellation. These new runtime and HTTP integrations
+have not yet completed CI or target compilation. The actual page and its
+authenticated settings writer remain unfinished.
+
 Web status view candidate: `tools/eoip/status-view.js` validates schema 1 and
 exactly eight unique slots, bounds numeric observations and rejects unknown
 state labels. It renders with DOM textContent and provides a single-flight
