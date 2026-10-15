@@ -280,6 +280,30 @@ only: no EoIP interface has been created on any router.
 
 ## Required next work
 
+Target NVRAM integration supersedes the earlier shell snapshot: the package
+now builds `nvram-entry.c` linked to libshared and includes stored.h. The shell
+policy only execs boot-stored/apply-stored/stop-table, so profile values never
+pass through shell expansion. Stored commands hold operation-lock throughout
+snapshot, validation, optional module load and table application. Disabled boot
+remains a no-op before runtime-file creation. The target adapter uses the
+pinned nvram_linux.h getter and does not call any setter or flash commit.
+
+The worker exposes validate-table for side-effect-free table validation.
+Only a valid table with a slot needing startup invokes the fixed argv
+`/sbin/modprobe eoip`; the adapter uses fork/exec without a shell, polls only
+its own child and cancels after a bounded wait. It does not synchronously wait
+forever for a cancelled loader. A still-unreapable child is inherited by init
+when this short-lived command exits. Module loading and interoperability still
+require physical acceptance.
+
+CI now checks shell dispatch and exit-code propagation, the stored-snapshot
+core and a native target entry with a stub NVRAM getter modelling master-off.
+Native tests do not exercise real libshared or the module loader. Full-image
+checks require boot-stored and the libshared dependency. Compilation and CI of
+this adapter change are pending; prior service CI 38787457202 succeeded on
+`ebec970` before this replacement. The authenticated settings writer remains
+the next integration task and must hold the same operation lock.
+
 Locked snapshot candidate: `tools/eoip/stored.h` adds a callback-based stored
 boot/Apply adapter. It holds operation-lock while copying all NVRAM fields and
 executing the complete table command, so a settings writer using that same

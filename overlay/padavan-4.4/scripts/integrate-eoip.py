@@ -38,23 +38,23 @@ helpers = Path(__file__).resolve().parents[3] / "tools/eoip"
 shutil.copyfile(helpers / "boot.sh", package / "wr-eoip-boot")
 (package / "wr-eoip-boot").chmod(0o755)
 for name in ("observation.h", "netlink-query.h", "config.h", "configure.h",
-             "runtime-state.h", "lifecycle.h", "controller.h", "table.h", "worker.c"):
+             "runtime-state.h", "lifecycle.h", "controller.h", "table.h", "worker.c", "stored.h", "nvram-entry.c"):
     shutil.copyfile(helpers / name, package / name)
 for name in ("eoipcr.c", "libnetlink.c", "libnetlink.h", "eoip_version.h"):
     shutil.copyfile(assets / name, package / name)
 (package / "unified").mkdir(exist_ok=True)
 shutil.copyfile(assets / "unified/eoip_proto.h", package / "unified/eoip_proto.h")
-(package / "Makefile").write_text("""CFLAGS += -Os -std=gnu99 -ffunction-sections -fdata-sections -fno-strict-aliasing
+(package / "Makefile").write_text("""CFLAGS += -Os -std=gnu99 -ffunction-sections -fdata-sections -fno-strict-aliasing -I../shared
 LDFLAGS += -Wl,--gc-sections
 all: eoip-ctl eoip-service
 eoip-ctl: eoipcr.o libnetlink.o
 	$(CC) $(LDFLAGS) -o $@ $^
-eoip-service: worker.o
-	$(CC) $(LDFLAGS) -o $@ $^
-worker.o: worker.c controller.h configure.h lifecycle.h runtime-state.h config.h observation.h netlink-query.h table.h
+eoip-service: nvram-entry.o
+	$(CC) $(LDFLAGS) -o $@ $^ -L../shared -lshared
+nvram-entry.o: nvram-entry.c stored.h worker.c controller.h configure.h lifecycle.h runtime-state.h config.h observation.h netlink-query.h table.h
 eoipcr.o: netlink-query.h observation.h
 clean:
-	rm -f eoip-ctl eoip-service eoipcr.o libnetlink.o worker.o
+	rm -f eoip-ctl eoip-service eoipcr.o libnetlink.o nvram-entry.o
 romfs:
 	$(ROMFSINST) eoip-ctl /usr/bin/eoip-ctl
 	$(ROMFSINST) eoip-service /usr/bin/eoip-service

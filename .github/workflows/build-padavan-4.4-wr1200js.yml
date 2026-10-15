@@ -694,6 +694,8 @@ jobs:
             readelf -h trunk/romfs/usr/bin/eoip-service | grep -q 'Machine:.*MIPS'
             readelf -l trunk/romfs/usr/bin/eoip-service | grep -q '/lib/ld-uClibc.so.0'
             grep -a -q 'boot-table' trunk/romfs/usr/bin/eoip-service
+            grep -a -q 'boot-stored' trunk/romfs/usr/bin/eoip-service
+            readelf -d trunk/romfs/usr/bin/eoip-service | grep -q 'Shared library:.*libshared'
             test -x trunk/romfs/usr/bin/wr-eoip-boot
             cmp ../tools/eoip/boot.sh trunk/romfs/usr/bin/wr-eoip-boot
             test -s trunk/romfs/www/Advanced_Services_EoIP.asp

@@ -208,7 +208,7 @@ static int wr_eoip_worker_dispatch_unlocked(struct wr_eoip_worker *worker, int a
             combined ? "table cleanup incomplete" : "table stopped", -1);
         return combined;
     }
-    if (!strcmp(argv[1], "boot-table") || !strcmp(argv[1], "apply-table")) {
+    if (!strcmp(argv[1], "boot-table") || !strcmp(argv[1], "apply-table") || !strcmp(argv[1], "validate-table")) {
         struct wr_eoip_config profiles[WR_EOIP_SLOTS];
         unsigned n, enabled, autostart;
         int applying = !strcmp(argv[1], "apply-table");
@@ -238,6 +238,10 @@ static int wr_eoip_worker_dispatch_unlocked(struct wr_eoip_worker *worker, int a
         if (!wr_eoip_table_valid(profiles, WR_EOIP_SLOTS)) {
             wr_eoip_worker_report(message, size, "profile table conflicts", -1);
             return WR_EOIP_WORKER_INVALID;
+        }
+        if (!strcmp(argv[1], "validate-table")) {
+            wr_eoip_worker_report(message, size, "table valid", -1);
+            return WR_EOIP_WORKER_OK;
         }
         if (applying) {
             /* Only after validating the entire requested table. Cleanup needs

@@ -28,20 +28,20 @@ int main(void)
     struct stat st;
     char *status[] = {"eoip-service", "status", "0"};
     assert(mkdtemp(directory)); assert(!rmdir(directory));
-    assert(wr_eoip_stored_dispatch(&worker, "boot-stored", read_value, &f, message, sizeof(message)) == WR_EOIP_WORKER_OK);
+    assert(wr_eoip_stored_dispatch(&worker, "boot-stored", read_value, &f, NULL, message, sizeof(message)) == WR_EOIP_WORKER_OK);
     assert(lstat(directory, &st) != 0 && errno == ENOENT && f.reads == 1);
     f.master = "1"; f.reads = 0;
-    assert(wr_eoip_stored_dispatch(&worker, "boot-stored", read_value, &f, message, sizeof(message)) == WR_EOIP_WORKER_OK);
+    assert(wr_eoip_stored_dispatch(&worker, "boot-stored", read_value, &f, NULL, message, sizeof(message)) == WR_EOIP_WORKER_OK);
     assert(f.reads == 74 && strstr(message, "table applied"));
     f.master = "0"; f.reads = 0;
-    assert(wr_eoip_stored_dispatch(&worker, "apply-stored", read_value, &f, message, sizeof(message)) == WR_EOIP_WORKER_OK);
+    assert(wr_eoip_stored_dispatch(&worker, "apply-stored", read_value, &f, NULL, message, sizeof(message)) == WR_EOIP_WORKER_OK);
     assert(f.reads == 2 && strstr(message, "table stopped"));
     assert(wr_eoip_worker_dispatch(&worker, 3, status, message, sizeof(message)) == WR_EOIP_WORKER_OK);
     {
         struct wr_eoip_state held = {.fd = -1};
         assert(wr_eoip_state_lock_named(directory, &held, "operation-lock"));
         f.master = "1"; f.reads = 0;
-        assert(wr_eoip_stored_dispatch(&worker, "apply-stored", read_value, &f, message, sizeof(message)) == WR_EOIP_WORKER_REFUSED);
+        assert(wr_eoip_stored_dispatch(&worker, "apply-stored", read_value, &f, NULL, message, sizeof(message)) == WR_EOIP_WORKER_REFUSED);
         assert(f.reads == 1);
         wr_eoip_state_unlock(&held);
     }

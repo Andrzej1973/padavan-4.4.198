@@ -4,7 +4,8 @@
  * SAME operation lock used by the future settings writer and all mutations.
  * The reader's returned pointer may be reused by its very next call. */
 static int wr_eoip_stored_dispatch(struct wr_eoip_worker *worker, const char *action,
-    const char *(*read_value)(void *, const char *), void *context, char *message, size_t size)
+    const char *(*read_value)(void *, const char *), void *context,
+    int (*load_module)(void *), char *message, size_t size)
 {
     static const char *keys[9] = {"enable", "autostart", "local", "remote", "id", "mtu", "keepalive", "retries", "bridge"};
     struct wr_eoip_state operation = {.fd = -1};
@@ -56,6 +57,22 @@ static int wr_eoip_stored_dispatch(struct wr_eoip_worker *worker, const char *ac
             args[3 + slot * 10 + field] = values[slot][field];
         }
     }
+    args[1] = "validate-table";
+    result = wr_eoip_worker_dispatch_unlocked(worker, 82, args, message, size);
+    if (result != WR_EOIP_WORKER_OK) goto done;
+    for (slot = 0; slot < 8; slot++) {
+        unsigned on = 0, automatic = 0;
+        wr_eoip_decimal(values[slot][0], 1, &on);
+        wr_eoip_decimal(values[slot][1], 1, &automatic);
+        if (on && (applying || automatic)) {
+            if (load_module && !load_module(context)) {
+                wr_eoip_worker_report(message, size, "module loading failed", -1);
+                result = WR_EOIP_WORKER_UNCONFIRMED; goto done;
+            }
+            break;
+        }
+    }
+    args[1] = applying ? "apply-table" : "boot-table";
     result = wr_eoip_worker_dispatch_unlocked(worker, 82, args, message, size);
 done:
     wr_eoip_state_unlock(&operation);
