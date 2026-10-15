@@ -280,6 +280,22 @@ only: no EoIP interface has been created on any router.
 
 ## Required next work
 
+Guide follow-up: the generated EoIP instructions now explain the actual editor
+route, independent slot enable/autostart behavior, confirmation, all-table
+recreation, RAM vs explicit flash save, manual observation refresh, independent
+disable and recovery from uncertain HTTP responses. The reference model guide
+was regenerated from the same catalog, also bringing its existing USB/IP
+instructions into sync. Guide generation and check-router-guide.py passed
+locally. Instructions describe implemented code and retain the explicit lack
+of physical acceptance.
+
+Full build 303 (38787916213) succeeded for 61eecb3, establishing compilation of
+the libshared-linked stored-profile adapter; it predates the HTTP writer and
+editor. Service CI 38790074197 succeeded for the image-verifier increment at
+53e173c. Full builds 304–306 still awaited final results when inspected; no
+current image-verifier success or live EoIP behavior is inferred from these
+earlier results.
+
 Complete image gate: tools/eoip/verify-image.py now checks exact shipped page,
 both JS assets and lifecycle script, the services link, exactly one occurrence
 of every page WREOIP key in EN/UK/RU, linked HTTP/controller markers and all
