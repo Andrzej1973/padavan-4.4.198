@@ -169,6 +169,13 @@ MTU, keepalive, bridge syntax) та sanitizer fixture. Не пакується �
 тунелі. Межі й наступні кроки: `docs/EOIP-SERVICE.md`. Linux CI ще очікується;
 далі owned lifecycle, конфлікти таблиці, persistence, UI та фактичні статуси.
 
+EoIP config CI 38751553924 успішний. Додано RTM_NEWLINK decoder для
+ifindex/flags/MTU/master/kind/alias із визначенням власності за kind+міткою,
+перевірками довжин/sequence/name та unaligned-safe читанням. Native fixture
+додано; CI ще очікується. Netlink transport і lifecycle ще не підключені;
+далі kernel-origin transport/identity та власні start/stop. Живі інтерфейси
+не змінювалися.
+
 Локалізація успадкованих значень словників: 33 китайські значення в
 `trunk/user/www/dict/EN.footer` замінено англійськими, а `UK.dict` і `RU.dict`
 доповнено відповідними перекладами. Новий крок

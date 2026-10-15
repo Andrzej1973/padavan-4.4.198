@@ -31,6 +31,26 @@ The validator is not yet installed in firmware or connected to HTTP/RC.
 native ASan/UBSan in service CI; execution is pending at introduction.
 On validation failure the output is cleared, never a partially trusted config.
 
+The configuration sanitizer CI, run 38751553924 at `7d5140b`, passed.
+
+## Interface observation increment
+
+`tools/eoip/observation.h` decodes one bounded RTM_NEWLINK record. It checks
+lengths, request sequence, expected interface name, attribute alignment and
+duplicate known attributes without dereferencing unaligned structures. It
+observes the interface index, flags, MTU, bridge master, kind and alias.
+Only matching `kind=eoip` and the requested ownership alias mark a record as
+owned; a same-named bridge or foreign alias remains foreign. Malformed input
+clears the observation. Flags are not a claim of peer reachability or traffic.
+
+The native sanitizer fixture covers owned/foreign records, unaligned input,
+sequence/name mismatch, truncation, duplicate attributes and invalid lengths.
+Its CI is pending. This decoder is not installed or connected to a netlink
+socket yet. The transport must separately verify kernel sender identity,
+receive truncation/errors and request/reply handling. Lifecycle must also
+recheck identity before a mutation; this observation alone is not an atomic
+ownership lock or authorization to delete an interface.
+
 ## Required next work
 
 Implement owned-interface start/stop and cleanup, safe disabled defaults,
