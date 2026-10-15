@@ -280,6 +280,17 @@ only: no EoIP interface has been created on any router.
 
 ## Required next work
 
+The generated model guide now includes EoIP setup prerequisites, no-registration
+clarification, slot fields/defaults, GRE protocol vs port distinction, bridge
+and MTU checks, read-only status commands and explicit limits of runtime
+evidence. The same catalog text is reflected in `docs/setup/WR1200JS.md` and
+will enter the generated SETUP text when EoIP is selected. The official
+MikroTik page was read on 2026-10-15; RouterOS-only features are explicitly not
+claimed as implemented by this controller. CI 38784233558 succeeded for
+`50dac14`; full build 38784233580 remained running at inspection. The older
+full build 38783698201 was verified still in the firmware compilation step,
+not presumed hung and not restarted. Guide changes do not prove device behavior.
+
 Structured runtime observation: `eoip-service status-json` now returns schema 1
 with eight slot observations. States are `absent`, `unknown`, `foreign`, `up`
 or `down`; up/down are only the owned interface's IFF_UP flag. Owned observations
