@@ -76,7 +76,7 @@ static int mock_talk(void *context,const void *request,size_t length,uint32_t se
   remaining-=RTA_ALIGN(attribute.rta_len);
   cursor+=RTA_ALIGN(attribute.rta_len);
  }
- if(apply_talk){
+ if(apply_talk&&!fail_talk){
   links[0].mtu=last_mtu;
   links[0].flags|=IFF_UP;
   links[0].master=last_master;
