@@ -14,7 +14,14 @@
 - Код перед передачею: `00b23e7e689786c0c8a703592021d8c55994aa30`, `main`.
 - Активний блок: EoIP. Читати `docs/EOIP-SERVICE.md` і `tools/eoip/`.
 - Готові конфігураційна валідація, read-only netlink query, owned-create/owned-remove CLI, приватний runtime registry та кандидат lifecycle з перевіркою параметрів після запуску. Registry/lifecycle ще не підключені до реального контролера.
-- Наступний крок: реальний configure-адаптер (MTU, admin UP, необов’язковий bridge), повторна перевірка kind/alias/ifindex перед змінами; bridge перевіряти як bridge, не призначати br0 автоматично. Потім інтеграція контролера, пакування, default-off boot/persistence, EN/UK/RU WebUI та інструкція. Не втрачати невизначені стани ACK/ідентичності й не видаляти чужі інтерфейси.
+- Виконано: реальний configure-адаптер `tools/eoip/configure.h` (MTU, admin UP, явний bridge) з
+  повторною перевіркою kind/alias/ifindex перед змінами; bridge приймається лише як `kind=bridge`,
+  br0 автоматично не призначається; наявний master не від'єднується неявно; повторна спостережна
+  перевірка після зміни. Тест `tools/eoip/check-configure.c` пройшов у CI 38772832369 (`2211bf0`)
+  під ASan/UBSan.
+- Наступний крок: підключити адаптер до lifecycle-контролера (мапінг слота на `wr-eoip<slot>` і alias
+  `wr-eoip:<slot>:v1`), далі пакування, default-off boot/persistence, EN/UK/RU WebUI та інструкція.
+  Не втрачати невизначені стани ACK/ідентичності й не видаляти чужі інтерфейси.
 - CI служб `38755061700` успішний на цьому коді. Повні збірки `38755061752` і `38754523419` були in_progress під час передачі: перевірити результати, не дублювати запуск без причини.
 - USB/IP: код, HTTP/WebUI та пакування підтверджені збіркою 283; деталі `docs/USBIP-HADZHIOGLU.md`, `docs/evidence/WR1200JS-BUILD283.md`. Фізична перевірка й persistence експорту залишаються відкритими.
 - Не чіпати наявний сторонній diff `tools/prepare-wifi-hwnat-mode.py` (CRLF). Не додавати всі untracked fixtures/cache у Git.
