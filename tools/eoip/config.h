@@ -12,7 +12,7 @@ struct wr_eoip_config {
  struct in_addr local,remote;
  char bridge[16];
 };
-static int wr_eoip_decimal(const char *s,unsigned maximum,unsigned *out)
+static inline int wr_eoip_decimal(const char *s,unsigned maximum,unsigned *out)
 {
  unsigned n=0;size_t i,length;
  if(!s||!out||(length=strlen(s))==0||length>10)return 0;
@@ -23,7 +23,7 @@ static int wr_eoip_decimal(const char *s,unsigned maximum,unsigned *out)
  }
  *out=n;return 1;
 }
-static int wr_eoip_ipv4(const char *s,int automatic,struct in_addr *out)
+static inline int wr_eoip_ipv4(const char *s,int automatic,struct in_addr *out)
 {
  uint32_t host;
  if(!s||inet_pton(AF_INET,s,out)!=1)return 0;
@@ -32,7 +32,7 @@ static int wr_eoip_ipv4(const char *s,int automatic,struct in_addr *out)
  /* Reject unspecified, loopback, multicast and reserved/broadcast ranges. */
  return (host>>24)!=0&&(host>>24)!=127&&(host>>24)<224;
 }
-static int wr_eoip_validate(const char *slot,const char *enabled,const char *autostart,
+static inline int wr_eoip_validate(const char *slot,const char *enabled,const char *autostart,
  const char *local,const char *remote,const char *id,const char *mtu,
  const char *keepalive,const char *retries,const char *bridge,struct wr_eoip_config *out)
 {

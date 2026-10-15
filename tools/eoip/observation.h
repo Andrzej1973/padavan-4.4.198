@@ -10,12 +10,12 @@ struct wr_eoip_observation {
  int ifindex;unsigned flags,mtu,master,owned;
  char name[16],kind[16],alias[64];
 };
-static int wr_eoip_attr_string(const unsigned char *p,size_t n,char *out,size_t size)
+static inline int wr_eoip_attr_string(const unsigned char *p,size_t n,char *out,size_t size)
 {
  if(!n||n>size||p[n-1]||memchr(p,0,n-1))return 0;
  memcpy(out,p,n);return 1;
 }
-static int wr_eoip_attrs(const unsigned char *p,size_t size,int nested,struct wr_eoip_observation *out)
+static inline int wr_eoip_attrs(const unsigned char *p,size_t size,int nested,struct wr_eoip_observation *out)
 {
  unsigned seen=0,count=0;
  while(size){
@@ -49,7 +49,7 @@ static int wr_eoip_attrs(const unsigned char *p,size_t size,int nested,struct wr
  }
  return 1;
 }
-static int wr_eoip_decode_link(const void *buffer,size_t size,uint32_t sequence,
+static inline int wr_eoip_decode_link(const void *buffer,size_t size,uint32_t sequence,
  const char *name,const char *owner,struct wr_eoip_observation *out)
 {
  struct nlmsghdr message;struct ifinfomsg info;struct wr_eoip_observation value;

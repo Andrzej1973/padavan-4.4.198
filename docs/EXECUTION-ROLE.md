@@ -202,6 +202,13 @@ directory, nonblocking flock, CLOEXEC, versioned per-slot ifindex, atomic write,
 профілі. Не пакується. Sanitizer fixture додано, CI ще очікується. Далі
 об’єднати create/configure/remove під одним lock із rollback і kernel postcheck.
 
+Runtime-state CI 38753942819 успішний. Додано lifecycle orchestration під одним
+lock: absence → create → query identity → record → configure → postcheck;
+rollback/stop очищають record лише після підтвердженої відсутності. Існуючі
+або foreign links не замінюються. Fixture mock-мережі + справжніх record files
+додано, CI ще очікується. Реальні adapter/configure і firmware wiring не
+завершені; missing ACK/orphan recovery та повний parameter postcheck відкриті.
+
 Локалізація успадкованих значень словників: 33 китайські значення в
 `trunk/user/www/dict/EN.footer` замінено англійськими, а `UK.dict` і `RU.dict`
 доповнено відповідними перекладами. Новий крок

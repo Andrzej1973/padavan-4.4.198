@@ -134,6 +134,29 @@ separate future work. The sanitizer fixture covers lock exclusion, descriptor
 flags, record replacement/refusal, corrupt/symlink data and private-directory
 checks. Its CI is pending; no firmware packaging or live action was added.
 
+Runtime-record CI 38753942819 passed at `61823de`.
+
+## Lifecycle orchestration increment
+
+`tools/eoip/lifecycle.h` combines the configuration, observation and volatile
+records behind adapter callbacks. One lock covers each complete start/stop.
+Start refuses every existing interface, clears stale records only after
+confirmed absence, creates exclusively, observes identity, saves the index,
+configures and checks owned index/admin-up/MTU/master. Failure after a known
+creation invokes owned cleanup and an absence postcheck. A failed/unconfirmed
+cleanup keeps the recovery record. A missing creation acknowledgement or
+unobservable identity is unconfirmed; no interface is adopted or blindly deleted.
+Stop uses only slot/record/kernel observation, independent of endpoint fields.
+
+The native fixture uses mock network adapters and real private record files;
+it covers whole-action lock exclusion, existing/foreign refusal, index mismatch,
+configuration failure/postcheck mismatch, successful rollback and failed cleanup.
+CI is pending at introduction. The actual mutation adapters and firmware wiring
+are still absent; this is not a working router service yet. Endpoint/ID/keepalive
+post-observation and table-level conflicts remain necessary. A missing ACK with
+no recorded index can leave an orphan requiring explicit recovery; no automatic
+adoption is implemented. Physical identity races remain unverified.
+
 ## Required next work
 
 Implement owned-interface start/stop and cleanup, safe disabled defaults,
