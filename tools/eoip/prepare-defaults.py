@@ -51,6 +51,29 @@ def prepare(source: Path, config: Path) -> None:
                     '#endif\n')
         text = text.replace(anchor, anchor + addition)
     prepared.append((path, text))
+    # A dedicated rc notification needs no General Apply event bit and avoids
+    # coupling EoIP to restart_vpn or another unrelated service transaction.
+    path = user / 'shared/notify_rc.h'
+    text = path.read_text()
+    lines = text.splitlines(keepends=True)
+    matches = [i for i, line in enumerate(lines)
+               if line.split(maxsplit=2)[:2] == ['#define', 'RCN_RESTART_IPERF3']]
+    if len(matches) != 1 or 'RCN_APPLY_EOIP' in text:
+        raise SystemExit(f'EoIP notification declaration anchor changed: {path}')
+    lines.insert(matches[0], '#define RCN_APPLY_EOIP "apply_eoip"\n')
+    prepared.append((path, ''.join(lines)))
+    path = user / 'rc/rc.c'
+    text = path.read_text()
+    anchor = '#if defined(APP_IPERF3)\n\t\telse if (strcmp(entry->d_name, RCN_RESTART_IPERF3) == 0)'
+    if text.count(anchor) != 1 or 'RCN_APPLY_EOIP' in text:
+        raise SystemExit(f'EoIP notification handler anchor changed: {path}')
+    addition = ('#if defined(APP_EOIP)\n'
+                '\t\telse if (strcmp(entry->d_name, RCN_APPLY_EOIP) == 0)\n'
+                '\t\t{\n'
+                '\t\t\tif (eval("/usr/bin/wr-eoip-boot", "apply") != 0)\n'
+                '\t\t\t\tlogmessage("EoIP", "Apply incomplete; inspect observed slot state");\n'
+                '\t\t}\n#endif\n')
+    prepared.append((path, text.replace(anchor, addition + anchor)))
     for path, text in prepared:
         path.write_text(text)
     print('Prepared disabled EoIP master and eight persistent slot defaults')

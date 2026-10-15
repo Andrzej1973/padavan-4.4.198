@@ -280,6 +280,22 @@ only: no EoIP interface has been created on any router.
 
 ## Required next work
 
+Apply notification preparation: the selected-profile generator now declares
+`RCN_APPLY_EOIP` as `apply_eoip` and adds its own guarded rc notification branch
+calling the EoIP policy's `apply` action. It uses no General Apply bit and does
+not reuse restart_vpn, restart_netfilter or another service's notification.
+This is the receiver only: no HTTP settings writer/sender is exposed yet.
+Changes are prepared together before generator writes, including rc.c and the
+notification header. Target compilation of this increment remains pending.
+
+Local verification on 2026-10-15 used exact pinned-source files from
+`c25283e915a2a00a763774dd255b14aff997285e`: default schema and independent rc
+handler preparation succeeded. Separately, EoIP page preparation succeeded on
+the pinned services page/dictionaries, all page WREOIP keys were present in
+EN/UK/RU, and Node accepted the extracted inline JavaScript syntax. Fixtures
+are local under guide-stage and are not delivery files. This does not execute
+the real HTTP session or validate rendered browser layout.
+
 Read-only page integration: selected builds install
 `Advanced_Services_EoIP.asp`, linked from Administration/Services, and the
 status view asset with EN/UK/RU labels. Initial loading and manual refresh use
