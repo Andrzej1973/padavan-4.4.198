@@ -183,6 +183,21 @@ before installation. Compilation/packaging of this correction remains pending.
 The generated model guide now documents the toggle, managed commands, LAN-only
 policy, shared printer event, and the unverified export/persistence boundaries.
 
+The inventory increment adds `wr_usbip_inventory` through the existing HTTP
+EJ handler table and USB page. It reads sysfs without invoking shell commands or
+changing driver bindings. Bus IDs and hex attributes are validated; root and
+interface entries are excluded, as are known USB hubs. Reads are bounded to
+256 directory entries and 64 result rows, with explicit truncation. An
+unavailable directory/read error returns `source_unavailable`; unreadable hex
+attributes remain empty/unknown. Export state observes the `usbip-host` driver
+binding, not a connected client or successful transfer. The page loads once
+and supports manual refresh, one outstanding request, a five-second timeout,
+and clearing old data to unknown before a request. It writes text, not HTML.
+Local baseline source transformation and Python compilation passed. Native
+ASan/UBSan fixture, full firmware compilation, browser behavior and physical
+sysfs observation remain unverified until their respective checks complete.
+Bind/unbind actions and persistence of device exports are still unfinished.
+
 [CI 38639330507](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38639330507)
 passed at `33c5d91a0a67047256274f2809d391920a5d34a0`: shell syntax,
 isolated lifecycle/policy checks and the existing service checks. The daemon

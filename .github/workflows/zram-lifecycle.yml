@@ -54,6 +54,9 @@ jobs:
           sh -n tools/usbip/service.sh
           python3 tools/usbip/check-service.py
           python3 tools/usbip/check-web.py
+          python3 tools/usbip/check-inventory.py --output checks/usbip-inventory.c
+          gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined checks/usbip-inventory.c -o checks/usbip-inventory
+          ASAN_OPTIONS=detect_leaks=1 checks/usbip-inventory
           python3 tools/usbip/prepare-firewall-check.py --output checks/usbip-firewall.c
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined checks/usbip-firewall.c -o checks/usbip-firewall
           ASAN_OPTIONS=detect_leaks=1 checks/usbip-firewall

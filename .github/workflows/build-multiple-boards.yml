@@ -69,6 +69,8 @@ on:
       - 'tools/usbip/prepare-firewall.py'
       - 'tools/usbip/prepare-lifecycle.py'
       - 'tools/usbip/prepare-web.py'
+      - 'tools/usbip/prepare-inventory.py'
+      - 'tools/usbip/inventory.inc'
       - 'tools/usbip/service.sh'
       - 'tools/usbip/firewall-policy.sh'
       - 'tools/check-usbip-status.py'
