@@ -140,6 +140,16 @@ For supervised manual operation use `wr-usbip start|stop|restart|status` rather
 than invoking the daemon directly. Status exit zero means an owned daemon was
 observed, not successful USB data transfer. USB export remains a separate action.
 
+`tools/usbip/prepare-lifecycle.py` now adds `APP_USBIP` only for the selected
+package, an NVRAM default `usbip_enable=0`, and boot/shutdown calls in RC.
+Boot starts the owned controller only for the exact value `1`; startup failure
+is logged without aborting the remaining service sequence. Shutdown attempts
+the managed stop and logs an unconfirmed stop. No existing NVRAM value is
+overwritten by this generator. Its changes were applied successfully to the
+actual baseline locally; compilation and device persistence remain unverified.
+No UI action or automatic USB export is supplied by these hooks. A saved
+enable value alone does not prove that a daemon or USB transfer is working.
+
 [CI 38639330507](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38639330507)
 passed at `33c5d91a0a67047256274f2809d391920a5d34a0`: shell syntax,
 isolated lifecycle/policy checks and the existing service checks. The daemon
