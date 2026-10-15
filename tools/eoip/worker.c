@@ -175,6 +175,45 @@ truncated:
     return WR_EOIP_WORKER_UNCONFIRMED;
 }
 
+/* Read-only checks before table mutations. Lifecycle operations repeat their
+ * ownership checks afterwards: external netlink writers can still race us. */
+static int wr_eoip_worker_table_preflight(struct wr_eoip_worker *worker,
+    const struct wr_eoip_config profiles[8], int applying, char *message, size_t size)
+{
+    struct wr_eoip_state registry = {.fd = -1};
+    unsigned slot;
+    if (!worker->transport->query) {
+        wr_eoip_worker_report(message, size, "preflight query unavailable", -1); return 0;
+    }
+    for (slot = 0; slot < 8; slot++) {
+        struct wr_eoip_observation bridge;
+        if (!profiles[slot].enabled || (!applying && !profiles[slot].autostart) || !profiles[slot].bridge[0]) continue;
+        if (worker->transport->query(worker->transport->context, profiles[slot].bridge,
+            "wr-eoip:preflight", &bridge) != 2 || strcmp(bridge.kind, "bridge") || bridge.ifindex <= 0) {
+            wr_eoip_worker_report(message, size, "bridge preflight refused for slot", (int)slot);
+            return 0;
+        }
+    }
+    if (!applying) return 1;
+    if (!wr_eoip_state_lock(worker->directory, &registry)) {
+        wr_eoip_worker_report(message, size, "preflight registry unavailable", -1); return 0;
+    }
+    for (slot = 0; slot < 8; slot++) {
+        struct wr_eoip_observation observed;
+        unsigned index = 0;
+        int record = wr_eoip_state_read(&registry, slot, &index);
+        int present = wr_eoip_controller_query(worker->transport, slot, &observed);
+        if (!record || (present != 1 && (present != 2 || record != 2 ||
+            !observed.owned || observed.ifindex != (int)index))) {
+            wr_eoip_state_unlock(&registry);
+            wr_eoip_worker_report(message, size, "ownership preflight refused for slot", (int)slot);
+            return 0;
+        }
+    }
+    wr_eoip_state_unlock(&registry);
+    return 1;
+}
+
 /* Returns one of the wr_eoip_worker_result codes and never exits the process. */
 static int wr_eoip_worker_dispatch_unlocked(struct wr_eoip_worker *worker, int argc, char **argv,
                                    char *message, size_t size)
@@ -243,6 +282,8 @@ static int wr_eoip_worker_dispatch_unlocked(struct wr_eoip_worker *worker, int a
             wr_eoip_worker_report(message, size, "table valid", -1);
             return WR_EOIP_WORKER_OK;
         }
+        if (!wr_eoip_worker_table_preflight(worker, profiles, applying, message, size))
+            return WR_EOIP_WORKER_REFUSED;
         if (applying) {
             /* Only after validating the entire requested table. Cleanup needs
              * no endpoint values; never adopt or replace a foreign interface.

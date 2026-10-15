@@ -280,6 +280,18 @@ only: no EoIP interface has been created on any router.
 
 ## Required next work
 
+Table preflight now probes requested bridge kinds before starting/stopping any
+table interfaces. Apply also checks the complete managed-slot registry and
+observed ownership/index set before its cleanup phase. Missing/wrong-kind
+bridges, unknown observations, foreign names or corrupt ownership records now
+refuse before deliberately disrupting an existing owned slot. Actual lifecycle
+operations retain their own fresh checks because external netlink writers can
+still race preflight; this is not an atomic kernel transaction or a guarantee
+against failures after changes begin. The pure validate-table command remains
+configuration-only. Fixture cases now assert that an already running slot
+survives missing-bridge and later-slot foreign-name refusals; execution of this
+increment remains pending CI. No physical router changes were made.
+
 HTTP fixture coverage follow-up: the GET snapshot is now captured from the real
 serializer and parsed by Python's JSON decoder, checking all eight slots and
 quote/backslash round trips independently of C substring checks. Request-input

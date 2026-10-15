@@ -221,6 +221,26 @@ int main(void)
     assert(links[0].mtu == 1458 && links[0].master == 9 && (links[0].flags & 1U));
     assert(wr_eoip_worker_dispatch(&worker, 3, status, message, sizeof(message)) == WR_EOIP_WORKER_OK);
     assert(strstr(message, "owned index 42") && strstr(message, "mtu 1458"));
+    /* Bad topology/ownership discovered in a table must preserve an already
+     * running owned slot, not stop it before discovering the later refusal. */
+    {
+        char *table[82] = {"eoip-service", "apply-table"};
+        char slots[8][2]; unsigned n, field;
+        for (n = 0; n < 8; n++) {
+            slots[n][0] = (char)('0'+n); slots[n][1] = 0;
+            for (field = 0; field < 10; field++) table[2+n*10+field] = "";
+            table[2+n*10] = slots[n]; table[3+n*10] = "0"; table[4+n*10] = "0";
+        }
+        for (field = 1; field < 10; field++) table[2+field] = start[2+field];
+        table[11] = "missing-bridge";
+        assert(wr_eoip_worker_dispatch(&worker, 82, table, message, sizeof(message)) == WR_EOIP_WORKER_REFUSED);
+        assert(strstr(message, "bridge preflight") && create_calls == 1 && delete_calls == 0 && links[0].present);
+        table[11] = "";
+        links[1].name = "wr-eoip7"; links[1].kind = "veth";
+        assert(wr_eoip_worker_dispatch(&worker, 82, table, message, sizeof(message)) == WR_EOIP_WORKER_REFUSED);
+        assert(strstr(message, "ownership preflight") && delete_calls == 0 && links[0].present);
+        links[1].name = "br0"; links[1].kind = "bridge";
+    }
     assert(wr_eoip_worker_dispatch(&worker, 2, status_json, message, sizeof(message)) == WR_EOIP_WORKER_OK);
     assert(strstr(message, "\"schema\":1") && strstr(message, "\"state\":\"up\""));
     assert(strstr(message, "\"ifindex\":42") && !strstr(message, "10.0.0.2"));
