@@ -209,6 +209,12 @@ rollback/stop очищають record лише після підтверджен
 додано, CI ще очікується. Реальні adapter/configure і firmware wiring не
 завершені; missing ACK/orphan recovery та повний parameter postcheck відкриті.
 
+Lifecycle CI 38754523227 успішний. Додано endpoint/ID/keepalive observation
+і повний п’ятиатрибутний postcheck профілю; missing/mismatch веде до rollback.
+Приватні ABI IDs звіряються з eoip_proto.h у fixture, foreign link data не
+інтерпретуються як EoIP. Нові CI ще очікуються. Реальний configure adapter,
+firmware lifecycle wiring, persistence/UI та фізичне приймання лишаються відкритими.
+
 Локалізація успадкованих значень словників: 33 китайські значення в
 `trunk/user/www/dict/EN.footer` замінено англійськими, а `UK.dict` і `RU.dict`
 доповнено відповідними перекладами. Новий крок

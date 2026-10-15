@@ -41,7 +41,9 @@ static int wr_eoip_lifecycle_start(const char *directory,const struct wr_eoip_co
  }
  if(ops->configure(ops->context,config,index,&master)||
     ops->query(ops->context,config->slot,&observed)!=2||!observed.owned||
-    observed.ifindex!=(int)index||observed.mtu!=config->mtu||observed.master!=master||!(observed.flags&1U)){
+    observed.ifindex!=(int)index||observed.mtu!=config->mtu||observed.master!=master||!(observed.flags&1U)||
+    observed.parameters!=31||observed.local!=config->local.s_addr||observed.remote!=config->remote.s_addr||
+    observed.tunnel_id!=config->tunnel_id||observed.keepalive!=config->keepalive||observed.retries!=config->retries){
   result=wr_eoip_rollback(&state,config->slot,index,ops);goto done;
  }
  result=WR_EOIP_OK;

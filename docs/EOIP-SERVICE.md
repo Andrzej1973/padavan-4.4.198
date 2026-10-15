@@ -157,6 +157,21 @@ post-observation and table-level conflicts remain necessary. A missing ACK with
 no recorded index can leave an orphan requiring explicit recovery; no automatic
 adoption is implemented. Physical identity races remain unverified.
 
+Lifecycle sanitizer CI 38754523227 passed at `7c98c08`. The next observation
+increment decodes EoIP local/remote addresses, tunnel ID and both private
+keepalive attributes from IFLA_INFO_DATA, with presence bits and size/duplicate
+checks. Data is interpreted only after the kind is known to be `eoip`, so
+foreign bridge attributes are not misread as EoIP fields; DATA-before-KIND is
+supported. Address/ID words preserve the pinned module/tool's raw netlink
+representation; the one-byte retry field is widened explicitly. A fixture
+asserts agreement with the pinned private attribute IDs 32/33.
+
+Lifecycle postchecks now require all five fields and exact requested values,
+in addition to index/admin-up/MTU/master. Missing/mismatched fields trigger
+cleanup rather than profile success. Tests include nested parameter decoding,
+foreign kinds and a tunnel-ID mismatch rollback. CI/full build of this change
+are pending; no real configuration adapter or router activation was added.
+
 ## Required next work
 
 Implement owned-interface start/stop and cleanup, safe disabled defaults,

@@ -1,10 +1,12 @@
 #include <assert.h>
 #include "lifecycle.h"
-struct fixture {const char *directory;int present,owned,index,create_fail,configure_fail,remove_fail,creates,removes;unsigned mtu,master,flags;};
+struct fixture {const char *directory;int present,owned,index,create_fail,configure_fail,remove_fail,creates,removes;unsigned mtu,master,flags;struct wr_eoip_config applied;};
 static int query(void *context,unsigned slot,struct wr_eoip_observation *out)
 {
  struct fixture *f=context;assert(slot==0);memset(out,0,sizeof(*out));
  out->owned=f->owned;out->ifindex=f->index;out->mtu=f->mtu;out->master=f->master;out->flags=f->flags;
+ out->parameters=31;out->local=f->applied.local.s_addr;out->remote=f->applied.remote.s_addr;
+ out->tunnel_id=f->applied.tunnel_id;out->keepalive=f->applied.keepalive;out->retries=f->applied.retries;
  return f->present;
 }
 static int create(void *context,const struct wr_eoip_config *config)
@@ -18,6 +20,7 @@ static int configure(void *context,const struct wr_eoip_config *config,unsigned 
 {
  struct fixture *f=context;assert(index==10);*master=2;
  if(f->configure_fail==1)return 1;
+ f->applied=*config;if(f->configure_fail==3)f->applied.tunnel_id++;
  f->mtu=config->mtu+(f->configure_fail==2);f->master=2;f->flags=1;return 0;
 }
 static int remove_link(void *context,unsigned slot,unsigned index)
@@ -46,6 +49,8 @@ int main(void)
  assert(wr_eoip_lifecycle_stop(directory,0,&ops)==WR_EOIP_OK&&record(directory,&index)==1);
  assert(wr_eoip_lifecycle_stop(directory,0,&ops)==WR_EOIP_OK);
  f.configure_fail=2;assert(wr_eoip_lifecycle_start(directory,&config,&ops)==WR_EOIP_ROLLED_BACK);
+ assert(record(directory,&index)==1);f.configure_fail=0;
+ f.configure_fail=3;assert(wr_eoip_lifecycle_start(directory,&config,&ops)==WR_EOIP_ROLLED_BACK);
  assert(record(directory,&index)==1);f.configure_fail=0;
  f.configure_fail=1;assert(wr_eoip_lifecycle_start(directory,&config,&ops)==WR_EOIP_ROLLED_BACK);
  assert(f.present==1&&record(directory,&index)==1);
