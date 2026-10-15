@@ -784,6 +784,20 @@ jobs:
             --config firmware-effective.config --define BOARD_WR1200JS \
             --report web-route-checks.json
 
+      - name: Verify complete EoIP WebUI and controller in ROMFS
+        run: |
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_EOIP=y$' firmware-effective.config; then
+            python3 tools/eoip/verify-image.py padavan-4.4/trunk/romfs --report eoip-image-checks.json
+          fi
+
+      - name: Preserve EoIP image checks
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: eoip-image-checks
+          path: eoip-image-checks.json
+          if-no-files-found: ignore
+
       - name: Upload WebUI route diagnostics
         if: always()
         uses: actions/upload-artifact@v7

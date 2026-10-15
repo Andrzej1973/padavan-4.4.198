@@ -280,6 +280,25 @@ only: no EoIP interface has been created on any router.
 
 ## Required next work
 
+Complete image gate: tools/eoip/verify-image.py now checks exact shipped page,
+both JS assets and lifecycle script, the services link, exactly one occurrence
+of every page WREOIP key in EN/UK/RU, linked HTTP/controller markers and all
+73 default keys in libshared. Its report explicitly sets runtime_verified=false.
+The workflow preserves the JSON separately as eoip-image-checks. The synthetic
+gate fixture passed locally, including missing-handler and duplicate-label
+refusal; it is not a real image or HTTP-session test.
+
+Service CI 38789306379 succeeded for the editor at af41ec0. Full builds 298,
+299, 300 and 301 were observed successful; 301 still predates the linked
+NVRAM adapter and editable page. Run 38787916213 for the adapter was verified
+still in its firmware compilation step and was not restarted.
+
+An attempted local browser preview was rejected by the browser tool's URL
+policy because file:// is not permitted. No alternate browser/transport was
+used to bypass that restriction. The local mock HTML is under guide-stage and
+contains only fake responses; no visual/browser acceptance is claimed. Native
+and Node fixtures do not replace a real rendered authenticated session.
+
 Editable page increment: safe-session EJ output wr_eoip_settings snapshots all
 stored values under operation-lock and JSON-escapes them after releasing it.
 The page obtains a token, loads a validated eight-row snapshot, assigns values
