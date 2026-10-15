@@ -280,6 +280,16 @@ only: no EoIP interface has been created on any router.
 
 ## Required next work
 
+Offline shell-policy coverage is now wired into service CI through
+`tools/eoip/check-policy.py`: default-off no-op, profile-independent full stop,
+disabled Apply, invalid master, NVRAM failures before mutation, full eight-slot
+quoted argv, literal shell metacharacters and module-loading failure. It runs
+an isolated copy under `/bin/sh` with mocked nvram, modprobe and worker; it does
+not operate on real interfaces or validate target BusyBox behavior. Execution
+of this new check is pending CI. Apply still needs an authenticated integration
+that coordinates NVRAM writes; no spare event bit should be assumed and no VPN
+service should be restarted as a side effect merely to reuse its event.
+
 Table application increment: `apply-table` validates every enabled profile and
 duplicate tuple before touching interfaces, then cleans all managed slots and
 starts enabled profiles regardless of autostart. Boot still starts only enabled
