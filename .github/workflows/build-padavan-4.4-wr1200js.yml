@@ -116,6 +116,7 @@ jobs:
           python3 tools/usbip/prepare-lifecycle.py padavan-4.4 --config configs.build/wr1200js.config
           python3 tools/usbip/prepare-web.py padavan-4.4 --config configs.build/wr1200js.config
           python3 tools/usbip/prepare-inventory.py padavan-4.4 --config configs.build/wr1200js.config
+          python3 tools/usbip/prepare-http-actions.py padavan-4.4 --config configs.build/wr1200js.config
           cp tools/usbip/service.sh tools/usbip/firewall-policy.sh padavan-4.4/trunk/user/usbip/
           cp tools/usbip/device-policy.sh tools/usbip/device-action.sh padavan-4.4/trunk/user/usbip/
           cp overlay/padavan-4.4/trunk/linux-4.4.x/tools/usb/usbip/libsrc/usbip_common.c \
@@ -562,6 +563,7 @@ jobs:
             grep -q 'name="usbip_enable"' trunk/romfs/www/Advanced_Printer_others.asp
             grep -q 'wrUSBIPInventoryRefresh' trunk/romfs/www/Advanced_Printer_others.asp
             grep -a -q 'wr_usbip_inventory' trunk/romfs/usr/sbin/httpd
+            grep -a -q 'wr_usbip_action.cgi' trunk/romfs/usr/sbin/httpd
             for dictionary in EN.dict UK.dict RU.dict; do
               grep -q '^WRUSBIPEnableNote=' "trunk/romfs/www/$dictionary"
             done

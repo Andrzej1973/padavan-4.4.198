@@ -263,6 +263,20 @@ it does not wait in the HTTP loop or reap unrelated children. Its caller still
 needs HTTP lifecycle integration. Tests cover running/success/failure reads,
 stale/mismatched/corrupt/symlink records and nonblocking reap; new CI pending.
 
+Reader/reap CI 38745527381 passed at `3afad54`. The HTTP integration increment
+adds authenticated `wr_usbip_action.cgi`, safe-session and actual-method POST
+checks, a process-local random 128-bit CSRF token, explicit confirmation,
+512-byte body limit and validated action arguments. It starts only the isolated
+worker and returns an accepted job ID, not operation success. The observation
+handler reads a matching result with a 120-second maximum age and reaps only
+the tracked worker without blocking. A request-method accessor is set from
+the HTTP server's parsed method, so a GET cannot reuse a previous POST marker.
+Token output is empty for unsafe sessions or entropy failure. No other service
+route or authentication gate is weakened. The native HTTP fixture mocks job
+execution separately from the real worker fixture. Source transformation and
+fixture generation passed locally; HTTP fixture CI and full compilation are
+pending. Device buttons/confirmation/result rendering have not been added yet.
+
 [CI 38639330507](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38639330507)
 passed at `33c5d91a0a67047256274f2809d391920a5d34a0`: shell syntax,
 isolated lifecycle/policy checks and the existing service checks. The daemon

@@ -140,6 +140,14 @@ closure, private directory). Повна збірка №281, run 38743571489 н�
 reader та неблокувальне прибирання до HTTPD, потім UI; нічого не вмикалося
 на фізичному роутері.
 
+Reader/reap CI 38745527381 успішний. Підготовлено HTTP integration: окремий
+auth route `wr_usbip_action.cgi`, actual POST accessor у httpd.c, safe session,
+random CSRF token, ack, body limit 512, async launch і matching result reader
+з віком 120 секунд. Локальна трансформація базових C успішна; native fixture
+із mock scheduler додано, Linux CI й повна компіляція ще очікуються. Кнопки
+та відображення результату в USB UI залишаються наступним кроком. Нічого не
+запускалося на живому роутері; ZeroTier не змінено.
+
 Локалізація успадкованих значень словників: 33 китайські значення в
 `trunk/user/www/dict/EN.footer` замінено англійськими, а `UK.dict` і `RU.dict`
 доповнено відповідними перекладами. Новий крок
