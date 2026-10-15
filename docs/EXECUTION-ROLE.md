@@ -163,6 +163,12 @@ USB/IP код/пакування підтверджені в цьому обся
 Далі продовжувати незавершений service scope (USB export persistence/EoIP)
 зі звіркою чинних вимог; не називати порт завершеним і не прошивати без дозволу.
 
+Наступний service increment — EoIP. Звірено наявний IPv4 module/eoip-ctl і
+повний потрібний обсяг. Додано pure C validator requested-профілю (IPv4, ID,
+MTU, keepalive, bridge syntax) та sanitizer fixture. Не пакується і не змінює
+тунелі. Межі й наступні кроки: `docs/EOIP-SERVICE.md`. Linux CI ще очікується;
+далі owned lifecycle, конфлікти таблиці, persistence, UI та фактичні статуси.
+
 Локалізація успадкованих значень словників: 33 китайські значення в
 `trunk/user/www/dict/EN.footer` замінено англійськими, а `UK.dict` і `RU.dict`
 доповнено відповідними перекладами. Новий крок
