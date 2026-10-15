@@ -95,6 +95,10 @@ jobs:
           patch --batch --forward -p1 -d padavan-4.4 \
             < overlay/padavan-4.4/patches/wan-port-runtime.diff
           python3 tools/wan-port/verify-runtime-patch.py padavan-4.4
+          # Wire rc to the override: wan_src_phy names the WAN socket, the board
+          # socket stays isolated, tagged sockets are refused.
+          python3 overlay/padavan-4.4/scripts/integrate-wan-port.py padavan-4.4
+          python3 tools/wan-port/verify-service-integration.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/fix-web-event-masks.py padavan-4.4
           python3 tools/prepare-zram-status-web.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/add-json-route.py padavan-4.4

@@ -36,7 +36,7 @@ index a3b8098..03286a5 100644
  // USER CONTROL
  /////////////////////////////////////////////////
 diff --git a/trunk/linux-4.4.x/drivers/net/ethernet/raeth/mtk_esw/ioctl_mt762x.c b/trunk/linux-4.4.x/drivers/net/ethernet/raeth/mtk_esw/ioctl_mt762x.c
-index b9288cc..2b9a946 100644
+index b9288cc..d8cf641 100644
 --- a/trunk/linux-4.4.x/drivers/net/ethernet/raeth/mtk_esw/ioctl_mt762x.c
 +++ b/trunk/linux-4.4.x/drivers/net/ethernet/raeth/mtk_esw/ioctl_mt762x.c
 @@ -59,6 +59,26 @@ static u32 g_port_phy_power[ESW_EPHY_ID_MAX+1]   = {0, 0, 0, 0, 0};
@@ -324,7 +324,7 @@ index b9288cc..2b9a946 100644
  		return VirtualIF_get_bytes(pb);
  #endif
  
-@@ -1369,6 +1406,52 @@ static int change_wan_lan_ports_power(u32 power_on, u32 is_wan)
+@@ -1369,6 +1406,56 @@ static int change_wan_lan_ports_power(u32 power_on, u32 is_wan)
  	return power_changed;
  }
  
@@ -353,8 +353,12 @@ index b9288cc..2b9a946 100644
 +	if (port_x == g_wan_port_x)
 +		return 0;
 +
-+	if (atomic_read(&g_switch_inited) == 0)
-+		return -EAGAIN;
++	if (atomic_read(&g_switch_inited) == 0) {
++		/* Nothing is programmed yet: the init path will use the new port. */
++		g_wan_port_x = port_x;
++		g_mask_wan_port_x = (1u << port_x);
++		return 0;
++	}
 +
 +	/* Same power sequencing the bridge-mode change already relies on. */
 +	power_changed = change_wan_lan_ports_power(0, 1);
@@ -377,7 +381,7 @@ index b9288cc..2b9a946 100644
  static int change_bridge_mode(u32 wan_bwan_isolation, u32 wan_bridge_mode)
  {
  	int i, bridge_changed, br_iso_changed, vlan_rule_changed, power_changed;
-@@ -1817,11 +1900,11 @@ int esw_get_traffic_port_wan(struct rtnl_link_stats64 *stats)
+@@ -1817,11 +1904,11 @@ int esw_get_traffic_port_wan(struct rtnl_link_stats64 *stats)
  {
  	ULARGE_INTEGER rx_goct, tx_goct;
  

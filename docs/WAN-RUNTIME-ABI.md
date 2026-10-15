@@ -151,6 +151,27 @@ Verification so far is local only: the patch applies cleanly to the pinned tree
 the patched tree while failing on the unpatched tree. The MIPS cross-compile in
 the full build is pending, and no device behaviour is claimed.
 
+#### rc wiring
+
+`overlay/padavan-4.4/scripts/integrate-wan-port.py` adds `phy_wan_port_x_set()`
+to `switch.h` and `switch_mtk_esw.c`, adds `wan_switch_port()` to `net_lan.c`,
+and calls it from `switch_config_vlan()` before `phy_bridge_mode()`, so the
+selection is in place before the rebuild that consumes it:
+
+- The socket comes from `wan_src_phy`, the key the WAN settings page already
+  exposes as the WAN source port next to `wan_stb_x`
+  (`trunk/user/www/n56u_ribbon_fixed/Advanced_WAN_Content.asp`), and `net_wan.c`
+  keeps using the same key for link monitoring.
+- Values outside `LAN1..LAN4` fall back to the board socket. With `vlan_filter=1`
+  a socket whose tag-based rule has a valid VID is refused the same way, instead
+  of having its rules silently cleared.
+- Behaviour change to be explicit about: a non-zero `wan_src_phy` now moves the
+  WAN role. With the key unset or zero the previous behaviour is unchanged, and
+  the WAN page normalises the field back to `WAN` when `wan_stb_x` is 0.
+
+Local end-to-end check on a copy of the pinned tree: the patch applies, the
+service verifier fails before the integration step and passes after it.
+
 ### Known limits
 
 - Only external PHYs can carry the WAN role; CPU ports and board-excluded ports
@@ -163,9 +184,9 @@ the full build is pending, and no device behaviour is claimed.
 
 ### Remaining
 
-1. `rc` integration: apply and restore commands, observed versus requested state,
-   authenticated write, default-original NVRAM, keeping `wan_src_phy` in step for
-   link monitoring, and the model guide.
+1. An apply path that reports requested versus effective state (the read-back
+   command exists but nothing consumes it yet), an authenticated way to change
+   `wan_src_phy`, and the model guide entry.
 2. Image-level evidence from the project verifiers already used for builds
    294–310, then physical acceptance on the device with explicit permission.
 
