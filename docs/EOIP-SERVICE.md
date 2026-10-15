@@ -92,6 +92,28 @@ creation primitive, not a completed manager: owned cleanup, parameter/status
 comparison, table persistence, boot policy and WebUI remain open. Atomic
 request construction does not prove kernel rollback or runtime ownership races.
 
+Owned-create sanitizer CI 38752941074 passed at `e297cf3`; its full firmware
+build was still active when the next increment began.
+
+## Owned removal increment
+
+`eoip-ctl owned-remove SLOT EXPECTED_IFINDEX` queries the fixed managed name
+and alias, refuses unknown/foreign/index-mismatched observations, and sends
+RTM_DELLINK by the verified index. Confirmed absence is an idempotent success.
+After a successful delete acknowledgement it queries again; only confirmed
+absence is success, while present/unknown becomes unconfirmed. Cleanup does
+not depend on valid saved endpoint or MTU fields. The legacy `remove name`
+command remains unchanged and is not the manager's cleanup primitive.
+
+The tool package now copies the query/observation headers and tracks their
+object dependencies. The optional MIPS candidate compile uses the same headers.
+A wrapped-transport sanitizer fixture exercises owned removal, refusal,
+send failure and the postcheck without deleting a real interface. CI/full
+compilation are pending. This is not an atomic compare-and-delete operation:
+kernel identity changes between query and deletion remain a runtime race.
+The higher-level manager must serialize its own actions and preserve its
+recorded identity; table lifecycle/persistence/WebUI are not implemented yet.
+
 ## Required next work
 
 Implement owned-interface start/stop and cleanup, safe disabled defaults,

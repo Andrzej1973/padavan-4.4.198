@@ -11,6 +11,10 @@
 #include "eoip_version.h"
 #include "libnetlink.h"
 #include "unified/eoip_proto.h"
+#include "netlink-query.h"
+#ifndef WR_EOIP_QUERY_LINK
+#define WR_EOIP_QUERY_LINK wr_eoip_query_link
+#endif
 
 // nested attribute table size covering both the system IFLA_GRE_* range
 // and the private eoip attributes
@@ -144,25 +148,14 @@ static int list(void) {
 	return 0;
 }
 
-static int eoip_remove(const char *name) {
+static int eoip_remove_index(unsigned int index) {
 	struct {
 		struct nlmsghdr msg;
 		struct ifinfomsg ifi;
 	} req;
 	struct rtnl_handle rth = { .fd = -1 };
-	unsigned int index;
 	int result;
-	if (!name || !*name || strlen(name) >= IFNAMSIZ ||
-	    strchr(name, '/') || strchr(name, ':') || strchr(name, ' ') ||
-	    strchr(name, '\t') || strchr(name, '\n')) {
-		fprintf(stderr, "invalid interface name\n");
-		return 1;
-	}
-	index = if_nametoindex(name);
-	if (!index) {
-		fprintf(stderr, "unable to get interface %s index: %s\n", name, strerror(errno));
-		return 3;
-	}
+	if (!index || index > 0x7fffffffU) return 1;
 	memset(&req, 0, sizeof(req));
 	req.msg.nlmsg_len = NLMSG_LENGTH(sizeof(req.ifi));
 	req.msg.nlmsg_type = RTM_DELLINK;
@@ -176,6 +169,32 @@ static int eoip_remove(const char *name) {
 	result = rtnl_talk(&rth, &req.msg, 0, 0, NULL);
 	rtnl_close(&rth);
 	return result < 0 ? 2 : 0;
+}
+static int eoip_remove(const char *name) {
+	unsigned int index;
+	if (!name || !*name || strlen(name) >= IFNAMSIZ ||
+	    strchr(name, '/') || strchr(name, ':') || strchr(name, ' ') ||
+	    strchr(name, '\t') || strchr(name, '\n')) {
+		fprintf(stderr, "invalid interface name\n");
+		return 1;
+	}
+	index = if_nametoindex(name);
+	if (!index) {
+		fprintf(stderr, "unable to get interface %s index: %s\n", name, strerror(errno));
+		return 3;
+	}
+	return eoip_remove_index(index);
+}
+static int eoip_remove_owned(unsigned slot,unsigned expected_index) {
+	char name[16],owner[32];struct wr_eoip_observation observation;int result;
+	if(slot>7 || !expected_index || expected_index>0x7fffffffU)return 1;
+	snprintf(name,sizeof(name),"wr-eoip%u",slot);
+	snprintf(owner,sizeof(owner),"wr-eoip:%u:v1",slot);
+	result=WR_EOIP_QUERY_LINK(name,owner,&observation);
+	if(result==1)return 0;
+	if(result!=2 || !observation.owned || observation.ifindex!=(int)expected_index)return 3;
+	result=eoip_remove_index(expected_index);if(result)return result;
+	return WR_EOIP_QUERY_LINK(name,owner,&observation)==1?0:4;
 }
 
 static int eoip_add(int excl,char *name,uint32_t tunnelid,int af,void *sip,void *dip,uint32_t link,uint8_t ttl,uint8_t tos,int kaset,uint32_t kai,uint8_t kar,const char *owner) {
@@ -276,6 +295,7 @@ typedef enum {
 	C_ADD,
 	C_SET,
 	C_REMOVE,
+	C_REMOVE_OWNED,
 	C_VER,
 	C_HELP,
 	P_LOCAL,
@@ -302,6 +322,7 @@ static s_cmd cmds[] = {
 	{ .cmd = "set", .cid = C_SET, },
 	{ .cmd = "change", .cid = C_SET, },
 	{ .cmd = "remove", .cid = C_REMOVE, },
+	{ .cmd = "owned-remove", .cid = C_REMOVE_OWNED, },
 	{ .cmd = "version", .cid = C_VER, },
 	{ .cmd = "--version", .cid = C_VER, },
 	{ .cmd = "-v", .cid = C_VER, },
@@ -369,6 +390,7 @@ static void usage(char *me) {
 		"\tIPv6 local/remote addresses select the eoipv6 tunnel kind (tunnel-id 0..4095)\n"
 		"\tkeepalive is off by default; retries defaults to 10 (the RouterOS default is 10,10); retries 0 means send-only\n"
 		"\towner wr-eoip:<0..7>:v1 is permitted only with add name wr-eoip<slot> over IPv4\n"
+		"\towned-remove <slot 0..7> <expected-ifindex> checks type/alias/index before deletion\n"
 		,me,me,me,me,me);
 }
 
@@ -398,6 +420,12 @@ int main(int argc,char **argv) {
 					return 1;
 				}
 				return eoip_remove(argv[3]);
+			case C_REMOVE_OWNED: {
+				unsigned long slot,index;
+				if(argc!=4 || parse_num(argv[2],7,&slot) ||
+				   parse_num(argv[3],0x7fffffff,&index) || !index)return 1;
+				return eoip_remove_owned((unsigned)slot,(unsigned)index);
+			}
 			case C_SET:
 				excl = 0;
 				// fall through

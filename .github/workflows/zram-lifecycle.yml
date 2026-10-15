@@ -71,8 +71,10 @@ jobs:
           ASAN_OPTIONS=detect_leaks=1 checks/eoip-observation
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined tools/eoip/check-netlink-query.c -o checks/eoip-query
           ASAN_OPTIONS=detect_leaks=1 timeout 10s checks/eoip-query
-          gcc -std=gnu99 -Wall -Wextra -fsanitize=address,undefined tools/eoip/check-owned-create.c overlay/padavan-4.4/candidates/eoip/libnetlink.c -Wl,--wrap=rtnl_open,--wrap=rtnl_close,--wrap=rtnl_talk -o checks/eoip-owned-create
+          gcc -std=gnu99 -Wall -Wextra -I tools/eoip -fsanitize=address,undefined tools/eoip/check-owned-create.c overlay/padavan-4.4/candidates/eoip/libnetlink.c -Wl,--wrap=rtnl_open,--wrap=rtnl_close,--wrap=rtnl_talk -o checks/eoip-owned-create
           ASAN_OPTIONS=detect_leaks=1 checks/eoip-owned-create
+          gcc -std=gnu99 -Wall -Wextra -I tools/eoip -fsanitize=address,undefined tools/eoip/check-owned-remove.c overlay/padavan-4.4/candidates/eoip/libnetlink.c -Wl,--wrap=rtnl_open,--wrap=rtnl_close,--wrap=rtnl_talk -o checks/eoip-owned-remove
+          ASAN_OPTIONS=detect_leaks=1 checks/eoip-owned-remove
           python3 tools/usbip/check-web.py
           python3 tools/usbip/check-inventory.py --output checks/usbip-inventory.c
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined checks/usbip-inventory.c -o checks/usbip-inventory

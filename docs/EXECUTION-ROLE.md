@@ -189,6 +189,13 @@ Query CI 38752406828 успішний. Наявний eoip-ctl розширен�
 mock netlink, без створення інтерфейсів. Додано trigger full build для EoIP
 candidate source. CI/повна компіляція ще очікуються; далі owned stop/rollback.
 
+Owned-create CI 38752941074 успішний. Додано `owned-remove SLOT IFINDEX`:
+query kind/alias/index → delete by index → absence postcheck; foreign/unknown
+не видаляються, повторна відсутність є успіхом. Старий remove name збережено.
+Query headers пакуються з eoip-ctl; додано wrapped fixture і full image marker.
+Нові CI ще очікуються. Далі вищий lifecycle із lock/recorded identity,
+rollback, persistence та UI; query/delete race ще не усунуто. Роутер не змінено.
+
 Локалізація успадкованих значень словників: 33 китайські значення в
 `trunk/user/www/dict/EN.footer` замінено англійськими, а `UK.dict` і `RU.dict`
 доповнено відповідними перекладами. Новий крок

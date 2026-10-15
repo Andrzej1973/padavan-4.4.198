@@ -686,6 +686,7 @@ jobs:
             test -x trunk/romfs/usr/bin/eoip-ctl
             readelf -h trunk/romfs/usr/bin/eoip-ctl | grep -q 'Machine:.*MIPS'
             grep -a -q 'remove name' trunk/romfs/usr/bin/eoip-ctl
+            grep -a -q 'owned-remove' trunk/romfs/usr/bin/eoip-ctl
           fi
           if grep -q '^CONFIG_FIRMWARE_INCLUDE_VENDOR_LOGO=y$' trunk/.config; then
             cmp trunk/user/www/logo/padavan.png trunk/romfs/www/bootstrap/img/logo.png
@@ -1138,7 +1139,7 @@ jobs:
           modinfo -F vermagic "$candidate/eoip.ko" | grep -q '^4\.4\.198'
           tool="${candidate%/unified}"
           "$compiler" -Os -std=gnu99 -Wall -Wextra -o "$tool/eoip" \
-            "$tool/eoipcr.c" "$tool/libnetlink.c" 2>&1 | tee eoip-tool-compile.log
+            -I "$PWD/tools/eoip" "$tool/eoipcr.c" "$tool/libnetlink.c" 2>&1 | tee eoip-tool-compile.log
           test -s "$tool/eoip"
           readelf -h "$tool/eoip" | grep -q 'Machine:.*MIPS'
           readelf -l "$tool/eoip" | grep -q '/lib/ld-uClibc.so.0'

@@ -60,6 +60,8 @@ on:
       - 'overlay/padavan-4.4/trunk/**'
       - 'overlay/padavan-4.4/patches/**'
       - 'overlay/padavan-4.4/candidates/eoip/**'
+      - 'tools/eoip/observation.h'
+      - 'tools/eoip/netlink-query.h'
       - 'sources.lock.json'
       - 'tools/verify-zram-image.py'
       - 'tools/verify-strongswan-image.py'

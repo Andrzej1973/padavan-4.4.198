@@ -34,6 +34,9 @@ text += "\n" + ("CONFIG_NET_EOIP=m" if "CONFIG_FIRMWARE_INCLUDE_EOIP=y" in reque
 path.write_text(text)
 package = root / "user/eoip-ctl"
 package.mkdir(exist_ok=True)
+helpers = Path(__file__).resolve().parents[3] / "tools/eoip"
+for name in ("observation.h", "netlink-query.h"):
+    shutil.copyfile(helpers / name, package / name)
 for name in ("eoipcr.c", "libnetlink.c", "libnetlink.h", "eoip_version.h"):
     shutil.copyfile(assets / name, package / name)
 (package / "unified").mkdir(exist_ok=True)
@@ -43,6 +46,7 @@ LDFLAGS += -Wl,--gc-sections
 all: eoip-ctl
 eoip-ctl: eoipcr.o libnetlink.o
 	$(CC) $(LDFLAGS) -o $@ $^
+eoipcr.o: netlink-query.h observation.h
 clean:
 	rm -f eoip-ctl eoipcr.o libnetlink.o
 romfs:
