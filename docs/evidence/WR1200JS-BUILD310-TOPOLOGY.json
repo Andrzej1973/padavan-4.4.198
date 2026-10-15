@@ -1,0 +1,60 @@
+{
+  "original_wan": 0,
+  "lan": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "cpu_lan": 6,
+  "cpu_wan": 5,
+  "lan_mask": 30,
+  "wan_mask": 1,
+  "cpu_lan_mask": 64,
+  "cpu_wan_mask": 32,
+  "excluded": 0,
+  "selections": [
+    {
+      "selection": 0,
+      "wan_phy": 0,
+      "wan_external": 1,
+      "lan_external": 30,
+      "isolated_external": 0
+    },
+    {
+      "selection": 1,
+      "wan_phy": 1,
+      "wan_external": 2,
+      "lan_external": 28,
+      "isolated_external": 1
+    },
+    {
+      "selection": 2,
+      "wan_phy": 2,
+      "wan_external": 4,
+      "lan_external": 26,
+      "isolated_external": 1
+    },
+    {
+      "selection": 3,
+      "wan_phy": 3,
+      "wan_external": 8,
+      "lan_external": 22,
+      "isolated_external": 1
+    },
+    {
+      "selection": 4,
+      "wan_phy": 4,
+      "wan_external": 16,
+      "lan_external": 14,
+      "isolated_external": 1
+    }
+  ],
+  "schema": 1,
+  "source_only": true,
+  "runtime_verified": false,
+  "kernel_config_sha256": "aa031a8b53f067b3b899279b103acb596384bf48713873da0f2c63645507cf8e",
+  "driver_header_sha256": "8a902e1df1a229fd4e7dd65580956f9f88cc1ea2dd34116458cfc725a96c9c20",
+  "common_header_sha256": "b94722a49e6122a40dd418dbbb34f915f710b54d97fefcb3e287540e8a92ba3c",
+  "limits": "Host evaluation of actual driver definitions only; not switch programming, physical port identification or WAN connectivity."
+}
