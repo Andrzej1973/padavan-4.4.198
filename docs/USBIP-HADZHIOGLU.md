@@ -253,6 +253,16 @@ reading/age validation and UI actions remain unfinished. The native fixture
 uses a release-file barrier, checks lock exclusion and FD closure, and is
 scheduled under ASan/UBSan with a 15-second CI watchdog. Results are pending.
 
+Worker CI 38745059831 passed at `5ff4723`. The next increment adds a strict
+result reader: only a private owned regular file, no symlink, bounded size,
+matching 32-digit request ID, canonical record, valid state/code and monotonic
+timestamps within the caller's maximum age are accepted. Missing, corrupt,
+future, stale or mismatched records return unknown and clear the output.
+The tracked-worker reap helper uses only `waitpid(tracked_pid, WNOHANG)`;
+it does not wait in the HTTP loop or reap unrelated children. Its caller still
+needs HTTP lifecycle integration. Tests cover running/success/failure reads,
+stale/mismatched/corrupt/symlink records and nonblocking reap; new CI pending.
+
 [CI 38639330507](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38639330507)
 passed at `33c5d91a0a67047256274f2809d391920a5d34a0`: shell syntax,
 isolated lifecycle/policy checks and the existing service checks. The daemon

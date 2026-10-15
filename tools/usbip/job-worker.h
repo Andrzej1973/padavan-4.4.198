@@ -19,6 +19,18 @@
 #ifndef WR_USBIP_CONTROLLER
 #define WR_USBIP_CONTROLLER "/usr/sbin/wr-usbip"
 #endif
+struct wr_usbip_job_result {
+ char id[33];unsigned state;unsigned long long started,observed;int code;
+};
+/* Reap only the tracked worker; never consume another HTTP utility's child. */
+static int wr_usbip_job_reap(pid_t *worker)
+{
+ int status;pid_t result;
+ if(!worker||*worker<=0)return 1;
+ do{result=waitpid(*worker,&status,WNOHANG);}while(result<0&&errno==EINTR);
+ if(result==*worker||(result<0&&errno==ECHILD)){*worker=0;return 1;}
+ return 0;
+}
 static int wr_usbip_job_args(const char *action,const char *bus,const char *vendor,const char *product)
 {
  const char *p;size_t i;
@@ -62,6 +74,36 @@ static int wr_usbip_job_publish(const char *dir,const char *id,unsigned state,un
  if(close(fd))ok=0;
  if(ok&&rename(temporary,target)==0)return 1;
  unlink(temporary);return 0;
+}
+/* Unknown/missing/stale/mismatched results return zero with a cleared output. */
+static int wr_usbip_job_read(const char *dir,const char *requested,unsigned long long now,
+ unsigned long long max_age,struct wr_usbip_job_result *out)
+{
+ struct stat st;struct wr_usbip_job_result value;
+ char path[PATH_MAX],body[256],canonical[256];int fd,used=0,n;ssize_t length;
+ if(!out)return 0;
+ memset(out,0,sizeof(*out));memset(&value,0,sizeof(value));
+ if(!dir||!requested||strlen(requested)!=32||strspn(requested,"0123456789abcdef")!=32||!now||!max_age)return 0;
+ if(lstat(dir,&st)||!S_ISDIR(st.st_mode)||st.st_uid!=geteuid()||(st.st_mode&077))return 0;
+ if(snprintf(path,sizeof(path),"%s/result",dir)>=(int)sizeof(path))return 0;
+ fd=open(path,O_RDONLY|O_NOFOLLOW|O_NONBLOCK);if(fd<0)return 0;
+ if(fstat(fd,&st)||!S_ISREG(st.st_mode)||st.st_uid!=geteuid()||st.st_nlink!=1||
+    (st.st_mode&077)||st.st_size<=0||st.st_size>=(off_t)sizeof(body)){close(fd);return 0;}
+ length=read(fd,body,sizeof(body)-1);close(fd);
+ if(length!=st.st_size)return 0;
+ body[length]=0;if(strlen(body)!=(size_t)length)return 0;
+ errno=0;
+ n=sscanf(body,"{\"id\":\"%32[0123456789abcdef]\",\"state\":%1u,\"started\":%20llu,\"observed\":%20llu,\"code\":%4d}\n%n",
+  value.id,&value.state,&value.started,&value.observed,&value.code,&used);
+ if(errno||n!=5||used!=length||strcmp(value.id,requested))return 0;
+ n=snprintf(canonical,sizeof(canonical),"{\"id\":\"%s\",\"state\":%u,\"started\":%llu,\"observed\":%llu,\"code\":%d}\n",
+  value.id,value.state,value.started,value.observed,value.code);
+ if(n!=length||strcmp(canonical,body)||value.state<1||value.state>3||!value.started||
+    value.observed<value.started||now<value.observed||now-value.observed>max_age||
+    (value.state==1&&(value.code!=-1||now-value.started>max_age))||
+    (value.state==2&&value.code!=0)||
+    (value.state==3&&(value.code==0||value.code< -1||value.code>255)))return 0;
+ *out=value;return 1;
 }
 /* Caller must reap returned child without waiting in its HTTP request loop.
  * A stuck kernel operation keeps the job lock; no new operation is admitted.

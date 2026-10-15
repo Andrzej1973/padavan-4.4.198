@@ -20,6 +20,7 @@ int main(void)
 {
  char dir[]="/tmp/wr-usbip-job-XXXXXX",id[33],second[33],reply[512];
  char path[PATH_MAX];pid_t child,other;FILE *fp;int descriptors[2];
+ struct wr_usbip_job_result observation;
  assert(mkdtemp(dir));
  assert(snprintf(controller,sizeof(controller),"%s/controller",dir)<(int)sizeof(controller));
  fp=fopen(controller,"w");assert(fp);
@@ -33,11 +34,23 @@ int main(void)
  assert(strlen(id)==32);
  assert(!wr_usbip_job_start(dir,"unbind","1-1","1234","abcd",second,&other));
  read_result(dir,reply,sizeof(reply));assert(strstr(reply,id)&&strstr(reply,"\"state\":1"));
+ assert(!wr_usbip_job_reap(&child));
+ assert(wr_usbip_job_read(dir,id,wr_usbip_job_now(),30,&observation)&&observation.state==1);
  snprintf(path,sizeof(path),"%s/release",dir);fp=fopen(path,"w");assert(fp&&fclose(fp)==0);
  reap(child);read_result(dir,reply,sizeof(reply));assert(strstr(reply,id)&&strstr(reply,"\"state\":2")&&strstr(reply,"\"code\":0"));
+ assert(wr_usbip_job_reap(&child)&&child==0);
+ assert(wr_usbip_job_read(dir,id,wr_usbip_job_now(),30,&observation)&&observation.state==2);
+ assert(!wr_usbip_job_read(dir,id,wr_usbip_job_now()+1000,30,&observation)&&observation.state==0);
  assert(wr_usbip_job_start(dir,"unbind","1-1","1234","abcd",second,&child));
  assert(strcmp(id,second));reap(child);read_result(dir,reply,sizeof(reply));
  assert(strstr(reply,second)&&strstr(reply,"\"state\":3")&&strstr(reply,"\"code\":7"));
+ assert(wr_usbip_job_read(dir,second,wr_usbip_job_now(),30,&observation)&&observation.code==7);
+ assert(!wr_usbip_job_read(dir,id,wr_usbip_job_now(),30,&observation));
+ snprintf(path,sizeof(path),"%s/result",dir);fp=fopen(path,"w");assert(fp);
+ fputs("{\"id\":\"bad\",\"state\":2}\n",fp);assert(fclose(fp)==0);
+ assert(!wr_usbip_job_read(dir,second,wr_usbip_job_now(),30,&observation)&&observation.state==0);
+ assert(unlink(path)==0&&symlink(controller,path)==0);
+ assert(!wr_usbip_job_read(dir,second,wr_usbip_job_now(),30,&observation));
  close(50);close(descriptors[0]);close(descriptors[1]);
  assert(chmod(dir,0777)==0);
  assert(!wr_usbip_job_start(dir,"bind","1-1","1234","abcd",id,&child));

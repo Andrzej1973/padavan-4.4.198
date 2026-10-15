@@ -133,6 +133,13 @@ background-job fixture (nonblocking start, one job, ID/result, failure, FD
 closure, private directory). Повна збірка №281, run 38743571489 на `f2ad65c`,
 також успішна; її фінальний пакет у цьому інкременті ще не завантажено.
 
+Додано строгий reader результату worker: ID, canonical JSON, state/code,
+приватний regular file без symlink, monotonic час/вік; помилки очищають output
+до unknown. Додано waitpid лише tracked PID з WNOHANG. Sanitizer fixture
+розширено; CI цього інкремента ще очікується. Далі підключити safe POST/CSRF,
+reader та неблокувальне прибирання до HTTPD, потім UI; нічого не вмикалося
+на фізичному роутері.
+
 Локалізація успадкованих значень словників: 33 китайські значення в
 `trunk/user/www/dict/EN.footer` замінено англійськими, а `UK.dict` і `RU.dict`
 доповнено відповідними перекладами. Новий крок
