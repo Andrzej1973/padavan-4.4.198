@@ -150,6 +150,18 @@ actual baseline locally; compilation and device persistence remain unverified.
 No UI action or automatic USB export is supplied by these hooks. A saved
 enable value alone does not prove that a daemon or USB transfer is working.
 
+The next web increment (`tools/usbip/prepare-web.py`) registers `usbip_enable`
+in General Apply with a dedicated event bit 55 (rejecting an occupied bit),
+the RC notification `restart_usbip`, and a 25-second Apply estimate. It uses
+the existing authenticated Apply path; no new command endpoint is introduced.
+Exact value `1` requests the managed restart, other values request stop.
+Restart preserves the controller's stop-failure gate. EN/UK/RU help explicitly
+separates the requested setting from observed process/module status and warns
+that export is manual and the USB/IP protocol has no user authentication.
+The transformation passed locally against baseline C/ASP with fixture
+dictionaries; Python compilation passed. Full compilation, browser Apply,
+authentication behavior, data transfer and reboot persistence remain unverified.
+
 [CI 38639330507](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38639330507)
 passed at `33c5d91a0a67047256274f2809d391920a5d34a0`: shell syntax,
 isolated lifecycle/policy checks and the existing service checks. The daemon

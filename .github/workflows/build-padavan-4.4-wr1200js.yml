@@ -114,6 +114,7 @@ jobs:
           python3 tools/prepare-usbip-status.py padavan-4.4 --config configs.build/wr1200js.config
           python3 tools/usbip/prepare-firewall.py padavan-4.4 --config configs.build/wr1200js.config
           python3 tools/usbip/prepare-lifecycle.py padavan-4.4 --config configs.build/wr1200js.config
+          python3 tools/usbip/prepare-web.py padavan-4.4 --config configs.build/wr1200js.config
           cp tools/usbip/service.sh tools/usbip/firewall-policy.sh padavan-4.4/trunk/user/usbip/
           cp overlay/padavan-4.4/trunk/linux-4.4.x/tools/usb/usbip/libsrc/usbip_common.c \
             padavan-4.4/trunk/linux-4.4.x/tools/usb/usbip/libsrc/usbip_common.c
@@ -556,6 +557,10 @@ jobs:
             grep -q '^WRUSBIPTitle=' trunk/romfs/www/RU.dict
             grep -a -q 'wr_usbip_state' trunk/romfs/usr/sbin/httpd
             test -x trunk/romfs/usr/sbin/wr-usbip
+            grep -q 'name="usbip_enable"' trunk/romfs/www/Advanced_Printer_others.asp
+            for dictionary in EN.dict UK.dict RU.dict; do
+              grep -q '^WRUSBIPEnableNote=' "trunk/romfs/www/$dictionary"
+            done
             test -r trunk/romfs/usr/libexec/wr-usbip/firewall-policy.sh
             cmp ../tools/usbip/service.sh trunk/romfs/usr/sbin/wr-usbip
             cmp ../tools/usbip/firewall-policy.sh trunk/romfs/usr/libexec/wr-usbip/firewall-policy.sh
