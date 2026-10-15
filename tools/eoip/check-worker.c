@@ -198,12 +198,16 @@ int main(void)
             table[4 + n * 10] = "0";
         }
         assert(wr_eoip_worker_dispatch(&worker, 82, table, message, sizeof(message)) == WR_EOIP_WORKER_OK);
+        table[1] = "apply-table";
+        assert(wr_eoip_worker_dispatch(&worker, 82, table, message, sizeof(message)) == WR_EOIP_WORKER_OK);
+        assert(create_calls == 0 && delete_calls == 0);
         for (n = 0; n < 2; n++) {
             for (field = 1; field < 10; field++) table[2 + n * 10 + field] = start[2 + field];
             table[4 + n * 10] = "1";
         }
         assert(wr_eoip_worker_dispatch(&worker, 82, table, message, sizeof(message)) == WR_EOIP_WORKER_INVALID);
         assert(strstr(message, "conflicts") && create_calls == 0);
+        assert(delete_calls == 0);
     }
 
     /* A slot that does not exist is reported as absent, not as an error. */
@@ -237,6 +241,11 @@ int main(void)
 
     /* An unknown observation is unconfirmed, never success. */
     query_unknown = 1;
+    {
+        char *stop_table[] = {"eoip-service", "stop-table"};
+        assert(wr_eoip_worker_dispatch(&worker, 2, stop_table, message, sizeof(message)) == WR_EOIP_WORKER_REFUSED);
+        assert(strstr(message, "incomplete") && delete_calls == 1);
+    }
     assert(wr_eoip_worker_dispatch(&worker, 3, status, message, sizeof(message)) == WR_EOIP_WORKER_UNCONFIRMED);
     assert(strstr(message, "unknown"));
     assert(wr_eoip_worker_dispatch(&worker, 2, status_json, message, sizeof(message)) == WR_EOIP_WORKER_OK);

@@ -196,9 +196,22 @@ static int wr_eoip_worker_dispatch_unlocked(struct wr_eoip_worker *worker, int a
         if (argc != 2) return WR_EOIP_WORKER_USAGE;
         return wr_eoip_worker_status_json(worker, message, size);
     }
-    if (!strcmp(argv[1], "boot-table")) {
+    if (!strcmp(argv[1], "stop-table")) {
+        unsigned n;
+        int combined = WR_EOIP_WORKER_OK;
+        if (argc != 2) return WR_EOIP_WORKER_USAGE;
+        for (n = 0; n < WR_EOIP_SLOTS; n++) {
+            int code = wr_eoip_worker_stop_slot(worker, n, message, size);
+            if (code != WR_EOIP_WORKER_OK) combined = code;
+        }
+        wr_eoip_worker_report(message, size,
+            combined ? "table cleanup incomplete" : "table stopped", -1);
+        return combined;
+    }
+    if (!strcmp(argv[1], "boot-table") || !strcmp(argv[1], "apply-table")) {
         struct wr_eoip_config profiles[WR_EOIP_SLOTS];
         unsigned n, enabled, autostart;
+        int applying = !strcmp(argv[1], "apply-table");
         int combined = WR_EOIP_WORKER_OK;
         /* Exactly eight snapshots, ten fields per slot, before any mutation. */
         if (argc != 2 + WR_EOIP_SLOTS * WR_EOIP_WORKER_PROFILE_FIELDS) {
@@ -226,15 +239,28 @@ static int wr_eoip_worker_dispatch_unlocked(struct wr_eoip_worker *worker, int a
             wr_eoip_worker_report(message, size, "profile table conflicts", -1);
             return WR_EOIP_WORKER_INVALID;
         }
+        if (applying) {
+            /* Only after validating the entire requested table. Cleanup needs
+             * no endpoint values; never adopt or replace a foreign interface.
+             * An uncertain stop aborts creation, with partial cleanup explicit. */
+            for (n = 0; n < WR_EOIP_SLOTS; n++) {
+                int code = wr_eoip_worker_stop_slot(worker, n, message, size);
+                if (code != WR_EOIP_WORKER_OK) combined = code;
+            }
+            if (combined) {
+                wr_eoip_worker_report(message, size, "apply cleanup incomplete; no starts attempted", -1);
+                return combined;
+            }
+        }
         for (n = 0; n < WR_EOIP_SLOTS; n++) {
             int code;
-            if (!profiles[n].enabled || !profiles[n].autostart) continue;
+            if (!profiles[n].enabled || (!applying && !profiles[n].autostart)) continue;
             code = wr_eoip_worker_start(worker,
                 (const char *const *)&argv[2 + n * 10], message, size);
             if (code != WR_EOIP_WORKER_OK) combined = code;
         }
         wr_eoip_worker_report(message, size,
-            combined ? "boot table incomplete" : "boot table applied", -1);
+            combined ? "table start incomplete" : "table applied", -1);
         return combined;
     }
     if (!strcmp(argv[1], "start")) {
@@ -267,7 +293,8 @@ static int wr_eoip_worker_dispatch(struct wr_eoip_worker *worker, int argc, char
     int result;
     if (!worker || !worker->directory || !argv || argc < 2 || !argv[1] ||
         (!strcmp(argv[1], "status")) ||
-        (strcmp(argv[1], "start") && strcmp(argv[1], "stop") && strcmp(argv[1], "boot-table")))
+        (strcmp(argv[1], "start") && strcmp(argv[1], "stop") && strcmp(argv[1], "boot-table") &&
+         strcmp(argv[1], "apply-table") && strcmp(argv[1], "stop-table")))
         return wr_eoip_worker_dispatch_unlocked(worker, argc, argv, message, size);
     if (!wr_eoip_state_lock_named(worker->directory, &operation, "operation-lock")) {
         wr_eoip_worker_report(message, size, "operation busy or state directory unavailable", -1);

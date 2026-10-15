@@ -280,6 +280,21 @@ only: no EoIP interface has been created on any router.
 
 ## Required next work
 
+Table application increment: `apply-table` validates every enabled profile and
+duplicate tuple before touching interfaces, then cleans all managed slots and
+starts enabled profiles regardless of autostart. Boot still starts only enabled
+autostart profiles. Any cleanup failure prevents all new starts and is reported
+as incomplete (earlier cleanup is not rolled back). Starts can also partially
+succeed; this is not an atomic network transaction. `stop-table` takes no
+profile arguments and holds the operation lock across all eight cleanup calls.
+
+The installed policy now supports `apply`; master=0/empty uses stop-table,
+master=1 reads the complete table then invokes apply-table, invalid master
+flags refuse. Stop never reads NVRAM. No HTTP action or NVRAM writer is exposed
+by this increment; authenticated WebUI and coordination of writes/snapshot
+reads remain required. Fixture cases were extended for empty Apply, conflict
+refusal before deletion and unknown-state stop-table; execution is pending CI.
+
 The generated model guide now includes EoIP setup prerequisites, no-registration
 clarification, slot fields/defaults, GRE protocol vs port distinction, bridge
 and MTU checks, read-only status commands and explicit limits of runtime
