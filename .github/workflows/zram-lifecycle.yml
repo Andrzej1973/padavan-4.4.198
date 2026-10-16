@@ -75,6 +75,8 @@ jobs:
           ASAN_OPTIONS=detect_leaks=1 checks/vpn-profile-runtime
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined tools/vpn-profiles/check-actions.c tools/vpn-profiles/runtime-state.c tools/vpn-profiles/link-observation.c -o checks/vpn-profile-actions
           ASAN_OPTIONS=detect_leaks=1 checks/vpn-profile-actions
+          gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined tools/vpn-profiles/check-lifecycle.c tools/vpn-profiles/link-lifecycle.c tools/vpn-profiles/link-actions.c tools/vpn-profiles/runtime-state.c tools/vpn-profiles/link-observation.c -o checks/vpn-profile-lifecycle
+          ASAN_OPTIONS=detect_leaks=1 checks/vpn-profile-lifecycle
       - name: Check imports using pinned native WG and AWG parsers
         run: |
           git init checks/wg-parser-source

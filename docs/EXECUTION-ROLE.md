@@ -131,6 +131,26 @@ and preserve records on uncertain cleanup before any CLI start/stop is exposed.
 Full build header filters now name only packaged VPN headers; unshipped candidate
 headers still run service CI. Add package/filter dependencies when wiring them in.
 
+### VPN session/link lifecycle — candidate
+
+Service CI #132 (6d549dd, run 38957031515) passed the action adapter fixture.
+Full #359/#360/#361 were still running at this update; do not restart merely
+because observation has not yet seen a terminal result.
+
+Added link-lifecycle.c/h joining real private records with link actions under
+an already-held operation lock. Acquire records intent before create, independently
+checks session ownership, then records ifindex. Recovery handles a lost ACK or
+crash before index publication only when nonce/name/kind match; a changed revision
+or protocol is refused. Missing recorded links require explicit release, never
+silent recreation. Release can recover an intent's owned index and clears its
+record only after confirmed absence; unknown cleanup retains recovery identity.
+check-lifecycle.c uses real runtime files and mock network callbacks to exercise
+two profiles, stale/foreign refusal, lost ACK/index recovery and failed cleanup.
+CI pending. No physical network changes. Not packaged/exposed by CLI yet.
+This owns a bare interface only: no keys, addresses, routes, DNS, UP/handshake
+or connectivity proof. Next: confirm CI, implement protocol configuration and
+postcheck, then scoped policy/rollback and connect the complete controller/UI.
+
 ### WireGuard / AmneziaWG: клієнтський QR та AWG-параметри — 2026-10-16
 
 Повні #355/#356 скомпілювали образ і пройшли загальний BusyBox audit, але
