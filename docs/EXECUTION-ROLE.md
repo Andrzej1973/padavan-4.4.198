@@ -17,6 +17,18 @@
 - Сторонній diff `tools/prepare-wifi-hwnat-mode.py` збережено без змін.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
 
+### USB/IP restore fault coverage — 2026-10-16
+
+Розширено спільну host/target-QEMU fixture: невдала bind-дія припиняє
+відновлення без retry/rollback, заміна serial другого пристрою після першої
+дії зупиняє batch з явно частковим результатом, mismatch product, oversized,
+control/DEL та порожній serial відхиляються до першої дії. Зміни production
+скриптів не потрібні; Python syntax PASS, виконання сценаріїв очікує CI.
+На момент перевірки 38908111133 (full) та 38908110831 (service) на 1fb6fbf
+in_progress. Цей набір перевіряє orchestration з mocked hardware/action,
+не доводить роботу драйвера, lifecycle або фізичне приймання всього порту.
+
+
 ### USB/IP target BusyBox restore fixture — 2026-10-16
 
 Service CI 38907533138 на b109c1a success; повна 38907533199 ще in_progress

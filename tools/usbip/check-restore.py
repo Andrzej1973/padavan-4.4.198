@@ -24,7 +24,13 @@ nvram(){ case "$2" in usbip_enable) echo "${ENABLE:-1}";; usbip_restore) echo "$
 snapshot(){ owned_pid=${OWNED-234}; }
 wr_usbip_device_check(){ test "$1" != "${BLOCK_BUS:-none}" || return 1; wr_usbip_device="$DEVICES/$1"; test -d "$wr_usbip_device"; }
 '''+(here/'device-action.sh').read_text()+'''
-wr_usbip_device_action(){ printf '%s %s\n' "$1" "$2" >> "$EVENTS"; }
+wr_usbip_device_action(){
+    printf '%s %s\n' "$1" "$2" >> "$EVENTS"
+    if test "${HOTPLUG_AFTER_FIRST:-0}" = 1 && test "$2" = 1-1; then
+        printf 'replacement\n' > "$DEVICES/1-2/serial"
+    fi
+    test "${BIND_FAIL:-0}" != 1
+}
 '''+source+'\nif wr_usbip_restore_exports; then exit 0; else exit 1; fi\n')
     rows='1-1\t1234\tabcd\t'+b'unit1'.hex()+'\n1-2\t1234\tabcd\t'+b'unit2'.hex()+'\n'
     shell=['sh']
@@ -55,6 +61,15 @@ wr_usbip_device_action(){ printf '%s %s\n' "$1" "$2" >> "$EVENTS"; }
     assert run(OWNED='')==(1,'')
     assert run(BLOCK_BUS='1-2')==(1,'') # all-rule preflight before first bind
     assert run()==(0,'bind 1-1\nbind 1-2\n')
+    # A failed action is unconfirmed: no retry or blind rollback.
+    assert run(BIND_FAIL='1')==(1,'bind 1-1\n')
+    # Device replacement between preflight and dispatch must stop the batch.
+    assert run(HOTPLUG_AFTER_FIRST='1')==(1,'bind 1-1\n')
+    (devices/'1-2/serial').write_text('unit2\n')
+    (devices/'1-2/idProduct').write_text('ffff\n');assert run()==(1,'')
+    (devices/'1-2/idProduct').write_text('abcd\n')
+    for invalid in ('x'*257+'\n','unit\x01bad\n','unit\x7fbad\n','\n'):
+        (devices/'1-2/serial').write_text(invalid);assert run()==(1,'')
     (devices/'1-2/serial').write_text('unit1\n');assert run()==(1,'')
     (devices/'1-2/serial').unlink();assert run()==(1,'')
-print(('TARGET BusyBox/QEMU: ' if args.target_root else 'HOST shell: ')+'PASS USBIP restore: disabled/empty, reader failure, daemon, batch preflight, serial uniqueness and guarded dispatch')
+print(('TARGET BusyBox/QEMU: ' if args.target_root else 'HOST shell: ')+'PASS USBIP restore: disabled/empty, reader failure, daemon, batch preflight, serial uniqueness, invalid identities, hotplug and partial/unconfirmed dispatch')
