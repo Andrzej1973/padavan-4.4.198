@@ -17,6 +17,15 @@
 - Сторонній diff `tools/prepare-wifi-hwnat-mode.py` збережено без змін.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
 
+### USB/IP serial transport evidence — 2026-10-16
+
+Service CI 38844755717 успішний на ea91264 (hexdump reader). Додатково
+посилено fixtures: mock-controller записує реально отриманий argv[5],
+батьківський C-тест порівнює exact serial; HTTP-тест відхиляє odd/nonhex/
+oversize serial до запуску job. Це усуває слабкість попереднього тесту,
+який перевіряв завершення job, але не доставлене значення. Новий CI ще
+очікується. Повні target збірки попередніх інкрементів виконуються.
+
 ### USB/IP target utility correction — 2026-10-16
 
 CI 38844642580 на 37b0738 успішний. Проте source-аудит цільового BusyBox

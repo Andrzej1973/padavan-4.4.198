@@ -24,7 +24,7 @@ int main(void)
  assert(mkdtemp(dir));
  assert(snprintf(controller,sizeof(controller),"%s/controller",dir)<(int)sizeof(controller));
  fp=fopen(controller,"w");assert(fp);
- fputs("#!/bin/sh\n[ ! -e /proc/self/fd/50 ] || exit 98\n[ \"$2\" = 1-1 ] && [ \"$3\" = 1234 ] && [ \"$4\" = abcd ] || exit 99\nwhile [ ! -f \"${0%/*}/release\" ]; do sleep 0.01; done\n[ \"$1\" = bind ] && exit 0\nexit 7\n",fp);
+ fputs("#!/bin/sh\n[ ! -e /proc/self/fd/50 ] || exit 98\n[ \"$2\" = 1-1 ] && [ \"$3\" = 1234 ] && [ \"$4\" = abcd ] || exit 99\nprintf \"%s\" \"${5-}\" > \"${0%/*}/serial-argv\"\nwhile [ ! -f \"${0%/*}/release\" ]; do sleep 0.01; done\n[ \"$1\" = bind ] && exit 0\nexit 7\n",fp);
  assert(fclose(fp)==0&&chmod(controller,0700)==0);
  assert(!wr_usbip_job_start(dir,"bind","../1-1","1234","abcd",id,&child));
  assert(!wr_usbip_job_start(dir,"bind","1-1","1234;id","abcd",id,&child));
@@ -50,6 +50,8 @@ int main(void)
  assert(!wr_usbip_job_read(dir,id,wr_usbip_job_now(),30,&observation));
  assert(wr_usbip_job_start_serial(dir,"bind","1-1","1234","abcd","756e6974",id,&child));
  reap(child);read_result(dir,reply,sizeof(reply));assert(strstr(reply,"\"state\":2"));
+ snprintf(path,sizeof(path),"%s/serial-argv",dir);fp=fopen(path,"r");assert(fp);
+ assert(fgets(reply,sizeof(reply),fp)&&!strcmp(reply,"756e6974"));assert(fclose(fp)==0);
  snprintf(path,sizeof(path),"%s/result",dir);fp=fopen(path,"w");assert(fp);
  fputs("{\"id\":\"bad\",\"state\":2}\n",fp);assert(fclose(fp)==0);
  assert(!wr_usbip_job_read(dir,second,wr_usbip_job_now(),30,&observation)&&observation.state==0);
@@ -61,6 +63,7 @@ int main(void)
  assert(chmod(dir,0700)==0);
  snprintf(path,sizeof(path),"%s/release",dir);unlink(path);
  snprintf(path,sizeof(path),"%s/result",dir);unlink(path);
+ snprintf(path,sizeof(path),"%s/serial-argv",dir);unlink(path);
  snprintf(path,sizeof(path),"%s/lock",dir);unlink(path);unlink(controller);assert(rmdir(dir)==0);
  puts("PASS USB/IP background job: nonblocking start, one job, identity, result, failure, FD closure, private directory");
  return 0;

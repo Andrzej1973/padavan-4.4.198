@@ -15,6 +15,7 @@ typedef FILE *webs_t;
 struct wr_usbip_job_result {char id[33];unsigned state;unsigned long long started,observed;int code;};
 static int safe,post,reaped=1,started=1,readable=1,calls,parsed;
 static char reply[512],request_token[40],operation[20]="bind",ack[4]="1";
+static char request_serial[514]="756e6974";
 int wr_usbip_request_is_post(void){return post;}
 static int get_login_safe(void){return safe;}
 static int websWrite(webs_t wp,const char *format,...) {
@@ -28,7 +29,7 @@ static char *websGetVar(webs_t wp,const char *key,const char *fallback){
  if(!strcmp(key,"busid"))return "1-1";
  if(!strcmp(key,"vendor"))return "1234";
  if(!strcmp(key,"product"))return "abcd";
- if(!strcmp(key,"serial_hex"))return "756e6974";
+ if(!strcmp(key,"serial_hex"))return request_serial;
  return (char *)fallback;
 }
 static void init_cgi(char *p){(void)p;}
@@ -56,6 +57,10 @@ int main(void){
  strcpy(request_token,"bad");submit();assert(strstr(reply,"invalid_token")&&calls==0);
  strcpy(request_token,wr_usbip_csrf);ack[0]=0;submit();assert(strstr(reply,"confirmation")&&calls==0);strcpy(ack,"1");
  strcpy(operation,"invalid");submit();assert(strstr(reply,"invalid_request")&&calls==0);strcpy(operation,"bind");
+ strcpy(request_serial,"f");submit();assert(strstr(reply,"invalid_request")&&calls==0);
+ strcpy(request_serial,"GG");submit();assert(strstr(reply,"invalid_request")&&calls==0);
+ memset(request_serial,'a',513);request_serial[513]=0;submit();assert(strstr(reply,"invalid_request")&&calls==0);
+ strcpy(request_serial,"756e6974");
  reaped=0;submit();assert(strstr(reply,"busy")&&calls==0);reaped=1;
  started=0;submit();assert(strstr(reply,"unavailable")&&calls==1);started=1;
  submit();assert(strstr(reply,"\"accepted\":true")&&calls==2);
