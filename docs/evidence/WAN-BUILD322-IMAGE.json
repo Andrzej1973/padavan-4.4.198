@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "runtime_verified": false,
+  "checks": {
+    "page:var wr_wan_socket_supported": true,
+    "page:wr_selected": true,
+    "page:showhide_div(\"wan_src_phy\", 1)": true,
+    "page:WAN_Socket_Confirm": true,
+    "page:WAN_Socket_Help": true,
+    "page:id=\"wr_wan_socket_help\"": true,
+    "page:wr_wan_effective_port();": true,
+    "page:id=\"wr_wan_effective\"": true,
+    "EN:WAN_Socket_Confirm": true,
+    "EN:safe-confirm-literal": true,
+    "EN:WAN_Socket_Help": true,
+    "EN:WAN_Socket_Effective": true,
+    "EN:WAN_Socket_Unknown": true,
+    "EN:WAN_Socket_NotApplied": true,
+    "UK:WAN_Socket_Confirm": true,
+    "UK:safe-confirm-literal": true,
+    "UK:WAN_Socket_Help": true,
+    "UK:WAN_Socket_Effective": true,
+    "UK:WAN_Socket_Unknown": true,
+    "UK:WAN_Socket_NotApplied": true,
+    "RU:WAN_Socket_Confirm": true,
+    "RU:safe-confirm-literal": true,
+    "RU:WAN_Socket_Help": true,
+    "RU:WAN_Socket_Effective": true,
+    "RU:WAN_Socket_Unknown": true,
+    "RU:WAN_Socket_NotApplied": true
+  },
+  "sha256": {
+    "Advanced_WAN_Content.asp": "e21e1dd06f89abef5aaf859cd5e98e237e27bc0a1f07bdf974b6d6b1881a2c21",
+    "EN.dict": "1f198e1aee794272b220c325830171212ba94fdc3dd4554fc92f9de3e35cf427",
+    "UK.dict": "51f849fb4bc36015a397ee3ac6dfca11042d610332b525d8a90bee452923faa1",
+    "RU.dict": "53ba92ab769c6c17bc92476f55aea49020928201d2aa7647a2c5163a9acd4ccf"
+  },
+  "success": true
+}
