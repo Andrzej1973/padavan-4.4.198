@@ -17,6 +17,21 @@
 - Сторонній diff `tools/prepare-wifi-hwnat-mode.py` збережено без змін.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
 
+### Confirmed target BusyBox readlink -f incompatibility / fix — 2026-10-16
+
+Full38922347945/0627db1 completed FAILURE. Synthetic trace confirms serial
+hexdump succeeds, uniqueness scan fails at readlink -f with BusyBox usage
+"readlink FILE". Pinned boards/busybox.config disables READLINK and FOLLOW;
+DoH integrator enables READLINK alone. This explains host PASS vs target FAIL.
+Added reviewed target BusyBox preparer enabling only CONFIG_READLINK and
+CONFIG_FEATURE_READLINK_FOLLOW after package integration. Exact pinned config
+preparation and Python syntax PASS; fixed target build NOT yet verified.
+Target audit now requires both effective flags and executes readlink -f on a
+synthetic symlink, checking canonical output. Full restore gate remains mandatory.
+Next inspect fixed QEMU/restore results, then finish WG/AWG WebUI/Apply/status;
+legacy private dependencies and full service audit remain open. No live actions.
+
+
 ### Per-role WG/AWG controller protocol selection — 2026-10-16
 
 wgc/wgs read vpnc_wg_protocol / vpns_wg_protocol: explicit wireguard uses

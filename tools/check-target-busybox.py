@@ -53,6 +53,11 @@ for directory,dirs,files in os.walk(root,followlinks=False):
 report['checks']['all_discovered_shell_syntax']=bool(report['scripts']) and all(
     item['syntax_exit']==0 for item in report['scripts'])
 with tempfile.TemporaryDirectory(prefix='target-busybox-') as tmp:
+    target=Path(tmp)/'canonical';target.mkdir()
+    alias=Path(tmp)/'alias';alias.symlink_to(target,target_is_directory=True)
+    probe=run(['readlink','-f',str(alias)])
+    report['checks']['readlink_follow_exact_options']=probe.returncode==0 and probe.stdout.decode().strip()==str(target.resolve())
+    report['checks']['readlink_follow_config']=all(key+'=y' in config.read_text().splitlines() for key in ('CONFIG_READLINK','CONFIG_FEATURE_READLINK_FOLLOW'))
     sample=Path(tmp)/'serial';sample.write_bytes(b'unit-test-only\n')
     probe=run(['hexdump','-v','-n','258','-e','1/1 "%02x"',str(sample)])
     report['checks']['usbip_hexdump_exact_options']=probe.returncode==0 and probe.stdout==sample.read_bytes().hex().encode()

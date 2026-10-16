@@ -132,3 +132,16 @@ The corrected HTML is published as explicit base64 bytes, with returned
 Git blob SHA checked against the local SHA before updating main. DoH and
 Privoxy image gates were skipped after the Stubby failure; they are not
 claimed as passing. Keep strict decoding and all image checks enabled.
+
+## Target BusyBox readlink canonicalization — 2026-10-16
+
+Full run [38922347945](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38922347945)
+failed the synthetic USB/IP restore success path. Exact target stderr advertises
+`Usage: readlink FILE`; `readlink -f` fails after valid VID/PID/serial preflight.
+Affected paths include USB/IP restore uniqueness and device-policy mounted/swap/
+NIC/modem guards, which all need canonical paths. Pinned base disables
+`CONFIG_FEATURE_READLINK_FOLLOW`; DoH previously enabled the applet alone.
+The new WR preparation enables READLINK and FEATURE_READLINK_FOLLOW explicitly.
+Target CI verifies effective flags and actual canonical symlink output, then
+reruns restore. Fix implemented; new target execution and hardware acceptance
+remain unverified. No host realpath fallback or weakened guard introduced.
