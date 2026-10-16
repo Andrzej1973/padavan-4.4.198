@@ -17,6 +17,19 @@
 - Сторонній diff `tools/prepare-wifi-hwnat-mode.py` збережено без змін.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
 
+### USB/IP validated restore reader — 2026-10-16
+
+Service CI 38906698630 на 7e4090c success. Додано target export-table --list:
+read-only helper читає приватний storage через чинний codec/store, перевіряє
+всю таблицю до виводу. Відсутній файл -> empty/0; corrupt/symlink/permissions
+-> 2 без правил. stdout приватний (serial), не для публічних журналів.
+Компіляцію/ROMFS helper підключено в package Makefile та image ELF gate.
+Native sanitizer fixture actual helper перевіряє empty/valid/corrupt/symlink;
+виконання нового CI ще очікується. Helper не здійснює bind/restore сам.
+Наступне — service restore під чинним lock: capture всього списку з перевіркою
+exit status до дій, uniqueness/current identity + preflight перед кожним bind;
+окремий default-off дозвіл і UI, потім boot/hotplug приймання.
+
 ### USB/IP settings ROMFS gate — 2026-10-16
 
 Додано verify-settings-image.py до повної збірки за USBIP=y: exact inline JS,

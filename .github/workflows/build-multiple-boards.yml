@@ -87,6 +87,7 @@ on:
       - 'tools/usbip/verify-settings-image.py'
       - 'tools/usbip/http-settings.inc'
       - 'tools/usbip/export-*.h'
+      - 'tools/usbip/export-table.c'
       - 'tools/usbip/action-view.js'
       - 'tools/usbip/service.sh'
       - 'tools/usbip/firewall-policy.sh'

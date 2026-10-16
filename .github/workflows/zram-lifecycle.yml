@@ -74,6 +74,8 @@ jobs:
             ASAN_OPTIONS=detect_leaks=1 checks/usbip-export-store
             gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined tools/usbip/check-export-settings.c -o checks/usbip-export-settings
             ASAN_OPTIONS=detect_leaks=1 checks/usbip-export-settings
+            gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined tools/usbip/check-export-table.c -o checks/usbip-export-table
+            ASAN_OPTIONS=detect_leaks=1 checks/usbip-export-table
             python3 tools/usbip/check-http-settings.py --output checks/usbip-http-settings.c
             gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined checks/usbip-http-settings.c -o checks/usbip-http-settings
             ASAN_OPTIONS=detect_leaks=1 checks/usbip-http-settings
