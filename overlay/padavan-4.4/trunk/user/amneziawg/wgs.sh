@@ -133,9 +133,11 @@ PrivateKey=${IF_PRIVATE}
 $peers
 EOF
 
-    local res=$($WG setconf ${IF_NAME} "/tmp/${IF_NAME}.conf.$$" 2>&1)
+    local res status
+    res=$("$WG" setconf "$IF_NAME" "/tmp/${IF_NAME}.conf.$$" 2>&1)
+    status=$?
     rm -f "/tmp/${IF_NAME}.conf.$$"
-    if ! echo $res | grep -q "error"; then
+    if [ "$status" -eq 0 ]; then
         log "configuration ${IF_NAME} applied successfully, client count: $($WG show ${IF_NAME} peers | wc -l)"
     else
         log "$res"

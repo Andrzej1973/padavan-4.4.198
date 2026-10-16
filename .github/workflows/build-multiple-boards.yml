@@ -70,6 +70,7 @@ on:
       - 'tools/check-wr-vpn-pruning.py'
       - 'tools/prepare-wg-tool-separation.py'
       - 'tools/check-wg-protocol-selection.py'
+      - 'tools/check-wg-setconf-result.py'
       - 'tools/prepare-wg-protocol-web.py'
       - 'sources.lock.json'
       - 'tools/verify-zram-image.py'

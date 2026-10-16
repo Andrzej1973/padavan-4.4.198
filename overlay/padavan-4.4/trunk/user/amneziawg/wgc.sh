@@ -184,12 +184,14 @@ EOF
     [ "$IF_PRESHARED" ] && echo "PresharedKey = $IF_PRESHARED" >> "/tmp/${IF_NAME}.conf.$$"
 
     log_try_connect
-    local res=$($WG setconf $IF_NAME "/tmp/${IF_NAME}.conf.$$" 2>&1)
+    local res status
+    res=$("$WG" setconf "$IF_NAME" "/tmp/${IF_NAME}.conf.$$" 2>&1)
+    status=$?
     rm -f "/tmp/${IF_NAME}.conf.$$"
 
-    [ "$1" = "reconnect" ] && return
+    [ "$1" = "reconnect" ] && return "$status"
 
-    if ! echo $res | grep -q "error"; then
+    if [ "$status" -eq 0 ]; then
         $WG show $IF_NAME | grep -A 5 "peer:" | grep -E "peer|endpoint" | while read i; do
             log "$i"
         done

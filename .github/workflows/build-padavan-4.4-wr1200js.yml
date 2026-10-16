@@ -382,6 +382,7 @@ jobs:
         run: |
           python3 tools/prepare-target-busybox.py padavan-4.4
           python3 tools/check-wg-protocol-selection.py
+          python3 tools/check-wg-setconf-result.py
           python3 tools/prepare-wg-tool-separation.py padavan-4.4
           python3 tools/prepare-wr-vpn-pruning.py padavan-4.4
           python3 tools/prepare-wg-protocol-web.py padavan-4.4

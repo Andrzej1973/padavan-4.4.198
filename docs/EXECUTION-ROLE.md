@@ -17,6 +17,21 @@
 - Сторонній diff `tools/prepare-wifi-hwnat-mode.py` збережено без змін.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
 
+### WG/AWG setconf exit-status correctness — 2026-10-16
+
+Audit found both inherited controllers tested output for word "error", masking
+nonzero exits without that word; client reconnect returned success regardless.
+Changed both to capture actual setconf exit status separately from local
+assignment, cleanup temp config then branch on status. Reconnect propagates
+that status. No claim that setconf success proves handshake or working routes.
+Added extracted post-setconf fixture with mocked tool: zero/nonzero exit,
+empty output, failure text without error word, benign text containing error,
+and reconnect. Local Git host shell fixture PASS in ../wg-setconf-host-fixture;
+Python syntax PASS. Added normal full CI step/trigger; target runtime pending.
+BusyBox fix full38924582668 polled in_progress. Next verify target results,
+then AWG server parameter-to-config/export coverage and lifecycle error paths.
+
+
 ### Handshake observation source UI and CI confirmation — 2026-10-16
 
 Service CI38925181764 on3ec7bf6 SUCCESS: native worker/runtime and HTTP fixtures
