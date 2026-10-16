@@ -34,7 +34,9 @@ for name,values in labels.items():
  changes.append((f,s))
 for asset in ('wifi-qrcode-renderer.js','wifi-qr-payload.js','wifi-qr-preview.js'):
  target=root/'n56u_ribbon_fixed'/asset
- if target.exists(): raise ValueError('QR asset already installed; no files written')
- changes.append((target,(Path(__file__).parent/asset).read_text(encoding='utf-8')))
+ expected=(Path(__file__).parent/asset).read_text(encoding='utf-8')
+ if target.exists():
+  if target.read_text(encoding='utf-8')!=expected: raise ValueError('QR asset differs from reviewed local source; no files written')
+ else: changes.append((target,expected))
 for f,s in changes: f.write_text(s,encoding='utf-8')
 print('Added local, unsaved Wi-Fi QR previews for both main networks')
