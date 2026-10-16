@@ -322,6 +322,27 @@ requires a second USB/IP-capable host.
 
 ## Validation status
 
+### Next persistence dependency — 2026-10-16
+
+Source inspection confirms inventory.inc currently exposes only busid, VID,
+PID, class and export-driver state. device-action.sh compares busid/VID/PID
+before and after actions; it does not establish stable identity across reboot
+or hotplug. Therefore these observations alone are insufficient to restore an
+automatic export selection after device replacement. No automatic export is
+enabled by this checkpoint.
+
+Before persistence wiring, extend the bounded inventory/action contract with
+a stable identity observation and explicit unavailable handling. Avoid
+publishing raw serial identifiers in reports. Re-check identity under the
+existing lifecycle lock together with mounted/swap/NIC/modem protections.
+Persisted selection must remain distinct from observed export state, and
+unknown/replaced devices must not be automatically claimed. Then integrate
+authenticated selection, lifecycle restore and failure reporting, with target
+compilation and supervised two-host runtime validation.
+
+The read-only SSH probe on 2026-10-16 timed out connecting to 192.168.20.1:22.
+No command ran on the device; this is not evidence of a router outage.
+
 - Build 263 proved the USB/IP tools, modules, and ELF dependency closure in the
   complete WR1200JS image.
 - Source transformation and EN/UK/RU label insertion have local regression
