@@ -113,6 +113,24 @@ corrupt files, symlinks/hardlinks/modes and session-owner stability. CI pending.
 Not packaged or invoked yet. Next: confirm this fixture, then connect owned
 create/configure/stop with recovery and postchecks; routes/DNS and WebUI follow.
 
+### VPN exclusive link action adapter — candidate
+
+Service CI #131 (e3cb0a4, run 38956676783) passed private runtime session checks.
+Full #359/#360 were still in progress at this update; no target result claimed.
+Added link-actions.c/h: bounded RTM_NEWLINK with CREATE|EXCL and owner alias in
+the same request as kind/name; RTM_DELLINK uses the recorded index only after
+kind/name/index/session postcheck. Unknown inventory or foreign links are refused.
+ACK loss is not treated as proof of failure: query after the action determines
+whether the session-owned link exists or removal reached absence. Unknown state
+requires keeping the intent/record for recovery. External root controllers can
+still race index reuse; this adapter does not claim an atomic kernel ownership CAS.
+check-actions.c checks wire requests and action/postcheck decisions using mock
+transport; it does not create/delete host links. CI pending. Not packaged or
+called yet; lifecycle must save intent, acquire index, configure, rollback/recover
+and preserve records on uncertain cleanup before any CLI start/stop is exposed.
+Full build header filters now name only packaged VPN headers; unshipped candidate
+headers still run service CI. Add package/filter dependencies when wiring them in.
+
 ### WireGuard / AmneziaWG: клієнтський QR та AWG-параметри — 2026-10-16
 
 Повні #355/#356 скомпілювали образ і пройшли загальний BusyBox audit, але
