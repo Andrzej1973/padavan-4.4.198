@@ -57,6 +57,28 @@ for page,field,removed in [('vpncli.asp','vpnc_type',('0','1','2')),
   old='document.form.'+field+'.remove(2);'
   if text.count(old)!=1:raise SystemExit('VPN index removal changed: '+page)
   text=text.replace(old,'$j("#'+field+' option[value=\'2\']").remove();')
+  select_end=text.find('</select>',match.start())+len('</select>')
+  text=text[:select_end]+'<p class="help-block"><#WRVPNExplicitType#></p>'+text[select_end:]
+  # No implicit conversion of a saved legacy type to the first retained option.
+  initial='function initial(){'
+  valid='var mode = document.form.'+field+'.value;'
+  if text.count(initial)!=1 or text.count('function validForm(){')!=1:
+   raise SystemExit('VPN form functions changed: '+page)
+  text=text.replace(initial,initial+'\n\tif ("<% nvram_get_x("", "'+field+'"); %>" != "3")\n'
+   '\t\tdocument.form.'+field+'.selectedIndex = -1;',1)
+  # Scope validation edit to validForm, not similarly named mode variables elsewhere.
+  offset=text.index('function validForm(){');pos=text.find(valid,offset)
+  if pos<0:raise SystemExit('VPN validation mode changed: '+page)
+  end=pos+len(valid)
+  text=(text[:end]+'\n\tif (mode != "3") {\n'
+        +'\t\tdocument.form.'+field+'.focus();\n\t\treturn false;\n\t}'+text[end:])
  pending.append((path,text))
+for name,note in [
+ ('EN.footer','PPTP, L2TP and OpenVPN are excluded. Select the supported tunnel explicitly before enabling it. Saved legacy settings are not automatically converted.'),
+ ('UK.dict','PPTP, L2TP та OpenVPN виключені. Перед увімкненням явно виберіть підтримуваний тунель. Старі налаштування автоматично не перетворюються.'),
+ ('RU.dict','PPTP, L2TP и OpenVPN исключены. Перед включением явно выберите поддерживаемый туннель. Старые настройки автоматически не преобразуются.')]:
+ path=root/'www/dict'/name;text=path.read_text()
+ if 'WRVPNExplicitType=' in text:raise SystemExit('VPN migration label already exists')
+ pending.append((path,text.rstrip()+'\nWRVPNExplicitType='+note+'\n'))
 for path,text in pending:path.write_text(text,encoding='utf-8',newline='\n')
 print('Excluded poptop/xl2tpd and PPTP/L2TP PPP plugins; retained PPPoE/shared dependencies')

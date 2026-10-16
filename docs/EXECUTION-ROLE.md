@@ -17,6 +17,20 @@
 - Сторонній diff `tools/prepare-wifi-hwnat-mode.py` збережено без змін.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
 
+### Explicit selection for stale saved VPN types — 2026-10-16
+
+Prepared VPN client/server initial() clears selection when saved type !=3;
+enabled validForm refuses empty/unsupported type, while existing disabled-form
+return remains first. This prevents silently converting legacy settings to the
+first retained option. EN/UK/RU help explains explicit selection and no automatic
+conversion. No NVRAM migration performed. Exact-source preparer PASS at
+../wr-vpn-stale-type-check; both generated page JavaScript syntax checks PASS
+with ASP/template placeholders substituted (not browser behavior proof).
+WAN stale-type UX, residual panels, private kernel dependencies and separate
+WG/AWG support remain open. Diagnostic full38922347945 confirmed live in Build
+WR1200JS firmware; no restart performed. Target failure reason still pending trace.
+
+
 ### Legacy VPN WebUI protocol selection pruning — 2026-10-16
 
 WR source preparer видаляє лише options 0/1/2 у точних vpnc_type/vpns_type
