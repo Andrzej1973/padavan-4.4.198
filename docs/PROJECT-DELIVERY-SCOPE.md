@@ -41,6 +41,38 @@ libraries, disabled kernel-only dependencies where unused, rejected legacy
 backend actions, no misleading UI choices, updated model guide and target
 BusyBox checks; actual retained tunnel routing requires device verification.
 
+## Distinct WG/AWG tunnel profiles — owner request 2026-10-16
+
+When an AmneziaWG tunnel already exists, creating a WireGuard tunnel must
+give the new tunnel its own visible name/number (for example AWG1, WG1, WG2)
+instead of silently replacing the existing profile. Preserve existing saved
+settings and tunnel identity. Each profile needs its own protocol, name,
+configuration, observed status, export/QR and scoped lifecycle actions.
+Owner confirmed: profiles must run independently and simultaneously. Creating,
+editing or stopping one must preserve other tunnels and management access.
+Stored alternatives with only one active profile do not satisfy this request.
+
+Confirmed handover scenario: keep the current AWG profile carrying remote
+management, create and connect an independent WG profile, verify a new
+management connection through WG, then explicitly stop AWG and finally delete
+its profile. This is remote setup through AWG, not a requirement to nest the
+WG data path inside AWG. WG endpoint routing and DNS dependencies must remain
+functional after AWG is stopped. Stopping and deleting are distinct actions;
+no automatic source-profile removal is authorized. The owner reports about
+300 Mbit/s with WireGuard on this router's old 3.4 firmware versus about
+150 Mbit/s on the current AWG connection; retain this as an owner-reported
+benchmark reference, not a verified limit or performance promise for 4.4.
+
+Current implementation has one shared client role (wg0) and one shared server
+role (wg1), not a multi-profile manager. The client additionally hard-codes
+routing table 51, fwmark 51820, rule preferences 5181/5182, shared ipsets,
+watchdog lock, network-list files and post-script. Independent concurrent
+profiles require ownership and collision handling for these resources, DNS,
+routes and firewall reconstruction as well as distinct interface names.
+Renaming labels alone does not satisfy the request. Verify persistence,
+per-profile QR contents and that editing/stopping one profile preserves the
+other tunnel and management access before claiming support.
+
 ## Delivery order — user confirmation 2026-10-10
 
 1. Finish YOUHUA WR1200JS first: complete the accepted firmware and WebUI work, verify the target build and image, then verify device behavior with the user. Compilation alone is insufficient. Preserve the central configuration and keep CAKE excluded.
