@@ -160,7 +160,8 @@ REFRESH_CONTROL = ('<input type="button" id="btn_reconnect" class="btn btn-info"
 JS_BLOCK = '''var wrZerotierBusy = false;
 var wrZerotierTimer = null;
 function wrZerotierApplyState(state) {
-	var labels = ["<#Stopped#>", "<#Running#>", "<#ZT_Stale#>", "<#ZT_Unknown#>"];
+	// Cache freshness does not prove daemon health or overlay connectivity.
+	var labels = ["<#ZT_Disabled#>", "<#ZT_Updated#>", "<#ZT_Stale#>", "<#ZT_Unknown#>"];
 	$j("#zerotier_status").html('<span class="label label-' + (state === 1 ? 'success' : 'warning') + '">' +
 		(labels[state] || labels[3]) + '</span>');
 }
@@ -169,7 +170,12 @@ function wrZerotierRefresh() {
 	wrZerotierBusy = true;
 	$j.ajax({url: "/update.cgi", data: {output: "zerotier_state"}, dataType: "json", cache: false, timeout: 5000})
 		.done(function (result) {
-			var state = result && typeof result.state === "number" ? result.state : 3;
+			var valid = result && typeof result.state === "number" &&
+				result.state >= 0 && result.state <= 3 && result.state % 1 === 0 &&
+				typeof result.age === "number" && isFinite(result.age) &&
+				result.age % 1 === 0 && (result.state === 1 ? result.age >= 0 && result.age <= 60 :
+				result.state === 2 ? result.age > 60 : result.age === -1);
+			var state = valid ? result.state : 3;
 			wrZerotierApplyState(state);
 			var info = "";
 			if (state === 1) info = "<#ZT_Updated#> " + result.age + " <#ZT_SecondsAgo#>";
@@ -208,9 +214,9 @@ static int ej_zerotier_state(int eid, webs_t wp, int argc, char **argv)
 		state = 0;
 	} else if (stat("/var/run/zerotier-state.txt", &status) != 0) {
 		state = 3;
-	} else if (status.st_mtime >= now) {
-		state = 1;
-		age = 0;
+	} else if (!S_ISREG(status.st_mode) || now <= 0 || status.st_mtime > now) {
+		/* Clock rollback or an invalid cache must not look fresh. */
+		state = 3;
 	} else {
 		age = (long)(now - status.st_mtime);
 		state = age <= 60 ? 1 : 2;
