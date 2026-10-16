@@ -62,8 +62,19 @@ replace/delete чи перенесення legacy NVRAM, щоб до готов�
 №127 (`e0dcd88`, run 38953022637): реальні pinned validators + store,
 окремі AWG1/WG2, FD closure, invalid/unavailable/timeout і незмінність запису
 AWG після невдалих WG actions. Це не доказ двох активних тунелів.
-Наступне: упакувати CLI/validators у firmware й перевірити MIPS виконання,
-далі scoped lifecycle/маршрути/DNS, HTTP/WebUI та QR.
+Додано пакет tools/vpn-profiles/Makefile + prepare-package.py. Він компілює
+CLI та validators з уже вибраних WG/AWG sources, залежить від відповідних
+userspace builds і встановлює /usr/sbin/wr-vpn-profile та validators у
+/usr/libexec/wrvpn. Нових boot/network hooks немає. WIREGUARD selector
+контролює пакет, AMNEZIAWG — додатковий validator.
+
+verify-image.py перевіряє MIPS ELF і виконує упаковані validators під QEMU,
+включно з 32-bit H ranges. У wrapper додано decimal bound до strtoul:
+AWG tools не перевіряє ERANGE, тому host-64 parsing не доводить відмову
+переповнення на MIPS-32. CI ще очікується. CLI input gate тестується без
+створення сховища; повний fork/exec + store на target поки не перевірений.
+Наступне: перевірити firmware/package CI, далі scoped lifecycle/маршрути/DNS,
+HTTP/WebUI та QR; окремо зробити legacy migration без перезапуску чинного AWG.
 
 ### WireGuard / AmneziaWG: клієнтський QR та AWG-параметри — 2026-10-16
 

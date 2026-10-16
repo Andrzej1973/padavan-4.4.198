@@ -1,4 +1,6 @@
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
 #include "validate-process.h"
 #include <dirent.h>
 #include <errno.h>

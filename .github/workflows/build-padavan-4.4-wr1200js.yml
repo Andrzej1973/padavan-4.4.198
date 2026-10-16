@@ -390,6 +390,7 @@ jobs:
           python3 tools/prepare-vpn-qr.py padavan-4.4
           python3 tools/check-wg-server-ui.py padavan-4.4
           node tools/vpn-status/check-qr-export.js
+          python3 tools/vpn-profiles/prepare-package.py padavan-4.4 --config configs.build/wr1200js.config
 
       - name: Download the Linux 4.4 uClibc toolchain
         run: |
@@ -997,6 +998,22 @@ jobs:
           if grep -q '^CONFIG_FIRMWARE_INCLUDE_USBIP=y$' configs.build/wr1200js.config; then
             python3 tools/usbip/check-restore.py --target-root padavan-4.4/trunk/romfs
           fi
+
+      - name: Verify packaged MIPS VPN profile tools
+        run: |
+          if grep -qx 'CONFIG_FIRMWARE_INCLUDE_WIREGUARD=y' configs.build/wr1200js.config; then
+            options=()
+            if grep -qx 'CONFIG_FIRMWARE_INCLUDE_AMNEZIAWG=y' configs.build/wr1200js.config; then options+=(--amneziawg); fi
+            python3 tools/vpn-profiles/verify-image.py padavan-4.4/trunk/romfs "${options[@]}" --output vpn-profile-image.json
+          fi
+
+      - name: Preserve VPN profile image checks
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: vpn-profile-image
+          path: vpn-profile-image.json
+          if-no-files-found: ignore
 
       - name: Verify USBIP settings UI and linked HTTP storage code
         run: |

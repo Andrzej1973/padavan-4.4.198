@@ -62,6 +62,9 @@ for protocol,root,commit in roots:
   assert result.stdout==(b'valid client configuration; connectivity unverified\n' if valid else b'')
  for valid in [base,base.replace('\n','\r\n'),base.replace('never-query-this.invalid:51820','[2001:db8::1]:51820'), '# Український коментар\n'+base]:run(valid,True)
  run(awg,protocol=='amneziawg')
+ if protocol=='amneziawg':
+  for value in ('4294967295','0004294967295','1-4294967295','1 - 9'):run(awg.replace('H1 = 1\n','H1 = '+value+'\n'),True)
+  for value in ('4294967296','999999999999999999','-1','1-4294967296','9-1','1--2'):run(awg.replace('H1 = 1\n','H1 = '+value+'\n'),False)
  for invalid in [
   base.replace(key,'not-a-key'),base.replace(public,'not-a-key'),
   base.replace('[Peer]','PreUp = touch /must-not-run\n[Peer]'),

@@ -7,6 +7,7 @@
 #endif
 #include <arpa/inet.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
@@ -30,6 +31,25 @@ static int number(const char *s,unsigned int max,int zero)
         n=n*10u+(unsigned int)(*s-'0'); if (n>max) return 0;
     }
     return zero || n>0;
+}
+static int header_number(const char *s,uint32_t *out)
+{
+    const char *p=s; size_t n;
+    if (!*p) return 0;
+    for (;*p;p++) if (*p<'0' || *p>'9') return 0;
+    while (*s=='0' && s[1]) s++;
+    n=strlen(s);
+    if (n>10 || (n==10 && strcmp(s,"4294967295")>0)) return 0;
+    *out=(uint32_t)strtoul(s,NULL,10); return 1;
+}
+static int header_range(char *s)
+{
+    char *p=s,*out=s,*dash; uint32_t low,high;
+    for (;*p;p++) if (*p!=' ' && *p!='\t') *out++=*p;
+    *out=0; dash=strchr(s,'-');
+    if (!dash) return header_number(s,&low);
+    *dash++=0;
+    return header_number(s,&low) && header_number(dash,&high) && low<=high;
 }
 static int ip(const char *s)
 { unsigned char addr[16]; return inet_pton(AF_INET,s,addr)==1 || inet_pton(AF_INET6,s,addr)==1; }
@@ -131,6 +151,11 @@ int main(void)
             if (!strcasecmp(key,"PrivateKey") && (section!=1 || private_keys++)) goto invalid;
             if (!strcasecmp(key,"PublicKey") && (section!=2 || public_seen++)) goto invalid;
             if (!strcasecmp(key,"ListenPort") && (section!=1 || port_seen++ || !number(value,65535,1))) goto invalid;
+            if (section==1 && strlen(key)==2 && (key[0]=='H' || key[0]=='h') && key[1]>='1' && key[1]<='4') {
+                /* Pinned AWG's strtoul parser does not inspect ERANGE. Bound
+                 * the decimal text before conversion on 32-bit targets. */
+                strcpy(copy,value); if (!header_range(copy)) goto invalid;
+            }
             if (!strcasecmp(key,"Endpoint")) {
                 if (section!=2 || endpoint_seen++) goto invalid;
                 strcpy(copy,value); if (!endpoint(copy)) goto invalid;
