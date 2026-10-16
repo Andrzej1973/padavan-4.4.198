@@ -17,6 +17,18 @@
 - Сторонній diff `tools/prepare-wifi-hwnat-mode.py` збережено без змін.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
 
+### USB/IP private file store — 2026-10-16
+
+Service CI 38845108113 на 8b3dadf успішний. Додано export-store.h —
+file I/O шар із контрактом caller-held wr-usbip.lock, приватний directory,
+O_NOFOLLOW/exclusive temp, повна валідація до запису, renameat, окремий
+SAVED/REFUSED/UNCONFIRMED для sync після rename. Reader обмежений, не приймає
+symlink/hardlink/неприватні файли; invalid decode не змінює попередній out.
+Не викликає MTD/storage-save. Ще не встановлений і не з'єднаний з HTTP/boot.
+Native sanitizer fixture: roundtrip, invalid-table preservation, symlink і
+directory permissions; додано до CI, результат очікується. Наступне — CI,
+підключення під фактичний lifecycle lock і автентифікований writer/UI.
+
 ### USB/IP private export format — 2026-10-16
 
 Service CI 38844980761 попереднього валідатора успішний. Додано
