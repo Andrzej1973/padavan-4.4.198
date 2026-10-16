@@ -17,6 +17,17 @@
 - Сторонній diff `tools/prepare-wifi-hwnat-mode.py` збережено без змін.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
 
+### USB/IP export rules validator — 2026-10-16
+
+Додано export-rules.h: bounded валідація до 16 правил (enabled, bus,
+VID/PID, точний serial_hex). Активне правило без serial/із control-byte,
+неканонічним hex/незавершеним рядком відхиляється; дублікати портів та
+однакових VID/PID/serial на різних портах відхиляються. Disabled-рядки не
+блокують вимкнення. Це лише валідатор, ще не підключений до NVRAM/restore/UI.
+Native fixture додано до sanitizer CI; результат очікується. CI 38844859606
+попереднього exact serial argv/HTTP guard успішний. Наступне — виконання
+нової fixture, потім validated settings writer і restore із повторною звіркою.
+
 ### USB/IP serial transport evidence — 2026-10-16
 
 Service CI 38844755717 успішний на ea91264 (hexdump reader). Додатково
