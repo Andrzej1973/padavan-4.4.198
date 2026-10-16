@@ -12,14 +12,16 @@ def verify(www):
     checks = {}
     for marker in ['var wr_wan_socket_supported', 'wr_selected',
                    'showhide_div("wan_src_phy", 1)', 'WAN_Socket_Confirm',
-                   'WAN_Socket_Help', 'id="wr_wan_socket_help"']:
+                   'WAN_Socket_Help', 'id="wr_wan_socket_help"',
+                   'wr_wan_effective_port();', 'id="wr_wan_effective"']:
         checks['page:' + marker] = marker in page
     hashes = {page_path.name: hashlib.sha256(page_path.read_bytes()).hexdigest()}
     for language in ['EN', 'UK', 'RU']:
         path = www / (language + '.dict')
         lines = path.read_text(encoding='utf-8').splitlines()
         hashes[path.name] = hashlib.sha256(path.read_bytes()).hexdigest()
-        for key in ['WAN_Socket_Confirm', 'WAN_Socket_Help']:
+        for key in ['WAN_Socket_Confirm', 'WAN_Socket_Help', 'WAN_Socket_Effective',
+                    'WAN_Socket_Unknown', 'WAN_Socket_NotApplied']:
             values = [line.split('=', 1)[1] for line in lines if line.startswith(key + '=')]
             checks[language + ':' + key] = len(values) == 1 and bool(values[0].strip())
             if key.endswith('Confirm') and values:

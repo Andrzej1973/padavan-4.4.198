@@ -195,7 +195,14 @@ The initial integration left link monitoring bound to the requested LAN even
 when the VLAN conflict check fell back to the original WAN. On WR1200JS,
 net_wan.c and the HTTP Ethernet-link indicator now query logical WAN (0), which
 the patched driver maps to its effective role. Legacy model paths remain
-unchanged. This does not yet display requested/effective socket names in WebUI.
+unchanged. A subsequent WebUI increment adds a read-only effective socket
+snapshot: wr_wan_effective_port calls existing HTTP switch ioctl GET 67 only
+on WR1200JS, accepts physical values 0..4 and otherwise returns -1. The pinned
+WR1200JS map makes these WAN/LAN1..4. The page compares this with the saved
+selection, labels unknown explicitly, and warns of a refused/pending selection
+on mismatch. It issues no SET and does not retry changes. Reload after Apply
+to obtain a new snapshot. JS fixtures cover unknown/original/matched/mismatched;
+target compilation of this increment is pending.
 Local integration and Node logic checks passed; target compilation of this
 follow-up and physical link/fallback acceptance are still required.
 

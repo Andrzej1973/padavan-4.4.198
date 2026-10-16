@@ -18,6 +18,8 @@ const variables=require('node:fs').readFileSync(process.argv[2]+'/trunk/user/htt
 assert.ok(variables.includes('{"wan_src_phy", "", NULL, EVM_RESTART_SWITCH_VLAN}'));
 const status=require('node:fs').readFileSync(process.argv[2]+'/trunk/user/httpd/web_ex.c','utf8');
 assert.ok(status.includes('int eth_link = fill_eth_port_status(0, etherlink);'));
+assert.ok(status.includes('MTK_ESW_IOCTL_WAN_PORT_X_GET, 0, &physical'));
+assert.ok(status.includes('"wr_wan_effective_port", ej_wr_wan_effective_port'));
 for(const file of ['EN.footer','UK.dict','RU.dict']){
  const dict=require('node:fs').readFileSync(process.argv[2]+'/trunk/user/www/dict/'+file,'utf8');
  assert.ok(dict.includes('WAN_Socket_Confirm=') && dict.includes('WAN_Socket_Help='));
@@ -45,3 +47,15 @@ accepted=true;applyRule();assert.equal(submissions,1);assert.equal(loading,1);
 select.value=original_wan_src_phy;applyRule();assert.equal(confirmations,2);assert.equal(submissions,2);
 select.value='0';accepted=false;applyRule();assert.equal(confirmations,3);assert.equal(submissions,2);
 console.log('PASS WAN Apply: cancel, accept, unchanged selection, restore confirmation');
+
+let effectiveText='';
+function $j(){return {text(value){effectiveText=value;}};}
+const effectiveStart=page.indexOf('\tif (wr_wan_socket_supported){\n\t\tvar effective');
+const effectiveEnd=page.indexOf('\n\t}',effectiveStart)+3;
+assert.ok(effectiveStart>=0 && effectiveEnd>effectiveStart);
+for(const port of [-1,0,2,4]){
+ eval(page.slice(effectiveStart,effectiveEnd).replace('<% wr_wan_effective_port(); %>',String(port)));
+ assert.equal(effectiveText.includes('WAN_Socket_NotApplied'),port>=0 && port!==2);
+ assert.equal(effectiveText.includes('WAN_Socket_Unknown'),port===-1);
+}
+console.log('PASS WAN effective socket: unknown, original, matched and mismatched');

@@ -33,9 +33,18 @@ function change_stb_port_and_vlan(){
 	showhide_div("wr_wan_socket_help", wr_wan_socket_supported);
 	showhide_div("vlan_inet", vlan_filter);''')
     replace('<tr id="wan_stb_iso">', '''<tr id="wr_wan_socket_help" style="display:none">
-                                            <td colspan="2"><#WAN_Socket_Help#></td>
+                                            <td colspan="2"><#WAN_Socket_Help#><br><span id="wr_wan_effective"></span></td>
                                         </tr>
                                         <tr id="wan_stb_iso">''')
+    replace('\tchange_stb_port_and_vlan();', '''	change_stb_port_and_vlan();
+	if (wr_wan_socket_supported){
+		var effective = <% wr_wan_effective_port(); %>;
+		var message = "<#WAN_Socket_Effective#> " +
+			(effective === 0 ? "WAN" : effective >= 1 && effective <= 4 ? "LAN" + effective : "<#WAN_Socket_Unknown#>");
+		if (effective >= 0 && String(effective) !== original_wan_src_phy)
+			message += " — <#WAN_Socket_NotApplied#>";
+		$j("#wr_wan_effective").text(message);
+	}''')
     page.write_text(text, encoding='utf-8', newline='\n')
 
     # Without this event a change of the selector alone merely saves NVRAM.
@@ -56,6 +65,30 @@ function change_stb_port_and_vlan(){
                         '\t\t\t/* Logical WAN (0) follows the effective driver role. */\n'
                         '\t\t\tint eth_link = fill_eth_port_status(0, etherlink);\n'
                         '#else\n' + old + '\n#endif', 1)
+    anchor = 'struct ej_handler ej_handlers[] =\n'
+    hook = '''/* Read-only physical WAN role, WR1200JS map: WAN=0, LAN1..4=1..4. */
+#if defined(BOARD_WR1200JS)
+#include <mtk_esw/ioctl.h>
+extern int mtk_esw_ioctl(unsigned int, unsigned int, unsigned int *);
+#endif
+static int ej_wr_wan_effective_port(int eid, webs_t wp, int argc, char **argv)
+{
+	int port = -1;
+	(void)eid; (void)argc; (void)argv;
+#if defined(BOARD_WR1200JS)
+	unsigned int physical = ~0u;
+	if (mtk_esw_ioctl(MTK_ESW_IOCTL_WAN_PORT_X_GET, 0, &physical) == 0 && physical <= 4)
+		port = (int)physical;
+#endif
+	return websWrite(wp, "%d", port);
+}
+
+'''
+    registration = '\t{ "json_system_status", ej_system_status_hook},\n'
+    if text.count(anchor) != 1 or text.count(registration) != 1:
+        raise RuntimeError('Unexpected WAN effective-port EJ anchors')
+    text = text.replace(anchor, hook + anchor, 1).replace(registration,
+        registration + '\t{ "wr_wan_effective_port", ej_wr_wan_effective_port},\n', 1)
     status.write_text(text, encoding='utf-8', newline='\n')
 
     strings = {
@@ -66,13 +99,20 @@ function change_stb_port_and_vlan(){
         'RU': ('Изменение порта WAN прервёт интернет и может разорвать этот сеанс. Переставьте кабель провайдера в выбранный порт; WAN возвращает заводской порт. Продолжить?',
                'WR1200JS: выберите WAN или LAN1-LAN4 для замены повреждённого порта WAN. Выбранный LAN становится WAN, старый WAN изолируется. После применения переставьте кабель провайдера. Порт с правилом тегированного VLAN будет отклонён; сначала проверьте IPTV/VLAN. Требуется проверка на устройстве.'),
     }
+    status_labels = {
+        'EN': ('Effective WAN socket:', 'Unknown', 'Saved selection differs from the driver; it may have been refused or not applied. Reload after Apply and review VLAN/IPTV settings.'),
+        'UK': ('Фактичний порт WAN:', 'Невідомо', 'Збережений вибір відрізняється від драйвера: його могли відхилити або ще не застосувати. Оновіть сторінку після застосування та перевірте VLAN/IPTV.'),
+        'RU': ('Фактический порт WAN:', 'Неизвестно', 'Сохранённый выбор отличается от драйвера: его могли отклонить или ещё не применить. Обновите страницу после применения и проверьте VLAN/IPTV.'),
+    }
     for lang, (confirm, help_text) in strings.items():
         path = www / 'dict' / ('EN.footer' if lang == 'EN' else lang + '.dict')
         original = path.read_text(encoding='utf-8')
         if 'WAN_Socket_Confirm=' in original:
             raise RuntimeError('WAN socket labels already installed')
-        path.write_text(original.rstrip() + '\nWAN_Socket_Confirm=' + confirm +
-                        '\nWAN_Socket_Help=' + help_text + '\n', encoding='utf-8', newline='\n')
+        additions = '\nWAN_Socket_Confirm=' + confirm + '\nWAN_Socket_Help=' + help_text + '\n'
+        for key, value in zip(('WAN_Socket_Effective', 'WAN_Socket_Unknown', 'WAN_Socket_NotApplied'), status_labels[lang]):
+            additions += key + '=' + value + '\n'
+        path.write_text(original.rstrip() + additions, encoding='utf-8', newline='\n')
     print('PASS WAN socket WebUI integration (not device verification)')
 
 
