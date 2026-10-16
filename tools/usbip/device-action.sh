@@ -1,12 +1,35 @@
 #!/bin/sh
 # Sourced under the lifecycle lock by wr-usbip; never called from an EJ getter.
+wr_usbip_serial_matches()
+{
+    # od reads at most 258 bytes, preserving newlines until after hex encoding.
+    type od >/dev/null 2>&1 || return 1
+    wr_usbip_serial_raw=$(od -An -v -tx1 -N258 "$wr_usbip_device/serial") || return 1
+    wr_usbip_serial_value=$(printf '%s' "$wr_usbip_serial_raw" | tr -d ' \n') || return 1
+    case "$wr_usbip_serial_value" in *0a) wr_usbip_serial_value=${wr_usbip_serial_value%0a};; esac
+    test -n "$wr_usbip_serial_value" && test "${#wr_usbip_serial_value}" -le 512 || return 1
+    wr_usbip_serial_tail=$wr_usbip_serial_value
+    while test -n "$wr_usbip_serial_tail"; do
+        wr_usbip_serial_rest=${wr_usbip_serial_tail#??}
+        wr_usbip_serial_byte=${wr_usbip_serial_tail%"$wr_usbip_serial_rest"}
+        case "$wr_usbip_serial_byte" in 0?|1?|7f) return 1;; esac
+        wr_usbip_serial_tail=$wr_usbip_serial_rest
+    done
+    test "$wr_usbip_serial_value" = "$wr_usbip_expected_serial"
+}
 wr_usbip_device_action()
 {
-    test "$#" -eq 4 || return 1
+    test "$#" -eq 4 || test "$#" -eq 5 || return 1
     wr_usbip_action=$1
     wr_usbip_bus=$2
     wr_usbip_vendor=$3
     wr_usbip_product=$4
+    wr_usbip_expected_serial=${5-}
+    if test "$#" -eq 5; then
+        test -n "$wr_usbip_expected_serial" && test "${#wr_usbip_expected_serial}" -le 512 || return 1
+        test "$(( ${#wr_usbip_expected_serial} % 2 ))" -eq 0 || return 1
+        case "$wr_usbip_expected_serial" in *[!0-9a-f]*) return 1;; esac
+    fi
     case "$wr_usbip_action" in bind|unbind) ;; *) return 1;; esac
     for wr_usbip_hex in "$wr_usbip_vendor" "$wr_usbip_product"; do
         test "${#wr_usbip_hex}" -eq 4 || return 1
@@ -20,6 +43,7 @@ wr_usbip_device_action()
     # Compare the identity the user observed; never act on just a recycled bus ID.
     test "$(cat "$wr_usbip_device/idVendor")" = "$wr_usbip_vendor" || return 1
     test "$(cat "$wr_usbip_device/idProduct")" = "$wr_usbip_product" || return 1
+    test -z "$wr_usbip_expected_serial" || wr_usbip_serial_matches || return 1
     wr_usbip_driver=''
     if test -L "$wr_usbip_device/driver"; then
         wr_usbip_driver=$(readlink "$wr_usbip_device/driver") || return 1
@@ -34,6 +58,7 @@ wr_usbip_device_action()
     /sbin/usbip "$wr_usbip_action" -b "$wr_usbip_bus" 9>&- || return 1
     test "$(cat "$wr_usbip_device/idVendor")" = "$wr_usbip_vendor" || return 1
     test "$(cat "$wr_usbip_device/idProduct")" = "$wr_usbip_product" || return 1
+    test -z "$wr_usbip_expected_serial" || wr_usbip_serial_matches || return 1
     wr_usbip_driver=''
     if test -L "$wr_usbip_device/driver"; then
         wr_usbip_driver=$(readlink "$wr_usbip_device/driver") || return 1

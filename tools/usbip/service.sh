@@ -73,7 +73,7 @@ stop_service()
 }
 test "$#" -gt 0 || exit 2
 case "$1" in
-    bind|unbind) test "$#" -eq 4 || exit 2;;
+    bind|unbind) test "$#" -eq 4 || test "$#" -eq 5 || exit 2;;
     start|stop|restart|status|reconcile) test "$#" -eq 1 || exit 2;;
     *) exit 2;;
 esac

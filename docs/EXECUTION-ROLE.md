@@ -17,6 +17,20 @@
 - Сторонній diff `tools/prepare-wifi-hwnat-mode.py` збережено без змін.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
 
+### USB/IP action serial guard — 2026-10-16
+
+wr-usbip bind/unbind отримали необов'язковий п'ятий аргумент serial_hex:
+точна звірка до й після дії під чинним lifecycle-lock, bounded od до 258
+байтів; missing/oversize/control/invalid token відхиляються. При відсутньому
+od дія з serial відхиляється. Старий ручний контракт із чотирма аргументами
+збережено. Web worker/UI ще передають старий контракт; persistence не ввімкнено.
+Shell syntax PASS; mock-fixture доповнено valid/mismatch/missing/oversize та
+заміною serial після bind (unconfirmed без сліпого rollback). Виконання CI
+нового mock ще очікується. На пристрої дії не виконувалися.
+CI 38844317388 попереднього inventory-кроку успішний; повна збірка
+38844317454 ще виконується. Наступне — C/action CI, потім HTTP worker/UI
+передавання observed serial і перевірка підтримки od у цільовому образі.
+
 ### USB/IP serial observation — 2026-10-16
 
 inventory.inc доповнено bounded serial_hex: до 256 байтів номера, hex JSON,
