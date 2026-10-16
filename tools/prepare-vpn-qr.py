@@ -25,7 +25,12 @@ for name,values in [
  path=root/'dict'/name;dictionary=path.read_text()
  if 'WRVPNQRChanged=' in dictionary:raise SystemExit('VPN QR labels already installed')
  changes.append((path,dictionary.rstrip()+'\n'+'\n'.join('WRVPNQR'+key+'='+value for key,value in zip(['Changed','Loading','Error','Private','Hide'],values))+'\n'))
-# Install the same asset even when Wi-Fi QR UI was not prepared for another profile.
-changes.append((root/'n56u_ribbon_fixed/wifi-qrcode-renderer.js',Path(__file__).with_name('wifi-qrcode-renderer.js').read_text()))
+# Wi-Fi QR preparation may already have installed this shared renderer earlier
+# in the workflow. Reuse it when identical; reject a conflicting implementation.
+renderer=root/'n56u_ribbon_fixed/wifi-qrcode-renderer.js'
+expected_renderer=Path(__file__).with_name('wifi-qrcode-renderer.js').read_text()
+if renderer.exists():
+ if renderer.read_text(encoding='utf-8')!=expected_renderer:raise SystemExit('shared QR renderer differs; no files written')
+else:changes.append((renderer,expected_renderer))
 for path,text in changes:path.write_text(text,encoding='utf-8',newline='\n')
 print('Prepared shared local UTF-8 VPN QR, exact download payload, stale response and private-data clearing')
