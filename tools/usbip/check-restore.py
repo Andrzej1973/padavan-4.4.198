@@ -50,9 +50,15 @@ wr_usbip_device_action(){
         env['PATH']=str(providers)
         env['LC_ALL']='C'
 
-    def run(data=rows,**extra):
+    def run(data=rows,trace_failure=False,**extra):
         table.write_text(data);events.write_text('')
         result=subprocess.run([*shell,str(script)],env=dict(env,**extra),capture_output=True,text=True,timeout=30)
+        if result.returncode and trace_failure:
+            # Synthetic fixture only: never run this tracing against live sysfs.
+            traced=subprocess.run([*shell,'-x',str(script)],env=dict(env,**extra),capture_output=True,text=True,timeout=30)
+            raise AssertionError('Expected valid restore failed under '+str(shell)+
+                                 '\nstdout: '+result.stdout+'\nstderr: '+result.stderr+
+                                 '\nsynthetic trace: '+traced.stderr)
         return result.returncode,events.read_text()
     assert run(RESTORE='0')==(0,'')
     assert run(ENABLE='0')==(0,'')
@@ -60,7 +66,7 @@ wr_usbip_device_action(){
     assert run(READER_FAIL='2')==(1,'')
     assert run(OWNED='')==(1,'')
     assert run(BLOCK_BUS='1-2')==(1,'') # all-rule preflight before first bind
-    assert run()==(0,'bind 1-1\nbind 1-2\n')
+    assert run(trace_failure=True)==(0,'bind 1-1\nbind 1-2\n')
     # A failed action is unconfirmed: no retry or blind rollback.
     assert run(BIND_FAIL='1')==(1,'bind 1-1\n')
     # Device replacement between preflight and dispatch must stop the batch.

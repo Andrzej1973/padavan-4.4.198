@@ -17,6 +17,18 @@
 - Сторонній diff `tools/prepare-wifi-hwnat-mode.py` збережено без змін.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
 
+### Target BusyBox restore failure under investigation — 2026-10-16
+
+Full 38918973322 на 9790865 FAILED at check-restore.py expected-success
+assertion (line63), not a firmware compile error. Full 38908649608 also failed;
+its exact cause not yet inspected. Newer 38921776592/de53d4e and
+38921131364/8bb44ff were in_progress when checked. Native passing fixtures
+are insufficient. Added bounded synthetic-only shell xtrace on the explicit
+expected-success case to expose target stderr; no gate weakened or skipped.
+Next: inspect emitted target trace, fix demonstrated incompatibility, then
+continue legacy VPN backend/UI/kernel pruning. No physical runtime acceptance.
+
+
 ### Shadowsocks client/server configuration and guide — 2026-10-16
 
 SSREDIR/SSLOCAL залишено y; додано окремий commented SSSERVER (сервер не
