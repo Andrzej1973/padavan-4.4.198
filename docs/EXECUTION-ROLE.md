@@ -17,6 +17,17 @@
 - Сторонній diff `tools/prepare-wifi-hwnat-mode.py` збережено без змін.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
 
+### USB/IP private export format — 2026-10-16
+
+Service CI 38844980761 попереднього валідатора успішний. Додано
+export-codec.h: версія wr-usbip-exports-v1, рівно 16 слотів, bounded текст,
+disabled-слот канонічний; decode перевіряє всю таблицю до копіювання в out.
+Missing/truncated/extra/NUL/невірна версія/некоректні правила відхиляються;
+при відмові попередній out не змінюється. Native fixture доповнено roundtrip,
+обрізанням/версією/малим буфером/максимальним serial; CI ще очікується.
+Це codec, не файловий writer: ще не підключено до storage/restore/UI.
+Наступне — перевірити CI, атомарний файл під lifecycle-lock без flash commit.
+
 ### USB/IP export rules validator — 2026-10-16
 
 Додано export-rules.h: bounded валідація до 16 правил (enabled, bus,
