@@ -46,6 +46,7 @@ for protocol,root,commit in roots:
  assert actual==commit,(protocol,actual)
  src=root.resolve()/'src';prefix=a.output/protocol;objects=[]
  flags=['-std=gnu99','-D_GNU_SOURCE','-Wall','-Wextra','-O1','-g','-fsanitize=address,undefined','-fno-omit-frame-pointer','-I'+str(src)]
+ flags += (['-idirafter',str(src/'uapi/linux')] if protocol=='wireguard' else ['-I'+str(src/'uapi/linux')])
  units=[src/'config.c',src/'encoding.c',here/'validate-client.c',guard]
  if protocol=='amneziawg':units.append(src/'type.c')
  for index,unit in enumerate(units):

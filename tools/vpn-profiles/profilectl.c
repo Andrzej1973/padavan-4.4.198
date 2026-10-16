@@ -2,6 +2,8 @@
 #define _GNU_SOURCE
 #endif
 #include "validate-process.h"
+#include <net/if.h>
+#include "link-observation.h"
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -68,6 +70,25 @@ static int wr_list(int root)
     closedir(dir);
     return result?result:(fflush(stdout)?3:0);
 }
+static int wr_observe(int root,unsigned int id)
+{
+    struct wr_vpn_record record;struct wr_vpn_resources resources;struct wr_vpn_link link;
+    enum wr_vpn_store_result status=wr_vpn_store_get(root,id,&record);
+    enum wr_vpn_link_result result;const char *kind;
+    if (status==WR_VPN_STORE_NOT_FOUND) return 5;
+    if (status==WR_VPN_STORE_BUSY) return 4;
+    if (status!=WR_VPN_STORE_OK || !wr_vpn_resources_make(&resources,id,record.protocol)) return 3;
+    result=wr_vpn_link_query(resources.interface,&link);
+    if (result!=WR_VPN_LINK_PRESENT) {
+        printf("{\"id\":%u,\"interface_state\":\"%s\",\"ownership\":\"unverified\",\"up\":null}\n",
+            id,result==WR_VPN_LINK_ABSENT?"absent":"unknown");
+    } else {
+        kind=!strcmp(link.kind,"wireguard")?"wireguard":!strcmp(link.kind,"amneziawg")?"amneziawg":"other";
+        printf("{\"id\":%u,\"interface_state\":\"observed\",\"ownership\":\"unverified\",\"index\":%u,\"kind\":\"%s\",\"up\":%s}\n",
+            id,link.index,kind,(link.flags&IFF_UP)?"true":"false");
+    }
+    return fflush(stdout)?3:0;
+}
 int main(int argc,char **argv)
 {
     unsigned int id=0; int root,result;
@@ -78,13 +99,14 @@ int main(int argc,char **argv)
         if (!wr_vpn_profile_id(argv[2],&id)) return 2;
         if (!strcmp(argv[3],"amneziawg")) protocol=WR_VPN_AMNEZIAWG;
         else if (strcmp(argv[3],"wireguard")) return 2;
-    } else if (argc==3 && !strcmp(argv[1],"export")) {
+    } else if (argc==3 && (!strcmp(argv[1],"export") || !strcmp(argv[1],"observe"))) {
         if (!wr_vpn_profile_id(argv[2],&id)) return 2;
     } else if (!(argc==2 && !strcmp(argv[1],"list"))) return 2;
     if (mkdir(WR_VPN_STORE_ROOT,0700) && errno!=EEXIST) return 3;
     root=wr_vpn_store_open(WR_VPN_STORE_ROOT); if (root<0) return 3;
     if (!strcmp(argv[1],"create")) result=wr_create(root,id,protocol);
     else if (!strcmp(argv[1],"export")) result=wr_export(root,id);
+    else if (!strcmp(argv[1],"observe")) result=wr_observe(root,id);
     else result=wr_list(root);
     close(root); return result;
 }

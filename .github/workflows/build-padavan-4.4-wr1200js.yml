@@ -1005,6 +1005,10 @@ jobs:
             options=()
             if grep -qx 'CONFIG_FIRMWARE_INCLUDE_AMNEZIAWG=y' configs.build/wr1200js.config; then options+=(--amneziawg); fi
             python3 tools/vpn-profiles/verify-image.py padavan-4.4/trunk/romfs "${options[@]}" --output vpn-profile-image.json
+            compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
+            test -x "$compiler"
+            "$compiler" -std=gnu99 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float tools/vpn-profiles/check-link.c tools/vpn-profiles/link-observation.c -o vpn-link-mips
+            qemu-mipsel-static -L padavan-4.4/trunk/romfs ./vpn-link-mips | tee vpn-link-mips.txt
           fi
 
       - name: Preserve VPN profile image checks
@@ -1012,7 +1016,9 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: vpn-profile-image
-          path: vpn-profile-image.json
+          path: |
+            vpn-profile-image.json
+            vpn-link-mips.txt
           if-no-files-found: ignore
 
       - name: Verify USBIP settings UI and linked HTTP storage code

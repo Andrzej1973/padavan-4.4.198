@@ -88,6 +88,7 @@ on:
       - 'tools/vpn-profiles/store.c'
       - 'tools/vpn-profiles/validate-client.c'
       - 'tools/vpn-profiles/validate-process.c'
+      - 'tools/vpn-profiles/link-observation.c'
       - 'tools/export-vpn-qr-fixtures.js'
       - 'tools/check-wg-server-export.py'
       - 'tools/check-wg-server-ui.py'

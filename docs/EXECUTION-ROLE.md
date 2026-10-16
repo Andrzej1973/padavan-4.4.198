@@ -76,6 +76,23 @@ AWG tools не перевіряє ERANGE, тому host-64 parsing не дово
 Наступне: перевірити firmware/package CI, далі scoped lifecycle/маршрути/DNS,
 HTTP/WebUI та QR; окремо зробити legacy migration без перезапуску чинного AWG.
 
+### VPN profiles: MIPS packaging and read-only interface observation
+
+Full build #358 (4075b79, run 38953992669) failed compiling validate-wg:
+linux/wireguard.h was not in the toolchain headers. Added the pinned sources'
+uapi/linux paths using the same include precedence as upstream WG/AWG Makefiles.
+Native parser checks now use these paths too; target proof still awaits CI.
+
+Added link-observation.c/h and profilectl observe ID: bounded RTM_GETLINK,
+kernel sender/sequence checks, distinct absent/unknown results, interface flags.
+JSON explicitly reports ownership unverified; an UP interface is not proof of
+handshake or routing. Ownership predicate requires canonical name, kind, recorded
+ifindex and session alias; lifecycle lock/private runtime record are still pending.
+Legacy wg0/wg1 and the live AWG tunnel are untouched. Native sanitizer and MIPS
+QEMU fixtures are wired into CI; not yet confirmed. The QEMU query uses the CI
+host kernel and is not physical-router acceptance. Next: confirm CI, then private
+runtime state and owned lifecycle before routes/DNS, WebUI and QR integration.
+
 ### WireGuard / AmneziaWG: клієнтський QR та AWG-параметри — 2026-10-16
 
 Повні #355/#356 скомпілювали образ і пройшли загальний BusyBox audit, але
