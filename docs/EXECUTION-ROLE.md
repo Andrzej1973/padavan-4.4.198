@@ -188,6 +188,25 @@ must not be inferred from the earlier parser-only checks. No network lifecycle
 or physical-router acceptance is claimed. Next: inspect this target result,
 then continue protocol apply/readback plus independent endpoint/routing/DNS.
 
+### Separate native WG/AWG control binaries — pending image proof
+
+Confirmed in the pinned AWG source: src/uapi/linux/linux/wireguard.h defines
+WG_GENL_NAME as amneziawg; src/ipc-linux.h uses that family for control requests.
+The existing AWG romfs rule aliases /usr/bin/wg and /usr/sbin/wg to awg.
+That legacy path therefore cannot select the standard WireGuard kernel family.
+Added dedicated real binaries /usr/libexec/wrvpn/wg and /usr/libexec/wrvpn/awg
+to the independent manager package, using the corresponding already-built pinned
+source trees. Existing legacy aliases are retained for their existing callers.
+The new controller must choose these fixed protocol-specific paths explicitly.
+
+verify-image.py now checks both controls as MIPS ELF, distinct binary hashes,
+family string markers and actual --version execution under image-library QEMU.
+This proves packaging/execution only, not successful netlink configuration.
+CI pending. The full target manager fork/exec check introduced in 527d6e7 also
+remains pending in full build #362; do not infer its result from service CI.
+Next: inspect these target gates, then protocol apply/readback plus endpoint
+pinning and per-profile address/route/DNS transaction before exposing start.
+
 ### WireGuard / AmneziaWG: клієнтський QR та AWG-параметри — 2026-10-16
 
 Повні #355/#356 скомпілювали образ і пройшли загальний BusyBox audit, але

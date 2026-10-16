@@ -19,14 +19,26 @@ if not qemu:raise SystemExit('Target QEMU required')
 report={'scope':'MIPS packaging and isolated native parser execution; no profile network lifecycle or physical acceptance',
         'runtime_verified':False,'binaries':{},'cases':[]}
 paths={'manager':'usr/sbin/wr-vpn-profile','wireguard':'usr/libexec/wrvpn/validate-wg','amneziawg':'usr/libexec/wrvpn/validate-awg'}
+paths.update({'control-wireguard':'usr/libexec/wrvpn/wg','control-amneziawg':'usr/libexec/wrvpn/awg'})
 roles=['wireguard']+(['amneziawg'] if a.amneziawg else [])
-if not a.amneziawg:assert not (root/paths['amneziawg']).exists(),'unexpected AWG validator'
-for role in ['manager',*roles]:
+if not a.amneziawg:
+ for role in ('amneziawg','control-amneziawg'):assert not (root/paths[role]).exists(),'unexpected AWG tool'
+for role in ['manager',*roles,*['control-'+protocol for protocol in roles]]:
  path=paths[role]
  binary=root/path;data=binary.read_bytes()
  assert data[:6]==b'\x7fELF\x01\x01' and struct.unpack_from('<H',data,18)[0]==8,(role,'not little-endian 32-bit MIPS')
  assert binary.stat().st_mode&0o111,(role,'not executable')
  report['binaries'][role]={'path':path,'sha256':hashlib.sha256(data).hexdigest(),'size':len(data)}
+# AWG's legacy /usr/bin/wg alias speaks the amneziawg netlink family. The
+# independent manager must use dedicated real binaries for each protocol.
+for protocol in roles:
+ role='control-'+protocol;binary=root/paths[role]
+ assert (protocol+'\0').encode() in binary.read_bytes(),(role,'missing native netlink family')
+ result=subprocess.run([qemu,'-L',str(root),str(binary),'--version'],capture_output=True,timeout=15)
+ assert result.returncode==0 and result.stdout and not result.stderr,(role,'version invocation failed')
+ report['binaries'][role]['version']=result.stdout.decode().strip()
+if a.amneziawg:
+ assert report['binaries']['control-wireguard']['sha256']!=report['binaries']['control-amneziawg']['sha256'],'protocol controls must be distinct'
 key=base64.b64encode(bytes(range(1,33))).decode();public=base64.b64encode(bytes(range(33,65))).decode()
 base=f'[Interface]\nPrivateKey = {key}\nAddress = 10.9.0.2/32\nDNS = 1.1.1.1\nMTU = 1420\n[Peer]\nPublicKey = {public}\nEndpoint = never-resolve.invalid:51820\nAllowedIPs = 0.0.0.0/0\n'
 awg=base.replace('[Peer]','Jc = 4\nJmin = 16\nJmax = 64\nH1 = 1\n[Peer]')

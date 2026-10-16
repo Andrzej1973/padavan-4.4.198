@@ -22,8 +22,10 @@ romfs:
 	mkdir -p $(ROMFSDIR)/usr/libexec/wrvpn
 	$(ROMFSINST) -p +x profilectl /usr/sbin/wr-vpn-profile
 	$(ROMFSINST) -p +x validate-wg /usr/libexec/wrvpn/validate-wg
+	$(ROMFSINST) -p +x $(WG_SRC)/wg /usr/libexec/wrvpn/wg
 ifeq ($(CONFIG_FIRMWARE_INCLUDE_AMNEZIAWG),y)
 	$(ROMFSINST) -p +x validate-awg /usr/libexec/wrvpn/validate-awg
+	$(ROMFSINST) -p +x $(AWG_SRC)/wg /usr/libexec/wrvpn/awg
 endif
 
 clean:
