@@ -987,6 +987,11 @@ jobs:
       - name: Audit all shipped shell scripts with exact target BusyBox
         run: python3 tools/check-target-busybox.py padavan-4.4 --output target-busybox-audit.json
 
+      - name: Check shipped WireGuard server export with exact target BusyBox
+        run: |
+          set -o pipefail
+          python3 tools/check-wg-server-export.py --target-root padavan-4.4/trunk/romfs | tee target-wg-export-check.txt
+
       - name: Check USBIP restore orchestration with exact target BusyBox
         run: |
           if grep -q '^CONFIG_FIRMWARE_INCLUDE_USBIP=y$' configs.build/wr1200js.config; then
@@ -1012,7 +1017,9 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: target-busybox-audit
-          path: target-busybox-audit.json
+          path: |
+            target-busybox-audit.json
+            target-wg-export-check.txt
           if-no-files-found: ignore
 
       - name: Preserve zram image diagnostics

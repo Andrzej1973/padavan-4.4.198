@@ -1,12 +1,20 @@
 #!/usr/bin/env python3
 """Run actual server configuration/export functions against synthetic NVRAM/tools."""
 from pathlib import Path
+import argparse
+import hashlib
 import os
+import shlex
 import shutil
 import subprocess
 import tempfile
 
-source=(Path(__file__).resolve().parent.parent/'overlay/padavan-4.4/trunk/user/amneziawg/wgs.sh').read_text()
+parser=argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--target-root',type=Path,help='Run the shipped script functions with image BusyBox and applets under QEMU')
+args=parser.parse_args()
+romfs=args.target_root.resolve() if args.target_root else None
+source_path=(romfs/'usr/bin/wgs.sh') if romfs else (Path(__file__).resolve().parent.parent/'overlay/padavan-4.4/trunk/user/amneziawg/wgs.sh')
+source=source_path.read_text()
 helper=source[source.index('wg_awg_options()'):source.index('wg_setconf()')]
 configure=source[source.index('wg_setconf()'):source.index('wg_prepare()')]
 export=source[source.index('wg_export()'):source.index('\ncase "$1" in\n')]
@@ -63,14 +71,32 @@ fixture_wg(){
   ('amneziawg',{'JCVALUE':'4','JMINVALUE':'64','JMAXVALUE':'64'},False),
   ('amneziawg',{'JCVALUE':'4','S1VALUE':'10','S2VALUE':'66'},False),
   ('amneziawg',{'JCVALUE':'4','H1VALUE':'7','H2VALUE':'7'},False),
+  ('amneziawg',{'JCVALUE':'4','H1VALUE':'4294967295'},True),
+  ('amneziawg',{'JCVALUE':'4','H1VALUE':'4294967296'},False),
+  ('amneziawg',{'JCVALUE':'4','H1VALUE':'0000000007','H2VALUE':'7'},False),
  ]
- shell=os.environ.get('SH') or shutil.which('sh') or r'C:\Program Files\Git\bin\bash.exe'
+ shell=[os.environ.get('SH') or shutil.which('sh') or r'C:\Program Files\Git\bin\bash.exe']
+ env=dict(os.environ,SAFE_TEMP=str(root))
+ if romfs:
+  binary=romfs/'bin/busybox'
+  qemu=shutil.which('qemu-mipsel-static') or shutil.which('qemu-mipsel')
+  if not qemu or not binary.is_file():raise SystemExit('Exact image BusyBox and target QEMU required')
+  shell=[qemu,'-L',str(romfs),str(binary),'sh']
+  providers=root/'providers';providers.mkdir()
+  # Host sh only transports exec. No host applet fallback is in PATH.
+  for applet in ('awk','cat','chmod','cp','rm','sed','seq','wc'):
+   wrapper=providers/applet
+   wrapper.write_text('#!/bin/sh\nexec '+shlex.join(shell[:-1]+[applet])+' "$@"\n')
+   wrapper.chmod(0o700)
+  env.update(PATH=str(providers),LC_ALL='C')
+  print('TARGET BusyBox SHA256 '+hashlib.sha256(binary.read_bytes()).hexdigest())
+  print('Shipped wgs.sh SHA256 '+hashlib.sha256(source_path.read_bytes()).hexdigest())
  for module,values,ok in scenarios:
   for path in [server,client]:
    if path.exists():path.unlink()
   # Module selection is supplied externally only in this isolated fixture.
-  result=subprocess.run([shell,str(script)],env=dict(os.environ,MODULE=module,SAFE_TEMP=str(root),**values),capture_output=True,text=True,timeout=15)
-  assert (result.returncode==0)==ok,(module,jc,result.stderr)
+  result=subprocess.run([*shell,str(script)],env=dict(env,MODULE=module,**values),capture_output=True,text=True,timeout=30)
+  assert (result.returncode==0)==ok,(module,values,result.stderr)
   if not ok:
    assert not server.exists() and not client.exists();continue
   supplied=['Jc','Jmin','Jmax','S1','S2','H1','H2','H3','H4']
@@ -80,4 +106,4 @@ fixture_wg(){
    assert (line in server.read_text())==(module=='amneziawg')
    assert (line in client.read_text())==(module=='amneziawg')
   assert result.stdout==client.read_text()
-print('PASS synthetic actual server/export functions: shared AWG parameters, standard WG exclusion, invalid input refusal')
+print(('TARGET BusyBox/QEMU: ' if romfs else 'HOST shell: ')+'PASS synthetic actual server/export functions: shared AWG parameters, standard WG exclusion, invalid input refusal; network lifecycle unverified')

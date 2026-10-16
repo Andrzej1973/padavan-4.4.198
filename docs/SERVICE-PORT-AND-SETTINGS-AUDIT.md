@@ -9,6 +9,23 @@ the current WR1200JS Linux 4.4.198 image has not been run on the physical router
 
 ## Target BusyBox audit evidence — 2026-10-16
 
+Build #354 (`d690a6a8`, run 38943263134) report was downloaded independently.
+It records 56 shell scripts, 150 applets and all existing gates passing,
+including the converted multi-PPPoE helper syntax/arithmetic and readlink probes.
+The two Lua utilities remain outside shell coverage. Current BusyBox SHA256:
+`df74d5e1056ff06eb7e6a36ebadbf778b3a6ea326d698c9d2e896bd539a6657a`;
+effective config SHA256:
+`457ac8a14266c8b0cf19a20f8f42e84aff25830faeab234dcd0a6f28c67cf6e4`.
+This supersedes the older identity below, not the open interaction/runtime work.
+
+Added an image gate for the shipped WireGuard/AmneziaWG server configuration
+and client export functions. `check-wg-server-export.py --target-root` uses the
+ROMFS script and BusyBox shell under QEMU with only explicit target applet
+providers in PATH. NVRAM and wg operations are synthetic. Cases include shared
+AWG parameters, standard WG exclusion, invalid input, 32-bit header boundaries
+and numerically duplicate headers. Host scenarios pass; the new target gate
+still awaits CI. Server startup, routing and physical behavior remain open.
+
 Full run 38845996781 succeeded at 5d04e61. Downloaded report preserved in
 evidence/TARGET-BUSYBOX-5D04E61.json records 55 discovered shell scripts,
 150 applets, successful target-shell syntax checks and exact hexdump/flock
