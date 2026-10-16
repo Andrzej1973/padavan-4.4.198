@@ -31,6 +31,14 @@ At that observation the router ran the user's working Padavan 3.4 firmware. Acce
 
 Use [tools/collect-wr1200js-readiness.sh](../tools/collect-wr1200js-readiness.sh) through the established SSH connection and redirect stdout to a file on the computer. The script only reads runtime state. It does not export NVRAM, dump VPN keys, write GPIOs, mount debugfs, restart services or reboot.
 
+The collector also records requested wan_src_phy, VLAN/STB mode and the
+read-only `switch 67` effective physical socket on WR1200JS. An older image
+may reject that command; treat this as unavailable, never as original WAN.
+Only ZeroTier's enable flag, process IDs and cache timestamp/size are collected;
+identity files, membership text and tokens are not read. These observations do
+not prove overlay authorization or connectivity. Keep the complete collection
+private: other sections contain addresses, interfaces and kernel logs.
+
 It collects the kernel version, partitions, RAM, routes/interface counters, wireless interfaces, loaded modules, CPU/interrupt/slab state, service process IDs, Device Tree identity/button properties, existing LED brightness/triggers and existing GPIO debug ownership. Missing Device Tree nodes on the old 3.4 firmware are expected and do not establish a hardware fault. Raw GPIO cells are shown as big-endian bytes, not guessed GPIO numbers.
 
 Review reports before sharing: IP/MAC addresses and kernel logs may contain private information. A historical streamed execution returned exit 127. A subsequent execution from `/tmp/wrdiag-87a3ae3/readiness.sh`, copied into RAM over SCP and run explicitly with `sh`, reached `End of collection`, printed `collector_exit=0` and returned SSH exit 0. The private output is `C:\Users\ANDRZEJ\Documents\Codex\2026-09-29\private-router-check\readiness-20261014.txt`. The cause of the earlier exit 127 is not established. The collector intentionally continues past individual unavailable optional sources; exit 0 establishes script completion, not success of every observed subsystem.

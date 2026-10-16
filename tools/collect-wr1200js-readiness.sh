@@ -17,10 +17,36 @@ cat /proc/meminfo
 section 'Actual swap activity'
 cat /proc/swaps
 section 'Selected requested service switches only'
-for setting in stubby_enable doh_enable zram_enable; do
+for setting in stubby_enable doh_enable zram_enable zerotier_enable; do
     printf '%s: ' "$setting"
     nvram get "$setting"
 done
+section 'Requested and effective WAN socket (read only)'
+printf 'productid: '
+nvram get productid
+printf 'requested wan_src_phy: '
+nvram get wan_src_phy
+printf 'vlan_filter: '
+nvram get vlan_filter
+printf 'wan_stb_x: '
+nvram get wan_stb_x
+if [ "$(nvram get productid)" = WR1200JS ] && type switch >/dev/null 2>&1; then
+    # GET only. Older images may reject command 67; that is unknown, not port 0.
+    printf 'effective physical WAN socket (0=WAN, 1..4=LAN on WR1200JS):\n'
+    switch 67 2>&1 || printf 'effective WAN socket unavailable\n'
+else
+    printf 'effective WAN socket query unsupported on this image/model\n'
+fi
+section 'ZeroTier cache timestamp only (no identity or membership dump)'
+zt_cache=/var/run/zerotier-state.txt
+if [ -f "$zt_cache" ] && [ ! -L "$zt_cache" ]; then
+    if type stat >/dev/null 2>&1; then
+        stat -c 'cache mtime Unix: %Y; bytes: %s' "$zt_cache" 2>/dev/null || :
+    fi
+    printf 'Cache freshness does not establish daemon health or network authorization.\n'
+else
+    printf 'ZeroTier cache unavailable or not a regular file\n'
+fi
 section 'Custom DNS forwarding indicators without domain lists'
 dns_custom=/etc/storage/dnsmasq/dnsmasq.conf
 if [ -r "$dns_custom" ]; then
@@ -70,7 +96,7 @@ for path in /sys/devices/system/cpu/online /sys/devices/system/cpu/possible /pro
     fi
 done
 section 'Selected service process IDs only'
-for service in httpd dnsmasq inadyn stubby https_dns_proxy privoxy; do
+for service in httpd dnsmasq inadyn stubby https_dns_proxy privoxy zerotier-one; do
     printf '%s: ' "$service"
     pidof "$service" 2>/dev/null || printf 'not running\n'
 done
