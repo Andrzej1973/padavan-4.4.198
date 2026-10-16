@@ -17,6 +17,22 @@
 - Сторонній diff `tools/prepare-wifi-hwnat-mode.py` збережено без змін.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
 
+### Обов'язковий аудит цільового BusyBox — 2026-10-16
+
+Користувач вимагає перевірити всі служби й усі пов'язані скрипти/процеси/
+lifecycle-ланцюжки з цільовим BusyBox. Повний контракт внесено в
+PROJECT-DELIVERY-SCOPE.md, Mandatory target BusyBox compatibility audit.
+Потрібні exact binary/config/build evidence, command providers/options,
+shell/process/locks/timeouts, boot/Apply/firewall/DNS/VPN/storage recovery,
+цільові fixtures/emulation та окреме фізичне приймання. Host PASS недостатній.
+Це відкритий обов'язковий пункт; весь аудит ще не виконано.
+
+Незавершений поточний код: tools/usbip/http-settings.inc та
+prepare-export-settings.py і зміни двох build workflow у робочій копії.
+Це наш WIP захищеного settings endpoint; ще не перевірений/не закомічений.
+Не плутати з готовим пакетом №322. Продовжити native endpoint fixtures,
+інтеграцію й target compilation, потім UI/restore. Сторонні diff не чіпати.
+
 ### USB/IP settings lifecycle lock — 2026-10-16
 
 Service CI 38845247667 на 46e9b4d успішний. export-settings.h підключає

@@ -35,6 +35,56 @@ Complete these steps in order, carrying all existing acceptance requirements for
 
 ## Preserve and port existing services — user instruction 2026-10-11
 
+## Mandatory target BusyBox compatibility audit — user instruction 2026-10-16
+
+Audit every firmware service and every connected script, process and lifecycle
+path against the exact BusyBox built for the target image. This is a delivery
+requirement, not limited to the recently changed USB/IP/Stubby/ZeroTier code.
+Record results per service in the existing service audit documents; retain
+unverified failures as open work instead of declaring global compatibility.
+
+Required coverage:
+
+- Inventory all enabled services, boot/shutdown/restart/Apply handlers, scheduled
+  jobs, hotplug hooks, firewall/DNS/network hooks, monitors, status collectors,
+  backup/restore and storage scripts. Include optional/commented services when
+  their supported build selectors are evaluated; do not silently enable them.
+- Identify the exact image BusyBox version/source revision, effective .config,
+  binary SHA256, installed applet links and runtime loader/library dependencies.
+  Associate evidence with the firmware build/commit and router model.
+- Map each command to its actual provider: shell builtin, BusyBox applet or
+  standalone binary. Verify command detection, shell syntax/expansion, options,
+  output formats, exit statuses, pipelines, redirection and error handling.
+  Applet presence alone is insufficient: selected build features may change
+  supported options, as with minimal od versus hexdump and the earlier
+  command -v check in the router shell.
+- Check process launch/daemonization, PID ownership, fork/exec/wait/reaping,
+  signals, timeout handling, inherited descriptors, flock compatibility,
+  concurrent lifecycle/settings operations and cleanup after interrupted or
+  failed actions. Status must distinguish configured intent, observations,
+  missing/unavailable data and actual service/connectivity acceptance.
+- Exercise dependent chains: WAN/LAN/VLAN and acceleration, firewall rebuilds,
+  DNS/time/certificates and encrypted DNS startup/failure, VPN routing, USB and
+  storage/mount/swap handling, persistence and recovery. Verify safe defaults,
+  disabled states and preservation of existing settings and management access.
+- Run script/CLI fixtures with the image's own BusyBox/shell and required target
+  libraries under a suitable target emulator where possible. Mock destructive
+  or hardware operations. Host Bash/GNU utilities and native C mocks remain
+  useful supplementary checks, not evidence of target BusyBox compatibility.
+- Verify the installed ROMFS paths and repeat applicable supervised runtime
+  checks on the actual router. Hardware-dependent behavior, full interaction
+  chains, reboot persistence and sustained stability remain unverified until
+  physically observed. No audit instruction authorizes flashing, rebooting or
+  disrupting the remote router without the existing separate agreement.
+
+For each finding record the dependent service/path, exact command/options,
+target configuration evidence, reproducer, fix and verification result. Review
+the shared dependencies again when BusyBox configuration/version changes, and
+run relevant regression gates in normal firmware CI. Do not solve missing
+applets by unreviewed global feature switches or silently changing user settings.
+
+### Existing-service preservation contract
+
 Treat the job as a port of the existing Padavan firmware, not a replacement
 WebUI or a collection of newly invented daemons. Audit the enabled services,
 conditional/disabled service selectors, resolver and strategy lists, menu
