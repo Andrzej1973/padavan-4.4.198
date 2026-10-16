@@ -1331,3 +1331,11 @@ This primitive is deliberately not packaged or connected to startup: caller-side
 session ownership checks, endpoint pinning, readback, routing/DNS and rollback
 must be integrated before enabling it. Service CI now tests transport with real
 pinned validators and fake controls (no network mutation). CI pending.
+
+Service CI #137 for 2857ca2815a5462996974e272ebd5c1b025e3197 completed successfully:
+https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38982959450
+The job log confirms PASS apply transport for both protocols, private unlinked
+input, FD/environment isolation, secret-output suppression and refusal/failure/
+timeout paths, compiled with address/undefined sanitizers. This supersedes the
+pending status above. No real control netlink mutation, MIPS adapter execution,
+readback or physical runtime acceptance has yet been tested for this candidate.
