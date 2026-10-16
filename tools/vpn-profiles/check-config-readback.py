@@ -43,7 +43,7 @@ int __wrap_ipc_get_device(struct wgdevice **out,const char *name) {
     ]:
         assert subprocess.check_output(['git', '-C', str(source), 'rev-parse', 'HEAD'], text=True).strip() == commit
         src = source.resolve() / 'src'
-        flags = ['-std=gnu99', '-D_GNU_SOURCE', '-Wall', '-Wextra', '-g',
+        flags = ['-std=gnu99', '-D_GNU_SOURCE', '-DRUNSTATEDIR="/var/run"', '-Wall', '-Wextra', '-g',
                  '-fsanitize=address,undefined', '-I' + str(src), '-I' + str(here)]
         flags += ['-idirafter', str(src / 'uapi/linux')] if protocol == 'wg' else ['-I' + str(src / 'uapi/linux'), '-DWR_VPN_NATIVE_AWG']
         units = [here / 'config-readback.c', src / 'config.c', src / 'encoding.c', src / 'ipc.c']
@@ -75,7 +75,7 @@ int __wrap_ipc_get_device(struct wgdevice **out,const char *name) {
         run(fake, wanted, 3, index='55')
         run(fake, wanted, 3, interface='wg0')
         run(fake, wanted.replace('203.0.113.7', 'must-not-resolve.invalid'), 3)
-        for old, new in [(key, other), ('1465253890', '51'), ('51820\n[Peer]', '51821\n[Peer]'),
+        for old, new in [(key, other), ('1465253890', '51'), ('ListenPort = 51820', 'ListenPort = 51821'),
                          (public, other), ('203.0.113.7', '203.0.113.8'),
                          ('PersistentKeepalive = 25', 'PersistentKeepalive = 26'),
                          ('10.4.0.7/24', '10.5.0.0/24'), ('2001:db8::9/64', '2001:db9::/64')]:
