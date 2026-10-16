@@ -32,7 +32,7 @@ jobs:
         run: python3 tools/check-web-routes-test.py
 
       - name: Check ZeroTier status semantics before compilation
-        run: python3 tools/check-zerotier-state.py
+        run: python3 tools/check-zerotier-state.py --cc gcc
 
       - name: Install build dependencies
         run: |

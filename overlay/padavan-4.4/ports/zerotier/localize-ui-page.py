@@ -175,8 +175,10 @@ function wrZerotierRefresh() {
 				typeof result.age === "number" && isFinite(result.age) &&
 				result.age % 1 === 0 && (result.state === 1 ? result.age >= 0 && result.age <= 60 :
 				result.state === 2 ? result.age > 60 : result.age === -1);
+			valid = valid && typeof result.text === "string" && result.text.length <= 4096;
 			var state = valid ? result.state : 3;
 			wrZerotierApplyState(state);
+			$j("#zerotier_cached_text").text(valid && (state === 1 || state === 2) ? result.text : "<#ZT_Unavailable#>");
 			var info = "";
 			if (state === 1) info = "<#ZT_Updated#> " + result.age + " <#ZT_SecondsAgo#>";
 			else if (state === 2) info = "<#ZT_Stale#> " + result.age + " <#ZT_SecondsAgo#>";
@@ -185,6 +187,7 @@ function wrZerotierRefresh() {
 		})
 		.fail(function () {
 			wrZerotierApplyState(3);
+			$j("#zerotier_cached_text").text("<#ZT_Unavailable#>");
 			$j("#zerotier_state_info").text("<#ZT_RefreshFailed#>");
 		})
 		.always(function () { wrZerotierBusy = false; });
@@ -209,10 +212,14 @@ static int ej_zerotier_state(int eid, webs_t wp, int argc, char **argv)
 	long age = -1;
 	time_t now = time(NULL);
 	struct stat status;
+	FILE *cache = NULL;
+	int ch;
+	unsigned int count = 0;
 	(void)eid; (void)argc; (void)argv;
 	if (nvram_get_int("zerotier_enable") <= 0) {
 		state = 0;
-	} else if (stat("/var/run/zerotier-state.txt", &status) != 0) {
+	} else if (!(cache = fopen("/var/run/zerotier-state.txt", "r")) ||
+	           fstat(fileno(cache), &status) != 0) {
 		state = 3;
 	} else if (!S_ISREG(status.st_mode) || now <= 0 || status.st_mtime > now) {
 		/* Clock rollback or an invalid cache must not look fresh. */
@@ -221,7 +228,23 @@ static int ej_zerotier_state(int eid, webs_t wp, int argc, char **argv)
 		age = (long)(now - status.st_mtime);
 		state = age <= 60 ? 1 : 2;
 	}
-	return websWrite(wp, "{\"state\":%d,\"age\":%ld}", state, age);
+	websWrite(wp, "{\"state\":%d,\"age\":%ld,\"text\":\"", state, age);
+	/* Same open snapshot for its age and content; never execute CLI in HTTP. */
+	if (cache && (state == 1 || state == 2)) {
+		while (count < 4096 && (ch = fgetc(cache)) != EOF) {
+			++count;
+			switch (ch) {
+			case '\\': websWrite(wp, "\\\\"); break;
+			case '"': websWrite(wp, "\\\""); break;
+			case '\n': websWrite(wp, "\\n"); break;
+			case '\r': websWrite(wp, "\\r"); break;
+			case '\t': websWrite(wp, "\\t"); break;
+			default: websWrite(wp, "%c", ch >= 32 && ch <= 126 ? ch : '?');
+			}
+		}
+	}
+	if (cache) fclose(cache);
+	return websWrite(wp, "\"}");
 }
 '''
 
@@ -238,7 +261,8 @@ if args.verify_image:
     page = (root / 'Advanced_zerotier.asp').read_text(encoding='utf-8')
     if CJK.search(page):
         raise SystemExit('Untranslated ZeroTier image text')
-    for marker in ('<#ZT_Refresh#>', 'wrZerotierRefresh', 'zerotier_state_info'):
+    for marker in ('<#ZT_Refresh#>', 'wrZerotierRefresh', 'zerotier_state_info',
+                   'id="zerotier_cached_text"'):
         if marker not in page:
             raise SystemExit('Missing ZeroTier refresh control: ' + marker)
     if 'window.location.reload' in page:
@@ -271,6 +295,9 @@ for prefix, terminator, replacement, what in HELP_BLOCKS:
 page = replace_once(page, RELOAD_BUTTON, REFRESH_CONTROL, 'reload button')
 page = replace_once(page, 'function initial(){', JS_BLOCK + 'function initial(){', 'initial function')
 page = replace_once(page, INIT_ANCHOR, INIT_REPLACEMENT, 'status initialisation')
+page = replace_once(page, '<pre style="white-space: pre-wrap;">',
+                    '<pre id="zerotier_cached_text" style="white-space: pre-wrap;">',
+                    'cached status text')
 if CJK.search(page):
     raise SystemExit('Untranslated ZeroTier text remains; no files written')
 
