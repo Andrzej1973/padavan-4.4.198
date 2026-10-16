@@ -19,7 +19,7 @@ into ../build319-final. Exactly three files:
 Local verify-wr1200js-image.py passes all six upload-structure checks:
 uImage magic, WR1200JS product ID, header CRC, declared length, payload CRC,
 and size bound. Original result WR1200JS-BUILD319-STRUCTURE.json has SHA256
-`e510001973a26ef3e9e644bc4f0b4e3f9bba8b7773365597e7f49fdc45d26c20`.
+`513e2808492d135328d7fc09ac2d39894575e57f5f1d23c537b2492f32a24095`.
 This checks structure, not bootability or actual device flash capacity.
 
 The packaged profile is byte-identical to the repository profile. The guide
