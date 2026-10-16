@@ -379,7 +379,9 @@ jobs:
             padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
 
       - name: Exclude legacy VPN userspace from WR1200JS
-        run: python3 tools/prepare-wr-vpn-pruning.py padavan-4.4
+        run: |
+          python3 tools/prepare-wr-vpn-pruning.py padavan-4.4
+          python3 tools/check-wr-vpn-pruning.py padavan-4.4
 
       - name: Download the Linux 4.4 uClibc toolchain
         run: |

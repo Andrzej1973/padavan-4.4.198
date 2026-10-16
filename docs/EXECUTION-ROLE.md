@@ -17,6 +17,19 @@
 - Сторонній diff `tools/prepare-wifi-hwnat-mode.py` збережено без змін.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
 
+### Repeatable prepared VPN regression gate — 2026-10-16
+
+Added tools/check-wr-vpn-pruning.py after the WR preparer in full CI; checks
+exact retained protocol choices, package/plugin selection, backend guard markers,
+three translated labels and generated JS syntax. Executes actual generated
+initial/Apply snippets against synthetic DOM fields for legacy/empty/supported
+values. Local positive PASS on ../wr-wan-stale-type-check; negative reintroduced
+PPTP option rejected (fixture restored). This does not execute C guards, entire
+browser chains or physical tunnels. Full diagnostic38922347945 still in_progress
+when polled; do not restart on observation timeout. Next target trace + residual
+kernel/private dependency pruning + separate WG/AWG configuration audit.
+
+
 ### WAN stale legacy protocol explicit selection — 2026-10-16
 
 Source preparer clears WAN selection for saved pptp/l2tp and refuses Apply
