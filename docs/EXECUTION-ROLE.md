@@ -50,8 +50,17 @@ Hooks/SaveConfig і ручні Table/FwMark відхиляються: ними �
 а не сторонній конфіг. Вхід не виконується, секретні diagnostic lines не
 виводяться. Native sanitizer CI №125 (`ef3bd02`, run 38951822000) з resolver
 guard пройшов для обох pinned parsers. У сховище/образ helper поки не
-підключений. Наступне: з’єднати перевірку з реєстром і атомарним записом; далі scoped
-lifecycle/маршрути/DNS, HTTP/WebUI та QR.
+підключений до образу.
+
+Додано profilectl.c + validate-process.c: CLI create/list/export з’єднує
+валідацію через фіксований executable з атомарним записом саме тих байтів,
+що перевірялися. Список містить лише ID/label/revision; private export явний.
+Validator має тайм-аут, очищене середовище й закриті сторонні FD; невідомий
+exit status не приймається за валідний конфіг. CLI поки не має start/stop,
+replace/delete чи перенесення legacy NVRAM, щоб до готовності ownership/lifecycle
+не зачепити чинний тунель. Native integration fixture підготовлено; CI ще
+очікується. Наступне: перевірити CI й упакувати CLI/validators у firmware,
+далі scoped lifecycle/маршрути/DNS, HTTP/WebUI та QR.
 
 ### WireGuard / AmneziaWG: клієнтський QR та AWG-параметри — 2026-10-16
 

@@ -80,6 +80,7 @@ jobs:
           python3 tools/retry-source-command.py git -C checks/awg-parser-source fetch --depth=1 origin ee0f0a9aa34ff0a0da4b3433b9512781cfe02843
           git -C checks/awg-parser-source checkout --detach FETCH_HEAD
           ASAN_OPTIONS=detect_leaks=1 python3 tools/vpn-profiles/check-import.py --wg-source checks/wg-parser-source --awg-source checks/awg-parser-source --output checks/vpn-import
+          python3 tools/vpn-profiles/check-manager.py --wg-validator checks/vpn-import/wireguard --awg-validator checks/vpn-import/amneziawg --output checks/vpn-manager
       - name: Check USB/IP runtime status integration
         run: |
           sh -n tools/usbip/firewall-policy.sh
