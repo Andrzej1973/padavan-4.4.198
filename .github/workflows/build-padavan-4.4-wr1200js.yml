@@ -387,6 +387,9 @@ jobs:
           python3 tools/prepare-wr-vpn-pruning.py padavan-4.4
           python3 tools/prepare-wg-protocol-web.py padavan-4.4
           python3 tools/check-wr-vpn-pruning.py padavan-4.4
+          python3 tools/prepare-vpn-qr.py padavan-4.4
+          python3 tools/check-wg-server-ui.py padavan-4.4
+          node tools/vpn-status/check-qr-export.js
 
       - name: Download the Linux 4.4 uClibc toolchain
         run: |
@@ -651,6 +654,15 @@ jobs:
             grep -q 'name="vpns_wg_protocol"' trunk/romfs/www/vpnsrv.asp
             grep -aq 'vpnc_wg_protocol' trunk/romfs/usr/sbin/httpd
             grep -aq 'vpns_wg_protocol' trunk/romfs/usr/sbin/httpd
+            grep -q '/wifi-qrcode-renderer.js' trunk/romfs/www/vpnsrv.asp
+            ! grep -q '/qrcode.min.js' trunk/romfs/www/vpnsrv.asp
+            grep -q 'wrVPNQrPayload' trunk/romfs/www/vpnsrv.asp
+            grep -q 'name="vpns_awg_jc"' trunk/romfs/www/vpnsrv.asp
+            for field in jc jmin jmax s1 s2 h1 h2 h3 h4; do
+              grep -aq "vpns_awg_${field}" trunk/romfs/usr/sbin/httpd
+            done
+            cmp ../tools/wifi-qrcode-renderer.js trunk/romfs/www/wifi-qrcode-renderer.js
+            grep -q '^wg_awg_options()' trunk/romfs/usr/bin/wgs.sh
             test -x trunk/romfs/usr/bin/wg-standard
             test -x trunk/romfs/usr/bin/awg
             readelf -h trunk/romfs/usr/bin/wg-standard | grep -q 'Machine:.*MIPS'

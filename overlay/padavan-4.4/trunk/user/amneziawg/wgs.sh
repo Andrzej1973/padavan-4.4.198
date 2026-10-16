@@ -1,4 +1,5 @@
 #!/bin/sh
+umask 077
 
 ###
 
@@ -93,9 +94,75 @@ _net_to_prefix()
     { print subnetmaskToPrefix($1) }'
 }
 
+# Shared by the running server and every exported client configuration.
+wg_awg_options()
+{
+    [ "$MODULE" = "amneziawg" ] || return 0
+    local field value jmin jmax s1 s2 h1 h2 h3 h4
+    for field in Jc Jmin Jmax S1 S2 H1 H2 H3 H4; do
+        case "$field" in
+            Jc) value=$(nvram get vpns_awg_jc);;
+            Jmin) value=$(nvram get vpns_awg_jmin);;
+            Jmax) value=$(nvram get vpns_awg_jmax);;
+            S1) value=$(nvram get vpns_awg_s1);;
+            S2) value=$(nvram get vpns_awg_s2);;
+            H1) value=$(nvram get vpns_awg_h1);;
+            H2) value=$(nvram get vpns_awg_h2);;
+            H3) value=$(nvram get vpns_awg_h3);;
+            H4) value=$(nvram get vpns_awg_h4);;
+        esac
+        [ -n "$value" ] || continue
+        case "$value" in *[!0-9]*) return 1;; esac
+        [ "${#value}" -le 10 ] || return 1
+        case "$field" in
+            Jc) wg_awg_range "$value" 1 128 || return 1;;
+            Jmin) wg_awg_range "$value" 0 1279 || return 1; jmin=$value;;
+            Jmax) wg_awg_range "$value" 1 1280 || return 1; jmax=$value;;
+            S1) wg_awg_range "$value" 0 1132 || return 1; s1=$value;;
+            S2) wg_awg_range "$value" 0 1188 || return 1; s2=$value;;
+            H1) wg_awg_range "$value" 0 4294967295 || return 1; h1=$value;;
+            H2) wg_awg_range "$value" 0 4294967295 || return 1; h2=$value;;
+            H3) wg_awg_range "$value" 0 4294967295 || return 1; h3=$value;;
+            H4) wg_awg_range "$value" 0 4294967295 || return 1; h4=$value;;
+        esac
+        printf '%s = %s\n' "$field" "$value"
+    done
+    if [ -n "$jmin" ] || [ -n "$jmax" ]; then
+        [ -n "$jmin" ] && [ -n "$jmax" ] || return 1
+        wg_awg_less "$jmin" "$jmax" || return 1
+    fi
+    if [ -n "$s1" ] && [ -n "$s2" ]; then
+        wg_awg_s_pair "$s1" "$s2" || return 1
+    fi
+    wg_awg_unique "$h1" "$h2" "$h3" "$h4" || return 1
+    return 0
+}
+
+wg_awg_range()
+{
+    awk -v n="$1" -v low="$2" -v high="$3" 'BEGIN { if (n !~ /^[0-9]+$/ || n+0 < low || n+0 > high) exit 1 }'
+}
+
+wg_awg_less()
+{
+    awk -v left="$1" -v right="$2" 'BEGIN { if (left+0 >= right+0) exit 1 }'
+}
+
+wg_awg_s_pair()
+{
+    awk -v s1="$1" -v s2="$2" 'BEGIN { if (s1+56 == s2+0) exit 1 }'
+}
+
+wg_awg_unique()
+{
+    awk -v a="$1" -v b="$2" -v c="$3" -v d="$4" \
+        'BEGIN { split(a " " b " " c " " d, v, " "); for (i=1; i<=4; i++) if (v[i] != "") for (j=i+1; j<=4; j++) if (v[j] != "" && v[i]+0 == v[j]+0) exit 1 }'
+}
+
 wg_setconf()
 {
-    local pass rnet rmsk prefix i rlan max peers nvram_modified
+    local pass rnet rmsk prefix i rlan max peers nvram_modified awg_options
+    awg_options=$(wg_awg_options) || return 1
 
     is_started || return 0
 
@@ -130,6 +197,7 @@ wg_setconf()
 [Interface]
 ListenPort=${PORT}
 PrivateKey=${IF_PRIVATE}
+$awg_options
 $peers
 EOF
 
@@ -160,6 +228,9 @@ wg_stop()
 wg_start()
 {
     is_started && die "already started"
+    if [ "$MODULE" = "amneziawg" ]; then
+        wg_awg_options >/dev/null || error "invalid AmneziaWG server parameters"
+    fi
     wg_prepare
 
     ip link add dev $IF_NAME type $MODULE || error "cannot create $IF_NAME"
@@ -187,7 +258,8 @@ wg_addclient()
 {
     # $1 - client name
 
-    local max nums free_num addr key config
+    local max nums free_num addr key config awg_options
+    awg_options=$(wg_awg_options) || return 1
 
     max="$(nvram get vpns_num_x)"
     nums=$(for i in $(seq 0 $((max-1))); do
@@ -221,6 +293,7 @@ wg_addclient()
     read -r -d '' config <<EOF
 [Interface]
 PrivateKey = $key
+$awg_options
 Address = $addr
 DNS = 1.1.1.1,8.8.8.8,9.9.9.9,77.88.8.8
 
@@ -305,7 +378,8 @@ wg_export()
 {
     [ "$1" ] || return
 
-    local i max
+    local i max awg_options
+    awg_options=$(wg_awg_options) || return 1
 
     rm -f "$EXPORT_CONF"
 
@@ -316,6 +390,7 @@ wg_export()
         tee "$EXPORT_CONF" <<EOF
 [Interface]
 PrivateKey = $(nvram get vpns_pass_x$i)
+$awg_options
 Address = $(nvram get vpns_vnet | sed 's/\.0$/./')$(nvram get vpns_addr_x$i)/24
 DNS = $(nvram get lan_ipaddr)
 

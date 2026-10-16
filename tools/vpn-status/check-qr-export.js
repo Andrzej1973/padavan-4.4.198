@@ -1,0 +1,20 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const elements={},formEvents={},events={},requests=[],rendered=[],revoked=[];let failRender=false,safe=true,blob;
+function el(id){return elements[id]||(elements[id]={style:{},textContent:'',innerHTML:'',removeAttribute(k){delete this[k];}});}
+const form={elements:[{name:'vpns_wg_protocol',value:'wireguard'},{name:'vpns_wg_port',value:'51820'}],addEventListener(k,f){formEvents[k]=f;}};
+const context={document:{form,getElementById:el,addEventListener(k,f){events[k]=f;},createElement(){return {click(){}};},body:{appendChild(){},removeChild(){}}},window:{addEventListener(k,f){events[k]=f;},setTimeout(f){f();}},ACLList:[['client'],['second']],login_safe:()=>safe,showhide_div(){},wrVPNQrLabels:{changed:'changed',loading:'loading',error:'error',private:'private'},Blob:function(parts){this.parts=parts;},URL:{createObjectURL(b){blob=b;return 'blob:synthetic';},revokeObjectURL(url){revoked.push(url);}},WRWifiQRCode:function(box,opts){if(failRender)throw Error('capacity');box.title=opts.text;rendered.push(opts.text);},$j:{ajax(options){const r={options,done(f){this.d=f;return this;},fail(f){this.f=f;return this;},always(f){this.a=f;return this;},abort(){this.f();this.a();},resolve(v){this.d(v);this.a();}};requests.push(r);return r;}}};
+vm.createContext(context);vm.runInContext(fs.readFileSync(__dirname+'/qr-export.js','utf8'),context);events.DOMContentLoaded();context.wrVPNQrCapture();
+const config='[Interface]\nPrivateKey = '+'A'.repeat(43)+'=\nAddress = 10.0.0.2/32\n\n[Peer]\nPublicKey = '+'B'.repeat(43)+'=\nEndpoint = example.invalid:51820\nAllowedIPs = 10.0.0.0/24\n';
+context.export_client_wg_qr(0);requests.at(-1).resolve(config.replace(/\n/g,'\r\n'));
+assert.equal(rendered.at(-1),config);assert.equal(el('wg_client_config0').textContent,config);assert.equal(el('wg_client0').title,undefined);
+context.export_client_wg(0);assert.equal(blob.parts.join(''),config);assert.deepEqual(revoked,['blob:synthetic']);
+context.export_client_wg_qr(0);assert.equal(context.wrVPNQR.payload,null);assert.equal(el('wg_client_config0').textContent,'');
+context.export_client_wg_qr(0);const late=requests.at(-1);context.wrVPNQrReset();late.resolve(config);assert.equal(context.wrVPNQR.payload,null);
+form.elements[0].value='amneziawg';formEvents.change();context.export_client_wg_qr(0);assert.equal(el('wr_vpn_qr_message').textContent,'changed');context.wrVPNQrCapture();
+const awg=config.replace('Address =','Jc = 4\nJmin = 40\nJmax = 70\nS1 = 10\nS2 = 20\nH1 = 123\nH2 = 456\nH3 = 789\nH4 = 987\nAddress =');
+context.export_client_wg_qr(0);requests.at(-1).resolve(awg);assert.equal(rendered.at(-1),awg);context.export_client_wg(0);assert.equal(blob.parts.join(''),awg);
+events.pagehide();assert.equal(context.wrVPNQR.payload,null);assert.equal(context.wrVPNQR.baseline,null);
+context.wrVPNQrCapture();context.export_client_wg_qr(1);requests.at(-1).resolve('<html>failure</html>');assert.equal(context.wrVPNQR.payload,null);
+context.export_client_wg_qr(0);failRender=true;requests.at(-1).resolve(config);assert.equal(context.wrVPNQR.payload,null);assert.equal(el('wr_vpn_qr_message').textContent,'error');
+const count=requests.length;safe=false;context.export_client_wg_qr(0);assert.equal(requests.length,count);
+console.log('PASS synthetic VPN QR: exact WG/AWG download, CRLF, no secret title, edit/hide/pagehide/late reply, failure/capacity/auth');
