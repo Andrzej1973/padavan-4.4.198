@@ -58,8 +58,11 @@ guard пройшов для обох pinned parsers. У сховище/обра�
 Validator має тайм-аут, очищене середовище й закриті сторонні FD; невідомий
 exit status не приймається за валідний конфіг. CLI поки не має start/stop,
 replace/delete чи перенесення legacy NVRAM, щоб до готовності ownership/lifecycle
-не зачепити чинний тунель. Native integration fixture підготовлено; CI ще
-очікується. Наступне: перевірити CI й упакувати CLI/validators у firmware,
+не зачепити чинний тунель. Native integration fixture пройшов у CI служб
+№127 (`e0dcd88`, run 38953022637): реальні pinned validators + store,
+окремі AWG1/WG2, FD closure, invalid/unavailable/timeout і незмінність запису
+AWG після невдалих WG actions. Це не доказ двох активних тунелів.
+Наступне: упакувати CLI/validators у firmware й перевірити MIPS виконання,
 далі scoped lifecycle/маршрути/DNS, HTTP/WebUI та QR.
 
 ### WireGuard / AmneziaWG: клієнтський QR та AWG-параметри — 2026-10-16

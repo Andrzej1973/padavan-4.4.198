@@ -43,11 +43,14 @@ static void wr_validator_exec(int input,const char *path)
     if (fcntl(0,F_SETFD,0) || fcntl(1,F_SETFD,0) || fcntl(2,F_SETFD,0) || setrlimit(RLIMIT_CORE,&core)) _exit(127);
     /* Do not pass management sockets, store handles or locks to the parser. */
     dir=opendir("/proc/self/fd"); if (!dir) _exit(127); scan=dirfd(dir);
-    while ((entry=readdir(dir))) {
+    for (;;) {
+        errno=0; entry=readdir(dir);
+        if (!entry) { if (errno) _exit(127); break; }
         errno=0; value=strtol(entry->d_name,&end,10);
-        if (!errno && !*end && value>2 && value<=INT_MAX && value!=scan) close((int)value);
+        if (!errno && !*end && value>2 && value<=INT_MAX && value!=scan)
+            if (close((int)value) && errno!=EBADF) _exit(127);
     }
-    closedir(dir);
+    if (closedir(dir)) _exit(127);
     execve(path,argv,env); _exit(127);
 }
 enum wr_vpn_validation wr_vpn_validate(enum wr_vpn_protocol protocol,
