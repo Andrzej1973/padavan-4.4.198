@@ -4,6 +4,7 @@
 Preserve PPP/PPPoE and shared crypto. Legacy start requests are rejected; further kernel/UI pruning is separate.
 """
 import argparse
+import re
 from pathlib import Path
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('source',type=Path)
@@ -38,6 +39,24 @@ for name,replacements in changes.items():
  for old,new in replacements:
   if text.count(old)!=1:raise SystemExit('VPN pruning anchor changed: '+name)
   text=text.replace(old,new,1)
+ pending.append((path,text))
+# Strip protocol choices only inside their exact select, not unrelated numeric values.
+for page,field,removed in [('vpncli.asp','vpnc_type',('0','1','2')),
+                           ('vpnsrv.asp','vpns_type',('0','1','2')),
+                           ('Advanced_WAN_Content.asp','wan_proto',('pptp','l2tp'))]:
+ path=root/'www/n56u_ribbon_fixed'/page;text=path.read_text()
+ pattern=r'(<select\b[^>]*\bname="'+field+r'"[^>]*>)(.*?)(</select>)'
+ matches=list(re.finditer(pattern,text,re.S))
+ if len(matches)!=1:raise SystemExit('VPN protocol select changed: '+page)
+ match=matches[0];body=match.group(2)
+ for value in removed:
+  body,count=re.subn(r'^[ \t]*<option value="'+value+r'"[^\n]*</option>\n','',body,flags=re.M)
+  if count!=1:raise SystemExit('VPN protocol option changed: '+page+' '+value)
+ text=text[:match.start(2)]+body+text[match.end(2):]
+ if field in ('vpnc_type','vpns_type'):
+  old='document.form.'+field+'.remove(2);'
+  if text.count(old)!=1:raise SystemExit('VPN index removal changed: '+page)
+  text=text.replace(old,'$j("#'+field+' option[value=\'2\']").remove();')
  pending.append((path,text))
 for path,text in pending:path.write_text(text,encoding='utf-8',newline='\n')
 print('Excluded poptop/xl2tpd and PPTP/L2TP PPP plugins; retained PPPoE/shared dependencies')

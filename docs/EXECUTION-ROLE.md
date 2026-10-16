@@ -17,6 +17,19 @@
 - Сторонній diff `tools/prepare-wifi-hwnat-mode.py` збережено без змін.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
 
+### Legacy VPN WebUI protocol selection pruning — 2026-10-16
+
+WR source preparer видаляє лише options 0/1/2 у точних vpnc_type/vpns_type
+selects та pptp/l2tp у wan_proto; unrelated numeric fields не змінені.
+Index-based remove(2) для OpenVPN замінено value-based removal, щоб не
+прибрати retained tunnel option після скорочення списку. Перевірено exact
+pinned source + overlay pages у ../wr-vpn-ui-check: source preparation PASS,
+VPN choice тільки3, PPPoE retained, removed options absent. Browser behavior,
+stale saved-type UX, residual legacy panels, backend/kernel cleanup та окремі
+WG/AWG режими ще відкриті. Production C compile не підтверджений цим fixture.
+Full diagnostic run 38922347945/0627db1 перевірено: in_progress; не перезапускав.
+
+
 ### Legacy VPN start guards and CI trigger repair — 2026-10-16
 
 WR pruning тепер відхиляє enabled VPN client/server type !=3 перед створенням
