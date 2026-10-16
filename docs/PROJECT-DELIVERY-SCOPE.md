@@ -28,7 +28,10 @@ Retain configurable WireGuard and AmneziaWG in WebUI if both can be supported
 correctly. Inspect the existing shared type=3/renamed-AmneziaWG implementation:
 two compiled modules or labels do not prove independent working tunnels. If both
 cannot be supported, retain AmneziaWG as the owner's authorized fallback.
-ZeroTier is unaffected. Keep old saved credentials/configuration files intact;
+ZeroTier is unaffected. Owner confirmation 2026-10-16: retain both enabled
+SSREDIR and SSLOCAL selectors (mapped to the shared Shadowsocks package).
+Package inclusion does not authorize enabling a live proxy or adding credentials.
+Keep old saved credentials/configuration files intact;
 this change does not authorize changing or disconnecting the live router.
 Acceptance: effective configuration plus absent ROMFS binaries/plugins/private
 libraries, disabled kernel-only dependencies where unused, rejected legacy
