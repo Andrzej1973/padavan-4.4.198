@@ -1,0 +1,17 @@
+{
+  "executor": "Sol",
+  "branch": "main",
+  "remote": "origin",
+  "expectedRemote": "https://github.com/Andrzej1973/padavan-4.4.198.git",
+  "files": [
+    "docs/EXECUTION-ROLE.md",
+    "tools/agent-nim/README.md",
+    "tools/agent-nim/build_log.nim",
+    "tools/agent-nim/example-files.json",
+    "tools/agent-nim/publish_files.nim"
+  ],
+  "checks": [
+    ["nim", "check", "tools/agent-nim/build_log.nim"],
+    ["nim", "check", "tools/agent-nim/publish_files.nim"]
+  ]
+}
