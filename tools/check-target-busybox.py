@@ -30,6 +30,7 @@ report={'schema':1,'runtime_verified':False,'whole_service_audit_complete':False
 listing=run(['--list']);applets=listing.stdout.decode(errors='replace').splitlines()
 report['applets']=applets;report['checks']['applet_inventory']=listing.returncode==0
 report['checks']['shell_type_builtin']=run(['sh','-c','type type >/dev/null 2>&1']).returncode==0
+report['checks']['mwan_shell_arithmetic']=run(['sh','-c','i=1; count=$((i-1)); last=$i; j=$((i-1)); test "$count:$last:$j" = "0:1:0"']).returncode==0
 report['command_builtin_available']=run(['sh','-c','type command >/dev/null 2>&1']).returncode==0
 for directory,dirs,files in os.walk(root,followlinks=False):
     dirs[:]=sorted(name for name in dirs if not (Path(directory)/name).is_symlink())

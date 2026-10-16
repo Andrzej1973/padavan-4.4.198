@@ -17,6 +17,18 @@
 - Сторонній diff `tools/prepare-wifi-hwnat-mode.py` збережено без змін.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
 
+### Target BusyBox audit first result — 2026-10-16
+
+38845996781 success на 5d04e61. Оригінальний report збережено:
+TARGET-BUSYBOX-5D04E61.json — 55 sh scripts, 150 applets, syntax/hexdump/flock
+PASS, command builtin відсутній, command -v серед цих scripts не лишилося.
+Два Lua та detect.sh були поза scan. Pinned detect.sh має /bin/bash і rc
+WAN/firewall виклики. Додано точний prepare-mwan-shell.py: sh + POSIX
+арифметика, без зміни routing-команд; локальна трансформація PASS. Новий
+target gate перевірить цей script і arithmetic probe. CI ще очікується.
+USB/IP UI лишається наступним незавершеним кодовим блоком; audit findings
+мають пріоритет при виявленні збоїв. Повний аудит BusyBox не завершено.
+
 ### Перший target BusyBox gate — 2026-10-16
 
 HTTP USB/IP settings CI 38845781900 success на 34d0999. Додано

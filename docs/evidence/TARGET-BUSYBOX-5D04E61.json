@@ -1,0 +1,507 @@
+{
+  "schema": 1,
+  "runtime_verified": false,
+  "whole_service_audit_complete": false,
+  "busybox_sha256": "7b31fbd7dd8a138943c4ae2bd378b429d14a16992d1c53e991b64785e51a2e41",
+  "config_sha256": "33e621c275ef4f4667159c616f81afea84c22694d26963bf21c9c7e5f51812f6",
+  "scope": "image shell syntax and bounded applet probes; service interactions unverified",
+  "scripts": [
+    {
+      "path": "etc_ro/ap_script.sh",
+      "sha256": "8d94a244022c46b6f5e921065fd6b6cadcaa58134a034f8332a8fc12b5af3251",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "etc_ro/sh_ezscript.sh",
+      "sha256": "cbd9ddb4f84258ab72cedc0caebd8b9b139896f4e4fe9c5b71eaeb31a40ee1f0",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "etc_ro/ss_dlink.sh",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "etc_ro/ss_dom.sh",
+      "sha256": "d98f9cd146212cf5857c3f1090012f288a156b4ec317061fc3c89c7031ab7cfd",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "etc_ro/ss_ip.sh",
+      "sha256": "91824b7d34f78246a6879fcf64bc4931b428c6baf9729c7ed904360a78122295",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "etc_ro/ss_lan_bip.sh",
+      "sha256": "08743108965861bb1a136c4ef656fbd63d7918689366e88cd9515a35c9509181",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "etc_ro/ss_lan_gmip.sh",
+      "sha256": "7474ddb9450ff2af4bb2642a6fbc903bde845a67a3ad98391bfa0c89074b668b",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "etc_ro/ss_lan_ip.sh",
+      "sha256": "7474ddb9450ff2af4bb2642a6fbc903bde845a67a3ad98391bfa0c89074b668b",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "etc_ro/ss_wan_ip.sh",
+      "sha256": "7474ddb9450ff2af4bb2642a6fbc903bde845a67a3ad98391bfa0c89074b668b",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "etc_ro/uss_dom.sh",
+      "sha256": "d98f9cd146212cf5857c3f1090012f288a156b4ec317061fc3c89c7031ab7cfd",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "etc_ro/ss/allping.sh",
+      "sha256": "e75f1d1ebd73d404d259e4d484b121664fd016ec4b1fa321ee5763cfb2779b6d",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "etc_ro/ss/ping.sh",
+      "sha256": "82c161e2cd2d40845576201fc35bf6f58d799d001029293628553ab97b32d6f9",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "sbin/automount.sh",
+      "sha256": "806e8abe0c1b38b4ece54822bf286261523d59d8fd0d6d77638c832f010b79bd",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "sbin/check_crontab.sh",
+      "sha256": "9294055b6d221dde8846002506a3a03fb60d63e0a831bcd917a76b22d2e94eea",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "sbin/dev_init.sh",
+      "sha256": "40e573b25af8a8afaa82d04acd20067a440affd071832adfec4e034034de321b",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "sbin/hddtune.sh",
+      "sha256": "d9f8308d3fb47e9a8d2d1cf5f149288e2b9909f8e11e4f7f7fcfcf20e0f837d9",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "sbin/mtd_storage.sh",
+      "sha256": "23086dc48995ba8aa1a0762488f17c8cdedb4c7445543c867d6e6f4615e1dd51",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "sbin/reset_ss.sh",
+      "sha256": "d82972f680b6df780167717c3903f5df9696b8c365db2479d1bae1c8676fe90a",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "sbin/spindown.sh",
+      "sha256": "5310e178be0396ab2c0546e342205afc1b7237721d25aaae1a3edf8b21bd587b",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "usr/bin/autostart.sh",
+      "sha256": "6af5c2967529667564b4c20ebba221e4dd164ce49328159fd1dcd0802461abae",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "usr/bin/copyscripts.sh",
+      "sha256": "e272a66040b36a5687fd02dfdf95b0181faefb285a71b4719a70383488a30692",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "usr/bin/doh_proxy.sh",
+      "sha256": "addd6f51ae63598232e54a52494a647c30e8e618d12ae4ca3416b4eb007ded6d",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "usr/bin/https-cert.sh",
+      "sha256": "4c7a7bf19c019506d3510c9188ac628f1eccef4b3a4b0866fcbe54d0556c571a",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "usr/bin/iappd.sh",
+      "sha256": "f414c96fe5270b18320a5bce75b95736469113b1302bb170999a01558c0f25d6",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "usr/bin/iperf3.sh",
+      "sha256": "c7155c12abbff9ce8bb30bc11e43fee7164f2970fc15d5da1fe5d1b274bf5581",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "usr/bin/ipkg.sh",
+      "sha256": "8c0b68e3bccac52cf89713a96a7e2d122ac24226944d2993df4c8b20b9656483",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "usr/bin/mwan.sh",
+      "sha256": "7ecbd267aef3776b2e183a2a034b802f79fc9b2b72635eee7d890850da3516f7",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "usr/bin/opkg.sh",
+      "sha256": "a07499bef3c0bd8417cd359a2a25b57ab6c4562c06860421e7919555f547b48a",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "usr/bin/opt-ipkg-upd.sh",
+      "sha256": "0a75b970fe8b8dd4c382deb84175457bd64f2d556476c3ba08b0a65f1c1f13bb",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "usr/bin/opt-mkswap",
+      "sha256": "cf8dc09523ab5af5d315a791ea24e70d230a0df2b412de54615376e04055a0ae",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "usr/bin/opt-mount.sh",
+      "sha256": "edc451b04b20801f167c01b64e8218cc035aa9ea1b0a95ff77ef8170168a95cb",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "usr/bin/opt-opkg-upd.sh",
+      "sha256": "cf9f0a749a62d7c3397a0cedde98ebb4fce4790982c0f95f3962572ffcb9d8e5",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "usr/bin/opt-start.sh",
+      "sha256": "ae7a888bc1a23f58e6a1d97986db9df60e03d68c83096b377e8111bbf3908c93",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "usr/bin/opt-umount.sh",
+      "sha256": "6c15bfcb4869bebf0a4324f74c43018f319d8ec6c2c8593f6cfd4be696ed8f3b",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "usr/bin/privoxy.sh",
+      "sha256": "bc4213f32f85d14c740f4f09e8455236f2fa8888fafc53c2301d0bd3191db5e1",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "usr/bin/shadowsocks.sh",
+      "sha256": "87878c5824c4af41d5bcd6a691c990298921a1b13f63e5cb7c3509b54e550a1e",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "usr/bin/ss-monitor",
+      "sha256": "50b43d4eee2222f220436ca5fa4d3be87fc189b1d3580bae93ee15f4b9675bfc",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "usr/bin/ss-rules",
+      "sha256": "1d30dd9e09bf7712084278c72854197047fa5c9c4d6adc66e609298c28106533",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "usr/bin/sshd.sh",
+      "sha256": "c08a5042d5f8d7aed0d7a7bc73cd0838a896b7c5b9e0f316db665a49ccdf432d",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "usr/bin/stubby.sh",
+      "sha256": "9aad9cd58fb91d0abcd41390fe27ec25c41c98482731ff3fd5dfcf97f415110b",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "usr/bin/update_chnroute.sh",
+      "sha256": "f8eddb493cc74816d840e96e104f18a3872c9e1157c8920e0783a65f8bedb60e",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "usr/bin/update_dlink.sh",
+      "sha256": "6c3aa4e7a7cab4aaf43e33fe9df9830dac28c2184a43e96f04c0142ae33aee7d",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "usr/bin/update_gfwlist.sh",
+      "sha256": "902f2bda6537d703e98923987ba7febf7202957aca8e6d3687186b277ec765b0",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "usr/bin/vlmcsd.sh",
+      "sha256": "46e93ac62bc86d5b0fec21f0742eb0cb30848cfce8cb9f02b092dcb302148f3e",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "usr/bin/wgc.sh",
+      "sha256": "9373fc52235022e8494a615deb3e857e2edd3857e709a9bf79aea058bb2af637",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "usr/bin/wgs.sh",
+      "sha256": "c51d49b2c38b306def59b853be86ba65b82d5bd52347d697b8357640ad0af6fc",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "usr/bin/wireguard.sh",
+      "sha256": "0f4e4118fe784b43f078a6732ce7a3980796266dad6abbde0eb3e8a70c890d40",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "usr/bin/wr-eoip-boot",
+      "sha256": "e59364f68285bb836483fc6fae2b698b00aaba1778acb6f3ccac90d3e7720ba5",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "usr/bin/zerotier-monitor.sh",
+      "sha256": "7b16ddc8141daadbb9a2056868df50c2ee43268cf3327ff78d2fa9998664e42a",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "usr/bin/zerotier-policy.sh",
+      "sha256": "14350a63cadee55ed005499f25d6f5a9bea0f6c5785d976fda3987c465b39be5",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "usr/bin/zerotier.sh",
+      "sha256": "dbe9b2bff1dc32293f878e9b5287a0d1f31e6d73f362580569254efb5414b04e",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "usr/libexec/wr-usbip/device-action.sh",
+      "sha256": "dced904a714aeddad0906bdbfc2eddb84901b3ee428780b2c18eb120907ca054",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "usr/libexec/wr-usbip/device-policy.sh",
+      "sha256": "bff1862c6710aded2522b02b3f38992b501b2a81ed42b5361878e9cb8f497b42",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "usr/libexec/wr-usbip/firewall-policy.sh",
+      "sha256": "9db350170cb9eaed1404efcc8dd980b86f54c0b0df6e75dc7c66dae9bae7563b",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    },
+    {
+      "path": "usr/sbin/wr-usbip",
+      "sha256": "02fd11814a588d11d757f35a20c3ed7103d28045aeff4c48ada59cd9864785bd",
+      "command_v_requires_review": false,
+      "syntax_exit": 0
+    }
+  ],
+  "other_interpreters": [
+    "etc_ro/lua/5.1/share/json2lua.lua",
+    "etc_ro/lua/5.1/share/lua2json.lua",
+    "usr/bin/detect.sh"
+  ],
+  "checks": {
+    "applet_inventory": true,
+    "shell_type_builtin": true,
+    "all_discovered_shell_syntax": true,
+    "usbip_hexdump_exact_options": true,
+    "flock_contention_refused": true,
+    "flock_descriptor_options": true
+  },
+  "applets": [
+    "[",
+    "[[",
+    "addgroup",
+    "adduser",
+    "arp",
+    "arping",
+    "ash",
+    "awk",
+    "base64",
+    "basename",
+    "bash",
+    "brctl",
+    "bunzip2",
+    "bzcat",
+    "bzip2",
+    "cat",
+    "chgrp",
+    "chmod",
+    "chown",
+    "chpasswd",
+    "chroot",
+    "clear",
+    "cp",
+    "crond",
+    "crontab",
+    "cut",
+    "date",
+    "dd",
+    "df",
+    "dhcp6c",
+    "dirname",
+    "dmesg",
+    "dnsdomainname",
+    "dos2unix",
+    "du",
+    "echo",
+    "egrep",
+    "eject",
+    "env",
+    "ether-wake",
+    "expr",
+    "false",
+    "fdisk",
+    "fgrep",
+    "find",
+    "flock",
+    "free",
+    "fuser",
+    "getopt",
+    "grep",
+    "groups",
+    "gunzip",
+    "gzip",
+    "head",
+    "hexdump",
+    "hostname",
+    "id",
+    "ifconfig",
+    "inetd",
+    "insmod",
+    "kill",
+    "killall",
+    "klogd",
+    "ln",
+    "logger",
+    "login",
+    "ls",
+    "lsmod",
+    "lsof",
+    "md5sum",
+    "mdev",
+    "microcom",
+    "mkdir",
+    "mknod",
+    "mkswap",
+    "mktemp",
+    "modinfo",
+    "modprobe",
+    "more",
+    "mount",
+    "mountpoint",
+    "mv",
+    "nc",
+    "netstat",
+    "nice",
+    "nohup",
+    "nslookup",
+    "ntpd",
+    "passwd",
+    "pgrep",
+    "pidof",
+    "ping",
+    "ping6",
+    "printf",
+    "ps",
+    "pwd",
+    "readlink",
+    "rm",
+    "rmdir",
+    "rmmod",
+    "route",
+    "sed",
+    "sendmail",
+    "seq",
+    "sh",
+    "sha256sum",
+    "sleep",
+    "sort",
+    "start-stop-daemon",
+    "stat",
+    "strings",
+    "swapoff",
+    "swapon",
+    "switch_root",
+    "sync",
+    "sysctl",
+    "syslogd",
+    "tail",
+    "tar",
+    "tee",
+    "telnet",
+    "telnetd",
+    "test",
+    "time",
+    "top",
+    "touch",
+    "tr",
+    "traceroute",
+    "traceroute6",
+    "true",
+    "udhcpc",
+    "umount",
+    "uname",
+    "uniq",
+    "unix2dos",
+    "unlink",
+    "unzip",
+    "uptime",
+    "usleep",
+    "vconfig",
+    "vi",
+    "watch",
+    "wc",
+    "wget",
+    "which",
+    "whoami",
+    "xargs",
+    "yes",
+    "zcat",
+    "zcip"
+  ],
+  "command_builtin_available": false,
+  "success": true
+}

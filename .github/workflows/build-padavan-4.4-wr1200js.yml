@@ -89,6 +89,7 @@ jobs:
       - name: Apply WR1200JS board port
         run: |
           python3 tools/prepare-mt76x2-file-read.py padavan-4.4
+          python3 tools/prepare-mwan-shell.py padavan-4.4
           python3 tools/prepare-build-identity.py padavan-4.4 \
             --number "$GITHUB_RUN_NUMBER" --commit "$GITHUB_SHA"
           patch --batch --forward -p1 -d padavan-4.4 \

@@ -7,6 +7,29 @@ the current WR1200JS Linux 4.4.198 image has not been run on the physical router
 
 ## Keep the Padavan baseline intact
 
+## Target BusyBox audit evidence — 2026-10-16
+
+Full run 38845996781 succeeded at 5d04e61. Downloaded report preserved in
+evidence/TARGET-BUSYBOX-5D04E61.json records 55 discovered shell scripts,
+150 applets, successful target-shell syntax checks and exact hexdump/flock
+option/contention probes under QEMU. BusyBox SHA256:
+7b31fbd7dd8a138943c4ae2bd378b429d14a16992d1c53e991b64785e51a2e41.
+Effective config SHA256:
+33e621c275ef4f4667159c616f81afea84c22694d26963bf21c9c7e5f51812f6.
+The command builtin is absent. No command -v use remained in these 55 scripts.
+This is not proof of all service interactions or physical behavior.
+
+Three files were outside the sh/ash scan: two Lua utilities and usr/bin/detect.sh.
+Pinned source confirms detect.sh uses /bin/bash and is invoked by rc WAN and
+firewall multi-PPPoE branches. prepare-mwan-shell.py changes its shebang to the
+shipped /bin/sh and four let assignments to POSIX arithmetic/plain assignment;
+routing/firewall commands are preserved. Exact pinned-source transformation
+passed locally. The next target audit includes this helper and an arithmetic
+probe; its execution is pending. Lua interpreter/provider checks and the
+multi-PPPoE routing/locking/error paths remain open audit work.
+
+### Baseline preservation requirements
+
 The port should preserve the pinned firmware's existing pages, menus,
 translations, configuration-save behavior and service controls. New project
 pages should extend the existing menu and service lifecycle rather than
