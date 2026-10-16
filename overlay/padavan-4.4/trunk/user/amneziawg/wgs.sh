@@ -225,6 +225,13 @@ wg_stop()
     fi
 }
 
+# Called only after this startup successfully created the interface.
+wg_start_abort()
+{
+    ip link del "$IF_NAME" >/dev/null 2>&1 || log "$IF_NAME startup cleanup failed"
+    die "$1"
+}
+
 wg_start()
 {
     is_started && die "already started"
@@ -234,19 +241,18 @@ wg_start()
     wg_prepare
 
     ip link add dev $IF_NAME type $MODULE || error "cannot create $IF_NAME"
-    ip link set dev $IF_NAME mtu $IF_MTU
-    ip addr add ${IF_ADDR}/24 dev $IF_NAME
+    ip link set dev $IF_NAME mtu $IF_MTU || wg_start_abort "$IF_NAME MTU not set"
+    ip addr add ${IF_ADDR}/24 dev $IF_NAME || wg_start_abort "$IF_NAME interface address not set"
 
     local if_ip=$(ip addr show dev $IF_NAME | awk '/inet/{print $2}')
-    [ "$if_ip" ] || error "$IF_NAME interface address not set"
+    [ "$if_ip" ] || wg_start_abort "$IF_NAME interface address not set"
 
-    wg_setconf || die
+    wg_setconf || wg_start_abort "$IF_NAME configuration failed"
 
     if ip link set $IF_NAME up; then
         log "server started, interface: ${IF_NAME}, address: ${IF_ADDR}:${PORT}"
     else
-        ip link del $IF_NAME >/dev/null 2>&1
-        die "$IF_NAME startup failed"
+        wg_start_abort "$IF_NAME startup failed"
     fi
 
     $WG show $IF_NAME allowed-ips | awk '$3 {print $3}' | while read i; do

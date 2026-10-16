@@ -26,6 +26,17 @@ AWG parameters, standard WG exclusion, invalid input, 32-bit header boundaries
 and numerically duplicate headers. Host scenarios pass; the new target gate
 still awaits CI. Server startup, routing and physical behavior remain open.
 
+Server startup review found a stale-interface path: after successful link
+creation, failed MTU/address/configuration could leave a down interface that
+made the next start report already started. The server now checks each stage
+and attempts deletion on failure only after its own successful create. A
+pre-existing interface and failed create do not enter that cleanup path;
+failed cleanup is logged and startup still fails. The same fixture exercises
+actual startup control flow with mocked ip/wg operations, including every
+failure stage and failed deletion. Host cases pass; target BusyBox CI and
+actual kernel operations remain unverified. Concurrent lifecycle locking is
+not established by this fixture.
+
 Full run 38845996781 succeeded at 5d04e61. Downloaded report preserved in
 evidence/TARGET-BUSYBOX-5D04E61.json records 55 discovered shell scripts,
 150 applets, successful target-shell syntax checks and exact hexdump/flock

@@ -106,4 +106,46 @@ fixture_wg(){
    assert (line in server.read_text())==(module=='amneziawg')
    assert (line in client.read_text())==(module=='amneziawg')
   assert result.stdout==client.read_text()
-print(('TARGET BusyBox/QEMU: ' if romfs else 'HOST shell: ')+'PASS synthetic actual server/export functions: shared AWG parameters, standard WG exclusion, invalid input refusal; network lifecycle unverified')
+ # Exercise actual startup control flow with all network operations mocked.
+ startup=source[source.index('wg_start_abort()'):source.index('wg_addclient()')]
+ events=root/'events'
+ startup_prelude='''IF_NAME=synthetic
+IF_ADDR=10.0.0.1
+IF_MTU=1420
+PORT=51820
+MODULE=wireguard
+WG=fixture_wg
+die(){ exit 1; }
+error(){ exit 1; }
+log(){ printf 'log %s\\n' "$*" >> "$EVENTS"; }
+is_started(){ test "${EXISTING:-0}" = 1; }
+wg_prepare(){ :; }
+wg_setconf(){ test "${FAIL:-}" != setconf; }
+fixture_wg(){ return 0; }
+ip(){
+ printf '%s\\n' "$*" >> "$EVENTS"
+ case "$*" in
+ 'link add '*) test "${FAIL:-}" != add;;
+ 'link set dev synthetic mtu '*) test "${FAIL:-}" != mtu;;
+ 'addr add '*) test "${FAIL:-}" != address;;
+ 'addr show '*) test "${FAIL:-}" = observe || printf 'inet 10.0.0.1/24\\n'; return 0;;
+ 'link set synthetic up') test "${FAIL:-}" != up;;
+ 'link del synthetic') test "${CLEANUP_FAIL:-0}" != 1;;
+ *) return 1;;
+ esac
+}
+'''
+ script.write_text(startup_prelude+startup+'\nwg_start\n')
+ for failure in ('','add','mtu','address','observe','setconf','up'):
+  for existing in ('0','1'):
+   events.write_text('')
+   result=subprocess.run([*shell,str(script)],env=dict(env,EVENTS=str(events),FAIL=failure,EXISTING=existing),capture_output=True,text=True,timeout=30)
+   calls=events.read_text().splitlines()
+   assert (result.returncode==0)==(not failure and existing=='0'),(failure,existing,result.stderr)
+   expected_cleanup=existing=='0' and failure not in ('','add')
+   assert ('link del synthetic' in calls)==expected_cleanup,(failure,existing,calls)
+   if existing=='1':assert calls==[],calls
+ events.write_text('')
+ result=subprocess.run([*shell,str(script)],env=dict(env,EVENTS=str(events),FAIL='setconf',CLEANUP_FAIL='1'),capture_output=True,text=True,timeout=30)
+ assert result.returncode!=0 and 'log synthetic startup cleanup failed' in events.read_text()
+print(('TARGET BusyBox/QEMU: ' if romfs else 'HOST shell: ')+'PASS synthetic server/export functions: AWG validation, WG exclusion and failed-start cleanup; real network lifecycle unverified')
