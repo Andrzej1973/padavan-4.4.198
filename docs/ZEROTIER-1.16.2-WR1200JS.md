@@ -10,7 +10,14 @@ The source recipe replaces the inherited prebuilt ZeroTier 1.14.0. It uses C++17
 
 Preparation preserves the rounding feature through the uClibc C function, fixes OpenTelemetry header paths, forces bundled NAT-PMP for cross-compilation and accounts for source-route attributes in netlink messages. It does not remove the TAP MAC-setting ioctl.
 
-## Production image integration pending
+## Production image integration evidence
+
+Update 2026-10-16: full build 315 at 78efe0d succeeded. The downloaded
+ZeroTier image report passes all seven checks, including source-built code,
+dependencies, lifecycle, WebUI and persistence assets. See
+`evidence/WR1200JS-BUILD315.md`. Runtime remains unverified, and build 315
+predates the newer status-semantics correction. The paragraphs below describe
+the gates and historical integration work, not a claim of runtime acceptance.
 
 The new recipe packages the target `libatomic.so.1`, which the base libc recipe does not install. An image gate checks the pinned source version, compares executable code with the source-built binary, checks target ELF format and recursively resolves shared-library and loader dependencies within ROMFS. CLI and identity-tool symlinks must resolve to the daemon.
 
