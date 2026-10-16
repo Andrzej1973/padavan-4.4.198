@@ -17,6 +17,19 @@
 - Сторонній diff `tools/prepare-wifi-hwnat-mode.py` збережено без змін.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
 
+### WAN stale legacy protocol explicit selection — 2026-10-16
+
+Source preparer clears WAN selection for saved pptp/l2tp and refuses Apply
+unless DHCP/static/PPPoE explicitly selected. Added EN/UK/RU explanatory label.
+Saved NVRAM/credentials untouched. Exact-source preparation PASS in
+../wr-wan-stale-type-check; Node executed actual generated initial/validation
+snippets: legacy selection cleared, supported selection unchanged, unsupported
+values refused; full inline JS syntax PASS with server tags substituted.
+Not browser/full initial-chain acceptance. Diagnostic full38922347945 checked
+live in firmware build; target USBIP failure trace still awaited. Next: target
+trace, residual legacy/kernel dependency pruning and separate WG/AWG lifecycle.
+
+
 ### Explicit selection for stale saved VPN types — 2026-10-16
 
 Prepared VPN client/server initial() clears selection when saved type !=3;

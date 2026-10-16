@@ -72,6 +72,19 @@ for page,field,removed in [('vpncli.asp','vpnc_type',('0','1','2')),
   end=pos+len(valid)
   text=(text[:end]+'\n\tif (mode != "3") {\n'
         +'\t\tdocument.form.'+field+'.focus();\n\t\treturn false;\n\t}'+text[end:])
+ else:
+  initial='function initial(){'
+  valid='var wan_proto = document.form.wan_proto.value;'
+  if text.count(initial)!=1 or text.count(valid)!=1:raise SystemExit('WAN form anchors changed')
+  text=text.replace(initial,initial+'\n\tvar wr_saved_proto = "<% nvram_get_x("", "wan_proto"); %>";\n'
+   '\tif (wr_saved_proto == "pptp" || wr_saved_proto == "l2tp")\n'
+   '\t\tdocument.form.wan_proto.selectedIndex = -1;',1)
+  text=text.replace(valid,valid+'\n\tif (wan_proto != "dhcp" && wan_proto != "static" && wan_proto != "pppoe") {\n'
+   '\t\tdocument.form.wan_proto.focus();\n\t\treturn false;\n\t}',1)
+  # Locate the exact select again after JS edits shifted offsets.
+  selected=re.search(pattern,text,re.S)
+  end=selected.end()
+  text=text[:end]+'<p class="help-block"><#WRWANExplicitType#></p>'+text[end:]
  pending.append((path,text))
 for name,note in [
  ('EN.footer','PPTP, L2TP and OpenVPN are excluded. Select the supported tunnel explicitly before enabling it. Saved legacy settings are not automatically converted.'),
@@ -79,6 +92,9 @@ for name,note in [
  ('RU.dict','PPTP, L2TP и OpenVPN исключены. Перед включением явно выберите поддерживаемый туннель. Старые настройки автоматически не преобразуются.')]:
  path=root/'www/dict'/name;text=path.read_text()
  if 'WRVPNExplicitType=' in text:raise SystemExit('VPN migration label already exists')
- pending.append((path,text.rstrip()+'\nWRVPNExplicitType='+note+'\n'))
+ wan_note={'EN.footer':'PPTP/L2TP uplinks are excluded. Select DHCP, static IP or PPPoE explicitly. Opening this page does not convert saved settings.',
+ 'UK.dict':'WAN через PPTP/L2TP виключено. Явно виберіть DHCP, статичну IP-адресу або PPPoE. Відкриття сторінки не перетворює збережені налаштування.',
+ 'RU.dict':'WAN через PPTP/L2TP исключён. Явно выберите DHCP, статический IP или PPPoE. Открытие страницы не преобразует сохранённые настройки.'}[name]
+ pending.append((path,text.rstrip()+'\nWRVPNExplicitType='+note+'\nWRWANExplicitType='+wan_note+'\n'))
 for path,text in pending:path.write_text(text,encoding='utf-8',newline='\n')
 print('Excluded poptop/xl2tpd and PPTP/L2TP PPP plugins; retained PPPoE/shared dependencies')
