@@ -31,6 +31,9 @@ cannot be supported, retain AmneziaWG as the owner's authorized fallback.
 ZeroTier is unaffected. Owner confirmation 2026-10-16: retain both enabled
 SSREDIR and SSLOCAL selectors (mapped to the shared Shadowsocks package).
 Package inclusion does not authorize enabling a live proxy or adding credentials.
+Expose SSSERVER separately as a commented optional selector; retain client/server
+role explanations in the generated guide. Verify both client binaries in ROMFS
+and absence of ss-server when the server selector is disabled.
 Keep old saved credentials/configuration files intact;
 this change does not authorize changing or disconnecting the live router.
 Acceptance: effective configuration plus absent ROMFS binaries/plugins/private

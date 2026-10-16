@@ -18,6 +18,10 @@ def main():
             raise SystemExit("guide lacks credential-safety instruction")
         if "Заміна порту WAN" not in value or "switch 67" not in value:
             raise SystemExit("guide lacks the WAN socket replacement guidance")
+        if "Параметр профілю: CONFIG_FIRMWARE_INCLUDE_SSLOCAL=y" in value:
+            for required in ("ss-local", "SOCKS5", "ss-server", "CONFIG_FIRMWARE_INCLUDE_SSSERVER"):
+                if required not in value:
+                    raise SystemExit("Shadowsocks guide lacks client/server distinction: " + required)
         if "CONFIG_FIRMWARE_INCLUDE_DOH=y" in value:
             for required in ("Слоти DoH 1–4", "повторний PID", "/var/run/doh-proxy/0.log", "не перевірка порту", "ручним редагуванням PID-файлів"):
                 if required not in value:

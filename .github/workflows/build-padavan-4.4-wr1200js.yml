@@ -563,6 +563,15 @@ jobs:
             test ! -e trunk/romfs/usr/lib/ipsec/libstrongswan.so.0
             test ! -e trunk/romfs/usr/lib/ipsec/libcharon.so.0
           fi
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS=y$' trunk/.config; then
+            for client in ss-local ss-redir; do
+              test -x "trunk/romfs/usr/bin/$client"
+              readelf -h "trunk/romfs/usr/bin/$client" | grep -q 'Machine:.*MIPS'
+            done
+          fi
+          if ! grep -q '^CONFIG_FIRMWARE_INCLUDE_SSSERVER=y$' trunk/.config; then
+            test ! -e trunk/romfs/usr/bin/ss-server
+          fi
           grep -q '^CONFIG_FIRMWARE_INCLUDE_ZEROTIER=y$' trunk/.config
           grep -q '^CONFIG_IMQ=m$' trunk/linux-4.4.x/.config
           grep -q '^CONFIG_NETFILTER_XT_TARGET_IMQ=m$' trunk/linux-4.4.x/.config

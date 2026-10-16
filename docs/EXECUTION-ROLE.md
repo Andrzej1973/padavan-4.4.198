@@ -17,6 +17,19 @@
 - Сторонній diff `tools/prepare-wifi-hwnat-mode.py` збережено без змін.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
 
+### Shadowsocks client/server configuration and guide — 2026-10-16
+
+SSREDIR/SSLOCAL залишено y; додано окремий commented SSSERVER (сервер не
+вмикався). Розширено інструкції прозорого клієнта, SOCKS5, upstream credentials,
+відмінності server/client та незалежності WG/AWG. Окремий server chapter
+генерується лише для enabled SSSERVER. Guide generation/check PASS у
+../ss-client-guide-check. CI ROMFS gate перевіряє executable MIPS ss-local і
+ss-redir при enabled shared package та відсутність ss-server при disabled
+server selector. Новий image gate ще очікує збірку; live settings не змінено.
+Попереднє незавершене VPN legacy/UI/kernel pruning та WG/AWG audit збережено
+в наступному checkpoint, не вважати завершеним.
+
+
 ### Owner VPN scope replacement / first package pruning — 2026-10-16
 
 Пряма вимога: прибрати PPTP, L2TP, EoIP, OpenVPN та лише їхні зайві
