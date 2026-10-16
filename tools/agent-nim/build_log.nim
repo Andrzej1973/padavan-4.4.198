@@ -82,7 +82,18 @@ proc main() =
     if active.len > 0 and remaining > 0:
       excerpts[active].add($lines & ": " & display(text))
       dec remaining
-    if isError(text):
+    # A make failure line often only repeats a compiler diagnostic already
+    # captured immediately above. Keep it in the context window, but don't
+    # count it as a second independent error group.
+    var repeatsRecentError = false
+    let lower = text.toLowerAscii
+    if lower.startsWith("make[") or lower.startsWith("make:"):
+      for recent in previous.items:
+        let separator = recent.find(": ")
+        if separator >= 0 and isError(recent[separator + 2..^1]):
+          repeatsRecentError = true
+          break
+    if isError(text) and not repeatsRecentError:
       inc markers
       let fingerprint = display(text)
       if counts.hasKey(fingerprint): inc counts[fingerprint]
