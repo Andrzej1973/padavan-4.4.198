@@ -11,7 +11,7 @@
   мають пріоритет над початковим передаванням.
 - Перевизначення WAN: реалізовано, перевірено компіляцією (збірка №311) і
   моделлю масок у CI; на пристрої не перевірено (`docs/WAN-RUNTIME-ABI.md`).
-- Остання підтверджена прошивка: CI №359 для `8a687e2`; MIPS WG/AWG validators
+- Остання перевірена збірка: CI №363 для `038600d`; докази в docs/evidence/WR1200JS-BUILD363.md. Попередня №359: MIPS WG/AWG validators
   та observer пройшли; докази: docs/evidence/VPN-PROFILES-BUILD359.md.
   Попередня №357 для `61bce23`: target BusyBox server
   export/startup fixture успішний. Поточний HEAD визначати через `git log -1`.
@@ -28,6 +28,17 @@
 роль явно не передано. Докладний запуск, формат маніфесту та межі безпеки описані
 в `tools/agent-nim/README.md`.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
+
+### Перевірка артефакту №363 — 2026-10-17
+
+CI №363 і служб №136 успішні. SHA256 завантаженого TRX перевірено локально;
+інструкція відповідає моделі, номеру та коміту збірки. Оригінальні звіти й межі
+доказів: docs/evidence/WR1200JS-BUILD363.md. MIPS manager fork/exec/store
+та окремі WG/AWG control binaries підтверджені CI; старі позначки pending
+нижче для цих перевірок історичні. Повний аудит взаємодій служб із BusyBox
+та приймання на фізичному роутері залишаються відкритими. Наступний код:
+protocol apply/readback, endpoint pinning, адреси/маршрути/DNS і rollback.
+
 
 ### Незалежні одночасні WG/AWG профілі — 2026-10-16
 
@@ -1306,3 +1317,17 @@ firmware lifecycle wiring, persistence/UI та фізичне приймання
 Оновлення робить лише агент, який отримав роль, і лише після явної вказівки
 користувача. Зупинка мети ставить роль на паузу; відновлення мети тим самим
 агентом повертає роль без нового погодження.
+
+### Protocol configuration transport candidate — 2026-10-17
+
+Added config-apply.c/h: revalidate and render the chosen record, refuse unresolved
+hostname endpoints, execute the fixed WG/AWG control with canonical wrvpn<ID>
+and setconf arguments. Input uses a 0600 temporary file unlinked before keys are
+written; the child reads its inherited regular descriptor through procfs. No
+shell, inherited management descriptors, environment credentials or child output
+are exposed. Bounded child wait returns UNKNOWN after failed/uncertain execution;
+zero exit is only ACKNOWLEDGED and is not configuration readback/connectivity.
+This primitive is deliberately not packaged or connected to startup: caller-side
+session ownership checks, endpoint pinning, readback, routing/DNS and rollback
+must be integrated before enabling it. Service CI now tests transport with real
+pinned validators and fake controls (no network mutation). CI pending.
