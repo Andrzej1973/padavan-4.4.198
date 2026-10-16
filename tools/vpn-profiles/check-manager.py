@@ -69,6 +69,29 @@ int main(void){int fd;for(fd=3;fd<4096;fd++){errno=0;if(fcntl(fd,F_GETFD)!=-1 ||
  (store/'3').write_bytes(b'corrupt');(store/'3').chmod(0o600)
  assert not run(['export','3'],expected=3)
  run(['list'],expected=3);(store/'3').unlink()
+ # Configuration rendering uses those same fixed native validation helpers.
+ plan_exe=root/'config-plan'
+ subprocess.run(['gcc','-std=gnu99','-Wall','-Wextra','-Werror','-g','-fsanitize=address,undefined',
+  '-DWR_VPN_VALIDATE_WG='+json.dumps(str(validators['wg'])),
+  '-DWR_VPN_VALIDATE_AWG='+json.dumps(str(validators['awg'])),
+  str(here/'check-config-plan.c'),str(here/'config-plan.c'),str(here/'validate-process.c'),'-o',str(plan_exe)],check=True)
+ def render(protocol,data,expected=0):
+  r=subprocess.run([str(plan_exe),protocol],input=data.encode(),capture_output=True,timeout=10,env=env)
+  assert r.returncode==expected,(protocol,r.returncode,r.stderr)
+  assert not r.stderr
+  assert key.encode() not in r.stdout and public.encode() not in r.stdout
+  return json.loads(r.stdout) if expected==0 else None
+ for protocol,data in [('wireguard',wg),('amneziawg',awg)]:
+  assert render(protocol,data)=={'mtu':0,'hostname_endpoints':True,'dns_present':False}
+  numeric=data.replace('test.invalid:51820','203.0.113.7:51820')
+  numeric=numeric.replace('[Peer]','DNS = 1.1.1.1, search.example\nMTU = 1380\n[Peer]')
+  assert render(protocol,numeric)=={'mtu':1380,'hostname_endpoints':False,'dns_present':True}
+  assert render(protocol,numeric.replace('203.0.113.7:51820','[2001:db8::7]:51820'))['hostname_endpoints'] is False
+  assert render(protocol,numeric.replace('\n','\r\n'))['mtu']==1380
+  render(protocol,data.replace('[Peer]','PreUp = must-not-run\n[Peer]'),2)
+  render(protocol,data.replace('[Peer]','FwMark = 51\n[Peer]'),2)
+  render(protocol,data.replace(key,'invalid'),2)
+ print('PASS config plan: real native validation, separate quick fields, profile-owned mark, endpoint resolution flag, no DNS/IPC/network actions or key output')
  # Fixed validator path failure must not save or expose a profile.
  validators['wg'].unlink()
  assert not run(['create','3','wireguard'],wg,3)

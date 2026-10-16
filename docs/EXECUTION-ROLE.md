@@ -151,6 +151,22 @@ This owns a bare interface only: no keys, addresses, routes, DNS, UP/handshake
 or connectivity proof. Next: confirm CI, implement protocol configuration and
 postcheck, then scoped policy/rollback and connect the complete controller/UI.
 
+### VPN protocol configuration plan — candidate
+
+Service CI #133 (5ee1b34, run 38957399991) passed integrated link lifecycle
+with real private files and mock network operations. No two live VPNs are proven.
+Added config-plan.c/h: calls the fixed native validation helper before producing
+a private setconf payload, separates Address/DNS/MTU from native protocol fields,
+and inserts this profile's allocated FwMark. The original Endpoint is preserved;
+hostname endpoints are explicitly flagged for resolution and outside-tunnel
+pinning before activation. No DNS, IPC, command execution, routes or DNS changes
+are performed by this module. Plan contains secrets and must not be logged/served.
+Failure leaves caller output unchanged. Native manager fixture now covers both
+protocols, numeric IPv4/IPv6, hostname flags, quick-field separation, CRLF and
+hook/mark/key rejection using the real pinned helpers. CI pending; not packaged.
+Next: confirm CI, endpoint resolution/pinning and protocol apply/readback adapter,
+then scoped address/route/DNS policy, rollback and the complete controller/WebUI.
+
 ### WireGuard / AmneziaWG: клієнтський QR та AWG-параметри — 2026-10-16
 
 Повні #355/#356 скомпілювали образ і пройшли загальний BusyBox audit, але
