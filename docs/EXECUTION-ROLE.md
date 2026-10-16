@@ -17,6 +17,22 @@
 - Сторонній diff `tools/prepare-wifi-hwnat-mode.py` збережено без змін.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
 
+### Separate standard WireGuard tool preservation — 2026-10-16
+
+Source audit: wireguard-tools installs /usr/bin/wg, AmneziaWG replaces it with
+awg compatibility symlink; both wgc/wgs currently auto-select module based on
+AmneziaWG directory presence. Independent selectable protocols not implemented.
+Added WR preparer preserving standard upstream binary as /usr/bin/wg-standard,
+without changing existing wg/awg aliases or live behavior. Exact pinned-source
+preparation PASS in ../wg-tool-separation-check; Python syntax PASS. Full image
+gate requires executable MIPS wg-standard plus awg and different binaries.
+New build/gate pending. Next add per-role explicit protocol setting and select
+correct tool/module (with validation, observed status, client/server config
+coverage); no claim of independent/simultaneous tunnels. Shared settings and
+server AWG-specific config omissions require further audit. Physical acceptance
+still open. Diagnostic full38922347945 polled: still in_progress.
+
+
 ### Private legacy VPN kernel selectors excluded — 2026-10-16
 
 WR board kernel template disables PPTP, PPPOL2TP, PPPOLAC, L2TP/L2TP_V3,
