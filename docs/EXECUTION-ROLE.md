@@ -17,6 +17,20 @@
 - Сторонній diff `tools/prepare-wifi-hwnat-mode.py` збережено без змін.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
 
+### USB/IP target BusyBox restore fixture — 2026-10-16
+
+Service CI 38907533138 на b109c1a success; повна 38907533199 ще in_progress
+на момент перевірки. Попередня повна 38906698637 на 7e4090c success.
+Додано --target-root до check-restore.py та окремий крок у повній WR-збірці:
+точна ROMFS BusyBox sh під QEMU, cat/readlink/hexdump з того самого binary,
+PATH без host utility fallback. Host /bin/sh лише транспортує exec wrappers;
+USB sysfs, daemon snapshot, export reader і bind залишаються mocks.
+Перевіряються disabled/empty, відмова reader/daemon, batch preflight,
+успішна dispatch та неоднозначний/відсутній serial. Python syntax PASS;
+новий QEMU-крок ще не виконано. Це не фізична перевірка USB/IP чи всієї
+служби; opt-in UI/HTTP, restore status і решта BusyBox-аудиту відкриті.
+
+
 ### USB/IP guarded restore controller — 2026-10-16
 
 Service CI 38907060095 на 9580d8f success. Додано restore.sh під чинний

@@ -938,6 +938,12 @@ jobs:
       - name: Audit all shipped shell scripts with exact target BusyBox
         run: python3 tools/check-target-busybox.py padavan-4.4 --output target-busybox-audit.json
 
+      - name: Check USBIP restore orchestration with exact target BusyBox
+        run: |
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_USBIP=y$' configs.build/wr1200js.config; then
+            python3 tools/usbip/check-restore.py --target-root padavan-4.4/trunk/romfs
+          fi
+
       - name: Verify USBIP settings UI and linked HTTP storage code
         run: |
           if grep -q '^CONFIG_FIRMWARE_INCLUDE_USBIP=y$' configs.build/wr1200js.config; then
