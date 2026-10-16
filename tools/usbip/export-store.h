@@ -17,7 +17,8 @@ static inline int wr_usbip_store_directory(const char *directory)
 {
  struct stat s;int fd=open(directory,O_RDONLY|O_DIRECTORY|O_NOFOLLOW|O_CLOEXEC);
  if(fd<0)return -1;
- if(fstat(fd,&s)||s.st_uid!=geteuid()||(s.st_mode&077)){close(fd);return -1;}
+ if(fstat(fd,&s)){int error=errno;close(fd);errno=error;return -1;}
+ if(s.st_uid!=geteuid()||(s.st_mode&077)){close(fd);errno=EACCES;return -1;}
  return fd;
 }
 static inline enum wr_usbip_store_result wr_usbip_export_save_locked(const char *directory,

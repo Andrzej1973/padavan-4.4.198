@@ -17,6 +17,18 @@
 - Сторонній diff `tools/prepare-wifi-hwnat-mode.py` збережено без змін.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
 
+### USB/IP settings lifecycle lock — 2026-10-16
+
+Service CI 38845247667 на 46e9b4d успішний. export-settings.h підключає
+file-store до фактичного /var/run/wr-usbip.lock (nonblocking, private,
+no-follow), storage /etc/storage/usbip. Розрізняє READY/EMPTY/BUSY/UNKNOWN;
+невдале/зайняте читання не змінює out, EMPTY дає нульову таблицю. Writer
+валідує до lock/створення каталогу; flash commit не викликається. Помилку
+перевірки прав каталогу більше не можна сплутати з ENOENT.
+Native fixture спільного lock/default-empty/symlink додано в sanitizer CI;
+новий результат очікується. Це API ще не встановлено/не викликається з HTTP.
+Наступне — автентифікований settings POST/EJ з bounded таблицею й UI.
+
 ### USB/IP private file store — 2026-10-16
 
 Service CI 38845108113 на 8b3dadf успішний. Додано export-store.h —
