@@ -213,18 +213,22 @@ static int ej_zerotier_state(int eid, webs_t wp, int argc, char **argv)
 	time_t now = time(NULL);
 	struct stat status;
 	FILE *cache = NULL;
+	int cache_fd = -1;
 	int ch;
 	unsigned int count = 0;
 	(void)eid; (void)argc; (void)argv;
 	if (nvram_get_int("zerotier_enable") <= 0) {
 		state = 0;
-	} else if (!(cache = fopen("/var/run/zerotier-state.txt", "r")) ||
-	           fstat(fileno(cache), &status) != 0) {
+	} else if ((cache_fd = open("/var/run/zerotier-state.txt", O_RDONLY | O_NONBLOCK | O_NOFOLLOW)) < 0 ||
+	           fstat(cache_fd, &status) != 0) {
 		state = 3;
 	} else if (!S_ISREG(status.st_mode) || now <= 0 || status.st_mtime > now) {
 		/* Clock rollback or an invalid cache must not look fresh. */
 		state = 3;
+	} else if (!(cache = fdopen(cache_fd, "r"))) {
+		state = 3;
 	} else {
+		cache_fd = -1; /* owned by FILE from this point */
 		age = (long)(now - status.st_mtime);
 		state = age <= 60 ? 1 : 2;
 	}
@@ -244,6 +248,7 @@ static int ej_zerotier_state(int eid, webs_t wp, int argc, char **argv)
 		}
 	}
 	if (cache) fclose(cache);
+	else if (cache_fd >= 0) close(cache_fd);
 	return websWrite(wp, "\"}");
 }
 '''

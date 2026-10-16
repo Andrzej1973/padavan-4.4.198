@@ -19,7 +19,8 @@ values = {node.targets[0].id: ast.literal_eval(node.value)
           and node.targets[0].id in ('JS_BLOCK', 'BACKEND_CODE')}
 assert 'status.st_mtime > now' in values['BACKEND_CODE']
 assert '!S_ISREG(status.st_mode)' in values['BACKEND_CODE']
-assert 'fstat(fileno(cache)' in values['BACKEND_CODE']
+assert 'fstat(cache_fd' in values['BACKEND_CODE']
+assert 'O_RDONLY | O_NONBLOCK | O_NOFOLLOW' in values['BACKEND_CODE']
 assert 'count < 4096' in values['BACKEND_CODE']
 harness = r'''
 const assert = require('node:assert/strict');
@@ -66,20 +67,25 @@ if args.cc:
 #include <time.h>
 #include <sys/stat.h>
 #include <string.h>
+#include <fcntl.h>
+#include <unistd.h>
 typedef void *webs_t;
-static int enabled=1, missing=0;
+static int enabled=1, missing=0, irregular=0;
 static time_t stamp=1000;
 static const char *payload="node \"quoted\" \\ slash\nnext\tline";
 static int nvram_get_int(const char *key){(void)key;return enabled;}
 static time_t test_time(time_t *p){(void)p;return 1000;}
-static FILE *test_open(const char *path,const char *mode){
- FILE *f;(void)path;(void)mode;if(missing)return NULL;
- f=tmpfile();if(!f)return NULL;fputs(payload,f);rewind(f);return f;
+static int test_open(const char *path,int flags){
+ FILE *f;int fd;(void)path;
+ if(flags!=(O_RDONLY|O_NONBLOCK|O_NOFOLLOW))return -1;
+ if(missing)return -1;
+ f=tmpfile();if(!f)return -1;fputs(payload,f);rewind(f);
+ fd=dup(fileno(f));fclose(f);return fd;
 }
-static int test_stat(int fd,struct stat *s){(void)fd;memset(s,0,sizeof(*s));s->st_mode=S_IFREG;s->st_mtime=stamp;return 0;}
+static int test_stat(int fd,struct stat *s){(void)fd;memset(s,0,sizeof(*s));s->st_mode=irregular?S_IFIFO:S_IFREG;s->st_mtime=stamp;return 0;}
 static int websWrite(webs_t wp,const char *fmt,...){int n;va_list ap;(void)wp;va_start(ap,fmt);n=vprintf(fmt,ap);va_end(ap);return n;}
 #define time test_time
-#define fopen test_open
+#define open test_open
 #define fstat test_stat
 '''+values['BACKEND_CODE']+r'''
 static void emit(void){ej_zerotier_state(0,NULL,0,NULL);putchar('\n');}
@@ -87,7 +93,7 @@ int main(void){
  char large[5001];
  emit();stamp=939;emit();stamp=1001;emit();missing=1;emit();
  enabled=0;emit();enabled=1;missing=0;stamp=1000;
- memset(large,'a',5000);large[5000]=0;payload=large;emit();return 0;
+ memset(large,'a',5000);large[5000]=0;payload=large;emit();irregular=1;emit();return 0;
 }
 '''
     with tempfile.TemporaryDirectory(prefix='zt-state-') as tmp:
@@ -95,8 +101,8 @@ int main(void){
         source.write_text(c, encoding='utf-8')
         subprocess.run([args.cc,'-std=gnu99','-Wall','-Wextra','-Werror',str(source),'-o',str(binary)],check=True)
         rows = [json.loads(row) for row in subprocess.check_output([str(binary)],text=True).splitlines()]
-    assert [row['state'] for row in rows] == [1,2,3,3,0,1]
+    assert [row['state'] for row in rows] == [1,2,3,3,0,1,3]
     assert rows[0]['text'] == 'node "quoted" \\ slash\nnext\tline'
-    assert all(rows[index]['text'] == '' for index in [2,3,4])
+    assert all(rows[index]['text'] == '' for index in [2,3,4,6])
     assert len(rows[5]['text']) == 4096
     print('PASS generated C hook JSON escaping, freshness, unavailable, disabled and 4096-byte limit')
