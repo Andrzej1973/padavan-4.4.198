@@ -17,6 +17,19 @@
 - Сторонній diff `tools/prepare-wifi-hwnat-mode.py` збережено без змін.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
 
+### Перший target BusyBox gate — 2026-10-16
+
+HTTP USB/IP settings CI 38845781900 success на 34d0999. Додано
+check-target-busybox.py у повну збірку після встановлення QEMU: exact ROMFS
+BusyBox/config SHA256, --list, type builtin, синтаксис усіх виявлених sh/ash
+скриптів (без виконання lifecycle), hexdump точні argv/bytes і flock FD /
+contention через QEMU з бібліотеками образу. Інші інтерпретатори й command -v
+із відсутнім builtin фіксуються для подальшого розбору. JSON-артефакт
+target-busybox-audit; whole_service_audit_complete=false, runtime_verified=false.
+Python syntax PASS; реальне виконання нового gate ще очікується в CI.
+Наступне — розібрати report/відмови, потім динамічні service-chain fixtures
+і незавершені USB/IP UI/restore. Глобальний аудит BusyBox не оголошувати виконаним.
+
 ### USB/IP authenticated settings HTTP — 2026-10-16
 
 Service CI 38845392936 на bba2f77 успішний. Завершено попередній WIP:

@@ -928,6 +928,17 @@ jobs:
           set -o pipefail
           python3 tools/verify-zram-image.py padavan-4.4 | tee zram-image-checks.txt
 
+      - name: Audit all shipped shell scripts with exact target BusyBox
+        run: python3 tools/check-target-busybox.py padavan-4.4 --output target-busybox-audit.json
+
+      - name: Preserve target BusyBox audit
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: target-busybox-audit
+          path: target-busybox-audit.json
+          if-no-files-found: ignore
+
       - name: Preserve zram image diagnostics
         if: always()
         uses: actions/upload-artifact@v7
