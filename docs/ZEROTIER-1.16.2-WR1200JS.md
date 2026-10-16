@@ -26,3 +26,26 @@ A passing candidate compile does not prove the final image or router operation. 
 Existing service defaults remain disabled. Initial lifecycle hardening preserves identity and membership on stop. Additional join/leave controls, separate router/LAN permissions, bounded background refresh and complete status reporting remain in progress; do not claim that the full WebUI/lifecycle requirement is complete.
 
 The pinned source is preserved locally. Downloading the upstream Git revision remains a dependency until the owned source mirror and complete backup are delivered.
+
+## Status refresh contract — 2026-10-16
+
+The newer adca670 change refreshes both the summary and the node/network cache
+text through one authenticated JSON request. The HTTP hook reads at most 4096
+bytes from an open cache snapshot and uses that snapshot's metadata for age;
+it does not execute ZeroTier CLI in HTTP. Quotes, backslashes and line breaks
+are JSON-escaped; the browser inserts the returned text using text(), not HTML.
+An invalid response or transport failure clears previous details.
+
+State 0 reflects the disabled configuration. State 1 means a cache no older
+than 60 seconds and is labelled Updated, not Running. State 2 is stale data;
+state 3 is unavailable/unknown. A future timestamp, invalid clock or irregular
+file cannot establish freshness. None of these states proves controller
+authorization, a healthy daemon, routes or two-node connectivity.
+
+In [run 38841465981](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38841465981)
+the pre-compilation status semantics step succeeded at adca670. It executes
+the generated JS with transport mocks and the actual generated C hook compiled
+with GCC, then independently parses its output as JSON. Escaping, fresh/stale,
+future/missing/disabled states and truncation at 4096 bytes passed. This native
+fixture does not replace full MIPS compilation or physical router acceptance;
+the full run was still active when recorded.
