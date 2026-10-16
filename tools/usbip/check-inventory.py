@@ -16,6 +16,8 @@ for bus,klass in [('1-1','00'),('1-2','09'),('1-3.2','ff')]:
     for attr,value in [('idVendor','1234'),('idProduct','abcd'),('bDeviceClass',klass)]:
         (device/attr).write_text(value+'\n')
 driver=sysfs/'1-1/driver'
+(sysfs/'1-1/serial').write_text('unit-test-only\n')
+(sysfs/'1-3.2/serial').write_text('x'*300+'\n')
 if not driver.is_symlink():driver.symlink_to('/sys/bus/usb/drivers/usbip-host')
 (sysfs/'usb1').mkdir(exist_ok=True)
 (sysfs/'1-1:1.0').mkdir(exist_ok=True)
@@ -39,6 +41,11 @@ static int websWrite(webs_t wp,const char *format,...) {
 tests=r'''
 int main(void) {
  assert(wr_usbip_busid("1-1") && wr_usbip_busid("12-1.2.3"));
+ { char serial[513];
+   wr_usbip_serial_hex("1-1",serial);assert(!strcmp(serial,"756e69742d746573742d6f6e6c79"));
+   wr_usbip_serial_hex("1-3.2",serial);assert(!serial[0]);
+   wr_usbip_serial_hex("99-99",serial);assert(!serial[0]);
+ }
  assert(!wr_usbip_busid("") && !wr_usbip_busid("../1-1") && !wr_usbip_busid("1-1:1.0"));
  assert(!wr_usbip_busid("1-") && !wr_usbip_busid("1-1.") && !wr_usbip_busid("usb1"));
  ej_wr_usbip_inventory(0,NULL,0,NULL);

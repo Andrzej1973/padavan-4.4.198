@@ -29,6 +29,28 @@ static void wr_usbip_hex(const char *id, const char *attribute, char *out, size_
  for (i=0; i<digits; i++) if (!isxdigit((unsigned char)value[i])) return;
  memcpy(out, value, digits); out[digits] = 0;
 }
+/* Exact serial bytes encoded for JSON; private identity data, not a public log.
+ * Empty means unavailable/invalid, never permission to restore an export. */
+static void wr_usbip_serial_hex(const char *id, char out[513])
+{
+ char path[256];
+ unsigned char bytes[258];
+ const char *hex="0123456789abcdef";
+ FILE *fp;
+ size_t n,i;
+ out[0]=0;
+ snprintf(path,sizeof(path),"%s/%s/serial",WR_USBIP_SYSFS,id);
+ fp=fopen(path,"r");
+ if (!fp) return;
+ n=fread(bytes,1,sizeof(bytes),fp);
+ if (ferror(fp) || n==sizeof(bytes)) { fclose(fp); return; }
+ fclose(fp);
+ if (n && bytes[n-1]=='\n') n--;
+ if (!n || n>256) return;
+ for (i=0;i<n;i++) if (bytes[i]<32 || bytes[i]==127) return;
+ for (i=0;i<n;i++) { out[2*i]=hex[bytes[i]>>4]; out[2*i+1]=hex[bytes[i]&15]; }
+ out[2*n]=0;
+}
 static int ej_wr_usbip_inventory(int eid, webs_t wp, int argc, char **argv)
 {
  struct wr_usbip_device { char id[32], vendor[5], product[5], klass[3]; int exported; } rows[64];
@@ -68,9 +90,11 @@ static int ej_wr_usbip_inventory(int eid, webs_t wp, int argc, char **argv)
  if (scan_error) return websWrite(wp,"{\"error\":\"source_unavailable\"}");
  websWrite(wp,"{\"devices\":[");
  for (i=0;i<count;i++) {
+  char serial_hex[513];
+  wr_usbip_serial_hex(rows[i].id,serial_hex);
   /* Only validated bus IDs and hexadecimal attributes enter JSON strings. */
-  websWrite(wp,"%s{\"busid\":\"%s\",\"vendor\":\"%s\",\"product\":\"%s\",\"class\":\"%s\",\"exported\":%d}",
-   i?",":"",rows[i].id,rows[i].vendor,rows[i].product,rows[i].klass,rows[i].exported);
+  websWrite(wp,"%s{\"busid\":\"%s\",\"vendor\":\"%s\",\"product\":\"%s\",\"class\":\"%s\",\"exported\":%d,\"serial_hex\":\"%s\"}",
+   i?",":"",rows[i].id,rows[i].vendor,rows[i].product,rows[i].klass,rows[i].exported,serial_hex);
  }
  return websWrite(wp,"],\"truncated\":%s}",truncated?"true":"false");
 }
