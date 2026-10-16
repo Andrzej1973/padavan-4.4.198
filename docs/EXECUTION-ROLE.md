@@ -11,7 +11,9 @@
   мають пріоритет над початковим передаванням.
 - Перевизначення WAN: реалізовано, перевірено компіляцією (збірка №311) і
   моделлю масок у CI; на пристрої не перевірено (`docs/WAN-RUNTIME-ABI.md`).
-- Остання підтверджена прошивка: CI №357 для `61bce23`; target BusyBox server
+- Остання підтверджена прошивка: CI №359 для `8a687e2`; MIPS WG/AWG validators
+  та observer пройшли; докази: docs/evidence/VPN-PROFILES-BUILD359.md.
+  Попередня №357 для `61bce23`: target BusyBox server
   export/startup fixture успішний. Поточний HEAD визначати через `git log -1`.
 - Поточний блок — незалежні одночасні WG/AWG профілі: з’єднати сховище,
   валідацію та реєстр, потім scoped lifecycle/маршрути/DNS та WebUI.

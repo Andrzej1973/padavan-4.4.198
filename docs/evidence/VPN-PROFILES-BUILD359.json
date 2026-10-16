@@ -1,0 +1,126 @@
+{
+  "scope": "MIPS packaging and isolated native parser execution; no profile network lifecycle or physical acceptance",
+  "runtime_verified": false,
+  "binaries": {
+    "manager": {
+      "path": "usr/sbin/wr-vpn-profile",
+      "sha256": "575569f8e7fe74b503da83d2e9d7708f1bf0ab5615b93440cfefbceac3dc50d6",
+      "size": 20100
+    },
+    "wireguard": {
+      "path": "usr/libexec/wrvpn/validate-wg",
+      "sha256": "f456fdc237835b9bc5655d87910aa8902b39c3d138427eed81d67cca3eeeeca4",
+      "size": 22660
+    },
+    "amneziawg": {
+      "path": "usr/libexec/wrvpn/validate-awg",
+      "sha256": "0238719e7d80ad38e4f1f7781d4ad502374692fb3873851f67902f16525eff83",
+      "size": 32980
+    }
+  },
+  "cases": [
+    {
+      "protocol": "wireguard",
+      "case": "ordinary-client",
+      "accepted": true,
+      "passed": true
+    },
+    {
+      "protocol": "wireguard",
+      "case": "AWG-fields",
+      "accepted": false,
+      "passed": true
+    },
+    {
+      "protocol": "wireguard",
+      "case": "bad-key",
+      "accepted": false,
+      "passed": true
+    },
+    {
+      "protocol": "wireguard",
+      "case": "shell-hook",
+      "accepted": false,
+      "passed": true
+    },
+    {
+      "protocol": "wireguard",
+      "case": "manual-route-table",
+      "accepted": false,
+      "passed": true
+    },
+    {
+      "protocol": "amneziawg",
+      "case": "ordinary-client",
+      "accepted": true,
+      "passed": true
+    },
+    {
+      "protocol": "amneziawg",
+      "case": "AWG-fields",
+      "accepted": true,
+      "passed": true
+    },
+    {
+      "protocol": "amneziawg",
+      "case": "bad-key",
+      "accepted": false,
+      "passed": true
+    },
+    {
+      "protocol": "amneziawg",
+      "case": "shell-hook",
+      "accepted": false,
+      "passed": true
+    },
+    {
+      "protocol": "amneziawg",
+      "case": "manual-route-table",
+      "accepted": false,
+      "passed": true
+    },
+    {
+      "protocol": "amneziawg",
+      "case": "H1=4294967295",
+      "accepted": true,
+      "passed": true
+    },
+    {
+      "protocol": "amneziawg",
+      "case": "H1=0004294967295",
+      "accepted": true,
+      "passed": true
+    },
+    {
+      "protocol": "amneziawg",
+      "case": "H1=1-4294967295",
+      "accepted": true,
+      "passed": true
+    },
+    {
+      "protocol": "amneziawg",
+      "case": "H1=4294967296",
+      "accepted": false,
+      "passed": true
+    },
+    {
+      "protocol": "amneziawg",
+      "case": "H1=-1",
+      "accepted": false,
+      "passed": true
+    },
+    {
+      "protocol": "amneziawg",
+      "case": "H1=1-4294967296",
+      "accepted": false,
+      "passed": true
+    },
+    {
+      "protocol": "amneziawg",
+      "case": "H1=9-1",
+      "accepted": false,
+      "passed": true
+    }
+  ],
+  "manager_invalid_id_passed": true
+}
