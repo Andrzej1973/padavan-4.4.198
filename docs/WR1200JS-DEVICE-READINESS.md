@@ -1,12 +1,16 @@
 # WR1200JS device readiness and first Linux 4.4 validation
 
-Updated 2026-10-14. A successful build does not establish a working device port.
+Updated 2026-10-16. A successful build does not establish a working device port.
 
 ## Current evidence and authorization
 
 Physical follow-up, 2026-10-13: SSH was restored and direct read-only commands confirmed the installed Linux 4.4.198 firmware is operating in **test mode**, as designated by the owner. See [installed test-mode baseline](runtime/WR1200JS-2026-10-13-TEST-MODE.md). Ordinary local DNS answered; Stubby/DoH remain disabled and ZRAM remains requested but inactive. Exact installed CI artifact identity and final port acceptance are not established. Earlier timeout observations below are historical and superseded by this connection.
 
-The latest independently downloaded and hashed artifact recorded here is test build 266, `WR1200JS_4.4.198.9-266_c1fbc585.trx`, SHA256 `aabf9b20a7a091b82cc4194ee3a866020553ad4e433ed26b7867e850a46fc5bb`. See [build 266 evidence](evidence/WR1200JS-BUILD266.md). It is not installed on the live router by this work. Earlier candidate records remain historical evidence.
+The latest independently downloaded and hashed artifact is test build 354,
+`WR1200JS_4.4.198.9-354_d690a6a8.trx`, SHA256
+`a72671cb8e1387092c7eb2d3ecbe9919c3c9604889d4000308e1a09a4d3cde48`. See
+[build 354 evidence](evidence/WR1200JS-BUILD354.md). It is not installed on the
+live router. Build 266 and earlier candidate records remain historical evidence.
 
 [Read-only follow-up on 2026-10-14](runtime/WR1200JS-2026-10-14-FOLLOWUP.md) confirmed restored SSH, uptime above three days and an ordinary local DNS answer. ZRAM remains requested but inactive, and the installed client endpoint still returns `source_unavailable`. Installed artifact identity is unresolved. These observations do not validate the newer CI images.
 
