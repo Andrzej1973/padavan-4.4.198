@@ -575,6 +575,10 @@ jobs:
             test ! -e trunk/romfs/usr/bin/ss-server
           fi
           grep -q '^CONFIG_FIRMWARE_INCLUDE_ZEROTIER=y$' trunk/.config
+          for symbol in PPTP PPPOL2TP PPPOLAC L2TP L2TP_V3 NF_CONNTRACK_PPTP NF_NAT_PPTP NETFILTER_XT_MATCH_L2TP; do
+            ! grep -Eq "^CONFIG_${symbol}=(y|m)$" trunk/linux-4.4.x/.config
+          done
+          grep -Eq '^CONFIG_PPPOE=(y|m)$' trunk/linux-4.4.x/.config
           grep -q '^CONFIG_IMQ=m$' trunk/linux-4.4.x/.config
           grep -q '^CONFIG_NETFILTER_XT_TARGET_IMQ=m$' trunk/linux-4.4.x/.config
           grep -q '^CONFIG_IFB=m$' trunk/linux-4.4.x/.config

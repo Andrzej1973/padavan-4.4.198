@@ -17,6 +17,18 @@
 - Сторонній diff `tools/prepare-wifi-hwnat-mode.py` збережено без змін.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
 
+### Private legacy VPN kernel selectors excluded — 2026-10-16
+
+WR board kernel template disables PPTP, PPPOL2TP, PPPOLAC, L2TP/L2TP_V3,
+NF_CONNTRACK_PPTP, NF_NAT_PPTP and NETFILTER_XT_MATCH_L2TP. PPPOE remains y.
+Full CI now refuses effective y/m on these selectors and requires PPPOE y/m.
+No claim of size savings before built image; kernel compilation/new gate pending.
+PPP/PPP_MPPE and shared crypto/GRE not removed without consumer audit (PPPoE
+provider compatibility). XFRM remains pending consumer audit. No live changes.
+Diagnostic38922347945 confirmed in_progress; target restore cause remains open.
+Next inspect trace, remaining userspace/kernel consumers and WG/AWG selection.
+
+
 ### Repeatable prepared VPN regression gate — 2026-10-16
 
 Added tools/check-wr-vpn-pruning.py after the WR preparer in full CI; checks
