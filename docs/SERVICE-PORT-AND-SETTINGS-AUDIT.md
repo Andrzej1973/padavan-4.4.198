@@ -9,6 +9,14 @@ the current WR1200JS Linux 4.4.198 image has not been run on the physical router
 
 ## Target BusyBox audit evidence — 2026-10-16
 
+Full build #357 (`61bce23`, run 38950105582) passed the corrected exact-image
+WG/AWG server/export/startup fixture and the USB/IP restore fixture. The target
+audit artifact was downloaded; identities and coverage are in
+`evidence/WG-SERVER-TARGET-BUSYBOX-BUILD357.md`. Network operations in the WG
+fixture remain mocked; physical acceptance and multi-profile integration are
+open. Host-native import-adapter checks also passed with both pinned protocol
+parsers in service CI #125. Neither result establishes simultaneous tunnels.
+
 Build #354 (`d690a6a8`, run 38943263134) report was downloaded independently.
 It records 56 shell scripts, 150 applets and all existing gates passing,
 including the converted multi-PPPoE helper syntax/arithmetic and readlink probes.

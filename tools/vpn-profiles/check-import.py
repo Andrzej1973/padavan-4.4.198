@@ -2,6 +2,7 @@
 """Compile the actual pinned protocol parsers and test the client import adapter."""
 import argparse
 import base64
+import os
 from pathlib import Path
 import subprocess
 
@@ -52,7 +53,10 @@ for protocol,root,commit in roots:
   subprocess.run(['gcc',*flags,*(['-Werror'] if unit in (here/'validate-client.c',guard) else []),'-c',str(unit),'-o',str(obj)],check=True)
  subprocess.run(['gcc','-fsanitize=address,undefined',*objects,'-Wl,--wrap=getaddrinfo','-o',str(prefix)],check=True)
  def run(text,valid):
-  result=subprocess.run([str(prefix.resolve())],input=text.encode(),capture_output=True,timeout=10)
+  # Validator suppresses native input diagnostics. Sanitizer faults must still
+  # terminate with a distinct code, including on expected-invalid inputs.
+  env=dict(os.environ,ASAN_OPTIONS='detect_leaks=1:exitcode=98',UBSAN_OPTIONS='halt_on_error=1:exitcode=97')
+  result=subprocess.run([str(prefix.resolve())],input=text.encode(),capture_output=True,timeout=10,env=env)
   assert result.returncode==(0 if valid else 2),(protocol,valid,result.returncode,result.stdout,result.stderr)
   assert result.stderr==b'',(protocol,'unexpected diagnostic')
   assert result.stdout==(b'valid client configuration; connectivity unverified\n' if valid else b'')
