@@ -41,8 +41,18 @@ fsync/rename і окремий результат «записано, directory 
 перевірка WG/AWG полів, runtime-власність, керування активними тунелями й
 запис /etc/storage у флеш ще не інтегровані. File/sanitizer fixture пройшов
 у CI служб №124 (`7182547`, run 38950704857): окремість записів, stale/lock,
-write/fsync/rename failures, tombstone та небезпечні шляхи. Наступне: додати семантичну
-валідацію й реєстр профілів, далі lifecycle/маршрути/DNS, HTTP/WebUI та QR.
+write/fsync/rename failures, tombstone та небезпечні шляхи.
+
+Додано кандидат validate-client.c: wrapper для реальних config.c/encoding.c
+пакетів WG 1.0.20210914 та pinned AWG tools. Перевіряє quick Address/DNS/MTU,
+ключі й native-поля; Endpoint перевіряється синтаксично й замінюється лише
+всередині validator на numeric placeholder, щоб не виконувати DNS на імпорті.
+Hooks/SaveConfig і ручні Table/FwMark відхиляються: ними має керувати менеджер,
+а не сторонній конфіг. Вхід не виконується, секретні diagnostic lines не
+виводяться. Підготовлено native sanitizer CI з resolver guard; результат ще
+очікується. У сховище/образ helper поки не підключений. Наступне: перевірити
+цей CI та з’єднати перевірку з реєстром і атомарним записом; далі scoped
+lifecycle/маршрути/DNS, HTTP/WebUI та QR.
 
 ### WireGuard / AmneziaWG: клієнтський QR та AWG-параметри — 2026-10-16
 

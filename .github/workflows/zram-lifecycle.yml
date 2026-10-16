@@ -69,6 +69,17 @@ jobs:
           ASAN_OPTIONS=detect_leaks=1 checks/vpn-profile-resources
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined tools/vpn-profiles/check-store.c -o checks/vpn-profile-store
           ASAN_OPTIONS=detect_leaks=1 checks/vpn-profile-store
+      - name: Check imports using pinned native WG and AWG parsers
+        run: |
+          git init checks/wg-parser-source
+          git -C checks/wg-parser-source remote add origin https://github.com/WireGuard/wireguard-tools.git
+          python3 tools/retry-source-command.py git -C checks/wg-parser-source fetch --depth=1 origin 3ba6527130c502144e7388b900138bca6260f4e8
+          git -C checks/wg-parser-source checkout --detach FETCH_HEAD
+          git init checks/awg-parser-source
+          git -C checks/awg-parser-source remote add origin https://github.com/amnezia-vpn/amneziawg-tools.git
+          python3 tools/retry-source-command.py git -C checks/awg-parser-source fetch --depth=1 origin ee0f0a9aa34ff0a0da4b3433b9512781cfe02843
+          git -C checks/awg-parser-source checkout --detach FETCH_HEAD
+          ASAN_OPTIONS=detect_leaks=1 python3 tools/vpn-profiles/check-import.py --wg-source checks/wg-parser-source --awg-source checks/awg-parser-source --output checks/vpn-import
       - name: Check USB/IP runtime status integration
         run: |
           sh -n tools/usbip/firewall-policy.sh
