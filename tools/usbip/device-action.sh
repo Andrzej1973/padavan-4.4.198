@@ -2,10 +2,9 @@
 # Sourced under the lifecycle lock by wr-usbip; never called from an EJ getter.
 wr_usbip_serial_matches()
 {
-    # od reads at most 258 bytes, preserving newlines until after hex encoding.
-    type od >/dev/null 2>&1 || return 1
-    wr_usbip_serial_raw=$(od -An -v -tx1 -N258 "$wr_usbip_device/serial") || return 1
-    wr_usbip_serial_value=$(printf '%s' "$wr_usbip_serial_raw" | tr -d ' \n') || return 1
+    # Pinned BusyBox enables hexdump; its minimal od lacks -A/-t/-N.
+    type hexdump >/dev/null 2>&1 || return 1
+    wr_usbip_serial_value=$(hexdump -v -n 258 -e '1/1 "%02x"' "$wr_usbip_device/serial") || return 1
     case "$wr_usbip_serial_value" in *0a) wr_usbip_serial_value=${wr_usbip_serial_value%0a};; esac
     test -n "$wr_usbip_serial_value" && test "${#wr_usbip_serial_value}" -le 512 || return 1
     wr_usbip_serial_tail=$wr_usbip_serial_value

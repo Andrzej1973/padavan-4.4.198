@@ -562,6 +562,8 @@ jobs:
           grep -q '^CONFIG_IP_SET=m$' trunk/linux-4.4.x/.config
           grep -q '^CONFIG_USB_STORAGE=m$' trunk/linux-4.4.x/.config
           if grep -q '^CONFIG_FIRMWARE_INCLUDE_USBIP=y$' trunk/.config; then
+            grep -q '^CONFIG_HEXDUMP=y$' trunk/user/busybox/busybox-1.24.x/.config
+            test -L trunk/romfs/usr/bin/hexdump
             for symbol in USBIP_CORE USBIP_HOST USBIP_VHCI_HCD; do
               grep -q "^CONFIG_$symbol=m$" trunk/linux-4.4.x/.config
             done

@@ -17,6 +17,15 @@
 - Сторонній diff `tools/prepare-wifi-hwnat-mode.py` збережено без змін.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
 
+### USB/IP target utility correction — 2026-10-16
+
+CI 38844642580 на 37b0738 успішний. Проте source-аудит цільового BusyBox
+показав CONFIG_OD вимкнено; без DESKTOP od не має -A/-t/-N. Замінено serial
+reader на вже ввімкнений CONFIG_HEXDUMP=y: hexdump -v -n 258 -e для точних
+байтів. У ROMFS-gate додано built CONFIG_HEXDUMP і applet link. Попередні
+згадки od нижче — історичні. Новий native/target CI ще потрібний; це приклад,
+чому host shell PASS не підтверджує shell/appлeти роутера.
+
 ### USB/IP serial через WebUI/worker — 2026-10-16
 
 action-view передає observed serial_hex у POST; HTTP і worker перевіряють
