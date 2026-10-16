@@ -48,10 +48,13 @@ common.write_text(files['httpd/common.h'])
 run(True)
 after = snapshot()
 assert '"usbip_enable", "", NULL, EVM_RESTART_SPOOLER' in after['httpd/variables.c']
+assert '"usbip_restore", "", NULL, EVM_RESTART_SPOOLER' in after['httpd/variables.c']
+assert 'name="usbip_restore"' in after['www/n56u_ribbon_fixed/Advanced_Printer_others.asp']
 assert 'eval("/usr/sbin/wr-usbip", "reconcile")' in after['rc/rc.c']
 assert 'name="usbip_enable"' in after['www/n56u_ribbon_fixed/Advanced_Printer_others.asp']
 for name in ['EN.footer', 'UK.dict', 'RU.dict']:
     assert 'WRUSBIPEnableNote=' in after['www/dict/'+name]
+    assert 'WRUSBIPRestoreNote=' in after['www/dict/'+name]
 run(False)
 assert snapshot() == after
 if temporary is not None:

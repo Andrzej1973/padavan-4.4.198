@@ -30,6 +30,7 @@ pending[path] = common
 insert('httpd/variables.c', '\t\t\t{"iperf3_enable", "", NULL, EVM_RESTART_IPERF3},',
        '#endif\n#if defined(APP_USBIP)\n'
        '\t\t\t{"usbip_enable", "", NULL, EVM_RESTART_SPOOLER},\n'
+       '\t\t\t{"usbip_restore", "", NULL, EVM_RESTART_SPOOLER},\n'
        '#endif\n#if defined(APP_IPERF3)\n')
 insert('rc/rc.c', '\t\t\trestart_usb_printer_spoolers();',
        '#if defined(APP_USBIP)\n'
@@ -44,17 +45,30 @@ insert(page, '                                        <tr><th><#WRUSBIPCore#>',
                                                 <option value="1" <% nvram_match_x("General", "usbip_enable", "1", "selected"); %>><#checkbox_Yes#></option>
                                             </select><p class="help-block"><#WRUSBIPEnableNote#></p>
                                         </td></tr>
+                                        <tr><th><#WRUSBIPRestore#></th><td>
+                                            <select name="usbip_restore">
+                                                <option value="0" <% nvram_match_x("General", "usbip_restore", "0", "selected"); %>><#checkbox_No#></option>
+                                                <option value="1" <% nvram_match_x("General", "usbip_restore", "1", "selected"); %>><#checkbox_Yes#></option>
+                                            </select><p class="help-block"><#WRUSBIPRestoreNote#></p>
+                                        </td></tr>
 ''')
 for filename, title, note in [
-    ('EN.footer', 'Enable USB/IP server', 'Saved request, separate from observed process state. Apply starts or stops the server. USB devices are not exported automatically. LAN clients may access exported devices; no per-user authentication is provided.'),
-    ('UK.dict', 'Увімкнути сервер USB/IP', 'Збережене налаштування, окреме від фактичного стану процесу. Застосувати запускає або зупиняє сервер. USB-пристрої автоматично не експортуються. Клієнти LAN можуть отримати доступ до експортованих пристроїв; автентифікації користувачів немає.'),
-    ('RU.dict', 'Включить сервер USB/IP', 'Сохранённая настройка, отдельно от фактического состояния процесса. Применить запускает или останавливает сервер. USB-устройства автоматически не экспортируются. Клиенты LAN могут получить доступ к экспортированным устройствам; аутентификации пользователей нет.'),
+    ('EN.footer', 'Enable USB/IP server', 'Saved request, separate from observed process state. Apply starts or stops the server. Automatic export requires the separate restore setting. LAN clients may access exported devices; no per-user authentication is provided.'),
+    ('UK.dict', 'Увімкнути сервер USB/IP', 'Збережене налаштування, окреме від фактичного стану процесу. Застосувати запускає або зупиняє сервер. Автоматичний експорт потребує окремого налаштування відновлення. Клієнти LAN можуть отримати доступ до експортованих пристроїв; автентифікації користувачів немає.'),
+    ('RU.dict', 'Включить сервер USB/IP', 'Сохранённая настройка, отдельно от фактического состояния процесса. Применить запускает или останавливает сервер. Автоматический экспорт требует отдельной настройки восстановления. Клиенты LAN могут получить доступ к экспортированным устройствам; аутентификации пользователей нет.'),
 ]:
     path = root / 'www/dict' / filename
     text = path.read_text()
     if 'WRUSBIPEnable=' in text:
         raise SystemExit('USB/IP Apply labels already present')
     pending[path] = text.rstrip('\n') + '\nWRUSBIPEnable=' + title + '\nWRUSBIPEnableNote=' + note + '\n'
+for filename,title,note in [
+    ('EN.footer','Restore saved USB/IP exports','Default off. With the server enabled, Apply and server startup attempt the saved exports after identity and safety checks. This is a requested setting, not proof of successful export. Disabling restore does not detach existing exports; use guarded Unbind. Storage and NVRAM flash saves are separate.'),
+    ('UK.dict','Відновлювати збережений USB/IP-експорт','Типово вимкнено. Коли сервер увімкнений, Застосувати та запуск сервера пробують відновити збережений експорт після перевірок пристроїв і безпеки. Це бажане налаштування, а не підтвердження експорту. Вимкнення відновлення не від’єднує чинний експорт; використайте захищене від’єднання. Запис сховища та NVRAM у флеш виконується окремо.'),
+    ('RU.dict','Восстанавливать сохранённый USB/IP-экспорт','По умолчанию выключено. При включённом сервере Применить и запуск сервера пытаются восстановить сохранённый экспорт после проверки устройств и безопасности. Это желаемая настройка, а не подтверждение экспорта. Отключение восстановления не отсоединяет текущий экспорт; используйте защищённое отсоединение. Запись хранилища и NVRAM во флеш выполняется отдельно.'),
+]:
+    path=root/'www/dict'/filename
+    pending[path]+='WRUSBIPRestore='+title+'\nWRUSBIPRestoreNote='+note+'\n'
 for path, text in pending.items():
     path.write_text(text)
 print('Prepared USB/IP General Apply event and EN/UK/RU requested-state control')

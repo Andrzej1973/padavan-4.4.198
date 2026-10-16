@@ -10,7 +10,7 @@ root=a.tree/'trunk/romfs';page=root/'www/Advanced_Printer_others.asp';httpd=root
 text=page.read_text(encoding='utf-8');binary=httpd.read_bytes();checks={}
 checks['exact_settings_js']=Path(__file__).with_name('settings-view.js').read_text(encoding='utf-8').strip() in text
 for marker in ['wrUSBIPSettingsLoad();','id="wr_usbip_settings_rows"','id="wr_usbip_settings_ack"',
-               'id="wr_usbip_settings_save"','id="wr_usbip_settings_add"']:
+               'id="wr_usbip_settings_save"','id="wr_usbip_settings_add"','name="usbip_restore"']:
     checks['page:'+marker]=marker in text
 for marker in ['wr_usbip_settings.cgi','wr_usbip_export_settings','/etc/storage/usbip',
                '/var/run/wr-usbip.lock','wr-usbip-exports-v1','"applied":false','"flash_committed":false']:
@@ -24,7 +24,7 @@ for name in ['EN.dict','UK.dict','RU.dict']:
         checks[name+':'+key]=len(values)==1 and bool(values[0].strip())
     hashes[name]=hashlib.sha256(path.read_bytes()).hexdigest()
 for path in [page,httpd]:hashes[path.name]=hashlib.sha256(path.read_bytes()).hexdigest()
-report={'schema':1,'runtime_verified':False,'scope':'USBIP settings ROMFS/static linkage; restore not implemented',
+report={'schema':1,'runtime_verified':False,'scope':'USBIP settings ROMFS/static linkage; restore opt-in control present; runtime unverified',
         'success':all(checks.values()),'checks':checks,'sha256':hashes}
 a.output.write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
 print(('PASS' if report['success'] else 'FAIL')+' USBIP settings image checks')

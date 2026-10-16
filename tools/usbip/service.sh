@@ -1,6 +1,6 @@
 #!/bin/sh
-# Manual controller: boot/persistent enable and WebUI are not connected yet.
-# Explicit guarded bind/unbind only; no automatic exports, NVRAM writes or force-kill fallback.
+# Lifecycle controller with authenticated Apply and default-off boot/restore.
+# Guarded exports only; no NVRAM writes or force-kill fallback.
 set -eu
 umask 077
 daemon=/sbin/usbipd

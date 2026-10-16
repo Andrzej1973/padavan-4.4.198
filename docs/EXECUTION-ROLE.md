@@ -17,6 +17,21 @@
 - Сторонній diff `tools/prepare-wifi-hwnat-mode.py` збережено без змін.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
 
+### USB/IP explicit restore opt-in WebUI — 2026-10-16
+
+Service CI 38908279222 на 83b55f4 success. Додано usbip_restore у чинний
+General Apply transaction (EVM_RESTART_SPOOLER/reconcile), окремий Yes/No
+select з default-off NVRAM, EN/UK/RU поясненням requested-vs-observed стану,
+можливого експорту при Apply/start та відсутності detach при вимкненні.
+Збереження таблиці окреме і не запускає дій; тексти виправлено відповідно.
+ROMFS verifier тепер вимагає restore select. Локальна Apply fixture PASS
+(--workspace ../usbip-restore-web-optin-check); Python syntax/diff check PASS.
+Початкова спроба fixture через Windows Temp отримала access denied;
+повтор у дозволеному workspace успішний. Новий образ ще не підтверджений,
+браузерна/target runtime перевірка opt-in і observed restore status відкриті.
+Фізичних дій та зміни налаштувань чинного роутера не виконано.
+
+
 ### USB/IP restore fault coverage — 2026-10-16
 
 Розширено спільну host/target-QEMU fixture: невдала bind-дія припиняє
