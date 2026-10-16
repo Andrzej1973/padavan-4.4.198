@@ -26,6 +26,10 @@ def main():
         raise SystemExit("markdown guide lacks official ZeroTier Central link")
     if "dnsprivacy.org" not in markdown:
         raise SystemExit("markdown guide lacks official Stubby link")
+    for content in (markdown, text):
+        for required in ("свіжий кеш спостережень", "4096 байтами", "раз на 30 секунд"):
+            if required not in content:
+                raise SystemExit("guide lacks ZeroTier status usage: " + required)
     print("router guide checks passed")
 
 
