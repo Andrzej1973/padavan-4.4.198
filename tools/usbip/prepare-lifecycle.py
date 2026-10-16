@@ -18,7 +18,7 @@ changes = {
         'ifeq ($(CONFIG_FIRMWARE_INCLUDE_USBIP),y)\nCFLAGS += -DAPP_USBIP\nendif\n\n')],
     'shared/defaults.c': [(
         '#if defined (APP_IPERF3)\n',
-        '#if defined(APP_USBIP)\n\t{ "usbip_enable", "0" },\n#endif\n\n')],
+        '#if defined(APP_USBIP)\n\t{ "usbip_enable", "0" },\n\t{ "usbip_restore", "0" },\n#endif\n\n')],
     'rc/services.c': [(
         '\tstart_iperf3();\n#endif\n',
         '#if defined(APP_USBIP)\n'

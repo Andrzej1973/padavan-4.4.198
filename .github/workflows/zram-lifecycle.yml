@@ -68,6 +68,8 @@ jobs:
           python3 tools/usbip/check-device-policy.py
           sh -n tools/usbip/device-action.sh
           python3 tools/usbip/check-device-action.py
+            sh -n tools/usbip/restore.sh
+            python3 tools/usbip/check-restore.py
             gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined tools/usbip/check-export-rules.c -o checks/usbip-export-rules
             ASAN_OPTIONS=detect_leaks=1 checks/usbip-export-rules
             gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined tools/usbip/check-export-store.c -o checks/usbip-export-store

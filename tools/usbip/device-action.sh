@@ -1,6 +1,6 @@
 #!/bin/sh
 # Sourced under the lifecycle lock by wr-usbip; never called from an EJ getter.
-wr_usbip_serial_matches()
+wr_usbip_serial_read()
 {
     # Pinned BusyBox enables hexdump; its minimal od lacks -A/-t/-N.
     type hexdump >/dev/null 2>&1 || return 1
@@ -14,7 +14,11 @@ wr_usbip_serial_matches()
         case "$wr_usbip_serial_byte" in 0?|1?|7f) return 1;; esac
         wr_usbip_serial_tail=$wr_usbip_serial_rest
     done
-    test "$wr_usbip_serial_value" = "$wr_usbip_expected_serial"
+    return 0
+}
+wr_usbip_serial_matches()
+{
+    wr_usbip_serial_read && test "$wr_usbip_serial_value" = "$wr_usbip_expected_serial"
 }
 wr_usbip_device_action()
 {

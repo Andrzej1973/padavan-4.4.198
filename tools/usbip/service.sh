@@ -55,6 +55,15 @@ start_service()
     done
     fail 'Startup unconfirmed; restrictive policy retained'
 }
+restore_service()
+{
+    test "$(nvram get usbip_restore)" = 1 || return 0
+    test -r /usr/libexec/wr-usbip/restore.sh || return 1
+    . /usr/libexec/wr-usbip/device-policy.sh
+    . /usr/libexec/wr-usbip/device-action.sh
+    . /usr/libexec/wr-usbip/restore.sh
+    wr_usbip_restore_exports || { fail 'Export restore failed or unconfirmed; inspect bindings'; return 1; }
+}
 stop_service()
 {
     snapshot || return 1
@@ -74,7 +83,7 @@ stop_service()
 test "$#" -gt 0 || exit 2
 case "$1" in
     bind|unbind) test "$#" -eq 4 || test "$#" -eq 5 || exit 2;;
-    start|stop|restart|status|reconcile) test "$#" -eq 1 || exit 2;;
+    start|stop|restart|status|reconcile|restore) test "$#" -eq 1 || exit 2;;
     *) exit 2;;
 esac
 test -r "$policy" || { fail 'Policy unavailable'; exit 1; }
@@ -88,13 +97,15 @@ case "$1" in
         . /usr/libexec/wr-usbip/device-policy.sh
         . /usr/libexec/wr-usbip/device-action.sh
         wr_usbip_device_action "$@" || { fail 'Device action failed or unconfirmed'; exit 1; };;
-    start) start_service;;
+    start) start_service && restore_service;;
     stop) stop_service;;
-    restart) stop_service && start_service;;
+    restart) stop_service && start_service && restore_service;;
+    restore) restore_service;;
     reconcile)
         if test "$(nvram get usbip_enable)" = 1; then
             snapshot || exit 1
             if test -z "$owned_pid"; then start_service; fi
+            restore_service
         else
             stop_service
         fi;;

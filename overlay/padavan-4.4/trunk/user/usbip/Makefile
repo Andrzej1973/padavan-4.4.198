@@ -26,6 +26,7 @@ romfs:
 	$(ROMFSINST) -p 600 firewall-policy.sh /usr/libexec/wr-usbip/firewall-policy.sh
 	$(ROMFSINST) -p 600 device-policy.sh /usr/libexec/wr-usbip/device-policy.sh
 	$(ROMFSINST) -p 600 device-action.sh /usr/libexec/wr-usbip/device-action.sh
+	$(ROMFSINST) -p 600 restore.sh /usr/libexec/wr-usbip/restore.sh
 
 clean:
 	rm -f export-table

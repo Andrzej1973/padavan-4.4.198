@@ -17,6 +17,22 @@
 - Сторонній diff `tools/prepare-wifi-hwnat-mode.py` збережено без змін.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
 
+### USB/IP guarded restore controller — 2026-10-16
+
+Service CI 38907060095 на 9580d8f success. Додано restore.sh під чинний
+lifecycle-lock: enable+restore прапорці, owned daemon, capture усього helper
+stdout/exit до дій, preflight усіх правил, повторна звірка до кожного bind.
+Скан до 256 USB-вузлів відхиляє duplicate VID/PID/serial та недоступний
+serial у потенційно однакового пристрою. Чинні mount/swap/NIC/modem guards
+залишаються. Bind повторно звіряє exact identity після дії; hotplug може
+дати partial/unconfirmed, сліпий rollback не виконується.
+Default usbip_restore=0; start/restart/reconcile викликають restore лише при
+явному прапорці. WebUI цього прапорця ще не має; runtime не вмикався.
+Mock-fixture disabled/empty/reader fail/daemon/batch guard/duplicates додано
+в CI; Python syntax PASS, виконання native/target ще очікується.
+Наступне — результати CI, явний opt-in UI/HTTP і статус restore, потім
+QEMU service-chain/physical приймання. Не оголошувати persistence готовим.
+
 ### USB/IP validated restore reader — 2026-10-16
 
 Service CI 38906698630 на 7e4090c success. Додано target export-table --list:
