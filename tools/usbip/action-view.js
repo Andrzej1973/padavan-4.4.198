@@ -7,6 +7,7 @@ function wrUSBIPActionUpdate() {
  var valid=!wrUSBIPActionBusy && /^[0-9a-f]{32}$/.test(wrUSBIPActionToken) &&
   document.getElementById('wr_usbip_ack').checked && row &&
   /^[0-9a-fA-F]{4}$/.test(row.vendor) && /^[0-9a-fA-F]{4}$/.test(row.product) &&
+  (row.serial_hex===undefined || (typeof row.serial_hex==='string' && row.serial_hex.length<=512 && /^([0-9a-f]{2})*$/.test(row.serial_hex))) &&
   wrUSBIPActionTime>0 && Date.now()-wrUSBIPActionTime>=0 && Date.now()-wrUSBIPActionTime<=30000;
  document.getElementById('wr_usbip_bind').disabled=!(valid && row.exported===0 && wrUSBIPActionDaemon===1);
  document.getElementById('wr_usbip_unbind').disabled=!(valid && row.exported===1);
@@ -62,7 +63,7 @@ function wrUSBIPActionSubmit(operation) {
  document.getElementById('wr_usbip_ack').checked=false;
  $j('#wr_usbip_action_result').text(wrUSBIPActionLabels.pending);
  $j.ajax({url:'/wr_usbip_action.cgi',type:'POST',dataType:'json',timeout:5000,
-  data:{operation:operation,busid:row.busid,vendor:row.vendor,product:row.product,ack:'1',token:wrUSBIPActionToken}})
+  data:{operation:operation,busid:row.busid,vendor:row.vendor,product:row.product,serial_hex:row.serial_hex||'',ack:'1',token:wrUSBIPActionToken}})
  .done(function(reply){
   if(!reply || reply.accepted!==true || typeof reply.id!=='string' || !/^[0-9a-f]{32}$/.test(reply.id)){
    wrUSBIPActionFinish(wrUSBIPActionLabels.unknown);return;

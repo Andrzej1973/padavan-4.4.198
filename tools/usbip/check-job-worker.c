@@ -28,6 +28,8 @@ int main(void)
  assert(fclose(fp)==0&&chmod(controller,0700)==0);
  assert(!wr_usbip_job_start(dir,"bind","../1-1","1234","abcd",id,&child));
  assert(!wr_usbip_job_start(dir,"bind","1-1","1234;id","abcd",id,&child));
+ assert(!wr_usbip_job_start_serial(dir,"bind","1-1","1234","abcd","bad-token",id,&child));
+ assert(!wr_usbip_job_start_serial(dir,"bind","1-1","1234","abcd","f",id,&child));
  assert(pipe(descriptors)==0&&dup2(descriptors[0],50)==50);
  assert(wr_usbip_job_start(dir,"bind","1-1","1234","abcd",id,&child));
  {int status;assert(waitpid(child,&status,WNOHANG)==0);}
@@ -46,6 +48,8 @@ int main(void)
  assert(strstr(reply,second)&&strstr(reply,"\"state\":3")&&strstr(reply,"\"code\":7"));
  assert(wr_usbip_job_read(dir,second,wr_usbip_job_now(),30,&observation)&&observation.code==7);
  assert(!wr_usbip_job_read(dir,id,wr_usbip_job_now(),30,&observation));
+ assert(wr_usbip_job_start_serial(dir,"bind","1-1","1234","abcd","756e6974",id,&child));
+ reap(child);read_result(dir,reply,sizeof(reply));assert(strstr(reply,"\"state\":2"));
  snprintf(path,sizeof(path),"%s/result",dir);fp=fopen(path,"w");assert(fp);
  fputs("{\"id\":\"bad\",\"state\":2}\n",fp);assert(fclose(fp)==0);
  assert(!wr_usbip_job_read(dir,second,wr_usbip_job_now(),30,&observation)&&observation.state==0);

@@ -28,6 +28,7 @@ static char *websGetVar(webs_t wp,const char *key,const char *fallback){
  if(!strcmp(key,"busid"))return "1-1";
  if(!strcmp(key,"vendor"))return "1234";
  if(!strcmp(key,"product"))return "abcd";
+ if(!strcmp(key,"serial_hex"))return "756e6974";
  return (char *)fallback;
 }
 static void init_cgi(char *p){(void)p;}
@@ -36,8 +37,8 @@ static int wr_usbip_job_reap(pid_t *p){(void)p;return reaped;}
 static int wr_usbip_job_args(const char *a,const char *b,const char *v,const char *p){
  return !strcmp(a,"bind")&&!strcmp(b,"1-1")&&!strcmp(v,"1234")&&!strcmp(p,"abcd");
 }
-static int wr_usbip_job_start(const char *d,const char *a,const char *b,const char *v,const char *p,char *id,pid_t *pid){
- (void)d;(void)a;(void)b;(void)v;(void)p;calls++;strcpy(id,"0123456789abcdef0123456789abcdef");*pid=123;return started;
+static int wr_usbip_job_start_serial(const char *d,const char *a,const char *b,const char *v,const char *p,const char *serial,char *id,pid_t *pid){
+ (void)d;(void)a;(void)b;(void)v;(void)p;assert(!strcmp(serial,"756e6974"));calls++;strcpy(id,"0123456789abcdef0123456789abcdef");*pid=123;return started;
 }
 static unsigned long long wr_usbip_job_now(void){return 100;}
 static int wr_usbip_job_read(const char *d,const char *id,unsigned long long n,unsigned long long age,struct wr_usbip_job_result *out){
@@ -62,7 +63,7 @@ int main(void){
  ej_wr_usbip_job_state(0,NULL,1,args);assert(strstr(reply,"\"state\":2"));
  readable=0;ej_wr_usbip_job_state(0,NULL,1,args);assert(strstr(reply,"unknown_result"));
  safe=0;ej_wr_usbip_job_state(0,NULL,1,args);assert(strstr(reply,"unsafe_request"));
- fp=tmpfile();assert(fp);wr_usbip_action_input("",fp,513,NULL);assert(!wr_usbip_post_seen&&parsed==0);
+ fp=tmpfile();assert(fp);wr_usbip_action_input("",fp,1025,NULL);assert(!wr_usbip_post_seen&&parsed==0);
  wr_usbip_action_input("",fp,1,NULL);assert(wr_usbip_post_seen&&parsed==1);fclose(fp);
  puts("PASS USB/IP HTTP action: POST, safe session, CSRF, confirmation, args, busy, result, body bound");return 0;
 }

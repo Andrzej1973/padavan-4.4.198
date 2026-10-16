@@ -14,13 +14,14 @@ ctx.$j.ajax=options=>{
 };
 function complete(request,value,failed=false){(failed?request.failure:request.success)(value);if(request.complete)request.complete();}
 vm.createContext(ctx);vm.runInContext(fs.readFileSync(__dirname+'/action-view.js','utf8'),ctx);
-const row={busid:'1-1',vendor:'1234',product:'abcd',exported:0};
+const row={busid:'1-1',vendor:'1234',product:'abcd',exported:0,serial_hex:'756e6974'};
 ctx.wrUSBIPActionDevices([row]);assert(nodes.wr_usbip_bind.disabled);
 ctx.wrUSBIPActionDaemon=1;nodes.wr_usbip_ack.checked=true;ctx.wrUSBIPActionUpdate();
 assert(!nodes.wr_usbip_bind.disabled&&nodes.wr_usbip_unbind.disabled);
 ctx.wrUSBIPActionSubmit('invalid');assert.equal(requests.length,0);
 ctx.wrUSBIPActionSubmit('bind');assert.equal(requests.length,1);
 assert.equal(requests[0].options.type,'POST');assert.equal(requests[0].options.data.busid,'1-1');
+assert.equal(requests[0].options.data.serial_hex,'756e6974');
 assert(!nodes.wr_usbip_ack.checked&&nodes.wr_usbip_bind.disabled);
 ctx.wrUSBIPActionSubmit('bind');assert.equal(requests.length,1);
 const id='b'.repeat(32);complete(requests[0],{accepted:true,id});assert.equal(requests.length,2);

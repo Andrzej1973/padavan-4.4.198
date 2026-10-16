@@ -108,12 +108,17 @@ static int wr_usbip_job_read(const char *dir,const char *requested,unsigned long
 /* Caller must reap returned child without waiting in its HTTP request loop.
  * A stuck kernel operation keeps the job lock; no new operation is admitted.
  * UI must treat old running results as unconfirmed, not as success or stopped. */
-static int wr_usbip_job_start(const char *dir,const char *action,const char *bus,
- const char *vendor,const char *product,char id[33],pid_t *worker)
+static int wr_usbip_job_start_serial(const char *dir,const char *action,const char *bus,
+ const char *vendor,const char *product,const char *serial,char id[33],pid_t *worker)
 {
  char lockpath[PATH_MAX];unsigned char random[16];struct stat st;
  int lockfd,randomfd,i;pid_t child;unsigned long long started;
  if(!dir||!id||!worker||!wr_usbip_job_args(action,bus,vendor,product))return 0;
+ if(serial && *serial){
+  size_t n=strlen(serial),j;
+  if(n>512 || n%2)return 0;
+  for(j=0;j<n;j++)if(!strchr("0123456789abcdef",serial[j]))return 0;
+ }
  if(mkdir(dir,0700)&&errno!=EEXIST)return 0;
  if(lstat(dir,&st)||!S_ISDIR(st.st_mode)||st.st_uid!=geteuid()||(st.st_mode&077))return 0;
  if(snprintf(lockpath,sizeof(lockpath),"%s/lock",dir)>=(int)sizeof(lockpath))return 0;
@@ -139,7 +144,10 @@ static int wr_usbip_job_start(const char *dir,const char *action,const char *bus
   command=fork();if(command<0)goto failed;
   if(!command){
    close(lockfd);
-   execl(WR_USBIP_CONTROLLER,WR_USBIP_CONTROLLER,action,bus,vendor,product,(char *)NULL);
+   if(serial && *serial)
+    execl(WR_USBIP_CONTROLLER,WR_USBIP_CONTROLLER,action,bus,vendor,product,serial,(char *)NULL);
+   else
+    execl(WR_USBIP_CONTROLLER,WR_USBIP_CONTROLLER,action,bus,vendor,product,(char *)NULL);
    _exit(127);
   }
   do{waited=waitpid(command,&status,0);}while(waited<0&&errno==EINTR);
@@ -150,5 +158,10 @@ static int wr_usbip_job_start(const char *dir,const char *action,const char *bus
   wr_usbip_job_publish(dir,id,3,started,-1);close(lockfd);_exit(1);
  }
  *worker=child;close(lockfd);return 1;
+}
+static inline int wr_usbip_job_start(const char *dir,const char *action,const char *bus,
+ const char *vendor,const char *product,char id[33],pid_t *worker)
+{
+ return wr_usbip_job_start_serial(dir,action,bus,vendor,product,NULL,id,worker);
 }
 #endif

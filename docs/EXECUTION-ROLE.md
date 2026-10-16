@@ -17,6 +17,18 @@
 - Сторонній diff `tools/prepare-wifi-hwnat-mode.py` збережено без змін.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
 
+### USB/IP serial через WebUI/worker — 2026-10-16
+
+action-view передає observed serial_hex у POST; HTTP і worker перевіряють
+lowercase hex/парність/ліміт 512 символів, body <=1024. Worker передає
+непорожнє значення окремим argv у controller, без shell. Порожнє/відсутнє
+значення зберігає попередню ручну дію; це не дозвіл майбутнього auto-restore.
+CSRF/safe-session/ack і lifecycle locks збережені. Node fixture PASS з
+перевіркою POST serial. C HTTP/worker fixtures оновлено; CI очікується.
+Попередній action guard: service CI 38844475639 success на dc22cf9.
+Наступне — перевірити новий CI/цільовий od і повторну ідентичність до
+ввімкнення persistence. На роутері bind/unbind не виконувались.
+
 ### USB/IP action serial guard — 2026-10-16
 
 wr-usbip bind/unbind отримали необов'язковий п'ятий аргумент serial_hex:
