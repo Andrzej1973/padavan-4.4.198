@@ -17,6 +17,16 @@
 - Сторонній diff `tools/prepare-wifi-hwnat-mode.py` збережено без змін.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
 
+### USB/IP settings ROMFS gate — 2026-10-16
+
+Додано verify-settings-image.py до повної збірки за USBIP=y: exact inline JS,
+UI controls, linked route/EJ/storage/lock/version/save-only markers, усі 16
+EN/UK/RU ключів і SHA256 сторінки/httpd/dict. JSON usbip-settings-image,
+runtime_verified=false, restore не реалізовано. Синтетична позитивна й
+негативна fixture (відсутній linked handler) пройшли; це не реальний образ.
+Наступне — CI/пакет інкременту й фактичний report, потім restore з identity
+і preflight під чинним lock. Попередні bc7a1a0/Bash-helper builds ще виконуються.
+
 ### USB/IP selection settings WebUI — 2026-10-16
 
 Додано settings-view.js / prepare-settings-view.py: read/load таблиці,

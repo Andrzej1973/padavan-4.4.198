@@ -933,6 +933,20 @@ jobs:
       - name: Audit all shipped shell scripts with exact target BusyBox
         run: python3 tools/check-target-busybox.py padavan-4.4 --output target-busybox-audit.json
 
+      - name: Verify USBIP settings UI and linked HTTP storage code
+        run: |
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_USBIP=y$' configs.build/wr1200js.config; then
+            python3 tools/usbip/verify-settings-image.py padavan-4.4 --output usbip-settings-image.json
+          fi
+
+      - name: Preserve USBIP settings image evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: usbip-settings-image
+          path: usbip-settings-image.json
+          if-no-files-found: ignore
+
       - name: Preserve target BusyBox audit
         if: always()
         uses: actions/upload-artifact@v7
