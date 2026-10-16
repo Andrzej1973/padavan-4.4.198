@@ -17,6 +17,20 @@
 - Сторонній diff `tools/prepare-wifi-hwnat-mode.py` збережено без змін.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
 
+### USB/IP authenticated settings HTTP — 2026-10-16
+
+Service CI 38845392936 на bba2f77 успішний. Завершено попередній WIP:
+http-settings.inc / prepare-export-settings.py підключають safe-session POST,
+чинний CSRF+ack, body <=32768 з перевіркою percent/NUL, bounded table_hex,
+повний decode/валідацію та settings_save під lifecycle-lock. EJ reader теж
+вимагає safe-session. Відповідь saved/synchronized окремо від applied=false
+і flash_committed=false. Не виконує bind/restore або flash save.
+Headers/route/EJ підключено в build workflow, додано push.paths для нового
+production коду. Native fixture використовує фактичний handler і file store:
+auth/token/ack/body/table/save-only/private readback; Python generation і
+syntax локально PASS, native C sanitizer/target build ще очікуються.
+Наступне — CI та ROMFS endpoint checks, потім EN/UK/RU UI й restore.
+
 ### Обов'язковий аудит цільового BusyBox — 2026-10-16
 
 Користувач вимагає перевірити всі служби й усі пов'язані скрипти/процеси/
