@@ -61,6 +61,8 @@ on:
       - 'overlay/padavan-4.4/patches/**'
       - 'overlay/padavan-4.4/candidates/eoip/**'
       - 'tools/eoip/**'
+      - 'tools/wan-port/**'
+      - 'tools/check-zerotier-state.py'
       - 'sources.lock.json'
       - 'tools/verify-zram-image.py'
       - 'tools/verify-strongswan-image.py'
