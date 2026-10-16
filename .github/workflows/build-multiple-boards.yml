@@ -82,6 +82,8 @@ on:
       - 'tools/usbip/job-worker.h'
       - 'tools/usbip/prepare-action-view.py'
       - 'tools/usbip/prepare-export-settings.py'
+      - 'tools/usbip/prepare-settings-view.py'
+      - 'tools/usbip/settings-view.js'
       - 'tools/usbip/http-settings.inc'
       - 'tools/usbip/export-*.h'
       - 'tools/usbip/action-view.js'

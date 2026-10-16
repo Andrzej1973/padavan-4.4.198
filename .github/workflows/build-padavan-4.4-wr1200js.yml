@@ -134,6 +134,7 @@ jobs:
           python3 tools/usbip/prepare-http-actions.py padavan-4.4 --config configs.build/wr1200js.config
           python3 tools/usbip/prepare-action-view.py padavan-4.4 --config configs.build/wr1200js.config
           python3 tools/usbip/prepare-export-settings.py padavan-4.4 --config configs.build/wr1200js.config
+          python3 tools/usbip/prepare-settings-view.py padavan-4.4 --config configs.build/wr1200js.config
           cp tools/usbip/service.sh tools/usbip/firewall-policy.sh padavan-4.4/trunk/user/usbip/
           cp tools/usbip/device-policy.sh tools/usbip/device-action.sh padavan-4.4/trunk/user/usbip/
           cp overlay/padavan-4.4/trunk/linux-4.4.x/tools/usb/usbip/libsrc/usbip_common.c \

@@ -17,6 +17,18 @@
 - Сторонній diff `tools/prepare-wifi-hwnat-mode.py` збережено без змін.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
 
+### USB/IP selection settings WebUI — 2026-10-16
+
+Додано settings-view.js / prepare-settings-view.py: read/load таблиці,
+додавання свіжого observed пристрою з serial, remove, окремий ack/save,
+відмова duplicate bus/identity, збереження чернетки, single request і unknown
+після невизначеної відповіді без автоматичного retry. DOM text-only; serial
+не показується відкритим текстом. EN/UK/RU help прямо каже save-only,
+restore ще не ввімкнено, flash commit окремий через stock storage control.
+Node fixture PASS; synthetic prepare/dict fixture PASS, не браузер.
+Підключено до build; target compilation/ROMFS/реальний HTTP ще очікуються.
+Наступне — результати CI, image gate для settings UI/HTTP, тоді restore.
+
 ### Target BusyBox audit first result — 2026-10-16
 
 38845996781 success на 5d04e61. Оригінальний report збережено:

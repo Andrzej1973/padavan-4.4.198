@@ -83,6 +83,7 @@ jobs:
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined checks/usbip-http-actions.c -o checks/usbip-http-actions
           ASAN_OPTIONS=detect_leaks=1 checks/usbip-http-actions
           node tools/usbip/check-action-view.js
+            node tools/usbip/check-settings-view.js
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined tools/eoip/check-config.c -o checks/eoip-config
           ASAN_OPTIONS=detect_leaks=1 checks/eoip-config
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined tools/eoip/check-observation.c -o checks/eoip-observation
