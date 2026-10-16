@@ -87,6 +87,7 @@ on:
       - 'tools/vpn-profiles/Makefile'
       - 'tools/vpn-profiles/prepare-package.py'
       - 'tools/vpn-profiles/verify-image.py'
+      - 'tools/vpn-profiles/check-target-manager.py'
       - 'tools/vpn-profiles/profilectl.c'
       - 'tools/vpn-profiles/store.c'
       - 'tools/vpn-profiles/validate-client.c'

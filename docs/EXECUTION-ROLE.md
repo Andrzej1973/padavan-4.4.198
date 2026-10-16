@@ -169,6 +169,25 @@ hook/mark/key rejection using the real pinned helpers. CI pending; not packaged.
 Next: confirm CI, endpoint resolution/pinning and protocol apply/readback adapter,
 then scoped address/route/DNS policy, rollback and the complete controller/WebUI.
 
+### Shipped MIPS manager integration — pending
+
+Service CI #134 (a3babdc, run 38957784076) passed config-plan with the real pinned
+helpers. Full #360 also completed successfully (run 38956677012); its artifacts
+have not been re-audited here. Build #359's downloaded MIPS evidence is recorded
+in docs/evidence/VPN-PROFILES-BUILD359.md and adjacent original reports.
+
+Added check-target-manager.py: copy exact shipped CLI/validators and image
+libraries into a temporary PRoot, execute via static MIPS QEMU, then exercise
+actual child exec/validation, private store writes, exact exports/list, invalid
+input and missing-helper rejection with unchanged existing profile bytes. Only
+synthetic keys/configs are used. Host /proc and /dev/null are the only explicit
+binds; host storage and router are not touched. PRoot is test transport, not a
+security isolation claim. Firmware workflow installs proot and preserves the
+new vpn-manager-mips.json report. This target integration is pending CI and
+must not be inferred from the earlier parser-only checks. No network lifecycle
+or physical-router acceptance is claimed. Next: inspect this target result,
+then continue protocol apply/readback plus independent endpoint/routing/DNS.
+
 ### WireGuard / AmneziaWG: клієнтський QR та AWG-параметри — 2026-10-16
 
 Повні #355/#356 скомпілювали образ і пройшли загальний BusyBox audit, але

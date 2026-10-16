@@ -981,7 +981,7 @@ jobs:
 
       - name: Verify zram dependencies and shipped swap priority support
         run: |
-          sudo apt-get install --no-install-recommends -y qemu-user-static
+          sudo apt-get install --no-install-recommends -y qemu-user-static proot
           set -o pipefail
           python3 tools/verify-zram-image.py padavan-4.4 | tee zram-image-checks.txt
 
@@ -1005,6 +1005,7 @@ jobs:
             options=()
             if grep -qx 'CONFIG_FIRMWARE_INCLUDE_AMNEZIAWG=y' configs.build/wr1200js.config; then options+=(--amneziawg); fi
             python3 tools/vpn-profiles/verify-image.py padavan-4.4/trunk/romfs "${options[@]}" --output vpn-profile-image.json
+            python3 tools/vpn-profiles/check-target-manager.py padavan-4.4/trunk/romfs "${options[@]}" --output vpn-manager-mips.json
             compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
             test -x "$compiler"
             "$compiler" -std=gnu99 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float tools/vpn-profiles/check-link.c tools/vpn-profiles/link-observation.c -o vpn-link-mips
@@ -1019,6 +1020,7 @@ jobs:
           path: |
             vpn-profile-image.json
             vpn-link-mips.txt
+            vpn-manager-mips.json
           if-no-files-found: ignore
 
       - name: Verify USBIP settings UI and linked HTTP storage code
