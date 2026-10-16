@@ -67,6 +67,8 @@ jobs:
         run: |
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined tools/vpn-profiles/check-resources.c -o checks/vpn-profile-resources
           ASAN_OPTIONS=detect_leaks=1 checks/vpn-profile-resources
+          gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined tools/vpn-profiles/check-store.c -o checks/vpn-profile-store
+          ASAN_OPTIONS=detect_leaks=1 checks/vpn-profile-store
       - name: Check USB/IP runtime status integration
         run: |
           sh -n tools/usbip/firewall-policy.sh
