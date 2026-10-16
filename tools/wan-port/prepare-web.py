@@ -47,6 +47,17 @@ function change_stb_port_and_vlan(){
     variables.write_text(text.replace(old, '{"wan_src_phy", "", NULL, EVM_RESTART_SWITCH_VLAN}'),
                          encoding='utf-8', newline='\n')
 
+    status = tree / 'trunk/user/httpd/web_ex.c'
+    text = status.read_text(encoding='utf-8')
+    old = '\t\t\tint eth_link = fill_eth_port_status(nvram_get_int("wan_src_phy"), etherlink);'
+    if text.count(old) != 1:
+        raise RuntimeError('Unexpected WAN link status registration')
+    text = text.replace(old, '#if defined(BOARD_WR1200JS)\n'
+                        '\t\t\t/* Logical WAN (0) follows the effective driver role. */\n'
+                        '\t\t\tint eth_link = fill_eth_port_status(0, etherlink);\n'
+                        '#else\n' + old + '\n#endif', 1)
+    status.write_text(text, encoding='utf-8', newline='\n')
+
     strings = {
         'EN': ('Changing the WAN socket interrupts the Internet and may disconnect this session. Move the provider cable to the selected socket; WAN restores the original socket. Continue?',
                'WR1200JS: select WAN or LAN1-LAN4 to replace a damaged WAN socket. The selected LAN socket becomes WAN and the old WAN socket is isolated. Move the provider cable after applying. A socket reserved by a tagged VLAN rule is refused; review IPTV/VLAN settings first. Requires device testing.'),

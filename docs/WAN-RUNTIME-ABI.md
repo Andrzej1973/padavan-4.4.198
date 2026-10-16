@@ -183,6 +183,22 @@ selection is in place before the rebuild that consumes it:
 Local end-to-end check on a copy of the pinned tree: the patch applies, the
 service verifier fails before the integration step and passes after it.
 
+### WebUI and effective link follow-up — 2026-10-16
+
+This checkpoint supersedes the older UI/link statements above. `prepare-web.py`
+exposes all five choices on WR1200JS without requiring IPTV, preserves an
+unsaved selection across IPTV changes, and adds EN/UK/RU confirmation/help.
+`wan_src_phy` now carries EVM_RESTART_SWITCH_VLAN so changing the field alone
+requests the switch rebuild. The model guide describes the independent field.
+
+The initial integration left link monitoring bound to the requested LAN even
+when the VLAN conflict check fell back to the original WAN. On WR1200JS,
+net_wan.c and the HTTP Ethernet-link indicator now query logical WAN (0), which
+the patched driver maps to its effective role. Legacy model paths remain
+unchanged. This does not yet display requested/effective socket names in WebUI.
+Local integration and Node logic checks passed; target compilation of this
+follow-up and physical link/fallback acceptance are still required.
+
 ### Known limits
 
 - Only external PHYs can carry the WAN role; CPU ports and board-excluded ports

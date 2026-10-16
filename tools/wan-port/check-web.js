@@ -16,6 +16,8 @@ assert.ok(page.includes("&& !confirm('<#WAN_Socket_Confirm#>')) return;"));
 assert.ok(page.includes('id="wr_wan_socket_help"'));
 const variables=require('node:fs').readFileSync(process.argv[2]+'/trunk/user/httpd/variables.c','utf8');
 assert.ok(variables.includes('{"wan_src_phy", "", NULL, EVM_RESTART_SWITCH_VLAN}'));
+const status=require('node:fs').readFileSync(process.argv[2]+'/trunk/user/httpd/web_ex.c','utf8');
+assert.ok(status.includes('int eth_link = fill_eth_port_status(0, etherlink);'));
 for(const file of ['EN.footer','UK.dict','RU.dict']){
  const dict=require('node:fs').readFileSync(process.argv[2]+'/trunk/user/www/dict/'+file,'utf8');
  assert.ok(dict.includes('WAN_Socket_Confirm=') && dict.includes('WAN_Socket_Help='));

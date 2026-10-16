@@ -147,6 +147,17 @@ def main() -> int:
            "\t\treturn show_wan_port_x();\n",
            after=True)
 
+    # WAN is a logical role in the patched driver. Reading the requested LAN
+    # directly is wrong when a VLAN conflict caused fallback to the board port.
+    change("net_wan.c",
+           '\t\twan_src_phy = nvram_get_int("wan_src_phy");\n',
+           '#if defined(BOARD_WR1200JS)\n'
+           '\t\twan_src_phy = SWAPI_PORT_WAN; /* driver resolves effective WAN */\n'
+           '#else\n', after=False)
+    change("net_wan.c",
+           '\t\twan_src_phy = nvram_get_int("wan_src_phy");\n',
+           '#endif\n', after=True)
+
     for target, text in edits.items():
         target.write_text(text, encoding="utf-8", newline="\n")
 

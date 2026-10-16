@@ -62,9 +62,11 @@ def main() -> int:
     require(apply_at != -1 and rebuild_at != -1 and apply_at < rebuild_at,
             "the override is applied after the bridge rebuild")
 
-    # Link monitoring keeps using the same socket.
-    require('nvram_get_int("wan_src_phy")' in wan,
-            "net_wan.c no longer follows wan_src_phy for link monitoring")
+    # On WR1200JS the driver resolves the effective role, including fallback.
+    require('#if defined(BOARD_WR1200JS)\n\t\twan_src_phy = SWAPI_PORT_WAN;' in wan,
+            "WR1200JS link monitoring does not follow the effective WAN role")
+    require('#else\n\t\twan_src_phy = nvram_get_int("wan_src_phy");\n#endif' in wan,
+            "legacy model link monitoring changed")
 
     for name, text in (("net_lan.c", lan), ("switch_mtk_esw.c", adapter)):
         stripped = strip_comments_and_strings(text)
