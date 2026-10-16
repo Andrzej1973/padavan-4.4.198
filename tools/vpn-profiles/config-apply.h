@@ -11,4 +11,9 @@
 enum wr_vpn_apply_result { WR_VPN_APPLY_REFUSED, WR_VPN_APPLY_NOT_STARTED,
     WR_VPN_APPLY_UNKNOWN, WR_VPN_APPLY_ACKNOWLEDGED };
 enum wr_vpn_apply_result wr_vpn_config_apply(const struct wr_vpn_record *);
+/* MATCH is a protocol snapshot only. Ownership must be rechecked afterwards;
+ * routes/DNS, handshake and reachability are separate acceptance gates. */
+enum wr_vpn_readback_result { WR_VPN_READBACK_UNKNOWN, WR_VPN_READBACK_MISMATCH,
+    WR_VPN_READBACK_MATCH };
+enum wr_vpn_readback_result wr_vpn_config_readback(const struct wr_vpn_record *,uint32_t index);
 #endif

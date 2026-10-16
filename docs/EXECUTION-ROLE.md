@@ -1339,3 +1339,19 @@ input, FD/environment isolation, secret-output suppression and refusal/failure/
 timeout paths, compiled with address/undefined sanitizers. This supersedes the
 pending status above. No real control netlink mutation, MIPS adapter execution,
 readback or physical runtime acceptance has yet been tested for this candidate.
+
+### Native protocol readback candidate — 2026-10-17
+
+Added config-readback.c, compiled separately against pinned WG/AWG parsers and
+IPC: compare private key, fwmark, requested listen port, exact peer membership,
+preshared keys, keepalive, requested endpoint and normalized AllowedIPs sets.
+AWG-specific requested fields, including header ranges and newer optional fields,
+are compared with their presence flags. Dynamic counters/handshakes are excluded.
+A missing device or changed interface index is UNKNOWN, not a match. Numeric-only
+getaddrinfo prevents DNS resolution in the readback process. The bounded transport
+now has fixed readback-wg/readback-awg helpers and distinct match/mismatch/unknown
+results. Parent must still check session ownership around the operation. A match
+is only the requested protocol snapshot; address/routes/DNS/connectivity remain
+separate gates. New helper is not packaged or exposed yet. CI tests pinned native
+IPC compilation and a missing real device, with synthetic observed devices for
+field drift; no physical-kernel configuration is claimed. CI pending.

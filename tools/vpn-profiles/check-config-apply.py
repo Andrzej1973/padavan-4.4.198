@@ -24,10 +24,10 @@ with tempfile.TemporaryDirectory(prefix='wrvpn-apply-') as directory:
 #include <stdlib.h>
 int main(int argc,char **argv) {
     struct wr_vpn_record r;memset(&r,0,sizeof(r));
-    if(argc!=2)return 99;
+    if(argc!=2 && argc!=3)return 99;
     r.id=2;r.revision=1;r.protocol=atoi(argv[1]);
     r.size=fread(r.config,1,sizeof(r.config),stdin);
-    printf("%d\\n",wr_vpn_config_apply(&r));return 0;
+    printf("%d\\n",argc==3?(int)wr_vpn_config_readback(&r,54):(int)wr_vpn_config_apply(&r));return 0;
 }
 ''')
     control = root / 'control.c'
@@ -41,28 +41,31 @@ int main(int argc,char **argv) {
 extern char **environ;
 int main(int argc,char **argv) {
     char data[200000];struct stat s;FILE *f;size_t n;int fd;
-    if(argc!=4 || strcmp(argv[1],"setconf") || strcmp(argv[2],"wrvpn2") ||
+    if(VERIFY) {
+        if(argc!=3 || strcmp(argv[1],"wrvpn2") || strcmp(argv[2],"54"))return 90;
+    } else if(argc!=4 || strcmp(argv[1],"setconf") || strcmp(argv[2],"wrvpn2") ||
        strcmp(argv[3],"/proc/self/fd/0"))return 90;
     if(!environ[0] || strcmp(environ[0],"LC_ALL=C") || environ[1])return 91;
     for(fd=3;fd<4096;fd++)if(fcntl(fd,F_GETFD)!=-1 || errno!=EBADF)return 92;
     if(fstat(0,&s) || !S_ISREG(s.st_mode) || s.st_nlink || (s.st_mode&0777)!=0600)return 93;
-    f=fopen(argv[3],"r");if(!f)return 94;
+    f=fopen("/proc/self/fd/0","r");if(!f)return 94;
     n=fread(data,1,sizeof(data)-1,f);data[n]=0;fclose(f);
     if(!strstr(data,"PrivateKey = ") || !strstr(data,"FwMark = ") ||
        strstr(data,"Address = ") || (!!strstr(data,"Jc = ")!=AWG))return 95;
     f=fopen(MARKER,"a");if(!f)return 96;fputs("called\\n",f);fclose(f);
     puts(data);fputs(data,stderr); /* must be suppressed by transport */
     if(MODE==1)sleep(10);
-    return MODE==2?7:0;
+    return MODE==2?(VERIFY?2:7):(MODE==3?7:0);
 }
 ''')
     controls = {1: root / 'wg', 2: root / 'awg'}
+    verifiers = {1: root / 'readback-wg', 2: root / 'readback-awg'}
     marker = root / 'called'
-    def compile_control(protocol, mode=0):
+    def compile_control(protocol, mode=0, verify=False):
         subprocess.run(['gcc', '-Wall', '-Wextra', '-Werror',
-                        f'-DAWG={int(protocol == 2)}', f'-DMODE={mode}',
+                        f'-DAWG={int(protocol == 2)}', f'-DMODE={mode}', f'-DVERIFY={int(verify)}',
                         '-DMARKER=' + json.dumps(str(marker)), str(control),
-                        '-o', str(controls[protocol])], check=True)
+                        '-o', str((verifiers if verify else controls)[protocol])], check=True)
     for protocol in controls:
         compile_control(protocol)
     exe = root / 'apply'
@@ -70,6 +73,8 @@ int main(int argc,char **argv) {
                     '-g', '-fsanitize=address,undefined', '-I' + str(here),
                     '-DWR_VPN_CONTROL_WG=' + json.dumps(str(controls[1])),
                     '-DWR_VPN_CONTROL_AWG=' + json.dumps(str(controls[2])),
+                    '-DWR_VPN_READBACK_WG=' + json.dumps(str(verifiers[1])),
+                    '-DWR_VPN_READBACK_AWG=' + json.dumps(str(verifiers[2])),
                     '-DWR_VPN_VALIDATE_WG=' + json.dumps(str(a.wg_validator.resolve())),
                     '-DWR_VPN_VALIDATE_AWG=' + json.dumps(str(a.awg_validator.resolve())),
                     '-DWR_VPN_APPLY_TIMEOUT_MS=300', str(harness),
@@ -77,9 +82,9 @@ int main(int argc,char **argv) {
                     str(here / 'validate-process.c'), '-o', str(exe)], check=True)
     env = dict(os.environ, ASAN_OPTIONS='detect_leaks=1:exitcode=98',
                UBSAN_OPTIONS='halt_on_error=1:exitcode=97', MUST_NOT_LEAK='secret')
-    def run(protocol, data, expected):
+    def run(protocol, data, expected, verify=False):
         with (root / 'private-fd').open('w+') as extra:
-            r = subprocess.run([str(exe), str(protocol)], input=data.encode(),
+            r = subprocess.run([str(exe), str(protocol), *(['verify'] if verify else [])], input=data.encode(),
                                capture_output=True, timeout=8, env=env,
                                pass_fds=(extra.fileno(),))
         assert r.returncode == 0 and not r.stderr, (r.returncode, r.stderr)
@@ -100,4 +105,9 @@ int main(int argc,char **argv) {
         assert time.monotonic() - began < 5
         controls[protocol].unlink()
         run(protocol, data, 2)
+        for mode, expected in [(0, 2), (2, 1), (3, 0), (1, 0)]:
+            compile_control(protocol, mode, verify=True)
+            run(protocol, data, expected, verify=True)
+        verifiers[protocol].unlink()
+        run(protocol, data, 0, verify=True)
     print('PASS apply transport: fixed protocol argv, unlinked private input, FD/env isolation, secret output suppression, rejection, failure/timeout; no kernel configuration proof')

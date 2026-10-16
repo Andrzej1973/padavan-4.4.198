@@ -90,6 +90,7 @@ jobs:
           ASAN_OPTIONS=detect_leaks=1 python3 tools/vpn-profiles/check-import.py --wg-source checks/wg-parser-source --awg-source checks/awg-parser-source --output checks/vpn-import
           python3 tools/vpn-profiles/check-manager.py --wg-validator checks/vpn-import/wireguard --awg-validator checks/vpn-import/amneziawg --output checks/vpn-manager
           python3 tools/vpn-profiles/check-config-apply.py --wg-validator checks/vpn-import/wireguard --awg-validator checks/vpn-import/amneziawg
+          python3 tools/vpn-profiles/check-config-readback.py --wg-source checks/wg-parser-source --awg-source checks/awg-parser-source
       - name: Check USB/IP runtime status integration
         run: |
           sh -n tools/usbip/firewall-policy.sh

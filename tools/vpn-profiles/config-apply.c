@@ -17,6 +17,12 @@
 #ifndef WR_VPN_CONTROL_AWG
 #define WR_VPN_CONTROL_AWG "/usr/libexec/wrvpn/awg"
 #endif
+#ifndef WR_VPN_READBACK_WG
+#define WR_VPN_READBACK_WG "/usr/libexec/wrvpn/readback-wg"
+#endif
+#ifndef WR_VPN_READBACK_AWG
+#define WR_VPN_READBACK_AWG "/usr/libexec/wrvpn/readback-awg"
+#endif
 #ifndef WR_VPN_APPLY_TIMEOUT_MS
 #define WR_VPN_APPLY_TIMEOUT_MS 5000
 #endif
@@ -28,12 +34,17 @@ static long long milliseconds(void)
     if (clock_gettime(CLOCK_MONOTONIC,&now)) return -1;
     return (long long)now.tv_sec*1000+now.tv_nsec/1000000;
 }
-static void execute(int input,const char *path,const char *interface)
+static void execute(int input,const char *path,const char *interface,int verify,uint32_t index)
 {
     DIR *dir;struct dirent *entry;struct rlimit core={0,0};
     int nullfd,scan;long fd;char *end;
-    char *const argv[]={(char *)path,"setconf",(char *)interface,"/proc/self/fd/0",NULL};
+    char index_text[16];char *argv[5];
     char *const env[]={"LC_ALL=C",NULL};
+    snprintf(index_text,sizeof(index_text),"%u",index);
+    argv[0]=(char *)path;
+    if (verify) { argv[1]=(char *)interface;argv[2]=index_text;argv[3]=NULL; }
+    else { argv[1]="setconf";argv[2]=(char *)interface;argv[3]="/proc/self/fd/0"; }
+    argv[4]=NULL;
     if (dup2(input,0)<0) _exit(127);
     nullfd=open("/dev/null",O_RDWR|O_CLOEXEC);
     if (nullfd<0 || dup2(nullfd,1)<0 || dup2(nullfd,2)<0 ||
@@ -50,7 +61,7 @@ static void execute(int input,const char *path,const char *interface)
     if (closedir(dir)) _exit(127);
     execve(path,argv,env);_exit(127);
 }
-enum wr_vpn_apply_result wr_vpn_config_apply(const struct wr_vpn_record *record)
+static enum wr_vpn_apply_result run(const struct wr_vpn_record *record,int verify,uint32_t index,int *mismatch)
 {
     struct wr_vpn_config_plan *plan=calloc(1,sizeof(*plan));
     enum wr_vpn_validation validation;enum wr_vpn_apply_result result=WR_VPN_APPLY_NOT_STARTED;
@@ -66,6 +77,7 @@ enum wr_vpn_apply_result wr_vpn_config_apply(const struct wr_vpn_record *record)
     /* Native tools must never resolve a name during this mutation. */
     if (plan->hostname_endpoints) { result=WR_VPN_APPLY_REFUSED;goto finish; }
     path=record->protocol==WR_VPN_WIREGUARD?WR_VPN_CONTROL_WG:WR_VPN_CONTROL_AWG;
+    if (verify) path=record->protocol==WR_VPN_WIREGUARD?WR_VPN_READBACK_WG:WR_VPN_READBACK_AWG;
     began=milliseconds();if (began<0) goto finish;
     fd=mkstemp(temporary);if (fd<0) goto finish;
     /* Unlink before any secret is written. The child reopens its inherited
@@ -81,12 +93,13 @@ enum wr_vpn_apply_result wr_vpn_config_apply(const struct wr_vpn_record *record)
     }
     if (lseek(fd,0,SEEK_SET)<0) goto finish;
     child=fork();if (child<0) goto finish;
-    if (!child) execute(fd,path,plan->resources.interface);
+    if (!child) execute(fd,path,plan->resources.interface,verify,index);
     result=WR_VPN_APPLY_UNKNOWN;
     for (;;) {
         done=waitpid(child,&status,WNOHANG);
         if (done==child) {
             if (WIFEXITED(status) && WEXITSTATUS(status)==0) result=WR_VPN_APPLY_ACKNOWLEDGED;
+            if (verify && WIFEXITED(status) && WEXITSTATUS(status)==2) *mismatch=1;
             break;
         }
         /* An external reaper may have released this PID. Never signal it. */
@@ -102,4 +115,14 @@ enum wr_vpn_apply_result wr_vpn_config_apply(const struct wr_vpn_record *record)
 finish:
     if (fd>=0) close(fd);
     erase(plan,sizeof(*plan));free(plan);return result;
+}
+enum wr_vpn_apply_result wr_vpn_config_apply(const struct wr_vpn_record *record)
+{ return run(record,0,0,NULL); }
+enum wr_vpn_readback_result wr_vpn_config_readback(const struct wr_vpn_record *record,uint32_t index)
+{
+    int mismatch=0;enum wr_vpn_apply_result result;
+    if (!index) return WR_VPN_READBACK_UNKNOWN;
+    result=run(record,1,index,&mismatch);
+    if (result==WR_VPN_APPLY_ACKNOWLEDGED) return WR_VPN_READBACK_MATCH;
+    return mismatch?WR_VPN_READBACK_MISMATCH:WR_VPN_READBACK_UNKNOWN;
 }
