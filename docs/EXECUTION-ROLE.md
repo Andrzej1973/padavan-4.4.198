@@ -93,6 +93,26 @@ QEMU fixtures are wired into CI; not yet confirmed. The QEMU query uses the CI
 host kernel and is not physical-router acceptance. Next: confirm CI, then private
 runtime state and owned lifecycle before routes/DNS, WebUI and QR integration.
 
+### VPN runtime session records — candidate
+
+Service CI #130 (8a687e2, run 38956267461) passed the native observer,
+read-only host netlink queries and pinned parser/manager fixtures. Full #359
+(run 38956267665) was still running at this update; target proof is pending.
+
+Added runtime-state.c/h: private dirfd-relative records, one nonblocking global
+operation lock, 128-bit random session nonce, profile revision/protocol identity,
+intent before create (index zero), then one-way acquisition of the observed index.
+Updates/clear require the exact prior session; stale/corrupt/foreign file paths
+are refused. Atomic rename publishes a whole 48-byte versioned record. This is
+volatile /var/run recovery state, not flash persistence; after reboot it is lost.
+The API does not create/remove links or inspect ownership by itself. Callers must
+hold the operation lock across inventory and network actions, and clear records
+only after confirmed link absence. External root actors remain outside this lock.
+check-runtime.c covers lock contention, independent AWG/WG records, stale indices,
+corrupt files, symlinks/hardlinks/modes and session-owner stability. CI pending.
+Not packaged or invoked yet. Next: confirm this fixture, then connect owned
+create/configure/stop with recovery and postchecks; routes/DNS and WebUI follow.
+
 ### WireGuard / AmneziaWG: клієнтський QR та AWG-параметри — 2026-10-16
 
 Повні #355/#356 скомпілювали образ і пройшли загальний BusyBox audit, але
