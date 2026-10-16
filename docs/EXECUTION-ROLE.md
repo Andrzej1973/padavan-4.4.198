@@ -17,6 +17,20 @@
 - Сторонній diff `tools/prepare-wifi-hwnat-mode.py` збережено без змін.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
 
+### Handshake observation source UI and CI confirmation — 2026-10-16
+
+Service CI38925181764 on3ec7bf6 SUCCESS: native worker/runtime and HTTP fixtures
+passed with separate standard/AWG probes and observer propagation. This is host
+CI, not target/device. UI now requires observer enum1/2, shows observation-tool
+source separately from configured protocol; unknown/missing/string observer
+returns unavailable. EN/UK/RU source label added with translation count guard.
+Local Node UI checks PASS including both sources and invalid/missing observer;
+translation AST/count check and Python syntax PASS. New full image pending;
+BusyBox readlink fix run38924582668 last observed in_progress.
+Next verify target restore result, finish AWG server params/export and remaining
+VPN cleanup. Hardware, routes, browser and complete-port acceptance still open.
+
+
 ### Protocol-independent observed handshake sampling — 2026-10-16
 
 Worker now probes fixed /usr/bin/wg-standard then /usr/bin/awg against the

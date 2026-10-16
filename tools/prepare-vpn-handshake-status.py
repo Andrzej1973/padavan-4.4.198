@@ -19,11 +19,11 @@ s=s.replace(anchor,code+'\n'+anchor).replace(entry,entry+'#if defined(BOARD_WR12
 d='#if defined(BOARD_WR1200JS)\nextern void wr_vpn_background_tick(void);\nextern void wr_vpn_background_close(void);\n#endif\n'+d
 d=d.replace(tick,tick+'\n\t\twr_vpn_background_tick();').replace(close,close+'\n\twr_vpn_background_close();')
 changes=[(web,s),(daemon,d)]
-keys=['Unknown','Stale','Peers','Recent','Never','Old','Future','SampleAge','HandshakeAge','Seconds','Note','Refresh']
+keys=['Unknown','Stale','Peers','Recent','Never','Old','Future','SampleAge','HandshakeAge','Seconds','Note','Refresh','Observer']
 labels={
- 'EN.footer':['Handshake data unavailable','Handshake data stale','Peers','Handshakes within 300 seconds at sampling','No handshake yet','Older handshakes','Timestamps ahead of router clock','Sample age','Youngest handshake age','seconds','Handshake observations refresh every 30 seconds while this page is visible. They do not prove working routes or Internet access.','Refresh status'],
- 'UK.dict':['Дані handshake недоступні','Дані handshake застарілі','Вузли','Handshake за останні 300 секунд на момент збору','Ще без handshake','Давніші handshake','Час випереджає годинник роутера','Вік даних','Вік найсвіжішого handshake','с','Дані handshake оновлюються раз на 30 секунд, коли сторінка видима. Вони не підтверджують роботу маршрутів або доступ до інтернету.','Оновити стан'],
- 'RU.dict':['Данные handshake недоступны','Данные handshake устарели','Узлы','Handshake за последние 300 секунд при сборе','Ещё без handshake','Более старые handshake','Время опережает часы роутера','Возраст данных','Возраст самого свежего handshake','с','Данные handshake обновляются раз в 30 секунд, пока страница видима. Они не подтверждают работу маршрутов или доступ к интернету.','Обновить состояние'],
+ 'EN.footer':['Handshake data unavailable','Handshake data stale','Peers','Handshakes within 300 seconds at sampling','No handshake yet','Older handshakes','Timestamps ahead of router clock','Sample age','Youngest handshake age','seconds','Handshake observations refresh every 30 seconds while this page is visible. They do not prove working routes or Internet access.','Refresh status','Observation tool'],
+ 'UK.dict':['Дані handshake недоступні','Дані handshake застарілі','Вузли','Handshake за останні 300 секунд на момент збору','Ще без handshake','Давніші handshake','Час випереджає годинник роутера','Вік даних','Вік найсвіжішого handshake','с','Дані handshake оновлюються раз на 30 секунд, коли сторінка видима. Вони не підтверджують роботу маршрутів або доступ до інтернету.','Оновити стан','Утиліта спостереження'],
+ 'RU.dict':['Данные handshake недоступны','Данные handshake устарели','Узлы','Handshake за последние 300 секунд при сборе','Ещё без handshake','Более старые handshake','Время опережает часы роутера','Возраст данных','Возраст самого свежего handshake','с','Данные handshake обновляются раз в 30 секунд, пока страница видима. Они не подтверждают работу маршрутов или доступ к интернету.','Обновить состояние','Утилита наблюдения'],
 }
 ui=(local/'handshake-ui.js').read_text(encoding='utf-8')
 interface_notes={
@@ -32,6 +32,7 @@ interface_notes={
  'RU.dict':'Состояние интерфейса считывается заново при обновлении статуса. Включённый интерфейс не подтверждает handshake или работу маршрутов.',
 }
 for name,values in labels.items():
+    if len(values)!=len(keys):raise SystemExit('Handshake translation count mismatch: '+name)
     path=a.source/'trunk/user/www/dict'/name
     content=path.read_text(encoding='utf-8')
     if 'WRHSUnknown=' in content:raise SystemExit('Handshake labels already present')
@@ -46,7 +47,7 @@ for page,role in [('vpncli.asp','client'),('vpnsrv.asp','server')]:
         raise SystemExit('Handshake page anchors changed: '+page)
     script=ui+'\nvar wrHSBusy=false;\nfunction wrHSRefresh(){\n'
     script+=' if(wrHSBusy || document.hidden)return;\n wrHSBusy=true;\n'
-    script+=' var labels=['+','.join('"<#WRHS'+k+'#>"' for k in keys[:10])+'];\n'
+    script+=' var labels=['+','.join('"<#WRHS'+k+'#>"' for k in keys[:10]+['Observer'])+'];\n'
     script+=' var interfaces=['+','.join('"<#WRVPN'+k+'#>"' for k in ['Off','Up','Missing','Unknown','StillUp','Down'])+'];\n'
     script+=' $j.ajax({url:"/update.cgi",data:{output:"wr_vpn_status",arg0:"'+role+'"},dataType:"json",cache:false,timeout:5000})\n'
     script+=' .done(function(o){$j("#wr_vpn_handshake_status").text(wrVPNHandshakeText(o && o.handshake,labels));$j("#wr_vpn_interface_status").text(o && typeof o.interface === "number" && interfaces[o.interface] || interfaces[3]);})\n'
