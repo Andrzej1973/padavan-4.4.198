@@ -17,6 +17,21 @@
 - Сторонній diff `tools/prepare-wifi-hwnat-mode.py` збережено без змін.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
 
+### Protocol-independent observed handshake sampling — 2026-10-16
+
+Worker now probes fixed /usr/bin/wg-standard then /usr/bin/awg against the
+observed interface, instead of the overwritten wg compatibility alias. Both
+attempts share the existing process-group supervision/3-second deadline; HTTP
+handlers still read cache only. Failed attempts preserve caller output; no shell
+or configurable executable paths. Observation includes observer=1/2 (tool source,
+not configured protocol, verified kernel type or route/connectivity acceptance).
+Extended native fixture for primary refusal + alternate success, observer field,
+existing malformed/failure/timeouts and HTTP propagation. Native compilation/
+execution pending Linux CI (no local C compiler); diff review/check only here.
+BusyBox fix full38924582668 last observed in_progress. Next verify CI, surface
+observer/freshness appropriately and finish server AWG config/export coverage.
+
+
 ### WG/AWG WebUI and existing Apply integration — 2026-10-16
 
 Added prepare-wg-protocol-web.py after WR pruning: per-role protocol select

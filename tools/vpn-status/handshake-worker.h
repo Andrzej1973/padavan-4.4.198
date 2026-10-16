@@ -11,7 +11,10 @@
 #include <stdlib.h>
 #include <limits.h>
 #ifndef WR_HANDSHAKE_TOOL
-#define WR_HANDSHAKE_TOOL "/usr/bin/wg"
+#define WR_HANDSHAKE_TOOL "/usr/bin/awg"
+#endif
+#ifndef WR_HANDSHAKE_STANDARD_TOOL
+#define WR_HANDSHAKE_STANDARD_TOOL "/usr/bin/wg-standard"
 #endif
 /* Release inherited HTTP sockets/IPC; retain only stdio and one result pipe. */
 static inline int wr_handshake_close_extra_fds(int keep)
@@ -31,8 +34,8 @@ static inline int wr_handshake_close_extra_fds(int keep)
 }
 /* Only invoke in a supervised worker, never synchronously in the HTTP loop.
  * Supervisor must bound runtime and kill/reap the worker process group. */
-static inline int wr_handshake_worker_query(const char *interface,uint64_t now,
- struct wr_handshake_observation *out)
+static inline int wr_handshake_worker_query_tool(const char *interface,uint64_t now,
+ struct wr_handshake_observation *out,int standard)
 {
  int pipes[2],status,ok;pid_t child,waited;FILE *fp;
  struct wr_handshake_observation candidate;
@@ -49,7 +52,8 @@ static inline int wr_handshake_worker_query(const char *interface,uint64_t now,
   if(dup2(nullfd,STDIN_FILENO)<0||dup2(nullfd,STDERR_FILENO)<0)_exit(126);
   /* Do not let the utility retain HTTP listeners, client sockets or IPC. */
   if(!wr_handshake_close_extra_fds(-1))_exit(126);
-  execl(WR_HANDSHAKE_TOOL,WR_HANDSHAKE_TOOL,"show",interface,"latest-handshakes",(char *)NULL);
+  if(standard)execl(WR_HANDSHAKE_STANDARD_TOOL,WR_HANDSHAKE_STANDARD_TOOL,"show",interface,"latest-handshakes",(char *)NULL);
+  else execl(WR_HANDSHAKE_TOOL,WR_HANDSHAKE_TOOL,"show",interface,"latest-handshakes",(char *)NULL);
   _exit(127);
  }
  close(pipes[1]);fp=fdopen(pipes[0],"r");
@@ -59,7 +63,15 @@ static inline int wr_handshake_worker_query(const char *interface,uint64_t now,
  if(!ok)kill(child,SIGKILL);
  do{waited=waitpid(child,&status,0);}while(waited<0&&errno==EINTR);
  if(waited!=child||!WIFEXITED(status)||WEXITSTATUS(status)!=0)ok=0;
- if(ok)*out=candidate;
+ if(ok){candidate.observer=standard?1:2;*out=candidate;}
  return ok;
+}
+/* Probe fixed netlink clients against the observed interface, not saved intent.
+ * Both attempts share the existing supervisor's process-group timeout. */
+static inline int wr_handshake_worker_query(const char *interface,uint64_t now,
+ struct wr_handshake_observation *out)
+{
+ if(wr_handshake_worker_query_tool(interface,now,out,1))return 1;
+ return wr_handshake_worker_query_tool(interface,now,out,0);
 }
 #endif

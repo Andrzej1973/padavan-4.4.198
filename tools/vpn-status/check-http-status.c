@@ -23,9 +23,9 @@ int main(void)
  char *client[]={"client"},*server[]={"server"},*invalid[]={"invalid"};
  struct wr_handshake_observation observation={0};
  ej_wr_vpn_handshake_state(0,NULL,1,client);assert(!strcmp(output,"{\"state\":0}"));
- observation.peers=2;observation.recent=1;observation.never=1;
+ observation.observer=2;observation.peers=2;observation.recent=1;observation.never=1;
  wr_handshake_cache_publish(&wr_vpn_runtime[0].cache,100,1,&observation);
- ej_wr_vpn_handshake_state(0,NULL,1,client);assert(strstr(output,"\"state\":1"));assert(strstr(output,"\"peers\":2"));
+ ej_wr_vpn_handshake_state(0,NULL,1,client);assert(strstr(output,"\"state\":1"));assert(strstr(output,"\"peers\":2"));assert(strstr(output,"\"observer\":2"));
  ej_wr_vpn_handshake_state(0,NULL,1,server);assert(!strcmp(output,"{\"state\":0}"));
  ej_wr_vpn_handshake_state(0,NULL,1,invalid);assert(!strcmp(output,"{\"state\":0}"));
  current_uptime=161;

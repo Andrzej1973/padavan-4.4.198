@@ -45,8 +45,8 @@ static int ej_wr_vpn_handshake_state(int eid,webs_t wp,int argc,char **argv)
  state=wr_handshake_cache_get(&wr_vpn_runtime[index].cache,(uint64_t)uptime(),60,&age);
  if(state==WR_HS_UNKNOWN)return websWrite(wp,"{\"state\":0}");
  o=&wr_vpn_runtime[index].cache.observation;
- return websWrite(wp,"{\"state\":%d,\"sample_age\":%llu,\"peers\":%u,\"never\":%u,\"recent\":%u,\"old\":%u,\"future\":%u,\"has_age\":%d,\"youngest_age\":%llu}",
-  (int)state,(unsigned long long)age,o->peers,o->never,o->recent,o->old,o->future,o->has_age,(unsigned long long)o->youngest_age);
+ return websWrite(wp,"{\"state\":%d,\"sample_age\":%llu,\"observer\":%u,\"peers\":%u,\"never\":%u,\"recent\":%u,\"old\":%u,\"future\":%u,\"has_age\":%d,\"youngest_age\":%llu}",
+  (int)state,(unsigned long long)age,o->observer,o->peers,o->never,o->recent,o->old,o->future,o->has_age,(unsigned long long)o->youngest_age);
 }
 static int ej_wr_vpn_status(int eid,webs_t wp,int argc,char **argv)
 {

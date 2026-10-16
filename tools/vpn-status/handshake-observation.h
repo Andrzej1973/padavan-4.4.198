@@ -7,6 +7,7 @@
 /* Counts describe sampled handshake timestamps, never route/Internet health. */
 struct wr_handshake_observation {
  unsigned peers, never, recent, old, future;
+ unsigned observer; /* 0 unknown, 1 standard wg tool, 2 awg tool; not route health */
  uint64_t youngest_age;
  int has_age;
 };

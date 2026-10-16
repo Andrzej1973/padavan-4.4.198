@@ -1,4 +1,5 @@
-#define WR_HANDSHAKE_TOOL "/proc/self/exe"
+#define WR_HANDSHAKE_STANDARD_TOOL "/proc/self/exe"
+#define WR_HANDSHAKE_TOOL "/proc/self/root/proc/self/exe"
 #include "handshake-worker.h"
 #include "handshake-runtime.h"
 #include <assert.h>
@@ -11,6 +12,7 @@ int main(int argc,char **argv)
   if(argc!=4||strcmp(argv[1],"show")||strcmp(argv[3],"latest-handshakes"))return 8;
   mode=getenv("WR_TEST_MODE");
   if(!mode)return 9;
+  if(getenv("WR_TEST_PRIMARY_FAIL")&&!strstr(argv[0],"/root/"))return 7;
   fd=atoi(getenv("WR_TEST_FD"));
   errno=0;if(fcntl(fd,F_GETFD)!=-1||errno!=EBADF)return 10;
   if(!strcmp(mode,"malformed")){puts("invalid");return 0;}
@@ -27,6 +29,10 @@ int main(int argc,char **argv)
  assert(wr_handshake_worker_query("wg0",1000,&out));
  assert(out.peers==1&&out.recent==1&&out.youngest_age==50);
  assert(wr_handshake_worker_query("wg1",1000,&out));
+ assert(out.observer==1);
+ assert(!setenv("WR_TEST_PRIMARY_FAIL","1",1));
+ assert(wr_handshake_worker_query("wg0",1000,&out)&&out.observer==2);
+ assert(!unsetenv("WR_TEST_PRIMARY_FAIL"));
  before=out;
  assert(!wr_handshake_worker_query("wg0;reboot",1000,&out));
  assert(!memcmp(&before,&out,sizeof(out)));
