@@ -17,6 +17,20 @@
 - Сторонній diff `tools/prepare-wifi-hwnat-mode.py` збережено без змін.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
 
+### Per-role WG/AWG controller protocol selection — 2026-10-16
+
+wgc/wgs read vpnc_wg_protocol / vpns_wg_protocol: explicit wireguard uses
+wireguard+absolute /usr/bin/wg-standard, amneziawg uses amneziawg+/usr/bin/awg.
+Empty keeps previous directory-based compatibility selection; invalid value
+refused. No new defaults/UI selector installed yet, so old settings stay intact.
+Host Bash extracted selector fixture PASS for client/server explicit WG/AWG,
+empty/no-module and invalid values. Added repeatable Linux host-shell CI fixture
+also checking empty/present module (pending CI). No target/device acceptance.
+Still needed: WebUI/Apply registration, correct protocol-specific status/export,
+server AWG parameter coverage and real route/handshake checks. No simultaneous
+independent client tunnels claimed. Diagnostic38922347945 remains in_progress.
+
+
 ### Separate standard WireGuard tool preservation — 2026-10-16
 
 Source audit: wireguard-tools installs /usr/bin/wg, AmneziaWG replaces it with

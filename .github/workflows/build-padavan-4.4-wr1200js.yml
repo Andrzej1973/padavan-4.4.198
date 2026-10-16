@@ -380,6 +380,7 @@ jobs:
 
       - name: Exclude legacy VPN userspace from WR1200JS
         run: |
+          python3 tools/check-wg-protocol-selection.py
           python3 tools/prepare-wg-tool-separation.py padavan-4.4
           python3 tools/prepare-wr-vpn-pruning.py padavan-4.4
           python3 tools/check-wr-vpn-pruning.py padavan-4.4

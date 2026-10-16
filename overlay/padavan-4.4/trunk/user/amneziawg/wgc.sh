@@ -4,11 +4,21 @@
 
 TIMEOUT_OFFLINE=300
 
-MODULE="wireguard"
-[ -d "/lib/modules/$(uname -r)/kernel/net/amneziawg" ] \
-    && MODULE="amneziawg"
+# Empty preserves the existing firmware's automatic choice for saved profiles.
+case "$(nvram get vpnc_wg_protocol)" in
+    wireguard) MODULE="wireguard"; WG="/usr/bin/wg-standard" ;;
+    amneziawg) MODULE="amneziawg"; WG="/usr/bin/awg" ;;
+    '')
+        MODULE="wireguard"
+        WG="/usr/bin/wg-standard"
+        if [ -d "/lib/modules/$(uname -r)/kernel/net/amneziawg" ]; then
+            MODULE="amneziawg"
+            WG="/usr/bin/awg"
+        fi
+        ;;
+    *) logger -t vpnc 'Invalid tunnel protocol selection'; exit 1 ;;
+esac
 
-WG="wg"
 IF_NAME="wg0"
 IF_ADDR="$(nvram get vpnc_wg_if_addr | tr -s ' ,' '\n')"
 IF_MTU="$(nvram get vpnc_wg_mtu)"

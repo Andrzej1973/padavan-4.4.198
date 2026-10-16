@@ -2,11 +2,21 @@
 
 ###
 
-MODULE="wireguard"
-[ -d "/lib/modules/$(uname -r)/kernel/net/amneziawg" ] \
-    && MODULE="amneziawg"
+# Empty preserves the existing firmware's automatic choice for saved profiles.
+case "$(nvram get vpns_wg_protocol)" in
+    wireguard) MODULE="wireguard"; WG="/usr/bin/wg-standard" ;;
+    amneziawg) MODULE="amneziawg"; WG="/usr/bin/awg" ;;
+    '')
+        MODULE="wireguard"
+        WG="/usr/bin/wg-standard"
+        if [ -d "/lib/modules/$(uname -r)/kernel/net/amneziawg" ]; then
+            MODULE="amneziawg"
+            WG="/usr/bin/awg"
+        fi
+        ;;
+    *) logger -t vpns 'Invalid tunnel protocol selection'; exit 1 ;;
+esac
 
-WG="wg"
 IF_NAME="wg1"
 IF_ADDR="$(nvram get vpns_vnet | sed 's/\.0$/.1/')"
 IF_MTU=$(nvram get vpns_wg_mtu)
