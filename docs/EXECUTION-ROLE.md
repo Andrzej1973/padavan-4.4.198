@@ -17,6 +17,22 @@
 - Сторонній diff `tools/prepare-wifi-hwnat-mode.py` збережено без змін.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
 
+### WG/AWG WebUI and existing Apply integration — 2026-10-16
+
+Added prepare-wg-protocol-web.py after WR pruning: per-role protocol select
+(empty compatibility / wireguard / amneziawg), blank defaults and existing
+EVM_RESTART_VPNCLI/VPNSVR registration. EN/UK/RU labels and guide explain
+requested state and one profile per role; not simultaneous same-role tunnels.
+Client AWG-only parameter panel hides for explicit WireGuard. Main type3 title
+shows WireGuard / AmneziaWG rather than misleading AWG-only label.
+Prepared-source/JS/Apply/defaults check PASS in ../wg-protocol-web-check;
+generated guide/check PASS. Full image gate requires controls and linked HTTP
+variable names plus separate tools. No browser/target/device acceptance yet.
+Protocol-specific status/export and server AWG parameter coverage remain open;
+next audit those and verify BusyBox readlink fix in full38924582668/dce43ae
+(last observed in_progress). No live router configuration changes.
+
+
 ### Confirmed target BusyBox readlink -f incompatibility / fix — 2026-10-16
 
 Full38922347945/0627db1 completed FAILURE. Synthetic trace confirms serial

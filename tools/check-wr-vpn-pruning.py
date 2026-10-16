@@ -24,6 +24,13 @@ for page,field,allowed,legacy in [
   code=re.sub(r'<%.*?%>',saved,initial.group(1),flags=re.S)
   js.append('(()=>{const document={form:{'+field+':{selectedIndex:2}}};'+code+
    ';assert.strictEqual(document.form.'+field+'.selectedIndex,'+str(-1 if saved in legacy else 2)+');})();')
+ if field!='wan_proto':
+  role=field[:-5];protocol=role+'_wg_protocol'
+  control=re.search(r'<select\b[^>]*name="'+protocol+r'"[^>]*>(.*?)</select>',text,re.S)
+  assert control and re.findall(r'<option value="([^"]*)"',control.group(1))==['','wireguard','amneziawg']
+  event='VPNCLI' if role=='vpnc' else 'VPNSVR'
+  assert '{"'+protocol+'", "", NULL, EVM_RESTART_'+event+'}' in (root/'httpd/variables.c').read_text()
+  assert '{ "'+protocol+'", "" }' in (root/'shared/defaults.c').read_text()
  variable='wan_proto' if field=='wan_proto' else 'mode'
  form=text[text.index('function validForm(){'):]
  guard=re.search(r'var '+variable+r' = document.form.'+field+r'.value;(.*?return false;\s*})',form,re.S)

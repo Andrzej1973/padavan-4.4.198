@@ -384,6 +384,7 @@ jobs:
           python3 tools/check-wg-protocol-selection.py
           python3 tools/prepare-wg-tool-separation.py padavan-4.4
           python3 tools/prepare-wr-vpn-pruning.py padavan-4.4
+          python3 tools/prepare-wg-protocol-web.py padavan-4.4
           python3 tools/check-wr-vpn-pruning.py padavan-4.4
 
       - name: Download the Linux 4.4 uClibc toolchain
@@ -645,6 +646,10 @@ jobs:
             test -n "$awg_module"
             modinfo -F vermagic "$awg_module" | grep -q '^4\.4\.198'
             test -x trunk/romfs/usr/bin/awg
+            grep -q 'name="vpnc_wg_protocol"' trunk/romfs/www/vpncli.asp
+            grep -q 'name="vpns_wg_protocol"' trunk/romfs/www/vpnsrv.asp
+            grep -aq 'vpnc_wg_protocol' trunk/romfs/usr/sbin/httpd
+            grep -aq 'vpns_wg_protocol' trunk/romfs/usr/sbin/httpd
             test -x trunk/romfs/usr/bin/wg-standard
             test -x trunk/romfs/usr/bin/awg
             readelf -h trunk/romfs/usr/bin/wg-standard | grep -q 'Machine:.*MIPS'
