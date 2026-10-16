@@ -14,6 +14,27 @@ for decisions, integration order and evidence requirements. Prefer proven
 target-compatible behavior over version numbers; existing exclusions and
 explicitly deferred stages remain applicable.
 
+## VPN scope replacement — owner instruction 2026-10-16
+
+This supersedes earlier preservation/deferred-development requirements for these
+protocols: remove PPTP, L2TP without IPsec, EoIP and OpenVPN from the WR1200JS
+firmware and WebUI. Remove their private dependencies only after checking other
+consumers. Preserve PPP/PPPoE for provider uplinks and shared libraries needed by
+remaining services. OpenVPN must have no selector in the user profile; prevent
+inheritance from the donor template. StrongSwan remains commented/excluded;
+its development is cancelled rather than deferred to the final stage.
+
+Retain configurable WireGuard and AmneziaWG in WebUI if both can be supported
+correctly. Inspect the existing shared type=3/renamed-AmneziaWG implementation:
+two compiled modules or labels do not prove independent working tunnels. If both
+cannot be supported, retain AmneziaWG as the owner's authorized fallback.
+ZeroTier is unaffected. Keep old saved credentials/configuration files intact;
+this change does not authorize changing or disconnecting the live router.
+Acceptance: effective configuration plus absent ROMFS binaries/plugins/private
+libraries, disabled kernel-only dependencies where unused, rejected legacy
+backend actions, no misleading UI choices, updated model guide and target
+BusyBox checks; actual retained tunnel routing requires device verification.
+
 ## Delivery order — user confirmation 2026-10-10
 
 1. Finish YOUHUA WR1200JS first: complete the accepted firmware and WebUI work, verify the target build and image, then verify device behavior with the user. Compilation alone is insufficient. Preserve the central configuration and keep CAKE excluded.

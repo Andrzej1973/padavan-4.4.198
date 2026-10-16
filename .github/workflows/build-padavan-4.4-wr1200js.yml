@@ -378,6 +378,9 @@ jobs:
           grep -q 'CONFIG_RALINK_BUILTIN_DTB_NAME="wr1200js"' \
             padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
 
+      - name: Exclude legacy VPN userspace from WR1200JS
+        run: python3 tools/prepare-wr-vpn-pruning.py padavan-4.4
+
       - name: Download the Linux 4.4 uClibc toolchain
         run: |
           mkdir -p padavan-4.4/toolchain/toolchain-mipsel
@@ -528,6 +531,12 @@ jobs:
           set -x
           for option in QOS IMQ IFB IPSET XFRM; do
             grep -q "^CONFIG_FIRMWARE_INCLUDE_${option}=y$" trunk/.config
+          done
+          for option in OPENVPN RPL2TP EOIP SSWAN; do
+            ! grep -Eq "^CONFIG_FIRMWARE_INCLUDE_${option}=(y|m)$" trunk/.config
+          done
+          for path in usr/sbin/pptpd usr/sbin/xl2tpd usr/sbin/openvpn usr/lib/pppd/pptp.so usr/lib/pppd/pppol2tp.so; do
+            test ! -e "trunk/romfs/$path"
           done
           grep -q '^CONFIG_FIRMWARE_ENABLE_USB=y$' trunk/.config
           if grep -q '^CONFIG_FIRMWARE_INCLUDE_NDISC6_RDISC6=y$' trunk/.config; then

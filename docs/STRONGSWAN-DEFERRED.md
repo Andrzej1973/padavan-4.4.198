@@ -1,3 +1,9 @@
+# StrongSwan/IPsec excluded — owner decision 2026-10-16
+
+The owner cancelled development and inclusion. Keep SSWAN commented in the
+profile; the historical deferral below is superseded. Audit XFRM consumers
+before removing shared kernel/iptables facilities. No live router changes.
+
 # StrongSwan/IPsec deferred from the WR1200JS profile
 
 Owner decision, 2026-10-14: comment out `CONFIG_FIRMWARE_INCLUDE_SSWAN=y` for current WR1200JS test builds and finish this optional service during final firmware work. Keep its source, lifecycle candidate and tests for that later stage. It is not a current port acceptance requirement to complete or activate StrongSwan.

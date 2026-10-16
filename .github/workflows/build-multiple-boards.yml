@@ -65,6 +65,7 @@ on:
       - 'tools/check-zerotier-state.py'
       - 'tools/check-target-busybox.py'
       - 'tools/prepare-mwan-shell.py'
+      - 'tools/prepare-wr-vpn-pruning.py'
       - 'sources.lock.json'
       - 'tools/verify-zram-image.py'
       - 'tools/verify-strongswan-image.py'

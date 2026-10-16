@@ -17,6 +17,25 @@
 - Сторонній diff `tools/prepare-wifi-hwnat-mode.py` збережено без змін.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
 
+### Owner VPN scope replacement / first package pruning — 2026-10-16
+
+Пряма вимога: прибрати PPTP, L2TP, EoIP, OpenVPN та лише їхні зайві
+залежності; StrongSwan закоментований, розробку скасовано. WireGuard і
+AmneziaWG лишити налаштовуваними; fallback лише AWG дозволений, якщо обидва
+не підтримуються коректно. ZeroTier без змін. Scope document має пріоритет.
+OpenVPN selector прибрано з requested config (merge відхиляє успадковані
+optional defaults), EoIP commented. Додано WR-only source pruning poptop,
+xl2tpd та PPP pptp/pppol2tp plugin build/install; PPP/PPPoE збережено.
+Exact pinned-source preparation PASS у ../wr-vpn-pruning-check, Python syntax
+PASS. CI gate вимагає excluded selectors та відсутні відповідні binaries/plugins.
+Це ПЕРШИЙ крок, не завершене вилучення: rc/backend/WAN legacy guards,
+WebUI choices, kernel/private dependencies, guide і final image ще відкриті.
+XFRM тимчасово збережено до аудиту consumers. Існуючий WG type=3 перейменовано
+на AWG при found_app_awg; це не доказ окремих configurable WG/AWG тунелів.
+Наступний крок — runtime/backend + UI legacy exclusion і WG/AWG lifecycle audit.
+На роутері жодних змін, credentials/storage не видаляти.
+
+
 ### USB/IP explicit restore opt-in WebUI — 2026-10-16
 
 Service CI 38908279222 на 83b55f4 success. Додано usbip_restore у чинний
