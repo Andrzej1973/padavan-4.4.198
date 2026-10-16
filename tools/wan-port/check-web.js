@@ -28,3 +28,20 @@ assert.deepEqual(select.options,['0','1','2','3','4']);assert.equal(select.value
 select.value='4';document.form.wan_stb_x.value='1';change_stb_port_and_vlan();assert.equal(select.value,'4');
 wr_wan_socket_supported=false;document.form.wan_stb_x.value='0';change_stb_port_and_vlan();assert.equal(shown.wan_src_phy,false);assert.deepEqual(select.options,['0']);
 console.log('PASS WAN selector: IPTV off, all LAN sockets, unsaved selection, legacy model');
+
+let confirmations=0, submissions=0, loading=0, accepted=false;
+function validForm(){return true;}
+function confirm(){confirmations++;return accepted;}
+function showLoading(){loading++;}
+document.form.pppoemwan_rules_x=[{checked:false}];
+for(const key of ['action_mode','current_page','next_page']) document.form[key]={value:''};
+document.form.submit=()=>{submissions++;};
+const applyStart=page.indexOf('function applyRule(){');
+const applyEnd=page.indexOf('\nfunction ',applyStart+1);
+eval(page.slice(applyStart,applyEnd));
+wr_wan_socket_supported=true;select.value='4';
+applyRule();assert.equal(confirmations,1);assert.equal(submissions,0);assert.equal(loading,0);
+accepted=true;applyRule();assert.equal(submissions,1);assert.equal(loading,1);
+select.value=original_wan_src_phy;applyRule();assert.equal(confirmations,2);assert.equal(submissions,2);
+select.value='0';accepted=false;applyRule();assert.equal(confirmations,3);assert.equal(submissions,2);
+console.log('PASS WAN Apply: cancel, accept, unchanged selection, restore confirmation');

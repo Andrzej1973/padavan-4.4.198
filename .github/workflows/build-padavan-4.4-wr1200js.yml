@@ -1003,6 +1003,17 @@ jobs:
           test -n "$compiler"
           python3 tools/verify-rssi-image.py padavan-4.4 --nm "${compiler%gcc}nm"
 
+      - name: Verify shipped WAN socket controls and translations
+        run: python3 tools/wan-port/verify-web-image.py padavan-4.4/trunk/romfs/www --output wan-web-image-checks.json
+
+      - name: Upload WAN WebUI image evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: wan-web-image-checks
+          if-no-files-found: ignore
+          path: wan-web-image-checks.json
+
       - name: Upload RSSI image diagnostics
         if: always()
         uses: actions/upload-artifact@v7
