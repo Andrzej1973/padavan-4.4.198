@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "runtime_verified": false,
+  "checks": {
+    "page:var wr_wan_socket_supported": true,
+    "page:wr_selected": true,
+    "page:showhide_div(\"wan_src_phy\", 1)": true,
+    "page:WAN_Socket_Confirm": true,
+    "page:WAN_Socket_Help": true,
+    "page:id=\"wr_wan_socket_help\"": true,
+    "EN:WAN_Socket_Confirm": true,
+    "EN:safe-confirm-literal": true,
+    "EN:WAN_Socket_Help": true,
+    "UK:WAN_Socket_Confirm": true,
+    "UK:safe-confirm-literal": true,
+    "UK:WAN_Socket_Help": true,
+    "RU:WAN_Socket_Confirm": true,
+    "RU:safe-confirm-literal": true,
+    "RU:WAN_Socket_Help": true
+  },
+  "sha256": {
+    "Advanced_WAN_Content.asp": "7c0c78d9700b795b7303fc09b582acfae5aac88d71256f30edfdad25e16289a5",
+    "EN.dict": "e0c3d382d09caed63b691f76bbd8f36338e76d309b94ce70ad1e85e054210126",
+    "UK.dict": "d5b312256b10c8bc945a76840e619e34a6a861ac6daa4b1cd480d6f2c0904938",
+    "RU.dict": "a17070f8a4f5a595d2bb43dcfccae0d4e1b39e44e651daa10e94b3f3261efc4a"
+  },
+  "success": true
+}
