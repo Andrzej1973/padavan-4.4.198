@@ -83,8 +83,12 @@ fixture_wg(){
   if not qemu or not binary.is_file():raise SystemExit('Exact image BusyBox and target QEMU required')
   shell=[qemu,'-L',str(romfs),str(binary),'sh']
   providers=root/'providers';providers.mkdir()
+  applets=('awk','cat','chmod','cp','rm','sed','seq','tee','wc')
+  inventory=subprocess.run([*shell[:-1],'--list'],capture_output=True,text=True,timeout=15)
+  missing=set(applets)-set(inventory.stdout.splitlines())
+  if inventory.returncode or missing:raise SystemExit('Required target applets unavailable: '+','.join(sorted(missing)))
   # Host sh only transports exec. No host applet fallback is in PATH.
-  for applet in ('awk','cat','chmod','cp','rm','sed','seq','wc'):
+  for applet in applets:
    wrapper=providers/applet
    wrapper.write_text('#!/bin/sh\nexec '+shlex.join(shell[:-1]+[applet])+' "$@"\n')
    wrapper.chmod(0o700)

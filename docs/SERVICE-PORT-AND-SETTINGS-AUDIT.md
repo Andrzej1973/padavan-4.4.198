@@ -26,6 +26,12 @@ AWG parameters, standard WG exclusion, invalid input, 32-bit header boundaries
 and numerically duplicate headers. Host scenarios pass; the new target gate
 still awaits CI. Server startup, routing and physical behavior remain open.
 
+Runs #355/#356 compiled the firmware and passed the general BusyBox gate, then
+failed in this isolated export fixture because its explicit provider PATH
+omitted tee. tee is present in the image applet inventory. Added its target
+wrapper and an upfront applet inventory check; corrected target execution is
+pending. This failure is a harness issue, not evidence that image tee is absent.
+
 Server startup review found a stale-interface path: after successful link
 creation, failed MTU/address/configuration could leave a down interface that
 made the next start report already started. The server now checks each stage
