@@ -17,6 +17,22 @@
 - Сторонній diff `tools/prepare-wifi-hwnat-mode.py` збережено без змін.
 ## Актуальний стан передачі (має пріоритет над історією нижче)
 
+### Legacy VPN start guards and CI trigger repair — 2026-10-16
+
+WR pruning тепер відхиляє enabled VPN client/server type !=3 перед створенням
+PPP options/запуском; disabled/AP checks лишаються першими без зайвих logs.
+Server reapply legacy типів повертається без генерації PPP options. WAN
+launch_wan_pppd відхиляє PPTP/L2TP без зміни NVRAM; PPPoE path збережено.
+Це не automatic migration: старий PPTP/L2TP WAN потребує підтримуваного
+uplink; конфіг/credentials не переписуються. Exact pinned source preparation
+і Python syntax PASS у ../wr-vpn-backend-check; C compile/runtime ще очікують.
+Знайдено missing full-build trigger для tools/usbip/check-restore.py:
+c70567c запускав лише service CI 38922083803 (in_progress при перевірці).
+Додано path у build-multiple-boards, щоб diagnostic target step дійсно виконався.
+Наступне: emitted target trace, legacy UI/kernel/remaining L2TP call pruning,
+окремі WG/AWG конфіги. Нічого на live router не змінено.
+
+
 ### Target BusyBox restore failure under investigation — 2026-10-16
 
 Full 38918973322 на 9790865 FAILED at check-restore.py expected-success
