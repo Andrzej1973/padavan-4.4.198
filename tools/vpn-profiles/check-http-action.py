@@ -56,6 +56,8 @@ int main(int argc,char **argv)
  char *state_args[] = {"1"};
  int fd;char path[256];
  if(argc!=2)return 99;
+ (void)argv;
+ wr_vpn_action_input("",NULL,1,NULL);assert(wr_vpn_post_seen);
  ej_wr_vpn_token(0,NULL,0,NULL);assert(!strcmp(reply,"\"\""));
  safe=1;ej_wr_vpn_token(0,NULL,0,NULL);assert(strlen(wr_vpn_csrf)==32);
  strcpy(req_token,wr_vpn_csrf);
