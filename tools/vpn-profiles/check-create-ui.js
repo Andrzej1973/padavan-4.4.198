@@ -12,13 +12,18 @@ function fixture(overrides = {}) {
   wr_vpn_create_config: {value: '[Interface]\nPrivateKey = fixture\n'},
   wr_vpn_create_button: {disabled: false},
   wr_vpn_create_status: {textContent: '', getAttribute: key => key},
+  wr_vpn_protect: {value: ''},
+  wr_vpn_protect_help: {getAttribute: key => key},
  };
  for (const [id, value] of Object.entries(overrides)) elements[id].value = value;
- const requests = [];
+ const requests = [], alerts = [];
  const context = {document: {getElementById: id => elements[id]},
-  jQuery: Object.assign(function() {}, {ajax: request => requests.push(request)})};
+  alert: text => alerts.push(text), confirm: () => true,
+  jQuery: Object.assign(function(selector) {
+   if (selector === '#wr_vpn_protect') return {val: () => elements.wr_vpn_protect.value};
+  }, {ajax: request => requests.push(request)})};
  vm.createContext(context); vm.runInContext(source, context);
- return {context, elements, requests};
+ return {context, elements, requests, alerts};
 }
 for (const protocol of ['wireguard', 'amneziawg']) {
  const f = fixture({wr_vpn_create_protocol: protocol});
@@ -56,3 +61,18 @@ for (const response of [null, {saved: true}, {saved: true, started: true}, {erro
  assert.equal(f.requests.length, 0);
 }
 console.log('PASS create UI: WG/AWG POST payload, no activation, duplicate/invalid refusal, confirmed-save clearing, uncertain-write handling');
+for (const value of ['', '192.168.1.0/24, 10.8.0.0/24', 'bad', Array(9).fill('10.0.0.0/24').join(',')]) {
+ const f = fixture({wr_vpn_protect: value}); f.context.wrVPNAct('up', 2);
+ assert.equal(f.requests.length, 0); assert.equal(f.alerts.length, 1);
+}
+{
+ const protect = '192.168.1.0/24,10.8.0.0/24';
+ const f = fixture({wr_vpn_protect: protect}); f.context.wrVPNAct('up', 2);
+ assert.equal(f.requests.length, 1); assert.equal(f.requests[0].data.protect, protect);
+ assert.equal(f.requests[0].data.operation, 'up');
+}
+for (const operation of ['down', 'delete']) {
+ const f = fixture(); f.context.wrVPNAct(operation, 2);
+ assert.equal(f.requests.length, 1); assert.equal(f.requests[0].data.operation, operation);
+}
+console.log('PASS explicit protected-subnet input: empty/invalid start refusal, exact forwarding, stop/delete remain available');

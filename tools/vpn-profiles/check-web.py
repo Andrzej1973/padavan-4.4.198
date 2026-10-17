@@ -25,6 +25,7 @@ assert web.count('{ "wr_vpn_create.cgi*", "application/json", no_cache_IE,') == 
 assert web.count('{ "wr_vpn_profile_observation", ej_wr_vpn_profile_observation},') == 1, "observation handler missing"
 assert (args.tree / "trunk/user/httpd/vpn-create-request.h").is_file(), "create parser header missing"
 assert 'id="wr_vpn_create_config"' in page and "function wrVPNCreate()" in page, "create form missing"
+assert 'type="text" id="wr_vpn_protect"' in page, "protected subnets field hidden or missing"
 assert '"/usr/sbin/wr-vpn-profile"' in web, "fixed manager path changed"
 assert '"/usr/libexec/wrvpn/action-worker"' in web, "worker path changed"
 assert httpd.count("int wr_vpn_request_is_post(void)") == 1, "POST helper missing"
@@ -50,7 +51,8 @@ for name in ("EN.footer", "UK.dict", "RU.dict"):
     for key in ("WRVPN_PROFILES_TITLE", "WRVPN_ID", "WRVPN_NAME", "WRVPN_REVISION",
                 "WRVPN_PROTOCOL", "WRVPN_CONFIG", "WRVPN_CREATE", "WRVPN_CREATE_HELP",
                 "WRVPN_CREATED", "WRVPN_CREATE_FAILED", "WRVPN_OBSERVE",
-                "WRVPN_LINK_UNKNOWN", "WRVPN_LINK_ABSENT", "WRVPN_LINK_UP", "WRVPN_LINK_DOWN"):
+                "WRVPN_LINK_UNKNOWN", "WRVPN_LINK_ABSENT", "WRVPN_LINK_UP", "WRVPN_LINK_DOWN",
+                "WRVPN_PROTECT", "WRVPN_PROTECT_REQUIRED", "WRVPN_PROTECT_HELP"):
         assert f"\n{key}=" in text, (name, key)
 
 print("PASS VPN profile table: handler, page call and dictionary keys are present")

@@ -13,7 +13,9 @@
                             <textarea id="wr_vpn_create_config" rows="8" style="width:95%;font-family:monospace" autocomplete="off" spellcheck="false"></textarea>
                             <button type="button" class="btn" id="wr_vpn_create_button" onclick="wrVPNCreate()"><#WRVPN_CREATE#></button>
                             <span id="wr_vpn_create_status" role="status" data-saved="<#WRVPN_CREATED#>" data-failed="<#WRVPN_CREATE_FAILED#>"></span>
-                            <input type="hidden" id="wr_vpn_protect" value="<% nvram_get_x("", "wrvpn_protect"); %>"/>
+                            <label for="wr_vpn_protect"><#WRVPN_PROTECT#></label>
+                            <input type="text" id="wr_vpn_protect" maxlength="200" style="width:95%" value="<% nvram_get_x("", "wrvpn_protect"); %>"/>
+                            <p id="wr_vpn_protect_help" data-required="<#WRVPN_PROTECT_REQUIRED#>"><#WRVPN_PROTECT_HELP#></p>
                             <table class="table table-bordered">
                                 <thead>
                                     <tr>
@@ -89,8 +91,13 @@
                     }
                     function wrVPNAct(operation, id) {
                         if (operation == 'delete' && !confirm('Delete profile ' + id + '?')) return;
+                        var protect = jQuery('#wr_vpn_protect').val();
+                        if (operation == 'up' && (!protect || protect.length > 200 ||
+                            protect.split(',').length > 8 || !/^[0-9a-fA-F:.]+\/[0-9]{1,3}(,[0-9a-fA-F:.]+\/[0-9]{1,3})*$/.test(protect))) {
+                            alert(document.getElementById('wr_vpn_protect_help').getAttribute('data-required')); return;
+                        }
                         jQuery.ajax({url: '/wr_vpn_action.cgi', type: 'POST', dataType: 'json', timeout: 5000,
-                            data: {operation: operation, id: id, protect: jQuery('#wr_vpn_protect').val(), ack: '1', token: wrVPNToken},
+                            data: {operation: operation, id: id, protect: protect, ack: '1', token: wrVPNToken},
                             success: function (r) {
                                 if (r && r.accepted) wrVPNPoll(id, 0);
                                 else alert(r && r.error ? r.error : 'request failed');

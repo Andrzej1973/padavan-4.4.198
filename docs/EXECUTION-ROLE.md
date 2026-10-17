@@ -82,6 +82,15 @@ Python AST і diff-check пройшли; C-fixture/Linux CI/образ ще не
 в `tools/agent-nim/README.md`.
 ## Актуальний стан роботи — 2026-10-17
 
+### Незалежні профілі: доступне поле захисту адрес
+
+Локально відкрито раніше hidden `wr_vpn_protect`: поле CIDR-підмереж для
+наступного Up, до 8 без пробілів, без автоматичного persistence. Роз'яснення
+EN/UK/RU обмежує claim перевіркою перетину адрес; це не доказ маршрутів чи
+збереження керівного доступу. JS відхиляє empty/invalid-shape start до POST;
+Down/Delete залишаються доступними. Native validator/fail-closed policy не
+змінювали. Actual-JS create/protect/observe scenarios пройшли локально.
+
 ### Незалежні профілі: ручне спостереження link
 
 Локальний кандидат додає `wr_vpn_profile_observation` через автентифікований

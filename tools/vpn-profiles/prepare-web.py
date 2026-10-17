@@ -95,6 +95,12 @@ texts = {
     ),
 }
 create_texts = {
+    "WRVPN_PROTECT": ("Protected address subnets", "Захищені підмережі адрес", "Защищённые подсети адресов"),
+    "WRVPN_PROTECT_REQUIRED": ("Before starting, enter up to 8 protected CIDR subnets separated by commas, without spaces.", "Перед запуском вкажіть до 8 захищених CIDR-підмереж через кому, без пробілів.", "Перед запуском укажите до 8 защищённых CIDR-подсетей через запятую, без пробелов."),
+    "WRVPN_PROTECT_HELP": (
+        "Enter actual LAN and existing management-tunnel CIDR subnets, separated by commas, without spaces. Tunnel addresses must not overlap them. This field applies to the next action; it is not saved automatically. It does not prove routing, DNS or management access will remain usable.",
+        "Вкажіть фактичні CIDR-підмережі LAN та чинного керівного тунелю через кому, без пробілів. Адреси нового тунелю не мають перетинатися з ними. Поле діє для наступної дії та автоматично не зберігається. Воно не підтверджує коректність маршрутів, DNS чи збереження доступу.",
+        "Укажите фактические CIDR-подсети LAN и действующего управляющего туннеля через запятую, без пробелов. Адреса нового туннеля не должны пересекаться с ними. Поле действует для следующего действия и автоматически не сохраняется. Оно не подтверждает корректность маршрутов, DNS или сохранение доступа."),
     "WRVPN_OBSERVE": ("Check link", "Перевірити інтерфейс", "Проверить интерфейс"),
     "WRVPN_LINK_UNKNOWN": ("Link state unknown", "Стан інтерфейсу невідомий", "Состояние интерфейса неизвестно"),
     "WRVPN_LINK_ABSENT": ("Interface absent", "Інтерфейс відсутній", "Интерфейс отсутствует"),
