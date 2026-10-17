@@ -27,6 +27,7 @@ Commands (`/usr/sbin/wr-vpn-profile`):
 | `apply <id> [prefixes]` | Protocol, addresses, routes, DNS file |
 | `up <id> [prefixes]` | Create the owned link, then `apply` |
 | `down <id>` | Remove policy, then release the link |
+| `delete <id>` | Tombstone an idle profile; refuses a live session |
 
 `/usr/sbin/wr-vpn-profiles-service start|stop|status` drives the list in
 `wrvpn_enabled`, passing `wrvpn_protect` as the protected prefixes. `rc` starts
@@ -50,6 +51,7 @@ it outside AP mode and stops it with the other services.
 | Stop covers ids left only in runtime state | verified in CI | `check-service`, run 39010171751 |
 | Failed `up` cleanup (rule removed, link released) | implemented and compiled in CI; dedicated fixture pending | service run 39010171751 |
 | Hostname endpoint pinning in `up` (before the link exists) | implemented; pin module CI-verified, wiring pending build | `check-endpoint-pin`, run 39010171751 |
+| `delete` tombstone (idle profiles only) | implemented; manager fixture updated | `check-manager` (CI pending) |
 | `rc` start/stop hook | patched and applied in the image build | build `263bdee`, step `Apply WR1200JS board port` = success |
 | DNS aggregation into dnsmasq (opt-in) | file and service verified in CI; rc line applied | `check-service`; same board-port step |
 | Real tunnel, routes, DNS, handshake on the device | **not verified** | device unreachable; nothing flashed |

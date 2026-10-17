@@ -10,6 +10,9 @@
  * These names are candidates: inventory/ownership must be checked before use.
  */
 #define WR_VPN_PROFILE_ID_MAX 999u
+#ifndef WR_VPN_RUNTIME_ROOT
+#define WR_VPN_RUNTIME_ROOT "/var/run/wrvpn"
+#endif
 enum wr_vpn_protocol { WR_VPN_WIREGUARD = 1, WR_VPN_AMNEZIAWG = 2 };
 struct wr_vpn_resources {
     unsigned int id;
@@ -67,7 +70,7 @@ static inline int wr_vpn_resources_make(struct wr_vpn_resources *out,
     WR_VPN_NAME(exclude, "wrv%u.exclude");
     WR_VPN_NAME(dns, "wrv%u.dns");
     WR_VPN_NAME(storage, "/etc/storage/wrvpn/%u");
-    WR_VPN_NAME(runtime, "/var/run/wrvpn/%u");
+    WR_VPN_NAME(runtime, WR_VPN_RUNTIME_ROOT "/%u");
     WR_VPN_NAME(lock, "/var/lock/wrvpn-%u.lock");
 #undef WR_VPN_NAME
     *out = r;

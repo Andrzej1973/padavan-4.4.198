@@ -34,6 +34,7 @@ int main(void){int fd;for(fd=3;fd<4096;fd++){errno=0;if(fcntl(fd,F_GETFD)!=-1 ||
   subprocess.run(['gcc','-std=gnu99','-Wall','-Wextra','-Werror','-DREAL='+json.dumps(str(real.resolve())),str(guard),'-o',str(output)],check=True)
  subprocess.run(['gcc','-std=gnu99','-Wall','-Wextra','-Werror','-g','-fsanitize=address,undefined',
   '-DWR_VPN_STORE_ROOT='+json.dumps(str(store)),
+  '-DWR_VPN_RUNTIME_ROOT='+json.dumps(str(root/'run')),
   '-DWR_VPN_VALIDATE_WG='+json.dumps(str(validators['wg'])),
   '-DWR_VPN_VALIDATE_AWG='+json.dumps(str(validators['awg'])),
   '-DWR_VPN_VALIDATE_TIMEOUT_MS=1000',
@@ -57,8 +58,8 @@ int main(void){int fd;for(fd=3;fd<4096;fd++){errno=0;if(fcntl(fd,F_GETFD)!=-1 ||
  for args,data,code in [
   (['create','2','wireguard'],wg,5),(['create','3','wireguard'],awg,2),
   (['create','3','wireguard'],wg.replace(key,'invalid'),2),
-  (['create','../../1','wireguard'],wg,2),(['create','3','invalid'],wg,2),
-  (['delete','1'], '',2),(['export','999'],'',5),
+   (['create','../../1','wireguard'],wg,2),(['create','3','invalid'],wg,2),
+   (['frobnicate','1'], '',2),(['export','999'],'',5),
  ]: assert not run(args,data,code)
  assert set(run(['list']).splitlines())=={'1\tAWG1\t1','2\tWG2\t1'}
  for id in ('1','2'):
@@ -108,4 +109,10 @@ int main(void){int fd;for(fd=3;fd<4096;fd++){errno=0;if(fcntl(fd,F_GETFD)!=-1 ||
  assert not (store/'3').exists()
  assert all((store/id).read_bytes()==data for id,data in before.items())
  assert run(['export','1'])==awg  # AWG remains independent of failed WG actions.
- print('PASS profile manager integration: native validation before isolated create/export, private metadata, FD closure, invalid/failed/timed-out validator, AWG record preservation; no network lifecycle')
+ # Stop and delete are distinct: an idle profile becomes a tombstone.
+ assert run(['delete','1'])=='deleted\t1\t2\n'
+ assert run(['export','1'],expected=5)==''
+ assert '1\tAWG1' not in run(['list'])
+ assert (store/'1').exists()
+ assert run(['delete','1'],expected=5)==''
+ print('PASS profile manager integration: native validation before isolated create/export, private metadata, FD closure, invalid/failed/timed-out validator, AWG record preservation, distinct stop/delete tombstone; no network lifecycle')
