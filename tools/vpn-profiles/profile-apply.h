@@ -2,6 +2,7 @@
 #define WR_VPN_PROFILE_APPLY_H
 #include "addr-apply.h"
 #include "config-transaction.h"
+#include "dns-apply.h"
 #include "route-apply.h"
 
 struct wr_vpn_apply_options {
@@ -14,8 +15,10 @@ struct wr_vpn_apply_outcome {
     enum wr_vpn_transaction_result protocol;
     enum wr_vpn_addr_result addresses;
     enum wr_vpn_route_result routes;
+    enum wr_vpn_dns_result dns;
     int addresses_attempted;
     int routes_attempted;
+    int dns_attempted;
 };
 
 /* One apply, in order: protocol configuration, addresses, routes.

@@ -75,8 +75,9 @@ int main(int argc,char **argv)
     }
     options.protected_prefixes=count?prefixes:NULL;options.protected_count=(size_t)count;
     if (!wr_vpn_profile_apply(argv[1],&profile,&expected,&options,&exec,&outcome)) return 97;
-    printf("%d,%d,%d,%d,%d\\n",(int)outcome.protocol,(int)outcome.addresses,
-           (int)outcome.routes,outcome.addresses_attempted,outcome.routes_attempted);
+    printf("%d,%d,%d,%d,%d,%d,%d\\n",(int)outcome.protocol,(int)outcome.addresses,
+           (int)outcome.routes,outcome.addresses_attempted,outcome.routes_attempted,
+           (int)outcome.dns,outcome.dns_attempted);
     fclose(log_file);
     return 0;
 }
@@ -125,7 +126,8 @@ with tempfile.TemporaryDirectory(prefix='wrvpn-controller-') as directory:
                     '-DWR_VPN_VALIDATE_AWG=' + json.dumps(str(args.awg_validator.resolve())),
                     '-DWR_VPN_APPLY_TIMEOUT_MS=300', str(harness),
                     str(here / 'profile-apply.c'), str(here / 'addr-apply.c'),
-                    str(here / 'route-apply.c'), str(here / 'config-transaction.c'),
+                    str(here / 'route-apply.c'), str(here / 'dns-apply.c'),
+                    str(here / 'config-transaction.c'),
                     str(here / 'config-apply.c'), str(here / 'config-plan.c'),
                     str(here / 'validate-process.c'), str(here / 'runtime-state.c'),
                     '-o', str(exe)], check=True)
@@ -155,17 +157,17 @@ with tempfile.TemporaryDirectory(prefix='wrvpn-controller-') as directory:
         data = config if protocol == 1 else config.replace('[Peer]', 'Jc = 4\n[Peer]')
 
         outcome, commands = run(protocol, '192.168.20.0/24', data)
-        assert outcome == '0,0,0,1,1', (outcome, commands)
+        assert outcome == '0,0,0,1,1,0,1', (outcome, commands)
         assert commands == ['ip address add 10.8.0.2/32 dev wrvpn2',
                             'ip route replace 0.0.0.0/0 dev wrvpn2 table 20002',
                             'ip rule add fwmark 0x57560002/0xffffffff lookup 20002 priority 20003'], commands
 
         outcome, commands = run(protocol, None, data)
-        assert outcome == '0,2,1,1,0', (outcome, commands)
+        assert outcome == '0,2,1,1,0,0,0', (outcome, commands)
         assert commands == [], commands
 
         outcome, commands = run(protocol, '192.168.20.0/24', data, fail_at=2)
-        assert outcome == '0,0,3,1,1', (outcome, commands)
+        assert outcome == '0,0,3,1,1,0,0', (outcome, commands)
         assert commands == ['ip address add 10.8.0.2/32 dev wrvpn2'], commands
 
     print('PASS apply controller: protocol, then addresses, then routes; no protected '

@@ -117,6 +117,8 @@ on:
       - 'tools/vpn-profiles/link-lifecycle.c'
       - 'tools/vpn-profiles/link-lifecycle.h'
       - 'tools/vpn-profiles/service.sh'
+      - 'tools/vpn-profiles/dns-apply.c'
+      - 'tools/vpn-profiles/dns-apply.h'
       - 'tools/export-vpn-qr-fixtures.js'
       - 'tools/check-wg-server-export.py'
       - 'tools/check-wg-server-ui.py'

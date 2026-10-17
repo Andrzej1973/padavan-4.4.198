@@ -40,7 +40,7 @@ int main(void){int fd;for(fd=3;fd<4096;fd++){errno=0;if(fcntl(fd,F_GETFD)!=-1 ||
   str(here/'profilectl.c'),str(here/'validate-process.c'),str(here/'store.c'),str(here/'link-observation.c'),
   str(here/'runtime-state.c'),str(here/'config-transaction.c'),str(here/'config-apply.c'),str(here/'config-plan.c'),
   str(here/'plan-report.c'),
-  str(here/'addr-apply.c'),str(here/'route-apply.c'),str(here/'profile-apply.c'),
+  str(here/'addr-apply.c'),str(here/'route-apply.c'),str(here/'profile-apply.c'),str(here/'dns-apply.c'),
   str(here/'link-actions.c'),str(here/'link-lifecycle.c'),
   '-o',str(exe)],check=True)
  def run(args,data='',expected=0,fd=None):

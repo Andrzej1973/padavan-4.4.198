@@ -21,6 +21,7 @@ int wr_vpn_profile_apply(const char *runtime_root,const struct wr_vpn_record *re
     outcome->protocol=WR_VPN_TRANSACTION_REFUSED;
     outcome->addresses=WR_VPN_ADDR_EMPTY;
     outcome->routes=WR_VPN_ROUTE_EMPTY;
+    outcome->dns=WR_VPN_DNS_EMPTY;
     plan=calloc(1,sizeof(*plan));
     if (!plan) return 0;
     validation=wr_vpn_prepare_config(record,plan);
@@ -44,6 +45,13 @@ int wr_vpn_profile_apply(const char *runtime_root,const struct wr_vpn_record *re
     if (plan->allowed[0]) {
         outcome->routes_attempted=1;
         outcome->routes=wr_vpn_routes_apply(&plan->resources,plan->allowed,1,exec);
+        if (outcome->routes!=WR_VPN_ROUTE_DONE) goto done;
+    }
+
+    /* DNS is a file for the opt-in dnsmasq step; a failure does not undo routes. */
+    if (plan->dns[0]) {
+        outcome->dns_attempted=1;
+        outcome->dns=wr_vpn_dns_write(plan,runtime_root);
     }
 
 done:

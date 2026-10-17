@@ -28,6 +28,7 @@ chmod +x "$bin/nvram" "$bin/wr-vpn-profile" "$bin/logger"
 run()
 {
     PATH="$bin:$PATH" WRVPN_CTL="$bin/wr-vpn-profile" WRVPN_LOCK="$root/lock" \
+        WRVPN_DNS_DIR="$root/dns" WRVPN_RUN_DIR="$root/run" \
         sh "$here/service.sh" "$1"
 }
 
@@ -69,5 +70,35 @@ if run frobnicate 2>/dev/null; then
 fi
 test ! -s "$calls"
 
+mkdir -p "$root/dns" "$root/run/3"
+printf '1.1.1.1\n8.8.8.8\nbad entry\n' > "$root/run/3/wrv3.dns"
+cat > "$bin/nvram" <<'EOS'
+#!/bin/sh
+case "$2" in
+    wrvpn_enabled) echo "3";;
+    wrvpn_protect) echo "192.168.20.0/24";;
+    wrvpn_use_dns) echo "1";;
+    *) exit 1;;
+esac
+EOS
+chmod +x "$bin/nvram"
+: > "$calls"
+run start
+test "$(cat "$root/dns/wrvpn.servers")" = "server=1.1.1.1
+server=8.8.8.8"
+
+cat > "$bin/nvram" <<'EOS'
+#!/bin/sh
+case "$2" in
+    wrvpn_enabled) echo "3";;
+    wrvpn_protect) echo "192.168.20.0/24";;
+    wrvpn_use_dns) echo "0";;
+    *) exit 1;;
+esac
+EOS
+chmod +x "$bin/nvram"
+run stop
+test ! -e "$root/dns/wrvpn.servers"
+
 rm -rf "$root"
-echo 'PASS VPN profile service: up/down/status argument passing, protected prefixes, invalid id refusal, no unstarted work'
+echo 'PASS VPN profile service: up/down/status argument passing, protected prefixes, invalid id refusal, opt-in DNS aggregation and removal'

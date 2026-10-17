@@ -9,6 +9,9 @@ umask 077
 ctl=${WRVPN_CTL:-/usr/sbin/wr-vpn-profile}
 lock=${WRVPN_LOCK:-/var/run/wr-vpn-profiles.lock}
 tag=wr-vpn-profiles
+dns_dir=${WRVPN_DNS_DIR:-/etc/storage/dnsmasq}
+run_dir=${WRVPN_RUN_DIR:-/var/run/wrvpn}
+dns_servers=$dns_dir/wrvpn.servers
 
 fail()
 {
@@ -35,6 +38,26 @@ acquire()
     fi
 }
 
+dns_sync()
+{
+    if test "$(nvram get wrvpn_use_dns 2>/dev/null || :)" = "1"; then
+        tmp=$dns_servers.tmp
+        mkdir -p "$dns_dir" 2>/dev/null || :
+        : > "$tmp"
+        for file in "$run_dir"/*/wrv*.dns; do
+            test -f "$file" || continue
+            while IFS= read -r server; do
+                case "$server" in ''|*[!0-9a-fA-F:.]*) continue;; esac
+                echo "server=$server" >> "$tmp"
+            done < "$file"
+        done
+        mv "$tmp" "$dns_servers" || { fail 'DNS file update failed'; return 1; }
+    else
+        rm -f "$dns_servers"
+    fi
+    killall -HUP dnsmasq 2>/dev/null || :
+}
+
 start_service()
 {
     acquire || return 1
@@ -43,6 +66,7 @@ start_service()
         case "$id" in ''|*[!0-9]*) fail "invalid profile id: $id"; return 1;; esac
         "$ctl" up "$id" "$guard" || { fail "profile $id failed to start"; return 1; }
     done
+    dns_sync
 }
 
 stop_service()
@@ -53,6 +77,7 @@ stop_service()
         case "$id" in ''|*[!0-9]*) continue;; esac
         "$ctl" down "$id" || { fail "profile $id failed to stop"; result=1; }
     done
+    dns_sync || result=1
     return $result
 }
 

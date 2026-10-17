@@ -16,9 +16,13 @@ def main() -> int:
     args = parser.parse_args()
     services = args.tree / "trunk/user/rc/services.c"
     text = services.read_text(encoding="utf-8")
+    dns_source = args.tree / "trunk/user/rc/services_ex.c"
+    dns_text = dns_source.read_text(encoding="utf-8")
 
     if "wr-vpn-profiles-service" in text:
         raise RuntimeError("VPN profile service already integrated")
+    if "wrvpn.servers" in dns_text:
+        raise RuntimeError("VPN profile DNS already integrated")
 
     start_anchor = (
         '\tsystem("/usr/bin/iappd.sh test");\n'
@@ -44,7 +48,21 @@ def main() -> int:
     text = text.replace(stop_anchor, stop_anchor + stop_addition, 1)
 
     services.write_text(text, encoding="utf-8", newline="\n")
-    print("PASS integrated the VPN profile service into rc start and stop")
+
+    dns_anchor = (
+        "\t/* fill from user dnsmasq.servers */\n"
+        '\tload_user_config(fp, storage_dir, "dnsmasq.servers", NULL);\n'
+    )
+    dns_addition = (
+        "\t/* Independent VPN profiles: this file exists only when wrvpn_use_dns=1. */\n"
+        '\tload_user_config(fp, storage_dir, "wrvpn.servers", NULL);\n'
+    )
+    if dns_text.count(dns_anchor) != 1:
+        raise RuntimeError("fill_dnsmasq_servers anchor changed")
+    dns_text = dns_text.replace(dns_anchor, dns_anchor + dns_addition, 1)
+    dns_source.write_text(dns_text, encoding="utf-8", newline="\n")
+
+    print("PASS integrated the VPN profile service and DNS file into rc")
     return 0
 
 

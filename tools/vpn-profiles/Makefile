@@ -9,8 +9,8 @@ endif
 .PHONY: all romfs clean
 all: $(PROGRAMS)
 
-profilectl: profilectl.c store.c store.h resources.h validate-process.c validate-process.h link-observation.c link-observation.h runtime-state.c runtime-state.h config-transaction.c config-transaction.h config-apply.c config-apply.h config-plan.c config-plan.h plan-report.c plan-report.h addr-apply.c addr-apply.h route-apply.c route-apply.h profile-apply.c profile-apply.h link-actions.c link-actions.h link-lifecycle.c link-lifecycle.h
-	$(CC) $(CFLAGS) -std=gnu99 -D_GNU_SOURCE -Wall -Wextra -Werror $(LDFLAGS) -o $@ profilectl.c store.c validate-process.c link-observation.c runtime-state.c config-transaction.c config-apply.c config-plan.c plan-report.c addr-apply.c route-apply.c profile-apply.c link-actions.c link-lifecycle.c -lrt
+profilectl: profilectl.c store.c store.h resources.h validate-process.c validate-process.h link-observation.c link-observation.h runtime-state.c runtime-state.h config-transaction.c config-transaction.h config-apply.c config-apply.h config-plan.c config-plan.h plan-report.c plan-report.h addr-apply.c addr-apply.h route-apply.c route-apply.h profile-apply.c profile-apply.h dns-apply.c dns-apply.h link-actions.c link-actions.h link-lifecycle.c link-lifecycle.h
+	$(CC) $(CFLAGS) -std=gnu99 -D_GNU_SOURCE -Wall -Wextra -Werror $(LDFLAGS) -o $@ profilectl.c store.c validate-process.c link-observation.c runtime-state.c config-transaction.c config-apply.c config-plan.c plan-report.c addr-apply.c route-apply.c profile-apply.c dns-apply.c link-actions.c link-lifecycle.c -lrt
 
 validate-wg: validate-client.c store.h resources.h $(WG_SRC)/config.c $(WG_SRC)/encoding.c
 	$(CC) $(CFLAGS) -std=gnu99 -D_GNU_SOURCE -I$(WG_SRC) -idirafter $(WG_SRC)/uapi/linux $(LDFLAGS) -o $@ validate-client.c $(WG_SRC)/config.c $(WG_SRC)/encoding.c

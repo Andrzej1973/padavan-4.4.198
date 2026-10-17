@@ -195,6 +195,16 @@ static const char *route_name(enum wr_vpn_route_result result)
     }
     return "invalid";
 }
+static const char *dns_name(enum wr_vpn_dns_result result)
+{
+    switch (result) {
+    case WR_VPN_DNS_DONE: return "done";
+    case WR_VPN_DNS_EMPTY: return "empty";
+    case WR_VPN_DNS_INVALID: return "invalid";
+    case WR_VPN_DNS_IO: return "io";
+    }
+    return "invalid";
+}
 static const char *lifecycle_name(enum wr_vpn_lifecycle_result result)
 {
     switch (result) {
@@ -238,15 +248,16 @@ static int wr_up(int root,unsigned int id,const char *protect)
     }
     if (!wr_vpn_profile_apply(resources.runtime,&record,&session,&options,&exec,&outcome))
         return 3;
-    printf("up\t%u\tprotocol=%s\taddresses=%s\troutes=%s\n",id,
+    printf("up\t%u\tprotocol=%s\taddresses=%s\troutes=%s\tdns=%s\n",id,
            transaction_name(outcome.protocol),address_name(outcome.addresses),
-           route_name(outcome.routes));
+           route_name(outcome.routes),dns_name(outcome.dns));
     if (fflush(stdout)) return 3;
     if (outcome.protocol!=WR_VPN_TRANSACTION_DONE &&
         outcome.protocol!=WR_VPN_TRANSACTION_UNSAVED)
         return transaction_status(outcome.protocol);
     if (outcome.addresses_attempted && outcome.addresses!=WR_VPN_ADDR_DONE) return 8;
     if (outcome.routes_attempted && outcome.routes!=WR_VPN_ROUTE_DONE) return 9;
+    if (outcome.dns_attempted && outcome.dns!=WR_VPN_DNS_DONE) return 11;
     return outcome.protocol==WR_VPN_TRANSACTION_UNSAVED?10:0;
 }
 /* Scoped policy first (rule, routes, addresses), then the owned link. */
