@@ -139,7 +139,7 @@ enum wr_vpn_runtime_result wr_vpn_runtime_snapshot_put(struct wr_vpn_runtime *r,
     fd=openat(r->root,temp,O_WRONLY|O_CREAT|O_EXCL|O_NOFOLLOW|O_CLOEXEC,0600);
     if (fd<0) return WR_VPN_RUNTIME_IO;
     ok=!fchmod(fd,0600) && transfer(fd,header,sizeof(header),1) &&
-        transfer(fd,record->config,record->size,1);
+        transfer(fd,(void *)record->config,record->size,1);
     if (close(fd)) ok=0;
     if (ok && !renameat(r->root,temp,r->root,name)) return WR_VPN_RUNTIME_OK;
     unlinkat(r->root,temp,0);return WR_VPN_RUNTIME_IO;
