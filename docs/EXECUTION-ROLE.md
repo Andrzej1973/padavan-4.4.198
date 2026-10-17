@@ -1355,3 +1355,13 @@ is only the requested protocol snapshot; address/routes/DNS/connectivity remain
 separate gates. New helper is not packaged or exposed yet. CI tests pinned native
 IPC compilation and a missing real device, with synthetic observed devices for
 field drift; no physical-kernel configuration is claimed. CI pending.
+
+Service CI #140 for 618a68e5d59f1087e040dfcc3f2becfa06887099 passed:
+https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/39003287058
+Both pinned native readback checks passed after supplying upstream RUNSTATEDIR
+and curve25519 IPC dependencies (earlier #138/#139 failed fixture compilation).
+Added readback-wg/awg packaging and MIPS image gates for missing-device,
+legacy-name and hostname rejection. Packaging is pending full firmware CI.
+Helpers are read-only and have no startup hook. The apply/controller candidate
+remains unintegrated; real session ownership, endpoint routes, protocol mutation,
+readback on a configured physical interface and address/route/DNS rollback remain.
