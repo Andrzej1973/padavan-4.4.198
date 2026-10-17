@@ -1,7 +1,7 @@
 (function(root,factory){if(typeof module==='object'&&module.exports)module.exports=factory();else root.WRRoamingView=factory();})(typeof window!=='undefined'?window:this,function(){
  'use strict';
  function createView(doc,root){
-  function translated(key,fallback){var value=root.getAttribute&&root.getAttribute('data-wr-'+key);return value&&value.indexOf('<#')<0?value:fallback;}
+  function translated(key,fallback){var value=root.getAttribute&&root.getAttribute('data-wr-'+key);return value&&value.indexOf('<'+'#')<0?value:fallback;}
   function format(key,fallback,values){return translated(key,fallback).replace(/\{([A-Za-z]+)\}/g,function(token,name){return Object.prototype.hasOwnProperty.call(values,name)?String(values[name]):token;});}
   function node(tag,text,parent){var n=doc.createElement(tag);if(text)n.textContent=text;(parent||root).appendChild(n);return n;}
   node('h3',translated('history-title','Wi-Fi observation history'));var status=node('p',translated('state-unavailable','Unavailable')),notice=node('p',''),label=node('label',translated('history-client','Client MAC: ')),filter=node('input','',label),details=node('details',''),summary=node('summary',translated('history-recent','Recent events'),details),list=node('ol','',details),last=null;

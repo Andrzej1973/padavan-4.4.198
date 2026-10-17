@@ -9,7 +9,7 @@
  function text(value){return typeof value==='string'?value.slice(0,128):'';}
  function createView(doc,root){
   var groups={},rows=Object.create(null),current=[],warning='',source=null;
-  function translated(key,fallback){var value=root.getAttribute?root.getAttribute('data-wr-'+key):null;return typeof value==='string'&&value&&value.indexOf('<#')<0?value:fallback;}
+  function translated(key,fallback){var value=root.getAttribute?root.getAttribute('data-wr-'+key):null;return typeof value==='string'&&value&&value.indexOf('<'+'#')<0?value:fallback;}
   function categoryLabel(category){return category==='All'?translated('category-all',category):category==='Unknown'?translated('category-unknown',category):category==='Smart TV'?translated('category-tv',category):category;}
   var networkLabels={};Object.keys(labels).forEach(function(key){networkLabels[key]=translated('network-'+key,labels[key]);});
   function evidenceLabel(value){

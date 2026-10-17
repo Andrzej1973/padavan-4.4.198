@@ -1,7 +1,7 @@
 (function(root,factory){if(typeof module==='object'&&module.exports)module.exports=factory();else root.WRRssiView=factory();})(typeof window!=='undefined'?window:this,function(){
  'use strict';
  function createView(doc,root){
-  function translated(key,fallback){var value=root.getAttribute&&root.getAttribute('data-wr-'+key);return value&&value.indexOf('<#')<0?value:fallback;}
+  function translated(key,fallback){var value=root.getAttribute&&root.getAttribute('data-wr-'+key);return value&&value.indexOf('<'+'#')<0?value:fallback;}
   var stale=false;
   function node(tag,text,parent){var n=doc.createElement(tag);n.textContent=text;(parent||root).appendChild(n);return n;}
   var title=translated('rssi-title','RSSI Kick driver events');

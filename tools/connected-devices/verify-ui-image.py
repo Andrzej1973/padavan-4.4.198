@@ -46,6 +46,7 @@ for name in ('classify', 'refresh', 'homepage', 'roaming', 'roaming-view', 'rssi
     target = 'wr-device-' + name + '.js'
     content = (www / target).read_bytes()
     assert content == (local / (name + '.js')).read_bytes(), target
+    assert b'<#' not in content and b'<%' not in content, (target, 'literal Padavan template marker in JavaScript')
     assert page.count('src="/' + target + '"') == 1, target
     total += len(content)
 css = (www / 'wr-device-homepage.css').read_bytes()
