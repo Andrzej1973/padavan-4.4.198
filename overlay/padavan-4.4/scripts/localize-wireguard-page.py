@@ -13,7 +13,9 @@ page = root / ('Advanced_wireguard.asp' if a.verify_image else 'n56u_ribbon_fixe
 text = page.read_text(encoding='utf-8')
 entries = [
     ('WireGuard 是一个易于配置、快速且安全的开源VPN', 'Description',
-     'WireGuard is an open source VPN.', 'WireGuard — VPN з відкритим кодом.', 'WireGuard — VPN с открытым кодом.'),
+     'This is the legacy simplified WireGuard form. Choose WireGuard or AmneziaWG on the <a href="/vpncli.asp">VPN client and profiles page</a>. Changing an existing tunnel may disconnect it.',
+     'Це стара спрощена форма WireGuard. Вибір WireGuard або AmneziaWG доступний на сторінці <a href="/vpncli.asp">VPN-клієнт і профілі</a>. Зміна чинного тунелю може розірвати з’єднання.',
+     'Это старая упрощённая форма WireGuard. Выбор WireGuard или AmneziaWG доступен на странице <a href="/vpncli.asp">VPN-клиент и профили</a>. Изменение действующего туннеля может разорвать соединение.'),
     ('启用wireguard客户端', 'Enable',
      'Enable WireGuard client', 'Увімкнути клієнт WireGuard', 'Включить клиент WireGuard'),
     ('本机密钥key ', 'LocalKey',
