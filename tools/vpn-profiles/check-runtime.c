@@ -71,7 +71,7 @@ int main(void)
         assert(!fstatat(runtime.root,"snapshot-1",&st,AT_SYMLINK_NOFOLLOW) &&
                (st.st_mode&0777)==0600 && st.st_nlink==1);
         applied.size=0;assert(wr_vpn_runtime_snapshot_put(&runtime,&applied)==WR_VPN_RUNTIME_INVALID);
-        fd=openat(runtime.root,"snapshot-1",O_WRONLY);
+        fd=openat(runtime.root,"snapshot-1",O_WRONLY|O_TRUNC);
         assert(fd>=0);assert(write(fd,"WRVG\1bad",8)==8);close(fd);
         assert(wr_vpn_runtime_snapshot_get(&runtime,1,&loaded)==WR_VPN_RUNTIME_INVALID);
         assert(!unlinkat(runtime.root,"snapshot-1",0));
