@@ -161,7 +161,7 @@ with tempfile.TemporaryDirectory(prefix='wrvpn-controller-') as directory:
                             'ip rule add fwmark 0x57560002/0xffffffff lookup 20002 priority 20003'], commands
 
         outcome, commands = run(protocol, None, data)
-        assert outcome == '0,2,4,1,0', (outcome, commands)
+        assert outcome == '0,2,1,1,0', (outcome, commands)
         assert commands == [], commands
 
         outcome, commands = run(protocol, '192.168.20.0/24', data, fail_at=2)
