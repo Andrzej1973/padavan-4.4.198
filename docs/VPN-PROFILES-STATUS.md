@@ -56,7 +56,7 @@ it outside AP mode and stops it with the other services.
 | `edit` (validate, refuse live, bump revision) | verified in CI | `check-manager`, run 39011408823 |
 | Read-only profile table on the VPN page | verified in CI and in build 389 | `prepare-web` / `check-web`; build 389 |
 | WebUI actions (up/down/delete) | implemented, host-tested and shipped in build 389; browser/device pending | `check-http-action`; build 389 |
-| Per-profile export and QR from the WebUI | implemented; host tests green, build 391 pending | `check-http-export`, run 39017562977 |
+| Per-profile export and QR from the WebUI | verified in CI and in build 391 | `check-http-export`; build 391 |
 | `rc` start/stop hook | patched and applied in the image build | build `263bdee`, step `Apply WR1200JS board port` = success |
 | DNS aggregation into dnsmasq (opt-in) | file and service verified in CI; rc line applied | `check-service`; same board-port step |
 | Real tunnel, routes, DNS, handshake on the device | **not verified** | device unreachable; nothing flashed |
