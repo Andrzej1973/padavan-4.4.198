@@ -20,6 +20,7 @@ case "$FAKE_MODE" in
   bad) printf 'garbage\\n';;
   fail) exit 3;;
   slow) sleep 2;;
+  closed-output) exec 1>&- 2>&-; exec sleep 5;;
   *) exit 9;;
 esac
 '''
@@ -63,8 +64,10 @@ int main(int argc,char **argv)
  run("bad");assert(strstr(reply,"unavailable")&&!strstr(reply,"<td>1</td>"));
  run("fail");assert(strstr(reply,"unavailable"));
  run("slow");assert(strstr(reply,"unavailable"));
+ {long long began=wr_vpn_web_ms();run("closed-output");
+  assert(strstr(reply,"unavailable") && wr_vpn_web_ms()-began<1500);}
  unlink(argv[1]);
- puts("PASS VPN profile table: login refusal, bounded list rendering, malformed/failed/timeout refusal");
+ puts("PASS VPN profile table: login refusal, bounded rendering and timeout including closed-output live child");
  return 0;
 }
 '''

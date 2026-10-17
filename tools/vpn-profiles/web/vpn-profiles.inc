@@ -58,8 +58,11 @@ static int wr_vpn_web_run(const char *const argv[],char *out,size_t capacity)
     }
     close(pipefd[1]);
     began=wr_vpn_web_ms();
+    if (began<0) goto failed;
     for (;;) {
         struct pollfd pfd;int ready;ssize_t got;
+        long long now=wr_vpn_web_ms();
+        if (now<began || now-began>=WR_VPN_LIST_TIMEOUT_MS) break;
         pfd.fd=pipefd[0];pfd.events=POLLIN;pfd.revents=0;
         ready=poll(&pfd,1,50);
         if (ready<0) { if (errno==EINTR) continue;break; }
@@ -72,21 +75,26 @@ static int wr_vpn_web_run(const char *const argv[],char *out,size_t capacity)
             break;
         }
         if (ready>0 && (pfd.revents&(POLLHUP|POLLERR))) { ok=1;break; }
-        {
-            long long now=wr_vpn_web_ms();
-            if (now<0 || now-began>=WR_VPN_LIST_TIMEOUT_MS) break;
-        }
     }
-    if (!ok) {
-        kill(child,SIGKILL);
-        while (waitpid(child,&status,0)<0 && errno==EINTR) {}
-        close(pipefd[0]);
-        return 0;
+    if (!ok) goto failed;
+    for (;;) {
+        pid_t waited=waitpid(child,&status,WNOHANG);
+        struct timespec delay={0,20000000};
+        long long now;
+        if (waited==child) break;
+        if (waited<0 && errno!=EINTR) { close(pipefd[0]);return 0; }
+        now=wr_vpn_web_ms();
+        if (now<began || now-began>=WR_VPN_LIST_TIMEOUT_MS) goto failed;
+        nanosleep(&delay,NULL);
     }
-    while (waitpid(child,&status,0)<0 && errno==EINTR) {}
     close(pipefd[0]);
     out[used]=0;
     return WIFEXITED(status) && WEXITSTATUS(status)==0;
+failed:
+    kill(child,SIGKILL);
+    while (waitpid(child,&status,0)<0 && errno==EINTR) {}
+    close(pipefd[0]);
+    return 0;
 }
 
 /* Renders one table row per stored profile: id, label, revision. */
