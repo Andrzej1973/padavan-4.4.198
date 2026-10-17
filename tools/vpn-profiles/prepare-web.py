@@ -17,6 +17,11 @@ html = page.read_text(encoding="utf-8")
 if "wr_vpn_profile_rows" in text:
     raise RuntimeError("VPN profile rows already integrated")
 
+# The injected code includes this header from the httpd directory.
+(httpd / "vpn-profiles-render.h").write_text(
+    (here / "web/vpn-profiles-render.h").read_text(encoding="utf-8"),
+    encoding="utf-8", newline="\n")
+
 mime_anchor = "struct mime_handler mime_handlers[] = {"
 if text.count(mime_anchor) != 1:
     raise RuntimeError("mime_handlers anchor changed")

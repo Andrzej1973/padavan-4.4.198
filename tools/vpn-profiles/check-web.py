@@ -10,6 +10,7 @@ args = parser.parse_args()
 web = (args.tree / "trunk/user/httpd/web_ex.c").read_text(encoding="utf-8")
 page = (args.tree / "trunk/user/www/n56u_ribbon_fixed/vpncli.asp").read_text(encoding="utf-8")
 
+assert (args.tree / "trunk/user/httpd/vpn-profiles-render.h").exists(), "render header not copied"
 assert web.count("static int ej_wr_vpn_profile_rows") == 1, "profile rows handler missing"
 assert web.count('{ "wr_vpn_profile_rows", ej_wr_vpn_profile_rows},') == 1, "handler not registered"
 assert '"/usr/sbin/wr-vpn-profile"' in web, "fixed manager path changed"
