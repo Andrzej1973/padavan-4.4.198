@@ -165,6 +165,7 @@ jobs:
           python3 overlay/padavan-4.4/scripts/add-amneziawg-pages.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/localize-wireguard-page.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/localize-inherited-dicts.py padavan-4.4
+          python3 overlay/padavan-4.4/scripts/add-wr1200js-footer-credit.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/localize-rssi-thresholds.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/preserve-ddns-defaults.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/add-logo-ddns-selectors.py padavan-4.4 amnezia-source
@@ -968,6 +969,8 @@ jobs:
 
       - name: Verify inherited dictionary translations
         run: python3 overlay/padavan-4.4/scripts/localize-inherited-dicts.py padavan-4.4 --verify-image
+      - name: Verify WR1200JS footer attribution and upstream notices
+        run: python3 overlay/padavan-4.4/scripts/add-wr1200js-footer-credit.py padavan-4.4 --verify-image
       - name: Verify RSSI threshold captions and tooltips in image dictionaries
         run: python3 overlay/padavan-4.4/scripts/localize-rssi-thresholds.py padavan-4.4 --verify-image
 
