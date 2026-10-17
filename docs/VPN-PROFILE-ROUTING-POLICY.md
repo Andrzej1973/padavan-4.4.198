@@ -67,3 +67,15 @@ network model. Nothing here is implemented beyond the protocol transaction yet.
 
 Until those are answered, the controller implements points 1–5 with the
 conservative defaults above: no global route rule, DNS only when enabled.
+
+## Concurrency notes
+
+- `up` acquires the owned link under the runtime lock, releases it, and then the
+  configuration transaction re-takes the lock and verifies the session by
+  compare-and-swap. A teardown in between therefore makes the transaction
+  report `absent` or `stale` instead of applying configuration to a foreign or
+  removed link; it never silently configures somebody else's interface.
+- `down` removes the rule, routes and addresses before taking the lock for the
+  release, so a release cannot leave policy pointing at a missing interface.
+  Two concurrent calls on the same profile are serialised by the profile lock
+  and, for the normal activation path, by the service lock.
