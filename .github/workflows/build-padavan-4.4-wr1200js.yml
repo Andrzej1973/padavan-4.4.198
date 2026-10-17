@@ -159,6 +159,7 @@ jobs:
           python3 overlay/padavan-4.4/scripts/add-amneziawg-web-capabilities.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/add-amneziawg-web-actions.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/add-amneziawg-web-assets.py padavan-4.4
+          python3 tools/prepare-service-toggle-colors.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/add-amneziawg-vpn-labels.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/add-amneziawg-pages.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/localize-wireguard-page.py padavan-4.4
@@ -678,6 +679,7 @@ jobs:
             grep -aq 'wr_vpn_action.cgi' trunk/romfs/usr/sbin/httpd
             grep -q 'wr_vpn_create.cgi' trunk/romfs/www/vpncli.asp
             grep -aq 'wr_vpn_create.cgi' trunk/romfs/usr/sbin/httpd
+            python3 ../tools/prepare-service-toggle-colors.py . --verify-image
             grep -q '/wifi-qrcode-renderer.js' trunk/romfs/www/vpnsrv.asp
             ! grep -q '/qrcode.min.js' trunk/romfs/www/vpnsrv.asp
             grep -q 'wrVPNQrPayload' trunk/romfs/www/vpnsrv.asp

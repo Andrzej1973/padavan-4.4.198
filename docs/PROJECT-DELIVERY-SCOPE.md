@@ -1,5 +1,11 @@
 # WR1200JS project delivery requirements
 
+User UI palette request, 2026-10-17: enabled service toggle controls should
+be green; disabled controls retain neutral grey. Preserve ON/OFF text and
+loading/disabled feedback. Toggle color represents the selected setting;
+actual service health remains a separate observed indicator. Apply through
+the shared iToggle stylesheet for consistent controls across pages.
+
 User-approved extension, 2026-10-02.
 
 Primary objective remains the Linux 4.4.198 port of YOUHUA WR1200JS,
