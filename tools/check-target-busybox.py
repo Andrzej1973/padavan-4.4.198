@@ -52,6 +52,8 @@ for directory,dirs,files in os.walk(root,followlinks=False):
         report['scripts'].append(item)
 report['checks']['all_discovered_shell_syntax']=bool(report['scripts']) and all(
     item['syntax_exit']==0 for item in report['scripts'])
+report['checks']['command_v_supported_or_avoided']=not any(
+    item['command_v_requires_review'] for item in report['scripts'])
 with tempfile.TemporaryDirectory(prefix='target-busybox-') as tmp:
     target=Path(tmp)/'canonical';target.mkdir()
     alias=Path(tmp)/'alias';alias.symlink_to(target,target_is_directory=True)

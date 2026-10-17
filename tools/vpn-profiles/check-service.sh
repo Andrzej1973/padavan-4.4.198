@@ -23,7 +23,11 @@ cat > "$bin/logger" <<'EOS'
 #!/bin/sh
 exit 0
 EOS
-chmod +x "$bin/nvram" "$bin/wr-vpn-profile" "$bin/logger"
+cat > "$bin/flock" <<'EOS'
+#!/bin/sh
+exit 0
+EOS
+chmod +x "$bin/nvram" "$bin/wr-vpn-profile" "$bin/logger" "$bin/flock"
 
 run()
 {
@@ -126,5 +130,16 @@ fi
 test "$(cat "$calls")" = "ctl down 3
 ctl down 7"
 
+# The profile manager must not run without its lifecycle lock utility.
+mkdir -p "$root/no-flock"
+: > "$calls"
+if PATH="$root/no-flock" WRVPN_CTL="$bin/wr-vpn-profile" \
+    WRVPN_LOCK="$root/no-flock.lock" WRVPN_DNS_DIR="$root/dns" \
+    WRVPN_RUN_DIR="$root/run" "$here/service.sh" start 2>/dev/null; then
+    echo 'missing flock was accepted' >&2
+    exit 1
+fi
+test ! -s "$calls"
+
 rm -rf "$root"
-echo 'PASS VPN profile service: up/down/status argument passing, protected prefixes, invalid id refusal, opt-in DNS aggregation and removal, runtime-only id teardown'
+echo 'PASS VPN profile service: start lock enforcement, up/down/status, protected prefixes, invalid id refusal, opt-in DNS aggregation/removal and runtime-only teardown'

@@ -42,10 +42,9 @@ active_ids()
 
 acquire()
 {
-    if command -v flock >/dev/null 2>&1; then
-        exec 9>"$lock"
-        flock -n 9 || { fail 'another run holds the lock'; return 1; }
-    fi
+	type flock >/dev/null 2>&1 || { fail 'flock is required'; return 1; }
+	exec 9>"$lock"
+	flock -x -n 9 || { fail 'another run holds the lock'; return 1; }
 }
 
 dns_sync()

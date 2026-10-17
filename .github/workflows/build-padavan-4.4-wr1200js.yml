@@ -998,6 +998,13 @@ jobs:
       - name: Audit all shipped shell scripts with exact target BusyBox
         run: python3 tools/check-target-busybox.py padavan-4.4 --output target-busybox-audit.json
 
+      - name: Exercise VPN profile service lock path with exact target BusyBox
+        run: |
+          if grep -qx 'CONFIG_FIRMWARE_INCLUDE_WIREGUARD=y' configs.build/wr1200js.config; then
+            python3 tools/vpn-profiles/check-target-service.py \
+              padavan-4.4/trunk/romfs --output vpn-service-target-busybox.json
+          fi
+
       - name: Check shipped WireGuard server export with exact target BusyBox
         run: |
           set -o pipefail
@@ -1031,6 +1038,7 @@ jobs:
             vpn-profile-image.json
             vpn-link-mips.txt
             vpn-manager-mips.json
+            vpn-service-target-busybox.json
           if-no-files-found: ignore
 
       - name: Verify USBIP settings UI and linked HTTP storage code
