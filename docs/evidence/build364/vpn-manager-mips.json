@@ -1,0 +1,54 @@
+{
+  "scope": "shipped MIPS manager/validator fork-exec and private file integration under QEMU/PRoot; no physical acceptance or network mutations",
+  "physical_runtime_verified": false,
+  "cases": [
+    {
+      "case": "create-first",
+      "passed": true
+    },
+    {
+      "case": "create-independent-WG",
+      "passed": true
+    },
+    {
+      "case": "export-first",
+      "passed": true
+    },
+    {
+      "case": "export-WG",
+      "passed": true
+    },
+    {
+      "case": "metadata-list",
+      "passed": true
+    },
+    {
+      "case": "duplicate-refused",
+      "passed": true
+    },
+    {
+      "case": "invalid-key-refused",
+      "passed": true
+    },
+    {
+      "case": "hook-refused",
+      "passed": true
+    },
+    {
+      "case": "missing-helper-refused",
+      "passed": true
+    },
+    {
+      "case": "first-profile-preserved",
+      "passed": true
+    }
+  ],
+  "binaries": {
+    "usr/sbin/wr-vpn-profile": "575569f8e7fe74b503da83d2e9d7708f1bf0ab5615b93440cfefbceac3dc50d6",
+    "usr/libexec/wrvpn/validate-wg": "f456fdc237835b9bc5655d87910aa8902b39c3d138427eed81d67cca3eeeeca4",
+    "usr/libexec/wrvpn/validate-awg": "0238719e7d80ad38e4f1f7781d4ad502374692fb3873851f67902f16525eff83"
+  },
+  "private_modes_passed": true,
+  "profiles_unchanged_after_rejections": true,
+  "case_count": 10
+}
