@@ -12,6 +12,8 @@ matched = [i for i, line in enumerate(lines) if "STATUS QUERY ON" in line and "B
 if len(matched) != 1:
     raise SystemExit("Expected exactly one MT7603 periodic steering status log")
 i = matched[0]
+if "DBG_LVL_OFF" not in lines[i]:
+    raise SystemExit("Unexpected steering status log level; fresh source required")
 indent = lines[i][:len(lines[i]) - len(lines[i].lstrip())]
 lines[i] = indent + "/* Periodic status log removed: it filled syslog without new information. */\n"
 target.write_text("".join(lines), encoding="utf-8")

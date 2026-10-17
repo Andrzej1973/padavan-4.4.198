@@ -1,4 +1,4 @@
-"""Require only the periodic status log level to change in actual source."""
+"""Require only the periodic status log line to change in actual source."""
 import argparse
 from pathlib import Path
 import shutil
@@ -14,7 +14,9 @@ original = (a.source / relative).read_text(encoding='utf-8')
 lines = [line for line in original.splitlines(keepends=True)
          if 'STATUS QUERY ON' in line and 'BND_STRG_MTWF_LOG(' in line]
 assert len(lines) == 1 and 'DBG_LVL_OFF' in lines[0], 'Pinned periodic log changed'
-expected = original.replace(lines[0], lines[0].replace('DBG_LVL_OFF', 'DBG_LVL_TRACE', 1), 1)
+indent = lines[0][:len(lines[0]) - len(lines[0].lstrip())]
+replacement = indent + "/* Periodic status log removed: it filled syslog without new information. */\n"
+expected = original.replace(lines[0], replacement, 1)
 root = Path.cwd() / ('quiet-log-check-' + uuid.uuid4().hex)
 root.mkdir()
 try:
@@ -35,4 +37,4 @@ try:
 finally:
     assert root.resolve().parent == Path.cwd().resolve()
     shutil.rmtree(root)
-print('PASS periodic steering log changes OFF to TRACE only; protocol source preserved; repeated/changed/duplicate anchors rejected')
+print('PASS periodic steering status log removed only; protocol source preserved; repeated/changed/duplicate anchors rejected')
