@@ -104,6 +104,8 @@ on:
       - 'tools/vpn-profiles/config-transaction.h'
       - 'tools/vpn-profiles/endpoint-pin.c'
       - 'tools/vpn-profiles/endpoint-pin.h'
+      - 'tools/vpn-profiles/plan-report.c'
+      - 'tools/vpn-profiles/plan-report.h'
       - 'tools/export-vpn-qr-fixtures.js'
       - 'tools/check-wg-server-export.py'
       - 'tools/check-wg-server-ui.py'

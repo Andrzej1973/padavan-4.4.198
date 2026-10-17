@@ -5,6 +5,7 @@
 #include <net/if.h>
 #include "link-observation.h"
 #include "config-transaction.h"
+#include "plan-report.h"
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -151,6 +152,31 @@ static int wr_apply(int root,unsigned int id)
     printf("apply\t%u\t%s\n",id,transaction_name(result));
     return fflush(stdout)?3:transaction_status(result);
 }
+/* Read-only preview: what would be applied, and what is observed now. */
+static int wr_plan(int root,unsigned int id)
+{
+    struct wr_vpn_record record,snapshot;struct wr_vpn_session session;
+    struct wr_vpn_resources resources;struct wr_vpn_runtime runtime={-1,-1};
+    struct wr_vpn_session *observed=NULL;struct wr_vpn_record *rollback=NULL;
+    enum wr_vpn_store_result stored;enum wr_vpn_runtime_result status;
+    size_t capacity=2*WR_VPN_CONFIG_MAX+2048;char *text;int result=3;
+    stored=wr_vpn_store_get(root,id,&record);
+    if (stored==WR_VPN_STORE_NOT_FOUND) return 5;
+    if (stored!=WR_VPN_STORE_OK || !wr_vpn_resources_make(&resources,id,record.protocol)) return 3;
+    text=calloc(1,capacity);
+    if (!text) return 3;
+    status=wr_vpn_runtime_lock(resources.runtime,&runtime);
+    if (status==WR_VPN_RUNTIME_OK) {
+        if (wr_vpn_runtime_read(&runtime,id,&session)==WR_VPN_RUNTIME_OK) observed=&session;
+        if (wr_vpn_runtime_snapshot_get(&runtime,id,&snapshot)==WR_VPN_RUNTIME_OK) rollback=&snapshot;
+        wr_vpn_runtime_unlock(&runtime);
+    }
+    if (wr_vpn_plan_report(&record,observed,rollback,text,capacity)) {
+        fputs(text,stdout);result=fflush(stdout)?3:0;
+    }
+    free(text);
+    return result;
+}
 int main(int argc,char **argv)
 {
     unsigned int id=0; int root,result;
@@ -162,7 +188,7 @@ int main(int argc,char **argv)
         if (!strcmp(argv[3],"amneziawg")) protocol=WR_VPN_AMNEZIAWG;
         else if (strcmp(argv[3],"wireguard")) return 2;
     } else if (argc==3 && (!strcmp(argv[1],"export") || !strcmp(argv[1],"observe") ||
-                           !strcmp(argv[1],"apply"))) {
+                           !strcmp(argv[1],"apply") || !strcmp(argv[1],"plan"))) {
         if (!wr_vpn_profile_id(argv[2],&id)) return 2;
     } else if (!(argc==2 && !strcmp(argv[1],"list"))) return 2;
     if (mkdir(WR_VPN_STORE_ROOT,0700) && errno!=EEXIST) return 3;
@@ -171,6 +197,7 @@ int main(int argc,char **argv)
     else if (!strcmp(argv[1],"export")) result=wr_export(root,id);
     else if (!strcmp(argv[1],"observe")) result=wr_observe(root,id);
     else if (!strcmp(argv[1],"apply")) result=wr_apply(root,id);
+    else if (!strcmp(argv[1],"plan")) result=wr_plan(root,id);
     else result=wr_list(root);
     close(root); return result;
 }

@@ -93,6 +93,7 @@ jobs:
           python3 tools/vpn-profiles/check-manager.py --wg-validator checks/vpn-import/wireguard --awg-validator checks/vpn-import/amneziawg --output checks/vpn-manager
           python3 tools/vpn-profiles/check-config-apply.py --wg-validator checks/vpn-import/wireguard --awg-validator checks/vpn-import/amneziawg
           python3 tools/vpn-profiles/check-config-transaction.py --wg-validator checks/vpn-import/wireguard --awg-validator checks/vpn-import/amneziawg
+          python3 tools/vpn-profiles/check-plan-report.py --wg-validator checks/vpn-import/wireguard --awg-validator checks/vpn-import/amneziawg
           python3 tools/vpn-profiles/check-config-readback.py --wg-source checks/wg-parser-source --awg-source checks/awg-parser-source
       - name: Check USB/IP runtime status integration
         run: |
