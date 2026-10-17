@@ -27,6 +27,7 @@ readback-awg: config-readback.c resources.h $(AWG_SRC)/config.c $(AWG_SRC)/encod
 romfs:
 	mkdir -p $(ROMFSDIR)/usr/libexec/wrvpn
 	$(ROMFSINST) -p +x profilectl /usr/sbin/wr-vpn-profile
+	$(ROMFSINST) -p +x service.sh /usr/sbin/wr-vpn-profiles-service
 	$(ROMFSINST) -p +x validate-wg /usr/libexec/wrvpn/validate-wg
 	$(ROMFSINST) -p +x readback-wg /usr/libexec/wrvpn/readback-wg
 	$(ROMFSINST) -p +x $(WG_SRC)/wg /usr/libexec/wrvpn/wg

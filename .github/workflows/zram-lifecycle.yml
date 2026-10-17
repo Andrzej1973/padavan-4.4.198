@@ -105,6 +105,8 @@ jobs:
       - name: Check USB/IP runtime status integration
         run: |
           sh -n tools/usbip/firewall-policy.sh
+          sh -n tools/vpn-profiles/service.sh
+          sh tools/vpn-profiles/check-service.sh
           python3 tools/usbip/check-firewall.py
           sh -n tools/usbip/service.sh
           python3 tools/usbip/check-service.py

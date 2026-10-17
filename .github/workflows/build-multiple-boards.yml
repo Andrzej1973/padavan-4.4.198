@@ -116,6 +116,7 @@ on:
       - 'tools/vpn-profiles/link-actions.h'
       - 'tools/vpn-profiles/link-lifecycle.c'
       - 'tools/vpn-profiles/link-lifecycle.h'
+      - 'tools/vpn-profiles/service.sh'
       - 'tools/export-vpn-qr-fixtures.js'
       - 'tools/check-wg-server-export.py'
       - 'tools/check-wg-server-ui.py'
