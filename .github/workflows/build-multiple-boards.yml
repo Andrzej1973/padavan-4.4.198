@@ -62,6 +62,7 @@ on:
       - 'overlay/padavan-4.4/candidates/eoip/**'
       - 'tools/eoip/**'
       - 'tools/wan-port/**'
+      - 'tools/services-nav/**'
       - 'tools/check-zerotier-state.py'
       - 'tools/check-target-busybox.py'
       - 'tools/prepare-target-busybox.py'
