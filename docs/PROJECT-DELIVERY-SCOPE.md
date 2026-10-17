@@ -751,3 +751,24 @@ Generate/package the guide from the maintained model-specific source and verify
 the final ZIP contains the correct firmware, config and matching instructions.
 Prepare final wording when that board's firmware and controls are ready; keep
 WR1200JS first, Mi Mini second, offline preservation last.
+
+## Unified Services navigation — physical UI feedback, 2026-10-17
+
+User confirmed the installed build still scatters services across Administration,
+Shadowsocks and tunneling pages. This is an unfinished delivery requirement.
+Provide one visible Services entry and a horizontal, wrapping navigation row:
+DNS (Stubby/DoT, DoH and supported DNS tools), VPN (WG/AWG profiles, ZeroTier),
+Proxy (Shadowsocks, Privoxy, WPAD), Access (HTTP/HTTPS, SSH, Telnet),
+Diagnostics (iPerf3 and available diagnostic tools), System (Cron, watchdog,
+discovery and other enabled system services). Keep model/build capability gates;
+link only supported pages and retain existing authenticated Apply/lifecycle paths.
+
+Each service must have a readable localized name, purpose/help, configured
+on/off separately from observed running/stopped/error/unknown state, and a direct
+settings link. A navigation row must appear consistently on service pages, with
+an active-tab indicator, without requiring visits to unrelated router sections.
+Do not classify KMS activation under terminal access. Existing VPN management
+access must survive the UI reorganization. Navigation-only mockups/links do not
+complete this requirement: verify destinations, forms, actual status and browser
+layout on the physical router. No live services or tunnel settings were changed
+while recording this feedback.
