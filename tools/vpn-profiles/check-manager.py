@@ -114,7 +114,7 @@ int main(void){int fd;for(fd=3;fd<4096;fd++){errno=0;if(fcntl(fd,F_GETFD)!=-1 ||
   and any(isinstance(t,ast.Name) and t.id=='PREFIX' for t in n.targets))
  http_source=root/'http-real-create.c';http_exe=root/'http-real-create'
  runtime_before={str(f.relative_to(root/'run')):f.read_bytes() for f in (root/'run').rglob('*') if f.is_file()}
- http_source.write_text(http_prefix+'\n#include "vpn-profiles.inc"\n#include "vpn-profiles-action.inc"\n#include "vpn-profiles-create.inc"\n'+r'''
+ http_source.write_text(http_prefix+'\n#include "vpn-profiles.inc"\n#include "vpn-profiles-action.inc"\n#include "vpn-profiles-create.inc"\n#include "vpn-profiles-observe.inc"\n'+r'''
 static void submit(const char *id,const char *protocol,const char *config,int success)
 {
  FILE *input=tmpfile();char body[17000];int size;assert(input);
@@ -134,6 +134,11 @@ int main(void)
  submit("10","wireguard",awg,0); /* Existing ID cannot be replaced. */
  submit("12","wireguard",awg,0); /* Native WG rejects AWG-only fields. */
  submit("12","wireguard","invalid configuration\n",0);
+ {char *id="10";ej_wr_vpn_profile_observation(0,NULL,1,&id);
+  assert(strstr(reply,"\"id\":10,") && strstr(reply,"\"ownership\":\"unverified\""));
+  assert(!strstr(reply,"PrivateKey") && !strstr(reply,"[Interface]"));
+  safe=0;ej_wr_vpn_profile_observation(0,NULL,1,&id);
+  assert(!strcmp(reply,"{\"interface_state\":\"unknown\"}"));}
  return 0;
 }
 ''')

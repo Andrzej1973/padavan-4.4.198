@@ -82,6 +82,15 @@ Python AST і diff-check пройшли; C-fixture/Linux CI/образ ще не
 в `tools/agent-nim/README.md`.
 ## Актуальний стан роботи — 2026-10-17
 
+### Незалежні профілі: ручне спостереження link
+
+Локальний кандидат додає `wr_vpn_profile_observation` через автентифікований
+update route та fixed manager observe. Кнопка біля профілю показує link
+absent/up/down/unknown, без claim handshake/connectivity/ownership і без
+мережевих мутацій чи background polling. Додано EN/UK/RU labels, actual-JS
+scenarios і реальний manager HTTP check. GCC render та Node create/observe
+checks пройшли локально; C/HTTP Linux CI і firmware image ще потрібні.
+
 ### Актуальна перевірка кандидата №416
 
 Збірки №412–416 успішні. №416 (`a5e590b`, run `39071330705`) завантажена:

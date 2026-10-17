@@ -1,6 +1,7 @@
                     <div class="box">
                         <div class="heading"><#WRVPN_PROFILES_TITLE#></div>
                         <div class="content">
+                            <span id="wr_vpn_link_text" style="display:none" data-check="<#WRVPN_OBSERVE#>" data-unknown="<#WRVPN_LINK_UNKNOWN#>" data-absent="<#WRVPN_LINK_ABSENT#>" data-up="<#WRVPN_LINK_UP#>" data-down="<#WRVPN_LINK_DOWN#>"></span>
                             <p><#WRVPN_CREATE_HELP#></p>
                             <label for="wr_vpn_create_id"><#WRVPN_ID#></label>
                             <input type="number" id="wr_vpn_create_id" min="1" max="999" value="1"/>
@@ -31,6 +32,33 @@
                     <script type="text/javascript">
                     //<![CDATA[
                     var wrVPNToken = <% wr_vpn_token(); %>;
+                    jQuery(function() {
+                        var text = document.getElementById('wr_vpn_link_text');
+                        jQuery('.wr-vpn-observe').text(text.getAttribute('data-check'));
+                    });
+                    function wrVPNObserve(id, button) {
+                        var label = document.getElementById('wr_vpn_link_' + id);
+                        var text = document.getElementById('wr_vpn_link_text');
+                        if (!label || !text || button.disabled) return;
+                        button.disabled = true;
+                        label.textContent = text.getAttribute('data-unknown');
+                        function finish(key) {
+                            label.textContent = text.getAttribute('data-' + key);
+                            button.disabled = false;
+                        }
+                        jQuery.ajax({url: '/update.cgi', dataType: 'json', cache: false, timeout: 5000,
+                            data: {output: 'wr_vpn_profile_observation', arg0: id},
+                            success: function(r) {
+                                if (!r || r.id !== id || r.ownership !== 'unverified') return finish('unknown');
+                                if (r.interface_state === 'absent' && r.up === null) return finish('absent');
+                                if (r.interface_state === 'observed' &&
+                                    (r.kind === 'wireguard' || r.kind === 'amneziawg')) {
+                                    if (r.up === true) return finish('up');
+                                    if (r.up === false) return finish('down');
+                                }
+                                finish('unknown');
+                            }, error: function() { finish('unknown'); }});
+                    }
                     function wrVPNCreate() {
                         var button = document.getElementById('wr_vpn_create_button');
                         var status = document.getElementById('wr_vpn_create_status');

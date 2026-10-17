@@ -30,6 +30,7 @@ injection = ((here / "web/vpn-profiles.inc").read_text(encoding="utf-8") + "\n" 
              (here / "web/vpn-profiles-action.inc").read_text(encoding="utf-8") + "\n" +
              (here / "web/vpn-profiles-export.inc").read_text(encoding="utf-8") + "\n")
 injection += (here / "web/vpn-profiles-create.inc").read_text(encoding="utf-8") + "\n"
+injection += (here / "web/vpn-profiles-observe.inc").read_text(encoding="utf-8") + "\n"
 text = text.replace(mime_anchor, injection + mime_anchor, 1)
 
 ej_anchor = "struct ej_handler ej_handlers[] =\n{\n"
@@ -38,6 +39,7 @@ if text.count(ej_anchor) != 1:
 entries = ('\t{ "wr_vpn_profile_rows", ej_wr_vpn_profile_rows},\n'
            '\t{ "wr_vpn_token", ej_wr_vpn_token},\n'
            '\t{ "wr_vpn_action_state", ej_wr_vpn_action_state},\n')
+entries += '\t{ "wr_vpn_profile_observation", ej_wr_vpn_profile_observation},\n'
 text = text.replace(ej_anchor, ej_anchor + entries, 1)
 
 route_anchor = '\t{ "update.cgi*",'
@@ -93,6 +95,11 @@ texts = {
     ),
 }
 create_texts = {
+    "WRVPN_OBSERVE": ("Check link", "Перевірити інтерфейс", "Проверить интерфейс"),
+    "WRVPN_LINK_UNKNOWN": ("Link state unknown", "Стан інтерфейсу невідомий", "Состояние интерфейса неизвестно"),
+    "WRVPN_LINK_ABSENT": ("Interface absent", "Інтерфейс відсутній", "Интерфейс отсутствует"),
+    "WRVPN_LINK_UP": ("Interface UP; VPN connectivity unverified", "Інтерфейс UP; зв’язок VPN не перевірено", "Интерфейс UP; связь VPN не проверена"),
+    "WRVPN_LINK_DOWN": ("Interface DOWN", "Інтерфейс DOWN", "Интерфейс DOWN"),
     "WRVPN_PROTOCOL": ("Protocol", "Протокол", "Протокол"),
     "WRVPN_CONFIG": ("Profile configuration", "Конфігурація профілю", "Конфигурация профиля"),
     "WRVPN_CREATE": ("Save new profile", "Зберегти новий профіль", "Сохранить новый профиль"),

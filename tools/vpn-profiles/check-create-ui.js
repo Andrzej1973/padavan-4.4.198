@@ -16,7 +16,7 @@ function fixture(overrides = {}) {
  for (const [id, value] of Object.entries(overrides)) elements[id].value = value;
  const requests = [];
  const context = {document: {getElementById: id => elements[id]},
-  jQuery: {ajax: request => requests.push(request)}};
+  jQuery: Object.assign(function() {}, {ajax: request => requests.push(request)})};
  vm.createContext(context); vm.runInContext(source, context);
  return {context, elements, requests};
 }
