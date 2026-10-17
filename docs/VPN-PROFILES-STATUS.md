@@ -54,7 +54,8 @@ it outside AP mode and stops it with the other services.
 | Hostname endpoint pinning in `up` (before the link exists) | verified in CI and in build 383 | `check-endpoint-pin`; build 383 (15/15 MIPS) |
 | `delete` tombstone (idle profiles only) | verified in CI | `check-manager`, run 39011116079 |
 | `edit` (validate, refuse live, bump revision) | verified in CI | `check-manager`, run 39011408823 |
-| Read-only profile table on the VPN page | implemented; service and image gates pending | `prepare-web` / `check-web` / `check-http-list` |
+| Read-only profile table on the VPN page | verified in CI and in build 389 | `prepare-web` / `check-web`; build 389 |
+| WebUI actions (up/down/delete) | implemented, host-tested and shipped in build 389; browser/device pending | `check-http-action`; build 389 |
 | `rc` start/stop hook | patched and applied in the image build | build `263bdee`, step `Apply WR1200JS board port` = success |
 | DNS aggregation into dnsmasq (opt-in) | file and service verified in CI; rc line applied | `check-service`; same board-port step |
 | Real tunnel, routes, DNS, handshake on the device | **not verified** | device unreachable; nothing flashed |
@@ -66,8 +67,10 @@ it outside AP mode and stops it with the other services.
   refuses hostnames because the tunnel may already carry DNS there.
 - "Route all traffic" is not offered: only packets the daemon marks are
   redirected. `priority_main` stays reserved for an explicit opt-in.
-- The VPN page gains a read-only profile table; lifecycle actions are still
-  CLI-only until the POST endpoint lands (`docs/VPN-PROFILES-WEBUI.md`).
+- The VPN page lists profiles and can start `up`, `down` and `delete` through
+  the authenticated action endpoint. Per-profile export/QR from the UI and
+  editing over HTTP are not implemented yet; `wr-vpn-profile edit` and
+  `export` remain CLI commands (`docs/VPN-PROFILES-WEBUI.md`).
 - The service is default-off and does nothing while `wrvpn_enabled` is empty.
 - A DNS-file failure also tears the profile down; `up` returns 0 only when the
   protocol, addresses, routes and (when present) DNS file all succeeded.
