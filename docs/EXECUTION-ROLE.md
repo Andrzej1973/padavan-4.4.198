@@ -82,6 +82,13 @@ Python AST і diff-check пройшли; C-fixture/Linux CI/образ ще не
 в `tools/agent-nim/README.md`.
 ## Актуальний стан роботи — 2026-10-17
 
+### Свіжість незалежного link status
+
+Додано browser receipt time успішного спостереження та expiry у unknown через
+30 секунд без network polling. Generation guard не дає старому таймеру
+перезаписати новий результат. Node create/protect/observe локально пройшли;
+CI/image для цього кроку ще потрібні. Гайд і status contract уточнені.
+
 ### Незалежні профілі: локалізація керування
 
 Кандидат локалізує EN/UK/RU start/stop/delete, підтвердження з ID,

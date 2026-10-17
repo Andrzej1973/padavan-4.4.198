@@ -35,6 +35,7 @@
                     <script type="text/javascript">
                     //<![CDATA[
                     var wrVPNToken = <% wr_vpn_token(); %>;
+                    var wrVPNObservationGeneration = {};
                     function wrVPNText(key) {
                         var text = document.getElementById('wr_vpn_action_text');
                         return text && text.getAttribute('data-' + key) || '?';
@@ -50,21 +51,31 @@
                         var label = document.getElementById('wr_vpn_link_' + id);
                         var text = document.getElementById('wr_vpn_link_text');
                         if (!label || !text || button.disabled) return;
+                        var generation = (wrVPNObservationGeneration[id] || 0) + 1;
+                        wrVPNObservationGeneration[id] = generation;
                         button.disabled = true;
                         label.textContent = text.getAttribute('data-unknown');
-                        function finish(key) {
+                        function finish(key, sampled) {
+                            if (wrVPNObservationGeneration[id] !== generation) return;
                             label.textContent = text.getAttribute('data-' + key);
                             button.disabled = false;
+                            if (sampled) {
+                                label.textContent += ' (' + new Date().toLocaleTimeString() + ')';
+                                setTimeout(function() {
+                                    if (wrVPNObservationGeneration[id] === generation)
+                                        label.textContent = text.getAttribute('data-unknown');
+                                }, 30000);
+                            }
                         }
                         jQuery.ajax({url: '/update.cgi', dataType: 'json', cache: false, timeout: 5000,
                             data: {output: 'wr_vpn_profile_observation', arg0: id},
                             success: function(r) {
                                 if (!r || r.id !== id || r.ownership !== 'unverified') return finish('unknown');
-                                if (r.interface_state === 'absent' && r.up === null) return finish('absent');
+                                if (r.interface_state === 'absent' && r.up === null) return finish('absent', true);
                                 if (r.interface_state === 'observed' &&
                                     (r.kind === 'wireguard' || r.kind === 'amneziawg')) {
-                                    if (r.up === true) return finish('up');
-                                    if (r.up === false) return finish('down');
+                                    if (r.up === true) return finish('up', true);
+                                    if (r.up === false) return finish('down', true);
                                 }
                                 finish('unknown');
                             }, error: function() { finish('unknown'); }});

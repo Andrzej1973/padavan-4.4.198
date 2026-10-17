@@ -1,5 +1,17 @@
 # Actual service and driver state in WebUI
 
+## Independent VPN profile link freshness
+
+The independent profile table has an explicit authenticated, bounded
+read-only observation using the fixed manager's `observe` command. It shows
+interface absent, UP, DOWN or unknown, and does not assert handshake,
+ownership or routed connectivity. A local follow-up displays browser receipt
+time for successful observations and expires the text to unknown after 30
+seconds without further network requests. A per-profile generation guards
+against an old expiry invalidating a newer observation. Local actual-JS tests
+cover expiry, refresh generations and no network calls on expiry; Linux CI
+and image/browser acceptance for this follow-up remain pending.
+
 ## DoH instance ownership follow-up
 
 The observer introduced in `670c12b` passed native ASan/UBSan CI [38505941650](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38505941650). The subsequent read-only HTTP handler passed emitted-handler tests in [38506100513](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38506100513). It reports four-bit masks for configured slots, PID-file/executable ownership, unknown observations and duplicate PIDs without exporting resolver URLs or PID values.
