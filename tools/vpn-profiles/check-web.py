@@ -24,6 +24,7 @@ assert web.count('{ "wr_vpn_export.cgi*", "application/json", no_cache_IE,') == 
 assert '"/usr/sbin/wr-vpn-profile"' in web, "fixed manager path changed"
 assert '"/usr/libexec/wrvpn/action-worker"' in web, "worker path changed"
 assert httpd.count("int wr_vpn_request_is_post(void)") == 1, "POST helper missing"
+assert "wg-management-trust" in httpd, "WireGuard management trust missing"
 assert page.count("<% wr_vpn_profile_rows(); %>") == 1, "page call missing"
 assert "<#WRVPN_PROFILES_TITLE#>" in page, "page title key missing"
 assert page.count("<% wr_vpn_token(); %>") == 1, "page token missing"

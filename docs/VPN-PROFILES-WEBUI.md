@@ -16,6 +16,10 @@ Requirement: `docs/PROJECT-DELIVERY-SCOPE.md`, "Distinct WG/AWG tunnel profiles"
 - `wr_vpn_export.cgi` returns one stored profile behind the same token/ack as
   a `no-cache` JSON string; the page renders the QR locally and wipes the
   server-side buffers.
+- httpd trusts WebUI management from `wg*` and `wrvpn*` interfaces
+  (`is_safe_ifname`), so the pages work over the WireGuard management tunnel.
+  Previously only `br0`, `pppX` and the OpenVPN `tun` were trusted, which made
+  actions such as `upgrade.cgi` silently inert when browsing through `wg1`.
 - Host fixtures cover the guard paths, worker argv/state and JSON escaping.
 
 ## Scope
