@@ -26,7 +26,8 @@ mime_anchor = "struct mime_handler mime_handlers[] = {"
 if text.count(mime_anchor) != 1:
     raise RuntimeError("mime_handlers anchor changed")
 injection = ((here / "web/vpn-profiles.inc").read_text(encoding="utf-8") + "\n" +
-             (here / "web/vpn-profiles-action.inc").read_text(encoding="utf-8") + "\n")
+             (here / "web/vpn-profiles-action.inc").read_text(encoding="utf-8") + "\n" +
+             (here / "web/vpn-profiles-export.inc").read_text(encoding="utf-8") + "\n")
 text = text.replace(mime_anchor, injection + mime_anchor, 1)
 
 ej_anchor = "struct ej_handler ej_handlers[] =\n{\n"
@@ -42,6 +43,8 @@ if text.count(route_anchor) != 1:
     raise RuntimeError("update.cgi route anchor changed")
 route = ('\t{ "wr_vpn_action.cgi*", "application/json", no_cache_IE,\n'
          '\t  wr_vpn_action_input, wr_vpn_action_output, 1 },\n')
+route += ('\t{ "wr_vpn_export.cgi*", "application/json", no_cache_IE,\n'
+          '\t  wr_vpn_export_input, wr_vpn_export_output, 1 },\n')
 text = text.replace(route_anchor, route + route_anchor, 1)
 
 main_path = httpd / "httpd.c"

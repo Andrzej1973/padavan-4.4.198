@@ -92,6 +92,7 @@ jobs:
           python3 tools/vpn-profiles/check-http-list.py --output checks/vpn-http-list
           python3 tools/vpn-profiles/check-action-worker.py --output checks/vpn-action-worker
           python3 tools/vpn-profiles/check-http-action.py --output checks/vpn-http-action
+          python3 tools/vpn-profiles/check-http-export.py --output checks/vpn-http-export
       - name: Check imports using pinned native WG and AWG parsers
         run: |
           git init checks/wg-parser-source

@@ -26,7 +26,7 @@ static inline int wr_vpn_web_render(const char *output,char *rows,size_t capacit
     while (line && *line) {
         const char *nl=strchr(line,'\n');
         size_t length=nl?(size_t)(nl-line):strlen(line);
-        char row[400];int written;
+        char row[480];int written;
         if (length) {
             const char *tab1=memchr(line,'\t',length);
             const char *tab2=tab1?memchr(tab1+1,'\t',length-(size_t)(tab1+1-line)):NULL;
@@ -39,11 +39,12 @@ static inline int wr_vpn_web_render(const char *output,char *rows,size_t capacit
             if (end!=(nl?nl:line+length) || !revision) return -1;
             written=snprintf(row,sizeof(row),
                 "<tr><td>%u</td><td>%.*s</td><td>%llu</td>"
-                "<td><button type=\"button\" class=\"btn btn-mini\" onclick=\"wrVPNAct('up',%u)\">Up</button> "
+                "<td><button type=\"button\" class=\"btn btn-mini\" onclick=\"wrVPNQr(%u)\">QR</button> "
+                "<button type=\"button\" class=\"btn btn-mini\" onclick=\"wrVPNAct('up',%u)\">Up</button> "
                 "<button type=\"button\" class=\"btn btn-mini\" onclick=\"wrVPNAct('down',%u)\">Down</button> "
                 "<button type=\"button\" class=\"btn btn-mini\" onclick=\"wrVPNAct('delete',%u)\">Delete</button>"
                 "</td></tr>\n",
-                id,(int)(tab2-(tab1+1)),tab1+1,revision,id,id,id);
+                id,(int)(tab2-(tab1+1)),tab1+1,revision,id,id,id,id);
             if (written<0 || (size_t)written>=sizeof(row) ||
                 used+(size_t)written>=capacity) return -1;
             memcpy(rows+used,row,(size_t)written);used+=(size_t)written;

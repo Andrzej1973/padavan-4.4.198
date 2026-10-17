@@ -20,6 +20,7 @@ assert web.count('{ "wr_vpn_profile_rows", ej_wr_vpn_profile_rows},') == 1, "han
 assert web.count('{ "wr_vpn_token", ej_wr_vpn_token},') == 1, "token handler not registered"
 assert web.count('{ "wr_vpn_action_state", ej_wr_vpn_action_state},') == 1, "state handler not registered"
 assert web.count('{ "wr_vpn_action.cgi*", "application/json", no_cache_IE,') == 1, "action route missing"
+assert web.count('{ "wr_vpn_export.cgi*", "application/json", no_cache_IE,') == 1, "export route missing"
 assert '"/usr/sbin/wr-vpn-profile"' in web, "fixed manager path changed"
 assert '"/usr/libexec/wrvpn/action-worker"' in web, "worker path changed"
 assert httpd.count("int wr_vpn_request_is_post(void)") == 1, "POST helper missing"
@@ -27,6 +28,7 @@ assert page.count("<% wr_vpn_profile_rows(); %>") == 1, "page call missing"
 assert "<#WRVPN_PROFILES_TITLE#>" in page, "page title key missing"
 assert page.count("<% wr_vpn_token(); %>") == 1, "page token missing"
 assert "wrVPNAct" in page and "wr_vpn_action.cgi" in page, "page action script missing"
+assert page.count("wr_vpn_export.cgi") == 1 and "wrVPNQr" in page, "page export script missing"
 
 script = re.search(r"//<!\[CDATA\[(.*?)//\]\]>", page, re.S)
 assert script, "page action script block missing"

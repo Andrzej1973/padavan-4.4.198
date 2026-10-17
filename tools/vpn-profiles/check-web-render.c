@@ -11,6 +11,7 @@ int main(void)
     assert(strstr(rows,"onclick=\"wrVPNAct('up',1)\"")!=NULL);
     assert(strstr(rows,"onclick=\"wrVPNAct('down',2)\"")!=NULL);
     assert(strstr(rows,"onclick=\"wrVPNAct('delete',1)\"")!=NULL);
+    assert(strstr(rows,"onclick=\"wrVPNQr(1)\"")!=NULL);
     assert(wr_vpn_web_render("",rows,sizeof(rows))==0);
     assert(wr_vpn_web_render("garbage\n",rows,sizeof(rows))==-1);
     assert(wr_vpn_web_render("1\tbad label\t2\n",rows,sizeof(rows))==-1);

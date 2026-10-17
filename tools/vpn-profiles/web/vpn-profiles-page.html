@@ -45,5 +45,48 @@
                                 if (count < 60) setTimeout(function () { wrVPNPoll(id, count + 1); }, 1000);
                             }});
                     }
+                    function wrVPNQrHost() {
+                        var box = document.getElementById('wr_vpn_qr_host');
+                        if (!box) {
+                            box = document.createElement('div');
+                            box.id = 'wr_vpn_qr_host';
+                            box.style.cssText = 'display:none;position:fixed;top:8%;left:50%;transform:translateX(-50%);z-index:9999;background:#fff;border:1px solid #999;padding:16px;max-width:92%;max-height:84%;overflow:auto;';
+                            document.body.appendChild(box);
+                        }
+                        return box;
+                    }
+                    function wrVPNQrClose() {
+                        var box = document.getElementById('wr_vpn_qr_host');
+                        if (box) { box.innerHTML = ''; box.style.display = 'none'; }
+                    }
+                    function wrVPNQr(id) {
+                        jQuery.ajax({url: '/wr_vpn_export.cgi', type: 'POST', dataType: 'json', timeout: 8000,
+                            data: {id: id, ack: '1', token: wrVPNToken},
+                            success: function (r) {
+                                if (typeof wrVPNQrPayload != 'function' || typeof WRWifiQRCode != 'function') {
+                                    alert('QR unavailable'); return;
+                                }
+                                var payload = r && wrVPNQrPayload(r.config);
+                                if (!payload) { alert('QR unavailable'); return; }
+                                var box = wrVPNQrHost();
+                                box.innerHTML = '';
+                                var qr = document.createElement('div');
+                                qr.style.backgroundColor = 'white';
+                                qr.style.padding = '16px';
+                                box.appendChild(qr);
+                                try { new WRWifiQRCode(qr, {text: payload, width: 256, height: 256}); }
+                                catch (e) { alert('QR unavailable'); return; }
+                                var ta = document.createElement('textarea');
+                                ta.rows = 6; ta.style.width = '100%'; ta.style.fontFamily = 'monospace';
+                                ta.value = payload;
+                                box.appendChild(ta);
+                                var hide = document.createElement('button');
+                                hide.type = 'button'; hide.className = 'btn'; hide.textContent = 'Hide';
+                                hide.onclick = wrVPNQrClose;
+                                box.appendChild(hide);
+                                box.style.display = 'block';
+                            },
+                            error: function () { alert('request failed'); }});
+                    }
                     //]]>
                     </script>
