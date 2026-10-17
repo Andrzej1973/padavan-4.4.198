@@ -1,12 +1,14 @@
                     <div class="box">
                         <div class="heading"><#WRVPN_PROFILES_TITLE#></div>
                         <div class="content">
+                            <input type="hidden" id="wr_vpn_protect" value="<% nvram_get_x("", "wrvpn_protect"); %>"/>
                             <table class="table table-bordered">
                                 <thead>
                                     <tr>
                                         <th><#WRVPN_ID#></th>
                                         <th><#WRVPN_NAME#></th>
                                         <th><#WRVPN_REVISION#></th>
+                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -15,3 +17,33 @@
                             </table>
                         </div>
                     </div>
+                    <script type="text/javascript">
+                    //<![CDATA[
+                    var wrVPNToken = <% wr_vpn_token(); %>;
+                    function wrVPNAct(operation, id) {
+                        if (operation == 'delete' && !confirm('Delete profile ' + id + '?')) return;
+                        jQuery.ajax({url: '/wr_vpn_action.cgi', type: 'POST', dataType: 'json', timeout: 5000,
+                            data: {operation: operation, id: id, protect: jQuery('#wr_vpn_protect').val(), ack: '1', token: wrVPNToken},
+                            success: function (r) {
+                                if (r && r.accepted) wrVPNPoll(id, 0);
+                                else alert(r && r.error ? r.error : 'request failed');
+                            },
+                            error: function () { alert('request failed'); }});
+                    }
+                    function wrVPNPoll(id, count) {
+                        jQuery.ajax({url: '/update.cgi', data: {output: 'wr_vpn_action_state', arg0: id},
+                            dataType: 'json', cache: false, timeout: 5000,
+                            success: function (r) {
+                                if (r && (r.state == 'done' || r.state == 'failed' || r.state == 'timeout' ||
+                                          r.state == 'overflow' || r.state == 'stale')) {
+                                    location.reload();
+                                } else if (count < 60) {
+                                    setTimeout(function () { wrVPNPoll(id, count + 1); }, 1000);
+                                }
+                            },
+                            error: function () {
+                                if (count < 60) setTimeout(function () { wrVPNPoll(id, count + 1); }, 1000);
+                            }});
+                    }
+                    //]]>
+                    </script>

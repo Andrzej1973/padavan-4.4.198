@@ -25,12 +25,39 @@ if "wr_vpn_profile_rows" in text:
 mime_anchor = "struct mime_handler mime_handlers[] = {"
 if text.count(mime_anchor) != 1:
     raise RuntimeError("mime_handlers anchor changed")
-text = text.replace(mime_anchor, (here / "web/vpn-profiles.inc").read_text(encoding="utf-8") + "\n" + mime_anchor, 1)
+injection = ((here / "web/vpn-profiles.inc").read_text(encoding="utf-8") + "\n" +
+             (here / "web/vpn-profiles-action.inc").read_text(encoding="utf-8") + "\n")
+text = text.replace(mime_anchor, injection + mime_anchor, 1)
 
 ej_anchor = "struct ej_handler ej_handlers[] =\n{\n"
 if text.count(ej_anchor) != 1:
     raise RuntimeError("ej_handlers anchor changed")
-text = text.replace(ej_anchor, ej_anchor + '\t{ "wr_vpn_profile_rows", ej_wr_vpn_profile_rows},\n', 1)
+entries = ('\t{ "wr_vpn_profile_rows", ej_wr_vpn_profile_rows},\n'
+           '\t{ "wr_vpn_token", ej_wr_vpn_token},\n'
+           '\t{ "wr_vpn_action_state", ej_wr_vpn_action_state},\n')
+text = text.replace(ej_anchor, ej_anchor + entries, 1)
+
+route_anchor = '\t{ "update.cgi*",'
+if text.count(route_anchor) != 1:
+    raise RuntimeError("update.cgi route anchor changed")
+route = ('\t{ "wr_vpn_action.cgi*", "application/json", no_cache_IE,\n'
+         '\t  wr_vpn_action_input, wr_vpn_action_output, 1 },\n')
+text = text.replace(route_anchor, route + route_anchor, 1)
+
+main_path = httpd / "httpd.c"
+main = main_path.read_text(encoding="utf-8")
+method_anchor = "\tquery = file;"
+if main.count(method_anchor) != 1 or "wr_vpn_request_is_post" in main:
+    raise RuntimeError("httpd method anchor changed")
+main = main.replace(method_anchor,
+                    "\twr_vpn_method_post = (method_id == HTTP_METHOD_POST);\n" + method_anchor, 1)
+include_anchor = "#include <stdio.h>"
+if main.count(include_anchor) != 1:
+    raise RuntimeError("httpd include anchor changed")
+main = main.replace(include_anchor,
+                    include_anchor + "\nstatic int wr_vpn_method_post;\n"
+                    "int wr_vpn_request_is_post(void) { return wr_vpn_method_post; }\n", 1)
+main_path.write_text(main, encoding="utf-8", newline="\n")
 
 footer_anchor = "    </form>"
 if html.count(footer_anchor) != 1:
@@ -68,4 +95,4 @@ for name, entries in texts.items():
 
 web.write_text(text, encoding="utf-8", newline="\n")
 page.write_text(html, encoding="utf-8", newline="\n")
-print("PASS added the read-only stored-profile table to the VPN page")
+print("PASS added the stored-profile table and action endpoint to the VPN page")

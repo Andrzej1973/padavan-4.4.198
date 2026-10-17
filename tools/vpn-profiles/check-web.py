@@ -9,13 +9,21 @@ args = parser.parse_args()
 
 web = (args.tree / "trunk/user/httpd/web_ex.c").read_text(encoding="utf-8")
 page = (args.tree / "trunk/user/www/n56u_ribbon_fixed/vpncli.asp").read_text(encoding="utf-8")
+httpd = (args.tree / "trunk/user/httpd/httpd.c").read_text(encoding="utf-8")
 
 assert (args.tree / "trunk/user/httpd/vpn-profiles-render.h").exists(), "render header not copied"
 assert web.count("static int ej_wr_vpn_profile_rows") == 1, "profile rows handler missing"
 assert web.count('{ "wr_vpn_profile_rows", ej_wr_vpn_profile_rows},') == 1, "handler not registered"
+assert web.count('{ "wr_vpn_token", ej_wr_vpn_token},') == 1, "token handler not registered"
+assert web.count('{ "wr_vpn_action_state", ej_wr_vpn_action_state},') == 1, "state handler not registered"
+assert web.count('{ "wr_vpn_action.cgi*", "application/json", no_cache_IE,') == 1, "action route missing"
 assert '"/usr/sbin/wr-vpn-profile"' in web, "fixed manager path changed"
+assert '"/usr/libexec/wrvpn/action-worker"' in web, "worker path changed"
+assert httpd.count("int wr_vpn_request_is_post(void)") == 1, "POST helper missing"
 assert page.count("<% wr_vpn_profile_rows(); %>") == 1, "page call missing"
 assert "<#WRVPN_PROFILES_TITLE#>" in page, "page title key missing"
+assert page.count("<% wr_vpn_token(); %>") == 1, "page token missing"
+assert "wrVPNAct" in page and "wr_vpn_action.cgi" in page, "page action script missing"
 
 for name in ("EN.footer", "UK.dict", "RU.dict"):
     text = "\n" + (args.tree / "trunk/user/www/dict" / name).read_text(encoding="utf-8")
