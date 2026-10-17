@@ -4,6 +4,7 @@
 #include "validate-process.h"
 #include <net/if.h>
 #include "link-observation.h"
+#include "config-transaction.h"
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -89,6 +90,65 @@ static int wr_observe(int root,unsigned int id)
     }
     return fflush(stdout)?3:0;
 }
+static const char *transaction_name(enum wr_vpn_transaction_result result)
+{
+    switch (result) {
+    case WR_VPN_TRANSACTION_DONE: return "done";
+    case WR_VPN_TRANSACTION_ABSENT: return "absent";
+    case WR_VPN_TRANSACTION_BUSY: return "busy";
+    case WR_VPN_TRANSACTION_STALE: return "stale";
+    case WR_VPN_TRANSACTION_REFUSED: return "refused";
+    case WR_VPN_TRANSACTION_UNKNOWN: return "unknown";
+    case WR_VPN_TRANSACTION_MISMATCH: return "mismatch";
+    case WR_VPN_TRANSACTION_ROLLBACK_FAILED: return "rollback-failed";
+    case WR_VPN_TRANSACTION_IO: return "io";
+    }
+    return "invalid";
+}
+static int transaction_status(enum wr_vpn_transaction_result result)
+{
+    switch (result) {
+    case WR_VPN_TRANSACTION_DONE: return 0;
+    case WR_VPN_TRANSACTION_ABSENT: return 5;
+    case WR_VPN_TRANSACTION_BUSY: return 4;
+    case WR_VPN_TRANSACTION_STALE: return 7;
+    case WR_VPN_TRANSACTION_REFUSED: return 2;
+    case WR_VPN_TRANSACTION_UNKNOWN: return 6;
+    case WR_VPN_TRANSACTION_MISMATCH: return 8;
+    case WR_VPN_TRANSACTION_ROLLBACK_FAILED: return 9;
+    case WR_VPN_TRANSACTION_IO: return 3;
+    }
+    return 3;
+}
+/* Apply the stored protocol configuration to the interface the runtime session
+ * already owns. Addresses, routes, DNS and connectivity remain controller work. */
+static int wr_apply(int root,unsigned int id)
+{
+    struct wr_vpn_record record;struct wr_vpn_session expected;
+    struct wr_vpn_resources resources;struct wr_vpn_runtime runtime={-1,-1};
+    enum wr_vpn_store_result stored;enum wr_vpn_runtime_result status;
+    enum wr_vpn_transaction_result result;
+    stored=wr_vpn_store_get(root,id,&record);
+    if (stored==WR_VPN_STORE_NOT_FOUND) return 5;
+    if (stored!=WR_VPN_STORE_OK || !wr_vpn_resources_make(&resources,id,record.protocol)) return 3;
+    if (wr_vpn_validate(record.protocol,record.config,record.size)!=WR_VPN_VALID) return 2;
+    /* Read the session this call intends to act on; the transaction re-verifies
+     * it under the operation lock, so a concurrent change becomes stale. */
+    status=wr_vpn_runtime_lock(resources.runtime,&runtime);
+    if (status!=WR_VPN_RUNTIME_OK) {
+        printf("apply\t%u\t%s\n",id,status==WR_VPN_RUNTIME_BUSY?"busy":"io");
+        return status==WR_VPN_RUNTIME_BUSY?4:3;
+    }
+    status=wr_vpn_runtime_read(&runtime,id,&expected);
+    wr_vpn_runtime_unlock(&runtime);
+    if (status!=WR_VPN_RUNTIME_OK) {
+        printf("apply\t%u\tabsent\n",id);
+        return 5;
+    }
+    result=wr_vpn_config_transaction(resources.runtime,&record,&expected,NULL);
+    printf("apply\t%u\t%s\n",id,transaction_name(result));
+    return fflush(stdout)?3:transaction_status(result);
+}
 int main(int argc,char **argv)
 {
     unsigned int id=0; int root,result;
@@ -99,7 +159,8 @@ int main(int argc,char **argv)
         if (!wr_vpn_profile_id(argv[2],&id)) return 2;
         if (!strcmp(argv[3],"amneziawg")) protocol=WR_VPN_AMNEZIAWG;
         else if (strcmp(argv[3],"wireguard")) return 2;
-    } else if (argc==3 && (!strcmp(argv[1],"export") || !strcmp(argv[1],"observe"))) {
+    } else if (argc==3 && (!strcmp(argv[1],"export") || !strcmp(argv[1],"observe") ||
+                           !strcmp(argv[1],"apply"))) {
         if (!wr_vpn_profile_id(argv[2],&id)) return 2;
     } else if (!(argc==2 && !strcmp(argv[1],"list"))) return 2;
     if (mkdir(WR_VPN_STORE_ROOT,0700) && errno!=EEXIST) return 3;
@@ -107,6 +168,7 @@ int main(int argc,char **argv)
     if (!strcmp(argv[1],"create")) result=wr_create(root,id,protocol);
     else if (!strcmp(argv[1],"export")) result=wr_export(root,id);
     else if (!strcmp(argv[1],"observe")) result=wr_observe(root,id);
+    else if (!strcmp(argv[1],"apply")) result=wr_apply(root,id);
     else result=wr_list(root);
     close(root); return result;
 }
