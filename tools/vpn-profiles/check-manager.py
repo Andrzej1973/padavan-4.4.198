@@ -75,6 +75,14 @@ int main(void){int fd;for(fd=3;fd<4096;fd++){errno=0;if(fcntl(fd,F_GETFD)!=-1 ||
  (store/'3').write_bytes(b'corrupt');(store/'3').chmod(0o600)
  assert not run(['export','3'],expected=3)
  run(['list'],expected=3);(store/'3').unlink()
+ # Editing is a distinct action and bumps the revision; invalid input changes nothing.
+ edited=wg.replace('10.8.0.2/32','10.8.0.9/32')
+ assert run(['edit','2'],edited)=='saved\t2\t2\n'
+ assert run(['export','2'])==edited
+ assert not run(['edit','2'],wg.replace(key,'invalid'),2)
+ assert run(['export','2'])==edited
+ assert run(['edit','999'],wg,5)==''
+ before['2']=(store/'2').read_bytes()
  # Configuration rendering uses those same fixed native validation helpers.
  plan_exe=root/'config-plan'
  subprocess.run(['gcc','-std=gnu99','-Wall','-Wextra','-Werror','-g','-fsanitize=address,undefined',
@@ -115,11 +123,4 @@ int main(void){int fd;for(fd=3;fd<4096;fd++){errno=0;if(fcntl(fd,F_GETFD)!=-1 ||
  assert '1\tAWG1' not in run(['list'])
  assert (store/'1').exists()
  assert run(['delete','1'],expected=5)==''
- # Editing is a distinct action and bumps the revision; invalid input changes nothing.
- edited=wg.replace('10.8.0.2/32','10.8.0.9/32')
- assert run(['edit','2'],edited)=='saved\t2\t2\n'
- assert run(['export','2'])==edited
- assert not run(['edit','2'],wg.replace(key,'invalid'),2)
- assert run(['export','2'])==edited
- assert run(['edit','999'],wg,5)==''
  print('PASS profile manager integration: native validation before isolated create/export/edit, private metadata, FD closure, invalid/failed/timed-out validator, AWG record preservation, distinct stop/delete tombstone; no network lifecycle')
