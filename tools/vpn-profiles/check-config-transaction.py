@@ -34,11 +34,19 @@ static int make_session(const char *root,unsigned int id,enum wr_vpn_protocol pr
 {
     struct wr_vpn_runtime runtime={-1,-1};
     struct wr_vpn_session intent,observed;
-    if (!wr_vpn_session_new(&intent,id,protocol,5)) return 0;
+    enum wr_vpn_runtime_result status;
     if (wr_vpn_runtime_lock(root,&runtime)!=WR_VPN_RUNTIME_OK) return 0;
-    if (wr_vpn_runtime_put(&runtime,&intent,NULL)!=WR_VPN_RUNTIME_OK) return 0;
+    status=wr_vpn_runtime_read(&runtime,id,out);
+    if (status==WR_VPN_RUNTIME_OK) { wr_vpn_runtime_unlock(&runtime);return 1; }
+    if (status!=WR_VPN_RUNTIME_ABSENT) { wr_vpn_runtime_unlock(&runtime);return 0; }
+    if (!wr_vpn_session_new(&intent,id,protocol,5)) { wr_vpn_runtime_unlock(&runtime);return 0; }
+    if (wr_vpn_runtime_put(&runtime,&intent,NULL)!=WR_VPN_RUNTIME_OK) {
+        wr_vpn_runtime_unlock(&runtime);return 0;
+    }
     observed=intent;observed.index=54;
-    if (wr_vpn_runtime_put(&runtime,&observed,&intent)!=WR_VPN_RUNTIME_OK) return 0;
+    if (wr_vpn_runtime_put(&runtime,&observed,&intent)!=WR_VPN_RUNTIME_OK) {
+        wr_vpn_runtime_unlock(&runtime);return 0;
+    }
     wr_vpn_runtime_unlock(&runtime);
     *out=observed;
     return 1;
@@ -165,34 +173,38 @@ with tempfile.TemporaryDirectory(prefix='wrvpn-transaction-') as directory:
         assert result.stdout == f'{expected}\n'.encode(), (scenario, result.stdout)
         return marker.read_text().splitlines() if marker.exists() else []
 
+    counter = 0
+
+    def fresh_root():
+        global counter
+        counter += 1
+        path = temporary / f'profile-{counter}'
+        path.mkdir(mode=0o700)
+        return path
+
     for protocol in controls:
         data = config if protocol == 1 else config.replace('[Peer]', 'Jc = 4\n[Peer]')
-        with tempfile.TemporaryDirectory(prefix='wrvpn-runtime-') as runtime:
-            root = Path(runtime) / 'profile'
-            root.mkdir()
-            root.chmod(0o700)
 
-            assert run(root, protocol, 'nosession', data, 1) == []
+        assert run(fresh_root(), protocol, 'nosession', data, 1) == []
+        assert run(fresh_root(), protocol, 'busy', data, 2) == []
+        assert run(fresh_root(), protocol, 'stale', data, 3) == []
+        assert run(fresh_root(), protocol, 'plain', data.replace(key, 'invalid'), 4) == []
+        assert run(fresh_root(), protocol, 'plain', data, 5, apply_mode=3) == ['apply']
 
-            assert run(root, protocol, 'busy', data, 2) == []
+        done_root = fresh_root()
+        session_file = done_root / '2'
+        calls = run(done_root, protocol, 'plain', data, 0)
+        assert calls == ['apply', 'verify'], calls
+        before = session_file.read_bytes()
+        calls = run(done_root, protocol, 'plain', data, 0)
+        assert calls == ['apply', 'verify'], calls
+        assert session_file.read_bytes() == before
 
-            assert run(root, protocol, 'stale', data, 3) == []
+        calls = run(fresh_root(), protocol, 'rollback', data, 6, verify_mode=4)
+        assert calls.count('apply') == 2 and calls.count('verify') == 2, calls
 
-            assert run(root, protocol, 'plain', data.replace(key, 'invalid'), 4) == []
-
-            assert run(root, protocol, 'plain', data, 5, apply_mode=3) == ['apply']
-
-            session_file = root / '2'
-            before = session_file.read_bytes()
-            calls = run(root, protocol, 'plain', data, 0)
-            assert calls == ['apply', 'verify'], calls
-            assert session_file.read_bytes() == before
-
-            calls = run(root, protocol, 'rollback', data, 6, verify_mode=4)
-            assert calls.count('apply') == 2 and calls.count('verify') == 2, calls
-
-            calls = run(root, protocol, 'rollback', data, 7, verify_mode=2)
-            assert calls.count('apply') == 2 and calls.count('verify') == 2, calls
+        calls = run(fresh_root(), protocol, 'rollback', data, 7, verify_mode=2)
+        assert calls.count('apply') == 2 and calls.count('verify') == 2, calls
 
     print('PASS config transaction: lock, session CAS, refusal, unknown transport, '
           'verified apply, mismatch rollback and failed rollback; no kernel proof')
