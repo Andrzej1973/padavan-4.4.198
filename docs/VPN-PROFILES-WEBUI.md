@@ -1,7 +1,22 @@
 # Independent VPN profiles — WebUI plan
 
-Status: design only. No page, route or HTTP action is registered yet.
+Status: implemented and host-tested; shipped in build 389 for the table and
+actions, build 391 for export/QR. Device and browser behaviour are unverified.
 Requirement: `docs/PROJECT-DELIVERY-SCOPE.md`, "Distinct WG/AWG tunnel profiles".
+
+## Implemented
+
+- `wr_vpn_profile_rows` renders the stored profile table on the VPN client
+  page (id, label, revision) with QR/up/down/delete buttons.
+- `wr_vpn_token` issues the 32-hex CSRF token; `wr_vpn_action.cgi` validates
+  login, POST, token and `ack`, then starts the detached `action-worker` and
+  returns immediately.
+- `wr_vpn_action_state` (through `/update.cgi`) reports
+  `running/done/failed/timeout/overflow/stale` and the exit code.
+- `wr_vpn_export.cgi` returns one stored profile behind the same token/ack as
+  a `no-cache` JSON string; the page renders the QR locally and wipes the
+  server-side buffers.
+- Host fixtures cover the guard paths, worker argv/state and JSON escaping.
 
 ## Scope
 
