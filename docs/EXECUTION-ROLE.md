@@ -84,6 +84,11 @@ Python AST і diff-check пройшли; C-fixture/Linux CI/образ ще не
 
 ### Таблиця незалежних профілів: пагінація
 
+Повторний CI `39073452871` скомпілював HTTP harness, але він перезаписував
+reply на кожному websWrite і губив rows після metadata write. Підміна
+виправлена на append із bounds assertion та clear між запитами, як у
+справжній streamed HTTP response. Потрібен новий повний CI.
+
 Перший CI `39073328562` для `214e8de` упав на escaping нових C assertions
 у Python harness. Додатково source HTTP handler лишився unstaged через
 пропущений файл у manifest. Follow-up включає handler і raw C harness;

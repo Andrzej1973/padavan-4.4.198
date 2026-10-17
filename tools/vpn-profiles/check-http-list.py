@@ -45,7 +45,9 @@ typedef FILE *webs_t;
 static int safe;
 static char reply[10000];
 static int websWrite(webs_t wp,const char *format,...)
-{va_list ap;int n;(void)wp;va_start(ap,format);n=vsnprintf(reply,sizeof(reply),format,ap);va_end(ap);return n;}
+{va_list ap;int n;size_t used=strlen(reply);(void)wp;
+ va_start(ap,format);n=vsnprintf(reply+used,sizeof(reply)-used,format,ap);va_end(ap);
+ assert(n>=0 && (size_t)n<sizeof(reply)-used);return n;}
 static int get_login_safe(void){return safe;}
 #include "vpn-profiles.inc"
 static void run(const char *mode)
@@ -65,12 +67,12 @@ int main(int argc,char **argv)
  run("bad");assert(strstr(reply,"unavailable")&&!strstr(reply,"<td>1</td>"));
  run("fail");assert(strstr(reply,"unavailable"));
  run("slow");assert(strstr(reply,"unavailable"));
- {char *page="1";setenv("FAKE_MODE","many",1);ej_wr_vpn_profile_rows(0,NULL,1,&page);
+ {char *page="1";reply[0]=0;setenv("FAKE_MODE","many",1);ej_wr_vpn_profile_rows(0,NULL,1,&page);
   assert(strstr(reply,"<td>11</td><td>WG11</td>") && strstr(reply,"data-total=\"25\""));
   assert(!strstr(reply,"<td>1</td><td>WG1</td>") && !strstr(reply,"<td>21</td><td>WG21</td>"));
-  page="99";ej_wr_vpn_profile_rows(0,NULL,1,&page);
+  page="99";reply[0]=0;ej_wr_vpn_profile_rows(0,NULL,1,&page);
   assert(strstr(reply,"<td>25</td><td>WG25</td>") && strstr(reply,"data-page=\"2\""));
-  page="-1";ej_wr_vpn_profile_rows(0,NULL,1,&page);assert(strstr(reply,"unavailable"));}
+  page="-1";reply[0]=0;ej_wr_vpn_profile_rows(0,NULL,1,&page);assert(strstr(reply,"unavailable"));}
  {long long began=wr_vpn_web_ms();run("closed-output");
   assert(strstr(reply,"unavailable") && wr_vpn_web_ms()-began<1500);}
  unlink(argv[1]);
