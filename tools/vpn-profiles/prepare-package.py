@@ -13,7 +13,7 @@ user=a.source/'trunk/user';make=user/'Makefile';target=user/'wr-vpn-profiles'
 text=make.read_text();anchor='all: $(patsubst %,%_only,$(dir_y))'
 if text.count(anchor)!=1 or 'wr-vpn-profiles' in text or target.exists():
  raise SystemExit('VPN profile package anchor changed; no files written')
-files=('Makefile','service.sh','profilectl.c','protect.h','resources.h','store.c','store.h','validate-client.c','validate-process.c','validate-process.h','link-observation.c','link-observation.h','config-readback.c','runtime-state.c','runtime-state.h','config-transaction.c','config-transaction.h','config-apply.c','config-apply.h','config-plan.c','config-plan.h','plan-report.c','plan-report.h','addr-apply.c','addr-apply.h','route-apply.c','route-apply.h','profile-apply.c','profile-apply.h','dns-apply.c','dns-apply.h','link-actions.c','link-actions.h','link-lifecycle.c','link-lifecycle.h')
+files=('Makefile','service.sh','profilectl.c','protect.h','endpoint-pin.c','endpoint-pin.h','resources.h','store.c','store.h','validate-client.c','validate-process.c','validate-process.h','link-observation.c','link-observation.h','config-readback.c','runtime-state.c','runtime-state.h','config-transaction.c','config-transaction.h','config-apply.c','config-apply.h','config-plan.c','config-plan.h','plan-report.c','plan-report.h','addr-apply.c','addr-apply.h','route-apply.c','route-apply.h','profile-apply.c','profile-apply.h','dns-apply.c','dns-apply.h','link-actions.c','link-actions.h','link-lifecycle.c','link-lifecycle.h')
 payloads={name:(Path(__file__).parent/name).read_text() for name in files}
 addition='''# Independent profile data tools; no automatic tunnel activation.
 ifeq ($(CONFIG_FIRMWARE_INCLUDE_WIREGUARD),y)

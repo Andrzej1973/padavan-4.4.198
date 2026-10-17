@@ -104,6 +104,7 @@ on:
       - 'tools/vpn-profiles/config-transaction.h'
       - 'tools/vpn-profiles/endpoint-pin.c'
       - 'tools/vpn-profiles/endpoint-pin.h'
+      - 'tools/vpn-profiles/protect.h'
       - 'tools/vpn-profiles/plan-report.c'
       - 'tools/vpn-profiles/plan-report.h'
       - 'tools/vpn-profiles/addr-apply.c'
