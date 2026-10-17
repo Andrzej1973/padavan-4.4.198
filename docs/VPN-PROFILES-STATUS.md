@@ -40,15 +40,15 @@ it outside AP mode and stops it with the other services.
 | Protocol transaction (lock, session CAS, readback) | verified in CI, compiles in the image | `check-config-transaction`; full build `b6ed863` success |
 | Rollback to the last applied snapshot | verified in CI | `check-config-transaction` (`mismatch` + `snapshot` cases) |
 | Apply preview (`plan`) | verified in CI | `check-plan-report`, run 39008382868 |
-| Addresses with IPv4 and IPv6 protected-prefix refusal | implemented; local fixture passed | `check-addr-apply` (local gcc), CI pending |
-| Protected-prefix parsing (trim, overflow refusal) | implemented; local fixture passed | `check-protect` (local gcc), CI pending |
+| Addresses with IPv4 and IPv6 protected-prefix refusal | verified in CI | `check-addr-apply`, run 39010171751 |
+| Protected-prefix parsing (trim, overflow refusal) | verified in CI | `check-protect`, run 39010171751 |
 | Routes in the profile table + `fwmark` rule | verified in CI | `check-route-apply`, run 39007061759 |
 | DNS file (atomic, validated) | verified in CI | `check-dns-write`, run 39007655806 |
 | Controller order and stop-on-failure | verified in CI | `check-profile-apply`, run 39008382868 |
 | `up` / `down` commands | compiles; lifecycle verified separately | build `263bdee` board-port + compile; `check-lifecycle` |
 | Service wrapper (`start`/`stop`/`status`) | verified in CI | `check-service`, run 39008382868 |
-| Stop covers ids left only in runtime state | implemented; local fixture pending CI | `check-service` update |
-| Failed `up` cleanup (rule removed, link released) | implemented; compiled in CI, dedicated fixture pending | `release_failed_up` in `profilectl.c` |
+| Stop covers ids left only in runtime state | verified in CI | `check-service`, run 39010171751 |
+| Failed `up` cleanup (rule removed, link released) | implemented and compiled in CI; dedicated fixture pending | service run 39010171751 |
 | `rc` start/stop hook | patched and applied in the image build | build `263bdee`, step `Apply WR1200JS board port` = success |
 | DNS aggregation into dnsmasq (opt-in) | file and service verified in CI; rc line applied | `check-service`; same board-port step |
 | Real tunnel, routes, DNS, handshake on the device | **not verified** | device unreachable; nothing flashed |
