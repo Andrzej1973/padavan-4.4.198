@@ -114,6 +114,7 @@ on:
       - 'tools/vpn-profiles/check-http-create.py'
       - 'tools/vpn-profiles/check-create-ui.js'
       - 'tools/vpn-profiles/check-observe-ui.js'
+      - 'tools/vpn-profiles/check-list-ui.js'
       - 'tools/prepare-service-toggle-colors.py'
       - 'tools/vpn-profiles/web/vpn-profiles-render.h'
       - 'tools/vpn-profiles/web/vpn-profiles-page.html'

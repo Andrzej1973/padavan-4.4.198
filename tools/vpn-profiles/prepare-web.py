@@ -95,6 +95,8 @@ texts = {
     ),
 }
 create_texts = {
+    "WRVPN_PREVIOUS": ("Previous", "Попередні", "Предыдущие"),
+    "WRVPN_NEXT": ("Next", "Наступні", "Следующие"),
     "WRVPN_START": ("Start", "Запустити", "Запустить"),
     "WRVPN_STOP": ("Stop", "Зупинити", "Остановить"),
     "WRVPN_DELETE": ("Delete", "Видалити", "Удалить"),

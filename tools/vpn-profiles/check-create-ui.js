@@ -24,7 +24,7 @@ function fixture(overrides = {}) {
   jQuery: Object.assign(function(selector) {
    if (typeof selector === 'function') {selector();return;}
    if (selector === '#wr_vpn_protect') return {val: () => elements.wr_vpn_protect.value};
-   return {text: value => {translated[selector] = value;}};
+   return {text: value => {translated[selector] = value;}, attr: () => undefined};
   }, {ajax: request => requests.push(request)})};
  vm.createContext(context); vm.runInContext(source, context);
  assert.equal(translated['.wr-vpn-up'], 'data-start');

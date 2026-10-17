@@ -17,6 +17,7 @@ echo x >> "$FAKE_MARKER"
 case "$FAKE_MODE" in
   ok) printf '1\\tWG1\\t2\\n2\\tAWG2\\t5\\n';;
   empty) :;;
+  many) i=25; while [ "$i" -gt 0 ]; do printf '%s\\tWG%s\\t1\\n' "$i" "$i"; i=$((i-1)); done;;
   bad) printf 'garbage\\n';;
   fail) exit 3;;
   slow) sleep 2;;
@@ -42,7 +43,7 @@ HARNESS = '''#include <assert.h>
 #include <unistd.h>
 typedef FILE *webs_t;
 static int safe;
-static char reply[4096];
+static char reply[10000];
 static int websWrite(webs_t wp,const char *format,...)
 {va_list ap;int n;(void)wp;va_start(ap,format);n=vsnprintf(reply,sizeof(reply),format,ap);va_end(ap);return n;}
 static int get_login_safe(void){return safe;}
@@ -64,6 +65,12 @@ int main(int argc,char **argv)
  run("bad");assert(strstr(reply,"unavailable")&&!strstr(reply,"<td>1</td>"));
  run("fail");assert(strstr(reply,"unavailable"));
  run("slow");assert(strstr(reply,"unavailable"));
+ {char *page="1";setenv("FAKE_MODE","many",1);ej_wr_vpn_profile_rows(0,NULL,1,&page);
+  assert(strstr(reply,"<td>11</td><td>WG11</td>") && strstr(reply,"data-total=\"25\""));
+  assert(!strstr(reply,"<td>1</td><td>WG1</td>") && !strstr(reply,"<td>21</td><td>WG21</td>"));
+  page="99";ej_wr_vpn_profile_rows(0,NULL,1,&page);
+  assert(strstr(reply,"<td>25</td><td>WG25</td>") && strstr(reply,"data-page=\"2\""));
+  page="-1";ej_wr_vpn_profile_rows(0,NULL,1,&page);assert(strstr(reply,"unavailable"));}
  {long long began=wr_vpn_web_ms();run("closed-output");
   assert(strstr(reply,"unavailable") && wr_vpn_web_ms()-began<1500);}
  unlink(argv[1]);

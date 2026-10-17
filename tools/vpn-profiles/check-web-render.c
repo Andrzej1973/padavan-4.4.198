@@ -21,6 +21,18 @@ int main(void)
     assert(wr_vpn_web_render("1000\tWG1\t2\n",rows,sizeof(rows))==-1);
     assert(wr_vpn_web_render("1\tWG1\t2\nbad\n",rows,sizeof(rows))==-1);
     assert(wr_vpn_web_render("1\tWG1\t2\n",rows,8)==-1);
+    {
+        char metadata[49152],page[9000];size_t used=0;unsigned int total=0,id;
+        for(id=999;id;id--)used+=(size_t)snprintf(metadata+used,sizeof(metadata)-used,"%u\tWG%u\t1\n",id,id);
+        assert(wr_vpn_web_render_window(metadata,page,sizeof(page),0,10,&total)==1 && total==999);
+        assert(strstr(page,"<td>1</td><td>WG1</td>") && strstr(page,"<td>10</td><td>WG10</td>"));
+        assert(!strstr(page,"<td>11</td><td>WG11</td>"));
+        assert(wr_vpn_web_render_window(metadata,page,sizeof(page),990,10,&total)==1);
+        assert(strstr(page,"<td>991</td><td>WG991</td>") && strstr(page,"<td>999</td><td>WG999</td>"));
+        assert(wr_vpn_web_render_window(metadata,page,sizeof(page),999,10,&total)==0);
+        assert(wr_vpn_web_render_window("1\tWG1\t1\n1\tWG1\t2\n",page,sizeof(page),0,10,&total)==-1);
+        assert(wr_vpn_web_render("1\tWG1\t18446744073709551616\n",rows,sizeof(rows))==-1);
+    }
     puts("PASS VPN web render: exact rows, empty list and malformed/truncated refusal");
     return 0;
 }

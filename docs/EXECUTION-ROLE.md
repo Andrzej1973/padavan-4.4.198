@@ -82,6 +82,16 @@ Python AST і diff-check пройшли; C-fixture/Linux CI/образ ще не
 в `tools/agent-nim/README.md`.
 ## Актуальний стан роботи — 2026-10-17
 
+### Таблиця незалежних профілів: пагінація
+
+Локальний кандидат замінює 2 KiB all-or-nothing HTML таблицю на сторінки по
+10 рядків, стабільно відсортовані за ID. Metadata capture bounded 48 KiB
+покриває всі 999 ID; HTML буфер 9000 байт і heap allocations звільняються.
+Renderer відхиляє дублікати/overflow revision. UI робить explicit page
+requests, блокує повторні кліки, зберігає список при помилці і скидає старі
+link observations при перебудові DOM. GCC tests усіх 999 ID і Node
+navigation/create/protect/observe пройшли; HTTP/Linux CI та образ ще потрібні.
+
 ### Свіжість незалежного link status
 
 Додано browser receipt time успішного спостереження та expiry у unknown через

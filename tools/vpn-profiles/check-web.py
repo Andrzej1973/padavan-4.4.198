@@ -54,7 +54,8 @@ for name in ("EN.footer", "UK.dict", "RU.dict"):
                 "WRVPN_LINK_UNKNOWN", "WRVPN_LINK_ABSENT", "WRVPN_LINK_UP", "WRVPN_LINK_DOWN",
                 "WRVPN_PROTECT", "WRVPN_PROTECT_REQUIRED", "WRVPN_PROTECT_HELP",
                 "WRVPN_START", "WRVPN_STOP", "WRVPN_DELETE", "WRVPN_DELETE_CONFIRM",
-                "WRVPN_REQUEST_FAILED", "WRVPN_QR_FAILED", "WRVPN_QR_HIDE"):
+                "WRVPN_REQUEST_FAILED", "WRVPN_QR_FAILED", "WRVPN_QR_HIDE",
+                "WRVPN_PREVIOUS", "WRVPN_NEXT"):
         assert f"\n{key}=" in text, (name, key)
 
 print("PASS VPN profile table: handler, page call and dictionary keys are present")

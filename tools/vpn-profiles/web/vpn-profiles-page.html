@@ -26,27 +26,68 @@
                                         <th></th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="wr_vpn_rows">
                                     <% wr_vpn_profile_rows(); %>
                                 </tbody>
                             </table>
+                            <button type="button" class="btn" id="wr_vpn_previous" onclick="wrVPNListLoad(wrVPNListPage-1)" disabled><#WRVPN_PREVIOUS#></button>
+                            <span id="wr_vpn_page_number">1</span>
+                            <button type="button" class="btn" id="wr_vpn_next" onclick="wrVPNListLoad(wrVPNListPage+1)"><#WRVPN_NEXT#></button>
                         </div>
                     </div>
                     <script type="text/javascript">
                     //<![CDATA[
                     var wrVPNToken = <% wr_vpn_token(); %>;
                     var wrVPNObservationGeneration = {};
+                    var wrVPNListPage = 0, wrVPNListBusy = false;
                     function wrVPNText(key) {
                         var text = document.getElementById('wr_vpn_action_text');
                         return text && text.getAttribute('data-' + key) || '?';
                     }
-                    jQuery(function() {
+                    function wrVPNLocalizeRows() {
                         var text = document.getElementById('wr_vpn_link_text');
                         jQuery('.wr-vpn-observe').text(text.getAttribute('data-check'));
                         jQuery('.wr-vpn-up').text(wrVPNText('start'));
                         jQuery('.wr-vpn-down').text(wrVPNText('stop'));
                         jQuery('.wr-vpn-delete').text(wrVPNText('delete'));
-                    });
+                    }
+                    function wrVPNListControls() {
+                        var info = jQuery('#wr_vpn_rows .wr-vpn-page-info');
+                        var page = info.attr('data-page'), total = info.attr('data-total');
+                        if (!/^[0-9]{1,2}$/.test(page || '') || !/^[0-9]{1,3}$/.test(total || '')) return false;
+                        wrVPNListPage = Number(page);
+                        jQuery('#wr_vpn_previous').prop('disabled', wrVPNListBusy || wrVPNListPage === 0);
+                        jQuery('#wr_vpn_next').prop('disabled', wrVPNListBusy || (wrVPNListPage + 1) * 10 >= Number(total));
+                        jQuery('#wr_vpn_page_number').text(String(wrVPNListPage + 1));
+                        return true;
+                    }
+                    function wrVPNListLoad(page) {
+                        if (wrVPNListBusy || page < 0 || page > 99 || page % 1 !== 0) return;
+                        // Recreated rows must not retain an old observation whose timer
+                        // still points to a detached DOM node, including rollback on error.
+                        for (var id in wrVPNObservationGeneration) {
+                            if (Object.prototype.hasOwnProperty.call(wrVPNObservationGeneration, id))
+                                wrVPNObservationGeneration[id]++;
+                        }
+                        jQuery('#wr_vpn_rows [id^="wr_vpn_link_"]').text(document.getElementById('wr_vpn_link_text').getAttribute('data-unknown'));
+                        wrVPNListBusy = true;
+                        jQuery('#wr_vpn_previous, #wr_vpn_next').prop('disabled', true);
+                        jQuery.ajax({url: '/update.cgi', dataType: 'html', cache: false, timeout: 5000,
+                            data: {output: 'wr_vpn_profile_rows', arg0: page},
+                            success: function(html) {
+                                var previous = jQuery('#wr_vpn_rows').html();
+                                jQuery('#wr_vpn_rows').html(html);
+                                wrVPNListBusy = false;
+                                if (!wrVPNListControls()) {
+                                    jQuery('#wr_vpn_rows').html(previous);
+                                    wrVPNListControls();alert(wrVPNText('error'));return;
+                                }
+                                wrVPNLocalizeRows();
+                            }, error: function() {
+                                wrVPNListBusy = false;wrVPNListControls();alert(wrVPNText('error'));
+                            }});
+                    }
+                    jQuery(function() {wrVPNLocalizeRows();wrVPNListControls();});
                     function wrVPNObserve(id, button) {
                         var label = document.getElementById('wr_vpn_link_' + id);
                         var text = document.getElementById('wr_vpn_link_text');
