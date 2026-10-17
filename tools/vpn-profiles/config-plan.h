@@ -10,6 +10,7 @@ struct wr_vpn_config_plan {
     struct wr_vpn_resources resources;
     char native[2*WR_VPN_CONFIG_MAX+128];
     char addresses[WR_VPN_CONFIG_MAX+1],dns[WR_VPN_CONFIG_MAX+1];
+    char allowed[WR_VPN_CONFIG_MAX+1];
     unsigned int mtu; /* zero = controller chooses default */
     int hostname_endpoints;
 };

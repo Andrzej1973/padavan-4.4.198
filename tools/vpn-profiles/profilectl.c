@@ -6,12 +6,16 @@
 #include "link-observation.h"
 #include "config-transaction.h"
 #include "plan-report.h"
+#include "profile-apply.h"
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <poll.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
+#include <time.h>
 #include <unistd.h>
 
 #ifndef WR_VPN_STORE_ROOT
@@ -123,18 +127,91 @@ static int transaction_status(enum wr_vpn_transaction_result result)
     }
     return 3;
 }
-/* Apply the stored protocol configuration to the interface the runtime session
- * already owns. Addresses, routes, DNS and connectivity remain controller work. */
-static int wr_apply(int root,unsigned int id)
+/* Real command runner: ip only, no shell, short timeout. */
+static long long elapsed_ms(void)
+{
+    struct timespec now;
+    if (clock_gettime(CLOCK_MONOTONIC,&now)) return -1;
+    return (long long)now.tv_sec*1000+now.tv_nsec/1000000;
+}
+static int run_ip(void *context,const char *const argv[])
+{
+    char *const env[]={"LC_ALL=C",NULL};
+    pid_t child,done;int status;long long began;
+    (void)context;
+    child=fork();
+    if (child<0) return 1;
+    if (!child) {
+        execve("/sbin/ip",(char *const *)argv,env);
+        execve("/bin/ip",(char *const *)argv,env);
+        _exit(127);
+    }
+    began=elapsed_ms();
+    for (;;) {
+        done=waitpid(child,&status,WNOHANG);
+        if (done==child) return (WIFEXITED(status) && WEXITSTATUS(status)==0)?0:1;
+        if (done<0 && errno!=EINTR) return 1;
+        if (began<0 || elapsed_ms()-began>3000) {
+            kill(child,SIGKILL);
+            while (waitpid(child,&status,0)<0 && errno==EINTR) {}
+            return 1;
+        }
+        (void)poll(NULL,0,20);
+    }
+}
+static int parse_protect(const char *text,char *buffer,size_t capacity,
+                         const char **out,size_t maximum)
+{
+    size_t count=0,used=0;
+    while (text && *text && count<maximum) {
+        const char *comma=strchr(text,',');
+        size_t length=comma?(size_t)(comma-text):strlen(text);
+        if (!length || used+length+1>capacity) return -1;
+        memcpy(buffer+used,text,length);buffer[used+length]=0;
+        out[count++]=buffer+used;used+=length+1;
+        text=comma?comma+1:NULL;
+    }
+    return (int)count;
+}
+static const char *address_name(enum wr_vpn_addr_result result)
+{
+    switch (result) {
+    case WR_VPN_ADDR_DONE: return "done";
+    case WR_VPN_ADDR_EMPTY: return "empty";
+    case WR_VPN_ADDR_INVALID: return "invalid";
+    case WR_VPN_ADDR_CONFLICT: return "conflict";
+    case WR_VPN_ADDR_FAILED: return "failed";
+    }
+    return "invalid";
+}
+static const char *route_name(enum wr_vpn_route_result result)
+{
+    switch (result) {
+    case WR_VPN_ROUTE_DONE: return "done";
+    case WR_VPN_ROUTE_EMPTY: return "empty";
+    case WR_VPN_ROUTE_INVALID: return "invalid";
+    case WR_VPN_ROUTE_FAILED: return "failed";
+    }
+    return "invalid";
+}
+/* Protocol configuration, then addresses, then routes - one sequence. */
+static int wr_apply(int root,unsigned int id,const char *protect)
 {
     struct wr_vpn_record record;struct wr_vpn_session expected;
     struct wr_vpn_resources resources;struct wr_vpn_runtime runtime={-1,-1};
+    struct wr_vpn_apply_options options={NULL,0};struct wr_vpn_apply_outcome outcome;
+    struct wr_vpn_exec exec={run_ip,NULL};
     enum wr_vpn_store_result stored;enum wr_vpn_runtime_result status;
-    enum wr_vpn_transaction_result result;
+    char buffer[256];const char *prefixes[8];int count=0;
     stored=wr_vpn_store_get(root,id,&record);
     if (stored==WR_VPN_STORE_NOT_FOUND) return 5;
     if (stored!=WR_VPN_STORE_OK || !wr_vpn_resources_make(&resources,id,record.protocol)) return 3;
     if (wr_vpn_validate(record.protocol,record.config,record.size)!=WR_VPN_VALID) return 2;
+    if (protect && *protect) {
+        count=parse_protect(protect,buffer,sizeof(buffer),prefixes,8);
+        if (count<0) return 2;
+        options.protected_prefixes=prefixes;options.protected_count=(size_t)count;
+    }
     /* Read the session this call intends to act on; the transaction re-verifies
      * it under the operation lock, so a concurrent change becomes stale. */
     status=wr_vpn_runtime_lock(resources.runtime,&runtime);
@@ -148,9 +225,18 @@ static int wr_apply(int root,unsigned int id)
         printf("apply\t%u\tabsent\n",id);
         return 5;
     }
-    result=wr_vpn_config_transaction(resources.runtime,&record,&expected,NULL);
-    printf("apply\t%u\t%s\n",id,transaction_name(result));
-    return fflush(stdout)?3:transaction_status(result);
+    if (!wr_vpn_profile_apply(resources.runtime,&record,&expected,&options,&exec,&outcome))
+        return 3;
+    printf("apply\t%u\tprotocol=%s\taddresses=%s\troutes=%s\n",id,
+           transaction_name(outcome.protocol),address_name(outcome.addresses),
+           route_name(outcome.routes));
+    if (fflush(stdout)) return 3;
+    if (outcome.protocol!=WR_VPN_TRANSACTION_DONE &&
+        outcome.protocol!=WR_VPN_TRANSACTION_UNSAVED)
+        return transaction_status(outcome.protocol);
+    if (outcome.addresses_attempted && outcome.addresses!=WR_VPN_ADDR_DONE) return 8;
+    if (outcome.routes_attempted && outcome.routes!=WR_VPN_ROUTE_DONE) return 9;
+    return outcome.protocol==WR_VPN_TRANSACTION_UNSAVED?10:0;
 }
 /* Read-only preview: what would be applied, and what is observed now. */
 static int wr_plan(int root,unsigned int id)
@@ -179,7 +265,7 @@ static int wr_plan(int root,unsigned int id)
 }
 int main(int argc,char **argv)
 {
-    unsigned int id=0; int root,result;
+    unsigned int id=0; int root,result; const char *protect=NULL;
     enum wr_vpn_protocol protocol=WR_VPN_WIREGUARD;
     umask(077);
     if (signal(SIGCHLD,SIG_DFL)==SIG_ERR) return 3;
@@ -190,13 +276,16 @@ int main(int argc,char **argv)
     } else if (argc==3 && (!strcmp(argv[1],"export") || !strcmp(argv[1],"observe") ||
                            !strcmp(argv[1],"apply") || !strcmp(argv[1],"plan"))) {
         if (!wr_vpn_profile_id(argv[2],&id)) return 2;
+    } else if (argc==4 && !strcmp(argv[1],"apply")) {
+        if (!wr_vpn_profile_id(argv[2],&id)) return 2;
+        protect=argv[3];
     } else if (!(argc==2 && !strcmp(argv[1],"list"))) return 2;
     if (mkdir(WR_VPN_STORE_ROOT,0700) && errno!=EEXIST) return 3;
     root=wr_vpn_store_open(WR_VPN_STORE_ROOT); if (root<0) return 3;
     if (!strcmp(argv[1],"create")) result=wr_create(root,id,protocol);
     else if (!strcmp(argv[1],"export")) result=wr_export(root,id);
     else if (!strcmp(argv[1],"observe")) result=wr_observe(root,id);
-    else if (!strcmp(argv[1],"apply")) result=wr_apply(root,id);
+    else if (!strcmp(argv[1],"apply")) result=wr_apply(root,id,protect);
     else if (!strcmp(argv[1],"plan")) result=wr_plan(root,id);
     else result=wr_list(root);
     close(root); return result;

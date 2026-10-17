@@ -53,6 +53,9 @@ enum wr_vpn_validation wr_vpn_prepare_config(const struct wr_vpn_record *record,
             ok=append_text(plan->dns,sizeof(plan->dns),value,", ");continue;
         }
         if (section==1 && !strcasecmp(key,"MTU")) { plan->mtu=(unsigned int)strtoul(value,NULL,10);continue; }
+        if (section==2 && !strcasecmp(key,"AllowedIPs")) {
+            ok=append_text(plan->allowed,sizeof(plan->allowed),value,", ");continue;
+        }
         if (section==2 && !strcasecmp(key,"Endpoint") && *value!='[') {
             unsigned char address[4];char *colon=strrchr(value,':');
             if (!colon) { ok=0;break; }
