@@ -26,7 +26,7 @@ static inline int wr_vpn_web_render(const char *output,char *rows,size_t capacit
     while (line && *line) {
         const char *nl=strchr(line,'\n');
         size_t length=nl?(size_t)(nl-line):strlen(line);
-        char row[700];int written;
+        char row[896];int written;
         if (length) {
             const char *tab1=memchr(line,'\t',length);
             const char *tab2=tab1?memchr(tab1+1,'\t',length-(size_t)(tab1+1-line)):NULL;
@@ -40,9 +40,9 @@ static inline int wr_vpn_web_render(const char *output,char *rows,size_t capacit
             written=snprintf(row,sizeof(row),
                 "<tr><td>%u</td><td>%.*s</td><td>%llu</td>"
                 "<td><button type=\"button\" class=\"btn btn-mini\" onclick=\"wrVPNQr(%u)\">QR</button> "
-                "<button type=\"button\" class=\"btn btn-mini\" onclick=\"wrVPNAct('up',%u)\">Up</button> "
-                "<button type=\"button\" class=\"btn btn-mini\" onclick=\"wrVPNAct('down',%u)\">Down</button> "
-                "<button type=\"button\" class=\"btn btn-mini\" onclick=\"wrVPNAct('delete',%u)\">Delete</button>"
+                "<button type=\"button\" class=\"btn btn-mini wr-vpn-up\" onclick=\"wrVPNAct('up',%u)\">Up</button> "
+                "<button type=\"button\" class=\"btn btn-mini wr-vpn-down\" onclick=\"wrVPNAct('down',%u)\">Down</button> "
+                "<button type=\"button\" class=\"btn btn-mini wr-vpn-delete\" onclick=\"wrVPNAct('delete',%u)\">Delete</button>"
                 " <button type=\"button\" class=\"btn btn-mini wr-vpn-observe\" onclick=\"wrVPNObserve(%u,this)\">?</button>"
                 " <span id=\"wr_vpn_link_%u\" role=\"status\">?</span>"
                 "</td></tr>\n",

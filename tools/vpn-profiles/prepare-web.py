@@ -95,6 +95,13 @@ texts = {
     ),
 }
 create_texts = {
+    "WRVPN_START": ("Start", "Запустити", "Запустить"),
+    "WRVPN_STOP": ("Stop", "Зупинити", "Остановить"),
+    "WRVPN_DELETE": ("Delete", "Видалити", "Удалить"),
+    "WRVPN_DELETE_CONFIRM": ("Delete profile {id}?", "Видалити профіль {id}?", "Удалить профиль {id}?"),
+    "WRVPN_REQUEST_FAILED": ("Request not accepted. Refresh the profile state before retrying.", "Запит не прийнято. Перед повтором оновіть стан профілю.", "Запрос не принят. Перед повтором обновите состояние профиля."),
+    "WRVPN_QR_FAILED": ("QR export unavailable. Check the saved profile.", "Експорт QR недоступний. Перевірте збережений профіль.", "Экспорт QR недоступен. Проверьте сохранённый профиль."),
+    "WRVPN_QR_HIDE": ("Hide QR and configuration", "Приховати QR і конфігурацію", "Скрыть QR и конфигурацию"),
     "WRVPN_PROTECT": ("Protected address subnets", "Захищені підмережі адрес", "Защищённые подсети адресов"),
     "WRVPN_PROTECT_REQUIRED": ("Before starting, enter up to 8 protected CIDR subnets separated by commas, without spaces.", "Перед запуском вкажіть до 8 захищених CIDR-підмереж через кому, без пробілів.", "Перед запуском укажите до 8 защищённых CIDR-подсетей через запятую, без пробелов."),
     "WRVPN_PROTECT_HELP": (

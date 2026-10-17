@@ -1,6 +1,7 @@
                     <div class="box">
                         <div class="heading"><#WRVPN_PROFILES_TITLE#></div>
                         <div class="content">
+                            <span id="wr_vpn_action_text" style="display:none" data-start="<#WRVPN_START#>" data-stop="<#WRVPN_STOP#>" data-delete="<#WRVPN_DELETE#>" data-confirm="<#WRVPN_DELETE_CONFIRM#>" data-error="<#WRVPN_REQUEST_FAILED#>" data-qrerror="<#WRVPN_QR_FAILED#>" data-hide="<#WRVPN_QR_HIDE#>"></span>
                             <span id="wr_vpn_link_text" style="display:none" data-check="<#WRVPN_OBSERVE#>" data-unknown="<#WRVPN_LINK_UNKNOWN#>" data-absent="<#WRVPN_LINK_ABSENT#>" data-up="<#WRVPN_LINK_UP#>" data-down="<#WRVPN_LINK_DOWN#>"></span>
                             <p><#WRVPN_CREATE_HELP#></p>
                             <label for="wr_vpn_create_id"><#WRVPN_ID#></label>
@@ -34,9 +35,16 @@
                     <script type="text/javascript">
                     //<![CDATA[
                     var wrVPNToken = <% wr_vpn_token(); %>;
+                    function wrVPNText(key) {
+                        var text = document.getElementById('wr_vpn_action_text');
+                        return text && text.getAttribute('data-' + key) || '?';
+                    }
                     jQuery(function() {
                         var text = document.getElementById('wr_vpn_link_text');
                         jQuery('.wr-vpn-observe').text(text.getAttribute('data-check'));
+                        jQuery('.wr-vpn-up').text(wrVPNText('start'));
+                        jQuery('.wr-vpn-down').text(wrVPNText('stop'));
+                        jQuery('.wr-vpn-delete').text(wrVPNText('delete'));
                     });
                     function wrVPNObserve(id, button) {
                         var label = document.getElementById('wr_vpn_link_' + id);
@@ -90,7 +98,7 @@
                             }});
                     }
                     function wrVPNAct(operation, id) {
-                        if (operation == 'delete' && !confirm('Delete profile ' + id + '?')) return;
+                        if (operation == 'delete' && !confirm(wrVPNText('confirm').replace('{id}', id))) return;
                         var protect = jQuery('#wr_vpn_protect').val();
                         if (operation == 'up' && (!protect || protect.length > 200 ||
                             protect.split(',').length > 8 || !/^[0-9a-fA-F:.]+\/[0-9]{1,3}(,[0-9a-fA-F:.]+\/[0-9]{1,3})*$/.test(protect))) {
@@ -100,9 +108,9 @@
                             data: {operation: operation, id: id, protect: protect, ack: '1', token: wrVPNToken},
                             success: function (r) {
                                 if (r && r.accepted) wrVPNPoll(id, 0);
-                                else alert(r && r.error ? r.error : 'request failed');
+                                else alert(wrVPNText('error'));
                             },
-                            error: function () { alert('request failed'); }});
+                            error: function () { alert(wrVPNText('error')); }});
                     }
                     function wrVPNPoll(id, count) {
                         jQuery.ajax({url: '/update.cgi', data: {output: 'wr_vpn_action_state', arg0: id},
@@ -138,10 +146,10 @@
                             data: {id: id, ack: '1', token: wrVPNToken},
                             success: function (r) {
                                 if (typeof wrVPNQrPayload != 'function' || typeof WRWifiQRCode != 'function') {
-                                    alert('QR unavailable'); return;
+                                    alert(wrVPNText('qrerror')); return;
                                 }
                                 var payload = r && wrVPNQrPayload(r.config);
-                                if (!payload) { alert('QR unavailable'); return; }
+                                if (!payload) { alert(wrVPNText('qrerror')); return; }
                                 var box = wrVPNQrHost();
                                 box.innerHTML = '';
                                 var qr = document.createElement('div');
@@ -149,18 +157,18 @@
                                 qr.style.padding = '16px';
                                 box.appendChild(qr);
                                 try { new WRWifiQRCode(qr, {text: payload, width: 256, height: 256}); }
-                                catch (e) { alert('QR unavailable'); return; }
+                                catch (e) { alert(wrVPNText('qrerror')); return; }
                                 var ta = document.createElement('textarea');
                                 ta.rows = 6; ta.style.width = '100%'; ta.style.fontFamily = 'monospace';
                                 ta.value = payload;
                                 box.appendChild(ta);
                                 var hide = document.createElement('button');
-                                hide.type = 'button'; hide.className = 'btn'; hide.textContent = 'Hide';
+                                hide.type = 'button'; hide.className = 'btn'; hide.textContent = wrVPNText('hide');
                                 hide.onclick = wrVPNQrClose;
                                 box.appendChild(hide);
                                 box.style.display = 'block';
                             },
-                            error: function () { alert('request failed'); }});
+                            error: function () { alert(wrVPNText('error')); }});
                     }
                     //]]>
                     </script>

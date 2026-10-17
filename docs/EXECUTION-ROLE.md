@@ -82,6 +82,14 @@ Python AST і diff-check пройшли; C-fixture/Linux CI/образ ще не
 в `tools/agent-nim/README.md`.
 ## Актуальний стан роботи — 2026-10-17
 
+### Незалежні профілі: локалізація керування
+
+Кандидат локалізує EN/UK/RU start/stop/delete, підтвердження з ID,
+request failure та QR error/hide. Actual-JS перевіряє підстановку написів,
+cancel-delete без POST та зрозуміле повідомлення замість сирого server code.
+Host GCC render, Node create/protect/observe і Python AST пройшли; Linux CI
+та готовий образ для цього кроку ще потрібні. Runtime роутера не змінювали.
+
 ### Незалежні профілі: доступне поле захисту адрес
 
 Локально відкрито раніше hidden `wr_vpn_protect`: поле CIDR-підмереж для

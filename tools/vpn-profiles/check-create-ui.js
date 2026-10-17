@@ -14,15 +14,22 @@ function fixture(overrides = {}) {
   wr_vpn_create_status: {textContent: '', getAttribute: key => key},
   wr_vpn_protect: {value: ''},
   wr_vpn_protect_help: {getAttribute: key => key},
+  wr_vpn_action_text: {getAttribute: key => key === 'data-confirm' ? 'Delete {id}?' : key},
+  wr_vpn_link_text: {getAttribute: key => key},
  };
  for (const [id, value] of Object.entries(overrides)) elements[id].value = value;
- const requests = [], alerts = [];
+ const requests = [], alerts = [], translated = {};
  const context = {document: {getElementById: id => elements[id]},
   alert: text => alerts.push(text), confirm: () => true,
   jQuery: Object.assign(function(selector) {
+   if (typeof selector === 'function') {selector();return;}
    if (selector === '#wr_vpn_protect') return {val: () => elements.wr_vpn_protect.value};
+   return {text: value => {translated[selector] = value;}};
   }, {ajax: request => requests.push(request)})};
  vm.createContext(context); vm.runInContext(source, context);
+ assert.equal(translated['.wr-vpn-up'], 'data-start');
+ assert.equal(translated['.wr-vpn-down'], 'data-stop');
+ assert.equal(translated['.wr-vpn-delete'], 'data-delete');
  return {context, elements, requests, alerts};
 }
 for (const protocol of ['wireguard', 'amneziawg']) {
@@ -76,3 +83,15 @@ for (const operation of ['down', 'delete']) {
  assert.equal(f.requests.length, 1); assert.equal(f.requests[0].data.operation, operation);
 }
 console.log('PASS explicit protected-subnet input: empty/invalid start refusal, exact forwarding, stop/delete remain available');
+{
+ const f = fixture(); let confirmation;
+ f.context.confirm = text => {confirmation = text; return false;};
+ f.context.wrVPNAct('delete', 2);
+ assert.equal(confirmation, 'Delete 2?'); assert.equal(f.requests.length, 0);
+}
+{
+ const f = fixture(); f.context.wrVPNAct('down', 2);
+ f.requests[0].success({accepted: false, error: 'internal-code'});
+ assert.equal(f.alerts[0], 'data-error');
+}
+console.log('PASS localized action confirmation and request feedback');
