@@ -13,6 +13,7 @@ test=r'''
 #include <string.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <stdarg.h>
 #include "wr-band-service-owner.h"
 #include "wr-band-profile-policy.h"
 #define IFNAME_2G_MAIN "ra0"
@@ -22,6 +23,8 @@ static int requested;
 static int boot_ready;
 static int stop_failed;
 static int off_failed, active_failed, last_state, last_off;
+static int diagnostic_count;
+static char diagnostic[256];
 static void mark(int v);
 int wr_band_service_quiesce(struct wr_band_service_owner *owner,const char *a,const char *b)
 { assert(owner && !strcmp(a,IFNAME_2G_MAIN) && !strcmp(b,IFNAME_5G_MAIN)); mark(9); if(!stop_failed)owner->pid=0;return stop_failed; }
@@ -32,7 +35,8 @@ static int get_enabled_radio_wl(void) { return 1; }
 static int is_radio_allowed_rt(void) { return 1; }
 static int is_radio_allowed_wl(void) { return 1; }
 static void logmessage(const char *name,const char *format,...)
-{ assert(name && format); }
+{ va_list args; assert(name && format); va_start(args,format);
+  vsnprintf(diagnostic,sizeof(diagnostic),format,args);va_end(args);++diagnostic_count; }
 static void mark(int v) { assert(count<32); calls[count++]=v; }
 static char *nvram_wlan_get(int band, const char *key)
 { assert((band==0||band==1) && key); return "fixture"; }
@@ -86,8 +90,14 @@ int main(void)
  wr_wifi_applying=0;
  assert(!wr_band_handle_wifi_restart(0,1) && !count);
  requested=1;incompatible=1;
+ diagnostic_count=0;
  assert(wr_band_handle_wifi_restart(0,1)==1);
+ assert(diagnostic_count==1 && strstr(diagnostic,"profile=-3") && strstr(diagnostic,"off_confirmed=1"));
  assert(calls[0]==1 && calls[1]==2 && calls[count-1]==2);
+ for (int i=0;i<count;++i) assert(calls[i]!=8);
+ count=0;diagnostic_count=0;
+ assert(wr_band_handle_wifi_restart(0,0)==1);
+ assert(diagnostic_count==1 && strstr(diagnostic,"radio2g=0") && strstr(diagnostic,"profile=0"));
  for (int i=0;i<count;++i) assert(calls[i]!=8);
  count=0;requested=0;
  wr_wifi_last_status=-1;off_failed=-1;
@@ -115,10 +125,15 @@ int main(void)
  wr_band_wifi_refresh_exit_status();
  assert(last_state==WR_APPLY_RUNNING && wr_wifi_owner.pid==42);
  wr_band_wifi_child_exit(42,0);
+ diagnostic_count=0;
  wr_band_wifi_refresh_exit_status();
+ assert(diagnostic_count==1 && strstr(diagnostic,"clean=1"));
+ wr_band_wifi_refresh_exit_status();
+ assert(diagnostic_count==1);
  assert(last_state==WR_APPLY_OFF_CONFIRMED && last_off && wr_wifi_owner.pid==42);
  wr_band_wifi_child_exit(42,3<<8);
  wr_band_wifi_refresh_exit_status();
+ assert(strstr(diagnostic,"clean=0") && strstr(diagnostic,"off_confirmed=0"));
  assert(last_state==WR_APPLY_OFF_UNVERIFIED && !last_off && wr_wifi_owner.pid==42);
  wr_band_wifi_child_exit(42,15);
  wr_band_wifi_refresh_exit_status();

@@ -134,7 +134,7 @@ int wr_band_apply_wifi_settings(int enabled, int radio2g, int radio5g,
 int wr_band_handle_wifi_restart(int band, int radio_on)
 {
     struct wr_band_apply_result result;
-    int radio2g, radio5g, enabled, status;
+    int radio2g, radio5g, enabled, status, requested, profile = WR_PROFILE_DISABLED;
     /* A previous failed apply still needs verified OFF, even after the user
      * disables the request and no child PID remains. */
     if (wr_wifi_applying || (!wr_wifi_owner.pid && !wr_wifi_last_status &&
@@ -145,8 +145,10 @@ int wr_band_handle_wifi_restart(int band, int radio_on)
     if (radio2g) radio2g = is_radio_allowed_rt();
     if (radio5g) radio5g = is_radio_allowed_wl();
     if (band) radio5g = radio_on; else radio2g = radio_on;
-    enabled = nvram_match("wr_bs_enable", "1") && radio2g && radio5g &&
-        wr_band_profile_from_settings(1, wr_wifi_setting, NULL) == WR_PROFILE_COMPATIBLE;
+    requested = nvram_match("wr_bs_enable", "1");
+    if (requested && radio2g && radio5g)
+        profile = wr_band_profile_from_settings(1, wr_wifi_setting, NULL);
+    enabled = requested && radio2g && radio5g && profile == WR_PROFILE_COMPATIBLE;
     /* Incompatible settings/radio schedules disable steering, preserving the
      * user's new Wi-Fi settings and persistent requested enable flag. */
     status = wr_band_apply_wifi_settings(enabled, !!radio2g, !!radio5g, &result);
@@ -156,6 +158,9 @@ int wr_band_handle_wifi_restart(int band, int radio_on)
     if (status)
         logmessage("Band Steering", "Wi-Fi restart failed: state=%d off_confirmed=%d",
                    result.state, result.off_confirmed);
+    else if (!enabled)
+        logmessage("Band Steering", "Wi-Fi apply left steering disabled: requested=%d radio2g=%d radio5g=%d profile=%d off_confirmed=%d",
+                   requested, !!radio2g, !!radio5g, profile, result.off_confirmed);
     /* Never bypass failed OFF proof with an ordinary uncoordinated restart. */
     return 1;
 }
@@ -190,6 +195,8 @@ void wr_band_wifi_refresh_exit_status(void)
     confirmed = pending == 1;
     nvram_set_int_temp("wr_bs_apply_state", confirmed ? WR_APPLY_OFF_CONFIRMED : WR_APPLY_OFF_UNVERIFIED);
     nvram_set_int_temp("wr_bs_off_confirmed", confirmed);
+    logmessage("Band Steering", "Owned daemon exited: clean=%d off_confirmed=%d; requested setting retained",
+               confirmed, confirmed);
     /* Keep ownership until child-owner consumes the cached wait status. */
 }
 int wr_band_wifi_startup(void)

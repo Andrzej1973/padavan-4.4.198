@@ -1,0 +1,47 @@
+{
+  "scope": "selected files independently extracted from final TRX using 7-Zip; runtime unverified",
+  "checks": {
+    "profile_table": true,
+    "page_action": true,
+    "httpd_table": true,
+    "httpd_action": true,
+    "client_protocol_selector": true,
+    "server_protocol_selector": true,
+    "qr_renderer_exact": true,
+    "service_exact": true
+  },
+  "files": {
+    "www\\EN.dict": {
+      "bytes": 140419,
+      "sha256": "c7cb09b4176dd4864917ac3c3b2055553385078a086cbeced07380e58c941949"
+    },
+    "www\\RU.dict": {
+      "bytes": 209740,
+      "sha256": "eda79971aa9c4e49434bb84c40eff99995fbdb5e6547471457d6b68b8b4b1b93"
+    },
+    "www\\UK.dict": {
+      "bytes": 204845,
+      "sha256": "5f72c5ea966b82b3c59ccd756650b4ce8611f07a449ff0989d9627d7fa84f2e4"
+    },
+    "www\\vpncli.asp": {
+      "bytes": 97461,
+      "sha256": "cae4fe0c347bcc7200c27bc2799eac5982da292c1743b0fb872dbb12277a03ad"
+    },
+    "www\\vpnsrv.asp": {
+      "bytes": 80870,
+      "sha256": "c924a2a9e7b5c672730bca9810596e7433718c329efd245761c48238ce4956c0"
+    },
+    "www\\wifi-qrcode-renderer.js": {
+      "bytes": 19905,
+      "sha256": "d7d2c6fd70a541d1e8bfe57f0e4394b6cbec0693209899cdb458abb05692cbe9"
+    },
+    "usr\\sbin\\httpd": {
+      "bytes": 321380,
+      "sha256": "b78138ed9241ef288d3c142745476d613786f41bfc79d153c40aee0f86317951"
+    },
+    "usr\\sbin\\wr-vpn-profiles-service": {
+      "bytes": 3133,
+      "sha256": "0f8de9e8087584820aa77080940bb82982364dc095dd2883eb21ba9085e56056"
+    }
+  }
+}
