@@ -84,6 +84,11 @@ Python AST і diff-check пройшли; C-fixture/Linux CI/образ ще не
 
 ### Таблиця незалежних профілів: пагінація
 
+Перший CI `39073328562` для `214e8de` упав на escaping нових C assertions
+у Python harness. Додатково source HTTP handler лишився unstaged через
+пропущений файл у manifest. Follow-up включає handler і raw C harness;
+до нового успішного CI пагінація не вважається перевіреною в інтеграції.
+
 Локальний кандидат замінює 2 KiB all-or-nothing HTML таблицю на сторінки по
 10 рядків, стабільно відсортовані за ID. Metadata capture bounded 48 KiB
 покриває всі 999 ID; HTML буфер 9000 байт і heap allocations звільняються.

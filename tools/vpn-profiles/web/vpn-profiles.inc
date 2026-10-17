@@ -121,14 +121,31 @@ static int wr_vpn_web_run(const char *const argv[],char *out,size_t capacity)
 static int ej_wr_vpn_profile_rows(int eid,webs_t wp,int argc,char **argv)
 {
     const char *args[]={WR_VPN_PROFILE_BIN,"list",NULL};
-    char output[2048],rows[2048];int rendered;
-    (void)eid;(void)argc;(void)argv;
-    if (!get_login_safe()) return websWrite(wp,"<tr><td colspan=\"3\">unavailable</td></tr>");
-    if (!wr_vpn_web_run(args,output,sizeof(output)))
-        return websWrite(wp,"<tr><td colspan=\"3\">unavailable</td></tr>");
-    rendered=wr_vpn_web_render(output,rows,sizeof(rows));
-    if (rendered<0) return websWrite(wp,"<tr><td colspan=\"3\">unavailable</td></tr>");
-    if (!rendered) return websWrite(wp,"<tr><td colspan=\"3\">none</td></tr>");
-    websWrite(wp,"%s",rows);
+    char *output=NULL,*rows=NULL;int rendered;unsigned int page=0,total=0;
+    (void)eid;
+    if (!get_login_safe() || argc<0 || argc>1) goto unavailable;
+    if(argc==1) {
+        const char *p=argv?argv[0]:NULL;
+        if(!p || !*p || strlen(p)>2 || (p[0]=='0' && p[1]))goto unavailable;
+        for(;*p;p++){if(*p<'0'||*p>'9')goto unavailable;page=page*10u+(unsigned int)(*p-'0');}
+        if(page>99)goto unavailable;
+    }
+    /* At most 999 IDs, each metadata line < 48 bytes; ten HTML rows/page. */
+    output=malloc(49152);rows=malloc(9000);
+    if (!output || !rows || !wr_vpn_web_run(args,output,49152))goto unavailable;
+    rendered=wr_vpn_web_render_window(output,rows,9000,page*10u,10,&total);
+    if(rendered<0)goto unavailable;
+    if(page && page*10u>=total) {
+        page=total?(total-1)/10:0;
+        rendered=wr_vpn_web_render_window(output,rows,9000,page*10u,10,&total);
+        if(rendered<0)goto unavailable;
+    }
+    if(rendered)websWrite(wp,"%s",rows);
+    else websWrite(wp,"<tr><td colspan=\"4\">none</td></tr>");
+    websWrite(wp,"<tr class=\"wr-vpn-page-info\" data-page=\"%u\" data-total=\"%u\" style=\"display:none\"><td colspan=\"4\"></td></tr>",page,total);
+    free(output);free(rows);
     return 0;
+unavailable:
+    free(output);free(rows);
+    return websWrite(wp,"<tr><td colspan=\"4\">unavailable</td></tr>");
 }

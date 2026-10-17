@@ -26,7 +26,7 @@ case "$FAKE_MODE" in
 esac
 '''
 
-HARNESS = '''#include <assert.h>
+HARNESS = r'''#include <assert.h>
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
