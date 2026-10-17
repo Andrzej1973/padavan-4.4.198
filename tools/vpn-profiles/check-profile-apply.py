@@ -55,17 +55,17 @@ static int make_session(const char *root,struct wr_vpn_session *out,enum wr_vpn_
 
 int main(int argc,char **argv)
 {
-    struct wr_vpn_record record;struct wr_vpn_session expected;
+    struct wr_vpn_record profile;struct wr_vpn_session expected;
     struct wr_vpn_apply_options options={NULL,0};struct wr_vpn_apply_outcome outcome;
     struct wr_vpn_exec exec={record,NULL};
     const char *prefixes[4];int count=0;char *text;
     if (argc!=5) return 99;
     log_file=fopen(argv[3],"w");if (!log_file) return 98;
     fail_at=atoi(argv[4]);
-    memset(&record,0,sizeof(record));record.id=2;
-    record.protocol=(enum wr_vpn_protocol)atoi(argv[2]);record.revision=5;
-    record.size=fread(record.config,1,sizeof(record.config),stdin);
-    if (!make_session(argv[1],&expected,record.protocol)) return 96;
+    memset(&profile,0,sizeof(profile));profile.id=2;
+    profile.protocol=(enum wr_vpn_protocol)atoi(argv[2]);profile.revision=5;
+    profile.size=fread(profile.config,1,sizeof(profile.config),stdin);
+    if (!make_session(argv[1],&expected,profile.protocol)) return 96;
     text=getenv("PROTECT");
     while (text && *text && count<4) {
         char *comma=strchr(text,',');
@@ -74,7 +74,7 @@ int main(int argc,char **argv)
         text=comma?comma+1:NULL;
     }
     options.protected_prefixes=count?prefixes:NULL;options.protected_count=(size_t)count;
-    if (!wr_vpn_profile_apply(argv[1],&record,&expected,&options,&exec,&outcome)) return 97;
+    if (!wr_vpn_profile_apply(argv[1],&profile,&expected,&options,&exec,&outcome)) return 97;
     printf("%d,%d,%d,%d,%d\\n",(int)outcome.protocol,(int)outcome.addresses,
            (int)outcome.routes,outcome.addresses_attempted,outcome.routes_attempted);
     fclose(log_file);
