@@ -37,7 +37,9 @@ int main(void){int fd;for(fd=3;fd<4096;fd++){errno=0;if(fcntl(fd,F_GETFD)!=-1 ||
   '-DWR_VPN_VALIDATE_WG='+json.dumps(str(validators['wg'])),
   '-DWR_VPN_VALIDATE_AWG='+json.dumps(str(validators['awg'])),
   '-DWR_VPN_VALIDATE_TIMEOUT_MS=1000',
-  str(here/'profilectl.c'),str(here/'validate-process.c'),str(here/'store.c'),str(here/'link-observation.c'),'-o',str(exe)],check=True)
+  str(here/'profilectl.c'),str(here/'validate-process.c'),str(here/'store.c'),str(here/'link-observation.c'),
+  str(here/'runtime-state.c'),str(here/'config-transaction.c'),str(here/'config-apply.c'),str(here/'config-plan.c'),
+  '-o',str(exe)],check=True)
  def run(args,data='',expected=0,fd=None):
   r=subprocess.run([str(exe),*args],input=data.encode(),capture_output=True,timeout=5,env=env,pass_fds=(() if fd is None else (fd,)))
   assert r.returncode==expected,(args,r.returncode,r.stdout,r.stderr)
