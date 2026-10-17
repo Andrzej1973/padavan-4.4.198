@@ -70,7 +70,10 @@ int main(int argc,char **argv)
     memset(expected.nonce,0x11,sizeof(expected.nonce));
     if (strcmp(scenario,"nosession") && !make_session(root,2,protocol,&expected)) return 98;
     if (!strcmp(scenario,"stale")) expected.nonce[0]^=1;
-    if (!strcmp(scenario,"nosave")) chmod(root,0500);
+    if (!strcmp(scenario,"nosave")) {
+        snprintf(path,sizeof(path),"%s/snapshot-2",root);
+        if (mkdir(path,0700)) return 96;
+    }
     if (!strcmp(scenario,"busy")) {
         snprintf(path,sizeof(path),"%s/.operation-lock",root);
         lock=open(path,O_RDWR|O_CREAT|O_CLOEXEC,0600);
@@ -82,7 +85,6 @@ int main(int argc,char **argv)
     } else {
         status=(int)wr_vpn_config_transaction(root,&record,&expected,NULL);
     }
-    if (!strcmp(scenario,"nosave")) chmod(root,0700);
     printf("%d\\n",status);
     return 0;
 }
