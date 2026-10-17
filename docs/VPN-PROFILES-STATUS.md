@@ -53,7 +53,7 @@ it outside AP mode and stops it with the other services.
 | Failed `up` cleanup (rule removed, link released) | implemented and compiled in CI; dedicated fixture pending | service run 39010171751 |
 | Hostname endpoint pinning in `up` (before the link exists) | implemented; CLI compiles in CI, build 380 pending | `check-endpoint-pin`; service run 39011116079 |
 | `delete` tombstone (idle profiles only) | verified in CI | `check-manager`, run 39011116079 |
-| `edit` (validate, refuse live, bump revision) | implemented; manager fixture updated | `check-manager` (CI pending) |
+| `edit` (validate, refuse live, bump revision) | verified in CI | `check-manager`, run 39011408823 |
 | `rc` start/stop hook | patched and applied in the image build | build `263bdee`, step `Apply WR1200JS board port` = success |
 | DNS aggregation into dnsmasq (opt-in) | file and service verified in CI; rc line applied | `check-service`; same board-port step |
 | Real tunnel, routes, DNS, handshake on the device | **not verified** | device unreachable; nothing flashed |
