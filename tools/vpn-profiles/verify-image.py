@@ -21,6 +21,7 @@ report={'scope':'MIPS packaging and isolated native parser execution; no profile
 paths={'manager':'usr/sbin/wr-vpn-profile','wireguard':'usr/libexec/wrvpn/validate-wg','amneziawg':'usr/libexec/wrvpn/validate-awg'}
 paths.update({'control-wireguard':'usr/libexec/wrvpn/wg','control-amneziawg':'usr/libexec/wrvpn/awg'})
 paths.update({'readback-wireguard':'usr/libexec/wrvpn/readback-wg','readback-amneziawg':'usr/libexec/wrvpn/readback-awg'})
+paths.update({'service':'usr/sbin/wr-vpn-profiles-service'})
 roles=['wireguard']+(['amneziawg'] if a.amneziawg else [])
 if not a.amneziawg:
  for role in ('amneziawg','control-amneziawg','readback-amneziawg'):assert not (root/paths[role]).exists(),'unexpected AWG tool'
@@ -30,6 +31,12 @@ for role in ['manager',*roles,*['control-'+protocol for protocol in roles],*['re
  assert data[:6]==b'\x7fELF\x01\x01' and struct.unpack_from('<H',data,18)[0]==8,(role,'not little-endian 32-bit MIPS')
  assert binary.stat().st_mode&0o111,(role,'not executable')
  report['binaries'][role]={'path':path,'sha256':hashlib.sha256(data).hexdigest(),'size':len(data)}
+service=root/paths['service']
+assert service.exists() and service.stat().st_mode&0o111,('service','not packaged or not executable')
+assert service.read_bytes().startswith(b'#!/bin/sh'),('service','not a POSIX shell script')
+report['binaries']['service']={'path':paths['service'],
+                               'sha256':hashlib.sha256(service.read_bytes()).hexdigest(),
+                               'size':service.stat().st_size}
 # AWG's legacy /usr/bin/wg alias speaks the amneziawg netlink family. The
 # independent manager must use dedicated real binaries for each protocol.
 for protocol in roles:
