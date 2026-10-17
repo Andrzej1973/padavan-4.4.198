@@ -67,10 +67,16 @@ with tempfile.TemporaryDirectory(prefix='wrvpn-mips-manager-') as temporary:
  assert all((store/id).read_bytes()==data for id,data in before.items())
  held.rename(helper)
  assert run('first-profile-preserved',['export','1'])==first.encode()
+ edited=base.replace('10.9.0.2/32','10.9.0.9/32')
+ assert run('edit-WG',['edit','2'],edited)==b'saved\t2\t2\n'
+ assert run('export-edited-WG',['export','2'])==edited.encode()
+ assert run('delete-first',['delete','1'])==b'deleted\t1\t2\n'
+ assert not run('delete-missing',['delete','1'],'',5)
+ assert run('list-after-delete',['list'])==b'2\tWG2\t2\n'
  for path in (store/'1',store/'2',store/'.lock'):assert path.stat().st_mode&0o777==0o600
  assert store.stat().st_mode&0o777==0o700
  report['private_modes_passed']=True
  report['profiles_unchanged_after_rejections']=True
  report['case_count']=len(report['cases'])
 a.output.write_text(json.dumps(report,indent=2)+'\n')
-print('PASS shipped MIPS manager: child native validators, independent private records, exact exports, rejection paths and preserved profiles; QEMU/PRoot, not physical VPN proof')
+print('PASS shipped MIPS manager: child native validators, independent private records, exact exports, edit/delete revision and tombstone, rejection paths and preserved profiles; QEMU/PRoot, not physical VPN proof')
