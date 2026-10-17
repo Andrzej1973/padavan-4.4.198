@@ -9,6 +9,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/wait.h>
+#include <sys/socket.h>
+#include <fcntl.h>
 #include <time.h>
 #include <unistd.h>
 #ifndef WR_VPN_PROFILE_BIN
@@ -43,19 +45,23 @@ static void wr_vpn_web_closefds(void)
 
 /* Runs the fixed manager and captures bounded stdout. Returns non-zero only
  * for an exit status of zero with a complete (not truncated) capture. */
-static int wr_vpn_web_run(const char *const argv[],char *out,size_t capacity)
+static int wr_vpn_web_run_input(const char *const argv[],char *out,size_t capacity,
+                               const void *input,size_t input_size)
 {
     int pipefd[2],status;pid_t child;size_t used=0;long long began;int ok=0;
-    if (!argv || !out || capacity<2) return 0;
-    if (pipe(pipefd)) return 0;
+    int in[2];size_t sent=0;
+    if (!argv || !out || capacity<2 || (!input && input_size)) return 0;
+    if (socketpair(AF_UNIX,SOCK_STREAM,0,in)) return 0;
+    if (pipe(pipefd)) { close(in[0]);close(in[1]);return 0; }
     child=fork();
-    if (child<0) { close(pipefd[0]);close(pipefd[1]);return 0; }
+    if (child<0) { close(in[0]);close(in[1]);close(pipefd[0]);close(pipefd[1]);return 0; }
     if (!child) {
-        if (dup2(pipefd[1],1)<0 || dup2(pipefd[1],2)<0) _exit(127);
+        if (dup2(in[1],0)<0 || dup2(pipefd[1],1)<0 || dup2(pipefd[1],2)<0) _exit(127);
         wr_vpn_web_closefds();
         execv(argv[0],(char *const *)argv);
         _exit(127);
     }
+    close(in[1]);
     close(pipefd[1]);
     began=wr_vpn_web_ms();
     if (began<0) goto failed;
@@ -63,6 +69,14 @@ static int wr_vpn_web_run(const char *const argv[],char *out,size_t capacity)
         struct pollfd pfd;int ready;ssize_t got;
         long long now=wr_vpn_web_ms();
         if (now<began || now-began>=WR_VPN_LIST_TIMEOUT_MS) break;
+        if (sent<input_size) {
+            ssize_t n=send(in[0],(const char *)input+sent,input_size-sent,MSG_NOSIGNAL|MSG_DONTWAIT);
+            if (n>0) sent+=(size_t)n;
+            else if (n<0 && errno!=EAGAIN && errno!=EWOULDBLOCK && errno!=EINTR) break;
+        }
+        if (sent==input_size && in[0]>=0) {
+            shutdown(in[0],SHUT_WR);close(in[0]);in[0]=-1;
+        }
         pfd.fd=pipefd[0];pfd.events=POLLIN;pfd.revents=0;
         ready=poll(&pfd,1,50);
         if (ready<0) { if (errno==EINTR) continue;break; }
@@ -76,13 +90,13 @@ static int wr_vpn_web_run(const char *const argv[],char *out,size_t capacity)
         }
         if (ready>0 && (pfd.revents&(POLLHUP|POLLERR))) { ok=1;break; }
     }
-    if (!ok) goto failed;
+    if (!ok || sent!=input_size) goto failed;
     for (;;) {
         pid_t waited=waitpid(child,&status,WNOHANG);
         struct timespec delay={0,20000000};
         long long now;
         if (waited==child) break;
-        if (waited<0 && errno!=EINTR) { close(pipefd[0]);return 0; }
+        if (waited<0 && errno!=EINTR) { if(in[0]>=0)close(in[0]);close(pipefd[0]);return 0; }
         now=wr_vpn_web_ms();
         if (now<began || now-began>=WR_VPN_LIST_TIMEOUT_MS) goto failed;
         nanosleep(&delay,NULL);
@@ -91,10 +105,16 @@ static int wr_vpn_web_run(const char *const argv[],char *out,size_t capacity)
     out[used]=0;
     return WIFEXITED(status) && WEXITSTATUS(status)==0;
 failed:
+    if(in[0]>=0)close(in[0]);
     kill(child,SIGKILL);
     while (waitpid(child,&status,0)<0 && errno==EINTR) {}
     close(pipefd[0]);
     return 0;
+}
+
+static int wr_vpn_web_run(const char *const argv[],char *out,size_t capacity)
+{
+    return wr_vpn_web_run_input(argv,out,capacity,NULL,0);
 }
 
 /* Renders one table row per stored profile: id, label, revision. */

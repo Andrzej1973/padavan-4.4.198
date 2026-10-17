@@ -1,6 +1,17 @@
                     <div class="box">
                         <div class="heading"><#WRVPN_PROFILES_TITLE#></div>
                         <div class="content">
+                            <p><#WRVPN_CREATE_HELP#></p>
+                            <label for="wr_vpn_create_id"><#WRVPN_ID#></label>
+                            <input type="number" id="wr_vpn_create_id" min="1" max="999" value="1"/>
+                            <select id="wr_vpn_create_protocol" aria-label="<#WRVPN_PROTOCOL#>">
+                                <option value="wireguard">WireGuard</option>
+                                <option value="amneziawg">AmneziaWG</option>
+                            </select>
+                            <label for="wr_vpn_create_config"><#WRVPN_CONFIG#></label>
+                            <textarea id="wr_vpn_create_config" rows="8" style="width:95%;font-family:monospace" autocomplete="off" spellcheck="false"></textarea>
+                            <button type="button" class="btn" id="wr_vpn_create_button" onclick="wrVPNCreate()"><#WRVPN_CREATE#></button>
+                            <span id="wr_vpn_create_status" role="status" data-saved="<#WRVPN_CREATED#>" data-failed="<#WRVPN_CREATE_FAILED#>"></span>
                             <input type="hidden" id="wr_vpn_protect" value="<% nvram_get_x("", "wrvpn_protect"); %>"/>
                             <table class="table table-bordered">
                                 <thead>
@@ -20,6 +31,34 @@
                     <script type="text/javascript">
                     //<![CDATA[
                     var wrVPNToken = <% wr_vpn_token(); %>;
+                    function wrVPNCreate() {
+                        var button = document.getElementById('wr_vpn_create_button');
+                        var status = document.getElementById('wr_vpn_create_status');
+                        var id = document.getElementById('wr_vpn_create_id').value;
+                        var protocol = document.getElementById('wr_vpn_create_protocol').value;
+                        var config = document.getElementById('wr_vpn_create_config');
+                        if (button.disabled) return;
+                        if (!/^[1-9][0-9]{0,2}$/.test(id) ||
+                            !/^[0-9a-f]{32}$/.test(wrVPNToken) || !config.value ||
+                            (protocol !== 'wireguard' && protocol !== 'amneziawg')) {
+                            status.textContent = status.getAttribute('data-failed'); return;
+                        }
+                        button.disabled = true; status.textContent = '';
+                        jQuery.ajax({url: '/wr_vpn_create.cgi', type: 'POST', dataType: 'json',
+                            contentType: 'text/plain; charset=UTF-8', processData: false, timeout: 8000,
+                            data: wrVPNToken + '\n' + id + '\n' + protocol + '\n' + config.value,
+                            success: function(r) {
+                                button.disabled = false;
+                                if (r && r.saved === true && r.started === false) {
+                                    config.value = '';
+                                    status.textContent = status.getAttribute('data-saved');
+                                } else status.textContent = status.getAttribute('data-failed');
+                            },
+                            error: function() {
+                                button.disabled = false;
+                                status.textContent = status.getAttribute('data-failed');
+                            }});
+                    }
                     function wrVPNAct(operation, id) {
                         if (operation == 'delete' && !confirm('Delete profile ' + id + '?')) return;
                         jQuery.ajax({url: '/wr_vpn_action.cgi', type: 'POST', dataType: 'json', timeout: 5000,

@@ -676,6 +676,8 @@ jobs:
             grep -q 'wr_vpn_action.cgi' trunk/romfs/www/vpncli.asp
             grep -aq 'wr_vpn_profile_rows' trunk/romfs/usr/sbin/httpd
             grep -aq 'wr_vpn_action.cgi' trunk/romfs/usr/sbin/httpd
+            grep -q 'wr_vpn_create.cgi' trunk/romfs/www/vpncli.asp
+            grep -aq 'wr_vpn_create.cgi' trunk/romfs/usr/sbin/httpd
             grep -q '/wifi-qrcode-renderer.js' trunk/romfs/www/vpnsrv.asp
             ! grep -q '/qrcode.min.js' trunk/romfs/www/vpnsrv.asp
             grep -q 'wrVPNQrPayload' trunk/romfs/www/vpnsrv.asp

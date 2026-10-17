@@ -82,6 +82,21 @@ Python AST і diff-check пройшли; C-fixture/Linux CI/образ ще не
 в `tools/agent-nim/README.md`.
 ## Актуальний стан роботи — 2026-10-17
 
+### Незалежний WebUI create/import — локальний наступний блок
+
+Додано `web/vpn-create-request.h`: bounded parser POST payload до 16 KiB
+конфігурації, окремі token/ID/protocol, без запису/виконання/мережевих дій.
+`check-create-request.c` скомпільований локальним GCC з -Wall/-Wextra/-Werror
+і пройшов перевірки меж, grammar та NUL/truncation refusal. Додано Linux
+ASAN/UBSAN крок у service workflow. Підготовлено HTTP create route, CSRF
+comparison, bounded socket stdin до manager create та форму EN/UK/RU з
+вибором WG/AWG/ID і вставленням конфігурації. Save не запускає тунель;
+менеджер відхиляє існуючий ID. Конфіг не передається в argv і буфер запиту
+очищується після обробки. Додано HTTP boundary harness з fake manager та
+фінальні ROMFS markers. Parser GCC check, Python AST, JavaScript syntax
+пройшли локально; Linux ASAN/UBSAN HTTP harness і firmware compile ще потрібні.
+Не заявляти про готовність на пристрої. Чинний тунель не змінювався.
+
 ### Прийняття ролі DeepSeek → Sol — 2026-10-17
 
 Поточне звірення GitHub API: #410 (`39068280936`) успішна, зокрема фінальні

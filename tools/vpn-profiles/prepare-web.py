@@ -21,6 +21,7 @@ if "wr_vpn_profile_rows" in text:
 (httpd / "vpn-profiles-render.h").write_text(
     (here / "web/vpn-profiles-render.h").read_text(encoding="utf-8"),
     encoding="utf-8", newline="\n")
+(httpd / "vpn-create-request.h").write_bytes((here / "web/vpn-create-request.h").read_bytes())
 
 mime_anchor = "struct mime_handler mime_handlers[] = {"
 if text.count(mime_anchor) != 1:
@@ -28,6 +29,7 @@ if text.count(mime_anchor) != 1:
 injection = ((here / "web/vpn-profiles.inc").read_text(encoding="utf-8") + "\n" +
              (here / "web/vpn-profiles-action.inc").read_text(encoding="utf-8") + "\n" +
              (here / "web/vpn-profiles-export.inc").read_text(encoding="utf-8") + "\n")
+injection += (here / "web/vpn-profiles-create.inc").read_text(encoding="utf-8") + "\n"
 text = text.replace(mime_anchor, injection + mime_anchor, 1)
 
 ej_anchor = "struct ej_handler ej_handlers[] =\n{\n"
@@ -45,6 +47,8 @@ route = ('\t{ "wr_vpn_action.cgi*", "application/json", no_cache_IE,\n'
          '\t  wr_vpn_action_input, wr_vpn_action_output, 1 },\n')
 route += ('\t{ "wr_vpn_export.cgi*", "application/json", no_cache_IE,\n'
           '\t  wr_vpn_export_input, wr_vpn_export_output, 1 },\n')
+route += ('\t{ "wr_vpn_create.cgi*", "application/json", no_cache_IE,\n'
+          '\t  wr_vpn_create_input, wr_vpn_create_output, 1 },\n')
 text = text.replace(route_anchor, route + route_anchor, 1)
 
 main_path = httpd / "httpd.c"
@@ -88,6 +92,22 @@ texts = {
         ("WRVPN_REVISION", "Ревизия"),
     ),
 }
+create_texts = {
+    "WRVPN_PROTOCOL": ("Protocol", "Протокол", "Протокол"),
+    "WRVPN_CONFIG": ("Profile configuration", "Конфігурація профілю", "Конфигурация профиля"),
+    "WRVPN_CREATE": ("Save new profile", "Зберегти новий профіль", "Сохранить новый профиль"),
+    "WRVPN_CREATE_HELP": (
+        "Choose an unused ID and paste a client configuration. For ID 1 this saves WG1 or AWG1 without starting a tunnel. Reload this page to refresh the list.",
+        "Оберіть невикористаний ID і вставте клієнтську конфігурацію. Для ID 1 буде збережено WG1 або AWG1 без запуску тунелю. Перезавантажте сторінку для оновлення списку.",
+        "Выберите неиспользованный ID и вставьте клиентскую конфигурацию. Для ID 1 будет сохранён WG1 или AWG1 без запуска туннеля. Перезагрузите страницу для обновления списка."),
+    "WRVPN_CREATED": ("Profile saved; tunnel not started.", "Профіль збережено; тунель не запущено.", "Профиль сохранён; туннель не запущен."),
+    "WRVPN_CREATE_FAILED": (
+        "Save unconfirmed. Refresh the list before retrying; check the ID and configuration.",
+        "Збереження не підтверджене. Перед повтором оновіть список; перевірте ID та конфігурацію.",
+        "Сохранение не подтверждено. Перед повтором обновите список; проверьте ID и конфигурацию."),
+}
+for language, name in enumerate(("EN.footer", "UK.dict", "RU.dict")):
+    texts[name] += tuple((key, values[language]) for key, values in create_texts.items())
 for name, entries in texts.items():
     path = args.tree / "trunk/user/www/dict" / name
     existing = path.read_text(encoding="utf-8")

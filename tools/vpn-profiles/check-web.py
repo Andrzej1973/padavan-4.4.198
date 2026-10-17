@@ -21,6 +21,9 @@ assert web.count('{ "wr_vpn_token", ej_wr_vpn_token},') == 1, "token handler not
 assert web.count('{ "wr_vpn_action_state", ej_wr_vpn_action_state},') == 1, "state handler not registered"
 assert web.count('{ "wr_vpn_action.cgi*", "application/json", no_cache_IE,') == 1, "action route missing"
 assert web.count('{ "wr_vpn_export.cgi*", "application/json", no_cache_IE,') == 1, "export route missing"
+assert web.count('{ "wr_vpn_create.cgi*", "application/json", no_cache_IE,') == 1, "create route missing"
+assert (args.tree / "trunk/user/httpd/vpn-create-request.h").is_file(), "create parser header missing"
+assert 'id="wr_vpn_create_config"' in page and "function wrVPNCreate()" in page, "create form missing"
 assert '"/usr/sbin/wr-vpn-profile"' in web, "fixed manager path changed"
 assert '"/usr/libexec/wrvpn/action-worker"' in web, "worker path changed"
 assert httpd.count("int wr_vpn_request_is_post(void)") == 1, "POST helper missing"
@@ -43,7 +46,9 @@ finally:
 
 for name in ("EN.footer", "UK.dict", "RU.dict"):
     text = "\n" + (args.tree / "trunk/user/www/dict" / name).read_text(encoding="utf-8")
-    for key in ("WRVPN_PROFILES_TITLE", "WRVPN_ID", "WRVPN_NAME", "WRVPN_REVISION"):
+    for key in ("WRVPN_PROFILES_TITLE", "WRVPN_ID", "WRVPN_NAME", "WRVPN_REVISION",
+                "WRVPN_PROTOCOL", "WRVPN_CONFIG", "WRVPN_CREATE", "WRVPN_CREATE_HELP",
+                "WRVPN_CREATED", "WRVPN_CREATE_FAILED"):
         assert f"\n{key}=" in text, (name, key)
 
 print("PASS VPN profile table: handler, page call and dictionary keys are present")
