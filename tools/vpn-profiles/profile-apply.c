@@ -27,16 +27,19 @@ int wr_vpn_profile_apply(const char *runtime_root,const struct wr_vpn_record *re
     validation=wr_vpn_prepare_config(record,plan);
     if (validation!=WR_VPN_VALID) goto done;
 
+    /* Refuse before touching the protocol when addresses cannot be guarded. */
+    if (plan->addresses[0] && (!options->protected_prefixes || !options->protected_count)) {
+        outcome->addresses_attempted=1;
+        outcome->addresses=WR_VPN_ADDR_INVALID;
+        goto done;
+    }
+
     outcome->protocol=wr_vpn_config_transaction(runtime_root,record,expected,NULL);
     if (outcome->protocol!=WR_VPN_TRANSACTION_DONE &&
         outcome->protocol!=WR_VPN_TRANSACTION_UNSAVED) goto done;
 
     if (plan->addresses[0]) {
         outcome->addresses_attempted=1;
-        if (!options->protected_prefixes || !options->protected_count) {
-            outcome->addresses=WR_VPN_ADDR_INVALID;
-            goto done;
-        }
         outcome->addresses=wr_vpn_addresses_apply(plan,1,options->protected_prefixes,
                                                   options->protected_count,exec);
         if (outcome->addresses!=WR_VPN_ADDR_DONE) goto done;

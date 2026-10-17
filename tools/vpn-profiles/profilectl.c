@@ -8,6 +8,7 @@
 #include "plan-report.h"
 #include "profile-apply.h"
 #include "link-lifecycle.h"
+#include "protect.h"
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -160,20 +161,6 @@ static int run_ip(void *context,const char *const argv[])
         (void)poll(NULL,0,20);
     }
 }
-static int parse_protect(const char *text,char *buffer,size_t capacity,
-                         const char **out,size_t maximum)
-{
-    size_t count=0,used=0;
-    while (text && *text && count<maximum) {
-        const char *comma=strchr(text,',');
-        size_t length=comma?(size_t)(comma-text):strlen(text);
-        if (!length || used+length+1>capacity) return -1;
-        memcpy(buffer+used,text,length);buffer[used+length]=0;
-        out[count++]=buffer+used;used+=length+1;
-        text=comma?comma+1:NULL;
-    }
-    return (int)count;
-}
 static const char *address_name(enum wr_vpn_addr_result result)
 {
     switch (result) {
@@ -215,6 +202,37 @@ static const char *lifecycle_name(enum wr_vpn_lifecycle_result result)
     }
     return "unknown";
 }
+/* A failed `up` must not leave an owned link or a stale fwmark rule. Routes
+ * and addresses live on the device and disappear with it; the rule does not. */
+static const char *release_name(int released)
+{
+    return released==0?"done":released<0?"unknown":"failed";
+}
+static int release_failed_up(const struct wr_vpn_resources *resources,
+                             const struct wr_vpn_session *expected)
+{
+    struct wr_vpn_exec exec={run_ip,NULL};
+    struct wr_vpn_runtime runtime={-1,-1};
+    struct wr_vpn_session current;
+    enum wr_vpn_runtime_result status;
+    enum wr_vpn_lifecycle_result down;
+    status=wr_vpn_runtime_lock(resources->runtime,&runtime);
+    if (status!=WR_VPN_RUNTIME_OK) return -1;
+    status=wr_vpn_runtime_read(&runtime,resources->id,&current);
+    /* Another session may have replaced ours while the transport ran. Its
+     * rule and link belong to it, so leave both alone. */
+    if (status!=WR_VPN_RUNTIME_OK ||
+        current.id!=expected->id || current.protocol!=expected->protocol ||
+        current.revision!=expected->revision || current.index!=expected->index ||
+        memcmp(current.nonce,expected->nonce,sizeof(current.nonce))) {
+        wr_vpn_runtime_unlock(&runtime);
+        return -1;
+    }
+    (void)wr_vpn_rule_remove(resources,&exec);
+    down=wr_vpn_link_release(&runtime,resources->id,&wr_vpn_system_links);
+    wr_vpn_runtime_unlock(&runtime);
+    return down==WR_VPN_LIFECYCLE_OK?0:1;
+}
 /* Create the owned link, then apply configuration, addresses and routes. */
 static int wr_up(int root,unsigned int id,const char *protect)
 {
@@ -223,14 +241,14 @@ static int wr_up(int root,unsigned int id,const char *protect)
     struct wr_vpn_apply_options options={NULL,0};struct wr_vpn_apply_outcome outcome;
     struct wr_vpn_exec exec={run_ip,NULL};
     enum wr_vpn_store_result stored;enum wr_vpn_runtime_result status;
-    enum wr_vpn_lifecycle_result up;
+    enum wr_vpn_lifecycle_result up;int result=0,released;
     char buffer[256];const char *prefixes[8];int count=0;
     stored=wr_vpn_store_get(root,id,&record);
     if (stored==WR_VPN_STORE_NOT_FOUND) return 5;
     if (stored!=WR_VPN_STORE_OK || !wr_vpn_resources_make(&resources,id,record.protocol)) return 3;
     if (wr_vpn_validate(record.protocol,record.config,record.size)!=WR_VPN_VALID) return 2;
     if (protect && *protect) {
-        count=parse_protect(protect,buffer,sizeof(buffer),prefixes,8);
+        count=wr_vpn_parse_protect(protect,buffer,sizeof(buffer),prefixes,8);
         if (count<0) return 2;
         options.protected_prefixes=prefixes;options.protected_count=(size_t)count;
     }
@@ -246,19 +264,28 @@ static int wr_up(int root,unsigned int id,const char *protect)
         printf("up\t%u\t%s\n",id,lifecycle_name(up));
         return 6;
     }
-    if (!wr_vpn_profile_apply(resources.runtime,&record,&session,&options,&exec,&outcome))
+    if (!wr_vpn_profile_apply(resources.runtime,&record,&session,&options,&exec,&outcome)) {
+        released=release_failed_up(&resources,&session);
+        printf("up\t%u\tapply=refused\tcleanup=%s\n",id,release_name(released));
         return 3;
+    }
     printf("up\t%u\tprotocol=%s\taddresses=%s\troutes=%s\tdns=%s\n",id,
            transaction_name(outcome.protocol),address_name(outcome.addresses),
            route_name(outcome.routes),dns_name(outcome.dns));
     if (fflush(stdout)) return 3;
-    if (outcome.protocol!=WR_VPN_TRANSACTION_DONE &&
+    if (outcome.addresses_attempted && outcome.addresses!=WR_VPN_ADDR_DONE) result=8;
+    else if (outcome.protocol!=WR_VPN_TRANSACTION_DONE &&
         outcome.protocol!=WR_VPN_TRANSACTION_UNSAVED)
-        return transaction_status(outcome.protocol);
-    if (outcome.addresses_attempted && outcome.addresses!=WR_VPN_ADDR_DONE) return 8;
-    if (outcome.routes_attempted && outcome.routes!=WR_VPN_ROUTE_DONE) return 9;
-    if (outcome.dns_attempted && outcome.dns!=WR_VPN_DNS_DONE) return 11;
-    return outcome.protocol==WR_VPN_TRANSACTION_UNSAVED?10:0;
+        result=transaction_status(outcome.protocol);
+    else if (outcome.routes_attempted && outcome.routes!=WR_VPN_ROUTE_DONE) result=9;
+    else if (outcome.dns_attempted && outcome.dns!=WR_VPN_DNS_DONE) result=11;
+    else if (outcome.protocol==WR_VPN_TRANSACTION_UNSAVED) result=10;
+    if (result) {
+        released=release_failed_up(&resources,&session);
+        printf("up\t%u\tcleanup=%s\n",id,release_name(released));
+        if (fflush(stdout)) return 3;
+    }
+    return result;
 }
 /* Scoped policy first (rule, routes, addresses), then the owned link. */
 static int wr_down(int root,unsigned int id)
@@ -308,7 +335,7 @@ static int wr_apply(int root,unsigned int id,const char *protect)
     if (stored!=WR_VPN_STORE_OK || !wr_vpn_resources_make(&resources,id,record.protocol)) return 3;
     if (wr_vpn_validate(record.protocol,record.config,record.size)!=WR_VPN_VALID) return 2;
     if (protect && *protect) {
-        count=parse_protect(protect,buffer,sizeof(buffer),prefixes,8);
+        count=wr_vpn_parse_protect(protect,buffer,sizeof(buffer),prefixes,8);
         if (count<0) return 2;
         options.protected_prefixes=prefixes;options.protected_count=(size_t)count;
     }
@@ -331,10 +358,10 @@ static int wr_apply(int root,unsigned int id,const char *protect)
            transaction_name(outcome.protocol),address_name(outcome.addresses),
            route_name(outcome.routes));
     if (fflush(stdout)) return 3;
+    if (outcome.addresses_attempted && outcome.addresses!=WR_VPN_ADDR_DONE) return 8;
     if (outcome.protocol!=WR_VPN_TRANSACTION_DONE &&
         outcome.protocol!=WR_VPN_TRANSACTION_UNSAVED)
         return transaction_status(outcome.protocol);
-    if (outcome.addresses_attempted && outcome.addresses!=WR_VPN_ADDR_DONE) return 8;
     if (outcome.routes_attempted && outcome.routes!=WR_VPN_ROUTE_DONE) return 9;
     return outcome.protocol==WR_VPN_TRANSACTION_UNSAVED?10:0;
 }

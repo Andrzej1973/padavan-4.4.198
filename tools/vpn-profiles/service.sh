@@ -30,6 +30,16 @@ protect()
     nvram get wrvpn_protect 2>/dev/null || :
 }
 
+active_ids()
+{
+    for dir in "$run_dir"/*; do
+        test -d "$dir" || continue
+        id=${dir##*/}
+        case "$id" in ''|*[!0-9]*) continue;; esac
+        echo "$id"
+    done
+}
+
 acquire()
 {
     if command -v flock >/dev/null 2>&1; then
@@ -73,9 +83,19 @@ stop_service()
 {
     acquire || return 1
     result=0
-    for id in $(ids); do
+    seen=" "
+    # Enabled ids and any id that still has a runtime directory: removing an id
+    # from nvram must not leave its owned link running until the next reboot.
+    for id in $(ids) $(active_ids); do
         case "$id" in ''|*[!0-9]*) continue;; esac
-        "$ctl" down "$id" || { fail "profile $id failed to stop"; result=1; }
+        case "$seen" in *" $id "*) continue;; esac
+        seen="$seen$id "
+        "$ctl" down "$id"
+        case $? in
+            0) :;;
+            5) :;;  # no stored profile left; nothing this call can release
+            *) fail "profile $id failed to stop"; result=1;;
+        esac
     done
     dns_sync || result=1
     return $result

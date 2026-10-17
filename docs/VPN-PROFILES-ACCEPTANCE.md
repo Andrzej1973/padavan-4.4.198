@@ -13,7 +13,9 @@ router still answers on its LAN address.
   cannot lock out every client.
 - The profile uses a numeric `Endpoint` (hostname endpoints are refused by the
   controller today) and its `Address` prefix does not overlap the LAN.
-- The protected prefix list is known, for example `192.168.20.0/24`.
+- The protected prefix list is known, for example `192.168.20.0/24`. IPv4 and
+  IPv6 prefixes are accepted, comma-separated; spaces around a prefix are
+  ignored. A malformed entry refuses the start instead of being skipped.
 
 ## Steps and expected results
 
@@ -83,6 +85,19 @@ router still answers on its LAN address.
    Expected: `down 1 ok`, an empty table (or no such table), no rule with the
    profile mark, and the LAN still reachable.
 
+8. Confirm a rejected start leaves nothing behind:
+
+   ```
+   wr-vpn-profile up 1 192.168.20.0/24
+   ip link show wrvpn1
+   ip rule show
+   ```
+
+   Run this with a profile address inside the protected prefix. Expected:
+   `addresses=conflict`, `cleanup=done`, exit code 8, no `wrvpn1` device and no
+   rule with the profile mark. Repeat with an empty prefix argument: the same
+   cleanup must run and the protocol must not be configured.
+
 ## If something goes wrong
 
 - Access lost on one port: move the cable to another LAN port; the profile never
@@ -94,7 +109,7 @@ router still answers on its LAN address.
 
 ## Evidence to record
 
-Command outputs from steps 1–7 with keys redacted, the contents of table 20001
+Command outputs from steps 1–8 with keys redacted, the contents of table 20001
 before and after, `ip rule show`, the interface addresses, and the router's LAN
 reachability from a client. Until that record exists, the profile stays
 "implemented and CI-verified", not "verified on the device".

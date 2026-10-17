@@ -100,5 +100,31 @@ chmod +x "$bin/nvram"
 run stop
 test ! -e "$root/dns/wrvpn.servers"
 
+# An id removed from wrvpn_enabled but still present in runtime state is
+# stopped once; a "no stored profile" exit is tolerated, not a failure.
+mkdir -p "$root/run/7"
+cat > "$bin/wr-vpn-profile" <<EOS
+#!/bin/sh
+echo "ctl \$*" >> "$calls"
+case "\$1 \$2" in "down 7") exit 5;; esac
+EOS
+chmod +x "$bin/wr-vpn-profile"
+cat > "$bin/nvram" <<'EOS'
+#!/bin/sh
+case "$2" in
+    wrvpn_enabled) echo "3";;
+    wrvpn_protect) echo "192.168.20.0/24";;
+    *) exit 1;;
+esac
+EOS
+chmod +x "$bin/nvram"
+: > "$calls"
+if run stop 2>/dev/null; then :; else
+    echo 'an absent stored profile was reported as a stop failure' >&2
+    exit 1
+fi
+test "$(cat "$calls")" = "ctl down 3
+ctl down 7"
+
 rm -rf "$root"
-echo 'PASS VPN profile service: up/down/status argument passing, protected prefixes, invalid id refusal, opt-in DNS aggregation and removal'
+echo 'PASS VPN profile service: up/down/status argument passing, protected prefixes, invalid id refusal, opt-in DNS aggregation and removal, runtime-only id teardown'

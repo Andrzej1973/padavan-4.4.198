@@ -3,11 +3,13 @@
 #endif
 #include "addr-apply.h"
 #include <arpa/inet.h>
+#include <sys/socket.h>
 #include <stdlib.h>
 #include <string.h>
 
 struct prefix {
-    struct in_addr network;
+    int family;
+    unsigned char network[16];
     unsigned int bits;
     int valid;
 };
@@ -16,31 +18,39 @@ static struct prefix parse_prefix(const char *text)
 {
     struct prefix prefix;
     char buffer[64];const char *slash;size_t length;char *end;
-    unsigned long bits;
+    unsigned long bits,max;
     memset(&prefix,0,sizeof(prefix));
+    if (!text) return prefix;
     slash=strchr(text,'/');
     length=slash?(size_t)(slash-text):strlen(text);
     if (!length || length>=sizeof(buffer)) return prefix;
     memcpy(buffer,text,length);buffer[length]=0;
-    if (inet_pton(AF_INET,buffer,&prefix.network)!=1) return prefix;
-    if (!slash) { prefix.bits=32;prefix.valid=1;return prefix; }
-    bits=strtoul(slash+1,&end,10);
-    if (*end || bits>32) return prefix;
+    if (inet_pton(AF_INET,buffer,prefix.network)==1) {
+        prefix.family=AF_INET;max=32;bits=32;
+    } else if (inet_pton(AF_INET6,buffer,prefix.network)==1) {
+        prefix.family=AF_INET6;max=128;bits=128;
+    } else return prefix;
+    if (slash) {
+        bits=strtoul(slash+1,&end,10);
+        if (*end || bits>max) return prefix;
+    }
     prefix.bits=(unsigned int)bits;prefix.valid=1;
     return prefix;
 }
 
-static unsigned int mask_of(unsigned int bits)
-{
-    return bits?(~0u)<<(32-bits):0u;
-}
-
-/* Either prefix contains the other's network address. */
+/* Byte-wise comparison; prefixes of different families never overlap. */
 static int overlaps(const struct prefix *a,const struct prefix *b)
 {
-    unsigned int shorter=a->bits<b->bits?a->bits:b->bits;
-    unsigned int mask=mask_of(shorter);
-    return (ntohl(a->network.s_addr)&mask)==(ntohl(b->network.s_addr)&mask);
+    unsigned int shorter,full,rest;unsigned char mask;
+    if (!a->valid || !b->valid || a->family!=b->family) return 0;
+    shorter=a->bits<b->bits?a->bits:b->bits;
+    full=shorter/8;rest=shorter%8;
+    if (full && memcmp(a->network,b->network,full)) return 0;
+    if (rest) {
+        mask=(unsigned char)(0xffu<<(8-rest));
+        if ((a->network[full]&mask)!=(b->network[full]&mask)) return 0;
+    }
+    return 1;
 }
 
 static int address_text(const char *start,size_t length,char *out,size_t capacity)
@@ -69,24 +79,15 @@ enum wr_vpn_addr_result wr_vpn_addresses_apply(const struct wr_vpn_config_plan *
         char text[64];struct prefix candidate;
         if (!address_text(cursor,length,text,sizeof(text))) return WR_VPN_ADDR_INVALID;
         candidate=parse_prefix(text);
-        if (!candidate.valid) {
-            /* Not IPv4: accept a well-formed IPv6 prefix, reject anything else. */
-            char buffer[64];struct in6_addr v6;const char *slash=strchr(text,'/');
-            size_t host_length=slash?(size_t)(slash-text):strlen(text);
-            unsigned long bits;
-            char *end;
-            if (!host_length || host_length>=sizeof(buffer)) return WR_VPN_ADDR_INVALID;
-            memcpy(buffer,text,host_length);buffer[host_length]=0;
-            if (inet_pton(AF_INET6,buffer,&v6)!=1) return WR_VPN_ADDR_INVALID;
-            if (slash) {
-                bits=strtoul(slash+1,&end,10);
-                if (*end || bits>128) return WR_VPN_ADDR_INVALID;
-            }
-        } else if (add) {
+        if (!candidate.valid) return WR_VPN_ADDR_INVALID;
+        if (add) {
             size_t i;
             for (i=0;i<protected_count;i++) {
                 struct prefix protected_prefix=parse_prefix(protected_prefixes[i]);
-                if (protected_prefix.valid && overlaps(&candidate,&protected_prefix))
+                /* A malformed protected prefix must stop the start, not
+                 * silently disappear from the LAN/management guard. */
+                if (!protected_prefix.valid) return WR_VPN_ADDR_INVALID;
+                if (overlaps(&candidate,&protected_prefix))
                     return WR_VPN_ADDR_CONFLICT;
             }
         }

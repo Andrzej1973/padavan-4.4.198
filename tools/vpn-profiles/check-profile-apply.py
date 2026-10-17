@@ -88,6 +88,8 @@ CONTROL = '''#include <stdio.h>
 int main(int argc,char **argv)
 {
     char data[200000];size_t n;
+    FILE *marker=fopen(MARKER,"a");
+    if (marker) { fputs("called\\n",marker);fclose(marker); }
     if (VERIFY) {
         if (argc!=3 || strcmp(argv[1],"wrvpn2") || strcmp(argv[2],"54")) return 90;
     } else if (argc!=4 || strcmp(argv[1],"setconf") || strcmp(argv[2],"wrvpn2") ||
@@ -108,7 +110,9 @@ with tempfile.TemporaryDirectory(prefix='wrvpn-controller-') as directory:
 
     def compile_control(protocol, verify):
         subprocess.run(['gcc', '-Wall', '-Wextra', '-Werror',
-                        f'-DVERIFY={int(verify)}', str(control),
+                        f'-DVERIFY={int(verify)}',
+                        f'-DMARKER="{root}/control-{protocol}-{int(verify)}.calls"',
+                        str(control),
                         '-o', str((verifiers if verify else controls)[protocol])], check=True)
 
     for protocol in controls:
@@ -162,13 +166,21 @@ with tempfile.TemporaryDirectory(prefix='wrvpn-controller-') as directory:
                             'ip route replace 0.0.0.0/0 dev wrvpn2 table 20002',
                             'ip rule add fwmark 0x57560002/0xffffffff lookup 20002 priority 20003'], commands
 
+        # No protected prefix: refuse before the protocol transport runs.
+        for other in controls:
+            for verify in (0, 1):
+                (root / f'control-{other}-{verify}.calls').unlink(missing_ok=True)
         outcome, commands = run(protocol, None, data)
-        assert outcome == '0,2,1,1,0,1,0', (outcome, commands)
+        assert outcome == '4,2,1,1,0,1,0', (outcome, commands)
         assert commands == [], commands
+        for verify in (0, 1):
+            assert not (root / f'control-{protocol}-{verify}.calls').exists(), \
+                'protocol transport ran without a protected prefix'
 
         outcome, commands = run(protocol, '192.168.20.0/24', data, fail_at=2)
         assert outcome == '0,0,3,1,1,1,0', (outcome, commands)
         assert commands == ['ip address add 10.8.0.2/32 dev wrvpn2'], commands
 
     print('PASS apply controller: protocol, then addresses, then routes; no protected '
-          'prefix refuses addresses; a failing runner stops the sequence and reports it')
+          'prefix refuses before the protocol transport; a failing runner stops the '
+          'sequence and reports it')

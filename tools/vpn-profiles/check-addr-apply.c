@@ -21,7 +21,8 @@ static struct wr_vpn_config_plan plan;
 static const struct wr_vpn_exec exec={record,NULL};
 static const char *protected_prefixes[]={"192.168.20.0/24","172.16.0.0/12"};
 
-static enum wr_vpn_addr_result run(int add,const char *addresses,const char *expected)
+static enum wr_vpn_addr_result run_list(int add,const char *addresses,
+    const char *const *protected_list,size_t protected_len,const char *expected)
 {
     enum wr_vpn_addr_result result;
     memset(&plan,0,sizeof(plan));
@@ -29,10 +30,14 @@ static enum wr_vpn_addr_result run(int add,const char *addresses,const char *exp
     snprintf(plan.resources.interface,sizeof(plan.resources.interface),"wrvpn2");
     snprintf(plan.addresses,sizeof(plan.addresses),"%s",addresses);
     recorded[0]=0;calls=0;fail_at=0;
-    result=wr_vpn_addresses_apply(&plan,add,protected_prefixes,
-                                  sizeof(protected_prefixes)/sizeof(protected_prefixes[0]),&exec);
+    result=wr_vpn_addresses_apply(&plan,add,protected_list,protected_len,&exec);
     assert(!strcmp(recorded,expected));
     return result;
+}
+static enum wr_vpn_addr_result run(int add,const char *addresses,const char *expected)
+{
+    return run_list(add,addresses,protected_prefixes,
+                    sizeof(protected_prefixes)/sizeof(protected_prefixes[0]),expected);
 }
 
 int main(void)
@@ -67,7 +72,22 @@ int main(void)
     assert(wr_vpn_addresses_apply(&plan,1,protected_prefixes,2,&exec)==WR_VPN_ADDR_FAILED);
     assert(!strcmp(recorded,"ip address add 10.8.0.2/32 dev wrvpn2 \n"));
 
-    puts("PASS VPN address apply: exact argv, IPv4/IPv6 validation, protected-prefix "
-         "refusal before any command, and a runner failure stop");
+    /* IPv6 addresses are guarded by IPv6 protected prefixes as well. */
+    {
+        static const char *protected_v6[]={"fd00::/64"};
+        assert(run_list(1,"fd00::2/128",protected_v6,1,"")==WR_VPN_ADDR_CONFLICT);
+        assert(run_list(1,"fd00::/48",protected_v6,1,"")==WR_VPN_ADDR_CONFLICT);
+        assert(run_list(1,"fd00:1::2/64",protected_v6,1,
+            "ip address add fd00:1::2/64 dev wrvpn2 \n")==WR_VPN_ADDR_DONE);
+    }
+    /* A malformed protected prefix refuses everything instead of vanishing. */
+    {
+        static const char *protected_bad[]={"not-a-prefix"};
+        assert(run_list(1,"10.8.0.2/32",protected_bad,1,"")==WR_VPN_ADDR_INVALID);
+    }
+
+    puts("PASS VPN address apply: exact argv, IPv4/IPv6 validation, IPv4 and IPv6 "
+         "protected-prefix refusal before any command, malformed guard refusal, "
+         "and a runner failure stop");
     return 0;
 }
