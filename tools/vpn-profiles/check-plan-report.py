@@ -87,7 +87,7 @@ with tempfile.TemporaryDirectory(prefix='wrvpn-report-') as directory:
         text = run(protocol, 'snapshot', data)
         assert 'apply=ready' in text and 'snapshot=revision=4' in text, text
 
-        text = run(protocol, 'none', data.replace('203.0.113.7', 'vpn.example'))
+        text = run(protocol, 'session', data.replace('203.0.113.7', 'vpn.example'))
         assert 'endpoints=hostname' in text and 'apply=needs-pinning' in text, text
 
         text = run(protocol, 'none', data.replace(key, 'invalid'))
