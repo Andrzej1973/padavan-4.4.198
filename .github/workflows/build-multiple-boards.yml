@@ -112,6 +112,8 @@ on:
       - 'tools/vpn-profiles/check-web.py'
       - 'tools/vpn-profiles/check-web-render.c'
       - 'tools/vpn-profiles/check-http-list.py'
+      - 'tools/vpn-profiles/action-worker.c'
+      - 'tools/vpn-profiles/check-action-worker.py'
       - 'tools/vpn-profiles/plan-report.c'
       - 'tools/vpn-profiles/plan-report.h'
       - 'tools/vpn-profiles/addr-apply.c'

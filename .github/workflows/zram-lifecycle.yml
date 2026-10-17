@@ -90,6 +90,7 @@ jobs:
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined -Itools/vpn-profiles tools/vpn-profiles/check-web-render.c -o checks/vpn-web-render
           ASAN_OPTIONS=detect_leaks=1 checks/vpn-web-render
           python3 tools/vpn-profiles/check-http-list.py --output checks/vpn-http-list
+          python3 tools/vpn-profiles/check-action-worker.py --output checks/vpn-action-worker
       - name: Check imports using pinned native WG and AWG parsers
         run: |
           git init checks/wg-parser-source

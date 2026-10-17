@@ -22,10 +22,11 @@ paths={'manager':'usr/sbin/wr-vpn-profile','wireguard':'usr/libexec/wrvpn/valida
 paths.update({'control-wireguard':'usr/libexec/wrvpn/wg','control-amneziawg':'usr/libexec/wrvpn/awg'})
 paths.update({'readback-wireguard':'usr/libexec/wrvpn/readback-wg','readback-amneziawg':'usr/libexec/wrvpn/readback-awg'})
 paths.update({'service':'usr/sbin/wr-vpn-profiles-service'})
+paths.update({'actions':'usr/libexec/wrvpn/action-worker'})
 roles=['wireguard']+(['amneziawg'] if a.amneziawg else [])
 if not a.amneziawg:
  for role in ('amneziawg','control-amneziawg','readback-amneziawg'):assert not (root/paths[role]).exists(),'unexpected AWG tool'
-for role in ['manager',*roles,*['control-'+protocol for protocol in roles],*['readback-'+protocol for protocol in roles]]:
+for role in ['manager','actions',*roles,*['control-'+protocol for protocol in roles],*['readback-'+protocol for protocol in roles]]:
  path=paths[role]
  binary=root/path;data=binary.read_bytes()
  assert data[:6]==b'\x7fELF\x01\x01' and struct.unpack_from('<H',data,18)[0]==8,(role,'not little-endian 32-bit MIPS')
