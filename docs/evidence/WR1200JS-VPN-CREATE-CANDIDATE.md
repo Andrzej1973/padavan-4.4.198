@@ -30,3 +30,14 @@ real manager/validators have separate integration tests. End-to-end HTTP with
 the real manager, completed firmware image inspection, persistence across
 reboot, physical browser creation and concurrent tunnel behavior remain open.
 No profile was created on the user's router and its access tunnel was untouched.
+
+## Real manager HTTP integration follow-up
+
+Run `39072314133`, job `117512280547`, for `fb20045` records PASS for the real
+HTTP handler → real manager → pinned WG/AWG validators → private store path:
+independent WG/AWG records, exact exports, duplicate/invalid rejection and
+unchanged existing records/runtime files, with no activation.
+The run then failed an older delete assertion using substring `1\tAWG1`:
+new row `11\tAWG11` also contains that substring. The assertion is corrected
+to compare the complete first tab-separated ID field. The failed run is not
+reported as a successful suite; the correction requires a new CI result.

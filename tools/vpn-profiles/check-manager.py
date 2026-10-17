@@ -161,7 +161,7 @@ int main(void)
  # Stop and delete are distinct: an idle profile becomes a tombstone.
  assert run(['delete','1'])=='deleted\t1\t2\n'
  assert run(['export','1'],expected=5)==''
- assert '1\tAWG1' not in run(['list'])
+ assert all(line.split('\t',1)[0]!='1' for line in run(['list']).splitlines())
  assert (store/'1').exists()
  assert run(['delete','1'],expected=5)==''
  print('PASS profile manager integration: native validation before isolated create/export/edit, private metadata, FD closure, invalid/failed/timed-out validator, AWG record preservation, distinct stop/delete tombstone; no network lifecycle')
