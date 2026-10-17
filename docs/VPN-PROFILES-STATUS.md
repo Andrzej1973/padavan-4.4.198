@@ -49,15 +49,16 @@ it outside AP mode and stops it with the other services.
 | Service wrapper (`start`/`stop`/`status`) | verified in CI | `check-service`, run 39008382868 |
 | Stop covers ids left only in runtime state | verified in CI | `check-service`, run 39010171751 |
 | Failed `up` cleanup (rule removed, link released) | implemented and compiled in CI; dedicated fixture pending | service run 39010171751 |
+| Hostname endpoint pinning in `up` (before the link exists) | implemented; pin module CI-verified, wiring pending build | `check-endpoint-pin`, run 39010171751 |
 | `rc` start/stop hook | patched and applied in the image build | build `263bdee`, step `Apply WR1200JS board port` = success |
 | DNS aggregation into dnsmasq (opt-in) | file and service verified in CI; rc line applied | `check-service`; same board-port step |
 | Real tunnel, routes, DNS, handshake on the device | **not verified** | device unreachable; nothing flashed |
 
 ## Known limits
 
-- Hostname endpoints are refused at apply time. `endpoint-pin` can replace them
-  with resolved addresses, but nothing calls it yet; numeric endpoints are
-  required today.
+- `up` resolves hostname endpoints once, before the link exists, and applies a
+  numeric copy; the stored record keeps the name. In-place `apply` still
+  refuses hostnames because the tunnel may already carry DNS there.
 - "Route all traffic" is not offered: only packets the daemon marks are
   redirected. `priority_main` stays reserved for an explicit opt-in.
 - There is no WebUI page for these profiles yet.
