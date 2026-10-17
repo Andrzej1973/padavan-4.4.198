@@ -54,6 +54,10 @@ it outside AP mode and stops it with the other services.
   redirected. `priority_main` stays reserved for an explicit opt-in.
 - There is no WebUI page for these profiles yet.
 - The service is default-off and does nothing while `wrvpn_enabled` is empty.
+- Editing a stored profile bumps its revision. The runtime session keeps the
+  revision it was created for, and both the link lifecycle and the transaction
+  compare against it, so an updated profile needs `down` and then `up`; an
+  in-place apply of a new revision is refused by design, not silently applied.
 
 ## Next steps
 
