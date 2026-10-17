@@ -50,8 +50,9 @@ def checks(root: Path) -> None:
     text = state(1)
     assert "state=done" in text and "code=0" in text and "output=up 1 done" in text
 
-    script("exit 7")
-    run(["1", "down"], 1)
+    script('printf "%%s\\n" "$*" > "%s"; exit 7' % record)
+    run(["1", "down", "192.168.20.0/24"], 1)
+    assert record.read_text().strip() == "down 1"
     text = state(1)
     assert "state=failed" in text and "code=7" in text
 

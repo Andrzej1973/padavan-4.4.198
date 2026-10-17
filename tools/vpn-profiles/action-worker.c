@@ -105,7 +105,9 @@ int main(int argc,char **argv)
     }
     write_state(WR_VPN_ACTION_ROOT,id,"running",-1,"");
     if (pipe(pipefd)) return 3;
-    args[0]=WR_VPN_MANAGER;args[1]=action;args[2]=argv[1];args[3]=protect;args[4]=NULL;
+    args[0]=WR_VPN_MANAGER;args[1]=action;args[2]=argv[1];
+    args[3]=(!strcmp(action,"up")&&protect)?protect:NULL;
+    args[4]=NULL;
     child=fork();
     if (child<0) { close(pipefd[0]);close(pipefd[1]);write_state(WR_VPN_ACTION_ROOT,id,"failed",-1,"");return 3; }
     if (!child) {
