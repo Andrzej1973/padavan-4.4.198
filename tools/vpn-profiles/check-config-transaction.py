@@ -170,6 +170,7 @@ with tempfile.TemporaryDirectory(prefix='wrvpn-transaction-') as directory:
         with tempfile.TemporaryDirectory(prefix='wrvpn-runtime-') as runtime:
             root = Path(runtime) / 'profile'
             root.mkdir()
+            root.chmod(0o700)
 
             assert run(root, protocol, 'nosession', data, 1) == []
 
