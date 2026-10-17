@@ -1556,3 +1556,5 @@ remains unintegrated; real session ownership, endpoint routes, protocol mutation
 readback on a configured physical interface and address/route/DNS rollback remain.
 
 Build #364 and service #141 passed at 1eaa5a5. Downloaded TRX SHA256 and original MIPS readback/manager reports verified; see docs/evidence/WR1200JS-BUILD364.md. This supersedes pending packaging above. Configured physical interface readback and concurrent network lifecycle remain unverified.
+
+Service CI #187 (39021734137) passed at fc3467b. The post-flash journal-window fixture passed missing/rotation/ambiguity/read/wait failure gates. This supersedes the pending fixture status above; physical quiet/runtime acceptance remains unverified.

@@ -23,4 +23,6 @@ false quiet results with a missing/rotating journal. The revised read-only check
 requires a unique retained last-line cursor; loss/ambiguity/read failure is
 UNKNOWN. It inspects only newly appended lines for both steering and reaper noise.
 Host fixtures cover missing, empty, quiet, noisy, rotated, duplicated, deleted and
-failed-wait journals. These fixtures are pending CI; they do not prove device quiet.
+failed-wait journals. Service CI #187 passed at fc3467b:
+https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/39021734137
+The job log confirms PASS post-flash journal window. This does not prove device quiet.
