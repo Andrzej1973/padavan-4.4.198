@@ -97,6 +97,11 @@ comparison, bounded socket stdin до manager create та форму EN/UK/RU з
 пройшли локально; Linux ASAN/UBSAN HTTP harness і firmware compile ще потрібні.
 Не заявляти про готовність на пристрої. Чинний тунель не змінювався.
 
+Кандидат опубліковано `833ea98`; Linux service CI `39070916624` пройшов
+парсер і HTTP create harness під ASAN/UBSAN (fake manager); firmware #414
+ще виконується. Додатковий actual-JS create UI test пройшов локально.
+Межі та наступні перевірки — `docs/evidence/WR1200JS-VPN-CREATE-CANDIDATE.md`.
+
 ### Прийняття ролі DeepSeek → Sol — 2026-10-17
 
 Поточне звірення GitHub API: #410 (`39068280936`) успішна, зокрема фінальні

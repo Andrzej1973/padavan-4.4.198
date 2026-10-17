@@ -93,6 +93,7 @@ jobs:
           gcc -std=c99 -Wall -Wextra -Werror -fsanitize=address,undefined tools/vpn-profiles/check-create-request.c -o checks/vpn-create-request
           ASAN_OPTIONS=detect_leaks=1 checks/vpn-create-request
           python3 tools/vpn-profiles/check-http-create.py --output checks/vpn-http-create
+          node tools/vpn-profiles/check-create-ui.js
           python3 tools/vpn-profiles/check-action-worker.py --output checks/vpn-action-worker
           python3 tools/vpn-profiles/check-http-action.py --output checks/vpn-http-action
           python3 tools/vpn-profiles/check-http-export.py --output checks/vpn-http-export
