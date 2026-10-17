@@ -119,6 +119,56 @@ enum wr_vpn_runtime_result wr_vpn_runtime_clear(struct wr_vpn_runtime *r,const s
     snprintf(name,sizeof(name),"%u",expected->id);
     return unlinkat(r->root,name,0)?WR_VPN_RUNTIME_IO:WR_VPN_RUNTIME_OK;
 }
+static int valid_record(const struct wr_vpn_record *record)
+{
+    struct wr_vpn_resources resources;
+    return record && record->size && record->size<=WR_VPN_CONFIG_MAX &&
+        wr_vpn_resources_make(&resources,record->id,record->protocol);
+}
+enum wr_vpn_runtime_result wr_vpn_runtime_snapshot_put(struct wr_vpn_runtime *r,
+                                                       const struct wr_vpn_record *record)
+{
+    char name[24],temp[48];unsigned char header[28];int fd,ok;
+    if (!locked(r) || !valid_record(record)) return WR_VPN_RUNTIME_INVALID;
+    memset(header,0,sizeof(header));memcpy(header,"WRVG\1",5);
+    encode32(header+8,record->id);encode32(header+12,record->protocol);
+    encode32(header+16,(uint32_t)(record->revision>>32));encode32(header+20,(uint32_t)record->revision);
+    encode32(header+24,(uint32_t)record->size);
+    snprintf(name,sizeof(name),"snapshot-%u",record->id);
+    snprintf(temp,sizeof(temp),".snapshot-%u-%ld",record->id,(long)getpid());
+    fd=openat(r->root,temp,O_WRONLY|O_CREAT|O_EXCL|O_NOFOLLOW|O_CLOEXEC,0600);
+    if (fd<0) return WR_VPN_RUNTIME_IO;
+    ok=!fchmod(fd,0600) && transfer(fd,header,sizeof(header),1) &&
+        transfer(fd,record->config,record->size,1);
+    if (close(fd)) ok=0;
+    if (ok && !renameat(r->root,temp,r->root,name)) return WR_VPN_RUNTIME_OK;
+    unlinkat(r->root,temp,0);return WR_VPN_RUNTIME_IO;
+}
+enum wr_vpn_runtime_result wr_vpn_runtime_snapshot_get(struct wr_vpn_runtime *r,
+                                                       unsigned int id,struct wr_vpn_record *out)
+{
+    char name[24];unsigned char header[28];struct stat st;int fd,ok;uint32_t size;
+    if (!out || !locked(r) || !id || id>WR_VPN_PROFILE_ID_MAX) return WR_VPN_RUNTIME_INVALID;
+    snprintf(name,sizeof(name),"snapshot-%u",id);
+    fd=openat(r->root,name,O_RDONLY|O_NOFOLLOW|O_CLOEXEC|O_NONBLOCK);
+    if (fd<0) return errno==ENOENT?WR_VPN_RUNTIME_ABSENT:WR_VPN_RUNTIME_IO;
+    ok=private_fd(fd,0) && !fstat(fd,&st) &&
+        st.st_size>=(off_t)sizeof(header) &&
+        st.st_size<=(off_t)(sizeof(header)+WR_VPN_CONFIG_MAX) &&
+        transfer(fd,header,sizeof(header),0);
+    size=ok?decode32(header+24):0;
+    if (ok && (memcmp(header,"WRVG\1",5) || decode32(header+8)!=id || !size ||
+               size>WR_VPN_CONFIG_MAX || st.st_size!=(off_t)(sizeof(header)+size))) ok=0;
+    memset(out,0,sizeof(*out));
+    if (ok) {
+        out->id=id;out->protocol=(enum wr_vpn_protocol)decode32(header+12);
+        out->revision=((uint64_t)decode32(header+16)<<32)|decode32(header+20);
+        out->size=size;
+        ok=transfer(fd,out->config,size,0) && valid_record(out);
+    }
+    close(fd);
+    return ok?WR_VPN_RUNTIME_OK:WR_VPN_RUNTIME_INVALID;
+}
 int wr_vpn_session_new(struct wr_vpn_session *out,unsigned int id,enum wr_vpn_protocol protocol,uint64_t revision)
 {
     struct wr_vpn_session s;int fd,ok;

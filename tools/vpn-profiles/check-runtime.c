@@ -58,10 +58,32 @@ int main(void)
     assert(wr_vpn_runtime_read(&runtime,1,&out)==WR_VPN_RUNTIME_INVALID);
     fd=openat(runtime.root,"1",O_WRONLY);assert(fd>=0);assert(!fchmod(fd,0600));close(fd);
     assert(wr_vpn_runtime_clear(&runtime,&intent)==WR_VPN_RUNTIME_OK);
+    {
+        struct wr_vpn_record applied,loaded;
+        memset(&applied,0,sizeof(applied));memset(&loaded,0,sizeof(loaded));
+        applied.id=1;applied.protocol=WR_VPN_WIREGUARD;applied.revision=9;applied.size=32;
+        memset(applied.config,'k',applied.size);
+        assert(wr_vpn_runtime_snapshot_get(&runtime,1,&loaded)==WR_VPN_RUNTIME_ABSENT);
+        assert(wr_vpn_runtime_snapshot_put(&runtime,&applied)==WR_VPN_RUNTIME_OK);
+        assert(wr_vpn_runtime_snapshot_get(&runtime,1,&loaded)==WR_VPN_RUNTIME_OK);
+        assert(loaded.id==1 && loaded.protocol==WR_VPN_WIREGUARD && loaded.revision==9);
+        assert(loaded.size==applied.size && !memcmp(loaded.config,applied.config,applied.size));
+        assert(!fstatat(runtime.root,"snapshot-1",&st,AT_SYMLINK_NOFOLLOW) &&
+               (st.st_mode&0777)==0600 && st.st_nlink==1);
+        applied.size=0;assert(wr_vpn_runtime_snapshot_put(&runtime,&applied)==WR_VPN_RUNTIME_INVALID);
+        fd=openat(runtime.root,"snapshot-1",O_WRONLY);
+        assert(fd>=0);assert(write(fd,"WRVG\1bad",8)==8);close(fd);
+        assert(wr_vpn_runtime_snapshot_get(&runtime,1,&loaded)==WR_VPN_RUNTIME_INVALID);
+        assert(!unlinkat(runtime.root,"snapshot-1",0));
+        assert(!symlinkat("2",runtime.root,"snapshot-1"));
+        assert(wr_vpn_runtime_snapshot_get(&runtime,1,&loaded)!=WR_VPN_RUNTIME_ABSENT);
+        assert(wr_vpn_runtime_snapshot_put(&runtime,&applied)==WR_VPN_RUNTIME_INVALID);
+        assert(!unlinkat(runtime.root,"snapshot-1",0));
+    }
     wr_vpn_runtime_unlock(&runtime);
     assert(wr_vpn_runtime_lock(path,&runtime)==WR_VPN_RUNTIME_OK);
     wr_vpn_runtime_unlock(&runtime);
     snprintf(record,sizeof(record),"%s/.operation-lock",path);assert(!unlink(record));assert(!rmdir(path));
-    puts("PASS VPN private runtime sessions: operation lock, independent profiles, random owner, intent/index transition, stale/corrupt/path rejection; no network actions");
+    puts("PASS VPN private runtime sessions: operation lock, independent profiles, random owner, intent/index transition, stale/corrupt/path rejection, applied snapshot round trip; no network actions");
     return 0;
 }

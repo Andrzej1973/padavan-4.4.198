@@ -1,6 +1,7 @@
 #ifndef WR_VPN_RUNTIME_STATE_H
 #define WR_VPN_RUNTIME_STATE_H
 #include "resources.h"
+#include "store.h"
 /* Volatile session identity. This API never creates/deletes network objects.
  * Hold one global operation lock across inventory, kernel actions and records.
  * Persistent profile locks are acquired after this lock, never in reverse.
@@ -25,4 +26,14 @@ enum wr_vpn_runtime_result wr_vpn_runtime_put(struct wr_vpn_runtime *,const stru
 enum wr_vpn_runtime_result wr_vpn_runtime_clear(struct wr_vpn_runtime *,const struct wr_vpn_session *expected);
 int wr_vpn_session_new(struct wr_vpn_session *,unsigned int,enum wr_vpn_protocol,uint64_t);
 int wr_vpn_session_owner(const struct wr_vpn_session *,char *,size_t);
+
+/* Last successfully applied configuration, kept as the rollback source for the
+ * next apply. Same privacy rules as the session file: private directory, 0600,
+ * single link, atomic rename and symlink refusal. It carries private keys, so
+ * it is never logged or served.
+ */
+enum wr_vpn_runtime_result wr_vpn_runtime_snapshot_put(struct wr_vpn_runtime *,
+    const struct wr_vpn_record *);
+enum wr_vpn_runtime_result wr_vpn_runtime_snapshot_get(struct wr_vpn_runtime *,
+    unsigned int, struct wr_vpn_record *);
 #endif
