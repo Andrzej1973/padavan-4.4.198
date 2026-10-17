@@ -48,6 +48,18 @@ manual refresh, visible-page refresh, and ROMFS image checks are wired into the
 WR1200JS build. This change is pending its CI image/build result and physical
 browser/device acceptance; do not mark Privoxy runtime verified yet.
 
+## iPerf3 status implementation progress — 2026-10-17
+
+The iPerf3 settings page now has a separate observed-process indicator beside
+the unchanged enable switch. It distinguishes disabled/no process,
+enabled/process present, enabled/no process, unknown observation, and a process
+still present while disabled. The UI states clearly that process presence does
+not establish a client connection or successful throughput test. It offers
+manual refresh and a 30-second interval while the page is visible; EN/UK/RU
+labels and a selected-image gate are wired into the WR1200JS build. This change
+has not yet been validated by CI or on the router. Do not claim iPerf3 runtime
+or client-test verification from this observer.
+
 ## ZRAM implementation progress
 
 Commits `b952b16` and `793241e` add a page-load observation of `/proc/swaps`, a separate actual-state label beside the unchanged requested setting, EN/UK/RU labels, and linked-handler/page image gates. The inherited Apply completion calls `refreshpage()`, so the server observation is obtained again after Apply. This is a page-load snapshot, not continuous monitoring; manual browser refresh obtains another observation.

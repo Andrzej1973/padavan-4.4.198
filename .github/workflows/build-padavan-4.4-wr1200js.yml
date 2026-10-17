@@ -194,6 +194,9 @@ jobs:
           if grep -q '^CONFIG_FIRMWARE_INCLUDE_PRIVOXY=y$' configs.build/wr1200js.config; then
             python3 tools/prepare-privoxy-status.py padavan-4.4
           fi
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_IPERF3=y$' configs.build/wr1200js.config; then
+            python3 tools/prepare-iperf3-status.py padavan-4.4
+          fi
           python3 tools/prepare-vpn-interface-status.py padavan-4.4
           cp overlay/padavan-4.4/trunk/user/rp-l2tp/Makefile \
             padavan-4.4/trunk/user/rp-l2tp/Makefile
@@ -1106,6 +1109,22 @@ jobs:
           retention-days: 14
           if-no-files-found: ignore
           path: privoxy-image-checks.json
+
+      - name: Verify iPerf3 status UI and handler in image
+        run: |
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_IPERF3=y$' configs.build/wr1200js.config; then
+            python3 overlay/padavan-4.4/ports/iperf3/verify-image.py \
+              padavan-4.4/trunk iperf3-image-checks.json
+          fi
+
+      - name: Upload iPerf3 image diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: iperf3-image-checks
+          retention-days: 14
+          if-no-files-found: ignore
+          path: iperf3-image-checks.json
 
       - name: Verify DoH image packaging and ELF dependencies
         run: |
