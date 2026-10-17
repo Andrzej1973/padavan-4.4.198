@@ -13,11 +13,10 @@ new='''\tpid_t pid;
 \tint status;
 \twhile ((pid = waitpid(-1, &status, WNOHANG)) > 0) {
 \t\twr_band_child_reaped(pid, status);
-\t\tdprintf("Reaped %d\\n", pid);
 \t}
 #else
 \twhile ((pid = waitpid(-1, NULL, WNOHANG)) > 0)
-\t\tdprintf("Reaped %d\\n", pid);
+\t\t(void)pid;
 #endif'''
 include='#ifdef USE_WR_BAND_STEERING_PROFILE\n#include "wr-band-child-owner.h"\n#endif\n'
 copies={name:(Path(__file__).parent/name).read_bytes() for name in ['child-owner.c','child-owner.h','control-client.c','control-client.h','lifecycle.c','lifecycle.h','service-owner.c','service-owner.h']}

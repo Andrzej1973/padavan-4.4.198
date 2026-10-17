@@ -21,6 +21,13 @@ Changing the selection and applying the form uses the existing Wi-Fi apply mecha
 
 English, Ukrainian, and Russian labels are supplied. Browser rendering and hardware behavior still require verification.
 
+## Log noise
+
+Band Steering stays in the standard image. The rc child reaper no longer
+prints `Reaped <pid>` in band-steering builds: child exit statuses are still
+passed to the steering owner, only the syslog line is removed. This change is
+log-only and does not touch radio, routing or tunnel logic.
+
 ## Evidence and outstanding checks
 
 - [Status observer and HTTP fixture CI](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/37782250557): passed host sanitizer execution and target compilation of extracted handler fixtures.
