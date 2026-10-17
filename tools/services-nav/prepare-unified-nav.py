@@ -126,7 +126,7 @@ def inject(path: Path, nav: str) -> None:
     path.write_text(text, encoding="utf-8", newline="\n")
 
 
-def verify(www: Path, config: set[str]) -> None:
+def verify(www: Path, config: set[str], *, image: bool = False) -> None:
     nav = rendered_groups(www, config)
     for name in ("Advanced_Services_Content.asp", "Advanced_Services_DoT.asp",
                  "Advanced_Services_DoH.asp", "Advanced_Services_Privoxy.asp",
@@ -142,7 +142,10 @@ def verify(www: Path, config: set[str]) -> None:
                 raise SystemExit(f"Navigation links to a missing route in {name}: {match.group(1)}")
     for key in KEYS:
         for lang in ("EN.footer", "UK.dict", "RU.dict"):
-            dictionary = www / "dict" / lang
+            # EN.footer is a source fragment; the image build concatenates it
+            # with EN.header into EN.dict before packing ROMFS.
+            image_name = "EN.dict" if lang == "EN.footer" else lang
+            dictionary = www / image_name if image else www / "dict" / lang
             if not dictionary.is_file() or not any(line.startswith(key + "=") for line in dictionary.read_text(encoding="utf-8").splitlines()):
                 raise SystemExit(f"Missing {key} translation in {lang}")
     print("PASS unified service navigation routes, pages, and EN/UK/RU labels")
@@ -159,7 +162,7 @@ def main() -> None:
     if not www.is_dir():
         raise SystemExit(f"Web root not found: {www}")
     if args.verify_image:
-        verify(www, config)
+        verify(www, config, image=True)
         return
     nav = rendered_groups(www, config)
     pages = ["Advanced_Services_Content.asp"]

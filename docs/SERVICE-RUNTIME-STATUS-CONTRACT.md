@@ -60,6 +60,14 @@ labels and a selected-image gate are wired into the WR1200JS build. This change
 has not yet been validated by CI or on the router. Do not claim iPerf3 runtime
 or client-test verification from this observer.
 
+The first full builds containing iPerf3 status (#405) and SSH status (#406)
+were blocked before their dedicated per-service gates by the earlier shared
+navigation gate. That gate incorrectly looked for source fragment `EN.footer`
+inside ROMFS; the build combines it into `EN.dict`. Fixing the shared verifier
+is required before interpreting the per-service checks. Build #405 did compile
+and install the iPerf3 daemon, but failed the final ROMFS verification and did
+not produce a qualified image. SSH image verification remains unconfirmed.
+
 ## SSH daemon status implementation progress — 2026-10-17
 
 The Administration / Services page now reports the selected Dropbear or
