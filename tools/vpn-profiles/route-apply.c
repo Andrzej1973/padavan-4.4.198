@@ -4,6 +4,7 @@
 #include "route-apply.h"
 #include <arpa/inet.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 static int valid_prefix(const char *text,size_t length)
