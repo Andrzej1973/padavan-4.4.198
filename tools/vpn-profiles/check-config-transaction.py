@@ -27,6 +27,7 @@ HARNESS = '''#include "config-transaction.h"
 #include <stdlib.h>
 #include <string.h>
 #include <sys/file.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 static int make_session(const char *root,unsigned int id,enum wr_vpn_protocol protocol,
@@ -69,6 +70,7 @@ int main(int argc,char **argv)
     memset(expected.nonce,0x11,sizeof(expected.nonce));
     if (strcmp(scenario,"nosession") && !make_session(root,2,protocol,&expected)) return 98;
     if (!strcmp(scenario,"stale")) expected.nonce[0]^=1;
+    if (!strcmp(scenario,"nosave")) chmod(root,0500);
     if (!strcmp(scenario,"busy")) {
         snprintf(path,sizeof(path),"%s/.operation-lock",root);
         lock=open(path,O_RDWR|O_CREAT|O_CLOEXEC,0600);
@@ -80,6 +82,7 @@ int main(int argc,char **argv)
     } else {
         status=(int)wr_vpn_config_transaction(root,&record,&expected,NULL);
     }
+    if (!strcmp(scenario,"nosave")) chmod(root,0700);
     printf("%d\\n",status);
     return 0;
 }
@@ -199,6 +202,13 @@ with tempfile.TemporaryDirectory(prefix='wrvpn-transaction-') as directory:
         calls = run(done_root, protocol, 'plain', data, 0)
         assert calls == ['apply', 'verify'], calls
         assert session_file.read_bytes() == before
+
+        snapshot = done_root / 'snapshot-2'
+        assert snapshot.exists() and snapshot.stat().st_size == 28 + len(data)
+        calls = run(done_root, protocol, 'plain', data, 6, verify_mode=4)
+        assert calls.count('apply') == 2 and calls.count('verify') == 2, calls
+
+        assert run(fresh_root(), protocol, 'nosave', data, 9) == ['apply', 'verify']
 
         calls = run(fresh_root(), protocol, 'rollback', data, 6, verify_mode=4)
         assert calls.count('apply') == 2 and calls.count('verify') == 2, calls

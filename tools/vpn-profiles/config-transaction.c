@@ -24,6 +24,8 @@ enum wr_vpn_transaction_result wr_vpn_config_transaction(
 {
     struct wr_vpn_runtime runtime={-1,-1};
     struct wr_vpn_session current,after;
+    struct wr_vpn_record snapshot;
+    const struct wr_vpn_record *restore=rollback;
     enum wr_vpn_runtime_result status;
     enum wr_vpn_apply_result applied;
     enum wr_vpn_readback_result checked;
@@ -47,6 +49,13 @@ enum wr_vpn_transaction_result wr_vpn_config_transaction(
         result=WR_VPN_TRANSACTION_STALE;goto done;
     }
 
+    /* Without an explicit previous record, use the last applied one. */
+    if (!usable_rollback(restore,record)) {
+        restore=NULL;
+        if (wr_vpn_runtime_snapshot_get(&runtime,record->id,&snapshot)==WR_VPN_RUNTIME_OK &&
+            usable_rollback(&snapshot,record)) restore=&snapshot;
+    }
+
     applied=wr_vpn_config_apply(record);
     if (applied==WR_VPN_APPLY_REFUSED || applied==WR_VPN_APPLY_NOT_STARTED) {
         result=WR_VPN_TRANSACTION_REFUSED;goto done;
@@ -59,17 +68,21 @@ enum wr_vpn_transaction_result wr_vpn_config_transaction(
         /* Ownership is bookkeeping here: another session may have replaced
          * ours while the transport ran. */
         status=wr_vpn_runtime_read(&runtime,record->id,&after);
-        result=(status==WR_VPN_RUNTIME_OK && same_session(&after,&current))?
-            WR_VPN_TRANSACTION_DONE:WR_VPN_TRANSACTION_UNKNOWN;
+        if (!(status==WR_VPN_RUNTIME_OK && same_session(&after,&current))) {
+            result=WR_VPN_TRANSACTION_UNKNOWN;goto done;
+        }
+        /* The verified configuration becomes the next rollback source. */
+        result=wr_vpn_runtime_snapshot_put(&runtime,record)==WR_VPN_RUNTIME_OK?
+            WR_VPN_TRANSACTION_DONE:WR_VPN_TRANSACTION_UNSAVED;
         goto done;
     }
 
     /* The kernel does not hold what we asked for. Restore the previous record
      * when the caller supplied one, and require the rollback to read back. */
-    if (!usable_rollback(rollback,record)) { result=WR_VPN_TRANSACTION_MISMATCH;goto done; }
-    applied=wr_vpn_config_apply(rollback);
+    if (!restore) { result=WR_VPN_TRANSACTION_MISMATCH;goto done; }
+    applied=wr_vpn_config_apply(restore);
     checked=applied==WR_VPN_APPLY_ACKNOWLEDGED?
-        wr_vpn_config_readback(rollback,current.index):WR_VPN_READBACK_UNKNOWN;
+        wr_vpn_config_readback(restore,current.index):WR_VPN_READBACK_UNKNOWN;
     result=checked==WR_VPN_READBACK_MATCH?WR_VPN_TRANSACTION_MISMATCH:
         WR_VPN_TRANSACTION_ROLLBACK_FAILED;
 

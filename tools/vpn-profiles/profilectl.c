@@ -102,6 +102,7 @@ static const char *transaction_name(enum wr_vpn_transaction_result result)
     case WR_VPN_TRANSACTION_MISMATCH: return "mismatch";
     case WR_VPN_TRANSACTION_ROLLBACK_FAILED: return "rollback-failed";
     case WR_VPN_TRANSACTION_IO: return "io";
+    case WR_VPN_TRANSACTION_UNSAVED: return "unsaved";
     }
     return "invalid";
 }
@@ -117,6 +118,7 @@ static int transaction_status(enum wr_vpn_transaction_result result)
     case WR_VPN_TRANSACTION_MISMATCH: return 8;
     case WR_VPN_TRANSACTION_ROLLBACK_FAILED: return 9;
     case WR_VPN_TRANSACTION_IO: return 3;
+    case WR_VPN_TRANSACTION_UNSAVED: return 10;
     }
     return 3;
 }

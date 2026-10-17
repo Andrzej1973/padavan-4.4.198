@@ -25,7 +25,8 @@ enum wr_vpn_transaction_result {
     WR_VPN_TRANSACTION_UNKNOWN,          /* transport or ownership unconfirmed */
     WR_VPN_TRANSACTION_MISMATCH,         /* not applied; previous record verified */
     WR_VPN_TRANSACTION_ROLLBACK_FAILED,  /* not applied; previous record unverified */
-    WR_VPN_TRANSACTION_IO                /* runtime bookkeeping failed */
+    WR_VPN_TRANSACTION_IO,               /* runtime bookkeeping failed */
+    WR_VPN_TRANSACTION_UNSAVED           /* applied and verified, rollback source stale */
 };
 
 enum wr_vpn_transaction_result wr_vpn_config_transaction(
