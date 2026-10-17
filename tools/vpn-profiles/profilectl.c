@@ -9,12 +9,16 @@
 #include "profile-apply.h"
 #include "link-lifecycle.h"
 #include "protect.h"
+#include "endpoint-pin.h"
+#include <arpa/inet.h>
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <netdb.h>
 #include <poll.h>
 #include <signal.h>
 #include <stdlib.h>
+#include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <time.h>
@@ -208,6 +212,40 @@ static const char *release_name(int released)
 {
     return released==0?"done":released<0?"unknown":"failed";
 }
+/* System resolver used only while no tunnel route exists (before acquire). */
+static int resolve_host(const char *host,char *numeric,size_t capacity)
+{
+    struct addrinfo hints,*list=NULL,*item;int rc;const char *text=NULL;
+    memset(&hints,0,sizeof(hints));
+    hints.ai_family=AF_UNSPEC;
+    hints.ai_socktype=SOCK_DGRAM;
+    hints.ai_flags=AI_ADDRCONFIG;
+    rc=getaddrinfo(host,NULL,&hints,&list);
+    if (rc) return 0;
+    for (item=list;item;item=item->ai_next) {
+        if (item->ai_family==AF_INET) {
+            text=inet_ntop(AF_INET,&((struct sockaddr_in *)item->ai_addr)->sin_addr,
+                           numeric,capacity);
+            break;
+        }
+        if (item->ai_family==AF_INET6 && !text) {
+            text=inet_ntop(AF_INET6,&((struct sockaddr_in6 *)item->ai_addr)->sin6_addr,
+                           numeric,capacity);
+        }
+    }
+    freeaddrinfo(list);
+    return text!=NULL;
+}
+/* Pin hostnames into a copy for this activation; the store keeps the name. */
+static int pin_record(const struct wr_vpn_record *input,struct wr_vpn_record *output)
+{
+    switch (wr_vpn_pin_endpoints(input,resolve_host,output)) {
+    case WR_VPN_PIN_DONE:
+    case WR_VPN_PIN_UNCHANGED: return 1;
+    case WR_VPN_PIN_UNRESOLVED: return 0;
+    default: return -1;
+    }
+}
 static int release_failed_up(const struct wr_vpn_resources *resources,
                              const struct wr_vpn_session *expected)
 {
@@ -251,6 +289,13 @@ static int wr_up(int root,unsigned int id,const char *protect)
         count=wr_vpn_parse_protect(protect,buffer,sizeof(buffer),prefixes,8);
         if (count<0) return 2;
         options.protected_prefixes=prefixes;options.protected_count=(size_t)count;
+    }
+    /* Resolve before the link exists, so the answer cannot use its routes. */
+    {
+        struct wr_vpn_record pinned;int pin=pin_record(&record,&pinned);
+        if (pin<0) { printf("up\t%u\tendpoint=invalid\n",id); return 2; }
+        if (!pin) { printf("up\t%u\tendpoint=unresolved\n",id); return 2; }
+        record=pinned;
     }
     status=wr_vpn_runtime_lock(resources.runtime,&runtime);
     if (status!=WR_VPN_RUNTIME_OK) {
