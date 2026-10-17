@@ -466,6 +466,8 @@ jobs:
           python3 tools/eoip/prepare-status.py padavan-4.4 --config configs.build/wr1200js.config
           python3 tools/eoip/prepare-settings.py padavan-4.4 --config configs.build/wr1200js.config
           python3 tools/eoip/prepare-page.py padavan-4.4 --config configs.build/wr1200js.config
+          python3 tools/services-nav/prepare-unified-nav.py padavan-4.4 \
+            --config configs.build/wr1200js.config
           python3 tools/connected-devices/prepare-ui.py padavan-4.4
           python3 tools/shared-wifi/check-source-integration.py padavan-4.4
           python3 tools/shared-wifi/prepare-http-check.py padavan-4.4 --output shared-wifi-http-check.c
@@ -795,6 +797,8 @@ jobs:
             cmp trunk/user/www/logo/padavan.png trunk/romfs/www/bootstrap/img/logo.png
           fi
           grep -q '^CONFIG_FIRMWARE_INCLUDE_DDNS_SSL=y$' trunk/.config
+          python3 ../tools/services-nav/prepare-unified-nav.py trunk/romfs \
+            --config trunk/.config --verify-image
           python3 ../overlay/padavan-4.4/scripts/verify-ddns-elf.py \
             trunk/romfs ../ddns-elf-dependencies.json
           grep -a -q 'YouHua WR1200JS' trunk/linux-4.4.x/vmlinux
