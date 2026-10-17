@@ -2,6 +2,9 @@
 """Verify the read-only profile table is wired into a built tree."""
 import argparse
 from pathlib import Path
+import re
+import subprocess
+import tempfile
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("tree", type=Path, help="Padavan tree root")
@@ -24,6 +27,16 @@ assert page.count("<% wr_vpn_profile_rows(); %>") == 1, "page call missing"
 assert "<#WRVPN_PROFILES_TITLE#>" in page, "page title key missing"
 assert page.count("<% wr_vpn_token(); %>") == 1, "page token missing"
 assert "wrVPNAct" in page and "wr_vpn_action.cgi" in page, "page action script missing"
+
+script = re.search(r"//<!\[CDATA\[(.*?)//\]\]>", page, re.S)
+assert script, "page action script block missing"
+with tempfile.NamedTemporaryFile("w", suffix=".js", delete=False, encoding="utf-8") as handle:
+    handle.write(re.sub(r"<%.*?%>", '"asp"', script.group(1)))
+    script_path = handle.name
+try:
+    subprocess.run(["node", "--check", script_path], check=True, capture_output=True)
+finally:
+    Path(script_path).unlink(missing_ok=True)
 
 for name in ("EN.footer", "UK.dict", "RU.dict"):
     text = "\n" + (args.tree / "trunk/user/www/dict" / name).read_text(encoding="utf-8")
