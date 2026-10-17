@@ -115,4 +115,11 @@ int main(void){int fd;for(fd=3;fd<4096;fd++){errno=0;if(fcntl(fd,F_GETFD)!=-1 ||
  assert '1\tAWG1' not in run(['list'])
  assert (store/'1').exists()
  assert run(['delete','1'],expected=5)==''
- print('PASS profile manager integration: native validation before isolated create/export, private metadata, FD closure, invalid/failed/timed-out validator, AWG record preservation, distinct stop/delete tombstone; no network lifecycle')
+ # Editing is a distinct action and bumps the revision; invalid input changes nothing.
+ edited=wg.replace('10.8.0.2/32','10.8.0.9/32')
+ assert run(['edit','2'],edited)=='saved\t2\t2\n'
+ assert run(['export','2'])==edited
+ assert not run(['edit','2'],wg.replace(key,'invalid'),2)
+ assert run(['export','2'])==edited
+ assert run(['edit','999'],wg,5)==''
+ print('PASS profile manager integration: native validation before isolated create/export/edit, private metadata, FD closure, invalid/failed/timed-out validator, AWG record preservation, distinct stop/delete tombstone; no network lifecycle')

@@ -98,7 +98,18 @@ router still answers on its LAN address.
    rule with the profile mark. Repeat with an empty prefix argument: the same
    cleanup must run and the protocol must not be configured.
 
-9. Delete only after stopping, and confirm the tombstone:
+9. Edit only while stopped, and confirm the revision:
+
+   ```
+   wr-vpn-profile edit 1 < changed.conf
+   wr-vpn-profile export 1
+   ```
+
+   Expected: `saved 1 <revision+1>` and the exported file contains the edit.
+   Editing a profile that still has a runtime session must return code 4
+   (`edit 1 live`) and leave the stored record unchanged.
+
+10. Delete only after stopping, and confirm the tombstone:
 
    ```
    wr-vpn-profile delete 1
@@ -120,7 +131,7 @@ router still answers on its LAN address.
 
 ## Evidence to record
 
-Command outputs from steps 1–9 with keys redacted, the contents of table 20001
+Command outputs from steps 1–10 with keys redacted, the contents of table 20001
 before and after, `ip rule show`, the interface addresses, and the router's LAN
 reachability from a client. Until that record exists, the profile stays
 "implemented and CI-verified", not "verified on the device".

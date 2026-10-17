@@ -58,37 +58,71 @@ static int wr_export(int root,unsigned int id)
     if (result!=WR_VPN_STORE_OK || wr_vpn_validate(record.protocol,record.config,record.size)!=WR_VPN_VALID) return 3;
     return fwrite(record.config,1,record.size,stdout)==record.size && !fflush(stdout)?0:3;
 }
+enum profile_state { PROFILE_IDLE, PROFILE_LIVE, PROFILE_BUSY, PROFILE_UNKNOWN };
+/* Never create runtime state just to inspect whether a profile is idle. */
+static enum profile_state profile_state(const struct wr_vpn_resources *resources)
+{
+    struct wr_vpn_runtime runtime={-1,-1};struct wr_vpn_session session;
+    struct stat st;enum wr_vpn_runtime_result status;
+    if (lstat(resources->runtime,&st)) return errno==ENOENT?PROFILE_IDLE:PROFILE_UNKNOWN;
+    if (!S_ISDIR(st.st_mode)) return PROFILE_UNKNOWN;
+    status=wr_vpn_runtime_lock(resources->runtime,&runtime);
+    if (status==WR_VPN_RUNTIME_BUSY) return PROFILE_BUSY;
+    if (status!=WR_VPN_RUNTIME_OK) return PROFILE_UNKNOWN;
+    status=wr_vpn_runtime_read(&runtime,resources->id,&session);
+    wr_vpn_runtime_unlock(&runtime);
+    if (status==WR_VPN_RUNTIME_ABSENT) return PROFILE_IDLE;
+    return status==WR_VPN_RUNTIME_OK?PROFILE_LIVE:PROFILE_UNKNOWN;
+}
 /* Stop and delete are distinct actions: a live profile must be brought down
  * before its record becomes a tombstone, or its link would be orphaned. */
 static int wr_delete(int root,unsigned int id)
 {
     struct wr_vpn_record record;struct wr_vpn_resources resources;
-    struct wr_vpn_runtime runtime={-1,-1};struct wr_vpn_session session;
-    struct stat st;
-    enum wr_vpn_store_result stored;enum wr_vpn_runtime_result status;
-    uint64_t revision;
+    enum wr_vpn_store_result stored;uint64_t revision;
     stored=wr_vpn_store_get(root,id,&record);
     if (stored==WR_VPN_STORE_NOT_FOUND) return 5;
     if (stored!=WR_VPN_STORE_OK || !wr_vpn_resources_make(&resources,id,record.protocol)) return 3;
-    /* Never create runtime state just to delete a profile. */
-    if (!lstat(resources.runtime,&st)) {
-        if (!S_ISDIR(st.st_mode)) return 3;
-        status=wr_vpn_runtime_lock(resources.runtime,&runtime);
-        if (status==WR_VPN_RUNTIME_BUSY) { printf("delete\t%u\tbusy\n",id); return 4; }
-        if (status!=WR_VPN_RUNTIME_OK) return 3;
-        status=wr_vpn_runtime_read(&runtime,id,&session);
-        wr_vpn_runtime_unlock(&runtime);
-        /* Only a confirmed absent session may leave a tombstone behind. */
-        if (status!=WR_VPN_RUNTIME_ABSENT) {
-            printf("delete\t%u\t%s\n",id,status==WR_VPN_RUNTIME_OK?"live":"unknown");
-            return status==WR_VPN_RUNTIME_OK?4:3;
-        }
-    } else if (errno!=ENOENT) return 3;
+    switch (profile_state(&resources)) {
+    case PROFILE_IDLE: break;
+    case PROFILE_LIVE: printf("delete\t%u\tlive\n",id); return 4;
+    case PROFILE_BUSY: printf("delete\t%u\tbusy\n",id); return 4;
+    default: return 3;
+    }
     stored=wr_vpn_store_delete(root,id,record.revision,&revision);
     if (stored==WR_VPN_STORE_NOT_FOUND) return 5;
     if (stored==WR_VPN_STORE_BUSY) return 4;
     if (stored!=WR_VPN_STORE_OK && stored!=WR_VPN_STORE_COMMITTED_UNSYNCED) return 3;
     printf("deleted\t%u\t%llu%s\n",id,(unsigned long long)revision,
+           stored==WR_VPN_STORE_COMMITTED_UNSYNCED?"\tsync-unconfirmed":"");
+    return stored==WR_VPN_STORE_OK?0:6;
+}
+/* Replace the stored configuration only while the profile is stopped: a live
+ * session keeps the revision it was created for, so it must be brought down
+ * and up again to run the edited record. */
+static int wr_edit(int root,unsigned int id)
+{
+    struct wr_vpn_record record;struct wr_vpn_resources resources;
+    unsigned char data[WR_VPN_CONFIG_MAX+1];size_t size;
+    enum wr_vpn_store_result stored;uint64_t revision;
+    stored=wr_vpn_store_get(root,id,&record);
+    if (stored==WR_VPN_STORE_NOT_FOUND) return 5;
+    if (stored!=WR_VPN_STORE_OK || !wr_vpn_resources_make(&resources,id,record.protocol)) return 3;
+    size=fread(data,1,sizeof(data),stdin);
+    if (ferror(stdin) || !size || size>WR_VPN_CONFIG_MAX) return 2;
+    if (wr_vpn_validate(record.protocol,data,size)!=WR_VPN_VALID) return 2;
+    switch (profile_state(&resources)) {
+    case PROFILE_IDLE: break;
+    case PROFILE_LIVE: printf("edit\t%u\tlive\n",id); return 4;
+    case PROFILE_BUSY: printf("edit\t%u\tbusy\n",id); return 4;
+    default: return 3;
+    }
+    stored=wr_vpn_store_put(root,id,record.protocol,data,size,record.revision,&revision);
+    if (stored==WR_VPN_STORE_NOT_FOUND) return 5;
+    if (stored==WR_VPN_STORE_STALE) return 7;
+    if (stored==WR_VPN_STORE_BUSY) return 4;
+    if (stored!=WR_VPN_STORE_OK && stored!=WR_VPN_STORE_COMMITTED_UNSYNCED) return 3;
+    printf("saved\t%u\t%llu%s\n",id,(unsigned long long)revision,
            stored==WR_VPN_STORE_COMMITTED_UNSYNCED?"\tsync-unconfirmed":"");
     return stored==WR_VPN_STORE_OK?0:6;
 }
@@ -480,7 +514,7 @@ int main(int argc,char **argv)
         if (!strcmp(argv[3],"amneziawg")) protocol=WR_VPN_AMNEZIAWG;
         else if (strcmp(argv[3],"wireguard")) return 2;
     } else if (argc==3 && (!strcmp(argv[1],"export") || !strcmp(argv[1],"observe") ||
-                           !strcmp(argv[1],"delete") ||
+                           !strcmp(argv[1],"delete") || !strcmp(argv[1],"edit") ||
                            !strcmp(argv[1],"apply") || !strcmp(argv[1],"plan") ||
                            !strcmp(argv[1],"up") || !strcmp(argv[1],"down"))) {
         if (!wr_vpn_profile_id(argv[2],&id)) return 2;
@@ -496,6 +530,7 @@ int main(int argc,char **argv)
     if (!strcmp(argv[1],"create")) result=wr_create(root,id,protocol);
     else if (!strcmp(argv[1],"export")) result=wr_export(root,id);
     else if (!strcmp(argv[1],"delete")) result=wr_delete(root,id);
+    else if (!strcmp(argv[1],"edit")) result=wr_edit(root,id);
     else if (!strcmp(argv[1],"observe")) result=wr_observe(root,id);
     else if (!strcmp(argv[1],"apply")) result=wr_apply(root,id,protect);
     else if (!strcmp(argv[1],"plan")) result=wr_plan(root,id);
