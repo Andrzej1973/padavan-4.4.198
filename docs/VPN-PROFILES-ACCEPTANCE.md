@@ -46,6 +46,15 @@ router still answers on its LAN address.
    Expected: `up 1 protocol=done addresses=done routes=done dns=done` (or
    `dns=empty` when the profile carries no DNS), exit code 0.
 
+   For the WebUI buttons the prefix list comes from nvram, so set it first:
+
+   ```
+   nvram set wrvpn_protect=192.168.20.0/24
+   ```
+
+   An empty `wrvpn_protect` intentionally refuses profile addresses; the
+   failed `up` then reports `cleanup=done` and leaves no link behind.
+
 4. Confirm the routing stayed scoped:
 
    ```
