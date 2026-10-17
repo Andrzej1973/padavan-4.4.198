@@ -104,6 +104,8 @@ jobs:
           python3 overlay/padavan-4.4/scripts/integrate-wan-port.py padavan-4.4
           python3 tools/wan-port/verify-service-integration.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/integrate-vpn-profiles.py padavan-4.4
+          python3 tools/vpn-profiles/prepare-web.py padavan-4.4
+          python3 tools/vpn-profiles/check-web.py padavan-4.4
           python3 tools/wan-port/prepare-web.py padavan-4.4
           node tools/wan-port/check-web.js padavan-4.4
           python3 overlay/padavan-4.4/scripts/fix-web-event-masks.py padavan-4.4

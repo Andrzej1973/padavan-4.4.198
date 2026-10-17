@@ -51,9 +51,10 @@ it outside AP mode and stops it with the other services.
 | Service wrapper (`start`/`stop`/`status`) | verified in CI | `check-service`, run 39008382868 |
 | Stop covers ids left only in runtime state | verified in CI | `check-service`, run 39010171751 |
 | Failed `up` cleanup (rule removed, link released) | implemented and compiled in CI; dedicated fixture pending | service run 39010171751 |
-| Hostname endpoint pinning in `up` (before the link exists) | implemented; CLI compiles in CI, build 380 pending | `check-endpoint-pin`; service run 39011116079 |
+| Hostname endpoint pinning in `up` (before the link exists) | verified in CI and in build 383 | `check-endpoint-pin`; build 383 (15/15 MIPS) |
 | `delete` tombstone (idle profiles only) | verified in CI | `check-manager`, run 39011116079 |
 | `edit` (validate, refuse live, bump revision) | verified in CI | `check-manager`, run 39011408823 |
+| Read-only profile table on the VPN page | implemented; service and image gates pending | `prepare-web` / `check-web` / `check-http-list` |
 | `rc` start/stop hook | patched and applied in the image build | build `263bdee`, step `Apply WR1200JS board port` = success |
 | DNS aggregation into dnsmasq (opt-in) | file and service verified in CI; rc line applied | `check-service`; same board-port step |
 | Real tunnel, routes, DNS, handshake on the device | **not verified** | device unreachable; nothing flashed |
@@ -65,7 +66,8 @@ it outside AP mode and stops it with the other services.
   refuses hostnames because the tunnel may already carry DNS there.
 - "Route all traffic" is not offered: only packets the daemon marks are
   redirected. `priority_main` stays reserved for an explicit opt-in.
-- There is no WebUI page for these profiles yet.
+- The VPN page gains a read-only profile table; lifecycle actions are still
+  CLI-only until the POST endpoint lands (`docs/VPN-PROFILES-WEBUI.md`).
 - The service is default-off and does nothing while `wrvpn_enabled` is empty.
 - A DNS-file failure also tears the profile down; `up` returns 0 only when the
   protocol, addresses, routes and (when present) DNS file all succeeded.
