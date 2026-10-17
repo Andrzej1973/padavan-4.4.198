@@ -7,6 +7,7 @@
 #include "config-transaction.h"
 #include "plan-report.h"
 #include "profile-apply.h"
+#include "link-lifecycle.h"
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -194,6 +195,92 @@ static const char *route_name(enum wr_vpn_route_result result)
     }
     return "invalid";
 }
+static const char *lifecycle_name(enum wr_vpn_lifecycle_result result)
+{
+    switch (result) {
+    case WR_VPN_LIFECYCLE_OK: return "ok";
+    case WR_VPN_LIFECYCLE_BUSY: return "busy";
+    case WR_VPN_LIFECYCLE_REFUSED: return "refused";
+    case WR_VPN_LIFECYCLE_UNKNOWN: return "unknown";
+    }
+    return "unknown";
+}
+/* Create the owned link, then apply configuration, addresses and routes. */
+static int wr_up(int root,unsigned int id,const char *protect)
+{
+    struct wr_vpn_record record;struct wr_vpn_session session;
+    struct wr_vpn_resources resources;struct wr_vpn_runtime runtime={-1,-1};
+    struct wr_vpn_apply_options options={NULL,0};struct wr_vpn_apply_outcome outcome;
+    struct wr_vpn_exec exec={run_ip,NULL};
+    enum wr_vpn_store_result stored;enum wr_vpn_runtime_result status;
+    enum wr_vpn_lifecycle_result up;
+    char buffer[256];const char *prefixes[8];int count=0;
+    stored=wr_vpn_store_get(root,id,&record);
+    if (stored==WR_VPN_STORE_NOT_FOUND) return 5;
+    if (stored!=WR_VPN_STORE_OK || !wr_vpn_resources_make(&resources,id,record.protocol)) return 3;
+    if (wr_vpn_validate(record.protocol,record.config,record.size)!=WR_VPN_VALID) return 2;
+    if (protect && *protect) {
+        count=parse_protect(protect,buffer,sizeof(buffer),prefixes,8);
+        if (count<0) return 2;
+        options.protected_prefixes=prefixes;options.protected_count=(size_t)count;
+    }
+    status=wr_vpn_runtime_lock(resources.runtime,&runtime);
+    if (status!=WR_VPN_RUNTIME_OK) {
+        printf("up\t%u\t%s\n",id,status==WR_VPN_RUNTIME_BUSY?"busy":"io");
+        return status==WR_VPN_RUNTIME_BUSY?4:3;
+    }
+    up=wr_vpn_link_acquire(&runtime,id,record.protocol,record.revision,
+                           &wr_vpn_system_links,&session);
+    wr_vpn_runtime_unlock(&runtime);
+    if (up!=WR_VPN_LIFECYCLE_OK) {
+        printf("up\t%u\t%s\n",id,lifecycle_name(up));
+        return 6;
+    }
+    if (!wr_vpn_profile_apply(resources.runtime,&record,&session,&options,&exec,&outcome))
+        return 3;
+    printf("up\t%u\tprotocol=%s\taddresses=%s\troutes=%s\n",id,
+           transaction_name(outcome.protocol),address_name(outcome.addresses),
+           route_name(outcome.routes));
+    if (fflush(stdout)) return 3;
+    if (outcome.protocol!=WR_VPN_TRANSACTION_DONE &&
+        outcome.protocol!=WR_VPN_TRANSACTION_UNSAVED)
+        return transaction_status(outcome.protocol);
+    if (outcome.addresses_attempted && outcome.addresses!=WR_VPN_ADDR_DONE) return 8;
+    if (outcome.routes_attempted && outcome.routes!=WR_VPN_ROUTE_DONE) return 9;
+    return outcome.protocol==WR_VPN_TRANSACTION_UNSAVED?10:0;
+}
+/* Scoped policy first (rule, routes, addresses), then the owned link. */
+static int wr_down(int root,unsigned int id)
+{
+    struct wr_vpn_record record;struct wr_vpn_resources resources;
+    struct wr_vpn_runtime runtime={-1,-1};
+    struct wr_vpn_config_plan *plan;struct wr_vpn_exec exec={run_ip,NULL};
+    enum wr_vpn_store_result stored;enum wr_vpn_runtime_result status;
+    enum wr_vpn_lifecycle_result down;int result=0;
+    stored=wr_vpn_store_get(root,id,&record);
+    if (stored==WR_VPN_STORE_NOT_FOUND) return 5;
+    if (stored!=WR_VPN_STORE_OK || !wr_vpn_resources_make(&resources,id,record.protocol)) return 3;
+    plan=calloc(1,sizeof(*plan));
+    if (!plan) return 3;
+    if (wr_vpn_prepare_config(&record,plan)==WR_VPN_VALID) {
+        if (plan->allowed[0])
+            wr_vpn_routes_apply(&plan->resources,plan->allowed,0,&exec);
+        if (plan->addresses[0])
+            wr_vpn_addresses_apply(plan,0,NULL,0,&exec);
+    }
+    memset(plan,0,sizeof(*plan));free(plan);
+    status=wr_vpn_runtime_lock(resources.runtime,&runtime);
+    if (status!=WR_VPN_RUNTIME_OK) {
+        printf("down\t%u\t%s\n",id,status==WR_VPN_RUNTIME_BUSY?"busy":"io");
+        return status==WR_VPN_RUNTIME_BUSY?4:3;
+    }
+    down=wr_vpn_link_release(&runtime,id,&wr_vpn_system_links);
+    wr_vpn_runtime_unlock(&runtime);
+    printf("down\t%u\t%s\n",id,lifecycle_name(down));
+    if (fflush(stdout)) return 3;
+    if (down!=WR_VPN_LIFECYCLE_OK) result=6;
+    return result;
+}
 /* Protocol configuration, then addresses, then routes - one sequence. */
 static int wr_apply(int root,unsigned int id,const char *protect)
 {
@@ -274,9 +361,13 @@ int main(int argc,char **argv)
         if (!strcmp(argv[3],"amneziawg")) protocol=WR_VPN_AMNEZIAWG;
         else if (strcmp(argv[3],"wireguard")) return 2;
     } else if (argc==3 && (!strcmp(argv[1],"export") || !strcmp(argv[1],"observe") ||
-                           !strcmp(argv[1],"apply") || !strcmp(argv[1],"plan"))) {
+                           !strcmp(argv[1],"apply") || !strcmp(argv[1],"plan") ||
+                           !strcmp(argv[1],"up") || !strcmp(argv[1],"down"))) {
         if (!wr_vpn_profile_id(argv[2],&id)) return 2;
     } else if (argc==4 && !strcmp(argv[1],"apply")) {
+        if (!wr_vpn_profile_id(argv[2],&id)) return 2;
+        protect=argv[3];
+    } else if (argc==4 && !strcmp(argv[1],"up")) {
         if (!wr_vpn_profile_id(argv[2],&id)) return 2;
         protect=argv[3];
     } else if (!(argc==2 && !strcmp(argv[1],"list"))) return 2;
@@ -287,6 +378,8 @@ int main(int argc,char **argv)
     else if (!strcmp(argv[1],"observe")) result=wr_observe(root,id);
     else if (!strcmp(argv[1],"apply")) result=wr_apply(root,id,protect);
     else if (!strcmp(argv[1],"plan")) result=wr_plan(root,id);
+    else if (!strcmp(argv[1],"up")) result=wr_up(root,id,protect);
+    else if (!strcmp(argv[1],"down")) result=wr_down(root,id);
     else result=wr_list(root);
     close(root); return result;
 }

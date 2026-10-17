@@ -41,6 +41,7 @@ int main(void){int fd;for(fd=3;fd<4096;fd++){errno=0;if(fcntl(fd,F_GETFD)!=-1 ||
   str(here/'runtime-state.c'),str(here/'config-transaction.c'),str(here/'config-apply.c'),str(here/'config-plan.c'),
   str(here/'plan-report.c'),
   str(here/'addr-apply.c'),str(here/'route-apply.c'),str(here/'profile-apply.c'),
+  str(here/'link-actions.c'),str(here/'link-lifecycle.c'),
   '-o',str(exe)],check=True)
  def run(args,data='',expected=0,fd=None):
   r=subprocess.run([str(exe),*args],input=data.encode(),capture_output=True,timeout=5,env=env,pass_fds=(() if fd is None else (fd,)))
