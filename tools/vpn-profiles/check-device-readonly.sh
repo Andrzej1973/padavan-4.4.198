@@ -6,21 +6,49 @@ say() { echo "$1"; }
 ok() { say "PASS $1"; }
 bad() { say "FAIL $1"; fail=1; }
 
+# Require a unique retained cursor. Counting the whole rotating log can report
+# zero growth while new noise replaces older lines, or when the log is missing.
+check_log_window() {
+    logfile=$1
+    if [ ! -r "$logfile" ] || [ ! -s "$logfile" ]; then
+        say "UNKNOWN log window: journal unavailable"; return 2
+    fi
+    anchor=$(tail -n 1 "$logfile" 2>/dev/null) || {
+        say "UNKNOWN log window: cannot read cursor"; return 2;
+    }
+    if [ -z "$anchor" ]; then say "UNKNOWN log window: empty cursor"; return 2; fi
+    sleep 30 || { say "UNKNOWN log window: wait failed"; return 2; }
+    window=$(WR_LOG_ANCHOR="$anchor" awk '
+        $0 == ENVIRON["WR_LOG_ANCHOR"] { found++; next }
+        found { if (index($0,"BndStrg_InfStatusRsp")) status++;
+                if (index($0,"Reaped")) reaped++ }
+        END { if (found != 1) print "unknown";
+              else if (status || reaped) printf "noise status=%d reaper=%d\n",status,reaped;
+              else print "clean" }
+    ' "$logfile" 2>/dev/null) || {
+        say "UNKNOWN log window: read failed"; return 2;
+    }
+    case "$window" in
+        clean) ok "no new status-query/reaper log noise in 30 s"; return 0 ;;
+        noise\ *) say "FAIL new log $window in 30 s"; return 1 ;;
+        *) say "UNKNOWN log window: cursor lost or ambiguous (rotation/truncation)"; return 2 ;;
+    esac
+}
+
+# Isolated read-only journal check, also used by host fixtures.
+if [ "${1:-}" = "--log-window" ]; then
+    [ "$#" -eq 2 ] || exit 2
+    check_log_window "$2"
+    exit $?
+fi
+
 say "firmware=$(nvram get firmver 2>/dev/null) build=$(nvram get buildno 2>/dev/null)"
 [ -x /usr/sbin/wr-vpn-profile ] && ok "manager binary" || bad "manager binary"
 [ -x /usr/sbin/wr-vpn-profiles-service ] && ok "service script" || bad "service script"
 [ -x /usr/libexec/wrvpn/action-worker ] && ok "action worker" || bad "action worker"
 /usr/sbin/wr-vpn-profile list >/dev/null 2>&1 && ok "profile list" || bad "profile list"
 
-sample_noise() { n=$(grep -c 'BndStrg_InfStatusRsp' /tmp/syslog.log 2>/dev/null); echo "${n:-0}"; }
-before=$(sample_noise)
-sleep 30
-after=$(sample_noise)
-delta=$((after - before))
-[ "$delta" -le 0 ] && ok "no status-query log noise in 30 s" || bad "status-query log noise (${delta} in 30 s)"
-reaped=$(grep -c 'Reaped' /tmp/syslog.log 2>/dev/null)
-reaped=${reaped:-0}
-[ "$reaped" = "0" ] && ok "no reaper log noise" || bad "reaper log noise ($reaped)"
+check_log_window /tmp/syslog.log || fail=1
 
 ip -4 addr show br0 2>/dev/null | grep -q '192\.168\.20\.1/' && ok "LAN address" || bad "LAN address"
 ip route 2>/dev/null | grep -q '^default ' && ok "default route" || bad "default route"
