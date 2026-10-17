@@ -90,12 +90,15 @@ stop_service()
         case "$id" in ''|*[!0-9]*) continue;; esac
         case "$seen" in *" $id "*) continue;; esac
         seen="$seen$id "
-        "$ctl" down "$id"
-        case $? in
-            0) :;;
-            5) :;;  # no stored profile left; nothing this call can release
-            *) fail "profile $id failed to stop"; result=1;;
-        esac
+        if "$ctl" down "$id"; then
+            :
+        else
+            rc=$?
+            case $rc in
+                5) :;;  # no stored profile left; nothing this call can release
+                *) fail "profile $id failed to stop"; result=1;;
+            esac
+        fi
     done
     dns_sync || result=1
     return $result
