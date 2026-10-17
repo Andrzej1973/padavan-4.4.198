@@ -278,7 +278,9 @@ static int wr_down(int root,unsigned int id)
             wr_vpn_routes_apply(&plan->resources,plan->allowed,0,&exec);
         if (plan->addresses[0])
             wr_vpn_addresses_apply(plan,0,NULL,0,&exec);
-    }
+    } else
+        /* Unreadable configuration: the rule still has to go. */
+        wr_vpn_rule_remove(&resources,&exec);
     memset(plan,0,sizeof(*plan));free(plan);
     status=wr_vpn_runtime_lock(resources.runtime,&runtime);
     if (status!=WR_VPN_RUNTIME_OK) {

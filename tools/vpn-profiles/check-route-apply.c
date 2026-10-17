@@ -58,6 +58,13 @@ int main(void)
 
     memset(&resources,0,sizeof(resources));
     assert(wr_vpn_resources_make(&resources,2,WR_VPN_WIREGUARD));
+    recorded[0]=0;calls=0;fail_at=0;
+    assert(wr_vpn_rule_remove(&resources,&exec)==WR_VPN_ROUTE_DONE);
+    assert(!strcmp(recorded,
+        "ip rule del fwmark 0x57560002/0xffffffff lookup 20002 priority 20003 \n"));
+
+    memset(&resources,0,sizeof(resources));
+    assert(wr_vpn_resources_make(&resources,2,WR_VPN_WIREGUARD));
     recorded[0]=0;calls=0;fail_at=2;
     assert(wr_vpn_routes_apply(&resources,"10.1.0.0/16, 10.2.0.0/16",1,&exec)==WR_VPN_ROUTE_FAILED);
     assert(!strcmp(recorded,"ip route replace 10.1.0.0/16 dev wrvpn2 table 20002 \n"));

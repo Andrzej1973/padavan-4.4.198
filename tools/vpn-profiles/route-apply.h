@@ -24,4 +24,12 @@ enum wr_vpn_route_result {
 enum wr_vpn_route_result wr_vpn_routes_apply(const struct wr_vpn_resources *resources,
     const char *allowed_ips, int add, const struct wr_vpn_exec *exec);
 
+/* Removes only the profile's marked rule. Teardown uses this when the stored
+ * configuration cannot be parsed any more: the rule is derived from the
+ * resource identity, so it can be dropped without a plan. The controller's
+ * runner should treat "no such rule" as success.
+ */
+enum wr_vpn_route_result wr_vpn_rule_remove(const struct wr_vpn_resources *resources,
+    const struct wr_vpn_exec *exec);
+
 #endif

@@ -89,3 +89,10 @@ enum wr_vpn_route_result wr_vpn_routes_apply(const struct wr_vpn_resources *reso
     if (add && run_rule(resources,1,exec)) return WR_VPN_ROUTE_FAILED;
     return WR_VPN_ROUTE_DONE;
 }
+
+enum wr_vpn_route_result wr_vpn_rule_remove(const struct wr_vpn_resources *resources,
+                                            const struct wr_vpn_exec *exec)
+{
+    if (!resources || !exec || !exec->run) return WR_VPN_ROUTE_INVALID;
+    return run_rule(resources,0,exec)?WR_VPN_ROUTE_FAILED:WR_VPN_ROUTE_DONE;
+}
