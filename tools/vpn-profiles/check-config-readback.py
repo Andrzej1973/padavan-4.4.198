@@ -46,7 +46,8 @@ int __wrap_ipc_get_device(struct wgdevice **out,const char *name) {
         flags = ['-std=gnu99', '-D_GNU_SOURCE', '-DRUNSTATEDIR="/var/run"', '-Wall', '-Wextra', '-g',
                  '-fsanitize=address,undefined', '-I' + str(src), '-I' + str(here)]
         flags += ['-idirafter', str(src / 'uapi/linux')] if protocol == 'wg' else ['-I' + str(src / 'uapi/linux'), '-DWR_VPN_NATIVE_AWG']
-        units = [here / 'config-readback.c', src / 'config.c', src / 'encoding.c', src / 'ipc.c']
+        units = [here / 'config-readback.c', src / 'config.c', src / 'encoding.c',
+                 src / 'ipc.c', src / 'curve25519.c']
         if protocol == 'awg':
             units.append(src / 'type.c')
         objects = []
