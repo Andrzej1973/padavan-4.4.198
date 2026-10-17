@@ -41,7 +41,7 @@ def checks(root: Path) -> None:
         assert result.returncode == expected, (argv, result.returncode, result.stderr)
 
     def state(profile: int) -> str:
-        return (actions / str(profile)).read_text()
+        return (actions / str(profile)).read_bytes().decode("utf-8", "replace")
 
     record = root / "args.txt"
     script('printf "%%s\\n" "$*" > "%s"; printf "up 1 done\\n"; exit 0' % record)

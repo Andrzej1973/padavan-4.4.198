@@ -137,6 +137,7 @@ int main(int argc,char **argv)
             if (now<0 || now-began>=WR_VPN_ACTION_TIMEOUT_MS) { timeout=1;break; }
         }
     }
+    output[used]=0;
     if (timeout || overflow) {
         kill(child,SIGKILL);
         while (waitpid(child,&status,0)<0 && errno==EINTR) {}
@@ -146,7 +147,6 @@ int main(int argc,char **argv)
     }
     while (waitpid(child,&status,0)<0 && errno==EINTR) {}
     close(pipefd[0]);
-    output[used]=0;
     code=WIFEXITED(status)?WEXITSTATUS(status):-1;
     write_state(WR_VPN_ACTION_ROOT,id,code==0?"done":"failed",code,output);
     return code==0?0:1;
