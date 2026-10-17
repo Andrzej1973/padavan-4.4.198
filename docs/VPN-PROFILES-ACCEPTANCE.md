@@ -129,6 +129,20 @@ router still answers on its LAN address.
    `delete 1` returns code 5. Deleting a profile that still has a runtime
    session must return code 4 (`delete 1 live`) and leave it untouched.
 
+## Post-flash smoke check (read-only)
+
+Run once after the router is back, from the workstation:
+
+```
+ssh ASUS@192.168.20.1 'sh -s' < tools/vpn-profiles/check-device-readonly.sh
+```
+
+Expected: `RESULT OK`. The script takes about 30 seconds because it samples
+the driver status log: the older build produced about 6 matching lines in
+30 seconds, the fixed build must produce none. It also checks the manager
+binaries, `wr-vpn-profile list`, the LAN address, the default route and an
+active WireGuard interface.
+
 ## If something goes wrong
 
 - Access lost on one port: move the cable to another LAN port; the profile never
