@@ -3,6 +3,7 @@
 #endif
 #include "addr-apply.h"
 #include <arpa/inet.h>
+#include <stdlib.h>
 #include <string.h>
 
 struct prefix {
