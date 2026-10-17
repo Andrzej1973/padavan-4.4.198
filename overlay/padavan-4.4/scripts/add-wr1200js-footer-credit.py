@@ -39,7 +39,7 @@ def dictionary_value(path):
 
 if args.verify_image:
     root = args.source / 'trunk/romfs/www'
-    state = read(root / 'n56u_ribbon_fixed/state.js')
+    state = read(root / 'state.js')
     if state.count('<#' + CREDIT_KEY + '#>') != 1:
         raise SystemExit('Localized WR1200JS footer credit missing or duplicated in image')
     upstream_line = next((line for line in state.splitlines()
@@ -49,9 +49,11 @@ if args.verify_image:
     notice_line = next((line for line in state.splitlines() if NOTICE in line), '')
     if not notice_line:
         raise SystemExit('Original firmware distribution notice missing')
-    for name, expected in CREDITS.items():
-        if dictionary_value(root / name) != expected:
-            raise SystemExit('Missing or incorrect localized credit in ' + name)
+    image_dictionaries = {'EN.footer': 'EN.dict', 'UK.dict': 'UK.dict', 'RU.dict': 'RU.dict'}
+    for source_name, expected in CREDITS.items():
+        image_name = image_dictionaries[source_name]
+        if dictionary_value(root / image_name) != expected:
+            raise SystemExit('Missing or incorrect localized credit in ' + image_name)
     print('PASS WR1200JS attribution, upstream credits and distribution notice in image')
     raise SystemExit(0)
 
