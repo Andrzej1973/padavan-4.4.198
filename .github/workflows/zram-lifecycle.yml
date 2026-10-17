@@ -83,6 +83,8 @@ jobs:
           ASAN_OPTIONS=detect_leaks=1 checks/vpn-addr-apply
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined tools/vpn-profiles/check-route-apply.c tools/vpn-profiles/route-apply.c -o checks/vpn-route-apply
           ASAN_OPTIONS=detect_leaks=1 checks/vpn-route-apply
+          gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined tools/vpn-profiles/check-dns-write.c tools/vpn-profiles/dns-apply.c -o checks/vpn-dns-write
+          ASAN_OPTIONS=detect_leaks=1 checks/vpn-dns-write
       - name: Check imports using pinned native WG and AWG parsers
         run: |
           git init checks/wg-parser-source
