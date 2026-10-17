@@ -191,6 +191,9 @@ jobs:
               --config configs.build/wr1200js.config
           fi
           python3 tools/prepare-dns-process-status.py padavan-4.4
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_PRIVOXY=y$' configs.build/wr1200js.config; then
+            python3 tools/prepare-privoxy-status.py padavan-4.4
+          fi
           python3 tools/prepare-vpn-interface-status.py padavan-4.4
           cp overlay/padavan-4.4/trunk/user/rp-l2tp/Makefile \
             padavan-4.4/trunk/user/rp-l2tp/Makefile

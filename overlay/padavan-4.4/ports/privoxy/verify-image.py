@@ -49,6 +49,20 @@ try:
     checks['webui'] = 'found_app_privoxy()' in page and 'login_safe()' in page and all('privoxy.' + name in page for name in ['config', 'user.action', 'user.filter', 'user.trust'])
     source_page = (args.trunk / 'user/www/n56u_ribbon_fixed/Advanced_Services_Privoxy.asp').read_text()
     checks['services_menu_index'] = 'show_menu(5,7,2)' in source_page
+    status_markers = ('wr_privoxy_process_status', 'wrPrivoxyRefresh',
+                      "output:'wr_privoxy_process_state'", 'document.hidden',
+                      'window.setInterval(wrPrivoxyRefresh, 30000)',
+                      '<% wr_privoxy_process_state(); %>',
+                      'wr_privoxy_observed_at', 'toLocaleTimeString()')
+    checks['runtime_status_ui'] = all(marker in source_page for marker in status_markers)
+    status_keys = ('WRPrivoxyObservedTitle', 'WRPrivoxyOff', 'WRPrivoxyPresent',
+                   'WRPrivoxyMissing', 'WRPrivoxyUnknown', 'WRPrivoxyStillPresent',
+                   'WRPrivoxyRefresh', 'WRPrivoxyLastObservation',
+                   'WRPrivoxyNoObservation', 'WRPrivoxyObservedNote')
+    for locale, dictionary in (('EN', 'EN.footer'), ('UK', 'UK.dict'), ('RU', 'RU.dict')):
+        translated = (args.trunk / 'user/www/dict' / dictionary).read_text(encoding='utf-8')
+        checks['runtime_status_locale_' + locale.lower()] = all(
+            ('\n' + key + '=') in translated for key in status_keys)
     localized_keys = set(re.findall(r'<#(Service_Privoxy_[^#]+)#>', source_page))
     for locale, dictionary in (('EN', 'EN.footer'), ('UK', 'UK.dict'), ('RU', 'RU.dict')):
         text = (args.trunk / 'user/www/dict' / dictionary).read_text(encoding='utf-8')
@@ -56,6 +70,7 @@ try:
         checks['locale_' + locale.lower()] = localized_keys <= available
     httpd = target('/usr/sbin/httpd').read_bytes()
     rc = target('/sbin/rc').read_bytes()
+    checks['runtime_status_backend'] = b'wr_privoxy_process_state' in httpd
     checks['httpd'] = b'found_app_privoxy' in httpd and b'privoxy.user.trust' in httpd and b'restart_privoxy' in httpd
     checks['rc'] = b'/usr/bin/privoxy.sh' in rc and b'restart_privoxy' in rc
     queue = [binary]

@@ -36,6 +36,18 @@ Start with ZRAM, where live evidence shows enabled setting with zero active swap
 
 Verify enabled-but-dead, disabled-but-live, unavailable observation, normal operation, start/stop failure, stale cache and reboot states. UI must match the runtime adapter and retain the requested setting. Full coverage remains pending; this document does not claim implementation.
 
+## Privoxy status implementation progress — 2026-10-17
+
+The Privoxy page now has a separate observed-process indicator driven by a
+read-only HTTP observation. It distinguishes disabled/no process, enabled/process
+present, enabled/no process, unknown observation, and process present while the
+saved setting is off. A present process is explicitly not presented as proof of
+a listening socket, working client configuration, or proxy traffic. The normal
+Privoxy enable control and Apply lifecycle remain unchanged. EN/UK/RU labels,
+manual refresh, visible-page refresh, and ROMFS image checks are wired into the
+WR1200JS build. This change is pending its CI image/build result and physical
+browser/device acceptance; do not mark Privoxy runtime verified yet.
+
 ## ZRAM implementation progress
 
 Commits `b952b16` and `793241e` add a page-load observation of `/proc/swaps`, a separate actual-state label beside the unchanged requested setting, EN/UK/RU labels, and linked-handler/page image gates. The inherited Apply completion calls `refreshpage()`, so the server observation is obtained again after Apply. This is a page-load snapshot, not continuous monitoring; manual browser refresh obtains another observation.
