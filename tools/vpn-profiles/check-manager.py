@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Exercise profile CLI + real pinned validators + real private store files."""
 import argparse
+import ast
 import base64
 import json
 import os
@@ -106,6 +107,46 @@ int main(void){int fd;for(fd=3;fd<4096;fd++){errno=0;if(fcntl(fd,F_GETFD)!=-1 ||
   render(protocol,data.replace('[Peer]','FwMark = 51\n[Peer]'),2)
   render(protocol,data.replace(key,'invalid'),2)
  print('PASS config plan: real native validation, separate quick fields, profile-owned mark, endpoint resolution flag, no DNS/IPC/network actions or key output')
+ # Exercise the actual HTTP create handler against this real manager, pinned
+ # native validators and private store. Never call a network lifecycle action.
+ http_tree=ast.parse((here/'check-http-export.py').read_text())
+ http_prefix=next(ast.literal_eval(n.value) for n in http_tree.body if isinstance(n,ast.Assign)
+  and any(isinstance(t,ast.Name) and t.id=='PREFIX' for t in n.targets))
+ http_source=root/'http-real-create.c';http_exe=root/'http-real-create'
+ runtime_before={str(f.relative_to(root/'run')):f.read_bytes() for f in (root/'run').rglob('*') if f.is_file()}
+ http_source.write_text(http_prefix+'\n#include "vpn-profiles.inc"\n#include "vpn-profiles-action.inc"\n#include "vpn-profiles-create.inc"\n'+r'''
+static void submit(const char *id,const char *protocol,const char *config,int success)
+{
+ FILE *input=tmpfile();char body[17000];int size;assert(input);
+ size=snprintf(body,sizeof(body),"%s\n%s\n%s\n%s",wr_vpn_csrf,id,protocol,config);
+ assert(size>0 && size<(int)sizeof(body));
+ assert(fwrite(body,1,(size_t)size,input)==(size_t)size);rewind(input);
+ wr_vpn_create_input("",input,size,NULL);fclose(input);wr_vpn_create_output("",NULL);
+ assert(strstr(reply,success?"\"saved\":true,\"started\":false":"create_unconfirmed"));
+ assert(!wr_vpn_create_size);
+}
+int main(void)
+{
+ safe=post=1;strcpy(wr_vpn_csrf,"0123456789abcdef0123456789abcdef");
+''' + 'const char *wg='+json.dumps(wg)+';\nconst char *awg='+json.dumps(awg)+';\n'+r'''
+ submit("10","wireguard",wg,1);
+ submit("11","amneziawg",awg,1);
+ submit("10","wireguard",awg,0); /* Existing ID cannot be replaced. */
+ submit("12","wireguard",awg,0); /* Native WG rejects AWG-only fields. */
+ submit("12","wireguard","invalid configuration\n",0);
+ return 0;
+}
+''')
+ subprocess.run(['gcc','-std=gnu99','-Wall','-Wextra','-Werror','-Wno-unused-function',
+  '-fsanitize=address,undefined','-I'+str(here/'web'),
+  '-DWR_VPN_PROFILE_BIN='+json.dumps(str(exe)),str(http_source),'-o',str(http_exe)],check=True)
+ http_result=subprocess.run([str(http_exe)],capture_output=True,timeout=20,env=env)
+ assert http_result.returncode==0 and not http_result.stdout and not http_result.stderr,(http_result.returncode,http_result.stderr)
+ assert run(['export','10'])==wg and run(['export','11'])==awg
+ assert not (store/'12').exists()
+ assert all((store/id).read_bytes()==data for id,data in before.items())
+ assert {str(f.relative_to(root/'run')):f.read_bytes() for f in (root/'run').rglob('*') if f.is_file()}==runtime_before
+ print('PASS real HTTP create to manager/native validators/store: independent WG/AWG records, exact exports, duplicate/invalid refusal, existing records preserved; no activation')
  # Fixed validator path failure must not save or expose a profile.
  validators['wg'].unlink()
  assert not run(['create','3','wireguard'],wg,3)

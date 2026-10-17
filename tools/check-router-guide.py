@@ -26,6 +26,12 @@ def main():
             for required in ("Слоти DoH 1–4", "повторний PID", "/var/run/doh-proxy/0.log", "не перевірка порту", "ручним редагуванням PID-файлів"):
                 if required not in value:
                     raise SystemExit("DoH guide lacks instance diagnostic guidance: " + required)
+        if "Параметр профілю: CONFIG_FIRMWARE_INCLUDE_WIREGUARD=y" in value:
+            for required in ("Зберегти новий профіль", "ID спільні", "16 КіБ",
+                             "Збереження не запускає тунель", "спершу оновіть список",
+                             "/etc/storage/wrvpn", "чинний тунель доступу"):
+                if required not in value:
+                    raise SystemExit("VPN guide lacks independent create guidance: " + required)
     if "https://central.zerotier.com/" not in markdown:
         raise SystemExit("markdown guide lacks official ZeroTier Central link")
     if "dnsprivacy.org" not in markdown:

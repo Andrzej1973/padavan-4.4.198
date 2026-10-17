@@ -82,6 +82,24 @@ Python AST і diff-check пройшли; C-fixture/Linux CI/образ ще не
 в `tools/agent-nim/README.md`.
 ## Актуальний стан роботи — 2026-10-17
 
+### Актуальна перевірка кандидата №416
+
+Збірки №412–416 успішні. №416 (`a5e590b`, run `39071330705`) завантажена:
+локальні 6 uImage і 7 selected-file SquashFS перевірок пройшли, конфіг
+112 options / 0 mismatches / 0 pending. Green ON palette, create form,
+compiled create route та save-only response присутні в кінцевому TRX.
+Докази: `docs/evidence/WR1200JS-BUILD416.md` та JSON поруч. Фізичне приймання
+не проведене. Користувач відключив тунель; SSH не пробувати до відновлення.
+Наступне: реальний HTTP→manager create integration і актуалізація гайду
+для незалежного WebUI create/import; не змінювати чинний тунель доступу.
+
+Локально підготовлено наскрізний HTTP create test у `check-manager.py`:
+справжній manager + pinned WG/AWG validators + private store, exact exports,
+duplicate/invalid rejection, незмінність попередніх записів і runtime файлів.
+Гайд доповнено незалежним create/import, спільними ID, відсутністю автозапуску
+і поведінкою після непідтвердженого запису. Згенеровані MD/TXT пройшли
+`check-router-guide.py`; Python AST пройшов, Linux integration ще очікує CI.
+
 ### Незалежний WebUI create/import — локальний наступний блок
 
 Додано `web/vpn-create-request.h`: bounded parser POST payload до 16 KiB

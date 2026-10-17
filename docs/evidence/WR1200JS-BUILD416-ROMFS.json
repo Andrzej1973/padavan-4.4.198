@@ -1,0 +1,26 @@
+{
+  "scope": "independent selected-file extraction from final TRX; no physical acceptance",
+  "checks": {
+    "green_on_rule": true,
+    "original_off_sprite_retained": true,
+    "create_form": true,
+    "client_create_request": true,
+    "compiled_create_route": true,
+    "table_call": true,
+    "save_only_response": true
+  },
+  "files": {
+    "www\\vpncli.asp": {
+      "bytes": 100498,
+      "sha256": "ed70097060610b3e81c895e371a59ceb9aacfd6829b2b6a3d1baeb4b1600099e"
+    },
+    "www\\bootstrap\\css\\engage.itoggle.css": {
+      "bytes": 1565,
+      "sha256": "64afee770c771f6537ea4c0d2f2517768bbcf77316de9b9cfd36a9ba5031d7a2"
+    },
+    "usr\\sbin\\httpd": {
+      "bytes": 325360,
+      "sha256": "9bac5c2e16b7b3e9fc5f61c3d6024968295890f98b85f9ca2899cf91399a9193"
+    }
+  }
+}
