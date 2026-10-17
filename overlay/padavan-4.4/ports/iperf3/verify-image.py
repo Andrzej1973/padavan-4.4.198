@@ -26,7 +26,8 @@ try:
                    'WRIperf3Missing', 'WRIperf3Unknown', 'WRIperf3StillPresent',
                    'WRIperf3Refresh', 'WRIperf3LastObservation',
                    'WRIperf3NoObservation', 'WRIperf3ObservedNote')
-    for locale, dictionary in (('EN', 'EN.footer'), ('UK', 'UK.dict'), ('RU', 'RU.dict')):
+    # ROMFS carries the merged English dictionary as EN.dict.
+    for locale, dictionary in (('EN', 'EN.dict'), ('UK', 'UK.dict'), ('RU', 'RU.dict')):
         translated = (root / 'www/dict' / dictionary).read_text(encoding='utf-8')
         checks['runtime_status_locale_' + locale.lower()] = all(
             ('\n' + key + '=') in translated for key in status_keys)
