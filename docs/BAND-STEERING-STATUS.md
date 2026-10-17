@@ -28,6 +28,11 @@ prints `Reaped <pid>` in band-steering builds: child exit statuses are still
 passed to the steering owner, only the syslog line is removed. This change is
 log-only and does not touch radio, routing or tunnel logic.
 
+The MT7603 driver's periodic `BndStrg_InfStatusRsp ... STATUS QUERY ON` info
+line is now removed at source preparation. On the 2026-10-11 device build it
+appeared 5451 times in a 510 KB `/tmp/syslog.log`, dominating the log; the
+status query and its response are unchanged, only the print is gone.
+
 ## Evidence and outstanding checks
 
 - [Status observer and HTTP fixture CI](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/37782250557): passed host sanitizer execution and target compilation of extracted handler fixtures.

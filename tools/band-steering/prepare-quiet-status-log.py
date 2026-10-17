@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Demote periodic MT7603 steering status logs; preserve protocol messages."""
+"""Remove the periodic MT7603 steering status log; preserve protocol messages."""
 import argparse
 from pathlib import Path
 p = argparse.ArgumentParser()
@@ -12,8 +12,7 @@ matched = [i for i, line in enumerate(lines) if "STATUS QUERY ON" in line and "B
 if len(matched) != 1:
     raise SystemExit("Expected exactly one MT7603 periodic steering status log")
 i = matched[0]
-if "DBG_LVL_OFF" not in lines[i]:
-    raise SystemExit("Unexpected steering status log level; fresh source required")
-lines[i] = lines[i].replace("DBG_LVL_OFF", "DBG_LVL_TRACE", 1)
+indent = lines[i][:len(lines[i]) - len(lines[i].lstrip())]
+lines[i] = indent + "/* Periodic status log removed: it filled syslog without new information. */\n"
 target.write_text("".join(lines), encoding="utf-8")
-print("Periodic MT7603 steering status log uses TRACE; protocol polling unchanged")
+print("Removed the periodic MT7603 steering status log; protocol polling unchanged")
