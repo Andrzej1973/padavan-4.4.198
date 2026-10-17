@@ -60,6 +60,16 @@ labels and a selected-image gate are wired into the WR1200JS build. This change
 has not yet been validated by CI or on the router. Do not claim iPerf3 runtime
 or client-test verification from this observer.
 
+## SSH daemon status implementation progress — 2026-10-17
+
+The Administration / Services page now reports the selected Dropbear or
+OpenSSH process separately from the saved SSH mode. It distinguishes disabled,
+enabled with process present, enabled without a process, unknown observation,
+and a process still present while disabled. Process presence does not verify a
+listening socket, firewall reachability or authentication. Manual refresh,
+visible-page 30-second refresh, EN/UK/RU labels and a ROMFS image gate are wired
+into the WR1200JS build. CI and physical browser/device acceptance are pending.
+
 ## ZRAM implementation progress
 
 Commits `b952b16` and `793241e` add a page-load observation of `/proc/swaps`, a separate actual-state label beside the unchanged requested setting, EN/UK/RU labels, and linked-handler/page image gates. The inherited Apply completion calls `refreshpage()`, so the server observation is obtained again after Apply. This is a page-load snapshot, not continuous monitoring; manual browser refresh obtains another observation.
