@@ -79,6 +79,7 @@ static struct wr_band_service_owner wr_wifi_owner;
 static int wr_wifi_applying;
 static int wr_wifi_last_status;
 static volatile sig_atomic_t wr_wifi_exit_pending;
+static volatile sig_atomic_t wr_wifi_exit_code, wr_wifi_exit_signal;
 struct wr_wifi_apply_context { int radio2g, radio5g; };
 static const char *wr_wifi_setting(int band, const char *name, void *context)
 {
@@ -181,22 +182,25 @@ void wr_band_wifi_child_exit(pid_t pid, int status)
 {
     if (pid != wr_wifi_owner.pid || pid <= 1) return;
     /* SIGCHLD path: no NVRAM, allocation or logging from the handler. */
+    wr_wifi_exit_code = WIFEXITED(status) ? WEXITSTATUS(status) : -1;
+    wr_wifi_exit_signal = WIFSIGNALED(status) ? WTERMSIG(status) : 0;
     wr_wifi_exit_pending = WIFEXITED(status) && WEXITSTATUS(status) == 0 ? 1 : 2;
 }
 void wr_band_wifi_refresh_exit_status(void)
 {
     sigset_t mask, previous;
-    int pending, confirmed;
+    int pending, confirmed, exit_code, exit_signal;
     sigemptyset(&mask); sigaddset(&mask, SIGCHLD);
     if (sigprocmask(SIG_BLOCK, &mask, &previous)) return;
     pending = wr_wifi_exit_pending; wr_wifi_exit_pending = 0;
+    exit_code = wr_wifi_exit_code; exit_signal = wr_wifi_exit_signal;
     if (sigprocmask(SIG_SETMASK, &previous, NULL)) return;
     if (!pending) return;
     confirmed = pending == 1;
     nvram_set_int_temp("wr_bs_apply_state", confirmed ? WR_APPLY_OFF_CONFIRMED : WR_APPLY_OFF_UNVERIFIED);
     nvram_set_int_temp("wr_bs_off_confirmed", confirmed);
-    logmessage("Band Steering", "Owned daemon exited: clean=%d off_confirmed=%d; requested setting retained",
-               confirmed, confirmed);
+    logmessage("Band Steering", "Owned daemon exited: clean=%d off_confirmed=%d exit=%d signal=%d; requested setting retained",
+               confirmed, confirmed, exit_code, exit_signal);
     /* Keep ownership until child-owner consumes the cached wait status. */
 }
 int wr_band_wifi_startup(void)

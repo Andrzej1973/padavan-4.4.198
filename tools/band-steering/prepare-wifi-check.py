@@ -134,9 +134,11 @@ int main(void)
  wr_band_wifi_child_exit(42,3<<8);
  wr_band_wifi_refresh_exit_status();
  assert(strstr(diagnostic,"clean=0") && strstr(diagnostic,"off_confirmed=0"));
+ assert(strstr(diagnostic,"exit=3 signal=0"));
  assert(last_state==WR_APPLY_OFF_UNVERIFIED && !last_off && wr_wifi_owner.pid==42);
  wr_band_wifi_child_exit(42,15);
  wr_band_wifi_refresh_exit_status();
+ assert(strstr(diagnostic,"exit=-1 signal=15"));
  assert(last_state==WR_APPLY_OFF_UNVERIFIED && !last_off);
  wr_wifi_owner.pid=0;
  count=0;write_failed=-1;

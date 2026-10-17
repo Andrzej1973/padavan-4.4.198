@@ -24,6 +24,34 @@ The router lacks `logread`; subsequent inspection used `/tmp/syslog.log`.
 Follow-up: trace deferred child-exit status consumption and fresh observation
 handling. A previously saved ACTIVE value cannot establish daemon liveness.
 
+## Status freshness follow-up
+
+The router's saved observation serial was 1. Source inspection shows that
+`wr_band_wifi_observe_status()` performs an authenticated control query and
+increments the serial only on an explicit rc observation event. The browser
+starts with Unknown, schedules that event and requires a changed nonzero
+serial before presenting Active/last-Off. Repeated cached ACTIVE responses
+time out to Unknown. Running `node tools/band-steering/check-status-ui.js`
+passed all 10 scenarios, including unchanged ACTIVE, query failure and wrap.
+
+Thus the raw stale NVRAM values observed over SSH do not alone establish a
+browser freshness defect. No fresh authenticated WebUI observation was collected
+in this step. Deferred exit consumption happens in normal rc notification
+processing, not in the SIGCHLD handler; explaining the retained apply-state
+requires correlating actual child ownership and notification processing.
+Avoid replacing the serial gate or treating an absent daemon as verified
+driver OFF. Driver ABI CI `39070196882` was still running at the integrated
+coordinator step when polled; firmware #411 was also confirmed running.
+
+Further live read-only inspection found the same start/stop pair in the
+available syslog and dmesg, with no matching OOM/segfault/killed-process line.
+This is limited to retained logs, not proof against every crash mechanism.
+Added a follow-up diagnostic candidate preserving exit code or terminating
+signal in sig_atomic_t fields and copying them while SIGCHLD is blocked;
+formatting/logging remains outside the handler. Fixtures assert exit 3 and
+signal 15 separately. Python parsing and whitespace checks pass; Linux C/CI
+execution remains required. No router changes were made.
+
 ## Confirmed source behavior
 
 In `tools/band-steering/prepare-wifi-lifecycle.py`, the generated
