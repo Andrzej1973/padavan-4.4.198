@@ -1572,6 +1572,11 @@ Service CI #187 (39021734137) passed at fc3467b. The post-flash journal-window f
 
 RSSI UI report after physical #396: user observed untranslated Kick weaker/Do not connect weaker labels and help. Added localize-rssi-thresholds.py for existing EN/UK/RU label+tooltip keys in both bands, with source and image dictionary gates. 0 disables both thresholds; negative dBm is weaker as its magnitude grows. No live thresholds changed. Temporary real-dictionary source/image fixture passed; firmware CI pending.
 
+Build #401 at `cda1e9e` passed the RSSI image dictionary gate and the full
+WR1200JS firmware/ZIP workflows. See `docs/evidence/WR1200JS-BUILD401.md` for
+the image identity and CI evidence. This supersedes the pending firmware CI
+status above; browser verification on the router running #401 remains open.
+
 User UI finding on #396: Advanced_wireguard.asp is an inherited simplified form without WG/AWG choice; the actual protocol selector is on vpncli.asp (and server on vpnsrv.asp). Added EN/UK/RU explanation and direct link from the old page to vpncli.asp in existing translation step. Independent profile create/edit browser workflow is still incomplete (CLI exists); do not claim all profiles can be created in this old form. Live tunnel unchanged.
 
 Physical #396 UI report: three blank homepage sections are connected devices, roaming history, RSSI history. Found literal Padavan translation opener in three JavaScript fallback checks served through do_ej; changed marker construction to avoid template interpretation. Image verifier now rejects literal template openers in these assets. Homepage/roaming/RSSI view tests passed locally. Browser-on-device confirmation awaits updated image. Legacy vpnsrv.asp selects one shared server profile/protocol/subnet; concurrent independent WG/AWG must use non-overlapping tunnel subnets and preserve existing AWG access.
