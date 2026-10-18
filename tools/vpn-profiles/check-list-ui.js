@@ -35,4 +35,8 @@ context.wrVPNListLoad(1);requests[3].error();
 assert.equal(html, markup(2, 25));assert.equal(context.wrVPNListBusy, false);
 for (const page of [-1, 100, 1.5]) context.wrVPNListLoad(page);
 assert.equal(requests.length, 4);
+context.wrVPNListLoad(context.wrVPNListPage);
+assert.equal(requests[4].data.arg0, 2);
+requests[4].success(markup(2, 25));
+assert.equal(props['#wr_vpn_refresh:disabled'], false);
 console.log('PASS paged profile UI: navigation, single flight, bounds, failed-response preservation and no automatic polling');

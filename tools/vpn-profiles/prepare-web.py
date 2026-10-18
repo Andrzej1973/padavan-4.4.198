@@ -118,6 +118,11 @@ create_texts = {
     "WRVPN_PROTOCOL": ("Protocol", "Протокол", "Протокол"),
     "WRVPN_CONFIG": ("Profile configuration", "Конфігурація профілю", "Конфигурация профиля"),
     "WRVPN_CREATE": ("Save new profile", "Зберегти новий профіль", "Сохранить новый профиль"),
+    "WRVPN_REFRESH": ("Refresh list", "Оновити список", "Обновить список"),
+    "WRVPN_STORAGE_HELP": (
+        "Saving a profile here does not confirm storage to flash or automatic startup after reboot. Before restarting, save storage using the router's standard controls and check the result. Keep a private backup of the configuration; it contains keys.",
+        "Збереження профілю тут не підтверджує запис у флеш або автоматичний запуск після перезавантаження. Перед перезавантаженням збережіть сховище штатними засобами роутера й перевірте результат. Зберігайте приватну резервну копію конфігурації: вона містить ключі.",
+        "Сохранение профиля здесь не подтверждает запись во флеш или автоматический запуск после перезагрузки. Перед перезагрузкой сохраните хранилище штатными средствами роутера и проверьте результат. Храните частную резервную копию конфигурации: она содержит ключи."),
     "WRVPN_CREATE_HELP": (
         "Choose an unused ID and paste a client configuration. For ID 1 this saves WG1 or AWG1 without starting a tunnel. Reload this page to refresh the list.",
         "Оберіть невикористаний ID і вставте клієнтську конфігурацію. Для ID 1 буде збережено WG1 або AWG1 без запуску тунелю. Перезавантажте сторінку для оновлення списку.",

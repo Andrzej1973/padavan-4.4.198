@@ -4,6 +4,7 @@
                             <span id="wr_vpn_action_text" style="display:none" data-start="<#WRVPN_START#>" data-stop="<#WRVPN_STOP#>" data-delete="<#WRVPN_DELETE#>" data-confirm="<#WRVPN_DELETE_CONFIRM#>" data-error="<#WRVPN_REQUEST_FAILED#>" data-qrerror="<#WRVPN_QR_FAILED#>" data-hide="<#WRVPN_QR_HIDE#>"></span>
                             <span id="wr_vpn_link_text" style="display:none" data-check="<#WRVPN_OBSERVE#>" data-unknown="<#WRVPN_LINK_UNKNOWN#>" data-absent="<#WRVPN_LINK_ABSENT#>" data-up="<#WRVPN_LINK_UP#>" data-down="<#WRVPN_LINK_DOWN#>"></span>
                             <p><#WRVPN_CREATE_HELP#></p>
+                            <p><#WRVPN_STORAGE_HELP#></p>
                             <label for="wr_vpn_create_id"><#WRVPN_ID#></label>
                             <input type="number" id="wr_vpn_create_id" min="1" max="999" value="1"/>
                             <select id="wr_vpn_create_protocol" aria-label="<#WRVPN_PROTOCOL#>">
@@ -33,6 +34,7 @@
                             <button type="button" class="btn" id="wr_vpn_previous" onclick="wrVPNListLoad(wrVPNListPage-1)" disabled><#WRVPN_PREVIOUS#></button>
                             <span id="wr_vpn_page_number">1</span>
                             <button type="button" class="btn" id="wr_vpn_next" onclick="wrVPNListLoad(wrVPNListPage+1)"><#WRVPN_NEXT#></button>
+                            <button type="button" class="btn" id="wr_vpn_refresh" onclick="wrVPNListLoad(wrVPNListPage)"><#WRVPN_REFRESH#></button>
                         </div>
                     </div>
                     <script type="text/javascript">
@@ -56,6 +58,7 @@
                         var page = info.attr('data-page'), total = info.attr('data-total');
                         if (!/^[0-9]{1,2}$/.test(page || '') || !/^[0-9]{1,3}$/.test(total || '')) return false;
                         wrVPNListPage = Number(page);
+                        jQuery('#wr_vpn_refresh').prop('disabled', wrVPNListBusy);
                         jQuery('#wr_vpn_previous').prop('disabled', wrVPNListBusy || wrVPNListPage === 0);
                         jQuery('#wr_vpn_next').prop('disabled', wrVPNListBusy || (wrVPNListPage + 1) * 10 >= Number(total));
                         jQuery('#wr_vpn_page_number').text(String(wrVPNListPage + 1));
@@ -71,7 +74,7 @@
                         }
                         jQuery('#wr_vpn_rows [id^="wr_vpn_link_"]').text(document.getElementById('wr_vpn_link_text').getAttribute('data-unknown'));
                         wrVPNListBusy = true;
-                        jQuery('#wr_vpn_previous, #wr_vpn_next').prop('disabled', true);
+                        jQuery('#wr_vpn_previous, #wr_vpn_next, #wr_vpn_refresh').prop('disabled', true);
                         jQuery.ajax({url: '/update.cgi', dataType: 'html', cache: false, timeout: 5000,
                             data: {output: 'wr_vpn_profile_rows', arg0: page},
                             success: function(html) {
