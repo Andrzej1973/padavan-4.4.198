@@ -158,11 +158,13 @@ for service, selector, script_name in (
     # or invoking any external lifecycle command. Run the original image
     # script under its actual shell, rather than source it in the host shell.
     probe=run(['sh',str(script),'__wr_audit_invalid_action__'])
-    passed=probe.returncode==1 and b'Usage:' in probe.stderr
+    refusal_output=probe.stdout+probe.stderr
+    passed=probe.returncode==1 and b'Usage:' in refusal_output
     report['checks'][service+'_invalid_action_refused']=passed
     report['service_dispatch_probes'].append({
         'service':service,'script':str(script.relative_to(root)),
         'script_sha256':digest(script),'exit':probe.returncode,
+        'refusal_text_found':b'Usage:' in refusal_output,
         'scope':'unknown action only; lock, configuration and daemon lifecycle are not entered',
         'passed':passed,
     })
