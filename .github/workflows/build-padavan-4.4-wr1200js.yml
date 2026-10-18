@@ -1215,6 +1215,9 @@ jobs:
           if-no-files-found: ignore
           path: ssh-image-checks.json
 
+      - name: Verify discovery and KMS status in final ROMFS
+        run: python3 tools/verify-discovery-status-image.py padavan-4.4/trunk/romfs
+
       - name: Verify DoH image packaging and ELF dependencies
         run: |
           if grep -q '^CONFIG_FIRMWARE_INCLUDE_DOH=y$' configs.build/wr1200js.config; then

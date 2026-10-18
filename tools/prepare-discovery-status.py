@@ -50,6 +50,11 @@ static int ej_wr_adsc_process_state(int eid, webs_t wp, int argc, char **argv)
  return ej_wr_discovery_process_state(eid, wp, argc, argv,
      "adsc_enable", "infosvr", "/usr/sbin/infosvr");
 }
+static int ej_wr_vlmcsd_process_state(int eid, webs_t wp, int argc, char **argv)
+{
+ return ej_wr_discovery_process_state(eid, wp, argc, argv,
+     "vlmcsd_enable", "vlmcsd", "/usr/bin/vlmcsd");
+}
 /* Sysfs module presence is not evidence that the CPU timer is being serviced. */
 static int wr_watchdog_module_state(void)
 {
@@ -78,6 +83,7 @@ for include in ('#include <errno.h>', '#include <sys/stat.h>'):
 entries = (system_entry +
            '\t{ "wr_lltd_process_state", ej_wr_lltd_process_state},\n' +
            '\t{ "wr_adsc_process_state", ej_wr_adsc_process_state},\n' +
+           '\t{ "wr_vlmcsd_process_state", ej_wr_vlmcsd_process_state},\n' +
            '\t{ "wr_watchdog_module_state", ej_wr_watchdog_module_state},\n')
 text = text.replace(array_anchor, backend_code + '\n' + array_anchor, 1)
 text = text.replace(system_entry, entries, 1)
@@ -91,7 +97,8 @@ def literal(name):
 
 page = root / 'www/n56u_ribbon_fixed/Advanced_Services_Content.asp'
 html = page.read_text(encoding='utf-8')
-if 'wr_discovery_process_status' in html or 'wrWatchdog_process_status' in html:
+if ('wr_discovery_process_status' in html or 'wrWatchdog_process_status' in html or
+        'wrVlmcsd_process_status' in html):
     raise SystemExit('Discovery process-status page already exists')
 
 def insert_status_row(mark, service):
@@ -107,6 +114,7 @@ def insert_status_row(mark, service):
     prefix, camel = {
         'lltd': ('WRLLTD', 'wrLLTD'),
         'adsc': ('WRADSC', 'wrADSC'),
+        'vlmcsd': ('WRVLMCS', 'wrVlmcsd'),
         'watchdog': ('WRWDG', 'wrWatchdog'),
     }[service]
     status = f'''\n<tr id="{camel}_status_row"><th><#{prefix}ObservedTitle#></th><td>
@@ -118,23 +126,26 @@ def insert_status_row(mark, service):
 
 insert_status_row('<#Adm_Svc_lltd#>', 'lltd')
 insert_status_row('<#Adm_Svc_adsc#>', 'adsc')
+insert_status_row('id="row_vlmcsd"', 'vlmcsd')
 insert_status_row('<#TweaksWdg#>', 'watchdog')
 
 script = r'''
-var wrDiscoveryBusy = {lltd:false, adsc:false, watchdog:false};
-var wrDiscoveryGeneration = {lltd:0, adsc:0, watchdog:0};
-var wrDiscoverySampledAt = {lltd:0, adsc:0, watchdog:0};
+var wrDiscoveryBusy = {lltd:false, adsc:false, vlmcsd:false, watchdog:false};
+var wrDiscoveryGeneration = {lltd:0, adsc:0, vlmcsd:0, watchdog:0};
+var wrDiscoverySampledAt = {lltd:0, adsc:0, vlmcsd:0, watchdog:0};
 var wrDiscoveryLabels = {
     lltd:["<#WRLLTDOff#>","<#WRLLDTPresent#>","<#WRLLDTMissing#>","<#WRLLDTUnknown#>","<#WRLLDTStillPresent#>"],
     adsc:["<#WRADSCOff#>","<#WRADSCPresent#>","<#WRADSCMissing#>","<#WRADSCUnknown#>","<#WRADSCStillPresent#>"],
+    vlmcsd:["<#WRVLMCSOff#>","<#WRVLMCSRunning#>","<#WRVLMCSMissing#>","<#WRVLMCSUnknown#>","<#WRVLMCSStillRunning#>"],
     watchdog:["<#WRWDGOff#>","<#WRWDGPresent#>","<#WRWDGMissing#>","<#WRWDGUnknown#>","<#WRWDGStillPresent#>"]
 };
 function wrDiscoveryRender(service, state) {
     var generation = ++wrDiscoveryGeneration[service];
     wrDiscoverySampledAt[service] = 0;
     var labels = wrDiscoveryLabels[service];
-    var classes = ['text-muted','text-info','text-error','text-warning','text-warning'];
-    var suffix = service === 'lltd' ? 'LLTD' : service === 'adsc' ? 'ADSC' : 'Watchdog';
+    var classes = ['text-muted','text-success','text-error','text-warning','text-warning'];
+    var suffix = service === 'lltd' ? 'LLTD' : service === 'adsc' ? 'ADSC' :
+        service === 'vlmcsd' ? 'Vlmcsd' : 'Watchdog';
     var element = document.getElementById('wr' + suffix + '_process_status');
     if (!element) return;
     var valid = typeof state === 'number' && Math.floor(state) === state && state >= 0 && state < labels.length;
@@ -145,15 +156,20 @@ function wrDiscoveryRender(service, state) {
         window.setTimeout(function() {
             if (generation === wrDiscoveryGeneration[service]) wrDiscoveryRender(service, null);
         }, 45000);
-        var observed = document.getElementById('wr' + suffix + '_observed_at');
-        var lastObservation = service === 'lltd' ? '<#WRLLTDLastObservation#>' :
-            service === 'adsc' ? '<#WRADSCLastObservation#>' : '<#WRWDGLastObservation#>';
-        if (observed) observed.textContent = lastObservation + ' ' + new Date().toLocaleTimeString();
     }
+    var observed = document.getElementById('wr' + suffix + '_observed_at');
+    var lastObservation = service === 'lltd' ? '<#WRLLTDLastObservation#>' :
+        service === 'adsc' ? '<#WRADSCLastObservation#>' :
+        service === 'vlmcsd' ? '<#WRVLMCSLastObservation#>' : '<#WRWDGLastObservation#>';
+    var noObservation = service === 'lltd' ? '<#WRLLTDNoObservation#>' :
+        service === 'adsc' ? '<#WRADSCNoObservation#>' :
+        service === 'vlmcsd' ? '<#WRVLMCSNoObservation#>' : '<#WRWDGNoObservation#>';
+    if (observed) observed.textContent = valid && state !== 3 ?
+        lastObservation + ' ' + new Date().toLocaleTimeString() : noObservation;
 }
 document.addEventListener('visibilitychange', function() {
     if (document.hidden) return;
-    ['lltd','adsc','watchdog'].forEach(function(service) {
+    ['lltd','adsc','vlmcsd','watchdog'].forEach(function(service) {
         if (wrDiscoverySampledAt[service] && Date.now() - wrDiscoverySampledAt[service] >= 45000)
             wrDiscoveryRender(service, null);
     });
@@ -161,7 +177,8 @@ document.addEventListener('visibilitychange', function() {
 function wrDiscoveryRefresh(service) {
     if (wrDiscoveryBusy[service] || document.hidden) return;
     wrDiscoveryBusy[service] = true;
-    var outputs = {lltd:'wr_lltd_process_state', adsc:'wr_adsc_process_state', watchdog:'wr_watchdog_module_state'};
+    var outputs = {lltd:'wr_lltd_process_state', adsc:'wr_adsc_process_state',
+        vlmcsd:'wr_vlmcsd_process_state', watchdog:'wr_watchdog_module_state'};
     $j.ajax({url:'/update.cgi', data:{output:outputs[service]}, dataType:'json', cache:false, timeout:5000})
         .done(function(state) { wrDiscoveryRender(service, state); })
         .fail(function() { wrDiscoveryRender(service, null); })
@@ -169,6 +186,7 @@ function wrDiscoveryRefresh(service) {
 }
 function wrLLTDRefresh() { wrDiscoveryRefresh('lltd'); }
 function wrADSCRefresh() { wrDiscoveryRefresh('adsc'); }
+function wrVlmcsdRefresh() { wrDiscoveryRefresh('vlmcsd'); }
 function wrWatchdogRefresh() { wrDiscoveryRefresh('watchdog'); }
 '''
 apply_anchor = 'function applyRule(){'
@@ -182,8 +200,9 @@ if html.count(cron_init) != 1:
 html = html.replace(cron_init, cron_init + '''
 \twrDiscoveryRender('lltd', <% wr_lltd_process_state(); %>);
 \twrDiscoveryRender('adsc', <% wr_adsc_process_state(); %>);
+\twrDiscoveryRender('vlmcsd', <% wr_vlmcsd_process_state(); %>);
 \twrDiscoveryRender('watchdog', <% wr_watchdog_module_state(); %>);
-\twindow.setInterval(function(){wrLLTDRefresh();wrADSCRefresh();wrWatchdogRefresh();},30000);''', 1)
+\twindow.setInterval(function(){wrLLTDRefresh();wrADSCRefresh();wrVlmcsdRefresh();wrWatchdogRefresh();},30000);''', 1)
 
 translations = {
     'EN.footer': {
@@ -207,6 +226,16 @@ translations = {
         'WRADSCLastObservation':'Last process observation:',
         'WRADSCNoObservation':'No confirmed process observation yet',
         'WRADSCObservedNote':'Shows the saved setting and the infosvr process only. ASUS discovery replies and device visibility are not verified.',
+        'WRVLMCSObservedTitle':'Observed KMS activation process',
+        'WRVLMCSOff':'Disabled; vlmcsd process not found',
+        'WRVLMCSRunning':'Enabled; vlmcsd process present',
+        'WRVLMCSMissing':'Enabled; vlmcsd process not found',
+        'WRVLMCSUnknown':'KMS activation process state unavailable',
+        'WRVLMCSStillRunning':'Disabled; vlmcsd process still present',
+        'WRVLMCSRefresh':'Refresh status',
+        'WRVLMCSLastObservation':'Last process observation:',
+        'WRVLMCSNoObservation':'No confirmed process observation yet',
+        'WRVLMCSObservedNote':'Shows the saved setting and the vlmcsd process only. It does not verify KMS client requests or activation results.',
         'WRWDGObservedTitle':'Observed CPU watchdog module',
         'WRWDGOff':'Disabled; rt_timer_wdg module not loaded',
         'WRWDGPresent':'Enabled; rt_timer_wdg loaded (timer operation unverified)',
@@ -239,6 +268,16 @@ translations = {
         'WRADSCLastObservation':'Останнє спостереження процесу:',
         'WRADSCNoObservation':'Підтвердженого спостереження процесу ще немає',
         'WRADSCObservedNote':'Показує збережене налаштування та лише наявність процесу infosvr. Відповіді ASUS Discovery і видимість пристроїв не перевірені.',
+        'WRVLMCSObservedTitle':'Спостереження процесу активації KMS',
+        'WRVLMCSOff':'Вимкнено; процес vlmcsd відсутній',
+        'WRVLMCSRunning':'Увімкнено; процес vlmcsd працює',
+        'WRVLMCSMissing':'Увімкнено; процес vlmcsd не знайдено',
+        'WRVLMCSUnknown':'Стан процесу KMS недоступний',
+        'WRVLMCSStillRunning':'Вимкнено; процес vlmcsd досі працює',
+        'WRVLMCSRefresh':'Оновити стан',
+        'WRVLMCSLastObservation':'Останнє спостереження процесу:',
+        'WRVLMCSNoObservation':'Підтвердженого спостереження процесу ще немає',
+        'WRVLMCSObservedNote':'Показує збережене налаштування та лише наявність процесу vlmcsd. Запити клієнтів KMS та результат активації не перевіряються.',
         'WRWDGObservedTitle':'Стан модуля CPU Watchdog',
         'WRWDGOff':'Вимкнено; модуль rt_timer_wdg не завантажений',
         'WRWDGPresent':'Увімкнено; rt_timer_wdg завантажений (таймер не перевірено)',
@@ -271,6 +310,16 @@ translations = {
         'WRADSCLastObservation':'Последнее наблюдение процесса:',
         'WRADSCNoObservation':'Подтверждённого наблюдения процесса пока нет',
         'WRADSCObservedNote':'Показывает сохранённую настройку и только наличие процесса infosvr. Ответы ASUS Discovery и видимость устройств не проверены.',
+        'WRVLMCSObservedTitle':'Наблюдение процесса активации KMS',
+        'WRVLMCSOff':'Выключено; процесс vlmcsd отсутствует',
+        'WRVLMCSRunning':'Включено; процесс vlmcsd работает',
+        'WRVLMCSMissing':'Включено; процесс vlmcsd не найден',
+        'WRVLMCSUnknown':'Состояние процесса KMS недоступно',
+        'WRVLMCSStillRunning':'Выключено; процесс vlmcsd всё ещё работает',
+        'WRVLMCSRefresh':'Обновить состояние',
+        'WRVLMCSLastObservation':'Последнее наблюдение процесса:',
+        'WRVLMCSNoObservation':'Подтверждённого наблюдения процесса пока нет',
+        'WRVLMCSObservedNote':'Показывает сохранённую настройку и только наличие процесса vlmcsd. Запросы клиентов KMS и результат активации не проверяются.',
         'WRWDGObservedTitle':'Состояние модуля CPU Watchdog',
         'WRWDGOff':'Выключено; модуль rt_timer_wdg не загружен',
         'WRWDGPresent':'Включено; rt_timer_wdg загружен (работа таймера не проверена)',
@@ -286,7 +335,8 @@ translations = {
 for filename, values in translations.items():
     path = root / 'www/dict' / filename
     content = path.read_text(encoding='utf-8')
-    if 'WRLLDTObservedTitle=' in content or 'WRADSCObservedTitle=' in content:
+    if ('WRLLDTObservedTitle=' in content or 'WRADSCObservedTitle=' in content or
+            'WRVLMCSObservedTitle=' in content):
         raise SystemExit(f'Discovery status labels already exist in {filename}')
     content = content.rstrip('\n') + '\n' + '\n'.join(
         f'{key}={value}' for key, value in values.items()) + '\n'
@@ -294,4 +344,4 @@ for filename, values in translations.items():
 
 backend.write_text(text, encoding='utf-8', newline='\n')
 page.write_text(html, encoding='utf-8', newline='\n')
-print('Prepared LLTD/ASUS process and watchdog module observations; protocol exchanges and timer operation remain unverified')
+print('Prepared LLTD/ASUS/KMS process and watchdog module observations; protocols and timer operation remain unverified')

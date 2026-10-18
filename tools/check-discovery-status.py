@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Exercise LLTD/ASUS process observers and the emitted page without services."""
+"""Exercise discovery, KMS and watchdog observers and emitted page without services."""
 import argparse
 import ast
 from pathlib import Path
@@ -26,6 +26,7 @@ page.write_text('''function initial(){
 function applyRule(){ }
 <tr id="lltd"><th><#Adm_Svc_lltd#></th><td></td></tr>
 <tr id="adsc"><th><#Adm_Svc_adsc#></th><td></td></tr>
+<tr id="row_vlmcsd"><th>KMS activation</th><td></td></tr>
 <tr id="watchdog"><th><#TweaksWdg#></th><td></td></tr>
 <tr id="row_crontabs" style="display:none">
 \twrCronRender(<% wr_cron_process_state(); %>);
@@ -39,9 +40,12 @@ subprocess.run([sys.executable, str(here / 'prepare-discovery-status.py'),
 html = page.read_text(encoding='utf-8')
 assert html.count('wr_lltd_process_state();') == 1
 assert html.count('wr_adsc_process_state();') == 1
+assert html.count('wr_vlmcsd_process_state();') == 1
 assert html.count('wr_watchdog_module_state();') == 1
-assert html.count("window.setInterval(function(){wrLLTDRefresh();wrADSCRefresh();wrWatchdogRefresh();},30000)") == 1
-assert "var outputs = {lltd:'wr_lltd_process_state', adsc:'wr_adsc_process_state', watchdog:'wr_watchdog_module_state'};" in html
+assert html.count("window.setInterval(function(){wrLLTDRefresh();wrADSCRefresh();wrVlmcsdRefresh();wrWatchdogRefresh();},30000)") == 1
+assert "vlmcsd:'wr_vlmcsd_process_state'" in html
+assert 'id="wrVlmcsd_process_status"' in html
+assert 'function wrVlmcsdRefresh()' in html
 assert 'data:{output:outputs[service]}' in html
 assert 'generation === wrDiscoveryGeneration[service]' in html
 assert 'Date.now() - wrDiscoverySampledAt[service] >= 45000' in html
@@ -49,6 +53,10 @@ for locale in ('EN.footer', 'UK.dict', 'RU.dict'):
     translated = (dictionary / locale).read_text(encoding='utf-8')
     for key in ('WRLLDTPresent=', 'WRLLDTUnknown=', 'WRLLTDObservedNote=',
                 'WRADSCPresent=', 'WRADSCUnknown=', 'WRADSCObservedNote=',
+                'WRVLMCSOff=', 'WRVLMCSRunning=', 'WRVLMCSMissing=',
+                'WRVLMCSUnknown=', 'WRVLMCSStillRunning=', 'WRVLMCSRefresh=',
+                'WRVLMCSLastObservation=', 'WRVLMCSNoObservation=',
+                'WRVLMCSObservedNote=',
                 'WRWDGOff=', 'WRWDGPresent=', 'WRWDGMissing=', 'WRWDGUnknown=',
                 'WRWDGStillPresent=', 'WRWDGRefresh=', 'WRWDGLastObservation=',
                 'WRWDGNoObservation=', 'WRWDGObservedNote='):
@@ -70,8 +78,12 @@ document.hidden=false;wrLLTDRefresh();assert.equal(request.data.output,'wr_lltd_
 assert.equal(request.timeout,5000);assert.equal(request.cache,false);
 success(1);always();assert.equal(elements.wrLLTD_process_status.textContent,wrDiscoveryLabels.lltd[1]);
 wrADSCRefresh();assert.equal(request.data.output,'wr_adsc_process_state');
+wrVlmcsdRefresh();assert.equal(request.data.output,'wr_vlmcsd_process_state');
 wrWatchdogRefresh();assert.equal(request.data.output,'wr_watchdog_module_state');
-console.log('PASS emitted LLTD/ASUS bounded observation, refresh and expiry');
+wrDiscoveryRender('vlmcsd',1);assert.equal(elements.wrVlmcsd_process_status.className,'text-success');
+wrDiscoveryRender('vlmcsd',null);assert.equal(elements.wrVlmcsd_process_status.textContent,wrDiscoveryLabels.vlmcsd[3]);
+assert.equal(elements.wrVlmcsd_observed_at.textContent,'<#WRVLMCSNoObservation#>');
+console.log('PASS emitted LLTD/ASUS/KMS bounded observation, refresh and expiry');
 '''
 node_file = root / 'discovery.js'
 node_file.write_text(node_test, encoding='utf-8')
@@ -98,14 +110,15 @@ c_test = r'''
 #define S_IFREG 0100000
 #endif
 typedef FILE *webs_t;
-static int proc_unavailable, lld_binary_missing, adsc_binary_missing;
+static int proc_unavailable, lld_binary_missing, adsc_binary_missing, vlmcsd_binary_missing;
 static int sysfs_unavailable, sysfs_not_dir, watchdog_module_present, watchdog_stat_error;
-static int lltd_requested, lltd_active, adsc_requested, adsc_active, watchdog_requested;
+static int lltd_requested, lltd_active, adsc_requested, adsc_active, vlmcsd_requested, vlmcsd_active, watchdog_requested;
 static char output[16];
 static int mock_access(const char *path, int mode) {
  if (!strcmp(path,"/proc/self/stat") && mode==R_OK) return proc_unavailable;
  if (!strcmp(path,"/bin/lld2d") && mode==X_OK) return lld_binary_missing;
  if (!strcmp(path,"/usr/sbin/infosvr") && mode==X_OK) return adsc_binary_missing;
+ if (!strcmp(path,"/usr/bin/vlmcsd") && mode==X_OK) return vlmcsd_binary_missing;
  if (!strcmp(path,"/sys/module") && mode==(R_OK|X_OK)) return sysfs_unavailable;
  assert(0); return -1;
 }
@@ -123,12 +136,14 @@ static int mock_stat(const char *path, struct stat *buffer) {
 static int nvram_get_int(const char *key) {
  if (!strcmp(key,"lltd_enable")) return lltd_requested;
  if (!strcmp(key,"adsc_enable")) return adsc_requested;
+ if (!strcmp(key,"vlmcsd_enable")) return vlmcsd_requested;
  if (!strcmp(key,"watchdog_cpu")) return watchdog_requested;
  assert(0); return 0;
 }
 static int pids(const char *name) {
  if (!strcmp(name,"lld2d")) return lltd_active;
  if (!strcmp(name,"infosvr")) return adsc_active;
+ if (!strcmp(name,"vlmcsd")) return vlmcsd_active;
  assert(0); return -1;
 }
 static int websWrite(webs_t wp, const char *format, ...) {
@@ -152,6 +167,14 @@ int main(void) {
  adsc_active=-1;expect(ej_wr_adsc_process_state,3);
  adsc_active=1;adsc_binary_missing=1;expect(ej_wr_adsc_process_state,3);
  ej_wr_adsc_process_state(0,NULL,1,NULL);assert(!strcmp(output,"3"));
+ vlmcsd_requested=0;vlmcsd_active=0;expect(ej_wr_vlmcsd_process_state,0);
+ vlmcsd_requested=1;vlmcsd_active=1;expect(ej_wr_vlmcsd_process_state,1);
+ vlmcsd_active=0;expect(ej_wr_vlmcsd_process_state,2);
+ vlmcsd_requested=0;vlmcsd_active=1;expect(ej_wr_vlmcsd_process_state,4);
+ vlmcsd_active=-1;expect(ej_wr_vlmcsd_process_state,3);
+ vlmcsd_active=1;proc_unavailable=1;expect(ej_wr_vlmcsd_process_state,3);
+ proc_unavailable=0;vlmcsd_binary_missing=1;expect(ej_wr_vlmcsd_process_state,3);
+ vlmcsd_binary_missing=0;ej_wr_vlmcsd_process_state(0,NULL,1,NULL);assert(!strcmp(output,"3"));
  watchdog_requested=0;watchdog_module_present=0;expect(ej_wr_watchdog_module_state,0);
  watchdog_requested=1;watchdog_module_present=1;expect(ej_wr_watchdog_module_state,1);
  watchdog_module_present=0;expect(ej_wr_watchdog_module_state,2);
@@ -160,7 +183,7 @@ int main(void) {
  sysfs_unavailable=0;sysfs_not_dir=1;expect(ej_wr_watchdog_module_state,3);
  sysfs_not_dir=0;watchdog_stat_error=EACCES;expect(ej_wr_watchdog_module_state,3);
  ej_wr_watchdog_module_state(0,NULL,1,NULL);assert(!strcmp(output,"3"));
- puts("PASS LLTD/ASUS process and watchdog module states, including unknown conditions");
+ puts("PASS LLTD/ASUS/KMS process and watchdog module states, including unknown conditions");
  return 0;
 }
 '''
