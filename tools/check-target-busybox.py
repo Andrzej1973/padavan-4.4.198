@@ -95,8 +95,52 @@ except (OSError,RuntimeError,ValueError,subprocess.CalledProcessError) as error:
     report['checks']['busybox_elf_dependency_closure']=False
 effective_config=(trunk/'.config').read_text().splitlines()
 report['selected_service_entrypoints']=[]
+report['feature_image_gates']={}
 report['entrypoint_gaps']=[{'group':name,'reason':'no exact-image entrypoint assertion yet'}
-                           for name in ('zram','qos','sfe','u2ec','wpad')]
+                           for name in ('qos','sfe')]
+zram_enabled='CONFIG_FIRMWARE_INCLUDE_ZRAM=y' in effective_config
+if zram_enabled:
+    zram_report_path=Path('zram-image-checks.txt')
+    zram_expected='PASS zram dependencies, rc command and image BusyBox priority/discard help under QEMU; activation unverified'
+    try:
+        zram_pass=zram_report_path.read_text(encoding='utf-8').strip()==zram_expected
+    except OSError:
+        zram_pass=False
+    report['feature_image_gates']['zram']={'report':str(zram_report_path),
+        'scope':'final ROMFS dependencies, rc command and exact-image BusyBox help; activation unverified',
+        'passed':zram_pass}
+    report['checks']['zram_exact_romfs_busybox_gate']=zram_pass
+    if not zram_pass:
+        report['entrypoint_gaps'].append({'group':'zram',
+            'reason':'dedicated exact-image ZRAM report missing or incomplete'})
+else:
+    report['feature_image_gates']['zram']={'status':'not selected'}
+    report['checks']['zram_exact_romfs_busybox_gate']=True
+wpad_enabled='CONFIG_FIRMWARE_INCLUDE_WPAD=y' in effective_config
+if wpad_enabled:
+    wpad_report_path=Path('wpad-image-checks.json')
+    try:
+        wpad_report=json.loads(wpad_report_path.read_text(encoding='utf-8'))
+        wpad_checks=wpad_report.get('checks',{})
+        required_wpad_checks=('effective_selector','link_wpad.dat','link_wpad.da',
+            'link_proxy.pac','editor','capability_guard','login_guard','httpd_capability',
+            'httpd_mime','httpd_field','default_direct','preserve_existing')
+        wpad_pass=(wpad_report.get('scope')=='WPAD ROMFS packaging only; runtime unverified'
+                   and all(wpad_checks.get(key) is True for key in required_wpad_checks))
+    except (OSError,ValueError):
+        wpad_checks={}
+        required_wpad_checks=()
+        wpad_pass=False
+    report['feature_image_gates']['wpad']={'report':str(wpad_report_path),
+        'scope':'final ROMFS editor, HTTP field, PAC links and preservation checks; runtime unverified',
+        'passed':wpad_pass,'required_checks':list(required_wpad_checks)}
+    report['checks']['wpad_exact_romfs_gate']=wpad_pass
+    if not wpad_pass:
+        report['entrypoint_gaps'].append({'group':'wpad',
+            'reason':'dedicated exact-image WPAD ROMFS report missing or incomplete'})
+else:
+    report['feature_image_gates']['wpad']={'status':'not selected'}
+    report['checks']['wpad_exact_romfs_gate']=True
 # Active selectors are fully classified as service groups, image components,
 # or pending investigation. This is selector accounting only; it does not claim
 # that lifecycle interactions or every package payload have been audited.
@@ -164,6 +208,7 @@ service_entrypoints=(
         ('usr/libexec/wr-usbip/device-action.sh','usr/libexec/wr-usbip/device-policy.sh',
          'usr/libexec/wr-usbip/firewall-policy.sh','usr/libexec/wr-usbip/restore.sh','usr/sbin/wr-usbip')),
     ('vlmcsd',('CONFIG_FIRMWARE_INCLUDE_VLMCSD',),('usr/bin/vlmcsd.sh',)),
+    ('u2ec',('CONFIG_FIRMWARE_INCLUDE_U2EC',),('usr/sbin/u2ec',)),
     ('wr_band_steering',('CONFIG_FIRMWARE_INCLUDE_WR_BAND_STEERING',),
         ('usr/sbin/wr-band-steering','usr/sbin/wr-band-steering-ctl','sbin/rc')),
 )

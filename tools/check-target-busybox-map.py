@@ -25,6 +25,9 @@ expected = {
     'wr_band_steering': (
         {'CONFIG_FIRMWARE_INCLUDE_WR_BAND_STEERING'},
         {'usr/sbin/wr-band-steering', 'usr/sbin/wr-band-steering-ctl', 'sbin/rc'}),
+    'u2ec': (
+        {'CONFIG_FIRMWARE_INCLUDE_U2EC'},
+        {'usr/sbin/u2ec'}),
 }
 for name, (selectors, paths) in expected.items():
     if name not in services:
@@ -50,3 +53,11 @@ missing = sorted(active - set(classifier))
 if missing:
     raise SystemExit(f'FAIL active WR1200JS selectors lack an audit class: {missing}')
 print(f'PASS all {len(active)} active WR1200JS INCLUDE selectors have explicit service/component classification')
+
+workflow = Path('.github/workflows/build-padavan-4.4-wr1200js.yml').read_text(encoding='utf-8')
+wpad_step = workflow.find('python3 overlay/padavan-4.4/scripts/verify-wpad.py')
+zram_step = workflow.find('python3 tools/verify-zram-image.py padavan-4.4 | tee zram-image-checks.txt')
+busybox_step = workflow.find('python3 tools/check-target-busybox.py padavan-4.4 --output target-busybox-audit.json')
+if wpad_step < 0 or zram_step < 0 or busybox_step < 0 or max(wpad_step,zram_step) >= busybox_step:
+    raise SystemExit('FAIL WPAD and ZRAM exact-image reports must be generated before the BusyBox audit consumes them')
+print('PASS WPAD and ZRAM final-ROMFS verifiers run before the exact-image BusyBox audit')
