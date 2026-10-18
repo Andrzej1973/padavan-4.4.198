@@ -296,7 +296,7 @@ translations = {
         'WRWDGRefresh':'Refresh status',
         'WRWDGLastObservation':'Last module observation:',
         'WRWDGNoObservation':'No confirmed module observation yet',
-        'WRWDGObservedNote':'Shows the saved watchdog_cpu setting and whether rt_timer_wdg is registered in sysfs. This does not verify that the hardware timer is active or serviced.',
+        'WRWDGObservedNote':'Shows the saved watchdog_cpu setting and whether the optional rt_timer_wdg module is registered in sysfs. The built-in MT7621 watchdog is separate; /dev/watchdog or watchdog0 presence does not prove that its timer is active or serviced.',
     },
     'UK.dict': {
         'WRLLTDObservedTitle':'Спостереження процесу LLTD',
@@ -338,7 +338,7 @@ translations = {
         'WRWDGRefresh':'Оновити стан',
         'WRWDGLastObservation':'Останнє спостереження модуля:',
         'WRWDGNoObservation':'Підтвердженого спостереження модуля ще немає',
-        'WRWDGObservedNote':'Показує збережений параметр watchdog_cpu та лише наявність rt_timer_wdg у sysfs. Активність чи обслуговування апаратного таймера не перевіряються.',
+        'WRWDGObservedNote':'Показує збережений параметр watchdog_cpu та наявність необов’язкового модуля rt_timer_wdg у sysfs. Вбудований watchdog MT7621 — окремий; наявність /dev/watchdog або watchdog0 не доводить, що таймер активний чи обслуговується.',
     },
     'RU.dict': {
         'WRLLTDObservedTitle':'Наблюдение процесса LLTD',
@@ -380,7 +380,7 @@ translations = {
         'WRWDGRefresh':'Обновить состояние',
         'WRWDGLastObservation':'Последнее наблюдение модуля:',
         'WRWDGNoObservation':'Подтверждённого наблюдения модуля пока нет',
-        'WRWDGObservedNote':'Показывает сохранённый параметр watchdog_cpu и только наличие rt_timer_wdg в sysfs. Работа или обслуживание аппаратного таймера не проверяются.',
+        'WRWDGObservedNote':'Показывает сохранённый параметр watchdog_cpu и наличие необязательного модуля rt_timer_wdg в sysfs. Встроенный watchdog MT7621 — отдельный; наличие /dev/watchdog или watchdog0 не доказывает, что таймер активен или обслуживается.',
     },
 }
 for filename, values in translations.items():

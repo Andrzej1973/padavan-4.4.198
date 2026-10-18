@@ -49,17 +49,13 @@ for name in ('EN.footer', 'UK.dict', 'RU.dict'):
 subprocess.run([sys.executable, str(here / 'prepare-discovery-status.py'),
                 str(root)], check=True)
 html = page.read_text(encoding='utf-8')
-image_verifier = (here.parent / 'overlay/padavan-4.4/ports/ssh/verify-image.py').read_text(encoding='utf-8')
-for marker in ('shared_process_observer_handlers', 'wr_dns_process_state',
-               'wr_privoxy_process_state', 'wr_iperf3_process_state',
-               'wr_ss_client_process_state', 'wr_usbip_state',
-               'vlmcsd_status_element', 'vlmcsd_http_handler',
-               'vlmcsd_refresh_translation',
-               "vlmcsd:'wr_vlmcsd_process_state'", 'WRVLMCSObservedTitle',
-               'WRVLMCSOff', 'WRVLMCSRunning', 'WRVLMCSMissing',
-               'WRVLMCSUnknown', 'WRVLMCSStillRunning',
-               'WRVLMCSRefresh', 'WRVLMCSObservedNote'):
-    assert marker in image_verifier, ('image verifier must cover KMS status', marker)
+image_verifier = (here / 'verify-discovery-status-image.py').read_text(encoding='utf-8')
+for marker in ('required_page', 'backend_markers',
+               'id="wrVlmcsd_status_row"', 'id="wrWatchdog_status_row"',
+               'WRVLMCSObservedNote', 'WRWDGObservedNote',
+               'watchdog_cpu', '/sys/module/rt_timer_wdg', 'MT7621',
+               "('EN.dict', 'UK.dict', 'RU.dict')"):
+    assert marker in image_verifier, ('image verifier must cover KMS/watchdog status', marker)
 assert html.count('wr_lltd_process_state();') == 1
 assert html.count('wr_adsc_process_state();') == 1
 assert html.count('wr_vlmcsd_process_state();') == 1
