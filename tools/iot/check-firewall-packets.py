@@ -86,7 +86,7 @@ try:
  server('lan','192.168.1.2',8080);server('wan','203.0.113.2',8080);server('iot','192.168.50.20',8080)
  server(None,'fd50::1',8081);server(None,'fd50::1',5353)
  server('lan','fd51::2',8082);server('wan','fd52::2',8083)
- server('iot','fd50::20',8084,socket.AF_INET6)
+ server('iot','fd50::20',8084)
  udp_server(None,'192.168.50.1',53);udp_server(None,'192.168.50.1',67)
  udp_server('wan','203.0.113.2',8080);udp_server('lan','192.168.1.2',8080)
  udp_server(None,'fd50::1',5353);udp_server('lan','fd51::2',8082);udp_server('wan','fd52::2',8083)

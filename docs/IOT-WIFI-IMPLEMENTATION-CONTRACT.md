@@ -64,4 +64,8 @@ same fixture. This is a stronger regression gate for the current policy, which
 blocks all IoT IPv6 traffic, but does not implement IPv6 internet access or
 prove target-kernel, production-lifecycle, Wi-Fi, or physical-router behavior.
 Local Python syntax validation passed; the privileged namespace test requires
-Linux CI and is pending for this change.
+Linux CI. The first run, `39102134653`, failed before applying any firewall
+rules because the fixture passed an unnecessary fourth argument to its TCP
+server helper. The original job log and `build_log.nim` triage confirm this
+test-harness error; the call has been corrected, and a rerun is pending. No
+packet-policy conclusion can be drawn from the failed run.
