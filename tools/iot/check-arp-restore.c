@@ -176,6 +176,10 @@ int main(void){
   assert(!wr_iot_dns_activation_prepare());
   assert(wr_iot_restart_active&&wr_iot_restart_prepared&&wr_iot_restart_lease_captured);
   assert(wr_iot_restart_transaction()==EBUSY);
+  assert(!rename("service.lock","service.lock.previous"));
+  assert(!wr_iot_dns_activation_abort());
+  assert(wr_iot_restart_active&&controller_running&&!wr_iot_restart_stopped_candidate);
+  assert(!rename("service.lock.previous","service.lock"));
   assert(wr_iot_dns_activation_abort());assert(!wr_iot_restart_active&&controller_running);
   assert(!wr_iot_dns_activation_prepare());
   controller_fault=9;assert(!wr_iot_dns_activation_commit());

@@ -86,6 +86,10 @@ static int wr_iot_restart_finish(void)
 }
 static int wr_iot_restart_recover(void)
 {
+ /* Validate ownership before stopping any daemon, not only before restoring
+  * files. A replaced lock inode must leave the recovery snapshot intact. */
+ if(!wr_iot_restart_active||!wr_iot_restart_state.transaction.active||
+    !wr_iot_service_lock_valid(&wr_iot_restart_state.transaction.lock,WR_IOT_SERVICE_LOCK_PATH))return 0;
  if(!wr_iot_restart_stopped_candidate){
   wr_iot_stop_dns_raw();
   if(!wr_iot_restart_wait(0))return 0;
