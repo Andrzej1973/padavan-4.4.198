@@ -18,11 +18,11 @@ translations={
  'RU.dict':['Актуальные данные','Устаревшие данные','Недоступно','Обновление','Приостановлено','Остановлено','показаны последние доступные наблюдения','Источник данных об устройствах недоступен','Источник наблюдений Wi-Fi недоступен','Не удалось инициализировать наблюдения'],
 }
 dictionary_changes=[]
-extra_keys=['title','description','retry','source-time-unavailable','empty','no-match','source-time']
+extra_keys=['title','description','retry','source-time-unavailable','empty','no-match','source-time','home']
 extra_labels={
- 'EN.footer':['Connected devices','Passive observations; current connection and network role may be unknown.','Refresh','Source update time unavailable','No observations available','No devices match this category','Source updated'],
- 'UK.dict':['Підключені пристрої','Пасивні спостереження; поточне підключення та роль у мережі можуть бути невідомими.','Оновити','Час оновлення джерела недоступний','Немає доступних спостережень','Немає пристроїв цієї категорії','Джерело оновлено'],
- 'RU.dict':['Подключённые устройства','Пассивные наблюдения; текущее подключение и роль в сети могут быть неизвестны.','Обновить','Время обновления источника недоступно','Нет доступных наблюдений','Нет устройств этой категории','Источник обновлён'],
+ 'EN.footer':['Connected devices','Passive observations; current connection and network role may be unknown.','Refresh','Source update time unavailable','No observations available','No devices match this category','Source updated','Home'],
+ 'UK.dict':['Підключені пристрої','Пасивні спостереження; поточне підключення та роль у мережі можуть бути невідомими.','Оновити','Час оновлення джерела недоступний','Немає доступних спостережень','Немає пристроїв цієї категорії','Джерело оновлено','На головну'],
+ 'RU.dict':['Подключённые устройства','Пассивные наблюдения; текущее подключение и роль в сети могут быть неизвестны.','Обновить','Время обновления источника недоступно','Нет доступных наблюдений','Нет устройств этой категории','Источник обновлён','На главную'],
 }
 keys+=extra_keys
 for name in translations:translations[name]+=extra_labels[name]
@@ -63,10 +63,16 @@ for name,values in translations.items():
     if 'WRDeviceStatus_state-current=' in content:raise SystemExit('Device status labels already installed')
     dictionary_changes.append((path,content.rstrip('\n')+'\n'+'\n'.join('WRDeviceStatus_'+key+'='+value for key,value in zip(keys,values))+'\n'))
 attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in keys)
-state_attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in keys[:7])
+state_attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in keys[:7]+['home'])
 rssi_attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in rssi_labels)
 history_attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in history_labels)
-s=s.replace(anchor,anchor+'\n                <section id="wr-connected-devices" class="well" aria-label="Connected devices"'+attributes+'></section>\n                <section id="wr-roaming-history" class="well" aria-label="Wi-Fi history"'+state_attributes+history_attributes+'></section>\n                <section id="wr-rssi-history" class="well" aria-label="RSSI history"'+state_attributes+rssi_attributes+'></section>',1)
+launcher='''
+                <nav id="wr-observation-launcher" class="wr-observation-launcher" aria-label="Wi-Fi observations">
+                    <a class="wr-observation-link" target="_blank" rel="noopener noreferrer" href="/index.asp?wr_view=devices"><#WRDeviceStatus_title#><span aria-hidden="true"> ↗</span></a>
+                    <a class="wr-observation-link" target="_blank" rel="noopener noreferrer" href="/index.asp?wr_view=history"><#WRDeviceStatus_history-title#><span aria-hidden="true"> ↗</span></a>
+                    <a class="wr-observation-link" target="_blank" rel="noopener noreferrer" href="/index.asp?wr_view=rssi"><#WRDeviceStatus_rssi-title#><span aria-hidden="true"> ↗</span></a>
+                </nav>'''
+s=s.replace(anchor,anchor+launcher+'\n                <section id="wr-connected-devices" class="well" aria-label="Connected devices"'+attributes+'></section>\n                <section id="wr-roaming-history" class="well" aria-label="Wi-Fi history"'+state_attributes+history_attributes+'></section>\n                <section id="wr-rssi-history" class="well" aria-label="RSSI history"'+state_attributes+rssi_attributes+'></section>',1)
 for name,source in assets.items():(root/name).write_bytes((local/source).read_bytes())
 f.write_text(s,encoding='utf-8')
 for path,content in dictionary_changes:path.write_text(content,encoding='utf-8')

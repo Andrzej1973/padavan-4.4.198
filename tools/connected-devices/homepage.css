@@ -1,7 +1,14 @@
 #wr-connected-devices { margin-top: 14px; padding: 16px; }
+#wr-connected-devices, #wr-roaming-history, #wr-rssi-history { display: none; }
 #wr-connected-devices h3 { margin-top: 0; }
 #wr-connected-devices label { display: inline-block; margin-right: 12px; }
 #wr-connected-devices summary { cursor: pointer; padding: 8px 0; font-weight: bold; }
 #wr-connected-devices .wr-device-scroll { max-height: 340px; overflow: auto; }
 #wr-connected-devices td { overflow-wrap: anywhere; }
 #wr-connected-devices td:first-child { min-width: 160px; }
+.wr-observation-launcher { display:flex; flex-wrap:wrap; gap:8px; margin:10px 0; }
+.wr-observation-link { display:inline-block; padding:7px 11px; border:1px solid #ccc; border-radius:4px; background:#f7f7f7; color:#0878c9; }
+.wr-observation-link:hover, .wr-observation-link:focus { background:#e8f4fb; text-decoration:none; }
+#wr-observation-detail { box-sizing:border-box; min-height:100vh; margin:0; padding:16px; background:#262626; }
+#wr-observation-detail .wr-observation-back { display:inline-block; margin:0 0 10px; color:#0878c9; }
+#wr-observation-detail section { box-sizing:border-box; width:100%; margin:0; }

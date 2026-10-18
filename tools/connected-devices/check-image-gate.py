@@ -17,7 +17,7 @@ with fixture_directory() as directory:
  root=Path(directory);www=root/'www';www.mkdir();(root/'usr/sbin').mkdir(parents=True)
  assert root.resolve().parent==Path.cwd().resolve()
  keys=('state-current','state-stale','state-unavailable','state-updating','state-paused','state-stopped','last-observations','source-networkmap','source-radio','source-initialization')
- keys+=('title','description','retry','source-time-unavailable','empty','no-match','source-time')
+ keys+=('title','description','retry','source-time-unavailable','empty','no-match','source-time','home')
  keys+=('column-device','column-connection','column-category','column-confidence','connection-associated','connection-last','connection-seen','connection-unknown','confidence-unknown','confidence-possible','confidence-high','confidence-manufacturer','confidence-user','unnamed','classification-none','last-evidence')
  keys+=('network-primary','network-guest','network-iot','network-unknown','category-all','category-unknown','category-tv','notice-truncated','notice-invalid','evidence-android-host','evidence-android-dhcp','evidence-windows-host','evidence-windows-dhcp','evidence-tv-host','evidence-conflict','evidence-manual','evidence-manufacturer')
  rssi_labels=json.loads((local/'rssi-labels.json').read_text(encoding='utf-8'))
@@ -27,15 +27,15 @@ with fixture_directory() as directory:
  history_keys=tuple(history_labels)
  keys+=history_keys
  attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in keys)
- state_attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in keys[:7])
+ state_attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in keys[:7]+('home',))
  rssi_attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in rssi_keys)
  history_attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in history_keys)
- page='<section id="wr-connected-devices"'+attributes+'></section><section id="wr-roaming-history"'+state_attributes+history_attributes+'></section><section id="wr-rssi-history"'+state_attributes+rssi_attributes+'></section><iframe id="statusframe"></iframe>'
+ page='<nav id="wr-observation-launcher"><a target="_blank" rel="noopener noreferrer" href="/index.asp?wr_view=devices"><#WRDeviceStatus_title#></a><a target="_blank" rel="noopener noreferrer" href="/index.asp?wr_view=history"><#WRDeviceStatus_history-title#></a><a target="_blank" rel="noopener noreferrer" href="/index.asp?wr_view=rssi"><#WRDeviceStatus_rssi-title#></a></nav><section id="wr-connected-devices"'+attributes+'></section><section id="wr-roaming-history"'+state_attributes+history_attributes+'></section><section id="wr-rssi-history"'+state_attributes+rssi_attributes+'></section><iframe id="statusframe"></iframe>'
  dictionary='\n'+''.join('WRDeviceStatus_'+key+'=fixture label\n' for key in keys)
  dictionaries={}
  for column,locale in enumerate(('EN','UK','RU')):
   content=dictionary
-  for key,values in {**rssi_labels,**history_labels}.items():
+  for key,values in {**rssi_labels,**history_labels,'home':('Home','На головну','На главную')}.items():
    content=content.replace('WRDeviceStatus_'+key+'=fixture label\n','WRDeviceStatus_'+key+'='+values[column]+'\n')
   dictionaries[locale]=content
   (www/(locale+'.dict')).write_text(content,encoding='utf-8')

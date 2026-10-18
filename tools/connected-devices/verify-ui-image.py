@@ -14,7 +14,7 @@ page = (www / 'index.asp').read_text(encoding='utf-8')
 assert page.count('id="wr-connected-devices"') == 1
 connected_tags=re.findall(r'<section\b[^>]*id="wr-connected-devices".*?</section>',page,re.S)
 assert len(connected_tags)==1
-keys=('state-current','state-stale','state-unavailable','state-updating','state-paused','state-stopped','last-observations','source-networkmap','source-radio','source-initialization','title','description','retry','source-time-unavailable','empty','no-match','source-time')
+keys=('state-current','state-stale','state-unavailable','state-updating','state-paused','state-stopped','last-observations','source-networkmap','source-radio','source-initialization','title','description','retry','source-time-unavailable','empty','no-match','source-time','home')
 keys+=('column-device','column-connection','column-category','column-confidence','connection-associated','connection-last','connection-seen','connection-unknown','confidence-unknown','confidence-possible','confidence-high','confidence-manufacturer','confidence-user','unnamed','classification-none','last-evidence')
 keys+=('network-primary','network-guest','network-iot','network-unknown','category-all','category-unknown','category-tv','notice-truncated','notice-invalid','evidence-android-host','evidence-android-dhcp','evidence-windows-host','evidence-windows-dhcp','evidence-tv-host','evidence-conflict','evidence-manual','evidence-manufacturer')
 rssi_labels=json.loads((local/'rssi-labels.json').read_text(encoding='utf-8'))
@@ -26,8 +26,12 @@ keys+=history_keys
 for section in ('wr-roaming-history','wr-rssi-history'):
     tags=re.findall(r'<section\b[^>]*id="'+section+r'".*?</section>',page,re.S)
     assert len(tags)==1,section
-    for key in keys[:7]+(rssi_keys if section=='wr-rssi-history' else history_keys):
+    for key in keys[:7]+('home',)+(rssi_keys if section=='wr-rssi-history' else history_keys):
         assert 'data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' in tags[0],(section,key)
+launcher=re.search(r'<nav\b[^>]*id="wr-observation-launcher".*?</nav>',page,re.S)
+assert launcher, 'Compact observation launcher is missing'
+for view in ('devices','history','rssi'):
+    assert 'wr_view='+view in launcher.group() and 'target="_blank"' in launcher.group() and 'rel="noopener noreferrer"' in launcher.group(), view
 for key in keys:
     assert 'data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' in connected_tags[0],key
     for column,locale in enumerate(('EN','UK','RU')):
@@ -36,7 +40,7 @@ for key in keys:
                   (www/(locale+'.dict')).read_text(encoding='utf-8').splitlines()
                   if line.startswith(prefix)]
         assert len(values) == 1 and values[0] and '<#' not in values[0], (locale,key,'missing, duplicate or unresolved label')
-        expected={**rssi_labels,**history_labels}.get(key)
+        expected={**rssi_labels,**history_labels,'home':('Home','На головну','На главную')}.get(key)
         if expected is not None:
             assert values[0]==expected[column].strip(),(locale,key,'shipped translation differs from source')
 assert 'id="statusframe"' in page
@@ -57,6 +61,8 @@ assert b'wr_devices.json' in daemon
 assert b'wr_roaming.json' in daemon
 assert b'wr_rssi.json' in daemon
 assert page.count('id="wr-rssi-history"') == 1
+boot=(www/'wr-device-boot.js').read_text(encoding='utf-8')
+assert all(token in boot for token in ('wr_view=','wr-observation-detail','mounted.stop()'))
 # Actual HTTP binary must contain the background endpoint, verified producer
 # paths and separate command-evidence serializer, not just the old route.
 for marker in (b'/var/run/wr-device-observer/actions', b'/var/run/wr-band-steering.lock',

@@ -799,12 +799,13 @@ while recording this feedback.
 
 ### Compact full-page navigation — owner feedback, 2026-10-18
 
-The owner requests three small controls instead of a wide, space-consuming
-service panel. Selecting a control should navigate to that service's full page;
-normal browser Back navigation must return to the previous page so another
-service can then be selected. Keep this as a full-page navigation flow rather
-than embedding several full settings pages in one oversized panel. The supplied
-screenshot shows Wi-Fi observation/history panels, while the surrounding
-discussion also mentioned the three Stubby, DoH and Privoxy links; the exact
-three controls to compact is unresolved and must be confirmed before changing
-the layout. No live device changes are authorized by this UI feedback.
+Clarification from the owner: apply this to both sets. First, make the Stubby,
+DoH and Privoxy service links compact and open their full settings pages in a
+separate browsing context. Second, replace the three large homepage observation
+panels (connected devices, Wi-Fi history/Band Steering actions, and RSSI Kick
+driver events) with compact controls; each opens its complete read-only view in
+a separate browsing context so the router homepage remains compact. Keep the
+normal browser Back control and provide an obvious route back to the homepage.
+Use full-page navigation rather than embedding these full views into an
+oversized homepage panel. No live device changes are authorized by this UI
+feedback.

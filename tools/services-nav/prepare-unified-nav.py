@@ -78,7 +78,10 @@ def rendered_groups(www: Path, config: set[str]) -> str:
                 if enabled(config, capability):
                     raise SystemExit(f"Enabled service route is missing: {route}")
                 continue
-            links.append(f'<a class="wr-service-link" href="/{html.escape(route, quote=True)}"><#{label_key}#></a>')
+            separate = label_key in {"WRServicesNavStubby", "WRServicesNavDoH", "WRServicesNavPrivoxy"}
+            new_context = ' target="_blank" rel="noopener noreferrer"' if separate else ""
+            link_class = "wr-service-link wr-service-link--new-context" if separate else "wr-service-link"
+            links.append(f'<a class="{link_class}" href="/{html.escape(route, quote=True)}"{new_context}><#{label_key}#></a>')
         if links:
             chunks.append('<div class="wr-service-group"><strong><#' + heading + '#></strong>' + "".join(links) + "</div>")
     if not chunks:
@@ -102,6 +105,7 @@ def inject(path: Path, nav: str) -> None:
 .wr-service-group { display:flex; min-width:0; flex-wrap:wrap; align-items:center; gap:5px; padding:3px 6px; border-right:1px solid #ccc; }
 .wr-service-group strong { color:#555; margin-right:3px; }
 .wr-service-link { display:inline-block; padding:4px 7px; border:1px solid #ccc; border-radius:3px; background:#fff; white-space:nowrap; }
+.wr-service-link--new-context { padding:3px 6px; font-size:12px; }
 .wr-service-link[aria-current="page"] { color:#fff; background:#0878c9; border-color:#0878c9; }
 @media (max-width: 900px) { .wr-service-nav { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media (max-width: 520px) { .wr-service-nav { grid-template-columns:minmax(0,1fr); } .wr-service-group { border-right:0; } }
@@ -144,6 +148,13 @@ def verify(www: Path, config: set[str], *, image: bool = False) -> None:
                 raise SystemExit("Legacy DNS/Privoxy links remain outside the unified navigation")
             if "grid-template-columns:repeat(3,minmax(0,1fr))" not in text:
                 raise SystemExit("Unified service navigation is missing its two-row desktop grid")
+        nav_html = text[text.index(MARKER):text.index("</nav>", text.index(MARKER))]
+        for link_id, route in (("WRServicesNavStubby", "Advanced_Services_DoT.asp"),
+                               ("WRServicesNavDoH", "Advanced_Services_DoH.asp"),
+                               ("WRServicesNavPrivoxy", "Advanced_Services_Privoxy.asp")):
+            anchor = f'href="/{route}" target="_blank" rel="noopener noreferrer"><#{link_id}#></a>'
+            if f'<#{link_id}#></a>' in nav_html and anchor not in nav_html:
+                raise SystemExit(f"{link_id} must open its full page separately")
         for match in re.finditer(r'href="/([^"#]+)(?:#([^"]*))?"', text[text.index(MARKER):text.index("</nav>", text.index(MARKER))]):
             route, fragment = match.groups()
             target = www / route

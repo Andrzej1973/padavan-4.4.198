@@ -41,7 +41,7 @@ try:
     includes = '<link rel="stylesheet" href="/wr-device-homepage.css">\n'
     includes += ''.join('<script src="/wr-device-' + name + '.js"></script>\n' for name in assets)
     keys=['state-current','state-stale','state-unavailable','state-updating','state-paused','state-stopped','last-observations','source-networkmap','source-radio','source-initialization']
-    keys+=['title','description','retry','source-time-unavailable','empty','no-match','source-time']
+    keys+=['title','description','retry','source-time-unavailable','empty','no-match','source-time','home']
     keys+=['column-device','column-connection','column-category','column-confidence','connection-associated','connection-last','connection-seen','connection-unknown','confidence-unknown','confidence-possible','confidence-high','confidence-manufacturer','confidence-user','unnamed','classification-none','last-evidence']
     keys+=['network-primary','network-guest','network-iot','network-unknown','category-all','category-unknown','category-tv','notice-truncated','notice-invalid','evidence-android-host','evidence-android-dhcp','evidence-windows-host','evidence-windows-dhcp','evidence-tv-host','evidence-conflict','evidence-manual','evidence-manufacturer']
     rssi_keys=list(json.loads((local/'rssi-labels.json').read_text(encoding='utf-8')))
@@ -49,8 +49,14 @@ try:
     history_keys=list(json.loads((local/'history-labels.json').read_text(encoding='utf-8')))
     keys+=history_keys
     attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in keys)
-    section = '\n                <section id="wr-connected-devices" class="well" aria-label="Connected devices"'+attributes+'></section>'
-    state_attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in keys[:7])
+    launcher='''
+                <nav id="wr-observation-launcher" class="wr-observation-launcher" aria-label="Wi-Fi observations">
+                    <a class="wr-observation-link" target="_blank" rel="noopener noreferrer" href="/index.asp?wr_view=devices"><#WRDeviceStatus_title#><span aria-hidden="true"> ↗</span></a>
+                    <a class="wr-observation-link" target="_blank" rel="noopener noreferrer" href="/index.asp?wr_view=history"><#WRDeviceStatus_history-title#><span aria-hidden="true"> ↗</span></a>
+                    <a class="wr-observation-link" target="_blank" rel="noopener noreferrer" href="/index.asp?wr_view=rssi"><#WRDeviceStatus_rssi-title#><span aria-hidden="true"> ↗</span></a>
+                </nav>'''
+    section = launcher+'\n                <section id="wr-connected-devices" class="well" aria-label="Connected devices"'+attributes+'></section>'
+    state_attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in keys[:7]+['home'])
     history_attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in history_keys)
     section += '\n                <section id="wr-roaming-history" class="well" aria-label="Wi-Fi history"'+state_attributes+history_attributes+'></section>'
     rssi_attributes=''.join(' data-wr-'+key+'="<#WRDeviceStatus_'+key+'#>"' for key in rssi_keys)
