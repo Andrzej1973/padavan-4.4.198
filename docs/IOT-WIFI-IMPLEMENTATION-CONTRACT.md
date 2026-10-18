@@ -67,5 +67,6 @@ Local Python syntax validation passed; the privileged namespace test requires
 Linux CI. The first run, `39102134653`, failed before applying any firewall
 rules because the fixture passed an unnecessary fourth argument to its TCP
 server helper. The original job log and `build_log.nim` triage confirm this
-test-harness error; the call has been corrected, and a rerun is pending. No
-packet-policy conclusion can be drawn from the failed run.
+test-harness error; commit `efe3539` corrects the call, and rerun
+`39102351326` is in progress. No packet-policy conclusion can be drawn from
+the failed run.
