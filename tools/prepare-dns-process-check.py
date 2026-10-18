@@ -11,6 +11,7 @@ tree = ast.parse(Path(__file__).with_name('prepare-dns-process-status.py').read_
 code = next(ast.literal_eval(n.value) for n in tree.body if isinstance(n, ast.Assign)
             and any(isinstance(t, ast.Name) and t.id == 'code' for t in n.targets))
 prefix = r'''
+#define _GNU_SOURCE
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
@@ -26,7 +27,7 @@ static const char *nvram_safe_get(const char *key){unsigned index;assert(sscanf(
 static struct wr_doh_instances mock_doh_observe(unsigned configured,const char *pids_root,const char *proc_root){assert(configured==configured_mask);assert(!strcmp(pids_root,"/var/run/doh-proxy")&&!strcmp(proc_root,"/proc"));slots.configured=configured;return slots;}
 #define wr_doh_observe mock_doh_observe
 static int mock_access(const char *path,int mode) {assert(!strcmp(path,"/proc/self/stat"));assert(mode==R_OK);return unavailable;}
-static int pids(char *name) {assert(!strcmp(name,"stubby")||!strcmp(name,"https_dns_proxy"));return present;}
+static int wr_process_present(const char *name) {assert(!strcmp(name,"stubby")||!strcmp(name,"https_dns_proxy"));return present;}
 static int nvram_get_int(const char *key) {assert(!strcmp(key,"stubby_enable")||!strcmp(key,"doh_enable"));return requested;}
 static int websWrite(webs_t wp,const char *format,...) {
  va_list args;int result;(void)wp;va_start(args,format);

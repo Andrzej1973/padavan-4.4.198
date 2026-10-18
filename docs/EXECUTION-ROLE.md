@@ -4,6 +4,16 @@
 
 ## Актуальний checkpoint — 2026-10-18
 
+Service CI #236 (`39126754304`, `0b6a8a0`) упав на кроці
+`Execute patched RC failure paths`: згенерований `dns-process.c` після переходу
+HTTP adapter-а з `pids()` на `wr_process_present()` не містив mock визначення
+нової функції, а старий mock став unused під `-Werror`. Попередні кроки job
+пройшли. `tools/prepare-dns-process-check.py` виправлено: fixture надає mock
+`wr_process_present()` і прибирає застарілий `pids()`. Генератор, Python AST,
+DNS refresh і `git diff --check` локально пройшли; C/ASan потребує повтору на
+Linux Service CI (локальний MinGW не надає потрібних POSIX API). Перезапуск CI
+піде з виправленим commit після push.
+
 Найновіша успішна повна збірка WR1200JS — #465, run `39122905943`, commit
 `1ec907d`; jobs `select`, `build (wr1200js)`, `firmware-zip` і `downloads`
 успішні. Exact-image BusyBox звіт перевірив версію 1.24.2, 57 скриптів,
