@@ -16,6 +16,10 @@ try:
         name in config for name in ('CONFIG_FIRMWARE_INCLUDE_DROPBEAR=y',
                                     'CONFIG_FIRMWARE_INCLUDE_OPENSSH=y'))
     page = (root / 'www/Advanced_Services_Content.asp').read_text()
+    checks['observation_expiry_ui'] = all(marker in page for marker in (
+        'var wrSSHGeneration = 0', 'generation === wrSSHGeneration',
+        '}, 45000)', "document.addEventListener('visibilitychange'",
+        'Date.now() - wrSSHSampledAt >= 45000', 'Math.floor(state) === state'))
     ui_markers = ('wr_ssh_process_status', 'wrSSHRefresh',
                   "output:'wr_ssh_process_state'", 'document.hidden',
                   'window.setInterval(wrSSHRefresh, 30000)',

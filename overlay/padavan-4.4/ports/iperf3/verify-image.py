@@ -14,6 +14,10 @@ try:
     config = (args.trunk / '.config').read_text().splitlines()
     checks['selector'] = 'CONFIG_FIRMWARE_INCLUDE_IPERF3=y' in config
     page = (root / 'www/Advanced_Services_Content.asp').read_text()
+    checks['observation_expiry_ui'] = all(marker in page for marker in (
+        'var wrIperf3Generation = 0', 'generation === wrIperf3Generation',
+        '}, 45000)', "document.addEventListener('visibilitychange'",
+        'Date.now() - wrIperf3SampledAt >= 45000', 'Math.floor(state) === state'))
     ui_markers = ('wr_iperf3_process_status', 'wrIperf3Refresh',
                   "output:'wr_iperf3_process_state'", 'document.hidden',
                   'window.setInterval(wrIperf3Refresh, 30000)',

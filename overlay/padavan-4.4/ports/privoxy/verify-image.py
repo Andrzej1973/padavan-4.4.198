@@ -46,6 +46,10 @@ try:
     checks['seed_configs'] = all(target('/usr/share/privoxy/privoxy/' + name).is_file() for name in names)
     checks['templates'] = target('/usr/share/privoxy/templates').is_dir()
     page = target('/www/Advanced_Services_Privoxy.asp').read_text()
+    checks['observation_expiry_ui'] = all(marker in page for marker in (
+        'var wrPrivoxyGeneration = 0', 'generation === wrPrivoxyGeneration',
+        '}, 45000)', "document.addEventListener('visibilitychange'",
+        'Date.now() - wrPrivoxySampledAt >= 45000', 'Math.floor(state) === state'))
     checks['webui'] = 'found_app_privoxy()' in page and 'login_safe()' in page and all('privoxy.' + name in page for name in ['config', 'user.action', 'user.filter', 'user.trust'])
     source_page = (args.trunk / 'user/www/n56u_ribbon_fixed/Advanced_Services_Privoxy.asp').read_text()
     checks['services_menu_index'] = 'show_menu(5,7,2)' in source_page
