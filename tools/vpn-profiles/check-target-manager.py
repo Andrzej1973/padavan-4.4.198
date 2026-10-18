@@ -3,6 +3,7 @@
 import argparse
 import ast
 import base64
+import fcntl
 import hashlib
 import json
 import os
@@ -38,7 +39,7 @@ with tempfile.TemporaryDirectory(prefix='wrvpn-mips-manager-') as temporary:
   digest=hashlib.sha256(source.read_bytes()).hexdigest()
   assert hashlib.sha256(target.read_bytes()).hexdigest()==digest
   report['binaries'][relative]=digest
- for relative in ('etc/storage','dev','proc','tmp'):(jail/relative).mkdir(parents=True,exist_ok=True)
+ for relative in ('etc/storage','var/run','dev','proc','tmp'):(jail/relative).mkdir(parents=True,exist_ok=True)
  (jail/'etc/storage').chmod(0o700)
  command=[proot,'-r',str(jail),'-q',qemu,'-b','/dev/null','-b','/proc','-w','/','/usr/sbin/wr-vpn-profile']
  env=dict(os.environ,PROOT_NO_SECCOMP='1',LC_ALL='C')
@@ -109,6 +110,13 @@ with tempfile.TemporaryDirectory(prefix='wrvpn-mips-manager-') as temporary:
  assert run('restored-edited-profile-export',['export','2'])==edited.encode()
  assert run('restored-list-retains-deletion',['list'])==b'2\tWG2\t2\n'
  assert not run('restored-tombstone-refuses-reuse',['create','1',protocol],first,5)
+ with (jail/'var/run/wrvpn/.mutation-2').open('r+') as held:
+  fcntl.flock(held,fcntl.LOCK_EX|fcntl.LOCK_NB)
+  for action in ('edit','delete','up','down','apply'):
+   assert not run('target-mutation-lock-'+action,[action,'2'],base if action=='edit' else '',4)
+  assert run('target-read-only-while-mutation-locked',['export','2'])==edited.encode()
+  assert run('target-other-ID-while-locked',['create','30','wireguard'],base)==b'saved\t30\t1\n'
+ assert run('target-other-ID-cleanup',['delete','30'])==b'deleted\t30\t2\n'
  report['private_modes_passed']=True
  report['profiles_unchanged_after_rejections']=True
  report['case_count']=len(report['cases'])

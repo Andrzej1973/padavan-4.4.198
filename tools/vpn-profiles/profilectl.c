@@ -19,6 +19,7 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <sys/socket.h>
+#include <sys/file.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <time.h>
@@ -504,9 +505,29 @@ static int wr_plan(int root,unsigned int id)
     free(text);
     return result;
 }
+/* Hold across record reads, validation and runtime transitions. Runtime and
+ * store locks remain internal and are acquired only after this outer lock.
+ * Distinct IDs use distinct locks; read-only commands do not acquire one. */
+static int mutation_lock(unsigned int id,int *held)
+{
+    int directory,fd,busy;char name[32];struct stat st;
+    if (mkdir(WR_VPN_RUNTIME_ROOT,0700) && errno!=EEXIST) return 3;
+    directory=wr_vpn_store_open(WR_VPN_RUNTIME_ROOT);
+    if (directory<0) return 3;
+    snprintf(name,sizeof(name),".mutation-%u",id);
+    fd=openat(directory,name,O_RDWR|O_CREAT|O_NOFOLLOW|O_CLOEXEC|O_NONBLOCK,0600);
+    close(directory);
+    if(fd<0) return 3;
+    if(fstat(fd,&st) || !S_ISREG(st.st_mode) || st.st_uid!=geteuid() ||
+       st.st_nlink!=1 || (st.st_mode&0777)!=0600) {close(fd);return 3;}
+    if(flock(fd,LOCK_EX|LOCK_NB)) {
+        busy=errno==EWOULDBLOCK || errno==EAGAIN;close(fd);return busy?4:3;
+    }
+    *held=fd;return 0;
+}
 int main(int argc,char **argv)
 {
-    unsigned int id=0; int root,result; const char *protect=NULL;
+    unsigned int id=0; int root,result,mutation=-1; const char *protect=NULL;
     uint64_t edit_expected=0;
     enum wr_vpn_protocol protocol=WR_VPN_WIREGUARD;
     umask(077);
@@ -538,6 +559,11 @@ int main(int argc,char **argv)
     } else if (!(argc==2 && !strcmp(argv[1],"list"))) return 2;
     if (mkdir(WR_VPN_STORE_ROOT,0700) && errno!=EEXIST) return 3;
     root=wr_vpn_store_open(WR_VPN_STORE_ROOT); if (root<0) return 3;
+    if(strcmp(argv[1],"list") && strcmp(argv[1],"export") &&
+       strcmp(argv[1],"observe") && strcmp(argv[1],"plan")) {
+        result=mutation_lock(id,&mutation);
+        if(result) {close(root);return result;}
+    }
     if (!strcmp(argv[1],"create")) result=wr_create(root,id,protocol);
     else if (!strcmp(argv[1],"export")) result=wr_export(root,id);
     else if (!strcmp(argv[1],"delete")) result=wr_delete(root,id);
@@ -548,5 +574,6 @@ int main(int argc,char **argv)
     else if (!strcmp(argv[1],"up")) result=wr_up(root,id,protect);
     else if (!strcmp(argv[1],"down")) result=wr_down(root,id);
     else result=wr_list(root);
+    if(mutation>=0) close(mutation);
     close(root); return result;
 }

@@ -3,6 +3,7 @@
 import argparse
 import ast
 import base64
+import fcntl
 import json
 import os
 from pathlib import Path
@@ -116,7 +117,7 @@ int main(void){int fd;for(fd=3;fd<4096;fd++){errno=0;if(fcntl(fd,F_GETFD)!=-1 ||
  http_prefix=next(ast.literal_eval(n.value) for n in http_tree.body if isinstance(n,ast.Assign)
   and any(isinstance(t,ast.Name) and t.id=='PREFIX' for t in n.targets))
  http_source=root/'http-real-create.c';http_exe=root/'http-real-create'
- runtime_before={str(f.relative_to(root/'run')):f.read_bytes() for f in (root/'run').rglob('*') if f.is_file()}
+ runtime_before={str(f.relative_to(root/'run')):f.read_bytes() for f in (root/'run').rglob('*') if f.is_file() and not f.name.startswith('.mutation-')}
  http_source.write_text(http_prefix+'\n#include "vpn-profiles.inc"\n#include "vpn-profiles-action.inc"\n#include "vpn-profiles-create.inc"\n#include "vpn-profiles-edit.inc"\n#include "vpn-profiles-observe.inc"\n'+r'''
 static void submit(const char *id,const char *protocol,const char *config,int success)
 {
@@ -168,7 +169,16 @@ int main(void)
  assert '10\tWG10\t2' in run(['list']).splitlines()
  assert not (store/'12').exists()
  assert all((store/id).read_bytes()==data for id,data in before.items())
- assert {str(f.relative_to(root/'run')):f.read_bytes() for f in (root/'run').rglob('*') if f.is_file()}==runtime_before
+ assert {str(f.relative_to(root/'run')):f.read_bytes() for f in (root/'run').rglob('*') if f.is_file() and not f.name.startswith('.mutation-')}==runtime_before
+ with (root/'run/.mutation-2').open('r+') as held:
+  fcntl.flock(held,fcntl.LOCK_EX|fcntl.LOCK_NB)
+  for action in ('edit','delete','up','down','apply'):
+   assert not run([action,'2'],wg if action=='edit' else '',4)
+  assert run(['export','2'])==edited
+  assert run(['create','20','wireguard'],wg)=='saved\t20\t1\n'
+  assert run(['delete','20'])=='deleted\t20\t2\n'
+ assert run(['export','2'])==edited
+ print('PASS outer per-ID mutation lock: competing edit/delete/up/down/apply refused; read-only export and a different ID remain usable')
  print('PASS real HTTP create/edit to manager/native validators/store: independent WG/AWG records, exact exports, revision increment, stale/invalid refusal, neighboring records preserved; no activation')
  # Fixed validator path failure must not save or expose a profile.
  validators['wg'].unlink()

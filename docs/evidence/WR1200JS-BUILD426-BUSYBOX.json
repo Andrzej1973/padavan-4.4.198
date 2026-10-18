@@ -1,0 +1,26 @@
+{
+  "commit": "fef0a4ecd0cdbc238ba71f0005c32e7d5d8ffd3c",
+  "runtime_verified": false,
+  "checks": {
+    "applet_inventory": true,
+    "shell_type_builtin": true,
+    "mwan_shell_arithmetic": true,
+    "all_discovered_shell_syntax": true,
+    "command_v_supported_or_avoided": true,
+    "vpn_storage_helper_directory": true,
+    "vpn_storage_chmod_private": true,
+    "vpn_storage_helper_absent_noop": true,
+    "vpn_storage_helper_symlink_refused": true,
+    "vpn_storage_helper_file_refused": true,
+    "readlink_follow_exact_options": true,
+    "readlink_follow_config": true,
+    "usbip_hexdump_exact_options": true,
+    "flock_contention_refused": true,
+    "flock_descriptor_options": true
+  },
+  "config_sha256": "8403b8eb2ce3039f096dabe8625cacf625c6f483c7eef96389cb7fa9426a843e",
+  "build": 426,
+  "run": "https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/39094595298",
+  "busybox_sha256": "1ee81626cc8f0b0f72cca4842b7a2d793e0c22d9519a57ef8b6e2be4cb6fa2a2",
+  "whole_service_audit_complete": false
+}
