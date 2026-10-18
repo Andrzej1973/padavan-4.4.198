@@ -10,7 +10,7 @@ const page = fs.readFileSync(file, "utf8");
 const start = page.indexOf("function wrSSProcessRender(kind, state)");
 const end = page.indexOf("var wrSSProcessBusy", start);
 if (start < 0 || end < 0) throw new Error("status renderer not found in prepared page");
-const source = page.slice(start, end).replace(/<#(WRSS(?:Off|Present|Missing|Unknown|StillPresent|ObservedAt))#>/g,
+const source = page.slice(start, end).replace(/<#(WRSS(?:Off|Present|Missing|Unknown|StillPresent|ObservedAt|NoObservation))#>/g,
   (_, key) => key);
 const elements = {
   wr_ss_redir_state: {textContent: "", className: ""},
@@ -46,6 +46,11 @@ for (const [state, label, color] of cases) {
   if (elements.wr_ss_redir_state.textContent !== label ||
       !elements.wr_ss_redir_state.className.endsWith(color)) {
     throw new Error(`wrong rendering for state ${String(state)}: ${JSON.stringify(elements.wr_ss_redir_state)}`);
+  }
+  const valid = typeof state === "number" && Number.isInteger(state) && state >= 0 && state < 5;
+  const expectedTime = valid ? "WRSSObservedAt " : "WRSSNoObservation";
+  if (!elements.wr_ss_redir_time.textContent.startsWith(expectedTime)) {
+    throw new Error(`stale or missing observation time for state ${String(state)}: ${elements.wr_ss_redir_time.textContent}`);
   }
 }
 if (!timers.length || timers.some((timer) => timer.ms !== 45000)) {

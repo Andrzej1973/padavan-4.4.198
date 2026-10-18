@@ -69,8 +69,9 @@ new = '''\t\tfunction wrSSProcessRender(kind, state) {
 \t\t\tnode.textContent = valid ? labels[state] : labels[3];
 \t\t\tnode.className = 'label label-' + (active ? 'success' : 'warning');
 \t\t\twrSSProcessSampledAt[kind] = valid ? Date.now() : 0;
+\t\t\tvar observed = document.getElementById(timeId);
+\t\t\tif (!valid && observed) observed.textContent = '<#WRSSNoObservation#>';
 \t\t\tif (valid) {
-\t\t\t\tvar observed = document.getElementById(timeId);
 \t\t\t\tif (observed) observed.textContent = '<#WRSSObservedAt#> ' + new Date().toLocaleTimeString();
 \t\t\t\tvar generation = ++wrSSProcessGeneration[kind];
 \t\t\t\twindow.setTimeout(function() {

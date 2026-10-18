@@ -13,7 +13,8 @@ start = page.index("function wrSSProcessRender(kind, state)")
 end = page.index("function fill_ss_external_status()", start)
 function = page[start:end]
 function_required = ("state === 1", "active ? 'success' : 'warning'",
-                     "typeof state === 'number'", "state < labels.length")
+                     "typeof state === 'number'", "state < labels.length",
+                     "if (!valid && observed) observed.textContent = '<#WRSSNoObservation#>'")
 missing_function = [item for item in function_required if item not in function]
 if missing_function:
     raise SystemExit("Shadowsocks state renderer missing: " + ", ".join(missing_function))
