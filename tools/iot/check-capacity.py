@@ -115,7 +115,7 @@ def main():
 
         result = subprocess.run(
             [str(args.compiler.resolve()), *filtered, '-E', '-dM'],
-            cwd=root, text=True, capture_output=True,
+            cwd=root, text=True, capture_output=True, timeout=60,
         )
         if result.returncode:
             raise RuntimeError('Target preprocessing failed: ' + result.stderr[-2000:])
@@ -218,7 +218,7 @@ def main():
             report['source_config_allows_three_bss']
             if args.require_three_bss else None
         )
-    except (OSError, RuntimeError, ValueError) as error:
+    except (OSError, RuntimeError, ValueError, subprocess.TimeoutExpired) as error:
         report['error'] = str(error)
         if args.require_three_bss:
             report['three_bss_requirement_satisfied'] = False

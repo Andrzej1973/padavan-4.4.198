@@ -8,6 +8,8 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import runpy
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -132,6 +134,28 @@ def run_unavailable_case(base, fault, required):
     assert expected_error in report['error'], report
 
 
+def run_timeout_case(base):
+    kernel = make_fixture(base, 'mt76x3', 16)
+    output = base / 'report.json'
+    args = [str(CHECKER), str(kernel), 'mt76x3', '--compiler', COMPILER,
+            '--output', str(output), '--require-three-bss']
+    with patch.object(sys, 'argv', args), patch.object(
+            subprocess, 'run', side_effect=subprocess.TimeoutExpired('compiler', 60)) as compiler:
+        try:
+            runpy.run_path(str(CHECKER), run_name='__main__')
+        except SystemExit as error:
+            assert error.code == 1, error
+        else:
+            raise AssertionError('Required gate accepted a compiler timeout')
+        assert compiler.call_args.kwargs['timeout'] == 60
+    report = json.loads(output.read_text(encoding='utf-8'))
+    assert report['probe_status'] == 'unavailable', report
+    assert report['three_bss_requirement_satisfied'] is False, report
+    assert report['capacity_source_verified'] is False, report
+    assert report['runtime_verified'] is False, report
+    assert 'timed out' in report['error'], report
+
+
 with tempfile.TemporaryDirectory(prefix='iot-capacity-selftest-') as temporary:
     root = Path(temporary)
     run_case(root / 'mt76x3-pass', 'mt76x3', 16, True, 0)
@@ -141,6 +165,7 @@ with tempfile.TemporaryDirectory(prefix='iot-capacity-selftest-') as temporary:
     for fault in ('missing-command', 'ambiguous-command', 'wrong-compiler'):
         for required in (False, True):
             run_unavailable_case(root / f'{fault}-{required}', fault, required)
+    run_timeout_case(root / 'compiler-timeout')
 
 print('PASS IoT capacity probe MT76x2/MT7603 source checks and required-limit failure')
 print('PASS missing/ambiguous Kbuild and unavailable compiler refuse required capacity')
