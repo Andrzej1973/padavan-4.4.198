@@ -45,6 +45,7 @@ int main(void) {
   check(names[i],0,0,0,"0");check(names[i],1,1,0,"1");
   check(names[i],1,0,0,"2");check(names[i],0,1,0,"4");
   check(names[i],1,1,1,"3");check(names[i],0,0,1,"3");
+  check(names[i],1,-1,0,"3");check(names[i],0,-1,0,"3");
  }
  ej_wr_dns_process_state(0,NULL,1,invalid);assert(!strcmp(observed,"3"));
  ej_wr_dns_process_state(0,NULL,0,NULL);assert(!strcmp(observed,"3"));
@@ -53,6 +54,8 @@ int main(void) {
  assert(!strcmp(observed,"{\"state\":1,\"requested\":1,\"configuredMask\":5,\"ownedMask\":1,\"unknownMask\":0,\"duplicateMask\":0}"));
  requested=0;slots.owned=5;slots.unknown=2;slots.duplicate=2;
  ej_wr_doh_instance_state(0,NULL,0,NULL);assert(strstr(observed,"\"state\":4")&&strstr(observed,"\"unknownMask\":2")&&strstr(observed,"\"duplicateMask\":2"));
+ present=-1;ej_wr_doh_instance_state(0,NULL,0,NULL);assert(strstr(observed,"\"state\":3"));
+ present=1;
  unavailable=1;ej_wr_doh_instance_state(0,NULL,0,NULL);assert(strstr(observed,"\"state\":3")&&strstr(observed,"\"unknownMask\":15")&&strstr(observed,"\"ownedMask\":0"));
  ej_wr_doh_instance_state(0,NULL,1,invalid);assert(!strcmp(observed,"{\"error\":\"invalid_request\"}"));
  puts("PASS DNS process observations; DNS/TLS functionality not inferred");return 0;
