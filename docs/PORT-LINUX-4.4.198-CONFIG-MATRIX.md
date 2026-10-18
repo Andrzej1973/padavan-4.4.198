@@ -1,14 +1,14 @@
 # WR1200JS Linux 4.4.198: configuration migration status
 
-Updated 2026-10-03. Authoritative development location: Andrzej1973/padavan-4.4.198, main. This replaces the initial symbol audit; its old option counts and preliminary absent-package list are no longer current.
+Updated 2026-10-18. Authoritative development location: Andrzej1973/padavan-4.4.198, main. This replaces the initial symbol audit; its old option counts and preliminary absent-package list are no longer current.
 
 ## Configuration preservation
 
 The central policy is [configs.build/wr1200js.config](../configs.build/wr1200js.config). The WR workflow prepares the pinned target and captures firmware-effective.config and kernel-effective.config before compiling isolated diagnostic candidates.
 
-[tools/verify-wr1200js-config.py](../tools/verify-wr1200js-config.py) compares requested firmware selectors against those effective configs. It fails on mismatches, reports disabled missing selectors as not enabled, checks target identity and kernel radio-family selection, and records the CPU_SLEEP request as port_pending. Shortcut FE/SFE and Shadowsocks mode/umbrella mappings are explicit. The report checks configuration, not binary contents, runtime behavior or complete port success. Package/image gates remain separate.
+[tools/verify-wr1200js-config.py](../tools/verify-wr1200js-config.py) compares requested firmware selectors against those effective configs. It fails on mismatches, reports disabled missing selectors as not enabled, checks target identity and kernel radio-family selection, and records CPU_SLEEP as `port_pending` only if a downstream profile re-adds it. The active `configs.build/wr1200js.config` does not select CPU_SLEEP, per [CPU frequency policy](CPU-FREQUENCY-POLICY.md). Shortcut FE/SFE and Shadowsocks mode/umbrella mappings are explicit. The report checks configuration, not binary contents, runtime behavior or complete port success. Package/image gates remain separate.
 
-This new gate was added after reference run 37135784110; its real CI execution is not yet proven.
+The config gate has subsequently been run in firmware CI. Current WR1200JS build #448, run [39104625566](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/39104625566) at `5dd2c80`, was still in progress at the 2026-10-18 checkpoint. Do not treat that run as a pass until its final result and artifacts are available.
 
 ## Build evidence
 
@@ -18,7 +18,6 @@ The recipe now includes board-specific partition/DTS files, USB2 support, IMQ/IF
 
 ## Explicit unfinished work
 
-- CPU_SLEEP remains requested in the central config but is not implemented in the main image. Only the isolated MT7621 systick kernel candidate has linked. Device integration/runtime validation remain required.
 - MT7603E/MT7612E kernel selections are checked; radio EEPROM calibration, actual bands and Wi-Fi/HWNAT stability need device evidence.
 - GPIO18 FN1 was added to the DTS in commit 684c2f03245968b0d3fe956751f2a5ee14f5d472. Compilation and physical polarity/action are pending.
 - Initial Privoxy editor rendering was corrected in commit b5983f04602ad3b3ba302e536cecf46acf5cc7bb. Compilation, browser save/start and LAN reachability are pending.
@@ -37,6 +36,6 @@ WR1200JS completion is primary. Mi Mini remains secondary. At the final delivery
 
 ## Device validation and preservation
 
-See [WR1200JS device readiness](WR1200JS-DEVICE-READINESS.md) and [project delivery scope](PROJECT-DELIVERY-SCOPE.md). Current router access is through an AmneziaWG tunnel with no physical recovery operator. No router flash/reboot or Linux 4.4 runtime validation has been performed here.
+See [WR1200JS device readiness](WR1200JS-DEVICE-READINESS.md) and [project delivery scope](PROJECT-DELIVERY-SCOPE.md). No router flash/reboot or Linux 4.4 runtime validation has been performed here. Confirm live management access and recovery arrangements before any device operation; old tunnel availability notes may be stale.
 
 Own-account source/archive preservation, complete dependency inventory, local backups and rebuild verification remain required; pinned external URLs alone do not complete that work.
