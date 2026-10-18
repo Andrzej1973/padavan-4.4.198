@@ -47,7 +47,7 @@ After reviewing that gap, the main firmware workflow was locally updated to
 require five final-ROMFS `sbin/rc` diagnostic markers: owned child exit,
 disabled apply reason, apply failure, boot profile write failure and shutdown
 OFF acknowledgement failure. A source-to-gate check and `git diff --check`
-passed. The full build #458 (`39118907721`, commit `deead1d`) has started, but
-its Band Steering source-preparation step is still running and the final
-ROMFS gate has not been reached. This is not evidence that the markers are
-present in #457 or in the installed build #396.
+passed. In full build #458 (`39118907721`, commit `deead1d`), Band Steering
+source preparation completed successfully and firmware compilation is in
+progress; the final ROMFS gate has not been reached. This is not evidence that
+the markers are present in #457 or in the installed build #396.

@@ -34,9 +34,11 @@ docs/evidence/WR1200JS-BAND-STEERING-RUNTIME-2026-10-18.md. Не змінюва�
 додано до build workflow п'ять перевірок діагностичних рядків у фінальному
 `romfs/sbin/rc`; локальна перевірка source-to-gate і diff пройшли. Повна
 збірка #458 (`39118907721`, commit `deead1d`) запущена; останній snapshot
-показав підготовку Band Steering у процесі, а firmware build і фінальний
-ROMFS gate ще не почалися. Точна наявність рядків у #457 лишається
-непідтвердженою.
+підтвердив успішну підготовку Band Steering; зараз виконується повний firmware
+build, а фінальний ROMFS gate ще не досягнуто. Точна наявність рядків у #457
+лишається непідтвердженою. Production IoT activation для `ra2` також залишається
+відкритою: ABI-перевірки staged bridge/profile/DHCP коду не є його інтеграцією
+чи runtime-доказом.
 
 ABI `39115399202` для `594d98b` успішний: зібраний MIPS код administrative
 ra2 UP і host-kernel fixture. Саме production radio reload/activation
