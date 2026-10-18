@@ -117,6 +117,19 @@ with tempfile.TemporaryDirectory(prefix='wrvpn-mips-manager-') as temporary:
   assert run('target-read-only-while-mutation-locked',['export','2'])==edited.encode()
   assert run('target-other-ID-while-locked',['create','30','wireguard'],base)==b'saved\t30\t1\n'
  assert run('target-other-ID-cleanup',['delete','30'])==b'deleted\t30\t2\n'
+ assert not run('target-mutation-lock-released',['edit','2'],'invalid configuration\n',2)
+ assert run('target-profile-unchanged-after-release',['export','2'])==edited.encode()
+ lock_path=jail/'var/run/wrvpn/.mutation-31'
+ outside_lock=jail/'tmp/outside-lock';outside_lock.write_bytes(b'unchanged');outside_lock.chmod(0o600)
+ lock_path.symlink_to('/tmp/outside-lock')
+ assert not run('target-mutation-symlink-refused',['create','31','wireguard'],base,3)
+ assert outside_lock.read_bytes()==b'unchanged' and not (store/'31').exists()
+ lock_path.unlink();os.link(outside_lock,lock_path)
+ assert not run('target-mutation-hardlink-refused',['create','31','wireguard'],base,3)
+ assert outside_lock.read_bytes()==b'unchanged' and not (store/'31').exists()
+ lock_path.unlink();lock_path.write_bytes(b'');lock_path.chmod(0o644)
+ assert not run('target-mutation-public-mode-refused',['create','31','wireguard'],base,3)
+ assert not (store/'31').exists();lock_path.unlink()
  report['private_modes_passed']=True
  report['profiles_unchanged_after_rejections']=True
  report['case_count']=len(report['cases'])

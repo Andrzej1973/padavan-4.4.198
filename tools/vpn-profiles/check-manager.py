@@ -178,6 +178,20 @@ int main(void)
   assert run(['create','20','wireguard'],wg)=='saved\t20\t1\n'
   assert run(['delete','20'])=='deleted\t20\t2\n'
  assert run(['export','2'])==edited
+ # Lock lifetime is the command, not the lifetime of the lock file.
+ assert not run(['edit','2'],'invalid configuration\n',2)
+ assert run(['export','2'])==edited
+ lock_path=root/'run/.mutation-21';outside_lock=root/'outside-lock'
+ outside_lock.write_bytes(b'unchanged');outside_lock.chmod(0o600)
+ lock_path.symlink_to(outside_lock)
+ assert not run(['create','21','wireguard'],wg,3)
+ assert outside_lock.read_bytes()==b'unchanged' and not (store/'21').exists()
+ lock_path.unlink();os.link(outside_lock,lock_path)
+ assert not run(['create','21','wireguard'],wg,3)
+ assert outside_lock.read_bytes()==b'unchanged' and not (store/'21').exists()
+ lock_path.unlink();lock_path.write_bytes(b'');lock_path.chmod(0o644)
+ assert not run(['create','21','wireguard'],wg,3)
+ assert not (store/'21').exists();lock_path.unlink()
  print('PASS outer per-ID mutation lock: competing edit/delete/up/down/apply refused; read-only export and a different ID remain usable')
  print('PASS real HTTP create/edit to manager/native validators/store: independent WG/AWG records, exact exports, revision increment, stale/invalid refusal, neighboring records preserved; no activation')
  # Fixed validator path failure must not save or expose a profile.
