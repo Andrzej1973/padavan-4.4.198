@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Run shipped MIPS manager, child validators and store inside an isolated PRoot."""
 import argparse
+import ast
 import base64
 import hashlib
 import json
@@ -29,7 +30,7 @@ with tempfile.TemporaryDirectory(prefix='wrvpn-mips-manager-') as temporary:
  for relative in ('lib','usr/lib'):
   source=image/relative
   if source.is_dir():shutil.copytree(source,jail/relative,symlinks=True,dirs_exist_ok=True)
- binaries=['usr/sbin/wr-vpn-profile','usr/libexec/wrvpn/validate-wg']
+ binaries=['usr/sbin/wr-vpn-profile','usr/libexec/wrvpn/validate-wg','bin/busybox']
  if a.amneziawg:binaries.append('usr/libexec/wrvpn/validate-awg')
  for relative in binaries:
   source=image/relative;target=jail/relative;target.parent.mkdir(parents=True,exist_ok=True)
@@ -75,6 +76,36 @@ with tempfile.TemporaryDirectory(prefix='wrvpn-mips-manager-') as temporary:
  assert run('list-after-delete',['list'])==b'2\tWG2\t2\n'
  for path in (store/'1',store/'2',store/'.lock'):assert path.stat().st_mode&0o777==0o600
  assert store.stat().st_mode&0o777==0o700
+ # File-only storage round trip with the shipped tar, shell and chmod.
+ # This operates only on synthetic records in the temporary PRoot jail.
+ helper_tree=ast.parse(Path(__file__).with_name('prepare-storage-permissions.py').read_text())
+ storage_helper=next(ast.literal_eval(n.value) for n in helper_tree.body
+                     if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='HELPER' for t in n.targets))
+ shipped_storage=image/'sbin/mtd_storage.sh'
+ assert storage_helper.strip() in shipped_storage.read_text(), 'shipped storage helper differs'
+ report['storage_script_sha256']=hashlib.sha256(shipped_storage.read_bytes()).hexdigest()
+ (jail/'bin/chmod').symlink_to('busybox')
+ repair=jail/'tmp/repair.sh'
+ repair.write_text(storage_helper+'\nfunc_wrvpn_private /etc/storage\n')
+ shell_command=command[:-1]+['/bin/busybox']
+ def storage_run(name,arguments):
+  result=subprocess.run([*shell_command,*arguments],capture_output=True,timeout=30,
+                        env=dict(env,PATH='/bin'))
+  assert result.returncode==0 and not result.stderr,(name,result.returncode,result.stderr)
+  report['cases'].append({'case':name,'passed':True})
+ snapshot={name:(store/name).read_bytes() for name in ('1','2','.lock')}
+ storage_run('target-file-only-archive',['sh','-c','cd /etc/storage && /bin/busybox tar cf /tmp/profiles.tar wrvpn/1 wrvpn/2 wrvpn/.lock'])
+ shutil.rmtree(store)
+ storage_run('target-file-only-extract',['sh','-c','umask 022; /bin/busybox tar xf /tmp/profiles.tar -C /etc/storage'])
+ assert store.stat().st_mode&0o777==0o755
+ assert not run('unrepaired-store-refused',['list'],'',3)
+ storage_run('target-storage-permission-repair',['sh','/tmp/repair.sh'])
+ assert store.stat().st_mode&0o777==0o700
+ assert all((store/name).read_bytes()==content and (store/name).stat().st_mode&0o777==0o600
+            for name,content in snapshot.items())
+ assert run('restored-edited-profile-export',['export','2'])==edited.encode()
+ assert run('restored-list-retains-deletion',['list'])==b'2\tWG2\t2\n'
+ assert not run('restored-tombstone-refuses-reuse',['create','1',protocol],first,5)
  report['private_modes_passed']=True
  report['profiles_unchanged_after_rejections']=True
  report['case_count']=len(report['cases'])
