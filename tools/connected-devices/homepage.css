@@ -11,4 +11,5 @@
 .wr-observation-link:hover, .wr-observation-link:focus { background:#e8f4fb; text-decoration:none; }
 #wr-observation-detail { box-sizing:border-box; min-height:100vh; margin:0; padding:16px; background:#262626; }
 #wr-observation-detail .wr-observation-back { display:inline-block; margin:0 0 10px; color:#0878c9; }
+#wr-observation-detail .wr-observation-home { display:inline-block; margin:0 0 10px 12px; color:#0878c9; }
 #wr-observation-detail section { box-sizing:border-box; width:100%; margin:0; }

@@ -6,7 +6,9 @@
   var mounted=null;
   if(active){
    var page=document.createElement('main'),back=document.createElement('a');page.id='wr-observation-detail';
-   back.className='wr-observation-back';back.href='/';back.textContent='← '+(active.getAttribute('data-wr-home')||'Home');page.appendChild(back);active.style.display='block';page.appendChild(active);document.body.appendChild(page);
+   back.className='wr-observation-back';back.href='/';back.textContent='← '+(active.getAttribute('data-wr-back')||'Back');back.addEventListener('click',function(event){if(window.history.length>1){event.preventDefault();window.history.back();}});page.appendChild(back);
+   var home=document.createElement('a');home.className='wr-observation-home';home.href='/';home.textContent=active.getAttribute('data-wr-home')||'Home';page.appendChild(home);
+   active.style.display='block';page.appendChild(active);document.body.appendChild(page);
    for(var i=0;i<document.body.children.length;i++)if(document.body.children[i]!==page)document.body.children[i].style.display='none';
    mounted=active===root?WRDeviceHomepage.mount(document,root,WRDeviceRefresh):active===historyRoot?WRRoamingView.mount(document,historyRoot,WRDeviceRefresh,WRRoaming):WRRssiView.mount(document,rssiRoot,WRDeviceRefresh,WRRssi);
   }else{

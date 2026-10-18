@@ -18,6 +18,7 @@ KEYS = {
     "WRServicesNavAccess": ("Access", "Доступ", "Доступ"),
     "WRServicesNavDiagnostics": ("Diagnostics", "Діагностика", "Диагностика"),
     "WRServicesNavSystem": ("System", "Система", "Система"),
+    "WRServicesNavBack": ("← Services", "← Служби", "← Службы"),
     "WRServicesNavStubby": ("Stubby / DNS-over-TLS", "Stubby / DNS-over-TLS", "Stubby / DNS-over-TLS"),
     "WRServicesNavDoH": ("DNS-over-HTTPS", "DNS-over-HTTPS", "DNS-over-HTTPS"),
     "WRServicesNavWireGuard": ("WireGuard / AmneziaWG profiles", "Профілі WireGuard / AmneziaWG", "Профили WireGuard / AmneziaWG"),
@@ -106,7 +107,10 @@ def inject(path: Path, nav: str) -> None:
 .wr-service-group strong { color:#555; margin-right:3px; }
 .wr-service-link { display:inline-block; padding:4px 7px; border:1px solid #ccc; border-radius:3px; background:#fff; white-space:nowrap; }
 .wr-service-link--new-context { padding:3px 6px; font-size:12px; }
+.wr-service-link--back { color:#fff; background:#0878c9; border-color:#0878c9; }
 .wr-service-link[aria-current="page"] { color:#fff; background:#0878c9; border-color:#0878c9; }
+td.wr-service-status-panel { background:#d9edf7 !important; border:1px solid #bce8f1 !important; border-radius:4px; padding:10px !important; }
+.wr-service-status-panel:not(td) { box-sizing:border-box; margin:6px 0; padding:10px; color:#31708f; background:#d9edf7; border:1px solid #bce8f1; border-radius:4px; }
 @media (max-width: 900px) { .wr-service-nav { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media (max-width: 520px) { .wr-service-nav { grid-template-columns:minmax(0,1fr); } .wr-service-group { border-right:0; } }
 </style>
@@ -122,9 +126,18 @@ def inject(path: Path, nav: str) -> None:
       break;
     }
   }
+  var statuses = document.querySelectorAll('[role="status"]');
+  for (var j = 0; j < statuses.length; j++) {
+    var node = statuses[j], cell = node.parentNode;
+    while (cell && cell.tagName && cell.tagName.toLowerCase() !== 'td') cell = cell.parentNode;
+    if (cell) cell.className += (cell.className ? ' ' : '') + 'wr-service-status-panel';
+    else node.className += (node.className ? ' ' : '') + 'wr-service-status-panel';
+  }
 })();
 </script>
 '''
+    if path.name != "Advanced_Services_Content.asp":
+        nav = nav.rsplit("</div>", 1)[0] + '<a class="wr-service-link wr-service-link--back" href="/Advanced_Services_Content.asp"><#WRServicesNavBack#></a></div></nav>'
     text = text.replace(anchor, anchor + "\n" + nav, 1)
     text = text.replace("</head>", css + "</head>", 1)
     text = text.replace("</body>", script + "</body>", 1)
@@ -142,6 +155,10 @@ def verify(www: Path, config: set[str], *, image: bool = False) -> None:
         text = (www / name).read_text(encoding="utf-8")
         if MARKER not in text or 'aria-label="<#WRServicesNav#>"' not in text:
             raise SystemExit(f"Unified navigation absent from {name}")
+        if name != "Advanced_Services_Content.asp" and '<#WRServicesNavBack#>' not in text:
+            raise SystemExit(f"Visible return-to-services link absent from {name}")
+        if 'role="status"' in text and 'wr-service-status-panel' not in text:
+            raise SystemExit(f"Service status blue-panel behavior absent from {name}")
         if name == "Advanced_Services_Content.asp":
             legacy_links = ("stubby_settings_link", "privoxy_settings_link", "doh_settings_link")
             if any(link_id in text for link_id in legacy_links):

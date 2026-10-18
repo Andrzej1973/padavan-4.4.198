@@ -809,3 +809,13 @@ normal browser Back control and provide an obvious route back to the homepage.
 Use full-page navigation rather than embedding these full views into an
 oversized homepage panel. No live device changes are authorized by this UI
 feedback.
+
+Follow-up owner feedback, 2026-10-18: every service page opened separately must
+show a clear return link to Administration → Services, while retaining normal
+browser Back behavior. Each standalone homepage observation view must show a
+Back control (use browser history when available, otherwise return to the
+homepage) and a direct Home link. Put service state, observation timestamps,
+refresh controls and their explanatory text on a light-blue information panel;
+do not leave these additions as ungrouped gray text on white. The shared
+enabled-toggle treatment remains green ON and neutral OFF, with observed
+service health shown separately.
