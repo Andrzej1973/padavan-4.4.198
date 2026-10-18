@@ -33,10 +33,10 @@ static int fake_stat(const char *path, struct stat *st) {
 static int fake_access(const char *path,int mode) {
  (void)mode;
  if((!strcmp(path,"/sys/module") && root_denied) ||
-    (!strcmp(path,"/proc/self/stat") && proc_denied)){errno=EACCES;return -1;}
+    (!strcmp(path,"/proc") && proc_denied)){errno=EACCES;return -1;}
  return 0;
 }
-static int pids(char *name){assert(!strcmp(name,"usbipd"));return running;}
+static int wr_process_present(const char *name){assert(!strcmp(name,"usbipd"));if(proc_denied){errno=EACCES;return -1;}return running;}
 static int websWrite(webs_t wp,const char *format,...) {
  va_list ap;int n;(void)wp;va_start(ap,format);n=vsnprintf(reply,sizeof(reply),format,ap);va_end(ap);return n;
 }

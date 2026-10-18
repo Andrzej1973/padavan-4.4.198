@@ -24,6 +24,7 @@ if "ej_wr_usbip_state" in source:
     raise SystemExit("USB/IP status endpoint already present")
 
 endpoint = r'''
+static int wr_process_present(const char *name);
 /* Observation only. Module/process presence does not prove USB/IP connectivity. */
 static int wr_usbip_path_state(const char *path)
 {
@@ -40,7 +41,7 @@ static int ej_wr_usbip_state(int eid, webs_t wp, int argc, char **argv)
  int daemon_state;
  (void)eid; (void)argv;
  if (argc != 0) return websWrite(wp, "{\"error\":\"invalid_request\"}");
- daemon_state = access("/proc/self/stat", R_OK) ? 2 : (pids("usbipd") > 0 ? 1 : 0);
+ { int active = wr_process_present("usbipd"); daemon_state = active < 0 ? 2 : (active ? 1 : 0); }
  return websWrite(wp,
   "{\"core\":%d,\"host\":%d,\"vhci\":%d,\"daemon\":%d}",
   wr_usbip_path_state("/sys/module/usbip_core"),

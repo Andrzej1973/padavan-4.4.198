@@ -12,6 +12,7 @@ anchor='struct ej_handler ej_handlers[] =\n'
 entry='\t{ "json_system_status", ej_system_status_hook},\n'
 assert text.count(anchor)==1 and text.count(entry)==1 and 'ej_wr_cron_process_state' not in text
 handler=r'''
+static int wr_process_present(const char *name);
 /* Cron process presence never proves execution of a scheduled job. */
 static int ej_wr_cron_process_state(int eid,webs_t wp,int argc,char **argv)
 {
@@ -19,7 +20,7 @@ static int ej_wr_cron_process_state(int eid,webs_t wp,int argc,char **argv)
  (void)eid;(void)argv;
  if(argc!=0 || access("/proc/self/stat",R_OK) || access("/usr/sbin/crond",X_OK)) return websWrite(wp,"3");
  requested=nvram_get_int("crond_enable")>0;
- active=pids("crond");
+ active=wr_process_present("crond");
  if(active<0)return websWrite(wp,"3");
  return websWrite(wp,"%d",active?(requested?1:4):(requested?2:0));
 }

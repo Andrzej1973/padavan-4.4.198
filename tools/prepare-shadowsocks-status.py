@@ -19,7 +19,8 @@ array_anchor = "struct ej_handler ej_handlers[] =\n"
 if (c.count(status_anchor) != 1 or c.count(array_anchor) != 1 or
         c.count(entry_anchor) != 1 or "ej_wr_ss_client_process_state" in c):
     raise SystemExit("Shadowsocks HTTP handler anchors changed")
-handler = r'''/* Exact Shadowsocks process observation; this does not verify traffic. */
+handler = r'''static int wr_process_present(const char *name);
+/* Exact Shadowsocks process observation; this does not verify traffic. */
 static int ej_wr_ss_client_process_state(int eid, webs_t wp, int argc, char **argv)
 {
  const char *process, *configured; int requested, active;
@@ -33,7 +34,7 @@ static int ej_wr_ss_client_process_state(int eid, webs_t wp, int argc, char **ar
   requested = configured && *configured && strcmp(configured, "nil") != 0;
  } else return websWrite(wp, "3");
  if (access("/proc/self/stat", R_OK)) return websWrite(wp, "3");
- active = pids((char *)process);
+ active = wr_process_present(process);
  if (active < 0) return websWrite(wp, "3");
  active = active > 0;
  return websWrite(wp, "%d", active ? (requested ? 1 : 4) : (requested ? 2 : 0));

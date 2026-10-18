@@ -15,6 +15,7 @@ if (text.count(array_anchor) != 1 or text.count(system_entry) != 1 or
         'ej_wr_iperf3_process_state' in text):
     raise SystemExit('iPerf3 process-status HTTP hook anchors changed')
 handler = r'''
+static int wr_process_present(const char *name);
 /* Process observation only; it does not prove a usable test connection. */
 static int ej_wr_iperf3_process_state(int eid, webs_t wp, int argc, char **argv)
 {
@@ -24,7 +25,7 @@ static int ej_wr_iperf3_process_state(int eid, webs_t wp, int argc, char **argv)
  if (access("/proc/self/stat", R_OK)) return websWrite(wp, "3");
 #if defined(APP_IPERF3)
  requested = nvram_get_int("iperf3_enable") > 0;
- active = pids("iperf3");
+ active = wr_process_present("iperf3");
  if (active < 0) return websWrite(wp, "3");
  active = active > 0;
  return websWrite(wp, "%d", active ? (requested ? 1 : 4) : (requested ? 2 : 0));

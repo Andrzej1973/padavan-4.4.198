@@ -12,6 +12,16 @@ parser.add_argument('--output', type=Path, required=True)
 args = parser.parse_args()
 here = Path(__file__).resolve().parent
 root = args.output.resolve()
+process_observers = (
+    'prepare-dns-process-status.py', 'prepare-ssh-status.py',
+    'prepare-cron-status.py', 'prepare-privoxy-status.py',
+    'prepare-iperf3-status.py', 'prepare-shadowsocks-status.py',
+    'prepare-usbip-status.py',
+)
+for name in process_observers:
+    source = (here / name).read_text(encoding='utf-8')
+    assert 'pids(' not in source, name + ' must not use binary pids() semantics'
+    assert 'wr_process_present(' in source, name + ' must use the error-aware proc scanner'
 user = root / 'trunk/user'
 (user / 'httpd').mkdir(parents=True, exist_ok=True)
 www = user / 'www/n56u_ribbon_fixed'
@@ -40,7 +50,10 @@ subprocess.run([sys.executable, str(here / 'prepare-discovery-status.py'),
                 str(root)], check=True)
 html = page.read_text(encoding='utf-8')
 image_verifier = (here.parent / 'overlay/padavan-4.4/ports/ssh/verify-image.py').read_text(encoding='utf-8')
-for marker in ('vlmcsd_status_element', 'vlmcsd_http_handler',
+for marker in ('shared_process_observer_handlers', 'wr_dns_process_state',
+               'wr_privoxy_process_state', 'wr_iperf3_process_state',
+               'wr_ss_client_process_state', 'wr_usbip_state',
+               'vlmcsd_status_element', 'vlmcsd_http_handler',
                'vlmcsd_refresh_translation',
                "vlmcsd:'wr_vlmcsd_process_state'", 'WRVLMCSObservedTitle',
                'WRVLMCSOff', 'WRVLMCSRunning', 'WRVLMCSMissing',
@@ -191,6 +204,11 @@ int main(void) {
  assert(mkdtemp(procdir));
  setenv("WR_DISCOVERY_TEST_PROC",procdir,1);
  { char path[512]; FILE *f; snprintf(path,sizeof(path),"%s/321",procdir);assert(!mkdir(path,0700));strcat(path,"/comm");f=fopen(path,"w");assert(f);fputs("idle\n",f);fclose(f); }
+ assert(wr_process_present("idle")==1);
+ assert(wr_process_present("not-running")==0);
+ proc_unavailable=1;assert(wr_process_present("idle")==-1);proc_unavailable=0;
+ proc_readdir_error=1;assert(wr_process_present("idle")==-1);proc_readdir_error=0;
+ comm_unreadable=1;assert(wr_process_present("idle")==-1);comm_unreadable=0;
  lltd_requested=0;expect(ej_wr_lltd_process_state,0);
  lltd_requested=1;expect(ej_wr_lltd_process_state,2);
  { char path[512]; FILE *f;snprintf(path,sizeof(path),"%s/321/comm",procdir);f=fopen(path,"w");assert(f);fputs("lld2d\n",f);fclose(f); }
@@ -217,7 +235,7 @@ int main(void) {
  sysfs_not_dir=0;watchdog_stat_error=EACCES;expect(ej_wr_watchdog_module_state,3);
  ej_wr_watchdog_module_state(0,NULL,1,NULL);assert(!strcmp(output,"3"));
  { char dir[512];snprintf(dir,sizeof(dir),"%s/321",procdir);assert(!rmdir(dir));assert(!rmdir(procdir)); }
- puts("PASS LLTD/ASUS/KMS process and watchdog module states, including unknown conditions");
+ puts("PASS shared proc scanner reports present/absent and fails closed on proc, enumeration and comm errors; LLTD/ASUS/KMS and watchdog fixtures pass");
  return 0;
 }
 '''

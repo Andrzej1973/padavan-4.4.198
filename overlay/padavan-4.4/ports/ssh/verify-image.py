@@ -74,6 +74,14 @@ try:
     checks['runtime_status_ui'] = all(marker in page for marker in ui_markers)
     httpd = (root / 'usr/sbin/httpd').read_bytes()
     checks['runtime_status_backend'] = b'wr_ssh_process_state' in httpd
+    process_status_handlers = (
+        b'wr_ssh_process_state', b'wr_cron_process_state',
+        b'wr_dns_process_state', b'wr_privoxy_process_state',
+        b'wr_iperf3_process_state', b'wr_ss_client_process_state',
+        b'wr_usbip_state',
+    )
+    checks['shared_process_observer_handlers'] = all(
+        marker in httpd for marker in process_status_handlers)
     checks['cron_process_backend'] = b'wr_cron_process_state' in httpd
     checks['discovery_process_backend'] = all(
         marker in httpd for marker in (b'wr_lltd_process_state', b'wr_adsc_process_state',

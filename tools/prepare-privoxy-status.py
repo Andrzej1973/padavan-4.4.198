@@ -15,6 +15,7 @@ if (text.count(array_anchor) != 1 or text.count(system_entry) != 1 or
         "ej_wr_privoxy_process_state" in text):
     raise SystemExit("Privoxy process-status HTTP hook anchors changed")
 handler = r'''
+static int wr_process_present(const char *name);
 /* Process observation only; it does not prove a listener or proxy traffic. */
 static int ej_wr_privoxy_process_state(int eid, webs_t wp, int argc, char **argv)
 {
@@ -24,7 +25,7 @@ static int ej_wr_privoxy_process_state(int eid, webs_t wp, int argc, char **argv
  if (access("/proc/self/stat", R_OK)) return websWrite(wp, "3");
 #if defined(APP_PRIVOXY)
  requested = nvram_get_int("privoxy_enable") > 0;
- active = pids("privoxy");
+ active = wr_process_present("privoxy");
  if (active < 0) return websWrite(wp, "3");
  active = active > 0;
  return websWrite(wp, "%d", active ? (requested ? 1 : 4) : (requested ? 2 : 0));

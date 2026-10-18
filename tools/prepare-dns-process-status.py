@@ -16,6 +16,7 @@ if s.count(anchor) != 1 or s.count(entry) != 1 or 'ej_wr_dns_process_state' in s
     raise SystemExit('DNS process status anchors changed')
 code = r'''
 #include "wr-doh-instances.h"
+static int wr_process_present(const char *name);
 /* Process observation only: never equate a PID with successful DNS/TLS. */
 static int ej_wr_dns_process_state(int eid, webs_t wp, int argc, char **argv)
 {
@@ -26,7 +27,7 @@ static int ej_wr_dns_process_state(int eid, webs_t wp, int argc, char **argv)
  else if (!strcmp(argv[0], "doh")) { key="doh_enable"; process="https_dns_proxy"; }
  else return websWrite(wp, "3");
  if (access("/proc/self/stat", R_OK)) return websWrite(wp, "3");
- active = pids(process);
+ active = wr_process_present(process);
  if (active < 0) return websWrite(wp, "3");
  active = active > 0; requested = nvram_get_int(key) > 0;
  return websWrite(wp, "%d", active ? (requested ? 1 : 4) : (requested ? 2 : 0));
@@ -45,7 +46,7 @@ static int ej_wr_doh_instance_state(int eid, webs_t wp, int argc, char **argv)
   memset(&observed,0,sizeof(observed));observed.configured=configured;observed.unknown=15;state=3;
  }else{
   observed=wr_doh_observe(configured,"/var/run/doh-proxy","/proc");
-  active=pids("https_dns_proxy");state=active<0?3:active?(requested?1:4):(requested?2:0);
+  active=wr_process_present("https_dns_proxy");state=active<0?3:active?(requested?1:4):(requested?2:0);
  }
  return websWrite(wp,"{\"state\":%d,\"requested\":%d,\"configuredMask\":%u,\"ownedMask\":%u,\"unknownMask\":%u,\"duplicateMask\":%u}",
                   state,requested,observed.configured,observed.owned,observed.unknown,observed.duplicate);

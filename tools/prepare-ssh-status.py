@@ -15,6 +15,7 @@ if (text.count(array_anchor) != 1 or text.count(system_entry) != 1 or
         'ej_wr_ssh_process_state' in text):
     raise SystemExit('SSH process-status HTTP hook anchors changed')
 handler = r'''
+static int wr_process_present(const char *name);
 /* Process presence does not verify a listening socket or login success. */
 static int ej_wr_ssh_process_state(int eid, webs_t wp, int argc, char **argv)
 {
@@ -24,9 +25,9 @@ static int ej_wr_ssh_process_state(int eid, webs_t wp, int argc, char **argv)
  if (access("/proc/self/stat", R_OK)) return websWrite(wp, "3");
  requested = nvram_get_int("sshd_enable") > 0;
 #if defined(APP_DROPBEAR)
- active = pids("dropbear");
+ active = wr_process_present("dropbear");
 #elif defined(APP_OPENSSH)
- active = pids("sshd");
+ active = wr_process_present("sshd");
 #else
  return websWrite(wp, "3");
 #endif

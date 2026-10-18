@@ -46,7 +46,7 @@ typedef FILE *webs_t;
 static int requested,active,unreadable,missing;static char output[32];
 static int access(const char *path,int mode){if(mode==R_OK){assert(!strcmp(path,"/proc/self/stat"));return unreadable;}assert(mode==X_OK&&!strcmp(path,"/usr/sbin/crond"));return missing;}
 static int nvram_get_int(const char *key){assert(!strcmp(key,"crond_enable"));return requested;}
-static int pids(const char *name){assert(!strcmp(name,"crond"));return active;}
+static int wr_process_present(const char *name){assert(!strcmp(name,"crond"));return active;}
 static int websWrite(webs_t wp,const char *format,...){va_list args;int n;(void)wp;va_start(args,format);n=vsnprintf(output,sizeof(output),format,args);va_end(args);return n;}
 '''
 suffix=r'''

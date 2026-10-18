@@ -48,7 +48,7 @@ try:
     assert 'stat("/sys/module", &st)' in web
     assert 'access("/sys/module", R_OK | X_OK)' in web
     for marker in ("/sys/module/usbip_core", "/sys/module/usbip_host",
-                   "/sys/module/vhci_hcd", 'pids("usbipd")', 'argc != 0'):
+                   "/sys/module/vhci_hcd", 'wr_process_present("usbipd")', 'argc != 0'):
         assert marker in web
     rendered = (user / "www/n56u_ribbon_fixed/Advanced_Printer_others.asp").read_text(encoding="utf-8")
     for marker in ("wr_usbip_core", "wr_usbip_host", "wr_usbip_vhci", "wr_usbip_daemon",
