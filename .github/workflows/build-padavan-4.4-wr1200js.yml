@@ -879,6 +879,33 @@ jobs:
           path: radio-capacity-evidence/
           if-no-files-found: ignore
 
+      - name: Probe effective IoT third-BSS radio capacity
+        if: ${{ !cancelled() && steps.firmware_build.conclusion == 'success' }}
+        run: |
+          set -euo pipefail
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          for radio in mt76x2 mt76x3; do
+            args=(--compiler "$compiler"
+              --source-commit "$(git -C padavan-4.4 rev-parse HEAD)"
+              --output "iot-capacity-evidence/$radio.json")
+            # The initial isolated IoT SSID is 2.4 GHz only (MT7603/mt76x3).
+            # Keep the 5 GHz result diagnostic until that band is part of the
+            # agreed IoT scope.
+            if [ "$radio" = mt76x3 ]; then
+              args+=(--require-three-bss)
+            fi
+            python3 tools/iot/check-capacity.py \
+              padavan-4.4/trunk/linux-4.4.x "$radio" "${args[@]}"
+          done
+      - name: Preserve effective IoT radio-capacity diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: wr1200js-iot-radio-capacity
+          path: iot-capacity-evidence/
+          if-no-files-found: ignore
+
       - name: Verify requested and effective WR1200JS configuration
         run: |
           python3 tools/verify-wr1200js-config.py \

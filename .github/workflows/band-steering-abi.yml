@@ -139,7 +139,9 @@ jobs:
             trunk/user/shared
             trunk/user/httpd
             trunk/user/www
-            trunk/linux-4.4.x/drivers/nvram
+            trunk/user/wireless_tools
+            trunk/linux-4.4.x/include/linux
+            trunk/linux-4.4.x/include/nvram
             trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x2
             trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3
       - name: Verify steering package dependency checker logic
@@ -161,6 +163,8 @@ jobs:
         run: python3 tools/band-steering/prepare-grant-readback.py source
       - name: Prepare main-network-only legacy steering
         run: python3 tools/band-steering/prepare-main-bss.py source
+      - name: Exercise IoT radio-capacity probe against synthetic Kbuild fixtures
+        run: python3 tools/iot/check-capacity-selftest.py
       - name: Download and verify the firmware toolchain
         shell: bash
         run: |
@@ -1158,8 +1162,31 @@ jobs:
           cp overlay/padavan-4.4/trunk/configs/boards/WR1200JS/board.h iot-rc-source/trunk/user/rc/ralink_board.h
           python3 tools/iot/prepare-rc.py iot-rc-source
           cp iot-rc-source/iot-rc-source.json abi-results/
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('iot-rc-source')
+          report = json.loads((root/'iot-rc-source.json').read_text())
+          services = (root/'trunk/user/rc/services_ex.c').read_text()
+          assert report['writer_journal_transaction_binding_installed']
+          assert not report['writer_journal_lifecycle_bound']
+          assert not report['all_dnsmasq_writers_serialized']
+          assert 'wr_iot_writer_journal_bind_state(&wr_iot_restart_state)' in services
+          assert 'wr_iot_writer_journal_unbind(&wr_iot_restart_state.transaction)' in services
+          assert 'does not set the network gate' in report['writer_journal_transaction_binding_scope']
+          PY
           compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
           test -n "$compiler"
+          rc_dir="$PWD/iot-rc-source/trunk/user/rc"
+          shared_dir="$PWD/iot-rc-source/trunk/user/shared"
+          kernel_dir="$PWD/iot-rc-source/trunk/linux-4.4.x"
+          "$compiler" -std=gnu99 -O2 -mips32r2 -mabi=32 -msoft-float \
+            -DBOARD_WR1200JS -DBOARD_RAM_SIZE=128 -DUSE_SMP -DUSE_IPV6 \
+            -DUSE_WID_2G=7603 -DUSE_WID_5G=7612 \
+            -I"$rc_dir" -I"$shared_dir" -I"$shared_dir/include" \
+            -I"$PWD/iot-rc-source/trunk/user/wireless_tools" \
+            -I"$kernel_dir/include" -I"$kernel_dir/include/nvram" \
+            -c "$rc_dir/services_ex.c" -o abi-results/iot-services-ex-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
             -c iot-rc-source/trunk/user/rc/wr-iot-bridge.c -o abi-results/iot-rc-bridge-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \

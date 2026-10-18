@@ -345,7 +345,8 @@ report['lan_ipv6_full_restart_sequences_serialized_when_iot_gated']=True
 
 
 # Instrument actual writer bodies, including early returns and failed writes.
-# No lifecycle controller binds a journal yet; unbound operation stays unchanged.
+# The controller above binds the journal only inside the gated DNS transaction;
+# outside that transaction, the legacy unbound behavior remains unchanged.
 def journal_writer(text,name,args,call,mask,returns_int=True,kernel=False):
  prefix='static int' if returns_int else 'static void'
  signature=prefix+'\n'+name+'('+args+')\n{'
@@ -435,6 +436,11 @@ report['owned_auxiliary_stdio_failures_latched']=True
 report['uts_and_permanent_arp_writer_bodies_instrumented']=True
 report['auxiliary_dns_writer_bodies_journal_instrumented']=True
 report['writer_journal_lifecycle_bound']=False
+report['writer_journal_transaction_binding_installed']=True
+report['writer_journal_transaction_binding_scope']=(
+ 'Conditional DNS restart transaction only; the IoT startup/activation path '
+ 'does not set the network gate, and not all DNS-related writers are covered'
+)
 (headers/'writer-journal.h').write_bytes((local/'writer-journal.h').read_bytes())
 (rc/'wr-iot-writer-journal.c').write_text((local/'writer-journal.c').read_text(encoding='utf-8').replace('#include "writer-journal.h"','#include "wr-iot/writer-journal.h"').replace('#include "service-state.h"','#include "wr-iot/service-state.h"'),encoding='utf-8')
 m.write_text(m.read_text(encoding='utf-8').replace('OBJS += wr-iot-request-stage.o wr-iot-bridge.o wr-iot-profile.o wr-iot-dhcp.o wr-iot-network.o','OBJS += wr-iot-request-stage.o wr-iot-writer-journal.o wr-iot-bridge.o wr-iot-profile.o wr-iot-dhcp.o wr-iot-network.o'),encoding='utf-8')

@@ -86,3 +86,67 @@ and `fd51::2 REACHABLE`, so an absent NDP response alone does not explain the
 missing TCP reply. Diagnostics now also capture the reverse route, LAN IPv6
 listener via `ss`, and the pre-firewall FORWARD table. No IPv6 packet-policy
 conclusion is established yet.
+
+## Source-level radio capacity diagnostic — 2026-10-18
+
+The WR1200JS build workflow now has a diagnostic step after the production
+build that records separate MT7612/MT76x2 and MT7603/MT76x3 evidence under the
+`wr1200js-iot-radio-capacity` artifact. `tools/iot/check-capacity.py` uses each
+radio's actual Kbuild `.cmd` and target compiler, checks the effective MBSS and
+beacon-array macros, verifies that `MAX_MBSSID_NUM` consults the chip limit,
+follows the pinned chip initializer, and records the nested source commit plus
+SHA-256 hashes for the source files it inspected. It reports the
+source/configuration BSS limit while keeping
+`runtime_verified: false`; it does not enable IoT or prove three simultaneous
+working SSIDs.
+
+The initial IoT contract is 2.4 GHz only, so the firmware build workflow now
+treats the MT7603/mt76x3 three-BSS source/config result as a required gate. An
+absent, unavailable, or insufficient probe fails that post-build step. The
+MT7612/mt76x2 5 GHz result remains diagnostic until 5 GHz IoT is in scope.
+This gate establishes source/config capacity only; it does not activate the
+third BSS or count as runtime/device acceptance.
+
+Local synthetic Kbuild fixtures exercised the MT76x2 and MT7603 paths and
+reported source/configuration limits of eight and sixteen BSS respectively.
+These fixture results only validate the diagnostic's parsing and reporting.
+The probe has not yet run against a real target build.
+
+The ABI workflow now includes `tools/iot/check-capacity-selftest.py` to exercise
+both radio parsers and the required-capacity failure case with host synthetic
+Kbuild trees before downloading the large target toolchain. On 2026-10-18,
+`py -3 tools/iot/check-capacity-selftest.py` passed twice with exit code 0
+in an approved elevated execution context on Windows. It reported
+`PASS IoT capacity probe MT76x2/MT7603 source checks and required-limit failure`.
+The ordinary sandbox still denied nested temporary-directory creation; this
+was an execution-permission issue, not a failed capacity assertion. These
+successful host fixtures do not establish target radio capacity or runtime
+acceptance; the updated workflow result remains pending.
+The self-test also checks absent and ambiguous Kbuild command files and an
+unavailable compiler in both diagnostic and required modes. All six negative
+cases passed locally on 2026-10-18: unavailable evidence keeps capacity and
+runtime verification false, emits a JSON reason, and fails the required gate.
+The report now distinguishes `effective_source_config_bss_limit` (the minimum
+of the array ceiling and chip source limit with MBSS enabled) from the raw
+chip limit. A passing MT7603 fixture with a sixteen-entry chip limit and an
+eight-entry array verifies that the effective value and console limit are eight.
+This remains source/configuration evidence rather than working-SSID capacity.
+The ABI workflow also compiles the prepared `services_ex.c` to
+`iot-services-ex-mips.o` with the
+WR1200JS MIPS compiler. Its include paths follow the pinned RC/shared Makefiles
+and include the Linux kernel headers; the WR1200JS Ralink board header is staged
+directly beside `rc.h` by the preparation step. This whole-object compile has
+not run yet.
+
+The separate ABI workflow [run `39104700313`](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/39104700313) completed successfully for `dd1e98c`. Its `band-steering-mips-abi` artifact contains compiled MIPS RC objects for the staged IoT bridge, profile, DHCP, network, request-stage, and request-snapshot code, as well as passing host DHCP/DNS and IPv4/IPv6 firewall fixtures. This is source-preparation/ABI evidence, not a production firmware image. The artifact's `iot-rc-source.json` says
+`activation_integrated: false`, `writer_journal_lifecycle_bound: false`,
+`dnsmasq_service_rollback_complete: false`, and that DHCP protocol readiness
+is pending. The source does install a journal binding inside the conditional
+DNS restart transaction; the report's false lifecycle value is conservative
+because the production IoT activation path does not set that gate and not all
+DNS-related writers are covered. Main firmware build
+[#448](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/39104625566)
+(`5dd2c80`) explicitly excluded `wr-iot-profile.c` and the `wr-iot` RC
+directory; its success applies only to that non-IoT scope. Production
+integration, complete service rollback, Wi-Fi behavior, and physical-router
+acceptance remain open.
