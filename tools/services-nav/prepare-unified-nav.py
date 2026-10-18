@@ -98,12 +98,13 @@ def inject(path: Path, nav: str) -> None:
         raise SystemExit(f"Unexpected service-page structure: {path.name}")
     css = '''
 <style>
-.wr-service-nav { display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 14px; padding:8px; background:#f4f4f4; border:1px solid #ddd; }
-.wr-service-group { display:flex; flex-wrap:wrap; align-items:center; gap:5px; padding:3px 6px; border-right:1px solid #ccc; }
+.wr-service-nav { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px 10px; margin:6px 0 8px; padding:8px; background:#f4f4f4; border:1px solid #ddd; }
+.wr-service-group { display:flex; min-width:0; flex-wrap:wrap; align-items:center; gap:5px; padding:3px 6px; border-right:1px solid #ccc; }
 .wr-service-group strong { color:#555; margin-right:3px; }
-.wr-service-link { display:inline-block; padding:4px 7px; border:1px solid #ccc; border-radius:3px; background:#fff; }
+.wr-service-link { display:inline-block; padding:4px 7px; border:1px solid #ccc; border-radius:3px; background:#fff; white-space:nowrap; }
 .wr-service-link[aria-current="page"] { color:#fff; background:#0878c9; border-color:#0878c9; }
-@media (max-width: 767px) { .wr-service-group { border-right:0; } }
+@media (max-width: 900px) { .wr-service-nav { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media (max-width: 520px) { .wr-service-nav { grid-template-columns:minmax(0,1fr); } .wr-service-group { border-right:0; } }
 </style>
 '''
     script = '''
@@ -137,6 +138,12 @@ def verify(www: Path, config: set[str], *, image: bool = False) -> None:
         text = (www / name).read_text(encoding="utf-8")
         if MARKER not in text or 'aria-label="<#WRServicesNav#>"' not in text:
             raise SystemExit(f"Unified navigation absent from {name}")
+        if name == "Advanced_Services_Content.asp":
+            legacy_links = ("stubby_settings_link", "privoxy_settings_link", "doh_settings_link")
+            if any(link_id in text for link_id in legacy_links):
+                raise SystemExit("Legacy DNS/Privoxy links remain outside the unified navigation")
+            if "grid-template-columns:repeat(3,minmax(0,1fr))" not in text:
+                raise SystemExit("Unified service navigation is missing its two-row desktop grid")
         for match in re.finditer(r'href="/([^"#]+)(?:#([^"]*))?"', text[text.index(MARKER):text.index("</nav>", text.index(MARKER))]):
             route, fragment = match.groups()
             target = www / route

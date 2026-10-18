@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Register candidate Privoxy capability, page and Services link."""
+"""Register candidate Privoxy capability and page."""
 import argparse
 from pathlib import Path
 import shutil
@@ -28,12 +28,6 @@ s = www.read_text(encoding='utf-8')
 if s.count('clean:\n') != 1 or 'Advanced_Services_Privoxy.asp' in s:
     raise SystemExit('Inspect www packaging')
 edits[www] = s.replace('clean:\n', 'ifneq ($(CONFIG_FIRMWARE_INCLUDE_PRIVOXY),y)\n\trm -f $(INSTALLDIR)/www/Advanced_Services_Privoxy.asp\nendif\nclean:\n', 1)
-menu = args.trunk / 'user/www/n56u_ribbon_fixed/Advanced_Services_Content.asp'
-s = menu.read_text(encoding='utf-8')
-if s.count('\tload_body();\n') != 1 or s.count('<form method="post"') != 1 or 'privoxy_settings_link' in s:
-    raise SystemExit('Inspect Services link anchors')
-s = s.replace('\tload_body();\n', "\tload_body();\n\tshowhide_div('privoxy_settings_link', found_app_privoxy());\n", 1)
-edits[menu] = s.replace('<form method="post"', '<div id="privoxy_settings_link" style="display:none; margin:10px"><a href="Advanced_Services_Privoxy.asp"><#Service_Privoxy_Title#></a></div>\n<form method="post"', 1)
 page = args.trunk / 'user/www/n56u_ribbon_fixed/Advanced_Services_Privoxy.asp'
 source = assets / 'Advanced_Services_Privoxy.asp'
 if page.exists() or not source.is_file():

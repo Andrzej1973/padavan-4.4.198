@@ -179,17 +179,6 @@ def main():
         additions = [line for line in (assets / language).read_text(encoding="utf-8").splitlines()
                      if line.split("=", 1)[0] not in existing_keys]
         edits[dictionary] = dictionary_text.rstrip() + "\n" + "\n".join(additions) + "\n"
-    services_page = trunk / "user/www/n56u_ribbon_fixed/Advanced_Services_Content.asp"
-    page_text = services_page.read_text(encoding="utf-8")
-    menu_anchor = "\tload_body();\n"
-    form_anchor = '<form method="post"'
-    if "stubby_settings_link" in page_text or page_text.count(menu_anchor) != 1 or page_text.count(form_anchor) != 1:
-        raise RuntimeError("Inspect services-page menu anchors")
-    page_text = page_text.replace(menu_anchor, menu_anchor +
-        "\tshowhide_div('stubby_settings_link', found_app_stubby());\n", 1)
-    edits[services_page] = page_text.replace(form_anchor,
-        '<div id="stubby_settings_link" style="display:none; margin:10px">'
-        '<a href="Advanced_Services_DoT.asp"><#Service_Stubby_Title#></a></div>\n' + form_anchor, 1)
     busybox = trunk / "configs/boards/busybox.config"
     bb_text = busybox.read_text(encoding="utf-8")
     for option in ["FLOCK", "PIDOF", "AWK", "ASH"]:

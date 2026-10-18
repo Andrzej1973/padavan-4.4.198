@@ -141,10 +141,6 @@ def main():
         additions = [line for line in (assets / language).read_text(encoding='utf-8').splitlines()
                      if line.split('=', 1)[0] not in existing]
         set_edit('user/www/dict/' + filename, content.rstrip() + '\n' + '\n'.join(additions) + '\n')
-    menu = read('user/www/n56u_ribbon_fixed/Advanced_Services_Content.asp')
-    menu = replace(menu, '\tload_body();\n', '\tload_body();\n\tshowhide_div("doh_settings_link", found_app_doh());\n')
-    menu = replace(menu, '<form method="post"', '<div id="doh_settings_link" style="display:none; margin:10px"><a href="Advanced_Services_DoH.asp"><#Service_DoH_Title#></a></div>\n<form method="post"')
-    set_edit('user/www/n56u_ribbon_fixed/Advanced_Services_Content.asp', menu)
     copies = [(assets / name, trunk / 'user/doh_proxy' / name) for name in ('Makefile', 'doh_proxy.sh', 'doh.json')]
     copies += [(certificate, trunk / 'user/doh_proxy/cacert.pem'),
         (assets / 'services-doh.c', trunk / 'user/rc/services-doh.c'),
