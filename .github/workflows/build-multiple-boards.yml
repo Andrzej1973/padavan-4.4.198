@@ -67,6 +67,8 @@ on:
       - 'tools/check-target-busybox.py'
       - 'tools/prepare-target-busybox.py'
       - 'tools/prepare-ssh-status.py'
+      - 'tools/prepare-cron-status.py'
+      - 'tools/check-cron-status.py'
       - 'tools/prepare-iperf3-status.py'
       - 'tools/prepare-privoxy-status.py'
       - 'tools/prepare-mwan-shell.py'

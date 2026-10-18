@@ -16,6 +16,9 @@ try:
         name in config for name in ('CONFIG_FIRMWARE_INCLUDE_DROPBEAR=y',
                                     'CONFIG_FIRMWARE_INCLUDE_OPENSSH=y'))
     page = (root / 'www/Advanced_Services_Content.asp').read_text()
+    checks['cron_process_ui'] = all(marker in page for marker in (
+        'wr_cron_process_status', 'wrCronRefresh', "output:'wr_cron_process_state'",
+        'generation === wrCronGeneration', 'Date.now() - wrCronSampledAt >= 45000'))
     checks['observation_expiry_ui'] = all(marker in page for marker in (
         'var wrSSHGeneration = 0', 'generation === wrSSHGeneration',
         '}, 45000)', "document.addEventListener('visibilitychange'",
@@ -28,6 +31,7 @@ try:
     checks['runtime_status_ui'] = all(marker in page for marker in ui_markers)
     httpd = (root / 'usr/sbin/httpd').read_bytes()
     checks['runtime_status_backend'] = b'wr_ssh_process_state' in httpd
+    checks['cron_process_backend'] = b'wr_cron_process_state' in httpd
     status_keys = ('WRSSHObservedTitle', 'WRSSHOff', 'WRSSHPresent',
                    'WRSSHMissing', 'WRSSHUnknown', 'WRSSHStillPresent',
                    'WRSSHRefresh', 'WRSSHLastObservation',
@@ -37,6 +41,9 @@ try:
         translated = (root / 'www' / dictionary).read_text(encoding='utf-8')
         checks['runtime_status_locale_' + locale.lower()] = all(
             ('\n' + key + '=') in translated for key in status_keys)
+        checks['cron_locale_' + locale.lower()] = all(
+            ('\nWRCron' + suffix + '=') in translated for suffix in
+            ('Off', 'Present', 'Missing', 'Unknown', 'StillPresent', 'Refresh', 'ObservedNote'))
 except (OSError, UnicodeError) as exc:
     checks['image_files_readable'] = False
     error = str(exc)

@@ -2,6 +2,17 @@
 
 ## Remaining administration-service coverage — 2026-10-18
 
+Cron implementation follow-up: an observed-process row is now prepared next to
+the existing Cron control, using `crond_enable` and the `crond` process launched
+by pinned services.c. Target #426 applet inventory includes crond/crontab.
+The adapter distinguishes requested/observed combinations, unavailable proc or
+provider and negative process observations. EN/UK/RU labels explicitly leave
+job execution unverified. Manual/visible-page refresh and 45-second expiry use
+the existing observer UI template. Emitted backend/UI fixtures passed locally;
+firmware CI, final-image and physical acceptance are pending. LLTD, ASUS
+discovery and hardware watchdog remain open. This supersedes Cron's missing-
+implementation status in the older paragraph below, not its runtime gap.
+
 The extracted final #433 Administration/Services page still exposes Cron
 (`crond_enable`), LLTD (`lltd_enable`), ASUS discovery (`adsc_enable`) and
 hardware watchdog (`watchdog_cpu`) controls without dedicated observed-state
