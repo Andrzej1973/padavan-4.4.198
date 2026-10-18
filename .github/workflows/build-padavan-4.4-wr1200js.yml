@@ -886,6 +886,9 @@ jobs:
           compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
           test -n "$compiler"
           for radio in mt76x2 mt76x3; do
+            # Build-step PATH does not persist into this Actions step. Resolve
+            # the recorded Kbuild compiler using the same pinned toolchain.
+            export PATH="$(dirname "$compiler"):$PATH"
             args=(--compiler "$compiler"
               --source-commit "$(git -C padavan-4.4 rev-parse HEAD)"
               --output "iot-capacity-evidence/$radio.json")
