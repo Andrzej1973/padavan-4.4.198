@@ -16,11 +16,14 @@ and UI fixtures pass; final-image CI and physical-page behavior are pending.
 
 Hardware watchdog remains open. Pinned `services.c` requests
 `module_smart_load("rt_timer_wdg", NULL)` when `watchdog_cpu` is enabled, but
-this source observation alone does not establish that the module exists in the
-WR1200JS image, is registered, or is successfully serviced. Before adding a
-status label, verify the actual driver/image evidence and choose an observation
-that does not imply hardware timer operation from configuration or module
-presence alone.
+`trunk/configs/boards/WR1200JS/kernel-4.4.x.config` separately sets
+`CONFIG_MT7621_WDT=y` while leaving `CONFIG_RALINK_WDT` unset. The built-in
+MT7621 watchdog driver and the
+optional `rt_timer_wdg` module requested by this UI switch are distinct paths.
+Neither the NVRAM setting nor the kernel config establishes that
+`rt_timer_wdg` exists in the WR1200JS image, is registered, or is serviced.
+Inspect the final image and choose an observation that does not imply hardware
+timer operation from configuration or module presence alone.
 
 Cron implementation follow-up: an observed-process row is now prepared next to
 the existing Cron control, using `crond_enable` and the `crond` process launched
