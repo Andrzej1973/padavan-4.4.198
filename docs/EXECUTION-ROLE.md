@@ -27,6 +27,14 @@ start о 12:48 і stop о 16:01 2026-10-17; пізнішого start у дост
 docs/evidence/WR1200JS-BAND-STEERING-RUNTIME-2026-10-18.md. Не змінювати
 пристрій, не перезапускати й не прошивати без окремого дозволу.
 
+Користувач підтвердив, що фізично встановлено саме #396 від 2026-10-17.
+Коміт діагностики `347be00` входить до вихідного commit #457 `4cd56a8`;
+підготовка Band Steering і повна компіляція #457 пройшли, а окремий ABI run
+`39115399202` пройшов callbacks fixture. Це не runtime-перевірка. Після #457
+додано до build workflow п'ять перевірок діагностичних рядків у фінальному
+`romfs/sbin/rc`; локальна перевірка source-to-gate і diff пройшли, GitHub run
+ще не виконувався. Точна наявність рядків у #457 лишається непідтвердженою.
+
 ABI `39115399202` для `594d98b` успішний: зібраний MIPS код administrative
 ra2 UP і host-kernel fixture. Саме production radio reload/activation
 controller не підключено: звичайний restart очищає IoT gates, а MBSS
