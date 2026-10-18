@@ -12,13 +12,17 @@ run('ip','link','set','lo','up')
 for name in ('iot','lan','wan'):
  run('ip','netns','add',name);run('ip','-n',name,'link','set','lo','up')
 def link(name,outer,peer,bridge,address,client):
+ mac_suffix={'iot':'50','lan':'51','wan':'52'}[name]
+ host_mac='02:00:00:00:'+mac_suffix+':01';peer_mac='02:00:00:00:'+mac_suffix+':02'
  if bridge:
   run('ip','link','add',bridge,'type','bridge');run('ip','link','set',bridge,'up')
  run('ip','link','add',outer,'type','veth','peer','name',peer)
  run('ip','link','set',peer,'netns',name)
+ run('ip','link','set',outer,'address',host_mac)
  if bridge:run('ip','link','set',outer,'master',bridge)
+ if bridge:run('ip','link','set',bridge,'address',host_mac)
  run('ip','link','set',outer,'up');run('ip','addr','add',address,'dev',bridge or outer)
- run('ip','-n',name,'link','set',peer,'name','eth0');run('ip','-n',name,'link','set','eth0','up')
+ run('ip','-n',name,'link','set',peer,'name','eth0');run('ip','-n',name,'link','set','eth0','address',peer_mac);run('ip','-n',name,'link','set','eth0','up')
  run('ip','-n',name,'addr','add',client,'dev','eth0')
  run('ip','-n',name,'route','add','default','via',address.split('/')[0])
 link('iot','iot-port','iot-peer','br-iot','192.168.50.1/24','192.168.50.20/24')
@@ -38,6 +42,16 @@ run('ip','-n','iot','-6','route','add','fd51::/64','via','fd50::1')
 run('ip','-n','iot','-6','route','add','fd52::/64','via','fd50::1')
 run('ip','-n','lan','-6','route','add','fd50::/64','via','fd51::1')
 run('ip','-n','wan','-6','route','add','fd50::/64','via','fd52::1')
+# This harness verifies routed packet filtering, not IPv6 neighbor discovery.
+# Install explicit Ethernet neighbors to keep the pre-firewall baseline
+# deterministic across host kernels and avoid conflating NDP with filter policy.
+for name,device,host_address,peer_address,suffix in (
+ ('iot','br-iot','fd50::1','fd50::20','50'),
+ ('lan','br0','fd51::1','fd51::2','51'),
+ ('wan','eth2.2','fd52::1','fd52::2','52')):
+ host_mac='02:00:00:00:'+suffix+':01';peer_mac='02:00:00:00:'+suffix+':02'
+ run('ip','-6','neigh','replace',peer_address,'lladdr',peer_mac,'dev',device,'nud','permanent')
+ run('ip','-n',name,'-6','neigh','replace',host_address,'lladdr',host_mac,'dev','eth0','nud','permanent')
 server_code="""import socket,threading,sys
 s=socket.socket(socket.AF_INET6 if ':' in sys.argv[1] else socket.AF_INET);s.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1);s.bind((sys.argv[1],int(sys.argv[2])));s.listen();print('READY',flush=True)
 def echo(c):
@@ -154,7 +168,7 @@ try:
   ('ipv6_wan_udp_blocked',ipv6_wan_udp,False),('ipv6_unsolicited_lan_blocked',ipv6_lan_in,False),
   ('ipv6_unsolicited_wan_blocked',ipv6_wan_in,False)]:
   checks[key]=echo(*path)==expected;assert checks[key],key
- report={'checks':checks,'scope':'Host-kernel IPv4 TCP/UDP and DHCP-port filtering, stale conntrack isolation, IPv6 TCP/UDP router and inter-network isolation in both directions; actual DNS/DHCP transactions and target runtime unverified','runtime_verified':False}
+ report={'checks':checks,'scope':'Host-kernel IPv4 TCP/UDP and DHCP-port filtering, stale conntrack isolation, IPv6 TCP/UDP router and inter-network isolation in both directions; static IPv6 neighbor entries make packet baselines deterministic; IPv6 neighbor discovery, actual DNS/DHCP transactions and target runtime are unverified','runtime_verified':False}
  (root/'iot-firewall-packets.json').write_text(json.dumps(report,indent=2)+'\n')
  print('PASS host-kernel IoT packet isolation and preserved main LAN forwarding')
 finally:
