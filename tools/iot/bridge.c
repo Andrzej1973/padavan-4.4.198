@@ -103,6 +103,26 @@ int wr_iot_bridge_attach(void) {
  ok=down_bridge(fd)&&empty_bridge()&&bss_down(fd)&&bss_master()==0&&membership(fd,SIOCBRADDIF);
  close(fd);return ok;
 }
+int wr_iot_bss_set_up(void) {
+ DIR *directory;struct dirent *entry;struct ifreq request;
+ int fd,ok=0,members=0,foreign=0;
+ if(!owned()||bss_master()!=1)return 0;
+ directory=opendir("/sys/class/net/br-iot/brif");if(!directory)return 0;
+ while((entry=readdir(directory))) {
+  if(!strcmp(entry->d_name,".")||!strcmp(entry->d_name,".."))continue;
+  if(strcmp(entry->d_name,IOT_BSS))foreign=1;else members++;
+ }
+ closedir(directory);if(foreign||members!=1)return 0;
+ fd=socket(AF_INET,SOCK_DGRAM,0);if(fd<0)return 0;
+ memset(&request,0,sizeof(request));strcpy(request.ifr_name,IOT_BRIDGE);
+ if(ioctl(fd,SIOCGIFFLAGS,&request)||!(request.ifr_flags&IFF_UP))goto done;
+ memset(&request,0,sizeof(request));strcpy(request.ifr_name,IOT_BSS);
+ if(ioctl(fd,SIOCGIFFLAGS,&request))goto done;
+ request.ifr_flags|=IFF_UP;
+ if(ioctl(fd,SIOCSIFFLAGS,&request)||ioctl(fd,SIOCGIFFLAGS,&request))goto done;
+ ok=!!(request.ifr_flags&IFF_UP)&&owned()&&bss_master()==1;
+ done:close(fd);return ok;
+}
 int wr_iot_bridge_detach(void) {
  int fd,master,ok;if(!if_nametoindex(IOT_BSS))return 1;
  master=bss_master();if(master==0)return 1;

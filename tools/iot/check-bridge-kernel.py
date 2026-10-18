@@ -11,6 +11,7 @@ expect('missing_remove_noop','remove',True)
 expect('missing_down_noop','down',True)
 expect('missing_up_rejected','up',False)
 expect('missing_bss_down_noop','bss-down',True)
+expect('missing_bss_up_rejected','bss-up',False)
 run('ip','link','add','br-iot','type','bridge')
 expect('foreign_bridge_up_rejected','up',False);expect('foreign_bridge_down_rejected','down',False)
 expect('foreign_bridge_prepare_rejected','prepare',False);expect('foreign_bridge_remove_rejected','remove',False)
@@ -33,6 +34,7 @@ expect('active_bss_attach_rejected','attach',False);expect('detached_bss_down','
 assert 'UP' not in json.loads(run('ip','-j','link','show','dev','ra2').stdout)[0]['flags']
 run('ip','link','add','other-br','type','bridge');run('ip','link','set','ra2','master','other-br')
 expect('foreign_master_attach_rejected','attach',False);expect('foreign_master_detach_rejected','detach',False)
+expect('foreign_master_bss_up_rejected','bss-up',False)
 run('ip','link','set','ra2','up');expect('foreign_master_bss_down_rejected','bss-down',False)
 assert 'UP' in json.loads(run('ip','-j','link','show','dev','ra2').stdout)[0]['flags']
 run('ip','link','set','ra2','down')
@@ -40,7 +42,17 @@ run('ip','link','set','ra2','nomaster');run('ip','link','delete','other-br')
 expect('empty_bridge_up_rejected','up',False)
 expect('down_bss_attach_owned','attach',True);expect('owned_attached_up','up',True)
 assert 'UP' in json.loads(run('ip','-j','link','show','dev','br-iot').stdout)[0]['flags']
+run('ip','link','add','foreign-port','type','dummy')
+run('ip','link','set','foreign-port','master','br-iot')
+expect('foreign_member_bss_up_rejected','bss-up',False)
+assert 'UP' not in json.loads(run('ip','-j','link','show','dev','ra2').stdout)[0]['flags']
+run('ip','link','set','foreign-port','nomaster');run('ip','link','delete','foreign-port')
+expect('owned_bss_up','bss-up',True)
+assert 'UP' in json.loads(run('ip','-j','link','show','dev','ra2').stdout)[0]['flags']
+expect('owned_bss_up_idempotent','bss-up',True)
+expect('owned_bss_down_after_up','bss-down',True)
 expect('owned_attached_down','down',True)
+expect('down_bridge_bss_up_rejected','bss-up',False)
 assert 'UP' not in json.loads(run('ip','-j','link','show','dev','br-iot').stdout)[0]['flags']
 expect('attached_owned_remove_rejected','remove',False)
 run('ip','link','set','ra2','up');expect('active_bss_bridge_up_rejected','up',False);expect('active_bss_bridge_down_rejected','down',False);expect('active_bss_detach_rejected','detach',False)
