@@ -291,3 +291,33 @@ CI-артефакт не синхронізується локально авт�
 підтверджує тільки перевірене складання, а не роботу прошивки на фізичному
 роутері.
 
+## 14. Proxy-змінні для мережевих команд
+
+Перед кожним мережевим викликом Git/GitHub/GitLab у поточному shell-процесі
+очищай proxy-змінні, щоб не успадкувати недоступний локальний proxy. У PowerShell:
+
+```powershell
+$proxyNames = @(
+  'HTTP_PROXY','HTTPS_PROXY','ALL_PROXY','GIT_HTTP_PROXY','GIT_HTTPS_PROXY',
+  'http_proxy','https_proxy','all_proxy','git_http_proxy','git_https_proxy'
+)
+foreach ($name in $proxyNames) {
+  Remove-Item "Env:$name" -ErrorAction SilentlyContinue
+}
+```
+
+У Bash:
+
+```bash
+unset HTTP_PROXY HTTPS_PROXY ALL_PROXY GIT_HTTP_PROXY GIT_HTTPS_PROXY \
+  http_proxy https_proxy all_proxy git_http_proxy git_https_proxy
+```
+
+Виконуй це в тому самому процесі/shell, звідки запускаєш `git`, `gh`, `glab`
+або Nim-утиліту, яка звертається до мережі. Якщо після очищення запит досі
+намагається використати proxy, перевір Git-конфігурацію й причину перенаправлення;
+не виводь proxy URL у чат або логи, бо він може містити облікові дані. Не змінюй
+системні чи глобальні налаштування proxy автоматично і не видаляй конфігурацію
+без окремої причини. Якщо прямий вихід заблокований, повідом про це як про
+мережеве обмеження середовища, а не перевстановлюй Git.
+
