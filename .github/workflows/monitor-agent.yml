@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['tools/agent-nim/build_monitor.nim', 'tools/agent-nim/config.nims', 'tools/agent-nim/check_build_monitor.py', '.github/workflows/monitor-agent.yml']
+    paths: ['tools/agent-nim/build_monitor.nim', 'tools/agent-nim/build_log.nim', 'tools/agent-nim/config.nims', 'tools/agent-nim/check_build_monitor.py', 'tools/agent-nim/check_build_log.py', '.github/workflows/monitor-agent.yml']
 permissions:
   contents: read
   actions: read
@@ -32,13 +32,15 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: .cache/nim-monitor
-          key: nim-monitor-${{ runner.os }}-2.2.12-${{ hashFiles('tools/agent-nim/build_monitor.nim', 'tools/agent-nim/config.nims') }}
+          key: nim-monitor-${{ runner.os }}-2.2.12-${{ hashFiles('tools/agent-nim/build_monitor.nim', 'tools/agent-nim/build_log.nim', 'tools/agent-nim/config.nims') }}
           restore-keys: nim-monitor-${{ runner.os }}-2.2.12-
-      - name: Compile and test monitor
+      - name: Compile and test agent utilities
         run: |
           mkdir -p .cache/nim-monitor bin
           nim c -d:release --nimcache:.cache/nim-monitor --out:bin/build-monitor tools/agent-nim/build_monitor.nim
           python3 tools/agent-nim/check_build_monitor.py bin/build-monitor
+          nim c -d:release --nimcache:.cache/nim-monitor --out:bin/build-log tools/agent-nim/build_log.nim
+          python3 tools/agent-nim/check_build_log.py bin/build-log
       - uses: actions/cache/restore@v4
         with:
           path: .codex/build-monitor-state.json

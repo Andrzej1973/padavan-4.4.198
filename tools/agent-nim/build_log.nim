@@ -1,7 +1,7 @@
 ## Streaming local log summarizer. Never uploads logs or invokes an agent.
 import std/[os, strutils, parseopt, tables, deques]
 
-proc clean(line: string): string =
+proc clean(line: string, step: var string): string =
   var i = 0
   while i < line.len:
     if line[i] == '\e' and i+1 < line.len and line[i+1] == '[':
@@ -12,10 +12,21 @@ proc clean(line: string): string =
       if line[i] == '\t' or line[i] >= ' ': result.add line[i]
       inc i
   # GitHub's job/step/timestamp prefix is noise for deduplication.
-  let stamp = result.find("20")
-  if stamp >= 0 and stamp+10 < result.len and result[stamp+4] == '-' and result[stamp+7] == '-':
+  var stamp = result.find("20")
+  while stamp >= 0 and not (
+      stamp+10 < result.len and result[stamp+4] == '-' and result[stamp+7] == '-'):
+    stamp = result.find("20", stamp + 2)
+  if stamp >= 0:
     let finish = result.find("Z ", stamp)
-    if finish >= 0 and finish-stamp < 40: result = result[finish+2..^1]
+    if finish >= 0 and finish-stamp < 40:
+      let prefix = result[0..<stamp]
+      let firstTab = prefix.find('\t')
+      let secondTab = if firstTab >= 0: prefix.find('\t', firstTab + 1) else: -1
+      if secondTab > firstTab:
+        let headerStep = prefix[firstTab+1..<secondTab].strip
+        if headerStep.len > 0 and headerStep.toUpperAscii != "UNKNOWN STEP":
+          step = headerStep
+      result = result[finish+2..^1]
 
 proc sensitive(line: string): bool =
   let lower = line.toLowerAscii
@@ -26,6 +37,21 @@ proc sensitive(line: string): bool =
 
 proc isError(line: string): bool =
   let lower = line.toLowerAscii
+  # Compiler diagnostics often quote source code containing "error:" inside
+  # an otherwise non-fatal warning; do not promote those warnings to failures.
+  if "warning:" in lower or " (ignored)" in lower: return false
+  let errorMarker = lower.find("error:")
+  if errorMarker >= 0:
+    var quoted = false
+    var escaped = false
+    for index in 0..<errorMarker:
+      if escaped:
+        escaped = false
+      elif line[index] == '\\':
+        escaped = true
+      elif line[index] == '"':
+        quoted = not quoted
+    if quoted: return false
   for marker in ["error:", "fatal error", "fatal:", "undefined reference", "undefined symbol", "unresolved external", "no rule to make target", "collect2:", "ninja: build stopped", "traceback (most recent call last)", "##[error]", "error c", "error lnk"]:
     if marker in lower: return true
   result = ("make[" in lower or lower.startsWith("make:")) and ("***" in lower or " error " in lower)
@@ -67,6 +93,7 @@ proc main() =
   var excerpts = initTable[string, seq[string]]()
   var previous = initDeque[string]()
   var active: string
+  var step = "unknown GitHub step"
   var remaining, lines, redacted, markers = 0
   var line: string
   proc display(text: string): string =
@@ -78,7 +105,11 @@ proc main() =
     result = result.replace("```", "'''" )
   while file.readLine(line):
     inc lines
-    let text = clean(line)
+    let text = clean(line, step)
+    let groupMarker = "##[group]Run "
+    let groupStart = text.find(groupMarker)
+    if groupStart >= 0 and groupStart+groupMarker.len < text.len:
+      step = text[groupStart+groupMarker.len..^1].strip
     if active.len > 0 and remaining > 0:
       excerpts[active].add($lines & ": " & display(text))
       dec remaining
@@ -101,6 +132,7 @@ proc main() =
         counts[fingerprint] = 1
         var entries: seq[string]
         for item in previous.items: entries.add item
+        entries.add("step: " & display(step))
         entries.add($lines & ": " & fingerprint)
         excerpts[fingerprint] = entries
         active = fingerprint
