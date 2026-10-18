@@ -22,7 +22,12 @@ setting and `/sys/module/rt_timer_wdg` presence. Pinned `services.c` requests
 MT7621 watchdog driver and optional `rt_timer_wdg` module are distinct paths.
 The UI explicitly says that module presence does not verify hardware timer
 registration or servicing. Local handler/UI fixtures pass; final-image CI and
-physical-page behavior remain pending.
+physical-page behavior remain pending. Service run #221 for commit `3976cf1`
+failed only in the Linux C fixture because strict C99 did not expose `S_IFREG`;
+the original job log confirmed this exact cause. The fixture now defines the
+portable file-type constant and passes locally. A new service CI run is required
+for the fix; image run #444 for `3976cf1` is still in progress and does not
+include the follow-up fixture correction.
 
 Cron implementation follow-up: an observed-process row is now prepared next to
 the existing Cron control, using `crond_enable` and the `crond` process launched

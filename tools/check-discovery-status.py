@@ -92,6 +92,9 @@ c_test = r'''
 #ifndef S_IFDIR
 #define S_IFDIR 0040000
 #endif
+#ifndef S_IFREG
+#define S_IFREG 0100000
+#endif
 typedef FILE *webs_t;
 static int proc_unavailable, lld_binary_missing, adsc_binary_missing;
 static int sysfs_unavailable, sysfs_not_dir, watchdog_module_present, watchdog_stat_error;
