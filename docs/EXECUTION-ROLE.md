@@ -82,6 +82,16 @@ Python AST і diff-check пройшли; C-fixture/Linux CI/образ ще не
 в `tools/agent-nim/README.md`.
 ## Актуальний стан роботи — 2026-10-17
 
+### VPN storage: приватні права каталогу після restore
+
+У script з кінцевого #416 `func_tarb` архівує файли без metadata каталогів.
+Після tar extraction wrvpn може бути 0755, тоді як store.c вимагає 0700.
+Локальний candidate `prepare-storage-permissions.py` додає mode repair після
+boot load та restore, відмову для symlink/non-directory й явний failure.
+Патч накладається на actual #416 script; Python AST/diff пройшли. Linux
+reproduction archive+shell check додано до CI, execution ще очікується.
+Жодних flash writes на роутері не виконували; physical persistence відкрите.
+
 ### Таблиця незалежних профілів: пагінація
 
 Повторний CI `39073452871` скомпілював HTTP harness, але він перезаписував
