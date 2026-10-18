@@ -32,8 +32,11 @@ docs/evidence/WR1200JS-BAND-STEERING-RUNTIME-2026-10-18.md. Не змінюва�
 підготовка Band Steering і повна компіляція #457 пройшли, а окремий ABI run
 `39115399202` пройшов callbacks fixture. Це не runtime-перевірка. Після #457
 додано до build workflow п'ять перевірок діагностичних рядків у фінальному
-`romfs/sbin/rc`; локальна перевірка source-to-gate і diff пройшли, GitHub run
-ще не виконувався. Точна наявність рядків у #457 лишається непідтвердженою.
+`romfs/sbin/rc`; локальна перевірка source-to-gate і diff пройшли. Повна
+збірка #458 (`39118907721`, commit `deead1d`) запущена; останній snapshot
+показав підготовку Band Steering у процесі, а firmware build і фінальний
+ROMFS gate ще не почалися. Точна наявність рядків у #457 лишається
+непідтвердженою.
 
 ABI `39115399202` для `594d98b` успішний: зібраний MIPS код administrative
 ra2 UP і host-kernel fixture. Саме production radio reload/activation
