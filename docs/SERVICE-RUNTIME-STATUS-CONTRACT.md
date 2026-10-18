@@ -14,16 +14,15 @@ tabs and expires observations after 45 seconds. This does not verify LLTD
 exchanges, ASUS discovery replies, or client visibility. Local emitted-handler
 and UI fixtures pass; final-image CI and physical-page behavior are pending.
 
-Hardware watchdog remains open. Pinned `services.c` requests
-`module_smart_load("rt_timer_wdg", NULL)` when `watchdog_cpu` is enabled, but
+Hardware watchdog now has a bounded observer for the saved `watchdog_cpu`
+setting and `/sys/module/rt_timer_wdg` presence. Pinned `services.c` requests
+`module_smart_load("rt_timer_wdg", NULL)` when enabled, but
 `trunk/configs/boards/WR1200JS/kernel-4.4.x.config` separately sets
 `CONFIG_MT7621_WDT=y` while leaving `CONFIG_RALINK_WDT` unset. The built-in
-MT7621 watchdog driver and the
-optional `rt_timer_wdg` module requested by this UI switch are distinct paths.
-Neither the NVRAM setting nor the kernel config establishes that
-`rt_timer_wdg` exists in the WR1200JS image, is registered, or is serviced.
-Inspect the final image and choose an observation that does not imply hardware
-timer operation from configuration or module presence alone.
+MT7621 watchdog driver and optional `rt_timer_wdg` module are distinct paths.
+The UI explicitly says that module presence does not verify hardware timer
+registration or servicing. Local handler/UI fixtures pass; final-image CI and
+physical-page behavior remain pending.
 
 Cron implementation follow-up: an observed-process row is now prepared next to
 the existing Cron control, using `crond_enable` and the `crond` process launched
@@ -33,24 +32,26 @@ provider and negative process observations. EN/UK/RU labels explicitly leave
 job execution unverified. Manual/visible-page refresh and 45-second expiry use
 the existing observer UI template. Emitted backend/UI fixtures passed locally;
 firmware CI and final-image checks passed in build #441; physical acceptance is
-pending. The image includes the Cron page and HTTP handler. LLTD, ASUS discovery
-and hardware watchdog remain open. This supersedes Cron's missing-implementation
-status in the older paragraph below, not its runtime gap.
+pending. The image includes the Cron page and HTTP handler. LLTD and ASUS
+discovery have process observations that do not establish protocol exchanges.
+The watchdog module observer does not establish timer operation. This supersedes
+Cron's missing-implementation status in the older paragraph below, not its
+runtime gap.
 
 At build #433 the Administration/Services page exposed Cron (`crond_enable`),
 LLTD (`lltd_enable`), ASUS discovery (`adsc_enable`) and hardware watchdog
 (`watchdog_cpu`) without observed-state adapters. Cron has an adapter and its
 shipped page/handler markers are verified in build #441. LLTD and ASUS
 discovery now have bounded process observations; those do not establish protocol
-exchanges or client visibility. Hardware watchdog remains without a status
-adapter. A switch value alone must not be reported as actual operation.
+exchanges or client visibility. Hardware watchdog now has a bounded module
+presence observation; neither its setting nor module presence establishes
+hardware timer operation. A switch value alone must not be reported as actual
+operation.
 
-Next implementation work: verify the watchdog's actual driver/image capability
-and determine a truthful observable state for it before adding a status UI. A
-Cron process still does not establish scheduled-job success. A watchdog module
-registration, if observable, would not by itself establish hardware timer
-registration or petting. Retain the user's enable settings and do not activate
-services during this audit.
+Next implementation work: verify the watchdog observer is present in the final
+WR1200JS image and assess whether a safe hardware-timer operation signal exists.
+A Cron process still does not establish scheduled-job success. Retain the user's
+enable settings and do not activate services during this audit.
 
 Current image evidence remains distinct: #433 proves VPN editor packaging;
 #426/#428 establish the documented target BusyBox/storage component checks.

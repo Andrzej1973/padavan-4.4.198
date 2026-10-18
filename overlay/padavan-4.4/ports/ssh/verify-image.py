@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify SSH, Cron and discovery-service observers are in the selected image."""
+"""Verify SSH, Cron, discovery-service and watchdog module observers are packaged."""
 import argparse
 import json
 from pathlib import Path
@@ -26,6 +26,9 @@ try:
         'Date.now() - wrDiscoverySampledAt[service] >= 45000',
         '<% wr_lltd_process_state(); %>', '<% wr_adsc_process_state(); %>',
         '<#WRLLDTPresent#>', '<#WRADSCPresent#>')
+    discovery_markers += (
+        'wrWatchdog_process_status', '<% wr_watchdog_module_state(); %>',
+        '<#WRWDGPresent#>', '<#WRWDGObservedNote#>')
     checks['discovery_process_ui'] = all(marker in page for marker in discovery_markers)
     checks['observation_expiry_ui'] = all(marker in page for marker in (
         'var wrSSHGeneration = 0', 'generation === wrSSHGeneration',
@@ -41,7 +44,8 @@ try:
     checks['runtime_status_backend'] = b'wr_ssh_process_state' in httpd
     checks['cron_process_backend'] = b'wr_cron_process_state' in httpd
     checks['discovery_process_backend'] = all(
-        marker in httpd for marker in (b'wr_lltd_process_state', b'wr_adsc_process_state'))
+        marker in httpd for marker in (b'wr_lltd_process_state', b'wr_adsc_process_state',
+                                       b'wr_watchdog_module_state'))
     status_keys = ('WRSSHObservedTitle', 'WRSSHOff', 'WRSSHPresent',
                    'WRSSHMissing', 'WRSSHUnknown', 'WRSSHStillPresent',
                    'WRSSHRefresh', 'WRSSHLastObservation',
@@ -58,18 +62,19 @@ try:
             ('\n' + key + '=') in translated for key in (
                 'WRLLTDObservedTitle', 'WRLLDTPresent', 'WRLLDTUnknown',
                 'WRLLTDObservedNote', 'WRADSCObservedTitle', 'WRADSCPresent',
-                'WRADSCUnknown', 'WRADSCObservedNote'))
+                'WRADSCUnknown', 'WRADSCObservedNote', 'WRWDGObservedTitle',
+                'WRWDGPresent', 'WRWDGUnknown', 'WRWDGObservedNote'))
 except (OSError, UnicodeError) as exc:
     checks['image_files_readable'] = False
     error = str(exc)
 else:
     error = None
 args.report.write_text(json.dumps({
-    'scope': 'SSH, Cron, LLTD and ASUS discovery process-observer packaging; service protocols and connections unverified',
+    'scope': 'SSH and Cron process observers, LLTD/ASUS discovery process observers, and watchdog module-presence observer; protocol exchanges and hardware timer operation unverified',
     'checks': checks,
     'error': error,
 }, indent=2) + '\n')
 failed = [name for name, value in checks.items() if not value]
 if failed:
     raise SystemExit('SSH image check failed: ' + ', '.join(failed))
-print('SSH, Cron, LLTD and ASUS discovery observers plus EN/UK/RU labels found in ROMFS; protocol behavior remains unverified')
+print('SSH, Cron, LLTD/ASUS and watchdog module observers plus EN/UK/RU labels found in ROMFS; protocol exchanges and hardware timer operation remain unverified')

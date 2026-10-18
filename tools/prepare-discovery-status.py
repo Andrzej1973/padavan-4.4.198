@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Expose LLTD and ASUS Info Discovery process observations in the services page."""
+"""Expose LLTD, ASUS Info Discovery and watchdog module observations in services."""
 import argparse
 import ast
 from pathlib import Path
@@ -13,7 +13,8 @@ text = backend.read_text(encoding='utf-8')
 array_anchor = 'struct ej_handler ej_handlers[] =\n'
 system_entry = '\t{ "json_system_status", ej_system_status_hook},\n'
 if (text.count(array_anchor) != 1 or text.count(system_entry) != 1 or
-        'ej_wr_discovery_process_state' in text):
+        'ej_wr_discovery_process_state' in text or
+        'ej_wr_watchdog_module_state' in text):
     raise SystemExit('Discovery process-status HTTP hook anchors changed')
 
 backend_code = r'''
@@ -49,10 +50,35 @@ static int ej_wr_adsc_process_state(int eid, webs_t wp, int argc, char **argv)
  return ej_wr_discovery_process_state(eid, wp, argc, argv,
      "adsc_enable", "infosvr", "/usr/sbin/infosvr");
 }
+/* Sysfs module presence is not evidence that the CPU timer is being serviced. */
+static int wr_watchdog_module_state(void)
+{
+ struct stat sysfs, module;
+ int requested = nvram_get_int("watchdog_cpu") != 0;
+ if (stat("/sys/module", &sysfs) || !S_ISDIR(sysfs.st_mode) ||
+     access("/sys/module", R_OK | X_OK)) return 3;
+ if (!stat("/sys/module/rt_timer_wdg", &module))
+  return requested ? 1 : 4;
+ if (errno == ENOENT || errno == ENOTDIR)
+  return requested ? 2 : 0;
+ return 3;
+}
+static int ej_wr_watchdog_module_state(int eid, webs_t wp, int argc, char **argv)
+{
+ int state;
+ (void)eid; (void)argv;
+ if (argc != 0) return websWrite(wp, "3");
+ state = wr_watchdog_module_state();
+ return websWrite(wp, "%d", state);
+}
 '''
+for include in ('#include <errno.h>', '#include <sys/stat.h>'):
+    if include not in text:
+        text = include + '\n' + text
 entries = (system_entry +
            '\t{ "wr_lltd_process_state", ej_wr_lltd_process_state},\n' +
-           '\t{ "wr_adsc_process_state", ej_wr_adsc_process_state},\n')
+           '\t{ "wr_adsc_process_state", ej_wr_adsc_process_state},\n' +
+           '\t{ "wr_watchdog_module_state", ej_wr_watchdog_module_state},\n')
 text = text.replace(array_anchor, backend_code + '\n' + array_anchor, 1)
 text = text.replace(system_entry, entries, 1)
 
@@ -65,7 +91,7 @@ def literal(name):
 
 page = root / 'www/n56u_ribbon_fixed/Advanced_Services_Content.asp'
 html = page.read_text(encoding='utf-8')
-if 'wr_discovery_process_status' in html:
+if 'wr_discovery_process_status' in html or 'wrWatchdog_process_status' in html:
     raise SystemExit('Discovery process-status page already exists')
 
 def insert_status_row(mark, service):
@@ -78,8 +104,11 @@ def insert_status_row(mark, service):
     if row_start < 0 or row_end < 0:
         raise SystemExit(f'Could not locate services row for {service}')
     row_end += len('</tr>')
-    prefix = 'WRLLTD' if service == 'lltd' else 'WRADSC'
-    camel = 'wrLLTD' if service == 'lltd' else 'wrADSC'
+    prefix, camel = {
+        'lltd': ('WRLLTD', 'wrLLTD'),
+        'adsc': ('WRADSC', 'wrADSC'),
+        'watchdog': ('WRWDG', 'wrWatchdog'),
+    }[service]
     status = f'''\n<tr id="{camel}_status_row"><th><#{prefix}ObservedTitle#></th><td>
 <strong id="{camel}_process_status" role="status"><#{prefix}Unknown#></strong>
 <button type="button" class="btn" onclick="{camel}Refresh()"><#{prefix}Refresh#></button>
@@ -89,21 +118,24 @@ def insert_status_row(mark, service):
 
 insert_status_row('<#Adm_Svc_lltd#>', 'lltd')
 insert_status_row('<#Adm_Svc_adsc#>', 'adsc')
+insert_status_row('<#TweaksWdg#>', 'watchdog')
 
 script = r'''
-var wrDiscoveryBusy = {lltd:false, adsc:false};
-var wrDiscoveryGeneration = {lltd:0, adsc:0};
-var wrDiscoverySampledAt = {lltd:0, adsc:0};
+var wrDiscoveryBusy = {lltd:false, adsc:false, watchdog:false};
+var wrDiscoveryGeneration = {lltd:0, adsc:0, watchdog:0};
+var wrDiscoverySampledAt = {lltd:0, adsc:0, watchdog:0};
 var wrDiscoveryLabels = {
     lltd:["<#WRLLTDOff#>","<#WRLLDTPresent#>","<#WRLLDTMissing#>","<#WRLLDTUnknown#>","<#WRLLDTStillPresent#>"],
-    adsc:["<#WRADSCOff#>","<#WRADSCPresent#>","<#WRADSCMissing#>","<#WRADSCUnknown#>","<#WRADSCStillPresent#>"]
+    adsc:["<#WRADSCOff#>","<#WRADSCPresent#>","<#WRADSCMissing#>","<#WRADSCUnknown#>","<#WRADSCStillPresent#>"],
+    watchdog:["<#WRWDGOff#>","<#WRWDGPresent#>","<#WRWDGMissing#>","<#WRWDGUnknown#>","<#WRWDGStillPresent#>"]
 };
 function wrDiscoveryRender(service, state) {
     var generation = ++wrDiscoveryGeneration[service];
     wrDiscoverySampledAt[service] = 0;
     var labels = wrDiscoveryLabels[service];
     var classes = ['text-muted','text-info','text-error','text-warning','text-warning'];
-    var element = document.getElementById('wr' + (service === 'lltd' ? 'LLTD' : 'ADSC') + '_process_status');
+    var suffix = service === 'lltd' ? 'LLTD' : service === 'adsc' ? 'ADSC' : 'Watchdog';
+    var element = document.getElementById('wr' + suffix + '_process_status');
     if (!element) return;
     var valid = typeof state === 'number' && Math.floor(state) === state && state >= 0 && state < labels.length;
     element.textContent = valid ? labels[state] : labels[3];
@@ -113,13 +145,15 @@ function wrDiscoveryRender(service, state) {
         window.setTimeout(function() {
             if (generation === wrDiscoveryGeneration[service]) wrDiscoveryRender(service, null);
         }, 45000);
-        var observed = document.getElementById('wr' + (service === 'lltd' ? 'LLTD' : 'ADSC') + '_observed_at');
-        if (observed) observed.textContent = (service === 'lltd' ? '<#WRLLTDLastObservation#>' : '<#WRADSCLastObservation#>') + ' ' + new Date().toLocaleTimeString();
+        var observed = document.getElementById('wr' + suffix + '_observed_at');
+        var lastObservation = service === 'lltd' ? '<#WRLLTDLastObservation#>' :
+            service === 'adsc' ? '<#WRADSCLastObservation#>' : '<#WRWDGLastObservation#>';
+        if (observed) observed.textContent = lastObservation + ' ' + new Date().toLocaleTimeString();
     }
 }
 document.addEventListener('visibilitychange', function() {
     if (document.hidden) return;
-    ['lltd','adsc'].forEach(function(service) {
+    ['lltd','adsc','watchdog'].forEach(function(service) {
         if (wrDiscoverySampledAt[service] && Date.now() - wrDiscoverySampledAt[service] >= 45000)
             wrDiscoveryRender(service, null);
     });
@@ -127,13 +161,15 @@ document.addEventListener('visibilitychange', function() {
 function wrDiscoveryRefresh(service) {
     if (wrDiscoveryBusy[service] || document.hidden) return;
     wrDiscoveryBusy[service] = true;
-    $j.ajax({url:'/update.cgi', data:{output:'wr_' + service + '_process_state'}, dataType:'json', cache:false, timeout:5000})
+    var outputs = {lltd:'wr_lltd_process_state', adsc:'wr_adsc_process_state', watchdog:'wr_watchdog_module_state'};
+    $j.ajax({url:'/update.cgi', data:{output:outputs[service]}, dataType:'json', cache:false, timeout:5000})
         .done(function(state) { wrDiscoveryRender(service, state); })
         .fail(function() { wrDiscoveryRender(service, null); })
         .always(function() { wrDiscoveryBusy[service] = false; });
 }
 function wrLLTDRefresh() { wrDiscoveryRefresh('lltd'); }
 function wrADSCRefresh() { wrDiscoveryRefresh('adsc'); }
+function wrWatchdogRefresh() { wrDiscoveryRefresh('watchdog'); }
 '''
 apply_anchor = 'function applyRule(){'
 if html.count(apply_anchor) != 1:
@@ -146,7 +182,8 @@ if html.count(cron_init) != 1:
 html = html.replace(cron_init, cron_init + '''
 \twrDiscoveryRender('lltd', <% wr_lltd_process_state(); %>);
 \twrDiscoveryRender('adsc', <% wr_adsc_process_state(); %>);
-\twindow.setInterval(function(){wrLLTDRefresh();wrADSCRefresh();},30000);''', 1)
+\twrDiscoveryRender('watchdog', <% wr_watchdog_module_state(); %>);
+\twindow.setInterval(function(){wrLLTDRefresh();wrADSCRefresh();wrWatchdogRefresh();},30000);''', 1)
 
 translations = {
     'EN.footer': {
@@ -170,6 +207,16 @@ translations = {
         'WRADSCLastObservation':'Last process observation:',
         'WRADSCNoObservation':'No confirmed process observation yet',
         'WRADSCObservedNote':'Shows the saved setting and the infosvr process only. ASUS discovery replies and device visibility are not verified.',
+        'WRWDGObservedTitle':'Observed CPU watchdog module',
+        'WRWDGOff':'Disabled; rt_timer_wdg module not loaded',
+        'WRWDGPresent':'Enabled; rt_timer_wdg loaded (timer operation unverified)',
+        'WRWDGMissing':'Enabled; rt_timer_wdg not loaded',
+        'WRWDGUnknown':'Watchdog module state unavailable',
+        'WRWDGStillPresent':'Disabled; rt_timer_wdg still loaded',
+        'WRWDGRefresh':'Refresh status',
+        'WRWDGLastObservation':'Last module observation:',
+        'WRWDGNoObservation':'No confirmed module observation yet',
+        'WRWDGObservedNote':'Shows the saved watchdog_cpu setting and whether rt_timer_wdg is registered in sysfs. This does not verify that the hardware timer is active or serviced.',
     },
     'UK.dict': {
         'WRLLTDObservedTitle':'Спостереження процесу LLTD',
@@ -192,6 +239,16 @@ translations = {
         'WRADSCLastObservation':'Останнє спостереження процесу:',
         'WRADSCNoObservation':'Підтвердженого спостереження процесу ще немає',
         'WRADSCObservedNote':'Показує збережене налаштування та лише наявність процесу infosvr. Відповіді ASUS Discovery і видимість пристроїв не перевірені.',
+        'WRWDGObservedTitle':'Стан модуля CPU Watchdog',
+        'WRWDGOff':'Вимкнено; модуль rt_timer_wdg не завантажений',
+        'WRWDGPresent':'Увімкнено; rt_timer_wdg завантажений (таймер не перевірено)',
+        'WRWDGMissing':'Увімкнено; rt_timer_wdg не завантажений',
+        'WRWDGUnknown':'Стан модуля Watchdog недоступний',
+        'WRWDGStillPresent':'Вимкнено; rt_timer_wdg досі завантажений',
+        'WRWDGRefresh':'Оновити стан',
+        'WRWDGLastObservation':'Останнє спостереження модуля:',
+        'WRWDGNoObservation':'Підтвердженого спостереження модуля ще немає',
+        'WRWDGObservedNote':'Показує збережений параметр watchdog_cpu та лише наявність rt_timer_wdg у sysfs. Активність чи обслуговування апаратного таймера не перевіряються.',
     },
     'RU.dict': {
         'WRLLTDObservedTitle':'Наблюдение процесса LLTD',
@@ -214,6 +271,16 @@ translations = {
         'WRADSCLastObservation':'Последнее наблюдение процесса:',
         'WRADSCNoObservation':'Подтверждённого наблюдения процесса пока нет',
         'WRADSCObservedNote':'Показывает сохранённую настройку и только наличие процесса infosvr. Ответы ASUS Discovery и видимость устройств не проверены.',
+        'WRWDGObservedTitle':'Состояние модуля CPU Watchdog',
+        'WRWDGOff':'Выключено; модуль rt_timer_wdg не загружен',
+        'WRWDGPresent':'Включено; rt_timer_wdg загружен (работа таймера не проверена)',
+        'WRWDGMissing':'Включено; rt_timer_wdg не загружен',
+        'WRWDGUnknown':'Состояние модуля Watchdog недоступно',
+        'WRWDGStillPresent':'Выключено; rt_timer_wdg всё ещё загружен',
+        'WRWDGRefresh':'Обновить состояние',
+        'WRWDGLastObservation':'Последнее наблюдение модуля:',
+        'WRWDGNoObservation':'Подтверждённого наблюдения модуля пока нет',
+        'WRWDGObservedNote':'Показывает сохранённый параметр watchdog_cpu и только наличие rt_timer_wdg в sysfs. Работа или обслуживание аппаратного таймера не проверяются.',
     },
 }
 for filename, values in translations.items():
@@ -227,4 +294,4 @@ for filename, values in translations.items():
 
 backend.write_text(text, encoding='utf-8', newline='\n')
 page.write_text(html, encoding='utf-8', newline='\n')
-print('Prepared LLTD and ASUS Info process observations; protocol behavior remains unverified')
+print('Prepared LLTD/ASUS process and watchdog module observations; protocol exchanges and timer operation remain unverified')

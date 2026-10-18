@@ -83,3 +83,6 @@ glab auth status --hostname gitlab.com
 ```
 
 If GitHub CLI reports an invalid login, reauthenticate it in a browser with `gh auth refresh --hostname github.com`. Git Credential Manager has its own account store; if Git prompts for credentials after network access is restored, run `git credential-manager github login`. For a GitLab project, check `glab auth status --hostname gitlab.com`; if it is not authenticated, use `glab auth login --hostname gitlab.com --web`. Never paste access tokens into chat or a manifest.
+
+
+CI policy: agents must continue independent work while builds run. Do not wait for a build before proceeding. When one fails, inspect the original log, fix the specific failure, and resume work; only wait when a dependent artifact is required. See `docs/AGENT-HANDOFF-RULES-SOL-DEEPSEEK.md` section 13.
