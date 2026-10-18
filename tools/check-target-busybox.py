@@ -4,6 +4,7 @@
 Does not run service lifecycle scripts or establish hardware/runtime acceptance.
 """
 import argparse
+import ast
 import hashlib
 import json
 import os
@@ -55,6 +56,28 @@ report['checks']['all_discovered_shell_syntax']=bool(report['scripts']) and all(
 report['checks']['command_v_supported_or_avoided']=not any(
     item['command_v_requires_review'] for item in report['scripts'])
 with tempfile.TemporaryDirectory(prefix='target-busybox-') as tmp:
+    # Exercise the shipped helper's shell decisions, then its external applet
+    # separately. QEMU is not a chroot: an unqualified external chmod here
+    # could otherwise accidentally validate the host utility.
+    helper_tree=ast.parse((Path(__file__).parent/'vpn-profiles/prepare-storage-permissions.py').read_text())
+    helper=next(ast.literal_eval(n.value) for n in helper_tree.body
+                if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='HELPER' for t in n.targets))
+    storage=Path(tmp)/'storage';storage.mkdir()
+    private=storage/'wrvpn';private.mkdir(mode=0o755);private.chmod(0o755)
+    command=helper+'\nchmod() { printf "%s\\n" "$@"; }\nfunc_wrvpn_private "$1"\n'
+    probe=run(['sh','-c',command,'storage-probe',str(storage)])
+    report['checks']['vpn_storage_helper_directory']=probe.returncode==0 and probe.stdout==('700\n'+str(private)+'\n').encode()
+    probe=run(['chmod','700',str(private)])
+    report['checks']['vpn_storage_chmod_private']=probe.returncode==0 and private.stat().st_mode&0o777==0o700
+    missing=Path(tmp)/'missing';missing.mkdir()
+    probe=run(['sh','-c',command,'storage-probe',str(missing)])
+    report['checks']['vpn_storage_helper_absent_noop']=probe.returncode==0 and not probe.stdout
+    linked=Path(tmp)/'linked';linked.mkdir();(linked/'wrvpn').symlink_to(private)
+    probe=run(['sh','-c',command,'storage-probe',str(linked)])
+    report['checks']['vpn_storage_helper_symlink_refused']=probe.returncode!=0 and not probe.stdout
+    invalid=Path(tmp)/'invalid';invalid.mkdir();(invalid/'wrvpn').write_text('fixture')
+    probe=run(['sh','-c',command,'storage-probe',str(invalid)])
+    report['checks']['vpn_storage_helper_file_refused']=probe.returncode!=0 and not probe.stdout
     target=Path(tmp)/'canonical';target.mkdir()
     alias=Path(tmp)/'alias';alias.symlink_to(target,target_is_directory=True)
     probe=run(['readlink','-f',str(alias)])
