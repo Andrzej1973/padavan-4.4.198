@@ -137,9 +137,16 @@ def verify(www: Path, config: set[str], *, image: bool = False) -> None:
         text = (www / name).read_text(encoding="utf-8")
         if MARKER not in text or 'aria-label="<#WRServicesNav#>"' not in text:
             raise SystemExit(f"Unified navigation absent from {name}")
-        for match in re.finditer(r'href="/([^"#]+)(?:#[^"]*)?"', text[text.index(MARKER):text.index("</nav>", text.index(MARKER))]):
-            if not (www / match.group(1)).is_file():
-                raise SystemExit(f"Navigation links to a missing route in {name}: {match.group(1)}")
+        for match in re.finditer(r'href="/([^"#]+)(?:#([^"]*))?"', text[text.index(MARKER):text.index("</nav>", text.index(MARKER))]):
+            route, fragment = match.groups()
+            target = www / route
+            if not target.is_file():
+                raise SystemExit(f"Navigation links to a missing route in {name}: {route}")
+            if fragment:
+                target_text = target.read_text(encoding="utf-8")
+                anchor = re.compile(r'''\b(?:id|name)\s*=\s*(["'])''' + re.escape(fragment) + r'''\1''')
+                if not anchor.search(target_text):
+                    raise SystemExit(f"Navigation links to a missing anchor in {name}: {route}#{fragment}")
     for key in KEYS:
         for lang in ("EN.footer", "UK.dict", "RU.dict"):
             # EN.footer is a source fragment; the image build concatenates it
