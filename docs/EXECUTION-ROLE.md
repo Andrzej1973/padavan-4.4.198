@@ -4,19 +4,30 @@
 
 ## Актуальний checkpoint — 2026-10-18
 
-Повна збірка #451 `39114348390` успішна; TRX незалежно перевірено за CRC,
-WR1200JS identity, довжиною та SHA-256. Requested/effective/kernel config
-verifier повторено локально: 112 options, без mismatch/pending; CAKE/SQM
-не ввімкнені. Оригінальні Kbuild capacity JSON підтвердили source/config
-ліміти 16 BSS (MT7603) та 8 (MT7612), runtime false. Докази:
-`docs/evidence/WR1200JS-BUILD451.md` та суміжні JSON.
-Інструкція #451 не мала TRX SHA; `005c749` додає фінальні name/hash і
-check-mode, #453 `39115129564` перевіряє це (останній стан in_progress).
-Snapshot lock CI `39114663222` і DNS recovery lock CI `39114859918`
-успішні. `594d98b` додає administrative ra2 UP; ABI `39115399202` та
-firmware #454 `39115399372` ще активні. Production radio reload/activation
-контролер не підключено: звичайний restart очищає IoT gates, а MBSS
-створюється при main-interface initialization. Деталі — IoT contract.
+Повна збірка #454 `39115399372` успішна для `594d98b`. Незалежно завантажено
+образ (artifact `12132218030`) і перевірено uImage magic, WR1200JS product ID,
+header/payload CRC, довжину й допустимий розмір; SHA-256
+`7a25388b2838a567dc61b4be179ebbc07f8162eebec1cb029d488a42eec31cfe`.
+Перевірено також прив’язку імені та SHA образу в інструкції. Kbuild JSON для
+цього запуску підтверджують source/config ліміти 16 BSS (MT7603) та 8
+(MT7612), а обов’язкова перевірка трьох BSS для 2.4 GHz пройшла. Runtime
+ліміт залишається непідтвердженим. Докази:
+`docs/evidence/WR1200JS-BUILD454.md` та суміжні JSON.
+
+ABI `39115399202` для `594d98b` успішний: зібраний MIPS код administrative
+ra2 UP і host-kernel fixture. Саме production radio reload/activation
+controller не підключено: звичайний restart очищає IoT gates, а MBSS
+створюється під час ініціалізації основного інтерфейсу. Деталі — IoT contract.
+Збірка #456 `39115846454` для `47735d6` успішна. Збірка #457
+`39116103457` для `4cd56a8` ще активна на кроці `Build WR1200JS firmware`;
+не запускати дублікат, поки цей run має статус `in_progress`.
+
+Локальний IoT capacity self-test `py -3 tools/iot/check-capacity-selftest.py`
+повторно пройшов у схваленому Windows execution context з кодом 0. Він
+перевіряє синтетичні Kbuild fixtures і відмови на помилках/тайм-ауті, не
+перевіряє фізичну радіомісткість. #453 final image/guide binding перевірено
+окремо в попередньому checkpoint; його доказовий звіт збережений у
+`docs/evidence/WR1200JS-BUILD453.md`.
 
 ABI run `39113907911` (`52c802b`) підтвердив успішний крок
 `Prepare pinned RC IoT bridge and owned radio-stop hook`, включно зі створенням
