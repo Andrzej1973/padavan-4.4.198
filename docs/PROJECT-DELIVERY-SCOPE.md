@@ -69,7 +69,7 @@ no automatic source-profile removal is authorized. The owner reports about
 150 Mbit/s on the current AWG connection; retain this as an owner-reported
 benchmark reference, not a verified limit or performance promise for 4.4.
 
-Current implementation has one shared client role (wg0) and one shared server
+Historical baseline before independent-profile integration: one shared client role (wg0) and one shared server
 role (wg1), not a multi-profile manager. The client additionally hard-codes
 routing table 51, fwmark 51820, rule preferences 5181/5182, shared ipsets,
 watchdog lock, network-list files and post-script. Independent concurrent
@@ -78,6 +78,17 @@ routes and firewall reconstruction as well as distinct interface names.
 Renaming labels alone does not satisfy the request. Verify persistence,
 per-profile QR contents and that editing/stopping one profile preserves the
 other tunnel and management access before claiming support.
+
+Implementation checkpoint, 2026-10-18: the independent manager and scoped
+lifecycle are implemented alongside the retained legacy roles. WebUI supports
+save-only creation, Up/Down/Delete, private export/QR, bounded pagination,
+manual list refresh and explicit interface observations that expire to unknown.
+Browser editing of an existing independent profile remains open; CLI edit
+does not satisfy that UI requirement. Firmware #425 passed CI and includes
+storage-directory permission repair, but physical concurrent tunnels, recovery,
+reboot persistence and the WG-to-AWG management handover remain unaccepted.
+See EXECUTION-ROLE.md for the current build/test checkpoint. Preserve all
+delivery requirements below; these component results do not finish the port.
 
 ## Delivery order — user confirmation 2026-10-10
 
