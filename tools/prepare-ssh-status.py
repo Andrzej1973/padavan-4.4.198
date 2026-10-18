@@ -47,7 +47,8 @@ row_end = '''</tr>
 unsupported = '''if(!found_app_sshd()){
 \t\tshowhide_div('row_sshd', 0);
 \t\ttextarea_sshd_enabled(0);
-\t}'''
+\t}else
+\t\tsshd_auth_change();'''
 if (html.count(row_anchor) != 1 or html.count(row_end) != 1 or
         html.count(unsupported) != 1 or 'id="wr_ssh_process_status"' in html):
     raise SystemExit('SSH status page anchors changed')
@@ -106,8 +107,13 @@ init_status = '''if(!found_app_sshd()){
 \t}else{
 \t\twrSSHRender(<% wr_ssh_process_state(); %>);
 \t\twindow.setInterval(wrSSHRefresh, 30000);
+\t\tsshd_auth_change();
 \t}'''
 html = html.replace(unsupported, init_status, 1)
+if html.count("window.setInterval(wrSSHRefresh, 30000);\n\t\tsshd_auth_change();") != 1:
+    raise SystemExit('SSH authorization controls are not initialized with the status observer')
+if "\n\t\t}else\n\t\tsshd_auth_change();" in html:
+    raise SystemExit('Unexpected dangling SSH authorization branch')
 
 translations = {
     'EN.footer': {

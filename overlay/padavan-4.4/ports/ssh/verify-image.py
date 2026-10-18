@@ -3,6 +3,7 @@
 import argparse
 import json
 from pathlib import Path
+import re
 
 parser = argparse.ArgumentParser()
 parser.add_argument('trunk', type=Path)
@@ -72,6 +73,19 @@ try:
                   '<% wr_ssh_process_state(); %>',
                   'wr_ssh_observed_at', 'toLocaleTimeString()')
     checks['runtime_status_ui'] = all(marker in page for marker in ui_markers)
+    checks['ssh_authorized_keys_ui'] = all(marker in page for marker in (
+        'id="row_ssh_keys"',
+        "spoiler_toggle('authorized_keys')",
+        'name="scripts.authorized_keys"',
+        "showhide_div('row_ssh_keys', v)",
+        'textarea_sshd_enabled(v)',
+    ))
+    checks['ssh_authorized_keys_init'] = bool(re.search(
+        r"if\(!found_app_sshd\(\)\)\{[\s\S]*?"
+        r"showhide_div\('wr_ssh_status_row', 0\);\s*\}else\{[\s\S]*?"
+        r"wrSSHRender\(<% wr_ssh_process_state\(\); %>\);\s*"
+        r"window\.setInterval\(wrSSHRefresh, 30000\);\s*"
+        r"sshd_auth_change\(\);\s*\}", page))
     httpd = (root / 'usr/sbin/httpd').read_bytes()
     checks['runtime_status_backend'] = b'wr_ssh_process_state' in httpd
     process_status_handlers = (
