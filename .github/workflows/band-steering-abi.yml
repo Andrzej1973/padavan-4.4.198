@@ -140,6 +140,7 @@ jobs:
             trunk/user/httpd
             trunk/user/www
             trunk/user/wireless_tools
+            trunk/linux-4.4.x/drivers/nvram
             trunk/linux-4.4.x/include/linux
             trunk/linux-4.4.x/include/nvram
             trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x2
