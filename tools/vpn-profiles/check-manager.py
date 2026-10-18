@@ -192,6 +192,35 @@ int main(void)
  lock_path.unlink();lock_path.write_bytes(b'');lock_path.chmod(0o644)
  assert not run(['create','21','wireguard'],wg,3)
  assert not (store/'21').exists();lock_path.unlink()
+ # A real edit process holds the outer lock while waiting for stdin. Probe
+ # flock to synchronize; never rely on a fixed sleep or call a network action
+ # unless the competing command has demonstrably acquired the lock first.
+ assert run(['create','40','wireguard'],wg)=='saved\t40\t1\n'
+ competing=subprocess.Popen([str(exe),'edit','40','1'],stdin=subprocess.PIPE,
+                            stdout=subprocess.PIPE,stderr=subprocess.PIPE,env=env)
+ try:
+  deadline=time.monotonic()+2;observed=False
+  with (root/'run/.mutation-40').open('r+') as probe:
+   while time.monotonic()<deadline:
+    try:
+     fcntl.flock(probe,fcntl.LOCK_EX|fcntl.LOCK_NB)
+     fcntl.flock(probe,fcntl.LOCK_UN)
+    except BlockingIOError:
+     observed=True;break
+    assert competing.poll() is None
+    time.sleep(0.01)
+  assert observed,'edit did not acquire the mutation lock'
+  for action in ('up','delete'):
+   assert not run([action,'40'],'',4)
+  output,errors=competing.communicate(edited.encode(),timeout=5)
+  assert competing.returncode==0 and output==b'saved\t40\t2\n' and not errors
+ finally:
+  if competing.poll() is None:
+   competing.kill();competing.communicate(timeout=5)
+ assert run(['export','40'])==edited
+ assert run(['delete','40'])=='deleted\t40\t3\n'
+ assert run(['export','1'])==awg and run(['export','2'])==edited
+ print('PASS synchronized real-process edit blocks Up/Delete before mutation and releases the lock after stdin completion; neighbors unchanged')
  print('PASS outer per-ID mutation lock: competing edit/delete/up/down/apply refused; read-only export and a different ID remain usable')
  print('PASS real HTTP create/edit to manager/native validators/store: independent WG/AWG records, exact exports, revision increment, stale/invalid refusal, neighboring records preserved; no activation')
  # Fixed validator path failure must not save or expose a profile.
