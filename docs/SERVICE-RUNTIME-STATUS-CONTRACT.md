@@ -17,7 +17,16 @@ emitted-page Node fixture passed locally (a fixed local fixture directory was
 used because Windows sandbox temporary-directory creation failed). The ROMFS
 gate requires the expiry controls. CI and physical browser acceptance remain
 pending; this does not activate swap or change its configuration. DNS/DoH
-observation expiry remains a separate open item.
+observation expiry was a separate open item at that checkpoint.
+
+Follow-up: Stubby/DoH initial and AJAX observations now share the same
+45-second lifetime and visibility-return check. Expiry clears both the DoH
+process label and all slot descriptions to unknown. A generation guard keeps
+old timers from replacing newer data. The emitted DoT/DoH Node fixture passed
+locally; both ROMFS verifiers now require these controls. CI/image/physical
+acceptance remains pending for this change. These remain process observations,
+not functional DNS/TLS checks; the live router's intentionally disabled DNS
+services were not changed.
 
 ## Independent VPN profile link freshness
 

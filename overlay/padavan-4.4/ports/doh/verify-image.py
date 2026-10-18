@@ -53,6 +53,7 @@ try:
     keys = ['doh_enable', 'doh_server0', 'doh_server1', 'doh_server2', 'doh_server3', 'doh_quic', 'doh_bootstrap_dns', 'doh_listen_port', 'doh_listen_mode', 'doh_mode']
     checks['webui'] = all(key in page for key in keys) and 'login_safe()' in page and 'found_app_doh()' in page
     checks['observed_process_ui'] = all(marker in page for marker in ('id="wr_dns_process_status"', 'id="wr_doh_instances"', 'output:"wr_doh_instance_state"', 'wrDoHRender', 'configuredMask', 'duplicateMask', 'window.setInterval(wrDNSRefresh,30000)', 'document.hidden', 'onclick="wrDNSRefresh()"'))
+    checks['observation_expiry_ui'] = all(marker in page for marker in ('wrDNSRender', 'generation===wrDNSGeneration', '},45000)', 'Date.now()-wrDNSSampledAt>=45000'))
     for locale in ('EN', 'UK', 'RU'):
         shipped = target('/www/' + locale + '.dict').read_text(encoding='utf-8')
         checks['observed_locale_' + locale.lower()] = all('\nWRDNS' + key + '=' in shipped for key in ('Off', 'Present', 'Absent', 'Unknown', 'StillPresent', 'Note', 'Refresh', 'NoSlots', 'ConfiguredSlots', 'OwnedSlots', 'MissingSlots', 'UnknownSlots', 'UnexpectedSlots', 'DuplicateSlots', 'InstanceNote'))

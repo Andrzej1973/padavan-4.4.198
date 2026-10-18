@@ -75,6 +75,21 @@ for page, service in [('Advanced_Services_DoT.asp', 'stubby'), ('Advanced_Servic
         refresh=refresh.replace('$j("#wr_dns_process_status").text(typeof state === "number" && labels[state] || labels[3]);','wrDoHRender(state);')
         refresh=refresh.replace('$j("#wr_dns_process_status").text(labels[3]);','wrDoHRender(null);')
         js='\n wrDoHRender(<% wr_doh_instance_state(); %>);\n'
+    # Route initial and AJAX observations through the same bounded lifetime.
+    if service=='doh':
+        refresh=refresh.replace('wrDoHRender(state);','wrDNSRender(state);').replace('wrDoHRender(null);','wrDNSRender(null);')
+        js='\n wrDNSRender(<% wr_doh_instance_state(); %>);\n'
+        display='wrDoHRender(value);'
+    else:
+        refresh=refresh.replace('$j("#wr_dns_process_status").text(typeof state === "number" && labels[state] || labels[3]);','wrDNSRender(state);')
+        refresh=refresh.replace('$j("#wr_dns_process_status").text(labels[3]);','wrDNSRender(null);')
+        js='\n wrDNSRender(<% wr_dns_process_state("stubby"); %>);\n'
+        display='var labels=['+','.join('"<#WRDNS'+k+'#>"' for k in keys[:5])+'];\n'
+        display+='var valid=typeof value==="number" && Math.floor(value)===value && value>=0 && value<5;\n$j("#wr_dns_process_status").text(valid ? labels[value] : labels[3]);'
+    refresh+='\nvar wrDNSGeneration=0,wrDNSSampledAt=0;\nfunction wrDNSRender(value){\n'
+    refresh+=' var generation=++wrDNSGeneration;wrDNSSampledAt=0;\n'+display+'\n'
+    refresh+=' if(value!==null && value!==undefined){wrDNSSampledAt=Date.now();window.setTimeout(function(){if(generation===wrDNSGeneration)wrDNSRender(null);},45000);}\n}\n'
+    refresh+='document.addEventListener("visibilitychange",function(){if(!document.hidden && wrDNSSampledAt && Date.now()-wrDNSSampledAt>=45000)wrDNSRender(null);});\n'
     html = re.sub(r'(function initial\(\)\s*\{)', lambda m:refresh+m[1]+js+'\n window.setInterval(wrDNSRefresh,30000);\n', html, count=1)
     html = html.replace(table, '<div id="wr_dns_process_status" role="status"><#WRDNSUnknown#></div><p class="help-block"><#WRDNSNote#></p><button type="button" class="btn" onclick="wrDNSRefresh()"><#WRDNSRefresh#></button>\n' + table)
     if service=='doh':

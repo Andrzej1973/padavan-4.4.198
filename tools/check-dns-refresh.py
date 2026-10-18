@@ -34,7 +34,10 @@ with fixture_directory() as directory:
         assert 'onclick="wrDNSRefresh()"' in html
         test=r'''
 const assert=require('assert');
-var document={hidden:false},requests=0,display='',handlers={},lastOptions;
+var listeners={},timers=[],now=1000;
+var document={hidden:false,addEventListener:function(name,callback){listeners[name]=callback;}},requests=0,display='',handlers={},lastOptions;
+var window={setTimeout:function(callback,delay){assert.strictEqual(delay,45000);timers.push(callback);}};
+Date.now=function(){return now;};
 var instanceDisplay='';
 function $j(selector){assert(['#wr_dns_process_status','#wr_doh_instances'].includes(selector));return {text:function(value){if(selector==='#wr_dns_process_status')display=value;else instanceDisplay=value;}};}
 $j.ajax=function(options){requests++;lastOptions=options;handlers={};
@@ -55,6 +58,11 @@ handlers.fail();assert.strictEqual(display,'<#WRDNSUnknown#>');handlers.always()
 wrDNSRefresh();handlers.done('1');assert.strictEqual(display,'<#WRDNSUnknown#>');handlers.always();
 wrDNSRefresh();handlers.done(service==='doh'?{state:0,requested:0,configuredMask:3,ownedMask:0,unknownMask:0,duplicateMask:0}:0);assert.strictEqual(display,'<#WRDNSOff#>');handlers.always();
 if(service==='stubby')assert.strictEqual(lastOptions.data.arg0,'stubby');
+wrDNSRender(present);var older=timers[timers.length-1];wrDNSRender(present);older();
+assert.strictEqual(display,'<#WRDNSPresent#>');
+timers[timers.length-1]();assert.strictEqual(display,'<#WRDNSUnknown#>');
+if(service==='doh')assert.strictEqual(instanceDisplay,'<#WRDNSUnknown#>');
+wrDNSRender(present);now+=45001;listeners.visibilitychange();assert.strictEqual(display,'<#WRDNSUnknown#>');
 if(service==='doh'){
  for(const invalid of [null,{},present, {...present,ownedMask:16},{...present,ownedMask:1,unknownMask:1},{...present,duplicateMask:2}]){
   if(invalid===present)continue;
