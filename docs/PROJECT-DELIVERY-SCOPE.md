@@ -86,13 +86,16 @@ manual list refresh and explicit interface observations that expire to unknown.
 Browser editing is now implemented with authenticated private export,
 revision-bound POST and stopped-profile validation. Downloaded firmware #433
 independently confirms the form, compiled endpoint, EN/UK/RU text and guide;
-see evidence/WR1200JS-BUILD433.md. Later per-ID mutation locking and status
-expiry still require their own final-image evidence. Firmware #425 includes
-storage-directory permission repair, and #428 passed the shipped MIPS archive/
-restore/readback fixture. Physical concurrent tunnels, recovery,
-reboot persistence and the WG-to-AWG management handover remain unaccepted.
-See EXECUTION-ROLE.md for the current build/test checkpoint. Preserve all
-delivery requirements below; these component results do not finish the port.
+see evidence/WR1200JS-BUILD433.md. Build #441 passed the selected observer image
+gates; its TRX page/handler markers and BusyBox identity were independently
+checked in [build evidence](evidence/WR1200JS-BUILD441.md). That does not execute
+the per-ID mutation lock path; MIPS concurrency/locking behavior remains to be
+verified. Firmware #425 includes storage-directory permission repair, and #428
+passed the shipped MIPS archive/restore/readback fixture. Physical concurrent
+tunnels, recovery, reboot persistence and the WG-to-AWG management handover
+remain unaccepted. See EXECUTION-ROLE.md for the current build/test checkpoint.
+Preserve all delivery requirements below; these component results do not finish
+the port.
 
 ## Delivery order — user confirmation 2026-10-10
 

@@ -1,5 +1,15 @@
 # Supplied MI-MINI config — 2026-10-03
 
+## Additional local references — 2026-10-18
+
+User-found stock images, bootloader and Factory-like dumps have been preserved
+outside Git with verified SHA256 copies. See
+[analysis and usage limits](MI-MINI-USER-FILES-2026-10-18.md).
+The supplied board.h matches the pinned board; the EEPROM patch is not approved
+for incorporation. This reference import does not establish runtime acceptance.
+
+## Original supplied profile
+
 Preserved unchanged as mi-mini.source.config, SHA256
 2b20dd63a39ebe46eb402b71cf018c91eb63aeff13cc5045f1a928f55516c9e3.
 
