@@ -17,6 +17,7 @@ user = root / 'trunk/user'
 www = user / 'www/n56u_ribbon_fixed'
 www.mkdir(parents=True, exist_ok=True)
 (user / 'httpd/web_ex.c').write_text(
+    '#include <stdio.h>\n'
     'struct ej_handler ej_handlers[] =\n{\n'
     '\t{ "json_system_status", ej_system_status_hook},\n};\n')
 page = www / 'Advanced_Services_Content.asp'
@@ -95,12 +96,23 @@ backend = next(ast.literal_eval(node.value) for node in tree.body
                any(isinstance(target, ast.Name) and target.id == 'backend_code'
                    for target in node.targets))
 c_test = r'''
+#define _POSIX_C_SOURCE 200809L
 #include <assert.h>
+#include <dirent.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <unistd.h>
+#ifdef _WIN32
+#include <direct.h>
+#define mkdir(path,mode) _mkdir(path)
+#define rmdir(path) _rmdir(path)
+#define setenv(name,value,overwrite) _putenv_s(name,value)
+#endif
 #define R_OK 4
 #define X_OK 1
 #ifndef S_IFDIR
@@ -110,18 +122,36 @@ c_test = r'''
 #define S_IFREG 0100000
 #endif
 typedef FILE *webs_t;
-static int proc_unavailable, lld_binary_missing, adsc_binary_missing, vlmcsd_binary_missing;
+static int proc_unavailable, proc_readdir_error, comm_unreadable, lld_binary_missing, adsc_binary_missing, vlmcsd_binary_missing;
 static int sysfs_unavailable, sysfs_not_dir, watchdog_module_present, watchdog_stat_error;
-static int lltd_requested, lltd_active, adsc_requested, adsc_active, vlmcsd_requested, vlmcsd_active, watchdog_requested;
+static int lltd_requested, adsc_requested, vlmcsd_requested, watchdog_requested;
 static char output[16];
 static int mock_access(const char *path, int mode) {
- if (!strcmp(path,"/proc/self/stat") && mode==R_OK) return proc_unavailable;
+ if (!strcmp(path,"/proc") && mode==(R_OK|X_OK)) return proc_unavailable;
+ if (mode==X_OK && !proc_unavailable && ((!strcmp(path,"/bin/lld2d") && !lld_binary_missing) ||
+     (!strcmp(path,"/usr/sbin/infosvr") && !adsc_binary_missing) ||
+     (!strcmp(path,"/usr/bin/vlmcsd") && !vlmcsd_binary_missing))) return 0;
  if (!strcmp(path,"/bin/lld2d") && mode==X_OK) return lld_binary_missing;
  if (!strcmp(path,"/usr/sbin/infosvr") && mode==X_OK) return adsc_binary_missing;
  if (!strcmp(path,"/usr/bin/vlmcsd") && mode==X_OK) return vlmcsd_binary_missing;
  if (!strcmp(path,"/sys/module") && mode==(R_OK|X_OK)) return sysfs_unavailable;
  assert(0); return -1;
 }
+static DIR *mock_opendir(const char *path) {
+ const char *dir=getenv("WR_DISCOVERY_TEST_PROC");
+ if (!strcmp(path,dir)) return proc_unavailable ? (errno=EACCES,(DIR*)NULL) : opendir(dir);
+ return opendir(path);
+}
+static struct dirent *mock_readdir(DIR *dir) { if(proc_readdir_error){errno=EIO;return NULL;}struct dirent *entry=readdir(dir);if(!entry)errno=0;return entry; }
+static int mock_closedir(DIR *dir) { return closedir(dir); }
+static FILE *mock_fopen(const char *path,const char *mode) {
+ const char *dir=getenv("WR_DISCOVERY_TEST_PROC"); char expected[512];
+ snprintf(expected,sizeof(expected),"%s/321/comm",dir);
+ if (!strcmp(path,expected) && comm_unreadable) { errno=EACCES; return NULL; }
+ return fopen(path,mode);
+}
+static char *mock_fgets(char *buffer,int size,FILE *file) { return fgets(buffer,size,file); }
+static int mock_ferror(FILE *file) { return ferror(file); }
 static int mock_stat(const char *path, struct stat *buffer) {
  if (!strcmp(path,"/sys/module")) {
   if (sysfs_unavailable) { errno=ENOENT; return -1; }
@@ -140,40 +170,35 @@ static int nvram_get_int(const char *key) {
  if (!strcmp(key,"watchdog_cpu")) return watchdog_requested;
  assert(0); return 0;
 }
-static int pids(const char *name) {
- if (!strcmp(name,"lld2d")) return lltd_active;
- if (!strcmp(name,"infosvr")) return adsc_active;
- if (!strcmp(name,"vlmcsd")) return vlmcsd_active;
- assert(0); return -1;
-}
 static int websWrite(webs_t wp, const char *format, ...) {
  va_list args; int n; (void)wp; va_start(args,format);
  n=vsnprintf(output,sizeof(output),format,args); va_end(args); return n;
 }
-'''+backend.replace('access(', 'mock_access(').replace('stat(', 'mock_stat(')+r'''
+'''+backend.replace('access(', 'mock_access(').replace('stat(', 'mock_stat(').replace('opendir(', 'mock_opendir(').replace('readdir(', 'mock_readdir(').replace('closedir(', 'mock_closedir(').replace('fopen(', 'mock_fopen(').replace('fgets(', 'mock_fgets(').replace('ferror(', 'mock_ferror(')+r'''
 static void expect(int (*handler)(int,webs_t,int,char**),int expected) {
- handler(0,NULL,0,NULL); assert(output[0]=='0'+expected);
+ handler(0,NULL,0,NULL); if(output[0]!='0'+expected){fprintf(stderr,"expected %d, got %s\\n",expected,output);assert(output[0]=='0'+expected);}
 }
 int main(void) {
- lltd_requested=0;lltd_active=0;expect(ej_wr_lltd_process_state,0);
- lltd_requested=1;lltd_active=1;expect(ej_wr_lltd_process_state,1);
- lltd_active=0;expect(ej_wr_lltd_process_state,2);
- lltd_requested=0;lltd_active=1;expect(ej_wr_lltd_process_state,4);
- lltd_active=-1;expect(ej_wr_lltd_process_state,3);
- lltd_active=1;proc_unavailable=1;expect(ej_wr_lltd_process_state,3);
+ char procdir[]="discovery-proc-XXXXXX";
+ assert(mkdtemp(procdir));
+ setenv("WR_DISCOVERY_TEST_PROC",procdir,1);
+ { char path[512]; FILE *f; snprintf(path,sizeof(path),"%s/321",procdir);assert(!mkdir(path,0700));strcat(path,"/comm");f=fopen(path,"w");assert(f);fputs("idle\n",f);fclose(f); }
+ lltd_requested=0;expect(ej_wr_lltd_process_state,0);
+ lltd_requested=1;expect(ej_wr_lltd_process_state,2);
+ { char path[512]; FILE *f;snprintf(path,sizeof(path),"%s/321/comm",procdir);f=fopen(path,"w");assert(f);fputs("lld2d\n",f);fclose(f); }
+ expect(ej_wr_lltd_process_state,1);
+ lltd_requested=0;expect(ej_wr_lltd_process_state,4);
+ proc_unavailable=1;expect(ej_wr_lltd_process_state,3);proc_unavailable=0;
+ proc_readdir_error=1;expect(ej_wr_lltd_process_state,3);proc_readdir_error=0;
+ comm_unreadable=1;expect(ej_wr_lltd_process_state,3);comm_unreadable=0;
+ { char path[512];snprintf(path,sizeof(path),"%s/321/comm",procdir);assert(!unlink(path)); }
  proc_unavailable=0;lld_binary_missing=1;expect(ej_wr_lltd_process_state,3);
- lld_binary_missing=0;adsc_requested=1;adsc_active=1;expect(ej_wr_adsc_process_state,1);
- adsc_active=0;expect(ej_wr_adsc_process_state,2);
- adsc_active=-1;expect(ej_wr_adsc_process_state,3);
- adsc_active=1;adsc_binary_missing=1;expect(ej_wr_adsc_process_state,3);
+ lld_binary_missing=0;adsc_requested=1;expect(ej_wr_adsc_process_state,2);
+ adsc_binary_missing=1;expect(ej_wr_adsc_process_state,3);
  ej_wr_adsc_process_state(0,NULL,1,NULL);assert(!strcmp(output,"3"));
- vlmcsd_requested=0;vlmcsd_active=0;expect(ej_wr_vlmcsd_process_state,0);
- vlmcsd_requested=1;vlmcsd_active=1;expect(ej_wr_vlmcsd_process_state,1);
- vlmcsd_active=0;expect(ej_wr_vlmcsd_process_state,2);
- vlmcsd_requested=0;vlmcsd_active=1;expect(ej_wr_vlmcsd_process_state,4);
- vlmcsd_active=-1;expect(ej_wr_vlmcsd_process_state,3);
- vlmcsd_active=1;proc_unavailable=1;expect(ej_wr_vlmcsd_process_state,3);
- proc_unavailable=0;vlmcsd_binary_missing=1;expect(ej_wr_vlmcsd_process_state,3);
+ vlmcsd_requested=0;expect(ej_wr_vlmcsd_process_state,0);
+ vlmcsd_requested=1;expect(ej_wr_vlmcsd_process_state,2);
+ vlmcsd_binary_missing=1;expect(ej_wr_vlmcsd_process_state,3);
  vlmcsd_binary_missing=0;ej_wr_vlmcsd_process_state(0,NULL,1,NULL);assert(!strcmp(output,"3"));
  watchdog_requested=0;watchdog_module_present=0;expect(ej_wr_watchdog_module_state,0);
  watchdog_requested=1;watchdog_module_present=1;expect(ej_wr_watchdog_module_state,1);
@@ -183,6 +208,7 @@ int main(void) {
  sysfs_unavailable=0;sysfs_not_dir=1;expect(ej_wr_watchdog_module_state,3);
  sysfs_not_dir=0;watchdog_stat_error=EACCES;expect(ej_wr_watchdog_module_state,3);
  ej_wr_watchdog_module_state(0,NULL,1,NULL);assert(!strcmp(output,"3"));
+ { char dir[512];snprintf(dir,sizeof(dir),"%s/321",procdir);assert(!rmdir(dir));assert(!rmdir(procdir)); }
  puts("PASS LLTD/ASUS/KMS process and watchdog module states, including unknown conditions");
  return 0;
 }
@@ -191,5 +217,5 @@ c_file = root / 'discovery.c'
 c_file.write_text(c_test, encoding='utf-8')
 exe = root / 'discovery-check'
 subprocess.run(['gcc', '-std=c99', '-Wall', '-Wextra', '-Werror',
-                str(c_file), '-o', str(exe)], check=True)
+                '-DWR_DISCOVERY_STATUS_TEST', str(c_file), '-o', str(exe)], check=True)
 subprocess.run([str(exe)], check=True)

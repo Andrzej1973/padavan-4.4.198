@@ -19,15 +19,61 @@ if (text.count(array_anchor) != 1 or text.count(system_entry) != 1 or
 
 backend_code = r'''
 /* Process presence does not verify LLTD or ASUS discovery exchanges. */
+static int wr_process_present(const char *name)
+{
+ DIR *proc;
+ struct dirent *entry;
+ int found = 0, read_error = 0;
+ const unsigned char *p;
+ const char *proc_path = "/proc";
+#ifdef WR_DISCOVERY_STATUS_TEST
+ const char *test_proc_path = getenv("WR_DISCOVERY_TEST_PROC");
+ if (test_proc_path && *test_proc_path) proc_path = test_proc_path;
+#endif
+ proc = opendir(proc_path);
+ if (!proc) return -1;
+ for (;;) {
+  char path[256], comm[64];
+  FILE *file;
+  size_t length;
+  errno = 0;
+  entry = readdir(proc);
+  if (!entry) { if (errno) read_error = 1; break; }
+  p = (const unsigned char *)entry->d_name;
+  if (!*p) continue;
+  while (*p && *p >= '0' && *p <= '9') p++;
+  if (*p || p == (const unsigned char *)entry->d_name) continue;
+  if (snprintf(path, sizeof(path), "%s/%s/comm", proc_path, entry->d_name) >= (int)sizeof(path)) {
+   read_error = 1;
+   break;
+  }
+  file = fopen(path, "r");
+  if (!file) {
+   if (errno != ENOENT && errno != ESRCH) read_error = 1;
+   continue;
+  }
+  if (!fgets(comm, sizeof(comm), file)) {
+   if (ferror(file)) read_error = 1;
+   fclose(file);
+   if (read_error) break;
+   continue;
+  }
+  fclose(file);
+  length = strlen(comm);
+  while (length && (comm[length - 1] == '\n' || comm[length - 1] == '\r')) comm[--length] = '\0';
+  if (!strcmp(comm, name)) found = 1;
+ }
+ if (closedir(proc)) read_error = 1;
+ return read_error ? -1 : found;
+}
 static int wr_discovery_process_state(const char *setting, const char *process,
                                       const char *program)
 {
  int requested, active;
- if (access("/proc/self/stat", R_OK) || access(program, X_OK)) return 3;
+ if (access("/proc", R_OK | X_OK) || access(program, X_OK)) return 3;
  requested = nvram_get_int(setting) > 0;
- active = pids(process);
+ active = wr_process_present(process);
  if (active < 0) return 3;
- active = active > 0;
  return active ? (requested ? 1 : 4) : (requested ? 2 : 0);
 }
 static int ej_wr_discovery_process_state(int eid, webs_t wp, int argc,
@@ -77,9 +123,14 @@ static int ej_wr_watchdog_module_state(int eid, webs_t wp, int argc, char **argv
  return websWrite(wp, "%d", state);
 }
 '''
-for include in ('#include <errno.h>', '#include <sys/stat.h>'):
-    if include not in text:
-        text = include + '\n' + text
+required_includes = ('#include <dirent.h>\n', '#include <errno.h>\n',
+                     '#include <string.h>\n', '#include <sys/stat.h>\n')
+include_block = ''.join(include for include in required_includes if include.strip() not in text)
+if include_block:
+    include_anchor = '#include <stdio.h>\n'
+    if text.count(include_anchor) != 1:
+        raise SystemExit('Could not locate web_ex.c include block')
+    text = text.replace(include_anchor, include_anchor + include_block, 1)
 entries = (system_entry +
            '\t{ "wr_lltd_process_state", ej_wr_lltd_process_state},\n' +
            '\t{ "wr_adsc_process_state", ej_wr_adsc_process_state},\n' +

@@ -40,6 +40,11 @@ unknown or expires, the displayed observation time is cleared.
 ## Limits / next step
 
 The process indicator does not prove that KMS requests are served or that
-client activation succeeds. Run the new verifier against the final assembled
+client activation succeeds. The pinned target `pids()` helper returns only
+0/1, so it cannot distinguish an inaccessible process table from no matching
+process. The observer uses a checked `/proc/<pid>/comm` scan instead and emits
+unknown if `/proc` enumeration or an individual process read fails. The host C
+fixture covers no-match, match, open failure, enumeration failure, and unreadable
+process entry cases. Run the new verifier against the final assembled
 `trunk/romfs` in CI and retain the result. Device runtime acceptance is not
 performed; the device stays on its previously confirmed firmware #396.
