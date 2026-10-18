@@ -57,19 +57,29 @@ if (html.count(switch_row) != 1 or html.count(after_switch) != 1 or
     raise SystemExit("Privoxy status page anchors changed")
 js = r'''
 var wrPrivoxyStatusBusy = false;
+var wrPrivoxyGeneration = 0, wrPrivoxySampledAt = 0;
 function wrPrivoxyRender(state) {
+    var generation = ++wrPrivoxyGeneration;
+    wrPrivoxySampledAt = 0;
     var labels = ["<#WRPrivoxyOff#>", "<#WRPrivoxyPresent#>", "<#WRPrivoxyMissing#>", "<#WRPrivoxyUnknown#>", "<#WRPrivoxyStillPresent#>"];
     var classes = ['text-muted', 'text-info', 'text-error', 'text-warning', 'text-warning'];
     var element = document.getElementById('wr_privoxy_process_status');
     if (!element) return;
-    var valid = typeof state === 'number' && state >= 0 && state < labels.length;
+    var valid = typeof state === 'number' && Math.floor(state) === state && state >= 0 && state < labels.length;
     element.textContent = valid ? labels[state] : labels[3];
     element.className = valid ? classes[state] : classes[3];
     if (valid && state !== 3) {
+        wrPrivoxySampledAt = Date.now();
+        window.setTimeout(function() {
+            if (generation === wrPrivoxyGeneration) wrPrivoxyRender(null);
+        }, 45000);
         var observedAt = document.getElementById('wr_privoxy_observed_at');
         if (observedAt) observedAt.textContent = '<#WRPrivoxyLastObservation#> ' + new Date().toLocaleTimeString();
     }
 }
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden && wrPrivoxySampledAt && Date.now() - wrPrivoxySampledAt >= 45000) wrPrivoxyRender(null);
+});
 function wrPrivoxyRefresh() {
     if (wrPrivoxyStatusBusy || document.hidden || !found_app_privoxy()) return;
     wrPrivoxyStatusBusy = true;

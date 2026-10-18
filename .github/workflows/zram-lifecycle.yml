@@ -2,6 +2,10 @@ name: Service runtime state checks
 on:
   push:
     paths:
+      - 'tools/prepare-ssh-status.py'
+      - 'tools/prepare-iperf3-status.py'
+      - 'tools/prepare-privoxy-status.py'
+      - 'tools/check-service-status-expiry.js'
       - 'overlay/padavan-4.4/patches/zram-service.diff'
       - 'tools/prepare-zram-lifecycle-check.py'
       - 'tools/prepare-zram-status-web.py'
@@ -99,6 +103,7 @@ jobs:
           checks/vpn-edit-request
           python3 tools/vpn-profiles/check-http-edit.py --output checks/vpn-http-edit
           node tools/vpn-profiles/check-edit-ui.js
+          node tools/check-service-status-expiry.js
           node tools/vpn-profiles/check-create-ui.js
           node tools/vpn-profiles/check-observe-ui.js
           node tools/vpn-profiles/check-list-ui.js

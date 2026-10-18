@@ -60,19 +60,29 @@ status_row = '''<tr id="wr_iperf3_status_row">
 html = html.replace(row_end, row_end + '\n' + status_row, 1)
 script = r'''
 var wrIperf3StatusBusy = false;
+var wrIperf3Generation = 0, wrIperf3SampledAt = 0;
 function wrIperf3Render(state) {
+    var generation = ++wrIperf3Generation;
+    wrIperf3SampledAt = 0;
     var labels = ["<#WRIperf3Off#>", "<#WRIperf3Present#>", "<#WRIperf3Missing#>", "<#WRIperf3Unknown#>", "<#WRIperf3StillPresent#>"];
     var classes = ['text-muted', 'text-info', 'text-error', 'text-warning', 'text-warning'];
     var element = document.getElementById('wr_iperf3_process_status');
     if (!element) return;
-    var valid = typeof state === 'number' && state >= 0 && state < labels.length;
+    var valid = typeof state === 'number' && Math.floor(state) === state && state >= 0 && state < labels.length;
     element.textContent = valid ? labels[state] : labels[3];
     element.className = valid ? classes[state] : classes[3];
     if (valid && state !== 3) {
+        wrIperf3SampledAt = Date.now();
+        window.setTimeout(function() {
+            if (generation === wrIperf3Generation) wrIperf3Render(null);
+        }, 45000);
         var observedAt = document.getElementById('wr_iperf3_observed_at');
         if (observedAt) observedAt.textContent = '<#WRIperf3LastObservation#> ' + new Date().toLocaleTimeString();
     }
 }
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden && wrIperf3SampledAt && Date.now() - wrIperf3SampledAt >= 45000) wrIperf3Render(null);
+});
 function wrIperf3Refresh() {
     if (wrIperf3StatusBusy || document.hidden || !found_app_iperf3()) return;
     wrIperf3StatusBusy = true;

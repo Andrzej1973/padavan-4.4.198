@@ -1,5 +1,16 @@
 # Actual service and driver state in WebUI
 
+## Process observation expiry — 2026-10-18
+
+SSH, iPerf3 and Privoxy process indicators now expire to unknown 45 seconds
+after receipt without a new observation. A visibility-change check invalidates
+old observations immediately when returning to a hidden tab. Generation guards
+prevent old timers from replacing newer results; noninteger states are rejected.
+The timestamp remains the historical last observation, not a claim of current
+health. Local emitted-JavaScript tests passed for all three observers. Full CI,
+final-image inclusion and physical browser behavior for this change remain open.
+No service lifecycle or saved enable setting is changed.
+
 ## Independent VPN profile link freshness
 
 The independent profile table has an explicit authenticated, bounded

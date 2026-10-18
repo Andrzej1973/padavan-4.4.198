@@ -62,19 +62,29 @@ status_row = '''</tr>
 html = html.replace(row_end, status_row, 1)
 script = r'''
 var wrSSHStatusBusy = false;
+var wrSSHGeneration = 0, wrSSHSampledAt = 0;
 function wrSSHRender(state) {
+    var generation = ++wrSSHGeneration;
+    wrSSHSampledAt = 0;
     var labels = ["<#WRSSHOff#>", "<#WRSSHPresent#>", "<#WRSSHMissing#>", "<#WRSSHUnknown#>", "<#WRSSHStillPresent#>"];
     var classes = ['text-muted', 'text-info', 'text-error', 'text-warning', 'text-warning'];
     var element = document.getElementById('wr_ssh_process_status');
     if (!element) return;
-    var valid = typeof state === 'number' && state >= 0 && state < labels.length;
+    var valid = typeof state === 'number' && Math.floor(state) === state && state >= 0 && state < labels.length;
     element.textContent = valid ? labels[state] : labels[3];
     element.className = valid ? classes[state] : classes[3];
     if (valid && state !== 3) {
+        wrSSHSampledAt = Date.now();
+        window.setTimeout(function() {
+            if (generation === wrSSHGeneration) wrSSHRender(null);
+        }, 45000);
         var observedAt = document.getElementById('wr_ssh_observed_at');
         if (observedAt) observedAt.textContent = '<#WRSSHLastObservation#> ' + new Date().toLocaleTimeString();
     }
 }
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden && wrSSHSampledAt && Date.now() - wrSSHSampledAt >= 45000) wrSSHRender(null);
+});
 function wrSSHRefresh() {
     if (wrSSHStatusBusy || document.hidden || !found_app_sshd()) return;
     wrSSHStatusBusy = true;
