@@ -203,6 +203,7 @@ jobs:
           fi
           python3 tools/prepare-ssh-status.py padavan-4.4
           python3 tools/prepare-cron-status.py padavan-4.4
+          python3 tools/prepare-discovery-status.py padavan-4.4
           python3 tools/prepare-vpn-interface-status.py padavan-4.4
           cp overlay/padavan-4.4/trunk/user/rp-l2tp/Makefile \
             padavan-4.4/trunk/user/rp-l2tp/Makefile

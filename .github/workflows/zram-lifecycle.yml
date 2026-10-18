@@ -5,6 +5,9 @@ on:
       - 'tools/prepare-ssh-status.py'
       - 'tools/prepare-cron-status.py'
       - 'tools/check-cron-status.py'
+      - 'tools/prepare-discovery-status.py'
+      - 'tools/check-discovery-status.py'
+      - 'overlay/padavan-4.4/ports/ssh/verify-image.py'
       - 'tools/prepare-iperf3-status.py'
       - 'tools/prepare-privoxy-status.py'
       - 'tools/check-service-status-expiry.js'
@@ -107,6 +110,7 @@ jobs:
           node tools/vpn-profiles/check-edit-ui.js
           node tools/check-service-status-expiry.js
           python3 tools/check-cron-status.py --output checks/cron-status
+          python3 tools/check-discovery-status.py --output checks/discovery-status
           node tools/vpn-profiles/check-create-ui.js
           node tools/vpn-profiles/check-observe-ui.js
           node tools/vpn-profiles/check-list-ui.js

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify SSH status UI and handler are present in the selected image."""
+"""Verify SSH, Cron and discovery-service observers are in the selected image."""
 import argparse
 import json
 from pathlib import Path
@@ -19,6 +19,14 @@ try:
     checks['cron_process_ui'] = all(marker in page for marker in (
         'wr_cron_process_status', 'wrCronRefresh', "output:'wr_cron_process_state'",
         'generation === wrCronGeneration', 'Date.now() - wrCronSampledAt >= 45000'))
+    discovery_markers = (
+        'wrLLTD_process_status', 'wrADSC_process_status',
+        "output:'wr_' + service + '_process_state'", 'wrDiscoveryRefresh',
+        'generation === wrDiscoveryGeneration[service]',
+        'Date.now() - wrDiscoverySampledAt[service] >= 45000',
+        '<% wr_lltd_process_state(); %>', '<% wr_adsc_process_state(); %>',
+        '<#WRLLDTPresent#>', '<#WRADSCPresent#>')
+    checks['discovery_process_ui'] = all(marker in page for marker in discovery_markers)
     checks['observation_expiry_ui'] = all(marker in page for marker in (
         'var wrSSHGeneration = 0', 'generation === wrSSHGeneration',
         '}, 45000)', "document.addEventListener('visibilitychange'",
@@ -32,6 +40,8 @@ try:
     httpd = (root / 'usr/sbin/httpd').read_bytes()
     checks['runtime_status_backend'] = b'wr_ssh_process_state' in httpd
     checks['cron_process_backend'] = b'wr_cron_process_state' in httpd
+    checks['discovery_process_backend'] = all(
+        marker in httpd for marker in (b'wr_lltd_process_state', b'wr_adsc_process_state'))
     status_keys = ('WRSSHObservedTitle', 'WRSSHOff', 'WRSSHPresent',
                    'WRSSHMissing', 'WRSSHUnknown', 'WRSSHStillPresent',
                    'WRSSHRefresh', 'WRSSHLastObservation',
@@ -44,17 +54,22 @@ try:
         checks['cron_locale_' + locale.lower()] = all(
             ('\nWRCron' + suffix + '=') in translated for suffix in
             ('Off', 'Present', 'Missing', 'Unknown', 'StillPresent', 'Refresh', 'ObservedNote'))
+        checks['discovery_locale_' + locale.lower()] = all(
+            ('\n' + key + '=') in translated for key in (
+                'WRLLTDObservedTitle', 'WRLLDTPresent', 'WRLLDTUnknown',
+                'WRLLTDObservedNote', 'WRADSCObservedTitle', 'WRADSCPresent',
+                'WRADSCUnknown', 'WRADSCObservedNote'))
 except (OSError, UnicodeError) as exc:
     checks['image_files_readable'] = False
     error = str(exc)
 else:
     error = None
 args.report.write_text(json.dumps({
-    'scope': 'SSH status UI and HTTP handler packaging; connection/authentication unverified',
+    'scope': 'SSH, Cron, LLTD and ASUS discovery process-observer packaging; service protocols and connections unverified',
     'checks': checks,
     'error': error,
 }, indent=2) + '\n')
 failed = [name for name, value in checks.items() if not value]
 if failed:
     raise SystemExit('SSH image check failed: ' + ', '.join(failed))
-print('SSH status UI, HTTP handler and EN/UK/RU labels found in ROMFS; connection/authentication remain unverified')
+print('SSH, Cron, LLTD and ASUS discovery observers plus EN/UK/RU labels found in ROMFS; protocol behavior remains unverified')

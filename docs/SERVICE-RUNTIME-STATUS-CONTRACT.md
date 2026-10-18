@@ -2,6 +2,26 @@
 
 ## Remaining administration-service coverage — 2026-10-18
 
+LLTD and ASUS Info Discovery now show their configured setting separately from
+the observed `lld2d` and `infosvr` processes. The process names and executable
+paths are verified against the build's pinned Padavan source revision
+`c25283e915a2a00a763774dd255b14aff997285e`, where `start_lltd()` launches
+`/bin/lld2d` and `start_infosvr()` launches `/usr/sbin/infosvr`. HTTP observers
+return disabled/inactive, enabled/present, enabled/absent, disabled/still
+present, or unknown if `/proc`, the provider binary or process observation is
+unavailable. The UI is localized, manually refreshable, avoids polling hidden
+tabs and expires observations after 45 seconds. This does not verify LLTD
+exchanges, ASUS discovery replies, or client visibility. Local emitted-handler
+and UI fixtures pass; final-image CI and physical-page behavior are pending.
+
+Hardware watchdog remains open. Pinned `services.c` requests
+`module_smart_load("rt_timer_wdg", NULL)` when `watchdog_cpu` is enabled, but
+this source observation alone does not establish that the module exists in the
+WR1200JS image, is registered, or is successfully serviced. Before adding a
+status label, verify the actual driver/image evidence and choose an observation
+that does not imply hardware timer operation from configuration or module
+presence alone.
+
 Cron implementation follow-up: an observed-process row is now prepared next to
 the existing Cron control, using `crond_enable` and the `crond` process launched
 by pinned services.c. Target #426 applet inventory includes crond/crontab.
@@ -16,19 +36,18 @@ status in the older paragraph below, not its runtime gap.
 
 At build #433 the Administration/Services page exposed Cron (`crond_enable`),
 LLTD (`lltd_enable`), ASUS discovery (`adsc_enable`) and hardware watchdog
-(`watchdog_cpu`) without observed-state adapters. Cron now has an adapter and
-its shipped page/handler markers are verified in build #441. LLTD, ASUS
-discovery and hardware watchdog still lack dedicated observed-state adapters.
-A switch value alone must not be reported as actual operation.
+(`watchdog_cpu`) without observed-state adapters. Cron has an adapter and its
+shipped page/handler markers are verified in build #441. LLTD and ASUS
+discovery now have bounded process observations; those do not establish protocol
+exchanges or client visibility. Hardware watchdog remains without a status
+adapter. A switch value alone must not be reported as actual operation.
 
-Next implementation work: verify the actual LLTD, ASUS discovery and watchdog
-providers and enabled capabilities from pinned source and target BusyBox, then
-add bounded read-only observations with EN/UK/RU explanations, page-entry/manual
-refresh, expiry and image gates. A Cron process still does not establish
-scheduled-job success. For watchdog, a daemon PID alone cannot establish
-hardware timer registration or petting; identify the real kernel/device evidence
-first. Retain the user's enable settings and do not activate services during
-this audit.
+Next implementation work: verify the watchdog's actual driver/image capability
+and determine a truthful observable state for it before adding a status UI. A
+Cron process still does not establish scheduled-job success. A watchdog module
+registration, if observable, would not by itself establish hardware timer
+registration or petting. Retain the user's enable settings and do not activate
+services during this audit.
 
 Current image evidence remains distinct: #433 proves VPN editor packaging;
 #426/#428 establish the documented target BusyBox/storage component checks.
