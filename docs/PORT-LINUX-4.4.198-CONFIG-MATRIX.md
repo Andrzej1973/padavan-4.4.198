@@ -8,7 +8,7 @@ The central policy is [configs.build/wr1200js.config](../configs.build/wr1200js.
 
 [tools/verify-wr1200js-config.py](../tools/verify-wr1200js-config.py) compares requested firmware selectors against those effective configs. It fails on mismatches, reports disabled missing selectors as not enabled, checks target identity and kernel radio-family selection, and records CPU_SLEEP as `port_pending` only if a downstream profile re-adds it. The active `configs.build/wr1200js.config` does not select CPU_SLEEP, per [CPU frequency policy](CPU-FREQUENCY-POLICY.md). Shortcut FE/SFE and Shadowsocks mode/umbrella mappings are explicit. The report checks configuration, not binary contents, runtime behavior or complete port success. Package/image gates remain separate.
 
-The config gate has subsequently been run in firmware CI. Current WR1200JS build #448, run [39104625566](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/39104625566) at `5dd2c80`, was still in progress at the 2026-10-18 checkpoint. Do not treat that run as a pass until its final result and artifacts are available.
+The config gate has subsequently been run in firmware CI. WR1200JS build #448, run [39104625566](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/39104625566) at `5dd2c80`, completed successfully. Its downloaded effective-config report matched all 112 requested options with zero mismatches and no pending options. The TRX checksum, target identity and image checks are recorded in [build evidence](evidence/WR1200JS-BUILD448.md). This remains build/image evidence, not physical device acceptance.
 
 ## Build evidence
 

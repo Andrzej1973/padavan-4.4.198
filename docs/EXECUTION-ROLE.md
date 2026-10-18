@@ -4,15 +4,28 @@
 
 ## Актуальний checkpoint — 2026-10-18
 
-Поточний опублікований HEAD — `42317e2` (`Refresh WR1200JS configuration
-status evidence`), Sol — виконавець. Кодова зміна статичної IPv6 topology є в
-`dd1e98c`; ABI CI `39104700313` завершився успішно. Його
-`iot-firewall-packets.json` підтверджує всі 21 IPv4/IPv6 TCP/UDP ізоляційні й
-дозволені шляхи, включно з DHCP-портами та блокуванням раніше відкритого LAN
-з'єднання. Neighbor discovery, реальні DNS/DHCP транзакції та target runtime
-не перевірялися. Service runtime CI `39104625513` для `5dd2c80` успішний.
-Повна WR1200JS збірка #448 (`39104625566`, `5dd2c80`) залишалася `in_progress`
-під час останнього огляду; продовжувати іншу незалежну роботу.
+Поточна гілка `main` містить виправлення монітора `d35e0f6` (`Prevent stale
+build failure reports`); Sol — виконавець. Локальний `main` синхронізовано з
+`origin/main` перед внесенням цього checkpoint.
+Монітор CI `39105245178` пройшов із виправленою дедуплікацією: старіший
+повільний run не може перезаписати звіт новішого за `created_at`.
+
+Повна WR1200JS збірка #448 (`39104625566`, код прошивки `5dd2c80`)
+завершилась успішно. Завантажений TRX та ефективна конфігурація незалежно
+перевірені; SHA-256, 112 параметрів, target identity, образні гейти й CAKE
+відсутність задокументовані в
+[`docs/evidence/WR1200JS-BUILD448.md`](evidence/WR1200JS-BUILD448.md).
+QEMU також підтвердив резолв через image Stubby з автентифікованим DoT,
+Strict mode та відновленням після розблокування TCP/853. Це не фізична
+перевірка роутера. Target BusyBox звіт успішний за своїм обмеженим обсягом,
+але позначає `whole_service_audit_complete: false`.
+
+Статична IPv6 topology зміна є в `dd1e98c`; ABI CI `39104700313` пройшов.
+Його `iot-firewall-packets.json` підтверджує всі 21 IPv4/IPv6 TCP/UDP
+ізоляційні й дозволені шляхи, включно з DHCP-портами та блокуванням раніше
+відкритого LAN з'єднання. Neighbor discovery, реальні DNS/DHCP транзакції та
+target runtime там не перевірялися. Service runtime CI `39104625513` для
+`5dd2c80` успішний.
 
 Firmware build #447 (`39103157692`, `e07f398`) завершився невдачею на
 `Verify SSH status UI and handler in image`. Оригінальний лог і артефакт
@@ -21,8 +34,8 @@ Firmware build #447 (`39103157692`, `e07f398`) завершився невдач
 правка `verify-image.py` перевіряє фактичне відображення і вибір `data.output`;
 `tools/check-discovery-status.py` тепер фіксує ці маркери у fixture. Локальні
 C/Node fixtures і Python AST перевірки пройшли. Правку опубліковано в
-`5dd2c80`; service runtime перевірка пройшла, а image/build acceptance ще
-залежить від повної firmware CI #448. Успіх образу поки не підтверджений.
+`5dd2c80`; service runtime перевірка пройшла, а повна image/build acceptance
+підтверджена успішною збіркою #448 та артефактами у BUILD448 evidence.
 
 IoT ABI run `39103854743` для `c403909` завершився до встановлення firewall
 фільтрів: `tools/iot/check-firewall-packets.py` не зміг пройти базове TCP
@@ -37,8 +50,8 @@ firewall-політику. У `dd1e98c` опубліковано статичн�
 це як перевірку NDP або фізичного роутера; пакетні очікування не послаблювалися.
 
 Поточний `configs.build/wr1200js.config` містить `CONFIG_FIRMWARE_INCLUDE_SQM=n`;
-WR1200JS build workflow перевіряє, що SQM/CAKE відсутні в ефективному ядрі та
-ROMFS. Ці фінальні артефактні перевірки має підтвердити збірка #448.
+у #448 ефективне ядро залишило `CONFIG_NET_SCH_CAKE` вимкненим, а build-step
+перевірив відсутність `sch_cake.ko` у ROMFS.
 
 Фізичний роутер не перевірявся; керівний тунель відключений, не змінювати
 пристрій і не стверджувати runtime-приймання.
