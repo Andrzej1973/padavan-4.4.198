@@ -1158,6 +1158,8 @@ jobs:
           if grep -q '^CONFIG_FIRMWARE_INCLUDE_PRIVOXY=y$' configs.build/wr1200js.config; then
             python3 overlay/padavan-4.4/ports/privoxy/verify-image.py \
               padavan-4.4/trunk privoxy-image-checks.json
+            python3 tools/check-privoxy-target-config.py padavan-4.4/trunk/romfs \
+              --report privoxy-target-config.json
           fi
 
       - name: Upload Privoxy image diagnostics
@@ -1167,7 +1169,9 @@ jobs:
           name: privoxy-image-checks
           retention-days: 14
           if-no-files-found: ignore
-          path: privoxy-image-checks.json
+          path: |
+            privoxy-image-checks.json
+            privoxy-target-config.json
 
       - name: Verify iPerf3 status UI and handler in image
         run: |
@@ -1337,6 +1341,7 @@ jobs:
             wpad-image-checks.json
             stubby-image-checks.json
             privoxy-image-checks.json
+            privoxy-target-config.json
             doh-image-checks.json
             firmware-effective.config
             kernel-effective.config

@@ -65,6 +65,7 @@ on:
       - 'tools/services-nav/**'
       - 'tools/check-zerotier-state.py'
       - 'tools/check-target-busybox.py'
+      - 'tools/check-privoxy-target-config.py'
       - 'tools/prepare-target-busybox.py'
       - 'tools/prepare-ssh-status.py'
       - 'tools/prepare-cron-status.py'
