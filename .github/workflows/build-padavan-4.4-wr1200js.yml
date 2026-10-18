@@ -45,6 +45,9 @@ jobs:
             libltdl-dev libgmp-dev libmpfr-dev libarchive-tools libblkid-dev \
             python3-docutils ccache
 
+      - name: Check discovery status generator before firmware compilation
+        run: python3 tools/check-discovery-status.py --output "$RUNNER_TEMP/wr1200js-discovery-fixture"
+
       - name: Restore compiler cache
         id: compiler_cache
         uses: actions/cache/restore@v6
@@ -1153,7 +1156,8 @@ jobs:
       - name: Verify SSH status UI and handler in image
         run: |
           python3 overlay/padavan-4.4/ports/ssh/verify-image.py \
-            padavan-4.4/trunk ssh-image-checks.json
+            padavan-4.4/trunk ssh-image-checks.json \
+            --source-page padavan-4.4/trunk/user/www/n56u_ribbon_fixed/Advanced_Services_Content.asp
 
       - name: Upload SSH image diagnostics
         if: always()

@@ -7,6 +7,8 @@ from pathlib import Path
 parser = argparse.ArgumentParser()
 parser.add_argument('trunk', type=Path)
 parser.add_argument('report', type=Path)
+parser.add_argument('--source-page', type=Path,
+                    help='pre-ROMFS source page for locating lost WebUI markers')
 args = parser.parse_args()
 root = args.trunk / 'romfs'
 checks = {}
@@ -44,6 +46,12 @@ try:
         checks['discovery_process_ui_' + name] = marker in page
     checks['discovery_process_ui'] = all(
         checks['discovery_process_ui_' + name] for name in discovery_markers)
+    if args.source_page:
+        source_page = args.source_page.read_text(encoding='utf-8')
+        for name, marker in discovery_markers.items():
+            checks['discovery_source_ui_' + name] = marker in source_page
+        checks['discovery_source_ui'] = all(
+            checks['discovery_source_ui_' + name] for name in discovery_markers)
     checks['observation_expiry_ui'] = all(marker in page for marker in (
         'var wrSSHGeneration = 0', 'generation === wrSSHGeneration',
         '}, 45000)', "document.addEventListener('visibilitychange'",
