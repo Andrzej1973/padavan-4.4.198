@@ -14,12 +14,15 @@ MT7603 має source/config межу 16 BSS, MT7612 — 8; повний ауди
 не підтверджено. Деталі та межі доказів:
 `docs/evidence/WR1200JS-BUILD457.md` і суміжні JSON.
 
-Поточний локальний HEAD — `d4e361ad58b75eef24c8a2b3df6dd1fd65ee8158`, звітний
-коміт після firmware commit #457. GitHub connector підтвердив jobs #457; локальний
-Git-запит до origin цього разу впав через недоступний proxy `127.0.0.1:9`, тож
-remote HEAD не підтверджений. Read-only SSH і HTTP до `192.168.20.1` завершилися
-тайм-аутами. Роутер не змінювався; запуск ядра 4.4.198 та runtime цього образу
-не підтверджені. Не прошивати й не перезавантажувати його без окремого дозволу.
+Поточний локальний HEAD — 7c50b4b (звітний коміт після firmware commit #457).
+GitHub connector підтвердив jobs #457; локальний запит до origin нещодавно
+впав через proxy 127.0.0.1:9, тож remote HEAD не підтверджений. 2026-10-18
+read-only SSH до пристрою відповідає: ядро 4.4.198, обидва головні
+радіоінтерфейси активні, ZRAM є у /proc/swaps, dnsmasq/dropbear працюють,
+wg1 існує й модуль AmneziaWG завантажено. Stubby, https-dns-proxy, ZeroTier,
+Privoxy та Shadowsocks-процеси не виявлено. Це часткова перевірка, не
+функціональне приймання; межі — docs/evidence/DEVICE-READONLY-AUDIT-2026-10-18.md.
+Роутер не змінювався. Не прошивати й не перезавантажувати без окремого дозволу.
 
 ABI `39115399202` для `594d98b` успішний: зібраний MIPS код administrative
 ra2 UP і host-kernel fixture. Саме production radio reload/activation
