@@ -1,0 +1,17 @@
+{
+  "scope": "Padavan uImage upload structure; device boot unverified",
+  "image": "WR1200JS_4.4.198.9-454_594d98b6.trx",
+  "bytes": 12621707,
+  "sha256": "7a25388b2838a567dc61b4be179ebbc07f8162eebec1cb029d488a42eec31cfe",
+  "declared_payload_bytes": 12621643,
+  "architecture_id": 5,
+  "compression_id": 3,
+  "checks": {
+    "uimage_magic": true,
+    "product_id": true,
+    "header_crc": true,
+    "declared_length": true,
+    "payload_crc": true,
+    "size_range": true
+  }
+}
