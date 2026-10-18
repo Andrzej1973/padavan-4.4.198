@@ -126,6 +126,7 @@ proc main() =
   let token = getEnv("GITHUB_TOKEN", getEnv("GH_TOKEN"))
   let workflows = getEnv("BUILD_MONITOR_WORKFLOWS", defaultWorkflows).split('|')
   let statePath = directory / "build-monitor-state.json"
+  let statusPath = directory / "build-monitor-status.json"
   createDir(directory)
   let lockPath = directory / "build-monitor.lock"
   if existsOrCreateDir(lockPath):
@@ -176,6 +177,14 @@ proc main() =
         atomicWrite(statePath, $seen)
         echo "Initial snapshot recorded; existing failures suppressed. Use --report-existing or --run-id to inspect them."
         baseline = false
+      atomicWrite(statusPath, $(%*{
+        "state": "ok",
+        "checked_at_utc": now().utc.format("yyyy-MM-dd'T'HH:mm:ss'Z'"),
+        "pid": getCurrentProcessId(),
+        "repository": repo,
+        "runs_examined": runs.len,
+        "interval_seconds": interval
+      }))
       backoff = interval
       if once: return
     except CatchableError as error:
@@ -183,6 +192,16 @@ proc main() =
       backoff = min(900, backoff * 2)
       stderr.writeLine("Monitor check failed (" & $error.name & "); retaining previous failure report. Retry in " & $backoff & "s.")
       if error.msg.startsWith("GitHub HTTP "): stderr.writeLine(error.msg)
+      try:
+        atomicWrite(statusPath, $(%*{
+          "state": "error",
+          "checked_at_utc": now().utc.format("yyyy-MM-dd'T'HH:mm:ss'Z'"),
+          "pid": getCurrentProcessId(),
+          "repository": repo,
+          "retry_seconds": backoff,
+          "error_type": $error.name
+        }))
+      except CatchableError: discard
       if once: raise
     sleep(backoff * 1000)
 
