@@ -35,7 +35,8 @@ assert page.count("<% wr_vpn_profile_rows(); %>") == 1, "page call missing"
 assert "<#WRVPN_PROFILES_TITLE#>" in page, "page title key missing"
 assert page.count("<% wr_vpn_token(); %>") == 1, "page token missing"
 assert "wrVPNAct" in page and "wr_vpn_action.cgi" in page, "page action script missing"
-assert page.count("wr_vpn_export.cgi") == 1 and "wrVPNQr" in page, "page export script missing"
+assert page.count("wr_vpn_export.cgi") == 2 and "function wrVPNQr(" in page and "function wrVPNEdit(" in page, "QR/editor export scripts missing"
+assert page.count("/wr_vpn_edit.cgi") == 1 and 'id="wr_vpn_editor"' in page, "revision-bound editor missing"
 
 script = re.search(r"//<!\[CDATA\[(.*?)//\]\]>", page, re.S)
 assert script, "page action script block missing"
