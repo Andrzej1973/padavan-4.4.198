@@ -73,8 +73,15 @@ IPv6 topology baseline but failed connecting from IoT to the LAN TCP listener
 test routing setup, so it proves neither a policy pass nor a policy defect.
 The fixture now enables forwarding on each routed interface explicitly and
 prints route/address/neighbour/sysctl diagnostics if a baseline path fails.
-The next ABI run `39103063444` stopped before the packet test because `sysctl`
+ABI run `39103063444` stopped before the packet test because `sysctl`
 interpreted the dot in interface name `eth2.2` as a path separator. The fixture
 now writes and reads the exact `/proc/sys/net/ipv6/conf/eth2.2/forwarding`
-path. This correction was published as `770a7c5`; ABI rerun `39103236496` is
-running. No IPv6 packet-policy conclusion is established yet.
+path. This correction was published as `770a7c5`. ABI rerun `39103236496`
+passed setup and policy preparation but failed before firewall installation:
+the IoT namespace could not reach the LAN IPv6 listener, and `fd51::2` remained
+`INCOMPLETE` in the host bridge neighbor table. The original job log was
+reviewed with `build_log.nim`; this is a host-test topology failure, not
+evidence for or against the firewall policy. Diagnostics now also capture the
+LAN namespace IPv6 address/route/neighbour state, its veth, and bridge FDB to
+locate the missing NDP response. No IPv6 packet-policy conclusion is
+established yet.

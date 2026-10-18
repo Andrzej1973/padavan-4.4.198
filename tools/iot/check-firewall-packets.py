@@ -89,6 +89,11 @@ def require_baseline(path):
  for args in (
   ['ip','-n',path[0],'-6','route','get',path[1]],
   ['ip','-n',path[0],'-6','addr','show'],
+  ['ip','-n','lan','-6','addr','show'],
+  ['ip','-n','lan','-6','route','show'],
+  ['ip','-n','lan','-6','neigh','show'],
+  ['ip','-n','lan','link','show','eth0'],
+  ['bridge','fdb','show','br','br0'],
   ['ip','-6','route','show'],
   ['ip','-6','addr','show'],
   ['ip','-6','neigh','show'],
