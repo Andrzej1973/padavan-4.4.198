@@ -796,3 +796,15 @@ access must survive the UI reorganization. Navigation-only mockups/links do not
 complete this requirement: verify destinations, forms, actual status and browser
 layout on the physical router. No live services or tunnel settings were changed
 while recording this feedback.
+
+### Compact full-page navigation — owner feedback, 2026-10-18
+
+The owner requests three small controls instead of a wide, space-consuming
+service panel. Selecting a control should navigate to that service's full page;
+normal browser Back navigation must return to the previous page so another
+service can then be selected. Keep this as a full-page navigation flow rather
+than embedding several full settings pages in one oversized panel. The supplied
+screenshot shows Wi-Fi observation/history panels, while the surrounding
+discussion also mentioned the three Stubby, DoH and Privoxy links; the exact
+three controls to compact is unresolved and must be confirmed before changing
+the layout. No live device changes are authorized by this UI feedback.
