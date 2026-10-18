@@ -142,6 +142,7 @@ jobs:
             trunk/user/wireless_tools
             trunk/linux-4.4.x/drivers/nvram
             trunk/linux-4.4.x/include/linux
+            trunk/linux-4.4.x/include/uapi
             trunk/linux-4.4.x/include/nvram
             trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x2
             trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3
@@ -1186,8 +1187,30 @@ jobs:
             -DUSE_WID_2G=7603 -DUSE_WID_5G=7612 \
             -I"$rc_dir" -I"$shared_dir" -I"$shared_dir/include" \
             -I"$PWD/iot-rc-source/trunk/user/wireless_tools" \
-            -I"$kernel_dir/include" -I"$kernel_dir/include/nvram" \
+            -I"$kernel_dir/include/nvram" -idirafter "$kernel_dir/include" \
             -c "$rc_dir/services_ex.c" -o abi-results/iot-services-ex-mips.o
+          python3 - <<'PY'
+          import hashlib, json, os, subprocess
+          from pathlib import Path
+          source = Path('iot-rc-source/trunk/user/rc/services_ex.c')
+          obj = Path('abi-results/iot-services-ex-mips.o')
+          data = obj.read_bytes()
+          assert data[:6] == b'\x7fELF\x01\x01', 'Expected ELF32 little-endian RC object'
+          assert int.from_bytes(data[18:20], 'little') == 8, 'Expected MIPS machine'
+          report = {
+              'project_commit': os.environ['GITHUB_SHA'],
+              'source_commit': subprocess.check_output(
+                  ['git', '-C', 'source', 'rev-parse', 'HEAD'], text=True).strip(),
+              'prepared_source_sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
+              'object_sha256': hashlib.sha256(data).hexdigest(),
+              'target': 'ELF32 little-endian MIPS',
+              'services_ex_object_compiled': True,
+              'firmware_link_verified': False,
+              'runtime_verified': False,
+          }
+          Path('abi-results/iot-services-ex-compile.json').write_text(
+              json.dumps(report, indent=2) + '\n')
+          PY
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
             -c iot-rc-source/trunk/user/rc/wr-iot-bridge.c -o abi-results/iot-rc-bridge-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
