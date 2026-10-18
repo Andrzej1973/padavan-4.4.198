@@ -30,6 +30,14 @@ unknown or expires, the displayed observation time is cleared.
   the first implementation expected `id="row_vlmcsd"`. The original log and
   repository source page confirmed this mismatch. The generator and fixture
   now use the actual `div_vlmcsd` anchor. This fix awaits the next build.
+- Build #469 (`39124628309`, commit `b629125`) compiled firmware but failed
+  `Verify SSH status UI and handler in image`: the SSH image verifier still
+  required an exact LLTD/ASUS/watchdog output-map string from before KMS was
+  added. It also omitted KMS UI and locale markers. The verifier now checks the
+  KMS output-map entry and handler, row, translations, and note. A local fixture
+  generated from the pinned source page through the SSH, Cron and discovery/KMS
+  preparation scripts passed the full verifier. This is fixture evidence, not
+  an exact firmware-image result.
 - Build #465 (`39122905943`, commit `1ec907d`) completed successfully. Its
   exact-image report identified BusyBox 1.24.2, checked all 57 discovered shell
   scripts, 150 applets/links and ELF dependencies, and passed every emitted

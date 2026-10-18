@@ -39,6 +39,14 @@ for name in ('EN.footer', 'UK.dict', 'RU.dict'):
 subprocess.run([sys.executable, str(here / 'prepare-discovery-status.py'),
                 str(root)], check=True)
 html = page.read_text(encoding='utf-8')
+image_verifier = (here.parent / 'overlay/padavan-4.4/ports/ssh/verify-image.py').read_text(encoding='utf-8')
+for marker in ('vlmcsd_status_element', 'vlmcsd_http_handler',
+               'vlmcsd_refresh_translation',
+               "vlmcsd:'wr_vlmcsd_process_state'", 'WRVLMCSObservedTitle',
+               'WRVLMCSOff', 'WRVLMCSRunning', 'WRVLMCSMissing',
+               'WRVLMCSUnknown', 'WRVLMCSStillRunning',
+               'WRVLMCSRefresh', 'WRVLMCSObservedNote'):
+    assert marker in image_verifier, ('image verifier must cover KMS status', marker)
 assert html.count('wr_lltd_process_state();') == 1
 assert html.count('wr_adsc_process_state();') == 1
 assert html.count('wr_vlmcsd_process_state();') == 1
