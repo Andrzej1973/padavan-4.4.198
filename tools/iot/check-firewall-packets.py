@@ -25,8 +25,17 @@ link('iot','iot-port','iot-peer','br-iot','192.168.50.1/24','192.168.50.20/24')
 link('lan','lan-port','lan-peer','br0','192.168.1.1/24','192.168.1.2/24')
 link('wan','eth2.2','wan-peer',None,'203.0.113.1/24','203.0.113.2/24')
 run('sysctl','-w','net.ipv4.ip_forward=1')
+run('sysctl','-w','net.ipv6.conf.all.forwarding=1')
 run('ip','-6','addr','add','fd50::1/64','dev','br-iot','nodad')
 run('ip','-n','iot','-6','addr','add','fd50::20/64','dev','eth0','nodad')
+run('ip','-6','addr','add','fd51::1/64','dev','br0','nodad')
+run('ip','-n','lan','-6','addr','add','fd51::2/64','dev','eth0','nodad')
+run('ip','-6','addr','add','fd52::1/64','dev','eth2.2','nodad')
+run('ip','-n','wan','-6','addr','add','fd52::2/64','dev','eth0','nodad')
+run('ip','-n','iot','-6','route','add','fd51::/64','via','fd50::1')
+run('ip','-n','iot','-6','route','add','fd52::/64','via','fd50::1')
+run('ip','-n','lan','-6','route','add','fd50::/64','via','fd51::1')
+run('ip','-n','wan','-6','route','add','fd50::/64','via','fd52::1')
 server_code="""import socket,threading,sys
 s=socket.socket(socket.AF_INET6 if ':' in sys.argv[1] else socket.AF_INET);s.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1);s.bind((sys.argv[1],int(sys.argv[2])));s.listen();print('READY',flush=True)
 def echo(c):
@@ -45,7 +54,8 @@ def server(name,address,port):
  p=subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True);servers.append(p)
  if not select.select([p.stdout],[],[],5)[0] or p.stdout.readline().strip()!='READY':raise RuntimeError('Test server failed to start')
 udp_code="""import socket,sys
-s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM);s.bind((sys.argv[1],int(sys.argv[2])));print('READY',flush=True)
+family=socket.AF_INET6 if ':' in sys.argv[1] else socket.AF_INET
+s=socket.socket(family,socket.SOCK_DGRAM);s.bind((sys.argv[1],int(sys.argv[2])));print('READY',flush=True)
 while True:
  data,peer=s.recvfrom(1024);s.sendto(data,peer)
 """
@@ -74,13 +84,26 @@ def echo(name,address,port,family=socket.AF_INET,kind=socket.SOCK_STREAM,source_
 try:
  server(None,'192.168.50.1',53);server(None,'192.168.50.1',8080)
  server('lan','192.168.1.2',8080);server('wan','203.0.113.2',8080);server('iot','192.168.50.20',8080)
- server(None,'fd50::1',8081)
+ server(None,'fd50::1',8081);server(None,'fd50::1',5353)
+ server('lan','fd51::2',8082);server('wan','fd52::2',8083)
+ server('iot','fd50::20',8084,socket.AF_INET6)
  udp_server(None,'192.168.50.1',53);udp_server(None,'192.168.50.1',67)
  udp_server('wan','203.0.113.2',8080);udp_server('lan','192.168.1.2',8080)
+ udp_server(None,'fd50::1',5353);udp_server('lan','fd51::2',8082);udp_server('wan','fd52::2',8083)
+ udp_server('iot','fd50::20',8084)
  udp_paths=[('iot','192.168.50.1',53,socket.AF_INET,socket.SOCK_DGRAM,0),('iot','192.168.50.1',67,socket.AF_INET,socket.SOCK_DGRAM,68),('iot','192.168.50.1',67,socket.AF_INET,socket.SOCK_DGRAM,1068),('iot','203.0.113.2',8080,socket.AF_INET,socket.SOCK_DGRAM,0),('iot','192.168.1.2',8080,socket.AF_INET,socket.SOCK_DGRAM,0)]
  for path in udp_paths:assert echo(*path),('UDP baseline absent',path)
  ipv6_path=('iot','fd50::1',8081,socket.AF_INET6)
  assert echo(*ipv6_path),'IPv6 baseline absent'
+ ipv6_udp_router=('iot','fd50::1',5353,socket.AF_INET6,socket.SOCK_DGRAM)
+ ipv6_lan=('iot','fd51::2',8082,socket.AF_INET6)
+ ipv6_wan=('iot','fd52::2',8083,socket.AF_INET6)
+ ipv6_lan_udp=('iot','fd51::2',8082,socket.AF_INET6,socket.SOCK_DGRAM)
+ ipv6_wan_udp=('iot','fd52::2',8083,socket.AF_INET6,socket.SOCK_DGRAM)
+ ipv6_lan_in=('lan','fd50::20',8084,socket.AF_INET6)
+ ipv6_wan_in=('wan','fd50::20',8084,socket.AF_INET6)
+ for path in (ipv6_udp_router,ipv6_lan,ipv6_wan,ipv6_lan_udp,ipv6_wan_udp,ipv6_lan_in,ipv6_wan_in):
+  assert echo(*path),('IPv6 baseline absent',path)
  paths=[('iot','192.168.50.1',53),('iot','192.168.50.1',8080),('iot','192.168.1.2',8080),('iot','203.0.113.2',8080),('lan','192.168.50.20',8080),('wan','192.168.50.20',8080),('lan','203.0.113.2',8080)]
  for path in paths:assert echo(*path),('Baseline connectivity absent',path)
  stale=connect('iot','192.168.1.2',8080);stale.sendall(b'OLD');assert stale.recv(3)==b'OLD'
@@ -95,9 +118,16 @@ try:
  try:reply=stale.recv(3)
  except TimeoutError:reply=None
  checks['preexisting_lan_connection_blocked']=reply!=b'NEW';assert checks['preexisting_lan_connection_blocked'];stale.close()
- for key,path,expected in [('udp_dns_allowed',udp_paths[0],True),('dhcp_ports_allowed',udp_paths[1],True),('dhcp_wrong_source_port_blocked',udp_paths[2],False),('udp_wan_return_allowed',udp_paths[3],True),('udp_lan_blocked',udp_paths[4],False),('ipv6_router_blocked',ipv6_path,False)]:
+ for key,path,expected in [
+  ('udp_dns_allowed',udp_paths[0],True),('dhcp_ports_allowed',udp_paths[1],True),
+  ('dhcp_wrong_source_port_blocked',udp_paths[2],False),('udp_wan_return_allowed',udp_paths[3],True),
+  ('udp_lan_blocked',udp_paths[4],False),('ipv6_router_tcp_blocked',ipv6_path,False),
+  ('ipv6_router_udp_blocked',ipv6_udp_router,False),('ipv6_lan_tcp_blocked',ipv6_lan,False),
+  ('ipv6_wan_tcp_blocked',ipv6_wan,False),('ipv6_lan_udp_blocked',ipv6_lan_udp,False),
+  ('ipv6_wan_udp_blocked',ipv6_wan_udp,False),('ipv6_unsolicited_lan_blocked',ipv6_lan_in,False),
+  ('ipv6_unsolicited_wan_blocked',ipv6_wan_in,False)]:
   checks[key]=echo(*path)==expected;assert checks[key],key
- report={'checks':checks,'scope':'Host-kernel IPv4 TCP/UDP and DHCP-port filtering, stale conntrack isolation, IPv6 TCP router blocking; actual DNS/DHCP transactions and target runtime unverified','runtime_verified':False}
+ report={'checks':checks,'scope':'Host-kernel IPv4 TCP/UDP and DHCP-port filtering, stale conntrack isolation, IPv6 TCP/UDP router and inter-network isolation in both directions; actual DNS/DHCP transactions and target runtime unverified','runtime_verified':False}
  (root/'iot-firewall-packets.json').write_text(json.dumps(report,indent=2)+'\n')
  print('PASS host-kernel IoT packet isolation and preserved main LAN forwarding')
 finally:

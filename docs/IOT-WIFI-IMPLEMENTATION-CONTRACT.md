@@ -52,3 +52,16 @@ Failure and shutdown order:
 - Do not enable IoT in AP-client-only, WDS-only or radio-off modes. Repeater/AP-mode support requires a separate decision and evidence; reject unsupported combinations clearly.
 
 Host evidence so far: run 37832869879 verifies eight IPv4 TCP checks, including WAN replies, LAN/router isolation and blocking a preexisting LAN connection with generic ACCEPT policies. It does not prove production lifecycle, DHCP lease transactions, Wi-Fi driver behavior or target-device runtime. Extended UDP/IPv6 checks are pending.
+
+## Expanded IPv6 isolation packet matrix — 2026-10-18
+
+The disposable host-kernel packet fixture now creates separate IoT, LAN and WAN
+IPv6 prefixes and first proves that its TCP/UDP baseline routes work. After
+loading the generated IPv6 filter rules it checks router INPUT and forwarded
+traffic over TCP and UDP, including IoT-to-LAN/WAN and unsolicited LAN/WAN-to-
+IoT paths. The existing IPv4 TCP/UDP and DHCP source-port checks remain in the
+same fixture. This is a stronger regression gate for the current policy, which
+blocks all IoT IPv6 traffic, but does not implement IPv6 internet access or
+prove target-kernel, production-lifecycle, Wi-Fi, or physical-router behavior.
+Local Python syntax validation passed; the privileged namespace test requires
+Linux CI and is pending for this change.
