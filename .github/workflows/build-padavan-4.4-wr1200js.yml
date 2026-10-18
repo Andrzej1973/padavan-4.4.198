@@ -990,6 +990,8 @@ jobs:
           python3 overlay/padavan-4.4/scripts/verify-wr1200js-image.py \
             "$image" \
             --report firmware-image-checks.json
+          python3 tools/bind-router-guide-image.py "$image" SETUP_WR1200JS.md SETUP_WR1200JS.txt
+          python3 tools/bind-router-guide-image.py "$image" SETUP_WR1200JS.md SETUP_WR1200JS.txt --check
 
       - name: Compiler cache statistics
         if: always()
