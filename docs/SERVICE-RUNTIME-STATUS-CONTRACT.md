@@ -1,5 +1,26 @@
 # Actual service and driver state in WebUI
 
+## Remaining administration-service coverage — 2026-10-18
+
+The extracted final #433 Administration/Services page still exposes Cron
+(`crond_enable`), LLTD (`lltd_enable`), ASUS discovery (`adsc_enable`) and
+hardware watchdog (`watchdog_cpu`) controls without dedicated observed-state
+adapters under this contract. A switch value alone must not be reported as
+actual operation. Existing SSH/iPerf3/Privoxy adapters do not cover them.
+
+Next implementation work: verify the actual service providers and enabled
+capabilities from pinned source and target BusyBox, then add bounded read-only
+observations with EN/UK/RU explanations, page-entry/manual refresh, expiry and
+image gates. Cron process presence must explicitly leave scheduled job success
+unverified. For watchdog, a daemon PID alone cannot establish hardware timer
+registration or petting; identify the real kernel/device evidence first.
+Retain the user's enable settings and do not activate services during this audit.
+
+Current image evidence remains distinct: #433 proves VPN editor packaging;
+#426/#428 establish the documented target BusyBox/storage component checks.
+Host CI for synchronized VPN mutations and DNS/ZRAM freshness passed, but
+physical browser, service interactions and reboot persistence remain open.
+
 ## Process observation expiry — 2026-10-18
 
 SSH, iPerf3 and Privoxy process indicators now expire to unknown 45 seconds

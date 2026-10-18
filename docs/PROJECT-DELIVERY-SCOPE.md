@@ -83,9 +83,13 @@ Implementation checkpoint, 2026-10-18: the independent manager and scoped
 lifecycle are implemented alongside the retained legacy roles. WebUI supports
 save-only creation, Up/Down/Delete, private export/QR, bounded pagination,
 manual list refresh and explicit interface observations that expire to unknown.
-Browser editing of an existing independent profile remains open; CLI edit
-does not satisfy that UI requirement. Firmware #425 passed CI and includes
-storage-directory permission repair, but physical concurrent tunnels, recovery,
+Browser editing is now implemented with authenticated private export,
+revision-bound POST and stopped-profile validation. Downloaded firmware #433
+independently confirms the form, compiled endpoint, EN/UK/RU text and guide;
+see evidence/WR1200JS-BUILD433.md. Later per-ID mutation locking and status
+expiry still require their own final-image evidence. Firmware #425 includes
+storage-directory permission repair, and #428 passed the shipped MIPS archive/
+restore/readback fixture. Physical concurrent tunnels, recovery,
 reboot persistence and the WG-to-AWG management handover remain unaccepted.
 See EXECUTION-ROLE.md for the current build/test checkpoint. Preserve all
 delivery requirements below; these component results do not finish the port.
