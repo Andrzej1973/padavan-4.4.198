@@ -117,7 +117,7 @@ int main(void){int fd;for(fd=3;fd<4096;fd++){errno=0;if(fcntl(fd,F_GETFD)!=-1 ||
   and any(isinstance(t,ast.Name) and t.id=='PREFIX' for t in n.targets))
  http_source=root/'http-real-create.c';http_exe=root/'http-real-create'
  runtime_before={str(f.relative_to(root/'run')):f.read_bytes() for f in (root/'run').rglob('*') if f.is_file()}
- http_source.write_text(http_prefix+'\n#include "vpn-profiles.inc"\n#include "vpn-profiles-action.inc"\n#include "vpn-profiles-create.inc"\n#include "vpn-profiles-observe.inc"\n'+r'''
+ http_source.write_text(http_prefix+'\n#include "vpn-profiles.inc"\n#include "vpn-profiles-action.inc"\n#include "vpn-profiles-create.inc"\n#include "vpn-profiles-edit.inc"\n#include "vpn-profiles-observe.inc"\n'+r'''
 static void submit(const char *id,const char *protocol,const char *config,int success)
 {
  FILE *input=tmpfile();char body[17000];int size;assert(input);
@@ -128,15 +128,29 @@ static void submit(const char *id,const char *protocol,const char *config,int su
  assert(strstr(reply,success?"\"saved\":true,\"started\":false":"create_unconfirmed"));
  assert(!wr_vpn_create_size);
 }
+static void edit(const char *revision,const char *config,int success)
+{
+ FILE *input=tmpfile();char body[17000];int size;assert(input);
+ size=snprintf(body,sizeof(body),"%s\n10\n%s\n%s",wr_vpn_csrf,revision,config);
+ assert(size>0 && size<(int)sizeof(body));
+ assert(fwrite(body,1,(size_t)size,input)==(size_t)size);rewind(input);
+ wr_vpn_edit_input("",input,size,NULL);fclose(input);wr_vpn_edit_output("",NULL);
+ assert(strstr(reply,success?"\"saved\":true,\"started\":false":"edit_unconfirmed"));
+ assert(!wr_vpn_edit_size);
+ for(size_t i=0;i<sizeof(wr_vpn_edit_body);i++)assert(!wr_vpn_edit_body[i]);
+}
 int main(void)
 {
  safe=post=1;strcpy(wr_vpn_csrf,"0123456789abcdef0123456789abcdef");
-''' + 'const char *wg='+json.dumps(wg)+';\nconst char *awg='+json.dumps(awg)+';\n'+r'''
+''' + 'const char *wg='+json.dumps(wg)+';\nconst char *awg='+json.dumps(awg)+';\nconst char *edited='+json.dumps(edited)+';\n'+r'''
  submit("10","wireguard",wg,1);
  submit("11","amneziawg",awg,1);
  submit("10","wireguard",awg,0); /* Existing ID cannot be replaced. */
  submit("12","wireguard",awg,0); /* Native WG rejects AWG-only fields. */
  submit("12","wireguard","invalid configuration\n",0);
+ edit("1",edited,1);
+ edit("1",wg,0); /* A stale browser cannot overwrite the newer record. */
+ edit("2","invalid configuration\n",0);
  {char *id="10";ej_wr_vpn_profile_observation(0,NULL,1,&id);
   assert(strstr(reply,"\"id\":10,") && strstr(reply,"\"ownership\":\"unverified\""));
   assert(!strstr(reply,"PrivateKey") && !strstr(reply,"[Interface]"));
@@ -150,11 +164,12 @@ int main(void)
   '-DWR_VPN_PROFILE_BIN='+json.dumps(str(exe)),str(http_source),'-o',str(http_exe)],check=True)
  http_result=subprocess.run([str(http_exe)],capture_output=True,timeout=20,env=env)
  assert http_result.returncode==0 and not http_result.stdout and not http_result.stderr,(http_result.returncode,http_result.stderr)
- assert run(['export','10'])==wg and run(['export','11'])==awg
+ assert run(['export','10'])==edited and run(['export','11'])==awg
+ assert '10\tWG10\t2' in run(['list']).splitlines()
  assert not (store/'12').exists()
  assert all((store/id).read_bytes()==data for id,data in before.items())
  assert {str(f.relative_to(root/'run')):f.read_bytes() for f in (root/'run').rglob('*') if f.is_file()}==runtime_before
- print('PASS real HTTP create to manager/native validators/store: independent WG/AWG records, exact exports, duplicate/invalid refusal, existing records preserved; no activation')
+ print('PASS real HTTP create/edit to manager/native validators/store: independent WG/AWG records, exact exports, revision increment, stale/invalid refusal, neighboring records preserved; no activation')
  # Fixed validator path failure must not save or expose a profile.
  validators['wg'].unlink()
  assert not run(['create','3','wireguard'],wg,3)
