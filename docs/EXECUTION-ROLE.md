@@ -14,15 +14,18 @@ MT7603 має source/config межу 16 BSS, MT7612 — 8; повний ауди
 не підтверджено. Деталі та межі доказів:
 `docs/evidence/WR1200JS-BUILD457.md` і суміжні JSON.
 
-Поточний локальний HEAD — 7c50b4b (звітний коміт після firmware commit #457).
-GitHub connector підтвердив jobs #457; локальний запит до origin нещодавно
-впав через proxy 127.0.0.1:9, тож remote HEAD не підтверджений. 2026-10-18
-read-only SSH до пристрою відповідає: ядро 4.4.198, обидва головні
-радіоінтерфейси активні, ZRAM є у /proc/swaps, dnsmasq/dropbear працюють,
-wg1 існує й модуль AmneziaWG завантажено. Stubby, https-dns-proxy, ZeroTier,
-Privoxy та Shadowsocks-процеси не виявлено. Це часткова перевірка, не
-функціональне приймання; межі — docs/evidence/DEVICE-READONLY-AUDIT-2026-10-18.md.
-Роутер не змінювався. Не прошивати й не перезавантажувати без окремого дозволу.
+Поточний локальний і віддалений HEAD — 1b7cafe (після firmware commit #457).
+GitHub connector підтверджує jobs #457. 2026-10-18 read-only SSH показав ядро
+4.4.198, активні ra0/rai0, ZRAM у /proc/swaps, dnsmasq/dropbear і wg1; модуль
+AmneziaWG завантажений. Для Band Steering wr_bs_enable=1, виконувані файли є,
+а /sbin/rc має посилання на daemon, але процес і контрольний socket відсутні.
+Пряма status-команда повертає endpoint unavailable/radio state unverified.
+Кешовані apply_state=5 та observation=1 не є доказом роботи. Журнал містить
+start о 12:48 і stop о 16:01 2026-10-17; пізнішого start у доступному журналі
+не знайдено. Причину зупинки й стан драйвера не встановлено. Інші спостереження
+та обмеження — docs/evidence/DEVICE-READONLY-AUDIT-2026-10-18.md і
+docs/evidence/WR1200JS-BAND-STEERING-RUNTIME-2026-10-18.md. Не змінювати
+пристрій, не перезапускати й не прошивати без окремого дозволу.
 
 ABI `39115399202` для `594d98b` успішний: зібраний MIPS код administrative
 ra2 UP і host-kernel fixture. Саме production radio reload/activation
