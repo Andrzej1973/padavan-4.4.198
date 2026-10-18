@@ -3,6 +3,7 @@
 import os
 from pathlib import Path
 import shutil
+import subprocess
 import sys
 
 artifact = Path(sys.argv[1])
@@ -15,6 +16,8 @@ configs = list(artifact.rglob('firmware-requested.config'))
 guides = list(artifact.rglob('SETUP_*.txt'))
 if len(images) != 1 or len(configs) != 1 or len(guides) != 1:
     raise SystemExit('Require exactly one TRX, requested config and setup guide')
+subprocess.run([sys.executable, str(Path(__file__).with_name('bind-router-guide-image.py')),
+                str(images[0]), str(guides[0]), '--check'], check=True)
 if output.exists():
     raise SystemExit('Output must be a fresh directory')
 output.mkdir(parents=True)
