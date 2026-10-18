@@ -291,10 +291,14 @@ CI-артефакт не синхронізується локально авт�
 підтверджує тільки перевірене складання, а не роботу прошивки на фізичному
 роутері.
 
-## 14. Proxy-змінні для мережевих команд
+## 14. Proxy-діагностика лише після мережевої помилки
 
-Перед кожним мережевим викликом Git/GitHub/GitLab у поточному shell-процесі
-очищай proxy-змінні, щоб не успадкувати недоступний локальний proxy. У PowerShell:
+Git запускай зі звичайним середовищем. Не очищай proxy-змінні перед кожним
+мережевим викликом. Перевірка доступу чинна лише для того самого контексту
+виконання: успіх розширеного запуску не підтверджує доступ із sandbox.
+Якщо мережевий запит явно падає через proxy або не
+під'єднується, спершу перевір лише наявність змінних і Git proxy-конфігурації,
+не виводячи їхні значення. У PowerShell:
 
 ```powershell
 $proxyNames = @(
@@ -302,22 +306,42 @@ $proxyNames = @(
   'http_proxy','https_proxy','all_proxy','git_http_proxy','git_https_proxy'
 )
 foreach ($name in $proxyNames) {
-  Remove-Item "Env:$name" -ErrorAction SilentlyContinue
+  if (Test-Path "Env:$name") { Write-Output "$name is set" }
 }
+$gitProxy = git config --get http.proxy 2>$null
+if ($LASTEXITCODE -eq 0) { Write-Output 'Git http.proxy is configured (value hidden)' }
 ```
 
-У Bash:
+У Bash перевір лише факт наявності змінних і конфігурації, не їхні значення:
+
+```bash
+for name in HTTP_PROXY HTTPS_PROXY ALL_PROXY GIT_HTTP_PROXY GIT_HTTPS_PROXY \
+  http_proxy https_proxy all_proxy git_http_proxy git_https_proxy; do
+  if [[ -n "${!name+x}" ]]; then printf '%s is set\n' "$name"; fi
+done
+if git config --get http.proxy >/dev/null 2>&1; then
+  printf '%s\n' 'Git http.proxy is configured (value hidden)'
+fi
+```
+
+Якщо підтвердився недоступний proxy, повтори запит один раз із очищеними
+змінними лише в тому самому процесі/shell. У Bash:
 
 ```bash
 unset HTTP_PROXY HTTPS_PROXY ALL_PROXY GIT_HTTP_PROXY GIT_HTTPS_PROXY \
   http_proxy https_proxy all_proxy git_http_proxy git_https_proxy
+git -c http.proxy= ls-remote origin HEAD
 ```
 
-Виконуй це в тому самому процесі/shell, звідки запускаєш `git`, `gh`, `glab`
-або Nim-утиліту, яка звертається до мережі. Якщо після очищення запит досі
-намагається використати proxy, перевір Git-конфігурацію й причину перенаправлення;
-не виводь proxy URL у чат або логи, бо він може містити облікові дані. Не змінюй
-системні чи глобальні налаштування proxy автоматично і не видаляй конфігурацію
-без окремої причини. Якщо прямий вихід заблокований, повідом про це як про
-мережеве обмеження середовища, а не перевстановлюй Git.
+Для PowerShell після підтвердження недоступного proxy застосуй той самий список:
+
+```powershell
+foreach ($name in $proxyNames) { Remove-Item "Env:$name" -ErrorAction SilentlyContinue }
+git -c http.proxy= ls-remote origin HEAD
+```
+
+Це лише разова діагностика в поточному процесі. Не виводь proxy URL або
+credential-bearing URL у чат чи логи; не змінюй системні або глобальні
+налаштування автоматично. Якщо прямий вихід заблокований, повідом про мережеве
+обмеження середовища, а не перевстановлюй Git.
 

@@ -26,18 +26,13 @@ rules in `docs/AGENT-HANDOFF-RULES-SOL-DEEPSEEK.md`:
 3. Only the current executor named in `docs/EXECUTION-ROLE.md` may pass
    `--apply`. The other agent may use read-only checks and review, but must not
    commit or push from the shared working copy.
-4. Before any GitHub/GitLab network command or network-using Nim utility, clear
-   the proxy environment variables in that same shell/process. Use the
-   PowerShell or Bash snippet in `docs/AGENT-HANDOFF-RULES-SOL-DEEPSEEK.md`
-   section 14. Never print proxy URLs or change system/global proxy settings.
-
 Each agent compiles the tools locally for its host. Generated binaries and
 temporary reports stay outside the repository unless a report is explicitly
 selected as project evidence.
 
 ## Build log triage
 
-`build_log.nim` reads a GitHub Actions log as a stream, removes common ANSI/timestamp noise, finds common compiler/linker/build failures, groups repeated lines, and emits a concise Markdown prompt. It keeps only a small context window around each distinct error.
+`build_log.nim` reads a GitHub Actions log as a stream, removes common ANSI/timestamp noise, finds common compiler/linker/build failures, groups repeated lines, and emits a concise Markdown prompt. It keeps only a small context window around each distinct error and includes the current Actions `Run` command when the log labels the step `UNKNOWN STEP`. Compiler warnings and make errors explicitly marked `(ignored)` are excluded. Run `python3 tools/agent-nim/check_build_log.py PATH_TO_BUILD_LOG_BINARY` to exercise these cases; the monitor workflow runs this fixture automatically.
 
 ```powershell
 $binDir = Join-Path $env:TEMP 'wr1200js-agent-nim'
@@ -81,10 +76,8 @@ The Nim sources are platform-neutral. Compile them on the agent's host OS with N
 
 This repository currently has a GitHub `origin` remote and no GitLab remote. Check credentials in the same user session that runs Git:
 
-Clear proxy variables first in this shell, as described in section 14 of the
-shared agent rules. If network access still fails, inspect Git proxy/URL rewrite
-configuration without exposing credential-bearing values; do not reset global
-configuration as a routine workaround.
+If a network check fails with a proxy-related error, use the conditional
+troubleshooting steps in section 14 of the shared agent rules.
 
 ```powershell
 gh auth status --hostname github.com
