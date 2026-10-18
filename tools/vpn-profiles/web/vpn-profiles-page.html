@@ -1,7 +1,7 @@
                     <div class="box">
                         <div class="heading"><#WRVPN_PROFILES_TITLE#></div>
                         <div class="content">
-                            <span id="wr_vpn_action_text" style="display:none" data-start="<#WRVPN_START#>" data-stop="<#WRVPN_STOP#>" data-delete="<#WRVPN_DELETE#>" data-confirm="<#WRVPN_DELETE_CONFIRM#>" data-error="<#WRVPN_REQUEST_FAILED#>" data-qrerror="<#WRVPN_QR_FAILED#>" data-hide="<#WRVPN_QR_HIDE#>"></span>
+                            <span id="wr_vpn_action_text" style="display:none" data-edit="<#WRVPN_EDIT_SAVE#>" data-start="<#WRVPN_START#>" data-stop="<#WRVPN_STOP#>" data-delete="<#WRVPN_DELETE#>" data-confirm="<#WRVPN_DELETE_CONFIRM#>" data-error="<#WRVPN_REQUEST_FAILED#>" data-qrerror="<#WRVPN_QR_FAILED#>" data-hide="<#WRVPN_QR_HIDE#>"></span>
                             <span id="wr_vpn_link_text" style="display:none" data-check="<#WRVPN_OBSERVE#>" data-unknown="<#WRVPN_LINK_UNKNOWN#>" data-absent="<#WRVPN_LINK_ABSENT#>" data-up="<#WRVPN_LINK_UP#>" data-down="<#WRVPN_LINK_DOWN#>"></span>
                             <p><#WRVPN_CREATE_HELP#></p>
                             <p><#WRVPN_STORAGE_HELP#></p>
@@ -61,7 +61,7 @@
                         jQuery('.wr-vpn-up').text(wrVPNText('start'));
                         jQuery('.wr-vpn-down').text(wrVPNText('stop'));
                         jQuery('.wr-vpn-delete').text(wrVPNText('delete'));
-                        jQuery('.wr-vpn-edit').text(document.getElementById('wr_vpn_edit_save').textContent);
+                        jQuery('.wr-vpn-edit').text(wrVPNText('edit'));
                     }
                     function wrVPNListControls() {
                         var info = jQuery('#wr_vpn_rows .wr-vpn-page-info');

@@ -680,6 +680,14 @@ jobs:
             grep -aq 'wr_vpn_action.cgi' trunk/romfs/usr/sbin/httpd
             grep -q 'wr_vpn_create.cgi' trunk/romfs/www/vpncli.asp
             grep -aq 'wr_vpn_create.cgi' trunk/romfs/usr/sbin/httpd
+            grep -aq 'wr_vpn_edit.cgi' trunk/romfs/usr/sbin/httpd
+            grep -q 'wr_vpn_edit.cgi' trunk/romfs/www/vpncli.asp
+            grep -q 'id="wr_vpn_editor"' trunk/romfs/www/vpncli.asp
+            grep -q 'id="wr_vpn_refresh"' trunk/romfs/www/vpncli.asp
+            for dictionary in EN.dict UK.dict RU.dict; do
+              grep -q '^WRVPN_EDIT_HELP=' "trunk/romfs/www/$dictionary"
+              grep -q '^WRVPN_STORAGE_HELP=' "trunk/romfs/www/$dictionary"
+            done
             grep -aq 'wr_vpn_profile_observation' trunk/romfs/usr/sbin/httpd
             python3 ../tools/vpn-profiles/prepare-storage-permissions.py . --verify-image
             python3 ../tools/prepare-service-toggle-colors.py . --verify-image

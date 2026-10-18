@@ -29,7 +29,8 @@ def main():
         if "Параметр профілю: CONFIG_FIRMWARE_INCLUDE_WIREGUARD=y" in value:
             for required in ("Зберегти новий профіль", "ID спільні", "16 КіБ",
                              "Збереження не запускає тунель", "спершу оновіть список",
-                             "/etc/storage/wrvpn", "чинний тунель доступу"):
+                             "/etc/storage/wrvpn", "чинний тунель доступу",
+                             "Редагувати профіль", "Застаріла ревізія", "Скасувати й очистити"):
                 if required not in value:
                     raise SystemExit("VPN guide lacks independent create guidance: " + required)
     if "https://central.zerotier.com/" not in markdown:
