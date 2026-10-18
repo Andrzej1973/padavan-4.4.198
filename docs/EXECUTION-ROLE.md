@@ -4,19 +4,18 @@
 
 ## Актуальний checkpoint — 2026-10-18
 
-Найновіша успішна повна збірка WR1200JS — #458, run `39118907721`, commit
-`deead1d5dcd62c13cb126f0caca537bb9b0607e5`. Build #459 для `c7b7216` і #460
-для `7ef4964` ще виконуються. Service CI #230 на `c7b7216` пройшла lifecycle,
-USB/IP status, VPN profile identity/parser та RC failure-path перевірки.
-Коміт `7ef4964` розширює перевірку exact-image BusyBox: кожний увімкнений
-Stubby/DoH/Privoxy має містити свій dispatcher і безпечно відхиляти невідому
-дію до lifecycle чи змін конфігурації. Це очікує виконання повного образного
-build #460; локально перевірені Python AST та `git diff --check`, але exact
-образного BusyBox у цій Windows-сесії немає. Загальний звіт досі має
-`whole_service_audit_complete: false` і `runtime_verified: false`; повне
-покриття взаємодій, збереження та фізичне приймання не завершені. Роутер
-фізично залишається на підтвердженій користувачем збірці #396. Межі успішного
-build #458 описані у `docs/evidence/WR1200JS-BUILD458-SERVICE-AUDIT.md`.
+Найновіша успішна повна збірка WR1200JS — #459, run `39120542985`, commit
+`c7b7216`; jobs `select`, `build (wr1200js)`, `firmware-zip` і `downloads`
+успішні. У фінальному ROMFS перевірена правка статусу WG/AWG: кешований
+`vpnc_state` більше не показує зелене з'єднання. Service CI #230 на цьому ж
+commit пройшла lifecycle, USB/IP status, VPN profile identity/parser та RC
+failure-path перевірки. Build #460 для `7ef4964` виконує розширений exact-image
+BusyBox dispatch gate; #461 для `467ee2b` — перевірку навігаційних якорів.
+Звіти не можна називати повним аудитом: `whole_service_audit_complete: false`
+і `runtime_verified: false`; керування/збереження кожної служби, повні
+failure/recovery сценарії та приймання на роутері залишаються відкритими.
+Роутер фізично залишається на підтвердженій користувачем збірці #396. Деталі:
+`docs/evidence/WR1200JS-BUILD459-SERVICE-AUDIT.md`.
 
 У поточній роботі над чесним VPN-статусом виявлено, що успадкована сторінка
 `vpncli.asp` ще показувала зелене `Connected` для WG/AWG за `vpnc_state=1`.
