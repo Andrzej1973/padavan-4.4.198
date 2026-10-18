@@ -1,5 +1,13 @@
 # WR1200JS separate IoT Wi-Fi implementation contract
 
+Staging update, 2026-10-18: `45ff19b` reads back all six temporary credential
+and address fields after clearing, in addition to the three service gates.
+ABI run `39114413340` passed the host sanitizer fixtures and MIPS compilation;
+the downloaded `iot-request-stage.txt` confirms PASS. Six injected setters that
+return success without changing a clear destination are refused. This does not
+enable production activation. Snapshot guard revalidation in `b65acf6` is
+still awaiting its own ABI result (`39114663222`).
+
 Approved 2026-10-08. Source inspected at vipshmily/padavan-4.4 commit `c25283e915a2a00a763774dd255b14aff997285e`. This is an implementation contract and partial source audit, not device support proof.
 
 ## Current constraints
@@ -23,6 +31,17 @@ Both driver families expose MBSS profile parsing and virtual-AP initialization. 
 
 Effective per-chip third-BSS capacity, complete profile/lifecycle integration, isolated subnet/firewall, WebUI, target build and live-device behavior remain unverified. No router configuration changes are authorized by this audit.
 
+Update 2026-10-18: build #451 run `39114348390` passed the production
+Kbuild capacity gate. Downloaded original reports are preserved as
+`evidence/WR1200JS-BUILD451-IOT-MT7603.json` and
+`evidence/WR1200JS-BUILD451-IOT-MT7612.json`. Both effective commands enable
+MBSS. MT7603 has a source/configuration limit of 16; MT7612 has 8 (array
+ceiling 16, chip limit 8). The required 2.4 GHz three-BSS source gate passed.
+This supersedes the missing effective-source-capacity item above. Both reports
+retain `runtime_verified: false`; production activation, live third BSS and
+physical isolation/lifecycle acceptance are still missing. Full build #451
+was still active when the gate and downloaded reports were inspected.
+
 
 ## Capability initialization traced — 2026-10-08
 
@@ -33,6 +52,20 @@ MT76x2 initialization calls `rlt_bcn_buf_init`. Its MT76x2 branch assigns hardwa
 The effective kernel configuration downloaded from successful WR1200JS run 37823022372 enables CONFIG_MT7603E_MBSS_SUPPORT and CONFIG_MT76X2_AP_MBSS. Effective driver preprocessing, target capacity probes and a third-BSS device test remain required. No production profile has been changed by this audit.
 
 ## Lifecycle integration requirements — 2026-10-08
+
+Pinned-source follow-up, 2026-10-18: MT7603
+`os/linux/rt_main_dev.c` calls `rt28xx_init` and then `RT28xx_MBSS_Init` in
+the main-interface open path. RC `restart_wifi_rt` stops the radio interfaces,
+regenerates the 2.4 GHz profile when requested, and reopens main/guest through
+`start_wifi_ap_rt`. Merely editing BssidNum or administratively opening an
+already-existing ra2 is not evidence that the new virtual interface was created.
+The production activation backend must integrate the profile/radio reopen and
+observe ra2 identity afterward, retaining the original main/guest profile for
+recovery. Existing IoT quiesce hooks clear temporary gates during ordinary
+restart; calling that restart blindly inside activation would invalidate staged
+state. This interaction still needs a dedicated coordinated activation path.
+`594d98b` supplies only the owned-bridge administrative BSS-UP primitive and
+host-kernel tests; it does not supply that radio reload/activation path.
 
 The pinned `stop_wifi_all_rt` stops the AP-client, four WDS interfaces, guest and main BSS explicitly. It does not stop a third BSS. `start_wifi_ap_rt` attaches main and guest to `IFNAME_BR`; inserting IoT into this existing bridge loop would violate the isolated-subnet requirement. Radio scheduling, manual radio control, profile regeneration and full LAN restart must all quiesce IoT explicitly.
 

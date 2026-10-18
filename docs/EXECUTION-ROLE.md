@@ -4,6 +4,20 @@
 
 ## Актуальний checkpoint — 2026-10-18
 
+Повна збірка #451 `39114348390` успішна; TRX незалежно перевірено за CRC,
+WR1200JS identity, довжиною та SHA-256. Requested/effective/kernel config
+verifier повторено локально: 112 options, без mismatch/pending; CAKE/SQM
+не ввімкнені. Оригінальні Kbuild capacity JSON підтвердили source/config
+ліміти 16 BSS (MT7603) та 8 (MT7612), runtime false. Докази:
+`docs/evidence/WR1200JS-BUILD451.md` та суміжні JSON.
+Інструкція #451 не мала TRX SHA; `005c749` додає фінальні name/hash і
+check-mode, #453 `39115129564` перевіряє це (останній стан in_progress).
+Snapshot lock CI `39114663222` і DNS recovery lock CI `39114859918`
+успішні. `594d98b` додає administrative ra2 UP; ABI `39115399202` та
+firmware #454 `39115399372` ще активні. Production radio reload/activation
+контролер не підключено: звичайний restart очищає IoT gates, а MBSS
+створюється при main-interface initialization. Деталі — IoT contract.
+
 ABI run `39113907911` (`52c802b`) підтвердив успішний крок
 `Prepare pinned RC IoT bridge and owned radio-stop hook`, включно зі створенням
 MIPS-об’єкта всього підготовленого `services_ex.c`. Попередній run
@@ -13,7 +27,11 @@ Run завершився успішно; завантажений RC-об’єк
 ELF32/MIPS/ET_REL та SHA-256. Докази: `docs/evidence/IOT-ABI-52C802B.md`.
 ABI run `39114066958` для `b8d5ce7` також успішний і перевіряє 60-секундний
 compiler timeout та failure JSON. Новий staging-clear readback `45ff19b`
-перевіряється run `39114413340` (на останній перевірці in_progress).
+підтверджено успішним run `39114413340`; завантажений артефакт містить
+`iot-request-stage.txt` із PASS і MIPS staging/snapshot objects. У fixture
+додано шість silent-success clear failures; їх перевіряє host sanitizer run.
+`b65acf6` додатково перевіряє чинність реального service guard перед
+snapshot restore/finish/suspend; run `39114663222` ще активний.
 Firmware #449 `39113500457` впала після успішної компіляції на capacity
 probe: compiler із Kbuild не знайдено в PATH окремого Actions-кроку.
 `b1e8803` додає каталог pinned compiler у PATH без послаблення identity check;
