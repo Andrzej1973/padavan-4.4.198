@@ -56,7 +56,7 @@ for slot in range(8):
     for field in ('enable','autostart','local','remote','id','mtu','keepalive','retries','bridge'):
         key = f'eoip_slot{slot}_{field}'
         require(key.encode() in defaults, 'linked default key: ' + key)
-a.report.write_text(json.dumps({'schema':1, 'checks':checks, 'runtime_verified':False,
+a.report.write_text(json.dumps({'schema':1, 'checks':checks, 'image_verified':True, 'runtime_verified':False,
     'limits':'File identity, translation coverage and linked markers only; no HTTP session, reboot or tunnel transfer executed.'},
     ensure_ascii=False, indent=2) + '\n')
 print('PASS EoIP ROMFS identities, labels, navigation, linked HTTP/controller/defaults; runtime unverified')

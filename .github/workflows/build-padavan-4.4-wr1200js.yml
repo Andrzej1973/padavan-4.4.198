@@ -51,6 +51,9 @@ jobs:
       - name: Check discovery status generator before firmware compilation
         run: python3 tools/check-discovery-status.py --output "$RUNNER_TEMP/wr1200js-discovery-fixture"
 
+      - name: Check EoIP selected and excluded image gates before compilation
+        run: python3 tools/eoip/check-image.py
+
       - name: Check exact-image BusyBox service map before firmware compilation
         run: python3 tools/check-target-busybox-map.py
 
@@ -969,8 +972,12 @@ jobs:
 
       - name: Verify complete EoIP WebUI and controller in ROMFS
         run: |
+          test -s firmware-effective.config
           if grep -q '^CONFIG_FIRMWARE_INCLUDE_EOIP=y$' firmware-effective.config; then
             python3 tools/eoip/verify-image.py padavan-4.4/trunk/romfs --report eoip-image-checks.json
+          else
+            python3 tools/eoip/verify-excluded.py padavan-4.4/trunk/romfs \
+              configs.build/wr1200js.config firmware-effective.config --report eoip-image-checks.json
           fi
 
       - name: Preserve EoIP image checks
@@ -979,7 +986,7 @@ jobs:
         with:
           name: eoip-image-checks
           path: eoip-image-checks.json
-          if-no-files-found: ignore
+          if-no-files-found: error
 
       - name: Upload WebUI route diagnostics
         if: always()
