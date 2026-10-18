@@ -31,6 +31,9 @@ jobs:
       - name: Check WebUI route verifier regressions before compilation
         run: python3 tools/check-web-routes-test.py
 
+      - name: Check unified service navigation image gate before compilation
+        run: python3 tools/services-nav/check-verifier.py
+
       - name: Check ZeroTier status semantics before compilation
         run: python3 tools/check-zerotier-state.py --cc gcc
 
@@ -485,6 +488,7 @@ jobs:
             overlay/padavan-4.4/trunk/user/www/n56u_ribbon_fixed/vpncli.asp
           python3 tools/prepare-vpn-handshake-status.py padavan-4.4
           python3 tools/prepare-shadowsocks-status.py padavan-4.4
+          python3 tools/prepare-shadowsocks-localization.py padavan-4.4
           node tools/check-shadowsocks-status.js \
             padavan-4.4/trunk/user/www/n56u_ribbon_fixed/Shadowsocks.asp
           python3 tools/eoip/prepare-status.py padavan-4.4 --config configs.build/wr1200js.config
@@ -846,6 +850,7 @@ jobs:
           grep -q '^CONFIG_FIRMWARE_INCLUDE_DDNS_SSL=y$' trunk/.config
           python3 ../tools/services-nav/prepare-unified-nav.py trunk/romfs \
             --config trunk/.config --verify-image
+          python3 ../tools/prepare-shadowsocks-localization.py trunk/romfs --verify-image
           python3 ../overlay/padavan-4.4/scripts/verify-ddns-elf.py \
             trunk/romfs ../ddns-elf-dependencies.json
           grep -a -q 'YouHua WR1200JS' trunk/linux-4.4.x/vmlinux
