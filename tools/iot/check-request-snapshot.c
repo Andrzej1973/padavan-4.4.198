@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 struct entry {const char *key;char value[128];};
 static struct entry values[]={
@@ -14,11 +15,12 @@ static struct entry values[]={
  {"wr_iot_ssid_t","old SSID"},{"wr_iot_psk_t","old password"},
  {"wr_iot_gateway_t",""},{"wr_iot_mask_t",""},{"wr_iot_start_t",""},{"wr_iot_end_t",""}
 };
-static int depth,busy,writes,fail_write,silent_write;
+static int depth,busy,writes,fail_write,silent_write,guard_invalid;
 static unsigned int bridge_index;
 static struct entry *find(const char *key){size_t i;for(i=0;i<sizeof(values)/sizeof(values[0]);i++)if(!strcmp(values[i].key,key))return values+i;assert(0);return NULL;}
 int wr_iot_service_guard_enter(int enabled){assert(enabled==1);if(!depth&&busy)return 0;depth++;return 1;}
 void wr_iot_service_guard_leave(int token){assert(token==1&&depth>0);depth--;}
+int wr_iot_service_guard_dup(void){assert(depth>0);return guard_invalid?-1:open("/dev/null",O_RDONLY);}
 unsigned int if_nametoindex(const char *name){assert(depth&&!strcmp(name,"br-iot"));return bridge_index;}
 const char *nvram_safe_get(const char *key){assert(depth);return find(key)->value;}
 int nvram_set_temp(const char *key,const char *value){assert(depth);writes++;if(writes==fail_write)return -1;if(writes==silent_write)return 0;assert(strlen(value)<sizeof(find(key)->value));strcpy(find(key)->value,value);return 0;}
@@ -28,6 +30,11 @@ static void reset(void){size_t i;assert(!depth);for(i=7;i<10;i++)strcpy(values[i
 static void prepared(struct wr_iot_request_snapshot *s){reset();memset(s,0,sizeof(*s));assert(wr_iot_request_snapshot_take(s)&&depth==1&&writes==0);assert(wr_iot_request_stage(1,1,0)&&depth==1);assert(!strcmp(find("wr_iot_profile_t")->value,"1"));writes=0;}
 int main(void){
  struct wr_iot_request_snapshot s={0};int failure;
+ prepared(&s);guard_invalid=1;
+ assert(!wr_iot_request_snapshot_restore(&s)&&!writes&&depth==1&&s.active);
+ assert(!wr_iot_request_snapshot_finish(&s)&&!wr_iot_request_snapshot_suspend(&s));
+ guard_invalid=0;assert(wr_iot_request_snapshot_restore(&s));
+ assert(wr_iot_request_snapshot_finish(&s)&&!depth);
  prepared(&s);assert(wr_iot_request_snapshot_suspend(&s)&&!depth&&s.active&&!s.token);
  assert(!wr_iot_request_snapshot_suspend(&s)&&!wr_iot_request_snapshot_restore(&s)&&!wr_iot_request_snapshot_finish(&s));
  busy=1;assert(!wr_iot_request_snapshot_resume(&s)&&!depth&&s.active);

@@ -13,7 +13,11 @@ static const char *keys[]={
 };
 static int valid(const struct wr_iot_request_snapshot *s)
 {
- return s&&s->active&&s->token==1&&s->owner==getpid();
+ int fd;
+ if(!s||!s->active||s->token!=1||s->owner!=getpid())return 0;
+ fd=wr_iot_service_guard_dup();
+ if(fd<0)return 0;
+ return close(fd)==0;
 }
 int wr_iot_request_snapshot_take(struct wr_iot_request_snapshot *s)
 {
