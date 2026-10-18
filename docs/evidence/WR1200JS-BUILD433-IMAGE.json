@@ -1,0 +1,26 @@
+{
+  "build": 433,
+  "commit": "d8d15ac",
+  "run": "https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/39095315587",
+  "image": "WR1200JS_4.4.198.9-433_d8d15acd.trx",
+  "bytes": 12618203,
+  "sha256": "ae8cfd4e79b4b3bb1c7f0121007dac7f72481928fe66bcf74687e5e2d2ee2ef7",
+  "checks": {
+    "uimage_magic": true,
+    "header_crc": true,
+    "declared_length": true,
+    "payload_crc": true,
+    "editor_form": true,
+    "editor_route": true,
+    "editor_request": true,
+    "manual_list_refresh": true,
+    "revision_string": true,
+    "private_clear": true,
+    "locale_EN": true,
+    "locale_UK": true,
+    "locale_RU": true,
+    "guide_editor": true
+  },
+  "physical_runtime_verified": false,
+  "scope": "independent final-image structure and VPN editor packaging; later mutation-lock and service-expiry changes excluded"
+}
