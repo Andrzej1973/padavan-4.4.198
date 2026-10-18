@@ -77,6 +77,7 @@ on:
       - 'tools/prepare-privoxy-status.py'
       - 'tools/prepare-shadowsocks-status.py'
       - 'tools/verify-shadowsocks-status-image.py'
+      - 'tools/check-shadowsocks-status.js'
       - 'tools/prepare-mwan-shell.py'
       - 'tools/prepare-wr-vpn-pruning.py'
       - 'tools/check-wr-vpn-pruning.py'

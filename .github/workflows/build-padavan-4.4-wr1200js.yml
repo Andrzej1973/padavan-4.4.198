@@ -482,6 +482,8 @@ jobs:
             overlay/padavan-4.4/trunk/user/www/n56u_ribbon_fixed/vpncli.asp
           python3 tools/prepare-vpn-handshake-status.py padavan-4.4
           python3 tools/prepare-shadowsocks-status.py padavan-4.4
+          node tools/check-shadowsocks-status.js \
+            padavan-4.4/trunk/user/www/n56u_ribbon_fixed/Shadowsocks.asp
           python3 tools/eoip/prepare-status.py padavan-4.4 --config configs.build/wr1200js.config
           python3 tools/eoip/prepare-settings.py padavan-4.4 --config configs.build/wr1200js.config
           python3 tools/eoip/prepare-page.py padavan-4.4 --config configs.build/wr1200js.config
