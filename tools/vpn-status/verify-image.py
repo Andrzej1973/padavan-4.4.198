@@ -10,6 +10,16 @@ for name,role in [('vpncli.asp','client'),('vpnsrv.asp','server')]:
     page=(www/name).read_text(encoding='utf-8')
     for marker in [ui,'id="wr_vpn_handshake_status"','arg0:"'+role+'"','output:"wr_vpn_status"','window.setInterval(wrHSRefresh,30000)','document.hidden']:
         if marker not in page:raise SystemExit('FAIL shipped handshake page: '+name+' missing '+marker[:70])
+    if role == 'client':
+        start=page.find('function update_vpnc_status(vpnc_state){')
+        end=page.find('\nfunction applyRule()',start)
+        if start < 0 or end < 0:
+            raise SystemExit('FAIL shipped VPN client status function missing')
+        function=page[start:end]
+        if ("showhide_div('col_vpnc_wg_state', 0);" not in function or
+                'vpnc_state == 1' in function or 'vpnc_state == 2' in function or
+                '<#Connected#>' in function):
+            raise SystemExit('FAIL legacy vpnc_state can still render WG Connected badge')
 for name in ['EN.dict','UK.dict','RU.dict']:
     content=(www/name).read_text(encoding='utf-8')
     for key in ['WRHSUnknown','WRHSStale','WRHSPeers','WRHSNote','WRHSRefresh']:

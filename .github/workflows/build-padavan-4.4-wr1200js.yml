@@ -478,6 +478,8 @@ jobs:
           python3 tools/connected-devices/prepare-http.py padavan-4.4
           python3 tools/connected-devices/prepare-radio.py padavan-4.4
           python3 tools/connected-devices/prepare-background.py padavan-4.4
+          python3 tools/vpn-status/check-legacy-ui.py \
+            overlay/padavan-4.4/trunk/user/www/n56u_ribbon_fixed/vpncli.asp
           python3 tools/prepare-vpn-handshake-status.py padavan-4.4
           python3 tools/eoip/prepare-status.py padavan-4.4 --config configs.build/wr1200js.config
           python3 tools/eoip/prepare-settings.py padavan-4.4 --config configs.build/wr1200js.config

@@ -2,9 +2,12 @@
 """Install WR-only periodic handshake observations without request-time commands."""
 import argparse
 import re
+import sys
 from pathlib import Path
 p=argparse.ArgumentParser();p.add_argument('source',type=Path);a=p.parse_args()
 local=Path(__file__).resolve().parent/'vpn-status'
+sys.path.insert(0,str(local))
+from legacy_ui import replace_legacy_wireguard_badge
 http=a.source/'trunk/user/httpd'
 web=http/'web_ex.c';daemon=http/'httpd.c'
 s=web.read_text(encoding='utf-8');d=daemon.read_text(encoding='utf-8')
@@ -42,6 +45,8 @@ for name,values in labels.items():
 for page,role in [('vpncli.asp','client'),('vpnsrv.asp','server')]:
     path=a.source/'trunk/user/www/n56u_ribbon_fixed'/page
     html=path.read_text(encoding='utf-8')
+    if page == 'vpncli.asp':
+        html=replace_legacy_wireguard_badge(html)
     anchor='<p class="help-block"><#WRVPNNote#></p>'
     if html.count(anchor)!=1 or len(re.findall(r'function initial\(\)\s*\{',html))!=1:
         raise SystemExit('Handshake page anchors changed: '+page)

@@ -4,15 +4,25 @@
 
 ## Актуальний checkpoint — 2026-10-18
 
-Найновіша повна збірка WR1200JS — #457, run `39116103457`, firmware commit
-`4cd56a8e9587bbb48f87e1540c32ea0a2a56cf21`; GitHub підтверджує успішні jobs
-`build (wr1200js)`, `firmware-zip` і `downloads`. TRX незалежно перевірений із
-двох артефактів: 12 621 335 байтів, SHA-256
-`063be5fbf4d70334b0092a1da4362f3f16cb9d7188fc42d597ebe0dd21ef7161`.
-112 параметрів конфігурації — без розбіжностей/pending, SQM та CAKE виключені.
-MT7603 має source/config межу 16 BSS, MT7612 — 8; повний аудит служб і runtime
-не підтверджено. Деталі та межі доказів:
-`docs/evidence/WR1200JS-BUILD457.md` і суміжні JSON.
+Найновіша повна збірка WR1200JS — #458, run `39118907721`, commit
+`deead1d5dcd62c13cb126f0caca537bb9b0607e5`; GitHub підтверджує успішні jobs
+`build (wr1200js)`, `firmware-zip` і `downloads`. Її build включає успішний
+точний BusyBox/QEMU аудит усіх віднайдених shell-скриптів, окремі перевірки
+VPN profile lock, WG server export, USB/IP restore, Stubby DNS та перевірки
+зображених status UI/HTTP handler для вибраних служб. Це обмежені CI-докази:
+звіт BusyBox зберігає `whole_service_audit_complete: false` і
+`runtime_verified: false`; повна взаємодія служб та поведінка на пристрої не
+прийняті. Run #458 також успішний за підготовкою/компіляцією Band Steering,
+але роутер фізично залишається на підтвердженій користувачем збірці #396.
+Структурний звіт #457 і його TRX-хеш не переносяться на #458. Деталі
+перевірених меж #458 — `docs/evidence/WR1200JS-BUILD458-SERVICE-AUDIT.md`.
+
+У поточній роботі над чесним VPN-статусом виявлено, що успадкована сторінка
+`vpncli.asp` ще показувала зелене `Connected` для WG/AWG за `vpnc_state=1`.
+Кандидат зміни прибирає цю мітку для WG/AWG і залишає окремі read-only
+індикатори інтерфейсу/handshake єдиним джерелом їхнього стану; legacy display
+інших VPN-типів не змінюється. Перевірка трансформації пройшла локально;
+повторна збірка, фінальний image gate і браузер на фізичному #396 ще потрібні.
 
 Безпосередньо перед цим runtime-звітом HEAD main був 1b7cafe;
 Звіт опублікований наступним документаційним commit. GitHub connector підтверджує jobs #457. 2026-10-18 read-only SSH показав ядро
@@ -30,27 +40,24 @@ docs/evidence/WR1200JS-BAND-STEERING-RUNTIME-2026-10-18.md. Не змінюва�
 Користувач підтвердив, що фізично встановлено саме #396 від 2026-10-17.
 Коміт діагностики `347be00` входить до вихідного commit #457 `4cd56a8`;
 підготовка Band Steering і повна компіляція #457 пройшли, а окремий ABI run
-`39115399202` пройшов callbacks fixture. Це не runtime-перевірка. Після #457
-додано до build workflow п'ять перевірок діагностичних рядків у фінальному
-`romfs/sbin/rc`; локальна перевірка source-to-gate і diff пройшли. Повна
-збірка #458 (`39118907721`, commit `deead1d`) запущена; останній snapshot
-підтвердив успішну підготовку Band Steering; зараз виконується повний firmware
-build, а фінальний ROMFS gate ще не досягнуто. Точна наявність рядків у #457
-лишається непідтвердженою. Production IoT activation для `ra2` також залишається
-відкритою: ABI-перевірки staged bridge/profile/DHCP коду не є його інтеграцією
-чи runtime-доказом.
+`39115399202` пройшов callbacks fixture. Run #458 (`39118907721`) тепер
+завершився успішно; workflow пройшов фінальні гейти Band Steering у ROMFS.
+Це не означає, що #458 встановлена на пристрої, і не підтверджує її поведінку
+на радіо. Production IoT activation для `ra2` лишається відкритою:
+ABI-перевірки staged bridge/profile/DHCP коду не є його інтеграцією чи
+runtime-доказом.
 
 ABI `39115399202` для `594d98b` успішний: зібраний MIPS код administrative
 ra2 UP і host-kernel fixture. Саме production radio reload/activation
 controller не підключено: звичайний restart очищає IoT gates, а MBSS
 створюється під час ініціалізації основного інтерфейсу. Деталі — IoT contract.
 Збірка #456 `39115846454` для `47735d6` успішна. Повна збірка #457
-`39116103457` для `4cd56a8` завершилась успішно, разом із download/ZIP job.
-Її TRX окремо перевірений із двох артефактів; хеші збігаються. 112
-конфігураційних параметрів — без mismatch/pending; SQM вимкнений, а
-`CONFIG_NET_SCH_CAKE` не зібраний. Target BusyBox перевірив shell syntax 57
-скриптів і bounded probes, але звіт позначає повний аудит служб та runtime
-непідтвердженими. Докази: `docs/evidence/WR1200JS-BUILD457.md` та суміжні JSON.
+`39116103457` для `4cd56a8` завершилась успішно, разом із download/ZIP job;
+її TRX окремо перевірений із двох артефактів. Повна збірка #458 для `deead1d`
+також успішна; точний перелік сервісних CI-перевірок і їхні межі записані в
+`docs/evidence/WR1200JS-BUILD458-SERVICE-AUDIT.md`. У #458 точний target BusyBox
+пройшов syntax gate віднайдених shell-скриптів та bounded probes. Повний
+аудит залежностей/взаємодії служб і runtime лишається непідтвердженим.
 
 Локальний IoT capacity self-test `py -3 tools/iot/check-capacity-selftest.py`
 повторно пройшов у схваленому Windows execution context з кодом 0. Він
