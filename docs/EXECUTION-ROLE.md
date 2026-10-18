@@ -4,6 +4,46 @@
 
 ## Актуальний checkpoint — 2026-10-18
 
+ABI run `39113907911` (`52c802b`) підтвердив успішний крок
+`Prepare pinned RC IoT bridge and owned radio-stop hook`, включно зі створенням
+MIPS-об’єкта всього підготовленого `services_ex.c`. Попередній run
+`39113649278` виявив перекриття sysroot `linux/errno.h` заголовками ядра;
+виправлено пріоритет include (`-idirafter`) і додано UAPI checkout.
+Run завершився успішно; завантажений RC-об’єкт незалежно перевірено за
+ELF32/MIPS/ET_REL та SHA-256. Докази: `docs/evidence/IOT-ABI-52C802B.md`.
+ABI run `39114066958` для `b8d5ce7` також успішний і перевіряє 60-секундний
+compiler timeout та failure JSON. Новий staging-clear readback `45ff19b`
+перевіряється run `39114413340` (на останній перевірці in_progress).
+Firmware #449 `39113500457` впала після успішної компіляції на capacity
+probe: compiler із Kbuild не знайдено в PATH окремого Actions-кроку.
+`b1e8803` додає каталог pinned compiler у PATH без послаблення identity check;
+firmware #451 `39114348390` перевіряє це виправлення.
+
+Опубліковано IoT capacity/RC ABI пакет `62ab7f1` і виправлення sparse checkout
+`945fb34`. ABI run `39113500443` пройшов synthetic capacity self-test, але
+зупинився в source integration через відсутній `drivers/nvram/nvram.c`.
+Причина підтверджена оригінальним failed log, опрацьованим `build_log`;
+`945fb34` повертає каталог NVRAM без вилучення нових include-залежностей.
+Повторний ABI run `39113649278` виявив описану вище include-помилку.
+Target capacity та фізичні три SSID залишаються непідтвердженими.
+
+Nim log triage опубліковано як `2cd5557`. Monitor run `39113562410`
+завершився `success`; конкретний крок `Compile and test agent utilities`
+успішний, тож Linux CI підтвердив компіляцію й fixtures monitor/build_log.
+Фізичні паралельні WG/AWG, передача management-доступу, reboot persistence
+та production IoT activation залишаються відкритими критеріями приймання.
+
+Локальний IoT capacity self-test повторно пройшов 2026-10-18:
+`py -3 tools/iot/check-capacity-selftest.py`, exit 0, обидва радіопарсери та
+негативний сценарій required-limit. Запуск потребував схваленого розширеного
+контексту Windows через ACL тимчасових каталогів. Це перевірка синтетичних
+host fixtures; реальний Kbuild capacity gate та фізичні три SSID ще не
+підтверджені. GitHub CLI після device authorization підтвердив акаунт
+`Andrzej1973`, читання repository API та Git origin HEAD `942bcb4`.
+Звичайний sandbox має окремі обмеження keyring/мережі; успіх розширеного
+контексту не означає глобального виправлення середовища. Старі ACL-залишки
+тимчасових каталогів не видалено.
+
 Поточна гілка `main` містить виправлення монітора `d35e0f6` (`Prevent stale
 build failure reports`); Sol — виконавець. Локальний `main` синхронізовано з
 `origin/main` перед внесенням цього checkpoint.
@@ -19,6 +59,24 @@ QEMU також підтвердив резолв через image Stubby з а�
 Strict mode та відновленням після розблокування TCP/853. Це не фізична
 перевірка роутера. Target BusyBox звіт успішний за своїм обмеженим обсягом,
 але позначає `whole_service_audit_complete: false`.
+
+У локальному звіті монітора також був старіший невдалий build #446
+(`39103063419`, коміт `3c0954c`). Сам крок збірки прошивки пройшов; run
+завершився помилкою пізніше, бо SSH image verifier не впізнав маркери UI та
+endpoint ручного оновлення. Показані відмови hunk-ів IMQ не були кроком, що
+завалив run. У build #448 той самий SSH image gate пройшов, тож #446 — історична
+помилка, а не ознака проблеми поточного образу.
+
+Парсер `tools/agent-nim/build_log.nim` виправлено після цього розбору:
+Nim 2.2.12 release build обробив оригінальний 10 MB log #446 і залишив одну
+справжню SSH verifier помилку замість compiler warnings/ignored make noise;
+у звіті є команда `verify-image.py`. Додано fixture для цього випадку й
+підключено його до monitor workflow. 2026-10-18 актуальний `build_log.nim`
+зібрано через `nim c -d:release`; `py -3 tools/agent-nim/check_build_log.py`
+з отриманим бінарником пройшов (exit 0). Перевірено відкидання warning/quoted
+та ignored error noise і збереження справжньої SSH-помилки з командою кроку.
+Початковий ACL-блок Windows подолано схваленим розширеним запуском; виконання
+оновленого fixture у CI підтверджено monitor run `39113562410`.
 
 Статична IPv6 topology зміна є в `dd1e98c`; ABI CI `39104700313` пройшов.
 Його `iot-firewall-packets.json` підтверджує всі 21 IPv4/IPv6 TCP/UDP
@@ -1636,7 +1694,8 @@ CI служб `38783437373` на `fd3b029` успішний, повна збір
   фікстури/cache у Git.
 - ZeroTier заморожено; прошивання й reboot роутера потребують окремого дозволу; приймання на пристрої
   не завершене — жодного EoIP-інтерфейсу на жодному роутері не створювалося.
-- Середовище: `gh` працює (у пісочниці треба очищати `HTTP(S)_PROXY`); `apply_patch` працює; пошук
+- Середовище: Git CLI перевірено 2026-10-18 (`git ls-remote origin HEAD` успішний);
+  `apply_patch` працює; пошук
   логу невдалого кроку: `gh api .../jobs/<id>/logs --allow-escape-sequences`; профілі налаштувань і
   перемикач режимів — `codex-mode-switch.ps1`; виключення Defender заблоковані (обліковий запис не
   адміністратор); скрипти `codex-repair-thread-index.py` і `codex login --with-api-key` чекають запуску

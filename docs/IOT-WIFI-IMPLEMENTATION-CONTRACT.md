@@ -135,8 +135,15 @@ The ABI workflow also compiles the prepared `services_ex.c` to
 `iot-services-ex-mips.o` with the
 WR1200JS MIPS compiler. Its include paths follow the pinned RC/shared Makefiles
 and include the Linux kernel headers; the WR1200JS Ralink board header is staged
-directly beside `rc.h` by the preparation step. This whole-object compile has
-not run yet.
+directly beside `rc.h` by the preparation step. In ABI run `39113907911`
+for `52c802b`, the `Prepare pinned RC IoT bridge and owned radio-stop hook`
+step completed successfully, including whole-object `services_ex.c` MIPS
+compilation. Earlier run `39113649278` failed because kernel include paths
+overrode the target sysroot's errno header; using `-idirafter` and staging
+UAPI headers corrected that integration gate. The overall run passed and its
+downloaded object/hash identity was independently verified; see
+[ABI evidence](evidence/IOT-ABI-52C802B.md). Firmware linking of this IoT
+candidate and physical runtime remain unconfirmed.
 
 The separate ABI workflow [run `39104700313`](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/39104700313) completed successfully for `dd1e98c`. Its `band-steering-mips-abi` artifact contains compiled MIPS RC objects for the staged IoT bridge, profile, DHCP, network, request-stage, and request-snapshot code, as well as passing host DHCP/DNS and IPv4/IPv6 firewall fixtures. This is source-preparation/ABI evidence, not a production firmware image. The artifact's `iot-rc-source.json` says
 `activation_integrated: false`, `writer_journal_lifecycle_bound: false`,
