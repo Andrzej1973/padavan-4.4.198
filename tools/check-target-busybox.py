@@ -93,8 +93,47 @@ except (OSError,RuntimeError,ValueError,subprocess.CalledProcessError) as error:
     report['busybox_elf_dependency_closure_error']=str(error)
     report['busybox_elf_dependency_closure']={}
     report['checks']['busybox_elf_dependency_closure']=False
-report['service_dispatch_probes']=[]
 effective_config=(trunk/'.config').read_text().splitlines()
+report['selected_service_entrypoints']=[]
+service_entrypoints=(
+    ('dropbear_ssh',('CONFIG_FIRMWARE_INCLUDE_DROPBEAR',),('usr/bin/sshd.sh',)),
+    ('stubby',('CONFIG_FIRMWARE_INCLUDE_STUBBY',),('usr/bin/stubby.sh',)),
+    ('doh',('CONFIG_FIRMWARE_INCLUDE_DOH',),('usr/bin/doh_proxy.sh',)),
+    ('privoxy',('CONFIG_FIRMWARE_INCLUDE_PRIVOXY',),('usr/bin/privoxy.sh',)),
+    ('iperf3',('CONFIG_FIRMWARE_INCLUDE_IPERF3',),('usr/bin/iperf3.sh',)),
+    ('shadowsocks_clients',('CONFIG_FIRMWARE_INCLUDE_SSREDIR','CONFIG_FIRMWARE_INCLUDE_SSLOCAL'),
+        ('usr/bin/shadowsocks.sh','usr/bin/ss-monitor','usr/bin/ss-rules')),
+    ('wireguard_amneziawg',('CONFIG_FIRMWARE_INCLUDE_WIREGUARD',),
+        ('usr/bin/wireguard.sh','usr/bin/wgc.sh','usr/bin/wgs.sh','usr/sbin/wr-vpn-profiles-service')),
+    ('zerotier',('CONFIG_FIRMWARE_INCLUDE_ZEROTIER',),
+        ('usr/bin/zerotier.sh','usr/bin/zerotier-monitor.sh','usr/bin/zerotier-policy.sh')),
+    ('usbip',('CONFIG_FIRMWARE_INCLUDE_USBIP',),
+        ('usr/libexec/wr-usbip/device-action.sh','usr/libexec/wr-usbip/device-policy.sh',
+         'usr/libexec/wr-usbip/firewall-policy.sh','usr/libexec/wr-usbip/restore.sh','usr/sbin/wr-usbip')),
+    ('vlmcsd',('CONFIG_FIRMWARE_INCLUDE_VLMCSD',),('usr/bin/vlmcsd.sh',)),
+)
+shell_inventory={item['path']:item for item in report['scripts']}
+for service,selectors,paths in service_entrypoints:
+    active=[selector for selector in selectors if selector+'=y' in effective_config]
+    if not active:continue
+    entries=[]
+    for relative in paths:
+        path=root/relative
+        present=path.is_file()
+        shell=shell_inventory.get(relative)
+        entries.append({'path':relative,'present':present,
+            'sha256':digest(path) if present else None,
+            'shell_syntax_exit':shell['syntax_exit'] if shell else None,
+            'covered_by_shell_inventory':shell is not None})
+    passed=all(item['present'] and
+        (item['shell_syntax_exit']==0 if item['covered_by_shell_inventory'] else True)
+        for item in entries)
+    report['checks'][service+'_selected_entrypoints_present_and_syntax_checked']=passed
+    report['selected_service_entrypoints'].append({'service':service,'selectors':active,
+        'scope':'selected image entrypoint presence and shell syntax only; lifecycle/persistence/status chains unverified',
+        'entries':entries,'passed':passed})
+report['selected_service_entrypoint_map_complete']=False
+report['service_dispatch_probes']=[]
 for service, selector, script_name in (
         ('stubby','CONFIG_FIRMWARE_INCLUDE_STUBBY','stubby.sh'),
         ('doh','CONFIG_FIRMWARE_INCLUDE_DOH','doh_proxy.sh'),
