@@ -111,6 +111,7 @@ def inject(path: Path, nav: str) -> None:
 .wr-service-link[aria-current="page"] { color:#fff; background:#0878c9; border-color:#0878c9; }
 td.wr-service-status-panel { background:#d9edf7 !important; border:1px solid #bce8f1 !important; border-radius:4px; padding:10px !important; }
 .wr-service-status-panel:not(td) { box-sizing:border-box; margin:6px 0; padding:10px; color:#31708f; background:#d9edf7; border:1px solid #bce8f1; border-radius:4px; }
+.wr-service-status-panel:not(td) .help-block { margin:6px 0 0; color:#31708f; }
 @media (max-width: 900px) { .wr-service-nav { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media (max-width: 520px) { .wr-service-nav { grid-template-columns:minmax(0,1fr); } .wr-service-group { border-right:0; } }
 </style>
@@ -131,7 +132,32 @@ td.wr-service-status-panel { background:#d9edf7 !important; border:1px solid #bc
     var node = statuses[j], cell = node.parentNode;
     while (cell && cell.tagName && cell.tagName.toLowerCase() !== 'td') cell = cell.parentNode;
     if (cell) cell.className += (cell.className ? ' ' : '') + 'wr-service-status-panel';
-    else node.className += (node.className ? ' ' : '') + 'wr-service-status-panel';
+    else {
+      var ancestor = node.parentNode, alreadyGrouped = false;
+      while (ancestor && ancestor.tagName) {
+        if (/(^|\\s)wr-service-status-panel(\\s|$)/.test(ancestor.className || '')) { alreadyGrouped = true; break; }
+        ancestor = ancestor.parentNode;
+      }
+      if (alreadyGrouped) continue;
+      var parent = node.parentNode, panel = document.createElement('div');
+      panel.className = 'wr-service-status-panel';
+      parent.insertBefore(panel, node);
+      panel.appendChild(node);
+      var next = panel.nextSibling;
+      while (next) {
+        var tag = next.nodeType === 1 ? next.tagName.toLowerCase() : '';
+        var help = tag === 'p' && /(^|\\s)help-block(\\s|$)/.test(next.className || '');
+        var small = tag === 'small';
+        var button = tag === 'button';
+        if (next.nodeType === 3 && !next.nodeValue.trim()) {
+          var whitespace = next; next = next.nextSibling; panel.appendChild(whitespace); continue;
+        }
+        if (help || small || button) {
+          var grouped = next; next = next.nextSibling; panel.appendChild(grouped); continue;
+        }
+        break;
+      }
+    }
   }
 })();
 </script>
