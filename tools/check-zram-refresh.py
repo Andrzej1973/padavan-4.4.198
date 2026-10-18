@@ -23,7 +23,10 @@ with tempfile.TemporaryDirectory(prefix='wr-zram-refresh-',dir=repo) as director
     assert 'onclick="wrZramRefresh()"' in html
     test=r'''
 const assert=require('assert');
-var document={hidden:false},supported=true,requests=0,display='',handlers={},options;
+var listeners={},timers=[],now=1000;
+var document={hidden:false,addEventListener:function(name,callback){listeners[name]=callback;}},supported=true,requests=0,display='',handlers={},options;
+var window={setTimeout:function(callback,delay){assert.strictEqual(delay,45000);timers.push(callback);}};
+Date.now=function(){return now;};
 function found_support_zram(){return supported;}
 function $j(selector){assert.strictEqual(selector,'#wr_zram_status');return {text:function(value){display=value;}};}
 $j.ajax=function(value){requests++;options=value;handlers={};return {
@@ -41,6 +44,11 @@ handlers.done(1);assert.strictEqual(display,'<#WRZramActive#>');handlers.always(
 wrZramRefresh();handlers.fail();assert.strictEqual(display,'<#WRZramUnknown#>');handlers.always();
 wrZramRefresh();handlers.done(4);assert.strictEqual(display,'<#WRZramStillActive#>');handlers.always();
 wrZramRefresh();handlers.done('1');assert.strictEqual(display,'<#WRZramUnknown#>');handlers.always();
+wrZramRender(1);var older=timers[timers.length-1];wrZramRender(0);older();
+assert.strictEqual(display,'<#WRZramOff#>');
+timers[timers.length-1]();assert.strictEqual(display,'<#WRZramUnknown#>');
+wrZramRender(1);now+=45001;listeners.visibilitychange();assert.strictEqual(display,'<#WRZramUnknown#>');
+wrZramRender(1.5);assert.strictEqual(display,'<#WRZramUnknown#>');
 '''
     script=root/'refresh.js';script.write_text(test,encoding='utf-8')
     subprocess.run(['node',str(script)],check=True)

@@ -11,6 +11,14 @@ health. Local emitted-JavaScript tests passed for all three observers. Full CI,
 final-image inclusion and physical browser behavior for this change remain open.
 No service lifecycle or saved enable setting is changed.
 
+ZRAM now uses the same 45-second observation lifetime, including its initial
+page sample, integer-state validation and visibility-return age check. The
+emitted-page Node fixture passed locally (a fixed local fixture directory was
+used because Windows sandbox temporary-directory creation failed). The ROMFS
+gate requires the expiry controls. CI and physical browser acceptance remain
+pending; this does not activate swap or change its configuration. DNS/DoH
+observation expiry remains a separate open item.
+
 ## Independent VPN profile link freshness
 
 The independent profile table has an explicit authenticated, bounded

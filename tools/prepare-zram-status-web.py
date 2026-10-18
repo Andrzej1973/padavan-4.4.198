@@ -52,15 +52,22 @@ select = '<select name="zram_enable" class="input">'
 if html.count(init) != 1 or html.count(select) != 1 or len(re.findall(r'function initial\(\)\s*\{',html))!=1:
     raise SystemExit('ZRAM page anchors changed')
 labels = ['Off', 'Active', 'Failed', 'Unknown', 'StillActive']
-refresh='\nvar wrZramBusy=false;\nfunction wrZramRefresh(){\n'
+refresh='\nvar wrZramBusy=false;\nvar wrZramGeneration=0,wrZramSampledAt=0;\n'
+refresh+='function wrZramRender(state){\n var generation=++wrZramGeneration;wrZramSampledAt=0;\n'
+refresh+=' var labels=['+','.join('"<#WRZram'+x+'#>"' for x in labels)+'];\n'
+refresh+=' var valid=typeof state === "number" && Math.floor(state)===state && state>=0 && state<5;\n'
+refresh+=' $j("#wr_zram_status").text(valid ? labels[state] : labels[3]);\n'
+refresh+=' if(valid && state!==3){wrZramSampledAt=Date.now();window.setTimeout(function(){if(generation===wrZramGeneration)wrZramRender(null);},45000);}\n}\n'
+refresh+='document.addEventListener("visibilitychange",function(){if(!document.hidden && wrZramSampledAt && Date.now()-wrZramSampledAt>=45000)wrZramRender(null);});\n'
+refresh+='function wrZramRefresh(){\n'
 refresh+=' if(wrZramBusy || document.hidden || !found_support_zram())return;\n wrZramBusy=true;\n'
 refresh+=' var labels=['+','.join('"<#WRZram'+x+'#>"' for x in labels)+'];\n'
 refresh+=' $j.ajax({url:"/update.cgi",data:{output:"wr_zram_state"},dataType:"json",cache:false,timeout:5000})\n'
-refresh+=' .done(function(state){$j("#wr_zram_status").text(typeof state === "number" && labels[state] || labels[3]);})\n'
-refresh+=' .fail(function(){$j("#wr_zram_status").text(labels[3]);})\n'
+refresh+=' .done(function(state){wrZramRender(state);})\n'
+refresh+=' .fail(function(){wrZramRender(null);})\n'
 refresh+=' .always(function(){wrZramBusy=false;});\n}\n'
 html=re.sub(r'(function initial\(\)\s*\{)',lambda m:refresh+m[1],html,count=1)
-html = html.replace(init, init + '\n\tvar zs = <% wr_zram_state(); %>;\n\tvar zl = [' + ','.join('"<#WRZram' + x + '#>"' for x in labels) + '];\n\t$j("#wr_zram_status").text(zl[zs] || zl[3]);\n\tif(found_support_zram()) window.setInterval(wrZramRefresh,30000);')
+html = html.replace(init, init + '\n\twrZramRender(<% wr_zram_state(); %>);\n\tif(found_support_zram()) window.setInterval(wrZramRefresh,30000);')
 html = html.replace(select, '<div id="wr_zram_status" role="status"><#WRZramUnknown#></div><button type="button" class="btn" onclick="wrZramRefresh()"><#WRZramRefresh#></button>\n                                                ' + select)
 translations = {
  'EN.footer': ['Disabled', 'Working: swap active', 'Not working: swap inactive', 'State unknown', 'Still working despite disabled setting'],
