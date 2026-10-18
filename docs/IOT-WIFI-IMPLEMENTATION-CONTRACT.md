@@ -76,4 +76,5 @@ prints route/address/neighbour/sysctl diagnostics if a baseline path fails.
 The next ABI run `39103063444` stopped before the packet test because `sysctl`
 interpreted the dot in interface name `eth2.2` as a path separator. The fixture
 now writes and reads the exact `/proc/sys/net/ipv6/conf/eth2.2/forwarding`
-path. A rerun is required before drawing any IPv6 packet-policy conclusion.
+path. This correction was published as `770a7c5`; ABI rerun `39103236496` is
+running. No IPv6 packet-policy conclusion is established yet.
