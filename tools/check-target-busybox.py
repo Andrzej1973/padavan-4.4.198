@@ -26,7 +26,7 @@ def run(args,**options):
         capture_output=True,timeout=10,env={'PATH':'/usr/bin:/bin','LC_ALL':'C'},**options)
 report={'schema':1,'runtime_verified':False,'whole_service_audit_complete':False,
         'busybox_sha256':digest(binary),'config_sha256':digest(config),
-        'scope':'image shell syntax and bounded applet probes; service interactions unverified',
+        'scope':'image shell syntax, bounded applet probes and safe invalid-action dispatch probes; service interactions unverified',
         'scripts':[],'other_interpreters':[],'checks':{}}
 listing=run(['--list']);applets=listing.stdout.decode(errors='replace').splitlines()
 report['applets']=applets;report['checks']['applet_inventory']=listing.returncode==0
@@ -56,9 +56,22 @@ report['checks']['all_discovered_shell_syntax']=bool(report['scripts']) and all(
 report['checks']['command_v_supported_or_avoided']=not any(
     item['command_v_requires_review'] for item in report['scripts'])
 report['service_dispatch_probes']=[]
-for service in ('stubby', 'privoxy'):
-    script=root/'usr/bin'/f'{service}.sh'
-    if not script.is_file():continue
+effective_config=(trunk/'.config').read_text().splitlines()
+for service, selector, script_name in (
+        ('stubby','CONFIG_FIRMWARE_INCLUDE_STUBBY','stubby.sh'),
+        ('doh','CONFIG_FIRMWARE_INCLUDE_DOH','doh_proxy.sh'),
+        ('privoxy','CONFIG_FIRMWARE_INCLUDE_PRIVOXY','privoxy.sh')):
+    if selector+'=y' not in effective_config:continue
+    script=root/'usr/bin'/script_name
+    if not script.is_file():
+        report['checks'][service+'_dispatcher_present']=False
+        report['service_dispatch_probes'].append({
+            'service':service,'script':str(script.relative_to(root)),
+            'scope':'required by effective selector; image dispatcher missing',
+            'passed':False,
+        })
+        continue
+    report['checks'][service+'_dispatcher_present']=True
     # These shipped dispatchers reject unknown actions before opening a lock
     # or invoking any external lifecycle command. Run the original image
     # script under its actual shell, rather than source it in the host shell.
@@ -66,8 +79,9 @@ for service in ('stubby', 'privoxy'):
     passed=probe.returncode==1 and b'Usage:' in probe.stderr
     report['checks'][service+'_invalid_action_refused']=passed
     report['service_dispatch_probes'].append({
-        'service':service,'script_sha256':digest(script),'exit':probe.returncode,
-        'scope':'unknown action only; daemon lifecycle not executed',
+        'service':service,'script':str(script.relative_to(root)),
+        'script_sha256':digest(script),'exit':probe.returncode,
+        'scope':'unknown action only; lock, configuration and daemon lifecycle are not entered',
         'passed':passed,
     })
 with tempfile.TemporaryDirectory(prefix='target-busybox-') as tmp:
