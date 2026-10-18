@@ -141,7 +141,8 @@ report['service_dispatch_probes']=[]
 for service, selector, script_name in (
         ('stubby','CONFIG_FIRMWARE_INCLUDE_STUBBY','stubby.sh'),
         ('doh','CONFIG_FIRMWARE_INCLUDE_DOH','doh_proxy.sh'),
-        ('privoxy','CONFIG_FIRMWARE_INCLUDE_PRIVOXY','privoxy.sh')):
+        ('privoxy','CONFIG_FIRMWARE_INCLUDE_PRIVOXY','privoxy.sh'),
+        ('vlmcsd','CONFIG_FIRMWARE_INCLUDE_VLMCSD','vlmcsd.sh')):
     if selector+'=y' not in effective_config:continue
     script=root/'usr/bin'/script_name
     if not script.is_file():

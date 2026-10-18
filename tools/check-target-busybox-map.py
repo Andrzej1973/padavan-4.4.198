@@ -11,6 +11,10 @@ mapping = next(ast.literal_eval(node.value) for node in tree.body
                    for target in node.targets))
 services = {name: (set(selectors), set(paths))
             for name, selectors, paths in mapping}
+dispatches = next(ast.literal_eval(node.iter) for node in ast.walk(tree)
+                  if isinstance(node, ast.For) and isinstance(node.target, ast.Tuple)
+                  and [item.id for item in node.target.elts if isinstance(item, ast.Name)]
+                      == ['service', 'selector', 'script_name'])
 expected = {
     'shadowsocks_clients': (
         {'CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS'},
@@ -30,4 +34,6 @@ for name, (selectors, paths) in expected.items():
         raise SystemExit(f'FAIL {name} selector map missing: {sorted(selectors - actual_selectors)}')
     if not paths <= actual_paths:
         raise SystemExit(f'FAIL {name} image entrypoints missing: {sorted(paths - actual_paths)}')
-print('PASS selected service map covers Shadowsocks clients, WireGuard/AmneziaWG and Band Steering')
+if ('vlmcsd', 'CONFIG_FIRMWARE_INCLUDE_VLMCSD', 'vlmcsd.sh') not in dispatches:
+    raise SystemExit('FAIL KMS invalid-action BusyBox probe missing')
+print('PASS service map covers Shadowsocks, WireGuard/AmneziaWG and Band Steering; KMS dispatcher has a safe refusal probe')

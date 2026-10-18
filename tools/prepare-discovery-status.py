@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Expose LLTD, ASUS Info Discovery and watchdog module observations in services."""
+"""Expose LLTD, ASUS Info Discovery, KMS and watchdog observations in services."""
 import argparse
 import ast
 from pathlib import Path
