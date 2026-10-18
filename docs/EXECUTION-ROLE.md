@@ -14,8 +14,8 @@ MT7603 має source/config межу 16 BSS, MT7612 — 8; повний ауди
 не підтверджено. Деталі та межі доказів:
 `docs/evidence/WR1200JS-BUILD457.md` і суміжні JSON.
 
-Поточний локальний і віддалений HEAD — 1b7cafe (після firmware commit #457).
-GitHub connector підтверджує jobs #457. 2026-10-18 read-only SSH показав ядро
+Безпосередньо перед цим runtime-звітом HEAD main був 1b7cafe;
+Звіт опублікований наступним документаційним commit. GitHub connector підтверджує jobs #457. 2026-10-18 read-only SSH показав ядро
 4.4.198, активні ra0/rai0, ZRAM у /proc/swaps, dnsmasq/dropbear і wg1; модуль
 AmneziaWG завантажений. Для Band Steering wr_bs_enable=1, виконувані файли є,
 а /sbin/rc має посилання на daemon, але процес і контрольний socket відсутні.
