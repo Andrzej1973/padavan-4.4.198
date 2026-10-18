@@ -18,13 +18,12 @@ baseline під час IoT→LAN з'єднання. Це test-topology поми�
 діагностичний вивід. ABI run `39103063444` зупинився ще до пакетної перевірки:
 `sysctl` розібрав крапку в імені `eth2.2` як роздільник шляху. Виправлено на
 запис точного procfs-файла комітом `770a7c5`. ABI rerun `39103236496` завершився
-помилкою на IPv6 pre-firewall baseline: маршрут і forwarding присутні, але
-сусід `fd51::2` на `br0` має стан `INCOMPLETE`, тому IoT не дістається до LAN
-listener ще до встановлення правил. Оригінальний job log оброблено `build_log.nim`
-і перевірено; це не є результатом перевірки firewall-політики. Діагностику
-оновлено адресами/маршрутами/neigh LAN namespace і FDB мосту. Наступний ABI
-прогін має встановити причину відсутнього NDP-відгуку; IPv6 ізоляція поки не
-підтверджена.
+помилкою на IPv6 pre-firewall baseline для IoT→LAN TCP. Оригінальний job log
+оброблено `build_log.nim` і перевірено; це не є результатом перевірки
+firewall-політики. Маршрути й forwarding присутні; після невдалого connect
+діагностика показала LAN адресу та MAC у bridge FDB і `fd51::2 REACHABLE`, але
+це ще не пояснює відсутню TCP-відповідь. Додано перевірку зворотного маршруту,
+IPv6 listener через `ss` та таблиці FORWARD. IPv6 ізоляція поки не підтверджена.
 Firmware build #445 `39101761257` завершився помилкою на
 `Verify SSH status UI and handler in image`:
 `discovery_process_ui=false`. Артефакт `ssh-image-checks.json` підтверджує, що

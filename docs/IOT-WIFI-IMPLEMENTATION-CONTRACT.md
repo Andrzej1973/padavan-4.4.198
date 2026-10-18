@@ -78,10 +78,11 @@ interpreted the dot in interface name `eth2.2` as a path separator. The fixture
 now writes and reads the exact `/proc/sys/net/ipv6/conf/eth2.2/forwarding`
 path. This correction was published as `770a7c5`. ABI rerun `39103236496`
 passed setup and policy preparation but failed before firewall installation:
-the IoT namespace could not reach the LAN IPv6 listener, and `fd51::2` remained
-`INCOMPLETE` in the host bridge neighbor table. The original job log was
-reviewed with `build_log.nim`; this is a host-test topology failure, not
-evidence for or against the firewall policy. Diagnostics now also capture the
-LAN namespace IPv6 address/route/neighbour state, its veth, and bridge FDB to
-locate the missing NDP response. No IPv6 packet-policy conclusion is
-established yet.
+the IoT namespace could not reach the LAN IPv6 listener. The original job log
+was reviewed with `build_log.nim`; this is a host-test baseline failure, not
+evidence for or against the firewall policy. Routes and forwarding were present;
+after the failed connect, diagnostics showed the LAN address/MAC in bridge FDB
+and `fd51::2 REACHABLE`, so an absent NDP response alone does not explain the
+missing TCP reply. Diagnostics now also capture the reverse route, LAN IPv6
+listener via `ss`, and the pre-firewall FORWARD table. No IPv6 packet-policy
+conclusion is established yet.
