@@ -95,6 +95,57 @@ except (OSError,RuntimeError,ValueError,subprocess.CalledProcessError) as error:
     report['checks']['busybox_elf_dependency_closure']=False
 effective_config=(trunk/'.config').read_text().splitlines()
 report['selected_service_entrypoints']=[]
+report['entrypoint_gaps']=[{'group':name,'reason':'no exact-image entrypoint assertion yet'}
+                           for name in ('zram','qos','sfe','u2ec','wpad')]
+# Active selectors are fully classified as service groups, image components,
+# or pending investigation. This is selector accounting only; it does not claim
+# that lifecycle interactions or every package payload have been audited.
+selector_classes={
+    'CONFIG_FIRMWARE_INCLUDE_DROPBEAR':('service','dropbear_ssh'),
+    'CONFIG_FIRMWARE_INCLUDE_STUBBY':('service','stubby'),
+    'CONFIG_FIRMWARE_INCLUDE_DOH':('service','doh'),
+    'CONFIG_FIRMWARE_INCLUDE_PRIVOXY':('service','privoxy'),
+    'CONFIG_FIRMWARE_INCLUDE_IPERF3':('service','iperf3'),
+    'CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS':('service','shadowsocks_clients'),
+    'CONFIG_FIRMWARE_INCLUDE_SSREDIR':('component','shadowsocks_clients'),
+    'CONFIG_FIRMWARE_INCLUDE_SSLOCAL':('component','shadowsocks_clients'),
+    'CONFIG_FIRMWARE_INCLUDE_WIREGUARD':('service','wireguard_amneziawg'),
+    'CONFIG_FIRMWARE_INCLUDE_AMNEZIAWG':('service','wireguard_amneziawg'),
+    'CONFIG_FIRMWARE_INCLUDE_ZEROTIER':('service','zerotier'),
+    'CONFIG_FIRMWARE_INCLUDE_USBIP':('service','usbip'),
+    'CONFIG_FIRMWARE_INCLUDE_VLMCSD':('service','vlmcsd'),
+    'CONFIG_FIRMWARE_INCLUDE_WR_BAND_STEERING':('service','wr_band_steering'),
+    'CONFIG_FIRMWARE_INCLUDE_ZRAM':('runtime_feature','zram'),
+    'CONFIG_FIRMWARE_INCLUDE_QOS':('runtime_feature','qos'),
+    'CONFIG_FIRMWARE_INCLUDE_SFE':('runtime_feature','sfe'),
+    'CONFIG_FIRMWARE_INCLUDE_U2EC':('service','u2ec'),
+    'CONFIG_FIRMWARE_INCLUDE_WPAD':('web_feature','wpad'),
+    'CONFIG_FIRMWARE_INCLUDE_FS_TOOLS':('component','filesystem_tools'),
+    'CONFIG_FIRMWARE_INCLUDE_HID':('component','usb_hid'),
+    'CONFIG_FIRMWARE_INCLUDE_XFRM':('component','ipsec_xfrm'),
+    'CONFIG_FIRMWARE_INCLUDE_IMQ':('component','qos'),
+    'CONFIG_FIRMWARE_INCLUDE_IFB':('component','qos'),
+    'CONFIG_FIRMWARE_INCLUDE_IPSET':('component','firewall'),
+    'CONFIG_FIRMWARE_INCLUDE_LANG_RU':('component','language_ru'),
+    'CONFIG_FIRMWARE_INCLUDE_LANG_UK':('component','language_uk'),
+    'CONFIG_FIRMWARE_INCLUDE_VENDOR_LOGO':('component','vendor_branding'),
+    'CONFIG_FIRMWARE_INCLUDE_NTFS_3G':('component','ntfs'),
+    'CONFIG_FIRMWARE_INCLUDE_TCPDUMP':('component','diagnostics'),
+    'CONFIG_FIRMWARE_INCLUDE_SOCAT':('component','network_utilities'),
+    'CONFIG_FIRMWARE_INCLUDE_NDISC6_RDISC6':('component','ipv6_diagnostics'),
+    'CONFIG_FIRMWARE_INCLUDE_EAP_PEAP':('component','wifi_auth'),
+    'CONFIG_FIRMWARE_INCLUDE_DDNS_SSL':('component','https_ddns'),
+    'CONFIG_FIRMWARE_INCLUDE_HTTPS':('component','https_ddns'),
+    'CONFIG_FIRMWARE_INCLUDE_DROPBEAR_FAST_CODE':('component','dropbear_ssh'),
+    'CONFIG_FIRMWARE_INCLUDE_OPENSSL_EC':('component','crypto'),
+    'CONFIG_FIRMWARE_INCLUDE_OPENSSL_EXE':('component','crypto'),
+    'CONFIG_FIRMWARE_INCLUDE_CURL':('component','network_utilities'),
+    'CONFIG_FIRMWARE_INCLUDE_QUIC':('component','network_utilities'),
+    'CONFIG_FIRMWARE_INCLUDE_OPENSSL_35':('component','crypto'),
+    'CONFIG_FIRMWARE_INCLUDE_LUA':('component','runtime'),
+    'CONFIG_FIRMWARE_INCLUDE_TPROXY':('component','transparent_proxy'),
+    'CONFIG_FIRMWARE_INCLUDE_QRENCODE':('component','vpn_qr'),
+}
 service_entrypoints=(
     ('dropbear_ssh',('CONFIG_FIRMWARE_INCLUDE_DROPBEAR',),('usr/bin/sshd.sh',)),
     ('stubby',('CONFIG_FIRMWARE_INCLUDE_STUBBY',),('usr/bin/stubby.sh',)),
@@ -136,7 +187,16 @@ for service,selectors,paths in service_entrypoints:
     report['selected_service_entrypoints'].append({'service':service,'selectors':active,
         'scope':'selected image entrypoint presence and shell syntax only; lifecycle/persistence/status chains unverified',
         'entries':entries,'passed':passed})
-report['selected_service_entrypoint_map_complete']=False
+active_include_selectors=sorted(line.split('=',1)[0] for line in effective_config
+                                  if line.startswith('CONFIG_FIRMWARE_INCLUDE_') and line.endswith('=y'))
+unclassified_include_selectors=sorted(set(active_include_selectors)-set(selector_classes))
+report['active_include_selector_classification']=[
+    {'selector':selector,'class':selector_classes[selector][0],
+     'group':selector_classes[selector][1]} for selector in active_include_selectors
+     if selector in selector_classes]
+report['unclassified_active_include_selectors']=unclassified_include_selectors
+report['checks']['all_active_include_selectors_classified']=not unclassified_include_selectors
+report['selected_service_entrypoint_map_complete']=not unclassified_include_selectors
 report['service_dispatch_probes']=[]
 for service, selector, script_name in (
         ('stubby','CONFIG_FIRMWARE_INCLUDE_STUBBY','stubby.sh'),
