@@ -101,9 +101,11 @@ service_entrypoints=(
     ('doh',('CONFIG_FIRMWARE_INCLUDE_DOH',),('usr/bin/doh_proxy.sh',)),
     ('privoxy',('CONFIG_FIRMWARE_INCLUDE_PRIVOXY',),('usr/bin/privoxy.sh',)),
     ('iperf3',('CONFIG_FIRMWARE_INCLUDE_IPERF3',),('usr/bin/iperf3.sh',)),
-    ('shadowsocks_clients',('CONFIG_FIRMWARE_INCLUDE_SSREDIR','CONFIG_FIRMWARE_INCLUDE_SSLOCAL'),
-        ('usr/bin/shadowsocks.sh','usr/bin/ss-monitor','usr/bin/ss-rules')),
-    ('wireguard_amneziawg',('CONFIG_FIRMWARE_INCLUDE_WIREGUARD',),
+    ('shadowsocks_clients',('CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS',),
+        ('usr/bin/ss-local','usr/bin/ss-redir','usr/bin/shadowsocks.sh',
+         'usr/bin/ss-monitor','usr/bin/ss-rules')),
+    ('wireguard_amneziawg',('CONFIG_FIRMWARE_INCLUDE_WIREGUARD',
+                            'CONFIG_FIRMWARE_INCLUDE_AMNEZIAWG'),
         ('usr/bin/wireguard.sh','usr/bin/wgc.sh','usr/bin/wgs.sh','usr/sbin/wr-vpn-profiles-service')),
     ('zerotier',('CONFIG_FIRMWARE_INCLUDE_ZEROTIER',),
         ('usr/bin/zerotier.sh','usr/bin/zerotier-monitor.sh','usr/bin/zerotier-policy.sh')),
@@ -111,6 +113,8 @@ service_entrypoints=(
         ('usr/libexec/wr-usbip/device-action.sh','usr/libexec/wr-usbip/device-policy.sh',
          'usr/libexec/wr-usbip/firewall-policy.sh','usr/libexec/wr-usbip/restore.sh','usr/sbin/wr-usbip')),
     ('vlmcsd',('CONFIG_FIRMWARE_INCLUDE_VLMCSD',),('usr/bin/vlmcsd.sh',)),
+    ('wr_band_steering',('CONFIG_FIRMWARE_INCLUDE_WR_BAND_STEERING',),
+        ('usr/sbin/wr-band-steering','usr/sbin/wr-band-steering-ctl','sbin/rc')),
 )
 shell_inventory={item['path']:item for item in report['scripts']}
 for service,selectors,paths in service_entrypoints:

@@ -26,7 +26,7 @@ page.write_text('''function initial(){
 function applyRule(){ }
 <tr id="lltd"><th><#Adm_Svc_lltd#></th><td></td></tr>
 <tr id="adsc"><th><#Adm_Svc_adsc#></th><td></td></tr>
-<tr id="row_vlmcsd"><th>KMS activation</th><td></td></tr>
+<tr id="div_vlmcsd"><th>KMS activation</th><td></td></tr>
 <tr id="watchdog"><th><#TweaksWdg#></th><td></td></tr>
 <tr id="row_crontabs" style="display:none">
 \twrCronRender(<% wr_cron_process_state(); %>);

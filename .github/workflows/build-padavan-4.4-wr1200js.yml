@@ -48,6 +48,9 @@ jobs:
       - name: Check discovery status generator before firmware compilation
         run: python3 tools/check-discovery-status.py --output "$RUNNER_TEMP/wr1200js-discovery-fixture"
 
+      - name: Check exact-image BusyBox service map before firmware compilation
+        run: python3 tools/check-target-busybox-map.py
+
       - name: Restore compiler cache
         id: compiler_cache
         uses: actions/cache/restore@v6

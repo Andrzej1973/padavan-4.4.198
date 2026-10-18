@@ -11,7 +11,7 @@ page = (root / 'www/Advanced_Services_Content.asp').read_text(encoding='utf-8')
 httpd = (root / 'usr/sbin/httpd').read_bytes()
 
 required_page = (
-    'id="row_vlmcsd"', 'id="wrVlmcsd_status_row"',
+    'id="div_vlmcsd"', 'id="wrVlmcsd_status_row"',
     'id="wrVlmcsd_process_status"', 'function wrVlmcsdRefresh()',
     'onclick="wrVlmcsdRefresh()"',
     "wrDiscoveryRender('vlmcsd', <% wr_vlmcsd_process_state(); %>);",

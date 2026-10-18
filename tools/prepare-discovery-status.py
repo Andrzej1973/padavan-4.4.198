@@ -126,7 +126,7 @@ def insert_status_row(mark, service):
 
 insert_status_row('<#Adm_Svc_lltd#>', 'lltd')
 insert_status_row('<#Adm_Svc_adsc#>', 'adsc')
-insert_status_row('id="row_vlmcsd"', 'vlmcsd')
+insert_status_row('id="div_vlmcsd"', 'vlmcsd')
 insert_status_row('<#TweaksWdg#>', 'watchdog')
 
 script = r'''
