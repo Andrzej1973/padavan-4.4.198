@@ -27,7 +27,7 @@ link('wan','eth2.2','wan-peer',None,'203.0.113.1/24','203.0.113.2/24')
 run('sysctl','-w','net.ipv4.ip_forward=1')
 run('sysctl','-w','net.ipv6.conf.all.forwarding=1')
 for interface in ('br-iot','br0','eth2.2'):
- run('sysctl','-w',f'net.ipv6.conf.{interface}.forwarding=1')
+ Path('/proc/sys/net/ipv6/conf',interface,'forwarding').write_text('1')
 run('ip','-6','addr','add','fd50::1/64','dev','br-iot','nodad')
 run('ip','-n','iot','-6','addr','add','fd50::20/64','dev','eth0','nodad')
 run('ip','-6','addr','add','fd51::1/64','dev','br0','nodad')
@@ -93,9 +93,9 @@ def require_baseline(path):
   ['ip','-6','addr','show'],
   ['ip','-6','neigh','show'],
   ['sysctl','net.ipv6.conf.all.forwarding'],
-  ['sysctl','net.ipv6.conf.br-iot.forwarding'],
-  ['sysctl','net.ipv6.conf.br0.forwarding'],
-  ['sysctl','net.ipv6.conf.eth2.2.forwarding']):
+  ['cat','/proc/sys/net/ipv6/conf/br-iot/forwarding'],
+  ['cat','/proc/sys/net/ipv6/conf/br0/forwarding'],
+  ['cat','/proc/sys/net/ipv6/conf/eth2.2/forwarding']):
   result=subprocess.run(args,capture_output=True,text=True)
   print('$ '+' '.join(args)+'\n'+(result.stdout or result.stderr).strip(),file=sys.stderr)
  raise AssertionError(('IPv6 baseline absent',path))

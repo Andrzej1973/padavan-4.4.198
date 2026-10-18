@@ -73,4 +73,7 @@ IPv6 topology baseline but failed connecting from IoT to the LAN TCP listener
 test routing setup, so it proves neither a policy pass nor a policy defect.
 The fixture now enables forwarding on each routed interface explicitly and
 prints route/address/neighbour/sysctl diagnostics if a baseline path fails.
-The fresh CI result remains pending.
+The next ABI run `39103063444` stopped before the packet test because `sysctl`
+interpreted the dot in interface name `eth2.2` as a path separator. The fixture
+now writes and reads the exact `/proc/sys/net/ipv6/conf/eth2.2/forwarding`
+path. A rerun is required before drawing any IPv6 packet-policy conclusion.
