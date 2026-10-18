@@ -1,0 +1,6 @@
+.codex/last_build_error.log*
+.codex/build-monitor-state.json*
+.codex/build-monitor.lock/
+.codex/build-monitor.stdout.log
+.codex/build-monitor.stderr.log
+.cache/nim-monitor/

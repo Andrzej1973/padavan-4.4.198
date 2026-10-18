@@ -1,5 +1,10 @@
 # Nim tools for shared agent work
 
+Build monitoring for both agents: see `BUILD-MONITOR.md` and
+`build_monitor.nim`. No Telegram or messenger notifications are used. Read
+`.codex/last_build_error.log` before routine CI triage; verify its run/commit
+against current work. One local monitor serves both executors.
+
 These tools are available to both Sol and DeepSeek from the same repository. They are local utilities; neither one uploads build logs or sends messages to an agent.
 
 ## Required shared workflow

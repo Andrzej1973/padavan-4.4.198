@@ -1,0 +1,71 @@
+name: Agent build failure monitor
+on:
+  workflow_run:
+    workflows: [Build selected router firmware, Padavan Linux 4.4.198 WR1200JS, Service runtime state checks]
+    types: [completed]
+  schedule:
+    - cron: '17,47 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['tools/agent-nim/build_monitor.nim', 'tools/agent-nim/config.nims', 'tools/agent-nim/check_build_monitor.py', '.github/workflows/monitor-agent.yml']
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: agent-build-failure-monitor
+  cancel-in-progress: false
+jobs:
+  monitor:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'failure'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      # Use trusted default-branch code, never the failed PR's checkout/artifact.
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: jiro4989/setup-nim-action@189b145833368cc92f1e7b3e166a25a3e057a693
+        with:
+          nim-version: '2.2.12'
+      - uses: actions/cache@v4
+        with:
+          path: .cache/nim-monitor
+          key: nim-monitor-${{ runner.os }}-2.2.12-${{ hashFiles('tools/agent-nim/build_monitor.nim', 'tools/agent-nim/config.nims') }}
+          restore-keys: nim-monitor-${{ runner.os }}-2.2.12-
+      - name: Compile and test monitor
+        run: |
+          mkdir -p .cache/nim-monitor bin
+          nim c -d:release --nimcache:.cache/nim-monitor --out:bin/build-monitor tools/agent-nim/build_monitor.nim
+          python3 tools/agent-nim/check_build_monitor.py bin/build-monitor
+      - uses: actions/cache/restore@v4
+        with:
+          path: .codex/build-monitor-state.json
+          key: agent-monitor-state-${{ github.repository_id }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: agent-monitor-state-${{ github.repository_id }}-
+      - name: Inspect completed build or poll recent runs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          MONITOR_RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          if [ -n "$MONITOR_RUN_ID" ]; then
+            bin/build-monitor --run-id:"$MONITOR_RUN_ID"
+          else
+            bin/build-monitor --once
+          fi
+      - uses: actions/cache/save@v4
+        if: success()
+        with:
+          path: .codex/build-monitor-state.json
+          key: agent-monitor-state-${{ github.repository_id }}-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Preserve report for Sol and DeepSeek
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: agent-build-error-${{ github.run_id }}
+          path: .codex/last_build_error.log
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7
