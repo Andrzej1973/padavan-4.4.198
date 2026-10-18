@@ -24,7 +24,8 @@ try:
     discovery_markers = {
         'lltd_status_element': 'wrLLTD_process_status',
         'adsc_status_element': 'wrADSC_process_status',
-        'refresh_endpoint_template': "output:'wr_' + service + '_process_state'",
+        'refresh_output_mapping': "var outputs = {lltd:'wr_lltd_process_state', adsc:'wr_adsc_process_state', watchdog:'wr_watchdog_module_state'};",
+        'refresh_endpoint_selection': 'data:{output:outputs[service]}',
         'refresh_function': 'wrDiscoveryRefresh',
         'stale_response_guard': 'generation === wrDiscoveryGeneration[service]',
         'observation_expiry': 'Date.now() - wrDiscoverySampledAt[service] >= 45000',

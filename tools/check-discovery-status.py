@@ -41,6 +41,8 @@ assert html.count('wr_lltd_process_state();') == 1
 assert html.count('wr_adsc_process_state();') == 1
 assert html.count('wr_watchdog_module_state();') == 1
 assert html.count("window.setInterval(function(){wrLLTDRefresh();wrADSCRefresh();wrWatchdogRefresh();},30000)") == 1
+assert "var outputs = {lltd:'wr_lltd_process_state', adsc:'wr_adsc_process_state', watchdog:'wr_watchdog_module_state'};" in html
+assert 'data:{output:outputs[service]}' in html
 assert 'generation === wrDiscoveryGeneration[service]' in html
 assert 'Date.now() - wrDiscoverySampledAt[service] >= 45000' in html
 for locale in ('EN.footer', 'UK.dict', 'RU.dict'):
