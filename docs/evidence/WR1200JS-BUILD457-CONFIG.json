@@ -1,0 +1,904 @@
+{
+  "board": "wr1200js",
+  "scope": "Requested versus effective configuration; not package, runtime or complete-port proof",
+  "mismatches": [],
+  "options": [
+    {
+      "requested_key": "CONFIG_FIRMWARE_ENABLE_BACKPORTED",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_ENABLE_BACKPORTED",
+      "effective_value": null,
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_ENABLE_DNSMASQ_REGEX",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_ENABLE_DNSMASQ_REGEX",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_ENABLE_EXFAT",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_ENABLE_EXFAT",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_ENABLE_EXT2",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_ENABLE_EXT2",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_ENABLE_EXT3",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_ENABLE_EXT3",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_ENABLE_EXT4",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_ENABLE_EXT4",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_ENABLE_FAT",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_ENABLE_FAT",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_ENABLE_FUSE",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_ENABLE_FUSE",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_ENABLE_HFS",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_ENABLE_HFS",
+      "effective_value": null,
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_ENABLE_IPV6",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_ENABLE_IPV6",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_ENABLE_SWAP",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_ENABLE_SWAP",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_ENABLE_USB",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_ENABLE_USB",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_ENABLE_XFS",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_ENABLE_XFS",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_ADB",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_ADB",
+      "effective_value": null,
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_AMNEZIAWG",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_AMNEZIAWG",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_AUDIO",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_AUDIO",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_BACKPORTED",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_BACKPORTED",
+      "effective_value": null,
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_CIFS",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_CIFS",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_CURL",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_CURL",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_DDNS_SSL",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_DDNS_SSL",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_DNSCRYPT",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_DNSCRYPT",
+      "effective_value": null,
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_DOH",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_DOH",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_DROPBEAR",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_DROPBEAR",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_DROPBEAR_FAST_CODE",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_DROPBEAR_FAST_CODE",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_EAP_PEAP",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_EAP_PEAP",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_EOIP",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_EOIP",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_FS_TOOLS",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_FS_TOOLS",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_FTPD",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_FTPD",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_FTPD_SSL",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_FTPD_SSL",
+      "effective_value": null,
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_HDPARM",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_HDPARM",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_HID",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_HID",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_HTTPS",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_HTTPS",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_IFB",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_IFB",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_IMQ",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_IMQ",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_IPERF3",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_IPERF3",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_IPSET",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_IPSET",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_LANG_BR",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_LANG_BR",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_LANG_CN",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_LANG_CN",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_LANG_CZ",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_LANG_CZ",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_LANG_DA",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_LANG_DA",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_LANG_DE",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_LANG_DE",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_LANG_ES",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_LANG_ES",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_LANG_FI",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_LANG_FI",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_LANG_FR",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_LANG_FR",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_LANG_NO",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_LANG_NO",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_LANG_PL",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_LANG_PL",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_LANG_RU",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_LANG_RU",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_LANG_SV",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_LANG_SV",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_LANG_UK",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_LANG_UK",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_LPRD",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_LPRD",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_LUA",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_LUA",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_MSD_LITE",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_MSD_LITE",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_NDISC6_RDISC6",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_NDISC6_RDISC6",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_NFQWS",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_NFQWS",
+      "effective_value": null,
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_NFSC",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_NFSC",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_NFSD",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_NFSD",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_NTFS_3G",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_NTFS_3G",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_OBFS4",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_OBFS4",
+      "effective_value": null,
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_OPENSSH",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_OPENSSH",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_OPENSSL_10",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_OPENSSL_10",
+      "effective_value": null,
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_OPENSSL_11",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_OPENSSL_11",
+      "effective_value": null,
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_OPENSSL_35",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_OPENSSL_35",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_OPENSSL_EC",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_OPENSSL_EC",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_OPENSSL_EXE",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_OPENSSL_EXE",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_PARTED",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_PARTED",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_PRIVOXY",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_PRIVOXY",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_QOS",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_QOS",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_QRENCODE",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_QRENCODE",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_QUIC",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_QUIC",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_QUIC_NGTCP2",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_QUIC_NGTCP2",
+      "effective_value": null,
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_REDSOCKS2",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_REDSOCKS2",
+      "effective_value": null,
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_RPL2TP",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_RPL2TP",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_SERIAL",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_SERIAL",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_SFE",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_SFE",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_SFTP",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_SFTP",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_SMARTDNS",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_SMARTDNS",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_SMBD",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_SMBD",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_SMBD36",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_SMBD36",
+      "effective_value": null,
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_SMBD_SYSLOG",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_SMBD_SYSLOG",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_SOCAT",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_SOCAT",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_SQM",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_SQM",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_SSLOCAL",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_SSREDIR",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_SSSERVER",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_SSSERVER",
+      "effective_value": null,
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_SSWAN",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_SSWAN",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_STUBBY",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_STUBBY",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_TCPDUMP",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_TCPDUMP",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_TESTPARM",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_TESTPARM",
+      "effective_value": null,
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_TOR",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_TOR",
+      "effective_value": null,
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_TOR_GEOIP",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_TOR_GEOIP",
+      "effective_value": null,
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_TOR_GEOIPV6",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_TOR_GEOIPV6",
+      "effective_value": null,
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_TPROXY",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_TPROXY",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_TTYD",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_TTYD",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_U2EC",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_U2EC",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_UDPXY",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_UDPXY",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_USBIP",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_USBIP",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_UVC",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_UVC",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_VENDOR_LOGO",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_VENDOR_LOGO",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_VLMCSD",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_VLMCSD",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_WINS",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_WINS",
+      "effective_value": "n",
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_WIREGUARD",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_WIREGUARD",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_WPAD",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_WPAD",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_WR_BAND_STEERING",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_WR_BAND_STEERING",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_XFRM",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_XFRM",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_ZAPRET",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_ZAPRET",
+      "effective_value": null,
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_ZAPRET2",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_ZAPRET2",
+      "effective_value": null,
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_ZEROTIER",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_ZEROTIER",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_INCLUDE_ZRAM",
+      "requested_value": "y",
+      "effective_key": "CONFIG_FIRMWARE_INCLUDE_ZRAM",
+      "effective_value": "y",
+      "expected_effective_value": "y",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_PRODUCT_ID",
+      "requested_value": "\"WR1200JS\"",
+      "effective_key": "CONFIG_FIRMWARE_PRODUCT_ID",
+      "effective_value": "\"WR1200JS\"",
+      "expected_effective_value": "\"WR1200JS\"",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_TYPE_ROOTFS_IN_RAM",
+      "requested_value": "n",
+      "effective_key": "CONFIG_FIRMWARE_TYPE_ROOTFS_IN_RAM",
+      "effective_value": null,
+      "expected_effective_value": "n",
+      "status": "config_verified"
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_WIFI2_DRIVER",
+      "requested_value": "4.1",
+      "status": "kernel_selection_verified",
+      "kernel_key": "CONFIG_FIRST_IF_MT7603E",
+      "kernel_value": "y",
+      "note": "Checks driver family selection, not source revision or runtime calibration."
+    },
+    {
+      "requested_key": "CONFIG_FIRMWARE_WIFI5_DRIVER",
+      "requested_value": "3.0",
+      "status": "kernel_selection_verified",
+      "kernel_key": "CONFIG_RT_SECOND_IF_MT7612E",
+      "kernel_value": "y",
+      "note": "Checks driver family selection, not source revision or runtime calibration."
+    }
+  ],
+  "pending_options": []
+}

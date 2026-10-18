@@ -18,9 +18,13 @@ ABI `39115399202` для `594d98b` успішний: зібраний MIPS ко�
 ra2 UP і host-kernel fixture. Саме production radio reload/activation
 controller не підключено: звичайний restart очищає IoT gates, а MBSS
 створюється під час ініціалізації основного інтерфейсу. Деталі — IoT contract.
-Збірка #456 `39115846454` для `47735d6` успішна. Збірка #457
-`39116103457` для `4cd56a8` ще активна на кроці `Build WR1200JS firmware`;
-не запускати дублікат, поки цей run має статус `in_progress`.
+Збірка #456 `39115846454` для `47735d6` успішна. Повна збірка #457
+`39116103457` для `4cd56a8` завершилась успішно, разом із download/ZIP job.
+Її TRX окремо перевірений із двох артефактів; хеші збігаються. 112
+конфігураційних параметрів — без mismatch/pending; SQM вимкнений, а
+`CONFIG_NET_SCH_CAKE` не зібраний. Target BusyBox перевірив shell syntax 57
+скриптів і bounded probes, але звіт позначає повний аудит служб та runtime
+непідтвердженими. Докази: `docs/evidence/WR1200JS-BUILD457.md` та суміжні JSON.
 
 Локальний IoT capacity self-test `py -3 tools/iot/check-capacity-selftest.py`
 повторно пройшов у схваленому Windows execution context з кодом 0. Він

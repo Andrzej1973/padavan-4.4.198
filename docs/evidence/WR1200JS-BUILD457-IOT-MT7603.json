@@ -1,0 +1,23 @@
+{
+  "radio": "mt76x3",
+  "probe_status": "complete",
+  "effective_mbss_support": true,
+  "hardware_array_ceiling": 16,
+  "chip_source_bss_limit": 16,
+  "effective_source_config_bss_limit": 16,
+  "source_config_allows_three_bss": true,
+  "three_bss_requirement": "required",
+  "three_bss_requirement_satisfied": true,
+  "capacity_source_verified": true,
+  "max_mesh_num": "0",
+  "max_apcli_num": "1",
+  "source_command": "drivers/net/wireless/mediatek/mt76x3/chips/.rtmp_chip.o.cmd",
+  "source_commit": "c25283e915a2a00a763774dd255b14aff997285e",
+  "capacity_source_files": {
+    "drivers/net/wireless/mediatek/mt76x3/include/rtmp_def.h": "24bb65ea9dbe7e78df545a592fb4bb3be3ad7a8e4a2d9c48821fb92dbe549653",
+    "drivers/net/wireless/mediatek/mt76x3/chips/rtmp_chip.c": "388c6199753bcb2112fdeea93a32af40a2e329631688ab1931baad5d83858e5a",
+    "drivers/net/wireless/mediatek/mt76x3/chips/mt7603.c": "97febaaa4efad09884e6e5daf832da9b57a3a6118d9235458f1aa53648379996"
+  },
+  "runtime_verified": false,
+  "scope": "Effective Kbuild macros plus source-verified chip BSS-limit initializer; driver runtime, radio behavior, and live third BSS remain unverified"
+}

@@ -1,0 +1,19 @@
+{
+  "mt76x2": {
+    "object_command": "padavan-4.4/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x2/common/.cmm_info.o.cmd",
+    "capacity_expression": "64",
+    "flags": [
+      "-DMT76x2",
+      "-DCONFIG_RT_MAX_CLIENTS=64"
+    ]
+  },
+  "mt76x3": {
+    "object_command": "padavan-4.4/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/common/.cmm_info.o.cmd",
+    "capacity_expression": "(75 - (16 + 1) * 1)",
+    "flags": [
+      "-DMT7603",
+      "-DMAC_REPEATER_SUPPORT",
+      "-DCONFIG_RT_MAX_CLIENTS=64"
+    ]
+  }
+}
