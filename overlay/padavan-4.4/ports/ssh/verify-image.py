@@ -28,7 +28,9 @@ try:
         '<#WRLLDTPresent#>', '<#WRADSCPresent#>')
     discovery_markers += (
         'wrWatchdog_process_status', '<% wr_watchdog_module_state(); %>',
-        '<#WRWDGPresent#>', '<#WRWDGObservedNote#>')
+        '<#WRWDGOff#>', '<#WRWDGPresent#>', '<#WRWDGMissing#>',
+        '<#WRWDGUnknown#>', '<#WRWDGStillPresent#>', '<#WRWDGRefresh#>',
+        '<#WRWDGObservedNote#>')
     checks['discovery_process_ui'] = all(marker in page for marker in discovery_markers)
     checks['observation_expiry_ui'] = all(marker in page for marker in (
         'var wrSSHGeneration = 0', 'generation === wrSSHGeneration',
@@ -63,7 +65,9 @@ try:
                 'WRLLTDObservedTitle', 'WRLLDTPresent', 'WRLLDTUnknown',
                 'WRLLTDObservedNote', 'WRADSCObservedTitle', 'WRADSCPresent',
                 'WRADSCUnknown', 'WRADSCObservedNote', 'WRWDGObservedTitle',
-                'WRWDGPresent', 'WRWDGUnknown', 'WRWDGObservedNote'))
+                'WRWDGOff', 'WRWDGPresent', 'WRWDGMissing', 'WRWDGUnknown',
+                'WRWDGStillPresent', 'WRWDGRefresh', 'WRWDGLastObservation',
+                'WRWDGNoObservation', 'WRWDGObservedNote'))
 except (OSError, UnicodeError) as exc:
     checks['image_files_readable'] = False
     error = str(exc)

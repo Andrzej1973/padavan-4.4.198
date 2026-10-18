@@ -47,7 +47,9 @@ for locale in ('EN.footer', 'UK.dict', 'RU.dict'):
     translated = (dictionary / locale).read_text(encoding='utf-8')
     for key in ('WRLLDTPresent=', 'WRLLDTUnknown=', 'WRLLTDObservedNote=',
                 'WRADSCPresent=', 'WRADSCUnknown=', 'WRADSCObservedNote=',
-                'WRWDGPresent=', 'WRWDGUnknown=', 'WRWDGObservedNote='):
+                'WRWDGOff=', 'WRWDGPresent=', 'WRWDGMissing=', 'WRWDGUnknown=',
+                'WRWDGStillPresent=', 'WRWDGRefresh=', 'WRWDGLastObservation=',
+                'WRWDGNoObservation=', 'WRWDGObservedNote='):
         assert key in translated, (locale, key)
 
 script = re.search(r'var wrDiscoveryBusy[\s\S]*?(?=function applyRule)', html).group(0)
@@ -92,8 +94,8 @@ c_test = r'''
 #endif
 typedef FILE *webs_t;
 static int proc_unavailable, lld_binary_missing, adsc_binary_missing;
-static int sysfs_unavailable, watchdog_module_present, watchdog_stat_error;
-static int lltd_requested, lltd_active, adsc_requested, adsc_active;
+static int sysfs_unavailable, sysfs_not_dir, watchdog_module_present, watchdog_stat_error;
+static int lltd_requested, lltd_active, adsc_requested, adsc_active, watchdog_requested;
 static char output[16];
 static int mock_access(const char *path, int mode) {
  if (!strcmp(path,"/proc/self/stat") && mode==R_OK) return proc_unavailable;
@@ -105,7 +107,7 @@ static int mock_access(const char *path, int mode) {
 static int mock_stat(const char *path, struct stat *buffer) {
  if (!strcmp(path,"/sys/module")) {
   if (sysfs_unavailable) { errno=ENOENT; return -1; }
-  buffer->st_mode=S_IFDIR; return 0;
+  buffer->st_mode=sysfs_not_dir ? S_IFREG : S_IFDIR; return 0;
  }
  if (!strcmp(path,"/sys/module/rt_timer_wdg")) {
   if (watchdog_module_present) { buffer->st_mode=S_IFDIR; return 0; }
@@ -116,7 +118,7 @@ static int mock_stat(const char *path, struct stat *buffer) {
 static int nvram_get_int(const char *key) {
  if (!strcmp(key,"lltd_enable")) return lltd_requested;
  if (!strcmp(key,"adsc_enable")) return adsc_requested;
- if (!strcmp(key,"watchdog_cpu")) return lltd_requested;
+ if (!strcmp(key,"watchdog_cpu")) return watchdog_requested;
  assert(0); return 0;
 }
 static int pids(const char *name) {
@@ -145,12 +147,13 @@ int main(void) {
  adsc_active=-1;expect(ej_wr_adsc_process_state,3);
  adsc_active=1;adsc_binary_missing=1;expect(ej_wr_adsc_process_state,3);
  ej_wr_adsc_process_state(0,NULL,1,NULL);assert(!strcmp(output,"3"));
- lltd_requested=0;watchdog_module_present=0;expect(ej_wr_watchdog_module_state,0);
- lltd_requested=1;watchdog_module_present=1;expect(ej_wr_watchdog_module_state,1);
+ watchdog_requested=0;watchdog_module_present=0;expect(ej_wr_watchdog_module_state,0);
+ watchdog_requested=1;watchdog_module_present=1;expect(ej_wr_watchdog_module_state,1);
  watchdog_module_present=0;expect(ej_wr_watchdog_module_state,2);
- lltd_requested=0;watchdog_module_present=1;expect(ej_wr_watchdog_module_state,4);
- lltd_requested=1;watchdog_module_present=0;sysfs_unavailable=1;expect(ej_wr_watchdog_module_state,3);
- sysfs_unavailable=0;watchdog_stat_error=EACCES;expect(ej_wr_watchdog_module_state,3);
+ watchdog_requested=0;watchdog_module_present=1;expect(ej_wr_watchdog_module_state,4);
+ watchdog_requested=1;watchdog_module_present=0;sysfs_unavailable=1;expect(ej_wr_watchdog_module_state,3);
+ sysfs_unavailable=0;sysfs_not_dir=1;expect(ej_wr_watchdog_module_state,3);
+ sysfs_not_dir=0;watchdog_stat_error=EACCES;expect(ej_wr_watchdog_module_state,3);
  ej_wr_watchdog_module_state(0,NULL,1,NULL);assert(!strcmp(output,"3"));
  puts("PASS LLTD/ASUS process and watchdog module states, including unknown conditions");
  return 0;
