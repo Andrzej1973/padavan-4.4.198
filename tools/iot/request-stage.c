@@ -15,6 +15,9 @@ static const char *wr_iot_request_nvram(void *context,const char *key)
 
 static int wr_iot_request_clear(void)
 {
+ static const char *keys[]={"wr_iot_ssid_t","wr_iot_psk_t","wr_iot_gateway_t",
+                           "wr_iot_mask_t","wr_iot_start_t","wr_iot_end_t"};
+ size_t i;
  int failed=0;
  failed |= nvram_set_int_temp("wr_iot_profile_t",0)!=0;
  failed |= nvram_set_int_temp("wr_iot_network_t",0)!=0;
@@ -28,6 +31,8 @@ static int wr_iot_request_clear(void)
  if(strcmp(nvram_safe_get("wr_iot_profile_t"),"0")||
     strcmp(nvram_safe_get("wr_iot_network_t"),"0")||
     strcmp(nvram_safe_get("wr_iot_firewall_t"),"0"))failed=1;
+ for(i=0;i<sizeof(keys)/sizeof(keys[0]);i++)
+  if(nvram_safe_get(keys[i])[0])failed=1;
  return !failed;
 }
 
