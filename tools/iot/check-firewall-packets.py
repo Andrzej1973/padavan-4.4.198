@@ -26,6 +26,8 @@ link('lan','lan-port','lan-peer','br0','192.168.1.1/24','192.168.1.2/24')
 link('wan','eth2.2','wan-peer',None,'203.0.113.1/24','203.0.113.2/24')
 run('sysctl','-w','net.ipv4.ip_forward=1')
 run('sysctl','-w','net.ipv6.conf.all.forwarding=1')
+for interface in ('br-iot','br0','eth2.2'):
+ run('sysctl','-w',f'net.ipv6.conf.{interface}.forwarding=1')
 run('ip','-6','addr','add','fd50::1/64','dev','br-iot','nodad')
 run('ip','-n','iot','-6','addr','add','fd50::20/64','dev','eth0','nodad')
 run('ip','-6','addr','add','fd51::1/64','dev','br0','nodad')
@@ -81,6 +83,22 @@ def echo(name,address,port,family=socket.AF_INET,kind=socket.SOCK_STREAM,source_
  try:
   with connect(name,address,port,family,kind,source_port) as s:s.sendall(b'IOT');return s.recv(3)==b'IOT'
  except (TimeoutError,ConnectionError,OSError):return False
+def require_baseline(path):
+ if echo(*path):return
+ print('IPv6 baseline diagnostic for',path,file=sys.stderr)
+ for args in (
+  ['ip','-n',path[0],'-6','route','get',path[1]],
+  ['ip','-n',path[0],'-6','addr','show'],
+  ['ip','-6','route','show'],
+  ['ip','-6','addr','show'],
+  ['ip','-6','neigh','show'],
+  ['sysctl','net.ipv6.conf.all.forwarding'],
+  ['sysctl','net.ipv6.conf.br-iot.forwarding'],
+  ['sysctl','net.ipv6.conf.br0.forwarding'],
+  ['sysctl','net.ipv6.conf.eth2.2.forwarding']):
+  result=subprocess.run(args,capture_output=True,text=True)
+  print('$ '+' '.join(args)+'\n'+(result.stdout or result.stderr).strip(),file=sys.stderr)
+ raise AssertionError(('IPv6 baseline absent',path))
 try:
  server(None,'192.168.50.1',53);server(None,'192.168.50.1',8080)
  server('lan','192.168.1.2',8080);server('wan','203.0.113.2',8080);server('iot','192.168.50.20',8080)
@@ -103,7 +121,7 @@ try:
  ipv6_lan_in=('lan','fd50::20',8084,socket.AF_INET6)
  ipv6_wan_in=('wan','fd50::20',8084,socket.AF_INET6)
  for path in (ipv6_udp_router,ipv6_lan,ipv6_wan,ipv6_lan_udp,ipv6_wan_udp,ipv6_lan_in,ipv6_wan_in):
-  assert echo(*path),('IPv6 baseline absent',path)
+  require_baseline(path)
  paths=[('iot','192.168.50.1',53),('iot','192.168.50.1',8080),('iot','192.168.1.2',8080),('iot','203.0.113.2',8080),('lan','192.168.50.20',8080),('wan','192.168.50.20',8080),('lan','203.0.113.2',8080)]
  for path in paths:assert echo(*path),('Baseline connectivity absent',path)
  stale=connect('iot','192.168.1.2',8080);stale.sendall(b'OLD');assert stale.recv(3)==b'OLD'

@@ -67,6 +67,10 @@ Local Python syntax validation passed; the privileged namespace test requires
 Linux CI. The first run, `39102134653`, failed before applying any firewall
 rules because the fixture passed an unnecessary fourth argument to its TCP
 server helper. The original job log and `build_log.nim` triage confirm this
-test-harness error; commit `efe3539` corrects the call, and rerun
-`39102351326` is in progress. No packet-policy conclusion can be drawn from
-the failed run.
+test-harness error. After that call was fixed, rerun `39102351326` reached the
+IPv6 topology baseline but failed connecting from IoT to the LAN TCP listener
+(`fd51::2:8082`), still before firewall rules were loaded. The failure is in
+test routing setup, so it proves neither a policy pass nor a policy defect.
+The fixture now enables forwarding on each routed interface explicitly and
+prints route/address/neighbour/sysctl diagnostics if a baseline path fails.
+The fresh CI result remains pending.

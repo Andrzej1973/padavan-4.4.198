@@ -19,19 +19,31 @@ try:
     checks['cron_process_ui'] = all(marker in page for marker in (
         'wr_cron_process_status', 'wrCronRefresh', "output:'wr_cron_process_state'",
         'generation === wrCronGeneration', 'Date.now() - wrCronSampledAt >= 45000'))
-    discovery_markers = (
-        'wrLLTD_process_status', 'wrADSC_process_status',
-        "output:'wr_' + service + '_process_state'", 'wrDiscoveryRefresh',
-        'generation === wrDiscoveryGeneration[service]',
-        'Date.now() - wrDiscoverySampledAt[service] >= 45000',
-        '<% wr_lltd_process_state(); %>', '<% wr_adsc_process_state(); %>',
-        '<#WRLLDTPresent#>', '<#WRADSCPresent#>')
-    discovery_markers += (
-        'wrWatchdog_process_status', '<% wr_watchdog_module_state(); %>',
-        '<#WRWDGOff#>', '<#WRWDGPresent#>', '<#WRWDGMissing#>',
-        '<#WRWDGUnknown#>', '<#WRWDGStillPresent#>', '<#WRWDGRefresh#>',
-        '<#WRWDGObservedNote#>')
-    checks['discovery_process_ui'] = all(marker in page for marker in discovery_markers)
+    discovery_markers = {
+        'lltd_status_element': 'wrLLTD_process_status',
+        'adsc_status_element': 'wrADSC_process_status',
+        'refresh_endpoint_template': "output:'wr_' + service + '_process_state'",
+        'refresh_function': 'wrDiscoveryRefresh',
+        'stale_response_guard': 'generation === wrDiscoveryGeneration[service]',
+        'observation_expiry': 'Date.now() - wrDiscoverySampledAt[service] >= 45000',
+        'lltd_http_handler': '<% wr_lltd_process_state(); %>',
+        'adsc_http_handler': '<% wr_adsc_process_state(); %>',
+        'lltd_present_translation': '<#WRLLDTPresent#>',
+        'adsc_present_translation': '<#WRADSCPresent#>',
+        'watchdog_status_element': 'wrWatchdog_process_status',
+        'watchdog_http_handler': '<% wr_watchdog_module_state(); %>',
+        'watchdog_off_translation': '<#WRWDGOff#>',
+        'watchdog_present_translation': '<#WRWDGPresent#>',
+        'watchdog_missing_translation': '<#WRWDGMissing#>',
+        'watchdog_unknown_translation': '<#WRWDGUnknown#>',
+        'watchdog_still_present_translation': '<#WRWDGStillPresent#>',
+        'watchdog_refresh_translation': '<#WRWDGRefresh#>',
+        'watchdog_note_translation': '<#WRWDGObservedNote#>',
+    }
+    for name, marker in discovery_markers.items():
+        checks['discovery_process_ui_' + name] = marker in page
+    checks['discovery_process_ui'] = all(
+        checks['discovery_process_ui_' + name] for name in discovery_markers)
     checks['observation_expiry_ui'] = all(marker in page for marker in (
         'var wrSSHGeneration = 0', 'generation === wrSSHGeneration',
         '}, 45000)', "document.addEventListener('visibilitychange'",
