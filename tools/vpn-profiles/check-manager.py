@@ -78,7 +78,10 @@ int main(void){int fd;for(fd=3;fd<4096;fd++){errno=0;if(fcntl(fd,F_GETFD)!=-1 ||
  run(['list'],expected=3);(store/'3').unlink()
  # Editing is a distinct action and bumps the revision; invalid input changes nothing.
  edited=wg.replace('10.8.0.2/32','10.8.0.9/32')
- assert run(['edit','2'],edited)=='saved\t2\t2\n'
+ assert run(['edit','2','1'],edited)=='saved\t2\t2\n'
+ assert not run(['edit','2','1'],wg,7)
+ for revision in ('0','01','-1','+1','1x','18446744073709551615','18446744073709551616'):
+  assert not run(['edit','2',revision],wg,2)
  assert run(['export','2'])==edited
  assert not run(['edit','2'],wg.replace(key,'invalid'),2)
  assert run(['export','2'])==edited

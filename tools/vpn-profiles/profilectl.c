@@ -100,7 +100,7 @@ static int wr_delete(int root,unsigned int id)
 /* Replace the stored configuration only while the profile is stopped: a live
  * session keeps the revision it was created for, so it must be brought down
  * and up again to run the edited record. */
-static int wr_edit(int root,unsigned int id)
+static int wr_edit(int root,unsigned int id,uint64_t expected)
 {
     struct wr_vpn_record record;struct wr_vpn_resources resources;
     unsigned char data[WR_VPN_CONFIG_MAX+1];size_t size;
@@ -108,6 +108,7 @@ static int wr_edit(int root,unsigned int id)
     stored=wr_vpn_store_get(root,id,&record);
     if (stored==WR_VPN_STORE_NOT_FOUND) return 5;
     if (stored!=WR_VPN_STORE_OK || !wr_vpn_resources_make(&resources,id,record.protocol)) return 3;
+    if (expected && record.revision!=expected) return 7;
     size=fread(data,1,sizeof(data),stdin);
     if (ferror(stdin) || !size || size>WR_VPN_CONFIG_MAX) return 2;
     if (wr_vpn_validate(record.protocol,data,size)!=WR_VPN_VALID) return 2;
@@ -506,6 +507,7 @@ static int wr_plan(int root,unsigned int id)
 int main(int argc,char **argv)
 {
     unsigned int id=0; int root,result; const char *protect=NULL;
+    uint64_t edit_expected=0;
     enum wr_vpn_protocol protocol=WR_VPN_WIREGUARD;
     umask(077);
     if (signal(SIGCHLD,SIG_DFL)==SIG_ERR) return 3;
@@ -518,6 +520,15 @@ int main(int argc,char **argv)
                            !strcmp(argv[1],"apply") || !strcmp(argv[1],"plan") ||
                            !strcmp(argv[1],"up") || !strcmp(argv[1],"down"))) {
         if (!wr_vpn_profile_id(argv[2],&id)) return 2;
+    } else if (argc==4 && !strcmp(argv[1],"edit")) {
+        const unsigned char *cursor=(const unsigned char *)argv[3];
+        if (!wr_vpn_profile_id(argv[2],&id) || *cursor<'1' || *cursor>'9') return 2;
+        for (;*cursor;cursor++) {
+            unsigned int digit=(unsigned int)(*cursor-'0');
+            if (digit>9 || edit_expected>(UINT64_MAX-digit)/10) return 2;
+            edit_expected=edit_expected*10+digit;
+        }
+        if (edit_expected==UINT64_MAX) return 2;
     } else if (argc==4 && !strcmp(argv[1],"apply")) {
         if (!wr_vpn_profile_id(argv[2],&id)) return 2;
         protect=argv[3];
@@ -530,7 +541,7 @@ int main(int argc,char **argv)
     if (!strcmp(argv[1],"create")) result=wr_create(root,id,protocol);
     else if (!strcmp(argv[1],"export")) result=wr_export(root,id);
     else if (!strcmp(argv[1],"delete")) result=wr_delete(root,id);
-    else if (!strcmp(argv[1],"edit")) result=wr_edit(root,id);
+    else if (!strcmp(argv[1],"edit")) result=wr_edit(root,id,edit_expected);
     else if (!strcmp(argv[1],"observe")) result=wr_observe(root,id);
     else if (!strcmp(argv[1],"apply")) result=wr_apply(root,id,protect);
     else if (!strcmp(argv[1],"plan")) result=wr_plan(root,id);

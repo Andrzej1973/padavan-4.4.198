@@ -69,7 +69,10 @@ with tempfile.TemporaryDirectory(prefix='wrvpn-mips-manager-') as temporary:
  held.rename(helper)
  assert run('first-profile-preserved',['export','1'])==first.encode()
  edited=base.replace('10.9.0.2/32','10.9.0.9/32')
- assert run('edit-WG',['edit','2'],edited)==b'saved\t2\t2\n'
+ assert run('edit-WG',['edit','2','1'],edited)==b'saved\t2\t2\n'
+ assert not run('stale-edit-refused',['edit','2','1'],base,7)
+ for revision in ('0','01','-1','+1','1x','18446744073709551615','18446744073709551616'):
+  assert not run('invalid-edit-revision-'+revision,['edit','2',revision],base,2)
  assert run('export-edited-WG',['export','2'])==edited.encode()
  assert run('delete-first',['delete','1'])==b'deleted\t1\t2\n'
  assert not run('delete-missing',['delete','1'],'',5)
