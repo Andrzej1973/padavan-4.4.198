@@ -291,7 +291,10 @@ def verify(www: Path, config: set[str], *, image: bool = False) -> None:
         text = (www / name).read_text(encoding="utf-8")
         if MARKER not in text or 'aria-label="<#WRServicesNav#>"' not in text:
             raise SystemExit(f"Unified navigation absent from {name}")
-        nav_begin = text.index(MARKER)
+        marker_at = text.index(MARKER)
+        nav_begin = text.rfind("<nav ", 0, marker_at)
+        if nav_begin < 0 or "<" in text[nav_begin + len("<nav "):marker_at]:
+            raise SystemExit(f"Unified navigation opening tag is invalid in {name}")
         nav_end = text.index("</nav>", nav_begin)
         nav_html = text[nav_begin:nav_end + len("</nav>")]
         expected_nav = nav if name == "Advanced_Services_Content.asp" else add_back_link(nav)
