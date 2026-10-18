@@ -22,6 +22,7 @@ assert web.count('{ "wr_vpn_action_state", ej_wr_vpn_action_state},') == 1, "sta
 assert web.count('{ "wr_vpn_action.cgi*", "application/json", no_cache_IE,') == 1, "action route missing"
 assert web.count('{ "wr_vpn_export.cgi*", "application/json", no_cache_IE,') == 1, "export route missing"
 assert web.count('{ "wr_vpn_create.cgi*", "application/json", no_cache_IE,') == 1, "create route missing"
+assert web.count('{ "wr_vpn_edit.cgi*", "application/json", no_cache_IE,') == 1, "edit route missing"
 assert web.count('{ "wr_vpn_profile_observation", ej_wr_vpn_profile_observation},') == 1, "observation handler missing"
 assert (args.tree / "trunk/user/httpd/vpn-create-request.h").is_file(), "create parser header missing"
 assert 'id="wr_vpn_create_config"' in page and "function wrVPNCreate()" in page, "create form missing"

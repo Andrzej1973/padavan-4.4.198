@@ -22,6 +22,7 @@ if "wr_vpn_profile_rows" in text:
     (here / "web/vpn-profiles-render.h").read_text(encoding="utf-8"),
     encoding="utf-8", newline="\n")
 (httpd / "vpn-create-request.h").write_bytes((here / "web/vpn-create-request.h").read_bytes())
+(httpd / "vpn-edit-request.h").write_bytes((here / "web/vpn-edit-request.h").read_bytes())
 
 mime_anchor = "struct mime_handler mime_handlers[] = {"
 if text.count(mime_anchor) != 1:
@@ -30,6 +31,7 @@ injection = ((here / "web/vpn-profiles.inc").read_text(encoding="utf-8") + "\n" 
              (here / "web/vpn-profiles-action.inc").read_text(encoding="utf-8") + "\n" +
              (here / "web/vpn-profiles-export.inc").read_text(encoding="utf-8") + "\n")
 injection += (here / "web/vpn-profiles-create.inc").read_text(encoding="utf-8") + "\n"
+injection += (here / "web/vpn-profiles-edit.inc").read_text(encoding="utf-8") + "\n"
 injection += (here / "web/vpn-profiles-observe.inc").read_text(encoding="utf-8") + "\n"
 text = text.replace(mime_anchor, injection + mime_anchor, 1)
 
@@ -51,6 +53,8 @@ route += ('\t{ "wr_vpn_export.cgi*", "application/json", no_cache_IE,\n'
           '\t  wr_vpn_export_input, wr_vpn_export_output, 1 },\n')
 route += ('\t{ "wr_vpn_create.cgi*", "application/json", no_cache_IE,\n'
           '\t  wr_vpn_create_input, wr_vpn_create_output, 1 },\n')
+route += ('\t{ "wr_vpn_edit.cgi*", "application/json", no_cache_IE,\n'
+          '\t  wr_vpn_edit_input, wr_vpn_edit_output, 1 },\n')
 text = text.replace(route_anchor, route + route_anchor, 1)
 
 main_path = httpd / "httpd.c"
