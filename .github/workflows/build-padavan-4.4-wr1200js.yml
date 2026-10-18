@@ -481,6 +481,7 @@ jobs:
           python3 tools/vpn-status/check-legacy-ui.py \
             overlay/padavan-4.4/trunk/user/www/n56u_ribbon_fixed/vpncli.asp
           python3 tools/prepare-vpn-handshake-status.py padavan-4.4
+          python3 tools/prepare-shadowsocks-status.py padavan-4.4
           python3 tools/eoip/prepare-status.py padavan-4.4 --config configs.build/wr1200js.config
           python3 tools/eoip/prepare-settings.py padavan-4.4 --config configs.build/wr1200js.config
           python3 tools/eoip/prepare-page.py padavan-4.4 --config configs.build/wr1200js.config
@@ -554,6 +555,7 @@ jobs:
           python3 ../tools/shared-wifi/verify-ui-image.py trunk/romfs
           python3 ../tools/connected-devices/verify-ui-image.py trunk/romfs
           python3 ../tools/vpn-status/verify-image.py trunk/romfs
+          python3 ../tools/verify-shadowsocks-status-image.py trunk/romfs
           test -x trunk/romfs/usr/sbin/httpd
           readelf -h trunk/romfs/usr/sbin/httpd | grep -q 'Machine:.*MIPS'
           grep -a -F -q 'Invalid shared Wi-Fi request. No settings were saved.' trunk/romfs/usr/sbin/httpd
