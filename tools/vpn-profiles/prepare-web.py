@@ -122,6 +122,16 @@ create_texts = {
     "WRVPN_PROTOCOL": ("Protocol", "Протокол", "Протокол"),
     "WRVPN_CONFIG": ("Profile configuration", "Конфігурація профілю", "Конфигурация профиля"),
     "WRVPN_CREATE": ("Save new profile", "Зберегти новий профіль", "Сохранить новый профиль"),
+    "WRVPN_EDIT_SAVE": ("Edit profile", "Редагувати профіль", "Редактировать профиль"),
+    "WRVPN_EDIT_CANCEL": ("Cancel and clear", "Скасувати й очистити", "Отменить и очистить"),
+    "WRVPN_EDIT_HELP": (
+        "This editor displays private keys. Edit a stopped profile only; saving does not start it. An outdated revision is refused. Cancel clears the displayed configuration.",
+        "Редактор показує приватні ключі. Редагуйте лише зупинений профіль; збереження не запускає його. Застарілу ревізію буде відхилено. Скасування очищає показану конфігурацію.",
+        "Редактор показывает приватные ключи. Редактируйте только остановленный профиль; сохранение не запускает его. Устаревшая ревизия будет отклонена. Отмена очищает показанную конфигурацию."),
+    "WRVPN_EDIT_FAILED": (
+        "Edit unconfirmed. Refresh the list and reopen the profile before retrying. Check that it is stopped. Keep your draft private.",
+        "Редагування не підтверджене. Оновіть список і знову відкрийте профіль перед повтором. Перевірте, що він зупинений. Зберігайте чернетку приватно.",
+        "Редактирование не подтверждено. Обновите список и снова откройте профиль перед повтором. Проверьте, что он остановлен. Храните черновик приватно."),
     "WRVPN_REFRESH": ("Refresh list", "Оновити список", "Обновить список"),
     "WRVPN_STORAGE_HELP": (
         "Saving a profile here does not confirm storage to flash or automatic startup after reboot. Before restarting, save storage using the router's standard controls and check the result. Keep a private backup of the configuration; it contains keys.",

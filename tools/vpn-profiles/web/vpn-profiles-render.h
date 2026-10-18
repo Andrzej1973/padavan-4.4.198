@@ -64,8 +64,9 @@ static inline int wr_vpn_web_render_window(const char *output,char *rows,size_t 
                 "<button type=\"button\" class=\"btn btn-mini wr-vpn-delete\" onclick=\"wrVPNAct('delete',%u)\">Delete</button>"
                 " <button type=\"button\" class=\"btn btn-mini wr-vpn-observe\" onclick=\"wrVPNObserve(%u,this)\">?</button>"
                 " <span id=\"wr_vpn_link_%u\" role=\"status\">?</span>"
+                " <button type=\"button\" class=\"btn btn-mini wr-vpn-edit\" onclick=\"wrVPNEdit(%u,'%llu')\">Edit</button>"
                 "</td></tr>\n",
-                id,(int)entries[id].length,entries[id].label,entries[id].revision,id,id,id,id,id,id);
+                id,(int)entries[id].length,entries[id].label,entries[id].revision,id,id,id,id,id,id,id,entries[id].revision);
             if (written<0 || (size_t)written>=sizeof(row) ||
                 used+(size_t)written>=capacity) return -1;
             memcpy(rows+used,row,(size_t)written);used+=(size_t)written;

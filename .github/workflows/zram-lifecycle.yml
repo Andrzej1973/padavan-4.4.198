@@ -98,6 +98,7 @@ jobs:
           gcc -std=c99 -Wall -Wextra -Werror -fsanitize=address,undefined tools/vpn-profiles/check-edit-request.c -o checks/vpn-edit-request
           checks/vpn-edit-request
           python3 tools/vpn-profiles/check-http-edit.py --output checks/vpn-http-edit
+          node tools/vpn-profiles/check-edit-ui.js
           node tools/vpn-profiles/check-create-ui.js
           node tools/vpn-profiles/check-observe-ui.js
           node tools/vpn-profiles/check-list-ui.js

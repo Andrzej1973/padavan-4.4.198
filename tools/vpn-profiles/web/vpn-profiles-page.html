@@ -35,6 +35,14 @@
                             <span id="wr_vpn_page_number">1</span>
                             <button type="button" class="btn" id="wr_vpn_next" onclick="wrVPNListLoad(wrVPNListPage+1)"><#WRVPN_NEXT#></button>
                             <button type="button" class="btn" id="wr_vpn_refresh" onclick="wrVPNListLoad(wrVPNListPage)"><#WRVPN_REFRESH#></button>
+                            <div id="wr_vpn_editor" style="display:none">
+                                <p><#WRVPN_EDIT_HELP#></p>
+                                <span id="wr_vpn_edit_identity"></span>
+                                <textarea id="wr_vpn_edit_config" rows="8" style="width:95%;font-family:monospace" autocomplete="off" spellcheck="false" aria-label="<#WRVPN_CONFIG#>"></textarea>
+                                <button type="button" class="btn" id="wr_vpn_edit_save" onclick="wrVPNEditSave()"><#WRVPN_EDIT_SAVE#></button>
+                                <button type="button" class="btn" id="wr_vpn_edit_cancel" onclick="wrVPNEditCancel()"><#WRVPN_EDIT_CANCEL#></button>
+                                <span id="wr_vpn_edit_status" role="status" data-failed="<#WRVPN_EDIT_FAILED#>" data-saved="<#WRVPN_CREATED#>"></span>
+                            </div>
                         </div>
                     </div>
                     <script type="text/javascript">
@@ -42,6 +50,7 @@
                     var wrVPNToken = <% wr_vpn_token(); %>;
                     var wrVPNObservationGeneration = {};
                     var wrVPNListPage = 0, wrVPNListBusy = false;
+                    var wrVPNEditing = null, wrVPNEditBusy = false, wrVPNEditGeneration = 0;
                     function wrVPNText(key) {
                         var text = document.getElementById('wr_vpn_action_text');
                         return text && text.getAttribute('data-' + key) || '?';
@@ -52,6 +61,7 @@
                         jQuery('.wr-vpn-up').text(wrVPNText('start'));
                         jQuery('.wr-vpn-down').text(wrVPNText('stop'));
                         jQuery('.wr-vpn-delete').text(wrVPNText('delete'));
+                        jQuery('.wr-vpn-edit').text(document.getElementById('wr_vpn_edit_save').textContent);
                     }
                     function wrVPNListControls() {
                         var info = jQuery('#wr_vpn_rows .wr-vpn-page-info');
@@ -123,6 +133,63 @@
                                 }
                                 finish('unknown');
                             }, error: function() { finish('unknown'); }});
+                    }
+                    function wrVPNEditCancel() {
+                        if (wrVPNEditBusy) return;
+                        wrVPNEditGeneration++;wrVPNEditing = null;
+                        document.getElementById('wr_vpn_edit_config').value = '';
+                        document.getElementById('wr_vpn_edit_identity').textContent = '';
+                        document.getElementById('wr_vpn_editor').style.display = 'none';
+                    }
+                    function wrVPNEdit(id, revision) {
+                        if (wrVPNEditBusy || !/^[1-9][0-9]{0,2}$/.test(String(id)) ||
+                            !/^[1-9][0-9]{0,19}$/.test(revision)) return;
+                        if (document.getElementById('wr_vpn_edit_config').value && !confirm(document.getElementById('wr_vpn_edit_cancel').textContent + '?')) return;
+                        wrVPNEditCancel();
+                        var generation = wrVPNEditGeneration;
+                        var status = document.getElementById('wr_vpn_edit_status');
+                        document.getElementById('wr_vpn_editor').style.display = '';
+                        document.getElementById('wr_vpn_edit_save').disabled = true;
+                        status.textContent = '';
+                        jQuery.ajax({url: '/wr_vpn_export.cgi', type: 'POST', dataType: 'json', timeout: 8000,
+                            data: {id: id, token: wrVPNToken, ack: '1'},
+                            success: function(r) {
+                                if (generation !== wrVPNEditGeneration) return;
+                                if (!r || typeof r.config !== 'string' || !r.config) {
+                                    status.textContent = status.getAttribute('data-failed');return;
+                                }
+                                wrVPNEditing = {id: id, revision: revision};
+                                document.getElementById('wr_vpn_edit_identity').textContent = String(id) + ' / ' + revision;
+                                document.getElementById('wr_vpn_edit_config').value = r.config;
+                                document.getElementById('wr_vpn_edit_save').disabled = false;
+                            }, error: function() {
+                                if (generation === wrVPNEditGeneration) status.textContent = status.getAttribute('data-failed');
+                            }});
+                    }
+                    function wrVPNEditSave() {
+                        if (!wrVPNEditing || wrVPNEditBusy) return;
+                        var config = document.getElementById('wr_vpn_edit_config');
+                        var status = document.getElementById('wr_vpn_edit_status');
+                        if (!config.value) {status.textContent = status.getAttribute('data-failed');return;}
+                        wrVPNEditBusy = true;
+                        config.disabled = true;
+                        document.getElementById('wr_vpn_edit_save').disabled = true;
+                        document.getElementById('wr_vpn_edit_cancel').disabled = true;
+                        jQuery.ajax({url: '/wr_vpn_edit.cgi', type: 'POST', dataType: 'json', timeout: 8000,
+                            contentType: 'text/plain; charset=UTF-8', processData: false,
+                            data: wrVPNToken + '\n' + wrVPNEditing.id + '\n' + wrVPNEditing.revision + '\n' + config.value,
+                            success: function(r) {finish(r && r.saved === true && r.started === false);},
+                            error: function() {finish(false);}});
+                        function finish(saved) {
+                            wrVPNEditBusy = false;
+                            config.disabled = false;
+                            document.getElementById('wr_vpn_edit_cancel').disabled = false;
+                            // Always require reopening before retry; the write may have committed.
+                            document.getElementById('wr_vpn_edit_save').disabled = true;
+                            wrVPNEditing = null;
+                            if (saved) config.value = '';
+                            status.textContent = status.getAttribute(saved ? 'data-saved' : 'data-failed');
+                        }
                     }
                     function wrVPNCreate() {
                         var button = document.getElementById('wr_vpn_create_button');

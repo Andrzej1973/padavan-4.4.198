@@ -12,6 +12,7 @@ int main(void)
     assert(strstr(rows,"onclick=\"wrVPNAct('down',2)\"")!=NULL);
     assert(strstr(rows,"onclick=\"wrVPNAct('delete',1)\"")!=NULL);
     assert(strstr(rows,"onclick=\"wrVPNQr(1)\"")!=NULL);
+    assert(strstr(rows,"onclick=\"wrVPNEdit(2,'5')\"")!=NULL);
     assert(strstr(rows,"onclick=\"wrVPNObserve(1,this)\"")!=NULL);
     assert(strstr(rows,"id=\"wr_vpn_link_2\"")!=NULL);
     assert(wr_vpn_web_render("",rows,sizeof(rows))==0);
