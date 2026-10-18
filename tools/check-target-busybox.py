@@ -55,6 +55,21 @@ report['checks']['all_discovered_shell_syntax']=bool(report['scripts']) and all(
     item['syntax_exit']==0 for item in report['scripts'])
 report['checks']['command_v_supported_or_avoided']=not any(
     item['command_v_requires_review'] for item in report['scripts'])
+report['service_dispatch_probes']=[]
+for service in ('stubby', 'privoxy'):
+    script=root/'usr/bin'/f'{service}.sh'
+    if not script.is_file():continue
+    # These shipped dispatchers reject unknown actions before opening a lock
+    # or invoking any external lifecycle command. Run the original image
+    # script under its actual shell, rather than source it in the host shell.
+    probe=run(['sh',str(script),'__wr_audit_invalid_action__'])
+    passed=probe.returncode==1 and b'Usage:' in probe.stderr
+    report['checks'][service+'_invalid_action_refused']=passed
+    report['service_dispatch_probes'].append({
+        'service':service,'script_sha256':digest(script),'exit':probe.returncode,
+        'scope':'unknown action only; daemon lifecycle not executed',
+        'passed':passed,
+    })
 with tempfile.TemporaryDirectory(prefix='target-busybox-') as tmp:
     # Exercise the shipped helper's shell decisions, then its external applet
     # separately. QEMU is not a chroot: an unqualified external chmod here
