@@ -293,9 +293,11 @@ CI-артефакт не синхронізується локально авт�
 
 ## 14. Proxy-діагностика лише після мережевої помилки
 
-Git запускай зі звичайним середовищем. Не очищай proxy-змінні перед кожним
-мережевим викликом. Перевірка доступу чинна лише для того самого контексту
-виконання: успіх розширеного запуску не підтверджує доступ із sandbox.
+Для GitHub fetch/pull/push використовуй SSH за розділом 15. Цей розділ
+стосується лише HTTPS-запитів (зокрема GitHub REST API) та HTTPS remotes інших
+хостів. Не очищай proxy-змінні перед кожним мережевим викликом. Перевірка
+доступу чинна лише для того самого контексту виконання: успіх розширеного
+запуску не підтверджує доступ із sandbox.
 Якщо мережевий запит явно падає через proxy або не
 під'єднується, спершу перевір лише наявність змінних і Git proxy-конфігурації,
 не виводячи їхні значення. У PowerShell:
@@ -324,24 +326,60 @@ if git config --get http.proxy >/dev/null 2>&1; then
 fi
 ```
 
+Після підтвердження проблеми з HTTPS API прибери proxy-змінні лише в цьому
+процесі й повтори той самий безпечний API read-запит, наприклад:
+
+```bash
+gh api repos/Andrzej1973/padavan-4.4.198/actions/runs?per_page=1
+```
+
 Якщо підтвердився недоступний proxy, повтори запит один раз із очищеними
 змінними лише в тому самому процесі/shell. У Bash:
 
 ```bash
 unset HTTP_PROXY HTTPS_PROXY ALL_PROXY GIT_HTTP_PROXY GIT_HTTPS_PROXY \
   http_proxy https_proxy all_proxy git_http_proxy git_https_proxy
-git -c http.proxy= ls-remote origin HEAD
+gh api repos/Andrzej1973/padavan-4.4.198/actions/runs?per_page=1
 ```
 
 Для PowerShell після підтвердження недоступного proxy застосуй той самий список:
 
 ```powershell
 foreach ($name in $proxyNames) { Remove-Item "Env:$name" -ErrorAction SilentlyContinue }
-git -c http.proxy= ls-remote origin HEAD
+gh api repos/Andrzej1973/padavan-4.4.198/actions/runs?per_page=1
 ```
 
 Це лише разова діагностика в поточному процесі. Не виводь proxy URL або
 credential-bearing URL у чат чи логи; не змінюй системні або глобальні
 налаштування автоматично. Якщо прямий вихід заблокований, повідом про мережеве
 обмеження середовища, а не перевстановлюй Git.
+
+## 15. GitHub Git transport — SSH
+
+Для цього проєкту агенти використовують GitHub SSH transport для
+fetch/pull/push. Очікуваний `origin`:
+`git@github.com:Andrzej1973/padavan-4.4.198.git`.
+
+Перед Git-операцією перевір URL і автентифікацію, не показуючи вміст ключів:
+
+```powershell
+git remote get-url origin
+$ssh = "$env:WINDIR\System32\OpenSSH\ssh.exe"
+& $ssh -T -o BatchMode=yes git@github.com
+$env:GIT_SSH = $ssh
+$env:GIT_SSH_VARIANT = 'ssh'
+git ls-remote origin HEAD
+```
+
+Відповідь `successfully authenticated` означає, що SSH-ключ розпізнаний;
+GitHub може повернути ненульовий код від `ssh -T`, бо не надає shell. Успішний
+`git ls-remote` окремо підтверджує Git read-доступ. Не вбудовуй PAT у remote URL
+і не переходь на HTTPS/GCM лише через помилку локального Git shell.
+
+GitHub REST та Actions API — окремий HTTPS transport: SSH-ключ їх не
+авторизує. Для API користуйся підключеною GitHub інтеграцією або `gh` у вже
+авторизованому середовищі. Не виводь, не копіюй і не передавай токени. Якщо
+`ssh -T` успішний, але `git ls-remote` падає до мережевого з'єднання, досліди
+Git for Windows shell/SSH запуск; не змінюй облікові дані й не підміняй SSH на
+HTTPS.
 

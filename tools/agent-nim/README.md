@@ -74,18 +74,31 @@ The Nim sources are platform-neutral. Compile them on the agent's host OS with N
 
 ## Git hosting authentication
 
-This repository currently has a GitHub `origin` remote and no GitLab remote. Check credentials in the same user session that runs Git:
-
-If a network check fails with a proxy-related error, use the conditional
-troubleshooting steps in section 14 of the shared agent rules.
+Use the GitHub SSH transport for Git operations in this repository. The
+expected `origin` is `git@github.com:Andrzej1973/padavan-4.4.198.git`. Check the
+remote and SSH key without printing private material:
 
 ```powershell
-gh auth status --hostname github.com
-git credential-manager github list
-glab auth status --hostname gitlab.com
+git remote get-url origin
+$ssh = "$env:WINDIR\System32\OpenSSH\ssh.exe"
+& $ssh -T -o BatchMode=yes git@github.com
+$env:GIT_SSH = $ssh
+$env:GIT_SSH_VARIANT = 'ssh'
+git ls-remote origin HEAD
 ```
 
-If GitHub CLI reports an invalid login, reauthenticate it in a browser with `gh auth refresh --hostname github.com`. Git Credential Manager has its own account store; if Git prompts for credentials after network access is restored, run `git credential-manager github login`. For a GitLab project, check `glab auth status --hostname gitlab.com`; if it is not authenticated, use `glab auth login --hostname gitlab.com --web`. Never paste access tokens into chat or a manifest.
+GitHub REST/Actions API calls use HTTPS and need a separately authorized GitHub
+integration or `gh` session; SSH does not authorize API requests. Do not embed
+PATs in Git remotes, manifests or chat. If an HTTPS API request fails with a
+proxy error, use the conditional troubleshooting steps in section 14 of the
+shared agent rules.
+
+For GitLab, check its separate CLI session with
+`glab auth status --hostname gitlab.com`. If GitHub CLI reports an invalid API
+login, reauthenticate it in a browser with
+`gh auth refresh --hostname github.com`. For GitLab, if unauthenticated, use
+`glab auth login --hostname gitlab.com --web`. Never paste access tokens into
+chat or a manifest.
 
 
 CI policy: agents must continue independent work while builds run. Do not wait for a build before proceeding. When one fails, inspect the original log, fix the specific failure, and resume work; only wait when a dependent artifact is required. See `docs/AGENT-HANDOFF-RULES-SOL-DEEPSEEK.md` section 13.

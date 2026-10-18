@@ -74,10 +74,10 @@ runtime-перевірки. Джерело істини — код і Git; до�
 ## Особливості середовища (перевірено на практиці)
 
 - `git` вимагає `-c safe.directory='*'`.
-- Push: `C:\Users\ANDRZEJ\Documents\Codex\2026-09-29\_push-now.ps1` (бере PAT із
-  Credential Manager, друкує `push_exit=0`).
+- GitHub fetch/pull/push: використовуй SSH remote згідно з розділом 15
+  `docs/AGENT-HANDOFF-RULES-SOL-DEEPSEEK.md`; не використовуй PAT для Git.
 - GitHub API: `_ghread2.ps1 <шлях> runs|jobs|dump`; шлях обов'язково зі слешем
-  на початку.
+  на початку. Це окрема HTTPS API-авторизація, не SSH Git transport.
 - SSH до роутера: у пісочниці `ssh` підмінено заглушкою, тому працює лише повний
   шлях `C:\WINDOWS\System32\OpenSSH\ssh.exe` з ключем `~/.ssh/id_ed25519`,
   користувач `ASUS@192.168.20.1`.

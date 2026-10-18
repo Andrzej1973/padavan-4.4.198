@@ -5,5 +5,8 @@ follow the conditional, process-local troubleshooting steps in section 14 of
 `docs/AGENT-HANDOFF-RULES-SOL-DEEPSEEK.md`. Do not routinely clear proxy
 variables or change saved/system/global proxy settings.
 
+For GitHub fetch/pull/push in this repository, use the SSH remote and follow
+the shared transport rule in `docs/AGENT-HANDOFF-RULES-SOL-DEEPSEEK.md`.
+
 For project context and the current executor, start with
 `docs/AGENT-BOOTSTRAP.md` and `docs/EXECUTION-ROLE.md`.
