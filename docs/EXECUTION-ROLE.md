@@ -4,15 +4,22 @@
 
 ## Актуальний checkpoint — 2026-10-18
 
-Повна збірка #454 `39115399372` успішна для `594d98b`. Незалежно завантажено
-образ (artifact `12132218030`) і перевірено uImage magic, WR1200JS product ID,
-header/payload CRC, довжину й допустимий розмір; SHA-256
-`7a25388b2838a567dc61b4be179ebbc07f8162eebec1cb029d488a42eec31cfe`.
-Перевірено також прив’язку імені та SHA образу в інструкції. Kbuild JSON для
-цього запуску підтверджують source/config ліміти 16 BSS (MT7603) та 8
-(MT7612), а обов’язкова перевірка трьох BSS для 2.4 GHz пройшла. Runtime
-ліміт залишається непідтвердженим. Докази:
-`docs/evidence/WR1200JS-BUILD454.md` та суміжні JSON.
+Найновіша повна збірка WR1200JS — #457, run `39116103457`, firmware commit
+`4cd56a8e9587bbb48f87e1540c32ea0a2a56cf21`; GitHub підтверджує успішні jobs
+`build (wr1200js)`, `firmware-zip` і `downloads`. TRX незалежно перевірений із
+двох артефактів: 12 621 335 байтів, SHA-256
+`063be5fbf4d70334b0092a1da4362f3f16cb9d7188fc42d597ebe0dd21ef7161`.
+112 параметрів конфігурації — без розбіжностей/pending, SQM та CAKE виключені.
+MT7603 має source/config межу 16 BSS, MT7612 — 8; повний аудит служб і runtime
+не підтверджено. Деталі та межі доказів:
+`docs/evidence/WR1200JS-BUILD457.md` і суміжні JSON.
+
+Поточний локальний HEAD — `d4e361ad58b75eef24c8a2b3df6dd1fd65ee8158`, звітний
+коміт після firmware commit #457. GitHub connector підтвердив jobs #457; локальний
+Git-запит до origin цього разу впав через недоступний proxy `127.0.0.1:9`, тож
+remote HEAD не підтверджений. Read-only SSH і HTTP до `192.168.20.1` завершилися
+тайм-аутами. Роутер не змінювався; запуск ядра 4.4.198 та runtime цього образу
+не підтверджені. Не прошивати й не перезавантажувати його без окремого дозволу.
 
 ABI `39115399202` для `594d98b` успішний: зібраний MIPS код administrative
 ra2 UP і host-kernel fixture. Саме production radio reload/activation
