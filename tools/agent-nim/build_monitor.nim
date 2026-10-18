@@ -1,7 +1,7 @@
 ## Read-only GitHub Actions monitor. Never executes downloaded logs or patches.
 import std/[os, strutils, json, httpclient, net, streams, times, uri, parseopt, sequtils]
 
-const defaultWorkflows = ".github/workflows/build-multiple-boards.yml|.github/workflows/build-padavan-4.4-wr1200js.yml|.github/workflows/zram-lifecycle.yml"
+const defaultWorkflows = ".github/workflows/build-multiple-boards.yml|.github/workflows/build-padavan-4.4-wr1200js.yml|.github/workflows/zram-lifecycle.yml|.github/workflows/band-steering-abi.yml"
 const api = "https://api.github.com"
 const maxJson = 4 * 1024 * 1024
 const maxLog = 256 * 1024

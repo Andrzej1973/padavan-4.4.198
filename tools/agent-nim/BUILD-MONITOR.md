@@ -32,7 +32,7 @@ $env:SSL_CERT_FILE = 'C:\Program Files\Git\mingw64\etc\ssl\cert.pem'
   доступу. Не записуйте токен у файли, конфіг чи історію команд.
 - `BUILD_MONITOR_DIR`: за замовчуванням `.codex` від поточної робочої папки.
 - `BUILD_MONITOR_WORKFLOWS`: шляхи workflow через `|`; типово основна збірка,
-  WR1200JS і Service runtime state checks. Фільтр використовує сталий `path`,
+  WR1200JS, Service runtime state checks і Band Steering driver ABI. Фільтр використовує сталий `path`,
   оскільки `name` у REST може бути динамічним (`build 431`).
 
 ```powershell

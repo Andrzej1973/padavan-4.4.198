@@ -1,7 +1,7 @@
 name: Agent build failure monitor
 on:
   workflow_run:
-    workflows: [Build selected router firmware, Padavan Linux 4.4.198 WR1200JS, Service runtime state checks]
+    workflows: [Build selected router firmware, Padavan Linux 4.4.198 WR1200JS, Service runtime state checks, Band Steering driver ABI]
     types: [completed]
   schedule:
     - cron: '17,47 * * * *'
