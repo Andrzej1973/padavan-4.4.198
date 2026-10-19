@@ -332,7 +332,7 @@ REPLACEMENTS = [
 
 root = args.source
 if args.verify_image:
-    www = root / 'trunk/romfs/www'
+    www = root / 'www'
     page = (www / 'Shadowsocks.asp').read_text(encoding='utf-8')
     visible_source = re.sub(r'<!--.*?-->', '', page, flags=re.DOTALL)
     visible_source = re.sub(
