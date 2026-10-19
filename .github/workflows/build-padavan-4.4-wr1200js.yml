@@ -184,6 +184,7 @@ jobs:
           python3 overlay/padavan-4.4/scripts/add-amneziawg-pages.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/localize-wireguard-page.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/localize-inherited-dicts.py padavan-4.4
+          python3 tools/prepare-flash-save-feedback.py padavan-4.4
           # The AmneziaWG step above replaces vpncli.asp wholesale, so the
           # stored-profile table must be injected after every page copy.
           python3 tools/vpn-profiles/prepare-web.py padavan-4.4
@@ -1050,6 +1051,8 @@ jobs:
         run: |
           python3 overlay/padavan-4.4/scripts/verify-settings-backup.py \
             padavan-4.4/trunk/romfs settings-backup-image-checks.json
+          node tools/check-settings-backup-behavior.js \
+            padavan-4.4/trunk/romfs/www/Advanced_SettingBackup_Content.asp
 
       - name: Upload settings backup and restore diagnostics
         if: always()

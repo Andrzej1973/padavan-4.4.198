@@ -21,6 +21,8 @@ on:
       - '.github/workflows/build-multiple-boards.yml'
       - '.github/workflows/build-padavan-4.4-wr1200js.yml'
       - 'tools/check-inherited-dict-localization.py'
+      - 'tools/check-settings-backup-behavior.js'
+      - 'tools/prepare-flash-save-feedback.py'
       - 'configs.build/wr1200js.config'
       - 'tools/tmp-upload/**'
       - 'tools/generate-router-guide.py'
