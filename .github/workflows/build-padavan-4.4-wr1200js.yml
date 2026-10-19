@@ -34,6 +34,9 @@ jobs:
       - name: Check unified service navigation image gate before compilation
         run: python3 tools/services-nav/check-verifier.py
 
+      - name: Check inherited dictionary localization transform before compilation
+        run: python3 tools/check-inherited-dict-localization.py
+
       - name: Check ZeroTier status semantics before compilation
         run: python3 tools/check-zerotier-state.py --cc gcc
 
