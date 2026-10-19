@@ -448,7 +448,7 @@ jobs:
           set -euo pipefail
           enabled=n
           if grep -qx 'CONFIG_FIRMWARE_INCLUDE_WR_BAND_STEERING=y' configs.build/wr1200js.config; then
-            compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+            compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
             test -n "$compiler"
             python3 tools/band-steering/prepare-source-integration.py padavan-4.4 \
               --config configs.build/wr1200js.config --compiler "$compiler"
@@ -536,7 +536,7 @@ jobs:
           make WR1200JS TOOLCHAIN=mipsel-linux-uclibc CONFIG_CCACHE=y
           grep -qx 'CONFIG_CCACHE=y' trunk/.config
           test "$(readlink toolchain/toolchain-mipsel/lib/ccache/mipsel-linux-uclibc-gcc)" = /usr/bin/ccache
-          compiler="$(find "$PWD/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          compiler="$(find "$PWD/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
           test -n "$compiler"
           export PATH="$(dirname "$compiler"):$PATH"
           for radio in mt76x2 mt76x3; do
@@ -897,7 +897,7 @@ jobs:
 
       - name: Verify station capacities from compiled radio flags
         run: |
-          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
           test -n "$compiler"
           python3 tools/connected-devices/check-built-radio-capacity.py padavan-4.4 \
             --compiler "$compiler" --output radio-capacity-evidence/capacities.json
@@ -913,7 +913,7 @@ jobs:
         if: ${{ !cancelled() && steps.firmware_build.conclusion == 'success' }}
         run: |
           set -euo pipefail
-          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
           test -n "$compiler"
           for radio in mt76x2 mt76x3; do
             # Build-step PATH does not persist into this Actions step. Resolve
@@ -1285,7 +1285,7 @@ jobs:
 
       - name: Verify RSSI Kick image controls and driver commands
         run: |
-          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
           test -n "$compiler"
           python3 tools/verify-rssi-image.py padavan-4.4 --nm "${compiler%gcc}nm"
 
@@ -1429,7 +1429,7 @@ jobs:
             grep -q 'case WR_RSSI_QUERY_OID:' "$kernel/drivers/net/wireless/mediatek/$radio/ap/ap_cfg.c"
           done
           python3 tools/band-steering/configure-driver-probe.py "$kernel"
-          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
           test -n "$compiler"
           cross="${compiler%gcc}"
           make -C "$kernel" ARCH=mips CROSS_COMPILE="$cross" olddefconfig \
@@ -1474,7 +1474,7 @@ jobs:
         if: ${{ inputs.run_candidate_checks && (!cancelled() && steps.firmware_build.conclusion == 'success' && steps.steering_prepare.outputs.enabled != 'y') }}
         run: |
           set -euo pipefail
-          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
           test -n "$compiler"
           bash tools/band-steering/compile-rc-profile.sh "$PWD/padavan-4.4/trunk" \
             "$RUNNER_TEMP/wr1200js-steering-rc-probe" "$compiler"
@@ -1491,7 +1491,7 @@ jobs:
         run: |
           set -euo pipefail
           kernel="$PWD/padavan-4.4/trunk/linux-4.4.x"
-          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
           test -n "$compiler"
           cross="${compiler%gcc}"
           candidate="$PWD/overlay/padavan-4.4/candidates/eoip/unified"
@@ -1525,7 +1525,7 @@ jobs:
         if: ${{ inputs.run_candidate_checks && (!cancelled() && steps.firmware_build.conclusion == 'success' && steps.steering_prepare.outputs.enabled != 'y') }}
         run: |
           set -euo pipefail
-          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
           test -n "$compiler"
           bash tools/band-steering/compile-driver-package.sh \
             "$RUNNER_TEMP/wr1200js-steering-driver-probe" \
@@ -1552,7 +1552,7 @@ jobs:
         if: ${{ inputs.run_candidate_checks }}
         run: |
           set -euo pipefail
-          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
           test -n "$compiler"
           cross="${compiler%gcc}"
           mkdir -p pcre2-candidate-build
@@ -1592,7 +1592,7 @@ jobs:
         if: ${{ inputs.run_candidate_checks }}
         run: |
           set -euo pipefail
-          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
           test -n "$compiler"
           PRIVOXY_CANDIDATE_DIR="$PWD/privoxy-candidate-build" \
           TARGET_CC="$compiler" \
@@ -1619,7 +1619,7 @@ jobs:
         if: ${{ inputs.run_candidate_checks }}
         run: |
           set -euo pipefail
-          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
           test -n "$compiler"
           TARGET_CC="$compiler" \
           TARGET_STAGE="$PWD/padavan-4.4/trunk/stage" \
@@ -1649,7 +1649,7 @@ jobs:
           test ! -e "$kernel"
           cp -a "$source_kernel" "$kernel"
           python3 tools/band-steering/prepare-nvram-snapshot.py --kernel-root "$kernel"
-          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
           test -n "$compiler"
           cross="${compiler%gcc}"
           candidate="$PWD/overlay/padavan-4.4/candidates/cpu-sleep"
@@ -1714,7 +1714,7 @@ jobs:
           test "$(git -C zerotier-candidate rev-parse HEAD)" = fe29cd88886e4f58547ba7f740b2d73eb49ab222
           python3 tools/prepare-zerotier-source.py zerotier-candidate
           sha256sum zerotier-candidate/make-linux.mk > zerotier-candidate-prepared.sha256
-          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
           test -n "$compiler"
           cross="${compiler%gcc}"
           make -C zerotier-candidate -j2 zerotier-one \
