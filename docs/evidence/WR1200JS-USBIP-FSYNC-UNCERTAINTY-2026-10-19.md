@@ -31,3 +31,20 @@ the HTTP C-fixture generator ran to the Windows null device, Python AST parsing
 and `git diff --check` passed. Generating C source is not a C compile or runtime
 result. The existing service workflow already compiles and runs both C fixtures
 with ASan/UBSan on Linux after this batch is pushed.
+
+## Subsequent Linux CI evidence
+
+[Service checks #245](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/39294618711)
+subsequently passed on head `9a6449e5da8b00b0c76b3af19c9c69cff25b8007`.
+Job `118203806715` completed the existing ASan/UBSan compile-and-run commands.
+Its original downloaded log confirms all three success markers at
+2026-10-19 17:30:48 UTC:
+
+- `PASS USBIP export store: ... directory-fsync uncertainty ...`
+- `PASS USBIP HTTP settings: ... directory-fsync uncertainty ...`
+- `PASS USBIP settings view: ... fsync uncertainty ...`
+
+The sanitized excerpts are retained locally in `.codex/pr2-usbip-ci245.log`.
+This supersedes the pending-Linux-execution statements above. The evidence is
+Linux-host failure injection and JS behavior, not physical flash durability,
+target MIPS execution of this failure branch or on-router recovery acceptance.
