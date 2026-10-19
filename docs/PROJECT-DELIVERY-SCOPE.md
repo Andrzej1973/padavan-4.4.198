@@ -6,6 +6,15 @@ loading/disabled feedback. Toggle color represents the selected setting;
 actual service health remains a separate observed indicator. Apply through
 the shared iToggle stylesheet for consistent controls across pages.
 
+User UI clarification, 2026-10-19: keep mode 1 visibly marked as compatible,
+mode 2 as LAN only, and permit the user to switch modes manually. Factory
+default remains mode 2. Mode 1 is an explicit Wi-Fi offload trial; if Wi-Fi
+stability worsens or router load rises, return to mode 2. The firmware must not
+claim that mode 1 works until throughput, stability, and system load are
+measured on the router. Do not infer acceleration from a saved setting; the
+live WR1200JS read showed `hw_nat_mode=2` and a loaded `hw_nat` module, while
+the kernel log reports the requested WAN↔LAN offload path.
+
 User-approved extension, 2026-10-02.
 
 Primary objective remains the Linux 4.4.198 port of YOUHUA WR1200JS,
@@ -501,11 +510,12 @@ Complete and record these checks:
    optional encrypted DNS, WAN connectivity and AmneziaWG management access
    after restart. Any ordinary-DNS fallback must be an explicit user choice.
 2. **Wi-Fi HNAT and driver diagnostics.** Investigate module-level wireless
-   external-device registration in addition to RC/driver guards, record actual
-   acceleration mode and prove Wi-Fi offload is disabled while retaining
-   supported wired acceleration. Examine repeated HNAT drop and ADDBA messages;
-   neither message alone proves a hang. Verify both radios under sustained
-   traffic and reconnects, with logs and continued management access.
+   external-device registration in addition to RC/driver guards. Keep factory
+   mode 2 (LAN only), allow a manual mode 1 compatibility trial, and provide
+   clear guidance to return to mode 2 if Wi-Fi stability or router load worsens.
+   Measure actual acceleration, throughput, load, and both radios under
+   sustained traffic and reconnects, with logs and continued management access.
+   Examine repeated HNAT drop and ADDBA messages; neither alone proves a hang.
 3. **ZRAM.** Repair the mismatch between enabled settings and absent active swap.
    Verify block-device initialization, actual /proc/swaps state, status display,
    enable/disable lifecycle and reboot persistence; report failure visibly.

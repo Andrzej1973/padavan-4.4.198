@@ -457,9 +457,9 @@ jobs:
           python3 tools/connected-devices/prepare-rssi-removal.py padavan-4.4
           python3 tools/connected-devices/prepare-rssi-query.py padavan-4.4
 
-      - name: Disable WR wireless offload while preserving wired NAT
+      - name: Keep wireless offload manually selectable with LAN-only factory default
         run: |
-          python3 tools/prepare-wifi-hwnat-mode.py padavan-4.4 --lan-only-default --disable-wifi-offload
+          python3 tools/prepare-wifi-hwnat-mode.py padavan-4.4 --lan-only-default
           python3 tools/prepare-wifi-hwnat-ui.py padavan-4.4
           grep -q '{ "hw_nat_mode", "2" }' padavan-4.4/trunk/user/shared/defaults.c
 
