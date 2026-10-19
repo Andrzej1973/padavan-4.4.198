@@ -55,3 +55,9 @@ This is a transform regression test, not evidence that the new strings are in
 a firmware image or display correctly in a browser. Final-ROMFS verification
 and Ukrainian/Russian browser review remain pending. No router setting or
 firmware was changed.
+
+Subsequent build #490 passed source preparation, the precompile dictionary
+regression and the final-ROMFS dictionary verifier for head `8e3a681`.
+This supersedes the pending-image status above; Ukrainian/Russian browser
+display acceptance remains open. See
+[build evidence](WR1200JS-BUILD490-SERVICE-AUDIT.md).

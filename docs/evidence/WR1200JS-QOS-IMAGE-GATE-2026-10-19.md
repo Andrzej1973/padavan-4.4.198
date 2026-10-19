@@ -43,8 +43,11 @@ and skips the gate for an unselected QoS selector. On 2026-10-19:
 - `py -3 tools/check-target-busybox-map.py` passed the service/SFE/QoS cases.
 - In-memory Python AST parsing and `git diff --check` passed.
 
-These are host checks; the new MIPS `tc` probe has not run against a new image.
-No firmware compilation or router mutation was performed. A complete usable
+Those initial checks were host-only. Build #490 subsequently passed the MIPS
+ELF/library closure and `tc -V` probe plus all 15 required module checks; the
+audit artifact was downloaded and inspected. See
+[build evidence](WR1200JS-BUILD490-SERVICE-AUDIT.md). No router mutation was
+performed. A complete usable
 QoS policy controller/WebUI, applied rules, lifecycle/persistence and physical
 latency/load acceptance remain open; installing `tc` does not complete QoS.
 

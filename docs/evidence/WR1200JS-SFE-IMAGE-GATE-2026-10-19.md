@@ -31,8 +31,7 @@ Local checks passed on 2026-10-19:
 - `py -3 -m py_compile tools/target_busybox_service_map.py tools/check-target-busybox.py tools/check-target-busybox-map.py`
 - `git diff --check -- tools/check-target-busybox.py tools/check-target-busybox-map.py tools/target_busybox_service_map.py`
 
-No new firmware image has run this gate yet. The #488 artifact remains the
-previous baseline and still has no SFE assertion. A separate local QoS
-exact-image gate has since been added; its build evidence is pending. Router-
-side SFE loading, hardware offload, performance and stability remain
-unverified; no setting was changed.
+Build #490 subsequently passed this gate; its independently downloaded audit
+contains all four modules, `/sbin/rc` and BusyBox `modprobe`. The QoS gate also
+passed. See [build evidence](WR1200JS-BUILD490-SERVICE-AUDIT.md). Router-side SFE
+loading, offload, performance and stability remain unverified; no setting changed.

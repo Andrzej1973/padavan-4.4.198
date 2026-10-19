@@ -26,7 +26,8 @@ dispatches = next(ast.literal_eval(node.iter) for node in ast.walk(tree)
                       == ['service', 'selector', 'script_name'])
 expected = {
     'shadowsocks_clients': (
-        {'CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS'},
+        {'CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS', 'CONFIG_FIRMWARE_INCLUDE_SSREDIR',
+         'CONFIG_FIRMWARE_INCLUDE_SSLOCAL'},
         {'usr/bin/ss-local', 'usr/bin/ss-redir'}),
     'wireguard_amneziawg': (
         {'CONFIG_FIRMWARE_INCLUDE_WIREGUARD', 'CONFIG_FIRMWARE_INCLUDE_AMNEZIAWG'},
@@ -120,6 +121,16 @@ if active_service_entrypoint_map_status(active, classifier,
         failed_check)['complete']:
     raise SystemExit('FAIL a failed active-service image check was accepted')
 print(f'PASS {len(required_groups)} active-service maps; missing-map, omitted-selector, missing-check and failed-check fixtures reject completion')
+
+for alias_selectors in ({'CONFIG_FIRMWARE_INCLUDE_SSLOCAL'},
+                        {'CONFIG_FIRMWARE_INCLUDE_SSREDIR'},
+                        {'CONFIG_FIRMWARE_INCLUDE_SSLOCAL', 'CONFIG_FIRMWARE_INCLUDE_SSREDIR'},
+                        {'CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS'}):
+    alias_map = active_service_entrypoint_map_status(alias_selectors, classifier,
+        mapping, {'shadowsocks_clients_selected_entrypoints_present_and_syntax_checked': True})
+    if not alias_map['complete'] or alias_map['active_service_groups'] != ['shadowsocks_clients']:
+        raise SystemExit('FAIL requested/effective Shadowsocks selector normalization loses the service group')
+print('PASS both requested Shadowsocks aliases and the effective package selector require the same service map')
 
 sfe_modules = {'fast-classifier.ko', 'shortcut-fe.ko',
                'shortcut-fe-ipv6.ko', 'shortcut-fe-cm.ko'}
