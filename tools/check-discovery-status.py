@@ -4,6 +4,7 @@ import argparse
 import ast
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import sys
 
@@ -240,4 +241,13 @@ c_file.write_text(c_test, encoding='utf-8')
 exe = root / 'discovery-check'
 subprocess.run(['gcc', '-std=c99', '-Wall', '-Wextra', '-Werror',
                 '-DWR_DISCOVERY_STATUS_TEST', str(c_file), '-o', str(exe)], check=True)
-subprocess.run([str(exe)], check=True)
+try:
+    subprocess.run([str(exe)], check=True, cwd=str(root))
+finally:
+    # mkdtemp() in the generated C fixture is relative to its working dir.
+    # Remove only its exact six-character random directory names, even when
+    # an assertion or an interrupt stops the fixture before its own cleanup.
+    for procdir in root.glob('discovery-proc-*'):
+        if re.fullmatch(r'discovery-proc-[A-Za-z0-9]{6}', procdir.name) and \
+                procdir.is_dir() and not procdir.is_symlink():
+            shutil.rmtree(procdir)
