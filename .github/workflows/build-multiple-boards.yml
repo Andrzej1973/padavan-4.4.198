@@ -66,6 +66,8 @@ on:
       - 'tools/check-zerotier-state.py'
       - 'tools/check-target-busybox.py'
       - 'tools/check-target-busybox-map.py'
+      - 'tools/check-qos-packaging.py'
+      - 'tools/target_busybox_service_map.py'
       - 'tools/check-privoxy-target-config.py'
       - 'tools/prepare-target-busybox.py'
       - 'tools/prepare-ssh-status.py'

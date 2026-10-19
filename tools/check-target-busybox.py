@@ -11,6 +11,11 @@ import json
 import os
 import re
 from pathlib import Path
+from target_busybox_service_map import (
+    active_service_entrypoint_map_status,
+    qos_image_gate_status,
+    sfe_image_gate_status,
+)
 import shutil
 import subprocess
 import tempfile
@@ -53,10 +58,12 @@ report['checks']['busybox_version_identified']=version is not None
 report['checks']['shell_type_builtin']=run(['sh','-c','type type >/dev/null 2>&1']).returncode==0
 report['checks']['mwan_shell_arithmetic']=run(['sh','-c','i=1; count=$((i-1)); last=$i; j=$((i-1)); test "$count:$last:$j" = "0:1:0"']).returncode==0
 report['command_builtin_available']=run(['sh','-c','type command >/dev/null 2>&1']).returncode==0
+image_paths=set()
 for directory,dirs,files in os.walk(root,followlinks=False):
     dirs[:]=sorted(name for name in dirs if not (Path(directory)/name).is_symlink())
     for name in sorted(files):
         path=Path(directory)/name
+        image_paths.add(path.relative_to(root).as_posix())
         if path.is_symlink():
             target=os.readlink(path)
             resolved=Path(os.path.normpath(str(root/target.lstrip('/')) if target.startswith('/') else str(path.parent/target)))
@@ -82,6 +89,7 @@ report['checks']['all_discovered_shell_syntax']=bool(report['scripts']) and all(
 report['checks']['command_v_supported_or_avoided']=not any(
     item['command_v_requires_review'] for item in report['scripts'])
 report['checks']['busybox_applet_links_recorded']=bool(report['applet_links'])
+closure=None
 try:
     readelf=shutil.which('readelf')
     if not readelf:raise RuntimeError('readelf is required to inspect the BusyBox loader/library closure')
@@ -90,14 +98,48 @@ try:
     report['busybox_elf_dependency_closure']=closure.verify(root,root,readelf,['bin/busybox'])
     report['checks']['busybox_elf_dependency_closure']=True
 except (OSError,RuntimeError,ValueError,subprocess.CalledProcessError) as error:
+    closure=None
     report['busybox_elf_dependency_closure_error']=str(error)
     report['busybox_elf_dependency_closure']={}
     report['checks']['busybox_elf_dependency_closure']=False
 effective_config=(trunk/'.config').read_text().splitlines()
+kernel_config_lines=(trunk/'linux-4.4.x/.config').read_text().splitlines()
+kernel_config={}
+for line in kernel_config_lines:
+    if line.startswith('CONFIG_') and '=' in line:
+        key,value=line.split('=',1)
+        kernel_config[key]=value.strip('"')
+    elif line.startswith('# CONFIG_') and line.endswith(' is not set'):
+        kernel_config[line[2:-11]]='n'
 report['selected_service_entrypoints']=[]
 report['feature_image_gates']={}
-report['entrypoint_gaps']=[{'group':name,'reason':'no exact-image entrypoint assertion yet'}
-                           for name in ('qos','sfe')]
+report['entrypoint_gaps']=[]
+qos_enabled='CONFIG_FIRMWARE_INCLUDE_QOS=y' in effective_config
+qos_gate=qos_image_gate_status(qos_enabled,image_paths,kernel_config)
+if qos_enabled:
+    qos_gate['scope']='selected-image kernel modules/config and tc MIPS ELF/library closure/version under QEMU; QoS rules, activation and throughput unverified'
+    try:
+        tc=root/'bin/tc'
+        if not tc.is_file() or not tc.stat().st_mode & 0o111:
+            raise ValueError('/bin/tc is absent, unresolved or not executable')
+        if closure is None or not readelf:
+            raise RuntimeError('ELF dependency checker is unavailable')
+        qos_gate['tc_sha256']=digest(tc)
+        qos_gate['tc_elf_dependency_closure']=closure.verify(root,root,readelf,['bin/tc'])
+        probe=subprocess.run([qemu,'-L',str(root),str(tc),'-V'],
+            capture_output=True,timeout=10,env={'PATH':'/usr/bin:/bin','LC_ALL':'C'})
+        version=(probe.stdout+probe.stderr).decode(errors='replace').strip()
+        qos_gate['tc_version_output']=version
+        qos_gate['tc_qemu_version_passed']=probe.returncode==0 and 'tc utility' in version
+    except (OSError,RuntimeError,ValueError,subprocess.SubprocessError) as error:
+        qos_gate['tc_probe_error']=str(error)
+        qos_gate['tc_qemu_version_passed']=False
+    qos_gate['passed']=qos_gate['passed'] and qos_gate['tc_qemu_version_passed']
+report['feature_image_gates']['qos']=qos_gate
+report['checks']['qos_exact_romfs_gate']=qos_gate['passed']
+if qos_enabled and not qos_gate['passed']:
+    report['entrypoint_gaps'].append({'group':'qos',
+        'reason':'selected image lacks QoS dependencies/core config, or /bin/tc ELF/target version probe failed'})
 zram_enabled='CONFIG_FIRMWARE_INCLUDE_ZRAM=y' in effective_config
 if zram_enabled:
     zram_report_path=Path('zram-image-checks.txt')
@@ -141,6 +183,13 @@ if wpad_enabled:
 else:
     report['feature_image_gates']['wpad']={'status':'not selected'}
     report['checks']['wpad_exact_romfs_gate']=True
+sfe_enabled='CONFIG_FIRMWARE_INCLUDE_SFE=y' in effective_config
+sfe_gate=sfe_image_gate_status(sfe_enabled,image_paths,applets)
+report['feature_image_gates']['sfe']=sfe_gate
+report['checks']['sfe_exact_romfs_gate']=sfe_gate['passed']
+if sfe_enabled and not sfe_gate['passed']:
+    report['entrypoint_gaps'].append({'group':'sfe',
+        'reason':'exact-image rc, Shortcut FE modules or BusyBox modprobe applet missing'})
 # Active selectors are fully classified as service groups, image components,
 # or pending investigation. This is selector accounting only; it does not claim
 # that lifecycle interactions or every package payload have been audited.
@@ -240,8 +289,16 @@ report['active_include_selector_classification']=[
      'group':selector_classes[selector][1]} for selector in active_include_selectors
      if selector in selector_classes]
 report['unclassified_active_include_selectors']=unclassified_include_selectors
-report['checks']['all_active_include_selectors_classified']=not unclassified_include_selectors
-report['selected_service_entrypoint_map_complete']=not unclassified_include_selectors
+classification_complete=not unclassified_include_selectors
+report['checks']['all_active_include_selectors_classified']=classification_complete
+service_map=active_service_entrypoint_map_status(active_include_selectors,
+    selector_classes,service_entrypoints,report['checks'])
+report['active_service_groups']=service_map['active_service_groups']
+report['unmapped_active_service_groups']=service_map['unmapped_active_service_groups']
+report['unmapped_active_service_selectors']=service_map['unmapped_active_service_selectors']
+report['active_service_entrypoint_checks']=service_map['active_service_entrypoint_checks']
+report['checks']['all_active_service_entrypoint_maps_checked']=service_map['complete']
+report['selected_service_entrypoint_map_complete']=service_map['complete']
 report['service_dispatch_probes']=[]
 for service, selector, script_name in (
         ('stubby','CONFIG_FIRMWARE_INCLUDE_STUBBY','stubby.sh'),

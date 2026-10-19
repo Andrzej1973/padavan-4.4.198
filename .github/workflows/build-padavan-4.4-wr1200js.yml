@@ -57,6 +57,9 @@ jobs:
       - name: Check exact-image BusyBox service map before firmware compilation
         run: python3 tools/check-target-busybox-map.py
 
+      - name: Check QoS tc packaging selections before firmware compilation
+        run: python3 tools/check-qos-packaging.py
+
       - name: Restore compiler cache
         id: compiler_cache
         uses: actions/cache/restore@v6
@@ -165,6 +168,7 @@ jobs:
           python3 overlay/padavan-4.4/ports/sqm/prepare-lifecycle.py padavan-4.4
           python3 overlay/padavan-4.4/ports/sqm/prepare-web.py padavan-4.4
           python3 overlay/padavan-4.4/ports/sqm/prepare-packaging.py padavan-4.4
+          python3 overlay/padavan-4.4/ports/qos/prepare-packaging.py padavan-4.4
           sh -n padavan-4.4/trunk/user/sqm-qos/scripts/run.sh
           python3 overlay/padavan-4.4/scripts/add-amneziawg-nvram.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/add-amneziawg-lifecycle.py padavan-4.4
