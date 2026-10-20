@@ -24,12 +24,22 @@ try:
                   '<% wr_iperf3_process_state(); %>',
                   'wr_iperf3_observed_at', 'toLocaleTimeString()')
     checks['runtime_status_ui'] = all(marker in page for marker in ui_markers)
+    test_markers = (
+        'id="wr_iperf3_test_help_row"',
+        'iperf3 -c <span id="wr_iperf3_lan_address"></span> -t 10',
+        "address.textContent = lan_ipaddr ||",
+        "showhide_div('wr_iperf3_test_help_row', 0)",
+        'WRIperf3TestInstructions', 'WRIperf3TestLimits',
+    )
+    checks['bounded_lan_test_instructions'] = all(marker in page for marker in test_markers)
     httpd = (root / 'usr/sbin/httpd').read_bytes()
     checks['runtime_status_backend'] = b'wr_iperf3_process_state' in httpd
     status_keys = ('WRIperf3ObservedTitle', 'WRIperf3Off', 'WRIperf3Present',
                    'WRIperf3Missing', 'WRIperf3Unknown', 'WRIperf3StillPresent',
                    'WRIperf3Refresh', 'WRIperf3LastObservation',
-                   'WRIperf3NoObservation', 'WRIperf3ObservedNote')
+                   'WRIperf3NoObservation', 'WRIperf3ObservedNote',
+                   'WRIperf3TestTitle', 'WRIperf3TestInstructions',
+                   'WRIperf3TestLimits', 'WRIperf3LanAddressUnknown')
     # ROMFS carries the merged dictionaries flat under www/ as *.dict.
     for locale, dictionary in (('EN', 'EN.dict'), ('UK', 'UK.dict'), ('RU', 'RU.dict')):
         translated = (root / 'www' / dictionary).read_text(encoding='utf-8')
@@ -41,7 +51,7 @@ except (OSError, UnicodeError) as exc:
 else:
     error = None
 args.report.write_text(json.dumps({
-    'scope': 'iPerf3 status UI and HTTP handler packaging; client test unverified',
+    'scope': 'iPerf3 status UI, HTTP handler and bounded LAN client-test instructions; actual client test and throughput remain unverified',
     'checks': checks,
     'error': error,
 }, indent=2) + '\n')
