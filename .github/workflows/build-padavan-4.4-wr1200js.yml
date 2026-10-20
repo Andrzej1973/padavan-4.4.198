@@ -549,6 +549,7 @@ jobs:
             "${compiler%gcc}nm" "$module" | grep -E '[[:space:]]wr_rssi_delete_entry$'
             grep -q 'case WR_RSSI_QUERY_OID:' "trunk/linux-4.4.x/drivers/net/wireless/mediatek/$radio/ap/ap_cfg.c"
           done
+          python3 ../tools/verify-wifi-kvr-image.py . --nm "${compiler%gcc}nm" --output ../wifi-kvr-image.json
           grep -a -F -q 'wr_rssi.json' trunk/romfs/usr/sbin/httpd
           bash ../tools/connected-devices/check-rssi-kernel.sh trunk/linux-4.4.x "$compiler" ../rssi-kernel-probe
           if grep -qx 'CONFIG_FIRMWARE_INCLUDE_WR_BAND_STEERING=y' trunk/.config; then
@@ -944,6 +945,14 @@ jobs:
         with:
           name: wr1200js-iot-radio-capacity
           path: iot-capacity-evidence/
+          if-no-files-found: ignore
+
+      - name: Preserve 2.4 GHz KVR image evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: wr1200js-kvr-image
+          path: wifi-kvr-image.json
           if-no-files-found: ignore
 
       - name: Preserve board Wi-Fi capability evidence

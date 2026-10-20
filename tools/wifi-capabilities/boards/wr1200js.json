@@ -13,19 +13,22 @@
       "reason": "The live kernel disables MT76x2 AP TXBF. This router's Factory TXBF calibration regions at 0x01A0 and 0x81A0 are each 33/33 bytes FF, so RC sets wl_txbf_en=0 and writes ETxBfEnCond=0 even when wl_txbf=1. Generic chipset detection alone must not expose the control."
     },
     "roaming_24ghz": {
-      "status": "unsupported",
-      "scope": "current WR1200JS kernel configuration only; future driver enablement remains open",
-      "policy_enforced": false,
+      "status": "runtime-unverified",
+      "scope": "next build requests k/r/v code; compiled image and physical behavior still require verification",
+      "policy_enforced": true,
       "kernel_options": {
-        "CONFIG_MT7603E_DOT11K_RRM_SUPPORT": false,
-        "CONFIG_MT7603E_WNM_SUPPORT": false,
-        "CONFIG_MT7603E_DOT11R_FT_SUPPORT": false
+        "CONFIG_MT7603E_DOT11K_RRM_SUPPORT": true,
+        "CONFIG_MT7603E_WNM_SUPPORT": true,
+        "CONFIG_MT7603E_DOT11R_FT_SUPPORT": true
       },
       "evidence": [
         "overlay/padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config",
-        "docs/runtime/WR1200JS-2026-10-20-DETAILED-AUDIT.md"
+        "docs/runtime/WR1200JS-2026-10-20-DETAILED-AUDIT.md",
+        "docs/evidence/WR1200JS-KVR24-INTEGRATION-2026-10-20.md"
       ],
-      "reason": "Saved rt_HT_80211KV/R=1 does not enable code omitted from the driver; UI/backend gating or an independently validated driver extension remains required."
+      "reason": "MT7603E includes RRM, WNM/BTM and FT source paths. Next-build options select all three; image gate requires their linked handlers and defaults remain off. Historical live #474 omits these options.",
+      "build_verified": false,
+      "runtime_verified": false
     },
     "roaming_5ghz": {
       "status": "runtime-unverified",
