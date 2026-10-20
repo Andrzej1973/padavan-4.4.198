@@ -190,3 +190,19 @@ DNS-related writers are covered. Main firmware build
 directory; its success applies only to that non-IoT scope. Production
 integration, complete service rollback, Wi-Fi behavior, and physical-router
 acceptance remain open.
+
+## Owner clarification — Classic only, 2026-10-20
+
+IoT must be fully usable in the original Classic theme even if no other theme
+is installed. Add 2.4 GHz / 5 GHz / IoT navigation to the network-map panels,
+all Wi-Fi section pairs and relevant shared Classic shortcuts. Preserve
+Classic classes/design, Apply behavior and existing unsaved repository work.
+No new theme or Modern dependency is authorized by this task. Retain the
+existing shared-main-network mechanism and production IoT components; do not
+introduce a second configuration writer. First stage is source/local checks,
+without a full firmware compilation. Local navigation work and its explicit
+production-backend gap are recorded in
+`evidence/WR1200JS-IOT-CLASSIC-NAVIGATION-2026-10-20.md`.
+This clarification does not turn partial activation fixtures into a working
+IoT service; complete authenticated Apply, rollback, isolation and runtime
+acceptance remain required.

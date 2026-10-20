@@ -2174,3 +2174,13 @@ status above; browser verification on the router running #401 remains open.
 User UI finding on #396: Advanced_wireguard.asp is an inherited simplified form without WG/AWG choice; the actual protocol selector is on vpncli.asp (and server on vpnsrv.asp). Added EN/UK/RU explanation and direct link from the old page to vpncli.asp in existing translation step. Independent profile create/edit browser workflow is still incomplete (CLI exists); do not claim all profiles can be created in this old form. Live tunnel unchanged.
 
 Physical #396 UI report: three blank homepage sections are connected devices, roaming history, RSSI history. Found literal Padavan translation opener in three JavaScript fallback checks served through do_ej; changed marker construction to avoid template interpretation. Image verifier now rejects literal template openers in these assets. Homepage/roaming/RSSI view tests passed locally. Browser-on-device confirmation awaits updated image. Legacy vpnsrv.asp selects one shared server profile/protocol/subnet; concurrent independent WG/AWG must use non-overlapping tunnel subnets and preserve existing AWG access.
+
+## Queued Classic IoT work — owner confirmation 2026-10-20
+
+Keep the approved execution sequence unchanged. Classic-only IoT navigation
+is recorded as part of the existing IoT stage, not an immediate priority
+replacement. Prepared files under tools/iot/classic-* and the navigation
+preparer/check are saved; backend activation remains incomplete and the
+preparer is not wired into production CI. See PROJECT-DELIVERY-SCOPE.md and
+evidence/WR1200JS-IOT-CLASSIC-NAVIGATION-2026-10-20.md. Preserve all unrelated
+working-tree changes; resume the current service WebUI work in order.

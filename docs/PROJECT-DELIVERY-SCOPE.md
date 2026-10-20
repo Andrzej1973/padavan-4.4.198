@@ -829,3 +829,24 @@ refresh controls and their explanatory text on a light-blue information panel;
 do not leave these additions as ungrouped gray text on white. The shared
 enabled-toggle treatment remains green ON and neutral OFF, with observed
 service health shown separately.
+
+## Classic IoT navigation — owner confirmation 2026-10-20
+
+Add this requirement to the existing IoT deliverable without changing the
+approved execution order. Continue points 4–8 in their current sequence;
+Classic navigation work does not move IoT ahead of service WebUI or other
+already ordered work. Preserve the prepared local files and all unrelated
+uncommitted changes.
+
+IoT must work with Classic as the only installed theme. Add matching
+2.4 GHz / 5 GHz / IoT controls to the network map, paired Wi-Fi pages and
+relevant shared shortcuts, with active highlighting and return paths.
+Preserve Classic styling, responsiveness, existing Apply handling and main
+network behavior. Reuse real ASP/CGI/NVRAM and IoT mechanisms; do not create
+a new theme or duplicate configuration logic.
+
+Prepared navigation is partial and is not included in production builds.
+Production activation, authenticated settings/Apply, isolated bridge,
+DHCP/DNS, firewall, status and device acceptance remain in the existing IoT
+stage. Evidence: `evidence/WR1200JS-IOT-CLASSIC-NAVIGATION-2026-10-20.md`.
+No full firmware compilation or router changes are part of this checkpoint.
