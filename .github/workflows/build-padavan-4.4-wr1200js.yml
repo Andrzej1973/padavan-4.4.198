@@ -495,6 +495,7 @@ jobs:
           # IoT integration is deferred from this device test firmware.
           python3 tools/prepare-shared-wifi.py padavan-4.4
           python3 tools/check-wifi-kvr-config.py padavan-4.4/trunk/user/rc/ralink.c --output-dir "$RUNNER_TEMP/wr-kvr-check"
+          python3 tools/prepare-wifi-kvr-board.py padavan-4.4
           python3 tools/prepare-wifi-kvr-config.py padavan-4.4
           python3 tools/connected-devices/prepare-http.py padavan-4.4
           python3 tools/connected-devices/prepare-radio.py padavan-4.4
