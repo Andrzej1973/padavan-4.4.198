@@ -28,6 +28,10 @@ The selected MT76x3 build enables `CONFIG_DOT11V_WNM`, which compiles the WNM ac
 - No full firmware compile was run locally. The next GitHub Actions build is required to confirm the module and image build.
 - This CI result does not demonstrate runtime Wi-Fi feature acceptance on the router.
 
+## Follow-up build #500
+
+The next build passed the previous `CATEGORY_WNM` error and reached another MT76x3 source error at `common/ft_tlv.c:164`: `FT_IGTK_ID` is undeclared. The identifier is intentionally defined inside `DOT11W_PMF_SUPPORT` in `include/dot11r_ft.h`, but the FT IGTK serializer was compiled whenever FT was enabled. The preparation script now guards that serializer with PMF support as well. This preserves the PMF-disabled FT path while excluding the PMF-only serializer. Follow-up run: `39456364830`; its failing kernel log was reviewed through the GitHub Actions job-log API.
+
 ## Log identity
 
 The downloaded run log examined locally had SHA-256 `DDC037430C4ED9F6A9CA005CC632DEEB0394A8273A51420CE435514A51BDEC3A`.
