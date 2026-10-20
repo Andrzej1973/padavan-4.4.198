@@ -102,6 +102,15 @@ except (OSError,RuntimeError,ValueError,subprocess.CalledProcessError) as error:
     report['busybox_elf_dependency_closure_error']=str(error)
     report['busybox_elf_dependency_closure']={}
     report['checks']['busybox_elf_dependency_closure']=False
+# Non-shell Lua utilities have their own interpreter/module execution gate.
+if 'CONFIG_FIRMWARE_INCLUDE_LUA=y' in effective_firmware_config:
+    from target_lua_audit import audit_lua
+    if closure is None:
+        report['lua_audit']={'passed':False,'error':'ELF dependency checker unavailable'}
+    else:
+        report['lua_audit']=audit_lua(root,qemu,closure,readelf)
+    report['checks']['image_lua_utilities']=report['lua_audit']['passed']
+
 effective_config=(trunk/'.config').read_text().splitlines()
 kernel_config_lines=(trunk/'linux-4.4.x/.config').read_text().splitlines()
 kernel_config={}
