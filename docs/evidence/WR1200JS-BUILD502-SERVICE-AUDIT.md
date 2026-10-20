@@ -23,6 +23,9 @@ The build job passed these relevant final-ROMFS checks:
   through the image binaries under QEMU.
 - iPerf3: status page, HTTP handler and EN/UK/RU labels. The report explicitly
   leaves an actual client run and throughput unverified.
+- WPAD/PAC: the final-ROMFS verifier passed for the capability-gated page and
+  localized help; actual client discovery/configuration and browser rendering
+  remain unverified.
 - KMS and Watchdog: final-ROMFS status rows, handlers and EN/UK/RU help;
   activation and hardware timer servicing remain unverified.
 - StrongSwan: the disabled profile and final-ROMFS exclusion check passed, and
