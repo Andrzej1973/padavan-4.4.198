@@ -4,7 +4,11 @@ import argparse
 from pathlib import Path
 import re
 import subprocess
+import sys
 import tempfile
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from type_ui import remove_unavailable_legacy_types
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("tree", type=Path, help="Padavan tree root")
@@ -12,7 +16,26 @@ args = parser.parse_args()
 
 web = (args.tree / "trunk/user/httpd/web_ex.c").read_text(encoding="utf-8")
 page = (args.tree / "trunk/user/www/n56u_ribbon_fixed/vpncli.asp").read_text(encoding="utf-8")
+server_page = (args.tree / "trunk/user/www/n56u_ribbon_fixed/vpnsrv.asp").read_text(encoding="utf-8")
 httpd = (args.tree / "trunk/user/httpd/httpd.c").read_text(encoding="utf-8")
+
+fixture = '''<select name="vpnc_type">
+<option value="0" <% nvram_match_x("", "vpnc_type", "0","selected"); %>>PPTP</option>
+<option value="1" <% nvram_match_x("", "vpnc_type", "1","selected"); %>>L2TP (w/o IPSec)</option>
+<option value="2" <% nvram_match_x("", "vpnc_type", "2","selected"); %>>OpenVPN</option>
+<option value="3" <% nvram_match_x("", "vpnc_type", "3","selected"); %>>Wireguard</option>
+</select>'''
+filtered_fixture = remove_unavailable_legacy_types(fixture, "vpnc_type")
+assert ">PPTP</option>" not in filtered_fixture
+assert ">L2TP (w/o IPSec)</option>" not in filtered_fixture
+assert ">OpenVPN</option>" in filtered_fixture and ">Wireguard</option>" in filtered_fixture
+
+for name, text, field in (("VPN client", page, "vpnc_type"),
+                          ("VPN server", server_page, "vpns_type")):
+    assert not re.search(r'<option value="[01]"[^>]*>\s*(?:PPTP|L2TP \(w/o IPSec\))</option>', text), name + ": unavailable protocol remains"
+    assert f"if (!found_app_ovpn())" in text, name + ": OpenVPN capability gate missing"
+    assert f"option[value='2']" in text and ".remove();" in text, name + ": OpenVPN option must be removed by value"
+    assert f'<option value="3"' in text, name + ": WireGuard/AmneziaWG selector missing"
 
 assert (args.tree / "trunk/user/httpd/vpn-profiles-render.h").exists(), "render header not copied"
 assert web.count("static int ej_wr_vpn_profile_rows") == 1, "profile rows handler missing"
