@@ -185,6 +185,8 @@ jobs:
           python3 overlay/padavan-4.4/scripts/localize-wireguard-page.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/localize-inherited-dicts.py padavan-4.4
           python3 tools/prepare-flash-save-feedback.py padavan-4.4
+          python3 tools/wifi-capabilities/apply-board-capabilities.py padavan-4.4 \
+            --manifest tools/wifi-capabilities/boards/wr1200js.json
           # The AmneziaWG step above replaces vpncli.asp wholesale, so the
           # stored-profile table must be injected after every page copy.
           python3 tools/vpn-profiles/prepare-web.py padavan-4.4
@@ -870,6 +872,9 @@ jobs:
           cp trunk/.config ../firmware-effective.config
           cp trunk/linux-4.4.x/.config ../kernel-effective.config
           cp ../configs.build/wr1200js.config ../firmware-requested.config
+          python3 ../tools/wifi-capabilities/apply-board-capabilities.py . \
+            --manifest ../tools/wifi-capabilities/boards/wr1200js.json \
+            --verify-image --report ../wifi-capability-report.json
           shopt -s nullglob
           images=(trunk/images/*.trx)
           (("${#images[@]}" > 0))
@@ -939,6 +944,14 @@ jobs:
         with:
           name: wr1200js-iot-radio-capacity
           path: iot-capacity-evidence/
+          if-no-files-found: ignore
+
+      - name: Preserve board Wi-Fi capability evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: wr1200js-wifi-capabilities
+          path: wifi-capability-report.json
           if-no-files-found: ignore
 
       - name: Verify requested and effective WR1200JS configuration
