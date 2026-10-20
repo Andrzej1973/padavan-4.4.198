@@ -2,6 +2,7 @@
 """Compile the actual transformed KVR emitter and check first-match semantics."""
 import argparse
 import importlib.util
+import re
 from pathlib import Path
 import subprocess
 
@@ -24,6 +25,10 @@ for invalid in (changed, original.replace('RRMEnable=%d', 'ChangedRRM=%d', 1)):
 start = changed.index("\t/* WR_KVR_SINGLE_RECORD")
 end = changed.index("\t//HT_GI", start)
 block = changed[start:end]
+getters = set(re.findall(r'(\w+)\(is_aband,\s*"HT_80211(?:KV|R)"\)', block))
+if len(getters) != 1 or not getters.issubset({"nvram_wlan_get_int", "wr_profile_wlan_get_int"}):
+    raise SystemExit("Unknown or mixed KVR settings getter: " + repr(getters))
+getter = getters.pop()
 head = r"""#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,6 +43,7 @@ int main(int argc, char **argv) {
  if (argc != 4) return 2;
  is_aband = atoi(argv[1]); kv = atoi(argv[2]); ft = atoi(argv[3]);
 """
+head = head.replace("nvram_wlan_get_int", getter)
 a.output_dir.mkdir(parents=True, exist_ok=True)
 for dbdc in (False, True):
     binary = (a.output_dir / ("kvr-dbdc.exe" if dbdc else "kvr-single.exe")).resolve()
