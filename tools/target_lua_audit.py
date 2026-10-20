@@ -21,8 +21,8 @@ def audit_lua(root, qemu, closure, readelf):
         if not required.issubset({p.name for p in modules}):
             raise ValueError("Image Lua native modules are missing")
         report["elf_dependency_closure"] = closure.verify(
-            root, root, readelf, ["usr/bin/lua"] +
-            [p.relative_to(root).as_posix() for p in modules])
+            root, root, readelf, ["usr/bin/lua"],
+            shared_libraries=[p.relative_to(root).as_posix() for p in modules])
         checks["elf_dependency_closure"] = True
         scripts = sorted((root / "etc_ro/lua/5.1/share").rglob("*.lua"))
         if not scripts or len(scripts) > 128:

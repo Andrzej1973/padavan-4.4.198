@@ -1103,7 +1103,9 @@ jobs:
           python3 tools/verify-zram-image.py padavan-4.4 | tee zram-image-checks.txt
 
       - name: Audit all shipped shell scripts with exact target BusyBox
-        run: python3 tools/check-target-busybox.py padavan-4.4 --output target-busybox-audit.json
+        run: |
+          python3 tools/check-lua-closure.py
+          python3 tools/check-target-busybox.py padavan-4.4 --output target-busybox-audit.json
 
       - name: Exercise VPN profile service lock path with exact target BusyBox
         run: |
