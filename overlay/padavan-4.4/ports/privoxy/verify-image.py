@@ -81,15 +81,21 @@ try:
                                        b'privoxySaveFailed' in httpd)
     handler = (args.trunk / 'user/httpd/web_ex.c').read_text(encoding='utf-8')
     apply_start = handler.find('result = validate_asp_apply(wp, sid);')
-    failure_branch = handler.find('if (privoxy_storage_save_failed)', apply_start)
-    success_branch = handler.find('done_committing();</script>', apply_start)
-    checks['save_failure_apply_order'] = (
-        apply_start >= 0 and apply_start < failure_branch < success_branch and
-        'privoxy_storage_save_failed = 1;' in handler and
-        'if(parent.privoxySaveFailed)parent.privoxySaveFailed()' in handler and
-        'restart_needed_bits = 0;' in handler[failure_branch:success_branch] and
-        'restart_needed_extended = 0;' in handler[failure_branch:success_branch] and
-        'return 0;' in handler[failure_branch:success_branch])
+    failure_branch = handler.find('if (privoxy_storage_save_failed)', max(apply_start, 0))
+    success_branch = handler.find('done_committing();</script>', max(apply_start, 0))
+    failure_to_success = (handler[failure_branch:success_branch]
+                          if failure_branch >= 0 and success_branch > failure_branch else '')
+    details['save_failure_apply_order'] = {
+        'apply_call_found': apply_start >= 0,
+        'failure_branch_after_apply': apply_start >= 0 and failure_branch > apply_start,
+        'success_response_after_failure': failure_branch >= 0 and success_branch > failure_branch,
+        'failure_flag_set': 'privoxy_storage_save_failed = 1;' in handler,
+        'failure_callback_in_branch': 'if(parent.privoxySaveFailed)parent.privoxySaveFailed()' in failure_to_success,
+        'legacy_restart_cleared': 'restart_needed_bits = 0;' in failure_to_success,
+        'extended_restart_cleared': 'restart_needed_extended = 0;' in failure_to_success,
+        'apply_aborted': 'return 0;' in failure_to_success,
+    }
+    checks['save_failure_apply_order'] = all(details['save_failure_apply_order'].values())
     checks['rc'] = b'/usr/bin/privoxy.sh' in rc and b'restart_privoxy' in rc
     queue = [binary]
     visited = set()

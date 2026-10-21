@@ -32,8 +32,13 @@ native emitter cases continue to run before the target parser invocation.
 
 - Python AST parsing passed.
 - `git diff --check` passed for the checker and updated evidence.
-- The final MIPS dnsmasq/QEMU invocation has not yet run with this correction.
+- Firmware run [#512](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/39624109819)
+  executed the corrected final MIPS dnsmasq/QEMU check successfully. The full
+  firmware compile also completed. The run later failed the separate Privoxy
+  `save_failure_apply_order` image assertion, so its downloads job did not
+  publish a verified firmware image. This confirms the QEMU seed correction,
+  not the overall image or service audit.
 - No full firmware build was run locally; no firmware was flashed and no
   router service or setting was changed.
-- Treat the CI blocker as unresolved until a new workflow passes this step and
-  the downloads job verifies a firmware image.
+- The remaining item 4 image blocker is the Privoxy assertion. Details are in
+  `WR1200JS-PRIVOXY-SAVE-FEEDBACK-2026-10-21.md`.
