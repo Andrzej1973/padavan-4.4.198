@@ -33,7 +33,9 @@ KEYS = {
     "WRServicesNavIperf": ("iPerf3", "iPerf3", "iPerf3"),
     "WRServicesNavCron": ("Cron", "Cron", "Cron"),
     "WRServicesNavWatchdog": ("Watchdog", "Watchdog", "Watchdog"),
-    "WRServicesNavDiscovery": ("Network discovery", "Виявлення пристроїв", "Обнаружение устройств"),
+    "WRServicesNavKMS": ("KMS activation", "Активація KMS", "Активация KMS"),
+    "WRServicesNavDiscovery": ("LLTD discovery", "Виявлення LLTD", "Обнаружение LLTD"),
+    "WRServicesNavASUSDiscovery": ("ASUS Info Discovery", "Виявлення ASUS Info", "Обнаружение ASUS Info"),
 }
 VPN_TAB_LABELS = {
     "EN": "WireGuard / AmneziaWG profiles",
@@ -56,7 +58,9 @@ GROUPS = (
     ("WRServicesNavDiagnostics", (("WRServicesNavIperf", "Advanced_Services_Content.asp#row_iperf3", "CONFIG_FIRMWARE_INCLUDE_IPERF3"),)),
     ("WRServicesNavSystem", (("WRServicesNavCron", "Advanced_Services_Content.asp#crond_enable_on_of", None),
                                ("WRServicesNavWatchdog", "Advanced_Services_Content.asp#watchdog_cpu_on_of", None),
-                               ("WRServicesNavDiscovery", "Advanced_Services_Content.asp#lltd_enable_on_of", None))),
+                               ("WRServicesNavKMS", "Advanced_Services_Content.asp#vlmcsd_enable_on_of", "CONFIG_FIRMWARE_INCLUDE_VLMCSD"),
+                               ("WRServicesNavDiscovery", "Advanced_Services_Content.asp#lltd_enable_on_of", None),
+                               ("WRServicesNavASUSDiscovery", "Advanced_Services_Content.asp#adsc_enable_on_of", None))),
 )
 
 
@@ -330,11 +334,15 @@ def verify(www: Path, config: set[str], *, image: bool = False) -> None:
                 ("WRServicesNavCron", "Advanced_Services_Content.asp#crond_enable_on_of"),
                 ("WRServicesNavWatchdog", "Advanced_Services_Content.asp#watchdog_cpu_on_of"),
                 ("WRServicesNavDiscovery", "Advanced_Services_Content.asp#lltd_enable_on_of"),
+                ("WRServicesNavASUSDiscovery", "Advanced_Services_Content.asp#adsc_enable_on_of"),
                 ("WRServicesNavTelnet", "Advanced_Services_Content.asp#telnetd_on_of"),
             ):
                 expected = f'href="/{route}"><#{label_key}#></a>'
                 if expected not in nav_html:
                     raise SystemExit(f"{label_key} does not navigate to its service control")
+            kms_link = 'href="/Advanced_Services_Content.asp#vlmcsd_enable_on_of"><#WRServicesNavKMS#></a>'
+            if (kms_link in nav_html) != enabled(config, "CONFIG_FIRMWARE_INCLUDE_VLMCSD"):
+                raise SystemExit("KMS navigation does not match its build selector")
         for link_id, route in (("WRServicesNavStubby", "Advanced_Services_DoT.asp"),
                                ("WRServicesNavDoH", "Advanced_Services_DoH.asp"),
                                ("WRServicesNavPrivoxy", "Advanced_Services_Privoxy.asp")):
