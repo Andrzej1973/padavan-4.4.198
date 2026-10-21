@@ -13,6 +13,22 @@ checks = {}
 try:
     config = (args.trunk / '.config').read_text().splitlines()
     checks['selector'] = 'CONFIG_FIRMWARE_INCLUDE_IPERF3=y' in config
+    binary = root / 'usr/bin/iperf3'
+    header = binary.read_bytes()[:20]
+    checks['target_binary'] = (len(header) == 20 and header[:6] == b'\x7fELF\x01\x01' and
+                               int.from_bytes(header[18:20], 'little') == 8 and
+                               bool(binary.stat().st_mode & 0o111))
+    helper = root / 'usr/bin/iperf3.sh'
+    checks['lifecycle_helper'] = (helper.is_file() and
+                                  bool(helper.stat().st_mode & 0o111) and
+                                  helper.read_bytes().startswith(b'#!/bin/sh'))
+    rc = (root / 'sbin/rc').read_bytes()
+    checks['compiled_lifecycle_entrypoint'] = b'/usr/bin/iperf3.sh' in rc
+    defaults = (args.trunk / 'user/shared/defaults.c').read_text(encoding='utf-8')
+    checks['factory_off'] = '{ "iperf3_enable", "0" }' in defaults
+    variables = (args.trunk / 'user/httpd/variables.c').read_text(encoding='utf-8')
+    checks['http_apply_field'] = ('{"iperf3_enable", "", NULL, EVM_RESTART_IPERF3}' in variables and
+                                  'RCN_RESTART_IPERF3' in variables)
     page = (root / 'www/Advanced_Services_Content.asp').read_text()
     checks['observation_expiry_ui'] = all(marker in page for marker in (
         'var wrIperf3Generation = 0', 'generation === wrIperf3Generation',
@@ -34,6 +50,7 @@ try:
     checks['bounded_lan_test_instructions'] = all(marker in page for marker in test_markers)
     httpd = (root / 'usr/sbin/httpd').read_bytes()
     checks['runtime_status_backend'] = b'wr_iperf3_process_state' in httpd
+    checks['compiled_apply_dispatch'] = b'restart_iperf3' in httpd
     status_keys = ('WRIperf3ObservedTitle', 'WRIperf3Off', 'WRIperf3Present',
                    'WRIperf3Missing', 'WRIperf3Unknown', 'WRIperf3StillPresent',
                    'WRIperf3Refresh', 'WRIperf3LastObservation',
@@ -51,11 +68,11 @@ except (OSError, UnicodeError) as exc:
 else:
     error = None
 args.report.write_text(json.dumps({
-    'scope': 'iPerf3 status UI, HTTP handler and bounded LAN client-test instructions; actual client test and throughput remain unverified',
+    'scope': 'iPerf3 MIPS binary, lifecycle/Apply wiring, status UI and bounded LAN client-test instructions; actual client test and throughput remain unverified',
     'checks': checks,
     'error': error,
 }, indent=2) + '\n')
 failed = [name for name, value in checks.items() if not value]
 if failed:
     raise SystemExit('iPerf3 image check failed: ' + ', '.join(failed))
-print('iPerf3 status UI, HTTP handler and EN/UK/RU labels found in ROMFS; client test remains unverified')
+print('iPerf3 binary, lifecycle/Apply wiring, status UI and EN/UK/RU labels found in image; client test remains unverified')

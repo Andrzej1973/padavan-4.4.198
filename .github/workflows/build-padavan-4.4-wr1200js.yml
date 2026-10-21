@@ -1250,11 +1250,15 @@ jobs:
             privoxy-image-checks.json
             privoxy-target-config.json
 
-      - name: Verify iPerf3 status UI and handler in image
+      - name: Verify iPerf3 image and dependency closure
         run: |
           if grep -q '^CONFIG_FIRMWARE_INCLUDE_IPERF3=y$' configs.build/wr1200js.config; then
             python3 overlay/padavan-4.4/ports/iperf3/verify-image.py \
               padavan-4.4/trunk iperf3-image-checks.json
+            python3 tools/band-steering/verify-package-closure.py \
+              padavan-4.4/trunk/romfs padavan-4.4/trunk/romfs \
+              --binary usr/bin/iperf3 --production-image \
+              --output iperf3-elf-closure.json
           fi
 
       - name: Upload iPerf3 image diagnostics
@@ -1264,7 +1268,9 @@ jobs:
           name: iperf3-image-checks
           retention-days: 14
           if-no-files-found: ignore
-          path: iperf3-image-checks.json
+          path: |
+            iperf3-image-checks.json
+            iperf3-elf-closure.json
 
       - name: Verify SSH status UI and handler in image
         run: |
