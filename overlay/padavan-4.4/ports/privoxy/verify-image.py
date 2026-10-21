@@ -76,6 +76,20 @@ try:
     rc = target('/sbin/rc').read_bytes()
     checks['runtime_status_backend'] = b'wr_privoxy_process_state' in httpd
     checks['httpd'] = b'found_app_privoxy' in httpd and b'privoxy.user.trust' in httpd and b'restart_privoxy' in httpd
+    checks['save_failure_feedback'] = ('function privoxySaveFailed()' in page and
+                                       '<#Service_Privoxy_Alert_Save#>' in page and
+                                       b'privoxySaveFailed' in httpd)
+    handler = (args.trunk / 'user/httpd/web_ex.c').read_text(encoding='utf-8')
+    apply_start = handler.find('result = validate_asp_apply(wp, sid);')
+    failure_branch = handler.find('if (privoxy_storage_save_failed)', apply_start)
+    success_branch = handler.find('done_committing();</script>', apply_start)
+    checks['save_failure_apply_order'] = (
+        apply_start >= 0 and apply_start < failure_branch < success_branch and
+        'privoxy_storage_save_failed = 1;' in handler and
+        'if(parent.privoxySaveFailed)parent.privoxySaveFailed()' in handler and
+        'restart_needed_bits = 0;' in handler[failure_branch:success_branch] and
+        'restart_needed_extended = 0;' in handler[failure_branch:success_branch] and
+        'return 0;' in handler[failure_branch:success_branch])
     checks['rc'] = b'/usr/bin/privoxy.sh' in rc and b'restart_privoxy' in rc
     queue = [binary]
     visited = set()

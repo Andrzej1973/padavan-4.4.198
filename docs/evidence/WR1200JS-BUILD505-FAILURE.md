@@ -41,9 +41,10 @@ duplicate OpenVPN options.
 
 ## Verification boundary
 
-The source-level correction and fixture are local and uncommitted. The
-in-memory client/server positive and fail-closed cases, Python syntax parse,
-and whitespace check have been run successfully. No full firmware build,
-CI run, image inspection, router write, or runtime verification has been done
-for this correction. Build #504's successful CI/image evidence remains valid
-only for its recorded source head and does not include this fix.
+The source-level correction and fixture were committed as `25ca366` and
+pushed to `codex/wr1200js-service-webui` on 2026-10-21. The in-memory
+client/server positive and fail-closed cases, Python syntax parse, and
+whitespace check passed locally. No post-fix full firmware build, CI verdict,
+image inspection, router write, or runtime verification has been confirmed at
+this checkpoint. Build #504's successful CI/image evidence remains valid only
+for its recorded source head and does not include this fix.

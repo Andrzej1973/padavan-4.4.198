@@ -56,7 +56,7 @@ doh_dnsmasq_config(FILE *fp)
 			value = nvram_safe_get("wanx_dns");
 		foreach(word, value, next) {
 			if (is_valid_ipv4(word)) {
-				snprintf(bootstrap_dns, sizeof(bootstrap_dns), "%s", word);
+				snprintf(bootstrap_dns, sizeof(bootstrap_dns), "%.15s", word);
 				break;
 			}
 		}
