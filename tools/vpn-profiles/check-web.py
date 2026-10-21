@@ -8,7 +8,8 @@ import sys
 import tempfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from type_ui import remove_unavailable_legacy_types, remove_unavailable_vpn_types
+from type_ui import (remove_unavailable_legacy_types, remove_unavailable_vpn_types,
+                     require_openvpn_capability_hook)
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("tree", type=Path, help="Padavan tree root")
@@ -50,6 +51,17 @@ for field in ("vpnc_type", "vpns_type"):
             pass
         else:
             raise AssertionError("missing or duplicate OpenVPN option must fail closed")
+    value_hook = f'$j("#{field} option[value=\'2\']").remove();'
+    index_hook = f'document.form.{field}.remove(2);'
+    assert require_openvpn_capability_hook(value_hook, field) == value_hook
+    assert require_openvpn_capability_hook(index_hook, field) == value_hook
+    for invalid in ("", value_hook + value_hook, index_hook + value_hook):
+        try:
+            require_openvpn_capability_hook(invalid, field)
+        except RuntimeError:
+            pass
+        else:
+            raise AssertionError("missing or duplicate OpenVPN gate must fail closed")
 
 for name, text, field in (("VPN client", page, "vpnc_type"),
                           ("VPN server", server_page, "vpns_type")):

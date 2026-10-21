@@ -8,7 +8,7 @@ import re
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent / 'vpn-profiles'))
-from type_ui import remove_unavailable_vpn_types
+from type_ui import remove_unavailable_vpn_types, require_openvpn_capability_hook
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('source',type=Path)
 a=p.parse_args();root=a.source/'trunk/user'
@@ -63,9 +63,9 @@ for page,field,removed in [('vpncli.asp','vpnc_type',('0','1','2')),
   if count!=1:raise SystemExit('VPN protocol option changed: '+page+' '+value)
  text=text[:match.start(2)]+body+text[match.end(2):]
  if field in ('vpnc_type','vpns_type'):
-  old='document.form.'+field+'.remove(2);'
-  if text.count(old)!=1:raise SystemExit('VPN index removal changed: '+page)
-  text=text.replace(old,'$j("#'+field+' option[value=\'2\']").remove();')
+  # Current Classic pages already gate OpenVPN by value. Older pages used an
+  # index; upgrade only that exact form without duplicating the existing hook.
+  text=require_openvpn_capability_hook(text,field)
   select_end=text.find('</select>',match.start())+len('</select>')
   text=text[:select_end]+'<p class="help-block"><#WRVPNExplicitType#></p>'+text[select_end:]
   # No implicit conversion of a saved legacy type to the first retained option.

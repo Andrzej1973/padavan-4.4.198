@@ -34,3 +34,14 @@ def remove_unavailable_vpn_types(page, field, allow_legacy_missing=False):
             f"expected one unavailable OpenVPN option for {field}; found {count}"
         )
     return page
+
+
+def require_openvpn_capability_hook(page, field):
+    """Keep the inherited value-based gate, or upgrade one legacy index gate."""
+    value_hook = f'$j("#{field} option[value=\'2\']").remove();'
+    index_hook = f'document.form.{field}.remove(2);'
+    if page.count(value_hook) == 1 and page.count(index_hook) == 0:
+        return page
+    if page.count(index_hook) == 1 and page.count(value_hook) == 0:
+        return page.replace(index_hook, value_hook, 1)
+    raise RuntimeError(f"OpenVPN capability hook changed: {field}")
