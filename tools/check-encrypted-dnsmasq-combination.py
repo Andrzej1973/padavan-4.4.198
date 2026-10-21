@@ -6,6 +6,7 @@ import tempfile
 
 import argparse
 import os
+import secrets
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -220,6 +221,64 @@ int main(int argc, char **argv)
 '''
 
 
+def make_qemu_test_root(destination, image_root, config):
+    """Expose the image libraries and a host-seeded /dev/urandom to QEMU."""
+    image_root = image_root.resolve(strict=True)
+    destination.mkdir()
+
+    def resolve_image_path(relative):
+        path = image_root / relative
+        seen = set()
+        while path.is_symlink():
+            marker = str(path)
+            if marker in seen:
+                raise RuntimeError(f"symlink cycle in target sysroot: {relative}")
+            seen.add(marker)
+            target = Path(os.readlink(path))
+            if target.is_absolute():
+                path = image_root / str(target).lstrip("/\\")
+            else:
+                path = path.parent / target
+            path = Path(os.path.normpath(path))
+            try:
+                path.relative_to(image_root)
+            except ValueError as error:
+                raise RuntimeError(f"target sysroot link escapes image: {relative}") from error
+        return path
+
+    for entry in image_root.iterdir():
+        if entry.name in {"dev", "tmp"}:
+            continue
+        source = resolve_image_path(entry.name)
+        if source.exists():
+            os.symlink(str(source), destination / entry.name,
+                       target_is_directory=source.is_dir())
+
+    dev = destination / "dev"
+    dev.mkdir()
+    image_dev = image_root / "dev"
+    if image_dev.is_dir():
+        for entry in image_dev.iterdir():
+            if entry.name in {"urandom", "random", "null", "zero"}:
+                continue
+            source = resolve_image_path(Path("dev") / entry.name)
+            if source.exists():
+                os.symlink(str(source), dev / entry.name,
+                           target_is_directory=source.is_dir())
+    (dev / "null").symlink_to(os.devnull)
+    (dev / "zero").symlink_to("/dev/zero")
+    (dev / "random").symlink_to("/dev/urandom")
+    # QEMU's image-root mapping can expose ROMFS /dev/urandom as an empty
+    # placeholder. dnsmasq needs 176 bytes to seed SURF before parsing options.
+    (dev / "urandom").write_bytes(secrets.token_bytes(4096))
+
+    guest_tmp = destination / "tmp"
+    guest_tmp.mkdir()
+    guest_config = guest_tmp / config.name
+    guest_config.write_bytes(config.read_bytes())
+    return guest_config
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--tree", type=Path,
@@ -259,8 +318,13 @@ def main():
             if args.qemu:
                 if not args.sysroot:
                     parser.error("--sysroot is required with --qemu")
-                command = [args.qemu, "-L", str(args.sysroot)]
-            command += [str(args.dnsmasq), "--test", "--conf-file=" + str(config)]
+                qemu_root = temp / "qemu-sysroot"
+                guest_config = make_qemu_test_root(qemu_root, args.sysroot, config)
+                command = [args.qemu, "-L", str(qemu_root)]
+                config_arg = "/tmp/" + guest_config.name
+            else:
+                config_arg = str(config)
+            command += [str(args.dnsmasq), "--test", "--conf-file=" + config_arg]
             subprocess.run(command, check=True)
             print("PASS built target dnsmasq accepts the combined DoT/DoH config")
 
