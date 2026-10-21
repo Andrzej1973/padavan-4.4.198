@@ -80,14 +80,24 @@ try:
                                        '<#Service_Privoxy_Alert_Save#>' in page and
                                        b'privoxySaveFailed' in httpd)
     handler = (args.trunk / 'user/httpd/web_ex.c').read_text(encoding='utf-8')
-    apply_start = handler.find('result = validate_asp_apply(wp, sid);')
-    failure_branch = handler.find('if (privoxy_storage_save_failed)', max(apply_start, 0))
-    success_branch = handler.find('done_committing();</script>', max(apply_start, 0))
-    failure_to_success = (handler[failure_branch:success_branch]
+    # Shared-Wi-Fi preparation adds its adapter argument to every Apply call.
+    # Inspect the Save/Apply response block rather than requiring the original
+    # two-argument spelling, and keep failure handling ahead of success.
+    apply_response = re.search(
+        r'if\s*\(!strcmp\(action_mode,\s*"  Save  "\)\s*\|\|\s*'
+        r'!strcmp\(action_mode,\s*" Apply "\)\)\s*\{'
+        r'(?P<body>(?:[^{}]|\{[^{}]*\})*)\}', handler, re.S)
+    apply_body = apply_response.group('body') if apply_response else ''
+    apply_call = re.search(
+        r'\bresult\s*=\s*validate_asp_apply\s*\(\s*wp\s*,\s*sid'
+        r'(?:\s*,\s*&shared)?\s*\)\s*;', apply_body)
+    failure_branch = apply_body.find('if (privoxy_storage_save_failed)')
+    success_branch = apply_body.find('done_committing();</script>')
+    failure_to_success = (apply_body[failure_branch:success_branch]
                           if failure_branch >= 0 and success_branch > failure_branch else '')
     details['save_failure_apply_order'] = {
-        'apply_call_found': apply_start >= 0,
-        'failure_branch_after_apply': apply_start >= 0 and failure_branch > apply_start,
+        'apply_call_found': apply_call is not None,
+        'failure_branch_after_apply': (apply_call is not None and failure_branch > apply_call.end()),
         'success_response_after_failure': failure_branch >= 0 and success_branch > failure_branch,
         'failure_flag_set': 'privoxy_storage_save_failed = 1;' in handler,
         'failure_callback_in_branch': 'if(parent.privoxySaveFailed)parent.privoxySaveFailed()' in failure_to_success,
