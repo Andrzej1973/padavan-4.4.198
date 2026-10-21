@@ -5,7 +5,10 @@ Preserve PPP/PPPoE and shared crypto. Legacy start requests are rejected; furthe
 """
 import argparse
 import re
+import sys
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent / 'vpn-profiles'))
+from type_ui import remove_unavailable_vpn_types
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('source',type=Path)
 a=p.parse_args();root=a.source/'trunk/user'
@@ -49,7 +52,13 @@ for page,field,removed in [('vpncli.asp','vpnc_type',('0','1','2')),
  matches=list(re.finditer(pattern,text,re.S))
  if len(matches)!=1:raise SystemExit('VPN protocol select changed: '+page)
  match=matches[0];body=match.group(2)
- for value in removed:
+ values_to_remove=removed
+ if field in ('vpnc_type','vpns_type'):
+  # prepare-web.py may already have removed PPTP/L2TP from these pages.
+  # Accept that prior transformation, but require and remove OpenVPN here.
+  body=remove_unavailable_vpn_types(body,field,allow_legacy_missing=True)
+  values_to_remove=()
+ for value in values_to_remove:
   body,count=re.subn(r'^[ \t]*<option value="'+value+r'"[^\n]*</option>\n','',body,flags=re.M)
   if count!=1:raise SystemExit('VPN protocol option changed: '+page+' '+value)
  text=text[:match.start(2)]+body+text[match.end(2):]

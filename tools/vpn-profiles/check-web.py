@@ -8,7 +8,7 @@ import sys
 import tempfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from type_ui import remove_unavailable_legacy_types
+from type_ui import remove_unavailable_legacy_types, remove_unavailable_vpn_types
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("tree", type=Path, help="Padavan tree root")
@@ -29,6 +29,27 @@ filtered_fixture = remove_unavailable_legacy_types(fixture, "vpnc_type")
 assert ">PPTP</option>" not in filtered_fixture
 assert ">L2TP (w/o IPSec)</option>" not in filtered_fixture
 assert ">OpenVPN</option>" in filtered_fixture and ">Wireguard</option>" in filtered_fixture
+for field in ("vpnc_type", "vpns_type"):
+    original = fixture.replace("vpnc_type", field)
+    early = remove_unavailable_legacy_types(original, field)
+    final_fixture = remove_unavailable_vpn_types(
+        early, field, allow_legacy_missing=True)
+    expected_fixture = remove_unavailable_vpn_types(original, field)
+    assert final_fixture == expected_fixture, "prior legacy pruning must be accepted"
+    assert re.findall(r'<option value="([^"]+)"', final_fixture) == ["3"]
+    invalid_fixtures = (
+        re.sub(r'(?m)^<option value="2"[^\n]*\n', "", original),
+        original.replace(
+            "</select>",
+            '<option value="2">Duplicate OpenVPN</option>\n</select>'),
+    )
+    for invalid in invalid_fixtures:
+        try:
+            remove_unavailable_vpn_types(invalid, field)
+        except RuntimeError:
+            pass
+        else:
+            raise AssertionError("missing or duplicate OpenVPN option must fail closed")
 
 for name, text, field in (("VPN client", page, "vpnc_type"),
                           ("VPN server", server_page, "vpns_type")):
