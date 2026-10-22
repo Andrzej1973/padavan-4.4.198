@@ -1,4 +1,48 @@
+# Поточний виконавець — Sol (Codex), прийнято 2026-10-22
+
+Користувач дав пряму вказівку «Прийми роль». Sol (Codex) прийняв роль
+виконавця і редагує спільну теку одноосібно, доки користувач явно не передасть
+роль іншому.
+
+- Гілка: `codex/wr1200js-service-webui`, HEAD `a6edff8`; `origin/main` —
+  `d1dc0eb`.
+- Незакомічені зміни попереднього виконавця збережено без змін: у робочому
+  дереві великий набір модифікованих workflow, документів і джерел.
+- Остання успішна прошивкова збірка: №514 для `a6edff8` (2026-10-21 17:33 UTC);
+  збірки №510–513 завершилися падінням.
+- Пристрій 2026-10-22 з цього середовища недоступний: SSH до 192.168.20.1 і
+  192.168.30.1 завершується таймаутом, ping не відповідає. Поточний стан
+  пристрою, тунелю й Band Steering не перевірений; історичні записи не
+  замінюють свіжого читання.
+- Відкрите рішення від 2026-10-17 (перезапустити `wr-band-steering` зараз чи
+  розібрати причину зупинки в коді) лишається не вирішеним користувачем.
+
+## Попередня передача DeepSeek — не відбулася
+
+Користувач передавав роль DeepSeek; фактичне прийняття не було підтверджене, і
+наступною вказівкою роль прийняв Sol. Запис лишено як історію переданого стану:
+гілка `codex/wr1200js-service-webui`, HEAD
+`a6edff845ddbebd90e2833800445757290c921b9`; тест `tools/iot/check-activation.c`
+пройшов strict MinGW. Наступне: створити один adapter/BSS transition owner для
+first/additional open, close і reset; readiness перевірити атомарно з BSS_UP.
+Production backend, MIPS driver build, image і пристрій не перевіряли. Деталі в
+`CODEX_HANDOFF.md`, `PROJECT_STATUS.md` та IoT activation-gap evidence. Правила
+Sol і DeepSeek залишаються чинними.
+
+---
+
 # Хто зараз виконавець
+
+Відкрите рішення IoT 2026-10-22: шлях створення третього BSS ще не обрано.
+Підтверджений код MT7603 Mode 4 змінює маску адрес при BssidNum 2→3;
+MAC гостьової мережі залежить від біта 5 четвертого байта заводської адреси.
+Не заявляти про збереження MAC і не вмикати резервування ra2 автоматично.
+Потрібні перевірка фактичного режиму/адрес і обґрунтований шлях збереження
+або явно описана міграція перед прийманням пристрою. Джерела та межі моделі:
+`evidence/WR1200JS-IOT-ACTIVATION-GAP-2026-10-21.md`.
+Звірка архівного знімка 2026-10-20: потрібний біт установлений, а прогноз
+Mode4 для двох BSS збігається із записаною адресою гостьової мережі. Це
+історичне умовне підтвердження ризику міграції, а не поточне читання режиму.
 
 Оновлено: 2026-10-18. Правила ролі — `docs/AGENT-HANDOFF-RULES-SOL-DEEPSEEK.md`, розділ 12.
 
@@ -9,7 +53,128 @@
 головну й підтверджувати наявність фонових API. Зміна коду ще потребує CI-збірки;
 на роутері її не встановлювали.
 
+## HNAT registration trace — 2026-10-20
+
+Source trace обох radio handlers завершено: hw_nat_register=0 прибирає
+wifi_hook_if і ext_if device pointer, але не очищує FOE безпосередньо;
+NETDEV_UP може знову приєднати named ext_if slot. TRUE від iwpriv handler
+не доводить виконання hooks. Див. evidence/WR1200JS-HNAT-REGISTRATION-2026-10-20.md.
+Наступне: mode-change ordering і exact shipped source; datapath/live не змінено.
+
+## KVR 2,4 ГГц — інтеграція 04cad5b
+
+За прямим підтвердженням власника підключено наявний MT7603E k/v/r code path:
+три kernel options =y; збережені HTTP/Apply поля та factory-off defaults.
+Додано gate для effective config, executable symbols у linked і shipped MIPS
+модулі, форми/HTTP/defaults і єдиного генератора. 04cad5b відправлений до PR #2.
+Локальні config/AST/32 C-emitter checks пройшли. Докази:
+`evidence/WR1200JS-KVR24-INTEGRATION-2026-10-20.md`. CI compile/link/image ще потрібні;
+client/management-frame/FT domain/key distribution та друга AP залишаються відкритими.
+Не стверджувати, що live #474 тепер підтримує KVR; роутер не змінювали.
+Не чекати збірки за наявності незалежних завдань.
+
+## Продовження HNAT/KVR — 2026-10-20
+
+#495 впала до компіляції на KVR emitter mock після заміни getter на
+wr_profile_wlan_get_int. Original log + Nim triage звірені; 6cb5f3d виправляє
+fixture, 32 host C cases пройшли; коміт відправлений. CI не очікуємо.
+Порівняння exact HNAT predicates у raeth і mediatek дало одну різницю з 64
+комбінацій: external-only hashed reason0x16. Це source clue, не доведений root cause.
+Докази: `evidence/WR1200JS-HNAT-DIRECTION-2026-10-20.md` і `.json` (поки локальні).
+Наступне: radio hw_nat_register handler → ext_if/hooks/FOE lifetime. Live не змінювали.
+
+## Runtime audit і KVR — 2026-10-20
+
+На запит власника знято read-only докладний snapshot live #474, 54 numeric
+прапорці та 89 Wi-Fi select-полів. Див. `runtime/WR1200JS-2026-10-20-DETAILED-AUDIT.md`
+і `runtime/WR1200JS-2026-10-20-FLAGS-AND-LOGS.json`. Raw файли поза Git за шляхом
+у звіті. HNAT drop=981 (reason0x16), KVR flags=1 при вимкнених MT7603E K/R/WNM,
+конфіг .dat містить shadowing RRM/WNM=0 і дубльовані записи. Підготовлено
+code fix генератора KVR, C emitter перевірено у 16 комбінаціях; image/runtime
+ще не підтверджено. Наступне: per-band capability/UI та source/flow розбір HNAT.
+Користувач повторно підтвердив: не чекати CI, поки є незалежна робота.
+
+## Перевірений checkpoint — 2026-10-20
+
+Збірка #492 (run `39325639006`, PR head `df70def`) успішна разом із
+image-перевірками й ZIP-пакуванням. Виправлення пошуку MIPS toolchain після
+падіння #491 підтверджене CI. Незалежно завантажений BusyBox artifact перевірено:
+57 shell-скриптів, 150 applet-ів, 12 активних груп служб без прогалин карт.
+Докладні межі та SHA256: `evidence/WR1200JS-BUILD492-SERVICE-AUDIT.md` і `.json`.
+Старий локальний monitor log #491 більше не є актуальним verdict.
+Повний lifecycle-аудит, Lua provider/utility виконання, взаємодія служб,
+фізичний runtime та reboot persistence відкриті; пункт служб не завершений.
+Наступна незалежна перевірка: інтерпретатор і залежності двох Lua utilities,
+які exact-image shell audit явно виключає. Роутер не змінювали.
+
 ## Актуальний checkpoint — 2026-10-18
+
+Доповнення 2026-10-19, пункт 4: за pinned iproute2 Makefile виявлено, що
+`/bin/tc` встановлювався лише з SQM, хоча WR1200JS вибирає QoS без SQM.
+Додано source-preparation виправлення QoS OR SQM і GNU Make dry-run перевірку
+всіх комбінацій; вона проходить без створення тимчасових тек. Новий image gate
+вимагає точні модулі QoS, виконуваний MIPS `/bin/tc`, ELF/library closure та
+`tc -V` під QEMU. Новий образ ще не перевірено; політики/керування QoS,
+збереження та runtime лишаються відкритими. Докази:
+`evidence/WR1200JS-QOS-IMAGE-GATE-2026-10-19.md`. Коміти `7a52065` (QoS/SFE
+та семантика service map) і `132de67` (cleanup fixture) відправлено через SSH
+у PR #2, head `132de670c2b51a25a99b67809e2f950b44e546f9`.
+Після цього `8e3a681` додав локалізацію 35 значень і 30 ключів довідки EN/UK/RU,
+виправлення source/model-placeholder та точний негативний тест. Реальні
+словники pinned-архіву пройшли перевірку в пам’яті; DNSSEC-довідка описує
+upstream proxy, без обіцянки локальної перевірки. Цей коміт також відправлено
+у PR #2. CI/image результат нового head ще не прийнято. Інші локальні зміни
+WebUI, USB/IP та документації лишаються незакоміченими.
+
+Наступний локальний коміт `931f1e4`: виправляє timer ID/рядкові таймери
+flash-save у сторінці резервних копій і верхній кнопці, приймає успіх лише
+для числового `sys_result: 0`, перевіряє реальні form/feedback handlers у VM.
+Падіння відтворено на незміненій #410; виправлені #410 та pinned джерела
+проходять. Коміт відправлено разом з `9a6449e` після успішного завершення
+#490 для `8e3a681`. Незалежна робота триває; backend/flash/runtime acceptance
+відкриті. Докази: `evidence/WR1200JS-SETTINGS-BACKUP-BEHAVIOR-2026-10-19.md`.
+
+Також локально підготовлено `9a6449e`: directory-fsync uncertainty USB/IP
+перевіряється на рівні сховища, фактичного HTTP handler-а та VM UI. Node UI
+fixture й генератор C/AST проходять; Linux C/ASan виконання ще потрібне,
+локальний MinGW не має потрібних POSIX filesystem API. Production fsync
+залишається звичайним fsync; додано test seam. Коміт відправлено в PR #2;
+Linux CI #245 (39294618711) на цьому head уже пройшов: оригінальні лог-маркери
+підтвердили store/HTTP/UI uncertainty cases. Фізична/target acceptance відкрита.
+Докази: `evidence/WR1200JS-USBIP-FSYNC-UNCERTAINTY-2026-10-19.md`.
+
+Збірка #490 (run 39293102227, head `8e3a681`, merge `13f79399`) успішна.
+Незалежно завантажений audit підтвердив QoS tc ELF/QEMU, 15 QoS модулів,
+4 SFE модулі, 12 service maps і 42 effective selectors (43 requested через
+нормалізацію SSLOCAL/SSREDIR у SHADOWSOCKS). Runtime та whole-service audit
+лишаються false. Локальний follow-up включає ці два source aliases до
+service map також до нормалізації; fixtures тепер перевіряють 12 груп.
+Докази: `evidence/WR1200JS-BUILD490-SERVICE-AUDIT.md`.
+Локальний коміт `8a31864` містить цей звіт і precompile alias-виправлення;
+його ще не відправлено. Remote head лишається `9a6449e`, образ #491
+перевіряється незалежно від подальшої локальної роботи.
+
+Прибирання робочої теки 2026-10-19: видалено перевірені одноразові залишки
+fixture та Python-кеші; історичні образи, build/evidence артефакти й чинні
+незбережені зміни збережені. Discovery fixture тепер виконується у власному
+output-каталозі й прибирає випадкові proc-теки через Python finally; локальна
+перевірка пройшла. Помилок доступу до залишкових тек у git status більше немає.
+
+Продовження аудиту служб 2026-10-19: повна збірка #488 завершилась успішно;
+її окремий evidence-файл описує перевірки фінального ROMFS та межі runtime.
+У локальному target-BusyBox звіті виправлено семантику
+`selected_service_entrypoint_map_complete`: тепер вона залежить від покриття
+картами кожного активного селектора й активної служби, а також успішних image
+presence/syntax перевірок. Окремо лишається класифікація всіх INCLUDE-селекторів.
+Локальна перевірка підтвердила
+карти для 11 активних служб, класифікацію 43 активних селекторів, Python syntax
+та синтетичні відмови для відсутньої карти, image-перевірки й невдалої
+перевірки, а також `git diff --check`. Це локальний код/fixture результат; нова збірка ще має
+підтвердити сформований target-звіт. У #488 попереднє поле мало надто широке
+значення, тому його не використовувати як доказ виправленої семантики.
+StrongSwan залишається скасованим/виключеним, а EoIP — вилученим з активного
+WR1200JS образу згідно зі scope replacement; перевірка #488 підтвердила його
+відсутність у ROMFS, не роботу тунелю.
 
 WAN прискорення: читання WR1200JS показало `hw_nat_mode=2` та завантажений
 модуль `hw_nat`; журнал повідомляє про запит offload `[WAN]<->[LAN]`. Рішення
@@ -27,6 +192,13 @@ WebUI follow-up 2026-10-18: додано явне посилання «← Сл�
 Спільний зелений ON-перемикач уже
 включений у workflow і збережений; OFF лишається нейтральним. Зміни WebUI
 ще не перевірені в зібраному образі чи на фізичному роутері.
+
+Локалізація підказок 2026-10-18: знімок словників образу #433 має 149 ключів
+`_itemdesc`; 10 відсутні в RU, 15 — в UK, через що показується англійський
+fallback. У словниках також відсутні 10 RU та 15 UK назв відповідних полів.
+`overlay/padavan-4.4/scripts/localize-inherited-dicts.py` доповнено для цих
+DNS, LAN і Wi-Fi підказок/назв, а наявний image-gate перевіряє переклади EN/UK/RU.
+Це поки зміна вихідного коду; CI та встановлений образ ще не підтверджують її.
 
 Фізичний WR1200JS повторно перевірений 2026-10-18: наданий користувачем
 ED25519-ключ був присутній у постійному й активному `authorized_keys`, але
@@ -2184,3 +2356,16 @@ preparer/check are saved; backend activation remains incomplete and the
 preparer is not wired into production CI. See PROJECT-DELIVERY-SCOPE.md and
 evidence/WR1200JS-IOT-CLASSIC-NAVIGATION-2026-10-20.md. Preserve all unrelated
 working-tree changes; resume the current service WebUI work in order.
+
+## Service WebUI checkpoint — 2026-10-21
+
+Build #504 remains the latest successful firmware image. #505 failed before
+compilation in `prepare-wr-vpn-pruning.py`: the earlier VPN profile WebUI
+transform had already removed PPTP/L2TP, and the later target-pruning pass
+treated their absence as an error. The transformation now accepts those
+options as already removed, still removes OpenVPN, and retains the strict
+final selector gate. Focused in-memory regression fixture, Python syntax parse,
+and whitespace checks passed locally. The correction remains uncommitted and
+has not been verified by firmware CI/image or router runtime. Evidence:
+`docs/evidence/WR1200JS-BUILD505-FAILURE.md`. Continue the service WebUI audit
+in order; do not flash or reboot the router.
