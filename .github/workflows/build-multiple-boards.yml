@@ -259,6 +259,9 @@ on:
       - 'tools/band-steering/prepare-quiet-status-log.py'
 permissions:
   contents: read
+concurrency:
+  group: firmware-${{ github.ref }}
+  cancel-in-progress: false
 jobs:
   select:
     runs-on: ubuntu-24.04

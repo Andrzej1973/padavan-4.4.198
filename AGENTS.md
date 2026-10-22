@@ -29,6 +29,26 @@ At the start of every session, read `AGENTS.md`, `PROJECT_STATUS.md`,
 all existing modified and untracked files. Never assume another account's
 chat history, memory, authentication, or GitHub connection is shared.
 
+## CI queue discipline (Sol, DeepSeek and every subagent)
+
+Pushes in this repository trigger firmware and service runs automatically, so
+batch work instead of publishing every small edit:
+
+- Commit locally as needed and push once per coherent change set.
+- Expect one push to create more than one workflow run. Group small related
+  fixes into the same push when they belong to the same verification.
+- Before dispatching a build or ABI run, check for a queued or running run on
+  the same ref and commit; never create a duplicate. Cancel superseded queued
+  runs instead of letting them consume runners.
+- Do not dispatch another build for a commit that already has a queued or
+  running build; reuse the evidence from that run.
+- Subagents share this checkout. They must not push independently while the
+  root agent is batching; report finished local commits to the root agent and
+  let it publish them together.
+- The `concurrency` groups in the workflows (`firmware-<ref>`, `abi-<ref>`,
+  `agent-build-failure-monitor`) enforce this mechanically. Do not remove or
+  weaken them.
+
 ## Router diagnostics across agents and accounts
 
 For routine WR1200JS diagnostics, first check whether this executor is allowed

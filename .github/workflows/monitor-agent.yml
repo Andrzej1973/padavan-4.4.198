@@ -8,7 +8,7 @@ permissions:
   actions: read
 concurrency:
   group: agent-build-failure-monitor
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   monitor:
     if: github.event.workflow_run.conclusion == 'failure'
