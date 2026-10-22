@@ -21,6 +21,11 @@ def expect(label,family,success):
         diagnostic=subprocess.run([command,'-t','filter'],capture_output=True,text=True,check=True).stdout
         (root/f'{label}-rules.txt').write_text(diagnostic)
         print(diagnostic,flush=True)
+    if not checks[label] and str(family)=='observed':
+        for command in (['ip','-d','link','show','br-iot'],['ip','-d','link','show','ra2'],
+                        ['iptables-legacy-save'],['ip6tables-legacy-save']):
+            observed=subprocess.run(command,capture_output=True,text=True)
+            print(f'[{label}] ' + ' '.join(command) + '\n' + observed.stdout,flush=True)
     assert checks[label],label
 for family in (4,6):
     install(family,'');expect(f'v{family}_empty_rejected',family,False)
