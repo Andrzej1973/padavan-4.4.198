@@ -1,5 +1,22 @@
 # WR1200JS Transmit Beamforming capability — 2026-10-18
 
+## Structural confirmation from the official DTS — 2026-10-22
+
+OpenWrt `mt7621_youhua_wr1200js.dts` (upstream master) declares:
+
+- `partition@40000` label `factory`, size `0x10000` (64 KiB) — matches `mtd2`;
+- inside it, calibration blocks at `reg = <0x0 0x400>` and
+  `reg = <0x8000 0x200>`, plus MAC fields at `0xe000`/`0xe006`.
+
+The TXBF regions we inspect (`0x01A0`, length 33) and (`0x81A0`, length 33)
+therefore fall inside those two documented calibration blocks. Both are
+`0xFF` in this unit's fresh Factory dump, so the earlier finding is a real
+absence of TXBF calibration rather than a wrong-offset artifact.
+
+Public search: GitHub hosts only OpenWrt builds for this model (no Factory
+dumps); forum/CSDN threads about "programmer firmware + EEPROM backup" sit
+behind account registration. No anonymous reference dump was obtained.
+
 ## Additional read-only router evidence — 2026-10-19
 
 Access: Windows OpenSSH to `ASUS@192.168.20.1`. The commands below only read
