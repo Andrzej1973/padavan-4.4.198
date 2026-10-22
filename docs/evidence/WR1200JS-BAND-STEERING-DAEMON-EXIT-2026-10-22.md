@@ -57,8 +57,13 @@ NVRAM:
 - `tools/band-steering/prepare-wifi-lifecycle.py` містить
   `wr_band_wifi_child_exit()` і запис
   `Owned daemon exited: clean=... exit=... signal=...`, але на пристрої такого
-  рядка немає. Або збірка від 18.10 старіша за цей код, або шлях обробки
-  SIGCHLD не спрацював.
+  рядка немає.
+- Перевірка бінарника на пристрої: `strings /sbin/rc` містить
+  `Owned daemon exited`, `observe_wr_band_steering`,
+  `restart_wr_band_steering` і `wr_bs_apply_state`. Отже код логування в образі
+  **є**, і збірка не старіша за нього — шлях обробки виходу (SIGCHLD /
+  `wr_band_wifi_refresh_exit_status`) не спрацював або rc не володів цим
+  процесом на момент смерті.
 
 ## Статуси
 
