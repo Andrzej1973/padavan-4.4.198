@@ -12,6 +12,15 @@
       ],
       "reason": "The live kernel disables MT76x2 AP TXBF. This router's Factory TXBF calibration regions at 0x01A0 and 0x81A0 are each 33/33 bytes FF, so RC sets wl_txbf_en=0 and writes ETxBfEnCond=0 even when wl_txbf=1. Generic chipset detection alone must not expose the control."
     },
+    "multi_user_mimo_5ghz": {
+      "status": "unsupported",
+      "enabled": false,
+      "evidence": [
+        "docs/evidence/WR1200JS-TXBF-CAPABILITY-2026-10-18.md",
+        "overlay/padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config"
+      ],
+      "reason": "MT7612 in this board is a 2x2 802.11ac Wave 1 radio: no MU-MIMO. The live device keeps wl_mumimo unset and the earlier WebUI still rendered a row_mumimo control, which is misleading next to the disabled TXBF policy."
+    },
     "roaming_24ghz": {
       "status": "runtime-unverified",
       "scope": "next build requests k/r/v code; compiled image and physical behavior still require verification",

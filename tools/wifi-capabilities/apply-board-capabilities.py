@@ -23,6 +23,9 @@ def read_manifest(path: Path) -> dict:
     feature = manifest.get("features", {}).get("transmit_beamforming_5ghz", {})
     if feature.get("status") != "unsupported" or feature.get("enabled") is not False:
         raise SystemExit("WR1200JS TXBF policy must remain explicitly unsupported/disabled.")
+    mumimo = manifest.get("features", {}).get("multi_user_mimo_5ghz", {})
+    if mumimo.get("status") != "unsupported" or mumimo.get("enabled") is not False:
+        raise SystemExit("WR1200JS MU-MIMO policy must remain explicitly unsupported/disabled.")
     return feature
 
 
@@ -63,6 +66,21 @@ def prepare(root: Path, manifest_path: Path) -> None:
     )
     if visibility_blocks_removed != 1:
         raise SystemExit("Expected exactly one TXBF WebUI visibility block.")
+
+    page, mumimo_rows_removed = re.subn(
+        r"\s*<tr id=\"row_mumimo\"(?=[\s>]).*?</tr>", "", page, count=1, flags=re.S
+    )
+    if mumimo_rows_removed != 1:
+        raise SystemExit("Expected exactly one MU-MIMO WebUI row in Advanced_WAdvanced_Content.asp.")
+    page, mumimo_blocks_removed = re.subn(
+        r'(?m)^[ \t]*if \(support_5g_mumimo\(\)\)\r?\n'
+        r'[ \t]*showhide_div\("row_mumimo", 1\);[ \t]*\r?\n?',
+        "",
+        page,
+        count=1,
+    )
+    if mumimo_blocks_removed != 1:
+        raise SystemExit("Expected exactly one MU-MIMO WebUI visibility block.")
     page_path.write_text(page, encoding="utf-8", newline="")
 
     variables_path = root / "trunk/user/httpd/variables.c"
@@ -101,6 +119,8 @@ def verify_image(root: Path, manifest_path: Path, report_path: Path) -> None:
     page = romfs_page.read_text(encoding="utf-8")
     if "row_txbf" in page or 'name="wl_txbf"' in page:
         raise SystemExit("Final ROMFS still exposes the unsupported TXBF control.")
+    if "row_mumimo" in page or 'name="wl_mumimo"' in page:
+        raise SystemExit("Final ROMFS still exposes the unsupported MU-MIMO control.")
     if "wl_txbf" in variables_path.read_text(encoding="utf-8"):
         raise SystemExit("HTTP variable table still accepts wl_txbf.")
     if '{ "wl_txbf", "0" }' not in defaults_path.read_text(encoding="utf-8"):
@@ -111,8 +131,9 @@ def verify_image(root: Path, manifest_path: Path, report_path: Path) -> None:
     report = {
         "board": "WR1200JS",
         "feature": "transmit_beamforming_5ghz",
+        "also_excluded": ["multi_user_mimo_5ghz"],
         "status": "unsupported",
-        "evidence": "effective kernel config disabled; final ROMFS control absent; HTTP variable absent; default off",
+        "evidence": "effective kernel config disabled; TXBF and MU-MIMO controls absent from final ROMFS; TXBF HTTP variable absent; default off",
         "runtime_verified": False,
     }
     report_path.parent.mkdir(parents=True, exist_ok=True)
