@@ -111,8 +111,13 @@ ownership is lost`) вже в робочій гілці:
   номером;
 - `prepare-wifi-check.py` містить регресійний тест на втраченого власника.
 
-Стан виправлення: **реалізовано, перевіряється в CI** (ABI run на коміті
-`3587d14`). На пристрої не перевірено.
+Стан виправлення: **перевірено в CI на host-фікстурі**. У прогоні #502
+(коміт `cfd0ec8`, що містить `3587d14`) крок
+`Verify actual rc Wi-Fi lifecycle callbacks` завершився
+`PASS actual rc callback ordering/failure paths with mocked radio/service
+operations`; варіанти snapshot capture і radio snapshot також PASS. Сам job
+впав пізніше на не пов'язаному live-netfilter тесті. Поведінка на реальному
+пристрої не перевірена.
 
 Що лишається відкритим:
 
