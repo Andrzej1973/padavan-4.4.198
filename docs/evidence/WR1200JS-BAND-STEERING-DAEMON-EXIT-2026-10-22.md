@@ -64,6 +64,12 @@ NVRAM:
   **є**, і збірка не старіша за нього — шлях обробки виходу (SIGCHLD /
   `wr_band_wifi_refresh_exit_status`) не спрацював або rc не володів цим
   процесом на момент смерті.
+- `init.c` у збірці викликає `wr_band_wifi_child_exit(pid, status)` з reaper,
+  але ця функція починається з `if (pid != wr_wifi_owner.pid || pid <= 1)
+  return;`. Якщо owner-PID було втрачено (повторний `restart_wr_band_steering`,
+  перезапуск Wi-Fi, re-exec rc), вихід дитини ігнорується: немає ні логу, ні
+  оновлення `wr_bs_apply_state`. Це найімовірніша причина розбіжності між
+  фактичним станом і NVRAM.
 
 ## Статуси
 
