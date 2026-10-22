@@ -1,5 +1,16 @@
 # Actual service and driver state in WebUI
 
+## WR1200JS unsupported CPU timer watchdog — 2026-10-21
+
+The `watchdog_cpu` switch targets the optional `rt_timer_wdg` module, which is
+absent from the WR1200JS source/image path and live device sample. It is not the
+built-in MT7621 watchdog. WR1200JS therefore hides the enable control, ignores
+legacy saved values in the lifecycle, and defaults the setting off; other
+boards retain their own supported behavior. A read-only diagnostic row remains
+separate from any enable control. The exact source and device evidence plus
+implementation/check status are recorded in
+`evidence/WR1200JS-CPU-WATCHDOG-CAPABILITY-2026-10-21.md`.
+
 ## Remaining administration-service coverage — 2026-10-18
 
 LLTD and ASUS Info Discovery now show their configured setting separately from
@@ -12,7 +23,9 @@ present, or unknown if `/proc`, the provider binary or process observation is
 unavailable. The UI is localized, manually refreshable, avoids polling hidden
 tabs and expires observations after 45 seconds. This does not verify LLTD
 exchanges, ASUS discovery replies, or client visibility. Local emitted-handler
-and UI fixtures pass; final-image CI and physical-page behavior are pending.
+and UI fixtures pass. The final-image verifier passed in WR1200JS build #448
+(`5dd2c80`), checking the shipped page, httpd handlers, observation logic and
+EN/UK/RU labels. Physical-page behavior and protocol exchanges remain pending.
 
 Hardware watchdog now has a bounded observer for the saved `watchdog_cpu`
 setting and `/sys/module/rt_timer_wdg` presence. Pinned `services.c` requests
@@ -20,14 +33,27 @@ setting and `/sys/module/rt_timer_wdg` presence. Pinned `services.c` requests
 `trunk/configs/boards/WR1200JS/kernel-4.4.x.config` separately sets
 `CONFIG_MT7621_WDT=y` while leaving `CONFIG_RALINK_WDT` unset. The built-in
 MT7621 watchdog driver and optional `rt_timer_wdg` module are distinct paths.
-The UI explicitly says that module presence does not verify hardware timer
-registration or servicing. Local handler/UI fixtures pass; final-image CI and
-physical-page behavior remain pending. Service run #221 for commit `3976cf1`
-failed only in the Linux C fixture because strict C99 did not expose `S_IFREG`;
-the original job log confirmed this exact cause. The fixture now defines the
-portable file-type constant and passes locally. A new service CI run is required
-for the fix; image run #444 for `3976cf1` is still in progress and does not
-include the follow-up fixture correction.
+The live WR1200JS read-only sample later found `watchdog_cpu=1`, no optional
+module file under `/lib/modules`, and no `/sys/module/rt_timer_wdg`, while
+`/dev/watchdog` and `/sys/class/watchdog/watchdog0` existed. No readable
+watchdog0 timer-state attribute or driver link was available in that sample.
+The UI help now explicitly says the optional module and built-in driver are
+separate, and that device-node presence does not prove timer activity. The
+status observer only reports the optional module and does not claim hardware
+timer servicing. Local handler/UI fixtures pass. The final-image verifier
+passed in build #448 (`5dd2c80`), checking the shipped status row, handler,
+refresh behavior and the earlier EN/UK/RU labels. The newer help wording that
+distinguishes the built-in driver from the optional module is a local source
+change and has not yet been checked in a final image. Physical-page behavior
+and a reliable signal for timer registration/servicing remain unverified. Service run
+#221 for commit `3976cf1` failed only in the Linux C fixture because strict C99
+did not expose `S_IFREG`; the original job log confirmed this exact cause. The
+fixture now defines the portable file-type constant and passes locally. The
+final-image check in #448 is separate evidence. Service CI `39115923393`
+for `469d0de` passed; its original log confirms execution of
+`tools/check-discovery-status.py` and PASS for LLTD/ASUS process and watchdog
+module states, including unknown conditions. This supersedes the earlier
+pending host-fixture status; hardware timer operation remains unverified.
 
 Cron implementation follow-up: an observed-process row is now prepared next to
 the existing Cron control, using `crond_enable` and the `crond` process launched
@@ -53,15 +79,27 @@ presence observation; neither its setting nor module presence establishes
 hardware timer operation. A switch value alone must not be reported as actual
 operation.
 
-Next implementation work: verify the watchdog observer is present in the final
-WR1200JS image and assess whether a safe hardware-timer operation signal exists.
+Watchdog signal assessment — source checked at pinned Padavan revision
+`c25283e915a2a00a763774dd255b14aff997285e`: the MT7621 driver registers a
+watchdog device in `probe()` but enables the timer only in its `start()` callback
+by setting `TMR1CTL_ENABLE`. The 4.4 watchdog core creates the class device but
+does not publish an active-state sysfs attribute. Opening `/dev/watchdog` invokes
+`watchdog_start()`, so an HTTP observer must not open it as a status probe: that
+would change device state. The optional Padavan `rt_timer_wdg` module is a
+separate path from built-in `CONFIG_MT7621_WDT`. No safe read-only operation
+signal has been established; keep the UI label limited to the requested setting
+and optional module presence, with timer activity explicitly unverified.
+Sources: [MT7621 watchdog driver](https://github.com/vipshmily/padavan-4.4/blob/c25283e915a2a00a763774dd255b14aff997285e/trunk/linux-4.4.x/drivers/watchdog/mt7621_wdt.c#L69-L78), [watchdog core registration](https://github.com/vipshmily/padavan-4.4/blob/c25283e915a2a00a763774dd255b14aff997285e/trunk/linux-4.4.x/drivers/watchdog/watchdog_core.c#L195-L203), [watchdog character-device open](https://github.com/vipshmily/padavan-4.4/blob/c25283e915a2a00a763774dd255b14aff997285e/trunk/linux-4.4.x/drivers/watchdog/watchdog_dev.c#L414-L440).
+
 A Cron process still does not establish scheduled-job success. Retain the user's
 enable settings and do not activate services during this audit.
 
-Current image evidence remains distinct: #433 proves VPN editor packaging;
-#426/#428 establish the documented target BusyBox/storage component checks.
-Build #441 adds successful final-image checks for the observed service pages,
-handlers and target BusyBox audit; see [build evidence](evidence/WR1200JS-BUILD441.md).
+Current image evidence remains distinct: #448 passed the WR1200JS firmware
+build and final SSH/Cron/LLTD/ASUS/watchdog observer image gate; this proves
+packaging and UI markers only, not device runtime. #426/#428 establish the
+documented target BusyBox/storage component checks; #441 added earlier
+final-image checks for service pages and handlers; see [build evidence](evidence/WR1200JS-BUILD441.md)
+and [build #448 evidence](evidence/WR1200JS-BUILD448.md).
 Host CI for synchronized VPN mutations and DNS/ZRAM freshness passed, but
 physical browser, service interactions and reboot persistence remain open.
 
@@ -177,6 +215,53 @@ Build #405 did compile and install the
 iPerf3 daemon, but failed final ROMFS verification and did not produce a
 qualified image. iPerf3 and SSH image verification remain unconfirmed.
 
+### Superseding image evidence — 2026-10-18
+
+Build #478 (`d1dc0eb`) subsequently passed the conditional iPerf3 final-ROMFS
+verifier. Its job log states that the status UI, HTTP handler and EN/UK/RU
+labels were found; artifact `iperf3-image-checks` was uploaded. See
+[build-specific evidence](evidence/WR1200JS-BUILD478-IPERF3-IMAGE.md). This
+supersedes the pending image status above only. The read-only router sample
+reported `iperf3_enable=0` and no process; neither client connectivity nor a
+throughput measurement has been tested.
+
+## USB/IP status and guarded device controls — 2026-10-18
+
+The selected WR1200JS source exposes separate module/process observations, a
+bounded USB device inventory, and authenticated, confirmation-gated bind/unbind
+operations serialized by the USB/IP lifecycle lock. The export-selection UI
+stores a stable VID/PID/serial identity; optional restore defaults off and
+checks identity and safety policy before binding. These observations do not
+establish an available listener, remote attachment, or data transfer.
+
+Build #478 passed the exact-image BusyBox restore orchestration fixture and
+USB/IP settings ROMFS verifier; details and artifact digest are in
+[USB/IP build evidence](evidence/WR1200JS-BUILD478-USBIP.md). Saved selection
+is written under `/etc/storage/usbip`, while the HTTP response explicitly says
+`flash_committed:false`. Physical module/daemon state, real USB operations,
+client transfer and storage-save/reboot persistence remain unverified. A
+read-only SSH probe could not run here because the `ssh` command resolves to an
+explicit sandbox-denial wrapper; no router command was executed.
+
+USB/IP storage follow-up, 2026-10-19: the storage fixture now injects a
+directory-`fsync` failure after successful file write and atomic rename. It
+requires the backend to return `WR_USBIP_STORE_UNCONFIRMED` while confirming
+the replacement file is readable in the current runtime. This covers the
+uncertain-durability branch consumed by the UI warning; it does not establish
+flash commit or reboot persistence. The fixture has not yet run in Linux CI;
+the Windows MinGW compiler cannot build this POSIX `openat`/`O_NOFOLLOW` test.
+No router settings were changed.
+
+Inherited settings backup/restore follow-up, 2026-10-19: the ROMFS verifier
+still checks packaging, while `tools/check-settings-backup-behavior.js` now
+executes the shipped page handlers under inert Node browser stubs. It passed
+locally on the available #410 ROMFS page for the `login_safe()` row gate,
+restore cancellation/confirmation, CFG/TBZ backup downloads, upload extension
+validation and CGI form destinations. The test is wired into the next firmware
+build. It does not call CGI, test a browser session, or verify flash/recovery
+behavior; device acceptance remains pending. See
+[backup/restore behavior evidence](evidence/WR1200JS-SETTINGS-BACKUP-BEHAVIOR-2026-10-19.md).
+
 ## SSH daemon status implementation progress — 2026-10-17
 
 The Administration / Services page now reports the selected Dropbear or
@@ -226,3 +311,29 @@ EN/UK/RU page labels distinguish unavailable and stale data, show peer counts by
 Subsequent evidence: full build 229 succeeded; downloaded artifact sizes and hashes are recorded in `docs/evidence/WR1200JS-BUILD229.md`. It predates the dedicated handshake image gate and subsequent runtime fixes. Commit `e1a0a26` accepts already completed workers before enforcing the deadline and measures sample age from query start. Commit `1c96a5a` closes inherited descriptors in the worker itself. Commit `c661102` adds one authenticated update response containing a fresh sysfs interface observation and cached handshake statistics, so both indicators refresh together. Native CI [38427208810](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38427208810), [38427427949](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38427427949) and [38427759179](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38427759179) passed the respective checks. Full images containing these refinements and physical execution remain pending at this observation.
 
 Full-build follow-up: [build 232](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/38427428174), commit `1c96a5abc3e2a06832579ecb44340cd337b83d37`, completed successfully. The downloaded run log `C:\Users\ANDRZEJ\Documents\Codex\2026-09-29\build232-log.txt` records the shipped handshake image gate passing at 16:19:03 UTC and guide checks passing at 16:19:06 UTC. Its manifest reports `WR1200JS_4.4.198.9-232_1c96a5ab.trx`, 13,139,487 bytes, SHA256 `33eda3bd1bd9d3bb5ceb1d1c151bf7316298b7193dd2b611a86edd460a7524c1`; this hash is from the workflow manifest and has not been independently recomputed locally. This proves compilation and selected image contents through worker descriptor isolation. Joint interface/handshake refresh, DNS refresh image gates and physical execution are not established by this build.
+
+## Build #504 service/runtime evidence follow-up — 2026-10-20
+
+Build #504 (run `39461735957`, PR source head `9c1e9b1`) passed its image
+checks for the iPerf3 and SSH status pages/handlers, ZRAM dependencies and
+BusyBox help, Stubby packaging/ELF dependencies and an authenticated DoT
+lookup through the image under QEMU, and DoH packaging/ELF dependencies. The
+same run passed the target BusyBox audit. See the [build #504 service
+checkpoint](evidence/WR1200JS-BUILD504-SERVICE-AUDIT.md). These checks are
+image/CI evidence, not device execution.
+
+The downloaded `target-busybox-audit.json` identifies the scope precisely:
+`selected_service_entrypoint_map_complete` is true, there are no entrypoint
+gaps or unmapped active selector groups, and the image's selected service
+entrypoints are present with shell syntax accepted where applicable. However,
+`runtime_verified` and `whole_service_audit_complete` are both false. Its
+Stubby, DoH, Privoxy and vlmcsd dispatch probes exercise only refusal of an
+unknown action; they explicitly do not enter configuration, locking or daemon
+lifecycle paths. The audit labels all service interactions unverified.
+
+Separately, the read-only WR1200JS sample from 2026-10-18 observed 30,912 KiB
+of active `/dev/zram0` swap. No service was toggled for the #504 image check;
+enable/disable behavior and reboot persistence remain open. The unsupported
+PPTP/L2TP VPN UI correction is now pushed as commit `35d70be`; build #505 is
+queued to verify its final-ROMFS result. No firmware was installed and no
+router state was changed for this follow-up.

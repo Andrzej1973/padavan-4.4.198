@@ -69,7 +69,7 @@ for name in ('bridge.h','subnet.h','types.h'):(headers/name).write_bytes((local/
 for name in ('activation.h','request.h','request-stage.h','radio-profile-state.h','dns-activation.h'):(headers/name).write_bytes((local/name).read_bytes())
 (headers/'request-snapshot.h').write_bytes((local/'request-snapshot.h').read_bytes())
 snapshot=(local/'request-snapshot.c').read_text(encoding='utf-8')
-for name in ('request-snapshot.h','service-guard.h'):
+for name in ('request-snapshot.h','service-guard.h','bridge.h'):
  snapshot=snapshot.replace('#include "'+name+'"','#include "wr-iot/'+name+'"',1)
 (rc/'wr-iot-request-snapshot.c').write_text(snapshot,encoding='utf-8')
 bridge=(local/'bridge.c').read_text(encoding='utf-8').replace('#include "bridge.h"','#include "wr-iot/bridge.h"',1).replace('#include "subnet.h"','#include "wr-iot/subnet.h"',1)
@@ -106,7 +106,7 @@ hook=r"""#if defined(BOARD_WR1200JS)
 #endif
 """
 radio=radio.replace(anchor,hook+anchor,1)
-for name in ('profile.h','profile-list.h','profile-line.h','profile-stream.h','profile-file.h'):
+for name in ('profile.h','profile-list.h','profile-line.h','profile-scan.h','profile-stream.h','profile-file.h'):
  (headers/name).write_bytes((local/name).read_bytes())
 shared=rc/'shared-wifi';shared.mkdir(exist_ok=True)
 (shared/'validate.h').write_bytes((local.parent/'shared-wifi/validate.h').read_bytes())
@@ -116,6 +116,7 @@ m.write_text(m.read_text(encoding='utf-8').replace('OBJS += wr-iot-request-stage
 f.write_text(radio,encoding='utf-8')
 report['profile_hook_installed']=True
 report['profile_activation_guard']='wr_iot_profile_t; no startup sets this state yet'
+report['profile_owned_removal_api_installed']=True
 # Only a future validated network snapshot may activate this service fragment.
 f=rc/'services_ex.c';service=f.read_text(encoding='utf-8')
 anchor='int\nstart_dns_dhcpd(int is_ap_mode)'
@@ -242,7 +243,7 @@ service=service.replace('int\nstart_dns_dhcpd(int is_ap_mode)', 'static int\nwr_
 service=service.replace('void\nstop_dns_dhcpd(void)', 'static void\nwr_iot_stop_dns_raw(void)',1)
 anchor='int\nrestart_dhcpd(void)\n{\n\tstop_dns_dhcpd();\n\treturn start_dns_dhcpd(get_ap_mode());\n}'
 if service.count(anchor)!=1:raise SystemExit('DNS restart serialization anchor changed')
-controller=(local/"restart-controller.inc").read_text(encoding="utf-8").replace('#include "dns-ready.h"','#include "wr-iot/dns-ready.h"').replace('#include "dns-config.h"','#include "wr-iot/dns-config.h"').replace('#include "dhcp-ready.h"','#include "wr-iot/dhcp-ready.h"').replace('#include "dns-sockets.h"','#include "wr-iot/dns-sockets.h"')
+controller=(local/"restart-controller.inc").read_text(encoding="utf-8").replace('#include "dns-ready.h"','#include "wr-iot/dns-ready.h"').replace('#include "dns-config.h"','#include "wr-iot/dns-config.h"').replace('#include "dhcp-ready.h"','#include "wr-iot/dhcp-ready.h"').replace('#include "dns-sockets.h"','#include "wr-iot/dns-sockets.h"').replace('#include "bridge.h"','#include "wr-iot/bridge.h"')
 for name in ("dns-ready.h","dns-config.h","dhcp-ready.h","dns-sockets.h"):(headers/name).write_bytes((local/name).read_bytes())
 wrappers=r"""#if defined(BOARD_WR1200JS)
 static int wr_iot_dns_lock(void)
@@ -548,6 +549,29 @@ report['iot_wan_nat']='Scoped classic MASQUERADE before existing LAN WAN NAT; re
 report['owned_bridge_firewall_quarantine']='IPv4/IPv6 normal/default builders before generic accepts; IPv4 allow policy requires wr_iot_firewall_t and wr_iot_network_t; activation controller pending'
 report['iot_main_dnsmasq_config_staged']=True
 report['dnsmasq_service_rollback_complete']=False
+report['dns_disable_transaction_api_installed']=True
+report['owned_disable_settings_api_installed']=True
+(headers/'disable-services.h').write_bytes((local/'disable-services.h').read_bytes())
+disable=(local/'disable-services.c').read_text(encoding='utf-8')
+for name in ('disable-services.h','dns-activation.h'):
+ disable=disable.replace('#include "'+name+'"','#include "wr-iot/'+name+'"',1)
+(rc/'wr-iot-disable-services.c').write_text(disable,encoding='utf-8')
+make=m.read_text(encoding='utf-8')
+if make.count('wr-iot-request-snapshot.o')!=1:raise SystemExit('Disable service object anchor changed')
+m.write_text(make.replace('wr-iot-request-snapshot.o','wr-iot-request-snapshot.o wr-iot-disable-services.o',1),encoding='utf-8')
+report['disable_services_adapter_installed']=True
+report['disable_services_controller_bound']=False
+(headers/'disable-controller.h').write_bytes((local/'disable-controller.h').read_bytes())
+disable=(local/'disable-controller.c').read_text(encoding='utf-8')
+for name in ('disable-controller.h','bridge.h'):
+ disable=disable.replace('#include "'+name+'"','#include "wr-iot/'+name+'"',1)
+(rc/'wr-iot-disable-controller.c').write_text(disable,encoding='utf-8')
+make=m.read_text(encoding='utf-8')
+if make.count('wr-iot-disable-services.o')!=1:raise SystemExit('Disable controller object anchor changed')
+m.write_text(make.replace('wr-iot-disable-services.o','wr-iot-disable-services.o wr-iot-disable-controller.o',1),encoding='utf-8')
+report['disable_controller_adapter_installed']=True
+report['disable_controller_radio_bound']=False
+report['dns_disable_scope']='Fresh current service snapshot before bridge removal; exact closed gates, DOWN BSS and absent/owned bridge; bounded include graph must contain no owned IoT markers before commit; activation callback binding pending'
 (headers/'quarantine.h').write_bytes((local/'quarantine.h').read_bytes())
 quarantine=(local/'quarantine.c').read_text(encoding='utf-8')
 for name in ('quarantine.h','quarantine-live.h','bridge.h','service-guard.h'):

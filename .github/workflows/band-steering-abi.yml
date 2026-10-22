@@ -146,6 +146,7 @@ jobs:
             trunk/linux-4.4.x/include/nvram
             trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x2
             trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3
+            trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3_ap
       - name: Verify steering package dependency checker logic
         run: python3 tools/band-steering/check-package-closure.py
       - name: Verify WR board steering selectors and factory OFF
@@ -992,10 +993,15 @@ jobs:
           gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
             tools/iot/check-profile-file.c -o abi-results/check-iot-profile-file
           abi-results/check-iot-profile-file | tee abi-results/iot-profile-file.txt
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            tools/iot/check-radio-remove.c -o abi-results/check-iot-radio-remove
+          abi-results/check-iot-radio-remove | tee abi-results/iot-radio-remove.txt
           compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
           test -n "$compiler"
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
             -c tools/iot/check-profile-file.c -o abi-results/iot-profile-file-mips.o
+          "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+            -c tools/iot/check-radio-remove.c -o abi-results/iot-radio-remove-mips.o
 
       - name: Check IoT subnet and DHCP address validation
         shell: bash
@@ -1135,6 +1141,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          python3 tools/iot/prepare-bridge-read-check.py tools/iot/bridge.c abi-results/iot-bridge-read-check.c
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            abi-results/iot-bridge-read-check.c -o abi-results/check-iot-bridge-reads
+          abi-results/check-iot-bridge-reads | tee abi-results/iot-bridge-reads.txt
           gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
             tools/iot/bridge.c tools/iot/check-bridge.c -o abi-results/check-iot-bridge
           compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
@@ -1217,6 +1227,10 @@ jobs:
             -c iot-rc-source/trunk/user/rc/wr-iot-request-stage.c -o abi-results/iot-rc-request-stage-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -I"$PWD/iot-rc-source/trunk/user/rc" -I"$PWD/iot-rc-source/trunk/user/shared" \
             -c iot-rc-source/trunk/user/rc/wr-iot-request-snapshot.c -o abi-results/iot-rc-request-snapshot-mips.o
+          "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+            -c iot-rc-source/trunk/user/rc/wr-iot-disable-services.c -o abi-results/iot-rc-disable-services-mips.o
+          "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+            -c iot-rc-source/trunk/user/rc/wr-iot-disable-controller.c -o abi-results/iot-rc-disable-controller-mips.o
           python3 tools/iot/prepare-activation-header-check.py iot-rc-source abi-results/check-iot-activation-headers.c
           include_flags=(-I"$PWD/iot-rc-source/trunk/user/rc" -I"$PWD/iot-rc-source/trunk/user/shared")
           gcc -std=gnu11 -Wall -Wextra -Werror -O2 "${include_flags[@]}" -c abi-results/check-iot-activation-headers.c -o abi-results/iot-activation-headers-native.o
@@ -1263,6 +1277,293 @@ jobs:
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -Itools/iot \
             -c tools/iot/check-request.c -o abi-results/iot-request-mips.o
 
+      - name: Check IoT HTTP request boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -Itools/iot \
+            tools/iot/check-http-request.c -o abi-results/check-iot-http-request
+          abi-results/check-iot-http-request | tee abi-results/iot-http-request.txt
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -Itools/iot \
+            tools/iot/check-control-record.c -o abi-results/check-iot-control-record
+          abi-results/check-iot-control-record | tee abi-results/iot-control-record.txt
+          compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -Itools/iot \
+            -c tools/iot/check-http-request.c -o abi-results/iot-http-request-mips.o
+          "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -Itools/iot \
+            -c tools/iot/check-control-record.c -o abi-results/iot-control-record-mips.o
+
+      - name: Check private IoT request mailbox
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -Itools/iot \
+            tools/iot/check-control-mailbox.c tools/iot/control-mailbox.c -o abi-results/check-iot-control-mailbox
+          abi-results/check-iot-control-mailbox | tee abi-results/iot-control-mailbox.txt
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -Itools/iot \
+            tools/iot/check-control-channel.c tools/iot/control-mailbox.c -o abi-results/check-iot-control-channel
+          abi-results/check-iot-control-channel | tee abi-results/iot-control-channel.txt
+          python3 tools/iot/prepare-status-check.py tools/iot/control-client.c abi-results/iot-status-core.c
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            abi-results/iot-status-core.c -o abi-results/check-iot-status-core
+          abi-results/check-iot-status-core | tee abi-results/iot-status-core.txt
+          python3 tools/iot/prepare-dispatch-check.py tools/iot/control-server.c abi-results/iot-dispatch-core.c
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            abi-results/iot-dispatch-core.c -o abi-results/check-iot-dispatch-core
+          abi-results/check-iot-dispatch-core | tee abi-results/iot-dispatch-core.txt
+          python3 tools/iot/prepare-dns-disable-check.py tools/iot/restart-controller.inc abi-results/iot-dns-disable-core.c
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            abi-results/iot-dns-disable-core.c -o abi-results/check-iot-dns-disable-core
+          abi-results/check-iot-dns-disable-core | tee abi-results/iot-dns-disable-core.txt
+          python3 tools/iot/prepare-mbss-open-check.py \
+            source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/ap/ap_mbss_inf.c \
+            abi-results/iot-mbss-open-candidate.c abi-results/iot-mbss-open-check.c
+          python3 tools/iot/prepare-mbss-init-check.py \
+            source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/ap/ap_mbss.c \
+            abi-results/iot-mbss-init-candidate.c abi-results/iot-mbss-init-check.c
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            abi-results/iot-mbss-init-check.c -o abi-results/check-iot-mbss-init
+          abi-results/check-iot-mbss-init | tee abi-results/iot-mbss-init.txt
+          python3 tools/iot/prepare-mbss-close-check.py \
+            source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/ap/ap_mbss.c \
+            abi-results/iot-mbss-close-candidate.c abi-results/iot-mbss-close-check.c
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            abi-results/iot-mbss-close-check.c -o abi-results/check-iot-mbss-close
+          abi-results/check-iot-mbss-close | tee abi-results/iot-mbss-close.txt
+          python3 tools/iot/prepare-mbss-cr-check.py \
+            source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/ap/ap_mbss.c \
+            abi-results/iot-mbss-cr-candidate.c abi-results/iot-mbss-cr-check.c
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            abi-results/iot-mbss-cr-check.c -o abi-results/check-iot-mbss-cr
+          abi-results/check-iot-mbss-cr | tee abi-results/iot-mbss-cr.txt
+          python3 tools/iot/prepare-radio-error-candidates.py \
+            source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3 abi-results/iot-radio-errors
+          # The selected mt76x3_ap Kbuild compiles the shared mt76x3 source
+          # with DMA_RESET_SUPPORT and TXRXCR_DEBUG_SUPPORT. Keep the extracted
+          # recovery fixture aligned with this board path as the source moves.
+          grep -qx 'CONFIG_MT7603E_RALINK_MT7603E=y' \
+            overlay/padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
+          grep -qx 'CONFIG_MT7603E_RTMP_PCI_SUPPORT=y' \
+            overlay/padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
+          grep -Fq 'EXTRA_CFLAGS += -DMT_PS -DDMA_RESET_SUPPORT -DTXRXCR_DEBUG_SUPPORT' \
+            source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3_ap/Makefile
+          for unit in mbss-init mbss-open-state mbss-close mbss-cr mbss-open mbss-abort-open netdev-create beacon-guard dma-idle beacon-recovery beacon-kickout bss-sync pdma-reset-gate; do
+            extra=()
+            # Unchanged vendor beacon interval comparison is signed/unsigned.
+            if [ "$unit" = beacon-recovery ]; then extra=(-Wno-sign-compare); fi
+            gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -Itools/iot \
+              "${extra[@]}" \
+              "abi-results/iot-radio-errors/$unit-check.c" -o "abi-results/check-iot-bundle-$unit"
+            "abi-results/check-iot-bundle-$unit" | tee "abi-results/iot-bundle-$unit.txt"
+          done
+          python3 tools/iot/prepare-netdev-create-check.py \
+            source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/os/linux/rt_linux.c \
+            abi-results/iot-netdev-create-candidate.c abi-results/iot-netdev-create-check.c
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            abi-results/iot-netdev-create-check.c -o abi-results/check-iot-netdev-create
+          abi-results/check-iot-netdev-create | tee abi-results/iot-netdev-create.txt
+          python3 tools/iot/prepare-dma-idle-check.py \
+            source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/hw_ctrl/cmm_asic_mt.c \
+            abi-results/iot-dma-idle-candidate.c abi-results/iot-dma-idle-check.c
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            abi-results/iot-dma-idle-check.c -o abi-results/check-iot-dma-idle
+          abi-results/check-iot-dma-idle | tee abi-results/iot-dma-idle.txt
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -Itools/iot \
+            tools/iot/check-radio-result.c -o abi-results/check-iot-radio-result
+          abi-results/check-iot-radio-result | tee abi-results/iot-radio-result.txt
+          python3 tools/iot/prepare-mcu-radio-result.py \
+            source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3 abi-results/iot-mcu-result-candidate
+          python3 tools/iot/prepare-mcu-result-check.py \
+            abi-results/iot-mcu-result-candidate abi-results/iot-mcu-result-check.c
+          python3 tools/iot/prepare-radio-builder-check.py \
+            abi-results/iot-mcu-result-candidate abi-results/iot-radio-builder-check.c
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            abi-results/iot-radio-builder-check.c -o abi-results/check-iot-radio-builder
+          abi-results/check-iot-radio-builder | tee abi-results/iot-radio-builder.txt
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -Itools/iot \
+            abi-results/iot-mcu-result-check.c -o abi-results/check-iot-mcu-result
+          abi-results/check-iot-mcu-result | tee abi-results/iot-mcu-result.txt
+          python3 tools/iot/prepare-mcu-sender-check.py \
+            abi-results/iot-mcu-result-candidate abi-results/iot-mcu-sender-check.c
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            abi-results/iot-mcu-sender-check.c -o abi-results/check-iot-mcu-sender
+          abi-results/check-iot-mcu-sender | tee abi-results/iot-mcu-sender.txt
+          python3 tools/iot/prepare-mcu-sender-check.py \
+            abi-results/iot-mcu-result-candidate abi-results/iot-mcu-dispatch-check.c --with-dispatcher
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            abi-results/iot-mcu-dispatch-check.c -o abi-results/check-iot-mcu-dispatch
+          abi-results/check-iot-mcu-dispatch | tee abi-results/iot-mcu-dispatch.txt
+          python3 tools/iot/prepare-mcu-kickout-check.py \
+            abi-results/iot-mcu-result-candidate abi-results/iot-mcu-kickout-check.c
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            abi-results/iot-mcu-kickout-check.c -o abi-results/check-iot-mcu-kickout
+          abi-results/check-iot-mcu-kickout | tee abi-results/iot-mcu-kickout.txt
+          python3 tools/iot/prepare-control-ring-check.py \
+            source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3 abi-results/iot-control-ring-check.c
+          # Pinned vendor handler has an unused FREE counter; leave source intact.
+          gcc -std=c11 -Wall -Wextra -Werror -Wno-unused-but-set-variable -O2 -fsanitize=address,undefined \
+            abi-results/iot-control-ring-check.c -o abi-results/check-iot-control-ring
+          abi-results/check-iot-control-ring | tee abi-results/iot-control-ring.txt
+          python3 tools/iot/prepare-checked-enqueue.py \
+            source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3 abi-results/iot-checked-enqueue
+          cat tools/iot/check-checked-enqueue-prefix.inc \
+            abi-results/iot-checked-enqueue/checked-enqueue.inc \
+            tools/iot/check-checked-enqueue-tail.inc > abi-results/iot-checked-enqueue.c
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            abi-results/iot-checked-enqueue.c -o abi-results/check-iot-checked-enqueue
+          abi-results/check-iot-checked-enqueue | tee abi-results/iot-checked-enqueue.txt
+          python3 tools/iot/prepare-queued-composition-check.py \
+            abi-results/iot-checked-enqueue abi-results/iot-queued-composition.c
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -Itools/iot \
+            abi-results/iot-queued-composition.c -o abi-results/check-iot-queued-composition
+          abi-results/check-iot-queued-composition | tee abi-results/iot-queued-composition.txt
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -Itools/iot \
+            tools/iot/check-queued-result.c -o abi-results/check-iot-queued-result
+          abi-results/check-iot-queued-result | tee abi-results/iot-queued-result.txt
+          python3 tools/iot/prepare-queue-cleanup.py \
+            source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3 abi-results/iot-queue-cleanup
+          python3 tools/iot/prepare-queued-composition-check.py \
+            abi-results/iot-checked-enqueue abi-results/iot-queued-slices.c \
+            --cleanup-candidate abi-results/iot-queue-cleanup
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            -Iabi-results/iot-queue-cleanup/include abi-results/iot-queued-slices.c -o abi-results/check-iot-queued-slices
+          abi-results/check-iot-queued-slices | tee abi-results/iot-queued-slices.txt
+          python3 tools/iot/prepare-radio-queue-candidate.py \
+            source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3 abi-results/iot-radio-queue-bundle
+          python3 tools/iot/prepare-queued-composition-check.py \
+            abi-results/iot-radio-queue-bundle/driver abi-results/iot-bundle-queue.c \
+            --cleanup-candidate abi-results/iot-radio-queue-bundle/driver
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            -Iabi-results/iot-radio-queue-bundle/driver/include abi-results/iot-bundle-queue.c -o abi-results/check-iot-bundle-queue
+          abi-results/check-iot-bundle-queue | tee abi-results/iot-bundle-queue.txt
+          python3 tools/iot/prepare-beacon-guard-check.py \
+            source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/ap/ap_connect.c \
+            abi-results/iot-beacon-guard-candidate.c abi-results/iot-beacon-guard-check.c
+          for mode in base wds; do
+            flags=()
+            if [ "$mode" = wds ]; then flags+=(-DWDS_SUPPORT); fi
+            gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+              "${flags[@]}" abi-results/iot-beacon-guard-check.c -o "abi-results/check-iot-beacon-$mode"
+            "abi-results/check-iot-beacon-$mode" | tee "abi-results/iot-beacon-$mode.txt"
+          done
+          for mode in base mt hnat; do
+            flags=()
+            if [ "$mode" != base ]; then flags+=(-DMT_MAC); fi
+            if [ "$mode" = hnat ]; then flags+=(-DCONFIG_RA_HW_NAT_WIFI_NEW_ARCH); fi
+            gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+              "${flags[@]}" abi-results/iot-mbss-open-check.c -o "abi-results/check-iot-mbss-$mode"
+            "abi-results/check-iot-mbss-$mode" | tee "abi-results/iot-mbss-$mode.txt"
+          done
+          compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          for unit in control-mailbox control-server check-control-mailbox check-control-channel; do
+            "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -Itools/iot \
+              -c "tools/iot/$unit.c" -o "abi-results/iot-$unit-mips.o"
+          done
+          "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+            -c abi-results/iot-mbss-init-check.c -o abi-results/iot-mbss-init-mips.o
+          "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+            -c abi-results/iot-mbss-close-check.c -o abi-results/iot-mbss-close-mips.o
+          "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+            -c abi-results/iot-mbss-cr-check.c -o abi-results/iot-mbss-cr-mips.o
+          for unit in mbss-init mbss-open-state mbss-close mbss-cr mbss-open mbss-abort-open netdev-create beacon-guard dma-idle beacon-recovery beacon-kickout bss-sync pdma-reset-gate; do
+            extra=()
+            if [ "$unit" = beacon-recovery ]; then extra=(-Wno-sign-compare); fi
+            "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -Itools/iot \
+              "${extra[@]}" \
+              -c "abi-results/iot-radio-errors/$unit-check.c" -o "abi-results/iot-bundle-$unit-mips.o"
+          done
+          "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+            -c abi-results/iot-netdev-create-check.c -o abi-results/iot-netdev-create-mips.o
+          "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+            -c abi-results/iot-dma-idle-check.c -o abi-results/iot-dma-idle-mips.o
+          "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -Itools/iot \
+            -c tools/iot/check-radio-result.c -o abi-results/iot-radio-result-mips.o
+          "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -Itools/iot \
+            -c abi-results/iot-mcu-result-check.c -o abi-results/iot-mcu-result-mips.o
+          "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+            -c abi-results/iot-radio-builder-check.c -o abi-results/iot-radio-builder-mips.o
+          "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+            -c abi-results/iot-mcu-sender-check.c -o abi-results/iot-mcu-sender-mips.o
+          "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+            -c abi-results/iot-mcu-dispatch-check.c -o abi-results/iot-mcu-dispatch-mips.o
+          "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+            -c abi-results/iot-mcu-kickout-check.c -o abi-results/iot-mcu-kickout-mips.o
+          "$compiler" -std=c11 -Wall -Wextra -Werror -Wno-unused-but-set-variable -O2 -mips32r2 -mabi=32 -msoft-float \
+            -c abi-results/iot-control-ring-check.c -o abi-results/iot-control-ring-mips.o
+          "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+            -c abi-results/iot-checked-enqueue.c -o abi-results/iot-checked-enqueue-mips.o
+          "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -Itools/iot \
+            -c abi-results/iot-queued-composition.c -o abi-results/iot-queued-composition-mips.o
+          "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+            -Iabi-results/iot-queue-cleanup/include -c abi-results/iot-queued-slices.c -o abi-results/iot-queued-slices-mips.o
+          "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+            -Iabi-results/iot-radio-queue-bundle/driver/include -c abi-results/iot-bundle-queue.c -o abi-results/iot-bundle-queue-mips.o
+          "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -Itools/iot \
+            -c tools/iot/check-queued-result.c -o abi-results/iot-queued-result-mips.o
+          for mode in base wds; do
+            flags=()
+            if [ "$mode" = wds ]; then flags+=(-DWDS_SUPPORT); fi
+            "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+              "${flags[@]}" -c abi-results/iot-beacon-guard-check.c -o "abi-results/iot-beacon-$mode-mips.o"
+          done
+          for unit in status dispatch dns-disable; do
+            "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+              -c "abi-results/iot-$unit-core.c" -o "abi-results/iot-$unit-core-mips.o"
+          done
+          for mode in base mt hnat; do
+            flags=()
+            if [ "$mode" != base ]; then flags+=(-DMT_MAC); fi
+            if [ "$mode" = hnat ]; then flags+=(-DCONFIG_RA_HW_NAT_WIFI_NEW_ARCH); fi
+            "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+              "${flags[@]}" -c abi-results/iot-mbss-open-check.c -o "abi-results/iot-mbss-$mode-mips.o"
+          done
+          notify_header="$(find source/trunk -name notify_rc.h -print -quit)"
+          test -n "$notify_header"
+          "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -Itools/iot \
+            -I"$(dirname "$notify_header")" -c tools/iot/control-client.c -o abi-results/iot-control-client-mips.o
+
+      - name: Check dedicated IoT HTTP source candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p abi-results/iot-http-source/trunk/user/{httpd,rc}
+          cp source/trunk/user/httpd/{httpd.c,web_ex.c,Makefile} abi-results/iot-http-source/trunk/user/httpd/
+          cp iot-rc-source/trunk/user/rc/{rc.c,Makefile} abi-results/iot-http-source/trunk/user/rc/
+          python3 tools/iot/prepare-http.py abi-results/iot-http-source
+          python3 tools/iot/prepare-control.py abi-results/iot-http-source
+          python3 tools/iot/check-http-source.py abi-results/iot-http-source abi-results/check-iot-http-metadata.c
+          python3 tools/iot/check-control-source.py abi-results/iot-http-source abi-results/check-iot-control-dispatch.c
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -DBOARD_WR1200JS \
+            abi-results/check-iot-control-dispatch.c -o abi-results/check-iot-control-dispatch
+          abi-results/check-iot-control-dispatch | tee abi-results/iot-control-dispatch.txt
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            abi-results/check-iot-control-dispatch.c -o abi-results/check-iot-control-dispatch-other
+          abi-results/check-iot-control-dispatch-other | tee abi-results/iot-control-dispatch-other.txt
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            abi-results/check-iot-http-metadata.c -o abi-results/check-iot-http-metadata
+          abi-results/check-iot-http-metadata | tee abi-results/iot-http-metadata.txt
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -Itools/iot \
+            tools/iot/check-http-handler.c -o abi-results/check-iot-http-handler
+          abi-results/check-iot-http-handler | tee abi-results/iot-http-handler.txt
+          compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -Itools/iot \
+            -c tools/iot/check-http-handler.c -o abi-results/iot-http-handler-mips.o
+          notify_header="$(find source/trunk -name notify_rc.h -print -quit)"
+          test -n "$notify_header"
+          for directory in rc httpd; do
+            root="abi-results/iot-http-source/trunk/user/$directory"
+            role=server
+            if [ "$directory" = httpd ]; then role=client; fi
+            for unit in mailbox "$role"; do
+              "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+                -I"$root" -I"$(dirname "$notify_header")" \
+                -c "$root/wr-iot-control-$unit.c" -o "abi-results/iot-installed-$directory-$unit-mips.o"
+            done
+          done
+
       - name: Check IoT request staging before activation
         shell: bash
         run: |
@@ -1273,20 +1574,31 @@ jobs:
             tools/iot/check-request-stage.c tools/iot/request-stage.c -o abi-results/check-iot-request-stage
           abi-results/check-iot-request-stage | tee abi-results/iot-request-stage.txt
           gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined "${include_flags[@]}" \
-            tools/iot/check-request-snapshot.c tools/iot/request-stage.c tools/iot/request-snapshot.c -o abi-results/check-iot-request-snapshot
+            tools/iot/check-request-snapshot.c tools/iot/request-stage.c tools/iot/request-snapshot.c tools/iot/disable-services.c -o abi-results/check-iot-request-snapshot
           abi-results/check-iot-request-snapshot | tee abi-results/iot-request-snapshot.txt
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            tools/iot/check-disable-controller.c -o abi-results/check-iot-disable-controller
+          abi-results/check-iot-disable-controller | tee abi-results/iot-disable-controller.txt
           compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
           test -n "$compiler"
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float "${include_flags[@]}" \
             -c tools/iot/request-stage.c -o abi-results/iot-request-stage-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float "${include_flags[@]}" \
             -c tools/iot/check-request-snapshot.c -o abi-results/iot-request-snapshot-fixture-mips.o
+          "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float "${include_flags[@]}" \
+            -c tools/iot/disable-services.c -o abi-results/iot-disable-services-mips.o
+          "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+            -c tools/iot/check-disable-controller.c -o abi-results/iot-disable-controller-fixture-mips.o
 
       - name: Check installed IoT firewall policy and quarantine
         shell: bash
         run: |
           set -euo pipefail
           python3 tools/iot/prepare-firewall-check.py iot-rc-source abi-results/check-iot-firewall-installed.c
+          python3 tools/iot/prepare-observation-check.py iot-rc-source/trunk/user/rc/wr-iot-quarantine.c abi-results/check-iot-policy-observed.c
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            abi-results/check-iot-policy-observed.c -o abi-results/check-iot-policy-observed
+          abi-results/check-iot-policy-observed | tee abi-results/iot-policy-observed.txt
           gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -Itools/iot \
             abi-results/check-iot-firewall-installed.c -o abi-results/check-iot-firewall-installed
           abi-results/check-iot-firewall-installed | tee abi-results/iot-firewall-installed.txt

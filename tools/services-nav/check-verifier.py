@@ -40,6 +40,10 @@ if module.enabled(commented_config, "CONFIG_FIRMWARE_INCLUDE_WPAD"):
 active_config = module.parse_config("CONFIG_FIRMWARE_INCLUDE_EOIP=y\n")
 if not module.enabled(active_config, optional):
     raise SystemExit("Navigation ignored an active optional selector")
+if not module.service_excluded("WRServicesNavWatchdog", {"watchdog_cpu"}):
+    raise SystemExit("WR1200JS unsupported CPU watchdog navigation was not excluded")
+if module.service_excluded("WRServicesNavCron", {"watchdog_cpu"}):
+    raise SystemExit("CPU watchdog exclusion suppressed an unrelated service")
 
 if module.add_back_link(
     '<nav id="wr_services_nav"><div class="wr-service-group">links</div></nav>'
@@ -83,4 +87,4 @@ for language, expected in module.VPN_TAB_LABELS.items():
     if module.legacy_vpn_label_contract_error("\n".join(cleaned), language):
         raise SystemExit(f"Prepared {language} VPN labels do not meet the image contract")
 
-print("PASS service panels, active capability parsing, return links and VPN profile route")
+print("PASS service panels, board-specific exclusions, active capability parsing, return links and VPN profile route")

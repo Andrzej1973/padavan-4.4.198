@@ -18,7 +18,7 @@
 #ifndef WR_IOT_CLOSE
 #define WR_IOT_CLOSE fclose
 #endif
-static int wr_iot_profile_replace(const char *path,const char *ssid,const char *password,int enabled) {
+static int wr_iot_profile_replace_direction(const char *path,const char *ssid,const char *password,int enabled,int removing) {
  FILE *input=NULL,*temporary=NULL;int in_fd=-1,out_fd=-1,committed=0,created=0;char *name=NULL;
  struct stat original,current;size_t n;
  if(!enabled)return 1;
@@ -26,12 +26,12 @@ static int wr_iot_profile_replace(const char *path,const char *ssid,const char *
  n=strlen(path);if(n>4096)return 0;
  name=malloc(n+12);if(!name)return 0;
  memcpy(name,path,n);memcpy(name+n,".iot.XXXXXX",12);
- in_fd=open(path,O_RDONLY|O_NOFOLLOW);if(in_fd<0)goto done;
+ in_fd=open(path,O_RDONLY|O_NOFOLLOW|O_NONBLOCK);if(in_fd<0)goto done;
  if(fstat(in_fd,&original)||!S_ISREG(original.st_mode))goto done;
  input=fdopen(in_fd,"r");if(!input)goto done;in_fd=-1;
  out_fd=WR_IOT_MKSTEMP(name);if(out_fd<0)goto done;created=1;
  temporary=fdopen(out_fd,"w");if(!temporary)goto done;out_fd=-1;
- if(!wr_iot_profile_stream(input,temporary,ssid,password,1))goto done;
+ if(!wr_iot_profile_stream_direction(input,temporary,ssid,password,1,removing))goto done;
  if(fflush(temporary)||WR_IOT_FSYNC(fileno(temporary)))goto done;
  if(WR_IOT_CLOSE(temporary)){temporary=NULL;goto done;}temporary=NULL;
  /* Detect changes before commit; caller locking still covers the final rename window. */
@@ -44,5 +44,11 @@ static int wr_iot_profile_replace(const char *path,const char *ssid,const char *
  if(temporary)fclose(temporary);else if(out_fd>=0)close(out_fd);
  if(name){if(created&&!committed)unlink(name);free(name);}
  return committed;
+}
+static inline int wr_iot_profile_replace(const char *path,const char *ssid,const char *password,int enabled){
+ return wr_iot_profile_replace_direction(path,ssid,password,enabled,0);
+}
+static inline int wr_iot_profile_remove_file(const char *path,const char *ssid,const char *password){
+ return wr_iot_profile_replace_direction(path,ssid,password,1,1);
 }
 #endif

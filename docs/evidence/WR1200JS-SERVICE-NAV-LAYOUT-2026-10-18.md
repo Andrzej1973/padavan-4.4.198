@@ -108,3 +108,23 @@ pre-compilation fixture now covers a commented `=y`, an active `=n`, an active
 the existing workflow runs this fixture before firmware compilation. A new
 full-ROMFS check and router-browser review are still pending. No service
 selector or router state was changed.
+
+## Final-ROMFS result — build #488 — 2026-10-19
+
+GitHub Actions run [#488](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/39275709312)
+completed successfully for PR #2. The PR head was `b99d9cd19ec5aa96d550ddf547bc32d92d505d03`;
+the reusable WR1200JS workflow used merge revision
+`a600659e21b63bd8153d51833d2278e203bd4811`.
+
+The firmware job built `WR1200JS_4.4.198.9-488.trx` (12,616,562 bytes;
+SHA256 `9a0b641b4b7c308eda7f25321f41321ce161eb4b8db4cb0e6373dac28287515f`).
+Its final-ROMFS log reports `PASS unified service navigation routes, pages, and
+EN/UK/RU labels`; the firmware ZIP and downloads jobs also completed
+successfully. The overall run displayed a duration of 55m59s, while image
+creation and the final-ROMFS navigation gate completed at 15:25:01 UTC. The
+long wall time therefore did not indicate a stalled firmware compile. No
+cancellation or redundant rerun was needed.
+
+This is CI/image evidence only. It does not show the image installed on the
+router or verify clicking the shortcuts in its physical browser. The previously
+recorded router state and runtime acceptance boundary remain unchanged.

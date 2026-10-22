@@ -1,12 +1,18 @@
 # WR1200JS separate IoT Wi-Fi implementation contract
 
-Staging update, 2026-10-18: `45ff19b` reads back all six temporary credential
-and address fields after clearing, in addition to the three service gates.
-ABI run `39114413340` passed the host sanitizer fixtures and MIPS compilation;
-the downloaded `iot-request-stage.txt` confirms PASS. Six injected setters that
-return success without changing a clear destination are refused. This does not
-enable production activation. Snapshot guard revalidation in `b65acf6` is
-still awaiting its own ABI result (`39114663222`).
+Current checkpoint, 2026-10-18: ABI run [#449](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/39114663222)
+passed for `b65acf6081ebe9e73e8fea7501af346f7473dcd9`. It compiled the
+activation and snapshot components for MIPS and passed host fixtures, including
+retained activation recovery and request-snapshot guard revalidation. The
+source-integration diagnostic still reports activation pending: the tested
+controller uses an injected backend, and production RC bindings, complete
+writer/service rollback, firmware inclusion, and router runtime are not proven.
+See [ABI checkpoint evidence](evidence/IOT-ABI-B65ACF6.md).
+
+The main WR1200JS firmware workflow on `d1dc0eb` explicitly excludes
+`wr-iot-profile.c` and `wr-iot/`; thus the passing full firmware build does not
+contain an accepted IoT implementation. The 2026-10-18 read-only device sample
+also found no live `ra2` interface. No router state was changed.
 
 Approved 2026-10-08. Source inspected at vipshmily/padavan-4.4 commit `c25283e915a2a00a763774dd255b14aff997285e`. This is an implementation contract and partial source audit, not device support proof.
 
@@ -30,6 +36,31 @@ Both driver families expose MBSS profile parsing and virtual-AP initialization. 
 ## Evidence still missing
 
 Effective per-chip third-BSS capacity, complete profile/lifecycle integration, isolated subnet/firewall, WebUI, target build and live-device behavior remain unverified. No router configuration changes are authorized by this audit.
+
+## Authenticated Apply and RC integration audit — 2026-10-21
+
+Follow-up 2026-10-21: the candidate request-stage reader now accepts only the
+separate `wr_iot_request_*` NVRAM namespace. Host staging and snapshot
+fixtures passed with Windows networking/test-path adapters. This closes the
+specific risk of the stage reader consuming ordinary active-form names, but
+does not bind an authenticated form, RC notification or production activation
+controller. Evidence: `evidence/WR1200JS-IOT-CANDIDATE-NAMESPACE-2026-10-21.md`.
+
+The pinned HTTPD source registers `apply.cgi*` as an authenticated handler.
+Its Apply path writes registered form values through `nvram_set`, dispatches
+`action_script` through `sys_script`, then redirects; RC notifications are
+handled separately by `handle_notifications()`. Since `sys_script` has a
+generic `/tmp/<name>` execution fallback, any IoT trigger must be an explicit
+fixed-name branch, never user-controlled shell text. Candidate Wi-Fi values
+must stay separate from active NVRAM until activation succeeds, with original
+state retained for rollback. The generic Apply success callback cannot report
+whether activation actually succeeded, so candidate-table registration alone
+is insufficient. Use a dedicated authenticated submission/result path that
+validates the whole request before writes and serializes it with the fixed RC
+transaction. No production IoT notification consumer or
+activation backend is installed yet. Detailed pinned-source evidence and the
+required control flow are in
+[`WR1200JS-IOT-APPLY-CONTROL-PLANE-2026-10-21.md`](evidence/WR1200JS-IOT-APPLY-CONTROL-PLANE-2026-10-21.md).
 
 Update 2026-10-18: build #451 run `39114348390` passed the production
 Kbuild capacity gate. Downloaded original reports are preserved as
@@ -119,6 +150,90 @@ and `fd51::2 REACHABLE`, so an absent NDP response alone does not explain the
 missing TCP reply. Diagnostics now also capture the reverse route, LAN IPv6
 listener via `ss`, and the pre-firewall FORWARD table. No IPv6 packet-policy
 conclusion is established yet.
+
+## Radio writer coordination requirement — 2026-10-21
+
+Legacy module helper return values do not prove a fresh adapter: smart_unload
+returns 1 even for a busy module without issuing removal, while smart_load
+returns 0 for an already loaded module. Require strict absent/present/error
+observations and interface generation/state before/after any selected reload;
+verify 5 GHz is preserved. Legacy void stop/start wrappers do not establish
+individual interface success or exact main/guest restoration.
+
+Changing BssidNum is not address-neutral. Pinned MT7603 capability defaults to
+HIF_MT/MBSSID_MODE4; its MT_MAC path changes the address mask at 2→3 BSSes.
+Guest MAC can therefore change depending on factory address bits even while
+main remains unchanged. Verify actual mode/addresses, main/guest/APCLI/WDS
+mapping and hardware filter behavior before choosing a reserved-third-BSS or
+fresh-adapter lifecycle. Do not silently promise MAC preservation or patch a
+mask without target evidence. Record any required migration before acceptance.
+
+Distinguish failed-startup rollback from normal disable after ACTIVE. DNS
+activation commit releases its original service/file/lease snapshot; abort
+cannot restore that snapshot afterward. Normal OFF requires a fresh guarded
+transaction against the current main/guest/service configuration, removing
+only owned IoT resources and preserving subsequent legitimate changes. Do not
+keep the startup service guard indefinitely through ACTIVE or replay an old
+global DNS configuration on normal OFF. The real backend must prove both
+startup rollback and post-commit disable/recovery before acceptance.
+
+Normal OFF must prepare and commit replacement DNS/DHCP before removing its
+owned bridge: old service configuration can depend on that interface during
+failure recovery. First quiesce IoT BSS and install full quarantine, close
+internal gates, regenerate/verify services with no owned IoT fragment, then
+bring down/detach/remove the bridge and remove the owned profile. A foreign
+bridge or administratively UP BSS must refuse service-disable preparation.
+Administrative DOWN alone is not vendor RF quiescence proof.
+
+### Driver transition gate before IoT installation — 2026-10-22
+
+The current isolated MT76x3 radio bundle is a candidate, not an installed
+driver change. Before copying it into the build source, demonstrate one
+per-adapter transition owner across MBSS_OPEN, VIRTUAL_INF_UP, CR_ENABLE,
+queue publication, CR_DISABLE, MBSS_CLOSE, VIRTUAL_INF_DOWN and PDMA reset.
+The design must state which steps can sleep, which run in interrupt/BH
+context, and how reset waits for or invalidates an in-flight open without
+holding BcnRingLock across polls, ring cleanup or physical startup. Do not
+assume the generic DISABLE_DEQUEUEPACKET flag identifies reset: radio-off
+and ATE also write it.
+
+For every failed open, prove exactly one reference/count rollback and
+selected-BSS intent cleanup, with separate cases for the first virtual
+interface (`rt28xx_open` path) and an additional interface (all-BSS beacon
+rebuild path). The rollback must not close a different active interface or
+resume beacon submission after reset/administrative radio-off. A CR_ENABLE
+error must be observed by the owner; a successful netdev open with failed
+CR_ENABLE is not an acceptable state. Cover concurrent close and reset
+entry/exit, including repeated retries, in fault-injection checks.
+
+Only then stage the full modified MT76x3 source in the exact WR1200JS build
+path, compile the actual selected MIPS driver object/module, and inspect the
+final image and build log. The existing ABI job compiles host/MIPS fixtures
+extracted from the candidate; those fixtures do not prove a real driver
+object builds or is installed. Preserve `production_installed=false` and
+`bss_close_exclusion_proven=false` until their respective evidence exists.
+Device RF silence, main/guest preservation and recovery remain separate
+runtime acceptance gates. Source basis: pinned commit
+`c25283e915a2a00a763774dd255b14aff997285e`, with the detailed audit
+in `evidence/WR1200JS-IOT-ACTIVATION-GAP-2026-10-21.md`.
+
+Reserved third-BSS startup is not approved merely because ra2 is DOWN. Prove
+beacon intent and management/data dispatch across both initial and repeated
+main-radio opens. Pinned mt76x3 `wdev_bcn_buf_init()` does not clear bBcnSntReq;
+an existing adapter must not be treated like fresh zeroed memory. Require an
+observed silent/down/unattached baseline and preserve main/guest state before
+selecting a lifecycle implementation. See the activation-gap source evidence.
+
+The activation controller must coordinate legacy manual/scheduled radio and
+guest changes, not just serialize its own request queue. `reload_svc_rt` causes
+watchdog to requeue schedule controls; it is not a module reload. Preserve
+scheduled/user radio-off intent. A legacy stop/restart must transition or
+invalidate the controller's ACTIVE result and retain required recovery state;
+status must not continue reporting ACTIVE solely from an earlier terminal
+mailbox record. Cover events queued during startup/recovery and post-activation
+profile changes before production integration. The current quiescence hooks
+alone do not satisfy this requirement. Source evidence and pending cases are
+in `evidence/WR1200JS-IOT-ACTIVATION-GAP-2026-10-21.md`.
 
 ## Source-level radio capacity diagnostic — 2026-10-18
 

@@ -1,9 +1,138 @@
 # Existing service port and settings-page audit
 
+## Board-scoped capability correction — 2026-10-21
+
+The WR1200JS `watchdog_cpu` enable control is being removed because its
+optional `rt_timer_wdg` provider is absent; the built-in MT7621 watchdog is a
+separate path and remains untouched. The legacy lifecycle is made inert and
+the board default becomes off, while generic defaults and behavior for other
+boards remain intact. Source-fixture/navigation checks passed locally. The
+final-ROMFS gate and a build containing this change remain pending. See
+`evidence/WR1200JS-CPU-WATCHDOG-CAPABILITY-2026-10-21.md`.
+
 Date: 2026-10-11. The comparison uses the project's pinned Padavan 4.4.198
 source commit `c25283e915a2a00a763774dd255b14aff997285e` and the Nilabsent
 donor commit `14e4fac1ca24ab15278378d3e994db82fc9bcdda`. This is a source review;
 the current WR1200JS Linux 4.4.198 image has not been run on the physical router.
+
+## Latest service audit checkpoint — 2026-10-21
+
+### Update — 2026-10-21 16:59 UTC
+
+Reproduced the Privoxy verifier's Apply-response extraction in memory against
+the pinned Padavan `web_ex.c` at `c25283e915a2a00a763774dd255b14aff997285e`.
+The exact upstream Save/Apply anchor matched; after applying the Privoxy
+failure-response replacement and the shared-Wi-Fi `&shared` rewrite, the
+current verifier found the Apply call and verified all ordering, callback,
+restart-clear and abort conditions. This is stronger than a hand-written
+synthetic handler fixture, but it is still not the complete source pipeline or
+a final ROMFS run. The new image gate remains required.
+
+### Update — 2026-10-21 16:56 UTC
+
+Ran `python tools/check-target-busybox-map.py`, the repository's pre-build
+selector-map gate. It passed the 12 active-service-map coverage fixtures,
+including rejection cases for a missing map, omitted selector, missing check
+and failed check. It confirmed that all 43 active WR1200JS `INCLUDE` selectors
+have an explicit service/component classification, that both Shadowsocks
+aliases resolve to the effective package map, and that the SFE/QoS exact-image
+gates require their listed modules/configuration. It also confirmed the WPAD
+and ZRAM final-ROMFS verifiers are ordered before the exact-image BusyBox audit.
+This validates source-level audit coverage only; it does not validate a new
+ROMFS, image BusyBox binary, service lifecycle or router runtime.
+
+### Update — 2026-10-21 16:57 UTC
+
+Retrieved the exact #513 Actions job steps and relevant log lines. The run
+passed the DNS listener-conflict scenarios, the target dnsmasq combined
+DoT/DoH config parse under QEMU, the Stubby lookup check and the exact target
+BusyBox shell audit. Its later Privoxy final-image gate failed, so the DoH
+packaging gate and subsequent discovery/KMS checks were skipped. This is
+partial build/image evidence, not a verified downloadable image or router
+runtime acceptance. The detailed boundaries are in
+`evidence/WR1200JS-DNS-LISTENER-CONFLICT-GUARD-2026-10-21.md`.
+
+### Update — 2026-10-21 16:53 UTC
+
+Rechecked the current branch locally. `tools/services-nav/check-verifier.py`
+passes the service-panel, board-exclusion, active-selector, return-link and VPN
+profile-route checks. `tools/check-wr1200js-cpu-watchdog.py` passes the
+WR1200JS-specific toggle removal, inert legacy lifecycle, off default,
+read-only status retention and navigation exclusion fixture. An in-memory
+Privoxy Apply parser fixture passes both the original two-argument call and
+the shared-Wi-Fi `&shared` call, retaining the failure callback, pending-restart
+clears and abort before success. `git diff --check` reports no whitespace
+errors; it emits only existing CRLF normalization warnings in two audit docs.
+
+The final-image verifier was not run: `padavan-4.4/trunk/romfs` is absent in
+this checkout. A live GitHub Actions query found no newer firmware run than
+#513: #513 is completed with failure after compilation/QEMU and the Privoxy
+ROMFS gate; the newest run overall is Agent build failure monitor #125, not a
+firmware build. No verified downloadable image or new router runtime evidence
+exists for these local changes. Keep the source/image checks open. Next: include
+the changes in a permitted WR1200JS image run, inspect its exact artifacts,
+then refresh read-only device checks when the executor's SSH restriction is
+resolved. No router state was changed.
+
+The active `configs.build/wr1200js.config` was also evaluated against the
+navigation capability map. Expected links are Stubby, DoH, WireGuard/AmneziaWG
+profiles, ZeroTier, Shadowsocks, Privoxy, WPAD/PAC, HTTP/HTTPS, SSH, Telnet,
+iPerf3, Cron, KMS, LLTD discovery and ASUS Info Discovery. EoIP is excluded by
+its commented selector; the unsupported `watchdog_cpu` link is excluded by the
+WR1200JS board policy. This is the generator's source-level expected menu, not
+proof that a final image contains it.
+
+### Update — 2026-10-21 16:38 UTC
+
+Build #513 completed its WR1200JS compiler step and Stubby/QEMU checks, then
+failed only the Privoxy `save_failure_apply_order` assertion among the
+reported Privoxy predicates. The uploaded artifact showed that all failure
+handling markers were present, but `apply_call_found` was false because the
+image verifier required the two-argument Apply call even though the subsequent
+shared-Wi-Fi transform adds `&shared`. The verifier now recognizes that
+transformed spelling and checks it inside the Save/Apply response block while
+retaining all failure callback, restart-clear and abort requirements. Its
+in-memory transformed-call fixture passed; no subsequent image has verified
+the fix yet. #513 produced no verified download. See
+`evidence/WR1200JS-BUILD513-SERVICE-AUDIT.md`.
+
+The managed executor's latest SSH attempt was intercepted by its deny-bin
+before handshake or authentication. The latest authenticated router snapshot
+is still 16:18 UTC; there was no router change.
+
+### Historical live refresh — 2026-10-21 16:18 UTC
+
+This state was superseded by the 16:38 update above.
+
+Firmware build #513 (`39632923432`) is running on source HEAD `8ff6016`.
+Its WR1200JS compile job remains in progress; service image gates have not yet
+run. The separate Band Steering ABI workflow is not a firmware build. SSH
+access is restored at `192.168.20.1`: KMS is enabled/present; LLTD, ASUS
+Discovery and Cron are disabled/absent. The saved CPU watchdog flag is on but
+`rt_timer_wdg` is absent; the distinct built-in watchdog path exists, though
+timer servicing is unverified. Current filtered logs had no matching entries.
+Installed navigation still has generic Cron/Watchdog/Discovery links and no
+row anchors for those controls. No router state changed. See the latest SSH
+check in `evidence/WR1200JS-SERVICE-READONLY-CHECK-2026-10-21.md`.
+
+Firmware run #512 (`39624109819`, source `22431a94`) completed compilation and
+passed the combined Stubby dnsmasq configuration check under QEMU using the
+temporary guest `/dev/urandom` overlay. It then failed the Privoxy final-image
+gate `save_failure_apply_order`; all other checks in the uploaded
+`privoxy-image-checks` report passed. The downloads job rejected the incomplete
+selected-build set, so the run produced no verified downloadable image. This
+is now the blocking item 4 gate. Diagnose it against the exact transformed
+`web_ex.c`; retain strict proof that a storage-save failure returns an error,
+clears pending restart events, and suppresses the success callback.
+
+Fresh read-only router observations from 2026-10-21 are recorded in
+`evidence/WR1200JS-SERVICE-READONLY-CHECK-2026-10-21.md`: KMS enabled/running;
+LLTD and ASUS discovery disabled/stopped; Cron disabled with no process; a
+`/sbin/watchdog` process exists, but the matching persisted UI flag was not
+established. The installed Services page still uses generic System navigation
+targets; `buildno` is empty, so installed-image identity is unknown. Browser
+authentication to the alternate router address failed; no device state was
+changed.
 
 ## Keep the Padavan baseline intact
 
@@ -148,32 +277,31 @@ configuration-generator fixture and syntax checks of seven shell files passed.
 The startup script, guard and dnsmasq emitter now enforce the form's existing
 1024..65535 Stubby port range without rewriting saved settings. Invalid
 listeners retain `no-resolv`. The image runner's DoH guard source reference was
-corrected to the shared dns-common directory. Target BusyBox/QEMU and ROMFS
-source-identity checks remain pending. A separate fixture compiles and exercises
-the actual two C emitters
-alone and together, checks their final prepared-source call sites, and asks the
-built target dnsmasq under QEMU to parse the combined file. It proves
-configuration generation and syntax acceptance only; it does not prove live
-DoT/DoH queries or upstream preference. Native GCC compilation and execution
-passed ten cases (four modes and six Stubby port boundaries); the checker now
-supports Windows execution. A strict-compiler warning in the validated IPv4
-bootstrap copies was fixed with an explicit 15-character bound in both
-emitters. Final prepared-source and target dnsmasq/QEMU checks remain pending.
-Build #504 tested a
-Stubby DoT lookup under QEMU and DoH packaging separately, not simultaneous
-mode behavior. The 2026-10-18 read-only device sample showed strict-mode Stubby
-enabled and DoH disabled; exact installed image identity remains unknown.
+corrected to the shared dns-common directory. Build #513 then passed the target
+BusyBox listener-conflict fixture, parsed the combined emitted DoT/DoH config
+with the image dnsmasq under QEMU, and completed an authenticated DoT lookup
+through the image Stubby binary. The Stubby image gate also passed. Its later
+DoH image-packaging/source-identity gate was skipped after the earlier Privoxy
+gate failed, so the DoH ROMFS binary and installed guard identity are not
+confirmed by #513. The C-emitter fixture separately compiles and exercises the
+actual two emitters alone and together, and checks prepared-source call sites;
+it proves configuration generation and syntax acceptance only, not live
+DoH/DoT routing or upstream preference. Native GCC compilation passed ten
+cases (four combined/individual modes and six Stubby port boundaries). The
+2026-10-18 read-only router sample showed strict-mode Stubby enabled and DoH
+disabled; the installed firmware identity remains unknown.
 
 Keep the combined mode supported as a pool of encrypted upstreams, and keep
 service-specific preference/failover acceptance open until target runtime
 measurements are available. The source guard addresses configured DoT/DoH
-listener overlap only; final-ROMFS and target BusyBox verification remain open.
+listener overlap only. The #513 target parser/BusyBox checks do not replace the
+skipped DoH-specific ROMFS gate or physical runtime checks.
 
 | Component | Source and current profile | Port status / next check |
 |---|---|---|
-| dnsmasq | Pinned base, always built; receives resolver settings and DHCP DNS requests. | Verify final generated config contains only intended upstreams, no resolver loop, and explicit clock-bootstrap exceptions. The provided log shows routing directives were loaded, but does not prove successful resolution. |
-| Stubby / DoT | Project port, selected in WR config, runtime default off. Provider defaults match the existing 3.4 router: Google, Cloudflare and Quad9; `dot.json` supports the provider list. | Build #504 passed final-ROMFS/ELF dependency checks and authenticated DoT under QEMU. Local guard/configuration, native emitter and shell syntax checks passed. Current target BusyBox/QEMU and ROMFS checks are pending. Still verify on the router: catalog load, TLS/time bootstrap, queries through dnsmasq, clean stop and reboot persistence. |
-| DoH (`https_dns_proxy`) | Project port, selected in WR config, runtime default off; `doh.json` supplies provider choices. | Build #504 passed the DoH image/ELF dependency gate. Local guard, native emitter and shell syntax checks passed. Current target BusyBox/QEMU and ROMFS checks are pending. On-router checks remain: generated dnsmasq newline, enabled queries, clean stop, fail-closed behavior and reboot persistence. |
+| dnsmasq | Pinned base, always built; receives resolver settings and DHCP DNS requests. | Build #513's target dnsmasq parsed the combined emitted DoT/DoH config under QEMU. Verify the live generated file from current NVRAM has only intended upstreams, no loop, and explicit time-bootstrap exceptions; parsing does not prove successful routing/resolution on the router. |
+| Stubby / DoT | Project port, selected in WR config, runtime default off. Provider defaults match the existing 3.4 router: Google, Cloudflare and Quad9; `dot.json` supports the provider list. | Build #513 passed the Stubby final-ROMFS/ELF gate and authenticated DoT lookup using image binaries under QEMU; target BusyBox audit and listener-guard cases also passed. Device acceptance remains open: catalog load, TLS/time bootstrap, queries through dnsmasq, clean stop and reboot persistence. |
+| DoH (`https_dns_proxy`) | Project port, selected in WR config, runtime default off; `doh.json` supplies provider choices. | Build #504 passed its DoH image/ELF dependency gate. Build #513's combined-config parser passed, but its DoH package/guard source-identity gate was skipped after the Privoxy failure. On-router checks remain: package/ROMFS, generated dnsmasq config, enabled queries, clean stop, fail-closed behavior and reboot persistence. |
 | SmartDNS | Pinned base has a `smartdns` build recipe and `Advanced_smartdns.asp`; WR selector is commented. | Reuse the existing base integration when requested; verify the page is preserved and hidden unless the package is included. |
 | DNSCrypt | Not registered by the pinned base. Nilabsent provides `dnscrypt-proxy` 1.9.5, its shell service, a CSV list and `Advanced_Services_DNSCrypt.asp`; WR selector is commented. | Optional port is not implemented. The donor's old v1 list format should not be presented as current. Select and build a suitable MIPS/uClibc version, then port recipe, runtime/menu/HTTP fields, resolver catalogue and translations as one feature. Keep default off. |
 | DNS forwarder / dnsproxy | Pinned base contains `dns-forwarder` (with an existing page) and `dnsproxy` package sources. | Preserve existing pages and capability gates; check which one the chosen profile actually includes and prevent unintended double-forwarding with DoT/DoH. |

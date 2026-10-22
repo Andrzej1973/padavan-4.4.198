@@ -60,19 +60,36 @@ corrected from the nonexistent `ports/doh/dns-listener-guard.sh` to the shared
 
 ## CI and runtime status
 
-The GitHub Actions page showed firmware build #505 as the latest firmware run;
-it failed before compilation at the legacy VPN selector gate. Build #504 is
-older and does not contain this local guard. The newer successful #113 entry
-is the Agent build-failure monitor, not a firmware image build. Therefore no
-CI result includes this patch yet.
+### Build #513 follow-up — 2026-10-21 16:57 UTC
 
-The workflow now contains a host fixture step. The Stubby QEMU script also
-executes the fixture with the image BusyBox when both service binaries are in
-ROMFS, and the Stubby/DoH image verifiers compare installed guards with their
-prepared sources. Those target and image checks have not run. Native emitter
-execution passed locally; the built MIPS dnsmasq/QEMU parser gate remains pending.
+GitHub Actions run [#513](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/39632923432)
+used PR head `8ff6016947bcb19363a7f0ddbc502a217432868b`; its job checked out
+the PR merge commit `7160ecdb267c6c974590c57a63abeef27f5998ec`. The log shows
+the DNS listener-conflict scenario check passed, the combined DoT/DoH dnsmasq
+configuration was accepted by the built target dnsmasq under QEMU, the image
+Stubby lookup step passed, and the exact target BusyBox shell audit passed.
+These results verify the exercised guard/configuration and selected image
+checks for that run, not live DNS behavior on the router.
 
-No firmware build was started, no router setting or service was changed, and
-no router reboot or flash was performed. DoT/DoH live DNS behavior, failover,
+The run later failed at the Privoxy final-image gate. Consequently subsequent
+DoH packaging, discovery/KMS image checks and other gated steps were skipped;
+this run does not prove that DoH was packaged. It also produced no verified
+downloadable image. DoH image verification, simultaneous live DoT/DoH behavior,
+upstream preference/failover, persistence and router runtime remain open.
+
+This supersedes the earlier statement below that no CI result included the DNS
+listener guard. The later #513 workflow did exercise its host/target checks,
+although the overall image verification did not complete.
+
+Historical note from the original report: at that checkpoint, the workflow's
+host fixture was wired but the target BusyBox/QEMU and image-verifier checks
+had not yet run. This was superseded by the #513 results above for the checks
+that actually ran. DoH image verification still did not run because the earlier
+Privoxy gate failed.
+
+At the time the local source patch was prepared, no firmware build was started.
+Later, #513 built the firmware and completed the DNS checks recorded above,
+then failed the Privoxy gate. No router setting/service was changed, and no
+router reboot or flash was performed. DoT/DoH live DNS behavior, failover,
 restart behavior, persistence, and simultaneous service operation remain
 unverified on the physical WR1200JS.

@@ -3,12 +3,6 @@ on:
   workflow_run:
     workflows: [Build selected router firmware, Padavan Linux 4.4.198 WR1200JS, Service runtime state checks, Band Steering driver ABI]
     types: [completed]
-  schedule:
-    - cron: '17,47 * * * *'
-  workflow_dispatch:
-  push:
-    branches: [main]
-    paths: ['tools/agent-nim/build_monitor.nim', 'tools/agent-nim/build_log.nim', 'tools/agent-nim/config.nims', 'tools/agent-nim/check_build_monitor.py', 'tools/agent-nim/check_build_log.py', '.github/workflows/monitor-agent.yml']
 permissions:
   contents: read
   actions: read
@@ -17,7 +11,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   monitor:
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'failure'
+    if: github.event.workflow_run.conclusion == 'failure'
     runs-on: ubuntu-22.04
     timeout-minutes: 10
     steps:

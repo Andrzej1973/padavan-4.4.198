@@ -81,6 +81,10 @@ def enabled(config: set[str], capability: str | None) -> bool:
     return capability is None or any(f"{item}=y" in config for item in capability.split("|"))
 
 
+def service_excluded(label_key: str, excluded_services: set[str]) -> bool:
+    return label_key == "WRServicesNavWatchdog" and "watchdog_cpu" in excluded_services
+
+
 def page_path(www: Path, route: str) -> Path:
     return www / route.split("#", 1)[0]
 
@@ -94,11 +98,14 @@ def add_back_link(nav: str) -> str:
     )
 
 
-def rendered_groups(www: Path, config: set[str]) -> str:
+def rendered_groups(www: Path, config: set[str], excluded_services: set[str] | None = None) -> str:
+    excluded_services = excluded_services or set()
     chunks = []
     for heading, entries in GROUPS:
         links = []
         for label_key, route, capability in entries:
+            if service_excluded(label_key, excluded_services):
+                continue
             if not enabled(config, capability):
                 continue
             target = page_path(www, route)
@@ -281,8 +288,10 @@ def status_panel_contract_error(text: str) -> str | None:
     return next((marker for marker in required if marker not in text), None)
 
 
-def verify(www: Path, config: set[str], *, image: bool = False) -> None:
-    nav = rendered_groups(www, config)
+def verify(www: Path, config: set[str], *, image: bool = False,
+           excluded_services: set[str] | None = None) -> None:
+    excluded_services = excluded_services or set()
+    nav = rendered_groups(www, config, excluded_services)
     pages = ["Advanced_Services_Content.asp", "Advanced_Services_DoT.asp",
                  "Advanced_Services_DoH.asp", "Advanced_Services_Privoxy.asp",
                  "vpncli.asp", "Advanced_zerotier.asp", "Advanced_Services_EoIP.asp",
@@ -330,13 +339,17 @@ def verify(www: Path, config: set[str], *, image: bool = False) -> None:
             if "grid-template-columns:repeat(3,minmax(0,1fr))" not in text:
                 raise SystemExit("Unified service navigation is missing its two-row desktop grid")
         if name == "Advanced_Services_Content.asp":
-            for label_key, route in (
+            expected_service_routes = [
                 ("WRServicesNavCron", "Advanced_Services_Content.asp#crond_enable_on_of"),
-                ("WRServicesNavWatchdog", "Advanced_Services_Content.asp#watchdog_cpu_on_of"),
                 ("WRServicesNavDiscovery", "Advanced_Services_Content.asp#lltd_enable_on_of"),
                 ("WRServicesNavASUSDiscovery", "Advanced_Services_Content.asp#adsc_enable_on_of"),
                 ("WRServicesNavTelnet", "Advanced_Services_Content.asp#telnetd_on_of"),
-            ):
+            ]
+            if "watchdog_cpu" not in excluded_services:
+                expected_service_routes.append(
+                    ("WRServicesNavWatchdog", "Advanced_Services_Content.asp#watchdog_cpu_on_of")
+                )
+            for label_key, route in expected_service_routes:
                 expected = f'href="/{route}"><#{label_key}#></a>'
                 if expected not in nav_html:
                     raise SystemExit(f"{label_key} does not navigate to its service control")
@@ -381,15 +394,18 @@ def main() -> None:
     parser.add_argument("source", type=Path, help="Padavan source tree or extracted ROMFS tree")
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--verify-image", action="store_true")
+    parser.add_argument("--exclude-service", action="append", default=[],
+                        choices=("watchdog_cpu",),
+                        help="omit a board-unsupported control from navigation")
     args = parser.parse_args()
     config = read_config(args.config)
     www = args.source / ("www" if args.verify_image else "trunk/user/www/n56u_ribbon_fixed")
     if not www.is_dir():
         raise SystemExit(f"Web root not found: {www}")
     if args.verify_image:
-        verify(www, config, image=True)
+        verify(www, config, image=True, excluded_services=set(args.exclude_service))
         return
-    nav = rendered_groups(www, config)
+    nav = rendered_groups(www, config, set(args.exclude_service))
     prepare_legacy_vpn_tabs(www, config)
     pages = ["Advanced_Services_Content.asp"]
     for _, entries in GROUPS:

@@ -9,8 +9,22 @@
 
 static const char *wr_iot_request_nvram(void *context,const char *key)
 {
+ static const struct {const char *field,*candidate;} fields[]={
+  {"wr_iot_enable","wr_iot_request_enable"},
+  {"wr_iot_ssid","wr_iot_request_ssid"},
+  {"wr_iot_psk","wr_iot_request_psk"},
+  {"wr_iot_gateway","wr_iot_request_gateway"},
+  {"wr_iot_mask","wr_iot_request_mask"},
+  {"wr_iot_start","wr_iot_request_start"},
+  {"wr_iot_end","wr_iot_request_end"}
+ };
+ size_t i;
  (void)context;
- return nvram_safe_get(key);
+ /* The authenticated form must write only candidate fields. Reading the
+  * active profile here would let apply.cgi change it before activation. */
+ for(i=0;i<sizeof(fields)/sizeof(fields[0]);i++)
+  if(!strcmp(key,fields[i].field))return nvram_safe_get(fields[i].candidate);
+ return NULL;
 }
 
 static int wr_iot_request_clear(void)
@@ -36,13 +50,23 @@ static int wr_iot_request_clear(void)
  return !failed;
 }
 
-static int wr_iot_request_stage_locked(int router_mode,int radio_on,int radio_mode)
+static int wr_iot_gate_closed(const char *key)
+{
+ const char *value=nvram_safe_get(key);
+ return value&&(!*value||!strcmp(value,"0"));
+}
+
+static int wr_iot_request_stage_locked(const char *(*read)(void *,const char *),
+ void *context,int router_mode,int radio_on,int radio_mode)
 {
  struct wr_iot_request request;
- /* Existing bridges belong to the activation/recovery controller. Staging
-  * must never clear the live service gates or adopt a foreign bridge. */
+ /* Existing bridges or open service gates belong to activation/recovery.
+  * Refuse them before validation or writes; only the controller may quiesce. */
  if(if_nametoindex("br-iot"))return 0;
- if(!wr_iot_request_read(&request,wr_iot_request_nvram,NULL,router_mode,radio_on,
+ if(!wr_iot_gate_closed("wr_iot_profile_t")||
+    !wr_iot_gate_closed("wr_iot_network_t")||
+    !wr_iot_gate_closed("wr_iot_firewall_t"))return 0;
+ if(!wr_iot_request_read(&request,read,context,router_mode,radio_on,
                          radio_mode,NULL,0))return 0;
  /* Validate live interface and route overlaps before any writes.
   * Activation must repeat validation if routing changes afterwards. */
@@ -74,11 +98,19 @@ static int wr_iot_request_stage_locked(int router_mode,int radio_on,int radio_mo
  return 1;
 }
 
-int wr_iot_request_stage(int router_mode,int radio_on,int radio_mode)
+int wr_iot_request_stage_from(const char *(*read)(void *,const char *),void *context,
+ int router_mode,int radio_on,int radio_mode)
 {
- int token=wr_iot_service_guard_enter(1),result;
+ int token,result;
+ if(!read)return 0;
+ token=wr_iot_service_guard_enter(1);
  if(token!=1)return 0;
- result=wr_iot_request_stage_locked(router_mode,radio_on,radio_mode);
+ result=wr_iot_request_stage_locked(read,context,router_mode,radio_on,radio_mode);
  wr_iot_service_guard_leave(token);
  return result;
+}
+
+int wr_iot_request_stage(int router_mode,int radio_on,int radio_mode)
+{
+ return wr_iot_request_stage_from(wr_iot_request_nvram,NULL,router_mode,radio_on,radio_mode);
 }

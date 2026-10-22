@@ -82,4 +82,37 @@ int wr_iot_policy_enable_current(void)
   start_firewall_ex();
  return 0;
 }
+static int wr_iot_active_filter_observed(const char *lan,const char *wan)
+{
+#if defined(USE_IPV6)
+ static const char *const keys[]={"wr_iot_gateway_t","wr_iot_mask_t","wr_iot_start_t","wr_iot_end_t"};
+ struct wr_iot_firewall rules;char values[4][16];const char *value;size_t i,n;
+ if(!nvram_match("wr_iot_network_t","1")||
+    !nvram_match("wr_iot_firewall_t","1"))return 0;
+ for(i=0;i<4;i++){
+  value=nvram_safe_get(keys[i]);n=strlen(value);
+  if(n>=sizeof(values[i]))return 0;
+  memcpy(values[i],value,n+1);
+ }
+ if(!wr_iot_active_filter_plan(&rules,lan,wan)||
+    !wr_iot_bridge_address_matches(values[0],values[1])||
+    !wr_iot_network_services_ready(values[0])||
+    !wr_iot_policy_rules_observed(rules.ipv4,rules.ipv6)||
+    !wr_iot_bridge_address_matches(values[0],values[1]))return 0;
+ /* Observed rules cannot attest a different current desired configuration.
+  * The caller still serializes writers; this is not an atomic NVRAM snapshot. */
+ for(i=0;i<4;i++)if(strcmp(values[i],nvram_safe_get(keys[i])))return 0;
+ return nvram_match("wr_iot_network_t","1")&&
+        nvram_match("wr_iot_firewall_t","1");
+#else
+ return 0;
+#endif
+}
+int wr_iot_active_filter_observed_current(void)
+{
+ char before[16],after[16];
+ if(!wr_iot_policy_current_wan(before)||
+    !wr_iot_active_filter_observed(IFNAME_BR,before))return 0;
+ return wr_iot_policy_current_wan(after)&&!strcmp(before,after);
+}
 #endif

@@ -34,6 +34,9 @@ jobs:
       - name: Check unified service navigation image gate before compilation
         run: python3 tools/services-nav/check-verifier.py
 
+      - name: Check WR1200JS unsupported CPU watchdog exclusion before compilation
+        run: python3 tools/check-wr1200js-cpu-watchdog.py
+
       - name: Check inherited dictionary localization transform before compilation
         run: python3 tools/check-inherited-dict-localization.py
 
@@ -226,6 +229,7 @@ jobs:
           python3 tools/prepare-ssh-status.py padavan-4.4
           python3 tools/prepare-cron-status.py padavan-4.4
           python3 tools/prepare-discovery-status.py padavan-4.4
+          python3 tools/prepare-wr1200js-cpu-watchdog.py padavan-4.4
           python3 tools/prepare-vpn-interface-status.py padavan-4.4
           cp overlay/padavan-4.4/trunk/user/rp-l2tp/Makefile \
             padavan-4.4/trunk/user/rp-l2tp/Makefile
@@ -512,7 +516,7 @@ jobs:
           python3 tools/eoip/prepare-settings.py padavan-4.4 --config configs.build/wr1200js.config
           python3 tools/eoip/prepare-page.py padavan-4.4 --config configs.build/wr1200js.config
           python3 tools/services-nav/prepare-unified-nav.py padavan-4.4 \
-            --config configs.build/wr1200js.config
+            --config configs.build/wr1200js.config --exclude-service watchdog_cpu
           python3 tools/connected-devices/prepare-ui.py padavan-4.4
           python3 tools/shared-wifi/check-source-integration.py padavan-4.4
           python3 tools/shared-wifi/prepare-http-check.py padavan-4.4 --output shared-wifi-http-check.c
@@ -867,7 +871,7 @@ jobs:
           fi
           grep -q '^CONFIG_FIRMWARE_INCLUDE_DDNS_SSL=y$' trunk/.config
           python3 ../tools/services-nav/prepare-unified-nav.py trunk/romfs \
-            --config trunk/.config --verify-image
+            --config trunk/.config --verify-image --exclude-service watchdog_cpu
           python3 ../tools/prepare-shadowsocks-localization.py trunk/romfs --verify-image
           python3 ../overlay/padavan-4.4/scripts/verify-ddns-elf.py \
             trunk/romfs ../ddns-elf-dependencies.json
@@ -1289,6 +1293,9 @@ jobs:
 
       - name: Verify discovery and KMS status in final ROMFS
         run: python3 tools/verify-discovery-status-image.py padavan-4.4/trunk/romfs
+
+      - name: Verify unsupported CPU watchdog exclusion in final ROMFS
+        run: python3 tools/verify-wr1200js-cpu-watchdog-image.py padavan-4.4/trunk/romfs
 
       - name: Verify DoH image packaging and ELF dependencies
         run: |
