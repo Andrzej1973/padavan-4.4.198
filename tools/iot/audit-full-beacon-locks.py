@@ -38,8 +38,26 @@ def inventory(source, candidate, manifest):
         raise ValueError('Candidate has no original Git blob inventory')
 
     source_files = files_under(source)
+    all_candidate_files = files_under(candidate)
+    records = manifest.get('files')
+    if not isinstance(records, list):
+        raise ValueError('Candidate has no file hash inventory')
+    recorded = {}
+    for item in records:
+        if not isinstance(item, dict) or not isinstance(item.get('path'), str) or \
+                not isinstance(item.get('sha256'), str):
+            raise ValueError('Candidate file hash record is malformed')
+        name = item['path']
+        if name in recorded:
+            raise ValueError(f'Duplicate candidate file hash record: {name}')
+        recorded[name] = item['sha256']
+    if recorded.keys() != all_candidate_files.keys():
+        raise ValueError('Candidate files differ from the manifest file inventory')
+    for name, path in all_candidate_files.items():
+        if hashlib.sha256(path.read_bytes()).hexdigest() != recorded[name]:
+            raise ValueError(f'Candidate file SHA-256 mismatch: {name}')
     candidate_files = {
-        name: path for name, path in files_under(candidate).items()
+        name: path for name, path in all_candidate_files.items()
         if name.split('/', 1)[0] in SOURCE_DIRS
     }
     for name, expected in originals.items():
@@ -107,7 +125,10 @@ def main():
         if not root.is_dir():
             parser.error(f'Input directory is missing: {root}')
     manifest = json.loads(args.candidate_manifest.read_text(encoding='utf-8'))
-    result = inventory(args.pinned_source, args.candidate_driver, manifest)
+    try:
+        result = inventory(args.pinned_source, args.candidate_driver, manifest)
+    except ValueError as exc:
+        parser.error(str(exc))
     if args.expect_full_candidate:
         shape = (result['source_file_count'], result['candidate_overlay_file_count'],
                  result['original_git_blobs_verified'], result['lock_units'],
