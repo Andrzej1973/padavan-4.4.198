@@ -34,7 +34,17 @@ if a.cleanup_candidate:
     start=dispatch.index('\t\twr_iot_queue_cleanup(cmdqelmt);',start)
     end=dispatch.index('\n\t}\n}',start)
     release=dispatch[start:end]
-    start=shutdown.index('INT RTPCICmdThread(')
+    worker=shutdown.index('INT RTPCICmdThread(')
+    notify_start=shutdown.index('    NdisAcquireSpinLock(&pAd->CmdQLock);',worker)
+    notify_end=shutdown.index('\tif (!pAd->PM_FlgSuspend)\n\t{\t/* Clear the CmdQElements. */',notify_start)
+    notification=shutdown[notify_start:notify_end]
+    if notification.count('wr_iot_queue_cancel_pending(pending);')!=1:
+        raise SystemExit('Changed unconditional pending notification slice')
+    prefix=prefix.replace('int CmdFromNdis;} CmdQElmt',
+                          'int CmdFromNdis;struct cmd *next;} CmdQElmt',1)
+    prefix=prefix.replace('struct {int CmdQState;} CmdQ;',
+                          'struct {int CmdQState;PCmdQElmt head;} CmdQ;',1)
+    start=worker
     start=shutdown.index('\t\t\tif (pCmdQElmt)',start)
     end=shutdown.index('\n\t\t}\n\n\t\tNdisReleaseSpinLock',start)
     pending=shutdown[start:end]
@@ -53,6 +63,44 @@ static void actual_shutdown_slice(PRTMP_ADAPTER pAd,PCmdQElmt pCmdQElmt) {
 '''+pending+'''
 }
 '''
+    slices+='''
+#define RTMP_TASK_STAT_STOPED 4
+#define NdisAcquireSpinLock(lock) ((void)(lock),assert(!held),held=1)
+#define NdisReleaseSpinLock(lock) ((void)(lock),assert(held),held=0)
+static void actual_pending_notification(PRTMP_ADAPTER pAd) {
+'''+notification+'''
+}
+static void check_pending_notification(void) {
+ struct adapter ad={0};struct wr_iot_queued_result *r[2];
+ struct wr_iot_queue_envelope e[2];CmdQElmt nodes[3];
+ int status,before_frees=frees;
+ memset(nodes,0,sizeof(nodes));
+ for(int i=0;i<2;i++){
+  r[i]=wr_iot_result_alloc();assert(r[i]);wr_iot_result_get(r[i]);
+  e[i].result=r[i];nodes[i].command=WR_IOT_CMD_QUEUED_RADIO;
+  nodes[i].buffer=&e[i];nodes[i].bufferlength=sizeof(e[i]);
+  nodes[i].next=&nodes[i+1];
+ }
+ /* A foreign tail must be ignored; it has no owned result. */
+ nodes[2].command=0;ad.CmdQ.head=nodes;ad.CmdQ.CmdQState=1;
+ actual_pending_notification(&ad);actual_pending_notification(&ad);
+ assert(!held&&ad.CmdQ.CmdQState==RTMP_TASK_STAT_STOPED&&frees==before_frees);
+ for(int i=0;i<2;i++){
+  assert(e[i].result==r[i]&&r[i]->refs.refs==2&&r[i]->done.signals==1);
+  assert(wr_iot_result_read(r[i],&status)==WR_IOT_WORK_CANCELLED);
+  assert(!wr_iot_result_start(r[i]));
+ }
+ /* Suspended exit may retain nodes: notifications/refcounts above must
+  * already be valid. Later retirement drops only queue-owned references. */
+ for(int i=0;i<2;i++){
+  wr_iot_queue_cleanup(&nodes[i]);assert(r[i]->refs.refs==1);
+  wr_iot_result_put(r[i]);
+ }
+ assert(!live&&frees==before_frees);
+}
+'''
+    tail=tail.replace(' puts("PASS actual enqueue',
+                      ' check_pending_notification();\n puts("PASS actual enqueue',1)
     anchor='static void consume(void){'
     start=tail.index(anchor);end=tail.index('\n}',start)+2
     tail=tail[:start]+slices+'''static void consume(void){

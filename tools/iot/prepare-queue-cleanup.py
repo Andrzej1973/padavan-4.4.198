@@ -35,7 +35,79 @@ texts[name]=patch_function(texts[name],'VOID CMDHandler(RTMP_ADAPTER *pAd)',anch
 anchor='\t\t\t}\n\t\t}\n\n\t\twr_iot_queue_cleanup(cmdqelmt);'
 texts[name]=patch_function(texts[name],'VOID CMDHandler(RTMP_ADAPTER *pAd)',anchor,
  '\t\t\t}\n\t\t\t}\n\t\t}\n\n\t\twr_iot_queue_cleanup(cmdqelmt);')
+# Checked command-thread join for future close/remove integration. Legacy
+# RtmpMgmtTaskExit is retained until every caller propagates failure safely.
+checked_stop=r'''INT wr_iot_command_task_exit_checked(RTMP_ADAPTER *pAd)
+{
+ INT ret;
+ RTMP_OS_TASK_LEGALITY(&pAd->cmdQTask)
+ {
+  NdisAcquireSpinLock(&pAd->CmdQLock);
+  pAd->CmdQ.CmdQState = RTMP_TASK_STAT_STOPED;
+  NdisReleaseSpinLock(&pAd->CmdQLock);
+  ret = RtmpOSTaskKill(&pAd->cmdQTask);
+  if (ret != NDIS_STATUS_SUCCESS)
+   return NDIS_STATUS_FAILURE;
+  NdisAcquireSpinLock(&pAd->CmdQLock);
+  pAd->CmdQ.CmdQState = RTMP_TASK_STAT_UNKNOWN;
+  NdisReleaseSpinLock(&pAd->CmdQLock);
+  return NDIS_STATUS_SUCCESS;
+ }
+ /* Missing task handle is not evidence that an earlier worker joined. */
+ return NDIS_STATUS_FAILURE;
+}
+'''
+checked_mgmt=r'''INT wr_iot_mgmt_exit_checked(RTMP_ADAPTER *pAd,
+ const struct wr_iot_radio_ticket *ticket)
+{
+ ULONG flags;
+ unsigned int joined;
+ /* One caller per CLOSE ticket. No wait under the transition spinlock. */
+ RTMP_IRQ_LOCK(&pAd->wr_iot_transition_lock,flags);
+ if (!ticket || ticket->operation != WR_RADIO_CLOSE ||
+     pAd->wr_iot_transition.busy != WR_RADIO_CLOSE ||
+     pAd->wr_iot_transition.serial != ticket->serial) {
+  RTMP_IRQ_UNLOCK(&pAd->wr_iot_transition_lock,flags);
+  return NDIS_STATUS_FAILURE;
+ }
+ joined=pAd->wr_iot_transition.joined_workers;
+ RTMP_IRQ_UNLOCK(&pAd->wr_iot_transition_lock,flags);
+ if (!(joined & 1U)) {
+  if (wr_iot_command_task_exit_checked(pAd) != NDIS_STATUS_SUCCESS)
+   return NDIS_STATUS_FAILURE;
+  RTMP_IRQ_LOCK(&pAd->wr_iot_transition_lock,flags);
+  pAd->wr_iot_transition.joined_workers |= 1U;
+  RTMP_IRQ_UNLOCK(&pAd->wr_iot_transition_lock,flags);
+ }
+#ifdef WSC_INCLUDED
+ if (!(joined & 2U)) {
+  if (!WscThreadExit(pAd)) return NDIS_STATUS_FAILURE;
+  RTMP_IRQ_LOCK(&pAd->wr_iot_transition_lock,flags);
+  pAd->wr_iot_transition.joined_workers |= 2U;
+  RTMP_IRQ_UNLOCK(&pAd->wr_iot_transition_lock,flags);
+ }
+#endif
+ return NDIS_STATUS_SUCCESS;
+}
+'''
+stop_name='os/linux/rt_rbus_pci_drv.c'
+stop_anchor='VOID RtmpMgmtTaskExit(RTMP_ADAPTER *pAd)'
+if texts[stop_name].count(stop_anchor)!=1:raise SystemExit('Changed management exit anchor')
+texts[stop_name]=texts[stop_name].replace(stop_anchor,checked_stop+'\n'+checked_mgmt+'\n'+stop_anchor,1)
 name='os/linux/rt_rbus_pci_drv.c'
+anchor='\tif (!pAd->PM_FlgSuspend)\n\t{\t/* Clear the CmdQElements. */'
+texts[name]=patch_function(texts[name],'INT RTPCICmdThread(',anchor,
+ '''\t/* Notify accepted IoT work even if suspended cleanup retains buffers.
+     * The worker has left dispatch; keep queue refs for normal retirement. */
+    NdisAcquireSpinLock(&pAd->CmdQLock);
+    {
+        PCmdQElmt pending;
+        pAd->CmdQ.CmdQState = RTMP_TASK_STAT_STOPED;
+        for (pending = pAd->CmdQ.head; pending; pending = pending->next)
+            wr_iot_queue_cancel_pending(pending);
+    }
+    NdisReleaseSpinLock(&pAd->CmdQLock);
+'''+anchor)
 anchor='\t\t\t\tif (pCmdQElmt->CmdFromNdis == TRUE)'
 texts[name]=patch_function(texts[name],'INT RTPCICmdThread(',anchor,
  '\t\t\t\twr_iot_queue_cleanup(pCmdQElmt);\n'+anchor)

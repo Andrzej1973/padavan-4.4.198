@@ -22,7 +22,7 @@ for signature in ('INT32 mbss_cr_enable(PNET_DEV pDev)','INT mbss_cr_disable(PNE
     pattern=r'if \(BssId < 0\)\s*return -1;'
     if len(re.findall(pattern,f))!=1:raise SystemExit('Changed index guard')
     f=re.sub(pattern,'''if (BssId < 0 ||
-        pAd->ApCfg.BssidNum > sizeof(pAd->ApCfg.MBSSID)/sizeof(pAd->ApCfg.MBSSID[0]) ||
+        (unsigned int)pAd->ApCfg.BssidNum > sizeof(pAd->ApCfg.MBSSID)/sizeof(pAd->ApCfg.MBSSID[0]) ||
         (unsigned int)BssId >= sizeof(pAd->ApCfg.MBSSID)/sizeof(pAd->ApCfg.MBSSID[0]) ||
         BssId >= pAd->ApCfg.BssidNum) {
         return -1;
