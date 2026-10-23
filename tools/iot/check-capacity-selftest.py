@@ -9,6 +9,7 @@ import subprocess
 import sys
 import tempfile
 import runpy
+from collections import Counter
 from unittest.mock import patch
 
 
@@ -304,7 +305,7 @@ def run_beacon_lock_inventory_in_memory_case():
             'VOID RTMPFreeTxRxRingMemory() {\nRTMP_SEM_LOCK(&pAd->BcnRingLock);\n}\n'
             'VOID RTMPRingCleanUp() {\nRTMP_IRQ_LOCK(&pAd->BcnRingLock, flags);\n}\n'
             'VOID PDMAResetAndRecovery() {\nRTMP_IRQ_LOCK(&pAd->BcnRingLock, flags);\n}\n'
-            'VOID RT28xx_UpdateBeaconToAsic() {\nRTMP_SEM_LOCK(&pAd->BcnRingLock);\n}'
+            'INT32 RT28xx_UpdateBeaconToAsic() {\nRTMP_SEM_LOCK(&pAd->BcnRingLock);\n}'
         ),
     }
 
@@ -363,7 +364,7 @@ def run_beacon_lock_directives_in_memory_case():
     source = Path('kernel/ap/ap_cfg.c').resolve()
     kernel = Path('kernel').resolve()
     text = ('# 1 "ap/ap_cfg.c"\n'
-            'VOID active() {\n'
+            'INT32 active() {\n'
             'RTMP_SEM_LOCK(&pAd->BcnRingLock);\n'
             '# 10 "ap/ap_cfg.c"\n'
             'VOID other() {\n'
@@ -371,7 +372,8 @@ def run_beacon_lock_directives_in_memory_case():
             'RTMP_IRQ_LOCK(&pAd->BcnRingLock, flags);\n'
             '# 11 "ap/ap_cfg.c" 2\n'
             'RTMP_IRQ_LOCK(&pAd->BcnRingLock, flags);\n')
-    assert parser(text, source, kernel) == {('active', 'SEM'), ('other', 'IRQ')}
+    assert dict(parser(text, source, kernel)) == {
+        ('active', 'SEM'): 1, ('other', 'IRQ'): 1}
     try:
         parser('# 1 "ap/unrelated.h"\nRTMP_SEM_LOCK(&pAd->BcnRingLock);\n',
                source, kernel)
@@ -381,9 +383,47 @@ def run_beacon_lock_directives_in_memory_case():
         raise AssertionError('Missing target source marker was accepted')
 
 
+def run_duplicate_beacon_owner_in_memory_case():
+    """A partial duplicate must be unknown for each individual source site."""
+    from pathlib import PurePosixPath
+
+    class Source:
+        stem = 'ap_mbss'
+
+        def read_text(self, **_kwargs):
+            return ('VOID mbss_cr_disable() {\n'
+                    'RTMP_SEM_LOCK(&pAd->BcnRingLock);\n'
+                    'RTMP_SEM_LOCK(&pAd->BcnRingLock);\n}\n')
+
+        def relative_to(self, _driver):
+            return PurePosixPath('ap/ap_mbss.c')
+
+    class Driver:
+        def rglob(self, pattern):
+            assert pattern == '*.c'
+            return [Source()]
+
+    probe = runpy.run_path(str(CHECKER), run_name='duplicate_fixture')[
+        'probe_beacon_lock_units'
+    ]
+    for count, expected in ((0, False), (1, None), (2, True)):
+        with patch.dict(probe.__globals__, {
+                'probe_kbuild_macros': lambda *_args: ('cmd', ''),
+                'probe_kbuild_active_beacon_owners': lambda *_args: (
+                    'cmd', Counter({('mbss_cr_disable', 'SEM'): count}))}):
+            report = probe(Driver(), Path('kernel'), Path(COMPILER))
+        unit = report['units']['ap/ap_mbss.c']
+        assert unit['status'] == 'complete', unit
+        assert [site['active_after_directives'] for site in unit['sites']] == [
+            expected, expected], unit
+        assert unit['site_activity_complete'] is (expected is not None), unit
+        assert report['all_site_activity_available'] is (expected is not None), report
+
+
 if __name__ == '__main__':
     run_beacon_lock_inventory_in_memory_case()
     run_beacon_lock_directives_in_memory_case()
+    run_duplicate_beacon_owner_in_memory_case()
 
     with tempfile.TemporaryDirectory(prefix='iot-capacity-selftest-') as temporary:
         root = Path(temporary)
@@ -409,4 +449,5 @@ if __name__ == '__main__':
     print('PASS per-unit TxS receive macros and missing Andes command stay unavailable')
     print('PASS seven beacon lock owners remain inventoried without object commands')
     print('PASS directive-surviving lock calls map to source owners only')
+    print('PASS partial duplicate owner stays unknown per source site')
     print('PASS observer compile runner: injected MIPS object accepted, host/error/ambiguous input rejected; actual target compiler not exercised')

@@ -8,7 +8,15 @@ import shlex
 import shutil
 import subprocess
 import tempfile
+from collections import Counter
 from pathlib import Path
+
+
+FUNCTION_DECLARATION = re.compile(
+    r'^\s*(?:(?:static|inline|extern)\s+)*'
+    r'(?:VOID|INT|INT16|INT32|INT64|BOOLEAN|NDIS_STATUS|'
+    r'UCHAR|UINT|UINT16|UINT32|UINT64|LONG|ULONG|void|int|bool)\s+'
+    r'([A-Za-z_]\w*)\s*\(')
 
 
 def compile_main_observer(compiler, filtered, kernel, output):
@@ -96,8 +104,8 @@ def probe_kbuild_macros(driver, kernel, compiler, source):
 
 
 def active_beacon_lock_owners(preprocessed, source, kernel):
-    """Identify surviving function/form pairs in the target source unit."""
-    active = set()
+    """Count surviving function/form pairs in the target source unit."""
+    active = Counter()
     current_source = False
     source_seen = False
     function = None
@@ -113,23 +121,20 @@ def active_beacon_lock_owners(preprocessed, source, kernel):
             continue
         if not current_source:
             continue
-        declaration = re.match(
-            r'^\s*(?:(?:static|inline|extern)\s+)*'
-            r'(?:VOID|INT|BOOLEAN|NDIS_STATUS|UCHAR|UINT|void|int|bool)\s+'
-            r'([A-Za-z_]\w*)\s*\(', line)
+        declaration = FUNCTION_DECLARATION.match(line)
         if declaration:
             function = declaration.group(1)
         match = re.search(r'RTMP_(SEM|IRQ)_LOCK\s*\(\s*&pAd->BcnRingLock', line)
         if match:
             if function is None:
                 raise RuntimeError('Directive output has a lock without a function owner')
-            active.add((function, match.group(1)))
+            active[(function, match.group(1))] += 1
     if not source_seen:
         raise RuntimeError('Directive output has no marker for the target source')
     return active
 
 
-def probe_kbuild_active_beacon_lines(driver, kernel, compiler, source):
+def probe_kbuild_active_beacon_owners(driver, kernel, compiler, source):
     """Evaluate #if branches while retaining lock macro calls and line markers."""
     command, filtered = recorded_kbuild_command(driver, kernel, compiler, source)
     result = subprocess.run(
@@ -167,10 +172,7 @@ def probe_beacon_lock_units(driver, kernel, compiler):
         for number, line in enumerate(body.splitlines(), 1):
             if line.lstrip().startswith(('/', '*')):
                 continue
-            declaration = re.match(
-                r'^\s*(?:(?:static|inline|extern)\s+)*'
-                r'(?:VOID|INT|BOOLEAN|NDIS_STATUS|UCHAR|UINT|void|int|bool)\s+'
-                r'([A-Za-z_]\w*)\s*\(', line)
+            declaration = FUNCTION_DECLARATION.match(line)
             if declaration:
                 function = declaration.group(1)
             match = re.search(r'RTMP_(SEM|IRQ)_LOCK\s*\(\s*&pAd->BcnRingLock', line)
@@ -182,19 +184,25 @@ def probe_beacon_lock_units(driver, kernel, compiler):
         relative = source.relative_to(driver).as_posix()
         try:
             command, macros = probe_kbuild_macros(driver, kernel, compiler, source)
-            _, active_owners = probe_kbuild_active_beacon_lines(
+            _, active_owners = probe_kbuild_active_beacon_owners(
                 driver, kernel, compiler, source)
-            source_owners = [(site['function'], site['form']) for site in sites]
-            if None in (site['function'] for site in sites) or len(set(source_owners)) != len(sites):
-                raise RuntimeError('Source lock owner mapping is ambiguous')
-            if not active_owners.issubset(set(source_owners)):
+            source_owners = Counter((site['function'], site['form']) for site in sites)
+            if any(site['function'] is None for site in sites):
+                raise RuntimeError('Source lock has no function owner')
+            if any(count > source_owners[owner]
+                   for owner, count in active_owners.items()):
                 raise RuntimeError(
-                    f'Directive output has unmapped beacon lock owners: {sorted(active_owners)}')
+                    f'Directive output has unmapped beacon lock owners: {dict(active_owners)}')
             for site in sites:
+                owner = (site['function'], site['form'])
+                active_count = active_owners[owner]
                 site['active_after_directives'] = (
-                    site['function'], site['form']) in active_owners
+                    False if active_count == 0 else
+                    True if active_count == source_owners[owner] else None)
             units[relative] = {
                 'status': 'complete', 'source_command': command, 'sites': sites,
+                'site_activity_complete': all(
+                    site['active_after_directives'] is not None for site in sites),
                 'effective_multi_core_support': bool(re.search(
                     r'^#define MULTI_CORE_SUPPORT(?:[ \t]|$)', macros, re.M)),
             }
@@ -203,6 +211,7 @@ def probe_beacon_lock_units(driver, kernel, compiler):
                 site['active_after_directives'] = None
             units[relative] = {
                 'status': 'unavailable', 'sites': sites,
+                'site_activity_complete': False,
                 'effective_multi_core_support': None,
                 'error': str(error),
             }
@@ -210,6 +219,8 @@ def probe_beacon_lock_units(driver, kernel, compiler):
         'units': units,
         'all_unit_flags_available': bool(units) and all(
             unit['status'] == 'complete' for unit in units.values()),
+        'all_site_activity_available': bool(units) and all(
+            unit['site_activity_complete'] for unit in units.values()),
         'scope': ('source-text lock sites plus actual per-unit Kbuild macros and '
                   'directive-survival; lock safety and runtime unverified'),
     }
