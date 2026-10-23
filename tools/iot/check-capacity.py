@@ -139,7 +139,10 @@ def probe_kbuild_active_beacon_owners(driver, kernel, compiler, source):
     command, filtered = recorded_kbuild_command(driver, kernel, compiler, source)
     result = subprocess.run(
         [str(compiler.resolve()), *filtered, '-E', '-fdirectives-only'],
-        cwd=kernel, text=True, capture_output=True, timeout=60)
+        # The pinned driver has non-UTF-8 bytes in comments. Preserve them
+        # without changing ASCII line markers or lock call spelling.
+        cwd=kernel, text=True, encoding='utf-8', errors='surrogateescape',
+        capture_output=True, timeout=60)
     if result.returncode:
         raise RuntimeError('Target directive preprocessing failed: ' + result.stderr[-2000:])
     return command, active_beacon_lock_owners(result.stdout, source, kernel)

@@ -383,6 +383,24 @@ def run_beacon_lock_directives_in_memory_case():
         raise AssertionError('Missing target source marker was accepted')
 
 
+def run_non_utf8_directive_output_case():
+    """Keep ASCII source markers and lock calls despite legacy comment bytes."""
+    probe = runpy.run_path(str(CHECKER), run_name='legacy_encoding_fixture')[
+        'probe_kbuild_active_beacon_owners'
+    ]
+    kernel = ROOT
+    source = kernel / 'ap/ap_cfg.c'
+    output = (b'# 1 "ap/ap_cfg.c"\n/*\xa1*/\n'
+              b'INT32 active() {\nRTMP_SEM_LOCK(&pAd->BcnRingLock);\n')
+    script = f'import sys;sys.stdout.buffer.write({output!r})'
+    with patch.dict(probe.__globals__, {
+            'recorded_kbuild_command': lambda *_args: (
+                'synthetic', ['-c', script])}):
+        command, owners = probe(None, kernel, Path(sys.executable), source)
+    assert command == 'synthetic', command
+    assert dict(owners) == {('active', 'SEM'): 1}, owners
+
+
 def run_duplicate_beacon_owner_in_memory_case():
     """A partial duplicate must be unknown for each individual source site."""
     from pathlib import PurePosixPath
@@ -423,6 +441,7 @@ def run_duplicate_beacon_owner_in_memory_case():
 if __name__ == '__main__':
     run_beacon_lock_inventory_in_memory_case()
     run_beacon_lock_directives_in_memory_case()
+    run_non_utf8_directive_output_case()
     run_duplicate_beacon_owner_in_memory_case()
 
     with tempfile.TemporaryDirectory(prefix='iot-capacity-selftest-') as temporary:
