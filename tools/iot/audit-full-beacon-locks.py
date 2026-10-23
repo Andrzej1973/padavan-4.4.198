@@ -19,6 +19,7 @@ FUNCTION = re.compile(
     r'UINT16|UINT32|UINT64|LONG|ULONG|void|int|bool)\s+([A-Za-z_]\w*)\s*\('
 )
 LOCK = re.compile(r'RTMP_(SEM|IRQ)_LOCK\s*\(\s*&pAd->BcnRingLock')
+FULL_CANDIDATE_SHAPE = (515, 45, 31, 9, 20, 11, 9)
 
 
 def git_blob(data):
@@ -97,6 +98,8 @@ def main():
     parser.add_argument('candidate_driver', type=Path)
     parser.add_argument('candidate_manifest', type=Path)
     parser.add_argument('output', type=Path)
+    parser.add_argument('--expect-full-candidate', action='store_true',
+                        help='require the reviewed pinned-source and overlay inventory')
     args = parser.parse_args()
     if args.output.exists():
         parser.error('Output already exists; refusing to overwrite evidence')
@@ -105,6 +108,13 @@ def main():
             parser.error(f'Input directory is missing: {root}')
     manifest = json.loads(args.candidate_manifest.read_text(encoding='utf-8'))
     result = inventory(args.pinned_source, args.candidate_driver, manifest)
+    if args.expect_full_candidate:
+        shape = (result['source_file_count'], result['candidate_overlay_file_count'],
+                 result['original_git_blobs_verified'], result['lock_units'],
+                 result['lock_sites'], result['forms']['SEM'], result['forms']['IRQ'])
+        if shape != FULL_CANDIDATE_SHAPE:
+            parser.error(f'Candidate coverage changed: {shape}; expected '
+                         f'{FULL_CANDIDATE_SHAPE}. Review the candidate before updating this gate.')
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2) + '\n', encoding='utf-8')
     print(f"Verified {result['original_git_blobs_verified']} source blobs; "

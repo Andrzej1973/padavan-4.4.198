@@ -1438,7 +1438,7 @@ jobs:
             source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3 \
             abi-results/iot-radio-queue-bundle/driver \
             abi-results/iot-radio-queue-bundle/manifest.json \
-            abi-results/iot-full-beacon-locks.json
+            abi-results/iot-full-beacon-locks.json --expect-full-candidate
           python3 tools/iot/prepare-queued-composition-check.py \
             abi-results/iot-radio-queue-bundle/driver abi-results/iot-bundle-queue.c \
             --cleanup-candidate abi-results/iot-radio-queue-bundle/driver
