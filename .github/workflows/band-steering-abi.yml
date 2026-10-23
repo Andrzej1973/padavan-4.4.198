@@ -1434,6 +1434,11 @@ jobs:
           abi-results/check-iot-queued-slices | tee abi-results/iot-queued-slices.txt
           python3 tools/iot/prepare-radio-queue-candidate.py \
             source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3 abi-results/iot-radio-queue-bundle
+          python3 tools/iot/audit-full-beacon-locks.py \
+            source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3 \
+            abi-results/iot-radio-queue-bundle/driver \
+            abi-results/iot-radio-queue-bundle/manifest.json \
+            abi-results/iot-full-beacon-locks.json
           python3 tools/iot/prepare-queued-composition-check.py \
             abi-results/iot-radio-queue-bundle/driver abi-results/iot-bundle-queue.c \
             --cleanup-candidate abi-results/iot-radio-queue-bundle/driver
