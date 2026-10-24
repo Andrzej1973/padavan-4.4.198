@@ -1536,6 +1536,70 @@ jobs:
           path: band-steering-driver-results/
           if-no-files-found: ignore
 
+      - name: Compile isolated merged IoT MT7603 candidate
+        if: ${{ inputs.run_candidate_checks && (!cancelled() && steps.firmware_build.conclusion == 'success') }}
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/wr1200js-steering-driver-probe"
+          kernel="$root/trunk/linux-4.4.x"
+          driver="$kernel/drivers/net/wireless/mediatek/mt76x3"
+          pinned="$RUNNER_TEMP/wr1200js-iot-pinned"
+          candidate="$RUNNER_TEMP/wr1200js-iot-candidate"
+          merged="$RUNNER_TEMP/wr1200js-iot-merged-mt76x3"
+          results="$PWD/iot-merged-driver-results"
+          test -d "$driver"
+          test ! -e "$pinned" && test ! -e "$candidate" && test ! -e "$merged"
+          mkdir -p "$pinned" "$results"
+          test "$(git -C padavan-4.4 rev-parse HEAD)" = c25283e915a2a00a763774dd255b14aff997285e
+          git -C padavan-4.4 archive --format=tar HEAD \
+            trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3 \
+            | tar -xf - -C "$pinned"
+          pristine="$pinned/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3"
+          python3 tools/iot/prepare-radio-queue-candidate.py "$pristine" "$candidate"
+          python3 tools/iot/check-overlay-conflicts.py \
+            "$candidate/manifest.json" "$candidate/driver" "$driver" \
+            --output "$results/prepared-overlap.json" \
+            || test "$?" -eq 1
+          python3 tools/iot/assemble-prepared-candidate.py \
+            "$pristine" "$driver" "$candidate/driver" \
+            "$candidate/manifest.json" "$merged"
+          cp "$merged.manifest.json" "$results/merged-source-manifest.json"
+          cp -a "$merged/." "$driver/"
+          python3 - "$results/merged-source-manifest.json" "$driver" <<'PY'
+          import hashlib, json, pathlib, sys
+          manifest = json.load(open(sys.argv[1], encoding='utf-8'))
+          driver = pathlib.Path(sys.argv[2])
+          if manifest['target_compiled'] or manifest['production_installed']:
+              raise SystemExit('Candidate manifest makes an unsupported claim')
+          for name, expected in manifest['candidate_driver_sha256'].items():
+              path = driver / name
+              if hashlib.sha256(path.read_bytes()).hexdigest() != expected:
+                  raise SystemExit('Isolated source copy mismatch: ' + name)
+              path.touch()
+          PY
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" \
+            -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
+          test -n "$compiler"
+          cross="${compiler%gcc}"
+          sha256sum "$kernel/.config" > "$results/config-before.sha256"
+          make -C "$kernel" ARCH=mips CROSS_COMPILE="$cross" -j2 vmlinux modules \
+            2>&1 | tee "$results/build.log"
+          module="$kernel/drivers/net/wireless/mediatek/mt76x3_ap/mt76x3_ap.ko"
+          test -s "$module"
+          "${cross}readelf" -h "$module" > "$results/mt76x3-elf.txt"
+          grep -q 'Machine:.*MIPS' "$results/mt76x3-elf.txt"
+          cp "$module" "$results/"
+          cp "$kernel/.config" "$results/kernel.config"
+          sha256sum -c "$results/config-before.sha256"
+
+      - name: Upload isolated merged IoT driver diagnostics
+        if: ${{ inputs.run_candidate_checks && (always()) }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: iot-merged-driver-probe
+          path: iot-merged-driver-results/
+          if-no-files-found: ignore
+
       - name: Compile complete isolated rc with steering profile integration
         if: ${{ inputs.run_candidate_checks && (!cancelled() && steps.firmware_build.conclusion == 'success' && steps.steering_prepare.outputs.enabled != 'y') }}
         run: |
