@@ -19,7 +19,7 @@ FUNCTION = re.compile(
     r'UINT16|UINT32|UINT64|LONG|ULONG|void|int|bool)\s+([A-Za-z_]\w*)\s*\('
 )
 LOCK = re.compile(r'RTMP_(SEM|IRQ)_LOCK\s*\(\s*&pAd->BcnRingLock')
-FULL_CANDIDATE_SHAPE = (515, 45, 31, 9, 20, 11, 9)
+FULL_CANDIDATE_SHAPE = (515, 45, 31, 9, 21, 12, 9)
 
 
 def git_blob(data):
