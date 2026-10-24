@@ -39,7 +39,7 @@ static INT wr_iot_mbss_open_raw(PNET_DEV dev){
 
 int main(void){
  struct adapter ad;struct device main_dev,dev;
- for(mode=0;mode<7;mode++){
+ for(mode=0;mode<8;mode++){
   memset(&ad,0,sizeof(ad));main_dev.ad=dev.ad=&ad;
   ad.net_dev=&main_dev;ad.ApCfg.BssidNum=3;
   ad.ApCfg.MBSSID[2].wdev.if_dev=mode==6?&main_dev:&dev;
@@ -48,6 +48,7 @@ int main(void){
   ad.wr_iot_transition.main_ready=mode!=1;
   wr_iot_ref_init(&ad.wr_iot_interface_refs[0],&dev,1);
   ad.wr_iot_interface_refs[0].published=1;
+  if(mode==7)ad.wr_iot_interface_refs[0].last_token=1;
   held=raw_calls=observed=0;
   INT ret=MBSS_VirtualIF_Open(&dev);
   assert(!held&&!ad.wr_iot_transition.busy);
@@ -56,12 +57,13 @@ int main(void){
   }else{
    assert(ret==-1&&raw_calls==0&&ad.wr_iot_interface_refs[0].phase==WR_REF_IDLE);
   }
-  assert(observed==(mode==1||mode==6?0:1));
+  assert(observed==(mode==1||mode==6||mode==7?0:1));
   if(mode==2)assert(ad.wr_iot_transition.main_ready);
   if(mode==3)assert(ad.wr_iot_transition.reset_pending&&!ad.wr_iot_transition.main_ready);
   if(mode==4)assert(ad.wr_iot_transition.main_inhibited&&!ad.wr_iot_transition.main_ready);
   if(mode==5)assert(ad.wr_iot_transition.phase==WR_RADIO_CLOSING);
+  if(mode==7)assert(ad.wr_iot_transition.main_ready&&ad.wr_iot_transition.phase==WR_RADIO_READY);
  }
- puts("PASS IoT BSS open revalidation: observation, stale intent refusal, guest bypass; injected driver IO");
+ puts("PASS IoT BSS open revalidation: observation, stale intent and ref refusal, guest bypass; injected driver IO");
  return 0;
 }
