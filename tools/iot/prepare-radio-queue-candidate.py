@@ -436,6 +436,12 @@ sig='VOID RTMPHandleBcnDmaDoneInterrupt('
 dma=selected(text,sig)
 if dma.count('UCHAR bss_idx = 0;')!=1:raise SystemExit('Changed beacon DMA index init')
 dma=dma.replace('UCHAR bss_idx = 0;', 'UCHAR bss_idx = 0xff;', 1)
+# The ring may retire several descriptors in one call. A valid own_mac from
+# one cell must never be reused when the next cell has an unknown own_mac.
+owner_anchor='\t\t\ttxd_1 = (TMAC_TXD_1 *)(tmac_info + sizeof(TMAC_TXD_0));'
+if dma.count(owner_anchor)!=1:raise SystemExit('Changed beacon DMA owner decode')
+dma=dma.replace(owner_anchor,
+                '\t\t\tbss_idx = 0xff;\n'+owner_anchor,1)
 old_state=('\t\t\tpMbss = &pAd->ApCfg.MBSSID[bss_idx];\n'
            '//---Add by Carter for MT7603\n\n'
            '            if (pMbss->bcn_buf.bcn_state == BCN_TX_WRITE_TO_DMA)\n'
@@ -458,7 +464,7 @@ dma=dma.replace(old_state,new_state,1)
 text=text.replace(selected(text,sig),dma,1)
 path=out/'driver'/name;path.parent.mkdir(parents=True,exist_ok=True)
 path.write_text(text,encoding='utf-8')
-records.append({'path':name,'stage':'pci-dma-map-failure-result+beacon-dma-bss-bound',
+records.append({'path':name,'stage':'pci-dma-map-failure-result+beacon-dma-bss-bound+per-cell-owner-reset',
                 'purpose':'driver','sha256':hashlib.sha256(path.read_bytes()).hexdigest()})
 
 # Retry through the existing periodic command-thread path, outside queue lock.
