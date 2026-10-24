@@ -316,7 +316,10 @@ new=new.replace(gate,'RTMP_SEM_UNLOCK(&pAd->BcnRingLock);\n\t\t\tgoto unsubmitte
 kick='\t\tHAL_KickOutMgmtTx(pAd, Q_IDX_BCN, pkt, buf, len);'
 replace_mt(kick,
            '#ifdef RTMP_PCI_SUPPORT\n'
-           '\t\tif (GET_BCNRING_FREENO(pAd) == 0 ||\n'
+           '\t\t/* The vendor GET_BCNRING_FREENO macro ends in a semicolon,\n'
+           '\t\t * so compare the ring indices directly under BcnRingLock. */\n'
+           '\t\tif (((pAd->BcnRing.TxCpuIdx + 1) % BCN_RING_SIZE) ==\n'
+           '\t\t    pAd->BcnRing.TxSwFreeIdx ||\n'
            '\t\t    HAL_KickOutMgmtTx(pAd, Q_IDX_BCN, pkt, buf, len) != 0) {\n'
            '\t\t\tRTMP_SEM_UNLOCK(&pAd->BcnRingLock);\n'
            '\t\t\tgoto unsubmitted;\n'

@@ -124,3 +124,19 @@ function shows the return at four spaces after the conditional log. Python
 syntax and `git diff --check` passed. Target compilation of this correction
 remains unverified until the next isolated CI run; production IoT and router
 runtime remain unverified.
+
+## Second isolated target-compile blocker
+
+Run `40048878570` on `236dedb` advanced past the previous debug-setter error
+but stopped compiling `common/cmm_mac_pci.c:2740`. The candidate used
+`GET_BCNRING_FREENO(pAd)` as an expression; the pinned vendor macro at
+`include/iface/rtmp_inf_pcirbs.h:109-113` includes a trailing semicolon,
+so the compiler reports `expected ')' before ';' token`. Its artifact
+`iot-merged-driver-probe` is saved at `../iot-merged-probe-546/`.
+
+The candidate generator now checks the ring-index zero-free condition
+directly while holding `BcnRingLock`. For `BCN_RING_SIZE=20`, an exhaustive
+check of all 400 valid index pairs confirmed equivalence to the vendor
+macro's zero result. A fresh candidate and five-file prepared-source merge
+completed; only `common/cmm_mac_pci.c` differs among the 45 staged files.
+This is local source evidence, not a target compile or runtime result.
