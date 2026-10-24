@@ -18,6 +18,8 @@ with (nullcontext(sys.argv[2]) if len(sys.argv)>2 else tempfile.TemporaryDirecto
     def row(id,attempt=1,conclusion='failure',name='Build selected router firmware'):
         return dict(id=id,run_attempt=attempt,run_number=id,name=name,path='.github/workflows/other.yml' if name=='unrelated' else '.github/workflows/build-multiple-boards.yml',status='completed',conclusion=conclusion,head_sha='a'*40,created_at=f'2026-10-18T00:00:{id%60:02d}Z',updated_at='2026-10-18T00:01:00Z')
     run([row(2,conclusion='success'),row(1,name='unrelated')]);assert not (state/'last_build_error.log').exists()
+    status=json.loads((state/'build-monitor-status.json').read_text())
+    assert status['state']=='ok' and status['runs_examined']==2 and status['pid']>0
     r=run([row(432),row(431)]);assert 'BUILD FAILED' in r.stdout
     report=(state/'last_build_error.log').read_text();assert '#432 attempt 1' in report and 'Untrusted diagnostic data' in report
     previous=(state/'last_build_error.log').read_bytes()

@@ -4,3 +4,9 @@
 .codex/build-monitor.stdout.log
 .codex/build-monitor.stderr.log
 .cache/nim-monitor/
+
+# Disposable local interpreter cache and native status-fixture leftovers.
+__pycache__/
+*.py[cod]
+/discovery-proc-*/
+/.usbip-process-status-check.exe

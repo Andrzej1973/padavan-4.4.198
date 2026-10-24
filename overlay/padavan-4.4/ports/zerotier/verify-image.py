@@ -119,6 +119,16 @@ try:
     if 'persist_state_if_changed' not in lifecycle:
         raise ValueError('Missing ZeroTier persistent-change handler')
     checks['storage_assets_and_persistence_protections']=True
+    for marker in ('state_listing=$(for state_file',
+                   'md5sum "$state_file" || exit 1',
+                   'state_listing=$(printf \'%s\' "$state_listing" | sort) || return 1',
+                   'state_digest=$(printf \'%s\' "$state_listing" | md5sum) || return 1',
+                   'state_after=$(persistent_state_hash); then',
+                   'zerotier-storage-pending || return 1',
+                   'state_before=$(persistent_state_hash) || { logger'):
+        if marker not in lifecycle:
+            raise ValueError('Missing ZeroTier persistent-hash failure guard: '+marker)
+    checks['persistent_hash_failure_guard']=True
 except (ValueError,OSError,subprocess.CalledProcessError) as error:
     errors.append(str(error))
 result={'package':'zerotier','candidate_version':'1.16.2','checks':checks,'elf_files':visited,'errors':errors,'runtime_verified':False}

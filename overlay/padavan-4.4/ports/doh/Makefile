@@ -42,6 +42,7 @@ configure: source-check $(SRC_NAME)/.source-ready
 romfs:
 	$(ROMFSINST) $(SRC_NAME)/build/https_dns_proxy /usr/sbin/https_dns_proxy
 	$(ROMFSINST) -p +x doh_proxy.sh /usr/bin/doh_proxy.sh
+	$(ROMFSINST) -p +x dns-listener-guard.sh /usr/bin/doh-dns-listener-guard.sh
 	$(ROMFSINST) -d cacert.pem /usr/share/doh-proxy/cacert.pem
 	$(ROMFSINST) -d $(SRC_NAME)/LICENSE /usr/share/doh-proxy/LICENSE
 	$(ROMFSINST) -d doh.json /www/doh.json

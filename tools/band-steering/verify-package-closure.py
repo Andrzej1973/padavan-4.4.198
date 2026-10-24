@@ -41,7 +41,7 @@ def resolve_image(root, relative):
     return path
 
 
-def verify(staged, image, readelf, binaries=None):
+def verify(staged, image, readelf, binaries=None, *, shared_libraries=()):
     visited = {}
     environment = dict(os.environ, LC_ALL='C')
 
@@ -97,6 +97,12 @@ def verify(staged, image, readelf, binaries=None):
         if binary.startswith('/') or '..' in binary.split('/'):
             raise ValueError('Candidate path must stay relative to staging root')
         inspect(staged, binary, 'candidate')
+    # Explicit dlopen seeds are shared libraries, not executable candidates.
+    # Keep candidate PT_INTERP checks strict for every existing caller.
+    for library in shared_libraries:
+        if library.startswith('/') or '..' in library.split('/'):
+            raise ValueError('Shared library path must stay relative to image root')
+        inspect(image, library, 'image')
     return visited
 
 

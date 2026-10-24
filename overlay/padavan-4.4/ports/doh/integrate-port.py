@@ -143,6 +143,7 @@ def main():
         set_edit('user/www/dict/' + filename, content.rstrip() + '\n' + '\n'.join(additions) + '\n')
     copies = [(assets / name, trunk / 'user/doh_proxy' / name) for name in ('Makefile', 'doh_proxy.sh', 'doh.json')]
     copies += [(certificate, trunk / 'user/doh_proxy/cacert.pem'),
+        (assets.parent / 'dns-common/dns-listener-guard.sh', trunk / 'user/doh_proxy/dns-listener-guard.sh'),
         (assets / 'services-doh.c', trunk / 'user/rc/services-doh.c'),
         (assets / 'dnsmasq-doh.c', trunk / 'user/rc/dnsmasq-doh.c'),
         (assets / 'Advanced_Services_DoH.asp', trunk / 'user/www/n56u_ribbon_fixed/Advanced_Services_DoH.asp')]

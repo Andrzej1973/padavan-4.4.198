@@ -4,7 +4,12 @@ import argparse
 from pathlib import Path
 import re
 import subprocess
+import sys
 import tempfile
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from type_ui import (remove_unavailable_legacy_types, remove_unavailable_vpn_types,
+                     require_openvpn_capability_hook)
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("tree", type=Path, help="Padavan tree root")
@@ -12,7 +17,58 @@ args = parser.parse_args()
 
 web = (args.tree / "trunk/user/httpd/web_ex.c").read_text(encoding="utf-8")
 page = (args.tree / "trunk/user/www/n56u_ribbon_fixed/vpncli.asp").read_text(encoding="utf-8")
+server_page = (args.tree / "trunk/user/www/n56u_ribbon_fixed/vpnsrv.asp").read_text(encoding="utf-8")
 httpd = (args.tree / "trunk/user/httpd/httpd.c").read_text(encoding="utf-8")
+
+fixture = '''<select name="vpnc_type">
+<option value="0" <% nvram_match_x("", "vpnc_type", "0","selected"); %>>PPTP</option>
+<option value="1" <% nvram_match_x("", "vpnc_type", "1","selected"); %>>L2TP (w/o IPSec)</option>
+<option value="2" <% nvram_match_x("", "vpnc_type", "2","selected"); %>>OpenVPN</option>
+<option value="3" <% nvram_match_x("", "vpnc_type", "3","selected"); %>>Wireguard</option>
+</select>'''
+filtered_fixture = remove_unavailable_legacy_types(fixture, "vpnc_type")
+assert ">PPTP</option>" not in filtered_fixture
+assert ">L2TP (w/o IPSec)</option>" not in filtered_fixture
+assert ">OpenVPN</option>" in filtered_fixture and ">Wireguard</option>" in filtered_fixture
+for field in ("vpnc_type", "vpns_type"):
+    original = fixture.replace("vpnc_type", field)
+    early = remove_unavailable_legacy_types(original, field)
+    final_fixture = remove_unavailable_vpn_types(
+        early, field, allow_legacy_missing=True)
+    expected_fixture = remove_unavailable_vpn_types(original, field)
+    assert final_fixture == expected_fixture, "prior legacy pruning must be accepted"
+    assert re.findall(r'<option value="([^"]+)"', final_fixture) == ["3"]
+    invalid_fixtures = (
+        re.sub(r'(?m)^<option value="2"[^\n]*\n', "", original),
+        original.replace(
+            "</select>",
+            '<option value="2">Duplicate OpenVPN</option>\n</select>'),
+    )
+    for invalid in invalid_fixtures:
+        try:
+            remove_unavailable_vpn_types(invalid, field)
+        except RuntimeError:
+            pass
+        else:
+            raise AssertionError("missing or duplicate OpenVPN option must fail closed")
+    value_hook = f'$j("#{field} option[value=\'2\']").remove();'
+    index_hook = f'document.form.{field}.remove(2);'
+    assert require_openvpn_capability_hook(value_hook, field) == value_hook
+    assert require_openvpn_capability_hook(index_hook, field) == value_hook
+    for invalid in ("", value_hook + value_hook, index_hook + value_hook):
+        try:
+            require_openvpn_capability_hook(invalid, field)
+        except RuntimeError:
+            pass
+        else:
+            raise AssertionError("missing or duplicate OpenVPN gate must fail closed")
+
+for name, text, field in (("VPN client", page, "vpnc_type"),
+                          ("VPN server", server_page, "vpns_type")):
+    assert not re.search(r'<option value="[01]"[^>]*>\s*(?:PPTP|L2TP \(w/o IPSec\))</option>', text), name + ": unavailable protocol remains"
+    assert f"if (!found_app_ovpn())" in text, name + ": OpenVPN capability gate missing"
+    assert f"option[value='2']" in text and ".remove();" in text, name + ": OpenVPN option must be removed by value"
+    assert f'<option value="3"' in text, name + ": WireGuard/AmneziaWG selector missing"
 
 assert (args.tree / "trunk/user/httpd/vpn-profiles-render.h").exists(), "render header not copied"
 assert web.count("static int ej_wr_vpn_profile_rows") == 1, "profile rows handler missing"
