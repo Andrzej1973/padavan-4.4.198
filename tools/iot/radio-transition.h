@@ -97,6 +97,17 @@ static inline int wr_iot_radio_begin(struct wr_iot_radio_transition *s,
  if(operation==WR_RADIO_RESET||operation==WR_RADIO_VERIFY)s->main_ready=0;
  return 1;
 }
+/* Cancel an admitted BSS open ONLY before any vendor/hardware mutation.
+ * Caller holds the shared transition lock. A concurrent close, main-down or
+ * reset intent remains authoritative; cancellation never republishes READY.
+ * Keep serial advanced so a retired ticket cannot be reused. */
+static inline int wr_iot_radio_abort_bss_open_unmutated(
+ struct wr_iot_radio_transition *s,const struct wr_iot_radio_ticket *t){
+ if(!s->epoch||!t||t->operation!=WR_RADIO_BSS_OPEN||
+    s->busy!=WR_RADIO_BSS_OPEN||s->serial!=t->serial)return 0;
+ s->busy=0;
+ return 1;
+}
 /* Candidate stop reservation. The caller must stabilize VirtualIfCnt and
  * interface ownership against EVERY increment/decrement for this decision.
  * This helper never decrements the vendor count or performs teardown.
