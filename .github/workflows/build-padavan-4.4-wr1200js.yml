@@ -1595,11 +1595,12 @@ jobs:
           units = lock['units']
           if len(units) != 9 or not lock['all_unit_flags_available'] or not lock['all_site_activity_available']:
               raise SystemExit('Incomplete per-unit beacon lock Kbuild evidence')
-          if sum(len(unit['sites']) for unit in units.values()) != 20:
+          # The reviewed TIM admission overlay adds one active SEM site in ap_nps.c.
+          if sum(len(unit['sites']) for unit in units.values()) != 21:
               raise SystemExit('Merged candidate beacon lock inventory changed')
           active = [site for unit in units.values() for site in unit['sites']
                     if site['active_after_directives']]
-          if len(active) != 19 or sum(site['form'] == 'SEM' for site in active) != 10 or sum(site['form'] == 'IRQ' for site in active) != 9:
+          if len(active) != 20 or sum(site['form'] == 'SEM' for site in active) != 11 or sum(site['form'] == 'IRQ' for site in active) != 9:
               raise SystemExit('Merged candidate active beacon lock forms changed')
           # Both forms use the BH wrapper only while MULTI_CORE_SUPPORT is off.
           # This guards the reviewed target build, not callback/lifetime safety.
