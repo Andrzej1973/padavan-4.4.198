@@ -53,6 +53,13 @@ INT wr_iot_mbss_close_checked(PNET_DEV dev,const struct wr_iot_radio_ticket *tic
  bss_id=RT28xx_MBSS_IdxGet(ad,dev);
  if(bss_id<=0||bss_id>=ad->ApCfg.BssidNum||bss_id>=MAX_MBSSID_NUM(ad))
   goto uncertain;
+#ifdef RTMP_PCI_SUPPORT
+ /* Snapshot the target's pending beacon DMA cells before virtual down.
+  * This can delay close; it cannot prove that no late TxS will arrive. */
+ ret=WrBeaconDmaOutstanding(ad,(UINT32)bss_id);
+ if(ret<0)goto uncertain;
+ if(ret>0)return -1;
+#endif
  ret=WrBeaconTxSOutstanding(ad,(UINT32)bss_id);
  if(ret<0)goto uncertain;
  if(ret>0)return -1; /* Retain stage 2/ticket; the owner may retry. */

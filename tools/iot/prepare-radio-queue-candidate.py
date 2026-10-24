@@ -461,11 +461,94 @@ new_state=('\t\t\tif (bss_idx < pAd->ApCfg.BssidNum &&\n'
            '\t\t\t\tDBGPRINT(RT_DEBUG_ERROR, ("%s(): invalid beacon own_mac or BSS index\\n", __FUNCTION__));\n'
            '\t\t\t}')
 dma=dma.replace(old_state,new_state,1)
-text=text.replace(selected(text,sig),dma,1)
+dma_query='''
+#ifdef CONFIG_AP_SUPPORT
+/* Software-only snapshot. Zero does not retire hardware TxS reports. */
+INT32 WrBeaconDmaOutstanding(RTMP_ADAPTER *pAd, UINT32 BssId)
+{
+	RTMP_BCN_RING *ring;
+	PNDIS_PACKET packet;
+	TMAC_TXD_1 *txd_1;
+	UCHAR *data;
+	UINT32 i, owner, seen = 0;
+	INT32 result = 0;
+#ifdef RT_BIG_ENDIAN
+	TMAC_TXD_1 swapped;
+#endif
+
+	if (!pAd || BssId >= pAd->ApCfg.BssidNum ||
+	    BssId >= MAX_MBSSID_NUM(pAd))
+		return -1;
+	ring = &pAd->BcnRing;
+	RTMP_SEM_LOCK(&pAd->BcnRingLock);
+	if (ring->TxCpuIdx >= BCN_RING_SIZE ||
+	    ring->TxSwFreeIdx >= BCN_RING_SIZE) {
+		result = -1;
+		goto done;
+	}
+	for (i = 0; i < BCN_RING_SIZE; i++) {
+		packet = ring->Cell[i].pNdisPacket;
+		if (ring->Cell[i].pNextNdisPacket) {
+			result = -1;
+			break;
+		}
+		if (!packet)
+			continue;
+		seen++;
+		if (GET_OS_PKT_LEN(packet) < sizeof(TMAC_TXD_0) + sizeof(TMAC_TXD_1)) {
+			result = -1;
+			break;
+		}
+		data = GET_OS_PKT_DATAPTR(packet);
+		if (!data) {
+			result = -1;
+			break;
+		}
+		txd_1 = (TMAC_TXD_1 *)(data + sizeof(TMAC_TXD_0));
+#ifdef RT_BIG_ENDIAN
+		NdisCopyMemory(&swapped, txd_1, sizeof(swapped));
+		*(((UINT32 *)&swapped)) = SWAP32(*(((UINT32 *)&swapped)));
+		txd_1 = &swapped;
+#endif
+		if (txd_1->own_mac == 0)
+			owner = 0;
+		else if (txd_1->own_mac > 0x10 && txd_1->own_mac <= 0x1f)
+			owner = txd_1->own_mac & 0x0f;
+		else {
+			result = -1;
+			break;
+		}
+		if (owner >= pAd->ApCfg.BssidNum || owner >= MAX_MBSSID_NUM(pAd)) {
+			result = -1;
+			break;
+		}
+		if (owner == BssId)
+			result = 1;
+	}
+	if (result >= 0 && seen !=
+	    (ring->TxCpuIdx + BCN_RING_SIZE - ring->TxSwFreeIdx) % BCN_RING_SIZE)
+		result = -1;
+done:
+	RTMP_SEM_UNLOCK(&pAd->BcnRingLock);
+	return result;
+}
+#endif /* CONFIG_AP_SUPPORT */
+'''
+text=text.replace(selected(text,sig),dma+dma_query,1)
 path=out/'driver'/name;path.parent.mkdir(parents=True,exist_ok=True)
 path.write_text(text,encoding='utf-8')
-records.append({'path':name,'stage':'pci-dma-map-failure-result+beacon-dma-bss-bound+per-cell-owner-reset',
+records.append({'path':name,'stage':'pci-dma-map-failure-result+beacon-dma-bss-bound+per-cell-owner-reset+dma-snapshot',
                 'purpose':'driver','sha256':hashlib.sha256(path.read_bytes()).hexdigest()})
+name='include/rtmp.h';path=out/'driver'/name
+header=path.read_text(encoding='utf-8')
+anchor='VOID RTMPHandleBcnDmaDoneInterrupt(RTMP_ADAPTER *pAd);'
+if header.count(anchor)!=1:raise SystemExit('Changed beacon DMA declaration')
+header=header.replace(anchor,anchor+'\n#ifdef CONFIG_AP_SUPPORT\nINT32 WrBeaconDmaOutstanding(RTMP_ADAPTER *pAd, UINT32 BssId);\n#endif',1)
+path.write_text(header,encoding='utf-8')
+matches=[record for record in records if record['path']==name]
+if len(matches)!=1:raise SystemExit('Missing adapter header record for DMA snapshot')
+matches[0]['stage']+=' + dma-snapshot-declaration'
+matches[0]['sha256']=hashlib.sha256(path.read_bytes()).hexdigest()
 
 # Retry through the existing periodic command-thread path, outside queue lock.
 # Completion is still contingent on timer/worker lifetime and must not be
@@ -730,6 +813,7 @@ manifest={
  'beacon_cancel_failure_quarantined':False,
  'beacon_txs_index_bounded':True,
  'beacon_dma_bss_index_bounded':True,
+ 'beacon_dma_snapshot_staged':True,'beacon_dma_snapshot_close_bound':True,
  'beacon_main_deinit_precedes_lock_free_staged':True,
  'beacon_txs_state_lock_staged':True,
  'beacon_stop_state_lock_staged':True,
