@@ -1584,6 +1584,20 @@ jobs:
           sha256sum "$kernel/.config" > "$results/config-before.sha256"
           make -C "$kernel" ARCH=mips CROSS_COMPILE="$cross" -j2 vmlinux modules \
             2>&1 | tee "$results/build.log"
+          python3 tools/iot/check-capacity.py "$kernel" mt76x3 \
+            --compiler "$compiler" --require-three-bss \
+            --source-commit c25283e915a2a00a763774dd255b14aff997285e \
+            --output "$results/merged-capacity.json"
+          python3 - "$results/merged-capacity.json" <<'PY'
+          import json, sys
+          report = json.load(open(sys.argv[1], encoding='utf-8'))
+          lock = report['beacon_lock_units_probe']
+          units = lock['units']
+          if len(units) != 9 or not lock['all_unit_flags_available'] or not lock['all_site_activity_available']:
+              raise SystemExit('Incomplete per-unit beacon lock Kbuild evidence')
+          if sum(len(unit['sites']) for unit in units.values()) != 20:
+              raise SystemExit('Merged candidate beacon lock inventory changed')
+          PY
           module="$kernel/drivers/net/wireless/mediatek/mt76x3_ap/mt76x3_ap.ko"
           test -s "$module"
           "${cross}readelf" -h "$module" > "$results/mt76x3-elf.txt"

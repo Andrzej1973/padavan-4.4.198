@@ -88,3 +88,39 @@ Next: inspect the merged driver against both input sides, then target-compile
 it with the exact WR1200JS kernel configuration in an isolated build. The
 candidate must remain outside the production image until the compile and
 subsequent lifecycle/rollback gates pass.
+
+## CI probe prepared
+
+The current local candidate generator was rerun from the pinned source. Its
+raw files differed from the Linux #542 artifact only because Windows Python
+text writes produced CRLF; normalizing source text to LF yielded the same
+content hashes. The merge assembler now normalizes its candidate merge input
+and its staged output. A second full assembly from the *current* local tools
+matched all 45 staged output hashes from the #542-based assembly.
+
+An optional step was added to the WR1200JS reusable firmware workflow. It
+runs only with `run_candidate_checks=true`, after successful baseline firmware
+build and isolated Band Steering driver compilation. It recreates the pinned
+candidate from Git history, merges it into the isolated prepared kernel copy,
+checks staged hashes, and attempts MIPS `vmlinux modules` compilation. The
+normal firmware image remains based on the untouched production source tree.
+The step's shell syntax passed `bash -n` locally. Commit `5a09fc7` was pushed
+to the PR branch. Baseline firmware #543 and the matching ABI run passed.
+After checking that this branch had no queued or running duplicate, a single
+manual `run_candidate_checks=true` run was dispatched as `40046513315`.
+It completed with failure after the baseline image had been produced. The
+`iot-merged-driver-probe` artifact from build #544 contains the isolated
+compiler log. Its first error is `-Werror=misleading-indentation` in
+`ap/ap_cfg.c:14639-14642`, in `Set_BcnStateCtrl_Proc`: the candidate added
+`if (changed)` but left the inherited `return TRUE` with an eight-space
+indent. The candidate compiler stopped at that warning; the downloads job
+then failed because the selected optional build failed. This is a candidate
+source error, not evidence that the baseline firmware image failed to build.
+
+The generator now aligns that return with the function body. A fresh local
+candidate and prepared-source merge completed; 44 of 45 merged source hashes
+were unchanged, and the only changed path is `ap/ap_cfg.c`. The generated
+function shows the return at four spaces after the conditional log. Python
+syntax and `git diff --check` passed. Target compilation of this correction
+remains unverified until the next isolated CI run; production IoT and router
+runtime remain unverified.

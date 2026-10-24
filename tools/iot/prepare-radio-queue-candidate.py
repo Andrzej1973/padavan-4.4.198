@@ -624,6 +624,9 @@ new=('    RTMP_IRQ_LOCK(&pAd->BcnRingLock, BcnFlags);\n'
      '        printk("MBSSID[%d], bcn_buf.bcn_state = %d, will change to %ld\\n", apIndex, old_bcn_state, bcn_state);\n')
 if func.count(old)!=1:raise SystemExit('Changed beacon debug setter state block')
 func=func.replace(old,new,1)
+old_return='\n\n        return TRUE;\n}'
+if func.count(old_return)!=1:raise SystemExit('Changed beacon debug setter return')
+func=func.replace(old_return,'\n\n    return TRUE;\n}',1)
 text=text.replace(selected(text,sig),func,1)
 path.write_text(text,encoding='utf-8')
 matches=[record for record in records if record['path']==name]
