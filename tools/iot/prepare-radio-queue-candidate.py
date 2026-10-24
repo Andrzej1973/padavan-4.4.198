@@ -37,7 +37,7 @@ groups={
 }
 source_names=['tx_rx/txs.c','tx_rx/wdev.c','ap/ap.c','include/mac/mac_mt/mt_mac.h','include/mac/mac.h','mac/mt_mac.c','common/rtmp_init_inf.c','common/wsc.c','os/linux/rt_linux.c','ap/ap_apcli_inf.c','ap/ap_wds_inf.c','common/cmm_cfg.c','common/cmm_cmd.c','common/rtmp_init.c','os/linux/rt_rbus_pci_drv.c',
               'include/mcu/andes_core.h','mcu/andes_core.c','mcu/andes_mt.c',
-              'include/rtmp.h','os/linux/rt_profile.c','os/linux/rt_main_dev.c','common/cmm_mac_pci.c','common/cmm_mac_sdio.c','common/cmm_data_pci.c']
+              'include/rtmp.h','os/linux/rt_profile.c','os/linux/rt_main_dev.c','common/cmm_mac_pci.c','common/cmm_mac_sdio.c','common/cmm_data_pci.c','ap/ap_nps.c']
 originals={name:(root/name).read_bytes() for name in source_names}
 inputs=[here/script for script,_ in groups.values()]
 inputs += [Path(__file__).resolve()]
@@ -765,6 +765,35 @@ matches=[record for record in records if record['path']=='tx_rx/txs.c']
 if len(matches)!=1:raise SystemExit('Missing single TxS handler record')
 matches[0]['stage']+=' + type1-handler-snapshot'
 matches[0]['sha256']=hashlib.sha256(handler_path.read_bytes()).hexdigest()
+name='ap/ap_nps.c'
+text=originals[name].decode('utf-8').replace('\r\n','\n')
+sig='VOID RT28xx_UpdateTimToAsic('
+func=selected(text,sig)
+lookup='\t\ttim_buf = &pAd->ApCfg.MBSSID[apidx].tim_buf;'
+if func.count(lookup)!=1:raise SystemExit('Changed TIM BSS lookup')
+entry='\tPNDIS_PACKET *pkt = NULL;'
+if func.count(entry)!=1:raise SystemExit('Changed TIM function entry')
+func=func.replace(entry,'\tPNDIS_PACKET pkt = NULL;'+
+    '\n\tif (!pAd || apidx < 0 ||\n'
+    '\t    (unsigned int)apidx >= sizeof(pAd->ApCfg.MBSSID)/sizeof(pAd->ApCfg.MBSSID[0]) ||\n'
+    '\t    apidx >= pAd->ApCfg.BssidNum)\n'
+    '\t\treturn;',1)
+kick='\t\tRTMP_SEM_LOCK(&pAd->BcnRingLock);\n\t\tHAL_KickOutMgmtTx(pAd, Q_IDX_BCN, pkt, buf, len);'
+if func.count(kick)!=1:raise SystemExit('Changed TIM kickout lock')
+func=func.replace(kick,
+    '\t\tRTMP_SEM_LOCK(&pAd->BcnRingLock);\n'
+    '\t\t/* MBSS_Close revokes this BSS under the same ring lock. */\n'
+    '\t\tif (apidx > 0 &&\n'
+    '\t\t    !pAd->ApCfg.MBSSID[apidx].bcn_buf.bBcnSntReq) {\n'
+    '\t\t\tRTMP_SEM_UNLOCK(&pAd->BcnRingLock);\n'
+    '\t\t\treturn;\n'
+    '\t\t}\n'
+    '\t\tHAL_KickOutMgmtTx(pAd, Q_IDX_BCN, pkt, buf, len);',1)
+text=text.replace(selected(text,sig),func,1)
+path=out/'driver'/name;path.parent.mkdir(parents=True,exist_ok=True)
+path.write_text(text,encoding='utf-8')
+records.append({'path':name,'stage':'tim-locked-bss-admission',
+                'purpose':'driver','sha256':hashlib.sha256(path.read_bytes()).hexdigest()})
 for name,data in originals.items():
     if (root/name).read_bytes()!=data:raise SystemExit('Source changed during assembly')
 for path,data in tool_bytes.items():
@@ -809,6 +838,7 @@ manifest={
  'beacon_reservation_token_consumed_by_submit':True,
  'pci_dma_map_failure_return_staged':True,
  'beacon_locked_ring_admission_staged':True,
+ 'tim_locked_ring_admission_staged':True,
  'beacon_pre_submit_cancel_staged':True,
  'beacon_cancel_failure_quarantined':False,
  'beacon_txs_index_bounded':True,
