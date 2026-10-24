@@ -140,3 +140,49 @@ check of all 400 valid index pairs confirmed equivalence to the vendor
 macro's zero result. A fresh candidate and five-file prepared-source merge
 completed; only `common/cmm_mac_pci.c` differs among the 45 staged files.
 This is local source evidence, not a target compile or runtime result.
+
+## Isolated MIPS target compile completed
+
+Run `40051068385` on commit `22df59a` completed successfully with
+`run_candidate_checks=true`. Its `iot-merged-driver-probe` artifact was
+downloaded to `../iot-merged-probe-550/`. The 45 merged driver-file SHA-256
+values match the fresh local prepared-source assembly exactly. The isolated
+kernel built `vmlinux modules`, and the artifact contains a 5,106,508-byte
+`mt76x3_ap.ko` identified by `readelf` as ELF32 little-endian MIPS relocatable
+code. The workflow also checked its effective `.config` hash before and
+after this compile. The build log reports one `modpost` section-mismatch
+warning without details; this has not yet been attributed to the candidate.
+The same run's preceding isolated Band Steering driver build artifact,
+downloaded to `../band-steering-probe-550/`, contains the same one-section
+`modpost` warning before the IoT candidate was copied. Both artifacts have
+the same effective kernel `.config` SHA-256
+`FA047C0252B38D5E9525DBBD80CD1EF8CD4564D01B384EDB5D861C200177AAA9`.
+The warning therefore predates the candidate overlay in this run; its
+underlying section reference has not been diagnosed here.
+
+The target `merged-capacity.json` reports complete Kbuild/directive evidence
+for all nine source units and 20 source-text `BcnRingLock` sites. Nineteen
+survive preprocessing: 10 SEM and 9 IRQ; the `RTMPFreeTxRxRingMemory` SEM site
+is inactive. `MULTI_CORE_SUPPORT` is false in every unit, so both lock forms
+expand to the BH wrapper in this particular target configuration. This
+establishes compilation and the effective macro forms; it does not prove
+all callback contexts, selective IoT BSS teardown, production installation,
+or device runtime. The candidate manifest still correctly says
+`target_compiled=false` because that source manifest was generated before
+CI compiled it; the external CI artifact is the compile evidence.
+
+Source trace for two asynchronous owners: `os/linux/rt_rbus_pci_drv.c`
+initializes `bcn_dma_done_task` with `bcn_dma_done_tasklet` at line 69; that
+callback calls `RTMPHandleBcnDmaDoneInterrupt` at line 629, where the
+candidate's SEM-form `BcnRingLock` acquisition is compiled. The same file
+initializes `rx_done_task` at line 62; its callback calls
+`rtmp_rx_done_handle`, which reaches `GetPacketFromRxRing` and
+`parse_rx_packet_type` in `common/cmm_data_pci.c`, then
+`ParseTxSPacket` in `common/cmm_data.c:611` and the candidate's
+IRQ-form `BcnTxSHandler`. `include/os/rt_linux_cmm.h` maps both forms to
+`RtmpOsSpinLockBh` without `MULTI_CORE_SUPPORT`; `rt_linux.c:3383` and
+`include/os/rt_linux.h:367-369` map that wrapper to `spin_lock_bh`.
+This traces these two callback chains only. The effective `WORKQUEUE_BH`
+selection, all other lock owners, nested lock ordering, and safe teardown
+still require review; neither compile success nor identical lock macros
+establishes full production safety.

@@ -1597,6 +1597,14 @@ jobs:
               raise SystemExit('Incomplete per-unit beacon lock Kbuild evidence')
           if sum(len(unit['sites']) for unit in units.values()) != 20:
               raise SystemExit('Merged candidate beacon lock inventory changed')
+          active = [site for unit in units.values() for site in unit['sites']
+                    if site['active_after_directives']]
+          if len(active) != 19 or sum(site['form'] == 'SEM' for site in active) != 10 or sum(site['form'] == 'IRQ' for site in active) != 9:
+              raise SystemExit('Merged candidate active beacon lock forms changed')
+          # Both forms use the BH wrapper only while MULTI_CORE_SUPPORT is off.
+          # This guards the reviewed target build, not callback/lifetime safety.
+          if any(unit['effective_multi_core_support'] for unit in units.values()):
+              raise SystemExit('Mixed beacon lock forms with MULTI_CORE_SUPPORT')
           PY
           module="$kernel/drivers/net/wireless/mediatek/mt76x3_ap/mt76x3_ap.ko"
           test -s "$module"
