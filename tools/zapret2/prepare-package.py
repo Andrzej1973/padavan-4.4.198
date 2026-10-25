@@ -48,6 +48,18 @@ def main() -> int:
             print("Zapret2 selector is off; package not staged")
             return 0
 
+    template = tree / "trunk/configs/templates/WR1200JS.config"
+    if template.is_file():
+        text = template.read_text(encoding="utf-8")
+        if "CONFIG_FIRMWARE_INCLUDE_ZAPRET2=" not in text:
+            template.write_text(
+                text.rstrip("\n")
+                + "\n\n### Zapret2 packet processor (built from the pinned snapshot).\n"
+                + "CONFIG_FIRMWARE_INCLUDE_ZAPRET2=n\n",
+                encoding="utf-8",
+                newline="\n",
+            )
+
     if target.exists():
         raise SystemExit(f"package directory already exists: {target}")
 
