@@ -1,0 +1,70 @@
+name: Zapret2 nfqws2 candidate
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'tools/zapret2/**'
+      - 'third_party/netfilter/**'
+      - '.github/workflows/zapret2-candidate.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build-nfqws2:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    env:
+      PADAVAN_COMMIT: c25283e915a2a00a763774dd255b14aff997285e
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Fetch pinned Padavan source
+        run: |
+          git init padavan-4.4
+          git -C padavan-4.4 remote add origin https://github.com/vipshmily/padavan-4.4.git
+          python3 tools/retry-source-command.py git -C padavan-4.4 fetch --depth=1 origin "$PADAVAN_COMMIT"
+          python3 tools/retry-source-command.py git -C padavan-4.4 checkout --detach FETCH_HEAD
+          test "$(git -C padavan-4.4 rev-parse HEAD)" = "$PADAVAN_COMMIT"
+
+      - name: Download the Linux 4.4 uClibc toolchain
+        run: |
+          mkdir -p padavan-4.4/toolchain/toolchain-mipsel
+          curl --fail --location --retry 5 \
+            --output padavan-4.4/toolchain-mipsel.tar.xz \
+            https://github.com/vipshmily/padavan-4.4/releases/download/toolchain/mipsel-linux-uclibc.tar.xz
+          python3 tools/verify-source-archive.py mipsel-linux-uclibc-toolchain padavan-4.4/toolchain-mipsel.tar.xz
+          tar -xJf padavan-4.4/toolchain-mipsel.tar.xz \
+            -C padavan-4.4/toolchain/toolchain-mipsel
+
+      - name: Verify the pinned dependency archives
+        run: python3 tools/zapret2/verify-deps-base.py
+
+      - name: Stage and build nfqws2
+        run: |
+          set -euo pipefail
+          python3 tools/zapret2/prepare-package.py padavan-4.4
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
+          test -n "$compiler"
+          CC="$compiler" \
+          CFLAGS="-O2 -mips32r2 -mabi=32 -msoft-float" \
+          LDFLAGS="-mips32r2 -mabi=32 -msoft-float" \
+            sh tools/zapret2/build-nfqws2.sh padavan-4.4 nfqws2-candidate \
+              padavan-4.4/trunk/user/zapret2/deps
+          file nfqws2-candidate
+          size nfqws2-candidate | tee nfqws2-size.txt
+          readelf -d nfqws2-candidate > nfqws2-dynamic.txt
+          python3 tools/zapret2/check-candidate.py \
+            nfqws2-candidate nfqws2-dynamic.txt nfqws2-candidate.json
+
+      - name: Upload candidate binary and report
+        uses: actions/upload-artifact@v7
+        with:
+          name: zapret2-nfqws2-candidate
+          path: |
+            nfqws2-candidate
+            nfqws2-candidate.json
+            nfqws2-size.txt
+            nfqws2-dynamic.txt
+          if-no-files-found: error
