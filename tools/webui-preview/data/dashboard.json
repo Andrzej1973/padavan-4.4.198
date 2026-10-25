@@ -1,0 +1,65 @@
+{
+  "demo": true,
+  "device": "Youhua WR1200JS",
+  "firmware": "4.4.198.9-099",
+  "wifi": [
+    {
+      "band": "2.4 GHz",
+      "status": "Увімкнено",
+      "ssid": "Home-2.4G",
+      "channel": "6 (макет)",
+      "speed": "144 Мбіт/с (макет)",
+      "clients": 3
+    },
+    {
+      "band": "5 GHz",
+      "status": "Увімкнено",
+      "ssid": "Home-5G",
+      "channel": "44 (макет)",
+      "speed": "866 Мбіт/с (макет)",
+      "clients": 2
+    }
+  ],
+  "devices": {
+    "total": 8,
+    "wired": 3,
+    "wifi24": 3,
+    "wifi5": 2
+  },
+  "cpuPercent": 12,
+  "memoryPercent": 28,
+  "zram": {
+    "status": "Увімкнено (макет)",
+    "used": "512 МБ / 2.0 ГБ",
+    "compression": "lz0-rle",
+    "percent": 26
+  },
+  "usb": {
+    "status": "Підключено (макет)",
+    "filesystem": "ext4 (макет)",
+    "freeTotal": "118 ГБ / 120 ГБ (макет)"
+  },
+  "serviceTiles": [
+    { "name": "VPN", "detail": "OpenVPN / WireGuard", "icon": "shield", "confirmed": false },
+    { "name": "DHCP", "detail": "Сервер / Клієнт", "icon": "server", "confirmed": false },
+    { "name": "DNS", "detail": "DNSMasq / DoH", "icon": "globe", "confirmed": false },
+    { "name": "FTP", "detail": "FTP Server", "icon": "folder", "confirmed": false },
+    { "name": "Cloud", "detail": "AiCloud", "icon": "cloud", "confirmed": false },
+    { "name": "UPnP", "detail": "UPnP IGD", "icon": "share", "confirmed": false },
+    { "name": "Принтер", "detail": "USB Printer", "icon": "printer", "confirmed": false },
+    { "name": "SMB", "detail": "Network Share", "icon": "file", "confirmed": false },
+    { "name": "DLNA", "detail": "Медіасервер", "icon": "play", "confirmed": false },
+    { "name": "AdGuard", "detail": "Блокування реклами", "icon": "check", "confirmed": false },
+    { "name": "Docker", "detail": "Контейнери", "icon": "cube", "confirmed": false },
+    { "name": "Tailscale", "detail": "Mesh VPN", "icon": "gear", "confirmed": false }
+  ],
+  "classicPages": [
+    { "label": "Інтернет", "file": "Advanced_WAN_Content.asp" },
+    { "label": "Бездротова мережа", "file": "Advanced_Wireless2g_Content.asp / Advanced_Wireless_Content.asp" },
+    { "label": "Локальна мережа", "file": "Advanced_APLAN_Content.asp" },
+    { "label": "Брандмауер", "file": "Advanced_Firewall_Content.asp" },
+    { "label": "QoS", "file": "Advanced_SQM.asp" },
+    { "label": "Система", "file": "Advanced_System_Content.asp / Advanced_Services_Content.asp" },
+    { "label": "Журнал", "file": "Main_LogStatus_Content.asp" }
+  ]
+}
