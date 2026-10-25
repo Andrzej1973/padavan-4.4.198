@@ -60,13 +60,15 @@ def main() -> int:
     )
     require(
         user / "rc/rc.c",
-        ("RCN_RESTART_ZAPRET2", "restart_zapret2"),
+        ("RCN_RESTART_ZAPRET2", "restart_zapret2", "WR_ZAPRET2_REAPPLY"),
     )
     require(
         user / "httpd/web_ex.c",
         ("found_app_zapret2", "ej_wr_zapret2_status",
          '"wr_zapret2_status"', '"nfqws2"', '"/etc/storage/zapret2.args"',
-         "/usr/sbin/iptables", "POSTROUTING -o '%s' -j ZAPRET2"),
+         "/usr/sbin/iptables", "POSTROUTING -o '%s' -j ZAPRET2",
+         "-p tcp -j NFQUEUE --queue-num 200 --queue-bypass",
+         "-p udp -j NFQUEUE --queue-num 200 --queue-bypass"),
     )
 
     page_path = (

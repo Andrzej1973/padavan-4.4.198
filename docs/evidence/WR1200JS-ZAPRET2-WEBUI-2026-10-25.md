@@ -16,6 +16,8 @@ lifecycle paths. The router was not flashed or rebooted.
 - event bit 56 — unique `restart_zapret2` notification;
 - rc lifecycle — start at boot only when enabled, stop at shutdown, restart on
   Apply;
+- firewall/netfilter/WAN-firewall reapply — dedicated rules are restored after
+  Padavan rebuilds its firewall;
 - HTTP status — requested setting, process, strategy file and WAN-specific
   NFQUEUE hook are returned separately;
 - page — factory-off toggle, strategy editor, manual refresh, 30-second visible

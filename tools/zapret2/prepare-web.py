@@ -205,6 +205,53 @@ void restart_zapret2(void){
         "#endif\n"
     )
     rc = replace_once(rc, rc_iperf, rc_iperf + rc_zapret, "restart dispatch")
+    firewall_dispatch = """\
+\t\telse if (strcmp(entry->d_name, RCN_RESTART_NETFILTER) == 0)
+\t\t{
+\t\t\tupdate_router_mode();
+\t\t\treload_nat_modules();
+\t\t\trestart_firewall();
+\t\t\tflush_conntrack_table(NULL);
+\t\t}
+\t\telse if (strcmp(entry->d_name, RCN_RESTART_FIREWALL) == 0)
+\t\t{
+\t\t\treload_nat_modules();
+\t\t\trestart_firewall();
+\t\t}
+\t\telse if (strcmp(entry->d_name, "restart_firewall_wan") == 0)
+\t\t{
+\t\t\trestart_firewall();
+\t\t}
+"""
+    firewall_reapply = """\
+#if defined(APP_ZAPRET2)
+#define WR_ZAPRET2_REAPPLY() restart_zapret2()
+#else
+#define WR_ZAPRET2_REAPPLY() do { } while (0)
+#endif
+\t\telse if (strcmp(entry->d_name, RCN_RESTART_NETFILTER) == 0)
+\t\t{
+\t\t\tupdate_router_mode();
+\t\t\treload_nat_modules();
+\t\t\trestart_firewall();
+\t\t\tWR_ZAPRET2_REAPPLY();
+\t\t\tflush_conntrack_table(NULL);
+\t\t}
+\t\telse if (strcmp(entry->d_name, RCN_RESTART_FIREWALL) == 0)
+\t\t{
+\t\t\treload_nat_modules();
+\t\t\trestart_firewall();
+\t\t\tWR_ZAPRET2_REAPPLY();
+\t\t}
+\t\telse if (strcmp(entry->d_name, "restart_firewall_wan") == 0)
+\t\t{
+\t\t\trestart_firewall();
+\t\t\tWR_ZAPRET2_REAPPLY();
+\t\t}
+"""
+    rc = replace_once(
+        rc, firewall_dispatch, firewall_reapply, "firewall reapply"
+    )
     rc_path.write_text(rc, encoding="utf-8", newline="\n")
 
     web = web_path.read_text(encoding="utf-8")
@@ -235,28 +282,38 @@ void restart_zapret2(void){
     system_entry = '\t{ "json_system_status", ej_system_status_hook},\n'
     handler = r'''
 static int wr_process_present(const char *name);
+static int wr_zapret2_command_state(const char *command)
+{
+ int result = system(command);
+ if (result == -1 || !WIFEXITED(result)) return 2;
+ result = WEXITSTATUS(result);
+ return result == 0 ? 1 : (result == 1 ? 0 : 2);
+}
 static int wr_zapret2_rules_state(void)
 {
  const char *wan;
  char command[256];
- int result, code;
+ int state;
 #if defined(APP_ZAPRET2)
  wan = nvram_get("wan_ifname");
  if (!wan || !wan[0]) wan = nvram_get("wan0_ifname");
  if (!wan || !wan[0] || strlen(wan) > 15) return 2;
- for (result = 0; wan[result]; result++)
-  if (!isalnum((unsigned char)wan[result]) &&
-      wan[result] != '_' && wan[result] != '.' &&
-      wan[result] != ':' && wan[result] != '-')
+ for (state = 0; wan[state]; state++)
+  if (!isalnum((unsigned char)wan[state]) &&
+      wan[state] != '_' && wan[state] != '.' &&
+      wan[state] != ':' && wan[state] != '-')
    return 2;
  snprintf(command, sizeof(command),
   "/usr/sbin/iptables -t mangle -C POSTROUTING -o '%s' -j ZAPRET2 >/dev/null 2>&1", wan);
- result = system(command);
- if (result == -1 || !WIFEXITED(result)) return 2;
- code = WEXITSTATUS(result);
- return code == 0 ? 1 : (code == 1 ? 0 : 2);
+ state = wr_zapret2_command_state(command);
+ if (state != 1) return state;
+ state = wr_zapret2_command_state(
+  "/usr/sbin/iptables -t mangle -C ZAPRET2 -p tcp -j NFQUEUE --queue-num 200 --queue-bypass >/dev/null 2>&1");
+ if (state != 1) return state;
+ return wr_zapret2_command_state(
+  "/usr/sbin/iptables -t mangle -C ZAPRET2 -p udp -j NFQUEUE --queue-num 200 --queue-bypass >/dev/null 2>&1");
 #else
- (void)wan; (void)command; (void)result; (void)code;
+ (void)wan; (void)command; (void)state;
  return 2;
 #endif
 }

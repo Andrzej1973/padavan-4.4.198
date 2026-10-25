@@ -25,6 +25,8 @@ service itself.
   the existing Padavan form/event path.
 - `restart_zapret2` stops the owned process, removes the dedicated rules and
   starts again only when the saved switch is `1`.
+- general firewall, netfilter and WAN-firewall restart paths reapply Zapret2
+  after Padavan rebuilds its rule tables.
 - NFQUEUE uses `--queue-bypass`; no `LOG` rule is installed.
 - The chain is attached only to `mangle POSTROUTING` for the configured WAN and
   returns LAN/loopback destinations before queueing.
