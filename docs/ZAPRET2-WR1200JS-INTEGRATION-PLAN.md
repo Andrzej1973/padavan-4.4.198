@@ -77,3 +77,19 @@ The earlier `~0.3MB` selector comment is therefore an underestimate for the
 uncompressed binary; the compressed TRX delta still has to be measured from a
 full image. The service map now classifies `CONFIG_FIRMWARE_INCLUDE_ZAPRET2`
 as a service with entrypoint `usr/sbin/nfqws2` (44 selectors, 13 maps).
+
+## Service and WebUI shape
+
+Reuse the existing service patterns instead of a new page:
+
+- page row on `Advanced_Services_Content.asp`, next to the other service
+  toggles (`init_itoggle('zapret2_enable')` plus a checkbox row);
+- `variables.c` entry for `zapret2_enable` with an explicit restart class;
+- `defaults.c` default `0` (factory off);
+- `/usr/sbin/zapret2` service script: `start` applies the mangle NFQUEUE
+  rules and starts `nfqws2`; `stop` kills the daemon, removes the rules and
+  confirms both steps; `status` reports process plus rule presence separately;
+- do not start at boot until the service has passed image and runtime gates.
+
+The status row must distinguish the saved toggle from the observed process and
+rules, per `docs/SERVICE-RUNTIME-STATUS-CONTRACT.md`.
