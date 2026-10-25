@@ -3,7 +3,8 @@
 This section is the current handoff. Older time-specific notes below are
 historical; their pending-run and local-only statements are superseded here.
 
-- Current writer: Sol, branch `codex/wr1200js-service-webui`, HEAD `3d6c602`.
+- Current writer: Sol, branch `codex/wr1200js-service-webui`; latest IoT
+  source commit `3d6c602`.
   Preserve all unrelated modified and untracked files.
 - Firmware #594 (`40205825840`) and Band Steering ABI `40205825793` passed on
   `3d6c602`. Optional IoT candidate build #595 (`40207139904`) also passed:

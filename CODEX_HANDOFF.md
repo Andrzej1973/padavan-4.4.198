@@ -4,7 +4,7 @@ Sol is the single writer. Read `AGENTS.md`, `PROJECT_STATUS.md`,
 `docs/AGENT-BOOTSTRAP.md`, `docs/EXECUTION-ROLE.md` and `git status -sb`
 before changing files. Preserve every unrelated local modification.
 
-1. Branch HEAD `3d6c602` is pushed. Firmware #594 (`40205825840`), Band
+1. Latest IoT source commit `3d6c602` is pushed. Firmware #594 (`40205825840`), Band
    Steering ABI `40205825793`, and optional isolated IoT build #595
    (`40207139904`) completed successfully. The #595 artifact contains a
    MIPS32r2 `mt76x3_ap.ko`; inspect the evidence document before relying on it.
