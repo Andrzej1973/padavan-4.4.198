@@ -163,9 +163,9 @@ if zapret2_enabled:
                    if zapret2_httpd_path.is_file() else b'')
     zapret2_httpd_markers=(b'found_app_zapret2',b'wr_zapret2_status',
                            b'restart_zapret2',b'zapret2_enable')
-    zapret2_dicts={name:(root/f'www/dict/{name}').read_text(encoding='utf-8')
+    zapret2_dicts={name:(root/f'www/{name}').read_text(encoding='utf-8')
                    for name in ('EN.dict','UK.dict','RU.dict')
-                   if (root/f'www/dict/{name}').is_file()}
+                   if (root/f'www/{name}').is_file()}
     report['zapret2_webui']={
         'page_markers':list(zapret2_web_markers),
         'httpd_markers':[item.decode() for item in zapret2_httpd_markers],
