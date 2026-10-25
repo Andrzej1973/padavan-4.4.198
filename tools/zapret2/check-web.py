@@ -59,6 +59,11 @@ def main() -> int:
          'nvram_get_int("zapret2_enable")'),
     )
     require(
+        user / "rc/rc.h",
+        ("start_zapret2(void)", "stop_zapret2(void)",
+         "restart_zapret2(void)"),
+    )
+    require(
         user / "rc/rc.c",
         ("RCN_RESTART_ZAPRET2", "restart_zapret2", "WR_ZAPRET2_REAPPLY"),
     )

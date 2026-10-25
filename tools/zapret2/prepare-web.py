@@ -22,6 +22,7 @@ def prepare_webui(tree: Path) -> None:
     defaults_path = user / "shared/defaults.c"
     services_path = user / "rc/services.c"
     rc_path = user / "rc/rc.c"
+    rc_header_path = user / "rc/rc.h"
     web_path = user / "httpd/web_ex.c"
     page_path = user / "www/n56u_ribbon_fixed/Advanced_Services_Content.asp"
 
@@ -186,6 +187,19 @@ void restart_zapret2(void){
         "shutdown stop",
     )
     services_path.write_text(services, encoding="utf-8", newline="\n")
+
+    rc_header = rc_header_path.read_text(encoding="utf-8")
+    rc_header = replace_once(
+        rc_header,
+        "void start_iperf3(void);\nvoid restart_iperf3(void);\n",
+        "void start_iperf3(void);\nvoid restart_iperf3(void);\n"
+        "int is_zapret2_run(void);\n"
+        "void stop_zapret2(void);\n"
+        "void start_zapret2(void);\n"
+        "void restart_zapret2(void);\n",
+        "service prototypes",
+    )
+    rc_header_path.write_text(rc_header, encoding="utf-8", newline="\n")
 
     rc = rc_path.read_text(encoding="utf-8")
     rc_iperf = (
@@ -601,6 +615,7 @@ def verify_prepared(tree: Path) -> None:
         user / "httpd/variables.c": '"zapret2_enable"',
         user / "shared/defaults.c": '{ "zapret2_enable", "0" }',
         user / "rc/services.c": "restart_zapret2",
+        user / "rc/rc.h": "restart_zapret2",
         user / "rc/rc.c": "RCN_RESTART_ZAPRET2",
         user / "httpd/web_ex.c": "ej_wr_zapret2_status",
         user / "www/n56u_ribbon_fixed/Advanced_Services_Content.asp":
