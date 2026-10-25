@@ -29,20 +29,9 @@ def main() -> int:
     args = parser.parse_args()
     user = args.tree / "trunk/user"
 
-    common = require(
-        user / "httpd/common.h",
-        ("#define EVM_RESTART_ZAPRET2", "#define EVT_RESTART_ZAPRET2"),
-    )
-    if len(re.findall(r"1ULL\s*<<\s*56\b", common)) != 1:
-        raise SystemExit("Zapret2 event bit 56 is missing or duplicated")
-
     require(
         user / "shared/cflags.mk",
         ("CONFIG_FIRMWARE_INCLUDE_ZAPRET2", "-DAPP_ZAPRET2"),
-    )
-    require(
-        user / "shared/notify_rc.h",
-        ('RCN_RESTART_ZAPRET2\t"restart_zapret2"',),
     )
     require(
         user / "shared/defaults.c",
@@ -51,7 +40,7 @@ def main() -> int:
     require(
         user / "httpd/variables.c",
         ('"zapret2_enable"', '"scripts.zapret2.args"',
-         "EVM_RESTART_ZAPRET2", "RCN_RESTART_ZAPRET2"),
+         "EVM_RESTART_FIREWALL"),
     )
     require(
         user / "rc/services.c",
@@ -65,7 +54,7 @@ def main() -> int:
     )
     require(
         user / "rc/rc.c",
-        ("RCN_RESTART_ZAPRET2", "restart_zapret2", "WR_ZAPRET2_REAPPLY"),
+        ("restart_zapret2", "WR_ZAPRET2_REAPPLY"),
     )
     require(
         user / "httpd/web_ex.c",

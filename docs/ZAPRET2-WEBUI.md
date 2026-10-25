@@ -23,6 +23,8 @@ service itself.
 
 - The web request only changes NVRAM and the root-managed strategy file through
   the existing Padavan form/event path.
+- Apply reuses Padavan's existing firewall event so no HTTP event bit is
+  consumed; the firewall reapply hook then reconciles Zapret2.
 - `restart_zapret2` stops the owned process, removes the dedicated rules and
   starts again only when the saved switch is `1`.
 - general firewall, netfilter and WAN-firewall restart paths reapply Zapret2

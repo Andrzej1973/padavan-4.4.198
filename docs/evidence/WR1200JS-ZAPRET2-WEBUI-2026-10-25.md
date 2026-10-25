@@ -13,7 +13,8 @@ lifecycle paths. The router was not flashed or rebooted.
   `/etc/storage/zapret2.args`;
 - `APP_ZAPRET2` — compile guard derived from
   `CONFIG_FIRMWARE_INCLUDE_ZAPRET2=y`;
-- event bit 56 — unique `restart_zapret2` notification;
+- `EVM_RESTART_FIREWALL` — existing event reused for Apply; no new HTTP event
+  bit is consumed, avoiding collision with the later Stubby integration;
 - rc lifecycle — start at boot only when enabled, stop at shutdown, restart on
   Apply;
 - firewall/netfilter/WAN-firewall reapply — dedicated rules are restored after
@@ -47,8 +48,7 @@ dependencies, Lua files and license, and then passed the WebUI checker.
 
 Additional checks cover:
 
-- exact event-bit uniqueness;
-- NVRAM key, file field and event descriptor;
+- NVRAM key and file field attached to the existing firewall event;
 - factory-off default;
 - compiled-found-app query and restart dispatch markers;
 - page toggle, strategy editor, observed-state row and interval refresh;

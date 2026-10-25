@@ -16,8 +16,6 @@ def replace_once(text: str, old: str, new: str, label: str) -> str:
 def prepare_webui(tree: Path) -> None:
     user = tree / "trunk/user"
     cflags_path = user / "shared/cflags.mk"
-    common_path = user / "httpd/common.h"
-    notify_path = user / "shared/notify_rc.h"
     variables_path = user / "httpd/variables.c"
     defaults_path = user / "shared/defaults.c"
     services_path = user / "rc/services.c"
@@ -40,33 +38,6 @@ def prepare_webui(tree: Path) -> None:
     cflags = replace_once(cflags, anchor, anchor + addition, "cflags selector")
     cflags_path.write_text(cflags, encoding="utf-8", newline="\n")
 
-    common = common_path.read_text(encoding="utf-8")
-    common = replace_once(
-        common,
-        "#define EVM_RESTART_IPERF3\t\t(1ULL << 46)\n",
-        "#define EVM_RESTART_IPERF3\t\t(1ULL << 46)\n"
-        "#define EVM_RESTART_ZAPRET2\t\t(1ULL << 56)\n",
-        "event mask",
-    )
-    common = replace_once(
-        common,
-        "#define EVT_RESTART_IPERF3\t\t1\n",
-        "#define EVT_RESTART_IPERF3\t\t1\n"
-        "#define EVT_RESTART_ZAPRET2\t\t1\n",
-        "event timeout",
-    )
-    common_path.write_text(common, encoding="utf-8", newline="\n")
-
-    notify = notify_path.read_text(encoding="utf-8")
-    notify = replace_once(
-        notify,
-        '#define RCN_RESTART_IPERF3\t\t"restart_iperf3"\n',
-        '#define RCN_RESTART_IPERF3\t\t"restart_iperf3"\n'
-        '#define RCN_RESTART_ZAPRET2\t"restart_zapret2"\n',
-        "notify command",
-    )
-    notify_path.write_text(notify, encoding="utf-8", newline="\n")
-
     variables = variables_path.read_text(encoding="utf-8")
     iperf_vars = (
         "#if defined (APP_IPERF3)\n"
@@ -75,27 +46,12 @@ def prepare_webui(tree: Path) -> None:
     )
     zapret_vars = (
         "#if defined(APP_ZAPRET2)\n"
-        '\t\t\t{"zapret2_enable", "", NULL, EVM_RESTART_ZAPRET2},\n'
-        '\t\t\t{"scripts.zapret2.args", "File", NULL, EVM_RESTART_ZAPRET2},\n'
+        '\t\t\t{"zapret2_enable", "", NULL, EVM_RESTART_FIREWALL},\n'
+        '\t\t\t{"scripts.zapret2.args", "File", NULL, EVM_RESTART_FIREWALL},\n'
         "#endif\n"
     )
     variables = replace_once(
         variables, iperf_vars, iperf_vars + zapret_vars, "NVRAM variables"
-    )
-    iperf_event = (
-        "#if defined(APP_IPERF3)\n"
-        "\t\t{EVM_RESTART_IPERF3,\tEVT_RESTART_IPERF3,\t\t"
-        "RCN_RESTART_IPERF3,\t0},\n"
-        "#endif\n"
-    )
-    zapret_event = (
-        "#if defined(APP_ZAPRET2)\n"
-        "\t\t{EVM_RESTART_ZAPRET2, EVT_RESTART_ZAPRET2, "
-        "RCN_RESTART_ZAPRET2, 0},\n"
-        "#endif\n"
-    )
-    variables = replace_once(
-        variables, iperf_event, iperf_event + zapret_event, "event descriptor"
     )
     variables_path.write_text(variables, encoding="utf-8", newline="\n")
 
@@ -210,15 +166,6 @@ void restart_zapret2(void){
         "\t\t}\n"
         "#endif\n"
     )
-    rc_zapret = (
-        "#if defined(APP_ZAPRET2)\n"
-        "\t\telse if (strcmp(entry->d_name, RCN_RESTART_ZAPRET2) == 0)\n"
-        "\t\t{\n"
-        "\t\t\trestart_zapret2();\n"
-        "\t\t}\n"
-        "#endif\n"
-    )
-    rc = replace_once(rc, rc_iperf, rc_iperf + rc_zapret, "restart dispatch")
     firewall_dispatch = """\
 \t\telse if (strcmp(entry->d_name, RCN_RESTART_NETFILTER) == 0)
 \t\t{
@@ -610,13 +557,11 @@ def verify_prepared(tree: Path) -> None:
     user = tree / "trunk/user"
     required = {
         user / "shared/cflags.mk": "-DAPP_ZAPRET2",
-        user / "httpd/common.h": "EVM_RESTART_ZAPRET2",
-        user / "shared/notify_rc.h": '"restart_zapret2"',
-        user / "httpd/variables.c": '"zapret2_enable"',
+        user / "httpd/variables.c": "EVM_RESTART_FIREWALL",
         user / "shared/defaults.c": '{ "zapret2_enable", "0" }',
         user / "rc/services.c": "restart_zapret2",
         user / "rc/rc.h": "restart_zapret2",
-        user / "rc/rc.c": "RCN_RESTART_ZAPRET2",
+        user / "rc/rc.c": "WR_ZAPRET2_REAPPLY",
         user / "httpd/web_ex.c": "ej_wr_zapret2_status",
         user / "www/n56u_ribbon_fixed/Advanced_Services_Content.asp":
             'id="wr_zapret2_status"',
