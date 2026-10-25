@@ -45,6 +45,7 @@ jobs:
         run: |
           python3 tools/zapret2/prepare-web.py padavan-4.4
           python3 tools/zapret2/check-web.py padavan-4.4 --node
+          python3 tools/zapret2/check-web-backend.py padavan-4.4
 
       - name: Check the service lifecycle
         run: sh tools/zapret2/test-service.sh
