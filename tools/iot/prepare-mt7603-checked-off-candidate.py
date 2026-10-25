@@ -1,0 +1,196 @@
+#!/usr/bin/env python3
+"""Prepare an isolated MT7603 checked radio-off candidate from reviewed v39.
+
+This does not install a driver or claim that MCU ACK proves RF silence.
+The output must be a new directory; the reviewed input is never modified.
+"""
+
+import argparse
+import shutil
+from pathlib import Path
+
+
+CHECKED_OFF = r'''/* Checked MT7603 halt path. The CLOSE ticket pins this adapter and excludes
+ * concurrent radio writers. An uncertain MCU result is terminal for this
+ * attempt: replaying a command whose completion is unknown is not safe. */
+BOOLEAN wr_iot_mt_radio_off_checked(RTMP_ADAPTER *pAd,
+ const struct wr_iot_radio_ticket *ticket)
+{
+ WPDMA_GLO_CFG_STRUC cfg;
+ ULONG flags;
+ UINT32 arb;
+ unsigned int stage;
+ INT32 bss;
+ if (!pAd || !ticket || !pAd->net_dev || !IS_MT7603(pAd) ||
+     pAd->chipCap.hif_type != HIF_MT ||
+     RTMP_TEST_FLAG(pAd, fRTMP_ADAPTER_NIC_NOT_EXIST) ||
+     pAd->iwpriv_command)
+  return FALSE;
+#ifdef LOAD_FW_ONE_TIME
+ /* This build uses an AGG_TEMP write without an MCU result. */
+ return FALSE;
+#endif
+ RTMP_IRQ_LOCK(&pAd->wr_iot_transition_lock, flags);
+ if (ticket->operation != WR_RADIO_CLOSE ||
+     pAd->wr_iot_transition.busy != WR_RADIO_CLOSE ||
+     pAd->wr_iot_transition.serial != ticket->serial) {
+  RTMP_IRQ_UNLOCK(&pAd->wr_iot_transition_lock, flags);
+  return FALSE;
+ }
+ stage = pAd->wr_iot_transition.mt_radio_off_stage;
+ RTMP_IRQ_UNLOCK(&pAd->wr_iot_transition_lock, flags);
+ if (stage == 4U) return TRUE;
+ if (stage > 4U) return FALSE;
+ if (stage == 0U) {
+  RTMP_OS_NETDEV_STOP_QUEUE(pAd->net_dev);
+#ifdef CONFIG_AP_SUPPORT
+  IF_DEV_CONFIG_OPMODE_ON_AP(pAd) {
+   for (bss = FIRST_MBSSID; bss < MAX_MBSSID_NUM(pAd); bss++)
+    if (pAd->ApCfg.MBSSID[bss].wdev.if_dev)
+     RTMP_OS_NETDEV_STOP_QUEUE(pAd->ApCfg.MBSSID[bss].wdev.if_dev);
+  }
+#else
+  (void)bss;
+#endif
+  RTMP_SET_FLAG(pAd, fRTMP_ADAPTER_DISABLE_DEQUEUEPACKET);
+  if (!AsicSetMacTxRx(pAd, ASIC_MAC_RX, FALSE)) return FALSE;
+  RTMP_IO_READ32(pAd, ARB_SCR, &arb);
+  if (arb == 0xffffffffU || !(arb & MT_ARB_SCR_RXDIS)) return FALSE;
+  RTMP_IRQ_LOCK(&pAd->wr_iot_transition_lock, flags);
+  pAd->wr_iot_transition.mt_radio_off_stage = 1U;
+  RTMP_IRQ_UNLOCK(&pAd->wr_iot_transition_lock, flags);
+  stage = 1U;
+ }
+ if (stage == 1U) {
+  if (!wr_iot_mt_poll_txrx_empty(pAd)) return FALSE;
+  RTMP_IRQ_LOCK(&pAd->wr_iot_transition_lock, flags);
+  pAd->wr_iot_transition.mt_radio_off_stage = 2U;
+  RTMP_IRQ_UNLOCK(&pAd->wr_iot_transition_lock, flags);
+  stage = 2U;
+ }
+ if (stage == 2U) {
+  if (RTMP_TEST_FLAG(pAd, fRTMP_ADAPTER_NIC_NOT_EXIST)) return FALSE;
+  if (CmdRadioOnOffCtrl(pAd, WIFI_RADIO_OFF) != NDIS_STATUS_SUCCESS) {
+   RTMP_IRQ_LOCK(&pAd->wr_iot_transition_lock, flags);
+   pAd->wr_iot_transition.mt_radio_off_stage = 5U;
+   RTMP_IRQ_UNLOCK(&pAd->wr_iot_transition_lock, flags);
+   return FALSE;
+  }
+  RTMP_IRQ_LOCK(&pAd->wr_iot_transition_lock, flags);
+  pAd->wr_iot_transition.mt_radio_off_stage = 3U;
+  RTMP_IRQ_UNLOCK(&pAd->wr_iot_transition_lock, flags);
+  stage = 3U;
+ }
+ if (stage == 3U) {
+  if (RTMP_TEST_FLAG(pAd, fRTMP_ADAPTER_NIC_NOT_EXIST)) return FALSE;
+  if (!AsicSetWPDMA(pAd, PDMA_TX_RX, FALSE)) return FALSE;
+  RTMP_IO_READ32(pAd, MT_WPDMA_GLO_CFG, &cfg.word);
+  if (cfg.word == 0xffffffffU || cfg.field.EnableTxDMA ||
+      cfg.field.EnableRxDMA || (cfg.word & (TX_DMA_BUSY | RX_DMA_BUSY)))
+   return FALSE;
+  RTMP_SET_FLAG(pAd, fRTMP_ADAPTER_RADIO_OFF);
+  if (RTMP_TEST_FLAG(pAd, fRTMP_ADAPTER_INTERRUPT_ACTIVE))
+   RTMP_ASIC_INTERRUPT_DISABLE(pAd);
+  RTMP_IRQ_LOCK(&pAd->wr_iot_transition_lock, flags);
+  pAd->wr_iot_transition.mt_radio_off_stage = 4U;
+  RTMP_IRQ_UNLOCK(&pAd->wr_iot_transition_lock, flags);
+ }
+ /* MCU command accepted and PDMA disabled/idle. Device runtime observation
+  * and callback retirement remain separate release gates. */
+ return TRUE;
+}
+'''
+
+
+def replace_once(root: Path, name: str, old: str, new: str) -> None:
+    path = root / name
+    data = path.read_text(encoding="utf-8").replace("\r\n", "\n")
+    if data.count(old) != 1:
+        raise ValueError(f"Reviewed source anchor changed: {name}")
+    path.write_text(data.replace(old, new), encoding="utf-8", newline="\n")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("source", type=Path)
+    parser.add_argument("output", type=Path)
+    args = parser.parse_args()
+    source, output = args.source.resolve(), args.output.resolve()
+    allowed_output_root = (Path(__file__).resolve().parents[2] / ".iot-local-check").resolve()
+    if allowed_output_root not in output.parents:
+        parser.error("output must be a new directory inside .iot-local-check")
+    if output.exists() or source == output or source in output.parents:
+        parser.error("output must be a new separate directory")
+    if not (source / "manifest.json").is_file():
+        parser.error("source must be the reviewed isolated v39 candidate")
+    shutil.copytree(source, output)
+    try:
+        # The copied v39 manifest cannot describe modified v40 bytes.
+        (output / "manifest.json").unlink()
+        replace_once(output, "include/radio-transition.h",
+                     "unsigned int joined_workers,shutdown_stage,close_notified,virtual_down_stage,virtual_up_stage;",
+                     "unsigned int joined_workers,shutdown_stage,close_notified,virtual_down_stage,virtual_up_stage,mt_radio_off_stage;")
+        replace_once(output, "include/radio-transition.h",
+                     "s->shutdown_stage=0;s->close_notified=0;s->virtual_down_stage=0;",
+                     "s->shutdown_stage=0;s->close_notified=0;s->mt_radio_off_stage=0;s->virtual_down_stage=0;")
+        replace_once(output, "include/radio-transition.h",
+                     "if(operation==WR_RADIO_START||operation==WR_RADIO_AUX_START){s->joined_workers=0;s->shutdown_stage=0;s->close_notified=0;}",
+                     "if(operation==WR_RADIO_START||operation==WR_RADIO_AUX_START){s->joined_workers=0;s->shutdown_stage=0;s->close_notified=0;s->mt_radio_off_stage=0;}")
+        replace_once(output, "include/rtmp.h",
+                     "INT wr_iot_mgmt_exit_checked(RTMP_ADAPTER *pAd, const struct wr_iot_radio_ticket *ticket);",
+                     "INT wr_iot_mgmt_exit_checked(RTMP_ADAPTER *pAd, const struct wr_iot_radio_ticket *ticket);\n#ifdef RTMP_PCI_SUPPORT\nBOOLEAN wr_iot_mt_poll_txrx_empty(RTMP_ADAPTER *pAd);\nBOOLEAN wr_iot_mt_radio_off_checked(RTMP_ADAPTER *pAd, const struct wr_iot_radio_ticket *ticket);\n#endif")
+        replace_once(output, "hw_ctrl/cmm_asic_mt.c",
+                     "}\n#endif\n\n\n#ifdef RTMP_SDIO_SUPPORT\nVOID MTSdioMlmeRadioOff",
+                     "}\n\n" + CHECKED_OFF + "#endif\n\n\n#ifdef RTMP_SDIO_SUPPORT\nVOID MTSdioMlmeRadioOff")
+        path = output / "common/rtmp_init_inf.c"
+        data = path.read_text(encoding="utf-8").replace("\r\n", "\n")
+        start = data.index("INT wr_iot_drv_close_checked(")
+        tail = data[start:]
+        old_stage = " if (stage > 2U) return NDIS_STATUS_FAILURE;\n if (stage == 2U) return NDIS_STATUS_SUCCESS;"
+        new_stage = (" if (stage > 2U && stage != 4U) return NDIS_STATUS_FAILURE;\n"
+                     " if (stage == 2U) return NDIS_STATUS_SUCCESS;\n"
+                     "#if defined(RTMP_MAC_PCI) && defined(RTMP_PCI_SUPPORT)\n"
+                     " if (stage == 4U) {\n"
+                     "  if (pAd->chipCap.hif_type != HIF_MT) return NDIS_STATUS_FAILURE;\n"
+                     "  goto wr_iot_mt_radio_off_resume;\n"
+                     " }\n"
+                     "#else\n"
+                     " if (stage == 4U) return NDIS_STATUS_FAILURE;\n"
+                     "#endif")
+        if tail.count(old_stage) != 1:
+            raise ValueError("Reviewed checked-close stage gate changed")
+        tail = tail.replace(old_stage, new_stage, 1)
+        anchor = "\t\tif (pAd->infType == RTMP_DEV_INF_PCI || pAd->infType == RTMP_DEV_INF_PCIE)\n\t\t{\n\t\t\tBOOLEAN brc = TRUE;"
+        if tail.count(anchor) != 1:
+            raise ValueError("Reviewed PCI radio-off entry changed")
+        tail = tail.replace(anchor,
+            "\t\tif (pAd->chipCap.hif_type == HIF_MT) {\n"
+            "\t\t\tRTMP_IRQ_LOCK(&pAd->wr_iot_transition_lock,flags);\n"
+            "\t\t\tpAd->wr_iot_transition.shutdown_stage=4U;\n"
+            "\t\t\tRTMP_IRQ_UNLOCK(&pAd->wr_iot_transition_lock,flags);\n"
+            "\t\t}\n"
+            "wr_iot_mt_radio_off_resume:\n" + anchor, 1)
+        old = "brc = RT28xxPciAsicRadioOff(pAd, RTMP_HALT, 0);"
+        if data[:start].count(old) != 1 or tail.count(old) != 1:
+            raise ValueError("Reviewed legacy/checked close split changed")
+        tail = tail.replace(old,
+            "brc = (pAd->chipCap.hif_type == HIF_MT) ?\n"
+            "    wr_iot_mt_radio_off_checked(pAd, ticket) :\n"
+            "    RT28xxPciAsicRadioOff(pAd, RTMP_HALT, 0);", 1)
+        old_failure = "pAd->wr_iot_transition.shutdown_stage=3U;"
+        if tail.count(old_failure) != 1:
+            raise ValueError("Reviewed physical-close failure receipt changed")
+        tail = tail.replace(old_failure,
+            "if (pAd->chipCap.hif_type != HIF_MT)\n"
+            "\t\t\t\tpAd->wr_iot_transition.shutdown_stage=3U;", 1)
+        data = data[:start] + tail
+        path.write_text(data, encoding="utf-8", newline="\n")
+    except Exception:
+        shutil.rmtree(output)
+        raise
+    print(f"Prepared isolated MT7603 checked-off candidate: {output}")
+    print("No assembly manifest was emitted; re-pin the changed bytes before target compilation.")
+
+
+if __name__ == "__main__":
+    main()
