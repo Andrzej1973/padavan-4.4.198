@@ -1573,6 +1573,7 @@ jobs:
               tools/iot/candidates/aux-remove-close-v39 \
               .iot-local-check/mt7603-radio-off-v40-ci
             cp -a .iot-local-check/mt7603-radio-off-v40-ci "$candidate/driver"
+            python3 tools/iot/check-virtual-if-call-coverage.py "$candidate/driver"
             python3 tools/iot/prepare-v39-merge-manifest.py \
               "$pristine" "$candidate/driver" \
               tools/iot/candidates/aux-remove-close-v39/manifest.json \

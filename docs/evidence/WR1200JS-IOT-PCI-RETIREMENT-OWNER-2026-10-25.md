@@ -166,3 +166,15 @@ rejection, DMA poll retry, uncertain MCU failure without command replay, PDMA
 operation/readback retry, and invalid register readbacks. The optional v40 CI
 path now runs this fixture before generating the source overlay. This is a
 host-side state/ordering test, not target compilation or physical RF evidence.
+
+The main-stop host contract had a retry contradiction: on failed physical
+verification it retained the main reference and module pin but called
+`wr_iot_radio_finish(..., false)`, which cleared the CLOSE ticket. The checked
+v40 radio-off helper requires that exact live ticket for a staged retry.
+`tools/iot/main-stop-owned.h` now leaves the ticket busy on an unverified
+close and completes it only after checked down plus required physical proof.
+The strict C11 `check-main-stop-owned.c` fixture passed with failure, competing
+writer rejection and successful same-ticket retry. This remains a host model;
+the vendor `MainVirtualIF_close` and PCI owner are not wired to it. These two
+model files remain local until their modified shared headers can be verified
+and published together.
