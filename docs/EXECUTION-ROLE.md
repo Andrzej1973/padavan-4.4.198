@@ -1,3 +1,54 @@
+# Передача ролі Солу — 2026-10-25
+
+Користувач прямо наказав зафіксувати всю виконану роботу й передати єдине
+авторство Солу. Кореневий агент припиняє редагування після цього handoff.
+Цей запис передає роль документально; він не є доказом, що акаунт Сол уже
+відкрив теку або прийняв роль. До фактичного прийняття ніхто інший не повинен
+починати паралельні зміни.
+
+Стан передачі:
+
+- гілка `codex/wr1200js-service-webui`, кодовий HEAD, який передається,
+  `28b0faf3c6b463d02f273f9f627b192406ac7f91`; handoff-коміт із цим записом
+  йде безпосередньо після нього й не змінює файли прошивки;
+- `origin/main` — `d1dc0ebaf82af316ad8ba65a01952c229c69e919`;
+- PR #2 відкритий, mergeable, але checks ще не завершені;
+- Zapret2 candidate run `40189818250` на `28b0faf` — `success`;
+- firmware build #584, run `40189820727`, на момент handoff ще виконувався;
+- останній придатний для Zapret2 підтвердженого образу — #574: у ROMFS є
+  `/usr/sbin/nfqws2` (565 388 Б), але тоді ще не було сервісу/WebUI;
+- #582 і #583 успішно скомпілювали прошивку, але їхній фінальний ROMFS gate
+  падав через помилки самого verifier; виправлення внесені в `08b87c8` і
+  `28b0faf`, тому їхні образи не є release candidates;
+- до handoff у дереві було 32 змінені відстежувані файли та 147 untracked
+  entries. Їх збережено; не робити `git add .`, не видаляти й не перезаписувати.
+
+Передане в роботі:
+
+- Zapret2 selector `CONFIG_FIRMWARE_INCLUDE_ZAPRET2=y`;
+- pinned `nfqws2`, три Lua-файли, MIT notice, fail-open service wrapper;
+- Classic WebUI Services з перемикачем, стратегією та окремими станами
+  process/strategy/rules; EN/UK/RU; firewall-event reapply;
+- Modern preview, шість збережених макетів, reference-layout dashboard,
+  клікабельні плитки реальних Classic-маршрутів;
+- host/CI докази та triage-документи в `docs/evidence/`.
+
+Наступний порядок для Солу, прямо встановлений користувачем:
+
+1. Прийняти роль, перевірити `git status`, `git log`, поточний CI й handoff.
+2. **Спочатку продовжити й завершити IoT**, не перемикаючись на полірування
+   Zapret2/Modern. Відкриті напрями: transition owner для open/close/reset,
+   family-specific checked close, recovery worker, lock ordering, registry/
+   callback quiescence, PCI remove/probe unwind і adapter-release fence.
+3. Після логічного завершення IoT перевірити цю роботу: фінальний образ,
+   TRX/SHA256, ROMFS `nfqws2`/service/Lua/WebUI/httpd markers, потім окремо
+   дозволений runtime-тест із локальним або VPN-шляхом відновлення.
+4. Не прошивати й не перезавантажувати роутер та не змінювати ZeroTier без
+   окремого чинного дозволу.
+
+Детальний переданий стан:
+`docs/evidence/WR1200JS-HANDOFF-TO-SOL-2026-10-25.md`.
+
 # Роль прийнята — єдиний виконавець Zapret2, 2026-10-25
 
 Прийняв роль єдиного автора для впровадження Zapret2 за прямою передачею
