@@ -148,6 +148,36 @@ if zapret2_enabled:
         '--lua-init="@$LUA_DIR/zapret-antidpi.lua"',
         '--lua-init="@$LUA_DIR/zapret-auto.lua"',
     )) and '-j LOG' not in zapret2_service
+    zapret2_page_path=root/'www/Advanced_Services_Content.asp'
+    zapret2_page=(zapret2_page_path.read_text(encoding='utf-8')
+                  if zapret2_page_path.is_file() else '')
+    zapret2_web_markers=(
+        'id="zapret2_enable_on_of"',
+        'name="scripts.zapret2.args"',
+        'id="wr_zapret2_status"',
+        'function validZapret2()',
+        'window.setInterval(wrZapret2Refresh, 30000)',
+    )
+    zapret2_httpd_path=root/'sbin/httpd'
+    zapret2_httpd=(zapret2_httpd_path.read_bytes()
+                   if zapret2_httpd_path.is_file() else b'')
+    zapret2_httpd_markers=(b'found_app_zapret2',b'wr_zapret2_status',
+                           b'restart_zapret2',b'zapret2_enable')
+    zapret2_dicts={name:(root/f'www/dict/{name}').read_text(encoding='utf-8')
+                   for name in ('EN.dict','UK.dict','RU.dict')
+                   if (root/f'www/dict/{name}').is_file()}
+    report['zapret2_webui']={
+        'page_markers':list(zapret2_web_markers),
+        'httpd_markers':[item.decode() for item in zapret2_httpd_markers],
+        'dict_files':sorted(zapret2_dicts),
+        'scope':'shipped controls, localized state labels and compiled restart/status routes only; browser and traffic effect unverified',
+    }
+    report['checks']['zapret2_webui_image']=(
+        all(marker in zapret2_page for marker in zapret2_web_markers) and
+        all(marker in zapret2_httpd for marker in zapret2_httpd_markers) and
+        set(zapret2_dicts)=={'EN.dict','UK.dict','RU.dict'} and
+        all('WRZapret2StrategyRequired=' in text
+            for text in zapret2_dicts.values()))
     if closure is not None:
         report['zapret2_elf_dependency_closure']=closure.verify(
             root,root,readelf,['usr/sbin/nfqws2'])

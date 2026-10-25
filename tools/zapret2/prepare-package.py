@@ -55,6 +55,9 @@ def main() -> int:
         if "CONFIG_FIRMWARE_INCLUDE_ZAPRET2=y" not in lines:
             print("Zapret2 selector is off; package not staged")
             return 0
+        from prepare_web import prepare_webui
+
+        prepare_webui(tree)
 
     template = tree / "trunk/configs/templates/WR1200JS.config"
     if template.is_file():

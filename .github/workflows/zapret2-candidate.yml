@@ -41,6 +41,11 @@ jobs:
       - name: Verify the pinned dependency archives
         run: python3 tools/zapret2/verify-deps-base.py
 
+      - name: Prepare and check the Zapret2 WebUI
+        run: |
+          python3 tools/zapret2/prepare-web.py padavan-4.4
+          python3 tools/zapret2/check-web.py padavan-4.4 --node
+
       - name: Check the service lifecycle
         run: sh tools/zapret2/test-service.sh
 
