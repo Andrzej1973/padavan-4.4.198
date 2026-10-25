@@ -16,7 +16,7 @@ all: nfqws2
 
 nfqws2:
 \tCC="$(CC)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \\
-\t\t./build-nfqws2.sh "$(ROOTDIR)" "$@" deps
+\t\t./build-nfqws2.sh "$(ROOTDIR)/.." "$@" deps
 
 romfs:
 \t@[ -x nfqws2 ] || { echo "nfqws2 was not built" >&2; exit 1; }
