@@ -22,6 +22,7 @@ romfs:
 \t@[ -x nfqws2 ] || { echo "nfqws2 was not built" >&2; exit 1; }
 \tmkdir -p $(ROMFSDIR)/usr/sbin
 \t$(ROMFSINST) -p +x nfqws2 /usr/sbin/nfqws2
+\t$(ROMFSINST) -p +x service.sh /usr/sbin/zapret2
 
 clean:
 \trm -f nfqws2
@@ -82,6 +83,8 @@ def main() -> int:
         shutil.copyfile(archive, deps / archive.name)
     shutil.copyfile(here / "build-nfqws2.sh", target / "build-nfqws2.sh")
     (target / "build-nfqws2.sh").chmod(0o755)
+    shutil.copyfile(here / "service.sh", target / "service.sh")
+    (target / "service.sh").chmod(0o755)
     (target / "Makefile").write_text(MAKEFILE, encoding="utf-8", newline="\n")
 
     makefile.write_text(text.replace(anchor, addition + anchor, 1), encoding="utf-8", newline="\n")

@@ -41,6 +41,9 @@ jobs:
       - name: Verify the pinned dependency archives
         run: python3 tools/zapret2/verify-deps-base.py
 
+      - name: Check the service lifecycle
+        run: sh tools/zapret2/test-service.sh
+
       - name: Stage and build nfqws2
         run: |
           set -euo pipefail
