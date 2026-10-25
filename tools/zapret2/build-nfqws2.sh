@@ -26,7 +26,14 @@ for pkg in libmnl-1.0.5 libnetfilter_queue-1.0.5; do
     : > "$BUILD/$pkg/src/config.h"
 done
 
-INC="-I$BUILD/libmnl-1.0.5/include -I$BUILD/libnfnetlink-1.0.2/include -I$BUILD/libnetfilter_queue-1.0.5/include"
+ZLIB_H=$(find "$TREE/trunk" -name zlib.h -print -quit 2>/dev/null || true)
+[ -n "$ZLIB_H" ] || { echo "zlib.h not found in the Padavan tree" >&2; exit 2; }
+ZLIB_INC=$(dirname "$ZLIB_H")
+
+mkdir -p "$BUILD/compat/sys"
+printf '#include <linux/capability.h>\n' > "$BUILD/compat/sys/capability.h"
+
+INC="-I$BUILD/compat -I$ZLIB_INC -I$BUILD/libmnl-1.0.5/include -I$BUILD/libnfnetlink-1.0.2/include -I$BUILD/libnetfilter_queue-1.0.5/include"
 mkdir -p "$BUILD/obj"
 
 for f in "$BUILD"/libmnl-1.0.5/src/*.c "$BUILD"/libnfnetlink-1.0.2/src/*.c "$BUILD"/libnetfilter_queue-1.0.5/src/*.c; do
@@ -42,7 +49,7 @@ LUA_DIR="$TREE/trunk/user/lua51/lua-5.1.5/src"
 LUA_SRC=$(ls "$LUA_DIR"/*.c | grep -v -E '/(lua|luac)\.c$')
 
 # shellcheck disable=SC2086
-$CC ${CFLAGS:-} -std=gnu99 -Os -I"$LUA_DIR" \
+$CC ${CFLAGS:-} -std=gnu99 -Os $INC -I"$LUA_DIR" \
     -o "$OUT" "$SRC"/*.c "$SRC"/crypto/*.c $LUA_SRC "$BUILD"/obj/*.o \
     -lz -lm ${LDFLAGS:-}
 
