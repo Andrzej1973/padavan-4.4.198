@@ -4,13 +4,17 @@ Sol is the single writer. Read `AGENTS.md`, `PROJECT_STATUS.md`,
 `docs/AGENT-BOOTSTRAP.md`, `docs/EXECUTION-ROLE.md` and `git status -sb`
 before changing files. Preserve every unrelated local modification.
 
-1. Current branch HEAD `a71e8abedf4c2a6c1fd5df2917002db990df84e2` matches the
-   GitHub branch ref. Run #600 (`40216625327`) completed successfully: the
+1. Current branch HEAD is documentation commit `c2b1d48c6e5fc0dd70d6b61819b4ffa1911c2cc7`;
+   its source parent `a71e8abedf4c2a6c1fd5df2917002db990df84e2` is the code
+   revision built by run #600 (`40216625327`). That run completed successfully: the
    WR1200JS firmware and isolated merged IoT MT7603 v40 target compile both
    passed. The candidate `.ko` is ELF32 MIPS32r2/O32, 5,202,152 bytes,
    SHA-256 `f01a3272ac60769dd08a312fbe67622284fa590a533285335a749a300b75a4e5`.
    One non-fatal `modpost` section-mismatch warning remains unidentified. Full
    evidence: `docs/evidence/WR1200JS-IOT-V40-CI-600-TARGET-COMPILE-2026-10-25.md`.
+   Push of the evidence started firmware run #601 (`40218879277`) and service
+   ABI run `40218879240` on documentation-only HEAD `c2b1d48`; both are still
+   in progress and neither enables another IoT candidate compile.
 2. v40 remains an **isolated candidate**, not the production driver. The normal
    firmware image is built before this probe and does not include it. No router
    runtime was tested. Continue with the PCI remove/adapter lifetime blocker,

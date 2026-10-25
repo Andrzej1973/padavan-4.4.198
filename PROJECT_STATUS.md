@@ -6,6 +6,10 @@ historical; their pending-run and local-only statements are superseded here.
 - Current writer: Sol, branch `codex/wr1200js-service-webui`; published code
   baseline `a71e8ab`; follow-up IoT candidate commits are published.
   Preserve all unrelated modified and untracked files.
+- Documentation evidence commit `c2b1d48` is the current GitHub HEAD. It does
+  not change driver sources. Its push started ordinary firmware run #601
+  (`40218879277`) and service ABI run `40218879240`; both were in progress at
+  the last check and do not select the optional IoT candidate.
 - Candidate build #600 (`40216625327`) completed successfully on `a71e8ab`.
   Its ordinary WR1200JS firmware build and optional `Compile isolated merged
   IoT MT7603 candidate` step both passed. The separate probe artifact contains
