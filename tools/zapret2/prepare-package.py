@@ -2,6 +2,7 @@
 """Stage the Zapret2 nfqws2 package inside a Padavan tree."""
 
 import argparse
+import importlib.util
 import shutil
 from pathlib import Path
 
@@ -55,9 +56,15 @@ def main() -> int:
         if "CONFIG_FIRMWARE_INCLUDE_ZAPRET2=y" not in lines:
             print("Zapret2 selector is off; package not staged")
             return 0
-        from prepare_web import prepare_webui
-
-        prepare_webui(tree)
+        prepare_web_path = here / "prepare-web.py"
+        spec = importlib.util.spec_from_file_location(
+            "zapret2_prepare_web", prepare_web_path
+        )
+        if spec is None or spec.loader is None:
+            raise SystemExit(f"cannot load {prepare_web_path}")
+        prepare_web = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(prepare_web)
+        prepare_web.prepare_webui(tree)
 
     template = tree / "trunk/configs/templates/WR1200JS.config"
     if template.is_file():

@@ -40,6 +40,11 @@ The same prepared tree subsequently accepted the existing DNS, iPerf3, SSH,
 Cron and LLTD/ASUS status transforms without anchor conflicts. The emitted
 browser block passed `node --check`.
 
+The production staging entrypoint was also exercised with
+`prepare-package.py --config configs.build/wr1200js.config`: it loaded the WebUI
+transformer by absolute path, prepared the page/backend, copied the service,
+dependencies, Lua files and license, and then passed the WebUI checker.
+
 Additional checks cover:
 
 - exact event-bit uniqueness;
