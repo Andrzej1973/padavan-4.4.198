@@ -1,3 +1,27 @@
+# Current handoff — 2026-10-25
+
+Sol is the single writer. Read `AGENTS.md`, `PROJECT_STATUS.md`,
+`docs/AGENT-BOOTSTRAP.md`, `docs/EXECUTION-ROLE.md` and `git status -sb`
+before changing files. Preserve every unrelated local modification.
+
+1. Branch HEAD `3d6c602` is pushed. Firmware #594 (`40205825840`), Band
+   Steering ABI `40205825793`, and optional isolated IoT build #595
+   (`40207139904`) completed successfully. The #595 artifact contains a
+   MIPS32r2 `mt76x3_ap.ko`; inspect the evidence document before relying on it.
+2. The v39 candidate is **not** the production driver and has not been tested
+   on the router. Continue with the PCI remove/adapter lifetime blocker,
+   including actual worker join and checked child/root quiescence. Then follow
+   the remaining IoT acceptance sequence in `docs/PROJECT-DELIVERY-SCOPE.md`.
+3. Do not rerun #595 or claim device acceptance from CI. Do not write, flash or
+   reboot the router without separate authorization. Keep the one-minute
+   Codex heartbeat paused and inspect original diagnostics for new failures.
+
+Evidence: `docs/evidence/WR1200JS-IOT-V39-CI-595-TARGET-COMPILE-2026-10-25.md`.
+Older entries below are preserved for traceability; their old queue states and
+next-step instructions are historical, not current commands.
+
+## Historical handoff entries (superseded by current handoff above)
+
 ## Sol accepted single-writer role — 2026-10-25
 
 Sol accepted the user's explicit transfer after DeepSeek's documentation-only

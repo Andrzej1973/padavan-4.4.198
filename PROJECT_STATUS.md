@@ -1,3 +1,28 @@
+# Current project status — 2026-10-25
+
+This section is the current handoff. Older time-specific notes below are
+historical; their pending-run and local-only statements are superseded here.
+
+- Current writer: Sol, branch `codex/wr1200js-service-webui`, HEAD `3d6c602`.
+  Preserve all unrelated modified and untracked files.
+- Firmware #594 (`40205825840`) and Band Steering ABI `40205825793` passed on
+  `3d6c602`. Optional IoT candidate build #595 (`40207139904`) also passed:
+  its isolated MT7603 driver compiled to MIPS32r2 `mt76x3_ap.ko`. See
+  `docs/evidence/WR1200JS-IOT-V39-CI-595-TARGET-COMPILE-2026-10-25.md`.
+- The ordinary firmware image still uses the production driver. Isolated
+  compilation does not establish packaging, lifecycle safety, IoT isolation,
+  on-device operation or release acceptance. No router write or reboot occurred.
+- Next IoT gate: bind and fault-test PCI removal, deferred-close join, checked
+  child/root teardown and adapter-release ownership before production install.
+  Then verify network isolation, Classic WebUI, image and recoverable device
+  acceptance in `docs/PROJECT-DELIVERY-SCOPE.md` order. Do not start Modern UI
+  until the required earlier stages are complete.
+- The `padavan-ci` one-minute Codex heartbeat stays paused. GitHub monitor runs
+  on failures; its `main` checkout may still use the older excerpt heuristic.
+  Confirm any failure in the original job log and diagnostic artifact.
+
+## Historical session notes (superseded by current status above)
+
 ## Sol resumed execution — 2026-10-25
 
 Sol accepted the user's direct role transfer after DeepSeek handoff `6f459de`.
