@@ -1568,6 +1568,7 @@ jobs:
             python3 tools/iot/check-remove-result-abi.py "$candidate/driver"
           elif [ "${{ inputs.iot_candidate_variant }}" = v40 ]; then
             mkdir -p "$candidate"
+            python3 tools/iot/check-mt7603-checked-off.py
             python3 tools/iot/prepare-mt7603-checked-off-candidate.py \
               tools/iot/candidates/aux-remove-close-v39 \
               .iot-local-check/mt7603-radio-off-v40-ci

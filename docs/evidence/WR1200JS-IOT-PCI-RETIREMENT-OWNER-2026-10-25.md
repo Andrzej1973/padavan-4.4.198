@@ -152,3 +152,17 @@ observation remain unverified. An MCU command result plus PDMA register
 readback cannot establish RF silence or callback quiescence. Before any
 production merge, audit the stage-4 resumption path, PCI callback lifetime
 and failure-retention rules.
+
+Follow-up local `83289bd` restricts the stage-4 retry to PCI/PCIe and exposes
+`v40` in the manual workflow input. It remains unpushed while the ordinary
+#598 build on `9916538` runs. The generated v40 overlay passed
+`check-remove-result-abi.py` (eight source/header pairs); this check is not a
+target compile or a shutdown fault-injection test.
+
+The follow-up `tools/iot/check-mt7603-checked-off.py` compiles the **exact C
+helper body from the generator** under host GCC with mocked device operations.
+It passed with `-std=c11 -Wall -Wextra -Werror`, including wrong-ticket
+rejection, DMA poll retry, uncertain MCU failure without command replay, PDMA
+operation/readback retry, and invalid register readbacks. The optional v40 CI
+path now runs this fixture before generating the source overlay. This is a
+host-side state/ordering test, not target compilation or physical RF evidence.
