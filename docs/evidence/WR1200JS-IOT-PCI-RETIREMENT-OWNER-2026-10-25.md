@@ -153,11 +153,12 @@ readback cannot establish RF silence or callback quiescence. Before any
 production merge, audit the stage-4 resumption path, PCI callback lifetime
 and failure-retention rules.
 
-Follow-up local `83289bd` restricts the stage-4 retry to PCI/PCIe and exposes
-`v40` in the manual workflow input. It remains unpushed while the ordinary
-#598 build on `9916538` runs. The generated v40 overlay passed
-`check-remove-result-abi.py` (eight source/header pairs); this check is not a
-target compile or a shutdown fault-injection test.
+Follow-up `83289bd` restricts the stage-4 retry to PCI/PCIe and exposes `v40`
+in the manual workflow input. Ordinary #598 (`40215206293`) and Band Steering
+ABI (`40215206230`) on `9916538` both completed successfully; neither checks
+v40. The generated v40 overlay passed `check-remove-result-abi.py` (eight
+source/header pairs); this check is not a target compile or a shutdown
+fault-injection test.
 
 The follow-up `tools/iot/check-mt7603-checked-off.py` compiles the **exact C
 helper body from the generator** under host GCC with mocked device operations.

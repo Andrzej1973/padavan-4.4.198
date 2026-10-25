@@ -3,18 +3,59 @@
 This section is the current handoff. Older time-specific notes below are
 historical; their pending-run and local-only statements are superseded here.
 
-- Current writer: Sol, branch `codex/wr1200js-service-webui`; latest IoT
-  source commit `3d6c602`.
+- Current writer: Sol, branch `codex/wr1200js-service-webui`; published code
+  baseline `9916538`, with follow-up IoT candidate commits ready locally.
   Preserve all unrelated modified and untracked files.
 - Firmware #594 (`40205825840`) and Band Steering ABI `40205825793` passed on
   `3d6c602`. Optional IoT candidate build #595 (`40207139904`) also passed:
   its isolated MT7603 driver compiled to MIPS32r2 `mt76x3_ap.ko`. See
   `docs/evidence/WR1200JS-IOT-V39-CI-595-TARGET-COMPILE-2026-10-25.md`.
+- Firmware #597 (`40212920316`) completed successfully on `971a899` and
+  published the WR1200JS image/ZIP artifacts. It builds the unchanged
+  production driver; this does not validate or package the IoT v39 candidate.
 - The ordinary firmware image still uses the production driver. Isolated
   compilation does not establish packaging, lifecycle safety, IoT isolation,
   on-device operation or release acceptance. No router write or reboot occurred.
 - Next IoT gate: bind and fault-test PCI removal, deferred-close join, checked
   child/root teardown and adapter-release ownership before production install.
+  Follow-up source check confirmed that v39 still discards the checked teardown
+  result and has no bound recovery worker; the persistent-failure path of the
+  `void` PCI callback remains unresolved. See
+  `docs/evidence/WR1200JS-IOT-PCI-RETIREMENT-OWNER-2026-10-25.md`.
+  The host-only owner now checks stop-request-before-join ordering; its strict
+  C11 fixture passed. Actual stop/join and persistent-failure ownership remain
+  unbound. Root `MainVirtualIF_close` also discards physical-close status and
+  releases its module pin; main stop needs checked ownership and an actual
+  RF/DMA-quiescence receipt before PCI free. The checked driver close reports
+  software shutdown only. More specifically, its radio-off call always
+  returns `FALSE` for MT7603's `HIF_MT`; the MT-specific alternative is void
+  and does not report DMA/radio/PDMA results. A checked MT close is the next
+  source prerequisite, before main-stop and PCI ownership binding. A local
+  v40 source generator creates a separate checked MT radio-off candidate.
+  Python syntax, generation, strict host fault tests and source-shape checks
+  passed; target C compile, image and runtime proof remain open. See the
+  PCI-retirement evidence. Firmware #598 (`40215206293`) and Band Steering ABI
+  (`40215206230`) both completed successfully on `9916538`; neither is a v40
+  compile. Local commits `83289bd`, `b1953b2` and `8fe91c0` add v40 dispatch,
+  failure tests and caller-coverage checks. The generated v40 source passed
+  `check-remove-result-abi.py` locally (8 source/header pairs).
+  A host GCC fixture now executes the generated checked-off C body with
+  injected DMA/MCU/PDMA/readback failures; strict C11 passed. This does not
+  establish target compilation or radio silence. Fixture and optional CI hook
+  are in `b1953b2`.
+  The local five-family virtual-interface coverage checker initially failed
+  because it assumed WDS remove still returns `VOID`; the reviewed candidate
+  uses `INT`. Its signature boundary now accepts those two known forms and
+  both v39 and v40 overlays pass the same caller/registration inventory.
+  A main-stop host-model bug is fixed locally: an unverified physical close
+  now retains its CLOSE ticket, which v40 needs for the same-ticket retry.
+  Its strict C11 fixture passed including rejection of a competing writer.
+  The dependent model files stay local with their modified shared headers;
+  caller-coverage checker and CI gate are in `8fe91c0`.
+  No v40 target run has started. Push the prepared commits, then dispatch the
+  WR1200JS candidate build with optional checks enabled and variant `v40`;
+  inspect its target compilation and artifact evidence.
+  Vendor `MainVirtualIF_close` and PCI removal are still unbound.
   Then verify network isolation and Classic WebUI. Shared HTOP/MTR integration
   is now explicit item 4 in `docs/PROJECT-DELIVERY-SCOPE.md`, pending after
   service WebUI and before WAN/final image/device acceptance. Do not start
@@ -32,6 +73,110 @@ The shared branch matched GitHub; 177 modified/untracked working-tree entries
 remain intact. Priority: complete IoT, then verify Zapret2 and Modern WebUI.
 Firmware run `40190118803` was in progress at acceptance, with no final image
 or on-device verification inferred.
+
+## IoT PCI remove lifetime gate — 2026-10-25
+
+Reviewed the latest isolated MT7603 candidate: `rt_pci_remove` ignores the
+`BOOLEAN` child-teardown result and calls `RTMPFreeAdapter` through
+`RtmpRaDevCtrlExit` immediately. A deferred close worker cannot safely be
+bound until the remove path enforces quiescence, work join, checked child
+completion and adapter release ownership. Exact source path and next gate:
+`docs/evidence/WR1200JS-IOT-PCI-REMOVE-LIFETIME-2026-10-25.md`. No production
+driver, image or router change was made.
+
+The isolated v38 PCI probe-failure control flow was separately traced. It
+does not publish child netdevs before the ordinary error unwind, so the
+successful-probe remove hazard must be solved in its own retirement owner.
+Partial-allocation and callback quiescence still need fault injection; see
+`docs/evidence/WR1200JS-IOT-PCI-PROBE-UNWIND-2026-10-25.md`.
+
+## IoT close/removal admission guard — 2026-10-25
+
+The isolated registry model now refuses a new netdev removal while a prior
+checked close remains `CLOSING`. The strict C11 fixture passed. A deterministic
+v39 candidate contains exactly that one source-file change from v38; see
+`docs/evidence/WR1200JS-IOT-CLOSING-REMOVE-ADMISSION-2026-10-25.md`.
+Deferred completion and PCI adapter release remain open, so v39 is not ready
+for the firmware image.
+
+## IoT PCI retirement owner order — 2026-10-25
+
+Added a host-only single-owner sequence for PCI `remove` that refuses adapter
+release until admissions are fenced, work joined, child and main teardown
+proven, and the existing physical/callback release gate passes. Strict C11
+fixture passed after correcting its initial phase assumption. Evidence:
+`docs/evidence/WR1200JS-IOT-PCI-RETIREMENT-OWNER-2026-10-25.md`. No vendor
+binding or production image change; actual work join and quiescence proofs
+remain to implement.
+
+## IoT v39 prepared-source merge — 2026-10-25
+
+The v39 candidate was merged into the saved prepared MT7603 source in a
+separate output tree. Its 55 source paths include 36 pinned originals and
+five prepared-source overlaps; the known single adapter-init conflict was
+resolved by the existing strict rule. All output hashes and conflict-marker
+checks passed. This is source integration only: no local MIPS toolchain/WSL
+distribution or v39 CI input was available, so target compile remains open.
+Evidence: `docs/evidence/WR1200JS-IOT-V39-PREPARED-SOURCE-2026-10-25.md`.
+
+## IoT v39 optional CI input — 2026-10-25
+
+Versioned v39 source overlay, pinned manifest and an explicit optional CI
+selector are now local. Default candidate selection remains legacy and the
+production firmware driver is unchanged. Local manifest, merge, overlap,
+workflow YAML and diff checks passed; no commit/push/CI execution yet. See
+`docs/evidence/WR1200JS-IOT-V39-CI-INPUT-2026-10-25.md`.
+
+Follow-up: the isolated v39 input and selector were committed as `6d67414`
+and pushed to `codex/wr1200js-service-webui`. Automatic firmware run #587
+(`40195057638`) and Band Steering ABI run #555 (`40195057593`) were both
+in progress when checked on 2026-10-25. They use the default path and do not
+compile v39. Dispatch one optional run with `run_candidate_checks=true` and
+`iot_candidate_variant=v39` only after the active firmware run is complete
+and the queue is clear. A successful candidate compile would not establish
+safe PCI removal, a production activation backend, or device acceptance.
+ABI #555 subsequently completed successfully; firmware #587 was still in its
+`Build WR1200JS firmware` step at the next check. The ABI result is evidence
+for that workflow only and does not compile the optional v39 candidate.
+Firmware #587 later completed successfully on `6d67414`. With that run
+terminal and no queued/running duplicate on the ref, one optional v39 run
+was dispatched: #588 (`40195811064`), inputs `boards=wr1200js`,
+`run_candidate_checks=true`, `iot_candidate_variant=v39`. Its result is
+pending; no target-compile claim is made from dispatch alone.
+
+Follow-up: #588 failed in the isolated candidate compile. The target compiler
+saw `ApCli_Remove` as `void` at the checked call in `ap_cfg.c`, because the
+candidate changed the definition to `INT` without its `ap_apcli.h` declaration.
+The focused declaration/manifest correction is local and passed source merge
+and syntax checks; target recompilation is pending. See
+`docs/evidence/WR1200JS-IOT-V39-CI-588-APCLI-ABI-2026-10-25.md`.
+Follow-up: the focused correction was committed as `3ee7220` and pushed.
+Automatic firmware #589 (`40197704591`) and ABI #556 (`40197704453`) were
+in progress on that commit at the first check. Neither is the optional v39
+compile; wait until the firmware run is terminal before dispatching one new
+candidate run. The other dirty working-tree entries remain untouched.
+
+## Zapret2 build #586 image verified — 2026-10-25
+
+Run `40190599321` succeeded at `5953fc4`. Its downloaded target audit
+passed all 51 checks, including Zapret2 entrypoints, pinned Lua/license,
+service markers, compiled Classic WebUI/dictionaries and MIPS ELF dependency
+closure. TRX: 13,064,690 bytes, SHA256
+`d306846066729f2761125ad33e1f1f2e72ce3e61348e56aa42408cbd40c9799e`.
+Source-to-image integration is confirmed; browser/device behavior and
+NFQUEUE traffic effect remain unverified. Evidence:
+`docs/evidence/WR1200JS-BUILD586-ZAPRET2-2026-10-25.md`.
+
+## HTOP/MTR shared integration queued — 2026-10-25
+
+User requested reusable, profile-gated HTOP and MTR support for compatible
+Padavan 4.4.198 boards. The task is recorded in
+`docs/PROJECT-DELIVERY-SCOPE.md` after IoT and service WebUI. No build recipe,
+profile, firmware image or router was changed for this task. WR1200JS is the
+only admitted image-build profile; Mi Mini and Mi 4 require separate board
+and resource evidence before package inclusion. Next when this stage opens:
+check pinned recipes/dependencies, then integrate and measure each eligible
+profile against an identical image baseline.
 
 ## IoT deferred close completion receipt — 2026-10-25
 
@@ -4356,6 +4501,9 @@ Source audit only; no target build, production driver or router change.
 `WR_REF_RESERVED`, preventing generic removal from marking a device while
 its admitted MBSS open is between observation and raw UP. Retry after ticket
 retirement remains possible; OWNED/CLOSING removal intent is preserved.
+The CLOSING portion describes this historical candidate and is superseded by
+the 2026-10-25 v39 guard above: an unfinished close refuses new removal until
+its checked continuation returns the record to IDLE.
 Host registry and netdev-registration tests compiled with strict C11 `-Werror`
 and ran with exit 0. No production/MIPS/router change. See IoT contract.
 Follow-up: the assembled MBSS removal checks begin_remove before beacon

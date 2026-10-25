@@ -8,10 +8,50 @@ before changing files. Preserve every unrelated local modification.
    Steering ABI `40205825793`, and optional isolated IoT build #595
    (`40207139904`) completed successfully. The #595 artifact contains a
    MIPS32r2 `mt76x3_ap.ko`; inspect the evidence document before relying on it.
+   Ordinary firmware #597 (`40212920316`) also completed successfully on
+   `971a899`; its production image does not include v39.
 2. The v39 candidate is **not** the production driver and has not been tested
    on the router. Continue with the PCI remove/adapter lifetime blocker,
    including actual worker join and checked child/root quiescence. Then follow
    the remaining IoT acceptance sequence in `docs/PROJECT-DELIVERY-SCOPE.md`.
+   The follow-up source check confirms that `rt_pci_remove` still ignores the
+   child-teardown result. Resolve the persistent-failure ownership of its
+   `void` callback before binding a worker; the ordered gate and exact source
+   path are recorded in `docs/evidence/WR1200JS-IOT-PCI-RETIREMENT-OWNER-2026-10-25.md`.
+   Host-only stop-request-before-join phase checking and its C11 fixture pass;
+   this is not a vendor work cancellation or PCI release implementation.
+   Also bind checked main stop: current `MainVirtualIF_close` returns success
+   and releases its module pin without verified physical-close completion.
+   `RTMPInfClose` returns void, and the existing checked close proves software
+   shutdown only. Do not fabricate `physical_verified` when connecting the
+   main-stop host contract; add an RF/DMA-quiescence observer and
+   retained-ticket recovery first.
+   Source trace found the immediate MT7603 blocker: checked close calls
+   `RT28xxPciAsicRadioOff`, which unconditionally rejects `HIF_MT`; MT7603
+   sets that type. `MTPciMlmeRadioOff` is void and discards probe outcomes.
+   Implement a checked MT-specific stop before treating any shutdown receipt
+   as proof of physical quiescence. A local-only v40 generator now creates a
+   checked MT source overlay with retry stages and no stale v39 manifest.
+   Review and target-compile it, test failure retention, then bind the main/PCI
+   owners; it is not in a firmware image. See the PCI-retirement evidence document.
+   `9916538` is pushed; ordinary firmware #598 (`40215206293`) and Band
+   Steering ABI (`40215206230`) have both passed. Neither selects v40. Local
+   commits `83289bd`, `b1953b2` and `8fe91c0` expose and check the v40 path.
+   Python generation,
+   YAML parsing and the eight-pair remove ABI check passed locally; no target
+   v40 compile result exists yet. Recheck CI before pushing or dispatching.
+   The generated checked-off C body also passed a strict host GCC fault fixture
+   for poll, MCU, PDMA and register-readback failure ordering. Target/kernel
+   build and hardware acceptance remain separate pending gates. The fixture
+   and CI hook are in `b1953b2`. Push the prepared commits, then dispatch one
+   candidate run using `run_candidate_checks=true` and `iot_candidate_variant=v40`.
+   Local virtual-interface call coverage also passed on v39 and v40 after
+   updating its WDS remove signature boundary for the reviewed `INT` return.
+   The main-stop host contract now keeps a failed CLOSE ticket busy for v40's
+   same-ticket retry; strict C11 fault/retry fixture passed. This is model
+   evidence only; its dependent files remain local with modified shared
+   headers. Caller-coverage gate is in local `8fe91c0`.
+   `MainVirtualIF_close` and PCI lifetime are not source-bound.
    HTOP/MTR is recorded there as pending item 4 after IoT and service WebUI;
    no package inclusion is claimed yet.
 3. Do not rerun #595 or claim device acceptance from CI. Do not write, flash or
@@ -31,6 +71,16 @@ handoff `6f459de`. Branch `codex/wr1200js-service-webui` matched GitHub at
 that commit; 177 working-tree entries remain preserved and unstaged for this
 role record. Finish IoT first, then review Zapret2 and Modern WebUI. Firmware
 run `40190118803` was still in progress; no image or router acceptance claimed.
+
+## Zapret2 build #586 evidence — 2026-10-25
+
+Sol inspected successful run `40190599321` on `5953fc4`, downloaded its
+firmware and target audit artifacts, and verified the TRX SHA256 plus all
+Zapret2 package, service, WebUI and dependency-closure image gates. See
+`docs/evidence/WR1200JS-BUILD586-ZAPRET2-2026-10-25.md`. Packaging is
+confirmed; no router runtime or traffic/rollback test was performed. Continue
+IoT first under the user's delivery order; later device acceptance needs
+separate authorization.
 
 ## IoT deferred close completion receipt — 2026-10-25
 
