@@ -93,7 +93,7 @@ pid_owns_nfqws2() {
         *[!0-9]*) return 1 ;;
     esac
     [ -r "/proc/$pid/cmdline" ] || return 1
-    cmdline=$(tr '\000' ' ' <"/proc/$pid/cmdline" 2>/dev/null) || return 1
+    cmdline=$(cat "/proc/$pid/cmdline" 2>/dev/null | tr '\000' ' ') || return 1
     case " $cmdline " in
         *" $NFQWS2 "*) return 0 ;;
     esac
