@@ -33,7 +33,8 @@ ZLIB_DIR=$(dirname "$(find "$BUILD" -maxdepth 2 -name zlib.h -print -quit)")
 [ -n "$ZLIB_DIR" ] || { echo "zlib.h missing after extraction" >&2; exit 2; }
 
 mkdir -p "$BUILD/compat/sys"
-printf '#include <linux/capability.h>\n' > "$BUILD/compat/sys/capability.h"
+printf '#include <stdint.h>\n#include <sys/types.h>\n#include <linux/capability.h>\n' \
+    > "$BUILD/compat/sys/capability.h"
 
 INC="-I$BUILD/compat -I$ZLIB_DIR -I$BUILD/libmnl-1.0.5/include -I$BUILD/libnfnetlink-1.0.2/include -I$BUILD/libnetfilter_queue-1.0.5/include"
 mkdir -p "$BUILD/obj"
