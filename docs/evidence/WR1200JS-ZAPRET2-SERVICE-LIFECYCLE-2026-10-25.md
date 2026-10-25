@@ -16,7 +16,7 @@ CONFIG_NETFILTER_XT_TARGET_NFQUEUE=y
 ## Implemented behavior
 
 - `start` requires an executable `nfqws2`, a non-empty root-managed strategy
-  file and a valid WAN interface name.
+  file, the three pinned Lua support scripts and a valid WAN interface name.
 - NFQUEUE rules use queue 200 and `--queue-bypass`, so closed or missing
   userspace queue handling does not intentionally hold traffic indefinitely.
 - The dedicated `ZAPRET2` chain returns private and loopback destinations before
@@ -29,7 +29,8 @@ CONFIG_NETFILTER_XT_TARGET_NFQUEUE=y
   the hook and chain and confirms process absence. `status` reports process and
   rules separately.
 - Package staging copies the service as `/usr/sbin/zapret2`; the exact-image
-  service map now requires both `/usr/sbin/nfqws2` and `/usr/sbin/zapret2`.
+  service map now requires `/usr/sbin/nfqws2`, `/usr/sbin/zapret2`, the three
+  Lua scripts under `/usr/share/zapret2/` and the upstream MIT notice.
 
 ## Verification
 
@@ -54,6 +55,8 @@ Covered cases:
 - stop and complete chain removal;
 - stale PID cleanup without killing an unrelated process;
 - refusal of an empty strategy file or unavailable WAN;
+- refusal when a required Lua support script is absent;
+- delivery of all three `--lua-init` arguments to `nfqws2`;
 - presence of `--queue-bypass` and absence of a `LOG` rule.
 
 `python tools/zapret2/verify-source-base.py` still passes for 253 files and

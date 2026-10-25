@@ -10,6 +10,7 @@ export PATH
 NFQWS2=${ZAPRET2_NFQWS2:-/usr/sbin/nfqws2}
 ARGS=${ZAPRET2_ARGS:-/etc/storage/zapret2.args}
 PIDFILE=${ZAPRET2_PIDFILE:-/var/run/zapret2.pid}
+LUA_DIR=${ZAPRET2_LUA_DIR:-/usr/share/zapret2}
 CHAIN=ZAPRET2
 QNUM=200
 
@@ -147,6 +148,12 @@ stop_processes() {
 start() {
     [ -x "$NFQWS2" ] || { echo "nfqws2 is not installed"; return 1; }
     [ -s "$ARGS" ] || { echo "strategy file $ARGS is required"; return 1; }
+    for script in zapret-lib.lua zapret-antidpi.lua zapret-auto.lua; do
+        [ -r "$LUA_DIR/$script" ] || {
+            echo "Zapret2 Lua support file is missing: $LUA_DIR/$script"
+            return 1
+        }
+    done
     wan_iface >/dev/null || { echo "WAN interface is unavailable"; return 1; }
 
     pids=$(processes) || pids=
@@ -190,7 +197,11 @@ start() {
         return 1
     }
 
-    "$NFQWS2" --qnum="$QNUM" "$@" </dev/null >/dev/null 2>&1 &
+    "$NFQWS2" --qnum="$QNUM" \
+        --lua-init="@$LUA_DIR/zapret-lib.lua" \
+        --lua-init="@$LUA_DIR/zapret-antidpi.lua" \
+        --lua-init="@$LUA_DIR/zapret-auto.lua" \
+        "$@" </dev/null >/dev/null 2>&1 &
     echo $! > "$PIDFILE"
     sleep 1
     if pid_owns_nfqws2 "$(cat "$PIDFILE" 2>/dev/null)" && rules_installed; then

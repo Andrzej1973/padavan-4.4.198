@@ -8,6 +8,7 @@ SERVICE="$HERE/service.sh"
 TMP=$(mktemp -d)
 MOCK="$TMP/bin"
 STATE="$TMP/state"
+LUA="$TMP/lua"
 REAL_PATH=$PATH
 REAL_SLEEP=$(command -v sleep)
 
@@ -17,14 +18,18 @@ cleanup() {
         ZAPRET2_NFQWS2="$MOCK/nfqws2" \
         ZAPRET2_ARGS="$TMP/args" \
         ZAPRET2_PIDFILE="$TMP/pid" \
+        ZAPRET2_LUA_DIR="$LUA" \
             sh "$SERVICE" stop >/dev/null 2>&1 || true
     fi
     rm -rf "$TMP"
 }
 trap cleanup EXIT HUP INT TERM
 
-mkdir -p "$MOCK" "$STATE"
+mkdir -p "$MOCK" "$STATE" "$LUA"
 printf '%s\n' '--filter-tcp=443' >"$TMP/args"
+: >"$LUA/zapret-lib.lua"
+: >"$LUA/zapret-antidpi.lua"
+: >"$LUA/zapret-auto.lua"
 
 cat >"$MOCK/nvram" <<'EOF'
 #!/bin/sh
@@ -42,6 +47,7 @@ EOF
 
 cat >"$MOCK/nfqws2" <<EOF
 #!/bin/sh
+printf '%s\n' "\$@" >"\${MOCK_STATE:?}/nfqws-args"
 trap 'exit 0' TERM INT
 while :; do
     "$REAL_SLEEP" 5
@@ -102,6 +108,7 @@ run_service() {
     ZAPRET2_NFQWS2="$MOCK/nfqws2" \
     ZAPRET2_ARGS="$TMP/args" \
     ZAPRET2_PIDFILE="$TMP/pid" \
+    ZAPRET2_LUA_DIR="$LUA" \
         sh "$SERVICE" "$@"
 }
 
@@ -111,12 +118,23 @@ fail() {
 }
 
 sh -n "$SERVICE" || fail "shell syntax"
+mv "$LUA/zapret-auto.lua" "$TMP/zapret-auto.lua"
+if run_service start >/dev/null 2>&1; then
+    fail "missing Lua support was accepted"
+fi
+mv "$TMP/zapret-auto.lua" "$LUA/zapret-auto.lua"
 run_service start >"$TMP/start.out" || fail "start returned an error"
 grep -qx 'started' "$TMP/start.out" || fail "start did not report success"
 test -f "$STATE/chain" || fail "mangle chain was not created"
 test -f "$STATE/jump" || fail "POSTROUTING hook was not installed"
 test -f "$STATE/nfqueue" || fail "NFQUEUE rules were not installed"
 test -s "$TMP/pid" || fail "PID file was not written"
+grep -q -- "--lua-init=@$LUA/zapret-lib.lua" "$STATE/nfqws-args" ||
+    fail "Lua library was not passed to nfqws2"
+grep -q -- "--lua-init=@$LUA/zapret-antidpi.lua" "$STATE/nfqws-args" ||
+    fail "antidpi library was not passed to nfqws2"
+grep -q -- "--lua-init=@$LUA/zapret-auto.lua" "$STATE/nfqws-args" ||
+    fail "autohostlist library was not passed to nfqws2"
 run_service status >"$TMP/status.out" || fail "status returned an error"
 grep -qx 'process=running' "$TMP/status.out" || fail "running process was not observed"
 grep -qx 'rules=installed' "$TMP/status.out" || fail "installed rules were not observed"
