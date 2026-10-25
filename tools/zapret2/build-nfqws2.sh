@@ -26,7 +26,10 @@ for pkg in libmnl-1.0.5 libnetfilter_queue-1.0.5; do
     : > "$BUILD/$pkg/src/config.h"
 done
 
-ZLIB_H=$(find "$TREE/trunk" -name zlib.h -print -quit 2>/dev/null || true)
+ZLIB_H=$(find "$TREE/trunk/libs" -name zlib.h -print -quit 2>/dev/null || true)
+if [ -z "$ZLIB_H" ]; then
+    ZLIB_H=$(find "$TREE/toolchain" -name zlib.h -print -quit 2>/dev/null || true)
+fi
 [ -n "$ZLIB_H" ] || { echo "zlib.h not found in the Padavan tree" >&2; exit 2; }
 ZLIB_INC=$(dirname "$ZLIB_H")
 
