@@ -1,11 +1,20 @@
-# Current project status — 2026-10-25
+# Current project status — 2026-10-25 (updated)
 
 This section is the current handoff. Older time-specific notes below are
 historical; their pending-run and local-only statements are superseded here.
 
 - Current writer: Sol, branch `codex/wr1200js-service-webui`; published code
-  baseline `9916538`, with follow-up IoT candidate commits ready locally.
+  baseline `a71e8ab`; follow-up IoT candidate commits are published.
   Preserve all unrelated modified and untracked files.
+- Candidate build #600 (`40216625327`) completed successfully on `a71e8ab`.
+  Its ordinary WR1200JS firmware build and optional `Compile isolated merged
+  IoT MT7603 candidate` step both passed. The separate probe artifact contains
+  `mt76x3_ap.ko`, ELF32 MIPS32r2/O32, 5,202,152 bytes, SHA-256
+  `f01a3272ac60769dd08a312fbe67622284fa590a533285335a749a300b75a4e5`.
+  This is candidate target-compilation evidence only: the candidate was built
+  after the firmware image and is not installed in that image. The log has one
+  non-fatal `modpost` section-mismatch warning. Full details:
+  `docs/evidence/WR1200JS-IOT-V40-CI-600-TARGET-COMPILE-2026-10-25.md`.
 - Firmware #594 (`40205825840`) and Band Steering ABI `40205825793` passed on
   `3d6c602`. Optional IoT candidate build #595 (`40207139904`) also passed:
   its isolated MT7603 driver compiled to MIPS32r2 `mt76x3_ap.ko`. See
@@ -29,14 +38,15 @@ historical; their pending-run and local-only statements are superseded here.
   RF/DMA-quiescence receipt before PCI free. The checked driver close reports
   software shutdown only. More specifically, its radio-off call always
   returns `FALSE` for MT7603's `HIF_MT`; the MT-specific alternative is void
-  and does not report DMA/radio/PDMA results. A checked MT close is the next
-  source prerequisite, before main-stop and PCI ownership binding. A local
-  v40 source generator creates a separate checked MT radio-off candidate.
+  and does not report DMA/radio/PDMA results. A checked MT close is now
+  target-compiled in isolated v40; main-stop and PCI ownership binding remain.
+  The v40 source generator creates a separate checked MT radio-off candidate.
   Python syntax, generation, strict host fault tests and source-shape checks
-  passed; target C compile, image and runtime proof remain open. See the
-  PCI-retirement evidence. Firmware #598 (`40215206293`) and Band Steering ABI
+  passed; target C compile is now verified by #600, while production-image
+  inclusion and runtime proof remain open. See the PCI-retirement evidence.
+  Firmware #598 (`40215206293`) and Band Steering ABI
   (`40215206230`) both completed successfully on `9916538`; neither is a v40
-  compile. Local commits `83289bd`, `b1953b2` and `8fe91c0` add v40 dispatch,
+  compile. Commits `83289bd`, `b1953b2` and `8fe91c0` add v40 dispatch,
   failure tests and caller-coverage checks. The generated v40 source passed
   `check-remove-result-abi.py` locally (8 source/header pairs).
   A host GCC fixture now executes the generated checked-off C body with

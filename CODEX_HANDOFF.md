@@ -1,17 +1,19 @@
-# Current handoff — 2026-10-25
+# Current handoff — 2026-10-25 (updated)
 
 Sol is the single writer. Read `AGENTS.md`, `PROJECT_STATUS.md`,
 `docs/AGENT-BOOTSTRAP.md`, `docs/EXECUTION-ROLE.md` and `git status -sb`
 before changing files. Preserve every unrelated local modification.
 
-1. Latest IoT source commit `3d6c602` is pushed. Firmware #594 (`40205825840`), Band
-   Steering ABI `40205825793`, and optional isolated IoT build #595
-   (`40207139904`) completed successfully. The #595 artifact contains a
-   MIPS32r2 `mt76x3_ap.ko`; inspect the evidence document before relying on it.
-   Ordinary firmware #597 (`40212920316`) also completed successfully on
-   `971a899`; its production image does not include v39.
-2. The v39 candidate is **not** the production driver and has not been tested
-   on the router. Continue with the PCI remove/adapter lifetime blocker,
+1. Current branch HEAD `a71e8abedf4c2a6c1fd5df2917002db990df84e2` matches the
+   GitHub branch ref. Run #600 (`40216625327`) completed successfully: the
+   WR1200JS firmware and isolated merged IoT MT7603 v40 target compile both
+   passed. The candidate `.ko` is ELF32 MIPS32r2/O32, 5,202,152 bytes,
+   SHA-256 `f01a3272ac60769dd08a312fbe67622284fa590a533285335a749a300b75a4e5`.
+   One non-fatal `modpost` section-mismatch warning remains unidentified. Full
+   evidence: `docs/evidence/WR1200JS-IOT-V40-CI-600-TARGET-COMPILE-2026-10-25.md`.
+2. v40 remains an **isolated candidate**, not the production driver. The normal
+   firmware image is built before this probe and does not include it. No router
+   runtime was tested. Continue with the PCI remove/adapter lifetime blocker,
    including actual worker join and checked child/root quiescence. Then follow
    the remaining IoT acceptance sequence in `docs/PROJECT-DELIVERY-SCOPE.md`.
    The follow-up source check confirms that `rt_pci_remove` still ignores the
@@ -30,31 +32,30 @@ before changing files. Preserve every unrelated local modification.
    `RT28xxPciAsicRadioOff`, which unconditionally rejects `HIF_MT`; MT7603
    sets that type. `MTPciMlmeRadioOff` is void and discards probe outcomes.
    Implement a checked MT-specific stop before treating any shutdown receipt
-   as proof of physical quiescence. A local-only v40 generator now creates a
-   checked MT source overlay with retry stages and no stale v39 manifest.
-   Review and target-compile it, test failure retention, then bind the main/PCI
-   owners; it is not in a firmware image. See the PCI-retirement evidence document.
-   `9916538` is pushed; ordinary firmware #598 (`40215206293`) and Band
-   Steering ABI (`40215206230`) have both passed. Neither selects v40. Local
+   as proof of physical quiescence. The isolated v40 source overlay now target-
+   compiles and has host fault-injection coverage, but its physical/RF evidence
+   and production owner bindings remain open. See the PCI-retirement evidence.
+   Ordinary firmware #598 (`40215206293`) and Band
+   Steering ABI (`40215206230`) have both passed. Neither selects v40. Published
    commits `83289bd`, `b1953b2` and `8fe91c0` expose and check the v40 path.
-   Python generation,
-   YAML parsing and the eight-pair remove ABI check passed locally; no target
-   v40 compile result exists yet. Recheck CI before pushing or dispatching.
+   Python generation, YAML parsing and the eight-pair remove ABI check passed
+   locally. Follow-up commits `83289bd`, `b1953b2`, `8fe91c0`, and `a71e8ab`
+   are pushed. Candidate compile is not production-image inclusion or runtime
+   evidence.
    The generated checked-off C body also passed a strict host GCC fault fixture
-   for poll, MCU, PDMA and register-readback failure ordering. Target/kernel
-   build and hardware acceptance remain separate pending gates. The fixture
-   and CI hook are in `b1953b2`. Push the prepared commits, then dispatch one
-   candidate run using `run_candidate_checks=true` and `iot_candidate_variant=v40`.
-   Local virtual-interface call coverage also passed on v39 and v40 after
+   for poll, MCU, PDMA and register-readback failure ordering. Production-image
+   integration and hardware acceptance remain pending. The fixture and CI hook
+   are in `b1953b2`.
+   Five-family virtual-interface call coverage also passed on v39 and v40 after
    updating its WDS remove signature boundary for the reviewed `INT` return.
    The main-stop host contract now keeps a failed CLOSE ticket busy for v40's
    same-ticket retry; strict C11 fault/retry fixture passed. This is model
    evidence only; its dependent files remain local with modified shared
-   headers. Caller-coverage gate is in local `8fe91c0`.
+   headers. Caller-coverage gate is in `8fe91c0`.
    `MainVirtualIF_close` and PCI lifetime are not source-bound.
    HTOP/MTR is recorded there as pending item 4 after IoT and service WebUI;
    no package inclusion is claimed yet.
-3. Do not rerun #595 or claim device acceptance from CI. Do not write, flash or
+3. Do not rerun #600 or claim device acceptance from CI. Do not write, flash or
    reboot the router without separate authorization. Keep the one-minute
    Codex heartbeat paused and inspect original diagnostics for new failures.
 

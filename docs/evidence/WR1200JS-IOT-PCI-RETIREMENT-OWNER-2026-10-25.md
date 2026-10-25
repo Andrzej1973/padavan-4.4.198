@@ -128,10 +128,10 @@ Implementation order for the **same** PCI remove owner:
    or a separately pinned, unload-safe owner; neither exists in v39.
 
 Until all four steps and fault-injection interleavings pass, do not connect a
-deferred worker to v39, install it in the firmware image or infer runtime IoT
-support from the successful isolated MIPS compilation in build #595.
+deferred worker to v39, install the candidate in the firmware image or infer
+runtime IoT support from isolated MIPS compilations (#595 or #600).
 
-## Isolated MT7603 radio-off source candidate (v40, local only)
+## Isolated MT7603 radio-off source candidate (v40)
 
 `tools/iot/prepare-mt7603-checked-off-candidate.py` now derives a separate
 source overlay from the reviewed v39 files. It adds a checked HIF_MT path to
@@ -141,17 +141,17 @@ retryable stage after software shutdown so an early poll/readback failure does
 not replay `APShutdown` or `MlmeHalt`; a command with uncertain completion is
 terminal for that ticket and is not replayed. The legacy non-MT path remains.
 
-The generated directory is under `.iot-local-check/` and deliberately has **no
-assembly manifest**: the copied v39 manifest would have stale hashes. The
-optional `v40` CI variant now generates the overlay, pins a fresh manifest
+The generated local directory is under `.iot-local-check/` and deliberately
+has **no assembly manifest**: the copied v39 manifest would have stale hashes.
+The optional `v40` CI variant generates the overlay, pins a fresh manifest
 against the reviewed driver revision, and passes it to the existing isolated
-module build. Python syntax, source generation, YAML parsing and `git diff
---check` passed locally on 2026-10-25; **the v40 CI variant has not run**.
-Target C compilation, fault injection, final-ROMFS packaging and hardware
-observation remain unverified. An MCU command result plus PDMA register
-readback cannot establish RF silence or callback quiescence. Before any
-production merge, audit the stage-4 resumption path, PCI callback lifetime
-and failure-retention rules.
+module build. Local Python generation, YAML parsing and host fault injection
+passed. Target compilation later passed in #600; exact artifact details are in
+`WR1200JS-IOT-V40-CI-600-TARGET-COMPILE-2026-10-25.md`. Final-ROMFS packaging,
+physical RF observation, safe main close and PCI callback lifetime remain
+unverified. An MCU command result plus PDMA register readback cannot establish
+RF silence or callback quiescence. Before production merge, complete the
+stage-4 resumption, PCI lifetime and failure-retention review.
 
 Follow-up `83289bd` restricts the stage-4 retry to PCI/PCIe and exposes `v40`
 in the manual workflow input. Ordinary #598 (`40215206293`) and Band Steering
