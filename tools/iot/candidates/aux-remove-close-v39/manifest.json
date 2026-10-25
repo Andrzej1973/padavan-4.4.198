@@ -21,6 +21,7 @@
     "common/rtmp_init_inf.c": "232b6c3d68224e896aaf9364aad871b787bdc578",
     "common/wsc.c": "3281fb30199c425e67916ae4796242b6618178ea",
     "hw_ctrl/cmm_asic_mt.c": "a8c0c0ec59c7e51c88296111934597064cf36c4a",
+    "include/ap_apcli.h": "66ef0235eab73243b4e185f6e23d6d57c6ed5fb8",
     "include/ap_mbss.h": "667b4728f1ade6f7030b2c23ef24cc413617ff3b",
     "include/mac/mac.h": "0dd885ca5b1b08e84542e17e8418aa10177fee1e",
     "include/mac/mac_mt/mt_mac.h": "30de2ef29743fda3c600e4e47448165ed24dc81e",
@@ -119,6 +120,10 @@
     {
       "path": "include/all-child-teardown.h",
       "sha256": "5fd280612cc7d8edcc5c334dcfc5aa56eb0448b624b5c4cda88ebe9438b70f5c"
+    },
+    {
+      "path": "include/ap_apcli.h",
+      "sha256": "5de9c1dc672dce38546f8d8739ed6a07e5ed036fde581d0e6a9e50806b550214"
     },
     {
       "path": "include/ap_mbss.h",

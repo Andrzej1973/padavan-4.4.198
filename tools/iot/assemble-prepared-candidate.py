@@ -92,8 +92,9 @@ def assemble(base_root, prepared_root, candidate_root, manifest, output):
             raise ValueError(f'Candidate SHA-256 mismatch: {name}')
         overlays[name] = path
     # The original TIM admission probe uses 46/32. The later reviewed v39
-    # lifecycle overlay uses 55/36. Reject any other shape pending review.
-    if (len(overlays), len(originals)) not in ((46, 32), (55, 36)) or \
+    # lifecycle overlay uses 55/36; its corrected AP-client result ABI
+    # includes the previously omitted ap_apcli.h prototype (56/37).
+    if (len(overlays), len(originals)) not in ((46, 32), (55, 36), (56, 37)) or \
             not set(originals).issubset(overlays):
         raise ValueError('Candidate overlay shape changed; review required')
     for name, expected in originals.items():
