@@ -80,6 +80,7 @@ def main() -> None:
     assert_equal(len(data.get("serviceTiles", [])), 14, "selected build service tile count")
     assert_equal(all(tile.get("availableInBuild") is True for tile in data["serviceTiles"]), True, "service tiles match selected build capabilities")
     assert_equal(all(tile.get("runtimeVerified") is False for tile in data["serviceTiles"]), True, "service tile runtime remains explicitly unverified")
+    assert_equal(all(bool(tile.get("href")) for tile in data["serviceTiles"]), True, "service tiles name a real Classic destination")
     for method in ("POST", "PUT", "PATCH", "DELETE", "OPTIONS"):
         request = urllib.request.Request(BASE + "/", method=method, data=b"x" if method in ("POST", "PUT", "PATCH") else None)
         try:

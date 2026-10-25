@@ -17,9 +17,11 @@ const iconSvgs = {
 };
 
 function createServiceTile(service) {
-  const tile = document.createElement("div");
+  const tile = document.createElement("button");
+  tile.type = "button";
   tile.className = "service-tile";
-  tile.setAttribute("aria-label", `${service.name}: доступно у вибраній збірці, runtime не підтверджено`);
+  tile.setAttribute("aria-label", `${service.name}: відкрити Classic-сторінку ${service.href}; runtime не підтверджено`);
+  tile.addEventListener("click", () => openUnavailable(service.name, service.href));
   const icon = document.createElement("span");
   icon.className = "service-icon";
   icon.setAttribute("aria-hidden", "true");

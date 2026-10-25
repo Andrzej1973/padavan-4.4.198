@@ -78,6 +78,9 @@ Browser and local checks:
   available desktop viewport.
 - a 390×844 viewport showed a single-column network overview and two-column
   navigation without horizontal overflow; the temporary viewport was reset.
+- clicking the Zapret2 service tile opened the preview-only Classic destination
+  notice and identified `Advanced_Services_Content.asp#zapret2_enable_on_of`;
+  it made no router request.
 
 The IoT card is marked “Не підтверджено” and says runtime is not accepted. This
 layout remains a local preview and does not prove production Modern integration.
