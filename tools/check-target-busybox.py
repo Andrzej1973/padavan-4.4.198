@@ -158,7 +158,7 @@ if zapret2_enabled:
         'function validZapret2()',
         'window.setInterval(wrZapret2Refresh, 30000)',
     )
-    zapret2_httpd_path=root/'sbin/httpd'
+    zapret2_httpd_path=root/'usr/sbin/httpd'
     zapret2_httpd=(zapret2_httpd_path.read_bytes()
                    if zapret2_httpd_path.is_file() else b'')
     zapret2_httpd_markers=(b'found_app_zapret2',b'wr_zapret2_status',
