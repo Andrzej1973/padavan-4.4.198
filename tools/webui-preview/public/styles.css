@@ -124,11 +124,44 @@ dialog p { color: #b8d8f6; line-height: 1.55; }
 .dialog-path { padding: 8px; border-radius: 5px; background: #03142a; overflow-wrap: anywhere; }
 .primary-button { min-height: 38px; padding: 0 18px; border: 1px solid #13a4ee; border-radius: 6px; background: linear-gradient(180deg,#0e8af2,#065bc8); color: white; cursor: pointer; }
 .primary-button:focus-visible, .close-button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+.dashboard-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(350px, 420px); gap: 18px; align-items: start; }
+.dashboard-column { min-width: 0; }
+.dashboard-side { min-width: 0; }
+.dashboard-side .panel { position: sticky; top: 12px; }
+.overview-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; padding: 13px 15px; }
+.overview-card { min-width: 0; min-height: 145px; padding: 13px 15px; border: 1px solid #096fc2; border-radius: 8px; background: linear-gradient(110deg, #041a33, #03152b); box-shadow: inset 0 0 16px #0067b20d; }
+.overview-card.unavailable { border-color: #246e87; background: linear-gradient(110deg, #06283a, #041e31); }
+.overview-title-row { display: flex; align-items: flex-start; gap: 12px; }
+.overview-icon { flex: 0 0 39px; color: #bce0ff; font-size: 35px; line-height: 1; text-shadow: 0 0 10px #008cff; }
+.overview-title-row h3 { margin: 0 0 5px; font-size: 16px; }
+.overview-title-row p { margin: 4px 0 10px; }
+.offline { display: inline-flex; align-items: center; gap: 8px; color: #ffb66e; font-size: 13px; }
+.offline .status-dot { background: #ff9f43; box-shadow: 0 0 10px #ff9f43; }
+.overview-specs { display: grid; grid-template-columns: minmax(92px, .8fr) minmax(100px, 1.2fr); gap: 4px 10px; margin: 0 0 0 50px; color: #aad1ff; font-size: 13px; }
+.overview-specs dt { color: #8ecaff; }
+.overview-specs dd { margin: 0; overflow-wrap: anywhere; }
+.overview-note { margin: 12px 0 0 50px; color: #ffc07d; line-height: 1.45; }
+.system-panel .metrics-column { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 12px 15px; }
+.interfaces-card, .uptime-card { min-height: 82px; align-items: center; }
+.interfaces-card p, .uptime-card p { margin: 4px 0; color: #b8ddff; }
+.services-panel .services-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.services-panel .service-tile { min-height: 112px; border-right: 1px solid #0b345b; border-bottom: 1px solid #0b345b; }
+.services-panel .service-tile:nth-child(2n) { border-right: 0; }
+.services-panel .service-tile:nth-last-child(-n+2) { border-bottom: 0; }
+.services-panel .service-icon { width: 57px; height: 57px; border-radius: 14px; font-size: 30px; }
+.services-panel .service-icon svg { width: 43px; height: 43px; }
 
 @media (max-width: 1180px) {
   .topbar { grid-template-columns: 1fr auto; }
   .build-meta { grid-column: 1; grid-row: 2; display: flex; gap: 18px; }
   .header-actions { grid-column: 2; grid-row: 1 / span 2; flex-wrap: wrap; justify-content: flex-end; }
+  .dashboard-grid { grid-template-columns: 1fr; }
+  .dashboard-side .panel { position: static; }
+  .services-panel .services-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .services-panel .service-tile:nth-child(2n) { border-right: 1px solid #0b345b; }
+  .services-panel .service-tile:nth-child(4n) { border-right: 0; }
+  .services-panel .service-tile:nth-last-child(-n+2) { border-bottom: 1px solid #0b345b; }
+  .services-panel .service-tile:nth-last-child(-n+4) { border-bottom: 0; }
   .services-grid { grid-template-columns: repeat(4, minmax(0,1fr)); }
   .service-tile:nth-child(6n) { border-right: 1px solid #0b345b; }
   .service-tile:nth-child(4n) { border-right: 0; }
@@ -142,6 +175,7 @@ dialog p { color: #b8d8f6; line-height: 1.55; }
   .nav-item.active { border-radius: 6px; border-bottom-color: #23f1ff; }
   .sidebar-note { display: none; }
   .system-grid { gap: 10px; }
+  .overview-grid, .system-panel .metrics-column { grid-template-columns: 1fr; }
 }
 @media (max-width: 600px) {
   .preview-banner { align-items: flex-start; flex-wrap: wrap; padding: 7px 12px; font-size: 11px; }
@@ -162,6 +196,7 @@ dialog p { color: #b8d8f6; line-height: 1.55; }
   .panel-heading { min-height: 48px; margin: 0 11px; }
   .panel-heading h1, .panel-heading h2 { font-size: 20px; }
   .services-grid { grid-template-columns: repeat(3, minmax(0,1fr)); padding: 7px 8px 10px; }
+  .services-panel .services-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
   .service-tile { min-height: 120px; }
   .service-tile:nth-child(4n) { border-right: 1px solid #0b345b; }
   .service-tile:nth-child(3n) { border-right: 0; }

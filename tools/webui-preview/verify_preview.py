@@ -75,6 +75,7 @@ def main() -> None:
     assert_equal(status, 200, "demo data endpoint")
     data = json.loads(data_bytes)
     assert_equal(data.get("demo"), True, "DEMO marker")
+    assert_equal(data.get("iot", {}).get("status"), "Не підтверджено", "IoT remains explicitly unverified")
     assert_equal(len(data.get("wifi", [])), 2, "Wi-Fi card count (IoT deferred)")
     assert_equal(len(data.get("serviceTiles", [])), 14, "selected build service tile count")
     assert_equal(all(tile.get("availableInBuild") is True for tile in data["serviceTiles"]), True, "service tiles match selected build capabilities")

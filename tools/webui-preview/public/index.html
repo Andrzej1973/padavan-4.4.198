@@ -48,17 +48,16 @@
     </aside>
 
     <main id="modern-home" class="main-content">
-      <section class="panel services-panel" aria-labelledby="services-title">
-        <div class="panel-heading"><span class="heading-symbol" aria-hidden="true">▦</span><h1 id="services-title">Служби</h1></div>
-        <p class="section-note">Плитки відповідають вибраним службам WR1200JS; їхня робота на пристрої ще не підтверджена.</p>
-        <div id="services-grid" class="services-grid" aria-label="Плейсхолдери служб"></div>
-      </section>
+      <div class="dashboard-grid">
+        <div class="dashboard-column">
+          <section class="panel overview-panel" aria-labelledby="overview-title">
+            <div class="panel-heading"><span class="pulse-mark" aria-hidden="true">⌁</span><h1 id="overview-title">Огляд мережі</h1></div>
+            <div id="overview-cards" class="overview-grid" aria-label="Демонстраційний стан мереж"></div>
+          </section>
 
-      <section class="panel system-panel" aria-labelledby="system-title">
-        <div class="panel-heading"><span class="pulse-mark" aria-hidden="true">⌁</span><h2 id="system-title">Стан системи</h2></div>
-        <div class="system-grid">
-          <div id="wifi-cards" class="wifi-column" aria-label="Демонстраційні блоки Wi-Fi"></div>
-          <div class="metrics-column">
+          <section class="panel system-panel" aria-labelledby="system-title">
+            <div class="panel-heading"><span class="pulse-mark" aria-hidden="true">▤</span><h2 id="system-title">Стан системи</h2></div>
+            <div class="metrics-column">
             <article class="metric-card devices-card">
               <span class="metric-icon" aria-hidden="true">▣</span>
               <div class="metric-body"><h3>Пристрої</h3><p class="online"><span class="status-dot"></span>Підключено: <b id="device-total">—</b></p><dl id="device-breakdown"></dl></div>
@@ -74,9 +73,20 @@
               <div class="metric-body"><h3>zram <span class="online"><span class="status-dot"></span>Увімкнено (макет)</span></h3><div class="bar-row"><span>Використання:</span><b id="zram-used">—</b></div><div class="bar-row"><span class="bar"><i id="zram-bar"></i></span><b id="zram-percent">—</b></div><p class="subline">Стиснення: <span id="zram-compression">—</span></p></div>
             </article>
             <article class="metric-card usb-card"><span class="metric-icon" aria-hidden="true">♧</span><div class="metric-body"><h3>USB-накопичувач <span class="online"><span class="status-dot"></span>Підключено (макет)</span></h3><p>Файлова система: <b id="usb-filesystem">—</b></p><p>Вільно / всього: <b id="usb-space">—</b></p></div></article>
-          </div>
+            <article class="metric-card interfaces-card"><span class="metric-icon" aria-hidden="true">⌁</span><div class="metric-body"><h3>Інтерфейси</h3><p id="interfaces-detail">—</p></div></article>
+            <article class="metric-card uptime-card"><span class="metric-icon" aria-hidden="true">◷</span><div class="metric-body"><h3>Час роботи</h3><p id="uptime-value">—</p></div></article>
+            </div>
+          </section>
         </div>
-      </section>
+
+        <aside class="dashboard-side">
+          <section class="panel services-panel" aria-labelledby="services-title">
+            <div class="panel-heading"><span class="heading-symbol" aria-hidden="true">▦</span><h2 id="services-title">Швидкі служби</h2></div>
+            <p class="section-note">Плитки відповідають вибраним службам WR1200JS; їхня робота на пристрої ще не підтверджена.</p>
+            <div id="services-grid" class="services-grid" aria-label="Служби вибраної збірки"></div>
+          </section>
+        </aside>
+      </div>
       <footer class="footer"><span id="footer-device">Youhua WR1200JS (Powered by Padavan)</span><a class="footer-release" href="https://github.com/Andrzej1973/padavan-4.4.198/releases" target="_blank" rel="noopener noreferrer" title="Відкрити список релізів GitHub; оновлення встановлюється вручну">↗ Останній реліз</a></footer>
     </main>
     <main id="modern-wifi" class="main-content" hidden aria-label="Налаштування Wi-Fi"></main>

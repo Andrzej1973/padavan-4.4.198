@@ -58,3 +58,24 @@ the WR1200JS profile: Stubby, DoH, WireGuard, AmneziaWG, ZeroTier,
 Shadowsocks, Privoxy, WPAD/PAC, HTTP/HTTPS, SSH, iPerf3, Cron, KMS and Zapret2.
 Each tile has `availableInBuild:true` and `runtimeVerified:false`; the preview
 therefore describes build availability only, not working device state.
+
+## Reference-layout dashboard — 2026-10-25
+
+The homepage now uses the supplied two-column direction: Internet, 2.4 GHz,
+5 GHz and an explicitly unverified IoT card on the left; quick-service tiles on
+the right; system metrics below the network overview. Ukrainian decimal commas
+are used in band and memory labels.
+
+Browser and local checks:
+
+- `node --check public/app.js` passed;
+- `python verify_preview.py` passed HTTP resources, DEMO/IoT boundaries,
+  selected-service tiles and mutating-method rejection;
+- `node check_wifi.js` passed all 15 band routes and shared-field constraints;
+- `python check_references.py` passed all six owner-supplied PNG hashes;
+- visual inspection showed the four overview cards, system panel, fourteen
+  service tiles and Ukrainian labels without horizontal overflow at the
+  available desktop viewport.
+
+The IoT card is marked “Не підтверджено” and says runtime is not accepted. This
+layout remains a local preview and does not prove production Modern integration.

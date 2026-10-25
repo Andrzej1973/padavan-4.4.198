@@ -2,9 +2,15 @@
   "demo": true,
   "device": "Youhua WR1200JS",
   "firmware": "4.4.198.9-099",
+  "internet": {
+    "status": "Підключено (макет)",
+    "connection": "PPPoE",
+    "ip": "192.168.1.100",
+    "uptime": "3 дні, 12:45:17"
+  },
   "wifi": [
     {
-      "band": "2.4 GHz",
+      "band": "2,4 ГГц",
       "status": "Увімкнено",
       "ssid": "Home-2.4G",
       "channel": "6 (макет)",
@@ -12,7 +18,7 @@
       "clients": 3
     },
     {
-      "band": "5 GHz",
+      "band": "5 ГГц",
       "status": "Увімкнено",
       "ssid": "Home-5G",
       "channel": "44 (макет)",
@@ -30,7 +36,7 @@
   "memoryPercent": 28,
   "zram": {
     "status": "Увімкнено (макет)",
-    "used": "512 МБ / 2.0 ГБ",
+    "used": "512 МБ / 2,0 ГБ",
     "compression": "lz0-rle",
     "percent": 26
   },
@@ -38,6 +44,15 @@
     "status": "Підключено (макет)",
     "filesystem": "ext4 (макет)",
     "freeTotal": "118 ГБ / 120 ГБ (макет)"
+  },
+  "interfaces": {
+    "status": "USB не підключено (макет)",
+    "detail": "WAN + LAN активні"
+  },
+  "uptime": "3 дні, 12:45:17",
+  "iot": {
+    "status": "Не підтверджено",
+    "detail": "Runtime IoT ще не прийнято"
   },
   "serviceTiles": [
     { "name": "Stubby", "detail": "DNS-over-TLS", "icon": "check", "availableInBuild": true, "runtimeVerified": false },

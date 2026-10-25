@@ -34,33 +34,40 @@ function createServiceTile(service) {
   return tile;
 }
 
-function createWifiCard(network) {
+function createOverviewCard(title, status, detail, values, unavailable) {
   const card = document.createElement("article");
-  card.className = "wifi-card";
+  card.className = `overview-card${unavailable ? " unavailable" : ""}`;
   const heading = document.createElement("div");
-  heading.className = "wifi-title-row";
+  heading.className = "overview-title-row";
   const icon = document.createElement("span");
-  icon.className = "wifi-icon";
+  icon.className = "overview-icon";
   icon.setAttribute("aria-hidden", "true");
   icon.textContent = "⌁";
-  const title = document.createElement("div");
+  const titleElement = document.createElement("div");
   const h3 = document.createElement("h3");
-  h3.textContent = `Бездротова мережа (${network.band})`;
+  h3.textContent = title;
   const state = document.createElement("p");
-  state.className = "online";
+  state.className = unavailable ? "offline" : "online";
   state.innerHTML = '<span class="status-dot" aria-hidden="true"></span>';
-  state.append(document.createTextNode(network.status + " (макет)"));
-  title.append(h3, state);
-  heading.append(icon, title);
-  const specs = document.createElement("dl");
-  specs.className = "wifi-specs";
-  const rows = [["SSID:", network.ssid], ["Канал:", network.channel], ["Швидкість:", network.speed], ["Підключено:", `${network.clients} пристрої (макет)`]];
-  for (const [label, value] of rows) {
-    const dt = document.createElement("dt"); dt.textContent = label;
-    const dd = document.createElement("dd"); dd.textContent = value;
-    specs.append(dt, dd);
+  state.append(document.createTextNode(status));
+  titleElement.append(h3, state);
+  heading.append(icon, titleElement);
+  card.append(heading);
+  if (values && values.length) {
+    const specs = document.createElement("dl");
+    specs.className = "overview-specs";
+    for (const [label, value] of values) {
+      const dt = document.createElement("dt"); dt.textContent = label;
+      const dd = document.createElement("dd"); dd.textContent = value;
+      specs.append(dt, dd);
+    }
+    card.append(specs);
+  } else {
+    const note = document.createElement("p");
+    note.className = "overview-note";
+    note.textContent = detail;
+    card.append(note);
   }
-  card.append(heading, specs);
   return card;
 }
 
@@ -78,9 +85,20 @@ async function loadDemo() {
   byId("firmware").textContent = `${data.firmware} · DEMO`;
   byId("footer-device").textContent = `${data.device} (Powered by Padavan)`;
   byId("services-grid").replaceChildren(...data.serviceTiles.map(createServiceTile));
-  byId("wifi-cards").replaceChildren(...data.wifi.map(createWifiCard));
+  const overview = [
+    createOverviewCard("Інтернет", data.internet.status, "", [
+      ["Тип:", data.internet.connection], ["IP:", data.internet.ip], ["Час роботи:", data.internet.uptime]
+    ], false),
+    ...data.wifi.map((network) => createOverviewCard(`Wi-Fi ${network.band}`, network.status + " (макет)", "", [
+      ["SSID:", network.ssid], ["Канал:", network.channel], ["Клієнти:", `${network.clients} (макет)`]
+    ], false)),
+    createOverviewCard("Мережа IoT", data.iot.status, data.iot.detail, [], true)
+  ];
+  byId("overview-cards").replaceChildren(...overview);
+  byId("interfaces-detail").textContent = data.interfaces.status;
+  byId("uptime-value").textContent = data.uptime;
   byId("device-total").textContent = data.devices.total;
-  const breakdown = [["Провідні:", data.devices.wired], ["Wi-Fi 2.4 ГГц:", data.devices.wifi24], ["Wi-Fi 5 ГГц:", data.devices.wifi5]];
+  const breakdown = [["Провідні:", data.devices.wired], ["Wi-Fi 2,4 ГГц:", data.devices.wifi24], ["Wi-Fi 5 ГГц:", data.devices.wifi5]];
   for (const [label, value] of breakdown) {
     const dt = document.createElement("dt"); dt.textContent = label;
     const dd = document.createElement("dd"); dd.textContent = value;
