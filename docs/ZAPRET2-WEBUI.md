@@ -17,7 +17,7 @@ The service page provides:
 The strategy editor accepts arguments for `nfqws2`, not shell commands. The
 service supplies queue number 200 and the three pinned Lua initialization files.
 An enabled switch with an empty strategy is rejected by the page and by the
-service itself.
+service itself. Both layers enforce an 8192-byte maximum.
 
 ## Safety properties
 

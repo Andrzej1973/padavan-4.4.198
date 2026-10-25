@@ -123,6 +123,11 @@ if run_service start >/dev/null 2>&1; then
     fail "missing Lua support was accepted"
 fi
 mv "$TMP/zapret-auto.lua" "$LUA/zapret-auto.lua"
+dd if=/dev/zero bs=8193 count=1 2>/dev/null | tr '\000' x >"$TMP/args"
+if run_service start >/dev/null 2>&1; then
+    fail "oversized strategy was accepted"
+fi
+printf '%s\n' '--filter-tcp=443' >"$TMP/args"
 run_service start >"$TMP/start.out" || fail "start returned an error"
 grep -qx 'started' "$TMP/start.out" || fail "start did not report success"
 test -f "$STATE/chain" || fail "mangle chain was not created"

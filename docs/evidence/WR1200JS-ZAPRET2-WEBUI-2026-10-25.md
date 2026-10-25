@@ -27,6 +27,7 @@ lifecycle paths. The router was not flashed or rebooted.
 
 The Apply handler refuses an enabled switch with an empty strategy. This mirrors
 the service-side check, so a checkbox alone cannot report a successful launch.
+Both the WebUI and service reject strategy files larger than 8192 bytes.
 
 ## Verification
 

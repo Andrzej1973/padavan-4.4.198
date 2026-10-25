@@ -148,6 +148,17 @@ stop_processes() {
 start() {
     [ -x "$NFQWS2" ] || { echo "nfqws2 is not installed"; return 1; }
     [ -s "$ARGS" ] || { echo "strategy file $ARGS is required"; return 1; }
+    args_size=$(wc -c <"$ARGS" 2>/dev/null) || {
+        echo "strategy file size is unavailable"
+        return 1
+    }
+    case "$args_size" in
+        *[!0-9]*) echo "strategy file size is invalid"; return 1 ;;
+    esac
+    [ "$args_size" -le 8192 ] || {
+        echo "strategy file exceeds 8192 bytes"
+        return 1
+    }
     for script in zapret-lib.lua zapret-antidpi.lua zapret-auto.lua; do
         [ -r "$LUA_DIR/$script" ] || {
             echo "Zapret2 Lua support file is missing: $LUA_DIR/$script"
