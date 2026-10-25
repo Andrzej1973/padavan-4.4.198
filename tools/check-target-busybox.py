@@ -162,7 +162,8 @@ if zapret2_enabled:
     zapret2_httpd=(zapret2_httpd_path.read_bytes()
                    if zapret2_httpd_path.is_file() else b'')
     zapret2_httpd_markers=(b'found_app_zapret2',b'wr_zapret2_status',
-                           b'restart_zapret2',b'zapret2_enable')
+                           b'zapret2_enable',b'nfqws2',
+                           b'/etc/storage/zapret2.args')
     zapret2_dicts={name:(root/f'www/{name}').read_text(encoding='utf-8')
                    for name in ('EN.dict','UK.dict','RU.dict')
                    if (root/f'www/{name}').is_file()}
@@ -170,14 +171,19 @@ if zapret2_enabled:
         'page_markers':list(zapret2_web_markers),
         'httpd_markers':[item.decode() for item in zapret2_httpd_markers],
         'dict_files':sorted(zapret2_dicts),
+        'page_marker_checks':{marker:marker in zapret2_page
+                              for marker in zapret2_web_markers},
+        'httpd_marker_checks':{item.decode():item in zapret2_httpd
+                               for item in zapret2_httpd_markers},
+        'dict_marker_checks':{name:'WRZapret2StrategyRequired=' in text
+                              for name,text in zapret2_dicts.items()},
         'scope':'shipped controls, localized state labels and compiled restart/status routes only; browser and traffic effect unverified',
     }
     report['checks']['zapret2_webui_image']=(
-        all(marker in zapret2_page for marker in zapret2_web_markers) and
-        all(marker in zapret2_httpd for marker in zapret2_httpd_markers) and
+        all(report['zapret2_webui']['page_marker_checks'].values()) and
+        all(report['zapret2_webui']['httpd_marker_checks'].values()) and
         set(zapret2_dicts)=={'EN.dict','UK.dict','RU.dict'} and
-        all('WRZapret2StrategyRequired=' in text
-            for text in zapret2_dicts.values()))
+        all(report['zapret2_webui']['dict_marker_checks'].values()))
     if closure is not None:
         report['zapret2_elf_dependency_closure']=closure.verify(
             root,root,readelf,['usr/sbin/nfqws2'])
