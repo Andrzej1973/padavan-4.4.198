@@ -10,7 +10,6 @@ from pathlib import Path
 ALLOWED = {
     "libc.so.0",
     "libm.so.0",
-    "libz.so.1",
     "libgcc_s.so.1",
     "ld-uClibc.so.0",
 }
