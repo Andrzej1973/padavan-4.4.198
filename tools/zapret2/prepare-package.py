@@ -31,6 +31,7 @@ clean:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("tree", type=Path, help="Padavan tree root")
+    parser.add_argument("--config", type=Path, help="requested build config; skip staging when the selector is off")
     args = parser.parse_args()
 
     here = Path(__file__).resolve().parent
@@ -40,6 +41,12 @@ def main() -> int:
     target = user / "zapret2"
     deps = target / "deps"
     nfq2 = target / "nfq2"
+
+    if args.config is not None:
+        lines = args.config.read_text(encoding="utf-8").splitlines()
+        if "CONFIG_FIRMWARE_INCLUDE_ZAPRET2=y" not in lines:
+            print("Zapret2 selector is off; package not staged")
+            return 0
 
     if target.exists():
         raise SystemExit(f"package directory already exists: {target}")

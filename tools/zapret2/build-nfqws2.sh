@@ -35,16 +35,15 @@ for f in "$BUILD"/libmnl-1.0.5/src/*.c "$BUILD"/libnfnetlink-1.0.2/src/*.c "$BUI
     $CC ${CFLAGS:-} -Os -fno-strict-aliasing $INC -c "$f" -o "$obj"
 done
 
-LUA_H=$(find "$TREE/trunk/user" -name lua.h -print -quit 2>/dev/null || true)
-[ -n "$LUA_H" ] || { echo "lua.h not found in the Padavan tree" >&2; exit 2; }
-LUA_INC=$(dirname "$LUA_H")
-
-LUA_LIB=$(find "$TREE/trunk/user" \( -name 'liblua*.a' -o -name 'liblua*.so' -o -name 'liblua*.so.*' \) -print -quit 2>/dev/null || true)
-[ -n "$LUA_LIB" ] || { echo "liblua not found in the Padavan tree" >&2; exit 2; }
+# Lua 5.1 ships as sources in the pinned tree; embed it so the package does not
+# depend on the lua51 package having been built first.
+LUA_DIR="$TREE/trunk/user/lua51/lua-5.1.5/src"
+[ -f "$LUA_DIR/lua.h" ] || { echo "lua.h not found at $LUA_DIR" >&2; exit 2; }
+LUA_SRC=$(ls "$LUA_DIR"/*.c | grep -v -E '/(lua|luac)\.c$')
 
 # shellcheck disable=SC2086
-$CC ${CFLAGS:-} -std=gnu99 -Os -I"$LUA_INC" \
-    -o "$OUT" "$SRC"/*.c "$SRC"/crypto/*.c "$BUILD"/obj/*.o \
-    "$LUA_LIB" -lz -lm ${LDFLAGS:-}
+$CC ${CFLAGS:-} -std=gnu99 -Os -I"$LUA_DIR" \
+    -o "$OUT" "$SRC"/*.c "$SRC"/crypto/*.c $LUA_SRC "$BUILD"/obj/*.o \
+    -lz -lm ${LDFLAGS:-}
 
 echo "PASS built $OUT"
