@@ -123,6 +123,38 @@ for line in kernel_config_lines:
 report['selected_service_entrypoints']=[]
 report['feature_image_gates']={}
 report['entrypoint_gaps']=[]
+zapret2_enabled='CONFIG_FIRMWARE_INCLUDE_ZAPRET2=y' in effective_config
+zapret2_hashes={
+    'usr/share/zapret2/zapret-lib.lua':'6bf528fef1f0fc3c65e189216fc8a06bb873f6e25d1c29d2bfa4695a09b73440',
+    'usr/share/zapret2/zapret-antidpi.lua':'6d1fa9168e5de1682fef91fd174f68b58c50f6739ef00f42ca7db2b940b6246d',
+    'usr/share/zapret2/zapret-auto.lua':'23a9b99a776d868d92f4cc0ee5110f5c1f12fe746620d9c0337022dbc2f52df0',
+    'usr/share/licenses/zapret2/LICENSE.txt':'d089978dd77d53cb6aa5dff51cfdbff617e52dd44af1ac44a6df02c6644f17d5',
+}
+if zapret2_enabled:
+    zapret2_actual={path:digest(root/path) for path in zapret2_hashes
+                    if (root/path).is_file()}
+    report['zapret2_pinned_assets']={
+        'expected':zapret2_hashes,
+        'actual':zapret2_actual,
+        'scope':'packaged Lua scripts and upstream notice only; strategy execution unverified',
+    }
+    report['checks']['zapret2_pinned_lua_and_license']=(zapret2_actual==zapret2_hashes)
+    zapret2_service_path=root/'usr/sbin/zapret2'
+    zapret2_service=(zapret2_service_path.read_text(encoding='utf-8')
+                     if zapret2_service_path.is_file() else '')
+    report['checks']['zapret2_service_fail_open_and_lua_init']=all(marker in zapret2_service for marker in (
+        '--queue-bypass',
+        '--lua-init="@$LUA_DIR/zapret-lib.lua"',
+        '--lua-init="@$LUA_DIR/zapret-antidpi.lua"',
+        '--lua-init="@$LUA_DIR/zapret-auto.lua"',
+    )) and '-j LOG' not in zapret2_service
+    if closure is not None:
+        report['zapret2_elf_dependency_closure']=closure.verify(
+            root,root,readelf,['usr/sbin/nfqws2'])
+        report['checks']['zapret2_elf_dependency_closure']=True
+    else:
+        report['zapret2_elf_dependency_closure_error']='ELF dependency checker unavailable'
+        report['checks']['zapret2_elf_dependency_closure']=False
 qos_enabled='CONFIG_FIRMWARE_INCLUDE_QOS=y' in effective_config
 qos_gate=qos_image_gate_status(qos_enabled,image_paths,kernel_config)
 if qos_enabled:

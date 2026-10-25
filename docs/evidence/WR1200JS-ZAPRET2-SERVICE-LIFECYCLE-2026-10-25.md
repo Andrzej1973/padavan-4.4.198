@@ -31,6 +31,8 @@ CONFIG_NETFILTER_XT_TARGET_NFQUEUE=y
 - Package staging copies the service as `/usr/sbin/zapret2`; the exact-image
   service map now requires `/usr/sbin/nfqws2`, `/usr/sbin/zapret2`, the three
   Lua scripts under `/usr/share/zapret2/` and the upstream MIT notice.
+- The image gate verifies the pinned Lua/license hashes, the fail-open queue and
+  Lua-init markers in the service, and the MIPS `nfqws2` library closure.
 
 ## Verification
 
