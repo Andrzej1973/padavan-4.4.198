@@ -33,6 +33,7 @@
 #include "rtmp_comm.h"
 #include "rt_os_util.h"
 #include "rt_os_net.h"
+#include "virtual-open-claim.h"
 #ifdef WIFI_DIAG
 #include "diag.h"
 #endif

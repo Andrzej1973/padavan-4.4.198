@@ -27,7 +27,7 @@ def main() -> None:
     if reviewed.get("source_revision") != REVISION:
         parser.error("reviewed source revision differs")
     old_blobs = reviewed.get("source_git_blobs")
-    if not isinstance(old_blobs, dict) or len(old_blobs) not in (31, 36, 37):
+    if not isinstance(old_blobs, dict) or len(old_blobs) not in (31, 36, 37, 39):
         parser.error("reviewed source blob inventory differs")
     for name, expected in old_blobs.items():
         path = args.pinned_driver / name

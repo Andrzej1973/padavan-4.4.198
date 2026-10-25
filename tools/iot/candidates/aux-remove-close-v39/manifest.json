@@ -253,7 +253,7 @@
     },
     {
       "path": "os/linux/rt_main_dev.c",
-      "sha256": "c63baa51307dc746ba39825f12b3a12504fc1a0ab195dcbab1688e0ba117114f"
+      "sha256": "88eeff79600275bb7d09c6d1b0a8625413288ac897c3e21cee6f7516d734132c"
     },
     {
       "path": "os/linux/rt_profile.c",
