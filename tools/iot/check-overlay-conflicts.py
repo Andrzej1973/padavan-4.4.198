@@ -11,7 +11,7 @@ import json
 from pathlib import Path
 
 
-SOURCE_DIRS = frozenset({'ap', 'common', 'hw_ctrl', 'include', 'mac', 'mcu', 'os', 'tx_rx'})
+SOURCE_DIRS = frozenset({'ap', 'common', 'hw_ctrl', 'include', 'mac', 'mcu', 'os', 'sniffer', 'tx_rx'})
 
 
 def blob(data):

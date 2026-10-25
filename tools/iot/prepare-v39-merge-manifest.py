@@ -6,7 +6,7 @@ import hashlib
 import json
 from pathlib import Path
 
-SOURCE_DIRS = frozenset({"ap", "common", "hw_ctrl", "include", "mac", "mcu", "os", "tx_rx"})
+SOURCE_DIRS = frozenset({"ap", "common", "hw_ctrl", "include", "mac", "mcu", "os", "sniffer", "tx_rx"})
 REVISION = "c25283e915a2a00a763774dd255b14aff997285e"
 
 
@@ -27,7 +27,7 @@ def main() -> None:
     if reviewed.get("source_revision") != REVISION:
         parser.error("reviewed source revision differs")
     old_blobs = reviewed.get("source_git_blobs")
-    if not isinstance(old_blobs, dict) or len(old_blobs) not in (31, 36):
+    if not isinstance(old_blobs, dict) or len(old_blobs) not in (31, 36, 37):
         parser.error("reviewed source blob inventory differs")
     for name, expected in old_blobs.items():
         path = args.pinned_driver / name
@@ -47,7 +47,7 @@ def main() -> None:
             if original.is_file():
                 originals[name] = blob(original.read_bytes())
     overlay_count = sum(item["path"].split("/", 1)[0] in SOURCE_DIRS for item in files)
-    if overlay_count != 56 or len(originals) != 37 or not set(old_blobs).issubset(originals):
+    if overlay_count != 58 or len(originals) != 39 or not set(old_blobs).issubset(originals):
         parser.error("v39 source inventory changed; review before assembly")
     manifest = {"schema": 1, "source_revision": REVISION,
                 "source_git_blobs": originals, "files": files,

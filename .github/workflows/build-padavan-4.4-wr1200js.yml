@@ -1565,6 +1565,7 @@ jobs:
             mkdir -p "$candidate"
             cp -a tools/iot/candidates/aux-remove-close-v39 "$candidate/driver"
             cp tools/iot/candidates/aux-remove-close-v39/manifest.json "$candidate/manifest.json"
+            python3 tools/iot/check-remove-result-abi.py "$candidate/driver"
           elif [ "${{ inputs.iot_candidate_variant }}" = legacy ]; then
             python3 tools/iot/prepare-radio-queue-candidate.py "$pristine" "$candidate"
           else
@@ -1578,6 +1579,9 @@ jobs:
           python3 tools/iot/assemble-prepared-candidate.py \
             "$pristine" "$driver" "$candidate/driver" \
             "$candidate/manifest.json" "$merged"
+          if [ "${{ inputs.iot_candidate_variant }}" = v39 ]; then
+            python3 tools/iot/check-remove-result-abi.py "$merged"
+          fi
           cp "$merged.manifest.json" "$results/merged-source-manifest.json"
           cp -a "$merged/." "$driver/"
           python3 - "$results/merged-source-manifest.json" "$driver" <<'PY'

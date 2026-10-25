@@ -15,7 +15,7 @@ from pathlib import Path
 
 
 PINNED = 'c25283e915a2a00a763774dd255b14aff997285e'
-SOURCE_DIRS = frozenset({'ap', 'common', 'hw_ctrl', 'include', 'mac', 'mcu', 'os', 'tx_rx'})
+SOURCE_DIRS = frozenset({'ap', 'common', 'hw_ctrl', 'include', 'mac', 'mcu', 'os', 'sniffer', 'tx_rx'})
 EXPECTED_MODIFIED = frozenset({
     'ap/ap.c', 'ap/ap_cfg.c', 'common/rtmp_init.c',
     'hw_ctrl/cmm_asic_mt.c', 'include/rtmp.h',
@@ -93,8 +93,9 @@ def assemble(base_root, prepared_root, candidate_root, manifest, output):
         overlays[name] = path
     # The original TIM admission probe uses 46/32. The later reviewed v39
     # lifecycle overlay uses 55/36; its corrected AP-client result ABI
-    # includes the previously omitted ap_apcli.h prototype (56/37).
-    if (len(overlays), len(originals)) not in ((46, 32), (55, 36), (56, 37)) or \
+    # includes the previously omitted ap_apcli.h prototype (56/37); its
+    # WDS prototype and monitor implementation closure uses 58/39.
+    if (len(overlays), len(originals)) not in ((46, 32), (55, 36), (56, 37), (58, 39)) or \
             not set(originals).issubset(overlays):
         raise ValueError('Candidate overlay shape changed; review required')
     for name, expected in originals.items():
