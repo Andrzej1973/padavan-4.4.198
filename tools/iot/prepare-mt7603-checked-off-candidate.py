@@ -151,7 +151,9 @@ def main() -> None:
                      " if (stage == 2U) return NDIS_STATUS_SUCCESS;\n"
                      "#if defined(RTMP_MAC_PCI) && defined(RTMP_PCI_SUPPORT)\n"
                      " if (stage == 4U) {\n"
-                     "  if (pAd->chipCap.hif_type != HIF_MT) return NDIS_STATUS_FAILURE;\n"
+                     "  if (pAd->chipCap.hif_type != HIF_MT ||\n"
+                     "      (pAd->infType != RTMP_DEV_INF_PCI &&\n"
+                     "       pAd->infType != RTMP_DEV_INF_PCIE)) return NDIS_STATUS_FAILURE;\n"
                      "  goto wr_iot_mt_radio_off_resume;\n"
                      " }\n"
                      "#else\n"
@@ -164,12 +166,12 @@ def main() -> None:
         if tail.count(anchor) != 1:
             raise ValueError("Reviewed PCI radio-off entry changed")
         tail = tail.replace(anchor,
-            "\t\tif (pAd->chipCap.hif_type == HIF_MT) {\n"
-            "\t\t\tRTMP_IRQ_LOCK(&pAd->wr_iot_transition_lock,flags);\n"
-            "\t\t\tpAd->wr_iot_transition.shutdown_stage=4U;\n"
-            "\t\t\tRTMP_IRQ_UNLOCK(&pAd->wr_iot_transition_lock,flags);\n"
-            "\t\t}\n"
-            "wr_iot_mt_radio_off_resume:\n" + anchor, 1)
+            "wr_iot_mt_radio_off_resume:\n" + anchor + "\n"
+            "\t\t\tif (pAd->chipCap.hif_type == HIF_MT) {\n"
+            "\t\t\t\tRTMP_IRQ_LOCK(&pAd->wr_iot_transition_lock,flags);\n"
+            "\t\t\t\tpAd->wr_iot_transition.shutdown_stage=4U;\n"
+            "\t\t\t\tRTMP_IRQ_UNLOCK(&pAd->wr_iot_transition_lock,flags);\n"
+            "\t\t\t}", 1)
         old = "brc = RT28xxPciAsicRadioOff(pAd, RTMP_HALT, 0);"
         if data[:start].count(old) != 1 or tail.count(old) != 1:
             raise ValueError("Reviewed legacy/checked close split changed")
