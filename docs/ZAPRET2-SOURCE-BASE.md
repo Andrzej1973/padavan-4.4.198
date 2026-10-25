@@ -39,3 +39,10 @@ Stage 2 integration sequence: target dependency audit; minimal source build; Pad
 - Other repositories on the [author's profile](https://github.com/bol-van?tab=repositories) are unrelated to this Padavan Zapret2 port; do not copy them merely because they share an author.
 
 This source-base task is complete as an inventory and pinned local copy. Stage 2 firmware integration remains open under `docs/PROJECT-DELIVERY-SCOPE.md` after WR1200JS baseline acceptance.
+
+## Final source-base check (2026-10-25)
+
+- `python tools/zapret2/verify-source-base.py` passed: all 253 files and 2,516,830 bytes match the manifest. Git tracks all 253 vendored files.
+- GitHub's `bol-van/zapret2` `master` and the pinned commit both resolve to `4a33055448ce5f4e7acc704e1fbe0d8a8a6aa08d` at this check. Future upstream changes require a new reviewed snapshot and manifest, not an unpinned download during a firmware build.
+- `configs.build/wr1200js.config` and `configs.build/mi-4.config` still have `CONFIG_FIRMWARE_INCLUDE_ZAPRET2` commented out. The imported base supplies source and documentation only; no target binary, firewall rule, service or WebUI control was enabled.
+- The first Stage 2 action remains a target dependency and kernel NFQUEUE audit. Do not infer a working Padavan port from this completed source-base check.
