@@ -12,6 +12,8 @@ before changing files. Preserve every unrelated local modification.
    on the router. Continue with the PCI remove/adapter lifetime blocker,
    including actual worker join and checked child/root quiescence. Then follow
    the remaining IoT acceptance sequence in `docs/PROJECT-DELIVERY-SCOPE.md`.
+   HTOP/MTR is recorded there as pending item 4 after IoT and service WebUI;
+   no package inclusion is claimed yet.
 3. Do not rerun #595 or claim device acceptance from CI. Do not write, flash or
    reboot the router without separate authorization. Keep the one-minute
    Codex heartbeat paused and inspect original diagnostics for new failures.

@@ -121,9 +121,47 @@ Complete these steps in order, carrying all existing acceptance requirements for
 1. IoT Wi-Fi: finish activation/shutdown and recovery; integrate the third BSS, owned bridge, DHCP/DNS, isolation/firewall and scoped WAN NAT; add authenticated enable/SSID/credentials/subnet/status/local QR controls; verify simultaneous main/guest/IoT operation and isolation.
 2. Wi-Fi and roaming: finish shared 2.4/5 GHz controls and QR, Band Steering, RSSI Kick and automatically refreshed monitoring. Establish actual supported 802.11k/v/r behavior; never equate compilation or RSSI disconnection with FT roaming.
 3. Service WebUI coverage: complete lifecycle, validation, persistence, status and navigation for accepted enabled services, including USB/IP and diagnostics plus existing ZeroTier/VPN integration. Per the 2026-10-16 scope replacement, remove PPTP, standalone L2TP, EoIP and OpenVPN from WR1200JS firmware/WebUI; StrongSwan is cancelled/excluded, not pending work.
-4. WAN socket reassignment: finish authenticated selection and verify selected WAN/remaining LAN isolation and persistence.
-5. Final configuration/image audit: preserve required features, verify optional commented selectors separately and keep WPS optional verification last. Deliver one user download ZIP containing firmware and its config. CAKE stays excluded.
-6. Recoverable device acceptance: verify Linux 4.4.198 boot, WAN/LAN, both Wi-Fi bands under load, restored AmneziaWG, settings/services and restart persistence. User agreement on task order is not authorization to flash or disrupt the remote router.
+4. Shared HTOP and MTR integration: after IoT and service WebUI, add these console tools through the common package build path only for compatible board profiles with measured image headroom. Apply the checks in the subsection below; do not start this step while IoT is unfinished.
+5. WAN socket reassignment: finish authenticated selection and verify selected WAN/remaining LAN isolation and persistence.
+6. Final configuration/image audit: preserve required features, verify optional commented selectors separately and keep WPS optional verification last. Deliver one user download ZIP containing firmware and its config. CAKE stays excluded.
+7. Recoverable device acceptance: verify Linux 4.4.198 boot, WAN/LAN, both Wi-Fi bands under load, restored AmneziaWG, settings/services and restart persistence. User agreement on task order is not authorization to flash or disrupt the remote router.
+
+### Shared HTOP and MTR integration — after IoT and service WebUI
+
+This is item 4 of the WR1200JS execution sequence, after items 1–3 and before
+WAN reassignment, the final image audit and device acceptance. The current
+IoT-first work continues; HTOP/MTR integration remains pending.
+
+- Recheck the pinned Padavan 4.4.198 `trunk/user/htop` (3.3.0),
+  `trunk/user/mtr` (0.95), `trunk/libs/libncurses` (6.5), their recipes,
+  toolchain compatibility and applicable licenses. The base user/libs
+  Makefiles already select these packages and ncurses with
+  `CONFIG_FIRMWARE_INCLUDE_HTOP` / `CONFIG_FIRMWARE_INCLUDE_MTR`; extend this
+  shared build path rather than copying per-board package logic.
+- Add independent, explicit selectors to compatible board profiles. For each
+  board, check architecture, libc, flash headroom, available RAM and the
+  terminal/raw-socket requirements before enabling either package. Do not
+  infer support from a config file or force inclusion on a constrained board.
+  WR1200JS is the only currently admitted image-build profile. Mi Mini and
+  Mi 4 are pending board ports and must remain unverified until their own
+  builds and size checks exist. Future profiles must make the same decision.
+- Prefer minimal console-only builds, launched manually. No boot service,
+  background polling, automatic MTR probes, new WebUI or HTTP endpoint in
+  this stage. MTR's `mtr-packet` privileges and raw-socket behavior need an
+  explicit security review; avoid granting broader rights merely to pass a
+  smoke test.
+- For each changed profile, verify the effective config, target MIPS build,
+  installed `htop`, `mtr`, `mtr-packet` and `libncursesw` in final ROMFS,
+  runtime loader dependencies, compressed TRX delta and flash headroom.
+  Compare against an otherwise identical baseline and check relevant CI
+  regressions. Runtime CPU/RAM, terminal operation and bounded MTR probes
+  remain unaccepted until tested on that router with authorization.
+
+Audit baseline: WR1200JS build #574 had both selectors disabled in its
+effective config; no target HTOP/MTR executable size, compressed-image delta
+or on-device resource measurement has been established. Do not present the
+upstream source archives or another distribution's package sizes as Padavan
+firmware measurements.
 
 ## Preserve and port existing services — user instruction 2026-10-11
 

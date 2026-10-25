@@ -15,9 +15,10 @@ historical; their pending-run and local-only statements are superseded here.
   on-device operation or release acceptance. No router write or reboot occurred.
 - Next IoT gate: bind and fault-test PCI removal, deferred-close join, checked
   child/root teardown and adapter-release ownership before production install.
-  Then verify network isolation, Classic WebUI, image and recoverable device
-  acceptance in `docs/PROJECT-DELIVERY-SCOPE.md` order. Do not start Modern UI
-  until the required earlier stages are complete.
+  Then verify network isolation and Classic WebUI. Shared HTOP/MTR integration
+  is now explicit item 4 in `docs/PROJECT-DELIVERY-SCOPE.md`, pending after
+  service WebUI and before WAN/final image/device acceptance. Do not start
+  Modern UI until the required earlier stages are complete.
 - The `padavan-ci` one-minute Codex heartbeat stays paused. GitHub monitor runs
   on failures; its `main` checkout may still use the older excerpt heuristic.
   Confirm any failure in the original job log and diagnostic artifact.
