@@ -1,0 +1,267 @@
+{
+  "schema": 1,
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "source_git_blobs": {
+    "ap/ap.c": "e452c6f55b4dedb2703f4471f9fd2d2c7cb226ac",
+    "ap/ap_apcli.c": "10336b6b5f22209817035628a907cacb7a54b033",
+    "ap/ap_apcli_inf.c": "73add46acd6928178f707d5b500aa24829c5ed3f",
+    "ap/ap_cfg.c": "17853ec17d577021ce876c5ec6d8909e27a7453b",
+    "ap/ap_connect.c": "0c7565b84fb202e9a71c1669b4d1ed219ad229eb",
+    "ap/ap_mbss.c": "92d3b01b7be6dd7bcdfe2bc8fbc74b6838ac3b9f",
+    "ap/ap_mbss_inf.c": "7c736a04eeeddace0bbb0c5c96198d0738f400a2",
+    "ap/ap_nps.c": "9bbda26feb09f5ad22a00ab4b4705e1087c6e4ef",
+    "ap/ap_wds.c": "e4dedddf254632b528b67f295b06635ec8b5f7b6",
+    "ap/ap_wds_inf.c": "78a2f2b7393d9726cc072c5ca8589e3862b81944",
+    "common/cmm_cfg.c": "cb3e9607326e473436862132b18de9679cc6c154",
+    "common/cmm_cmd.c": "c053649a0c8c12edf459300af022b64ff26d2fca",
+    "common/cmm_data_pci.c": "646beb40bc7acb8ee861190b717f8c9a465d0fae",
+    "common/cmm_mac_pci.c": "82db49fa1822a51268d76f23bce94d886f4d50d6",
+    "common/cmm_mac_sdio.c": "5915647d2a8052c56a7b57c03a5f3b06f6652932",
+    "common/rtmp_init.c": "a0d9eb2adbbb2ac13e8314806a5ded2f30793623",
+    "common/rtmp_init_inf.c": "232b6c3d68224e896aaf9364aad871b787bdc578",
+    "common/wsc.c": "3281fb30199c425e67916ae4796242b6618178ea",
+    "hw_ctrl/cmm_asic_mt.c": "a8c0c0ec59c7e51c88296111934597064cf36c4a",
+    "include/ap_mbss.h": "667b4728f1ade6f7030b2c23ef24cc413617ff3b",
+    "include/mac/mac.h": "0dd885ca5b1b08e84542e17e8418aa10177fee1e",
+    "include/mac/mac_mt/mt_mac.h": "30de2ef29743fda3c600e4e47448165ed24dc81e",
+    "include/mcu/andes_core.h": "ddd27a9cab7f03e22b74116e27bc8e442b573658",
+    "include/rt_os_net.h": "22cab07717a1742c286dab10fb56938fbd561348",
+    "include/rtmp.h": "f773e57abba168b39893c8e0c78952e2d198c9e5",
+    "include/rtmp_cmd.h": "adfd19a69fac4fa3b08ca113f7a88b9016e25a67",
+    "mac/mt_mac.c": "8aa1a977e043cb6060990dcc89a5ebe605af0918",
+    "mcu/andes_core.c": "6b430c071742b839a77403bf76d5a4f592abc138",
+    "mcu/andes_mt.c": "cd3b3c371a505f510f1081ba6be0585c351f492e",
+    "os/linux/pci_main_dev.c": "eb1118e720e49741261314226a5cc9f9f6ede150",
+    "os/linux/rt_linux.c": "db61215d188d82a50f3468747fff871318fc4b72",
+    "os/linux/rt_main_dev.c": "72c71a23ce3f64ded365482b631aacc8e7115ffe",
+    "os/linux/rt_profile.c": "ac18439ec4611ed89543b957517a81b2ff2b5707",
+    "os/linux/rt_rbus_pci_drv.c": "07f1171dc14081af70ba6a1537bf896a9b141be3",
+    "tx_rx/txs.c": "ece66c6ef0263a07015783f620fb968d065fc36f",
+    "tx_rx/wdev.c": "c3967f59f470bdaf3afdab8f3eec8fefba12aea7"
+  },
+  "files": [
+    {
+      "path": "ap/ap.c",
+      "sha256": "bc4dd4114772358c20f4aab76d11d2a7c1bf3ae436358ee559f394ef2af7c519"
+    },
+    {
+      "path": "ap/ap_apcli.c",
+      "sha256": "5252fe0ac7302487d5bd72e2004afbf2c05f4c94263d6563ef08f03ee209ae7c"
+    },
+    {
+      "path": "ap/ap_apcli_inf.c",
+      "sha256": "9c32f40c1d936657299b9130f7ce34922aea1b5e9a14a8c7d4406ff9efe2bb55"
+    },
+    {
+      "path": "ap/ap_cfg.c",
+      "sha256": "f10d8e95bba9d4a0910b772a116b170eb405120c3877f11a9de0195ec8df1ab1"
+    },
+    {
+      "path": "ap/ap_connect.c",
+      "sha256": "edf17d9c20d6b154e4f8b19bd65aeb202d58aef9b56a0a4a3f29c6d08d506160"
+    },
+    {
+      "path": "ap/ap_mbss.c",
+      "sha256": "504226ff0057b599a0f5664730104a787ca4c5780eedf6e4ac1d597097aaa752"
+    },
+    {
+      "path": "ap/ap_mbss_inf.c",
+      "sha256": "9bbdf0ba5327acd195562b22d5c3fda04c2a1564215e6a1c3880df436f748877"
+    },
+    {
+      "path": "ap/ap_nps.c",
+      "sha256": "13eb130fb13c35c1fce5ede991125dcca4dfc8e9ebe663ea752bcbb60794b2dc"
+    },
+    {
+      "path": "ap/ap_wds.c",
+      "sha256": "302dc092c42aa48829ada8d8674466087ec6e9f0352c4d939afd363d9053eb93"
+    },
+    {
+      "path": "ap/ap_wds_inf.c",
+      "sha256": "25a71561acaa805c1de74a908a181727c6cb586943f3b4963d8a06ab8744427f"
+    },
+    {
+      "path": "common/cmm_cfg.c",
+      "sha256": "ab9e85630cd337067b5538d76c5e8c0b8c7647a099bebeb1c7f1f71734cfdb44"
+    },
+    {
+      "path": "common/cmm_cmd.c",
+      "sha256": "72909114adfad77df4bd038c0ef00d480ae3e5de9b8c0cfafbbda4d73bd5d36d"
+    },
+    {
+      "path": "common/cmm_data_pci.c",
+      "sha256": "8c3afa5117e0d4e584a7766b58c1cf7a8d162c4f05582329b8d80e68b64512aa"
+    },
+    {
+      "path": "common/cmm_mac_pci.c",
+      "sha256": "359512b7b2784817f9b8e521e736f7925cd66e16a155ddeed1e22e64d8db7f75"
+    },
+    {
+      "path": "common/cmm_mac_sdio.c",
+      "sha256": "b1d659319942570e597607966ace232133214149c4d84179aeaacdb1adc92e0c"
+    },
+    {
+      "path": "common/rtmp_init.c",
+      "sha256": "838bdacfd6d1b4753d5b5dfcc311fe25aabfef1f060d9824d3d3c963e47f9d0e"
+    },
+    {
+      "path": "common/rtmp_init_inf.c",
+      "sha256": "f6e24eb5a92b7b7b07bf74a7000f022d863482fd1e2867a02334516ce1265f7c"
+    },
+    {
+      "path": "common/wsc.c",
+      "sha256": "41cf1cebb2961509783dc7b1279a60d042d1f95ffc315548a094a9f9bfeb6f4c"
+    },
+    {
+      "path": "hw_ctrl/cmm_asic_mt.c",
+      "sha256": "8930c56b4877aebffbb57a20e7e4e0c4835d17983e5a8ea801ec8b8fb5dbc964"
+    },
+    {
+      "path": "include/all-child-teardown.h",
+      "sha256": "5fd280612cc7d8edcc5c334dcfc5aa56eb0448b624b5c4cda88ebe9438b70f5c"
+    },
+    {
+      "path": "include/ap_mbss.h",
+      "sha256": "e8b45513884db49b3f4ecdbac26e75fd3151718e5ccb68cbde208ab607b3bd50"
+    },
+    {
+      "path": "include/aux-close-claim.h",
+      "sha256": "96d56ef124b6ca486e87a8f637a6c1d56f1ecd3d7e6e21736c35888108b602d7"
+    },
+    {
+      "path": "include/interface-reference.h",
+      "sha256": "8b9b9330a4c4c56481aee5f23f55108cc1fd20c03bf03eabee8af033d2c55e7e"
+    },
+    {
+      "path": "include/interface-registry.h",
+      "sha256": "ed1595c6f77955a44ef9e5ffe4eea8f2461e9456da5ea7c52414b1fbf7e4362f"
+    },
+    {
+      "path": "include/mac/mac.h",
+      "sha256": "0a4c2b0c1f680417b666e7776bb20a078e9cd888958b415a09fe942f654f7bc9"
+    },
+    {
+      "path": "include/mac/mac_mt/mt_mac.h",
+      "sha256": "fbd92533367d0f77d2a41184861e83bda5699899b56c98ed9cc2f64fbde56203"
+    },
+    {
+      "path": "include/mbss-retirement.h",
+      "sha256": "22e92b791b38ffbcdc9c0c8c2f93cb94de129fbf08825f312ce96f6d08325520"
+    },
+    {
+      "path": "include/mcu/andes_core.h",
+      "sha256": "f351d68aa30bd8e782cf4f6e4a2a0b9a8fbd9c283e92a464acfe29b15a5e100b"
+    },
+    {
+      "path": "include/mt7603-main-observe.h",
+      "sha256": "14cb440b4c5c37f682a8eeda47560b4b7f4b873bc9f528ecdc74f120c6561370"
+    },
+    {
+      "path": "include/queued-cleanup.h",
+      "sha256": "d8007682117103193b10aba8656719b5af1c1063eee66de0fb83a705f1200c95"
+    },
+    {
+      "path": "include/queued-result.h",
+      "sha256": "9edb9b1b73ea795b5c96feb61b00322af0d68c104fb22181bc3d2637f96757e6"
+    },
+    {
+      "path": "include/queued-work.h",
+      "sha256": "55349a3ced3ce72b434ec3a4a6d81f8bde684afec83a88548b111af000f8f188"
+    },
+    {
+      "path": "include/radio-transition.h",
+      "sha256": "daceea4cba598351e8ce61814f4c528478544da6112f00ae84e419441eda486e"
+    },
+    {
+      "path": "include/rt_os_net.h",
+      "sha256": "b8dd8271f1690dc9764af0a89c13d02c653147889e1a521b4ff2ccfa105eeac4"
+    },
+    {
+      "path": "include/rtmp.h",
+      "sha256": "a094ff71d4f9af3e65c25ef2417d8d7b484136ae38fca50f575923d3f9e5f995"
+    },
+    {
+      "path": "include/rtmp_cmd.h",
+      "sha256": "dd0b3954778d33fe1addd20796f8d036fdae11da8849338f114e59a308c52a54"
+    },
+    {
+      "path": "include/virtual-open-claim.h",
+      "sha256": "7f15fc40322cf1beaf650be613c9799d8af88dda119bbd7c45966c3784911d6e"
+    },
+    {
+      "path": "include/wr-iot-mbss-close-checked.inc",
+      "sha256": "c269ee751fcce2ff095bfa5374d33b97fc67d527c241e31d39fac53ba116e65b"
+    },
+    {
+      "path": "include/wr-iot-mbss-open-admission.inc",
+      "sha256": "642e7a09ea177f5232035e99d115710c35216c188fb061870f5c286661d996c8"
+    },
+    {
+      "path": "include/wr-iot-netdev-registration.inc",
+      "sha256": "da9013ad5d5ca54d11e9b18037ba7924d4f81f6ae1bb5c9f542a24515aa9d3c4"
+    },
+    {
+      "path": "include/wr-iot-physical-close-result.inc",
+      "sha256": "1f874e9a8ad544681138f367e14176a756dddb1ba5602dc25e82764f518dc2bd"
+    },
+    {
+      "path": "include/wr-iot-radio-ticket-wait.inc",
+      "sha256": "6505571225c9028837f130506cba41882cc7f49604b90c442b26c1921f2df7fa"
+    },
+    {
+      "path": "include/wr-iot-reset-admission.inc",
+      "sha256": "8ddb51b3e97d376b7827a820a4af3536768785f74f4243ad18180fa34be64f3f"
+    },
+    {
+      "path": "include/wr-iot-virtual-down.inc",
+      "sha256": "eac9e4163fc3a4d1e802d47954679a3756401b3044682e1c53a06a4bc89241e6"
+    },
+    {
+      "path": "mac/mt_mac.c",
+      "sha256": "b9c0fc557ad941d032d00832e71eacceee8cf103d69b7b8a63dba5862fc5dc95"
+    },
+    {
+      "path": "mcu/andes_core.c",
+      "sha256": "1d9d162dbe8e9ca782979977dd0d89f993d5126348d7b36600f20c45b87d65ff"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "sha256": "e3cda2aa18f041cda25e547782dd119bfe49beb4b684955e2347bc386b9a3b7a"
+    },
+    {
+      "path": "mcu/wr-iot-radio-result.h",
+      "sha256": "9c64b571caeb9c2a5f776e06f49a4148269bae9dadb91daebcfbdee33577b299"
+    },
+    {
+      "path": "os/linux/pci_main_dev.c",
+      "sha256": "3fbf99c8dc5f773875d521ffdbd78dfb5e9909beeed0b512ce13d96230646436"
+    },
+    {
+      "path": "os/linux/rt_linux.c",
+      "sha256": "675d9800e462a161d28cc07bc36356a8f6a34ab5f051d8987245fa2b33bb2974"
+    },
+    {
+      "path": "os/linux/rt_main_dev.c",
+      "sha256": "c63baa51307dc746ba39825f12b3a12504fc1a0ab195dcbab1688e0ba117114f"
+    },
+    {
+      "path": "os/linux/rt_profile.c",
+      "sha256": "6eacbbe611ab3bad5e49a89a4eb0594214646ea0e67e645250a413f3893c9d4b"
+    },
+    {
+      "path": "os/linux/rt_rbus_pci_drv.c",
+      "sha256": "b7770f96510a30eb229aee66866f006b1e790d5a4e290afa469b85a1b05baab3"
+    },
+    {
+      "path": "tx_rx/txs.c",
+      "sha256": "2e4d65df5d1ccba987b785ea33bad3c82c8fd8854d72b2cf48024c4e78fce0a8"
+    },
+    {
+      "path": "tx_rx/wdev.c",
+      "sha256": "d007cba5eb770f51bd4c83cde4e2bb89d0328af5ca01286aa162c22f01bebb16"
+    }
+  ],
+  "target_compiled": false,
+  "production_installed": false,
+  "runtime_verified": false
+}

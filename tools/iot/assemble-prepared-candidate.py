@@ -91,8 +91,10 @@ def assemble(base_root, prepared_root, candidate_root, manifest, output):
         if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != item['sha256']:
             raise ValueError(f'Candidate SHA-256 mismatch: {name}')
         overlays[name] = path
-    # The reviewed TIM admission overlay adds ap/ap_nps.c to both inventories.
-    if len(overlays) != 46 or len(originals) != 32 or not set(originals).issubset(overlays):
+    # The original TIM admission probe uses 46/32. The later reviewed v39
+    # lifecycle overlay uses 55/36. Reject any other shape pending review.
+    if (len(overlays), len(originals)) not in ((46, 32), (55, 36)) or \
+            not set(originals).issubset(overlays):
         raise ValueError('Candidate overlay shape changed; review required')
     for name, expected in originals.items():
         path = base_root / name

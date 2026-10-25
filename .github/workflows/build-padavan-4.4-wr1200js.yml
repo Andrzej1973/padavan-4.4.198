@@ -8,6 +8,10 @@ on:
         description: Compile isolated experimental candidates after firmware verification
         type: boolean
         default: false
+      iot_candidate_variant:
+        description: Isolated MT7603 source overlay selected for candidate compilation
+        type: string
+        default: legacy
 
 permissions:
   contents: read
@@ -1557,7 +1561,16 @@ jobs:
             trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3 \
             | tar -xf - -C "$pinned"
           pristine="$pinned/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3"
-          python3 tools/iot/prepare-radio-queue-candidate.py "$pristine" "$candidate"
+          if [ "${{ inputs.iot_candidate_variant }}" = v39 ]; then
+            mkdir -p "$candidate"
+            cp -a tools/iot/candidates/aux-remove-close-v39 "$candidate/driver"
+            cp tools/iot/candidates/aux-remove-close-v39/manifest.json "$candidate/manifest.json"
+          elif [ "${{ inputs.iot_candidate_variant }}" = legacy ]; then
+            python3 tools/iot/prepare-radio-queue-candidate.py "$pristine" "$candidate"
+          else
+            echo 'Unsupported IoT candidate variant' >&2
+            exit 1
+          fi
           python3 tools/iot/check-overlay-conflicts.py \
             "$candidate/manifest.json" "$candidate/driver" "$driver" \
             --output "$results/prepared-overlap.json" \
