@@ -19,7 +19,7 @@ const iconSvgs = {
 function createServiceTile(service) {
   const tile = document.createElement("div");
   tile.className = "service-tile";
-  tile.setAttribute("aria-label", `${service.name}: плейсхолдер макета, роботу не підтверджено`);
+  tile.setAttribute("aria-label", `${service.name}: доступно у вибраній збірці, runtime не підтверджено`);
   const icon = document.createElement("span");
   icon.className = "service-icon";
   icon.setAttribute("aria-hidden", "true");

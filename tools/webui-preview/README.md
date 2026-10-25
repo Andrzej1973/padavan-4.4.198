@@ -40,7 +40,7 @@ Alternatively, run `py -3 server.py` from this folder and press `Ctrl+C` to stop
 ## Scope and evidence
 
 - The durable design goal and first-stage boundaries are recorded in `docs/WEBUI-MODERN-HOME-SCOPE.md`.
-- `public/index.html`, `public/styles.css`, and `public/app.js` contain the sole Modern screen: the homepage. `data/dashboard.json` contains separate, visibly marked mock data and a configurable list of unconfirmed service-tile placeholders.
+- `public/index.html`, `public/styles.css`, and `public/app.js` contain the sole Modern screen: the homepage. `data/dashboard.json` contains separately marked mock metrics and fourteen tiles that match services selected in the WR1200JS build. `runtimeVerified:false` prevents tile availability from being presented as device success.
 - The screenshot provided for this task is the visual reference. Its values are treated as mock values, not measured WR1200JS capability or live device state.
 - No IoT card or IoT clients are shown in this early preview. Add the IoT card only when IoT is implemented and verified; then finalize the mockup before creating the title page.
 - The Classic source inventory is based on `docs/WEBUI-COVERAGE-INVENTORY.json` (base commit `c25283e915a2a00a763774dd255b14aff997285e`). It lists 147 WebUI source/resource files. Main menu target pages include `index.asp`, `Advanced_WAN_Content.asp`, `Advanced_Wireless2g_Content.asp`, `Advanced_Wireless_Content.asp`, `Advanced_APLAN_Content.asp`, `Advanced_Firewall_Content.asp`, `Advanced_SQM.asp`, `Advanced_System_Content.asp`, `Advanced_Services_Content.asp`, and `Main_LogStatus_Content.asp`.

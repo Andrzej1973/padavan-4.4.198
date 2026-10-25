@@ -50,3 +50,11 @@ full validation and list operations are not implemented. No new support claim
 is made for inherited controls. See `docs/WEBUI-MODERN-WIFI.md`.
 
 Earlier checkpoint follows.
+
+## Service-tile update — 2026-10-25
+
+The twelve generic placeholders were replaced with fourteen services selected in
+the WR1200JS profile: Stubby, DoH, WireGuard, AmneziaWG, ZeroTier,
+Shadowsocks, Privoxy, WPAD/PAC, HTTP/HTTPS, SSH, iPerf3, Cron, KMS and Zapret2.
+Each tile has `availableInBuild:true` and `runtimeVerified:false`; the preview
+therefore describes build availability only, not working device state.

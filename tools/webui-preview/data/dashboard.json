@@ -40,18 +40,20 @@
     "freeTotal": "118 ГБ / 120 ГБ (макет)"
   },
   "serviceTiles": [
-    { "name": "VPN", "detail": "OpenVPN / WireGuard", "icon": "shield", "confirmed": false },
-    { "name": "DHCP", "detail": "Сервер / Клієнт", "icon": "server", "confirmed": false },
-    { "name": "DNS", "detail": "DNSMasq / DoH", "icon": "globe", "confirmed": false },
-    { "name": "FTP", "detail": "FTP Server", "icon": "folder", "confirmed": false },
-    { "name": "Cloud", "detail": "AiCloud", "icon": "cloud", "confirmed": false },
-    { "name": "UPnP", "detail": "UPnP IGD", "icon": "share", "confirmed": false },
-    { "name": "Принтер", "detail": "USB Printer", "icon": "printer", "confirmed": false },
-    { "name": "SMB", "detail": "Network Share", "icon": "file", "confirmed": false },
-    { "name": "DLNA", "detail": "Медіасервер", "icon": "play", "confirmed": false },
-    { "name": "AdGuard", "detail": "Блокування реклами", "icon": "check", "confirmed": false },
-    { "name": "Docker", "detail": "Контейнери", "icon": "cube", "confirmed": false },
-    { "name": "Tailscale", "detail": "Mesh VPN", "icon": "gear", "confirmed": false }
+    { "name": "Stubby", "detail": "DNS-over-TLS", "icon": "check", "availableInBuild": true, "runtimeVerified": false },
+    { "name": "DoH", "detail": "DNS-over-HTTPS", "icon": "globe", "availableInBuild": true, "runtimeVerified": false },
+    { "name": "WireGuard", "detail": "VPN-клієнт / сервер", "icon": "shield", "availableInBuild": true, "runtimeVerified": false },
+    { "name": "AmneziaWG", "detail": "VPN-клієнт", "icon": "shield", "availableInBuild": true, "runtimeVerified": false },
+    { "name": "ZeroTier", "detail": "VPN SD-WAN", "icon": "gear", "availableInBuild": true, "runtimeVerified": false },
+    { "name": "Shadowsocks", "detail": "Проксі / VPN", "icon": "share", "availableInBuild": true, "runtimeVerified": false },
+    { "name": "Privoxy", "detail": "Веб-фільтр", "icon": "file", "availableInBuild": true, "runtimeVerified": false },
+    { "name": "WPAD / PAC", "detail": "Автонастроювання проксі", "icon": "server", "availableInBuild": true, "runtimeVerified": false },
+    { "name": "HTTP / HTTPS", "detail": "Веб-інтерфейс", "icon": "globe", "availableInBuild": true, "runtimeVerified": false },
+    { "name": "SSH", "detail": "Віддалений доступ", "icon": "cube", "availableInBuild": true, "runtimeVerified": false },
+    { "name": "iPerf3", "detail": "Тест швидкості LAN", "icon": "gear", "availableInBuild": true, "runtimeVerified": false },
+    { "name": "Cron", "detail": "Планувальник", "icon": "server", "availableInBuild": true, "runtimeVerified": false },
+    { "name": "KMS", "detail": "Активація KMS", "icon": "check", "availableInBuild": true, "runtimeVerified": false },
+    { "name": "Zapret2", "detail": "NFQUEUE / nfqws2", "icon": "shield", "availableInBuild": true, "runtimeVerified": false }
   ],
   "classicPages": [
     { "label": "Інтернет", "file": "Advanced_WAN_Content.asp" },

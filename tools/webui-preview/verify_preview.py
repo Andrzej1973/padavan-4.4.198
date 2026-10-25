@@ -76,8 +76,9 @@ def main() -> None:
     data = json.loads(data_bytes)
     assert_equal(data.get("demo"), True, "DEMO marker")
     assert_equal(len(data.get("wifi", [])), 2, "Wi-Fi card count (IoT deferred)")
-    assert_equal(len(data.get("serviceTiles", [])), 12, "configurable placeholder tile count")
-    assert_equal(all(not tile.get("confirmed", True) for tile in data["serviceTiles"]), True, "service placeholders are explicitly unconfirmed")
+    assert_equal(len(data.get("serviceTiles", [])), 14, "selected build service tile count")
+    assert_equal(all(tile.get("availableInBuild") is True for tile in data["serviceTiles"]), True, "service tiles match selected build capabilities")
+    assert_equal(all(tile.get("runtimeVerified") is False for tile in data["serviceTiles"]), True, "service tile runtime remains explicitly unverified")
     for method in ("POST", "PUT", "PATCH", "DELETE", "OPTIONS"):
         request = urllib.request.Request(BASE + "/", method=method, data=b"x" if method in ("POST", "PUT", "PATCH") else None)
         try:
@@ -88,7 +89,7 @@ def main() -> None:
         assert_equal(code, 405, f"server-side block for {method}")
     status, _ = get("/not-a-real-page.asp")
     assert_equal(status, 404, "unknown page")
-    print("PASS: health, homepage, Ukrainian text, local assets, Wi-Fi demo schema, placeholders, no live IoT card, and one GitHub releases link.")
+    print("PASS: health, homepage, Ukrainian text, local assets, Wi-Fi demo schema, selected-service tiles, no live IoT card, and one GitHub releases link.")
     print("PASS: POST, PUT, PATCH, DELETE and OPTIONS are rejected by the server (405).")
     print("PASS: unknown pages return 404; no fake Classic pages are served.")
 
