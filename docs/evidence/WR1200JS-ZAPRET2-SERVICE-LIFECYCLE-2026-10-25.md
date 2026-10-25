@@ -59,6 +59,7 @@ Covered cases:
 - refusal of an empty strategy file or unavailable WAN;
 - refusal when a required Lua support script is absent;
 - delivery of all three `--lua-init` arguments to `nfqws2`;
+- refusal of a strategy file larger than 8192 bytes;
 - presence of `--queue-bypass` and absence of a `LOG` rule.
 
 `python tools/zapret2/verify-source-base.py` still passes for 253 files and
