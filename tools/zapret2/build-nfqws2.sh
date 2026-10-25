@@ -39,11 +39,19 @@ printf '#include <stdint.h>\n#include <sys/types.h>\n#include <linux/capability.
 INC="-I$BUILD/compat -I$ZLIB_DIR -I$BUILD/libmnl-1.0.5/include -I$BUILD/libnfnetlink-1.0.2/include -I$BUILD/libnetfilter_queue-1.0.5/include"
 mkdir -p "$BUILD/obj"
 
-for f in "$BUILD"/libmnl-1.0.5/src/*.c "$BUILD"/libnfnetlink-1.0.2/src/*.c "$BUILD"/libnetfilter_queue-1.0.5/src/*.c; do
-    obj="$BUILD/obj/$(basename "$f" .c).o"
-    # shellcheck disable=SC2086
-    $CC ${CFLAGS:-} -Os -fno-strict-aliasing $INC -c "$f" -o "$obj"
-done
+compile_pkg() {
+    prefix=$1
+    dir=$2
+    for f in "$dir"/*.c; do
+        obj="$BUILD/obj/${prefix}_$(basename "$f" .c).o"
+        # shellcheck disable=SC2086
+        $CC ${CFLAGS:-} -Os -fno-strict-aliasing $INC -c "$f" -o "$obj"
+    done
+}
+
+compile_pkg mnl "$BUILD/libmnl-1.0.5/src"
+compile_pkg nfnl "$BUILD/libnfnetlink-1.0.2/src"
+compile_pkg nfq "$BUILD/libnetfilter_queue-1.0.5/src"
 
 for f in "$ZLIB_DIR"/*.c; do
     obj="$BUILD/obj/zlib_$(basename "$f" .c).o"
