@@ -61,3 +61,19 @@ The old `~0.3MB` config comment is only an estimate. Record:
 - runtime RSS after start.
 
 Do not claim a size until the build artifact is measured.
+
+## Measured candidate — 2026-10-25
+
+Standalone candidate workflow (`zapret2-candidate.yml`) built the binary from
+the pinned sources for the Padavan MIPS toolchain:
+
+- `nfqws2-candidate`: **665 004 bytes**, 32-bit LSB MIPS ELF;
+- dynamic `NEEDED`: **`libc.so.0` only** — libmnl, libnfnetlink,
+  libnetfilter_queue, zlib 1.3.1 and Lua 5.1 are linked statically;
+- build gate: `tools/zapret2/check-candidate.py` rejects a non-MIPS ELF or any
+  unexpected shared-library dependency.
+
+The earlier `~0.3MB` selector comment is therefore an underestimate for the
+uncompressed binary; the compressed TRX delta still has to be measured from a
+full image. The service map now classifies `CONFIG_FIRMWARE_INCLUDE_ZAPRET2`
+as a service with entrypoint `usr/sbin/nfqws2` (44 selectors, 13 maps).
