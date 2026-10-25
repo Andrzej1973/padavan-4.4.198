@@ -41,6 +41,19 @@ one-minute heartbeat remains paused; never resume periodic chat wakeups to
 consume monitor reports. The GitHub monitor job runs on failed watched runs;
 successful watched runs may still show a skipped monitor workflow.
 
+For each new failure class, compare the monitor artifact with the original
+failed step and its diagnostic artifact. If the monitor misses the causal
+error, mislabels the run, repeats an already handled failure, or creates
+noise, improve the smallest relevant part of its parser, filtering or report
+and add a regression fixture based on that case. Record the run ID, evidence,
+change and verification in the handoff. If the report was already useful,
+record that and leave the code alone. Keep notifications failure-only and
+bounded; do not restore periodic Codex wakeups or let untrusted CI text
+trigger automatic source changes.
+When a new firmware or ABI workflow is added, check whether the monitor's
+watched workflow list must include it, and test that failure filtering still
+reports once per run attempt without waking Codex on success.
+
 Pushes in this repository trigger firmware and service runs automatically, so
 batch work instead of publishing every small edit:
 
