@@ -76,6 +76,8 @@ Browser and local checks:
 - visual inspection showed the four overview cards, system panel, fourteen
   service tiles and Ukrainian labels without horizontal overflow at the
   available desktop viewport.
+- a 390×844 viewport showed a single-column network overview and two-column
+  navigation without horizontal overflow; the temporary viewport was reset.
 
 The IoT card is marked “Не підтверджено” and says runtime is not accepted. This
 layout remains a local preview and does not prove production Modern integration.
