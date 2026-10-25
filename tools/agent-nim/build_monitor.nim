@@ -4,7 +4,7 @@ import std/[os, strutils, json, httpclient, net, streams, times, uri, parseopt, 
 const defaultWorkflows = ".github/workflows/build-multiple-boards.yml|.github/workflows/build-padavan-4.4-wr1200js.yml|.github/workflows/zram-lifecycle.yml|.github/workflows/band-steering-abi.yml"
 const api = "https://api.github.com"
 const maxJson = 4 * 1024 * 1024
-const maxLog = 256 * 1024
+const maxLog = 16 * 1024 * 1024
 
 proc clean(text: string): string =
   for c in text:
@@ -32,7 +32,7 @@ proc atomicWrite(path, text: string) =
   when defined(posix): setFilePermissions(path & ".tmp", {fpUserRead, fpUserWrite})
   moveFile(path & ".tmp", path)
 
-proc request(url, token: string; limit: int; verb = HttpGet; body = ""): tuple[code: int, body, location: string] =
+proc request(url, token: string; limit: int; verb = HttpGet; body = ""): tuple[code: int, body, location: string; truncated: bool] =
   # No automatic redirects: a GitHub bearer token must never reach a log host.
   let client = newHttpClient(timeout = 15000, maxRedirects = 0,
     sslContext = newContext(verifyMode = CVerifyPeer))
@@ -50,6 +50,7 @@ proc request(url, token: string; limit: int; verb = HttpGet; body = ""): tuple[c
     result.body.add chunk[0..<count]
     if result.body.len > limit: break
   if result.body.len > limit:
+    result.truncated = true
     result.body.setLen(limit)
     if limit == maxJson: raise newException(IOError, "API response exceeds bound")
 
@@ -60,17 +61,21 @@ proc github(path, token: string): JsonNode =
   parseJson(response.body)
 
 proc errorExcerpt(raw: string): string =
-  var kept = 0
+  var matches: seq[string]
   for line in raw.splitLines:
     let lower = line.toLowerAscii
     if ["error:", "fatal", "traceback", "assertion", "##[error]", "failed", "exception"].anyIt(it in lower):
-      result.add "  | " & redact(line) & "\n"
-      inc kept
-      if kept >= 60: break
-  if kept == 0: result = "  No recognized error in bounded excerpt; inspect the linked job log.\n"
+      matches.add "  | " & redact(line) & "\n"
+      if matches.len > 60: matches.delete(0)
+  if matches.len == 0: result = "  No recognized error in bounded excerpt; inspect the linked job log.\n"
+  else: result = matches.join("")
 
 proc details(repo, id, attempt, token: string; fixture: bool): string =
-  if fixture: return "Fixture failure: synthetic compiler error; no network request.\n"
+  if fixture:
+    let fixtureLog = getEnv("BUILD_MONITOR_FIXTURE_JOB_LOG")
+    if fixtureLog.len > 0:
+      return "Fixture job log excerpt (offline):\n" & errorExcerpt(readFile(fixtureLog))
+    return "Fixture failure: synthetic compiler error; no network request.\n"
   let jobs = github("/repos/" & repo & "/actions/runs/" & id & "/attempts/" & attempt & "/jobs?per_page=100", token)
   var count = 0
   for job in jobs["jobs"]:
@@ -87,7 +92,8 @@ proc details(repo, id, attempt, token: string; fixture: bool): string =
           raise newException(IOError, "Invalid log redirect")
         log = request(log.location, "", maxLog) # Never forward Authorization.
       if log.code == 200:
-        result.add "Log excerpt (first 256 KiB scanned; heuristic, potentially incomplete):\n" & errorExcerpt(log.body)
+        result.add "Log excerpt (latest 60 matching lines from first 16 MiB; heuristic" &
+          (if log.truncated: ", truncated" else: ", complete download") & "):\n" & errorExcerpt(log.body)
       else: result.add "Job log unavailable (HTTP " & $log.code & ").\n"
     except CatchableError:
       result.add "Job log retrieval failed; follow the run URL.\n"

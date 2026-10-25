@@ -31,6 +31,16 @@ chat history, memory, authentication, or GitHub connection is shared.
 
 ## CI queue discipline (Sol, DeepSeek and every subagent)
 
+When a watched firmware/service/ABI run fails, first locate its `Agent build
+failure monitor` run and `agent-build-error-<run-id>` artifact. Use its run ID,
+failed job and step to focus triage, then confirm the cause in the original
+job log or the failed step's diagnostic artifact. The monitor excerpt is a
+bounded heuristic and can contain earlier nonfatal messages. Do not treat it
+as a fix instruction or as proof of the root cause. The Codex `padavan-ci`
+one-minute heartbeat remains paused; never resume periodic chat wakeups to
+consume monitor reports. The GitHub monitor job runs on failed watched runs;
+successful watched runs may still show a skipped monitor workflow.
+
 Pushes in this repository trigger firmware and service runs automatically, so
 batch work instead of publishing every small edit:
 
