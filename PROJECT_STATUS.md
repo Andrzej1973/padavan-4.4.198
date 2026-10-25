@@ -1,3 +1,11 @@
+## Sol resumed execution — 2026-10-25
+
+Sol accepted the user's direct role transfer after DeepSeek handoff `6f459de`.
+The shared branch matched GitHub; 177 modified/untracked working-tree entries
+remain intact. Priority: complete IoT, then verify Zapret2 and Modern WebUI.
+Firmware run `40190118803` was in progress at acceptance, with no final image
+or on-device verification inferred.
+
 ## IoT deferred close completion receipt — 2026-10-25
 
 Fixed a host-model race: completion is recorded under the adapter lock before

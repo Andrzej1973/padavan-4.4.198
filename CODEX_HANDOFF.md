@@ -1,3 +1,11 @@
+## Sol accepted single-writer role — 2026-10-25
+
+Sol accepted the user's explicit transfer after DeepSeek's documentation-only
+handoff `6f459de`. Branch `codex/wr1200js-service-webui` matched GitHub at
+that commit; 177 working-tree entries remain preserved and unstaged for this
+role record. Finish IoT first, then review Zapret2 and Modern WebUI. Firmware
+run `40190118803` was still in progress; no image or router acceptance claimed.
+
 ## IoT deferred close completion receipt — 2026-10-25
 
 The host-only deferred WDS owner now snapshots checked completion under the
