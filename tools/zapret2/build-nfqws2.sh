@@ -20,6 +20,12 @@ for pkg in libmnl-1.0.5 libnfnetlink-1.0.2 libnetfilter_queue-1.0.5; do
     tar -xjf "$DEPS/$pkg.tar.bz2" -C "$BUILD"
 done
 
+# These headers normally come from autotools. Only HAVE_VISIBILITY_HIDDEN is
+# consulted, so an empty file is a valid build configuration for static use.
+for pkg in libmnl-1.0.5 libnetfilter_queue-1.0.5; do
+    : > "$BUILD/$pkg/src/config.h"
+done
+
 INC="-I$BUILD/libmnl-1.0.5/include -I$BUILD/libnfnetlink-1.0.2/include -I$BUILD/libnetfilter_queue-1.0.5/include"
 mkdir -p "$BUILD/obj"
 
