@@ -202,6 +202,17 @@ def main() -> None:
         replace_once(output, ref,
             "r->phase=WR_REF_IDLE;*retain_pin=0;\n }else if(virtual_up_succeeded",
             "r->phase=WR_REF_IDLE;r->open_unmutated=1;*retain_pin=0;\n }else if(virtual_up_succeeded")
+        # The checked-close executor is claimed under the adapter lock. The
+        # copied v39 header must carry its field before the v40 helper builds.
+        replace_once(output, ref,
+            "unsigned int published,removing,removal_stage,close_stage;\n unsigned int open_unmutated;",
+            "unsigned int published,removing,removal_stage,close_stage,close_running;\n unsigned int open_unmutated;")
+        replace_once(output, ref,
+            "r->close_stage=0;r->open_unmutated=0;r->published=0;",
+            "r->close_stage=0;r->close_running=0;r->open_unmutated=0;r->published=0;")
+        replace_once(output, ref,
+            "r->close_stage=0;r->open_unmutated=0;r->phase=WR_REF_RESERVED;return 1;",
+            "r->close_stage=0;r->close_running=0;r->open_unmutated=0;r->phase=WR_REF_RESERVED;return 1;")
         replace_once(output, "include/wr-iot-netdev-registration.inc",
             "record->phase!=WR_REF_IDLE||pAd->wr_iot_transition.active_tx)",
             "record->phase!=WR_REF_IDLE||pAd->wr_iot_transition.active_tx||\n"
