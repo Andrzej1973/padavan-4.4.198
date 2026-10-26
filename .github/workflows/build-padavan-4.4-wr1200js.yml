@@ -84,13 +84,18 @@ jobs:
       - name: Check QoS tc packaging selections before firmware compilation
         run: python3 tools/check-qos-packaging.py
 
+      - name: Select daily compiler cache key
+        id: cache_day
+        run: echo "day=$(date -u +%Y%m%d)" >> "$GITHUB_OUTPUT"
+
       - name: Restore compiler cache
         id: compiler_cache
         uses: actions/cache/restore@v6
         with:
           path: ${{ env.CCACHE_DIR }}
-          key: wr1200js-ccache-v1-${{ runner.os }}-uclibc-${{ github.run_id }}-${{ github.run_attempt }}
+          key: wr1200js-ccache-v2-${{ runner.os }}-uclibc-${{ steps.cache_day.outputs.day }}
           restore-keys: |
+            wr1200js-ccache-v2-${{ runner.os }}-uclibc-
             wr1200js-ccache-v1-${{ runner.os }}-uclibc-
 
       - name: Configure compiler cache
@@ -1092,7 +1097,7 @@ jobs:
           fi
 
       - name: Save compiler cache
-        if: success()
+        if: ${{ success() && steps.compiler_cache.outputs.cache-hit != 'true' }}
         uses: actions/cache/save@v6
         with:
           path: ${{ env.CCACHE_DIR }}
