@@ -44,6 +44,10 @@ static inline int wr_iot_mbss_close_record_current(PRTMP_ADAPTER ad,
         wr_iot_ref_matches(r,dev,generation,token)&&
         r->phase==WR_REF_CLOSING&&r->close_serial==ticket->serial&&
         r->close_epoch==ticket->epoch&&
+        !ticket->reset_kind&&
+        ((ticket->operation==WR_RADIO_CLOSE&&r->close_vendor_count==1U)||
+         (ticket->operation==WR_RADIO_BSS_CLOSE&&
+          r->close_vendor_count>1U))&&
         r->close_prior_phase==(int)ticket->prior_phase&&
         r->close_prior_ready==ticket->prior_ready&&
         ad->wr_iot_transition.busy==ticket->operation&&
@@ -89,6 +93,10 @@ INT wr_iot_mbss_close_checked(PNET_DEV dev,unsigned long generation,
                         dev,generation);
  if(!r||!r->published){RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);return -1;}
  if(!r->close_epoch||r->close_epoch!=ticket->epoch||
+    ticket->reset_kind||
+    !((ticket->operation==WR_RADIO_CLOSE&&r->close_vendor_count==1U)||
+      (ticket->operation==WR_RADIO_BSS_CLOSE&&
+       r->close_vendor_count>1U))||
     r->close_prior_phase!=(int)ticket->prior_phase||
     r->close_prior_ready!=ticket->prior_ready){
   RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);return -1;

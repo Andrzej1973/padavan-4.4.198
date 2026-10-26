@@ -65,6 +65,12 @@ int main(void){
   bad=t;bad.prior_phase=WR_RADIO_DOWN;
   assert(wr_iot_mbss_close_checked(&dev,1,&bad)==-1&&
          !queue_stops&&!close_calls&&!down_calls);
+  bad=t;bad.operation=WR_RADIO_CLOSE;
+  assert(wr_iot_mbss_close_checked(&dev,1,&bad)==-1&&
+         !queue_stops&&!close_calls&&!down_calls);
+  bad=t;bad.reset_kind=WR_RADIO_RESET_PDMA;
+  assert(wr_iot_mbss_close_checked(&dev,1,&bad)==-1&&
+         !queue_stops&&!close_calls&&!down_calls);
 #endif
   assert(wr_iot_mbss_close_checked(&dev,1,&t)==-1&&refs==1&&r->phase==WR_REF_CLOSING&&!held);
 #ifdef MT_MAC

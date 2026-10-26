@@ -42,6 +42,9 @@ int main(void){
         WR_MBSS_RECOVERY_BEGIN_CLOSE);
  assert(wr_iot_radio_begin_stop(&radio,2,&ticket));
  record_ticket(&refs[1],&ticket,2);
+ refs[1].close_vendor_count=1;
+ assert(!wr_iot_mbss_recovery_bind_close(&owner,&refs[1],&radio,&ticket));
+ refs[1].close_vendor_count=2;
  bad=ticket;bad.serial++;
  assert(!wr_iot_mbss_recovery_bind_close(&owner,&refs[1],&radio,&bad));
  bad=ticket;bad.epoch++;
@@ -80,6 +83,10 @@ int main(void){
  assert(wr_iot_radio_begin_stop(&radio,2,&ticket));
  record_ticket(&refs[1],&ticket,2);
  refs[1].close_serial=ticket.serial;
+ refs[1].close_vendor_count=1;
+ assert(!wr_iot_mbss_recovery_queue(&owner,&refs[1],&radio,
+   WR_MBSS_RECOVERY_CLOSE_INCOMPLETE,&ticket,1,1));
+ refs[1].close_vendor_count=2;
  bad=ticket;bad.epoch++;
  assert(!wr_iot_mbss_recovery_queue(&owner,&refs[1],&radio,
    WR_MBSS_RECOVERY_CLOSE_INCOMPLETE,&bad,1,1));
@@ -87,6 +94,9 @@ int main(void){
  assert(!wr_iot_mbss_recovery_queue(&owner,&refs[1],&radio,
    WR_MBSS_RECOVERY_CLOSE_INCOMPLETE,&bad,1,1));
  bad=ticket;bad.operation=WR_RADIO_AUX_CLOSE;
+ assert(!wr_iot_mbss_recovery_queue(&owner,&refs[1],&radio,
+   WR_MBSS_RECOVERY_CLOSE_INCOMPLETE,&bad,1,1));
+ bad=ticket;bad.reset_kind=WR_RADIO_RESET_PDMA;
  assert(!wr_iot_mbss_recovery_queue(&owner,&refs[1],&radio,
    WR_MBSS_RECOVERY_CLOSE_INCOMPLETE,&bad,1,1));
  assert(!wr_iot_mbss_recovery_queue(&owner,&refs[1],&radio,

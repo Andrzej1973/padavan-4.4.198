@@ -45,7 +45,12 @@ static inline int wr_iot_mbss_recovery_ticket_current(
 static inline int wr_iot_mbss_recovery_ticket_recorded(
  const struct wr_iot_interface_ref *record,
  const struct wr_iot_radio_ticket *ticket){
- return record&&ticket&&record->close_epoch&&record->close_vendor_count&&
+ return record&&ticket&&!ticket->reset_kind&&
+  record->close_epoch&&record->close_vendor_count&&
+  ((ticket->operation==WR_RADIO_CLOSE&&
+    record->close_vendor_count==1U)||
+   (ticket->operation==WR_RADIO_BSS_CLOSE&&
+    record->close_vendor_count>1U))&&
   record->close_epoch==ticket->epoch&&
   record->close_prior_phase==(int)ticket->prior_phase&&
   record->close_prior_ready==ticket->prior_ready;
