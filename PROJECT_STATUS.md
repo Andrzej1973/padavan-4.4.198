@@ -1,5 +1,22 @@
 # Current project status — 2026-10-25 (updated)
 
+## 2026-10-26 IoT v41 isolated stop binding
+
+- Firmware #623 (`40391518751`) completed successfully on `f1960a8`; the
+  Band Steering ABI run `40391518761` also passed. #623 is an ordinary image
+  build and did not compile the new v41 candidate.
+- Local commits `a3f57e4`, `b7b0f65` and `99b670b` record the v40 release
+  barrier, stage a checked MBSS `ndo_stop` binding in an isolated copy, and
+  add `v41` to optional IoT CI. A fresh v40 source tree generated from tracked
+  v39 produced a v41 copy with 58 files verified byte-for-byte except for the
+  one callback edit. Python syntax and workflow YAML parsing passed.
+- The v41 manifest explicitly leaves recovery owner, PCI release gate,
+  target compilation, production installation and runtime verification false.
+  It must not enter the firmware image. After these commits are published and
+  the resulting ordinary build completes, run one optional IoT-only v41 target
+  compile on the exact published SHA. Then continue retained-close recovery
+  and PCI adapter-lifetime binding.
+
 ## 2026-10-26 CI after IoT-only workflow repair
 
 - Optional #622 (`40387415111`) succeeded on published `b2ec889`, including

@@ -1,5 +1,18 @@
 # Current handoff — 2026-10-25 (updated)
 
+## IoT v41 next handoff — 2026-10-26
+
+Sol remains the single writer. Firmware #623 (`40391518751`) and ABI
+`40391518761` passed on `f1960a8`. The next local commits `a3f57e4`,
+`b7b0f65`, `99b670b` add only an isolated checked MBSS stop binding and its
+optional CI selector. The local generator verified a fresh 58-file v40 source
+copy and changed only `ap/ap_mbss_inf.c`; YAML and Python syntax passed.
+Recovery after failed `ndo_stop`, child quiescence and PCI release remain
+unbound. The v41 candidate is not in a production image and has no MIPS or
+router verification yet. After publication, reuse the automatically triggered
+ordinary CI; once it finishes, dispatch one optional IoT-only v41 compile on
+that SHA. Preserve all preexisting modified and untracked files.
+
 ## CI after IoT-only repair — 2026-10-26
 
 Optional #622 (`40387415111`) succeeded on `b2ec889`. Isolated v40
