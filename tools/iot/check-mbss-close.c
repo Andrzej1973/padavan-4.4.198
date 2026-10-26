@@ -13,7 +13,10 @@ typedef struct adapter {int wr_iot_transition_lock;struct wr_iot_radio_transitio
 typedef struct device {PRTMP_ADAPTER ad;} *PNET_DEV;
 static int held,refs,cr_result,close_result,down_result,cr_calls,close_calls,queue_stops,hnat_calls,down_calls,reuse_on_close,invalidate_epoch_on_down,invalidate_token_on_down,inflate_count_on_down;
 #ifdef MT_MAC
-static int txs_outstanding,dma_outstanding;
+static int txs_outstanding;
+#ifdef RTMP_PCI_SUPPORT
+static int dma_outstanding;
+#endif
 #define MAX_MBSSID_NUM(ad) (2)
 static int RT28xx_MBSS_IdxGet(PRTMP_ADAPTER ad,PNET_DEV dev){assert(ad&&dev&&!held);return 1;}
 static int WrBeaconTxSOutstanding(PRTMP_ADAPTER ad,UINT32 bss){assert(ad&&bss==1&&!held);return txs_outstanding;}

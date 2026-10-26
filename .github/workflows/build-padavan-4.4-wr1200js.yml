@@ -1608,6 +1608,11 @@ jobs:
               tools/iot/check-mbss-close.c -o "$RUNNER_TEMP/wr-iot-mbss-close-admission"
             "$RUNNER_TEMP/wr-iot-mbss-close-admission"
             gcc -std=c11 -Wall -Wextra -Werror -DWR_IOT_V40=1 \
+              -DMT_MAC=1 \
+              -I "$candidate/driver/include" -I tools/iot \
+              tools/iot/check-mbss-close.c -o "$RUNNER_TEMP/wr-iot-mbss-close-mt"
+            "$RUNNER_TEMP/wr-iot-mbss-close-mt"
+            gcc -std=c11 -Wall -Wextra -Werror -DWR_IOT_V40=1 \
               -DMT_MAC=1 -DRTMP_PCI_SUPPORT=1 \
               -I "$candidate/driver/include" -I tools/iot \
               tools/iot/check-mbss-close.c -o "$RUNNER_TEMP/wr-iot-mbss-close-mt-pci"
