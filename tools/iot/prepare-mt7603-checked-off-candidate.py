@@ -180,6 +180,33 @@ def main() -> None:
         # The copied v39 manifest cannot describe modified v40 bytes.
         (output / "manifest.json").unlink()
         here = Path(__file__).resolve().parent
+        # v39 is a pinned source snapshot. Apply the reviewed idle-reference
+        # provenance gate explicitly; changing the local helper alone would
+        # leave the target-compiled v40 copy with the older removal check.
+        ref = "include/interface-reference.h"
+        replace_once(output, ref,
+            " unsigned int published,removing,removal_stage,close_stage;",
+            " unsigned int published,removing,removal_stage,close_stage;\n unsigned int open_unmutated;")
+        replace_once(output, ref,
+            "r->close_stage=0;r->published=0;",
+            "r->close_stage=0;r->open_unmutated=0;r->published=0;")
+        replace_once(output, ref,
+            "r->close_stage=0;r->phase=WR_REF_RESERVED;return 1;",
+            "r->close_stage=0;r->open_unmutated=0;r->phase=WR_REF_RESERVED;return 1;")
+        replace_once(output, ref,
+            "r->phase=acquired?WR_REF_OWNED:WR_REF_IDLE;return 1;",
+            "r->phase=acquired?WR_REF_OWNED:WR_REF_IDLE;\n r->open_unmutated=acquired?0U:1U;return 1;")
+        replace_once(output, ref,
+            "r->phase=WR_REF_IDLE;*retain_pin=0;return 1;",
+            "r->phase=WR_REF_IDLE;r->open_unmutated=1;*retain_pin=0;return 1;")
+        replace_once(output, ref,
+            "r->phase=WR_REF_IDLE;*retain_pin=0;\n }else if(virtual_up_succeeded",
+            "r->phase=WR_REF_IDLE;r->open_unmutated=1;*retain_pin=0;\n }else if(virtual_up_succeeded")
+        replace_once(output, "include/wr-iot-netdev-registration.inc",
+            "record->phase!=WR_REF_IDLE||pAd->wr_iot_transition.active_tx)",
+            "record->phase!=WR_REF_IDLE||pAd->wr_iot_transition.active_tx||\n"
+            "    (record->last_token&&!record->open_unmutated&&\n"
+            "     record->close_stage!=4U))")
         reviewed_admission_path = source / "include/wr-iot-mbss-open-admission.inc"
         if hashlib.sha256(reviewed_admission_path.read_bytes()).hexdigest() != (
                 "642e7a09ea177f5232035e99d115710c35216c188fb061870f5c286661d996c8"):

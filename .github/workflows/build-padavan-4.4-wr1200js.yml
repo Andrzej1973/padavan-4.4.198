@@ -1581,6 +1581,17 @@ jobs:
             cp -a .iot-local-check/mt7603-radio-off-v40-ci "$candidate/driver"
             cmp tools/iot/virtual-open-claim.h "$candidate/driver/include/virtual-open-claim.h"
             cmp tools/iot/mt7603-main-observe.h "$candidate/driver/include/mt7603-main-observe.h"
+            cp tools/iot/check-interface-reference.c "$RUNNER_TEMP/check-v40-reference.c"
+            gcc -std=c11 -Wall -Wextra -Werror \
+              -I "$candidate/driver/include" \
+              "$RUNNER_TEMP/check-v40-reference.c" -o "$RUNNER_TEMP/check-v40-reference"
+            "$RUNNER_TEMP/check-v40-reference"
+            sed 's|"netdev-registration.inc"|"wr-iot-netdev-registration.inc"|' \
+              tools/iot/check-netdev-registration.c > "$RUNNER_TEMP/check-v40-registration.c"
+            gcc -std=c11 -Wall -Wextra -Werror \
+              -I "$candidate/driver/include" \
+              "$RUNNER_TEMP/check-v40-registration.c" -o "$RUNNER_TEMP/check-v40-registration"
+            "$RUNNER_TEMP/check-v40-registration"
             gcc -std=c11 -Wall -Wextra -Werror -DWR_IOT_V40=1 \
               -I "$candidate/driver/include" -I tools/iot \
               tools/iot/check-mbss-post-open.c -o "$RUNNER_TEMP/wr-iot-mbss-post-open"
