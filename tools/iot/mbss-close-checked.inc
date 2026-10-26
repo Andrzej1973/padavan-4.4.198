@@ -39,6 +39,23 @@ static inline int wr_iot_mbss_close_record_current(PRTMP_ADAPTER ad,
         ad->wr_iot_transition.busy==ticket->operation&&
         ad->wr_iot_transition.serial==ticket->serial;
 }
+/* The closing record still owns its pre-DOWN reference until the checked
+ * completion. All other live records must be stable OWNED references, and
+ * their count must equal the vendor count after this BSS was decremented. */
+static inline int wr_iot_mbss_count_after_down(PRTMP_ADAPTER ad,
+ const struct wr_iot_interface_ref *closing)
+{
+ unsigned int i,others=0;
+ for(i=0;i<WDEV_NUM_MAX+1;i++){
+  const struct wr_iot_interface_ref *ref=&ad->wr_iot_interface_refs[i];
+  if(ref==closing)continue;
+  if(ref->phase==WR_REF_IDLE)continue;
+  if(ref->phase!=WR_REF_OWNED||!ref->device||!ref->generation||
+     !ref->last_token||!ref->published||ref->removing)return 0;
+  others++;
+ }
+ return VIRTUAL_IF_NUM(ad)==others;
+}
 INT wr_iot_mbss_close_checked(PNET_DEV dev,unsigned long generation,
                               const struct wr_iot_radio_ticket *ticket)
 {
@@ -143,7 +160,8 @@ INT wr_iot_mbss_close_checked(PNET_DEV dev,unsigned long generation,
   * same lock. A failed consume after retirement would strand the module pin
   * without a live close ticket for the retained recovery owner. */
  if(!wr_iot_ref_matches(r,dev,generation,token)||
-    r->phase!=WR_REF_CLOSING){
+    r->phase!=WR_REF_CLOSING||
+    !wr_iot_mbss_count_after_down(ad,r)){
   RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);return -1;
  }
  if(!wr_iot_radio_finish(&ad->wr_iot_transition,ticket,1)){

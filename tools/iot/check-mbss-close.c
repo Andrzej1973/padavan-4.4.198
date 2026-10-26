@@ -10,7 +10,7 @@ typedef int INT;typedef unsigned long ULONG;
 struct device;
 typedef struct adapter {int wr_iot_transition_lock;struct wr_iot_radio_transition wr_iot_transition;struct wr_iot_interface_ref wr_iot_interface_refs[2];struct device *net_dev;unsigned int VirtualIfCnt;} *PRTMP_ADAPTER;
 typedef struct device {PRTMP_ADAPTER ad;} *PNET_DEV;
-static int held,refs,cr_result,close_result,down_result,cr_calls,close_calls,queue_stops,hnat_calls,down_calls,reuse_on_close,invalidate_epoch_on_down,invalidate_token_on_down;
+static int held,refs,cr_result,close_result,down_result,cr_calls,close_calls,queue_stops,hnat_calls,down_calls,reuse_on_close,invalidate_epoch_on_down,invalidate_token_on_down,inflate_count_on_down;
 #define RTMP_IRQ_LOCK(lock,flags) ((flags)=0,(void)(lock),assert(!held),held=1)
 #define RTMP_IRQ_UNLOCK(lock,flags) ((void)(flags),(void)(lock),assert(held),held=0)
 #define RTMP_OS_NETDEV_GET_PRIV(dev) ((dev)->ad)
@@ -29,7 +29,7 @@ static int MBSS_Close(PNET_DEV dev){
  }
  return close_result;
 }
-static int wr_iot_virtual_down_checked(PRTMP_ADAPTER ad,const struct wr_iot_radio_ticket *t){assert(ad&&t&&!held);down_calls++;if(invalidate_epoch_on_down)ad->wr_iot_transition.epoch=0;if(invalidate_token_on_down)ad->wr_iot_interface_refs[0].last_token=2;return down_result;}
+static int wr_iot_virtual_down_checked(PRTMP_ADAPTER ad,const struct wr_iot_radio_ticket *t){assert(ad&&t&&!held);down_calls++;if(invalidate_epoch_on_down)ad->wr_iot_transition.epoch=0;if(invalidate_token_on_down)ad->wr_iot_interface_refs[0].last_token=2;if(!down_result&&ad->wr_iot_transition.virtual_down_stage!=2){assert(ad->VirtualIfCnt>1);ad->VirtualIfCnt--;ad->wr_iot_transition.virtual_down_stage=2;}if(inflate_count_on_down)ad->VirtualIfCnt++;return down_result;}
 #ifdef WR_IOT_V40
 #include "wr-iot-mbss-close-checked.inc"
 #else
@@ -38,7 +38,8 @@ static int wr_iot_virtual_down_checked(PRTMP_ADAPTER ad,const struct wr_iot_radi
 static void set_main_owner(struct adapter *ad,struct device *main_dev){
  struct wr_iot_interface_ref *r=&ad->wr_iot_interface_refs[1];
  wr_iot_ref_init(r,main_dev,1);r->family=WR_REF_FAMILY_MAIN;
- r->published=1;r->phase=WR_REF_OWNED;
+ r->published=1;assert(wr_iot_ref_reserve(r,main_dev,1,1));
+ assert(wr_iot_ref_open_finish(r,main_dev,1,1,1));
 }
 int main(void){
  struct adapter a;struct device main_dev={&a},dev={&a};struct wr_iot_radio_ticket t,bad;
@@ -106,6 +107,26 @@ int main(void){
          a.wr_iot_transition.busy==WR_RADIO_BSS_CLOSE&&
          a.wr_iot_transition.retired_serial!=t.serial);
   invalidate_token_on_down=0;
+ }
+ {
+  /* An unclaimed count writer during vendor DOWN cannot be accepted as a
+   * successful MBSS close, even when the vendor call reports success. */
+  memset(&a,0,sizeof(a));a.net_dev=&main_dev;a.VirtualIfCnt=2;
+  wr_iot_radio_transition_init(&a.wr_iot_transition);
+  a.wr_iot_transition.phase=WR_RADIO_READY;
+  struct wr_iot_interface_ref *r=&a.wr_iot_interface_refs[0];
+  wr_iot_ref_init(r,&dev,1);r->family=WR_REF_FAMILY_MBSS;r->published=1;
+  assert(wr_iot_ref_reserve(r,&dev,1,1));
+  assert(wr_iot_ref_open_finish(r,&dev,1,1,1));
+  set_main_owner(&a,&main_dev);
+  assert(wr_iot_mbss_begin_close(&dev,&t,&generation)==0);
+  refs=1;cr_result=close_result=down_result=0;
+  inflate_count_on_down=1;
+  assert(wr_iot_mbss_close_checked(&dev,generation,&t)==-1);
+  assert(refs==1&&r->phase==WR_REF_CLOSING&&r->close_stage==3&&
+         a.wr_iot_transition.busy==WR_RADIO_BSS_CLOSE&&
+         a.wr_iot_transition.retired_serial!=t.serial&&a.VirtualIfCnt==2);
+  inflate_count_on_down=0;
  }
 #endif
  {
