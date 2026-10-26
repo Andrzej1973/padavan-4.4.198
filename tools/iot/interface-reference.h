@@ -16,7 +16,7 @@ struct wr_iot_interface_ref {
  unsigned long close_epoch;
  unsigned int close_vendor_count;
  int close_prior_phase,close_prior_ready;
- unsigned int published,removing,removal_stage,close_stage;
+ unsigned int published,removing,removal_stage,close_stage,close_running;
  /* Set only by a caller-proven pre-acquisition failure. An idle record with
   * an old token is otherwise not proof that an acquired open was closed. */
  unsigned int open_unmutated;
@@ -25,7 +25,7 @@ struct wr_iot_interface_ref {
 };
 static inline void wr_iot_ref_init(struct wr_iot_interface_ref *r,
  const void *device,unsigned long generation){
- r->device=device;r->generation=generation;r->last_token=0;r->close_serial=0;r->close_epoch=0;r->close_vendor_count=0;r->close_prior_phase=0;r->close_prior_ready=0;r->close_stage=0;r->open_unmutated=0;r->published=0;r->removing=0;r->removal_stage=0;r->phase=WR_REF_IDLE;r->family=WR_REF_FAMILY_UNKNOWN;
+ r->device=device;r->generation=generation;r->last_token=0;r->close_serial=0;r->close_epoch=0;r->close_vendor_count=0;r->close_prior_phase=0;r->close_prior_ready=0;r->close_stage=0;r->close_running=0;r->open_unmutated=0;r->published=0;r->removing=0;r->removal_stage=0;r->phase=WR_REF_IDLE;r->family=WR_REF_FAMILY_UNKNOWN;
 }
 static inline int wr_iot_ref_matches(const struct wr_iot_interface_ref *r,
  const void *device,unsigned long generation,unsigned long token){
@@ -38,7 +38,7 @@ static inline int wr_iot_ref_reserve(struct wr_iot_interface_ref *r,
     !token||token<=r->last_token||r->removing||r->phase!=WR_REF_IDLE)return 0;
  r->last_token=token;r->close_serial=0;r->close_epoch=0;
  r->close_vendor_count=0;r->close_prior_phase=0;r->close_prior_ready=0;
- r->close_stage=0;r->open_unmutated=0;r->phase=WR_REF_RESERVED;return 1;
+ r->close_stage=0;r->close_running=0;r->open_unmutated=0;r->phase=WR_REF_RESERVED;return 1;
 }
 /* acquired describes successful vendor UP, even if later setup fails.
  * Such a reference needs normal checked close/rollback, not an idle reset. */

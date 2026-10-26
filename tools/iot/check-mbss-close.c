@@ -11,7 +11,10 @@ typedef unsigned int UINT32;
 struct device;
 typedef struct adapter {int wr_iot_transition_lock;struct wr_iot_radio_transition wr_iot_transition;struct wr_iot_interface_ref wr_iot_interface_refs[2];struct device *net_dev;unsigned int VirtualIfCnt;struct {int BssidNum;} ApCfg;} *PRTMP_ADAPTER;
 typedef struct device {PRTMP_ADAPTER ad;} *PNET_DEV;
-static int held,refs,cr_result,close_result,down_result,cr_calls,close_calls,queue_stops,hnat_calls,down_calls,reuse_on_close,invalidate_epoch_on_down,invalidate_token_on_down,inflate_count_on_down;
+static int held,refs,cr_result,close_result,down_result,cr_calls,close_calls,queue_stops,hnat_calls,down_calls,reuse_on_close,invalidate_epoch_on_down,invalidate_token_on_down,inflate_count_on_down,reenter_on_close,reenter_result;
+static struct wr_iot_radio_ticket reenter_ticket;
+INT wr_iot_mbss_close_checked(PNET_DEV dev,unsigned long generation,
+                              const struct wr_iot_radio_ticket *ticket);
 #ifdef MT_MAC
 static int txs_outstanding;
 #ifdef RTMP_PCI_SUPPORT
@@ -36,6 +39,10 @@ static int RTMP_AP_IoctlHandle(void *ad,void *unused,int cmd,int z,PNET_DEV dev,
 #endif
 static int MBSS_Close(PNET_DEV dev){
  assert(dev&&!held);close_calls++;
+ if(reenter_on_close){
+  reenter_on_close=0;
+  reenter_result=wr_iot_mbss_close_checked(dev,1,&reenter_ticket);
+ }
  if(reuse_on_close){
   struct wr_iot_interface_ref *r=&dev->ad->wr_iot_interface_refs[0];
   wr_iot_ref_init(r,dev,2);r->published=1;
@@ -66,6 +73,7 @@ int main(void){
   refs=1;cr_calls=close_calls=queue_stops=hnat_calls=down_calls=held=reuse_on_close=0;cr_result=close_result=0;down_result=1;
   if(mode==1)close_result=1;
   if(mode==2)cr_result=1;
+  reenter_ticket=t;reenter_result=0;reenter_on_close=(mode==0);
   assert(wr_iot_mbss_close_checked(&dev,0,&t)==-1&&!close_calls&&!down_calls);
   assert(wr_iot_mbss_close_checked(&dev,2,&t)==-1&&!close_calls&&!down_calls);
 #ifdef WR_IOT_V40
@@ -101,6 +109,8 @@ int main(void){
 #endif
   }
   assert(wr_iot_mbss_close_checked(&dev,1,&t)==-1&&refs==1&&r->phase==WR_REF_CLOSING&&!held);
+  assert(!r->close_running);
+  if(mode==0)assert(reenter_result==-1&&close_calls==1);
 #ifdef MT_MAC
   if(mode==2){assert(r->close_stage==5&&!close_calls&&!down_calls);continue;}
 #endif
@@ -109,6 +119,7 @@ int main(void){
   int prior_cr=cr_calls,prior_hnat=hnat_calls;
   bad=t;bad.serial++;assert(wr_iot_mbss_close_checked(&dev,1,&bad)==-1&&down_calls==1);
   down_result=0;assert(wr_iot_mbss_close_checked(&dev,1,&t)==0&&!refs&&r->phase==WR_REF_IDLE&&r->close_stage==4);
+  assert(!r->close_running);
   assert(!a.wr_iot_transition.busy&&a.wr_iot_transition.retired_serial==t.serial);
   assert(close_calls==1&&cr_calls==prior_cr&&hnat_calls==prior_hnat&&down_calls==2);
   assert(wr_iot_mbss_close_checked(&dev,1,&t)==0&&!refs&&down_calls==2);
