@@ -30,10 +30,11 @@ INT wr_iot_mbss_begin_close(PNET_DEV dev,struct wr_iot_radio_ticket *ticket,
  * revalidate the exact registration and ticket before writing its next stage. */
 static inline int wr_iot_mbss_close_record_current(PRTMP_ADAPTER ad,
  struct wr_iot_interface_ref *r,PNET_DEV dev,unsigned long generation,
- const struct wr_iot_radio_ticket *ticket)
+ unsigned long token,const struct wr_iot_radio_ticket *ticket)
 {
  return wr_iot_registry_find(ad->wr_iot_interface_refs,WDEV_NUM_MAX+1,
                              dev,generation)==r&&r->published&&
+        wr_iot_ref_matches(r,dev,generation,token)&&
         r->phase==WR_REF_CLOSING&&r->close_serial==ticket->serial&&
         ad->wr_iot_transition.busy==ticket->operation&&
         ad->wr_iot_transition.serial==ticket->serial;
@@ -43,6 +44,7 @@ INT wr_iot_mbss_close_checked(PNET_DEV dev,unsigned long generation,
 {
  PRTMP_ADAPTER ad;
  struct wr_iot_interface_ref *r=NULL;
+ unsigned long token;
  unsigned int stage;
 #ifdef MT_MAC
  INT bss_id;
@@ -78,6 +80,7 @@ INT wr_iot_mbss_close_checked(PNET_DEV dev,unsigned long generation,
     (r->phase!=WR_REF_CLOSING&&!(r->phase==WR_REF_IDLE&&r->close_stage==4U))){
   RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);return -1;
  }
+ token=r->last_token;
  stage=r->close_stage;
  RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);
  if(stage==4U)return 0;
@@ -89,7 +92,7 @@ INT wr_iot_mbss_close_checked(PNET_DEV dev,unsigned long generation,
 #endif
   RTMP_OS_NETDEV_STOP_QUEUE(dev);
   RTMP_IRQ_LOCK(&ad->wr_iot_transition_lock,flags);
-  if(!wr_iot_mbss_close_record_current(ad,r,dev,generation,ticket)){
+  if(!wr_iot_mbss_close_record_current(ad,r,dev,generation,token,ticket)){
    RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);return -1;
   }
   r->close_stage=1U;RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);
@@ -98,7 +101,7 @@ INT wr_iot_mbss_close_checked(PNET_DEV dev,unsigned long generation,
   /* Direct checked result; legacy ioctl dispatch discarded MBSS_Close status. */
   if(MBSS_Close(dev)!=0)goto uncertain;
   RTMP_IRQ_LOCK(&ad->wr_iot_transition_lock,flags);
-  if(!wr_iot_mbss_close_record_current(ad,r,dev,generation,ticket)){
+  if(!wr_iot_mbss_close_record_current(ad,r,dev,generation,token,ticket)){
    RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);return -1;
   }
   r->close_stage=2U;RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);
@@ -125,7 +128,7 @@ INT wr_iot_mbss_close_checked(PNET_DEV dev,unsigned long generation,
   RT_MOD_HNAT_DEREG(dev);
 #endif
   RTMP_IRQ_LOCK(&ad->wr_iot_transition_lock,flags);
-  if(!wr_iot_mbss_close_record_current(ad,r,dev,generation,ticket)){
+  if(!wr_iot_mbss_close_record_current(ad,r,dev,generation,token,ticket)){
    RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);return -1;
   }
   r->close_stage=3U;RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);
@@ -133,13 +136,20 @@ INT wr_iot_mbss_close_checked(PNET_DEV dev,unsigned long generation,
  ret=wr_iot_virtual_down_checked(ad,ticket);
  if(ret!=NDIS_STATUS_SUCCESS)return -1;
  RTMP_IRQ_LOCK(&ad->wr_iot_transition_lock,flags);
- if(!wr_iot_mbss_close_record_current(ad,r,dev,generation,ticket)){
+ if(!wr_iot_mbss_close_record_current(ad,r,dev,generation,token,ticket)){
+  RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);return -1;
+ }
+ /* Retire the ticket only when the reference can be consumed under this
+  * same lock. A failed consume after retirement would strand the module pin
+  * without a live close ticket for the retained recovery owner. */
+ if(!wr_iot_ref_matches(r,dev,generation,token)||
+    r->phase!=WR_REF_CLOSING){
   RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);return -1;
  }
  if(!wr_iot_radio_finish(&ad->wr_iot_transition,ticket,1)){
   RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);return -1;
  }
- if(!wr_iot_ref_consume(r,dev,r->generation,r->last_token)){
+ if(!wr_iot_ref_consume(r,dev,generation,token)){
   RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);return -1;
  }
  r->close_stage=4U;
@@ -148,7 +158,7 @@ INT wr_iot_mbss_close_checked(PNET_DEV dev,unsigned long generation,
  return 0;
 uncertain:
  RTMP_IRQ_LOCK(&ad->wr_iot_transition_lock,flags);
- if(!wr_iot_mbss_close_record_current(ad,r,dev,generation,ticket)){
+ if(!wr_iot_mbss_close_record_current(ad,r,dev,generation,token,ticket)){
   RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);return -1;
  }
  r->close_stage=5U;RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);

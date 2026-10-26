@@ -1669,9 +1669,40 @@ jobs:
           test -s "$module"
           "${cross}readelf" -h "$module" > "$results/mt76x3-elf.txt"
           grep -q 'Machine:.*MIPS' "$results/mt76x3-elf.txt"
+          "${cross}readelf" -sW "$module" > "$results/mt76x3-symbols.txt"
+          if [ "${{ inputs.iot_candidate_variant }}" = v40 ]; then
+            for symbol in wr_iot_mbss_begin_close wr_iot_mbss_close_checked wr_iot_virtual_down_checked; do
+              grep -Eq "[[:space:]]${symbol}$" "$results/mt76x3-symbols.txt"
+            done
+          fi
           cp "$module" "$results/"
           cp "$kernel/.config" "$results/kernel.config"
           sha256sum -c "$results/config-before.sha256"
+          python3 - "$results" "${{ inputs.iot_candidate_variant }}" "${{ github.sha }}" <<'PY'
+          import hashlib, json, pathlib, re, sys
+          results = pathlib.Path(sys.argv[1])
+          source = json.loads((results / 'merged-source-manifest.json').read_text(encoding='utf-8'))
+          module = results / 'mt76x3_ap.ko'
+          elf = (results / 'mt76x3-elf.txt').read_text(encoding='utf-8')
+          if source['target_compiled'] or source['production_installed'] or not module.is_file():
+              raise SystemExit('Invalid isolated IoT source/build boundary')
+          if not re.search(r'^\s*Machine:\s+MIPS\b', elf, re.MULTILINE):
+              raise SystemExit('Isolated IoT module is not MIPS ELF')
+          report = {
+              'schema': 1,
+              'candidate_variant': sys.argv[2],
+              'repository_revision': sys.argv[3],
+              'source_revision': source['source_revision'],
+              'target_compiled': True,
+              'production_installed': False,
+              'runtime_verified': False,
+              'module': 'mt76x3_ap.ko',
+              'module_bytes': module.stat().st_size,
+              'module_sha256': hashlib.sha256(module.read_bytes()).hexdigest(),
+          }
+          (results / 'target-compile-result.json').write_text(
+              json.dumps(report, indent=2) + '\n', encoding='utf-8')
+          PY
 
       - name: Upload isolated merged IoT driver diagnostics
         if: ${{ inputs.run_candidate_checks && (always()) }}
