@@ -22,6 +22,13 @@ INT wr_iot_mbss_begin_close(PNET_DEV dev,struct wr_iot_radio_ticket *ticket,
                                 VIRTUAL_IF_NUM(ad),ticket)){
   RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);return -1;
  }
+ /* Preserve the admitted ticket before any unlocked vendor close work. A
+  * recovery worker must use this provenance, never reconstruct prior state
+  * from the radio's possibly changed epoch or phase. */
+ r->close_epoch=ticket->epoch;
+ r->close_vendor_count=VIRTUAL_IF_NUM(ad);
+ r->close_prior_phase=(int)ticket->prior_phase;
+ r->close_prior_ready=ticket->prior_ready;
  *generation=r->generation;
  RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);
  return 0;
@@ -36,6 +43,9 @@ static inline int wr_iot_mbss_close_record_current(PRTMP_ADAPTER ad,
                              dev,generation)==r&&r->published&&
         wr_iot_ref_matches(r,dev,generation,token)&&
         r->phase==WR_REF_CLOSING&&r->close_serial==ticket->serial&&
+        r->close_epoch==ticket->epoch&&
+        r->close_prior_phase==(int)ticket->prior_phase&&
+        r->close_prior_ready==ticket->prior_ready&&
         ad->wr_iot_transition.busy==ticket->operation&&
         ad->wr_iot_transition.serial==ticket->serial;
 }
@@ -78,6 +88,11 @@ INT wr_iot_mbss_close_checked(PNET_DEV dev,unsigned long generation,
  r=wr_iot_registry_find(ad->wr_iot_interface_refs,WDEV_NUM_MAX+1,
                         dev,generation);
  if(!r||!r->published){RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);return -1;}
+ if(!r->close_epoch||r->close_epoch!=ticket->epoch||
+    r->close_prior_phase!=(int)ticket->prior_phase||
+    r->close_prior_ready!=ticket->prior_ready){
+  RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);return -1;
+ }
  if(r->phase==WR_REF_IDLE&&r->close_stage==4U&&
     r->close_serial==ticket->serial&&
     ad->wr_iot_transition.retired_serial==ticket->serial){

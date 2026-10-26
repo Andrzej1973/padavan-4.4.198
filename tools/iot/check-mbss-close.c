@@ -55,6 +55,17 @@ int main(void){
   if(mode==2)cr_result=1;
   assert(wr_iot_mbss_close_checked(&dev,0,&t)==-1&&!close_calls&&!down_calls);
   assert(wr_iot_mbss_close_checked(&dev,2,&t)==-1&&!close_calls&&!down_calls);
+#ifdef WR_IOT_V40
+  bad=t;bad.epoch++;
+  assert(wr_iot_mbss_close_checked(&dev,1,&bad)==-1&&
+         !queue_stops&&!close_calls&&!down_calls);
+  bad=t;bad.prior_ready=!t.prior_ready;
+  assert(wr_iot_mbss_close_checked(&dev,1,&bad)==-1&&
+         !queue_stops&&!close_calls&&!down_calls);
+  bad=t;bad.prior_phase=WR_RADIO_DOWN;
+  assert(wr_iot_mbss_close_checked(&dev,1,&bad)==-1&&
+         !queue_stops&&!close_calls&&!down_calls);
+#endif
   assert(wr_iot_mbss_close_checked(&dev,1,&t)==-1&&refs==1&&r->phase==WR_REF_CLOSING&&!held);
 #ifdef MT_MAC
   if(mode==2){assert(r->close_stage==5&&!close_calls&&!down_calls);continue;}
