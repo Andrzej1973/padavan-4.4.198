@@ -96,6 +96,41 @@ explicit failure retention. Only then can main-stop completion and PCI
 adapter-release ownership be connected. The original v39 source remains
 unchanged and outside the production image.
 
+### Follow-up: exact MT radio-off failure paths (2026-10-26)
+
+Re-read the pinned v39 source, `hw_ctrl/cmm_asic_mt.c:6254-6398`, and
+`mcu/andes_mt.c:1777-1810`. `MTPciPollTxRxEmpty` waits for TX and RX DMA
+idle but returns `VOID`; each timeout only logs `DMA Busy`. If
+`fRTMP_ADAPTER_NIC_NOT_EXIST` becomes set inside either loop, it returns
+before clearing `fRTMP_ADAPTER_POLL_IDLE`, which it set before polling.
+`MTPciMlmeRadioOff` then discards the `INT32` result of
+`CmdRadioOnOffCtrl` (whose send uses an acknowledgement), calls
+`AsicSetWPDMA` without checking a register readback, and sets
+`fRTMP_ADAPTER_RADIO_OFF` regardless. These are independent false-success
+paths; the software flag cannot be used as the physical-close receipt.
+
+The isolated v40 generator below already supplies a separate checked drain,
+rejects `iwpriv_command` and `LOAD_FW_ONE_TIME`, checks the MCU return and
+PDMA readback, and has host fault injection. These observations explain why
+the legacy path must remain excluded from a claimed physical-close receipt;
+they are not a request to duplicate the existing helper. Remaining work is
+to prove every relevant close path reaches that helper, retire callbacks and
+deferred owners before PCI release, and verify behavior on the actual device.
+This review changed no driver source, image, or router state.
+
+The DMA fixture now injects NIC disappearance in both the TX and RX loops.
+`prepare-dma-idle-check.py` also accepts an already generated checked helper
+only when it exactly matches the transform from the retained vendor function;
+this prevents the fixture from silently testing a different implementation.
+Against the pinned v39 source, GCC `-std=c11 -Wall -Wextra -Werror` compiled
+the exact extracted helper and the fixture passed consecutive-idle, both
+timeouts, intermittent-busy, both disappearance and foreign-flag cases.
+This is host fault evidence; callback retirement, target inclusion and device
+behavior remain unverified.
+The optional v40 CI step now runs this exact generated-source fixture before
+its MIPS module compile. Local execution used the same strict GCC flags and
+passed; a new CI run is needed to verify the workflow wiring itself.
+
 Child removal also has family-specific partial states: WDS and AP-client call
 `RtmpOSNetDevClose` (a `void` wrapper around `dev_close`) and refuse free
 when the registered close phase is not idle. MBSS deinitializes beacon state

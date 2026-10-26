@@ -1579,6 +1579,13 @@ jobs:
               tools/iot/candidates/aux-remove-close-v39 \
               .iot-local-check/mt7603-radio-off-v40-ci
             cp -a .iot-local-check/mt7603-radio-off-v40-ci "$candidate/driver"
+            python3 tools/iot/prepare-dma-idle-check.py \
+              "$candidate/driver/hw_ctrl/cmm_asic_mt.c" \
+              "$RUNNER_TEMP/wr-iot-v40-dma-source.c" \
+              "$RUNNER_TEMP/wr-iot-v40-dma-fixture.c"
+            gcc -std=c11 -Wall -Wextra -Werror \
+              "$RUNNER_TEMP/wr-iot-v40-dma-fixture.c" -o "$RUNNER_TEMP/wr-iot-v40-dma-fixture"
+            "$RUNNER_TEMP/wr-iot-v40-dma-fixture"
             cmp tools/iot/virtual-open-claim.h "$candidate/driver/include/virtual-open-claim.h"
             cmp tools/iot/mt7603-main-observe.h "$candidate/driver/include/mt7603-main-observe.h"
             cp tools/iot/check-interface-reference.c "$RUNNER_TEMP/check-v40-reference.c"

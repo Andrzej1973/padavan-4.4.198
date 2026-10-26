@@ -14,8 +14,10 @@ if a.candidate.exists() or a.fixture.exists():
     raise SystemExit('Refusing to overwrite outputs')
 source = a.input.read_text(encoding='utf-8')
 anchor = 'VOID MTPciPollTxRxEmpty(RTMP_ADAPTER *pAd)'
-if source.count(anchor) != 1 or 'wr_iot_mt_poll_txrx_empty' in source:
-    raise SystemExit('DMA poll source changed or candidate already present')
+checked_anchor = 'BOOLEAN wr_iot_mt_poll_txrx_empty(RTMP_ADAPTER *pAd)'
+if source.count(anchor) != 1 or source.count(checked_anchor) > 1:
+    raise SystemExit('DMA poll source changed')
+already_checked = checked_anchor in source
 start = source.index(anchor)
 end = source.index('\n}', start) + 2
 original = source[start:end]
@@ -50,6 +52,11 @@ finish = '\tRTMP_CLEAR_FLAG(pAd, fRTMP_ADAPTER_POLL_IDLE);\n}'
 if checked.count(finish) != 1:
     raise SystemExit('DMA completion changed')
 checked = checked.replace(finish, '\tRTMP_CLEAR_FLAG(pAd, fRTMP_ADAPTER_POLL_IDLE);\n    return TRUE;\n}')
+if already_checked:
+    existing_start = source.index(checked_anchor)
+    existing_end = source.index('\n}', existing_start) + 2
+    if source[existing_start:existing_end] != checked:
+        raise SystemExit('Existing checked DMA poll differs from generated helper')
 prefix = r'''#include <assert.h>
 #include <stdio.h>
 typedef unsigned int UINT32;
@@ -74,6 +81,7 @@ static UINT32 read_dma(RTMP_ADAPTER *ad){
  if(mode==2)return reads%2?0:TX_DMA_BUSY|RX_DMA_BUSY;
  if(mode==3&&reads==10)ad->flags|=fRTMP_ADAPTER_NIC_NOT_EXIST;
  if(mode==4&&reads>5001)return RX_DMA_BUSY;
+ if(mode==5&&reads==5011)ad->flags|=fRTMP_ADAPTER_NIC_NOT_EXIST;
  return 0;
 }
 #define RTMP_IO_READ32(ad,reg,value) ((void)(reg),*(value)=read_dma(ad))
@@ -84,21 +92,22 @@ tail = r'''
 int main(void){
  RTMP_ADAPTER ad={0};
  assert(wr_iot_mt_poll_txrx_empty(&ad)&&!ad.flags&&reads==10002&&delays==1);
- for(mode=1;mode<=4;mode++){
+ for(mode=1;mode<=5;mode++){
   ad.flags=0;reads=delays=0;
   assert(!wr_iot_mt_poll_txrx_empty(&ad));
   assert(!(ad.flags&fRTMP_ADAPTER_POLL_IDLE));
   if(mode==1||mode==2)assert(reads==20000);
   if(mode==3)assert(reads==10&&(ad.flags&fRTMP_ADAPTER_NIC_NOT_EXIST));
   if(mode==4)assert(reads==25001);
+  if(mode==5)assert(reads==5011&&(ad.flags&fRTMP_ADAPTER_NIC_NOT_EXIST));
  }
  ad.flags=fRTMP_ADAPTER_POLL_IDLE;reads=delays=0;
  assert(!wr_iot_mt_poll_txrx_empty(&ad)&&ad.flags==fRTMP_ADAPTER_POLL_IDLE&&!reads&&!delays);
- puts("PASS separate checked DMA poll: consecutive idle, TX/RX timeout, intermittent busy, disappearance and foreign flag; register reads injected, no RF proof");
+ puts("PASS separate checked DMA poll: consecutive idle, TX/RX timeout, intermittent busy, TX/RX disappearance and foreign flag; register reads injected, no RF proof");
  return 0;
 }
 '''
 # Keep the existing shared void function and all its callers untouched.
-a.candidate.write_text(source[:start] + checked + '\n\n' + source[start:], encoding='utf-8')
+a.candidate.write_text(source if already_checked else source[:start] + checked + '\n\n' + source[start:], encoding='utf-8')
 a.fixture.write_text(prefix + checked + tail, encoding='utf-8')
-print('Prepared separate checked DMA poll; original radio-off path unchanged')
+print('Verified separate checked DMA poll; original radio-off path unchanged')
