@@ -1610,13 +1610,23 @@ jobs:
             cp -a tools/iot/candidates/aux-remove-close-v39 "$candidate/driver"
             cp tools/iot/candidates/aux-remove-close-v39/manifest.json "$candidate/manifest.json"
             python3 tools/iot/check-remove-result-abi.py "$candidate/driver"
-          elif [ "${{ inputs.iot_candidate_variant }}" = v40 ]; then
+          elif [ "${{ inputs.iot_candidate_variant }}" = v40 ] ||
+               [ "${{ inputs.iot_candidate_variant }}" = v41 ]; then
             mkdir -p "$candidate" .iot-local-check
             python3 tools/iot/check-mt7603-checked-off.py
             python3 tools/iot/prepare-mt7603-checked-off-candidate.py \
               tools/iot/candidates/aux-remove-close-v39 \
               .iot-local-check/mt7603-radio-off-v40-ci
-            cp -a .iot-local-check/mt7603-radio-off-v40-ci "$candidate/driver"
+            if [ "${{ inputs.iot_candidate_variant }}" = v41 ]; then
+              python3 tools/iot/prepare-mbss-checked-stop-candidate.py \
+                .iot-local-check/mt7603-radio-off-v40-ci \
+                .iot-local-check/mt7603-mbss-stop-v41-ci
+              cp -a .iot-local-check/mt7603-mbss-stop-v41-ci "$candidate/driver"
+              cp .iot-local-check/mt7603-mbss-stop-v41-ci.manifest.json \
+                "$results/mbss-stop-binding.json"
+            else
+              cp -a .iot-local-check/mt7603-radio-off-v40-ci "$candidate/driver"
+            fi
             python3 tools/iot/prepare-dma-idle-check.py \
               "$candidate/driver/hw_ctrl/cmm_asic_mt.c" \
               "$RUNNER_TEMP/wr-iot-v40-dma-source.c" \
@@ -1679,7 +1689,8 @@ jobs:
             "$pristine" "$driver" "$candidate/driver" \
             "$candidate/manifest.json" "$merged"
           if [ "${{ inputs.iot_candidate_variant }}" = v39 ] ||
-             [ "${{ inputs.iot_candidate_variant }}" = v40 ]; then
+             [ "${{ inputs.iot_candidate_variant }}" = v40 ] ||
+             [ "${{ inputs.iot_candidate_variant }}" = v41 ]; then
             python3 tools/iot/check-remove-result-abi.py "$merged"
           fi
           cp "$merged.manifest.json" "$results/merged-source-manifest.json"
@@ -1736,7 +1747,8 @@ jobs:
           "${cross}readelf" -h "$module" > "$results/mt76x3-elf.txt"
           grep -q 'Machine:.*MIPS' "$results/mt76x3-elf.txt"
           "${cross}readelf" -sW "$module" > "$results/mt76x3-symbols.txt"
-          if [ "${{ inputs.iot_candidate_variant }}" = v40 ]; then
+          if [ "${{ inputs.iot_candidate_variant }}" = v40 ] ||
+             [ "${{ inputs.iot_candidate_variant }}" = v41 ]; then
             for symbol in wr_iot_mbss_begin_close wr_iot_mbss_close_checked wr_iot_virtual_down_checked; do
               grep -Eq "[[:space:]]${symbol}$" "$results/mt76x3-symbols.txt"
             done

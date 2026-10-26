@@ -41,8 +41,9 @@ def main() -> None:
     args = parser.parse_args()
     source = args.source.resolve(strict=True)
     output = args.output.resolve()
-    if output.exists():
-        parser.error("output must be a new directory")
+    manifest = Path(str(output) + ".manifest.json")
+    if output.exists() or manifest.exists():
+        parser.error("output directory and manifest path must be new")
     if output == source or source in output.parents:
         parser.error("output must be outside the source tree")
     target = source / "ap" / "ap_mbss_inf.c"
@@ -87,7 +88,7 @@ def main() -> None:
         "production_installed": False,
         "runtime_verified": False,
     }
-    (output / "mbss-stop-binding.json").write_text(
+    manifest.write_text(
         json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report, indent=2))
 

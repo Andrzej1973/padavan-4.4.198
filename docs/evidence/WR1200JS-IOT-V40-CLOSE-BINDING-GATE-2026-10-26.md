@@ -59,12 +59,19 @@ manifest with recovery, PCI release, target compilation, production and
 runtime all marked false. This is a v41 source experiment, not a release
 candidate.
 
-Local execution against `mt7603-radio-off-v40p-20261026` verified 59 copied
-source files. `python -m py_compile` passed, and the one-file diff showed the
-callback replacement and forward declarations only. The output file SHA-256
-is `26478525a4f18fe45e9e97d92d355927c7abb04702a3978636268ee1a96fd20e`.
+Local execution against freshly regenerated v40 from the tracked v39 tree
+verified 58 copied source files and reproduced the same output hash as an
+earlier local v40 tree. `python -m py_compile` passed, and the one-file diff
+showed the callback replacement and forward declarations only. The output file
+SHA-256 is `26478525a4f18fe45e9e97d92d355927c7abb04702a3978636268ee1a96fd20e`.
 The preparer rejected the older v39 source before creating an output tree.
 No MIPS compilation or fault-injected close test has run for this new binding.
 Its failure path deliberately retains the close ticket and module pin; Linux
 may still mark the interface down, so the next step must provide a real
 recovery owner before this path may be installed.
+
+The optional Actions input now accepts `v41` and prepares this binding after
+the reviewed v40 overlay, then uses the existing isolated MIPS module build.
+The manifest is kept beside the driver tree so only driver sources enter the
+assembly. Workflow YAML parsed locally; the `v41` target job has not run.
+Do not dispatch it while an existing build on the branch is still active.
