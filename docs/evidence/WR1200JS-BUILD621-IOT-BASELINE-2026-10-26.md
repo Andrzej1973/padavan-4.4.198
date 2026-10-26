@@ -11,7 +11,8 @@ Artifacts read from #621:
   and zero pending options. Effective `CONFIG_FIRMWARE_INCLUDE_ZAPRET2=y` and
   `CONFIG_FIRMWARE_INCLUDE_AMNEZIAWG=y`; HTOP and MTR are both `n` as requested.
 - `wr1200js-iot-radio-capacity` (artifact `12681077262`): `mt76x3.json`
-  reports effective MBSS and PCI support, a 16-BSS source/config ceiling,
+  reports effective MBSS and PCI support from pinned Padavan source
+  `c25283e915a2a00a763774dd255b14aff997285e`, a 16-BSS source/config ceiling,
   `three_bss_requirement_satisfied=true`, and a compiled main-observer probe.
   The report explicitly has `runtime_verified=false`.
 - The run uploaded `padavan-linux-4.4.198-wr1200js` (artifact `12680612759`)

@@ -1,5 +1,23 @@
 # Current project status — 2026-10-25 (updated)
 
+## 2026-10-26 CI after IoT-only workflow repair
+
+- Optional #622 (`40387415111`) succeeded on published `b2ec889`, including
+  isolated v40 MIPS module compilation. The downloaded module and SHA-256 were
+  independently checked; full limits and the nonfatal `modpost` warning are in
+  `docs/evidence/WR1200JS-IOT-V40-CI-622-TARGET-COMPILE-2026-10-26.md`.
+  Candidate remains outside the production image and unverified on hardware.
+- Firmware #621 (`40385894396`) and Band Steering ABI `40385894121` succeeded
+  on published `b2ec889`. #621 uploaded the WR1200JS image and download ZIP;
+  it did not select the optional IoT v40 candidate. Its config and radio
+  capacity artifacts are summarized in
+  `docs/evidence/WR1200JS-BUILD621-IOT-BASELINE-2026-10-26.md`.
+- After confirming no queued/running run on that branch and exact remote SHA,
+  dispatched one optional WR1200JS run #622 (`40387415111`) with
+  `run_candidate_checks=true`, `candidate_scope=iot`, variant `v40` on
+  `b2ec889`; it completed successfully. No driver was installed in production
+  or on the router.
+
 ## 2026-10-26 optional IoT CI #620 failure and repair
 
 - Optional firmware run #620 (`40381625442`, SHA `676b020`, IoT v40 scope)
@@ -11,13 +29,13 @@
   isolated kernel tree made only by the Band Steering step gated to `all`.
   Thus the `iot` scope skipped that prerequisite; this is a CI orchestration
   failure, not evidence that v40 did or did not compile.
-- The local workflow now copies and configures its own isolated kernel tree for
+- The published workflow now copies and configures its own isolated kernel tree for
   `iot` scope and emits a specific error if the tree is absent. `all` retains
   the preexisting full Band Steering tree. YAML parsing and scoped diff check
-  passed locally; repeat target compilation is still required. No production
+  passed locally; #622 confirmed the repaired target compilation. No production
   driver or router state changed.
 - Agent monitor run `40383532268` identified the failed job and step, but its
-  first-16-MiB excerpt missed the late failure. The local monitor now streams a
+  first-16-MiB excerpt missed the late failure. The feature-branch monitor now streams a
   bounded last-16-MiB suffix and has a >16-MiB offline regression fixture.
   Nim compilation and the monitor fixture passed; this parser change is not
   yet part of the default-branch monitor workflow.

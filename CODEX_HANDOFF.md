@@ -1,15 +1,29 @@
 # Current handoff — 2026-10-25 (updated)
 
+## CI after IoT-only repair — 2026-10-26
+
+Optional #622 (`40387415111`) succeeded on `b2ec889`. Isolated v40
+`mt76x3_ap.ko` is ELF32 MIPS32r2/O32, 5,212,832 bytes, with independently
+matched SHA-256. See
+`docs/evidence/WR1200JS-IOT-V40-CI-622-TARGET-COMPILE-2026-10-26.md`.
+It is not in the production image and has no on-device proof. Next: resolve
+owned close/recovery and PCI lifetime binding before image inclusion.
+Firmware #621 (`40385894396`) and ABI `40385894121` passed on published
+`b2ec889`; #621 is an ordinary image build, not the optional candidate check.
+Artifact details: `docs/evidence/WR1200JS-BUILD621-IOT-BASELINE-2026-10-26.md`.
+Exactly one optional v40 run #622 (`40387415111`) was then dispatched on that
+same SHA and completed successfully. Preserve all unrelated worktree changes.
+No production IoT driver or device acceptance follows from #621.
+
 ## Optional IoT CI #620 — 2026-10-26
 
 Run `40381625442` failed before candidate compilation: `candidate_scope=iot`
 skipped the full Band Steering step that previously created
 `$RUNNER_TEMP/wr1200js-steering-driver-probe`; the IoT step's first driver-tree
 check then exited 1. The ordinary firmware image built and uploaded, but no
-IoT candidate artifact exists. The local workflow repair prepares that isolated
-tree directly for IoT-only scope; YAML and scoped diff checks passed. Publish
-the repair with pending local commits after checking branch/run state, then
-perform one optional v40 run on the new SHA. Keep candidate, production image
+IoT candidate artifact exists. The published workflow repair prepares that isolated
+tree directly for IoT-only scope; YAML and scoped diff checks passed, and #622
+confirmed target compilation. Keep candidate, production image
 and physical-router acceptance distinct. Preserve unrelated dirty files.
 The failure monitor named the correct step but sampled the start of the long
 job log; a local bounded-tail parser change and >16-MiB offline fixture passed.
