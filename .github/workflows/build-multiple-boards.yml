@@ -15,6 +15,11 @@ on:
         description: Run additional isolated experimental compilations
         type: boolean
         default: false
+      candidate_scope:
+        description: Which isolated candidates to compile when checks are enabled
+        type: choice
+        options: [iot, all]
+        default: iot
       iot_candidate_variant:
         description: Isolated IoT candidate to compile when checks are enabled
         type: choice
@@ -290,6 +295,7 @@ jobs:
     uses: ./.github/workflows/build-padavan-4.4-wr1200js.yml
     with:
       run_candidate_checks: ${{ inputs.run_candidate_checks || false }}
+      candidate_scope: ${{ inputs.candidate_scope || 'iot' }}
       iot_candidate_variant: ${{ inputs.iot_candidate_variant || 'legacy' }}
   downloads:
     if: always() && needs.select.result == 'success'

@@ -8,6 +8,10 @@ on:
         description: Compile isolated experimental candidates after firmware verification
         type: boolean
         default: false
+      candidate_scope:
+        description: Select IoT only or the full isolated candidate suite
+        type: string
+        default: iot
       iot_candidate_variant:
         description: Isolated MT7603 source overlay selected for candidate compilation
         type: string
@@ -31,6 +35,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+
+      - name: Validate optional candidate selection
+        if: ${{ inputs.run_candidate_checks }}
+        env:
+          CANDIDATE_SCOPE: ${{ inputs.candidate_scope }}
+        run: |
+          case "$CANDIDATE_SCOPE" in
+            iot|all) ;;
+            *) echo "Unsupported candidate scope: $CANDIDATE_SCOPE" >&2; exit 1 ;;
+          esac
 
       - name: Check WebUI route verifier regressions before compilation
         run: python3 tools/check-web-routes-test.py
@@ -1478,7 +1492,7 @@ jobs:
 
       - name: Compile isolated full Band Steering drivers
         # Candidate RSSI instrumentation needs its own compile even when production steering is enabled.
-        if: ${{ inputs.run_candidate_checks && (!cancelled() && steps.firmware_build.conclusion == 'success') }}
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (!cancelled() && steps.firmware_build.conclusion == 'success') }}
         env:
           STEERING_PREPARED: ${{ steps.steering_prepare.outputs.enabled }}
         run: |
@@ -1541,7 +1555,7 @@ jobs:
           sha256sum -c band-steering-driver-results/baseline-config.sha256
 
       - name: Upload full Band Steering driver diagnostics
-        if: ${{ inputs.run_candidate_checks && (always()) }}
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (always()) }}
         uses: actions/upload-artifact@v7
         with:
           name: band-steering-full-driver-probe
@@ -1549,7 +1563,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Compile isolated merged IoT MT7603 candidate
-        if: ${{ inputs.run_candidate_checks && (!cancelled() && steps.firmware_build.conclusion == 'success') }}
+        if: ${{ inputs.run_candidate_checks && (inputs.candidate_scope == 'iot' || inputs.candidate_scope == 'all') && (!cancelled() && steps.firmware_build.conclusion == 'success') }}
         run: |
           set -euo pipefail
           root="$RUNNER_TEMP/wr1200js-steering-driver-probe"
@@ -1733,7 +1747,7 @@ jobs:
           PY
 
       - name: Upload isolated merged IoT driver diagnostics
-        if: ${{ inputs.run_candidate_checks && (always()) }}
+        if: ${{ inputs.run_candidate_checks && (inputs.candidate_scope == 'iot' || inputs.candidate_scope == 'all') && (always()) }}
         uses: actions/upload-artifact@v7
         with:
           name: iot-merged-driver-probe
@@ -1741,7 +1755,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Compile complete isolated rc with steering profile integration
-        if: ${{ inputs.run_candidate_checks && (!cancelled() && steps.firmware_build.conclusion == 'success' && steps.steering_prepare.outputs.enabled != 'y') }}
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (!cancelled() && steps.firmware_build.conclusion == 'success' && steps.steering_prepare.outputs.enabled != 'y') }}
         run: |
           set -euo pipefail
           compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
@@ -1749,7 +1763,7 @@ jobs:
           bash tools/band-steering/compile-rc-profile.sh "$PWD/padavan-4.4/trunk" \
             "$RUNNER_TEMP/wr1200js-steering-rc-probe" "$compiler"
       - name: Upload full rc profile integration diagnostics
-        if: ${{ inputs.run_candidate_checks && (always()) }}
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (always()) }}
         uses: actions/upload-artifact@v7
         with:
           name: band-steering-full-rc-profile-probe
@@ -1757,7 +1771,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Compile EoIP IPv4 candidate module
-        if: ${{ inputs.run_candidate_checks }}
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' }}
         run: |
           set -euo pipefail
           kernel="$PWD/padavan-4.4/trunk/linux-4.4.x"
@@ -1779,7 +1793,7 @@ jobs:
 
 
       - name: Upload EoIP candidate diagnostics
-        if: ${{ inputs.run_candidate_checks && (always()) }}
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (always()) }}
         uses: actions/upload-artifact@v7
         with:
           name: eoip-candidate-compile
@@ -1792,7 +1806,7 @@ jobs:
             overlay/padavan-4.4/candidates/eoip/eoip
 
       - name: Compile package against actual isolated steering drivers
-        if: ${{ inputs.run_candidate_checks && (!cancelled() && steps.firmware_build.conclusion == 'success' && steps.steering_prepare.outputs.enabled != 'y') }}
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (!cancelled() && steps.firmware_build.conclusion == 'success' && steps.steering_prepare.outputs.enabled != 'y') }}
         run: |
           set -euo pipefail
           compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
@@ -1810,7 +1824,7 @@ jobs:
             "$PWD/band-steering-driver-package-results/registered" "$compiler"
 
       - name: Upload driver-matched steering package diagnostics
-        if: ${{ inputs.run_candidate_checks && (always()) }}
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (always()) }}
         uses: actions/upload-artifact@v7
         with:
           name: band-steering-driver-package-probe
@@ -1819,7 +1833,7 @@ jobs:
           retention-days: 14
 
       - name: Compile PCRE2 candidate for modern Privoxy
-        if: ${{ inputs.run_candidate_checks }}
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' }}
         run: |
           set -euo pipefail
           compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
@@ -1846,7 +1860,7 @@ jobs:
           readelf -d ../stage/lib/libpcre2-8.so.0 > ../elf-dependencies.txt
 
       - name: Upload PCRE2 candidate diagnostics
-        if: ${{ inputs.run_candidate_checks && (always()) }}
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (always()) }}
         uses: actions/upload-artifact@v7
         with:
           name: pcre2-candidate
@@ -1859,7 +1873,7 @@ jobs:
             pcre2-candidate-build/stage/lib/libpcre2-posix.so*
 
       - name: Compile Privoxy 4.2 candidate
-        if: ${{ inputs.run_candidate_checks }}
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' }}
         run: |
           set -euo pipefail
           compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
@@ -1872,7 +1886,7 @@ jobs:
             sh overlay/padavan-4.4/candidates/privoxy/compile-privoxy.sh
 
       - name: Upload Privoxy candidate diagnostics
-        if: ${{ inputs.run_candidate_checks && (always()) }}
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (always()) }}
         uses: actions/upload-artifact@v7
         with:
           name: privoxy-candidate
@@ -1886,7 +1900,7 @@ jobs:
             privoxy-candidate-build/privoxy-4.2.0-stable/privoxy
 
       - name: Compile Stubby DoT candidate
-        if: ${{ inputs.run_candidate_checks }}
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' }}
         run: |
           set -euo pipefail
           compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
@@ -1897,7 +1911,7 @@ jobs:
             bash overlay/padavan-4.4/candidates/stubby/compile-stubby.sh
 
       - name: Upload Stubby candidate diagnostics
-        if: ${{ inputs.run_candidate_checks && (always()) }}
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (always()) }}
         uses: actions/upload-artifact@v7
         with:
           name: stubby-candidate
@@ -1911,7 +1925,7 @@ jobs:
             stubby-candidate-build/build/CMakeFiles/CMake*.log
 
       - name: Link isolated MT7621 systick candidate kernel
-        if: ${{ inputs.run_candidate_checks && (!cancelled() && steps.firmware_build.conclusion == 'success' && steps.steering_prepare.outputs.enabled != 'y') }}
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (!cancelled() && steps.firmware_build.conclusion == 'success' && steps.steering_prepare.outputs.enabled != 'y') }}
         run: |
           set -euo pipefail
           source_kernel="$PWD/padavan-4.4/trunk/linux-4.4.x"
@@ -1953,7 +1967,7 @@ jobs:
           sha256sum "$kernel/drivers/nvram/nvram.c" "$kernel/drivers/nvram/nvram_linux.o" > nvram-snapshot-kernel-sha256.txt
 
       - name: Upload isolated kernel link diagnostics
-        if: ${{ inputs.run_candidate_checks && (always()) }}
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (always()) }}
         uses: actions/upload-artifact@v7
         with:
           name: mt7621-systick-link
@@ -1975,7 +1989,7 @@ jobs:
 
 
       - name: Compile ZeroTier 1.16.2 source candidate
-        if: ${{ inputs.run_candidate_checks }}
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' }}
         run: |
           set -euo pipefail
           git init zerotier-candidate
@@ -2000,7 +2014,7 @@ jobs:
           readelf -d zerotier-candidate/zerotier-one > zerotier-candidate-dependencies.txt
 
       - name: Upload ZeroTier source candidate diagnostics
-        if: ${{ inputs.run_candidate_checks && (always()) }}
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (always()) }}
         uses: actions/upload-artifact@v7
         with:
           name: zerotier-1.16.2-candidate
