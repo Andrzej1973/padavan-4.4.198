@@ -4,13 +4,23 @@
 #include <stddef.h>
 #include <string.h>
 typedef int INT;typedef unsigned long ULONG;
+typedef unsigned int UINT32;
 #define WDEV_NUM_MAX 1
 #define NDIS_STATUS_SUCCESS 0
 #define CMD_RTPRIV_IOCTL_MBSS_CR_DISABLE 1
 struct device;
-typedef struct adapter {int wr_iot_transition_lock;struct wr_iot_radio_transition wr_iot_transition;struct wr_iot_interface_ref wr_iot_interface_refs[2];struct device *net_dev;unsigned int VirtualIfCnt;} *PRTMP_ADAPTER;
+typedef struct adapter {int wr_iot_transition_lock;struct wr_iot_radio_transition wr_iot_transition;struct wr_iot_interface_ref wr_iot_interface_refs[2];struct device *net_dev;unsigned int VirtualIfCnt;struct {int BssidNum;} ApCfg;} *PRTMP_ADAPTER;
 typedef struct device {PRTMP_ADAPTER ad;} *PNET_DEV;
 static int held,refs,cr_result,close_result,down_result,cr_calls,close_calls,queue_stops,hnat_calls,down_calls,reuse_on_close,invalidate_epoch_on_down,invalidate_token_on_down,inflate_count_on_down;
+#ifdef MT_MAC
+static int txs_outstanding,dma_outstanding;
+#define MAX_MBSSID_NUM(ad) (2)
+static int RT28xx_MBSS_IdxGet(PRTMP_ADAPTER ad,PNET_DEV dev){assert(ad&&dev&&!held);return 1;}
+static int WrBeaconTxSOutstanding(PRTMP_ADAPTER ad,UINT32 bss){assert(ad&&bss==1&&!held);return txs_outstanding;}
+#ifdef RTMP_PCI_SUPPORT
+static int WrBeaconDmaOutstanding(PRTMP_ADAPTER ad,UINT32 bss){assert(ad&&bss==1&&!held);return dma_outstanding;}
+#endif
+#endif
 #define RTMP_IRQ_LOCK(lock,flags) ((flags)=0,(void)(lock),assert(!held),held=1)
 #define RTMP_IRQ_UNLOCK(lock,flags) ((void)(flags),(void)(lock),assert(held),held=0)
 #define RTMP_OS_NETDEV_GET_PRIV(dev) ((dev)->ad)
@@ -45,7 +55,7 @@ int main(void){
  struct adapter a;struct device main_dev={&a},dev={&a};struct wr_iot_radio_ticket t,bad;
  unsigned long generation;
  for(int mode=0;mode<3;mode++){
-  memset(&a,0,sizeof(a));a.net_dev=&main_dev;a.VirtualIfCnt=2;wr_iot_radio_transition_init(&a.wr_iot_transition);a.wr_iot_transition.phase=WR_RADIO_UNVERIFIED;a.wr_iot_transition.serial=1;
+  memset(&a,0,sizeof(a));a.net_dev=&main_dev;a.VirtualIfCnt=2;a.ApCfg.BssidNum=2;wr_iot_radio_transition_init(&a.wr_iot_transition);a.wr_iot_transition.phase=WR_RADIO_UNVERIFIED;a.wr_iot_transition.serial=1;
   struct wr_iot_interface_ref *r=&a.wr_iot_interface_refs[0];wr_iot_ref_init(r,&dev,1);r->family=WR_REF_FAMILY_MBSS;r->published=1;assert(wr_iot_ref_reserve(r,&dev,1,1));assert(wr_iot_ref_open_finish(r,&dev,1,1,1));
   assert(wr_iot_mbss_begin_close(&dev,&t,&generation)==-1&&!generation&&!a.wr_iot_transition.busy);
   set_main_owner(&a,&main_dev);
@@ -72,6 +82,21 @@ int main(void){
   assert(wr_iot_mbss_close_checked(&dev,1,&bad)==-1&&
          !queue_stops&&!close_calls&&!down_calls);
 #endif
+  if(mode==0){
+#ifdef MT_MAC
+#ifdef RTMP_PCI_SUPPORT
+   dma_outstanding=1;
+   assert(wr_iot_mbss_close_checked(&dev,1,&t)==-1&&
+          r->close_stage==2&&!down_calls&&refs==1);
+   dma_outstanding=0;
+#endif
+   txs_outstanding=1;
+   assert(wr_iot_mbss_close_checked(&dev,1,&t)==-1&&
+          r->close_stage==2&&!down_calls&&refs==1);
+   txs_outstanding=0;
+   assert(close_calls==1);
+#endif
+  }
   assert(wr_iot_mbss_close_checked(&dev,1,&t)==-1&&refs==1&&r->phase==WR_REF_CLOSING&&!held);
 #ifdef MT_MAC
   if(mode==2){assert(r->close_stage==5&&!close_calls&&!down_calls);continue;}
@@ -88,7 +113,7 @@ int main(void){
  {
   /* If ticket retirement fails after checked DOWN, the reference and pin
    * must remain owned by the retained close path. */
-  memset(&a,0,sizeof(a));a.net_dev=&main_dev;a.VirtualIfCnt=2;
+  memset(&a,0,sizeof(a));a.net_dev=&main_dev;a.VirtualIfCnt=2;a.ApCfg.BssidNum=2;
   wr_iot_radio_transition_init(&a.wr_iot_transition);
   a.wr_iot_transition.phase=WR_RADIO_READY;
   struct wr_iot_interface_ref *r=&a.wr_iot_interface_refs[0];
@@ -108,7 +133,7 @@ int main(void){
  {
   /* A corrupted/invalidated owner after vendor DOWN must not retire the
    * ticket before the original module reference is accounted for. */
-  memset(&a,0,sizeof(a));a.net_dev=&main_dev;a.VirtualIfCnt=2;
+  memset(&a,0,sizeof(a));a.net_dev=&main_dev;a.VirtualIfCnt=2;a.ApCfg.BssidNum=2;
   wr_iot_radio_transition_init(&a.wr_iot_transition);
   a.wr_iot_transition.phase=WR_RADIO_READY;
   struct wr_iot_interface_ref *r=&a.wr_iot_interface_refs[0];
@@ -128,7 +153,7 @@ int main(void){
  {
   /* An unclaimed count writer during vendor DOWN cannot be accepted as a
    * successful MBSS close, even when the vendor call reports success. */
-  memset(&a,0,sizeof(a));a.net_dev=&main_dev;a.VirtualIfCnt=2;
+  memset(&a,0,sizeof(a));a.net_dev=&main_dev;a.VirtualIfCnt=2;a.ApCfg.BssidNum=2;
   wr_iot_radio_transition_init(&a.wr_iot_transition);
   a.wr_iot_transition.phase=WR_RADIO_READY;
   struct wr_iot_interface_ref *r=&a.wr_iot_interface_refs[0];
@@ -149,7 +174,7 @@ int main(void){
  {
   /* Inject slot reuse during an unlocked vendor call. The old close must
    * refuse the next stage without mutating the new registration. */
-  memset(&a,0,sizeof(a));a.net_dev=&main_dev;a.VirtualIfCnt=2;
+  memset(&a,0,sizeof(a));a.net_dev=&main_dev;a.VirtualIfCnt=2;a.ApCfg.BssidNum=2;
   wr_iot_radio_transition_init(&a.wr_iot_transition);
   a.wr_iot_transition.phase=WR_RADIO_UNVERIFIED;
   a.wr_iot_transition.serial=1;
