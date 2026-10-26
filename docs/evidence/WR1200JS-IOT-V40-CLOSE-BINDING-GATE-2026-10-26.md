@@ -48,3 +48,23 @@ does not establish that Linux calls it or that adapter removal is safe.
 
 Until these checks pass, #622 is evidence of isolated compilation only. It
 does not authorize installation of v40 in the released WR1200JS image.
+
+## First isolated binding step
+
+`tools/iot/prepare-mbss-checked-stop-candidate.py` copies a local v40 driver
+tree into a new directory and replaces only `MBSS_VirtualIF_Close` with a
+call to the checked begin/close functions. It refuses changed legacy anchors,
+verifies every other copied source file byte-for-byte, and writes an explicit
+manifest with recovery, PCI release, target compilation, production and
+runtime all marked false. This is a v41 source experiment, not a release
+candidate.
+
+Local execution against `mt7603-radio-off-v40p-20261026` verified 59 copied
+source files. `python -m py_compile` passed, and the one-file diff showed the
+callback replacement and forward declarations only. The output file SHA-256
+is `26478525a4f18fe45e9e97d92d355927c7abb04702a3978636268ee1a96fd20e`.
+The preparer rejected the older v39 source before creating an output tree.
+No MIPS compilation or fault-injected close test has run for this new binding.
+Its failure path deliberately retains the close ticket and module pin; Linux
+may still mark the interface down, so the next step must provide a real
+recovery owner before this path may be installed.
