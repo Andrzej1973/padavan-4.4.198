@@ -11,6 +11,10 @@ tree directly for IoT-only scope; YAML and scoped diff checks passed. Publish
 the repair with pending local commits after checking branch/run state, then
 perform one optional v40 run on the new SHA. Keep candidate, production image
 and physical-router acceptance distinct. Preserve unrelated dirty files.
+The failure monitor named the correct step but sampled the start of the long
+job log; a local bounded-tail parser change and >16-MiB offline fixture passed.
+Its workflow uses default-branch code, so publication on this feature branch
+alone will not activate the parser change in the GitHub monitor.
 
 Sol is the single writer. Read `AGENTS.md`, `PROJECT_STATUS.md`,
 `docs/AGENT-BOOTSTRAP.md`, `docs/EXECUTION-ROLE.md` and `git status -sb`

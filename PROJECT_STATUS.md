@@ -16,6 +16,11 @@
   the preexisting full Band Steering tree. YAML parsing and scoped diff check
   passed locally; repeat target compilation is still required. No production
   driver or router state changed.
+- Agent monitor run `40383532268` identified the failed job and step, but its
+  first-16-MiB excerpt missed the late failure. The local monitor now streams a
+  bounded last-16-MiB suffix and has a >16-MiB offline regression fixture.
+  Nim compilation and the monitor fixture passed; this parser change is not
+  yet part of the default-branch monitor workflow.
 
 This section is the current handoff. Older time-specific notes below are
 historical; their pending-run and local-only statements are superseded here.

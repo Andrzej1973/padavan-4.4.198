@@ -32,7 +32,12 @@ proc atomicWrite(path, text: string) =
   when defined(posix): setFilePermissions(path & ".tmp", {fpUserRead, fpUserWrite})
   moveFile(path & ".tmp", path)
 
-proc request(url, token: string; limit: int; verb = HttpGet; body = ""): tuple[code: int, body, location: string; truncated: bool] =
+proc trimLogTail(buffer: var string; limit: int; truncated: var bool) =
+  if buffer.len > limit:
+    truncated = true
+    buffer = buffer[buffer.len-limit..^1]
+
+proc request(url, token: string; limit: int; verb = HttpGet; body = ""; tail = false): tuple[code: int, body, location: string; truncated: bool] =
   # No automatic redirects: a GitHub bearer token must never reach a log host.
   let client = newHttpClient(timeout = 15000, maxRedirects = 0,
     sslContext = newContext(verifyMode = CVerifyPeer))
@@ -44,12 +49,19 @@ proc request(url, token: string; limit: int; verb = HttpGet; body = ""): tuple[c
   result.code = int(response.code)
   result.location = response.headers.getOrDefault("Location")
   var chunk = newString(4096)
-  while result.body.len <= limit:
-    let count = response.bodyStream.readData(addr chunk[0], min(chunk.len, limit + 1 - result.body.len))
+  while tail or result.body.len <= limit:
+    let amount = if tail: chunk.len else: min(chunk.len, limit + 1 - result.body.len)
+    let count = response.bodyStream.readData(addr chunk[0], amount)
     if count == 0: break
     result.body.add chunk[0..<count]
-    if result.body.len > limit: break
-  if result.body.len > limit:
+    if tail:
+      # Keep a bounded suffix; failures in long build jobs are usually near the end.
+      if result.body.len > limit + 4 * 1024 * 1024:
+        trimLogTail(result.body, limit, result.truncated)
+    elif result.body.len > limit: break
+  if tail:
+    trimLogTail(result.body, limit, result.truncated)
+  elif result.body.len > limit:
     result.truncated = true
     result.body.setLen(limit)
     if limit == maxJson: raise newException(IOError, "API response exceeds bound")
@@ -74,7 +86,10 @@ proc details(repo, id, attempt, token: string; fixture: bool): string =
   if fixture:
     let fixtureLog = getEnv("BUILD_MONITOR_FIXTURE_JOB_LOG")
     if fixtureLog.len > 0:
-      return "Fixture job log excerpt (offline):\n" & errorExcerpt(readFile(fixtureLog))
+      var fixtureBody = readFile(fixtureLog)
+      var fixtureTruncated = false
+      trimLogTail(fixtureBody, maxLog, fixtureTruncated)
+      return "Fixture job log excerpt (offline):\n" & errorExcerpt(fixtureBody)
     return "Fixture failure: synthetic compiler error; no network request.\n"
   let jobs = github("/repos/" & repo & "/actions/runs/" & id & "/attempts/" & attempt & "/jobs?per_page=100", token)
   var count = 0
@@ -85,14 +100,14 @@ proc details(repo, id, attempt, token: string; fixture: bool): string =
       if step{"conclusion"}.getStr == "failure":
         result.add "Failed step: " & redact(step{"name"}.getStr) & "\n"
     try:
-      var log = request(api & "/repos/" & repo & "/actions/jobs/" & number(job, "id") & "/logs", token, maxLog)
+      var log = request(api & "/repos/" & repo & "/actions/jobs/" & number(job, "id") & "/logs", token, maxLog, tail = true)
       if log.code in [301, 302, 303, 307, 308]:
         let target = parseUri(log.location)
         if target.scheme != "https" or target.hostname.len == 0 or target.username.len > 0:
           raise newException(IOError, "Invalid log redirect")
-        log = request(log.location, "", maxLog) # Never forward Authorization.
+        log = request(log.location, "", maxLog, tail = true) # Never forward Authorization.
       if log.code == 200:
-        result.add "Log excerpt (latest 60 matching lines from first 16 MiB; heuristic" &
+        result.add "Log excerpt (latest 60 matching lines from last 16 MiB; heuristic" &
           (if log.truncated: ", truncated" else: ", complete download") & "):\n" & errorExcerpt(log.body)
       else: result.add "Job log unavailable (HTTP " & $log.code & ").\n"
     except CatchableError:
