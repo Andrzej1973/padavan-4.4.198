@@ -6,8 +6,11 @@ The output must be a new directory; the reviewed input is never modified.
 """
 
 import argparse
+import hashlib
+import re
 import shutil
 from pathlib import Path
+from mbss_cr_enable import guard_cr_enable
 
 
 CHECKED_OFF = r'''/* Checked MT7603 halt path. The CLOSE ticket pins this adapter and excludes
@@ -110,6 +113,55 @@ def replace_once(root: Path, name: str, old: str, new: str) -> None:
     path.write_text(data.replace(old, new), encoding="utf-8", newline="\n")
 
 
+def reject_unclaimed_virtual_up(root: Path) -> None:
+    """Retire the count-writing legacy UP path after checking its callers."""
+    callers = []
+    for path in root.rglob("*"):
+        if path.suffix not in (".c", ".h", ".inc"):
+            continue
+        if path.as_posix().endswith("include/rt_os_net.h"):
+            continue  # The unused legacy wrapper definition remains for this stage.
+        if re.search(r"\bVIRTUAL_IF_UP\s*\(", path.read_text(encoding="utf-8", errors="replace")):
+            callers.append(str(path.relative_to(root)))
+    if callers:
+        raise ValueError(f"Unclaimed VIRTUAL_IF_UP callers require review: {callers}")
+    path = root / "common/cmm_cfg.c"
+    data = path.read_text(encoding="utf-8").replace("\r\n", "\n")
+    start = "\t\t\t/* Arithmetic guard only; shared owner must stabilize the count. */"
+    end = "\n\t\t}\n\t\t\tbreak;\n\n\t\tcase CMD_RTPRIV_IOCTL_VIRTUAL_INF_DOWN:"
+    if data.count(start) != 2 or data.count(end) != 1:
+        raise ValueError("Reviewed virtual UP/DOWN dispatcher anchors changed")
+    up_start = data.index(start)
+    up_end = data.index(end, up_start)
+    data = (data[:up_start] +
+            "\t\t\t/* Every active UP caller must carry a reserved owner ticket. */\n"
+            "\t\t\treturn NDIS_STATUS_FAILURE;" + data[up_end:])
+    path.write_text(data, encoding="utf-8", newline="\n")
+
+
+def verify_legacy_virtual_down_inventory(root: Path) -> None:
+    """Prevent a new unchecked stop path while the four known ones are retired."""
+    expected = {
+        "os/linux/rt_main_dev.c": 1,
+        "ap/ap_mbss_inf.c": 1,
+        "ap/ap_apcli_inf.c": 1,
+        "os/linux/rt_profile.c": 1,
+    }
+    found = {}
+    for path in root.rglob("*"):
+        if path.suffix not in (".c", ".h", ".inc"):
+            continue
+        relative = path.relative_to(root).as_posix()
+        if relative == "include/rt_os_net.h":
+            continue  # This is the legacy wrapper definition, not a caller.
+        count = len(re.findall(r"\bVIRTUAL_IF_DOWN\s*\(",
+                               path.read_text(encoding="utf-8", errors="replace")))
+        if count:
+            found[relative] = count
+    if found != expected:
+        raise ValueError(f"Legacy virtual DOWN callers changed: {found}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("source", type=Path)
@@ -127,6 +179,44 @@ def main() -> None:
     try:
         # The copied v39 manifest cannot describe modified v40 bytes.
         (output / "manifest.json").unlink()
+        here = Path(__file__).resolve().parent
+        reviewed_admission_path = source / "include/wr-iot-mbss-open-admission.inc"
+        if hashlib.sha256(reviewed_admission_path.read_bytes()).hexdigest() != (
+                "642e7a09ea177f5232035e99d115710c35216c188fb061870f5c286661d996c8"):
+            raise ValueError("Reviewed v39 MBSS admission changed; re-review before replacement")
+        reviewed_admission = reviewed_admission_path.read_text(encoding="utf-8")
+        if (reviewed_admission.count("ret=wr_iot_mbss_open_raw(pDev,&ticket,record->generation);") != 1 or
+                reviewed_admission.count("wake_up_all(&adapter->wr_iot_ticket_wait);") != 3):
+            raise ValueError("Reviewed v39 MBSS claim/wakeup contract changed")
+        admission = (here / "mbss-open-admission.inc").read_text(encoding="utf-8")
+        if admission.count("ret=wr_iot_mbss_open_raw(pDev);") != 1:
+            raise ValueError("Local MBSS raw-open contract changed")
+        admission = admission.replace("ret=wr_iot_mbss_open_raw(pDev);",
+            "ret=wr_iot_mbss_open_raw(pDev,&ticket,record->generation);", 1)
+        for anchor, expected in (
+            ("  wr_iot_radio_abort_bss_open_unmutated(&adapter->wr_iot_transition,&ticket);\n  RTMP_IRQ_UNLOCK(&adapter->wr_iot_transition_lock,flags);\n  return -1;", 1),
+            ("  wr_iot_radio_finish(&adapter->wr_iot_transition,&ticket,0);\n  RTMP_IRQ_UNLOCK(&adapter->wr_iot_transition_lock,flags);\n  return -1;", 2),
+            (" RTMP_IRQ_UNLOCK(&adapter->wr_iot_transition_lock,flags);\n return ret;", 1),
+        ):
+            if admission.count(anchor) != expected:
+                raise ValueError("Local MBSS ticket-retirement wakeup anchor changed")
+            admission = admission.replace(anchor,
+                anchor.replace("\n  return -1;", "\n  wake_up_all(&adapter->wr_iot_ticket_wait);\n  return -1;")
+                      .replace("\n return ret;", "\n wake_up_all(&adapter->wr_iot_ticket_wait);\n return ret;"))
+        (output / "include/wr-iot-mbss-open-admission.inc").write_text(admission, encoding="utf-8", newline="\n")
+        reviewed_close = source / "include/wr-iot-mbss-close-checked.inc"
+        if hashlib.sha256(reviewed_close.read_bytes()).hexdigest() != (
+                "c269ee751fcce2ff095bfa5374d33b97fc67d527c241e31d39fac53ba116e65b"):
+            raise ValueError("Reviewed v39 MBSS close admission changed; re-review before replacement")
+        shutil.copyfile(here / "mbss-close-checked.inc",
+                        output / "include/wr-iot-mbss-close-checked.inc")
+        for name in ("virtual-open-claim.h", "mt7603-main-observe.h"):
+            shutil.copyfile(here / name, output / "include" / name)
+        reject_unclaimed_virtual_up(output)
+        verify_legacy_virtual_down_inventory(output)
+        raw_path = output / "ap/ap_mbss_inf.c"
+        raw_path.write_text(guard_cr_enable(raw_path.read_text(encoding="utf-8")),
+                            encoding="utf-8", newline="\n")
         replace_once(output, "include/radio-transition.h",
                      "unsigned int joined_workers,shutdown_stage,close_notified,virtual_down_stage,virtual_up_stage;",
                      "unsigned int joined_workers,shutdown_stage,close_notified,virtual_down_stage,virtual_up_stage,mt_radio_off_stage;")

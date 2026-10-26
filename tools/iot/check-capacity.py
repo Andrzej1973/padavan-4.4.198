@@ -32,7 +32,10 @@ def compile_main_observer(compiler, filtered, kernel, output):
     source=stage/'probe.c';obj=stage/'probe.o'
     source.write_text('#include "rt_config.h"\n#include "mt7603-main-observe.h"\n'
                       'int wr_main_observer_probe(PRTMP_ADAPTER ad) {\n'
-                      ' return wr_iot_mt7603_main_config_observed(ad);\n}\n',encoding='utf-8')
+                      ' return wr_iot_mt7603_main_config_observed(ad);\n}\n'
+                      'int wr_bss_observer_probe(PRTMP_ADAPTER ad, PNET_DEV dev) {\n'
+                      ' return wr_iot_mt7603_bss_config_observed(ad, dev, 2U);\n}\n',
+                      encoding='utf-8')
     command=[str(compiler.resolve()),*flags,'-I'+str(header.parent),'-c',str(source),'-o',str(obj)]
     result=subprocess.run(command,cwd=kernel,text=True,capture_output=True,timeout=60)
     if result.returncode:
@@ -40,7 +43,7 @@ def compile_main_observer(compiler, filtered, kernel, output):
     data=obj.read_bytes()
     if len(data)<20 or data[:6]!=b'\x7fELF\x01\x01' or int.from_bytes(data[18:20],'little')!=8:
         raise RuntimeError('Observer compiler output is not ELF32 little-endian MIPS')
-    return {'status':'compiled','scope':'actual rt_config.h and rtmp_chip.o Kbuild flags; not whole-driver/runtime',
+    return {'status':'compiled','scope':'main and BSS observers with actual rt_config.h and rtmp_chip.o Kbuild flags; not whole-driver/runtime',
             'object':str(obj),'object_sha256':hashlib.sha256(data).hexdigest(),
             'header_sha256':hashlib.sha256(header.read_bytes()).hexdigest(),
             'command':command}

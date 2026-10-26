@@ -203,10 +203,23 @@ def main() -> int:
             return 1
         admission = (driver / "include/wr-iot-mbss-open-admission.inc").read_text(
             encoding="utf-8", errors="replace")
+        acquired_failure = "if(ret==-3){" in admission
+        uncertain_calls = 2 if acquired_failure else 1
         if (admission.count("if(ret==-2){") != 1 or
-                admission.count("wr_iot_ref_open_uncertain(") != 1):
+                admission.count("wr_iot_ref_open_uncertain(") != uncertain_calls):
             print("MBSS uncertain-open owner handoff missing")
             return 1
+        if acquired_failure:
+            acquired_branch = admission[admission.index("if(ret==-3){"):
+                                        admission.index("if(ret==-2){")]
+            if ("wr_iot_ref_open_finish(record,pDev,record->generation,ticket.serial,1)"
+                    not in acquired_branch or
+                    "wr_iot_radio_finish(&adapter->wr_iot_transition,&ticket,0)"
+                    not in acquired_branch or
+                    "RT_MOD_DEC_USE_COUNT();" in acquired_branch or
+                    "return -3;" not in mbss):
+                print("MBSS acquired post-UP failure owner handoff missing")
+                return 1
         core = (driver / "ap/ap_mbss.c").read_text(encoding="utf-8", errors="replace")
         mbss_open = core[core.index("INT32 MBSS_Open("):core.index("INT MBSS_AbortOpen(")]
         abort = core[core.index("INT MBSS_AbortOpen("):core.index("INT MBSS_Close(")]
@@ -217,7 +230,8 @@ def main() -> int:
             return 1
         if (driver / "include/wr-iot-radio-ticket-wait.inc").exists():
             wake_paths = {
-                "include/wr-iot-mbss-open-admission.inc": 3,
+                "include/wr-iot-mbss-open-admission.inc":
+                    4 if acquired_failure else 3,
                 "include/wr-iot-reset-admission.inc": 1,
                 "os/linux/rt_main_dev.c": 2,
             }

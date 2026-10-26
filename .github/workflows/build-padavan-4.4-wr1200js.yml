@@ -946,11 +946,17 @@ jobs:
             # Keep the 5 GHz result diagnostic until that band is part of the
             # agreed IoT scope.
             if [ "$radio" = mt76x3 ]; then
-              args+=(--require-three-bss)
+              args+=(--require-three-bss --check-main-observer)
             fi
             python3 tools/iot/check-capacity.py \
               padavan-4.4/trunk/linux-4.4.x "$radio" "${args[@]}"
           done
+          # Separate TU evidence: rtmp_chip flags do not prove rt_linux macros.
+          python3 tools/iot/check-task-config.py \
+            --kernel padavan-4.4/trunk/linux-4.4.x \
+            --driver padavan-4.4/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3 \
+            --compiler "$compiler" \
+            --output iot-capacity-evidence/mt76x3-task-config.json
       - name: Preserve effective IoT radio-capacity diagnostics
         if: always()
         uses: actions/upload-artifact@v7
@@ -1573,6 +1579,20 @@ jobs:
               tools/iot/candidates/aux-remove-close-v39 \
               .iot-local-check/mt7603-radio-off-v40-ci
             cp -a .iot-local-check/mt7603-radio-off-v40-ci "$candidate/driver"
+            cmp tools/iot/virtual-open-claim.h "$candidate/driver/include/virtual-open-claim.h"
+            cmp tools/iot/mt7603-main-observe.h "$candidate/driver/include/mt7603-main-observe.h"
+            gcc -std=c11 -Wall -Wextra -Werror -DWR_IOT_V40=1 \
+              -I "$candidate/driver/include" -I tools/iot \
+              tools/iot/check-mbss-post-open.c -o "$RUNNER_TEMP/wr-iot-mbss-post-open"
+            "$RUNNER_TEMP/wr-iot-mbss-post-open"
+            gcc -std=c11 -Wall -Wextra -Werror -DWR_IOT_V40=1 \
+              -I "$candidate/driver/include" -I tools/iot \
+              tools/iot/check-mbss-close.c -o "$RUNNER_TEMP/wr-iot-mbss-close-admission"
+            "$RUNNER_TEMP/wr-iot-mbss-close-admission"
+            gcc -std=c11 -Wall -Wextra -Werror -I tools/iot \
+              tools/iot/check-mbss-close-recovery-owner.c \
+              -o "$RUNNER_TEMP/wr-iot-mbss-close-recovery-owner"
+            "$RUNNER_TEMP/wr-iot-mbss-close-recovery-owner"
             python3 tools/iot/check-virtual-if-call-coverage.py "$candidate/driver"
             python3 tools/iot/prepare-v39-merge-manifest.py \
               "$pristine" "$candidate/driver" \
@@ -1610,6 +1630,8 @@ jobs:
                   raise SystemExit('Isolated source copy mismatch: ' + name)
               path.touch()
           PY
+          python3 tools/iot/check_mbss_cr_enable.py "$driver/ap/ap_mbss_inf.c" \
+            --compiler "$(command -v gcc)"
           compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" \
             -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
           test -n "$compiler"
@@ -1617,13 +1639,16 @@ jobs:
           sha256sum "$kernel/.config" > "$results/config-before.sha256"
           make -C "$kernel" ARCH=mips CROSS_COMPILE="$cross" -j2 vmlinux modules \
             2>&1 | tee "$results/build.log"
+          cmp tools/iot/mt7603-main-observe.h "$driver/include/mt7603-main-observe.h"
           python3 tools/iot/check-capacity.py "$kernel" mt76x3 \
-            --compiler "$compiler" --require-three-bss \
+            --compiler "$compiler" --require-three-bss --check-main-observer \
             --source-commit c25283e915a2a00a763774dd255b14aff997285e \
             --output "$results/merged-capacity.json"
           python3 - "$results/merged-capacity.json" <<'PY'
           import json, sys
           report = json.load(open(sys.argv[1], encoding='utf-8'))
+          if report['main_observer_probe']['status'] != 'compiled':
+              raise SystemExit('MT7603 main observer target compilation missing')
           lock = report['beacon_lock_units_probe']
           units = lock['units']
           if len(units) != 9 or not lock['all_unit_flags_available'] or not lock['all_site_activity_available']:
