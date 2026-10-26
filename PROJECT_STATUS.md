@@ -1,5 +1,22 @@
 # Current project status — 2026-10-25 (updated)
 
+## 2026-10-26 optional IoT CI #620 failure and repair
+
+- Optional firmware run #620 (`40381625442`, SHA `676b020`, IoT v40 scope)
+  completed with failure in `Compile isolated merged IoT MT7603 candidate`.
+  The ordinary firmware image had built and uploaded before this optional step;
+  the `iot-merged-driver-results` artifact was absent. The original job log
+  reports exit code 1 immediately after the step starts, with no compiler
+  output. Workflow source shows its first `test -d "$driver"` requires the
+  isolated kernel tree made only by the Band Steering step gated to `all`.
+  Thus the `iot` scope skipped that prerequisite; this is a CI orchestration
+  failure, not evidence that v40 did or did not compile.
+- The local workflow now copies and configures its own isolated kernel tree for
+  `iot` scope and emits a specific error if the tree is absent. `all` retains
+  the preexisting full Band Steering tree. YAML parsing and scoped diff check
+  passed locally; repeat target compilation is still required. No production
+  driver or router state changed.
+
 This section is the current handoff. Older time-specific notes below are
 historical; their pending-run and local-only statements are superseded here.
 

@@ -1578,7 +1578,26 @@ jobs:
           candidate="$RUNNER_TEMP/wr1200js-iot-candidate"
           merged="$RUNNER_TEMP/wr1200js-iot-merged-mt76x3"
           results="$PWD/iot-merged-driver-results"
-          test -d "$driver"
+          if [ "${{ inputs.candidate_scope }}" = iot ]; then
+            # The full Band Steering compile creates this tree only in 'all' scope.
+            # Give an IoT-only run the same isolated, configured kernel baseline.
+            test ! -e "$root"
+            mkdir -p "$root/trunk" "$results"
+            cp -a "$PWD/padavan-4.4/trunk/linux-4.4.x" "$kernel"
+            python3 tools/band-steering/configure-driver-probe.py "$kernel"
+            compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" \
+              -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
+            test -n "$compiler"
+            cross="${compiler%gcc}"
+            make -C "$kernel" ARCH=mips CROSS_COMPILE="$cross" olddefconfig \
+              2>&1 | tee "$results/config.log"
+            grep -qx 'CONFIG_MT7603E_BAND_STEERING_7603=y' "$kernel/.config"
+            grep -qx 'CONFIG_RT_BAND_STEERING=y' "$kernel/.config"
+          fi
+          if [ ! -d "$driver" ]; then
+            echo '::error::Isolated IoT driver tree was not prepared' >&2
+            exit 1
+          fi
           test ! -e "$pinned" && test ! -e "$candidate" && test ! -e "$merged"
           mkdir -p "$pinned" "$results"
           test "$(git -C padavan-4.4 rev-parse HEAD)" = c25283e915a2a00a763774dd255b14aff997285e

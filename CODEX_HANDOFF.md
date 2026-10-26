@@ -1,5 +1,17 @@
 # Current handoff — 2026-10-25 (updated)
 
+## Optional IoT CI #620 — 2026-10-26
+
+Run `40381625442` failed before candidate compilation: `candidate_scope=iot`
+skipped the full Band Steering step that previously created
+`$RUNNER_TEMP/wr1200js-steering-driver-probe`; the IoT step's first driver-tree
+check then exited 1. The ordinary firmware image built and uploaded, but no
+IoT candidate artifact exists. The local workflow repair prepares that isolated
+tree directly for IoT-only scope; YAML and scoped diff checks passed. Publish
+the repair with pending local commits after checking branch/run state, then
+perform one optional v40 run on the new SHA. Keep candidate, production image
+and physical-router acceptance distinct. Preserve unrelated dirty files.
+
 Sol is the single writer. Read `AGENTS.md`, `PROJECT_STATUS.md`,
 `docs/AGENT-BOOTSTRAP.md`, `docs/EXECUTION-ROLE.md` and `git status -sb`
 before changing files. Preserve every unrelated local modification.
