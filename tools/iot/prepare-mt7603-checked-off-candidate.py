@@ -257,6 +257,15 @@ def main() -> None:
                      "INT wr_iot_mgmt_exit_checked(RTMP_ADAPTER *pAd, const struct wr_iot_radio_ticket *ticket);",
                      "INT wr_iot_mgmt_exit_checked(RTMP_ADAPTER *pAd, const struct wr_iot_radio_ticket *ticket);\n#ifdef RTMP_PCI_SUPPORT\nBOOLEAN wr_iot_mt_poll_txrx_empty(RTMP_ADAPTER *pAd);\nBOOLEAN wr_iot_mt_radio_off_checked(RTMP_ADAPTER *pAd, const struct wr_iot_radio_ticket *ticket);\n#endif")
         replace_once(output, "hw_ctrl/cmm_asic_mt.c",
+                     "\tRTMP_CLEAR_FLAG(pAd, fRTMP_ADAPTER_POLL_IDLE);\n    return TRUE;\n}\n\nVOID MTPciPollTxRxEmpty",
+                     "    /* A disappearance on the final RX read is not an idle receipt. */\n"
+                     "    if (RTMP_TEST_FLAG(pAd, fRTMP_ADAPTER_NIC_NOT_EXIST)) {\n"
+                     "        RTMP_CLEAR_FLAG(pAd, fRTMP_ADAPTER_POLL_IDLE);\n"
+                     "        return FALSE;\n"
+                     "    }\n"
+                     "\tRTMP_CLEAR_FLAG(pAd, fRTMP_ADAPTER_POLL_IDLE);\n"
+                     "    return TRUE;\n}\n\nVOID MTPciPollTxRxEmpty")
+        replace_once(output, "hw_ctrl/cmm_asic_mt.c",
                      "}\n#endif\n\n\n#ifdef RTMP_SDIO_SUPPORT\nVOID MTSdioMlmeRadioOff",
                      "}\n\n" + CHECKED_OFF + "#endif\n\n\n#ifdef RTMP_SDIO_SUPPORT\nVOID MTSdioMlmeRadioOff")
         path = output / "common/rtmp_init_inf.c"

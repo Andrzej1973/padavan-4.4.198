@@ -131,6 +131,17 @@ The optional v40 CI step now runs this exact generated-source fixture before
 its MIPS module compile. Local execution used the same strict GCC flags and
 passed; a new CI run is needed to verify the workflow wiring itself.
 
+Follow-up 2026-10-26: a final-read race remained. The checked DMA helper
+tested `NIC_NOT_EXIST` at loop entry; if the device disappeared on the last
+RX register read that completed the idle threshold, it could return TRUE.
+The v40 generator now adds a final disappearance check before clearing
+`POLL_IDLE` and returning success. The generated-source fixture injects that
+exact read and rejects success. Fresh v40 generation and strict host C11
+tests passed both against the pinned input and the generated v40 helper.
+This is still not target compilation, production installation or device RF
+evidence; optional CI must be rerun on the new commit after the ordinary
+build for that SHA reaches a terminal result.
+
 Child removal also has family-specific partial states: WDS and AP-client call
 `RtmpOSNetDevClose` (a `void` wrapper around `dev_close`) and refuse free
 when the registered close phase is not idle. MBSS deinitializes beacon state
