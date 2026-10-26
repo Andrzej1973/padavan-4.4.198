@@ -1,5 +1,13 @@
 # Supplied MI-MINI config — 2026-10-03
 
+## Isolated radio CI record — 2026-10-26
+
+Two diagnostic Mi Mini radio/kernel candidate runs succeeded; the later run
+linked an isolated MIPS `vmlinux`. Neither built firmware nor tested the router.
+Both diagnostic artifacts are no longer available through GitHub's artifact
+API. Run IDs, exact commits and verification limits are preserved in
+[the CI evidence record](evidence/MI-MINI-RADIO-PROBE-CI-2026-10-26.md).
+
 ## Additional local references — 2026-10-18
 
 User-found stock images, bootloader and Factory-like dumps have been preserved
