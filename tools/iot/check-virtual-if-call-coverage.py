@@ -41,6 +41,10 @@ def checked_mbss_stop_coverage(mbss: str, executor: str) -> bool:
             body.count("return wr_iot_mbss_close_checked(pDev, generation, &ticket);") == 1 and
             executor.count("INT wr_iot_mbss_close_checked(") == 1 and
             executor.count("wr_iot_virtual_down_checked(ad,ticket)") == 1 and
+            executor.count("wake_up_all(&ad->wr_iot_ticket_wait);") == 1 and
+            re.search(r"r->close_stage=4U;.*?RTMP_IRQ_UNLOCK\(&ad->wr_iot_transition_lock,flags\);\s*"
+                      r"wake_up_all\(&ad->wr_iot_ticket_wait\);\s*RT_MOD_DEC_USE_COUNT\(\);",
+                      executor, re.S) is not None and
             not re.search(r"\bVIRTUAL_IF_DOWN\s*\(", body + executor))
 
 

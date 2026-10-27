@@ -1,5 +1,17 @@
 # Current project status — 2026-10-25 (updated)
 
+## 2026-10-27 isolated v41 close ticket wake
+
+- Post-#627 source review found the checked MBSS close retired its radio
+  ticket without waking `wr_iot_ticket_wait`, contrary to the candidate wait
+  helper's contract. The isolated close source now wakes after lock release
+  only on successful retirement; the caller gate checks this ordering.
+- Freshly generated v40/v41 trees passed caller coverage. Two negative wake
+  mutations were rejected. Evidence:
+  `docs/evidence/WR1200JS-IOT-V41-TICKET-WAKE-2026-10-27.md`.
+  These bytes need a new target compile. Recovery owner, PCI release and
+  beacon quiescence still block production installation.
+
 ## 2026-10-27 CI on published v41 gate repair
 
 - Firmware #626 (`40431336149`) and Band Steering ABI #580

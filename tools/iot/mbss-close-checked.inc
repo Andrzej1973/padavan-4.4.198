@@ -230,6 +230,7 @@ INT wr_iot_mbss_close_checked(PNET_DEV dev,unsigned long generation,
  r->close_stage=4U;
  wr_iot_mbss_close_release_locked(ad,r,dev,generation,token,ticket);
  RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);
+ wake_up_all(&ad->wr_iot_ticket_wait);
  RT_MOD_DEC_USE_COUNT();
  return 0;
 uncertain:

@@ -1,5 +1,17 @@
 # Current handoff — 2026-10-25 (updated)
 
+## Isolated v41 ticket wake — 2026-10-27
+
+After #627's successful isolated target compile, source review found a
+missing wait-queue wake after checked MBSS ticket retirement. The candidate
+source and caller gate now require one wake after adapter-lock release, and
+fresh v40/v41 local checks plus negative mutations pass. See
+`docs/evidence/WR1200JS-IOT-V41-TICKET-WAKE-2026-10-27.md`.
+Compile these new bytes in the next isolated v41 run after ordinary CI on
+their published SHA. The recovery owner, PCI release fence and beacon
+quiescence remain required; do not install the candidate. Preserve unrelated
+dirty worktree files. Sol remains the single writer.
+
 ## Published gate repair and optional v41 run — 2026-10-27
 
 Commit `e73f9dc` is published to PR #2. Ordinary firmware #626
