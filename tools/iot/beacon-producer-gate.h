@@ -9,6 +9,10 @@ struct wr_iot_beacon_producer_gate {
  unsigned int active;
  int accepting;
 };
+struct wr_iot_beacon_producer_ticket {
+ unsigned long generation;
+ int active;
+};
 
 static inline void wr_iot_beacon_gate_init(struct wr_iot_beacon_producer_gate *g)
 {
@@ -27,11 +31,13 @@ static inline int wr_iot_beacon_gate_open(struct wr_iot_beacon_producer_gate *g,
 
 /* Take the pin before reading BeaconPkt or TimPkt. */
 static inline int wr_iot_beacon_gate_begin(struct wr_iot_beacon_producer_gate *g,
-                                          unsigned long generation)
+                                          unsigned long generation,
+                                          struct wr_iot_beacon_producer_ticket *ticket)
 {
- if(!g||!g->accepting||g->generation!=generation||
+ if(!g||!ticket||ticket->active||!g->accepting||g->generation!=generation||
     g->active==(unsigned int)-1)return 0;
  g->active++;
+ ticket->generation=generation;ticket->active=1;
  return 1;
 }
 
@@ -46,16 +52,19 @@ static inline int wr_iot_beacon_gate_revoke(struct wr_iot_beacon_producer_gate *
 
 /* Final submission is permitted only while this generation is open. */
 static inline int wr_iot_beacon_gate_submit(const struct wr_iot_beacon_producer_gate *g,
-                                           unsigned long generation)
+                                           const struct wr_iot_beacon_producer_ticket *ticket)
 {
- return g&&g->accepting&&g->active&&g->generation==generation;
+ return g&&ticket&&ticket->active&&g->accepting&&g->active&&
+        g->generation==ticket->generation;
 }
 
 /* End after final submit or cancel, including every early-return path. */
 static inline int wr_iot_beacon_gate_end(struct wr_iot_beacon_producer_gate *g,
-                                        unsigned long generation)
+                                        struct wr_iot_beacon_producer_ticket *ticket)
 {
- if(!g||!g->active||g->generation!=generation)return 0;
+ if(!g||!ticket||!ticket->active||!g->active||
+    g->generation!=ticket->generation)return 0;
+ ticket->active=0;
  g->active--;
  return 1;
 }

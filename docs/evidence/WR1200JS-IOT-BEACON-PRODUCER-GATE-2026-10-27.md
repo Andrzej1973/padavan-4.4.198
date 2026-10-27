@@ -14,6 +14,15 @@ same lock used for final submission, wait outside that lock for active
 producers to finish or cancel, and reject reopen until the old generation
 drains. `tools/iot/check-beacon-producer-gate.c` covers a close racing with
 preparation, blocked late submit, blocked early reuse and generation checks.
+Each invocation has its own ticket, so a duplicate finish from one producer
+cannot decrement the count held by a second producer of the same generation.
+
+The binding must cover `APUpdateBeaconFrame` and `APMakeBssTimFrame` from
+their entry through all early returns. Pinning only
+`RT28xx_UpdateTimToAsic` is too late: `APMakeBssTimFrame` already writes to
+`TimPkt` before calling it. Final submit must check the same generation while
+holding the submission lock. A wait for producer drain must not hold that
+lock, or producer completion could deadlock.
 
 Verified locally: GCC strict C11 (`-Wall -Wextra -Werror -pedantic`) syntax
 and executable test passed. This is a host-only model. The candidate kernel
