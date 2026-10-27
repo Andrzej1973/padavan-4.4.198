@@ -24,6 +24,18 @@ their entry through all early returns. Pinning only
 holding the submission lock. A wait for producer drain must not hold that
 lock, or producer completion could deadlock.
 
+The producer entry is not limited to a process context:
+`common/cmm_data_pci.c:1520-1526` calls `APMakeAllTimFrame` from
+`RTMPHandlePreTTTTInterrupt`, which reaches `APMakeBssTimFrame`. The
+`APUpdateAllBeaconFrame` path is reached from `RTMPHandlePreTBTTInterrupt` in the same
+file. Thus begin/end and the final submission check must use IRQ-safe,
+non-sleeping synchronization; only the close owner may sleep while waiting
+after revocation. The existing candidate uses both `RTMP_SEM_LOCK` and
+`RTMP_IRQ_LOCK` forms on `BcnRingLock` in beacon paths. Their actual
+definitions and lock ordering must be resolved before choosing a kernel
+binding. The host contract intentionally does not claim to solve that mixed
+locking or the void `rt_pci_remove` teardown hole.
+
 Verified locally: GCC strict C11 (`-Wall -Wextra -Werror -pedantic`) syntax
 and executable test passed. This is a host-only model. The candidate kernel
 does **not** yet contain the producer pin, drain wait, or the deferred
