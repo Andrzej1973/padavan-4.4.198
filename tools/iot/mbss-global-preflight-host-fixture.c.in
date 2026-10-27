@@ -1,0 +1,75 @@
+/* Extracted candidate source with injected vendor/kernel operations. */
+#include <assert.h>
+#include <stddef.h>
+#include "mbss-close-evidence.h"
+typedef int INT;
+typedef unsigned int UINT;
+typedef unsigned long ULONG;
+#define WDEV_NUM_MAX 4
+#define FIRST_MBSSID 1
+#define NDIS_STATUS_SUCCESS 0
+#define NDIS_STATUS_FAILURE 1
+#define FALSE 0
+struct wifi_dev { int *if_dev; };
+typedef struct { struct wifi_dev wdev; int bcn_buf; } BSS_STRUCT;
+typedef struct {
+ struct { BSS_STRUCT MBSSID[WDEV_NUM_MAX]; } ApCfg;
+ struct { unsigned int retiring, active_tx; } wr_iot_transition;
+ int wr_iot_transition_lock;
+ unsigned int wr_iot_registration_inflight,wr_iot_pci_work_joined;
+ unsigned int max_bss;
+ struct wr_iot_interface_ref wr_iot_interface_refs[WDEV_NUM_MAX+1];
+} RTMP_ADAPTER;
+#define MAX_MBSSID_NUM(ad) ((ad)->max_bss)
+static int held,mark_calls,deinit_calls,detach_calls,free_calls,beacon_calls;
+#define RTMP_IRQ_LOCK(lock,flags) do { (void)(lock); (flags)=0; assert(!held); held=1; } while(0)
+#define RTMP_IRQ_UNLOCK(lock,flags) do { (void)(lock); (void)(flags); assert(held); held=0; } while(0)
+static INT wr_iot_mbss_begin_remove(RTMP_ADAPTER *ad,UINT bss,int *dev){
+ (void)ad;assert(!held&&dev&&bss<WDEV_NUM_MAX);mark_calls++;return NDIS_STATUS_SUCCESS;
+}
+static INT wr_iot_mbss_cancel_unmutated(RTMP_ADAPTER *ad,UINT bss,int *dev){
+ (void)ad;(void)bss;(void)dev;return NDIS_STATUS_SUCCESS;
+}
+static INT wr_iot_mbss_beacon_done(RTMP_ADAPTER *ad,UINT bss,int *dev){
+ (void)ad;(void)bss;assert(dev);beacon_calls++;return NDIS_STATUS_SUCCESS;
+}
+static int wr_iot_bcn_remove_ready(RTMP_ADAPTER *ad,UINT bss){
+ (void)ad;(void)bss;return 1;
+}
+static INT wdev_bcn_buf_deinit(RTMP_ADAPTER *ad,int *buf){
+ (void)ad;(void)buf;deinit_calls++;return 1;
+}
+static void RtmpOSNetDevProtect(int on){ (void)on; }
+static void RtmpOSNetDevDetach(int *dev){ assert(dev);detach_calls++; }
+static void rtmp_wdev_idx_unreg(RTMP_ADAPTER *ad,struct wifi_dev *wdev){
+ (void)ad;assert(wdev);
+}
+static void RtmpOSNetDevFree(int *dev){ assert(dev);free_calls++; }
+@@MBSS_PREFLIGHT_FUNCTION@@
+@@MBSS_REMOVE_FUNCTION@@
+int main(void){
+ RTMP_ADAPTER ad={0};int root=0,first=0,second=0;
+ struct wr_iot_interface_ref *r=ad.wr_iot_interface_refs;
+ ad.max_bss=3;ad.wr_iot_transition.retiring=1;
+ ad.ApCfg.MBSSID[1].wdev.if_dev=&first;
+ ad.ApCfg.MBSSID[2].wdev.if_dev=&second;
+ wr_iot_ref_init(&r[0],&root,1);r[0].published=1;r[0].family=WR_REF_FAMILY_MAIN;
+ wr_iot_ref_init(&r[1],&first,2);r[1].published=1;r[1].family=WR_REF_FAMILY_MBSS;
+ wr_iot_ref_init(&r[2],&second,3);r[2].published=1;r[2].family=WR_REF_FAMILY_MBSS;
+ r[1].last_token=r[2].last_token=1;
+ r[1].close_stage=4;r[2].phase=WR_REF_OWNED;
+ ad.wr_iot_pci_work_joined=1;
+ assert(MBSS_Remove(&ad)==NDIS_STATUS_FAILURE);
+ assert(!mark_calls&&!deinit_calls&&!detach_calls&&!free_calls&&!held);
+ r[2].phase=WR_REF_IDLE;r[2].close_stage=3;
+ assert(MBSS_Remove(&ad)==NDIS_STATUS_FAILURE);
+ assert(!mark_calls&&!deinit_calls&&!detach_calls&&!free_calls&&!held);
+ r[2].close_stage=4;ad.wr_iot_pci_work_joined=0;
+ assert(MBSS_Remove(&ad)==NDIS_STATUS_FAILURE);
+ assert(!mark_calls&&!deinit_calls&&!detach_calls&&!free_calls&&!held);
+ ad.wr_iot_pci_work_joined=1;
+ assert(MBSS_Remove(&ad)==NDIS_STATUS_SUCCESS);
+ assert(mark_calls==2&&deinit_calls==2&&detach_calls==2&&free_calls==2);
+ assert(beacon_calls==2&&!held);
+ return 0;
+}
