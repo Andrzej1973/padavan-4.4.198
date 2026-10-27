@@ -47,3 +47,15 @@ checked child close → joined owner → beacon/DMA/TxS quiescence → child
 unregister → main detach → adapter/MMIO release`, with failure injection at
 each transition. Then compile the isolated MIPS module and inspect the final
 image separately. Do not use #634 target compilation as release proof.
+
+## Host-contract step
+
+Commit `91a4537` now versions the previously local PCI/child teardown models.
+`wr_child_teardown_complete()` refuses a family until
+`wr_child_teardown_close_done()` has recorded independently proven checked
+close and joined recovery (or proof that no live close was needed). The model
+still trusts the kernel caller's evidence; it is not bound to the vendor
+driver. Strict host GCC C11 checks for all-child teardown, adapter release
+and PCI retirement passed with `-Wall -Wextra -Werror -pedantic`. No MIPS
+module was compiled from this host-model change, and no production image or
+router was changed.
