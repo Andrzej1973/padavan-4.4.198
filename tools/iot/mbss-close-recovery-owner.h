@@ -210,8 +210,11 @@ static inline int wr_iot_mbss_recovery_mark_completed(
     record->phase!=WR_REF_IDLE||record->close_stage!=4||
     !wr_iot_mbss_recovery_ticket_recorded(record,
                                            &owner->close_ticket)||
-    record->close_serial!=owner->close_ticket.serial||radio->busy||
-    radio->retired_serial!=owner->close_serial)return 0;
+    record->close_serial!=owner->close_ticket.serial)return 0;
+ /* The checked executor writes IDLE/stage 4 only after retiring this exact
+  * ticket under the adapter lock. A later operation may already have reused
+  * radio->retired_serial or acquired radio->busy before the worker observes
+  * the durable per-record completion receipt. */
  owner->completed=1;return 1;
 }
 static inline int wr_iot_mbss_recovery_retain(

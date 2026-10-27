@@ -1,5 +1,16 @@
 # Current project status — 2026-10-25 (updated)
 
+## 2026-10-27 MBSS recovery receipt host correction
+
+- Host-only recovery completion no longer depends on the radio's mutable
+  `busy`/`retired_serial` after checked close writes its exact per-record
+  `IDLE`/stage-4 receipt under the adapter lock. The strict C11 fixture
+  passed with a newer radio ticket and rejected an incomplete stage-3 record.
+  Evidence: `docs/evidence/WR1200JS-IOT-MBSS-RECOVERY-RECEIPT-2026-10-27.md`.
+  Kernel worker/lifetime binding and target tests remain open.
+- Optional IoT-only v41 run #629 (`40447432208`) was dispatched after ordinary
+  firmware #628 and ABI #581 passed on `48ffaef`; its result is pending.
+
 ## 2026-10-27 isolated v41 close ticket wake
 
 - Post-#627 source review found the checked MBSS close retired its radio

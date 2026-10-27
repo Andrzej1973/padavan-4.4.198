@@ -1,5 +1,16 @@
 # Current handoff — 2026-10-25 (updated)
 
+## Recovery receipt and optional #629 — 2026-10-27
+
+Sol remains the single writer. Firmware #628 and ABI #581 passed on published
+`48ffaef`; optional IoT-only v41 #629 (`40447432208`) is running on that SHA.
+Separately, the host-only MBSS recovery model now accepts the exact durable
+stage-4 record receipt even if a later radio ticket has started or retired;
+strict C11 compile/execution passed. See
+`docs/evidence/WR1200JS-IOT-MBSS-RECOVERY-RECEIPT-2026-10-27.md`.
+Do not infer a bound worker, image inclusion or runtime success. Preserve all
+unrelated dirty files and wait for #629 before another candidate dispatch.
+
 ## Isolated v41 ticket wake — 2026-10-27
 
 After #627's successful isolated target compile, source review found a

@@ -62,7 +62,15 @@ int main(void){
  assert(wr_iot_radio_finish(&radio,&ticket,1));
  assert(wr_iot_ref_consume(&refs[1],&mbss_device,2,1));
  refs[1].close_stage=4;
+ /* A second radio operation may retire before the deferred worker wakes.
+  * The exact IDLE/stage-4 record, not global retired_serial, is its receipt. */
+ radio.busy=WR_RADIO_AUX_OPEN;
+ radio.retired_serial=ticket.serial+1;
+ refs[1].close_stage=3;
+ assert(!wr_iot_mbss_recovery_mark_completed(&owner,&refs[1],&radio));
+ refs[1].close_stage=4;
  assert(wr_iot_mbss_recovery_mark_completed(&owner,&refs[1],&radio));
+ radio.busy=0;
  assert(!wr_iot_mbss_recovery_complete(&owner,0));
  assert(wr_iot_mbss_recovery_complete(&owner,1));
 
