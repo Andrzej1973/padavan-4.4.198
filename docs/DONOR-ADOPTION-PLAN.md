@@ -34,6 +34,12 @@
   build/runtime шляху не є придатними налаштуваннями нашого пристрою.
 - **xiaobei207:** MT76x2 file-read guard, WireGuard compat і окремий аналіз
   HWNAT queue/binding. Деталі й точні SHA: XIAOBEI207-PADAVAN44-AUDIT.md.
+- **Ljzkirito / Actions-Padavan_Redmi-AC2100:** архівний RM2100 workflow і
+  конфіг, без власного дерева прошивки. Наші pinned source, ccache,
+  SHA256/artifacts і LF-правила вже покривають придатні прийоми. Ідея
+  release manifest із SHA256 лишається для етапу прийнятого образу; RM2100
+  адреси, overclock, вимкнені служби та очищення CI не переносити. Див.
+  `evidence/LJZKIRITO-RM2100-DONOR-AUDIT-2026-10-27.md`.
 
 ## Черга впровадження
 
