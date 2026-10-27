@@ -89,6 +89,10 @@ report['checks']['all_discovered_shell_syntax']=bool(report['scripts']) and all(
 report['checks']['command_v_supported_or_avoided']=not any(
     item['command_v_requires_review'] for item in report['scripts'])
 report['checks']['busybox_applet_links_recorded']=bool(report['applet_links'])
+report['checks']['od_compact_config']=('CONFIG_OD=y' in effective_busybox_config and
+    '# CONFIG_DESKTOP is not set' in effective_busybox_config)
+report['checks']['od_applet_and_link']=('od' in applets and
+    any(link['path']=='usr/bin/od' for link in report['applet_links']))
 closure=None
 try:
     readelf=shutil.which('readelf')
@@ -446,6 +450,10 @@ with tempfile.TemporaryDirectory(prefix='target-busybox-') as tmp:
     sample=Path(tmp)/'serial';sample.write_bytes(b'unit-test-only\n')
     probe=run(['hexdump','-v','-n','258','-e','1/1 "%02x"',str(sample)])
     report['checks']['usbip_hexdump_exact_options']=probe.returncode==0 and probe.stdout==sample.read_bytes().hex().encode()
+    od_sample=Path(tmp)/'od-sample';od_sample.write_bytes(bytes((0,1,127,255)))
+    probe=run(['od','-b',str(od_sample)])
+    report['checks']['od_octal_bytes']=probe.returncode==0 and bool(
+        re.search(rb'\b000\s+001\s+177\s+377\b',probe.stdout))
     import fcntl
     lock=Path(tmp)/'lock'
     with lock.open('w+') as held:

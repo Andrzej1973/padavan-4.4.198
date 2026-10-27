@@ -688,6 +688,9 @@ jobs:
           fi
           grep -q '^CONFIG_IP_SET=m$' trunk/linux-4.4.x/.config
           grep -q '^CONFIG_USB_STORAGE=m$' trunk/linux-4.4.x/.config
+          grep -q '^CONFIG_OD=y$' trunk/user/busybox/busybox-1.24.x/.config
+          grep -q '^# CONFIG_DESKTOP is not set$' trunk/user/busybox/busybox-1.24.x/.config
+          test -L trunk/romfs/usr/bin/od
           if grep -q '^CONFIG_FIRMWARE_INCLUDE_USBIP=y$' trunk/.config; then
             grep -q '^CONFIG_HEXDUMP=y$' trunk/user/busybox/busybox-1.24.x/.config
             test -L trunk/romfs/usr/bin/hexdump
