@@ -70,9 +70,16 @@ int main(void){
  assert(!wr_iot_mbss_recovery_mark_completed(&owner,&refs[1],&radio));
  refs[1].close_stage=4;
  assert(wr_iot_mbss_recovery_mark_completed(&owner,&refs[1],&radio));
+ assert(!wr_iot_mbss_recovery_record_release_ready(&owner,&refs[1]));
+ assert(wr_iot_mbss_recovery_record_release_ready(&owner,&refs[0]));
+ owner.deferred_owners=0;
+ assert(!wr_iot_mbss_recovery_record_release_ready(&owner,&refs[0]));
+ owner.deferred_owners=1;
  radio.busy=0;
  assert(!wr_iot_mbss_recovery_complete(&owner,0));
+ assert(!wr_iot_mbss_recovery_record_release_ready(&owner,&refs[1]));
  assert(wr_iot_mbss_recovery_complete(&owner,1));
+ assert(wr_iot_mbss_recovery_record_release_ready(&owner,&refs[1]));
 
  /* A failed abort before a confirmed virtual-UP has no retryable DOWN. */
  wr_iot_mbss_recovery_init(&owner);

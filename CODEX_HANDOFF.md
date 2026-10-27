@@ -2,6 +2,24 @@
 
 ## Optional IoT #629 failure and fix — 2026-10-27
 
+The next source audit identified a PCI teardown hole: the current isolated
+`rt_pci_remove` ignores `RtmpPhyNetDevExit(FALSE)` and proceeds to adapter/MMIO
+release. See
+`docs/evidence/WR1200JS-IOT-V41-MBSS-RECOVERY-RELEASE-AUDIT-2026-10-27.md`.
+The host recovery model now blocks registry reuse until the matching deferred
+owner joins; strict C11 fixture passed. It is not yet bound in the driver.
+Do not install v41 until recovery is joined and PCI release is gated.
+
+Optional IoT v41 #631 passed on `3868270`; the isolated MIPS32r2/O32 module
+and manifest hashes match. See
+`docs/evidence/WR1200JS-IOT-V41-CI-631-TARGET-COMPILE-2026-10-27.md`.
+It is not in the ordinary image and has no on-device acceptance. Next: bind
+deferred MBSS recovery to a kernel worker with netdev/adapter lifetime and
+PCI release gating, then prove beacon DMA/TxS quiescence.
+
+Firmware #630 and ABI #582 passed on `3868270`. Optional IoT-only v41
+#631 (`40511894915`) was dispatched on that SHA and later passed.
+
 Sol remains the single writer. #629 (`40447432208`) failed in a host-only
 fixture compile: `check-mbss-close.c` did not mock the new ticket wait/wake.
 The fixture now checks the successful and unsuccessful wake paths; three

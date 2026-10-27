@@ -249,4 +249,16 @@ static inline int wr_iot_mbss_recovery_complete(
     !owner->deferred_owners)return 0;
  wr_iot_mbss_recovery_init(owner);return 1;
 }
+/* Call under the adapter transition lock before registry slot release or
+ * reuse. An IDLE/stage-4 close receipt is not enough while its deferred
+ * owner still pins this netdev; the worker must have joined and released the
+ * owner first. An inconsistent active owner also fails closed. */
+static inline int wr_iot_mbss_recovery_record_release_ready(
+ const struct wr_iot_mbss_recovery_owner *owner,
+ const struct wr_iot_interface_ref *record){
+ if(!owner||!record)return 0;
+ if(owner->phase==WR_MBSS_OWNER_IDLE)return 1;
+ if(!owner->deferred_owners||!owner->device)return 0;
+ return owner->device!=record->device;
+}
 #endif

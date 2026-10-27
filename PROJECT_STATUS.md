@@ -2,6 +2,24 @@
 
 ## 2026-10-27 optional IoT #629 host fixture failure
 
+- Source audit after #631 found a concrete PCI-release hole in the isolated
+  candidate baseline: `RtmpPhyNetDevExit` can return `FALSE` for retained
+  MBSS removal, while `rt_pci_remove` ignores the return and proceeds to
+  free the adapter/MMIO. See
+  `docs/evidence/WR1200JS-IOT-V41-MBSS-RECOVERY-RELEASE-AUDIT-2026-10-27.md`.
+  A host release-readiness guard now blocks registry reuse until its deferred
+  owner is joined; strict C11 fixture passed. Kernel/PCI binding remains open.
+  Candidate remains excluded until a joined recovery owner and effective
+  release gate are implemented and verified.
+- Optional IoT-only v41 #631 (`40511894915`) passed on `3868270`. The
+  downloaded `iot-merged-driver-probe` reports target compilation of
+  `mt76x3_ap.ko`; its local SHA256 and byte count match the manifest.
+  Evidence: `docs/evidence/WR1200JS-IOT-V41-CI-631-TARGET-COMPILE-2026-10-27.md`.
+  This is an isolated module, absent from the ordinary image; kernel recovery,
+  lifetime and physical acceptance remain open.
+- Firmware #630 (`40449849750`) and Band Steering ABI #582
+  (`40449849683`) both passed on `3868270`. One optional IoT-only v41
+  run #631 (`40511894915`) was then dispatched on that exact SHA.
 - Optional IoT-only v41 #629 (`40447432208`) failed in the standalone
   `check-mbss-close.c` host compile. The candidate include now calls
   `wake_up_all(&ad->wr_iot_ticket_wait)`, but the host mock lacked both the
