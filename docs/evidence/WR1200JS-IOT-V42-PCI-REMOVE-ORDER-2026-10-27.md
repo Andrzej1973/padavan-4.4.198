@@ -27,6 +27,13 @@ transition must still allow the already-admitted exact close tickets to
 finish; it must reject new opens. Retry must use durable per-record receipts
 without repeating beacon deinit or vendor down.
 
+The current transition model permits `WR_RADIO_CLOSE`, `WR_RADIO_BSS_CLOSE`
+and `WR_RADIO_AUX_CLOSE` after `wr_iot_radio_retire`, while blocking a new
+`WR_RADIO_BSS_OPEN`. `wr_iot_radio_retire` also advances the epoch via
+`wr_iot_radio_main_down`; already admitted operations must retire using their
+original tickets. This makes close-before-remove feasible in the state
+machine, but no source binding currently enumerates and joins each child.
+
 PCI `remove` has a `void` callback. If child close/remove fails, the current
 code's unconditional adapter/MMIO free is unsafe; simply returning early
 would also leave a detached PCI device with leaked resources. A production
