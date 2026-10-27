@@ -42,9 +42,13 @@
   `evidence/LJZKIRITO-RM2100-DONOR-AUDIT-2026-10-27.md`. Окремо переглянуто
   всі 38 публічних репозиторіїв власника: Padavan fork не містить власних
   radio/IoT-патчів; Mi Mini та multi-board workflow — майбутні reference;
-  три конкретні OpenWrt PPP-патчі залишено кандидатами для етапу WAN після
-  перевірки нашого pinned `pppd`. Див.
-  `evidence/LJZKIRITO-REPOSITORIES-AUDIT-2026-10-27.md`.
+  три конкретні OpenWrt PPP-патчі звірено з pinned `pppd`: захист чужого
+  типового маршруту і обмеження MTU вже є у базі. Лише запис peer gateway
+  відсутній; він умовний кандидат для етапу WAN за наявності реального
+  PPPoE-споживача й перевірок маршруту. Наш каталог моделей уже має
+  перевірку рецептів, тому донорський selector зараз не переносити. Див.
+  `evidence/LJZKIRITO-REPOSITORIES-AUDIT-2026-10-27.md` та
+  `evidence/LJZKIRITO-PPP-AND-BOARD-SELECTOR-COMPARISON-2026-10-27.md`.
 
 ## Черга впровадження
 

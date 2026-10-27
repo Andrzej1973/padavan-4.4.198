@@ -18,7 +18,7 @@ repository is `LJZKIRITO-RM2100-DONOR-AUDIT-2026-10-27.md`.
 
 | Repository, reviewed HEAD | Candidate | Required comparison before adoption |
 | --- | --- | --- |
-| [`openwrt-packages`](https://github.com/Ljzkirito/openwrt-packages), `e4f4d68e32130c6a5d9c318ca09ed8ed39bd9c06` | Its OpenWrt `ppp/patches/330-retain_foreign_default_routes.patch` scopes deletion to the PPP device; `340-populate_default_gateway.patch` sets peer gateway; `207-lcp_mtu_max.patch` caps negotiated MTU. These are concrete WAN/PPPoE review candidates. | At the scheduled WAN stage compare exact `pppd` version and `sys-linux.c`/`lcp.c` in pinned Padavan source, verify whether the changes are already present, then test route ownership, reconnect and MTU on a recoverable device path. Do not apply OpenWrt patches blindly. The same repo has old SmartDNS, miniupnpd and AdGuardHome recipes tied to OpenWrt/UCI dependencies. |
+| [`openwrt-packages`](https://github.com/Ljzkirito/openwrt-packages), `e4f4d68e32130c6a5d9c318ca09ed8ed39bd9c06` | Its OpenWrt `ppp/patches/330-retain_foreign_default_routes.patch` scopes deletion to the PPP device; `340-populate_default_gateway.patch` sets peer gateway; `207-lcp_mtu_max.patch` caps negotiated MTU. | Follow-up comparison found 330 and 207 already present in pinned Padavan source. Only 340 differs; defer until a demonstrated PPPoE/default-gateway consumer and WAN-stage testing. See `LJZKIRITO-PPP-AND-BOARD-SELECTOR-COMPARISON-2026-10-27.md`. The same repo has old SmartDNS, miniupnpd and AdGuardHome recipes tied to OpenWrt/UCI dependencies. |
 | [`smartdns-openwrt`](https://github.com/Ljzkirito/smartdns-openwrt), `e5d1f4183a40eab4bd0c9e645b1baf1e19c2f3b1` | The current `PikuZheng` branch packages SmartDNS 48.4.2 prebuilt with dashboard; its Makefile permits aarch64, arm and x86_64 and has no MIPS package branch. | No binary for MT7621/WR1200JS. Keep upstream version/features as a future DNS service reference only; any Padavan port needs source build, libc/dependency, flash-size and runtime checks. |
 | [`adguardhome-openwrt`](https://github.com/Ljzkirito/adguardhome-openwrt), `eb689187d1f3b7bafae1b02870e38409af2e7e54` | Very small OpenWrt init/config packaging. | UCI/OpenWrt lifecycle is incompatible with Padavan's service framework; no direct import. |
 
@@ -32,8 +32,8 @@ SoCs; the LuCI themes target OpenWrt rather than Classic/Modern Padavan.
 
 ## Decision and evidence boundary
 
-1. Keep this source catalog and the three specific PPP patches as candidates.
-   Do not modify WR1200JS WAN until pinned-source and route-behavior checks.
+1. Keep this source catalog. Two PPP patches are already in the pinned source;
+   only the peer-gateway patch remains a conditional WAN-stage candidate.
 2. Keep the Mi Mini wrapper and multi-board selector as references for the
    already planned later board stages. They do not qualify a new board.
 3. The owner's Padavan fork contains board defaults and user network rules,
