@@ -39,7 +39,12 @@
   SHA256/artifacts і LF-правила вже покривають придатні прийоми. Ідея
   release manifest із SHA256 лишається для етапу прийнятого образу; RM2100
   адреси, overclock, вимкнені служби та очищення CI не переносити. Див.
-  `evidence/LJZKIRITO-RM2100-DONOR-AUDIT-2026-10-27.md`.
+  `evidence/LJZKIRITO-RM2100-DONOR-AUDIT-2026-10-27.md`. Окремо переглянуто
+  всі 38 публічних репозиторіїв власника: Padavan fork не містить власних
+  radio/IoT-патчів; Mi Mini та multi-board workflow — майбутні reference;
+  три конкретні OpenWrt PPP-патчі залишено кандидатами для етапу WAN після
+  перевірки нашого pinned `pppd`. Див.
+  `evidence/LJZKIRITO-REPOSITORIES-AUDIT-2026-10-27.md`.
 
 ## Черга впровадження
 
