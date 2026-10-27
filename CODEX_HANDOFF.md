@@ -1,5 +1,16 @@
 # Current handoff — 2026-10-25 (updated)
 
+## Published gate repair and optional v41 run — 2026-10-27
+
+Commit `e73f9dc` is published to PR #2. Ordinary firmware #626
+(`40431336149`) and ABI #580 (`40431336135`) passed on that SHA. Optional
+IoT-only v41 #627 (`40443241354`) was dispatched after both finished and is
+successful. The downloaded MIPS module and manifest were verified separately:
+`docs/evidence/WR1200JS-IOT-V41-CI-627-TARGET-COMPILE-2026-10-27.md`.
+Continue the recovery owner and PCI lifetime binding; do not treat #627 as
+production image or router acceptance. Sol remains the single writer;
+preserve all unrelated dirty files.
+
 ## IoT v41 #625 gate repair — 2026-10-27
 
 Sol remains the single writer. Optional #625 (`40429949035`) failed before

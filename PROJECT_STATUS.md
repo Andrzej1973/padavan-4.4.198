@@ -1,5 +1,17 @@
 # Current project status — 2026-10-25 (updated)
 
+## 2026-10-27 CI on published v41 gate repair
+
+- Firmware #626 (`40431336149`) and Band Steering ABI #580
+  (`40431336135`) both passed on `e73f9dc`. The ordinary firmware build did
+  not select v41. These results do not prove IoT candidate target compilation.
+- After both completed and the branch had no active run, dispatched exactly
+  one optional IoT-only v41 run #627 (`40443241354`) on the same SHA. It
+  passed; the downloaded MIPS module's size and SHA-256 match its manifest.
+  Evidence: `docs/evidence/WR1200JS-IOT-V41-CI-627-TARGET-COMPILE-2026-10-27.md`.
+  Recovery owner and PCI release gate remain unbound. No production image or
+  router state was changed.
+
 ## 2026-10-27 optional IoT v41 CI #625
 
 - Optional #625 (`40429949035`, SHA `2216583`) failed in the virtual-interface
