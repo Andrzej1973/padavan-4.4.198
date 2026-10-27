@@ -15,8 +15,9 @@ from pathlib import Path
 
 LEGACY_START = b"INT MBSS_VirtualIF_Close(PNET_DEV pDev)\n{\n"
 LEGACY_END = b'\n#include "wr-iot-mbss-close-checked.inc"'
-REPLACEMENT = b"""/* The checked executor is defined below this callback. Failure retains the
- * ticket and module pin; a separate recovery owner must resume it. */
+REPLACEMENT = b"""/* The checked executor is defined below this callback. A failure after
+ * admission retains the ticket and module pin. Admission failure retains
+ * the open reference without a ticket. Both need an external recovery owner. */
 INT wr_iot_mbss_begin_close(PNET_DEV dev, struct wr_iot_radio_ticket *ticket,
                             unsigned long *generation);
 INT wr_iot_mbss_close_checked(PNET_DEV dev, unsigned long generation,
@@ -82,6 +83,7 @@ def main() -> None:
         "output_sha256": hashlib.sha256(replacement).hexdigest(),
         "source_files_verified": len(copied),
         "checked_stop_bound": True,
+        "admission_failure_recovery_bound": False,
         "recovery_owner_bound": False,
         "pci_release_gate_bound": False,
         "target_compiled": False,

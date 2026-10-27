@@ -66,12 +66,27 @@ showed the callback replacement and forward declarations only. The output file
 SHA-256 is `26478525a4f18fe45e9e97d92d355927c7abb04702a3978636268ee1a96fd20e`.
 The preparer rejected the older v39 source before creating an output tree.
 No MIPS compilation or fault-injected close test has run for this new binding.
-Its failure path deliberately retains the close ticket and module pin; Linux
-may still mark the interface down, so the next step must provide a real
-recovery owner before this path may be installed.
+Failure after `wr_iot_mbss_begin_close` retains the close ticket and module
+pin. Failure in that admission call has no ticket and retains the open
+reference. Linux may mark the interface down in either case, so both paths
+need a real recovery owner before this binding may be installed.
 
 The optional Actions input now accepts `v41` and prepares this binding after
 the reviewed v40 overlay, then uses the existing isolated MIPS module build.
 The manifest is kept beside the driver tree so only driver sources enter the
 assembly. Workflow YAML parsed locally; the `v41` target job has not run.
 Do not dispatch it while an existing build on the branch is still active.
+
+## Admission-failure recovery contract, 2026-10-27
+
+After #624 and its ABI run passed on published `2216583`, optional IoT-only
+v41 run #625 (`40429949035`) was dispatched on that exact SHA. Its result is
+pending. This target compilation cannot validate a recovery worker.
+
+The host-only MBSS recovery owner now accepts an `OPEN_ACQUIRED` record while
+another radio transition is busy, provided the caller already holds the
+netdev and fences adapter release. Its action remains `NONE` until the busy
+operation clears, then permits `BEGIN_CLOSE` with the still-owned reference.
+The strict C11 host fixture compiled and exited successfully for this case.
+This covers the state-machine handoff after a refused close admission; no
+`work_struct`, `dev_hold`, scheduling, join or PCI callback binding exists yet.

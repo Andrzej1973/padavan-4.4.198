@@ -32,10 +32,14 @@ int main(void){
    WR_MBSS_RECOVERY_OPEN_ACQUIRED,0,0,1));
  assert(!wr_iot_mbss_recovery_queue(&owner,&refs[1],&radio,
    WR_MBSS_RECOVERY_OPEN_ACQUIRED,0,1,0));
+ radio.busy=WR_RADIO_AUX_CLOSE;
  assert(wr_iot_mbss_recovery_queue(&owner,&refs[1],&radio,
    WR_MBSS_RECOVERY_OPEN_ACQUIRED,0,1,1));
  assert(!wr_iot_mbss_recovery_complete(&owner,1));
  assert(wr_iot_mbss_recovery_begin(&owner));
+ assert(wr_iot_mbss_recovery_action(&owner,&refs[1],&radio,refs,2,2)==
+        WR_MBSS_RECOVERY_NONE);
+ radio.busy=0;
  assert(wr_iot_mbss_recovery_action(&owner,&refs[1],&radio,refs,2,1)==
         WR_MBSS_RECOVERY_NONE);
  assert(wr_iot_mbss_recovery_action(&owner,&refs[1],&radio,refs,2,2)==

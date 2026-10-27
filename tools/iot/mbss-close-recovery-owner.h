@@ -65,7 +65,9 @@ static inline void wr_iot_mbss_recovery_init(
 }
 /* The caller must already hold a netdev ref and prevent adapter release.
  * An OPEN_ACQUIRED record includes the vendor count acquired before a later
- * failure such as CR_ENABLE; it cannot await ndo_stop after failed ndo_open. */
+ * failure such as CR_ENABLE or a refused close admission. It may be queued
+ * while another radio operation owns the ticket; action waits for that
+ * operation to clear. It cannot await ndo_stop after failed ndo_open. */
 static inline int wr_iot_mbss_recovery_queue(
  struct wr_iot_mbss_recovery_owner *owner,
  const struct wr_iot_interface_ref *record,
@@ -78,7 +80,7 @@ static inline int wr_iot_mbss_recovery_queue(
     !record->generation||!record->last_token||!record->published||
     record->family!=WR_REF_FAMILY_MBSS)return 0;
  if(source==WR_MBSS_RECOVERY_OPEN_ACQUIRED){
-  if(record->phase!=WR_REF_OWNED||radio->busy||ticket)return 0;
+  if(record->phase!=WR_REF_OWNED||ticket)return 0;
  }else if(source==WR_MBSS_RECOVERY_CLOSE_INCOMPLETE){
   if(record->phase!=WR_REF_CLOSING||!record->close_serial||
      (record->close_stage!=2&&record->close_stage!=3)||
