@@ -17,6 +17,16 @@
 
 The current device evidence in `DEVICE-READONLY-AUDIT-2026-10-14.md` records DHCP WAN (`eth3`), not PPPoE. Thus patch 340 has no demonstrated benefit for the currently observed uplink. It might matter for a future PPPoE provider or route consumer, but a source-level omission alone does not establish a defect.
 
+Follow-up inspection of our WAN overlay and router evidence found no consumer
+of a PPP route's `rt_gateway` field. The active uplink in that evidence is
+DHCP on `eth3`, and `pppd` is only needed for the preserved PPP/PPPoE option.
+The patch does not change DHCP route creation. For this WR1200JS state its
+expected benefit is therefore **unproven**, while changing `RTF_GATEWAY` may
+affect route installation/deletion semantics when PPPoE is used. Do not put
+patch 340 in the ordinary image now. Reopen only with a concrete PPPoE route
+consumer or a reproducible failure; verify the peer gateway value, route
+add/delete and reconnect using the target build and a recoverable device path.
+
 ## Board selector decision
 
 Our repository already has explicit `workflow_dispatch` choices (`all-supported`, `wr1200js`), a `boards.json` catalog, validation of configuration paths and duplicate IDs, and a gate rejecting boards without a verified recipe. WR1200JS is enabled; Mi Mini and Mi 4 remain pending. The donor's broad model/toolchain selector does not supply a validated WR1200JS configuration or a safer board gate. No selector code is worth importing now. For a future board, add a tested recipe and image evidence to our catalog rather than copying donor choices or enabling pending boards.
