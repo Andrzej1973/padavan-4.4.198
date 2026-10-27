@@ -20,6 +20,8 @@ def main() -> None:
     parser.add_argument("candidate_driver", type=Path)
     parser.add_argument("reviewed_manifest", type=Path)
     parser.add_argument("output", type=Path)
+    parser.add_argument("--expected-overlay-count", type=int, default=58,
+                        choices=(58, 60))
     args = parser.parse_args()
     if args.output.exists():
         parser.error("output already exists")
@@ -47,7 +49,7 @@ def main() -> None:
             if original.is_file():
                 originals[name] = blob(original.read_bytes())
     overlay_count = sum(item["path"].split("/", 1)[0] in SOURCE_DIRS for item in files)
-    if overlay_count != 58 or len(originals) != 39 or not set(old_blobs).issubset(originals):
+    if overlay_count != args.expected_overlay_count or len(originals) != 39 or not set(old_blobs).issubset(originals):
         parser.error("v39 source inventory changed; review before assembly")
     manifest = {"schema": 1, "source_revision": REVISION,
                 "source_git_blobs": originals, "files": files,

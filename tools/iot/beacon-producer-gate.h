@@ -45,7 +45,8 @@ static inline int wr_iot_beacon_gate_begin(struct wr_iot_beacon_producer_gate *g
 static inline int wr_iot_beacon_gate_revoke(struct wr_iot_beacon_producer_gate *g,
                                            unsigned long generation)
 {
- if(!g||!g->accepting||g->generation!=generation)return 0;
+ /* A retained close may retry after timeout; do not reopen admission. */
+ if(!g||!generation||g->generation!=generation)return 0;
  g->accepting=0;
  return 1;
 }

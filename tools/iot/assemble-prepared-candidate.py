@@ -94,8 +94,8 @@ def assemble(base_root, prepared_root, candidate_root, manifest, output):
     # The original TIM admission probe uses 46/32. The later reviewed v39
     # lifecycle overlay uses 55/36; its corrected AP-client result ABI
     # includes the previously omitted ap_apcli.h prototype (56/37); its
-    # WDS prototype and monitor implementation closure uses 58/39.
-    if (len(overlays), len(originals)) not in ((46, 32), (55, 36), (56, 37), (58, 39)) or \
+    # WDS/monitor closure uses 58/39; isolated producer gate adds two headers.
+    if (len(overlays), len(originals)) not in ((46, 32), (55, 36), (56, 37), (58, 39), (60, 39)) or \
             not set(originals).issubset(overlays):
         raise ValueError('Candidate overlay shape changed; review required')
     for name, expected in originals.items():

@@ -1611,17 +1611,28 @@ jobs:
             cp tools/iot/candidates/aux-remove-close-v39/manifest.json "$candidate/manifest.json"
             python3 tools/iot/check-remove-result-abi.py "$candidate/driver"
           elif [ "${{ inputs.iot_candidate_variant }}" = v40 ] ||
-               [ "${{ inputs.iot_candidate_variant }}" = v41 ]; then
+               [ "${{ inputs.iot_candidate_variant }}" = v41 ] ||
+               [ "${{ inputs.iot_candidate_variant }}" = v42 ]; then
             mkdir -p "$candidate" .iot-local-check
             python3 tools/iot/check-mt7603-checked-off.py
             python3 tools/iot/prepare-mt7603-checked-off-candidate.py \
               tools/iot/candidates/aux-remove-close-v39 \
               .iot-local-check/mt7603-radio-off-v40-ci
-            if [ "${{ inputs.iot_candidate_variant }}" = v41 ]; then
+            if [ "${{ inputs.iot_candidate_variant }}" = v41 ] ||
+               [ "${{ inputs.iot_candidate_variant }}" = v42 ]; then
               python3 tools/iot/prepare-mbss-checked-stop-candidate.py \
                 .iot-local-check/mt7603-radio-off-v40-ci \
                 .iot-local-check/mt7603-mbss-stop-v41-ci
-              cp -a .iot-local-check/mt7603-mbss-stop-v41-ci "$candidate/driver"
+              if [ "${{ inputs.iot_candidate_variant }}" = v42 ]; then
+                python3 tools/iot/prepare-beacon-producer-candidate.py \
+                  .iot-local-check/mt7603-mbss-stop-v41-ci \
+                  .iot-local-check/mt7603-beacon-producer-v42-ci
+                cp -a .iot-local-check/mt7603-beacon-producer-v42-ci "$candidate/driver"
+                cp .iot-local-check/mt7603-beacon-producer-v42-ci.manifest.json \
+                  "$results/beacon-producer-binding.json"
+              else
+                cp -a .iot-local-check/mt7603-mbss-stop-v41-ci "$candidate/driver"
+              fi
               cp .iot-local-check/mt7603-mbss-stop-v41-ci.manifest.json \
                 "$results/mbss-stop-binding.json"
             else
@@ -1670,10 +1681,15 @@ jobs:
               -o "$RUNNER_TEMP/wr-iot-mbss-close-recovery-owner"
             "$RUNNER_TEMP/wr-iot-mbss-close-recovery-owner"
             python3 tools/iot/check-virtual-if-call-coverage.py "$candidate/driver"
+            expected_overlay_count=58
+            if [ "${{ inputs.iot_candidate_variant }}" = v42 ]; then
+              expected_overlay_count=60
+            fi
             python3 tools/iot/prepare-v39-merge-manifest.py \
               "$pristine" "$candidate/driver" \
               tools/iot/candidates/aux-remove-close-v39/manifest.json \
-              "$candidate/manifest.json"
+              "$candidate/manifest.json" \
+              --expected-overlay-count "$expected_overlay_count"
             python3 tools/iot/check-remove-result-abi.py "$candidate/driver"
           elif [ "${{ inputs.iot_candidate_variant }}" = legacy ]; then
             python3 tools/iot/prepare-radio-queue-candidate.py "$pristine" "$candidate"
@@ -1690,7 +1706,8 @@ jobs:
             "$candidate/manifest.json" "$merged"
           if [ "${{ inputs.iot_candidate_variant }}" = v39 ] ||
              [ "${{ inputs.iot_candidate_variant }}" = v40 ] ||
-             [ "${{ inputs.iot_candidate_variant }}" = v41 ]; then
+             [ "${{ inputs.iot_candidate_variant }}" = v41 ] ||
+             [ "${{ inputs.iot_candidate_variant }}" = v42 ]; then
             python3 tools/iot/check-remove-result-abi.py "$merged"
           fi
           cp "$merged.manifest.json" "$results/merged-source-manifest.json"
@@ -1721,9 +1738,10 @@ jobs:
             --compiler "$compiler" --require-three-bss --check-main-observer \
             --source-commit c25283e915a2a00a763774dd255b14aff997285e \
             --output "$results/merged-capacity.json"
-          python3 - "$results/merged-capacity.json" <<'PY'
+          python3 - "$results/merged-capacity.json" "${{ inputs.iot_candidate_variant }}" <<'PY'
           import json, sys
           report = json.load(open(sys.argv[1], encoding='utf-8'))
+          variant = sys.argv[2]
           if report['main_observer_probe']['status'] != 'compiled':
               raise SystemExit('MT7603 main observer target compilation missing')
           lock = report['beacon_lock_units_probe']
@@ -1731,11 +1749,16 @@ jobs:
           if len(units) != 9 or not lock['all_unit_flags_available'] or not lock['all_site_activity_available']:
               raise SystemExit('Incomplete per-unit beacon lock Kbuild evidence')
           # The reviewed TIM admission overlay adds one active SEM site in ap_nps.c.
-          if sum(len(unit['sites']) for unit in units.values()) != 21:
-              raise SystemExit('Merged candidate beacon lock inventory changed')
+          site_count = sum(len(unit['sites']) for unit in units.values())
           active = [site for unit in units.values() for site in unit['sites']
                     if site['active_after_directives']]
-          if len(active) != 20 or sum(site['form'] == 'SEM' for site in active) != 11 or sum(site['form'] == 'IRQ' for site in active) != 9:
+          sem_count = sum(site['form'] == 'SEM' for site in active)
+          irq_count = sum(site['form'] == 'IRQ' for site in active)
+          # This inventory scans unit source text, not v42's new inline
+          # helper header. v42 replaces the abort-open SEM site with a gated
+          # helper; its header is checked by manifest and target compile.
+          expected = (20, 19, 10, 9) if variant == 'v42' else (21, 20, 11, 9)
+          if (site_count, len(active), sem_count, irq_count) != expected:
               raise SystemExit('Merged candidate active beacon lock forms changed')
           # Both forms use the BH wrapper only while MULTI_CORE_SUPPORT is off.
           # This guards the reviewed target build, not callback/lifetime safety.
@@ -1748,7 +1771,8 @@ jobs:
           grep -q 'Machine:.*MIPS' "$results/mt76x3-elf.txt"
           "${cross}readelf" -sW "$module" > "$results/mt76x3-symbols.txt"
           if [ "${{ inputs.iot_candidate_variant }}" = v40 ] ||
-             [ "${{ inputs.iot_candidate_variant }}" = v41 ]; then
+             [ "${{ inputs.iot_candidate_variant }}" = v41 ] ||
+             [ "${{ inputs.iot_candidate_variant }}" = v42 ]; then
             for symbol in wr_iot_mbss_begin_close wr_iot_mbss_close_checked wr_iot_virtual_down_checked; do
               grep -Eq "[[:space:]]${symbol}$" "$results/mt76x3-symbols.txt"
             done

@@ -15,6 +15,8 @@ int main(void)
  assert(wr_iot_beacon_gate_begin(&g,1,&second));
  assert(wr_iot_beacon_gate_submit(&g,&first));
  assert(wr_iot_beacon_gate_revoke(&g,1)); /* close races with preparation */
+ assert(wr_iot_beacon_gate_revoke(&g,1)); /* retained close retries */
+ assert(!wr_iot_beacon_gate_revoke(&g,2));
  assert(!wr_iot_beacon_gate_begin(&g,1,&stale));
  assert(!wr_iot_beacon_gate_submit(&g,&first));
  assert(!wr_iot_beacon_gate_drained(&g,1));

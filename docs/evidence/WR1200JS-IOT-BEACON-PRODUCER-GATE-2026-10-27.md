@@ -16,6 +16,8 @@ drains. `tools/iot/check-beacon-producer-gate.c` covers a close racing with
 preparation, blocked late submit, blocked early reuse and generation checks.
 Each invocation has its own ticket, so a duplicate finish from one producer
 cannot decrement the count held by a second producer of the same generation.
+Revocation is idempotent for that generation: a retained close may retry its
+drain without reopening admission.
 
 The binding must cover `APUpdateBeaconFrame` and `APMakeBssTimFrame` from
 their entry through all early returns. Pinning only
@@ -31,19 +33,38 @@ The producer entry is not limited to a process context:
 file. Thus begin/end and the final submission check must use IRQ-safe,
 non-sleeping synchronization; only the close owner may sleep while waiting
 after revocation. The existing candidate uses both `RTMP_SEM_LOCK` and
-`RTMP_IRQ_LOCK` forms on `BcnRingLock` in beacon paths. Their actual
-definitions and lock ordering must be resolved before choosing a kernel
-binding. The host contract intentionally does not claim to solve that mixed
-locking or the void `rt_pci_remove` teardown hole.
+`RTMP_IRQ_LOCK` forms on `BcnRingLock` in beacon paths. Their definitions
+must be checked for each target configuration. The host contract does not
+solve the void `rt_pci_remove` teardown hole.
 
-Verified locally: GCC strict C11 (`-Wall -Wextra -Werror -pedantic`) syntax
-and executable test passed. This is a host-only model. The candidate kernel
-does **not** yet contain the producer pin, drain wait, or the deferred
-recovery/PCI release gate. The model also does not prove DMA, TxS or hardware
-late-report quiescence. No driver, image or router state was changed.
+Pinned-source check for the #631 target: in `include/os/rt_linux_cmm.h` at
+`c25283e`, `RTMP_SEM_LOCK` uses `RtmpOsSpinLockBh`; with
+`MULTI_CORE_SUPPORT` disabled, `RTMP_IRQ_LOCK` uses the same BH wrapper.
+The downloaded `merged-capacity.json` for #631 reports this option false in
+all nine inspected units, and the CI gate rejects a mixed-form build if it
+becomes true. `mt_mac_int_3_tasklet` in `os/linux/rt_rbus_pci_drv.c` invokes
+`RTMPHandlePreTBTTInterrupt` for the MT MAC path. This supports using the
+existing lock for short producer admission/revocation on this target; it
+does not justify sleeping under that lock or assuming the same result on
+other configurations.
 
-Next binding step: wrap all beacon and TIM producer entry paths so every
-return releases the pin; put begin/revoke/final-submit checks under the
-appropriate shared lock; drain before `wdev_bcn_buf_deinit` and TIM teardown;
-then verify lock ordering, callback lifetime and the PCI remove failure path
-with an isolated MIPS compile and targeted fault tests before any image gate.
+## Isolated v42 binding, source preparation only
+
+`tools/iot/prepare-beacon-producer-candidate.py` layers a new isolated
+candidate on the v41 checked-stop tree. It adds per-BSS gate storage and a
+wait queue to the adapter, initializes them before publication, wraps
+`APUpdateBeaconFrame` and `APMakeBssTimFrame` from entry through every
+return, revokes and drains on MBSS close/abort, and refuses beacon buffer
+deinit while the gate is open or producers remain. The preparer verifies
+that only five reviewed source files and two new headers change. The optional
+workflow accepts `v42` and retains target-source manifest and MIPS module
+checks. Ordinary production builds do not select it.
+
+Local verification: current v39 → v40 → v41 → v42 source preparation
+succeeded; both host fixtures passed under GCC strict C11; Python scripts
+compiled; workflow YAML parsed; `git diff --check` passed. The v42 manifest
+explicitly reports `target_compiled=false`, `production_installed=false`,
+`runtime_verified=false`, `recovery_owner_bound=false` and
+`pci_release_gate_bound=false`. A target compile is still required, followed
+by recovery/PCI lifetime and late DMA/TxS report proof. No router setting
+was changed.

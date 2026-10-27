@@ -23,7 +23,7 @@ on:
       iot_candidate_variant:
         description: Isolated IoT candidate to compile when checks are enabled
         type: choice
-        options: [legacy, v39, v40, v41]
+        options: [legacy, v39, v40, v41, v42]
         default: legacy
   push:
     branches: [main]
