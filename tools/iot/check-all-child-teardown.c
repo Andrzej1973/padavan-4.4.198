@@ -27,6 +27,9 @@ int main(void){
  assert(!wr_iot_mbss_closes_joined(refs,2,1,1));
  refs[1].phase=WR_REF_IDLE;
  refs[1].published=1;
+ refs[1].last_token=1;
+ assert(!wr_iot_mbss_closes_joined(refs,2,2,1));
+ refs[1].close_stage=4;
  assert(wr_iot_mbss_closes_joined(refs,2,2,1));
  wr_bss_retirement_init(&bss[0]);wr_bss_retirement_init(&bss[1]);
  assert(wr_bss_retirement_publish(&bss[0],1));

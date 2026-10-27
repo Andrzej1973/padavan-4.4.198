@@ -20,7 +20,8 @@ static inline int wr_iot_mbss_closes_joined(
   if(r->family==WR_REF_FAMILY_UNKNOWN)return 0;
   if(r->family!=WR_REF_FAMILY_MBSS)continue;
   if(!r->device||!r->generation||r->phase!=WR_REF_IDLE||
-     r->close_running||r->removal_stage||seen==~0U)return 0;
+     r->close_running||r->removal_stage||seen==~0U||
+     (r->last_token&&!r->open_unmutated&&r->close_stage!=4U))return 0;
   seen++;
  }
  return seen==published_expected;
