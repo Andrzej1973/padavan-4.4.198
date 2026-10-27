@@ -1,5 +1,15 @@
 # Current handoff — 2026-10-25 (updated)
 
+## Optional IoT #629 failure and fix — 2026-10-27
+
+Sol remains the single writer. #629 (`40447432208`) failed in a host-only
+fixture compile: `check-mbss-close.c` did not mock the new ticket wait/wake.
+The fixture now checks the successful and unsuccessful wake paths; three
+strict C11 local variants pass. See
+`docs/evidence/WR1200JS-IOT-V41-CI-629-HOST-FIXTURE-2026-10-27.md`.
+No #629 MIPS module exists. Publish the narrow fix, verify ordinary gates,
+then dispatch one optional v41 run. Do not install the candidate on a router.
+
 ## Recovery receipt and optional #629 — 2026-10-27
 
 Sol remains the single writer. Firmware #628 and ABI #581 passed on published

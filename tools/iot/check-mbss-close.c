@@ -9,9 +9,10 @@ typedef unsigned int UINT32;
 #define NDIS_STATUS_SUCCESS 0
 #define CMD_RTPRIV_IOCTL_MBSS_CR_DISABLE 1
 struct device;
-typedef struct adapter {int wr_iot_transition_lock;struct wr_iot_radio_transition wr_iot_transition;struct wr_iot_interface_ref wr_iot_interface_refs[2];struct device *net_dev;unsigned int VirtualIfCnt;struct {int BssidNum;} ApCfg;} *PRTMP_ADAPTER;
+typedef struct adapter {int wr_iot_transition_lock;int wr_iot_ticket_wait;struct wr_iot_radio_transition wr_iot_transition;struct wr_iot_interface_ref wr_iot_interface_refs[2];struct device *net_dev;unsigned int VirtualIfCnt;struct {int BssidNum;} ApCfg;} *PRTMP_ADAPTER;
 typedef struct device {PRTMP_ADAPTER ad;} *PNET_DEV;
-static int held,refs,cr_result,close_result,down_result,cr_calls,close_calls,queue_stops,hnat_calls,down_calls,reuse_on_close,invalidate_epoch_on_down,invalidate_token_on_down,inflate_count_on_down,reenter_on_close,reenter_result;
+static int held,refs,cr_result,close_result,down_result,cr_calls,close_calls,queue_stops,hnat_calls,down_calls,reuse_on_close,invalidate_epoch_on_down,invalidate_token_on_down,inflate_count_on_down,reenter_on_close,reenter_result,wake_calls;
+static void wake_up_all(int *wait){assert(wait&&!held);wake_calls++;}
 static struct wr_iot_radio_ticket reenter_ticket;
 INT wr_iot_mbss_close_checked(PNET_DEV dev,unsigned long generation,
                               const struct wr_iot_radio_ticket *ticket);
@@ -70,7 +71,7 @@ int main(void){
   assert(wr_iot_mbss_begin_close(&dev,&t,&generation)==-1&&!generation&&!a.wr_iot_transition.busy);
   set_main_owner(&a,&main_dev);
   assert(wr_iot_mbss_begin_close(&dev,&t,&generation)==0&&generation==1);
-  refs=1;cr_calls=close_calls=queue_stops=hnat_calls=down_calls=held=reuse_on_close=0;cr_result=close_result=0;down_result=1;
+  refs=1;cr_calls=close_calls=queue_stops=hnat_calls=down_calls=held=reuse_on_close=wake_calls=0;cr_result=close_result=0;down_result=1;
   if(mode==1)close_result=1;
   if(mode==2)cr_result=1;
   reenter_ticket=t;reenter_result=0;reenter_on_close=(mode==0);
@@ -109,6 +110,9 @@ int main(void){
 #endif
   }
   assert(wr_iot_mbss_close_checked(&dev,1,&t)==-1&&refs==1&&r->phase==WR_REF_CLOSING&&!held);
+#ifdef WR_IOT_V40
+  assert(wake_calls==0);
+#endif
   assert(!r->close_running);
   if(mode==0)assert(reenter_result==-1&&close_calls==1);
 #ifdef MT_MAC
@@ -119,10 +123,16 @@ int main(void){
   int prior_cr=cr_calls,prior_hnat=hnat_calls;
   bad=t;bad.serial++;assert(wr_iot_mbss_close_checked(&dev,1,&bad)==-1&&down_calls==1);
   down_result=0;assert(wr_iot_mbss_close_checked(&dev,1,&t)==0&&!refs&&r->phase==WR_REF_IDLE&&r->close_stage==4);
+#ifdef WR_IOT_V40
+  assert(wake_calls==1);
+#endif
   assert(!r->close_running);
   assert(!a.wr_iot_transition.busy&&a.wr_iot_transition.retired_serial==t.serial);
   assert(close_calls==1&&cr_calls==prior_cr&&hnat_calls==prior_hnat&&down_calls==2);
   assert(wr_iot_mbss_close_checked(&dev,1,&t)==0&&!refs&&down_calls==2);
+#ifdef WR_IOT_V40
+  assert(wake_calls==1);
+#endif
  }
  {
   /* If ticket retirement fails after checked DOWN, the reference and pin

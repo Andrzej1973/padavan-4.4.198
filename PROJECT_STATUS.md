@@ -1,5 +1,19 @@
 # Current project status — 2026-10-25 (updated)
 
+## 2026-10-27 optional IoT #629 host fixture failure
+
+- Optional IoT-only v41 #629 (`40447432208`) failed in the standalone
+  `check-mbss-close.c` host compile. The candidate include now calls
+  `wake_up_all(&ad->wr_iot_ticket_wait)`, but the host mock lacked both the
+  wait field and function. This is a fixture failure, not proof of a target
+  driver compile failure. The fixture now models the wake, checks no wake on
+  failed close and exactly one wake after successful retirement. Strict C11
+  builds/runs passed locally in base, MT_MAC and MT_MAC+PCI variants.
+  Evidence: `docs/evidence/WR1200JS-IOT-V41-CI-629-HOST-FIXTURE-2026-10-27.md`.
+- #629 produced no MIPS candidate module. A new optional target run is needed
+  after the fix is published and ordinary gates pass. Production and runtime
+  acceptance remain open.
+
 ## 2026-10-27 MBSS recovery receipt host correction
 
 - Host-only recovery completion no longer depends on the radio's mutable
