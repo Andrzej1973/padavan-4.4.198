@@ -36,3 +36,20 @@ then handle every terminal failure without unsafe free. It must also fence
 the pre-registration construction window before treating the netdev count as
 stable. Only after those bindings, target compilation and fault injection can
 this become a production release gate.
+
+## Construction-window follow-up
+
+The source review found `MBSS_Init()` stores `wdev.if_dev` before its call to
+`wr_iot_netdev_attach_checked()` increments the existing registration counter.
+The isolated candidate now acquires a construction lease under
+`wr_iot_transition_lock` before that first store, increments the same
+registration-inflight count and releases it on every normal/early exit. The
+lease refuses retirement/PM overlap and concurrent MBSS construction. The
+preflight also rejects an active lease. The generated source contains the
+begin call at `MBSS_Init` entry and the end call at its common exit.
+
+The host helper fixture verifies lease acquisition, duplicate refusal,
+retirement overlap refusal, count release and wakeup. The generated-source
+fixture still verifies only the preflight and `MBSS_Remove()` body; it does
+not execute the full vendor `MBSS_Init()`. Both strict host fixtures passed.
+No target compile or device test establishes this follow-up yet.

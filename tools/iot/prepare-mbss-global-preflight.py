@@ -44,15 +44,33 @@ def main() -> None:
     replace_once(output / "include/rtmp.h",
                  b'unsigned int wr_iot_registration_inflight;',
                  b'unsigned int wr_iot_registration_inflight;\n'
-                 b'\tunsigned int wr_iot_pci_work_joined;')
+                 b'\tunsigned int wr_iot_pci_work_joined;\n'
+                 b'\tunsigned int wr_iot_mbss_construction_active;')
     replace_once(output / "common/rtmp_init.c",
                  b'init_waitqueue_head(&pAd->wr_iot_ticket_wait);',
                  b'init_waitqueue_head(&pAd->wr_iot_ticket_wait);\n'
-                 b'\t\tpAd->wr_iot_pci_work_joined = 0;')
+                 b'\t\tpAd->wr_iot_pci_work_joined = 0;\n'
+                 b'\t\tpAd->wr_iot_mbss_construction_active = 0;')
     replace_once(output / "ap/ap_mbss.c",
                  b'#include "wr-iot-beacon-producer-kernel.h"',
                  b'#include "wr-iot-beacon-producer-kernel.h"\n'
                  b'#include "wr-iot-mbss-global-preflight.inc"')
+    replace_once(output / "ap/ap_mbss.c",
+                 b'\t/* sanity check to avoid redundant virtual interfaces are created */\n'
+                 b'\tif (pAd->FlgMbssInit != FALSE)\n\t\treturn;',
+                 b'\t/* Cover the pre-registration wdev.if_dev construction window. */\n'
+                 b'\tif (wr_iot_mbss_construction_begin(pAd) != NDIS_STATUS_SUCCESS)\n'
+                 b'\t\treturn;')
+    replace_once(output / "ap/ap_mbss.c",
+                 b'\t\t\tDBGPRINT(RT_DEBUG_ERROR, ("%s():func_dev is NULL!\\n", __FUNCTION__));\n'
+                 b'\t\t\treturn;',
+                 b'\t\t\tDBGPRINT(RT_DEBUG_ERROR, ("%s():func_dev is NULL!\\n", __FUNCTION__));\n'
+                 b'\t\t\tgoto wr_iot_construct_done;')
+    replace_once(output / "ap/ap_mbss.c",
+                 b'\tpAd->FlgMbssInit = TRUE;\n\n}',
+                 b'\tpAd->FlgMbssInit = TRUE;\n'
+                 b'wr_iot_construct_done:\n'
+                 b'\twr_iot_mbss_construction_end(pAd);\n}')
     replace_once(output / "ap/ap_mbss.c",
                  b'INT MBSS_Remove(RTMP_ADAPTER *pAd)\n{\n\tstruct wifi_dev *wdev;\n'
                  b'\tUINT IdBss;\n    BSS_STRUCT *pMbss;\n',

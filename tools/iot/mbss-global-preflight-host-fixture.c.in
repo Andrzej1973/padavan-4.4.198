@@ -17,6 +17,7 @@ typedef struct {
  struct { unsigned int retiring, active_tx; } wr_iot_transition;
  int wr_iot_transition_lock;
  unsigned int wr_iot_registration_inflight,wr_iot_pci_work_joined;
+ unsigned int wr_iot_mbss_construction_active;
  unsigned int max_bss;
  struct wr_iot_interface_ref wr_iot_interface_refs[WDEV_NUM_MAX+1];
 } RTMP_ADAPTER;

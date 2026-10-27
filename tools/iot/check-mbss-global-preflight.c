@@ -9,14 +9,17 @@ typedef unsigned long ULONG;
 #define NDIS_STATUS_SUCCESS 0
 #define NDIS_STATUS_FAILURE 1
 #define MAX_MBSSID_NUM(ad) ((ad)->max_bss)
-static int held;
+static int held,wakes;
+#define wake_up_all(wait) do { (void)(wait); wakes++; } while(0)
 #define RTMP_IRQ_LOCK(lock, flags) do { (void)(lock); (flags)=0; assert(!held); held=1; } while(0)
 #define RTMP_IRQ_UNLOCK(lock, flags) do { (void)(lock); (void)(flags); assert(held); held=0; } while(0)
 typedef struct {
  struct { struct { struct { void *if_dev; } wdev; } MBSSID[WDEV_NUM_MAX]; } ApCfg;
- struct { unsigned int retiring, active_tx; } wr_iot_transition;
+ struct { unsigned int retiring, active_tx, pm_suspending, pm_suspended; } wr_iot_transition;
  int wr_iot_transition_lock;
  unsigned int wr_iot_registration_inflight, wr_iot_pci_work_joined;
+ unsigned int wr_iot_mbss_construction_active,FlgMbssInit;
+ int wr_iot_registration_wait;
  unsigned int max_bss;
  struct wr_iot_interface_ref wr_iot_interface_refs[WDEV_NUM_MAX+1];
 } RTMP_ADAPTER;
@@ -33,9 +36,16 @@ int main(void){
  int main_dev=0,bss1=0,bss2=0;
  struct wr_iot_interface_ref *r=ad.wr_iot_interface_refs;
  ad.max_bss=3;
+ assert(wr_iot_mbss_construction_begin(&ad)==NDIS_STATUS_SUCCESS);
+ assert(ad.wr_iot_mbss_construction_active&&ad.wr_iot_registration_inflight==1);
+ assert(wr_iot_mbss_construction_begin(&ad)==NDIS_STATUS_FAILURE);
+ ad.wr_iot_transition.retiring=1;
+ assert(wr_iot_mbss_global_preflight(&ad)==NDIS_STATUS_FAILURE);
+ wr_iot_mbss_construction_end(&ad);
+ assert(!ad.wr_iot_mbss_construction_active&&
+        !ad.wr_iot_registration_inflight&&wakes==1&&!held);
  ad.ApCfg.MBSSID[1].wdev.if_dev=&bss1;
  ad.ApCfg.MBSSID[2].wdev.if_dev=&bss2;
- ad.wr_iot_transition.retiring=1;
  ad.wr_iot_pci_work_joined=1;
  record(&r[0],&main_dev,WR_REF_FAMILY_MAIN);
  record(&r[1],&bss1,WR_REF_FAMILY_MBSS);
