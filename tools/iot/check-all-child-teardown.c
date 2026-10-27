@@ -1,9 +1,33 @@
 #include "all-child-teardown.h"
 #include "mbss-retirement.h"
+#include "mbss-close-evidence.h"
 #include <assert.h>
 int main(void){
  struct wr_child_teardown t;
  struct wr_bss_retirement bss[2];
+ struct wr_iot_interface_ref refs[2];
+ int dev0=0,dev1=0;
+ wr_iot_ref_init(&refs[0],&dev0,1);
+ wr_iot_ref_init(&refs[1],&dev1,2);
+ refs[0].family=refs[1].family=WR_REF_FAMILY_MBSS;
+ refs[0].published=refs[1].published=1;
+ refs[0].phase=WR_REF_OWNED;
+ assert(!wr_iot_mbss_closes_joined(refs,2,2,1));
+ refs[0].phase=WR_REF_IDLE;
+ refs[1].phase=WR_REF_CLOSING;
+ assert(!wr_iot_mbss_closes_joined(refs,2,2,1));
+ refs[1].phase=WR_REF_IDLE;
+ assert(!wr_iot_mbss_closes_joined(refs,2,2,0));
+ assert(!wr_iot_mbss_closes_joined(refs,2,1,1));
+ refs[1].close_running=1;
+ assert(!wr_iot_mbss_closes_joined(refs,2,2,1));
+ refs[1].close_running=0;
+ refs[1].published=0;
+ refs[1].phase=WR_REF_UNCERTAIN_OPEN;
+ assert(!wr_iot_mbss_closes_joined(refs,2,1,1));
+ refs[1].phase=WR_REF_IDLE;
+ refs[1].published=1;
+ assert(wr_iot_mbss_closes_joined(refs,2,2,1));
  wr_bss_retirement_init(&bss[0]);wr_bss_retirement_init(&bss[1]);
  assert(wr_bss_retirement_publish(&bss[0],1));
  assert(wr_bss_retirement_publish(&bss[1],2));
@@ -46,7 +70,8 @@ int main(void){
  assert(wr_bss_retirement_vendor_done(&bss[1],2));
  assert(wr_bss_retirement_family_done(bss,2));
  assert(!wr_child_teardown_complete(&t,WR_CHILD_MBSS));
- assert(wr_child_teardown_close_done(&t,WR_CHILD_MBSS,1));
+ assert(wr_child_teardown_close_done(&t,WR_CHILD_MBSS,
+  wr_iot_mbss_closes_joined(refs,2,2,1)));
  assert(wr_child_teardown_complete(&t,WR_CHILD_MBSS));
  assert(!wr_child_teardown_complete(&t,WR_CHILD_MBSS));
  assert(!wr_child_teardown_may_free_adapter(&t,1));
