@@ -26,6 +26,22 @@ REGISTRATION = {
 }
 CALL = re.compile(r"\bVIRTUAL_IF_(UP|DOWN)\s*\(")
 CLAIMED_MBSS_CALL = "VIRTUAL_IF_UP_CLAIM(pAd, pDev, ticket, generation)"
+CHECKED_MBSS_INCLUDE = '#include "wr-iot-mbss-close-checked.inc"'
+
+
+def checked_mbss_stop_coverage(mbss: str, executor: str) -> bool:
+    """Require the sole MBSS stop callback to reach the sole checked DOWN."""
+    callback = re.search(r"\bINT MBSS_VirtualIF_Close\(PNET_DEV pDev\)\s*\{(.*?)\n\}",
+                         mbss, re.S)
+    if not callback or mbss.count(CHECKED_MBSS_INCLUDE) != 1:
+        return False
+    body = callback.group(1)
+    return (mbss.count("INT MBSS_VirtualIF_Close(PNET_DEV pDev)") == 1 and
+            body.count("wr_iot_mbss_begin_close(pDev, &ticket, &generation)") == 1 and
+            body.count("return wr_iot_mbss_close_checked(pDev, generation, &ticket);") == 1 and
+            executor.count("INT wr_iot_mbss_close_checked(") == 1 and
+            executor.count("wr_iot_virtual_down_checked(ad,ticket)") == 1 and
+            not re.search(r"\bVIRTUAL_IF_DOWN\s*\(", body + executor))
 
 
 def main() -> int:
@@ -56,6 +72,15 @@ def main() -> int:
                for path in driver.rglob("*.c") if not path.name.startswith("check-")}
     claimed = {path: count for path, count in claimed.items() if count}
     expected = dict(EXPECTED)
+    checked_stop = driver / "include/wr-iot-mbss-close-checked.inc"
+    checked_binding = ("wr_iot_mbss_begin_close(pDev, &ticket, &generation)" in mbss or
+                       "return wr_iot_mbss_close_checked(pDev, generation, &ticket);" in mbss)
+    if checked_binding:
+        if not checked_stop.is_file() or not checked_mbss_stop_coverage(
+                mbss, checked_stop.read_text(encoding="utf-8", errors="replace")):
+            print("Checked MBSS stop lost its callback or sole DOWN executor")
+            return 1
+        expected["ap/ap_mbss_inf.c"] = (1, 0)
     if claimed:
         allowed = ({"ap/ap_mbss_inf.c": 1},
                    {"ap/ap_mbss_inf.c": 1, "os/linux/rt_main_dev.c": 1},
@@ -69,7 +94,7 @@ def main() -> int:
         if claimed not in allowed or mbss.count(CLAIMED_MBSS_CALL) != 1:
             print("Claimed virtual-UP caller coverage changed:", claimed)
             return 1
-        expected["ap/ap_mbss_inf.c"] = (0, 1)
+        expected["ap/ap_mbss_inf.c"] = (0, 0 if checked_binding else 1)
         if "ap/ap_wds_inf.c" in claimed:
             expected["ap/ap_wds_inf.c"] = (0, 1)
             wds = (driver / "ap/ap_wds_inf.c").read_text(

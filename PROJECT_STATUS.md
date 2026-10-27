@@ -1,5 +1,20 @@
 # Current project status — 2026-10-25 (updated)
 
+## 2026-10-27 optional IoT v41 CI #625
+
+- Optional #625 (`40429949035`, SHA `2216583`) failed in the virtual-interface
+  caller-coverage gate before MIPS target compilation. Original job
+  `121944962949` shows that v41 moves MBSS DOWN through a checked executor;
+  the gate still required the v40 direct callback call. The monitor's early
+  log excerpt did not contain the causal late error.
+- The gate now distinguishes v40 and bound v41 and checks the single v41
+  callback/executor/DOWN chain. Both full local candidate checks and two
+  negative mutations passed. Evidence:
+  `docs/evidence/WR1200JS-IOT-V41-CI-625-COVERAGE-GATE-2026-10-27.md`.
+  Candidate remains isolated; no v41 target module, production installation,
+  or router proof exists. Publish the coherent fix, let ordinary CI finish,
+  then run one optional v41 target compile on the exact published SHA.
+
 ## 2026-10-26 IoT v41 isolated stop binding
 
 - Firmware #623 (`40391518751`) completed successfully on `f1960a8`; the

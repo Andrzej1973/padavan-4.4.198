@@ -1,5 +1,18 @@
 # Current handoff — 2026-10-25 (updated)
 
+## IoT v41 #625 gate repair — 2026-10-27
+
+Sol remains the single writer. Optional #625 (`40429949035`) failed before
+MIPS compilation: the caller-coverage gate expected v40's direct MBSS DOWN,
+while v41 binds one checked executor. The original job log, local v40/v41
+checks and negative mutation evidence are in
+`docs/evidence/WR1200JS-IOT-V41-CI-625-COVERAGE-GATE-2026-10-27.md`.
+Publish the coherent checker repair and local admission-failure owner test;
+wait for ordinary CI on that SHA, then dispatch exactly one IoT-only v41
+candidate run. Recovery owner and PCI release remain unbound, so do not put
+v41 into the firmware or infer router acceptance. Preserve all other dirty
+files in this shared checkout.
+
 ## IoT v41 next handoff — 2026-10-26
 
 Sol remains the single writer. Firmware #623 (`40391518751`) and ABI
