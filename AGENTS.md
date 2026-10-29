@@ -29,7 +29,12 @@ At the start of every session, read `AGENTS.md`, `PROJECT_STATUS.md`,
 all existing modified and untracked files. Never assume another account's
 chat history, memory, authentication, or GitHub connection is shared.
 
-## CI queue discipline (Sol, DeepSeek and every subagent)
+OpenRouter is also a project participant (added by the owner on 2026-10-29).
+The same shared rules, read-only review and explicit single-writer handoff
+apply to it. Record its actual model and available access when accepting a
+role; adding the participant does not transfer the current executor role.
+
+## CI queue discipline (Sol, DeepSeek, OpenRouter and every subagent)
 
 When a watched firmware/service/ABI run fails, first locate its `Agent build
 failure monitor` run and `agent-build-error-<run-id>` artifact. Use its run ID,
