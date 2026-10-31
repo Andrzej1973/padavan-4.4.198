@@ -182,7 +182,55 @@ initializes `rx_done_task` at line 62; its callback calls
 IRQ-form `BcnTxSHandler`. `include/os/rt_linux_cmm.h` maps both forms to
 `RtmpOsSpinLockBh` without `MULTI_CORE_SUPPORT`; `rt_linux.c:3383` and
 `include/os/rt_linux.h:367-369` map that wrapper to `spin_lock_bh`.
-This traces these two callback chains only. The effective `WORKQUEUE_BH`
-selection, all other lock owners, nested lock ordering, and safe teardown
+The isolated target `.config` does not set
+`CONFIG_MT7603E_WIFI_WORK_QUEUE_BH`; the MT7603 AP Makefile adds
+`-DWORKQUEUE_BH` only when that option is `y` (line 606-608). Thus these
+two callbacks use the tasklet branch in the reviewed target build.
+This traces these two callback chains only. All other lock owners, nested
+lock ordering, and safe teardown
 still require review; neither compile success nor identical lock macros
 establishes full production safety.
+
+The MT7603 candidate has a separate TIM-packet submission chain:
+`ap/ap_nps.c:51-81` calls `HAL_KickOutMgmtTx` on `Q_IDX_BCN` under
+`BcnRingLock`; `APMakeBssTimFrame` calls it at line 243; and
+`APMakeAllTimFrame` calls the former at line 280. The assembled candidate's
+`common/cmm_data_pci.c:1520-1526` defines `RTMPHandlePreTTTTInterrupt`,
+which calls `APMakeAllTimFrame` in AP mode. The private `TimEnable` setter
+at `ap/ap_cfg.c:14469-14534` can allocate a TIM packet and enable the
+relevant hardware interrupt bits. The successful isolated target module in
+run `40051068385` contains all four functions; `readelf -rW` shows the
+`R_MIPS_26` call relocation from `RTMPHandlePreTTTTInterrupt` at offset
+`0x0000b318` to `APMakeAllTimFrame`. No direct call to
+`RTMPHandlePreTTTTInterrupt` was found in the assembled candidate's C source
+or as an `R_MIPS_26` module relocation. The module's sole `R_MIPS_32`
+reference to this handler is in `.rel.pdr`, a MIPS procedure descriptor/debug
+section, not an executable interrupt dispatch table; it has no `__ksymtab`
+export. In `os/linux/rt_rbus_pci_drv.c:1627-1640`, the reviewed
+`WF_MAC_INT_4` branch reads `HWISR4` and masks active `HWIER4` bits, but
+neither calls nor schedules the PreTTTT handler. These exact source/module
+observations exclude a direct dispatch of TIM frames by this branch in the
+successful isolated candidate build; they do not establish behavior under
+another driver build or an unseen indirect entry. The first symbol search
+over the narrower pinned reference tree missed `common/cmm_data_pci.c`;
+the assembled candidate and linked module correct that search's scope. Keep
+`beacon_ring_admission_atomic=false` for the remaining active producers and
+teardown gaps, and recheck this exclusion against the final production
+module before changing the gate.
+
+Manual run `40054121188` on `5da2e60` completed successfully with
+`run_candidate_checks=true`. Its `iot-merged-driver-probe` artifact was
+downloaded to `../iot-merged-probe-550-guard/`. The new fail-closed guard
+executed after the isolated `vmlinux modules` build: the report has nine
+complete Kbuild units, all unit flags and site activity available, 20 source
+sites, 19 active sites (10 SEM, 9 IRQ), and no unit with
+`MULTI_CORE_SUPPORT`. The `merged-capacity.json` and
+`merged-source-manifest.json` SHA-256 hashes match the prior successful
+candidate artifact exactly. The new `mt76x3_ap.ko` is 5,106,508 bytes,
+ELF32 little-endian MIPS relocatable, SHA-256
+`945D009F25D25853717F42C148935CF8F45A4AC24B1BBB1F0191961F6D795BA0`.
+Its hash differs from the earlier module build despite identical source and
+capacity reports; no byte-for-byte module reproducibility claim is made.
+The same one `modpost` section-mismatch warning remains. This proves the
+guard executes on the target candidate compile; it does not promote the
+candidate to production or prove safe selective IoT BSS teardown.

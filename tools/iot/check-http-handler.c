@@ -54,6 +54,11 @@ int main(void){
  wr_iot_http_token_output("wr_iot_token.cgi",NULL);assert(strstr(reply,"\"token\""));
  input(body,(int)strlen(body));output();assert(calls==1&&strstr(reply,"\"accepted\":true"));
  assert(!strstr(reply,"password")&&!strstr(reply,"applied"));
+ input(body,(int)strlen(body));
+ wr_iot_http_session_reset();
+ assert(!wr_iot_http_csrf[0]&&!wr_iot_http_length&&!wr_iot_http_body[0]);
+ output();assert(calls==1&&strstr(reply,"invalid_request"));
+ strcpy(wr_iot_http_csrf,"0123456789abcdef0123456789abcdef");
  /* Consumed POST bodies cannot be replayed through a subsequent output. */
  output();assert(calls==1&&strstr(reply,"invalid_request"));
  safe=0;input(body,(int)strlen(body));output();assert(calls==1);

@@ -1,0 +1,66 @@
+#include "main-open-recovery-owner.h"
+#include <assert.h>
+#include <stddef.h>
+#include <stdio.h>
+typedef void VOID;
+typedef unsigned long ULONG;
+struct work_struct { int unused; };
+typedef struct adapter {
+ struct work_struct wr_iot_main_recovery_work;
+ int wr_iot_transition_lock;
+ struct wr_iot_main_recovery_owner wr_iot_main_recovery;
+} RTMP_ADAPTER,*PRTMP_ADAPTER;
+static int spin_held,rtnl_held,rtnl_available,executed,try_calls;
+#define container_of(ptr,type,member) ((type *)((char *)(ptr)-offsetof(type,member)))
+#define RTMP_IRQ_LOCK(lock,flags) ((void)(lock),(flags)=0,assert(!spin_held),spin_held=1)
+#define RTMP_IRQ_UNLOCK(lock,flags) ((void)(lock),(void)(flags),assert(spin_held),spin_held=0)
+static int rtnl_trylock(void){
+ assert(!spin_held&&!rtnl_held);try_calls++;
+ if(!rtnl_available)return 0;
+ rtnl_held=1;return 1;
+}
+static void rtnl_unlock(void){assert(rtnl_held&&!spin_held);rtnl_held=0;}
+static int wr_iot_main_recovery_execute(PRTMP_ADAPTER ad){
+ assert(ad&&rtnl_held&&!spin_held);executed++;return 0;
+}
+
+/* ACTUAL_RECOVERY_CALLBACK */
+
+static void setup(RTMP_ADAPTER *ad){
+ *ad=(RTMP_ADAPTER){0};
+ wr_iot_main_recovery_init(&ad->wr_iot_main_recovery);
+ ad->wr_iot_main_recovery.phase=WR_MAIN_OWNER_QUEUED;
+ ad->wr_iot_main_recovery.deferred_owners=1;
+ ad->wr_iot_main_recovery.schedule_recorded=1;
+ spin_held=rtnl_held=rtnl_available=executed=try_calls=0;
+}
+int main(void){
+ RTMP_ADAPTER ad;
+ setup(&ad);
+ wr_iot_main_recovery_work_fn(&ad.wr_iot_main_recovery_work);
+ assert(try_calls==1&&executed==0&&!spin_held&&!rtnl_held);
+ assert(ad.wr_iot_main_recovery.phase==WR_MAIN_OWNER_RETAINED);
+ assert(ad.wr_iot_main_recovery.attempts==0&&ad.wr_iot_main_recovery.deferred_owners);
+ /* The producer can queue while its ndo_open still owns RTNL. If the
+  * callback races ahead, it cannot self-resubmit the same work item.
+  * Only an external owner with a completed join may requeue it. */
+ ad.wr_iot_main_recovery.source=WR_MAIN_RECOVERY_OPEN_ACQUIRED;
+ assert(!wr_iot_main_recovery_requeue(&ad.wr_iot_main_recovery,2,0));
+ assert(wr_iot_main_recovery_requeue(&ad.wr_iot_main_recovery,2,1));
+ assert(wr_iot_main_recovery_schedule_result(&ad.wr_iot_main_recovery,1));
+ rtnl_available=1;
+ wr_iot_main_recovery_work_fn(&ad.wr_iot_main_recovery_work);
+ assert(try_calls==2&&executed==1&&!spin_held&&!rtnl_held);
+
+ setup(&ad);rtnl_available=1;
+ wr_iot_main_recovery_work_fn(&ad.wr_iot_main_recovery_work);
+ assert(try_calls==1&&executed==1&&!spin_held&&!rtnl_held);
+
+ setup(&ad);ad.wr_iot_main_recovery.stop_requested=1;
+ ad.wr_iot_main_recovery.phase=WR_MAIN_OWNER_STOPPING;
+ wr_iot_main_recovery_work_fn(&ad.wr_iot_main_recovery_work);
+ assert(try_calls==1&&executed==0&&!spin_held&&!rtnl_held);
+ assert(ad.wr_iot_main_recovery.phase==WR_MAIN_OWNER_STOPPING);
+ puts("PASS extracted recovery callback: RTNL contention retains owner without blocking; acquired RTNL is released");
+ return 0;
+}

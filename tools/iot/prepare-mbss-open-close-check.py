@@ -7,11 +7,10 @@ if a.output.exists():raise SystemExit('New fixture required')
 intermediate=a.output.with_suffix('.open.c')
 subprocess.run([sys.executable,str(Path(__file__).with_name('prepare-mbss-admission-check.py')),str(a.driver),str(intermediate)],check=True)
 s=intermediate.read_text();s=s[:s.index('int main(void){')]
-s=s.replace('struct device *net_dev;struct wr_iot_interface_ref','struct device *net_dev;unsigned int VirtualIfCnt;struct {int BssidNum;} ApCfg;struct wr_iot_interface_ref')
+s=s.replace('struct device *net_dev;struct wr_iot_interface_ref','struct device *net_dev;unsigned int VirtualIfCnt;struct wr_iot_interface_ref')
 s=s.replace('typedef struct device {PRTMP_ADAPTER ad;} *PNET_DEV;','typedef struct device {PRTMP_ADAPTER ad;} *PNET_DEV;\ntypedef struct adapter RTMP_ADAPTER;')
-old='#define VIRTUAL_IF_UP(ad) ((void)(ad),assert(!held),up_error)'
+old=' return up_error;\n}\n#define VIRTUAL_IF_UP(ad) virtual_if_up(ad)'
 if s.count(old)!=1:raise SystemExit('Changed UP fixture primitive')
-s=s.replace(old,'#define VIRTUAL_IF_UP(ad) (assert(!held),up_error?up_error:(((PRTMP_ADAPTER)(ad))->VirtualIfCnt++,0))')
 s=s.replace('assert(ad->wr_iot_transition.busy==WR_RADIO_BSS_OPEN);','assert((command==4&&(ad->wr_iot_transition.busy==WR_RADIO_BSS_CLOSE||ad->wr_iot_transition.busy==WR_RADIO_CLOSE))||(command!=4&&ad->wr_iot_transition.busy==WR_RADIO_BSS_OPEN));')
 extra=r'''
 typedef unsigned int UINT32;
@@ -41,28 +40,33 @@ post=r'''
 int main(void){
  for(int mode=0;mode<4;mode++){
   struct adapter ad={0};struct device main_dev={&ad},dev={&ad};struct wr_iot_radio_ticket t;
-  unsigned long seq=0;
+  unsigned long seq=0,close_generation;
   refs=mbss_closes=physical_closes=txs_pending=txs_fault=txs_queries=0;
   dma_pending=dma_fault=dma_queries=0;
   wr_iot_radio_transition_init(&ad.wr_iot_transition);ad.net_dev=&main_dev;ad.VirtualIfCnt=1;ad.ApCfg.BssidNum=3;
-  struct wr_iot_interface_ref *r=wr_iot_registry_add(ad.wr_iot_interface_refs,2,&seq,&dev);assert(r);r->published=1;
+  struct wr_iot_interface_ref *main_ref=wr_iot_registry_add_family(ad.wr_iot_interface_refs,2,&seq,&main_dev,WR_REF_FAMILY_MAIN);
+  assert(main_ref);main_ref->published=1;
+  assert(wr_iot_ref_reserve(main_ref,&main_dev,main_ref->generation,1));
+  assert(wr_iot_ref_open_finish(main_ref,&main_dev,main_ref->generation,1,1));
+  struct wr_iot_interface_ref *r=wr_iot_registry_add(ad.wr_iot_interface_refs,2,&seq,&dev);assert(r);r->published=1;r->family=WR_REF_FAMILY_MBSS;
   ad.wr_iot_transition.phase=WR_RADIO_READY;ad.wr_iot_transition.main_ready=1;
   up_error=1;assert(MBSS_VirtualIF_Open(&dev)==-1&&ad.VirtualIfCnt==1&&!refs&&r->phase==WR_REF_IDLE);
   ad.wr_iot_transition.phase=WR_RADIO_READY;ad.wr_iot_transition.main_ready=1;
   up_error=0;assert(MBSS_VirtualIF_Open(&dev)==0&&ad.VirtualIfCnt==2&&refs==1&&r->phase==WR_REF_OWNED);
-  assert(wr_iot_radio_begin_stop(&ad.wr_iot_transition,ad.VirtualIfCnt,&t));
+  assert(wr_iot_mbss_begin_close(&dev,&t,&close_generation)==0&&close_generation==r->generation);
   if(mode==0||mode==2){
    if(mode==0)txs_pending=1;else dma_pending=1;
-   assert(wr_iot_mbss_close_checked(&dev,&t)==-1&&r->close_stage==2U&&
+   assert(wr_iot_mbss_close_checked(&dev,r->generation,&t)==-1&&r->close_stage==2U&&
           ad.VirtualIfCnt==2&&refs==1&&mbss_closes==1&&!physical_closes);
    txs_pending=dma_pending=0;
-   assert(wr_iot_mbss_close_checked(&dev,&t)==0&&ad.VirtualIfCnt==1&&!refs&&r->phase==WR_REF_IDLE&&mbss_closes==1&&!physical_closes);
-   assert(wr_iot_mbss_close_checked(&dev,&t)==0&&ad.VirtualIfCnt==1&&!refs&&mbss_closes==1);
+   assert(wr_iot_mbss_close_checked(&dev,r->generation,&t)==0&&ad.VirtualIfCnt==1&&!refs&&r->phase==WR_REF_IDLE&&mbss_closes==1&&!physical_closes);
+   assert(wr_iot_mbss_close_checked(&dev,r->generation,&t)==0&&ad.VirtualIfCnt==1&&!refs&&mbss_closes==1);
    assert(txs_queries==(mode==0?2:1)&&dma_queries==2);
-   assert(wr_iot_radio_finish(&ad.wr_iot_transition,&t,1)&&!held);
+   assert(!ad.wr_iot_transition.busy&&ad.wr_iot_transition.retired_serial==t.serial&&!held);
+   assert(main_ref->phase==WR_REF_OWNED&&ad.VirtualIfCnt==1);
   }else{
    if(mode==1)txs_fault=1;else dma_fault=1;
-   assert(wr_iot_mbss_close_checked(&dev,&t)==-1&&r->close_stage==5U&&
+   assert(wr_iot_mbss_close_checked(&dev,r->generation,&t)==-1&&r->close_stage==5U&&
           ad.VirtualIfCnt==2&&refs==1&&mbss_closes==1&&!physical_closes&&
           txs_queries==(mode==1?1:0)&&dma_queries==1);
    assert(wr_iot_radio_finish_unverified(&ad.wr_iot_transition,&t)&&!held);

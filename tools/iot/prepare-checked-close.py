@@ -15,12 +15,31 @@ decl='\n\tRTMP_ADAPTER *pAd = (RTMP_ADAPTER *)pAdSrc;\n\tUINT32 i = 0;'
 if not body.startswith(decl):raise SystemExit('Changed close declarations')
 pre,post=body[len(decl):].split(anchor)
 if 'return;' in pre+post:raise SystemExit('Unreviewed early return in close')
+dequeue='\t\twhile (pAd->DeQueueRunning[i] == TRUE)\n\t\t{'
+if pre.count(dequeue)!=1:raise SystemExit('Changed dequeue wait boundary')
+pre=pre.replace(dequeue,'''\t\tUINT32 wr_iot_dequeue_polls = 0;
+\t\twhile (pAd->DeQueueRunning[i] == TRUE)
+\t\t{
+\t\t\tif (wr_iot_dequeue_polls++ >= 1000U) {
+\t\t\t\tRTMP_IRQ_LOCK(&pAd->wr_iot_transition_lock,flags);
+\t\t\t\tpAd->wr_iot_transition.shutdown_stage=3U;
+\t\t\t\tRTMP_IRQ_UNLOCK(&pAd->wr_iot_transition_lock,flags);
+\t\t\t\treturn NDIS_STATUS_FAILURE;
+\t\t\t}''',1)
 # Once radio-off reports failure, do not free IRQ/rings or pretend completed.
 # Stage 3 is retained uncertainty, not a retryable stage or hardware recovery.
 radio_failure='\t\t\tif (brc==FALSE)\n\t\t\t{'
 if post.count(radio_failure)!=1:raise SystemExit('Changed radio-off failure branch')
 failure_end=post.index('\n\t\t\t}',post.index(radio_failure))
 post=post[:failure_end]+'\n\t\t\t\tRTMP_IRQ_LOCK(&pAd->wr_iot_transition_lock,flags);\n\t\t\t\tpAd->wr_iot_transition.shutdown_stage=3U;\n\t\t\t\tRTMP_IRQ_UNLOCK(&pAd->wr_iot_transition_lock,flags);\n\t\t\t\treturn NDIS_STATUS_FAILURE;'+post[failure_end:]
+halt_clear='\tRTMP_CLEAR_FLAG(pAd, fRTMP_ADAPTER_HALT_IN_PROGRESS);'
+if post.count(halt_clear)!=1:raise SystemExit('Changed HALT clear boundary')
+post=post.replace(halt_clear,'''\t/* PCI suspend owns HALT until resume or explicit PM failure unwind. */
+\tRTMP_IRQ_LOCK(&pAd->wr_iot_transition_lock,flags);
+\tpm_suspending = pAd->wr_iot_transition.pm_suspending;
+\tRTMP_IRQ_UNLOCK(&pAd->wr_iot_transition_lock,flags);
+\tif (!pm_suspending)
+\t\tRTMP_CLEAR_FLAG(pAd, fRTMP_ADAPTER_HALT_IN_PROGRESS);''')
 checked='''INT wr_iot_drv_close_checked(VOID *pAdSrc, VOID *net_dev,
  const struct wr_iot_radio_ticket *ticket)
 {
@@ -28,6 +47,7 @@ checked='''INT wr_iot_drv_close_checked(VOID *pAdSrc, VOID *net_dev,
  UINT32 i = 0;
  ULONG flags;
  unsigned int stage;
+ int pm_suspending;
  (void)net_dev; /* Some compile configurations have no IRQ-release use. */
  if (!pAd || !ticket) return NDIS_STATUS_FAILURE;
  RTMP_IRQ_LOCK(&pAd->wr_iot_transition_lock,flags);

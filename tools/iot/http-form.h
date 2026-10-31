@@ -75,6 +75,7 @@ static int wr_iot_http_form_parse(struct wr_iot_http_form *out,const char *body,
     strlen(candidate.token)!=32)return 0;
  for(i=0;i<32;i++)if(wr_iot_http_hex((unsigned char)candidate.token[i])<0)return 0;
  if(candidate.enable[0]=='1'&&candidate.present!=((1U<<WR_IOT_HTTP_FIELD_COUNT)-1))return 0;
+ if(candidate.enable[0]=='0'&&candidate.present!=((1U<<0)|(1U<<7)))return 0;
  *out=candidate;return 1;
 }
 

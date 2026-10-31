@@ -2,6 +2,56 @@
 
 Date: 2026-10-19
 
+## Prepared production shell — 2026-10-31
+
+`prepare-production.py` installed the static shell and authenticated JSON route
+into a disposable copy of the pinned Padavan source. `check-production.py`
+verified that the `/modern/*` assets exist, the page has no mutation form, the
+Wi-Fi schema is marked live-read-only, and `do_wr_modern_json` is registered as
+an auth-required `application/json` MIME handler.
+
+The C JSON emitter passed strict host GCC and emitted valid JSON in live mode.
+The fixture covered 11 pages, 14 service tiles, WAN/LAN/Wi-Fi NVRAM values,
+memory and uptime, with IoT explicitly unverified. The production-shell browser
+test loaded the rewritten `/modern/index.html`, authenticated live-JSON fixture,
+Wi-Fi schema and all local assets with no console errors. It displayed
+`PADAVAN MODERN · LIVE READ-ONLY`, `LIVE` chips, the WR1200JS title and no
+residual fallback `DEMO` banner.
+`verify-production-shell.py` also passed health, rewritten asset requests,
+live JSON shape and 405 rejection for POST/PUT/PATCH/DELETE/OPTIONS.
+
+Not performed: target MIPS compilation of `web_ex.c`, firmware build, ROMFS
+inspection, authenticated router request or on-device runtime. The build
+workflow does not yet invoke the installer.
+
+## Full preview structure — 2026-10-31
+
+The local Modern preview now exposes eleven informational pages matching the
+approved reference structure: WAN, IoT, LAN, VPN, DNS/proxy, services,
+monitoring, firewall, QoS, system and log. Wi-Fi retains the existing shared,
+split-band and IoT draft paths. The dashboard adds the top 2.4 GHz / 5 GHz / IoT
+switcher, WAN traffic graph, process-load rows and explicit `Н/Д` temperatures
+when no verified source exists. The inconsistent DEMO USB state was corrected.
+
+Checks completed:
+
+- `node --check public/app.js` and `node --check public/wifi.js` passed;
+- `node check_wifi.js` passed all 15 Wi-Fi routes and shared-field constraints;
+- `python verify_preview.py` passed health, local resources, eleven page
+  definitions, DEMO/IoT boundaries, service tiles and mutating-method refusal;
+- `python check_references.py` passed all six owner-supplied reference images;
+- browser checks opened all eleven informational routes and five representative
+  Wi-Fi/IoT routes with the intended title, active page and no console errors;
+- the local SVG favicon returned 200 and removed the remaining 404 request;
+- desktop checks kept document width equal to viewport width;
+- a 390×844 responsive check kept document width equal to viewport width,
+  rendered all thirteen navigation entries and retained the `Н/Д` temperature
+  policy; the temporary viewport override was reset.
+
+All page contents remain local DEMO data. No ASP/CGI handler, NVRAM key,
+service, firewall rule, DHCP server, router endpoint or production Modern asset
+was changed or verified by this preview work.
+
 ## Completed
 
 - Python syntax: `server.py` and `verify_preview.py` compile successfully with the bundled Python 3.12.14 runtime.

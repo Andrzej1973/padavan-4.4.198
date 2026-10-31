@@ -6,6 +6,8 @@ static char test_directory[]="/tmp/iot-control-channel-XXXXXX";
 static int notifications,executions;
 static int observation_result=1,observations;
 static int replace_during_observation;
+static volatile sig_atomic_t shutdown_delivered;
+static int defer_shutdown_once;
 static char replacement_id[33];
 static enum wr_iot_result_state backend_result=WR_IOT_RESULT_APPLIED;
 static void notify_test(void);
@@ -14,6 +16,11 @@ static void notify_test(void);
 #include "control-client.c"
 #include "control-server.c"
 static void notify_test(void){notifications++;}
+static void shutdown_test(int sig){
+ assert(sig==SIGTERM);
+ if(wr_iot_rc_shutdown_note(sig))return;
+ shutdown_delivered++;
+}
 int wr_iot_activation_result_observed(const struct wr_iot_control_result *result){
  struct wr_iot_mailbox m;
  assert(result->state==WR_IOT_RESULT_APPLIED);observations++;
@@ -34,6 +41,12 @@ enum wr_iot_result_state wr_iot_activation_execute(const struct wr_iot_control_r
  assert(wr_iot_mailbox_result(&m,&result)&&result.state==WR_IOT_RESULT_RUNNING);
  assert(!strcmp(result.id,request->id)&&result.created==request->created);
  wr_iot_mailbox_close(&m);
+ if(defer_shutdown_once){
+  defer_shutdown_once=0;
+  assert(raise(SIGTERM)==0);
+  assert(!shutdown_delivered&&wr_iot_rc_shutdown.pending==SIGTERM);
+  assert(signal(SIGTERM,shutdown_test)!=SIG_ERR);
+ }
  /* A duplicate RC notification during execution cannot replay this request. */
  assert(!wr_iot_rc_dispatch());
  return backend_result;
@@ -41,12 +54,14 @@ enum wr_iot_result_state wr_iot_activation_execute(const struct wr_iot_control_r
 int main(void){
  struct wr_iot_request request={0};struct wr_iot_control_result result;
  struct wr_iot_mailbox m;char id[33],other[33],path[PATH_MAX];
+ assert(signal(SIGTERM,shutdown_test)!=SIG_ERR);
  assert(mkdtemp(test_directory));
  assert(wr_iot_rc_submit(&request,id)&&notifications==1&&wr_iot_control_id(id));
  assert(wr_iot_rc_status(id,&result)&&result.state==WR_IOT_RESULT_QUEUED);
  assert(!observations);
  assert(!wr_iot_rc_submit(&request,other)&&notifications==1);
- assert(wr_iot_rc_dispatch()&&executions==1);
+ defer_shutdown_once=1;
+ assert(wr_iot_rc_dispatch()&&executions==1&&shutdown_delivered==1);
  assert(wr_iot_rc_status(id,&result)&&result.state==WR_IOT_RESULT_APPLIED);
  assert(observations==1);
  observation_result=0;assert(!wr_iot_rc_status(id,&result));

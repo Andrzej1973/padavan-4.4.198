@@ -156,6 +156,9 @@ def main() -> None:
         "\tUINT32 scan;\n\tUINT8 pid = 0;\n\n"
         "\tif (!OutPid || !OutGeneration)\n\t\treturn -1;\n"
         "\tRTMP_SPIN_LOCK_IRQSAVE(&TxSCtl->TxSStatusLock, &Flags);\n"
+        "\tif (TxSCtl->ReservationGeneration == (UINT32)~0U) {\n"
+        "\t\tRTMP_SPIN_UNLOCK_IRQRESTORE(&TxSCtl->TxSStatusLock, &Flags);\n"
+        "\t\treturn -1;\n\t}\n"
         "\tfor (scan = 0; scan < TXS_STATUS_NUM; scan++) {\n"
         "\t\tpid = (UINT8)(TxSCtl->TxSPid + scan);\n"
         "\t\tif (TxSCtl->TxSStatus[pid].State != TXS_USED)\n"
@@ -176,7 +179,6 @@ def main() -> None:
         "\tTxSCtl->TxSPid++;\n\t\n\treturn (TxSCtl->TxSPid - 1);",
         "\tTxSCtl->TxSPid = (UINT8)(pid + 1);\n"
         "\tTxSCtl->ReservationGeneration++;\n"
-        "\tif (!TxSCtl->ReservationGeneration)\n\t\tTxSCtl->ReservationGeneration++;\n"
         "\tTxSCtl->TxSStatus[pid].Generation = TxSCtl->ReservationGeneration;\n"
         "\t*OutPid = pid;\n\t*OutGeneration = TxSCtl->ReservationGeneration;\n"
         "\tRTMP_SPIN_UNLOCK_IRQRESTORE(&TxSCtl->TxSStatusLock, &Flags);\n\t\n\treturn 0;",
@@ -293,6 +295,7 @@ INT32 CancelTxSReservation(RTMP_ADAPTER *pAd, UINT8 Pid, UINT32 Generation)
         "txs_status_lock_staged": True,
         "occupied_pid_overwrite_prevented": True,
         "generation_tagged_pre_submit_cancel_staged": True,
+        "reservation_generation_exhaustion_rejected": True,
         "beacon_cancel_caller_bound": False,
         "mac_tx_info_generation_output_staged": True,
         "mac_tx_info_pid_output_staged": True,

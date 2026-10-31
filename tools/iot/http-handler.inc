@@ -23,6 +23,14 @@ static char wr_iot_http_csrf[33];
 static char wr_iot_http_body[WR_IOT_HTTP_FORM_MAX];
 static size_t wr_iot_http_length;
 
+/* Called by HTTPD's existing logout/timeout credential reset path. */
+void wr_iot_http_session_reset(void)
+{
+ memset(wr_iot_http_csrf,0,sizeof(wr_iot_http_csrf));
+ memset(wr_iot_http_body,0,sizeof(wr_iot_http_body));
+ wr_iot_http_length=0;
+}
+
 static void wr_iot_http_token_output(const char *url,FILE *stream)
 {
  unsigned char random[16];size_t offset=0;ssize_t got;int fd,i;

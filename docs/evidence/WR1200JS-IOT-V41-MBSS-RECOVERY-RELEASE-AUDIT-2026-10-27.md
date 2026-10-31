@@ -50,6 +50,27 @@ kernel recovery worker or a device test.
    complete recoverable removal path for the void PCI remove callback before
    installing this candidate.
 
+The reviewed paths have a partial submission barrier: `MBSS_Close` clears
+`bBcnSntReq` under `BcnRingLock`; the final beacon kickout in
+`RT28xx_UpdateBeaconToAsic`, TIM kickout in `RT28xx_UpdateTimToAsic`, and
+hardware restart check the intent under the same lock. The #631 target config
+has `CONFIG_MT7603E_AIRPLAY_SUPPORT` unset. This corrects the earlier broad
+description that there is no publication barrier at all.
+
+The barrier does not cover a producer that entered before close and still
+holds a raw beacon/TIM packet pointer while preparing a frame.
+`APUpdateBeaconFrame` obtains `BeaconPkt` and builds the frame well before
+the final `BcnRingLock` kickout; it may reserve a TxS PID after close began,
+then cancel it when kickout sees the revoked intent. `RT28xx_UpdateTimToAsic`
+similarly obtains `TimPkt` before taking the ring lock. The DMA snapshot
+under `BcnRingLock` and TxS status/callback snapshot under `TxSStatusLock`
+can both be zero while such a pre-close producer is still preparing its
+frame. `MBSS_Remove` may then deinitialize the buffer. A generation-bound
+producer pin from before packet-pointer acquisition through final cancellation
+or completion, plus a drain before buffer deinit, is required. The exact
+hardware/late-report lifetime still needs review; two zero snapshots alone
+do not prove safe free.
+
 The isolated MIPS compile does not prove these lifecycle conditions. Until
 they are bound and tested, v41 stays out of the firmware image and off the
 router.

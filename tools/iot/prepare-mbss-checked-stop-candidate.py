@@ -52,10 +52,13 @@ def main() -> None:
             (source / "hw_ctrl" / "cmm_asic_mt.c").read_bytes():
         parser.error("input is not the reviewed MT7603 checked-off candidate")
     original = target.read_bytes()
-    if original.count(LEGACY_START) != 1 or original.count(LEGACY_END) != 1:
+    newline = b"\r\n" if b"\r\n" in original else b"\n"
+    legacy_start = LEGACY_START.replace(b"\n", newline)
+    legacy_end = LEGACY_END.replace(b"\n", newline)
+    if original.count(legacy_start) != 1 or original.count(legacy_end) != 1:
         parser.error("reviewed MBSS callback anchors changed")
-    start = original.index(LEGACY_START)
-    end = original.index(LEGACY_END, start)
+    start = original.index(legacy_start)
+    end = original.index(legacy_end, start)
     callback = original[start:end]
     for required in (b"CMD_RTPRIV_IOCTL_MBSS_CLOSE", b"VIRTUAL_IF_DOWN",
                      b"RT_MOD_DEC_USE_COUNT", b"return 0;"):
@@ -65,7 +68,7 @@ def main() -> None:
     if checked.count(b"INT wr_iot_mbss_begin_close(") != 1 or \
             checked.count(b"INT wr_iot_mbss_close_checked(") != 1:
         parser.error("checked MBSS executor is missing or ambiguous")
-    replacement = original[:start] + REPLACEMENT + original[end:]
+    replacement = original[:start] + REPLACEMENT.replace(b"\n", newline) + original[end:]
     if replacement.count(b"INT MBSS_VirtualIF_Close(") != 1:
         parser.error("generated callback is ambiguous")
     shutil.copytree(source, output)

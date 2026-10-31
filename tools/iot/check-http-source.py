@@ -33,6 +33,13 @@ assert main[:start].endswith('#if defined(BOARD_WR1200JS)\n')
 end=main.index('\n}\n',start)+3
 assert main[end:].startswith('#endif\n')
 declarations=main[start:end]
+reset_begin=main.index('static void\nreset_login_data(void)')
+reset_end=main.index('\n}',reset_begin)
+reset_body=main[reset_begin:reset_end]
+if reset_body.count('#if defined(BOARD_WR1200JS)\n\twr_iot_http_session_reset();\n#endif')!=1:
+    raise SystemExit('IoT session token/body must reset with HTTPD login state')
+if declarations.count('extern void wr_iot_http_session_reset(void);')!=1:
+    raise SystemExit('IoT HTTPD session reset declaration missing')
 start=main.index('\t\t/* Independent capture preserves existing multipart boundary parsing. */')
 end=main.index('\t\tif (strncasecmp(cur, "Accept-Language:", 16) == 0) {',start)
 capture=main[start:end]

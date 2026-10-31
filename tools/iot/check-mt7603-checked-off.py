@@ -25,13 +25,15 @@ typedef int BOOLEAN;
 #define FALSE 0
 #define HIF_MT 1
 #define WR_RADIO_CLOSE 2
-#define ASIC_MAC_RX 3
+#define ASIC_MAC_RX 2
+#define ASIC_MAC_TXRX 3
 #define PDMA_TX_RX 4
 #define WIFI_RADIO_OFF 5
 #define NDIS_STATUS_SUCCESS 0
 #define ARB_SCR 0x10
 #define MT_WPDMA_GLO_CFG 0x20
-#define MT_ARB_SCR_RXDIS 1U
+#define MT_ARB_SCR_RXDIS (1U << 9)
+#define MT_ARB_SCR_TXDIS (1U << 8)
 #define TX_DMA_BUSY 4U
 #define RX_DMA_BUSY 8U
 #define fRTMP_ADAPTER_NIC_NOT_EXIST 1U
@@ -51,7 +53,7 @@ typedef struct adapter {
  unsigned int flags, arb, dma;
  struct transition wr_iot_transition;
  int queue_calls, mac_calls, poll_calls, cmd_calls, pdma_calls, irq_calls;
- int fail_mac, fail_poll, fail_cmd, fail_pdma, fail_arb_read, fail_dma_read;
+ int fail_mac, fail_mac_write_silent, fail_poll, fail_cmd, fail_pdma, fail_arb_read, fail_dma_read;
 } RTMP_ADAPTER;
 #define IS_MT7603(p) ((p)->mt7603)
 #define RTMP_TEST_FLAG(p,f) (((p)->flags & (f)) != 0)
@@ -66,9 +68,12 @@ typedef struct adapter {
 } while (0)
 static RTMP_ADAPTER *active;
 static INT32 AsicSetMacTxRx(RTMP_ADAPTER *p, int path, BOOLEAN enable) {
- (void)path; (void)enable; p->mac_calls++;
+ (void)enable; p->mac_calls++;
  if (p->fail_mac) return FALSE;
- p->arb |= MT_ARB_SCR_RXDIS; return TRUE;
+ if (p->fail_mac_write_silent) return TRUE;
+ p->arb |= path == ASIC_MAC_TXRX ?
+     MT_ARB_SCR_TXDIS | MT_ARB_SCR_RXDIS : MT_ARB_SCR_RXDIS;
+ return TRUE;
 }
 static BOOLEAN wr_iot_mt_poll_txrx_empty(RTMP_ADAPTER *p) {
  p->poll_calls++; return !p->fail_poll;
@@ -104,8 +109,35 @@ int main(void) {
  require(p.cmd_calls == 0, "wrong ticket issued MCU command");
  require(wr_iot_mt_radio_off_checked(&p, &ticket), "normal close failed");
  require(p.wr_iot_transition.mt_radio_off_stage == 4 && p.cmd_calls == 1 &&
-         p.pdma_calls == 1 && p.queue_calls == 1 && p.irq_calls == 1,
+         p.pdma_calls == 1 && p.mac_calls == 2 &&
+         p.queue_calls == 1 && p.irq_calls == 1,
          "normal close milestone/call count");
+
+ p = fresh(); active = &p; p.fail_mac_write_silent = 1;
+ require(!wr_iot_mt_radio_off_checked(&p, &ticket),
+         "silent MAC write failure accepted");
+ require(p.wr_iot_transition.mt_radio_off_stage == 0 && p.cmd_calls == 0,
+         "silent RX write failure advanced to MCU");
+ p.fail_mac_write_silent = 0;
+ require(wr_iot_mt_radio_off_checked(&p, &ticket),
+         "MAC write retry failed");
+
+ p = fresh(); active = &p; p.wr_iot_transition.mt_radio_off_stage = 3;
+ p.arb = MT_ARB_SCR_RXDIS; p.fail_mac_write_silent = 1;
+ require(!wr_iot_mt_radio_off_checked(&p, &ticket),
+         "silent TX disable failure accepted");
+ require(p.pdma_calls == 0 && p.wr_iot_transition.mt_radio_off_stage == 3,
+         "silent TX failure advanced to PDMA");
+ p.fail_mac_write_silent = 0;
+ require(wr_iot_mt_radio_off_checked(&p, &ticket),
+         "TX disable retry failed");
+
+ p = fresh(); active = &p; p.wr_iot_transition.mt_radio_off_stage = 3;
+ p.arb = MT_ARB_SCR_RXDIS; p.fail_arb_read = 1;
+ require(!wr_iot_mt_radio_off_checked(&p, &ticket),
+         "invalid TX/RX MAC readback accepted");
+ require(p.pdma_calls == 0 && p.wr_iot_transition.mt_radio_off_stage == 3,
+         "invalid TX/RX readback advanced to PDMA");
 
  p = fresh(); active = &p; p.fail_poll = 1;
  require(!wr_iot_mt_radio_off_checked(&p, &ticket), "poll failure accepted");
@@ -143,7 +175,7 @@ int main(void) {
  require(wr_iot_mt_radio_off_checked(&p, &ticket), "PDMA readback retry failed");
  require(p.cmd_calls == 1, "PDMA readback retry replayed MCU");
 
- puts("PASS checked MT7603 stop: ordered milestones, fault retention, no MCU replay");
+ puts("PASS checked MT7603 stop: MAC readback, ordered milestones, fault retention, no MCU replay");
  return 0;
 }
 '''

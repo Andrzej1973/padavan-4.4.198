@@ -169,6 +169,13 @@ static inline int wr_iot_bss_open_finish_observed(
   return 0;
  }
  if(!wr_iot_radio_finish(radio,ticket,1))return 0;
+ /* A reset/main-down intent can arrive during the unlocked readback.
+  * Retire ownership, but never leave READY after invalidated success. */
+ if(radio->phase==WR_RADIO_READY&&
+    (radio->epoch!=ticket->epoch||!radio->main_ready||radio->reset_pending||
+     radio->retiring||radio->main_inhibited)){
+  radio->phase=WR_RADIO_UNVERIFIED;radio->main_ready=0;
+ }
  return radio->retired_serial==ticket->serial&&
    radio->epoch==ticket->epoch&&radio->phase==WR_RADIO_READY&&
    radio->main_ready&&!radio->reset_pending&&!radio->retiring&&

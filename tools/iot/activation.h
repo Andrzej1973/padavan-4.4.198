@@ -1,5 +1,12 @@
-/* Serialized activation sequencing. Backend operations must check ownership,
- * observe success and support idempotent recovery. No backend is installed here. */
+/* Serialized activation sequencing. The caller must serialize access to this
+ * state object through one RC control worker; the backend LOCK additionally
+ * owns network mutations. The stock RC fatal-signal handler calls router
+ * shutdown directly, outside its notification loop, so one worker alone
+ * does not exclude teardown. A production backend must fence that path too.
+ * Post-LOCK checks reject stale logical admissions, but do not make
+ * unsynchronized C access to state safe. Backend operations must check
+ * ownership, observe success and support idempotent recovery. No backend
+ * is installed here. */
 #ifndef WR_IOT_ACTIVATION_H
 #define WR_IOT_ACTIVATION_H
 enum wr_iot_activation_state {WR_IOT_INACTIVE,WR_IOT_STARTING,WR_IOT_ACTIVE,WR_IOT_RECOVERY};
@@ -24,6 +31,9 @@ struct wr_iot_activation_backend {
   * by the required hardware observation. Never infer this from RADIO_OFF. */
  int (*perform)(void *,enum wr_iot_activation_operation);
  void (*unlock)(void *);
+ /* Poll only outside signal context, between bounded backend operations.
+  * A pending normal shutdown aborts START into the existing recovery path. */
+ int (*cancel_requested)(void *);
 };
 struct wr_iot_activation {
  enum wr_iot_activation_state state;
@@ -31,6 +41,7 @@ struct wr_iot_activation {
  void *context;
  int locked,snapshot,disabling;
  unsigned int recovery_step;
+ unsigned long long generation;
 };
 static inline int wr_iot_activation_call(struct wr_iot_activation *state,enum wr_iot_activation_operation op){
  return state->backend->perform(state->context,op)==1;
@@ -86,7 +97,12 @@ static inline int wr_iot_activation_start(struct wr_iot_activation *state,const 
  /* POLICY applies and observes the scoped DHCP/DNS/WAN policy while BSS is
   * still down. The earlier ISOLATE operation establishes full quarantine. */
  /* MAIN_RADIO_READY observes the main 2.4 GHz interface UP on the expected
-  * adapter and IoT BSS still DOWN after radio preparation. */
+  * adapter and IoT BSS still DOWN after radio preparation. This observation
+  * grants no future permission: BSS_UP must revalidate adapter generation,
+  * main-radio readiness and absence of close/reset under the SAME driver
+  * transition owner as its opening mutation. The outer RC lock alone cannot
+  * exclude watchdog, manual radio controls or driver teardown. Reject stale
+  * readiness without opening BSS; preserve recovery on uncertain mutation. */
  /* PROFILE may quiesce the main radio and generate its candidate file, but
   * must not reopen the radio or create/open the candidate BSS. RADIO_PREPARE
   * reloads/creates it only after quarantine exists, and succeeds only with
@@ -94,27 +110,49 @@ static inline int wr_iot_activation_start(struct wr_iot_activation *state,const 
   * recovery must quiesce it before any teardown. QUIESCE on recovery targets
   * IoT, not a previously restored main/guest radio. RESTORE owns that radio
   * rollback and must observe the original main/guest state before returning. */
- if(!state||!backend||!backend->perform||!backend->unlock||state->state!=WR_IOT_INACTIVE||state->locked||state->snapshot||state->disabling)return 0;
- state->backend=backend;state->context=context;
- if(!wr_iot_activation_call(state,WR_IOT_LOCK))return 0;
- state->locked=1;
+ if(!state||!backend||!backend->perform||!backend->unlock||!backend->cancel_requested||state->state!=WR_IOT_INACTIVE||state->locked||state->snapshot||state->disabling)return 0;
+ /* The optimistic check above can become stale while LOCK waits. Do not
+  * publish a new backend/context into shared state before owning that lock. */
+ if(backend->perform(context,WR_IOT_LOCK)!=1)return 0;
+ if(state->state!=WR_IOT_INACTIVE||state->locked||state->snapshot||state->disabling){
+  backend->unlock(context);return 0;
+ }
+ if(state->generation==~0ULL){backend->unlock(context);return 0;}
+ /* A shutdown that arrived while waiting for LOCK must not start even the
+  * read-only snapshot. Leave the old state and generation untouched. */
+ if(backend->cancel_requested(context)){backend->unlock(context);return 0;}
+ state->backend=backend;state->context=context;state->locked=1;
+ state->generation++;
  /* Validation/snapshot callbacks must not mutate live network resources. */
  if(!wr_iot_activation_call(state,WR_IOT_VALIDATE)||!wr_iot_activation_call(state,WR_IOT_SNAPSHOT)){
   wr_iot_activation_release(state);return 0;
  }
  state->snapshot=1;state->state=WR_IOT_STARTING;
  for(i=0;i<sizeof(operations)/sizeof(operations[0]);i++){
-  if(!wr_iot_activation_call(state,operations[i])){
+  if(backend->cancel_requested(context)||!wr_iot_activation_call(state,operations[i])){
    state->recovery_step=0;state->state=WR_IOT_RECOVERY;wr_iot_activation_recover(state);return 0;
   }
+ }
+ if(backend->cancel_requested(context)){
+  state->recovery_step=0;state->state=WR_IOT_RECOVERY;wr_iot_activation_recover(state);return 0;
  }
  state->state=WR_IOT_ACTIVE;wr_iot_activation_release(state);return 1;
 }
 static inline int wr_iot_activation_stop(struct wr_iot_activation *state){
+ unsigned long long generation;
  if(!state)return 0;
  if(state->state==WR_IOT_INACTIVE)return !state->locked&&!state->snapshot&&!state->disabling;
  if(state->state==WR_IOT_ACTIVE){
+  generation=state->generation;
   if(!wr_iot_activation_call(state,WR_IOT_LOCK))return 0;
+  /* A preceding stop or a stop followed by a new start may have completed
+   * while this caller waited. Never stop that newer activation. */
+  if(state->generation!=generation||state->state!=WR_IOT_ACTIVE||
+     state->locked||!state->snapshot||state->disabling){
+   state->backend->unlock(state->context);
+   return state->generation==generation&&state->state==WR_IOT_INACTIVE&&
+          !state->locked&&!state->snapshot&&!state->disabling;
+  }
   state->locked=1;
   /* Read-only snapshot of CURRENT desired main/guest/services before normal
    * OFF. Failure must leave ACTIVE unchanged. SERVICES prepares/commits normal

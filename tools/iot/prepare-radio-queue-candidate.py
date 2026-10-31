@@ -11,6 +11,7 @@ import re
 import subprocess
 import sys
 from pathlib import Path
+from mbss_cr_enable import guard_cr_enable
 
 p=argparse.ArgumentParser()
 p.add_argument('source',type=Path,help='exact pinned mt76x3 source directory')
@@ -29,25 +30,34 @@ groups={
  'queue':('prepare-queue-cleanup.py',['common/rtmp_init.c','os/linux/rt_rbus_pci_drv.c',
           'include/queued-result.h','include/queued-cleanup.h','include/queued-work.h']),
  'adapter':('prepare-radio-adapter-candidate.py',['include/rtmp.h','common/rtmp_init.c',
-             'os/linux/rt_profile.c','os/linux/rt_main_dev.c','include/radio-transition.h','include/interface-reference.h','include/interface-registry.h','include/mt7603-main-observe.h',
-             'include/wr-iot-physical-close-result.inc','adapter-init.inc','adapter-free.inc','check-main-close.c','check-main-open.c']),
+             'os/linux/rt_profile.c','os/linux/rt_main_dev.c','include/radio-transition.h','include/interface-reference.h','include/interface-registry.h','include/all-child-teardown.h','include/mbss-retirement.h','include/mt7603-main-observe.h',
+             'include/wr-iot-physical-close-result.inc','include/main-stop-owned.h','include/main-open-recovery-owner.h','adapter-init.inc','adapter-free.inc','check-main-close.c','check-main-open.c','check-tx-entry.c']),
+ 'monitor-lifetime':('prepare-monitor-lifetime-candidate.py',['sniffer/sniffer_radiotap.c']),
+ 'aux-netdev-lifetime':('prepare-aux-netdev-lifetime-candidate.py',['ap/ap_apcli.c','ap/ap_wds.c']),
+ 'pci-probe-lifetime':('prepare-pci-probe-lifetime-candidate.py',['os/linux/pci_main_dev.c']),
  'reset':('prepare-reset-admission.py',['common/cmm_mac_pci.c','include/wr-iot-reset-admission.inc']),
  'mcu':('prepare-mcu-radio-result.py',['include/mcu/andes_core.h',
         'mcu/andes_core.c','mcu/andes_mt.c','mcu/wr-iot-radio-result.h','checked-ack-branch.inc']),
 }
-source_names=['tx_rx/txs.c','tx_rx/wdev.c','ap/ap.c','include/mac/mac_mt/mt_mac.h','include/mac/mac.h','mac/mt_mac.c','common/rtmp_init_inf.c','common/wsc.c','os/linux/rt_linux.c','ap/ap_apcli_inf.c','ap/ap_wds_inf.c','common/cmm_cfg.c','common/cmm_cmd.c','common/rtmp_init.c','os/linux/rt_rbus_pci_drv.c',
+source_names=['tx_rx/txs.c','tx_rx/wdev.c','ap/ap.c','include/mac/mac_mt/mt_mac.h','include/mac/mac.h','mac/mt_mac.c','common/rtmp_init_inf.c','common/wsc.c','os/linux/rt_linux.c','ap/ap_apcli_inf.c','ap/ap_wds_inf.c','ap/ap_apcli.c','ap/ap_wds.c','common/cmm_cfg.c','common/cmm_cmd.c','common/rtmp_init.c','os/linux/rt_rbus_pci_drv.c','os/linux/pci_main_dev.c','sniffer/sniffer_radiotap.c',
               'include/mcu/andes_core.h','mcu/andes_core.c','mcu/andes_mt.c',
               'include/rtmp.h','os/linux/rt_profile.c','os/linux/rt_main_dev.c','common/cmm_mac_pci.c','common/cmm_mac_sdio.c','common/cmm_data_pci.c','ap/ap_nps.c']
+source_names.append('include/rt_os_net.h')
 originals={name:(root/name).read_bytes() for name in source_names}
 inputs=[here/script for script,_ in groups.values()]
 inputs += [Path(__file__).resolve()]
+inputs += [here/'mbss_cr_enable.py']
 inputs += [here/name for name in ('queued-result.h','queued-cleanup.h','queued-work.h','radio-result.h')]
 inputs += [here/'prepare-radio-error-candidates.py',here/'prepare-mbss-lifecycle-candidate.py']
 inputs += [here/'prepare-beacon-txs-callback-ledger.py',here/'prepare-txs-claimed-slot.py']
 inputs += [here/'prepare-txs-handler-snapshot.py']
 inputs += list(here.glob('prepare-*-check.py'))
-inputs += [here/'checked-close-host-fixture.c.in',here/'physical-close-result.inc',here/'virtual-down-checked.inc',here/'interface-reference.h',here/'interface-registry.h',here/'netdev-registration.inc',here/'mbss-close-checked.inc']
-inputs += [here/'checked-radio-off-builder.inc',here/'radio-transition.h',here/'mt7603-main-observe.h',here/'reset-admission.inc',here/'mbss-open-admission.inc']
+inputs += [here/'checked-close-host-fixture.c.in',here/'mbss-remove-host-fixture.c.in',here/'physical-close-result.inc',here/'virtual-down-checked.inc',here/'interface-reference.h',here/'interface-registry.h',here/'netdev-registration.inc',here/'mbss-close-checked.inc']
+inputs += [here/'main-stop-owned.h',here/'main-open-recovery-owner.h',
+           here/'all-child-teardown.h',here/'check-all-child-teardown.c',
+           here/'mbss-retirement.h',here/'check-mbss-retirement.c']
+inputs += [here/'prepare-pci-pm-fence-check.py',here/'pci-pm-fence-host-fixture.c.in']
+inputs += [here/'checked-radio-off-builder.inc',here/'radio-transition.h',here/'mt7603-main-observe.h',here/'reset-admission.inc',here/'mbss-open-admission.inc',here/'virtual-open-claim.h']
 tool_bytes={path:path.read_bytes() for path in inputs}
 out.mkdir(parents=True)
 records=[];seen=set();manifests={}
@@ -132,15 +142,62 @@ text=path.read_text(encoding='utf-8')
 old='RtmpOSNetDevAttach(pAd->OpMode, pDevNew, &netDevHook)'
 if text.count(old)!=1:raise SystemExit('Changed MBSS attach binding')
 text=text.replace(old,'wr_iot_netdev_attach_checked(pAd, pAd->OpMode, pDevNew, &netDevHook)',1)
+remove_old='\t\t\tRtmpOSNetDevProtect(1);\n\t\t\tRtmpOSNetDevDetach(wdev->if_dev);'
+remove_pre=('        pMbss = &pAd->ApCfg.MBSSID[IdBss];\n'
+            '        if (pMbss) {\n'
+            '\t\t\twdev_bcn_buf_deinit(pAd, &pMbss->bcn_buf);')
+remove_new=('        pMbss = &pAd->ApCfg.MBSSID[IdBss];\n'
+            '\t\t/* Exclude PM snapshots before beacon storage teardown. */\n'
+            '\t\tif (wdev->if_dev &&\n'
+            '\t\t    wr_iot_mbss_begin_remove(pAd, IdBss, wdev->if_dev) != NDIS_STATUS_SUCCESS)\n'
+            '\t\t\treturn NDIS_STATUS_FAILURE;\n'
+            '        if (pMbss) {\n'
+            '\t\t\twdev_bcn_buf_deinit(pAd, &pMbss->bcn_buf);')
+if text.count(remove_old)!=1 or text.count(remove_pre)!=1:
+    raise SystemExit('Changed MBSS removal/teardown boundary')
+text=text.replace(remove_pre,remove_new,1)
+sig='VOID MBSS_Remove(RTMP_ADAPTER *pAd)'
+func=selected(text,sig)
+deinit='\t\t\twdev_bcn_buf_deinit(pAd, &pMbss->bcn_buf);'
+if func.count(deinit)!=1:raise SystemExit('Changed MBSS beacon deinit result boundary')
+func=func.replace(sig,'INT MBSS_Remove(RTMP_ADAPTER *pAd)',1)
+loop_entry='\t\twdev = &pAd->ApCfg.MBSSID[IdBss].wdev;'
+if func.count(loop_entry)!=1:raise SystemExit('Changed MBSS removal loop entry')
+func=func.replace(loop_entry,
+    loop_entry+'\n\t\t/* Init allocates beacon storage only after a successful netdev attach.\n'
+    '\t\t * A prior successful removal must not deinit it again on retry. */\n'
+    '\t\tif (!wdev->if_dev)\n\t\t\tcontinue;',1)
+func=func.replace(deinit,
+    '\t\t\tif (wdev_bcn_buf_deinit(pAd, &pMbss->bcn_buf) == FALSE) {\n'
+    '\t\t\t\tif (wdev->if_dev)\n'
+    '\t\t\t\t\twr_iot_mbss_cancel_unmutated(pAd, IdBss, wdev->if_dev);\n'
+    '\t\t\t\treturn NDIS_STATUS_FAILURE;\n'
+    '\t\t\t}\n'
+    '\t\t\tif (wdev->if_dev &&\n'
+    '\t\t\t    wr_iot_mbss_beacon_done(pAd, IdBss, wdev->if_dev) != NDIS_STATUS_SUCCESS)\n'
+    '\t\t\t\treturn NDIS_STATUS_FAILURE;',1)
+func=func[:-2]+'\n\treturn NDIS_STATUS_SUCCESS;\n}'
+text=text.replace(selected(text,sig),func,1)
 path.write_text(text,encoding='utf-8')
 for record in records:
     if record['path']=='ap/ap_mbss.c':
-        record['stage']='radio-errors+registry-attach'
+        record['stage']='radio-errors+registry-attach+checked-deinit-result'
         record['sha256']=hashlib.sha256(path.read_bytes()).hexdigest()
+
+path=out/'driver/include/ap_mbss.h'
+text=path.read_text(encoding='utf-8')
+old='VOID MBSS_Remove(RTMP_ADAPTER *pAd);'
+if text.count(old)!=1:raise SystemExit('Changed MBSS remove declaration')
+path.write_text(text.replace(old,'INT MBSS_Remove(RTMP_ADAPTER *pAd);',1),encoding='utf-8')
+matches=[record for record in records if record['path']=='include/ap_mbss.h']
+if len(matches)!=1:raise SystemExit('Missing MBSS header record')
+matches[0]['stage']+=' + checked-remove-result'
+matches[0]['sha256']=hashlib.sha256(path.read_bytes()).hexdigest()
 
 # A successful CR-disable ioctl must show the per-BSS queue/TBTT control
 # bits cleared before the checked-close path can advance. Register readback
 # does not retire RX TxS reports or prove that RF transmission has stopped.
+path=out/'driver/ap/ap_mbss.c'
 text=path.read_text(encoding='utf-8')
 sig='INT mbss_cr_disable(PNET_DEV pDev)'
 old=selected(text,sig)
@@ -174,12 +231,17 @@ path=out/'driver/ap/ap_mbss_inf.c'
 text=path.read_text(encoding='utf-8');sig='INT MBSS_VirtualIF_Open(PNET_DEV pDev)'
 old=selected(text,sig)
 raw=old.replace(sig,'static INT wr_iot_mbss_open_raw(PNET_DEV pDev)',1)
+raw=guard_cr_enable(raw)
 text=text.replace(old,raw+'\n#include "wr-iot-mbss-open-admission.inc"\n',1)
 path.write_text(text,encoding='utf-8')
 fragment=(here/'mbss-open-admission.inc').read_bytes()
 target=out/'driver/include/wr-iot-mbss-open-admission.inc';target.write_bytes(fragment)
 records.append({'path':'include/wr-iot-mbss-open-admission.inc','stage':'mbss-admission',
                 'purpose':'driver','sha256':hashlib.sha256(fragment).hexdigest()})
+claim=(here/'virtual-open-claim.h').read_bytes()
+claim_target=out/'driver/include/virtual-open-claim.h';claim_target.write_bytes(claim)
+records.append({'path':'include/virtual-open-claim.h','stage':'mbss-post-open-receipt',
+                'purpose':'driver','sha256':hashlib.sha256(claim).hexdigest()})
 for record in records:
     if record['path']=='ap/ap_mbss_inf.c':
         record['stage']='radio-errors+mbss-admission'
@@ -197,6 +259,84 @@ records.append({'path':'include/wr-iot-mbss-close-checked.inc','stage':'mbss-che
 for record in records:
     if record['path']=='ap/ap_mbss_inf.c':
         record['stage']='radio-errors+mbss-admission+checked-close'
+        record['sha256']=hashlib.sha256(path.read_bytes()).hexdigest()
+
+# Carry a failed MBSS removal through its existing OS wrapper and physical
+# netdev-exit boundary. PCI remove is VOID and still needs a lifetime plan.
+text=path.read_text(encoding='utf-8')
+old='VOID RT28xx_MBSS_Remove(VOID *pAd)'
+new='INT RT28xx_MBSS_Remove(VOID *pAd)'
+if text.count(old)!=1:raise SystemExit('Changed MBSS remove wrapper signature')
+text=text.replace(old,new,1)
+old='\tRTMP_AP_IoctlHandle(pAd, NULL, CMD_RTPRIV_IOCTL_MBSS_REMOVE, 0, NULL, 0);'
+new='\treturn RTMP_AP_IoctlHandle(pAd, NULL, CMD_RTPRIV_IOCTL_MBSS_REMOVE, 0, NULL, 0);'
+if text.count(old)!=1:raise SystemExit('Changed MBSS remove wrapper dispatch')
+path.write_text(text.replace(old,new,1),encoding='utf-8')
+for record in records:
+    if record['path']=='ap/ap_mbss_inf.c':
+        record['stage']+='+checked-remove-wrapper'
+        record['sha256']=hashlib.sha256(path.read_bytes()).hexdigest()
+
+path=out/'driver/include/rt_os_net.h'
+raw=(root/'include/rt_os_net.h').read_bytes()
+text=raw.decode('utf-8').replace('\r\n','\n')
+old='VOID RT28xx_MBSS_Remove(VOID *pAd);'
+if text.count(old)!=1:raise SystemExit('Changed MBSS OS declaration')
+path.parent.mkdir(parents=True,exist_ok=True)
+path.write_text(text.replace(old,'INT RT28xx_MBSS_Remove(VOID *pAd);',1),encoding='utf-8')
+records.append({'path':'include/rt_os_net.h','stage':'checked-remove-wrapper',
+                'purpose':'driver','sha256':hashlib.sha256(path.read_bytes()).hexdigest()})
+
+path=out/'driver/os/linux/rt_main_dev.c'
+text=path.read_text(encoding='utf-8')
+sig='BOOLEAN RtmpPhyNetDevExit(VOID *pAd, PNET_DEV net_dev)'
+func=selected(text,sig)
+old='\tRT28xx_MBSS_Remove(pAd);'
+new='\tif (RT28xx_MBSS_Remove(pAd) != NDIS_STATUS_SUCCESS)\n\t\treturn FALSE;'
+if func.count(old)!=1:raise SystemExit('Changed physical-exit MBSS call')
+text=text.replace(func,func.replace(old,new,1),1)
+path.write_text(text,encoding='utf-8')
+for record in records:
+    if record['path']=='os/linux/rt_main_dev.c':
+        record['stage']+='+checked-mbss-exit'
+        record['sha256']=hashlib.sha256(path.read_bytes()).hexdigest()
+
+# PCI PM must close attach admission and drain already-started registrations
+# before its first netdev/queue mutation. This is only the initial PM barrier;
+# close result, TX/DMA retirement, resume and PCI power failure remain open.
+path=out/'driver/os/linux/pci_main_dev.c'
+text=path.read_text(encoding='utf-8')
+sig='static int rt_pci_suspend(struct pci_dev *pci_dev, pm_message_t state)'
+func=selected(text,sig)
+anchor=('\t\tif (IfNum > 0)\n'
+        '\t\t{\n'
+        '\t\t\t/* avoid users do suspend after interface is down */')
+barrier=('\t\tif (IfNum > 0)\n'
+         '\t\t{\n'
+         '\t\t\tULONG wr_iot_flags;\n'
+         '\t\t\tINT wr_iot_admitted;\n'
+         '\t\t\t/* Close attach/open/reset admission before any PM mutation. */\n'
+         '\t\t\tRTMP_IRQ_LOCK(&((RTMP_ADAPTER *)pAd)->wr_iot_transition_lock, wr_iot_flags);\n'
+         '\t\t\twr_iot_admitted = wr_iot_radio_request_suspend(\n'
+         '\t\t\t\t&((RTMP_ADAPTER *)pAd)->wr_iot_transition);\n'
+         '\t\t\tRTMP_IRQ_UNLOCK(&((RTMP_ADAPTER *)pAd)->wr_iot_transition_lock, wr_iot_flags);\n'
+         '\t\t\tif (!wr_iot_admitted)\n'
+         '\t\t\t\treturn -EBUSY;\n'
+         '\t\t\tif (wr_iot_wait_registration_idle((RTMP_ADAPTER *)pAd, 2 * HZ) != 0) {\n'
+         '\t\t\t\tRTMP_IRQ_LOCK(&((RTMP_ADAPTER *)pAd)->wr_iot_transition_lock, wr_iot_flags);\n'
+         '\t\t\t\t/* Only safe before carrier/queue/vendor/hardware changes. */\n'
+         '\t\t\t\twr_iot_radio_abort_suspend_unmutated(\n'
+         '\t\t\t\t\t&((RTMP_ADAPTER *)pAd)->wr_iot_transition);\n'
+         '\t\t\t\tRTMP_IRQ_UNLOCK(&((RTMP_ADAPTER *)pAd)->wr_iot_transition_lock, wr_iot_flags);\n'
+         '\t\t\t\treturn -EBUSY;\n'
+         '\t\t\t}\n'
+         '\t\t\t/* avoid users do suspend after interface is down */')
+if func.count(anchor)!=1:raise SystemExit('Changed PCI suspend pre-mutation anchor')
+text=text.replace(func,func.replace(anchor,barrier,1),1)
+path.write_text(text,encoding='utf-8')
+for record in records:
+    if record['path']=='os/linux/pci_main_dev.c':
+        record['stage']+='+pm-registration-fence'
         record['sha256']=hashlib.sha256(path.read_bytes()).hexdigest()
 
 # Expose the MAC_TX_INFO reservation generation from the beacon builder while
@@ -720,10 +860,16 @@ old_return='\n\n        return TRUE;\n}'
 if func.count(old_return)!=1:raise SystemExit('Changed beacon debug setter return')
 func=func.replace(old_return,'\n\n    return TRUE;\n}',1)
 text=text.replace(selected(text,sig),func,1)
+remove_case='\t\tcase CMD_RTPRIV_IOCTL_MBSS_REMOVE:\n\t\t\tMBSS_Remove(pAd);'
+if text.count(remove_case)!=1:raise SystemExit('Changed MBSS ioctl remove dispatch')
+text=text.replace(remove_case,
+    '\t\tcase CMD_RTPRIV_IOCTL_MBSS_REMOVE:\n'
+    '\t\t\tif (MBSS_Remove(pAd) != NDIS_STATUS_SUCCESS)\n'
+    '\t\t\t\treturn NDIS_STATUS_FAILURE;',1)
 path.write_text(text,encoding='utf-8')
 matches=[record for record in records if record['path']==name]
 if len(matches)!=1:raise SystemExit('Missing single radio-error AP config record')
-matches[0]['stage']+=' + beacon-debug-bound-and-lock'
+matches[0]['stage']+=' + beacon-debug-bound-and-lock + checked-mbss-remove-result'
 matches[0]['sha256']=hashlib.sha256(path.read_bytes()).hexdigest()
 # Keep the PID-to-callback gap accounted for in the same isolated bundle.
 # This is a software snapshot only; it is not a late-report or RF barrier.
@@ -818,6 +964,15 @@ if not any(forms['sem'] for forms in beacon_lock_forms.values()):
     raise SystemExit('Expected existing beacon semaphore-form lock missing')
 if not any(forms['irq'] for forms in beacon_lock_forms.values()):
     raise SystemExit('Expected beacon IRQ-form lock missing')
+main_wrapper=selected((out/'driver/os/linux/rt_main_dev.c').read_text(encoding='utf-8'),
+                      'int MainVirtualIF_open(struct net_device *net_dev)')
+if ('if (VIRTUAL_IF_UP(pAd) != 0)' not in main_wrapper or
+        'RT_MOD_DEC_USE_COUNT();\n\t\treturn -1;' not in main_wrapper):
+    raise SystemExit('Main-open failure path changed; review owner composition')
+command_header=(out/'driver/include/rtmp_cmd.h').read_text(encoding='utf-8')
+command_up=selected(command_header,'typedef struct __RT_CMD_INF_UP_DOWN {')
+if 'if_dev' in command_up or 'owner_generation' in command_up:
+    raise SystemExit('Virtual-UP command ABI changed; review claim composition')
 manifest={
  'schema':1,'source_revision':'c25283e915a2a00a763774dd255b14aff997285e',
  'source_git_blobs':{name:hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()
@@ -867,7 +1022,13 @@ manifest={
  'txs_callback_quiescence_proven':False,
  'mbss_open_admission_staged':True,'mbss_close_admission_staged':False,
  'radio_errors_merged':True,'reset_retry_hook_staged':True,'reset_retry_deadline_proven':False,
- 'adapter_storage_staged':True,'adapter_retirement_proven':False,
+ 'adapter_storage_staged':True,'pci_ap_attach_paths_staged':True,
+ 'virtual_open_claim_composed':False,
+ 'main_open_owner_composed':False,
+ 'failed_main_open_pin_retention_proven':False,
+ 'dynamic_virtual_remove_intent_staged':True,
+ 'all_interface_remove_bound':False,'registry_slot_release_bound':False,
+ 'adapter_retirement_proven':False,
  'lifecycle_exclusion_proven':False,'files':records,'stage_manifests':manifests,
  'preparer_inputs':{path.name:hashlib.sha256(data).hexdigest() for path,data in tool_bytes.items()},
 }

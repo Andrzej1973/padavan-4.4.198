@@ -86,6 +86,14 @@ BOOLEAN wr_iot_mt_radio_off_checked(RTMP_ADAPTER *pAd,
  }
  if (stage == 3U) {
   if (RTMP_TEST_FLAG(pAd, fRTMP_ADAPTER_NIC_NOT_EXIST)) return FALSE;
+  /* Keep MAC TX enabled until the MCU radio-off command has completed.
+   * AsicSetMacTxRx() reports success without checking the register write. */
+  if (!AsicSetMacTxRx(pAd, ASIC_MAC_TXRX, FALSE)) return FALSE;
+  RTMP_IO_READ32(pAd, ARB_SCR, &arb);
+  if (arb == 0xffffffffU ||
+      (arb & (MT_ARB_SCR_TXDIS | MT_ARB_SCR_RXDIS)) !=
+       (MT_ARB_SCR_TXDIS | MT_ARB_SCR_RXDIS))
+   return FALSE;
   if (!AsicSetWPDMA(pAd, PDMA_TX_RX, FALSE)) return FALSE;
   RTMP_IO_READ32(pAd, MT_WPDMA_GLO_CFG, &cfg.word);
   if (cfg.word == 0xffffffffU || cfg.field.EnableTxDMA ||
@@ -283,6 +291,31 @@ def main() -> None:
         data = path.read_text(encoding="utf-8").replace("\r\n", "\n")
         start = data.index("INT wr_iot_drv_close_checked(")
         tail = data[start:]
+        old_wait = ("\tfor (i = 0 ; i < NUM_OF_TX_RING; i++)\n"
+                    "\t{\n"
+                    "\t\twhile (pAd->DeQueueRunning[i] == TRUE)\n"
+                    "\t\t{\n"
+                    "\t\t\tDBGPRINT(RT_DEBUG_TRACE, (\"Waiting for TxQueue[%d] done..........\\n\", i));\n"
+                    "\t\t\tRtmpusecDelay(1000);\n"
+                    "\t\t}\n"
+                    "\t}\n")
+        new_wait = ("\tfor (i = 0 ; i < NUM_OF_TX_RING; i++)\n"
+                    "\t{\n"
+                    "\t\tunsigned int waited = 0;\n"
+                    "\t\twhile (pAd->DeQueueRunning[i] == TRUE)\n"
+                    "\t\t{\n"
+                    "\t\t\tif (waited++ >= 1000U) {\n"
+                    "\t\t\t\tRTMP_IRQ_LOCK(&pAd->wr_iot_transition_lock,flags);\n"
+                    "\t\t\t\tpAd->wr_iot_transition.shutdown_stage = 3U;\n"
+                    "\t\t\t\tRTMP_IRQ_UNLOCK(&pAd->wr_iot_transition_lock,flags);\n"
+                    "\t\t\t\treturn NDIS_STATUS_FAILURE;\n"
+                    "\t\t\t}\n"
+                    "\t\t\tRtmpusecDelay(1000);\n"
+                    "\t\t}\n"
+                    "\t}\n")
+        if tail.count(old_wait) != 1:
+            raise ValueError("Reviewed checked-close dequeue wait changed")
+        tail = tail.replace(old_wait, new_wait, 1)
         old_stage = " if (stage > 2U) return NDIS_STATUS_FAILURE;\n if (stage == 2U) return NDIS_STATUS_SUCCESS;"
         new_stage = (" if (stage > 2U && stage != 4U) return NDIS_STATUS_FAILURE;\n"
                      " if (stage == 2U) return NDIS_STATUS_SUCCESS;\n"

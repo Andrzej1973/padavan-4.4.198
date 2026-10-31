@@ -1263,10 +1263,27 @@ jobs:
           gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -Itools/iot \
             tools/iot/check-activation.c -o abi-results/check-iot-activation
           abi-results/check-iot-activation | tee abi-results/iot-activation.txt
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -Itools/iot \
+            tools/iot/check-radio-transition.c -o abi-results/check-iot-radio-transition
+          abi-results/check-iot-radio-transition | tee abi-results/iot-radio-transition.txt
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -Itools/iot \
+            tools/iot/check-reset-admission.c -o abi-results/check-iot-reset-admission
+          abi-results/check-iot-reset-admission | tee abi-results/iot-reset-admission.txt
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -Itools/iot \
+            tools/iot/check-interface-registry.c -o abi-results/check-iot-interface-registry
+          abi-results/check-iot-interface-registry
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -Itools/iot \
+            tools/iot/check-mbss-remove-resume.c -o abi-results/check-iot-mbss-remove-resume
+          abi-results/check-iot-mbss-remove-resume
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -Itools/iot \
+            tools/iot/check-mt7603-main-observe.c -o abi-results/check-iot-main-observe
+          abi-results/check-iot-main-observe | tee abi-results/iot-main-observe.txt
           compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
           test -n "$compiler"
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -Itools/iot \
             -c tools/iot/check-activation.c -o abi-results/iot-activation-mips.o
+          "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -Itools/iot \
+            -c tools/iot/check-radio-transition.c -o abi-results/iot-radio-transition-mips.o
 
       - name: Check IoT validated request snapshot
         shell: bash
@@ -1284,6 +1301,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -Itools/iot \
+            tools/iot/check-http-form.c -o abi-results/check-iot-http-form
+          abi-results/check-iot-http-form | tee abi-results/iot-http-form.txt
           gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -Itools/iot \
             tools/iot/check-http-request.c -o abi-results/check-iot-http-request
           abi-results/check-iot-http-request | tee abi-results/iot-http-request.txt
@@ -1307,6 +1327,9 @@ jobs:
           gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -Itools/iot \
             tools/iot/check-control-channel.c tools/iot/control-mailbox.c -o abi-results/check-iot-control-channel
           abi-results/check-iot-control-channel | tee abi-results/iot-control-channel.txt
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -Itools/iot \
+            tools/iot/check-rc-shutdown-admission.c -o abi-results/check-iot-rc-shutdown-admission
+          abi-results/check-iot-rc-shutdown-admission | tee abi-results/iot-rc-shutdown-admission.txt
           python3 tools/iot/prepare-status-check.py tools/iot/control-client.c abi-results/iot-status-core.c
           gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
             abi-results/iot-status-core.c -o abi-results/check-iot-status-core
@@ -1439,6 +1462,65 @@ jobs:
             abi-results/iot-radio-queue-bundle/driver \
             abi-results/iot-radio-queue-bundle/manifest.json \
             abi-results/iot-full-beacon-locks.json --expect-full-candidate
+          python3 tools/iot/prepare-txs-status-check.py \
+            abi-results/iot-radio-queue-bundle/driver abi-results/iot-txs-status.c
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            abi-results/iot-txs-status.c -o abi-results/check-iot-txs-status
+          abi-results/check-iot-txs-status
+          python3 tools/iot/prepare-beacon-txs-ledger-check.py \
+            abi-results/iot-radio-queue-bundle/driver abi-results/iot-txs-ledger.c \
+            --expect-generation-exhaustion
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            abi-results/iot-txs-ledger.c -o abi-results/check-iot-txs-ledger
+          abi-results/check-iot-txs-ledger | tee abi-results/iot-txs-ledger.txt
+          python3 tools/iot/prepare-mbss-registry-check.py abi-results/iot-radio-queue-bundle/driver abi-results/iot-radio-queue-bundle/stages/radio-errors/mbss-init-check.c abi-results/iot-mbss-registry.c
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -Iabi-results/iot-radio-queue-bundle/driver/include abi-results/iot-mbss-registry.c -o abi-results/check-iot-mbss-registry
+          abi-results/check-iot-mbss-registry
+          python3 tools/iot/prepare-checked-close-check.py \
+            abi-results/iot-radio-queue-bundle/driver abi-results/iot-checked-close.c
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            -Iabi-results/iot-radio-queue-bundle/driver/include \
+            abi-results/iot-checked-close.c -o abi-results/check-iot-checked-close
+          abi-results/check-iot-checked-close
+          python3 tools/iot/prepare-close-chain-check.py abi-results/iot-radio-queue-bundle/driver abi-results/iot-close-chain.c
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -Iabi-results/iot-radio-queue-bundle/driver/include abi-results/iot-close-chain.c -o abi-results/check-iot-close-chain
+          abi-results/check-iot-close-chain
+          python3 tools/iot/prepare-mbss-last-close-check.py abi-results/iot-radio-queue-bundle/driver abi-results/iot-mbss-last-close.c
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -Iabi-results/iot-radio-queue-bundle/driver/include abi-results/iot-mbss-last-close.c -o abi-results/check-iot-mbss-last-close
+          abi-results/check-iot-mbss-last-close
+          for variant in base hnat probe; do
+            flags=()
+            case "$variant" in
+              hnat) flags+=(-DCONFIG_RA_HW_NAT_WIFI_NEW_ARCH) ;;
+              probe) flags+=(-DIFUP_IN_PROBE) ;;
+            esac
+            gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined "${flags[@]}" \
+              -Iabi-results/iot-radio-queue-bundle/driver/include \
+              abi-results/iot-radio-queue-bundle/driver/check-main-close.c \
+              -o "abi-results/check-iot-main-close-$variant"
+            "abi-results/check-iot-main-close-$variant" | tee "abi-results/iot-main-close-$variant.txt"
+            gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined "${flags[@]}" -DCONFIG_AP_SUPPORT \
+              -Iabi-results/iot-radio-queue-bundle/driver/include \
+              abi-results/iot-radio-queue-bundle/driver/check-main-open.c \
+              -o "abi-results/check-iot-main-open-$variant"
+            "abi-results/check-iot-main-open-$variant" | tee "abi-results/iot-main-open-$variant.txt"
+          done
+          python3 tools/iot/prepare-mbss-open-close-check.py abi-results/iot-radio-queue-bundle/driver abi-results/iot-mbss-open-close.c
+          for flags in '' '-DMT_MAC' '-DMT_MAC -DCONFIG_RA_HW_NAT_WIFI_NEW_ARCH'; do
+            gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined $flags -Iabi-results/iot-radio-queue-bundle/driver/include abi-results/iot-mbss-open-close.c -o abi-results/check-iot-mbss-open-close
+            abi-results/check-iot-mbss-open-close
+          done
+          python3 tools/iot/prepare-mbss-admission-check.py \
+            abi-results/iot-radio-queue-bundle/driver abi-results/iot-mbss-admission.c
+          for variant in base mt mt-hnat; do
+            flags=()
+            if [ "$variant" != base ]; then flags+=(-DMT_MAC); fi
+            if [ "$variant" = mt-hnat ]; then flags+=(-DCONFIG_RA_HW_NAT_WIFI_NEW_ARCH); fi
+            gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined "${flags[@]}" \
+              -Iabi-results/iot-radio-queue-bundle/driver/include \
+              abi-results/iot-mbss-admission.c -o "abi-results/check-iot-mbss-admission-$variant"
+            "abi-results/check-iot-mbss-admission-$variant" | tee "abi-results/iot-mbss-admission-$variant.txt"
+          done
           python3 tools/iot/prepare-queued-composition-check.py \
             abi-results/iot-radio-queue-bundle/driver abi-results/iot-bundle-queue.c \
             --cleanup-candidate abi-results/iot-radio-queue-bundle/driver
@@ -1538,7 +1620,7 @@ jobs:
           set -euo pipefail
           mkdir -p abi-results/iot-http-source/trunk/user/{httpd,rc}
           cp source/trunk/user/httpd/{httpd.c,web_ex.c,Makefile} abi-results/iot-http-source/trunk/user/httpd/
-          cp iot-rc-source/trunk/user/rc/{rc.c,Makefile} abi-results/iot-http-source/trunk/user/rc/
+          cp iot-rc-source/trunk/user/rc/{rc.c,init.c,Makefile} abi-results/iot-http-source/trunk/user/rc/
           python3 tools/iot/prepare-http.py abi-results/iot-http-source
           python3 tools/iot/prepare-control.py abi-results/iot-http-source
           python3 tools/iot/check-http-source.py abi-results/iot-http-source abi-results/check-iot-http-metadata.c
@@ -1888,6 +1970,45 @@ jobs:
           printf '%s\n' '#include "tmp-upload-guard.h"' 'int main(void) { unsigned long long limit; return wr_tmp_upload_increase(&limit); }' > abi-results/tmp-upload-target.c
           "$compiler" -std=gnu99 -Wall -Wextra -Werror -Os -mips32r2 -mabi=32 -msoft-float \
             -Itools/tmp-upload -c abi-results/tmp-upload-target.c -o abi-results/tmp-upload-target.o
+
+      - name: Verify current IoT recovery successor on host and MIPS
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Vendor sources remain outside abi-results (uploaded below).
+          scratch="$(mktemp -d "$RUNNER_TEMP/wr-iot-successor.XXXXXX")"
+          driver="source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3"
+          python3 tools/iot/prepare-current-recovery-chain.py "$driver" "$scratch/prepared"
+          candidate="$scratch/prepared/later/corrected"
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -Itools/iot \
+            tools/iot/check-uapsd-retire-queues.c -o abi-results/check-uapsd-retire-queues
+          abi-results/check-uapsd-retire-queues > abi-results/uapsd-retire-queues.txt
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -Itools/iot \
+            tools/iot/check-wcid-fifo-retirement.c -o abi-results/check-wcid-fifo-retirement
+          abi-results/check-wcid-fifo-retirement > abi-results/wcid-fifo-retirement.txt
+          python3 tools/iot/prepare-full-driver-overlay.py "$driver" "$candidate" \
+            "$scratch/prepared/later/v24c-composition.json" "$scratch/driver"
+          python3 tools/iot/check-v25b-successor.py "$candidate" abi-results/iot-successor-host
+          cp "$scratch/prepared/preparation.json" abi-results/iot-successor-preparation.json
+          cp "$scratch/driver-overlay.json" abi-results/iot-successor-overlay.json
+          compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+            -Itools/iot -c tools/iot/check-wcid-fifo-retirement.c \
+            -o abi-results/wcid-fifo-retirement-mips.o
+          "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+            -Itools/iot -c tools/iot/check-uapsd-retire-queues.c \
+            -o abi-results/uapsd-retire-queues-mips.o
+          for unit in ledger close; do
+            "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+              -I"$candidate/include" -c "abi-results/iot-successor-host/$unit.c" \
+              -o "abi-results/iot-successor-$unit-mips.o"
+          done
+          "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+            -DWR_IOT_V40 -I"$candidate/include" -c tools/iot/check-mbss-post-open.c \
+            -o abi-results/iot-successor-post-open-mips.o
+          printf '%s\n' 'PASS successor extracted host fixtures and MIPS objects; not whole-driver Kbuild or runtime' \
+            > abi-results/iot-successor-scope.txt
 
       - name: Upload ABI diagnostics
         if: always()

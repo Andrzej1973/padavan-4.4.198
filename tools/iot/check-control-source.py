@@ -18,6 +18,7 @@ local=Path(__file__).parent
 report=json.loads((a.source/'iot-control-source.json').read_text())
 assert report['board']=='WR1200JS' and report['fixed_notification']=='wr_iot_apply'
 assert report['http_objects_bound'] and report['rc_objects_bound']
+assert report['normal_shutdown_signal_deferred_in_candidate'] is True
 assert not report['production_ready'] and not report['activation_backend_installed']
 a.output.parent.mkdir(parents=True,exist_ok=True)
 shared=a.output.parent/'iot-make-headers'
@@ -45,7 +46,17 @@ for role,directory in (('server','rc'),('client','httpd')):
         expected=(local/('control-'+unit+'.c')).read_text()
         for name in ('control-mailbox.h','control-channel.h'):
             expected=expected.replace('#include "'+name+'"','#include "wr-iot/'+name+'"')
+        if role=='server':
+            expected=expected.replace('#include "rc-shutdown-admission.h"',
+                                      '#include "wr-iot/rc-shutdown-admission.h"')
         assert (root/('wr-iot-control-'+unit+'.c')).read_text()==expected
+init=(a.source/'trunk/user/rc/init.c').read_text()
+shutdown_header=a.source/'trunk/user/rc/wr-iot/rc-shutdown-admission.h'
+assert shutdown_header.read_bytes()==(local/'rc-shutdown-admission.h').read_bytes()
+assert init.count('#include "wr-iot/rc-shutdown-admission.h"')==1
+assert init.count('if (wr_iot_rc_shutdown_note(sig))')==1
+fatal=init[init.index('catch_sig_fatal(int sig)'):init.index('catch_sig_event(int sig)')]
+assert fatal.index('if (wr_iot_rc_shutdown_note(sig))')<fatal.index('sig_term_received = 1;')
 main=(a.source/'trunk/user/rc/rc.c').read_text()
 needle='\t\tif (!strcmp(entry->d_name, "wr_iot_apply"))'
 assert main.count(needle)==1 and main.count('\t\t\twr_iot_rc_dispatch();')==1

@@ -9,6 +9,13 @@ Apply behavior. Modern is not a dependency and must not be introduced for
 this task. Existing uncommitted changes are preserved. No full firmware
 compilation or live router mutation is authorized for this initial stage.
 
+Owner refinement, 2026-10-26: take the ease of selecting services/bands in
+Nilabsent Padavan NG as a behavior reference. Keep the original Classic
+appearance and existing CSS/classes. The 2.4 GHz, 5 GHz and IoT destinations
+must have consistent button/tab behavior and active indication; navigation
+must never submit a settings form. This does not authorize a placeholder
+switch or invented IoT status while the backend remains unbound.
+
 ## Inspected structure
 
 Pinned source: vipshmily/padavan-4.4 at
@@ -36,6 +43,27 @@ IoT links back to both main settings pages. It also adds a standard
 `btn btn-mini` banner shortcut and a sidebar link. Active tabs use the
 existing `active` class and `aria-current`. Navigation contains no settings
 request, form submission or persistence mechanism.
+
+2026-10-29 follow-up: the shared Classic banner also has a separate guest
+2.4/5 GHz shortcut pair (`wifi2_b_g`/`wifi5_b_g`). The candidate now places
+an IoT shortcut beside that pair too, using the same Classic button classes
+and active indication. The original main and guest shortcuts are untouched.
+The in-memory route check covers both pairs, including repeated mounting;
+this remains an unshipped navigation candidate, not proof of IoT service.
+
+The Classic page builds its banner and section tabs in `body onload`, while
+`state.js` dynamically loads the navigation asset. Mounting on the `load`
+event itself could run before the page's handler. The candidate now queues
+mounting after load handlers; the in-memory check covers both an already
+complete page and a script loaded before `load`. No rendered-browser or
+production-image check has been performed for this change.
+
+The preparer now rejects a changed Classic banner unless all four original
+main/guest band-button IDs occur once; it also requires the page `initial()`
+load hook on each of the twelve Wi-Fi pages. A read-only check of the
+previously extracted Classic ROMFS found each ID once and all twelve load
+hooks. Python compilation, the Node route fixture and targeted diff check
+passed. This is source compatibility evidence, not a rendered UI check.
 
 The map's IoT link uses `target="_top"` to leave the embedded panel and
 retain the full Classic shell and return paths. Existing Classic CSS,

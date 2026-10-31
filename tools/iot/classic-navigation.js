@@ -38,17 +38,20 @@
             item(list, 'IoT', '/Advanced_IoT_Content.asp', isIot);
             tab.parentNode.insertBefore(list, tab);
         }
-        /* Shared Classic banner: retain the original two buttons and classes. */
-        var band5 = document.getElementById('wifi5_b');
-        if (band5 && !document.getElementById('wifi_iot_b')) {
+        /* Shared Classic banner has separate main and guest band shortcuts. */
+        function addIotShortcut(band5Id, iotId) {
+            var band5 = document.getElementById(band5Id);
+            if (!band5 || document.getElementById(iotId)) return;
             var link = document.createElement('a');
-            link.id = 'wifi_iot_b'; link.className = 'btn btn-mini' + (isIot ? ' btn-info' : '');
+            link.id = iotId; link.className = 'btn btn-mini' + (isIot ? ' btn-info' : '');
             link.setAttribute('href', '/Advanced_IoT_Content.asp');
             link.appendChild(document.createTextNode('IoT'));
             if (isIot) link.setAttribute('aria-current', 'page');
             band5.parentNode.appendChild(document.createTextNode(' '));
             band5.parentNode.appendChild(link);
         }
+        addIotShortcut('wifi5_b', 'wifi_iot_b');
+        addIotShortcut('wifi5_b_g', 'wifi_iot_b_g');
         var sidebar = document.getElementById('subMenu');
         if (sidebar && !document.getElementById('wr-classic-iot-menu')) {
             var menuLink = document.createElement('a'), icon = document.createElement('i');
@@ -63,6 +66,7 @@
             sidebar.appendChild(menuLink);
         }
     }
-    if (document.readyState === 'complete') mount();
-    else window.addEventListener('load', mount, false);
+    /* The page's body onload builds TopBanner/tabMenu; run after that handler. */
+    if (document.readyState === 'complete') window.setTimeout(mount, 0);
+    else window.addEventListener('load', function () { window.setTimeout(mount, 0); }, false);
 }());

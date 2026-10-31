@@ -33,13 +33,15 @@ static int observe_main(PRTMP_ADAPTER ad){
 #define WR_IOT_MBSS_OBSERVE_MAIN(ad) observe_main(ad)
 static INT wr_iot_mbss_open_raw(PNET_DEV dev){
  assert(dev&&!held&&dev->ad->wr_iot_transition.busy==WR_RADIO_BSS_OPEN);
+ if(mode==8)wr_iot_radio_request_reset(&dev->ad->wr_iot_transition);
+ if(mode==9)wr_iot_radio_request_close(&dev->ad->wr_iot_transition);
  raw_calls++;return 0;
 }
 #include "mbss-open-admission.inc"
 
 int main(void){
  struct adapter ad;struct device main_dev,dev;
- for(mode=0;mode<8;mode++){
+ for(mode=0;mode<10;mode++){
   memset(&ad,0,sizeof(ad));main_dev.ad=dev.ad=&ad;
   ad.net_dev=&main_dev;ad.ApCfg.BssidNum=3;
   ad.ApCfg.MBSSID[2].wdev.if_dev=mode==6?&main_dev:&dev;
@@ -52,7 +54,7 @@ int main(void){
   held=raw_calls=observed=0;
   INT ret=MBSS_VirtualIF_Open(&dev);
   assert(!held&&!ad.wr_iot_transition.busy);
-  if(mode==0||mode==6){
+  if(mode==0||mode==6||mode==8||mode==9){
    assert(ret==0&&raw_calls==1&&ad.wr_iot_interface_refs[0].phase==WR_REF_OWNED);
   }else{
    assert(ret==-1&&raw_calls==0&&ad.wr_iot_interface_refs[0].phase==WR_REF_IDLE);
@@ -63,7 +65,9 @@ int main(void){
   if(mode==4)assert(ad.wr_iot_transition.main_inhibited&&!ad.wr_iot_transition.main_ready);
   if(mode==5)assert(ad.wr_iot_transition.phase==WR_RADIO_CLOSING);
   if(mode==7)assert(ad.wr_iot_transition.main_ready&&ad.wr_iot_transition.phase==WR_RADIO_READY);
+  if(mode==8)assert(ad.wr_iot_transition.reset_pending&&!ad.wr_iot_transition.main_ready&&ad.wr_iot_transition.phase==WR_RADIO_UNVERIFIED);
+  if(mode==9)assert(!ad.wr_iot_transition.main_ready&&ad.wr_iot_transition.phase==WR_RADIO_CLOSING);
  }
- puts("PASS IoT BSS open revalidation: observation, stale intent and ref refusal, guest bypass; injected driver IO");
+ puts("PASS IoT BSS open revalidation: stale intents before/during raw open retain owned ref and inhibit readiness; injected driver IO");
  return 0;
 }

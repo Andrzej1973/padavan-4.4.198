@@ -497,8 +497,19 @@ static int wr_iot_active_filter_plan(struct wr_iot_firewall *rules,const char *l
 static int wr_iot_firewall_quarantine(FILE *fp,int allow_policy,const char *lan,const char *wan)
 {
  struct wr_iot_firewall rules;
- if(!wr_iot_bridge_is_owned())return 1;
- if(allow_policy&&wr_iot_active_filter_plan(&rules,lan,wan))return fputs(rules.ipv4,fp)>=0;
+ /* ra2 is reserved for the third BSS on this board. Keep it quarantined
+  * even before br-iot ownership is established; a partially attached BSS
+  * must not inherit broad router/LAN accept rules. */
+ if(!wr_iot_bridge_is_owned())
+  return fputs("-A INPUT -i ra2 -j DROP\n"
+               "-A FORWARD -i ra2 -j DROP\n"
+               "-A FORWARD -o ra2 -j DROP\n",fp)>=0;
+ /* Keep an unbridged ra2 path blocked after the br-iot allow policy is
+  * installed too. Routed IoT packets use br-iot as their ingress device. */
+ if(allow_policy&&wr_iot_active_filter_plan(&rules,lan,wan))
+  return fputs("-A INPUT -i ra2 -j DROP\n"
+               "-A FORWARD -i ra2 -j DROP\n"
+               "-A FORWARD -o ra2 -j DROP\n",fp)>=0 && fputs(rules.ipv4,fp)>=0;
  return fputs("-A INPUT -i br-iot -j DROP\n"
               "-A FORWARD -i br-iot -j DROP\n"
               "-A FORWARD -o br-iot -j DROP\n"

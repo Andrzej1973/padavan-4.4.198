@@ -90,7 +90,13 @@ int main(void){
   wr_iot_queue_cleanup(&cmd);assert(r->refs.refs==2);
   cmd.CmdFromNdis=0;cmd.bufferlength=0;
   wr_iot_queue_cleanup(&cmd);assert(r->refs.refs==2);
-  cmd.bufferlength=sizeof(e);wr_iot_queue_cleanup(&cmd);
+  cmd.bufferlength=sizeof(e);
+  wr_iot_queue_cancel_pending(&cmd);
+  assert(e.result==r&&r->refs.refs==2&&r->done.signals==1);
+  assert(wr_iot_result_read(r,&status)==WR_IOT_WORK_CANCELLED);
+  assert(!wr_iot_result_start(r));
+  wr_iot_queue_cancel_pending(&cmd);assert(r->done.signals==1);
+  wr_iot_queue_cleanup(&cmd);
   assert(!e.result&&r->refs.refs==1&&r->done.signals==1);
   wr_iot_queue_cleanup(&cmd);assert(r->refs.refs==1);
   assert(wr_iot_result_read(r,&status)==WR_IOT_WORK_CANCELLED);

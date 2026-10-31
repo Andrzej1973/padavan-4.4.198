@@ -6,7 +6,8 @@ INT wr_iot_virtual_down_checked(RTMP_ADAPTER *pAd,
  unsigned int stage;
  if (!pAd || !ticket) return NDIS_STATUS_FAILURE;
  RTMP_IRQ_LOCK(&pAd->wr_iot_transition_lock,flags);
- if ((ticket->operation != WR_RADIO_CLOSE && ticket->operation != WR_RADIO_BSS_CLOSE) ||
+ if ((ticket->operation != WR_RADIO_CLOSE && ticket->operation != WR_RADIO_BSS_CLOSE &&
+      ticket->operation != WR_RADIO_AUX_CLOSE) ||
      pAd->wr_iot_transition.busy != ticket->operation ||
      pAd->wr_iot_transition.serial != ticket->serial) {
   RTMP_IRQ_UNLOCK(&pAd->wr_iot_transition_lock,flags);
@@ -21,7 +22,7 @@ INT wr_iot_virtual_down_checked(RTMP_ADAPTER *pAd,
   RTMP_IRQ_UNLOCK(&pAd->wr_iot_transition_lock,flags);
   return NDIS_STATUS_FAILURE;
  }
- if (ticket->operation == WR_RADIO_BSS_CLOSE) {
+ if (ticket->operation == WR_RADIO_BSS_CLOSE || ticket->operation == WR_RADIO_AUX_CLOSE) {
   if (stage || VIRTUAL_IF_NUM(pAd) <= 1U) {
    RTMP_IRQ_UNLOCK(&pAd->wr_iot_transition_lock,flags);
    return NDIS_STATUS_FAILURE;

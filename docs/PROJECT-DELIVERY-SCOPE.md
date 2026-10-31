@@ -151,6 +151,14 @@ target sizes or measured image delta are available yet.
 
 ## Mandatory target BusyBox compatibility audit — user instruction 2026-10-16
 
+Owner decision, 2026-10-28: retain the project's BusyBox 1.24.2 for the
+WR1200JS delivery. Do not upgrade BusyBox merely to obtain newer applets.
+The available `hexdump` already supports the observed PCI read command;
+`od` is a separate optional applet question. This version decision does not
+waive the exact-image command, dependency and service audit below. Revisit
+the version only for a demonstrated compatibility/security need with its
+own target regression evidence.
+
 Audit every firmware service and every connected script, process and lifecycle
 path against the exact BusyBox built for the target image. This is a delivery
 requirement, not limited to the recently changed USB/IP/Stubby/ZeroTier code.
@@ -197,6 +205,28 @@ the shared dependencies again when BusyBox configuration/version changes, and
 run relevant regression gates in normal firmware CI. Do not solve missing
 applets by unreviewed global feature switches or silently changing user settings.
 
+
+
+### Follow-up: target BusyBox hexdump and version evidence — assigned to Sol
+
+The WR1200JS live read-only PCI-config collection succeeded with the router's
+BusyBox applet using `busybox hexdump -C -n 4096`; standalone `od` is absent.
+This proves only that this command works on the currently running router image.
+It does not identify the BusyBox version or prove that the corresponding
+firmware build contains the same applet/options.
+
+At the next suitable BusyBox/image audit step, Sol should: (1) identify the
+exact BusyBox version and source revision used by the current WR1200JS firmware
+build, (2) inspect its effective `.config`, ROMFS binary hash, applet links and
+`hexdump` options, (3) verify whether `od` is omitted by configuration or is
+otherwise unavailable, and (4) compare those image facts with the live router
+output. Confirm whether the read-only helper's PCI dump command is portable to
+that exact image and record a reproducible command/result. Keep the helper
+allowlisted and read-only; do not add arbitrary remote command execution or
+change router state. Do not reorder current delivery work: this is part of the
+existing mandatory target BusyBox compatibility audit and must not displace the
+open IoT lifecycle gate.
+
 ### Existing-service preservation contract
 
 Treat the job as a port of the existing Padavan firmware, not a replacement
@@ -221,7 +251,7 @@ DNS findings and the service-by-service source map are tracked in
 `SERVICE-PORT-AND-SETTINGS-AUDIT.md`. DoT/DoH runtime behavior, provider lists,
 time bootstrap and no-plaintext fallback require router verification. DNSCrypt
 must remain disabled until its optional Nilabsent-derived port and maintained
-resolver-list compatibility are proven. Tor and Zapret/Zapret2 remain Stage 2
+resolver-list compatibility are proven. Tor and Zapret2 remain Stage 2
 work after WR1200JS device acceptance, as previously agreed; their lists and
 source revisions must be preserved when that stage begins.
 
@@ -286,7 +316,22 @@ Dual-image CI has not yet been implemented.
 
 Stage 1: prioritize a coherent WR1200JS image and prompt testing on the actual router. Preserve the user's configuration and complete the necessary build/device readiness checks. Do not delay initial device testing for the packages listed below or other-board expansion.
 
-Stage 2, after the WR1200JS firmware is ready: port CONFIG_FIRMWARE_INCLUDE_TOR, CONFIG_FIRMWARE_INCLUDE_TOR_GEOIP, CONFIG_FIRMWARE_INCLUDE_TOR_GEOIPV6, CONFIG_FIRMWARE_INCLUDE_ZAPRET and CONFIG_FIRMWARE_INCLUDE_ZAPRET2. Keep these documented but disabled in the stage-1 build config. Also migrate the remaining nilabsent router configurations to this firmware base, checking each board's hardware requirements individually.
+Stage 2, after the WR1200JS firmware is ready: port CONFIG_FIRMWARE_INCLUDE_TOR, CONFIG_FIRMWARE_INCLUDE_TOR_GEOIP, CONFIG_FIRMWARE_INCLUDE_TOR_GEOIPV6 and CONFIG_FIRMWARE_INCLUDE_ZAPRET2. Keep these documented but disabled in the stage-1 build config. Also migrate the remaining nilabsent router configurations to this firmware base, checking each board's hardware requirements individually.
+
+Updated user decision 2026-10-24: implement only Zapret2. The old
+`CONFIG_FIRMWARE_INCLUDE_ZAPRET` selector (called Zapret 1 by the user) is
+removed from board configs and is out of scope. When Stage 2 begins, enable
+the Zapret2 selector in the WR1200JS build configuration and include its
+actual kernel and userspace dependencies, service lifecycle, configuration,
+strategy data and WebUI in the firmware. Verify the resulting image contents,
+dependency closure and compressed image size against the flash limit. Do not
+turn on only the selectors or claim support from a successful build alone.
+
+Zapret2 preparation (2026-10-24): a pinned, complete upstream source snapshot,
+per-file hashes, license and component/dependency inventory are recorded in
+`third_party/bol-van/zapret2/`, `third_party/bol-van/zapret2-source-manifest.json`
+and `docs/ZAPRET2-SOURCE-BASE.md`. This preserves sources for Stage 2; no
+Padavan build rule, selector, ROMFS content or router service is enabled yet.
 
 These are deferred requirements, not removed from the project. Existing backup/source preservation requirements remain. Other required features are not silently removed by this staging decision.
 
@@ -475,8 +520,10 @@ Keep verified findings, remaining checks and adoption decisions in docs/donor-au
 
 Add a third main use-case network alongside the existing primary and guest Wi-Fi; preserve both existing networks and their configuration. Schedule within the WR1200JS Wi-Fi/WebUI stage. The pinned ralink.c currently generates BssidNum=2 (AP plus GuestAP); a third network is not yet implemented or proven supported.
 
+Project-wide rule, 2026-10-24: every router accepted into this project must include a real IoT network as a standard firmware capability alongside primary and guest Wi-Fi. Board/build configuration must not offer an option to omit IoT. This applies to WR1200JS, Mi Mini and every later board profile. A board is not release-ready until its own driver, network isolation, defaults, WebUI, image and device tests establish that capability. An unsupported board must remain pending rather than ship a cosmetic IoT control or silently omit the feature. The user-facing runtime enable switch is distinct from a build-time omission and remains available. Provisioning must never advertise an unprotected IoT SSID; enabling it by factory default requires safe distinct credentials and working isolation. The currently IoT-excluded test image is transitional and does not meet this release rule.
+
 - Confirm effective MT7603E/MT7612E virtual-AP limits, interface allocation and compatibility with existing guest AP, Band Steering and optional roaming before claiming support.
-- Provide a dedicated IoT WebUI section with enable switch, SSID, password, authenticated local QR, persistence and actual status. Default OFF after flashing; do not repurpose the guest network.
+- Provide a dedicated IoT WebUI section with enable switch, SSID, password, authenticated local QR, persistence and actual status. A released board must provision IoT by default; activate it at factory defaults only after distinct safe credentials and isolation are verified. During development, keep it OFF rather than broadcast an insecure network. Do not repurpose the guest network.
 - Prefer 2.4 GHz, 20 MHz and WPA2-Personal/AES for compatibility. Keep WPS and Band Steering off for IoT by default. Preserve channel constraints shared by virtual APs on the same physical radio; do not imply independent RF channels.
 - Wire the third BSS into driver profile generation, interface lifecycle, a separate bridge/subnet, DHCP and firewall. Block IoT access to the primary LAN and router administration by default while permitting the required DHCP/DNS and internet access.
 - Provide explicit scoped access exceptions for a controller such as Home Assistant. Assess discovery/mDNS requirements separately; do not promise discovery or enable unrestricted inter-network access.
@@ -1089,6 +1136,15 @@ Preserve Classic styling, responsiveness, existing Apply handling and main
 network behavior. Reuse real ASP/CGI/NVRAM and IoT mechanisms; do not create
 a new theme or duplicate configuration logic.
 
+Owner decision, 2026-10-26: use the convenient button and tab behavior of
+[Nilabsent Padavan NG](https://github.com/nilabsent/padavan-ng) as a usability
+reference for Classic IoT. The three destinations must be equally discoverable
+and use existing Classic button/tab classes, active highlighting and clear
+return paths; changing a tab must not save or apply settings. Retain the
+matching Wi-Fi section when switching 2.4/5 GHz. Do not copy Nilabsent's
+visual styling or introduce its configuration writer. Complete controls and
+status become usable only when the real authenticated IoT backend is bound.
+
 Prepared navigation is partial and is not included in production builds.
 Production activation, authenticated settings/Apply, isolated bridge,
 DHCP/DNS, firewall, status and device acceptance remain in the existing IoT
@@ -1112,3 +1168,54 @@ WR1200JS build. Show only observed values; use `Н/Д` where a hardware sensor
 is unavailable, and label local preview values as DEMO. Treat the small
 secondary-page thumbnails as future design references, not permission to
 implement those pages in this stage.
+
+## Окремий етап: самодостатній репозиторій після прошивок — 2026-10-23
+
+Окремий погоджений пункт роботи після завершення й приймання прошивки
+WR1200JS, а потім етапу Mi Mini згідно з чинним порядком доставки вище.
+Поточний порядок IoT, WebUI та решти прошивкових робіт не змінюється.
+
+- Впорядкувати структуру за принципом повного дерева джерел, як у padavan-ng,
+  зберігши правила Sol/DeepSeek, історію Git і напрацювання всіх акаунтів.
+- Зібрати у нашому репозиторії точні вихідні коди ядра, драйверів, RC, WebUI,
+  пакетів, патчів та рецепти/джерела toolchain, включно з транзитивними
+  залежностями. Збережені архіви перевірити за ревізіями й контрольними сумами.
+- Усунути обов'язкове отримання джерел зі сторонніх репозиторіїв під час
+  збірки. Посилання на походження, авторство та ліцензії залишити: це
+  атрибуція, а не зовнішня залежність збірки.
+- Для великих файлів заздалегідь визначити зберігання з урахуванням лімітів
+  GitHub; власні Release-архіви не вважати виконанням вимоги «все в дереві»
+  без окремого погодження. Не переписувати історію й не видаляти резервні копії.
+- Підготувати й перевірити середовище Ubuntu 24.04 та відтворюваний локальний
+  рецепт складання. Docker/WSL вважати робочими лише після фактичної перевірки.
+- Як можливий зразок інтерфейсу збирання розглянути Prometheus lekswrt:
+  перевірений каталог моделей, показ ревізій, стану toolchain і результатів
+  образу. Для Windows 10 спочатку перевірити WSL 2 + Ubuntu 24.04, а потім
+  окремо вирішити потребу в контейнері. Скрипт збирання не має виконувати
+  прошивання, мережеві завантаження чи зміну роутера. Аудит і обмеження:
+  `docs/donor-audits/LEKSWRT-PROMETHEUS-2026-10-27.md`.
+- Критерій завершення: повний інвентар джерел і ліцензій, відсутність
+  незадокументованих зовнішніх завантажень, успішна збірка із заздалегідь
+  підготовленого локального середовища без мережі та перевірка отриманого образу.
+  Залежності самої Ubuntu/контейнерної бази також описати й підготувати до
+  офлайн-запуску. Не заявляти про побітову відтворюваність без порівняння образів.
+
+Статус: заплановано, не виконано. Цей запис не запускає міграцію або збірку.
+
+## Останній етап проєкту: Linux 4.4.198 → 4.4.302 для всіх роутерів — 2026-10-24
+
+Міграція ядра закріплена в самому кінці загального плану. Черговість:
+завершити WR1200JS, виконати погоджені роботи для Xiaomi Mi Mini, закінчити
+решту погоджених етапів і впорядкувати повне дерево джерел; лише потім — цей
+можливий фінальний етап. Після Mi Mini та решти робіт окремо вирішити, чи
+переходити на Linux 4.4.302. Якщо перехід буде схвалено, він охоплює кожен
+роутер, який на той час доданий до проєкту, а не лише WR1200JS і Mi Mini. Для
+кожної плати потрібні власні перевірка драйверів, конфігурацій і патчів,
+збірка образу та приймання на пристрої; успіх на одній платі не підтверджує
+сумісність решти. До початку цього останнього етапу ядро залишається на
+4.4.198.
+
+Початковий технічний аналіз WR1200JS і контрольований порядок дослідження:
+`docs/KERNEL-4.4.302-MIGRATION-PLAN.md`. Перед виконанням розширити його
+інвентарем і планом приймання для кожної фактично доданої плати. Зараз
+міграцію не розпочато; образ 4.4.302 не збирали і роутери не прошивали.

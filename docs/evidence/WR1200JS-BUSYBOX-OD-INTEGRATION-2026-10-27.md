@@ -16,8 +16,14 @@ the effective selector and `/usr/bin/od` symlink. The exact-image BusyBox
 audit also checks the applet list/link and probes `od -b` on four known bytes
 under target QEMU.
 
-Python syntax and whitespace checks passed locally. No target BusyBox build,
-final ROMFS/image gate or router runtime test has yet been run for this
-change. Flash size delta is unknown until comparison of actual image
-artifacts. The currently installed router still lacks `od`; the change only
-affects a future built image and does not alter the live device.
+Python syntax and whitespace checks passed locally. GitHub Actions firmware
+build #636 (run 40562761997, attempt 1) completed successfully. Its
+`target-busybox-audit` artifact reports BusyBox 1.24.2, `od_compact_config`,
+`od_applet_and_link`, and the target QEMU `od_octal_bytes` probe all true;
+the overall audit result is true. The image BusyBox SHA256 is
+`453475ff84d887e008843240467ab9fac8abebfe8fa4b0431a06a41999ca6fb5`
+versus `a90dc161a6d434c79b2ddd5253f75e4fdc91577f484fb08786e9502fd0ddfe76`
+in build #635. This proves the new image contains a different BusyBox, not
+the exact size cost of `od`; other source changes also entered #636. The
+currently installed router still lacks `od`; no router runtime test or flash
+has been performed for this change.

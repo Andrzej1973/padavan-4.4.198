@@ -68,3 +68,22 @@ explicitly reports `target_compiled=false`, `production_installed=false`,
 `pci_release_gate_bound=false`. A target compile is still required, followed
 by recovery/PCI lifetime and late DMA/TxS report proof. No router setting
 was changed.
+
+A source-call scan of the prepared v42 tree found one call to
+`RT28xx_UpdateBeaconToAsic`, from the wrapped `APUpdateBeaconFrame` inner
+function, and one call to `RT28xx_UpdateTimToAsic`, from the wrapped
+`APMakeBssTimFrame` inner function. Other beacon callers, including WSC and
+configuration handlers, call the public wrapped `APUpdateBeaconFrame`.
+`APMakeBssBeacon` checks `BeaconPkt` but returns before dereferencing it
+for this HIF_MT path. The other `RT28xx_UpdateBeaconToAsic` definition is
+under `RTMP_MAC || RLT_MAC`, outside the reviewed MT target. This is source
+coverage for the pinned candidate, not proof that all runtime callbacks or
+late hardware reports are quiescent.
+
+## Target compile follow-up
+
+Run #634 (`40527671413`) completed successfully. Its downloaded artifact
+confirms the isolated v42 MIPS32r2/O32 module and matching SHA256. The ordinary
+image still excludes this candidate. See
+`WR1200JS-IOT-V42-CI-634-TARGET-COMPILE-2026-10-27.md` for the bounded
+evidence. Recovery ownership, PCI release and late DMA/TxS safety remain open.

@@ -202,12 +202,23 @@ def main() -> int:
             main_open = main_claim[main_start:
                                    main_claim.index("int rt28xx_close(", main_start)]
             after_claim = main_open[main_open.index("if (VIRTUAL_IF_UP_CLAIM("):]
+            checked_verify_rollback = (
+                after_claim.count("RT_MOD_DEC_USE_COUNT();") == 1 and
+                "!wr_iot_main_readiness_verify(adapter,net_dev,generation)" in after_claim and
+                "wr_iot_main_close_begin_checked(" in after_claim and
+                "wr_iot_main_close_preclose_once(" in after_claim and
+                "wr_iot_main_close_continue_checked(" in after_claim and
+                "if (closed)\n   RT_MOD_DEC_USE_COUNT();" in after_claim and
+                after_claim.index("wr_iot_main_close_continue_checked(") <
+                after_claim.index("RT_MOD_DEC_USE_COUNT();") <
+                after_claim.index("return -1;", after_claim.index("if (closed)")))
             if (main_open.count("wr_iot_main_open_reserve(") != 1 or
                     main_open.index("wr_iot_main_open_reserve(") >
                     main_open.index("RTMP_DRIVER_AP_MAIN_OPEN(pAd);") or
                     "WR_MAIN_OPEN_UNCERTAIN_FAILURE" not in after_claim or
                     "wr_iot_main_open_accepted(" not in after_claim or
-                    "RT_MOD_DEC_USE_COUNT();" in after_claim or
+                    ("RT_MOD_DEC_USE_COUNT();" in after_claim and
+                     not checked_verify_rollback) or
                     "#error \"main-open owner candidate" not in main_open):
                 print("main claimed open lost its reservation/failure fence")
                 return 1
@@ -253,16 +264,54 @@ def main() -> int:
         mbss_open = core[core.index("INT32 MBSS_Open("):core.index("INT MBSS_AbortOpen(")]
         abort = core[core.index("INT MBSS_AbortOpen("):core.index("INT MBSS_Close(")]
         mbss_close = core[core.index("INT MBSS_Close("):]
-        if any("BndStrg_SetInfFlags(" in section for section in
-               (mbss_open, abort, mbss_close)):
-            print("secondary MBSS must not publish band-wide Band Steering readiness")
+        # BndStrg_SetInfFlags is per wdev (bInfReady, ActiveCount and
+        # ucIfName), not a band-wide boolean. The vendor MBSS_Open invokes
+        # it before the claimed virtual-UP/CR_ENABLE result is known. Do not
+        # accept that premature ready event, but do not require deleting the
+        # per-BSS notification: it must move into the checked lifecycle.
+        if "BndStrg_SetInfFlags(" in mbss_open:
+            guard = ("(!IS_MT7603(pAd) || pAd->ApCfg.BssidNum < 3 ||\n"
+                     "    (BssId != 1 && BssId != 2)) && pAd->ApCfg.BandSteering")
+            before = mbss_open.split("BndStrg_SetInfFlags(", 1)[0]
+            if guard not in before:
+                print("MBSS publishes per-BSS Band Steering ready before claimed open succeeds")
+                return 1
+        if "BndStrg_SetInfFlags(" in abort:
+            print("MBSS abort changes per-BSS Band Steering state before ownership is known")
             return 1
+        if "BndStrg_SetInfFlags(" in mbss_close:
+            guard = ("(!IS_MT7603(pAd) || pAd->ApCfg.BssidNum < 3 ||\n"
+                     "    (BssId != 1 && BssId != 2)) && pAd->ApCfg.BandSteering")
+            before = mbss_close.split("BndStrg_SetInfFlags(", 1)[0]
+            if guard not in before:
+                print("MBSS closes per-BSS Band Steering state before checked DOWN completes")
+                return 1
+        if checked_binding:
+            checked_executor = checked_stop.read_text(encoding="utf-8", errors="replace")
+            ready_event = admission.find("wr_iot_mbss_publish_ready(adapter,pDev,bss_id);")
+            cancel_event = admission.find("wr_iot_mbss_publish_down(adapter,pDev,bss_id);", ready_event)
+            open_finish = admission.find("wr_iot_bss_open_finish_observed(", cancel_event)
+            down_result = checked_executor.find("ret=wr_iot_virtual_down_checked(ad,ticket);")
+            down_success = checked_executor.find("if(ret!=NDIS_STATUS_SUCCESS)", down_result)
+            down_event = checked_executor.find("wr_iot_mbss_publish_down(ad,dev,bss_id);", down_success)
+            retire = checked_executor.find("wr_iot_radio_finish(&ad->wr_iot_transition,ticket,1)", down_event)
+            if ("wr_iot_mbss_publish_ready(adapter,pDev,bss_id)" not in admission or
+                    "publish_ready=IS_MT7603(adapter)&&observed_bss" not in admission or
+                    "RTMP_IRQ_UNLOCK(&adapter->wr_iot_transition_lock,flags);\n#ifdef BAND_STEERING\n    wr_iot_mbss_publish_ready" not in admission or
+                    "VOID wr_iot_mbss_publish_ready(" not in core or
+                    "VOID wr_iot_mbss_publish_down(" not in core or
+                    "!adapter->wr_iot_transition.reset_pending&&" not in admission or
+                    "adapter->wr_iot_transition.reset_pending||" not in admission or
+                    ready_event < 0 or cancel_event < 0 or open_finish < 0 or
+                    down_result < 0 or down_success < 0 or
+                    down_event < 0 or retire < 0):
+                print("per-BSS Band Steering ready/down publication has no checked lifecycle owner")
+                return 1
         if (driver / "include/wr-iot-radio-ticket-wait.inc").exists():
             wake_paths = {
                 "include/wr-iot-mbss-open-admission.inc":
-                    4 if acquired_failure else 3,
+                    5 if acquired_failure else 3,
                 "include/wr-iot-reset-admission.inc": 1,
-                "os/linux/rt_main_dev.c": 2,
             }
             for rel, count in wake_paths.items():
                 source = (driver / rel).read_text(encoding="utf-8", errors="replace")
@@ -270,6 +319,14 @@ def main() -> int:
                         source.count("wr_iot_ticket_wait);") != count):
                     print("radio ticket retirement wakeup coverage changed:", rel)
                     return 1
+            main_source = (driver / "os/linux/rt_main_dev.c").read_text(
+                encoding="utf-8", errors="replace")
+            main_start = main_source.index("int MainVirtualIF_open(")
+            main_open = main_source[main_start:
+                                    main_source.index("int rt28xx_close(", main_start)]
+            if (main_open.count("wake_up_all(&adapter->wr_iot_ticket_wait);") != 2):
+                print("main-open ticket retirement wakeup coverage changed")
+                return 1
             adapter = (driver / "include/rtmp.h").read_text(encoding="utf-8", errors="replace")
             init = (driver / "common/rtmp_init.c").read_text(encoding="utf-8", errors="replace")
             if (adapter.count("wait_queue_head_t wr_iot_ticket_wait;") != 1 or
@@ -278,6 +335,14 @@ def main() -> int:
                 return 1
         main_source = (driver / "os/linux/rt_main_dev.c").read_text(
             encoding="utf-8", errors="replace")
+        if "static int wr_iot_main_close_continue_checked(" in main_source:
+            close_start = main_source.index("static int wr_iot_main_close_continue_checked(")
+            close_end = main_source.index("static int wr_iot_main_close_begin_checked(", close_start)
+            checked_close = main_source[close_start:close_end]
+            if checked_close.count("wr_iot_virtual_down_checked(adapter, ticket)") != 1:
+                print("main checked-close virtual DOWN executor changed")
+                return 1
+            expected["os/linux/rt_main_dev.c"] = (0, 0)
         if "err_no_irq:" in main_source:
             physical_open = main_source[main_source.index("int rt28xx_open("):
                                          main_source.index("PNET_DEV RtmpPhyNetDevInit(")]

@@ -1,0 +1,59 @@
+{
+  "input_sha256": {
+    "include/rtmp_cmd.h": "dd0b3954778d33fe1addd20796f8d036fdae11da8849338f114e59a308c52a54",
+    "include/rtmp.h": "bc224c5db96333c59778bcec3b1b258d85cdd78db7fb4464f64dee385aa53d39",
+    "common/rtmp_init.c": "668f930a94303f009dc0152d6c7b71cd26b9980b4a5c78c54b0774d166a5bef8",
+    "common/cmm_cfg.c": "45de3f1a54d428bb0f92125c7fe63c06eaf7e0f97310609ba3e3b5c9f27980bd"
+  },
+  "output_sha256": {
+    "include/rtmp_cmd.h": "d1cf99e1e4b03cf21e375678902bda05052afb8ed3effd1ee6aec80832c2c615",
+    "include/rtmp.h": "42ebf6a4245ce395eb5ad4b14d8976f80c19ed8a24e47fddec906db77180023c",
+    "common/rtmp_init.c": "f387a500cc227eb94377549a90fcd73c35020e9cb2523c69aaf34bd80e55f1ab",
+    "common/cmm_cfg.c": "b396db70d1edd8ed3aa16f50d00ddead726dce272e8ac0da26aca71f37aae214"
+  },
+  "scope": "internal dispatch transport only, outer open and WDS call binding absent",
+  "old_command_values_preserved": true,
+  "outer_open_bound": false,
+  "wds_startup_bound": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "lifecycle_accepted": false,
+  "date": "2026-10-30",
+  "base_commit": "9af5697",
+  "passed": true,
+  "host_tests": [
+    "actual dispatch include with mocked adapter/table/lock",
+    "actual internal core ioctl case extracted into mocked switch"
+  ],
+  "compiler_flags": [
+    "-std=c11",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Werror"
+  ],
+  "test_sha256": {
+    "tools\\iot\\check-peer-open-dispatch.c": "b1418ecf909d0391466ad157e952c25df04228e566c598cad76f77066cfbe851",
+    ".iot-local-check\\peer-open-dispatch44-core.c": "2289dcca920a597dde5dfed34de344c4a955a1f6f8cf40969cd2b6f9b2c2e86d"
+  },
+  "covered": [
+    "null/version/size/device/action refusal",
+    "table count and live entry rejection",
+    "unpublished failed setup rejection",
+    "stale/duplicate ticket and premature finish rejection",
+    "active insertion blocks DONE",
+    "failure retention and serial overflow",
+    "non-null wrq or subcmd rejected before dispatch",
+    "old common ioctl enum identical"
+  ],
+  "whole_core_handler_compiled": false,
+  "os_abl_binary_compiled": false,
+  "full_regression_run": false,
+  "full44_replay_run": false,
+  "known_gaps": [
+    "outer open binding absent",
+    "WDS authorized insertion ticket absent",
+    "init/full clear/shutdown/free ownership unbound",
+    "readiness checks do not prove callback/DMA quiescence"
+  ]
+}

@@ -7,7 +7,7 @@ VOID wr_iot_radio_reset_drain(RTMP_ADAPTER *pAd)
 {
  struct wr_iot_radio_ticket ticket;
  ULONG flags;
- int admitted=0;
+ int admitted=0,retired=0;
  /* ndo_open/ndo_stop already hold RTNL. Never wait here: stop may join
   * this command worker, or an ioctl caller may itself already own RTNL. */
  if(!rtnl_trylock())return;
@@ -21,9 +21,10 @@ VOID wr_iot_radio_reset_drain(RTMP_ADAPTER *pAd)
  else wr_iot_pdma_reset_raw(pAd);
  RTMP_IRQ_LOCK(&pAd->wr_iot_transition_lock, flags);
  /* VOID raw return is not hardware success/readiness evidence. */
- wr_iot_radio_finish_unverified(&pAd->wr_iot_transition,&ticket);
+ retired=wr_iot_radio_finish_unverified(&pAd->wr_iot_transition,&ticket);
  RTMP_IRQ_UNLOCK(&pAd->wr_iot_transition_lock, flags);
  rtnl_unlock();
+ if(retired)wake_up_all(&pAd->wr_iot_ticket_wait);
 }
 static VOID wr_iot_request_driver_reset(RTMP_ADAPTER *pAd,unsigned int kind)
 {

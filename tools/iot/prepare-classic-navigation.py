@@ -21,6 +21,10 @@ def prepare(source):
         raise ValueError('Classic IoT navigation already installed')
     if original.count('function show_banner(') != 1:
         raise ValueError('Classic shared banner changed')
+    for shortcut in ('id="wifi2_b"', 'id="wifi5_b"',
+                     'id="wifi2_b_g"', 'id="wifi5_b_g"'):
+        if original.count(shortcut) != 1:
+            raise ValueError('Classic main/guest radio shortcuts changed: ' + shortcut)
     # Load from state.js so all Classic pages with the banner get the same link.
     # The asset handles both pre-load and post-load arrival, without document.write.
     changes[state] = original + '''
@@ -44,7 +48,8 @@ def prepare(source):
         for band in ('2g', ''):
             name = 'Advanced_' + stem + band + '_Content.asp'
             text = (web / name).read_text(encoding='utf-8')
-            if text.count('id="tabMenu"') != 1 or '/state.js' not in text:
+            if (text.count('id="tabMenu"') != 1 or '/state.js' not in text
+                    or 'onload="initial();"' not in text):
                 raise ValueError('Classic Wi-Fi page structure changed: ' + name)
             pages.append(name)
     labels = {

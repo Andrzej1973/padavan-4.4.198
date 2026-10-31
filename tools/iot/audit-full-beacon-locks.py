@@ -19,7 +19,9 @@ FUNCTION = re.compile(
     r'UINT16|UINT32|UINT64|LONG|ULONG|void|int|bool)\s+([A-Za-z_]\w*)\s*\('
 )
 LOCK = re.compile(r'RTMP_(SEM|IRQ)_LOCK\s*\(\s*&pAd->BcnRingLock')
-FULL_CANDIDATE_SHAPE = (515, 46, 32, 9, 21, 12, 9)
+# Reviewed 2026-10-29: expanded lifecycle/ownership headers and source ledger,
+# including rt_os_net.h. Full pinned tree and all 21 lock sites stay required.
+FULL_CANDIDATE_SHAPE = (515, 55, 37, 9, 21, 12, 9)
 
 
 def git_blob(data):

@@ -29,3 +29,9 @@ The output is `../iot-dma-close-apguard-20261024/beacon-lock-audit-552.json`.
 `git diff --check` passed. This fixes a stale source-inventory gate, not a
 driver synchronization issue. Mixed SEM/IRQ use, selective TxS retirement,
 target compilation of this candidate, and device runtime remain unresolved.
+
+Follow-up commit `06b2620` triggered [ABI run `40067873711`](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/40067873711).
+It completed successfully, including the previously failing
+`Check private IoT request mailbox` step. This confirms the gate repair in
+CI; it does not mean the isolated IoT module was MIPS-compiled, because that
+is a separate optional firmware workflow step.

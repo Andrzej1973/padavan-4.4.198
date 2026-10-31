@@ -80,8 +80,12 @@ Do not dispatch it while an existing build on the branch is still active.
 ## Admission-failure recovery contract, 2026-10-27
 
 After #624 and its ABI run passed on published `2216583`, optional IoT-only
-v41 run #625 (`40429949035`) was dispatched on that exact SHA. Its result is
-pending. This target compilation cannot validate a recovery worker.
+v41 run #625 (`40429949035`) was dispatched on that exact SHA. It failed in
+the caller-coverage gate before MIPS compilation; the precise cause and
+local gate repair are recorded in
+`WR1200JS-IOT-V41-CI-625-COVERAGE-GATE-2026-10-27.md`. The repaired
+optional target compilation remains pending and cannot validate a recovery
+worker.
 
 The host-only MBSS recovery owner now accepts an `OPEN_ACQUIRED` record while
 another radio transition is busy, provided the caller already holds the

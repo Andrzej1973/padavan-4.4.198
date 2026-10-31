@@ -1,5 +1,28 @@
 # Instructions for every project agent
 
+Repository-specific repeatable workflows live in `.agents/skills/`:
+`padavan-webui-integration` for production WebUI/backend changes and
+`padavan-major-project-audit` before a new board, kernel migration or major
+WebUI redesign. Codex discovers this directory from the repository root.
+Use complementary user/plugin Skills for visual design, network audit, build,
+regression, release and Git only when installed; do not assume another account
+has the same personal Skills. The rules in this file and the handoff documents
+remain authoritative for this repository.
+Relevant optional names: `padavan-neon-ui` for visual work,
+`padavan-router-profile-manager` for a new board, `padavan-network-audit`
+for network behavior, `webapp-testing` for browser checks,
+`embedded-linux-kernel-review` for driver/kernel changes,
+`firmware-build-verify`, `firmware-regression-review` and
+`preflash-release-gate` for their distinct verification stages, and
+`safe-git-workflow` for Git changes. Select by task; do not load all at once.
+
+IoT Wi-Fi is mandatory in the release firmware for every board admitted to
+this project, alongside main and guest Wi-Fi. Do not add a board/build-config
+switch that omits IoT. Require board-specific driver, isolation, image and
+on-device evidence before calling a board supported; a placeholder WebUI
+control does not count. Keep the runtime user switch separate from build
+inclusion. See `docs/IOT-WIFI-IMPLEMENTATION-CONTRACT.md`.
+
 Run Git normally. If a network operation fails with a proxy-related error,
 follow the conditional, process-local troubleshooting steps in section 14 of
 `docs/AGENT-HANDOFF-RULES-SOL-DEEPSEEK.md`. Do not routinely clear proxy
@@ -58,6 +81,14 @@ trigger automatic source changes.
 When a new firmware or ABI workflow is added, check whether the monitor's
 watched workflow list must include it, and test that failure filtering still
 reports once per run attempt without waking Codex on success.
+Treat new package builds, image checks and CI diagnostic formats the same way:
+on their first real failure, verify that the report identifies the failed run,
+job and actionable error without requiring a full-log hunt. Improve the
+monitor only when that comparison exposes a specific gap; add a small fixture
+for the case and verify that successful or already handled runs stay silent.
+Do not create recurring Codex tasks, notifications or speculative parser work
+merely to keep the monitor busy. Record each useful improvement in the shared
+handoff so the next agent can reuse it.
 
 Pushes in this repository trigger firmware and service runs automatically, so
 batch work instead of publishing every small edit:

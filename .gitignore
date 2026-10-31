@@ -4,6 +4,38 @@
 .codex/build-monitor.stdout.log
 .codex/build-monitor.stderr.log
 .cache/nim-monitor/
+/.codex/
+
+# Reproducible scratch, downloaded artifacts and local-only build monitors.
+/.iot-local-check/
+/.audit-build*/
+/.working-build-*/
+/artifacts-*/
+/build354-*/
+/build357-*/
+/build359-*/
+/$dir/
+/guide-stage/
+/homepage-locale-source/
+/tools/iot/candidates/
+/.cron-proc-status-selftest/
+/.discovery-proc-shared-selftest/
+/.discovery-status-selftest/
+/.usbip-process-status-check.c
+/SETUP_WR1200JS.md
+/SETUP_WR1200JS.txt
+/router-guide-report.json
+/service236-fix-manifest.json
+/busybox-selector-map-manifest.json
+/ci-status-checkpoint-manifest.json
+
+# Private device evidence retained locally; never publish credentials,
+# public WAN addresses, endpoint details or raw SSH diagnostics.
+/docs/evidence/WR1200JS-LIVE-PCI-CONFIG-2026-10-27.txt
+/docs/evidence/WR1200JS-LIVE-PCI-TOPOLOGY-2026-10-27.txt
+/docs/evidence/WR1200JS-SSH-CODEX-EXECUTOR-BLOCK-2026-10-21.md
+/docs/evidence/WR1200JS-SSH-KEY-RUNTIME-2026-10-18.md
+/docs/evidence/WR1200JS-SSH-USER-RUNTIME-2026-10-21.md
 
 # Disposable local interpreter cache and native status-fixture leftovers.
 __pycache__/

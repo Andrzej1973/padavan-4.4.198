@@ -29,6 +29,10 @@ int main(void)
  assert(wr_iot_http_form_parse(&result,disabled,sizeof(disabled)-1));
  assert(result.present==129U&&result.enable[0]=='0'&&!result.ssid[0]);
  assert(!wr_iot_http_form_read(&result,"wr_iot_ssid"));
+ refused("wr_iot_request_enable=0&wr_iot_request_psk=old-secret&token=0123456789abcdef0123456789ABCDEF",
+         sizeof("wr_iot_request_enable=0&wr_iot_request_psk=old-secret&token=0123456789abcdef0123456789ABCDEF")-1);
+ refused("wr_iot_request_enable=0&wr_iot_request_ssid=old-name&token=0123456789abcdef0123456789ABCDEF",
+         sizeof("wr_iot_request_enable=0&wr_iot_request_ssid=old-name&token=0123456789abcdef0123456789ABCDEF")-1);
  refused("wr_iot_request_enable=1&token=0123456789abcdef0123456789ABCDEF",
          sizeof("wr_iot_request_enable=1&token=0123456789abcdef0123456789ABCDEF")-1);
  refused("wr_iot_request_enable=0&wr_iot_request_enable=1&token=0123456789abcdef0123456789ABCDEF",

@@ -12,8 +12,19 @@ from urllib.parse import urlsplit
 
 
 ROOT = Path(__file__).resolve().parent
-PUBLIC = ROOT / "public"
-DATA = ROOT / "data" / "dashboard.json"
+SOURCE_TREE = os.environ.get("PADAVAN_PREVIEW_SOURCE_TREE")
+if SOURCE_TREE:
+    STATIC_ROOT = Path(SOURCE_TREE).resolve() / "trunk" / "user" / "www"
+    PUBLIC = STATIC_ROOT / "modern"
+    DATA = Path(
+        os.environ.get("PADAVAN_PREVIEW_DATA", ROOT / "data" / "dashboard.json")
+    ).resolve()
+    MODE = "read-only-production-shell"
+else:
+    STATIC_ROOT = ROOT / "public"
+    PUBLIC = ROOT / "public"
+    DATA = ROOT / "data" / "dashboard.json"
+    MODE = "read-only-demo"
 HOST = "127.0.0.1"
 PORT = int(os.environ.get("PADAVAN_PREVIEW_PORT", "8080"))
 
@@ -52,20 +63,23 @@ class PreviewHandler(BaseHTTPRequestHandler):
 
         route = urlsplit(self.path).path
         if route == "/__health":
-            payload = json.dumps({"status": "ok", "mode": "read-only-demo"}).encode("utf-8") + b"\n"
+            payload = json.dumps({"status": "ok", "mode": MODE}).encode("utf-8") + b"\n"
             self._send(200, payload, "application/json; charset=utf-8")
             return
-        if route in ("/", "/modern", "/modern/"):
+        if route in ("/", "/modern", "/modern/", "/modern/index.html"):
             path = PUBLIC / "index.html"
-        elif route == "/api/dashboard.json":
+        elif route in ("/api/dashboard.json", "/wr_modern.json"):
             path = DATA
         elif route == "/shared-wifi.js":
-            path = ROOT.parent / "shared-wifi" / "ui.js"
+            if SOURCE_TREE:
+                path = PUBLIC / "shared-wifi.js"
+            else:
+                path = ROOT.parent / "shared-wifi" / "ui.js"
         else:
             relative = route.lstrip("/")
-            path = (PUBLIC / relative).resolve()
+            path = (STATIC_ROOT / relative).resolve()
             try:
-                path.relative_to(PUBLIC.resolve())
+                path.relative_to(STATIC_ROOT.resolve())
             except ValueError:
                 self._send(404, b"Not found.\n", "text/plain; charset=utf-8")
                 return
@@ -114,8 +128,12 @@ def serve() -> None:
         print("If the port is busy, close the other local server or set PADAVAN_PREVIEW_PORT to another port.", file=sys.stderr)
         raise SystemExit(2) from exc
     server.daemon_threads = True
-    print(f"Padavan Modern local DEMO: http://{HOST}:{PORT}/modern/", flush=True)
-    print("Loopback only. GET/HEAD only; router actions and CGI are not available.", flush=True)
+    if SOURCE_TREE:
+        print(f"Padavan Modern production-shell fixture: http://{HOST}:{PORT}/modern/index.html", flush=True)
+        print("Loopback only. Static production assets with live-JSON fixture; no router connection.", flush=True)
+    else:
+        print(f"Padavan Modern local DEMO: http://{HOST}:{PORT}/modern/", flush=True)
+        print("Loopback only. GET/HEAD only; router actions and CGI are not available.", flush=True)
     print("Press Ctrl+C in this console to stop the preview.", flush=True)
     try:
         server.serve_forever(poll_interval=0.25)

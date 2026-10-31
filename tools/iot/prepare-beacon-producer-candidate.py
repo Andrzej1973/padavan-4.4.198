@@ -12,6 +12,11 @@ from pathlib import Path
 
 
 def replace_one(value: str, old: str, new: str, label: str) -> str:
+    if value.count(old) != 1 and "\n" in old:
+        crlf_old = old.replace("\n", "\r\n")
+        if value.count(crlf_old) == 1:
+            old = crlf_old
+            new = new.replace("\n", "\r\n")
     if value.count(old) != 1:
         raise ValueError(f"{label}: expected one reviewed anchor, found {value.count(old)}")
     return value.replace(old, new, 1)

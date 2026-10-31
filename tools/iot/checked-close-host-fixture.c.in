@@ -8,15 +8,18 @@
 #define fRTMP_ADAPTER_INTERRUPT_ACTIVE 8
 typedef int BOOLEAN;
 #define IF_DEV_CONFIG_OPMODE_ON_AP(ad) if ((void)(ad),1)
-#define APShutdown(ad) ((void)(ad),assert(!held),ap_calls++)
+#define APShutdown(ad) ((void)(ad),mock_ap_shutdown())
 #define AutoChBssTableDestroy(ad) ((void)(ad))
 #define ChannelInfoDestroy(ad) ((void)(ad))
 #define RTMPDisableRxTx(ad) ((void)(ad),assert(!held),pci_calls++)
 #define DISABLE_TX_RX(ad,why) ((void)(ad),(void)(why))
 #define RTMP_ASIC_INTERRUPT_DISABLE(ad) ((void)(ad))
 #define RT28xxPciAsicRadioOff(ad,why,num) ((void)(ad),(void)(why),(void)(num),radio_result)
+#define wr_iot_mt_radio_off_checked(ad,ticket) ((void)(ad),(void)(ticket),radio_result)
 #define RTMP_OS_IRQ_RELEASE(ad,dev) ((void)(ad),(void)(dev))
-static int ap_calls,pci_calls,radio_result=1;
+#define HIF_MT 1
+#define ExitTxSTypeTable(ad) ((void)(ad))
+static int ap_calls,pci_calls,radio_result=1,ap_result=1;
 #define TRUE 1
 #include "radio-transition.h"
 #include <assert.h>
@@ -31,24 +34,43 @@ typedef int INT;typedef void VOID;typedef unsigned int UINT32;typedef unsigned l
 #define fRTMP_ADAPTER_START_UP 2
 #define fRTMP_ADAPTER_INTERRUPT_IN_USE 4
 #define MAC_TABLE int
-typedef struct {int wr_iot_transition_lock;struct wr_iot_radio_transition wr_iot_transition;struct {int bCountryFlag;} CommonCfg;int DeQueueRunning[2];int MacTab;int infType;} RTMP_ADAPTER;
-static int held,join_result,pre_calls,post_calls,joins;
+typedef struct {int wr_iot_transition_lock;struct wr_iot_radio_transition wr_iot_transition;struct {int bCountryFlag;} CommonCfg;struct {int hif_type;} chipCap;int PSEWatchDogEn,PDMAWatchDogEn;int DeQueueRunning[2];int MacTab;int infType;unsigned int flags;} RTMP_ADAPTER;
+static int held,join_result,pre_calls,post_calls,joins,delay_calls,ring_frees;
+static int mock_ap_shutdown(void){assert(!held);ap_calls++;return ap_result;}
 #define RTMP_IRQ_LOCK(lock,flags) ((flags)=0,assert(!held),held=1,(void)(lock))
 #define RTMP_IRQ_UNLOCK(lock,flags) ((void)(flags),(void)(lock),assert(held),held=0)
-#define RTMP_SET_FLAG(ad,flag) ((void)(ad),(void)(flag))
-#define RTMP_CLEAR_FLAG(ad,flag) ((void)(ad),(void)(flag))
-#define RTMP_TEST_FLAG(ad,flag) ((void)(ad),(void)(flag),0)
+#define RTMP_SET_FLAG(ad,flag) ((ad)->flags|=(flag))
+#define RTMP_CLEAR_FLAG(ad,flag) ((ad)->flags&=~(flag))
+#define RTMP_TEST_FLAG(ad,flag) (((ad)->flags&(flag))!=0)
 #define DBGPRINT(level,args) ((void)0)
-#define RtmpusecDelay(x) ((void)(x))
-#define RtmpNetTaskExit(ad) ((void)(ad))
+#define RtmpusecDelay(x) ((void)(x),delay_calls++)
+/* Successful net-task join stub; injected failure tests override this macro. */
+static inline int mock_nettask_exit(void *ad){(void)ad;return 0;}
+#define RtmpNetTaskExit(ad) mock_nettask_exit(ad)
 #define MlmeHalt(ad) ((void)(ad),assert(!held),pre_calls++)
 #define MeasureReqTabExit(ad) ((void)(ad))
 #define TpcReqTabExit(ad) ((void)(ad))
 #define MCU_CTRL_EXIT(ad) ((void)(ad))
-#define RTMPFreeTxRxRingMemory(ad) ((void)(ad))
+#define RTMPFreeTxRxRingMemory(ad) ((void)(ad),ring_frees++)
 #define UserCfgExit(ad) ((void)(ad),assert(!held),post_calls++)
 #define NdisZeroMemory(p,n) memset(p,0,n)
 #define RTMP_AllTimerListRelease(ad) ((void)(ad))
 static int wr_iot_mgmt_exit_checked(RTMP_ADAPTER *ad,const struct wr_iot_radio_ticket *t){assert(!held&&ad&&t);joins++;return join_result;}
 @@CHECKED_CLOSE_FUNCTION@@
-int main(void){RTMP_ADAPTER a={0};struct wr_iot_radio_ticket t;wr_iot_radio_transition_init(&a.wr_iot_transition);a.wr_iot_transition.phase=WR_RADIO_READY;assert(wr_iot_radio_begin_stop(&a.wr_iot_transition,1,&t));join_result=1;assert(wr_iot_drv_close_checked(&a,NULL,&t)==1&&pre_calls==1&&post_calls==0&&a.wr_iot_transition.shutdown_stage==1);assert(ap_calls==1&&pci_calls==0);join_result=0;assert(wr_iot_drv_close_checked(&a,NULL,&t)==0&&pre_calls==1&&post_calls==1&&a.wr_iot_transition.shutdown_stage==2);assert(wr_iot_drv_close_checked(&a,NULL,&t)==0&&pre_calls==1&&post_calls==1&&joins==2);assert(ap_calls==1&&pci_calls==1);a.wr_iot_transition.shutdown_stage=3;assert(wr_iot_drv_close_checked(&a,NULL,&t)==1&&pre_calls==1&&post_calls==1&&joins==2);wr_iot_radio_transition_init(&a.wr_iot_transition);a.wr_iot_transition.phase=WR_RADIO_READY;assert(wr_iot_radio_begin_stop(&a.wr_iot_transition,1,&t));radio_result=0;int oldpost=post_calls;int oldpci=pci_calls;assert(wr_iot_drv_close_checked(&a,NULL,&t)==1&&a.wr_iot_transition.shutdown_stage==3&&post_calls==oldpost&&pci_calls==oldpci+1);assert(wr_iot_drv_close_checked(&a,NULL,&t)==1&&post_calls==oldpost&&pci_calls==oldpci+1);return 0;}
+static void check_dequeue_timeout(void){
+ RTMP_ADAPTER a={0};
+ struct wr_iot_radio_ticket ticket;
+ int before_pre=pre_calls,before_post=post_calls,before_free=ring_frees;
+ wr_iot_radio_transition_init(&a.wr_iot_transition);
+ a.wr_iot_transition.phase=WR_RADIO_READY;
+ assert(wr_iot_radio_begin_stop(&a.wr_iot_transition,1,&ticket));
+ a.DeQueueRunning[0]=TRUE;join_result=0;radio_result=1;
+ assert(wr_iot_drv_close_checked(&a,NULL,&ticket)==NDIS_STATUS_FAILURE);
+ assert(a.wr_iot_transition.shutdown_stage==3U);
+ assert(pre_calls==before_pre&&post_calls==before_post&&ring_frees==before_free);
+ assert(delay_calls>=1000);
+ a.DeQueueRunning[0]=FALSE;
+ assert(wr_iot_drv_close_checked(&a,NULL,&ticket)==NDIS_STATUS_FAILURE);
+ assert(pre_calls==before_pre&&post_calls==before_post&&ring_frees==before_free);
+}
+int main(void){RTMP_ADAPTER a={0};struct wr_iot_radio_ticket t;wr_iot_radio_transition_init(&a.wr_iot_transition);a.wr_iot_transition.phase=WR_RADIO_READY;assert(wr_iot_radio_begin_stop(&a.wr_iot_transition,1,&t));join_result=1;assert(wr_iot_drv_close_checked(&a,NULL,&t)==1&&pre_calls==1&&post_calls==0&&a.wr_iot_transition.shutdown_stage==1);assert(ap_calls==1&&pci_calls==0);join_result=0;assert(wr_iot_drv_close_checked(&a,NULL,&t)==0&&pre_calls==1&&post_calls==1&&a.wr_iot_transition.shutdown_stage==2);assert(!(a.flags&fRTMP_ADAPTER_HALT_IN_PROGRESS));assert(wr_iot_drv_close_checked(&a,NULL,&t)==0&&pre_calls==1&&post_calls==1&&joins==2);assert(ap_calls==1&&pci_calls==1);a.wr_iot_transition.shutdown_stage=3;assert(wr_iot_drv_close_checked(&a,NULL,&t)==1&&pre_calls==1&&post_calls==1&&joins==2);wr_iot_radio_transition_init(&a.wr_iot_transition);a.wr_iot_transition.phase=WR_RADIO_READY;assert(wr_iot_radio_begin_stop(&a.wr_iot_transition,1,&t));radio_result=0;int oldpost=post_calls;int oldpci=pci_calls;assert(wr_iot_drv_close_checked(&a,NULL,&t)==1&&a.wr_iot_transition.shutdown_stage==3&&post_calls==oldpost&&pci_calls==oldpci+1);assert(wr_iot_drv_close_checked(&a,NULL,&t)==1&&post_calls==oldpost&&pci_calls==oldpci+1);radio_result=1;wr_iot_radio_transition_init(&a.wr_iot_transition);a.wr_iot_transition.phase=WR_RADIO_READY;a.wr_iot_transition.pm_suspending=1;assert(wr_iot_radio_begin_stop(&a.wr_iot_transition,1,&t));assert(wr_iot_drv_close_checked(&a,NULL,&t)==0);assert(a.flags&fRTMP_ADAPTER_HALT_IN_PROGRESS);check_dequeue_timeout();return 0;}

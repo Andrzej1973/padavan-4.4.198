@@ -7,6 +7,8 @@ from pathlib import Path
 parser = argparse.ArgumentParser()
 parser.add_argument('overlay', type=Path)
 parser.add_argument('output', type=Path)
+parser.add_argument('--expect-generation-exhaustion', action='store_true',
+                    help='require fail-closed UINT32 exhaustion in the extracted allocator')
 args = parser.parse_args()
 if args.output.exists():
     raise SystemExit('Fixture output must be new')
@@ -259,11 +261,38 @@ int main(void)
     assert(ParseTxSPacket(&ad, pid, 0, "") == -1);
     assert(ad.TxSCtl.TxSStatus[pid].State == TXS_UNUSED);
     assert(ParseTxSPacket(&ad, TXS_STATUS_NUM, 0, "") == -1);
-    puts("PASS extracted TxS ledger/parser; NEGATIVE WITNESS: old report on reused PID consumes new BSS slot; no late-report or RF proof");
+    {
+        RTMP_ADAPTER wrapped = {0};
+        /* Software cancellation identity also repeats after UINT32 wrap. */
+        wrapped.TxSCtl.ReservationGeneration = UINT32_MAX;
+        assert(AddTxSStatus(&wrapped, TXS_TYPE1, 0, FC_TYPE_MGMT,
+                           SUBTYPE_BEACON, 42, 2, &pid, &generation) == 0);
+        assert(generation == 1);
+        assert(CancelTxSReservation(&wrapped, pid, 1) == 0);
+        assert(wrapped.TxSCtl.TxSStatus[pid].State == TXS_UNUSED);
+    }
+    puts("PASS extracted TxS ledger/parser; NEGATIVE WITNESSES: stale PID report and wrapped cancellation identity; no RF proof");
     return 0;
 }
 '''
 args.output.parent.mkdir(parents=True, exist_ok=True)
+if args.expect_generation_exhaustion:
+    old = '''        assert(AddTxSStatus(&wrapped, TXS_TYPE1, 0, FC_TYPE_MGMT,
+                           SUBTYPE_BEACON, 42, 2, &pid, &generation) == 0);
+        assert(generation == 1);
+        assert(CancelTxSReservation(&wrapped, pid, 1) == 0);
+        assert(wrapped.TxSCtl.TxSStatus[pid].State == TXS_UNUSED);'''
+    new = '''        pid = 77; generation = 99;
+        assert(AddTxSStatus(&wrapped, TXS_TYPE1, 0, FC_TYPE_MGMT,
+                           SUBTYPE_BEACON, 42, 2, &pid, &generation) == -1);
+        assert(pid == 77 && generation == 99);
+        assert(wrapped.TxSCtl.ReservationGeneration == UINT32_MAX);
+        assert(wrapped.TxSCtl.TxSStatus[0].State == TXS_UNUSED);
+        assert(!wrapped.TxSCtl.TxSStatusLock.held);'''
+    assert body.count(old) == 1
+    body = body.replace(old, new).replace(
+        'stale PID report and wrapped cancellation identity',
+        'stale PID report; generation exhaustion refused')
 args.output.write_text(header + '\n'.join(functions) + body,
                        encoding='utf-8')
 print('Prepared host-only beacon TxS ledger fixture')

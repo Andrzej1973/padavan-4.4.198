@@ -28,6 +28,7 @@ main = once(main, '#include <stdio.h>', '''#include <stdio.h>
 static int wr_iot_http_post,wr_iot_http_type_count;
 static char wr_iot_http_type[128];
 int wr_iot_http_is_post(void) { return wr_iot_http_post; }
+extern void wr_iot_http_session_reset(void);
 const char *wr_iot_http_content_type(void) {
  return wr_iot_http_type_count==1 ? wr_iot_http_type : NULL;
 }
@@ -37,6 +38,10 @@ main = once(main, '\tauthorization = boundary = NULL;',
             '\tauthorization = boundary = NULL;\n'
             '#if defined(BOARD_WR1200JS)\n'
             '\twr_iot_http_post=0;wr_iot_http_type_count=0;wr_iot_http_type[0]=0;\n#endif')
+main = once(main, '\tlogin_safe = 0;\n\tlogin_timestamp = 0;',
+            '\tlogin_safe = 0;\n\tlogin_timestamp = 0;\n'
+            '#if defined(BOARD_WR1200JS)\n'
+            '\twr_iot_http_session_reset();\n#endif')
 header_anchor = '\t\tif (strncasecmp(cur, "Accept-Language:", 16) == 0) {'
 main = once(main, header_anchor, '''#if defined(BOARD_WR1200JS)
 		/* Independent capture preserves existing multipart boundary parsing. */
@@ -65,11 +70,24 @@ web = once(web, route,
            '\t{ "wr_iot_result.cgi", "application/json", no_cache_IE, NULL, wr_iot_http_result_output, 1 },\n#endif\n' + route)
 validation = root/'shared-wifi/validate.h'
 expected = (local.parent/'shared-wifi/validate.h').read_bytes()
+if validation.is_symlink() or (root/'shared-wifi').is_symlink():
+    raise SystemExit('Refusing linked shared Wi-Fi validation destination')
 if validation.exists() and validation.read_bytes() != expected:
     raise SystemExit('Existing shared Wi-Fi validation differs; preserve it')
+header_names = ('http-form.h','http-request.h','control-record.h',
+                'request.h','subnet.h','types.h')
 headers = root/'wr-iot'
+if headers.is_symlink():
+    raise SystemExit('Refusing linked IoT HTTP header directory')
+for name in header_names:
+    destination = headers/name
+    if destination.is_symlink():
+        raise SystemExit('Refusing linked IoT HTTP header: ' + name)
+    if destination.exists() and destination.read_bytes() != (local/name).read_bytes():
+        raise SystemExit('Existing IoT HTTP header differs; preserve it: ' + name)
+# All collision checks precede the first write to the source tree.
 headers.mkdir(exist_ok=True)
-for name in ('http-form.h','http-request.h','control-record.h','request.h','subnet.h','types.h'):
+for name in header_names:
     (headers/name).write_bytes((local/name).read_bytes())
 (root/'shared-wifi').mkdir(exist_ok=True)
 validation.write_bytes(expected)

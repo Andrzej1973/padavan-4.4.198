@@ -105,7 +105,16 @@ int main(void) {
     assert(AddTxSStatus(&adapter, 1, 2, 3, 4, 90, 0xffff, &issued, &generation) == -1);
     assert(issued == 77 && adapter.TxSCtl.TxSFailCount == 1);
     assert(!adapter.TxSCtl.TxSStatusLock.held);
-    puts("TxS allocation, generation-tagged cancellation, exhaustion and completion cases passed");
+    adapter.TxSCtl.TxSStatus[0].State = TXS_UNUSED;
+    adapter.TxSCtl.TxSPid = 0;
+    adapter.TxSCtl.ReservationGeneration = (UINT32)~0U;
+    issued = 77; generation = 99;
+    assert(AddTxSStatus(&adapter, 1, 2, 3, 4, 90, 0xffff, &issued, &generation) == -1);
+    assert(issued == 77 && generation == 99);
+    assert(adapter.TxSCtl.TxSStatus[0].State == TXS_UNUSED);
+    assert(adapter.TxSCtl.ReservationGeneration == (UINT32)~0U);
+    assert(!adapter.TxSCtl.TxSStatusLock.held);
+    puts("TxS allocation, generation-tagged cancellation, pool/generation exhaustion and completion cases passed");
     return 0;
 }
 '''

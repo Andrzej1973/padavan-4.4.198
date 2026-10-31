@@ -124,9 +124,15 @@ static void check(int allow,const char *wan,int expected){
  assert(wr_iot_firewall_quarantine(fp,allow,"br0",wan));assert(!fflush(fp));rewind(fp);
  n=fread(text,1,sizeof(text)-1,fp);assert(!ferror(fp));text[n]=0;assert(!fclose(fp));
  if(expected==0){assert(!n);return;}
+ if(expected==3){
+  assert(strstr(text,"-A INPUT -i ra2 -j DROP"));
+  assert(strstr(text,"-A FORWARD -i ra2 -j DROP"));
+  assert(strstr(text,"-A FORWARD -o ra2 -j DROP"));
+  assert(!strstr(text,"br-iot")&&!strstr(text,"-j ACCEPT"));return;
+ }
  assert(strstr(text,"-A INPUT -i br-iot -j DROP"));
  if(expected==1){assert(!strstr(text,"-j ACCEPT"));assert(strstr(text,"-A FORWARD -o ra2 -j DROP"));}
- else {assert(strstr(text,"--dport 53 -j ACCEPT"));assert(strstr(text,"--dport 67 -j ACCEPT"));assert(strstr(text,"--dst-range 192.168.1.0-192.168.1.255 -j DROP"));assert(!strstr(text,"--dport 22"));}
+ else {assert(strstr(text,"-A INPUT -i ra2 -j DROP\n-A FORWARD -i ra2 -j DROP\n-A FORWARD -o ra2 -j DROP\n-A INPUT -i br-iot"));assert(strstr(text,"--dport 53 -j ACCEPT"));assert(strstr(text,"--dport 67 -j ACCEPT"));assert(strstr(text,"--dst-range 192.168.1.0-192.168.1.255 -j DROP"));assert(!strstr(text,"--dport 22"));}
 }
 static void check_nat(const char *wan,int expected){
  char text[1024];size_t n;FILE *fp=tmpfile();assert(fp);
@@ -183,7 +189,8 @@ int main(void){
  inventory_ok=0;check_nat("eth2.2",0);inventory_ok=1;route_ok=0;check_nat("eth2.2",0);route_ok=1;
  overlap=1;check_nat("eth2.2",0);overlap=0;gateway="invalid";check_nat("eth2.2",0);gateway="192.168.50.1";
  check_nat("",0);check_nat("br0",0);check_nat("br-iot",0);check_nat("eth2.2\n-j ACCEPT",0);check_nat("eth2.2",1);
- owned=0;check(1,"eth2.2",0);owned=1;check(0,"eth2.2",1);check(1,"eth2.2",2);
+ owned=0;check(1,"eth2.2",3);check(0,"eth2.2",3);
+ owned=1;check(0,"eth2.2",1);check(1,"eth2.2",2);
  gate=0;check(1,"eth2.2",1);gate=1;network=0;check(1,"eth2.2",1);network=1;
  ap=1;check(1,"eth2.2",1);ap=0;dns_ok=0;check(1,"eth2.2",1);dns_ok=1;
  dns_port=0;check(1,"eth2.2",1);dns_port=5353;check(1,"eth2.2",1);dns_port=53;

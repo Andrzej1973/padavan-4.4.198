@@ -1,5 +1,49 @@
 # Padavan Modern local preview (stage 1)
 
+## Prepared production shell — 2026-10-31
+
+`prepare-production.py` installs the Modern shell into a fetched Padavan tree:
+
+- `/modern/index.html` and a private set of `/modern/*.js|css|svg|json` assets;
+- an authenticated `wr_modern.json` MIME route returning selected NVRAM/system
+  fields, memory use, uptime and eleven LIVE/READ-ONLY page definitions;
+- no passwords, PSKs, keys, certificates, WAN credentials or syslog contents;
+- Classic ASP/CGI remains the only configuration and service-control path.
+
+The production shell can be validated without a router:
+
+```powershell
+python tools/webui-preview/prepare-production.py <source-tree>
+python tools/webui-preview/check-production.py <source-tree>
+gcc -std=c11 -Wall -Wextra -Werror -O2 -Itools/webui-preview `
+  tools/webui-preview/check-wr-modern-json.c -o wr-modern-json-test.exe
+```
+
+For a browser shell test, set `PADAVAN_PREVIEW_SOURCE_TREE` to the prepared
+source tree and `PADAVAN_PREVIEW_DATA` to a sanitized JSON fixture before
+starting `server.py`. The test binds only to loopback.
+Run `verify-production-shell.py` in that mode to check all rewritten assets,
+live JSON shape and mutating-method rejection.
+
+This installer is **not yet called by the firmware build workflow**, and no
+target compilation, ROMFS insertion or router runtime is proven.
+
+## Full reference-structure preview — 2026-10-31
+
+The preview now contains the complete local navigation structure from the
+approved Neon reference: dashboard, Internet/WAN, Wi-Fi, IoT, LAN, VPN,
+DNS/proxy, services, monitoring, firewall, QoS, system and log. Generic pages
+are informational DEMO screens backed by `data/dashboard.json`; their Classic
+button explains the destination and never contacts a router.
+
+The dashboard adds the band switcher, WAN traffic graph, CPU process rows and
+explicit `Н/Д` temperatures. Every dynamic value remains marked as DEMO or
+unverified. Service tiles open their local VPN/DNS/Services preview group and
+retain the real Classic destination for review.
+
+Production ASP/CGI integration is still separate and incomplete. See
+`VERIFICATION.md` for the 2026-10-31 browser and responsive checks.
+
 ## Wi-Fi architecture demo — 2026-10-19 update
 
 The latest user task extends the previous home-only scope with isolated Modern

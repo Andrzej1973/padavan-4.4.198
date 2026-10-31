@@ -1,7 +1,7 @@
 {
   "demo": true,
   "device": "Youhua WR1200JS",
-  "firmware": "4.4.198.9-099",
+  "firmware": "4.4.198.9",
   "internet": {
     "status": "Підключено (макет)",
     "connection": "PPPoE",
@@ -46,13 +46,162 @@
     "freeTotal": "118 ГБ / 120 ГБ (макет)"
   },
   "interfaces": {
-    "status": "USB не підключено (макет)",
-    "detail": "WAN + LAN активні"
+    "status": "USB підключено (макет)",
+    "detail": "WAN + LAN активні · USB: ext4"
   },
   "uptime": "3 дні, 12:45:17",
   "iot": {
     "status": "Не підтверджено",
     "detail": "Runtime IoT ще не прийнято"
+  },
+  "temperatures": {
+    "cpu": null,
+    "radio5": null,
+    "note": "Н/Д — перевіреного джерела для DEMO немає"
+  },
+  "traffic": {
+    "download": "12,4 Мбіт/с",
+    "upload": "3,6 Мбіт/с",
+    "samples": [18, 24, 21, 33, 28, 42, 35, 48, 44, 56, 49, 62, 57, 69, 61, 74, 66, 78, 71, 82, 68, 76, 72, 84]
+  },
+  "processes": [
+    { "name": "ksoftirqd/0", "cpu": "4,2%" },
+    { "name": "rcu_sched", "cpu": "1,3%" },
+    { "name": "firewall", "cpu": "0,8%" },
+    { "name": "networkd", "cpu": "0,7%" },
+    { "name": "httpd", "cpu": "0,6%" }
+  ],
+  "pages": {
+    "internet": {
+      "title": "Інтернет (WAN)",
+      "classic": "Advanced_WAN_Content.asp",
+      "description": "Структурний DEMO-екран. Підключення та маршрути на роутері не змінюються.",
+      "fields": [
+        { "label": "Тип підключення", "value": "PPPoE" },
+        { "label": "Ім’я користувача", "value": "demo-user" },
+        { "label": "MTU", "value": "1492" },
+        { "label": "NAT", "value": "Увімкнено" },
+        { "label": "IPv6", "value": "Вимкнено" },
+        { "label": "Стан", "value": "Підключено (макет)" }
+      ]
+    },
+    "iot": {
+      "title": "Мережа IoT",
+      "classic": "Advanced_Wireless2g_Content.asp / Advanced_DHCP_Content.asp",
+      "description": "Макет окремої мережі. Runtime, DHCP, firewall та ra2 ще не прийняті.",
+      "fields": [
+        { "label": "SSID", "value": "Home-IoT" },
+        { "label": "Діапазон", "value": "2,4 ГГц" },
+        { "label": "Захист", "value": "WPA2/WPA3 Personal" },
+        { "label": "Підмережа", "value": "192.168.30.1/24" },
+        { "label": "Ізоляція LAN", "value": "Проєктна вимога" },
+        { "label": "Стан", "value": "Не підтверджено" }
+      ]
+    },
+    "lan": {
+      "title": "Локальна мережа (LAN)",
+      "classic": "Advanced_APLAN_Content.asp",
+      "description": "DEMO-значення для перевірки компонування.",
+      "fields": [
+        { "label": "IP-адреса роутера", "value": "192.168.1.1" },
+        { "label": "Маска підмережі", "value": "255.255.255.0" },
+        { "label": "DHCP-сервер", "value": "Увімкнено" },
+        { "label": "Початок пулу", "value": "192.168.1.100" },
+        { "label": "Кінець пулу", "value": "192.168.1.200" },
+        { "label": "Час оренди", "value": "1440 хв" }
+      ]
+    },
+    "vpn": {
+      "title": "VPN",
+      "classic": "vpncli.asp / Advanced_zerotier.asp",
+      "description": "Структура керування VPN; перемикачі не запускають служби.",
+      "services": [
+        { "name": "WireGuard", "state": "Налаштування доступні" },
+        { "name": "AmneziaWG", "state": "Налаштування доступні" },
+        { "name": "ZeroTier", "state": "Потребує перевірки" },
+        { "name": "Shadowsocks", "state": "Потребує перевірки" }
+      ]
+    },
+    "dns": {
+      "title": "DNS і проксі",
+      "classic": "Advanced_DHCP_Content.asp / Advanced_Services_Content.asp",
+      "description": "Лише візуальна структура; DNS-служби не змінюються.",
+      "services": [
+        { "name": "Stubby", "state": "DNS-over-TLS" },
+        { "name": "DoH", "state": "DNS-over-HTTPS" },
+        { "name": "Privoxy", "state": "Веб-фільтр" },
+        { "name": "WPAD / PAC", "state": "Автонастроювання проксі" }
+      ]
+    },
+    "services": {
+      "title": "Служби",
+      "classic": "Advanced_Services_Content.asp",
+      "description": "Перелік служб вибраного профілю WR1200JS.",
+      "services": [
+        { "name": "SSH", "state": "Віддалене адміністрування" },
+        { "name": "iPerf3", "state": "Тест продуктивності LAN" },
+        { "name": "Cron", "state": "Планувальник завдань" },
+        { "name": "Watchdog", "state": "Нагляд за системою" },
+        { "name": "Виявлення пристроїв", "state": "Фонове спостереження" }
+      ]
+    },
+    "monitoring": {
+      "title": "Моніторинг",
+      "classic": "Main_LogStatus_Content.asp / Advanced_System_Content.asp",
+      "description": "DEMO-графіки не є вимірюваннями роутера.",
+      "fields": [
+        { "label": "Завантаження CPU", "value": "12% (макет)" },
+        { "label": "Температура CPU", "value": "Н/Д" },
+        { "label": "Температура Wi-Fi 5 ГГц", "value": "Н/Д" },
+        { "label": "Пам’ять", "value": "512 / 1024 МБ (макет)" },
+        { "label": "zram", "value": "128 / 512 МБ (макет)" }
+      ]
+    },
+    "system": {
+      "title": "Система",
+      "classic": "Advanced_System_Content.asp / Advanced_Services_Content.asp",
+      "description": "Системні параметри показані лише для перевірки макета.",
+      "fields": [
+        { "label": "Ім’я хоста", "value": "Youhua WR1200JS" },
+        { "label": "Версія прошивки", "value": "4.4.198.9 (DEMO)" },
+        { "label": "Час роботи", "value": "3 дні, 12:45:17" },
+        { "label": "Часовий пояс", "value": "Europe/Warsaw" }
+      ]
+    },
+    "log": {
+      "title": "Журнал",
+      "classic": "Main_LogStatus_Content.asp",
+      "description": "Приклад локального DEMO-журналу без даних реального роутера.",
+      "log": [
+        "23:12:34 kernel: DEMO interface state refreshed",
+        "23:12:35 httpd: DEMO page request completed",
+        "23:12:36 rc: DEMO service map loaded",
+        "23:12:40 dnsmasq: DEMO configuration parsed",
+        "23:12:41 ntpd: DEMO time source selected"
+      ]
+    },
+    "firewall": {
+      "title": "Брандмауер",
+      "classic": "Advanced_Firewall_Content.asp",
+      "description": "Структурний DEMO-екран; правила не створюються.",
+      "fields": [
+        { "label": "IPv4 firewall", "value": "Увімкнено (макет)" },
+        { "label": "IPv6 firewall", "value": "Увімкнено (макет)" },
+        { "label": "DoS protection", "value": "Увімкнено (макет)" },
+        { "label": "Журналювання drop", "value": "Обмежене (макет)" }
+      ]
+    },
+    "qos": {
+      "title": "QoS",
+      "classic": "Advanced_SQM.asp",
+      "description": "QoS показаний як частина погодженого профілю; CAKE вимкнений.",
+      "fields": [
+        { "label": "QoS", "value": "Увімкнено в профілі" },
+        { "label": "SQM", "value": "Вимкнено" },
+        { "label": "CAKE", "value": "Виключено вимогою" },
+        { "label": "HWNAT / flow offload", "value": "Перевірити на цільовій збірці" }
+      ]
+    }
   },
   "serviceTiles": [
     { "name": "Stubby", "detail": "DNS-over-TLS", "icon": "check", "href": "Advanced_Services_DoT.asp", "availableInBuild": true, "runtimeVerified": false },

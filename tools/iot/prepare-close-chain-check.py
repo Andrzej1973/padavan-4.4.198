@@ -2,15 +2,17 @@
 """Final-source chain host fixture; worker/hardware injected, not target proof."""
 import argparse
 from pathlib import Path
+import close_fixture_support as support
 p=argparse.ArgumentParser();p.add_argument('driver',type=Path);p.add_argument('output',type=Path);a=p.parse_args()
 if a.output.exists():raise SystemExit('New output required')
 template=Path(__file__).with_name('checked-close-host-fixture.c.in').read_text()
 prefix=template.split('@@CHECKED_CLOSE_FUNCTION@@')[0]
-old='int infType;} RTMP_ADAPTER;'
+old='int infType;unsigned int flags;} RTMP_ADAPTER;'
 if prefix.count(old)!=1:raise SystemExit('Changed fixture type')
-prefix=prefix.replace(old,'int infType;unsigned int VirtualIfCnt;void *net_dev;} RTMP_ADAPTER;\ntypedef RTMP_ADAPTER *PRTMP_ADAPTER;\nstruct net_device {PRTMP_ADAPTER priv;};')
+prefix=prefix.replace(old,'int infType;unsigned int flags;unsigned int VirtualIfCnt;void *net_dev;} RTMP_ADAPTER;\ntypedef RTMP_ADAPTER *PRTMP_ADAPTER;\nstruct net_device {PRTMP_ADAPTER priv;};')
 prefix+='\n#define RTMP_OS_NETDEV_GET_PRIV(dev) ((dev)->priv)\n#define VIRTUAL_IF_NUM(ad) ((ad)->VirtualIfCnt)\n#define VIRTUAL_IF_DEC(ad) ((ad)->VirtualIfCnt--)\n'
 s=(a.driver/'common/rtmp_init_inf.c').read_text();sig='INT wr_iot_drv_close_checked('
+if support.enabled(a.driver):sig='static INT wr_iot_checked_close_body('
 if s.count(sig)!=1:raise SystemExit('Changed checked close')
 start=s.index(sig);f=s[start:s.index('\n}',start)+2]
 bridge=(a.driver/'include/wr-iot-physical-close-result.inc').read_text()
@@ -33,5 +35,24 @@ int main(void){
  return 0;
 }
 '''
+if 'BOOLEAN APShutdown(' in (a.driver/'include/ap.h').read_text():
+ refusal=r'''
+ {
+ RTMP_ADAPTER failed={0};struct net_device fd={&failed};struct wr_iot_radio_ticket ft;
+ int oldap=ap_calls,oldjoin=joins,oldpre=pre_calls,oldpost=post_calls,oldrings=ring_frees;
+ wr_iot_radio_transition_init(&failed.wr_iot_transition);failed.wr_iot_transition.phase=WR_RADIO_READY;
+ failed.VirtualIfCnt=1;failed.net_dev=&fd;assert(wr_iot_radio_begin_stop(&failed.wr_iot_transition,1,&ft));
+ ap_result=0;radio_result=1;join_result=0;
+ assert(wr_iot_virtual_down_checked(&failed,&ft)==NDIS_STATUS_FAILURE&&!held);
+ assert(!failed.VirtualIfCnt&&failed.wr_iot_transition.shutdown_stage==3U);
+ assert(!failed.wr_iot_transition.close_notified&&ap_calls==oldap+1);
+ assert(joins==oldjoin&&pre_calls==oldpre&&post_calls==oldpost&&ring_frees==oldrings);
+ ap_result=1;assert(wr_iot_virtual_down_checked(&failed,&ft)==NDIS_STATUS_FAILURE&&!held);
+ assert(ap_calls==oldap+1&&!failed.wr_iot_transition.close_notified&&post_calls==oldpost);
+ }
+'''
+ post=post.replace(' return 0;',refusal+' return 0;',1)
+if support.enabled(a.driver):
+ prefix=support.prefix(prefix);f=support.definitions(s);post=support.fresh(post)
 a.output.write_text(prefix+f+'\n'+bridge+'\n'+down+post)
 print('Extracted final close chain; worker and hardware operations injected')

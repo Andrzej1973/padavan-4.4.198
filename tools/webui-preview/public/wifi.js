@@ -15,7 +15,8 @@ const WifiDemo = (() => {
   }
   function route(hash) {
     const parts = hash.replace(/^#/, '').split('/');
-    if (parts[0] !== 'wifi') return {view:'home'};
+    if (!parts[0]) return {view:'home'};
+    if (parts[0] !== 'wifi') return {view:'external'};
     if (parts[1] === 'split' && ['24','5'].includes(parts[2])) return {view:'band', band:parts[2], section:Object.hasOwn(sections, parts[3]) ? parts[3] : 'general'};
     return {view:['common','split','iot'].includes(parts[1]) ? parts[1] : 'common'};
   }
@@ -27,7 +28,8 @@ if (typeof document !== 'undefined') (async () => {
   const response = await fetch('/wifi-schema.json', {credentials:'omit', cache:'no-store'});
   if (!response.ok) throw Error('Wi-Fi schema unavailable');
   const schema = await response.json();
-  if (schema.demo !== true) throw Error('Unmarked Wi-Fi schema');
+  if (typeof schema.demo !== 'boolean') throw Error('Unmarked Wi-Fi schema');
+  const modeLabel = schema.demo ? 'DEMO' : 'READ-ONLY';
   const state = WifiDemo.makeState();
   const root = document.getElementById('modern-wifi');
   const home = document.getElementById('modern-home');
@@ -80,21 +82,21 @@ if (typeof document !== 'undefined') (async () => {
     field(form,target,'closed','Приховування SSID',null,'checkbox',shared);
   }
   function confirmDraft(form, action) {
-    const button = element('button',action ? 'Перевірити й застосувати в DEMO' : 'Переглянути чернетку DEMO','primary-button');
+    const button = element('button',action ? 'Перевірити чернетку '+modeLabel : 'Переглянути чернетку '+modeLabel,'primary-button');
     button.type='submit'; form.append(button);
     form.addEventListener('submit', event => {
       event.preventDefault();
       if (!form.reportValidity()) return;
       const dialog = element('dialog', undefined, 'wifi-confirm');
       dialog.setAttribute('aria-label','Попередження перед застосуванням');
-      dialog.append(element('h2','Зміни Wi-Fi можуть розірвати з’єднання'),element('p','Це лише локальне DEMO. Підтвердження перевіряє чернетку в пам’яті; роутер не змінюється.'));
+      dialog.append(element('h2','Зміни Wi-Fi можуть розірвати з’єднання'),element('p','Це лише '+modeLabel+'. Підтвердження перевіряє чернетку в пам’яті; роутер не змінюється.'));
       const cancel = element('button','Назад до редагування','wifi-tab'); cancel.type='button';
-      const ok = element('button','Підтвердити DEMO','primary-button'); ok.type='button';
+      const ok = element('button','Підтвердити '+modeLabel,'primary-button'); ok.type='button';
       const close = () => { dialog.close(); dialog.remove(); button.focus(); };
       cancel.onclick = close;
       dialog.addEventListener('cancel', event => { event.preventDefault(); close(); });
       ok.onclick = () => {
-        try { if(action) action(); notice=action ? 'Перевірено SSID/PSK чернетки в DEMO. На роутер нічого не передано.' : 'Чернетку переглянуто. Повна перевірка цих параметрів у DEMO недоступна.'; close(); render(); }
+        try { if(action) action(); notice=action ? 'Перевірено SSID/PSK чернетки в '+modeLabel+'. На роутер нічого не передано.' : 'Чернетку переглянуто. Повна перевірка цих параметрів у '+modeLabel+' недоступна.'; close(); render(); }
         catch (_) { close(); const error = form.querySelector('[role=alert]'); error.textContent='Перевірте SSID (1–32 байти) та пароль WPA (8–63 байти або 64 шістнадцяткові символи).'; error.focus(); }
       };
       dialog.append(cancel,ok); document.body.append(dialog); dialog.showModal(); cancel.focus();
@@ -102,6 +104,7 @@ if (typeof document !== 'undefined') (async () => {
   }
   function render() {
     const current = WifiDemo.route(location.hash);
+    if (current.view === 'external') return;
     const visible = current.view !== 'home';
     home.hidden=visible; root.hidden=!visible;
     for (const [button, active] of [[homeButton,!visible],[wifiButton,visible]]) {
@@ -115,7 +118,7 @@ if (typeof document !== 'undefined') (async () => {
     heading.append(element('h1','Бездротова мережа')); panel.append(heading);
     const tabs=element('nav',undefined,'wifi-tabs'); tabs.setAttribute('aria-label','Розділи Wi-Fi');
     tabs.append(nav('Спільні','wifi/common',current.view==='common'),nav('Розділені','wifi/split',['split','band'].includes(current.view)),nav('IoT 2,4 ГГц','wifi/iot',current.view==='iot')); panel.append(tabs);
-    panel.append(element('p','DEMO • Чернетки зберігаються до перезавантаження сторінки. Перехід між вкладками не застосовує налаштувань.','wifi-note'));
+    panel.append(element('p',modeLabel+' • Чернетки зберігаються до перезавантаження сторінки. Перехід між вкладками не застосовує налаштувань.','wifi-note'));
     if (notice) { const status=element('p',notice,'wifi-note'); status.setAttribute('role','status'); panel.append(status); }
     if (current.view==='split') {
       const cards=element('div',undefined,'wifi-band-links');

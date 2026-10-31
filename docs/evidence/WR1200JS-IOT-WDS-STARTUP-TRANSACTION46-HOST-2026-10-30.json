@@ -1,0 +1,43 @@
+{
+  "input_sha256": {
+    "ap/ap_wds.c": "ef7ff6ed2cf5c53e0ba1b5fd2dca0401315b0011f543fe204028ae555d9fd1a8",
+    "include/rtmp.h": "3b438be8e42123238d6e04162680989613268c2b2b39b9afd5900e1d0213e21a"
+  },
+  "output_sha256": {
+    "ap/ap_wds.c": "773738dd130e696682909188f894d274e7163a8f60f607b327b34ef675f584ad",
+    "include/rtmp.h": "990dd1ef28069d745be154222e7bf0edf009321bc116c41785d9b749abd26170"
+  },
+  "scope": "explicit startup entry into counted WDS transaction; APStartUp and outer open still absent",
+  "apstartup_caller_bound": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "lifecycle_accepted": false,
+  "date": "2026-10-30",
+  "base_commit": "9af5697",
+  "passed": true,
+  "host_checks": 4,
+  "test_scope": "actual startup lease wrapper with mocked counted transaction; owner/dispatch/insertion regressions",
+  "whole_wds_transaction_executed": false,
+  "source_assertions": [
+    "ticket passed into WDS insertion body",
+    "startup body selects explicit startup insertion entry",
+    "lease wrapper encloses finishing and dev_put",
+    "normal transaction wrapper supplies NULL/0"
+  ],
+  "covered": [
+    "bad device/serial/index rejected before body",
+    "lease blocks open completion during transaction",
+    "failure drains lease and retains open",
+    "retention during body suppresses otherwise successful result",
+    "repeated authorized startup insertions have fresh leases"
+  ],
+  "full_regression_run": false,
+  "full46_replay_run": false,
+  "open_issues": [
+    "APStartUp and configured WDS loop not calling new startup entry yet",
+    "outer open/config handoff unbound",
+    "normal WDS tails vs reset owner race not accepted",
+    "record readiness at startup before WDS netdev publication unproved",
+    "full clear/free ownership and target/runtime evidence absent"
+  ]
+}

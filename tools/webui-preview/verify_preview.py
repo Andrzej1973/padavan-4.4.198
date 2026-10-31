@@ -57,6 +57,10 @@ def main() -> None:
     assert_equal('lang="uk"' in text, True, "Ukrainian UI")
     assert_equal("IoT 2.4" in text or "IoT 2,4" in text, False, "IoT exclusion until implementation is complete")
     assert_equal('id="modern-wifi"' in text, True, "isolated Modern Wi-Fi mount")
+    assert_equal('id="modern-page"' in text, True, "Modern page mount")
+    assert_equal('id="traffic-chart"' in text, True, "WAN traffic mount")
+    assert_equal('id="process-list"' in text, True, "process list mount")
+    assert_equal(text.count('class="band-switcher"'), 1, "band switcher")
     parser = LocalResources()
     parser.feed(text)
     assert_equal(parser.forms, 0, "mutating forms")
@@ -77,6 +81,18 @@ def main() -> None:
     assert_equal(data.get("demo"), True, "DEMO marker")
     assert_equal(data.get("iot", {}).get("status"), "Не підтверджено", "IoT remains explicitly unverified")
     assert_equal(len(data.get("wifi", [])), 2, "Wi-Fi card count (IoT deferred)")
+    pages = data.get("pages", {})
+    required_pages = {
+        "internet", "iot", "lan", "vpn", "dns", "services",
+        "monitoring", "firewall", "qos", "system", "log",
+    }
+    assert_equal(set(pages), required_pages, "Modern page set")
+    assert_equal(all(page.get("title") and page.get("classic") and page.get("description")
+                     for page in pages.values()), True, "Modern page metadata")
+    assert_equal(data.get("temperatures", {}).get("cpu"), None, "CPU temperature remains N/D")
+    assert_equal(data.get("temperatures", {}).get("radio5"), None, "5 GHz temperature remains N/D")
+    assert_equal(len(data.get("traffic", {}).get("samples", [])), 24, "DEMO traffic samples")
+    assert_equal(len(data.get("processes", [])), 5, "DEMO process rows")
     assert_equal(len(data.get("serviceTiles", [])), 14, "selected build service tile count")
     assert_equal(all(tile.get("availableInBuild") is True for tile in data["serviceTiles"]), True, "service tiles match selected build capabilities")
     assert_equal(all(tile.get("runtimeVerified") is False for tile in data["serviceTiles"]), True, "service tile runtime remains explicitly unverified")
@@ -91,7 +107,7 @@ def main() -> None:
         assert_equal(code, 405, f"server-side block for {method}")
     status, _ = get("/not-a-real-page.asp")
     assert_equal(status, 404, "unknown page")
-    print("PASS: health, homepage, Ukrainian text, local assets, Wi-Fi demo schema, selected-service tiles, no live IoT card, and one GitHub releases link.")
+    print("PASS: health, homepage, Ukrainian text, local assets, Wi-Fi demo schema, eleven Modern page definitions, selected-service tiles, unverified IoT status, and one GitHub releases link.")
     print("PASS: POST, PUT, PATCH, DELETE and OPTIONS are rejected by the server (405).")
     print("PASS: unknown pages return 404; no fake Classic pages are served.")
 

@@ -141,4 +141,57 @@ static inline int wr_iot_registry_release(struct wr_iot_interface_ref *r,
     r->phase!=WR_REF_IDLE||(r->published&&(!r->removing||r->removal_stage!=2)))return 0;
  wr_iot_ref_init(r,0,0);return 1;
 }
+/* Caller holds the adapter transition lock. Checked close has family-specific
+ * terminal stages: main/MBSS use 4, reviewed WDS uses 2. AP-client/monitor
+ * remain unproven. Caller proofs must refer to this exact generation. */
+static inline int wr_iot_registry_checked_close_terminal(
+ const struct wr_iot_interface_ref *r){
+ if(!r)return 0;
+ if(!r->last_token||r->open_unmutated)return 1;
+ switch(r->family){
+ case WR_REF_FAMILY_MAIN:
+ case WR_REF_FAMILY_MBSS:return r->close_stage==4U;
+ case WR_REF_FAMILY_WDS:return r->close_stage==2U;
+ default:return 0;
+ }
+}
+/* Post-unregister owner: stage 1 records that unregister has returned,
+ * even if checked close is still pending. A failed close/vendor/callback
+ * proof keeps exact identity for continuation; never unregister again.
+ * An MBSS with an acquired open also needs a separate hardware/RX TxS
+ * drain proof; software TxS slot emptiness is insufficient. */
+static inline int wr_iot_registry_after_unregister(
+ struct wr_iot_interface_ref *r,const void *device,unsigned long generation,
+ int unregister_completed){
+ if(!r||!device||!generation||r->device!=device||
+    r->generation!=generation||!r->published||!r->removing||
+    r->removal_stage!=0||!unregister_completed)return 0;
+ r->removal_stage=1;return 1;
+}
+static inline int wr_iot_registry_finish_after_unregister(
+ struct wr_iot_interface_ref *r,const void *device,unsigned long generation,
+ int callbacks_quiescent,int vendor_unregistered,int reports_drained){
+ if(!r||!device||!generation||r->device!=device||
+    r->generation!=generation||!r->published||!r->removing||
+    r->phase!=WR_REF_IDLE||r->removal_stage!=1||
+    !wr_iot_registry_checked_close_terminal(r)||
+    !callbacks_quiescent||!vendor_unregistered||
+    (r->family==WR_REF_FAMILY_MBSS&&r->last_token&&
+     !r->open_unmutated&&!reports_drained))return 0;
+ if(!wr_iot_registry_vendor_done(r,device,generation))return 0;
+ return wr_iot_registry_release(r,device,generation);
+}
+static inline int wr_iot_registry_release_after_detach(
+ struct wr_iot_interface_ref *r,const void *device,unsigned long generation,
+ int unregister_completed,int callbacks_quiescent,int vendor_unregistered,
+ int reports_drained){
+ if(!r||!device||!generation||r->device!=device||
+    r->generation!=generation||!r->published||!r->removing)return 0;
+ if(r->removal_stage==0&&
+    !wr_iot_registry_after_unregister(r,device,generation,
+                                      unregister_completed))return 0;
+ return wr_iot_registry_finish_after_unregister(r,device,generation,
+                                                 callbacks_quiescent,
+                                                 vendor_unregistered,reports_drained);
+}
 #endif
