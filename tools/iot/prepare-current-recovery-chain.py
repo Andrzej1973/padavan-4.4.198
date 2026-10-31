@@ -41,6 +41,9 @@ for script,args in (
     steps.append({'script':script,'returncode':result.returncode,
                   'sha256':hashlib.sha256((here/script).read_bytes()).hexdigest()})
     if result.returncode:
+        # Surface the nested cause in CI; the scratch tree is not uploaded.
+        diagnostic = '\n'.join((result.stdout + result.stderr).splitlines()[-40:])
+        print(diagnostic[-12000:], file=sys.stderr)
         raise SystemExit('Failed '+script+'; see '+str(out))
 receipt=json.loads((out/'later/chain.json').read_text())
 (out/'preparation.json').write_text(json.dumps({'steps':steps,

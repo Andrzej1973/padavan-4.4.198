@@ -1,3 +1,20 @@
+## 2026-10-31 successor CI failure and full candidate replay
+
+48f195d was pushed; ABI 41208634333 passed the repaired mailbox/MBSS stage,
+then failed in current-recovery preparation with a hidden child diagnostic.
+Added bounded stderr propagation to both chain wrappers and exact LF
+equivalence for the reviewed CRLF v25b TxS pin. Real preparer regression
+passes LF/CRLF and rejects modified bytes before writing output. Workflow
+invokes that regression; syntax/YAML and injected nested-failure checks pass.
+Do not claim the opaque CI failure's exact child was identified from its log.
+
+Fresh raw-source recovery preparation and full overlay succeeded locally.
+Peer chain to scheduler82 is running in exec session 87530, output under
+TEMP/wr-iot-peer82-replay-20261031. Poll the existing session and inspect
+peer-chain.json after success. No target compiler or router was used.
+Next: confirm CI with visible diagnostics; extend whole-driver target wiring
+only after inspecting the actual final candidate and prepared-source overlap.
+
 ## 2026-10-31 registry and following close fixtures repaired locally
 
 Extended replay passed 13 further variants (MBSS open/close and admission:

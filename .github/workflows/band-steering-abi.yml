@@ -1980,6 +1980,7 @@ jobs:
           driver="source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3"
           python3 tools/iot/prepare-current-recovery-chain.py "$driver" "$scratch/prepared"
           candidate="$scratch/prepared/later/corrected"
+          python3 tools/iot/check-v25b-line-endings.py "$scratch/prepared/later/v25b"
           gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -Itools/iot \
             tools/iot/check-uapsd-retire-queues.c -o abi-results/check-uapsd-retire-queues
           abi-results/check-uapsd-retire-queues > abi-results/uapsd-retire-queues.txt

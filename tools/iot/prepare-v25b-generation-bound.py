@@ -17,7 +17,11 @@ name = Path('tx_rx/txs.c')
 original = files[name]
 digest = lambda b: hashlib.sha256(b).hexdigest()
 payloads = dict(files)
-if digest(original) != 'db696253451cae6754f02532cfeb00999829e6d2e2d985b80c424112836ff2f5':
+if digest(original) not in (
+    'db696253451cae6754f02532cfeb00999829e6d2e2d985b80c424112836ff2f5',
+    # Exact LF equivalent of the reviewed CRLF candidate, as emitted on Linux.
+    '9e2f5fca7709a2fd0adb758cf05d84138d8adf3254e6a7c4eb9574ff1384733c',
+):
     if digest(original) != 'ea48b9e6ca6d4b327a0d2cc8e0bc1f6b774e4e6f990180d174bdbcb62b484520':
         p.error('Unreviewed v25b TxS source')
     newline = '\r\n' if b'\r\n' in original else '\n'

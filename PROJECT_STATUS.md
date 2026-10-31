@@ -1,3 +1,28 @@
+## 2026-10-31 successor preparation: platform pin and diagnostic repair
+
+Published fixture fixes as 48f195d. ABI run 41208634333 passed the formerly
+failing private-mailbox/MBSS step and failed later at "Verify current IoT
+recovery successor on host and MIPS". Its public log contains only "Failed
+prepare-later-recovery-chain.py"; the nested scratch log was not uploaded,
+so the exact failing child remains unconfirmed. No new useful monitor report
+was available when checked. Firmware run 41208634350 was still in progress.
+
+Fresh local recovery-chain generation and full-driver overlay succeeded from
+the c25283e archive. Independently reproduced a platform-sensitive rejection:
+prepare-v25b-generation-bound.py accepted reviewed CRLF TxS SHA db696253...
+but rejected the exact LF equivalent 9e2f5fca.... Added that exact LF pin,
+without relaxing content validation. Regression LF/CRLF cases pass and a
+corrupted source is rejected before output. Both chain wrappers now surface
+bounded nested failure diagnostics (40 lines/12000 characters), tested with
+injected child failures. Python syntax and workflow YAML passed. The ABI
+workflow now runs the EOL regression. This fixes a proven Linux incompatibility;
+its responsibility for the opaque CI child failure still needs CI confirmation.
+
+Full peer-chain replay is running separately in TEMP/wr-iot-peer82-replay-20261031
+(exec session 87530). Preserve and poll that handle; do not restart on an
+observation timeout. Current host/MIPS successor checks cover v25b, not the
+complete scheduler82 tree; whole-driver Kbuild wiring remains open.
+
 ## 2026-10-31 local ABI fixture repairs verified
 
 Follow-up replay also passed MBSS open/close and admission in base/MT/HNAT

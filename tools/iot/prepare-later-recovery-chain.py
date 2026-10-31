@@ -45,6 +45,9 @@ def run(script, *args):
     records.append({'script': script, 'sha256': hashlib.sha256((here/script).read_bytes()).hexdigest(),
                     'returncode': result.returncode})
     if result.returncode:
+        # Keep failure evidence visible without publishing vendor workspaces.
+        diagnostic = '\n'.join((result.stdout + result.stderr).splitlines()[-40:])
+        print(diagnostic[-12000:], file=sys.stderr)
         raise SystemExit('Preparation failed: '+script+'; preserved logs in '+str(output))
 previous = source
 if a.input_stage == 'main-open':
