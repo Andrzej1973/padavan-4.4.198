@@ -1,3 +1,53 @@
+## 2026-10-31 local ABI fixture repairs verified
+
+Follow-up replay also passed MBSS open/close and admission in base/MT/HNAT
+variants (6), main open/close in base/HNAT/IFUP_IN_PROBE variants (6), and
+queued producer/worker composition (1): 17 strict host executions in total
+including the four below. Publication is authorized by the standing owner
+authorization in section 6 of AGENT-HANDOFF-RULES-SOL-DEEPSEEK.md; batch the
+three generator fixes and these two status documents in one push.
+
+Updated `prepare-mbss-registry-check.py` with current family constants,
+registration-inflight/wait state and MBSS retirement state. Kept the actual
+candidate bridge and added assertions for published records, zero inflight
+registrations and LIVE/attached correspondence. Reproduced generation,
+strict GCC C11 compilation (-O2 -Wall -Wextra -Werror) and execution using
+the driver/stage fixture downloaded from failed run 41200202107.
+
+The next local replay exposed missing include/ap.h in that deliberately
+partial queue bundle. Close-chain and MBSS-last-close generators now inspect
+APShutdown's implementation in ap/ap.c, matching the checked-close generator,
+rather than requiring an absent vendor header. All four generated fixtures
+(registry, checked-close, close-chain, MBSS-last-close) compiled and executed
+successfully with MinGW GCC. No sanitizer, Linux CI, MIPS, image or device
+acceptance is claimed by these local host checks. Changes remain local.
+
+## 2026-10-31 CI recheck: firmware passed; registry fixture is stale
+
+Live recheck: firmware runs 41199593428 (c56e056) and 41200202231
+(b728044) completed successfully. ABI run 41200202107 failed after passing
+the previous signal.h blocker. Original compiler diagnostics identify the
+generated MBSS registry fixture: missing INT_MAIN/APCLI/WDS/MONITOR, UINT,
+registration-inflight fields and MBSS retirement declarations.
+`prepare-mbss-registry-check.py` still constructs the older minimal adapter
+while including the current full registration bridge. Compare its synthetic
+environment with `check-netdev-registration.c`; repair and exercise the actual
+generated fixture before claiming this failure resolved. Do not remove the
+registry check or weaken strict compiler flags. Recent failure-monitor runs
+41200205758, 41200732176 and 41201792538 were skipped; no usable monitor
+diagnostic for this failure was established. Router remains unchanged.
+
+## 2026-10-31 ABI failure triaged and fixed (missing signal.h)
+
+Band Steering ABI run 41199593458 on c56e056 failed at step "Check private IoT
+request mailbox": `tools/iot/check-control-channel.c:9: error: unknown type name
+'sig_atomic_t'` under strict `-std=c11`. The file uses `sig_atomic_t`, `SIGTERM`,
+`raise` and `signal` without including `<signal.h>`; other files get it
+transitively via `rc-shutdown-admission.h`. Minimal fix added `#include <signal.h>`
+and was committed as b728044 and pushed. PR #2 auto-triggered a fresh ABI run
+(41200202107) and firmware build (41200202231) on b728044. Verification pending;
+this is a host fixture include fix, not a driver or router change.
+
 ## 2026-10-31 role accepted by Sol; verified state, continuing from checkpoint
 
 Verified local and remote HEAD both equal

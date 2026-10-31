@@ -35,7 +35,9 @@ int main(void){
  return 0;
 }
 '''
-if 'BOOLEAN APShutdown(' in (a.driver/'include/ap.h').read_text():
+# The isolated queue bundle contains the implementation, not the full vendor
+# header tree. Select the refusal case from the body actually under test.
+if 'BOOLEAN APShutdown(' in (a.driver/'ap/ap.c').read_text():
  refusal=r'''
  {
  RTMP_ADAPTER failed={0};struct net_device fd={&failed};struct wr_iot_radio_ticket ft;

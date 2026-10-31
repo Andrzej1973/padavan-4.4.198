@@ -45,7 +45,8 @@ int main(void){
  return 0;
 }
 '''
-if 'BOOLEAN APShutdown(' in (a.driver/'include/ap.h').read_text():
+# Use the implementation also present in an isolated queue bundle.
+if 'BOOLEAN APShutdown(' in (a.driver/'ap/ap.c').read_text():
  refusal=r'''
  {
  RTMP_ADAPTER failed={0};struct net_device fm={&failed},fd={&failed};struct wr_iot_radio_ticket ft;

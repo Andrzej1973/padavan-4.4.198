@@ -13,20 +13,27 @@ start=t.index(sig);end=t.index('\n}',start)+2
 t=t[:start]+'#include "wr-iot-netdev-registration.inc"\n'+function+t[end:]
 old='typedef struct {int FlgMbssInit'
 if t.count(old)!=1:raise SystemExit('Changed fixture adapter')
-t=t.replace(old,'typedef struct {int wr_iot_transition_lock;struct wr_iot_radio_transition wr_iot_transition;struct wr_iot_interface_ref wr_iot_interface_refs[5];unsigned long wr_iot_registration_generation;int FlgMbssInit',1)
+t=t.replace(old,'typedef struct {int wr_iot_transition_lock,wr_iot_registration_wait;unsigned int wr_iot_registration_inflight;struct wr_iot_radio_transition wr_iot_transition;struct wr_iot_interface_ref wr_iot_interface_refs[5];struct wr_bss_retirement wr_iot_mbss[4];unsigned long wr_iot_registration_generation;int FlgMbssInit',1)
 prefix='''#include "radio-transition.h"
 #include "interface-registry.h"
+#include "mbss-retirement.h"
 typedef unsigned long ULONG;
 typedef unsigned char UCHAR;
 typedef int INT;
+typedef unsigned int UINT;
+#define INT_MAIN 0
+#define INT_APCLI 3
+#define INT_WDS 4
+#define INT_MONITOR 5
 #define WDEV_NUM_MAX 4
 #define NDIS_STATUS_FAILURE 1
 static int wr_test_held;
 #define RTMP_IRQ_LOCK(lock,flags) ((flags)=0,assert(!wr_test_held),wr_test_held=1,(void)(lock))
 #define RTMP_IRQ_UNLOCK(lock,flags) ((void)(flags),(void)(lock),assert(wr_test_held),wr_test_held=0)
+#define wake_up_all(queue) ((void)(queue),assert(!wr_test_held))
 '''
 t=prefix+t
 t=t.replace('memset(&ad,0,sizeof(ad));','memset(&ad,0,sizeof(ad));wr_iot_radio_transition_init(&ad.wr_iot_transition);')
-t=t.replace('MBSS_Init(&ad,&hook);','MBSS_Init(&ad,&hook);{int count=0;for(int n=0;n<5;n++)if(ad.wr_iot_interface_refs[n].device)count++;assert(count==beacons&&!wr_test_held);}')
+t=t.replace('MBSS_Init(&ad,&hook);','MBSS_Init(&ad,&hook);{int count=0;for(int n=0;n<5;n++)if(ad.wr_iot_interface_refs[n].device){assert(ad.wr_iot_interface_refs[n].published);count++;}assert(count==beacons&&!wr_test_held&&!ad.wr_iot_registration_inflight);for(int n=1;n<4;n++)assert((ad.wr_iot_mbss[n].stage==WR_BSS_LIVE)==devices[n].attached);}')
 a.output.write_text(t)
 print('Extracted final MBSS construction plus registry bridge; OS operations injected')

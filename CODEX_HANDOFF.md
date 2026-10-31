@@ -1,3 +1,47 @@
+## 2026-10-31 registry and following close fixtures repaired locally
+
+Extended replay passed 13 further variants (MBSS open/close and admission:
+base/MT/HNAT; main open/close: base/HNAT/IFUP_IN_PROBE; queue composition),
+for 17 strict host executions overall. Standing publication authorization
+is confirmed in section 6 of the shared agent rules. Publish these five
+related files once; use the resulting automatic ABI run rather than a
+duplicate workflow dispatch. MIPS and sanitizer results remain pending.
+
+Three generators changed: prepare-mbss-registry-check.py (current synthetic
+registration/retirement environment and stronger postconditions),
+prepare-close-chain-check.py and prepare-mbss-last-close-check.py (select
+APShutdown refusal behavior from actual ap/ap.c implementation, available
+in the partial bundle). Against failed CI artifact 41200202107, registry,
+checked-close, close-chain and MBSS-last-close generated fixtures compiled
+under strict MinGW GCC C11 and executed successfully. Sanitizers and MIPS
+were not run. No production driver, router, commit or push changed.
+Next: validate remaining ABI fixture sequence and publish a coherent fix
+only with the applicable authorization; then resume current IoT target work.
+
+## 2026-10-31 next failure localized: generated MBSS registry fixture
+
+Firmware 41200202231 on b728044 is successful; ABI 41200202107 failed.
+The signal.h fix passed its former blocker. The next compiler errors come
+from the current registration bridge included by the stale synthetic adapter
+in `prepare-mbss-registry-check.py`: missing interface-family constants,
+UINT, registration-inflight state and MBSS retirement support. Next action:
+update that fixture's environment against the current bridge and reproduce
+its generated strict compile/run, preserving assertions and production code.
+Recent monitor workflows were skipped, so their reporting remains unverified.
+Sol remains sole writer; existing local documentation edits are preserved.
+No router mutation or additional workflow dispatch occurred.
+
+## 2026-10-31 fixed ABI host-fixture include error; re-verification in flight
+
+Triage of ABI run 41199593458: first actionable error is a strict-C11 missing
+`<signal.h>` include in tools/iot/check-control-channel.c (uses sig_atomic_t and
+signal symbols directly). Only this file was affected; rc-shutdown-admission.h
+already includes signal.h for the other users. Committed and pushed b728044.
+PR #2 synchronize started ABI 41200202107 and firmware 41200202231 on b728044.
+Do not treat them as complete; check the original job log for any next error.
+Target/feature compile for IoT is still gated behind the workflow's
+run_candidate_checks input (default false) and has not yet been produced.
+
 ## 2026-10-31 role accepted by Sol; next concrete step is target/feature compile
 
 Accepted single execution ownership after confirming local/remote SHA match at
