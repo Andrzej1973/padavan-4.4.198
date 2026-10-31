@@ -1,3 +1,33 @@
+## 2026-10-31 Sol: ABI repair publication checkpoint
+
+Publishing the coherent ABI599 pristine-replay and typed PCI audit repair under the owner's standing instruction to send necessary completed changes. Source composition, scheduler audit, negative rejection cases, sanitized host fixtures and seven MIPS fixture objects passed. No whole-driver target/image/device acceptance claim. Full peer82 CI candidate check remains the next gate, using the exact published revision. Windows original remains frozen; external archive is still unverified. No router mutation.
+
+## 2026-10-31 Sol: full-driver CI gate remains open
+
+Live #649 run 41213029201 passed capacity probing but skipped the isolated merged IoT compilation. Existing full-driver CI must run with run_candidate_checks=true, candidate_scope=iot, iot_candidate_variant=peer82 on the reviewed revision; no dispatch was made. Details in docs/evidence/WR1200JS-ABI599-LINUX-REPLAY-2026-10-31.md. Do not infer peer82 Kbuild from #649 success. External archive remains the current heavy operation.
+
+## 2026-10-31 Sol: seven target MIPS fixture objects compiled
+
+Downloaded the CI-pinned toolchain to user cache; SHA256 de412846a5d057faf132b2463aa29c24f77c79c744f4181c1a287bbeaf1d7256 matched. GCC 10.5.0 compiled seven MIPS32r2 little-endian objects with -Wall -Wextra -Werror: merged peer RSSI deletion, actual PCI probe work joins, WCID FIFO retirement, UAPSD retirement, successor ledger, close and post-open. Successor extracted host checks also passed. Sizes/hashes in docs/evidence/WR1200JS-ABI599-MIPS-OBJECTS-2026-10-31.json. This verifies fixture objects, NOT whole-driver Kbuild, kernel ABI, firmware image or device acceptance. Those remain next. No full local firmware build, commit/push or router changes.
+
+## 2026-10-31 Sol: complete Linux candidate replay and stale audit repair
+
+Replayed the CI source preparation from pinned c25283e with early idle-aging/grant-readback/main-bss changes, then current recovery, full overlay, 74-stage peer chain and prepared RSSI merge. Assembly passed in /tmp/wr-abi599-full.vEmGGs. The following scheduler audit initially failed because it expected untyped pAd access, while the merged PCI probe correctly casts void * to PRTMP_ADAPTER. Updated only that audit assertion to require exactly one typed auxiliary work join. Positive actual-candidate audit and negative untyped/missing-join checks pass; scratch source restored byte-for-byte.
+
+Actual merged RSSI deletion and extracted PCI probe work joins compile/run with GCC -Wall -Wextra -Werror and AddressSanitizer/UBSan. git diff --check passes. Full MIPS driver Kbuild, image and runtime acceptance remain unverified. No router mutation, commit or push. Next: target/feature compilation and preserve external archive evidence; do not delete Windows original.
+
+## 2026-10-31 Sol: Linux code-work cutover and ABI599 fix
+
+Targeted Linux replay completed: pristine pinned mt76x2/mt76x3 extraction plus all eight steering preparers and five RSSI preparers succeeded (exit 0). Prepared tree /tmp/wr-abi599-prepared.GFVVgR/prepared, 29 MiB scratch including JSON receipts. This closes the failed prepared-rssi prefix only; peer82 assembly/full MIPS Kbuild/image/device remain unverified.
+
+Linux follow-up: applied workflow YAML and complete Bash step passed; git archive at explicit pinned c25283e supplied exact pristine bytes and real idle-aging preparation passed in Ubuntu. Archived bare donor HEAD is unresolved (its named pinned ref remains); local test used explicit SHA without altering backup. CI checkout has explicit HEAD and guard. Full combined replay/target Kbuild still open.
+
+Sol remains sole writer. Active code checkout is /home/andrzej/padavan-build/router-guide-work in Ubuntu-22.04, branch codex/wr1200js-service-webui, baseline df562280. Windows checkout remains preserved and frozen for the ongoing external snapshot. Full historical migration/deletion gate is NOT accepted.
+
+Applied local-only ABI599 fix: late prepared-rssi now uses git archive of pinned c25283e sources instead of re-copying already patched source. Strict input hashes unchanged. Focused actual-generator reproduction, pristine Git hashes, YAML parse and complete-step bash -n passed before application; git diff --check passed after application. Full Linux replay/MIPS Kbuild/image/runtime remain unverified. No commit/push/workflow dispatch or router change.
+
+Next: verify changed workflow from Linux, finish external snapshot and historical preservation, then target replay/compilation without duplicate CI. Never delete Windows original until all preservation gates pass.
+
 ## 2026-10-31 next: confirm Linux asset policy, then whole-driver peer82 Kbuild
 
 73d8084 ABI 41211748091 failed wds-outer on registry-header raw pin; source

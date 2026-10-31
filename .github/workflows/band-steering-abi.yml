@@ -2017,7 +2017,12 @@ jobs:
           prepared="$scratch/prepared-rssi"
           radios="$prepared/trunk/linux-4.4.x/drivers/net/wireless/mediatek"
           mkdir -p "$radios"
-          cp -a source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/{mt76x2,mt76x3} "$radios/"
+          # Earlier ABI steps already patch source; replay requires pristine pins.
+          test "$(git -C source rev-parse HEAD)" = c25283e915a2a00a763774dd255b14aff997285e
+          git -C source archive HEAD \
+            trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x2 \
+            trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3 \
+            | tar -x -C "$prepared"
           for helper in idle-aging grant-readback wps-guards channel-stats main-bss off-ack uninitialized-off quiet-status-log; do
             python3 "tools/band-steering/prepare-$helper.py" "$prepared"
           done

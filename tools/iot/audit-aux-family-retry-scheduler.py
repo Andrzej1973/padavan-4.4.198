@@ -78,7 +78,7 @@ assert mark_in_function<function_tail.index('RTMP_IRQ_UNLOCK(&ad->wr_iot_transit
 assert mark_in_function<function_tail.index('RT_MOD_DEC_USE_COUNT();')
 
 assert pci.count('cancel_work_sync(&adapter->wr_iot_aux_family_retry_work);')>=2
-assert pci.count('cancel_work_sync(&pAd->wr_iot_aux_family_retry_work);')>=1
+assert pci.count('cancel_work_sync(&((PRTMP_ADAPTER)pAd)->wr_iot_aux_family_retry_work);')==1
 assert pci.count('flush_work(&adapter->wr_iot_aux_family_retry_work);')>=2
 assert pci.count('adapter->wr_iot_aux_family_retry.deferred_owners')>=4
 assert pci.count('work_busy(&adapter->wr_iot_aux_family_retry_work)')>=4
