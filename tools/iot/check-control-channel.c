@@ -1,6 +1,7 @@
 #define _GNU_SOURCE
 #include "control-mailbox.h"
 #include <assert.h>
+#include <signal.h>
 #include <stdlib.h>
 static char test_directory[]="/tmp/iot-control-channel-XXXXXX";
 static int notifications,executions;
