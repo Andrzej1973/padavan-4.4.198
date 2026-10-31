@@ -1,3 +1,14 @@
+## 2026-10-31 role accepted by Sol; next concrete step is target/feature compile
+
+Accepted single execution ownership after confirming local/remote SHA match at
+`c56e056c548ed746692b73d70f18df78776dcad6` and a clean working tree. The two
+CI runs on that SHA (firmware #643 run 41199593428; Band Steering ABI run
+41199593458) were in progress at acceptance. Next: reproduce committed IoT
+candidate generators/evidence from source, complete remaining lifecycle and
+ownership work, and perform target/feature compilation against the actual MIPS
+toolchain and feature guards. Host replay (86 variants) is not a firmware
+build. Device flash/reboot/service changes remain unauthorized.
+
 ## 2026-10-31 execution handoff to Sol after published checkpoint
 
 Owner request: finish the current work chunk, record it, publish everything

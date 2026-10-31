@@ -1,3 +1,16 @@
+## 2026-10-31 role accepted by Sol; verified state, continuing from checkpoint
+
+Verified local and remote HEAD both equal
+`c56e056c548ed746692b73d70f18df78776dcad6`; working tree clean. Code
+checkpoint `61c634b5508ffc29648e522da8444c882cf0abc7`. CI on `c56e056`:
+firmware build #643 (run 41199593428) and Band Steering ABI (run 41199593458)
+were `in_progress` at acceptance and are not treated as complete. Acceptance
+and plan recorded in docs/EXECUTION-ROLE.md. Continuing order: finish IoT
+lifecycle/ownership and target/feature compilation; then production Modern
+shell, Zapret2, final TRX/SHA256/ROMFS/release gates; device-side work only
+after separate authorization. Band Steering preserved, IoT mandatory, CAKE
+excluded. Scratch/artifact trees are not used as evidence.
+
 ## 2026-10-31 checkpoints published; Sol receives execution ownership
 
 The owner requested a logical checkpoint, GitHub publication and transfer to
