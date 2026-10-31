@@ -2,6 +2,7 @@
 """Stage deletion-only UAPSD queue join; no full lifetime/target acceptance."""
 import argparse,hashlib,json,shutil
 from pathlib import Path
+from candidate_assets import copy_asset
 p=argparse.ArgumentParser(description=__doc__);p.add_argument('source',type=Path);p.add_argument('output',type=Path);a=p.parse_args()
 source=a.source.resolve(strict=True);out=a.output.resolve()
 if out.exists() or source==out or source in out.parents or out in source.parents:p.error('new separate output required')
@@ -24,7 +25,7 @@ changed[name]=s.replace(anchor,'#include "wr-iot-uapsd-retire-queues.inc"\n\n'+a
 name='include/uapsd.h';s=(source/name).read_text();changed[name]=s+'\nINT wr_iot_uapsd_retire_queues(RTMP_ADAPTER *pAd, MAC_TABLE_ENTRY *entry);\n'
 shutil.copytree(source,out)
 for n,text in changed.items():(out/n).write_text(text,encoding='utf-8',newline='\n')
-shutil.copyfile(here/'uapsd-retire-queues.inc',out/'include/wr-iot-uapsd-retire-queues.inc')
+copy_asset(here / 'uapsd-retire-queues.inc',out / 'include/wr-iot-uapsd-retire-queues.inc')
 out.with_name(out.name+'-delete-join.json').write_text(json.dumps({
  'input_sha256':pins,'output_sha256':{n:hashlib.sha256((out/n).read_bytes()).hexdigest() for n in [*changed, 'include/wr-iot-uapsd-retire-queues.inc']},
  'scope':'deletion-only source join; early failure retains disabled entry without recovery owner',

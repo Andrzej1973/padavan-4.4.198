@@ -105,6 +105,7 @@ for name, script in steps:
     current = target
 manifest = {
     'source': str(source), 'candidate': str(current), 'stages': receipts,
+    'asset_policy_sha256': hashlib.sha256((here/'candidate_assets.py').read_bytes()).hexdigest(),
     'files': {f.relative_to(current).as_posix(): hashlib.sha256(f.read_bytes()).hexdigest()
               for f in sorted(current.rglob('*')) if f.is_file()},
     'scope': 'composed candidate only; reuse/completion identity and recovery remain open',

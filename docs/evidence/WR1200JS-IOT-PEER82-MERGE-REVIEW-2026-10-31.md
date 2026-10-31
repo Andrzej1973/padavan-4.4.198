@@ -132,3 +132,49 @@ wiring together. The standard ABI run exercises Linux generation and the
 merged fixture/MIPS object. Whole-driver Kbuild still requires the separate
 run_candidate_checks=true, candidate_scope=iot, iot_candidate_variant=peer82
 selection after confirming no duplicate active firmware run on that commit.
+
+## Linux peer failure and asset-policy correction
+
+ABI run 41211748091 on 73d8084 reached peer stage `wds-outer` and rejected
+`include/interface-registry.h` as unreviewed. Original log identifies this
+exact file. Its Windows worktree bytes hash to e90b709f..., whereas Git stores
+the same text with LF (44162edf...). This is separate from generated-writer
+EOL policy: raw copying a checkout asset also depends on checkout settings.
+
+`candidate_assets.py` explicitly encodes the ten identified legacy assets in
+their historically pinned CRLF format. Readers/copies for those assets use
+that policy; original vendor files and unlisted binary inputs are unchanged.
+Source hash admission is not weakened. `check-candidate-assets.py` verifies
+each exact pin from both LF and CRLF inputs, changed-code inequality and an
+unlisted binary identity case. The source-newline guard now also rejects raw
+local copies of these known assets. The peer receipt records the policy hash
+and the assembler verifies it.
+
+Fresh recovery preparation passed. A fresh full overlay and all 74 peer stages
+then passed; the final 585 file hashes are identical to the old reviewed
+candidate. The updated assembler and actual merged RSSI admission fixture
+passed on this new receipt. Python/YAML/ABI Bash syntax and whitespace passed.
+
+## PCI probe type correction and target configuration evidence
+
+Source inspection found an independent compile error: vendor rt_pci_probe
+declares `void *pAd`, while three staged cancellation calls dereference pAd
+as a structure. The final assembler now uses explicit PRTMP_ADAPTER casts at
+those three joins, without changing their order or lifetime policy.
+The actual extracted old fragment fails strict GCC on void-pointer member
+access. The corrected fragment compiles and executes its injected cancellation
+test, verifying all three target pointers/order. ABI wiring now compiles/runs
+this host fixture and compiles its MIPS object; CI results remain pending.
+
+The previous successful firmware run 41209565725 supplied actual MT7603
+rtmp_chip.o macro evidence: APCLI_SUPPORT and WDS_SUPPORT enabled, KTHREAD_SUPPORT
+enabled, IFUP_IN_PROBE and MULTI_CORE_SUPPORT disabled. Its capacity report
+confirms effective MBSS and a 16-entry hardware/source ceiling. This is one
+translation unit's feature evidence, not full feature-matrix or IoT runtime
+acceptance.
+
+Monitor gap explained: the live main-branch monitor workflow omits Band
+Steering driver ABI from its watched list and still has a scheduled poll.
+The working branch already contains the failure-only ABI-aware replacement,
+but that has not reached main. No main-branch merge or permission change was
+performed. Do not claim the live monitor consumed this ABI failure.

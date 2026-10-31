@@ -5,6 +5,7 @@ import argparse
 import hashlib
 import shutil
 from pathlib import Path
+from candidate_assets import copy_asset
 
 
 SOURCE_SHA256 = "65d2bc7586b4754e65fb70e47800489b175c520d3bf76c1f44af0a613927687f"
@@ -77,8 +78,7 @@ def main() -> None:
     if end <= begin:
         parser.error("unexpected WDS wrapper order")
     shutil.copytree(source, output)
-    shutil.copyfile(Path(__file__).with_name("radio-transition.h"),
-                    output / "include/radio-transition.h")
+    copy_asset(Path(__file__).with_name('radio-transition.h'),output / 'include/radio-transition.h')
     changed = data[:begin] + OPEN + data[end:]
     anchor = b'/*#include "rt_config.h" */'
     if changed.count(anchor) != 1:

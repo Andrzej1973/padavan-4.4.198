@@ -10,6 +10,7 @@ import hashlib
 import re
 import shutil
 from pathlib import Path
+from candidate_assets import copy_asset
 from mbss_cr_enable import guard_cr_enable
 
 
@@ -254,8 +255,7 @@ def main() -> None:
         if hashlib.sha256(reviewed_close.read_bytes()).hexdigest() != (
                 "c269ee751fcce2ff095bfa5374d33b97fc67d527c241e31d39fac53ba116e65b"):
             raise ValueError("Reviewed v39 MBSS close admission changed; re-review before replacement")
-        shutil.copyfile(here / "mbss-close-checked.inc",
-                        output / "include/wr-iot-mbss-close-checked.inc")
+        copy_asset(here / 'mbss-close-checked.inc',output / 'include/wr-iot-mbss-close-checked.inc')
         for name in ("virtual-open-claim.h", "mt7603-main-observe.h"):
             shutil.copyfile(here / name, output / "include" / name)
         reject_unclaimed_virtual_up(output)

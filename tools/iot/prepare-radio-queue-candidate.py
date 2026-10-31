@@ -11,6 +11,7 @@ import re
 import subprocess
 import sys
 from pathlib import Path
+from candidate_assets import asset_bytes
 from mbss_cr_enable import guard_cr_enable
 
 p=argparse.ArgumentParser()
@@ -47,6 +48,7 @@ originals={name:(root/name).read_bytes() for name in source_names}
 inputs=[here/script for script,_ in groups.values()]
 inputs += [Path(__file__).resolve()]
 inputs += [here/'mbss_cr_enable.py']
+inputs += [here/'candidate_assets.py']
 inputs += [here/name for name in ('queued-result.h','queued-cleanup.h','queued-work.h','radio-result.h')]
 inputs += [here/'prepare-radio-error-candidates.py',here/'prepare-mbss-lifecycle-candidate.py']
 inputs += [here/'prepare-beacon-txs-callback-ledger.py',here/'prepare-txs-claimed-slot.py']
@@ -234,7 +236,7 @@ raw=old.replace(sig,'static INT wr_iot_mbss_open_raw(PNET_DEV pDev)',1)
 raw=guard_cr_enable(raw)
 text=text.replace(old,raw+'\n#include "wr-iot-mbss-open-admission.inc"\n',1)
 path.write_text(text,encoding='utf-8', newline='\r\n')
-fragment=(here/'mbss-open-admission.inc').read_bytes()
+fragment=asset_bytes(here / 'mbss-open-admission.inc')
 target=out/'driver/include/wr-iot-mbss-open-admission.inc';target.write_bytes(fragment)
 records.append({'path':'include/wr-iot-mbss-open-admission.inc','stage':'mbss-admission',
                 'purpose':'driver','sha256':hashlib.sha256(fragment).hexdigest()})
@@ -253,7 +255,7 @@ text=path.read_text(encoding='utf-8');sig='INT MBSS_VirtualIF_Close(PNET_DEV pDe
 old=selected(text,sig)
 text=text.replace(old,old+'\n#include "wr-iot-mbss-close-checked.inc"\n',1)
 path.write_text(text,encoding='utf-8', newline='\r\n')
-fragment=(here/'mbss-close-checked.inc').read_bytes()
+fragment=asset_bytes(here / 'mbss-close-checked.inc')
 (out/'driver/include/wr-iot-mbss-close-checked.inc').write_bytes(fragment)
 records.append({'path':'include/wr-iot-mbss-close-checked.inc','stage':'mbss-checked-close','purpose':'driver','sha256':hashlib.sha256(fragment).hexdigest()})
 for record in records:

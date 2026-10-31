@@ -1979,6 +1979,7 @@ jobs:
           scratch="$(mktemp -d "$RUNNER_TEMP/wr-iot-successor.XXXXXX")"
           driver="source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3"
           python3 tools/iot/check-candidate-source-newlines.py
+          python3 tools/iot/check-candidate-assets.py
           python3 tools/iot/prepare-current-recovery-chain.py "$driver" "$scratch/prepared"
           candidate="$scratch/prepared/later/corrected"
           python3 tools/iot/check-v25b-line-endings.py "$scratch/prepared/later/v25b"
@@ -2031,9 +2032,15 @@ jobs:
             -I"$scratch/merged/include" tools/iot/check-peer-rssi-delete.c \
             -o abi-results/check-peer-rssi-delete
           abi-results/check-peer-rssi-delete | tee abi-results/peer-rssi-delete.txt
+          python3 tools/iot/prepare-pci-probe-work-check.py "$scratch/merged" abi-results/pci-probe-work.c
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            abi-results/pci-probe-work.c -o abi-results/check-pci-probe-work
+          abi-results/check-pci-probe-work | tee abi-results/pci-probe-work.txt
           "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
             -I"$scratch/merged/include" -c tools/iot/check-peer-rssi-delete.c \
             -o abi-results/peer-rssi-delete-mips.o
+          "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+            -c abi-results/pci-probe-work.c -o abi-results/pci-probe-work-mips.o
           cp "$scratch/merged.manifest.json" abi-results/iot-peer-rssi-merge.json
           printf '%s\n' 'Merged peer82 host fixture/MIPS object only; whole-driver Kbuild and runtime remain unverified' \
             > abi-results/iot-peer-rssi-scope.txt

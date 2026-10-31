@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+from candidate_assets import asset_bytes
 p=argparse.ArgumentParser()
 p.add_argument('source',type=Path)
 p.add_argument('output',type=Path)
@@ -25,9 +26,9 @@ for command,guard in [('UP','VIRTUAL_IF_NUM(pAd) == (UINT)~0U'),('DOWN','VIRTUAL
 if (root/name).read_bytes()!=data: raise SystemExit('Source changed')
 (out/'common').mkdir(parents=True)
 (out/name).write_text(s+'\n#include "wr-iot-virtual-down.inc"\n',encoding='utf-8', newline='\r\n')
-(out/'include').mkdir();(out/'include/wr-iot-virtual-down.inc').write_bytes(Path(__file__).with_name('virtual-down-checked.inc').read_bytes())
+(out/'include').mkdir();(out/'include/wr-iot-virtual-down.inc').write_bytes(asset_bytes(Path(__file__).with_name('virtual-down-checked.inc')))
 (out/name).write_text((out/name).read_text()+'\n#include "wr-iot-netdev-registration.inc"\n',encoding='utf-8', newline='\r\n')
-(out/'include/wr-iot-netdev-registration.inc').write_bytes(Path(__file__).with_name('netdev-registration.inc').read_bytes())
+(out/'include/wr-iot-netdev-registration.inc').write_bytes(asset_bytes(Path(__file__).with_name('netdev-registration.inc')))
 (out/'manifest.json').write_text(json.dumps({'production_installed':False,
  'arithmetic_guards_staged':True,'count_serialization_proven':False,
  'stop_result_propagated':False,'target_compiled':False},indent=2)+'\n')

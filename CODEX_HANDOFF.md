@@ -1,3 +1,19 @@
+## 2026-10-31 next: confirm Linux asset policy, then whole-driver peer82 Kbuild
+
+73d8084 ABI 41211748091 failed wds-outer on registry-header raw pin; source
+checkout CRLF/LF difference is confirmed against Git bytes. Explicit policy
+for ten assets is implemented; pins are not relaxed. Fresh replay under
+TEMP/wr-iot-assets-peer82-20261031 completed, all 585 output hashes unchanged.
+New merged tree TEMP/wr-iot-assets-rssi-merged-20261031 passes RSSI admission.
+Asset-format tests and static source guard pass. Receipt includes policy hash.
+Final assembler also fixes three void-adapter PCI probe work-join expressions;
+actual extracted old code fails GCC, fixed code compiles/runs. Host/MIPS fixture
+wiring is ready for CI. All local sessions are terminal; no router changes.
+
+Live monitor on main excludes ABI and retains schedule; the already prepared
+branch replacement needs eventual main integration. Do not report monitor
+coverage as live or merge main implicitly. Use original ABI logs for now.
+
 ## 2026-10-31 next action: shared RSSI/IoT deletion admission
 
 Update: resolved the EOL prerequisite without relaxing WDS pins. Recovery

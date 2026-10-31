@@ -137,6 +137,8 @@ def main():
             raise ValueError('Unexpected candidate acceptance claims')
         if {n: sha(b) for n, b in candidate.items()} != receipt['files']:
             raise ValueError('Peer candidate differs from receipt')
+        if receipt.get('asset_policy_sha256') != sha(Path(__file__).with_name('candidate_assets.py').read_bytes()):
+            raise ValueError('Candidate asset policy differs from receipt')
         stages = receipt['stages']
         if len(stages) != 74 or stages[-1]['stage'] != 'aux-family-retry-scheduler':
             raise ValueError('Unreviewed peer chain variant')
@@ -160,6 +162,16 @@ def main():
         lease = 'include/wr-iot-peer-normal-delete.inc'
         table, execution = deletion_context(payloads[name].decode(), payloads[lease].decode())
         payloads[name], payloads[lease] = table.encode(), execution.encode()
+        # Vendor probe deliberately stores the adapter as void *. The staged
+        # work-join calls must use its concrete type, as the remove path does.
+        name = 'os/linux/pci_main_dev.c'
+        probe = payloads[name].decode()
+        if probe.count('void *pAd = NULL, *handle;') != 1:
+            raise ValueError('Changed vendor PCI probe adapter declaration')
+        for member in ('wr_iot_main_recovery_reap_work', 'wr_iot_main_recovery_work',
+                       'wr_iot_aux_family_retry_work'):
+            probe = once(probe, '&pAd->' + member, '&((PRTMP_ADAPTER)pAd)->' + member)
+        payloads[name] = probe.encode()
         # All validation and conflict handling precede output creation.
         shutil.copytree(roots[1], output)
         for name, data in payloads.items():
@@ -174,6 +186,7 @@ def main():
         report = {'source_revision': provenance['source_revision'],
                   'overlay_count': len(payloads), 'prepared_overlaps': sorted(overlaps),
                   'resolved_conflicts': sorted(PINS), 'rssi_delete_lease_integrated': True,
+                  'typed_pci_probe_work_join': True,
                   'input_peer_sha256': receipt['files'],
                   'candidate_driver_sha256': {n: sha(actual[n]) for n in payloads},
                   'merged_driver_sha256': {n: sha(b) for n, b in actual.items()},

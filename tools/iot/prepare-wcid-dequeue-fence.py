@@ -2,6 +2,7 @@
 """Stage per-WCID dequeue fences in a separate full source tree, not production."""
 import argparse,hashlib,json,shutil
 from pathlib import Path
+from candidate_assets import asset_bytes
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('source',type=Path);p.add_argument('output',type=Path)
 a=p.parse_args();source=a.source.resolve(strict=True);out=a.output.resolve()
@@ -48,7 +49,7 @@ new=r"""
         }
 """
 one(old,new.strip('\n'))
-helper=Path(__file__).with_name('wcid-fifo-retirement.h').read_bytes()
+helper=asset_bytes(Path(__file__).with_name('wcid-fifo-retirement.h'))
 if (source/'include/wcid-fifo-retirement.h').exists():p.error('helper already present')
 shutil.copytree(source,out);(out/name).write_text(s,encoding='utf-8',newline='\n')
 (out/'include/wcid-fifo-retirement.h').write_bytes(helper)

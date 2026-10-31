@@ -6,6 +6,27 @@ Metadata JSON/log writers do not affect the reviewed driver-byte pins.
 import ast
 from pathlib import Path
 import re
+from candidate_assets import CRLF_ASSETS
+
+
+def implicit_asset_copies(tree):
+    issues = []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Attribute):
+            continue
+        if node.func.attr == 'read_bytes':
+            source = node.func.value
+        elif node.func.attr == 'copyfile' and node.args:
+            source = node.args[0]
+        else:
+            continue
+        expression = ast.unparse(source)
+        names = {n.value for n in ast.walk(source)
+                 if isinstance(n, ast.Constant) and isinstance(n.value, str)}
+        if (names & CRLF_ASSETS and
+                ('with_name' in expression or expression.startswith(('here /', 'tools /')))):
+            issues.append(node.lineno)
+    return issues
 
 
 def implicit_writers(tree):
@@ -32,6 +53,8 @@ def main():
     assert implicit_writers(ast.parse("path.write_text(source, newline=None)")) == [1]
     assert not implicit_writers(ast.parse("path.write_text(source, newline='\\n')"))
     assert not implicit_writers(ast.parse("Path('manifest.json').write_text(data)"))
+    assert implicit_asset_copies(ast.parse("Path(__file__).with_name('interface-registry.h').read_bytes()")) == [1]
+    assert not implicit_asset_copies(ast.parse("asset_bytes(here / 'interface-registry.h')"))
     root = Path(__file__).resolve().parent
     pending = ['prepare-current-recovery-chain.py', 'prepare-peer-retirement-chain.py']
     seen = set()
@@ -43,6 +66,8 @@ def main():
         seen.add(name)
         tree = ast.parse((root / name).read_text(encoding='utf-8'))
         issues.extend(name + ':' + str(line) for line in implicit_writers(tree))
+        issues.extend(name + ':' + str(line) + ' raw checkout asset'
+                      for line in implicit_asset_copies(tree))
         for node in ast.walk(tree):
             if (isinstance(node, ast.Constant) and isinstance(node.value, str)
                     and re.fullmatch(r'[\w-]+\.py', node.value)

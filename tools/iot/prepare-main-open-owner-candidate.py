@@ -4,6 +4,7 @@
 import argparse
 import shutil
 from pathlib import Path
+from candidate_assets import copy_asset
 
 
 MAIN_OPEN = r'''int MainVirtualIF_open(struct net_device *net_dev)
@@ -136,8 +137,7 @@ def main() -> None:
     if dispatch_text.count(marker) != 1:
         parser.error("claimed dispatcher has changed")
     shutil.copytree(source, output)
-    shutil.copyfile(Path(__file__).with_name("radio-transition.h"),
-                    output / "include/radio-transition.h")
+    copy_asset(Path(__file__).with_name('radio-transition.h'),output / 'include/radio-transition.h')
     (output / "os/linux/rt_main_dev.c").write_text(
         main_text[:start] + MAIN_OPEN + main_text[end:], encoding="utf-8", newline="\n")
     (output / "common/cmm_cfg.c").write_text(

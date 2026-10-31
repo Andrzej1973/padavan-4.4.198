@@ -5,6 +5,7 @@ import argparse
 import hashlib
 import shutil
 from pathlib import Path
+from candidate_assets import copy_asset
 
 
 SOURCE_SHA256 = "3e170ab35e7ae89c93bca00ab4da932cdcb9769c3946658fcbe40570da7c93a7"
@@ -148,10 +149,8 @@ def main() -> None:
     shutil.copytree(source, output)
     shutil.copyfile(Path(__file__).with_name("aux-close-claim.h"),
                     output / "include/aux-close-claim.h")
-    shutil.copyfile(Path(__file__).with_name("interface-reference.h"),
-                    output / "include/interface-reference.h")
-    shutil.copyfile(Path(__file__).with_name("radio-transition.h"),
-                    output / "include/radio-transition.h")
+    copy_asset(Path(__file__).with_name('interface-reference.h'),output / 'include/interface-reference.h')
+    copy_asset(Path(__file__).with_name('radio-transition.h'),output / 'include/radio-transition.h')
     (output / "ap/ap_wds_inf.c").write_bytes(changed)
     print(f"Prepared isolated non-last WDS close: {output}")
 

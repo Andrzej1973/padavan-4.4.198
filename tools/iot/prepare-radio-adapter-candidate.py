@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+from candidate_assets import asset_bytes
 p=argparse.ArgumentParser()
 p.add_argument('source',type=Path)
 p.add_argument('output',type=Path)
@@ -425,10 +426,10 @@ out.mkdir()
 for name,text in texts.items():
     target=out/name;target.parent.mkdir(parents=True,exist_ok=True)
     target.write_text(text,encoding='utf-8', newline='\r\n')
-header=Path(__file__).with_name('radio-transition.h').read_bytes()
+header=asset_bytes(Path(__file__).with_name('radio-transition.h'))
 (out/'include/radio-transition.h').write_bytes(header)
-(out/'include/interface-reference.h').write_bytes(Path(__file__).with_name('interface-reference.h').read_bytes())
-(out/'include/interface-registry.h').write_bytes(Path(__file__).with_name('interface-registry.h').read_bytes())
+(out/'include/interface-reference.h').write_bytes(asset_bytes(Path(__file__).with_name('interface-reference.h')))
+(out/'include/interface-registry.h').write_bytes(asset_bytes(Path(__file__).with_name('interface-registry.h')))
 (out/'include/all-child-teardown.h').write_bytes(Path(__file__).with_name('all-child-teardown.h').read_bytes())
 (out/'include/mbss-retirement.h').write_bytes(Path(__file__).with_name('mbss-retirement.h').read_bytes())
 (out/'include/main-stop-owned.h').write_bytes(Path(__file__).with_name('main-stop-owned.h').read_bytes())

@@ -1,3 +1,19 @@
+## 2026-10-31 peer ABI failure localized; asset encoding and PCI types repaired
+
+ABI 41211748091 on 73d8084 failed at wds-outer: original log rejects
+include/interface-registry.h. Confirmed worktree CRLF versus Git LF byte
+difference. New explicit asset policy preserves ten historical CRLF assets;
+all existing source pins remain strict. LF/CRLF/corruption/binary regression
+passes. Fresh recovery/full-overlay/74-stage peer replay passes with all 585
+final hashes unchanged; policy hash is now recorded/verified. Merged RSSI host
+test passes on the new receipt.
+
+Also fixed final-candidate PCI probe cancellation expressions on void *pAd;
+the old actual fragment fails GCC, corrected extracted joins compile/run.
+Added host/MIPS fixture wiring, not a claim of target success. Live main monitor
+does not watch ABI yet; branch's failure-only replacement is not on main.
+See the updated peer82 merge-review evidence. Router remains unchanged.
+
 ## 2026-10-31 ABI green; scheduler82/RSSI merge review completed
 
 Publication prerequisite addressed: legacy recovery source writers now specify
