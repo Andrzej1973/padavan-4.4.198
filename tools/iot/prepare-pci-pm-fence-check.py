@@ -24,5 +24,5 @@ template = Path(__file__).with_name('pci-pm-fence-host-fixture.c.in').read_text(
 marker = '@@PCI_PM_FENCE@@'
 if template.count(marker) != 1:
     raise SystemExit('Changed fixture marker')
-a.output.write_text(template.replace(marker, fragment), encoding='utf-8')
+a.output.write_text(template.replace(marker, fragment), encoding='utf-8', newline='\r\n')
 print('Extracted PCI pre-mutation PM fence; not target proof')

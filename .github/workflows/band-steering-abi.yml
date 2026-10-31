@@ -1978,6 +1978,7 @@ jobs:
           # Vendor sources remain outside abi-results (uploaded below).
           scratch="$(mktemp -d "$RUNNER_TEMP/wr-iot-successor.XXXXXX")"
           driver="source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3"
+          python3 tools/iot/check-candidate-source-newlines.py
           python3 tools/iot/prepare-current-recovery-chain.py "$driver" "$scratch/prepared"
           candidate="$scratch/prepared/later/corrected"
           python3 tools/iot/check-v25b-line-endings.py "$scratch/prepared/later/v25b"
@@ -2010,6 +2011,32 @@ jobs:
             -o abi-results/iot-successor-post-open-mips.o
           printf '%s\n' 'PASS successor extracted host fixtures and MIPS objects; not whole-driver Kbuild or runtime' \
             > abi-results/iot-successor-scope.txt
+          # Keep the full peer tree and prepared vendor sources outside artifacts.
+          python3 tools/iot/prepare-peer-retirement-chain.py "$scratch/driver" "$scratch/peer"
+          prepared="$scratch/prepared-rssi"
+          radios="$prepared/trunk/linux-4.4.x/drivers/net/wireless/mediatek"
+          mkdir -p "$radios"
+          cp -a source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/{mt76x2,mt76x3} "$radios/"
+          for helper in idle-aging grant-readback wps-guards channel-stats main-bss off-ack uninitialized-off quiet-status-log; do
+            python3 "tools/band-steering/prepare-$helper.py" "$prepared"
+          done
+          for helper in adapter identity decision removal query; do
+            python3 "tools/connected-devices/prepare-rssi-$helper.py" "$prepared"
+          done
+          python3 tools/iot/assemble-peer-prepared-candidate.py "$driver" "$radios/mt76x3" \
+            "$scratch/peer/peer-chain.json" "$scratch/driver-overlay.json" "$scratch/merged"
+          python3 tools/iot/audit-aux-family-retry-scheduler.py "$scratch/merged" \
+            abi-results/iot-peer-scheduler-audit.json
+          gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+            -I"$scratch/merged/include" tools/iot/check-peer-rssi-delete.c \
+            -o abi-results/check-peer-rssi-delete
+          abi-results/check-peer-rssi-delete | tee abi-results/peer-rssi-delete.txt
+          "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+            -I"$scratch/merged/include" -c tools/iot/check-peer-rssi-delete.c \
+            -o abi-results/peer-rssi-delete-mips.o
+          cp "$scratch/merged.manifest.json" abi-results/iot-peer-rssi-merge.json
+          printf '%s\n' 'Merged peer82 host fixture/MIPS object only; whole-driver Kbuild and runtime remain unverified' \
+            > abi-results/iot-peer-rssi-scope.txt
 
       - name: Upload ABI diagnostics
         if: always()

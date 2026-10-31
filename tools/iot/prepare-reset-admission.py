@@ -19,7 +19,7 @@ f=f.replace('PDMAResetAndRecovery(pAd);','wr_iot_pdma_reset_raw(pAd);',1)
 s=s[:start]+f+'\n#include "wr-iot-reset-admission.inc"\n'+s[end:]
 if (root/name).read_bytes()!=data:raise SystemExit('Source changed')
 out.mkdir();(out/'common').mkdir();(out/'include').mkdir()
-(out/name).write_text(s,encoding='utf-8')
+(out/name).write_text(s,encoding='utf-8', newline='\r\n')
 (out/'include/wr-iot-reset-admission.inc').write_bytes(Path(__file__).with_name('reset-admission.inc').read_bytes())
 (out/'manifest.json').write_text(json.dumps({'production_installed':False,'top_level_reset_wrappers_staged':True,
  'periodic_retry_bound':False,'retirement_proven':False,'target_compiled':False},indent=2)+'\n')

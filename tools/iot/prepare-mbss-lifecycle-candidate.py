@@ -41,14 +41,14 @@ for group in ('open-state','close','cr'):
         if merged.count(old)!=1:raise SystemExit('Conflicting function edit: '+signature)
         merged=merged.replace(old,new,1);remainder=remainder.replace(new,old,1)
     if remainder!=original:raise SystemExit('Unreviewed edits outside selected functions')
-target=out/'ap/ap_mbss.c';target.parent.mkdir();target.write_text(merged,encoding='utf-8')
+target=out/'ap/ap_mbss.c';target.parent.mkdir();target.write_text(merged,encoding='utf-8', newline='\r\n')
 fixtures=[]
 for group,items in signatures.items():
     fixture=(out/group/'check.c').read_text()
     for signature in items:
         old=function(fixture,signature);new=function(merged,signature)
         fixture=fixture.replace(old,new,1)
-    check=out/('check-'+group+'.c');check.write_text(fixture,encoding='utf-8')
+    check=out/('check-'+group+'.c');check.write_text(fixture,encoding='utf-8', newline='\r\n')
     fixtures.append({'path':check.name,'sha256':hashlib.sha256(check.read_bytes()).hexdigest()})
 if src.read_bytes()!=data:raise SystemExit('Original source changed')
 (out/'manifest.json').write_text(json.dumps({

@@ -103,6 +103,6 @@ int main(void){
  return 0;
 }
 '''
-a.candidate.write_text(source[:start] + patched + source[end:], encoding='utf-8')
-a.fixture.write_text(prefix + patched + tail, encoding='utf-8')
+a.candidate.write_text(source[:start] + patched + source[end:], encoding='utf-8', newline='\r\n')
+a.fixture.write_text(prefix + patched + tail, encoding='utf-8', newline='\r\n')
 print('Prepared isolated create candidate; production unchanged')

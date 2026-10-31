@@ -71,7 +71,7 @@ def main() -> None:
     base["pci_release_gate_bound"] = False
     base["production_installed"] = False
     target = output.parent / (output.name + "-composition.json")
-    target.write_text(json.dumps(base, indent=2) + "\n", encoding="utf-8")
+    target.write_text(json.dumps(base, indent=2) + "\n", encoding="utf-8", newline='\n')
     print("PASS staged nonblocking RTNL callback; queue/removal remain unbound")
 
 

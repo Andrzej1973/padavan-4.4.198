@@ -121,6 +121,6 @@ int main(void){
 # Keep the existing shared void function and all its callers untouched.
 a.candidate.write_text((source[:existing_start] + checked + source[existing_end:])
                        if already_checked else source[:start] + checked + '\n\n' + source[start:],
-                       encoding='utf-8')
-a.fixture.write_text(prefix + checked + tail, encoding='utf-8')
+                       encoding='utf-8', newline='\r\n')
+a.fixture.write_text(prefix + checked + tail, encoding='utf-8', newline='\r\n')
 print('Prepared checked DMA poll with final-read disappearance guard; original radio-off path unchanged')

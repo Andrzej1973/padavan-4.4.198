@@ -77,6 +77,6 @@ checked='''INT wr_iot_drv_close_checked(VOID *pAdSrc, VOID *net_dev,
 '''
 s=s[:end]+'\n\n'+checked+s[end:]
 if (root/name).read_bytes()!=data:raise SystemExit('Source changed')
-(out/'common').mkdir(parents=True);(out/name).write_text(s,encoding='utf-8')
+(out/'common').mkdir(parents=True);(out/name).write_text(s,encoding='utf-8', newline='\r\n')
 (out/'manifest.json').write_text(json.dumps({'production_installed':False,'checked_close_staged':True,'legacy_callers_replaced':False,'prejoin_resource_safety_proven':False,'outer_retention_proven':False,'hardware_close_verified':False,'target_compiled':False},indent=2)+'\n')
 print('Staged resumable software close; legacy/outer lifetime and prejoin safety pending')

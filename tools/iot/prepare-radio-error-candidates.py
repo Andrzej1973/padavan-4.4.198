@@ -112,7 +112,7 @@ for name, expected, generator, fixture in entries:
         merged = target.read_text(encoding='utf-8')
         if merged.count(old) != 1:
             raise SystemExit('DMA/beacon candidate conflict')
-        target.write_text(merged.replace(old, new, 1), encoding='utf-8')
+        target.write_text(merged.replace(old, new, 1), encoding='utf-8', newline='\r\n')
         additional.append(extra.name)
         sync_candidate = out / 'bss-sync-candidate.c'
         sync_check = out / 'bss-sync-check.c'
@@ -136,7 +136,7 @@ for name, expected, generator, fixture in entries:
             merged = merged.replace(previous, replacement, 1)
         if restored != original:
             raise SystemExit('Unexpected BSS sync edits')
-        target.write_text(merged, encoding='utf-8')
+        target.write_text(merged, encoding='utf-8', newline='\r\n')
         additional.append(sync_check.name)
     if name == 'common/cmm_mac_pci.c':
         reset_candidate = out / 'pdma-reset-gate-candidate.c'
@@ -157,7 +157,7 @@ for name, expected, generator, fixture in entries:
         merged = target.read_text(encoding='utf-8')
         if merged.count(old) != 1:
             raise SystemExit('PDMA reset candidate conflict')
-        target.write_text(merged.replace(old, new, 1), encoding='utf-8')
+        target.write_text(merged.replace(old, new, 1), encoding='utf-8', newline='\r\n')
         additional.append(reset_check.name)
     if (root / name).read_bytes() != originals[name]:
         raise SystemExit('Source changed during preparation: ' + name)
@@ -185,13 +185,13 @@ Routine Description:
     Close a virtual network interface.'''
 if mbss_text.count(anchor) != 1 or mbss_text.count('INT MBSS_AbortOpen(PNET_DEV pDev)'):
     raise SystemExit('MBSS helper merge conflict')
-mbss_file.write_text(mbss_text.replace(anchor, helper+'\n\n'+anchor, 1), encoding='utf-8')
+mbss_file.write_text(mbss_text.replace(anchor, helper+'\n\n'+anchor, 1), encoding='utf-8', newline='\r\n')
 wrapper_file = out / 'ap/ap_mbss_inf.c'
 wrapper_text = wrapper_file.read_text(encoding='utf-8')
 signature = 'INT MBSS_VirtualIF_Open(PNET_DEV pDev)'
 old_wrapper = function(wrapper_text, signature)
 new_wrapper = function((abort_dir / 'ap/ap_mbss_inf.c').read_text(encoding='utf-8'), signature)
-wrapper_file.write_text(wrapper_text.replace(old_wrapper, new_wrapper, 1), encoding='utf-8')
+wrapper_file.write_text(wrapper_text.replace(old_wrapper, new_wrapper, 1), encoding='utf-8', newline='\r\n')
 for name, expected in support_blobs.items():
     target = out / name
     target.parent.mkdir(parents=True, exist_ok=True)

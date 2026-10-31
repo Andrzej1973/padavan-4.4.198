@@ -1,4 +1,43 @@
+## 2026-10-31 next action: shared RSSI/IoT deletion admission
+
+Update: resolved the EOL prerequisite without relaxing WDS pins. Recovery
+writers explicitly preserve reviewed CRLF, while peer stages retain explicit
+LF. Fresh candidate71/full-overlay540 bytes match the old replay; all 74
+peer generator hashes are unchanged. New static guard covers 140 dependencies;
+syntax and LF/CRLF/corrupt regression pass. Earlier publication hold below is
+superseded. Publish the coherent integration and use its automatic Linux ABI
+run; full target compile remains the optional peer82 firmware candidate job.
+Do not dispatch a duplicate while a firmware run on the same commit is active.
+
+Implemented locally: assemble-peer-prepared-candidate.py and
+check-peer-rssi-delete.c. Full merged scratch is at
+TEMP/wr-iot-peer82-rssi-merged-v2-20261031. Host admission/context test and
+scheduler audit pass; bad receipt/generator hashes and unreviewed conflicts
+are rejected. Local workflows now wire peer82 Kbuild and ABI fixtures but
+are NOT ready to publish: legacy peer-chain WDS input pin is CRLF-sensitive
+(9a20173f vs equivalent LF 617391f6). Next audit deterministic generation and
+EOL pins across the peer chain before publishing its Linux ABI step. Keep
+strict source authentication; do not paper over it with arbitrary hash bypass.
+Remote is still c0db748; all current source/workflow changes are preserved.
+
+ABI 41209565829 is SUCCESS on c0db748; it covers v25b, not full scheduler82.
+Prepared both radio source trees in TEMP/wr-iot-prepared-driver-20261031,
+using driver-side steering helpers and all RSSI helpers. Scratch merge review
+is under TEMP/wr-iot-peer82-merge-review-20261031. Three clean text overlaps,
+three conflicts; raw management-table deletion is semantically misbound and
+RSSI would bypass the IoT execution lease. Do not install the trial merge.
+Implement common admitted deletion with optional RSSI context while retaining
+WDS resume/table serial, test it, then extend full-candidate target wiring.
+Detailed evidence: docs/evidence/WR1200JS-IOT-PEER82-MERGE-REVIEW-2026-10-31.md.
+All preparation sessions described above are now terminal; preserve outputs.
+
 ## 2026-10-31 successor CI failure and full candidate replay
+
+Update: c0db748 is pushed. ABI 41209565829 is running; firmware 41209565725
+is pending. Peer replay session 87530 is terminal SUCCESS: 74 stages/585
+files and exact manifest hashes verified, scheduler source audit and strict
+host model passed. Do not poll or restart that completed session. Its output
+is available for prepared-source merge review; target/runtime remain false.
 
 48f195d was pushed; ABI 41208634333 passed the repaired mailbox/MBSS stage,
 then failed in current-recovery preparation with a hidden child diagnostic.

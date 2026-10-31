@@ -76,6 +76,6 @@ int main(void){
 '''
 # Vendor pAd is unused when all optional decision features are disabled.
 fixture_function = patched.replace('RTMP_ADAPTER *pAd,', 'RTMP_ADAPTER *pAd __attribute__((unused)),', 1)
-a.candidate.write_text(source[:start] + patched + source[end:], encoding='utf-8')
-a.fixture.write_text(prefix + fixture_function + tail, encoding='utf-8')
+a.candidate.write_text(source[:start] + patched + source[end:], encoding='utf-8', newline='\r\n')
+a.fixture.write_text(prefix + fixture_function + tail, encoding='utf-8', newline='\r\n')
 print('Prepared isolated beacon decision candidate; production and RF queues unchanged')

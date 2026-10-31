@@ -24,9 +24,9 @@ for command,guard in [('UP','VIRTUAL_IF_NUM(pAd) == (UINT)~0U'),('DOWN','VIRTUAL
     s=s[:start]+part.replace(anchor,anchor+addition,1)+s[end:]
 if (root/name).read_bytes()!=data: raise SystemExit('Source changed')
 (out/'common').mkdir(parents=True)
-(out/name).write_text(s+'\n#include "wr-iot-virtual-down.inc"\n',encoding='utf-8')
+(out/name).write_text(s+'\n#include "wr-iot-virtual-down.inc"\n',encoding='utf-8', newline='\r\n')
 (out/'include').mkdir();(out/'include/wr-iot-virtual-down.inc').write_bytes(Path(__file__).with_name('virtual-down-checked.inc').read_bytes())
-(out/name).write_text((out/name).read_text()+'\n#include "wr-iot-netdev-registration.inc"\n',encoding='utf-8')
+(out/name).write_text((out/name).read_text()+'\n#include "wr-iot-netdev-registration.inc"\n',encoding='utf-8', newline='\r\n')
 (out/'include/wr-iot-netdev-registration.inc').write_bytes(Path(__file__).with_name('netdev-registration.inc').read_bytes())
 (out/'manifest.json').write_text(json.dumps({'production_installed':False,
  'arithmetic_guards_staged':True,'count_serialization_proven':False,

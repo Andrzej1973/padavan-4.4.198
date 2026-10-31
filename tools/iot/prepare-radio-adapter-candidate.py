@@ -424,7 +424,7 @@ for name,data in originals.items():
 out.mkdir()
 for name,text in texts.items():
     target=out/name;target.parent.mkdir(parents=True,exist_ok=True)
-    target.write_text(text,encoding='utf-8')
+    target.write_text(text,encoding='utf-8', newline='\r\n')
 header=Path(__file__).with_name('radio-transition.h').read_bytes()
 (out/'include/radio-transition.h').write_bytes(header)
 (out/'include/interface-reference.h').write_bytes(Path(__file__).with_name('interface-reference.h').read_bytes())
@@ -435,11 +435,11 @@ header=Path(__file__).with_name('radio-transition.h').read_bytes()
 (out/'include/main-open-recovery-owner.h').write_bytes(Path(__file__).with_name('main-open-recovery-owner.h').read_bytes())
 (out/'include/wr-iot-physical-close-result.inc').write_bytes(Path(__file__).with_name('physical-close-result.inc').read_bytes())
 (out/'include/mt7603-main-observe.h').write_bytes(Path(__file__).with_name('mt7603-main-observe.h').read_bytes())
-(out/'adapter-init.inc').write_text(init,encoding='utf-8')
-(out/'adapter-free.inc').write_text(free,encoding='utf-8')
-(out/'check-main-close.c').write_text(fixture,encoding='utf-8')
-(out/'check-main-open.c').write_text(open_fixture,encoding='utf-8')
-(out/'check-tx-entry.c').write_text(tx_fixture,encoding='utf-8')
+(out/'adapter-init.inc').write_text(init,encoding='utf-8', newline='\r\n')
+(out/'adapter-free.inc').write_text(free,encoding='utf-8', newline='\r\n')
+(out/'check-main-close.c').write_text(fixture,encoding='utf-8', newline='\r\n')
+(out/'check-main-open.c').write_text(open_fixture,encoding='utf-8', newline='\r\n')
+(out/'check-tx-entry.c').write_text(tx_fixture,encoding='utf-8', newline='\r\n')
 (out/'manifest.json').write_text(json.dumps({
  'source_revision':'c25283e915a2a00a763774dd255b14aff997285e',
  'source_blobs':blobs,'production_installed':False,'entrypoints_bound':False,'main_close_invalidation_staged':True,

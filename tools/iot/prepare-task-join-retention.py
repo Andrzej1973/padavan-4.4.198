@@ -12,7 +12,7 @@ new='\t\tStatus = __RtmpOSTaskKill(pTask);\n\t\t/* Failed join must retain task 
 if s.count(old)!=1:raise SystemExit('Changed task wrapper')
 s=s.replace(old,new,1)
 if (root/name).read_bytes()!=data:raise SystemExit('Source changed')
-(out/'os/linux').mkdir(parents=True);(out/name).write_text(s,encoding='utf-8')
+(out/'os/linux').mkdir(parents=True);(out/name).write_text(s,encoding='utf-8', newline='\r\n')
 # WSC is another producer; do not release its buffers/locks after failed join.
 wname='common/wsc.c'; wdata=(root/wname).read_bytes()
 if hashlib.sha1(b'blob '+str(len(wdata)).encode()+b'\0'+wdata).hexdigest()!='3281fb30199c425e67916ae4796242b6618178ea':raise SystemExit('Unreviewed WSC source')
@@ -23,6 +23,6 @@ new='\tif (ret != NDIS_STATUS_SUCCESS)\n\t{\n\t\tDBGPRINT(RT_DEBUG_ERROR, ("kill
 if f.count(old)!=1:raise SystemExit('Changed WSC failed-join branch')
 w=w[:start]+f.replace(old,new,1)+w[end:]
 if (root/wname).read_bytes()!=wdata:raise SystemExit('WSC source changed')
-(out/'common').mkdir();(out/wname).write_text(w,encoding='utf-8')
+(out/'common').mkdir();(out/wname).write_text(w,encoding='utf-8', newline='\r\n')
 (out/'manifest.json').write_text(json.dumps({'production_installed':False,'failed_join_task_storage_retained':True,'failed_join_wsc_resources_retained':True,'outer_adapter_retention_proven':False,'effective_wrapper_verified':False,'target_compiled':False},indent=2)+'\n')
 print('Staged failed-join task storage retention; outer shutdown integration pending')

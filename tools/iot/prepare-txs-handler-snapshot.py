@@ -46,7 +46,7 @@ if source.read_bytes() != before:
     raise SystemExit('Input changed during preparation')
 target = out / 'tx_rx/txs.c'
 target.parent.mkdir(parents=True, exist_ok=True)
-target.write_text(text, encoding='utf-8')
+target.write_text(text, encoding='utf-8', newline='\r\n')
 (out / 'manifest.json').write_text(json.dumps({
     'source_sha256': hashlib.sha256(before).hexdigest(),
     'output_sha256': hashlib.sha256(target.read_bytes()).hexdigest(),

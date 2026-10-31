@@ -113,7 +113,7 @@ for relative, content in (('tx_rx/txs.c', txs),
                           ('include/mac/mac_mt/mt_mac.h', header)):
     target = out / relative
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(content, encoding='utf-8')
+    target.write_text(content, encoding='utf-8', newline='\r\n')
 manifest = {
     'source_sha256': {path.relative_to(root).as_posix(): hashlib.sha256(data).hexdigest()
                       for path, data in originals.items()},

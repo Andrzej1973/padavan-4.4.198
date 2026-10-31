@@ -1,4 +1,43 @@
+## 2026-10-31 ABI green; scheduler82/RSSI merge review completed
+
+Publication prerequisite addressed: legacy recovery source writers now specify
+their reviewed CRLF format explicitly; all 74 peer stages already specify LF.
+No WDS hash pin was relaxed. Fresh 71-file recovery and 540-file full overlay
+are byte-identical to the previous replay, and all 74 peer generator hashes
+are unchanged. Static newline regression covers 140 dependencies; v25b
+LF/CRLF/corruption, Python/YAML and candidate/ABI Bash syntax checks pass.
+The earlier "do not push" note below is superseded by these verified changes.
+Publish this coherent set once; Linux CI and peer82 whole-driver Kbuild still
+need actual runs. The c0db748 firmware run 41209565725 also completed SUCCESS.
+
+Local follow-up: implemented complete peer82/prepared-source assembler and
+shared RSSI/IoT deletion-context integration. Strict host test of the actual
+merged lease passed; bad peer/generator hashes and changed conflict pins
+were rejected. Scheduler structural audit, YAML/Python/shell syntax passed.
+Workflow wiring is local and NOT published: first audit/fix platform-dependent
+peer-chain EOL pins (initial WDS CRLF 9a20173f versus equivalent LF 617391f6).
+Windows replay is not Linux/MIPS validation. Do not push the new default ABI
+peer step until that portability prerequisite is addressed. Details are in
+the merge-review evidence below; no production/device change was made.
+
+ABI 41209565829 passed on c0db748. Recomputed archive SHA matches sources.lock.
+Fresh scheduler82 has 62 modified originals and 70 new files. Six prepared
+driver overlaps were reproduced; three text conflicts exist. More importantly,
+the trial management-table merge misbinds the raw deletion body and would let
+RSSI deletion bypass IoT's execution lease. Do not enable that merged driver.
+Next: integrate optional RSSI context through the shared deletion lease and
+preserve WDS/reset identity, then test admission and perform full target Kbuild.
+See docs/evidence/WR1200JS-IOT-PEER82-MERGE-REVIEW-2026-10-31.md. Driver-source
+review is not target/image/device proof. No production or device changes.
+
 ## 2026-10-31 successor preparation: platform pin and diagnostic repair
+
+Update: published as c0db748; new ABI run 41209565829 is in progress and
+firmware 41209565725 is pending behind 41208634350. No duplicate dispatch.
+Peer replay session 87530 has now completed successfully: 74 stages, 585
+files, all hashes rechecked against peer-chain.json. Scheduler binding audit
+and strict host scheduler fixture passed. Target/runtime flags remain false.
+The running-session instruction below is historical and is superseded here.
 
 Published fixture fixes as 48f195d. ABI run 41208634333 passed the formerly
 failing private-mailbox/MBSS step and failed later at "Verify current IoT

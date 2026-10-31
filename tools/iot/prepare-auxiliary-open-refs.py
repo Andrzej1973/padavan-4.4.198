@@ -15,6 +15,6 @@ for name,blob in blobs.items():
  outputs[name]=(data,text.replace(old,'\tif (VIRTUAL_IF_UP(pAd) != 0) {\n\t\tRT_MOD_DEC_USE_COUNT();\n\t\treturn -1;\n\t}',1))
 for name,(original,text) in outputs.items():
  if (root/name).read_bytes()!=original: raise SystemExit('Source changed')
- target=out/name; target.parent.mkdir(parents=True,exist_ok=True); target.write_text(text,encoding='utf-8')
+ target=out/name; target.parent.mkdir(parents=True,exist_ok=True); target.write_text(text,encoding='utf-8', newline='\r\n')
 (out/'manifest.json').write_text(json.dumps({'production_installed':False,'failed_open_module_refs_balanced':True,'shared_owner_bound':False,'target_compiled':False},indent=2)+'\n')
 print('Staged AP-client/WDS failed-open ref repair; shared ownership pending')

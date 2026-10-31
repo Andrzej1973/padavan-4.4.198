@@ -1608,7 +1608,20 @@ jobs:
             trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3 \
             | tar -xf - -C "$pinned"
           pristine="$pinned/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3"
-          if [ "${{ inputs.iot_candidate_variant }}" = v39 ]; then
+          if [ "${{ inputs.iot_candidate_variant }}" = peer82 ]; then
+            mkdir -p "$candidate"
+            python3 tools/iot/prepare-current-recovery-chain.py "$pristine" "$candidate/recovery"
+            python3 tools/iot/prepare-full-driver-overlay.py "$pristine" \
+              "$candidate/recovery/later/corrected" \
+              "$candidate/recovery/later/v24c-composition.json" "$candidate/full-driver"
+            python3 tools/iot/prepare-peer-retirement-chain.py "$candidate/full-driver" "$candidate/peer"
+            python3 tools/iot/assemble-peer-prepared-candidate.py "$pristine" "$driver" \
+              "$candidate/peer/peer-chain.json" "$candidate/full-driver-overlay.json" "$merged"
+            gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+              -I"$merged/include" tools/iot/check-peer-rssi-delete.c -o "$results/check-peer-rssi-delete"
+            "$results/check-peer-rssi-delete" | tee "$results/peer-rssi-delete.txt"
+            cp "$candidate/peer/peer-chain.json" "$results/peer-chain.json"
+          elif [ "${{ inputs.iot_candidate_variant }}" = v39 ]; then
             mkdir -p "$candidate"
             cp -a tools/iot/candidates/aux-remove-close-v39 "$candidate/driver"
             cp tools/iot/candidates/aux-remove-close-v39/manifest.json "$candidate/manifest.json"
@@ -1700,13 +1713,15 @@ jobs:
             echo 'Unsupported IoT candidate variant' >&2
             exit 1
           fi
-          python3 tools/iot/check-overlay-conflicts.py \
-            "$candidate/manifest.json" "$candidate/driver" "$driver" \
-            --output "$results/prepared-overlap.json" \
-            || test "$?" -eq 1
-          python3 tools/iot/assemble-prepared-candidate.py \
-            "$pristine" "$driver" "$candidate/driver" \
-            "$candidate/manifest.json" "$merged"
+          if [ "${{ inputs.iot_candidate_variant }}" != peer82 ]; then
+            python3 tools/iot/check-overlay-conflicts.py \
+              "$candidate/manifest.json" "$candidate/driver" "$driver" \
+              --output "$results/prepared-overlap.json" \
+              || test "$?" -eq 1
+            python3 tools/iot/assemble-prepared-candidate.py \
+              "$pristine" "$driver" "$candidate/driver" \
+              "$candidate/manifest.json" "$merged"
+          fi
           if [ "${{ inputs.iot_candidate_variant }}" = v39 ] ||
              [ "${{ inputs.iot_candidate_variant }}" = v40 ] ||
              [ "${{ inputs.iot_candidate_variant }}" = v41 ] ||
@@ -1734,6 +1749,11 @@ jobs:
           test -n "$compiler"
           cross="${compiler%gcc}"
           sha256sum "$kernel/.config" > "$results/config-before.sha256"
+          if [ "${{ inputs.iot_candidate_variant }}" = peer82 ]; then
+            "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+              -I"$driver/include" -c tools/iot/check-peer-rssi-delete.c \
+              -o "$results/peer-rssi-delete-mips.o"
+          fi
           make -C "$kernel" ARCH=mips CROSS_COMPILE="$cross" -j2 vmlinux modules \
             2>&1 | tee "$results/build.log"
           cmp tools/iot/mt7603-main-observe.h "$driver/include/mt7603-main-observe.h"
@@ -1760,7 +1780,7 @@ jobs:
           # This inventory scans unit source text, not v42's new inline
           # helper header. v42 replaces the abort-open SEM site with a gated
           # helper; its header is checked by manifest and target compile.
-          expected = (20, 19, 10, 9) if variant == 'v42' else (21, 20, 11, 9)
+          expected = (20, 19, 10, 9) if variant in ('v42', 'peer82') else (21, 20, 11, 9)
           if (site_count, len(active), sem_count, irq_count) != expected:
               raise SystemExit('Merged candidate active beacon lock forms changed')
           # Both forms use the BH wrapper only while MULTI_CORE_SUPPORT is off.
@@ -1773,6 +1793,11 @@ jobs:
           "${cross}readelf" -h "$module" > "$results/mt76x3-elf.txt"
           grep -q 'Machine:.*MIPS' "$results/mt76x3-elf.txt"
           "${cross}readelf" -sW "$module" > "$results/mt76x3-symbols.txt"
+          if [ "${{ inputs.iot_candidate_variant }}" = peer82 ]; then
+            for symbol in wr_iot_aux_family_retry_work_fn wr_rssi_delete_entry; do
+              grep -Eq "[[:space:]]${symbol}$" "$results/mt76x3-symbols.txt"
+            done
+          fi
           if [ "${{ inputs.iot_candidate_variant }}" = v40 ] ||
              [ "${{ inputs.iot_candidate_variant }}" = v41 ] ||
              [ "${{ inputs.iot_candidate_variant }}" = v42 ]; then

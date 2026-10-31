@@ -123,7 +123,7 @@ for name,data in originals.items():
     if (root/name).read_bytes()!=data:raise SystemExit('Source changed')
 out.mkdir()
 for name,text in texts.items():
-    target=out/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_text(text,encoding='utf-8')
+    target=out/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_text(text,encoding='utf-8', newline='\r\n')
 for name in ('queued-result.h','queued-cleanup.h','queued-work.h'):
     target=out/'include'/name;target.parent.mkdir(parents=True,exist_ok=True)
     target.write_bytes(Path(__file__).with_name(name).read_bytes())

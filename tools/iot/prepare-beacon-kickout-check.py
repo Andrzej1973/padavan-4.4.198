@@ -119,9 +119,9 @@ int main(void){
 '''
 if a.input.read_bytes() != data:
     raise SystemExit('Input changed')
-a.candidate.write_text(source[:start] + function + source[end:], encoding='utf-8')
+a.candidate.write_text(source[:start] + function + source[end:], encoding='utf-8', newline='\r\n')
 fixture_function = function.replace('{\n\tBCN_BUF_STRUC *bcn_buf',
                                     '{\n\t(void)UpdatePos; /* Unused by this vendor MT_MAC branch. */\n\tBCN_BUF_STRUC *bcn_buf', 1)
 if fixture_function == function:
     raise SystemExit('Changed fixture function body')
-a.fixture.write_text(prefix + fixture_function + tail, encoding='utf-8')
+a.fixture.write_text(prefix + fixture_function + tail, encoding='utf-8', newline='\r\n')

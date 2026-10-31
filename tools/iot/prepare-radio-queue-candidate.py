@@ -178,7 +178,7 @@ func=func.replace(deinit,
     '\t\t\t\treturn NDIS_STATUS_FAILURE;',1)
 func=func[:-2]+'\n\treturn NDIS_STATUS_SUCCESS;\n}'
 text=text.replace(selected(text,sig),func,1)
-path.write_text(text,encoding='utf-8')
+path.write_text(text,encoding='utf-8', newline='\r\n')
 for record in records:
     if record['path']=='ap/ap_mbss.c':
         record['stage']='radio-errors+registry-attach+checked-deinit-result'
@@ -188,7 +188,7 @@ path=out/'driver/include/ap_mbss.h'
 text=path.read_text(encoding='utf-8')
 old='VOID MBSS_Remove(RTMP_ADAPTER *pAd);'
 if text.count(old)!=1:raise SystemExit('Changed MBSS remove declaration')
-path.write_text(text.replace(old,'INT MBSS_Remove(RTMP_ADAPTER *pAd);',1),encoding='utf-8')
+path.write_text(text.replace(old,'INT MBSS_Remove(RTMP_ADAPTER *pAd);',1),encoding='utf-8', newline='\r\n')
 matches=[record for record in records if record['path']=='include/ap_mbss.h']
 if len(matches)!=1:raise SystemExit('Missing MBSS header record')
 matches[0]['stage']+=' + checked-remove-result'
@@ -220,7 +220,7 @@ if old.count('UINT32 Value;')!=1 or old.count(anchor)!=1:
     raise SystemExit('Changed MBSS CR-disable readback anchor')
 new=new.replace(anchor,readback,1)
 text=text.replace(old,new,1)
-path.write_text(text,encoding='utf-8')
+path.write_text(text,encoding='utf-8', newline='\r\n')
 for record in records:
     if record['path']=='ap/ap_mbss.c':
         record['stage']+=' + cr-disable-readback'
@@ -233,7 +233,7 @@ old=selected(text,sig)
 raw=old.replace(sig,'static INT wr_iot_mbss_open_raw(PNET_DEV pDev)',1)
 raw=guard_cr_enable(raw)
 text=text.replace(old,raw+'\n#include "wr-iot-mbss-open-admission.inc"\n',1)
-path.write_text(text,encoding='utf-8')
+path.write_text(text,encoding='utf-8', newline='\r\n')
 fragment=(here/'mbss-open-admission.inc').read_bytes()
 target=out/'driver/include/wr-iot-mbss-open-admission.inc';target.write_bytes(fragment)
 records.append({'path':'include/wr-iot-mbss-open-admission.inc','stage':'mbss-admission',
@@ -252,7 +252,7 @@ path=out/'driver/ap/ap_mbss_inf.c'
 text=path.read_text(encoding='utf-8');sig='INT MBSS_VirtualIF_Close(PNET_DEV pDev)'
 old=selected(text,sig)
 text=text.replace(old,old+'\n#include "wr-iot-mbss-close-checked.inc"\n',1)
-path.write_text(text,encoding='utf-8')
+path.write_text(text,encoding='utf-8', newline='\r\n')
 fragment=(here/'mbss-close-checked.inc').read_bytes()
 (out/'driver/include/wr-iot-mbss-close-checked.inc').write_bytes(fragment)
 records.append({'path':'include/wr-iot-mbss-close-checked.inc','stage':'mbss-checked-close','purpose':'driver','sha256':hashlib.sha256(fragment).hexdigest()})
@@ -271,7 +271,7 @@ text=text.replace(old,new,1)
 old='\tRTMP_AP_IoctlHandle(pAd, NULL, CMD_RTPRIV_IOCTL_MBSS_REMOVE, 0, NULL, 0);'
 new='\treturn RTMP_AP_IoctlHandle(pAd, NULL, CMD_RTPRIV_IOCTL_MBSS_REMOVE, 0, NULL, 0);'
 if text.count(old)!=1:raise SystemExit('Changed MBSS remove wrapper dispatch')
-path.write_text(text.replace(old,new,1),encoding='utf-8')
+path.write_text(text.replace(old,new,1),encoding='utf-8', newline='\r\n')
 for record in records:
     if record['path']=='ap/ap_mbss_inf.c':
         record['stage']+='+checked-remove-wrapper'
@@ -283,7 +283,7 @@ text=raw.decode('utf-8').replace('\r\n','\n')
 old='VOID RT28xx_MBSS_Remove(VOID *pAd);'
 if text.count(old)!=1:raise SystemExit('Changed MBSS OS declaration')
 path.parent.mkdir(parents=True,exist_ok=True)
-path.write_text(text.replace(old,'INT RT28xx_MBSS_Remove(VOID *pAd);',1),encoding='utf-8')
+path.write_text(text.replace(old,'INT RT28xx_MBSS_Remove(VOID *pAd);',1),encoding='utf-8', newline='\r\n')
 records.append({'path':'include/rt_os_net.h','stage':'checked-remove-wrapper',
                 'purpose':'driver','sha256':hashlib.sha256(path.read_bytes()).hexdigest()})
 
@@ -295,7 +295,7 @@ old='\tRT28xx_MBSS_Remove(pAd);'
 new='\tif (RT28xx_MBSS_Remove(pAd) != NDIS_STATUS_SUCCESS)\n\t\treturn FALSE;'
 if func.count(old)!=1:raise SystemExit('Changed physical-exit MBSS call')
 text=text.replace(func,func.replace(old,new,1),1)
-path.write_text(text,encoding='utf-8')
+path.write_text(text,encoding='utf-8', newline='\r\n')
 for record in records:
     if record['path']=='os/linux/rt_main_dev.c':
         record['stage']+='+checked-mbss-exit'
@@ -333,7 +333,7 @@ barrier=('\t\tif (IfNum > 0)\n'
          '\t\t\t/* avoid users do suspend after interface is down */')
 if func.count(anchor)!=1:raise SystemExit('Changed PCI suspend pre-mutation anchor')
 text=text.replace(func,func.replace(anchor,barrier,1),1)
-path.write_text(text,encoding='utf-8')
+path.write_text(text,encoding='utf-8', newline='\r\n')
 for record in records:
     if record['path']=='os/linux/pci_main_dev.c':
         record['stage']+='+pm-registration-fence'
@@ -377,7 +377,7 @@ submit='RT28xx_UpdateBeaconToAsic(pAd, apidx, FrameLen, UpdatePos);'
 if body.count(submit)!=1:raise SystemExit('Changed beacon submit call')
 body=body.replace(submit,'RT28xx_UpdateBeaconToAsic(pAd, apidx, FrameLen, UpdatePos, reservation);',1)
 text=head+body
-path.write_text(text,encoding='utf-8')
+path.write_text(text,encoding='utf-8', newline='\r\n')
 for record in records:
     if record['path']=='ap/ap_connect.c':
         record['stage']='radio-errors+beacon-generation-output'
@@ -395,7 +395,7 @@ new_proto=('typedef struct _WR_BCN_TXS_RESERVATION {\n\tUINT8 pid;\n\tUINT32 gen
            'VOID RT28xx_UpdateBeaconToAsic(\n\tIN RTMP_ADAPTER * pAd,\n\tIN INT apidx,\n'
            '\tIN ULONG BeaconLen,\n\tIN ULONG UpdatePos,\n'
            '\tIN WR_BCN_TXS_RESERVATION reservation);')
-text=text.replace(proto,new_proto,1);path.write_text(text,encoding='utf-8')
+text=text.replace(proto,new_proto,1);path.write_text(text,encoding='utf-8', newline='\r\n')
 for record in records:
     if record['path']=='include/rtmp.h':
         record['stage']='adapter+beacon-reservation-abi'
@@ -427,7 +427,7 @@ for name,expected in [('common/cmm_mac_pci.c',2),('common/cmm_mac_sdio.c',1)]:
             if func.count(anchor)!=1:raise SystemExit('Changed legacy beacon body')
             func=func.replace(anchor,'\t(void)reservation;\n\n'+anchor,1)
         text=text[:start]+func+text[end:]
-    path.write_text(text,encoding='utf-8')
+    path.write_text(text,encoding='utf-8', newline='\r\n')
     previous=next((r for r in records if r['path']==name),None)
     if previous:
         previous['stage']+=' + beacon-reservation-abi'
@@ -472,7 +472,7 @@ replace_mt('\t\tDBGPRINT(RT_DEBUG_ERROR, ("%s(): BeaconPkt is NULL!\\n", __FUNCT
            '\tif (pAd && reservation.generation &&\n'
            '\t    CancelTxSReservation(pAd, reservation.pid, reservation.generation) != 0)\n'
            '\t\tDBGPRINT(RT_DEBUG_ERROR, ("%s(): beacon TxS reservation could not be cancelled\\n", __FUNCTION__));\n}')
-text=text.replace(old,new,1);path.write_text(text,encoding='utf-8')
+text=text.replace(old,new,1);path.write_text(text,encoding='utf-8', newline='\r\n')
 for record in records:
     if record['path']==name:
         record['stage']+=' + locked-admission-and-pre-submit-cancel'
@@ -485,7 +485,7 @@ path=out/'driver/include/rtmp.h';text=path.read_text(encoding='utf-8')
 old='VOID RT28xx_UpdateBeaconToAsic(\n'
 if text.count(old)!=1:raise SystemExit('Changed submit declaration return')
 text=text.replace(old,'INT32 RT28xx_UpdateBeaconToAsic(\n',1)
-path.write_text(text,encoding='utf-8')
+path.write_text(text,encoding='utf-8', newline='\r\n')
 
 path=out/'driver/ap/ap_connect.c';text=path.read_text(encoding='utf-8')
 old='\tRT28xx_UpdateBeaconToAsic(pAd, apidx, FrameLen, UpdatePos, reservation);'
@@ -493,7 +493,7 @@ if text.count(old)!=1:raise SystemExit('Changed submit caller')
 text=text.replace(old,
     '\tif (RT28xx_UpdateBeaconToAsic(pAd, apidx, FrameLen, UpdatePos, reservation) != 0)\n'
     '\t\treturn;',1)
-path.write_text(text,encoding='utf-8')
+path.write_text(text,encoding='utf-8', newline='\r\n')
 
 path=out/'driver/common/cmm_mac_pci.c';text=path.read_text(encoding='utf-8')
 sig='VOID RT28xx_UpdateBeaconToAsic('
@@ -527,7 +527,7 @@ legacy=legacy.replace('return;','return -1;')
 if not legacy.endswith('\n}'):raise SystemExit('Changed legacy submit end')
 legacy=legacy[:-2]+'\n\treturn 0;\n}'
 text=text.replace(selected(text,sig),legacy,1)
-path.write_text(text,encoding='utf-8')
+path.write_text(text,encoding='utf-8', newline='\r\n')
 
 path=out/'driver/common/cmm_mac_sdio.c';text=path.read_text(encoding='utf-8')
 sig='VOID RT28xx_UpdateBeaconToAsic('
@@ -537,7 +537,7 @@ if func.count('\t(void)reservation;')!=1:raise SystemExit('Changed SDIO stub')
 func=func.replace('\t(void)reservation;',
                   '\t(void)reservation;\n\treturn -1;',1)
 text=text.replace(selected(text,sig),func,1)
-path.write_text(text,encoding='utf-8')
+path.write_text(text,encoding='utf-8', newline='\r\n')
 for record in records:
     if record['path'] in ('include/rtmp.h','ap/ap_connect.c','common/cmm_mac_pci.c','common/cmm_mac_sdio.c'):
         record['stage']+=' + submit-result-abi'
@@ -676,7 +676,7 @@ done:
 '''
 text=text.replace(selected(text,sig),dma+dma_query,1)
 path=out/'driver'/name;path.parent.mkdir(parents=True,exist_ok=True)
-path.write_text(text,encoding='utf-8')
+path.write_text(text,encoding='utf-8', newline='\r\n')
 records.append({'path':name,'stage':'pci-dma-map-failure-result+beacon-dma-bss-bound+per-cell-owner-reset+dma-snapshot',
                 'purpose':'driver','sha256':hashlib.sha256(path.read_bytes()).hexdigest()})
 name='include/rtmp.h';path=out/'driver'/name
@@ -684,7 +684,7 @@ header=path.read_text(encoding='utf-8')
 anchor='VOID RTMPHandleBcnDmaDoneInterrupt(RTMP_ADAPTER *pAd);'
 if header.count(anchor)!=1:raise SystemExit('Changed beacon DMA declaration')
 header=header.replace(anchor,anchor+'\n#ifdef CONFIG_AP_SUPPORT\nINT32 WrBeaconDmaOutstanding(RTMP_ADAPTER *pAd, UINT32 BssId);\n#endif',1)
-path.write_text(header,encoding='utf-8')
+path.write_text(header,encoding='utf-8', newline='\r\n')
 matches=[record for record in records if record['path']==name]
 if len(matches)!=1:raise SystemExit('Missing adapter header record for DMA snapshot')
 matches[0]['stage']+=' + dma-snapshot-declaration'
@@ -697,7 +697,7 @@ path=out/'driver/common/rtmp_init.c'
 text=path.read_text(encoding='utf-8');anchor='\t\t\t\t\t\tMlmePeriodicExec(pAd, cmdqelmt);'
 if text.count(anchor)!=1:raise SystemExit('Changed periodic MLME dispatch hook')
 text=text.replace(anchor,anchor+'\n#if defined(MT7603) && defined(DMA_RESET_SUPPORT)\n\t\t\t\t\t\twr_iot_radio_reset_drain(pAd);\n#endif',1)
-path.write_text(text,encoding='utf-8')
+path.write_text(text,encoding='utf-8', newline='\r\n')
 for record in records:
     if record['path']=='common/rtmp_init.c':
         record['stage']='queue+adapter+reset-retry'
@@ -723,7 +723,7 @@ text=text.replace(free_anchor,
     '#if defined(MT_MAC) && defined(CONFIG_AP_SUPPORT)\n'+inner+'#endif\n\n'+free_anchor,1)
 if text.count(block)!=1:raise SystemExit('Changed non-PCI beacon cleanup block')
 text=text.replace(block,'#ifndef RTMP_MAC_PCI\n'+block+'#endif /* !RTMP_MAC_PCI */\n',1)
-path.write_text(text,encoding='utf-8')
+path.write_text(text,encoding='utf-8', newline='\r\n')
 for record in records:
     if record['path']==name:
         record['stage']+=' + main-beacon-deinit-before-lock-free'
@@ -751,7 +751,7 @@ func=func.replace(anchor,anchor+
     '#ifdef RTMP_MAC_PCI\n\t\tRTMP_IRQ_UNLOCK(&pAd->BcnRingLock, BcnFlags);\n#endif\n',1)
 text=text.replace(selected(text,sig),func,1)
 path=out/'driver'/name;path.parent.mkdir(parents=True,exist_ok=True)
-path.write_text(text,encoding='utf-8')
+path.write_text(text,encoding='utf-8', newline='\r\n')
 records.append({'path':name,'stage':'beacon-stop-state-lock',
                 'purpose':'driver','sha256':hashlib.sha256(path.read_bytes()).hexdigest()})
 # Serialize the PCI AP start/stop beacon-state writes with DMA, TxS and deinit.
@@ -778,7 +778,7 @@ for signature in ('VOID APStartUp(RTMP_ADAPTER *pAd)',
         '\t\tRTMP_IRQ_UNLOCK(&pAd->BcnRingLock, BcnFlags);\n#endif\n',1)
     text=text.replace(selected(text,signature),func,1)
 path=out/'driver'/name;path.parent.mkdir(parents=True,exist_ok=True)
-path.write_text(text,encoding='utf-8')
+path.write_text(text,encoding='utf-8', newline='\r\n')
 records.append({'path':name,'stage':'ap-start-stop-beacon-state-lock',
                 'purpose':'driver','sha256':hashlib.sha256(path.read_bytes()).hexdigest()})
 # The radio-error stage already holds BcnRingLock across final HW restart and
@@ -798,7 +798,7 @@ if func.count(anchor)!=1 or func.count('\tRTMP_SEM_UNLOCK(&pAd->BcnRingLock);')<
 func=func.replace(anchor,anchor+
     '\t    pMbss->bcn_buf.bcn_state == BCN_TX_STOP ||\n',1)
 text=text.replace(selected(text,sig),func,1)
-path.write_text(text,encoding='utf-8')
+path.write_text(text,encoding='utf-8', newline='\r\n')
 matches=[record for record in records if record['path']==name]
 if len(matches)!=1:raise SystemExit('Missing single radio-error recovery record')
 matches[0]['stage']+=' + beacon-recovery-stop-guard'
@@ -866,7 +866,7 @@ text=text.replace(remove_case,
     '\t\tcase CMD_RTPRIV_IOCTL_MBSS_REMOVE:\n'
     '\t\t\tif (MBSS_Remove(pAd) != NDIS_STATUS_SUCCESS)\n'
     '\t\t\t\treturn NDIS_STATUS_FAILURE;',1)
-path.write_text(text,encoding='utf-8')
+path.write_text(text,encoding='utf-8', newline='\r\n')
 matches=[record for record in records if record['path']==name]
 if len(matches)!=1:raise SystemExit('Missing single radio-error AP config record')
 matches[0]['stage']+=' + beacon-debug-bound-and-lock + checked-mbss-remove-result'
@@ -937,7 +937,7 @@ func=func.replace(kick,
     '\t\tHAL_KickOutMgmtTx(pAd, Q_IDX_BCN, pkt, buf, len);',1)
 text=text.replace(selected(text,sig),func,1)
 path=out/'driver'/name;path.parent.mkdir(parents=True,exist_ok=True)
-path.write_text(text,encoding='utf-8')
+path.write_text(text,encoding='utf-8', newline='\r\n')
 records.append({'path':name,'stage':'tim-locked-bss-admission',
                 'purpose':'driver','sha256':hashlib.sha256(path.read_bytes()).hexdigest()})
 for name,data in originals.items():

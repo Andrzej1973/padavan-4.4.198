@@ -133,6 +133,6 @@ int main(void){
 '''
 if a.input.read_bytes()!=data:
     raise SystemExit('Input changed')
-a.candidate.write_text(candidate,encoding='utf-8')
-a.fixture.write_text(fixture,encoding='utf-8')
+a.candidate.write_text(candidate,encoding='utf-8', newline='\r\n')
+a.fixture.write_text(fixture,encoding='utf-8', newline='\r\n')
 print('Prepared isolated MBSS open-status/reference repair; production and radio recovery unmodified')

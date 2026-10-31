@@ -183,5 +183,5 @@ int main(void){
 }
 '''
 if a.input.read_bytes()!=d:raise SystemExit('Input changed')
-a.candidate.write_text(s[:start]+f+s[end:],encoding='utf-8')
-a.fixture.write_text(prefix+f+tail,encoding='utf-8')
+a.candidate.write_text(s[:start]+f+s[end:],encoding='utf-8', newline='\r\n')
+a.fixture.write_text(prefix+f+tail,encoding='utf-8', newline='\r\n')

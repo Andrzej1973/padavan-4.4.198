@@ -103,7 +103,7 @@ out.mkdir()
 for name, text in updated.items():
     target = out/name
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(text, encoding='utf-8')
+    target.write_text(text, encoding='utf-8', newline='\r\n')
 def function(text, signature):
     if text.count(signature) != 1:
         raise SystemExit('Changed function: '+signature)
@@ -189,5 +189,5 @@ int main(void){
  return 0;
 }
 '''
-(out/'check.c').write_text(fixture, encoding='utf-8')
+(out/'check.c').write_text(fixture, encoding='utf-8', newline='\r\n')
 print('Staged pinned failed-open rollback candidate; production source unchanged')

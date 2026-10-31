@@ -144,12 +144,12 @@ records = []
 for name, text in texts.items():
     target = out / name
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(text, encoding='utf-8')
+    target.write_text(text, encoding='utf-8', newline='\r\n')
     records.append({'path': name, 'original_git_blob': identities[name],
                     'candidate_sha256': hashlib.sha256(target.read_bytes()).hexdigest()})
 parser = Path(__file__).with_name('radio-result.h').read_bytes()
 (out / 'mcu/wr-iot-radio-result.h').write_bytes(parser)
-(out / 'checked-ack-branch.inc').write_text(branch, encoding='utf-8')
+(out / 'checked-ack-branch.inc').write_text(branch, encoding='utf-8', newline='\r\n')
 (out / 'manifest.json').write_text(json.dumps({
     'production_installed': False, 'command_issuer_bound': False,
     'target_compiled': False, 'lifecycle_exclusion_proven': False,

@@ -45,8 +45,8 @@ unit = signature + function + wrappers
 if src.read_bytes() != data:
     raise SystemExit('Source changed')
 (out / 'common').mkdir(parents=True)
-(out / 'common/cmm_cmd.c').write_text(text[:start]+unit+text[end:], encoding='utf-8')
-(out / 'checked-enqueue.inc').write_text(unit, encoding='utf-8')
+(out / 'common/cmm_cmd.c').write_text(text[:start]+unit+text[end:], encoding='utf-8', newline='\r\n')
+(out / 'checked-enqueue.inc').write_text(unit, encoding='utf-8', newline='\r\n')
 (out / 'manifest.json').write_text(json.dumps({
  'original_git_blob': blob, 'production_installed': False,
  'issuer_bound': False, 'queued_result_lifetime_proven': False,
