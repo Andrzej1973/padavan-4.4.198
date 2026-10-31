@@ -1,0 +1,16 @@
+{
+  "scope": "explicit timer join API with injected Linux/task/queue operations",
+  "stage": 35,
+  "passed": true,
+  "composed_variants": 23,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "lifecycle_accepted": false,
+  "peer_cleanup_bound": false,
+  "task_wait_bounded_ms": 5000,
+  "del_timer_sync_has_timeout": false,
+  "receipt": {
+    "path": ".iot-local-check\\timer-checked-join35-checks-20261030\\result.json",
+    "sha256": "e378cdbccd4eb5d46b48f7e6156c0e5f0e5d292329dc4e6b1ed7fc82fcd876c9"
+  }
+}

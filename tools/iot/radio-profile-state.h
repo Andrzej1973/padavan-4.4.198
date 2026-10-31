@@ -7,13 +7,15 @@
 #include <sys/types.h>
 #include "saved-bundle.h"
 #include "service-guard.h"
+#include "profile.h"
+#include "profile-scan.h"
 #ifndef WR_IOT_RADIO_PROFILE_PATH
 #define WR_IOT_RADIO_PROFILE_PATH "/etc/Wireless/RT2860/RT2860AP.dat"
 #endif
 struct wr_iot_radio_profile_state {
  struct wr_iot_saved_bundle files;
  struct wr_iot_generated_file restored_file;
- int active,generated,recovering,recovered;
+ int active,generated,recovering,recovered,removing;
  pid_t owner;
 };
 static inline int wr_iot_radio_profile_guard(void){
@@ -28,8 +30,22 @@ static inline int wr_iot_radio_profile_take(struct wr_iot_radio_profile_state *s
  const char *paths[]={WR_IOT_RADIO_PROFILE_PATH};
  if(!s||s->active||s->files.count||!wr_iot_radio_profile_guard()||
     !wr_iot_bundle_capture(&s->files,paths,1))return 0;
- s->active=1;s->generated=0;s->recovering=0;s->recovered=0;s->owner=getpid();
+ s->active=1;s->generated=0;s->recovering=0;s->recovered=0;s->removing=0;s->owner=getpid();
  return 1;
+}
+/* Cancel only a read-only capture. Releases private memory, never writes the
+ * profile, so a lost external guard does not require retaining these bytes. */
+static inline int wr_iot_radio_profile_cancel(struct wr_iot_radio_profile_state *s){
+ if(!s||!s->active||s->owner!=getpid()||s->generated||s->recovering||s->removing||
+    s->files.journalled||s->files.dirty||s->files.pending)return 0;
+ wr_iot_bundle_release(&s->files);memset(s,0,sizeof(*s));return 1;
+}
+static inline int wr_iot_radio_profile_can_remove(struct wr_iot_radio_profile_state *s,
+ const char *ssid,const char *password){
+ return wr_iot_radio_profile_owned(s)&&s->files.count==1&&!s->files.journalled&&
+  !s->generated&&!s->recovering&&!s->removing&&s->files.saved[0].existed&&
+  wr_iot_generated_matches(&s->files.generated[0],s->files.paths[0])&&
+  wr_iot_profile_disable_buffer(s->files.saved[0].data,s->files.saved[0].size,ssid,password);
 }
 /* generate returns the actual RC generator convention: zero means success.
  * Record the resulting file even when generation reports a partial failure.
@@ -37,15 +53,46 @@ static inline int wr_iot_radio_profile_take(struct wr_iot_radio_profile_state *s
 static inline int wr_iot_radio_profile_generate(struct wr_iot_radio_profile_state *s,
  int (*generate)(int)){
  int result;
- if(!wr_iot_radio_profile_owned(s)||!generate||s->generated||s->files.journalled||s->recovering||
+ if(!wr_iot_radio_profile_owned(s)||!generate||s->generated||s->files.journalled||s->recovering||s->removing||
     !wr_iot_bundle_write_begin(&s->files,0))return 0;
  result=generate(0);
  if(!wr_iot_bundle_write_end(&s->files,0))return 0;
  if(result||!wr_iot_bundle_seal(&s->files))return 0;
  s->generated=1;return 1;
 }
+/* Normal OFF transforms CURRENT profile; never replays the startup baseline.
+ * Removal's 0 return guarantees no committed rename. Retry only if the input
+ * still matches the pre-attempt generation; uncertainty retains the snapshot. */
+static inline int wr_iot_radio_profile_remove_owned(struct wr_iot_radio_profile_state *s,
+ const char *ssid,const char *password){
+ struct wr_iot_generated_file before;int result;
+ if(!wr_iot_radio_profile_owned(s)||s->files.count!=1||s->recovering||!ssid||!password)return 0;
+ if(s->generated)return s->removing&&wr_iot_generated_matches(&s->files.generated[0],s->files.paths[0]);
+ if(s->files.journalled)return 0;
+ before=s->files.generated[0];
+ if(!wr_iot_bundle_write_begin(&s->files,0))return 0;
+ s->removing=1;
+ result=wr_iot_profile_remove(s->files.paths[0],ssid,password);
+ if(!wr_iot_bundle_write_end(&s->files,0))return 0;
+ if(result!=1){
+  if(wr_iot_generated_matches(&before,s->files.paths[0])){
+   s->files.journalled=0;s->files.dirty=0;s->files.pending=0;
+  }
+  return 0;
+ }
+ if(!wr_iot_bundle_seal(&s->files))return 0;
+ s->generated=1;return 1;
+}
+/* Only after the outer OFF controller observes radio/profile/service success.
+ * This releases a current normal-OFF baseline without restoring IoT fields. */
+static inline int wr_iot_radio_profile_commit_removed(struct wr_iot_radio_profile_state *s){
+ if(!wr_iot_radio_profile_owned(s)||!s->removing||!s->generated||s->recovering||
+    s->files.count!=1||!s->files.sealed||
+    !wr_iot_generated_matches(&s->files.generated[0],s->files.paths[0]))return 0;
+ wr_iot_bundle_release(&s->files);memset(s,0,sizeof(*s));return 1;
+}
 static inline int wr_iot_radio_profile_restore(struct wr_iot_radio_profile_state *s){
- if(!wr_iot_radio_profile_owned(s))return 0;
+ if(!wr_iot_radio_profile_owned(s)||s->removing)return 0;
  if(s->recovered)return wr_iot_generated_matches(&s->restored_file,s->files.paths[0]);
  s->recovering=1;s->recovered=0;
  /* Failure before generation made no owned file writes. */

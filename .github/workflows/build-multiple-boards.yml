@@ -1,5 +1,5 @@
 name: Build selected router firmware
-run-name: TEST Padavan 4.4.198 — build ${{ github.run_number }}
+run-name: Padavan 4.4.198 — build ${{ github.run_number }}
 on:
   pull_request:
     branches: [main]
@@ -15,11 +15,24 @@ on:
         description: Run additional isolated experimental compilations
         type: boolean
         default: false
+      candidate_scope:
+        description: Which isolated candidates to compile when checks are enabled
+        type: choice
+        options: [iot, all]
+        default: iot
+      iot_candidate_variant:
+        description: Isolated IoT candidate to compile when checks are enabled
+        type: choice
+        options: [legacy, v39, v40, v41, v42]
+        default: legacy
   push:
     branches: [main]
     paths:
       - '.github/workflows/build-multiple-boards.yml'
       - '.github/workflows/build-padavan-4.4-wr1200js.yml'
+      - 'tools/check-inherited-dict-localization.py'
+      - 'tools/check-settings-backup-behavior.js'
+      - 'tools/prepare-flash-save-feedback.py'
       - 'configs.build/wr1200js.config'
       - 'tools/tmp-upload/**'
       - 'tools/generate-router-guide.py'
@@ -66,6 +79,8 @@ on:
       - 'tools/check-zerotier-state.py'
       - 'tools/check-target-busybox.py'
       - 'tools/check-target-busybox-map.py'
+      - 'tools/check-qos-packaging.py'
+      - 'tools/target_busybox_service_map.py'
       - 'tools/check-privoxy-target-config.py'
       - 'tools/prepare-target-busybox.py'
       - 'tools/prepare-ssh-status.py'
@@ -74,6 +89,9 @@ on:
       - 'tools/prepare-discovery-status.py'
       - 'tools/check-discovery-status.py'
       - 'tools/verify-discovery-status-image.py'
+      - 'tools/prepare-wr1200js-cpu-watchdog.py'
+      - 'tools/check-wr1200js-cpu-watchdog.py'
+      - 'tools/verify-wr1200js-cpu-watchdog-image.py'
       - 'overlay/padavan-4.4/ports/ssh/verify-image.py'
       - 'tools/prepare-iperf3-status.py'
       - 'tools/prepare-privoxy-status.py'
@@ -251,6 +269,9 @@ on:
       - 'tools/band-steering/prepare-quiet-status-log.py'
 permissions:
   contents: read
+concurrency:
+  group: firmware-${{ github.ref }}
+  cancel-in-progress: false
 jobs:
   select:
     runs-on: ubuntu-24.04
@@ -274,6 +295,8 @@ jobs:
     uses: ./.github/workflows/build-padavan-4.4-wr1200js.yml
     with:
       run_candidate_checks: ${{ inputs.run_candidate_checks || false }}
+      candidate_scope: ${{ inputs.candidate_scope || 'iot' }}
+      iot_candidate_variant: ${{ inputs.iot_candidate_variant || 'legacy' }}
   downloads:
     if: always() && needs.select.result == 'success'
     needs: [select, build]

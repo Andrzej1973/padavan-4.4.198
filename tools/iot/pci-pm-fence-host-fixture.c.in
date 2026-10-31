@@ -1,0 +1,45 @@
+#include "radio-transition.h"
+#include <assert.h>
+#include <errno.h>
+typedef unsigned long ULONG;
+typedef int INT;
+typedef struct {int wr_iot_transition_lock;struct wr_iot_radio_transition wr_iot_transition;} RTMP_ADAPTER;
+#define HZ 100
+static int held,wait_result,wait_calls,mutations,inject_reset;
+#define RTMP_IRQ_LOCK(lock,flags) ((flags)=0,assert(!held),held=1,(void)(lock))
+#define RTMP_IRQ_UNLOCK(lock,flags) ((void)(flags),(void)(lock),assert(held),held=0)
+static int wr_iot_wait_registration_idle(RTMP_ADAPTER *a,unsigned long timeout){
+ assert(!held&&a&&timeout==2*HZ);wait_calls++;
+ if(inject_reset)wr_iot_radio_request_reset(&a->wr_iot_transition);
+ return wait_result;
+}
+static int simulated_pci_suspend(RTMP_ADAPTER *adapter){
+ void *pAd=adapter;
+ {
+@@PCI_PM_FENCE@@
+  assert(!held);mutations++;
+ }
+ return 0;
+}
+static void ready(RTMP_ADAPTER *a){
+ wr_iot_radio_transition_init(&a->wr_iot_transition);
+ a->wr_iot_transition.phase=WR_RADIO_READY;
+ a->wr_iot_transition.main_ready=1;
+}
+int main(void){
+ RTMP_ADAPTER a={0};
+ ready(&a);wait_result=-1;
+ assert(simulated_pci_suspend(&a)==-EBUSY);
+ assert(!mutations&&wait_calls==1&&!held);
+ assert(a.wr_iot_transition.phase==WR_RADIO_READY);
+ ready(&a);wait_result=0;
+ assert(simulated_pci_suspend(&a)==0);
+ assert(mutations==1&&wait_calls==2&&!held);
+ assert(a.wr_iot_transition.pm_suspending);
+ ready(&a);wait_result=-1;inject_reset=1;
+ assert(simulated_pci_suspend(&a)==-EBUSY);
+ assert(mutations==1&&wait_calls==3&&!held);
+ assert(a.wr_iot_transition.pm_suspending);
+ assert(a.wr_iot_transition.reset_pending);
+ return 0;
+}

@@ -5,6 +5,7 @@
 #include "dns-config.h"
 #include "dhcp-ready.h"
 #include "dns-sockets.h"
+#include "bridge.h"
 #ifndef WR_IOT_DNS_CONFIG_PATH
 #define WR_IOT_DNS_CONFIG_PATH "/etc/dnsmasq.conf"
 #endif
@@ -42,6 +43,17 @@ static int wr_iot_restart_socket_ready(unsigned int port,int dhcp4,unsigned int 
 static struct wr_iot_service_state wr_iot_restart_state;
 static int wr_iot_restart_active,wr_iot_restart_guard,wr_iot_restart_bound;
 static int wr_iot_restart_prepared;
+static int wr_iot_restart_disabling;
+#ifndef WR_IOT_DISABLE_READY
+static int wr_iot_restart_disable_ready(void)
+{
+ return nvram_match("wr_iot_profile_t","0")&&
+        nvram_match("wr_iot_network_t","0")&&
+        nvram_match("wr_iot_firewall_t","0")&&
+        (!if_nametoindex("br-iot")||wr_iot_bridge_is_owned())&&wr_iot_bss_is_down();
+}
+#define WR_IOT_DISABLE_READY wr_iot_restart_disable_ready
+#endif
 static int wr_iot_restart_old_running,wr_iot_restart_stopped_candidate;
 static unsigned int wr_iot_restart_old_port,wr_iot_restart_old_dhcp_port;
 static int wr_iot_restart_old_dhcp4;
@@ -81,6 +93,7 @@ static int wr_iot_restart_finish(void)
  wr_iot_saved_release(&wr_iot_restart_lease);
  wr_iot_restart_active=0;
  wr_iot_restart_prepared=0;
+ wr_iot_restart_disabling=0;
  wr_iot_service_guard_leave(wr_iot_restart_guard);wr_iot_restart_guard=0;
  return 1;
 }
@@ -180,11 +193,13 @@ int wr_iot_dns_activation_prepare(void)
  close(guard);
  return wr_iot_restart_transaction_mode(1);
 }
-int wr_iot_dns_activation_commit(void)
+static int wr_iot_dns_activation_ready(void)
 {
  unsigned int port,dhcp_port;int dhcp4,guard;char gateway[16]={0};size_t i;
  if(!wr_iot_restart_active||!wr_iot_restart_prepared)return 0;
  guard=wr_iot_service_guard_dup();if(guard<0)return 0;close(guard);
+ if(wr_iot_restart_disabling&&(!WR_IOT_DISABLE_READY()||
+    !wr_iot_dns_config_without_owned_iot(WR_IOT_DNS_CONFIG_PATH)))return 0;
  if(wr_iot_writer_journal_failed()||
     !wr_iot_service_lock_valid(&wr_iot_restart_state.transaction.lock,WR_IOT_SERVICE_LOCK_PATH))return 0;
  for(i=0;i<wr_iot_restart_state.transaction.files.count;i++)
@@ -193,6 +208,11 @@ int wr_iot_dns_activation_commit(void)
  if(!wr_iot_dns_config_services_at(WR_IOT_DNS_CONFIG_PATH,&port,&dhcp4,&dhcp_port)||
     ((port||dhcp4)&&!WR_IOT_DHCP_GATEWAY(IFNAME_BR,gateway)&&dhcp4)||
     !wr_iot_restart_service_wait(port,dhcp4,dhcp_port,gateway)||!WR_IOT_CANDIDATE_READY())return 0;
+ return 1;
+}
+int wr_iot_dns_activation_commit(void)
+{
+ if(!wr_iot_dns_activation_ready())return 0;
  return wr_iot_restart_finish();
 }
 int wr_iot_dns_activation_abort(void)
@@ -202,5 +222,28 @@ int wr_iot_dns_activation_abort(void)
  guard=wr_iot_service_guard_dup();if(guard<0)return 0;close(guard);
  wr_iot_restart_prepared=0;
  return wr_iot_restart_recover();
+}
+int wr_iot_dns_disable_prepare(void)
+{
+ int guard,result;
+ guard=wr_iot_service_guard_dup();if(guard<0)return EBUSY;close(guard);
+ if(!WR_IOT_DISABLE_READY())return EINVAL;
+ if(wr_iot_restart_active){
+  if(!wr_iot_restart_disabling||!wr_iot_restart_prepared)return EBUSY;
+  /* Retry observation of this prepared OFF transaction without replacing
+   * its baseline, stopping the daemon again or regenerating any files. */
+  return wr_iot_dns_activation_ready()?0:EIO;
+ }
+ /* Capture CURRENT files/leases before regeneration. Leave the normal OFF
+  * controller's quarantine and radio teardown intact on service failure. */
+ result=wr_iot_restart_transaction_mode(1);
+ if(result)return result;
+ wr_iot_restart_disabling=1;
+ return wr_iot_dns_activation_ready()?0:EIO;
+}
+int wr_iot_dns_disable_commit(void)
+{
+ if(!wr_iot_restart_disabling)return 0;
+ return wr_iot_dns_activation_commit();
 }
 #endif

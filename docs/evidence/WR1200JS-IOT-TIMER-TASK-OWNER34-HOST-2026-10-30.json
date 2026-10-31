@@ -1,0 +1,22 @@
+{
+  "scope": "adapter-owned timer task execution tracking, injected host tests",
+  "stage": 34,
+  "passed": true,
+  "variants": {
+    "composed": 17,
+    "extracted": 25
+  },
+  "timer_join_accepted": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "receipts": {
+    "composed": {
+      "path": ".iot-local-check\\timer-task-owner34-checks-20261030\\result.json",
+      "sha256": "52c5b0e599559d1581de85be3bae421a386f2a402b8996c38fcb2e80a5f43946"
+    },
+    "extracted": {
+      "path": ".iot-local-check\\timer-task-owner34-chain-checks-20261030\\result.json",
+      "sha256": "66353a7d84e6e3454a8a500804a95c2818ae00fd8af7d6445c8c15607c08ce57"
+    }
+  }
+}

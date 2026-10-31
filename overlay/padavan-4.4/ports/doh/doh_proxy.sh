@@ -6,6 +6,7 @@ piddir=/var/run/doh-proxy
 ca=/usr/share/doh-proxy/cacert.pem
 
 fail() { logger -t DoH "$*"; return 1; }
+DNS_LISTENER_GUARD=/usr/bin/doh-dns-listener-guard.sh
 owned_pid()
 {
     test -f "$1" || return 1
@@ -58,6 +59,9 @@ start_service()
         count=$((count + 1))
     done
     test "$count" -gt 0 || { fail 'No resolver configured'; return 1; }
+    test -r "$DNS_LISTENER_GUARD" || { fail 'DNS listener conflict checker is missing'; return 1; }
+    . "$DNS_LISTENER_GUARD"
+    wr_dns_listener_conflict doh "$address" "$port" || { fail "Cannot safely start DoH on $address:$port: Stubby listener conflicts or its configuration is invalid"; return 1; }
     for index in 0 1 2 3; do
         if owned_pid "$piddir/$index.pid"; then
             fail 'Already running; use restart to apply settings'; return 1

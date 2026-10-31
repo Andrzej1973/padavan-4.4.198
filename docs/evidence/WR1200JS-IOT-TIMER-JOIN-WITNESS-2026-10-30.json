@@ -1,0 +1,30 @@
+{
+  "defect_reproduced": true,
+  "timer_join_accepted": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "scope": "actual extracted branch with injected kernel timer states; not on-device race execution",
+  "source": "os/linux/rt_linux.c",
+  "source_line": 186,
+  "source_sha256": "675d9800e462a161d28cc07bc36356a8f6a34ab5f051d8987245fa2b33bb2974",
+  "extracted_sha256": "3421f92e5e6fbc523e7e928cb2dd104479df3d29b780671b99b5ad4f4920aa64",
+  "finding": "running + not pending returns cancelled TRUE without del_timer_sync",
+  "next": "process-context unconditional join with rearm fencing, timer-task running callback drain and caller lock audit",
+  "additional_source_findings": [
+    {
+      "source": "common/rtmp_init.c",
+      "function": "RTMPReleaseTimer",
+      "finding": "releases TimerSemLock before OS deletion; caller MacTabLock is not released here"
+    },
+    {
+      "source": "common/rtmp_timer.c",
+      "function": "RtmpTimerQThread",
+      "finding": "pops timer from queue under TimerQLock, invokes handle after unlock, may rearm Repeat/State timer"
+    },
+    {
+      "source": "common/rtmp_timer.c",
+      "function": "RtmpTimerQRemove",
+      "finding": "removes queued node only; no executing-handler ownership/join observed"
+    }
+  ]
+}

@@ -39,4 +39,24 @@ with tempfile.TemporaryDirectory(prefix='wr-eoip-image-') as directory:
     write('usr/sbin/httpd', http)
     write('www/UK.dict', dictionary + (sorted(keys)[0]+'=duplicate\n').encode())
     assert subprocess.run(command, capture_output=True).returncode != 0
-print('PASS EoIP image gate fixture: complete inputs accepted, missing HTTP marker and duplicate label rejected')
+    excluded = root/'excluded-romfs'
+    (excluded/'www').mkdir(parents=True)
+    (excluded/'usr/sbin').mkdir(parents=True)
+    (excluded/'www/Advanced_Services_Content.asp').write_bytes(b'<div>Services</div>')
+    (excluded/'usr/sbin/httpd').write_bytes(b'httpd')
+    requested = root/'requested.config'
+    effective = root/'effective.config'
+    requested.write_text('#CONFIG_FIRMWARE_INCLUDE_EOIP=y\n')
+    effective.write_text('# CONFIG_FIRMWARE_INCLUDE_EOIP is not set\n')
+    excluded_report = root/'excluded-report.json'
+    excluded_command = [sys.executable, str(here/'verify-excluded.py'), str(excluded),
+                        str(requested), str(effective), '--report', str(excluded_report)]
+    subprocess.run(excluded_command, check=True, capture_output=True)
+    report = json.loads(excluded_report.read_text())
+    assert report['image_verified'] is True and report['feature_selected'] is False
+    effective.write_text('CONFIG_FIRMWARE_INCLUDE_EOIP=y\n')
+    assert subprocess.run(excluded_command, capture_output=True).returncode != 0
+    effective.write_text('# CONFIG_FIRMWARE_INCLUDE_EOIP is not set\n')
+    (excluded/'www/Advanced_Services_EoIP.asp').write_text('leaked optional page')
+    assert subprocess.run(excluded_command, capture_output=True).returncode != 0
+print('PASS EoIP image gates: selected image integrity, disabled-image absence and rejection cases')

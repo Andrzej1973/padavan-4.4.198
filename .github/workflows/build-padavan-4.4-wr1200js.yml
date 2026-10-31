@@ -8,6 +8,14 @@ on:
         description: Compile isolated experimental candidates after firmware verification
         type: boolean
         default: false
+      candidate_scope:
+        description: Select IoT only or the full isolated candidate suite
+        type: string
+        default: iot
+      iot_candidate_variant:
+        description: Isolated MT7603 source overlay selected for candidate compilation
+        type: string
+        default: legacy
 
 permissions:
   contents: read
@@ -28,8 +36,27 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Validate optional candidate selection
+        if: ${{ inputs.run_candidate_checks }}
+        env:
+          CANDIDATE_SCOPE: ${{ inputs.candidate_scope }}
+        run: |
+          case "$CANDIDATE_SCOPE" in
+            iot|all) ;;
+            *) echo "Unsupported candidate scope: $CANDIDATE_SCOPE" >&2; exit 1 ;;
+          esac
+
       - name: Check WebUI route verifier regressions before compilation
         run: python3 tools/check-web-routes-test.py
+
+      - name: Check unified service navigation image gate before compilation
+        run: python3 tools/services-nav/check-verifier.py
+
+      - name: Check WR1200JS unsupported CPU watchdog exclusion before compilation
+        run: python3 tools/check-wr1200js-cpu-watchdog.py
+
+      - name: Check inherited dictionary localization transform before compilation
+        run: python3 tools/check-inherited-dict-localization.py
 
       - name: Check ZeroTier status semantics before compilation
         run: python3 tools/check-zerotier-state.py --cc gcc
@@ -48,16 +75,27 @@ jobs:
       - name: Check discovery status generator before firmware compilation
         run: python3 tools/check-discovery-status.py --output "$RUNNER_TEMP/wr1200js-discovery-fixture"
 
+      - name: Check EoIP selected and excluded image gates before compilation
+        run: python3 tools/eoip/check-image.py
+
       - name: Check exact-image BusyBox service map before firmware compilation
         run: python3 tools/check-target-busybox-map.py
+
+      - name: Check QoS tc packaging selections before firmware compilation
+        run: python3 tools/check-qos-packaging.py
+
+      - name: Select daily compiler cache key
+        id: cache_day
+        run: echo "day=$(date -u +%Y%m%d)" >> "$GITHUB_OUTPUT"
 
       - name: Restore compiler cache
         id: compiler_cache
         uses: actions/cache/restore@v6
         with:
           path: ${{ env.CCACHE_DIR }}
-          key: wr1200js-ccache-v1-${{ runner.os }}-uclibc-${{ github.run_id }}-${{ github.run_attempt }}
+          key: wr1200js-ccache-v2-${{ runner.os }}-uclibc-${{ steps.cache_day.outputs.day }}
           restore-keys: |
+            wr1200js-ccache-v2-${{ runner.os }}-uclibc-
             wr1200js-ccache-v1-${{ runner.os }}-uclibc-
 
       - name: Configure compiler cache
@@ -111,6 +149,8 @@ jobs:
           python3 tools/wan-port/verify-service-integration.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/integrate-vpn-profiles.py padavan-4.4
           python3 tools/vpn-profiles/prepare-storage-permissions.py padavan-4.4
+          python3 tools/zapret2/prepare-package.py padavan-4.4 \
+            --config configs.build/wr1200js.config
           python3 overlay/padavan-4.4/scripts/allow-vpn-management.py padavan-4.4
           python3 tools/wan-port/prepare-web.py padavan-4.4
           node tools/wan-port/check-web.js padavan-4.4
@@ -159,6 +199,7 @@ jobs:
           python3 overlay/padavan-4.4/ports/sqm/prepare-lifecycle.py padavan-4.4
           python3 overlay/padavan-4.4/ports/sqm/prepare-web.py padavan-4.4
           python3 overlay/padavan-4.4/ports/sqm/prepare-packaging.py padavan-4.4
+          python3 overlay/padavan-4.4/ports/qos/prepare-packaging.py padavan-4.4
           sh -n padavan-4.4/trunk/user/sqm-qos/scripts/run.sh
           python3 overlay/padavan-4.4/scripts/add-amneziawg-nvram.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/add-amneziawg-lifecycle.py padavan-4.4
@@ -171,6 +212,9 @@ jobs:
           python3 overlay/padavan-4.4/scripts/add-amneziawg-pages.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/localize-wireguard-page.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/localize-inherited-dicts.py padavan-4.4
+          python3 tools/prepare-flash-save-feedback.py padavan-4.4
+          python3 tools/wifi-capabilities/apply-board-capabilities.py padavan-4.4 \
+            --manifest tools/wifi-capabilities/boards/wr1200js.json
           # The AmneziaWG step above replaces vpncli.asp wholesale, so the
           # stored-profile table must be injected after every page copy.
           python3 tools/vpn-profiles/prepare-web.py padavan-4.4
@@ -210,6 +254,7 @@ jobs:
           python3 tools/prepare-ssh-status.py padavan-4.4
           python3 tools/prepare-cron-status.py padavan-4.4
           python3 tools/prepare-discovery-status.py padavan-4.4
+          python3 tools/prepare-wr1200js-cpu-watchdog.py padavan-4.4
           python3 tools/prepare-vpn-interface-status.py padavan-4.4
           cp overlay/padavan-4.4/trunk/user/rp-l2tp/Makefile \
             padavan-4.4/trunk/user/rp-l2tp/Makefile
@@ -434,7 +479,7 @@ jobs:
           set -euo pipefail
           enabled=n
           if grep -qx 'CONFIG_FIRMWARE_INCLUDE_WR_BAND_STEERING=y' configs.build/wr1200js.config; then
-            compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+            compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
             test -n "$compiler"
             python3 tools/band-steering/prepare-source-integration.py padavan-4.4 \
               --config configs.build/wr1200js.config --compiler "$compiler"
@@ -451,9 +496,9 @@ jobs:
           python3 tools/connected-devices/prepare-rssi-removal.py padavan-4.4
           python3 tools/connected-devices/prepare-rssi-query.py padavan-4.4
 
-      - name: Disable WR wireless offload while preserving wired NAT
+      - name: Keep wireless offload manually selectable with LAN-only factory default
         run: |
-          python3 tools/prepare-wifi-hwnat-mode.py padavan-4.4 --lan-only-default --disable-wifi-offload
+          python3 tools/prepare-wifi-hwnat-mode.py padavan-4.4 --lan-only-default
           python3 tools/prepare-wifi-hwnat-ui.py padavan-4.4
           grep -q '{ "hw_nat_mode", "2" }' padavan-4.4/trunk/user/shared/defaults.c
 
@@ -478,6 +523,10 @@ jobs:
           python3 tools/shared-wifi/prepare-ui.py padavan-4.4
           # IoT integration is deferred from this device test firmware.
           python3 tools/prepare-shared-wifi.py padavan-4.4
+          python3 tools/check-wifi-kvr-config.py padavan-4.4/trunk/user/rc/ralink.c --output-dir "$RUNNER_TEMP/wr-kvr-check"
+          python3 tools/prepare-wifi-kvr-board.py padavan-4.4
+          python3 tools/prepare-mt7603-wnm-category.py padavan-4.4
+          python3 tools/prepare-wifi-kvr-config.py padavan-4.4
           python3 tools/connected-devices/prepare-http.py padavan-4.4
           python3 tools/connected-devices/prepare-radio.py padavan-4.4
           python3 tools/connected-devices/prepare-background.py padavan-4.4
@@ -485,13 +534,14 @@ jobs:
             overlay/padavan-4.4/trunk/user/www/n56u_ribbon_fixed/vpncli.asp
           python3 tools/prepare-vpn-handshake-status.py padavan-4.4
           python3 tools/prepare-shadowsocks-status.py padavan-4.4
+          python3 tools/prepare-shadowsocks-localization.py padavan-4.4
           node tools/check-shadowsocks-status.js \
             padavan-4.4/trunk/user/www/n56u_ribbon_fixed/Shadowsocks.asp
           python3 tools/eoip/prepare-status.py padavan-4.4 --config configs.build/wr1200js.config
           python3 tools/eoip/prepare-settings.py padavan-4.4 --config configs.build/wr1200js.config
           python3 tools/eoip/prepare-page.py padavan-4.4 --config configs.build/wr1200js.config
           python3 tools/services-nav/prepare-unified-nav.py padavan-4.4 \
-            --config configs.build/wr1200js.config
+            --config configs.build/wr1200js.config --exclude-service watchdog_cpu
           python3 tools/connected-devices/prepare-ui.py padavan-4.4
           python3 tools/shared-wifi/check-source-integration.py padavan-4.4
           python3 tools/shared-wifi/prepare-http-check.py padavan-4.4 --output shared-wifi-http-check.c
@@ -521,7 +571,7 @@ jobs:
           make WR1200JS TOOLCHAIN=mipsel-linux-uclibc CONFIG_CCACHE=y
           grep -qx 'CONFIG_CCACHE=y' trunk/.config
           test "$(readlink toolchain/toolchain-mipsel/lib/ccache/mipsel-linux-uclibc-gcc)" = /usr/bin/ccache
-          compiler="$(find "$PWD/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          compiler="$(find "$PWD/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
           test -n "$compiler"
           export PATH="$(dirname "$compiler"):$PATH"
           for radio in mt76x2 mt76x3; do
@@ -530,6 +580,7 @@ jobs:
             "${compiler%gcc}nm" "$module" | grep -E '[[:space:]]wr_rssi_delete_entry$'
             grep -q 'case WR_RSSI_QUERY_OID:' "trunk/linux-4.4.x/drivers/net/wireless/mediatek/$radio/ap/ap_cfg.c"
           done
+          python3 ../tools/verify-wifi-kvr-image.py . --nm "${compiler%gcc}nm" --output ../wifi-kvr-image.json
           grep -a -F -q 'wr_rssi.json' trunk/romfs/usr/sbin/httpd
           bash ../tools/connected-devices/check-rssi-kernel.sh trunk/linux-4.4.x "$compiler" ../rssi-kernel-probe
           if grep -qx 'CONFIG_FIRMWARE_INCLUDE_WR_BAND_STEERING=y' trunk/.config; then
@@ -637,6 +688,9 @@ jobs:
           fi
           grep -q '^CONFIG_IP_SET=m$' trunk/linux-4.4.x/.config
           grep -q '^CONFIG_USB_STORAGE=m$' trunk/linux-4.4.x/.config
+          grep -q '^CONFIG_OD=y$' trunk/user/busybox/busybox-1.24.x/.config
+          grep -q '^# CONFIG_DESKTOP is not set$' trunk/user/busybox/busybox-1.24.x/.config
+          test -L trunk/romfs/usr/bin/od
           if grep -q '^CONFIG_FIRMWARE_INCLUDE_USBIP=y$' trunk/.config; then
             grep -q '^CONFIG_HEXDUMP=y$' trunk/user/busybox/busybox-1.24.x/.config
             test -L trunk/romfs/usr/bin/hexdump
@@ -845,13 +899,17 @@ jobs:
           fi
           grep -q '^CONFIG_FIRMWARE_INCLUDE_DDNS_SSL=y$' trunk/.config
           python3 ../tools/services-nav/prepare-unified-nav.py trunk/romfs \
-            --config trunk/.config --verify-image
+            --config trunk/.config --verify-image --exclude-service watchdog_cpu
+          python3 ../tools/prepare-shadowsocks-localization.py trunk/romfs --verify-image
           python3 ../overlay/padavan-4.4/scripts/verify-ddns-elf.py \
             trunk/romfs ../ddns-elf-dependencies.json
           grep -a -q 'YouHua WR1200JS' trunk/linux-4.4.x/vmlinux
           cp trunk/.config ../firmware-effective.config
           cp trunk/linux-4.4.x/.config ../kernel-effective.config
           cp ../configs.build/wr1200js.config ../firmware-requested.config
+          python3 ../tools/wifi-capabilities/apply-board-capabilities.py . \
+            --manifest ../tools/wifi-capabilities/boards/wr1200js.json \
+            --verify-image --report ../wifi-capability-report.json
           shopt -s nullglob
           images=(trunk/images/*.trx)
           (("${#images[@]}" > 0))
@@ -881,7 +939,7 @@ jobs:
 
       - name: Verify station capacities from compiled radio flags
         run: |
-          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
           test -n "$compiler"
           python3 tools/connected-devices/check-built-radio-capacity.py padavan-4.4 \
             --compiler "$compiler" --output radio-capacity-evidence/capacities.json
@@ -897,7 +955,7 @@ jobs:
         if: ${{ !cancelled() && steps.firmware_build.conclusion == 'success' }}
         run: |
           set -euo pipefail
-          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
           test -n "$compiler"
           for radio in mt76x2 mt76x3; do
             # Build-step PATH does not persist into this Actions step. Resolve
@@ -910,17 +968,39 @@ jobs:
             # Keep the 5 GHz result diagnostic until that band is part of the
             # agreed IoT scope.
             if [ "$radio" = mt76x3 ]; then
-              args+=(--require-three-bss)
+              args+=(--require-three-bss --check-main-observer)
             fi
             python3 tools/iot/check-capacity.py \
               padavan-4.4/trunk/linux-4.4.x "$radio" "${args[@]}"
           done
+          # Separate TU evidence: rtmp_chip flags do not prove rt_linux macros.
+          python3 tools/iot/check-task-config.py \
+            --kernel padavan-4.4/trunk/linux-4.4.x \
+            --driver padavan-4.4/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3 \
+            --compiler "$compiler" \
+            --output iot-capacity-evidence/mt76x3-task-config.json
       - name: Preserve effective IoT radio-capacity diagnostics
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: wr1200js-iot-radio-capacity
           path: iot-capacity-evidence/
+          if-no-files-found: ignore
+
+      - name: Preserve 2.4 GHz KVR image evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: wr1200js-kvr-image
+          path: wifi-kvr-image.json
+          if-no-files-found: ignore
+
+      - name: Preserve board Wi-Fi capability evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: wr1200js-wifi-capabilities
+          path: wifi-capability-report.json
           if-no-files-found: ignore
 
       - name: Verify requested and effective WR1200JS configuration
@@ -964,8 +1044,12 @@ jobs:
 
       - name: Verify complete EoIP WebUI and controller in ROMFS
         run: |
+          test -s firmware-effective.config
           if grep -q '^CONFIG_FIRMWARE_INCLUDE_EOIP=y$' firmware-effective.config; then
             python3 tools/eoip/verify-image.py padavan-4.4/trunk/romfs --report eoip-image-checks.json
+          else
+            python3 tools/eoip/verify-excluded.py padavan-4.4/trunk/romfs \
+              configs.build/wr1200js.config firmware-effective.config --report eoip-image-checks.json
           fi
 
       - name: Preserve EoIP image checks
@@ -974,7 +1058,7 @@ jobs:
         with:
           name: eoip-image-checks
           path: eoip-image-checks.json
-          if-no-files-found: ignore
+          if-no-files-found: error
 
       - name: Upload WebUI route diagnostics
         if: always()
@@ -1016,7 +1100,7 @@ jobs:
           fi
 
       - name: Save compiler cache
-        if: success()
+        if: ${{ success() && steps.compiler_cache.outputs.cache-hit != 'true' }}
         uses: actions/cache/save@v6
         with:
           path: ${{ env.CCACHE_DIR }}
@@ -1031,6 +1115,8 @@ jobs:
         run: |
           python3 overlay/padavan-4.4/scripts/verify-settings-backup.py \
             padavan-4.4/trunk/romfs settings-backup-image-checks.json
+          node tools/check-settings-backup-behavior.js \
+            padavan-4.4/trunk/romfs/www/Advanced_SettingBackup_Content.asp
 
       - name: Upload settings backup and restore diagnostics
         if: always()
@@ -1070,6 +1156,19 @@ jobs:
             sudo apt-get install --no-install-recommends -y qemu-user-static dnsutils iptables
             sh overlay/padavan-4.4/ports/stubby/check-stubby-runtime.sh \
               padavan-4.4/trunk/romfs --outage 2>&1 | tee stubby-runtime.txt
+            if grep -q '^CONFIG_FIRMWARE_INCLUDE_DOH=y$' configs.build/wr1200js.config; then
+              python3 tools/check-encrypted-dnsmasq-combination.py \
+                --tree padavan-4.4 \
+                --dnsmasq padavan-4.4/trunk/romfs/usr/sbin/dnsmasq \
+                --qemu qemu-mipsel-static \
+                --sysroot padavan-4.4/trunk/romfs
+            fi
+          fi
+
+      - name: Check DNS listener conflict scenarios
+        run: |
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_STUBBY=y$' configs.build/wr1200js.config; then
+            sh overlay/padavan-4.4/ports/dns-common/check-listener-conflicts.sh
           fi
 
       - name: Verify zram dependencies and shipped swap priority support
@@ -1079,7 +1178,9 @@ jobs:
           python3 tools/verify-zram-image.py padavan-4.4 | tee zram-image-checks.txt
 
       - name: Audit all shipped shell scripts with exact target BusyBox
-        run: python3 tools/check-target-busybox.py padavan-4.4 --output target-busybox-audit.json
+        run: |
+          python3 tools/check-lua-closure.py
+          python3 tools/check-target-busybox.py padavan-4.4 --output target-busybox-audit.json
 
       - name: Exercise VPN profile service lock path with exact target BusyBox
         run: |
@@ -1187,11 +1288,15 @@ jobs:
             privoxy-image-checks.json
             privoxy-target-config.json
 
-      - name: Verify iPerf3 status UI and handler in image
+      - name: Verify iPerf3 image and dependency closure
         run: |
           if grep -q '^CONFIG_FIRMWARE_INCLUDE_IPERF3=y$' configs.build/wr1200js.config; then
             python3 overlay/padavan-4.4/ports/iperf3/verify-image.py \
               padavan-4.4/trunk iperf3-image-checks.json
+            python3 tools/band-steering/verify-package-closure.py \
+              padavan-4.4/trunk/romfs padavan-4.4/trunk/romfs \
+              --binary usr/bin/iperf3 --production-image \
+              --output iperf3-elf-closure.json
           fi
 
       - name: Upload iPerf3 image diagnostics
@@ -1201,7 +1306,9 @@ jobs:
           name: iperf3-image-checks
           retention-days: 14
           if-no-files-found: ignore
-          path: iperf3-image-checks.json
+          path: |
+            iperf3-image-checks.json
+            iperf3-elf-closure.json
 
       - name: Verify SSH status UI and handler in image
         run: |
@@ -1220,6 +1327,9 @@ jobs:
 
       - name: Verify discovery and KMS status in final ROMFS
         run: python3 tools/verify-discovery-status-image.py padavan-4.4/trunk/romfs
+
+      - name: Verify unsupported CPU watchdog exclusion in final ROMFS
+        run: python3 tools/verify-wr1200js-cpu-watchdog-image.py padavan-4.4/trunk/romfs
 
       - name: Verify DoH image packaging and ELF dependencies
         run: |
@@ -1241,6 +1351,9 @@ jobs:
         run: |
           if grep -q '^CONFIG_FIRMWARE_INCLUDE_SSWAN=y$' configs.build/wr1200js.config; then
             python3 tools/verify-strongswan-image.py padavan-4.4/trunk strongswan-image-checks.json
+          else
+            python3 tools/verify-strongswan-exclusion.py \
+              padavan-4.4/trunk configs.build/wr1200js.config strongswan-image-checks.json
           fi
 
       - name: Upload StrongSwan image diagnostics
@@ -1249,7 +1362,7 @@ jobs:
         with:
           name: strongswan-image-checks
           retention-days: 14
-          if-no-files-found: ignore
+          if-no-files-found: error
           path: strongswan-image-checks.json
 
       - name: Upload IMQ patch rejects
@@ -1263,7 +1376,7 @@ jobs:
 
       - name: Verify RSSI Kick image controls and driver commands
         run: |
-          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
           test -n "$compiler"
           python3 tools/verify-rssi-image.py padavan-4.4 --nm "${compiler%gcc}nm"
 
@@ -1292,6 +1405,13 @@ jobs:
             python3 overlay/padavan-4.4/ports/zerotier/verify-image.py padavan-4.4
           fi
 
+      - name: Exercise ZeroTier persistence guard with image BusyBox
+        run: |
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_ZEROTIER=y$' configs.build/wr1200js.config; then
+            python3 tools/check-zerotier-persistence-target.py \
+              padavan-4.4/trunk/romfs --output zerotier-persistence-target.json
+          fi
+
       - name: Verify ZeroTier page localization and bounded status refresh
         run: |
           if grep -q '^CONFIG_FIRMWARE_INCLUDE_ZEROTIER=y$' configs.build/wr1200js.config; then
@@ -1309,7 +1429,9 @@ jobs:
         with:
           name: zerotier-image-checks
           if-no-files-found: ignore
-          path: zerotier-image-checks.json
+          path: |
+            zerotier-image-checks.json
+            zerotier-persistence-target.json
 
       - name: Preserve failed firmware build evidence
         if: ${{ !cancelled() && steps.firmware_build.conclusion == 'failure' }}
@@ -1378,7 +1500,7 @@ jobs:
 
       - name: Compile isolated full Band Steering drivers
         # Candidate RSSI instrumentation needs its own compile even when production steering is enabled.
-        if: ${{ inputs.run_candidate_checks && (!cancelled() && steps.firmware_build.conclusion == 'success') }}
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (!cancelled() && steps.firmware_build.conclusion == 'success') }}
         env:
           STEERING_PREPARED: ${{ steps.steering_prepare.outputs.enabled }}
         run: |
@@ -1407,7 +1529,7 @@ jobs:
             grep -q 'case WR_RSSI_QUERY_OID:' "$kernel/drivers/net/wireless/mediatek/$radio/ap/ap_cfg.c"
           done
           python3 tools/band-steering/configure-driver-probe.py "$kernel"
-          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
           test -n "$compiler"
           cross="${compiler%gcc}"
           make -C "$kernel" ARCH=mips CROSS_COMPILE="$cross" olddefconfig \
@@ -1441,23 +1563,270 @@ jobs:
           sha256sum -c band-steering-driver-results/baseline-config.sha256
 
       - name: Upload full Band Steering driver diagnostics
-        if: ${{ inputs.run_candidate_checks && (always()) }}
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (always()) }}
         uses: actions/upload-artifact@v7
         with:
           name: band-steering-full-driver-probe
           path: band-steering-driver-results/
           if-no-files-found: ignore
 
-      - name: Compile complete isolated rc with steering profile integration
-        if: ${{ inputs.run_candidate_checks && (!cancelled() && steps.firmware_build.conclusion == 'success' && steps.steering_prepare.outputs.enabled != 'y') }}
+      - name: Compile isolated merged IoT MT7603 candidate
+        if: ${{ inputs.run_candidate_checks && (inputs.candidate_scope == 'iot' || inputs.candidate_scope == 'all') && (!cancelled() && steps.firmware_build.conclusion == 'success') }}
         run: |
           set -euo pipefail
-          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          root="$RUNNER_TEMP/wr1200js-steering-driver-probe"
+          kernel="$root/trunk/linux-4.4.x"
+          driver="$kernel/drivers/net/wireless/mediatek/mt76x3"
+          pinned="$RUNNER_TEMP/wr1200js-iot-pinned"
+          candidate="$RUNNER_TEMP/wr1200js-iot-candidate"
+          merged="$RUNNER_TEMP/wr1200js-iot-merged-mt76x3"
+          results="$PWD/iot-merged-driver-results"
+          if [ "${{ inputs.candidate_scope }}" = iot ]; then
+            # The full Band Steering compile creates this tree only in 'all' scope.
+            # Give an IoT-only run the same isolated, configured kernel baseline.
+            test ! -e "$root"
+            mkdir -p "$root/trunk" "$results"
+            cp -a "$PWD/padavan-4.4/trunk/linux-4.4.x" "$kernel"
+            python3 tools/band-steering/configure-driver-probe.py "$kernel"
+            compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" \
+              -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
+            test -n "$compiler"
+            cross="${compiler%gcc}"
+            make -C "$kernel" ARCH=mips CROSS_COMPILE="$cross" olddefconfig \
+              2>&1 | tee "$results/config.log"
+            grep -qx 'CONFIG_MT7603E_BAND_STEERING_7603=y' "$kernel/.config"
+            grep -qx 'CONFIG_RT_BAND_STEERING=y' "$kernel/.config"
+          fi
+          if [ ! -d "$driver" ]; then
+            echo '::error::Isolated IoT driver tree was not prepared' >&2
+            exit 1
+          fi
+          test ! -e "$pinned" && test ! -e "$candidate" && test ! -e "$merged"
+          mkdir -p "$pinned" "$results"
+          test "$(git -C padavan-4.4 rev-parse HEAD)" = c25283e915a2a00a763774dd255b14aff997285e
+          git -C padavan-4.4 archive --format=tar HEAD \
+            trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3 \
+            | tar -xf - -C "$pinned"
+          pristine="$pinned/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3"
+          if [ "${{ inputs.iot_candidate_variant }}" = v39 ]; then
+            mkdir -p "$candidate"
+            cp -a tools/iot/candidates/aux-remove-close-v39 "$candidate/driver"
+            cp tools/iot/candidates/aux-remove-close-v39/manifest.json "$candidate/manifest.json"
+            python3 tools/iot/check-remove-result-abi.py "$candidate/driver"
+          elif [ "${{ inputs.iot_candidate_variant }}" = v40 ] ||
+               [ "${{ inputs.iot_candidate_variant }}" = v41 ] ||
+               [ "${{ inputs.iot_candidate_variant }}" = v42 ]; then
+            mkdir -p "$candidate" .iot-local-check
+            python3 tools/iot/check-mt7603-checked-off.py
+            python3 tools/iot/prepare-mt7603-checked-off-candidate.py \
+              tools/iot/candidates/aux-remove-close-v39 \
+              .iot-local-check/mt7603-radio-off-v40-ci
+            if [ "${{ inputs.iot_candidate_variant }}" = v41 ] ||
+               [ "${{ inputs.iot_candidate_variant }}" = v42 ]; then
+              python3 tools/iot/prepare-mbss-checked-stop-candidate.py \
+                .iot-local-check/mt7603-radio-off-v40-ci \
+                .iot-local-check/mt7603-mbss-stop-v41-ci
+              if [ "${{ inputs.iot_candidate_variant }}" = v42 ]; then
+                python3 tools/iot/prepare-beacon-producer-candidate.py \
+                  .iot-local-check/mt7603-mbss-stop-v41-ci \
+                  .iot-local-check/mt7603-beacon-producer-v42-ci
+                cp -a .iot-local-check/mt7603-beacon-producer-v42-ci "$candidate/driver"
+                cp .iot-local-check/mt7603-beacon-producer-v42-ci.manifest.json \
+                  "$results/beacon-producer-binding.json"
+              else
+                cp -a .iot-local-check/mt7603-mbss-stop-v41-ci "$candidate/driver"
+              fi
+              cp .iot-local-check/mt7603-mbss-stop-v41-ci.manifest.json \
+                "$results/mbss-stop-binding.json"
+            else
+              cp -a .iot-local-check/mt7603-radio-off-v40-ci "$candidate/driver"
+            fi
+            python3 tools/iot/prepare-dma-idle-check.py \
+              "$candidate/driver/hw_ctrl/cmm_asic_mt.c" \
+              "$RUNNER_TEMP/wr-iot-v40-dma-source.c" \
+              "$RUNNER_TEMP/wr-iot-v40-dma-fixture.c"
+            gcc -std=c11 -Wall -Wextra -Werror \
+              "$RUNNER_TEMP/wr-iot-v40-dma-fixture.c" -o "$RUNNER_TEMP/wr-iot-v40-dma-fixture"
+            "$RUNNER_TEMP/wr-iot-v40-dma-fixture"
+            cmp tools/iot/virtual-open-claim.h "$candidate/driver/include/virtual-open-claim.h"
+            cmp tools/iot/mt7603-main-observe.h "$candidate/driver/include/mt7603-main-observe.h"
+            cp tools/iot/check-interface-reference.c "$RUNNER_TEMP/check-v40-reference.c"
+            gcc -std=c11 -Wall -Wextra -Werror \
+              -I "$candidate/driver/include" \
+              "$RUNNER_TEMP/check-v40-reference.c" -o "$RUNNER_TEMP/check-v40-reference"
+            "$RUNNER_TEMP/check-v40-reference"
+            sed 's|"netdev-registration.inc"|"wr-iot-netdev-registration.inc"|' \
+              tools/iot/check-netdev-registration.c > "$RUNNER_TEMP/check-v40-registration.c"
+            gcc -std=c11 -Wall -Wextra -Werror \
+              -I "$candidate/driver/include" \
+              "$RUNNER_TEMP/check-v40-registration.c" -o "$RUNNER_TEMP/check-v40-registration"
+            "$RUNNER_TEMP/check-v40-registration"
+            gcc -std=c11 -Wall -Wextra -Werror -DWR_IOT_V40=1 \
+              -I "$candidate/driver/include" -I tools/iot \
+              tools/iot/check-mbss-post-open.c -o "$RUNNER_TEMP/wr-iot-mbss-post-open"
+            "$RUNNER_TEMP/wr-iot-mbss-post-open"
+            gcc -std=c11 -Wall -Wextra -Werror -DWR_IOT_V40=1 \
+              -I "$candidate/driver/include" -I tools/iot \
+              tools/iot/check-mbss-close.c -o "$RUNNER_TEMP/wr-iot-mbss-close-admission"
+            "$RUNNER_TEMP/wr-iot-mbss-close-admission"
+            gcc -std=c11 -Wall -Wextra -Werror -DWR_IOT_V40=1 \
+              -DMT_MAC=1 \
+              -I "$candidate/driver/include" -I tools/iot \
+              tools/iot/check-mbss-close.c -o "$RUNNER_TEMP/wr-iot-mbss-close-mt"
+            "$RUNNER_TEMP/wr-iot-mbss-close-mt"
+            gcc -std=c11 -Wall -Wextra -Werror -DWR_IOT_V40=1 \
+              -DMT_MAC=1 -DRTMP_PCI_SUPPORT=1 \
+              -I "$candidate/driver/include" -I tools/iot \
+              tools/iot/check-mbss-close.c -o "$RUNNER_TEMP/wr-iot-mbss-close-mt-pci"
+            "$RUNNER_TEMP/wr-iot-mbss-close-mt-pci"
+            gcc -std=c11 -Wall -Wextra -Werror -I tools/iot \
+              tools/iot/check-mbss-close-recovery-owner.c \
+              -o "$RUNNER_TEMP/wr-iot-mbss-close-recovery-owner"
+            "$RUNNER_TEMP/wr-iot-mbss-close-recovery-owner"
+            python3 tools/iot/check-virtual-if-call-coverage.py "$candidate/driver"
+            expected_overlay_count=58
+            if [ "${{ inputs.iot_candidate_variant }}" = v42 ]; then
+              expected_overlay_count=60
+            fi
+            python3 tools/iot/prepare-v39-merge-manifest.py \
+              "$pristine" "$candidate/driver" \
+              tools/iot/candidates/aux-remove-close-v39/manifest.json \
+              "$candidate/manifest.json" \
+              --expected-overlay-count "$expected_overlay_count"
+            python3 tools/iot/check-remove-result-abi.py "$candidate/driver"
+          elif [ "${{ inputs.iot_candidate_variant }}" = legacy ]; then
+            python3 tools/iot/prepare-radio-queue-candidate.py "$pristine" "$candidate"
+          else
+            echo 'Unsupported IoT candidate variant' >&2
+            exit 1
+          fi
+          python3 tools/iot/check-overlay-conflicts.py \
+            "$candidate/manifest.json" "$candidate/driver" "$driver" \
+            --output "$results/prepared-overlap.json" \
+            || test "$?" -eq 1
+          python3 tools/iot/assemble-prepared-candidate.py \
+            "$pristine" "$driver" "$candidate/driver" \
+            "$candidate/manifest.json" "$merged"
+          if [ "${{ inputs.iot_candidate_variant }}" = v39 ] ||
+             [ "${{ inputs.iot_candidate_variant }}" = v40 ] ||
+             [ "${{ inputs.iot_candidate_variant }}" = v41 ] ||
+             [ "${{ inputs.iot_candidate_variant }}" = v42 ]; then
+            python3 tools/iot/check-remove-result-abi.py "$merged"
+          fi
+          cp "$merged.manifest.json" "$results/merged-source-manifest.json"
+          cp -a "$merged/." "$driver/"
+          python3 - "$results/merged-source-manifest.json" "$driver" <<'PY'
+          import hashlib, json, pathlib, sys
+          manifest = json.load(open(sys.argv[1], encoding='utf-8'))
+          driver = pathlib.Path(sys.argv[2])
+          if manifest['target_compiled'] or manifest['production_installed']:
+              raise SystemExit('Candidate manifest makes an unsupported claim')
+          for name, expected in manifest['candidate_driver_sha256'].items():
+              path = driver / name
+              if hashlib.sha256(path.read_bytes()).hexdigest() != expected:
+                  raise SystemExit('Isolated source copy mismatch: ' + name)
+              path.touch()
+          PY
+          python3 tools/iot/check_mbss_cr_enable.py "$driver/ap/ap_mbss_inf.c" \
+            --compiler "$(command -v gcc)"
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" \
+            -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
+          test -n "$compiler"
+          cross="${compiler%gcc}"
+          sha256sum "$kernel/.config" > "$results/config-before.sha256"
+          make -C "$kernel" ARCH=mips CROSS_COMPILE="$cross" -j2 vmlinux modules \
+            2>&1 | tee "$results/build.log"
+          cmp tools/iot/mt7603-main-observe.h "$driver/include/mt7603-main-observe.h"
+          python3 tools/iot/check-capacity.py "$kernel" mt76x3 \
+            --compiler "$compiler" --require-three-bss --check-main-observer \
+            --source-commit c25283e915a2a00a763774dd255b14aff997285e \
+            --output "$results/merged-capacity.json"
+          python3 - "$results/merged-capacity.json" "${{ inputs.iot_candidate_variant }}" <<'PY'
+          import json, sys
+          report = json.load(open(sys.argv[1], encoding='utf-8'))
+          variant = sys.argv[2]
+          if report['main_observer_probe']['status'] != 'compiled':
+              raise SystemExit('MT7603 main observer target compilation missing')
+          lock = report['beacon_lock_units_probe']
+          units = lock['units']
+          if len(units) != 9 or not lock['all_unit_flags_available'] or not lock['all_site_activity_available']:
+              raise SystemExit('Incomplete per-unit beacon lock Kbuild evidence')
+          # The reviewed TIM admission overlay adds one active SEM site in ap_nps.c.
+          site_count = sum(len(unit['sites']) for unit in units.values())
+          active = [site for unit in units.values() for site in unit['sites']
+                    if site['active_after_directives']]
+          sem_count = sum(site['form'] == 'SEM' for site in active)
+          irq_count = sum(site['form'] == 'IRQ' for site in active)
+          # This inventory scans unit source text, not v42's new inline
+          # helper header. v42 replaces the abort-open SEM site with a gated
+          # helper; its header is checked by manifest and target compile.
+          expected = (20, 19, 10, 9) if variant == 'v42' else (21, 20, 11, 9)
+          if (site_count, len(active), sem_count, irq_count) != expected:
+              raise SystemExit('Merged candidate active beacon lock forms changed')
+          # Both forms use the BH wrapper only while MULTI_CORE_SUPPORT is off.
+          # This guards the reviewed target build, not callback/lifetime safety.
+          if any(unit['effective_multi_core_support'] for unit in units.values()):
+              raise SystemExit('Mixed beacon lock forms with MULTI_CORE_SUPPORT')
+          PY
+          module="$kernel/drivers/net/wireless/mediatek/mt76x3_ap/mt76x3_ap.ko"
+          test -s "$module"
+          "${cross}readelf" -h "$module" > "$results/mt76x3-elf.txt"
+          grep -q 'Machine:.*MIPS' "$results/mt76x3-elf.txt"
+          "${cross}readelf" -sW "$module" > "$results/mt76x3-symbols.txt"
+          if [ "${{ inputs.iot_candidate_variant }}" = v40 ] ||
+             [ "${{ inputs.iot_candidate_variant }}" = v41 ] ||
+             [ "${{ inputs.iot_candidate_variant }}" = v42 ]; then
+            for symbol in wr_iot_mbss_begin_close wr_iot_mbss_close_checked wr_iot_virtual_down_checked; do
+              grep -Eq "[[:space:]]${symbol}$" "$results/mt76x3-symbols.txt"
+            done
+          fi
+          cp "$module" "$results/"
+          cp "$kernel/.config" "$results/kernel.config"
+          sha256sum -c "$results/config-before.sha256"
+          python3 - "$results" "${{ inputs.iot_candidate_variant }}" "${{ github.sha }}" <<'PY'
+          import hashlib, json, pathlib, re, sys
+          results = pathlib.Path(sys.argv[1])
+          source = json.loads((results / 'merged-source-manifest.json').read_text(encoding='utf-8'))
+          module = results / 'mt76x3_ap.ko'
+          elf = (results / 'mt76x3-elf.txt').read_text(encoding='utf-8')
+          if source['target_compiled'] or source['production_installed'] or not module.is_file():
+              raise SystemExit('Invalid isolated IoT source/build boundary')
+          if not re.search(r'^\s*Machine:\s+MIPS\b', elf, re.MULTILINE):
+              raise SystemExit('Isolated IoT module is not MIPS ELF')
+          report = {
+              'schema': 1,
+              'candidate_variant': sys.argv[2],
+              'repository_revision': sys.argv[3],
+              'source_revision': source['source_revision'],
+              'target_compiled': True,
+              'production_installed': False,
+              'runtime_verified': False,
+              'module': 'mt76x3_ap.ko',
+              'module_bytes': module.stat().st_size,
+              'module_sha256': hashlib.sha256(module.read_bytes()).hexdigest(),
+          }
+          (results / 'target-compile-result.json').write_text(
+              json.dumps(report, indent=2) + '\n', encoding='utf-8')
+          PY
+
+      - name: Upload isolated merged IoT driver diagnostics
+        if: ${{ inputs.run_candidate_checks && (inputs.candidate_scope == 'iot' || inputs.candidate_scope == 'all') && (always()) }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: iot-merged-driver-probe
+          path: iot-merged-driver-results/
+          if-no-files-found: ignore
+
+      - name: Compile complete isolated rc with steering profile integration
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (!cancelled() && steps.firmware_build.conclusion == 'success' && steps.steering_prepare.outputs.enabled != 'y') }}
+        run: |
+          set -euo pipefail
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
           test -n "$compiler"
           bash tools/band-steering/compile-rc-profile.sh "$PWD/padavan-4.4/trunk" \
             "$RUNNER_TEMP/wr1200js-steering-rc-probe" "$compiler"
       - name: Upload full rc profile integration diagnostics
-        if: ${{ inputs.run_candidate_checks && (always()) }}
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (always()) }}
         uses: actions/upload-artifact@v7
         with:
           name: band-steering-full-rc-profile-probe
@@ -1465,11 +1834,11 @@ jobs:
           if-no-files-found: ignore
 
       - name: Compile EoIP IPv4 candidate module
-        if: ${{ inputs.run_candidate_checks }}
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' }}
         run: |
           set -euo pipefail
           kernel="$PWD/padavan-4.4/trunk/linux-4.4.x"
-          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
           test -n "$compiler"
           cross="${compiler%gcc}"
           candidate="$PWD/overlay/padavan-4.4/candidates/eoip/unified"
@@ -1487,7 +1856,7 @@ jobs:
 
 
       - name: Upload EoIP candidate diagnostics
-        if: ${{ inputs.run_candidate_checks && (always()) }}
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (always()) }}
         uses: actions/upload-artifact@v7
         with:
           name: eoip-candidate-compile
@@ -1500,10 +1869,10 @@ jobs:
             overlay/padavan-4.4/candidates/eoip/eoip
 
       - name: Compile package against actual isolated steering drivers
-        if: ${{ inputs.run_candidate_checks && (!cancelled() && steps.firmware_build.conclusion == 'success' && steps.steering_prepare.outputs.enabled != 'y') }}
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (!cancelled() && steps.firmware_build.conclusion == 'success' && steps.steering_prepare.outputs.enabled != 'y') }}
         run: |
           set -euo pipefail
-          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
           test -n "$compiler"
           bash tools/band-steering/compile-driver-package.sh \
             "$RUNNER_TEMP/wr1200js-steering-driver-probe" \
@@ -1518,7 +1887,7 @@ jobs:
             "$PWD/band-steering-driver-package-results/registered" "$compiler"
 
       - name: Upload driver-matched steering package diagnostics
-        if: ${{ inputs.run_candidate_checks && (always()) }}
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (always()) }}
         uses: actions/upload-artifact@v7
         with:
           name: band-steering-driver-package-probe
@@ -1527,10 +1896,10 @@ jobs:
           retention-days: 14
 
       - name: Compile PCRE2 candidate for modern Privoxy
-        if: ${{ inputs.run_candidate_checks }}
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' }}
         run: |
           set -euo pipefail
-          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
           test -n "$compiler"
           cross="${compiler%gcc}"
           mkdir -p pcre2-candidate-build
@@ -1554,7 +1923,7 @@ jobs:
           readelf -d ../stage/lib/libpcre2-8.so.0 > ../elf-dependencies.txt
 
       - name: Upload PCRE2 candidate diagnostics
-        if: ${{ inputs.run_candidate_checks && (always()) }}
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (always()) }}
         uses: actions/upload-artifact@v7
         with:
           name: pcre2-candidate
@@ -1567,10 +1936,10 @@ jobs:
             pcre2-candidate-build/stage/lib/libpcre2-posix.so*
 
       - name: Compile Privoxy 4.2 candidate
-        if: ${{ inputs.run_candidate_checks }}
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' }}
         run: |
           set -euo pipefail
-          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
           test -n "$compiler"
           PRIVOXY_CANDIDATE_DIR="$PWD/privoxy-candidate-build" \
           TARGET_CC="$compiler" \
@@ -1580,7 +1949,7 @@ jobs:
             sh overlay/padavan-4.4/candidates/privoxy/compile-privoxy.sh
 
       - name: Upload Privoxy candidate diagnostics
-        if: ${{ inputs.run_candidate_checks && (always()) }}
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (always()) }}
         uses: actions/upload-artifact@v7
         with:
           name: privoxy-candidate
@@ -1594,10 +1963,10 @@ jobs:
             privoxy-candidate-build/privoxy-4.2.0-stable/privoxy
 
       - name: Compile Stubby DoT candidate
-        if: ${{ inputs.run_candidate_checks }}
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' }}
         run: |
           set -euo pipefail
-          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
           test -n "$compiler"
           TARGET_CC="$compiler" \
           TARGET_STAGE="$PWD/padavan-4.4/trunk/stage" \
@@ -1605,7 +1974,7 @@ jobs:
             bash overlay/padavan-4.4/candidates/stubby/compile-stubby.sh
 
       - name: Upload Stubby candidate diagnostics
-        if: ${{ inputs.run_candidate_checks && (always()) }}
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (always()) }}
         uses: actions/upload-artifact@v7
         with:
           name: stubby-candidate
@@ -1619,7 +1988,7 @@ jobs:
             stubby-candidate-build/build/CMakeFiles/CMake*.log
 
       - name: Link isolated MT7621 systick candidate kernel
-        if: ${{ inputs.run_candidate_checks && (!cancelled() && steps.firmware_build.conclusion == 'success' && steps.steering_prepare.outputs.enabled != 'y') }}
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (!cancelled() && steps.firmware_build.conclusion == 'success' && steps.steering_prepare.outputs.enabled != 'y') }}
         run: |
           set -euo pipefail
           source_kernel="$PWD/padavan-4.4/trunk/linux-4.4.x"
@@ -1627,7 +1996,7 @@ jobs:
           test ! -e "$kernel"
           cp -a "$source_kernel" "$kernel"
           python3 tools/band-steering/prepare-nvram-snapshot.py --kernel-root "$kernel"
-          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
           test -n "$compiler"
           cross="${compiler%gcc}"
           candidate="$PWD/overlay/padavan-4.4/candidates/cpu-sleep"
@@ -1661,7 +2030,7 @@ jobs:
           sha256sum "$kernel/drivers/nvram/nvram.c" "$kernel/drivers/nvram/nvram_linux.o" > nvram-snapshot-kernel-sha256.txt
 
       - name: Upload isolated kernel link diagnostics
-        if: ${{ inputs.run_candidate_checks && (always()) }}
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (always()) }}
         uses: actions/upload-artifact@v7
         with:
           name: mt7621-systick-link
@@ -1683,7 +2052,7 @@ jobs:
 
 
       - name: Compile ZeroTier 1.16.2 source candidate
-        if: ${{ inputs.run_candidate_checks }}
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' }}
         run: |
           set -euo pipefail
           git init zerotier-candidate
@@ -1692,7 +2061,7 @@ jobs:
           test "$(git -C zerotier-candidate rev-parse HEAD)" = fe29cd88886e4f58547ba7f740b2d73eb49ab222
           python3 tools/prepare-zerotier-source.py zerotier-candidate
           sha256sum zerotier-candidate/make-linux.mk > zerotier-candidate-prepared.sha256
-          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -name mipsel-linux-uclibc-gcc -print -quit)"
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
           test -n "$compiler"
           cross="${compiler%gcc}"
           make -C zerotier-candidate -j2 zerotier-one \
@@ -1708,7 +2077,7 @@ jobs:
           readelf -d zerotier-candidate/zerotier-one > zerotier-candidate-dependencies.txt
 
       - name: Upload ZeroTier source candidate diagnostics
-        if: ${{ inputs.run_candidate_checks && (always()) }}
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (always()) }}
         uses: actions/upload-artifact@v7
         with:
           name: zerotier-1.16.2-candidate

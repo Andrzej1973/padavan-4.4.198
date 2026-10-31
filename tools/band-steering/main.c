@@ -15,6 +15,7 @@
 #include <sys/file.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
+#include <syslog.h>
 #include <time.h>
 #include <unistd.h>
 static volatile sig_atomic_t stopping;
@@ -85,7 +86,12 @@ static int wait_events(void *ctx, int milliseconds)
     p[1].fd = r->control.fd; p[1].events = POLLIN;
     result = poll(p, 2, milliseconds);
     if (result < 0) return -1;
-    if ((p[0].revents | p[1].revents) & (POLLERR | POLLHUP | POLLNVAL)) { errno = EIO; return -1; }
+    if ((p[0].revents | p[1].revents) & (POLLERR | POLLHUP | POLLNVAL)) {
+        /* Diagnosis only: names which descriptor died before the loop fails. */
+        syslog(LOG_ERR, "band-steering poll failure: listener=0x%x control=0x%x",
+               p[0].revents, p[1].revents);
+        errno = EIO; return -1;
+    }
     if (p[1].revents & POLLIN) {
         for (count = 0; count < 4; ++count) {
             int received = wr_band_control_receive(&r->control, r->coordinator->session.phase, &stop);

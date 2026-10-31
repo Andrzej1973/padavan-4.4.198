@@ -1,0 +1,2674 @@
+{
+  "demo": true,
+  "source": "saved build 410 (inventory, not runtime acceptance)",
+  "pages": {
+    "24": {
+      "general": {
+        "classic": "Advanced_Wireless2g_Content.asp",
+        "sha256": "ce957bad759202f5b161a81eff646a9d921b5440a58277f6cba545b68d79f066",
+        "fields": [
+          {
+            "key": "rt_radio_x",
+            "label": "Увімкнути радіомодуль",
+            "type": "select",
+            "options": [
+              [
+                "1",
+                "Увімкнено"
+              ],
+              [
+                "0",
+                "Вимкнено"
+              ]
+            ]
+          },
+          {
+            "key": "rt_radio_date_x_Mon",
+            "label": "Дні увімкнення радіомодуля (будні) · Пн",
+            "type": "checkbox",
+            "options": []
+          },
+          {
+            "key": "rt_radio_date_x_Tue",
+            "label": "Дні увімкнення радіомодуля (будні) · Вт",
+            "type": "checkbox",
+            "options": []
+          },
+          {
+            "key": "rt_radio_date_x_Wed",
+            "label": "Дні увімкнення радіомодуля (будні) · Ср",
+            "type": "checkbox",
+            "options": []
+          },
+          {
+            "key": "rt_radio_date_x_Thu",
+            "label": "Дні увімкнення радіомодуля (будні) · Чт",
+            "type": "checkbox",
+            "options": []
+          },
+          {
+            "key": "rt_radio_date_x_Fri",
+            "label": "Дні увімкнення радіомодуля (будні) · Пт",
+            "type": "checkbox",
+            "options": []
+          },
+          {
+            "key": "rt_radio_time_x_starthour",
+            "label": "Час увімкнення радіомодуля (будні) · початок, години",
+            "type": "text",
+            "options": [],
+            "maxLength": 2
+          },
+          {
+            "key": "rt_radio_time_x_startmin",
+            "label": "Час увімкнення радіомодуля (будні) · початок, хвилини",
+            "type": "text",
+            "options": [],
+            "maxLength": 2
+          },
+          {
+            "key": "rt_radio_time_x_endhour",
+            "label": "Час увімкнення радіомодуля (будні) · кінець, години",
+            "type": "text",
+            "options": [],
+            "maxLength": 2
+          },
+          {
+            "key": "rt_radio_time_x_endmin",
+            "label": "Час увімкнення радіомодуля (будні) · кінець, хвилини",
+            "type": "text",
+            "options": [],
+            "maxLength": 2
+          },
+          {
+            "key": "rt_radio_date_x_Sat",
+            "label": "Дні увімкнення радіомодуля (вихідні) · Сб",
+            "type": "checkbox",
+            "options": []
+          },
+          {
+            "key": "rt_radio_date_x_Sun",
+            "label": "Дні увімкнення радіомодуля (вихідні) · Нд",
+            "type": "checkbox",
+            "options": []
+          },
+          {
+            "key": "rt_radio_time2_x_starthour",
+            "label": "Час увімкнення радіомодуля (вихідні) · початок, години",
+            "type": "text",
+            "options": [],
+            "maxLength": 2
+          },
+          {
+            "key": "rt_radio_time2_x_startmin",
+            "label": "Час увімкнення радіомодуля (вихідні) · початок, хвилини",
+            "type": "text",
+            "options": [],
+            "maxLength": 2
+          },
+          {
+            "key": "rt_radio_time2_x_endhour",
+            "label": "Час увімкнення радіомодуля (вихідні) · кінець, години",
+            "type": "text",
+            "options": [],
+            "maxLength": 2
+          },
+          {
+            "key": "rt_radio_time2_x_endmin",
+            "label": "Час увімкнення радіомодуля (вихідні) · кінець, хвилини",
+            "type": "text",
+            "options": [],
+            "maxLength": 2
+          },
+          {
+            "key": "rt_ssid",
+            "label": "SSID",
+            "type": "text",
+            "options": [],
+            "maxLength": 32
+          },
+          {
+            "key": "rt_closed",
+            "label": "Приховати SSID",
+            "type": "select",
+            "options": [
+              [
+                "1",
+                "Увімкнено"
+              ],
+              [
+                "0",
+                "Вимкнено"
+              ]
+            ]
+          },
+          {
+            "key": "rt_gmode",
+            "label": "Режим бездротової мережі",
+            "type": "select",
+            "options": [
+              [
+                "2",
+                "b/g/n Mixed"
+              ],
+              [
+                "1",
+                "b/g Mixed"
+              ],
+              [
+                "5",
+                "g/n Mixed (*)"
+              ],
+              [
+                "3",
+                "n Only"
+              ],
+              [
+                "4",
+                "g Only"
+              ],
+              [
+                "0",
+                "b Only"
+              ]
+            ]
+          },
+          {
+            "key": "rt_gmode_protection",
+            "label": "Захист сумісності b/g",
+            "type": "select",
+            "options": [
+              [
+                "auto",
+                "Auto"
+              ],
+              [
+                "on",
+                "Always On"
+              ],
+              [
+                "off",
+                "Always Off"
+              ]
+            ]
+          },
+          {
+            "key": "rt_HT_BW",
+            "label": "Ширина каналу",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "20 MHz"
+              ],
+              [
+                "1",
+                "20/40 MHz (*)"
+              ]
+            ]
+          },
+          {
+            "key": "rt_channel",
+            "label": "Радіоканал",
+            "type": "select",
+            "options": []
+          },
+          {
+            "key": "rt_HT_EXTCHA",
+            "label": "Розширений канал",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Below"
+              ],
+              [
+                "1",
+                "Above"
+              ]
+            ]
+          },
+          {
+            "key": "rt_mcs_mode",
+            "label": "Фіксована швидкість TX з'єднання",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Ні (*)"
+              ],
+              [
+                "1",
+                "HTMIX (1S) 45 Mbps"
+              ],
+              [
+                "2",
+                "HTMIX (1S) 30 Mbps"
+              ],
+              [
+                "3",
+                "HTMIX (1S) 15 Mbps"
+              ],
+              [
+                "4",
+                "OFDM 12 Mbps"
+              ],
+              [
+                "5",
+                "OFDM 9 Mbps"
+              ],
+              [
+                "6",
+                "OFDM 6 Mbps"
+              ],
+              [
+                "7",
+                "CCK 5.5 Mbps"
+              ],
+              [
+                "8",
+                "CCK 2 Mbps"
+              ],
+              [
+                "9",
+                "CCK 1 Mbps"
+              ]
+            ]
+          },
+          {
+            "key": "rt_auth_mode",
+            "label": "Метод перевірки справжності",
+            "type": "select",
+            "options": [
+              [
+                "open",
+                "Open System"
+              ],
+              [
+                "shared",
+                "Shared Key"
+              ],
+              [
+                "psk",
+                "WPA-Personal"
+              ],
+              [
+                "psk",
+                "WPA2-Personal (*)"
+              ],
+              [
+                "psk",
+                "WPA-Auto-Personal"
+              ],
+              [
+                "wpa",
+                "WPA-Enterprise (Radius)"
+              ],
+              [
+                "wpa2",
+                "WPA2-Enterprise (Radius)"
+              ],
+              [
+                "wpa",
+                "WPA-Auto-Enterprise (Radius)"
+              ],
+              [
+                "radius",
+                "Radius with 802.1x"
+              ]
+            ]
+          },
+          {
+            "key": "rt_crypto",
+            "label": "Шифрування WPA",
+            "type": "select",
+            "options": [
+              [
+                "aes",
+                "AES"
+              ],
+              [
+                "tkip+aes",
+                "TKIP+AES"
+              ]
+            ]
+          },
+          {
+            "key": "rt_wpa_psk",
+            "label": "Попередній ключ WPA",
+            "type": "password",
+            "options": [],
+            "maxLength": 64
+          },
+          {
+            "key": "rt_wep_x",
+            "label": "WEP-шифрування",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "None"
+              ],
+              [
+                "1",
+                "WEP-64bits"
+              ],
+              [
+                "2",
+                "WEP-128bits"
+              ]
+            ]
+          },
+          {
+            "key": "rt_key",
+            "label": "Індекс ключа",
+            "type": "select",
+            "options": [
+              [
+                "1",
+                "1"
+              ],
+              [
+                "2",
+                "2"
+              ],
+              [
+                "3",
+                "3"
+              ],
+              [
+                "4",
+                "4"
+              ]
+            ]
+          },
+          {
+            "key": "rt_key1",
+            "label": "WEP-ключ 1",
+            "type": "text",
+            "options": [],
+            "maxLength": 32
+          },
+          {
+            "key": "rt_key2",
+            "label": "WEP-ключ 2",
+            "type": "text",
+            "options": [],
+            "maxLength": 32
+          },
+          {
+            "key": "rt_key3",
+            "label": "WEP-ключ 3",
+            "type": "text",
+            "options": [],
+            "maxLength": 32
+          },
+          {
+            "key": "rt_key4",
+            "label": "WEP-ключ 4",
+            "type": "text",
+            "options": [],
+            "maxLength": 32
+          },
+          {
+            "key": "rt_phrase_x",
+            "label": "Пароль ASUS",
+            "type": "text",
+            "options": [],
+            "maxLength": 64
+          },
+          {
+            "key": "rt_wpa_gtk_rekey",
+            "label": "Інтервал ротації мережних ключів",
+            "type": "text",
+            "options": [],
+            "maxLength": 7
+          },
+          {
+            "key": "rt_TxPower",
+            "label": "Потужність передавача (%)",
+            "type": "text",
+            "options": [],
+            "maxLength": 3
+          },
+          {
+            "key": "rt_KickStaRssiLow",
+            "label": "Відключати клієнтів із сигналом нижче (дБм)",
+            "type": "text",
+            "options": [],
+            "maxLength": 4
+          },
+          {
+            "key": "rt_AssocReqRssiThres",
+            "label": "Не підключати клієнтів із сигналом нижче (дБм)",
+            "type": "text",
+            "options": [],
+            "maxLength": 4
+          },
+          {
+            "key": "rt_country_code",
+            "label": "Код регіону",
+            "type": "select",
+            "options": [
+              [
+                "AU",
+                "Australia (channels 1-13)"
+              ],
+              [
+                "BY",
+                "Belarus (channels 1-13)"
+              ],
+              [
+                "CN",
+                "China (channels 1-13)"
+              ],
+              [
+                "GB",
+                "Europe (channels 1-13)"
+              ],
+              [
+                "JP",
+                "Japan (channels 1-13)"
+              ],
+              [
+                "RU",
+                "Russia (channels 1-13)"
+              ],
+              [
+                "TW",
+                "Taiwan (channels 1-11)"
+              ],
+              [
+                "UA",
+                "Ukraine (channels 1-13)"
+              ],
+              [
+                "US",
+                "USA (channels 1-11)"
+              ],
+              [
+                "DB",
+                "Debug (all channels)"
+              ]
+            ]
+          }
+        ]
+      },
+      "guest": {
+        "classic": "Advanced_WGuest2g_Content.asp",
+        "sha256": "b7aa424deee8f9c984071791bb540f77cff8562e2ea6d4f3b6b2e0a4a3c6ff14",
+        "fields": [
+          {
+            "key": "rt_guest_enable",
+            "label": "Увімкнути гостьову точку доступу",
+            "type": "select",
+            "options": [
+              [
+                "1",
+                "Увімкнено"
+              ],
+              [
+                "0",
+                "Вимкнено"
+              ]
+            ]
+          },
+          {
+            "key": "rt_guest_date_x_Mon",
+            "label": "Дні роботи гостьової точки (будні) · Пн",
+            "type": "checkbox",
+            "options": []
+          },
+          {
+            "key": "rt_guest_date_x_Tue",
+            "label": "Дні роботи гостьової точки (будні) · Вт",
+            "type": "checkbox",
+            "options": []
+          },
+          {
+            "key": "rt_guest_date_x_Wed",
+            "label": "Дні роботи гостьової точки (будні) · Ср",
+            "type": "checkbox",
+            "options": []
+          },
+          {
+            "key": "rt_guest_date_x_Thu",
+            "label": "Дні роботи гостьової точки (будні) · Чт",
+            "type": "checkbox",
+            "options": []
+          },
+          {
+            "key": "rt_guest_date_x_Fri",
+            "label": "Дні роботи гостьової точки (будні) · Пт",
+            "type": "checkbox",
+            "options": []
+          },
+          {
+            "key": "rt_guest_time_x_starthour",
+            "label": "Час роботи гостьової точки (будні) · початок, години",
+            "type": "text",
+            "options": [],
+            "maxLength": 2
+          },
+          {
+            "key": "rt_guest_time_x_startmin",
+            "label": "Час роботи гостьової точки (будні) · початок, хвилини",
+            "type": "text",
+            "options": [],
+            "maxLength": 2
+          },
+          {
+            "key": "rt_guest_time_x_endhour",
+            "label": "Час роботи гостьової точки (будні) · кінець, години",
+            "type": "text",
+            "options": [],
+            "maxLength": 2
+          },
+          {
+            "key": "rt_guest_time_x_endmin",
+            "label": "Час роботи гостьової точки (будні) · кінець, хвилини",
+            "type": "text",
+            "options": [],
+            "maxLength": 2
+          },
+          {
+            "key": "rt_guest_date_x_Sat",
+            "label": "Дні роботи гостьової точки (вихідні) · Сб",
+            "type": "checkbox",
+            "options": []
+          },
+          {
+            "key": "rt_guest_date_x_Sun",
+            "label": "Дні роботи гостьової точки (вихідні) · Нд",
+            "type": "checkbox",
+            "options": []
+          },
+          {
+            "key": "rt_guest_time2_x_starthour",
+            "label": "Час роботи гостьової точки (вихідні) · початок, години",
+            "type": "text",
+            "options": [],
+            "maxLength": 2
+          },
+          {
+            "key": "rt_guest_time2_x_startmin",
+            "label": "Час роботи гостьової точки (вихідні) · початок, хвилини",
+            "type": "text",
+            "options": [],
+            "maxLength": 2
+          },
+          {
+            "key": "rt_guest_time2_x_endhour",
+            "label": "Час роботи гостьової точки (вихідні) · кінець, години",
+            "type": "text",
+            "options": [],
+            "maxLength": 2
+          },
+          {
+            "key": "rt_guest_time2_x_endmin",
+            "label": "Час роботи гостьової точки (вихідні) · кінець, хвилини",
+            "type": "text",
+            "options": [],
+            "maxLength": 2
+          },
+          {
+            "key": "rt_guest_ssid",
+            "label": "Гостьовий SSID",
+            "type": "text",
+            "options": [],
+            "maxLength": 32
+          },
+          {
+            "key": "rt_guest_closed",
+            "label": "Приховати SSID",
+            "type": "select",
+            "options": [
+              [
+                "1",
+                "Увімкнено"
+              ],
+              [
+                "0",
+                "Вимкнено"
+              ]
+            ]
+          },
+          {
+            "key": "rt_guest_lan_isolate",
+            "label": "Ізолювати доступ гостьової точки до LAN",
+            "type": "select",
+            "options": [
+              [
+                "1",
+                "Увімкнено"
+              ],
+              [
+                "0",
+                "Вимкнено"
+              ]
+            ]
+          },
+          {
+            "key": "rt_guest_ap_isolate",
+            "label": "Ізолювати клієнтів точки між собою",
+            "type": "select",
+            "options": [
+              [
+                "1",
+                "Увімкнено"
+              ],
+              [
+                "0",
+                "Вимкнено"
+              ]
+            ]
+          },
+          {
+            "key": "rt_guest_mcs_mode",
+            "label": "Фіксована швидкість TX з'єднання",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Ні (*)"
+              ],
+              [
+                "1",
+                "HTMIX (1S) 45 Mbps"
+              ],
+              [
+                "2",
+                "HTMIX (1S) 30 Mbps"
+              ],
+              [
+                "3",
+                "HTMIX (1S) 15 Mbps"
+              ],
+              [
+                "4",
+                "OFDM 12 Mbps"
+              ],
+              [
+                "5",
+                "OFDM 9 Mbps"
+              ],
+              [
+                "6",
+                "OFDM 6 Mbps"
+              ],
+              [
+                "7",
+                "CCK 5.5 Mbps"
+              ],
+              [
+                "8",
+                "CCK 2 Mbps"
+              ],
+              [
+                "9",
+                "CCK 1 Mbps"
+              ]
+            ]
+          },
+          {
+            "key": "rt_guest_auth_mode",
+            "label": "Метод перевірки справжності",
+            "type": "select",
+            "options": [
+              [
+                "open",
+                "Open System"
+              ],
+              [
+                "psk",
+                "WPA-Personal"
+              ],
+              [
+                "psk",
+                "WPA2-Personal"
+              ],
+              [
+                "psk",
+                "WPA-Auto-Personal"
+              ]
+            ]
+          },
+          {
+            "key": "rt_guest_crypto",
+            "label": "Шифрування WPA",
+            "type": "select",
+            "options": [
+              [
+                "tkip",
+                "TKIP"
+              ],
+              [
+                "aes",
+                "AES"
+              ],
+              [
+                "tkip+aes",
+                "TKIP+AES"
+              ]
+            ]
+          },
+          {
+            "key": "rt_guest_wpa_psk",
+            "label": "Попередній ключ WPA",
+            "type": "password",
+            "options": [],
+            "maxLength": 64
+          },
+          {
+            "key": "rt_guest_macrule",
+            "label": "Використовувати правила фільтру MAC-адрес",
+            "type": "select",
+            "options": [
+              [
+                "1",
+                "Увімкнено"
+              ],
+              [
+                "0",
+                "Вимкнено"
+              ]
+            ]
+          }
+        ]
+      },
+      "bridge": {
+        "classic": "Advanced_WMode2g_Content.asp",
+        "sha256": "ede8cc2d101d472703479ad562bec98a5adb3710ee43855f06016e3e35f3fb0e",
+        "fields": [
+          {
+            "key": "rt_mode_x",
+            "label": "Режим роботи бездротового інтерфейсу",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "ТД (міст відключений)"
+              ],
+              [
+                "1",
+                "WDS міст (ТД відключена)"
+              ],
+              [
+                "2",
+                "WDS репітер (міст + ТД)"
+              ],
+              [
+                "3",
+                "AP-клієнт (ТД відключена)"
+              ],
+              [
+                "4",
+                "AP-клієнт + ТД"
+              ]
+            ]
+          },
+          {
+            "key": "rt_sta_wisp",
+            "label": "Роль бездротового AP-клієнта",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "LAN bridge"
+              ],
+              [
+                "1",
+                "WAN (Wireless ISP)"
+              ]
+            ]
+          },
+          {
+            "key": "rt_channel",
+            "label": "Радіоканал",
+            "type": "select",
+            "options": []
+          },
+          {
+            "key": "rt_wdsapply_x",
+            "label": "Задати підключення до інших WDS пірів",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Автопідключення до WDS піра"
+              ],
+              [
+                "1",
+                "Так"
+              ]
+            ]
+          },
+          {
+            "key": "rt_wdslist_x_0",
+            "label": "SSID віддаленої точки",
+            "type": "text",
+            "options": [],
+            "maxLength": 12
+          },
+          {
+            "key": "rt_sta_ssid",
+            "label": "SSID віддаленої точки",
+            "type": "text",
+            "options": [],
+            "maxLength": 32
+          },
+          {
+            "key": "rt_RBRList_s",
+            "label": "Список віддалених WDS пірів",
+            "type": "select",
+            "options": []
+          },
+          {
+            "key": "rt_sta_auth_mode",
+            "label": "Метод перевірки справжності",
+            "type": "select",
+            "options": [
+              [
+                "open",
+                "Open System"
+              ],
+              [
+                "psk",
+                "WPA-Personal"
+              ],
+              [
+                "psk",
+                "WPA2-Personal"
+              ]
+            ]
+          },
+          {
+            "key": "rt_sta_crypto",
+            "label": "Шифрування WPA",
+            "type": "select",
+            "options": [
+              [
+                "tkip",
+                "TKIP"
+              ],
+              [
+                "aes",
+                "AES"
+              ]
+            ]
+          },
+          {
+            "key": "rt_sta_wpa_psk",
+            "label": "Попередній ключ WPA",
+            "type": "password",
+            "options": [],
+            "maxLength": 64
+          }
+        ]
+      },
+      "mac": {
+        "classic": "Advanced_ACL2g_Content.asp",
+        "sha256": "e5fb19a0de375e8397462b4c795aaf051a0d3c4c460360763870c00859d72dd0",
+        "fields": [
+          {
+            "key": "rt_macmode",
+            "label": "Режим фильтрації MAC-адрес",
+            "type": "select",
+            "options": [
+              [
+                "disabled",
+                "Вимкнено"
+              ],
+              [
+                "allow",
+                "Приймати"
+              ],
+              [
+                "deny",
+                "Відхиляти"
+              ]
+            ]
+          },
+          {
+            "key": "rt_maclist_x_0",
+            "label": "MAC-адреса",
+            "type": "text",
+            "options": [],
+            "maxLength": 12
+          },
+          {
+            "key": "rt_macdesc_x_0",
+            "label": "Опис пристрою",
+            "type": "text",
+            "options": [],
+            "maxLength": 32
+          }
+        ]
+      },
+      "radius": {
+        "classic": "Advanced_WSecurity2g_Content.asp",
+        "sha256": "0c741144c8af67c55a06565d9e89ebfac5c771d5bdeea2f869dbee094f041818",
+        "fields": [
+          {
+            "key": "rt_radius_ipaddr",
+            "label": "IP-адреса сервера",
+            "type": "text",
+            "options": [],
+            "maxLength": 15
+          },
+          {
+            "key": "rt_radius_port",
+            "label": "Порт сервера",
+            "type": "text",
+            "options": [],
+            "maxLength": 5
+          },
+          {
+            "key": "rt_radius_key",
+            "label": "Ключ з'єднання",
+            "type": "password",
+            "options": [],
+            "maxLength": 64
+          }
+        ]
+      },
+      "advanced": {
+        "classic": "Advanced_WAdvanced2g_Content.asp",
+        "sha256": "fc6dda53e4d1219b3bc187a0bb60fe17521c6ba7ca146e4560559010b2c5ef22",
+        "fields": [
+          {
+            "key": "rt_stream_tx",
+            "label": "Кількість потоків надсилання даних (TX)",
+            "type": "select",
+            "options": [
+              [
+                "1",
+                "1T (150Mbps)"
+              ],
+              [
+                "2",
+                "2T (300Mbps)"
+              ]
+            ]
+          },
+          {
+            "key": "rt_stream_rx",
+            "label": "Кількість потоків приймання даних (RX)",
+            "type": "select",
+            "options": [
+              [
+                "1",
+                "1R (150Mbps)"
+              ],
+              [
+                "2",
+                "2R (300Mbps)"
+              ]
+            ]
+          },
+          {
+            "key": "rt_VgaClamp",
+            "label": "Ослаблення входу для захисту від впливу завад",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Ні (*)"
+              ],
+              [
+                "1",
+                "-4 dB"
+              ],
+              [
+                "2",
+                "-8 dB"
+              ],
+              [
+                "3",
+                "-12 dB"
+              ],
+              [
+                "4",
+                "-16 dB"
+              ]
+            ]
+          },
+          {
+            "key": "rt_greenap",
+            "label": "Увімкнути енергозбереження Green AP",
+            "type": "select",
+            "options": [
+              [
+                "1",
+                "Увімкнено"
+              ],
+              [
+                "0",
+                "Вимкнено"
+              ]
+            ]
+          },
+          {
+            "key": "rt_ap_isolate",
+            "label": "Ізолювати клієнтів точки між собою",
+            "type": "select",
+            "options": [
+              [
+                "1",
+                "Увімкнено"
+              ],
+              [
+                "0",
+                "Вимкнено"
+              ]
+            ]
+          },
+          {
+            "key": "rt_preamble",
+            "label": "Тип преамбули",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Long"
+              ],
+              [
+                "1",
+                "Short (*)"
+              ]
+            ]
+          },
+          {
+            "key": "rt_frag",
+            "label": "Поріг фрагментації",
+            "type": "text",
+            "options": [],
+            "maxLength": 4
+          },
+          {
+            "key": "rt_rts",
+            "label": "Поріг готовності до передавання",
+            "type": "text",
+            "options": [],
+            "maxLength": 4
+          },
+          {
+            "key": "rt_dtim",
+            "label": "Інтервал DTIM",
+            "type": "text",
+            "options": [],
+            "maxLength": 3
+          },
+          {
+            "key": "rt_bcn",
+            "label": "Сигнальний інтервал",
+            "type": "text",
+            "options": [],
+            "maxLength": 4
+          },
+          {
+            "key": "rt_mrate",
+            "label": "Швидкість передавання Multicast даних",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Auto"
+              ],
+              [
+                "1",
+                "CCK 1 Mbps"
+              ],
+              [
+                "2",
+                "CCK 2 Mbps"
+              ],
+              [
+                "3",
+                "OFDM 6 Mbps (*)"
+              ],
+              [
+                "4",
+                "OFDM 9 Mbps"
+              ],
+              [
+                "5",
+                "OFDM 12 Mbps"
+              ],
+              [
+                "6",
+                "HTMIX 15 Mbps"
+              ],
+              [
+                "7",
+                "HTMIX 30 Mbps"
+              ]
+            ]
+          },
+          {
+            "key": "rt_ldpc",
+            "label": "Кодування LDPC",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Вимкнути"
+              ],
+              [
+                "1",
+                "11n only (*)"
+              ]
+            ]
+          },
+          {
+            "key": "rt_TxBurst",
+            "label": "Увімкнути безперервне передавання",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Вимкнути"
+              ],
+              [
+                "1",
+                "Увімкнути (*)"
+              ]
+            ]
+          },
+          {
+            "key": "rt_PktAggregate",
+            "label": "Увімкнути агрегацію пакетів",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Вимкнути"
+              ],
+              [
+                "1",
+                "Увімкнути (*)"
+              ]
+            ]
+          },
+          {
+            "key": "rt_HT_RDG",
+            "label": "Увімкнути Reverse Direction Grant (RDG)",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Вимкнути (*)"
+              ],
+              [
+                "1",
+                "Увімкнути (Ralink clients only)"
+              ]
+            ]
+          },
+          {
+            "key": "rt_HT_AutoBA",
+            "label": "Увімкнути Auto Block Acknowledgment (AutoBA)",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Вимкнути"
+              ],
+              [
+                "1",
+                "Увімкнути (*)"
+              ]
+            ]
+          },
+          {
+            "key": "rt_HT_AMSDU",
+            "label": "Увімкнути AMSDU",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Вимкнути"
+              ],
+              [
+                "1",
+                "Увімкнути (*)"
+              ]
+            ]
+          },
+          {
+            "key": "rt_HT_80211KV",
+            "label": "Увімкнути 802.11k/v",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Вимкнути (*)"
+              ],
+              [
+                "1",
+                "Увімкнути"
+              ]
+            ]
+          },
+          {
+            "key": "rt_HT_80211R",
+            "label": "Увімкнути 802.11r",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Вимкнути (*)"
+              ],
+              [
+                "1",
+                "Увімкнути"
+              ]
+            ]
+          },
+          {
+            "key": "rt_HT_OpMode",
+            "label": "Увімкнути Greenfield",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Вимкнути"
+              ],
+              [
+                "1",
+                "Увімкнути (*)"
+              ]
+            ]
+          },
+          {
+            "key": "rt_wme",
+            "label": "Увімкнути WMM",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Вимкнути"
+              ],
+              [
+                "1",
+                "Увімкнути (*)"
+              ]
+            ]
+          },
+          {
+            "key": "rt_wme_no_ack",
+            "label": "Увімкнути WMM без підтвердження приймання",
+            "type": "select",
+            "options": [
+              [
+                "off",
+                "Вимкнути (*)"
+              ],
+              [
+                "on",
+                "Увімкнути"
+              ]
+            ]
+          },
+          {
+            "key": "rt_APSDCapable",
+            "label": "Увімкнути WMM APSD",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Вимкнути (*)"
+              ],
+              [
+                "1",
+                "Увімкнути"
+              ]
+            ]
+          },
+          {
+            "key": "rt_turbo_qam",
+            "label": "Turbo QAM",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Вимкнути"
+              ],
+              [
+                "1",
+                "Увімкнути (*)"
+              ]
+            ]
+          },
+          {
+            "key": "rt_airtimefairness",
+            "label": "Розподіл ефірного часу",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Вимкнути"
+              ],
+              [
+                "1",
+                "Увімкнути (*)"
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    "5": {
+      "general": {
+        "classic": "Advanced_Wireless_Content.asp",
+        "sha256": "b38e2686f116536acd3a1c99e258acaca3f3a88fa0bc5f81f03e21207cfbc859",
+        "fields": [
+          {
+            "key": "wl_radio_x",
+            "label": "Увімкнути радіомодуль",
+            "type": "select",
+            "options": [
+              [
+                "1",
+                "Увімкнено"
+              ],
+              [
+                "0",
+                "Вимкнено"
+              ]
+            ]
+          },
+          {
+            "key": "wl_radio_date_x_Mon",
+            "label": "Дні увімкнення радіомодуля (будні) · Пн",
+            "type": "checkbox",
+            "options": []
+          },
+          {
+            "key": "wl_radio_date_x_Tue",
+            "label": "Дні увімкнення радіомодуля (будні) · Вт",
+            "type": "checkbox",
+            "options": []
+          },
+          {
+            "key": "wl_radio_date_x_Wed",
+            "label": "Дні увімкнення радіомодуля (будні) · Ср",
+            "type": "checkbox",
+            "options": []
+          },
+          {
+            "key": "wl_radio_date_x_Thu",
+            "label": "Дні увімкнення радіомодуля (будні) · Чт",
+            "type": "checkbox",
+            "options": []
+          },
+          {
+            "key": "wl_radio_date_x_Fri",
+            "label": "Дні увімкнення радіомодуля (будні) · Пт",
+            "type": "checkbox",
+            "options": []
+          },
+          {
+            "key": "wl_radio_time_x_starthour",
+            "label": "Час увімкнення радіомодуля (будні) · початок, години",
+            "type": "text",
+            "options": [],
+            "maxLength": 2
+          },
+          {
+            "key": "wl_radio_time_x_startmin",
+            "label": "Час увімкнення радіомодуля (будні) · початок, хвилини",
+            "type": "text",
+            "options": [],
+            "maxLength": 2
+          },
+          {
+            "key": "wl_radio_time_x_endhour",
+            "label": "Час увімкнення радіомодуля (будні) · кінець, години",
+            "type": "text",
+            "options": [],
+            "maxLength": 2
+          },
+          {
+            "key": "wl_radio_time_x_endmin",
+            "label": "Час увімкнення радіомодуля (будні) · кінець, хвилини",
+            "type": "text",
+            "options": [],
+            "maxLength": 2
+          },
+          {
+            "key": "wl_radio_date_x_Sat",
+            "label": "Дні увімкнення радіомодуля (вихідні) · Сб",
+            "type": "checkbox",
+            "options": []
+          },
+          {
+            "key": "wl_radio_date_x_Sun",
+            "label": "Дні увімкнення радіомодуля (вихідні) · Нд",
+            "type": "checkbox",
+            "options": []
+          },
+          {
+            "key": "wl_radio_time2_x_starthour",
+            "label": "Час увімкнення радіомодуля (вихідні) · початок, години",
+            "type": "text",
+            "options": [],
+            "maxLength": 2
+          },
+          {
+            "key": "wl_radio_time2_x_startmin",
+            "label": "Час увімкнення радіомодуля (вихідні) · початок, хвилини",
+            "type": "text",
+            "options": [],
+            "maxLength": 2
+          },
+          {
+            "key": "wl_radio_time2_x_endhour",
+            "label": "Час увімкнення радіомодуля (вихідні) · кінець, години",
+            "type": "text",
+            "options": [],
+            "maxLength": 2
+          },
+          {
+            "key": "wl_radio_time2_x_endmin",
+            "label": "Час увімкнення радіомодуля (вихідні) · кінець, хвилини",
+            "type": "text",
+            "options": [],
+            "maxLength": 2
+          },
+          {
+            "key": "wl_ssid",
+            "label": "SSID",
+            "type": "text",
+            "options": [],
+            "maxLength": 32
+          },
+          {
+            "key": "wl_closed",
+            "label": "Приховати SSID",
+            "type": "select",
+            "options": [
+              [
+                "1",
+                "Увімкнено"
+              ],
+              [
+                "0",
+                "Вимкнено"
+              ]
+            ]
+          },
+          {
+            "key": "wl_gmode",
+            "label": "Режим бездротової мережі",
+            "type": "select",
+            "options": [
+              [
+                "4",
+                "a/n/ac Mixed"
+              ],
+              [
+                "3",
+                "n/ac Mixed (*)"
+              ],
+              [
+                "2",
+                "a/n Mixed"
+              ],
+              [
+                "1",
+                "n Only"
+              ],
+              [
+                "0",
+                "a Only"
+              ]
+            ]
+          },
+          {
+            "key": "wl_HT_BW",
+            "label": "Ширина каналу",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "20 MHz"
+              ],
+              [
+                "1",
+                "20/40 MHz"
+              ],
+              [
+                "2",
+                "20/40/80 MHz (*)"
+              ],
+              [
+                "3",
+                "20/40/80/160 MHz"
+              ]
+            ]
+          },
+          {
+            "key": "wl_channel",
+            "label": "Радіоканал",
+            "type": "select",
+            "options": []
+          },
+          {
+            "key": "wl_HT_EXTCHA",
+            "label": "Розширений канал",
+            "type": "select",
+            "options": [
+              [
+                "1",
+                "Auto"
+              ]
+            ]
+          },
+          {
+            "key": "wl_mcs_mode",
+            "label": "Фіксована швидкість TX з'єднання",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Ні (*)"
+              ],
+              [
+                "7",
+                "VHT (1S) 88 Mbps"
+              ],
+              [
+                "8",
+                "VHT (1S) 58 Mbps"
+              ],
+              [
+                "9",
+                "VHT (1S) 29 Mbps"
+              ],
+              [
+                "1",
+                "HTMIX (1S) 45 Mbps"
+              ],
+              [
+                "2",
+                "HTMIX (1S) 30 Mbps"
+              ],
+              [
+                "3",
+                "HTMIX (1S) 15 Mbps"
+              ],
+              [
+                "4",
+                "OFDM 12 Mbps"
+              ],
+              [
+                "5",
+                "OFDM 9 Mbps"
+              ],
+              [
+                "6",
+                "OFDM 6 Mbps"
+              ]
+            ]
+          },
+          {
+            "key": "wl_auth_mode",
+            "label": "Метод перевірки справжності",
+            "type": "select",
+            "options": [
+              [
+                "open",
+                "Open System"
+              ],
+              [
+                "shared",
+                "Shared Key"
+              ],
+              [
+                "psk",
+                "WPA-Personal"
+              ],
+              [
+                "psk",
+                "WPA2-Personal (*)"
+              ],
+              [
+                "psk",
+                "WPA-Auto-Personal"
+              ],
+              [
+                "wpa",
+                "WPA-Enterprise (Radius)"
+              ],
+              [
+                "wpa2",
+                "WPA2-Enterprise (Radius)"
+              ],
+              [
+                "wpa",
+                "WPA-Auto-Enterprise (Radius)"
+              ],
+              [
+                "radius",
+                "Radius with 802.1x"
+              ]
+            ]
+          },
+          {
+            "key": "wl_crypto",
+            "label": "Шифрування WPA",
+            "type": "select",
+            "options": [
+              [
+                "aes",
+                "AES"
+              ],
+              [
+                "tkip+aes",
+                "TKIP+AES"
+              ]
+            ]
+          },
+          {
+            "key": "wl_wpa_psk",
+            "label": "Попередній ключ WPA",
+            "type": "password",
+            "options": [],
+            "maxLength": 64
+          },
+          {
+            "key": "wl_wep_x",
+            "label": "WEP-шифрування",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "None"
+              ],
+              [
+                "1",
+                "WEP-64bits"
+              ],
+              [
+                "2",
+                "WEP-128bits"
+              ]
+            ]
+          },
+          {
+            "key": "wl_key",
+            "label": "Індекс ключа",
+            "type": "select",
+            "options": [
+              [
+                "1",
+                "1"
+              ],
+              [
+                "2",
+                "2"
+              ],
+              [
+                "3",
+                "3"
+              ],
+              [
+                "4",
+                "4"
+              ]
+            ]
+          },
+          {
+            "key": "wl_key1",
+            "label": "WEP-ключ 1",
+            "type": "text",
+            "options": [],
+            "maxLength": 32
+          },
+          {
+            "key": "wl_key2",
+            "label": "WEP-ключ 2",
+            "type": "text",
+            "options": [],
+            "maxLength": 32
+          },
+          {
+            "key": "wl_key3",
+            "label": "WEP-ключ 3",
+            "type": "text",
+            "options": [],
+            "maxLength": 32
+          },
+          {
+            "key": "wl_key4",
+            "label": "WEP-ключ 4",
+            "type": "text",
+            "options": [],
+            "maxLength": 32
+          },
+          {
+            "key": "wl_phrase_x",
+            "label": "Пароль ASUS",
+            "type": "text",
+            "options": [],
+            "maxLength": 64
+          },
+          {
+            "key": "wl_wpa_gtk_rekey",
+            "label": "Інтервал ротації мережних ключів",
+            "type": "text",
+            "options": [],
+            "maxLength": 7
+          },
+          {
+            "key": "wl_TxPower",
+            "label": "Потужність передавача (%)",
+            "type": "text",
+            "options": [],
+            "maxLength": 3
+          },
+          {
+            "key": "wl_KickStaRssiLow",
+            "label": "Відключати клієнтів із сигналом нижче (дБм)",
+            "type": "text",
+            "options": [],
+            "maxLength": 4
+          },
+          {
+            "key": "wl_AssocReqRssiThres",
+            "label": "Не підключати клієнтів із сигналом нижче (дБм)",
+            "type": "text",
+            "options": [],
+            "maxLength": 4
+          },
+          {
+            "key": "wl_country_code",
+            "label": "Код регіону",
+            "type": "select",
+            "options": [
+              [
+                "AU",
+                "Australia (Region 0, channels 36-64,149-165)"
+              ],
+              [
+                "BY",
+                "Belarus (Region 34, channels 36-64,132-144)"
+              ],
+              [
+                "CN",
+                "China (Region 0, channels 36-64,149-165)"
+              ],
+              [
+                "FR",
+                "France (Region 2, channels 36-64)"
+              ],
+              [
+                "GB",
+                "Europe (Region 1, channels 36-64,100-140)"
+              ],
+              [
+                "JP",
+                "Japan (Region 9, channels 36-64,100-116,132-140,149-165)"
+              ],
+              [
+                "KR",
+                "Korea (Region 5, channels 149-161)"
+              ],
+              [
+                "NO",
+                "Norway (Region 0, channels 36-64,149-165)"
+              ],
+              [
+                "RU",
+                "Russia (Region 36, channels 36-64,132-144,149-165)"
+              ],
+              [
+                "TW",
+                "Taiwan (Region 3, channels 52-64,149-161)"
+              ],
+              [
+                "UA",
+                "Ukraine (Region 35, channels 36-64,100-140,149-165)"
+              ],
+              [
+                "US",
+                "USA (Region 0, channels 36-64,149-165)"
+              ],
+              [
+                "DB",
+                "Debug (all channels)"
+              ]
+            ]
+          }
+        ]
+      },
+      "guest": {
+        "classic": "Advanced_WGuest_Content.asp",
+        "sha256": "ac6b8e852075b46dcbdf91089fe2e2348bcf6ff74c9f7584f49ec81de1336d75",
+        "fields": [
+          {
+            "key": "wl_guest_enable",
+            "label": "Увімкнути гостьову точку доступу",
+            "type": "select",
+            "options": [
+              [
+                "1",
+                "Увімкнено"
+              ],
+              [
+                "0",
+                "Вимкнено"
+              ]
+            ]
+          },
+          {
+            "key": "wl_guest_date_x_Mon",
+            "label": "Дні роботи гостьової точки (будні) · Пн",
+            "type": "checkbox",
+            "options": []
+          },
+          {
+            "key": "wl_guest_date_x_Tue",
+            "label": "Дні роботи гостьової точки (будні) · Вт",
+            "type": "checkbox",
+            "options": []
+          },
+          {
+            "key": "wl_guest_date_x_Wed",
+            "label": "Дні роботи гостьової точки (будні) · Ср",
+            "type": "checkbox",
+            "options": []
+          },
+          {
+            "key": "wl_guest_date_x_Thu",
+            "label": "Дні роботи гостьової точки (будні) · Чт",
+            "type": "checkbox",
+            "options": []
+          },
+          {
+            "key": "wl_guest_date_x_Fri",
+            "label": "Дні роботи гостьової точки (будні) · Пт",
+            "type": "checkbox",
+            "options": []
+          },
+          {
+            "key": "wl_guest_time_x_starthour",
+            "label": "Час роботи гостьової точки (будні) · початок, години",
+            "type": "text",
+            "options": [],
+            "maxLength": 2
+          },
+          {
+            "key": "wl_guest_time_x_startmin",
+            "label": "Час роботи гостьової точки (будні) · початок, хвилини",
+            "type": "text",
+            "options": [],
+            "maxLength": 2
+          },
+          {
+            "key": "wl_guest_time_x_endhour",
+            "label": "Час роботи гостьової точки (будні) · кінець, години",
+            "type": "text",
+            "options": [],
+            "maxLength": 2
+          },
+          {
+            "key": "wl_guest_time_x_endmin",
+            "label": "Час роботи гостьової точки (будні) · кінець, хвилини",
+            "type": "text",
+            "options": [],
+            "maxLength": 2
+          },
+          {
+            "key": "wl_guest_date_x_Sat",
+            "label": "Дні роботи гостьової точки (вихідні) · Сб",
+            "type": "checkbox",
+            "options": []
+          },
+          {
+            "key": "wl_guest_date_x_Sun",
+            "label": "Дні роботи гостьової точки (вихідні) · Нд",
+            "type": "checkbox",
+            "options": []
+          },
+          {
+            "key": "wl_guest_time2_x_starthour",
+            "label": "Час роботи гостьової точки (вихідні) · початок, години",
+            "type": "text",
+            "options": [],
+            "maxLength": 2
+          },
+          {
+            "key": "wl_guest_time2_x_startmin",
+            "label": "Час роботи гостьової точки (вихідні) · початок, хвилини",
+            "type": "text",
+            "options": [],
+            "maxLength": 2
+          },
+          {
+            "key": "wl_guest_time2_x_endhour",
+            "label": "Час роботи гостьової точки (вихідні) · кінець, години",
+            "type": "text",
+            "options": [],
+            "maxLength": 2
+          },
+          {
+            "key": "wl_guest_time2_x_endmin",
+            "label": "Час роботи гостьової точки (вихідні) · кінець, хвилини",
+            "type": "text",
+            "options": [],
+            "maxLength": 2
+          },
+          {
+            "key": "wl_guest_ssid",
+            "label": "Гостьовий SSID",
+            "type": "text",
+            "options": [],
+            "maxLength": 32
+          },
+          {
+            "key": "wl_guest_closed",
+            "label": "Приховати SSID",
+            "type": "select",
+            "options": [
+              [
+                "1",
+                "Увімкнено"
+              ],
+              [
+                "0",
+                "Вимкнено"
+              ]
+            ]
+          },
+          {
+            "key": "wl_guest_lan_isolate",
+            "label": "Ізолювати доступ гостьової точки до LAN",
+            "type": "select",
+            "options": [
+              [
+                "1",
+                "Увімкнено"
+              ],
+              [
+                "0",
+                "Вимкнено"
+              ]
+            ]
+          },
+          {
+            "key": "wl_guest_ap_isolate",
+            "label": "Ізолювати клієнтів точки між собою",
+            "type": "select",
+            "options": [
+              [
+                "1",
+                "Увімкнено"
+              ],
+              [
+                "0",
+                "Вимкнено"
+              ]
+            ]
+          },
+          {
+            "key": "wl_guest_mcs_mode",
+            "label": "Фіксована швидкість TX з'єднання",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Ні (*)"
+              ],
+              [
+                "7",
+                "VHT (1S) 98 Mbps"
+              ],
+              [
+                "8",
+                "VHT (1S) 65 Mbps"
+              ],
+              [
+                "9",
+                "VHT (1S) 33 Mbps"
+              ],
+              [
+                "1",
+                "HTMIX (1S) 45 Mbps"
+              ],
+              [
+                "2",
+                "HTMIX (1S) 30 Mbps"
+              ],
+              [
+                "3",
+                "HTMIX (1S) 15 Mbps"
+              ],
+              [
+                "4",
+                "OFDM 12 Mbps"
+              ],
+              [
+                "5",
+                "OFDM 9 Mbps"
+              ],
+              [
+                "6",
+                "OFDM 6 Mbps"
+              ]
+            ]
+          },
+          {
+            "key": "wl_guest_auth_mode",
+            "label": "Метод перевірки справжності",
+            "type": "select",
+            "options": [
+              [
+                "open",
+                "Open System"
+              ],
+              [
+                "psk",
+                "WPA-Personal"
+              ],
+              [
+                "psk",
+                "WPA2-Personal"
+              ],
+              [
+                "psk",
+                "WPA-Auto-Personal"
+              ]
+            ]
+          },
+          {
+            "key": "wl_guest_crypto",
+            "label": "Шифрування WPA",
+            "type": "select",
+            "options": [
+              [
+                "tkip",
+                "TKIP"
+              ],
+              [
+                "aes",
+                "AES"
+              ],
+              [
+                "tkip+aes",
+                "TKIP+AES"
+              ]
+            ]
+          },
+          {
+            "key": "wl_guest_wpa_psk",
+            "label": "Попередній ключ WPA",
+            "type": "password",
+            "options": [],
+            "maxLength": 64
+          },
+          {
+            "key": "wl_guest_macrule",
+            "label": "Використовувати правила фільтру MAC-адрес",
+            "type": "select",
+            "options": [
+              [
+                "1",
+                "Увімкнено"
+              ],
+              [
+                "0",
+                "Вимкнено"
+              ]
+            ]
+          }
+        ]
+      },
+      "bridge": {
+        "classic": "Advanced_WMode_Content.asp",
+        "sha256": "66c8e62b4930ffe2ee052b3ca678617508ad8108270436bc0563c8edb57496a6",
+        "fields": [
+          {
+            "key": "wl_mode_x",
+            "label": "Режим роботи бездротового інтерфейсу",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "ТД (міст відключений)"
+              ],
+              [
+                "1",
+                "WDS міст (ТД відключена)"
+              ],
+              [
+                "2",
+                "WDS репітер (міст + ТД)"
+              ],
+              [
+                "3",
+                "AP-клієнт (ТД відключена)"
+              ],
+              [
+                "4",
+                "AP-клієнт + ТД"
+              ]
+            ]
+          },
+          {
+            "key": "wl_sta_wisp",
+            "label": "Роль бездротового AP-клієнта",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "LAN bridge"
+              ],
+              [
+                "1",
+                "WAN (Wireless ISP)"
+              ]
+            ]
+          },
+          {
+            "key": "wl_channel",
+            "label": "Радіоканал",
+            "type": "select",
+            "options": []
+          },
+          {
+            "key": "wl_wdsapply_x",
+            "label": "Задати підключення до інших WDS пірів",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Автопідключення до WDS піра"
+              ],
+              [
+                "1",
+                "Так"
+              ]
+            ]
+          },
+          {
+            "key": "wl_wdslist_x_0",
+            "label": "SSID віддаленої точки",
+            "type": "text",
+            "options": [],
+            "maxLength": 12
+          },
+          {
+            "key": "wl_sta_ssid",
+            "label": "SSID віддаленої точки",
+            "type": "text",
+            "options": [],
+            "maxLength": 32
+          },
+          {
+            "key": "wl_sta_auth_mode",
+            "label": "Метод перевірки справжності",
+            "type": "select",
+            "options": [
+              [
+                "open",
+                "Open System"
+              ],
+              [
+                "psk",
+                "WPA-Personal"
+              ],
+              [
+                "psk",
+                "WPA2-Personal"
+              ]
+            ]
+          },
+          {
+            "key": "wl_sta_crypto",
+            "label": "Шифрування WPA",
+            "type": "select",
+            "options": [
+              [
+                "tkip",
+                "TKIP"
+              ],
+              [
+                "aes",
+                "AES"
+              ]
+            ]
+          },
+          {
+            "key": "wl_sta_wpa_psk",
+            "label": "Попередній ключ WPA",
+            "type": "password",
+            "options": [],
+            "maxLength": 64
+          }
+        ]
+      },
+      "mac": {
+        "classic": "Advanced_ACL_Content.asp",
+        "sha256": "a18936194bf0acd5e206e3d17f3e0e6260624a53b4b9e42449c3acbfdb382118",
+        "fields": [
+          {
+            "key": "wl_macmode",
+            "label": "Режим фильтрації MAC-адрес",
+            "type": "select",
+            "options": [
+              [
+                "disabled",
+                "Вимкнено"
+              ],
+              [
+                "allow",
+                "Приймати"
+              ],
+              [
+                "deny",
+                "Відхиляти"
+              ]
+            ]
+          },
+          {
+            "key": "wl_maclist_x_0",
+            "label": "MAC-адреса",
+            "type": "text",
+            "options": [],
+            "maxLength": 12
+          },
+          {
+            "key": "wl_macdesc_x_0",
+            "label": "Опис пристрою",
+            "type": "text",
+            "options": [],
+            "maxLength": 32
+          }
+        ]
+      },
+      "radius": {
+        "classic": "Advanced_WSecurity_Content.asp",
+        "sha256": "688b7b4a775aa240cf9082e9e190447b811dea5373cb361cf6fa1e198c63141e",
+        "fields": [
+          {
+            "key": "wl_radius_ipaddr",
+            "label": "IP-адреса сервера",
+            "type": "text",
+            "options": [],
+            "maxLength": 15
+          },
+          {
+            "key": "wl_radius_port",
+            "label": "Порт сервера",
+            "type": "text",
+            "options": [],
+            "maxLength": 5
+          },
+          {
+            "key": "wl_radius_key",
+            "label": "Ключ з'єднання",
+            "type": "password",
+            "options": [],
+            "maxLength": 64
+          }
+        ]
+      },
+      "advanced": {
+        "classic": "Advanced_WAdvanced_Content.asp",
+        "sha256": "0d459843c5ffa1f92b6013b6744e8b020e6b5a00ff257e64884e0bd2a4f0371b",
+        "fields": [
+          {
+            "key": "wl_stream_tx",
+            "label": "Кількість потоків надсилання даних (TX)",
+            "type": "select",
+            "options": [
+              [
+                "1",
+                "1T (433Mbps)"
+              ],
+              [
+                "2",
+                "2T (867Mbps)"
+              ]
+            ]
+          },
+          {
+            "key": "wl_stream_rx",
+            "label": "Кількість потоків приймання даних (RX)",
+            "type": "select",
+            "options": [
+              [
+                "1",
+                "1R (433Mbps)"
+              ],
+              [
+                "2",
+                "2R (867Mbps)"
+              ]
+            ]
+          },
+          {
+            "key": "wl_VgaClamp",
+            "label": "Ослаблення входу для захисту від впливу завад",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Ні (*)"
+              ],
+              [
+                "1",
+                "-4 dB"
+              ],
+              [
+                "2",
+                "-8 dB"
+              ],
+              [
+                "3",
+                "-12 dB"
+              ],
+              [
+                "4",
+                "-16 dB"
+              ]
+            ]
+          },
+          {
+            "key": "wl_greenap",
+            "label": "Увімкнути енергозбереження Green AP",
+            "type": "select",
+            "options": [
+              [
+                "1",
+                "Увімкнено"
+              ],
+              [
+                "0",
+                "Вимкнено"
+              ]
+            ]
+          },
+          {
+            "key": "wl_ap_isolate",
+            "label": "Ізолювати клієнтів точки між собою",
+            "type": "select",
+            "options": [
+              [
+                "1",
+                "Увімкнено"
+              ],
+              [
+                "0",
+                "Вимкнено"
+              ]
+            ]
+          },
+          {
+            "key": "wl_preamble",
+            "label": "Тип преамбули",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Long"
+              ],
+              [
+                "1",
+                "Short (*)"
+              ]
+            ]
+          },
+          {
+            "key": "wl_frag",
+            "label": "Поріг фрагментації",
+            "type": "text",
+            "options": [],
+            "maxLength": 4
+          },
+          {
+            "key": "wl_rts",
+            "label": "Поріг готовності до передавання",
+            "type": "text",
+            "options": [],
+            "maxLength": 4
+          },
+          {
+            "key": "wl_dtim",
+            "label": "Інтервал DTIM",
+            "type": "text",
+            "options": [],
+            "maxLength": 3
+          },
+          {
+            "key": "wl_bcn",
+            "label": "Сигнальний інтервал",
+            "type": "text",
+            "options": [],
+            "maxLength": 4
+          },
+          {
+            "key": "wl_ldpc",
+            "label": "Кодування LDPC",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Вимкнути"
+              ],
+              [
+                "1",
+                "11n only"
+              ],
+              [
+                "2",
+                "11ac only"
+              ],
+              [
+                "3",
+                "11n & 11ac (*)"
+              ]
+            ]
+          },
+          {
+            "key": "wl_TxBurst",
+            "label": "Увімкнути безперервне передавання",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Вимкнути"
+              ],
+              [
+                "1",
+                "Увімкнути (*)"
+              ]
+            ]
+          },
+          {
+            "key": "wl_PktAggregate",
+            "label": "Увімкнути агрегацію пакетів",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Вимкнути"
+              ],
+              [
+                "1",
+                "Увімкнути (*)"
+              ]
+            ]
+          },
+          {
+            "key": "wl_HT_RDG",
+            "label": "Увімкнути Reverse Direction Grant (RDG)",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Вимкнути (*)"
+              ],
+              [
+                "1",
+                "Увімкнути (Ralink clients only)"
+              ]
+            ]
+          },
+          {
+            "key": "wl_HT_AutoBA",
+            "label": "Увімкнути Auto Block Acknowledgment (AutoBA)",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Вимкнути"
+              ],
+              [
+                "1",
+                "Увімкнути (*)"
+              ]
+            ]
+          },
+          {
+            "key": "wl_HT_AMSDU",
+            "label": "Увімкнути AMSDU",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Вимкнути"
+              ],
+              [
+                "1",
+                "Увімкнути (*)"
+              ]
+            ]
+          },
+          {
+            "key": "wl_HT_80211KV",
+            "label": "Увімкнути 802.11k/v",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Вимкнути (*)"
+              ],
+              [
+                "1",
+                "Увімкнути"
+              ]
+            ]
+          },
+          {
+            "key": "wl_HT_80211R",
+            "label": "Увімкнути 802.11r",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Вимкнути (*)"
+              ],
+              [
+                "1",
+                "Увімкнути"
+              ]
+            ]
+          },
+          {
+            "key": "wl_HT_OpMode",
+            "label": "Увімкнути Greenfield",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Вимкнути"
+              ],
+              [
+                "1",
+                "Увімкнути (*)"
+              ]
+            ]
+          },
+          {
+            "key": "wl_wme",
+            "label": "Увімкнути WMM",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Вимкнути"
+              ],
+              [
+                "1",
+                "Увімкнути (*)"
+              ]
+            ]
+          },
+          {
+            "key": "wl_wme_no_ack",
+            "label": "Увімкнути WMM без підтвердження приймання",
+            "type": "select",
+            "options": [
+              [
+                "off",
+                "Вимкнути (*)"
+              ],
+              [
+                "on",
+                "Увімкнути"
+              ]
+            ]
+          },
+          {
+            "key": "wl_APSDCapable",
+            "label": "Увімкнути WMM APSD",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Вимкнути (*)"
+              ],
+              [
+                "1",
+                "Увімкнути"
+              ]
+            ]
+          },
+          {
+            "key": "wl_band_steering",
+            "label": "Band Steering",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Вимкнути (*)"
+              ],
+              [
+                "1",
+                "Увімкнути"
+              ]
+            ]
+          },
+          {
+            "key": "wl_mumimo",
+            "label": "MU-MIMO",
+            "type": "select",
+            "options": [
+              [
+                "0",
+                "Вимкнути"
+              ],
+              [
+                "1",
+                "Увімкнути (*)"
+              ]
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

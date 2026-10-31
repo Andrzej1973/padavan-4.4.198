@@ -76,6 +76,36 @@ try:
     rc = target('/sbin/rc').read_bytes()
     checks['runtime_status_backend'] = b'wr_privoxy_process_state' in httpd
     checks['httpd'] = b'found_app_privoxy' in httpd and b'privoxy.user.trust' in httpd and b'restart_privoxy' in httpd
+    checks['save_failure_feedback'] = ('function privoxySaveFailed()' in page and
+                                       '<#Service_Privoxy_Alert_Save#>' in page and
+                                       b'privoxySaveFailed' in httpd)
+    handler = (args.trunk / 'user/httpd/web_ex.c').read_text(encoding='utf-8')
+    # Shared-Wi-Fi preparation adds its adapter argument to every Apply call.
+    # Inspect the Save/Apply response block rather than requiring the original
+    # two-argument spelling, and keep failure handling ahead of success.
+    apply_response = re.search(
+        r'if\s*\(!strcmp\(action_mode,\s*"  Save  "\)\s*\|\|\s*'
+        r'!strcmp\(action_mode,\s*" Apply "\)\)\s*\{'
+        r'(?P<body>(?:[^{}]|\{[^{}]*\})*)\}', handler, re.S)
+    apply_body = apply_response.group('body') if apply_response else ''
+    apply_call = re.search(
+        r'\bresult\s*=\s*validate_asp_apply\s*\(\s*wp\s*,\s*sid'
+        r'(?:\s*,\s*&shared)?\s*\)\s*;', apply_body)
+    failure_branch = apply_body.find('if (privoxy_storage_save_failed)')
+    success_branch = apply_body.find('done_committing();</script>')
+    failure_to_success = (apply_body[failure_branch:success_branch]
+                          if failure_branch >= 0 and success_branch > failure_branch else '')
+    details['save_failure_apply_order'] = {
+        'apply_call_found': apply_call is not None,
+        'failure_branch_after_apply': (apply_call is not None and failure_branch > apply_call.end()),
+        'success_response_after_failure': failure_branch >= 0 and success_branch > failure_branch,
+        'failure_flag_set': 'privoxy_storage_save_failed = 1;' in handler,
+        'failure_callback_in_branch': 'if(parent.privoxySaveFailed)parent.privoxySaveFailed()' in failure_to_success,
+        'legacy_restart_cleared': 'restart_needed_bits = 0;' in failure_to_success,
+        'extended_restart_cleared': 'restart_needed_extended = 0;' in failure_to_success,
+        'apply_aborted': 'return 0;' in failure_to_success,
+    }
+    checks['save_failure_apply_order'] = all(details['save_failure_apply_order'].values())
     checks['rc'] = b'/usr/bin/privoxy.sh' in rc and b'restart_privoxy' in rc
     queue = [binary]
     visited = set()

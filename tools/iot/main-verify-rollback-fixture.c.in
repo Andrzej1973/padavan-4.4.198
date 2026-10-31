@@ -1,0 +1,126 @@
+#include "virtual-open-claim.h"
+#include <assert.h>
+#include <stdio.h>
+
+#define WDEV_NUM_MAX 1
+#define CONFIG_AP_SUPPORT 1
+typedef void VOID;
+typedef unsigned long ULONG;
+struct net_device { void *priv; };
+struct adapter {
+ int wr_iot_transition_lock, wr_iot_ticket_wait;
+ struct wr_iot_radio_transition wr_iot_transition;
+ struct wr_iot_interface_ref wr_iot_interface_refs[WDEV_NUM_MAX + 1];
+ struct net_device *net_dev;
+ unsigned int VirtualIfCnt;
+};
+typedef struct adapter *PRTMP_ADAPTER;
+static int refs, locked, mutations, ready, queue_actions;
+static int close_result, preclose_result, continue_result;
+static int begin_calls, preclose_calls, continue_calls, log_calls;
+#define RTMP_IRQ_LOCK(lock,flags) ((void)(lock),(flags)=0,assert(!locked),locked=1)
+#define RTMP_IRQ_UNLOCK(lock,flags) ((void)(lock),(void)(flags),assert(locked),locked=0)
+#define RT_MOD_INC_USE_COUNT() (++refs)
+#define RT_MOD_DEC_USE_COUNT() (--refs)
+#define GET_PAD_FROM_NET_DEV(ad,dev) ((ad)=(dev)->priv)
+#define VIRTUAL_IF_NUM(ad) ((ad)->VirtualIfCnt)
+#define RTMP_DRIVER_AP_MAIN_OPEN(ad) ((void)(ad),assert(!locked),mutations++)
+#define IS_MT7603(ad) ((void)(ad),1)
+#define netif_start_queue(dev) ((void)(dev),queue_actions++)
+#define netif_carrier_on(dev) ((void)(dev),queue_actions++)
+#define netif_wake_queue(dev) ((void)(dev),queue_actions++)
+#define wake_up_all(wait) ((void)(wait))
+#define RT_DEBUG_ERROR 1
+#define DBGPRINT(level,args) ((void)(level),log_calls++)
+static int mock_virtual_up(PRTMP_ADAPTER ad,struct net_device *dev,
+ const struct wr_iot_radio_ticket *ticket,unsigned long generation){
+ struct wr_iot_virtual_open_claim claim={dev,generation,ticket->serial,
+                                       ticket->epoch,ticket->operation};
+ assert(!locked);
+ assert(wr_iot_virtual_main_open_claim_matches(&claim,&ad->wr_iot_transition,
+        ad->wr_iot_interface_refs,WDEV_NUM_MAX+1,ad->net_dev,ad->VirtualIfCnt));
+ ad->VirtualIfCnt++;
+ return 0;
+}
+#define VIRTUAL_IF_UP_CLAIM(ad,dev,ticket,generation) \
+ mock_virtual_up((PRTMP_ADAPTER)(ad),(dev),(ticket),(generation))
+static int wr_iot_main_readiness_verify(PRTMP_ADAPTER ad,
+ struct net_device *dev,unsigned long generation){
+ struct wr_iot_interface_ref *record;
+ assert(!locked&&ad&&dev&&generation);
+ record=wr_iot_registry_find_owned(ad->wr_iot_interface_refs,WDEV_NUM_MAX+1,dev);
+ assert(record&&record->generation==generation);
+ ready++;
+ return 0;
+}
+static int wr_iot_main_close_begin_checked(PRTMP_ADAPTER ad,struct net_device *dev,
+ struct wr_iot_radio_ticket *ticket,unsigned long *generation,
+ unsigned long *token,unsigned long *wait_serial){
+ struct wr_iot_interface_ref *record;
+ assert(!locked&&ad&&dev&&ticket&&generation&&token&&wait_serial);
+ begin_calls++;
+ if(close_result)return -1;
+ record=wr_iot_registry_find_owned(ad->wr_iot_interface_refs,WDEV_NUM_MAX+1,dev);
+ assert(record);
+ *generation=record->generation;
+ *token=record->last_token;
+ *wait_serial=0;
+ return 0;
+}
+static int wr_iot_main_close_preclose_once(PRTMP_ADAPTER ad,struct net_device *dev,
+ unsigned long generation,const struct wr_iot_radio_ticket *ticket){
+ assert(!locked&&ad&&dev&&generation&&ticket);
+ preclose_calls++;
+ return preclose_result;
+}
+static int wr_iot_main_close_continue_checked(PRTMP_ADAPTER ad,struct net_device *dev,
+ unsigned long generation,unsigned long token,
+ const struct wr_iot_radio_ticket *ticket){
+ assert(!locked&&ad&&dev&&generation&&token&&ticket);
+ continue_calls++;
+ return continue_result;
+}
+
+/* ACTUAL_MAIN_OPEN */
+
+static void setup(struct adapter *ad,struct net_device *dev){
+ struct wr_iot_interface_ref *record;
+ unsigned long generation=0;
+ *ad=(struct adapter){0};
+ *dev=(struct net_device){ad};
+ ad->net_dev=dev;
+ wr_iot_radio_transition_init(&ad->wr_iot_transition);
+ record=wr_iot_registry_add_family(ad->wr_iot_interface_refs,WDEV_NUM_MAX+1,
+                                  &generation,dev,WR_REF_FAMILY_MAIN);
+ assert(record);
+ record->published=1;
+ refs=locked=mutations=ready=queue_actions=0;
+ close_result=preclose_result=continue_result=0;
+ begin_calls=preclose_calls=continue_calls=log_calls=0;
+}
+int main(void){
+ struct adapter ad;
+ struct net_device dev;
+ setup(&ad,&dev);
+ assert(MainVirtualIF_open(&dev)==-1);
+ assert(ready==1&&begin_calls==1&&preclose_calls==1&&continue_calls==1);
+ assert(refs==0&&queue_actions==0&&!locked);
+
+ setup(&ad,&dev);close_result=-1;
+ assert(MainVirtualIF_open(&dev)==-1);
+ assert(ready==1&&begin_calls==1&&preclose_calls==0&&continue_calls==0);
+ assert(refs==1&&queue_actions==0&&log_calls==1&&!locked);
+
+ setup(&ad,&dev);preclose_result=-1;
+ assert(MainVirtualIF_open(&dev)==-1);
+ assert(ready==1&&begin_calls==1&&preclose_calls==1&&continue_calls==0);
+ assert(refs==1&&queue_actions==0&&log_calls==1&&!locked);
+
+ setup(&ad,&dev);continue_result=-1;
+ assert(MainVirtualIF_open(&dev)==-1);
+ assert(ready==1&&begin_calls==1&&preclose_calls==1&&continue_calls==1);
+ assert(refs==1&&queue_actions==0&&log_calls==1&&!locked);
+
+ puts("PASS actual main ndo_open VERIFY rollback: complete close releases pin; failed stages retain it; queue remains closed");
+ return 0;
+}

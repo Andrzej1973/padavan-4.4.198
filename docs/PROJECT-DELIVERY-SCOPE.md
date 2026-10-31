@@ -6,6 +6,15 @@ loading/disabled feedback. Toggle color represents the selected setting;
 actual service health remains a separate observed indicator. Apply through
 the shared iToggle stylesheet for consistent controls across pages.
 
+User UI clarification, 2026-10-19: keep mode 1 visibly marked as compatible,
+mode 2 as LAN only, and permit the user to switch modes manually. Factory
+default remains mode 2. Mode 1 is an explicit Wi-Fi offload trial; if Wi-Fi
+stability worsens or router load rises, return to mode 2. The firmware must not
+claim that mode 1 works until throughput, stability, and system load are
+measured on the router. Do not infer acceleration from a saved setting; the
+live WR1200JS read showed `hw_nat_mode=2` and a loaded `hw_nat` module, while
+the kernel log reports the requested WAN↔LAN offload path.
+
 User-approved extension, 2026-10-02.
 
 Primary objective remains the Linux 4.4.198 port of YOUHUA WR1200JS,
@@ -111,14 +120,44 @@ Complete these steps in order, carrying all existing acceptance requirements for
 
 1. IoT Wi-Fi: finish activation/shutdown and recovery; integrate the third BSS, owned bridge, DHCP/DNS, isolation/firewall and scoped WAN NAT; add authenticated enable/SSID/credentials/subnet/status/local QR controls; verify simultaneous main/guest/IoT operation and isolation.
 2. Wi-Fi and roaming: finish shared 2.4/5 GHz controls and QR, Band Steering, RSSI Kick and automatically refreshed monitoring. Establish actual supported 802.11k/v/r behavior; never equate compilation or RSSI disconnection with FT roaming.
-3. Service WebUI coverage: complete lifecycle, validation, persistence, status and navigation for accepted enabled services, including outstanding IPsec/EoIP/USBIP/diagnostics work and existing ZeroTier/VPN integration.
-4. WAN socket reassignment: finish authenticated selection and verify selected WAN/remaining LAN isolation and persistence.
-5. Final configuration/image audit: preserve required features, verify optional commented selectors separately and keep WPS optional verification last. Deliver one user download ZIP containing firmware and its config. CAKE stays excluded.
-6. Recoverable device acceptance: verify Linux 4.4.198 boot, WAN/LAN, both Wi-Fi bands under load, restored AmneziaWG, settings/services and restart persistence. User agreement on task order is not authorization to flash or disrupt the remote router.
+3. Service WebUI coverage: complete lifecycle, validation, persistence, status and navigation for accepted enabled services, including USB/IP and diagnostics plus existing ZeroTier/VPN integration. Per the 2026-10-16 scope replacement, remove PPTP, standalone L2TP, EoIP and OpenVPN from WR1200JS firmware/WebUI; StrongSwan is cancelled/excluded, not pending work.
+4. Optional HTOP and MTR diagnostics: keep both out of the required WR1200JS image. Their commented selectors may be enabled individually for a later diagnostic build, subject to the checks below. This is not a release gate.
+5. WAN socket reassignment: finish authenticated selection and verify selected WAN/remaining LAN isolation and persistence.
+6. Final configuration/image audit: preserve required features, verify optional commented selectors separately and keep WPS optional verification last. Deliver one user download ZIP containing firmware and its config. CAKE stays excluded.
+7. Recoverable device acceptance: verify Linux 4.4.198 boot, WAN/LAN, both Wi-Fi bands under load, restored AmneziaWG, settings/services and restart persistence. User agreement on task order is not authorization to flash or disrupt the remote router.
+
+### Optional HTOP and MTR diagnostics — owner decision 2026-10-26
+
+HTOP and MTR are not required for router operation or Padavan Modern status
+graphs. The standard WR1200JS image excludes them. Keep independent commented
+`CONFIG_FIRMWARE_INCLUDE_HTOP=y` and `CONFIG_FIRMWARE_INCLUDE_MTR=y` selectors
+in `configs.build/wr1200js.config` so an operator can request either package
+without copying recipes into each board profile. Do not enable them by default
+on WR1200JS or assume that another router has the same image headroom.
+
+The pinned Padavan source has `trunk/user/htop` (3.3.0), `trunk/user/mtr`
+(0.95) and `trunk/libs/libncurses` (6.5). Its user Makefile selects each
+package with the corresponding selector, and its libs Makefile selects
+ncurses for either one. A commented selector alone does not prove successful
+target compilation or a working executable. If an optional build is requested,
+check the effective config, MIPS build, ROMFS binaries and libraries, loader
+dependencies, compressed image delta and flash headroom before flashing.
+Review `mtr-packet` privileges and raw-socket behavior; neither tool needs a
+boot service, continuous polling or a WebUI endpoint. Device operation remains
+unverified until separately tested. Build #574 had both options disabled; no
+target sizes or measured image delta are available yet.
 
 ## Preserve and port existing services — user instruction 2026-10-11
 
 ## Mandatory target BusyBox compatibility audit — user instruction 2026-10-16
+
+Owner decision, 2026-10-28: retain the project's BusyBox 1.24.2 for the
+WR1200JS delivery. Do not upgrade BusyBox merely to obtain newer applets.
+The available `hexdump` already supports the observed PCI read command;
+`od` is a separate optional applet question. This version decision does not
+waive the exact-image command, dependency and service audit below. Revisit
+the version only for a demonstrated compatibility/security need with its
+own target regression evidence.
 
 Audit every firmware service and every connected script, process and lifecycle
 path against the exact BusyBox built for the target image. This is a delivery
@@ -166,6 +205,28 @@ the shared dependencies again when BusyBox configuration/version changes, and
 run relevant regression gates in normal firmware CI. Do not solve missing
 applets by unreviewed global feature switches or silently changing user settings.
 
+
+
+### Follow-up: target BusyBox hexdump and version evidence — assigned to Sol
+
+The WR1200JS live read-only PCI-config collection succeeded with the router's
+BusyBox applet using `busybox hexdump -C -n 4096`; standalone `od` is absent.
+This proves only that this command works on the currently running router image.
+It does not identify the BusyBox version or prove that the corresponding
+firmware build contains the same applet/options.
+
+At the next suitable BusyBox/image audit step, Sol should: (1) identify the
+exact BusyBox version and source revision used by the current WR1200JS firmware
+build, (2) inspect its effective `.config`, ROMFS binary hash, applet links and
+`hexdump` options, (3) verify whether `od` is omitted by configuration or is
+otherwise unavailable, and (4) compare those image facts with the live router
+output. Confirm whether the read-only helper's PCI dump command is portable to
+that exact image and record a reproducible command/result. Keep the helper
+allowlisted and read-only; do not add arbitrary remote command execution or
+change router state. Do not reorder current delivery work: this is part of the
+existing mandatory target BusyBox compatibility audit and must not displace the
+open IoT lifecycle gate.
+
 ### Existing-service preservation contract
 
 Treat the job as a port of the existing Padavan firmware, not a replacement
@@ -190,7 +251,7 @@ DNS findings and the service-by-service source map are tracked in
 `SERVICE-PORT-AND-SETTINGS-AUDIT.md`. DoT/DoH runtime behavior, provider lists,
 time bootstrap and no-plaintext fallback require router verification. DNSCrypt
 must remain disabled until its optional Nilabsent-derived port and maintained
-resolver-list compatibility are proven. Tor and Zapret/Zapret2 remain Stage 2
+resolver-list compatibility are proven. Tor and Zapret2 remain Stage 2
 work after WR1200JS device acceptance, as previously agreed; their lists and
 source revisions must be preserved when that stage begins.
 
@@ -255,7 +316,22 @@ Dual-image CI has not yet been implemented.
 
 Stage 1: prioritize a coherent WR1200JS image and prompt testing on the actual router. Preserve the user's configuration and complete the necessary build/device readiness checks. Do not delay initial device testing for the packages listed below or other-board expansion.
 
-Stage 2, after the WR1200JS firmware is ready: port CONFIG_FIRMWARE_INCLUDE_TOR, CONFIG_FIRMWARE_INCLUDE_TOR_GEOIP, CONFIG_FIRMWARE_INCLUDE_TOR_GEOIPV6, CONFIG_FIRMWARE_INCLUDE_ZAPRET and CONFIG_FIRMWARE_INCLUDE_ZAPRET2. Keep these documented but disabled in the stage-1 build config. Also migrate the remaining nilabsent router configurations to this firmware base, checking each board's hardware requirements individually.
+Stage 2, after the WR1200JS firmware is ready: port CONFIG_FIRMWARE_INCLUDE_TOR, CONFIG_FIRMWARE_INCLUDE_TOR_GEOIP, CONFIG_FIRMWARE_INCLUDE_TOR_GEOIPV6 and CONFIG_FIRMWARE_INCLUDE_ZAPRET2. Keep these documented but disabled in the stage-1 build config. Also migrate the remaining nilabsent router configurations to this firmware base, checking each board's hardware requirements individually.
+
+Updated user decision 2026-10-24: implement only Zapret2. The old
+`CONFIG_FIRMWARE_INCLUDE_ZAPRET` selector (called Zapret 1 by the user) is
+removed from board configs and is out of scope. When Stage 2 begins, enable
+the Zapret2 selector in the WR1200JS build configuration and include its
+actual kernel and userspace dependencies, service lifecycle, configuration,
+strategy data and WebUI in the firmware. Verify the resulting image contents,
+dependency closure and compressed image size against the flash limit. Do not
+turn on only the selectors or claim support from a successful build alone.
+
+Zapret2 preparation (2026-10-24): a pinned, complete upstream source snapshot,
+per-file hashes, license and component/dependency inventory are recorded in
+`third_party/bol-van/zapret2/`, `third_party/bol-van/zapret2-source-manifest.json`
+and `docs/ZAPRET2-SOURCE-BASE.md`. This preserves sources for Stage 2; no
+Padavan build rule, selector, ROMFS content or router service is enabled yet.
 
 These are deferred requirements, not removed from the project. Existing backup/source preservation requirements remain. Other required features are not silently removed by this staging decision.
 
@@ -444,14 +520,32 @@ Keep verified findings, remaining checks and adoption decisions in docs/donor-au
 
 Add a third main use-case network alongside the existing primary and guest Wi-Fi; preserve both existing networks and their configuration. Schedule within the WR1200JS Wi-Fi/WebUI stage. The pinned ralink.c currently generates BssidNum=2 (AP plus GuestAP); a third network is not yet implemented or proven supported.
 
+Project-wide rule, 2026-10-24: every router accepted into this project must include a real IoT network as a standard firmware capability alongside primary and guest Wi-Fi. Board/build configuration must not offer an option to omit IoT. This applies to WR1200JS, Mi Mini and every later board profile. A board is not release-ready until its own driver, network isolation, defaults, WebUI, image and device tests establish that capability. An unsupported board must remain pending rather than ship a cosmetic IoT control or silently omit the feature. The user-facing runtime enable switch is distinct from a build-time omission and remains available. Provisioning must never advertise an unprotected IoT SSID; enabling it by factory default requires safe distinct credentials and working isolation. The currently IoT-excluded test image is transitional and does not meet this release rule.
+
 - Confirm effective MT7603E/MT7612E virtual-AP limits, interface allocation and compatibility with existing guest AP, Band Steering and optional roaming before claiming support.
-- Provide a dedicated IoT WebUI section with enable switch, SSID, password, authenticated local QR, persistence and actual status. Default OFF after flashing; do not repurpose the guest network.
+- Provide a dedicated IoT WebUI section with enable switch, SSID, password, authenticated local QR, persistence and actual status. A released board must provision IoT by default; activate it at factory defaults only after distinct safe credentials and isolation are verified. During development, keep it OFF rather than broadcast an insecure network. Do not repurpose the guest network.
 - Prefer 2.4 GHz, 20 MHz and WPA2-Personal/AES for compatibility. Keep WPS and Band Steering off for IoT by default. Preserve channel constraints shared by virtual APs on the same physical radio; do not imply independent RF channels.
 - Wire the third BSS into driver profile generation, interface lifecycle, a separate bridge/subnet, DHCP and firewall. Block IoT access to the primary LAN and router administration by default while permitting the required DHCP/DNS and internet access.
 - Provide explicit scoped access exceptions for a controller such as Home Assistant. Assess discovery/mDNS requirements separately; do not promise discovery or enable unrestricted inter-network access.
 - Verify compilation, actual ROMFS inclusion, default/persistence behavior, three simultaneous SSIDs, DHCP, isolation, allowed exceptions and reconnection on the device. Test device-to-device isolation policy with the intended IoT use cases.
 
 Status: approved planned work; runtime support unverified. No remote router changes or flashing are authorized by this planning update. WR1200JS remains the priority before secondary router work; CAKE remains excluded.
+
+Wi-Fi bridge help localization follow-up, 2026-10-18: the 5 GHz Bridge page
+shows the inherited `AP_Relay` link and `AP_Relay_1` explanation in English
+under the Ukrainian locale. The inherited-dictionary preparation now supplies
+English, Ukrainian and Russian values for both keys and validates their final
+image values. This is a source correction; it still needs a new image build and
+browser review. See [bridge-help localization evidence](evidence/WR1200JS-BRIDGE-HELP-LOCALIZATION-2026-10-18.md).
+
+Advanced Wi-Fi localization follow-up, 2026-10-18: the 5 GHz advanced page
+shows 802.11KV and 802.11R labels without Ukrainian dictionary entries. The
+inherited-dictionary transform now supplies EN/UK/RU values for both. Existing
+source entries also localize AMSDU and MU-MIMO help via `help_wl.js` dictionary
+references. TXBF was removed from the WR1200JS page because the configured
+driver disables it; see the capability result below. New image and router-
+browser verification of the retained help remain pending; see
+[advanced Wi-Fi help evidence](evidence/WR1200JS-WIFI-ADVANCED-HELP-LOCALIZATION-2026-10-18.md).
 
 ## Enhanced Connected Devices — homepage classification, 2026-10-09
 
@@ -501,14 +595,19 @@ Complete and record these checks:
    optional encrypted DNS, WAN connectivity and AmneziaWG management access
    after restart. Any ordinary-DNS fallback must be an explicit user choice.
 2. **Wi-Fi HNAT and driver diagnostics.** Investigate module-level wireless
-   external-device registration in addition to RC/driver guards, record actual
-   acceleration mode and prove Wi-Fi offload is disabled while retaining
-   supported wired acceleration. Examine repeated HNAT drop and ADDBA messages;
-   neither message alone proves a hang. Verify both radios under sustained
-   traffic and reconnects, with logs and continued management access.
+   external-device registration in addition to RC/driver guards. Keep factory
+   mode 2 (LAN only), allow a manual mode 1 compatibility trial, and provide
+   clear guidance to return to mode 2 if Wi-Fi stability or router load worsens.
+   Measure actual acceleration, throughput, load, and both radios under
+   sustained traffic and reconnects, with logs and continued management access.
+   Examine repeated HNAT drop and ADDBA messages; neither alone proves a hang.
 3. **ZRAM.** Repair the mismatch between enabled settings and absent active swap.
    Verify block-device initialization, actual /proc/swaps state, status display,
    enable/disable lifecycle and reboot persistence; report failure visibly.
+   Read-only SSH on 2026-10-18 now confirms `zram_enable=1`, initialized
+   `/dev/zram0`, and 30,912 KiB active swap. Enable/disable and reboot
+   persistence remain unverified; see
+   [ZRAM runtime check](evidence/WR1200JS-ZRAM-RUNTIME-2026-10-18.md).
 4. **Coherent service WebUI.** Audit all enabled-service menu routes and pages.
    Complete Ukrainian and Russian translations, preserve English, remove
    unintended Chinese labels from the active localized UI, and group DNS, VPN,
@@ -521,8 +620,147 @@ Complete and record these checks:
    Progress 2026-10-14: the ZeroTier page is translated for EN/UK/RU in source
    and its manual reload is replaced by a bounded refresh; see
    [ZeroTier page localization](evidence/ZEROTIER-PAGE-LOCALIZATION-2026-10-14.md).
-   Chinese text still remains on the Shadowsocks, SmartDNS and SQM pages and in
-   the `menu5_*` and `SmartDNS_*` dictionary entries.
+   Screenshot report 2026-10-18 confirms Chinese text is still visible on the
+   Shadowsocks page. The source localization step now maps main client settings,
+   node subscription controls, static node-editor fields, process-limit labels
+   and rule headings to EN/UK/RU keys. This step is wired into source
+   preparation. The source transform now covers the Chinese visible labels
+   and messages inventoried in the saved Shadowsocks page, including dynamic
+   node feedback, import prompts/results, editor actions and help text. A
+   final-image gate now checks all Shadowsocks dictionary values and rejects
+   remaining CJK page text; the transform and gate passed on an isolated
+   fixture based on build #410, but no new final image has run through it.
+   The cited checkpoint's remaining-Chinese note is historical and has been
+   rechecked against the available build #410 ROMFS: its `EN.dict`, `UK.dict`
+   and `RU.dict` contain no CJK characters. SmartDNS and SQM are also disabled
+   in the current WR1200JS profile, so their pages are not part of the active
+   localized UI. Do not count those inactive pages as current defects; if either
+   selector is enabled later, add page-specific localization and image checks.
+   The Shadowsocks transform still needs a new final-image run and browser
+   review. See [localization checkpoint](evidence/SHADOWSOCKS-LOCALIZATION-2026-10-18.md).
+   A 2026-10-19 in-memory regression test for inherited EN/UK/RU dictionaries
+   exposed and fixed a bug that removed existing help keys when replacing
+   stale translations. The local fixture passes; a new final image and browser
+   review remain pending. See
+   [localized help test evidence](evidence/WR1200JS-LOCALIZED-INHERITED-HELP-TEST-2026-10-19.md).
+   Screenshot follow-up 2026-10-18: Cron, Watchdog and Network discovery
+   plus Telnet links now target their existing service-control anchors; the
+   source verifier requires those routes. Read-only SSH on 2026-10-18 confirmed
+   the currently served page still has all four old unanchored links while the
+   targets exist; exact build number is unavailable from device NVRAM. The
+   source correction is not installed. Final-ROMFS and browser behavior remain
+   unverified. The same SSH sample found KMS/SSH processes present and disabled
+   iPerf3/Cron/LLTD/ASUS Discovery processes absent, matching their saved flags.
+   `watchdog_cpu=1` while `rt_timer_wdg` is absent; the separate `watchdog`
+   process is not evidence that this module is loaded. See
+   [service runtime check](runtime/WR1200JS-2026-10-18-SERVICE-NAV.md).
+   `/dev/watchdog` and `watchdog0` exist as a separate built-in path, but no
+   readable timer-state attribute was available. The EN/UK/RU help now
+   distinguishes that built-in driver from the optional module; this wording
+   change still needs final-ROMFS verification.
+   Build #478 also passed final-ROMFS checks for the settings backup/restore
+   route, `login_safe()` gate, NVRAM and `/etc/storage` action rows/handlers,
+   and EN/UK/RU labels. This is packaging evidence only; upload/restore, flash
+   commit and recovery remain unverified on the router. See
+   [service audit evidence](evidence/WR1200JS-BUILD458-SERVICE-AUDIT.md).
+   A 2026-10-19 Node fixture now executes the inherited ROMFS handlers in an
+   inert browser harness and checks guarded visibility, restore confirmation,
+   backup download names, upload validation and CGI destinations. It passed
+   locally against the available build #410 ROMFS page and is wired into the
+   next build; CGI behavior and live-device recovery remain open. See
+   [backup/restore behavior evidence](evidence/WR1200JS-SETTINGS-BACKUP-BEHAVIOR-2026-10-19.md).
+   Extending that fixture to flash-save feedback reproduced invalid timer IDs
+   on the unmodified #410 page/header. Local commit `931f1e4` repairs callbacks
+   and accepts success only for the numeric backend result zero; the expanded
+   VM fixture passes on transformed #410 and pinned source files. This local
+   correction is published in PR #2 and awaits new image verification and browser/runtime
+   acceptance; it performs no live flash or restore operation.
+   Inspection of the #488 exact-image BusyBox report found that QoS and SFE
+   had no entrypoint assertions. The SFE gate now checks `/sbin/rc`, the four
+   Shortcut FE modules and BusyBox `modprobe`, with negative synthetic cases;
+   local source checks pass. A new image must still run the gate, and this does
+   not establish SFE activation or offload. The QoS gate now checks `tc`, the
+   effective IMQ/IFB core symbols and every selected qdisc/classifier/action
+   module against final ROMFS, with negative synthetic cases. A new image must
+   still run the gate; it does not establish applied QoS rules or throughput.
+   The pinned iproute2 recipe installed `tc` only with SQM, although this
+   profile selects QoS and excludes SQM. Source preparation now installs the
+   already-built `/bin/tc` for QoS OR SQM; GNU Make selection checks pass.
+   The image gate additionally requires executable MIPS `tc`, its ELF/library
+   closure and `tc -V` under target QEMU. This correction awaits a new image;
+   usable QoS policy controls, lifecycle and physical acceptance remain open.
+   See [SFE image gate evidence](evidence/WR1200JS-SFE-IMAGE-GATE-2026-10-19.md)
+   and [QoS image gate evidence](evidence/WR1200JS-QOS-IMAGE-GATE-2026-10-19.md).
+   Subsequent build #490 passed these image gates and inherited EN/UK/RU
+   dictionary verification. The independently downloaded report confirms
+   executable MIPS tc/library closure/version, 15 QoS modules and four SFE
+   modules. Its runtime and whole-service-audit flags remain false. See
+   [build #490 evidence](evidence/WR1200JS-BUILD490-SERVICE-AUDIT.md).
+   Build #502 completed successfully and passed the current service navigation,
+   Shadowsocks localization, settings backup/restore, target BusyBox, Stubby,
+   iPerf3, KMS/Watchdog and StrongSwan exclusion image gates. Build #500's
+   MT76X3 `FT_IGTK_ID` compile error was fixed by the PMF guard in `560ee18`;
+   builds #501 and #502 passed afterward. This remains CI/image evidence, not
+   router runtime acceptance; see
+   [build #502 service audit](evidence/WR1200JS-BUILD502-SERVICE-AUDIT.md).
+   Build #504 also completed successfully for PR head `9c1e9b1`. Its image
+   gates passed service navigation, inherited EN/UK/RU dictionaries, Stubby
+   packaging and an authenticated DoT lookup under QEMU, DoH packaging, the
+   target BusyBox service audit, and the served-WebUI route audit. Its log also
+   confirms the backup/restore page, Administration route, secure-session gate,
+   EN/UK/RU labels and synthetic browser behavior. These remain CI/image checks;
+   no router runtime or physical browser acceptance is established. See
+   [build #504 service audit](evidence/WR1200JS-BUILD504-SERVICE-AUDIT.md).
+   The unsupported-VPN selector source at `35d70be` is newer than and absent
+   from #504. Firmware build #505 tested that commit and failed at the later
+   VPN-pruning transform before compilation. Commit `25ca366`, pushed to
+   `codex/wr1200js-service-webui`, makes that transform tolerate prior
+   PPTP/L2TP removal while requiring removal of OpenVPN. Its focused in-memory
+   fixture passes; post-fix CI and final-ROMFS results remain unconfirmed. See
+   [build #505 failure and correction status](evidence/WR1200JS-BUILD505-FAILURE.md).
+   The same branch now includes `e806465`, which extends the iPerf3 final-image
+   gate to its executable, lifecycle/Apply wiring and ELF dependency closure.
+   Local syntax and diff checks passed; the new image gate and on-router
+   behavior remain unverified. See
+   [iPerf3 image-gate evidence](evidence/WR1200JS-IPERF3-IMAGE-LIFECYCLE-GATE-2026-10-21.md).
+   Firmware builds #506–#508 then failed in the same pre-compilation VPN
+   pruning step: the current Classic pages already use a value-based OpenVPN
+   capability hook, while the transform required an obsolete index hook.
+   The transform now accepts one existing value-based hook or upgrades one
+   legacy index hook, and rejects missing/duplicate hooks. Local source checks
+   passed; the formerly fatal preparation step passed in builds #509–#511.
+   All three later failed in the QEMU combined-dnsmasq validation: the image
+   `dnsmasq --test` exited 5 with `failed to seed the random number generator:
+   Success`. The pinned dnsmasq source reads 176 bytes from `/dev/urandom`;
+   the test now constructs a temporary QEMU sysroot overlay with host-CSPRNG
+   seed bytes and a guest-visible config path, without changing ROMFS. Local
+   syntax/whitespace checks pass; QEMU rerun and final-image verification are
+   pending. Builds #509–#511 produced no verified image (`images: []`,
+   `missing-or-ambiguous`). See
+   [#506–#511 failure evidence](evidence/WR1200JS-BUILD506-507-VPN-HOOK-2026-10-21.md)
+   and [QEMU seed-path correction](evidence/WR1200JS-QEMU-DNSMASQ-SEED-FIX-2026-10-21.md).
+   The System group also lacked direct links to selected KMS activation and
+   ASUS Info Discovery controls. Local source navigation now adds both, keeps
+   KMS capability-gated and distinguishes LLTD from ASUS discovery. An older
+   ROMFS confirms the three control anchors; new-image and device browser
+   behavior remain pending. See
+   [system-service navigation evidence](evidence/WR1200JS-SERVICE-NAV-SYSTEM-LINKS-2026-10-21.md).
+   The separate source-level Service runtime checks #247 passed selected SSH,
+   iPerf3, Privoxy, Cron, LLTD/ASUS/KMS/Watchdog, VPN-profile and USB/IP
+   fixtures; mocked operations do not prove device runtime. See
+   [run #247 evidence](evidence/WR1200JS-SERVICE-STATE-CHECKS-247.md).
+   Read-only SSH later succeeded on 2026-10-21. KMS flag/process agree as
+   enabled/running; LLTD and ASUS Info Discovery flags/processes agree as
+   disabled/stopped. The live service page still has generic, unanchored System
+   links and lacks separate KMS/ASUS links, so the navigation correction is
+   not installed. NVRAM has no build number; exact installed build is unknown.
+   No router state changed. See
+   [read-only service check](evidence/WR1200JS-SERVICE-READONLY-CHECK-2026-10-21.md).
+   The inherited VPN client/server selectors also exposed PPTP and standalone
+   L2TP despite their exclusion from the WR1200JS profile. Source preparation
+   now removes those choices and fixes the OpenVPN capability check to target
+   its option value; the next final image/browser review remains pending. See
+   [unsupported VPN UI evidence](evidence/WR1200JS-UNSUPPORTED-VPN-UI-2026-10-20.md).
 5. **Complete IoT as an accepted deliverable.** Carry forward
    [the IoT implementation contract](IOT-WIFI-IMPLEMENTATION-CONTRACT.md):
    a separate third SSID, preferably 2.4 GHz, default OFF, with SSID/password,
@@ -614,6 +852,23 @@ screenshots, logs or private router settings.
   startup and translations. Verify kernel/userspace compatibility and preserve
   the existing remote tunnel. An operational tunnel does not establish WebUI
   completeness; applying an empty legacy form must not erase unrelated settings.
+  Screenshot follow-up 2026-10-18: the legacy ZeroTier/WireGuard submenu still
+  labels the WireGuard destination `WIREGUAED` and points to the empty legacy
+  form. Source navigation now labels it WireGuard/AmneziaWG profiles, links it
+  to the actual protocol-selecting `vpncli.asp` page, and exposes the shared
+  service navigation on the old form so users can return to the profile page.
+  This corrects the route and label; it does not finish full profile CRUD or
+  physical-device acceptance. See
+  [VPN submenu correction](evidence/VPN-LEGACY-SUBMENU-2026-10-18.md).
+  The local final-ROMFS gate now checks this legacy submenu target and rejects
+  the retired `Advanced_wireguard.asp` route and stale active-tab styling; its
+  fixture passes locally. It also requires exactly one localized submenu key,
+  matching upstream httpd's first-match dictionary lookup. The fixture rejects
+  stale-first and duplicate entries. Pinned upstream `EN.footer` contains two
+  stale copies of this key; preparation now replaces the first and removes the
+  rest so the image gate can pass without changing lookup semantics. Build #478
+  predates these source/gate changes, so new CI/image and router-browser checks
+  remain pending.
 - **Proxy services:** the screenshot shows Chinese proxy/DNS settings consistent
   with the Shadowsocks page; confirm the actual route and compiled components
   before porting. Translate labels, help and every option value. Inspect suitable
@@ -692,6 +947,16 @@ credentials or QR codes.
   explicit enable/state and configuration links. In shared mode use one form
   for 2.4/5 GHz SSID, password, security and SSID visibility plus local QR.
   In separate mode provide independent forms for each band.
+- In shared mode, generate one QR from the common SSID, security type and
+  password. Scanning it joins that Wi-Fi network; a client associates with one
+  radio band at a time and chooses 2.4 or 5 GHz based on its capabilities and
+  network conditions. Do not describe this as two simultaneous connections.
+  When credentials differ by band, show a separate QR for each network.
+  Owner runtime report, 2026-10-18: after forgetting the saved Wi-Fi network on
+  a phone, scanning the router QR joined the phone to Wi-Fi while shared
+  settings were configured. The installed firmware build and associated band
+  were not recorded; this confirms QR-based joining, not simultaneous use of
+  both bands or a specific band-selection behavior.
 - Keep advanced per-radio channel, width and transmit-power settings under
   Advanced. Preserve required underlying controls. Shared credentials do not
   automatically enable Band Steering; give it a separate control.
@@ -734,12 +999,36 @@ beamforming and 802.11k/v/r against its MT7603E/MT7612E drivers. A generic menu
 option or chipset marketing capability alone does not prove that this image
 implements it. Verify effective settings after Apply and retain management access.
 
+WR1200JS Transmit Beamforming is classified unsupported for the current image:
+the board kernel config and saved effective config both disable
+`CONFIG_MT76X2_AP_TXBF_SUPPORT`, while generic WebUI capability detection had
+exposed the control from chipset ID alone. The board capability transform now
+removes its WebUI row and HTTP form variable and sets `wl_txbf` off. CI checks
+the effective kernel config and final ROMFS. This is build/source evidence;
+the owner also reports that on the running router the control returns to Off
+after Apply and logs subsequently show it disabled. This confirms the enabled
+setting does not persist, though it does not isolate the rejection point in
+the backend/driver path. See
+[TXBF capability evidence](evidence/WR1200JS-TXBF-CAPABILITY-2026-10-18.md).
+
 For every exposed function provide localized EN/UK/RU help explaining purpose,
 valid values/units, dependencies, default, expected tradeoffs and any restart
 or connectivity interruption. Explain unsupported/experimental status where
 applicable; use concise basic help with expandable technical details. Verify
 capability-filtered pages, backend rejection of unsupported values, optional
 feature combinations and actual board behavior.
+
+### Inherited contextual-help localization follow-up — 2026-10-18
+
+The user reported that hover help, including the LAN/DNS fields shown in the
+supplied screenshot, remains English when the interface is Russian or Ukrainian.
+An available image-dictionary audit found 149 `_itemdesc` keys, with 10 missing
+from RU and 15 missing from UK; missing keys cause the English fallback. The
+same audit found 10 RU and 15 UK missing `_itemname` entries. The existing
+`overlay/padavan-4.4/scripts/localize-inherited-dicts.py` source-preparation and
+image-verification step now supplies the missing DNS, LAN and Wi-Fi text in
+EN/UK/RU. This is a source change only until CI includes it and the owner checks
+the installed pages; the audit used the available build #433 dictionary snapshot.
 
 Also replace the inherited firmware version suffix with project build identity
 (number plus short commit SHA) while preserving accurate kernel/version details
@@ -791,6 +1080,10 @@ Each service must have a readable localized name, purpose/help, configured
 on/off separately from observed running/stopped/error/unknown state, and a direct
 settings link. A navigation row must appear consistently on service pages, with
 an active-tab indicator, without requiring visits to unrelated router sections.
+The user screenshot showed the six groups wrapping to three rows; the CSS
+two-column breakpoint was lowered to 760 px so wider router views retain the
+intended three-column/two-row layout. This needs browser verification in the
+next image; see [service navigation layout adjustment](evidence/WR1200JS-SERVICE-NAV-LAYOUT-2026-10-18.md).
 Do not classify KMS activation under terminal access. Existing VPN management
 access must survive the UI reorganization. Navigation-only mockups/links do not
 complete this requirement: verify destinations, forms, actual status and browser
@@ -819,3 +1112,110 @@ refresh controls and their explanatory text on a light-blue information panel;
 do not leave these additions as ungrouped gray text on white. The shared
 enabled-toggle treatment remains green ON and neutral OFF, with observed
 service health shown separately.
+
+Navigation capability audit, 2026-10-18: the source parser previously
+counted commented optional selectors such as `# CONFIG_FIRMWARE_INCLUDE_EOIP=y`
+as enabled. It now excludes comments, and the final-ROMFS verifier requires
+each page's navigation to exactly match the active build selectors. Local
+pre-compilation checks cover commented `=y`, active `=n`/`=y`, and service
+return navigation. The local fixture passes; a new firmware image and browser
+review are still required. See [navigation evidence](evidence/WR1200JS-SERVICE-NAV-LAYOUT-2026-10-18.md).
+
+## Classic IoT navigation — owner confirmation 2026-10-20
+
+Add this requirement to the existing IoT deliverable without changing the
+approved execution order. Continue points 4–8 in their current sequence;
+Classic navigation work does not move IoT ahead of service WebUI or other
+already ordered work. Preserve the prepared local files and all unrelated
+uncommitted changes.
+
+IoT must work with Classic as the only installed theme. Add matching
+2.4 GHz / 5 GHz / IoT controls to the network map, paired Wi-Fi pages and
+relevant shared shortcuts, with active highlighting and return paths.
+Preserve Classic styling, responsiveness, existing Apply handling and main
+network behavior. Reuse real ASP/CGI/NVRAM and IoT mechanisms; do not create
+a new theme or duplicate configuration logic.
+
+Owner decision, 2026-10-26: use the convenient button and tab behavior of
+[Nilabsent Padavan NG](https://github.com/nilabsent/padavan-ng) as a usability
+reference for Classic IoT. The three destinations must be equally discoverable
+and use existing Classic button/tab classes, active highlighting and clear
+return paths; changing a tab must not save or apply settings. Retain the
+matching Wi-Fi section when switching 2.4/5 GHz. Do not copy Nilabsent's
+visual styling or introduce its configuration writer. Complete controls and
+status become usable only when the real authenticated IoT backend is bound.
+
+Prepared navigation is partial and is not included in production builds.
+Production activation, authenticated settings/Apply, isolated bridge,
+DHCP/DNS, firewall, status and device acceptance remain in the existing IoT
+stage. Evidence: `evidence/WR1200JS-IOT-CLASSIC-NAVIGATION-2026-10-20.md`.
+No full firmware compilation or router changes are part of this checkpoint.
+
+## Padavan Modern Ukrainian dashboard reference — owner addition 2026-10-21
+
+Add the user's Ukrainian neon dashboard image as an additional reference for
+the future Padavan Modern homepage. Keep the current execution order: finish
+and verify IoT first, then finalize the Modern homepage design, then create
+the Modern title/home page. Padavan Classic remains unchanged. This reference
+does not authorize implementing the pictured secondary pages or changing
+production logic now; see `WEBUI-MODERN-HOME-SCOPE.md` for the full visual and
+data-truth requirements.
+
+The dashboard reference calls for compact navigation and header controls,
+2.4 GHz / 5 GHz / IoT selection, WAN/Wi-Fi/IoT and system-status cards,
+traffic/CPU charts, and quick links to services actually available in the
+WR1200JS build. Show only observed values; use `Н/Д` where a hardware sensor
+is unavailable, and label local preview values as DEMO. Treat the small
+secondary-page thumbnails as future design references, not permission to
+implement those pages in this stage.
+
+## Окремий етап: самодостатній репозиторій після прошивок — 2026-10-23
+
+Окремий погоджений пункт роботи після завершення й приймання прошивки
+WR1200JS, а потім етапу Mi Mini згідно з чинним порядком доставки вище.
+Поточний порядок IoT, WebUI та решти прошивкових робіт не змінюється.
+
+- Впорядкувати структуру за принципом повного дерева джерел, як у padavan-ng,
+  зберігши правила Sol/DeepSeek, історію Git і напрацювання всіх акаунтів.
+- Зібрати у нашому репозиторії точні вихідні коди ядра, драйверів, RC, WebUI,
+  пакетів, патчів та рецепти/джерела toolchain, включно з транзитивними
+  залежностями. Збережені архіви перевірити за ревізіями й контрольними сумами.
+- Усунути обов'язкове отримання джерел зі сторонніх репозиторіїв під час
+  збірки. Посилання на походження, авторство та ліцензії залишити: це
+  атрибуція, а не зовнішня залежність збірки.
+- Для великих файлів заздалегідь визначити зберігання з урахуванням лімітів
+  GitHub; власні Release-архіви не вважати виконанням вимоги «все в дереві»
+  без окремого погодження. Не переписувати історію й не видаляти резервні копії.
+- Підготувати й перевірити середовище Ubuntu 24.04 та відтворюваний локальний
+  рецепт складання. Docker/WSL вважати робочими лише після фактичної перевірки.
+- Як можливий зразок інтерфейсу збирання розглянути Prometheus lekswrt:
+  перевірений каталог моделей, показ ревізій, стану toolchain і результатів
+  образу. Для Windows 10 спочатку перевірити WSL 2 + Ubuntu 24.04, а потім
+  окремо вирішити потребу в контейнері. Скрипт збирання не має виконувати
+  прошивання, мережеві завантаження чи зміну роутера. Аудит і обмеження:
+  `docs/donor-audits/LEKSWRT-PROMETHEUS-2026-10-27.md`.
+- Критерій завершення: повний інвентар джерел і ліцензій, відсутність
+  незадокументованих зовнішніх завантажень, успішна збірка із заздалегідь
+  підготовленого локального середовища без мережі та перевірка отриманого образу.
+  Залежності самої Ubuntu/контейнерної бази також описати й підготувати до
+  офлайн-запуску. Не заявляти про побітову відтворюваність без порівняння образів.
+
+Статус: заплановано, не виконано. Цей запис не запускає міграцію або збірку.
+
+## Останній етап проєкту: Linux 4.4.198 → 4.4.302 для всіх роутерів — 2026-10-24
+
+Міграція ядра закріплена в самому кінці загального плану. Черговість:
+завершити WR1200JS, виконати погоджені роботи для Xiaomi Mi Mini, закінчити
+решту погоджених етапів і впорядкувати повне дерево джерел; лише потім — цей
+можливий фінальний етап. Після Mi Mini та решти робіт окремо вирішити, чи
+переходити на Linux 4.4.302. Якщо перехід буде схвалено, він охоплює кожен
+роутер, який на той час доданий до проєкту, а не лише WR1200JS і Mi Mini. Для
+кожної плати потрібні власні перевірка драйверів, конфігурацій і патчів,
+збірка образу та приймання на пристрої; успіх на одній платі не підтверджує
+сумісність решти. До початку цього останнього етапу ядро залишається на
+4.4.198.
+
+Початковий технічний аналіз WR1200JS і контрольований порядок дослідження:
+`docs/KERNEL-4.4.302-MIGRATION-PLAN.md`. Перед виконанням розширити його
+інвентарем і планом приймання для кожної фактично доданої плати. Зараз
+міграцію не розпочато; образ 4.4.302 не збирали і роутери не прошивали.

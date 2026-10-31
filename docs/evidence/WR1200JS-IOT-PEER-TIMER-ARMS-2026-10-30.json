@@ -1,0 +1,193 @@
+{
+  "scope": "literal source inventory, feature branches not preprocessed; aliases/transitive callers not proven",
+  "insertion_init_calls": 8,
+  "insertion_direct_arm_calls": 0,
+  "RTMPInitTimer_arms_directly": false,
+  "linux_timer_init_arms_directly": false,
+  "peer_timer_calls": [
+    {
+      "file": "ap/ap_assoc.c",
+      "line": 2785,
+      "api": "RTMPSetTimer",
+      "timer_fields": [
+        "EnqueueStartForPSKTimer"
+      ]
+    },
+    {
+      "file": "ap/ap_assoc.c",
+      "line": 2811,
+      "api": "RTMPSetTimer",
+      "timer_fields": [
+        "EnqueueStartForPSKTimer"
+      ]
+    },
+    {
+      "file": "ap/ap_assoc.c",
+      "line": 2840,
+      "api": "RTMPSetTimer",
+      "timer_fields": [
+        "EnqueueStartForPSKTimer"
+      ]
+    },
+    {
+      "file": "ap/ap_repeater.c",
+      "line": 576,
+      "api": "RTMPInitTimer",
+      "timer_fields": [
+        "EnqueueStartForPSKTimer"
+      ]
+    },
+    {
+      "file": "ap/ap_repeater.c",
+      "line": 581,
+      "api": "RTMPInitTimer",
+      "timer_fields": [
+        "RetryTimer"
+      ]
+    },
+    {
+      "file": "common/cmm_wpa.c",
+      "line": 1218,
+      "api": "RTMPModTimer",
+      "timer_fields": [
+        "RetryTimer"
+      ]
+    },
+    {
+      "file": "common/cmm_wpa.c",
+      "line": 1855,
+      "api": "RTMPSetTimer",
+      "timer_fields": [
+        "RetryTimer"
+      ]
+    },
+    {
+      "file": "common/cmm_wpa.c",
+      "line": 1988,
+      "api": "RTMPSetTimer",
+      "timer_fields": [
+        "RetryTimer"
+      ]
+    },
+    {
+      "file": "common/cmm_wpa.c",
+      "line": 2260,
+      "api": "RTMPSetTimer",
+      "timer_fields": [
+        "RetryTimer"
+      ]
+    },
+    {
+      "file": "common/cmm_wpa.c",
+      "line": 2764,
+      "api": "RTMPSetTimer",
+      "timer_fields": [
+        "RetryTimer"
+      ]
+    },
+    {
+      "file": "common/pmf.c",
+      "line": 153,
+      "api": "RTMPSetTimer",
+      "timer_fields": [
+        "SAQueryTimer"
+      ]
+    },
+    {
+      "file": "common/pmf.c",
+      "line": 158,
+      "api": "RTMPSetTimer",
+      "timer_fields": [
+        "SAQueryConfirmTimer"
+      ]
+    },
+    {
+      "file": "common/wsc.c",
+      "line": 571,
+      "api": "RTMPSetTimer",
+      "timer_fields": [
+        "EapReqIdRetryTimer"
+      ]
+    },
+    {
+      "file": "mgmt/mgmt_entrytb.c",
+      "line": 671,
+      "api": "RTMPInitTimer",
+      "timer_fields": [
+        "EnqueueStartForPSKTimer"
+      ]
+    },
+    {
+      "file": "mgmt/mgmt_entrytb.c",
+      "line": 678,
+      "api": "RTMPInitTimer",
+      "timer_fields": [
+        "RetryTimer"
+      ]
+    },
+    {
+      "file": "mgmt/mgmt_entrytb.c",
+      "line": 680,
+      "api": "RTMPInitTimer",
+      "timer_fields": [
+        "SAQueryTimer"
+      ]
+    },
+    {
+      "file": "mgmt/mgmt_entrytb.c",
+      "line": 681,
+      "api": "RTMPInitTimer",
+      "timer_fields": [
+        "SAQueryConfirmTimer"
+      ]
+    },
+    {
+      "file": "mgmt/mgmt_entrytb.c",
+      "line": 685,
+      "api": "RTMPInitTimer",
+      "timer_fields": [
+        "EapReqIdRetryTimer"
+      ]
+    },
+    {
+      "file": "mgmt/mgmt_entrytb.c",
+      "line": 693,
+      "api": "RTMPInitTimer",
+      "timer_fields": [
+        "RetryTimer"
+      ]
+    },
+    {
+      "file": "mgmt/mgmt_entrytb.c",
+      "line": 696,
+      "api": "RTMPInitTimer",
+      "timer_fields": [
+        "SAQueryTimer"
+      ]
+    },
+    {
+      "file": "mgmt/mgmt_entrytb.c",
+      "line": 698,
+      "api": "RTMPInitTimer",
+      "timer_fields": [
+        "SAQueryConfirmTimer"
+      ]
+    }
+  ],
+  "source_sha256": {
+    "ap/ap_assoc.c": "9ba15488d0f27266fec2cf7e337e25253bb2c032ef0254ca9beed925b3970ca5",
+    "ap/ap_repeater.c": "24e69448945f4967bff075097f42204fa0a67f29be49aaf0756a382dbdd1b2c9",
+    "common/cmm_wpa.c": "f4a17a192bffdc567dba35b8eb022107655d99c90f6e82fcd6bbd8047858c638",
+    "common/pmf.c": "4da1b90062d5b77fe31133c98ef888b02f6c769c6a2ce2c823717ec957aada8b",
+    "common/wsc.c": "4d209fa6d6dc0fa5d2fa94ad0f32366ac66a9e6fae382cabea65ab5cbb4eee91",
+    "mgmt/mgmt_entrytb.c": "0540c544f2445ffd667eb28926286867f619d7173dd257f196034ab93f1c03d9"
+  },
+  "cleanup_accepted": false,
+  "runtime_verified": false,
+  "open": [
+    "array readers may obtain unpublished entries",
+    "old WCID/timer reuse must be excluded",
+    "transitive/raw alias arming",
+    "executing callback/task join and rearm fence"
+  ]
+}

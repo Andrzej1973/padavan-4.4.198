@@ -11,6 +11,11 @@ import json
 import os
 import re
 from pathlib import Path
+from target_busybox_service_map import (
+    active_service_entrypoint_map_status,
+    qos_image_gate_status,
+    sfe_image_gate_status,
+)
 import shutil
 import subprocess
 import tempfile
@@ -53,10 +58,12 @@ report['checks']['busybox_version_identified']=version is not None
 report['checks']['shell_type_builtin']=run(['sh','-c','type type >/dev/null 2>&1']).returncode==0
 report['checks']['mwan_shell_arithmetic']=run(['sh','-c','i=1; count=$((i-1)); last=$i; j=$((i-1)); test "$count:$last:$j" = "0:1:0"']).returncode==0
 report['command_builtin_available']=run(['sh','-c','type command >/dev/null 2>&1']).returncode==0
+image_paths=set()
 for directory,dirs,files in os.walk(root,followlinks=False):
     dirs[:]=sorted(name for name in dirs if not (Path(directory)/name).is_symlink())
     for name in sorted(files):
         path=Path(directory)/name
+        image_paths.add(path.relative_to(root).as_posix())
         if path.is_symlink():
             target=os.readlink(path)
             resolved=Path(os.path.normpath(str(root/target.lstrip('/')) if target.startswith('/') else str(path.parent/target)))
@@ -82,6 +89,11 @@ report['checks']['all_discovered_shell_syntax']=bool(report['scripts']) and all(
 report['checks']['command_v_supported_or_avoided']=not any(
     item['command_v_requires_review'] for item in report['scripts'])
 report['checks']['busybox_applet_links_recorded']=bool(report['applet_links'])
+report['checks']['od_compact_config']=('CONFIG_OD=y' in effective_busybox_config and
+    '# CONFIG_DESKTOP is not set' in effective_busybox_config)
+report['checks']['od_applet_and_link']=('od' in applets and
+    any(link['path']=='usr/bin/od' for link in report['applet_links']))
+closure=None
 try:
     readelf=shutil.which('readelf')
     if not readelf:raise RuntimeError('readelf is required to inspect the BusyBox loader/library closure')
@@ -90,13 +102,175 @@ try:
     report['busybox_elf_dependency_closure']=closure.verify(root,root,readelf,['bin/busybox'])
     report['checks']['busybox_elf_dependency_closure']=True
 except (OSError,RuntimeError,ValueError,subprocess.CalledProcessError) as error:
+    closure=None
     report['busybox_elf_dependency_closure_error']=str(error)
     report['busybox_elf_dependency_closure']={}
     report['checks']['busybox_elf_dependency_closure']=False
+# Non-shell Lua utilities have their own interpreter/module execution gate.
+if 'CONFIG_FIRMWARE_INCLUDE_LUA=y' in effective_firmware_config:
+    from target_lua_audit import audit_lua
+    if closure is None:
+        report['lua_audit']={'passed':False,'error':'ELF dependency checker unavailable'}
+    else:
+        report['lua_audit']=audit_lua(root,qemu,closure,readelf)
+    report['checks']['image_lua_utilities']=report['lua_audit']['passed']
+
 effective_config=(trunk/'.config').read_text().splitlines()
+kernel_config_lines=(trunk/'linux-4.4.x/.config').read_text().splitlines()
+kernel_config={}
+for line in kernel_config_lines:
+    if line.startswith('CONFIG_') and '=' in line:
+        key,value=line.split('=',1)
+        kernel_config[key]=value.strip('"')
+    elif line.startswith('# CONFIG_') and line.endswith(' is not set'):
+        kernel_config[line[2:-11]]='n'
 report['selected_service_entrypoints']=[]
-report['entrypoint_gaps']=[{'group':name,'reason':'no exact-image entrypoint assertion yet'}
-                           for name in ('zram','qos','sfe','u2ec','wpad')]
+report['feature_image_gates']={}
+report['entrypoint_gaps']=[]
+zapret2_enabled='CONFIG_FIRMWARE_INCLUDE_ZAPRET2=y' in effective_config
+zapret2_hashes={
+    'usr/share/zapret2/zapret-lib.lua':'6bf528fef1f0fc3c65e189216fc8a06bb873f6e25d1c29d2bfa4695a09b73440',
+    'usr/share/zapret2/zapret-antidpi.lua':'6d1fa9168e5de1682fef91fd174f68b58c50f6739ef00f42ca7db2b940b6246d',
+    'usr/share/zapret2/zapret-auto.lua':'23a9b99a776d868d92f4cc0ee5110f5c1f12fe746620d9c0337022dbc2f52df0',
+    'usr/share/licenses/zapret2/LICENSE.txt':'d089978dd77d53cb6aa5dff51cfdbff617e52dd44af1ac44a6df02c6644f17d5',
+}
+if zapret2_enabled:
+    zapret2_actual={path:digest(root/path) for path in zapret2_hashes
+                    if (root/path).is_file()}
+    report['zapret2_pinned_assets']={
+        'expected':zapret2_hashes,
+        'actual':zapret2_actual,
+        'scope':'packaged Lua scripts and upstream notice only; strategy execution unverified',
+    }
+    report['checks']['zapret2_pinned_lua_and_license']=(zapret2_actual==zapret2_hashes)
+    zapret2_service_path=root/'usr/sbin/zapret2'
+    zapret2_service=(zapret2_service_path.read_text(encoding='utf-8')
+                     if zapret2_service_path.is_file() else '')
+    report['checks']['zapret2_service_fail_open_and_lua_init']=all(marker in zapret2_service for marker in (
+        '--queue-bypass',
+        '--lua-init="@$LUA_DIR/zapret-lib.lua"',
+        '--lua-init="@$LUA_DIR/zapret-antidpi.lua"',
+        '--lua-init="@$LUA_DIR/zapret-auto.lua"',
+    )) and '-j LOG' not in zapret2_service
+    zapret2_page_path=root/'www/Advanced_Services_Content.asp'
+    zapret2_page=(zapret2_page_path.read_text(encoding='utf-8')
+                  if zapret2_page_path.is_file() else '')
+    zapret2_web_markers=(
+        'id="zapret2_enable_on_of"',
+        'name="scripts.zapret2.args"',
+        'id="wr_zapret2_status"',
+        'function validZapret2()',
+        'window.setInterval(wrZapret2Refresh, 30000)',
+    )
+    zapret2_httpd_path=root/'usr/sbin/httpd'
+    zapret2_httpd=(zapret2_httpd_path.read_bytes()
+                   if zapret2_httpd_path.is_file() else b'')
+    zapret2_httpd_markers=(b'found_app_zapret2',b'wr_zapret2_status',
+                           b'zapret2_enable',b'nfqws2',
+                           b'/etc/storage/zapret2.args')
+    zapret2_dicts={name:(root/f'www/{name}').read_text(encoding='utf-8')
+                   for name in ('EN.dict','UK.dict','RU.dict')
+                   if (root/f'www/{name}').is_file()}
+    report['zapret2_webui']={
+        'page_markers':list(zapret2_web_markers),
+        'httpd_markers':[item.decode() for item in zapret2_httpd_markers],
+        'dict_files':sorted(zapret2_dicts),
+        'page_marker_checks':{marker:marker in zapret2_page
+                              for marker in zapret2_web_markers},
+        'httpd_marker_checks':{item.decode():item in zapret2_httpd
+                               for item in zapret2_httpd_markers},
+        'dict_marker_checks':{name:'WRZapret2StrategyRequired=' in text
+                              for name,text in zapret2_dicts.items()},
+        'scope':'shipped controls, localized state labels and compiled restart/status routes only; browser and traffic effect unverified',
+    }
+    report['checks']['zapret2_webui_image']=(
+        all(report['zapret2_webui']['page_marker_checks'].values()) and
+        all(report['zapret2_webui']['httpd_marker_checks'].values()) and
+        set(zapret2_dicts)=={'EN.dict','UK.dict','RU.dict'} and
+        all(report['zapret2_webui']['dict_marker_checks'].values()))
+    if closure is not None:
+        report['zapret2_elf_dependency_closure']=closure.verify(
+            root,root,readelf,['usr/sbin/nfqws2'])
+        report['checks']['zapret2_elf_dependency_closure']=True
+    else:
+        report['zapret2_elf_dependency_closure_error']='ELF dependency checker unavailable'
+        report['checks']['zapret2_elf_dependency_closure']=False
+qos_enabled='CONFIG_FIRMWARE_INCLUDE_QOS=y' in effective_config
+qos_gate=qos_image_gate_status(qos_enabled,image_paths,kernel_config)
+if qos_enabled:
+    qos_gate['scope']='selected-image kernel modules/config and tc MIPS ELF/library closure/version under QEMU; QoS rules, activation and throughput unverified'
+    try:
+        tc=root/'bin/tc'
+        if not tc.is_file() or not tc.stat().st_mode & 0o111:
+            raise ValueError('/bin/tc is absent, unresolved or not executable')
+        if closure is None or not readelf:
+            raise RuntimeError('ELF dependency checker is unavailable')
+        qos_gate['tc_sha256']=digest(tc)
+        qos_gate['tc_elf_dependency_closure']=closure.verify(root,root,readelf,['bin/tc'])
+        probe=subprocess.run([qemu,'-L',str(root),str(tc),'-V'],
+            capture_output=True,timeout=10,env={'PATH':'/usr/bin:/bin','LC_ALL':'C'})
+        version=(probe.stdout+probe.stderr).decode(errors='replace').strip()
+        qos_gate['tc_version_output']=version
+        qos_gate['tc_qemu_version_passed']=probe.returncode==0 and 'tc utility' in version
+    except (OSError,RuntimeError,ValueError,subprocess.SubprocessError) as error:
+        qos_gate['tc_probe_error']=str(error)
+        qos_gate['tc_qemu_version_passed']=False
+    qos_gate['passed']=qos_gate['passed'] and qos_gate['tc_qemu_version_passed']
+report['feature_image_gates']['qos']=qos_gate
+report['checks']['qos_exact_romfs_gate']=qos_gate['passed']
+if qos_enabled and not qos_gate['passed']:
+    report['entrypoint_gaps'].append({'group':'qos',
+        'reason':'selected image lacks QoS dependencies/core config, or /bin/tc ELF/target version probe failed'})
+zram_enabled='CONFIG_FIRMWARE_INCLUDE_ZRAM=y' in effective_config
+if zram_enabled:
+    zram_report_path=Path('zram-image-checks.txt')
+    zram_expected='PASS zram dependencies, rc command and image BusyBox priority/discard help under QEMU; activation unverified'
+    try:
+        zram_pass=zram_report_path.read_text(encoding='utf-8').strip()==zram_expected
+    except OSError:
+        zram_pass=False
+    report['feature_image_gates']['zram']={'report':str(zram_report_path),
+        'scope':'final ROMFS dependencies, rc command and exact-image BusyBox help; activation unverified',
+        'passed':zram_pass}
+    report['checks']['zram_exact_romfs_busybox_gate']=zram_pass
+    if not zram_pass:
+        report['entrypoint_gaps'].append({'group':'zram',
+            'reason':'dedicated exact-image ZRAM report missing or incomplete'})
+else:
+    report['feature_image_gates']['zram']={'status':'not selected'}
+    report['checks']['zram_exact_romfs_busybox_gate']=True
+wpad_enabled='CONFIG_FIRMWARE_INCLUDE_WPAD=y' in effective_config
+if wpad_enabled:
+    wpad_report_path=Path('wpad-image-checks.json')
+    try:
+        wpad_report=json.loads(wpad_report_path.read_text(encoding='utf-8'))
+        wpad_checks=wpad_report.get('checks',{})
+        required_wpad_checks=('effective_selector','link_wpad.dat','link_wpad.da',
+            'link_proxy.pac','editor','capability_guard','login_guard','httpd_capability',
+            'httpd_mime','httpd_field','default_direct','preserve_existing')
+        wpad_pass=(wpad_report.get('scope')=='WPAD ROMFS packaging only; runtime unverified'
+                   and all(wpad_checks.get(key) is True for key in required_wpad_checks))
+    except (OSError,ValueError):
+        wpad_checks={}
+        required_wpad_checks=()
+        wpad_pass=False
+    report['feature_image_gates']['wpad']={'report':str(wpad_report_path),
+        'scope':'final ROMFS editor, HTTP field, PAC links and preservation checks; runtime unverified',
+        'passed':wpad_pass,'required_checks':list(required_wpad_checks)}
+    report['checks']['wpad_exact_romfs_gate']=wpad_pass
+    if not wpad_pass:
+        report['entrypoint_gaps'].append({'group':'wpad',
+            'reason':'dedicated exact-image WPAD ROMFS report missing or incomplete'})
+else:
+    report['feature_image_gates']['wpad']={'status':'not selected'}
+    report['checks']['wpad_exact_romfs_gate']=True
+sfe_enabled='CONFIG_FIRMWARE_INCLUDE_SFE=y' in effective_config
+sfe_gate=sfe_image_gate_status(sfe_enabled,image_paths,applets)
+report['feature_image_gates']['sfe']=sfe_gate
+report['checks']['sfe_exact_romfs_gate']=sfe_gate['passed']
+if sfe_enabled and not sfe_gate['passed']:
+    report['entrypoint_gaps'].append({'group':'sfe',
+        'reason':'exact-image rc, Shortcut FE modules or BusyBox modprobe applet missing'})
 # Active selectors are fully classified as service groups, image components,
 # or pending investigation. This is selector accounting only; it does not claim
 # that lifecycle interactions or every package payload have been audited.
@@ -106,9 +280,10 @@ selector_classes={
     'CONFIG_FIRMWARE_INCLUDE_DOH':('service','doh'),
     'CONFIG_FIRMWARE_INCLUDE_PRIVOXY':('service','privoxy'),
     'CONFIG_FIRMWARE_INCLUDE_IPERF3':('service','iperf3'),
+        'CONFIG_FIRMWARE_INCLUDE_ZAPRET2':('service','zapret2'),
     'CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS':('service','shadowsocks_clients'),
-    'CONFIG_FIRMWARE_INCLUDE_SSREDIR':('component','shadowsocks_clients'),
-    'CONFIG_FIRMWARE_INCLUDE_SSLOCAL':('component','shadowsocks_clients'),
+    'CONFIG_FIRMWARE_INCLUDE_SSREDIR':('service','shadowsocks_clients'),
+    'CONFIG_FIRMWARE_INCLUDE_SSLOCAL':('service','shadowsocks_clients'),
     'CONFIG_FIRMWARE_INCLUDE_WIREGUARD':('service','wireguard_amneziawg'),
     'CONFIG_FIRMWARE_INCLUDE_AMNEZIAWG':('service','wireguard_amneziawg'),
     'CONFIG_FIRMWARE_INCLUDE_ZEROTIER':('service','zerotier'),
@@ -152,7 +327,14 @@ service_entrypoints=(
     ('doh',('CONFIG_FIRMWARE_INCLUDE_DOH',),('usr/bin/doh_proxy.sh',)),
     ('privoxy',('CONFIG_FIRMWARE_INCLUDE_PRIVOXY',),('usr/bin/privoxy.sh',)),
     ('iperf3',('CONFIG_FIRMWARE_INCLUDE_IPERF3',),('usr/bin/iperf3.sh',)),
-    ('shadowsocks_clients',('CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS',),
+    ('zapret2',('CONFIG_FIRMWARE_INCLUDE_ZAPRET2',),
+        ('usr/sbin/nfqws2','usr/sbin/zapret2',
+         'usr/share/zapret2/zapret-lib.lua',
+         'usr/share/zapret2/zapret-antidpi.lua',
+         'usr/share/zapret2/zapret-auto.lua',
+         'usr/share/licenses/zapret2/LICENSE.txt')),
+    ('shadowsocks_clients',('CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS',
+                            'CONFIG_FIRMWARE_INCLUDE_SSREDIR','CONFIG_FIRMWARE_INCLUDE_SSLOCAL'),
         ('usr/bin/ss-local','usr/bin/ss-redir','usr/bin/shadowsocks.sh',
          'usr/bin/ss-monitor','usr/bin/ss-rules')),
     ('wireguard_amneziawg',('CONFIG_FIRMWARE_INCLUDE_WIREGUARD',
@@ -164,6 +346,7 @@ service_entrypoints=(
         ('usr/libexec/wr-usbip/device-action.sh','usr/libexec/wr-usbip/device-policy.sh',
          'usr/libexec/wr-usbip/firewall-policy.sh','usr/libexec/wr-usbip/restore.sh','usr/sbin/wr-usbip')),
     ('vlmcsd',('CONFIG_FIRMWARE_INCLUDE_VLMCSD',),('usr/bin/vlmcsd.sh',)),
+    ('u2ec',('CONFIG_FIRMWARE_INCLUDE_U2EC',),('usr/sbin/u2ec',)),
     ('wr_band_steering',('CONFIG_FIRMWARE_INCLUDE_WR_BAND_STEERING',),
         ('usr/sbin/wr-band-steering','usr/sbin/wr-band-steering-ctl','sbin/rc')),
 )
@@ -195,8 +378,16 @@ report['active_include_selector_classification']=[
      'group':selector_classes[selector][1]} for selector in active_include_selectors
      if selector in selector_classes]
 report['unclassified_active_include_selectors']=unclassified_include_selectors
-report['checks']['all_active_include_selectors_classified']=not unclassified_include_selectors
-report['selected_service_entrypoint_map_complete']=not unclassified_include_selectors
+classification_complete=not unclassified_include_selectors
+report['checks']['all_active_include_selectors_classified']=classification_complete
+service_map=active_service_entrypoint_map_status(active_include_selectors,
+    selector_classes,service_entrypoints,report['checks'])
+report['active_service_groups']=service_map['active_service_groups']
+report['unmapped_active_service_groups']=service_map['unmapped_active_service_groups']
+report['unmapped_active_service_selectors']=service_map['unmapped_active_service_selectors']
+report['active_service_entrypoint_checks']=service_map['active_service_entrypoint_checks']
+report['checks']['all_active_service_entrypoint_maps_checked']=service_map['complete']
+report['selected_service_entrypoint_map_complete']=service_map['complete']
 report['service_dispatch_probes']=[]
 for service, selector, script_name in (
         ('stubby','CONFIG_FIRMWARE_INCLUDE_STUBBY','stubby.sh'),
@@ -259,6 +450,10 @@ with tempfile.TemporaryDirectory(prefix='target-busybox-') as tmp:
     sample=Path(tmp)/'serial';sample.write_bytes(b'unit-test-only\n')
     probe=run(['hexdump','-v','-n','258','-e','1/1 "%02x"',str(sample)])
     report['checks']['usbip_hexdump_exact_options']=probe.returncode==0 and probe.stdout==sample.read_bytes().hex().encode()
+    od_sample=Path(tmp)/'od-sample';od_sample.write_bytes(bytes((0,1,127,255)))
+    probe=run(['od','-b',str(od_sample)])
+    report['checks']['od_octal_bytes']=probe.returncode==0 and bool(
+        re.search(rb'\b000\s+001\s+177\s+377\b',probe.stdout))
     import fcntl
     lock=Path(tmp)/'lock'
     with lock.open('w+') as held:

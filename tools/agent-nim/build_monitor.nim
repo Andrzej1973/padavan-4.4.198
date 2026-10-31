@@ -1,10 +1,10 @@
 ## Read-only GitHub Actions monitor. Never executes downloaded logs or patches.
 import std/[os, strutils, json, httpclient, net, streams, times, uri, parseopt, sequtils]
 
-const defaultWorkflows = ".github/workflows/build-multiple-boards.yml|.github/workflows/build-padavan-4.4-wr1200js.yml|.github/workflows/zram-lifecycle.yml"
+const defaultWorkflows = ".github/workflows/build-multiple-boards.yml|.github/workflows/build-padavan-4.4-wr1200js.yml|.github/workflows/zram-lifecycle.yml|.github/workflows/band-steering-abi.yml"
 const api = "https://api.github.com"
 const maxJson = 4 * 1024 * 1024
-const maxLog = 256 * 1024
+const maxLog = 16 * 1024 * 1024
 
 proc clean(text: string): string =
   for c in text:
@@ -32,7 +32,12 @@ proc atomicWrite(path, text: string) =
   when defined(posix): setFilePermissions(path & ".tmp", {fpUserRead, fpUserWrite})
   moveFile(path & ".tmp", path)
 
-proc request(url, token: string; limit: int; verb = HttpGet; body = ""): tuple[code: int, body, location: string] =
+proc trimLogTail(buffer: var string; limit: int; truncated: var bool) =
+  if buffer.len > limit:
+    truncated = true
+    buffer = buffer[buffer.len-limit..^1]
+
+proc request(url, token: string; limit: int; verb = HttpGet; body = ""; tail = false): tuple[code: int, body, location: string; truncated: bool] =
   # No automatic redirects: a GitHub bearer token must never reach a log host.
   let client = newHttpClient(timeout = 15000, maxRedirects = 0,
     sslContext = newContext(verifyMode = CVerifyPeer))
@@ -44,12 +49,20 @@ proc request(url, token: string; limit: int; verb = HttpGet; body = ""): tuple[c
   result.code = int(response.code)
   result.location = response.headers.getOrDefault("Location")
   var chunk = newString(4096)
-  while result.body.len <= limit:
-    let count = response.bodyStream.readData(addr chunk[0], min(chunk.len, limit + 1 - result.body.len))
+  while tail or result.body.len <= limit:
+    let amount = if tail: chunk.len else: min(chunk.len, limit + 1 - result.body.len)
+    let count = response.bodyStream.readData(addr chunk[0], amount)
     if count == 0: break
     result.body.add chunk[0..<count]
-    if result.body.len > limit: break
-  if result.body.len > limit:
+    if tail:
+      # Keep a bounded suffix; failures in long build jobs are usually near the end.
+      if result.body.len > limit + 4 * 1024 * 1024:
+        trimLogTail(result.body, limit, result.truncated)
+    elif result.body.len > limit: break
+  if tail:
+    trimLogTail(result.body, limit, result.truncated)
+  elif result.body.len > limit:
+    result.truncated = true
     result.body.setLen(limit)
     if limit == maxJson: raise newException(IOError, "API response exceeds bound")
 
@@ -60,17 +73,24 @@ proc github(path, token: string): JsonNode =
   parseJson(response.body)
 
 proc errorExcerpt(raw: string): string =
-  var kept = 0
+  var matches: seq[string]
   for line in raw.splitLines:
     let lower = line.toLowerAscii
     if ["error:", "fatal", "traceback", "assertion", "##[error]", "failed", "exception"].anyIt(it in lower):
-      result.add "  | " & redact(line) & "\n"
-      inc kept
-      if kept >= 60: break
-  if kept == 0: result = "  No recognized error in bounded excerpt; inspect the linked job log.\n"
+      matches.add "  | " & redact(line) & "\n"
+      if matches.len > 60: matches.delete(0)
+  if matches.len == 0: result = "  No recognized error in bounded excerpt; inspect the linked job log.\n"
+  else: result = matches.join("")
 
 proc details(repo, id, attempt, token: string; fixture: bool): string =
-  if fixture: return "Fixture failure: synthetic compiler error; no network request.\n"
+  if fixture:
+    let fixtureLog = getEnv("BUILD_MONITOR_FIXTURE_JOB_LOG")
+    if fixtureLog.len > 0:
+      var fixtureBody = readFile(fixtureLog)
+      var fixtureTruncated = false
+      trimLogTail(fixtureBody, maxLog, fixtureTruncated)
+      return "Fixture job log excerpt (offline):\n" & errorExcerpt(fixtureBody)
+    return "Fixture failure: synthetic compiler error; no network request.\n"
   let jobs = github("/repos/" & repo & "/actions/runs/" & id & "/attempts/" & attempt & "/jobs?per_page=100", token)
   var count = 0
   for job in jobs["jobs"]:
@@ -80,14 +100,15 @@ proc details(repo, id, attempt, token: string; fixture: bool): string =
       if step{"conclusion"}.getStr == "failure":
         result.add "Failed step: " & redact(step{"name"}.getStr) & "\n"
     try:
-      var log = request(api & "/repos/" & repo & "/actions/jobs/" & number(job, "id") & "/logs", token, maxLog)
+      var log = request(api & "/repos/" & repo & "/actions/jobs/" & number(job, "id") & "/logs", token, maxLog, tail = true)
       if log.code in [301, 302, 303, 307, 308]:
         let target = parseUri(log.location)
         if target.scheme != "https" or target.hostname.len == 0 or target.username.len > 0:
           raise newException(IOError, "Invalid log redirect")
-        log = request(log.location, "", maxLog) # Never forward Authorization.
+        log = request(log.location, "", maxLog, tail = true) # Never forward Authorization.
       if log.code == 200:
-        result.add "Log excerpt (first 256 KiB scanned; heuristic, potentially incomplete):\n" & errorExcerpt(log.body)
+        result.add "Log excerpt (latest 60 matching lines from last 16 MiB; heuristic" &
+          (if log.truncated: ", truncated" else: ", complete download") & "):\n" & errorExcerpt(log.body)
       else: result.add "Job log unavailable (HTTP " & $log.code & ").\n"
     except CatchableError:
       result.add "Job log retrieval failed; follow the run URL.\n"
@@ -126,6 +147,7 @@ proc main() =
   let token = getEnv("GITHUB_TOKEN", getEnv("GH_TOKEN"))
   let workflows = getEnv("BUILD_MONITOR_WORKFLOWS", defaultWorkflows).split('|')
   let statePath = directory / "build-monitor-state.json"
+  let statusPath = directory / "build-monitor-status.json"
   createDir(directory)
   let lockPath = directory / "build-monitor.lock"
   if existsOrCreateDir(lockPath):
@@ -176,6 +198,14 @@ proc main() =
         atomicWrite(statePath, $seen)
         echo "Initial snapshot recorded; existing failures suppressed. Use --report-existing or --run-id to inspect them."
         baseline = false
+      atomicWrite(statusPath, $(%*{
+        "state": "ok",
+        "checked_at_utc": now().utc.format("yyyy-MM-dd'T'HH:mm:ss'Z'"),
+        "pid": getCurrentProcessId(),
+        "repository": repo,
+        "runs_examined": runs.len,
+        "interval_seconds": interval
+      }))
       backoff = interval
       if once: return
     except CatchableError as error:
@@ -183,6 +213,16 @@ proc main() =
       backoff = min(900, backoff * 2)
       stderr.writeLine("Monitor check failed (" & $error.name & "); retaining previous failure report. Retry in " & $backoff & "s.")
       if error.msg.startsWith("GitHub HTTP "): stderr.writeLine(error.msg)
+      try:
+        atomicWrite(statusPath, $(%*{
+          "state": "error",
+          "checked_at_utc": now().utc.format("yyyy-MM-dd'T'HH:mm:ss'Z'"),
+          "pid": getCurrentProcessId(),
+          "repository": repo,
+          "retry_seconds": backoff,
+          "error_type": $error.name
+        }))
+      except CatchableError: discard
       if once: raise
     sleep(backoff * 1000)
 

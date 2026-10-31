@@ -1,0 +1,8 @@
+# WR1200JS IoT v41 isolated target compilation — run #627
+
+- GitHub Actions: [firmware #627](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/40443241354), commit `e73f9dc51fb1c5fba04005954fd0de5cd52024c4`, completed successfully.
+- The `iot-merged-driver-probe` artifact (`12707658190`) contains `target-compile-result.json`, `mbss-stop-binding.json`, the MIPS module and compiler diagnostics. The downloaded copy was inspected in `.iot-local-check/build627-probe/`.
+- The result records `candidate_variant: v41`, `target_compiled: true`, `production_installed: false`, `runtime_verified: false`. The binding manifest records 58 verified source files and `checked_stop_bound: true`; admission-failure recovery, recovery owner and PCI release gate remain false.
+- Independently hashed downloaded `mt76x3_ap.ko`: 5,211,796 bytes, SHA-256 `d9ea6bd3b6730bdf517f6455da088e783334c1958be7005a417edb479e873902`, matching `target-compile-result.json`. The included ELF header identifies a 32-bit little-endian MIPS32r2/O32 relocatable module. Its symbol listing contains `wr_iot_mbss_begin_close`, `wr_iot_mbss_close_checked` and `wr_iot_virtual_down_checked`.
+- The included build log has a nonfatal `modpost: Found 1 section mismatch(es)` warning while building 155 modules. This successful job does not resolve or attribute that warning; investigate before a release claim if it persists in the final production build.
+- This proves isolated target compilation and the presence of the checked close symbols. It does not prove worker lifetime, PCI teardown, beacon DMA/TxS quiescence, image inclusion or device behavior. Do not install this candidate in production or on the router yet.
