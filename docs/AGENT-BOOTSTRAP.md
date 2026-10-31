@@ -1,3 +1,11 @@
+# Current workspace note - 2026-10-31
+
+Active code checkout: `/home/andrzej/padavan-build/router-guide-work` in Ubuntu-22.04.
+Sol is sole writer; Windows original is frozen for preservation. Use native
+Linux Git and read the latest status/handoff before historical records below.
+Persistent Windows SSH access is documented in AGENTS.md. Full historical
+migration/deletion and retargeting every Desktop chat remain unaccepted.
+
 # Стартова точка для агента — читати першим
 
 Базовий опис: 2026-10-18. Поточний стан і результати CI за 2026-10-25

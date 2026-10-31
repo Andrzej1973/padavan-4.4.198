@@ -25,6 +25,14 @@ PINS = {
         'cef37395a9649dce3c1937915c156b7a0d7574aca24df47fb6fed918201dd58b'),
 }
 OVERLAPS = set(PINS) | {'ap/ap.c', 'ap/ap_cfg.c', 'hw_ctrl/cmm_asic_mt.c'}
+# Production station-query bounds are an additional, separately reviewed merge.
+PRODUCTION_PINS = {
+    'common/cmm_info.c': (
+        '7f08d80fc1582e0cfff1da1b9f5448049df5d4852908b69047a27149264d016c',
+        '919be03073f34bb8c62b7b662f85399f35d626dcd82bfd5be5e5b4e0c834e11a',
+        'fd93f73da2e93655cb420aed54fdd9cdf41eeecefdb73447436301b59451bbdb'),
+}
+
 BODY = ('static BOOLEAN wr_iot_mac_delete_entry_body(RTMP_ADAPTER *pAd, USHORT wcid, UCHAR *pAddr,\n'
         ' const void *wr_resume_device, unsigned long wr_resume_generation, unsigned long wr_resume_serial, unsigned long wr_table_serial)')
 RSSI = ('BOOLEAN wr_rssi_delete_entry(RTMP_ADAPTER *pAd, USHORT wcid, UCHAR *pAddr, '
@@ -109,6 +117,10 @@ def merge(name, base, prepared, candidate):
         raise ValueError('Unexpected conflict in ' + name)
     if '<<<<<<< ' in text:
         raise ValueError('Unresolved merge marker in ' + name)
+    if name in PRODUCTION_PINS:
+        observed = (sha(norm(prepared)), sha(norm(candidate)), sha(text.encode()))
+        if observed != PRODUCTION_PINS[name]:
+            raise ValueError('Unreviewed production merge in ' + name)
     return text.encode()
 
 
@@ -153,8 +165,12 @@ def main():
         if (len(changed), len(added), len(candidate)) != (62, 70, 585):
             raise ValueError('Unreviewed scheduler82 inventory')
         overlaps = {n for n in changed if n in prepared and norm(prepared[n]) != norm(base[n])}
-        if overlaps != OVERLAPS or not base.keys() <= prepared.keys() or added & prepared.keys():
-            raise ValueError('Prepared source overlap/inventory changed')
+        missing = base.keys() - prepared.keys()
+        collisions = added & prepared.keys()
+        if overlaps not in (OVERLAPS, OVERLAPS | set(PRODUCTION_PINS)) or missing or collisions:
+            raise ValueError('Prepared source overlap/inventory changed: overlaps=' +
+                             repr(sorted(overlaps)) + '; missing=' + repr(sorted(missing)) +
+                             '; collisions=' + repr(sorted(collisions)))
         payloads = {n: norm(candidate[n]) for n in changed | added}
         for name in sorted(overlaps):
             payloads[name] = merge(name, base[name], prepared[name], candidate[name])

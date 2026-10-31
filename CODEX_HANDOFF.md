@@ -1,3 +1,37 @@
+## 2026-10-31 Sol: build651 failure reproduced and production overlap fixed locally
+
+Build651/run41235882348 failed at isolated IoT preparation before Kbuild: the actual production station-query buffer bound makes common/cmm_info.c a seventh overlap. Reproduced exact rejection; clean merge preserves both bounds and peer changes. Assembler now accepts only the exact six-or-reviewed-seven sets, with SHA-pinned extra input/output; altered same-set input is rejected, six-overlap output unchanged. Evidence: docs/evidence/WR1200JS-BUILD651-PEER82-PRODUCTION-MERGE-2026-10-31.md. Whole target/image/runtime remain open. Monitor identified the step but missed late cause; branch tail-log correction exists but main is still old. No router change.
+
+## 2026-10-31 Sol: Desktop old-folder deletion blocker confirmed
+
+Official list_projects still shows only the old Windows local project; the WSL checkout is not registered as a Desktop project. Native code work and permanent SSH transport are verified, but all-chat source-folder retargeting is NOT accepted. Owner must add the WSL repository folder and move the three existing chats via sidebar to grant source-folder access. Do not delete the Windows original meanwhile. Exact instructions in parent OPEN-SHARED-WORKSPACE.md. No app database or authentication changes.
+
+## 2026-10-31 Sol: merged target feature evidence wired locally
+
+The existing IoT full-driver compile step now invokes check-task-config.py against the actual merged rt_linux.o command after Kbuild, stores merged-task-config.json plus command/macro artifacts, and includes compiled task macros and command/source SHA256 in target-compile-result.json. This closes a reporting gap: baseline rt_linux evidence cannot establish merged candidate feature conditions. No driver/config feature was toggled. YAML parse and entire-step bash -n passed. Change is local and NOT part of currently running build651; do not attribute new evidence to that run. Actual merged feature evidence and alternative-feature compilation remain pending; wait for build651 before batching/publishing further CI changes.
+
+## 2026-10-31 Sol: full peer82 target check launched as build 651
+
+Ordinary firmware build 650 (run 41234665048) and ABI 41234665023 completed success on 6b52fcd606498bb3b477bf5bd6789d391358c6ae. Neither substitutes for whole peer82 Kbuild. Confirmed no active firmware run and remote branch still at that SHA, then dispatched existing build-multiple-boards.yml with boards=wr1200js, run_candidate_checks=true, candidate_scope=iot, iot_candidate_variant=peer82. New run 41235882348, build 651, is in_progress on the same exact SHA. Reuse it; do not duplicate dispatch. Target result remains pending. Require isolated iot-merged-driver-probe artifact and source/config/module evidence, not merely firmware success. No candidate installation or router change.
+
+External active-materials tar completed; independent Python PID 10604 now verifies inventory and all content against frozen Windows originals. No verification success/deletion acceptance yet. Existing local documentation updates remain preserved.
+
+## 2026-10-31 Sol: repaired ABI run passed on GitHub
+
+Band Steering driver ABI run 41234665023 on published 6b52fcd606498bb3b477bf5bd6789d391358c6ae completed success. This confirms the repaired prepared-rssi prefix and final scheduler audit pass in CI, including the workflow's host and MIPS fixture checks. It does not close the separate whole peer82 driver Kbuild/image/runtime gates. Firmware run 41234665048 was not rechecked in this observation. External tar PID 13756 still live; ~2.57 GB written, archive not yet verified.
+
+## 2026-10-31 Sol: persistent shared Git transport verified
+
+Owner requested durable configuration instead of repeated per-command setup. Windows user Git now trusts only //wsl.localhost/Ubuntu-22.04/home/andrzej/padavan-build/router-guide-work through safe.directory; existing entries retained. Active repository local core.sshCommand is ssh.exe -o BatchMode=yes -o ConnectTimeout=15. In WSL ssh.exe resolves to Windows System32 OpenSSH and authenticates as Andrzej1973 using the existing Windows identity. No keys copied, remote unchanged, no sandbox bypass or system security change.
+
+Normal native Linux Git ls-remote and push --dry-run passed without -c overrides; remote HEAD is 6b52fcd606498bb3b477bf5bd6789d391358c6ae. Use wsl -d Ubuntu-22.04 --cd /home/andrzej/padavan-build/router-guide-work -- git ... for routine operations. Native status measured 0.28s; Windows Git scanning the UNC tree remained pending for minutes, so avoid it for routine status/add. This does not establish the exact low-level cause of UNC latency. The sole writer's slow read-only status process was stopped; no locks/index data deleted. Other app Git processes left untouched.
+
+## 2026-10-31 Sol: published 6b52fcd; CI running
+
+Published commit 6b52fcd606498bb3b477bf5bd6789d391358c6ae to origin/codex/wr1200js-service-webui by normal Windows SSH from the active WSL checkout; dry-run and real fast-forward push passed. No remote/global config changed; Windows Git needed only a process-local safe.directory for this exact UNC checkout. Worktree was clean after commit/push.
+
+Automatic runs on this SHA are live: Band Steering ABI 41234665023 and firmware 41234665048. Do not dispatch duplicates while these run. Results pending, not accepted. The later explicit isolated peer82 whole-driver check remains open. External tar PID 13756 remains live on D:, last observed ~2.12 GB with original Windows data retained. No router mutation. This status update is intentionally local until the next coherent evidence batch.
+
 ## 2026-10-31 Sol: ABI repair publication checkpoint
 
 Publishing the coherent ABI599 pristine-replay and typed PCI audit repair under the owner's standing instruction to send necessary completed changes. Source composition, scheduler audit, negative rejection cases, sanitized host fixtures and seven MIPS fixture objects passed. No whole-driver target/image/device acceptance claim. Full peer82 CI candidate check remains the next gate, using the exact published revision. Windows original remains frozen; external archive is still unverified. No router mutation.

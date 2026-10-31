@@ -1757,6 +1757,10 @@ jobs:
           make -C "$kernel" ARCH=mips CROSS_COMPILE="$cross" -j2 vmlinux modules \
             2>&1 | tee "$results/build.log"
           cmp tools/iot/mt7603-main-observe.h "$driver/include/mt7603-main-observe.h"
+          # Record actual rt_linux TU macros from the merged candidate Kbuild.
+          python3 tools/iot/check-task-config.py \
+            --kernel "$kernel" --driver "$driver" --compiler "$compiler" \
+            --output "$results/merged-task-config.json"
           python3 tools/iot/check-capacity.py "$kernel" mt76x3 \
             --compiler "$compiler" --require-three-bss --check-main-observer \
             --source-commit c25283e915a2a00a763774dd255b14aff997285e \
@@ -1813,6 +1817,9 @@ jobs:
           results = pathlib.Path(sys.argv[1])
           source = json.loads((results / 'merged-source-manifest.json').read_text(encoding='utf-8'))
           module = results / 'mt76x3_ap.ko'
+          task = json.loads((results / 'merged-task-config.json').read_text(encoding='utf-8'))
+          if task['status'] != 'complete':
+              raise SystemExit('Merged rt_linux task configuration evidence missing')
           elf = (results / 'mt76x3-elf.txt').read_text(encoding='utf-8')
           if source['target_compiled'] or source['production_installed'] or not module.is_file():
               raise SystemExit('Invalid isolated IoT source/build boundary')
@@ -1829,6 +1836,9 @@ jobs:
               'module': 'mt76x3_ap.ko',
               'module_bytes': module.stat().st_size,
               'module_sha256': hashlib.sha256(module.read_bytes()).hexdigest(),
+              'compiled_task_macros': task['macros'],
+              'task_command_sha256': task['command_sha256'],
+              'task_source_sha256': task['source_sha256'],
           }
           (results / 'target-compile-result.json').write_text(
               json.dumps(report, indent=2) + '\n', encoding='utf-8')

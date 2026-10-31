@@ -158,3 +158,28 @@ boards. Add a build-time check against the exact effective `.config` and final
 ROMFS so the image fails closed when its manifest and exposed controls
 disagree. Keep runtime validation distinct from source/build evidence. Run the
 same review whenever a new board config is introduced.
+
+## Active WSL workspace and persistent Git access (2026-10-31)
+
+The active code checkout is `/home/andrzej/padavan-build/router-guide-work`
+in Ubuntu-22.04. Sol remains sole writer. The old Windows checkout is frozen
+preservation input; historical path/HEAD records below or in older documents
+do not transfer authority back to it. Full historical migration/deletion is
+still pending: do not delete originals based on the code-work cutover alone.
+
+Run routine Git operations natively in Linux, for example from Windows:
+`wsl -d Ubuntu-22.04 --cd /home/andrzej/padavan-build/router-guide-work -- git status -sb`.
+Windows Git scanning this repository through UNC was much slower; prefer
+native Git for status, diff, add, commit and push. Do not create a second clone
+or copy the worktree to work around that latency.
+
+This checkout has a verified local `core.sshCommand` using Windows `ssh.exe`
+with batch mode and a bounded connection timeout. It uses the owner's existing
+Windows identity without copying private keys into Linux. Windows user Git
+also trusts this exact UNC checkout via `safe.directory`; no wildcard trust
+was added. These are local environment settings, not portable CI settings.
+Other hosts/accounts must verify their own authorized access; do not copy
+credentials or silently rewrite their SSH configuration. Preserve the remote.
+
+Opening the same folder in each agent's chat still requires verification;
+messages and rules do not prove that Desktop project paths were retargeted.
