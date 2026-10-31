@@ -1,4 +1,4361 @@
+## 2026-10-31 checkpoints published; Sol receives execution ownership
+
+The owner requested a logical checkpoint, GitHub publication and transfer to
+Sol. The code checkpoint is
+`61c634b5508ffc29648e522da8444c882cf0abc7`
+(`feat(wr1200js): checkpoint IoT ownership and Modern WebUI`): 506 files,
+39,105 insertions and 235 deletions. This handoff record is the direct child of
+that checkpoint and is published immediately after it; the remote SHA must be
+verified again after push rather than inferred from this file.
+
+The checkpoint publishes the full IoT ownership/retry toolchain and its
+distilled evidence, including auxiliary scheduler82. The final host replay
+passed all 86 extracted variants, but target compilation, ROMFS/image
+inspection, callback/DMA quiescence and device runtime remain unproven. Known
+open IoT issues include unbound WDS/peer completion identity, retained failed
+insertions, incomplete timer/callback joining and no single proven lifetime
+owner across all adapter, peer, radio and PCI paths.
+
+The Modern WebUI checkpoint contains the full eleven-page local preview and a
+repeatable production-shell installer with authenticated read-only
+`/wr_modern.json`. The current local recheck passed Python compilation,
+JavaScript syntax, DEMO HTTP verification, production static-shell validation,
+host live-JSON generation, production-shell HTTP verification and the IoT
+scheduler fixture (release build; this MinGW environment has no ASan runtime
+library). The production shell is not yet invoked by the firmware workflow,
+MIPS-compiled, present in a verified ROMFS or tested on the router.
+
+Public WAN/ISP addresses and VPN endpoint details were redacted from publishable
+evidence. Local-only SSH/PCI evidence remains untracked and ignored. Reproducible
+scratch was removed: `.iot-local-check`, extracted CI artifacts, temporary
+build directories, local test directories and Python/Node caches. Tracked
+candidate content was preserved.
+
+Sol now owns continuation. Required order: accept the role after checking the
+remote SHA; complete IoT lifecycle/ownership and its target/feature builds;
+verify the production Modern shell and Zapret2; inspect the final TRX, checksum,
+ROMFS and gates; only then request separate authorization for device testing.
+Band Steering must remain, IoT is mandatory in the release objective and CAKE
+stays excluded. No flash, reboot, service restart or router configuration
+change is authorized by this handoff.
+
+## 2026-10-31 Modern production shell prepared; host/browser checks PASS
+
+Added `prepare-production.py`, `wr-modern-http.inc` and a live-mode browser
+fixture. A disposable pinned source install produced `/modern/index.html`,
+private Modern assets and authenticated `/wr_modern.json`. The JSON route emits
+selected NVRAM/system fields, memory and uptime without passwords, keys,
+certificates or logs. Host GCC emitted valid live JSON; production-shell browser
+loaded all assets in `LIVE READ-ONLY` mode with no console error. This is not yet
+wired into firmware build, MIPS-compiled, ROMFS-inspected or device-tested.
+
+## 2026-10-31 Modern WebUI full reference-structure preview PASS
+
+Local Modern preview now covers11 informational pages plus Wi-Fi/IoT routes.
+Dashboard adds band switcher, DEMO WAN traffic graph, CPU processes, explicit
+`Н/Д` temperatures and corrected USB status. All routes rendered without
+console errors; desktop and390x844 layouts had no horizontal overflow.
+`node --check`,15-route Wi-Fi check, reference-image check and
+`verify_preview.py` passed. This is local DEMO only: no production ASP/CGI,
+NVRM, service, firewall, DHCP, IoT runtime or firmware integration is claimed.
+Verification: `tools/webui-preview/VERIFICATION.md`.
+
+## 2026-10-31 DeepSeek resumed IoT with auxiliary retry scheduler82
+
+DeepSeek accepted the single-writer role after local and remote HEAD matched
+`13ce368`. The pre-existing 71 tracked modifications and 467 untracked entries
+were preserved. Fresh candidate81 passed85 host variants. The new exact-ticket
+APCLI/Monitor scheduler82 binds `dev_hold`, the original module pin, an adapter
+release fence, RTNL retry, locked completion and PCI stop/join behavior.
+Candidate82 passed86 full host variants; a fresh whole-chain reproduction has
+585 files with0 differences from tested bytes and passed6 focused replay
+variants. Evidence:
+`docs/evidence/WR1200JS-IOT-AUX-RETRY82-2026-10-31.md`.
+Target compile, image, callback/DMA quiescence and runtime remain unverified.
+No router change, flash, reboot, commit or push occurred.
+
+## 2026-10-31 handoff to DeepSeek; Sol stops writing
+
+Owner requested handoff to DeepSeek. Same local checkout and branch
+codex/wr1200js-service-webui, published HEAD13ce368. Acceptance by DeepSeek
+is not yet verified. DeepSeek must explicitly accept before becoming writer.
+Do not use a fresh clone: extensive uncommitted/untracked work exists only here.
+Read AGENTS.md and docs/AGENT-HANDOFF-RULES-SOL-DEEPSEEK.md first; preserve
+all existing work and use one writer only. Goal remains paused until resumed.
+
+Supersedes RUNNING markers below: sessions35118/58858 completed. Full79 host
+report full79-cycle80-host-20261030/result.json passed83 variants. Fresh79
+peer-retirement-chain79-20261030 has72 preparers/584 files byte-identical to
+owner-down79-20261030; receipt full79-comparison81.json. Retry81 targeted
+report aux-retry81-targeted/result.json passed11 variants. These reports
+are under .iot-local-check and are host/source evidence, not target/runtime.
+
+Latest unfinished work: tools/iot/aux-family-close-retry.inc,
+prepare-aux-family-close-retry.py and prepare-aux-family-retry-check.py.
+Isolated candidate .iot-local-check/aux-retry81-20261030 exposes direct exact-
+ticket continuation after unmutated DOWN failure without family/HNAT replay.
+Main preparer now includes81, but fresh full81 preparation/replay is pending.
+Next verify complete candidate81, then bind recovery scheduling with adapter/
+netdev/module lifetime and stop/join. Completion-after-DOWN, uncertain family
+failure, first/last auxiliary physical ownership, callback retirement and final
+child/root/PCI release are still open. Do not claim IoT production-ready.
+No target/firmware build or device validation was established by these tests.
+No flash, reboot or router state change without separate owner authorization.
+No automatic bulk stage, reset, clean or unrelated commit/push. Sol ceases
+editing after this handoff. No DeepSeek process was launched or messaged.
+
+## 2026-10-30 actual auxiliary OPEN-to-CLOSE cycle80 host PASS
+
+Actual APCLI/Monitor OPEN+claim-only dispatcher+owned CLOSE+checked DOWN now
+compose in one executable; auxiliary OWNED is created by real OPEN, not seeded.
+Strict base/HNAT passed normal/removing/reopen/new-token cycles and uncertain
+OPEN/failed CLOSE retention without replay. Main readiness/kernel/IO mocked.
+Evidence docs/evidence/WR1200JS-IOT-AUX-OPEN-CLOSE-CYCLE80-HOST-2026-10-30.md.
+Full host RUNNING session35118 (.iot-local-check/full79-cycle80-host-20261030).
+Fresh whole source79 RUNNING session58858 (.iot-local-check/peer-retirement-chain79-20261030).
+Resume exact handles, then compare final source hashes to tested incremental79.
+Next exact-ticket continuation of proven unmutated DOWN failure, without
+family/HNAT replay, then callback/family/root/PCI retirement. Sol sole writer.
+No target/runtime proof, router change, firmware build, dispatch, commit/push.
+
+## 2026-10-30 legacy DOWN79 bypass rejected; full78 host PASS80
+
+No remaining C unclaimed DOWN callers. Pinned legacy DOWN case now rejects
+without count/physical-close effects; direct checked-ticket function unchanged.
+11 targeted variants passed incl actual owned close/DOWN and native/ABL bridge.
+Full78 session35851 terminal exit0:80 passed host variants, full_suite=true.
+Evidence docs/evidence/WR1200JS-IOT-VIRTUAL-DOWN-OWNER79-HOST-2026-10-30.md.
+Main chain/suite include79; fresh whole79/replay pending. Last fresh76 has69
+preparers/584 identical files. All check/preparation sessions terminal.
+Next actual OPEN-to-CLOSE cycle creating auxiliary OWNED via real OPEN, then
+retained continuation/callback/PCI lifetime binding. No target/runtime claim.
+Sol sole writer; preserve work. No router mutation/build/dispatch/commit/push.
+
+## 2026-10-30 virtual UP78 unclaimed bypass rejected; host cases PASS
+
+Source audit found no remaining C VIRTUAL_IF_UP callers. Pinned actual
+UP dispatcher now rejects NULL/zero owner before count/hardware/beacon effects.
+Actual claim-only case passed strict base/AP host tests for zero/stale/exact/
+replayed main and auxiliary claims. Request layout unchanged; target ABI unproved.
+Main chain/suite include78. Full78 host RUNNING session35851,
+output .iot-local-check/full78-host-composition-20261030. Resume same handle.
+Evidence docs/evidence/WR1200JS-IOT-VIRTUAL-UP-CLAIM78-HOST-2026-10-30.md.
+Next unclaimed DOWN bypass (no remaining C callers) and full OPEN-to-CLOSE
+composition, then retained recovery/first-last close/callback/PCI retirement.
+Last fresh source76:69 preparers/584 identical files; last full host76:77.
+Sol sole writer. No target/image/runtime acceptance, router change or push.
+
+## 2026-10-30 claimed APCLI/Monitor OPEN77 host PASS; fresh76 identical
+
+Session70190 terminal exit0. Fresh76 has69 preparers/584 files byte-identical
+to tested76b; manifest verified (.iot-local-check/full76-comparison77.json).
+77b binds APCLI/Monitor OPEN to exact AUX_OPEN claims and checks family ioctl;
+late invalidation retains uncertain pins and skips family call if observed
+before it. Strict actual three-family OPEN +5 targeted variants passed.
+Evidence docs/evidence/WR1200JS-IOT-AUX-OPEN77-HOST-2026-10-30.md.
+Main chain includes77; fresh77/full host replay pending. No VIRTUAL_IF_UP C
+callers remain, but legacy inline/dispatcher zero-owner fallback still exists.
+Next review direct CMD/native/ABL consumers, reject unclaimed bypass, check
+OPEN-to-CLOSE composition then bind retained recovery/callback/PCI completion.
+All current test/preparation sessions terminal. Sol sole writer; preserve work.
+No target build/image/runtime acceptance, router change, commit or push.
+
+## 2026-10-30 full76 host PASS77; fresh source preparation remains live
+
+Session46448 terminal exit0; full76-host-composition-20261030/result.json
+confirms77 passed full-suite host variants. No target/runtime acceptance.
+Source prep session70190 still live, last at wds-outer; output
+.iot-local-check/peer-retirement-chain76-20261030. Resume same handle.
+Next compare fresh tree to tested76b when preparation completes. In parallel
+migrate APCLI/Monitor OPEN away from zero-owner count fallback, preserving
+post-attempt uncertain pins. Full source audit/evidence in
+ docs/evidence/WR1200JS-IOT-OWNED76-COMPOSITION-OPEN-AUDIT-2026-10-30.md.
+Sol sole writer; all local work preserved. No router change/build/push.
+
+## 2026-10-30 candidate76 composition underway; OPEN bypass confirmed
+
+9 targeted legacy/shared/new-owned/removing variants passed. Legacy fixture
+now delegates new endpoint coverage to actual-owned composition tests; mixed
+endpoint implementations are rejected. Main chain includes76.
+Full76 host RUNNING session46448 (.iot-local-check/full76-host-composition-20261030).
+Fresh full source chain76 RUNNING session70190 (.iot-local-check/peer-retirement-chain76-20261030).
+Resume these exact handles; do not restart on observation timeouts.
+OPEN audit: APCLI/Monitor are the only remaining unclaimed VIRTUAL_IF_UP C
+callers; dispatcher zero-owner fallback mutates count outside shared owner.
+Next migrate both OPEN wrappers to claim+family-result/uncertain-pin handling,
+then remove/reject the unclaimed bypass after complete caller/ABI review.
+Evidence docs/evidence/WR1200JS-IOT-OWNED76-COMPOSITION-OPEN-AUDIT-2026-10-30.md.
+Close test seeded OWNED records are not live OPEN evidence. Sol sole writer.
+No target build, router change, dispatch, commit or push in this step.
+
+## 2026-10-30 isolated owned APCLI/Monitor close76b host PASS
+
+Pinned five-file preparer binds both ndo_stop wrappers to shared family owner
+before ioctl, with per-slot device/generation/serial/epoch/token state.
+Family failure/DOWN failure retain owner/pin; repeated entry cannot replay.
+Actual DOWN atomically rejects stale epoch before count mutation. Strict
+actual-wrapper/helper/DOWN host base/HNAT variants passed incl last-close
+refusal and reset interleavings. Stronger family identity model also passed.
+Evidence docs/evidence/WR1200JS-IOT-AUX-FAMILY-OWNER76-HOST-2026-10-30.md.
+Candidate .iot-local-check/aux-owned76b-20261030 is isolated; main chain ends75.
+Next adapt legacy endpoint fixtures and broad composition; bind/verify actual
+APCLI/Monitor OPEN registry acquisition, same-ticket deferred recovery and
+last-close/callback/PCI completion. No target ABI/runtime acceptance; model
+seeded OWNED records are not real OPEN proof. All test sessions terminal.
+Sol sole writer. No router mutation, firmware build, dispatch, commit or push.
+
+## 2026-10-30 exact removing auxiliary owner75 admission PASS
+
+Fixed candidate composition refusal: mark-removing before dev_close made
+old count-match reject the same WDS OWNED record. New pinned aux-close header
+permits only that exact still-owned target; refuses foreign removal/duplicate
+identity/post-unregister/count mismatch. General registry checker unchanged.
+Strict candidate assertion and6 targeted WDS/aux variants passed. First
+old-header test failed due quoted include precedence; candidate-copy rerun
+passed. Failed process terminal; no live work remains from these checks.
+Evidence docs/evidence/WR1200JS-IOT-AUX-REMOVING-ADMISSION75-HOST-2026-10-30.md.
+Main chain includes75; fresh full75 not yet prepared/replayed. Last full74
+host76, source composition70. Next bind APCLI/Monitor family-close owner and
+same-ticket continuation; callback/PCI retirement remains incomplete.
+Sol sole writer. No target/runtime/router change, commit or push.
+
+## 2026-10-30 full74 host replay PASS76
+
+Session42924 terminal exit0; full74-host-resumed-20261030/result.json confirms
+76 passed variants, full_suite=true. Target/runtime/lifecycle acceptance false.
+This supersedes the running marker below. Main preparer includes74; fresh
+whole-chain74 source preparation still pending. Last reproduced full70 tree
+has65 preparers/582 files. Evidence docs/evidence/WR1200JS-IOT-RESUMED74-RECOVERY-BOUNDARY-2026-10-30.md.
+Next exact-generation/serial family-close owner binding before APCLI/Monitor
+side effects, same-ticket continuation, callback retirement and PCI receipts.
+No router change, firmware build, dispatch or publication. Sol sole writer.
+
+## 2026-10-30 resumed after publication13ce368; candidate74 integration
+
+Goal active again. Added74 to main preparer/common suite.9 targeted variants
+passed; recovery-owner and family-stage models also passed, without worker
+binding. APCLI MLME and Monitor RX-filter side effects require separate
+family result/ownership and exact-ticket continuation before callback release.
+Full74 replay RUNNING session42924, output .iot-local-check/full74-host-resumed-20261030;
+last poll confirmed live. Resume same handle, do not restart for timeout.
+Evidence docs/evidence/WR1200JS-IOT-RESUMED74-RECOVERY-BOUNDARY-2026-10-30.md.
+Last full source reproduction70 remains65 preparers/582 identical files;
+fresh full74 prep not yet run. Next exact-owner family-close binding and
+retained callback retirement. No target/runtime claim. Sol sole writer.
+No router mutation, firmware build, dispatch, commit or push this step.
+
+## 2026-10-30 auxiliary remove73 close refusal guard PASS
+
+Pinned two-file candidate adds explicit APCLI/Monitor close + actual registry
+IDLE check before unregister/free. Failed ndo_stop now retains netdev and
+vendor state; RTNL is released. MBSS has existing IDLE/terminal admission.
+Strict actual-remove/actual-helper host test passed;7 adjacent/seam variants
+also passed. Evidence docs/evidence/WR1200JS-IOT-AUX-REMOVE-CLOSE73-HOST-2026-10-30.md.
+Success-path callback retirement remains UNPROVED; retained failure retry is
+UNBOUND. Do not treat this guard as completion of child teardown.
+Main preparer includes73; fresh full73 not yet prepared/replayed. Last full
+verified composition70:65 preparers/582 identical files,72+1 host results.
+Next common callback retirement evidence and retained family completion,
+then root/final-work/PCI release. Sol sole writer; preserve all local changes.
+No target build, router change, dispatch, commit or push in this step.
+
+## 2026-10-30 full70 fresh composition verified; child retirement72 next
+
+Session31378 ended exit0. Fresh main chain:65 preparers/582 files, all bytes
+identical to tested incremental70d and manifest hashes match. Evidence
+.iot-local-check/full70-comparison72.json and
+ docs/evidence/WR1200JS-IOT-FULL70-AND-CHILD-RETIREMENT72-2026-10-30.md.
+72 full-suite host variants plus1 separate injected-exit variant passed on
+these bytes. Chain now ends70, not64; draft65 remains excluded. No target,
+image or runtime acceptance. No production overlay installation claimed.
+Next concrete gap: MBSS/APCLI/Monitor still free after unregister without
+matching registry callback-retirement receipt; WDS instead retains and fails.
+Bind common callback retirement evidence and per-family completion/retry,
+then root/final-work/physical PCI release receipts. Never invent completion
+from a successful remove return. WSL probe returned installer usage exit1;
+no target toolchain established. Sol sole writer; all local work preserved.
+No router changes, firmware build, dispatch, commit or push in this step.
+
+## 2026-10-30 caller71 and composed host replay PASS; fresh preparation RUNNING
+
+Host suite on incremental70d passed72 variants (full70-host-attempt3-20261030).
+A separately registered injected-exit check passed1 variant; do not call this
+one73-variant report. Caller err2/HIF unwind passed every enabled OS_ABL init
+failure in base/extended fixtures. Correct CONFIG_ANDES_SUPPORT is covered.
+Updated old void-return host stub/anchor; initial attempt1 failed that obsolete
+verifier, then12 targeted checks and full72 passed. No target/runtime proof.
+Evidence docs/evidence/WR1200JS-IOT-NETTASK-CALLER71-HOST-2026-10-30.md.
+Main preparer now includes67–70 after64 (draft65 excluded). Fresh preparation
+is RUNNING via exec session31378, output .iot-local-check/peer-retirement-chain70-20261030,
+source .iot-local-check/full-driver-overlay4-20261029. Last poll confirmed live.
+Resume that handle or inspect terminal manifest; do not restart on observation
+timeout. Next compare all prepared files to incremental70d, inspect terminal
+manifest and reconcile test scope before target validation. PCI terminal
+receipt and child callback retirement remain open. Sol sole writer.
+No router change, firmware build, dispatch, commit or push in this step.
+
+## 2026-10-30 network-task partial initialization70 host PASS
+
+Confirmed ignored OS_ABL allocation failures; isolated pinned preparer now
+checks each task init, records successes and reverses partial cleanup before
+releasing init reservation. No scheduling on failure; retry is tested.
+Strict native base/extended and OS_ABL every-enabled-failure base/extended
+fixtures passed on70d.70c exposed macro index double evaluation, corrected
+with a local task pointer. Correct CONFIG_ANDES_SUPPORT also passed69 rerun.
+Evidence docs/evidence/WR1200JS-IOT-NETTASK-INIT70-HOST-2026-10-30.md.
+Extracted mocked host tests only; no target/ABI/runtime claim. Chain ends64;
+67–70 isolated. Next whole-caller unwind/composed fixture adaptation; terminal
+PCI receipt and child callback retirement still open. Sol sole writer.
+No router change, build, dispatch or publication in this step.
+
+## 2026-10-30 network tasklet release69 host checks PASS
+
+Isolated69c reserves initialization under the tasklet owner lock and requires
+joined/blocked/drained/no-init before permanent release/reopen fencing.
+Fresh strict host tests passed base/extended scheduling and base/WSC release
+gates; added duplicate-init reservation and close refusal assertions.
+Evidence: docs/evidence/WR1200JS-IOT-NETTASK-RELEASE69-HOST-2026-10-30.md.
+Mocks are not target ABI or kernel concurrency proof. Chain still ends64;
+67–69 isolated,65 excluded. Next adapt composed fixtures and review init
+failure/OS_ABL paths before coherent target validation. PCI terminal receipt
+and child callback retirement bindings remain open. No device changes.
+Standalone model/test/report published as fec63dd; remaining changes local.
+Sol sole writer; full delivery goal remains incomplete.
+
+## 2026-10-30 network tasklet schedule68b bound in isolated candidate
+
+Pinned seven-file transform from67 binds35 network-cookie scheduling sites
+with dedicated IRQ-safe owner/lock, waitqueue and joined marker. Submission
+API outside lock; exit blocks/drains (5000ms, process context), preserves
+early kills, returns failures via67. Repeated exit idempotent; init refuses
+live/unjoined before mutations and opens only after initialization.
+Actual helper/Init/Exit base+extended feature host variants passed strict GCC;
+wait/locks/alloc/scheduling and callback ABI mocked, no target/ABL proof.
+Evidence docs/evidence/WR1200JS-IOT-NETTASK-SCHEDULE68-HOST-2026-10-30.md.
+Next final owner proof in adapter-release gate, lock-order/init-unwind review,
+full fixture adaptation/replay and coherent target compile. Existing OS_ABL
+allocation failure handling remains unverified; init relies on outer serial.
+67/68 isolated; chain ends64,65 excluded. No router/build/dispatch/commit/push.
+Sol sole writer; preserve all dirty work.
+
+## 2026-10-30 net-task exit67 result propagation prepared; injected close test PASS
+
+Pinned four-file prepare-nettask-exit-result.py from64 changes declaration +
+PCI/RBUS/SDIO definitions to INT and checks all3 direct calls. Early failure
+stops init/close teardown; checked records stage3, legacy retains latch.
+Extracted both actual close bodies/wrappers passed strict host failure/retry/
+success checks before MlmeHalt/management/ring release; init/SDIO source-only.
+Evidence docs/evidence/WR1200JS-IOT-NETTASK-EXIT67-HOST-2026-10-30.md.
+Scheduling fence/drain still UNBOUND. Producers may hold LockInterrupt/vendor
+locks: dedicated short IRQ-safe submission lock, no waiting there. Network
+cookie tasklets separate from MCU/recovery/polling lifecycles.
+67 isolated, chain ends64; latest full64/68 host checks. Next bind producer
+leases + block/drain before preserved early kill and init/reopen ownership.
+No target/runtime/router/build/dispatch/commit/push. Sol sole writer.
+
+## 2026-10-30 resumed: tasklet schedule66 model and expanded inventory PASS
+
+Confirmed full64 completed61 preparers/580 identical files and68 host variants.
+Draft65 excluded: moving kill late loses early RX drain before management
+teardown. Preserve early join; first fence all scheduling submissions.
+Expanded inventory44 lexical APIs/8 files (36 macro,2 direct tasklet,4 work,
+2 delayed work); wrapper/optional/recovery sites need lifecycle classification.
+New tasklet-schedule-owner.h + strict GCC model passed admission/block/drain/
+reopen/corruption cases. Counts submissions only; actual callback kill still
+required. Driver binding ABSENT, not a completed synchronization fix.
+Evidence docs/evidence/WR1200JS-IOT-TASKLET-SCHEDULE66-HOST-2026-10-30.md.
+Next classify/bind producer calls and early join with shared IRQ-safe owner,
+audit lock order and feature/ABL branches; MCU/recovery lifecycles separate.
+Chain ends64;65 excluded. No target/runtime/router/build/dispatch/commit/push.
+Sol sole writer; goal active, all dirty work preserved.
+
+## 2026-10-30 private netdev_ops lifetime64 corrected; targeted checks PASS
+
+Pinned six-file preparer moves private ops free from Detach to common netdev
+Free, clears pointer before free_netdev, removes duplicate create/name/MBSS/
+AP-client/WDS/Monitor/PCI failure frees. Registered callers must finish returned
+RTNL/reference drain first; arbitrary external misuse not newly enforced.
+Actual Create/Detach/Protect/Free fixture passed registered deferred release,
+NULL/allocated ops failures, allocation/name failures and successful creation.
+Three selected suite checks plus pinned kernel/RTNL source verifier passed.
+Evidence docs/evidence/WR1200JS-IOT-NETDEV-OPS-LIFETIME64-HOST-2026-10-30.md.
+Next vendor callback/reference retirement, family completion, cold unwind and
+full regression. Step63 is source audit, not transform. Chain includes64 but
+latest full replay58. No target/runtime/router/build/dispatch/commit/push.
+Sol sole writer; preserve all dirty work.
+
+## 2026-10-30 kernel netdev retirement63 source semantics verified
+
+Read existing pinned donor archive, confirmed Makefile4.4.198; extracted only
+dev.c/rtnetlink.c/netdevice.h to new scratch, recorded member hashes. New
+check-kernel-netdev-retirement.py passed exact hashes/source-order checks.
+rtnl_unlock -> netdev_run_todo -> RCU barrier + accounted-ref drain before
+return. WDS receipt follows returned Protect(0); NETREG_UNREGISTERED alone
+is insufficient (set before wait), and wait can be indefinite. Vendor raw
+refs/timers/tasks/hardware/DMA not covered by this kernel-accounted proof.
+Evidence docs/evidence/WR1200JS-IOT-KERNEL-NETDEV-RETIREMENT63-SOURCE-2026-10-30.md.
+Next netdev_ops allocation is currently freed inside Detach BEFORE final
+returned RTNL/reference drain; audit/defer its ownership across all probe/
+create/free paths, then vendor retirement and family completion. Do not
+replace existing kernel drain with invented callback counter or arbitrary sleep.
+No driver/kernel change or target/runtime/router/build/dispatch/commit/push.
+Latest full replay58. Sol sole writer; preserve all dirty files.
+
+## 2026-10-30 PCI published child snapshot62 begin bound; two host checks PASS
+
+After WORK_JOINED, before parent detach, snapshot exact published registry
+families under transition lock with retire/inflight/identity checks. Multiple
+MBSS records aggregate one bit. Begins DRAINING only; no close/completion claims.
+Two strict host checks passed snapshot cases and actual preceding join/order.
+Evidence docs/evidence/WR1200JS-IOT-PCI-CHILD-SNAPSHOT62-HOST-2026-10-30.md.
+Audit: WDS retains allocation after unregister pending callback reaper; MBSS/
+AP-client/Monitor still unregister/free without equivalent bound final registry
+receipt. Do not accept successful return as callback retirement. Next reconcile
+those family lifetime paths and vendor/registry coverage before completion
+bits, root callbacks and final PCI receipt. Cold unwind also open.
+62 in chain, latest full replay58. No target/runtime/router/build/dispatch/
+commit/push. Sol sole writer; preserve all dirty files.
+
+## 2026-10-30 PCI first-work receipt61 bound after actual cancellations
+
+Pinned prepare-pci-first-work-receipt.py checks stop transition and records
+WORK_JOINED only after actual two sync cancellations, reconciliation, stop
+fence and zero deferred owners. Extracted block host test passed missing
+stop, injected owner, successful receipt and replay refusal. Kernel work mocked.
+Evidence docs/evidence/WR1200JS-IOT-PCI-FIRST-WORK61-HOST-2026-10-30.md.
+Audit: wr_iot_children is initialized but never advanced by real removals.
+Do NOT infer child/root callback completion from removal return. Next exact
+family teardown/callback ownership, root detach, final join and physical
+observation before terminal receipt. Cold probe/free separate. Chain/test
+includes61; latest full replay58, no full59-61 yet. No target/runtime/router/
+build/dispatch/commit/push. Sol sole writer; preserve all dirty work.
+
+## 2026-10-30 initialized pre-destructor release60b bound; four host checks PASS
+
+Pinned controller gate before first destructor. Requires terminal PCI release
+receipt + actual modeled radio/child/registry/join conditions, then checks peer
+owners under MacTabLock and permanently poisons table admission on claim.
+No nested locks/waits; relies on terminal receipt never being revoked.
+Four strict host variants passed: actual helper with/without WSC, plus actual
+controller/native/ABL seams with early-gate refusal before all destructors.
+Audit observes pre-destructor order but release remains UNACCEPTED. PCI path
+currently does not produce terminal receipt; cold direct-free paths separate.
+Evidence docs/evidence/WR1200JS-IOT-PRE-DESTRUCTOR-RELEASE60-HOST-2026-10-30.md.
+Next real final retirement receipt/callback joins/physical observation, cold
+probe ownership, target ABI and full composed checks. Latest full replay58;
+59/60 in chain not full-replayed. No router/build/dispatch/commit/push.
+Sol sole writer; preserve all dirty files.
+
+## 2026-10-30 fallible adapter-free result59 prepared; native/ABL seams PASS
+
+Pinned prepare-adapter-free-result.py changes native/ops/definition to BOOLEAN,
+propagates three free and two controller-exit call results. Two strict host
+variants passed actual controller body + exact caller seams with free mocked.
+Source audit observes propagated result and no bare direct release calls,
+but pre-destructor release claim is still FALSE. Test explicitly observes
+controller destructors still precede free. Existing early free failures can
+follow partial lock destruction: no blind retry or recovery acceptance.
+Evidence docs/evidence/WR1200JS-IOT-ADAPTER-FREE-RESULT59-HOST-2026-10-30.md.
+Next pre-destructor retirement/admission fence, cold-probe versus initialized
+release ownership, callback/peer/task/registry/DMA proof and coherent target ABI.
+59 in chain but not full-replayed; latest full58. No target/runtime/router/
+build/dispatch/commit/push. Sol sole writer; preserve all dirty files.
+
+## 2026-10-30 full58 replay +61/2/23 host PASS; adapter release OPEN
+
+Full chain completed56 preparers/578 files, rejected57 excluded. Fresh58
+versus incremental58 differs ONLY by marker macro in delete include; all C
+bodies identical. Full61 suite passed on incremental58 (including five ABL/
+DIAG/HNAT bridge variants); both resume contracts rerun on fresh58 passed;
+23 composed WDS tests passed on fresh58. Seven ASTs and targeted diff check PASS.
+Evidence docs/evidence/WR1200JS-IOT-FULL58-HOST-AND-RELEASE-AUDIT-2026-10-30.md.
+Existing PCI release source preflight still exits1. New lexical audit lists
+five unchecked release calls (includes optional SDIO source, not board enable).
+RTMPFreeAdapter native/OS_ABL ABI is VOID; RtmpRaDevCtrlExit performs destructors
+before free and returns TRUE without refusal propagation. A late guard in
+free alone would be unsafe. Next claim before first controller destructor,
+propagate status through ABI/callers, distinguish cold probe unwind, prove
+peer/task/callback/registry/DMA retirement and fence new admission.
+No target/image/kernel/runtime acceptance or router/build/dispatch/commit/push.
+Sol sole writer; HEAD9cb154a; preserve all dirty files.
+
+## 2026-10-30 replacement deletion execution58 preserves WDS resume
+
+Built from56, excluding rejected57. New adapter synchronous deletion flag
+spans full normal body/tails, then clears on return; existing per-entry WDS
+retention/recovery unchanged. Parent-reset serial forwarded and not released.
+Related insertion/WDS/reset/open/close/repeater/EZ gates check flag under
+MacTabLock. Exact twelve-file pins in prepare-peer-delete-execution.py.
+Previously failing resume contract now passes, including lease and parent
+serial checks. Five admission/close/reset checks plus seven checkpoint/reset/
+lease variants passed strict GCC. Updated stale extractor/type anchors.
+Evidence docs/evidence/WR1200JS-IOT-DELETE-EXECUTION58-HOST-2026-10-30.md.
+Chain includes58, excludes57; no fresh full58/default suite yet (latest54).
+Next full vendor delete/body integration and consolidated regression, then
+adapter-release/remaining writers and callback/DMA lifetime. Host synthetic
+checks do NOT prove target/runtime. No router/build/dispatch/commit/push.
+Sol sole writer; preserve all dirty work.
+
+## 2026-10-30 delete57 REJECTED: WDS resume regression reproduced
+
+New check-peer-delete-resume-contract.c compiled strict GCC and exited1 on57:
+retained ordinary table owner blocks the existing WDS checkpoint retry before
+its body (calls=1). This is regression evidence, NOT passing acceptance.
+Removed57 from preparer chain; preserved all draft source/scratch/tests.
+Chain ends56, latest completed full replay54. Do not publish/install57.
+Updated docs/evidence/WR1200JS-IOT-NORMAL-DELETE57-HOST-2026-10-30.md with
+explicit rejection; prior three narrow test passes did not cover recovery.
+Next implement separate synchronous deletion writer lease/count, preserve
+per-entry WDS checkpoint recovery and parent-reset serial; run this contract
+first, then full vendor/delete/reset checks. Adapter release still open.
+No router/build/dispatch/commit/push. Sol sole writer; all files preserved.
+
+## 2026-10-30 whole ordinary deletion57 reserved; three selected checks PASS
+
+Pinned prepare-peer-normal-delete.py renames unchanged private body and binds
+wrapper. Ordinary deletion reserves exclusive table serial through unlocked
+tails; parent-reset deletion forwards exact parent serial without releasing it.
+Failure retains ordinary owner (recovery NOT implemented). Invalid input is
+rejected before reservation. Close wrappers reject unrelated active table owner
+before APShutdown while permitting own close-serial retry. Raw reset gate
+already blocks active table ownership.
+Three selected strict GCC checks passed: wrapper/private body mock, actual
+close paths and actual reset fragment. Evidence:
+docs/evidence/WR1200JS-IOT-NORMAL-DELETE57-HOST-2026-10-30.md.
+Next update broad extractors for renamed deletion body, test whole vendor
+delete/reset call chain and retained-failure recovery; adapter release open.
+Steps55-57 in chain but full replay latest54. No target/runtime/router/build/
+dispatch/commit/push. Sol sole writer; preserve all local changes.
+
+## 2026-10-30 whole normal insertion56 counted through unlocked tail
+
+Source confirmed insertion and deletion finishing after MacTabLock release.
+Pinned prepare-peer-normal-insert.py replaces only public insertion wrapper:
+executor-idle check plus balanced table transaction spans full private body
+and unlocked TX-burst tail. Explicit startup WDS API unchanged.
+Three targeted checks passed: new wrapper (private body mocked), existing
+private peer-ready order and startup lease gate. Strict GCC.
+Evidence docs/evidence/WR1200JS-IOT-NORMAL-INSERT56-HOST-2026-10-30.md.
+Next ordinary deletion: cannot reuse transaction count blindly because its
+existing gate rejects nonzero count; preserve exact reset-owned serial.
+Adapter-release and slot/callback/DMA lifetime still unproved. Steps55/56
+added to chain but no full replay yet; latest full54. No target/firmware/
+runtime/router/build/dispatch/commit/push. Sol sole writer; preserve dirty files.
+
+## 2026-10-30 counted WDS/close/reset exclusion55 checked locally
+
+Pinned prepare-peer-wds-executor.py applied to verified full54. Normal WDS
+checks executor idle atomically with transaction enter; close wrappers check
+transaction count before executor claim; raw reset checks count/table admission.
+Three selected host checks passed both directions before body/APShutdown/raw
+work and verified pending reset executes after WDS count reaches zero.
+Evidence docs/evidence/WR1200JS-IOT-WDS-EXECUTOR55-HOST-2026-10-30.md.
+Added55 to chain; no fresh full55 replay yet. Latest full54 remains accepted
+for host composition only. Ordinary non-WDS insertion/deletion, remaining
+radio admissions and adapter-release/callback/DMA lifetime still open.
+No target/image/runtime/router/build/dispatch/commit/push. Sol sole writer.
+
+## 2026-10-30 consolidated full54: 53 preparers,576 files; 54+4+23 host checks PASS
+
+Fresh full chain from full-driver-overlay4-20261029 completed all53 steps to
+peer-retirement-chain54-20261030/peer-reset-executor. All576 files match
+incremental54. Stages51-54 now included in prepare-peer-retirement-chain.py.
+Broad54 extracted variants passed; four new executor tests passed separately
+with --only (current default suite includes58); composed WDS23 passed.
+Preserved old native/OS_ABL, checked/physical/MBSS close assertions using shared
+synthetic adapter support and actual private bodies plus executor wrappers.
+Updated stale APShutdown extractor anchor; corrected run passed. Ten Python
+scripts AST-parse and targeted git diff --check passed.
+Evidence docs/evidence/WR1200JS-IOT-FULL54-HOST-COMPOSITION-2026-10-30.md.
+No claim of one default58 run or target ABI/kernel/DMA/runtime acceptance.
+Next: remaining peer/radio admissions and adapter-release lifetime claim;
+configured WDS retained-failure recovery and config/address lifetime remain.
+No router/build/dispatch/commit/push. HEAD9cb154a; Sol sole writer; preserve dirt.
+
+## 2026-10-30 reset executor54 bound; target still unverified
+
+Public raw reset wrapper now claims same MacTabLock-protected executor as
+both close paths. Running/retained close defers reset without losing pending
+request; raw reset excludes close; failed software ticket retirement retains
+execution fence. No spinlock across raw work; RTNL try-lock preserved.
+Passed actual reset-fragment fixture (including retirement failure), both-close
+regression and extended model with strict GCC. Initial failed injection used
+DOWN radio and never reached raw reset; corrected UNVERIFIED fixture passed.
+Evidence docs/evidence/WR1200JS-IOT-RESET-EXECUTOR54-HOST-2026-10-30.md.
+Candidate .iot-local-check/peer-reset-executor54-20261030 from pinned53.
+Next cover remaining peer/radio admissions and adapter-release lifetime;
+normal peer writers not serialized by this guard. Stages51-54 local, not in
+consolidated chain. No target/full replay/runtime/router/build/commit/push.
+Sol sole writer; preserve all dirty files.
+
+## 2026-10-30 close executor53 bound locally; composed host checks PASS
+
+Added shared adapter close executor around BOTH legacy and checked function
+bodies. MacTabLock protects admission/completion, never held across body work.
+Partial checked close retains exact serial; only matching retry can continue.
+Initial invalid ticket with no effects releases new claim; partial legacy
+failure retains exclusion. Main-open ioctl checks same executor atomically.
+Passed strict GCC model, extracted BOTH-body competing-call fixture and actual
+main-open dispatch fixture; three Python scripts parsed. Evidence:
+docs/evidence/WR1200JS-IOT-CLOSE-EXECUTOR53-HOST-2026-10-30.md.
+Candidate .iot-local-check/peer-close-executor53-20261030 from pinned52.
+Next: all-radio reset/admission serialization and adapter-release lifetime
+claim; RTMPFreeAdapter still frees MacTabLock without peer-owner gate.
+Host primitives/layout/hardware mocked; no kernel concurrency, MIPS/OS_ABL,
+full replay, DMA/callback/runtime acceptance. Stages51-53 not in main chain.
+No router/build/dispatch/commit/push. Sol sole writer; preserve all dirty work.
+
+## 2026-10-30 legacy close52 candidate: replay and reopen checks passed locally
+
+Pinned prepare-peer-legacy-close.py generated peer-legacy-close52-20261030
+from51b. Adapter latch uses MacTabLock, rejects partial legacy retry and makes
+completed close idempotent. Actual main-open dispatch refuses retained latch;
+only admitted reopen after completed close clears it. Legacy dequeue polling
+is bounded; failed radio-off now returns failure before freeing rings.
+Actual legacy function host fixture passed APShutdown failure/retry, completed
+close/retry, radio-off refusal and dequeue timeout. Actual ioctl dispatch test
+passed retained-close exclusion, wrong-device preservation and admitted reopen.
+Checked-close regression passed on52. GCC C11 O2 Wall Wextra Werror.
+APShutdown, layouts, lock primitives, tasks and hardware remain mocked.
+Important remaining gap: legacy latch and checked/radio transition admission
+are not yet one atomic owner; check-then-unlock alone does not prevent races.
+RTMPFreeAdapter directly frees MacTabLock without peer-owner admission. Need
+shared lifecycle claim and release/callback/DMA proof before target acceptance.
+No target build/full replay/runtime/router changes/commit/push in this step.
+Sol sole writer. Preserve dirty work; stages51/52 not yet in consolidated chain.
+
+## 2026-10-30 close-table51b: checked-close refusal replay fixed locally
+
+Found hold refusal after APShutdown left shutdown_stage zero, permitting replay.
+prepare-peer-close-table.py now marks checked-close refusal stage3.
+Fresh peer-close-table51b-20261030 generated from pinned50b.
+New prepare-peer-close-path-check.py extracts actual checked close and table
+helpers into synthetic AP/PCI fixture. PASS: reservation during MlmeHalt,
+management join, ring free and UserCfgExit; join-failure retry preserves serial;
+completed-close seal blocks normal admission; explicit reopen advances serial;
+post-APShutdown hold refusal does not replay stage zero.
+Seven focused owner/reset/open/dispatch/startup/WDS tests also passed strict
+GCC C11 O2 Wall Wextra Werror. APShutdown/hardware/locks/layout remain mocked.
+No target, DMA, module ABI, full replay or runtime acceptance. Legacy close
+refusal/retry and adapter-release binding remain next; stage51 not in chain.
+No router/build/dispatch/commit/push in this step. Sol sole writer.
+
+## 2026-10-30 publication confirmed: 9cb154a
+
+Published five isolated experimental peer-ownership model/test/report files.
+Both standalone host tests passed strict GCC C11/O2/Wall/Wextra/Werror.
+Remote branch verified at 9cb154a37a08d44331022f88312930838ecf841e.
+See docs/evidence/WR1200JS-IOT-OWNER-MODELS-PUBLICATION-2026-10-30.md.
+Other dirty files remain local; candidate51 binding is unfinished and unpublished.
+No target/runtime acceptance, router changes or manual build dispatch.
+Sol remains sole writer; continue complete-close fixtures and adapter-release review.
+
 # Current project status — 2026-10-25 (updated)
+
+
+## 2026-10-30 early outer-open/config table admission50b bound locally
+
+Pinned prepare-main-open-table-claim.py binds BEGIN in rt28xx_open before
+WIFI_DIAG/profile/IRQ effects; refusal returns -EBUSY without init unwind.
+Explicit request pointer added consistently to rt28xx_init function, native
+prototype and OS_ABL ops field. Inner CONFIG_CHECK rejects stale reservation
+before hardware/tasks/config mutations. Reservation spans config/table clear;
+START/DONE releases it before ordinary APStartUp (or final success for non-AP).
+Outer error attempts FAIL before its own IRQ cleanup; partial init retains owner.
+Config completion does NOT prove radio readiness. Configured WDS uses separate
+interface open48, so main does not wait on closed WDS.
+
+Admission seam/client/dispatch and mock ops type test passed, not full vendor
+open/init execution. Previous53 regression variants passed on candidate50.
+Latest50b differs ONLY by explicit peer-open-request.h include in rt_os_net.h;
+admission test rerun passed. Evidence:
+docs/evidence/WR1200JS-IOT-MAIN-OPEN-CLAIM50-HOST-2026-10-30.json.
+Added50 to chain and admission check to suite (next suite has54 variants).
+No fresh full50 replay yet; last full49 (48 preparers,571 files). Target ABI/
+modules/kernel concurrency/runtime unverified; coherent target rebuild required.
+Next protect full shutdown clear and adapter release; failed WDS-open recovery
+and config/address writer lifetime still open. Latest scratch
+main-open-table-claim50b-20261030. No router/firmware build/dispatch/commit/push.
+Sol sole writer; HEAD/remote9af5697. Preserve all existing dirty work.
+
+
+## 2026-10-30 consolidated candidate49: full replay +53/23 host checks PASS
+
+Added draft41/42/44-49 preparers to prepare-peer-retirement-chain.py. There are
+48 actual preparer steps (protocol43 is a header, not a separate transform).
+Fresh peer-retirement-chain49-20261030/wds-table-transaction completed all48;
+ALL571 files match the incremental49 candidate. Last full replay is now49.
+
+53 extracted host variants passed on fresh candidate (full49-host53-20261030),
+plus23 composed variants (full49-composed-20261030). Strict optimized GCC.
+Initial broader run stopped on old peer-ready extractor public insertion anchor;
+changed to actual private insertion body without weakening initialization/order
+assertions. Updated APShutdown/legacy close fixture expectations for adapter-
+owned MacTabLock lifetime. Prior42 baseline then passed, followed by expanded53.
+Added new owner/reset/phase/dispatch/startup/WDS transaction/configured-loop/
+actual WDS-only ndo_open checks. Five changed Python scripts parse successfully.
+Evidence: docs/evidence/WR1200JS-IOT-FULL49-HOST-COMPOSITION-2026-10-30.json.
+
+These are source transforms and mocked host tests, NOT target/module/firmware,
+real kernel concurrency/DMA or router acceptance. Outer open/config clear
+admission, full table clears/free bypass, failed WDS-open owned-state recovery
+and configuration/address writer lifetime remain open. Next work can use this
+consolidated verified tree, not disconnected draft scratch. No router/build/
+dispatch/commit/push. Sol sole writer; HEAD/remote9af5697. Preserve dirty files.
+
+
+## 2026-10-30 synchronous WDS/table exclusion49 locally bound
+
+Added table owner transactions counter and balanced synchronous enter/leave.
+Exclusive reset begin now refuses any active normal WDS transaction; ordinary
+zero-token delete also refuses while count nonzero. Overflow/underflow poison
+admission. This is structured synchronous balance, NOT callback completion
+identity. New pinned prepare-wds-table-transaction.py wraps ALL normal identity
+transaction callers, including configured interface open, around vendor body,
+finish tails and dev_put. Startup-ticket path still relies on its separate
+claimed lease. No MacTabLock held across vendor work.
+
+Latest scratch wds-table-transaction49-20261030. Eight strict optimized targeted
+host checks passed: actual new wrapper/delete gate with mocked vendor body,
+owner/reset fragment, phase, dispatch, startup insertion/transaction and
+configured-open helper regressions. Nested count balance, failure, reset/delete
+refusal and counter poison covered. No full vendor body/kernel concurrency
+proof. Evidence: docs/evidence/WR1200JS-IOT-WDS-TABLE-TRANSACTION49-HOST-2026-10-30.json.
+
+Next consolidate draft41-49 into full preparer chain and adapt/exercise earlier
+whole-body extractors before further lifecycle edits. Last full replay remains40;
+none of draft41+ is in main chain yet. Full table clear/reopen/free admission,
+config/address mutation lifetime and failed WDS-open recovery remain open.
+No firmware build/dispatch/router/commit/push. Sol sole writer; HEAD9af5697.
+
+
+## 2026-10-30 configured WDS completion tied to exact interface open48
+
+Architecture correction: retaining MAIN startup waiting for closed WDS would
+cycle, because WdsVirtualIF_open requires nonzero physical vendor count and a
+ready main radio. No background worker/global main wait added. New pinned
+prepare-wds-configured-interface-open.py binds configured peer completion
+AFTER exact WDS record OWNED, BEFORE HNAT/queue start. New helper passes exact
+device/generation into counted transaction; transaction rechecks identity before
+dev_hold/body. Unconfigured/lazy interface does not invent a peer.
+
+Two strict optimized host checks passed: actual helper with mocked lower
+transaction and whole actual WDS ndo_open with mocked configured helper.
+Configured failure keeps module pin/count/owned record and suppresses HNAT/
+queue. Failed-open recovery is NOT implemented; no guaranteed ndo_stop on this
+failure. Original three-family fixture rejected existing legacy APCLI open;
+added explicit --wds-only mode, kept its claim assertions, no APCLI/Monitor
+verification claimed. Evidence:
+docs/evidence/WR1200JS-IOT-WDS-CONFIGURED-OPEN48-HOST-2026-10-30.json.
+
+Latest generated scratch wds-configured-open48-20261030; draft48 outside full
+chain. Next reconcile failed-open ownership/recovery and config/address writer
+lifetime, then main open/config clear ownership/full table clears. Normal WDS
+tails vs reset owner exclusion remains open. No whole vendor transaction,
+broad regression, target/runtime acceptance. Last full replay40. No router/
+firmware build/dispatch/commit/push. Sol sole writer; HEAD/remote9af5697.
+
+
+## 2026-10-30 checked configured WDS loop47 and first-open ordering gap
+
+Added pinned prepare-wds-startup-loop.py, scratch wds-startup-loop47-20261030.
+New wr_iot_wds_startup_table takes explicit ticket, verifies STARTUP before and
+after loop, passes ticket to startup transaction and returns FALSE on required
+peer failure. Legacy AsicUpdateWdsRxWCIDTable remains text-equivalent, including
+continue-on-failure behavior. Whole legacy/checked loop host fixture passed
+-O2 -Wall -Wextra -Werror; mocked lower insertion, not whole vendor execution.
+Cases: invalid slots, no active entries, lazy PHY CCK/OFDM/HTMIX, stop vs continue,
+stale/null ticket and final retained phase. Evidence:
+docs/evidence/WR1200JS-IOT-WDS-STARTUP-LOOP47-HOST-2026-10-30.json.
+
+Source assertions confirm first-open gap: inner rt28xx_init/APStartUp precedes
+outer RT28xx_WDS_Init; counted transaction requires published WR_REF_OWNED WDS
+record. Do NOT simply wire checked loop into APStartUp and declare success.
+Next explicit pending/deferred configured-peer completion after record ready,
+with exact open identity and adapter/netdev references; no registry bypass or
+false ready state. APStartUp/outer open binding still absent. Full clear/free,
+normal WDS tail/reset exclusion, broad regression and target compile remain
+open. Draft47 not in full chain; last replay40. No router/build/commit/push.
+Sol sole writer, HEAD/remote9af5697. Preserve all dirty/scratch files.
+
+
+## 2026-10-30 WDS startup transaction46b lease binding
+
+Pinned prepare-wds-startup-transaction.py adds explicit
+wr_iot_wds_insert_startup. It claims exact open insertion lease under MacTabLock,
+passes ticket/lease through counted WDS transaction into startup MAC insertion,
+then ends lease only after finishing tails and dev_put. Normal transaction
+wrapper supplies NULL/0. No waiting or nested MAC/transition locks added.
+Failed transaction retains open owner. Found result-after-retention hazard:
+46b rechecks open phase after transaction so a peer pointer cannot be returned
+as success after the open was retained during the body. Older46 scratch lacks
+that final phase check; latest is wds-startup-transaction46b-20261030.
+
+Four strict optimized host checks passed: wrapper (lower counted body mocked),
+phase owner, dispatch and startup insertion. Source assertions verify ticket
+flow and finishing/dev_put order. Whole vendor WDS body/parallel lifetime NOT
+executed/proved. Evidence:
+docs/evidence/WR1200JS-IOT-WDS-STARTUP-TRANSACTION46-HOST-2026-10-30.json.
+Next bind APStartUp/configured loop and outer open handoff. New startup entry
+has no APStartUp caller yet. Check record readiness before WDS netdev publication;
+normal WDS tail vs reset ownership also remains open. Full clear/free gates,
+broad regression/extractor adaptations and target build absent. Draft stages
+outside full chain; last replay40. No router/build/commit/push; Sol sole writer.
+
+
+## 2026-10-30 explicit startup insertion45b, one-use authorization
+
+New pinned prepare-peer-startup-insertion.py splits original insertion into
+private wr_iot_mac_insert_entry plus unchanged public signature supplying
+NULL/0 and new wr_iot_mac_insert_startup_wds fixing WDS/AP type with ticket/
+lease. Actual private-body gate under MacTabLock precedes entry/timer reset.
+Added peer-startup-insertion-gate.inc. Exact device/operation/STARTUP/lease
+required; ordinary caller still blocked during reservation. Found replay risk
+if same active lease used twice; peer-open-owner.h now tracks lease_admitted
+and admission consumes it exactly once. End clears admission, not retained
+ownership. Output45b includes updated header; older45 scratch lacks this fix.
+
+Three strict optimized host tests passed: new gate refusal/one-use cases,
+phase protocol regression and dispatch regression. Source wrapper/gate-order
+assertions passed. No whole insertion execution, target or kernel concurrency
+proof. Evidence: docs/evidence/WR1200JS-IOT-STARTUP-INSERTION45-HOST-2026-10-30.json.
+WDS caller lease claim/pass and outer open/config handoff STILL ABSENT. Next
+bind WDS transaction body with explicit ticket and exact lease cleanup, then
+outer startup; do not ambiently authorize other callers. Full clears/free and
+insertion extractor anchor adaptations remain open. No full45 replay/broad
+regression; draft stages not in main chain, last full40. No router/build/
+commit/push. Sol sole writer; HEAD/remote9af5697; all edits local.
+
+
+## 2026-10-30 resumed: core open-ticket transport44 host checks passed
+
+Latest separate scratch peer-open-transport44-20261030 prepared before pause,
+now tested. Added versioned internal peer-open-request.h and actual dispatch
+fragment; pinned prepare-peer-open-transport.py binds owner/init/core switch.
+Command 0x7f20 appended outside existing enum; previous enum/sentinel text is
+identical. Non-null wrq/subcmd refused. BEGIN checks exact main netdevice, zero
+count, no live Content entry and no failed unpublished TR setup under MacTabLock.
+START/DONE/FAIL validate phase/device/serial; failure retains ownership.
+
+Two strict optimized host checks passed: actual dispatch include with synthetic
+adapter/locks and actual extracted core ioctl case. Null/version/size/device,
+unknown action, occupied/failed table, stale ticket, premature/active insertion
+finish, duplicate, retention and overflow cases covered. Not whole core handler,
+OS_ABL binary ABI, callback/DMA quiescence or target proof. Evidence:
+docs/evidence/WR1200JS-IOT-OPEN-TRANSPORT44-HOST-2026-10-30.json.
+Next bind outer rt28xx_open begin before side effects, carry config/startup
+handoff and explicitly pass authorized startup ticket to WDS insertion. These
+calls are still ABSENT. Full clear/shutdown/free ownership remains open. Draft
+41-44 not yet in full chain; last replay40. No broad regression/firmware build,
+router changes, commit or push. Sol sole writer; HEAD/remote9af5697.
+
+
+## 2026-10-30 open phase protocol43, standalone only
+
+Added peer-open-owner.h and check-peer-open-owner.c. Protocol wraps table owner
+with exact device/serial CONFIG -> STARTUP -> completion; ordinary insertion
+remains denied, explicit startup caller can claim one serialised insertion
+lease. Success cannot finish with active lease. Failure retains table; exact
+late lease completion can drain its lease but cannot release retention. Wrong
+device, stale operation/lease, duplicate transition/finish and lease exhaustion
+fail closed. Caller must hold MacTabLock and pin adapter/netdevice lifetime.
+Strict optimized host model test passed; no threading/kernel proof.
+Evidence: docs/evidence/WR1200JS-IOT-OPEN-PHASE-PROTOCOL43-2026-10-30.json.
+NOT bound into driver/OS_ABL or chain. Next transport ticket through core ioctl
+before rt28xx_open side effects, validate config clear phase, explicitly pass
+startup ticket to configured WDS path, then protect shutdown/full clears/free.
+Latest generated candidate still draft42; last full replay40. No firmware,
+router, commit or push. Sol sole writer; HEAD/remote9af5697. Goal incomplete.
+
+
+## 2026-10-30 outer open/WDS startup admission boundary corrected
+
+Extended audit-peer-reopen-unwind.py and all source assertions passed. Admission
+must begin before rt28xx_open side effects, NOT merely rt28xx_init: outer open
+already does WIFI_DIAG init, MCU sleep clear, profile load, IRQ request/init;
+its generic init-failure path releases IRQ. Rejection must avoid that unwind.
+
+Second verified dependency: rt28xx_init -> APStartUp ->
+AsicUpdateWdsRxWCIDTable -> wr_iot_wds_insert_transaction -> MacTableInsertEntry.
+Holding a blanket insertion-blocking table reservation through all startup
+would refuse configured WDS peers. Do not implement that proposed whole-init
+reservation unchanged. Need explicit owner handoff from exclusive config/table
+clear to authorized startup admission, with exact operation identity and no
+blanket bypass for other threads. Existing table owner has no such phase yet.
+Evidence: docs/evidence/WR1200JS-IOT-OUTER-OPEN-AND-WDS-ADMISSION42-2026-10-30.json.
+Feature branches/source only; no on-device startup reproduction. Previous
+requirements saying reserve only before inner init are superseded by this
+outer-boundary evidence. Full clear/open binding still unimplemented; next
+implement boundary transport through existing core ioctl/OS_ABL rather than
+assuming OS module can dereference private adapter layout. Preserve published
+ABI IDs and require coherent target modules. No router/build/commit/push.
+
+
+## 2026-10-30 reopen admission must precede rt28xx_init side effects
+
+New audit-peer-reopen-unwind.py passed actual source ordering assertions on
+local draft42. hif_sys_init, RtmpNetTaskInit, RtmpMgmtTaskInit and MlmeInit all
+run BEFORE rtmp_cfg_init. A config failure jumps err5 -> rtmp_cfg_exit ->
+UserCfgExit, then MlmeHalt, all timer release, management/net task exit and
+hif exit. Therefore a standalone UserCfgInit denial would incorrectly enter
+cleanup of retained resources; do not implement that as the admission boundary.
+
+Next reserve table ownership before first rt28xx_init side effect and distinguish
+admission refusal (direct return, no unwind) from partial initialization failure.
+Carry exact serial through configuration and remaining init, retaining on partial
+failure; cover shutdown/full clears/free with same lifetime contract. No such
+binding is implemented yet. UserCfgInit has a column-zero nested brace: do not
+extract its body using first newline closing brace. Auditor uses next routine
+boundary and confirms no early return in the full reviewed body.
+Evidence: docs/evidence/WR1200JS-IOT-REOPEN-UNWIND42-2026-10-30.json.
+Source-only audit, not target/runtime proof. Draft42 remains latest candidate;
+last full replay40. No router/build/dispatch/commit/push. Sol sole writer.
+
+
+## 2026-10-30 whole reset owner tests adapted and passed
+
+Adapted prepare-peer-failed-delete-check.py to detect owner-bound reset bodies.
+It now extracts whole MacTableReset/MacTableResetWdev from draft42, uses actual
+reservation helpers and verifies exact owner serial at mocked deletion. Two
+strict optimized variants (PCI on/off) passed, including nested reset attempt
+inside deletion, success releases, failed allocation/deletion retains owner,
+and subsequent reset refusal. Locks/layout/deletion injected; no real kernel
+parallelism, callback, DMA or lifetime proof. Evidence:
+docs/evidence/WR1200JS-IOT-TABLE-OWNER42-WHOLE-RESET-2026-10-30.json.
+This supersedes prior note that whole reset execution was not tested; broad
+regression suite still not run. Draft41/42 remain outside full chain. Full
+clear/UserCfgInit reopen admission is still unbound and is next. No production,
+router, build/dispatch, commit or push. Sol sole writer; HEAD9af5697.
+
+
+## 2026-10-30 local draft42: MacTabLock survives radio reopen
+
+Found UserCfgInit recreated MacTabLock, while UserCfgExit and APShutdown freed
+it during the same adapter lifetime. Added pinned prepare-peer-lock-lifetime.py
+on draft41, output peer-lock-lifetime42-20261030. Initialization moved to final
+nonfailing fresh adapter publication section before owner init; intermediate
+frees removed; one free added to RTMPFreeAdapter alongside transition lock.
+This does NOT prove RTMPFreeAdapter callers have retired all references.
+
+Source assertions for unique init/free and ordering passed; actual reset owner/
+insertion/deletion fragment host test passed with -O2 -Wall -Wextra -Werror.
+No full regression suite or target compile. APShutdown fixture lock-free counts
+need adaptation to new lifetime. Draft41/42 are NOT in full chain yet; last
+verified complete chain40. Full table clears/reopen admission still unbound.
+Next reserve table owner across full clears and reject retained owners before
+UserCfgInit mutations, without holding spinlocks across waits. Evidence:
+docs/evidence/WR1200JS-IOT-MACTAB-LOCK-LIFETIME42-DRAFT-2026-10-30.json.
+Sol sole writer; HEAD/remote9af5697; all edits local. No router, firmware build,
+workflow dispatch, commit or push. Goal remains active and incomplete.
+
+
+## 2026-10-30 resumed: table owner stage41 draft locally prepared
+
+Sol remains sole writer; HEAD/remote9af5697. After pause, removed two dead
+Python draft lines and prepared peer-table-owner41-20261030 separately.
+Adapter-owned state initialized once outside MacTab; reset preflight and serial
+reservation share MacTabLock. Main/repeater insertion and ordinary/WDS resume
+check admission. Reset private deletion supplies exact owner serial. Easy Setup
+lookup/type mutation now inside MacTabLock. Failure retains owner; no implicit
+retry reset. No waits added under locks.
+
+Two strict optimized host tests passed: pure serial/retained/overflow owner and
+actual reservation/insertion/delete fragments with injected locks/layout.
+Source binding assertions passed. Whole reset execution and full regression
+suite NOT run; existing fixtures still need adaptation. Stage41 not added to
+full chain yet. Full table clear/reopen/release admission remains UNBOUND;
+state survival after clear does not make such a clear safe. Next close those
+bypasses, adapt extracted whole reset tests, then replay/regress. Evidence:
+docs/evidence/WR1200JS-IOT-TABLE-OWNER41-DRAFT-2026-10-30.json.
+No production driver/firmware/router change, commit or push. Goal active.
+
+## 2026-10-30 fresh full40 replay and peer-table writer inventory
+
+Previous stage40 was real source/test progress. Fresh preparation now passed
+ALL40 stages in peer-retirement-chain40-20261030/legacy-close-result. All560
+files match incremental legacy-close-result40b-20261030, which passed42 extracted
+host variants. Additional23 composed variants passed against the fresh tree.
+This supersedes earlier notes saying last full replay36. No target build or
+production installation; full source preparation is not a firmware build.
+
+New audit-peer-table-writers.py records32 lexical sites across8 files, with
+comments/strings excluded. Not full alias or effective-feature analysis.
+Critical additional admission paths: RTMPInsertRepeaterMacEntry independently
+selects/resets/publishes same Content/TR slots under MacTabLock, cancels old
+timers and ignores hardware add status. Easy Setup ez_set_entry_apcli_mt7603
+mutates a looked-up peer type without local MacTabLock. Fresh init and both
+close paths clear entire MacTab. Owner state must live outside cleared memory.
+
+Evidence: docs/evidence/WR1200JS-IOT-PEER-TABLE-WRITERS-2026-10-30.json and
+docs/evidence/WR1200JS-IOT-FULL40-AND-WRITER-AUDIT-2026-10-30.json.
+Next bind adapter-owned mutation ownership across BOTH insertion paths,
+normal/reset/WDS deletion, Easy Setup type mutation and full table clears.
+Reset reservation and failed-setup preflight must be one MacTabLock critical
+section; release lock before waiting. Failed/retried ownership must not reset
+implicitly. This owner is not yet implemented/bound. No false atomicity claim.
+No router change, firmware build/dispatch, commit or push in this step.
+
+## 2026-10-30 legacy close result through native/OS_ABL and endpoints (stage40)
+
+Pinned prepare-legacy-close-result.py changes isolated legacy RTMPDrvClose to
+INT status, its native declaration and OS_ABL ops return type consistently.
+rt28xx_close maps failure to -EIO before diagnostic exit. PCI suspend refuses
+before module decrement/power-down tail. Old virtual-down ioctl and wrapper
+propagate failure; both remaining callers Monitor/APCLI check before module
+decrement. The count already decremented to zero is not restored as a false
+active interface. Earlier close/HNAT/radio/PM side effects remain partial.
+
+Latest candidate legacy-close-result40b-20261030. 42 extracted optimized strict
+host variants passed, including whole legacy close/rt28xx bridge, actual ops
+field/prototype/assignment/macro dispatch with mocked struct, whole Monitor and
+APCLI close bodies; native/ABL, WIFI_DIAG and HNAT variants. PCI test covers
+the close guard seam, not the whole suspend function. This is NOT binary ABI,
+kernel scheduling/lifetime or hardware proof. All affected target modules
+must be rebuilt together; no mixed-module compatibility claim. Evidence:
+docs/evidence/WR1200JS-IOT-LEGACY-CLOSE-RESULT40-HOST-2026-10-30.json.
+
+Next exclusive reset/insertion and retry ownership: legacy close still has no
+shared retained retry owner; PCI/endpoint pre-close effects are not rolled back.
+An ndo_stop error does not establish netdev/adapter lifetime. Inspect these
+before cleanup binding/release acceptance. Last complete preparation replay36;
+full40 replay/target build/runtime not performed. Local edits only, no router
+state change, firmware build/dispatch, commit or push in this step.
+
+## 2026-10-30 AP shutdown refusal through checked physical/MBSS close (stage39)
+
+Pinned prepare-ap-shutdown-result.py changes isolated APShutdown/prototype to
+BOOLEAN. Legacy RTMPDrvClose stops its local teardown on refusal. Checked
+wr_iot_drv_close_checked marks partial shutdown_stage=3 under transition lock
+and returns failure before task/Mlme/mgmt/ring teardown; subsequent same-ticket
+call cannot replay stage zero. Earlier operations are not rolled back.
+
+37 extracted strict optimized host variants passed. Tests include whole
+APShutdown and whole checked-close bodies with injected lower operations,
+PCI/non-PCI + WDS/IGMP/WNM variants, failure/retry, virtual-down bridge and
+MBSS last-close retaining WR_REF_CLOSING/module reference. The close bridge
+does not mark notification complete on refusal. Predecessor38 fixture passed.
+Initial host shim lacked RT_DEBUG_TRACE; fixed and whole suite rerun passed.
+Evidence: docs/evidence/WR1200JS-IOT-AP-SHUTDOWN-RESULT39-HOST-2026-10-30.json.
+Full39 replay, target compile, Linux synchronization and runtime unverified.
+
+Next legacy boundary: RTMPDrvClose remains VOID (including OS_ABL function
+pointer), and rt28xx_close in os/linux/rt_main_dev.c still reports success after
+its early return. Inspect that ABI/caller path before accepting release.
+Higher scan/ATE/SDIO/VOID parents, reset/insertion exclusion and failed-peer
+cleanup ownership still open. No production driver installation, router state
+change, firmware build/dispatch, commit or push in this local step.
+
+## 2026-10-30 AP stop result and 26 direct caller guards (local stage38)
+
+Pinned prepare-ap-stop-result.py converts APStop/APStopBssOnly and prototypes
+to BOOLEAN in isolated candidate ap-stop-result38-20261030. Reset refusal now
+returns FALSE; successful tail TRUE. All 26 APStop call sites in this donor
+tree check the result. Setters/scans leave with FALSE; ATE returns -1; USB
+rescan returns NDIS_STATUS_FAILURE; VOID parents leave before later local
+actions. Ioctl authentication/WEP cases set -EBUSY and break the switch. WSC
+UFD preserves filename freeing by setting Status instead of early exit.
+CMDHandler breaks its command switch and reaches normal queue cleanup.
+
+30 extracted strict optimized host variants passed. New fixture exercises
+26 extracted call-site branches plus two reset checkpoints, with mocked stop/
+startup and adapted void-return sentinels. Not full enclosing function, lock,
+allocator or scheduler execution. UFD free/queue cleanup ordering source
+assertions passed. Initial fixture formatting warning fixed without suppression.
+Evidence: docs/evidence/WR1200JS-IOT-AP-STOP-RESULT38-HOST-2026-10-30.json.
+Full38 replay and target compile not performed. All stage38 work local.
+
+Next: APShutdown still VOID; two callers in common/rtmp_init_inf.c continue
+task/thread/resource teardown after it returns early. Propagate refusal there
+before accepting release; review outer scan/ATE/SDIO/VOID parents too. Earlier
+side effects (including MlmeRadioOff before APStop in APShutdown) remain
+partial; reset/insertion exclusion and DMA/TxS lifetime still open. No cleanup
+binding, production driver install, build/dispatch, router changes or push.
+
+## 2026-10-30 checked reset results and direct callers (local stage37)
+
+Added pinned prepare-peer-reset-result.py as stage37. MacTableReset and
+MacTableResetWdev now return BOOLEAN in the isolated candidate, including
+allocation failure, preflight refusal and deletion refusal. Updated prototypes
+and all five direct callers: APStop/APStopBssOnly stop their later shutdown
+tail; MAP channel branches and disconnect-all return FALSE on reset failure.
+Disconnect-all also checks deletion failure in its optional PMF branch.
+Correction to prior notes: ap/ap_cfg.c caller is Set_DisConnectAllSta_Proc,
+NOT a PMF setter. Earlier side effects are not rolled back.
+
+29 extracted strict optimized host variants passed, including real reset body
+return checks, allocation failure, scoped reset, and extracted disconnect-all
+with/without PMF. Direct APStop guard ordering is source-asserted only; no
+full APStop execution or target compile. Source preparer pins all five changed
+files. Full36 replay remains verified; fresh full37 replay not performed.
+Evidence: docs/evidence/WR1200JS-IOT-RESET-RESULT37-HOST-2026-10-30.json.
+
+Next: APStop/APStopBssOnly still VOID; audit their callers and prevent restart,
+free or false success after refusal. Then establish exclusive reset/insertion
+ownership. Current preflight is only an observation; timer/adapter/module,
+DMA/TxS and reuse lifetimes remain unaccepted. No cleanup binding, production
+driver change, router change, build/dispatch, commit or push in this step.
+
+## 2026-10-30 failed-peer delete/reset refusal, full chain36 replay
+
+Published timer research checkpoint 9af5697; remote branch SHA confirmed. It
+contains standalone helpers/tests only, not production driver integration.
+
+Local stage36 now rejects ordinary deletion of an observed failed MT insertion
+before timer/vendor cleanup. Both reset loops preflight failed setup metadata
+under MacTabLock and stop if MacTableDeleteEntry refuses, preserving terminal
+table/BSS counters. This is observation/abort, NOT an atomic reset transaction.
+Normal-path EAPOL timer release can precede a later deletion refusal.
+
+Fresh full36 preparation passed. All 560 files match the incremental stage36
+candidate. 27 extracted and 23 composed optimized strict host variants passed;
+kernel/MMIO/layout operations are mocked. Evidence:
+docs/evidence/WR1200JS-IOT-FAILED-PEER-RESET36-HOST-2026-10-30.json.
+No target build, driver installation, firmware build or router state changes.
+Stage36 and this status update remain local, not part of 9af5697.
+
+Next: checked reset failure propagation and exclusive reset/insertion ownership.
+MacTableReset/MacTableResetWdev are still VOID. APStop and APStopBssOnly continue
+radio shutdown after reset; PMF setter can report success; MAP channel paths
+continue reinitialization. Do not bind failed-peer cleanup until callers honor
+refusal and lifetime is owned. Reset preflight can race with a new insertion;
+DMA/TxS, old reuse and partial hardware recovery remain open. Goal incomplete.
+
+## 2026-10-30 explicit process-context timer join API candidate
+
+Added timer-os-join.inc, timer-checked-join.inc and pinned preparer (stage35).
+Latest candidate timer-checked-join35-20261030. Linux utility boundary supports
+native and OS_ABL_FUNC timer/task objects; checks atomic/IRQ context, always
+calls del_timer_sync even for a not-pending timer, and identifies current timer
+task in KTHREAD and Linux4.4 legacy PID modes. Utility prototypes/exports bound.
+Core API checks exclusive timer/adapter ownership prerequisites, fences future
+scheduling, OS-syncs, removes ALL duplicate queued instances, waits for task
+owner outside locks, OS-syncs again for possible late task rearm, removes queued
+instances again and rechecks owner. It never frees a timer or peer. Task wait
+is capped at 5000 ms; del_timer_sync has NO timeout and may still block on a
+hung callback. Do not describe the whole operation as bounded.
+
+23 composed strict optimized host variants passed. New join tests cover direct/
+task, context/self/unknown-task refusal, missing object, timeout, poisoned owner,
+all/head/middle/tail duplicate removal preserving other timers, late queue after
+first drain, admitted-task late rearm and busy final owner refusal. OS helpers
+passed native/ABL x legacy/KTHREAD matrix. Initial test-only dangling-pointer
+warning fixed by static mock PID storage. No warning suppression. Prototype/
+export/include source assertions passed. Receipt:
+docs/evidence/WR1200JS-IOT-TIMER-JOIN35-HOST-2026-10-30.json.
+
+All Linux scheduling/timer waits and type layouts injected; no target compile,
+real kernel timing/deadlock, symbol-link or on-device proof. Exclusive timer,
+queue, adapter/module lifetime is a CALLER contract, not established by this
+API. No failed-peer cleanup caller yet. Next bind claimed process-context failed
+insertion owner and initialized-timer resource list; do not wait under MAC/IRQ/
+transition/TimerQLock or from timer callback. Old reuse, DMA/TxS and partial
+hardware recovery remain open. Fresh full35 chain not replayed. No router
+change, full firmware build, CI dispatch, commit or push. Goal incomplete.
+
+## 2026-10-30 timer-task callback has stable adapter-owned execution identity
+
+Added timer-task-owner.h, prepare-timer-task-owner.py (stage34) and
+check-timer-task-owner.c. Latest isolated candidate timer-task-owner34-20261030.
+An adapter-owned current timer/serial is claimed while TimerQLock still protects
+queue pop, before callback/periodic rearm. Release/wakeup occurs under that lock
+AFTER final timer-object use. This state survives peer/timer memory clearing.
+It is initialized once before adapter publication, never by timer-queue reopen.
+Concurrent executor collision/serial exhaustion poison the owner and prevent
+false idle acceptance. Wrong/stale serial cannot clear a newer callback.
+
+Worker now resets pTimer and serial for every inner iteration; previously an
+empty queue observed after locking could leave the prior local timer pointer
+and invoke it again. Source assertions verify reset and pop-before-unlock order.
+Direct/task extracted macro tests were adapted for actual tracked worker block;
+inside callback they assert the execution owner remains busy. Pure owner tests
+cover wrong pointer/serial, same-address new serial, collision and overflow.
+17 composed and 25 extracted host variants passed on this candidate. Receipt:
+docs/evidence/WR1200JS-IOT-TIMER-TASK-OWNER34-HOST-2026-10-30.json.
+
+No full kernel-thread/concurrency, MIPS or device proof. Existing deletion paths
+that do not honor this owner are NOT made safe by tracking alone. Next a bounded
+process-context checked join: fence scheduling, unconditional Linux timer sync,
+remove all queued instances, wait for task owner, recheck possible late rearm
+and identity before releasing any resource. Never wait while holding MAC/IRQ/
+transition/TimerQLock or from the executing callback itself. Adapter/module
+pins, old WCID reuse, DMA/TxS and failed insertion cleanup still open.
+No fresh 34-stage replay, full firmware build, CI dispatch, router change,
+commit or push. Goal remains active and incomplete.
+
+## 2026-10-30 timer fence candidate verified after resume
+
+Goal resumed from user pause. Fixed missing FALSE in dispatch fixture;
+direct and timer-task actual macros/worker-block tests passed. Init/Set/Mod/
+fence extracted API test also passed after host ULONG adaptation to uintptr_t
+(Windows pointer width differs from target). No target ABI claim.
+
+New audit-peer-timer-arms.py excludes comments/strings and inventories balanced
+calls: 21 peer-timer init/arm sites, 8 initialization sites inside insertion,
+zero direct insertion arms. RTMPInitTimer and Linux timer init do not directly
+arm. See WR1200JS-IOT-PEER-TIMER-ARMS-2026-10-30.json. This narrows the failed
+insertion case but does NOT prove old timer/WCID reuse or transitive readers
+cannot leave callbacks active. Do not infer never-armed lifetime from this scan.
+
+Added stage33 prepare-peer-timer-fence.py with exact timer-source pins,
+peer-failed-timer-fence.inc and scheduling/dispatch fixtures. Latest isolated
+source: peer-timer-fence33-20261030. Failed MT insertion fences exactly its
+initialized timer branches (client/APCLI/WDS variants) before MAC unlock.
+TimerSemLock serializes fence vs Init/Set/Mod; valid retiring timers cannot
+be reinitialized/rearmed there. Direct/task wrappers and worker check retiring
+before dispatch/rearm. Repeat/State also suppress normal recurrence. No join,
+free or SET_ENTRY_NONE is performed; an already-admitted callback/rearm race
+still needs a proper process-context drain and lifetime ownership.
+
+16 composed variants passed, including branch-specific fences, plus 25 extracted
+variants with real timer APIs/macros/worker block and injected OS/kernel actions.
+See WR1200JS-IOT-TIMER-FENCE33-HOST-2026-10-30.json. These tests model zeroed
+fresh timer storage; audit actual construction/reinitialization callers before
+production integration. Expanded global critical-section/callback contexts,
+old reuse, timer-task execution join and failed-entry cleanup remain open.
+Fresh full 33-stage replay and MIPS build not run. No router change/full firmware
+build/CI dispatch/commit/push. Goal active, not accepted as complete.
+
+## 2026-10-30 failed insertion cleanup requires real timer callback join
+
+Audited initialized resources before failed hardware insertion: TR queues,
+EnqueueStartForPSKTimer, conditional client/APCLI retry/PMF/WSC timers,
+UAPSD initialization, committed client/MAC counters and key-side effects. WDS
+only initializes the unconditional EAPOL-start timer in this insertion path;
+do not assume every timer exists for every entry type.
+
+Found __RTMP_OS_Del_Timer in os/linux/rt_linux.c calls del_timer_sync ONLY if
+timer_pending is true, otherwise reports cancelled TRUE. New
+audit-timer-delete-join.py extracted the actual function and strict optimized
+host witness reproduced running+not-pending -> cancelled TRUE with zero join,
+while pending control does synchronize. This uses injected kernel states,
+not an on-device race. timer_join_accepted remains FALSE. Evidence:
+docs/evidence/WR1200JS-IOT-TIMER-JOIN-WITNESS-2026-10-30.json.
+
+RTMPReleaseTimer drops TimerSemLock before OS deletion, but does not drop a
+caller's MacTabLock. Blindly making every call synchronous risks callback/lock
+or self-cancel deadlock and requires caller-context audit. With
+RTMP_TIMER_TASK_SUPPORT, RtmpTimerQThread pops a node under TimerQLock then calls
+handle outside it and may rearm Repeat/State; RtmpTimerQRemove only scans queued
+nodes and does not join an executing handler. Therefore ordinary release/queue
+removal is not sufficient acceptance proof for freeing failed peer resources.
+
+Next process-context per-entry retirement with rearm fence, executing timer-task
+callback ownership and unconditional direct-timer synchronization after releasing
+MAC/IRQ/transition locks; only then timer/resource-specific cleanup and counters.
+Do not add automatic SET_ENTRY_NONE/free based on current timer return value.
+No global timer implementation changed, no full build/CI schedule/router change,
+commit or push. Existing retained failure stays retained; goal not complete.
+
+## 2026-10-30 fresh chain31 verified; MT insertion failure publication blocked
+
+Fresh 31-stage composition from full-driver-overlay4-20261029 succeeded:
+peer-retirement-chain31-20261029/wds-ageout-recovery. On that exact final source,
+13 composed WDS variants and 22 extracted control-flow/hardware variants passed.
+This confirmed composition, not target/runtime acceptance.
+
+Review found RTMP_STA_ENTRY_ADD in MacTableInsertEntry still discarded checked
+hardware result, so busy/partial insertion could publish hash and TRUE caps.
+Added peer-hardware-insert-result.inc, pinned preparer and focused test (stage
+32). Latest isolated candidate peer-hardware-insert32-20261029 records observed
+setup result in two new TR fields, reset before setup. MT/HIF_MT failures close
+caps under irq_lock and return NULL before hash/readiness publication. Preserve
+entry type, initialized queues/timers and committed counters to prevent unsafe
+WCID reuse; no blind rollback after possible hardware/key side effects. Legacy
+non-MT/HIF paths retain old behavior.
+
+15 composed variants and 22 extracted variants passed on stage32, plus source
+ordering before hash/capability publication. New tests cover NOT_WRITTEN,
+PARTIAL, success and legacy paths with injected hardware/types/locks. Shared
+publication test now recognizes checked consumer ordering; its order check
+alone does not prove failure handling. Summary receipt digests/counts:
+docs/evidence/WR1200JS-IOT-PEER-CHAIN31-32-HOST-2026-10-30.json.
+Stage32 was applied to fresh chain31; no new full 32-stage replay. No MIPS build,
+real kernel/MMIO, layout/ABI or RAM measurement; TR layout changed and requires
+coherent full-module compilation. No router changes/full firmware build/CI
+schedule/commit/push.
+
+Next implement exact ownership/cleanup for failed unpublished insertion; it
+currently consumes a retained WCID with timers/counters and cannot be accepted
+as a complete lifecycle. PARTIAL deletion recovery, DMA/TxS identity, global
+locking and adapter/module lifetime remain open. Goal remains incomplete.
+
+## 2026-10-29 lazy WDS maintenance resumes no-write failures and finalizes exact slot
+
+Added wds-ageout-recovery.inc and prepare-wds-ageout-recovery.py (stage 31).
+Latest isolated source: wds-ageout-recovery2-20261029. Existing periodic lazy
+maintenance first handles retained ownership. It snapshots exact saved identity
+under WdsTabLock -> MacTabLock -> transition; only observed effective NOT_WRITTEN
+gets a netdev pin and calls explicit resume outside those locks. PARTIAL,
+unobserved, active claim and ambiguous duplicate owners stay retained; normal
+fresh age-out is skipped for handled retained slots. No new worker/service.
+
+Finalizer rechecks device/generation/serial/index/WCID/address, phase-4 software
+completion, NONE entry, disabled caps, valid slot/count and active radio credit
+under all three locks. Only then consumes owner, clears slot/address, decrements
+occupancy and releases one radio credit. Repeated/competing finalization cannot
+consume again. Wake occurs after unlock and dev_put is after final adapter use.
+This is not a proof of adapter/module pinning or DMA/TxS retirement.
+
+13 composed WDS host variants passed, including recovery with injected explicit
+resume. Focused expanded recovery test also passed direct phase-4 completion,
+missing radio credit refusal, ambiguous duplicate owner refusal, repeated busy,
+PARTIAL no-repeat, slot mismatch and actual lazy-loop dispatch. Existing source
+resume tests separately exercise actual admission/observer/result/finish blocks;
+these are NOT a fully linked target-driver or hardware end-to-end test.
+Receipt: .iot-local-check/wds-ageout-recovery-checks-20261029/result.json;
+expanded fixture/executable wds-ageout-recovery-expanded in scratch.
+
+Fresh full 31-stage replay still pending. Next PARTIAL recovery policy without
+blind replay, full chain/target build and global lock/adapter/DMA/TxS acceptance.
+Mode change outside lazy maintenance and shutdown with a retained operation
+still need a controlled drain path; do not call all lifecycle failures solved.
+No router changes, full firmware build, CI dispatch, commit or push this turn.
+
+## 2026-10-29 explicit WDS NOT_WRITTEN checkpoint continuation
+
+Added prepare-wds-delete-resume.py (stage 30), wds-delete-resume-admission.inc,
+and prepare-wds-delete-resume-check.py. Latest candidate:
+wds-delete-resume-20261029. Original public MacTableDeleteEntry remains a
+normal wrapper around private implementation. New explicit
+wr_iot_wds_resume_delete requires device/generation/serial/address identity,
+WDS peer, disabled admission caps and retained observed NOT_WRITTEN. It claims
+stage 3 under transition lock and jumps directly to the hardware checkpoint,
+setting the required wdev local, bypassing previous callbacks/timers/BA effects.
+PARTIAL, unobserved failure, wrong identity and duplicate claims refuse.
+
+Saved owner now tracks retry count/result separately from immutable first
+hardware result. NOT_WRITTEN retry failure returns to retained stage 2;
+PARTIAL prevents another no-write retry. Success marks stage 4 only after
+actual software entry becomes NONE with disabled caps, before MAC unlock.
+Radio/removal ownership is NOT released by this API; no automatic caller,
+WDS-slot finalizer or DMA/TxS reaper is bound yet.
+
+12 composed WDS host variants passed, plus 22 extracted control-flow/hardware
+variants including resume test. Resume fixture uses actual admission, delete
+gate, observer, hardware-result include and extracted real finish block;
+callbacks/vendor software cleanup/locks/hardware are injected. It confirms no
+replayed notifications/timers/BA, one hardware attempt on success, ordinary
+retained-delete refusal, stale generation/serial/address/caps rejection,
+PARTIAL rejection, repeated busy retry and exactly one software finish.
+Source-order assertions confirm checkpoint entry precedes callbacks and jumps
+to hardware. This is not full target function compilation for all feature flags.
+Receipts: .iot-local-check/wds-delete-resume-wds-checks-20261029/result.json and
+.iot-local-check/wds-delete-resume-chain-checks-20261029/result.json.
+
+Next exact-slot finalizer and controlled caller for retained no-write recovery;
+PARTIAL needs separately proven recovery. Fresh full 30-stage replay, target
+build, reverse-lock/adapter/module audit and DMA/TxS completion remain open.
+No router changes, full build, CI dispatch, commit or push this continuation.
+
+## 2026-10-29 checked WTBL update shares pre-write admission/PCI lock span
+
+Added prepare-wcid-update-busy-admission.py as stage 29. Latest isolated source:
+wcid-update-busy-20261029. Checked insertion/update now takes IndirectUpdateLock
+before any direct WTBL/queue write and refuses initial IU_BUSY as NOT_WRITTEN.
+Removed its two later nested acquisitions/intermediate success unlock; one PCI
+lock spans direct writes, queue STOP/START and all indirect commands. First
+poll-timeout queue restart happens before unlock. Existing other timeout exits
+release once. Removed tautological USHORT WCID>=0 wrapper without behavior change.
+Reviewed actual MtAsicACQueue body: direct MMIO only, no lock acquisition/callback.
+This does not audit every external AC-queue writer or firmware interaction.
+
+Added prepare-wcid-update-check.py extracting the complete actual update body
+with synthetic unions/MAC layout/MMIO/queue primitives. Tests check zero writes
+and no queue stop on initial busy, all four command timeouts, balanced lock,
+exactly one queue restart, success, missing table, invalid/zero capacity.
+Four PCI/MT_PS variants passed. The expanded shared hardware runner passed
+21 extracted variants on this same candidate. Receipt:
+.iot-local-check/wcid-update-busy-chain-checks-20261029/result.json.
+An initial fixture compile failed for a missing synthetic DW15 member and
+misleading indentation; corrected fixture, strict GCC then passed.
+
+No MIPS/kernel/MMIO hardware acceptance. A larger single critical section may
+increase lock hold time; real IRQ/latency impact remains unmeasured. Non-PCI
+paths get busy refusal but no new cross-thread serialization. Full fresh
+29-stage replay was not performed in this continuation. Next explicit retained
+partial-delete checkpoint continuation, global reverse-lock/other-writer review,
+adapter/module lifetime and DMA/TxS retirement. No router changes, full build,
+CI dispatch, commit or push.
+
+## 2026-10-29 checked WTBL delete refuses an unresolved prior command
+
+Added pinned prepare-wcid-delete-busy-admission.py and stage 28 in the peer
+chain. Latest isolated candidate wcid-delete-busy-20261029. For each WCID,
+IndirectUpdateLock (PCI) is acquired before direct WTBL writes, initial WIUCR
+busy is checked before any write, and the lock remains held through indirect
+counter clears and address readback. Busy returns NOT_WRITTEN (or PARTIAL if
+an earlier WCID in ALL already changed); no extra polling under the lock.
+No automatic retry/resume is authorized by this admission gate.
+
+Expanded whole checked-deletion extractor test: every PCI write must hold the
+lock; initially busy produces zero writes/commands/delays; busy at later ALL
+entry reports PARTIAL with prior command count unchanged. Existing timeout,
+readback corruption, invalid/zero bounds and 255-entry ALL tests remain.
+All 17 extracted host variants passed on new candidate, including with/without
+PCI+MT_PS deletion variants. Result receipt:
+.iot-local-check/wcid-delete-busy-chain-checks-20261029/result.json.
+Tests use synthetic MMIO/layout, not actual hardware/kernel concurrency.
+
+Literal source inventory found WIUCR writes in cmm_asic_mt.c only: three rate/
+statistics writers already take IndirectUpdateLock and poll before issue; four
+checked-update and three checked-delete command sites. WTBL1OR direct writes
+exist in checked update and deletion. This is a literal scan, not proof against
+aliases/macros or firmware writers. Checked insertion/update still writes direct
+WTBL before its indirect lock and issues a command without initial busy refusal;
+review/align that path before claiming global serialization or safe resume.
+
+Stage 28 was applied to the existing predecessor; a fresh complete 28-stage
+replay was not run in this continuation. No target build/runtime acceptance,
+router changes, full build, CI dispatch, commit or push. Next shared update
+admission/serialization, then exact partial-deletion continuation and DMA/TxS.
+
+## 2026-10-29 normal deletion cannot replay retained WDS retirement
+
+Reviewed partial-delete resume feasibility. Existing early delete gate ignored
+retirement_stage, so another ordinary MacTableDeleteEntry could replay timer,
+notification and BA effects on a retained failed age-out. Fixed WDS admission:
+only no saved retirement or original stage 1 is accepted; retained stage 2 and
+future claimed stage 3 refuse before any side effect. A continuation must use
+an explicit checked path, not ordinary deletion.
+
+Updated wds-peer-delete-gate.inc, its regression, exact reviewed hash acceptance
+in the identity preparer, and final hardware-consumer preparer to install the
+matching gate atomically. Latest isolated source:
+wds-retained-delete-refusal-20261029. All 12 composed strict optimized host
+variants passed. Additional focused test explicitly passed original stage-1
+admission and stage-2/3 refusal with no mutation/lock leak. No MIPS/runtime proof.
+
+Further source finding: wr_iot_delete_wcid_checked performs direct WTBL writes
+before taking IndirectUpdateLock, then polls shared WIUCR only after issuing
+its first counter-clear command. After PARTIAL timeout, blind retry could write
+while the previous indirect operation is unresolved. Before implementing
+resume, review whole-command serialization and pre-write busy admission,
+including all writers sharing IndirectUpdateLock. Do not infer retry safety
+from the status descriptor or idempotent-looking address clears.
+
+Next hardware command busy/lock ownership, then explicit partial-delete
+checkpoint continuation. Existing 27-stage receipt applies only to historical
+hashes. No router changes, full build, CI dispatch, commit or push this turn.
+
+## 2026-10-29 precise hardware outcome retained in WDS age-out identity
+
+Added retirement_hardware_observed/result to the saved owner; unobserved stays
+distinct from APPLIED=0. New wds-hardware-delete-observer.inc records the first
+result under MacTabLock -> transition only when device/generation/WCID/address
+match the saved retirement. Wrong identity leaves state untouched; repeated
+or retained-stage observations cannot replace the first hardware result.
+The consumer records NOT_WRITTEN for refused WCID narrowing and records checked
+hardware result before returning FALSE or continuing software release.
+
+Updated prepare-wds-hardware-delete-consumer.py to install observer and owner
+header atomically with the consumer. Added check-wds-hardware-delete-observer.c
+and composed-runner case. Latest candidate: wds-hardware-observed-20261029;
+all 12 strict optimized host variants passed, including observer identity,
+immutable first result and four MT/WDS feature combinations. Results:
+.iot-local-check/wds-hardware-observed-checks-20261029/result.json.
+This run updates final-stage composition only, not a fresh full 27-stage replay.
+Earlier 27-stage/17 extracted-test receipt remains historical evidence for
+its own hashes. New tests inject hardware/kernel operations; no target/runtime
+or callback/DMA lifetime acceptance.
+
+Next resume partial deletion only from a proven checkpoint without replaying
+notifications, timer cancellation or BA cleanup. Precise hardware outcome is
+a prerequisite, not permission for automatic retry. Source-chain target build,
+reverse-lock review, adapter/module lifetime and DMA/TxS join remain open.
+No router changes, full build, CI dispatch, commit or push this continuation.
+
+## 2026-10-29 complete 27-stage peer candidate reproduced and tested
+
+Extended prepare-peer-retirement-chain.py through all recent WDS caller,
+delete, slot, close, age-out, lock-lifetime, identity-owner and hardware-consumer
+stages. Fresh complete run from full-driver-overlay4-20261029 succeeded with
+27 stages and 550 candidate files. Final source:
+peer-retirement-chain27-20261029/wds-hardware-consumer.
+
+Fixed exact-version acceptance in prepare-wds-peer-delete-identity.py: full
+chain installs the reviewed identity gate earlier; accept its specific pinned
+hash as well as the historical predecessor, not arbitrary helper contents.
+Added check-wds-composed-candidate.py; 11 strict optimized host variants passed
+against the final candidate headers. Updated check-peer-hardware-chain.py to
+use candidate headers first and choose actual parent child-failure propagation
+for retained WDS source instead of the inapplicable old freed-pointer witness.
+All 17 extracted hardware/queue/control-flow variants passed on that SAME final
+source. The child replacement test does not prove retained-netdev reaping.
+
+Receipt digest/count summary:
+docs/evidence/WR1200JS-IOT-PEER-CHAIN27-HOST-2026-10-29.json.
+All tests use injected kernel/vendor/MMIO primitives; lifecycle_accepted,
+target_compiled and runtime_verified remain FALSE. No downloaded/generated
+vendor source published. No full build, router changes, CI dispatch, commit
+or push. Next exact partial-failure continuation and DMA/TxS lifetime proof;
+full MIPS build/image/device acceptance still required after integration.
+
+## 2026-10-29 WDS consumes checked hardware deletion result
+
+Actual MacTableDeleteEntry called RTMP_STA_ENTRY_MAC_RESET, whose MT macro calls
+VOID AsicDelWcidTab and discards wr_iot_delete_wcid_checked result. Therefore
+software NONE could follow a failed hardware deletion. Added WDS-only MT
+consumer wds-hardware-delete-result.inc and pinned preparer
+prepare-wds-hardware-delete-consumer.py. Latest isolated source:
+wds-hardware-delete-consumer-20261029.
+
+For MT+WDS entries, NOT_WRITTEN/PARTIAL/other non-APPLIED results now release
+MacTabLock and return FALSE before timer release/software NONE/counter release.
+WCIDs at/above WCID_ALL refuse before narrowing into UCHAR, preventing an ALL
+sentinel alias. Other peer types and non-MT/WDS builds retain original macro.
+Existing age-out failure descriptor and fences therefore remain retained.
+Prior notifications/timer cancellation/BA/queue effects may already have run;
+this change does not make failed deletion safe to replay or prove DMA retirement.
+
+Strict C11/O2/Wall/Wextra/Werror host tests passed MT+WDS, MT-only, WDS-only,
+neither: success, NOT_WRITTEN/PARTIAL propagation, non-WDS legacy path and
+sentinel/narrowing refusals. Source assertions place the gate before
+RTMPReleaseTimer and SET_ENTRY_NONE. Hardware function injected in these new
+consumer tests; no new hardware/target execution or full driver build.
+
+Next preserve precise failure outcome in retained ownership and bind a checked
+continuation without replaying partial vendor work. Complete chain integration,
+lock-order/adapter/module review and DMA/TxS proof remain required. No router
+change, full firmware build, CI dispatch, commit or push in this continuation.
+
+## 2026-10-29 failed WDS age-out retains exact transaction identity
+
+Extended wds-peer-operation.h with retirement serial/stage/index/WCID/address.
+Save occurs before vendor deletion under transition lock; serial never repeats
+within a registration and overflow refuses before deletion. Completion matches
+device, registration generation, serial, slot, WCID and address. A failed
+postcheck retains stage 2 and existing radio/removal fence rather than losing
+the identity on return. Unchecked release of retained stage 2 is rejected.
+Added prepare-wds-ageout-identity-owner.py and check-wds-retirement-identity.c.
+Latest isolated source: wds-ageout-identity-owner-20261029.
+
+Strict optimized host GCC passed saved-identity tests (wrong device/generation/
+slot/WCID/address, stale serial, repeated completion/retention, fresh serial),
+original peer-operation regression, and expanded generated age-out/maintenance
+test including saved identity during deletion, retained failure stage and
+serial-overflow rollback without radio/devref leak. No target build or real
+kernel concurrency test. No claim that registration identity identifies DMA
+association completions or proves callback retirement.
+
+Next bind a single checked continuation to retained stage 2 with explicit
+partial-deletion outcomes; never replay vendor deletion based solely on TRUE,
+NONE or this descriptor. Global lock ordering, table resets, adapter/module
+pins, DMA/TxS join and complete source chain remain open. No router changes,
+full build, CI dispatch, commit or push in this continuation.
+
+## 2026-10-29 WDS lock initialized once before adapter publication
+
+Added prepare-wds-lock-lifetime.py. Latest isolated candidate:
+wds-lock-lifetime-20261029. Moves NdisAllocateSpinLock(WdsTabLock) from late
+WDS_Init (after child netdev registration) into RTMPAllocAdapterBlock beside
+the transition lock, guarded by WDS_SUPPORT and before *ppAdapter publication.
+Repeated WDS_Init no longer reinitializes a published table lock.
+
+Confirmed actual Linux OS_NdisAllocateSpinLock expands to spin_lock_init;
+OS_NdisFreeSpinLock is do{}while(0). Existing APShutdown free call is retained;
+this candidate is Linux-specific, not a portable lock-lifetime claim.
+Source assertions passed unique initializer across candidate C files, correct
+WDS_SUPPORT guard, ordering before adapter publication and no WDS_Init reinit.
+Strict optimized host age-out/maintenance regression passed with newest headers.
+No target build, kernel lockdep or on-device lifecycle test was performed.
+
+This resolves the observed late/repeated initialization issue in the isolated
+candidate. Still open: adapter free vs outstanding callbacks, failed age-out
+continuation, initialization table reset vs active peers, global reverse-lock
+review and complete source-chain integration plus DMA/TxS retirement. No router
+changes, full build, CI dispatch, commit or push in this continuation.
+
+## 2026-10-29 lazy WDS maintenance stops carrying stale peer pointers
+
+Latest isolated candidate: wds-lazy-maintenance-20261029. Extended the age-out
+helper include with wr_iot_wds_lazy_maintenance and an early lazy-mode dispatch
+in WdsTableMaintenance. For each slot, Valid/WCID (both MAC and TR array bounds),
+peer type/WCID/wdev/address and mode are checked under WdsTabLock -> MacTabLock.
+Idle counters advance only below the age-out threshold, preventing overflow.
+No raw peer pointer survives unlock; age-out rechecks identity and eligibility.
+The static-WDS legacy path has not received this lifetime conversion.
+
+Strict optimized host test against generated headers passed earlier age-out
+cases plus threshold crossing, MAC-valid/TR-invalid WCID, address mismatch,
+sparse slot index 1 with occupancy 1, saturated counters and no second deletion
+after a retained refusal. Tests inject vendor deletion, locks and types; no
+claim of target compilation, concurrency, real traffic or hardware acceptance.
+
+Source search found the remaining WdsEntryDel call only inside
+rtmp_read_wds_from_file, called by RTMPSetProfileParameters through
+RTMPReadParametersHook in initialization. APWdsInitialize also clears the table.
+This narrows the writer audit; it does NOT prove those initialization paths
+cannot overlap live radio. WDS_Init allocates WdsTabLock late, after netdev
+registration, so initialization/lock lifetime ordering needs explicit review.
+
+Next retain exact failed age-out continuation, review initialization/remaining
+writers and global lock ordering, integrate the complete chain and prove
+adapter/module/DMA/TxS lifetime. No router change, full build, CI dispatch,
+commit or push. Published checkpoint remains 81122cd; these changes are local.
+
+## 2026-10-29 WDS lazy age-out owns reservation through slot cleanup
+
+Added wds-ageout-transaction.inc, prepare-wds-ageout-transaction.py and
+check-wds-ageout-transaction.c. Latest isolated source:
+wds-ageout-transaction2-20261029. Lazy maintenance now invokes the helper;
+no production source/image installation occurred.
+
+Under WdsTabLock -> MacTabLock -> transition, helper rechecks lazy mode,
+valid slot, WCID bounds, exact peer/wdev/address/idle threshold and published
+owned registration. It reserves peer_operation.removing, holds radio activity
+and netdev reference, then calls deletion outside those locks. Post-delete
+cleanup revalidates registration generation, slot device/WCID/address and NONE
+MAC entry under the same lock order before clearing the slot/count. A false
+result, vendor TRUE/no-op or identity mismatch retains reservation/radio
+activity for recovery; no release/recovery implementation exists yet. The
+netdev pin is released after final adapter access; adapter/module lifetime
+still requires full binding proof.
+
+Maintenance scans MAX_WDS_ENTRY instead of the shrinking occupancy count and
+checks valid/WCID bounds before its first Content access. Those checks do not
+make the legacy idle-counter/static-WDS path atomic; remaining stale access
+and other configuration writers still require review.
+
+Strict C11/O2/Wall/Wextra/Werror host test against generated headers passed:
+success, delete refusal, TRUE/no-op, changed slot address, occupied WCID,
+changed registration generation, changed slot WCID, active operation refusal,
+radio-busy rollback, invalid WCID/index, low idle count and NULL adapter.
+Injected delete verifies reservation rejects insertion/close, holds radio
+activity, and runs outside locks. Source assertions passed maintenance binding,
+sparse-slot scan and WCID guard ordering. These are sequential injected tests,
+not MIPS, concurrent kernel or hardware proof.
+
+Next: retained failure recovery with exact transaction identity; serialize
+remaining WDS table writers and legacy maintenance accesses; global reverse-lock
+review, full chain integration, adapter/module pins and DMA/TxS retirement.
+Do not equate NONE MAC entry with DMA completion. No router changes, full build,
+CI dispatch, commit or push in this continuation. Goal remains incomplete.
+
+## 2026-10-29 WDS delete rejects wrong peer address before side effects
+
+Reviewed actual MacTableDeleteEntry: address comparison occurs after vendor
+notifications/timer cancellation, and the function returns TRUE even when the
+address does not match. MacTableDeleteWDSEntry directly forwards that result.
+Therefore a TRUE result alone cannot authorize WDS slot cleanup.
+
+Extended WDS-only early delete admission to reject null/mismatched pAddr before
+any timer/vendor side effects. Non-WDS behavior preserved. Added pinned,
+receipt-checked prepare-wds-peer-delete-identity.py; latest isolated source is
+wds-delete-identity-20261029, retaining the previous close/removal gates.
+
+Strict optimized host GCC passed both repository helper test and test against
+the generated include: wrong/null address no mutation, active operation refusal,
+exact address admission, missing registration refusal and unchanged non-WDS
+path. Source-order assertions confirm gate before notifications and timers.
+Target MIPS/concurrency/hardware were not tested. Terminal-state validation,
+exact slot reservation spanning age-out, and DMA/TxS retirement remain open.
+No router changes, full build, CI dispatch, commit or push in this continuation.
+
+## 2026-10-29 WDS retirement blocks close and registration release
+
+Added prepare-wds-retirement-close-gate.py and
+check-wds-retirement-close-gate.c. On the isolated slot-allocation predecessor,
+ref begin_close, registry begin_remove/release and auxiliary close reservation
+now reject peer_operation.removing as well as active operations. Refusal is
+before radio-ticket mutation. Latest scratch: wds-retirement-close-gated-20261029.
+
+Actual generated headers passed strict optimized Windows host GCC regression:
+retained removal blocks close without changing radio/registration; idle registry
+cannot begin removal or release; fresh state still permits close. Predecessor
+failed the new assertion at begin_close, establishing regression sensitivity
+(Windows assertion process was stopped after reporting the failure). Existing
+interface-registry and auxiliary close-claim tests also passed on new headers.
+
+Age-out acquisition/release is still unbound. This is not DMA/TxS quiescence,
+MIPS build, concurrency proof or production integration. Next reserve exact
+registration/slot identity across peer delete and WDS table cleanup; review
+lock ordering and other configuration writers. No router changes, build/CI
+dispatch or publication in this continuation. Published HEAD remains 81122cd.
+
+## 2026-10-29 WDS slot allocator observes runtime retirement fences
+
+Added wds-slot-allocation-gate.inc and receipt-authenticated preparer. Actual
+WdsEntryAlloc now checks published device/generation/family and registration /
+peer_operation removing flags under transition lock while holding WdsTabLock,
+before Valid/PeerWdsAddr/Size mutation. Pre-netdev configuration allocation
+remains allowed. Latest scratch wds-slot-allocation-gated-20261029.
+
+Extracted complete allocator strict optimized C11 test passed pre-netdev
+configuration, registration-removing refusal, peer-retiring refusal, normal
+runtime allocation and same-address existing-slot lookup without Size increase.
+No lock leak and refusal leaves table unchanged. Kernel/up-check/types injected;
+not target or concurrency proof. WdsTabLock -> transition edge added; global
+reverse-lock review remains required before integration.
+
+Age-out has not yet acquired peer_operation.removing across delete/table-cleanup;
+this gate provides the allocator half only. Next bind temporary retirement
+reservation to exact registration/slot identity and clear only after ownership
+continuation; never infer DMA/TxS retirement from this flag. Other config-table
+writers remain to cover. No router/build/CI dispatch/commit/push. diff check passed.
+
+
+## 2026-10-29 lazy WDS age-out preserves config on peer refusal
+
+Added prepare-wds-maintenance-refusal.py from exact peer-delete-gated input.
+Lazy age-out now snapshots WCID/MAC locally, invokes MAC peer deletion first,
+and clears WDS table only if deletion reports success. Previous unconditional
+WdsEntryDel before refused deletion was inconsistent with active-operation gate.
+Latest scratch wds-maintenance-refusal-20261029, not production/full-chain.
+
+Extracted actual sequence strict optimized C11 test passed refusal with no
+WDS cleanup, success with one cleanup using saved address even after injected
+peer deletion clears original address. Actual peer/table functions injected;
+no atomicity/concurrency proof. Snapshot itself is still outside a complete
+WDS+MAC ownership transaction; reallocation between accepted deletion and
+WDS-table cleanup can target a new same-address link. Must gate that reuse
+before calling age-out race solved. Another configuration parser WdsEntryDel
+call remains to review separately.
+
+Next exact identity reservation spanning age-out and WDS slot reuse, callback/
+queue/DMA/TxS retirement and retained-netdev completion. No router/build/CI,
+commit/push. git diff --check passed.
+
+
+## 2026-10-29 peer deletion refuses active WDS transaction
+
+Added wds-peer-delete-gate.inc and exact-pinned prepare-wds-peer-delete-gate.py.
+Latest isolated wds-peer-delete-gated-20261029 inserts gate under MacTabLock
+immediately after peer selection, before notification/vendor/timer mutations.
+WDS requires a current published registration by exact wdev/netdev identity
+and nonzero generation with no active peer operation. Failure releases MAC
+lock; non-WDS path unchanged. Transition check nested MAC -> transition, no
+wait. Full reverse-lock audit still required.
+
+Strict optimized C11 check-wds-peer-delete-gate.c passed active refusal with
+no mutation, inactive acceptance, absent generation/null wdev fail-closed,
+and non-WDS preservation. Source ordering assertion passed gate before
+BAND_STEERING side effects and RTMPCancelTimer. Injected state/locks, not full
+vendor deletion or real concurrency. Deferred retry responsibility remains.
+
+Important remaining pre-call mutation: lazy WdsTableMaintenance calls WdsEntryDel
+before MacTableDeleteWDSEntry, clearing WDS Valid/address/table size before the
+new peer gate can refuse. Need gate/transaction ownership across that earlier
+WDS-table mutation as well; do not claim all age-out races resolved. Callback/
+DMA/TxS retirement/reaper, adapter lifetime and target acceptance remain open.
+No router/build/CI dispatch/commit/push. diff --check passed.
+
+
+## 2026-10-29 actual moved WDS rate helper checked across modes
+
+Added prepare-wds-finish-peer-check.py extracting complete moved finish helper.
+Strict optimized C11 compile/run passed base and DOT11_N_SUPPORT+DOT11_VHT_AC
+variants. Checks mode0 compatibility no update, NULL refusal, mode1 MCS-only
+without changing SupportRateMode, and mode2 expected CCK/OFDM/HT/unspecified/
+unknown PhyMode values for 2G-capable and other bands. Actual vendor MCS call
+is injected/counted; real rate negotiation/RF and target ABI not tested.
+This supersedes only the previous missing mode0/mode1 finish control-flow
+coverage, not hardware acceptance. Tests use valid index and pinned adapter.
+
+Next close successful returned-entry race against MacTableDeleteEntry: WDS
+maintenance can delete a peer independently of netdev close/remove, so the
+registry outer counter must also gate that peer-deletion admission under the
+reviewed MAC -> transition order before any timer/hardware mutation. Then
+callback/queue/DMA/TxS retirement and retained-netdev completion remain open.
+No router/build/CI dispatch/commit/push. git diff --check passed.
+
+
+## 2026-10-29 RX/configured caller MCS tails moved into counted transaction
+
+Added prepare-wds-caller-transaction.py from receipt-authenticated caller-refusal
+source. RX uses finish mode1 (MCS only), configured-link loop mode2 (MCS and
+existing rate-mode switch); public 3-argument insertion compatibility wrapper
+uses mode0. Common internal transaction runs finish helper before peer/radio
+leave and netdev put. NULL guards remain at caller boundaries. Latest scratch:
+wds-caller-transaction-20261029; not integrated into full chain/production.
+
+Source assertions pass no MCS call remains in either caller and configured
+rate switch moved byte-for-byte. Extracted actual transaction with injected
+finish/vendor body compiled/executed strict optimized C11: mode2 finishing
+observes both counters and netdev ref held, no short lock held; NULL body does
+not invoke finish; prior gate/refusal checks remain passing. Real moved MCS/
+rate code and mode1/mode0 runtime not compiled/executed by this fixture. No
+claim full WDS function/target build.
+
+Returned peer pointer use beyond these MCS tails, concurrent peer deletion/
+reassociation, adapter pinning and retained-netdev final reaper remain open.
+Need actual peer-generation ownership and callback/DMA/TxS drain before free.
+No router/build/CI dispatch/commit/push. git diff --check passed.
+
+
+## 2026-10-29 both direct WDS callers handle refused insertion
+
+Caller audit found FindWdsEntry and AsicUpdateWdsRxWCIDTable continue into
+RTMPSetSupportMCS after MacTableInsertWDSEntry returns NULL; configured path
+also directly writes pEntry->SupportRateMode. Added exact-pinned
+prepare-wds-caller-refusal.py: RX returns NULL before updates; configured-link
+loop continues, preserving eligibility of later links. Latest scratch
+wds-caller-refusal-20261029. This is necessary with new legitimate admission
+refusals and does not solve successful returned-entry lifetime.
+
+Source-order assertions and extracted guard fixture strict optimized C11
+compile/run passed: NULL RX no update, non-NULL RX update, failed configured
+link skipped while next eligible link updates. Actual rate/hardware functions
+injected; full caller functions/target not compiled. Need move or cover
+successful MCS/rate tail under operation ownership before claiming full race
+closure. No router/build/CI dispatch/commit/push. diff --check passed.
+
+
+## 2026-10-29 WDS outer wrapper holds explicit Linux netdev reference
+
+Extended outer-operation preparer with dev_hold under transition lock only
+after registration/radio admission succeeds, and dev_put after all adapter
+access/wakeup on structured exit. Existing Linux source already uses these
+APIs; this new common-file use still requires target compile/OS scope review.
+Latest isolated source wds-netdev-operation-20261029, not full-chain rebuild.
+
+Repeatable extracted wrapper strict optimized C11 test passes one reference
+held through vendor body, balanced hold/put on success and NULL body, no hold
+when radio/registry admission refuses. dev_hold/put mocked; no kernel lifetime
+or memory-order proof. Adapter lifetime is not implied by child-netdev reference;
+PCI/module ownership needs independent verification before acceptance.
+
+Caller inventory: two direct insertion callers in ap_wds.c, RX FindWdsEntry
+and configured-link creation. Configured-link creation performs additional
+peer/rate-field writes after MacTableInsertWDSEntry returns; the current wrapper
+count does not span that caller tail. Returned raw MAC entry likewise lacks
+association-generation lease. Next extend ownership to actual caller transaction
+and check adapter teardown while those returned pointers remain in use.
+No router/build/CI dispatch/commit/push. git diff --check passed.
+
+
+## 2026-10-29 WDS outer hardware work also holds shared radio activity
+
+Extended outer-operation preparer: after exact registration enter, acquire
+existing wr_iot_radio_tx_enter under same transition lock. Refusal rolls back
+only the newly acquired peer count and never invokes vendor body. Normal
+structured leave decrements radio count only after matching peer leave succeeds;
+identity failure conservatively retains radio activity. Latest isolated output:
+wds-radio-operation-20261029. This is activity admission, not a netdev/module
+reference or proof of pending DMA completion.
+
+Updated repeatable outer fixture to real candidate radio-transition header.
+Strict optimized C11 extracted-wrapper compile/run passed: active outer body
+blocks requested PSE reset admission; already busy radio refuses body and
+restores peer count; success/NULL body release both counters and wake waiters.
+Reset request in mock body is a simulated interleaving restored by fixture,
+not a runtime reset. Initial extractor assumed one peer leave and refused new
+rollback branch; now asserts two reviewed leave sites plus one radio enter/leave.
+
+Chain16 prior manifest remains historical; updated final stage run separately,
+full 16-stage rebuild not repeated. Remaining lifetime pin/bypass-path audit,
+retained WDS reaper, callback/queue/DMA/TxS retirement and target/device gates
+remain open. No router/build/CI dispatch/commit/push. diff --check passed.
+
+
+## 2026-10-29 sixteen-stage source composition and shared-header regression
+
+Extended peer-retirement-chain.py with retained WDS owner, peer fence and whole
+outer-operation binding. Rebuilt all 16 stages from pinned full-driver-overlay4
+successfully: peer-retirement-chain16-20261029/wds-outer; final manifest records
+all source hashes. Added reusable prepare-wds-outer-operation-check.py with
+local test template; extracts actual wrapper, no vendor internal body copied.
+
+Against final candidate: strict optimized C11 outer wrapper and peer-ready
+publication tests passed. Copied existing registry and auxiliary-close tests
+to scratch to ensure candidate headers (not source-directory old headers) used.
+New nested operation state exposed {{0}} missing-braces under -Werror; changed
+those test zero initializers to {0}, then both registry and aux-close suites
+passed. This is host regression evidence, not target/module/device acceptance.
+Full old aggregate runner is not compatible with retained WDS remove witness;
+do not claim it ran on chain16. Four specific checks ran this turn.
+
+Next actual retained-netdev completion/reaper and all WDS writer/lifetime paths;
+peer hardware partial recovery and old DMA/TxS drain remain open. Adapter reset
+must not erase operation state while active. No production/router/build/CI
+or commit/push changes. git diff --check passed.
+
+
+## 2026-10-29 active WDS peer operation fences auxiliary close
+
+Extended outer-operation preparer: insertion requires registry OWNED state;
+wr_iot_ref_begin_close refuses active peer_operation, and aux_close_reserve
+checks active count before radio ticket admission. All changed input headers
+now pinned, including aux-close-claim. Latest scratch:
+wds-outer-close-fenced-20261029. No source chain/production installation.
+
+Re-extracted actual new outer wrapper and compiled/executed against modified
+candidate headers successfully (prior preliminary fixture used old wrapper,
+superseded by actual-check). Dedicated aux-close fixture passes active-operation
+refusal with unchanged radio serial/busy and OWNED phase, followed by successful
+close reserve after leave. Strict optimized C11; kernel/concurrency mocked.
+WDS close wrapper currently supports non-last auxiliary close; last-close
+physical ownership and whole adapter reset/PM/module lifetime remain separate.
+
+Next inventory bypass writers and bind resumable retained-netdev retirement;
+callback/vendor queue and DMA/TxS drain still unproved. No claim of final WDS
+or IoT acceptance. No router/build/CI dispatch/commit/push. diff --check passed.
+
+
+## 2026-10-29 whole WDS insertion wrapper bound to registration operation count
+
+Added prepare-wds-outer-operation.py from exact wds-peer-fenced source. It
+embeds peer_operation in each registry reference with fresh initialization,
+refuses begin_remove/release while active, and wraps the entire original
+MacTableInsertWDSEntry body (renamed static) with one enter/leave cleanup path.
+Registry/device/generation/family and PM/removal checked under transition lock.
+All original internal early returns now flow back through outer leave. Source:
+wds-outer-operation-20261029; not integrated into chain13/production.
+
+Extracted actual wrapper compiled/executed strict optimized C11 using modified
+candidate registry headers: success and NULL body return both release active
+count/wake; simulated removal/release during body refused without mutation;
+post-removal and invalid-index calls do not enter body. Internal vendor body
+and kernel primitives injected; no real concurrent execution or target proof.
+
+This closes the modeled outer-tail admission gap through the reviewed wrapper,
+not every path globally. Need full caller/module/adapter pin audit, all bypass
+writers, callback/vendor packet quiescence and retained-netdev reaper. Count
+leave errors retain ownership but currently lack explicit recovery diagnostics;
+no claim of automatic eventual cleanup. Source receipt covers changed source,
+helper copied locally; target compile and firmware/runtime acceptance open.
+No router/build/CI dispatch/commit/push. git diff --check passed.
+
+
+## 2026-10-29 per-registration WDS operation counter contract staged
+
+Added wds-peer-operation.h and strict host check-wds-peer-operation.c. State
+tracks exact device/generation, active outer operations and removal admission.
+Tests pass nested operations, active-operation removal refusal without marking,
+wrong generation/device release refusal, zero-count underflow refusal,
+post-removal entry refusal and unsigned overflow refusal. This is a sequential
+candidate contract, not installed in registry or vendor wrapper yet.
+Caller owns exactly one enter/leave pair; counter is not a unique per-operation
+token and cannot detect duplicate leave while other operations remain. Wrapper
+must have one structured cleanup path. Fresh init is only permitted quiescent.
+
+Dedicated per-registration count avoids coupling WDS removal to unrelated
+Wi-Fi TX. Next embed state in registration with explicit fresh initialization,
+wrap entire MacTableInsertWDSEntry (including lookup return and setup tail),
+and atomically share removal admission under transition lock. Adapter/netdev
+lifetime pin and global lock order require binding proof. Full WDS retirement,
+peer DMA/TxS completion and target/runtime acceptance remain open.
+No router/build/CI dispatch/commit/push. git diff --check passed.
+
+
+## 2026-10-29 WDS common insertion/removal gate bound in isolated source
+
+Added wds-insertion-gate.inc and prepare-wds-peer-fence.py. On retained-owner
+scratch, common MacTableInsertEntry checks WDS published exact-generation
+registry identity/removing/PM/retirement under transition lock while already
+holding MacTabLock. WDS_Remove marks removal first, drops transition lock,
+then invokes exact-wdev current peer closure before kernel close/detach.
+Source staged as wds-peer-fenced-20261029, not chain13/production.
+
+Strict host check-wds-insertion-gate.c passed ordinary admission, removal mark
+before check, already removing, PM/retiring, missing generation/wrong family,
+and unchanged non-WDS behavior. Existing exact-wdev closure test reran passed.
+Locks injected/sequential scheduling; full global lock-order audit still open.
+
+Important incomplete transaction: MacTableInsertWDSEntry continues configuring
+peer state and MacTabMatchWCID after common insertion returns, outside the common
+MAC lock. New common gate does not cover this tail. Next use outer WDS operation
+ownership/inflight tracking spanning the full wrapper and removal wait/refusal;
+otherwise outer tail can race retirement. Do not call the insertion/removal race
+fully closed, and do not free retained netdev. Callback/vendor queue retirement,
+completion drain and reaper remain open. No router/build/CI/commit/push.
+
+
+## 2026-10-29 exact-wdev WDS queue admission helper checked
+
+WDS stores MacTabMatchWCID, but stale/zero index cannot safely identify a peer
+for cleanup. Added candidate wds-peer-admission.inc scanning current MAC entries
+by exact embedded wdev pointer under MacTabLock; validates every matching
+nonempty entry is WDS with matching WCID/in-range TR before any mutation.
+Then closes only those enq/deq caps under irq_lock, preserving existing MAC ->
+IRQ order. This helper is not bound to removal/insertion yet: new WDS insertion
+must first be excluded, and no callback/DMA completion join is claimed.
+
+check-wds-peer-admission.c strict optimized C11 compile/run passed exact peer
+selection, unrelated main/other wdev and slot0 preservation, wrong family,
+mismatched WCID, TR out-of-range and NULL refusal without partial mutation.
+Locks and structures injected, no target concurrency proof. Caller must pin
+adapter/wdev and not hold these locks. Zero slot is never selected for mutation.
+
+Next bind insertion admission to registry removal under a proven lock order,
+then use helper before WDS vendor/queue retirement and actual completion drain.
+Do not treat cap closure as ownership/reuse proof. No production/router/build,
+CI dispatch, commit or push. git diff --check passed.
+
+
+## 2026-10-29 retained WDS failure propagates to parent exit
+
+Source trace on wds-detached-owner successor confirms WDS_Remove failure ->
+AP ioctl return failure -> RT28xx_WDS_Remove -> RtmpPhyNetDevExit FALSE.
+PCI remove directly returns when RtmpPhyNetDevExit refuses, before later
+adapter/CSR/root-netdev release operations. This is retention, not eventual
+cleanup: parent remove remains incomplete until child reaper can finish.
+
+Added prepare-child-remove-propagation-check.py extracting whole parent exit.
+Strict optimized C11 fixture passed failure at each APCLI/WDS/MBSS/monitor
+child: later children and main detach are skipped, transition lock released.
+Success reaches all four children and main detach. Child functions/kernel
+primitives are injected; PCI and ioctl propagation checked by exact source
+assertions, not full PCI execution. No claim of module-unload lifetime proof.
+
+Next resumable stage1 WDS completion with real callback/vendor quiescence;
+retain adapter ownership through the whole continuation. Current retained
+candidate intentionally cannot complete removal and is not production.
+No router, firmware/CI dispatch, commit/push. git diff --check passed.
+
+
+## 2026-10-29 WDS post-unregister allocation retained in isolated candidate
+
+Added prepare-wds-detached-owner.py from exact chain13 WDS source. After actual
+detach it records registry_after_unregister under transition lock, retaining
+netdev allocation and vendor registration instead of freeing while registry
+still publishes identity. Returns failure until a real callback join/reaper
+is bound. Existing mark-removing admission rejects a second detach/unregister.
+Latest scratch wds-detached-owner-20261029; this is an incomplete ownership
+stage, not a working final WDS removal and not integrated into chain13.
+
+Extracted new WDS_Remove with injected kernel primitives passed strict C11:
+one detach, stage1 retained, no vendor unreg/free, second invocation no repeat
+detach/close, close failure no detach/free. First fixture lacked nonzero registry
+generation and assertion failed (correct refusal); corrected fixture generation
+then passed. Mark-removing behavior is mocked to match current refusal rule;
+no claim of full kernel callback proof. Standalone fixture not shared runner.
+
+Next bind callback/vendor/queued-packet quiescence and finish retirement before
+netdev free; add resumable completion owner, adapter lifetime retention and
+partial multi-entry removal handling. Returning failure alone is not completion
+or eventual cleanup. No production/router/build/CI/commit/push.
+
+
+## 2026-10-29 WDS checks rerun on thirteen-stage final candidate
+
+Extracted WDS checked-close and WDS_Remove from chain13 hardware-delete and
+compiled/executed strict optimized C11 with current host helpers. Checked close
+passes same-ticket retry/post-DOWN completion; remove passes refusal retention
+and its existing known-defect witness. That witness confirms registry still
+holds a published freed device identity after simulated success; this is not
+accepted lifecycle behavior. No attempt to manufacture callback/drain proofs.
+
+Added both checks to shared hardware-chain runner, with lifecycle_accepted=false,
+explicit known_open_issues and per-test known_unsafe_retirement_witness flag.
+Full expanded runner not rerun here; two WDS fixtures ran independently and
+prior 14-test report plus separate layout evidence retain their stated scope.
+Next implement real post-unregister registry retirement with callback/vendor
+quiescence before freeing device, and peer retention/completion protocol.
+No production/router/build/CI dispatch/commit/push. git diff --check passed.
+
+
+## 2026-10-29 actual vendor WTBL address layout checked on host
+
+Added prepare-wtbl-address-layout-check.py extracting real wf_wtblon.h DW0/DW1
+unions rather than synthetic fixture layout. Strict optimized C11 compile/run
+passed sizeof=4, address bytes4/5 at low16, all 16 address bits visible, all
+higher bits excluded, and DW1 full32 address representation. rv/rc_a2 flags do
+not pollute the address mask. This is little-endian host compiler evidence,
+not MIPS ABI or big-endian verification. Added this fixture to shared runner;
+new layout test ran individually, full updated 15-variant runner not rerun.
+
+Periodic CMDTHREAD_MLME_PERIOIDC_EXEC invokes reset drain only under MT7603 +
+DMA_RESET_SUPPORT. That is a candidate recovery execution point, not a peer
+completion/reuse certificate; RTNL trylock refusal must retain requests and
+adapter lifetime must outlive queued work. No direct reset under MacTabLock.
+Next derive retained peer ownership and completion drain before insertion
+binding. Existing 13-stage source and 14-test report remain valid for prior
+scope; production/target/runtime remain open. No router/build/CI/commit/push.
+
+
+## 2026-10-29 thirteen-stage candidate reproduced; fourteen host checks pass
+
+Extended prepare-peer-retirement-chain.py to include invalid-BSS unlock,
+WTBL setup status/refusal, caller-ready publication, checked hardware add and
+checked bounded deletion/address readback. Rebuilt all 13 stages from pinned
+full-driver-overlay4 into peer-retirement-chain13-20261029/hardware-delete;
+peer-chain.json records script and final file hashes. Layout guard executed.
+
+Added check-peer-hardware-chain.py, running extracted fixtures against one
+final candidate. Fourteen strict optimized C11 host variants passed; report
+.iot-local-check/peer-hardware-chain13-checks2-20261029/result.json includes
+flags and fixture hashes. Covers peer-ready, full delete, hardware preflight,
+timeout, deletion admission, EOSP, UAPSD, reset and dequeue variants.
+First run stopped at the reset extractor's obsolete VOID setup boundary;
+updated it to accept exactly one reviewed VOID or BOOLEAN declaration, reran
+whole suite successfully. Failure results are retained; runner initializes
+passed=false and only marks true after every test succeeds.
+
+This is reproducible source/host composition, not whole driver/target compile.
+WDS wrapper/removal tests not in this 14-test batch. Hardware checked functions
+are not bound to insertion or retained-peer recovery; old-completion identity,
+DMA/TxS drain, APCLI/monitor composition and release/image/device gates remain
+open. Next explicit recovery ownership and exact bind before target build.
+No router, firmware/CI dispatch, commit or push. git diff --check passed.
+
+
+## 2026-10-29 checked deletion verifies zero peer address by readback
+
+Extended prepare-wcid-delete-result.py with end-of-entry MMIO readback before
+IndirectUpdateLock release: DW0 low16 (address bytes4/5) and DW1 (bytes0..3)
+must be zero; residual address returns PARTIAL with lock release. Reviewed
+wf_wtblon.h endian declarations and added layout-shape refusal in preparer.
+Mask does not compare mutable status/flags. Latest isolated successor is
+wcid-delete-readback-20261029. This intentionally strengthens prior bounded
+candidate; whole-source reconstruction claim no longer applies.
+
+Updated whole deletion fixture with independent corruption of either address
+word. Strict optimized C11 PCI+MT_PS and base variants passed all prior timeout,
+range/ALL and lookup cases plus both readback mismatches -> PARTIAL, balanced
+locks. Synthetic MMIO/layout, not actual WTBL hardware or target ABI proof.
+The layout-shape guard added after successful generation was syntax-reviewed;
+it has not been exercised by regenerating the entire source in this turn.
+
+Address-clear readback is only one retirement condition: keys/BA state, queued
+packets, in-flight DMA and delayed TxS/completion identity remain independent.
+Do not release partial WCID or call IoT accepted based on these tests.
+Next bind retention/recovery and verified old-completion drain. No router,
+build/CI dispatch, commit/push. git diff --check passed.
+
+
+## 2026-10-29 bounded deletion prevents WTBL helper aliasing
+
+mt_wtbl_get_entry234 only calculates addresses and silently clamps out-of-range
+widx to the final WTBL entry; it does not read hardware contents. Checked
+deletion now refuses an empty table/invalid individual WCID before lookup and
+bounds WCID_ALL to actual UINT8 table count. Latest scratch:
+wcid-delete-bounded-20261029. This intentionally changes legacy wrapper behavior
+for invalid input/ALL beyond physical table, eliminating repeated aliased writes;
+previous blanket preservation/reconstruction claim is historical, not this stage.
+
+Updated full deletion fixture and ran strict optimized C11 PCI+MT_PS and base
+variants successfully. Includes prior failure injections, four-entry ALL bound,
+invalid individual and zero-table no-lookup/no-write refusals, and maximum
+255-entry ALL termination (765 commands). Synthetic layout/MMIO; no target proof.
+
+Deletion zero-initializes its local WTBL words; address helper fills locations,
+not previous contents. No direct peer-address readback is currently performed.
+Next verified address-clear readback under established ownership plus old
+completion drain; command completion alone must not release retained WCID.
+No router/build/CI dispatch/commit/push. git diff --check passed.
+
+
+## 2026-10-29 whole checked deletion failure injection passes on host
+
+Added prepare-wcid-delete-check.py extracting the complete checked deletion
+function, not just timeout tails. Synthetic MMIO, WTBL lookup and register
+layout permit strict host compilation; this is not target layout/ABI evidence.
+Tests passed with PCI+MT_PS and without both: lookup failure before writes ->
+NOT_WRITTEN; each of three poll-command timeouts -> PARTIAL with 100 delays;
+single-entry success; WCID_ALL second lookup failure after first entry writes
+-> PARTIAL; all 255 entries success with 765 command submissions. PCI acquire/
+release balance verified. No real register-readback or DMA/TxS drain claimed.
+
+Initial fixture helper triggered misleading-indentation under -Werror;
+braces corrected, then both strict optimized C11 variants compile/run passed.
+Final fixture is reproducible from candidate using the new generator. These
+checks strengthen failure-control-flow evidence but do not authorize releasing
+WCID after partial hardware state or after successful command polling alone.
+
+Next retain ownership until verified hardware clear plus old completion drain,
+and bind asynchronous recovery with adapter pin/retirement discipline. Target
+compilation and device acceptance remain open. No router/build/CI dispatch,
+commit or push. git diff --check passed.
+
+
+## 2026-10-29 checked hardware deletion result staged
+
+AsicDelWcidTab also has VOID early returns: WTBL lookup failure plus three
+post-write busy timeouts. Added exact-pinned prepare-wcid-delete-result.py,
+staging wcid-delete-result-20261029. INT wr_iot_delete_wcid_checked returns
+NOT_WRITTEN until first register write, PARTIAL after any write, APPLIED after
+existing loops complete. The wrote flag is outside the WCID_ALL loop, so a
+later entry lookup failure cannot hide earlier writes. Legacy VOID wrapper
+is retained and the declaration is within existing MT guard.
+
+Structural checks passed four result returns and flag-before-first-write;
+undoing result conversion/flag instrumentation exactly reconstructs the original
+complete deletion function. No target C compile or MMIO/driver test performed.
+Existing register, lock and bounded polling operations are unchanged. APPLIED
+is not hardware readback, DMA/TxS drain or permission to reuse a peer slot.
+The original WCID_ALL semantics are preserved, not newly validated.
+
+Next full-function failure-injection and verified clear/drain boundary before
+binding recovery to peer reuse. No insertion recovery binding or production
+installation yet; no router/build/CI dispatch/commit/push.
+
+
+## 2026-10-29 reset owner cannot yet release partial WCID
+
+Reviewed reset-admission.inc: wr_iot_radio_reset_drain uses rtnl_trylock,
+transition ticket and raw PSE/PDMA call, then finish_unverified. Raw VOID return
+is explicitly not hardware success. Existing main-open recovery owner owns a
+netdev close/open ticket and module pin, not a peer WCID. Neither is currently
+a WCID reuse/drain certificate. Never call reset-drain while holding MacTabLock:
+this would add RTNL acquisition inside the MAC lock and can perform long reset.
+A peer failure hook must only queue an owned request after exact lock/lifetime
+review; software pending bit alone does not establish eventual recovery.
+
+Reran strict optimized C11 check-radio-transition.c successfully; sequential
+reset/readiness model remains fail-closed. This does not test real reset/WCID
+hardware. Added prepare-wcid-preflight-check.py to replace prior ad-hoc fixture;
+actual header UINT8[4] and USHORT widths are checked. Extracted preflight GCC
+compile/run passed unavailable table/out-of-range refusals and valid indices.
+
+Next derive explicit per-peer retention plus asynchronous adapter recovery
+binding with pinning and a verified hardware-clear/completion-drain boundary.
+Do not clear retained WCIDs on finish_unverified. Full implementation/target
+build/runtime remains open. No router, CI/build dispatch, commit/push.
+
+
+## 2026-10-29 four hardware timeout branches extracted and tested
+
+Added prepare-wcid-timeout-check.py, extracting all four actual poll/timeout
+branches from strict checked WCID candidate. Strict optimized C11 host tests
+passed PCI and non-PCI variants: busy through 100 reads returns PARTIAL with
+100 bounded 50us delay calls; clear on read 100 succeeds with 99 delays;
+clear immediately succeeds with one read. PCI timeout releases IndirectUpdateLock;
+first timeout restarts AC queues after that release. Follow-up PCI fixture
+explicitly checks restart lock state. MMIO/delay/locks injected, no real timing.
+
+Successful extracted block intentionally retains the lock, matching that its
+normal release exists outside the extracted timeout block. These tests do not
+claim full-function transaction ordering or partial hardware cleanup. Other
+three timeouts do not issue AC restart locally because earlier success path
+already restarted queues. Full driver compile and target MMIO acceptance open.
+
+Next bind PARTIAL to an explicit retained WCID/adapter recovery owner before
+insertion integration; never mark partial hardware state reusable based solely
+on these return/lock checks. No router, firmware build, workflow dispatch,
+commit or push. git diff --check passed.
+
+
+## 2026-10-29 checked WCID preflight refuses multicast aliasing
+
+Updated prepare-wcid-hardware-result.py: checked result API now refuses WCID
+outside the available table before register writes. Legacy VOID wrapper alone
+retains historical invalid-index -> MCAST_WCID mapping. Latest isolated output
+wcid-hardware-strict-20261029 supersedes the earlier clamping checked output.
+No insertion binding or PARTIAL recovery owner is claimed.
+
+Extracted actual preflight compiled and passed zero table, boundary index,
+maximum USHORT refusal (no simulated write), and valid first/last entries.
+Initial fixture used incorrect signed int table count and hit -Werror; inspected
+actual rtmp.h UINT8 wtbl_entry_cnt[4], corrected mock to unsigned char[4] and
+WCID to unsigned short, then strict optimized C11 test passed. This tests only
+preflight, not MMIO body/legacy wrapper behavior on hardware. Prior exact whole
+function reconstruction applies only to the earlier mechanical version; strict
+API intentionally differs at index validation. Do not extend old proof.
+No router, build, CI dispatch, commit/push. Next PARTIAL ownership/recovery and
+full-function fixture before binding to insertion.
+
+
+## 2026-10-29 MT WCID checked result candidate preserves legacy wrapper
+
+Inspected all AsicUpdateRxWCIDTable returns: two before any register writes
+(PSE unavailable, WTBL lookup failure), four busy timeouts after partial writes.
+Added prepare-wcid-hardware-result.py; isolated wcid-hardware-result-20261029
+exposes INT wr_iot_update_rx_wcid_checked with NOT_WRITTEN/PARTIAL/APPLIED.
+Legacy VOID AsicUpdateRxWCIDTable wrapper remains and ignores result, preserving
+existing callers. MT-only declaration/constants avoid claiming RLT support.
+Original clamping behavior remains; checked caller must still validate WCID.
+
+Source verification passed: two prewrite and four partial-write returns; undoing
+only mechanical status conversion reproduces the original complete function
+exactly. All existing register, bounded poll, lock release and AC queue restart
+operations are preserved. This is structural verification, not C compilation,
+MMIO success or a hardware test. APPLIED reflects existing observed command
+completion, not WTBL readback, peer lifetime or security installation proof.
+
+Not yet bound to insertion: PARTIAL must retain/recover an owned WCID rather
+than use preallocation rollback/reuse. Other hardware-key errors still return
+VOID. Next implement recovery ownership for partial hardware installation and
+bind statuses with full initialized-resource unwind. No router/build/CI,
+commit or push; production driver unchanged.
+
+
+## 2026-10-29 insertion side-effect path and repeatable publication check
+
+MT PCI RTMP_STA_ENTRY_ADD maps to VOID AsicUpdateRxWCIDTable; MT_ADDREMOVE_KEY
+maps to VOID CmdProcAddRemoveKey. AsicUpdateRxWCIDTable in cmm_asic_mt.c
+returns early if PSE WTBL entry count is zero or mt_wtbl_get_entry234 fails;
+caller cannot distinguish this from success. Therefore the prior TR setup
+BOOLEAN fix does not prove hardware installation succeeds. Do not enable
+acceptance merely because final cap stores run. Hardware WCID status/rollback
+needs its own review across shared callers before changing its ABI.
+
+Optional wf_fwd_add_entry_inform_hook runs before the new publication point;
+no assignment/implementation was found in this driver source. Its external
+contract and effective target feature flags remain unverified. Do not infer
+absence from the driver-only search. MTFWD event also precedes publication.
+
+Added reusable prepare-peer-ready-publication-check.py (previous fixture was
+scratch-only). It validates source ordering and extracts actual final block.
+Strict optimized C11 compile/run passed NULL refusal and two IRQ-held TRUE
+stores. Hardware status/callback behavior deliberately excluded. This check
+is now reproducible without the earlier ad-hoc extraction command.
+No target build, firmware, router, CI dispatch, commit or push. Next examine
+hardware-add return paths and target feature flags, then adapt publication
+and failure unwind together; stale completion identity remains open.
+
+
+## 2026-10-29 caller-ready unicast publication staged and checked
+
+prepare-peer-ready-publication.py pins the fenced WTBL-result input and stages
+peer-ready-publication-20261029. Unicast TR setup explicitly disables caps
+under irq_lock before field writes and no longer publishes TRUE. The insertion
+caller publishes only for non-NULL pEntry at its final MacTabLock-owned point,
+after timers, UAPSD initialization and hash insertion. Multicast publication
+is unchanged. Prepared source has matching BOOLEAN setup prototype from prior
+stage. No claim that disable alone permits safe TR reinitialization.
+
+Source-order assertions pass for timers/UAPSD/hash before publication and no
+TRUE stores in unicast setup. Extracted final block strict optimized C11 host
+test passes NULL/no-publication and non-NULL/two locked TRUE stores with IRQ
+release. This is not full function, kernel lock/concurrency or target proof.
+
+Remaining before accepting this ordering: preceding RTMP_STA_ENTRY_ADD,
+MT_ADDREMOVE_KEY and optional forwarding notification hooks may produce side
+effects/traffic while caps are closed. Audit their contracts before production
+integration. Prior readiness audit assumes VOID signature and is now obsolete
+for this successor; retain it as historical finding witness, not current gate.
+Whole-function setup failure/feature unwind, completion identity/drain, target
+build and runtime acceptance remain open. No router/build/CI/commit/push.
+
+
+## 2026-10-29 WTBL setup result and prepublication refusal staged
+
+prepare-tr-setup-result.py changes the exact-pinned TR function/prototype to
+BOOLEAN, returns FALSE on WTBL failure/out-of-range, TRUE after setup. Sole
+insertion caller checks failure before timer initialization/hash publication.
+An explicit counted-client flag reverses only actual StaCount/EntryClientCount
+increments. Failure disables both caps under irq_lock, marks TR/MAC NONE,
+releases MacTabLock and returns NULL. No normal deletion/free of uninitialized
+queue locks/timers or borrowed APCLI pointers is attempted.
+
+Latest scratch tr-setup-result-fenced-20261029 supersedes unfenced first output.
+Extracted failure branch strict C11 optimized host test passes count rollback,
+non-counted refusal, success continuation, one MAC unlock and IRQ-held FALSE
+stores clearing prior TRUE caps. Earlier unfenced branch also passed AP/noAP
+variants; final fenced variant was checked with CONFIG_AP_SUPPORT only.
+Source assertions confirm WTBL failure precedes queue-lock allocations.
+This is not full-function compile, target ABI or full-resource lifetime proof.
+
+UAPSD initialization/publication order, stale completion/reuse ownership,
+feature-specific borrowed references and full insertion unwind still need
+review; final driver/image/device acceptance remains open. No router, firmware
+build, workflow dispatch or new commit/push. Next move publication to the
+actual caller-ready boundary and verify setup failure with whole-function
+fixtures before integration.
+
+
+## 2026-10-29 invalid-BSS insertion lock leak repaired in candidate
+
+WTBL unwind review found another concrete early-return defect: ENTRY_CLIENT
+insertion holds MacTabLock but func_tb_idx >= HW_BEACON_MAX_NUM returns NULL
+without releasing it. Added exact-pinned prepare-insertion-bss-unlock.py;
+isolated insertion-bss-unlock-20261029 now releases the lock on that refusal.
+Extracted actual branch compiled with strict optimized C11 and passed invalid
+index (one unlock, NULL) and valid index (lock retained, entry returned).
+This is a branch fixture, not complete insertion or hardware validation.
+
+Before WTBL setup, client StaCount/EntryClientCount have already incremented;
+APCLI feature branches may copy key/cache/ECDH pointers. Do not perform generic
+MacTableDeleteEntry on WTBL failure: TR queue locks and timers are not yet
+initialized. Next design exact prepublication unwind, decrement only actually
+incremented counters and distinguish borrowed pointers. WTBL status propagation,
+UAPSD-before-publication, callback/reuse identity remain open.
+No firmware/target build, CI dispatch, production/router change, commit/push.
+
+
+## 2026-10-29 full eight-stage composition verified; insertion not ready
+
+Rebuilt prepare-peer-retirement-chain.py from full-driver-overlay4 into
+.iot-local-check/peer-retirement-chain8-20261029/publication. All eight source
+stages completed and the final manifest was written. Nine extracted strict
+C11 optimized host variants passed on that final output: publication, delete
+with/without UAPSD, EOSP, reset with/without reserve, UAPSD insertion, dequeue
+base/combined features. checks/result.json records actual host evidence.
+
+Added audit-tr-insertion-readiness.py. --require-ready correctly exits 1 for
+the current candidate, with two concrete source findings: WTBL lookup failure
+returns from VOID tr_tb_set_entry before queue initialization while insertion
+continues without a status; caller UAPSD_MR_ENTRY_INIT follows the callee's TR
+publication. Thus previous final-TR-field ordering fix is partial, not complete
+MAC/peer readiness. The audit deliberately never grants readiness; it is a
+bounded finding recorder, not a complete acceptance verifier.
+
+Next propagate setup failure with exact resource unwind and defer enable until
+required caller initialization completes; account for feature-conditional
+pre-insertion resources before clearing/reusing any entry. Then continue actual
+completion identity/drain. No target build/device/production acceptance and no
+new commit/push, firmware build or router changes.
+
+
+## 2026-10-29 CI 637 green; final TR publication candidate checked
+
+GitHub reads confirm commit 88938ffed3db5bbe6fdd7363213322467c833a6d:
+firmware #637 run 40915970985 success; ABI 40915970699 success; service checks
+40915960152 success. These use committed sources, not the dirty local peer
+chain or the new publication candidate. No final artifact/device acceptance
+was performed in this turn.
+
+Added prepare-tr-capability-publication.py with exact mgmt_entrytb.c input
+hash. In isolated tr-publication-20261029 it moves both unicast/multicast TRUE
+caps to the end of TR setup after bssid/queue/lock/counter initialization,
+using WRITE_ONCE under irq_lock. Moves DATA_QUEUE_RESERVE initial values into
+unicast TR setup and removes duplicate writes in its insertion caller.
+prepare-tr-capability-publication-check.py verifies source order and extracts
+both real final publication blocks: strict optimized C11 compile/run passed
+IRQ-held stores and balanced unlock. This is not full-function/target or
+concurrency acceptance. TR reinitialization ownership and WTBL-failure unwind
+remain unproved; no claim that all MAC entry initialization is now complete.
+
+The peer chain preparer now lists this as eighth stage, but that updated full
+chain was not rerun here; the standalone eighth stage was run on the verified
+seven-stage final output. Next integrate submission/completion generation or
+verified drain and target-active ownership, retaining lock order. No router,
+firmware build, CI dispatch, commit/push after the checkpoint publication.
+
+
+## 2026-10-29 DMA packet ownership inventory and lock-order constraint
+
+Added audit-peer-dma-ownership.py and ran against the composed peer candidate.
+Local peer-dma-ownership-reviewed-20261029.json records 76 lexical slot writes
+in six C files (42 primary, 34 secondary; 63 NULL stores), with source hashes,
+paths and line numbers. Equality comparisons are excluded. Counts include RX,
+comments/inactive feature branches; they are coverage leads, not 76 active
+transmit sites. No vendor source text is embedded in the report.
+
+MT branch of RTMPHandleTxRingDmaDoneInterrupt calls RTMPFreeTXDUponTxDmaDone
+with irq_lock held; that completion invokes UAPSD_SP_PacketCheck. Deletion
+already takes MacTabLock -> irq_lock. Therefore a naive completion change
+acquiring MacTabLock would invert this order. RTMP_DMACB has both pNdisPacket
+and pNextNdisPacket: any generation metadata must cover both, every write/clear,
+reset cleanup and management paths. DMA identity is not proof of later hardware
+TxS/FIFO report identity. Current code adds no such metadata yet.
+
+Next derive target-active submission/recycle sites from this pinned inventory,
+then implement a generation or verified drain protocol without reverse nested
+locks. TRUE capability publication, failed deletion recovery and remaining
+auxiliary families/target image/device checks remain open. No firmware build,
+CI dispatch, router changes, commit or push. git diff --check passed.
+
+
+## 2026-10-29 seven peer-retirement stages composed and tested together
+
+Added prepare-peer-retirement-chain.py. From the full-driver-overlay4 input it
+reproducibly stages WDS reconciliation -> dequeue -> PS -> UAPSD -> reset
+writer -> deletion join -> three EOSP rejection fixes. Every child preparer
+retains its exact input checks. Successful workspace:
+.iot-local-check/peer-retirement-chain-20261029, final candidate eosp/.
+peer-chain.json records scripts and SHA256 of every final file. This remains
+local vendor scratch, not publishable source or an accepted production merge.
+
+Eight strict optimized C11 host variants passed against extracted final-source
+blocks: deletion admission with/without UAPSD, three EOSP rejection tails,
+reset with/without DATA_QUEUE_RESERVE, UAPSD insertion, dequeue base and
+MAX_CONTINUOUS_TX_CNT+DATA_QUEUE_RESERVE+MT_PS. Results in checks/result.json.
+Initial dequeue compile lacked the helper include path; corrected test command
+uses -Itools/iot, then all eight compile/run checks passed. No target compile.
+WDS source preparation passed, but its full wrapper/removal checks were not
+rerun in this batch; do not extend the eight-test claim to WDS runtime.
+
+RTMP_DMACB has pNdisPacket/pNextNdisPacket software ownership slots, a possible
+place for per-submission identity without guessing spare skb CB bytes. Actual
+submission/recycle/second-packet paths and MT completion support still need
+review before adding metadata. TR TRUE publication and late-completion/reuse,
+APCLI/monitor and remaining driver merge/image/runtime gates are open.
+No firmware build, CI dispatch, production install, router change, commit/push.
+
+
+## 2026-10-29 late-completion identity gap reproduced with extracted lookup
+
+Added prepare-uapsd-lookup-reuse-check.py, extracting the actual vendor
+MacTableLookup from the current EOSP successor. Optimized strict C11 GCC
+compile/run passed a witness: a saved pointer observes a reallocated slot,
+and a fresh delayed lookup by the old MAC address resolves the replacement
+association. Generation is an injected test field only, not a driver feature.
+This models the problematic interleaving; it is not on-device reproduction.
+
+Source chain: common/cmm_data_pci.c passes DMA packet/frame data into
+UAPSD_SP_PacketCheck and UAPSD_QoSNullTxMgmtTxDoneHandle; common/uapsd.c
+looks up Addr1 before UAPSDEOSPLock (lines 645 and 904 in scratch). The lookup
+returns a raw pointer without a lease. mac/rtmp_mac.c also resolves FIFO WCID
+directly before UAPSD_SP_AUE_Handle, but this legacy path's active target
+configuration is unproved. include/os/pkt_meta.h stores WCID in CB offset 2;
+that byte alone is not association generation. Do not allocate spare skb CB
+bytes without complete shared-layout/clone-path review.
+
+Next work must provide packet/ring submission identity and completion ownership,
+or an actual bounded DMA/completion drain preventing reuse; a caps check,
+MAC recheck or short UAPSD lock alone cannot reject an old completion after
+same-MAC reassociation. Also audit publication: tr_tb_set_entry currently
+publishes TRUE caps before PsTokenFlag/bssid final initialization; multicast
+has another writer. Do not fix only FALSE writers and claim protocol complete.
+Existing isolated queue fixes remain candidates; full source integration,
+MIPS build and device acceptance are open. No router, build, CI, commit/push.
+
+
+## 2026-10-29 stale EOSP ownership fixed in isolated successor
+
+Source audit found three enqueue-failure early returns that released the shared
+pUAPSDEOSPFrame but left its pointer non-NULL: UAPSD_SP_PacketCheck,
+UAPSD_QoSNullTxMgmtTxDoneHandle and UAPSD_SP_AUE_Handle (the last has
+UAPSD_SP_ACCURATE feature guards; target applicability not asserted).
+A later retirement could release this stale pointer again. Added exact-pinned
+prepare-uapsd-eosp-release.py: only these three failures now clear shared
+ownership and release the already captured pPkt. Full inventory comparison
+confirms only common/uapsd.c changed relative to deletion-joined scratch.
+Authoritative new scratch: .iot-local-check/uapsd-eosp-release3-20261029;
+its sibling -eosp-release.json authenticates changed source bytes. Earlier
+two-site scratch is superseded, retained without deletion.
+
+prepare-uapsd-eosp-release-check.py extracts all three actual rejection tails.
+Strict C11 -Wall -Wextra -Werror -O2 host compilation/execution passed:
+shared pointer NULL at release, exactly one release, balanced unlock and no
+remaining EOSP ownership for subsequent cleanup. Locks and packet handling
+are injected; this is not the full callback or target build. No production,
+router, CI dispatch, firmware build, commit or push changes.
+
+Remaining: callback reference lifetime and stale completion identity across
+WCID reuse; trigger/reinitialization admission; disabled-entry failure recovery;
+WDS/APCLI/monitor removal composition, full prepared-source merge, target build
+and device acceptance. Do not treat the queue fixes as proof of whole peer
+retirement. Next inspect lookup-before-UAPSD-lock and completion identity,
+then bind an actual retirement/reuse protocol rather than relying on booleans.
+
+
+## 2026-10-29 deletion admission checked on host
+
+Verified existing isolated uapsd-delete-joined-20261029 scratch output against
+its three source hashes and exact helper bytes. Added repeatable extractor
+prepare-uapsd-delete-join-check.py for the actual admission block following
+the verified peer-address branch, before TR destruction. Strict optimized
+C11 host GCC checks pass with and without UAPSD_SUPPORT: disabled caps under
+IRQ lock, helper after IRQ unlock with MAC owner held, helper failure releases
+MAC owner and bypasses the simulated destructive continuation. Independent
+queue helper test passes again. Original ral_ps.c/mt_ps.c bytes are unchanged.
+The preparation receipt now includes the helper hash for future outputs;
+the existing scratch receipt remains the earlier three-file receipt.
+
+Scope is narrow: surrounding earlier notifications/timer cancellations are
+not rolled back; failure retains a disabled entry without a recovery owner.
+Injected locks do not prove callback quiescence, DMA/RX drain, WCID reuse or
+whole MacTableDeleteEntry transaction safety. Candidate is not production.
+Next audit UAPSD service-period callbacks and initialization/reuse against
+this admission; resolve ownership/recovery before merging full driver.
+Branch codex/wr1200js-service-webui, HEAD fcf45d7. git diff --check passed.
+No target build, workflow dispatch, commit/push or router changes.
+
+
+## 2026-10-29 dedicated UAPSD retirement helper staged
+
+Global UAPSD_MR_ENTRY_RESET cannot be replaced indiscriminately: callers also
+exist in ral_ps.c and mt_ps.c during PS transitions. The macro itself performs
+queue/EOSP cleanup without taking UAPSDEOSPLock. QueueMaintenance returns
+immediately and is not an available retirement join.
+Added isolated uapsd-retire-queues.inc: caller must pin MAC entry/exclude WCID
+reuse and disable caps; helper checks caps under UAPSD lock, detaches four
+queues/EOSP and resets SP fields, unlocks, then releases private packets.
+No irq_lock nesting or packet free while UAPSD lock is held. Dedicated host
+test passes enabled-cap refusal, five exact releases, cleared shared queues,
+idempotence and invalid/null entry rejection with strict optimized C11 GCC.
+ABI step stages sanitizer/MIPS helper tests but no run dispatched.
+Helper is unbound: service-period callbacks after unlock, initialization/reuse,
+MAC ownership and actual lock-context integration still need proof. This
+joins queue mutation only, not DMA/RX or the entire peer lifetime.
+Next bind narrowly to deletion-only flow with exact lock/lifetime ownership;
+retain existing power-save macro behavior elsewhere. No production/router,
+MIPS result, firmware build, workflow dispatch, commit or push changes.
+
+
+## 2026-10-29 reset capability writer staged under queue lock
+
+Pinned C inventory has one tr_tb_reset_entry caller, MacTableDeleteEntry,
+under MacTabLock. Existing rtmp_tx_swq_exit already establishes MacTabLock ->
+irq_lock edge. prepare-wcid-reset-writer.py now stages WRITE_ONCE(FALSE) for
+both caps under irq_lock, releasing it before cleanup (which locks itself).
+Output wcid-reset-writer-20261029; no WDS removal/writer binding yet.
+prepare-wcid-reset-writer-check.py extracts actual reset: strict C11 GCC base
+and DATA_QUEUE_RESERVE tests pass locked stores, unlocked cleanup/free-lock
+sequence, NONE-repeat and out-of-range rejection. Caller locking and real
+cleanup are injected, not concurrency proof. Input/output hashes in writer
+receipt. Initialization TRUE publication and UAPSD join still unverified;
+this partial change must not be called a complete capability protocol.
+Next inspect UAPSD entry reset/service-period references and bind the separate
+post-disable join without inverse nested locks, then initialization/reuse.
+DMA/RX, final scheduler accounting and device acceptance remain open.
+No router, target build, workflow dispatch, firmware build, commit or push.
+
+
+## 2026-10-29 isolated UAPSD insertion fence tested
+
+prepare-wcid-uapsd-fence.py pins common/uapsd.c and inserts READ_ONCE(enq_cap)
+plus WCID bound/capacity checks under UAPSDEOSPLock immediately before actual
+head/tail insertion. No nested irq_lock introduced. Existing source has
+UAPSD-lock -> rtmp_enq_req(...FALSE) -> irq_lock paths (uapsd.c:297/313/330);
+retirement must not introduce inverse nested order. Writer/join remains unbound.
+prepare-wcid-uapsd-check.py extracts actual insertion function; strict C11 GCC
+passes disabled admission, allowed tail/head, capacity changed at lock entry,
+invalid WCID and null entry with balanced mock lock and single packet drops.
+Output wcid-uapsd-fenced-20261029 and wcid-uapsd-insertion-20261029.c/.exe.
+READ_ONCE/locks are injected host primitives; kernel concurrency, current
+writer publication and joining active UAPSD operations are not established.
+Next bind capability writers under normal queue lock, then separate UAPSD
+join without holding irq_lock, before selective cleanup. Other UAPSD service
+period producers/consumers, DMA/RX and scheduler report accounting remain open.
+No production binding, router, MIPS build, workflow, commit or push changes.
+
+
+## 2026-10-29 legacy/MT PS producer fences staged
+
+prepare-wcid-ps-fence.py verifies the preceding dequeue receipt and pinned
+legacy PS source, then inserts enq_cap plus capacity check inside the actual
+irq_lock before legacy PS enqueue. MT PS-retrieve capacity branch also checks
+enq_cap under its existing IRQ lock. Output wcid-ps-fenced-20261029 is isolated;
+no writer fence/removal binding or UAPSD claim. UAPSD enqueue uses a different
+UAPSDEOSPLock, so it needs explicit lock-order reconciliation.
+Actual RtmpInsertPsQueue extracted and tested with non-UAPSD delivery: blocked
+admission drops once, allowed enqueue succeeds, capacity filled at lock
+acquisition rejects without insertion, lock balanced. Strict C11 GCC passed.
+Reproducible extractor added: prepare-wcid-legacy-ps-check.py. MT retrieve
+change is source-only (full parser fixture/target compile pending).
+Next verify same-lock capability writers and UAPSD synchronization, then full
+scheduler accounting/DMA/RX. No production, MIPS/runtime, firmware-build,
+router, workflow dispatch, commit or push changes.
+
+
+## 2026-10-29 actual dequeue selector candidate bound and host-tested
+
+All pinned deq_cap writers were reviewed: FALSE only during tr_tb reset;
+TRUE during initialization. New prepare-wcid-dequeue-fence.py pins the exact
+queue source and stages a separate tree. Targeted selection refuses disabled
+WCID; global selection drops only its scheduling tokens in place and skips
+holes using bounded helper scans, preserving other packet FIFO indices.
+No production tree change and no WDS removal binding yet.
+prepare-wcid-dequeue-check.py extracts actual rtmp_deq_req between reviewed
+function boundaries. Strict C11 GCC tests pass base, MAX_CONTINUOUS_TX_CNT,
+DATA_QUEUE_RESERVE and MT_PS variants: disabled peer head, neighboring peer,
+empty/full ring, targeted refusal and malformed WCID. Kernel locks/PS request
+callbacks injected; full dequeue/report packet accounting still not proved.
+Outputs wcid-dequeue-fenced-20261029 and wcid-dequeue-selector-20261029 plus
+variant binaries under .iot-local-check. Producer fences (normal/PS/UAPSD),
+writer locking, DMA/RX and exact-generation removal remain necessary before
+admission. Next reconcile those producer paths and test full scheduler report
+accounting; do not treat source selector pass as complete peer drain.
+No router, MIPS build, workflow dispatch, firmware build, commit or push.
+
+
+## 2026-10-29 noncompacting WCID FIFO helper candidate
+
+Added wcid-fifo-retirement.h: under caller-owned IRQ lock and externally
+established peer fences, removes only matching tokens in place, then locates
+next nonzero slot with a bounded full-ring scan. Companion selector supports
+holes regardless of MAX_CONTINUOUS mode without relocating packet indices.
+check-wcid-fifo-retirement.c exhausts 2592 four-slot layouts/index pairs/peer
+choices, checks survivor positions, empty/full ambiguity, idempotence and
+invalid-input nonmutation. Strict optimized GCC execution passed.
+ABI successor step now stages sanitizer host execution and MIPS object check;
+workflow not run. This helper is not yet bound to vendor enqueue/dequeue or
+WDS removal; it does not free packets, prove DMA/RX retirement or authorize
+WCID reuse. Next source integration requires complete same-lock producer
+fences and mode-specific token/accounting review before binding cleanup.
+No production state, router, firmware build, workflow dispatch, commit/push.
+
+
+## 2026-10-29 WCID queues and global scheduler tokens must retire together
+
+rtmp_deq_req has separate targeted-WCID and global-FIFO selection. Existing
+rtmp_tx_swq_exit frees peer tx_queue/PS packets but does not touch tx_swq WCID
+tokens. Extended extracted host fixture with FIFO witness: target packets
+freed, neighboring queues preserved, target scheduling tokens unchanged.
+Strict C11 GCC execution passed (wds-queue-token-witness-20261029.c/.exe).
+Under MAX_CONTINUOUS_TX_CNT, enqueue stores FIFO index on packet and dequeue
+report accesses CurSwqIdx. Therefore naive FIFO compaction can invalidate
+other peers' packet indices. Merely zeroing a slot also differs between modes
+(the basic selector treats zero at deqIdx as empty, while extended mode skips).
+Receipt wds-global-fifo-audit-20261029.json. Next define same-lock retirement
+of peer queues AND scheduler tokens, respecting mode-specific index/accounting
+and refusing WCID reuse until DMA/RX identities retire. Do not call existing
+cleanup a complete WDS drain. No production patch, MIPS/runtime acceptance,
+router, firmware build, workflow dispatch, commit or push changes.
+
+
+## 2026-10-29 selective enqueue/dequeue fence gaps established
+
+rtmp_enq_req checks enq_cap while holding irq_lock (or caller-supplied lock).
+RTMPDeQueuePacket holds irq_lock through select/gather/hard_tx but deq_cap is
+only a TODO at cmm_data.c:3688, not enforced. PCI rtmp_inf_pcirbs.h:26/27
+START/STOP_DEQUEUE macros are empty. DeQueueRunning is therefore not a proven
+PCI per-peer consumer counter. PS producers ps.c:79 and MT retrieve
+cmm_data.c:750 enqueue under irq_lock without enq_cap. Queue cleanup takes
+that lock per queue but cannot prevent subsequent re-enqueue by itself.
+Receipt/hashes: wds-enqueue-dequeue-fences-20261029.json.
+Next candidate must enforce same-lock per-peer admission across normal/PS
+producers and consumers, preserve FIFO accounting, and then establish DMA/RX
+lifetime separately. Merely clearing enq_cap/deq_cap or polling PCI running
+flags is insufficient. No speculative shared networking change made; the
+existing selective-cleanup host test remains selection-only evidence.
+Production lifecycle/target/runtime remain unverified. No router, workflow,
+firmware build, commit or push changes.
+
+
+## 2026-10-29 selective vendor WCID cleanup verified on host
+
+Found existing rtmp_tx_swq_exit in cmm_data.c:2715: explicit WCID selects
+only that tr_entry's WMM/PS queues; WCID_ALL is separate. tr_tb_reset_entry
+(mgmt_entrytb.c:76) disables enq_cap/deq_cap then invokes it and frees queue
+locks; cleanup has its own TODO about enq_cap protection. Do not call the
+whole reset as a selective drain proof without producer/consumer joining.
+New prepare-wds-queue-check.py extracts actual cleanup into injected host
+queues. Strict C11 GCC run passed: WCID1 frees only its three fixture packets,
+other two peers untouched, invalid WCID rejected and ENTRY_NONE skipped.
+Output .iot-local-check/wds-queue-selectivity-20261029.c/.exe.
+This establishes selector behavior only, not concurrent admission, dequeue
+ownership, DMA completion, RX retirement or netdev callback quiescence.
+Next reconcile per-peer enqueue/dequeue fences and in-flight work before
+using this vendor primitive in exact-generation WDS removal.
+No production binding, MIPS compile, firmware build, router, workflow,
+commit or push changes.
+
+
+## 2026-10-29 WDS OS-TX lease is not queue/DMA retirement
+
+WDS ndo_start_xmit is rt28xx_send_packets. Its transition active_tx lease
+covers rt28xx_packet_xmit return, and AUX_CLOSE admission refuses active_tx.
+This protects the synchronous entry only. ApWdsAllowToSendPacket stores the
+wdev index on packets; RTMPSendPackets invokes tx_pkt_handle and bounded
+RTMPDeQueuePacket(MAX_TX_PROCESS), so return is not queue-empty evidence.
+Additional dequeue entrypoints exist in UAPSD and other paths outside the
+OS-entry lease. Direct WDS TX readers can therefore outlive the lease via
+queued packets. Source inventory/hashes at wds-tx-queue-audit-20261029.json
+includes raw comments/definitions/inactive branches, not target-active count.
+Do not bind callbacks_quiescent or registry release to active_tx==0 alone.
+Next design selective WDS queued-packet admission/drain and RX/callback lease
+proof (or a verified adapter-wide quiescent lifecycle) without stopping main
+Wi-Fi as a substitute. Then integrate exact-generation retirement before free.
+Current isolated host tests remain valid for their narrower ownership/order
+scope; full lifecycle, target build and device acceptance remain open.
+No router, workflow, firmware-build, commit or push changes.
+
+
+## 2026-10-29 vendor reader inventory narrowed
+
+Inventoried 44 raw wdev_list C occurrences across 16 pinned source files,
+with line numbers/roles and file hashes in wdev-list-sites-20261029.json.
+This includes writers/debug/inactive guards, not 44 proven active readers.
+Earlier named lookup families are conditional: WH_EZ_SETUP (CONFIG_EASY_MOD)
+and MBO_SUPPORT (CONFIG_MT7603E_MBO); effective current Kbuild not yet proven.
+Independent direct path ap_data.c:618 reads wdev then checks WDEV_TYPE_WDS;
+wdev_rx.c:226 reads VLAN_VID immediately after index-bound check without a
+null test. Thus simply clearing wdev_list before draining vendor RX/TX is
+not sufficient and may expose null/dangling accesses. No speculative change
+to shared driver locking or callback-proof flags was made.
+Next trace WDS TX/RX admission/queues and their shutdown/drain owners; bind
+post-unregister slot retirement only with those exact-path proofs.
+No production, MIPS or runtime claim; no router/remote/build changes.
+
+
+## 2026-10-29 WDS retirement source audit
+
+Pinned vendor source: rt_linux.c:1500 dev_close, :1619 unregister_netdevice
+then netdev_ops vfree; wdev.c:30 idx-unreg clears under irq_lock. Separate
+readers wdev.c:195 use WdevListLock and return an unlocked pointer, :231
+reads without that lock. Callers exist in cmm_data.c:918/1935 and wnm.c:3204.
+Prepared kernel net/core/dev.c rollback_registered_many has synchronize_net
+at 6431/6473; unregister also queues netdev todo completion. These are network
+core barriers, not proof that all vendor reader lifetimes ended. Do not set
+callbacks_quiescent=1 solely on detach/idx-unreg return.
+Exact input hashes saved in wds-vendor-quiescence-audit-20261029.json.
+Strict C11 registry contract test passed; it rejects wrong WDS close stage,
+missing callback/vendor proof and wrong generation. Those booleans remain
+unbound to proven vendor operations. Next inspect effective target reader
+paths and pin/lease lifetime before binding registry slot release. This is
+source evidence only; no runtime, MIPS, production or full-lifecycle claim.
+No router, workflow, firmware-build, commit or push changes.
+
+
+## 2026-10-29 reproducible WDS removal test and retirement witness
+
+Added tools/iot/prepare-wds-remove-check.py, which checks exact operation
+counts/order and extracts candidate WDS_Remove plus its real phase helper.
+Strict C11 GCC fixture passed close/mark/inflight failures and success.
+Explicit success-path witness confirms the registry still retains published
+device identity after injected free: slot retirement is NOT implemented.
+Source search finds registry_release only in attach-failure paths, not WDS
+removal. Thus prior phase-gate pass proves failure retention/order only,
+not a complete lifecycle or safe repeated interface creation.
+Outputs .iot-local-check/wds-remove-reproduced-20261029 and
+wds-remove-retirement-witness-20261029 (.c/.exe). Kernel callbacks are injected.
+Next bind exact-generation post-unregister/vendor completion and slot release
+with callback lifetime evidence; never simply clear a slot before quiescence.
+Other auxiliary families and whole-driver MIPS acceptance remain open.
+No router, workflow, firmware build, commit, push or production changes.
+
+
+## 2026-10-29 WDS pre-unregister close gate composed and tested
+
+WDS reconciliation now also inserts reviewed close-phase helper/declaration
+and explicit close+idle gate under netdev protection before WDS detach/free.
+New output wds-remove-reconciled-20261029 preserves all unrelated bytes;
+receipt records four changed files and one added helper header.
+Extracted actual WDS_Remove and actual phase helper into
+.iot-local-check/wds-remove-phase-fixture-20261029.c. Strict optimized C11 GCC
+compiled and execution passed: close failure, mark-removing failure and
+inflight registration never detach/free; success closes, checks, detaches,
+unregisters and frees with balanced protection. Shared callback primitives
+are injected; this is not Linux RTNL/driver runtime proof. Header/dispatcher
+and on-device lifetime still require target acceptance. Open/close-only
+candidate receipt is superseded by this isolated WDS lifecycle successor.
+Next make the removal fixture reproducible in tools, verify WDS registration
+identity/registry retirement and reconcile AP-client/monitor paths. No merge
+whitelist expansion, MIPS build, router, workflow, commit or push changes.
+
+
+## 2026-10-29 WDS dispatcher verified; removal gate still absent
+
+Extracted current reconciled common virtual-UP branch passes strict C11 GCC:
+MBSS/AUX claim acceptance and replay rejection. No source ABI change needed
+for that increment path. WDS remove audit found a separate missing safety
+step: current WDS_Remove marks removing, detaches then frees; v39 explicitly
+closes under netdev protection and checks wr_iot_netdev_close_phase_idle
+before detach/free. Linux unregister does not propagate ndo_stop errors, so
+passing WDS close tests alone cannot justify the current remove path.
+Receipt .iot-local-check/wds-dispatch-remove-audit-20261029.json.
+Next compose reviewed pre-unregister close + phase gate with its declaration,
+registration helper, RTNL constraints and failure-retention tests. Do not
+publish/reclassify the WDS-only successor as a complete safe lifecycle.
+AP-client/monitor ownership also remain open. No production merge admission,
+MIPS compile, firmware build, workflow dispatch, commit, push or router change.
+
+
+## 2026-10-29 isolated WDS ownership reconciled
+
+New prepare-wds-recovery-reconciliation.py pins the exact later WDS input,
+reuses reviewed OPEN/CLOSE generator fragments, preserves INT remove ABI and
+all other files, and adds aux-close-claim.h. Current shared headers must match;
+radio-transition is pinned to the reviewed radio-off-stage successor hash.
+Output wds-reconciled-20261029 has 72 files: one changed WDS source, one added
+header. Receipt records every before/after hash. No whole-tree replacement.
+Updated close-fixture extractor to accept exactly one reviewed VOID or INT
+remove boundary (body still checked). Extracted close and auxiliary-claim
+fixtures pass strict optimized C11 GCC: same-ticket retry/post-DOWN completion.
+Tests use the reconciled candidate's own headers. Production/target/runtime
+remain false. Next verify WDS open/dispatcher and remove coupling, then
+reconcile AP-client/monitor and common request ABI; do not admit merge yet.
+No firmware build, workflow dispatch, router change, commit or push.
+
+
+## 2026-10-29 auxiliary ownership regression found before merge admission
+
+Do NOT extend assembler whitelist to 64/39 yet. Current reconstructed v25b
+is a separate branch of development, not a superset of v39. Inventory adds
+seven headers but removes include/aux-close-claim.h (net +6 paths versus v39).
+Current AP-client and WDS still call VIRTUAL_IF_DOWN(pAd); v39 WDS has
+wr_iot_aux_close_reserve and checked finalization/retry ownership. Existing
+caller-coverage pass is therefore not proof that older family lifecycle
+fixes survived. Source comparison receipt:
+.iot-local-check/current-v39-ownership-gap-20261029.json.
+Next reconcile the v39 family ownership/close/remove changes with the new
+main recovery/producer chain before preparing a production merge or Kbuild
+candidate. Do not discard v39 safety logic or broaden a count-only gate.
+Assembler whitelist intentionally unchanged; staged ABI successor tests remain
+isolated source/fixture checks. No target, runtime or production acceptance.
+No router change, firmware build, commit, push or workflow dispatch.
+
+
+## 2026-10-29 prepared-source merge bridge identified
+
+Existing firmware candidate Kbuild step builds vmlinux/modules only after
+assemble-prepared-candidate.py merges IoT with six prepared source overlaps
+(RSSI and other integrations). Direct raw overlay replacement is unsuitable.
+Full-overlay preparer now emits a separate merge-input manifest with 64
+candidate SHA256 records and 39 pinned original blobs. All hashes verified
+against overlay4; full output bytes equal overlay3. No source merge performed.
+Current assembler whitelist stops at 60/39, so new 64/39 composition needs
+explicit shape/delta review and tests before enabling it. Candidate addition
+includes recovery-owner/release/PCI observer headers absent from old overlay.
+Next review/extend that gate and test prepared-source merge, then use the
+existing isolated configured-kernel Kbuild path. Full MIPS module compilation,
+production backend and runtime acceptance remain open. No workflow dispatch,
+router change, commit, push or firmware build.
+
+
+## 2026-10-29 successor ABI workflow wiring staged
+
+Added a separate Verify current IoT recovery successor on host and MIPS step
+before diagnostic upload. It regenerates from pinned source, prepares full
+scratch overlay, runs successor host suite and compiles extracted ledger,
+checked-close and post-open fixtures with the existing MIPS toolchain.
+Vendor source/preparation directories live in RUNNER_TEMP outside uploaded
+abi-results; only host fixtures/logs, hash receipts and MIPS objects enter
+that artifact. Explicit scope text denies whole-driver Kbuild/runtime proof.
+YAML parsing, unique-step placement, artifact-path and compile-loop structure
+checks passed; git diff --check passed. No CI run was dispatched and no MIPS
+result exists for this local change. Local Windows still lacks usable MIPS
+compiler/make environment. Next full-module Kbuild integration must use the
+actual configured kernel and companion mt76x3_ap Makefile; fixture objects do
+not close that gate. No router, firmware build, commit or push changes.
+
+
+## 2026-10-29 scratch include closure checked
+
+Full-overlay preparer now checks every quoted wr-iot-* include in the merged
+source against local/include/mcu paths before copytree. Overlay3 passes and
+all output hashes equal overlay2. Missing-include negative fixture updates
+its candidate receipt yet is rejected by dependency validation before output.
+This prevents the earlier manifest fixture-label issue recurring silently.
+Existing ABI evidence uses extracted MIPS fixtures and selected Kbuild probes;
+it does not establish whole-driver compilation of this successor. Next build
+integration must use actual mt76x3_ap Kbuild flags/config and keep source
+scratch outside uploaded abi-results. No MIPS compile or runtime claim;
+no workflow, firmware build, commit, push or router change.
+
+
+## 2026-10-29 full scratch driver overlay prepared
+
+New prepare-full-driver-overlay.py verifies candidate generation receipt,
+reviewed inventory/fixture classification, pinned original blob IDs and
+relative paths; refuses symlinks and existing/nested outputs. It copies full
+source to a new scratch tree, applies driver files only and verifies every
+output byte. Run full-driver-overlay2-20261029 passed; sibling overlay receipt
+records all base/output SHA256 values and excludes seven fixture files.
+A corrupt original blob is rejected before output creation.
+This is a full scratch source layout, NOT a target-compiled module or accepted
+production driver. Only original blobs named by the composition are pinned;
+full_upstream_inventory_authenticated=false is explicit. Vendor source stays
+local/outside future public diagnostic artifact roots. Next target CI wiring
+must preserve this boundary and verify actual MIPS Kbuild dependencies.
+No router, remote, firmware build, commit or push changes.
+
+
+## 2026-10-29 generated-only preparation verified end to end
+
+Executed default prepare-current-recovery-chain.py from pinned mt76x3 source,
+without any historical candidate input. Receipt at
+.iot-local-check/generated-current-full-20261029/preparation.json records
+historical_comparison_used=false, dependency_remaining=false; all final
+hashes match independently verified current output. Exact-output successor
+host suite passes at generated-current-full-suite-20261029/result.json.
+Preparation scripts parse successfully. Target/production/runtime remain false.
+ABI workflow currently uploads all abi-results recursively. Future successor
+vendor-source workspaces must stay outside that artifact root; upload only
+bounded diagnostics/manifests, not new vendor source copies. Workflow unchanged.
+Next prepare a validated full-source scratch overlay for MIPS module checks,
+with provenance and publication boundary preserved. No workflow dispatched,
+firmware built, router changed, commit or push performed.
+
+
+## 2026-10-29 historical open dependency removed
+
+Queue/main-open composition now extracts claimed-UP and auxiliary-dispatch
+literals from the reviewed virtual-open preparer and combines MAIN_DISPATCH
+from the main-owner preparer. Generated fragments exactly match historical
+fragments; output from current queue matches all 64 files of previous
+historical-input composition. No copied vendor dispatcher/header required.
+prepare-current-recovery-chain.py now uses generated fragments by default;
+optional historical input remains hash-checked for comparison. Argument/help
+parse checked. Full default-entrypoint rerun is the next verification; prior
+full suite was on the identical composition with historical input.
+No target/module/runtime claim. No router, remote or firmware-build changes.
+
+
+## 2026-10-29 unified current queue/recovery entrypoint
+
+New prepare-current-recovery-chain.py verifies the two reviewed open-input
+hashes, prepares current queue from pinned source, composes main-open and
+runs all later stages in a separate workspace with bounded commands/logs.
+Executed at .iot-local-check/current-unified-preparation-20261029;
+all final hashes match the independently prepared current candidate.
+Exact-output successor host suite passed at
+.iot-local-check/current-unified-suite-20261029/result.json.
+Receipt explicitly retains historical_open_dependency_remaining=true and
+complete_driver_tree/target/production/runtime=false. It is not a pristine
+upstream-only or buildable full-module claim. Next eliminate the two-file
+historical dispatcher/header dependency using reviewed transformations,
+then prepare target CI overlay. Hardware TxS retirement and production
+backend remain unresolved. No router, remote, commit or firmware build.
+
+
+## 2026-10-29 current queue reaches corrected v25b
+
+All preceding current-source stages now complete. Final delta accepts only
+exact old or corrected TxS/readiness hashes; corrected inputs are preserved.
+changed_files reflects actual differences (zero for current queue).
+Exact current candidate passed successor host suite at
+.iot-local-check/current-v25b-suite-20261029/result.json.
+Historical delta regression initially detected whitespace added while nesting
+the multiline insertion; corrected it and verified all historical output
+hashes match previous corrected v25b (historical-v25b-delta-recheck2-20261029).
+Next integrate initial queue/main-open generation into the unified entrypoint.
+MIPS compilation, hardware TxS retirement, production backend and device
+acceptance remain open. No router/remote changes or firmware build.
+
+
+## 2026-10-29 current main-close/reset composition compatibility
+
+Main-close preparer now accepts already-staged one-shot stop/recovery headers
+only when they equal the complete reviewed current helpers; legacy inputs
+still work. Extracted current-source main-close fixture passes strict C11
+GCC and exact-ticket/deferred-execution cases; main-stop owner test passes.
+Current chain progressed through v17 before encountering already-present
+reset wake. Reset preparer now preserves only an exact complete shared reset
+template, otherwise performs and validates the historical transformation.
+Current reset output succeeds; historical reset bytes match saved v18 and
+historical main-close output remains unchanged. No weakening of timeout or
+one-shot protection. Next rerun full current chain to expose/reconcile final
+TxS/readiness already-applied corrections. Target/production/runtime remain
+unverified; no router, remote, commit or firmware-build changes.
+
+
+## 2026-10-29 current radio-off bounded-close integration fixed
+
+prepare-composed-mt7603-radio-off.py now accepts exactly the reviewed legacy
+wait loop or current already-bounded loop. It preserves current 1000-poll
+stage3 timeout failure. Radio-off failure replacement is anchored to its
+specific DBGPRINT/lock context, so it cannot alter the queue-timeout branch.
+Current source prepares successfully; extracted checked-close passes strict
+optimized C11 GCC. Historical output remains byte-identical across 64 files.
+Negative fixture changes the bound to 1001 with an updated manifest: rejected
+before output creation, demonstrating the guard is not merely a hash check.
+Outputs: current-radio-off-fixed-20261029; current-radio-off-close-20261029.exe;
+negative source radio-off-bad-bound-20261029, all under .iot-local-check.
+Next reconcile already-present one-shot main-close and later reset/readiness
+changes through the current queue chain. No target compile, firmware build,
+production binding, runtime acceptance, commit, push or router change.
+
+
+## 2026-10-29 current queue/main-open reconciliation
+
+prepare-queue-main-open-compose.py succeeds on current regenerated
+full-queue-20261029e/driver using the exact hash-reviewed dispatcher/header
+from combined-open-v15-20261025. Output current-queue-main-open-20261029
+has 64 files; seven differ from historical main-open (receipt
+.iot-local-check/current-main-open-comparison-20261029.json).
+The current chain stops BEFORE output publication in radio-off preparation:
+its unbounded DeQueueRunning anchor is absent because current checked-close
+already has the reviewed 1000-poll failure/stage3 bound. Exact diagnostic:
+ValueError common/rtmp_init_inf.c changed anchor (0 matches).
+Next adapt radio-off preparation to accept the exact already-bounded form
+without weakening the bound; then reconcile already-present one-shot main
+close and reset-wakeup changes. Never revert current safety fixes just to
+match historical inputs. Existing successful historical replay does not
+prove current-queue integration or target/runtime operation.
+No firmware build, router change, commit or push.
+
+
+## 2026-10-29 main-open through corrected v25b reproduced
+
+Radio-off preparation reproduces all 64 saved v2 files. Current main-close
+preparer imports two later recovery helper functions in one header; these
+converge to identical final output through the RTNL/reaper stages.
+Unified preparer now accepts --input-stage main-open and replays radio-off,
+main-close and adapter work before its v7-and-later stages. Executed at
+.iot-local-check/main-open-full-chain-20261029; all final corrected hashes
+match the independent v7 chain. Exact-output host suite passes at
+.iot-local-check/main-open-full-chain-suite-20261029/result.json.
+Next: regenerate the queue/main-open composition itself from pinned donor
+inputs instead of the preserved main-open bundle. Target compilation,
+production backend, selective hardware TxS retirement and device acceptance
+remain unverified. No router change, firmware build, commit or push.
+
+
+## 2026-10-29 v7 unified chain and preceding work stage
+
+Unified preparer now accepts --input-stage v7 plus --source-tree; it runs
+PCI detach/joins/observation and pinned-header auxiliary composition before
+the previously verified v11-to-v25b stages. Executed full chain hashes match
+the independent v11 run, and the exact output passes the host suite at
+.iot-local-check/v7-full-chain-suite-20261029/result.json.
+Separately replayed v6-to-v7 adapter work initialization/probe-unwind join:
+all 64 files match saved v7. Receipt .iot-local-check/v6-v7-replay-20261029.json.
+Next unresolved source reconstruction starts at v6 deferred-close composition;
+then clean donor/base replay and target build remain necessary.
+Hardware TxS retirement, production backend and device acceptance remain open.
+No firmware build, commit, push or router changes.
+
+
+## 2026-10-29 PCI/auxiliary composition reproduced
+
+v7-to-v9/v10 source replay matches saved candidates; intermediate v8 differs
+only in a root-detach diagnostic printk and converges at v9.
+prepare-remove-result-composition.py now accepts mutually exclusive
+--source-tree or existing --source-git. Both paths validate exact pinned
+Git blob IDs for ap_wds.h and ap_apcli.h and the donor revision.
+Using full pinned local source, v11 reproduces all 67 saved files exactly.
+A corrupt header is rejected before output creation. Receipts:
+.iot-local-check/v7-v10-replay-20261029.json and v7-v11-comparison-20261029.json.
+Next: fold this verified v7-to-v11 segment into the unified chain, then
+reproduce earlier main-open/close/recovery inputs. Target/production/runtime
+and hardware stale-TxS gates remain unproven. No router or remote changes.
+
+
+## 2026-10-29 checked-stop/claimed-open chain reproduced
+
+Replayed v11-to-v12 checked MBSS stop and v11/v12-to-v14 claimed open.
+All 67 files match each saved candidate. Receipt:
+.iot-local-check/v11-v14-replay-20261029.json.
+Unified preparer accepts --input-stage v11 with validated canonical sibling
+manifest and reproduces the corrected v25b output exactly as the v14 chain.
+The exact output passes the successor host suite:
+.iot-local-check/v11-full-chain-suite-20261029/result.json.
+No target compilation, production binding or hardware acceptance is claimed.
+Next: reconstruct v11 and its earlier ownership/recovery composition stages.
+Existing hardware TxS identity/drain and production-backend gaps remain.
+No router change, firmware build, commit or push.
+
+
+## 2026-10-29 v14-to-v19 replay and full later chain
+
+Five steering/wakeup transitions reproduced saved v15b, v16b, v17, v18,
+and v19 exactly (67 files each). Receipt:
+.iot-local-check/v14-v19-replay-20261029.json.
+prepare-later-recovery-chain.py now accepts --input-stage v14, validates
+claimed-open provenance and generates its own v19 manifest for rollback.
+Full v14-to-corrected-v25b run passed; final hashes equal the independent
+v19 chain. Successor host suite passed on this exact regenerated output:
+.iot-local-check/v14-full-chain-suite-20261029/result.json.
+Next unresolved preparation segment is upstream/base-to-v14. This remains
+source/host evidence only; target compile, hardware TxS retirement,
+production activation/backend and on-device acceptance are not established.
+No router change, commit, push or firmware build.
+
+
+## 2026-10-29 later recovery chain automated
+
+New tools/iot/prepare-later-recovery-chain.py validates the complete v19
+input inventory/stage and replays seven preparers plus the PCI ordering check
+in a new workspace. It records preparer hashes, bounded subprocess logs,
+input/output file hashes and explicit target/production/runtime false.
+Executed at .iot-local-check/later-chain-script-20261029; output matches the
+independently generated corrected candidate. Its successor host suite passes
+at .iot-local-check/later-chain-script-suite-20261029/result.json.
+The current v22 header delta converges to exact saved v25b after reaper;
+all 71 final pre-correction files match. No manual historical delta is needed
+for v19 onward. Upstream-to-v19 preparation is the next unresolved CI chain
+segment; hardware stale TxS identity and production backend remain open.
+No router change, firmware build, commit or push performed.
+
+
+## 2026-10-29 VERIFY/rollback replay and portable manifest
+
+v19-to-v20 VERIFY and v20-to-v21 checked rollback reproduce saved file hashes.
+Rollback now accepts --prior-manifest, retaining its historical default and
+all existing stage/hash checks. Explicit-path output matches saved v21;
+wrong-stage manifest is rejected before output creation.
+Current v22 preparer differs from saved v22 only in main-open-recovery-owner.h:
+it imports the later canceled-before-run recovery helper needed by v23b.
+Do not claim exact historical v22 reproduction. Next verify the regenerated
+v22 through reaper/drain/producer against saved v25b, then trace earlier stages.
+Receipt: .iot-local-check/v19-v22-chain-replay-20261029.json.
+Target compilation, production activation and device acceptance remain open.
+
+
+## 2026-10-29 three-stage recovery/producer replay
+
+From the preserved v22 RTNL candidate, replayed main-recovery reaper,
+PCI recovery drain and beacon producer preparers into new local directories.
+Full SHA256 file comparisons match saved v23b (67 files), v24c (69 files)
+and v25b (71 files); the receipt records actual counts and equality at
+`.iot-local-check/v22-v25b-chain-replay-20261029.json`.
+The PCI checker also passed all 69 hashes and retire/drain/stop/join ordering.
+Current preparers reproduce v23b/v24c despite their older generic stage names.
+This closes manual-delta uncertainty for these three transitions only.
+Next: reproduce v22 and earlier composition from verified inputs. No target
+compile, production activation, hardware TxS retirement or runtime acceptance
+is established; no router or remote state changed.
+
+
+## 2026-10-29 producer-stage replay verified
+
+Replayed `prepare-beacon-producer-candidate.py` from preserved
+`.iot-local-check/mt7603-pci-recovery-drain-v24c-20261028` into new
+`.iot-local-check/v25b-producer-replay-20261029`. SHA256 comparison against
+saved `tools/iot/candidates/mt7603-v25b-beacon/source` confirms 71/71 files,
+no missing, extra or differing bytes. Comparison receipt:
+`.iot-local-check/v25b-producer-replay-comparison-20261029.json`.
+This verifies only the last producer stage from the preserved v24c input;
+it does not establish clean upstream-to-v24c replay or target compilation.
+Next: reproduce preceding recovery-drain/reaper stages with their manifests,
+then construct the full CI chain without publishing vendor source copies.
+Router, firmware image, commits and GitHub were not changed.
+
+
+## 2026-10-29 successor verification consolidated
+
+- Unified host suite including bounded checked-close passes; full receipt,
+  caller/registration audit, TxS and post-open results saved. Scope and
+  remaining target/hardware gates documented in
+  docs/evidence/WR1200JS-IOT-V25B-SUCCESSOR-2026-10-29.md.
+
+## 2026-10-29 later successor caller coverage
+
+- v25b generation/readiness successor passed existing five-family virtual
+  caller and five checked-registration-path source audit. Independently
+  checked all 71 file hashes against its receipt: exactly two declared files
+  changed. This proves bounded source coverage/preservation, not runtime
+  serialization or complete hardware TxS retirement.
+
+## 2026-10-29 later close reconciliation
+
+- v25b already contains the checked-close poll bound/stage3 retention.
+  Accepted both reviewed counter names in source extractor; successor's
+  own-header close fixture passed strict GCC. No overwrite of later close
+  recovery logic was needed. Legacy caller binding/target tests remain open.
+
+## 2026-10-29 candidate reconciliation inventory
+
+- Hash comparison mapped 26 changed shared files and eight later-only files
+  between regenerated base and v25b. Saved later candidate includes recovery,
+  steering and producer gates absent from base; no safe wholesale replacement.
+  Exact local reconciliation report saved for subsequent stage composition.
+
+## 2026-10-29 admission count-mismatch regression
+
+- Added successful readback with extra vendor reference to final-source
+  admission fixture. It verifies owned reference retention plus UNVERIFIED
+  phase/main_ready false on count mismatch. Strict optimized GCC run passed
+  against regenerated candidate headers; hardware/target acceptance pending.
+
+## 2026-10-29 post-open intended variant checked
+
+- Saved v25b post-open fixture passes with WR_IOT_V40; it also passes with
+  current virtual-open-claim.h overlaid temporarily. Verified the header delta
+  contains only invalidated READY demotion. Later-chain regeneration and
+  target/device checks remain pending.
+
+## 2026-10-29 post-open verification scope corrected
+
+- Standalone post-open fixture expects later steering-ready/intent-race
+  stages, absent from fresh base queue bundle. Located their separate v14
+  successor preparers and manifest requirements. Do not weaken fixture to
+  force a base-bundle pass; later-stage composition remains required for
+  steering readiness and compensation acceptance.
+
+## 2026-10-29 early close-regression diagnostic
+
+- Existing final-source close extractor now refuses missing dequeue bound
+  before executing its fixture. Positive current-source and negative removed-
+  bound checks passed, avoiding the previously observed CI-test hang.
+
+## 2026-10-29 MT_MAC open/close fixture aligned
+
+- Wi-Fi HNAT compile variant also passed strict optimized host GCC/exit0.
+  Evidence consolidated in WR1200JS-IOT-MBSS-FIXTURE-ALIGNMENT-2026-10-29.md;
+  this does not establish actual offload traffic or target execution.
+
+- Added owned main registry reference matching initial vendor count, current
+  MBSS begin-close provenance, and checked ticket retirement instead of
+  finishing the already retired ticket again. Final-source fixture passes
+  strict optimized GCC across pending/fault DMA and TxS cases; successful
+  IoT close retains main ownership/count. IO is injected, not device proof.
+
+## 2026-10-29 invalidated BSS readiness fix
+
+- Full candidate regeneration completed (full-queue-20261029e). Admission
+  fixture using its final generated headers passed strict optimized GCC;
+  reset/readback correction is now verified through source preparation.
+  Target and device acceptance remain outstanding.
+
+- Observed BSS finish now demotes READY after reset/main-down invalidates
+  readback. Ownership remains for recovery. Updated admission host fixture
+  passes with reset/close injection and failed BSS observation; current local
+  headers used, full source regeneration/target compilation pending.
+
+## 2026-10-29 MT_MAC fixture drift identified
+
+- Final MT_MAC open/close host fixture compilation failed on stale injected
+  BSS-observer/count/wait interfaces. Base admission fixture needs alignment
+  with current contract before claiming MT branch tests. No target failure
+  inferred; exact missing interfaces recorded in handoff.
+
+## 2026-10-29 last MBSS close fixture updated
+
+- Updated stale fixture to bind MBSS family, use actual begin-close generation
+  capture and model ticket-wait wakeups. Final-source last-close/physical-chain
+  fixture now passes strict optimized GCC, including retained reference on
+  failed join/radio close, one wake on success and none on failure. Hardware
+  and worker actions remain injected; no production acceptance.
+
+## 2026-10-29 live ABI checkpoint
+
+- GitHub reports successful ABI #586/run 40562762027 on fcf45d7. That is
+  the committed baseline, excluding current uncommitted IoT fixes. Recent
+  successful Agent build failure monitor runs are not firmware/ABI results.
+  No new workflow was dispatched by this check.
+
+## 2026-10-29 bounded dequeue close fix
+
+- Final-source close-chain fixture also compiled and exited 0 on the new
+  bundle; worker/hardware actions remain injected. Detailed evidence and
+  elapsed-time limitations are recorded in
+  docs/evidence/WR1200JS-IOT-DEQUEUE-CLOSE-BOUND-2026-10-29.md.
+
+- Confirmed real generated unbounded DeQueueRunning wait. Candidate generator
+  now refuses after 1000 delay polls, retains shutdown uncertainty stage 3,
+  and does not proceed to join/free. Regenerated full-queue-20261029d; existing
+  final-source checked-close fixture compiled with strict optimized GCC and
+  exited 0, including timeout/no-free/no-retry checks. Target/runtime pending.
+
+## 2026-10-29 generated close lock-order review
+
+- Current close wrapper releases transition lock before vendor close and
+  DMA/TxS snapshots; it does not wait for RX while holding BcnRingLock.
+  Zero snapshots still lack a hardware late-report barrier before virtual
+  down/reference retirement. Keep production exclusion; lock-order review
+  does not prove selective close safety.
+
+## 2026-10-29 PCI RX lock-order constraint
+
+- Source confirms RxRingLock spans the common parser and beacon TxS callback.
+  Recorded prohibition on waiting for RX/tasklet drain while holding the
+  beacon lock, to avoid blocking the callback needed for progress. A real
+  bounded retirement implementation and target tests remain outstanding.
+
+## 2026-10-29 TxS parser caller coverage
+
+- Full source shows parse_rx_packet_type is called from PCI RX extraction,
+  SDIO and MT_MAC AndesRxProcessCmdMsg. MCU beacon-TxS reachability remains
+  unproved; future drain must account for Andes RX or prove exclusion using
+  routing and effective flags. Do not equate rx tasklet completion with all
+  parser owners drained. Source evidence only; driver unchanged.
+
+## 2026-10-29 beacon macro semantics
+
+- Pinned MT7603 source has one caller of RTMPHandleBcnDmaDoneInterrupt:
+  bcn_dma_done_tasklet (rt_rbus_pci_drv.c:575). The MT_INT_BCN_DLY hard-IRQ
+  branch schedules that task at line 1595; it does not call the DMA handler
+  directly. This removes the direct-hard-IRQ inference for this path only.
+  Other lock callers and effective WORKQUEUE_BH still need review.
+
+- Located actual per-unit Kbuild evidence in artifacts-634-v42/merged-capacity.json:
+  all nine beacon-lock units report complete preprocessing, complete site
+  activity, and MULTI_CORE_SUPPORT=false. In that saved build both SEM/IRQ
+  resolve through the BH helper. This corrects an inference from mixed names;
+  it does not verify the current regenerated candidate or hard-IRQ contexts.
+
+- Full pinned headers show SEM uses RtmpOsSpinLockBh; IRQ uses that same
+  helper without MULTI_CORE_SUPPORT and spin_lock_irqsave with it. The local
+  config.mk definition found is conditional on BB_SOC/CONFIG_MIPS_TC3262,
+  not evidence of effective WR1200JS flags. Therefore 12 SEM/9 IRQ text sites
+  alone do not prove incompatible locking. Obtain effective preprocessing and
+  caller context before normalizing macros or claiming safety.
+
+## 2026-10-29 complete-source lock inventory
+
+- Reviewed the manifest's expanded lifecycle/ownership headers and overlaid
+  sources, including rt_os_net.h, and refreshed only overlay/base inventory
+  counts to 55/37. Strict audit now passes with all 515 pinned files and
+  unchanged 21 sites/9 units/12 SEM/9 IRQ requirements. This validates source
+  inventory, not compatibility of mixed lock forms or target execution.
+
+- Pinned archive extraction completed: 515 driver files. Raw inventory
+  verified 37 base blobs and all candidate SHA256 records, finding 21 lock
+  sites in 9 units (12 SEM, 9 IRQ). Strict coverage gate remains unpassed:
+  current overlay/base counts 55/37 differ from reviewed 46/32. Evidence:
+  .iot-local-check/full-source-lock-inventory-20261029.json. Receipt moved
+  outside source tree so it is not counted as a driver file. Do not equate
+  this inventory with lock correctness or target/runtime acceptance.
+
+## 2026-10-29 queue manifest source coverage fix
+
+- Added modified include/rt_os_net.h to generator input/hash ledger; fresh
+  full-queue-20261029c preparation succeeded. Full-lock auditor then correctly
+  rejected the sparse 38-file base against its 515-file coverage gate. Do not
+  lower that gate: a complete pinned driver tree is needed for exhaustive
+  lock audit. No target/image/device acceptance follows.
+
+## 2026-10-29 full queue source preparation underway
+
+- Resolved nested inputs with nine additional pinned files. Full queue
+  preparation completed in .iot-local-check/full-queue-20261029b and wrote
+  its manifest. Both final-source TxS status and extended ledger/parser
+  fixtures passed strict optimized GCC, requiring generation exhaustion
+  refusal. This is a partial source bundle and host evidence; no target
+  module, production backend, image or hardware retirement acceptance.
+
+- Retrieved 29 declared source inputs at the pinned revision through GitHub.
+  Full queue preparation reached nested radio-errors and stopped at missing
+  ap/ap_mbss.c. Its output is incomplete; nested preparer inputs must be
+  collected before retrying into a new directory. No image/device changes.
+
+## 2026-10-29 pinned TxS source regeneration
+
+- ABI workflow now runs the extended extracted ledger/parser with sanitizers
+  after full queue-candidate preparation, explicitly requiring generation
+  exhaustion refusal and saving its diagnostic output. YAML/order validation
+  and targeted diff check passed. CI was not launched; the stale-report
+  negative witness remains diagnostic rather than acceptance of retirement.
+
+- Resolved extended-fixture composition: it requires the existing Type-1
+  handler-snapshot stage after claimed-slot. Applied that stage to the fresh
+  source; extended extracted ledger/parser test then passed strict optimized
+  GCC with generation-exhaustion rejection. Stale hardware-report/PID reuse
+  remains a negative witness. The interrupted earlier test lacked this stage;
+  its remaining owned process was terminated. No device operation.
+
+- Applied callback-ledger and claimed-slot stages to the freshly regenerated
+  TxS source. The CI-used allocation/cancel/exhaustion fixture compiled and
+  passed strict optimized GCC on these actual generated functions. Extended
+  parser fixture did not complete locally and was interrupted; no pass claim.
+  Full queue composition includes additional stages and remains required.
+
+- Retrieved all four pinned base files through GitHub connector and verified
+  their exact Git blob hashes. Full prepare-txs-status-candidate.py completed
+  in .iot-local-check/txs-regenerated-20261029, including generation exhaustion
+  guard. This is the TxS stage only: full queue composition, target compile
+  and hardware retirement proof remain pending. Source copies stay local.
+
+## 2026-10-29 TxS software generation wrap witness
+
+- Existing CI-used `prepare-txs-status-check.py` now requires refusal at
+  generation exhaustion with unchanged outputs/free slot. Its extracted
+  allocator fixture passed strict GCC on the temporary guard composition;
+  the workflow already invokes this extractor. No new CI run was launched.
+
+- Extractor now has an explicit generation-exhaustion expectation for future
+  regenerated candidates. Temporary source composition with the exact new
+  guard passed strict optimized GCC; old-candidate witness remains available
+  by default. Full regeneration and target compilation remain pending.
+
+- Candidate generator now refuses generation exhaustion under the ledger lock
+  before mutating slots or outputs. Extracted guard composed into the current
+  host fixture passed strict GCC, preserving outputs and releasing the lock
+  at UINT32_MAX. Full source regeneration/target build remains pending; the
+  existing v25b artifact still contains the old wrap behavior.
+
+- Extended the extracted ledger fixture to force UINT32 generation wrap:
+  allocation returns generation 1 again and accepts a cancellation with that
+  repeated identity. Strict optimized GCC C11 execution passed. Before binding
+  cancellation, require non-repeating identity or checked exhaustion/drain;
+  this is separate from hardware report identity. Driver unchanged.
+
+## 2026-10-29 TxS PID quarantine option reviewed
+
+- Re-extracted current v25b ledger/parser and ran the strict optimized C11
+  host fixture. The injected stale-report/PID-reuse negative witness still
+  reproduces. Hardware occurrence and the required retirement barrier remain
+  unproved; this result keeps the production close gate open.
+
+- Finite UINT8 PID allocation rejects when all slots are occupied; permanent
+  quarantine would eventually prevent beacon submission. Quarantining only
+  uncertain completions does not address the existing normal-completion stale
+  report witness. Retain exact-identity/drain gates; no driver change.
+
+## 2026-10-29 HTTP regression CI coverage
+
+- Negative source check confirmed that removal of the session-reset call is
+  detected; repeated preparation refused and preserved HTTPD/WebUI bytes.
+  This closes the source-guard check only; Linux execution remains pending.
+
+- Added the standalone strict HTTP form fixture to the existing Linux ABI
+  request-boundary step with ASan/UBSan. This carries the disabled-request
+  extra-field regression into CI; the existing handler fixture also contains
+  the new session-reset/replay case. Workflow YAML and fixture selection
+  validation passed locally. The workflow was not run or published; Linux
+  execution, MIPS linking and device acceptance remain pending.
+
+## 2026-10-29 IoT CGI candidate preserves existing headers
+
+- `prepare-http.py` now refuses differing or linked IoT header/validation
+  destinations before its first write. An isolated conflicting-header fixture
+  confirmed refusal with original header, HTTPD and WebUI source bytes
+  unchanged; Python compilation and targeted diff check passed. No CGI was
+  installed in production and the activation backend remains absent.
+- The candidate disabled form now rejects SSID/password or any other extra
+  fields, accepting only `enable=0` and CSRF token. Strict C11 form fixture
+  and isolated positive HTTP preparation passed. The combined request fixture
+  needs POSIX `arpa/inet.h` and was not locally runnable on Windows GCC;
+  Linux/target verification remains open.
+- HTTPD candidate now clears the process-global IoT CSRF token and pending
+  body through stock `reset_login_data()` on logout/timeout/reset. Isolated
+  positive source preparation and extracted-source check passed; handler
+  fixture includes a reset/replay rejection but still awaits Linux execution.
+  No production or device change.
+
+## 2026-10-29 Classic IoT guest band navigation
+
+- Source review found a separate Classic guest 2.4/5 GHz shortcut pair in
+  `state.js`. The isolated navigation candidate now adds the IoT destination
+  beside both main and guest pairs without changing their original handlers.
+  The 14-route in-memory check, JS syntax check and targeted diff check pass.
+  This candidate remains outside the production workflow; IoT service and
+  authenticated Apply are not established.
+
+- Follow-up source check: Classic constructs `TopBanner` and `tabMenu` in
+  `body onload`, but the navigation asset is loaded dynamically. The candidate
+  now schedules mounting after load handlers so the controls exist. Node
+  coverage includes the pre-load and already-complete cases; rendered Classic
+  and image checks remain pending.
+- Classic source-preparation guard now requires the four original main/guest
+  band-button IDs and all twelve page load hooks. Read-only extracted ROMFS
+  check found 1 occurrence per ID and 12/12 hooks; Python compilation, Node
+  route fixture and targeted diff check passed. No firmware build or router
+  change.
+
+## 2026-10-29 IoT TxS sequence identity source check
+
+- In isolated v25b, beacon `NSeq` has no observed consumer in the descriptor
+  writer; `txd_3.sn/sn_vld` are not assigned, and received TxS SN is not
+  compared with the PID reservation. The software Sequence assignment found
+  in `MlmeHardTransmitTxRing` is a separate transmission path. Source alone
+  therefore cannot justify an SN-based retirement gate. Hardware measurement
+  or a proven drain remains required; no driver/image/router change.
+
+## 2026-10-29 IoT TxS disable option rejected by source
+
+- Audited isolated v25b beacon state flow: DMA completion reaches
+  `BCN_TX_DMA_DONE`, while `BcnTxSHandler` sets `BCN_TX_IDLE`; normal beacon
+  update and buffer deinit depend on IDLE. Simply disabling beacon TxS would
+  break the demonstrated state machine and is not a safe retirement fix.
+  Source evidence added to the TxS options report. No driver, image or
+  router change; exact report identity or a real drain barrier remains open.
+
+## 2026-10-29 IoT RC marker to activation host contract
+
+- The activation host fixture now raises SIGTERM after RADIO_PREPARE while
+  the RC shutdown marker is active. Its injected backend cancellation callback
+  reads the pending marker; the next START step is refused, `BSS_UP` is never
+  called, recovery completes, and the pending signal remains for RC delivery.
+  Strict C11 GCC test passed. This is a combined host model only; no installed
+  backend or bounded driver operation is established. WSL is present as a
+  command but has no usable distribution in this environment, so Linux
+  SIGQUIT/SIGPWR fixture coverage remains in CI.
+
+## 2026-10-29 IoT cooperative start cancellation candidate
+
+- `activation.h` now requires a backend cancellation callback and checks it
+  immediately after LOCK, between each START operation, and after final
+  observation. The injected C11
+  fixture covers cancellation after radio preparation, cancellation after
+  BSS observation, pre-start cancellation, missing callback rejection, and failed recovery retaining
+  owner lock/snapshot/isolation until a later checked retry. Strict GCC run
+  and `git diff --check` passed. This cannot interrupt a blocked backend
+  operation, does not bind the RC signal marker or driver owner, and has no
+  target/image/device proof.
+
+## 2026-10-29 IoT RC dispatch signal matrix
+
+- Extended the extracted dispatch fixture to inject SIGTERM, plus SIGQUIT
+  and SIGPWR where the host defines them. It checks that normal shutdown is
+  delivered after dispatch while SIGPWR takes the immediate handler path.
+  The strict Windows C11 run passed; Windows does not establish Linux
+  SIGQUIT/SIGPWR coverage. Linux CI remains pending. This is still an
+  injected host fixture, not production or router behavior.
+
+## 2026-10-29 IoT power-signal boundary
+
+- Pinned RC source maps `sys_exit()` to SIGTERM and `sys_stop()` to SIGQUIT;
+  SIGPWR is a separate fatal-handler input. The isolated RC candidate now
+  defers only SIGTERM/SIGQUIT and leaves SIGPWR on the immediate stock path.
+  Strict C11 admission and injected-dispatch host tests passed after the
+  change. SIGPWR can still interrupt activation; fail-closed recovery and
+  bounded normal shutdown remain open gates. No production image or router
+  change.
+
+## 2026-10-29 IoT RC shutdown end ordering
+
+- Corrected the isolated signal marker so `end()` clears `active` before
+  reading/clearing the deferred signal. This closes a lost-signal window in
+  the prior local candidate. `prepare-http.py` and `prepare-control.py`
+  passed on a local RC/HTTP source fixture with a minimal HTTP Makefile stub;
+  strict C11 admission and injected dispatch checks passed again. The actual
+  Makefile selection, Linux CI, MIPS compile, bounded backend, and router
+  behavior remain unverified. No production or router change.
+
+## 2026-10-29 IoT normal shutdown admission candidate
+
+- Added an isolated RC signal marker: SIGTERM/SIGQUIT received during
+  a claimed IoT transaction are deferred until the mailbox result is written
+  and cleanup ends; SIGPWR and process faults retain the original handler. The source
+  preparer stages the hook only for WR1200JS. A strict C11 host marker test
+  and injected dispatch fixture pass; Linux control-channel/source and MIPS
+  checks are wired but have not run. A bounded backend/cancellation protocol
+  and driver owner remain required before production inclusion. See RC
+  signal evidence; no router or production image change.
+
+## 2026-10-29 IoT shutdown signal gate refined
+
+- The pinned `signals_fatal` list covers SIGTERM, SIGQUIT, SIGPWR and
+  process faults (including SIGSEGV/SIGBUS). A blanket signal mask around
+  activation is unsafe: it can delay reboot indefinitely and hide faults.
+  The IoT implementation contract now requires a bounded, fail-closed
+  shutdown admission/cancellation design that preserves reboot and shares
+  the driver transition owner. No RC signal behavior was changed.
+
+## 2026-10-29 IoT RC shutdown exclusion
+
+- Pinned RC source confirms SIGUSR1 notifications run sequentially in the
+  PID 1 event loop, but `catch_sig_fatal` calls `shutdown_router()` directly
+  from a signal handler. That teardown can interrupt IoT activation outside
+  notification ordering. A single RC worker is therefore necessary but
+  insufficient: production activation needs shared shutdown admission and
+  cancellation plus driver transition ownership. Source evidence is in
+  `docs/evidence/WR1200JS-IOT-RC-SIGNAL-OWNERSHIP-2026-10-29.md`.
+
+## 2026-10-28 IoT control admission hardening
+
+- The host-only activation candidate now checks its inactive state after
+  acquiring the backend transition lock, before publishing the backend or
+  changing resources. It advances a generation on admitted start; a stop
+  whose captured generation became stale while waiting refuses to stop a
+  newer activation. The injected C11 fixture passes both logical orderings
+  and the existing recovery cases. This is defensive sequencing under the
+  required single RC control worker, **not** thread safety for unsynchronized
+  C callers, an installed backend, target compilation, or router acceptance.
+
+## 2026-10-28 IoT TxS WLAN-index check
+
+- Reviewed isolated v25b beacon submission: MT-MAC sets `mac_info.WCID=0`
+  for every BSS; `write_tmac_info` copies it to `txd_1->wlan_idx`.
+  Consequently the TxS WLAN index cannot identify an old report after a
+  PID moves to another BSS. This eliminates a proposed simple identity
+  filter; hardware returned sequence identity or a verified report drain
+  remains required. Source-only evidence is in the TxS retirement report.
+
+## 2026-10-28 isolated v25b source packaging review
+
+- Verified the 71-file local v25b candidate against the 69-file parent and
+  seven-file delta: all hashes match. A duplicate copy was created at
+  `tools/iot/candidates/mt7603-v25b-beacon/` but remains **untracked and
+  nonproduction**. The vendor source carries a Ralink notice describing it as
+  unpublished/all-rights-reserved; redistribution needs a rights review before
+  staging or GitHub publication. An attempt to remove only this newly created
+  copy was rejected by automatic command approval (`blocked by policy`). The
+  original `.iot-local-check` tree and other work are untouched. Do not stage
+  this duplicate as part of a bulk commit.
+
+## 2026-10-28 BusyBox version decision
+
+- Owner confirmed retaining BusyBox 1.24.2. The live `hexdump -C -n 4096`
+  works, so a broad BusyBox upgrade is outside the current delivery. The
+  per-service exact-image compatibility audit remains open. Recorded in
+  `docs/PROJECT-DELIVERY-SCOPE.md`.
+
+## 2026-10-28 IoT registry regression gate
+
+- Wired the two strict host contracts (`check-interface-registry.c` and
+  `check-mbss-remove-resume.c`) into the existing Band Steering ABI workflow.
+  Both compiled and ran locally at `-O2`; workflow YAML parsed. This does
+  not compile v25b, prove the missing TxS drain or establish a CI result.
+
+## 2026-10-28 IoT v25b complete source inventory
+
+- Added a checker that verifies v24c's 69 recorded file hashes, v25b's seven
+  exact changed/added hashes and the full 71-file output inventory. It passes
+  on the local candidates. This closes a partial-manifest verification gap;
+  v25b and its parent remain local scratch, uncompiled for MIPS and absent
+  from the production build.
+- Git-index audit found that three v22→v24c preparers and the PCI drain
+  include are still untracked local dependencies. Only the v25b beacon
+  preparer is tracked. A GitHub checkout therefore cannot regenerate this
+  candidate; do not schedule a CI target compile until its source package
+  and provenance are reviewed and made available in Git.
+
+## 2026-10-28 IoT exact netdev detach registry contract
+
+- Re-ran strict C11/GCC fixtures extracted from isolated v25b. Beacon DMA
+  owner snapshot passes, but the TxS fixture reproduces a safety failure:
+  after a PID is reused for BSS 3, an old report for BSS 2 consumes its new
+  slot. `TXS_CLAIMED` only protects the parser interval; the report carries
+  no software reservation generation. Selective IoT BSS retirement remains
+  unproved. Require verified report identity or a real hardware/RX drain
+  barrier before binding production close. Details in the detach evidence.
+- Candidate source check confirms the existing `TXS_SN` history cannot serve
+  as that identity: it is recorded only under `DBG` inside the beacon handler,
+  after PID-based dispatch; the transmit descriptor does not set a verified
+  expected SN. Evidence appended to the detach report.
+- Extended the host-only MBSS removal selector to require an independent
+  `reports_drained` proof before vendor teardown or release, in addition to
+  callback quiescence. Its strict C11 fixture passes false/true cases. v25b
+  has no source for this proof, so this is a fail-closed contract, not a
+  production fix or permission to publish the driver.
+- Closed the alternate registry-finalizer path: an opened MBSS now requires
+  `reports_drained` at both one-shot release and post-unregister continuation.
+  Strict C11 tests verify that false retains the exact stage/device, true
+  permits completion, and WDS does not require the MBSS-only proof. This
+  remains host-only; no hardware/RX source for the proof exists in v25b.
+- Checked local target-compile options for v25b: no MIPS cross compiler or
+  Docker/Podman is available; WSL status exits 50. The existing package
+  script expects prebuilt drivers, so it cannot compile v25b. Exact source
+  and toolchain in CI are needed for a driver compile; runtime remains open.
+
+- Added `wr_iot_registry_release_after_detach` with exact identity and three
+  separate caller proofs before registry release. Strict C11 host test and
+  diff check pass. Evidence:
+  `docs/evidence/WR1200JS-IOT-NETDEV-DETACH-REGISTRY-CONTRACT-2026-10-28.md`.
+- Pinned Padavan kernel source confirms `rtnl_unlock → netdev_run_todo` and
+  netdev reference drain; inspected IMQ overlay does not change that path.
+  The registry contract now rejects an acquired-open `IDLE` record unless
+  family-specific checked close reached its terminal state (main/MBSS stage 4;
+  reviewed WDS candidate stage 2). WDS stage 4 is unfinished. Host GCC test
+  passes; AP-client/monitor remain ineligible pending checked-close proof.
+  v39 WDS checked-close wrapper cannot yet be copied into v24c: its failed
+  DOWN path retains a ticket/pin and expects a recovery owner that is not
+  bound. Next: implement that owner and the post-unregister finalizer, then
+  bind normal child release before free.
+  Added a two-step post-unregister registry contract: record stage 1 when
+  unregister returns even if close is pending; finish only after checked
+  close, callback quiescence and vendor-unregister proof. Host fixture passes.
+  No production continuation owner is bound yet.
+  Exact MBSS insertion point is after `RtmpOSNetDevProtect(0)` in
+  `ap/ap_mbss.c`, before vendor index unregister/free. The current loop has
+  no stage-1 resume branch, so a one-line binding would risk repeating beacon
+  teardown or unregister. See the detach registry evidence.
+  Added host-only MBSS resume selector and strict C11 test: it does not
+  reselect beacon/unregister after their recorded milestones, and waits for
+  checked close before vendor/release. Driver binding and allocation owner
+  remain open.
+  The selector now also gates destructive steps on MBSS family, exact
+  generation and completed checked close; host fixture covers a closing and
+  reserved reference. This is still an isolated model.
+  Pinned kernel `netdev_run_todo` waits for all netdev refs at protect-off;
+  retaining `dev_hold` across this point can deadlock. The continuation needs
+  driver-owned allocation lifetime, with temporary refs dropped first.
+  Pinned `free_netdev` accepts `NETREG_UNREGISTERED` and reaches allocation
+  free via `netdev_release` after the driver's later put. Deferring
+  `RtmpOSNetDevFree` is a viable lifetime mechanism only with exclusive
+  ownership of all vendor free paths; this remains unbound.
+  MBSS resume selector now also blocks vendor/release steps until callback
+  quiescence is caller-proven; strict host test covers false/true proof.
+  Existing TX-idle and registration-idle waits do not prove MBSS vendor
+  callback quiescence; main recovery worker joins are PCI-wide. Do not wire
+  either wait as the MBSS callback proof. Source audit in detach evidence.
+  Restaged the beacon/TIM producer gate over v24c as isolated v25b after
+  allowing exact LF/CRLF anchors. Seven-file manifest and strict host gate
+  test pass; no target compile or production binding. A failed partial v25
+  scratch directory remains after policy rejected deletion; use v25b only.
+  v25b source check confirms wrappers at both beacon/TIM entry points,
+  revoke/drain in close and abort, and remove gate before buffer deinit.
+  Kernel-adapter host fixture passes. Late DMA/TxS and target compile remain.
+  Corrected the combined detach helper to retain stage 1 even when later
+  proofs fail; the host test now exercises continuation without a second
+  unregister.
+  Still unbound to vendor child remove loops; vendor callback/checked-close
+  proof and post-unregister failure/finalizer remain open.
+
+## 2026-10-28 IoT v24c child netdev release gap
+
+- Verified that normal AP-client, WDS, MBSS and monitor removal detach/free
+  netdevs without binding registry `kernel_done → vendor_done → release`.
+  This can leave published records referring to freed netdevs; a family
+  completion flag alone cannot prove safe adapter release. Evidence:
+  `docs/evidence/WR1200JS-IOT-V24C-CHILD-NETDEV-RELEASE-GAP-2026-10-28.md`.
+- Next implementation is exact per-netdev release with checked close and
+  callback proof before free; post-unregister failure needs a finalizer.
+
+## 2026-10-28 IoT v24c release binding audit
+
+- Source review confirms `wr_iot_children` is only initialized in v24c;
+  no vendor caller records checked child-family completion. PCI retirement
+  receipts after drain are defined but not called before adapter free.
+  Evidence: `docs/evidence/WR1200JS-IOT-V24C-RELEASE-BINDING-AUDIT-2026-10-28.md`.
+- Next: bind exact child-family close/completion and callback/registry proof,
+  then ordered PCI release receipts; separately solve stalled-owner finalizer.
+
+## 2026-10-28 IoT v24c queued reaper after owner completion
+
+- Found and fixed an isolated drain contract hazard: zero deferred owners no
+  longer completes PCI drain while another delayed-reaper instance is queued
+  or running. The next instance must join, or the bounded drain stalls.
+- v24c 69-file composition and focused source checks pass; strict C11 host
+  fixtures cover queued work after owner completion. Evidence:
+  `docs/evidence/WR1200JS-IOT-V24C-PCI-DRAIN-QUEUED-CALLBACK-2026-10-28.md`.
+- Still nonproduction: stalled-owner PCI finalization and release gate are
+  unresolved; no MIPS target, image or device acceptance.
+
+## 2026-10-28 IoT v24b isolated PCI recovery drain
+
+- v24b stages a bounded, owner-checked reaper drain before PCI removal asks
+  recovery to stop. Its 69-file composition and focused source checks pass;
+  a new checker verifies retire/drain/stop/join source order, and strict C11
+  host tests pass completion, no-next-work and bounded self-rearm.
+  Evidence: `docs/evidence/WR1200JS-IOT-V24B-PCI-RECOVERY-DRAIN-2026-10-28.md`.
+- An unresolved owner still makes the one-shot PCI remove return without an
+  independent finalizer. PCI release gate remains unbound; no target build,
+  image or router test. Keep v24b isolated and nonproduction.
+
+## 2026-10-28 IoT v23b main recovery queue and joined reaper
+
+- Isolated v23b now connects failed main VERIFY to exact acquired-open or
+  partial-close recovery ownership, a netdev hold, work submission and a
+  delayed joined reaper. A canceled pending work item becomes retained before
+  retry; completed close drops the netdev hold once. All 67 hashes match.
+- Focused/broad source gates and strict C11 owner/reaper host fixtures pass.
+  An additional strict C11 fixture now injects the actual isolated
+  `MainVirtualIF_open` body and passes three failed-VERIFY close paths:
+  begin rejected, preclose failed, and close continuation incomplete. Each
+  retains one module pin and queues the expected exact recovery owner.
+  The workqueue and hardware are mocked. Evidence:
+  `docs/evidence/WR1200JS-IOT-V23B-MAIN-RECOVERY-REAPER-2026-10-28.md`.
+- PCI remove still returns with an incomplete owner; admission failures and
+  exhausted retries have no complete drain. A false delayed-work queue result
+  means the work may already be pending, so a simulated idle rejection was
+  removed as unrepresentative. Source review confirms removal first stops the
+  reaper, then returns from the one-shot callback on a retained owner; no
+  in-driver continuation remains to finish teardown. The owner/radio models
+  already admit a narrowly owned retirement close, but PCI does not bind it
+  before stop. The host PCI contract now requires an explicit completed,
+  joined recovery drain before accepting stop, and C11 fixtures pass that
+  ordering plus the retirement-close ticket/preclose receipt. A failed-VERIFY
+  fixture also confirms a queued exact close remains admissible if retirement
+  arrives before its worker starts and stop has not been requested. Upstream
+  Linux 4.4.198 workqueue source confirms one delayed-work flush does not
+  drain a self-rearming reaper; the host PCI contract now has a tested
+  bounded per-instance decision, but no vendor callback binding.
+  No MIPS target build, image or
+  router test. v23b remains nonproduction. Next review target workqueue
+  semantics and fault-inject extracted callbacks, then close the PCI release
+  protocol before installation.
+
+## 2026-10-28 IoT v22 nonblocking RTNL recovery callback
+
+- Isolated v22 stages `rtnl_trylock` around the main recovery callback. On
+  contention the owner becomes retained without a hardware action or an
+  execution attempt. An extracted callback host fixture and the owner-state
+  C11 fixture pass; all 67 hashes match the candidate manifest. Evidence:
+  `docs/evidence/WR1200JS-IOT-V22-RECOVERY-RTNL-TRYLOCK-2026-10-28.md`.
+- Queue/schedule submission, external joined retry, netdev/adapter lifetime
+  and PCI release remain unbound. v22 is nonproduction; no MIPS build, image
+  or router proof. Extracted-callback interleaving confirms a worker queued
+  inside `ndo_open` may hit RTNL contention and stay retained. Next integrate
+  exact owner submission together with an external joined retry/reaper and
+  PCI teardown, then fault-inject those combined paths.
+
+## 2026-10-28 IoT v21 checked rollback after failed main VERIFY
+
+- Isolated v21 now tries the existing checked close synchronously while the
+  failed main `ndo_open` still holds RTNL. It releases the module pin only
+  after a complete close; partial close retains owner and pin. All 67 source
+  hashes match the composition manifest; `production_installed=false`.
+- Focused VERIFY and broad source gates plus strict main-recovery, MBSS and
+  virtual-open C11 host fixtures pass. An extracted actual `MainVirtualIF_open`
+  fixture also passes complete-close and three injected failure branches;
+  VERIFY and close helpers are mocked. No target compile, image or device test.
+  Evidence: `docs/evidence/WR1200JS-IOT-V21-MAIN-VERIFY-CHECKED-ROLLBACK-2026-10-28.md`.
+- Next: bind the partial-close recovery worker and PCI removal under one
+  RTNL/netdev/adapter lifetime protocol before production installation.
+- Source call-graph audit found no queue/schedule/requeue/complete call sites
+  for the main recovery owner. PCI remove joins work but can return with a
+  retained owner and no later release path. This makes a bare worker enqueue
+  insufficient. Evidence:
+  `docs/evidence/WR1200JS-IOT-V21-RECOVERY-REMOVE-CALLGRAPH-2026-10-28.md`.
+
+## 2026-10-28 IoT v20 main-readiness reconciliation
+
+- The v19 recovery/steering chain lacked the v44 main-readiness VERIFY
+  producer, so it could not establish its own `main_ready` prerequisite.
+  Isolated v20 carries that producer into the v19 chain; only
+  `os/linux/rt_main_dev.c` differs across the same 67 source files.
+- Focused main-readiness structure, broad virtual-call gate, strict MBSS
+  post-open fixture and virtual-open ownership fixture pass. This is
+  host/source evidence only. The failed VERIFY path still retains an owner
+  without a bound recovery drain; PCI release, MIPS compilation, image and
+  device acceptance remain open. Evidence:
+  `docs/evidence/WR1200JS-IOT-V20-MAIN-VERIFY-RECONCILIATION-2026-10-28.md`.
+- Recovery audit: the work callback exists, but no queue/schedule caller is
+  bound and its executor has no RTNL admission. A blocking RTNL acquisition
+  could deadlock against PCI removal's `cancel_work_sync`; next candidate must
+  bind queue, netdev/adapter lifetime, RTNL-safe execution, bounded retry and
+  removal as one reviewed protocol.
+- A strict v20 host fixture now joins the failed main VERIFY state to recovery
+  admission: a missing netdev hold or adapter fence is rejected, a failed
+  schedule retains the exact owner/pin, and retry needs external join proof.
+  It passes, but does not execute the unbound kernel worker.
+
+## 2026-10-28 IoT Band Steering intent race
+
+- A strict host fixture reproduced a v18 defect: reset during BSS readback
+  could still publish a per-BSS ready event. Isolated v19 checks reset,
+  close, retire and PM intent before publication, then compensates with a
+  down event if intent latches during the unlocked daemon call. Both guest
+  and IoT BSS paths, failed readback/count and partial-open cases pass the
+  strict C11 fixture with mocked hardware. v18 fails the focused assertion.
+- Only `include/wr-iot-mbss-open-admission.inc` differs from v18; 67/67
+  hashes match and `production_installed=false`. The broad source gate
+  accepts v19 and rejects v18 at missing compensation. Evidence:
+  `docs/evidence/WR1200JS-IOT-MBSS-STEERING-INTENT-RACE-2026-10-28.md`.
+- The ready-then-down event can be briefly visible when an intent latches
+  inside the daemon call. No target compile, daemon-convergence test or
+  router run has been done; recovery and PCI release remain open.
+- Source follow-up: the staged userspace Band Steering session filters MT76x3
+  status by its configured primary interface (`ra0`/`rai0`), while the driver
+  publishes per-BSS status for `ra1`/IoT `ra2`. No daemon integration or IoT
+  exclusion test proves how those secondary messages are handled. Keep IoT
+  steering OFF by default and leave compatibility open; see the same evidence.
+
+## 2026-10-28 IoT reset ticket wakeup
+
+- Shared reset template and isolated v18 now wake radio-ticket waiters only
+  after `wr_iot_radio_finish_unverified` retires the reset ticket and both
+  transition and RTNL locks are released. One staged source file changed;
+  67/67 manifest hashes match, `production_installed=false`.
+- Strict C11 reset host fixture passed with hardware mocked. The broad
+  virtual-call source gate passes v18 and rejects v17 at the missing reset
+  wake. Its stale main-open/main-close caller counting was scoped to the
+  actual functions. Evidence:
+  `docs/evidence/WR1200JS-IOT-RESET-TICKET-WAKE-2026-10-28.md`.
+- This is not MIPS compile, firmware image or device proof. Continue the
+  failure/race fixtures, remaining recovery owner and ordered PCI release
+  before installing the driver.
+
+## 2026-10-28 IoT MBSS ticket wakeup
+
+- Isolated v17 adds five conditional, post-unlock wake sites for MBSS-open
+  ticket retirement; a failed ticket begin does not wake. Only
+  `include/wr-iot-mbss-open-admission.inc` differs from v16b and all 67
+  manifest hashes match. The broad source gate advances from MBSS-open
+  wake coverage to missing reset-admission wake coverage. Evidence:
+  `docs/evidence/WR1200JS-IOT-MBSS-OPEN-WAKE-2026-10-28.md`.
+- v17 remains nonproduction: no interleaving fixture, target compile, image
+  or device test. Next inspect and bind reset-path post-unlock wakeups; retain
+  uncertain owners and do not install this candidate.
+
+## 2026-10-28 IoT MBSS claimed open and steering correction
+
+- Isolated v16b moves MT7603 BSS1/BSS2 down publication after checked virtual
+  DOWN while the close ticket remains active; other BSS/boards keep the
+  vendor path. Its 67-file hash manifest matches and only the MBSS core and
+  checked-close include changed from v15b. Broad source coverage now advances
+  past both steering checks and fails on missing MBSS-open ticket wakeups.
+  No target compile, race fixture or router test; v16b is nonproduction.
+  The v16 draft was superseded for an imprecise ticket-name comment.
+
+- Isolated v15b stages the per-BSS ready event after successful claimed open,
+  observed BSS and owned/count checks while its ticket remains active. The
+  vendor early event is skipped only for MT7603 BSS1/BSS2 with at least three
+  configured BSS; other boards/BSS keep the old path. Input and output
+  manifests match 67/67 hashes, Python syntax passes, and the broad gate now
+  advances to the premature checked-close/down notification. No target build
+  or device test; v15b remains nonproduction. The earlier v15 draft is
+  superseded because its vendor exclusion was too broad.
+
+- New isolated v14 composition binds MBSS raw open to the existing claimed
+  virtual-UP ticket/generation, and retains the module pin when vendor abort
+  fails. Its 67-file composition and eight remove-result ABI pairs pass; the
+  broad virtual-call gate still fails and PCI release is unbound. It is not a
+  production build or router result.
+- Corrected a prior source assumption: `BndStrg_SetInfFlags` is per BSS, with
+  `wdev->bInfReady`, `ActiveCount` and an interface-named daemon event. The
+  existing vendor ready event precedes claimed UP; the down event precedes
+  checked DOWN. The source gate now identifies those timing faults instead
+  of calling the flag band-wide. See
+  `docs/evidence/WR1200JS-IOT-BAND-STEERING-BSS-OWNERSHIP-2026-10-28.md`.
+- Strengthened the source preflight: deleting the vendor ready/down calls
+  alone cannot pass; checked admission and close must each own a replacement
+  per-BSS notification. This is presence checking only, not timing or runtime
+  proof. v14 remains rejected because the old ready notification is premature.
+- Next: bind ordered per-BSS steering publication to committed open/close
+  ownership, test failed UP/DOWN and competing reset/close, then continue
+  recovery owner and PCI release work. No target compile or device test ran.
+
+## 2026-10-28 IoT auxiliary remove-result composition
+
+- `prepare-mbss-checked-stop-candidate.py` now accepts the pinned CRLF
+  vendor source without normalizing unrelated lines. Applied to v11 as
+  `.iot-local-check/mt7603-main-recovery-mbss-stop-v12-20261028`: exactly
+  `ap/ap_mbss_inf.c` differs, all 67 source files were compared, the output
+  SHA256 matches its report, and eight remove-result ABI pairs pass. The
+  candidate binds MBSS `ndo_stop` to the existing checked close executor but
+  still has no recovery owner or PCI release claim. The full virtual-call
+  coverage gate fails identically on v11 and v12 because MBSS open is not yet
+  composed into this partial overlay; no target build or device test ran.
+- Source audit of v11 found a partial PCI unbind case: AP-client/WDS or an
+  earlier MBSS can be freed before a later MBSS beacon returns not-idle.
+  `rt_pci_remove` is void, so returning without adapter free does not roll
+  back the kernel unbind. Exact evidence and required transaction boundaries:
+  `docs/evidence/WR1200JS-IOT-PCI-PARTIAL-CHILD-REMOVE-2026-10-28.md`.
+- Pinned Linux 4.4 `dev_close()` ignores `ndo_stop`'s return and returns 0;
+  it cannot serve as the checked child-close receipt. Active MBSS has an
+  OWNED reference, while v11's `wr_iot_mbss_begin_remove` requires IDLE
+  before unregister. The next candidate must bind checked DOWN and recovery
+  reconciliation before child teardown, then recheck registry state.
+- The PCI release source preflight now requires checked failure propagation
+  from AP-client, WDS, MBSS and monitor removal, not MBSS alone. The current
+  v11 candidate satisfies all four source guards; four single-family mutation
+  checks confirm a missing guard is rejected. The gate still fails on the
+  missing ordered retirement/release claim. Guarded return does not prove
+  atomic teardown: a failure after an earlier child was freed remains unsafe
+  to retry or accept as PCI removal completion.
+- `tools/iot/prepare-remove-result-composition.py` builds an isolated successor
+  of the v10 MT76x3 PCI observer overlay. It verifies the 65 source hashes,
+  obtains the two missing WDS/AP-client headers from pinned source revision
+  `c25283e915a2a00a763774dd255b14aff997285e`, and applies the existing
+  checked WDS, AP-client and monitor removal transformations in scratch.
+- Output `.iot-local-check/mt7603-main-recovery-aux-remove-v11-20261028`
+  has 67/67 matching manifest hashes; the eight source/header remove-result
+  ABI pairs pass `check-remove-result-abi.py`. The PCI release gate still
+  fails because an ordered release claim is absent. This is a partial,
+  uninstalled candidate, with no target build or router verification.
+- A failed earlier direct preparer attempt left an ignored scratch directory
+  `.iot-local-check/mt7603-main-recovery-wds-result-v11-20261028`. Preserve
+  it until the shared workspace is reviewed; it is not the composed candidate.
+
+## 2026-10-28 IoT isolated main-open claim composition
+
+- Fixed a recovery contract rejection after checked virtual DOWN: it now
+  compares the actual vendor count with the recorded pre-DOWN count using
+  `virtual_down_stage`, including last physical close at count 0 and
+  selective BSS close at count N-1. Exact-ticket and failed-open owner host
+  tests passed. This header is not yet composed into the driver.
+- The recovery contract now admits a failed main `ndo_stop` CLOSING record
+  only with its exact recorded close ticket and held netdev/adapter lifetime.
+  Stage 1 after void vendor preclose is reconciliation-only; stages 2/3 can
+  continue checked DOWN. A new strict GCC host test passed exact-ticket,
+  stage and PCI-retirement admission; the existing failed-open owner test
+  still passes. The Linux work item is not yet bound.
+- `prepare-composed-main-close.py` now places the partial main `ndo_stop`
+  into a new isolated successor of the checked MT7603 radio-off bundle.
+  All 64 output hashes match; an extracted test of the actual composed
+  callback passed strict C11/GCC host checks. The manifest explicitly keeps
+  recovery and PCI release unbound, and the PCI release gate still fails.
+- A separate, uninstalled partial main `ndo_stop` implementation now uses
+  exact main close admission, recorded preclose, checked virtual DOWN and
+  retained pin on failure. Its extracted strict C11/GCC host fixture passed
+  physical last close, selective close with another BSS, checked-DOWN failure
+  retention, and replay rejection. It is not composed into the driver: the
+  deferred recovery worker and final PCI release gate are still missing.
+- The partial queue/main-open bundle now has a separate MT7603 checked
+  radio-off composition generated by `prepare-composed-mt7603-radio-off.py`.
+  It changes exactly four expected files; all 64 manifest hashes match.
+  The reviewed radio-off host fault test and extracted final checked-close
+  strict GCC fixture passed. This proves neither physical RF quiescence nor
+  safe PCI release; the PCI source gate still fails with three open conditions.
+- PCI release audit found a concrete unresolved lifetime hazard in the
+  isolated bundle: `RtmpPhyNetDevExit` can return `FALSE` on MBSS remove
+  failure, but `rt_pci_remove` ignores that result and proceeds to
+  `RtmpRaDevCtrlExit`, iounmap and root-netdev free. No work join or final
+  deferred-owner gate precedes those releases. A new source preflight
+  `tools/iot/check-pci-remove-release-gate.py` rejects the current bundle
+  with these three explicit open gates (expected exit 1). Do not package it.
+- The composed `VIRTUAL_IF_UP_CLAIM` physical/main branch was extracted into
+  a strict C11/GCC host fixture. First radio start, failed physical-open
+  count rollback, replay rejection, and later main open passed. This remains
+  injected host behavior, not a target or device result.
+- A new isolated composer merges the reviewed main open ticket/claim path into
+  the fresh partial queue bundle while leaving its newer MBSS CR and Band
+  Steering files unchanged. Preparation succeeded; the extracted claimed
+  dispatcher strict GCC fixture passed MBSS/auxiliary replay checks.
+- The separate composition manifest remains `complete_driver_tree=false`,
+  `production_installed=false`, `main_open_owner_composed=false`. A real
+  deferred checked-close worker, PCI join and target/runtime verification
+  remain required. See the v43 preflight evidence.
+- The composer now checks every queue input digest and pinned source revision
+  before copying. A fresh composition and all 64 output digest checks passed.
+- An extracted-function strict GCC fixture passed early failure, post-mutation
+  failure, successful claimed open and late main-down invalidation. It checks
+  pin and registry ownership with injected vendor actions; kernel recovery
+  and physical radio remain untested.
+
+## 2026-10-28 IoT full-bundle main-open blocker
+
+- Fresh pinned-source queue assembly confirms the separate main-open owner
+  candidate is not composed into the full bundle. The assembled failed-open
+  branch still releases its module pin after AP main-open. Manifest now marks
+  virtual-open claim, main-open owner composition and failed-open pin retention
+  false; the bundle
+  remains partial and uninstalled. See the v43 preflight evidence. The next
+  integration must compose the missing command ABI with claim/registry,
+  deferred checked close and PCI join
+  before target compilation or packaging.
+- The older combined-open v27 cannot replace queue-bundle files wholesale:
+  it omits main recovery storage, weakens the newer MBSS CR result path and
+  removes Band Steering readiness hooks. The merge must retain those newer
+  behaviors while updating all virtual-UP/DOWN caller families.
+
+## 2026-10-28 IoT active-filter unbridged interface guard
+
+- The isolated RC generator now keeps direct `ra2` INPUT/FORWARD drops ahead
+  of the `br-iot` allow policy, including after bridge ownership is established.
+  The installed-helper fixture checks the guard in the active-policy case.
+- Python syntax and scoped `git diff --check` passed. The generated RC source,
+  Linux integrated C fixture, packet path on target, and firmware were not
+  tested in that step. An isolated copy of the previously prepared RC source
+  now accepts the generator's updated helper, and the installed-helper
+  extractor includes its active `ra2` guard. This is structural evidence only;
+  full generation, Linux C execution, packet behavior, radio activation and
+  physical admission remain open.
+
+## 2026-10-27 IoT pre-bridge firewall candidate
+
+- Isolated RC generator now emits direct `ra2` drop rules before `br-iot`
+  ownership is established, and the installed-helper fixture expects them.
+  Local source generation passed; Windows GCC lacks `arpa/inet.h`, so the
+  integrated C test needs Linux CI. A bridge already carrying `ra2` requires
+  separate BSS/bridge admission proof. See
+  `docs/evidence/WR1200JS-IOT-ACTIVATION-GAP-2026-10-21.md`.
+
+## 2026-10-27 IoT checked-close bounded dequeue
+
+- Isolated MT7603 checked-close generation now bounds the inherited endless
+  TX dequeue wait and marks timeout as terminal uncertainty before AP/IRQ/ring
+  release. Exact generated-function host fixture passed. Legacy void close
+  and production removal remain unbound. See
+  `docs/evidence/WR1200JS-IOT-MT7603-MAC-STOP-READBACK-2026-10-27.md`.
+
+## 2026-10-27 IoT host release gate PCI condition
+
+- Release gate observations now carry the radio epoch and reject stale or
+  missing observations. Host fixtures passed; production must capture and
+  recheck that epoch around actual PCI reads under one lifetime owner.
+- A host-only final-remove helper now validates inputs, requests bus-master
+  disable and reads it back before checking Transaction Pending. Fault tests
+  pass for failed/silent clear and invalid input. No production binding;
+  ordinary Wi-Fi close must not disable PCI bus mastering.
+- The host-only release and PCI retirement gates now additionally reject
+  invalid, master-active or pending PCI transaction observations. Four strict
+  GCC fixtures and `git diff --check` passed. This is a necessary candidate
+  condition only: no production binding and no proven DMA/ring/IRQ drain.
+  See `docs/evidence/WR1200JS-IOT-PCI-TRANSACTION-OBSERVER-2026-10-27.md`.
+- The observer now catches bus master re-enabled during its poll. Source audit
+  confirmed the inherited close chain discards the physical failure through
+  `RTMPDrvClose`/`rt28xx_close`/virtual-down, while PCI remove ignores failed
+  netdev exit; a shared fail-closed owner is required before production binding.
+
+## 2026-10-27 IoT PCI transaction observer (host-only)
+
+- Pinned Linux `pci_wait_for_pending_transaction()` ignores the config-read
+  return in its underlying poll. Added a bounded host-only observer requiring
+  bus-master-off readback and valid PCIe Transaction Pending reads; strict GCC
+  fault-injection fixture passed. Live PCI Device Status was `0x0010` on both
+  Wi-Fi endpoints in the saved read-only dump, so pending bit `0x0020` was
+  clear only at that instant. This does not prove full DMA quiescence and is
+  not bound to production or the adapter release gate. Evidence:
+  `docs/evidence/WR1200JS-IOT-PCI-TRANSACTION-OBSERVER-2026-10-27.md`.
+
+## 2026-10-27 optional BusyBox od added to WR1200JS build path
+
+- The WR1200JS BusyBox preparer now enables the compact `od` applet without
+  `CONFIG_DESKTOP`; image gates require the effective config and link, and
+  target QEMU probes `od -b`. Source/config review, Python syntax and
+  whitespace checks passed. Firmware build #636 and its exact-image BusyBox
+  audit passed, including the QEMU octal-byte probe. Router acceptance is
+  pending; the currently installed router remains unchanged. Evidence:
+  `docs/evidence/WR1200JS-BUSYBOX-OD-INTEGRATION-2026-10-27.md`.
+
+## 2026-10-27 IoT MT7603 MAC stop readback candidate
+
+- Pinned source review found `AsicSetMacTxRx()` reports success without MAC
+  register readback. The isolated checked-stop candidate now requests both
+  MAC TX/RX off after the MCU radio-off command and verifies `ARB_SCR` before
+  PDMA shutdown. Host fault injection covers a silent write failure and bad
+  readback; strict GCC fixture, Python syntax and whitespace checks passed.
+  This remains outside production, without target compile or router proof.
+  See `docs/evidence/WR1200JS-IOT-MT7603-MAC-STOP-READBACK-2026-10-27.md`.
+- Follow-up source audit: the MT7603 idle poll observes DMA busy bits only;
+  it does not prove ring or PCI transaction completion. The inherited close
+  path continues to ring release after a logged radio-off failure, and PCI
+  remove ignores `RtmpPhyNetDevExit()` failure. The next binding must replace
+  those release edges with an owned completion path before setting the
+  adapter gate's `physical_quiescent` receipt.
+
+## 2026-10-27 BusyBox image/live comparison checkpoint
+
+- Connectivity was restored: fixed read-only SSH checks now identify live
+  BusyBox 1.24.2, `hexdump` with `-C`/`-n`, no `od`, and `/bin/busybox` SHA256
+  `87a15a8c1b06577c874f1a05edd80291991fd0d234c0e0d55a7a92df4335ecc0`.
+  Build 583's saved exact-image audit also reports version 1.24.2 but its
+  ROMFS binary hash is different (`b96bc3d497966b9210db938ee6a4ebc49009fd6ad76356743ae7e1005dcb1127`).
+  The installed build identity remains unknown; no image equivalence claim.
+  Evidence:
+  `docs/evidence/WR1200JS-BUSYBOX-HEXDUMP-VERSION-2026-10-27.md`.
+
+## 2026-10-27 live PCI read-only collection
+
+- Ran the allowlisted `tools/wr1200js-readonly.ps1 -Check pci-config` from
+  Codex successfully (exit code 0), then `pci` and `pci-dump-tools`. No router
+  settings or device state were changed. The prior pasted shell syntax error
+  did not reproduce with the current helper; its cause remains unknown.
+- The live config files were readable for four PCI functions. `/proc/bus/pci/devices`
+  maps `0000:01:00.0` to MediaTek `14c3:7603` (`mt7603_drv`) and
+  `0000:02:00.0` to `14c3:7662` (`rtpci`); two `0e8d:0801` functions are
+  MTK host-bridge entries. BusyBox applet list includes `hexdump`, `base64`,
+  `dd`, and `strings`, but not `od`.
+- The PCIe Device Capabilities fields read from config offset `0x74` are
+  `0x00008fc0` on both Wi-Fi endpoints, with FLR bit 28 clear. This is
+  verified against `PCI_EXP_DEVCAP_FLR 0x10000000` in pinned
+  `include/uapi/linux/pci_regs.h` at `c25283e915a2a00a763774dd255b14aff997285e`.
+  Both conventional capability chains are PM at `0x40`, MSI at `0x50`, and
+  PCIe at `0x70`, with no PCI Advanced Features capability advertising AF FLR.
+  PCIe flags report version 2/type 0 (Endpoint) on both Wi-Fi functions.
+  Earlier `0x0042`/`0x00008000` values belonged to MTK host bridge 00:00.0,
+  not 7603. Sysfs separately reports class `0x028000` and binds `mt7603_drv`.
+  Topology reads place 01:00.0 under MTK 00:00.0 and 02:00.0 under MTK
+  00:01.0; raw topology output is saved at
+  `docs/evidence/WR1200JS-LIVE-PCI-TOPOLOGY-2026-10-27.txt`. Pinned
+  `drivers/pci/quirks.c` has no device-specific reset entry
+  for MediaTek `14c3:7603`. PM D3hot-to-D0 is a generic reset candidate because
+  PMCSR at `0x44` read as zero, but the kernel path does not check config writes or
+  wait for pending transactions. `pci_reset_function()` restores saved config,
+  including the previous PCI_COMMAND, so it is not a terminal bus-master-off
+  action. Both Wi-Fi functions showed PCI_COMMAND `0x0006` (memory decoding
+  and bus mastering enabled) in this read.
+  Raw helper output (140 lines) is saved at
+  `docs/evidence/WR1200JS-LIVE-PCI-CONFIG-2026-10-27.txt`. Evidence and limits are recorded in
+  `docs/evidence/WR1200JS-IOT-V43-MBSS-GLOBAL-PREFLIGHT-2026-10-27.md`.
+- This rules out advertised PCIe FLR and conventional AF FLR, and found no
+  MediaTek device-specific reset in the pinned kernel table. PM reset remains
+  only a source-level candidate, not a verified DMA stop. No reset was invoked.
+  Next: prove whether a target-specific stop sequence can inhibit new DMA and
+  account for already-issued transactions before owner/IRQ/work teardown; no target build,
+  firmware change, router write, or reboot occurred.
+
+## 2026-10-27 IoT failed-main-open recovery contract (host-only)
+
+- Added `tools/iot/main-open-recovery-owner.h` and its strict host fixture
+  `tools/iot/check-main-open-recovery-owner.c`. The model binds a failed main
+  open to exact netdev generation/token and requires the caller to hold both a
+  netdev reference and adapter-release fence before queueing recovery.
+- For `OWNED` after a later readiness failure, it allows a worker to request a
+  checked main close only after the radio ticket is idle and the registry count
+  matches. Continuation uses the exact close ticket; completion requires the
+  durable IDLE/close-stage-4 receipt, released original module pin and joined
+  worker. For `UNCERTAIN_OPEN`, it returns only RECONCILE and never guesses a
+  virtual DOWN/decrement because VIRTUAL_IF_UP acquisition may be unknown.
+- `gcc -std=c11 -Wall -Wextra -Werror` plus the fixture passed. This is a
+  state-contract test only: no workqueue/RTNL, driver binding, PCI teardown,
+  MIPS target compile, firmware image, or router operation was tested.
+- Next: prove a concrete deferred-owner binding that cannot run the checked
+  close before the failed `ndo_open` leaves RTNL, pins the netdev/module/adapter
+  through cancellation and PCI remove, and joins before adapter release. Keep
+  both acquired and uncertain paths fail-closed until physical shutdown and
+  PCI/DMA quiescence have independent checked receipts. Evidence:
+  `docs/evidence/WR1200JS-IOT-V43-MBSS-GLOBAL-PREFLIGHT-2026-10-27.md`.
+
+## 2026-10-27 queued BusyBox hexdump/od compatibility check for Sol
+
+- Owner reports that the running WR1200JS has the BusyBox `hexdump` applet but
+  no standalone `od` command. The existing delivery-scope note records a live
+  read-only PCI-config dump using `busybox hexdump -C -n 4096`; exact BusyBox
+  version/build identity has not yet been established here.
+- Sol is to determine whether the relevant `hexdump` invocation can reliably
+  provide the needed `od`-style operation, and how recent the BusyBox in the
+  current WR1200JS firmware is. Compare router evidence with the exact image's
+  BusyBox source/revision, effective config, binary hash, applet links and
+  supported options. Record the reproducible command and limits in the existing
+  BusyBox audit evidence; keep any router check read-only.
+- This is queued within the existing mandatory BusyBox compatibility audit and
+  does not change task order: the active IoT terminal PCI/DMA teardown gate
+  remains first. No firmware, driver or router settings were changed for this
+  queued item.
+
+## 2026-10-27 isolated MBSS global preflight candidate
+
+- Local commit `47abc0a` prepares a v43 isolated-source stage and generated
+  host fixture; `4d8373e` adds a construction lease spanning `MBSS_Init()`
+  before publishing `wdev.if_dev`. The extracted `MBSS_Remove()` rejects an
+  active later BSS before any earlier BSS free. Strict host fixtures passed.
+  The work-joined receipt still has no PCI producer; v43 is not installed in
+  the ordinary image.
+- The pinned kernel source (`vipshmily/padavan-4.4` at
+  `c25283e915a2a00a763774dd255b14aff997285e`) is now checked directly. Its
+  `pci_clear_master()` helper clears `PCI_COMMAND_MASTER` by config read/write,
+  but does not check either config operation or read the bit back. MT7621's
+  config access callback serializes a transaction and then reports
+  `PCIBIOS_SUCCESSFUL` without a transaction-status check. This is a useful
+  DMA inhibit, not a demonstrated completion/drain receipt for already-issued
+  transactions. The old MT7603 radio-off path also has a void poll that logs
+  timeouts and continues; its PDMA setter does not verify the write. The raw
+  PDMA reset path is watchdog recovery and re-enables DMA/interrupts, so it is
+  not a terminal remove fallback.
+- `RtmpPhyNetDevExit()` can mutate APCLI/WDS before MBSS, and `rt_pci_remove()`
+  ignores its Boolean result before adapter/MMIO release. The pinned Linux
+  `pci_device_remove()` proceeds with unbind after the void driver callback;
+  the callback cannot veto it. The MT7621 probe-time root reset controls are
+  not a per-device recovery API and must not be repurposed while other devices
+  may share the host.
+- Firmware run `40538660394` (#635) and ABI run `40538660378` succeeded on the
+  pushed SHA `84b2f12d2b653057e6806c824e7123757161a191`; they predate local v43
+  commits and do not establish router runtime acceptance.
+- Next: design and prove the complete adapter-removal terminal policy against
+  this pinned PCI config path and MT7603 hardware semantics, including stable
+  device-side DMA idle, bus-master disable/readback limits, outstanding
+  transaction handling, and all deferred owner/IRQ/work drains. Do not bind
+  v43, free rings/adapter on an unproven failure path, build, or change the
+  router until that gate is resolved. Evidence:
+  `docs/evidence/WR1200JS-IOT-V43-MBSS-GLOBAL-PREFLIGHT-2026-10-27.md`.
+
+## 2026-10-27 GitHub publication
+
+- Standard fast-forward push published commits `0641d96..84b2f12` to
+  `origin/codex/wr1200js-service-webui`. `git ls-remote` confirmed remote
+  head `84b2f12d2b653057e6806c824e7123757161a191`. Existing modified and
+  untracked worktree files were not staged or pushed.
+
+## 2026-10-27 IoT MBSS close evidence
+
+- Commit `4cc18ad` adds a host-only per-BSS registry check before claiming the
+  MBSS family closed. The two-BSS C11 test passes, including rejection of one
+  live/uncertain BSS, mismatched counts and unjoined recovery. This is not yet
+  bound to vendor remove, target-built or verified on the router. See
+  `docs/evidence/WR1200JS-IOT-MBSS-CLOSE-EVIDENCE-2026-10-27.md`.
+- Follow-up `84b2f12` additionally requires stage 4 checked DOWN (or proven
+  unmutated open) for every MBSS with an acquired token. Prepared v42 source
+  identifies the BSS netdev count and registry fields, but PCI remove still
+  ignores a failed exit and frees adapter/MMIO. Binding waits for a complete
+  close/join/terminal policy; the host test passed again.
+
+## 2026-10-27 archived RM2100 donor audit
+
+- Follow-up commit `be8b3f0` compared all three donor PPP patches with the
+  exact pinned Padavan source. Route-deletion scoping and MTU cap are already
+  present. Peer-gateway population is absent but remains conditional for the
+  later WAN stage because the observed WR1200JS uplink uses DHCP. The existing
+  board catalog and verified-recipe gate already cover model selection. See
+  `docs/evidence/LJZKIRITO-PPP-AND-BOARD-SELECTOR-COMPARISON-2026-10-27.md`.
+  No production WAN, CI selector or router setting was changed.
+- The optional IoT v42 CI run `40527671413` completed successfully on
+  `0641d96`. This verifies that candidate's CI path, not production IoT
+  operation or router runtime. A further WAN overlay check found no current
+  consumer requiring PPP peer gateway; patch 340 remains outside the image.
+- Commits `46b43c4` and `b3f5b02` record the archived RM2100 Actions audit
+  and a survey of all 38 public Ljzkirito repositories. The six fork-specific
+  Padavan commits change board defaults, CI and user firewall rules, not
+  radio/IoT drivers. The pinned-source comparison above supersedes the
+  original three-patch candidate list. The release SHA256 manifest idea
+  remains for an accepted image. These documentation commits were included in
+  the fast-forward push through `84b2f12`; unrelated worktree changes remain
+  preserved.
+
+## 2026-10-27 isolated IoT v42 producer gate preparation
+
+- Commit `91a4537` records the host-only child/PCI teardown contracts and
+  enforces checked-close proof before family removal. Three strict C11 GCC
+  fixtures passed. This is still not bound to the vendor driver or ordinary
+  image. See `docs/evidence/WR1200JS-IOT-V42-PCI-REMOVE-ORDER-2026-10-27.md`.
+- Source follow-up found a second PCI removal ordering requirement: an active
+  MBSS is refused by begin-remove before child unregister can call ndo_stop.
+  The release owner must explicitly checked-close and join child ownership
+  before MBSS removal; the current void PCI callback still ignores a failed
+  `RtmpPhyNetDevExit`. See
+  `docs/evidence/WR1200JS-IOT-V42-PCI-REMOVE-ORDER-2026-10-27.md`.
+- Final #634 evidence: optional run `40527671413` passed on `0641d96`.
+  Downloaded isolated `mt76x3_ap.ko` is 5,225,808 bytes, SHA256
+  `46ef52aea556529ca4f711f267c5308f11978b223197dd2c2e85ce595d3cab3c`,
+  matching the manifest; ELF32 MIPS32r2/O32. It is absent from the ordinary
+  image. See `docs/evidence/WR1200JS-IOT-V42-CI-634-TARGET-COMPILE-2026-10-27.md`.
+  Recovery worker, PCI release fence and late DMA/TxS lifetime proof remain
+  open; no router runtime claim follows from this compile.
+- Commit `0641d96` and its three preceding producer-gate commits were pushed
+  together to `codex/wr1200js-service-webui`. ABI #584 (`40524113079`)
+  and ordinary firmware #633 (`40524113504`) passed on this exact SHA;
+  neither selected isolated v42. The optional v42 target run
+  `40527671413` passed on the same SHA. Firmware
+  #632 passed on the earlier `5ebf69d`.
+- v42 has an isolated source binder for beacon/TIM producer tokens and a
+  close/abort drain. Fresh local v39 → v40 → v41 → v42 preparation,
+  strict C11 host fixtures, call-coverage and remove-ABI checks passed.
+  MIPS v42 compilation passed in #634. Recovery owner, PCI release and late
+  DMA/TxS lifetime proof remain open. See
+  `docs/evidence/WR1200JS-IOT-BEACON-PRODUCER-GATE-2026-10-27.md`.
+
+## 2026-10-27 beacon producer lifetime gate (host-only)
+
+- Source inspection found that beacon/TIM frame preparation can retain packet
+  pointers after `MBSS_Close` revokes submissions and before DMA/TxS counters
+  become nonzero. Added a per-BSS, generation-bound producer gate contract and
+  strict C11 passing test; evidence:
+  `docs/evidence/WR1200JS-IOT-BEACON-PRODUCER-GATE-2026-10-27.md`.
+- The host contract is now bound in the optional v42 source candidate, but
+  not the ordinary firmware image. Deferred MBSS recovery, PCI release and
+  late hardware reports remain unproven. #632 and ABI #583 passed on
+  `5ebf69d`; they did not compile v42.
 
 ## 2026-10-27 optional IoT #629 host fixture failure
 
@@ -9,6 +4366,9 @@
   `docs/evidence/WR1200JS-IOT-V41-MBSS-RECOVERY-RELEASE-AUDIT-2026-10-27.md`.
   A host release-readiness guard now blocks registry reuse until its deferred
   owner is joined; strict C11 fixture passed. Kernel/PCI binding remains open.
+  Source review found an existing `BcnRingLock` submission barrier, but
+  pre-close beacon/TIM producers can hold packet pointers during preparation
+  outside it. DMA/TxS zero snapshots do not prove those producers drained.
   Candidate remains excluded until a joined recovery owner and effective
   release gate are implemented and verified.
 - Optional IoT-only v41 #631 (`40511894915`) passed on `3868270`. The
@@ -139,16 +4499,189 @@
   Nim compilation and the monitor fixture passed; this parser change is not
   yet part of the default-branch monitor workflow.
 
+## 2026-10-26 IoT v40 target check
+
+- With local (unpublished) fixture changes, a fresh v40 candidate was staged
+  from the pinned v39 candidate and its checked-close function extracted.
+  Strict C11 host builds/execution passed in plain and MT_MAC modes. The
+  synthetic fixture now mocks the checked radio-off call and MT_MAC fields,
+  and tests HALT clearing in normal close versus retention on PM suspend.
+  This temporary preparation emitted no assembly manifest and is not a target
+  driver compile or production installation. The optional CI run below tests
+  published `676b020`, not these local bytes.
+
+- Ordinary firmware #619 (`40377110297`) and Band Steering ABI
+  `40377110309` both passed on published `676b020`. A single optional
+  WR1200JS `run_candidate_checks=true`, `candidate_scope=iot`,
+  `iot_candidate_variant=v40` run was dispatched as `40381625442` on the
+  same exact SHA. It was in progress at the latest check. This is an isolated
+  candidate probe; no production driver installation or device acceptance.
+- Local docs/cache commits `1c400bd` and `c469f5a` remain unpublished while
+  that run is active. Do not launch a duplicate build or push them into its
+  branch until this run reaches a terminal result.
+
+## 2026-10-26 Actions storage and Mi Mini preservation
+
+- Mi Mini diagnostic radio runs `38130857982` and `37136824063` succeeded
+  for isolated compile/link only. Their artifact API lists no remaining
+  bundles. Exact commits, job results and limits are recorded in
+  `docs/evidence/MI-MINI-RADIO-PROBE-CI-2026-10-26.md`, committed locally as
+  `1c400bd`; publication waits for active WR1200JS firmware `40377110297`.
+- Deleted 30 oldest WR1200JS compiler caches by ID, releasing 7,117,485,674
+  bytes according to their pre-delete sizes. The cache-list API verified 35
+  entries and 3,448,974,011 bytes afterward; workflow history and artifacts
+  were retained. A local workflow edit now selects one UTC-day cache key with
+  old-key restore fallback; this is statically checked but not CI-tested.
+  See `docs/evidence/ACTIONS-STORAGE-AUDIT-2026-10-26.md`.
+
+## 2026-10-26 CI recompilation audit
+
+- While CI on `676b020` runs, the existing v39 checked-close synthetic host
+  fixture was extracted. Its missing MT_MAC mock watchdog/chipCap/TxS fields
+  were added locally, then both plain and MT_MAC variants passed strict C11
+  compilation and execution. The fixture has PCI support hard-coded; this
+  does not independently test PCI-off behavior or prove target compilation.
+  No router or firmware state was changed.
+
+- Firmware `40374656513` and ABI `40374656233` completed successfully on
+  `721fe60`. After confirming remote branch still pointed to that commit,
+  published local IoT commits `472c2ca`, `1ac816a`, `690206d` together with
+  scoped workflow commit `676b020` by one normal fast-forward SSH push.
+  New SHA `676b020` has not yet passed CI or an optional v40 target compile.
+  Ordinary firmware `40377110297` and ABI `40377110309` started on this SHA;
+  both were in progress at the latest check. Do not dispatch duplicates.
+
+- Ordinary WR1200JS PR builds do not run isolated candidate compilations unless
+  `run_candidate_checks` is selected. Disabled EoIP and StrongSwan have final
+  ROMFS exclusion checks, not separate service builds. The optional successful
+  run `40368551644` restored ccache and reported 10,378 hits / 42 misses
+  among cacheable calls (99.60% hit rate); final image checks still need the
+  current source and effective config.
+- Published workflow commit `676b020` adds `candidate_scope`: manual candidate checks default
+  to IoT only; `all` explicitly retains the full isolated candidate suite.
+  YAML parsing, all 21 optional-step scope checks and `git diff --check`
+  passed locally. No manual firmware build was started for this edit; the
+  branch push may trigger ordinary CI automatically.
+
+## 2026-10-26 IoT continuation
+
+- Published `1ac816a` adds a per-record checked-close executor claim under the
+  adapter lock. A reentrant same-ticket call during vendor close is rejected;
+  success, deferred DMA/TxS, and error paths release the claim only for the
+  same registration generation. Published `690206d` carries that field into the
+  v40 generator, which otherwise copied an older v39 header. Fresh generated
+  v40 source passed three strict host close variants (plain, MT_MAC and
+  MT_MAC/PCI), plus interface-reference and recovery-owner fixtures; Python
+  syntax and scoped diff checks passed. Ordinary firmware `40374656513` on
+  parent `721fe60` passed. Target MIPS compilation
+  of these new bytes and production binding remain pending.
+
+- Published `472c2ca` makes the optional checked-close host fixture valid for
+  MT_MAC without PCI as well as MT_MAC/PCI, and adds that CI variant. Three
+  strict C11 host variants passed; workflow YAML parsed and scoped diff check
+  passed. Ordinary firmware `40374656513` and ABI `40374656233` on parent
+  `721fe60` passed; no duplicate build was dispatched.
+
+- Published commit `721fe60` adds an optional v40 CI host fixture for the
+  MT_MAC/PCI close path. It supplies bounded vendor stubs and tests that
+  pending beacon DMA or TxS retains close stage 2 and the module reference.
+  Both plain and MT_MAC/PCI strict C11 fixtures, workflow YAML parsing and
+  scoped `git diff --check` passed. Optional run `40368551644` on parent
+  `bd9f49a` passed, including isolated MT7603 target compilation. Ordinary
+  firmware `40374656513` and ABI `40374656233` are in progress on `721fe60`;
+  they do not select v40. This is host coverage,
+  not a production `ndo_stop` or router result.
+
+- Optional v40 run `40360064346` completed successfully on `59db347`,
+  including isolated MT7603 candidate compilation. Follow-up commit
+  `bd9f49a` was pushed: checked MBSS close and its recovery-owner model now
+  reject a ticket whose operation disagrees with the admitted vendor count or
+  whose reset kind is nonzero. Focused strict C11 host tests and scoped
+  `git diff --check` passed. The host close fixture was run without `MT_MAC`;
+  its MT_MAC variant lacks vendor stubs and is not target-compile evidence.
+  Production binding, final image inclusion and router operation remain open.
+
+- On `59db347`, ordinary firmware run `40357156009` and Band Steering ABI
+  `40357155947` completed successfully. Neither selects the optional v40
+  driver. The later ticket-provenance gate is now in `bd9f49a`; ordinary
+  firmware `40363573850` and ABI `40363573442` were in progress at the latest
+  check. Neither substitutes for optional v40 target compilation on this SHA.
+
+- The generated v40 checked MBSS close now records the admitted ticket's
+  epoch, prior radio phase/readiness and vendor count in its interface record
+  before unlocked vendor work. It rejects altered ticket provenance before
+  any close mutation and rechecks that provenance at each close milestone.
+  The existing recovery-owner model accepts only that recorded ticket and
+  copies it for continuation; main-down epoch drift retains the original
+  admitted ticket. Fresh v40 generation, both focused strict C11 fixtures,
+  the checked-stop source gate and `git diff --check` passed locally. This
+  remains isolated candidate source; target compilation of these new bytes,
+  real worker binding, production image integration and device operation are
+  still pending. The coherent code/test change was published as `59db347`;
+  this status update remains local alongside pre-existing document edits.
+
+- The existing host-only MBSS recovery owner now retains the complete radio
+  close ticket (serial, epoch, operation and prior state) for an incomplete or
+  uncertain close. Its copy helper returns that same ticket only while the
+  matching record and radio transition still authorize continuation. The
+  focused C11 fixture rejects absent and altered-epoch tickets in the normal
+  phase and keeps the original ticket when main-down advances the epoch during
+  an admitted close. It passes after the change. This closes a model-level
+  gap; no worker, kernel reference
+  pin or production `ndo_stop` binding has been added.
+
+- Optional v40 workflow `40350468431` completed successfully on `cde9846`:
+  the `Compile isolated merged IoT MT7603 candidate` step passed after the
+  ordinary WR1200JS image build. This proves target compilation of the
+  generated candidate, not inclusion in that image or operation on the router.
+  The generated v39-derived `MBSS_Remove` still begins beacon teardown before
+  any explicit `dev_close`, while the compiled checked MBSS close remains
+  unbound and legacy `ndo_stop` discards close errors. The next lifecycle
+  change must bind an owned, retryable close and prove its result before beacon
+  deinit, detach or adapter release; adding a bare preclose call would not
+  establish this because `RtmpOSNetDevClose` returns void and PCI remove
+  currently ignores `RtmpPhyNetDevExit` failure.
+
+- Published commit `cde9846` closes a final RX DMA read race in
+  isolated v40: `NIC_NOT_EXIST` is checked again before the helper reports
+  idle. Fresh generation and strict host C11 fault tests passed against the
+  generated helper, including disappearance on the final read. Firmware #611
+  (`40341400065`) on parent `54061d3` completed successfully before this
+  push. Ordinary firmware #612 (`40344805795`) and ABI `40344805641`
+  completed successfully on `cde9846`; neither selects the optional v40
+  compile. The separate optional run `40350468431` then passed that step.
+
+- Owner removed HTOP/MTR from the required firmware on 2026-10-26. The
+  WR1200JS profile now has both selectors commented; an operator can enable
+  either for a separate diagnostic build, subject to target/image checks.
+  This supersedes older notes that call package integration mandatory item 4.
+
+- Published `6bae503` on `codex/wr1200js-service-webui`: the optional v40
+  candidate CI step now compiles and runs the exact generated checked DMA-poll
+  helper with TX/RX disappearance fault cases. Local strict C11 execution,
+  workflow YAML parsing and `git diff --check` passed. At the last check,
+  ordinary firmware run `40335749228` was queued and Band Steering ABI run
+  `40335749283` was in progress on this SHA. Neither is optional v40 target
+  compilation; do not dispatch a duplicate build while one is active.
+- Source reachability remains open: generated v40 `MBSS_VirtualIF_Close` is
+  still the legacy `ndo_stop`, discarding close and DOWN results. The compiled
+  `wr_iot_mbss_close_checked` symbol is not yet bound to an owner that can
+  retain netdev/module references across failed `dev_close` or PCI removal.
+  A direct callback substitution would not safely solve the lifetime problem.
+  No production driver, image installation or router state changed.
+
 This section is the current handoff. Older time-specific notes below are
 historical; their pending-run and local-only statements are superseded here.
 
 - Current writer: Sol, branch `codex/wr1200js-service-webui`; published code
   baseline `a71e8ab`; follow-up IoT candidate commits are published.
   Preserve all unrelated modified and untracked files.
-- Documentation evidence commit `c2b1d48` is the current GitHub HEAD. It does
-  not change driver sources. Its push started ordinary firmware run #601
-  (`40218879277`) and service ABI run `40218879240`; both were in progress at
-  the last check and do not select the optional IoT candidate.
+- Local and GitHub branch HEAD match at documentation commit `ba118ea`.
+  Firmware #601 (`40218879277`) and service ABI `40218879240` on its parent
+  `c2b1d48` completed successfully. Service ABI `40219026319` on `ba118ea`
+  also completed successfully; ordinary firmware #602 (`40219026350`) was
+  still in progress at the 2026-10-25 check. These documentation-triggered
+  runs do not select the optional IoT candidate.
 - Candidate build #600 (`40216625327`) completed successfully on `a71e8ab`.
   Its ordinary WR1200JS firmware build and optional `Compile isolated merged
   IoT MT7603 candidate` step both passed. The separate probe artifact contains
@@ -168,6 +4701,46 @@ historical; their pending-run and local-only statements are superseded here.
 - The ordinary firmware image still uses the production driver. Isolated
   compilation does not establish packaging, lifecycle safety, IoT isolation,
   on-device operation or release acceptance. No router write or reboot occurred.
+- Source reachability review of generated v40 found that main close still uses
+  legacy `VIRTUAL_IF_DOWN`/`rt28xx_close` and releases the module pin without
+  checked physical completion. The separate main-open owner candidate ends in
+  `UNVERIFIED` with `main_ready=0`, so it cannot admit IoT BSS open until a
+  reviewed radio-ready observation is bound. Legacy family count writers also
+  bypass the owner. See the follow-up in the #600 evidence report.
+- A local main-readiness completion gate now pairs a VERIFY ticket with the
+  owned MAIN record and exact vendor count under one adapter lock. Its strict
+  C11 host fixture passed seven valid/failure cases. This helper is not bound
+  to the vendor source; source integration, MIPS compilation and hardware
+  observation remain open. See the #600 evidence report.
+- Local source review corrected the MT7603 main observer's IoT beacon-queue
+  mask from bit 2 to the driver's BSS-2 bit 17. The focused host fixture
+  failed before the correction and passes afterward; generated candidates,
+  target compilation and firmware image have not yet incorporated this edit.
+  A second host fixture failure showed that the observer's old
+  `!netif_running(iot)` condition rejects IoT during its own `ndo_open`:
+  pinned Linux sets START first. That condition is removed; ticket/registry,
+  beacon request and queue bit 17 now provide the separate checks. No new
+  target or device evidence is claimed.
+  The optional candidate CI step now checks the staged observer header and
+  requests its MIPS compile probe. Workflow YAML parsing, whitespace check
+  and focused host fixture passed locally; a new target run remains pending.
+- The staged MBSS wrapper still leaves every successful guest/IoT open in
+  `UNVERIFIED`; guest-first therefore blocks IoT admission. Raw CR_ENABLE
+  return is ignored. A local unbound post-open BSS configuration observer now
+  checks guest/IoT request and register queue bits; strict host cases passed.
+  It needs checked CR_ENABLE, partial-failure ownership and same-ticket
+  revalidation before it can publish READY. See the #600 follow-up report.
+- The local IoT assembler now checks the raw MBSS `CR_ENABLE` result and
+  routes failure after claimed virtual UP to the existing uncertain-open
+  ownership path before HNAT/queue publication. Python syntax and exact
+  source-anchor checks passed locally. This is not regenerated/MIPS compiled;
+  the retained-resource recovery owner and post-open READY path are still open.
+  A focused host fixture now compiles the actual transformed raw wrapper and
+  passes five injected paths, including CR_ENABLE failure retaining module
+  pin/vendor count without publishing the queue. This remains host evidence.
+  The optional IoT candidate CI step now runs this fixture on the assembled
+  driver before target compilation. Workflow YAML parsed locally; no new
+  candidate CI run has executed this gate yet.
 - Next IoT gate: bind and fault-test PCI removal, deferred-close join, checked
   child/root teardown and adapter-release ownership before production install.
   Follow-up source check confirmed that v39 still discards the checked teardown
@@ -193,8 +4766,9 @@ historical; their pending-run and local-only statements are superseded here.
   failure tests and caller-coverage checks. The generated v40 source passed
   `check-remove-result-abi.py` locally (8 source/header pairs).
   A host GCC fixture now executes the generated checked-off C body with
-  injected DMA/MCU/PDMA/readback failures; strict C11 passed. This does not
-  establish target compilation or radio silence. Fixture and optional CI hook
+  injected DMA/MCU/PDMA/readback failures; strict C11 passed. The fixture by
+  itself does not establish target compilation or radio silence; #600 supplies
+  separate target-compilation evidence. Fixture and optional CI hook
   are in `b1953b2`.
   The local five-family virtual-interface coverage checker initially failed
   because it assumed WDS remove still returns `VOID`; the reviewed candidate
@@ -205,13 +4779,11 @@ historical; their pending-run and local-only statements are superseded here.
   Its strict C11 fixture passed including rejection of a competing writer.
   The dependent model files stay local with their modified shared headers;
   caller-coverage checker and CI gate are in `8fe91c0`.
-  No v40 target run has started. Push the prepared commits, then dispatch the
-  WR1200JS candidate build with optional checks enabled and variant `v40`;
-  inspect its target compilation and artifact evidence.
+  The prepared commits were pushed and optional v40 run #600 completed; its
+  target compilation and artifact evidence are recorded above.
   Vendor `MainVirtualIF_close` and PCI removal are still unbound.
-  Then verify network isolation and Classic WebUI. Shared HTOP/MTR integration
-  is now explicit item 4 in `docs/PROJECT-DELIVERY-SCOPE.md`, pending after
-  service WebUI and before WAN/final image/device acceptance. Do not start
+  Then verify network isolation and Classic WebUI. Optional HTOP/MTR selectors
+  are excluded from the required image by the 2026-10-26 owner decision. Do not start
   Modern UI until the required earlier stages are complete.
 - The `padavan-ci` one-minute Codex heartbeat stays paused. GitHub monitor runs
   on failures; its `main` checkout may still use the older excerpt heuristic.
@@ -320,7 +4892,7 @@ Source-to-image integration is confirmed; browser/device behavior and
 NFQUEUE traffic effect remain unverified. Evidence:
 `docs/evidence/WR1200JS-BUILD586-ZAPRET2-2026-10-25.md`.
 
-## HTOP/MTR shared integration queued — 2026-10-25
+## Historical HTOP/MTR integration request — 2026-10-25; superseded
 
 User requested reusable, profile-gated HTOP and MTR support for compatible
 Padavan 4.4.198 boards. The task is recorded in
@@ -330,6 +4902,9 @@ only admitted image-build profile; Mi Mini and Mi 4 require separate board
 and resource evidence before package inclusion. Next when this stage opens:
 check pinned recipes/dependencies, then integrate and measure each eligible
 profile against an identical image baseline.
+
+Superseded by the 2026-10-26 owner decision at the top of this file: these
+tools are optional, default-off diagnostics and are not a release gate.
 
 ## IoT deferred close completion receipt — 2026-10-25
 
@@ -5234,3 +9809,507 @@ runtime test.
 
 Detailed handoff:
 `docs/evidence/WR1200JS-HANDOFF-TO-SOL-2026-10-25.md`.
+
+## IoT guest-to-IoT open receipt — local host check, 2026-10-25
+
+Added `wr_iot_bss_open_finish_observed` to the isolated open-claim contract.
+It can publish READY after a successful guest/IoT BSS open only when the
+post-open readback, published MBSS owner, complete vendor reference count and
+current BSS_OPEN ticket agree under the common lock. Failed evidence leaves
+the reference owned and readiness UNVERIFIED for checked close/recovery.
+The strict MinGW C11 fixture passed success, count mismatch, wrong family,
+failed readback and intervening reset; `git diff --check` passed. This helper
+does not prove RF beacon emission. The local legacy candidate assembler now
+copies the helper and its MBSS wrapper observes guest/IoT BSS configuration
+outside the transition lock, then checks the owned count and retires the same
+ticket under that lock. A separate strict C11 wrapper fixture passed guest
+then IoT, failed readback, count mismatch and reset-during-receipt. This
+binding was then ported to the v40 **assembler**, preserving its claimed raw
+open and all three ticket-retirement wakeups. The assembler also checks the
+`CR_ENABLE` result and copies the corrected observer and open-claim headers.
+It produced the separate local v40f tree. The generated v40f MBSS wrapper
+passed the strict C11 guest-to-IoT fixture; checked CR_ENABLE, five-family
+caller coverage and eight remove-result pairs passed. Only the expected eight
+candidate paths differ from reviewed v39, and PyYAML parsed the CI workflow.
+The optional v40 CI path now requires that host fixture before target compile.
+This local v40f output is not a MIPS build or packaged image; CI #600 predates
+the edit. Next: target-compile the newly generated v40 candidate, then resolve
+close/recovery ownership before production integration.
+The v40 host fixture now selects generated candidate headers before local
+headers; it passed again with that exact include order. The first workflow
+form would have allowed local header shadowing, so only the corrected run is
+counted as candidate-header evidence.
+The v40 assembler now pins the reviewed v39 MBSS fragment before replacing
+it, so later upstream changes fail closed instead of being silently lost.
+Fresh local v40g assembly and its candidate-header guest-to-IoT fixture passed.
+Source review then separated two previously conflated MBSS partial opens:
+failed abort before confirmed virtual-UP retains UNCERTAIN_OPEN (`-2`), whereas
+failed CR_ENABLE after successful claimed virtual-UP retains an OWNED vendor
+reference and module pin (`-3`) with radio FAULT. Fresh local v40h assembly,
+candidate-header host fixture and generated raw CR_ENABLE fixture passed.
+Neither failed ndo_open gets ndo_stop; an adapter-pinned recovery owner is
+still mandatory before target image integration.
+The isolated MBSS checked-close admission now requires a matching MBSS
+record and complete registry/vendor count under the common lock before it
+chooses a stop ticket. Local v40i assembly and candidate-header close fixture
+passed refusal for a missing main owner plus the existing retry cases. The
+optional v40 CI path has that fixture gate. Legacy count-writer bypasses,
+unbound close/recovery and PCI lifetime still block production integration.
+
+The isolated v40j assembler now closes the unclaimed virtual-UP count-writer
+bypass after proving all five active open callers use `VIRTUAL_IF_UP_CLAIM`.
+Fresh v40j assembly and focused host fixtures passed. Legacy virtual-DOWN
+still decrements outside the common lock; checked close/recovery, PCI fence,
+target compile/image and router acceptance remain open. Evidence:
+`docs/evidence/WR1200JS-IOT-V40-CI-600-TARGET-COMPILE-2026-10-25.md`.
+
+The v40j DOWN audit found four legacy void stop callers (main, MBSS,
+AP-client, monitor); WDS already uses checked DOWN. APC_CLOSE and
+SNIFF_CLOSE return results that their callers discard, after potentially
+mutating family state. A lock around the legacy decrement is insufficient:
+bind retained close owners and result stages first, then retire the old
+callers and reject unclaimed DOWN. Source locations and order are in the v40
+evidence note. No production driver or router change was made.
+The v40 assembler now gates this exact four-caller inventory; fresh isolated
+v40k assembly passed. The gate must be updated deliberately as callers move
+to checked owner-aware DOWN.
+The MBSS checked-close helper now retires its exact radio ticket and consumes
+the registry reference atomically after checked DOWN; before this correction
+it left the radio busy after releasing the module pin. Fresh local v40l
+assembly and strict C11 local/generated-header fixtures passed, including
+ticket-retirement failure. `ndo_stop`, retained recovery and target/runtime
+binding are still absent. See the v40 evidence note.
+Added a separate host-only MBSS recovery owner for acquired failed-open,
+retained checked-close and uncertain outcomes. Its strict C11 fixture passed
+and the optional v40 CI path now runs it. It cannot release its netdev/adapter
+fence before checked completion and worker join; uncertain outcomes do not
+automatically replay DOWN. Kernel workqueue, lifetime pins, PCI release
+binding and target/runtime verification remain open. Evidence: v40 note.
+Pre-CI source coverage initially rejected v40l because the older checker
+expected one uncertain MBSS handoff and three wakeups. It now distinguishes
+the acquired post-UP `-3` branch from uncertain `-2`, requires both owner
+paths and four wakeups for v40, and keeps v39 compatibility. Both pinned v39
+and generated v40l passed. Target compilation of these local changes remains
+open. See the v40 evidence note.
+Selected v40 IoT source/tests/workflow changes were committed as `eefbf12`
+and pushed to PR #2; other dirty files remain untouched. Ordinary firmware
+run `40257333149` queued and ABI run `40257333066` started on this HEAD.
+Neither selects the optional v40 overlay. A duplicate candidate dispatch was
+deferred under CI queue discipline. See the v40 evidence note.
+ABI run `40257333066` completed successfully on `eefbf12` (GitHub Actions
+status/conclusion checked 2026-10-26). Ordinary firmware run `40257333149`
+was still in progress with its board build job running. Neither result is a
+v40 target compile or IoT runtime acceptance; dispatch one optional v40
+candidate run only after the ordinary run is terminal and no equivalent run
+exists for this HEAD.
+Ordinary firmware #603 (`40257333149`) completed successfully on `eefbf12`,
+including the WR1200JS build and ZIP jobs. After confirming no equivalent
+v40 dispatch existed, started exactly one manual run `40260205702` for
+`wr1200js`, `run_candidate_checks=true`, `iot_candidate_variant=v40` on the
+same HEAD. It was in progress at first check; its target compile result and
+any image/runtime claims remain pending.
+Manual v40 run `40260205702` then completed successfully. Its isolated
+candidate step produced a MIPS32r2 `mt76x3_ap.ko` and compiled main-observer
+probe. The source manifest is pre-build and still says `target_compiled:false`;
+the job result, build log and module prove isolated target compilation only.
+Production integration, image inclusion and router runtime remain open. See
+the v40 evidence note for artifact hash and limits.
+The IoT workflow was locally updated to emit a post-build target result JSON
+after ELF/config checks; an extracted block passed against the downloaded
+v40 module, and YAML parsed. This new reporting step has not run in CI yet.
+The same local module contains the v40 checked MBSS begin/close and virtual
+DOWN symbols. A new CI symbol gate guards their presence; local readelf and
+YAML checks passed. The actual `MBSS_VirtualIF_Close` remains legacy and
+does not yet call that checked path, so this is compilation evidence only.
+Local MBSS checked-close follow-up now pins the original reference token
+across unlocked vendor calls and preflights reference consumption before
+radio-ticket retirement. A C11 fixture with a changed nonzero token after
+DOWN passed, retaining ticket and module pin. This edit needs target compile
+and still is not bound to production `ndo_stop`.
+The focused workflow/MBSS close/fixture changes were committed as `b2dce05`
+and pushed to PR #2. Fresh isolated v40m assembly, generated-header C11
+fixture and virtual-interface caller coverage passed locally. Unrelated
+modified/untracked files remain in the shared checkout. Verify the new
+ordinary CI run before one optional v40 target run on `b2dce05`.
+Further local MBSS close review found missing post-DOWN vendor-count
+revalidation. The helper now requires the count to equal other stable OWNED
+registry records before ticket retirement; an injected extra count writer
+retains the ticket/pin. Local and fresh v40n generated-header C11 fixtures
+passed. This follow-up is uncommitted and awaits target compilation.
+Build #605 (`40262929363`) and ABI run `40262929407` succeeded on
+`b2dce05`. The post-DOWN count follow-up was then committed and pushed as
+`3041f7f`, without staging unrelated dirty files. GitHub started ordinary
+build #606 (`40264642881`) and ABI run `40264642807`; they were queued/
+running at first check. Because #605 did not include this count fix, defer
+the optional v40 target dispatch until #606 is terminal and confirm no
+equivalent run already exists on `3041f7f`.
+Build #606 and ABI completed successfully on `3041f7f`. A single manual
+v40 candidate run `40265901025` was started on that exact HEAD. The MBSS
+unregister/free source path was rechecked: it frees the netdev immediately
+after unregister, while Linux ignores `ndo_stop` failure. The retained owner
+must therefore be joined/reconciled before free and PCI adapter release;
+this binding is not implemented. See the PCI-remove evidence note.
+Manual v40 run `40265901025` completed successfully on `3041f7f`.
+Downloaded `iot-merged-driver-probe` to `artifacts-607-v40/` and verified
+`target-compile-result.json`: isolated MIPS module 5,207,716 bytes, SHA-256
+`13ac9ac57450324e3763e24e8fe75fc3a479889db33aacd8f42f4705e774383f`,
+matching the file hash. Required checked-close/down symbols are present.
+The report explicitly says production-installed and runtime-verified are
+false. Next implement retained owner join before MBSS netdev free and PCI
+adapter release, then bind checked close; no router change was made.
+Local MBSS removal provenance gate: `interface-reference.h` now records a
+caller-proven unmutated open failure separately from an acquired reference.
+`wr_iot_mbss_begin_remove` refuses an idle record with a previous token
+unless it has that unmutated proof or checked-close stage 4. The v40
+generator applies these changes to its pinned v39 copy explicitly. Strict
+C11 local and freshly generated v40p registration/reference fixtures passed;
+Python syntax, source caller coverage, MT7603 stop check and diff check
+passed. This is not target-compiled, bound recovery, or router evidence.
+The focused v40 generator/provenance-header/two host-fixture/workflow change
+was committed and pushed as `f708bcb`. The large pre-existing local changes
+in `tools/iot/netdev-registration.inc` and other dirty files were not staged.
+The workflow will run the reference and registration C11 fixtures against
+the generated v40 headers before its isolated MIPS compile. At first run-list
+check after push, no new run for this HEAD was listed; check CI before any
+manual candidate dispatch and do not claim target compilation yet.
+Subsequent GitHub check found ordinary firmware run `40268551446` queued and
+ABI run `40268551314` in progress on `f708bcb`. Reuse those runs; wait for
+the ordinary run to become terminal before one optional v40 dispatch.
+Ordinary firmware `40268551446` and ABI `40268551314` subsequently
+succeeded on `f708bcb`. After confirming no equivalent candidate run existed,
+dispatched exactly one optional v40 run `40330460110` on the same HEAD; its
+WR1200JS build job was in progress at first check. Do not duplicate it.
+Source recheck of the generated candidate confirms PCI remove still ignores
+`RtmpPhyNetDevExit` failure and frees the adapter; the new MBSS provenance
+gate does not solve that release hazard or bind checked `ndo_stop`.
+Optional v40 run `40330460110` succeeded on `f708bcb`. The downloaded
+isolated MIPS module is 5,207,896 bytes, SHA-256
+`4088c6f3d2e5eeacddba2708eaee5c81159530558dba61518ca20ec0b13ece52`;
+its hash matches `target-compile-result.json`. Candidate manifest hashes for
+the updated interface reference and netdev registration files match fresh
+v40p generation. The report explicitly keeps production-installed and
+runtime-verified false. Next: bind checked close with a retained recovery
+owner and adapter-release fence before any production inclusion.
+
+## IoT PCI reset fallback audit — 2026-10-27
+
+Continued the pinned Linux 4.4 source audit. Generic function reset APIs exist, but their fallback chain can reach parent-bus reset; the PCIe FLR path proceeds even after pending-transaction timeout and requires full PCI device reinitialization. No evidence yet confirms FLR/AF-FLR/PM-reset capability on this live MT7603 endpoint, and MT7621 config access does not provide checked completion/readback. Therefore no reset API is safe to bind as a generic terminal fallback. v43 remains isolated; failed radio shutdown must not proceed to DMA/MMIO/adapter free.
+
+Next: collect the router's read-only PCI config/capability snapshot using the fixed `wr1200js-readonly.ps1 -Check pci` check, then verify whether the endpoint advertises an isolated reset and what device/board reinitialization would require. If the fixed check lacks capability detail, extend the read-only evidence path only after reviewing its allowlisted command; no arbitrary SSH command. No router state, driver, image or build was changed here.
+
+Correction to the prior next-step wording: the existing `-Check pci` only reads `/proc/bus/pci/devices`, which identifies devices but does not expose PCI capability structures. I added a separate fixed allowlisted `pci-config` check to `tools/wr1200js-readonly.ps1`; it reads the first 256 bytes from each readable `/sys/bus/pci/devices/*/config` file using `od` and cannot accept arbitrary remote commands. Use `-Check pci-config` to collect capability bytes. This has not been run on the router; the router's support for that sysfs path and BusyBox `od` remains to be observed.
+
+### IoT v43 main-readiness integration gap — 2026-10-27
+
+New source audit of isolated v43c: MBSS/IoT open correctly requires `WR_RADIO_READY && main_ready` and performs a main-BSS beacon/queue-register observation before BSS open. However `MainVirtualIF_open()` ends with `wr_iot_radio_finish_unverified()`, which leaves readiness false, and no candidate call site invokes the existing `WR_RADIO_VERIFY`/`wr_iot_main_radio_verify_owned()` helper. Therefore the candidate has no demonstrated path to authorize IoT BSS_UP; it will fail closed. This is not production integration and no build/device test was performed.
+
+Next engineering step: add a bounded main-readiness verification producer after main open, with pinned adapter/netdev lifetime, observer outside transition spinlock, and ticket/epoch/generation/vendor-count revalidation under the common lock. Verify invalidation/failure retains recovery ownership. Keep it isolated until the family-close/recovery and PCI adapter-release gates are solved. The separate live PCI capability snapshot is still awaiting user output.
+
+
+### IoT v44 candidate — main-readiness VERIFY producer — 2026-10-27
+
+Added untracked candidate tooling `tools/iot/prepare-main-readiness-verify-candidate.py` and `tools/iot/check-main-readiness-verify-candidate.py`; generated source and manifest remain isolated at `.iot-local-check/mt7603-main-readiness-verify-v44-local-20261027`. Focused candidate structure/order checker, existing strict C11 virtual-open claim fixture, Python syntax, and scoped `git diff --check` passed.
+
+The candidate observes main beacon/queue state outside the transition lock, then revalidates VERIFY ticket/generation/ownership before setting readiness, with HNAT and queue enable after verification. It remains **unsafe to integrate**: failed verification returns `ndo_open` error after virtual-UP ownership was claimed, and no recovery owner is bound to drain it. PCI adapter release remains unproven. No MIPS compiler was found in the current Windows environment; no target compile, firmware build, image check, router command, or runtime validation occurred. Next: design and test explicit failed-open owner recovery/join semantics; retain isolation until recovery and PCI release gates pass. The separate live PCI config output is still pending.
+
+CI snapshot at 2026-10-27 17:27Z: firmware #635 (`40538660394`) and ABI (`40538660378`) succeeded on published SHA `84b2f12d2b653057e6806c824e7123757161a191`; monitor run `40543253994` was skipped. These are older than current local HEAD `4d8373e7b5c24c1ef2d551cff266aa141e26df8d` and do not cover local v44 changes. No CI run was started.
+
+
+## 2026-10-27 read-only PCI reset capability check
+
+Fixed the router helper's `pci-config` allowlisted command: BusyBox lacks `od` but has `hexdump`; the check now reads up to 4096 bytes per PCI config file. SSH read-only collection succeeded. WR1200JS reports MT7603 `14c3:7603` at `0000:01:00.0` and MT7662 `14c3:7662` at `0000:02:00.0`. Both PCIe v2 endpoints have Device Capabilities `0x00008fc0` with FLR clear; neither conventional capability list contains AF-FLR. PMCSR `NO_SOFT_RESET` is clear, so Linux 4.4 PM reset appears eligible for source-level consideration, but is not evidence of safe DMA stop or successful driver recovery. No reset or other state-changing command was run. Exact parse and source limits are in `docs/evidence/WR1200JS-IOT-V43-MBSS-GLOBAL-PREFLIGHT-2026-10-27.md`. Next: assess PM-reset in a complete recovery sequence; keep candidate isolated until transaction/DMA quiescence, recovery-owner join and PCI release are independently proven.
+
+### IoT PM-reset decision — 2026-10-27
+
+Re-read pinned Linux 4.4 source from the exact local bare snapshot
+`../firmware-source-backup/padavan-4.4.git` at
+`c25283e915a2a00a763774dd255b14aff997285e`. `pci_pm_reset()` only toggles
+D3hot→D0 with delays and returns 0 without readback/readiness evidence;
+`pci_reset_function()` requires full device reinitialization and can fall back
+to slot or parent-bus reset. MT7621 `config_access()` accesses PCR MMIO and
+returns `PCIBIOS_SUCCESSFUL` without a separately checked transaction status.
+Combined with the live MT7603/MT7662 snapshot (FLR absent, AF capability absent),
+PM-reset is not a safe close/remove completion receipt and must not authorize
+DMA/MMIO/adapter release. Keep reset out of the release predicate; fail closed
+until a device-defined DMA/callback quiescence proof and full reinitialization
+owner are established. Evidence: `docs/evidence/WR1200JS-IOT-V43-MBSS-GLOBAL-PREFLIGHT-2026-10-27.md`.
+No source driver, build, image, router state, or PCI reset was changed/run.
+Next: continue the lifecycle owner/recovery design without using PM-reset as a
+release signal; leave the candidate isolated until target compile and fault
+injection can prove the complete sequence.
+
+## Queued task for Sol — verify target BusyBox hexdump and version — 2026-10-27
+
+The router's BusyBox `hexdump -C -n 4096` successfully produced the PCI config
+snapshot through the fixed read-only helper; standalone `od` is unavailable.
+This is live-device command evidence only and does not establish the firmware
+image's BusyBox version, source revision, effective `.config`, or applet flags.
+
+Queued for Sol within the existing target BusyBox audit, without changing task
+order: inspect the exact WR1200JS build's BusyBox version/revision, config,
+ROMFS binary SHA256, applet links and `hexdump` options; determine why `od` is
+absent; compare against the currently running device; and document whether the
+allowlisted PCI dump invocation is valid for that exact image. No router state
+change is authorized. The current IoT lifecycle/recovery gate remains ahead of
+this audit follow-up.
+
+### IoT failed-main-open recovery source gate — 2026-10-27
+
+Inspected pinned Linux 4.4 `net/core/dev.c` from the exact source snapshot.
+`__dev_open()` sets START before `ndo_open`; on error it clears START and skips
+the success branch that sets IFF_UP. It does not invoke `ndo_stop`. Therefore
+`dev_close()` cannot replay cleanup for a failed `MainVirtualIF_open()`. In
+isolated v44, failure after AP main-open either leaves an `UNCERTAIN_OPEN`
+record (virtual-UP uncertain) or an `OWNED` record with `main_ready=0` (VERIFY
+failure); the manual module pin is intentionally retained, and Linux supplies
+no stop callback.
+
+Next implementation gate: introduce a deferred main-open recovery owner that
+retains netdev/module/adapter lifetime, runs only after the failed callback
+leaves RTNL, validates the exact generation/token and record phase, obtains a
+checked main-close ticket, and preserves all ownership on any failed/unverified
+physical close. It must join before PCI removal and cannot rely on `dev_close()`
+retry or PM-reset success. No recovery owner is yet bound; no driver, build, image
+or router was changed. Detailed source correlation is in
+`docs/evidence/WR1200JS-IOT-V43-MBSS-GLOBAL-PREFLIGHT-2026-10-27.md`.
+
+## 2026-10-27 IoT main-close receipt gate
+
+Main-stop host completion now requires an exact stage-3 checked-DOWN receipt
+with matching ticket provenance before it retires the ticket, consumes the
+record and marks stage 4. Missing/stale receipt tests plus dependent recovery
+fixture pass strict MinGW GCC. The real v44 main close executor and PCI worker
+remain unbound. Evidence:
+`docs/evidence/WR1200JS-IOT-V43-MBSS-GLOBAL-PREFLIGHT-2026-10-27.md`.
+
+## 2026-10-27 IoT v44 main-close prerequisite
+
+Source recheck found the isolated v44 main `ndo_stop` still uses legacy
+`VIRTUAL_IF_DOWN` and unconditional module-pin release. The v44 checker passes
+only its VERIFY structure; manifest confirms recovery and PCI release are
+unbound. Implement a ticketed, staged checked main-close continuation before
+binding the failed-open worker. See
+`docs/evidence/WR1200JS-IOT-V43-MBSS-GLOBAL-PREFLIGHT-2026-10-27.md`.
+
+## 2026-10-27 IoT recovery module-pin ordering
+
+The isolated failed-main-open owner now refuses to release its module pin
+before the worker join is confirmed. Host fixture covers early, missing and
+duplicate release and passes strict MinGW GCC. Real workqueue, module ref and
+PCI remove binding remain open. See
+`docs/evidence/WR1200JS-IOT-V43-MBSS-GLOBAL-PREFLIGHT-2026-10-27.md`.
+
+## 2026-10-27 IoT recovery retry and PCI stop gate
+
+The isolated failed-main-open owner now has bounded explicit requeue and a
+PCI stop request. The host composition test shows an unresolved stopped owner
+still blocks child teardown after work join. Strict MinGW GCC fixture passed.
+No production workqueue/remove binding or physical close proof exists. See
+`docs/evidence/WR1200JS-IOT-V43-MBSS-GLOBAL-PREFLIGHT-2026-10-27.md`.
+
+## 2026-10-27 IoT main recovery close-count gate
+
+The isolated failed-main-open recovery owner now rechecks the vendor count
+and registry with exactly one `CLOSING` record before continuing a retained
+close ticket. Host fixture rejects count/registry drift and passes strict
+MinGW GCC. This does not bind a kernel worker or prove physical close. See
+`docs/evidence/WR1200JS-IOT-V43-MBSS-GLOBAL-PREFLIGHT-2026-10-27.md`.
+
+## 2026-10-27 IoT bridge ownership cross-check
+
+The isolated bridge candidate already rejects a foreign `ra2` master and
+rechecks ownership before/after BSS up; its kernel fixture covers this case.
+Pinned RC source only attaches main/guest interface macros to LAN, while the
+WR1200JS profile reserves `ra0` as main and the `ra` extension prefix. The
+exact pinned upstream `netutils.h` maps classic 2.4 GHz main/guest to
+`ra0`/`ra1` under this board's `BOARD_2G_AS_WSOC` selection. Source mapping
+is confirmed; resolved definitions in the final image remain to be checked.
+See `docs/evidence/WR1200JS-IOT-ACTIVATION-GAP-2026-10-21.md`. No production
+activation, image or device test was performed.
+
+## 2026-10-27 lekswrt Prometheus donor review
+
+Inspected lekswrt repository at `afaa72a1ac83b2dd0bf6a4f51fe1bf1f5d061295`.
+Recorded its interactive build workflow and historical theme references in
+`docs/donor-audits/LEKSWRT-PROMETHEUS-2026-10-27.md`; added a bounded WSL 2
+candidate to the final offline-build stage of `docs/PROJECT-DELIVERY-SCOPE.md`.
+The donor README reports WSL Ubuntu 20.04 build failure, and its scripts have
+network downloads and router-write operations. No code was imported, no build
+was run, and the WR1200JS -> Mi Mini -> offline stage order is unchanged.
+
+## 2026-10-27 IoT main-close preclose stages
+
+The isolated main-stop contract now records `RTMPInfClose` start and return
+before accepting a checked DOWN receipt. This prevents a stage-1 interrupted
+void call from being treated as safe to replay. The strict host fixture passed;
+the v44 production driver still has its legacy main close path. Next: bind a
+checked executor under the shared adapter transition lock, then the deferred
+owner and PCI removal gate. Evidence is in
+`docs/evidence/WR1200JS-IOT-V43-MBSS-GLOBAL-PREFLIGHT-2026-10-27.md`.
+The stage-1 claim now shares a full registry/count predicate with recovery;
+both host fixtures reject count or child-phase drift and pass strict GCC.
+Source review corrected the binding order: failed main readiness returns from
+`ndo_open` with its acquired owner, so kernel `ndo_stop` will not run. Bind
+the adapter-pinned deferred recovery worker and join fence before routing
+normal close through the shared checked executor. Checked virtual DOWN is
+software evidence, not physical quiescence.
+The v44 PCI source also ignores `RtmpPhyNetDevExit` failure and proceeds to
+`RtmpRaDevCtrlExit`/adapter free. Worker binding must initialize before
+netdev publication and join after unregister can no longer queue work, before
+all adapter free paths. See the same evidence file; no driver binding yet.
+The host PCI retirement gate now requires a second worker join after main
+netdev detach and zero deferred owners. PCI retirement and recovery fixtures
+passed strict GCC; no actual kernel workqueue is bound.
+The deferred-owner pin-release order is corrected: its active callback may
+record an actual decrement after checked close, then the external remove
+owner must join work before clearing the record. Strict host fixture passed;
+the kernel worker is still unbound.
+The isolated recovery queue rejects ordinary admission after retirement;
+it now permits only the PCI remove owner to queue a pre-existing acquired
+main close needed by unregister/`ndo_stop`. Uncertain open is rejected in
+this path. Strict host fixture passed. Actual queueing and owner proof must
+be atomic with the retirement flag in the production binder.
+Fresh pinned-source queue/ACK assembly with that origin gate completed; it
+still has no work item or target driver compilation.
+The isolated adapter generator now carries initialized main recovery-owner
+storage and both owner headers into the full queue/ACK bundle. Fresh pinned
+source assembly and generated main-open/close host fixtures passed. No kernel
+work item, checked executor, production driver or target compilation yet.
+The deferred-owner fixture now composes these same stages with its retained
+close ticket and pin-release gate; strict MinGW GCC passed. The executor and
+worker remain unbound to the production driver.
+2026-10-28 Sol: The retained CLOSE_UNCERTAIN recovery action now checks the
+actual vendor reference count and registry cardinality against the exact
+recorded close stage before allowing reconciliation. The strict host fixture
+rejects mismatched counts before and after virtual DOWN; scoped diff check
+passed. This is a host-only gate, not a bound worker or device acceptance.
+2026-10-28 Sol: PCI removal source gate now rejects an unrelated nearby `if`
+around `RtmpPhyNetDevExit`; it requires the FALSE result itself to guard
+adapter release. Synthetic negative/positive checks passed. The current
+partial driver still fails this gate and the two work-join/release gates;
+therefore no production installation is justified yet.
+2026-10-28 Sol: Probe-failure lifetime was checked separately. In the current
+PCI source, failed `wr_iot_netdev_attach_checked` reaches `err_out_free_radev`
+and calls `RTMPFreeAdapter` directly. Added a source preflight that requires
+adapter-owned recovery work and `cancel_work_sync` before that free, while
+preserving the existing `pci_set_drvdata(NULL)` cleanup. The present partial
+candidate correctly fails both new worker gates. This expands the required
+worker binding to probe unwind as well as ordinary PCI remove.
+2026-10-28 Sol: Worker binding review found a normal-completion ownership
+gap. `wr_iot_main_recovery_complete` requires `work_joined`, but a running
+work callback cannot join itself. A callback that merely records success
+would leave the owner occupied; resetting it inside the callback could admit
+a new schedule before the prior work returns. Before binding the Linux work
+item, define and test an external completion/reap handshake that serializes
+new queue admission with work completion, and use the PCI remove joins for
+retirement. No callback was installed on this evidence alone.
+2026-10-28 Sol: Host recovery owner now requires a caller-supplied proof that
+the previous work callback was joined before RETAINED may become QUEUED.
+Both strict GCC fixtures reject an unjoined retry and pass a joined retry;
+the result is still only an ownership contract. The Linux binder must supply
+real `flush_work`/`cancel_work_sync` evidence outside the adapter lock and
+serialize that receipt with new queue admission. No kernel work item is yet
+installed.
+2026-10-28 Sol: Added explicit `schedule_work` result handling to the host
+main recovery owner. A rejected enqueue moves QUEUED to RETAINED without
+dropping the exact ticket or deferred pin; another attempt requires a joined
+prior callback. Strict GCC tests for failed-open and failed-close recovery
+passed, including rejected submission and subsequent joined retry. The
+kernel binder must call this immediately after actual schedule_work under
+the same adapter lock. This does not install or execute a Linux work item.
+2026-10-28 Sol: Bounded retry accounting now includes rejected work
+submissions, rather than counting only callbacks that began. Duplicate
+schedule-result recording is rejected and `wr_iot_main_recovery_begin`
+requires a recorded accepted submission. The host fixture proves two
+rejected submissions exhaust a two-attempt budget on an independent owner;
+both strict GCC recovery fixtures pass. Kernel callback binding remains
+unimplemented; this is not target or device evidence.
+2026-10-28 Sol: Extracted a shared checked main-close continuation into the
+partial MT7603 candidate. `MainVirtualIF_close` records the void
+`RTMPInfClose` preclose once, then calls that helper; a future deferred worker
+can resume stage 2/3 with the exact retained ticket without replaying
+preclose. The generated host fixture forced virtual DOWN failure, confirmed
+the second `ndo_stop` call does not replay preclose, then resumed the same
+ticket and completed the close with one module-pin decrement. Strict GCC
+passed on the source fragment and the composed tree. New isolated output
+`.iot-local-check/mt7603-main-close-shared-composed-v2-20261028` has 64/64
+manifest hashes matching and `production_installed=false`. Recovery queue,
+PCI joins, target compile and runtime remain open.
+2026-10-28 Sol: Refactored the same partial main-close implementation into
+shared ticket admission, fresh-claim preclose, and exact-ticket continuation.
+`ndo_stop` uses all three; a deferred acquired-open owner can use these
+stages without duplicating close logic. Host extraction checked ordinary
+physical/selective close, failed DOWN followed by exact-ticket continuation,
+and a separate acquired-open path through all three stages. Strict GCC passed
+for source and new composed output
+`.iot-local-check/mt7603-main-close-shared-composed-v3-20261028` (64/64
+manifest hashes; `production_installed=false`). The one-shot preclose rule
+still relies on caller ownership; no Linux worker, automatic queueing,
+PCI joins, target compile or runtime proof exists.
+2026-10-28 Sol: Main close now records `close_running=1` under the shared
+adapter lock immediately before the void `RTMPInfClose`; the returned
+milestone clears it and advances stage 1 to stage 2. A second claim of the
+void preclose is rejected, including after failed checked DOWN. The shared
+`close_running` field already existed in the interface record, so no extra
+layout field was added. Three strict GCC host fixtures passed. The new
+isolated `mt7603-main-close-oneshot-composed-v4-20261028` bundle copies the
+reviewed close-owner header, passes its extracted close fixture and matches
+64/64 file hashes. `production_installed=false`; worker, PCI release and
+target/runtime gates remain open.
+2026-10-28 Sol: Added a checked deferred main recovery executor to the
+partial MT7603 source. It consumes an accepted owner, validates the current
+record and radio count under the shared lock, either begins a fresh close or
+continues the exact retained ticket, and records completion before releasing
+the module pin. Stage-1 uncertain preclose is kept for reconciliation, never
+replayed. Host extraction covered a failed `ndo_stop` followed by a failed
+worker attempt, joined retry and successful exact-ticket close, plus a
+separate acquired-open worker path. Strict GCC passed. The v6 isolated bundle
+matches 64/64 hashes and remains `production_installed=false`: no actual
+Linux work item, queue submission, external reap or PCI joins are bound.
+2026-10-28 Sol: Staged the adapter-owned Linux `work_struct`, initialized it
+before adapter publication, connected its callback to the checked deferred
+executor, and joined it on the PCI probe attach-failure path before netdev and
+adapter free. New isolated v7 bundle passes the probe-unwind source preflight,
+Python syntax and 64/64 manifest hashes; `production_installed=false`.
+This is partial: no actual failure-path queue submission, netdev lifetime pin,
+normal external reap, or PCI remove join/release proof is bound. The PCI
+remove source gate still reports three open findings. No target compile,
+firmware image or router test was performed for v7.
+2026-10-28 Sol: Isolated v8b PCI candidate checks the actual
+`RtmpPhyNetDevExit` result before adapter free. Failed detach now returns
+without releasing live adapter/CSR memory. The source release gate cleared
+its fallible-detach finding; two findings remain: ordered first/final work
+joins and release claim, plus a synchronous join in PCI remove. A v8 draft
+with a diagnostic between the check and `return` was not accepted by the
+conservative gate; v8b uses a direct guarded return. Probe-unwind preflight,
+Python syntax and 64/64 manifest hashes passed. No target compile, firmware
+image or router test was run; a partial detach may retain resources.
+2026-10-28 Sol: Isolated v9 PCI candidate fences ordinary admissions under
+the shared radio lock, requests main recovery stop, then joins the work item
+outside the lock before root detach. Because unregister may invoke `ndo_stop`,
+it joins again after successful root detach. Both joins reject adapter free
+while a deferred owner remains. Probe-unwind preflight, Python syntax and
+64/64 manifest hashes passed. The PCI remove source gate now has one open
+finding: child/main detach, final join, release claim and physical/callback
+quiescence are not yet proven as a complete ordered release path. A retained
+owner currently keeps resources rather than providing recovery/reap. This is
+still a nonproduction partial candidate; no target compile or router test.
+The PCI remove source preflight now requires two exact main-work joins, one
+on each side of root detach. It reports the missing joins in v8b and only
+the remaining ordered release claim in v9; Python syntax and scoped diff
+checks passed. This is a source-order check, not execution proof.
+2026-10-28 Sol: Isolated v10 MT7603 candidate binds the existing bounded PCI
+transaction observer to actual `pci_clear_master`, config-word reads and
+`msleep`. It runs only after the staged checked physical-stop milestones,
+rejects missing PCIe capability, failed reads, active bus master or pending
+transactions, and rechecks the radio epoch before adapter release. The
+observer's strict GCC fault fixture passed; probe-unwind source preflight and
+65/65 manifest hashes passed. PCI remove source preflight still has the
+ordered release-claim finding. The config observation is a necessary check,
+not proof of DMA/ring/IRQ or callback quiescence; no target compile, firmware
+image or router run was performed and `production_installed=false`.
+
+2026-10-29 overlay correction: older manifest marks four required include/*.inc
+as fixtures. Initial scratch output omitted them; superseded by overlay2.
+Generator now excludes only seven root test fragments and applies all 64
+driver files, including those four required include fragments. Verified present.
