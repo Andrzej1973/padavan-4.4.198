@@ -1,3 +1,41 @@
+## 2026-10-31 Sol: build653 reached Kbuild; missing RTNL header fixed
+
+Build653/run41239115796 on c6db6c2 passed source merge and reached actual MIPS driver compilation. It failed in ap_apcli_inf.c worker due to missing rtnl_lock/rtnl_unlock declarations. Generator now adds Linux rtnetlink.h; audit checks it. Regenerated final-stage tree differs only by that include; positive audit and missing-header rejection passed, AST/diff checks passed. Worker logic unchanged. Full new-revision MIPS Kbuild remains unverified. Evidence: docs/evidence/WR1200JS-BUILD653-RTNL-HEADER-2026-10-31.md. Monitor report found step but omitted late cause; existing branch tail fix not yet live on main. Router unchanged.
+
+## 2026-10-31 Sol: parent-level Codex inputs preserved separately
+
+Owner requested review of five JSON/patch pairs, private-router-backups and workspace-migration-20261031 directly under C:/Users/ANDRZEJ/Documents/Codex, outside the previously archived 2026-09-29 root. Preserved51 files/117813403 bytes at /home/andrzej/padavan-build/local-preservation/codex-parent-20261031, outside Git. Source/copy and native-Linux SHA256 passes match; directories700/files600. All5 patch histories were found on current HEAD; current eth2.2 and discovery diagnostic fixes confirmed; no patch or manifest commands applied. Historic main/HTTPS fields do not override current configuration.
+
+Preserved private backups in full (7 files/16972327bytes) without publishing or restoring. Migration folder copy is a passive checkpoint; active workers still use original C: staging, so retain it and sync final results later. Excluded only reinstallable Ubuntu rootfs, regenerable NUL lists and bytecode; originals retained. Local README, manifest and patch review provide exact scope. No commit/push/router changes; broad goal remains paused.
+
+## 2026-10-31 Sol: active-materials archive pair verified; peer82 build653 running
+
+Main archive verification found nested .git omissions caused by bsdtar's unanchored exclusion and two new Python cache entries. No known payload corruption: 42094 known files matched. Created a 34,878,835-byte nested-Git payload supplement using explicit NUL paths and --no-recursion; all491 files/778 entries verified. Composite metadata gate confirms all42585 original files/7,196,999,648 bytes plus the extra5572-byte cache are preserved across the pair. Archive file sizes/times and report SHA256 references checked stable; full7GB was not recopied. Evidence: Windows staging active-materials-composite-verification.json and preservation-current-state.json. Initial failed attempt report retained; new aggregate state supersedes it.
+
+Removed only the identified incomplete G: archive (1676513280bytes) after validating the complete D: pair. Windows originals remain. Root .git and _cleanup-archive-20261031 are excluded and NOT accepted as preserved; full migration/old-folder deletion remain prohibited. Linux legacy extraction/peer model checks remain open.
+
+Firmware652/run41237211970 succeeded on c6db6c2. Confirmed no active duplicate and unchanged remote SHA, dispatched existing isolated peer82 check: build653/run41239115796 on c6db6c2ad90d82bfa248201fbf0924c938a051f0, in_progress. Reuse that run; target/image/device acceptance pending. Router unchanged.
+
+## 2026-10-31 Sol: c6db6c2 ABI and service CI passed
+
+Live check: ABI41237211754 and service-state41237206672 completed success on c6db6c2ad90d82bfa248201fbf0924c938a051f0; firmware41237211970 remains in_progress. Do not duplicate it. Source merge checks include the reviewed production cmm_info bound; full target peer82 compilation still needs the explicit candidate run after this firmware run. Archive verifier10604 remains live and its read counter advanced beyond7.4GB; payload verification is not yet complete. Official Desktop project path is now WSL, but peer checks were blocked before file IO by unsupported model/auth setup, not proven folder denial. No model, auth or router changes.
+
+## 2026-10-31 Sol: owner changed Desktop project to WSL path
+
+Official list_projects confirms project63ab0a4b-a7af-4ba2-8248-5d92324958e8 now points to \\wsl.localhost\Ubuntu-22.04\home\andrzej\padavan-build\router-guide-work. GPT-6.1 SOL, DeepSeek and OpenRouter all retain membership in this same project. list_threads still reports historical Windows cwd for all three; do not mistake that field for a tested access denial. Sol read AGENTS.md and native Git status/HEAD in the new checkout successfully.
+
+Owner explicitly requested peer access checks. Sent each existing peer one read-only file/Git check, with no model override or writer handoff. Both failed before tool execution: DeepSeek remote compaction rejected deepseek-flash as unsupported with a ChatGPT account; OpenRouter rejected dots-studio/dots-3-note-preview:free for the same reason. Their actual file access is therefore NOT verified. Models/authentication untouched, no repeat/reply loop. Registration gate is now passed; peer runtime/model setup and initial-cwd transition still need verification. Do not delete old source yet; preservation gates also remain open.
+
+## 2026-10-31 Sol: preservation boundary clarified for old parent Git
+
+Old Windows project working files are frozen, but sampled parent .git loose objects have fresh write times21:07 and Desktop background Git add/status processes remain active. Do not call that parent Git store frozen or archive/delete it as a settled historical snapshot yet. Retarget the existing chats through Desktop first, then recheck writers and preserve/classify parent Git metadata. No ignore/config/process changes were made. Scope and limits recorded in parent ENVIRONMENT-AUDIT.md; old freeze causation remains unproven. Active-materials archive excludes parent .git and its verification continues independently.
+
+## 2026-10-31 Sol: published production-overlap repair c6db6c2
+
+Commit c6db6c2ad90d82bfa248201fbf0924c938a051f0 published by native Linux Git through the permanently configured Windows OpenSSH. Dry-run and normal fast-forward push succeeded with no per-command SSH/trust override. Worktree was clean immediately after push.
+
+Automatic CI on this SHA: ABI41237211754, firmware41237211970, service-state41237206672 all in_progress. Do not dispatch duplicates. Whole peer82 candidate must still be rerun on this revision after the active firmware run; ordinary default CI does not enable that optional compile. Build651's original failure is accounted for by the reviewed seventh overlap, not accepted as target proof. Current local edits after this commit are status/handoff observations only; router unchanged. Preservation verifier PID10604 remains live and reading, no success/deletion gate yet.
+
 ## 2026-10-31 Sol: build651 failure reproduced and production overlap fixed locally
 
 Build651/run41235882348 failed at isolated IoT preparation before Kbuild: the actual production station-query buffer bound makes common/cmm_info.c a seventh overlap. Reproduced exact rejection; clean merge preserves both bounds and peer changes. Assembler now accepts only the exact six-or-reviewed-seven sets, with SHA-pinned extra input/output; altered same-set input is rejected, six-overlap output unchanged. Evidence: docs/evidence/WR1200JS-BUILD651-PEER82-PRODUCTION-MERGE-2026-10-31.md. Whole target/image/runtime remain open. Monitor identified the step but missed late cause; branch tail-log correction exists but main is still old. No router change.

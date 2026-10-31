@@ -40,6 +40,10 @@ def all_occurrences(name,old,new):
  if not count:p.error('missing anchor '+name+': '+old[:60])
  texts[name]=texts[name].replace(old,new)
 
+# This translation unit defines the retry worker and calls the kernel RTNL API.
+one('ap/ap_apcli_inf.c','#include "rt_config.h"',
+    '#include "rt_config.h"\n#include <linux/rtnetlink.h>')
+
 one('include/rtmp.h','#include "aux-family-close.h"',
     '#include "aux-family-close.h"\n#include "aux-family-retry-scheduler.h"')
 one('include/rtmp.h','\tstruct work_struct wr_iot_main_recovery_work;',

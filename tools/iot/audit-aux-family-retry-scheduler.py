@@ -34,6 +34,9 @@ pci=text('os/linux/pci_main_dev.c')
 release=text('include/wr-iot-peer-adapter-release.inc')
 retry=text('include/wr-iot-aux-family-close-owned.inc')
 
+assert apcli.count('#include <linux/rtnetlink.h>')==1
+assert apcli.index('#include <linux/rtnetlink.h>') < apcli.index('VOID wr_iot_aux_family_retry_work_fn(')
+
 submit=body(apcli,'INT wr_iot_aux_family_retry_submit(')
 worker=body(apcli,'VOID wr_iot_aux_family_retry_work_fn(')
 
