@@ -1620,6 +1620,9 @@ jobs:
             python3 tools/iot/prepare-terminal-command-lock-lifetime.py \
               "$merged" "$candidate/command-lifecycle"
             merged="$candidate/command-lifecycle"
+            python3 tools/iot/prepare-ap-software-shutdown.py "$merged" "$candidate/ap-before-off"
+            merged="$candidate/ap-before-off"
+            python3 tools/iot/check-ap-before-radio-off.py "$merged"
             python3 tools/iot/check-command-lifecycle-calls.py "$merged"
             python3 tools/iot/check-retry-rtnl-header.py "$merged"
             python3 tools/iot/check-main-verify-module-macro.py "$merged"

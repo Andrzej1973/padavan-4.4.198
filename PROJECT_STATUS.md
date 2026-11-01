@@ -1,3 +1,14 @@
+## 2026-11-01 Sol: AP before-OFF layer wired into optional peer82
+
+Optional target workflow now applies AP layer after terminal command layer,
+passes its updated merged manifest to existing target build and executes AP
+host fixture. Generator validates full parent inventory plus exact reviewed
+AP body hashes and emits full updated source inventory. Peer-source generation
+and fixture pass; YAML/full affected bash syntax passes. Full merged execution
+and MIPS result for this new layer still pending. New AP entry remains unbound
+to runtime close; do not claim checked OFF repair. Publish as one coherent batch
+then inspect automatic CI before another optional target dispatch.
+
 ## 2026-11-01 Sol: AP cleanup split staged and host verified
 
 Hash-pinned prepare-ap-software-shutdown.py adds an unbound AP cleanup entry
