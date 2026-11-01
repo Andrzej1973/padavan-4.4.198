@@ -1,3 +1,14 @@
+## 2026-11-01 Sol: ACK flag preconditions and AP scratch cleanup
+
+MT HALT ISR mask preserves RX ring1; ring1 handler refuses RADIO_OFF/reset
+or absent START_UP. Updated OFF-ACK evidence with exact macros/paths. Existing
+legacy AP radio-off violates these prerequisites before checked OFF.
+Removed three superseded AP scratch trees/receipts (41,427,163 bytes, about
+39.5MiB), after checking no generator/test process was using them. Retained
+/tmp/wr-peer82-triage/ap-manifest-ready for unfinished integration; its four
+host variants pass. CI firmware run41322778521 and ABI41322778575 remain
+in progress at 1dcec2dc; do not duplicate firmware dispatch.
+
 ## 2026-11-01 Sol: AP before-OFF layer wired into optional peer82
 
 Optional target workflow now applies AP layer after terminal command layer,

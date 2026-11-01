@@ -23,5 +23,10 @@
     "LOAD_FW_ONE_TIME writes AGG_TEMP without ACK; alternate branch sends legacy CmdRadioOnOffCtrl",
     "AsicSetWPDMA(PDMA_TX_RX,0), sets RADIO_OFF and disables active interrupts"
   ],
-  "implementation_dependency": "Do not move checked OFF behind APShutdown. First provide checked AP software-only shutdown entry or split ownership stages, retaining peer/beacon cleanup and legacy callers. ACK must precede both legacy PDMA stop and RX tasklet join."
+  "implementation_dependency": "Do not move checked OFF behind APShutdown. First provide checked AP software-only shutdown entry or split ownership stages, retaining peer/beacon cleanup and legacy callers. ACK must precede both legacy PDMA stop and RX tasklet join.",
+  "ack_delivery_flags": {
+    "HALT_IN_PROGRESS": "MT ISR masks to MT_INT_CMD|MT_INT_RX|WF_MAC_INT_3; MT_INT_RX includes MT_INT_R1_DONE = MT_INT_RX_CMD, so HALT alone retains ACK IRQ source",
+    "ring1_handler": "RxRing1DoneInterruptHandle refuses RADIO_OFF or RESET_IN_PROGRESS or missing START_UP; HALT test is commented out",
+    "required_preflight": "Before checked OFF mutation, prove live initialized RX tasklets/IRQ and START_UP, no RESET/RADIO_OFF, plus pinned sender ownership. Recheck under appropriate serialization; flag observation alone cannot establish lifetime."
+  }
 }
