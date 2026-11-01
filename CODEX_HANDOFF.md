@@ -1,3 +1,27 @@
+## 2026-11-01 Sol: build660 full merged IoT MIPS module passed
+
+Run41263036826/build660 on69a70ba8f1a96a70b3fe0c13fdd7908365be07b9 completed success, including actual isolated merged peer82 vmlinux/modules Kbuild. Downloaded iot-merged-driver-probe; independently checked 5456200-byte mt76x3_ap.ko SHA2560619759a62972f62bbca917a91786a5ea815c94992b969a5786d3135ca737fca, MIPS little-endian ELF, defined retry-worker/RSSI-delete symbols, and identical before/after kernel config. Three-BSS source capacity verified (effective limit16). Actual rt_linux task macros: KTHREAD=true; OS_ABL, PM, TIMER_TASK, WSC=false. This does not verify other feature variants or runtime.
+
+Source inventory comparison was NOT identical: CI also retains compiled artifacts and production-prepared ft_tlv.c/rtmp_def.h differ from earlier local scratch. No false exact-source equivalence claim. Evidence WR1200JS-BUILD660-IOT-TARGET-2026-11-01.json records artifact hashes and limitations. Candidate production_installed=false, runtime_verified=false; no flashed IoT image/device acceptance. Local6f9a481 still unpushed; packet/DHCP evidence and status updates local. Next: preserve/publish coherent guard+evidence batch, then close remaining lifetime/recovery and production-backend/image gates, not jump to runtime claims. Router unchanged.
+
+## 2026-11-01 Sol: firmware659/ABI passed; optional IoT run launched on69a70ba
+
+Verified firmware659/run41262066229 success and ABI41262066215 success on69a70ba8f1a96a70b3fe0c13fdd7908365be07b9. No active duplicate, remote branch unchanged. Launched existing boards=wr1200js/run_candidate_checks=true/candidate_scope=iot/iot_candidate_variant=peer82: run41263036826. This is next whole-module gate after658 fixes; reuse it. Kept local6f9a481 APCLI-off declaration guard unpushed intentionally so it does not interrupt this exact-revision target run. Current default target code local TU checks passed, but module/task/image/runtime still require artifacts.
+
+Stopped only own noisy local gh run watch observer PID14248; did not cancel GitHub run. Compact live polls observed firmware compilation then image/package completion. Independent WSL packet and DHCP/DNS evidence remains local; no router writes or security-policy changes.
+
+## 2026-11-01 Sol: pinned dnsmasq DHCP/DNS namespace transactions passed
+
+Built only pinned dnsmasq2.90 native with -j1 plus existing IoT bridge/network/readiness fixtures in disposable /tmp/wr-iot-dhcp-8s0na8of. Generated config passed dnsmasq --test. Existing check-dhcp-transactions.py then passed inside newly unshared mount/network namespaces with private /run/sysfs: real IoT/LAN DHCP OFFER/ACK pools/options, DNS responses, passive socket ownership/readiness, handler failures, DHCPINFORM lease preservation and alternate DHCP port behavior as recorded by fixture checks. Daemon stopped by fixture cleanup; no router or physical network configuration changed. Evidence WR1200JS-IOT-WSL-DHCP-DNS-2026-11-01.json records exact checks, kernel, pinned source, binary/source hashes. This is native host service transaction evidence; production RC wiring, MIPS services and device acceptance remain open. No full firmware compiled locally.
+
+## 2026-11-01 Sol: WSL host-kernel IoT packet isolation passed
+
+Compiled current emit-firewall.c, emitted IPv4/IPv6 rules, ran existing check-firewall-packets.py as root only in newly unshared mount/network namespaces with private /run. Passed all TCP/UDP DNS/DHCP-port, IoT LAN/admin blocking, unsolicited inbound, stale established LAN connection blocking, IPv6 routed blocking and preserved main LAN->WAN checks. Parent network namespace differs by enforced harness guard; no physical router/Windows network configuration changed. Namespace test exited0 and temporary server processes terminated. Evidence WR1200JS-IOT-WSL-PACKET-ISOLATION-2026-11-01.json records kernel/source/rule generator provenance and all checks. This is host-kernel rule-planner packet evidence, not installed rc/backend, real DHCP/DNS service transaction, IPv6 NDP or target runtime acceptance. Firmware659 remains independent.
+
+## 2026-11-01 Sol: read-only router helper blocked by Windows signature policy
+
+Attempted only tools/wr1200js-readonly.ps1 -Check identity from active WSL UNC path. PowerShell rejected before SSH: file is not digitally signed / cannot run this script on current system. No router command executed; no execution-policy/security change, bypass or alternate transport attempted. This is a local script-trust barrier, not evidence router SSH is down. Candidate target checks continue independently; do not claim device baseline refreshed. Firmware659/run41262066229 verified live at firmware compilation. Local6f9a481 remains unpushed to avoid interrupting it.
+
 ## 2026-11-01 Sol: partial MIPS lifecycle link passes
 
 Linked seven actual local MIPS lifecycle objects with target ld -r: rt_main_dev, rtmp_init, MBSS/APCLI/WDS interfaces, rt_profile and pci_main_dev. No duplicate-definition failure; nm confirms shared retry worker and submit each defined exactly once. Evidence WR1200JS-IOT-PARTIAL-LINK-2026-11-01.json records object hash/size. This deliberately permits unresolved references to kernel and other driver objects, so does not establish full module link or device safety. Existing whole-module CI gate remains open. Firmware659 still in_progress; no duplicate/push/router mutation. Local coherent feature-guard/evidence checkpoint retained for later publication.
