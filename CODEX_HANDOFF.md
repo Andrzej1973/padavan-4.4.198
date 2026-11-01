@@ -1,3 +1,13 @@
+## 2026-11-01 Sol: sender drain-to-release admission race modeled
+
+Added terminal release_claim under sender lock: requires closed/drained state
+and forbids later normal/OFF admission. Prevents an OFF starting after zero
+inflight was sampled. Owner and wrapper host ASan/UBSan fixtures pass, including
+partial/uncertain drain refusal and OFF-after-release rejection. This model is
+still unbound; external references, hardware owners and reopen epoch remain
+separate prerequisites. Next bind the complete owner and wrapper into isolated
+merged source with adapter initialization and every free/unwind path guarded.
+
 ## 2026-11-01 Sol: sender final-unlock lifetime regression fixed
 
 Wrapper now wakes drain waiters before releasing adapter-lifetime lock. Once
