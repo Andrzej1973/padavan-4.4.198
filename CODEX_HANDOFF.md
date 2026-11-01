@@ -1,3 +1,25 @@
+## 2026-11-01 Sol: build658 repair passed complete source replay
+
+Full updated peer chain and strict production/RSSI merge passed in /tmp/wr-iot658-fixed-chain and /tmp/wr-iot658-fixed-merged. Actual scheduler active/missing/commented-header and early-release regressions pass. New check-main-verify-module-macro.py compiles exact generated main VERIFY arm with both vendor trailing-semicolon module macros, rejects unbraced regression, and passed host GCC plus pinned MIPS GCC syntax checks. Wired it before peer82 target Kbuild. Full workflow YAML/step bash syntax passes.
+
+Also reproduced independent -Werror=unused-function for optional wr_iot_peer_open_release_config in shared client include. Hash-pinned final-stage transformation makes only that helper static inline, preserving body; isolated GCC -Wall -Wextra -Werror object compile passes and original static version fails. Full MIPS module still unverified. Monitor658 artifact41261604043 again reports correct step but old first256KiB excerpt misses causal late compiler errors; existing tail parser branch fix remains undeployed, not duplicated. Publishing one coherent658 repair under standing authorization; router unchanged.
+
+## 2026-11-01 Sol: build658 root cause reproduced; braced vendor macro repair staged
+
+Run41260184588/build658 failed actual merged MIPS Kbuild in rt_main_dev.c580: expected } before else. First causal diagnostic precedes undeclared close_ticket/began and file-scope netif cascades. Vendor include/os/rt_linux.h258 defines RT_MOD_DEC_USE_COUNT() as module_put(THIS_MODULE); (trailing semicolon). Existing unbraced if(closed) adds an extra null statement before else. Final scheduler generator now hash-pins predecessor rt_main_dev.c (7413803d8c757189d7280d55d25448aa178c9e1c53ae8f4e596092088037a8a2) and braces only this arm. No close/recovery semantics changed.
+
+Regenerated final stage /tmp/wr-iot658-braced-candidate. Extracted exact generated branch compiled with GCC -Wall -Wextra -Werror and the vendor macro trailing-semicolon form; reverting braces reproduces rejection. Full current chain/strict merge/MIPS Kbuild remain pending; unused peer-open helper diagnostic may be secondary and is not waived. Need compare monitor artifact and add persistent regression before publication. Router unchanged.
+
+## 2026-11-01 Sol: firmware657 and ABI passed; isolated peer82 build launched
+
+Live verification: firmware657/run41258805011 and ABI41258804981 completed success on083090a32fa879f81955c6f60b8346f302bb3440. Confirmed no queued/running firmware duplicate and remote branch exact SHA, dispatched existing optional candidate workflow with boards=wr1200js, run_candidate_checks=true, candidate_scope=iot, iot_candidate_variant=peer82. New run41260184588 is the sole target candidate run; reuse it. Full merged Kbuild/module/task-feature evidence remains pending, ordinary657 is not substitute. Source/runtime acceptance remains separate. Local only documentation observations preserved; no router mutation.
+
+Environment note: prior default Windows cwd now reports os error267; explicit existing Windows user directory plus native WSL --cd works. Active Linux checkout remains accessible. Do not restore or recreate obsolete Windows source directory merely to satisfy old cwd.
+
+## 2026-11-01 Sol: checkpoint083090a published; ordinary657 running
+
+Firmware656/run41257610662 and ABI41257610688 completed success on d8b6061489d7bbc60fe79b6ca39b7e34cb7f9ee8. With prior firmware terminal, published083090a32fa879f81955c6f60b8346f302bb3440 by normal fast-forward push. Worktree clean after push. Automatic firmware657/run41258805011 and ABI41258804981 are in_progress on083090a; reuse them, no duplicate dispatch. Ordinary firmware success will NOT prove optional merged peer82 Kbuild: after this run terminates, dispatch existing candidate_scope=iot/run_candidate_checks=true/iot_candidate_variant=peer82 on this exact published revision. Shared-worker target/APCLI-off link and runtime remain unverified. Router unchanged.
+
 ## 2026-11-01 Sol: local checkpoint prepared; failed-target inputs preserved
 
 Optional IoT CI now copies exact kernel-before.config and available generated/config headers before Kbuild, rather than keeping .config only after success. Complete-step bash -n and YAML parse passed. This addresses observed missing-input gap in655 diagnostics; future artifact collection still needs actual CI execution. Local checkpoint includes shared worker relocation, stop/join model and source-order regressions, CI wiring and source/MIPS evidence. No push while firmware656/run41257610662 is live; do not attribute this checkpoint to its SHA. Router unchanged.

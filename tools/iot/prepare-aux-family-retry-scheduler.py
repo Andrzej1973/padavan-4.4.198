@@ -16,6 +16,8 @@ if out.exists() or src==out or src in out.parents or out in src.parents:
  p.error('new separate output required')
 
 pins={
+ 'include/wr-iot-peer-open-client.inc':'bd352de23d2af6ece8d15cb1f9291586a3a01039f3f54f31a796313afc20be23',
+ 'os/linux/rt_main_dev.c':'7413803d8c757189d7280d55d25448aa178c9e1c53ae8f4e596092088037a8a2',
  'include/rtmp.h':'e253c027620c29ff69a5d14601633945097a85644cc32b416ab3a4c943167487',
  'common/rtmp_init.c':'c32609217ff1ce100b8b1ee21b1bec4f0e2bdb52303c2abd1f66264a2fd13018',
  'ap/ap_apcli_inf.c':'77ab94573ef99c3981fa34bc70f12725e3f866ad0b9c912d65dcb976a075aa66',
@@ -40,6 +42,16 @@ def all_occurrences(name,old,new):
  if not count:p.error('missing anchor '+name+': '+old[:60])
  texts[name]=texts[name].replace(old,new)
 
+
+# Vendor module-release macro includes a trailing semicolon. Brace its
+# if/else arm so expansion cannot terminate the conditional before else.
+one('os/linux/rt_main_dev.c',
+    '  if (closed)\n   RT_MOD_DEC_USE_COUNT();\n  else if',
+    '  if (closed) {\n   RT_MOD_DEC_USE_COUNT();\n  } else if')
+
+one('include/wr-iot-peer-open-client.inc',
+    'static INT wr_iot_peer_open_release_config(',
+    'static inline INT wr_iot_peer_open_release_config(')
 
 one('include/rtmp.h','#include "aux-family-close.h"',
     '#include "aux-family-close.h"\n#include "aux-family-retry-scheduler.h"')
