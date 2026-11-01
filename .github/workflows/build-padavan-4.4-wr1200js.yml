@@ -1619,6 +1619,10 @@ jobs:
               "$candidate/peer/peer-chain.json" "$candidate/full-driver-overlay.json" "$merged"
             python3 tools/iot/check-retry-rtnl-header.py "$merged"
             gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
+              -I"$merged/include" tools/iot/check-aux-family-retry-scheduler.c \
+              -o "$results/check-aux-family-retry-scheduler"
+            "$results/check-aux-family-retry-scheduler" | tee "$results/aux-family-retry-scheduler.txt"
+            gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
               -I"$merged/include" tools/iot/check-peer-rssi-delete.c -o "$results/check-peer-rssi-delete"
             "$results/check-peer-rssi-delete" | tee "$results/peer-rssi-delete.txt"
             cp "$candidate/peer/peer-chain.json" "$results/peer-chain.json"
@@ -1750,6 +1754,15 @@ jobs:
           test -n "$compiler"
           cross="${compiler%gcc}"
           sha256sum "$kernel/.config" > "$results/config-before.sha256"
+          # Preserve actual inputs even if Kbuild fails before the success report.
+          cp "$kernel/.config" "$results/kernel-before.config"
+          header_dirs=()
+          for directory in include/generated include/config arch/mips/include/generated; do
+            if [ -d "$kernel/$directory" ]; then header_dirs+=("$directory"); fi
+          done
+          if [ "${#header_dirs[@]}" -gt 0 ]; then
+            tar -czf "$results/kernel-generated-headers.tar.gz" -C "$kernel" "${header_dirs[@]}"
+          fi
           if [ "${{ inputs.iot_candidate_variant }}" = peer82 ]; then
             "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
               -I"$driver/include" -c tools/iot/check-peer-rssi-delete.c \

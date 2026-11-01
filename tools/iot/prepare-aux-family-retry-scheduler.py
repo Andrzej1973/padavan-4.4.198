@@ -40,9 +40,6 @@ def all_occurrences(name,old,new):
  if not count:p.error('missing anchor '+name+': '+old[:60])
  texts[name]=texts[name].replace(old,new)
 
-# This translation unit defines the retry worker and calls the kernel RTNL API.
-one('ap/ap_apcli_inf.c','#include "rt_os_net.h"',
-    '#include "rt_os_net.h"\n#include <linux/rtnetlink.h>')
 
 one('include/rtmp.h','#include "aux-family-close.h"',
     '#include "aux-family-close.h"\n#include "aux-family-retry-scheduler.h"')
@@ -157,8 +154,13 @@ VOID wr_iot_aux_family_retry_work_fn(struct work_struct *work)
 }
 
 '''
-one('ap/ap_apcli_inf.c','INT ApCli_VirtualIF_Close(PNET_DEV dev_p)',
-    retry_impl+'INT ApCli_VirtualIF_Close(PNET_DEV dev_p)')
+# Shared retry work must exist even when the APCLI object is not selected.
+# Reuse the exact already-transformed inline retry body; no ownership changes.
+retry_body=texts['include/wr-iot-aux-family-close-owned.inc']
+retry_body=retry_body[retry_body.index('static inline INT wr_iot_aux_family_close_retry_owned('):]
+one('common/rtmp_init.c','#include "queued-work.h"',
+    '#include "queued-work.h"\n#include <linux/rtnetlink.h>\n'
+    '#include "aux-close-claim.h"\n'+retry_body+'\n'+retry_impl)
 one('ap/ap_apcli_inf.c',
     ' return wr_iot_aux_family_close_owned(RTMP_OS_NETDEV_GET_PRIV(dev_p),dev_p,WR_REF_FAMILY_APCLI,wr_iot_apcli_close_ioctl);\n}',
     ' {\n'

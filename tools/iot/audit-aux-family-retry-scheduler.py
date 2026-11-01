@@ -35,12 +35,13 @@ pci=text('os/linux/pci_main_dev.c')
 release=text('include/wr-iot-peer-adapter-release.inc')
 retry=text('include/wr-iot-aux-family-close-owned.inc')
 
-active_apcli=re.sub(r'/\*.*?\*/|//[^\n]*', '', apcli, flags=re.S)
-assert active_apcli.count('#include <linux/rtnetlink.h>')==1
-assert apcli.index('#include <linux/rtnetlink.h>') < apcli.index('VOID wr_iot_aux_family_retry_work_fn(')
+active_init=re.sub(r'/\*.*?\*/|//[^\n]*', '', init, flags=re.S)
+assert active_init.count('#include <linux/rtnetlink.h>')==1
+assert init.index('#include <linux/rtnetlink.h>') < init.index('VOID wr_iot_aux_family_retry_work_fn(')
+assert 'VOID wr_iot_aux_family_retry_work_fn(' not in apcli
 
-submit=body(apcli,'INT wr_iot_aux_family_retry_submit(')
-worker=body(apcli,'VOID wr_iot_aux_family_retry_work_fn(')
+submit=body(init,'INT wr_iot_aux_family_retry_submit(')
+worker=body(init,'VOID wr_iot_aux_family_retry_work_fn(')
 
 assert '#include "aux-family-retry-scheduler.h"' in rtmp
 assert 'struct wr_iot_aux_retry_owner wr_iot_aux_family_retry;' in rtmp
@@ -85,6 +86,20 @@ assert mark_in_function<function_tail.index('RT_MOD_DEC_USE_COUNT();')
 assert pci.count('cancel_work_sync(&adapter->wr_iot_aux_family_retry_work);')>=2
 assert pci.count('cancel_work_sync(&((PRTMP_ADAPTER)pAd)->wr_iot_aux_family_retry_work);')==1
 assert pci.count('flush_work(&adapter->wr_iot_aux_family_retry_work);')>=2
+# Counts alone cannot establish ordering of the actual removal path.
+remove=body(pci,'static VOID DEVEXIT rt_pci_remove(')
+first_flush=remove.index('flush_work(&adapter->wr_iot_aux_family_retry_work);')
+retire=remove.index('wr_iot_radio_retire(')
+first_join=remove.index('cancel_work_sync(&adapter->wr_iot_aux_family_retry_work);')
+children=remove.index('RtmpPhyNetDevExit(pAd, net_dev)')
+second_join=remove.index('cancel_work_sync(&adapter->wr_iot_aux_family_retry_work);',first_join+1)
+release_adapter=remove.index('RtmpRaDevCtrlExit(pAd)')
+assert first_flush<retire<first_join<children<second_join<release_adapter
+for start,end in ((first_join,children),(second_join,release_adapter)):
+ section=remove[start:end]
+ assert 'adapter->wr_iot_aux_family_retry.deferred_owners' in section
+ assert 'work_busy(&adapter->wr_iot_aux_family_retry_work)' in section
+ assert 'return;' in section
 assert pci.count('adapter->wr_iot_aux_family_retry.deferred_owners')>=4
 assert pci.count('work_busy(&adapter->wr_iot_aux_family_retry_work)')>=4
 

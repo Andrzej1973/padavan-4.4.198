@@ -1,3 +1,45 @@
+## 2026-11-01 Sol: local checkpoint prepared; failed-target inputs preserved
+
+Optional IoT CI now copies exact kernel-before.config and available generated/config headers before Kbuild, rather than keeping .config only after success. Complete-step bash -n and YAML parse passed. This addresses observed missing-input gap in655 diagnostics; future artifact collection still needs actual CI execution. Local checkpoint includes shared worker relocation, stop/join model and source-order regressions, CI wiring and source/MIPS evidence. No push while firmware656/run41257610662 is live; do not attribute this checkpoint to its SHA. Router unchanged.
+
+## 2026-11-01 Sol: local target-compile preflight evidence gap
+
+Downloaded existing654 wr1200js-iot-radio-capacity artifact to private Windows staging/radio654: contains actual task Kbuild command and macro dump, capacity objects/reports, but no effective kernel .config/generated headers. Downloaded failed655 iot-merged-driver-probe to staging/iot655: build log, source manifests and config-before hash, no complete kernel config/header tree. Therefore did not claim/run an equivalent local whole-TU target compile from incomplete inputs. No full kernel/firmware extraction or build started. Existing CI remains authoritative target route; local isolated source/model checks remain distinct. Retain downloaded diagnostic inputs outside Git. Firmware656 still requires terminal check before publication/dispatch decision.
+
+## 2026-11-01 Sol: shared retry relocation passed complete source composition
+
+Current whole peer chain generated in /tmp/wr-iot-shared-worker-chain; strict production/RSSI merge succeeded into /tmp/wr-iot-shared-worker-merged without changing merge pins. Actual merged scheduler audit and active/commented/missing header plus early-adapter-release regression cases passed. Common submit/worker definitions occur once, before optional feature conditionals, absent from APCLI/Monitor units. Source evidence JSON records common-source hash. Full MIPS Kbuild with APCLI on/off and actual runtime remain unverified. Local relocation/test batch is not published; d8b6061 CI covers the earlier active-header repair only. Router unchanged.
+
+## 2026-11-01 Sol: shared retry worker relocation staged locally
+
+Generator now emits shared retry submit/worker into always-built common/rtmp_init.c after queued-work.h, with active rtnetlink.h and aux-close-claim.h. Reuses exact transformed inline close-retry helper body; APCLI/Monitor wrappers remain in their own units. Regenerated final stage in /tmp/wr-iot-shared-worker-candidate; submit/worker text matches previous implementation exactly and APCLI file no longer defines it. Audit and negative-header fixture redirected to common initialization source. Python AST passed. Full chain receipts, production merge, audit execution and target/link configurations remain pending; do NOT publish this relocation as accepted yet. Previous source hash evidence describes pre-relocation tests only. No router mutation.
+
+## 2026-11-01 Sol: APCLI-disabled feature dependency confirmed
+
+Actual merged ap/ap_apcli_inf.c preprocesses successfully with gcc -E -P -UAPCLI_SUPPORT but emits neither shared wr_iot_aux_family_retry_work_fn nor wr_iot_aux_family_retry_submit. Both definitions are inside APCLI_SUPPORT (lines48..293), while common/rtmp_init.c INIT_WORK references worker unconditionally. Monitor also uses shared submit. Evidence: docs/evidence/WR1200JS-IOT-RETRY-APCLI-OFF-2026-11-01.json. This establishes missing definitions in that TU, not an executed full target-link failure. Current WR1200JS APCLI-enabled build is a different configuration.
+
+Next concrete feature fix: move shared retry implementation to an always-built translation unit, with active RTNL declaration and reviewed pinned merge updates; preserve APCLI and Monitor wrappers and exact-ticket ownership semantics. Do not disable Monitor or silently force APCLI to hide dependency. Full target/configuration compilation remains required. Firmware656 is still in_progress; no duplicate/push/router mutation.
+
+## 2026-11-01 Sol: merged retry model wired into optional target CI
+
+ABI602 successor run41257610688 on d8b6061489d7bbc60fe79b6ca39b7e34cb7f9ee8 completed success. Firmware656/run41257610662 remains live in Build WR1200JS firmware. No duplicate dispatched. Current local batch is not included in those runs.
+
+Workflow inspection found no explicit check-aux-family-retry-scheduler.c invocation. Added host ASan/UBSan compilation/execution in peer82 branch against $merged/include, retaining its output in target diagnostic results. Executed exact source fixture against actual /tmp/wr-iot656-merged-final/include: PASS including newly added stop-boundary checks. Workflow YAML and whole step bash -n passed. Model coverage is not actual kernel workqueue/RTNL concurrency evidence. Keep changes batched until existing firmware finishes. Router unchanged.
+
+## 2026-11-01 Sol: PCI retry join source-order guard strengthened
+
+Reviewed actual merged rt_pci_remove: initial auxiliary flush precedes retirement, first cancel/join precedes child detach, second cancel/join follows child detach, and both deferred-owner/work_busy refusal checks precede adapter release. Scheduler audit now checks ordering within this function, beyond global counts. Regression fixture moves adapter release before first join while preserving call counts; actual audit rejects it. Existing active/commented/missing RTNL tests still pass. No driver logic changed. This guards source composition only; RTNL caller context, real callback exit, concurrent reopen and retained-owner recovery remain unaccepted. Keep local test/audit batch for next coherent publication after active656.
+
+## 2026-11-01 Sol: expanded stop fixture compiles for MIPS
+
+Pinned cached mipsel-linux-uclibc GCC compiled expanded check-aux-family-retry-scheduler.c with -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float. readelf confirms little-endian MIPS ELF object (11672 bytes). Source/object SHA256 and command recorded in docs/evidence/WR1200JS-IOT-RETRY-STOP-MIPS-2026-11-01.json. Compile-only model fixture, not full kernel module or device execution. Firmware656 remains live at Build WR1200JS firmware; ABI also live. Keep local test/evidence batch unpushed during existing run.
+
+Next lifecycle review must distinguish worker self-completion from external workqueue join: worker calls wr_iot_aux_retry_complete(owner,1,...) before returning; PCI release separately checks work_busy/cancel/flush. Do not claim host-model work_joined input proves real callback exit or safe concurrent reopen/free. Review that entire boundary after target gate, retaining existing fail-closed ownership rather than deleting safeguards. No source driver change or router mutation.
+
+## 2026-11-01 Sol: retry stop-boundary host checks expanded locally
+
+Expanded check-aux-family-retry-scheduler.c with stop-before-worker, stop-after-begin, and stop-after-exact-action scenarios. Queued/unclaimed cancellation retains netdev/module/adapter ownership; already claimed action permits exact completion but rejects stale generation and refuses release before join. GCC -Wall -Wextra -Werror with AddressSanitizer/UBSan passed. Only model tests changed; no driver/header logic changed. Does not prove actual kernel RTNL/workqueue races, DMA retirement or retained-owner recovery. Local uncommitted test improvement retained while firmware656/run41257610662 is active; no extra push/duplicate build. Published RTNL repair remains d8b6061489d7bbc60fe79b6ca39b7e34cb7f9ee8. Router unchanged.
+
 ## 2026-11-01 Sol: stale index lock safely cleared for publication
 
 Rechecked exact active-repository index.lock twice through exclusive Windows file opens: no conflicting handles. File empty, unchanged between probes and older than one hour. Removed only this stale lock; no Git process stopped, no index or worktree content removed. Prior assumption that visible Windows git add necessarily owned this lock was not established. Native status confirms seven task-related modified/new files. Publishing reviewed active-header fix and regression under standing authorization; target and runtime acceptance remain open.

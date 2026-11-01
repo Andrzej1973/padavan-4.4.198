@@ -15,7 +15,46 @@ static void ready(struct wr_iot_interface_ref *record,
  state->phase=WR_FAMILY_DOWN_RETRY;
 }
 
+/* Enumerate cancellation boundaries; these are model checks, not kernel
+ * concurrency or workqueue execution evidence. */
+static void stop_boundaries(void){
+ int device=0,drop=0,stage;
+ for(stage=0;stage<3;stage++){
+  struct wr_iot_interface_ref record;
+  struct wr_iot_family_close state;
+  struct wr_iot_aux_retry_owner owner;
+  wr_iot_ref_init(&record,&device,5);
+  wr_iot_family_close_init(&state);
+  ready(&record,&state,WR_REF_FAMILY_APCLI);
+  wr_iot_aux_retry_init(&owner);
+  assert(wr_iot_aux_retry_queue(&owner,&record,&state,1,1,1));
+  if(stage>0)assert(wr_iot_aux_retry_begin(&owner,&record,&state));
+  if(stage>1)assert(wr_iot_aux_retry_action(&owner,&record,&state));
+  assert(wr_iot_aux_retry_request_stop(&owner));
+  assert(!wr_iot_aux_retry_action(&owner,&record,&state));
+  assert(!wr_iot_aux_retry_release_ready(&owner,1));
+  if(stage<2){
+   assert(wr_iot_aux_retry_abandon(&owner));
+   assert(!wr_iot_aux_retry_complete(&owner,1,&drop));
+   assert(owner.netdev_held&&owner.module_pin_held&&owner.deferred_owners==1);
+  }else{
+   /* An already claimed exact action may finish during stop. Stale
+    * completion must retain ownership, even if it reports pin release. */
+   record.phase=WR_REF_IDLE;record.close_stage=2;
+   state.phase=WR_FAMILY_CLOSE_DONE;
+   record.generation++;
+   assert(!wr_iot_aux_retry_mark_completed(&owner,&record,&state,1));
+   record.generation--;
+   assert(wr_iot_aux_retry_mark_completed(&owner,&record,&state,1));
+   assert(!wr_iot_aux_retry_complete(&owner,0,&drop));
+   assert(wr_iot_aux_retry_complete(&owner,1,&drop)&&drop);
+   assert(wr_iot_aux_retry_release_ready(&owner,1));
+  }
+ }
+}
+
 int main(void){
+ stop_boundaries();
  int device=0;
  struct wr_iot_interface_ref record;
  struct wr_iot_family_close state;

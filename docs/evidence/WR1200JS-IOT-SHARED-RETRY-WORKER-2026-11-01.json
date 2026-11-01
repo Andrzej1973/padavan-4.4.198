@@ -1,0 +1,10 @@
+{
+  "scope": "shared retry worker source relocation; not complete feature Kbuild",
+  "full_chain_generated": true,
+  "strict_prepared_merge_passed": true,
+  "merged_audit_and_negative_fixtures_passed": true,
+  "shared_worker_precedes_optional_feature_conditionals": true,
+  "common_source_sha256": "d2174068c420e27725ad22f5174835b2e493e2aa47d0e275b9560f3d36248db0",
+  "target_compiled": false,
+  "runtime_verified": false
+}
