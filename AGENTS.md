@@ -108,6 +108,50 @@ batch work instead of publishing every small edit:
   `agent-build-failure-monitor`) enforce this mechanically. Do not remove or
   weaken them.
 
+## Build resource placement
+
+The owner reaffirmed this rule on 2026-11-01: run lightweight checks and
+individual target translation units locally when experience shows they fit
+WSL2 comfortably. Send resource-intensive firmware, full kernel and full
+module builds to GitHub Actions. Judge other jobs by observed CPU, RAM, disk
+and duration; do not repeat expensive local builds merely because they can
+finish. Batch one coherent source change set, inspect existing runs on the
+same ref/commit, and follow the CI queue discipline above before dispatch.
+
+## Completed-plan scratch cleanup
+
+After each named plan or independently completed phase (for example, IoT before
+starting Modern WebUI), and whenever a temporary approach is superseded, run a
+scratch-cleanup pass before moving on or handing work off. Do not defer cleanup
+until the entire repository goal is complete. First inventory the exact paths
+and sizes generated for that work, then confirm each path belongs exclusively
+to the completed phase and is no longer in use. Remove disposable build/test
+trees, extracted CI artifacts, temporary patches, and regenerable tool caches
+when no longer needed. Prefer narrow path-specific removal; never use broad
+cleanup commands or delete files merely because Git marks them untracked or
+ignored.
+
+Keep newly generated scratch outputs in a clearly named, phase-specific
+directory where practical, so they can be inventoried and removed without
+touching another task's files. Before deleting anything, check for active
+processes or workflows using it and preserve any input needed by unfinished
+work. If a completed phase leaves no scratch output, record that cleanup was
+checked and nothing needed removal.
+
+Keep source, generators, fixtures, and the smallest evidence needed to support
+the completion claim and reproduce important checks. Put durable project
+evidence in the repository's documented evidence location, and record any
+large retained artifact and why it is needed. Preserve unfinished work,
+shared-checkout changes, user data, backups, Codex history/settings, and files
+whose ownership or active use is uncertain. Do not clean another plan's files
+or historical material as part of this step. If ownership or necessity cannot
+be established, leave the files in place and report the paths for review.
+
+For every completed phase, report what was removed and the approximate space
+reclaimed; also state any scratch paths deliberately retained and why. This
+cleanup does not authorize deleting source, evidence, backups, or user data to
+meet a disk space target.
+
 ## Router diagnostics across agents and accounts
 
 For routine WR1200JS diagnostics, first check whether this executor is allowed
