@@ -1,0 +1,24 @@
+{
+  "date": "2026-11-01",
+  "scope": "isolated normal sender source binding on exact peer source",
+  "assets_sha256": {
+    "tools/iot/prepare-mcu-sender-binding.py": "d9df7a967b1cf001b0cfa352aa485120e65ecc6ec1691b061c4a2518fc6fccfe",
+    "tools/iot/check-mcu-sender-binding.py": "13c8e2643bd12a774c2cd52ca8077314e378a0e3d031ad04a5904cf215c73383"
+  },
+  "checks": [
+    "Actual transport body preserved exactly after rename/include reversal",
+    "Copied wrapper/owner identity matches tested assets",
+    "Owner initialization before preallocated ring allocation",
+    "Generated receipt hashes match output",
+    "Exact failure-cleanup statements executed under ASan/UBSan before and after initialization; lock cleanup precedes adapter free"
+  ],
+  "limits": [
+    "No normal close/drain/release binding or normal lock destruction yet",
+    "OS_ABL dynamic lock allocation failure not proven",
+    "No target compilation or production installation",
+    "External caller retirement and asynchronous queue/DMA completion remain required"
+  ],
+  "target_compiled": false,
+  "production_installed": false,
+  "runtime_verified": false
+}

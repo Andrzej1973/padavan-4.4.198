@@ -1,3 +1,16 @@
+## 2026-11-01 Sol: normal sender source layer and allocation unwind staged
+
+prepare-mcu-sender-binding.py creates separate exact peer source with adapter
+owner/lock/wait queue and wrapper around unchanged AndesSendCmdMsg body.
+Initialization precedes preallocated rings. Failure cleanup tracks initialized
+lock and frees it before adapter memory. Checker verifies exact body/helper
+identity, hashes/order and executes generated unwind statements under ASan/UBSan.
+Evidence: WR1200JS-IOT-MCU-SENDER-SOURCE-2026-11-01.json. No normal close/drain,
+release gate or normal lock-destruction binding; OS_ABL allocation failure and
+publication remain unproved. Do not install/compile as accepted implementation.
+Next bind terminal sender closure before destructive release, handle retries
+and every direct adapter-free path, then propagate merged manifest for CI.
+
 ## 2026-11-01 Sol: sender drain-to-release admission race modeled
 
 Added terminal release_claim under sender lock: requires closed/drained state
