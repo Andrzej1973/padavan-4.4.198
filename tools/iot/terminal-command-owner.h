@@ -8,13 +8,13 @@
 #define WR_IOT_TERMINAL_COMMAND_OWNER_H
 struct wr_iot_terminal_command_owner {
  unsigned long generation, attempt;
- unsigned int closed, joining, joined, attaching;
+ unsigned int closed, joining, joined, attaching, create_failed;
 };
 static inline void wr_iot_terminal_command_init(
  struct wr_iot_terminal_command_owner *s, unsigned long generation)
 {
  s->generation=generation;s->attempt=0;
- s->closed=0;s->joining=0;s->joined=0;s->attaching=0;
+ s->closed=0;s->joining=0;s->joined=0;s->attaching=0;s->create_failed=0;
 }
 static inline int wr_iot_terminal_command_enqueue_allowed(
  const struct wr_iot_terminal_command_owner *s)
@@ -68,8 +68,8 @@ static inline unsigned long wr_iot_command_attach_begin(
  struct wr_iot_terminal_command_owner *s, unsigned long generation)
 {
  if(!s || !generation || s->generation!=generation || s->closed ||
-    s->joining || s->attaching || !s->joined || s->attempt==~0UL)return 0;
- s->joined=0;s->attaching=1;return ++s->attempt;
+    s->joining || s->attaching || (!s->joined && !s->create_failed) || s->attempt==~0UL)return 0;
+ s->joined=0;s->create_failed=0;s->attaching=1;return ++s->attempt;
 }
 static inline int wr_iot_command_attach_finish(
  struct wr_iot_terminal_command_owner *s, unsigned long generation,
@@ -79,6 +79,15 @@ static inline int wr_iot_command_attach_finish(
     !attempt || s->attempt!=attempt)return 0;
  s->attaching=0;return 1;
 }
+/* Explicit no-task proof from the exact failed creation, never handle absence. */
+static inline int wr_iot_command_attach_failed_absent(
+ struct wr_iot_terminal_command_owner *s, unsigned long generation,
+ unsigned long attempt, int os_proved_no_task)
+{
+ if(!s || !generation || s->generation!=generation || !s->attaching ||
+    !attempt || s->attempt!=attempt || os_proved_no_task!=1)return 0;
+ s->attaching=0;s->create_failed=1;return 1;
+}
 /* Later CLOSE can reuse this fact without killing the task a second time.
  * This says nothing about timer callbacks, IRQs, DMA or adapter release. */
 static inline int wr_iot_terminal_command_joined(
@@ -86,5 +95,16 @@ static inline int wr_iot_terminal_command_joined(
 {
  return s && generation && s->generation==generation && s->closed &&
         !s->joining && s->joined;
+}
+/* attempt==0 is a positive never-started receipt only because every initial
+ * attach reserves/increments it BEFORE OS task initialization/creation. This
+ * A failed creation additionally needs its exact OS no-task proof. This
+ * concerns worker execution, not queued buffers or timer producer lifetime. */
+static inline int wr_iot_terminal_command_quiescent(
+ const struct wr_iot_terminal_command_owner *s, unsigned long generation)
+{
+ if(!s || !generation || s->generation!=generation || !s->closed ||
+    s->joining || s->attaching)return 0;
+ return s->joined || s->attempt==0 || s->create_failed;
 }
 #endif

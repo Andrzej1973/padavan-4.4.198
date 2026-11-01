@@ -60,11 +60,11 @@ one('os/linux/pci_main_dev.c','\t\tRtmpOSNetDevProtect(0);\n\t\tRTMP_IRQ_LOCK(&a
     '        RTMP_SPIN_UNLOCK_IRQRESTORE(&adapter->CmdQLock,&flags);\n#endif\n'
     '\t\tRTMP_IRQ_LOCK(&adapter->wr_iot_transition_lock, flags);')
 one('include/rt_os_util.h','INT wr_iot_os_timer_task_current(RTMP_OS_TASK *task);',
-    'INT wr_iot_os_timer_task_current(RTMP_OS_TASK *task);\nINT wr_iot_os_command_task_current(RTMP_OS_TASK *task);')
+    'INT wr_iot_os_timer_task_current(RTMP_OS_TASK *task);\nINT wr_iot_os_command_task_current(RTMP_OS_TASK *task);\nINT wr_iot_os_command_create_failed(RTMP_OS_TASK *task);')
 one('os/linux/rt_linux.c','#include "wr-iot-timer-os-join.inc"',
     '#include "wr-iot-timer-os-join.inc"\n#include <linux/err.h>\n#include "wr-iot-command-os-join.inc"')
 one('os/linux/rt_linux_symb.c','EXPORT_SYMBOL(wr_iot_os_timer_task_current);',
-    'EXPORT_SYMBOL(wr_iot_os_timer_task_current);\nEXPORT_SYMBOL(wr_iot_os_command_task_current);')
+    'EXPORT_SYMBOL(wr_iot_os_timer_task_current);\nEXPORT_SYMBOL(wr_iot_os_command_task_current);\nEXPORT_SYMBOL(wr_iot_os_command_create_failed);')
 rbus='os/linux/rt_rbus_pci_drv.c'
 one('include/rtmp.h','INT wr_iot_command_task_exit_checked(RTMP_ADAPTER *pAd);',
     'INT wr_iot_command_task_exit_checked(RTMP_ADAPTER *pAd);\n'+guard+
@@ -72,7 +72,7 @@ one('include/rtmp.h','INT wr_iot_command_task_exit_checked(RTMP_ADAPTER *pAd);',
 one(rbus,'NDIS_STATUS RtmpMgmtTaskInit(RTMP_ADAPTER *pAd)\n{',
     guard+'#include "wr-iot-command-join-shared.inc"\n#include "wr-iot-terminal-command-join.inc"\n#endif\n'
     'NDIS_STATUS RtmpMgmtTaskInit(RTMP_ADAPTER *pAd)\n{\n'+guard+
-    ' ULONG wr_flags=0;\n unsigned long wr_attach;\n#endif')
+    ' ULONG wr_flags=0;\n unsigned long wr_attach;\n int wr_absent,wr_finished;\n#endif')
 one(rbus,'\tRTMP_OS_TASK_INIT(pTask, "RtmpCmdQTask", pAd);',
     guard+' RTMP_SPIN_LOCK_IRQSAVE(&pAd->CmdQLock,&wr_flags);\n'
     ' wr_attach=pAd->wr_iot_terminal_command.attempt ?\n'
@@ -84,8 +84,11 @@ one(rbus,'\tRTMP_OS_TASK_INIT(pTask, "RtmpCmdQTask", pAd);',
 one(rbus,'\tstatus = RtmpOSTaskAttach(pTask, RTPCICmdThread, (ULONG)pTask);',
     '\tstatus = RtmpOSTaskAttach(pTask, RTPCICmdThread, (ULONG)pTask);\n'+guard+
     ' RTMP_SPIN_LOCK_IRQSAVE(&pAd->CmdQLock,&wr_flags);\n'
-    ' if(!wr_iot_command_attach_finish(&pAd->wr_iot_terminal_command,1UL,wr_attach))\n'
-    '  status=NDIS_STATUS_FAILURE;\n'
+    ' wr_absent=status!=NDIS_STATUS_SUCCESS && wr_iot_os_command_create_failed(pTask)==1;\n'
+    ' wr_finished=wr_absent ?\n'
+    '  wr_iot_command_attach_failed_absent(&pAd->wr_iot_terminal_command,1UL,wr_attach,1) :\n'
+    '  wr_iot_command_attach_finish(&pAd->wr_iot_terminal_command,1UL,wr_attach);\n'
+    ' if(!wr_finished)status=NDIS_STATUS_FAILURE;\n'
     ' RTMP_SPIN_UNLOCK_IRQRESTORE(&pAd->CmdQLock,&wr_flags);\n#endif')
 start=texts[rbus].index('INT wr_iot_command_task_exit_checked(')
 end=texts[rbus].index('\n}',start)+2

@@ -8,7 +8,7 @@ INT wr_iot_terminal_command_join_checked(RTMP_ADAPTER *pAd)
  INT result, recorded;
  if (!pAd || wr_iot_os_join_context()) return NDIS_STATUS_FAILURE;
  RTMP_SPIN_LOCK_IRQSAVE(&pAd->CmdQLock,&flags);
- recorded=wr_iot_terminal_command_joined(&pAd->wr_iot_terminal_command,1UL);
+ recorded=wr_iot_terminal_command_quiescent(&pAd->wr_iot_terminal_command,1UL);
  RTMP_SPIN_UNLOCK_IRQRESTORE(&pAd->CmdQLock,&flags);
  if (recorded) return NDIS_STATUS_SUCCESS;
  /* Command OS helper rejects creation error pointers, unwraps OS_ABL and

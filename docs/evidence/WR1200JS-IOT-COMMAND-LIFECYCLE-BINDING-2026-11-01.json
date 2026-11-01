@@ -25,5 +25,24 @@
       "failed normal kill prevents reopen and permits exact retry"
     ],
     "limitations": "stubbed OS, single-thread interleavings; no timer/IRQ/DMA or runtime proof"
+  },
+  "never_started_followup": {
+    "worker_quiescence": "closed and no attach/join attempt ever reserved, or successful exact join",
+    "tests_passed": true,
+    "failed_creation_still_unknown": true,
+    "queued_buffers_and_timer_quiescence_proven": false,
+    "helper_copy_identity_checked": true
+  },
+  "failed_create_binding": {
+    "declared_exported": true,
+    "condition": "reserved attach returned failure AND OS helper proves native kthread ERR_PTR",
+    "generated_fixture_passed": true,
+    "cases": [
+      "known failed-create receipt reused by terminal without kill",
+      "known failed-create allows retry before retirement",
+      "successful retry invalidates absence receipt",
+      "unknown failure still refuses terminal receipt"
+    ],
+    "target_compiled": false
   }
 }

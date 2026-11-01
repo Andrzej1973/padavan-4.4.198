@@ -31,7 +31,7 @@ static void reset(RTMP_ADAPTER *a){
 }
 int main(void){
  RTMP_ADAPTER a;int reads;
- reset(&a);assert(wr_iot_terminal_command_join_checked(0)==-1);
+ reset(&a);a.wr_iot_terminal_command.attempt=1;assert(wr_iot_terminal_command_join_checked(0)==-1);
  assert(wr_iot_terminal_command_join_checked(&a)==-1&&!kills);
  assert(wr_iot_terminal_command_close(&a.wr_iot_terminal_command,1));
  bad_context=1;assert(wr_iot_terminal_command_join_checked(&a)==-1&&!kills);
@@ -55,5 +55,9 @@ int main(void){
  identity=-1;
  assert(wr_iot_terminal_command_join_checked(&a)==0&&kills==1);
  assert(wr_iot_command_join_shared_checked(&a)==0&&kills==1);
+ reset(&a);identity=-1;
+ assert(wr_iot_terminal_command_close(&a.wr_iot_terminal_command,1));
+ assert(wr_iot_terminal_command_join_checked(&a)==0&&!kills&&!identity_reads);
+ assert(!wr_iot_command_first_attach_begin(&a.wr_iot_terminal_command,1));
  return 0;
 }

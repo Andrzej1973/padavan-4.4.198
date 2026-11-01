@@ -50,5 +50,16 @@ int main(void)
  assert(!wr_iot_terminal_command_join_begin(&s,12,1));
  assert(wr_iot_terminal_command_join_finish(&s,12,first,1));
  assert(wr_iot_terminal_command_joined(&s,12));
+ wr_iot_terminal_command_init(&s,13);
+ first=wr_iot_command_first_attach_begin(&s,13);assert(first);
+ assert(!wr_iot_command_attach_failed_absent(&s,13,first,0));
+ assert(!wr_iot_command_attach_failed_absent(&s,13,first+1,1));
+ assert(wr_iot_command_attach_failed_absent(&s,13,first,1));
+ second=wr_iot_command_attach_begin(&s,13);assert(second>first&&!s.create_failed);
+ assert(wr_iot_terminal_command_close(&s,13));
+ assert(!wr_iot_terminal_command_quiescent(&s,13));
+ assert(wr_iot_command_attach_failed_absent(&s,13,second,1));
+ assert(wr_iot_terminal_command_quiescent(&s,13));
+ assert(!wr_iot_command_attach_begin(&s,13));
  return 0;
 }

@@ -70,5 +70,12 @@
     "driver_bound": false,
     "target_compiled": false,
     "limits": "attach_finish only retires software creation reservation; failed creation is not worker-absence proof"
+  },
+  "explicit_create_failure_model": {
+    "receipt": "only exact failed reserved creation plus native kthread ERR_PTR",
+    "null_handle_receipt": false,
+    "legacy_unknown_remains_failure": true,
+    "model_and_os_fixtures_passed": true,
+    "driver_bound": false
   }
 }

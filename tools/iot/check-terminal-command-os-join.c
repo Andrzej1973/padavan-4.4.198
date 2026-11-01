@@ -64,13 +64,16 @@ assert(wr_iot_os_command_task_current(wrapped_task)==-1);
 #ifdef KTHREAD_SUPPORT
 task.kthread_task=(void *)-12L;
 assert(wr_iot_os_command_task_current(wrapped_task)==-1);
+assert(wr_iot_os_command_create_failed(wrapped_task)==1);
 #endif
 task.kthread_task=&other;task.taskPID=&other_pid;
+assert(wr_iot_os_command_create_failed(wrapped_task)==0);
 assert(wr_iot_os_command_task_current(wrapped_task)==0);
 task.kthread_task=current;task.taskPID=&self_pid;
 assert(wr_iot_os_command_task_current(wrapped_task)==1);
 #ifdef OS_ABL_FUNC_SUPPORT
 timer_wrapper.pContent=NULL;assert(wr_iot_os_sync_timer(timer)==-1);
 task_wrapper.pContent=NULL;assert(wr_iot_os_command_task_current(wrapped_task)==-1);
+assert(wr_iot_os_command_create_failed(wrapped_task)==0);
 #endif
 return 0;}

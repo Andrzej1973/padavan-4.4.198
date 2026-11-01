@@ -3,6 +3,13 @@
 import argparse,subprocess,tempfile
 from pathlib import Path
 p=argparse.ArgumentParser(description=__doc__);p.add_argument('candidate',type=Path);a=p.parse_args()
+here=Path(__file__).resolve().parent
+for local,target in [('terminal-command-owner.h','terminal-command-owner.h'),
+ ('command-join-shared.inc','wr-iot-command-join-shared.inc'),
+ ('terminal-command-os-join.inc','wr-iot-command-os-join.inc'),
+ ('terminal-command-join.inc','wr-iot-terminal-command-join.inc')]:
+ if (here/local).read_bytes()!=(a.candidate/'include'/target).read_bytes():
+  p.error('candidate helper differs: '+target)
 s=(a.candidate/'os/linux/rt_rbus_pci_drv.c').read_text()
 def function(signature):
  i=s.index(signature);return s[i:s.index('\n}',i)+2]
@@ -33,6 +40,7 @@ static RTMP_ADAPTER *active;
 static int RTPCICmdThread(void){return 0;}
 static int wr_iot_os_join_context(void){assert(!held);return 0;}
 static int wr_iot_os_command_task_current(RTMP_OS_TASK *t){assert(!held);return t->handle==1?0:-1;}
+static int wr_iot_os_command_create_failed(RTMP_OS_TASK *t){return t->handle==-1;}
 static int RtmpOSTaskAttach(RTMP_OS_TASK *t,int (*fn)(void),ULONG arg){
  (void)fn;(void)arg;assert(!held);attaches++;
  if(retire_during_attach){
@@ -40,7 +48,7 @@ static int RtmpOSTaskAttach(RTMP_OS_TASK *t,int (*fn)(void),ULONG arg){
   assert(wr_iot_terminal_command_close(&active->wr_iot_terminal_command,1));
   assert(!wr_iot_terminal_command_join_begin(&active->wr_iot_terminal_command,1,1));
  }
- t->handle=fail_attach?-1:1;return fail_attach?-1:0;
+ t->handle=fail_attach?(fail_attach==1?-1:-2):1;return fail_attach?-1:0;
 }
 static int RtmpOSTaskKill(RTMP_OS_TASK *t){assert(!held&&t->handle==1);kills++;return kill_result;}
 #include "command-join-shared.inc"
@@ -61,7 +69,19 @@ int main(void){RTMP_ADAPTER a;
  assert(!a.wr_iot_terminal_command.joined);
  assert(RtmpMgmtTaskInit(&a)==-1&&attaches==1);
  kill_result=0;assert(wr_iot_command_task_exit_checked(&a)==0&&kills==2);
+ fresh(&a);assert(wr_iot_terminal_command_close(&a.wr_iot_terminal_command,1));
+ assert(wr_iot_terminal_command_join_checked(&a)==0&&!kills&&!attaches);
+ assert(RtmpMgmtTaskInit(&a)==-1&&!attaches);
  fresh(&a);fail_attach=1;assert(RtmpMgmtTaskInit(&a)==-1);
+ assert(a.wr_iot_terminal_command.create_failed);
+ fail_attach=0;assert(RtmpMgmtTaskInit(&a)==0&&attaches==2);
+ assert(!a.wr_iot_terminal_command.create_failed);
+ assert(wr_iot_terminal_command_close(&a.wr_iot_terminal_command,1));
+ assert(wr_iot_terminal_command_join_checked(&a)==0&&kills==1);
+ fresh(&a);fail_attach=1;assert(RtmpMgmtTaskInit(&a)==-1);
+ assert(wr_iot_terminal_command_close(&a.wr_iot_terminal_command,1));
+ assert(wr_iot_terminal_command_join_checked(&a)==0&&!kills);
+ fresh(&a);fail_attach=2;assert(RtmpMgmtTaskInit(&a)==-1);
  assert(wr_iot_terminal_command_close(&a.wr_iot_terminal_command,1));
  assert(wr_iot_terminal_command_join_checked(&a)==-1&&!kills);
  fresh(&a);retire_during_attach=1;assert(RtmpMgmtTaskInit(&a)==0);

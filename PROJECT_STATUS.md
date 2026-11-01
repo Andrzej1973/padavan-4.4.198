@@ -1,3 +1,81 @@
+## 2026-11-01 Sol: firmware666 success; next command lifecycle batch validated
+
+GitHub firmware run41301536472 (build666) completed success at aa69805;
+ABI610 failed only at audited host join-order selection, fixed in local520ba01.
+Focused generated callsite, owner/shared join and four OS variants pass on
+never-started/explicit failed-create changes. Python/JSON/diff checks pass;
+temporary candidate/harness removed. Publishing coherent follow-up after
+firmware completion; previous green image does not cover these new candidate
+changes or prove IoT runtime. Next inspect automatic runs on new head before
+optional peer82 dispatch; no heavy WSL build.
+
+## 2026-11-01 Sol: failed-create no-worker proof bound in candidate
+
+Terminal preparer declares/exports OS create-failed proof and binds exact
+failed attach status plus ERR_PTR evidence to owner absence receipt. Unknown
+failure still uses conservative completion without absence. Generated fixture
+passes known-failure retry, receipt invalidation, no-kill terminal cleanup and
+unknown-failure refusal under ASan/UBSan. OS helper copy now also identity-
+checked against candidate. This layer still needs target/full-CI verification;
+changes batched locally while firmware666 runs. Scratch candidate removed.
+
+## 2026-11-01 Sol: ABI610 audit regression persisted in CI
+
+Added check-aux-family-audit-regression.py to ABI host/MIPS step: actual merged
+candidate with STALLED join must pass, missing normal-path join mutation must
+fail. Positive/negative and YAML/full affected bash syntax checks pass locally.
+Firmware666 remains live; no new failure monitor run for ABI610 observed yet,
+so artifact/parser comparison remains pending. Correction committed locally
+for batching; do not push solely to interrupt current firmware run.
+
+## 2026-11-01 Sol: ABI610 host audit failure confirmed and corrected locally
+
+Run41301536473/job124833284604 failed step Verify current IoT recovery successor
+on host and MIPS. Original job log confirms assertion at audit-aux-family-retry-
+scheduler.py:110; new STALLED join shifted index-based normal-path selection.
+Auditor now anchors normal join after stop-request check and post-unregister
+join after RtmpPhyNetDevExit. Positive exact merged audit passes; removing
+normal join in temporary mutation still fails. Scratch cleaned. Failure-monitor
+query initially had no run for this failure; compare monitor artifact later.
+Firmware666 still needs queue check before publishing batched correction and
+re-running ABI. No driver behavior changed by this fix; no ABI success claim.
+
+## 2026-11-01 Sol: explicit kthread creation-failure absence receipt modeled
+
+Added OS proof helper accepting only native kthread ERR_PTR after failed reserved
+attach; NULL/positive handles and legacy paths remain unknown. Owner records
+absence for exact creation attempt, invalidates it before retry, and forbids
+retry after terminal closure. Model and four KTHREAD/OS_ABL fixture variants
+pass ASan/UBSan; fixed fixture's mistaken null-wrapper expected value to reject
+absence proof. New API not yet declared/exported/bound in attach path; no runtime
+claim. Scratch cleaned. Next wire failed status plus OS proof into exact attach
+completion while retaining conservative fallback for all other failure classes.
+
+## 2026-11-01 Sol: positive never-started worker receipt added
+
+Terminal helper now accepts worker quiescence when admission is closed and
+attempt remains zero: actual first attach increments it before OS task init/
+creation. Missing handle alone never qualifies; failed creation has nonzero
+attempt and still refuses. Generated first attach/never-started/remove fixture,
+owner/helper ASan/UBSan pass. Checker now rejects candidate helper copies that
+differ from tested assets, closing prior canonical-versus-copy ambiguity.
+Fresh candidate regenerated and tested; scratch removed. This proves only
+worker absence/return, not queued-buffer, timer, IRQ or DMA completion.
+Change batched locally pending current CI; no duplicate build/push.
+
+## 2026-11-01 Sol: published aa69805 Actions live; no duplicate dispatch
+
+Full Actions runs endpoint (branch, latest 15) confirms current head
+ aa69805977d3a71ec1213f452e07d44d072cd096 has firmware build666 run41301536472
+and ABI610 run41301536473 both in_progress. Firmware job124833323990 is live
+at dependency installation; optional candidate validation is skipped because
+this is automatic PR build. Do not dispatch same-ref optional peer82 yet:
+shared firmware concurrency could supersede the current run. After it ends,
+check complete queue then dispatch run_candidate_checks=true,candidate_scope=iot,
+iot_candidate_variant=peer82. No dispatch capability exists in connected GitHub
+plugin; authorized CLI/API fallback must be verified when needed. Continue
+independent command lifecycle failure-path work meanwhile. No local heavy build.
+
 ## 2026-11-01 Sol: heavy-build placement reaffirmed; publication preflight
 
 Owner reaffirmed heavy firmware/kernel/full-module builds go to GitHub; local
