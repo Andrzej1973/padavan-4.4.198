@@ -244,6 +244,11 @@ one('include/wr-iot-peer-adapter-release.inc',
     '  !work_busy(&pAd->wr_iot_aux_family_retry_work);')
 
 pci='os/linux/pci_main_dev.c'
+# PCI core may invoke cleanup after partial setup. Validate netdev before
+# reading its base address or private adapter; successful path is unchanged.
+one(pci,
+    '\tULONG csr_addr = net_dev->base_addr;\n\n\n\tGET_PAD_FROM_NET_DEV(pAd, net_dev);',
+    '\tULONG csr_addr;\n\n\tif (!net_dev) return;\n\tcsr_addr = net_dev->base_addr;\n\tGET_PAD_FROM_NET_DEV(pAd, net_dev);')
 all_occurrences(pci,'adapter->wr_iot_main_recovery.deferred_owners',
  '(adapter->wr_iot_main_recovery.deferred_owners ||\n'
  '     adapter->wr_iot_aux_family_retry.deferred_owners ||\n'

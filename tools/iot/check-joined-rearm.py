@@ -71,3 +71,29 @@ with tempfile.TemporaryDirectory(prefix="wr-joined-rearm-") as directory:
  root=Path(directory);source=root/"check.c";binary=root/"check";source.write_text(prefix+fn+suffix)
  subprocess.run(["gcc","-std=c11","-Wall","-Wextra","-Werror","-fsanitize=address,undefined","-I"+str(a.candidate/"include"),str(source),"-o",str(binary)],check=True)
  subprocess.run([str(binary)],check=True)
+
+# Compile/run the exact remove entry prefix; no actual PCI operation occurs.
+pci=(a.candidate/"os/linux/pci_main_dev.c").read_text()
+start=pci.index("static VOID DEVEXIT rt_pci_remove(")
+end=pci.index("DBGPRINT(",start)
+entry=pci[start:end]+"(void)csr_addr;(void)pAd;\n}\n"
+entry_prefix=r"""
+#include <assert.h>
+#include <stddef.h>
+#define VOID void
+#define DEVEXIT
+struct net_device { unsigned long base_addr; };
+struct pci_dev { struct net_device *data; };
+typedef struct net_device *PNET_DEV;
+typedef unsigned long ULONG;
+static int reads;
+static struct net_device *pci_get_drvdata(struct pci_dev *p){return p->data;}
+#define GET_PAD_FROM_NET_DEV(ad,dev) do {assert(dev);reads++;ad=dev;}while(0)
+"""
+entry_suffix="int main(void){struct pci_dev p={0};struct net_device d={1};rt_pci_remove(&p);assert(!reads);p.data=&d;rt_pci_remove(&p);assert(reads==1);return 0;}\n"
+with tempfile.TemporaryDirectory(prefix="wr-pci-entry-") as directory:
+ root=Path(directory);source=root/"check.c";binary=root/"check"
+ source.write_text(entry_prefix+entry+entry_suffix)
+ subprocess.run(["gcc","-std=c11","-Wall","-Wextra","-Werror","-fsanitize=address,undefined",str(source),"-o",str(binary)],check=True)
+ subprocess.run([str(binary)],check=True)
+print("PASS extracted PCI remove entry rejects absent netdev before dereference")

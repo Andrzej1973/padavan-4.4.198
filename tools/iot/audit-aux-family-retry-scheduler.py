@@ -97,6 +97,7 @@ assert pci.count('cancel_work_sync(&((PRTMP_ADAPTER)pAd)->wr_iot_aux_family_retr
 assert pci.count('flush_work(&adapter->wr_iot_aux_family_retry_work);')>=2
 # Counts alone cannot establish ordering of the actual removal path.
 remove=body(pci,'static VOID DEVEXIT rt_pci_remove(')
+assert remove.index('if (!net_dev) return;')<remove.index('csr_addr = net_dev->base_addr')<remove.index('GET_PAD_FROM_NET_DEV(')
 first_flush=remove.index('flush_work(&adapter->wr_iot_aux_family_retry_work);')
 assert remove.index('wr_iot_aux_family_retry_rearm_joined(adapter)')<first_flush
 assert 'rtnl_lock(' not in remove[:first_flush]

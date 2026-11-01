@@ -1,3 +1,11 @@
+## 2026-11-01 Sol: null-guard composition complete, persistent entry fixture added
+
+Resumed existing session55572: full chain/strict merge plus scheduler, macro and joined-rearm regressions completed success. Exact /tmp/wr-iot-null-guard-merged PCI TU compiled for MIPS. Extended existing check-joined-rearm.py with exact extracted PCI remove prefix: ASan/UBSan null/live path test passes, no hardware operations. Firmware663/run41275041095 completed success on6b5883bb741e6e5ab99aae8754605631c99fe3e1. Current NULL-entry patch is local, not covered by663; terminal quiescence/core cleanup blocker remains unresolved. Saving coherent local checkpoint; no router mutation.
+
+## 2026-11-01 Sol: PCI remove entry guard staged and checked
+
+Actual candidate read net_dev->base_addr before validation. Final generator adds absent-netdev return before base-address/private adapter access; audit requires order. Final-stage generation and actual PCI MIPS TU compilation pass. Extracted exact entry prefix runs with ASan/UBSan for null and live netdev; initial fixture lacked stddef.h, corrected fixture include then passed. No driver logic beyond entry validation changed; terminal DMA/IRQ/core cleanup blocker remains. Full source replay/module validation pending. Router untouched.
+
 ## 2026-11-01 Sol: target662 passed; joined-rearm checkpoint publication
 
 Build662/run41274058519 completed success on4df93b13d368f062482b075ea55d3c9bd305b7f7. Downloaded exact target artifact; independently verified module SHA2565e9640f79a50d48c606679d686feb6d3944ff5572cbd17ad43f84a9153052170 (5456200bytes) and identical before/after config. Exact task features unchanged from660. Recorded BUILD662 evidence. This confirms full default-feature candidate with repeater declaration guard, not localdf756e2 joined-rearm changes.
