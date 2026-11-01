@@ -1,0 +1,21 @@
+{
+  "scope": "75-stage replay and strict production/RSSI merge plus extracted host checks",
+  "head": "9555bcd4a7e029ea87a5957a5e62109ebeb0aa6e",
+  "prepared_input": "retained production-prepared tree; accepted by strict assembler pinned overlap checks",
+  "source_sha256": {
+    "common/cmm_cfg.c": "3b079ce79881059d2fa5429c8e2fad065814371c8ffe0c6a504deb671391dbb2",
+    "hw_ctrl/cmm_asic_mt.c": "c7334424b5f128839722c381c9fed5141db7feb9ca2850c1d3b5955e8bfd3672",
+    "include/rtmp.h": "d09360c082a2fac242f84f832f3ed5ac36bd3aaf364f763e1f7733b11a7b1b71",
+    "os/linux/pci_main_dev.c": "a7635ce354c81da36ae17010655796bf191b44b4b485a7278093c1c52f93ddf0"
+  },
+  "checks_passed": [
+    "radio-on-retirement-admission",
+    "radio-off-send",
+    "joined-rearm",
+    "tasklet-irq-rearm",
+    "agg-temp-lock"
+  ],
+  "target_compiled": false,
+  "full_module_verified": false,
+  "runtime_verified": false
+}

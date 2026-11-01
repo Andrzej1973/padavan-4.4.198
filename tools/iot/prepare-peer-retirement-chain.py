@@ -93,6 +93,7 @@ steps = [
     ('virtual-down-owner-only', 'prepare-virtual-down-owner-only.py'),
     ('aux-family-close-retry', 'prepare-aux-family-close-retry.py'),
     ('aux-family-retry-scheduler', 'prepare-aux-family-retry-scheduler.py'),
+    ('radio-on-retirement-admission', 'prepare-radio-on-retirement-admission.py'),
 ]
 current = source
 receipts = []

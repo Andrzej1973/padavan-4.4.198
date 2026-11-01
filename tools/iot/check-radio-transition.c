@@ -426,6 +426,21 @@ int main(void){
  wr_iot_radio_request_close(&s);
  assert(wr_iot_radio_finish_unverified(&s,&a));
  assert(!wr_iot_main_open_accepted(&s,&a,1));
+ /* PCI retire during an admitted initializer must permit exact completion,
+  * reject a stale completion, and never accept the late OPEN as usable. */
+ for(int success=0;success<=1;success++){
+  wr_iot_radio_transition_init(&s);
+  assert(wr_iot_radio_begin(&s,s.epoch,WR_RADIO_START,&a));
+  wr_iot_radio_retire(&s);
+  stale=a;stale.serial++;
+  assert(!wr_iot_radio_finish(&s,&stale,success)&&s.busy);
+  assert(!wr_iot_radio_ticket_retired(&s,a.serial));
+  assert(wr_iot_radio_finish(&s,&a,success));
+  assert(wr_iot_radio_ticket_retired(&s,a.serial)&&!s.busy);
+  assert(s.retiring&&!s.main_ready);
+  assert(!wr_iot_main_open_accepted(&s,&a,1));
+  assert(!wr_iot_radio_begin(&s,s.epoch,WR_RADIO_START,&b));
+ }
  puts("PASS radio admission: exclusive tickets, TX drain gates, close/reset interleavings, fail-closed suspend/resume/abort and verified BSS recovery; sequential model only, PM/driver integration pending");
  return 0;
 }

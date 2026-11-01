@@ -97,3 +97,40 @@ with tempfile.TemporaryDirectory(prefix="wr-pci-entry-") as directory:
  subprocess.run(["gcc","-std=c11","-Wall","-Wextra","-Werror","-fsanitize=address,undefined",str(source),"-o",str(binary)],check=True)
  subprocess.run([str(binary)],check=True)
 print("PASS extracted PCI remove entry rejects absent netdev before dereference")
+
+# Normal ndo_open runs synchronously under RTNL in pinned kernel. Keep its
+# barrier after admission retirement and outside every recovery wait.
+pci=(a.candidate/'os/linux/pci_main_dev.c').read_text()
+remove=pci[pci.index('static VOID DEVEXIT rt_pci_remove('):]
+retire=remove.index('wr_iot_radio_retire(')
+lock=remove.index('RtmpOSNetDevProtect(1);')
+unlock=remove.index('RtmpOSNetDevProtect(0);',lock)
+drain=remove.index('if (!wr_iot_pci_recovery_drain(adapter))')
+begin=remove.index("if (!wr_iot_pci_retirement_begin(")
+assert retire<lock<unlock<begin<drain
+assert "RTMP_IRQ_UNLOCK(&adapter->wr_iot_transition_lock, flags);" in remove[retire:lock]
+assert "RTMP_IRQ_LOCK(&adapter->wr_iot_transition_lock, flags);" in remove[unlock:begin]
+between=remove[lock+len('RtmpOSNetDevProtect(1);'):unlock]
+assert not any(word in between for word in
+               ['flush_work','cancel_work','wait_event','return','goto'])
+assert not between.strip(), 'RTNL callback barrier must release immediately'
+print('PASS PCI OPEN barrier: admission retired, RTNL released before recovery drain; source ordering only')
+
+aux_stop=remove.index('wr_iot_aux_retry_request_stop(&adapter->wr_iot_aux_family_retry)')
+stop_cancel=remove.index('cancel_work_sync(&adapter->wr_iot_aux_family_retry_work);')
+assert drain<aux_stop<stop_cancel
+print('PASS auxiliary stop admission precedes worker cancellation')
+
+# STALLED closes admission for both recovery domains before joining callbacks.
+start=remove.index('if (!wr_iot_pci_recovery_drain(adapter)) {')
+end=remove.index('return; /* Retained owners; terminal DMA/IRQ fence still required. */',start)
+stalled=remove[start:end]
+main=stalled.index('wr_iot_main_recovery_request_stop(')
+aux=stalled.index('wr_iot_aux_retry_request_stop(')
+released=stalled.index('RTMP_IRQ_UNLOCK(')
+reaper=stalled.index('cancel_delayed_work_sync(')
+worker=stalled.index('cancel_work_sync(&adapter->wr_iot_main_recovery_work);')
+auxworker=stalled.index('cancel_work_sync(&adapter->wr_iot_aux_family_retry_work);')
+assert main<aux<released<reaper<worker<auxworker
+assert not any(x in stalled for x in ['dev_put(', 'RtmpRaDevCtrlExit(', 'iounmap(', 'RtmpOSNetDevFree('])
+print('PASS STALLED: both stop intents precede unlocked work joins; no retained resource free')

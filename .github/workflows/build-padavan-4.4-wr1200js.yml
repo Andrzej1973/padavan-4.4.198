@@ -1617,11 +1617,17 @@ jobs:
             python3 tools/iot/prepare-peer-retirement-chain.py "$candidate/full-driver" "$candidate/peer"
             python3 tools/iot/assemble-peer-prepared-candidate.py "$pristine" "$driver" \
               "$candidate/peer/peer-chain.json" "$candidate/full-driver-overlay.json" "$merged"
+            python3 tools/iot/prepare-terminal-command-lock-lifetime.py \
+              "$merged" "$candidate/command-lifecycle"
+            merged="$candidate/command-lifecycle"
+            python3 tools/iot/check-command-lifecycle-calls.py "$merged"
             python3 tools/iot/check-retry-rtnl-header.py "$merged"
             python3 tools/iot/check-main-verify-module-macro.py "$merged"
             python3 tools/iot/check-joined-rearm.py "$merged"
             python3 tools/iot/check-radio-off-send.py "$merged"
             python3 tools/iot/check-agg-temp-lock.py "$merged"
+            python3 tools/iot/check-tasklet-irq-rearm.py "$merged"
+            python3 tools/iot/check-radio-on-retirement-admission.py "$merged"
             gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
               -I"$merged/include" tools/iot/check-aux-family-retry-scheduler.c \
               -o "$results/check-aux-family-retry-scheduler"
@@ -1640,8 +1646,14 @@ jobs:
                [ "${{ inputs.iot_candidate_variant }}" = v42 ]; then
             mkdir -p "$candidate" .iot-local-check
             python3 tools/iot/check-mt7603-checked-off.py
+            python3 tools/iot/check-mt7603-mac-stop-contract.py \
+              tools/iot/candidates/aux-remove-close-v39 \
+              --linux-header "$kernel/drivers/net/wireless/mediatek/mt76x3/include/os/rt_linux.h"
             python3 tools/iot/prepare-mt7603-checked-off-candidate.py \
               tools/iot/candidates/aux-remove-close-v39 \
+              .iot-local-check/mt7603-radio-off-v40-ci \
+              --linux-header "$kernel/drivers/net/wireless/mediatek/mt76x3/include/os/rt_linux.h"
+            python3 tools/iot/check-radio-off-send.py \
               .iot-local-check/mt7603-radio-off-v40-ci
             if [ "${{ inputs.iot_candidate_variant }}" = v41 ] ||
                [ "${{ inputs.iot_candidate_variant }}" = v42 ]; then

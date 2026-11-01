@@ -1,0 +1,35 @@
+{
+  "scope": "fresh pinned recovery/full-overlay/peer replay",
+  "recovery_passed": true,
+  "full_overlay_passed": true,
+  "peer_passed": false,
+  "failed_stage": "setup-result",
+  "error": "unreviewed input: include/rtmp.h",
+  "actual_header_sha256": "b7d34bcc68ab4e409de6fd7a06466718d29a7769dc1242d60d94cf32023b73b3",
+  "expected_header_sha256": "8b7d18842ffd0cae866b3cfc7e28a6e38691577641c8e4da11712d6cc065b829",
+  "radio_on_stage_reached": false,
+  "scratch_retained": "/tmp/wr-radio-on-full-replay",
+  "reason": "retain exact failed predecessor for source diff; remove after discrepancy resolved",
+  "target_compiled": false,
+  "runtime_verified": false,
+  "fresh_replay_followup": {
+    "recovery_passed": true,
+    "overlay_passed": true,
+    "header_only_fix_insufficient": true,
+    "next_refusal": "hardware-result: hw_ctrl/cmm_asic_mt.c",
+    "reviewed_delta": [
+      "RX/TX MAC readbacks added",
+      "checked MCU sender call replaces legacy command",
+      "LOAD_FW_ONE_TIME refusal comment updated"
+    ],
+    "decision": "restore sender prototype required by current generated body; migrate current checked-off body at a late stage or review full downstream pin propagation coherently",
+    "full_peer_replay_passed": false
+  },
+  "stable_replay": {
+    "stages": 75,
+    "passed": true,
+    "candidate": "/tmp/wr-radio-on-full-replay/peer-stable/radio-on-retirement-admission",
+    "header_and_body_migration": "hash-pinned intermediate baseline; current readbacks and checked sender applied at final scheduler stage",
+    "target_compiled": false
+  }
+}

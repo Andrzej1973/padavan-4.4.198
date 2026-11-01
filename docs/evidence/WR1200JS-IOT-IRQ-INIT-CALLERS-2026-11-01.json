@@ -1,0 +1,33 @@
+{
+  "scope": "strict merged source caller audit; macro guards reviewed, not runtime trace",
+  "source_sha256": {
+    "mcu/mcu.c": "73e7692de59f7cbe5eb08bb5f81c5ee2d5b398f0c16df2449fc464698f8e1500",
+    "common/rtmp_init_inf.c": "e778d450b0346db8f56dc13dd4ec7b954efc4303b87ba088a6bafc5ae0a1affd",
+    "common/cmm_mac_pci.c": "6a165366afaf461b741809213bbd116b205acddb7aab35109ab3c763ba38d534",
+    "chips/mt7603.c": "97febaaa4efad09884e6e5daf832da9b57a3a6118d9235458f1aa53648379996"
+  },
+  "firmware_init_chain": [
+    "RTMP initialization in common/rtmp_init_inf.c calls MCUSysInit",
+    "MCUSysInit invokes FwInit before NICLoadFirmware",
+    "MT PCI MCU hook assigns FwInit = AndesMTPciFwInit",
+    "AndesMTPciFwInit enables IRQ then DMA"
+  ],
+  "legacy_radio_on": "only direct source call is under RTMP_MAC || RLT_MAC; HIF_MT dispatch returns via MTPciMlmeRadioOn earlier; MT7603 AsicRadioOn assignment is commented out",
+  "required": "trace RTMP init admission/lifetime before fencing MCUSysInit; a check-only retiring read cannot join an already running initializer",
+  "production_accepted": false,
+  "runtime_verified": false,
+  "ownership_audit": {
+    "open_entry": "rt28xx_open reserves WR_PEER_OPEN_BEGIN before IRQ request and rt28xx_init",
+    "init_check": "rt28xx_init checks exact CONFIG ticket before MCU initialization",
+    "lock": "peer open dispatch uses MacTabLock; radio retirement uses transition lock",
+    "gap": "CONFIG ticket check is admission only, not join of the full MCU initializer; peer ticket and transition retirement must be coordinated",
+    "next": "trace top-level virtual OPEN ticket and RTNL serialization before introducing another owner"
+  },
+  "top_level_audit": {
+    "main_open": "MainVirtualIF_open reserves radio ticket under transition lock before VIRTUAL_IF_UP_CLAIM; MCU init is inside this call",
+    "remove": "rt_pci_remove marks retiring and joins recovery work before RtmpPhyNetDevExit",
+    "rtnl": "RtmpPhyNetDevExit takes RTNL around final main unregister; rt_pci_remove itself does not take RTNL before retirement/work drain",
+    "implication": "normal ndo_open RTNL serialization is eventually joined at unregister, but not proof of initializer quiescence during earlier removal phases",
+    "required": "establish exact OPEN ticket completion before hardware fence while avoiding RTNL/work join inversion"
+  }
+}

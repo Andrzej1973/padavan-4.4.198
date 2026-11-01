@@ -35,9 +35,63 @@ andes_core.c905..909 copies checked verdict before queue transfer/free and
 keeps timeout failure separate from late-response fields. No stack result
 pointer is used. Therefore do not implement a duplicate response mechanism.
 
-Current checked radio-off hardware path still invokes legacy
-CmdRadioOnOffCtrl, and wr_iot_prepare_radio_off has no invocation beyond its
-definition in this candidate tree. Next: reuse the existing checked message
-builder/result path with a narrowly scoped send wrapper after proving exact
-lifetime and caller ownership. LOAD_FW_ONE_TIME compatibility and terminal
-PCI quiescence remain independent blockers; this correction does not close them.
+At that historical checkpoint the checked hardware path still invoked legacy
+CmdRadioOnOffCtrl and the checked builder was unused. This was subsequently
+changed by the final-stage generator; see the current status below.
+
+## Current wiring audit — resumed at 9555bcd
+
+`tools/iot/prepare-aux-family-retry-scheduler.py` now injects
+`wr_iot_send_radio_off_checked`, which rejects a null adapter, calls the existing
+`wr_iot_prepare_radio_off`, rejects allocation failure and returns
+`AndesSendCmdMsg`'s verdict. The generator redirects only the checked hardware
+radio-off call to this wrapper; the generic CmdRadioOnOffCtrl stays unchanged.
+This closes the previously documented unused-builder wiring gap. It does not
+close firmware-policy or terminal-removal gaps.
+
+`tools/iot/check-radio-off-send.py` exercises the extracted generated wrapper
+with injected message ownership and checks null/allocation/send failure and
+success. These host tests do not execute MCU transport, real callbacks or DMA.
+Under LOAD_FW_ONE_TIME the checked hardware entry still returns FALSE before
+mutation, so the default feature configuration cannot use this checked send
+path as proof of physical radio shutdown. Keep the guard until a supported
+completion protocol or independently justified loading policy is verified.
+
+Terminal PCI remove also retains early returns before bus-master fencing;
+PCI core cannot be refused by returning from its VOID remove callback. See
+WR1200JS-IOT-PCI-REMOVE-BOUNDARY-2026-11-01.md and the terminal-quiescence
+inventory. No memory-retention or successful host-test result proves safety
+after core unbind. Next work remains device-specific terminal fencing,
+callback/owner retirement and firmware-policy completion evidence.
+
+## Candidate follow-up — sender wired, default guard retained
+
+The isolated v40/composed checked MT7603 close now calls
+`wr_iot_send_radio_off_checked()` on the path that reaches the checked command.
+It uses `wr_iot_prepare_radio_off()` plus the existing opt-in message-owned
+result handling in `AndesSendCmdMsg`; the legacy `CmdRadioOnOffCtrl` callback
+and production macro setting remain unchanged. The auxiliary-family preparer
+accepts the exact sender implementation without injecting a duplicate.
+
+The `LOAD_FW_ONE_TIME` early refusal remains in place before any queue, MAC,
+MCU, PDMA or interrupt mutation. Host fixtures compile and run both modes:
+without the macro they exercise ticket/order/failure-retention/no-replay; with
+the macro they assert immediate failure and no mutation. The sender fixture
+covers null adapter, allocation failure, send failure and success. These are
+candidate/source checks only. They do not prove that the target firmware
+accepts this command under the macro, that RF emission stops, or that DMA/IRQ/PCI
+owners are quiesced. No target module/image, router operation or runtime
+acceptance is claimed. Keep the candidate isolated until firmware-policy and
+terminal-removal evidence support promotion.
+
+## Full isolated module follow-up
+
+The current 75-stage candidate, strict merged then layered with the workflow's
+existing WNM/PMF preparation, passes isolated MIPS module compilation/MODPOST/
+link. This supersedes older statements above that no target module was built.
+The linked module still emits an 8-byte unconditional-FALSE
+`wr_iot_mt_radio_off_checked` under effective LOAD_FW_ONE_TIME; the checked
+sender exists as a separate 0xdc-byte symbol but is unreachable from that
+entry. Disassembly and module hash are in RADIO-ON-MODULE-LINK JSON. Kernel
+Module.symvers, full firmware image and runtime acceptance remain unverified.
+Successful linking does not close the default radio-off compatibility gap.

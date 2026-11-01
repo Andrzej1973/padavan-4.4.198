@@ -1,0 +1,29 @@
+{
+  "scope": "isolated candidate attach/normal/legacy/terminal binding",
+  "preparer_sha256": "64640266832a4f8fb9df2e8037f6cccfb6ffa43feea9597c0fb26f88caa79162",
+  "source_order_passed": true,
+  "sanitized_helper_fixtures_passed": true,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "limits": [
+    "never-started and failed-create receipt still refuses terminal join",
+    "VOID remove refusal remains unsafe for actual unbind",
+    "timer/IRQ/DMA fences remain unproved",
+    "pipeline/full-module integration pending"
+  ],
+  "generated_callsite_fixture": {
+    "sha256": "10db4939d8d09fe80b7034f4d7721ec46ef836d4a33c3f5c9238aa1b261f1c26",
+    "sanitized_passed": true,
+    "cases": [
+      "first attach",
+      "checked normal close",
+      "reopen receipt invalidation",
+      "legacy close",
+      "terminal reuse no second kill",
+      "failed attach refuses receipt",
+      "retirement during attach waits reservation",
+      "failed normal kill prevents reopen and permits exact retry"
+    ],
+    "limitations": "stubbed OS, single-thread interleavings; no timer/IRQ/DMA or runtime proof"
+  }
+}

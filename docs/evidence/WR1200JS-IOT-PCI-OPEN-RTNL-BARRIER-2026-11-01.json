@@ -1,0 +1,9 @@
+{
+  "scope": "full source replay, strict merge, exact PCI MIPS TU and source-order assertion",
+  "source_sha256": "52d60fa2e2aacc3b8d45a7bdf233e890636bc23fbdaab09004eb2fa3bcafa50b",
+  "object_sha256": "361213fd775c27ea79b01ce73599f41230e8e362345035d13d308e99ddd53c4a",
+  "retirement_before_rtnl_barrier": true,
+  "rtnl_released_before_recovery_drain": true,
+  "full_module_verified": false,
+  "runtime_verified": false
+}

@@ -2,7 +2,6 @@
 """Add reviewed MT7603 checked radio-off to a separate partial queue bundle."""
 
 import argparse
-import ast
 import hashlib
 import json
 import shutil
@@ -16,13 +15,13 @@ def replace_once(source: str, old: str, new: str, label: str) -> str:
 
 
 def checked_off_source(here: Path) -> str:
-    tree = ast.parse((here / "prepare-mt7603-checked-off-candidate.py").read_text(encoding="utf-8"))
-    for node in tree.body:
-        if isinstance(node, ast.Assign) and any(
-                isinstance(target, ast.Name) and target.id == "CHECKED_OFF"
-                for target in node.targets):
-            return ast.literal_eval(node.value)
-    raise ValueError("reviewed checked-off function is missing")
+    # Preserve the reviewed intermediate input for downstream hash-pinned stages.
+    # Current readbacks and checked sender are applied by the final scheduler stage.
+    raw = (here / "checked-off-chain-baseline.inc").read_bytes()
+    if hashlib.sha256(raw).hexdigest() != "6da548762b7b7d3a053fd2b65960cafe9fed9fef3be6816bae196ad0241574e8":
+        raise ValueError("changed checked-off chain baseline")
+    return raw.decode()
+
 
 
 def main() -> None:

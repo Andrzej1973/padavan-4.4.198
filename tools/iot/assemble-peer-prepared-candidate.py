@@ -152,7 +152,7 @@ def main():
         if receipt.get('asset_policy_sha256') != sha(Path(__file__).with_name('candidate_assets.py').read_bytes()):
             raise ValueError('Candidate asset policy differs from receipt')
         stages = receipt['stages']
-        if len(stages) != 74 or stages[-1]['stage'] != 'aux-family-retry-scheduler':
+        if len(stages) != 75 or stages[-2]['stage'] != 'aux-family-retry-scheduler' or stages[-1]['stage'] != 'radio-on-retirement-admission':
             raise ValueError('Unreviewed peer chain variant')
         for stage in stages:
             script = stage['script']

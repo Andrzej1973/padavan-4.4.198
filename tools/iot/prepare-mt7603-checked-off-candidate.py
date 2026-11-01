@@ -7,11 +7,25 @@ The output must be a new directory; the reviewed input is never modified.
 
 import argparse
 import hashlib
+import importlib.util
 import re
 import shutil
+import sys
 from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+if str(HERE) not in sys.path:
+    sys.path.insert(0, str(HERE))
 from candidate_assets import copy_asset
 from mbss_cr_enable import guard_cr_enable
+
+_STOP_CONTRACT_SPEC = importlib.util.spec_from_file_location(
+    "wr_iot_mac_stop_contract", HERE / "check-mt7603-mac-stop-contract.py")
+if _STOP_CONTRACT_SPEC is None or _STOP_CONTRACT_SPEC.loader is None:
+    raise ImportError("cannot load MT7603 MAC stop source contract")
+_STOP_CONTRACT = importlib.util.module_from_spec(_STOP_CONTRACT_SPEC)
+_STOP_CONTRACT_SPEC.loader.exec_module(_STOP_CONTRACT)
+audit_mac_stop = _STOP_CONTRACT.audit
 
 
 CHECKED_OFF = r'''/* Checked MT7603 halt path. The CLOSE ticket pins this adapter and excludes
@@ -22,7 +36,7 @@ BOOLEAN wr_iot_mt_radio_off_checked(RTMP_ADAPTER *pAd,
 {
  WPDMA_GLO_CFG_STRUC cfg;
  ULONG flags;
- UINT32 arb;
+ UINT32 arb, rqcr, tqcr0;
  unsigned int stage;
  INT32 bss;
  if (!pAd || !ticket || !pAd->net_dev || !IS_MT7603(pAd) ||
@@ -31,7 +45,7 @@ BOOLEAN wr_iot_mt_radio_off_checked(RTMP_ADAPTER *pAd,
      pAd->iwpriv_command)
   return FALSE;
 #ifdef LOAD_FW_ONE_TIME
- /* This build uses an AGG_TEMP write without an MCU result. */
+ /* Preserve the default fail-closed policy until command compatibility is proven. */
  return FALSE;
 #endif
  RTMP_IRQ_LOCK(&pAd->wr_iot_transition_lock, flags);
@@ -60,6 +74,8 @@ BOOLEAN wr_iot_mt_radio_off_checked(RTMP_ADAPTER *pAd,
   if (!AsicSetMacTxRx(pAd, ASIC_MAC_RX, FALSE)) return FALSE;
   RTMP_IO_READ32(pAd, ARB_SCR, &arb);
   if (arb == 0xffffffffU || !(arb & MT_ARB_SCR_RXDIS)) return FALSE;
+  RTMP_IO_READ32(pAd, ARB_RQCR, &rqcr);
+  if (rqcr == 0xffffffffU || (rqcr & ARB_RQCR_RX_START)) return FALSE;
   RTMP_IRQ_LOCK(&pAd->wr_iot_transition_lock, flags);
   pAd->wr_iot_transition.mt_radio_off_stage = 1U;
   RTMP_IRQ_UNLOCK(&pAd->wr_iot_transition_lock, flags);
@@ -74,7 +90,7 @@ BOOLEAN wr_iot_mt_radio_off_checked(RTMP_ADAPTER *pAd,
  }
  if (stage == 2U) {
   if (RTMP_TEST_FLAG(pAd, fRTMP_ADAPTER_NIC_NOT_EXIST)) return FALSE;
-  if (CmdRadioOnOffCtrl(pAd, WIFI_RADIO_OFF) != NDIS_STATUS_SUCCESS) {
+  if (wr_iot_send_radio_off_checked(pAd) != NDIS_STATUS_SUCCESS) {
    RTMP_IRQ_LOCK(&pAd->wr_iot_transition_lock, flags);
    pAd->wr_iot_transition.mt_radio_off_stage = 5U;
    RTMP_IRQ_UNLOCK(&pAd->wr_iot_transition_lock, flags);
@@ -95,6 +111,10 @@ BOOLEAN wr_iot_mt_radio_off_checked(RTMP_ADAPTER *pAd,
       (arb & (MT_ARB_SCR_TXDIS | MT_ARB_SCR_RXDIS)) !=
        (MT_ARB_SCR_TXDIS | MT_ARB_SCR_RXDIS))
    return FALSE;
+  RTMP_IO_READ32(pAd, ARB_TQCR0, &tqcr0);
+  if (tqcr0 == 0xffffffffU || tqcr0 != 0U) return FALSE;
+  RTMP_IO_READ32(pAd, ARB_RQCR, &rqcr);
+  if (rqcr == 0xffffffffU || (rqcr & ARB_RQCR_RX_START)) return FALSE;
   if (!AsicSetWPDMA(pAd, PDMA_TX_RX, FALSE)) return FALSE;
   RTMP_IO_READ32(pAd, MT_WPDMA_GLO_CFG, &cfg.word);
   if (cfg.word == 0xffffffffU || cfg.field.EnableTxDMA ||
@@ -175,6 +195,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("source", type=Path)
     parser.add_argument("output", type=Path)
+    parser.add_argument("--linux-header", type=Path,
+                        help="matching prepared target include/os/rt_linux.h")
     args = parser.parse_args()
     source, output = args.source.resolve(), args.output.resolve()
     allowed_output_root = (Path(__file__).resolve().parents[2] / ".iot-local-check").resolve()
@@ -184,6 +206,13 @@ def main() -> None:
         parser.error("output must be a new separate directory")
     if not (source / "manifest.json").is_file():
         parser.error("source must be the reviewed isolated v39 candidate")
+    try:
+        mac_stop = audit_mac_stop(
+            (source / "hw_ctrl/cmm_asic_mt.c").read_text(encoding="utf-8"),
+            args.linux_header.read_text(encoding="utf-8")
+            if args.linux_header else None)
+    except (OSError, ValueError) as error:
+        parser.error("MT7603 MAC stop source needs review: " + str(error))
     shutil.copytree(source, output)
     try:
         # The copied v39 manifest cannot describe modified v40 bytes.
@@ -274,7 +303,18 @@ def main() -> None:
                      "if(operation==WR_RADIO_START||operation==WR_RADIO_AUX_START){s->joined_workers=0;s->shutdown_stage=0;s->close_notified=0;s->mt_radio_off_stage=0;}")
         replace_once(output, "include/rtmp.h",
                      "INT wr_iot_mgmt_exit_checked(RTMP_ADAPTER *pAd, const struct wr_iot_radio_ticket *ticket);",
-                     "INT wr_iot_mgmt_exit_checked(RTMP_ADAPTER *pAd, const struct wr_iot_radio_ticket *ticket);\n#ifdef RTMP_PCI_SUPPORT\nBOOLEAN wr_iot_mt_poll_txrx_empty(RTMP_ADAPTER *pAd);\nBOOLEAN wr_iot_mt_radio_off_checked(RTMP_ADAPTER *pAd, const struct wr_iot_radio_ticket *ticket);\n#endif")
+                     "INT wr_iot_mgmt_exit_checked(RTMP_ADAPTER *pAd, const struct wr_iot_radio_ticket *ticket);\n#ifdef RTMP_PCI_SUPPORT\nINT32 wr_iot_send_radio_off_checked(RTMP_ADAPTER *pAd);\nBOOLEAN wr_iot_mt_poll_txrx_empty(RTMP_ADAPTER *pAd);\nBOOLEAN wr_iot_mt_radio_off_checked(RTMP_ADAPTER *pAd, const struct wr_iot_radio_ticket *ticket);\n#endif")
+        sender = ("#ifdef RTMP_PCI_SUPPORT\n"
+                  "INT32 wr_iot_send_radio_off_checked(RTMP_ADAPTER *pAd)\n"
+                  "{\n struct cmd_msg *msg;\n"
+                  " if(!pAd)return NDIS_STATUS_FAILURE;\n"
+                  " msg=wr_iot_prepare_radio_off(pAd);\n"
+                  " if(!msg)return NDIS_STATUS_RESOURCES;\n"
+                  " return AndesSendCmdMsg(pAd,msg);\n}\n"
+                  "#endif /* RTMP_PCI_SUPPORT */\n\n")
+        replace_once(output, "mcu/andes_mt.c",
+                     "INT32 CmdRadioOnOffCtrl(RTMP_ADAPTER *pAd, UINT8 On)",
+                     sender + "INT32 CmdRadioOnOffCtrl(RTMP_ADAPTER *pAd, UINT8 On)")
         replace_once(output, "hw_ctrl/cmm_asic_mt.c",
                      "\tRTMP_CLEAR_FLAG(pAd, fRTMP_ADAPTER_POLL_IDLE);\n    return TRUE;\n}\n\nVOID MTPciPollTxRxEmpty",
                      "    /* A disappearance on the final RX read is not an idle receipt. */\n"
@@ -361,6 +401,10 @@ def main() -> None:
         shutil.rmtree(output)
         raise
     print(f"Prepared isolated MT7603 checked-off candidate: {output}")
+    print("MAC stop writes checked: " + ",".join(mac_stop["write_registers"]))
+    print("PCI accessor uses writel(): " +
+          str(mac_stop["active_pci_accessor_uses_writel"]).lower())
+    print("MAC stop MMIO completion remains unproven.")
     print("No assembly manifest was emitted; re-pin the changed bytes before target compilation.")
 
 

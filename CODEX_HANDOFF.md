@@ -1,3 +1,849 @@
+## 2026-11-01 Sol: heavy-build placement reaffirmed; publication preflight
+
+Owner reaffirmed heavy firmware/kernel/full-module builds go to GitHub; local
+WSL2 is for checks and comfortably small target TUs. Added explicit AGENTS rule.
+SSH ls-remote confirms branch remote 5601556fa880554492eb679b4ed30c7383ef76d2;
+connector reports its PR-triggered build665/ABI609 completed successfully.
+Connector filters PR runs, so this is not an exhaustive queue check before
+manual dispatch. Current unpublished work is not covered by those runs.
+Changed 15 Python files parse, evidence JSON parses and full diff whitespace
+check passes. Next review/commit one coherent IoT/tooling batch, push via SSH,
+then check complete Actions queue before the optional peer82 target dispatch.
+No heavy local build, push or new CI run performed in this step.
+
+## 2026-11-01 Sol: terminal command layer integrated into optional target workflow
+
+Workflow now applies terminal layer after strict peer merge, redirects merged
+path to its output, and runs generated attach/close fixture before existing
+gates. Preparer verifies every parent hash and emits updated full merged and
+candidate-source hashes plus generator/assets provenance. Generated callsite
+and joined-rearm/RTNL/STALLED fixtures pass on workflow-layer output. YAML and
+complete affected bash step parse; all emitted source hashes match disk.
+Superseded lifecycle candidate removed, current workflow candidate retained for
+full Kbuild. New source layer not yet full-module verified. Never-started and
+failed-create terminal refusal, timer/IRQ/DMA cleanup still open.
+
+## 2026-11-01 Sol: generated command lifecycle callsite fixture passes
+
+New check-command-lifecycle-calls.py extracts actual generated task init,
+checked exit and legacy exit functions, includes actual join helpers, and
+executes first attach/close/reopen/terminal reuse, create failure, retirement
+during attach, failed normal kill/retry. Strict C11 ASan/UBSan passes; no second
+kill on reused receipt and no reopen after failed join. Temporary harness
+removed. OS is stubbed and interleavings sequential; no full concurrency or
+terminal hardware proof. Next integrate repeatable late-stage candidate/fixture
+into full workflow, then verify source manifest/full module.
+
+## 2026-11-01 Sol: seven bound command-lifecycle MIPS units compile
+
+Candidate rbus, PCI remove, enqueue, allocator, ring lifecycle, profile release
+and Linux utility TUs all compile using adapted captured rt_linux board flags.
+Direct invocation required Make $(pound) expansion to #; initial PCI-only
+macro diagnostic cleared after that correction and all seven reran. Commands
+and source/object hashes: COMMAND-LIFECYCLE-MIPS JSON. This is not exact per-unit
+Kbuild or new full-module acceptance. Target scratch removed (43756554 file bytes);
+small generated lifecycle candidate retained for extracted callsite fixtures.
+Next verify actual attach/legacy-close bodies under failures/reopen, then replay
+and full Kbuild integration. Timer and terminal DMA/IRQ remain unproved.
+
+## 2026-11-01 Sol: command lifecycle candidate callsites bound together
+
+Terminal preparer now reserves first/reopen attach, finishes exact creation
+attempt, routes target normal checked and legacy command kills through shared
+join, and invokes terminal join after queue closure before first retirement
+refusal. Helpers copied into candidate with target guards. Source-order checks
+and owner/helper ASan/UBSan pass. Candidate retained for extracted actual
+callsite fixture and target compile. Never-started/create-failure terminal
+receipt still refuses; VOID remove failure and timer/IRQ/DMA remain unresolved.
+No production integration/runtime acceptance.
+
+## 2026-11-01 Sol: first attach and shared normal/terminal join helper verified
+
+Added first-attach reservation separate from reopen, and command-join-shared.inc
+using the same execution owner for normal close and terminal completion. Exact
+helper fixture creates first task reservation, refuses join during attach,
+finishes normal join then retires adapter and reuses receipt without another
+kill despite unknown/stale handle. Prior owner/helper failure cases still pass
+ASan/UBSan; scratch cleaned. Helpers remain unbound: attach, normal/legacy close
+and terminal callsites must be integrated together to avoid stale receipt on
+reopen. Failed creation is still failure/unknown, never inferred quiescence.
+
+## 2026-11-01 Sol: command OS helper exported and target TU compiles
+
+Extended terminal candidate preparer with utility declaration, rt_linux include
+and export of command-specific task identity helper. Exact copied helper and
+all three wiring sites verified. Actual rt_linux.c MIPS TU compiles with
+captured Kbuild flags/pinned generated headers. COMMAND-OS-MIPS JSON records
+command/source/object hashes. Initial missing mt76x3_ap directory was corrected
+in scratch; compiler then passed. Target/candidate scratch removed. Early join
+and real normal close/attach reservation binding remain pending; no runtime claim.
+
+## 2026-11-01 Sol: command join creation-error pointer rejected
+
+Creation failure audit found generic timer identity helper checks only NULL;
+kthread_run ERR_PTR would compare as a different task and could reach kill.
+Added command-specific terminal-command-os-join.inc rejecting IS_ERR_OR_NULL
+before identity comparison, and updated command join helper to use it. Kept
+historical timer pipeline unchanged to avoid another unrelated pin migration.
+New OS fixture passes KTHREAD/legacy x OS_ABL on/off under ASan/UBSan; exact
+command join fixture also passes. Still requires utility declaration/export and
+late-stage driver binding/target compile; no actual task kill/router operation.
+Temporary fixtures cleaned.
+
+## 2026-11-01 Sol: normal-close/reopen shares terminal execution receipt model
+
+OS audit confirms KTHREAD task notify/kill does not clear native task pointer;
+missing/present pointer cannot replace receipt. Extended existing owner with
+normal join reservation and explicit reopen attach invalidation on same serial
+space. Retirement can close admission during normal join or attach, but cannot
+start a second join; stale completion cannot validate a reopened task. Both
+owner and actual helper fixtures pass ASan/UBSan. Initial attach/failure and
+never-started semantics still need binding review; model not wired to driver.
+Scratch cleaned. Next integrate normal/terminal reservations at real attach and
+kill callsites, accounting for partial task creation before remove binding.
+
+## 2026-11-01 Sol: exact terminal join helper fault fixture passes
+
+New check-terminal-command-join.c includes the actual helper and owner header.
+Strict C11 ASan/UBSan passes null/open admission, atomic context, unknown/self
+identity, failed kill/retry, reentry during kill (no second kill) and receipt
+reuse without reading stale task identity. Scratch cleaned. This verifies the
+helper's modeled behavior only. Binding still requires normal checked close,
+legacy close and task attach to share task execution ownership; in particular
+normal close completed before the RTNL rendezvous may leave a stale task handle
+without a terminal receipt. Do not wire early terminal kill until handled.
+
+## 2026-11-01 Sol: terminal command join helper staged with context/identity guards
+
+Existing wr_iot_os_join_context rejects atomic/IRQ context; timer_task_current
+helper actually unwraps generic RTMP_OS_TASK and rejects self/unknown identity.
+Staged terminal-command-join.inc reuses these, reserves exact attempt under
+IRQ-safe CmdQLock, kills outside lock and records actual result. Successful
+receipt is reused without dereferencing a stale task handle. Helper is not
+bound: serialize normal close/task attach against terminal join first and add
+extracted helper failure/self/concurrent fixtures before remove integration.
+Model fixture success does not verify this new OS helper yet. No router action.
+
+## 2026-11-01 Sol: terminal enqueue closure bound in isolated candidate
+
+Extended hash-pinned CmdQLock preparer: owner initialized once before prealloc
+rings/publication, shared enqueue checks permanent closure under IRQ-save
+CmdQLock, PCI remove closes it and stops CmdQState after RTNL rendezvous before
+first fallible retirement call. Reinitializing CmdQState alone cannot bypass
+owner closure. Generation 1 identifies this externally pinned allocation only;
+no claim of cross-allocation callback safety. Source-order checks and sanitized
+owner fault fixture pass. Candidate not target-compiled/pipeline-integrated;
+already queued commands and worker/timer join remain open. Scratch removed.
+
+## 2026-11-01 Sol: CmdQLock adapter lifetime candidate staged
+
+Added hash-pinned prepare-terminal-command-lock-lifetime.py against current
+strict-merged tree. For MT7603+DMA_RESET_SUPPORT, initializes CmdQLock beside
+MgmtRingLock before RESOURCE_PRE_ALLOC rings and publication; excludes both
+ring init/free pairs and releases lock with adapter. Other configurations
+retain original ring ownership. Generation and source-order/inventory checks
+pass. Not yet pipeline-integrated or target-compiled; allocation failure,
+resource-tracked variants, reopen and terminal gate/join binding still require
+verification. Temporary candidate removed; generator preserves reproducibility.
+
+## 2026-11-01 Sol: terminal CmdQ binding needs adapter-lifetime lock first
+
+Before inserting early remove gate, exact source exposed CmdQLock initialization
+inside both ring-allocation paths (cmm_mac_pci.c:310,856) and frees in ring
+cleanup (:238,1646). Therefore proposed early remove acquisition is not valid
+for every never-open/probe-unwind/closed adapter state. No unsafe binding added.
+Terminal owner header now states this precondition; CMDQ-ADMISSION evidence
+pins source/locations. Next establish adapter-lifetime lock initialization and
+reopen behavior before binding terminal admission/join. Distinguish Linux
+spinlock implementation from resource-tracked OS_ABL variants when changing
+allocation/free. Existing receipt model remains unbound.
+
+## 2026-11-01 Sol: terminal command join receipt model implemented
+
+Added terminal-command-owner.h with irreversible admission closure and exact
+adapter-generation/join-attempt receipt. Failed/missing-handle/concurrent/stale
+joins cannot authorize completion; later CLOSE may reuse a successful receipt
+without another task kill. Strict C11 ASan/UBSan fixture passes failure/retry,
+stale identities, duplicate completion and exhaustion cases; scratch removed.
+Evidence: TERMINAL-COMMAND-OWNER JSON. Model is not yet driver-bound. Next bind
+adapter init, CmdQLock admission, unlocked terminal task join and checked close
+receipt reuse together; retain separate timer/IRQ/DMA terminal requirements.
+
+## 2026-11-01 Sol: terminal command-queue owner gap narrowed
+
+Exact merged audit shows queue admission uses CmdQState/CmdQLock but does not
+consume radio retiring; generic CMDHandler continues vendor commands beyond
+reset-specific wrapper protection. First PCI retirement refusal precedes whole
+command worker shutdown. Existing checked kill cannot be blindly called early:
+missing handle fails, while later CLOSE expects its own joined_workers receipt.
+TERMINAL-CMDQ-ADMISSION JSON pins sources and next contract: permanent queue
+closure, unlocked worker join, independent terminal receipt, later close reuse,
+timer-producer join and no post-retirement reinitialization. No source gate or
+free was relaxed; this is the concrete next lifecycle implementation boundary.
+
+## 2026-11-01 Sol: linked default radio-off refusal confirmed; build scratch cleaned
+
+Actual full linked module has 8-byte unconditional-FALSE checked-off function;
+checked sender is separate 0xdc-byte symbol. Disassembly, symbol sizes and full
+bounded build log retained in MODULE-LINK JSON. ACK-GAP note updated to
+supersede old no-module-build statements. Target scratch removed (785333004 file
+bytes) after terminal session and capacity check; no active process uses it.
+Next return to terminal software producer/callback joins and firmware-policy
+compatibility; do not treat link success as release acceptance.
+
+## 2026-11-01 Sol: isolated full MIPS module link succeeds
+
+Session 24600 completed successfully: compilation, MODPOST and mt76x3_ap.ko
+link pass. No unresolved wr_iot/wr_rssi symbols; actual rt_linux Kbuild macro
+probe completes. MODULE-LINK JSON records module/log hashes and exact scope.
+Missing kernel Module.symvers means kernel dependency/modversion acceptance is
+not proven. Prior config/preparation limitations remain. Capacity/main-observer
+check now live as session 67087; poll it before deleting target scratch.
+Firmware checked-off LOAD_FW_ONE_TIME refusal and terminal teardown remain open.
+
+## 2026-11-01 Sol: WNM retry passes previous failing action unit
+
+Polled session 24600: still live, now past action.c into lifecycle units.
+Target-tree RadioOn fixture passes; checked-off host fixture passes both macro
+modes. Negative mutation forcing admission after retirement is detected by the
+RadioOn regression; mutation scratch cleaned. No observed compiler errors in
+retry log at checkpoint. Module link/modpost remains pending; retain target
+scratch while build runs and poll same session.
+
+## 2026-11-01 Sol: WNM failure traced to stale retained preparation
+
+Current workflow already applies prepare-mt7603-wnm-category.py. Retained local
+production-prepared tree predates it; prior strict merge acceptance does not
+prove current production preparation completeness. Applied existing preparer
+only in target scratch. Exact delta is include/rtmp_def.h and common/ft_tlv.c;
+hashes recorded in MODULE-CHECKPOINT JSON. Original strict merged input remains
+unchanged. Module retry live as session 24600; poll same handle. Source evidence
+must describe strict merge plus this production preparation layer. Future full
+replay should use freshly prepared production input. No router operation.
+
+## 2026-11-01 Sol: isolated module compile stopped at WNM header contract
+
+Session 39571 completed with exit 2. Actual compiler error is common/action.c:106
+CATEGORY_WNM undeclared in ActionStateMachineInit. This supersedes the earlier
+live checkpoint. Need compare prepared production WNM header/config inputs
+against pristine kernel before attributing to IoT or changing source. No module
+link/modpost success. Original log and target tree retained for diagnosis.
+
+## 2026-11-01 Sol: live module build source identity verified
+
+Session 39571 remains live after host scripts preparation; compiling driver
+objects with no observed compiler errors at checkpoint. All 592 merged inputs
+match manifest. Kernel scripts sync removed absent production Kconfig options
+EOIP/IMQ/AmneziaWG from isolated pristine kernel; exact config diff/hashes saved
+in RADIO-ON-MODULE-CHECKPOINT JSON. This limits acceptance to isolated driver
+build, even if it succeeds. Continue polling same session, then inspect module
+link/modpost and effective driver macros; no duplicate build. Scratch in use.
+
+## 2026-11-01 Sol: full isolated module build started
+
+Extracted pinned full Linux source and overlaid verified strict-merged driver,
+using preserved target config/generated headers. First module attempt stopped
+because host scripts/basic/fixdep was absent. Preparing kernel scripts, then
+same shell automatically retries module build. Live exec session 39571 was
+polled and still running at this checkpoint; do not start a duplicate.
+Logs: /tmp/wr-radio-on-module/scripts.log and build-prepared.log. Scratch stays
+while the process uses it. No full module success claim or router operation.
+
+## 2026-11-01 Sol: exact merged RadioOn/MAC MIPS units compile
+
+Compiled exact strict-merged common/cmm_cfg.c and hw_ctrl/cmm_asic_mt.c with
+captured WR1200JS flags and pinned Linux headers/generated target headers.
+Both pass; cmm_asic_mt also passes compile-only -U LOAD_FW_ONE_TIME. Commands,
+source/object hashes and scope recorded in RADIO-ON-MERGED-MIPS JSON. Override
+is not build-policy authorization. Full module link/image and runtime remain
+unverified; effective LOAD_FW_ONE_TIME still refuses checked radio-off.
+Temporary target headers/source/objects removed (43841503 file bytes).
+Next validate full module/link integration and resolve terminal teardown and
+firmware radio-off compatibility before production/image acceptance.
+
+## 2026-11-01 Sol: RadioOn strict production/RSSI merge passes
+
+Strict assembler accepted the 75-stage candidate and retained pinned production/
+RSSI input. All five extracted host checks passed on exact merged output:
+RadioOn, checked-send, joined rearm/PCI barrier, tasklet rearm, AGG_TEMP.
+Source hashes and scope recorded in RADIO-ON-STRICT-MERGE JSON. Full MIPS module,
+image and runtime remain unverified. Superseded task-owned intermediates removed
+(1329023262 file bytes); merged output and pinned source retained for target
+compile. Original failure evidence retains historical paths, now removed.
+Next compile exact merged cmm_cfg and changed radio-off units for target MIPS.
+
+## 2026-11-01 Sol: complete 75-stage RadioOn replay passes
+
+Frozen the reviewed intermediate radio-off body in hash-pinned
+checked-off-chain-baseline.inc. Current MAC readbacks now apply at the final
+auxiliary scheduler stage beside checked sender/prototype integration. Fresh
+recovery/full overlay and all 75 peer stages pass without changing predecessor
+pins. Generated RadioOn execution fixture and checked-send fixture pass on the
+final candidate. Strict prepared-source merge and exact MIPS compile remain
+pending. Current scratch retained for those checks; no device operation.
+
+## 2026-11-01 Sol: fresh replay exposes complete radio-off provenance drift
+
+Fresh generation passed recovery/overlay and exposed a second pinned delta:
+the current checked-off body adds MAC readbacks and checked MCU sender. Merely
+removing its prototype cannot repair composition and would leave a missing
+prototype in the generated body, so that removal was reverted. No downstream
+pins changed. The complete late-stage migration or reviewed pin propagation
+must include both body and declaration. RADIO-ON-REPLAY JSON updated. Superseded
+fresh/failed scratch trees removed; original pinned source and initial failed
+predecessor remain for comparison. Full peer replay and target compile pending.
+
+## 2026-11-01 Sol: replay header drift localized to early checked-send prototype
+
+Compared refused header with exact previously pinned predecessor: the sole
+original delta is the added wr_iot_send_radio_off_checked declaration from
+prepare-composed-mt7603-radio-off.py. Removed that early insertion; the final
+aux-family-retry-scheduler already adds the declaration with checked sender
+integration. No hash pin changed. Scratch-only attempts to resume from a later
+header were invalid (newline normalization / duplicated earlier transformation)
+and do not count as replay evidence. Next regenerate recovery/full overlay
+fresh using the corrected generator, then replay all 75 stages. Preserve the
+original failure hashes; discard superseded scratch during fresh regeneration.
+No target build or router operation.
+
+## 2026-11-01 Sol: fresh peer replay refuses earlier header provenance
+
+Fresh pinned recovery generation and full-driver overlay passed. Peer replay
+stopped at setup-result before RadioOn: include/rtmp.h differs from its pinned
+predecessor. No pin relaxed. Failure hashes recorded in RADIO-ON-REPLAY JSON;
+/tmp/wr-radio-on-full-replay retained only for exact predecessor comparison.
+Also updated strict assembler to require the new 75-stage terminal sequence and
+kept RadioOn metadata outside driver inventory; wired extracted handler check
+into optional CI. Full composition/merge/MIPS remain pending. Next compare
+header generation against the last successful chain and repair provenance or
+generation based on that diff. No router operation.
+
+## 2026-11-01 Sol: RadioOn stage wired into peer chain
+
+Added RadioOn retirement admission after auxiliary retry scheduler in the peer
+chain. Pinning now checks the exact RadioOn function body, allowing unrelated
+reviewed cmm_cfg transformations in preceding stages without weakening this
+function's provenance. New checker compiles and executes the extracted generated
+handler: active ON/OFF succeed; retired ON/OFF refuse without iwpriv state or
+hardware-call mutation, with lock released. Passed on v39-generated output.
+Full chain replay, strict merge and MIPS compilation remain pending. Temporary
+candidate and host executable cleaned immediately; no router operation.
+
+## 2026-11-01 Sol: owner-requested checkout cleanup
+
+Reviewed the dirty-tree inventory and ignored scratch. Removed three identical
+regenerable MAC-stop candidate trees (.iot-local-check/mac-stop-contract-v40-check,
+mac-stop-contract-v40-check3, mac-stop-contract-v40-final; 58 files each) and
+ tools/iot/__pycache__. Reclaimed approximately 8.7 MB of file contents.
+No active generator/compiler process was found using these paths. Retained all
+unfinished source/workflow fixes, owner-requested cleanup rules, minimal source/
+MIPS evidence and private runtime evidence. Untracked evidence/tools together
+were only 79,798 bytes before this cleanup. No source reset, staging or commit.
+
+## 2026-11-01 Sol: correction to direct reset admission audit
+
+RadioOn follow-up: added hash-pinned candidate preparer
+`tools/iot/prepare-radio-on-retirement-admission.py`. It rejects the WEXT
+RadioOn handler after retirement before parsing/mutating driver state. The
+existing RTNL handler lifetime joins a call admitted before retirement at the
+remove rendezvous. Generation and source-order checks passed on checked-in
+v39; scratch candidate removed. Full chain integration, exact target compile
+and behavioral interleavings remain pending. This is not production acceptance.
+
+Current checked-in v39 already routes public PSE/PDMA reset through
+wr-iot-reset-admission.inc: request/begin reject retirement and admitted raw
+execution holds RTNL. The earlier statement that reset had no retirement gate
+was too broad and is superseded. ASYNC-RESET-PRODUCERS JSON now records exact
+candidate hashes and this distinction. WEXT Set_RadioOn_Proc remains a direct
+MlmeRadioOn caller without this admission. Next guard that ioctl entry, verify
+on the current full composition, and separately prove whole periodic/command
+callback lifetime. No new driver modification or router action in this correction.
+
+## 2026-11-01 Sol: reset/radio-on admission remains open after RTNL rendezvous
+
+Pinned MT7603/Linux 4.4 source audit confirms WEXT private handlers hold RTNL
+through `Set_RadioOn_Proc` and direct `PDMAResetAndRecovery` debug calls. The
+early PCI remove RTNL acquire/release joins handlers already inside RTNL, but
+new calls remain admissible after release while netdevs stay registered. The
+effective `DMA_RESET_SUPPORT` path also runs MLME periodic PSE watchdog work
+through the command queue outside RTNL; ordinary close eventually cancels the
+periodic timer and stops that thread, but this is not proven to precede the
+candidate's earlier PCI terminal hardware phase. Evidence, exact blob IDs and
+config hash: `docs/evidence/WR1200JS-IOT-ASYNC-RESET-PRODUCERS-2026-11-01.json`.
+Next: add a per-adapter retiring gate for radio-on/reset producers and prove
+the timer/command-queue join before terminal fencing. This remains source
+evidence only; no target module/image/runtime or router operation.
+
+## 2026-11-01 Sol: hash-pinned auxiliary stage and host regressions rechecked
+
+Latest observed remote PR head `5601556fa880554492eb679b4ed30c7383ef76d2` has Build 665 (`41277434431`) and Band Steering ABI 609 (`41277434460`) successful; they do not cover this local state. Regenerated the auxiliary retry scheduler from its exact 15-file hash-pinned predecessor and passed checked sender, tasklet rearm, joined rearm, and AGG_TEMP host checks. The direct v40 checked-off generator and dual-mode fixtures also pass; with `LOAD_FW_ONE_TIME`, the helper still returns before mutation. YAML parse and `git diff --check` pass. Target module/image and device acceptance remain open; no router operation.
+
+## 2026-11-01 Sol: checked radio-off sender wired; macro guard retained
+
+The isolated v40/composed checked MT7603 close uses the existing opt-in checked MCU sender on the permitted path; its message-owned response state and exact validation remain candidate-only. `LOAD_FW_ONE_TIME` still returns failure before mutation. The production macro and legacy AGG_TEMP path are unchanged. Host fixtures pass with the macro both off (checked lifecycle path) and on (fail-closed/no-mutation); sender allocation/send faults also pass. This does not prove target firmware compatibility, RF cessation, full module/image or on-device behavior. Details in `docs/evidence/WR1200JS-IOT-RADIO-OFF-ACK-GAP-2026-11-01.md`.
+
+## 2026-11-01 Sol: generic PCI fence APIs are insufficient alone
+
+Pinned Linux 4.4.198 provides `pci_clear_master()` and
+`pci_wait_for_pending_transaction()`, but the first has no completion result and
+the second's helper ignores PCI config-read errors. The PCI core calls the
+void driver remove callback and clears binding without an unconditional
+bus-master clear. Therefore these primitives cannot alone guarantee safe DMA
+release after endpoint loss. Exact source/blob evidence and decision: `docs/evidence/WR1200JS-IOT-PCI-CORE-FENCE-API-2026-11-01.md`. This is source-only; no driver/hardware operation. The PCI terminal teardown blocker remains.
+
+## 2026-11-01 Sol: shared PCIe reset GPIO does not solve IoT removal
+
+Read pinned MT7621 host source `c25283e915a2a00a763774dd255b14aff997285e`
+from the local bare source backup. PCIe port reset GPIO aliases for ports 0,
+1 and 2 all resolve to GPIO19. Platform probe pulses that common PERST_N line
+for configured ports. The source's per-port root-controller reset/clock logic
+is initialization-time handling and provides no runtime endpoint-remove reset
+API or DMA/IRQ drain guarantee. Do not toggle GPIO19 for one radio or treat a
+per-port reset bit as a terminal transaction receipt. The specific source
+review and line references are in
+`docs/evidence/WR1200JS-IOT-PCI-REMOVE-BOUNDARY-2026-11-01.md`.
+
+Next: look for board-specific reset wiring and a documented host-controller
+DMA isolation/drain boundary. If neither exists, retain the hard blocker and do
+not fake teardown success or release live DMA ownership. No hardware access,
+router operation, or driver edit was made.
+
+## 2026-11-01 Sol: WR1200JS board-tree reset cross-check
+
+Read the WR1200JS board DTS and the newer upstream MT7621 PCIe host driver as
+independent source comparisons. The board DTS assigns one parent GPIO19 reset
+to the PCIe controller; radio functions are under ports 0 and 1. The newer
+host driver's reset sequencing is initialization-time and its platform remove
+only releases reset handles; neither source provides an endpoint DMA/IRQ
+drain API. This corroborates the pinned Padavan 4.4 analysis but is not target
+build or schematic evidence. GPIO19 and per-port RC resets remain rejected as
+MT7603 teardown fences. Details and pinned source links are in
+`docs/evidence/WR1200JS-IOT-PCI-REMOVE-BOUNDARY-2026-11-01.md`. No code, build,
+hardware access, or router action was performed. Next: find a documented
+board/controller isolation and drain boundary; if unavailable, preserve the
+release blocker rather than inventing a reset receipt.
+
+## 2026-11-01 Sol: PCI sysfs remove remains reachable without hotplug
+
+The exact WR1200JS kernel config has MT7603 built as a module, `SYSFS=y`,
+`HOTPLUG_PCI=n`, and forced module unload disabled. Pinned 4.4 still includes
+the writable PCI device `remove` attribute; it calls
+`pci_stop_and_remove_bus_device_locked()`, which reaches driver remove and
+continues unbinding. Hiding generic driver `unbind` alone would not remove this
+separate PCI sysfs path. So disabled PCI hotplug is not proof that the void
+remove callback cannot run. Source/config trace only; no sysfs operation or
+device test. Details are in
+`docs/evidence/WR1200JS-IOT-PCI-REMOVE-BOUNDARY-2026-11-01.md`. The next safe
+step still requires a verified hardware/controller DMA fence or an explicitly
+reviewed kernel-level policy; do not relax ownership checks or claim the
+callback is unreachable.
+
+The same pinned source has no MT7603 `.shutdown` callback, and the effective
+config disables KEXEC. Ordinary reboot therefore does not establish a
+driver-level fence for remove/unbind; keep shutdown and PCI removal as separate
+lifecycle paths.
+
+## 2026-11-01 Sol: STALLED branch stops and joins recovery work
+
+Final generator now requests stop for main and auxiliary recovery under shared
+transition lock when recovery drain stalls, unlocks, cancels delayed reaper,
+main worker and auxiliary worker, then reconciles only already-completed main
+ownership before returning. Unresolved retained owners are preserved. Persistent
+joined-rearm fixture checks stop-before-join order, unlocked waits and absence
+of direct retained-resource frees in this branch. Final-stage generation and
+existing extracted-C/order tests passed. Full replay/merge/MIPS and injected
+failure-branch execution still required. This narrows recovery callback exposure
+across unbind; IRQ/tasklet/timer/DMA producers still need terminal fencing and
+this callback return remains production-unsafe until that is implemented.
+No router action, unconditional free or false shutdown receipt introduced.
+
+## 2026-11-01 Sol: STALLED candidate replayed; PCI remove contract still blocks
+
+Rebuilt the exact 74-stage peer chain from the verified full overlay, then
+strictly merged with the production-prepared RSSI/steering tree. The new
+STALLED-branch source passed joined-rearm, netdev-null, OPEN/RTNL-order,
+auxiliary-stop-order, tasklet-rearm and checked-radio-off extracted tests.
+The terminal-stop inventory still matches the reviewed MT7603 shapes and
+explicitly reports `terminal_quiescence=unproven`. Exact merged
+`os/linux/pci_main_dev.c` compiled with the captured WR1200JS MIPS TU command;
+source SHA256 `a7635ce354c81da36ae17010655796bf191b44b4b485a7278093c1c52f93ddf0`,
+object SHA256 `0eb89bfa1f991eeb7d0d6d7bfc6b34aa29a935df85c04b44a55af69569ca544f`.
+This does not prove full module, image, or runtime.
+
+Review of exact merged remove confirms the new STALLED path only requests stop
+and cancels/joins recovery callbacks, then returns while retaining owners. The
+PCI driver's `VOID` remove return cannot veto driver-core unbind. Existing
+returns from retirement/drain, child begin/detach, or checked PCI transaction
+can therefore leave callback/IRQ/mapping/software owners unresolved while the
+core continues unbind. Separately, physical loss cannot assume MMIO reads work.
+So this branch is not safe to promote. Required next work is an unavoidable
+bus-removal teardown path that fences all producers, verifies normal-device
+DMA/IRQ stop and joins callbacks before releasing/quarantining software state,
+with a separate no-MMIO physical-loss path and exact reference accounting.
+Current MT7603 standard stop primitives are insufficient/unverified: NULL
+DisableTxRx, StopDmaRx/Tx reject HIF_MT, void DMA disable drops result, DMA
+setter has no readback, and interrupt mask has no readback/join. Do not make
+early return, PCI clear-master, or retained references stand in for that proof.
+No router operations.
+
+## 2026-11-01 Sol: offline-channel teardown cannot reuse ring free
+
+Checked the exact Linux 4.4.198 target header: `pci_channel_offline()` is only
+`pdev->error_state != pci_channel_io_normal`; it does not cover every physical
+link disappearance. PCI error recovery offers `error_detected`, `mmio_enabled`,
+`link_reset`, `slot_reset`, and `resume`, but registering these callbacks alone
+does not prove DMA stopped or provide a general surprise-removal cleanup receipt.
+
+Inspected both conditional implementations in merged
+`common/cmm_mac_pci.c::RTMPFreeTxRxRingMemory`. The actual WR1200JS target TU
+command defines `RESOURCE_PRE_ALLOC`, so its selected function frees descriptor
+and preallocated DMA buffers without the non-prealloc implementation's ring
+index MMIO reads. However the paired `RTMPResetTxRxRingMemory()` selected by
+`RESOURCE_PRE_ALLOC` unmaps/releases streaming TX and RX packets and reads
+descriptor contents. Also, the non-prealloc implementation still has three
+hardware index reads and streaming unmaps. Thus offline cleanup must select the
+exact effective config and cannot call reset/reclaim routines that consult
+device state or unmap buffers whose DMA ownership was not revoked. The
+ordinary teardown calls ring reset/free through `hif_sys_exit`, close, and
+adapter destruction. `RtmpOSIRQRelease` calls `synchronize_irq` before
+`free_irq`, but is reached only through deeper teardown and is not an
+adapter-wide producer fence. Neither an offline check nor skipping a few MMIO
+reads provides a safe release path.
+
+Next implementation must add an explicit teardown contract across all ring
+free callers: normal close retains existing semantics only after device-
+specific DMA idle/readback; terminal bus removal must first establish hardware
+isolation (or a platform-guaranteed DMA revocation boundary), fence every
+producer and IRQ, join callbacks, then reclaim software ring ownership without
+MMIO, with exact streaming-DMA unmap and descriptor lifetime semantics.
+If this board/platform cannot establish that isolation on physical loss, the
+driver must not claim safe reclamation there; keep that event distinct from
+controlled PCI unbind. No code bypass added; no device action.
+
+## 2026-11-01 Sol: PCI core/API boundary checked against Linux 4.4
+
+Verified target headers use `void (*remove)(struct pci_dev *)` and expose
+`pci_clear_master()`, `pci_disable_device()`, `pci_channel_offline()` and PCI
+error-recovery handlers. Pinned Linux v4.4 `pci_device_remove()` calls the
+driver's remove callback, then `pcibios_free_irq()`, then clears the driver
+pointer; it does not automatically
+call `pci_clear_master()` there. The kernel PCI API defines `pci_clear_master`
+as clearing the bus-master bit, but that alone is not a receipt that already
+issued transactions completed. The PCI error-recovery documentation says the
+platform may isolate I/O and notify `error_detected`, but its interrupt section
+explicitly does not guarantee delivery has stopped. Thus: no core-veto path,
+no automatic bus-master cleanup guarantee at unbind, and no portable physical
+loss receipt are available to this driver without target host-controller
+evidence. Current WR1200JS effective config also has PCIe port service/AER,
+hotplug and IOMMU disabled. Exact target `.config` checks are evidence; source
+does not include the host PCI controller implementation, so MT7621 isolation
+and reset boundary remain unproven. No candidate change based on assumed core
+behavior. No router access or mutation.
+
+## 2026-11-01 Sol: auxiliary stop full composition/MIPS passed
+
+Latest auxiliary request_stop wiring completed full74-stage replay, strict
+production/RSSI merge, joined-rearm/PCI entry/OPEN barrier/aux-stop ordering
+fixtures and actual PCI MIPS TU compilation in /tmp/wr-aux-stop-chain-5sjmhp16.
+Source/object hashes: PCI-AUX-STOP-MIPS JSON. This supersedes pending latest
+wiring composition/compile status. STALLED recovery still returns before these
+stop requests, and stop intent/callback joins cannot stand in for terminal
+DMA/IRQ retirement. Next handle failure branch with explicit terminal protocol;
+do not release retained owners merely because work was canceled. No router action.
+
+## 2026-11-01 Sol: owner-requested Windows Codex folder review/preservation
+
+Inspected C:\Users\ANDRZEJ\Documents\Codex at owner request. Contains only
+five diagnostic artifact directories (radio657-inputs, iot658-target-inputs,
+monitor658-review, iot660-target, iot662-target), approximately17 MiB; no active
+checkout. Preserved all66 files to /home/andrzej/.cache/padavan/preserved-windows-codex-2026-11-01,
+verified every source/destination SHA256 and wrote PRESERVATION-SHA256.json
+there. Original Windows files untouched. Current work can use preserved copies;
+historical evidence paths may still name original Windows location. Owner can
+remove this inspected Windows directory without losing these artifacts, provided
+WSL preservation remains. This does not approve deleting other historical paths.
+
+## 2026-11-01 Sol: auxiliary stop admission bound before PCI work cancel
+
+Final generator now invokes existing wr_iot_aux_retry_request_stop under
+transition lock beside main recovery stop, before cancel_work_sync. Previously
+only main owner received stop intent. Persistent joined-rearm check asserts
+aux stop before cancellation. Final generation and existing auxiliary scheduler
+ASan/UBSan fixture passed, including STOPPING/retained ownership contracts.
+Latest wiring still needs full replay/strict merge/MIPS. STALLED early-return
+path remains before both stop requests; this increment does not solve terminal
+hardware or callback quiescence. No resources freed or router actions.
+
+## 2026-11-01 Sol: early OPEN barrier exact MIPS compile confirmed
+
+Verified full strict-merge manifest hashes and compiled exact merged
+pci_main_dev.c with captured target flags. MIPS compilation passed; command
+and source/object hashes recorded in PCI-EARLY-RTNL-MIPS JSON. This supersedes
+pending compilation for the moved barrier. Recovery-drain audit confirms its
+STALLED result still returns from remove before stop requests/work cancellation:
+retained owners or pending reaper after bounded rounds need terminal producer
+fencing and callback retirement, not a larger retry limit or unconditional free.
+No full module/image/runtime claim and no router action.
+
+## 2026-11-01 Sol: OPEN barrier now precedes first retirement refusal
+
+Moved PCI RTNL barrier immediately after radio retirement, dropping transition
+lock before RTNL and reacquiring it afterward. Thus retirement-begin/drain-begin
+refusal no longer skips normal OPEN callback join. Strengthened persistent
+check-joined-rearm order assertions for both lock boundaries and first fallible
+retirement call. Full 74-stage replay, strict production/RSSI merge and joined
+rearm/entry/barrier regressions passed in /tmp/wr-early-barrier-chain-h8019exr.
+Latest position still needs exact merged MIPS compile. No hardware quiescence
+claim: early return still cannot veto core unbind or stop DMA/IRQ. No router action.
+
+## 2026-11-01 Sol: coherent local IRQ/OPEN verification checkpoint
+
+All current extracted host fixtures passed together on strict merged tree:
+joined rearm/PCI entry/RTNL barrier, tasklet rearm and partial disable, AGG_TEMP
+lock, checked-send. Python AST, YAML, entire affected CI bash step and diff
+checks passed. Current generator/test/workflow hashes pinned in LOCAL-IRQ-OPEN-
+CHECKPOINT JSON alongside exact scope and remaining gates. No full module or
+runtime claim. PCI remove still returns before terminal quiescence on recovery
+refusal; the first retirement-begin refusal even precedes the OPEN barrier.
+Next implementation must handle unavoidable removal across these failure paths,
+not simply promote host-test success to production acceptance.
+
+## 2026-11-01 Sol: persistent PCI RTNL barrier preflight added
+
+Extended existing check-joined-rearm.py (already wired into optional target CI)
+with source-order assertion retirement -> immediate RTNL acquire/release ->
+recovery drain. Rejects waits, joins, jumps and returns inside barrier. Existing
+extracted-C rearm and null-entry ASan/UBSan cases plus new order assertion pass
+on strict merged candidate. Negative mutation inserting return under RTNL fails
+as expected. This is structural preflight, not dynamic kernel deadlock proof.
+Remaining terminal failure paths and actual DMA/IRQ retirement remain open.
+
+## 2026-11-01 Sol: strict merged PCI OPEN barrier compiles
+
+Full 74-stage replay and strict production/RSSI merge succeeded in
+/tmp/wr-pci-barrier-chain-r6ny_raq. Exact merged PCI TU compiled for MIPS,
+confirming typed probe-unwind resolves prior isolated-source diagnostic.
+Independent source-order check passed retirement -> RTNL acquire/release ->
+recovery drain, with no work join/wait inside barrier. Source/object hashes:
+PCI-OPEN-RTNL-BARRIER JSON. This is a normal ndo_open callback join only;
+earlier refusal paths, direct callers, DMA/IRQ and full module/runtime remain
+open. No router operation or publication.
+
+## 2026-11-01 Sol: PCI normal OPEN callback barrier staged
+
+Final generator inserts RtmpOSNetDevProtect(1)/(0) after permanent radio
+retirement and before recovery drain. Exact source ordering assertion passed:
+retirement -> RTNL acquisition -> RTNL release -> recovery drain is the
+intended order; its assertion did not run because compile failed first. Actual
+isolated PCI MIPS TU failed in existing probe-unwind accesses through VOID
+*pAd (lines383-385), before validating this change. The strict merge normally
+applies typed PCI probe integration; rerun on strict merged source required. This joins already-running normal ndo_open including tail,
+without holding RTNL across recovery waits. It does not join arbitrary direct
+callers or stop DMA/IRQ, and earlier failure returns remain terminal blockers.
+Current edit needs full replay/strict merge and integration regression before
+acceptance. No router operation, full-module or runtime success claim.
+
+## 2026-11-01 Sol: pinned kernel RTNL callback barrier verified
+
+Fetched exact c25283e kernel net/core/dev.c and rtnetlink.c from upstream raw
+URLs. __dev_open asserts RTNL and synchronously calls ndo_open; unregister
+asserts the same mutex. Source hashes/lines recorded in PINNED-RTNL-OPEN-JOIN
+JSON. Therefore acquiring RTNL after admission retirement joins a normal
+ndo_open wrapper tail; it does not join arbitrary direct/ioctl callers or
+hardware/work producers. Driver currently acquires this barrier too late for
+early remove refusals. Next place barrier before hardware terminal action,
+without holding RTNL across blocking recovery joins; audit direct init callers.
+No router action or terminal safety claim.
+
+## 2026-11-01 Sol: IRQ fence regression sensitivity checked
+
+Mutated an isolated copy of merged rt2860_int_disable to remove blocked/
+poisoned refusal; persistent extracted-C regression correctly failed. This
+confirms the normal/blocked cases detect a real fence regression rather than
+only compiling the helper. Main recovery worker uses rtnl_trylock with refusal
+and returns before work join, confirming its documented nonblocking contract.
+Exact kernel net/core/dev.c is absent from retained TU/source scratch roots;
+do not claim kernel-level RTNL callback-join proof from driver comments alone.
+Next obtain pinned kernel source and verify unregister ordering before changing
+terminal join. No source guard relaxed in repository and no router action.
+
+## 2026-11-01 Sol: OPEN completion after retirement regression verified
+
+Extended existing radio-transition C fixture for admitted START followed by
+PCI retirement, stale completion, and exact failure/success completion. Both
+exact outcomes retire busy ticket while rejecting late OPEN acceptance and
+new START; stale ticket cannot release owner. ASan/UBSan with -Werror passed.
+MainVirtualIF_open source wakes ticket_wait after both claim failure and
+finish-unverified paths; this is source/model evidence, not thread join or
+hardware safety. A retired ticket precedes remaining wrapper tail accesses,
+so ticket completion alone cannot authorize adapter free. Next terminal join
+must account for full callback lifetime/RTNL and retained failure records.
+No new hardware wait or unsafe early-free path introduced.
+
+## 2026-11-01 Sol: top-level OPEN and late RTNL join located
+
+MainVirtualIF_open reserves radio ticket under transition lock before
+VIRTUAL_IF_UP_CLAIM, enclosing hardware initializer. PCI remove retires radio
+and joins recovery work before RtmpPhyNetDevExit; RTNL is taken only around
+final main unregister there. Thus eventual ndo_open serialization does not
+prove quiescence during earlier remove phases. Existing ticket is the owner
+to coordinate; do not add a redundant MCU-only owner or take RTNL around work
+joins. Next establish exact OPEN completion before hardware terminal fence and
+check failure paths where unregister is skipped. IRQ-INIT-CALLERS updated.
+No router changes or terminal acceptance claim.
+
+## 2026-11-01 Sol: initializer ownership boundary identified
+
+rt28xx_open obtains peer OPEN BEGIN before IRQ request; rt28xx_init checks
+exact CONFIG ticket before MCUSysInit. Dispatcher guards peer ownership with
+MacTabLock; PCI radio retirement uses transition lock. A CONFIG check alone
+does not join full initializer execution. Existing ownership must be traced
+through top-level virtual OPEN and RTNL before adding another owner or cross-
+locking these domains. IRQ-INIT-CALLERS evidence updated with concrete entry,
+check and lock boundary. No driver behavior or router change in this audit.
+
+## 2026-11-01 Sol: firmware-init versus legacy radio-on reachability narrowed
+
+Strict merged caller audit: MCUSysInit is called from RTMP initialization,
+invokes FwInit before NICLoadFirmware, and MT PCI MCU hook selects AndesMTPciFwInit.
+This is the concrete IRQ/DMA startup admission boundary to trace. Legacy
+RT28xxPciAsicRadioOn's only direct source call is in RTMP_MAC/RLT_MAC path;
+HIF_MT returns via MTPciMlmeRadioOn earlier and MT7603 chip hook is commented.
+Do not treat merely compiled legacy definition as active MT7603 path. Exact
+source hashes/call chain: IRQ-INIT-CALLERS JSON. Next trace initialized adapter
+ownership and init-versus-remove serialization; a bare retiring check cannot
+join an in-flight initializer. Runtime and terminal completion remain open.
+
+## 2026-11-01 Sol: target IRQ writer inventory captured
+
+Preprocessed strict merged AP, PCI and Andes units under captured MIPS flags.
+Recorded exact function/preprocessor hashes and mask-write presence for reset,
+legacy radio-on and firmware-init definitions in IRQ-ENABLE-TARGET-INVENTORY
+JSON. Definitions alone do not establish runtime reachability. Firmware init
+includes mask enable followed by DMA enable, so a mask-only fence cannot retire
+the entire operation. Next trace caller admission and permanent retirement at
+operation boundaries. No router action; terminal completion remains unproven.
+
+## 2026-11-01 Sol: both IRQ mask helpers pass full composition
+
+Full 74-stage replay completed in /tmp/wr-irq-both-chain-akci9oh0/chain;
+strict production/RSSI merge passed into its merged directory. Extracted-C
+ASan/UBSan fixture on merged source passed concurrent rearm/block exclusion,
+blocked enable/disable, poisoned enable/disable, and normal disable mask write,
+readback and interrupt-active clearing. This closes the last edit's composition
+gap. Existing isolated MIPS compile remains scoped to that source; full module
+and runtime still open. Other startup/reset IRQ writers need a distinct
+terminal admission contract rather than the temporary tasklet-block state.
+No router operation or CI dispatch.
+
+## 2026-11-01 Sol: partial IRQ disable cannot bypass tasklet block fence
+
+Source audit found rt2860_int_disable computes and writes the remaining mask,
+which can be nonzero. Final generator now guards that leaf with the same
+IRQ-save nettask owner lock and blocked/poisoned refusal as int_enable.
+Extended exact extracted-C fixture verifies blocked disable leaves both mask
+and software disable-mask unchanged; concurrent rearm fixture still passes
+ASan/UBSan. Actual isolated rbus MIPS TU compiled. This latest edit still needs
+full replay/strict merge. Macro IRQ enables in startup, firmware init and DMA
+reset remain separate unfenced writers; no terminal safety claim. Router unchanged.
+
+## 2026-11-01 Sol: strict-merged IRQ rearm MIPS units compiled
+
+Verified every merged-driver hash against the strict merge manifest, copied
+that exact merged source into the isolated target TU environment, and compiled
+os/linux/rt_rbus_pci_drv.c, os/linux/rt_profile.c and common/rtmp_init.c with
+captured/adapted WR1200JS MIPS flags. All three succeeded. Commands and source/
+object hashes: WR1200JS-IOT-IRQ-REARM-MERGED-MIPS-2026-11-01.json. This closes
+the prior isolated-versus-merged TU verification gap; no full module link,
+firmware image or runtime acceptance follows. Next audit other IRQ-enable
+writers and serialize terminal masking before callback retirement; firmware
+LOAD_FW_ONE_TIME completion and terminal PCI/DMA cleanup remain open.
+
+## 2026-11-01 Sol: strict IRQ-rearm production/RSSI merge passed
+
+Located exact retained pinned source under the full source root's
+trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3 subtree: all 515 files
+match driver-overlay.json. Earlier mismatch was wrong root selection; the
+other scratch base has two modified steering files. Used corresponding exact
+production-prepared driver subtree. Strict assembler passed without changing
+pins or conflict rules, output /tmp/wr-irq-rearm-production-merged. Tasklet
+rearm, AGG_TEMP lock and checked-send extracted ASan/UBSan fixtures passed on
+the merged tree. This supersedes the local merge-input obstacle, not the open
+firmware completion, full-module or terminal cleanup gates. Router unchanged.
+
+## 2026-11-01 Sol: strict merge input provenance refused
+
+Attempted strict production merge for the completed IRQ-rearm peer replay.
+Assembler refused both retained source roots against driver-overlay.json with
+Pinned base receipt mismatch. No guard relaxed and no merged output accepted.
+This is local retained-input provenance failure, not a target compiler or CI
+failure. Prior final-stage/74-stage replay and MIPS TU results remain scoped
+as recorded. Next reconstruct the exact pinned base from authenticated source
+inventory, then rerun strict merge before module-build acceptance.
+
+## 2026-11-01 Sol: tasklet IRQ rearm fenced against blocked scheduling
+
+Final-stage candidate now holds wr_iot_nettask_lock with IRQ-save across
+rt2860_int_enable admission and mask write/readback. Blocked or poisoned
+scheduling owners refuse rearm. Lock order remains caller LockInterrupt then
+nettask lock; leaf adds no wait or nested lock. Extracted-C pthread/MMIO
+ASan/UBSan fixture passed blocked/poisoned refusal and deterministic concurrent
+block/rearm exclusion. Actual MIPS rbus TU compiled. Full peer-chain replay
+completed and all receipt file hashes verified. New fixture wired into existing
+optional candidate build; YAML and affected whole-step bash syntax passed.
+Strict production merge and full module validation remain pending. Other IRQ
+enable macros, DMA writers and inaccessible-device terminal removal remain
+open; this does not establish terminal quiescence or firmware completion.
+No router operation or publication.
+
+## 2026-11-01 Sol: nettask hard-IRQ lock corrected in isolated candidate
+
+Final-stage generator now hash-pins rt_rbus_pci_drv.c and nettask schedule
+include and converts ALL ten scheduling-owner lock acquisitions across that
+TU, scheduling include and adapter-release include to RTMP_INT_LOCK/UNLOCK.
+Initialized flags passed to vendor IRQ-save helper. Hard IRQ schedules these
+tasklets, while the old RTMP_IRQ_LOCK resolves to BH-only in this target.
+Actual MIPS rt_rbus_pci_drv.c and rt_profile.c TUs compiled successfully using
+captured/adapted target flags; actual rbus preprocessor has 9 IRQ-save and 10
+IRQ-restore sites (one extra failure unlock), none BH-only for this lock.
+Evidence: WR1200JS-IOT-NETTASK-IRQ-LOCK-2026-11-01.json. Final-stage generation,
+AGG_TEMP and checked-send ASan/UBSan regressions passed. Full-chain composition
+and full module build remain unrun for this edit; production/runtime false.
+IRQ re-enable helper currently lacks a terminal check; do not move masking
+before tasklet join without serializing rearm. Next audit all re-enable paths
+and lock ordering, then add a dedicated terminal producer fence. Existing
+LOAD_FW_ONE_TIME and terminal DMA/callback blockers remain. No router action.
+
+## 2026-11-01 Sol: terminal stop primitives audited reproducibly
+
+Added tools/iot/audit-terminal-stop-primitives.py and source-hashed evidence
+WR1200JS-IOT-TERMINAL-STOP-PRIMITIVES-2026-11-01.json. Actual candidate source:
+MT7603 DisableTxRx hook is NULL, StopDmaRx/Tx reject HIF_MT, the void DMA
+disable wrapper drops the setter result, AsicSetWPDMA has no post-write
+readback, and the interrupt-disable macro neither reads back nor joins IRQ.
+These vendor helpers cannot establish a terminal receipt by relocation alone.
+All seven reviewed source shapes matched; changed-hook and missing-function
+negative checks passed. The audit always reports terminal quiescence unproven;
+it is unpreprocessed source evidence, not target/runtime validation. No driver
+behavior, firmware policy or router changed. Next trace producer/re-enable
+fencing and IRQ/tasklet/work/timer joins before designing terminal shutdown.
+
+## 2026-11-01 Sol: resumed wiring audit and reproducible final-stage check
+
+Resumed on branch codex/wr1200js-service-webui at HEAD
+9555bcd4a7e029ea87a5957a5e62109ebeb0aa6e with a clean worktree.
+Freshly ran the hash-pinned final-stage generator against the retained
+aux-family-close-retry predecessor; all 585 output files matched the prior
+final-stage chain. This is final-stage reproducibility, not a fresh full-chain
+or target build. Extracted AGG_TEMP lock and checked-send tests passed with
+ASan/UBSan on the fresh output. Corrected stale ACK-GAP report: the checked
+builder is already wired through the dedicated send wrapper. LOAD_FW_ONE_TIME
+still refuses checked-off before mutation; terminal remove still has early
+returns before PCI fencing and cannot veto core unbind. Next resolve supported
+firmware completion and distinct terminal hardware/callback retirement; do not
+relax guards or equate injected host tests with hardware evidence. No router
+operation, commit, push or CI dispatch in this resumed slice.
+
 ## 2026-11-01 Sol: actual IRQ macro correction verified
 
 MIPS preprocessing exposed RTMP_IRQ_LOCK -> spin_lock_bh in current target. Changed only new AGG_TEMP lock sites to existing RTMP_INT_LOCK/UNLOCK with initialized flags, preserving shared lock/lifetime. Full chain/strict merge and five MIPS TUs passed again; actual cmm_asic_mt preprocessing confirms all six sections irqsave/restore plus MMIO. Persistent test adds single field/allocation/free and pre-publication ordering. CmdQLock released before command dispatch; leaf contains no nested lock/wait. Broader adapter retirement and firmware ACK remain open. Prior local shared-lock checkpoint not yet published; no router operations.
@@ -10096,7 +10942,81 @@ ledger completion must come from real producers, then be checked atomically
 with final release. Do not treat PCI config-space clear as DMA proof or ship
 this isolated candidate; target compilation has not run.
 
-2026-10-29 overlay correction: older manifest marks four required include/*.inc
+## 2026-11-01 Sol: candidate stop fixture rejects wrong HIF
+
+The exact generated MT7603 checked radio-off host fixture now includes a
+non-`HIF_MT` case and asserts rejection occurs before queue, MAC or MCU state
+changes. `python3 tools/iot/check-mt7603-checked-off.py`, Python syntax checks,
+and `git diff --check` pass. This remains candidate-only fault-injection
+evidence. Reinspection of the pinned MT7603 source confirms
+`AsicSetMacTxRx()` writes four registers (`ARB_SCR`, `ARB_TQCR0`, `ARB_RQCR`,
+and PHY `0x426c`); the candidate verifies only `ARB_SCR`. Therefore those
+other control writes, actual PCI/DMA transaction retirement, IRQ joins and
+the physical-loss path remain unproven. Do not install this candidate or
+promote its radio-off result to adapter-release authorization.
+
+## 2026-11-01 Sol: pinned MT7603 MAC stop shape gate
+
+Added `tools/iot/check-mt7603-mac-stop-contract.py`, run in the optional IoT
+candidate workflow before v40 preparation and directly by the v40 generator.
+The pinned candidate source must retain the exact four initial reads and four
+writes in `AsicSetMacTxRx()`; unknown source changes fail closed for review.
+Pinned v39 passes, four negative source mutations fail as intended, the
+isolated v40 generator passes, and the checked-off host fixture, Python syntax
+and `git diff --check` pass. The gate explicitly records that there is no
+post-write receipt and makes no MMIO-completion or DMA-quiescence claim. No
+driver code was changed or installed; target/image/runtime verification stays
+open.
+
+Follow-up traces target `RTMP_IO_WRITE32` through `common/rtmp_init.c` to
+`_RTMP_IO_WRITE32` in `include/os/rt_linux.h`. For the target PCI macro branch,
+the accessor checks `bPCIclkOff`, converts endianness and invokes `writel()`;
+it has no readback/result return. Workflow and v40 generator now also inspect
+that matching header from the configured target tree, and negative accessor
+mutations reject the additional-read and non-`writel()` variants. This is an
+accessor-path fact, not per-device register semantics or posted-transaction
+completion evidence. The output deliberately continues to mark MAC-stop MMIO
+completion unproven.
+
+Read-only trace of target PCI APIs confirms `pci_channel_offline()` only tests
+`pdev->error_state`, while MT7621 `config_access()` returns
+`PCIBIOS_SUCCESSFUL` after PCR register operations without surfacing endpoint
+completion failure. A PCI config readback or
+`pci_wait_for_pending_transaction()` is therefore not a general
+inaccessible-device receipt here. Preserve separate paths for responsive-device
+checked shutdown and physical/unresponsive loss. No PCI config access, reset or
+unbind was attempted.
+
+## 2026-10-29 overlay correction: older manifest marks four required include/*.inc
 as fixtures. Initial scratch output omitted them; superseded by overlay2.
 Generator now excludes only seven root test fragments and applies all 64
 driver files, including those four required include fragments. Verified present.
+
+## 2026-11-01 Sol: checked MT7603 MAC control readbacks
+
+Extended the isolated checked-off candidate to verify `ARB_RQCR_RX_START` is
+clear after RX disable and still clear after TX/RX disable; it also verifies
+`ARB_TQCR0` is zero before PDMA is disabled. Extended the exact-C host fixture
+with dropped-write and invalid-readback cases for these registers. The fixture
+passes both the ordinary branch and the fail-closed `LOAD_FW_ONE_TIME` branch;
+the pinned MAC-stop source-shape gate passes; Python syntax and scoped
+`git diff --check` pass. This proves only that the candidate rejects the
+modeled fault cases. The MMIO accessor has no readback receipt, the register
+semantics are source-derived, and no MIPS target build/image/device test was
+run. In particular the default `LOAD_FW_ONE_TIME` path still refuses before
+mutation pending a compatible acknowledged radio-off command. PCI terminal
+quiescence and adapter lifetime remain blockers; no router action was done.
+
+## 2026-11-01 Sol: new MT7603 MAC readbacks compile for target MIPS
+
+Generated the exact checked-off candidate from the hash-validated v39 input,
+overlaid it on the pinned full MT7603 source, and compiled `cmm_asic_mt.c`
+against pinned Linux 4.4.198 with preserved WR1200JS-generated headers and
+captured target flags. The effective `LOAD_FW_ONE_TIME` TU compiles, but its
+radio-off function is an 8-byte unconditional-FALSE stub. Compile-only `-U
+LOAD_FW_ONE_TIME` emits the 0x448-byte checked implementation. Full module
+Kbuild/link, firmware compatibility, final image and runtime remain unverified;
+the override is not a policy recommendation. Evidence with source/object
+hashes, commands and disassembly:
+`docs/evidence/WR1200JS-IOT-MAC-READBACK-MIPS-2026-11-01.json`. Temporary
+candidate/tree removed. No router operation.

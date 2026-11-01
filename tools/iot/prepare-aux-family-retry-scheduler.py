@@ -17,6 +17,8 @@ if out.exists() or src==out or src in out.parents or out in src.parents:
  p.error('new separate output required')
 
 pins={
+ 'os/linux/rt_rbus_pci_drv.c':'5cc40f6025acb085449199d32ee24cb6c8cc06249b184e0ad91ffce31c7275e3',
+ 'include/wr-iot-nettask-schedule.inc':'ea7f19155520b33b76f3d9ef15562b5a2692382aacc5592375648b96835f9e70',
  'common/cmm_mac_pci.c':'f013d5b5c91924564050db44198c70dc87ca5814502ee74601eb211dd95e3622',
  'common/rtmp_init_inf.c':'b0fac876abddfc5d9a10d9f19bb7cd419ca47ea20fc30778954bc2e629d45c3e',
  'hw_ctrl/cmm_asic_mt.c':'63680cb3fc61df6c67a39aa2ac9581afc3740fd6fadee2e9321610ad597603e1',
@@ -46,6 +48,50 @@ def all_occurrences(name,old,new):
  count=texts[name].count(old)
  if not count:p.error('missing anchor '+name+': '+old[:60])
  texts[name]=texts[name].replace(old,new)
+
+# Tasklet submissions include hard-IRQ callers. RTMP_IRQ_LOCK is only
+# spin_lock_bh without MULTI_CORE_SUPPORT; every user of this shared lock
+# must instead use the vendor IRQ-save primitive, including process context.
+for name,locks,unlocks in [
+ ('os/linux/rt_rbus_pci_drv.c',3,3),
+ ('include/wr-iot-nettask-schedule.inc',6,7),
+ ('include/wr-iot-peer-adapter-release.inc',1,1)]:
+ for old,new,count in [('RTMP_IRQ_LOCK','RTMP_INT_LOCK',locks),
+                       ('RTMP_IRQ_UNLOCK','RTMP_INT_UNLOCK',unlocks)]:
+  anchor=old+'(&pAd->wr_iot_nettask_lock,'
+  if texts[name].count(anchor)!=count:p.error('nettask lock inventory changed: '+name)
+  texts[name]=texts[name].replace(anchor,new+'(&pAd->wr_iot_nettask_lock,')
+ # RTMP_INT_LOCK passes the flags address to a vendor helper.
+ if name!='os/linux/rt_rbus_pci_drv.c':
+  texts[name]=texts[name].replace('ULONG flags;', 'ULONG flags = 0;')
+ texts[name]=texts[name].replace('ULONG wr_flags;', 'ULONG wr_flags = 0;')
+
+# Tasklet completion must not restore an interrupt mask after submission has
+# been blocked for join. Callers already hold LockInterrupt; scheduling uses
+# that same outer->nettask order. Keep this leaf free of waits/nested locks.
+rbus='os/linux/rt_rbus_pci_drv.c'
+begin=texts[rbus].index('static inline void rt2860_int_enable(')
+end=texts[rbus].index('\n}',begin)+2
+original=texts[rbus][begin:end]
+guarded=original.replace('UINT32 regValue;', '''UINT32 regValue;
+ ULONG wr_rearm_flags = 0;
+ RTMP_INT_LOCK(&pAd->wr_iot_nettask_lock,wr_rearm_flags);
+ if(pAd->wr_iot_nettask_owner.blocked || pAd->wr_iot_nettask_owner.poisoned){
+  RTMP_INT_UNLOCK(&pAd->wr_iot_nettask_lock,wr_rearm_flags);
+  return;
+ }''',1)
+guarded=guarded[:-2]+'\n RTMP_INT_UNLOCK(&pAd->wr_iot_nettask_lock,wr_rearm_flags);\n}'
+if guarded==original:p.error('missing tasklet rearm guard anchor')
+one(rbus,original,guarded)
+
+# Disabling selected sources also writes the remaining nonzero mask. It must
+# obey the same block fence, otherwise it can restore IRQs after full masking.
+begin=texts[rbus].index('static inline void rt2860_int_disable(')
+end=texts[rbus].index('\n}',begin)+2
+original=texts[rbus][begin:end]
+guarded=original.replace('UINT32 regValue;', 'UINT32 regValue;\n ULONG wr_rearm_flags = 0;\n RTMP_INT_LOCK(&pAd->wr_iot_nettask_lock,wr_rearm_flags);\n if(pAd->wr_iot_nettask_owner.blocked || pAd->wr_iot_nettask_owner.poisoned){\n  RTMP_INT_UNLOCK(&pAd->wr_iot_nettask_lock,wr_rearm_flags);\n  return;\n }',1)
+guarded=guarded[:-2]+'\n RTMP_INT_UNLOCK(&pAd->wr_iot_nettask_lock,wr_rearm_flags);\n}'
+one(rbus,original,guarded)
 
 
 # Vendor module-release macro includes a trailing semicolon. Brace its
@@ -280,21 +326,42 @@ for name,expected in [('hw_ctrl/cmm_asic_mt.c',6),('common/cmm_mac_pci.c',1),
  if count!=expected:p.error('AGG_TEMP RMW inventory changed: '+name+': '+str(count))
 
 # Reuse existing checked message ownership/result handling, not generic callback.
-one('mcu/andes_mt.c','INT32 CmdRadioOnOffCtrl(RTMP_ADAPTER *pAd, UINT8 On)',
+sender=('#ifdef RTMP_PCI_SUPPORT\n'
     'INT32 wr_iot_send_radio_off_checked(RTMP_ADAPTER *pAd)\n'
     '{\n struct cmd_msg *msg;\n'
     ' if(!pAd)return NDIS_STATUS_FAILURE;\n'
     ' msg=wr_iot_prepare_radio_off(pAd);\n'
     ' if(!msg)return NDIS_STATUS_RESOURCES;\n'
-    ' return AndesSendCmdMsg(pAd,msg);\n}\n\n'
-    'INT32 CmdRadioOnOffCtrl(RTMP_ADAPTER *pAd, UINT8 On)')
-one('include/rtmp.h',
-    'VOID wr_iot_aux_family_retry_work_fn(struct work_struct *work);',
-    'INT32 wr_iot_send_radio_off_checked(RTMP_ADAPTER *pAd);\n'
-    'VOID wr_iot_aux_family_retry_work_fn(struct work_struct *work);')
+    ' return AndesSendCmdMsg(pAd,msg);\n}\n'
+    '#endif /* RTMP_PCI_SUPPORT */\n\n')
+mcu=texts['mcu/andes_mt.c'];count=mcu.count('INT32 wr_iot_send_radio_off_checked(')
+if count==0:
+ one('mcu/andes_mt.c','INT32 CmdRadioOnOffCtrl(RTMP_ADAPTER *pAd, UINT8 On)',
+     sender+'INT32 CmdRadioOnOffCtrl(RTMP_ADAPTER *pAd, UINT8 On)')
+elif count!=1 or sender not in mcu:
+ p.error('checked radio-off sender differs from reviewed implementation')
+header=texts['include/rtmp.h'];prototype='INT32 wr_iot_send_radio_off_checked(RTMP_ADAPTER *pAd);'
+if prototype not in header:
+ one('include/rtmp.h','VOID wr_iot_aux_family_retry_work_fn(struct work_struct *work);',
+     prototype+'\nVOID wr_iot_aux_family_retry_work_fn(struct work_struct *work);')
 one('hw_ctrl/cmm_asic_mt.c',
     'if (CmdRadioOnOffCtrl(pAd, WIFI_RADIO_OFF) != NDIS_STATUS_SUCCESS)',
     'if (wr_iot_send_radio_off_checked(pAd) != NDIS_STATUS_SUCCESS)')
+
+# Apply current MAC stop readbacks only after the historical pinned chain.
+one('hw_ctrl/cmm_asic_mt.c',' UINT32 arb;',' UINT32 arb, rqcr, tqcr0;')
+one('hw_ctrl/cmm_asic_mt.c',
+    '  if (arb == 0xffffffffU || !(arb & MT_ARB_SCR_RXDIS)) return FALSE;',
+    '  if (arb == 0xffffffffU || !(arb & MT_ARB_SCR_RXDIS)) return FALSE;\n'
+    '  RTMP_IO_READ32(pAd, ARB_RQCR, &rqcr);\n'
+    '  if (rqcr == 0xffffffffU || (rqcr & ARB_RQCR_RX_START)) return FALSE;')
+one('hw_ctrl/cmm_asic_mt.c',
+    '  if (!AsicSetWPDMA(pAd, PDMA_TX_RX, FALSE)) return FALSE;',
+    '  RTMP_IO_READ32(pAd, ARB_TQCR0, &tqcr0);\n'
+    '  if (tqcr0 == 0xffffffffU || tqcr0 != 0U) return FALSE;\n'
+    '  RTMP_IO_READ32(pAd, ARB_RQCR, &rqcr);\n'
+    '  if (rqcr == 0xffffffffU || (rqcr & ARB_RQCR_RX_START)) return FALSE;\n'
+    '  if (!AsicSetWPDMA(pAd, PDMA_TX_RX, FALSE)) return FALSE;')
 
 pci='os/linux/pci_main_dev.c'
 # PCI core may invoke cleanup after partial setup. Validate netdev before
@@ -321,6 +388,39 @@ one(pci,'\tif (pAd != NULL)\n\t{\n\t\tPRTMP_ADAPTER adapter = (PRTMP_ADAPTER)pAd
     '\t\t * the radio transition is permanently retired. */\n'
     '\t\t(void)wr_iot_aux_family_retry_rearm_joined(adapter);\n'
     '\t\tflush_work(&adapter->wr_iot_aux_family_retry_work);')
+
+# Join admitted normal OPEN before the first retirement-state refusal.
+# Drop the short transition lock before RTNL and release RTNL before workers.
+one(pci,
+    '\t\twr_iot_radio_retire(&adapter->wr_iot_transition);\n',
+    '\t\twr_iot_radio_retire(&adapter->wr_iot_transition);\n'
+    '\t\tRTMP_IRQ_UNLOCK(&adapter->wr_iot_transition_lock, flags);\n'
+    '\t\tRtmpOSNetDevProtect(1);\n'
+    '\t\tRtmpOSNetDevProtect(0);\n'
+    '\t\tRTMP_IRQ_LOCK(&adapter->wr_iot_transition_lock, flags);\n')
+
+# Closing queue admission is distinct from canceling one queued instance.
+one(pci,
+    'wr_iot_main_recovery_request_stop(&adapter->wr_iot_main_recovery);',
+    'wr_iot_main_recovery_request_stop(&adapter->wr_iot_main_recovery);\n'
+    '\t\t(void)wr_iot_aux_retry_request_stop(&adapter->wr_iot_aux_family_retry);')
+
+# A stalled logical close must not leave recovery callbacks queued across
+# driver-core unbind. Stop admission, join work, preserve unresolved owners.
+one(pci,
+    '\t\tif (!wr_iot_pci_recovery_drain(adapter))\n'
+    '\t\t\treturn; /* Still-owned recovery blocks this isolated candidate. */',
+    '\t\tif (!wr_iot_pci_recovery_drain(adapter)) {\n'
+    '\t\t\tRTMP_IRQ_LOCK(&adapter->wr_iot_transition_lock, flags);\n'
+    '\t\t\t(void)wr_iot_main_recovery_request_stop(&adapter->wr_iot_main_recovery);\n'
+    '\t\t\t(void)wr_iot_aux_retry_request_stop(&adapter->wr_iot_aux_family_retry);\n'
+    '\t\t\tRTMP_IRQ_UNLOCK(&adapter->wr_iot_transition_lock, flags);\n'
+    '\t\t\tcancel_delayed_work_sync(&adapter->wr_iot_main_recovery_reap_work);\n'
+    '\t\t\tcancel_work_sync(&adapter->wr_iot_main_recovery_work);\n'
+    '\t\t\tcancel_work_sync(&adapter->wr_iot_aux_family_retry_work);\n'
+    '\t\t\twr_iot_main_recovery_join_complete(adapter);\n'
+    '\t\t\treturn; /* Retained owners; terminal DMA/IRQ fence still required. */\n'
+    '\t\t}')
 
 shutil.copytree(src,out)
 for name,text in texts.items():
