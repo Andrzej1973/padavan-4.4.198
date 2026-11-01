@@ -1,0 +1,14 @@
+{
+  "date": "2026-11-01",
+  "scope": "fresh isolated peer checked shutdown source",
+  "observed_order": [
+    "RtmpNetTaskExit blocks network scheduling and kills rx1 tasklet",
+    "RTMPDisableRxTx / DISABLE_TX_RX and RTMP_ASIC_INTERRUPT_DISABLE",
+    "wr_iot_mt_radio_off_checked invokes synchronous checked MCU send on non-LOAD_FW_ONE_TIME path"
+  ],
+  "ack_path": "PCI ring1 -> RxRing1DoneInterruptHandle -> GetPacketFromRxRing -> parse_rx_packet_type -> AndesMTRxEventHandler -> ack_done",
+  "finding": "No traced live RX tasklet/IRQ delivery path remains for the later synchronous ACK. Removing LOAD_FW_ONE_TIME refusal alone cannot make this shutdown usable.",
+  "required_change": "Restructure checked MT shutdown stages so sender admission is closed except owned OFF command, MCU RX/IRQ remains live through ACK, then mask/synchronize IRQ and drain/kill callbacks before MCU/ring cleanup. Preserve partial-stage retry and failure quarantine.",
+  "limits": "Source ordering proof; no device test. Alternate polled ACK path not found in reviewed call chain.",
+  "production_installed": false
+}

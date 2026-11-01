@@ -1,3 +1,31 @@
+## 2026-11-01 Sol: checked OFF ACK delivery ordering blocker
+
+Checked shutdown kills RX tasklets and disables interrupts before synchronous
+checked radio-off, whose ACK is delivered through ring1 RX/tasklet. Merely
+removing LOAD_FW_ONE_TIME refusal would leave no traced ACK path. Need owned
+OFF command before RX/IRQ teardown, with sender exclusion and partial-stage
+retention. Evidence: WR1200JS-IOT-OFF-ACK-ORDER-2026-11-01.json.
+
+## 2026-11-01 Sol: sequence reproducer and completed scratch cleanup
+
+Added reproduce-mcu-sequence-reuse.py extracting actual allocator; reproduces
+sequence1 on allocation16 with empty ackq. This documents a limitation and is
+not an acceptance gate. RX producer evidence now distinguishes traced ring1
+join from unproven PCI completion reachability. Removed completed intermediate
+peer generation directories (about1.1GiB); retained final candidate, receipts,
+pinned/recovery/full-driver and audit source for unfinished merge validation.
+No generation processes remained. Firmware669 still in progress; no duplicate.
+
+## 2026-11-01 Sol: MCU producer boundary identified
+
+Network-cookie scheduling wrapper covers its tasklets, but AndesBhSchedule
+uses direct scheduling guarded only by MCU_INIT. PCI completion accesses msg
+and queues before that call. Need adapter-lifetime MCU admission/reservations
+covering submit/receive/completion, then drain before tasklet/queue destruction;
+wrapping only scheduling is insufficient. Exact scope and implementation
+requirements: docs/evidence/WR1200JS-IOT-MCU-PRODUCER-GAP-2026-11-01.json.
+ABI at ac9e7d4c passed; firmware669 remains live at firmware compilation.
+
 ## 2026-11-01 Sol: MCU sequence reuse acceptance gap
 
 Source inspection identifies possible stale same-command ACK after timeout and
