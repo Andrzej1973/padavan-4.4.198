@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Audit the staged APCLI/Monitor retry scheduler binding, without target claims."""
+import re
 import argparse
 import hashlib
 import json
@@ -34,7 +35,8 @@ pci=text('os/linux/pci_main_dev.c')
 release=text('include/wr-iot-peer-adapter-release.inc')
 retry=text('include/wr-iot-aux-family-close-owned.inc')
 
-assert apcli.count('#include <linux/rtnetlink.h>')==1
+active_apcli=re.sub(r'/\*.*?\*/|//[^\n]*', '', apcli, flags=re.S)
+assert active_apcli.count('#include <linux/rtnetlink.h>')==1
 assert apcli.index('#include <linux/rtnetlink.h>') < apcli.index('VOID wr_iot_aux_family_retry_work_fn(')
 
 submit=body(apcli,'INT wr_iot_aux_family_retry_submit(')

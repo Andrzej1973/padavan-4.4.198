@@ -41,8 +41,8 @@ def all_occurrences(name,old,new):
  texts[name]=texts[name].replace(old,new)
 
 # This translation unit defines the retry worker and calls the kernel RTNL API.
-one('ap/ap_apcli_inf.c','#include "rt_config.h"',
-    '#include "rt_config.h"\n#include <linux/rtnetlink.h>')
+one('ap/ap_apcli_inf.c','#include "rt_os_net.h"',
+    '#include "rt_os_net.h"\n#include <linux/rtnetlink.h>')
 
 one('include/rtmp.h','#include "aux-family-close.h"',
     '#include "aux-family-close.h"\n#include "aux-family-retry-scheduler.h"')

@@ -1617,6 +1617,7 @@ jobs:
             python3 tools/iot/prepare-peer-retirement-chain.py "$candidate/full-driver" "$candidate/peer"
             python3 tools/iot/assemble-peer-prepared-candidate.py "$pristine" "$driver" \
               "$candidate/peer/peer-chain.json" "$candidate/full-driver-overlay.json" "$merged"
+            python3 tools/iot/check-retry-rtnl-header.py "$merged"
             gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
               -I"$merged/include" tools/iot/check-peer-rssi-delete.c -o "$results/check-peer-rssi-delete"
             "$results/check-peer-rssi-delete" | tee "$results/peer-rssi-delete.txt"
