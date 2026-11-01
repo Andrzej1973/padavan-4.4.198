@@ -1,3 +1,26 @@
+## 2026-11-01 Sol: merged MCU sender/message layer target compile verified
+
+Optional peer82 run41330209946 completed success at 1a274b76, including
+full isolated candidate compilation. Downloaded module SHA256/ELF32 MIPS
+independently verified; manifest contains sender layer and module contains
+AndesAllocCmdMsg/AndesSendCmdMsg, close_drain and release_begin symbols.
+Evidence: docs/evidence/WR1200JS-IOT-MCU-SENDER-TARGET-2026-11-01.json.
+Observed KTHREAD on; OS_ABL/PM/timer-task/WSC off. No production/runtime
+acceptance: owned OFF/shutdown sequencing, ACK epoch and final external
+caller/IRQ/DMA quiescence remain required. Next bind serial-owned OFF sender
+without reopening ordinary admission and restructure AP/checked-close stages.
+
+## 2026-11-01 Sol: firmware673/ABI green; sender target run dispatched
+
+Firmware673 run41328299821 and ABI41328299801 completed success at
+1a274b76578aa7a365eb4645df9184a778484b4f. No active latest branch run remained;
+dispatched optional peer82 run41330209946 to exercise full merged sender layer.
+No duplicate/local heavy build. Removed five superseded MCU source trees and
+receipts (69075635 bytes); no generator/check process was using them. Retained
+/tmp/wr-peer82-triage/mcu-sender-final and source inputs for unfinished work.
+Next inspect target run; then continue owned OFF/shutdown ordering and external
+caller/IRQ/DMA quiescence, without claiming green compile as runtime acceptance.
+
 ## 2026-11-01 Sol: sender/message layer added to optional target pipeline
 
 Generator now validates full merged inventory and exact reviewed AP-layer input
