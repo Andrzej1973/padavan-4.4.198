@@ -1,3 +1,7 @@
+## 2026-11-01 Sol: CI distinguishes compiled module from radio-off capability
+
+Added check-radio-off-module.py: verifies MIPS/little-endian ELF, extracts exact checked-off symbol and flags known8-byte jr-ra/move-v0-zero refusal stub as shutdown_capability=unavailable. Other code is unverified, never automatically supported. Report preserves production/runtime=false and disassembly/module hash. Executed against actual662 module: unavailable as expected. Wired report after module preservation in optional target CI; YAML/full-step shell syntax passed. Does not turn compile success into functional acceptance or relax LOAD_FW_ONE_TIME guard. Local new reporting batch;664 still active, ABI passed. Router unchanged.
+
 ## 2026-11-01 Sol: firmware-load policy affects restart and EEPROM, not just OFF
 
 Whole driver scan: os/linux/config.mk316 defaults HAS_LOAD_FW_ONE_TIME=y. Andes firmware load skips restart/download when already running and sets FWLoad; EEPROM skips CmdEfusBufferModeSet on reused firmware. Main/PciMlme on paths clear AGG_TEMP upper16. Therefore globally toggling policy is not a safe radio-off-only fix. Additional isolated andes_mt.c MIPS compile with correctly final -ULOAD_FW_ONE_TIME passed (hardware branch previously passed); this is compile-only alternate path, no profile/config or device change. Need repeatable down/up firmware/EEPROM/runtime evidence before selecting policy. Current guard remains. Saving checked-send/diagnostic local checkpoint while664 active.

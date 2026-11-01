@@ -1827,6 +1827,7 @@ jobs:
             done
           fi
           cp "$module" "$results/"
+          python3 tools/iot/check-radio-off-module.py "$module" "$results/radio-off-capability.json" --cross "$cross"
           cp "$kernel/.config" "$results/kernel.config"
           sha256sum -c "$results/config-before.sha256"
           python3 - "$results" "${{ inputs.iot_candidate_variant }}" "${{ github.sha }}" <<'PY'
