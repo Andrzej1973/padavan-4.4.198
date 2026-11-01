@@ -2,12 +2,14 @@
   "date": "2026-11-01",
   "scope": "isolated normal sender source binding on exact peer source",
   "assets_sha256": {
-    "tools/iot/prepare-mcu-sender-binding.py": "5f35b9c8035a553a57d2ec8dce159c24ed25188c30de406179a0f3bbdce71c4d",
-    "tools/iot/check-mcu-sender-binding.py": "4cbca4cceeeb88d90f86f2728c61eaab864c539316f51762b07ed0f11bd67401",
+    "tools/iot/prepare-mcu-sender-binding.py": "4b04aeb16fe7c0080790cf6f4bbf82c9d10c816472a9a67ab4422063876b31d9",
+    "tools/iot/check-mcu-sender-binding.py": "093138d0d0c81c9ce2aae4a397206438d75de41eba7621366a40c108008b9172",
     "tools/iot/mcu-sender-drain.inc": "3310ab218c069b8c582ef3c550824cf651e282e4ec3a09c47d05c608f93c0039",
     "tools/iot/check-mcu-sender-drain.c": "880cfd39eb8246971251a26a0b7f8676f9acb7126282ab7033575466ff3d6121",
     "tools/iot/mcu-message-lifetime.inc": "21175ec4d3e3e65bc3da55ed8c45fb90665ceebecd6ea8940866cb827e5dc758",
-    "tools/iot/check-mcu-message-lifetime.c": "a2c425b7920cdf138ef1d72062c40371d0fbc3490a3d5fb523881de7b124f4aa"
+    "tools/iot/check-mcu-message-lifetime.c": "a2c425b7920cdf138ef1d72062c40371d0fbc3490a3d5fb523881de7b124f4aa",
+    "tools/iot/mcu-sender-release.inc": "da67198c3f8aeb0f170b04274832b5ee339b85932f22ab52ff61448294c8a104",
+    "tools/iot/check-mcu-sender-release.c": "4a66e4c29df9794357a70cd30260ac1a095c8c062acb9a22ca7452dcde423c60"
   },
   "checks": [
     "Actual transport body preserved exactly after rename/include reversal",
@@ -20,10 +22,13 @@
     "Forced-ready mutation rejected by runtime assertion",
     "Allocator reservation before raw allocator; failure drops reservation",
     "Both vendor destructors drop lease after final MCU counter access; source body reversal verified",
-    "Exact lifetime helper host ASan/UBSan: allocation failure, RX after TX close, final unlock adapter free and post-release refusal"
+    "Exact lifetime helper host ASan/UBSan: allocation failure, RX after TX close, final unlock adapter free and post-release refusal",
+    "Release helper host ASan/UBSan: live invocation/message refusal, retry after completion, idempotent existing claim, uncertain OFF refusal",
+    "Source guards precede RtmpRaDevCtrlExit ring free and RTMPFreeAdapter side effects/lock free",
+    "PCI probe, SDIO and controller exit direct adapter-free calls all reach guarded RTMPFreeAdapter"
   ],
   "limits": [
-    "Close/drain helper present but not called by shutdown; release gate and normal lock destruction unbound",
+    "Shutdown close/owned OFF unbound; software release guard present, external caller retirement and hardware quiescence unproved",
     "OS_ABL dynamic lock allocation failure not proven",
     "No target compilation or production installation",
     "External caller retirement and asynchronous queue/DMA completion remain required",

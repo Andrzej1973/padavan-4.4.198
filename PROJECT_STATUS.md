@@ -1,3 +1,14 @@
+## 2026-11-01 Sol: sender software release gates source-bound
+
+Generator adds release helper before RtmpRaDevCtrlExit destructive effects and
+before RTMPFreeAdapter side effects. Active invocations/messages refuse; terminal
+admission stays closed; retry after completion can claim release. Already claimed
+state is accepted on repeated internal gate traversal. Sender lock destroyed only
+after successful gate. Source checker confirms ordering and all direct free calls
+route through guarded function; helper ASan/UBSan fixture passes refusal/retry.
+External caller retirement, DMA/IRQ/async consumer proof, owned OFF/shutdown and
+MIPS compilation remain open. Do not equate these software gates with acceptance.
+
 ## 2026-11-01 Sol: MCU message lifetime source binding host verified
 
 Generator wraps actual allocator before chipCap/MCU reads, retains reservation

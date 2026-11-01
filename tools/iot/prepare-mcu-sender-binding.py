@@ -6,6 +6,7 @@ p=argparse.ArgumentParser(description=__doc__);p.add_argument('source',type=Path
 a=p.parse_args();src=a.source.resolve(strict=True);out=a.output.resolve()
 if out.exists() or src==out or src in out.parents or out in src.parents:p.error('new separate output required')
 pins={'include/rtmp.h': 'bde083b8a2eaa481564e3b480b91d1c438e2901356065f37e3963c5fec9e32d3', 'common/rtmp_init.c': 'ca7e4f406d568bb04ede9245c5ba8f50d130f3e79918a7732811b991d6e638e3', 'mcu/andes_core.c': 'dace085882a8097080b479a37b459dc799724831eece5da16efa41f21370f9a3'}
+pins['os/linux/rt_profile.c']='f7947cff4fc76f9e14e0dd47d08d653d7189f1766fdc3be0ff1547f82b89a521'
 texts={}
 for n,h in pins.items():
  raw=(src/n).read_bytes()
@@ -41,11 +42,19 @@ for sig in ['VOID AndesFreeCmdMsg(struct cmd_msg *msg)','VOID AndesForceFreeCmdM
 n='mcu/andes_core.c';sig='INT32 AndesSendCmdMsg(PRTMP_ADAPTER ad, struct cmd_msg *msg)'
 one(n,sig,'static INT32 wr_iot_mcu_send_body(PRTMP_ADAPTER ad, struct cmd_msg *msg)')
 start=texts[n].index('static INT32 wr_iot_mcu_send_body(');end=texts[n].index('\n}',start)+2
-texts[n]=texts[n][:end]+'\n#include "wr-iot-mcu-sender-wrapper.inc"\n#include "wr-iot-mcu-sender-drain.inc"\n'+texts[n][end:]
+texts[n]=texts[n][:end]+'\n#include "wr-iot-mcu-sender-wrapper.inc"\n#include "wr-iot-mcu-sender-drain.inc"\n#include "wr-iot-mcu-sender-release.inc"\n'+texts[n][end:]
+one('include/rtmp.h','INT wr_iot_command_task_exit_checked(RTMP_ADAPTER *pAd);',
+ 'INT wr_iot_command_task_exit_checked(RTMP_ADAPTER *pAd);\nINT wr_iot_mcu_sender_release_begin(RTMP_ADAPTER *ad);')
+one('common/rtmp_init.c','\tif (!wr_iot_adapter_release_begin(pAd)) return FALSE;',
+ '\tif (wr_iot_mcu_sender_release_begin(pAd)!=NDIS_STATUS_SUCCESS) return FALSE;\n\tif (!wr_iot_adapter_release_begin(pAd)) return FALSE;')
+one('os/linux/rt_profile.c','\tos_cookie=(POS_COOKIE)pAd->OS_Cookie;',
+ '\tif (wr_iot_mcu_sender_release_begin(pAd)!=NDIS_STATUS_SUCCESS) return FALSE;\n\tos_cookie=(POS_COOKIE)pAd->OS_Cookie;')
+one('os/linux/rt_profile.c','\tNdisFreeSpinLock(&pAd->MgmtRingLock);',
+ '\tNdisFreeSpinLock(&pAd->wr_iot_mcu_sender_lock);\n\tNdisFreeSpinLock(&pAd->MgmtRingLock);')
 shutil.copytree(src,out)
 for n,t in texts.items():(out/n).write_text(t)
-for local,target in [('mcu-sender-owner.h','mcu-sender-owner.h'),('mcu-sender-wrapper.inc','wr-iot-mcu-sender-wrapper.inc'),('mcu-sender-drain.inc','wr-iot-mcu-sender-drain.inc'),('mcu-message-lifetime.inc','wr-iot-mcu-message-lifetime.inc')]:
+for local,target in [('mcu-sender-owner.h','mcu-sender-owner.h'),('mcu-sender-wrapper.inc','wr-iot-mcu-sender-wrapper.inc'),('mcu-sender-drain.inc','wr-iot-mcu-sender-drain.inc'),('mcu-message-lifetime.inc','wr-iot-mcu-message-lifetime.inc'),('mcu-sender-release.inc','wr-iot-mcu-sender-release.inc')]:
  shutil.copyfile(Path(__file__).with_name(local),out/'include'/target)
-r={'scope':'normal sender source binding only; no close/drain/release or lock destruction binding; DO NOT INSTALL','input_sha256':pins,'output_sha256':{n:hashlib.sha256((out/n).read_bytes()).hexdigest() for n in pins},'production_installed':False,'target_compiled':False,'runtime_verified':False}
+r={'scope':'isolated sender/message source binding and software release gates; shutdown/owned OFF and external lifetime unproved; DO NOT INSTALL','input_sha256':pins,'output_sha256':{n:hashlib.sha256((out/n).read_bytes()).hexdigest() for n in pins},'production_installed':False,'target_compiled':False,'runtime_verified':False}
 out.with_name(out.name+'.sender-binding.json').write_text(json.dumps(r,indent=2)+'\n')
-print('Staged sender binding; close and every adapter release path remain mandatory before use')
+print('Staged sender/message binding and software release gates; external retirement, IRQ/DMA and shutdown remain unproved')
