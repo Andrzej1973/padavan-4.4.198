@@ -53,7 +53,54 @@ static void stop_boundaries(void){
  }
 }
 
+static void rejected_submission_budget(void){
+ int device=0;
+ struct wr_iot_interface_ref record;
+ struct wr_iot_family_close state;
+ struct wr_iot_aux_retry_owner owner;
+ wr_iot_ref_init(&record,&device,5);wr_iot_family_close_init(&state);
+ ready(&record,&state,WR_REF_FAMILY_APCLI);wr_iot_aux_retry_init(&owner);
+ assert(wr_iot_aux_retry_queue(&owner,&record,&state,1,1,1));
+ assert(wr_iot_aux_retry_schedule_result(&owner,0));
+ assert(owner.attempts==0&&owner.failed_submissions==1);
+ assert(wr_iot_aux_retry_rearm_retained(&owner,&record,&state,1,2));
+ assert(wr_iot_aux_retry_schedule_result(&owner,0));
+ assert(owner.attempts==0&&owner.failed_submissions==2);
+ assert(!wr_iot_aux_retry_rearm_retained(&owner,&record,&state,1,2));
+ assert(owner.netdev_held&&owner.module_pin_held&&owner.deferred_owners==1);
+ assert(!wr_iot_aux_retry_release_ready(&owner,1));
+}
+
+static void retained_rearm(void){
+ int device=0;
+ struct wr_iot_interface_ref record;
+ struct wr_iot_family_close state;
+ struct wr_iot_aux_retry_owner owner;
+ wr_iot_ref_init(&record,&device,5);wr_iot_family_close_init(&state);
+ ready(&record,&state,WR_REF_FAMILY_MONITOR);wr_iot_aux_retry_init(&owner);
+ assert(wr_iot_aux_retry_queue(&owner,&record,&state,1,1,1));
+ assert(wr_iot_aux_retry_begin(&owner,&record,&state));
+ assert(wr_iot_aux_retry_action(&owner,&record,&state));
+ assert(wr_iot_aux_retry_retain(&owner));
+ assert(!wr_iot_aux_retry_rearm_retained(&owner,&record,&state,0,2));
+ assert(!wr_iot_aux_retry_rearm_retained(&owner,&record,&state,1,1));
+ record.generation++;
+ assert(!wr_iot_aux_retry_rearm_retained(&owner,&record,&state,1,2));
+ record.generation--;
+ assert(wr_iot_aux_retry_rearm_retained(&owner,&record,&state,1,2));
+ assert(owner.deferred_owners==1&&owner.netdev_held&&owner.module_pin_held);
+ assert(wr_iot_aux_retry_begin(&owner,&record,&state));
+ assert(wr_iot_aux_retry_action(&owner,&record,&state));
+ assert(wr_iot_aux_retry_retain(&owner));
+ assert(!wr_iot_aux_retry_rearm_retained(&owner,&record,&state,1,2));
+ assert(wr_iot_aux_retry_request_stop(&owner));
+ assert(!wr_iot_aux_retry_rearm_retained(&owner,&record,&state,1,3));
+ assert(!wr_iot_aux_retry_release_ready(&owner,1));
+}
+
 int main(void){
+ retained_rearm();
+ rejected_submission_budget();
  stop_boundaries();
  int device=0;
  struct wr_iot_interface_ref record;

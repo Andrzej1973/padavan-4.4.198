@@ -138,6 +138,26 @@ static inline int wr_iot_aux_retry_abandon(
  return 1;
 }
 
+/* Explicit bounded continuation after an external worker join. Caller holds
+ * the transition lock, pins existing ownership, and proves the same unmutated
+ * DOWN ticket. This helper neither schedules work nor releases resources. */
+static inline int wr_iot_aux_retry_rearm_retained(
+ struct wr_iot_aux_retry_owner *owner,
+ const struct wr_iot_interface_ref *record,
+ const struct wr_iot_family_close *state,
+ int work_joined,unsigned int maximum_attempts){
+ if(!owner||!work_joined||!maximum_attempts||
+    owner->phase!=WR_AUX_RETRY_RETAINED||owner->stop_requested||
+    owner->completed||owner->deferred_owners!=1||
+    !owner->netdev_held||!owner->module_pin_held||
+    !owner->adapter_release_fenced||owner->attempts>=maximum_attempts||
+    owner->failed_submissions>=maximum_attempts||
+    !wr_iot_aux_retry_matches(owner,record,state))return 0;
+ owner->action_claimed=0;
+ owner->phase=WR_AUX_RETRY_QUEUED;
+ return 1;
+}
+
 static inline int wr_iot_aux_retry_request_stop(
  struct wr_iot_aux_retry_owner *owner){
  if(!owner||owner->phase==WR_AUX_RETRY_IDLE)return 0;

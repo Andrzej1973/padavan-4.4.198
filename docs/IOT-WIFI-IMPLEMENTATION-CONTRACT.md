@@ -1,5 +1,36 @@
 # WR1200JS separate IoT Wi-Fi implementation contract
 
+## Current acceptance boundary — 2026-11-01
+
+The isolated peer82 candidate at `69a70ba8f1a96a70b3fe0c13fdd7908365be07b9`
+passed complete target `vmlinux modules` compilation in build660/run41263036826.
+The downloaded MIPS module, checksum, required symbols and unchanged kernel
+configuration were independently checked. See
+`evidence/WR1200JS-BUILD660-IOT-TARGET-2026-11-01.json`.
+This supersedes older statements below that MIPS compilation is wholly open,
+only for that exact candidate and observed feature set: KTHREAD enabled;
+OS_ABL, PM, timer-task and WSC disabled. Other configurations remain unaccepted.
+The later optional-repeater declaration guard is separately recorded and has
+local whole-TU evidence, not an equivalent full-module result yet.
+
+Native WSL disposable-network tests passed21 firewall packet checks and13
+pinned dnsmasq DHCP/DNS checks. Evidence:
+`evidence/WR1200JS-IOT-WSL-PACKET-ISOLATION-2026-11-01.json` and
+`evidence/WR1200JS-IOT-WSL-DHCP-DNS-2026-11-01.json`.
+They validate planners and native fixtures, not installed RC/driver integration.
+
+IoT is still **not accepted for production**. The compiled candidate is not
+installed in the ordinary firmware image. Remaining gates include callback,
+timer/tasklet/IRQ/DMA quiescence and checked child/root/PCI release; recovery
+of retained failed/canceled owners; bounded RC shutdown/cancellation binding;
+production third-BSS/backend/Classic controls and exact-image checks; and
+separately authorized device acceptance. Successful module compilation must
+not turn `production_installed` or `runtime_verified` true. Keep fail-closed
+ownership and quarantine until each relevant teardown/recovery proof exists.
+
+Historical findings below describe the evidence available on their dates;
+use current code, status/handoff and exact-revision evidence for execution.
+
 ## Auxiliary retry scheduler — 2026-10-31
 
 The isolated APCLI/Monitor close path now has a host-tested scheduler binding:

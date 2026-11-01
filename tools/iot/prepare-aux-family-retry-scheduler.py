@@ -68,7 +68,8 @@ one('include/rtmp.h','VOID wr_iot_main_recovery_work_fn(struct work_struct *work
     'VOID wr_iot_main_recovery_work_fn(struct work_struct *work);\n'
     'VOID wr_iot_aux_family_retry_work_fn(struct work_struct *work);\n'
     'INT wr_iot_aux_family_retry_submit(RTMP_ADAPTER *ad,PNET_DEV dev,'
-    'enum wr_iot_ref_family family);')
+    'enum wr_iot_ref_family family);\n'
+    'INT wr_iot_aux_family_retry_rearm_joined(RTMP_ADAPTER *ad);')
 
 one('include/wr-iot-aux-family-close-owned.inc',
     'static inline INT wr_iot_aux_family_close_retry_owned(RTMP_ADAPTER *ad,PNET_DEV dev,\n enum wr_iot_ref_family family)',
@@ -171,6 +172,35 @@ VOID wr_iot_aux_family_retry_work_fn(struct work_struct *work)
 }
 
 '''
+retry_impl+=r'''
+/* Process context only: caller holds neither RTNL nor transition lock and
+ * pins adapter lifetime. Do not call from this work item or ndo_stop. This
+ * entry performs one bounded continuation, not an unbounded retry loop. */
+INT wr_iot_aux_family_retry_rearm_joined(RTMP_ADAPTER *ad)
+{
+ struct wr_iot_interface_ref *record;
+ struct wr_iot_aux_retry_owner *owner;
+ ULONG flags;
+ int accepted=0;
+ if(!ad)return -EBUSY;
+ flush_work(&ad->wr_iot_aux_family_retry_work);
+ RTMP_IRQ_LOCK(&ad->wr_iot_transition_lock,flags);
+ owner=&ad->wr_iot_aux_family_retry;
+ record=wr_iot_registry_find(ad->wr_iot_interface_refs,WDEV_NUM_MAX+1,
+  owner->device,owner->generation);
+ if(!ad->wr_iot_transition.retiring &&
+    !work_busy(&ad->wr_iot_aux_family_retry_work) && record &&
+    wr_iot_aux_retry_rearm_retained(owner,record,
+     &ad->wr_iot_family_close[record-ad->wr_iot_interface_refs],1,3)){
+  accepted=schedule_work(&ad->wr_iot_aux_family_retry_work);
+  (void)wr_iot_aux_retry_schedule_result(owner,accepted);
+ }
+ RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);
+ return accepted?0:-EBUSY;
+}
+
+'''
+
 # Shared retry work must exist even when the APCLI object is not selected.
 # Reuse the exact already-transformed inline retry body; no ownership changes.
 retry_body=texts['include/wr-iot-aux-family-close-owned.inc']
@@ -231,6 +261,7 @@ one(pci,'\tif (pAd != NULL)\n\t{\n\t\tPRTMP_ADAPTER adapter = (PRTMP_ADAPTER)pAd
     '\tif (pAd != NULL)\n\t{\n\t\tPRTMP_ADAPTER adapter = (PRTMP_ADAPTER)pAd;\n\t\tULONG flags;\n'
     '\t\t/* Let an already-owned exact-ticket continuation finish before\n'
     '\t\t * the radio transition is permanently retired. */\n'
+    '\t\t(void)wr_iot_aux_family_retry_rearm_joined(adapter);\n'
     '\t\tflush_work(&adapter->wr_iot_aux_family_retry_work);')
 
 shutil.copytree(src,out)

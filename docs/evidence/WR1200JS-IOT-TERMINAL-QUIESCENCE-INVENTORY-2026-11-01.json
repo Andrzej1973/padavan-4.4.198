@@ -1,0 +1,51 @@
+{
+  "scope": "candidate terminal-detach source-order inventory, not executed hardware behavior",
+  "candidate_root": "/tmp/wr-iot-retained-merged",
+  "source_sha256": {
+    "common/rtmp_init_inf.c": "b0fac876abddfc5d9a10d9f19bb7cd419ca47ea20fc30778954bc2e629d45c3e",
+    "os/linux/rt_linux.c": "0a85539938acd21d242ec2f1941fbac0f61f419ff91855ef5798118bee64cbee",
+    "os/linux/pci_main_dev.c": "692babcb7100cef6a7ae68871c4368995f728ab2fa180331ca70880a6aa8237f",
+    "include/iface/rtmp_inf_pcirbs.h": "4b499d401b71f420db2ef2727df39449b81bf3fe0b1c505181f56977353f5850",
+    "common/cmm_cfg.c": "5e8eb930132dec8f82f35a56880f8e3a76f0f417d06d4793c595cf5518de8158"
+  },
+  "barriers": [
+    {
+      "file": "common/rtmp_init_inf.c",
+      "line": 1176,
+      "operation": "APShutdown failure returns before terminal IRQ/DMA stop"
+    },
+    {
+      "file": "common/rtmp_init_inf.c",
+      "line": 1200,
+      "operation": "RtmpNetTaskExit failure returns before terminal IRQ/DMA stop"
+    },
+    {
+      "file": "common/rtmp_init_inf.c",
+      "line": 1239,
+      "operation": "RTMPDisableRxTx occurs after prior refusal branches"
+    },
+    {
+      "file": "common/rtmp_init_inf.c",
+      "line": 1244,
+      "operation": "interrupt disable after tasklet/peer teardown"
+    },
+    {
+      "file": "common/rtmp_init_inf.c",
+      "line": 1293,
+      "operation": "IRQ release late in successful shutdown"
+    },
+    {
+      "file": "os/linux/rt_linux.c",
+      "line": 2136,
+      "operation": "synchronize_irq then free_irq and MSI disable"
+    },
+    {
+      "file": "os/linux/pci_main_dev.c",
+      "line": 570,
+      "operation": "PCI bus-master disable/observe only after checked radio DOWN"
+    }
+  ],
+  "conclusion": "Rejectable interface shutdown cannot be reused as terminal bus-remove proof when its early refusal precedes hardware/IRQ quiescence. Need distinct terminal fence and verified safe cleanup ordering.",
+  "runtime_verified": false,
+  "production_safe": false
+}

@@ -1,3 +1,47 @@
+## 2026-11-01 Sol: coherent PCI rearm candidate composition passed
+
+Full chain/strict production merge into /tmp/wr-iot-pci-rearm-merged passed. Scheduler/header/removal-order, vendor macro and extracted joined-rearm execution tests passed. Copied exact merged common/PCI sources and headers into isolated target TU environment: both actual MIPS object compilations passed with captured flags. No complete current-module link/runtime claim; terminal PCI refusal/core-cleanup blocker remains explicit. Existing target662/run41274058519 remains live on4df93b1 (does not include these local recovery changes). Preparing local checkpoint only, no interrupting push.
+
+## 2026-11-01 Sol: terminal hardware/IRQ quiescence gaps localized
+
+Actual candidate source inventory confirms checked APShutdown refusal1176 and tasklet-exit refusal1200 in common/rtmp_init_inf.c occur before RX/TX disable1239, interrupt disable1244 and IRQ release1293. RtmpOSIRQRelease uses synchronize_irq/free_irq/MSI disable in rt_linux.c2136..2139. PCI bus-master fence is later and requires already verified radio DOWN, so early refusal bypasses it. Recorded exact candidate file hashes/line references in TERMINAL-QUIESCENCE-INVENTORY evidence. Do not transplant forced PCI disable/free before callback/DMA proof. Next implementation must distinguish rejectable radio close from unavoidable bus remove and preserve safe ordering on every failure. No driver cleanup mutation or router experiment performed.
+
+## 2026-11-01 Sol: PCI core cleanup boundary confirmed; guard target run launched
+
+Pinned PCI remove/core source confirms VOID callback cannot veto subsequent unbind: pci-driver.c429..455 clears PCI binding/IRQ routing/ref; dd.c683..689 runs devres release and clears driver/data. Physical resource destruction is a separate later path. Evidence WR1200JS-IOT-PCI-REMOVE-BOUNDARY-2026-11-01.md defines required terminal bus-removal quiescence, distinct from rejectable radio close. No forced free/unbounded wait/core patch applied; source risk, not device crash evidence.
+
+Firmware661/run41273479070 and ABI41273479007 completed success on4df93b13d368f062482b075ea55d3c9bd305b7f7. With no active duplicate, launched optional peer82 target run41274058519 on published branch to verify declaration guard/full module. Current retained-rearm/PCI one-shot changes remain local and NOT included; no push while target run active. Router unchanged.
+
+## 2026-11-01 Sol: PCI pre-retirement one-shot retry binding staged
+
+Candidate PCI remove now invokes joined rearm once before its initial auxiliary flush and before radio retiring, with no local RTNL/transition lock held. Failed/retained ownership still reaches existing refusal/drain gate; no forced free or loop. Generated final stage and actual isolated PCI MIPS TU compile passed. Source audit requires call before initial flush and rejects local lock acquisition before it. Pinned PCI bus callback path drivers/pci/pci-driver.c427..430 and driver-core dd.c685 call remove synchronously; caller lifetime/context proof still needs full audit, not just absence of local rtnl_lock.
+
+Important unresolved broader boundary: PCI remove callback returns VOID; Linux PCI core continues resource cleanup after callback return. Existing early-return fail-closed paths do NOT alone prove safe retained PCI resources. This predates the new one-shot call and remains a production blocker. Do not claim retention solves device detach or enable production installation. Full chain/merge and execution fixtures for this binding remain next; all local. Router unchanged.
+
+## 2026-11-01 Sol: actual joined-rearm execution fixture passed
+
+Added check-joined-rearm.py extracting actual generated function and executing it with real ownership model headers plus injected work/lock operations. ASan/UBSan passed null adapter, successful one-shot rearm, retiring/busy/stale identity refusal, flush-outside-lock, scheduling-under-lock and failed submission retained resources. Wired test into optional peer82 CI after source merge; YAML and complete-step bash syntax pass. Kernel work operations are injected: no claim of true workqueue concurrency, pinned caller lifetime or production recovery. Caller remains unbound. No router changes.
+
+## 2026-11-01 Sol: external joined-rearm full composition and order gate pass
+
+All peer stages and strict production merge passed in /tmp/wr-iot-joined-rearm-chain and /tmp/wr-iot-joined-rearm-merged. Scheduler audit now checks rearm flush before lock, exact registry lookup before rearm, scheduling/result before unlock, retiring/nonbusy refusal, absence of loops/RTNL acquisition/resource drop. Existing merged negative fixtures pass. Mutated actual generated rearm to put flush under transition lock; audit rejects, original bytes restored. This is source-order evidence only, not caller-context proof or concurrency execution. No actual caller wired; next requires extracted execution/order fixture and carefully identified pinned process-context caller.661 still live; changes local, router untouched.
+
+## 2026-11-01 Sol: external joined rearm entry staged, no caller bound
+
+Generated wr_iot_aux_family_retry_rearm_joined performs flush_work outside transition lock, rejects retiring/busy/stale ownership, uses bounded3 retained rearm and records schedule result under lock. Caller must pin adapter, hold neither RTNL nor transition lock, and not be worker/ndo_stop; no actual caller bound yet. Final-stage generation and isolated MIPS common TU compile passed. First compile attempt incorrectly copied pre-merge rtmp.h and lost RSSI fields; corrected scratch to production-merged header plus new declaration, then passed. Full chain/merge, extracted order fixtures and caller-context proof remain pending. No auto-recovery or production acceptance; router unchanged.
+
+## 2026-11-01 Sol: retained-retry primitive passes complete composition
+
+Regenerated all peer stages and strict production merge into /tmp/wr-iot-retained-merged. Actual merged scheduler/header/removal-order and vendor macro regressions pass. Compiled expanded retained-retry fixture against generated headers with ASan/UBSan and actual common/rtmp_init.c MIPS TU with updated generated header: pass. No external retry scheduler/reaper wiring yet; no production/runtime acceptance. Current changes remain local while661 compiles.
+
+## 2026-11-01 Sol: rejected scheduling cannot bypass retained retry budget
+
+Expanded retained-retry fixture with two rejected submissions and zero worker begins. First rejection permits same-ticket rearm within budget; second reaches budget and refuses rearm while retaining netdev/module/adapter fence. ASan/UBSan host execution and pinned MIPS -Werror fixture compilation passed. No scheduler auto-rearm bound yet; do not claim recovery is implemented. Firmware661/run41273479070 remains live; no duplicate or router changes.
+
+## 2026-11-01 Sol: bounded retained-retry primitive staged, no scheduler binding
+
+Added wr_iot_aux_retry_rearm_retained to shared candidate header: only RETAINED, externally joined, exact original DOWN ticket, all three ownership pins/fence retained, no stop/completion, and bounded attempts/submission failures can return to QUEUED. Resets action claim only after all checks; never schedules work or drops ownership. Host ASan/UBSan tests cover absent join, exhausted budget, stale generation, valid same-ticket rearm, second-attempt exhaustion and stop refusal. Pinned MIPS fixture object compile passed with -Werror. This is a prerequisite primitive only: external join/rearm scheduling, bounded policy and shutdown/retirement caller integration are NOT implemented or accepted. Header change invalidates prior candidate receipts until full replay; do not attribute to build660/661. Router unchanged.
+
 ## 2026-11-01 Sol: build660 full merged IoT MIPS module passed
 
 Run41263036826/build660 on69a70ba8f1a96a70b3fe0c13fdd7908365be07b9 completed success, including actual isolated merged peer82 vmlinux/modules Kbuild. Downloaded iot-merged-driver-probe; independently checked 5456200-byte mt76x3_ap.ko SHA2560619759a62972f62bbca917a91786a5ea815c94992b969a5786d3135ca737fca, MIPS little-endian ELF, defined retry-worker/RSSI-delete symbols, and identical before/after kernel config. Three-BSS source capacity verified (effective limit16). Actual rt_linux task macros: KTHREAD=true; OS_ABL, PM, TIMER_TASK, WSC=false. This does not verify other feature variants or runtime.

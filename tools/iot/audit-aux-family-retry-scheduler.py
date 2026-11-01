@@ -42,6 +42,15 @@ assert 'VOID wr_iot_aux_family_retry_work_fn(' not in apcli
 
 submit=body(init,'INT wr_iot_aux_family_retry_submit(')
 worker=body(init,'VOID wr_iot_aux_family_retry_work_fn(')
+rearm=body(init,'INT wr_iot_aux_family_retry_rearm_joined(')
+assert rearm.index('flush_work(')<rearm.index('RTMP_IRQ_LOCK(')
+assert rearm.index('wr_iot_registry_find(')<rearm.index('wr_iot_aux_retry_rearm_retained(')
+assert rearm.index('wr_iot_aux_retry_rearm_retained(')<rearm.index('schedule_work(')
+assert rearm.index('schedule_work(')<rearm.index('wr_iot_aux_retry_schedule_result(')<rearm.index('RTMP_IRQ_UNLOCK(')
+assert '!ad->wr_iot_transition.retiring' in rearm
+assert '!work_busy(&ad->wr_iot_aux_family_retry_work)' in rearm
+assert 'rtnl_lock(' not in rearm and 'dev_put(' not in rearm
+assert 'for(' not in rearm and 'while(' not in rearm
 
 assert '#include "aux-family-retry-scheduler.h"' in rtmp
 assert 'struct wr_iot_aux_retry_owner wr_iot_aux_family_retry;' in rtmp
@@ -89,6 +98,9 @@ assert pci.count('flush_work(&adapter->wr_iot_aux_family_retry_work);')>=2
 # Counts alone cannot establish ordering of the actual removal path.
 remove=body(pci,'static VOID DEVEXIT rt_pci_remove(')
 first_flush=remove.index('flush_work(&adapter->wr_iot_aux_family_retry_work);')
+assert remove.index('wr_iot_aux_family_retry_rearm_joined(adapter)')<first_flush
+assert 'rtnl_lock(' not in remove[:first_flush]
+assert 'RTMP_IRQ_LOCK(' not in remove[:first_flush]
 retire=remove.index('wr_iot_radio_retire(')
 first_join=remove.index('cancel_work_sync(&adapter->wr_iot_aux_family_retry_work);')
 children=remove.index('RtmpPhyNetDevExit(pAd, net_dev)')
