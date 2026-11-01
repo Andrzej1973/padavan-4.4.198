@@ -245,6 +245,9 @@ one('include/wr-iot-peer-adapter-release.inc',
     '  !pAd->wr_iot_aux_family_retry.deferred_owners &&\n'
     '  !work_busy(&pAd->wr_iot_aux_family_retry_work);')
 
+# Preserve unrelated AGG_TEMP bits, including the firmware radio-off request.
+# This fixes the mask only; shared-register RMW serialization is still required.
+one('hw_ctrl/cmm_asic_mt.c', 'Value &= (0<<1);', 'Value &= ~(1U << 1);')
 # Reuse existing checked message ownership/result handling, not generic callback.
 one('mcu/andes_mt.c','INT32 CmdRadioOnOffCtrl(RTMP_ADAPTER *pAd, UINT8 On)',
     'INT32 wr_iot_send_radio_off_checked(RTMP_ADAPTER *pAd)\n'
