@@ -19,6 +19,12 @@ pinned dnsmasq DHCP/DNS checks. Evidence:
 `evidence/WR1200JS-IOT-WSL-DHCP-DNS-2026-11-01.json`.
 They validate planners and native fixtures, not installed RC/driver integration.
 
+The build662 target module independently confirms checked MT7603 radio-off
+returns FALSE unconditionally (8-byte MIPS symbol under LOAD_FW_ONE_TIME).
+See `evidence/WR1200JS-IOT-LOAD-FW-ONCE-GATE-2026-11-01.json`. A supported
+firmware completion protocol is required; successful compilation is not
+functional shutdown evidence.
+
 IoT is still **not accepted for production**. The compiled candidate is not
 installed in the ordinary firmware image. Remaining gates include callback,
 timer/tasklet/IRQ/DMA quiescence and checked child/root/PCI release; recovery

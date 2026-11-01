@@ -1,3 +1,35 @@
+## 2026-11-01 Sol: firmware-load policy affects restart and EEPROM, not just OFF
+
+Whole driver scan: os/linux/config.mk316 defaults HAS_LOAD_FW_ONE_TIME=y. Andes firmware load skips restart/download when already running and sets FWLoad; EEPROM skips CmdEfusBufferModeSet on reused firmware. Main/PciMlme on paths clear AGG_TEMP upper16. Therefore globally toggling policy is not a safe radio-off-only fix. Additional isolated andes_mt.c MIPS compile with correctly final -ULOAD_FW_ONE_TIME passed (hardware branch previously passed); this is compile-only alternate path, no profile/config or device change. Need repeatable down/up firmware/EEPROM/runtime evidence before selecting policy. Current guard remains. Saving checked-send/diagnostic local checkpoint while664 active.
+
+## 2026-11-01 Sol: persistent checked-send regression wired
+
+Added check-radio-off-send.py extracting actual generated wrapper and executing null/allocation-failure/send-failure/success with injected command ownership under ASan/UBSan. Asserts checked hardware call is bound and LOAD_FW_ONE_TIME refusal remains. Current merged candidate test passes; wired into existing optional peer82 CI and YAML/whole-step bash syntax passed. Does not execute real MCU transport or validate firmware policy. Local MCU wrapper/full source composition and actual MIPS TUs already passed; module/terminal/runtime still open. No device command.
+
+## 2026-11-01 Sol: checked MCU/hardware full composition and MIPS TU checks pass
+
+Whole peer chain and strict production/RSSI source merge passed into /tmp/wr-iot-checked-send-merged. Actual merged andes_mt.c and cmm_asic_mt.c compile with captured default WR1200JS MIPS flags. Additional isolated cmm_asic_mt compile with final -ULOAD_FW_ONE_TIME passed and nm confirms reference to wr_iot_send_radio_off_checked, exercising otherwise compiled-out branch. This is a test-only flag override, not firmware config/policy change or proof firmware supports altered loading policy. Existing default guard still refuses radio-off. Full module/lifetime/terminal detach/runtime remain open. CI664/run41276229051 and ABI41276229017 active on37a26e9; local checked-send edits not included. Router untouched.
+
+## 2026-11-01 Sol: checked radio command wrapper staged without policy bypass
+
+Final generator now hash-pins predecessor andes_mt.c/cmm_asic_mt.c, adds wr_iot_send_radio_off_checked using existing message-owned checked builder plus AndesSendCmdMsg, and redirects only checked radio-off command call to it. Generic CmdRadioOnOffCtrl unchanged. LOAD_FW_ONE_TIME unconditional refusal remains intact: this wiring does not make default radio-off functional or authorize policy change. Exact extracted wrapper ASan/UBSan fixture passes null adapter, allocation failure, send-failure propagation and success; no duplicate send/free or stack response introduced. Final-stage generation passes; full chain/merge/MIPS and existing checked-response lifetime tests still required. No command sent to router.
+
+## 2026-11-01 Sol: existing checked MCU response implementation identified
+
+Complete candidate trace corrects prior incomplete generic-callback analysis: wr_iot_prepare_radio_off already builds opt-in checked cmd_msg; response parsing is under ackq_lock with identity/length/status validation, message-owned result and completion; AndesSendCmdMsg copies verdict before transfer/free and keeps timeout failure. No new response protocol should be duplicated. Builder is currently unused; checked hardware radio-off still calls legacy CmdRadioOnOffCtrl. Updated ACK-GAP report with exact boundaries and correction. Next reuse existing checked builder/send path, preserving LOAD_FW_ONE_TIME refusal until policy support proven. Router unchanged.
+
+## 2026-11-01 Sol: radio-off MCU acknowledgement propagation gap localized
+
+Scanned driver AGG_TEMP references: on/off writes, initialization/IRQ restore and unrelated low-bit RTS workaround; no explicit off-completion acknowledgement found. mcu/andes_mt.c1777 CmdRadioOnOffCtrl returns AndesSendCmdMsg; its EventExtCmdResult callback1649 logs/hooks firmware u4Status but does not populate caller result or itself validate Len. Documented RADIO-OFF-ACK-GAP. Before any LOAD_FW_ONE_TIME policy change, trace cmd_msg response lifetime/wait semantics and implement dedicated radio-specific result validation; do not treat transport success/register readback as firmware completion or patch shared callbacks indiscriminately. No runtime writes.
+
+## 2026-11-01 Sol: actual target confirms checked radio-off always refuses
+
+Independent nm -S/objdump of build662 mt76x3_ap.ko (SHA2565e9640f79a50d48c606679d686feb6d3944ff5572cbd17ad43f84a9153052170) confirms wr_iot_mt_radio_off_checked is exactly8bytes at0x000ad0d8: jr ra; move v0,zero (delay slot). Therefore this compiled function returns FALSE for all inputs, no ambiguity from rt_linux-only macro provenance. LOAD-FW-ONCE-GATE evidence updated with exact symbol/disassembly. Full module compile success must not count as functional checked-off capability. Need supported LOAD_FW_ONE_TIME completion protocol or an independently justified firmware-load policy change; neither guard removal nor speculative AGG_TEMP readback is accepted. Router untouched.
+
+## 2026-11-01 Sol: LOAD_FW_ONE_TIME closes checked-off path for observed feature set
+
+Actual662 rt_linux macro dump defines LOAD_FW_ONE_TIME; current checked radio-off cmm_asic_mt.c6481..6484 returns FALSE for that condition before mutation. Vendor off/on branches set/clear AGG_TEMP upper16 instead of CmdRadioOnOffCtrl. Readback alone proves register contents, not firmware radio-off acknowledgement. Recorded LOAD-FW-ONCE-GATE evidence; exact cmm_asic_mt TU macro provenance still needed before declaring whole-path effective conclusion. Do not remove fail-closed guard, globally toggle firmware-loading policy or substitute unsupported MCU sequence just to pass. This is an additional production blocker to resolve alongside terminal detach, despite successful module compilation. No router operations.
+
 ## 2026-11-01 Sol: null-guard composition complete, persistent entry fixture added
 
 Resumed existing session55572: full chain/strict merge plus scheduler, macro and joined-rearm regressions completed success. Exact /tmp/wr-iot-null-guard-merged PCI TU compiled for MIPS. Extended existing check-joined-rearm.py with exact extracted PCI remove prefix: ASan/UBSan null/live path test passes, no hardware operations. Firmware663/run41275041095 completed success on6b5883bb741e6e5ab99aae8754605631c99fe3e1. Current NULL-entry patch is local, not covered by663; terminal quiescence/core cleanup blocker remains unresolved. Saving coherent local checkpoint; no router mutation.

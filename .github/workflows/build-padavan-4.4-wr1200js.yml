@@ -1620,6 +1620,7 @@ jobs:
             python3 tools/iot/check-retry-rtnl-header.py "$merged"
             python3 tools/iot/check-main-verify-module-macro.py "$merged"
             python3 tools/iot/check-joined-rearm.py "$merged"
+            python3 tools/iot/check-radio-off-send.py "$merged"
             gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
               -I"$merged/include" tools/iot/check-aux-family-retry-scheduler.c \
               -o "$results/check-aux-family-retry-scheduler"

@@ -16,6 +16,8 @@ if out.exists() or src==out or src in out.parents or out in src.parents:
  p.error('new separate output required')
 
 pins={
+ 'hw_ctrl/cmm_asic_mt.c':'63680cb3fc61df6c67a39aa2ac9581afc3740fd6fadee2e9321610ad597603e1',
+ 'mcu/andes_mt.c':'e7e49e1b523461c89c8ed5dd4bc58f0a82e7a533fc9863eb632ea36a7b0dd0f8',
  'include/wr-iot-peer-open-client.inc':'bd352de23d2af6ece8d15cb1f9291586a3a01039f3f54f31a796313afc20be23',
  'os/linux/rt_main_dev.c':'7413803d8c757189d7280d55d25448aa178c9e1c53ae8f4e596092088037a8a2',
  'include/rtmp.h':'e253c027620c29ff69a5d14601633945097a85644cc32b416ab3a4c943167487',
@@ -242,6 +244,23 @@ one('include/wr-iot-peer-adapter-release.inc',
     '!pAd->wr_iot_registration_inflight && !pAd->wr_iot_main_recovery.deferred_owners &&\n'
     '  !pAd->wr_iot_aux_family_retry.deferred_owners &&\n'
     '  !work_busy(&pAd->wr_iot_aux_family_retry_work);')
+
+# Reuse existing checked message ownership/result handling, not generic callback.
+one('mcu/andes_mt.c','INT32 CmdRadioOnOffCtrl(RTMP_ADAPTER *pAd, UINT8 On)',
+    'INT32 wr_iot_send_radio_off_checked(RTMP_ADAPTER *pAd)\n'
+    '{\n struct cmd_msg *msg;\n'
+    ' if(!pAd)return NDIS_STATUS_FAILURE;\n'
+    ' msg=wr_iot_prepare_radio_off(pAd);\n'
+    ' if(!msg)return NDIS_STATUS_RESOURCES;\n'
+    ' return AndesSendCmdMsg(pAd,msg);\n}\n\n'
+    'INT32 CmdRadioOnOffCtrl(RTMP_ADAPTER *pAd, UINT8 On)')
+one('include/rtmp.h',
+    'VOID wr_iot_aux_family_retry_work_fn(struct work_struct *work);',
+    'INT32 wr_iot_send_radio_off_checked(RTMP_ADAPTER *pAd);\n'
+    'VOID wr_iot_aux_family_retry_work_fn(struct work_struct *work);')
+one('hw_ctrl/cmm_asic_mt.c',
+    'if (CmdRadioOnOffCtrl(pAd, WIFI_RADIO_OFF) != NDIS_STATUS_SUCCESS)',
+    'if (wr_iot_send_radio_off_checked(pAd) != NDIS_STATUS_SUCCESS)')
 
 pci='os/linux/pci_main_dev.c'
 # PCI core may invoke cleanup after partial setup. Validate netdev before
