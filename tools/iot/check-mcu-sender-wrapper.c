@@ -1,14 +1,22 @@
 #include "mcu-sender-owner.h"
 #include <assert.h>
+#include <stdlib.h>
 typedef int INT32;typedef unsigned long ULONG;
 #define NDIS_STATUS_FAILURE -1
 typedef struct {int wr_iot_mcu_sender_lock,wr_iot_mcu_sender_wait;struct wr_iot_mcu_sender_owner wr_iot_mcu_sender_owner;} ADAPTER,*PRTMP_ADAPTER;
 struct cmd_msg {int unused;};
-static int held,calls,frees,wakes,code,close_inside;
+static int held,calls,frees,wakes,code,close_inside,retired;
+static ADAPTER *retire_target;
+static void after_unlock(void){
+ if(retire_target && retire_target->wr_iot_mcu_sender_owner.closed &&
+    !retire_target->wr_iot_mcu_sender_owner.inflight){
+  free(retire_target);retire_target=0;retired++;
+ }
+}
 #define RTMP_SPIN_LOCK_IRQSAVE(l,f) do{(void)(l);*(f)=0;assert(!held);held=1;}while(0)
-#define RTMP_SPIN_UNLOCK_IRQRESTORE(l,f) do{(void)(l);(void)(f);assert(held);held=0;}while(0)
+#define RTMP_SPIN_UNLOCK_IRQRESTORE(l,f) do{(void)(l);(void)(f);assert(held);held=0;after_unlock();}while(0)
 static void AndesForceFreeCmdMsg(struct cmd_msg *m){assert(m&&!held);frees++;}
-static void wake_up_all(int *w){(void)w;assert(!held);wakes++;}
+static void wake_up_all(int *w){(void)w;assert(held);wakes++;}
 static int wr_iot_mcu_send_body(PRTMP_ADAPTER a,struct cmd_msg *m){
  assert(a&&m&&!held&&a->wr_iot_mcu_sender_owner.inflight==1);calls++;
  if(close_inside){assert(wr_iot_mcu_sender_close(&a->wr_iot_mcu_sender_owner,3));assert(!wr_iot_mcu_sender_off_begin(&a->wr_iot_mcu_sender_owner,3));}
@@ -25,4 +33,7 @@ int main(void){ADAPTER a={0};struct cmd_msg m;
  assert(AndesSendCmdMsg(&a,&m)==0);assert(wr_iot_mcu_sender_off_begin(&a.wr_iot_mcu_sender_owner,3));
  assert(AndesSendCmdMsg(&a,&m)==-1&&calls==7&&frees==1);
  assert(AndesSendCmdMsg(0,&m)==-1);assert(AndesSendCmdMsg(&a,0)==-1);
+ ADAPTER *heap=calloc(1,sizeof(*heap));assert(heap);
+ wr_iot_mcu_sender_init(&heap->wr_iot_mcu_sender_owner);retire_target=heap;
+ assert(AndesSendCmdMsg(heap,&m)==0);assert(retired==1&&!retire_target&&!held);
  return 0;}

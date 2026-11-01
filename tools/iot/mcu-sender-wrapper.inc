@@ -19,7 +19,9 @@ INT32 AndesSendCmdMsg(PRTMP_ADAPTER ad, struct cmd_msg *msg)
  /* msg may already be freed or owned by a queue: never inspect it here. */
  RTMP_SPIN_LOCK_IRQSAVE(&ad->wr_iot_mcu_sender_lock,&flags);
  left=wr_iot_mcu_sender_leave(&ad->wr_iot_mcu_sender_owner);
- RTMP_SPIN_UNLOCK_IRQRESTORE(&ad->wr_iot_mcu_sender_lock,&flags);
+ /* Wake while the adapter-lifetime lock is held: once unlock exposes zero
+  * inflight, this function must never touch adapter-owned storage again. */
  wake_up_all(&ad->wr_iot_mcu_sender_wait);
+ RTMP_SPIN_UNLOCK_IRQRESTORE(&ad->wr_iot_mcu_sender_lock,&flags);
  return left?result:NDIS_STATUS_FAILURE;
 }

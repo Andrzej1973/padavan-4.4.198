@@ -1,3 +1,11 @@
+## 2026-11-01 Sol: sender final-unlock lifetime regression fixed
+
+Wrapper now wakes drain waiters before releasing adapter-lifetime lock. Once
+zero inflight becomes visible at unlock, it never touches adapter storage. Host
+fixture frees adapter at that unlock and passes ASan/UBSan; moving wake after
+unlock is rejected. Model still unbound and assumes terminal closure plus
+external caller retirement before actual release; no DMA/runtime proof.
+
 ## 2026-11-01 Sol: AP before-OFF target compile and sender wrapper
 
 Optional peer82 run41324029887 completed successfully at 1dcec2dc. Downloaded
