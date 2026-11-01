@@ -1,3 +1,43 @@
+## 2026-11-01 Sol: build668 regression correction validated
+
+Fresh pinned recovery/full-overlay/peer chain reproduced successfully. The
+regression checker passes on its source after applying the exact assembler
+probe-pointer casts: positive audit, commented/missing RTNL include rejection,
+and early normal-path adapter-release rejection. This is focused source proof;
+RSSI merge, terminal overlay and target compilation still require CI.
+
+## 2026-11-01 Sol: build668 regression failure triaged
+
+Optional peer82 run41315140853/job124873510834 failed before target compilation:
+check-retry-rtnl-header.py:41 still expected two auxiliary worker joins despite
+the additional STALLED-path join. Actual scheduler audit and generated command
+lifecycle fixture passed first. Local correction selects the normal join after
+retirement-stop admission, preserving the early-release negative mutation.
+Correction has not yet been exercised against a regenerated complete candidate.
+
+Monitor run41316230811 artifact agent-build-error-41316230811 identifies the
+correct run/job/step but its first-256-KiB excerpt misses the causal traceback
+and includes earlier nonfatal patch rejects. Current branch monitor source
+already scans the last16MiB/latest60 matches; report came from older workflow
+code, so do not duplicate that parser fix. Verify its deployment on a future
+real failure. Original job log confirms the precise assertion above.
+
+## 2026-11-01 Sol: build667/ABI611 green; peer82 candidate dispatched
+
+Current branch head e6d72b274ff79e3d72fb25a7cabdf6bb0e69ef5e is clean. GitHub
+firmware build667 run41302630144 and Band Steering ABI611 run41302630148 both
+completed successfully. Earlier ABI610 run41301536473 failed in the host audit
+`tools/iot/audit-aux-family-retry-scheduler.py` at the normal-join ordering
+assertion; the selection was anchored to actual remove-path markers, and ABI611
+passes. No failure exists on current HEAD.
+
+Build667 skipped optional IoT candidate compilation, so it does not verify the
+new terminal command lifecycle layer. With no active runs on the branch,
+workflow-dispatch run41315140853 was started for WR1200JS `peer82` IoT candidate
+checks; it is currently in progress at dependency installation. Follow its
+original failed step if it fails. The isolated candidate is still not production
+installed and does not prove DMA/IRQ/callback teardown or device runtime.
+
 ## 2026-11-01 Sol: firmware666 success; next command lifecycle batch validated
 
 GitHub firmware run41301536472 (build666) completed success at aa69805;

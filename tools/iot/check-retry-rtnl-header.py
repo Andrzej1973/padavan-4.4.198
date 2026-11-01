@@ -38,11 +38,13 @@ with tempfile.TemporaryDirectory(prefix="wr-rtnl-regression-") as directory:
     prefix, removal = pci_original[:start], pci_original[start:]
     call = "RtmpRaDevCtrlExit(pAd)"
     join = "cancel_work_sync(&adapter->wr_iot_aux_family_retry_work);"
-    assert removal.count(call) == 1 and removal.count(join) == 2
-    # Move the release call before the first external join. Counts remain
+    assert removal.count(call) == 1
+    stop = removal.index("if (!wr_iot_pci_retirement_stop_requested(")
+    normal_join = removal.index(join, stop)
+    # Move the release call before the normal-path external join. Counts remain
     # unchanged, so only the path-order check must reject this regression.
     removal = removal.replace(call, "wr_test_release_placeholder(pAd)")
-    removal = removal.replace(join, call + ";" + join, 1)
+    removal = removal[:normal_join] + call + ";" + removal[normal_join:]
     pci.write_text(prefix + removal)
     result = subprocess.run([sys.executable, str(audit), str(root), str(root / "early-release.json")], capture_output=True, text=True)
     assert result.returncode != 0 and "first_flush<retire" in result.stderr, result.stderr
