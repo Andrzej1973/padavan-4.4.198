@@ -1,3 +1,25 @@
+## 2026-11-01 Sol: partial MIPS lifecycle link passes
+
+Linked seven actual local MIPS lifecycle objects with target ld -r: rt_main_dev, rtmp_init, MBSS/APCLI/WDS interfaces, rt_profile and pci_main_dev. No duplicate-definition failure; nm confirms shared retry worker and submit each defined exactly once. Evidence WR1200JS-IOT-PARTIAL-LINK-2026-11-01.json records object hash/size. This deliberately permits unresolved references to kernel and other driver objects, so does not establish full module link or device safety. Existing whole-module CI gate remains open. Firmware659 still in_progress; no duplicate/push/router mutation. Local coherent feature-guard/evidence checkpoint retained for later publication.
+
+## 2026-11-01 Sol: generated repeater guard matches MIPS-tested source
+
+Full current peer chain /tmp/wr-iot-repeater-guard-chain and strict production/RSSI merge /tmp/wr-iot-repeater-guard-merged passed without weakening pins. Scheduler/header/removal-order and vendor-module-macro regressions passed on merged output. Generated rtmp.h is byte-identical to the scratch header that compiled actual normal/APCLI-off MIPS common TU; APCLI-off evidence updated. No module-link/runtime claim. Firmware659/run41262066229 still active, so do not push this local batch or create duplicate build. Router unchanged.
+
+## 2026-11-01 Sol: repeater declaration guard fixes actual APCLI-off TU
+
+Source review confirms ap/ap_repeater.c implementation and caller sites already guarded by MAC_REPEATER_SUPPORT; lookup_rept_entry declaration in rtmp.h was unconditional despite optional type. Final scheduler generator now wraps only that declaration in matching guard. Isolated target scratch with this exact header edit compiles common/rtmp_init.c both normal and APCLI/repeater/autoconnect off. Final -U ordering was verified by -dM effective macro dump; MIPS nm confirms shared retry submit/worker defined with APCLI off. Separate APCLI-OFF-GUARD evidence preserves earlier failure evidence rather than rewriting it. Full regenerated source merge, profile-level Kbuild/link and runtime remain pending. No production/router change.
+
+## 2026-11-01 Sol: seven actual lifecycle MIPS TUs compile locally
+
+Sequential isolated whole-TU compilation now also passes ap_mbss_inf.c, ap_apcli_inf.c, ap_wds_inf.c, rt_profile.c and pci_main_dev.c, alongside prior rt_main_dev.c/rtmp_init.c, with actual captured WR1200JS flags, pinned GCC and658 generated kernel headers/config. No warning flags relaxed. Source/object/command SHA256 and object sizes added to WR1200JS-IOT-ACTUAL-MIPS-TU-2026-11-01.json. All use adapted baseline rt_linux flags, not independent per-file Kbuild provenance; no full module/link/runtime claim. APCLI-off vendor declaration failure remains separately recorded. Local tests sequential, no full kernel/firmware build or router mutation.
+
+## 2026-11-01 Sol: actual MIPS TU compilation reproduced locally
+
+New658 failure artifact contains kernel-before.config and generated headers. Combined exact pinned kernel include/arch-mips headers with these CI inputs and current merged driver in /tmp/wr-iot-target-tu-nug6a699. Adapted captured657 rt_linux Kbuild command to source/output/basename for actual rt_main_dev.c and common/rtmp_init.c, preserving compiler/feature/warning flags: both MIPS object compilations passed with no diagnostics. This is whole-TU compile, not full Kbuild/module link; captured flags are from rt_linux, not independent per-TU .cmd provenance. No full firmware built locally.
+
+APCLI-off investigation remains failed/unaccepted: removing APCLI alone leaves vendor repeater fields invalid; correctly ordered -UAPCLI_SUPPORT -UMAC_REPEATER_SUPPORT -UAPCLI_AUTO_CONNECT_SUPPORT then exposes an unguarded REPEATER_CLIENT_ENTRY return type in include/rtmp.h6876. An initial apparent pass had -U before later -D and was invalidated; evidence explicitly corrected. Do not report feature-off success or silently hide dependency. Current default WR1200JS flags compile the two actual TUs. Report: docs/evidence/WR1200JS-IOT-ACTUAL-MIPS-TU-2026-11-01.json. Raw commands/logs retained in isolated scratch; router unchanged.
+
 ## 2026-11-01 Sol: build658 repair passed complete source replay
 
 Full updated peer chain and strict production/RSSI merge passed in /tmp/wr-iot658-fixed-chain and /tmp/wr-iot658-fixed-merged. Actual scheduler active/missing/commented-header and early-release regressions pass. New check-main-verify-module-macro.py compiles exact generated main VERIFY arm with both vendor trailing-semicolon module macros, rejects unbraced regression, and passed host GCC plus pinned MIPS GCC syntax checks. Wired it before peer82 target Kbuild. Full workflow YAML/step bash syntax passes.

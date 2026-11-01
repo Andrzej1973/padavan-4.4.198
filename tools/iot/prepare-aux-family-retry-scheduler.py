@@ -53,6 +53,11 @@ one('include/wr-iot-peer-open-client.inc',
     'static INT wr_iot_peer_open_release_config(',
     'static inline INT wr_iot_peer_open_release_config(')
 
+# Match the existing implementation/type guard for repeater-only API.
+one('include/rtmp.h',
+    'REPEATER_CLIENT_ENTRY *lookup_rept_entry(RTMP_ADAPTER *pAd, PUCHAR address);',
+    '#ifdef MAC_REPEATER_SUPPORT\nREPEATER_CLIENT_ENTRY *lookup_rept_entry(RTMP_ADAPTER *pAd, PUCHAR address);\n#endif')
+
 one('include/rtmp.h','#include "aux-family-close.h"',
     '#include "aux-family-close.h"\n#include "aux-family-retry-scheduler.h"')
 one('include/rtmp.h','\tstruct work_struct wr_iot_main_recovery_work;',
