@@ -1,0 +1,23 @@
+{
+  "date": "2026-11-01",
+  "scope": "unbound host model and wrapper; adapter lifetime externally pinned",
+  "assets_sha256": {
+    "tools/iot/mcu-sender-owner.h": "bbc170b5b4d26a7fc792857bf626aecc26f9de3be2a7b5f767a02c884090dfcd",
+    "tools/iot/mcu-sender-wrapper.inc": "1e55c935943e534132699f29aa1f2517a5050442b8c84d2bcb6d22ae9e50eea8",
+    "tools/iot/check-mcu-sender-owner.c": "6c22d4d98e196376587c2f0c23e2909ecb73c05cac8f265bccd583b191d70e4d",
+    "tools/iot/check-mcu-sender-wrapper.c": "516073b84c79f1f2ac09afbfea527067a093fd11ab9d458f10542c6125f626ad"
+  },
+  "host_checks": [
+    "owner close serial, inflight refusal, exclusive OFF, uncertain failure and poison/overflow",
+    "wrapper return paths, lease spans transport, refusal frees private message and wakes drain"
+  ],
+  "limits": [
+    "Wrapper not installed into AndesSendCmdMsg",
+    "Model does not join ring-owned messages, DMA, asynchronous consumers or firmware epoch",
+    "Adapter free requires terminal closure and proof that no future caller can enter; sampling inflight alone is insufficient",
+    "No proven checked OFF correlation or reopen protocol"
+  ],
+  "production_installed": false,
+  "target_compiled": false,
+  "runtime_verified": false
+}

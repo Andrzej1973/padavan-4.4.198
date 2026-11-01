@@ -1,3 +1,26 @@
+## 2026-11-01 Sol: AP before-OFF target compile and sender wrapper
+
+Optional peer82 run41324029887 completed successfully at 1dcec2dc. Downloaded
+module SHA256 and ELF32 MIPS header independently checked; new AP cleanup
+symbol and manifest layer present. Evidence: docs/evidence/WR1200JS-IOT-AP-LAYER-TARGET-2026-11-01.json. Entry remains unbound; checked OFF still fails
+closed under LOAD_FW_ONE_TIME. MCU sender owner and wrapper fixtures pass host
+ASan/UBSan, but are unbound and must not be treated as lifetime proof. Next
+ensure adapter-lifetime lock/owner, guard all real AndesSendCmdMsg returns,
+close/drain and release ordering before binding checked OFF.
+
+## 2026-11-01 Sol: AP-layer target run dispatched; sender owner modeled
+
+At published 1dcec2dc ABI41322778521 and firmware671/41322778575 completed
+success (correct run/name mapping). Empty active branch queue checked, then
+optional peer82 run41324029887 dispatched to compile new AP layer. Do not
+duplicate. Sender model mcu-sender-owner.h and check-mcu-sender-owner.c now
+cover normal inflight leases, serial-bound close, exclusive owned OFF, failure
+uncertainty/no replay and poison/overflow/underflow refusal. ASan/UBSan fixture
+passes, including poison between OFF begin and finish. This is unbound model
+only: no adapter field/lock, real sender wrapper, drain, reopen epoch or ACK
+correlation binding yet. Next bind normal sender leases spanning all exits and
+queue transfer, with adapter lifetime and explicit OFF permission.
+
 ## 2026-11-01 Sol: ACK flag preconditions and AP scratch cleanup
 
 MT HALT ISR mask preserves RX ring1; ring1 handler refuses RADIO_OFF/reset

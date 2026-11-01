@@ -28,5 +28,10 @@
     "HALT_IN_PROGRESS": "MT ISR masks to MT_INT_CMD|MT_INT_RX|WF_MAC_INT_3; MT_INT_RX includes MT_INT_R1_DONE = MT_INT_RX_CMD, so HALT alone retains ACK IRQ source",
     "ring1_handler": "RxRing1DoneInterruptHandle refuses RADIO_OFF or RESET_IN_PROGRESS or missing START_UP; HALT test is commented out",
     "required_preflight": "Before checked OFF mutation, prove live initialized RX tasklets/IRQ and START_UP, no RESET/RADIO_OFF, plus pinned sender ownership. Recheck under appropriate serialization; flag observation alone cannot establish lifetime."
+  },
+  "close_ownership_review": {
+    "peer_executor": "wr_iot_drv_close_checked reserves peer close executor across entire body, excluding legacy close and peer-table conflicts",
+    "management_join": "wr_iot_mgmt_exit_checked records command task join (and optional WSC join) for exact CLOSE serial",
+    "limit": "These receipts do not establish exclusion of all direct AndesSendCmdMsg issuers; moving owned OFF requires explicit sender exclusion while RX ACK remains live."
   }
 }
