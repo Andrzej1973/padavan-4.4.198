@@ -27,4 +27,14 @@ int main(void){struct wr_iot_mcu_sender_owner s;
  assert(!wr_iot_mcu_sender_release_claim(&s));
  assert(!wr_iot_mcu_sender_off_begin(&s,12));
  assert(!wr_iot_mcu_sender_enter(&s));assert(!wr_iot_mcu_sender_close(&s,12));
+ wr_iot_mcu_sender_init(&s);assert(wr_iot_mcu_message_enter(&s));
+ assert(wr_iot_mcu_sender_close(&s,13));assert(wr_iot_mcu_sender_drained(&s));
+ assert(!wr_iot_mcu_sender_release_claim(&s));
+ /* RX allocation remains admitted while normal TX is closed. */
+ assert(wr_iot_mcu_message_enter(&s));assert(!wr_iot_mcu_sender_enter(&s));
+ assert(wr_iot_mcu_message_leave(&s));assert(!wr_iot_mcu_sender_release_claim(&s));
+ assert(wr_iot_mcu_message_leave(&s));assert(wr_iot_mcu_sender_release_claim(&s));
+ assert(!wr_iot_mcu_message_enter(&s));
+ wr_iot_mcu_sender_init(&s);assert(!wr_iot_mcu_message_leave(&s)&&s.poisoned);
+ wr_iot_mcu_sender_init(&s);s.messages=~0U;assert(!wr_iot_mcu_message_enter(&s)&&s.poisoned);
  return 0;}

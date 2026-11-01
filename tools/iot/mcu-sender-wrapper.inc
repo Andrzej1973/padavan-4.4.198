@@ -1,6 +1,8 @@
 /* Candidate wrapper; adapter lifetime is pinned externally. The owner and
  * dedicated lock must be initialized before MCU publication and outlive it.
  * Internal transport owns msg after entry. A refused fresh msg is private.
+ * Its destructor still accesses MCU counters: external adapter pin is required
+ * even on admission refusal. Sender drain does not retire private builders.
  * This wrapper does not join asynchronous DMA or queue consumers. */
 INT32 AndesSendCmdMsg(PRTMP_ADAPTER ad, struct cmd_msg *msg)
 {

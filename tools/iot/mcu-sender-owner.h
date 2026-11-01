@@ -5,10 +5,10 @@
 #define WR_IOT_MCU_SENDER_OWNER_H
 struct wr_iot_mcu_sender_owner {
  unsigned long close_serial;
- unsigned int inflight,closed,off_active,off_done,uncertain,poisoned,release_claimed;
+ unsigned int messages,inflight,closed,off_active,off_done,uncertain,poisoned,release_claimed;
 };
 static inline void wr_iot_mcu_sender_init(struct wr_iot_mcu_sender_owner *s)
-{ s->close_serial=0;s->inflight=0;s->closed=0;s->off_active=0;s->off_done=0;s->uncertain=0;s->poisoned=0;s->release_claimed=0; }
+{ s->close_serial=0;s->messages=0;s->inflight=0;s->closed=0;s->off_active=0;s->off_done=0;s->uncertain=0;s->poisoned=0;s->release_claimed=0; }
 static inline int wr_iot_mcu_sender_enter(struct wr_iot_mcu_sender_owner *s)
 {
  if(!s||s->closed||s->poisoned||s->release_claimed)return 0;
@@ -50,12 +50,27 @@ static inline int wr_iot_mcu_sender_drained(const struct wr_iot_mcu_sender_owner
         !s->uncertain && !s->poisoned;
 }
 
+/* Allocation/destruction lease, distinct from sender admission. RX ACK
+ * messages must remain possible while normal sends are closed. Reserve before
+ * reading chipCap/MCU storage; release after the LAST adapter counter access.
+ * Construction failure must release its reservation. Caller entry is pinned. */
+static inline int wr_iot_mcu_message_enter(struct wr_iot_mcu_sender_owner *s)
+{
+ if(!s||s->poisoned||s->release_claimed)return 0;
+ if(s->messages==~0U){s->poisoned=1;s->closed=1;return 0;}
+ s->messages++;return 1;
+}
+static inline int wr_iot_mcu_message_leave(struct wr_iot_mcu_sender_owner *s)
+{
+ if(!s||!s->messages){if(s){s->poisoned=1;s->closed=1;}return 0;}
+ s->messages--;return 1;
+}
 /* Claim under the same lock as OFF admission. It forbids a later OFF from
  * starting between the drain observation and actual adapter release.
  * All external caller references and hardware owners remain separate gates. */
 static inline int wr_iot_mcu_sender_release_claim(struct wr_iot_mcu_sender_owner *s)
 {
- if(!wr_iot_mcu_sender_drained(s)||s->release_claimed)return 0;
+ if(!wr_iot_mcu_sender_drained(s)||s->messages||s->release_claimed)return 0;
  s->release_claimed=1;return 1;
 }
 

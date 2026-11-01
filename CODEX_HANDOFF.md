@@ -1,3 +1,24 @@
+## 2026-11-01 Sol: MCU message ownership separated from send invocation
+
+Actual MCU allocator is shared with RX event handling, so closing all allocation
+would block owned OFF ACK. Owner now models independent message leases allowed
+after TX close, while release_claim requires messages==0 in addition to sender
+drain. Host ASan/UBSan tests cover private builder retention, RX after TX close,
+partial message destruction, final release, and overflow/underflow refusal.
+Real allocator/destructor binding remains open: acquire before chipCap/MCU
+reads; release after final counter access; handle allocation errors and all
+message ownership transfers. External entry pins and DMA remain separate gates.
+
+## 2026-11-01 Sol: private MCU message lifetime precedes sender admission
+
+Actual allocator reads adapter/chipCap/MCU state before wrapper admission;
+both normal and force-free message destructors access MCU counters. Invocation
+drain therefore cannot authorize release while builders/private messages remain.
+Evidence: WR1200JS-IOT-MCU-MESSAGE-LIFETIME-2026-11-01.json. Need allocation-to-
+destruction ownership or independently proven caller pins, including rejected
+sends and asynchronous messages. Current wrapper explicitly retains external
+adapter-pin precondition; do not wire its zero counter as sole release gate.
+
 ## 2026-11-01 Sol: bounded sender close/drain helper staged
 
 Added mcu-sender-drain.inc to isolated sender source generator. Exact serial

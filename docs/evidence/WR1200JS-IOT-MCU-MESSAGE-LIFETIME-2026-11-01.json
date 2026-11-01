@@ -1,0 +1,14 @@
+{
+  "date": "2026-11-01",
+  "scope": "actual peer MCU allocation/free call paths",
+  "observations": [
+    "AndesAllocCmdMsg reads ad->chipCap and ad->MCUCtrl before normal sender wrapper admission",
+    "Allocator increments alloc_cmd_msg and returns private message to command builder",
+    "AndesForceFreeCmdMsg and AndesFreeCmdMsg access ad->MCUCtrl after freeing message",
+    "Refused normal sender frees private message, which therefore still needs pinned adapter lifetime"
+  ],
+  "consequence": "Sender inflight zero does not prove absence of private builders or message destructors. Do not bind release solely to sender_drained/release_claim.",
+  "required_next_step": "Cover allocation/build/destruction with an adapter-lifetime lease or independently prove all caller pins. Transfer message ownership explicitly through send and asynchronous queues; only final destruction releases message ownership. Keep invocation drain separate from outstanding-message drain.",
+  "production_installed": false,
+  "runtime_verified": false
+}
