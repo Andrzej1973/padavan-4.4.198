@@ -1,3 +1,9 @@
+## 2026-11-01 Sol: target662 passed; joined-rearm checkpoint publication
+
+Build662/run41274058519 completed success on4df93b13d368f062482b075ea55d3c9bd305b7f7. Downloaded exact target artifact; independently verified module SHA2565e9640f79a50d48c606679d686feb6d3944ff5572cbd17ad43f84a9153052170 (5456200bytes) and identical before/after config. Exact task features unchanged from660. Recorded BUILD662 evidence. This confirms full default-feature candidate with repeater declaration guard, not localdf756e2 joined-rearm changes.
+
+Publishing coherent localdf756e2 plus current evidence under standing owner authorization after previous run terminal. Candidate-only recovery must remain production_installed=false/runtime_verified=false; terminal PCI/core cleanup blocker is not fixed by bounded retry. Next target run must use newly published revision after ordinary CI; no duplicate dispatch/router mutation.
+
 ## 2026-11-01 Sol: coherent PCI rearm candidate composition passed
 
 Full chain/strict production merge into /tmp/wr-iot-pci-rearm-merged passed. Scheduler/header/removal-order, vendor macro and extracted joined-rearm execution tests passed. Copied exact merged common/PCI sources and headers into isolated target TU environment: both actual MIPS object compilations passed with captured flags. No complete current-module link/runtime claim; terminal PCI refusal/core-cleanup blocker remains explicit. Existing target662/run41274058519 remains live on4df93b1 (does not include these local recovery changes). Preparing local checkpoint only, no interrupting push.
