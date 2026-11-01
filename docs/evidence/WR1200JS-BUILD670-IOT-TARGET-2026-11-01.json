@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "candidate_variant": "peer82",
+  "repository_revision": "ac9e7d4c8d83afbbcb2babdc21a34b556caede24",
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "target_compiled": true,
+  "production_installed": false,
+  "runtime_verified": false,
+  "module": "mt76x3_ap.ko",
+  "module_bytes": 5489508,
+  "module_sha256": "d4166fc9615d5151c0fb221f640275743148ffa555166a52f1565b4d0a2f3d3a",
+  "compiled_task_macros": {
+    "KTHREAD_SUPPORT": true,
+    "OS_ABL_FUNC_SUPPORT": false,
+    "CONFIG_PM": false,
+    "RTMP_TIMER_TASK_SUPPORT": false,
+    "WSC_INCLUDED": false
+  },
+  "task_command_sha256": "e3429db730f91aaf443d5da6269dcc64d0fa8889d6f7c68f384f99873377954f",
+  "task_source_sha256": "3864d12123d83f0664776023f8090f15ede6172fbd67579b542ab4ae63709f6c",
+  "run_id": 41320731232,
+  "independent_checks": [
+    "Downloaded module SHA256 matches compile report",
+    "ELF32 little-endian EM_MIPS header verified",
+    "terminal command join and OS failed-create symbols present"
+  ],
+  "radio_off_capability": {
+    "scope": "known target refusal-stub detection only; non-stub does not prove safety or completion",
+    "module_sha256": "d4166fc9615d5151c0fb221f640275743148ffa555166a52f1565b4d0a2f3d3a",
+    "symbol": "wr_iot_mt_radio_off_checked",
+    "symbol_bytes": 8,
+    "known_unconditional_false": true,
+    "shutdown_capability": "unavailable",
+    "production_accepted": false,
+    "runtime_verified": false,
+    "disassembly": "\n/home/runner/work/_temp/wr1200js-steering-driver-probe/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3_ap/mt76x3_ap.ko:     file format elf32-tradlittlemips\n\n\nDisassembly of section .text:\n\n000ad5b0 <wr_iot_mt_radio_off_checked>:\n   ad5b0:\t03e00008 \tjr\tra\n   ad5b4:\t00001025 \tmove\tv0,zero\n"
+  },
+  "limitations": [
+    "Observed feature set only; disabled feature variants not proven",
+    "Checked radio-off still unconditional false under LOAD_FW_ONE_TIME",
+    "Not installed in production image; runtime and terminal DMA/IRQ teardown unproved"
+  ]
+}

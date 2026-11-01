@@ -1,3 +1,35 @@
+## 2026-11-01 Sol: AP cleanup split staged and host verified
+
+Hash-pinned prepare-ap-software-shutdown.py adds an unbound AP cleanup entry
+before radio-off, sharing existing cleanup bodies with legacy wrappers. New
+entry skips MlmeRadioOff and early APStop IRQ-disable only; other hardware
+actions remain. Four PCI guard host variants pass ASan/UBSan and injected
+cleanup refusal. Unconditional radio-off/IRQ mutations each fail runtime
+assertions; reverse transform preserves original bodies. Evidence:
+docs/evidence/WR1200JS-IOT-AP-BEFORE-OFF-2026-11-01.json. Not yet merged/bound
+to checked close or target compiled. Next integrate with exact merged source
+manifest and staged close ownership/ACK ordering, keeping refusal until proven.
+
+## 2026-11-01 Sol: peer82 target retry succeeded and artifact verified
+
+Run41320731232 completed success at published ac9e7d4c, including isolated
+merged IoT candidate compilation. Downloaded module SHA256 and ELF32 MIPS
+header independently verified; terminal command join/failed-create symbols
+present. Evidence: docs/evidence/WR1200JS-BUILD670-IOT-TARGET-2026-11-01.json.
+Observed KTHREAD enabled; OS_ABL/PM/timer-task/WSC disabled. Checked OFF remains
+8-byte unconditional false; production/runtime acceptance remains false.
+
+## 2026-11-01 Sol: firmware669 and ABI green; peer82 target retry live
+
+GitHub firmware669 run41319577375 and ABI run41319577376 completed success
+at ac9e7d4c8d83afbbcb2babdc21a34b556caede24. Queue had no active runs.
+Dispatched exactly one optional IoT peer82 run41320731232 on that published
+branch head; local subsequent commits contain diagnostics only and remain
+unpublished. Inspect this run before further dispatch/push. It validates the
+existing candidate, not a fix for newly documented checked OFF ACK ordering.
+Next code task remains restructuring checked shutdown so legacy AP radio-off
+and RX/IRQ teardown cannot precede the owned checked OFF completion.
+
 ## 2026-11-01 Sol: checked OFF ACK delivery ordering blocker
 
 Checked shutdown kills RX tasklets and disables interrupts before synchronous

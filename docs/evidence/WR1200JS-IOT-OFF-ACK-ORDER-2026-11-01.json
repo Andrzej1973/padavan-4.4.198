@@ -8,7 +8,20 @@
   ],
   "ack_path": "PCI ring1 -> RxRing1DoneInterruptHandle -> GetPacketFromRxRing -> parse_rx_packet_type -> AndesMTRxEventHandler -> ack_done",
   "finding": "No traced live RX tasklet/IRQ delivery path remains for the later synchronous ACK. Removing LOAD_FW_ONE_TIME refusal alone cannot make this shutdown usable.",
-  "required_change": "Restructure checked MT shutdown stages so sender admission is closed except owned OFF command, MCU RX/IRQ remains live through ACK, then mask/synchronize IRQ and drain/kill callbacks before MCU/ring cleanup. Preserve partial-stage retry and failure quarantine.",
+  "required_change": "Split checked AP software teardown from legacy MlmeRadioOff/APStop hardware effects, preserving peer/beacon ownership. Place exactly one owned checked OFF while MCU RX/IRQ delivery remains live; then join producers and complete teardown. Retain legacy behavior for unrelated paths and validate retry stages.",
   "limits": "Source ordering proof; no device test. Alternate polled ACK path not found in reviewed call chain.",
-  "production_installed": false
+  "production_installed": false,
+  "earlier_radio_off_path": [
+    "checked shutdown -> APShutdown",
+    "APShutdown -> MlmeRadioOff -> PciMlmeRadioOFF",
+    "MT branch -> MTPciMlmeRadioOff before checked radio-off",
+    "APStop additionally disables interrupts under CONFIG_MAC_PCI; effective macro must be checked"
+  ],
+  "legacy_effects_confirmed": [
+    "MTPciMlmeRadioOff stops netdev queues and sets DISABLE_DEQUEUEPACKET",
+    "disables MAC RX and polls TX/RX",
+    "LOAD_FW_ONE_TIME writes AGG_TEMP without ACK; alternate branch sends legacy CmdRadioOnOffCtrl",
+    "AsicSetWPDMA(PDMA_TX_RX,0), sets RADIO_OFF and disables active interrupts"
+  ],
+  "implementation_dependency": "Do not move checked OFF behind APShutdown. First provide checked AP software-only shutdown entry or split ownership stages, retaining peer/beacon cleanup and legacy callers. ACK must precede both legacy PDMA stop and RX tasklet join."
 }

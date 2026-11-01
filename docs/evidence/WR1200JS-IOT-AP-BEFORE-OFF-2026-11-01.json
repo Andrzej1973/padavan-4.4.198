@@ -1,0 +1,24 @@
+{
+  "date": "2026-11-01",
+  "scope": "isolated peer source AP cleanup entry before radio-off; unbound",
+  "assets_sha256": {
+    "tools/iot/prepare-ap-software-shutdown.py": "6e9d10c8d45b20c4e26d9dbab96108e3c9d221c5add38022b3dee2813bf132ae",
+    "tools/iot/check-ap-before-radio-off.py": "cfc6c6d4776a6614795ee72aaf2977b9bb84ae7bc78a496301eadb6ad9901c5c"
+  },
+  "passed": [
+    "Fresh hash-pinned generator execution",
+    "Exact body preservation by reverse transformation",
+    "Four RTMP_MAC_PCI x CONFIG_MAC_PCI host variants under ASan/UBSan",
+    "Legacy radio-off preserved and new entry skips radio-off/early IRQ disable",
+    "MacTableReset refusal propagated",
+    "Reintroduced unconditional radio-off mutation rejected by runtime assertion",
+    "Reintroduced unconditional IRQ-disable mutation rejected by runtime assertion"
+  ],
+  "limitations": [
+    "Other AP hardware actions remain; not software-only cleanup",
+    "Reduced host feature set; no target compile",
+    "Not bound to checked shutdown; ACK epoch, sender exclusion and retry ordering remain open"
+  ],
+  "production_installed": false,
+  "runtime_verified": false
+}
