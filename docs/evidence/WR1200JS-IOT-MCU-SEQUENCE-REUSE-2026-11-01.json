@@ -32,5 +32,12 @@
     "drain": "blocks admission under same lock, refuses initializing/atomic contexts and waits up to 5000ms before join",
     "limit": "Only guarded network-cookie tasklets are covered; complete IRQ/MCU and DMA producers still require separate evidence."
   },
-  "extracted_allocator_check": "Actual AndesGetCmdMsgSeq body compiled with GCC C11 Wall Wextra Werror, empty-ackq lock/list stubs: sequence1 repeats on allocation16. Passed; this proves allocator reuse only, not late firmware response occurrence."
+  "extracted_allocator_check": "Actual AndesGetCmdMsgSeq body compiled with GCC C11 Wall Wextra Werror, empty-ackq lock/list stubs: sequence1 repeats on allocation16. Passed; this proves allocator reuse only, not late firmware response occurrence.",
+  "on_off_disambiguation": {
+    "command": "_EXT_CMD_RADIO_ON_OFF_CTRL_T carries ucWiFiRadioCtrl",
+    "response": "_EVENT_EXT_CMD_RESULT_T carries only ucExTenCID, three reserved bytes and u4Status; no ON/OFF echo",
+    "parser": "radio-result.h already explicitly limits itself to payload syntax/status",
+    "consequence": "A stale successful RADIO_ON result with reused sequence also cannot be distinguished from RADIO_OFF by current result fields. Ownership wrapper alone cannot prove OFF completion.",
+    "next_requirement": "Establish nonreuse/drain epoch covering both ON and OFF plus all legacy issuers; do not infer new OFF receipt from parser result alone."
+  }
 }

@@ -1627,6 +1627,11 @@ jobs:
             python3 tools/iot/prepare-mcu-sender-binding.py "$merged" "$candidate/mcu-sender"
             merged="$candidate/mcu-sender"
             python3 tools/iot/check-mcu-sender-binding.py "$sender_parent" "$merged"
+            for fixture in check-mcu-sender-owner check-mcu-sender-wrapper check-mcu-sender-drain check-mcu-sender-release check-mcu-message-lifetime; do
+              gcc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
+                -Itools/iot "tools/iot/$fixture.c" -o "$results/$fixture"
+              "$results/$fixture"
+            done
             python3 tools/iot/check-command-lifecycle-calls.py "$merged"
             python3 tools/iot/check-retry-rtnl-header.py "$merged"
             python3 tools/iot/check-main-verify-module-macro.py "$merged"

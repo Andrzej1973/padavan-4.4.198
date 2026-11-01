@@ -1,3 +1,21 @@
+## 2026-11-01 Sol: sender/message ownership fixtures enforced in optional CI
+
+Optional peer82 now compiles/runs five owner/wrapper/drain/release/message
+lifetime fixtures under ASan/UBSan before target build, after exact candidate
+helper identity verification. All five local fixtures pass; YAML/full affected
+bash syntax passes. Disposable test executables automatically removed. This
+adds repeatable host coverage, not firmware ACK or hardware acceptance. Pending
+owned OFF protocol work still requires correlation across legacy ON/OFF issuers.
+
+## 2026-11-01 Sol: owned OFF protocol prerequisite rechecked
+
+Pinned result struct echoes only extended command ID/status, no ON/OFF value;
+radio-result.h already documents this. Sequence reuse risk therefore includes
+late RADIO_ON results, not just duplicate OFF. Owned sender admission alone
+cannot establish firmware completion. Must prove epoch/nonreuse covering all
+legacy ON/OFF issuers before off_done can be accepted. Existing LOAD_FW_ONE_TIME
+refusal preserved. Updated sequence evidence with exact command/result fields.
+
 ## 2026-11-01 Sol: merged MCU sender/message layer target compile verified
 
 Optional peer82 run41330209946 completed success at 1a274b76, including
