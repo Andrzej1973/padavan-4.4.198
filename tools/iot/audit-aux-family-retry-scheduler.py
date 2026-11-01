@@ -103,9 +103,11 @@ assert remove.index('wr_iot_aux_family_retry_rearm_joined(adapter)')<first_flush
 assert 'rtnl_lock(' not in remove[:first_flush]
 assert 'RTMP_IRQ_LOCK(' not in remove[:first_flush]
 retire=remove.index('wr_iot_radio_retire(')
-first_join=remove.index('cancel_work_sync(&adapter->wr_iot_aux_family_retry_work);')
+# STALLED has its own earlier join; select the normal-path join after stop intent.
+stop=remove.index('if (!wr_iot_pci_retirement_stop_requested(')
+first_join=remove.index('cancel_work_sync(&adapter->wr_iot_aux_family_retry_work);',stop)
 children=remove.index('RtmpPhyNetDevExit(pAd, net_dev)')
-second_join=remove.index('cancel_work_sync(&adapter->wr_iot_aux_family_retry_work);',first_join+1)
+second_join=remove.index('cancel_work_sync(&adapter->wr_iot_aux_family_retry_work);',children)
 release_adapter=remove.index('RtmpRaDevCtrlExit(pAd)')
 assert first_flush<retire<first_join<children<second_join<release_adapter
 for start,end in ((first_join,children),(second_join,release_adapter)):

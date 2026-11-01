@@ -2033,6 +2033,7 @@ jobs:
             "$scratch/peer/peer-chain.json" "$scratch/driver-overlay.json" "$scratch/merged"
           python3 tools/iot/audit-aux-family-retry-scheduler.py "$scratch/merged" \
             abi-results/iot-peer-scheduler-audit.json
+          python3 tools/iot/check-aux-family-audit-regression.py "$scratch/merged"
           gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
             -I"$scratch/merged/include" tools/iot/check-peer-rssi-delete.c \
             -o abi-results/check-peer-rssi-delete
