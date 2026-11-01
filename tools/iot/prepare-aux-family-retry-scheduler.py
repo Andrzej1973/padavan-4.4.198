@@ -265,9 +265,9 @@ one('os/linux/rt_profile.c','\tNdisFreeSpinLock(&pAd->wr_iot_transition_lock);',
 
 def agg_locked(match):
  body=match.group(0)
- return ('{ ULONG wr_agg_flags;\n'
-         'RTMP_IRQ_LOCK(&pAd->wr_iot_agg_temp_lock, wr_agg_flags);\n'+body+
-         '\nRTMP_IRQ_UNLOCK(&pAd->wr_iot_agg_temp_lock, wr_agg_flags);\n}')
+ return ('{ ULONG wr_agg_flags = 0;\n'
+         'RTMP_INT_LOCK(&pAd->wr_iot_agg_temp_lock, wr_agg_flags);\n'+body+
+         '\nRTMP_INT_UNLOCK(&pAd->wr_iot_agg_temp_lock, wr_agg_flags);\n}')
 for name,expected in [('hw_ctrl/cmm_asic_mt.c',6),('common/cmm_mac_pci.c',1),
                       ('common/rtmp_init_inf.c',1)]:
  # Preserve original conditional write for RTS; include its closing brace.

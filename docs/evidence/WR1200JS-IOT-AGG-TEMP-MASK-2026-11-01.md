@@ -108,3 +108,29 @@ and mask regression passed. New test is wired into optional candidate CI;
 YAML and complete modified shell step bash syntax passed. Full target-module
 Kbuild, runtime concurrency, terminal retirement and firmware acknowledgement
 remain unverified. Default LOAD_FW_ONE_TIME refusal is unchanged.
+
+## Effective IRQ primitive correction
+
+Actual MIPS preprocessing showed RTMP_IRQ_LOCK expands to spin_lock_bh in
+this target (MULTI_CORE_SUPPORT absent), despite its name. The initial shared
+lock implementation therefore did not establish IRQ save/restore. This was
+caught before publication of that local candidate. Use RTMP_INT_LOCK/UNLOCK
+instead, the existing driver abstraction that always maps to OS_INT_LOCK and
+spin_lock_irqsave/restore on this Linux target. Initialize local flags to zero;
+the vendor OS_IRQ_LOCK macro also contains a read of its flags argument.
+
+Regenerated complete chain/strict merge in /tmp/wr-iot-agg-int-merged passed.
+All five actual modified MIPS TUs recompiled successfully. Preprocessing actual
+cmm_asic_mt.c now shows six critical sections with irqsave, irqrestore, readl
+and writel. Earlier inspection helper initially matched zero sections because
+it expected an uninitialized declaration; corrected matcher found all six.
+The other two wrappers use the same primitive in their source files and were
+MIPS compiled, but no separate effective-macro report was produced for them.
+
+Allocation is before *ppAdapter publication; command-handler CmdQLock is
+released before dispatching MtCmdAsicUpdateProtect. New lock is a leaf with
+only MMIO/mask operations; no nested lock acquisition. This is limited source
+ordering evidence, not proof all callbacks retire before RTMPFreeAdapter.
+The persistent host test now also checks one field/allocation/free and ordering
+before publication. It still substitutes pthread locks and cannot prove IRQ
+semantics; the MIPS preprocessor evidence addresses the effective primitive.

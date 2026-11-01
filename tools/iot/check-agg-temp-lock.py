@@ -6,13 +6,20 @@ p=argparse.ArgumentParser(description=__doc__);p.add_argument('candidate',type=P
 blocks=[]
 for name,count in [('hw_ctrl/cmm_asic_mt.c',6),('common/cmm_mac_pci.c',1),('common/rtmp_init_inf.c',1)]:
  s=(a.candidate/name).read_text()
- found=re.findall(r'\{ ULONG wr_agg_flags;\nRTMP_IRQ_LOCK\(&pAd->wr_iot_agg_temp_lock, wr_agg_flags\);\n.*?\nRTMP_IRQ_UNLOCK\(&pAd->wr_iot_agg_temp_lock, wr_agg_flags\);\n\}',s,re.S)
+ found=re.findall(r'\{ ULONG wr_agg_flags = 0;\nRTMP_INT_LOCK\(&pAd->wr_iot_agg_temp_lock, wr_agg_flags\);\n.*?\nRTMP_INT_UNLOCK\(&pAd->wr_iot_agg_temp_lock, wr_agg_flags\);\n\}',s,re.S)
  assert len(found)==count,(name,len(found))
  assert s.count('RTMP_IO_READ32(pAd, AGG_TEMP,')==count
  for b in found:
   assert b.count('RTMP_IO_READ32')==b.count('RTMP_IO_WRITE32')==1
   assert not any(x in b for x in ['wr_iot_transition_lock','AndesSend','msleep','udelay'])
  blocks+=found
+init=(a.candidate/'common/rtmp_init.c').read_text()
+alloc=init.index('NDIS_STATUS RTMPAllocAdapterBlock(')
+publish=init.index('*ppAdapter = (VOID *)pAd;',alloc)
+assert init.index('NdisAllocateSpinLock(pAd, &pAd->wr_iot_agg_temp_lock);',alloc)<publish
+assert init.count('NdisAllocateSpinLock(pAd, &pAd->wr_iot_agg_temp_lock);')==1
+assert (a.candidate/'os/linux/rt_profile.c').read_text().count('NdisFreeSpinLock(&pAd->wr_iot_agg_temp_lock);')==1
+assert (a.candidate/'include/rtmp.h').read_text().count('NDIS_SPIN_LOCK wr_iot_agg_temp_lock;')==1
 code=r'''
 #include <assert.h>
 #include <pthread.h>
@@ -21,8 +28,8 @@ typedef unsigned long ULONG;
 #define AGG_TEMP 1
 struct adapter {pthread_mutex_t wr_iot_agg_temp_lock;uint32_t reg;};
 static _Thread_local int held;
-#define RTMP_IRQ_LOCK(l,f) do{(f)=0;assert(!held);assert(!pthread_mutex_lock(l));held=1;}while(0)
-#define RTMP_IRQ_UNLOCK(l,f) do{(void)(f);assert(held);held=0;assert(!pthread_mutex_unlock(l));}while(0)
+#define RTMP_INT_LOCK(l,f) do{(f)=0;assert(!held);assert(!pthread_mutex_lock(l));held=1;}while(0)
+#define RTMP_INT_UNLOCK(l,f) do{(void)(f);assert(held);held=0;assert(!pthread_mutex_unlock(l));}while(0)
 #define RTMP_IO_READ32(a,r,v) do{assert(held);*(v)=(a)->reg;}while(0)
 #define RTMP_IO_WRITE32(a,r,v) do{assert(held);(a)->reg=(v);}while(0)
 '''
