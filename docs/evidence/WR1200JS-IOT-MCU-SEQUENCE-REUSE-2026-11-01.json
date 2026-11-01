@@ -1,0 +1,17 @@
+{
+  "date": "2026-11-01",
+  "scope": "source inspection of freshly reproduced peer candidate",
+  "observations": [
+    "AndesGetCmdMsgSeq cycles 1..15 and excludes only currently queued ACK sequences",
+    "checked receive matches sequence then EXT_EVENT/EXT_EVENT_CMD_RESULT, exact packet and declared lengths, radio command result and firmware status",
+    "No attempt generation echoed in firmware response is checked"
+  ],
+  "inference": "A late same-command response after timeout and sequence reuse may satisfy a later checked command. Source inspection does not prove arrival timing or actual occurrence.",
+  "required_next_step": "Establish a protocol-supported drain/reset epoch or nonreuse rule covering all command issuers before accepting checked radio-off completion; retain LOAD_FW_ONE_TIME refusal meanwhile.",
+  "runtime_verified": false,
+  "reset_drain_review": {
+    "AndesCtrlPciInit": "resets cmd_seq to zero and initializes queues",
+    "AndesCtrlPciExit": "clears send/MCU flags, kills tasklet and frees software queues/locks; this function contains no hardware reset or DMA/IRQ completion proof",
+    "conclusion": "Software MCU reinitialization alone cannot establish an epoch excluding delayed firmware responses. Audit complete hardware producer stop/reset before claiming epoch safety."
+  }
+}

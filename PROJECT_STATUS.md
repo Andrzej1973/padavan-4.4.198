@@ -1,3 +1,22 @@
+## 2026-11-01 Sol: MCU sequence reuse acceptance gap
+
+Source inspection identifies possible stale same-command ACK after timeout and
+1..15 sequence reuse. Allocator excludes current ackq only; checked receive
+validates type, lengths and status but no attempt epoch echoed by firmware.
+This is a source-derived possibility, not an observed runtime failure. Evidence:
+docs/evidence/WR1200JS-IOT-MCU-SEQUENCE-REUSE-2026-11-01.json. Preserve current
+LOAD_FW_ONE_TIME refusal until supported completion/drain epoch is established.
+
+## 2026-11-01 Sol: independent host gates pass while build669 runs
+
+At ac9e7d4c, automatic firmware669 run41319577375 and ABI run41319577376
+are live; no duplicate dispatch. Seven focused source checks passed on fresh
+peer source with assembler PCI probe casts; exact scope and limits recorded in
+docs/evidence/WR1200JS-BUILD668-REGRESSION-2026-11-01.json. Temporary
+/tmp/wr-peer82-triage (1.2GiB) retained for unfinished full merge validation;
+remove after that phase, not as accepted evidence. Next inspect CI then run
+optional peer82 once shared firmware queue is clear.
+
 ## 2026-11-01 Sol: build668 regression correction validated
 
 Fresh pinned recovery/full-overlay/peer chain reproduced successfully. The
