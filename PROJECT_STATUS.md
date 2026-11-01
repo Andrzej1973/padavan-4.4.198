@@ -1,3 +1,7 @@
+## 2026-11-01 Sol: existing checked MCU lifetime fixtures replayed on current merge
+
+Executed existing prepare-mcu-sender-check.py --with-dispatcher and prepare-mcu-kickout-check.py against /tmp/wr-iot-checked-send-merged, then compiled/reran extracted C with ASan/UBSan and -Werror. Passed checked response, timeout, absent response, unsubmitted kickout, invalid state/preconditions and pre/post ring ownership failure distinctions. ACK extractor also confirmed original checked branch remains exact in current source and passed response parser fixture with ASan/UBSan. No duplicate MCU protocol implemented; operations/locks/DMA are injected, so real concurrency and firmware-load policy remain open.664 still requires terminal recheck before next publication. Router unchanged.
+
 ## 2026-11-01 Sol: CI distinguishes compiled module from radio-off capability
 
 Added check-radio-off-module.py: verifies MIPS/little-endian ELF, extracts exact checked-off symbol and flags known8-byte jr-ra/move-v0-zero refusal stub as shutdown_capability=unavailable. Other code is unverified, never automatically supported. Report preserves production/runtime=false and disassembly/module hash. Executed against actual662 module: unavailable as expected. Wired report after module preservation in optional target CI; YAML/full-step shell syntax passed. Does not turn compile success into functional acceptance or relax LOAD_FW_ONE_TIME guard. Local new reporting batch;664 still active, ABI passed. Router unchanged.
