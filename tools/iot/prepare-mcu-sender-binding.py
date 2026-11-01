@@ -7,6 +7,14 @@ a=p.parse_args();src=a.source.resolve(strict=True);out=a.output.resolve()
 if out.exists() or src==out or src in out.parents or out in src.parents:p.error('new separate output required')
 pins={'include/rtmp.h': 'bde083b8a2eaa481564e3b480b91d1c438e2901356065f37e3963c5fec9e32d3', 'common/rtmp_init.c': 'ca7e4f406d568bb04ede9245c5ba8f50d130f3e79918a7732811b991d6e638e3', 'mcu/andes_core.c': 'dace085882a8097080b479a37b459dc799724831eece5da16efa41f21370f9a3'}
 pins['os/linux/rt_profile.c']='f7947cff4fc76f9e14e0dd47d08d653d7189f1766fdc3be0ff1547f82b89a521'
+parent_path=src.with_name(src.name+'.manifest.json')
+parent=None
+if parent_path.exists():
+ parent=json.loads(parent_path.read_text())
+ actual={str(f.relative_to(src)):hashlib.sha256(f.read_bytes()).hexdigest() for f in src.rglob('*') if f.is_file()}
+ if actual!=parent.get('merged_driver_sha256') or parent.get('production_installed') is not False:
+  p.error('changed merged input or unsupported acceptance state')
+ pins={'include/rtmp.h': '8739ed3ebd9d7b715074d5ea13add1ab5b0ba4a8b5383889eac8dcdd5490b2c7', 'common/rtmp_init.c': '28da09524ff7712a3b2a6d2331ba901889509224f6fdd329b343ed071495e8c6', 'mcu/andes_core.c': '1d9d162dbe8e9ca782979977dd0d89f993d5126348d7b36600f20c45b87d65ff', 'os/linux/rt_profile.c': '3e45b968dd13082076bb238b4fa0bf52681cb7576e680f4bafe24d0f1f5c691c'}
 texts={}
 for n,h in pins.items():
  raw=(src/n).read_bytes()
@@ -56,5 +64,15 @@ for n,t in texts.items():(out/n).write_text(t)
 for local,target in [('mcu-sender-owner.h','mcu-sender-owner.h'),('mcu-sender-wrapper.inc','wr-iot-mcu-sender-wrapper.inc'),('mcu-sender-drain.inc','wr-iot-mcu-sender-drain.inc'),('mcu-message-lifetime.inc','wr-iot-mcu-message-lifetime.inc'),('mcu-sender-release.inc','wr-iot-mcu-sender-release.inc')]:
  shutil.copyfile(Path(__file__).with_name(local),out/'include'/target)
 r={'scope':'isolated sender/message source binding and software release gates; shutdown/owned OFF and external lifetime unproved; DO NOT INSTALL','input_sha256':pins,'output_sha256':{n:hashlib.sha256((out/n).read_bytes()).hexdigest() for n in pins},'production_installed':False,'target_compiled':False,'runtime_verified':False}
+if parent is not None:
+ merged=dict(parent)
+ actual={str(f.relative_to(out)):hashlib.sha256(f.read_bytes()).hexdigest() for f in out.rglob('*') if f.is_file()}
+ merged['merged_driver_sha256']=actual
+ merged['candidate_driver_sha256']=dict(parent['candidate_driver_sha256'])
+ for n,h in actual.items():
+  if parent['merged_driver_sha256'].get(n)!=h:merged['candidate_driver_sha256'][n]=h
+ merged['mcu_sender_layer']=r
+ merged['target_compiled']=False;merged['production_installed']=False;merged['runtime_verified']=False
+ out.with_name(out.name+'.manifest.json').write_text(json.dumps(merged,indent=2)+'\n')
 out.with_name(out.name+'.sender-binding.json').write_text(json.dumps(r,indent=2)+'\n')
 print('Staged sender/message binding and software release gates; external retirement, IRQ/DMA and shutdown remain unproved')

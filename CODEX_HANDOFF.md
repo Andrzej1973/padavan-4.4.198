@@ -1,3 +1,14 @@
+## 2026-11-01 Sol: sender/message layer added to optional target pipeline
+
+Generator now validates full merged inventory and exact reviewed AP-layer input
+hashes from successful run41324029887, propagates all changed/new file hashes
+and resets target/runtime claims. Optional peer82 applies it after AP layer and
+runs binding checker before existing checks/target build. Peer source generation
+and binding checks pass; YAML/full affected bash syntax passes. Actual merged
+execution and target build for this sender layer pending. Latest five branch
+runs completed successfully; publishing one coherent batch. Next inspect
+automatic CI then optional target run after firmware queue clears.
+
 ## 2026-11-01 Sol: sender software release gates source-bound
 
 Generator adds release helper before RtmpRaDevCtrlExit destructive effects and
