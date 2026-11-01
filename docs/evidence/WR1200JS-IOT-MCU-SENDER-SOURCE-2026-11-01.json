@@ -2,18 +2,23 @@
   "date": "2026-11-01",
   "scope": "isolated normal sender source binding on exact peer source",
   "assets_sha256": {
-    "tools/iot/prepare-mcu-sender-binding.py": "d9df7a967b1cf001b0cfa352aa485120e65ecc6ec1691b061c4a2518fc6fccfe",
-    "tools/iot/check-mcu-sender-binding.py": "13c8e2643bd12a774c2cd52ca8077314e378a0e3d031ad04a5904cf215c73383"
+    "tools/iot/prepare-mcu-sender-binding.py": "aacb8ecb3bf130c8e0643f67f245d6d42e961983be04247fef6e9bf2e0189147",
+    "tools/iot/check-mcu-sender-binding.py": "c6d960903f0f03796938385428ceedf2cd669aeb8539eeb0b0abcf7762f9b20c",
+    "tools/iot/mcu-sender-drain.inc": "3310ab218c069b8c582ef3c550824cf651e282e4ec3a09c47d05c608f93c0039",
+    "tools/iot/check-mcu-sender-drain.c": "880cfd39eb8246971251a26a0b7f8676f9acb7126282ab7033575466ff3d6121"
   },
   "checks": [
     "Actual transport body preserved exactly after rename/include reversal",
     "Copied wrapper/owner identity matches tested assets",
     "Owner initialization before preallocated ring allocation",
     "Generated receipt hashes match output",
-    "Exact failure-cleanup statements executed under ASan/UBSan before and after initialization; lock cleanup precedes adapter free"
+    "Exact failure-cleanup statements executed under ASan/UBSan before and after initialization; lock cleanup precedes adapter free",
+    "Generated source copies exact bounded close/drain helper",
+    "Host ASan/UBSan: atomic/IRQ-disabled refusal before close, exact serial, active sender timeout, delayed sender completion and uncertain OFF refusal",
+    "Forced-ready mutation rejected by runtime assertion"
   ],
   "limits": [
-    "No normal close/drain/release binding or normal lock destruction yet",
+    "Close/drain helper present but not called by shutdown; release gate and normal lock destruction unbound",
     "OS_ABL dynamic lock allocation failure not proven",
     "No target compilation or production installation",
     "External caller retirement and asynchronous queue/DMA completion remain required"

@@ -4,12 +4,12 @@ import argparse,hashlib,json,subprocess,tempfile
 from pathlib import Path
 p=argparse.ArgumentParser(description=__doc__);p.add_argument('source',type=Path);p.add_argument('candidate',type=Path);a=p.parse_args()
 here=Path(__file__).resolve().parent
-for local,target in [('mcu-sender-owner.h','mcu-sender-owner.h'),('mcu-sender-wrapper.inc','wr-iot-mcu-sender-wrapper.inc')]:
+for local,target in [('mcu-sender-owner.h','mcu-sender-owner.h'),('mcu-sender-wrapper.inc','wr-iot-mcu-sender-wrapper.inc'),('mcu-sender-drain.inc','wr-iot-mcu-sender-drain.inc')]:
  assert (here/local).read_bytes()==(a.candidate/'include'/target).read_bytes(),target
 old=(a.source/'mcu/andes_core.c').read_text();new=(a.candidate/'mcu/andes_core.c').read_text()
 public='INT32 AndesSendCmdMsg(PRTMP_ADAPTER ad, struct cmd_msg *msg)'
 private='static INT32 wr_iot_mcu_send_body(PRTMP_ADAPTER ad, struct cmd_msg *msg)'
-include='\n#include "wr-iot-mcu-sender-wrapper.inc"\n'
+include='\n#include "wr-iot-mcu-sender-wrapper.inc"\n#include "wr-iot-mcu-sender-drain.inc"\n'
 assert new.count(private)==1 and new.count(include)==1
 assert new.replace(private,public,1).replace(include,'',1)==old,'transport changed beyond wrapper binding'
 init=(a.candidate/'common/rtmp_init.c').read_text()

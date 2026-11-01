@@ -28,10 +28,10 @@ one('common/rtmp_init.c','\t\t\tRtmpOsVfree(pAd);',
 n='mcu/andes_core.c';sig='INT32 AndesSendCmdMsg(PRTMP_ADAPTER ad, struct cmd_msg *msg)'
 one(n,sig,'static INT32 wr_iot_mcu_send_body(PRTMP_ADAPTER ad, struct cmd_msg *msg)')
 start=texts[n].index('static INT32 wr_iot_mcu_send_body(');end=texts[n].index('\n}',start)+2
-texts[n]=texts[n][:end]+'\n#include "wr-iot-mcu-sender-wrapper.inc"\n'+texts[n][end:]
+texts[n]=texts[n][:end]+'\n#include "wr-iot-mcu-sender-wrapper.inc"\n#include "wr-iot-mcu-sender-drain.inc"\n'+texts[n][end:]
 shutil.copytree(src,out)
 for n,t in texts.items():(out/n).write_text(t)
-for local,target in [('mcu-sender-owner.h','mcu-sender-owner.h'),('mcu-sender-wrapper.inc','wr-iot-mcu-sender-wrapper.inc')]:
+for local,target in [('mcu-sender-owner.h','mcu-sender-owner.h'),('mcu-sender-wrapper.inc','wr-iot-mcu-sender-wrapper.inc'),('mcu-sender-drain.inc','wr-iot-mcu-sender-drain.inc')]:
  shutil.copyfile(Path(__file__).with_name(local),out/'include'/target)
 r={'scope':'normal sender source binding only; no close/drain/release or lock destruction binding; DO NOT INSTALL','input_sha256':pins,'output_sha256':{n:hashlib.sha256((out/n).read_bytes()).hexdigest() for n in pins},'production_installed':False,'target_compiled':False,'runtime_verified':False}
 out.with_name(out.name+'.sender-binding.json').write_text(json.dumps(r,indent=2)+'\n')

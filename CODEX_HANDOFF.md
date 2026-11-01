@@ -1,3 +1,15 @@
+## 2026-11-01 Sol: bounded sender close/drain helper staged
+
+Added mcu-sender-drain.inc to isolated sender source generator. Exact serial
+closure under dedicated lock; waits outside lock for at most5000ms; refuses
+atomic/IRQ-disabled context, timeout, active/uncertain OFF and foreign serial.
+Host ASan/UBSan fixture passes delayed completion and refusal cases; forcing
+ready with a live sender fails its assertion. Source checker passes helper
+identity/body preservation/unwind on regenerated output. Not yet called from
+shutdown or adapter release; do not close admission ahead of AP cleanup MCU
+commands without sequencing their completion and exclusive owned OFF. Normal
+lock destruction, external caller retirement and hardware completion remain open.
+
 ## 2026-11-01 Sol: normal sender source layer and allocation unwind staged
 
 prepare-mcu-sender-binding.py creates separate exact peer source with adapter
