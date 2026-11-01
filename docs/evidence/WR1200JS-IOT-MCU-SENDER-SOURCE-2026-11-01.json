@@ -2,10 +2,12 @@
   "date": "2026-11-01",
   "scope": "isolated normal sender source binding on exact peer source",
   "assets_sha256": {
-    "tools/iot/prepare-mcu-sender-binding.py": "aacb8ecb3bf130c8e0643f67f245d6d42e961983be04247fef6e9bf2e0189147",
-    "tools/iot/check-mcu-sender-binding.py": "c6d960903f0f03796938385428ceedf2cd669aeb8539eeb0b0abcf7762f9b20c",
+    "tools/iot/prepare-mcu-sender-binding.py": "5f35b9c8035a553a57d2ec8dce159c24ed25188c30de406179a0f3bbdce71c4d",
+    "tools/iot/check-mcu-sender-binding.py": "4cbca4cceeeb88d90f86f2728c61eaab864c539316f51762b07ed0f11bd67401",
     "tools/iot/mcu-sender-drain.inc": "3310ab218c069b8c582ef3c550824cf651e282e4ec3a09c47d05c608f93c0039",
-    "tools/iot/check-mcu-sender-drain.c": "880cfd39eb8246971251a26a0b7f8676f9acb7126282ab7033575466ff3d6121"
+    "tools/iot/check-mcu-sender-drain.c": "880cfd39eb8246971251a26a0b7f8676f9acb7126282ab7033575466ff3d6121",
+    "tools/iot/mcu-message-lifetime.inc": "21175ec4d3e3e65bc3da55ed8c45fb90665ceebecd6ea8940866cb827e5dc758",
+    "tools/iot/check-mcu-message-lifetime.c": "a2c425b7920cdf138ef1d72062c40371d0fbc3490a3d5fb523881de7b124f4aa"
   },
   "checks": [
     "Actual transport body preserved exactly after rename/include reversal",
@@ -15,13 +17,17 @@
     "Exact failure-cleanup statements executed under ASan/UBSan before and after initialization; lock cleanup precedes adapter free",
     "Generated source copies exact bounded close/drain helper",
     "Host ASan/UBSan: atomic/IRQ-disabled refusal before close, exact serial, active sender timeout, delayed sender completion and uncertain OFF refusal",
-    "Forced-ready mutation rejected by runtime assertion"
+    "Forced-ready mutation rejected by runtime assertion",
+    "Allocator reservation before raw allocator; failure drops reservation",
+    "Both vendor destructors drop lease after final MCU counter access; source body reversal verified",
+    "Exact lifetime helper host ASan/UBSan: allocation failure, RX after TX close, final unlock adapter free and post-release refusal"
   ],
   "limits": [
     "Close/drain helper present but not called by shutdown; release gate and normal lock destruction unbound",
     "OS_ABL dynamic lock allocation failure not proven",
     "No target compilation or production installation",
-    "External caller retirement and asynchronous queue/DMA completion remain required"
+    "External caller retirement and asynchronous queue/DMA completion remain required",
+    "Destructor fixture simulates final counter/drop order; complete actual destructor/feature variants still require target and integration checks"
   ],
   "target_compiled": false,
   "production_installed": false,

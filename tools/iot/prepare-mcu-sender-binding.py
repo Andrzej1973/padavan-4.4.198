@@ -25,13 +25,26 @@ one('common/rtmp_init.c','        init_waitqueue_head(&pAd->wr_iot_mcu_sender_wa
  '        init_waitqueue_head(&pAd->wr_iot_mcu_sender_wait);\n        wr_sender_lock_initialized=1;')
 one('common/rtmp_init.c','\t\t\tRtmpOsVfree(pAd);',
  '\t\t\tif(wr_sender_lock_initialized) NdisFreeSpinLock(&pAd->wr_iot_mcu_sender_lock);\n\t\t\tRtmpOsVfree(pAd);')
+n='mcu/andes_core.c'
+one(n,'struct cmd_msg *AndesAllocCmdMsg(RTMP_ADAPTER *ad, unsigned int length)',
+ 'static struct cmd_msg *wr_iot_mcu_alloc_body(RTMP_ADAPTER *ad, unsigned int length)')
+start=texts[n].index('static struct cmd_msg *wr_iot_mcu_alloc_body(');end=texts[n].index('\n}',start)+2
+texts[n]=texts[n][:end]+'\n#include "wr-iot-mcu-message-lifetime.inc"\n'+texts[n][end:]
+# Both actual destructors update MCU counters after freeing msg. Drop the
+# message lease only after that last adapter access, never inspect freed msg.
+for sig in ['VOID AndesFreeCmdMsg(struct cmd_msg *msg)','VOID AndesForceFreeCmdMsg(struct cmd_msg *msg)']:
+ start=texts[n].index(sig);end=texts[n].index('\n}',start)+2
+ body=texts[n][start:end];old='\tctl->free_cmd_msg++;'
+ if body.count(old)!=1:p.error('changed destructor counter: '+sig)
+ body=body.replace(old,old+'\n wr_iot_mcu_message_drop(ad);',1)
+ texts[n]=texts[n][:start]+body+texts[n][end:]
 n='mcu/andes_core.c';sig='INT32 AndesSendCmdMsg(PRTMP_ADAPTER ad, struct cmd_msg *msg)'
 one(n,sig,'static INT32 wr_iot_mcu_send_body(PRTMP_ADAPTER ad, struct cmd_msg *msg)')
 start=texts[n].index('static INT32 wr_iot_mcu_send_body(');end=texts[n].index('\n}',start)+2
 texts[n]=texts[n][:end]+'\n#include "wr-iot-mcu-sender-wrapper.inc"\n#include "wr-iot-mcu-sender-drain.inc"\n'+texts[n][end:]
 shutil.copytree(src,out)
 for n,t in texts.items():(out/n).write_text(t)
-for local,target in [('mcu-sender-owner.h','mcu-sender-owner.h'),('mcu-sender-wrapper.inc','wr-iot-mcu-sender-wrapper.inc'),('mcu-sender-drain.inc','wr-iot-mcu-sender-drain.inc')]:
+for local,target in [('mcu-sender-owner.h','mcu-sender-owner.h'),('mcu-sender-wrapper.inc','wr-iot-mcu-sender-wrapper.inc'),('mcu-sender-drain.inc','wr-iot-mcu-sender-drain.inc'),('mcu-message-lifetime.inc','wr-iot-mcu-message-lifetime.inc')]:
  shutil.copyfile(Path(__file__).with_name(local),out/'include'/target)
 r={'scope':'normal sender source binding only; no close/drain/release or lock destruction binding; DO NOT INSTALL','input_sha256':pins,'output_sha256':{n:hashlib.sha256((out/n).read_bytes()).hexdigest() for n in pins},'production_installed':False,'target_compiled':False,'runtime_verified':False}
 out.with_name(out.name+'.sender-binding.json').write_text(json.dumps(r,indent=2)+'\n')

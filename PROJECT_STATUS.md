@@ -1,3 +1,13 @@
+## 2026-11-01 Sol: MCU message lifetime source binding host verified
+
+Generator wraps actual allocator before chipCap/MCU reads, retains reservation
+through message life, drops on allocation failure and after final counter access
+in both destructors. Source reversal proves unchanged vendor bodies apart from
+these exact edits. Actual helper host fixture passes ASan/UBSan for allocation
+failure, RX after TX closure, release refusal with live message, and immediate
+adapter free at final message unlock. No later adapter access observed. Not
+merged/target compiled; normal release gates and caller retirement remain open.
+
 ## 2026-11-01 Sol: MCU message ownership separated from send invocation
 
 Actual MCU allocator is shared with RX event handling, so closing all allocation
