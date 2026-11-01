@@ -2,6 +2,7 @@
 """Bind the isolated APCLI/Monitor retry scheduler to a new candidate tree."""
 import argparse
 import hashlib
+import re
 import shutil
 from pathlib import Path
 
@@ -16,6 +17,8 @@ if out.exists() or src==out or src in out.parents or out in src.parents:
  p.error('new separate output required')
 
 pins={
+ 'common/cmm_mac_pci.c':'f013d5b5c91924564050db44198c70dc87ca5814502ee74601eb211dd95e3622',
+ 'common/rtmp_init_inf.c':'b0fac876abddfc5d9a10d9f19bb7cd419ca47ea20fc30778954bc2e629d45c3e',
  'hw_ctrl/cmm_asic_mt.c':'63680cb3fc61df6c67a39aa2ac9581afc3740fd6fadee2e9321610ad597603e1',
  'mcu/andes_mt.c':'e7e49e1b523461c89c8ed5dd4bc58f0a82e7a533fc9863eb632ea36a7b0dd0f8',
  'include/wr-iot-peer-open-client.inc':'bd352de23d2af6ece8d15cb1f9291586a3a01039f3f54f31a796313afc20be23',
@@ -248,6 +251,34 @@ one('include/wr-iot-peer-adapter-release.inc',
 # Preserve unrelated AGG_TEMP bits, including the firmware radio-off request.
 # This fixes the mask only; shared-register RMW serialization is still required.
 one('hw_ctrl/cmm_asic_mt.c', 'Value &= (0<<1);', 'Value &= ~(1U << 1);')
+
+# A separate leaf IRQ lock covers every AGG_TEMP CPU RMW. No sleeping calls,
+# transition lock acquisition or firmware wait is allowed inside these blocks.
+one('include/rtmp.h','\tNDIS_SPIN_LOCK wr_iot_transition_lock;',
+    '\tNDIS_SPIN_LOCK wr_iot_agg_temp_lock;\n\tNDIS_SPIN_LOCK wr_iot_transition_lock;')
+one('common/rtmp_init.c','\t\tNdisAllocateSpinLock(pAd, &pAd->irq_lock);',
+    '\t\tNdisAllocateSpinLock(pAd, &pAd->wr_iot_agg_temp_lock);\n'
+    '\t\tNdisAllocateSpinLock(pAd, &pAd->irq_lock);')
+one('os/linux/rt_profile.c','\tNdisFreeSpinLock(&pAd->wr_iot_transition_lock);',
+    '\tNdisFreeSpinLock(&pAd->wr_iot_agg_temp_lock);\n'
+    '\tNdisFreeSpinLock(&pAd->wr_iot_transition_lock);')
+
+def agg_locked(match):
+ body=match.group(0)
+ return ('{ ULONG wr_agg_flags;\n'
+         'RTMP_IRQ_LOCK(&pAd->wr_iot_agg_temp_lock, wr_agg_flags);\n'+body+
+         '\nRTMP_IRQ_UNLOCK(&pAd->wr_iot_agg_temp_lock, wr_agg_flags);\n}')
+for name,expected in [('hw_ctrl/cmm_asic_mt.c',6),('common/cmm_mac_pci.c',1),
+                      ('common/rtmp_init_inf.c',1)]:
+ # Preserve original conditional write for RTS; include its closing brace.
+ pattern=(r'RTMP_IO_READ32\(pAd, AGG_TEMP, &Value\);\s*'
+          r'if \(\(Value & \(1<<1\)\) [!=]= 0\) \{\s*'
+          r'Value [|&]= [^;]+;\s*RTMP_IO_WRITE32\(pAd, AGG_TEMP, Value\);\s*\}'
+          r'|RTMP_IO_READ32\(pAd, AGG_TEMP, &value\);\s*'
+          r'value [|&]= [^;]+;\s*RTMP_IO_WRITE32\(pAd, AGG_TEMP, value\);')
+ texts[name],count=re.subn(pattern,agg_locked,texts[name])
+ if count!=expected:p.error('AGG_TEMP RMW inventory changed: '+name+': '+str(count))
+
 # Reuse existing checked message ownership/result handling, not generic callback.
 one('mcu/andes_mt.c','INT32 CmdRadioOnOffCtrl(RTMP_ADAPTER *pAd, UINT8 On)',
     'INT32 wr_iot_send_radio_off_checked(RTMP_ADAPTER *pAd)\n'

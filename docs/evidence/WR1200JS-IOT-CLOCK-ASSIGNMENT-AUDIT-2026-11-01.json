@@ -1,0 +1,47 @@
+{
+  "schema": 1,
+  "date": "2026-11-01",
+  "candidate_commit": "5601556fa880554492eb679b4ed30c7383ef76d2",
+  "method": "Five actual source units preprocessed using captured rt_linux WR1200JS MIPS flags, paths/basename adapted; direct bPCIclkOff assignments extracted from preprocessed output",
+  "results": [
+    {
+      "unit": "hw_ctrl/cmm_asic_mt.c",
+      "assignments": [],
+      "true_assignment_observed": false
+    },
+    {
+      "unit": "common/cmm_mac_pci.c",
+      "assignments": [
+        "0"
+      ],
+      "true_assignment_observed": false
+    },
+    {
+      "unit": "common/rtmp_init_inf.c",
+      "assignments": [],
+      "true_assignment_observed": false
+    },
+    {
+      "unit": "common/rtmp_init.c",
+      "assignments": [
+        "0"
+      ],
+      "true_assignment_observed": false
+    },
+    {
+      "unit": "os/linux/rt_rbus_pci_drv.c",
+      "assignments": [
+        "0"
+      ],
+      "true_assignment_observed": false
+    }
+  ],
+  "limitations": [
+    "Not independently captured per-TU Kbuild commands",
+    "Does not exclude indirect writes through aliases or external/binary components",
+    "No hardware clock measurement; no lifetime or firmware acknowledgement proof"
+  ],
+  "conclusion": "No direct TRUE assignment observed. Do not treat active clock-off transitions as a confirmed current-target blocker. Shared AGG_TEMP RMW serialization and adapter retirement remain unresolved.",
+  "production_installed": false,
+  "runtime_verified": false
+}
