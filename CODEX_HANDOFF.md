@@ -1,3 +1,20 @@
+## 2026-11-02 Sol: MBSS callback/work contexts host and MIPS verified
+
+Staged per-slot work contexts initialized before storage_live publication.
+Actual worker admits exact owner/action, invokes checked MBSS backend outside
+RTNL, retains failures and records completion without reaping itself/dev_put.
+Idle guard includes work_busy and is used for raw/control free, main/MBSS open
+and MBSS removal. Actual callback/owner ASan/UBSan with injected backend passes
+retry, stale/context/stop refusal and live-work-after-owner-reset refusal.
+Four exact merged MIPS TUs pass: rtmp_init, rt_main_dev, rt_profile, ap_mbss_inf.
+Evidence: docs/evidence/WR1200JS-IOT-MBSS-WORK-BINDING-2026-11-02.json.
+Normal admission and PCI join/reap NOT bound; layer not yet integrated into CI.
+Next external join/reap + PCI guards, update existing fixture layouts, then
+admission. Removed227.0 MiB generated trees/objects plus host scratch; inputs
+retained. Optional41494934963 succeeded on4284dd43; downloaded module SHA256/
+MIPS and WSC target TU independently checked, artifact scratch8.2 MiB removed.
+No runtime or final release acceptance. No router actions.
+
 ## 2026-11-02 Sol: raw/control adapter frees fence recovery before MCU stop
 
 New isolated layer marks recovery storage cold after allocation and live only
