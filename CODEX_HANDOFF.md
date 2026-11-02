@@ -1,3 +1,15 @@
+## 2026-11-02 Sol: MBSS external reap requires complete published identity
+
+Hardened unbound external join helper before PCI integration: require nonzero
+device/generation/token/serial, valid saved ticket with matching serial,
+RUNNING/STOPPING completed owner and still-published, non-removing original
+registration. ASan/UBSan actual helper/worker fixture passes additional invalid
+ticket, serial mismatch, unpublished/removing record and inconsistent owner
+phase faults; each retains netdev ref. Success/repeat reap and previous stale/
+failed/context cases still pass. Temporary merged chain and binaries removed.
+No production/target/runtime claim for join helper; PCI serialized join/reap
+and admission integration remain next. No router action.
+
 ## 2026-11-02 Sol: external MBSS completion join helper host verified
 
 Added unbound mbss-recovery-join.inc: external adapter-pinned caller flushes

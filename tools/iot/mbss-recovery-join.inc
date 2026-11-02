@@ -16,7 +16,12 @@ INT wr_iot_mbss_recovery_join_completed(RTMP_ADAPTER *ad)
   if(!work_busy(&ad->wr_iot_mbss_work[slot].work)&&owner->completed){
    const struct wr_iot_interface_ref *r=&ad->wr_iot_interface_refs[slot];
    /* Completion belongs to this original registration, never a reused slot. */
-   if(r->device==owner->device&&r->generation==owner->generation&&
+   if(owner->device&&owner->generation&&owner->open_token&&
+      owner->close_serial&&owner->close_ticket_valid&&
+      owner->close_ticket.serial==owner->close_serial&&
+      (owner->phase==WR_MBSS_OWNER_RUNNING||owner->phase==WR_MBSS_OWNER_STOPPING)&&
+      r->published&&!r->removing&&!r->removal_stage&&
+      r->device==owner->device&&r->generation==owner->generation&&
       r->last_token==owner->open_token&&r->family==WR_REF_FAMILY_MBSS&&
       r->phase==WR_REF_IDLE&&r->close_stage==4U&&
       r->close_serial==owner->close_serial&&

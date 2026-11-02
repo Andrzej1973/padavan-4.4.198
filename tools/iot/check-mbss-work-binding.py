@@ -102,6 +102,15 @@ static void dev_put(PNET_DEV dev){assert(!held&&dev&&dev->refs==1);put_calls++;d
  assert(wr_iot_mbss_recovery_join_completed(&ad)==-1&&dev.refs==1&&!put_calls);
  ready(&ad,&main,&dev);queue(&ad);execute(&ad);ad.wr_iot_interface_refs[1].generation++;put_calls=0;
  assert(wr_iot_mbss_recovery_join_completed(&ad)==-1&&dev.refs==1&&!put_calls);
+ for(int fault=0;fault<5;fault++){
+  ready(&ad,&main,&dev);queue(&ad);execute(&ad);put_calls=0;
+  if(fault==0)ad.wr_iot_mbss_recovery[1].close_ticket_valid=0;
+  if(fault==1)ad.wr_iot_mbss_recovery[1].close_ticket.serial++;
+  if(fault==2)ad.wr_iot_interface_refs[1].published=0;
+  if(fault==3)ad.wr_iot_interface_refs[1].removing=1;
+  if(fault==4)ad.wr_iot_mbss_recovery[1].phase=WR_MBSS_OWNER_IDLE;
+  assert(wr_iot_mbss_recovery_join_completed(&ad)==-1&&dev.refs==1&&!put_calls);
+ }
  ready(&ad,&main,&dev);context_bad=1;flush_calls=0;
  assert(wr_iot_mbss_recovery_join_completed(&ad)==-1&&!flush_calls);
  return 0;
