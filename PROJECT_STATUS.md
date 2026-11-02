@@ -1,3 +1,21 @@
+## 2026-11-02 Sol: PCI child/main preclose bound in isolated peer82 candidate
+
+Added generation-pinned close-only preclose: children first, main last, no
+unregister/free. Bounded PCI recovery drain keeps workers live and records
+DRAINED only after preclose succeeds. Terminal command join now follows that
+drain, before recovery stop. ASan/UBSan actual helper/extracted drain, exact
+merged MIPS PCI TU, downstream source gates and YAML/bash syntax pass.
+Evidence: docs/evidence/WR1200JS-IOT-PCI-PRECLOSE-VERIFICATION-2026-11-02.json.
+Raw-reader counterexample is reproduced and included in optional CI; vendor
+unregister alone is not reader retirement. WDS reaper/final PCI release, stale
+firmware ACK boundary, image and runtime acceptance remain open. Next bind
+post-unregister WDS continuation to actual reader/worker retirement receipts.
+Published 988ac653 automatic runs41476867774/41476867827 and prior optional
+41473820954 succeeded. Current optional41480234434 still compiling firmware;
+it predates these local changes. Do not push over/cancel that useful run.
+All generated scratch trees/binaries/objects removed; unfinished inputs kept.
+Root cleanup transport already documented in AGENTS.md; no password stored.
+
 ## 2026-11-02 Sol: WDS generation followup ready for coherent publication
 
 Final exact merged WDS MIPS TU, actual capture/stale receipt fixture and all

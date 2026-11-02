@@ -1646,6 +1646,14 @@ jobs:
             python3 tools/iot/prepare-wds-unregister-generation.py "$merged" "$candidate/wds-unregister-generation"
             merged="$candidate/wds-unregister-generation"
             python3 tools/iot/check-wds-unregister-generation.py "$merged"
+            # Counterexample only: unregister does not retire raw RX readers.
+            python3 tools/iot/check-wdev-unregister-reader-lifetime.py "$merged"
+            python3 tools/iot/prepare-pci-netdev-preclose.py "$merged" "$candidate/pci-netdev-preclosed"
+            merged="$candidate/pci-netdev-preclosed"
+            python3 tools/iot/check-pci-netdev-preclose-binding.py "$merged"
+            gcc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
+              -Itools/iot tools/iot/check-pci-netdev-preclose.c -o "$results/check-pci-netdev-preclose"
+            "$results/check-pci-netdev-preclose"
             gcc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
               -Itools/iot tools/iot/check-mcu-dma-disabled-idle.c -o "$results/check-mcu-dma-disabled-idle"
             "$results/check-mcu-dma-disabled-idle"
