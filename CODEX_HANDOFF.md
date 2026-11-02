@@ -1,3 +1,18 @@
+## 2026-11-02 Sol: MBSS submission-entry preparer fully verified
+
+Completed the previously uncommitted `prepare-mbss-submission-entry.py`.
+It creates a separate candidate only after authenticating the preceding
+reaper-gate manifest, reverse-checks both anchors, installs the exact local
+submission helper, and records that callback and ordinary reap stay unbound.
+A fresh full candidate pipeline, the actual submission/gate/worker/join
+ASan/UBSan fixture, and the exact merged `common/rtmp_init.c` MIPS TU all
+pass. The kernel scheduler and close backend remain injected in the host
+fixture; this is neither a module/image nor device/runtime claim. Removed the
+interrupted verification scratch tree (64,975,885 bytes); all new temporary
+candidate trees were automatically removed. Next work remains ordinary
+external reap/retry binding and coherent CI integration before callbacks can
+be enabled. Router untouched.
+
 ## 2026-11-02 Sol: gated MBSS submission helper host verified
 
 Added unbound mbss-recovery-submit.inc for acquired-open owners. Netdev hold
