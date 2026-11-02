@@ -1,3 +1,21 @@
+## 2026-11-02 Sol: exact last-user close matrix identifies next MBSS binding
+
+Reconstructed exact merged candidate through main physical delegation.
+MBSS_VirtualIF_Close still calls checked executor inline; that executor allows
+WR_RADIO_CLOSE at vendor_count1 and reaches shared physical down. Adapter has
+no MBSS recovery owner field. WDS/APCLI/monitor common reserve instead refuses
+vendor_count<=1 before side effects; safe refusal is incomplete functionality.
+Evidence with source hashes/anchors:
+docs/evidence/WR1200JS-IOT-LAST-USER-CLOSE-MATRIX-2026-11-02.json.
+Next bind MBSS deferred owner and EVERY adapter-free/PCI drain fence before
+moving its physical close outside RTNL. Preserve MBSS stages/module ownership;
+do not reuse MAIN-only owner for an MBSS registration. Other auxiliary last-user
+paths need their distinct physical owner afterward. No release gate weakened.
+Removed measured 186.6 MiB of exclusively generated audit candidate trees;
+retained pinned/prepared/peer inputs for unfinished IoT work. No device action.
+Published4284dd43 CI remains active: ABI41491992010 currently exercises pinned
+dnsmasq IoT/LAN DHCP/DNS transactions. No new build or push issued here.
+
 ## 2026-11-02 Sol: main physical close delegated from ndo_stop/VERIFY
 
 New isolated layer queues last-user WR_RADIO_CLOSE to exact pinned recovery
