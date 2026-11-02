@@ -26,7 +26,7 @@ code=r'''
 typedef struct {int handle;} RTMP_OS_TASK;
 typedef struct {int id;} RALINK_TIMER_STRUCT;
 #define MAX_APCLI_NUM 2
-typedef struct {struct {RALINK_TIMER_STRUCT PeriodicTimer,RxAntEvalTimer,APSDPeriodicTimer;} Mlme;struct {RALINK_TIMER_STRUCT ApQuickResponeForRateUpTimer;struct {struct {RALINK_TIMER_STRUCT ProbeTimer,ApCliAssocTimer,ApCliAuthTimer;} MlmeAux;} ApCliTab[MAX_APCLI_NUM];} ApCfg;struct {RALINK_TIMER_STRUCT APScanTimer;} ScanCtrl;RTMP_OS_TASK mlmeTask;int wr_iot_transition_lock;struct {unsigned int shutdown_stage;} wr_iot_transition;} RTMP_ADAPTER;
+typedef struct {struct {RALINK_TIMER_STRUCT PeriodicTimer,RxAntEvalTimer,APSDPeriodicTimer;} Mlme;struct {RALINK_TIMER_STRUCT ApQuickResponeForRateUpTimer;struct {struct {RALINK_TIMER_STRUCT ProbeTimer,ApCliAssocTimer,ApCliAuthTimer;} MlmeAux;struct {RALINK_TIMER_STRUCT WscProfileRetryTimer;} WscControl;} ApCliTab[MAX_APCLI_NUM];} ApCfg;struct {RALINK_TIMER_STRUCT APScanTimer;} ScanCtrl;RTMP_OS_TASK mlmeTask;int wr_iot_transition_lock;struct {unsigned int shutdown_stage;} wr_iot_transition;} RTMP_ADAPTER;
 static int kill_result,kill_calls,context_bad,identity,cleanups,held;
 static int RtmpOSTaskKill(RTMP_OS_TASK *t){assert(t&&!held);kill_calls++;return kill_result;}
 static int wr_iot_os_join_context(void){return context_bad;}
@@ -39,7 +39,12 @@ if has_timer_join:
 static int timer_calls,timer_fail;
 #ifdef CONFIG_AP_SUPPORT
 #ifdef APCLI_SUPPORT
-#define JOIN_APCLI (3*MAX_APCLI_NUM)
+#ifdef WSC_AP_SUPPORT
+#define JOIN_APCLI_WIDTH 4
+#else
+#define JOIN_APCLI_WIDTH 3
+#endif
+#define JOIN_APCLI (JOIN_APCLI_WIDTH*MAX_APCLI_NUM)
 #else
 #define JOIN_APCLI 0
 #endif
@@ -54,12 +59,15 @@ static int timer_calls,timer_fail;
 #endif
 static int wr_iot_timer_join_checked(RTMP_ADAPTER *ad,RALINK_TIMER_STRUCT *t,unsigned long timeout){
  assert(ad&&t&&!held&&timeout==5000);timer_calls++;
- RALINK_TIMER_STRUCT *expected[11]={&ad->Mlme.PeriodicTimer,&ad->Mlme.RxAntEvalTimer,&ad->Mlme.APSDPeriodicTimer,&ad->ApCfg.ApQuickResponeForRateUpTimer};
+ RALINK_TIMER_STRUCT *expected[13]={&ad->Mlme.PeriodicTimer,&ad->Mlme.RxAntEvalTimer,&ad->Mlme.APSDPeriodicTimer,&ad->ApCfg.ApQuickResponeForRateUpTimer};
 #if defined(CONFIG_AP_SUPPORT) && defined(APCLI_SUPPORT)
  for(unsigned int i=0;i<MAX_APCLI_NUM;i++){
-  expected[4+3*i]=&ad->ApCfg.ApCliTab[i].MlmeAux.ProbeTimer;
-  expected[5+3*i]=&ad->ApCfg.ApCliTab[i].MlmeAux.ApCliAssocTimer;
-  expected[6+3*i]=&ad->ApCfg.ApCliTab[i].MlmeAux.ApCliAuthTimer;
+  expected[4+JOIN_APCLI_WIDTH*i]=&ad->ApCfg.ApCliTab[i].MlmeAux.ProbeTimer;
+  expected[5+JOIN_APCLI_WIDTH*i]=&ad->ApCfg.ApCliTab[i].MlmeAux.ApCliAssocTimer;
+  expected[6+JOIN_APCLI_WIDTH*i]=&ad->ApCfg.ApCliTab[i].MlmeAux.ApCliAuthTimer;
+#ifdef WSC_AP_SUPPORT
+  expected[7+JOIN_APCLI_WIDTH*i]=&ad->ApCfg.ApCliTab[i].WscControl.WscProfileRetryTimer;
+#endif
  }
 #endif
 #if defined(CONFIG_AP_SUPPORT) && defined(AP_SCAN_SUPPORT)
@@ -94,7 +102,7 @@ if has_timer_join:
  return 0;}''')
 with tempfile.TemporaryDirectory(prefix='wr-mlme-halt-check-') as d:
  c=Path(d)/'check.c';c.write_text(code)
- for flags in ([[],['-DCONFIG_AP_SUPPORT'],['-DCONFIG_AP_SUPPORT','-DAPCLI_SUPPORT','-DAP_SCAN_SUPPORT']] if has_timer_join else [[]]):
+ for flags in ([[],['-DCONFIG_AP_SUPPORT'],['-DCONFIG_AP_SUPPORT','-DAPCLI_SUPPORT','-DAP_SCAN_SUPPORT'],['-DCONFIG_AP_SUPPORT','-DAPCLI_SUPPORT','-DAP_SCAN_SUPPORT','-DWSC_AP_SUPPORT']] if has_timer_join else [[]]):
   subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-pie','-no-pie',*flags,str(c),'-o',d+'/check'],check=True)
   subprocess.run([d+'/check'],check=True)
 print('PASS MLME checked join failure before cleanup, self/unknown/context refusal, shutdown stage retention and legacy entry')

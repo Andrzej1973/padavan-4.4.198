@@ -1838,6 +1838,11 @@ jobs:
           python3 tools/iot/check-task-config.py \
             --kernel "$kernel" --driver "$driver" --compiler "$compiler" \
             --output "$results/merged-task-config.json"
+          if [ "${{ inputs.iot_candidate_variant }}" = peer82 ]; then
+            python3 tools/iot/check-mlme-wsc-target-tu.py \
+              --kernel "$kernel" --driver "$driver" --compiler "$compiler" \
+              --output "$results/mlme-wsc-target-tu.json"
+          fi
           python3 tools/iot/check-capacity.py "$kernel" mt76x3 \
             --compiler "$compiler" --require-three-bss --check-main-observer \
             --source-commit c25283e915a2a00a763774dd255b14aff997285e \

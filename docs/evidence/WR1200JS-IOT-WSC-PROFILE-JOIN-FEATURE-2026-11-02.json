@@ -1,0 +1,31 @@
+{
+  "scope": "Isolated optional peer82 WSC timer/feature TU followup",
+  "join": "WSC_AP_SUPPORT APCLI profile-retry timer joined for every MAX_APCLI_NUM member, independent of Running flag; embedded control initialized by WscStateMachineInit/WscInitClientTimers",
+  "upstream_defect": {
+    "source": "common/mlme.c:MlmeEnqueueForWsc",
+    "upstream_line": 5193,
+    "bad": "if ({RTMP_TEST_FLAG(pAd, fRTMP_ADAPTER_HALT_IN_PROGRESS)})",
+    "diagnostic": "expected expression before brace; followup -Werror=misleading-indentation",
+    "fix": "Normal parenthesized condition with explicit braced return block; no warning suppression",
+    "provenance": "Present in pinned c25283e915a2a00a763774dd255b14aff997285e input and reviewed peer82 source",
+    "failure_origin": "Local optional target TU, not a watched failed GitHub run; failure monitor parser not changed speculatively"
+  },
+  "verification": {
+    "host": "PASS four actual generated caller ASan/UBSan variants, exact timer/order and every failed join before MLME kill",
+    "target": "PASS baseline plus WSC_INCLUDED/WSC_AP_SUPPORT/KTHREAD_SUPPORT exact merged MLME MIPS TUs",
+    "ci_runner": "PASS parsing serialized retained target flags, compiler/source identity check, MIPS object verification; runner added after full Kbuild in optional peer82",
+    "workflow": "PASS YAML and full affected bash syntax"
+  },
+  "files": {
+    "tools/iot/prepare-mlme-timer-producer-join.py": "c816cbeeb2afee300eeff8fcf03862d9436e6647fd1265cd47feee112c05bd86",
+    "tools/iot/check-mlme-checked-halt.py": "bbba0e79f4b05e9944b5351b9a0cd9c1c0be8b86f4ce6e531a3aeda736330634",
+    "tools/iot/check-mlme-wsc-target-tu.py": "b6ced1bde468dfa24eb1bcebe2a646541d99e1d9cd65976843b52161c4117066"
+  },
+  "limits": [
+    "WSC feature module not linked or installed",
+    "Other WSC timers and dynamic timer lifetime remain open",
+    "RTNL command-join caller contract unresolved",
+    "No WDS reaper/PCI release/runtime acceptance"
+  ],
+  "cleanup": "All generated merged trees, host binaries, objects and target-runner temporary inputs removed"
+}

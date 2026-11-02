@@ -1,3 +1,19 @@
+## 2026-11-02 Sol: optional WSC profile join and real feature-TU regression fixed
+
+Added checked APCLI WSC profile-retry join regardless of Running flag.
+Four generated caller ASan/UBSan variants and baseline/WSC+KTHREAD MIPS MLME
+TUs pass. First optional TU exposed upstream MlmeEnqueueForWsc invalid
+if-braces; fixed exact guard plus misleading indentation without suppressions.
+Added actual-Kbuild-command WSC/KTHREAD target TU runner to optional peer82;
+local retained-command fixture, MIPS ELF validation and YAML/bash pass.
+Evidence: docs/evidence/WR1200JS-IOT-WSC-PROFILE-JOIN-FEATURE-2026-11-02.json
+and WR1200JS-IOT-MLME-WSC-TARGET-RUNNER-2026-11-02.json. This was a local
+feature failure, not a watched CI failure; monitor was not speculatively changed.
+Other WSC/dynamic timers, RTNL consumer-join contract, WDS reaper and final
+PCI/runtime acceptance remain open. New scratch removed. Published6b5c1b8
+firmware41483578699 is still actively building; timer work remains local,
+no duplicate or superseding build dispatched.
+
 ## 2026-11-02 Sol: AP/APCLI/scan timer joins cover baseline MLME cancellation set
 
 Extended isolated timer producer layer with APSD, quick-rate response,

@@ -28,6 +28,11 @@ new=''' /* Both timers are initialized by MlmeInit and embedded in the pinned
         !wr_iot_timer_join_checked(pAd, &pAd->ApCfg.ApCliTab[wr_iot_idx].MlmeAux.ApCliAssocTimer, 5000UL) ||
         !wr_iot_timer_join_checked(pAd, &pAd->ApCfg.ApCliTab[wr_iot_idx].MlmeAux.ApCliAuthTimer, 5000UL))
      return FALSE;
+#ifdef WSC_AP_SUPPORT
+    /* Join even when Running is false: that flag is not callback retirement. */
+    if (!wr_iot_timer_join_checked(pAd, &pAd->ApCfg.ApCliTab[wr_iot_idx].WscControl.WscProfileRetryTimer, 5000UL))
+     return FALSE;
+#endif
    }
   }
 #endif
@@ -39,9 +44,15 @@ new=''' /* Both timers are initialized by MlmeInit and embedded in the pinned
 #endif
  return wr_iot_mlme_halt_body(pAd, TRUE);'''
 if s.count(old)!=1:p.error('unreviewed checked MLME wrapper')
-changed=s.replace(old,new);assert changed.replace(new,old,1)==s
+# Pinned upstream has invalid braces in the otherwise inactive WSC branch.
+bad='    if ({RTMP_TEST_FLAG(pAd, fRTMP_ADAPTER_HALT_IN_PROGRESS)})\n        return FALSE;'
+good='\tif (RTMP_TEST_FLAG(pAd, fRTMP_ADAPTER_HALT_IN_PROGRESS)) {\n\t\treturn FALSE;\n\t}'
+if s.count(bad)!=1:p.error('unreviewed WSC enqueue guard')
+position=s.index(bad);fixed=s.replace(bad,good,1)
+assert fixed[:position]+bad+fixed[position+len(good):]==s
+changed=fixed.replace(old,new);assert changed.replace(new,old,1)==fixed
 shutil.copytree(src,out);(out/name).write_text(changed);digest=hashlib.sha256((out/name).read_bytes()).hexdigest();m['merged_driver_sha256'][name]=digest;m['candidate_driver_sha256'][name]=digest
 m.update(production_installed=False,target_compiled=False,runtime_verified=False)
-m['mlme_timer_producer_join_layer']={'timers':['Mlme.PeriodicTimer','Mlme.RxAntEvalTimer','Mlme.APSDPeriodicTimer','ApCfg.ApQuickResponeForRateUpTimer','ApCfg.ApCliTab[*].MlmeAux.ProbeTimer','ApCfg.ApCliTab[*].MlmeAux.ApCliAssocTimer','ApCfg.ApCliTab[*].MlmeAux.ApCliAuthTimer','ScanCtrl.APScanTimer'],'all_timers_retired':False,'target_compiled':False,'runtime_verified':False}
+m['mlme_timer_producer_join_layer']={'timers':['Mlme.PeriodicTimer','Mlme.RxAntEvalTimer','Mlme.APSDPeriodicTimer','ApCfg.ApQuickResponeForRateUpTimer','ApCfg.ApCliTab[*].MlmeAux.ProbeTimer','ApCfg.ApCliTab[*].MlmeAux.ApCliAssocTimer','ApCfg.ApCliTab[*].MlmeAux.ApCliAuthTimer','ScanCtrl.APScanTimer','ApCfg.ApCliTab[*].WscControl.WscProfileRetryTimer'],'all_timers_retired':False,'target_compiled':False,'runtime_verified':False}
 out.with_name(out.name+'.manifest.json').write_text(json.dumps(m,indent=2)+'\n')
 print('Staged checked MLME/AP/APCLI scan timer joins; remaining timer families unproven')
