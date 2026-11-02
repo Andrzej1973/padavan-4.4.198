@@ -1,3 +1,22 @@
+## 2026-11-02 Sol: raw/control adapter frees fence recovery before MCU stop
+
+New isolated layer marks recovery storage cold after allocation and live only
+after locks/work/owners/refs init before publication. Both RtmpRaDevCtrlExit
+and raw RTMPFreeAdapter first retire admission and refuse live main/aux/MBSS
+owners/work/registration/refs BEFORE the existing MCU sender release guard.
+Actual direct-free prefix/helper ASan/UBSan, initialization/call-order checks,
+exact merged MIPS common/rtmp_init.c and rt_profile.c, existing owner/reopen/
+rearm/command gates and YAML/bash pass. Evidence:
+docs/evidence/WR1200JS-IOT-RAW-RECOVERY-FREE-FENCE-2026-11-02.json.
+Cold skips only NEW recovery lock; all legacy cold-resource cleanup remains
+separate. MBSS work_busy/external PCI drain/join and record reuse must be bound
+before dispatching a worker. No DMA/IRQ/callback/runtime acceptance inferred.
+Removed measured213.5 MiB final candidate scratch plus fixture/object outputs;
+kept original inputs for unfinished IoT. Automatic4284dd43 ABI41491992010 and
+firmware41491992223 succeeded. Dispatched optional peer82 run41494934963 for
+published4284dd43, after confirming no active run on that head. Keep local MBSS
+batch unpublished while this useful candidate-module verification runs.
+
 ## 2026-11-02 Sol: MBSS per-slot owner storage and release/reopen fences staged
 
 New isolated layer adds MBSS owner array indexed like interface refs, initializes

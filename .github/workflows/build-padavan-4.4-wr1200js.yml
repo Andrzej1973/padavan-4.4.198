@@ -1670,6 +1670,9 @@ jobs:
             merged="$candidate/mbss-owner-storage"
             python3 tools/iot/check-mbss-owner-storage.py "$merged"
             python3 tools/iot/check-main-reopen-fence.py "$merged"
+            python3 tools/iot/prepare-raw-recovery-free-fence.py "$merged" "$candidate/raw-recovery-free-fenced"
+            merged="$candidate/raw-recovery-free-fenced"
+            python3 tools/iot/check-raw-recovery-free-fence.py "$merged"
             gcc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
               -Itools/iot tools/iot/check-pci-netdev-preclose.c -o "$results/check-pci-netdev-preclose"
             "$results/check-pci-netdev-preclose"

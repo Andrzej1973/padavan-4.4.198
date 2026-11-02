@@ -1,0 +1,31 @@
+{
+  "scope": "Recovery/reference fence at initialized/control and raw adapter free entries; not hardware release acceptance",
+  "bindings": [
+    "Explicit storage_live=0 after successful adapter allocation",
+    "storage_live=1 only after recovery locks/work/owners/refs initialized, before adapter publication",
+    "Initialized free attempts retire admission and refuse live main/aux/MBSS owners, work, registrations or interface refs",
+    "RtmpRaDevCtrlExit and RTMPFreeAdapter both check this fence before existing MCU sender release gate"
+  ],
+  "verification": {
+    "host": "PASS ASan/UBSan actual RTMPFreeAdapter prefix plus actual helper; cold skips only new recovery lock, null refusal, initialized empty state, MBSS/main/aux/work/ref/registration refusal before sender/destruction, existing MCU sender refusal retained",
+    "source": "PASS initialization order and both release-entry call orders; full merged input and reversible transformation verified",
+    "target": "PASS exact merged common/rtmp_init.c and os/linux/rt_profile.c MIPS TUs",
+    "regression": "PASS owner storage, reopen, rearm/RTNL scheduler and command lifecycle gates",
+    "workflow": "PASS YAML and full affected bash syntax"
+  },
+  "files": {
+    "tools/iot/raw-recovery-free-fence.inc": "1ceee0395016f1236ceb4e65bd225c6e5c6af2136a3dbcb703a69f73c0b81e4b",
+    "tools/iot/prepare-raw-recovery-free-fence.py": "657f6bea2276f0493d534320d4cff7bc896a00e4a2ba6bad9d9d78e2127f4348",
+    "tools/iot/check-raw-recovery-free-fence.py": "31ae07cd0ff0f9c99e59da3162f0c60c1f6a92dd7c76b46a8d51879aa76060b7"
+  },
+  "limits": [
+    "Cold bypass is not proof of all legacy cold-allocation cleanup locks/resources",
+    "No MBSS worker dispatched; future MBSS work_busy/PCI external joins must also be bound",
+    "No DMA/IRQ/all-callback or runtime acceptance"
+  ],
+  "cleanup": {
+    "verified_candidate_tree_removed_mib": 213.5,
+    "other_scratch": "Fixtures, binaries, target objects and syntax temp removed",
+    "retained": "Pinned/prepared/peer input trees for unfinished IoT"
+  }
+}
