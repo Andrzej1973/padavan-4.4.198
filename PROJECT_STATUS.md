@@ -1,3 +1,17 @@
+## 2026-11-02 Sol: installed MBSS gate collision faults verified
+
+Extended actual installed helper/worker ASan/UBSan fixture: second reaper and
+active submission reject join before flush; stop publishes permanent fence
+but rejects cancellation while another lease/submission exists; after lease
+release stop can join without reopening submissions. Poisoned gate rejects
+both operations before flush/cancel. Existing exact identity/retry/retained
+reference tests still pass. All kernel scheduling/cancellation is injected;
+this is not real concurrent kernel acceptance. Temporary merged candidate,
+fixtures and binary removed. Next bound submission path must use this exact
+gate and per-slot work owner, retain pins on queue failure, and add ordinary
+external completion/retry reaping before enabling callbacks. CI fixture layout
+updates and coherent full target run remain. No router action.
+
 ## 2026-11-02 Sol: adapter MBSS reaper gate bound across join/stop
 
 Added strict prepare-mbss-reaper-gate.py after PCI stop layer. Fresh adapter

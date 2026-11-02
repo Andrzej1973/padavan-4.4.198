@@ -90,13 +90,13 @@ if bound_gate:
 if a.external_join or a.stop_join:
  marker='static void ready(RTMP_ADAPTER *ad,struct device *main,struct device *dev)'
  join_mock=r'''
-static int flush_calls,put_calls;
+static int flush_calls,put_calls,cancel_calls;
 static void flush_work(struct work_struct *w){assert(!held);flush_calls++;w->busy=0;}
 static void dev_put(PNET_DEV dev){assert(!held&&dev&&dev->refs==1);put_calls++;dev->refs--;}
 '''
  join=((a.candidate/'include/wr-iot-mbss-recovery-join.inc') if bound_gate else (here/'mbss-recovery-join.inc')).read_text()
  if a.stop_join:
-  join_mock+='static void cancel_work_sync(struct work_struct *w){assert(!held);w->busy=0;}\n'
+  join_mock+='static void cancel_work_sync(struct work_struct *w){assert(!held);cancel_calls++;w->busy=0;}\n'
   join+='\n'+((a.candidate/'include/wr-iot-mbss-recovery-stop.inc') if bound_gate else (here/'mbss-recovery-stop.inc')).read_text()
  code=code.replace(marker,join_mock+join+'\n'+marker)
  marker=' return 0;\n}\n'
@@ -135,6 +135,31 @@ if a.stop_join:
  assert(wr_iot_mbss_recovery_stop_join(&ad)==0&&dev.refs==0&&put_calls==1);
  ready(&ad,&main,&dev);context_bad=1;
  assert(wr_iot_mbss_recovery_stop_join(&ad)==-1&&!ad.wr_iot_mbss_recovery[1].stop_requested);
+ return 0;
+}
+'''
+if bound_gate and a.stop_join:
+ marker=' return 0;\n}\n';tail=code.rindex(marker)
+ code=code[:tail]+r'''
+ ready(&ad,&main,&dev);flush_calls=put_calls=cancel_calls=0;
+ assert(wr_iot_mbss_reaper_enter(&ad.wr_iot_mbss_reaper_gate));
+ assert(wr_iot_mbss_recovery_join_completed(&ad)==-1&&!flush_calls&&!put_calls);
+ assert(wr_iot_mbss_recovery_stop_join(&ad)==-1&&!cancel_calls&&!flush_calls);
+ assert(ad.wr_iot_mbss_reaper_gate.stopped&&ad.wr_iot_mbss_reaper_gate.reaping);
+ assert(wr_iot_mbss_reaper_leave(&ad.wr_iot_mbss_reaper_gate));
+ assert(!wr_iot_mbss_submission_enter(&ad.wr_iot_mbss_reaper_gate));
+ assert(wr_iot_mbss_recovery_stop_join(&ad)==0&&cancel_calls==2&&flush_calls==2);
+ assert(!ad.wr_iot_mbss_reaper_gate.reaping&&ad.wr_iot_mbss_reaper_gate.stopped);
+ ready(&ad,&main,&dev);flush_calls=cancel_calls=0;
+ assert(wr_iot_mbss_submission_enter(&ad.wr_iot_mbss_reaper_gate));
+ assert(wr_iot_mbss_recovery_join_completed(&ad)==-1&&!flush_calls);
+ assert(wr_iot_mbss_recovery_stop_join(&ad)==-1&&!cancel_calls&&ad.wr_iot_mbss_reaper_gate.stopped);
+ assert(wr_iot_mbss_submission_leave(&ad.wr_iot_mbss_reaper_gate));
+ assert(wr_iot_mbss_recovery_stop_join(&ad)==0);
+ assert(!wr_iot_mbss_submission_enter(&ad.wr_iot_mbss_reaper_gate));
+ ready(&ad,&main,&dev);ad.wr_iot_mbss_reaper_gate.poisoned=1;flush_calls=cancel_calls=0;
+ assert(wr_iot_mbss_recovery_join_completed(&ad)==-1&&!flush_calls);
+ assert(wr_iot_mbss_recovery_stop_join(&ad)==-1&&!cancel_calls);
  return 0;
 }
 '''
