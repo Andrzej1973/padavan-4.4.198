@@ -1,0 +1,22 @@
+{
+  "scope": "Isolated peer82 root reopen admission fence; not RTNL continuation implementation",
+  "behavior": "Main open requires fully reset recovery owner and no queued/running main/reaper/aux work or deferred aux owner before actual radio/reference reservation",
+  "verification": {
+    "host": "PASS ASan/UBSan actual generated reservation expression and actual owner/radio/ref helpers: active phases, retained refs, completed-before-reap, callback running after owner reset, aux pending refusal without state mutation; fresh/joined state admitted",
+    "target": "PASS exact merged os/linux/rt_main_dev.c MIPS TU",
+    "existing_gates": "PASS main module-release macro, joined-rearm and active RTNL header audits",
+    "workflow": "PASS YAML and full affected bash syntax"
+  },
+  "development_correction": "First include anchor matched a commented rt_config include; target compile detected implicit declaration. Moved to active virtual-open-claim include and added active include-line assertion; final checks pass.",
+  "files": {
+    "tools/iot/main-reopen-admission.h": "f910576e81f5eb1c9ea85d2775379d30383c09af29008b68690e6463cc0f88f3",
+    "tools/iot/prepare-main-reopen-fence.py": "44d9f807d79018f776a81bca5ac64ded8fd2184e5479e7d1566e87996ce40ba9",
+    "tools/iot/check-main-reopen-fence.py": "a280111969b44d8dd79c09d40779f03fd6da3c0ead6fc9b727b4324ebaa92e6b"
+  },
+  "remaining": [
+    "Split physical continue outside RTNL with adapter/netdev lifetime and exact ticket completion",
+    "No real Linux workqueue concurrency proof from host mocks",
+    "All timer/dynamic callback retirement and WDS final reaper/PCI release"
+  ],
+  "cleanup": "All generated merged trees, C fixtures, binaries, MIPS object and syntax temp removed"
+}

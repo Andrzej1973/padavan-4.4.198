@@ -1657,6 +1657,9 @@ jobs:
             python3 tools/iot/prepare-mlme-timer-producer-join.py "$merged" "$candidate/mlme-timer-producer-joined"
             merged="$candidate/mlme-timer-producer-joined"
             python3 tools/iot/check-mlme-checked-halt.py "$merged"
+            python3 tools/iot/prepare-main-reopen-fence.py "$merged" "$candidate/main-reopen-fenced"
+            merged="$candidate/main-reopen-fenced"
+            python3 tools/iot/check-main-reopen-fence.py "$merged"
             gcc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
               -Itools/iot tools/iot/check-pci-netdev-preclose.c -o "$results/check-pci-netdev-preclose"
             "$results/check-pci-netdev-preclose"

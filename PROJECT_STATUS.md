@@ -1,3 +1,20 @@
+## 2026-11-02 Sol: main reopen fenced through recovery callback retirement
+
+New isolated layer checks a fully reset main recovery owner plus actual
+main/reaper/aux work_busy observations and aux deferred owners under the
+transition lock before main radio/reference reservation. This prevents root
+reopen in the completed-owner/reaper-still-running interval needed by the
+planned RTNL split. Generated actual admission ASan/UBSan refuses without
+radio/registry mutation for retained/completed/live-work states and admits
+fresh/joined state. Exact merged MIPS main TU and existing main/rearm/RTNL
+checks pass. First commented-include anchor mistake caught by target compile;
+fixed active include and added assertion. YAML/full affected bash pass.
+Evidence: docs/evidence/WR1200JS-IOT-MAIN-REOPEN-FENCE-2026-11-02.json.
+No RTNL drop added yet; no workqueue/runtime retirement claim. Next implement
+split continuation and exact pin/token finalization, then WDS/PCI release.
+All new scratch removed. Existing published2ba0f618 CI is still active;
+no duplicate optional or superseding build dispatched.
+
 ## 2026-11-02 Sol: timer/WSC batch publication checkpoint
 
 Published6b5c1b8 automatic ABI41483578419 and firmware41483578699 both
