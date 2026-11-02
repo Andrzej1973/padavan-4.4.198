@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Join adapter-owned MLME timer producers before checked MLME cleanup."""
+"""Join adapter-owned MLME/AP/APCLI scan timer producers before cleanup."""
 import argparse,hashlib,json,shutil
 from pathlib import Path
 p=argparse.ArgumentParser(description=__doc__);p.add_argument('source',type=Path);p.add_argument('output',type=Path);a=p.parse_args()
@@ -15,11 +15,33 @@ new=''' /* Both timers are initialized by MlmeInit and embedded in the pinned
  if (!wr_iot_timer_join_checked(pAd, &pAd->Mlme.PeriodicTimer, 5000UL) ||
      !wr_iot_timer_join_checked(pAd, &pAd->Mlme.RxAntEvalTimer, 5000UL))
   return FALSE;
+#ifdef CONFIG_AP_SUPPORT
+ IF_DEV_CONFIG_OPMODE_ON_AP(pAd) {
+  if (!wr_iot_timer_join_checked(pAd, &pAd->Mlme.APSDPeriodicTimer, 5000UL) ||
+      !wr_iot_timer_join_checked(pAd, &pAd->ApCfg.ApQuickResponeForRateUpTimer, 5000UL))
+   return FALSE;
+#ifdef APCLI_SUPPORT
+  {
+   unsigned int wr_iot_idx;
+   for (wr_iot_idx=0;wr_iot_idx<MAX_APCLI_NUM;wr_iot_idx++) {
+    if (!wr_iot_timer_join_checked(pAd, &pAd->ApCfg.ApCliTab[wr_iot_idx].MlmeAux.ProbeTimer, 5000UL) ||
+        !wr_iot_timer_join_checked(pAd, &pAd->ApCfg.ApCliTab[wr_iot_idx].MlmeAux.ApCliAssocTimer, 5000UL) ||
+        !wr_iot_timer_join_checked(pAd, &pAd->ApCfg.ApCliTab[wr_iot_idx].MlmeAux.ApCliAuthTimer, 5000UL))
+     return FALSE;
+   }
+  }
+#endif
+#ifdef AP_SCAN_SUPPORT
+  if (!wr_iot_timer_join_checked(pAd, &pAd->ScanCtrl.APScanTimer, 5000UL))
+   return FALSE;
+#endif
+ }
+#endif
  return wr_iot_mlme_halt_body(pAd, TRUE);'''
 if s.count(old)!=1:p.error('unreviewed checked MLME wrapper')
 changed=s.replace(old,new);assert changed.replace(new,old,1)==s
 shutil.copytree(src,out);(out/name).write_text(changed);digest=hashlib.sha256((out/name).read_bytes()).hexdigest();m['merged_driver_sha256'][name]=digest;m['candidate_driver_sha256'][name]=digest
 m.update(production_installed=False,target_compiled=False,runtime_verified=False)
-m['mlme_timer_producer_join_layer']={'timers':['Mlme.PeriodicTimer','Mlme.RxAntEvalTimer'],'all_timers_retired':False,'target_compiled':False,'runtime_verified':False}
+m['mlme_timer_producer_join_layer']={'timers':['Mlme.PeriodicTimer','Mlme.RxAntEvalTimer','Mlme.APSDPeriodicTimer','ApCfg.ApQuickResponeForRateUpTimer','ApCfg.ApCliTab[*].MlmeAux.ProbeTimer','ApCfg.ApCliTab[*].MlmeAux.ApCliAssocTimer','ApCfg.ApCliTab[*].MlmeAux.ApCliAuthTimer','ScanCtrl.APScanTimer'],'all_timers_retired':False,'target_compiled':False,'runtime_verified':False}
 out.with_name(out.name+'.manifest.json').write_text(json.dumps(m,indent=2)+'\n')
-print('Staged checked common MLME timer producer joins; remaining timer families unproven')
+print('Staged checked MLME/AP/APCLI scan timer joins; remaining timer families unproven')

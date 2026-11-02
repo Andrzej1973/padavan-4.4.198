@@ -22,9 +22,11 @@ code=r'''
 #define RT_DEBUG_TRACE 0
 #define RT_DEBUG_ERROR 0
 #define DBGPRINT(a,b) ((void)0)
+#define IF_DEV_CONFIG_OPMODE_ON_AP(ad) if ((ad)!=0)
 typedef struct {int handle;} RTMP_OS_TASK;
 typedef struct {int id;} RALINK_TIMER_STRUCT;
-typedef struct {struct {RALINK_TIMER_STRUCT PeriodicTimer,RxAntEvalTimer;} Mlme;RTMP_OS_TASK mlmeTask;int wr_iot_transition_lock;struct {unsigned int shutdown_stage;} wr_iot_transition;} RTMP_ADAPTER;
+#define MAX_APCLI_NUM 2
+typedef struct {struct {RALINK_TIMER_STRUCT PeriodicTimer,RxAntEvalTimer,APSDPeriodicTimer;} Mlme;struct {RALINK_TIMER_STRUCT ApQuickResponeForRateUpTimer;struct {struct {RALINK_TIMER_STRUCT ProbeTimer,ApCliAssocTimer,ApCliAuthTimer;} MlmeAux;} ApCliTab[MAX_APCLI_NUM];} ApCfg;struct {RALINK_TIMER_STRUCT APScanTimer;} ScanCtrl;RTMP_OS_TASK mlmeTask;int wr_iot_transition_lock;struct {unsigned int shutdown_stage;} wr_iot_transition;} RTMP_ADAPTER;
 static int kill_result,kill_calls,context_bad,identity,cleanups,held;
 static int RtmpOSTaskKill(RTMP_OS_TASK *t){assert(t&&!held);kill_calls++;return kill_result;}
 static int wr_iot_os_join_context(void){return context_bad;}
@@ -35,9 +37,35 @@ static int wr_iot_os_timer_task_current(RTMP_OS_TASK *t){assert(t);return identi
 if has_timer_join:
  code+=r'''
 static int timer_calls,timer_fail;
+#ifdef CONFIG_AP_SUPPORT
+#ifdef APCLI_SUPPORT
+#define JOIN_APCLI (3*MAX_APCLI_NUM)
+#else
+#define JOIN_APCLI 0
+#endif
+#ifdef AP_SCAN_SUPPORT
+#define JOIN_SCAN 1
+#else
+#define JOIN_SCAN 0
+#endif
+#define JOIN_COUNT (4+JOIN_APCLI+JOIN_SCAN)
+#else
+#define JOIN_COUNT 2
+#endif
 static int wr_iot_timer_join_checked(RTMP_ADAPTER *ad,RALINK_TIMER_STRUCT *t,unsigned long timeout){
  assert(ad&&t&&!held&&timeout==5000);timer_calls++;
- assert(t==(timer_calls%2?&ad->Mlme.PeriodicTimer:&ad->Mlme.RxAntEvalTimer));
+ RALINK_TIMER_STRUCT *expected[11]={&ad->Mlme.PeriodicTimer,&ad->Mlme.RxAntEvalTimer,&ad->Mlme.APSDPeriodicTimer,&ad->ApCfg.ApQuickResponeForRateUpTimer};
+#if defined(CONFIG_AP_SUPPORT) && defined(APCLI_SUPPORT)
+ for(unsigned int i=0;i<MAX_APCLI_NUM;i++){
+  expected[4+3*i]=&ad->ApCfg.ApCliTab[i].MlmeAux.ProbeTimer;
+  expected[5+3*i]=&ad->ApCfg.ApCliTab[i].MlmeAux.ApCliAssocTimer;
+  expected[6+3*i]=&ad->ApCfg.ApCliTab[i].MlmeAux.ApCliAuthTimer;
+ }
+#endif
+#if defined(CONFIG_AP_SUPPORT) && defined(AP_SCAN_SUPPORT)
+ expected[JOIN_COUNT-1]=&ad->ScanCtrl.APScanTimer;
+#endif
+ assert(t==expected[(timer_calls-1)%JOIN_COUNT]);
  return timer_fail!=timer_calls;
 }
 '''
@@ -59,12 +87,14 @@ int main(void){RTMP_ADAPTER ad={0};
 if has_timer_join:
  code=code.replace(' return 0;}','''
  kill_result=0;int previous_kills=kill_calls;
- timer_calls=0;timer_fail=1;assert(!wr_iot_mlme_halt_checked(&ad)&&timer_calls==1&&kill_calls==previous_kills);
- timer_calls=0;timer_fail=2;assert(!wr_iot_mlme_halt_checked(&ad)&&timer_calls==2&&kill_calls==previous_kills);
- timer_calls=0;timer_fail=0;assert(wr_iot_mlme_halt_checked(&ad)&&timer_calls==2&&kill_calls==previous_kills+1);
+ for(int fail=1;fail<=JOIN_COUNT;fail++){
+  timer_calls=0;timer_fail=fail;assert(!wr_iot_mlme_halt_checked(&ad)&&timer_calls==fail&&kill_calls==previous_kills);
+ }
+ timer_calls=0;timer_fail=0;assert(wr_iot_mlme_halt_checked(&ad)&&timer_calls==JOIN_COUNT&&kill_calls==previous_kills+1);
  return 0;}''')
 with tempfile.TemporaryDirectory(prefix='wr-mlme-halt-check-') as d:
  c=Path(d)/'check.c';c.write_text(code)
- subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-pie','-no-pie',str(c),'-o',d+'/check'],check=True)
- subprocess.run([d+'/check'],check=True)
+ for flags in ([[],['-DCONFIG_AP_SUPPORT'],['-DCONFIG_AP_SUPPORT','-DAPCLI_SUPPORT','-DAP_SCAN_SUPPORT']] if has_timer_join else [[]]):
+  subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-pie','-no-pie',*flags,str(c),'-o',d+'/check'],check=True)
+  subprocess.run([d+'/check'],check=True)
 print('PASS MLME checked join failure before cleanup, self/unknown/context refusal, shutdown stage retention and legacy entry')

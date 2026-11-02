@@ -1,3 +1,19 @@
+## 2026-11-02 Sol: AP/APCLI/scan timer joins cover baseline MLME cancellation set
+
+Extended isolated timer producer layer with APSD, quick-rate response,
+all MAX_APCLI_NUM probe/association/authentication timers and AP scan timer,
+under their AP runtime/feature guards. All storage is adapter-embedded.
+Generated wrapper ASan/UBSan passes common, AP, AP+APCLI+scan variants with
+failure at every join before task kill, exact timer address/order checks;
+exact merged MIPS MLME TU with baseline AP/APCLI/scan flags passes.
+Evidence: docs/evidence/WR1200JS-IOT-MLME-AP-TIMER-JOINS-2026-11-02.json.
+WSC optional and dynamic timers remain unproven. RTNL grep found no direct
+lock in command dispatcher itself, but this is not a transitive safety proof;
+existing outside-RTNL command join contract stays in force and requires a
+proper caller restructuring/proof. No all-callback retirement claimed.
+All new scratch removed. Published6b5c1b8 ABI run41483578419 succeeded;
+firmware41483578699 remains active. New timer commits remain local for batching.
+
 ## 2026-11-02 Sol: checked joins bound to common MLME timer producers
 
 New optional layer joins adapter-owned Mlme.PeriodicTimer and RxAntEvalTimer
