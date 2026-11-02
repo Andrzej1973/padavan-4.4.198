@@ -1,3 +1,21 @@
+## 2026-11-02 Sol: main physical close delegated from ndo_stop/VERIFY
+
+New isolated layer queues last-user WR_RADIO_CLOSE to exact pinned recovery
+owner; BSS-only close stays synchronous. Failed VERIFY no longer performs
+physical CLOSE under RTNL. Busy admission snapshots owned generation and
+queues recovery; uncertain preclose queues non-replayable exact owner. Submit
+uses retirement origin only for retiring radio with active PCI DRAINING phase.
+Actual ndo_stop/submit/VERIFY/worker ASan/UBSan fixture covers physical failure
+and retry, busy admission, uncertain preclose, PCI phase refusal and worker/
+reaper scheduling failures while retaining netdev/module pins. Exact merged
+main MIPS TU, reopen/module/rearm/RTNL gates and YAML/bash pass.
+Evidence: docs/evidence/WR1200JS-IOT-MAIN-PHYSICAL-CLOSE-DELEGATION-2026-11-02.json.
+All new scratch removed; original unfinished inputs retained. Published2ba0f618
+ABI41485977477 and firmware41485977463 both succeeded. Ready to publish the
+coherent main-reopen/RTNL/handoff batch once. Full module of this batch, actual
+kernel concurrency, other family paths, dynamic timers, WDS reaper/final PCI
+and firmware ACK boundary remain open. No device actions performed.
+
 ## 2026-11-02 Sol: deferred recovery physical continue releases RTNL
 
 New isolated layer keeps worker admission/preclose under RTNL, revalidates
