@@ -1,3 +1,17 @@
+## 2026-11-02 Sol: PCI drain invokes external MBSS completion join
+
+Added strict isolated prepare-mbss-pci-drain.py after external join layer.
+Drain joins MBSS work outside transition lock, then includes join failure and
+live owner/work guard in deferred-owner decision under lock before DRAINED.
+Full merged manifest and reversible source substitution verified. Exact PCI
+MIPS TU and actual external-join/worker ASan/UBSan fixture pass. New combined
+PCI drain fault fixture still required: do not infer full PCI sequence safety
+from those separate checks. Normal admission remains disabled; stop/cancel/
+final join and external reaper serialization still need binding before use.
+Temporary candidate trees, objects and fixtures removed. No router action or
+runtime/final PCI release claim. Next test combined drain failures, then bind
+stop/join on every return path and update CI fixture layouts coherently.
+
 ## 2026-11-02 Sol: external MBSS join installed in isolated candidate, MIPS verified
 
 Added strict prepare-mbss-external-join.py after work binding. Full merged
