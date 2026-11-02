@@ -1,3 +1,21 @@
+## 2026-11-02 Sol: deferred recovery physical continue releases RTNL
+
+New isolated layer keeps worker admission/preclose under RTNL, revalidates
+running pinned owner/device/generation/token/current close action under the
+transition lock, then releases RTNL before physical continue. Dispatcher uses
+an explicit released flag to avoid double unlock on either early refusal or
+post-unlock success/failure. Owner still fences adapter/netdev and root reopen.
+Actual extracted close/recovery ASan/UBSan fixture passes exact-ticket retry,
+retained failure, early non-admission lock retention and one module decrement;
+merged main MIPS TU, reopen fence, main/rearm/RTNL checks and YAML/bash pass.
+Evidence: docs/evidence/WR1200JS-IOT-MAIN-RECOVERY-RTNL-SPLIT-2026-11-02.json.
+Ordinary ndo_stop and failed-VERIFY synchronous physical continues remain.
+Next delegate final WR_RADIO_CLOSE from those paths to existing pinned queue
+owner; keep BSS-only close synchronous, distinguish active PCI retirement
+queue origin, then let preclose/drain join continuation before stopping workers.
+No full callback/DMA/WDS release/runtime acceptance. All new scratch removed.
+Published2ba0f618 ABI41485977477 succeeded; firmware41485977463 active.
+
 ## 2026-11-02 Sol: main reopen fenced through recovery callback retirement
 
 New isolated layer checks a fully reset main recovery owner plus actual
