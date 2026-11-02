@@ -1,3 +1,18 @@
+## 2026-11-02 Sol: permanent MBSS submission/reaper gate host verified
+
+Added unbound mbss-reaper-gate.h with transition-lock caller contract. A
+submission lease excludes external reap; reaper lease excludes submissions
+and another reaper. Stop permanently rejects new submissions even with empty
+owner arrays, while already admitted submissions can leave before reap.
+Overflow and invalid leave poison the gate and refuse later admission/reap.
+ASan/UBSan focused state-interleaving tests pass; temporary binary removed.
+Not yet adapter-bound: no actual workqueue concurrency or lifetime claim.
+Next bind fresh gate storage/init, include reaper lease in raw/control free
+and reopen guards, hold it across flush/cancel/dev_put, publish stop before
+cancel, then make every future MBSS submit acquire/release the same gate.
+Normal MBSS admission remains disabled until full gate/PCI/fixture integration.
+No device/runtime/final release claim; full objective remains active.
+
 ## 2026-11-02 Sol: MBSS stop/join guards installed on PCI teardown joins
 
 Added strict prepare-mbss-pci-stop.py after PCI drain layer. Installs stop
