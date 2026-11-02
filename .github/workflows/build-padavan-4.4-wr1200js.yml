@@ -1641,6 +1641,7 @@ jobs:
             python3 tools/iot/prepare-mcu-sequence-reservation.py "$candidate/sequence-bound" "$candidate/sequence-reserved"
             merged="$candidate/sequence-reserved"
             python3 tools/iot/check-mcu-sequence-allocator.py "$merged"
+            python3 tools/iot/check-mcu-sequence-release.py "$merged"
             python3 tools/iot/check-mcu-sequence-lifetime.py "$merged"
             python3 tools/iot/check-mcu-sequence-destructors.py "$merged"
             python3 tools/iot/check-command-lifecycle-calls.py "$merged"

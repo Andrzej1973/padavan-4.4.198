@@ -1,0 +1,33 @@
+#!/usr/bin/env python3
+"""Reproduce known stale ACK ambiguity; success means gap reproduced, not acceptance."""
+import argparse,subprocess,tempfile
+from pathlib import Path
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('candidate',type=Path);a=p.parse_args();here=Path(__file__).resolve().parent
+with tempfile.TemporaryDirectory(prefix='wr-ack-epoch-gap-') as d:
+ c=Path(d)/'check.c'
+ subprocess.run(['python3',str(here/'prepare-mcu-result-check.py'),str(a.candidate),str(c)],check=True)
+ s=c.read_text();s='#include "mcu-sequence-reservation.h"\n'+s
+ anchor=' puts("PASS extracted checked ACK branch:'
+ pos=s.index(anchor)
+ s=s[:pos]+r'''
+ /* Complete and destroy 15 prior messages; firmware may still deliver a
+  * duplicate of the first result. Host ledger is empty between messages. */
+ struct wr_iot_mcu_sequence_reservation ledger={0};
+ unsigned first=wr_iot_mcu_sequence_reserve(&ledger);assert(first==1);
+ assert(wr_iot_mcu_sequence_release(&ledger,first));
+ for(unsigned i=0;i<14;i++){
+  unsigned slot=wr_iot_mcu_sequence_reserve(&ledger);assert(slot);
+  assert(wr_iot_mcu_sequence_release(&ledger,slot));
+ }
+ unsigned reused=wr_iot_mcu_sequence_reserve(&ledger);assert(reused==first);
+ msg=base;msg.seq=reused;ev.fw_rxd_1.field.seq_num=first;
+ /* Same command/status envelope as old ON result; payload has no ON/OFF echo. */
+ dispatch(&msg,&ev,&pkt);
+ assert(msg.wr_iot_firmware_result==0&&msg.ack_done==1);
+ puts("KNOWN GAP REPRODUCED: old matching ACK accepted after 15-slot reuse; host reservation is not firmware epoch proof");
+ return 0;
+}
+'''
+ c.write_text(s)
+ subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(here),str(c),'-o',d+'/check'],check=True)
+ subprocess.run([d+'/check'],check=True)

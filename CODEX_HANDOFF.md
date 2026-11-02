@@ -1,3 +1,62 @@
+## 2026-11-02 Sol: sequence target module verified; release followup tested
+
+Peer82 run41456493103 completed success at 706c16a3. Downloaded probe artifact,
+verified ZIP against GitHub digest, module SHA256 against report and ELF32 MIPS;
+manifest includes reservation layer. Evidence:
+`docs/evidence/WR1200JS-IOT-SEQUENCE-TARGET-2026-11-02.json`.
+Local independent ledger-release guard passed exact merged allocator/destructor/
+lifetime/release ASan/UBSan checks and MIPS MCU TU compile; added release fixture
+to optional CI. Followup not in completed run; still local. All temporary
+candidates removed; ZIP/module processed in memory. Firmware epoch and terminal
+IRQ/DMA/runtime remain unaccepted.
+
+## 2026-11-02 Sol: sequence ledger independently gates adapter release
+
+Reservation generator now pins/transforms release helper: under sender lifetime
+lock reject adapter release whenever reservation bitmap is nonzero or poisoned,
+independent of message count. Prevents ledger/accounting mismatch from allowing
+free. Reverse transformation passes. New check-mcu-sequence-release.py executes
+generated helper with leftover/poisoned ledger and existing sender/message/OFF
+release cases under ASan/UBSan: PASS. Temporary trees/binaries removed. Local
+change not in running peer82 41456493103; needs merged replay/CI integration.
+This strengthens software release only; no IRQ/DMA/firmware epoch proof implied.
+
+## 2026-11-02 Sol: PSE handshake is not an ACK epoch receipt
+
+Traced raw PSE success path: clears old 0x816c bit1 without verifying clear,
+sets request bit0, polls bit1, clears hit flags and calls raw PDMA reset. No
+firmware generation/command correlation or explicit MCU queue drain in this
+function. Wrapper already retires reset ticket as unverified. Source/function
+hashes and precise gaps recorded in
+`docs/evidence/WR1200JS-IOT-PSE-EPOCH-AUDIT-2026-11-02.json`.
+Peer82 run41456493103 last poll in_progress. No duplicate run, scratch or router
+action. Next investigate supported firmware event reset/queue contract; preserve
+checked OFF refusal until correlation/epoch proven.
+
+## 2026-11-02 Sol: firmware epoch paths remain unproven after source refresh
+
+Polled peer82 run41456493103: in_progress, no duplicate dispatch. Rechecked
+vendor method1 loader: LOAD_FW_ONE_TIME bypasses restart when RAM code running;
+non-default path polls TOP_MISC2 ROM-ready bits after CmdRestartDLReq. Neither
+path provides a receipt that pending host RX events/firmware command results
+belong to a new epoch. PSE recovery has host-poll-failure abort path at 0x816c;
+do not treat its entry or register writes as successful firmware restart.
+Next trace precise PSE handshake success path plus all event queues before
+choosing epoch boundary. No new source acceptance, scratch or router mutation.
+
+## 2026-11-02 Sol: sequence target run dispatched; stale ACK gap reproduced
+
+Live firmware/ABI runs 41453566703 and 41453566686 completed success on
+706c16a3; dispatched optional peer82 41456493103 after queue cleared.
+New check-mcu-ack-epoch-gap.py runs actual extracted checked receive branch
+with reservation ledger: after 15 completed/released slots the first ID repeats,
+and an old matching command/status envelope completes the new message as
+success. ASan/UBSan reproduces this known gap; test exit success means the gap
+was reproduced, NOT that firmware acceptance passed. It assumes a possible
+duplicate delivery; does not claim observed firmware duplication. No ON/OFF
+echo exists to disambiguate. Must establish firmware epoch/drain or supported
+protocol before accepting owned OFF. Temporary fixture/binary removed.
+
 ## 2026-11-02 Sol: exact sequence merged replay passes all downstream gates
 
 Rebuilt exact prepared merge, terminal-command/AP/sender and sequence layers.

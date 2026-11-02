@@ -8,6 +8,7 @@ if out.exists() or src==out or src in out.parents or out in src.parents:p.error(
 pins={'include/rtmp.h': 'a23297877ab461810633feba83497c40873552e6ba8346ba0d430ad6c35a3dc6', 'common/rtmp_init.c': '736e9a27149f04bf09267408c57278e2dfc195d5dd18fae10d62c2b80c97f1de', 'include/mcu/andes_core.h': 'c43d3b74bdf25d9adb497610677b5118cfc5ea2c819151904ecd3b6ce9ffa140', 'mcu/andes_core.c': '1303af5292b2bad761b7874a99004c47e77751861433b0a82f91bf06614cfc12', 'include/wr-iot-mcu-message-lifetime.inc': '21175ec4d3e3e65bc3da55ed8c45fb90665ceebecd6ea8940866cb827e5dc758'}
 if src.with_name(src.name+'.manifest.json').exists():
  pins={'include/rtmp.h': 'aa0c3351fb21acc57c9343e4a79f29d6ced1e7dca8ebbecb338298790e8f0e96', 'common/rtmp_init.c': 'd683b789d6afc24ff44a1a21ba0e60ecc10daac4471bc01a3d83e2b1e60273a0', 'include/mcu/andes_core.h': 'f351d68aa30bd8e782cf4f6e4a2a0b9a8fbd9c283e92a464acfe29b15a5e100b', 'mcu/andes_core.c': '1303af5292b2bad761b7874a99004c47e77751861433b0a82f91bf06614cfc12', 'include/wr-iot-mcu-message-lifetime.inc': '21175ec4d3e3e65bc3da55ed8c45fb90665ceebecd6ea8940866cb827e5dc758'}
+pins['include/wr-iot-mcu-sender-release.inc']='da67198c3f8aeb0f170b04274832b5ee339b85932f22ab52ff61448294c8a104'
 for name,digest in pins.items():
  if hashlib.sha256((src/name).read_bytes()).hexdigest()!=digest:p.error('unreviewed input: '+name)
 parent_path=src.with_name(src.name+'.manifest.json')
@@ -68,6 +69,9 @@ edit('include/wr-iot-mcu-message-lifetime.inc',' (void)wr_iot_mcu_message_leave'
  }
  (void)wr_iot_mcu_message_leave''')
 edit('include/wr-iot-mcu-message-lifetime.inc','wr_iot_mcu_message_drop(ad);','wr_iot_mcu_message_drop(ad,0);')
+edit('include/wr-iot-mcu-sender-release.inc',
+ ' serial=ad->wr_iot_mcu_sender_owner.close_serial;',
+ ' /* Ledger independently gates release even if message accounting disagrees. */\n if(ad->wr_iot_sequence.occupied || ad->wr_iot_sequence.poisoned){\n  RTMP_SPIN_UNLOCK_IRQRESTORE(&ad->wr_iot_mcu_sender_lock,&flags);\n  return NDIS_STATUS_FAILURE;\n }\n serial=ad->wr_iot_mcu_sender_owner.close_serial;')
 restored=dict(changes)
 for name,new,old,count in reversed(reverse):
  assert restored[name].count(new)==count,(name,'reverse anchor')
