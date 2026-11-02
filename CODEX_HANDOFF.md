@@ -1,3 +1,220 @@
+## 2026-11-02 Sol: WDS generation followup ready for coherent publication
+
+Final exact merged WDS MIPS TU, actual capture/stale receipt fixture and all
+downstream source gates pass. Family snapshot/identity ASan/UBSan fixtures and
+YAML/full affected bash syntax pass. Evidence:
+`docs/evidence/WR1200JS-IOT-WDS-GENERATION-VERIFICATION-2026-11-02.json`.
+Family snapshot helpers remain explicitly unbound, callback/reaper and final
+PCI release/firmware epoch remain open. Temporary trees/objects removed.
+Publish batching required; user cleanup rule/report kept in separate doc commit.
+
+## 2026-11-02 Sol: WDS generation binding verified on exact merged pipeline
+
+WDS generator now validates full merged inventory before output copy and proves
+reverse restoration of all body substitutions to original. Exact final merged
+chain generation and actual capture/stale-receipt ASan/UBSan fixture pass.
+Added WDS generation layer and fixture after init-join in optional peer82; local
+pipeline change not published yet. Full downstream checks/YAML/bash and actual
+merged WDS MIPS TU still need final rerun before coherent publication.
+Temporary trees removed; allocation retention/callback reaper remains open.
+
+## 2026-11-02 Sol: WDS exact-generation capture host/MIPS verified
+
+New check-wds-unregister-generation.py executes actual capture block with lock/
+RTNL mocks. ASan/UBSan passes exact generation snapshot, stale generation
+post-unregister receipt refusal, stage1 duplicate-detach refusal and incomplete
+close refusal before detach. WDS source TU compiles with retained MIPS target
+flags. Temporary candidate/binary/object removed. Full merged input/reverse
+validation and pipeline integration remain before full target build; existing
+WDS retained allocation/reaper gap not solved. Next bind exact saved identity
+through a checked post-unregister continuation, then generalize to other families.
+
+## 2026-11-02 Sol: WDS unregister generation transport source staged
+
+Added isolated prepare-wds-unregister-generation.py pinned to reviewed WDS
+source. After checked close, while RTNL pins device, snapshot exact generation
+under transition lock only for published/removing idle record with terminal
+close and removal_stage0. Refuse before unregister if absent. After RTNL unlock,
+existing after_unregister receipt uses saved generation instead of re-reading
+current record generation. Existing allocation-retained failure preserved;
+callback/reaper completion not invented. Generation on peer source passes;
+not target compiled or host fault-tested yet. Temporary candidate removed.
+Next exact merged replay, stale generation mutation fixture and WDS target TU.
+
+## 2026-11-02 Sol: WDS detached seam intentionally retains; live CI step verified
+
+WDS source after detach+RTNL unlock records after_unregister then returns
+failure, retaining allocation/vendor registration because callback join/reaper
+is not bound. This existing seam is intentionally incomplete; cannot copy it
+as a successful APCLI/MBSS completion or claim child ledger DONE. Exact-generation
+snapshot must precede unregister, and final vendor/report/callback proofs must
+be bound before release. Current generic registry helper preserves stage1 on
+failed finish, providing continuation without acknowledging completion.
+Verified live run41473820954 build job active specifically at USBIP restore
+orchestration check (started15:53:57Z); select job success. No duplicate/restart.
+No new source change/scratch/router action; next implement generation-bound
+pre/post-unregister transport and callback-retirement continuation.
+
+## 2026-11-02 Sol: family identity snapshot and post-remove registry observation
+
+Added isolated child-family-identities.h: captures original device/generation/
+slot/family after whole-family logical-close observation; capacity failure keeps
+used unchanged. Post observation requires every captured slot completely empty
+and no remaining live family entry; reused slot even for another family refuses.
+ASan/UBSan passes capacity/partial retirement/complete empty/reused generation
+cases. No pointer dereference after netdev free. This is software registry
+observation, not callback/hardware proof, and not source-bound/ledger DONE.
+Temporary binary removed. Next bind unregister receipts before free and feed
+exact identities to completion protocol; peer82 active at last poll.
+
+## 2026-11-02 Sol: exact APCLI/monitor logical close snapshot added
+
+Isolated family snapshot now accepts acquired APCLI/monitor only with idle
+stage2 record and same-slot family CLOSE_DONE matching device/family/generation/
+token/serial/epoch, all nonzero owner IDs. Does not reuse family_close_matches
+because that pre-finalization predicate requires CLOSING while finalized record
+is IDLE. Shared registry predicate unchanged. ASan/UBSan tests pass matching
+receipt and reject stale epoch/generation/token and uncertain family result,
+plus earlier multi-BSS/deferred/removing cases. Temporary binary removed.
+Not source-bound to remove/ledger; hardware/report/callback retirement separate.
+Next snapshot generation identities across remove and validate post-unregister
+registry completion before any ledger DONE transition.
+
+## 2026-11-02 Sol: APCLI/monitor logical terminal stage located
+
+Actual owned close requires family_close success, exact family CLOSE_DONE,
+verified virtual-down stage/count, radio finish and ref consumption before
+record close_stage2. Shared registry predicate still rejects acquired APCLI/
+monitor; do not merely add stage2 there. Family observation can use BOTH exact
+matching family-close state and idle stage2 record, with recovery joined;
+physical/vendor callback retirement remains independent. Evidence:
+`docs/evidence/WR1200JS-IOT-AUX-CLOSE-TERMINAL-TRACE-2026-11-02.json`.
+Next extend isolated family snapshot with exact family-state input and stale
+identity/epoch tests. No scratch/router action; peer82 still active at last poll.
+
+## 2026-11-02 Sol: APCLI/MBSS post-remove registry receipt gap
+
+Peer source inventory finds WDS after_unregister stage binding only; APCLI/MBSS
+remove free netdev/clear pointer without registry after_unregister/finish calls.
+finish_after_unregister remains helper-only. Thus even family success cannot
+support ledger DONE until exact-generation registry retirement is bound before
+free. Existing pinned-kernel checker documents RTNL-unlock accounted-ref drain,
+not vendor raw callbacks/DMA. Evidence:
+`docs/evidence/WR1200JS-IOT-POST-REMOVE-REGISTRY-GAP-2026-11-02.json`.
+Next stage pre-free exact-identity receipt on APCLI/MBSS with refusal when close/
+vendor/report proof absent; avoid inventing callback completion. No scratch or
+router action. Peer82 run41473820954 still active at last poll.
+
+## 2026-11-02 Sol: whole-family close observation staged
+
+Added isolated child-family-close-snapshot.h using existing family-specific
+registry terminal predicate. Requires fenced publication/transition lock from
+caller, zero deferred owners and joined recovery; validates EVERY member,
+identity/publication/idle/not-removing state. Returns count only on full success.
+Host ASan/UBSan checks multi-BSS partial close refusal, deferred/unjoined work,
+removing member and unsupported active APCLI terminal state; unmutated APCLI
+allowed by existing predicate. PASS, temporary binary removed. Not bound to
+child ledger and does not acknowledge hardware/callback completion. Existing
+registry predicate cannot prove acquired APCLI/monitor close; retain refusal
+until those family stages are reviewed. Next post-remove registry retirement
+observation and exact generation snapshot binding.
+
+## 2026-11-02 Sol: APCLI/MBSS family removal status trace
+
+APCLI/MBSS wrappers propagate ioctl results; core success follows full-family
+loop. APCLI explicitly closes and checks idle before unregister/free; MBSS
+begin_remove requires idle registry and checked close_stage4 or unmutated open,
+then beacon removal gates. This supports per-interface refusal, not yet whole
+family recovery-join/callback retirement receipts. Evidence:
+`docs/evidence/WR1200JS-IOT-APCLI-MBSS-REMOVE-TRACE-2026-11-02.json`.
+Need pre-remove family close/recovery snapshot before close_done, and complete
+after registry retirement; do not infer from one netdev or success alone.
+No scratch/device action; peer82 still active at last poll.
+
+## 2026-11-02 Sol: child retirement ledger completion is unbound
+
+Child snapshot starts wr_child_teardown_begin; reviewed candidate includes have
+no close_done/complete calls. Root detach guards all four family remove statuses,
+then unregisters root and returns TRUE, but separate children ledger completion
+and callback retirement receipts are not bound. Therefore final_work_joined/
+claim_release cannot simply be appended. Evidence:
+`docs/evidence/WR1200JS-IOT-CHILD-RETIREMENT-BINDING-GAP-2026-11-02.json`.
+Next trace per-family registry/unregister/free outcomes and acknowledge only
+verified synchronous completions. Existing refusal remains; no scratch/router
+action. Peer82 run41473820954 active at last poll.
+
+## 2026-11-02 Sol: PCI gate extra-join false positive corrected
+
+Function extraction includes whole remove body. Actual source has three main
+worker joins: one failure branch plus normal before/after detach. Changed
+lexical checker from exactly two calls to required before/after positions;
+synthetic positive extra-join and negative missing-pre/missing-post cases pass.
+Checker still rejects current source for missing final_work_joined/claim_release
+transitions. Earlier statement of no retirement calls was too broad: begin,
+drain, stop_requested and work_joined exist; final stages remain unbound.
+Do not interpret diagnostic correction as PCI acceptance. Temporary fixtures
+removed. Next trace children/main/final-work receipts before binding transitions;
+current peer82 run41473820954 active at last poll.
+
+## 2026-11-02 Sol: final merged PCI gate fails; earlier merge hypothesis rejected
+
+Ran check-pci-remove-release-gate.py on exact regenerated final merged candidate:
+FAIL for retirement transition ordering and two-join count. Earlier hypothesis
+that prepared merge would resolve pre-merge gate failure is not supported.
+Current remove source has work joins and bus-master observation but no visible
+required retirement claim calls; release helper still requires terminal phase.
+Do not synthesize receipts to satisfy checker. Need precise function extraction/
+join count audit, then real callback/work/physical receipt binding. Evidence:
+`docs/evidence/WR1200JS-IOT-FINAL-MERGED-PCI-GATE-2026-11-02.json`.
+Failed temporary tree removed. Peer82 run41473820954 still in_progress. No
+runtime acceptance or router operation.
+
+## 2026-11-02 Sol: actual merged retained adapter-release fixture passes
+
+Updated fixture lock aliases rerun on exact merged helper under ASan/UBSan:
+PASS including explicit retained-table refusal. Evidence/hashes:
+`docs/evidence/WR1200JS-IOT-RETAINED-ADAPTER-RELEASE-2026-11-02.json`.
+Pre-merge peer PCI source shows checked RtmpRaDevCtrlExit before iounmap and
+checked RTMPFreeAdapter before probe-unwind iounmap. Standalone PCI gate on that
+pre-merge tree reports absent typed joins; these are added by prepared merge,
+so no final merged PCI gate acceptance claimed yet. Next run gate on final
+merged source and review raw-call bypass inventory. Temporary fixture removed;
+peer82 run41473820954 still active at last poll; no duplicate/device action.
+
+## 2026-11-02 Sol: retained adapter-release gate trace; fixture update pending rerun
+
+Actual peer-adapter release helper requires !table.active and !table.retained,
+so retained failed-open state is independently rejected by this software gate.
+Attempted exact merged host fixture; compilation exposed missing RTMP_INT_LOCK/
+UNLOCK aliases after task-lock source transform. Added matching fixture lock
+aliases and explicit retained-table refusal case to existing checker. The
+updated fixture has NOT yet been rerun; no pass claimed. Temporary failed test
+candidate removed. Next rerun exact merged fixture and inspect outer PCI-remove
+callers for result propagation; peer82 remains active at last poll.
+
+## 2026-11-02 Sol: failed init peer-open admission remains retained
+
+FAIL sets RETAINED phase and active retained table; new BEGIN is refused.
+Existing owner/dispatch ASan/UBSan fixtures pass for CONFIG failure rejecting
+DONE/reopen and STARTUP failure with admitted insertion. Initial direct compile
+missed generated include alias; provided exact copied alias in temporary include
+directory and reran successfully. Evidence:
+`docs/evidence/WR1200JS-IOT-INIT-REOPEN-RETAINED-2026-11-02.json`.
+Protected main-open cannot simply reinitialize after failure; outer cleanup
+bypasses/recovery remain separate. Temporary outputs removed; no device action.
+
+## 2026-11-02 Sol: target readback run started; outer init failure review
+
+Live firmware/ABI41468829739/41468829930 completed success at2aa7031d;
+dispatched optional peer82 run41473820954 with no active predecessor queue.
+Outer rt28xx_open init-failure branch releases IRQ then returns -1; final
+merged open additionally calls WR_PEER_OPEN_FAIL. Peer-open dispatch routes
+FAIL to wr_iot_peer_open_finish; must verify retained ownership prevents reopen
+when new DMA/RX gate returns before controller cleanup. Do not infer recovery
+from FALSE return alone. Next inspect that owner state transition and add a
+focused retained-init failure case if needed. Local AGENTS cleanup rule and
+cleanup evidence preserved, not staged with firmware work. No device action.
+
 ## 2026-11-02 Sol: init DMA readback gates and CI fixture ready
 
 Exact merged downstream gates and DMA fault ASan/UBSan fixture pass; added

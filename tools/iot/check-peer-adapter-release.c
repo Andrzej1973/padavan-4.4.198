@@ -32,6 +32,8 @@ static int held,inject_writer;static RTMP_ADAPTER *current;
 #define NdisAcquireSpinLock(l) do{(void)(l);assert(!held);held=2;if(inject_writer){inject_writer=0;current->wr_iot_peer_table_owner.transactions++;}}while(0)
 #define NdisReleaseSpinLock(l) do{(void)(l);assert(held==2);held=0;}while(0)
 #define work_busy(p) ((p)->busy)
+#define RTMP_INT_LOCK RTMP_IRQ_LOCK
+#define RTMP_INT_UNLOCK RTMP_IRQ_UNLOCK
 #include "wr-iot-peer-adapter-release.inc"
 static void ready(RTMP_ADAPTER *a){
  memset(a,0,sizeof *a);current=a;
@@ -52,6 +54,7 @@ int main(void){RTMP_ADAPTER a;
  ready(&a);a.wr_iot_transition.joined_workers=0;assert(!wr_iot_adapter_release_begin(&a));
  ready(&a);a.wr_iot_peer_delete_active=1;assert(!wr_iot_adapter_release_begin(&a));
  ready(&a);a.wr_iot_peer_table_owner.transactions=1;assert(!wr_iot_adapter_release_begin(&a));
+ ready(&a);a.wr_iot_peer_table_owner.retained=1;assert(!wr_iot_adapter_release_begin(&a));
  ready(&a);a.wr_iot_peer_table_owner.active=1;assert(!wr_iot_adapter_release_begin(&a));
  ready(&a);a.wr_iot_main_recovery.deferred_owners=1;assert(!wr_iot_adapter_release_begin(&a));
  ready(&a);a.wr_iot_aux_family_retry.deferred_owners=1;assert(!wr_iot_adapter_release_begin(&a));

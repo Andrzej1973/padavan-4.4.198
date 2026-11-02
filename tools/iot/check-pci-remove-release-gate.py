@@ -78,7 +78,11 @@ def main() -> int:
     joins = [match.start() for match in re.finditer(
         r"(?:cancel_work_sync|flush_work)\s*\(\s*&adapter->wr_iot_main_recovery_work\s*\)",
         remove)]
-    if len(joins) != 2 or not joins[0] < detach_pos < joins[1] < free:
+    # Failure branches may also join workers before returning. Require a join
+    # on each side of detach; additional cleanup joins are not an error.
+    if detach_pos < 0 or free < 0 or not (
+            any(pos < detach_pos for pos in joins) and
+            any(detach_pos < pos < free for pos in joins)):
         issues.append("main recovery work must be joined before and after root detach")
     if issues:
         for issue in issues:

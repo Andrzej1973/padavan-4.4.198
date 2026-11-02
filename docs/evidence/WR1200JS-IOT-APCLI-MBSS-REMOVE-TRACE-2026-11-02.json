@@ -1,0 +1,26 @@
+{
+  "date": "2026-11-02",
+  "scope": "APCLI/MBSS family removal source trace",
+  "APCLI": [
+    "OS wrapper returns ioctl removal status",
+    "core loops all APCLI netdevs",
+    "marks removing, explicitly closes under netdev protection",
+    "requires close_phase_idle before unregister",
+    "unregisters wdev, frees netdev, clears pointer",
+    "success only after loop"
+  ],
+  "MBSS": [
+    "OS wrapper returns ioctl removal status",
+    "core loops secondary BSS only",
+    "begin_remove requires published idle registry and close_stage4 or unmutated open",
+    "beacon producer/storage gates precede unregister/free",
+    "success only after loop"
+  ],
+  "not_proven": [
+    "family-wide joined recovery receipt before destructive removal",
+    "all callback refs retired after unregister",
+    "child ledger close_done/complete binding"
+  ],
+  "next": "use pre-remove family snapshot to prove every checked close/recovery join, then acknowledge complete only after registry retirement",
+  "runtime_verified": false
+}
