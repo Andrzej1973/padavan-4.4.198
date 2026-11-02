@@ -1,0 +1,51 @@
+#!/usr/bin/env python3
+"""Execute generated MLME join admission and shutdown failure propagation."""
+import argparse,subprocess,tempfile
+from pathlib import Path
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('candidate',type=Path);a=p.parse_args()
+s=(a.candidate/'common/mlme.c').read_text();start=s.index('static BOOLEAN wr_iot_mlme_halt_body(')
+end=s.index('#if (defined(MT_WOW_SUPPORT)',start)
+# Cancelled belongs to the later timer cleanup, excluded from this join fixture.
+prefix=s[start:end].replace('\tBOOLEAN Cancelled;','',1)+' cleanups++;return TRUE;\n}\n'
+wstart=s.index('VOID MlmeHalt(RTMP_ADAPTER *pAd)',end);wend=s.index('\n}',s.index('BOOLEAN wr_iot_mlme_halt_checked(',wstart))+2
+wrappers=s[wstart:wend]
+caller=(a.candidate/'common/rtmp_init_inf.c').read_text();start=caller.index(' if (!wr_iot_mlme_halt_checked(pAd)) {');end=caller.index('\n }',start)+3
+block=caller[start:end]
+code=r'''
+#include <assert.h>
+#define VOID void
+#define BOOLEAN int
+#define TRUE 1
+#define FALSE 0
+#define NDIS_STATUS_FAILURE -1
+#define RT_DEBUG_TRACE 0
+#define RT_DEBUG_ERROR 0
+#define DBGPRINT(a,b) ((void)0)
+typedef struct {int handle;} RTMP_OS_TASK;
+typedef struct {RTMP_OS_TASK mlmeTask;int wr_iot_transition_lock;struct {unsigned int shutdown_stage;} wr_iot_transition;} RTMP_ADAPTER;
+static int kill_result,kill_calls,context_bad,identity,cleanups,held;
+static int RtmpOSTaskKill(RTMP_OS_TASK *t){assert(t&&!held);kill_calls++;return kill_result;}
+static int wr_iot_os_join_context(void){return context_bad;}
+static int wr_iot_os_timer_task_current(RTMP_OS_TASK *t){assert(t);return identity;}
+#define RTMP_IRQ_LOCK(l,f) do{(void)(l);(f)=0;assert(!held);held=1;}while(0)
+#define RTMP_IRQ_UNLOCK(l,f) do{(void)(l);(void)(f);assert(held);held=0;}while(0)
+'''+prefix+wrappers+r'''
+static int close_stage(RTMP_ADAPTER *pAd){unsigned long flags;
+'''+block+r'''
+return 0;}
+int main(void){RTMP_ADAPTER ad={0};
+ kill_result=-1;assert(!wr_iot_mlme_halt_checked(&ad)&&kill_calls==1&&!cleanups);
+ assert(close_stage(&ad)==-1&&ad.wr_iot_transition.shutdown_stage==3&&!cleanups&&!held);
+ kill_result=0;assert(wr_iot_mlme_halt_checked(&ad)&&cleanups==1);
+ int before=kill_calls;identity=1;assert(!wr_iot_mlme_halt_checked(&ad)&&kill_calls==before);
+ identity=-1;assert(!wr_iot_mlme_halt_checked(&ad)&&kill_calls==before);
+ identity=0;context_bad=1;assert(!wr_iot_mlme_halt_checked(&ad)&&kill_calls==before);
+ context_bad=0;assert(!wr_iot_mlme_halt_checked(0)&&kill_calls==before);
+ kill_result=-1;MlmeHalt(&ad);assert(cleanups==2);
+ return 0;}
+'''
+with tempfile.TemporaryDirectory(prefix='wr-mlme-halt-check-') as d:
+ c=Path(d)/'check.c';c.write_text(code)
+ subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-pie','-no-pie',str(c),'-o',d+'/check'],check=True)
+ subprocess.run([d+'/check'],check=True)
+print('PASS MLME checked join failure before cleanup, self/unknown/context refusal, shutdown stage retention and legacy entry')

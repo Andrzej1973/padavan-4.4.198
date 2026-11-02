@@ -1,3 +1,19 @@
+## 2026-11-02 Sol: checked MLME halt verified; previous peer82 module inspected
+
+New isolated layer retains legacy VOID MlmeHalt entry and adds checked halt:
+reject self/unknown/atomic context, propagate task-kill failure before cleanup.
+Checked physical close records non-replayable stage3 on refusal. Actual body/
+wrapper/refusal ASan/UBSan fixtures, both affected MIPS TUs, downstream gates
+and workflow YAML/bash pass. Evidence: docs/evidence/WR1200JS-IOT-MLME-CHECKED-HALT-2026-11-02.json.
+Run41480234434 completed successfully on988ac653. Independently downloaded
+mt76x3_ap.ko: ELF32 little-endian MIPS32r2, 5503660 bytes; SHA256 matches
+artifact metadata. Recorded evidence: docs/evidence/WR1200JS-IOT-PEER82-RUN41480234434-2026-11-02.json.
+Its task macros: KTHREAD yes; ABL/PM/timer-task/WSC no. It does not cover the
+new PCI preclose/MLME layers or the full feature matrix. Artifact extracts and
+all new scratch removed. Next establish terminal timer storage/list ownership
+and checked joins before destructive release, then WDS reaper/final PCI gate.
+IoT/image/runtime acceptance remains open. Ready for one coherent push.
+
 ## 2026-11-02 Sol: preclose does not retire all timer callbacks
 
 Re-ran existing audit-timer-delete-join.py on the exact merged chain including
