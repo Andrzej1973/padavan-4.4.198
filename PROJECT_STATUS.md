@@ -1,3 +1,19 @@
+## 2026-11-02 Sol: timer/WSC batch publication checkpoint
+
+Published6b5c1b8 automatic ABI41483578419 and firmware41483578699 both
+completed successfully (GitHub verified). Local timer/WSC commits b5b93da,
+37105e0 and bce13b7 are ready for one coherent push, including actual Kbuild
+WSC/KTHREAD TU regression runner. No competing build remains on that head.
+RTNL followup: both MainVirtualIF_close and main recovery execute can reach
+physical continue under RTNL. Dropping it blindly is unsafe: root reopen must
+remain fenced until exact recovery owner completion/module-pin retirement.
+Next implement a split continuation with adapter/netdev pins and explicit
+root-open admission fencing; retain RTNL for netdev admission/preclose and
+run blocking joins outside it, with generation/token revalidation. Do not
+weaken existing check-joined-rearm expectations without proving that new
+lifetime contract. Timer/dynamic callback and WDS/PCI acceptance remain open.
+No new scratch created in this checkpoint; previous phase scratch removed.
+
 ## 2026-11-02 Sol: optional WSC profile join and real feature-TU regression fixed
 
 Added checked APCLI WSC profile-retry join regardless of Running flag.
