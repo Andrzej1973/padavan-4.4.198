@@ -1,3 +1,17 @@
+## 2026-11-02 Sol: external MBSS completion join helper host verified
+
+Added unbound mbss-recovery-join.inc: external adapter-pinned caller flushes
+each work outside locks, verifies exact original device/generation/token/
+close receipt, resets successful owner and dev_put outside lock. Failed or
+stale owners retain references; second reap never drops another ref. Actual
+worker/owner plus helper ASan/UBSan fixture passes successful join, repeated
+join, retained failure, generation reuse and bad-context refusal. Kernel work
+and backend are injected; no actual concurrency/target claim for new helper.
+Not installed or dispatched: external serialization/admission fence and PCI
+join wiring remain necessary. Temporary merged test chain/fixtures removed.
+Next bind serialized external reap into PCI drain/stop and update all fixture
+layouts before enabling MBSS admission. Full goal/runtime remains incomplete.
+
 ## 2026-11-02 Sol: MBSS callback/work contexts host and MIPS verified
 
 Staged per-slot work contexts initialized before storage_live publication.

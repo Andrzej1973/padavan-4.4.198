@@ -2,7 +2,7 @@
 """Exercise actual MBSS worker/owner control flow with injected backend results."""
 import argparse,subprocess,tempfile
 from pathlib import Path
-p=argparse.ArgumentParser(description=__doc__);p.add_argument('candidate',type=Path);a=p.parse_args();here=Path(__file__).resolve().parent
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('candidate',type=Path);p.add_argument('--external-join',action='store_true');a=p.parse_args();here=Path(__file__).resolve().parent
 helper=(a.candidate/'include/wr-iot-mbss-recovery-work.inc').read_text()
 assert 'RT_MOD_DEC_USE_COUNT' not in helper and 'dev_put(' not in helper
 s=(a.candidate/'include/wr-iot-mbss-close-checked.inc').read_text();start=s.index('INT wr_iot_mbss_begin_close(');begin=s[start:s.index('\n}',start)+2]
@@ -79,6 +79,31 @@ int main(void){RTMP_ADAPTER ad;struct device main,dev;
  ready(&ad,&main,&dev);queue(&ad);ad.wr_iot_interface_refs[1].generation++;execute(&ad);assert(!backend_calls&&module_refs==1&&ad.wr_iot_mbss_recovery[1].phase==WR_MBSS_OWNER_RETAINED);
  ready(&ad,&main,&dev);queue(&ad);context_bad=1;execute(&ad);assert(!backend_calls&&ad.wr_iot_mbss_recovery[1].phase==WR_MBSS_OWNER_QUEUED);
  ready(&ad,&main,&dev);queue(&ad);assert(wr_iot_mbss_recovery_request_stop(&ad.wr_iot_mbss_recovery[1]));execute(&ad);assert(!backend_calls&&module_refs==1);
+ return 0;
+}
+'''
+if a.external_join:
+ marker='static void ready(RTMP_ADAPTER *ad,struct device *main,struct device *dev)'
+ join_mock=r'''
+static int flush_calls,put_calls;
+static void flush_work(struct work_struct *w){assert(!held);flush_calls++;w->busy=0;}
+static void dev_put(PNET_DEV dev){assert(!held&&dev&&dev->refs==1);put_calls++;dev->refs--;}
+'''
+ join=(here/'mbss-recovery-join.inc').read_text()
+ code=code.replace(marker,join_mock+join+'\n'+marker)
+ marker=' return 0;\n}\n'
+ assert code.endswith(marker)
+ tail=code.rindex(marker)
+ code=code[:tail]+r'''
+ ready(&ad,&main,&dev);queue(&ad);execute(&ad);flush_calls=put_calls=0;
+ assert(wr_iot_mbss_recovery_join_completed(&ad)==0&&dev.refs==0&&put_calls==1&&flush_calls==2);
+ assert(wr_iot_mbss_recovery_join_completed(&ad)==0&&put_calls==1);
+ ready(&ad,&main,&dev);queue(&ad);backend_fail=1;execute(&ad);put_calls=0;
+ assert(wr_iot_mbss_recovery_join_completed(&ad)==-1&&dev.refs==1&&!put_calls);
+ ready(&ad,&main,&dev);queue(&ad);execute(&ad);ad.wr_iot_interface_refs[1].generation++;put_calls=0;
+ assert(wr_iot_mbss_recovery_join_completed(&ad)==-1&&dev.refs==1&&!put_calls);
+ ready(&ad,&main,&dev);context_bad=1;flush_calls=0;
+ assert(wr_iot_mbss_recovery_join_completed(&ad)==-1&&!flush_calls);
  return 0;
 }
 '''
