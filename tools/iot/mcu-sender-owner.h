@@ -5,10 +5,10 @@
 #define WR_IOT_MCU_SENDER_OWNER_H
 struct wr_iot_mcu_sender_owner {
  unsigned long close_serial;
- unsigned int messages,inflight,closed,off_active,off_done,uncertain,poisoned,release_claimed;
+ unsigned int radio_active,messages,inflight,closed,off_active,off_done,uncertain,poisoned,release_claimed;
 };
 static inline void wr_iot_mcu_sender_init(struct wr_iot_mcu_sender_owner *s)
-{ s->close_serial=0;s->messages=0;s->inflight=0;s->closed=0;s->off_active=0;s->off_done=0;s->uncertain=0;s->poisoned=0;s->release_claimed=0; }
+{ s->close_serial=0;s->radio_active=0;s->messages=0;s->inflight=0;s->closed=0;s->off_active=0;s->off_done=0;s->uncertain=0;s->poisoned=0;s->release_claimed=0; }
 static inline int wr_iot_mcu_sender_enter(struct wr_iot_mcu_sender_owner *s)
 {
  if(!s||s->closed||s->poisoned||s->release_claimed)return 0;
@@ -46,7 +46,7 @@ static inline int wr_iot_mcu_sender_off_finish(struct wr_iot_mcu_sender_owner *s
  * Hardware, message queues and RX callbacks require separate completion proof. */
 static inline int wr_iot_mcu_sender_drained(const struct wr_iot_mcu_sender_owner *s)
 {
- return s && s->closed && !s->inflight && !s->off_active &&
+ return s && s->closed && !s->inflight && !s->radio_active && !s->off_active &&
         !s->uncertain && !s->poisoned;
 }
 

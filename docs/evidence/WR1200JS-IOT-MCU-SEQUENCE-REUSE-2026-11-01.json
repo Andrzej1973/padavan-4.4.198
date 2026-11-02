@@ -39,5 +39,35 @@
     "parser": "radio-result.h already explicitly limits itself to payload syntax/status",
     "consequence": "A stale successful RADIO_ON result with reused sequence also cannot be distinguished from RADIO_OFF by current result fields. Ownership wrapper alone cannot prove OFF completion.",
     "next_requirement": "Establish nonreuse/drain epoch covering both ON and OFF plus all legacy issuers; do not infer new OFF receipt from parser result alone."
+  },
+  "radio_issuer_inventory": {
+    "legacy_calls": [
+      "hw_ctrl/cmm_asic_mt.c:MTPciMlmeRadioOn -> CmdRadioOnOffCtrl(WIFI_RADIO_ON)",
+      "hw_ctrl/cmm_asic_mt.c:MTPciMlmeRadioOff -> CmdRadioOnOffCtrl(WIFI_RADIO_OFF)"
+    ],
+    "checked": "wr_iot_prepare_radio_off + wr_iot_send_radio_off_checked",
+    "effective_LOAD_FW_ONE_TIME": "Both legacy calls use AGG_TEMP alternative; checked path refuses before mutation",
+    "retransmit": "Legacy passes TRUE to AndesInitCmdMsg but actual initializer unconditionally sets need_retransmit=0 and retransmit_times=0; do not infer retry from call argument",
+    "requirement": "Unified admission/timeout epoch must cover both constructors and cannot rely on nominal retransmit argument. Successful-response cardinality and reset/drain boundary still unproved."
+  },
+  "firmware_reload_epoch_review": {
+    "board_path": "chips/mt7603.c uses DownLoadTypeA -> AndesMTLoadFwMethod1",
+    "effective_behavior": "LOAD_FW_ONE_TIME and TOP_MISC2 running bit: marks FW_RUN_TIME/FWLoad=1 then goto done, skipping CmdRestartDLReq",
+    "alternate_restart": "CmdRestartDLReq uses regular AndesSendCmdMsg; CmdReStartDLRsp switches/logs firmware statuses without propagating checked semantic success",
+    "conclusion": "Successful host reopen/load return does not prove firmware restart or flush of delayed responses. A separately checked restart/drain/reset boundary remains required."
+  },
+  "pdma_reset_review": {
+    "path": "common/cmm_mac_pci.c:wr_iot_pdma_reset_raw",
+    "observed": "Disables interrupts/PDMA, polls PSE TX-abort/TX-FIFO, then cleans control/data/RX rings",
+    "timeout": "TX FIFO timeout increments failure count and continues into ring cleanup; function returns VOID",
+    "conclusion": "This path is not a checked MCU restart/ACK epoch proof. It touches control-ring packets while software MCU messages may remain; ownership reconciliation and proven DMA stop are prerequisites, not consequences of cleanup."
+  },
+  "upstream_comparison": {
+    "url": "https://raw.githubusercontent.com/torvalds/linux/master/drivers/net/wireless/mediatek/mt76/mt7603/mac.c",
+    "retrieved_date": "2026-11-01",
+    "download_sha256": "2ddca5b165e98034a1bf5cd185b62f9af805d5cf970e79a54b1bff912397995a",
+    "function": "mt7603_mac_watchdog_reset",
+    "observed": "Stops TX workers, disables both RX NAPI and TX NAPI, stops MAC/DMA, disables IRQ, resets PSE client, cleans MCU TX queue and resets RX queues before restart",
+    "limit": "Different driver/kernel architecture; not portable code or proof of firmware ACK epoch. Watchdog sequence inspected contains no firmware reload step. Use only as producer/queue ordering comparison."
   }
 }

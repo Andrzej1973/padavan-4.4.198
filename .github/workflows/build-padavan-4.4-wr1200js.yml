@@ -1627,6 +1627,10 @@ jobs:
             python3 tools/iot/prepare-mcu-sender-binding.py "$merged" "$candidate/mcu-sender"
             merged="$candidate/mcu-sender"
             python3 tools/iot/check-mcu-sender-binding.py "$sender_parent" "$merged"
+            python3 tools/iot/prepare-mcu-result-check.py "$merged" "$results/checked-radio-result.c"
+            gcc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
+              -Itools/iot "$results/checked-radio-result.c" -o "$results/checked-radio-result"
+            "$results/checked-radio-result"
             for fixture in check-mcu-sender-owner check-mcu-sender-wrapper check-mcu-sender-drain check-mcu-sender-release check-mcu-message-lifetime; do
               gcc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
                 -Itools/iot "tools/iot/$fixture.c" -o "$results/$fixture"

@@ -1,3 +1,137 @@
+## 2026-11-02 Sol: ACK fixture included in optional peer82 CI
+
+Queried live GitHub branch run list: latest peer82 41330209946 and latest
+firmware/ABI runs all completed success on published 1a274b76; no live run in
+the latest five returned. Updated optional peer82 step to extract and execute
+actual checked-radio-result fixture with ASan/UBSan alongside sender fixtures.
+YAML parse, affected full bash step syntax and scoped whitespace checks pass.
+No dispatch/push yet; batch current local changes before publishing. No new
+scratch retained. This CI coverage does not prove ACK freshness/runtime.
+
+## 2026-11-02 Sol: updated MCU wrapper compiles as MIPS TU
+
+Fresh generated andes_core.c compiled with retained pinned MIPS toolchain,
+Linux headers and target flags including LOAD_FW_ONE_TIME. This includes
+radio serialization, failure quarantine and semantic checked-path opt-in.
+Evidence with command, wrapper/object hashes:
+`docs/evidence/WR1200JS-IOT-RADIO-SEMANTIC-MIPS-2026-11-02.json`.
+Initial invocation had wrong -o argument indexing and was corrected; compiler
+then exited 0 without diagnostics. Candidate/object removed automatically.
+This is one TU, not module/link/image acceptance. Next full optional target
+CI after batching changes and checking queue; ACK epoch remains unresolved.
+
+## 2026-11-02 Sol: retained target flags exclude hook
+
+Retained local target command has no RTMP_WLAN_HOOK_SUPPORT define and its
+preprocessed andes inventory contains no RtmpOsTxRxHookCall. This narrows the
+compatibility concern for that exact local TU variant; it does not prove latest
+peer82 CI flags or final image module closure. Evidence:
+`docs/evidence/WR1200JS-IOT-HOOK-TARGET-FLAGS-2026-11-02.json`.
+No new scratch. Next obtain current CI command/artifact or preprocess updated
+candidate with the pinned target command before any broader acceptance claim.
+
+## 2026-11-02 Sol: calibration result hook consumer trace
+
+Pinned full-driver has no hook registration call sites or calibration-result
+consumers; matching checkout C/H search also found none. Registration APIs are
+exported, so this does not exclude external modules. Dispatcher passes status
+through unsigned char queIdx (32-bit firmware status truncates); hook cannot
+serve as semantic success receipt. Source hashes and audit limits recorded in
+`docs/evidence/WR1200JS-IOT-RADIO-HOOK-AUDIT-2026-11-02.json`.
+Next inspect effective target flags/module closure before accepting callback
+bypass, then compile the updated candidate. No scratch generated or device action.
+
+## 2026-11-02 Sol: extracted ACK branch verified on merged candidate
+
+Updated prepare-mcu-result-check.py to extract the bounded checked branch from
+merged inventories that omit standalone fixture fragments, preserving unique
+branch/sequence-gate/lock-release placement checks. Extracted C fixture passes
+ASan/UBSan for envelope, firmware rejection, sequence mismatch and generic
+callback bypass. Temporary output removed. Hook review found
+RTMP_WLAN_HOOK_SUPPORT enabled in vendor config paths; therefore compatibility
+of bypassing WLAN_CALIB_TEST_RSP is still open and must be traced to registered
+consumers before target acceptance. Do not assume the hook is disabled.
+
+## 2026-11-02 Sol: radio messages opt into bounded semantic result path
+
+Isolated sender wrapper now sets wr_iot_checked on admitted RADIO_ON/OFF before
+transport ownership transfer. Existing receive path validates event IDs, exact
+length, command ID/status and copies result before message retirement. Legacy
+logging/hook callback is bypassed for these messages; callback compatibility
+and target compilation remain to review. Unexpected transport/retransmit modes
+are rejected by existing checked transport guards rather than silently changed.
+ASan/UBSan wrapper fixture verifies radio opt-in and non-radio preservation;
+fresh generation/binding check passes. Temporary candidate/binary removed.
+This does not establish ACK sequence freshness or owned OFF acceptance.
+
+## 2026-11-02 Sol: legacy radio success is not semantic ACK success
+
+Pinned source trace found generic completion after response-length mismatch and
+EventExtCmdResult only logging/hooking firmware status. Legacy CmdRadioOnOffCtrl
+does not opt into checked status propagation. Thus non-success-only sender
+quarantine misses semantic failure; serialization is insufficient. Evidence:
+`docs/evidence/WR1200JS-IOT-LEGACY-RADIO-STATUS-2026-11-02.json`.
+Next route legacy radio result handling through the bounded checked path after
+reviewing callback compatibility; retain sequence/epoch gate and OFF refusal.
+No new scratch, target build or router action.
+
+## 2026-11-02 Sol: refreshed sender source binding PASS
+
+Regenerated the sender layer from pinned ap-manifest-ready input in a temporary
+candidate. Binding checker passed exact helper identity, receipt hashes,
+reverse preservation of vendor bodies and extracted unwind/release ordering.
+The existing checker already compares full helper bytes, covering the current
+radio serialization/quarantine changes without extra parser rules. Evidence:
+`docs/evidence/WR1200JS-IOT-MCU-SERIALIZATION-HOST-2026-11-02.json`.
+Temporary candidate removed. No target/runtime acceptance; next trace successful
+radio response matching and sequence reuse before binding owned OFF.
+
+## 2026-11-02 Sol: sender concurrency candidate host checks refreshed
+
+OpenRouter chat inspected: notLoaded; latest turn failed with HTTP 429.
+Re-ran five MCU owner/wrapper/drain/release/message-lifetime C fixtures with
+GCC -O1, ASan/UBSan, -Wall -Wextra -Werror: all passed. This includes nested
+RADIO_ON/OFF refusal, failure quarantine and release refusal. Existing local
+candidate was preserved. Temporary executables were removed by Python
+TemporaryDirectory; no scratch retained from these checks. Shell cleanup
+command was rejected by execution policy; no deletion occurred through it.
+No target/image/device claim follows. Next verify source binding and target
+coverage for radio command serialization; firmware ACK epoch remains open.
+
+## 2026-11-02 Роль прийнята — Sol (gpt-6.1-sol)
+
+За прямою вказівкою власника Sol приймає роль єдиного виконавця у
+`/home/andrzej/padavan-build/router-guide-work`. Цей запис замінює попередню
+очікувану передачу OpenRouter. Гілка `codex/wr1200js-service-webui`,
+HEAD `c99f43e4f7e2088d0b6d9ceee974b623720d53b4` перевірені локально.
+Сім наявних змінених файлів збережені без reset/clean/stage; незакомічена
+IoT-робота залишається незавершеною. Доступ до GitHub/CI та пристрою в цьому
+прийнятті не перевірявся. Перший крок продовження — перевірити поточну
+координацію з OpenRouter і актуальний CI перед змінами коду. Заборона
+OpenRouter змінювати IoT лишається чинною. Важкі збірки — GitHub Actions;
+прошивання, reboot і зміни конфігурації пристрою потребують окремого дозволу.
+
+## 2026-11-01 Sol: legacy ON/OFF transport failure quarantines sender owner
+
+Wrapper captures radio command identity before transport takes message ownership.
+Any non-success legacy/checked radio-control return marks uncertain and closes
+normal admission under sender lock, before final leave/wakeup. A subsequent send
+cannot consume a delayed result as a new command in this owner. Host ASan/UBSan
+fixture passes failure->quarantine->no second transport and release refusal.
+Conservative: even pre-submit radio failure quarantines until separately proven
+recovery epoch. No recovery/reopen yet; successful-result cardinality and owned
+OFF binding still unproved. This change is local and not target compiled.
+
+## 2026-11-01 Sol: firmware loader cannot establish fresh ACK epoch
+
+MT7603 DownLoadTypeA selects method1. Under effective LOAD_FW_ONE_TIME it
+returns success when TOP_MISC2 says firmware already running, bypassing restart.
+Alternative restart callback only logs semantic status; no checked restart
+receipt. Thus resetting host sequence/queues or successful loader return cannot
+be accepted as firmware epoch/drain proof. Updated sequence evidence. Next
+trace hardware restart/readback or supported firmware completion protocol; keep
+checked OFF refusal until the chosen boundary is proven.
+
 ## 2026-11-01 Sol: sender/message ownership fixtures enforced in optional CI
 
 Optional peer82 now compiles/runs five owner/wrapper/drain/release/message
@@ -12036,3 +12170,23 @@ the macro. Commands, object/source hashes and disassembly are recorded in
 `docs/evidence/WR1200JS-IOT-MAC-READBACK-MIPS-2026-11-01.json`. Full module,
 image, firmware compatibility, DMA/IRQ terminal fencing and runtime remain
 unverified. The temporary target candidate/tree were removed.
+## 2026-11-01 Sol: OpenRouter handoff requested; IoT frozen for recipient
+
+Owner requested transfer to OpenRouter with an explicit boundary: do not touch
+IoT; take available non-IoT work. Branch `codex/wr1200js-service-webui`, HEAD
+`c99f43e4f7e2088d0b6d9ceee974b623720d53b4`. Handoff is pending OpenRouter's
+explicit acceptance; until then no second writer may edit this checkout.
+
+Preserve the existing uncommitted work exactly. Current modified paths are
+`CODEX_HANDOFF.md`, `PROJECT_STATUS.md`,
+`docs/EXECUTION-ROLE.md`,
+`docs/evidence/WR1200JS-IOT-MCU-SEQUENCE-REUSE-2026-11-01.json`,
+`tools/iot/check-mcu-sender-wrapper.c`, `tools/iot/mcu-sender-owner.h`, and
+`tools/iot/mcu-sender-wrapper.inc`. The IoT sender concurrency/quarantine
+changes are host-only and not target compiled; IoT ACK epoch, owned OFF,
+shutdown sequencing, and external callback/DMA quiescence remain unresolved.
+
+OpenRouter should use the same WSL checkout, verify branch/status and read the
+repository handoff rules, leave every IoT path and its current diff untouched,
+and choose a non-IoT task such as a read-only Modern WebUI/Zapret2 audit before
+making any changes. No router/device operation is authorized.

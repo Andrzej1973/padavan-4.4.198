@@ -10,7 +10,15 @@ a = p.parse_args()
 if a.output.exists():
     raise SystemExit('Refusing to overwrite output')
 source = (a.candidate / 'mcu/andes_mt.c').read_text(encoding='utf-8')
-branch = (a.candidate / 'checked-ack-branch.inc').read_text(encoding='utf-8')
+branch_path = a.candidate / 'checked-ack-branch.inc'
+if branch_path.exists():
+    branch = branch_path.read_text(encoding='utf-8')
+else:
+    # Merged driver inventories omit standalone fixture fragments. Extract the
+    # same bounded branch directly, retaining the existing placement checks.
+    start = source.index('                if (msg->wr_iot_checked) {')
+    end = source.index('\n\t\t\t#if defined(RTMP_USB_SUPPORT)', start)
+    branch = source[start:end]
 if source.count(branch) != 1:
     raise SystemExit('Candidate checked branch missing/duplicated')
 pos = source.index(branch)

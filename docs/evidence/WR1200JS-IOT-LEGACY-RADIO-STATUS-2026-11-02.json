@@ -1,0 +1,18 @@
+{
+  "date": "2026-11-02",
+  "finding": "legacy radio transport success does not prove firmware status success",
+  "source_sha256": {
+    "mcu/andes_mt.c": "1e399d8bcc68e02704307adf6d8c332ceb203f8a4cdecce12ae1c3db62011962",
+    "mcu/andes_core.c": "dace085882a8097080b479a37b459dc799724831eece5da16efa41f21370f9a3"
+  },
+  "trace": [
+    "CmdRadioOnOffCtrl uses EventExtCmdResult without wr_iot_checked",
+    "EventExtCmdResult converts and logs status, calls hook, does not set transport result",
+    "generic receive completes ack_done even after response length mismatch",
+    "AndesSendCmdMsg starts ret=0; semantic status is copied only for wr_iot_checked"
+  ],
+  "implication": "non-success-only quarantine misses semantic firmware failures and malformed legacy completion; serialization alone cannot establish ACK ownership",
+  "next_change": "route all legacy radio messages through bounded checked result path, preserving message lifetime and reviewing callback side effects; still require sequence epoch proof",
+  "production_installed": false,
+  "runtime_verified": false
+}

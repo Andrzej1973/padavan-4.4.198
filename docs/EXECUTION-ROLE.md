@@ -1,3 +1,16 @@
+## 2026-11-02 Роль прийнята — Sol (gpt-6.1-sol)
+
+За прямою вказівкою власника Sol приймає роль єдиного виконавця у
+`/home/andrzej/padavan-build/router-guide-work`. Цей запис замінює попередню
+очікувану передачу OpenRouter. Гілка `codex/wr1200js-service-webui`,
+HEAD `c99f43e4f7e2088d0b6d9ceee974b623720d53b4` перевірені локально.
+Сім наявних змінених файлів збережені без reset/clean/stage; незакомічена
+IoT-робота залишається незавершеною. Доступ до GitHub/CI та пристрою в цьому
+прийнятті не перевірявся. Перший крок продовження — перевірити поточну
+координацію з OpenRouter і актуальний CI перед змінами коду. Заборона
+OpenRouter змінювати IoT лишається чинною. Важкі збірки — GitHub Actions;
+прошивання, reboot і зміни конфігурації пристрою потребують окремого дозволу.
+
 
 # Роль прийнята — Sol (Codex), 2026-10-31
 
@@ -2600,3 +2613,13 @@ and whitespace checks passed locally. The correction remains uncommitted and
 has not been verified by firmware CI/image or router runtime. Evidence:
 `docs/evidence/WR1200JS-BUILD505-FAILURE.md`. Continue the service WebUI audit
 in order; do not flash or reboot the router.
+# Передача ролі OpenRouter очікує прийняття — 2026-11-01
+
+Власник доручив OpenRouter продовжити доступну роботу поза IoT. Межа пряма:
+IoT не відкривати для змін і не включати до своєї роботи. Поточний кодовий
+HEAD `c99f43e4f7e2088d0b6d9ceee974b623720d53b4`, гілка
+`codex/wr1200js-service-webui`; у спільній WSL теці є незакомічені зміни,
+перелік яких наведено в `CODEX_HANDOFF.md`. OpenRouter має перевірити ту саму
+теку й явно прийняти єдине авторство; до цього передача не завершена. Після
+прийняття можна обрати окрему роботу Modern WebUI/Zapret2. Не виконувати
+жодних змін на роутері.
