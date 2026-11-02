@@ -1,3 +1,86 @@
+## 2026-11-02 Sol: init RX join verified and staged in optional pipeline
+
+Exact merged err6 ordering/refusal fixture passes ASan/UBSan; init TU compiled
+for MIPS in prior verified command. Added exact init input SHA256 pin; manifest
+and reverse substitution checks preserve source provenance. All downstream
+peer82 source gates pass after init join transform. Added transform and actual
+err6 fixture to optional pipeline. Temporary trees/binaries removed. Needs
+YAML/bash final check and coherent publication before full target run.
+Peer82 release-gate run41461822992 completed success at c570ea96; this new
+init-join change is local and not included. IRQ/DMA/epoch/runtime still open.
+
+## 2026-11-02 Sol: init-failure RX join transform staged, verification pending
+
+Reviewed existing scheduling fence: checked RtmpNetTaskExit blocks new task
+submissions, drains submission invocations then joins actual tasks; repeated
+exit is idempotent. Added isolated prepare-mcu-init-rx-join.py: err6 executes
+FwExit, checked RtmpNetTaskExit, then MCU_CTRL_EXIT; refusal returns FALSE before
+controller cleanup. This replaces MCUSysExit's FwExit+controller pair only at
+that init-failure label; later err2 join remains idempotent. Full merged inventory
+validated and output hashes propagated; exact substitution reversed. New
+transform NOT executed/target compiled yet. Next extract failure/success ordering
+fixture, verify exact input source hash and MIPS init TU before integration.
+No runtime/IRQ/DMA acceptance implied; no scratch or router operation.
+
+## 2026-11-02 Sol: firmware-load failure path enables RX before err6
+
+MCUSysInit invokes FwInit (IRQ/DMA enable) before NICLoadFirmware. Failure then
+goes to err6 MCUSysExit. FwExit masks IRQ/disables DMA but has no physical RX
+join before MCU_CTRL_EXIT frees locks; err2 checked RX exit comes later. This
+is a concrete source path requiring final merged admission helper review and
+checked producer join before controller cleanup, not merely label ordering.
+Evidence: `docs/evidence/WR1200JS-IOT-FW-INIT-UNWIND-PATH-2026-11-02.json`.
+No runtime reproduction claimed. Current c570ea96 firmware/ABI CI both success;
+next dispatch optional release followup after checking queue, and stage narrow
+unwind ordering fix preserving failure refusal. No scratch/device action.
+
+## 2026-11-02 Sol: exact merged init unwind retains early MCU exit
+
+Regenerated exact merged candidate and confirmed err6 MCUSysExit precedes err2
+checked RtmpNetTaskExit. Initial audit script assumed old void signature and
+failed after printing unwind; corrected evidence records observed order only,
+not a full task-body audit. Current merged RtmpNetTaskExit is INT with refusal
+semantics. Need all goto err6/err7 stage/IRQ admission and rtmp_sys_exit behavior
+before claiming reachable concurrency bug or changing order. Evidence:
+`docs/evidence/WR1200JS-IOT-MERGED-RX-UNWIND-2026-11-02.json`.
+Temporary regenerated tree removed. CI current runs remain active; no duplicate
+or router action.
+
+## 2026-11-02 Sol: MCUSysExit destroys MCU controller; RX uses tasklet kill
+
+Confirmed MCUSysExit invokes FwExit then MCU_CTRL_EXIT. Retained target flags
+have OS_ABL_FUNC_SUPPORT/WORKQUEUE_BH absent; corresponding RX task kill expands
+to tasklet_kill. KTHREAD_SUPPORT alone does not select this macro, correcting
+previous loose KTHREAD wording. Source hashes/flags recorded in
+`docs/evidence/WR1200JS-IOT-MCU-EXIT-TASKLET-2026-11-02.json`.
+Need exact final merged unwind stage and IRQ/rearm retirement before kill;
+predecessor err6 controller exit before err2 RX kill cannot be accepted without
+that stage proof. Current CI remains active; no duplicate/scratch/device action.
+
+## 2026-11-02 Sol: normal RX join order differs from init unwind
+
+Predecessor source normal close orders physical RX task kills, IRQ release,
+MCU_CTRL_EXIT then ring teardown. This narrows direct-callback lifetime concern:
+normal close already has a physical join stage, but IRQ rearm/KTHREAD semantics
+and final merged order still require proof. Init failure labels call MCUSysExit
+before RtmpNetTaskExit; must inspect MCUSysExit semantics and stage admission
+rather than equate it with MCU_CTRL_EXIT. Exact hashes/order recorded in
+`docs/evidence/WR1200JS-IOT-RX-MCU-CLOSE-ORDER-2026-11-02.json`.
+Current firmware/ABI runs41459347031/41459346824 remain in_progress. No duplicate
+run, scratch or device action. Next inspect MCUSysExit and effective RX kill.
+
+## 2026-11-02 Sol: MCU ACK ingress bypasses command BH queue
+
+Traced chipOps.rx_event_handler installation and direct cmm_data.c invocation.
+AndesMTRxEventHandler tests MCU_INIT before allocating leased message, then
+parses response synchronously. Killing cmd_msg_task in AndesCtrlPciExit cannot
+by itself join this direct RX callback already past flag test. Need physical
+RX producer retirement/join and external entry pin before MCU lock destruction;
+message leases alone start too late to prove callback entry lifetime. Evidence:
+`docs/evidence/WR1200JS-IOT-DIRECT-MCU-RX-LIFETIME-2026-11-02.json`.
+Latest current firmware/ABI CI both in_progress; no duplicate dispatch. No
+scratch or router operation. Next trace exact target RX task/IRQ join ordering.
+
 ## 2026-11-02 Sol: sequence target module verified; release followup tested
 
 Peer82 run41456493103 completed success at 706c16a3. Downloaded probe artifact,

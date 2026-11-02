@@ -1,0 +1,24 @@
+{
+  "date": "2026-11-02",
+  "source_sha256": {
+    "mcu/mcu.c": "73e7692de59f7cbe5eb08bb5f81c5ee2d5b398f0c16df2449fc464698f8e1500",
+    "mcu/andes_mt.c": "e7e49e1b523461c89c8ed5dd4bc58f0a82e7a533fc9863eb632ea36a7b0dd0f8",
+    "common/rtmp_init_inf.c": "8b995d6bb9f44be4808bdbb66977f08c3b89500589fd465490cebdb9d20ce3f7"
+  },
+  "path": [
+    "MCUSysInit initializes MCU controller",
+    "AndesMTPciFwInit enables IRQ and DMA before NICLoadFirmware",
+    "NICLoadFirmware error returns failure to goto err6",
+    "MCUSysExit calls FwExit then MCU_CTRL_EXIT",
+    "FwExit disables DMA and masks IRQ but contains no RX task join",
+    "checked physical RX task exit occurs later at err2"
+  ],
+  "risk": "already running direct RX event callback may outlive IRQ/DMA disable and access MCU locks during cleanup; final merged admission helpers still must be checked",
+  "fix_requirements": [
+    "retire RX/IRQ scheduling admission",
+    "mask IRQ and synchronize producers",
+    "join physical RX callbacks before MCU queue/lock destruction",
+    "propagate failed join instead of continuing free"
+  ],
+  "runtime_reproduced": false
+}

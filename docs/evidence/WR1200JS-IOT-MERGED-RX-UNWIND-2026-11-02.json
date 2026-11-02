@@ -1,0 +1,17 @@
+{
+  "date": "2026-11-02",
+  "scope": "exact merged peer82 + current sequence/release layers",
+  "observed_unwind_order": [
+    "err7 rtmp_sys_exit",
+    "err6 MCUSysExit",
+    "err5 rtmp_cfg_exit",
+    "err4 MlmeHalt and timer release",
+    "err3 clear INTERRUPT_IN_USE and management task exit",
+    "err2 checked RtmpNetTaskExit",
+    "err1 hif_sys_exit"
+  ],
+  "finding": "exact merged unwind retains controller exit before checked physical RX task exit",
+  "qualification": "must inspect earlier init failure stage admission and rtmp_sys_exit before claiming concurrent UAF; source order alone is not runtime reproduction",
+  "next": "trace IRQ enable stage and all goto err6/err7 paths, then decide minimal ordering change",
+  "runtime_verified": false
+}
