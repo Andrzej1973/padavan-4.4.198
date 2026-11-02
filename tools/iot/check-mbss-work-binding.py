@@ -2,7 +2,7 @@
 """Exercise actual MBSS worker/owner control flow with injected backend results."""
 import argparse,subprocess,tempfile
 from pathlib import Path
-p=argparse.ArgumentParser(description=__doc__);p.add_argument('candidate',type=Path);p.add_argument('--external-join',action='store_true');p.add_argument('--stop-join',action='store_true');a=p.parse_args();here=Path(__file__).resolve().parent
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('candidate',type=Path);p.add_argument('--external-join',action='store_true');p.add_argument('--stop-join',action='store_true');p.add_argument('--submit',action='store_true');a=p.parse_args();here=Path(__file__).resolve().parent
 helper=(a.candidate/'include/wr-iot-mbss-recovery-work.inc').read_text()
 assert 'RT_MOD_DEC_USE_COUNT' not in helper and 'dev_put(' not in helper
 s=(a.candidate/'include/wr-iot-mbss-close-checked.inc').read_text();start=s.index('INT wr_iot_mbss_begin_close(');begin=s[start:s.index('\n}',start)+2]
@@ -160,6 +160,41 @@ if bound_gate and a.stop_join:
  ready(&ad,&main,&dev);ad.wr_iot_mbss_reaper_gate.poisoned=1;flush_calls=cancel_calls=0;
  assert(wr_iot_mbss_recovery_join_completed(&ad)==-1&&!flush_calls);
  assert(wr_iot_mbss_recovery_stop_join(&ad)==-1&&!cancel_calls);
+ return 0;
+}
+'''
+if a.submit:
+ assert bound_gate and a.stop_join
+ code=code.replace('#include "mbss-reaper-gate.h"','#include "mbss-reaper-gate.h"\n#include "pci-retirement-owner.h"')
+ code=code.replace(' int wr_iot_transition_lock;unsigned int VirtualIfCnt;', ' struct wr_iot_pci_retirement wr_iot_pci_retirement;\n int wr_iot_transition_lock;unsigned int VirtualIfCnt;')
+ marker='static void ready(RTMP_ADAPTER *ad,struct device *main,struct device *dev)'
+ mock=r'''
+static int schedule_accept=1;
+static void dev_hold(PNET_DEV dev){assert(!held);dev->refs++;}
+static int schedule_work(struct work_struct *w){assert(held);w->busy=schedule_accept;return schedule_accept;}
+'''
+ # Generalize the reference mock to count one owned submission hold.
+ code=code.replace('assert(!held&&dev&&dev->refs==1);put_calls++;dev->refs--;','assert(!held&&dev&&dev->refs>0);put_calls++;dev->refs--;')
+ code=code.replace(marker,mock+(here/'mbss-recovery-submit.inc').read_text()+'\n'+marker)
+ marker=' return 0;\n}\n';tail=code.rindex(marker)
+ code=code[:tail]+r'''
+ ready(&ad,&main,&dev);dev.refs=0;put_calls=0;
+ assert(wr_iot_mbss_recovery_submit(&ad,&dev,1)==0&&dev.refs==1);
+ assert(!ad.wr_iot_mbss_reaper_gate.submissions&&ad.wr_iot_mbss_recovery[1].phase==WR_MBSS_OWNER_QUEUED);
+ execute(&ad);assert(wr_iot_mbss_recovery_join_completed(&ad)==0&&dev.refs==0);
+ ready(&ad,&main,&dev);dev.refs=0;schedule_accept=0;
+ assert(wr_iot_mbss_recovery_submit(&ad,&dev,1)==-1&&dev.refs==1&&ad.wr_iot_mbss_recovery[1].phase==WR_MBSS_OWNER_RETAINED);
+ schedule_accept=1;
+ ready(&ad,&main,&dev);dev.refs=0;wr_iot_mbss_reaper_stop(&ad.wr_iot_mbss_reaper_gate);
+ assert(wr_iot_mbss_recovery_submit(&ad,&dev,1)==-1&&!dev.refs&&!ad.wr_iot_mbss_recovery[1].deferred_owners);
+ ready(&ad,&main,&dev);dev.refs=0;assert(wr_iot_mbss_reaper_enter(&ad.wr_iot_mbss_reaper_gate));
+ assert(wr_iot_mbss_recovery_submit(&ad,&dev,1)==-1&&!dev.refs);
+ ready(&ad,&main,&dev);dev.refs=0;
+ assert(wr_iot_mbss_recovery_submit(&ad,&dev,2)==-1&&!dev.refs);
+ ready(&ad,&main,&dev);dev.refs=0;ad.wr_iot_transition.retiring=1;
+ assert(wr_iot_mbss_recovery_submit(&ad,&dev,1)==-1&&!dev.refs);
+ ad.wr_iot_pci_retirement.phase=WR_PCI_RETIRE_DRAINING;
+ assert(wr_iot_mbss_recovery_submit(&ad,&dev,1)==0&&dev.refs==1);
  return 0;
 }
 '''

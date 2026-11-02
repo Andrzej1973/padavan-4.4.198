@@ -1,3 +1,18 @@
+## 2026-11-02 Sol: gated MBSS submission helper host verified
+
+Added unbound mbss-recovery-submit.inc for acquired-open owners. Netdev hold
+precedes locked admission; shared submission gate excludes reaping/permanent
+stop. Exact registration/generation, MBSS family and idle work required;
+retiring admission allowed only during PCI DRAINING. Ownership accepted before
+schedule; FALSE scheduling retains explicit owner/ref rather than freeing it.
+Actual submit + installed gate/work/join ASan/UBSan fixture passes success/
+completion/ref release, schedule refusal retention, stop/reaper/stale generation
+refusal and PCI phase admission. Kernel scheduling/backend injected; new helper
+not target compiled or installed, normal callback still disabled. Temporary
+full candidate chain/fixture/binary removed. Next bind ordinary external reap/
+retry and target helper before enabling MBSS close handoff, then CI integration.
+No runtime/final release claim or router action.
+
 ## 2026-11-02 Sol: installed MBSS gate collision faults verified
 
 Extended actual installed helper/worker ASan/UBSan fixture: second reaper and
