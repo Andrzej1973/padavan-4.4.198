@@ -31,6 +31,34 @@ fixture=fixture.replace(' puts("PASS isolated PCI drain:', ''' setup(&ad,4);ad.w
  setup(&ad,5);ad.wr_iot_main_recovery.deferred_owners=0;ad.wr_iot_main_recovery_reap_work.work.pending=0;
  assert(!wr_iot_pci_recovery_drain(&ad)&&flushes==WR_IOT_PCI_RECOVERY_DRAIN_ROUNDS+1&&ad.wr_iot_pci_retirement.phase==WR_PCI_RETIRE_DRAINING);
  puts("PASS isolated PCI drain:''')
+if 'wr_iot_mbss_recovery_join_completed(adapter)' in helper:
+ assert helper.index('wr_iot_mbss_recovery_join_completed(adapter)')<helper.index('RTMP_IRQ_LOCK(')<helper.index('wr_iot_pci_retirement_drain_next(')
+ mock=r'''
+static int mbss_join_calls;
+static int wr_iot_mbss_recovery_join_completed(RTMP_ADAPTER *ad){
+ assert(ad&&!locked);mbss_join_calls++;
+ return mode==6?-1:0;
+}
+static int wr_iot_mbss_recovery_idle_locked(RTMP_ADAPTER *ad){
+ assert(ad&&locked&&mbss_join_calls);
+ return mode!=7;
+}
+'''
+ fixture=fixture.replace(helper,mock+helper)
+ marker=' puts("PASS isolated PCI drain:'
+ assert fixture.count(marker)==1
+ fixture=fixture.replace(marker,r'''
+ for(int fault=6;fault<=7;fault++){
+  setup(&ad,fault);ad.wr_iot_main_recovery.deferred_owners=0;
+  ad.wr_iot_main_recovery_reap_work.work.pending=0;mbss_join_calls=0;
+  assert(!wr_iot_pci_recovery_drain(&ad)&&mbss_join_calls==1&&!locked);
+  assert(ad.wr_iot_pci_retirement.phase==WR_PCI_RETIRE_DRAINING);
+ }
+ setup(&ad,8);ad.wr_iot_main_recovery.deferred_owners=0;
+ ad.wr_iot_main_recovery_reap_work.work.pending=0;mbss_join_calls=0;
+ assert(wr_iot_pci_recovery_drain(&ad)&&mbss_join_calls==1&&!locked);
+ assert(ad.wr_iot_pci_retirement.phase==WR_PCI_RETIRE_DRAINED);
+'''+marker)
 with tempfile.TemporaryDirectory(prefix='wr-preclose-binding-check-') as tmp:
  c=Path(tmp)/'check.c';c.write_text(fixture)
  subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(here),str(c),'-o',tmp+'/check'],check=True)

@@ -1,3 +1,16 @@
+## 2026-11-02 Sol: combined actual PCI drain MBSS fault fixture passes
+
+Extended check-pci-netdev-preclose-binding.py to execute actual merged drain
+with MBSS join/idle boundary mocks. ASan/UBSan verifies join runs outside lock,
+idle check runs under lock after join, failed join and nonidle owner each
+retain DRAINING, and joined/idle case reaches DRAINED. Existing bounded preclose
+and recovery rearm cases still pass. This validates combined control flow with
+injected kernel/MBSS boundaries, not real concurrent workqueue/device behavior.
+Temporary full merged candidate/fixtures/binary removed. Next bind stop/join
+on PCI exit paths and serialized external reap before normal MBSS admission;
+update remaining fixture adapter layouts before coherent CI integration.
+No final release/runtime acceptance or router action.
+
 ## 2026-11-02 Sol: PCI drain invokes external MBSS completion join
 
 Added strict isolated prepare-mbss-pci-drain.py after external join layer.
