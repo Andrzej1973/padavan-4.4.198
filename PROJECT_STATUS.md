@@ -1,3 +1,18 @@
+## 2026-11-02 Sol: MBSS stop/join guards installed on PCI teardown joins
+
+Added strict prepare-mbss-pci-stop.py after PCI drain layer. Installs stop
+helper/prototype and guards all three rt_pci_remove main-join sites (stalled,
+normal and post-detach) with MBSS stop/join failure return. Full input manifest
+and reverse transformations verified; expected three-path inventory enforced.
+Actual MBSS helper/owner ASan/UBSan and combined PCI drain fault fixture pass;
+exact merged common/rtmp_init.c and os/linux/pci_main_dev.c MIPS TUs pass.
+Temporary full source chain, host fixtures/binaries and target objects removed.
+Normal admission remains disabled. External reaper serialization and permanent
+submission fencing still need implementation: stop on an idle owner alone
+is not a global ban on future queueing. Next bind that fence, test actual PCI
+path guard ordering, update older fixture layouts and integrate coherent CI.
+No full module/runtime/final PCI acceptance; router untouched.
+
 ## 2026-11-02 Sol: MBSS stop/cancel/join helper host verified
 
 Added unbound mbss-recovery-stop.inc: request stop on every slot under the
