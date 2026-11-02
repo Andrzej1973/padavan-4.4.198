@@ -1,0 +1,25 @@
+{
+  "date": "2026-11-02",
+  "scope": "isolated init unwind RX join and DMA readback",
+  "sha256": {
+    "mcu-dma-disabled-idle.inc": "9b3dfbd59df7ae4a744a1b7ce8343f9685f3c18e5742ec6fd03ef2c4f2d9a4b8",
+    "check-mcu-dma-disabled-idle.c": "4c2bbc1d33feac0bab4e7d216b59c301c8358913a1df7b6d8e8ab5662f30569e",
+    "prepare-mcu-init-rx-join.py": "4ba477ca6d49648348a45914423385f60be5b594d148e85b2c759b9f4bf32e18",
+    "check-mcu-init-rx-join.py": "22d2b3fdcba0ca6bb60244beadd5dcb67baef0a0cf7928852a8820b1feca6b1f"
+  },
+  "checks": [
+    "DMA fault ASan UBSan PASS",
+    "actual err6 refusal/order PASS",
+    "MIPS rtmp_init_inf TU PASS",
+    "exact merged downstream gates PASS",
+    "YAML/bash syntax PASS"
+  ],
+  "full_target_verified": false,
+  "runtime_verified": false,
+  "limitations": [
+    "two clear MMIO snapshots are source-level conditions only",
+    "no bus-access receipt",
+    "firmware ACK epoch and terminal PCI bus-master quiescence unproved"
+  ],
+  "cleanup": "all temporary replay candidates/binaries removed"
+}

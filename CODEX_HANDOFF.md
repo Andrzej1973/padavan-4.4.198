@@ -1,3 +1,24 @@
+## 2026-11-02 Sol: init DMA readback gates and CI fixture ready
+
+Exact merged downstream gates and DMA fault ASan/UBSan fixture pass; added
+fixture to optional peer82 step. YAML/full bash syntax pass. Evidence/hashes:
+`docs/evidence/WR1200JS-IOT-INIT-DMA-READBACK-2026-11-02.json`.
+Temporary candidates/binaries removed. Current7892e24a automatic CI still active
+at last poll; publish coherent readback followup and reuse queue discipline.
+No hardware/firmware-epoch acceptance follows from these source/host checks.
+
+## 2026-11-02 Sol: init unwind gates cleanup on DMA disabled/idle readback
+
+Added mcu-dma-disabled-idle.inc and fault fixture. RT28XXDMADisable is VOID
+and only writes enable state; new isolated init transform checks enable/busy
+bits clear twice after RX join, rejecting timeout/all-ones/disappearance before
+MCU cleanup. Host readback fault fixture and actual err6 refusal/order fixture
+pass ASan/UBSan; exact merged init TU compiles for MIPS. Corrected include
+anchor to pinned tabbed spelling after first generation refused. Manifest
+propagates new helper. Temporary outputs removed. Local change, not current
+published target; MMIO access receipt/hardware semantics and terminal bus-master
+quiescence remain unproved. Needs broader gates and CI fixture inclusion.
+
 ## 2026-11-02 Sol: init RX join verified and staged in optional pipeline
 
 Exact merged err6 ordering/refusal fixture passes ASan/UBSan; init TU compiled

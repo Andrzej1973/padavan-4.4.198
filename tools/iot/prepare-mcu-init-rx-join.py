@@ -17,10 +17,20 @@ new='''err6:
   * A refused join must retain controller resources for recovery. */
  if (pAd->chipOps.FwExit) pAd->chipOps.FwExit(pAd);
  if (RtmpNetTaskExit(pAd) != NDIS_STATUS_SUCCESS) return FALSE;
+#if defined(MT7603) && defined(RTMP_PCI_SUPPORT)
+ if (!wr_iot_mcu_dma_disabled_idle(pAd)) return FALSE;
+#endif
  MCU_CTRL_EXIT(pAd);'''
 assert s.count(old)==1
 changed=s.replace(old,new);assert changed.replace(new,old)==s
+anchor='#include\t"rt_config.h"'
+assert changed.count(anchor)==1
+changed=changed.replace(anchor,anchor+'\n#if defined(MT7603) && defined(RTMP_PCI_SUPPORT)\n#include "wr-iot-mcu-dma-disabled-idle.inc"\n#endif',1)
 shutil.copytree(src,out);(out/name).write_text(changed)
+shutil.copyfile(Path(__file__).with_name('mcu-dma-disabled-idle.inc'),out/'include/wr-iot-mcu-dma-disabled-idle.inc')
+helper='include/wr-iot-mcu-dma-disabled-idle.inc'
+parent['merged_driver_sha256'][helper]=hashlib.sha256((out/helper).read_bytes()).hexdigest()
+parent['candidate_driver_sha256'][helper]=parent['merged_driver_sha256'][helper]
 parent['merged_driver_sha256'][name]=hashlib.sha256((out/name).read_bytes()).hexdigest()
 parent['candidate_driver_sha256'][name]=parent['merged_driver_sha256'][name]
 parent['mcu_init_rx_join_layer']={'production_installed':False,'target_compiled':False,'runtime_verified':False,'scope':'init failure FwExit then checked RX join then MCU cleanup; IRQ/DMA terminal proof separate'}

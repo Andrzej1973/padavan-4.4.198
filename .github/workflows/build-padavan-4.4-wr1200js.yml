@@ -1643,6 +1643,9 @@ jobs:
             python3 tools/iot/prepare-mcu-init-rx-join.py "$merged" "$candidate/init-rx-joined"
             merged="$candidate/init-rx-joined"
             python3 tools/iot/check-mcu-init-rx-join.py "$merged"
+            gcc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
+              -Itools/iot tools/iot/check-mcu-dma-disabled-idle.c -o "$results/check-mcu-dma-disabled-idle"
+            "$results/check-mcu-dma-disabled-idle"
             python3 tools/iot/check-mcu-sequence-allocator.py "$merged"
             python3 tools/iot/check-mcu-sequence-release.py "$merged"
             python3 tools/iot/check-mcu-sequence-lifetime.py "$merged"
