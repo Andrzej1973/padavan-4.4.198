@@ -1,3 +1,18 @@
+## 2026-11-02 Sol: MBSS stop/cancel/join helper host verified
+
+Added unbound mbss-recovery-stop.inc: request stop on every slot under the
+transition lock, cancel each work synchronously outside it, then external
+join/reap. Cancellation never fabricates completion or drops unfinished refs.
+Actual helper/worker/owner ASan/UBSan fixture passes queued cancellation with
+retained netdev/module pins, stopped callback no dispatch, completed-owner
+single ref release, and context refusal before stop. Existing identity/retry
+faults still pass. Kernel cancellation/backend injected; real concurrent
+execution, target binding and PCI call-site coverage remain unverified.
+Temporary full candidate/fixtures/binary removed. Next install helper, bind
+PCI normal/stalled/final joins with serialized external ownership, target
+compile and test path ordering before enabling any MBSS submission.
+No runtime acceptance or router action; full objective remains active.
+
 ## 2026-11-02 Sol: combined actual PCI drain MBSS fault fixture passes
 
 Extended check-pci-netdev-preclose-binding.py to execute actual merged drain
