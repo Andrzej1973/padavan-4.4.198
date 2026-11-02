@@ -1,3 +1,19 @@
+## 2026-11-02 Sol: checked joins bound to common MLME timer producers
+
+New optional layer joins adapter-owned Mlme.PeriodicTimer and RxAntEvalTimer
+before checked MLME kill/cleanup. Both are initialized by MlmeInit; periodic
+timer feeds CMDTHREAD_MLME_PERIOIDC_EXEC and subsequent WDS maintenance, so
+its command consumer still needs a separate join. Actual generated caller
+ASan/UBSan covers either join refusal before kill; actual checked timer API
+passes direct/task host variants; merged MLME MIPS TU and YAML/bash pass.
+Evidence: docs/evidence/WR1200JS-IOT-MLME-TIMER-PRODUCERS-2026-11-02.json.
+No all-timer or WDS callback retirement claim. Other/dynamic timer ownership
+and command join versus RTNL caller contract remain to resolve before release.
+New scratch removed. Published6b5c1b8 automatic runs41483578419/41483578699
+are active; no duplicate optional build or superseding push dispatched.
+Next complete safe producer/consumer ordering and dynamic timer lifetime,
+then bind WDS reaper/final PCI ledger. Goal and runtime acceptance stay open.
+
 ## 2026-11-02 Sol: checked MLME halt verified; previous peer82 module inspected
 
 New isolated layer retains legacy VOID MlmeHalt entry and adds checked halt:

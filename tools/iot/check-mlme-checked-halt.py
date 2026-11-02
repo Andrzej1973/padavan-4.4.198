@@ -11,6 +11,7 @@ wstart=s.index('VOID MlmeHalt(RTMP_ADAPTER *pAd)',end);wend=s.index('\n}',s.inde
 wrappers=s[wstart:wend]
 caller=(a.candidate/'common/rtmp_init_inf.c').read_text();start=caller.index(' if (!wr_iot_mlme_halt_checked(pAd)) {');end=caller.index('\n }',start)+3
 block=caller[start:end]
+has_timer_join='wr_iot_timer_join_checked(' in wrappers
 code=r'''
 #include <assert.h>
 #define VOID void
@@ -22,14 +23,25 @@ code=r'''
 #define RT_DEBUG_ERROR 0
 #define DBGPRINT(a,b) ((void)0)
 typedef struct {int handle;} RTMP_OS_TASK;
-typedef struct {RTMP_OS_TASK mlmeTask;int wr_iot_transition_lock;struct {unsigned int shutdown_stage;} wr_iot_transition;} RTMP_ADAPTER;
+typedef struct {int id;} RALINK_TIMER_STRUCT;
+typedef struct {struct {RALINK_TIMER_STRUCT PeriodicTimer,RxAntEvalTimer;} Mlme;RTMP_OS_TASK mlmeTask;int wr_iot_transition_lock;struct {unsigned int shutdown_stage;} wr_iot_transition;} RTMP_ADAPTER;
 static int kill_result,kill_calls,context_bad,identity,cleanups,held;
 static int RtmpOSTaskKill(RTMP_OS_TASK *t){assert(t&&!held);kill_calls++;return kill_result;}
 static int wr_iot_os_join_context(void){return context_bad;}
 static int wr_iot_os_timer_task_current(RTMP_OS_TASK *t){assert(t);return identity;}
 #define RTMP_IRQ_LOCK(l,f) do{(void)(l);(f)=0;assert(!held);held=1;}while(0)
 #define RTMP_IRQ_UNLOCK(l,f) do{(void)(l);(void)(f);assert(held);held=0;}while(0)
-'''+prefix+wrappers+r'''
+'''
+if has_timer_join:
+ code+=r'''
+static int timer_calls,timer_fail;
+static int wr_iot_timer_join_checked(RTMP_ADAPTER *ad,RALINK_TIMER_STRUCT *t,unsigned long timeout){
+ assert(ad&&t&&!held&&timeout==5000);timer_calls++;
+ assert(t==(timer_calls%2?&ad->Mlme.PeriodicTimer:&ad->Mlme.RxAntEvalTimer));
+ return timer_fail!=timer_calls;
+}
+'''
+code+=prefix+wrappers+r'''
 static int close_stage(RTMP_ADAPTER *pAd){unsigned long flags;
 '''+block+r'''
 return 0;}
@@ -44,6 +56,13 @@ int main(void){RTMP_ADAPTER ad={0};
  kill_result=-1;MlmeHalt(&ad);assert(cleanups==2);
  return 0;}
 '''
+if has_timer_join:
+ code=code.replace(' return 0;}','''
+ kill_result=0;int previous_kills=kill_calls;
+ timer_calls=0;timer_fail=1;assert(!wr_iot_mlme_halt_checked(&ad)&&timer_calls==1&&kill_calls==previous_kills);
+ timer_calls=0;timer_fail=2;assert(!wr_iot_mlme_halt_checked(&ad)&&timer_calls==2&&kill_calls==previous_kills);
+ timer_calls=0;timer_fail=0;assert(wr_iot_mlme_halt_checked(&ad)&&timer_calls==2&&kill_calls==previous_kills+1);
+ return 0;}''')
 with tempfile.TemporaryDirectory(prefix='wr-mlme-halt-check-') as d:
  c=Path(d)/'check.c';c.write_text(code)
  subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-pie','-no-pie',str(c),'-o',d+'/check'],check=True)
