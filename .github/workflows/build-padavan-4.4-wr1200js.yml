@@ -1636,6 +1636,13 @@ jobs:
                 -Itools/iot "tools/iot/$fixture.c" -o "$results/$fixture"
               "$results/$fixture"
             done
+            python3 tools/iot/prepare-mcu-sequence-bound.py "$merged" "$candidate/sequence-bound"
+            python3 tools/iot/check-mcu-sequence-bound.py "$candidate/sequence-bound"
+            python3 tools/iot/prepare-mcu-sequence-reservation.py "$candidate/sequence-bound" "$candidate/sequence-reserved"
+            merged="$candidate/sequence-reserved"
+            python3 tools/iot/check-mcu-sequence-allocator.py "$merged"
+            python3 tools/iot/check-mcu-sequence-lifetime.py "$merged"
+            python3 tools/iot/check-mcu-sequence-destructors.py "$merged"
             python3 tools/iot/check-command-lifecycle-calls.py "$merged"
             python3 tools/iot/check-retry-rtnl-header.py "$merged"
             python3 tools/iot/check-main-verify-module-macro.py "$merged"

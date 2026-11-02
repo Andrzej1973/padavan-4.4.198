@@ -1,0 +1,9 @@
+{
+  "date": "2026-11-02",
+  "function": "AndesGetCmdMsgSeq",
+  "source": "pinned ap-manifest-ready/mcu/andes_core.c",
+  "finding": "all 15 occupied ACK IDs causes unbounded loop holding ackq_lock",
+  "reason": "cmd_seq cycles 1..15; matching entry jumps back without releasing lock",
+  "next": "bounded allocator with reserved failure ID and explicit unsubmitted cleanup; inspect all callers before implementation",
+  "runtime_verified": false
+}

@@ -1,3 +1,209 @@
+## 2026-11-02 Sol: exact sequence merged replay passes all downstream gates
+
+Rebuilt exact prepared merge, terminal-command/AP/sender and sequence layers.
+Exhaustion, allocator, lifetime, actual PCI destructors and all downstream
+peer82 Python gates pass; auxiliary retry and RSSI-delete ASan/UBSan fixtures
+also pass. Durable tool hashes/check inventory:
+`docs/evidence/WR1200JS-IOT-SEQUENCE-MERGED-HOST-2026-11-02.json`.
+Temporary replay trees/binaries removed. Ready to publish one coherent source/CI
+batch, then inspect automatic runs before optional full target dispatch.
+No runtime, firmware epoch or terminal IRQ/DMA acceptance claimed.
+
+## 2026-11-02 Sol: exact prepared merge reconstructed and CI pins matched
+
+Reconstructed scheduler82/RSSI prepared merge using retained ABI599 prepared
+source, pinned original driver and peer receipt. Applied terminal-command/AP
+layers then current sender generator. All four sender output hashes match
+independently downloaded peer82 CI manifest exactly. Derived separate reviewed
+merged input pins for bounded/reservation generators; reduced-fixture pins
+remain explicit. Real merged reservation generation/reverse checks pass.
+Temporary replay trees removed. Next execute all downstream gates on this exact
+merged chain before publication/full target run; firmware epoch remains open.
+
+## 2026-11-02 Sol: downloaded peer82 artifact verified and merged pins located
+
+Downloaded artifact 13115567623 from run41385359881, verified ZIP SHA256
+against GitHub artifact digest. Independently hashed module and checked ELF32
+little-endian EM_MIPS. Saved inventory and selected manifest/compile/module
+metadata in WR1200JS-IOT-PEER82-{ARTIFACT-INVENTORY,MODULE}-2026-11-02.json.
+Artifact has exact merged manifest and module, not full source archive. Manifest
+confirms sender merged input/output hashes differ from reduced fixture. Need
+recreate prepared merge, then use manifest hashes to verify exact source before
+reviewing new sequence pins. ZIP/module processed in memory, no scratch left.
+This verifies published sender target artifact only; local reservation layer and
+firmware ACK epoch remain unaccepted.
+
+## 2026-11-02 Sol: downstream replay exposes incomplete retained fixture input
+
+New sequence exhaustion/allocator/lifetime/actual-destructor checks pass on
+retained ap-manifest-ready chain. First downstream command-lifecycle gate fails
+because retained input lacks include/terminal-command-owner.h; this local tree
+is the older reduced fixture, not exact CI merged command-lifecycle/AP input.
+Do not interpret as CI failure or claim complete chain replay. New sequence
+source pins were derived from reduced fixture and may require a separately
+reviewed exact merged-input pin set, as sender generator already does. Next
+recreate actual prepared-source merge and command-lifecycle/AP layers, then
+verify/update reviewed pins without relaxing source checks. No push/dispatch
+of local sequence CI integration until exact-chain replay passes. Temporary
+failed replay tree removed automatically; durable source/checkers preserved.
+
+## 2026-11-02 Sol: sequence layers added to optional peer82 source pipeline
+
+Both generators now verify complete merged input inventory when manifest exists,
+propagate all output file hashes and changed/new candidate hashes, and reset
+production/target/runtime claims. Synthetic parent-inventory chain test passes;
+actual allocator fixture still passes. Optional peer82 now applies bounded then
+reservation layer, runs exhaustion/allocator/lifetime/actual destructor checks,
+and target-compiles final reserved source. YAML/full affected bash syntax pass.
+No push/dispatch yet: full exact merged-chain replay and downstream gate checks
+still needed before publishing. Temporary candidates removed; epoch unproved.
+
+## 2026-11-02 Sol: actual reservation allocator fault fixture passes
+
+New check-mcu-sequence-allocator.py extracts actual generated allocator and
+executes with injected lifetime lock under ASan/UBSan. Covers 15 unique private
+reservations, repeat call preserving slot/bitmap, exhaustion returning zero,
+missing occupied bit and out-of-range slot poisoning/closing owner. Asserts
+lock released on every path; verifies actual init body does not clear slot and
+raw allocator full memset exists. Temporary candidates/binaries removed.
+This is host evidence, not real concurrent firmware sequence freshness. Next
+propagate merged manifest through bounded/reservation layers and integrate all
+focused checks into optional peer82 before full target build.
+
+## 2026-11-02 Sol: preserve reservation across command reinitialization
+
+Removed slot zeroing from AndesInitCmdMsg transformation: pinned raw allocator
+already memsets whole message. Reinitializing command fields must not lose a
+live reservation. Allocator now reuses a nonzero message slot only after
+validating occupied ledger and nonpoisoned state under lifetime lock; invalid
+slot poisons/closes sender and fails without replacing saved slot. New
+reservation occurs only for zero slot. Reverse transformation and actual PCI
+destructor ASan/UBSan still pass; updated MCU MIPS TU compiles. Temporary
+outputs removed. Extracted allocator/reinit fault tests still needed before
+integrating this layer into optional target CI; firmware epoch remains open.
+
+## 2026-11-02 Sol: reservation source pins/reversal and init TU verified
+
+Reservation generator now pins all five modified input files by exact SHA256,
+reverses every recorded substitution plus allocator replacement to original
+source and asserts exact equality before writing output. Emits input/output
+receipt with reverse_verified true and target/production false. Actual PCI
+destructor ASan/UBSan fixture still passes after regeneration. Compiled both
+andes_core.c and common/rtmp_init.c with retained MIPS target flags without
+diagnostics. Temporary tree/objects removed. Not full module or image evidence;
+remaining other consumers, live-message reinit audit, manifest propagation and
+optional CI integration before publishing this layer.
+
+## 2026-11-02 Sol: actual PCI message destructors pass reservation lifetime test
+
+New check-mcu-sequence-destructors.py extracts both actual candidate destructor
+bodies and generated final-drop helper. ASan/UBSan passes free/force-free,
+waiting/nonwaiting completion and final adapter free at unlock. Slot snapshot
+precedes message free, reservation zero and MCU free count one before adapter
+release; force-free packet released once. USB/SDIO excluded from this PCI test.
+Temporary candidates/binaries removed. Remaining: source inventory pins/reverse
+transform, initialization/reinit caller audit, other target TUs and full module
+CI; host lifetime proof is not firmware epoch or DMA/IRQ acceptance.
+
+## 2026-11-02 Sol: generated sequence drop lifetime host fixture passes
+
+Added check-mcu-sequence-lifetime.py: executes generated final-drop include
+with allocation-failure, closed admission RX/message allocation, held reservation,
+and immediate adapter free at last unlock. ASan/UBSan passes, reservation is
+zero before adapter release. Destructor is modeled, not extracted, so actual
+both destructor snapshot/free/drop ordering remains a source-binding gate.
+Pinned raw allocator memset zeros full message before publication; initialization
+also sets slot zero. Retry tx_retransmit skips allocation and retains slot;
+AndesInitCmdMsg reinitialization of live message still needs caller inventory.
+Temporary candidates/executables removed; no target/runtime claim added.
+
+## 2026-11-02 Sol: message-lifetime sequence reservation source bound
+
+New isolated prepare-mcu-sequence-reservation.py adds adapter reservation ledger,
+initializes before publication, stores dedicated message slot, reserves under
+sender lifetime lock before header, snapshots slot before both destructor frees,
+and releases under same lock at final message drop. Allocation-failure drop
+passes zero. Inconsistent release poisons/closes sender owner. Generated after
+bounded candidate; actual andes_core.c MIPS TU compiles. Temporary tree/object
+removed. Not production/CI integrated: exact input inventory pin/reversal,
+allocator zero-init and real destructor fixture, retry handling and other TU
+compilation still required. Host reservation does not prove firmware ACK epoch.
+
+## 2026-11-02 Sol: peer82 success and reservation release binding trace
+
+Optional peer82 run 41385359881 completed success on 5376f817. Saved live job
+step conclusions and artifact IDs/digests in
+`docs/evidence/WR1200JS-IOT-RADIO-PEER82-CI-2026-11-02.json`. Independent module
+inspection remains pending; local bounded allocator/reservation not included.
+Both message destructors free msg before their final MCU counter/drop accesses.
+Reservation binding must snapshot a dedicated lease slot before os_free_mem,
+then release under sender lifetime lock together with final message-drop; never
+read msg after free. Alloc failure must pass slot zero. Reserve from the same
+adapter ledger before header/ACK insertion, keep through destructor, and reject
+release when ledger inconsistent. Host-only reservation fixture already passes
+private pre-ACK saturation/reuse/double-release quarantine; driver binding pending.
+No scratch retained or router action.
+
+## 2026-11-02 Sol: cleanup fixture corrected; published target run dispatched
+
+Resumed active goal. Extractor previously matched an earlier kickout-side
+unsubmitted block; anchor now starts after sender checked-status copy. Exact
+exhaustion+cleanup fixture passes ASan/UBSan: zero ID completes once, skips
+header, and invokes private-message free once before returning failure; valid
+IDs do not free. Real destructor and queue concurrency remain separate.
+All temporary trees/executables removed.
+Live firmware/ABI runs 41383602731 and 41383602831 completed success at
+5376f817. Dispatched optional peer82 run 41385359881 for that published commit
+once queue cleared. It verifies published radio serialization/semantic result
+changes, NOT the local uncommitted bounded-sequence candidate. Next inspect
+optional target result and continue reservation/destructor binding locally.
+
+## 2026-11-02 Sol: extracted exhaustion branch host verified
+
+Sequence generator now rejects unreviewed MCU source by exact SHA256. New
+check-mcu-sequence-bound.py extracts the actual candidate exhaustion branch:
+ASan/UBSan confirms zero ID marks unsubmitted/failure, completes once and skips
+header path; IDs 1..15 preserve ordinary dispatch. Source placement check
+requires the branch before header callback. Full destructor/queue concurrency,
+atomic reservation through ACK insertion and reverse-transform checks remain
+open; candidate not integrated in production/CI. All temporary outputs removed.
+
+## 2026-11-02 Sol: bounded sequence exhaustion source candidate compiles
+
+Added isolated prepare-mcu-sequence-bound.py. Replaces unbounded ACK-slot loop
+with bounded occupancy selection, returns zero on exhaustion, completes the
+waiting message as positively unsubmitted before header/DMA and force-frees it
+on sender return. Also propagates tx_kickout_fail as failure. Generated after
+current sender layer; andes_core.c compiles with retained MIPS target flags.
+Temporary tree/object removed. Not integrated into optional CI/production;
+exact source pinning, extracted exhaustion ownership tests and reverse-binding
+checks are still needed. Selection-to-ACK-insertion reservation race and stale
+firmware responses remain separate open issues. Do not claim atomic allocation.
+
+## 2026-11-02 Sol: bounded sequence slot selection staged
+
+Added isolated mcu-sequence-slot.h: searches at most 15 slots and returns zero
+on exhaustion. check-mcu-sequence-slot.c exhaustively verifies all 32768
+occupancy masks and 16 valid cursors, plus invalid cursor wrap, under
+ASan/UBSan. Temporary executable removed. Not yet bound to vendor allocator:
+caller must build occupancy/reserve atomically and propagate zero as explicit
+unsubmitted failure before header/DMA. This helper cannot establish firmware
+freshness or solve sequence reuse across completed commands.
+
+## 2026-11-02 Sol: sequence allocator has additional boundedness prerequisite
+
+Live CI poll: 41383602731/41383602831 pending at 5376f817; old c99f43e4
+runs still active after earlier cancellation request. Requested cancellation
+of superseded 41383580535 as well; no new dispatch.
+Source trace: AndesGetCmdMsgSeq cycles IDs 1..15 under ackq_lock and uses
+unbounded goto get_seq while any matching queued ID exists. With all 15 IDs
+occupied it cannot return and keeps the IRQ-safe lock, preventing ACK removal
+that could free an ID. Radio-only serialization does not bound other command
+occupancy. Need bounded allocation/admission and explicit pre-submit failure
+propagation before owned OFF can rely on this transport. Preserve separate
+sequence nonreuse/epoch requirement; no claim these are solved by serialization.
+No scratch generated or router action.
+
 ## 2026-11-02 Sol: ACK fixture included in optional peer82 CI
 
 Queried live GitHub branch run list: latest peer82 41330209946 and latest
