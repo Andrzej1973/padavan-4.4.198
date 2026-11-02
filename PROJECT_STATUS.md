@@ -1,3 +1,18 @@
+## 2026-11-02 Sol: adapter MBSS reaper gate bound across join/stop
+
+Added strict prepare-mbss-reaper-gate.py after PCI stop layer. Fresh adapter
+gate initialized before publication. Public idle/free/reopen guards reject
+live reaper/submission leases. External join owns one lease across flush and
+dev_put; stop permanently fences submissions before taking lease/cancel.
+Inner join checks owner/work directly to avoid rejecting its own reaper lease.
+All source replacements reverse-verified against full merged input manifest.
+Actual installed helper/worker ASan/UBSan stop/join fault suite passes; exact
+merged common/rtmp_init.c and os/linux/rt_profile.c MIPS TUs pass. Temporary
+candidate chains, fixtures, binaries and objects removed. No normal submission
+yet: future queue path must enter/leave same gate, and bound gate collision/
+reentrant reap tests plus old fixture/CI integration remain before enabling.
+No runtime/all-callback/final release claim; router untouched.
+
 ## 2026-11-02 Sol: permanent MBSS submission/reaper gate host verified
 
 Added unbound mbss-reaper-gate.h with transition-lock caller contract. A

@@ -82,6 +82,11 @@ int main(void){RTMP_ADAPTER ad;struct device main,dev;
  return 0;
 }
 '''
+bound_gate=(a.candidate/'include/mbss-reaper-gate.h').exists()
+if bound_gate:
+ code=code.replace('#include "mbss-recovery-storage.h"','#include "mbss-recovery-storage.h"\n#include "mbss-reaper-gate.h"')
+ code=code.replace(' int wr_iot_transition_lock;unsigned int VirtualIfCnt;', ' struct wr_iot_mbss_reaper_gate wr_iot_mbss_reaper_gate;\n int wr_iot_transition_lock;unsigned int VirtualIfCnt;')
+ code=code.replace(' wr_iot_radio_transition_init(&ad->wr_iot_transition);', ' wr_iot_mbss_reaper_gate_init(&ad->wr_iot_mbss_reaper_gate);\n wr_iot_radio_transition_init(&ad->wr_iot_transition);')
 if a.external_join or a.stop_join:
  marker='static void ready(RTMP_ADAPTER *ad,struct device *main,struct device *dev)'
  join_mock=r'''
@@ -89,10 +94,10 @@ static int flush_calls,put_calls;
 static void flush_work(struct work_struct *w){assert(!held);flush_calls++;w->busy=0;}
 static void dev_put(PNET_DEV dev){assert(!held&&dev&&dev->refs==1);put_calls++;dev->refs--;}
 '''
- join=(here/'mbss-recovery-join.inc').read_text()
+ join=((a.candidate/'include/wr-iot-mbss-recovery-join.inc') if bound_gate else (here/'mbss-recovery-join.inc')).read_text()
  if a.stop_join:
   join_mock+='static void cancel_work_sync(struct work_struct *w){assert(!held);w->busy=0;}\n'
-  join+='\n'+(here/'mbss-recovery-stop.inc').read_text()
+  join+='\n'+((a.candidate/'include/wr-iot-mbss-recovery-stop.inc') if bound_gate else (here/'mbss-recovery-stop.inc')).read_text()
  code=code.replace(marker,join_mock+join+'\n'+marker)
  marker=' return 0;\n}\n'
  assert code.endswith(marker)
