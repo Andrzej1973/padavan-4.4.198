@@ -1,0 +1,37 @@
+{
+  "cache_files_removed": 7,
+  "cache_bytes_removed": 45167,
+  "source_backups_preserved": true,
+  "firmware_files_removed": [
+    {
+      "path": "/home/andrzej/padavan-build/legacy-materials/WR1200JS_4.4.198.9-294_6f8e33ee_TEST.zip",
+      "bytes": 12570622
+    },
+    {
+      "path": "/home/andrzej/padavan-build/legacy-materials/WR1200JS_4.4.198.9-322_4b74897c_TEST.zip",
+      "bytes": 12586306
+    },
+    {
+      "path": "/home/andrzej/padavan-build/legacy-materials/WR1200JS_4.4.198.9-309_82bee9f6_TEST.zip",
+      "bytes": 12583074
+    },
+    {
+      "path": "/home/andrzej/padavan-build/legacy-materials/WR1200JS_4.4.198.9-283_31a64968_TEST.zip",
+      "bytes": 12561439
+    },
+    {
+      "path": "/home/andrzej/padavan-build/legacy-materials/artifacts-519/padavan-4.4.198-router-downloads/wr1200js/padavan-4.4/trunk/images/WR1200JS_4.4.198.9-519_a5e01da6.trx",
+      "bytes": 12842905
+    },
+    {
+      "path": "/home/andrzej/padavan-build/legacy-materials/artifacts-519/padavan-linux-4.4.198-wr1200js/padavan-4.4/trunk/images/WR1200JS_4.4.198.9-519_a5e01da6.trx",
+      "bytes": 12842905
+    },
+    {
+      "path": "/home/andrzej/padavan-build/legacy-materials/artifacts-519/WR1200JS_4.4.198.9-519_a5e01da6_TEST/WR1200JS_4.4.198.9-519_a5e01da6.trx",
+      "bytes": 12842905
+    }
+  ],
+  "firmware_bytes_removed": 88830156,
+  "method": "owner-authorized exact file deletion through Windows WSL root; sudo configuration unchanged"
+}

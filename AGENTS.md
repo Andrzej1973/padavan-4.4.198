@@ -227,3 +227,23 @@ credentials or silently rewrite their SSH configuration. Preserve the remote.
 
 Opening the same folder in each agent's chat still requires verification;
 messages and rules do not prove that Desktop project paths were retargeted.
+
+## Owner-approved cleanup of root-owned WSL files (2026-11-02)
+
+For deletions already authorized by the owner, or disposable scratch cleanup
+covered by the completed-plan cleanup rule above, proceed without asking again
+for permission or a password merely because a path is owned by root.
+This host's `andrzej` user is not in sudoers. Use the owner's Windows WSL
+launcher to execute the narrow deletion in the existing distribution:
+`/mnt/c/Windows/System32/wsl.exe -d Ubuntu-22.04 -u root -- <command>`.
+This transport was verified for the seven old firmware files on 2026-11-02.
+
+Inventory exact paths and sizes first, verify ownership/purpose and active use,
+and delete only the identified disposable files. Prefer an explicit path list
+with path/type checks; never broaden deletion to a parent directory or follow
+symlinks. Verify the paths are absent and report reclaimed space afterward.
+Preserve source, unfinished work, required evidence, backups and user data under
+the existing cleanup rules. This is standing authorization for the transport,
+not blanket authorization to delete arbitrary files or change system settings.
+Do not change sudoers, account membership or passwords, and do not store the
+Ubuntu password in project files, scripts, logs or memory.
