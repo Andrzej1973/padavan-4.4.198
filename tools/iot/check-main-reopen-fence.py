@@ -9,6 +9,7 @@ assert '#include "wr-iot-main-reopen-admission.h"' in s.splitlines()
 code=r'''
 #include "wr-iot-main-reopen-admission.h"
 #include "virtual-open-claim.h"
+#include "mbss-recovery-storage.h"
 #include <assert.h>
 #include <string.h>
 #define WDEV_NUM_MAX 1
@@ -17,6 +18,7 @@ struct net_device {int id;};
 struct adapter {
  struct net_device *net_dev;
  struct wr_iot_main_recovery_owner wr_iot_main_recovery;
+ struct wr_iot_mbss_recovery_owner wr_iot_mbss_recovery[WDEV_NUM_MAX+1];
  struct work_struct wr_iot_main_recovery_work,wr_iot_aux_family_retry_work;
  struct {struct work_struct work;} wr_iot_main_recovery_reap_work;
  struct {unsigned int deferred_owners;} wr_iot_aux_family_retry;
@@ -34,6 +36,7 @@ static int reserve(struct adapter *adapter,struct net_device *net_dev){
 static void ready(struct adapter *a,struct net_device *dev){
  *a=(struct adapter){0};a->net_dev=dev;
  wr_iot_main_recovery_init(&a->wr_iot_main_recovery);
+ for(unsigned int i=0;i<WDEV_NUM_MAX+1;i++)wr_iot_mbss_recovery_init(&a->wr_iot_mbss_recovery[i]);
  wr_iot_radio_transition_init(&a->wr_iot_transition);
  wr_iot_ref_init(&a->wr_iot_interface_refs[0],dev,1);
  a->wr_iot_interface_refs[0].family=WR_REF_FAMILY_MAIN;
@@ -63,6 +66,13 @@ int main(void){struct adapter a;struct net_device dev={0};
  return 0;
 }
 '''
+if 'wr_iot_mbss_recovery_storage_idle(' in admission:
+ code=code.replace(' return 0;\n}', '''
+ ready(&a,&dev);a.wr_iot_mbss_recovery[1].phase=WR_MBSS_OWNER_QUEUED;
+ a.wr_iot_mbss_recovery[1].deferred_owners=1;refused_without_reservation(&a,&dev);
+ ready(&a,&dev);a.wr_iot_mbss_recovery[1].completed=1;refused_without_reservation(&a,&dev);
+ return 0;
+}''')
 with tempfile.TemporaryDirectory(prefix='wr-main-reopen-check-') as d:
  c=Path(d)/'check.c';c.write_text(code)
  subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(a.candidate/'include'),'-I'+str(here),str(c),'-o',d+'/check'],check=True)

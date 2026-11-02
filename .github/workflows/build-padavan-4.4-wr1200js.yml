@@ -1666,6 +1666,10 @@ jobs:
             python3 tools/iot/prepare-main-physical-close-delegation.py "$merged" "$candidate/main-physical-close-delegated"
             merged="$candidate/main-physical-close-delegated"
             python3 tools/iot/check-main-physical-close-delegation.py "$merged"
+            python3 tools/iot/prepare-mbss-owner-storage.py "$merged" "$candidate/mbss-owner-storage"
+            merged="$candidate/mbss-owner-storage"
+            python3 tools/iot/check-mbss-owner-storage.py "$merged"
+            python3 tools/iot/check-main-reopen-fence.py "$merged"
             gcc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
               -Itools/iot tools/iot/check-pci-netdev-preclose.c -o "$results/check-pci-netdev-preclose"
             "$results/check-pci-netdev-preclose"

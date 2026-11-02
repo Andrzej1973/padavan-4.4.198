@@ -1,0 +1,32 @@
+{
+  "scope": "Isolated per-slot MBSS owner storage/initialized release/main reopen gates; no worker dispatch",
+  "bindings": [
+    "RTMP_ADAPTER owner array indexed like interface refs",
+    "Fresh initialization in actual adapter reference loop",
+    "Actual adapter_release_begin refuses nonidle/stale owner storage before nettask/peer permanent fences",
+    "Actual MainVirtualIF_open refuses while MBSS owner storage remains active"
+  ],
+  "verification": {
+    "host": "PASS ASan/UBSan actual release helper baseline/WSC variants and actual reopen expression for MBSS live/completed owners; existing main handoff fixture passes",
+    "target": "PASS exact merged common/rtmp_init.c, os/linux/rt_main_dev.c and os/linux/rt_profile.c MIPS TUs",
+    "workflow": "PASS YAML and full affected bash syntax"
+  },
+  "files": {
+    "tools/iot/mbss-recovery-storage.h": "36f7135cc7fbb344833482d72b50ae136e19af8c2c7602f2a77a7895de70a87c",
+    "tools/iot/prepare-mbss-owner-storage.py": "2af43dfcdd99217f8286d290a838b5d24f459aa2f32c74ee1d32fb7eac068890",
+    "tools/iot/check-mbss-owner-storage.py": "312cfc64eb7547ee9682b9ceb4ee9d780cd472f5122fb0140fbd632c0053dee8",
+    "tools/iot/check-main-reopen-fence.py": "aebdf28d07b6ef1691d1db13d9b28db68d0ce02608cae16c57a9488192105b95"
+  },
+  "remaining": [
+    "Direct RTMPFreeAdapter probe-unwind guard with cold allocation distinction",
+    "PCI work/drain/stop/join and registry reuse binding",
+    "No MBSS worker may dispatch until all lifetime fences are bound",
+    "MBSS last-user physical close callback still inline",
+    "No device/runtime acceptance"
+  ],
+  "cleanup": {
+    "candidate_scratch_removed_mib": 200.2,
+    "other_scratch": "C fixtures, binaries, target objects and syntax temp removed",
+    "retained": "Existing pinned/prepared/peer input trees for unfinished IoT"
+  }
+}

@@ -1,3 +1,19 @@
+## 2026-11-02 Sol: MBSS per-slot owner storage and release/reopen fences staged
+
+New isolated layer adds MBSS owner array indexed like interface refs, initializes
+every slot in actual adapter allocation, and requires idle storage before
+initialized adapter release/main reopen. Actual release ASan/UBSan baseline/
+WSC variants and actual reopen/handoff fixtures pass. Exact merged MIPS TUs:
+common/rtmp_init.c, os/linux/rt_main_dev.c, os/linux/rt_profile.c pass. YAML/bash
+pass; generator validates full input and reverse-restores source changes.
+Evidence: docs/evidence/WR1200JS-IOT-MBSS-OWNER-STORAGE-2026-11-02.json.
+NO MBSS worker dispatch added. Direct RTMPFreeAdapter probe unwind bypasses
+initialized release entry; cold/initialized distinction and its guard must be
+bound before dispatch, together with PCI drain/stop/join and registry reuse.
+MBSS physical close remains inline until those obligations are implemented.
+Removed measured200.2 MiB new candidate scratch plus fixtures/objects; retained
+unfinished original inputs. No device action or runtime acceptance claim.
+
 ## 2026-11-02 Sol: exact last-user close matrix identifies next MBSS binding
 
 Reconstructed exact merged candidate through main physical delegation.
