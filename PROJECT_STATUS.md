@@ -1,3 +1,18 @@
+## 2026-11-02 Sol: preclose does not retire all timer callbacks
+
+Re-ran existing audit-timer-delete-join.py on the exact merged chain including
+PCI preclose: vendor cancellation still reports TRUE for running/non-pending
+timer without synchronization. Evidence:
+docs/evidence/WR1200JS-IOT-PRECLOSE-TIMER-BOUNDARY-2026-11-02.json.
+Existing wr_iot_timer_join_checked handles this boundary but has no bound
+source caller. RTMP_AllTimerListRelease clears the catalog using the old API;
+empty catalog, root close stage and joined tasklets are insufficient for WDS
+callback retirement. Next establish exclusive terminal timer/list ownership
+and bind checked join before timer release, then finish WDS reaper. No release
+proof or gate weakened. Scratch audit trees removed. Run41480234434 is now
+actively compiling the isolated merged IoT MT7603 candidate (firmware step
+finished); no duplicate or superseding push performed.
+
 ## 2026-11-02 Sol: PCI child/main preclose bound in isolated peer82 candidate
 
 Added generation-pinned close-only preclose: children first, main last, no
