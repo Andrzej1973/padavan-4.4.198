@@ -1,3 +1,15 @@
+## 2026-11-02 Sol: external MBSS join installed in isolated candidate, MIPS verified
+
+Added strict prepare-mbss-external-join.py after work binding. Full merged
+manifest validated; include/prototype transformations reverse-verified; exact
+helper identity checked. Actual helper/worker ASan/UBSan extended fault suite
+and common/rtmp_init.c MIPS TU pass with installed external join definition.
+No PCI caller or normal admission yet. Next serialize PCI external join/reap
+with admission fencing and bind drain/stop calls, then update old fixtures
+before CI pipeline integration. Temporary merged tree, objects and host
+fixtures removed; original unfinished inputs retained. No runtime or final
+release claim; goal remains active. No router action.
+
 ## 2026-11-02 Sol: MBSS external reap requires complete published identity
 
 Hardened unbound external join helper before PCI integration: require nonzero
