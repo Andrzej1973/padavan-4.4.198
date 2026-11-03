@@ -26,7 +26,11 @@ static void cancel_delayed_work_sync(struct delayed_work *w)
 static int wr_iot_os_join_context(void){return bad_context;}
 static int wr_iot_mbss_recovery_poll(RTMP_ADAPTER *ad)
 {assert(ad&&!held);polls++;return result;}
+#ifdef WR_IOT_INSTALLED_POLL
+#include "wr-iot-mbss-poll-caller.inc"
+#else
 #include "mbss-poll-caller.inc"
+#endif
 int main(void){
  RTMP_ADAPTER ad={0};
  wr_iot_mbss_poll_init(&ad.wr_iot_mbss_poll_state);
