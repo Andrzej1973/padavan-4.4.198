@@ -152,6 +152,14 @@ int main(void){
  ticket.operation=WR_RADIO_BSS_CLOSE;
  record_ticket(&refs[1],&ticket,2);
  refs[1].close_serial=ticket.serial;refs[1].close_stage=5;
+ refs[1].close_uncertain_reason=WR_CLOSE_UNCERTAIN_NONE;
+ assert(!wr_iot_mbss_recovery_queue(&owner,&refs[1],&radio,
+   WR_MBSS_RECOVERY_UNCERTAIN,&ticket,1,1));
+ refs[1].close_uncertain_reason=WR_CLOSE_UNCERTAIN_DMA;
+ refs[1].close_verified_stage=0;
+ assert(!wr_iot_mbss_recovery_queue(&owner,&refs[1],&radio,
+   WR_MBSS_RECOVERY_UNCERTAIN,&ticket,1,1));
+ refs[1].close_verified_stage=2;
  bad=ticket;bad.epoch++;
  assert(!wr_iot_mbss_recovery_queue(&owner,&refs[1],&radio,
    WR_MBSS_RECOVERY_UNCERTAIN,&bad,1,1));
@@ -160,6 +168,10 @@ int main(void){
  assert(wr_iot_mbss_recovery_begin(&owner));
  assert(wr_iot_mbss_recovery_action(&owner,&refs[1],&radio,refs,2,2)==
         WR_MBSS_RECOVERY_RECONCILE);
+ refs[1].close_verified_stage=0;
+ assert(wr_iot_mbss_recovery_action(&owner,&refs[1],&radio,refs,2,2)==
+        WR_MBSS_RECOVERY_NONE);
+ refs[1].close_verified_stage=2;
  radio.epoch++;
  assert(wr_iot_mbss_recovery_action(&owner,&refs[1],&radio,refs,2,2)==
         WR_MBSS_RECOVERY_NONE);

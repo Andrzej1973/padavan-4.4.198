@@ -68,6 +68,14 @@ static inline void wr_iot_mbss_recovery_init(
  * failure such as CR_ENABLE or a refused close admission. It may be queued
  * while another radio operation owns the ticket; action waits for that
  * operation to clear. It cannot await ndo_stop after failed ndo_open. */
+static inline int wr_iot_mbss_uncertain_provenance(
+ const struct wr_iot_interface_ref *r){
+ return r&&((r->close_uncertain_reason==WR_CLOSE_UNCERTAIN_CR&&r->close_verified_stage==0U)||
+  (r->close_uncertain_reason==WR_CLOSE_UNCERTAIN_VENDOR&&r->close_verified_stage==1U)||
+  (r->close_uncertain_reason>=WR_CLOSE_UNCERTAIN_BSS_ID&&
+   r->close_uncertain_reason<=WR_CLOSE_UNCERTAIN_TXS&&
+   r->close_verified_stage>=2U&&r->close_verified_stage<=3U));
+}
 static inline int wr_iot_mbss_recovery_queue(
  struct wr_iot_mbss_recovery_owner *owner,
  const struct wr_iot_interface_ref *record,
@@ -93,6 +101,7 @@ static inline int wr_iot_mbss_recovery_queue(
   if(record->phase!=WR_REF_UNCERTAIN_OPEN&&
      !(record->phase==WR_REF_CLOSING&&record->close_stage==5))return 0;
   if(record->phase==WR_REF_CLOSING){
+   if(!wr_iot_mbss_uncertain_provenance(record))return 0;
    if(!ticket||!record->close_serial||
       ticket->serial!=record->close_serial||
       !wr_iot_mbss_recovery_ticket_recorded(record,ticket)||
@@ -149,6 +158,7 @@ static inline enum wr_iot_mbss_recovery_action wr_iot_mbss_recovery_action(
  if(owner->source==WR_MBSS_RECOVERY_UNCERTAIN&&
     (record->phase==WR_REF_UNCERTAIN_OPEN||
      (record->phase==WR_REF_CLOSING&&record->close_stage==5&&
+      wr_iot_mbss_uncertain_provenance(record)&&
       owner->close_ticket_valid&&
       record->close_serial==owner->close_ticket.serial&&
       wr_iot_mbss_recovery_ticket_recorded(record,

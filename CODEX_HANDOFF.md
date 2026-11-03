@@ -1,3 +1,13 @@
+## 2026-11-03 Sol: uncertain owner requires consistent close provenance
+
+Added shared provenance predicate to uncertain-close queue admission and
+RECONCILE action selection. Unknown reason and inconsistent reason/stage
+refuse admission; changing verified stage after admission refuses action.
+Uncertain-open handling remains distinct. Focused actual owner ASan/UBSan
+fixture passes, including existing ticket/epoch/lifetime cases. Temporary
+fixture/binary removed. This validates bookkeeping only; actual worker
+reconciliation and full target checks remain open.
+
 ## 2026-11-03 Sol: ABI stale reference pin repaired
 
 ABI 41576328965 failed in step 102, prepare-wds-outer-operation.py:
