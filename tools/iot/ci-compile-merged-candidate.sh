@@ -58,7 +58,7 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   gcc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
     -Itools/iot "$results/checked-radio-result.c" -o "$results/checked-radio-result"
   "$results/checked-radio-result"
-  for fixture in check-mcu-sender-owner check-mcu-sender-wrapper check-mcu-sender-drain check-mcu-sender-release check-mcu-message-lifetime; do
+  for fixture in check-mcu-sender-owner check-mcu-sender-wrapper check-mcu-sender-drain check-mcu-sender-release check-mcu-message-lifetime check-mcu-sequence-reservation; do
     gcc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
       -Itools/iot "tools/iot/$fixture.c" -o "$results/$fixture"
     "$results/$fixture"

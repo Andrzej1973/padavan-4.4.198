@@ -1,3 +1,18 @@
+## 2026-11-03 Sol: quarantine ACK-timeout sequence IDs locally
+
+Local header/generator captures sticky uncertainty at ACK timeout, survives
+retransmit and both free paths, then quarantines the wire slot instead of
+reusing it. Sender release refuses remaining quarantine; exhaustion fails
+closed. No reset/epoch proof; not runtime acceptance. Fresh standalone
+bounded/reserved transform and actual allocator/destructor tests passed,
+plus ASan/UBSan model nonreuse across wrap. Removed 27,637,929 file bytes.
+Uncertain destructor branch and installed release helper now pass all
+free/force-free waiting/nonwaiting cases. Full merged replay and MBSS suite
+also passed; 1,440,441,229 replay file bytes removed. Model wrap/quarantine
+fixture is added to CI. Next publish this coherent change and target verify.
+Do not mix unrelated local LOAD_FW macro evidence or
+owner archives into this source package. Shared checkout remains sole-writer.
+
 ## 2026-11-03 Sol: WSC and explicit-SHA packages published sequentially
 
 Remote 88999e606561bc43c141cd71c8daba2828ae057e after separate reviewed

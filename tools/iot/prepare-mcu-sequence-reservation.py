@@ -27,12 +27,14 @@ def edit(name,old,new,count=1):
 edit('include/rtmp.h','#include "mcu-sender-owner.h"','#include "mcu-sender-owner.h"\n#include "mcu-sequence-reservation.h"')
 edit('include/rtmp.h',' struct wr_iot_mcu_sender_owner wr_iot_mcu_sender_owner;',' struct wr_iot_mcu_sender_owner wr_iot_mcu_sender_owner;\n struct wr_iot_mcu_sequence_reservation wr_iot_sequence;')
 edit('common/rtmp_init.c','wr_iot_mcu_sender_init(&pAd->wr_iot_mcu_sender_owner);','wr_iot_mcu_sender_init(&pAd->wr_iot_mcu_sender_owner);\n        memset(&pAd->wr_iot_sequence,0,sizeof(pAd->wr_iot_sequence));')
-edit('include/mcu/andes_core.h','    BOOLEAN wr_iot_checked;','    unsigned int wr_iot_sequence_slot;\n    BOOLEAN wr_iot_checked;')
+edit('include/mcu/andes_core.h','    BOOLEAN wr_iot_checked;','    unsigned int wr_iot_sequence_slot,wr_iot_sequence_uncertain;\n    BOOLEAN wr_iot_checked;')
 # Full raw allocator memset initializes slot; command reinit must retain lease.
 assert (src/'mcu/andes_core.c').read_text().count('memset(msg, 0x00, sizeof(*msg));')==1
 # Snapshot before freeing msg; release at final message drop under lifetime lock.
-edit('mcu/andes_core.c','\tstruct MCU_CTRL *ctl = &ad->MCUCtrl;\n\n\tif (msg->need_wait)', '\tstruct MCU_CTRL *ctl = &ad->MCUCtrl;\n unsigned int wr_slot=msg->wr_iot_sequence_slot;\n\n\tif (msg->need_wait)',2)
-edit('mcu/andes_core.c','wr_iot_mcu_message_drop(ad);','wr_iot_mcu_message_drop(ad,wr_slot);',2)
+edit('mcu/andes_core.c','\tstruct MCU_CTRL *ctl = &ad->MCUCtrl;\n\n\tif (msg->need_wait)', '\tstruct MCU_CTRL *ctl = &ad->MCUCtrl;\n unsigned int wr_slot=msg->wr_iot_sequence_slot;\n unsigned int wr_uncertain=msg->wr_iot_sequence_uncertain;\n\n\tif (msg->need_wait)',2)
+edit('mcu/andes_core.c','wr_iot_mcu_message_drop(ad);','wr_iot_mcu_message_drop(ad,wr_slot,wr_uncertain);',2)
+edit('mcu/andes_core.c','if (!AndesWaitForCompleteTimeout(msg, msg->timeout)) {',
+ 'if (!AndesWaitForCompleteTimeout(msg, msg->timeout)) {\n            msg->wr_iot_sequence_uncertain=1; /* Sticky across retransmission. */')
 s=changes['mcu/andes_core.c'];start=s.index('static inline UCHAR AndesGetCmdMsgSeq(');end=s.index('\nstatic VOID _AndesQueueTailCmdMsg',start)
 old_allocator=s[start:end]
 s=s[:start]+'''static inline UCHAR AndesGetCmdMsgSeq(RTMP_ADAPTER *ad,struct cmd_msg *msg)
@@ -62,16 +64,16 @@ new_allocator=s[start:s.index('\nstatic VOID _AndesQueueTailCmdMsg',start)]
 reverse.append(('mcu/andes_core.c',new_allocator,old_allocator,1))
 changes['mcu/andes_core.c']=s.replace('AndesGetCmdMsgSeq(ad);','AndesGetCmdMsgSeq(ad,msg);')
 reverse.append(('mcu/andes_core.c','AndesGetCmdMsgSeq(ad,msg);','AndesGetCmdMsgSeq(ad);',1))
-edit('include/wr-iot-mcu-message-lifetime.inc','wr_iot_mcu_message_drop(RTMP_ADAPTER *ad)','wr_iot_mcu_message_drop(RTMP_ADAPTER *ad,unsigned int slot)')
-edit('include/wr-iot-mcu-message-lifetime.inc',' (void)wr_iot_mcu_message_leave', ''' if(slot && !wr_iot_mcu_sequence_release(&ad->wr_iot_sequence,slot)){
+edit('include/wr-iot-mcu-message-lifetime.inc','wr_iot_mcu_message_drop(RTMP_ADAPTER *ad)','wr_iot_mcu_message_drop(RTMP_ADAPTER *ad,unsigned int slot,unsigned int uncertain)')
+edit('include/wr-iot-mcu-message-lifetime.inc',' (void)wr_iot_mcu_message_leave', ''' if(slot && !wr_iot_mcu_sequence_finish(&ad->wr_iot_sequence,slot,uncertain)){
   ad->wr_iot_mcu_sender_owner.poisoned=1;
   ad->wr_iot_mcu_sender_owner.closed=1;
  }
  (void)wr_iot_mcu_message_leave''')
-edit('include/wr-iot-mcu-message-lifetime.inc','wr_iot_mcu_message_drop(ad);','wr_iot_mcu_message_drop(ad,0);')
+edit('include/wr-iot-mcu-message-lifetime.inc','wr_iot_mcu_message_drop(ad);','wr_iot_mcu_message_drop(ad,0,0);')
 edit('include/wr-iot-mcu-sender-release.inc',
  ' serial=ad->wr_iot_mcu_sender_owner.close_serial;',
- ' /* Ledger independently gates release even if message accounting disagrees. */\n if(ad->wr_iot_sequence.occupied || ad->wr_iot_sequence.poisoned){\n  RTMP_SPIN_UNLOCK_IRQRESTORE(&ad->wr_iot_mcu_sender_lock,&flags);\n  return NDIS_STATUS_FAILURE;\n }\n serial=ad->wr_iot_mcu_sender_owner.close_serial;')
+ ' /* Ledger independently gates release even if message accounting disagrees. */\n if(ad->wr_iot_sequence.occupied || ad->wr_iot_sequence.poisoned || ad->wr_iot_sequence.quarantined){\n  RTMP_SPIN_UNLOCK_IRQRESTORE(&ad->wr_iot_mcu_sender_lock,&flags);\n  return NDIS_STATUS_FAILURE;\n }\n serial=ad->wr_iot_mcu_sender_owner.close_serial;')
 restored=dict(changes)
 for name,new,old,count in reversed(reverse):
  assert restored[name].count(new)==count,(name,'reverse anchor')

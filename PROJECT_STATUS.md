@@ -1,3 +1,17 @@
+## 2026-11-03 Sol: quarantine ACK-timeout sequence IDs locally
+
+Local MCU reservation change keeps a sticky timeout flag across retransmit
+and snapshots it before both destructors free the message. Timed-out wire
+IDs enter quarantine and cannot be reallocated; release gate retains adapter
+while quarantine remains. No epoch-reset API or production acceptance added.
+ASan/UBSan model passed wrap/exhaustion/nonreuse. Fresh bounded/reserved
+generation plus actual allocator/destructor fixtures passed; 27,637,929 file
+bytes removed. Full merged replay and ASan/UBSan actual destructor/release
+plus installed MBSS integration passed; 1,440,441,229 replay file bytes
+removed. Target verification remains due. This closes
+timeout-ID reuse only, not arbitrary duplicate successful replies. Owner
+archives preserved; radio-off LOAD_FW_ONE_TIME and ACK epoch remain open.
+
 ## 2026-11-03 Sol: WSC and explicit-SHA packages published sequentially
 
 Published 322a306c (WSC helper), confirmed remote and standard/ABI
