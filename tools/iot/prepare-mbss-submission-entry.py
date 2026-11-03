@@ -9,7 +9,7 @@ m=json.loads(src.with_name(src.name+'.manifest.json').read_text());actual={str(f
 if actual!=m['merged_driver_sha256'] or m.get('production_installed') is not False or 'mbss_reaper_gate_layer' not in m:p.error('changed/unsupported input')
 changes={}
 for rel,old,new in [
- ('include/rtmp.h','INT wr_iot_mbss_recovery_stop_join(RTMP_ADAPTER *ad);','INT wr_iot_mbss_recovery_stop_join(RTMP_ADAPTER *ad);\nINT wr_iot_mbss_recovery_submit(RTMP_ADAPTER *ad,PNET_DEV dev,unsigned long generation);'),
+ ('include/rtmp.h','INT wr_iot_mbss_recovery_stop_join(RTMP_ADAPTER *ad);','INT wr_iot_mbss_recovery_stop_join(RTMP_ADAPTER *ad);\nINT wr_iot_mbss_recovery_submit(RTMP_ADAPTER *ad,PNET_DEV dev,unsigned long generation);\nINT wr_iot_mbss_recovery_retry(RTMP_ADAPTER *ad,PNET_DEV dev,unsigned long generation);'),
  ('common/rtmp_init.c','#include "wr-iot-mbss-recovery-stop.inc"','#include "wr-iot-mbss-recovery-stop.inc"\n#include "wr-iot-mbss-recovery-submit.inc"')]:
  s=(src/rel).read_text()
  if s.count(old)!=1:p.error('changed submission anchor: '+rel)

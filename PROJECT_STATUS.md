@@ -1,3 +1,15 @@
+## 2026-11-03 Sol: retained MBSS retry entry implemented
+
+Added gated exact-registration retry without acquiring additional reference
+holds. It refuses busy work, stale identity, removal, permanent stop and
+invalid retirement phase; schedule refusal retains ownership. Three worker
+attempts remain the bound. Fresh candidate chain and installed-helper ASan/
+UBSan tests pass schedule-refusal retry, generation mismatch and exhaustion
+with retained module/netdev holds. Candidate preparer exports the retry
+prototype. New retry code has no target/runtime evidence yet; previous
+submission-entry evidence describes its earlier revision only. Ordinary
+caller/reap integration remains pending. Temporary test trees removed.
+
 ## 2026-11-03 Sol: submission fixture executes installed candidate asset
 
 Corrected check-mbss-work-binding.py --submit to read the installed candidate

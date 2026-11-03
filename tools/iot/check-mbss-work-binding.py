@@ -186,6 +186,17 @@ static int schedule_work(struct work_struct *w){assert(held);w->busy=schedule_ac
  ready(&ad,&main,&dev);dev.refs=0;schedule_accept=0;
  assert(wr_iot_mbss_recovery_submit(&ad,&dev,1)==-1&&dev.refs==1&&ad.wr_iot_mbss_recovery[1].phase==WR_MBSS_OWNER_RETAINED);
  schedule_accept=1;
+ assert(wr_iot_mbss_recovery_retry(&ad,&dev,2)==-1&&dev.refs==1);
+ assert(wr_iot_mbss_recovery_retry(&ad,&dev,1)==0&&dev.refs==1);
+ execute(&ad);assert(wr_iot_mbss_recovery_join_completed(&ad)==0&&dev.refs==0);
+ ready(&ad,&main,&dev);dev.refs=0;
+ assert(wr_iot_mbss_recovery_submit(&ad,&dev,1)==0);
+ backend_fail=1;execute(&ad);
+ assert(wr_iot_mbss_recovery_retry(&ad,&dev,1)==0);
+ execute(&ad);
+ assert(wr_iot_mbss_recovery_retry(&ad,&dev,1)==0);
+ execute(&ad);
+ assert(wr_iot_mbss_recovery_retry(&ad,&dev,1)==-1&&dev.refs==1&&module_refs==1);
  ready(&ad,&main,&dev);dev.refs=0;wr_iot_mbss_reaper_stop(&ad.wr_iot_mbss_reaper_gate);
  assert(wr_iot_mbss_recovery_submit(&ad,&dev,1)==-1&&!dev.refs&&!ad.wr_iot_mbss_recovery[1].deferred_owners);
  ready(&ad,&main,&dev);dev.refs=0;assert(wr_iot_mbss_reaper_enter(&ad.wr_iot_mbss_reaper_gate));
