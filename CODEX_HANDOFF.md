@@ -1,3 +1,13 @@
+## 2026-11-03 Sol: installed MBSS retry refusal matrix verified
+
+Fresh preparation chain and installed-helper ASan/UBSan fixture pass nine
+retry faults: permanent stop, live reaper, busy work, removal flag/stage,
+unpublished registration, token mismatch, retirement outside draining and
+repeated schedule refusal. Each preserves retained ownership, netdev/module
+holds and releases its submission lease. Temporary candidate/fixture trees
+removed. This is injected host evidence; target compilation and ordinary
+retry/reap caller integration remain open.
+
 ## 2026-11-03 Sol: retained MBSS retry entry implemented
 
 Added gated exact-registration retry without acquiring additional reference
