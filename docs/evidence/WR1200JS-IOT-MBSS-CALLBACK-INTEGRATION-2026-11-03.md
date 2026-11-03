@@ -52,3 +52,30 @@ generation and token after unlocked checks. Only advance to a known resumable
 stage when every required receipt is available; otherwise retain ownership.
 No counter decrement, module release or owner completion may follow merely
 from zero pending snapshots or a successful CR readback.
+
+## External poll caller lifetime audit
+
+After target verification of poll (run 41660692695), inspected the actual
+preparers for caller placement. prepare-mbss-work-binding.py initializes
+per-slot work before recovery storage publication in common/rtmp_init.c.
+prepare-mbss-pci-stop.py inserts stop/join at exactly three main recovery join
+sites in rt_pci_remove: stalled, normal and post-detach. Main recovery's
+separate delayed-work reaper already has synchronous cancellation, but it
+does not join or own a new MBSS poll caller automatically.
+
+Required MBSS delayed caller binding must therefore include all of:
+
+- Fresh delayed-work initialization before adapter publication.
+- A separate pending/running caller lifetime fence checked by adapter free
+  paths; owner-array emptiness alone is insufficient while poll returns.
+- Permanent stop publication before cancel_delayed_work_sync, outside RTNL
+  and transition lock; no rearm after stop, including an empty owner array.
+- Cancellation/join at all three PCI sites before worker joins and release.
+- A bounded retry/rearm policy including schedule refusals, with retained
+  ownership on exhaustion. A stopped caller never fabricates completion.
+- Avoid making the caller's own lifetime fence cause its inner completion
+  join to reject itself; distinguish inner owner/work idle from adapter-free
+  eligibility.
+
+Calling poll from an existing main reaper without these checks is not a
+verified lifetime transfer. No caller binding is installed by this audit.
