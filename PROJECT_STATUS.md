@@ -1,3 +1,15 @@
+## 2026-11-03 Sol: WSC and explicit-SHA packages published sequentially
+
+Published 322a306c (WSC helper), confirmed remote and standard/ABI
+41708668304/41708668067; then 1e2a3ccc (provenance), confirmed runs
+41708746215/41708746081; then 88999e60 (optional explicit ancestor SHA),
+confirmed remote and runs 41708818140/41708818198. These runs are pending,
+not successful verification. Remote is 88999e606561bc43c141cd71c8daba2828ae057e.
+Local WSC object inventory now checks all six WSC/crypto MIPS relocatables
+and source/object/command hashes; synthetic report fixture rejects missing
+WSCv2. No real full WSC target result yet. Source artifacts and owner archives
+are preserved; no router access. Exact-SHA selector live execution still due.
+
 ## 2026-11-03 Sol: explicit optional source SHA removes publication dependency
 
 Prepared verification_revision dispatch input: optional-only exact ancestor

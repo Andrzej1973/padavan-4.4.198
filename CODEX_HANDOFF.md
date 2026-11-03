@@ -1,3 +1,17 @@
+## 2026-11-03 Sol: WSC and explicit-SHA packages published sequentially
+
+Remote 88999e606561bc43c141cd71c8daba2828ae057e after separate reviewed
+pushes 322a306c, 1e2a3ccc, 88999e60. Confirmed each remote and CI before next
+push: standard/ABI 41708668304/41708668067, 41708746215/41708746081,
+41708818140/41708818198 respectively (pending). Do not claim success.
+Next inspect results and use verification_revision for required predecessor
+optional runs after their standard succeeds, without duplicate SHA/scope/
+variant. Old optional 41708304141 covers ffa4e2e; do not duplicate it.
+Local helper refinement requires six WSC/crypto MIPS objects with hashes;
+synthetic report test passes missing-object refusal. Evidence documents
+baseline target validation and WSC orchestration. Full WSC live target and
+selector-on-GitHub acceptance remain due; owner reference files stay local.
+
 ## 2026-11-03 Sol: explicit optional source SHA removes publication dependency
 
 New selector/workflow input verification_revision pins an optional ancestor

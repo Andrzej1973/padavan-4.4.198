@@ -55,3 +55,15 @@ The artifact's separate MLME WSC/KTHREAD TU report records a passed compile,
 It records requested flags rather than effective preprocessing macros; the
 new local checker adds that missing evidence. This is not full linked WSC
 feature-module acceptance. No ZIP or extracted tree retained locally.
+
+## Worker uncertainty provenance target compilation
+
+Optional 41698138284 completed successfully for
+`a6f514d39de79b88f3dc405c44724c36e524b5cb`. Independently read artifact
+13264066070 in memory: ELF32 little-endian MIPS module, 5,574,856 bytes,
+SHA256 `36c5ab283016b513e8bdf6022845ad2b66c26c30942e81eb6515810d6911a380`.
+Size/hash match metadata. This revision contains worker uncertainty-origin
+capture and its combined installed host test. Module task flags remain
+KTHREAD on, OS_ABL/PM/timer task/WSC off. This proves isolated compilation,
+not reconciliation hardware execution, production integration or runtime.
+No downloaded archive retained.

@@ -17,6 +17,8 @@ grep -Fq 'ifeq ($(CONFIG_MT7603E_WSC_INCLUDED),y)' "$wrapper/Makefile"
 grep -Fq 'EXTRA_CFLAGS += -DWSC_INCLUDED -DWSC_SINGLE_TRIGGER' "$wrapper/Makefile"
 sha256sum "$kernel/.config" > "$results/baseline-config.sha256"
 cp "$feature/.config" "$results/kernel.config"
+grep -qx 'CONFIG_MT7603E_RLT_AP_SUPPORT=m' "$feature/.config"
+grep -qx 'CONFIG_MT76X3_AP=m' "$feature/.config"
 # Command-line overrides select the wrapper's complete WSC object list.
 # They are feature-build inputs, not a production .config change.
 make -C "$feature" ARCH=mips CROSS_COMPILE="$cross" -j2 \
@@ -35,9 +37,10 @@ done
 cp "$module" "$results/mt76x3_ap-wsc.ko"
 sha256sum -c "$results/baseline-config.sha256"
 cmp "$feature/.config" "$results/kernel.config"
-python3 - "$results" <<'PY'
+python3 - "$results" "$driver" <<'PY'
 import hashlib,json,pathlib,sys
 root=pathlib.Path(sys.argv[1])
+driver=pathlib.Path(sys.argv[2])
 task=json.loads((root/'task-config.json').read_text())
 baseline_path=root.parent/'target-compile-result.json'
 baseline=json.loads(baseline_path.read_text())
@@ -51,6 +54,18 @@ if task['status']!='complete' or not all(task['macros'].get(name) for name in re
 data=(root/'mt76x3_ap-wsc.ko').read_bytes()
 if data[:6]!=b'\x7fELF\x01\x01' or int.from_bytes(data[18:20],'little')!=8:
     raise SystemExit('Expected ELF32 little-endian MIPS WSC module')
+objects={}
+for name in ('wsc','wsc_tlv','wsc_ufd','wsc_v2','crypt_dh','crypt_biginteger'):
+    obj=driver/'common'/(name+'.o')
+    command=driver/'common'/('.'+name+'.o.cmd')
+    blob=obj.read_bytes()
+    if (blob[:6]!=b'\x7fELF\x01\x01' or
+            int.from_bytes(blob[16:18],'little')!=1 or
+            int.from_bytes(blob[18:20],'little')!=8):
+        raise SystemExit('Expected MIPS relocatable WSC object: '+name)
+    objects[name]={'bytes':len(blob),'sha256':hashlib.sha256(blob).hexdigest(),
+                   'command_sha256':hashlib.sha256(command.read_bytes()).hexdigest(),
+                   'source_sha256':hashlib.sha256(obj.with_suffix('.c').read_bytes()).hexdigest()}
 report={'scope':'complete isolated MT7603 WSC module',
         'repository_revision':baseline['repository_revision'],
         'source_revision':baseline['source_revision'],
@@ -62,5 +77,6 @@ report={'scope':'complete isolated MT7603 WSC module',
         'module_bytes':len(data),'module_sha256':hashlib.sha256(data).hexdigest(),
         'task_macros':task['macros'],'task_command_sha256':task['command_sha256'],
         'task_source_sha256':task['source_sha256']}
+report['wsc_objects']=objects
 (root/'result.json').write_text(json.dumps(report,indent=2)+'\n')
 PY
