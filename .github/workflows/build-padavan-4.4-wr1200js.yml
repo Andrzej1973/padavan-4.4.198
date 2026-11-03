@@ -1698,6 +1698,15 @@ jobs:
             gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
               -I"$merged/include" tools/iot/check-peer-rssi-delete.c -o "$results/check-peer-rssi-delete"
             "$results/check-peer-rssi-delete" | tee "$results/peer-rssi-delete.txt"
+            # Apply MBSS work ownership only after the legacy host fixtures;
+            # target Kbuild below consumes this final merged candidate.
+            for layer in mbss-work-binding mbss-external-join mbss-pci-drain \
+              mbss-pci-stop mbss-reaper-gate mbss-submission-entry; do
+              python3 "tools/iot/prepare-$layer.py" "$merged" "$candidate/$layer"
+              merged="$candidate/$layer"
+            done
+            python3 tools/iot/check-mbss-work-binding.py "$merged" --stop-join --submit
+            cp "$merged.manifest.json" "$results/mbss-submission-candidate.json"
             cp "$candidate/peer/peer-chain.json" "$results/peer-chain.json"
           elif [ "${{ inputs.iot_candidate_variant }}" = v39 ]; then
             mkdir -p "$candidate"

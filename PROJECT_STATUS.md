@@ -1,3 +1,15 @@
+## 2026-11-03 Sol: firmware candidate includes current MBSS layers
+
+Firmware optional peer candidate workflow now applies work binding, external
+join, PCI drain/stop, reaper gate and submission/retry entry after legacy host
+fixtures and before copying merged source into the target driver. It executes
+the installed-helper stop/join/submission fixture and retains the final MBSS
+manifest in diagnostics. YAML parsing and changed Bash step syntax pass;
+the same six-layer pipeline and fixture passed locally in the preceding
+verification. No new target build has run for this revision. Next publish a
+coherent batch under CI queue discipline and triage original target logs.
+Ordinary retry/reap caller binding remains open. No scratch generated.
+
 ## 2026-11-03 Sol: installed MBSS retry refusal matrix verified
 
 Fresh preparation chain and installed-helper ASan/UBSan fixture pass nine
