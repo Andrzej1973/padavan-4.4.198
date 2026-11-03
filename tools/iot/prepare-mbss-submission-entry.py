@@ -10,21 +10,25 @@ if actual!=m['merged_driver_sha256'] or m.get('production_installed') is not Fal
 changes={}
 prototypes='\n'.join([
  'INT wr_iot_mbss_recovery_stop_join(RTMP_ADAPTER *ad);',
+ 'INT wr_iot_mbss_recovery_poll(RTMP_ADAPTER *ad);',
  'INT wr_iot_mbss_recovery_submit(RTMP_ADAPTER *ad,PNET_DEV dev,unsigned long generation);',
  'INT wr_iot_mbss_recovery_retry(RTMP_ADAPTER *ad,PNET_DEV dev,unsigned long generation);',
  'INT wr_iot_mbss_recovery_submit_close(RTMP_ADAPTER *ad,PNET_DEV dev,unsigned long generation,const struct wr_iot_radio_ticket *ticket);'])
 for rel,old,new in [
  ('include/rtmp.h','INT wr_iot_mbss_recovery_stop_join(RTMP_ADAPTER *ad);',prototypes),
- ('common/rtmp_init.c','#include "wr-iot-mbss-recovery-stop.inc"','#include "wr-iot-mbss-recovery-stop.inc"\n#include "wr-iot-mbss-recovery-submit.inc"')]:
+ ('common/rtmp_init.c','#include "wr-iot-mbss-recovery-stop.inc"','#include "wr-iot-mbss-recovery-stop.inc"\n#include "wr-iot-mbss-recovery-submit.inc"\n#include "wr-iot-mbss-recovery-poll.inc"')]:
  s=(src/rel).read_text()
  if s.count(old)!=1:p.error('changed submission anchor: '+rel)
  changes[rel]=s.replace(old,new,1);assert changes[rel].replace(new,old,1)==s
 asset='include/wr-iot-mbss-recovery-submit.inc'
 if (src/asset).exists():p.error('unexpected existing helper')
+poll_asset='include/wr-iot-mbss-recovery-poll.inc'
+if (src/poll_asset).exists():p.error('unexpected existing poll helper')
 shutil.copytree(src,out)
 for rel,s in changes.items():(out/rel).write_text(s)
 shutil.copyfile(here/'mbss-recovery-submit.inc',out/asset)
-for rel in [*changes,asset]:
+shutil.copyfile(here/'mbss-recovery-poll.inc',out/poll_asset)
+for rel in [*changes,asset,poll_asset]:
  digest=hashlib.sha256((out/rel).read_bytes()).hexdigest();m['merged_driver_sha256'][rel]=digest;m['candidate_driver_sha256'][rel]=digest
 m.update(production_installed=False,target_compiled=False,runtime_verified=False)
 m['mbss_submission_entry_layer']={'callback_bound':False,'ordinary_reap_bound':False,'target_compiled':False,'runtime_verified':False}
