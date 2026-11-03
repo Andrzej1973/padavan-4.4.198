@@ -1,3 +1,11 @@
+## 2026-11-03 Sol: submission fixture executes installed candidate asset
+
+Corrected check-mbss-work-binding.py --submit to read the installed candidate
+helper rather than the repository asset. A fresh complete preparation chain
+and ASan/UBSan submission/stop/join suite pass with the installed helper.
+Temporary candidate and fixture directories were automatically removed.
+Ordinary reap/retry and callback binding remain pending; no runtime claim.
+
 ## 2026-11-02 Sol: MBSS submission-entry preparer fully verified
 
 Completed the previously uncommitted `prepare-mbss-submission-entry.py`.

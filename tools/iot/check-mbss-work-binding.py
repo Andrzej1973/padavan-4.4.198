@@ -175,7 +175,8 @@ static int schedule_work(struct work_struct *w){assert(held);w->busy=schedule_ac
 '''
  # Generalize the reference mock to count one owned submission hold.
  code=code.replace('assert(!held&&dev&&dev->refs==1);put_calls++;dev->refs--;','assert(!held&&dev&&dev->refs>0);put_calls++;dev->refs--;')
- code=code.replace(marker,mock+(here/'mbss-recovery-submit.inc').read_text()+'\n'+marker)
+ # Exercise the installed candidate, including the preparer's asset copy.
+ code=code.replace(marker,mock+(a.candidate/'include/wr-iot-mbss-recovery-submit.inc').read_text()+'\n'+marker)
  marker=' return 0;\n}\n';tail=code.rindex(marker)
  code=code[:tail]+r'''
  ready(&ad,&main,&dev);dev.refs=0;put_calls=0;
