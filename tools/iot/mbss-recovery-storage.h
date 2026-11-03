@@ -13,7 +13,7 @@ static inline int wr_iot_mbss_recovery_storage_idle(
   const struct wr_iot_mbss_recovery_owner *o=&owners[i];
   if(o->phase!=WR_MBSS_OWNER_IDLE||o->device||o->generation||o->open_token||
      o->close_serial||o->close_ticket_valid||o->deferred_owners||o->attempts||
-     o->stop_requested||o->completed)return 0;
+     o->stop_requested||o->completed||o->uncertain_reason||o->verified_stage)return 0;
  }
  return 1;
 }

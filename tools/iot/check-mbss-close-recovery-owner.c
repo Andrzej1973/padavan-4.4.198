@@ -172,6 +172,10 @@ int main(void){
  assert(wr_iot_mbss_recovery_action(&owner,&refs[1],&radio,refs,2,2)==
         WR_MBSS_RECOVERY_NONE);
  refs[1].close_verified_stage=2;
+ refs[1].close_uncertain_reason=WR_CLOSE_UNCERTAIN_TXS;
+ assert(wr_iot_mbss_recovery_action(&owner,&refs[1],&radio,refs,2,2)==
+        WR_MBSS_RECOVERY_NONE);
+ refs[1].close_uncertain_reason=WR_CLOSE_UNCERTAIN_DMA;
  radio.epoch++;
  assert(wr_iot_mbss_recovery_action(&owner,&refs[1],&radio,refs,2,2)==
         WR_MBSS_RECOVERY_NONE);

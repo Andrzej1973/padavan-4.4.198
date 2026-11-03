@@ -29,6 +29,7 @@ struct wr_iot_mbss_recovery_owner {
  enum wr_iot_mbss_recovery_source source;
  enum wr_iot_mbss_recovery_phase phase;
  unsigned int deferred_owners,attempts;
+ unsigned int uncertain_reason,verified_stage;
  int stop_requested,completed;
 };
 /* Main-down, reset or PCI retire may advance the epoch after a close ticket
@@ -62,6 +63,7 @@ static inline void wr_iot_mbss_recovery_init(
  owner->close_ticket_valid=0;
  owner->phase=WR_MBSS_OWNER_IDLE;owner->deferred_owners=0;
  owner->attempts=0;owner->stop_requested=0;owner->completed=0;
+ owner->uncertain_reason=0;owner->verified_stage=0;
 }
 /* The caller must already hold a netdev ref and prevent adapter release.
  * An OPEN_ACQUIRED record includes the vendor count acquired before a later
@@ -114,6 +116,8 @@ static inline int wr_iot_mbss_recovery_queue(
  if(ticket){owner->close_ticket=*ticket;owner->close_ticket_valid=1;}
  else owner->close_ticket_valid=0;
  owner->source=source;owner->phase=WR_MBSS_OWNER_QUEUED;
+ owner->uncertain_reason=record->close_uncertain_reason;
+ owner->verified_stage=record->close_verified_stage;
  owner->deferred_owners=1;owner->attempts=0;
  owner->stop_requested=0;owner->completed=0;
  return 1;
@@ -159,6 +163,8 @@ static inline enum wr_iot_mbss_recovery_action wr_iot_mbss_recovery_action(
     (record->phase==WR_REF_UNCERTAIN_OPEN||
      (record->phase==WR_REF_CLOSING&&record->close_stage==5&&
       wr_iot_mbss_uncertain_provenance(record)&&
+      record->close_uncertain_reason==owner->uncertain_reason&&
+      record->close_verified_stage==owner->verified_stage&&
       owner->close_ticket_valid&&
       record->close_serial==owner->close_ticket.serial&&
       wr_iot_mbss_recovery_ticket_recorded(record,

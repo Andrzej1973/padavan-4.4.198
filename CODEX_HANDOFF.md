@@ -1,3 +1,14 @@
+## 2026-11-03 Sol: uncertain owner snapshots admitted provenance
+
+Recovery owner snapshots uncertainty reason and verified stage at admission.
+RECONCILE selection requires exact equality with the original registration
+snapshot, beyond checking that the new reason/stage pair is valid. Changing
+DMA to TxS after admission now refuses action. Init clears snapshot fields;
+storage-idle guard rejects leftover provenance. Focused owner ASan/UBSan
+fixture passes; scratch removed. Full worker/storage target integration
+remains to verify. CI 41578229577 and 41578229521 were in progress on d61f9c82;
+they do not cover this subsequent local change.
+
 ## 2026-11-03 Sol: uncertain owner requires consistent close provenance
 
 Added shared provenance predicate to uncertain-close queue admission and
