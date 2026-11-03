@@ -170,13 +170,13 @@ if a.submit:
  marker='static void ready(RTMP_ADAPTER *ad,struct device *main,struct device *dev)'
  mock=r'''
 static int schedule_accept=1;
-static void dev_hold(PNET_DEV dev){assert(!held);dev->refs++;}
+static void dev_hold(PNET_DEV dev){dev->refs++;}
 static int schedule_work(struct work_struct *w){assert(held);w->busy=schedule_accept;return schedule_accept;}
 '''
  # Generalize the reference mock to count one owned submission hold.
  code=code.replace('assert(!held&&dev&&dev->refs==1);put_calls++;dev->refs--;','assert(!held&&dev&&dev->refs>0);put_calls++;dev->refs--;')
  # Exercise the installed candidate, including the preparer's asset copy.
- code=code.replace(marker,mock+(a.candidate/'include/wr-iot-mbss-recovery-submit.inc').read_text()+'\n'+marker)
+ code=code.replace(marker,mock+(a.candidate/'include/wr-iot-mbss-recovery-submit.inc').read_text()+'\n'+(here/'mbss-recovery-poll.inc').read_text()+'\n'+marker)
  marker=' return 0;\n}\n';tail=code.rindex(marker)
  code=code[:tail]+r'''
  ready(&ad,&main,&dev);dev.refs=0;put_calls=0;
@@ -197,6 +197,12 @@ static int schedule_work(struct work_struct *w){assert(held);w->busy=schedule_ac
  assert(wr_iot_mbss_recovery_join_completed(&ad)==0&&dev.refs==0&&module_refs==0);
  ready(&ad,&main,&dev);dev.refs=0;schedule_accept=0;
  assert(wr_iot_mbss_recovery_submit(&ad,&dev,1)==1&&dev.refs==1&&ad.wr_iot_mbss_recovery[1].phase==WR_MBSS_OWNER_RETAINED);
+ schedule_accept=1;
+ assert(wr_iot_mbss_recovery_poll(&ad)==-1&&dev.refs==1);
+ execute(&ad);
+ assert(wr_iot_mbss_recovery_poll(&ad)==0&&dev.refs==0);
+ ready(&ad,&main,&dev);dev.refs=0;schedule_accept=0;
+ assert(wr_iot_mbss_recovery_submit(&ad,&dev,1)==1);
  schedule_accept=1;
  assert(wr_iot_mbss_recovery_retry(&ad,&dev,2)==-1&&dev.refs==1);
  assert(wr_iot_mbss_recovery_retry(&ad,&dev,1)==0&&dev.refs==1);

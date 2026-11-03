@@ -20,6 +20,19 @@ YAML parsing and exact group/cancellation checks pass. No builds dispatched
 or cancelled for this policy edit; no scratch generated. Publish the new
 workflow before expecting new runs to use these lane names.
 
+## 2026-11-03 Sol: external MBSS poll helper host verified
+
+Added unbound mbss-recovery-poll.inc. Adapter-pinned external caller joins
+completed work, snapshots retained owners under transition lock with a
+temporary netdev hold, retries through the existing admission gate, then
+drops that temporary hold outside lock. Returns pending until external join
+proves storage idle. Caller must be joined before adapter release; no scheduler
+or lifecycle binding is installed. Actual helper with installed work/join/
+submission ASan/UBSan fixture passes schedule-refusal retry and completion
+ref release. Fresh current recovery, full overlay, complete peer and all MBSS
+layers regenerated successfully. Temporary files removed (1,426,379,619 file
+bytes). No target or real concurrent-kernel claim for poll.
+
 ## 2026-11-03 Sol: peer82 CI includes owner/storage and gate regressions
 
 Added explicit ASan/UBSan runs of check-mbss-close-recovery-owner.c and
