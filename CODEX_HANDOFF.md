@@ -20,6 +20,18 @@ YAML parsing and exact group/cancellation checks pass. No builds dispatched
 or cancelled for this policy edit; no scratch generated. Publish the new
 workflow before expecting new runs to use these lane names.
 
+## 2026-11-03 Sol: delayed poll caller installed and CI staged
+
+e7f7558 binds adapter state/delayed work initialization, public free/reopen
+guard and caller stop/join before MBSS worker cancellation. All three PCI
+stop sites route through that guarded helper. Fresh full generation/peer/
+MBSS pipeline and installed-caller ASan/UBSan fixture passed; temporary files
+removed (1,440,465,497 file bytes). Target workflow now installs this layer
+after legacy worker fixtures, runs installed caller fixture, and builds that
+final merged tree. Early host regressions include lifetime and caller models.
+YAML/Bash syntax and expression-size guard pass. Ordinary callback admission
+remains unbound; actual kernel race and target proof remain pending.
+
 ## 2026-11-03 Sol: delayed caller schedule refusal retains lifetime fence
 
 Staged delayed caller/helper introduced in 7447a7d uses real helper control
