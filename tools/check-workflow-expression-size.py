@@ -26,8 +26,10 @@ for path in sorted((root / '.github/workflows').glob('*.yml')):
         value = ''.join(s[margin:] if s.strip() else '\n' for s in block)
         if '${{' in value:
             checked += 1
-            if len(value) >= 21000:
+            # Keep headroom for GitHub's expression conversion/escaping.
+            # Raw scalar length alone missed the 124d2da validation failure.
+            if len(value) >= 19000:
                 raise SystemExit(f'{path.relative_to(root)}:{index + 1}: '
-                                 f'expression-bearing run is {len(value)} characters (limit 21000)')
-assert checked, 'No expression-bearing run blocks checked'
-print(f'PASS {checked} expression-bearing workflow run blocks below 21000 characters')
+                                 f'expression-bearing run is {len(value)} characters (budget 19000)')
+# Zero is valid when all large steps use external scripts and env inputs.
+print(f'PASS {checked} expression-bearing workflow run blocks below 19000-character budget')
