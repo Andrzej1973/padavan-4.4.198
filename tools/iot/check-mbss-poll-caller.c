@@ -16,7 +16,7 @@ typedef struct {
 } RTMP_ADAPTER;
 #define container_of(p,t,m) ((t *)((char *)(p)-offsetof(t,m)))
 #define to_delayed_work(p) container_of(p,struct delayed_work,work)
-static int held,accept=1,polls,result=-1,cancels,bad_context,stop_during_poll;
+static int held,accept=1,polls,result=-1,cancels,bad_context,stop_during_poll,owners_idle=1;
 #define RTMP_IRQ_LOCK(l,f) do{(void)(l);(f)=0;assert(!held);held=1;}while(0)
 #define RTMP_IRQ_UNLOCK(l,f) do{(void)(l);(void)(f);assert(held);held=0;}while(0)
 static int schedule_delayed_work(struct delayed_work *w,int delay)
@@ -24,6 +24,8 @@ static int schedule_delayed_work(struct delayed_work *w,int delay)
 static void cancel_delayed_work_sync(struct delayed_work *w)
 {assert(w&&!held);cancels++;}
 static int wr_iot_os_join_context(void){return bad_context;}
+static int wr_iot_mbss_recovery_join_completed(RTMP_ADAPTER *ad)
+{assert(ad&&!held);return owners_idle?0:-1;}
 static int wr_iot_mbss_recovery_poll(RTMP_ADAPTER *ad)
 {
  assert(ad&&!held);polls++;
@@ -69,5 +71,14 @@ int main(void){
  assert(wr_iot_mbss_poll_schedule(&ad)==-1);
  assert(wr_iot_mbss_poll_stop_join(&ad)==0);
  assert(wr_iot_mbss_poll_release_ready(&ad.wr_iot_mbss_poll_state));
+ stop_during_poll=0;accept=1;
+ wr_iot_mbss_poll_init(&ad.wr_iot_mbss_poll_state);
+ assert(wr_iot_mbss_poll_schedule(&ad)==0);
+ result=0;wr_iot_mbss_poll_work_fn(&ad.wr_iot_mbss_poll_work.work);
+ assert(wr_iot_mbss_poll_join(&ad)==0&&ad.wr_iot_mbss_poll_state.attempts==0);
+ assert(wr_iot_mbss_poll_schedule(&ad)==0);
+ owners_idle=0;
+ assert(wr_iot_mbss_poll_join(&ad)==-1&&ad.wr_iot_mbss_poll_state.attempts==1);
+ assert(!ad.wr_iot_mbss_poll_state.joining);
  return 0;
 }

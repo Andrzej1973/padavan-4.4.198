@@ -1,3 +1,15 @@
+## 2026-11-03 Sol: ordinary delayed caller join supports another episode
+
+Added join lease excluding schedule/rearm across cancel_delayed_work_sync.
+Ordinary join resets attempt budget only after completed MBSS owners are
+externally joined and idle; retained owners preserve budget. Stop uses the
+same lease and remains permanent. Free/reopen guard includes joining state.
+Fresh complete generation/peer/caller pipeline passes reverse transforms,
+installed-helper ASan/UBSan and guard/prototype inventory. State-model tests
+also pass second episode and stop collision. Temporary files removed
+(1,440,477,801 file bytes). No target proof for ordinary join yet; automatic
+admission and uncertain reconciliation remain open.
+
 ## 2026-11-03 Owner correction: pipeline packages without cross-lane waiting
 
 This supersedes the earlier all-required-results publication barrier.

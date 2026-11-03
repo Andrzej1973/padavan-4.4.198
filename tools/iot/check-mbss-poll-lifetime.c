@@ -61,5 +61,24 @@ int main(void){
  assert(!wr_iot_mbss_poll_release_ready(&s));
  assert(wr_iot_mbss_poll_joined(&s,1));
  assert(wr_iot_mbss_poll_release_ready(&s));
+ wr_iot_mbss_poll_init(&s);
+ assert(wr_iot_mbss_poll_reserve(&s));
+ assert(wr_iot_mbss_poll_queue_result(&s,1));
+ assert(wr_iot_mbss_poll_join_enter(&s));
+ assert(!wr_iot_mbss_poll_join_enter(&s));
+ assert(!wr_iot_mbss_poll_reserve(&s));
+ assert(wr_iot_mbss_poll_joined(&s,1));
+ assert(wr_iot_mbss_poll_join_leave(&s,1)&&s.attempts==0);
+ assert(wr_iot_mbss_poll_reserve(&s)); /* next recovery episode */
+ assert(wr_iot_mbss_poll_begin(&s));
+ assert(wr_iot_mbss_poll_join_enter(&s));
+ assert(!wr_iot_mbss_poll_rearm(&s));
+ wr_iot_mbss_poll_stop(&s);
+ wr_iot_mbss_poll_returned(&s);
+ assert(wr_iot_mbss_poll_joined(&s,1));
+ assert(!wr_iot_mbss_poll_release_ready(&s));
+ assert(wr_iot_mbss_poll_join_leave(&s,1));
+ assert(wr_iot_mbss_poll_release_ready(&s));
+ assert(!wr_iot_mbss_poll_reserve(&s));
  return 0;
 }

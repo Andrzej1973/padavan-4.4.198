@@ -38,6 +38,11 @@ one('include/wr-iot-mbss-recovery-work.inc',
 one('include/wr-iot-mbss-recovery-stop.inc',
  ' if(!ad||wr_iot_os_join_context())return -1;',
  ' if(!ad||wr_iot_os_join_context())return -1;\n if(wr_iot_mbss_poll_stop_join(ad)!=0)return -1;')
+one('include/rtmp.h','INT wr_iot_mbss_poll_stop_join(RTMP_ADAPTER *ad);',
+ 'INT wr_iot_mbss_poll_stop_join(RTMP_ADAPTER *ad);\nINT wr_iot_mbss_poll_join(RTMP_ADAPTER *ad);')
+one('include/wr-iot-mbss-recovery-work.inc',
+ 'if(!ad||ad->wr_iot_mbss_poll_state.pending',
+ 'if(!ad||ad->wr_iot_mbss_poll_state.joining||ad->wr_iot_mbss_poll_state.pending')
 restored=dict(changes)
 for rel,old,new in reversed(undo):restored[rel]=restored[rel].replace(new,old,1)
 assert all(s==(src/rel).read_text() for rel,s in restored.items())

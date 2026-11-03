@@ -3,13 +3,13 @@
 #ifndef WR_IOT_MBSS_POLL_LIFETIME_H
 #define WR_IOT_MBSS_POLL_LIFETIME_H
 struct wr_iot_mbss_poll_lifetime {
- unsigned int stopped,pending,running,unjoined,attempts;
+ unsigned int stopped,pending,running,unjoined,attempts,joining;
 };
 static inline void wr_iot_mbss_poll_init(struct wr_iot_mbss_poll_lifetime *s)
-{s->stopped=s->pending=s->running=s->unjoined=s->attempts=0;}
+{s->stopped=s->pending=s->running=s->unjoined=s->attempts=s->joining=0;}
 static inline int wr_iot_mbss_poll_reserve(struct wr_iot_mbss_poll_lifetime *s)
 {
- if(!s||s->stopped||s->pending||s->running||s->unjoined||s->attempts>=3U)return 0;
+ if(!s||s->stopped||s->joining||s->pending||s->running||s->unjoined||s->attempts>=3U)return 0;
  s->pending=1;s->unjoined=1;s->attempts++;return 1;
 }
 static inline int wr_iot_mbss_poll_queue_result(
@@ -25,7 +25,7 @@ static inline int wr_iot_mbss_poll_queue_result(
  * fence spans all rearms; even a refused rearm cannot remove that fence. */
 static inline int wr_iot_mbss_poll_rearm(struct wr_iot_mbss_poll_lifetime *s)
 {
- if(!s||s->stopped||!s->running||s->pending||!s->unjoined||s->attempts>=3U)return 0;
+ if(!s||s->stopped||s->joining||!s->running||s->pending||!s->unjoined||s->attempts>=3U)return 0;
  s->pending=1;s->attempts++;return 1;
 }
 static inline int wr_iot_mbss_poll_begin(struct wr_iot_mbss_poll_lifetime *s)
@@ -37,6 +37,16 @@ static inline void wr_iot_mbss_poll_returned(struct wr_iot_mbss_poll_lifetime *s
 {if(s)s->running=0;}
 static inline void wr_iot_mbss_poll_stop(struct wr_iot_mbss_poll_lifetime *s)
 {if(s)s->stopped=1;}
+/* External join lease excludes new schedule/rearm across OS cancellation. */
+static inline int wr_iot_mbss_poll_join_enter(struct wr_iot_mbss_poll_lifetime *s)
+{if(!s||s->joining)return 0;s->joining=1;return 1;}
+static inline int wr_iot_mbss_poll_join_leave(
+ struct wr_iot_mbss_poll_lifetime *s,int owners_idle)
+{
+ if(!s||!s->joining||s->pending||s->running||s->unjoined)return 0;
+ if(owners_idle&&!s->stopped)s->attempts=0;
+ s->joining=0;return 1;
+}
 /* OS synchronous join must have completed, including any pending callback. */
 static inline int wr_iot_mbss_poll_joined(
  struct wr_iot_mbss_poll_lifetime *s,int os_joined)
@@ -46,5 +56,5 @@ static inline int wr_iot_mbss_poll_joined(
 }
 static inline int wr_iot_mbss_poll_release_ready(
  const struct wr_iot_mbss_poll_lifetime *s)
-{return s&&s->stopped&&!s->pending&&!s->running&&!s->unjoined;}
+{return s&&s->stopped&&!s->joining&&!s->pending&&!s->running&&!s->unjoined;}
 #endif
