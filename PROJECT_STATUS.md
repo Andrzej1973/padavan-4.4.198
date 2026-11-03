@@ -1,3 +1,15 @@
+## 2026-11-03 Sol: complete isolated WSC feature build prepared locally
+
+Confirmed pinned mt76x3_ap wrapper explicitly selects WSC objects/macros
+using CONFIG_MT7603E_WSC_INCLUDED/V2_SUPPORT make variables. New CI helper
+copies the isolated kernel into its own temporary feature tree and links
+the complete module with both overrides. Requires effective WSC/AP/V2 and
+KTHREAD macros, defined WscInit/WscStop/MBSS handoff, MIPS ELF and hash report.
+Baseline tree/config/module evidence stay separate; feature tree is removed
+at helper exit. Shell/embedded Python syntax checked; full target invocation
+has NOT run yet. Heavy compilation remains GitHub-only. Publication must
+preserve preceding def9ef3 package and exact-SHA optional dispatch sequence.
+
 ## 2026-11-03 Sol: verify effective WSC feature flags before target claim
 
 Local MLME WSC/KTHREAD checker now preprocesses the exact source with its

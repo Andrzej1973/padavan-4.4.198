@@ -43,7 +43,7 @@ try:
  macro_artifact.write_text(run.stdout,encoding='utf-8')
  report.update(macro_artifact=str(macro_artifact),macro_sha256=hashlib.sha256(macro_artifact.read_bytes()).hexdigest())
  if run.returncode:raise RuntimeError('Preprocess failed: '+run.stderr[-2000:])
- macros={n:bool(re.search(r'^#define '+n+r'(?:[ \t]|$)',run.stdout,re.M)) for n in ('KTHREAD_SUPPORT','OS_ABL_FUNC_SUPPORT','CONFIG_PM','RTMP_TIMER_TASK_SUPPORT','WSC_INCLUDED','WORKQUEUE_BH','CONFIG_ANDES_SUPPORT','MT_MAC','RTMP_PCI_SUPPORT','RESOURCE_PRE_ALLOC')}
+ macros={n:bool(re.search(r'^#define '+n+r'(?:[ \t]|$)',run.stdout,re.M)) for n in ('KTHREAD_SUPPORT','OS_ABL_FUNC_SUPPORT','CONFIG_PM','RTMP_TIMER_TASK_SUPPORT','WSC_INCLUDED','WSC_AP_SUPPORT','WSC_V2_SUPPORT','WORKQUEUE_BH','CONFIG_ANDES_SUPPORT','MT_MAC','RTMP_PCI_SUPPORT','RESOURCE_PRE_ALLOC')}
  report.update(status='complete',macros=macros,command_sha256=hashlib.sha256(data).hexdigest(),source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),source_command=str(commands[0]),compiler=str(tool.resolve()))
 except (OSError,RuntimeError,ValueError,subprocess.TimeoutExpired) as e:report['error']=str(e)
 a.output.parent.mkdir(parents=True,exist_ok=True)

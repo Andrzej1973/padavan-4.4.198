@@ -397,3 +397,6 @@ report = {
 (results / 'target-compile-result.json').write_text(
     json.dumps(report, indent=2) + '\n', encoding='utf-8')
 PY
+if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
+  bash tools/iot/ci-compile-wsc-feature.sh "$kernel" "$compiler" "$results/wsc-feature"
+fi

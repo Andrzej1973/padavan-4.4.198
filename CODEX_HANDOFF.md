@@ -1,3 +1,14 @@
+## 2026-11-03 Sol: complete isolated WSC feature build prepared locally
+
+New ci-compile-wsc-feature.sh is wired after peer82 baseline report. It uses
+an exclusive RUNNER_TEMP feature kernel copy and module-only Kbuild with
+reviewed wrapper CONFIG_MT7603E_WSC_INCLUDED/V2_SUPPORT overrides. Requires
+actual WSC/AP/V2/KTHREAD macros and defined WscInit/WscStop/handoff functions;
+emits independent module hash/ELF/report, removes its temporary tree, never
+installs into firmware. Shell/embedded Python syntax pass; target execution
+still due. check-task-config now also records WSC_AP/V2 macros. Do not claim
+full WSC compile until that run succeeds. Keep owner archives unstaged.
+
 ## 2026-11-03 Sol: verify effective WSC feature flags before target claim
 
 MLME optional TU checker now verifies actual preprocessing macros before
