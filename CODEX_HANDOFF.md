@@ -20,6 +20,18 @@ YAML parsing and exact group/cancellation checks pass. No builds dispatched
 or cancelled for this policy edit; no scratch generated. Publish the new
 workflow before expecting new runs to use these lane names.
 
+## 2026-11-03 Sol: installed poll candidate ready for target verification
+
+468cba5 installs poll helper/prototype beside submission in the isolated
+candidate and includes it in rtmp_init.c. Fixture reads the installed poll
+asset and verifies byte identity. Fresh recovery/full-overlay/peer/MBSS
+preparation and installed-helper ASan/UBSan pass. Temporary full chain removed.
+Poll is still not called by ordinary lifecycle; caller lifetime joining,
+stop/reaper concurrency and reconciliation remain required before callbacks
+can be enabled. Publish this coherent batch with the expression-size guard,
+then run optional peer82 alongside standard CI in their separate lanes.
+Do not treat target compilation as runtime or callback acceptance.
+
 ## 2026-11-03 Sol: external MBSS poll helper host verified
 
 Added unbound mbss-recovery-poll.inc. Adapter-pinned external caller joins
