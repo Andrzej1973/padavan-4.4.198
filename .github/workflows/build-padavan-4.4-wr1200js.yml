@@ -116,13 +116,16 @@ jobs:
           ccache --max-size "$CCACHE_MAXSIZE"
           ccache --zero-stats
 
+      - name: Check source retry timeout and lock regressions
+        run: python3 tools/check-source-retry.py
+
       - name: Fetch pinned Padavan 4.4.198 source
         env:
           PADAVAN_COMMIT: c25283e915a2a00a763774dd255b14aff997285e
         run: |
           git init padavan-4.4
           git -C padavan-4.4 remote add origin https://github.com/vipshmily/padavan-4.4.git
-          python3 tools/retry-source-command.py git -C padavan-4.4 fetch --depth=1 origin "$PADAVAN_COMMIT"
+          python3 tools/retry-source-command.py --timeout 900 git -C padavan-4.4 fetch --depth=1 origin "$PADAVAN_COMMIT"
           python3 tools/retry-source-command.py git -C padavan-4.4 checkout --detach FETCH_HEAD
           test "$(git -C padavan-4.4 rev-parse HEAD)" = "$PADAVAN_COMMIT"
 
