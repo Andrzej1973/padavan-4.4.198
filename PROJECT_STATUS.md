@@ -1,3 +1,13 @@
+## 2026-11-03 Sol: all five MBSS uncertainty origins fault-tested
+
+Actual close executor ASan/UBSan fixture now injects CR-disable failure,
+vendor close failure and invalid BSS index in addition to DMA/TxS inventory
+failures. All five preserve expected reason and last verified stage (0/1/2),
+module ref and vendor count; no physical close is fabricated. Fault mock
+state is reset between cases. Fixture still uses historical queue open
+wrapper and synthetic IO; current wrapper integration and target proof
+remain separate. Removed test scratch (3,605,318 bytes).
+
 ## 2026-11-03 Sol: MBSS uncertain-close provenance retained
 
 Registration now retains a named uncertainty reason (CR, vendor close, BSS
