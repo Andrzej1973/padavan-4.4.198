@@ -51,6 +51,46 @@ downloaded symbol table in artifact 13257692154 (c363e1e0); none missing.
 Shell syntax and whitespace checks passed. This proves compiled presence,
 not callback binding or hardware correctness. Archive was consumed in memory.
 
+## Physical RX dispatch is an independent consumer
+
+Pinned common/cmm_data.c:619 (`RMAC_RX_PKT_TYPE_RX_EVENT`) directly invokes
+chipOps.rx_event_handler. mcu/mcu.c assigns AndesMTRxEventHandler for this MT
+path. In mcu/andes_mt.c:2996 that handler tests MCU_INIT, allocates a message,
+copies the packet, calls AndesMTRxProcessEvent synchronously and frees it.
+It does not enqueue this event to cmd_msg_task. Clearing MCU_INIT prevents
+later entries but cannot join an entry already past the test.
+
+AndesCtrlPciExit (mcu/andes_core.c:626) kills cmd_msg_task and destroys host
+queues/locks. That tasklet join alone cannot establish that the direct
+physical RX event handler has returned. The pinned close path releases IRQ,
+then invokes MCU_CTRL_EXIT, then resets/frees rings (rtmp_init_inf.c:939-966);
+this is source order, not proof of all RX tasklet/work joins.
+The staged init-failure RtmpNetTaskExit-before-MCU cleanup is therefore
+relevant and must remain. Next verify its exact MT RX consumer inventory and
+all ordinary-close/reopen paths, separately from firmware event freshness.
+No hardware action or new scratch was needed for this source audit.
+
+### RX consumer inventory resolved at source level
+
+Pinned os/linux/rt_rbus_pci_drv.c initializes rx_done_task and rx1_done_task
+at lines 61/64. Its RtmpNetTaskExit (106) kills rx_done_task unconditionally
+and rx1_done_task under CONFIG_ANDES_SUPPORT, matching initialization guards.
+The RX1 callback selects MT_INT_RX_CMD (423 onward). The same exit covers
+beacon DMA, MT interrupt, BMC, management and data completion tasklets.
+
+prepare-nettask-schedule.py wraps network submission sites, adds block/drain
+before any kill, and sets `wr_iot_nettask_joined` only after the kill inventory.
+The release-fence transform
+excludes initialization during exit and permanently blocks reopen at adapter
+release. This supplies the source-level consumer-join path for direct RX
+events; it is not merely the separate MCU command-tasklet join.
+
+Remaining distinctions: kernel tasklet/work semantics and feature builds
+need their own verification; IRQ-side adapter lifetime must be retained;
+successful host joins do not establish firmware event freshness after resume.
+The ACK epoch question therefore remains open, while the missing source
+inventory for the physical RX consumers is now identified.
+
 ## MBSS close and beacon retirement
 
 `prepare-mbss-cr-readback-check.py` checks control-bit readback and explicitly

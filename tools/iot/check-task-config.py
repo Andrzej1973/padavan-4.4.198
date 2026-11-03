@@ -7,11 +7,12 @@ p.add_argument('--kernel',type=Path,required=True)
 p.add_argument('--driver',type=Path,required=True)
 p.add_argument('--compiler',type=Path,required=True)
 p.add_argument('--output',type=Path,required=True)
+p.add_argument('--unit',choices=('rt_linux','rt_rbus_pci_drv'),default='rt_linux')
 a=p.parse_args(); root=a.kernel.resolve(); driver=a.driver.resolve()
-report={'status':'unavailable','scope':'actual rt_linux.c preprocessing only','target_driver_compiled':False,'runtime_verified':False}
+report={'status':'unavailable','scope':'actual '+a.unit+'.c preprocessing only','target_driver_compiled':False,'runtime_verified':False}
 try:
- commands=list(driver.rglob('.rt_linux.o.cmd'))
- if len(commands)!=1:raise RuntimeError('Expected exactly one rt_linux Kbuild command')
+ commands=list(driver.rglob('.'+a.unit+'.o.cmd'))
+ if len(commands)!=1:raise RuntimeError('Expected exactly one '+a.unit+' Kbuild command')
  data=commands[0].read_bytes(); lines=re.findall(r'^cmd_.*? := (.+)$',data.decode(),re.M)
  if len(lines)!=1:raise RuntimeError('Expected one compiler command')
  argv=shlex.split(lines[0])
@@ -31,7 +32,7 @@ try:
  sources=[t for t in filtered if t.endswith('.c')]
  if len(sources)!=1:raise RuntimeError('Expected one source')
  source=Path(sources[0]);source=source if source.is_absolute() else root/source
- if source.resolve()!=(driver/'os/linux/rt_linux.c').resolve():raise RuntimeError('Unexpected translation unit')
+ if source.resolve()!=(driver/('os/linux/'+a.unit+'.c')).resolve():raise RuntimeError('Unexpected translation unit')
  command=[str(tool.resolve()),*filtered,'-E','-dM']
  a.output.parent.mkdir(parents=True,exist_ok=True)
  command_artifact=a.output.with_suffix('.kbuild.cmd')
@@ -42,10 +43,10 @@ try:
  macro_artifact.write_text(run.stdout,encoding='utf-8')
  report.update(macro_artifact=str(macro_artifact),macro_sha256=hashlib.sha256(macro_artifact.read_bytes()).hexdigest())
  if run.returncode:raise RuntimeError('Preprocess failed: '+run.stderr[-2000:])
- macros={n:bool(re.search(r'^#define '+n+r'(?:[ \t]|$)',run.stdout,re.M)) for n in ('KTHREAD_SUPPORT','OS_ABL_FUNC_SUPPORT','CONFIG_PM','RTMP_TIMER_TASK_SUPPORT','WSC_INCLUDED')}
+ macros={n:bool(re.search(r'^#define '+n+r'(?:[ \t]|$)',run.stdout,re.M)) for n in ('KTHREAD_SUPPORT','OS_ABL_FUNC_SUPPORT','CONFIG_PM','RTMP_TIMER_TASK_SUPPORT','WSC_INCLUDED','WORKQUEUE_BH','CONFIG_ANDES_SUPPORT','MT_MAC','RTMP_PCI_SUPPORT','RESOURCE_PRE_ALLOC')}
  report.update(status='complete',macros=macros,command_sha256=hashlib.sha256(data).hexdigest(),source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),source_command=str(commands[0]),compiler=str(tool.resolve()))
 except (OSError,RuntimeError,ValueError,subprocess.TimeoutExpired) as e:report['error']=str(e)
 a.output.parent.mkdir(parents=True,exist_ok=True)
 a.output.write_text(json.dumps(report,indent=2)+'\n')
-print(report['status']+' rt_linux task configuration; not runtime proof')
+print(report['status']+' '+a.unit+' task configuration; not runtime proof')
 raise SystemExit(0 if report['status']=='complete' else 1)

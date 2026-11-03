@@ -285,6 +285,9 @@ cmp tools/iot/mt7603-main-observe.h "$driver/include/mt7603-main-observe.h"
 python3 tools/iot/check-task-config.py \
   --kernel "$kernel" --driver "$driver" --compiler "$compiler" \
   --output "$results/merged-task-config.json"
+python3 tools/iot/check-task-config.py \
+  --kernel "$kernel" --driver "$driver" --compiler "$compiler" \
+  --unit rt_rbus_pci_drv --output "$results/merged-nettask-config.json"
 if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   python3 tools/iot/check-mlme-wsc-target-tu.py \
     --kernel "$kernel" --driver "$driver" --compiler "$compiler" \
@@ -355,6 +358,15 @@ results = pathlib.Path(sys.argv[1])
 source = json.loads((results / 'merged-source-manifest.json').read_text(encoding='utf-8'))
 module = results / 'mt76x3_ap.ko'
 task = json.loads((results / 'merged-task-config.json').read_text(encoding='utf-8'))
+nettask = json.loads((results / 'merged-nettask-config.json').read_text(encoding='utf-8'))
+if nettask['status'] != 'complete':
+    raise SystemExit('Merged RX nettask configuration evidence missing')
+if sys.argv[2] == 'peer82':
+    required_rx = ('MT_MAC', 'CONFIG_ANDES_SUPPORT', 'RTMP_PCI_SUPPORT')
+    missing_rx = [name for name in required_rx if not nettask['macros'].get(name)]
+    if missing_rx:
+        raise SystemExit('Peer82 RX evidence lacks required MT7603 PCI path: '
+                         + ', '.join(missing_rx))
 if task['status'] != 'complete':
     raise SystemExit('Merged rt_linux task configuration evidence missing')
 elf = (results / 'mt76x3-elf.txt').read_text(encoding='utf-8')
@@ -374,6 +386,9 @@ report = {
     'module_bytes': module.stat().st_size,
     'module_sha256': hashlib.sha256(module.read_bytes()).hexdigest(),
     'compiled_task_macros': task['macros'],
+    'compiled_nettask_macros': nettask['macros'],
+    'nettask_command_sha256': nettask['command_sha256'],
+    'nettask_source_sha256': nettask['source_sha256'],
     'task_command_sha256': task['command_sha256'],
     'task_source_sha256': task['source_sha256'],
 }

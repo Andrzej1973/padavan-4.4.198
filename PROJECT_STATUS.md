@@ -1,3 +1,13 @@
+## 2026-11-03 Sol: exact RX translation-unit configuration evidence
+
+Local check-task-config extension selects rt_linux or rt_rbus_pci_drv Kbuild
+command independently. Reports WORKQUEUE_BH, ANDES, MT_MAC, PCI and ring
+allocation macros alongside existing task flags. CI requires both reports
+and records RX command/source hashes in the target result. Host fixture
+confirmed different TU flags stay separate and wrong source is rejected;
+shell syntax/whitespace passed. This is checker verification, not new MIPS
+evidence. Temporary fixture removed; target execution remains due.
+
 ## 2026-11-03 Sol: ACK/RX boundary audit and MBSS target symbol gate
 
 Host-only sequence reset also reproduces stale ACK ambiguity; source audit

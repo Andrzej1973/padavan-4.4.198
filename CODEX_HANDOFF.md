@@ -1,3 +1,13 @@
+## 2026-11-03 Sol: exact RX translation-unit configuration evidence
+
+Local checker/CI change reads the actual rt_rbus_pci_drv.o command separately
+from rt_linux.o, with WORKQUEUE_BH/ANDES/MT_MAC/PCI/RESOURCE_PRE_ALLOC flags.
+Target report now requires both complete reports and RX source/command hashes.
+Host fixture verified distinct flags and wrong-source refusal; no MIPS claim
+until CI executes this change. Shell syntax/whitespace passed, scratch removed.
+RX source audit additions remain local in hardware-gates evidence. ef51b36
+is a local unpublished predecessor. Keep docs/reference owner files unstaged.
+
 ## 2026-11-03 Sol: ACK/RX boundary audit and MBSS target symbol gate
 
 Extended ACK gap reproduction to host-only reset; ASan/UBSan reproduces the
