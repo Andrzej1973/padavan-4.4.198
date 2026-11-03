@@ -32,6 +32,10 @@ one('common/rtmp_init.c',' wr_iot_mbss_reaper_gate_init(&pAd->wr_iot_mbss_reaper
  ' wr_iot_mbss_reaper_gate_init(&pAd->wr_iot_mbss_reaper_gate);\n wr_iot_mbss_poll_init(&pAd->wr_iot_mbss_poll_state);\n INIT_DELAYED_WORK(&pAd->wr_iot_mbss_poll_work,wr_iot_mbss_poll_work_fn);')
 one('common/rtmp_init.c','#include "wr-iot-mbss-recovery-poll.inc"',
  '#include "wr-iot-mbss-recovery-poll.inc"\n#include "wr-iot-mbss-poll-caller.inc"')
+one('common/rtmp_init.c','#include "wr-iot-mbss-poll-caller.inc"',
+ '#include "wr-iot-mbss-poll-caller.inc"\n#include "wr-iot-mbss-recovery-handoff.inc"')
+one('include/rtmp.h','INT wr_iot_mbss_poll_schedule(RTMP_ADAPTER *ad);',
+ 'INT wr_iot_mbss_poll_schedule(RTMP_ADAPTER *ad);\nINT wr_iot_mbss_recovery_handoff(RTMP_ADAPTER *ad,PNET_DEV dev,unsigned long generation,const struct wr_iot_radio_ticket *ticket);')
 one('include/wr-iot-mbss-recovery-work.inc',
  ' if(!ad||!wr_iot_mbss_reaper_idle',
  ' if(!ad||ad->wr_iot_mbss_poll_state.pending||ad->wr_iot_mbss_poll_state.running||ad->wr_iot_mbss_poll_state.unjoined||work_busy(&ad->wr_iot_mbss_poll_work.work)||!wr_iot_mbss_reaper_idle')
@@ -46,7 +50,8 @@ one('include/wr-iot-mbss-recovery-work.inc',
 restored=dict(changes)
 for rel,old,new in reversed(undo):restored[rel]=restored[rel].replace(new,old,1)
 assert all(s==(src/rel).read_text() for rel,s in restored.items())
-assets={'include/mbss-poll-lifetime.h':'mbss-poll-lifetime.h',
+assets={'include/wr-iot-mbss-recovery-handoff.inc':'mbss-recovery-handoff.inc',
+        'include/mbss-poll-lifetime.h':'mbss-poll-lifetime.h',
         'include/wr-iot-mbss-poll-caller.inc':'mbss-poll-caller.inc'}
 if any((src/rel).exists() for rel in assets):p.error('unexpected caller assets')
 shutil.copytree(src,out)

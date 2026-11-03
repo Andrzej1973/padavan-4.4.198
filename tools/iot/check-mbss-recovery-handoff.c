@@ -13,7 +13,11 @@ static int wr_iot_mbss_recovery_submit_close(RTMP_ADAPTER *ad,PNET_DEV dev,unsig
 {assert(ad==expected_ad&&dev==expected_dev&&gen==9&&ticket==expected_ticket&&ad->pin);closes++;return owner_result;}
 static int wr_iot_mbss_poll_schedule(RTMP_ADAPTER *ad)
 {assert(ad==expected_ad&&ad->pin);schedules++;return caller_result;}
+#ifdef WR_IOT_INSTALLED_HANDOFF
+#include "wr-iot-mbss-recovery-handoff.inc"
+#else
 #include "mbss-recovery-handoff.inc"
+#endif
 int main(void){
  RTMP_ADAPTER ad={1};int dev;struct wr_iot_radio_ticket ticket={17};
  expected_ad=&ad;expected_dev=&dev;expected_ticket=&ticket;

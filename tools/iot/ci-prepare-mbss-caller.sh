@@ -16,4 +16,8 @@ gcc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-pie -no-pie
   -DWR_IOT_INSTALLED_POLL -I"$merged/include" -Itools/iot \
   tools/iot/check-mbss-poll-caller.c -o "$results/check-installed-mbss-poll"
 "$results/check-installed-mbss-poll"
+gcc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-pie -no-pie \
+  -DWR_IOT_INSTALLED_HANDOFF -I"$merged/include" -Itools/iot \
+  tools/iot/check-mbss-recovery-handoff.c -o "$results/check-installed-mbss-handoff"
+"$results/check-installed-mbss-handoff"
 cp "$merged.manifest.json" "$results/mbss-submission-candidate.json"

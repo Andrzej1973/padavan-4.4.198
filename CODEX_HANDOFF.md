@@ -1,3 +1,14 @@
+## 2026-11-03 Sol: combined handoff installed in isolated candidate
+
+Caller preparer installs exact handoff asset, prototype and rtmp_init include.
+Fresh recovery/full-overlay/peer/all-MBSS pipeline passed; installed caller
+and installed handoff ASan/UBSan fixtures pass. Handoff fixture mocks admission
+and scheduler boundaries; it does not prove their combined kernel behavior.
+Added that installed boundary fixture to CI helper. Temporary source/test
+trees removed (1,440,504,067 file bytes). Ordinary ndo callbacks remain unbound;
+target compilation of handoff is next. Earlier failed host invocation was
+an output-binary/directory name collision, corrected on this fresh replay.
+
 ## 2026-11-03 Sol: combined MBSS ownership/caller handoff staged
 
 Added unbound recovery_handoff entry selecting acquired-open or original
