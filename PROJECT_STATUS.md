@@ -1,3 +1,13 @@
+## 2026-11-03 Sol: parallel CI lanes observed; expression limit regression
+
+GitHub accepted 03917f1 after splitting owner/gate fixtures into their own
+step: the prior expression-bearing candidate run exceeded the observed 21000
+character limit (41654736407 annotation, line 1575). Standard 41654956688
+and older optional 41653753480 were both in_progress when checked, confirming
+parallel execution. Added focused dependency-free run-block size check and
+an early firmware step to prevent recurrence. Local check passes. It is a
+size guard, not a complete GitHub workflow validator. No scratch generated.
+
 ## 2026-11-03 Sol: owner-approved parallel standard/optional CI lanes
 
 Owner requested the rule for every participant. AGENTS.md now permits

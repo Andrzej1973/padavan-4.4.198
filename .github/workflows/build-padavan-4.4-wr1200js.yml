@@ -61,6 +61,9 @@ jobs:
       - name: Check ZeroTier status semantics before compilation
         run: python3 tools/check-zerotier-state.py --cc gcc
 
+      - name: Check workflow expression block size
+        run: python3 tools/check-workflow-expression-size.py
+
       - name: Install build dependencies
         run: |
           sudo apt-get update
