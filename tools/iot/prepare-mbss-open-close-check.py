@@ -70,6 +70,8 @@ int main(void){
           ad.VirtualIfCnt==2&&refs==1&&mbss_closes==1&&!physical_closes&&
           txs_queries==(mode==1?1:0)&&dma_queries==1);
    assert(wr_iot_radio_finish_unverified(&ad.wr_iot_transition,&t)&&!held);
+   assert(r->close_uncertain_reason==(mode==1?5U:4U));
+   assert(r->close_verified_stage==2U);
   }
  }
  return 0;

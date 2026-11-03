@@ -99,7 +99,7 @@ INT wr_iot_mbss_close_checked(PNET_DEV dev,unsigned long generation,
  PRTMP_ADAPTER ad;
  struct wr_iot_interface_ref *r=NULL;
  unsigned long token;
- unsigned int stage;
+ unsigned int stage,uncertain_reason=0;
 #ifdef MT_MAC
  INT bss_id;
 #endif
@@ -153,6 +153,7 @@ INT wr_iot_mbss_close_checked(PNET_DEV dev,unsigned long generation,
  RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);
  if(stage==0U){
 #ifdef MT_MAC
+  uncertain_reason=WR_CLOSE_UNCERTAIN_CR;
   ret=RTMP_AP_IoctlHandle(ad,NULL,CMD_RTPRIV_IOCTL_MBSS_CR_DISABLE,0,dev,0);
   if(ret!=NDIS_STATUS_SUCCESS)goto uncertain;
 #endif
@@ -166,6 +167,7 @@ INT wr_iot_mbss_close_checked(PNET_DEV dev,unsigned long generation,
  }
  if(stage<=1U){
   /* Direct checked result; legacy ioctl dispatch discarded MBSS_Close status. */
+  uncertain_reason=WR_CLOSE_UNCERTAIN_VENDOR;
   if(MBSS_Close(dev)!=0)goto uncertain;
   RTMP_IRQ_LOCK(&ad->wr_iot_transition_lock,flags);
   if(!wr_iot_mbss_close_record_current(ad,r,dev,generation,token,ticket)){
@@ -177,16 +179,19 @@ INT wr_iot_mbss_close_checked(PNET_DEV dev,unsigned long generation,
 #ifdef MT_MAC
  /* A released TxS PID may still own an in-flight beacon callback. This
   * snapshot can delay close, but cannot prove that no late report exists. */
+ uncertain_reason=WR_CLOSE_UNCERTAIN_BSS_ID;
  bss_id=RT28xx_MBSS_IdxGet(ad,dev);
  if(bss_id<=0||bss_id>=ad->ApCfg.BssidNum||bss_id>=MAX_MBSSID_NUM(ad))
   goto uncertain;
 #ifdef RTMP_PCI_SUPPORT
  /* Snapshot the target's pending beacon DMA cells before virtual down.
   * This can delay close; it cannot prove that no late TxS will arrive. */
+ uncertain_reason=WR_CLOSE_UNCERTAIN_DMA;
  ret=WrBeaconDmaOutstanding(ad,(UINT32)bss_id);
  if(ret<0)goto uncertain;
  if(ret>0)return wr_iot_mbss_close_fail(ad,r,dev,generation,token,ticket);
 #endif
+ uncertain_reason=WR_CLOSE_UNCERTAIN_TXS;
  ret=WrBeaconTxSOutstanding(ad,(UINT32)bss_id);
  if(ret<0)goto uncertain;
  if(ret>0)return wr_iot_mbss_close_fail(ad,r,dev,generation,token,ticket); /* Retain stage 2/ticket. */
@@ -239,6 +244,8 @@ uncertain:
   wr_iot_mbss_close_release_locked(ad,r,dev,generation,token,ticket);
   RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);return -1;
  }
+ r->close_uncertain_reason=uncertain_reason;
+ r->close_verified_stage=r->close_stage;
  r->close_stage=5U;
  wr_iot_mbss_close_release_locked(ad,r,dev,generation,token,ticket);
  RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);

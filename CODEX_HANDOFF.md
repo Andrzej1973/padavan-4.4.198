@@ -1,3 +1,17 @@
+## 2026-11-03 Sol: MBSS uncertain-close provenance retained
+
+Registration now retains a named uncertainty reason (CR, vendor close, BSS
+identity, DMA inventory or TxS inventory) and last verified close stage before
+entering stage 5. Writes follow exact registration/ticket revalidation under
+the transition lock; fresh init/reservation clears provenance. Updated exact
+canonical asset pins; LF/CRLF asset tests pass. Actual close/down executor
+ASan/UBSan fixture confirms DMA/TxS reasons and stage 2 retention; reference
+fixture confirms initialization/reset. The open wrapper in that fixture is
+the historical queue-stage wrapper, not the current claimed-UP integration.
+Current full target compilation and other uncertainty fault cases remain.
+No automatic reconciliation or release is enabled. Removed test scratch
+(3,365,137 bytes). Original shared input trees retained for unfinished work.
+
 ## 2026-11-03 Sol: submission prototypes reverse-verified; baseline CI green
 
 Consolidated all submission/retry/submit_close declarations into the same

@@ -4,9 +4,12 @@
 int main(void){
  struct wr_iot_interface_ref r;int dev=0,other=0;
  wr_iot_ref_init(&r,&dev,7);
+ assert(!r.close_uncertain_reason&&!r.close_verified_stage);
+ r.close_uncertain_reason=5;r.close_verified_stage=2;
  assert(!wr_iot_ref_reserve(&r,&dev,0,1));
  assert(!wr_iot_ref_reserve(&r,&other,7,1));
  assert(wr_iot_ref_reserve(&r,&dev,7,1));
+ assert(!r.close_uncertain_reason&&!r.close_verified_stage);
  assert(!wr_iot_ref_begin_close(&r,&dev,7,1));
  assert(wr_iot_ref_open_finish(&r,&dev,7,1,0));
  assert(r.open_unmutated==1);

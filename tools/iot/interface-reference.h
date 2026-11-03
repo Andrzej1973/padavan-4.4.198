@@ -10,7 +10,13 @@ enum wr_iot_ref_phase {WR_REF_IDLE,WR_REF_RESERVED,WR_REF_OWNED,WR_REF_CLOSING,
 enum wr_iot_ref_family {WR_REF_FAMILY_UNKNOWN,WR_REF_FAMILY_MAIN,
  WR_REF_FAMILY_MBSS,WR_REF_FAMILY_APCLI,WR_REF_FAMILY_WDS,
  WR_REF_FAMILY_MONITOR};
+enum wr_iot_close_uncertain_reason {
+ WR_CLOSE_UNCERTAIN_NONE,WR_CLOSE_UNCERTAIN_CR,
+ WR_CLOSE_UNCERTAIN_VENDOR,WR_CLOSE_UNCERTAIN_BSS_ID,
+ WR_CLOSE_UNCERTAIN_DMA,WR_CLOSE_UNCERTAIN_TXS
+};
 struct wr_iot_interface_ref {
+ unsigned int close_uncertain_reason,close_verified_stage;
  const void *device;
  unsigned long generation,last_token,close_serial;
  unsigned long close_epoch;
@@ -25,6 +31,7 @@ struct wr_iot_interface_ref {
 };
 static inline void wr_iot_ref_init(struct wr_iot_interface_ref *r,
  const void *device,unsigned long generation){
+ r->close_uncertain_reason=0;r->close_verified_stage=0;
  r->device=device;r->generation=generation;r->last_token=0;r->close_serial=0;r->close_epoch=0;r->close_vendor_count=0;r->close_prior_phase=0;r->close_prior_ready=0;r->close_stage=0;r->close_running=0;r->open_unmutated=0;r->published=0;r->removing=0;r->removal_stage=0;r->phase=WR_REF_IDLE;r->family=WR_REF_FAMILY_UNKNOWN;
 }
 static inline int wr_iot_ref_matches(const struct wr_iot_interface_ref *r,
@@ -37,6 +44,7 @@ static inline int wr_iot_ref_reserve(struct wr_iot_interface_ref *r,
  if(!device||r->device!=device||!generation||r->generation!=generation||
     !token||token<=r->last_token||r->removing||r->phase!=WR_REF_IDLE)return 0;
  r->last_token=token;r->close_serial=0;r->close_epoch=0;
+ r->close_uncertain_reason=0;r->close_verified_stage=0;
  r->close_vendor_count=0;r->close_prior_phase=0;r->close_prior_ready=0;
  r->close_stage=0;r->close_running=0;r->open_unmutated=0;r->phase=WR_REF_RESERVED;return 1;
 }
