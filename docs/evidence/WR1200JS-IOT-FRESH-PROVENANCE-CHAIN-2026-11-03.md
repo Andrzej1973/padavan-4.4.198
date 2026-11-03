@@ -18,3 +18,17 @@ current-wrapper host execution, target compilation or device runtime.
 Temporary phase directory was inventoried (74,956,746 bytes) and removed
 after the process completed and the receipt/header were checked. No generated
 candidate or binary retained. Original pinned input remains for unfinished work.
+
+## Full fresh peer replay
+
+At revision a13c2c1, repeated current recovery generation from the same pinned
+input, then prepare-full-driver-overlay.py using later/corrected and
+later/v24c-composition.json, followed by prepare-peer-retirement-chain.py.
+Session 80907 exited 0 and reported final candidate
+peer/radio-on-retirement-admission. This confirms the entire fresh source
+chain, including the corrected WDS input pin, without substituting an old
+generated recovery overlay. It is still source-generation evidence only.
+
+The launching script inventoried 1,133,658,867 bytes in its phase directory
+and deleted that directory after successful completion. No new source build
+trees or binaries were retained.
