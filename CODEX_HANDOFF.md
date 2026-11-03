@@ -1,3 +1,14 @@
+## 2026-11-03 Sol: sequential package publication required
+
+Owner explicitly requested that all agents publish sequentially and avoid
+pushing all accumulated work together. AGENTS.md now requires outgoing commit
+range inspection, one verified coherent package per push, exact remote/CI
+confirmation and checking required predecessor results before next publication.
+Later work stays local; confirmed failure fixes may proceed independently of
+unrelated runs. Separate standard/optional queues remain enabled but do not
+bypass package verification. This rule update is committed locally; no push
+was made merely to publish it together with other pending local work.
+
 ## 2026-11-03 Sol: parallel CI lanes observed; expression limit regression
 
 GitHub accepted 03917f1 after splitting owner/gate fixtures into their own
