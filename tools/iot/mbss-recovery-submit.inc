@@ -36,8 +36,9 @@ out:
 /* Result: -1 rejects ownership; 0 accepts and schedules; 1 accepts but retains
  * after schedule refusal. Both nonnegative results transfer the close duty
  * to the owner, so the caller must not release the original open/module pin. */
-INT wr_iot_mbss_recovery_submit(RTMP_ADAPTER *ad,PNET_DEV dev,
- unsigned long generation)
+static INT wr_iot_mbss_recovery_submit_owner(RTMP_ADAPTER *ad,PNET_DEV dev,
+ unsigned long generation,enum wr_iot_mbss_recovery_source source,
+ const struct wr_iot_radio_ticket *ticket)
 {
  struct wr_iot_interface_ref *record;
  struct wr_iot_mbss_recovery_owner *owner;
@@ -57,7 +58,7 @@ INT wr_iot_mbss_recovery_submit(RTMP_ADAPTER *ad,PNET_DEV dev,
  owner=&ad->wr_iot_mbss_recovery[slot];
  if(work_busy(&ad->wr_iot_mbss_work[slot].work))goto leave;
  queued=wr_iot_mbss_recovery_queue(owner,record,&ad->wr_iot_transition,
-   WR_MBSS_RECOVERY_OPEN_ACQUIRED,NULL,1,1);
+   source,ticket,1,1);
  if(queued){
   scheduled=schedule_work(&ad->wr_iot_mbss_work[slot].work);
   /* schedule_work(FALSE) after ownership admission cannot justify dropping
@@ -70,4 +71,17 @@ out:
  RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);
  if(!queued)dev_put(dev);
  return queued?(scheduled?0:1):-1;
+}
+INT wr_iot_mbss_recovery_submit(RTMP_ADAPTER *ad,PNET_DEV dev,
+ unsigned long generation)
+{
+ return wr_iot_mbss_recovery_submit_owner(ad,dev,generation,
+  WR_MBSS_RECOVERY_OPEN_ACQUIRED,NULL);
+}
+INT wr_iot_mbss_recovery_submit_close(RTMP_ADAPTER *ad,PNET_DEV dev,
+ unsigned long generation,const struct wr_iot_radio_ticket *ticket)
+{
+ if(!ticket)return -1;
+ return wr_iot_mbss_recovery_submit_owner(ad,dev,generation,
+  WR_MBSS_RECOVERY_CLOSE_INCOMPLETE,ticket);
 }

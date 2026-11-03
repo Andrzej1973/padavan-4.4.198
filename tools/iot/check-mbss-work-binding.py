@@ -183,6 +183,18 @@ static int schedule_work(struct work_struct *w){assert(held);w->busy=schedule_ac
  assert(wr_iot_mbss_recovery_submit(&ad,&dev,1)==0&&dev.refs==1);
  assert(!ad.wr_iot_mbss_reaper_gate.submissions&&ad.wr_iot_mbss_recovery[1].phase==WR_MBSS_OWNER_QUEUED);
  execute(&ad);assert(wr_iot_mbss_recovery_join_completed(&ad)==0&&dev.refs==0);
+ ready(&ad,&main,&dev);dev.refs=0;
+ assert(wr_iot_mbss_recovery_submit_close(&ad,&dev,1,NULL)==-1&&!dev.refs);
+ assert(wr_iot_mbss_recovery_submit(&ad,&dev,1)==0);
+ backend_fail=1;execute(&ad);
+ struct wr_iot_radio_ticket saved=ad.wr_iot_mbss_recovery[1].close_ticket;
+ /* Transfer the fixture's failed synchronous close state to a fresh owner. */
+ wr_iot_mbss_recovery_init(&ad.wr_iot_mbss_recovery[1]);dev.refs=0;
+ struct wr_iot_radio_ticket wrong=saved;wrong.serial++;
+ assert(wr_iot_mbss_recovery_submit_close(&ad,&dev,1,&wrong)==-1&&!dev.refs);
+ assert(wr_iot_mbss_recovery_submit_close(&ad,&dev,1,&saved)==0&&dev.refs==1);
+ backend_fail=0;execute(&ad);
+ assert(wr_iot_mbss_recovery_join_completed(&ad)==0&&dev.refs==0&&module_refs==0);
  ready(&ad,&main,&dev);dev.refs=0;schedule_accept=0;
  assert(wr_iot_mbss_recovery_submit(&ad,&dev,1)==1&&dev.refs==1&&ad.wr_iot_mbss_recovery[1].phase==WR_MBSS_OWNER_RETAINED);
  schedule_accept=1;

@@ -14,6 +14,9 @@ for rel,old,new in [
  s=(src/rel).read_text()
  if s.count(old)!=1:p.error('changed submission anchor: '+rel)
  changes[rel]=s.replace(old,new,1);assert changes[rel].replace(new,old,1)==s
+changes['include/rtmp.h']=changes['include/rtmp.h'].replace(
+ 'INT wr_iot_mbss_recovery_submit(RTMP_ADAPTER *ad,PNET_DEV dev,unsigned long generation);',
+ 'INT wr_iot_mbss_recovery_submit(RTMP_ADAPTER *ad,PNET_DEV dev,unsigned long generation);\nINT wr_iot_mbss_recovery_submit_close(RTMP_ADAPTER *ad,PNET_DEV dev,unsigned long generation,const struct wr_iot_radio_ticket *ticket);',1)
 asset='include/wr-iot-mbss-recovery-submit.inc'
 if (src/asset).exists():p.error('unexpected existing helper')
 shutil.copytree(src,out)

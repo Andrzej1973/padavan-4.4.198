@@ -1,3 +1,13 @@
+## 2026-11-03 Sol: incomplete-close submission entry implemented
+
+Factored common gated submission and added submit_close taking the original
+ticket. Owner model validates closing stage, recorded/current ticket and
+serial before accepting ownership; NULL and wrong serial refuse without
+retaining an extra netdev hold. Fresh candidate chain and installed-helper
+ASan/UBSan suite pass resumed close completion and single external ref release.
+The close backend remains mocked; ordinary callback/reaper binding and new
+target compilation remain pending. Temporary candidate/fixture trees removed.
+
 ## 2026-11-03 Sol: submission result distinguishes ownership transfer
 
 Submission previously returned -1 both before admission and after accepted
