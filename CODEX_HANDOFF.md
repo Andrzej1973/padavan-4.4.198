@@ -1,3 +1,13 @@
+## 2026-11-03 Sol: require defined code for target symbols
+
+Finished local defined-symbol tightening: FUNC, non-UND section and positive
+size required. All 16 peer82 entries passed actual prior MIPS symbol table;
+UND/OBJECT rejected. Shell syntax/whitespace passed. Physical RX inventory,
+wire ACK limits and ABI a6f514d3 result recorded in hardware-gates evidence.
+ef51b36 standard 41698183471 and ABI 41698183326 succeeded; optional for
+a6f514d3 remains live. Continue sequential publication; keep owner archives
+out of source commits. No device operation or readiness claim.
+
 ## 2026-11-03 Sol: exact RX translation-unit configuration evidence
 
 Local checker/CI change reads the actual rt_rbus_pci_drv.o command separately

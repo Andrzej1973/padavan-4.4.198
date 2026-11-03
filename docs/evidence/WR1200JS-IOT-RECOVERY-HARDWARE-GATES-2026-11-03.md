@@ -91,6 +91,37 @@ successful host joins do not establish firmware event freshness after resume.
 The ACK epoch question therefore remains open, while the missing source
 inventory for the physical RX consumers is now identified.
 
+## Wire payload and current ABI result
+
+Pinned andes_mt.h:424 defines RadioOnOff request as ucWiFiRadioCtrl plus
+three reserved bytes. Its result at :528 is ucExTenCID, three reserved bytes
+and u4Status. CmdRadioOnOffCtrl (andes_mt.c:1751) sends the four-byte request
+and requests an eight-byte EventExtCmdResult. No ON/OFF or epoch echo is
+defined by these payloads; reserved bytes must not be repurposed without a
+verified firmware contract. The existing parser correctly scopes itself to
+syntax/status, leaving freshness to transport and physical-state evidence.
+
+ABI run 41695343147 completed successfully on a6f514d3. Read artifact
+13262195992 in memory: ABI results record MIPS layouts for both radios
+(mt76x2 message size 32/alignment 4; mt76x3 size 80/alignment 8).
+Its iot-successor-host report lists caller coverage, ledger, checked close
+and post-open host checks. This artifact is not full peer82 module or
+firmware/runtime acceptance and does not close ACK freshness.
+
+## Defined-function verification and sequential publication
+
+Tightened symbol gate to require FUNC, a defined section and nonzero size,
+instead of accepting any matching symbol name. All 16 peer82 requirements
+pass against artifact 13257692154; injected UND and OBJECT records fail,
+while a defined nonempty FUNC passes. Shell syntax/whitespace checks pass.
+No downloaded archive retained.
+
+Standard 41695343356 and ABI 41695343147 succeeded on a6f514d3.
+Optional 41698138284 was queued and its exact a6f514d3 SHA confirmed before
+publishing only ef51b36a1d735af974e1a44a3cfa545b35e7c2ba. The newer local
+RX configuration commit and uncommitted defined-symbol tightening were not
+included in that push. Owner reference archives remain separate and local.
+
 ## MBSS close and beacon retirement
 
 `prepare-mbss-cr-readback-check.py` checks control-bit readback and explicitly

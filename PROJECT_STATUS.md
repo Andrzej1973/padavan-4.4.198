@@ -1,3 +1,12 @@
+## 2026-11-03 Sol: require defined code for target symbols
+
+Target symbol checks now require nonempty defined FUNC records, rejecting
+UND references and OBJECT records. Tested against all 16 peer82 symbols in
+MIPS artifact 13257692154 and injected negative/positive records; shell and
+whitespace checks pass. Hardware-gates evidence also records direct physical
+RX consumers and wire payload limits. No runtime acceptance. ef51b36 standard
+41698183471 and ABI 41698183326 now succeeded; a6f514d3 optional still running.
+
 ## 2026-11-03 Sol: exact RX translation-unit configuration evidence
 
 Local check-task-config extension selects rt_linux or rt_rbus_pci_drv Kbuild

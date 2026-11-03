@@ -338,14 +338,16 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
     wr_iot_mbss_recovery_poll wr_iot_mbss_poll_schedule \
     wr_iot_mbss_poll_work_fn wr_iot_mbss_poll_join \
     wr_iot_mbss_poll_stop_join wr_iot_mbss_recovery_handoff; do
-    grep -Eq "[[:space:]]${symbol}$" "$results/mt76x3-symbols.txt"
+    awk -v name="$symbol" '$4 == "FUNC" && $7 != "UND" && $3 > 0 && $8 == name { found=1 } END { exit !found }' \
+      "$results/mt76x3-symbols.txt"
   done
 fi
 if [ "$IOT_CANDIDATE_VARIANT" = v40 ] ||
    [ "$IOT_CANDIDATE_VARIANT" = v41 ] ||
    [ "$IOT_CANDIDATE_VARIANT" = v42 ]; then
   for symbol in wr_iot_mbss_begin_close wr_iot_mbss_close_checked wr_iot_virtual_down_checked; do
-    grep -Eq "[[:space:]]${symbol}$" "$results/mt76x3-symbols.txt"
+    awk -v name="$symbol" '$4 == "FUNC" && $7 != "UND" && $3 > 0 && $8 == name { found=1 } END { exit !found }' \
+      "$results/mt76x3-symbols.txt"
   done
 fi
 cp "$module" "$results/"
