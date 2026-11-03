@@ -270,7 +270,9 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: firmware-${{ github.ref }}
+  # Normal PR/push verification and explicitly requested candidate builds
+  # may run together; each lane still serializes runs on the same ref.
+  group: firmware-${{ github.ref }}-${{ inputs.run_candidate_checks && 'optional' || 'standard' }}
   cancel-in-progress: false
 jobs:
   select:

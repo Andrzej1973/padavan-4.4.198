@@ -1,3 +1,15 @@
+## 2026-11-03 Sol: owner-approved parallel standard/optional CI lanes
+
+Owner requested the rule for every participant. AGENTS.md now permits
+standard PR/push verification in parallel with optional candidate verification
+on the same branch, while duplicate checks consider ref/SHA/lane and required
+optional inputs. Build-selected-router concurrency uses standard/optional
+suffixes; each lane remains serialized and cancel-in-progress remains false.
+Existing runs retain their original SHA and evaluated concurrency group.
+YAML parsing and exact group/cancellation checks pass. No builds dispatched
+or cancelled for this policy edit; no scratch generated. Publish the new
+workflow before expecting new runs to use these lane names.
+
 ## 2026-11-03 Sol: peer82 CI includes owner/storage and gate regressions
 
 Added explicit ASan/UBSan runs of check-mbss-close-recovery-owner.c and

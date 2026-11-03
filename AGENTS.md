@@ -96,15 +96,25 @@ batch work instead of publishing every small edit:
 - Commit locally as needed and push once per coherent change set.
 - Expect one push to create more than one workflow run. Group small related
   fixes into the same push when they belong to the same verification.
+- Standard PR/push firmware verification and explicitly requested optional
+  candidate verification may run concurrently on the same branch. Treat them
+  as separate lanes (`standard` and `optional`), each pinned to its own run's
+  commit SHA. A new local commit or PR push does not update an existing run.
+  Keep batching coherent changes; do not wait for optional merely to publish
+  ready work in the standard lane. This applies to every project participant.
 - Before dispatching a build or ABI run, check for a queued or running run on
-  the same ref and commit; never create a duplicate. Cancel superseded queued
+  the same ref, commit and lane (and candidate scope/variant for optional);
+  never create a duplicate. Reuse an existing run only when its inputs cover
+  the required verification. Cancel superseded queued
   runs instead of letting them consume runners.
-- Do not dispatch another build for a commit that already has a queued or
-  running build; reuse the evidence from that run.
+- Do not dispatch another equivalent build for a commit that already has a
+  queued or running build in the required lane. A standard run does not replace
+  an optional candidate run, or vice versa.
 - Subagents share this checkout. They must not push independently while the
   root agent is batching; report finished local commits to the root agent and
   let it publish them together.
-- The `concurrency` groups in the workflows (`firmware-<ref>`, `abi-<ref>`,
+- The `concurrency` groups in the workflows (`firmware-<ref>-standard`,
+  `firmware-<ref>-optional`, `abi-<ref>`,
   `agent-build-failure-monitor`) enforce this mechanically. Do not remove or
   weaken them.
 
