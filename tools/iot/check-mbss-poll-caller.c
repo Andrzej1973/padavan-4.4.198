@@ -39,5 +39,13 @@ int main(void){
  bad_context=0;assert(wr_iot_mbss_poll_stop_join(&ad)==0&&cancels==1);
  assert(wr_iot_mbss_poll_release_ready(&ad.wr_iot_mbss_poll_state));
  assert(ad.wr_iot_mbss_reaper_gate.stopped&&wr_iot_mbss_poll_schedule(&ad)==-1);
+ wr_iot_mbss_poll_init(&ad.wr_iot_mbss_poll_state);
+ wr_iot_mbss_reaper_gate_init(&ad.wr_iot_mbss_reaper_gate);
+ accept=0;
+ assert(wr_iot_mbss_poll_schedule(&ad)==-1);
+ assert(ad.wr_iot_mbss_poll_state.unjoined);
+ assert(wr_iot_mbss_poll_schedule(&ad)==-1);
+ assert(wr_iot_mbss_poll_stop_join(&ad)==0);
+ assert(wr_iot_mbss_poll_release_ready(&ad.wr_iot_mbss_poll_state));
  return 0;
 }

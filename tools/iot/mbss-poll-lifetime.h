@@ -16,7 +16,9 @@ static inline int wr_iot_mbss_poll_queue_result(
  struct wr_iot_mbss_poll_lifetime *s,int accepted)
 {
  if(!s||!s->pending||!s->unjoined)return 0;
- if(!accepted){s->pending=0;if(!s->running)s->unjoined=0;}
+ /* FALSE scheduling is not an OS-idle receipt. Keep the adapter fence
+  * until an external synchronous join, including first-submission failure. */
+ if(!accepted)s->pending=0;
  return 1;
 }
 /* Called by the running callback before it returns. The original unjoined

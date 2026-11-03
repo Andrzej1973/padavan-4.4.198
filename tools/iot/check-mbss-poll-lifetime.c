@@ -26,6 +26,8 @@ int main(void){
  for(unsigned int i=0;i<3;i++){
   assert(wr_iot_mbss_poll_reserve(&s));
   assert(wr_iot_mbss_poll_queue_result(&s,0));
+  assert(s.unjoined&&!wr_iot_mbss_poll_reserve(&s));
+  assert(wr_iot_mbss_poll_joined(&s,1));
  }
  assert(!wr_iot_mbss_poll_reserve(&s));
  wr_iot_mbss_poll_stop(&s);

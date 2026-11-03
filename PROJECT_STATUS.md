@@ -20,6 +20,17 @@ YAML parsing and exact group/cancellation checks pass. No builds dispatched
 or cancelled for this policy edit; no scratch generated. Publish the new
 workflow before expecting new runs to use these lane names.
 
+## 2026-11-03 Sol: delayed caller schedule refusal retains lifetime fence
+
+Staged delayed caller/helper introduced in 7447a7d uses real helper control
+flow with injected scheduler/poll/cancel boundaries. Hardened queue_result:
+FALSE scheduling is not an idle receipt, even on initial submission; retain
+unjoined fence until external synchronous join. Rearm/exhaustion model and
+actual staged caller ASan/UBSan fixtures both pass, including initial refusal,
+no repeated schedule before join, context refusal and permanent stop.
+Scratch removed. Helpers remain unbound to adapter/PCI; no kernel concurrency
+or target acceptance for this caller yet.
+
 ## 2026-11-03 Sol: delayed caller rearm retains join fence
 
 Added callback-owned rearm to poll lifetime model. The same unjoined fence
