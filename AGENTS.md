@@ -96,18 +96,21 @@ batch work instead of publishing every small edit:
 - Commit locally as needed and push once per coherent change set.
 - Publish sequentially, not all accumulated local packages at once. For every
   agent/account: finish and verify one coherent package, push that package,
-  confirm its exact remote SHA and CI runs, then inspect completion and triage
-  failures before publishing the next package. Keep later independent work
-  local while that package's required verification is unfinished. A push of
+  confirm its exact remote SHA and CI runs, then continue preparing the next
+  package. Do not wait for the other lane's completion before publishing ready
+  standard work. A push of
   HEAD publishes all unpushed ancestor commits: inspect the outgoing range
   first and never accidentally include later unverified packages. Do not use
   force-push, reset, a new clone or worktree to split this shared checkout.
 - Parallel standard/optional execution does not authorize publishing unrelated
   packages together or repeatedly pushing small fixes. Queue required runs
-  for the currently published package in their separate lanes; continue local
-  work without publishing the next package until its predecessor's required
-  results have been checked. A focused fix for a confirmed failure may be the
-  next package without waiting for unrelated runs. Record which SHA and inputs
+  for each published package in their separate lanes. Once its standard
+  verification completes, inspect the result and queue the required optional
+  verification for that exact SHA, even if another optional is still active.
+  While optional runs or waits, publish the next locally verified standard
+  package. If standard is already active, its next run waits in the standard
+  queue. Never impose an all-lanes-finished barrier between packages.
+  A confirmed failure takes priority for focused triage. Record SHA and inputs
   each result covers; documentation-only or test-only local commits are still
   part of the outgoing range and must be reviewed before push.
 - Expect one push to create more than one workflow run. Group small related
@@ -116,11 +119,11 @@ batch work instead of publishing every small edit:
   candidate verification may run concurrently on the same branch. Treat them
   as separate lanes (`standard` and `optional`), each pinned to its own run's
   commit SHA. A new local commit or PR push does not update an existing run.
-  Keep batching coherent changes and follow sequential publication above;
-  lane independence applies to scheduling, not bypassing package verification.
+  Keep batching coherent changes and follow the pipelined publication above;
+  local verification precedes each push, and CI results apply only to their SHA.
   This applies to every project participant.
 - Apply this symmetrically: publish a ready standard batch even while another
-  standard runs, subject to sequential package verification above; queue
+  standard runs, subject to local package verification above; queue
   required optional verification even while another optional runs. Neither
   lane waits for the other lane merely to obtain a queue slot. Continue
   independent local work while GitHub executes the queued verification.

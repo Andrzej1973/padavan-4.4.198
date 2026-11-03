@@ -1,3 +1,15 @@
+## 2026-11-03 Owner correction: pipeline packages without cross-lane waiting
+
+This supersedes the earlier all-required-results publication barrier.
+One locally verified coherent package per push; inspect its SHA/runs. When
+standard finishes, inspect results and queue optional for that SHA. While
+optional runs or waits, publish the next standard package; standard queues
+behind standard, optional behind optional. No all-lanes-finished barrier.
+Keep exact-input duplicate checks, queue:max and no active-run cancellation.
+Runs 41667509594 (ABI), 41667503310 (standard), 41667495288 (optional) have
+all completed successfully on 40ea99c4. Uncommitted poll join-lease work
+remains local and must not be staged with this rule correction.
+
 ## 2026-11-03 Sol: sequential package publication required
 
 Owner explicitly requested that all agents publish sequentially and avoid
