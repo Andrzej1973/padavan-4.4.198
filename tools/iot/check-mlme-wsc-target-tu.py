@@ -32,6 +32,18 @@ try:
  if source.resolve()!=(driver/'common/mlme.c').resolve():raise RuntimeError('Unexpected source identity')
  defines=['-DWSC_INCLUDED','-DWSC_AP_SUPPORT','-DKTHREAD_SUPPORT']
  report.update(command_sha256=hashlib.sha256(raw).hexdigest(),source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),requested_defines=defines)
+ # Headers can undefine command-line flags. Verify the effective source
+ # configuration before treating this as feature compilation evidence.
+ preprocess=[str(tool.resolve()),*defines,*filtered,'-E','-dM']
+ macros=subprocess.run(preprocess,cwd=root,text=True,capture_output=True,timeout=60)
+ if macros.returncode:raise RuntimeError('WSC/KTHREAD MLME preprocessing failed: '+macros.stderr[-2000:])
+ required=('WSC_INCLUDED','WSC_AP_SUPPORT','KTHREAD_SUPPORT')
+ effective={name:bool(re.search(r'^#define '+name+r'(?:\s|$)',macros.stdout,re.M)) for name in required}
+ report.update(effective_macros=effective,macro_sha256=hashlib.sha256(macros.stdout.encode()).hexdigest())
+ macro_path=a.output.with_suffix('.macros.txt')
+ macro_path.write_text(macros.stdout,encoding='utf-8')
+ report['macro_artifact']=str(macro_path)
+ if not all(effective.values()):raise RuntimeError('Requested MLME feature macros not effective')
  with tempfile.TemporaryDirectory(prefix='wr-mlme-wsc-tu-') as tmp:
   obj=Path(tmp)/'mlme-wsc.o'
   command=[str(tool.resolve()),*defines,*filtered,'-c','-o',str(obj)]

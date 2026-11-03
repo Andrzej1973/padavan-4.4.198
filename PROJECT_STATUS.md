@@ -1,3 +1,14 @@
+## 2026-11-03 Sol: verify effective WSC feature flags before target claim
+
+Local MLME WSC/KTHREAD checker now preprocesses the exact source with its
+Kbuild flags and requires WSC_INCLUDED/WSC_AP_SUPPORT/KTHREAD_SUPPORT to
+remain defined. Saves actual macro inventory/hash before target compilation.
+Host negative fixture with source undefining WSC was rejected before compile;
+this is checker validation, not target evidence. Scratch removed.
+Optional 41694908263 on 90255eb8 succeeded; 41698138284 on a6f514d3 is
+compiling isolated IoT. Published e554ebfa standard/ABI still running;
+ffa4e2e is the next local package. Preserve owner reference archives.
+
 ## 2026-11-03 Sol: require defined code for target symbols
 
 Target symbol checks now require nonempty defined FUNC records, rejecting

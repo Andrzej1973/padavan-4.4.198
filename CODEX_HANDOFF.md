@@ -1,3 +1,15 @@
+## 2026-11-03 Sol: verify effective WSC feature flags before target claim
+
+MLME optional TU checker now verifies actual preprocessing macros before
+compiling and emits macro inventory/hash. A host fixture with #undef
+WSC_INCLUDED correctly fails despite requested -D; other required defines
+remain active. No MIPS acceptance for this local checker change yet.
+Scratch removed. Remote e554ebfa; local predecessor ffa4e2e unpublished.
+Optional 41694908263 on 90255eb8 succeeded; optional 41698138284 on a6f514d3
+actively compiling isolated IoT, optional 41701505847 on ef51b36 pending.
+e554ebfa standard 41701544482 and ABI 41701544492 still running.
+Do not stage docs/reference owner archives. Continue exact-SHA queue rules.
+
 ## 2026-11-03 Sol: require defined code for target symbols
 
 Finished local defined-symbol tightening: FUNC, non-UND section and positive
