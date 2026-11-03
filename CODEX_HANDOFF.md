@@ -1,3 +1,14 @@
+## 2026-11-03 Sol: combined MBSS ownership/caller handoff staged
+
+Added unbound recovery_handoff entry selecting acquired-open or original
+incomplete-close ticket submission and scheduling the delayed poll caller
+only after ownership acceptance. Scheduling failure after acceptance returns
+retained status 1, never rejection -1 or permission to release original pins.
+ASan/UBSan boundary fixture passes both origins and all owner/caller result
+combinations, preserving exact ticket pointer and caller-held pin. Admission
+and OS scheduler are mocked; installed integration and target checks remain.
+No ndo callback changed. Temporary fixture/binary removed; no push yet.
+
 ## 2026-11-03 Sol: ordinary delayed caller join supports another episode
 
 Added join lease excluding schedule/rearm across cancel_delayed_work_sync.
