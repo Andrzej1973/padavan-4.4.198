@@ -1,3 +1,12 @@
+## 2026-11-03 Sol: bind full WSC result to exact baseline provenance
+
+Local WSC helper checks unchanged feature config and exact baseline source
+hash, records repository/upstream revision and baseline-module/report hashes.
+Executed actual embedded report generator with synthetic fixture: revision
+preserved; mismatched source rejected with no success report. Syntax and
+whitespace pass. No heavy local build; fixture removed. Publish sequentially
+after the preceding def9ef3 and 322a306 packages; no WSC target claim yet.
+
 ## 2026-11-03 Sol: complete isolated WSC feature build prepared locally
 
 New ci-compile-wsc-feature.sh is wired after peer82 baseline report. It uses

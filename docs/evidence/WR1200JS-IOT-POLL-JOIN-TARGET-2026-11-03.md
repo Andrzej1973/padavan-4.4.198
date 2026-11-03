@@ -39,3 +39,19 @@ Standard 41687673550 and ABI 41687673214 succeeded on
 `90255eb84a5bfa65d50acee7d982b2ed294ea6f3`. Optional 41694908263 was then
 submitted for that revision with the same peer82/iot inputs, to exercise the
 new combined installed owner/caller host suite and target build in CI.
+
+## Combined-suite revision target artifact
+
+Run 41694908263 completed successfully on 90255eb8. Independently consumed
+artifact 13263030484 in memory: module is ELF32 little-endian MIPS,
+5,573,188 bytes, SHA256
+`043dd91f1b00fad7132ad8ba7eae6a4feb84931826f3ee5b04b52f4f79c5ec12`.
+Size/hash agree with metadata. Module task flags: KTHREAD enabled;
+OS_ABL/PM/timer task/WSC disabled. Production/runtime flags remain false.
+
+The artifact's separate MLME WSC/KTHREAD TU report records a passed compile,
+140,708-byte object SHA256
+`545233fa0b5fe9cdccd3252536b90829827819aeabca9cacd24340e96fb4de8d`.
+It records requested flags rather than effective preprocessing macros; the
+new local checker adds that missing evidence. This is not full linked WSC
+feature-module acceptance. No ZIP or extracted tree retained locally.

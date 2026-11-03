@@ -1,3 +1,12 @@
+## 2026-11-03 Sol: bind full WSC result to exact baseline provenance
+
+WSC helper now verifies its config remains unchanged, binds repository and
+upstream revisions plus baseline-module/report hashes, and rejects a source
+hash differing from the baseline task TU. Real report-generator fixture
+preserves revision and refuses mismatched source without emitting success;
+synthetic metadata only, no target compilation claim. Shell/Python syntax
+and whitespace pass; temporary fixture removed. Full GitHub run still due.
+
 ## 2026-11-03 Sol: complete isolated WSC feature build prepared locally
 
 Confirmed pinned mt76x3_ap wrapper explicitly selects WSC objects/macros

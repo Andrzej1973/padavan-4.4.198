@@ -34,10 +34,17 @@ for symbol in WscInit WscStop wr_iot_mbss_recovery_handoff; do
 done
 cp "$module" "$results/mt76x3_ap-wsc.ko"
 sha256sum -c "$results/baseline-config.sha256"
+cmp "$feature/.config" "$results/kernel.config"
 python3 - "$results" <<'PY'
 import hashlib,json,pathlib,sys
 root=pathlib.Path(sys.argv[1])
 task=json.loads((root/'task-config.json').read_text())
+baseline_path=root.parent/'target-compile-result.json'
+baseline=json.loads(baseline_path.read_text())
+if (not baseline['target_compiled'] or baseline['production_installed'] or
+        baseline['runtime_verified'] or
+        baseline['task_source_sha256']!=task['source_sha256']):
+    raise SystemExit('WSC feature source/baseline provenance mismatch')
 required=('WSC_INCLUDED','WSC_AP_SUPPORT','WSC_V2_SUPPORT','KTHREAD_SUPPORT')
 if task['status']!='complete' or not all(task['macros'].get(name) for name in required):
     raise SystemExit('Full WSC module lacks effective WSC compilation evidence')
@@ -45,6 +52,11 @@ data=(root/'mt76x3_ap-wsc.ko').read_bytes()
 if data[:6]!=b'\x7fELF\x01\x01' or int.from_bytes(data[18:20],'little')!=8:
     raise SystemExit('Expected ELF32 little-endian MIPS WSC module')
 report={'scope':'complete isolated MT7603 WSC module',
+        'repository_revision':baseline['repository_revision'],
+        'source_revision':baseline['source_revision'],
+        'baseline_module_sha256':baseline['module_sha256'],
+        'baseline_report_sha256':hashlib.sha256(baseline_path.read_bytes()).hexdigest(),
+        'kernel_config_sha256':hashlib.sha256((root/'kernel.config').read_bytes()).hexdigest(),
         'make_overrides':{'CONFIG_MT7603E_WSC_INCLUDED':'y','CONFIG_MT7603E_WSC_V2_SUPPORT':'y'},
         'target_compiled':True,'production_installed':False,'runtime_verified':False,
         'module_bytes':len(data),'module_sha256':hashlib.sha256(data).hexdigest(),
