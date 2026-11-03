@@ -12,7 +12,7 @@ a=p.parse_args();src=a.source.resolve(strict=True);out=a.output.resolve()
 if out.exists() or src==out or src in out.parents or out in src.parents:p.error('new separate output required')
 pins={'ap/ap_wds.c':'e15fc9d9bcdb8fe04343bf14332a2b73d74441996068a64cee7da1dd5e200122',
  'include/interface-registry.h':'e90b709fe492b7f886b4278d46480a7b32a3deab5651620f6018801534a32f82',
- 'include/interface-reference.h':'b9e276cd6720667230afb5ccec013d5d2ffa0f704d38c52666aae2b1eb7cfb6d',
+ 'include/interface-reference.h':'2871a1b90c4a381cb9c64106beccaf9bf6cb934fc1f73a8349d9a6fd421a944a',
  'include/aux-close-claim.h':'96d56ef124b6ca486e87a8f637a6c1d56f1ecd3d7e6e21736c35888108b602d7'}
 for n,h in pins.items():
  if hashlib.sha256((src/n).read_bytes()).hexdigest()!=h:p.error('unreviewed source: '+n)

@@ -1,3 +1,17 @@
+## 2026-11-03 Sol: ABI stale reference pin repaired
+
+ABI 41576328965 failed in step 102, prepare-wds-outer-operation.py:
+unreviewed source include/interface-reference.h. Original failed log confirms
+the stale pre-provenance hash. Updated that exact pin to the reviewed canonical
+asset hash; no validation bypass. Replayed the entire peer retirement chain
+from preserved full-driver input with the current reference asset: output
+reached radio-on-retirement-admission successfully. Scratch was removed by the
+launching script after completion. This is source-generation proof, not a
+new target build. Firmware 41576328915 succeeded on 793894b8.
+Monitor workflow_run 41577840912 was skipped and had no artifact; failure
+monitor coverage needs separate investigation. Uncommitted MBSS owner
+provenance admission changes are preserved and not included in this fix.
+
 ## 2026-11-03 Sol: all five MBSS uncertainty origins fault-tested
 
 Actual close executor ASan/UBSan fixture now injects CR-disable failure,
