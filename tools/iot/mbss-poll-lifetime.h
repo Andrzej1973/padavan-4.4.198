@@ -15,9 +15,16 @@ static inline int wr_iot_mbss_poll_reserve(struct wr_iot_mbss_poll_lifetime *s)
 static inline int wr_iot_mbss_poll_queue_result(
  struct wr_iot_mbss_poll_lifetime *s,int accepted)
 {
- if(!s||!s->pending||s->running)return 0;
- if(!accepted){s->pending=0;s->unjoined=0;}
+ if(!s||!s->pending||!s->unjoined)return 0;
+ if(!accepted){s->pending=0;if(!s->running)s->unjoined=0;}
  return 1;
+}
+/* Called by the running callback before it returns. The original unjoined
+ * fence spans all rearms; even a refused rearm cannot remove that fence. */
+static inline int wr_iot_mbss_poll_rearm(struct wr_iot_mbss_poll_lifetime *s)
+{
+ if(!s||s->stopped||!s->running||s->pending||!s->unjoined||s->attempts>=3U)return 0;
+ s->pending=1;s->attempts++;return 1;
 }
 static inline int wr_iot_mbss_poll_begin(struct wr_iot_mbss_poll_lifetime *s)
 {

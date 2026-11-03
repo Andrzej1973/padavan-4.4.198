@@ -20,6 +20,15 @@ YAML parsing and exact group/cancellation checks pass. No builds dispatched
 or cancelled for this policy edit; no scratch generated. Publish the new
 workflow before expecting new runs to use these lane names.
 
+## 2026-11-03 Sol: delayed caller rearm retains join fence
+
+Added callback-owned rearm to poll lifetime model. The same unjoined fence
+spans up to three queue attempts; rearm scheduling refusal clears pending
+but preserves the running callback's fence. Stop rejects rearm, and callback
+return still requires an external OS join before release. ASan/UBSan verifies
+three callback cycles, exhaustion, failed rearm and stop collision. Scratch
+removed. Model remains unbound to real delayed work/adapter/PCI paths.
+
 ## 2026-11-03 Sol: delayed MBSS caller lifetime state implemented
 
 Added unbound mbss-poll-lifetime.h tracking pending/running/unjoined caller,
