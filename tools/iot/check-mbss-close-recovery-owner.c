@@ -1,4 +1,4 @@
-#include "mbss-close-recovery-owner.h"
+#include "mbss-recovery-storage.h"
 #include <assert.h>
 #include <string.h>
 
@@ -179,5 +179,14 @@ int main(void){
  radio.epoch++;
  assert(wr_iot_mbss_recovery_action(&owner,&refs[1],&radio,refs,2,2)==
         WR_MBSS_RECOVERY_NONE);
+ wr_iot_mbss_recovery_init(&owner);
+ assert(wr_iot_mbss_recovery_storage_idle(&owner,1));
+ owner.uncertain_reason=WR_CLOSE_UNCERTAIN_DMA;
+ assert(!wr_iot_mbss_recovery_storage_idle(&owner,1));
+ owner.uncertain_reason=0;owner.verified_stage=2;
+ assert(!wr_iot_mbss_recovery_storage_idle(&owner,1));
+ owner.completed=1;owner.deferred_owners=1;
+ assert(wr_iot_mbss_recovery_complete(&owner,1));
+ assert(wr_iot_mbss_recovery_storage_idle(&owner,1));
  return 0;
 }
