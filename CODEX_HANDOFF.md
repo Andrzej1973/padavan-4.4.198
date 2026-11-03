@@ -1,3 +1,15 @@
+## 2026-11-03 Sol: preserve uncertainty raised inside admitted MBSS worker
+
+Local owner helper and worker now capture an uncertain close reached after
+admission, preserving original ticket and exact registration identity.
+ASan/UBSan owner transition/rejection matrix passes; temporary binary removed.
+No reconciliation executor, production callback binding or router mutation.
+Complete fresh installed-stack replay and combined ASan/UBSan now pass the
+injected uncertain DMA close, no repeated backend call, retained netdev/module
+references after join/stop. Target proof remains due. Published predecessor
+is 90255eb8; optional 41694908263 running. Publish this coherent fix separately.
+Preserve unrelated untracked docs/reference owner materials without staging.
+
 ## 2026-11-03 Sol: combined installed MBSS owner/caller host verification
 
 Extended check-mbss-work-binding.py to detect installed caller assets and run

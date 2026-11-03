@@ -53,6 +53,8 @@ VOID wr_iot_mbss_recovery_work_fn(struct work_struct *work)
  result=wr_iot_mbss_close_checked(dev,generation,&ticket);
  RTMP_IRQ_LOCK(&ad->wr_iot_transition_lock,flags);
  record=&ad->wr_iot_interface_refs[context->slot];
+ if(result!=0)
+  (void)wr_iot_mbss_recovery_record_uncertain(owner,record,&ad->wr_iot_transition);
  if(result!=0||!wr_iot_mbss_recovery_mark_completed(owner,record,&ad->wr_iot_transition))
   (void)wr_iot_mbss_recovery_retain(owner);
  RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);

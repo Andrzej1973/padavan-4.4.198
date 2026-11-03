@@ -1,3 +1,17 @@
+## 2026-11-03 Sol: preserve uncertainty raised inside admitted MBSS worker
+
+Local change snapshots checked-close stage-5 origin into the existing owner
+only for the exact live registration and original current ticket. Worker
+still retains resources; RECONCILE has no hardware executor yet. ASan/UBSan
+owner fixture passes valid transition and stale token/generation/serial,
+running executor, invalid reason/stage, epoch and removal rejection.
+Fresh installed-stack replay and combined ASan/UBSan fixture passed, including
+uncertain DMA close inside the real worker: no repeated backend call and no
+reference release through ordinary join or stop. Target compilation remains
+due. Test binary removed. Optional 41694908263
+still running on published 90255eb8; docs/reference contains owner-supplied
+Breed/wiki materials, unrelated to this source package and not for staging.
+
 ## 2026-11-03 Sol: combined installed MBSS owner/caller host verification
 
 Fresh complete source pipeline and ASan/UBSan pass with installed submission,

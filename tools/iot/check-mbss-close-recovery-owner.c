@@ -176,6 +176,34 @@ int main(void){
  assert(wr_iot_mbss_recovery_action(&owner,&refs[1],&radio,refs,2,2)==
         WR_MBSS_RECOVERY_NONE);
  refs[1].close_uncertain_reason=WR_CLOSE_UNCERTAIN_DMA;
+ /* Failure inside an admitted worker must snapshot uncertainty without
+  * replacing the original receipt or allowing a stale registration. */
+ owner.source=WR_MBSS_RECOVERY_CLOSE_INCOMPLETE;
+ refs[1].generation++;
+ assert(!wr_iot_mbss_recovery_record_uncertain(&owner,&refs[1],&radio));
+ assert(owner.source==WR_MBSS_RECOVERY_CLOSE_INCOMPLETE);
+ refs[1].generation--;
+ assert(wr_iot_mbss_recovery_record_uncertain(&owner,&refs[1],&radio));
+ assert(owner.source==WR_MBSS_RECOVERY_UNCERTAIN&&
+        owner.uncertain_reason==WR_CLOSE_UNCERTAIN_DMA&&owner.verified_stage==2);
+ assert(wr_iot_mbss_recovery_action(&owner,&refs[1],&radio,refs,2,2)==
+        WR_MBSS_RECOVERY_RECONCILE);
+ for(int fault=0;fault<7;fault++){
+  struct wr_iot_mbss_recovery_owner attempt=owner;
+  struct wr_iot_interface_ref stale=refs[1];
+  struct wr_iot_radio_transition changed=radio;
+  attempt.source=WR_MBSS_RECOVERY_CLOSE_INCOMPLETE;
+  if(fault==0)stale.last_token++;
+  if(fault==1)stale.close_running=1;
+  if(fault==2)stale.close_serial++;
+  if(fault==3)stale.close_uncertain_reason=WR_CLOSE_UNCERTAIN_NONE;
+  if(fault==4)stale.close_verified_stage=0;
+  if(fault==5)changed.epoch++;
+  if(fault==6)stale.removing=1;
+  assert(!wr_iot_mbss_recovery_record_uncertain(&attempt,&stale,&changed));
+  assert(attempt.source==WR_MBSS_RECOVERY_CLOSE_INCOMPLETE&&
+         attempt.close_ticket.serial==owner.close_ticket.serial);
+ }
  radio.epoch++;
  assert(wr_iot_mbss_recovery_action(&owner,&refs[1],&radio,refs,2,2)==
         WR_MBSS_RECOVERY_NONE);

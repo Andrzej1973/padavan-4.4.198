@@ -47,7 +47,13 @@ static int wr_iot_mbss_close_checked(PNET_DEV dev,unsigned long gen,const struct
  assert(!held&&module_refs==1&&dev->refs==1&&gen==r->generation);backend_calls++;last_serial=ticket->serial;
  if(r->phase==WR_REF_OWNED)assert(wr_iot_ref_begin_close(r,dev,gen,r->last_token));
  r->close_serial=ticket->serial;r->close_stage=2;
- if(backend_fail)return -1;
+ if(backend_fail){
+  if(backend_fail==2){
+   r->close_uncertain_reason=WR_CLOSE_UNCERTAIN_DMA;
+   r->close_verified_stage=2;r->close_stage=5;
+  }
+  return -1;
+ }
  assert(wr_iot_radio_finish(&ad->wr_iot_transition,ticket,1));
  assert(wr_iot_ref_consume(r,dev,gen,r->last_token));r->close_stage=4;
  ad->VirtualIfCnt--;module_refs--;return 0;
@@ -299,6 +305,17 @@ int main(void){
  assert(wr_iot_mbss_recovery_handoff(&ad,&dev,1,&saved)==1);
  backend_fail=0;execute(&ad);poll_execute(&ad);
  assert(wr_iot_mbss_poll_join(&ad)==0&&dev.refs==0&&module_refs==0);
+ ready(&ad,&main,&dev);dev.refs=0;schedule_accept=1;
+ assert(wr_iot_mbss_recovery_handoff(&ad,&dev,1,NULL)==0);
+ backend_fail=2;execute(&ad);
+ assert(ad.wr_iot_mbss_recovery[1].source==WR_MBSS_RECOVERY_UNCERTAIN&&
+        ad.wr_iot_mbss_recovery[1].uncertain_reason==WR_CLOSE_UNCERTAIN_DMA&&
+        ad.wr_iot_mbss_recovery[1].verified_stage==2);
+ assert(dev.refs==1&&module_refs==1&&backend_calls==1);
+ poll_execute(&ad);execute(&ad);
+ assert(backend_calls==1&&dev.refs==1&&module_refs==1);
+ assert(wr_iot_mbss_poll_join(&ad)==-1&&!idle(&ad));
+ assert(wr_iot_mbss_recovery_stop_join(&ad)==-1&&dev.refs==1&&module_refs==1);
  return 0;
 }
 '''

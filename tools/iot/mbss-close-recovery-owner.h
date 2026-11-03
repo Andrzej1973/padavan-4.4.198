@@ -212,6 +212,31 @@ static inline int wr_iot_mbss_recovery_bind_close(
  owner->source=WR_MBSS_RECOVERY_CLOSE_INCOMPLETE;
  return 1;
 }
+/* Checked close may become uncertain after ownership was already admitted.
+ * Preserve that origin under the same lock; this is not reconciliation or
+ * permission to repeat a vendor mutation. Rejection leaves owner unchanged. */
+static inline int wr_iot_mbss_recovery_record_uncertain(
+ struct wr_iot_mbss_recovery_owner *owner,
+ const struct wr_iot_interface_ref *record,
+ const struct wr_iot_radio_transition *radio){
+ if(!owner||!record||!radio||owner->phase!=WR_MBSS_OWNER_RUNNING||
+    owner->source!=WR_MBSS_RECOVERY_CLOSE_INCOMPLETE||owner->completed||
+    !owner->deferred_owners||!owner->close_ticket_valid||
+    record->device!=owner->device||record->generation!=owner->generation||
+    record->last_token!=owner->open_token||!record->published||
+    record->removing||record->removal_stage||
+    record->family!=WR_REF_FAMILY_MBSS||record->phase!=WR_REF_CLOSING||
+    record->close_running||record->close_stage!=5U||
+    record->close_serial!=owner->close_serial||
+    record->close_serial!=owner->close_ticket.serial||
+    !wr_iot_mbss_uncertain_provenance(record)||
+    !wr_iot_mbss_recovery_ticket_recorded(record,&owner->close_ticket)||
+    !wr_iot_mbss_recovery_ticket_current(radio,&owner->close_ticket))return 0;
+ owner->uncertain_reason=record->close_uncertain_reason;
+ owner->verified_stage=record->close_verified_stage;
+ owner->source=WR_MBSS_RECOVERY_UNCERTAIN;
+ return 1;
+}
 static inline int wr_iot_mbss_recovery_mark_completed(
  struct wr_iot_mbss_recovery_owner *owner,
  const struct wr_iot_interface_ref *record,
