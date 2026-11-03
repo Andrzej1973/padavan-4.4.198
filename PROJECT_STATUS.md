@@ -20,6 +20,15 @@ YAML parsing and exact group/cancellation checks pass. No builds dispatched
 or cancelled for this policy edit; no scratch generated. Publish the new
 workflow before expecting new runs to use these lane names.
 
+## 2026-11-03 Sol: stop during delayed poll body fault verified
+
+Extended staged caller fixture to inject permanent stop while poll executes
+outside transition lock. Actual callback helper refuses rearm, returns with
+unjoined fence intact, and only external synchronous stop/join enables release.
+ASan/UBSan passes. This is deterministic boundary injection, not real kernel
+concurrency proof. Scratch removed. Keep this local test change for the next
+sequential package; current target run 41667495288 covers earlier code.
+
 ## 2026-11-03 Sol: delayed poll caller installed and CI staged
 
 e7f7558 binds adapter state/delayed work initialization, public free/reopen

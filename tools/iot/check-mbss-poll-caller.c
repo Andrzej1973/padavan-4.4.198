@@ -16,7 +16,7 @@ typedef struct {
 } RTMP_ADAPTER;
 #define container_of(p,t,m) ((t *)((char *)(p)-offsetof(t,m)))
 #define to_delayed_work(p) container_of(p,struct delayed_work,work)
-static int held,accept=1,polls,result=-1,cancels,bad_context;
+static int held,accept=1,polls,result=-1,cancels,bad_context,stop_during_poll;
 #define RTMP_IRQ_LOCK(l,f) do{(void)(l);(f)=0;assert(!held);held=1;}while(0)
 #define RTMP_IRQ_UNLOCK(l,f) do{(void)(l);(void)(f);assert(held);held=0;}while(0)
 static int schedule_delayed_work(struct delayed_work *w,int delay)
@@ -25,7 +25,15 @@ static void cancel_delayed_work_sync(struct delayed_work *w)
 {assert(w&&!held);cancels++;}
 static int wr_iot_os_join_context(void){return bad_context;}
 static int wr_iot_mbss_recovery_poll(RTMP_ADAPTER *ad)
-{assert(ad&&!held);polls++;return result;}
+{
+ assert(ad&&!held);polls++;
+ if(stop_during_poll){
+  /* Model another caller publishing stop while the poll body is unlocked. */
+  wr_iot_mbss_poll_stop(&ad->wr_iot_mbss_poll_state);
+  wr_iot_mbss_reaper_stop(&ad->wr_iot_mbss_reaper_gate);
+ }
+ return result;
+}
 #ifdef WR_IOT_INSTALLED_POLL
 #include "wr-iot-mbss-poll-caller.inc"
 #else
@@ -41,6 +49,16 @@ int main(void){
  assert(wr_iot_mbss_poll_schedule(&ad)==-1);
  bad_context=1;assert(wr_iot_mbss_poll_stop_join(&ad)==-1&&!cancels);
  bad_context=0;assert(wr_iot_mbss_poll_stop_join(&ad)==0&&cancels==1);
+ assert(wr_iot_mbss_poll_release_ready(&ad.wr_iot_mbss_poll_state));
+ wr_iot_mbss_poll_init(&ad.wr_iot_mbss_poll_state);
+ wr_iot_mbss_reaper_gate_init(&ad.wr_iot_mbss_reaper_gate);
+ accept=1;stop_during_poll=1;
+ assert(wr_iot_mbss_poll_schedule(&ad)==0);
+ wr_iot_mbss_poll_work_fn(&ad.wr_iot_mbss_poll_work.work);
+ assert(ad.wr_iot_mbss_poll_state.stopped&&!ad.wr_iot_mbss_poll_state.pending);
+ assert(ad.wr_iot_mbss_poll_state.unjoined&&!ad.wr_iot_mbss_poll_state.running);
+ assert(!wr_iot_mbss_poll_release_ready(&ad.wr_iot_mbss_poll_state));
+ assert(wr_iot_mbss_poll_stop_join(&ad)==0);
  assert(wr_iot_mbss_poll_release_ready(&ad.wr_iot_mbss_poll_state));
  assert(ad.wr_iot_mbss_reaper_gate.stopped&&wr_iot_mbss_poll_schedule(&ad)==-1);
  wr_iot_mbss_poll_init(&ad.wr_iot_mbss_poll_state);
