@@ -127,6 +127,15 @@ batch work instead of publishing every small edit:
   required optional verification even while another optional runs. Neither
   lane waits for the other lane merely to obtain a queue slot. Continue
   independent local work while GitHub executes the queued verification.
+- Optional workflow dispatch supports `verification_revision`, an exact
+  40-character ancestor SHA. After its standard succeeds, queue that SHA
+  even if the branch has advanced; do not hold ready standard publication
+  merely to preserve a previous branch HEAD. The selector permits overrides
+  only for optional manual dispatch and records dispatch/requested/verified
+  revisions in `verification-source`. With this input, GitHub's run headSha
+  identifies workflow dispatch, while candidate reports identify the source
+  actually built. Check both; use run title SHA/lane/scope/variant to locate
+  possible duplicates and confirm source/input evidence before reuse.
 - Firmware and ABI groups use `queue: max` with `cancel-in-progress: false`
   so new submissions preserve already pending runs. GitHub starts the next
   eligible run when that group's active run releases its slot; runner capacity

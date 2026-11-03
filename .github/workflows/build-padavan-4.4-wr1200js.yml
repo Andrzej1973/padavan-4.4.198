@@ -4,6 +4,10 @@ run-name: "WR1200JS Linux 4.4.198 build"
 on:
   workflow_call:
     inputs:
+      verification_revision:
+        description: Resolved source commit from the caller selection job
+        type: string
+        default: ''
       run_candidate_checks:
         description: Compile isolated experimental candidates after firmware verification
         type: boolean
@@ -35,6 +39,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.verification_revision || github.sha }}
+      - name: Record exact checked-out source revision
+        id: source
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Validate optional candidate selection
         if: ${{ inputs.run_candidate_checks }}
@@ -1591,7 +1600,7 @@ jobs:
         env:
           IOT_CANDIDATE_VARIANT: ${{ inputs.iot_candidate_variant }}
           CANDIDATE_SCOPE: ${{ inputs.candidate_scope }}
-          CANDIDATE_SHA: ${{ github.sha }}
+          CANDIDATE_SHA: ${{ steps.source.outputs.sha }}
         run: bash tools/iot/ci-compile-merged-candidate.sh
 
       - name: Upload isolated merged IoT driver diagnostics

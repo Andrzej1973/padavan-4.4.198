@@ -1,3 +1,14 @@
+## 2026-11-03 Sol: explicit optional source SHA removes publication dependency
+
+New selector/workflow input verification_revision pins an optional ancestor
+independently of current branch HEAD. Standard cannot override source.
+Source report and candidate metadata use resolved SHA; run headSha remains
+dispatch SHA. Titles carry requested SHA/lane/scope/variant for duplicate
+lookup; always confirm provenance artifact. Host Git fixture and YAML/size/
+whitespace checks pass; workflow execution pending. Publish in a coherent
+reviewed package, then use explicit SHA to keep standard/optional pipelined.
+Owner archives and WSC orchestration evidence remain separate local files.
+
 ## 2026-11-03 Sol: bind full WSC result to exact baseline provenance
 
 Local WSC helper checks unchanged feature config and exact baseline source

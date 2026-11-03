@@ -1,3 +1,14 @@
+## 2026-11-03 Sol: explicit optional source SHA removes publication dependency
+
+Prepared verification_revision dispatch input: optional-only exact ancestor
+SHA, clean-CI validation and detached checkout without moving branch. Caller
+records dispatch/requested/verified provenance; reusable workflow and target
+report use resolved checkout SHA. Run title identifies SHA/lane/scope/variant.
+Temporary Git fixture passed ancestor pin, unchanged branch, and malformed,
+dirty and standard-override refusal. YAML parsing, expression-size and
+whitespace checks passed. Live GitHub execution remains due. This removes
+the need to hold ready standard pushes just to preserve an older optional SHA.
+
 ## 2026-11-03 Sol: bind full WSC result to exact baseline provenance
 
 WSC helper now verifies its config remains unchanged, binds repository and
