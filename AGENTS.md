@@ -102,6 +102,15 @@ batch work instead of publishing every small edit:
   commit SHA. A new local commit or PR push does not update an existing run.
   Keep batching coherent changes; do not wait for optional merely to publish
   ready work in the standard lane. This applies to every project participant.
+- Apply this symmetrically: publish a ready standard batch even while another
+  standard runs; queue required optional verification even while another
+  optional runs. Neither lane waits for the other lane to finish. Continue
+  independent local work while GitHub executes the queued verification.
+- Firmware and ABI groups use `queue: max` with `cancel-in-progress: false`
+  so new submissions preserve already pending runs. GitHub starts the next
+  eligible run when that group's active run releases its slot; runner capacity
+  can still delay execution. Never claim results until the exact SHA/input run
+  completes. Do not create a Codex heartbeat or repeated dispatch to drain it.
 - Before dispatching a build or ABI run, check for a queued or running run on
   the same ref, commit and lane (and candidate scope/variant for optional);
   never create a duplicate. Reuse an existing run only when its inputs cover

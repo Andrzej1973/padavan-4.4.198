@@ -20,6 +20,17 @@ YAML parsing and exact group/cancellation checks pass. No builds dispatched
 or cancelled for this policy edit; no scratch generated. Publish the new
 workflow before expecting new runs to use these lane names.
 
+## 2026-11-03 Sol: symmetric persistent CI queues
+
+Owner requested queueing ready work in either lane while its prior run is
+active. AGENTS.md now states symmetric standard/optional operation for every
+participant, independent local work and exact SHA/input acceptance. Enabled
+queue: max on firmware lane groups and ABI, retaining cancel-in-progress:false.
+This uses GitHub's expanded queue support documented in its 2026-05-07
+changelog; the old default one-pending behavior no longer applies to new runs
+using this setting. Existing runs keep previously evaluated settings. Local
+YAML and concurrency invariants checked; no duplicate builds dispatched.
+
 ## 2026-11-03 Sol: installed poll candidate ready for target verification
 
 468cba5 installs poll helper/prototype beside submission in the isolated

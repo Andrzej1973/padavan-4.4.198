@@ -274,6 +274,7 @@ concurrency:
   # may run together; each lane still serializes runs on the same ref.
   group: firmware-${{ github.ref }}-${{ inputs.run_candidate_checks && 'optional' || 'standard' }}
   cancel-in-progress: false
+  queue: max
 jobs:
   select:
     runs-on: ubuntu-24.04
