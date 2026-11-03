@@ -30,3 +30,25 @@ The currently published CI runs do not prove this integration: no ordinary
 callback calls submission/retry yet. Runtime and final-image acceptance remain
 open. This audit used repository generators/helpers and the preserved generated
 candidate for comparison; it made no device access and generated no scratch.
+
+## Uncertain-close reconciliation requirements
+
+Inspection of `tools/iot/mbss-close-checked.inc` identifies distinct sources
+that currently converge on `close_stage=5`: CR-disable failure, MBSS_Close
+failure, invalid BSS index, and negative beacon DMA or TxS inventory result.
+The original failed operation is not recorded in that stage value. Therefore
+stage 5 alone cannot select a safe replay or establish that hardware is idle.
+
+`prepare-mbss-cr-readback-check.py` explicitly checks control bits only:
+TBTT/pre-TBTT and beacon queue disable. Its fixture does not prove RF silence,
+pending RX TxS retirement, kernel synchronization or MIPS register-bus results.
+Successful CR readback cannot substitute for the other uncertainty sources.
+
+Before adding worker RECONCILE execution, retain the uncertainty origin and
+last verified close stage in the exact registration/owner provenance. Require
+operation-specific evidence: current exact BSS identity, producer disable,
+DMA ownership and TxS callback retirement as applicable. Revalidate ticket,
+generation and token after unlocked checks. Only advance to a known resumable
+stage when every required receipt is available; otherwise retain ownership.
+No counter decrement, module release or owner completion may follow merely
+from zero pending snapshots or a successful CR readback.
