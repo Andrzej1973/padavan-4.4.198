@@ -67,6 +67,8 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   python3 tools/iot/check-mcu-sequence-bound.py "$candidate/sequence-bound"
   python3 tools/iot/prepare-mcu-sequence-reservation.py "$candidate/sequence-bound" "$candidate/sequence-reserved"
   merged="$candidate/sequence-reserved"
+  # Counterexamples remain explicit; this also checks late timeout ACK rejection.
+  python3 tools/iot/check-mcu-ack-epoch-gap.py "$merged"
   python3 tools/iot/prepare-mcu-init-rx-join.py "$merged" "$candidate/init-rx-joined"
   merged="$candidate/init-rx-joined"
   python3 tools/iot/check-mcu-init-rx-join.py "$merged"

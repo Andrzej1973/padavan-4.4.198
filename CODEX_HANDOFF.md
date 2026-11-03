@@ -1,3 +1,12 @@
+## 2026-11-03 Sol: extracted dispatcher rejects late timed-out ACK across wraps
+
+Fresh bounded/reserved generated source and extracted ACK dispatcher pass
+ASan/UBSan timeout-quarantine test for 30 later commands. Counterexamples for
+successful-response duplicates and host-only reset remain explicit, not
+acceptance. Peer82 CI now executes this fixture after reservation preparation.
+Scratch removed. c606e1c is published with standard/ABI pending; this follow-up
+regression remains local. Keep unrelated LOAD_FW macro/evidence changes safe.
+
 ## 2026-11-03 Sol: quarantine ACK-timeout sequence IDs locally
 
 Local header/generator captures sticky uncertainty at ACK timeout, survives

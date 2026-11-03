@@ -34,6 +34,20 @@ with tempfile.TemporaryDirectory(prefix='wr-ack-epoch-gap-') as d:
  dispatch(&msg,&ev,&pkt);
  assert(msg.wr_iot_firmware_result==0&&msg.ack_done==1);
  puts("KNOWN GAP REPRODUCED: host-only controller/ledger reset does not establish an ACK epoch boundary");
+ /* Timeout IDs remain quarantined across subsequent sequence wraps.
+  * Exercise the actual extracted dispatcher, not just mask arithmetic. */
+ ledger=(struct wr_iot_mcu_sequence_reservation){0};
+ first=wr_iot_mcu_sequence_reserve(&ledger);
+ assert(wr_iot_mcu_sequence_finish(&ledger,first,1));
+ for(unsigned i=0;i<30;i++){
+  unsigned current=wr_iot_mcu_sequence_reserve(&ledger);
+  assert(current&&current!=first);
+  msg=base;msg.seq=current;ev.fw_rxd_1.field.seq_num=first;
+  dispatch(&msg,&ev,&pkt);
+  assert(!msg.ack_done&&msg.wr_iot_firmware_result==1);
+  assert(wr_iot_mcu_sequence_finish(&ledger,current,0));
+ }
+ puts("PASS timeout quarantine: late timed-out ACK never completes a subsequent command across wraps; successful-reply duplicate gap remains");
  return 0;
 }
 '''

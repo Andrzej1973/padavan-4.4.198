@@ -1,3 +1,12 @@
+## 2026-11-03 Sol: extracted dispatcher rejects late timed-out ACK across wraps
+
+Extended ACK fixture verifies that a quarantined timeout ID cannot complete
+30 subsequent commands through the real extracted dispatcher. ASan/UBSan
+passes on freshly generated bounded/reserved source. Successful-reply
+duplicate and host-only-reset counterexamples intentionally still reproduce.
+Added this regression/counterexample distinction to peer82 CI; live run due.
+Temporary generated source/fixture removed; no target or runtime claim.
+
 ## 2026-11-03 Sol: quarantine ACK-timeout sequence IDs locally
 
 Local MCU reservation change keeps a sticky timeout flag across retransmit
