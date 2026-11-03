@@ -12,6 +12,7 @@ done
 python3 tools/iot/check-mbss-work-binding.py "$merged" --stop-join --submit
 python3 tools/iot/prepare-mbss-poll-caller.py "$merged" "$candidate/mbss-poll-caller"
 merged="$candidate/mbss-poll-caller"
+python3 tools/iot/check-mbss-work-binding.py "$merged" --stop-join --submit
 gcc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-pie -no-pie \
   -DWR_IOT_INSTALLED_POLL -I"$merged/include" -Itools/iot \
   tools/iot/check-mbss-poll-caller.c -o "$results/check-installed-mbss-poll"

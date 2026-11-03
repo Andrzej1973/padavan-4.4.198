@@ -1,3 +1,32 @@
+## 2026-11-03 Sol: combined installed MBSS owner/caller host verification
+
+Extended check-mbss-work-binding.py to detect installed caller assets and run
+a combined suite with actual installed submission, work, join, poll, caller
+and handoff. Earlier standalone suite still runs on pre-caller candidate.
+Fresh full pipeline + ASan/UBSan passed acquired-open, original incomplete
+close receipt, both scheduling refusals, retained retry and caller join/free
+fence. OS operations and close backend remain mocked. CI now invokes both
+pre-caller and combined installed suites. Removed 1,440,414,661 file bytes of
+new scratch; preserved pinned inputs. Optional 41686992058 still running on
+c363e1e0; no duplicate dispatch or router action. Next complete uncertain
+reconciliation and ordinary caller integration before production ndo binding.
+
+## 2026-11-03 Sol: target join evidence and coupled caller regression
+
+Sole writer remains Sol; branch codex/wr1200js-service-webui, published
+HEAD c363e1e036e0ffffe5d4a7c03378f4650d355e0b. Standard 41683200467 and
+ABI 41683200444 succeeded. Optional 41683127201 succeeded on 5d14aee4;
+independent artifact size/hash and MIPS identification recorded in
+docs/evidence/WR1200JS-IOT-POLL-JOIN-TARGET-2026-11-03.md.
+New optional 41686992058 confirmed running on c363e1e0, peer82/iot.
+Caller fixture now couples actual handoff and actual delayed caller/lifetime
+helpers; admission and OS/backend remain mocked. ASan/UBSan passed acquired
+open/incomplete close, rejection, retention, scheduling refusal and ordinary
+join budget preservation/reset. Installed CI fixture uses the same source.
+No runtime acceptance or production ndo binding. Test scratch removed.
+Next inspect optional result/artifact; finish combined owner integration and
+uncertain-close reconciliation before enabling ordinary callbacks.
+
 ## 2026-11-03 Sol: combined handoff installed in isolated candidate
 
 Caller preparer installs exact handoff asset, prototype and rtmp_init include.

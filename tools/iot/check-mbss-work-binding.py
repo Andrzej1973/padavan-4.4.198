@@ -247,6 +247,68 @@ static int schedule_work(struct work_struct *w){assert(held);w->busy=schedule_ac
  return 0;
 }
 '''
+if (a.candidate/'include/wr-iot-mbss-poll-caller.inc').exists():
+ assert a.submit and a.stop_join, 'caller integration requires complete owner stack'
+ code=code.replace('#include "mbss-reaper-gate.h"','#include "mbss-reaper-gate.h"\n#include "mbss-poll-lifetime.h"')
+ code=code.replace('struct work_struct {unsigned int busy;};','struct work_struct {unsigned int busy;};\nstruct delayed_work {struct work_struct work;};')
+ code=code.replace(' int wr_iot_transition_lock;unsigned int VirtualIfCnt;', ' struct wr_iot_mbss_poll_lifetime wr_iot_mbss_poll_state;\n struct delayed_work wr_iot_mbss_poll_work;\n int wr_iot_transition_lock;unsigned int VirtualIfCnt;')
+ code=code.replace('#include "wr-iot-mbss-recovery-work.inc"','INT wr_iot_mbss_poll_stop_join(RTMP_ADAPTER *ad);\n#include "wr-iot-mbss-recovery-work.inc"')
+ code=code.replace(' wr_iot_mbss_reaper_gate_init(&ad->wr_iot_mbss_reaper_gate);',' wr_iot_mbss_poll_init(&ad->wr_iot_mbss_poll_state);\n wr_iot_mbss_reaper_gate_init(&ad->wr_iot_mbss_reaper_gate);')
+ # Replace earlier standalone tests: their manual owner queuing deliberately
+ # bypasses the caller. This suite exercises the complete installed path.
+ code=code[:code.index('int main(void){')]+r'''
+#define HZ 100
+#define to_delayed_work(p) container_of(p,struct delayed_work,work)
+static int delayed_accept=1;
+static int schedule_delayed_work(struct delayed_work *w,int delay)
+{assert(held&&delay>0);w->work.busy=delayed_accept;return delayed_accept;}
+static void cancel_delayed_work_sync(struct delayed_work *w)
+{assert(!held);w->work.busy=0;}
+#include "wr-iot-mbss-poll-caller.inc"
+#include "wr-iot-mbss-recovery-handoff.inc"
+static void poll_execute(RTMP_ADAPTER *ad)
+{
+ ad->wr_iot_mbss_poll_work.work.busy=2;
+ wr_iot_mbss_poll_work_fn(&ad->wr_iot_mbss_poll_work.work);
+ ad->wr_iot_mbss_poll_work.work.busy=0;
+}
+int main(void){
+ RTMP_ADAPTER ad;struct device main,dev;
+ for(int queued=0;queued<=1;queued++){
+  ready(&ad,&main,&dev);dev.refs=0;delayed_accept=queued;schedule_accept=1;
+  assert(wr_iot_mbss_recovery_handoff(&ad,&dev,1,NULL)==(queued?0:1));
+  assert(dev.refs==1&&!idle(&ad));
+  execute(&ad);assert(module_refs==0&&dev.refs==1);
+  if(queued)poll_execute(&ad);
+  assert(!idle(&ad)); /* callback return cannot free its adapter */
+  assert(wr_iot_mbss_poll_join(&ad)==0&&dev.refs==0&&idle(&ad));
+  assert(wr_iot_mbss_poll_stop_join(&ad)==0);
+  assert(wr_iot_mbss_poll_release_ready(&ad.wr_iot_mbss_poll_state));
+ }
+ ready(&ad,&main,&dev);dev.refs=0;delayed_accept=1;schedule_accept=0;
+ assert(wr_iot_mbss_recovery_handoff(&ad,&dev,1,NULL)==1);
+ assert(dev.refs==1&&module_refs==1);
+ schedule_accept=1;poll_execute(&ad);execute(&ad);poll_execute(&ad);
+ assert(wr_iot_mbss_poll_join(&ad)==0&&dev.refs==0&&module_refs==0&&idle(&ad));
+ ready(&ad,&main,&dev);dev.refs=0;schedule_accept=1;
+ assert(wr_iot_mbss_recovery_handoff(&ad,&dev,1,NULL)==0);
+ backend_fail=1;execute(&ad);
+ struct wr_iot_radio_ticket saved=ad.wr_iot_mbss_recovery[1].close_ticket;
+ /* Model transfer from a synchronous failed close, preserving its receipt. */
+ wr_iot_mbss_recovery_init(&ad.wr_iot_mbss_recovery[1]);dev.refs=0;
+ assert(wr_iot_mbss_recovery_handoff(&ad,&dev,1,&saved)==1);
+ backend_fail=0;execute(&ad);poll_execute(&ad);
+ assert(wr_iot_mbss_poll_join(&ad)==0&&dev.refs==0&&module_refs==0);
+ return 0;
+}
+'''
+ # These helpers belong to the earlier standalone suite only.
+ start=code.index('static void queue(RTMP_ADAPTER *ad)')
+ end=code.index('static void execute(RTMP_ADAPTER *ad)',start)
+ code=code[:start]+code[end:]
 with tempfile.TemporaryDirectory(prefix='wr-mbss-work-check-') as d:
  c=Path(d)/'check.c';c.write_text(code);subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(a.candidate/'include'),'-I'+str(here),str(c),'-o',d+'/check'],check=True);subprocess.run([d+'/check'],check=True)
-print('PASS actual MBSS work callback/owner flow, exact retry, stale/context/stop refusal and live-work fence; backend injected')
+if (a.candidate/'include/wr-iot-mbss-poll-caller.inc').exists():
+ print('PASS installed submission/work/join/poll/caller/handoff: acquired and incomplete close, scheduling refusal, retry and caller lifetime fence; OS/backend mocked')
+else:
+ print('PASS actual MBSS work callback/owner flow, exact retry, stale/context/stop refusal and live-work fence; backend injected')

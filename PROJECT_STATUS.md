@@ -1,3 +1,27 @@
+## 2026-11-03 Sol: combined installed MBSS owner/caller host verification
+
+Fresh complete source pipeline and ASan/UBSan pass with installed submission,
+worker, external join, poll, delayed caller and handoff in one fixture.
+Covers acquired-open and original incomplete-close receipt, owner/caller
+scheduling refusal, retained retry and the unjoined caller free fence.
+OS scheduling/flush and close backend are mocked, not kernel concurrency or
+hardware evidence. Added this combined suite after caller installation in CI.
+Temporary generated trees removed: 1,440,414,661 file bytes. Existing pinned
+inputs retained for unfinished work. Optional 41686992058 still in_progress.
+
+## 2026-11-03 Sol: target join evidence and coupled caller regression
+
+Confirmed standard 41683200467 and ABI 41683200444 success on c363e1e0,
+optional 41683127201 success on 5d14aee4. Independently checked its MIPS ELF
+module size/hash against metadata; evidence is in
+docs/evidence/WR1200JS-IOT-POLL-JOIN-TARGET-2026-11-03.md.
+Optional 41686992058 is running for c363e1e0 (peer82/iot); no duplicate run.
+Extended caller fixture to include actual handoff and actual delayed caller:
+both owner origins, admission rejection, accepted-retained ownership,
+OS scheduling refusal and external join with retained/idle owners pass
+ASan/UBSan. Admission/backend/OS remain mocked; this is host evidence only.
+Temporary test binary removed automatically; no build tree/archive retained.
+
 ## 2026-11-03 Sol: combined handoff installed in isolated candidate
 
 Caller preparer installs exact handoff asset, prototype and rtmp_init include.
