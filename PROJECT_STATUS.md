@@ -1,3 +1,14 @@
+## 2026-11-03 Sol: submission prototypes reverse-verified; baseline CI green
+
+Consolidated all submission/retry/submit_close declarations into the same
+reverse-verified header transformation. Fresh full candidate pipeline confirms
+each prototype appears once; installed-helper ASan/UBSan suite passes.
+Temporary candidate and fixtures removed. Firmware 41572022774 and ABI
+41572022777 completed successfully on published 6f78a94a; subsequent local
+ownership-result/incomplete-close changes are not covered by those runs.
+Next run optional peer82 target checks on the published revision, then batch
+new local changes for their own target verification.
+
 ## 2026-11-03 Sol: incomplete-close submission entry implemented
 
 Factored common gated submission and added submit_close taking the original
