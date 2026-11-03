@@ -1,3 +1,15 @@
+## 2026-11-03 Sol: submission result distinguishes ownership transfer
+
+Submission previously returned -1 both before admission and after accepted
+ownership with schedule refusal. Defined -1 rejected, 0 accepted/scheduled,
+1 accepted/retained so a future caller cannot infer permission to release
+the original open/module pin from a scheduling failure. Installed-helper
+ASan/UBSan suite and fresh preparation chain pass with distinct results.
+No production caller exists yet; callback integration must handle both
+nonnegative results as ownership transfer. Scratch trees removed.
+Published 6f78a94a firmware 41572022774 and ABI 41572022777 were in_progress
+when checked; this subsequent local change is not covered by those runs.
+
 ## 2026-11-03 Sol: firmware candidate includes current MBSS layers
 
 Firmware optional peer candidate workflow now applies work binding, external

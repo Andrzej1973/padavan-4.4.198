@@ -33,6 +33,9 @@ out:
  * open. No callback uses this entry until ordinary reaping is installed.
  * On accepted ownership, netdev hold survives even a schedule refusal.
  * Caller must keep the original module pin until checked close consumes it. */
+/* Result: -1 rejects ownership; 0 accepts and schedules; 1 accepts but retains
+ * after schedule refusal. Both nonnegative results transfer the close duty
+ * to the owner, so the caller must not release the original open/module pin. */
 INT wr_iot_mbss_recovery_submit(RTMP_ADAPTER *ad,PNET_DEV dev,
  unsigned long generation)
 {
@@ -66,5 +69,5 @@ leave:
 out:
  RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);
  if(!queued)dev_put(dev);
- return queued&&scheduled?0:-1;
+ return queued?(scheduled?0:1):-1;
 }
