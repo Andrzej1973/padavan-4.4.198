@@ -20,6 +20,17 @@ YAML parsing and exact group/cancellation checks pass. No builds dispatched
 or cancelled for this policy edit; no scratch generated. Publish the new
 workflow before expecting new runs to use these lane names.
 
+## 2026-11-03 Sol: delayed MBSS caller lifetime state implemented
+
+Added unbound mbss-poll-lifetime.h tracking pending/running/unjoined caller,
+permanent stop and three queue-attempt bound including scheduling refusals.
+Callback return retains the unjoined fence. Release requires permanent stop
+and externally supplied synchronous OS join receipt. Focused ASan/UBSan
+state-interleaving test passes callback/stop collision, no rearm before join,
+failed join, permanent stop and queue refusal exhaustion. Scratch removed.
+This is a caller state model only: adapter storage, delayed-work binding,
+three PCI joins and actual kernel cancellation remain to implement/verify.
+
 ## 2026-11-03 Sol: symmetric persistent CI queues
 
 Owner requested queueing ready work in either lane while its prior run is
