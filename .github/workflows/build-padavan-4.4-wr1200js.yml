@@ -1706,6 +1706,12 @@ jobs:
               merged="$candidate/$layer"
             done
             python3 tools/iot/check-mbss-work-binding.py "$merged" --stop-join --submit
+            for fixture in mbss-close-recovery-owner mbss-reaper-gate; do
+              gcc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
+                -fno-pie -no-pie -Itools/iot "tools/iot/check-$fixture.c" \
+                -o "$results/check-$fixture"
+              "$results/check-$fixture"
+            done
             cp "$merged.manifest.json" "$results/mbss-submission-candidate.json"
             cp "$candidate/peer/peer-chain.json" "$results/peer-chain.json"
           elif [ "${{ inputs.iot_candidate_variant }}" = v39 ]; then

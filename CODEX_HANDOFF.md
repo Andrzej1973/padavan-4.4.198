@@ -1,3 +1,12 @@
+## 2026-11-03 Sol: peer82 CI includes owner/storage and gate regressions
+
+Added explicit ASan/UBSan runs of check-mbss-close-recovery-owner.c and
+check-mbss-reaper-gate.c to the peer82 candidate path alongside installed
+worker/submission checks. Previously the owner fixture ran only in a different
+candidate branch. Both fixtures and workflow YAML/Bash syntax pass locally.
+Scratch binaries removed. Existing live CI on d9133247 does not cover this
+subsequent workflow edit; batch with the next coherent publication.
+
 ## 2026-11-03 Sol: uncertain owner snapshots admitted provenance
 
 Recovery owner snapshots uncertainty reason and verified stage at admission.
