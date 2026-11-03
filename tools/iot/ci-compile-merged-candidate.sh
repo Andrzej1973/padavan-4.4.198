@@ -327,7 +327,14 @@ test -s "$module"
 grep -q 'Machine:.*MIPS' "$results/mt76x3-elf.txt"
 "${cross}readelf" -sW "$module" > "$results/mt76x3-symbols.txt"
 if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
-  for symbol in wr_iot_aux_family_retry_work_fn wr_rssi_delete_entry; do
+  for symbol in wr_iot_aux_family_retry_work_fn wr_rssi_delete_entry \
+    wr_iot_mbss_begin_close wr_iot_mbss_close_checked \
+    wr_iot_mbss_recovery_work_fn wr_iot_mbss_recovery_join_completed \
+    wr_iot_mbss_recovery_stop_join wr_iot_mbss_recovery_submit \
+    wr_iot_mbss_recovery_submit_close wr_iot_mbss_recovery_retry \
+    wr_iot_mbss_recovery_poll wr_iot_mbss_poll_schedule \
+    wr_iot_mbss_poll_work_fn wr_iot_mbss_poll_join \
+    wr_iot_mbss_poll_stop_join wr_iot_mbss_recovery_handoff; do
     grep -Eq "[[:space:]]${symbol}$" "$results/mt76x3-symbols.txt"
   done
 fi

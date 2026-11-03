@@ -25,6 +25,15 @@ with tempfile.TemporaryDirectory(prefix='wr-ack-epoch-gap-') as d:
  dispatch(&msg,&ev,&pkt);
  assert(msg.wr_iot_firmware_result==0&&msg.ack_done==1);
  puts("KNOWN GAP REPRODUCED: old matching ACK accepted after 15-slot reuse; host reservation is not firmware epoch proof");
+ /* Controller init resets cmd_seq to zero. A fresh host allocation also
+  * clears its reservation ledger. Neither operation changes a wire event:
+  * absent a proven RX/firmware boundary, the previous seq=1 still matches. */
+ ledger=(struct wr_iot_mcu_sequence_reservation){0};
+ reused=wr_iot_mcu_sequence_reserve(&ledger);assert(reused==first);
+ msg=base;msg.seq=reused;ev.fw_rxd_1.field.seq_num=first;
+ dispatch(&msg,&ev,&pkt);
+ assert(msg.wr_iot_firmware_result==0&&msg.ack_done==1);
+ puts("KNOWN GAP REPRODUCED: host-only controller/ledger reset does not establish an ACK epoch boundary");
  return 0;
 }
 '''

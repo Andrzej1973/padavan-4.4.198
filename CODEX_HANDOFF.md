@@ -1,3 +1,15 @@
+## 2026-11-03 Sol: ACK/RX boundary audit and MBSS target symbol gate
+
+Extended ACK gap reproduction to host-only reset; ASan/UBSan reproduces the
+ambiguity without claiming actual device duplicates. Audited pinned FwInit,
+FwExit, DMA-disable and RX-ring cleanup: individual calls provide no verified
+firmware epoch boundary. Evidence document records exact scope and next work.
+Peer82 CI now requires 16 symbols including new MBSS admission/caller/join
+entries. All present in prior target artifact 13257692154, consumed in memory;
+bash syntax/whitespace checks pass. Preserve docs/reference as unrelated owner
+materials. Next inspect exact CI, queue optional for a6f514d3 after standard
+success while preserving SHA/input identity; continue physical RX/ACK audit.
+
 ## 2026-11-03 Sol: preserve uncertainty raised inside admitted MBSS worker
 
 Local owner helper and worker now capture an uncertain close reached after

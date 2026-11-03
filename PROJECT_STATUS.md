@@ -1,3 +1,13 @@
+## 2026-11-03 Sol: ACK/RX boundary audit and MBSS target symbol gate
+
+Host-only sequence reset also reproduces stale ACK ambiguity; source audit
+found no epoch proof in individual FwExit/FwInit or RX ring cleanup calls.
+Details: docs/evidence/WR1200JS-IOT-RECOVERY-HARDWARE-GATES-2026-11-03.md.
+Peer82 target checks now require 14 MBSS entry symbols plus two existing
+symbols. All 16 were found in c363e1e0 artifact 13257692154; bash syntax and
+whitespace checks pass. No archive retained. New hardware boundary remains
+unproven; no router operation. a6f514d3 standard/ABI and older optional live.
+
 ## 2026-11-03 Sol: preserve uncertainty raised inside admitted MBSS worker
 
 Local change snapshots checked-close stage-5 origin into the existing owner
