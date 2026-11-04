@@ -64,6 +64,20 @@ def prepare(files):
     for call in ('ret = CmdFwStartReq(ad, 1, FW_CODE_START_ADDRESS1);',
                  'ret = CmdFwStartReq(ad, 0, 0);'):
         one(mt,call,call+'\n\tif (ret) { Ctl->Stage = FW_NO_INIT; goto done; }')
+    # PCI RX has PDMALen from SDL0 before skb length is populated. Validate
+    # that bound before reading dword0, then require the complete event header.
+    one('common/cmm_data.c',
+        '    rxd_0 = (union rmac_rxd_0 *)(GET_OS_PKT_DATAPTR(rx_packet));',
+        '#ifdef RTMP_PCI_SUPPORT\n'
+        '    if (!rx_packet || rx_blk->PDMALen < sizeof(*rxd_0) ||\n'
+        '        rx_blk->PDMALen > RX_BUFFER_AGGRESIZE) return 0;\n'
+        '#endif\n'
+        '    rxd_0 = (union rmac_rxd_0 *)(GET_OS_PKT_DATAPTR(rx_packet));')
+    one('common/cmm_data.c','        case RMAC_RX_PKT_TYPE_RX_EVENT:\n         {',
+        '        case RMAC_RX_PKT_TYPE_RX_EVENT:\n         {\n'
+        '#ifdef RTMP_PCI_SUPPORT\n'
+        '            if (rx_blk->PDMALen < sizeof(EVENT_RXD)) break;\n'
+        '#endif')
     # Method1 is the WR1200JS loader. Failure must not leave FW_DOWNLOAD
     # published after the common cleanup returns to its caller.
     start=result[mt].index('static NDIS_STATUS AndesMTLoadFwMethod1(')
@@ -99,7 +113,7 @@ def main():
         if out.exists() or src==out or src in out.parents or out in src.parents:
             p.error('Expected new separate overlay')
     names=('include/rtmp.h','include/mcu/andes_mt.h','include/mcu/andes_core.h',
-           'mcu/andes_core.c','mcu/andes_mt.c','include/wr-iot-mcu-sender-wrapper.inc')
+           'mcu/andes_core.c','mcu/andes_mt.c','include/wr-iot-mcu-sender-wrapper.inc','common/cmm_data.c')
     changes=prepare({n:(src/n).read_text() for n in names})
     if manifest is None:out.mkdir(parents=True)
     for name,text in changes.items():

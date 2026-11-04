@@ -1,3 +1,87 @@
+## 2026-11-04 Sol: coherent bounded/direct-RX package verified for publication
+
+Final isolated candidate includes bounded PCI event entry, allocation-free
+checked ACK dispatch and persistent completed-close-body provenance. Actual
+SDK-type host tests and parser routing passed under ASan/UBSan; boot/scatter/
+Method1/close/AP-release plus four MCU lifetime suites passed. Final full
+inventory matched and duplicate installation refused. CI includes helper
+symbol and exact cmm_data.o effective-config/source checks. Publish once and
+verify new standard before optional; target/runtime remains unproved.
+This implements the RX side only. Do not claim owned boot-TX, MCU-only reinit,
+firmware/RX epoch retirement or normal admission are ready. No owner reset
+or quarantine clear was added. Temporary trees removed; retained 13.9MB input
+still needed. Owner reference inputs stay untracked. Router unchanged.
+
+## 2026-11-04 Sol: actual bounded checked RX without message allocation local
+
+New manifest-checked isolated layer prepare-mcu-rx-direct.py binds actual PCI
+RX_EVENT case to wr_iot_mcu_checked_rx_packet before generic allocating entry.
+It copies the bounded SDK header, finds sequence-matched checked TX under
+ackq_lock and runs the same current checked radio/boot completion branch.
+No allocation/destructor, generic callback or sender/sequence reset occurs.
+Unmatched/ordinary traffic falls back to the original callback; handled
+checked ACK sets existing RX response flag without a second dispatch.
+This removes RX-message construction as a requirement for a checked ACK;
+owned boot TX allocation and MCU-only tasklet reinit are still missing.
+
+Host ASan/UBSan passed actual helper using SDK event types: all selected
+commands/statuses, duplicates, mismatched seq, ordinary fallback, short input
+and inactive controller. Actual parser prefix/event case verifies routing
+with injected direct helper and bounded input. Existing boot/scatter/close/
+Method1 fixtures pass; final source inventory exact; duplicate install refused.
+CI recipe applies this layer last, reruns bounded RX checks and requires a
+defined function in target module. Reload report now includes actual cmm_data
+preprocessing/source hash. No target/runtime evidence yet; keep local with
+bootstrap prerequisites until coherent publication. All temporary trees removed.
+Optional749 confirmed still live in Build WR1200JS firmware; no duplicate.
+Router unchanged.
+
+## 2026-11-04 Sol: bounded PCI MCU event entry prepared locally
+
+RX audit correction: GetPacketFromRxRing records SDL0 in PDMALen; parser
+already checks it equals the declared dword0 byte count and <=RX buffer cap.
+Thus prior copy is not unconditionally unbounded on this PCI path. Missing
+minimum-length checks remain: dword0 is read before a 4-byte minimum, and a
+short RX_EVENT can reach handler reading a full EVENT_RXD. Local isolated boot
+layer now checks DMA-valid length before dword0 and full EVENT_RXD size before
+event dispatch. skb length is not used here: PCI populates PDMALen before
+parse. Existing callback ABI and valid-size behavior are preserved.
+
+Host ASan/UBSan runs actual parser prefix/event case, with EVENT_RXD types
+extracted from SDK, for lengths0..3, truncated headers4..11, valid12/13/2048,
+oversize2049, DMA/header mismatch and null inputs. Removing event-size guard
+is caught by ASan. Boot ACK/scatter, close-order and Method1 fixtures passed
+on the same installed full inventory. This is host/source evidence only;
+no bootstrap allocator exception, tasklet reopening or epoch reset added.
+Kept local with persistent close-body provenance for next coherent package.
+Temporary fixtures and source copies removed; retained input still needed.
+
+Standard748 succeeded ondc8f546; no equivalent optional existed. Queued once
+run41895664316 for exact verification_revisiondc8f5468a04e7f7a91202228b9366e4873696e79,
+dispatch HEAD17145033f0c0425480693a820e47b01b8130e637, iot/peer82.
+Optional749 remains separate source07ea86d; standard750 now active. Router unchanged.
+
+## 2026-11-04 Sol: published loader package; persistent close-body provenance local
+
+Remote HEAD17145033f0c0425480693a820e47b01b8130e637 confirmed after one-package
+push. New standard750/run41894840022 pending, ABI662/run41894839802 active.
+Earlier optional749/run41894174306 still builds verified source07ea86d.
+
+Bootstrap prerequisite source finding: radio START increments epoch and resets
+shutdown/radio-off stages, so those fields cannot identify prior completed
+physical teardown during new open. Local isolated close generator now retains
+close_body_serial/close_body_epoch only at the completed tail, after peer close
+finish, with same CLOSE serial/current epoch revalidation under transition lock.
+Actual extracted close fixture confirms no provenance on OFF failure or partial
+tail failure, preservation through actual finish->START, and refusal on epoch
+drift. AP-release and Method1 host checks passed with this generated source.
+These fields prove only body completion, not executor retirement, hardware
+epoch, queue/RX bootstrap or normal admission. No claim reset/unblock API added.
+Keep these changes local while binding the owned bootstrap transaction; do not
+publish an unconsumed rearm mechanism or infer runtime acceptance.
+Temporary fixture/source copies removed; 13.9MB retained input still required.
+Router unchanged; owner references remain untracked and untouched.
+
 ## 2026-11-04 Sol: loader failure-state and ring checks ready for publication
 
 One coherent package: Method1 invalidates failed-load state; full actual-loader

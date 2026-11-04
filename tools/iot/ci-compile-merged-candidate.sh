@@ -260,7 +260,11 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   python3 tools/iot/check-mcu-boot-result.py "$merged"
   python3 tools/iot/check-mcu-scatter-result.py "$merged"
   python3 tools/iot/check-fw-method1.py "$merged"
+  python3 tools/iot/check-mcu-rx-bounds.py "$merged"
   python3 tools/iot/check-ctrl-ring-reset.py "$merged"
+  python3 tools/iot/prepare-mcu-rx-direct.py "$merged" --install-isolated
+  python3 tools/iot/check-mcu-rx-direct.py "$merged"
+  python3 tools/iot/check-mcu-rx-bounds.py "$merged"
   for fixture in allocator release lifetime destructors; do
     python3 "tools/iot/check-mcu-sequence-$fixture.py" "$merged"
   done
@@ -364,7 +368,8 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
     wr_iot_mbss_recovery_poll wr_iot_mbss_poll_schedule \
     wr_iot_mbss_poll_work_fn wr_iot_mbss_poll_join \
     wr_iot_mbss_poll_stop_join wr_iot_mbss_recovery_handoff wr_iot_mcu_send_owned_off \
-    wr_iot_mt_prepare_close_rx wr_iot_nettask_data_exit wr_iot_ap_release_after_join; do
+    wr_iot_mt_prepare_close_rx wr_iot_nettask_data_exit wr_iot_ap_release_after_join \
+    wr_iot_mcu_checked_rx_packet; do
     awk -v name="$symbol" '$4 == "FUNC" && $7 != "UND" && $3 > 0 && $8 == name { found=1 } END { exit !found }' \
       "$results/mt76x3-symbols.txt"
   done

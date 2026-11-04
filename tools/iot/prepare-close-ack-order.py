@@ -49,9 +49,9 @@ def prepare(files):
         'BOOLEAN wr_iot_mt_prepare_close_rx(RTMP_ADAPTER *pAd, const struct wr_iot_radio_ticket *ticket);\n'
         'BOOLEAN wr_iot_mt_radio_off_checked(')
     one('include/radio-transition.h','unsigned long serial,retired_serial,epoch;',
-        'unsigned long serial,retired_serial,epoch,ap_cleanup_serial;')
+        'unsigned long serial,retired_serial,epoch,ap_cleanup_serial,close_body_serial,close_body_epoch;')
     one('include/radio-transition.h','s->serial=0;s->retired_serial=0;',
-        's->serial=0;s->retired_serial=0;s->ap_cleanup_serial=0;')
+        's->serial=0;s->retired_serial=0;s->ap_cleanup_serial=0;s->close_body_serial=0;s->close_body_epoch=0;')
     # All irreversible AP/resource cleanup happens only after global joins.
     helper=Path(__file__).with_name('ap-release-after-join.inc').read_text()
     result[ap]+='\n'+helper
@@ -93,6 +93,17 @@ def prepare(files):
         '#ifdef CONFIG_AP_SUPPORT\n'
         '  if (!wr_iot_ap_release_after_join(pAd,ticket))return NDIS_STATUS_FAILURE;\n'
         '#endif\n }\n'+anchor)
+    # Preserve only the completed body provenance across START resetting
+    # shutdown_stage. Executor-idle and new boot/RX epoch remain separate gates.
+    change(' pAd->wr_iot_transition.shutdown_stage=2U;',
+        ' if (pAd->wr_iot_transition.busy!=WR_RADIO_CLOSE ||\n'
+        '     pAd->wr_iot_transition.serial!=ticket->serial ||\n'
+        '     pAd->wr_iot_transition.epoch!=ticket->epoch) {\n'
+        '  RTMP_IRQ_UNLOCK(&pAd->wr_iot_transition_lock,flags);\n'
+        '  return NDIS_STATUS_FAILURE;\n }\n'
+        ' pAd->wr_iot_transition.close_body_serial=ticket->serial;\n'
+        ' pAd->wr_iot_transition.close_body_epoch=ticket->epoch;\n'
+        ' pAd->wr_iot_transition.shutdown_stage=2U;')
     result[close]=result[close][:start]+f+result[close][end:]
     return result
 

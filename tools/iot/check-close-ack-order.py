@@ -18,7 +18,7 @@ prefix='#define MT_MAC 1\n'+support.prefix(prefix)
 prefix=prefix.replace('#include "wr-iot-peer-legacy-close.inc"','')
 stubs=r'''
 static int order,qmac,qdata,qap,qoff,qglobal,qirq,qrelease,qctrl,commands;
-static int rx_result,tail_fail;
+static int rx_result,tail_fail,epoch_drift;
 #define IS_MT7603(ad) ((ad)->chipCap.hif_type==HIF_MT)
 #undef wr_iot_mt_radio_off_checked
 #undef RTMP_OS_IRQ_RELEASE
@@ -59,7 +59,7 @@ static int wr_iot_ap_release_after_join(RTMP_ADAPTER *ad,const struct wr_iot_rad
  if(tail_fail)ad->wr_iot_peer_table_owner.transactions=1;
  return 1;
 }
-#define MCU_CTRL_EXIT(ad) ((void)(ad),qctrl=++order)
+#define MCU_CTRL_EXIT(ad) ((void)(ad),qctrl=++order,(ad)->wr_iot_transition.epoch+=epoch_drift)
 static void init(RTMP_ADAPTER *ad,struct wr_iot_radio_ticket *t){
  memset(ad,0,sizeof(*ad));wr_test_peer_fresh(ad);wr_iot_radio_transition_init(&ad->wr_iot_transition);
  ad->wr_iot_transition.phase=WR_RADIO_READY;
@@ -67,7 +67,7 @@ static void init(RTMP_ADAPTER *ad,struct wr_iot_radio_ticket *t){
  ad->chipCap.hif_type=HIF_MT;ad->infType=RTMP_DEV_INF_PCI;
  ad->flags=fRTMP_ADAPTER_INTERRUPT_ACTIVE|fRTMP_ADAPTER_INTERRUPT_IN_USE;
  order=qmac=qdata=qap=qoff=qglobal=qirq=qrelease=qctrl=commands=0;
- rx_result=tail_fail=join_result=0;radio_result=ap_result=1;ap_calls=0;
+ rx_result=tail_fail=epoch_drift=join_result=0;radio_result=ap_result=1;ap_calls=0;
 }
 '''
 tests=r'''
@@ -76,9 +76,16 @@ int main(void){
  init(&ad,&t);assert(wr_iot_checked_close_body(&ad,0,&t,&started)==0);
  assert(qmac<qdata&&qdata<qap&&qap<qoff&&qoff<qglobal&&qglobal<qirq&&qirq<qrelease&&qrelease<qctrl);
  assert(commands==1&&ap_calls==1&&ad.wr_iot_transition.shutdown_stage==2);
+ assert(ad.wr_iot_transition.close_body_serial==t.serial&&ad.wr_iot_transition.close_body_epoch==t.epoch);
+ struct wr_iot_radio_ticket next;
+ assert(wr_iot_radio_finish(&ad.wr_iot_transition,&t,1));
+ assert(wr_iot_radio_begin(&ad.wr_iot_transition,ad.wr_iot_transition.epoch,WR_RADIO_START,&next));
+ assert(ad.wr_iot_transition.shutdown_stage==0&&ad.wr_iot_transition.mt_radio_off_stage==0);
+ assert(ad.wr_iot_transition.close_body_serial==t.serial&&ad.wr_iot_transition.close_body_epoch==t.epoch);
  init(&ad,&t);radio_result=0;
  assert(wr_iot_checked_close_body(&ad,0,&t,&started)==1&&!qglobal&&!qirq&&!qrelease);
  assert(ad.wr_iot_transition.shutdown_stage==4&&commands==1);
+ assert(!ad.wr_iot_transition.close_body_serial&&!ad.wr_iot_transition.close_body_epoch);
  assert(wr_iot_checked_close_body(&ad,0,&t,&started)==1&&commands==1&&ap_calls==1);
  init(&ad,&t);rx_result=1;
  assert(wr_iot_checked_close_body(&ad,0,&t,&started)==1&&!qirq&&!qrelease&&commands==1);
@@ -88,7 +95,11 @@ int main(void){
  assert(wr_iot_checked_close_body(&ad,0,&t,&started)==1&&ap_calls==1);
  init(&ad,&t);tail_fail=1;
  assert(wr_iot_checked_close_body(&ad,0,&t,&started)==1&&qrelease&&ad.wr_iot_transition.shutdown_stage==6);
+ assert(!ad.wr_iot_transition.close_body_serial&&!ad.wr_iot_transition.close_body_epoch);
  int old=qrelease;assert(wr_iot_checked_close_body(&ad,0,&t,&started)==1&&qrelease==old&&commands==1);
+ init(&ad,&t);epoch_drift=1;
+ assert(wr_iot_checked_close_body(&ad,0,&t,&started)==1);
+ assert(ad.wr_iot_transition.shutdown_stage==6&&!ad.wr_iot_transition.close_body_serial);
  assert(!held);
 }
 '''
