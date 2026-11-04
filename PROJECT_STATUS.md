@@ -1,3 +1,32 @@
+## 2026-11-04 Sol: no-response firmware transport errors propagated
+
+Local isolated boot layer now captures dequeue/kickout return, including
+admission closure after enqueue. Actual extracted sender and dispatcher
+fixtures cover success, private refusal, post-ring-publication refusal and
+late admission closure. Private failure frees once; ring-owned failure is
+retained. Sender never inspects the consumed message. ASan/UBSan passed.
+Mutation restoring discarded return fails the regression as expected. Boot
+ACK, owned OFF, close order, four MCU lifetime suites and final source
+inventory also passed. CI recipe includes new scatter fixture. This is
+transport-result propagation, NOT DMA completion, bootstrap lease or reopen
+acceptance; those remain required. No target evidence for this local change.
+Temporary source/test trees removed automatically; retained 13.9MB input is
+still needed for unfinished integration. Owner reference files untouched.
+
+## 2026-11-04 Sol: firmware scatter transport prerequisite
+
+Final isolated source (retained a1 input plus close-order and boot-result layers)
+confirms no-wait CmdFwScatter uses a sender body that discards the dequeue/
+kickout return and returns initialized success. PCI refusal can occur before
+ring ownership; a separate MCU_INIT check can fail after ring publication.
+Do not fix this by reading a consumed message or blindly freeing on error.
+Next implement explicit no-response transport result/ownership with actual
+extracted-path tests before owned bootstrap/reopen. Source hashes and bounded
+findings: docs/evidence/WR1200JS-IOT-BOOT-SCATTER-AUDIT-2026-11-04.json.
+No source fix or target/runtime claim yet. Temporary 13.9MB audit copy removed;
+retained input remains needed. Standard747 confirmed building firmware, ABI660
+succeeded on07ea86d; no duplicate dispatch. Router unchanged.
+
 ## 2026-11-04 Sol: checked boot-command results ready for target verification
 
 Added final manifest-checked isolated layer for three Method1 boot controls:

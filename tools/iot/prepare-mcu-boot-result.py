@@ -50,6 +50,12 @@ def prepare(files):
         '                        GET_OS_PKT_LEN(net_pkt),event_rxd->fw_rxd_0.field.length,\n'
         '                        sizeof(*event_rxd)))\n'
         '                        msg->wr_iot_firmware_result=NDIS_STATUS_SUCCESS;\n'+anchor)
+    # No-wait firmware scatter has no ACK to replace a transport error.
+    # Return the dispatch result without inspecting the consumed message.
+    one('mcu/andes_core.c','\n\tAndesDequeueAndKickOutCmdMsgs(ad);',
+        '\n\tret = AndesDequeueAndKickOutCmdMsgs(ad);')
+    one('mcu/andes_core.c','            continue;\n\t\t}\n\n\t\tnet_pkt = msg->net_pkt;',
+        '            ret = NDIS_STATUS_FAILURE;\n            continue;\n\t\t}\n\n\t\tnet_pkt = msg->net_pkt;')
     for command,callback in (('MT_RESTART_DL_REQ','CmdReStartDLRsp'),
                               ('MT_TARGET_ADDRESS_LEN_REQ','CmdAddrellLenRsp'),
                               ('MT_FW_START_REQ','CmdStartDLRsp')):
