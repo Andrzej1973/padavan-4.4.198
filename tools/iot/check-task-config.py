@@ -7,7 +7,7 @@ p.add_argument('--kernel',type=Path,required=True)
 p.add_argument('--driver',type=Path,required=True)
 p.add_argument('--compiler',type=Path,required=True)
 p.add_argument('--output',type=Path,required=True)
-p.add_argument('--unit',choices=('rt_linux','rt_rbus_pci_drv','andes_mt','cmm_asic_mt'),default='rt_linux')
+p.add_argument('--unit',choices=('rt_linux','rt_rbus_pci_drv','andes_mt','cmm_asic_mt','cmm_mac_pci'),default='rt_linux')
 a=p.parse_args(); root=a.kernel.resolve(); driver=a.driver.resolve()
 report={'status':'unavailable','scope':'actual '+a.unit+'.c preprocessing only','target_driver_compiled':False,'runtime_verified':False}
 try:
@@ -32,7 +32,7 @@ try:
  sources=[t for t in filtered if t.endswith('.c')]
  if len(sources)!=1:raise RuntimeError('Expected one source')
  source=Path(sources[0]);source=source if source.is_absolute() else root/source
- relative={'rt_linux':'os/linux/rt_linux.c','rt_rbus_pci_drv':'os/linux/rt_rbus_pci_drv.c','andes_mt':'mcu/andes_mt.c','cmm_asic_mt':'hw_ctrl/cmm_asic_mt.c'}[a.unit]
+ relative={'rt_linux':'os/linux/rt_linux.c','rt_rbus_pci_drv':'os/linux/rt_rbus_pci_drv.c','andes_mt':'mcu/andes_mt.c','cmm_asic_mt':'hw_ctrl/cmm_asic_mt.c','cmm_mac_pci':'common/cmm_mac_pci.c'}[a.unit]
  if source.resolve()!=(driver/relative).resolve():raise RuntimeError('Unexpected translation unit')
  command=[str(tool.resolve()),*filtered,'-E','-dM']
  a.output.parent.mkdir(parents=True,exist_ok=True)

@@ -259,6 +259,8 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   python3 tools/iot/prepare-mcu-boot-result.py "$merged" --install-isolated
   python3 tools/iot/check-mcu-boot-result.py "$merged"
   python3 tools/iot/check-mcu-scatter-result.py "$merged"
+  python3 tools/iot/check-fw-method1.py "$merged"
+  python3 tools/iot/check-ctrl-ring-reset.py "$merged"
   for fixture in allocator release lifetime destructors; do
     python3 "tools/iot/check-mcu-sequence-$fixture.py" "$merged"
   done

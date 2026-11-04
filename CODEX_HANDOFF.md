@@ -1,3 +1,50 @@
+## 2026-11-04 Sol: loader failure-state and ring checks ready for publication
+
+One coherent package: Method1 invalidates failed-load state; full actual-loader
+fault fixture and actual preallocated control-ring reset fixture run in final
+isolated CI; reload report binds cmm_mac_pci source and its effective macros.
+Installed host ASan/UBSan passed loader, ring reset, scatter transport, checked
+boot ACK and staged close; complete final manifest inventory matched. Target
+verification remains required. No bootstrap/reopen admission was enabled.
+All package temporary directories removed; retained 13.9MB input remains needed.
+ABI661 succeeded ondc8f546; standard748 and optional749 still active. Optional
+749 verifies07ea86d, not its dispatch HEADdc8f546. Publish this package once,
+confirm remote/run IDs, then continue bootstrap work; no all-lanes barrier.
+
+## 2026-11-04 Sol: preallocated control-ring teardown checked
+
+BUILD746 evidence reports RESOURCE_PRE_ALLOC enabled; actual matching source
+uses RTMPResetTxRxRingMemory. Extracted CONFIG_ANDES control-ring reset passed
+ASan/UBSan for every valid wrap position and pending count, including DMA
+index not advanced, two packet segments, empty and repeated cleanup. It
+drains to CPU index, not DMA completion index, and unmaps before each release.
+No ring-reset code change was needed. This assumes caller-established DMA
+quiescence and joined IRQ/tasklets; fixture does not prove either on hardware.
+Reload target recipe now records and checks cmm_mac_pci.o actual preprocessing
+and source hash, requiring RESOURCE_PRE_ALLOC for that exact TU. Host reset
+fixture added to the final installed candidate CI checks. Boot failure-state
+change and these verification additions remain one local unpublished package.
+Scratch fixture directories removed; retained source needed for reopen work.
+
+## 2026-11-04 Sol: Method1 failed-load state invalidation verified locally
+
+Actual full WR1200JS Method1 loader now invalidates firmware Stage on every
+nonzero return through its existing common cleanup. Host ASan/UBSan executes
+cold and warm reload, restart failure, ROM-not-ready timeout, address/scatter/
+start errors and firmware-run timeout with injected commands/MMIO. Start
+failure cannot continue polling into success. Existing cleanup executes.
+Removing invalidation makes the full-function regression fail. Scatter and
+boot ACK fixtures passed against this same installed source. Target/runtime
+verification remains pending; no DMA completion or reopen claim. This local
+change is retained for the next coherent publication, not pushed separately.
+Temporary audit/source/binaries removed; 13.9MB shared test input retained.
+
+Standard747 and ABI660 succeeded on07ea86d. Required optional queued once:
+run41894174306, verification_revision07ea86de014e104ea2a3092d24b252288558025f;
+dispatch HEADdc8f5468a04e7f7a91202228b9366e4873696e79. Verify source input
+artifact, not headSha alone. Standard748/run41893839884 is now in_progress.
+Router unchanged.
+
 ## 2026-11-04 Sol: no-response firmware transport errors propagated
 
 Local isolated boot layer now captures dequeue/kickout return, including

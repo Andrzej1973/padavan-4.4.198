@@ -29,7 +29,7 @@ PY
 cp "$kernel/.config" "$results/kernel.config"
 make -C "$feature" ARCH=mips CROSS_COMPILE="$cross" -j2 \
   M=drivers/net/wireless/mediatek/mt76x3_ap modules 2>&1 | tee "$results/build.log"
-for unit in rt_linux rt_rbus_pci_drv andes_mt cmm_asic_mt; do
+for unit in rt_linux rt_rbus_pci_drv andes_mt cmm_asic_mt cmm_mac_pci; do
   python3 tools/iot/check-task-config.py --kernel "$feature" --driver "$driver" \
     --compiler "$compiler" --unit "$unit" --output "$results/$unit-config.json"
 done
@@ -44,13 +44,15 @@ import hashlib,json,pathlib,sys
 root=pathlib.Path(sys.argv[1]); reports={}
 source_manifest=json.loads((root.parent/'merged-source-manifest.json').read_text())
 paths={'rt_linux':'os/linux/rt_linux.c','rt_rbus_pci_drv':'os/linux/rt_rbus_pci_drv.c',
-       'andes_mt':'mcu/andes_mt.c','cmm_asic_mt':'hw_ctrl/cmm_asic_mt.c'}
-for unit in ('rt_linux','rt_rbus_pci_drv','andes_mt','cmm_asic_mt'):
+       'andes_mt':'mcu/andes_mt.c','cmm_asic_mt':'hw_ctrl/cmm_asic_mt.c','cmm_mac_pci':'common/cmm_mac_pci.c'}
+for unit in ('rt_linux','rt_rbus_pci_drv','andes_mt','cmm_asic_mt','cmm_mac_pci'):
     report=json.loads((root/(unit+'-config.json')).read_text())
     macros=report['macros']
     if (report['status']!='complete' or macros['LOAD_FW_ONE_TIME'] or
         not macros['MT_MAC'] or not macros['RTMP_PCI_SUPPORT']):
         raise SystemExit('Reload profile macro mismatch: '+unit)
+    if unit=='cmm_mac_pci' and not macros['RESOURCE_PRE_ALLOC']:
+        raise SystemExit('Expected verified preallocated ring reset path')
     if report['source_sha256']!=source_manifest['merged_driver_sha256'][paths[unit]]:
         raise SystemExit('Reload source differs from the candidate: '+unit)
     reports[unit]=report

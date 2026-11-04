@@ -64,6 +64,14 @@ def prepare(files):
     for call in ('ret = CmdFwStartReq(ad, 1, FW_CODE_START_ADDRESS1);',
                  'ret = CmdFwStartReq(ad, 0, 0);'):
         one(mt,call,call+'\n\tif (ret) { Ctl->Stage = FW_NO_INIT; goto done; }')
+    # Method1 is the WR1200JS loader. Failure must not leave FW_DOWNLOAD
+    # published after the common cleanup returns to its caller.
+    start=result[mt].index('static NDIS_STATUS AndesMTLoadFwMethod1(')
+    end=result[mt].index('static NDIS_STATUS AndesMTLoadFwMethod2(',start)
+    body=result[mt][start:end]
+    if body.count('done:')!=1:raise ValueError('Changed Method1 cleanup')
+    body=body.replace('done:','done:\n\tif (ret) Ctl->Stage = FW_NO_INIT;')
+    result[mt]=result[mt][:start]+body+result[mt][end:]
     for name in ('include/mcu/andes_mt.h','include/mcu/andes_core.h'):
         result.pop(name)  # Reviewed protocol inputs, not changed source files.
     result['include/mcu-boot-result.h']=Path(__file__).with_name('mcu-boot-result.h').read_text()
