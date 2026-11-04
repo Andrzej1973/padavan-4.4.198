@@ -1,3 +1,32 @@
+## 2026-11-04 Sol: optional 734 WSC APCLI compile failure
+
+Run 41768450746 on fd76301e failed in the full WSC feature module:
+ap/apcli_sync.c:1368/1525 uses bHasWscIe with both declarations commented out.
+Original job 126372326486 and artifact 13294353568 confirm the error.
+Monitor 41770633873/artifact 13295010550 identifies the step but deployed
+prefix-only parsing misses the cause. Existing branch suffix parser passes
+the added exact-error regression; no duplicate parser fix or main mutation.
+Isolated feature preparer restores FALSE-initialized per-call WSC_AP_SUPPORT
+locals in both probe builders; baseline and production source stay unchanged.
+Real pinned input transformation and drift rejection pass; target rerun due.
+Baseline MIPS module independently verified: 5574532 bytes, SHA256
+4496d406d79d8455e5b4d0d951a270094d9254c3cda2050892fba00850a654b8.
+Reload-mode ASIC TU passed (1096-byte checked-off function), not full reload
+module, firmware shutdown or runtime acceptance. Full WSC remains incomplete.
+Monitor scratch executable/cache removed; artifacts read in memory, no archive
+retained. Preserved unfinished source inputs and owner references. Router untouched.
+
+## 2026-11-04 Sol: standard 733 passed; optional 734 running
+
+Remote fd76301e95ea10560bbe0071d610eb17eb55973a. Standard 41765098927
+and ABI 41765098891 success; prior fadbcf76 standard/ABI success. Required
+optional 41768450746 dispatched once for explicit fd76301e, iot/peer82.
+Selector 126372271317 completed, build 126372326486 in progress. Next inspect
+exact source report and optional result; no full WSC/reload-TU acceptance yet.
+Raw vendor AGG_TEMP zero-mask/RMW issues are already corrected by
+prepare-aux-family-retry-scheduler.py and covered by check-agg-temp-lock.py.
+Do not reimplement them; hardware/firmware completion semantics still open.
+
 ## 2026-11-04 Sol: reload-mode checked-off target TU probe prepared
 
 New check-radio-off-reload-target-tu.py is wired for peer82 after MLME TU.

@@ -21,6 +21,7 @@ grep -qx 'CONFIG_MT7603E_RLT_AP_SUPPORT=m' "$feature/.config"
 grep -qx 'CONFIG_MT76X3_AP=m' "$feature/.config"
 # Command-line overrides select the wrapper's complete WSC object list.
 # They are feature-build inputs, not a production .config change.
+python3 tools/iot/prepare-wsc-apcli-probe.py "$driver" --report "$results/apcli-probe-source.json"
 make -C "$feature" ARCH=mips CROSS_COMPILE="$cross" -j2 \
   M=drivers/net/wireless/mediatek/mt76x3_ap \
   CONFIG_MT7603E_WSC_INCLUDED=y CONFIG_MT7603E_WSC_V2_SUPPORT=y modules \
@@ -78,5 +79,6 @@ report={'scope':'complete isolated MT7603 WSC module',
         'task_macros':task['macros'],'task_command_sha256':task['command_sha256'],
         'task_source_sha256':task['source_sha256']}
 report['wsc_objects']=objects
+report['apcli_probe_source']=json.loads((root/'apcli-probe-source.json').read_text())
 (root/'result.json').write_text(json.dumps(report,indent=2)+'\n')
 PY
