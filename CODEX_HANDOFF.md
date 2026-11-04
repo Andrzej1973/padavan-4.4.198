@@ -1,3 +1,47 @@
+## 2026-11-04 Sol: full isolated reload module verification prepared
+
+Added peer82 reload feature compile after the full WSC feature. Separate CI
+kernel copy; pinned wrapper SHA256 4c51b2a7a474c1e081a369562ca8ce28a80e0485a675723335b3106a347141c5
+has exactly two LOAD_FW_ONE_TIME flags removed. Baseline and .config unchanged.
+Requires complete MIPS module, non-refusal checked-off symbol and effective
+reload macros in actual rt_linux, RX, MCU and ASIC translation units, with
+source hashes matched to candidate inventory. Report explicitly keeps epoch,
+shutdown, production and runtime false. Phase tree removed on exit.
+Host checks passed actual MCU/ASIC source selection and wrong-TU rejection,
+pinned wrapper preparation, failed-build cleanup and baseline preservation.
+These tests use host fixtures, not target compilation. Full target run due.
+Source audit confirms MT7603 DownLoadTypeA/Method1. Restart callback status
+cannot be routed by blindly enabling radio-only checked mode: it uses a
+header status byte/MT_RESTART_DL_RSP and currently allows retransmission.
+A separately bounded checked restart path and RX/DMA/IRQ epoch proof remain.
+No router action, no new local build trees retained. Keep owner references.
+
+## 2026-11-04 Sol: optional 740 full WSC target compilation verified
+
+Run 41852046446 succeeded on exact requested/verified source
+61a31856ac4c2f744d1c064d3ffa6927da30e117. Source artifact 13334803314;
+IoT driver artifact 13335759478. Independently checked module hashes/MIPS ELF,
+actual preprocessor WSC/AP/V2/KTHREAD definitions, defined nonempty WscInit,
+WscStop and MBSS handoff functions, baseline-report binding and config hash.
+Baseline module 5574520 bytes SHA256
+2a801ad25e9dfabe68e59d25f842d7d45546dad8f0ccc5c59f04f551601763df.
+Complete isolated WSC module 6183900 bytes SHA256
+528eb132b7f2f1d36d0907ff553f1f87e2b010af1cec89899505e77450b749ae.
+Report includes six WSC/crypto object hashes and three prepared source hashes.
+Compact original reports retained in docs/evidence/WR1200JS-BUILD740 (14890
+bytes); remote ZIP/modules read in memory, no local scratch retained or removed
+(0 bytes disk reclaimed). Existing unfinished input trees and owner material
+remain necessary/preserved. No router access. Standard 739 / ABI also success.
+
+This closes full WSC target compilation for this isolated candidate only.
+Baseline and WSC still use LOAD_FW_ONE_TIME; checked radio-off remains the
+refusal-sized function in that mode. Reload ASIC TU compiled (1096-byte checked
+function), but full reload module, restart response validation, actual firmware
+epoch/RX-DMA-IRQ retirement, per-BSS recovery RECONCILE and ordinary callback
+binding remain open. Do not install the isolated module or clear quarantine.
+Next review full reload configuration and remaining shutdown/recovery contract;
+Modern WebUI/Zapret2, final production IoT image and device acceptance remain due.
+
 ## 2026-11-04 Sol: optional 737/738 WSC conditional braces
 
 Both optional 41841361021 (efbf784b) and 41841385552 (b4117cd6) failed

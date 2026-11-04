@@ -408,4 +408,5 @@ report = {
 PY
 if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   bash tools/iot/ci-compile-wsc-feature.sh "$kernel" "$compiler" "$results/wsc-feature"
+  bash tools/iot/ci-compile-reload-feature.sh "$kernel" "$compiler" "$results/reload-feature"
 fi
