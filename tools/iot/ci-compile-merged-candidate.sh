@@ -256,6 +256,12 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   python3 tools/iot/check-ap-resource-split.py "$merged/ap/ap.c"
   python3 tools/iot/check-nettask-data-lane.py "$merged"
   python3 tools/iot/check-ap-release-after-join.py --candidate "$merged"
+  python3 tools/iot/prepare-mcu-boot-result.py "$merged" --install-isolated
+  python3 tools/iot/check-mcu-boot-result.py "$merged"
+  for fixture in allocator release lifetime destructors; do
+    python3 "tools/iot/check-mcu-sequence-$fixture.py" "$merged"
+  done
+  python3 tools/iot/check-mcu-ack-epoch-gap.py "$merged"
 fi
 cp "$merged.manifest.json" "$results/merged-source-manifest.json"
 cp -a "$merged/." "$driver/"

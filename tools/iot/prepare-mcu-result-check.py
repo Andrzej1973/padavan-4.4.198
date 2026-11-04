@@ -11,7 +11,7 @@ if a.output.exists():
     raise SystemExit('Refusing to overwrite output')
 source = (a.candidate / 'mcu/andes_mt.c').read_text(encoding='utf-8')
 branch_path = a.candidate / 'checked-ack-branch.inc'
-if branch_path.exists():
+if branch_path.exists() and not (a.candidate/'include/mcu-boot-result.h').exists():
     branch = branch_path.read_text(encoding='utf-8')
 else:
     # Merged driver inventories omit standalone fixture fragments. Extract the
@@ -89,4 +89,6 @@ int main(void){
  return 0;
 }
 '''
+if (a.candidate/'include/mcu-boot-result.h').exists():
+ prefix='#include "mcu-boot-result.h"\n'+prefix
 a.output.write_text(prefix + branch + tail, encoding='utf-8')

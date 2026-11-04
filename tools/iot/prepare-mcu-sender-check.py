@@ -146,4 +146,6 @@ static void AndesBhSchedule(PRTMP_ADAPTER ad){assert(ad==adapter);}
     start = source.index('static INT32 AndesDequeueAndKickOutCmdMsgs(')
     end = source.index('\n}', start) + 2
     dispatch = source[start:end]
+if (a.candidate/'include/mcu-boot-result.h').exists():
+    prefix='#include "mcu-boot-result.h"\n'+prefix
 a.output.write_text(prefix + dispatch + '\n' + sender + tail, encoding='utf-8')
