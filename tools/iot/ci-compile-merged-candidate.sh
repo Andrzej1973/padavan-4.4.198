@@ -248,6 +248,8 @@ fi
 if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   python3 tools/iot/prepare-fw-rom-ready.py "$merged"
   python3 tools/iot/check-fw-rom-ready.py "$merged"
+  python3 tools/iot/prepare-mcu-owned-off.py "$merged"
+  python3 tools/iot/check-mcu-owned-off.py --candidate "$merged"
 fi
 cp "$merged.manifest.json" "$results/merged-source-manifest.json"
 cp -a "$merged/." "$driver/"
@@ -346,7 +348,7 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
     wr_iot_mbss_recovery_submit_close wr_iot_mbss_recovery_retry \
     wr_iot_mbss_recovery_poll wr_iot_mbss_poll_schedule \
     wr_iot_mbss_poll_work_fn wr_iot_mbss_poll_join \
-    wr_iot_mbss_poll_stop_join wr_iot_mbss_recovery_handoff; do
+    wr_iot_mbss_poll_stop_join wr_iot_mbss_recovery_handoff wr_iot_mcu_send_owned_off; do
     awk -v name="$symbol" '$4 == "FUNC" && $7 != "UND" && $3 > 0 && $8 == name { found=1 } END { exit !found }' \
       "$results/mt76x3-symbols.txt"
   done

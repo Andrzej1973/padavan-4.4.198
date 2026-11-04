@@ -1,3 +1,50 @@
+## 2026-11-04 Sol: serial-owned checked OFF candidate bound
+
+Added final isolated layer binding ASIC checked OFF -> ticket-aware builder
+-> owned sender entry -> existing checked private transport. Admission checks
+CLOSE serial/epoch/stage, closes normal sends, waits outside locks, revalidates
+after drain, takes OFF lease under transition->sender lock order, finishes
+OFF from returned checked status and wakes waiters before final unlock.
+Rejects retransmission/non-response modes and consumes only private refusal
+messages. Never reads msg after transport; no sequence/epoch reset or reopen.
+Default one-time-firmware refusal remains. Ordinary callbacks remain unbound.
+Generated source hashes updated; CI executes the installed fragment host test
+and requires a defined nonempty owned-OFF symbol in the MIPS module.
+ASan/UBSan fixture passed success with an existing sender, duplicate OFF,
+transport failure/uncertainty, undrained sender, epoch change during wait,
+wrong serial, atomic/IRQ-disabled context and retransmit refusal. Transport
+frees msg in the fixture to check post-transfer lifetime. Transformation on
+preserved source files, manifest digests and duplicate rejection also pass.
+This is mocked transport/host control-flow evidence, not full-chain target or
+firmware ACK freshness, DMA/IRQ drain, safe reopen or runtime acceptance.
+Scratch removed; old phase inputs and owner references retained. No router use.
+742 reload artifact verified as below; whole workflow still queued at check.
+
+## 2026-11-04 Sol: full reload target artifact verified; owned OFF path due
+
+Optional 41858780303 on 8dd0568b has uploaded driver artifact 13340566215.
+Full workflow still queued with build job 126674659484 in progress and final
+jobs queued; do not call the whole run successful until terminal confirmation.
+Independently verified full reload MIPS module 5574296 bytes SHA256
+1c7a7b590e373703ca7699f229beef55e8f817d27beea46f770082a41179e30f,
+baseline report/config binding, four effective MCU/RX/ASIC/task macro inventories
+and source hashes against candidate manifest. LOAD_FW_ONE_TIME false in all
+four; checked-off symbol 1096 bytes, not known refusal. Production/epoch/
+shutdown/runtime remain false. Compact reports in WR1200JS-BUILD742 (67761
+bytes before README); ZIP/modules stayed in memory, no scratch retained or
+removed (0 disk bytes reclaimed). Preserve unfinished inputs/owner material.
+
+Source review: sender_off_begin/finish exist in the owner model/tests but have
+no generated production-path caller. sender_close_drain likewise is not yet
+bound to checked radio OFF. Ordinary wrapper refuses all sends once closed;
+radio-only checked transport must not simply be widened to restart commands.
+Next implement and verify the ticket/serial-bound owned OFF path with closed
+normal admission, drained existing senders, IRQ/RX alive through checked ACK,
+private transport ownership and off_finish before later DMA/IRQ retirement.
+Do not clear quarantine or reopen a poisoned owner based on this compilation.
+Firmware restart additionally needs separate response format/status and replay
+policy; current callback is log-only. No router action or ordinary ndo binding.
+
 ## 2026-11-04 Sol: full isolated reload module verification prepared
 
 Added peer82 reload feature compile after the full WSC feature. Separate CI
