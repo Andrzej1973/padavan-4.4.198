@@ -57,7 +57,7 @@ def run(command, execute=execute_source, pause=time.sleep, timeout=300):
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--timeout',type=int,default=300)
+    parser.add_argument('--timeout',type=int,default=int(os.environ.get('SOURCE_FETCH_TIMEOUT','300')))
     parser.add_argument('command',nargs=argparse.REMAINDER)
     args=parser.parse_args()
     if not args.command:parser.error('command required')

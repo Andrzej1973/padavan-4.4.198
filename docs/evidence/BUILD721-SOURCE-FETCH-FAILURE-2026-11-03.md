@@ -26,3 +26,9 @@ The regression suite runs before source fetch in the workflow.
 
 This is a local fix, not a successful rerun of build 721. No firmware or
 IoT change and no router operation. Main project goal remains paused.
+
+On goal resume, preserved compatibility with explicit older source SHAs:
+workflow passes SOURCE_FETCH_TIMEOUT=900 through the fetch environment.
+The new retry wrapper reads it; older wrappers can still run without an
+unsupported CLI flag. Explicit --timeout overrides the environment, and
+invalid bounds are rejected. Nine tests cover the additional CLI contract.

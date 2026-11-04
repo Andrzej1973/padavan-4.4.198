@@ -54,6 +54,16 @@ class SourceRetryTests(unittest.TestCase):
         self.assertEqual(retry.run(['git','fetch'],execute,timeout=900),0)
         self.assertEqual(seen,[900])
 
+    def test_cli_environment_timeout_and_explicit_override(self):
+        script=str(Path(__file__).with_name('retry-source-command.py'))
+        env=dict(os.environ,SOURCE_FETCH_TIMEOUT='0')
+        command=[sys.executable,script,sys.executable,'-c','pass']
+        failed=subprocess.run(command,env=env,capture_output=True,text=True)
+        self.assertNotEqual(failed.returncode,0)
+        self.assertIn('timeout must be 1..1800',failed.stderr)
+        command=[sys.executable,script,'--timeout','900',sys.executable,'-c','pass']
+        self.assertEqual(subprocess.run(command,env=env,capture_output=True).returncode,0)
+
     @unittest.skipUnless(os.name=='posix','CI process groups require POSIX')
     def test_timeout_reaps_transport_and_only_own_new_lock(self):
         for existing in ('absent','regular','symlink'):
