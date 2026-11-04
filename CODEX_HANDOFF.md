@@ -1,3 +1,13 @@
+## 2026-11-04 Sol: standard 731 /proc observation race fixed
+
+Early retry-test failure 41764591145 is an observation race, not a source
+fetch failure: child vanishes during /proc read. Fixture fix and deterministic
+ESRCH/ENOENT/permission tests pass with all ten retry cases. Monitor
+41764711812 artifact 13292560383 was useful and matches original job log;
+no parser change. Publish this narrow fixture fix; rerun new standard then
+queue optional for its exact source after success. Keep unverified reload TU
+probe and unrelated LOAD_FW diagnostics outside this failure-fix package.
+
 ## 2026-11-04 Sol: optional 730 fixture failure fixed locally
 
 Confirmed b48c317b standard/ABI/service success. Source c606e1c optional

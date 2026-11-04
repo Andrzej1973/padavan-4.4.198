@@ -1,3 +1,12 @@
+## 2026-11-04 Sol: standard 731 /proc observation race fixed
+
+41764591145 failed in the retry regression before fetch: child exited
+between /proc exists/read, raising ESRCH. Fixture now accepts ENOENT/ESRCH
+as stopped while preserving other errors. Deterministic disappearance test
+and all ten retry regressions pass. Monitor 41764711812 correctly identified
+the cause; parser unchanged. Evidence BUILD731-PROC-EXIT-RACE-2026-11-04.md.
+New reload-mode TU probe remains local/unverified and is not in this fix.
+
 ## 2026-11-04 Sol: optional 730 fixture failure fixed locally
 
 b48c317b standard/ABI/services succeeded. Optional 41760866396 with source

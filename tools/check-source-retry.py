@@ -13,6 +13,11 @@ from unittest.mock import patch
 spec=importlib.util.spec_from_file_location('source_retry',Path(__file__).with_name('retry-source-command.py'))
 retry=importlib.util.module_from_spec(spec);spec.loader.exec_module(retry)
 
+def process_has_stopped(state):
+    # /proc can vanish during read, including ESRCH after open succeeded.
+    try:return state.read_text().split()[2] in ('Z','X')
+    except (FileNotFoundError,ProcessLookupError):return True
+
 class SourceRetryTests(unittest.TestCase):
     def run_case(self,outcomes):
         calls=[];pauses=[];iterator=iter(outcomes)
@@ -64,6 +69,14 @@ class SourceRetryTests(unittest.TestCase):
         command=[sys.executable,script,'--timeout','900',sys.executable,'-c','pass']
         self.assertEqual(subprocess.run(command,env=env,capture_output=True).returncode,0)
 
+    def test_process_disappears_during_proc_read(self):
+        with patch.object(Path,'read_text',side_effect=ProcessLookupError):
+            self.assertTrue(process_has_stopped(Path('/proc/fixture/stat')))
+        with patch.object(Path,'read_text',side_effect=FileNotFoundError):
+            self.assertTrue(process_has_stopped(Path('/proc/fixture/stat')))
+        with patch.object(Path,'read_text',side_effect=PermissionError):
+            with self.assertRaises(PermissionError):process_has_stopped(Path('/proc/fixture/stat'))
+
     @unittest.skipUnless(os.name=='posix','CI process groups require POSIX')
     def test_timeout_reaps_transport_and_only_own_new_lock(self):
         for existing in ('absent','regular','symlink'):
@@ -91,9 +104,9 @@ time.sleep(60)
                     pid=int((root/'child.pid').read_text())
                     state=Path('/proc')/str(pid)/'stat'
                     for _ in range(50):
-                        if not state.exists() or state.read_text().split()[2]=='Z':break
+                        if process_has_stopped(state):break
                         time.sleep(.02)
-                    self.assertTrue(not state.exists() or state.read_text().split()[2]=='Z')
+                    self.assertTrue(process_has_stopped(state))
                     if existing=='absent':self.assertFalse(lock.exists())
                     elif existing=='regular':self.assertEqual(lock.read_text(),'existing lock')
                     else:self.assertTrue(lock.is_symlink())
