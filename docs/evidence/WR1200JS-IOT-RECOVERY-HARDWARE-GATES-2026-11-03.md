@@ -198,3 +198,38 @@ Ordinary callback binding and runtime acceptance remain open.
 
 The reproduction created only a temporary host fixture/binary, removed by
 TemporaryDirectory. Preserved input was left intact for unfinished work.
+
+## Reload firmware restart is not yet an epoch receipt (2026-11-04)
+
+Further source review of pinned mcu/andes_mt.c (SHA256 680db15bb22ad5bf48283fd3e415a0ada0e4f1f054a401f32b9d2a3c9c60baee):
+CmdRestartDLReq at 929 waits for CmdReStartDLRsp, but that callback at 385
+only logs firmware statuses; it does not propagate a validated status into
+the caller result. Method1 checks TOP_MISC2 for ROM ready after restart
+(2330) and runtime after download (2361). These are distinct observations
+from transport command completion. In the ROM-not-ready timeout branch
+(2338), it jumps to done without assigning failure to ret; a successful
+restart transport return can therefore survive this failure branch.
+This is source evidence of a missing fail-closed error result, not a
+verified runtime failure or permission to change production firmware mode.
+
+Before considering reload as an epoch boundary: validate actual board
+DownLoadType, propagate ROM/start/download failures, join old RX/DMA/IRQ
+consumers and retire old descriptors/events, then bind a reset receipt to
+that complete transition. No sequence quarantine is cleared by this audit.
+The existing one-time-mode refusal remains necessary. Full reload module
+compilation and firmware/device verification remain separate pending gates.
+
+## 2026-11-04 Sol: ROM-ready timeout candidate fix verified locally
+
+Prepared final peer82 manifest-preserving layer prepare-fw-rom-ready.py:
+Method1 ROM-not-ready timeout sets NDIS_STATUS_FAILURE and FW_NO_INIT before
+existing done cleanup. Does not clear sequence quarantine or claim an epoch.
+Source inventory checked before mutation; updated source hashes recorded.
+check-fw-rom-ready.py compiles/executes the actual extracted branch. Old
+source fails; patched source passes timeout with prior success/failure,
+non-timeout preservation, cleanup path and stage invalidation. Duplicate
+transformation rejected; exact inverse diff and manifest digest verified.
+No heavy local build. Scratch fixtures removed; target compilation pending.
+Standard 41771312863 (#735) / ABI 41771312880 still running on efbf784b.
+This separate ready package may publish while that standard runs; optional
+for efbf784b remains required after its standard succeeds, using explicit SHA.

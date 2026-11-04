@@ -1,3 +1,28 @@
+## 2026-11-04 Sol: ROM-ready timeout candidate fix verified locally
+
+Prepared final peer82 manifest-preserving layer prepare-fw-rom-ready.py:
+Method1 ROM-not-ready timeout sets NDIS_STATUS_FAILURE and FW_NO_INIT before
+existing done cleanup. Does not clear sequence quarantine or claim an epoch.
+Source inventory checked before mutation; updated source hashes recorded.
+check-fw-rom-ready.py compiles/executes the actual extracted branch. Old
+source fails; patched source passes timeout with prior success/failure,
+non-timeout preservation, cleanup path and stage invalidation. Duplicate
+transformation rejected; exact inverse diff and manifest digest verified.
+No heavy local build. Scratch fixtures removed; target compilation pending.
+Standard 41771312863 (#735) / ABI 41771312880 still running on efbf784b.
+This separate ready package may publish while that standard runs; optional
+for efbf784b remains required after its standard succeeds, using explicit SHA.
+
+## 2026-11-04 Sol: WSC fix published; firmware reload source audit
+
+Remote efbf784b8f89d75e1cdd797d7dc79d99bdebeac8 confirmed. Standard
+41771312863 (#735) and ABI 41771312880 live; no optional duplicate.
+Next inspect standard, then queue peer82/iot optional for this exact SHA.
+Pinned reload source audit identified log-only restart response and ROM-ready
+timeout preserving prior ret; details in hardware-gates evidence. Do not
+accept reload TU as an epoch receipt or clear quarantined MCU IDs. No new
+scratch, source/owner reference inputs preserved, no router access.
+
 ## 2026-11-04 Sol: optional 734 WSC APCLI compile failure
 
 Run 41768450746 on fd76301e failed in the full WSC feature module:

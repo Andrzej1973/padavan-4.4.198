@@ -245,6 +245,10 @@ if [ "$IOT_CANDIDATE_VARIANT" = v39 ] ||
    [ "$IOT_CANDIDATE_VARIANT" = v42 ]; then
   python3 tools/iot/check-remove-result-abi.py "$merged"
 fi
+if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
+  python3 tools/iot/prepare-fw-rom-ready.py "$merged"
+  python3 tools/iot/check-fw-rom-ready.py "$merged"
+fi
 cp "$merged.manifest.json" "$results/merged-source-manifest.json"
 cp -a "$merged/." "$driver/"
 python3 - "$results/merged-source-manifest.json" "$driver" <<'PY'
