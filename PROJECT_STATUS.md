@@ -1,3 +1,14 @@
+## 2026-11-04 Sol: reload-mode checked-off target TU probe prepared
+
+Added optional ASIC MT TU compilation using its actual Kbuild command with
+LOAD_FW_ONE_TIME undefined only for that probe. Verifies MT/PCI/AP macros,
+MIPS relocatable object, non-refusal-sized defined checked-off function and
+unchanged kernel config. Records source/command/config/object hashes.
+Orchestration and macro/stub/wrong-source rejection pass with mocked compiler
+and nm; real target execution is still due. Main module keeps existing mode.
+Task-config report now includes LOAD_FW_ONE_TIME; target baseline refusal
+and upstream comparisons are recorded in hardware-gates evidence.
+
 ## 2026-11-04 Sol: standard 731 /proc observation race fixed
 
 41764591145 failed in the retry regression before fetch: child exited

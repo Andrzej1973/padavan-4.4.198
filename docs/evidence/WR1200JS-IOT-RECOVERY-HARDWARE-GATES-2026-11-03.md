@@ -122,6 +122,56 @@ publishing only ef51b36a1d735af974e1a44a3cfa545b35e7c2ba. The newer local
 RX configuration commit and uncommitted defined-symbol tightening were not
 included in that push. Owner reference archives remain separate and local.
 
+## Actual target refuses checked radio-off
+
+Artifact 13264066070, module SHA256
+36c5ab283016b513e8bdf6022845ad2b66c26c30942e81eb6515810d6911a380,
+contains radio-off-capability.json reporting known_unconditional_false=true,
+symbol size 8 and shutdown_capability=unavailable. Its MIPS disassembly is
+`jr ra` followed by `move v0,zero`. This is concrete target evidence that the
+checked-off entry cannot succeed in this configuration, not just an absent
+runtime test. Ordinary callback integration cannot be accepted on this basis.
+
+Pinned mt76x3_ap Makefile unconditionally adds -DLOAD_FW_ONE_TIME within
+the MT7603 branches (795/847). The checked-off source explicitly refuses
+that macro. Vendor MTPciMlmeRadioOff instead writes AGG_TEMP high bits under
+LOAD_FW_ONE_TIME, omitting CmdRadioOnOffCtrl. Register write/readback alone
+does not supply an MCU result or establish RF/report retirement. Do not
+remove the refusal merely to obtain a non-stub symbol. A verified one-time
+firmware shutdown path or a separately reviewed reload configuration is
+required. The task-config checker now records LOAD_FW_ONE_TIME explicitly.
+
+## Upstream comparison is not an epoch receipt
+
+Consulted primary upstream source on 2026-11-03:
+https://raw.githubusercontent.com/openwrt/mt76/master/mt7603/mcu.c
+and Linux mt7603/main.c. The MCU parser compares response sequence, while
+the sender cycles nonzero four-bit sequences. The exit function sends an
+MCU restart-download request and purges its response queue. This is a
+different transport/lifecycle contract from vendor AGG_TEMP writes; importing
+the parser alone would not establish freshness in our driver.
+
+Linux mt7603_stop cancels MAC work and calls mt7603_mac_stop. The preserved
+upstream MAC source sets TX/RX disable bits, stops TX start queues and clears
+RX_START. MAC admission stop, firmware restart and physical RX/DMA retirement
+are separate operations. None of these individual snippets establishes RF
+power-off or vendor one-time-firmware shutdown completion on WR1200JS.
+Inference: neither upstream sequence matching nor AGG_TEMP readback is a
+substitute for the missing end-to-end retirement evidence. No upstream code
+was installed and no router action was taken. Master URLs are comparison
+sources, not pinned target inputs or a release claim.
+
+## Timeout-specific mitigation regression
+
+The local extended extracted-dispatcher fixture quarantines a timed-out ID
+and delivers its late ACK against 30 successive new reservations. None is
+completed by that ACK. ASan/UBSan passed. The same fixture still reproduces
+arbitrary duplicate replies after a successful release and host-only reset;
+it does not claim a full firmware epoch solution. The preserved extracted
+input remains the previously identified andes_mt.c hash. Temporary fixture
+and binary were removed. CI now invokes this distinction on its actual
+generated sequence-reserved candidate; live CI execution remains pending.
+
 ## MBSS close and beacon retirement
 
 `prepare-mbss-cr-readback-check.py` checks control-bit readback and explicitly

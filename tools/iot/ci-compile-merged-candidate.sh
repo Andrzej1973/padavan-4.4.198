@@ -294,6 +294,9 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   python3 tools/iot/check-mlme-wsc-target-tu.py \
     --kernel "$kernel" --driver "$driver" --compiler "$compiler" \
     --output "$results/mlme-wsc-target-tu.json"
+  python3 tools/iot/check-radio-off-reload-target-tu.py \
+    --kernel "$kernel" --driver "$driver" --compiler "$compiler" \
+    --output "$results/radio-off-reload-target-tu.json"
 fi
 python3 tools/iot/check-capacity.py "$kernel" mt76x3 \
   --compiler "$compiler" --require-three-bss --check-main-observer \

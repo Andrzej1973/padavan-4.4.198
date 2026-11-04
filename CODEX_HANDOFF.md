@@ -1,3 +1,15 @@
+## 2026-11-04 Sol: reload-mode checked-off target TU probe prepared
+
+New check-radio-off-reload-target-tu.py is wired for peer82 after MLME TU.
+Uses exact ASIC MT Kbuild command, undefines LOAD_FW_ONE_TIME only in its
+temporary probe, checks effective MT/PCI/AP and MIPS ELF/function size,
+requires unchanged .config. Synthetic compiler/nm fixture passed valid path
+and rejected active macro, refusal-sized symbol and wrong source. Not target
+or runtime evidence; no default firmware-mode switch. Scratch removed.
+Task-config now records LOAD_FW_ONE_TIME and existing hardware-gates notes
+are preserved with this verification package. Next run target CI after
+standard success and triage real compiler errors from the original log.
+
 ## 2026-11-04 Sol: standard 731 /proc observation race fixed
 
 Early retry-test failure 41764591145 is an observation race, not a source
