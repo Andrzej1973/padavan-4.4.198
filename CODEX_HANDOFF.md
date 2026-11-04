@@ -1,3 +1,41 @@
+## 2026-11-04 Sol: optional 730 fixture failure fixed locally
+
+Confirmed b48c317b standard/ABI/service success. Source c606e1c optional
+41760866396 failed in host lifetime fixture, not MIPS or WSC: obsolete two-
+argument call after quarantine signature change. Local fix and signature
+guard pass all four reservation CI suites on fresh generated source.
+Monitor 41762174503 artifact 13290537776 missed cause due default-branch
+256 KiB prefix scan. Existing branch tail fix passes exact new long-log case
+and all offline tests; no main change or heartbeat. All scratch removed.
+Next publish coherent fixture+monitor-regression package and verify new SHA,
+not rerun broken old c606e1c. Preserve unrelated LOAD_FW evidence and archives.
+
+## 2026-11-04 Sol: source-fetch fix published; exact-SHA optional live
+
+Remote b48c317b8431c2ef90173b61922067afbdb377b0. ACK regression 2a4ee68
+published separately before coherent fetch-fix package ab42ef9+b48c317b.
+Nine retry tests pass; actual new-source fetch result remains due.
+b48c317b standard/ABI 41760759126/41760759016 pending. c606e1c standard
+41710212589 and ABI 41710212537 succeeded. New optional 41760866396 selects
+explicit c606e1c source on b48c317b dispatch, peer82/iot; selection job
+126347986770 completed. Independently validated verification-source artifact
+13290401718: dispatch b48c317b, requested=verified=c606e1c. Exact ancestor
+selection is now live-proven. Next inspect full WSC/module result. Old source retains its old
+retry implementation; latest b48c317b standard tests the fetch fix itself.
+Keep local LOAD_FW evidence/macro changes and owner archives preserved.
+
+## 2026-11-03 Sol: remove superseded queued CI without interrupting builds
+
+Six queued intermediate checks superseded by c606e1c were revalidated idle
+and cancellation requested: 41708668304, 41708746215, 41708818198,
+41708818140, 41710160377, 41710160378. All source packages are ancestors
+of c606e1c; this cancellation is not successful verification of those SHAs.
+Active def9ef3 standard, 1e2a3cc ABI and ffa4e2e optional were preserved.
+Latest c606e1c standard/ABI 41710212589/41710212537 remain required, followed
+by exact-SHA optional. Do not resurrect superseded queued intermediates.
+Local 2a4ee68 is a separate regression follow-up; LOAD_FW diagnostics and
+owner reference files remain preserved separately. No router action.
+
 ## 2026-11-03 Sol: extracted dispatcher rejects late timed-out ACK across wraps
 
 Fresh bounded/reserved generated source and extracted ACK dispatcher pass

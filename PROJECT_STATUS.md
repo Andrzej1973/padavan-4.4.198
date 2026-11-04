@@ -1,3 +1,39 @@
+## 2026-11-04 Sol: optional 730 fixture failure fixed locally
+
+b48c317b standard/ABI/services succeeded. Optional 41760866396 with source
+c606e1c failed before target compilation: old lifetime fixture passed two
+arguments to the now-three-argument drop helper. Fixed normal uncertainty=0
+and signature guard; fresh allocator/release/lifetime/destructor suites pass.
+Monitor default-branch prefix-only report missed the cause; existing branch
+tail parser passes a new exact late-error regression and all offline Nim
+tests. No parser duplication/default-branch mutation. Details in
+docs/evidence/BUILD730-MCU-FIXTURE-FAILURE-2026-11-04.md. Full WSC result due.
+
+## 2026-11-04 Sol: source-fetch fix published; exact-SHA optional live
+
+Published 2a4ee68 then b48c317b separately, confirming remote and CI for
+each. b48c317b includes the build-721 process-group/lock fix and compatible
+SOURCE_FETCH_TIMEOUT environment input; nine retry regressions passed.
+Standard/ABI 41760759126/41760759016 pending; service 41760752739 running.
+c606e1c standard/ABI succeeded. Optional 41760866396 now running from
+b48c317b workflow with explicit source c606e1c, peer82/iot. Selection job
+126347986770 completed. Independently read artifact 13290401718: dispatch
+b48c317b, requested/verified c606e1c. Exact ancestor selection is proven on
+GitHub; full WSC result remains due.
+Do not confuse dispatch headSha with verified source. No duplicate optional.
+
+## 2026-11-03 Sol: remove superseded queued CI without interrupting builds
+
+Confirmed intermediate 322a306/1e2a3cc/88999e6/9846d7e are ancestors of
+published c606e1c, which includes their checks. Requested cancellation only
+after rechecking pending/queued status and absence of an active job:
+41708668304, 41708746215, 41708818198, 41708818140, 41710160377,
+41710160378. These intermediate versions are not accepted as verified.
+Kept active def9ef3 standard, 1e2a3cc ABI and ffa4e2e optional, plus latest
+c606e1c standard/ABI 41710212589/41710212537. No lane concurrency weakened.
+Next complete latest runs and required exact-SHA optional; do not recreate
+the superseded queued builds. Local follow-up 2a4ee68 remains unpublished.
+
 ## 2026-11-03 Sol: extracted dispatcher rejects late timed-out ACK across wraps
 
 Extended ACK fixture verifies that a quarantined timeout ID cannot complete

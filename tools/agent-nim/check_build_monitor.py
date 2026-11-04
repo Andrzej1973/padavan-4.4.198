@@ -31,11 +31,16 @@ with (nullcontext(sys.argv[2]) if len(sys.argv)>2 else tempfile.TemporaryDirecto
     assert late.returncode==0 and 'void value not ignored' in late.stdout,(late.returncode,late.stdout,late.stderr)
     # A long job may contain old, nonfatal patch failures before the actual
     # failed step. Its final error must remain visible in the bounded suffix.
-    late_log.write_text('Hunk FAILED at 753.\n'+('routine output\n'*1300000)+'##[error]Process completed with exit code 1.\n',encoding='utf-8')
+    # Optional 41760866396: early nonfatal noise obscured a later fixture
+    # compiler failure in the deployed default-branch prefix-only monitor.
+    late_log.write_text('Hunk FAILED at 753.\n'+('routine output\n'*1300000)+
+        "check.c:25:110: error: too few arguments to function 'wr_iot_mcu_message_drop'\n"+
+        '##[error]Process completed with exit code 1.\n',encoding='utf-8')
     fixture.write_text(json.dumps({'workflow_runs':[row(435)]}),encoding='utf-8')
     long_job=subprocess.run([str(binary),'--fixture:'+str(fixture),'--state-dir:'+str(root/'long-state')],capture_output=True,text=True,timeout=30,env=late_env)
     assert long_job.returncode==0 and 'Process completed with exit code 1' in long_job.stdout,(long_job.returncode,long_job.stdout[-1000:],long_job.stderr)
     assert 'Hunk FAILED at 753' not in long_job.stdout
+    assert "too few arguments to function 'wr_iot_mcu_message_drop'" in long_job.stdout
     previous=(state/'last_build_error.log').read_bytes()
     assert 'BUILD FAILED' not in run([row(432),row(431)]).stdout
     assert (state/'last_build_error.log').read_bytes()==previous
