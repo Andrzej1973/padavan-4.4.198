@@ -63,6 +63,9 @@ static int wr_iot_mcu_boot_owned(RTMP_ADAPTER *ad){assert(ad==current&&!held);ow
 prefix+='\n'.join('static void '+f+'(unsigned long data){(void)data;}' for f in callbacks)+'\n'
 prefix+=(a.candidate/'include/wr-iot-nettask-data-drain.inc').read_text()+'\n'
 prefix+=(a.candidate/'include/wr-iot-nettask-schedule.inc').read_text().replace('#include "wr-iot-nettask-data-drain.inc"','')+'\n'
+restart_layer='INT wr_iot_nettask_boot_rx_restart(' in (a.candidate/'include/wr-iot-mcu-nettask-bootstrap.inc').read_text()
+if restart_layer:
+ prefix+='static unsigned restart_owned;static int wr_iot_mcu_boot_rx_restart_owned(RTMP_ADAPTER *ad){assert(ad==current&&!held);owned_calls++;return restart_owned&&owned_calls!=drift;}\n'
 prefix+=(a.candidate/'include/wr-iot-mcu-nettask-bootstrap.inc').read_text()+'\n'+init+'\n'+exit+'\n'+data_exit
 prefix+=r'''
 static void schedule(RTMP_NET_TASK_STRUCT *t){assert(!held&&created[t->id]>killed[t->id]);scheduled[t->id]++;}
@@ -120,6 +123,23 @@ int main(void){
  puts("PASS actual nettask init/exit: MCU-only publication, data fence, partial init cleanup, stale ownership, nested exit refusal and ordinary path; OS joins injected");
 }
 '''
+if restart_layer:
+ anchor=' puts("PASS actual nettask init/exit:'
+ pos=tail.index(anchor)
+ tail=tail[:pos]+r'''
+ fresh(&ad,&cookie);owned=0;restart_owned=1;
+ assert(wr_iot_mcu_boot_rx_restart_owned(&ad));
+ assert(RtmpNetTaskInit(&ad)==-1&&!init_calls);
+ assert(wr_iot_nettask_boot_rx_restart(&ad)==0&&init_calls==2&&ad.wr_iot_boot_mcu_only);
+ assert(ad.wr_iot_nettask_data_joined&&ad.wr_iot_nettask_data_owner.blocked&&ad.wr_iot_nettask_release_claimed);
+ assert(RtmpNetTaskExit(&ad)==0&&!ad.wr_iot_boot_mcu_only);
+ fresh(&ad,&cookie);owned=0;restart_owned=0;
+ assert(wr_iot_nettask_boot_rx_restart(&ad)==-1&&!init_calls);
+ fresh(&ad,&cookie);owned=0;restart_owned=1;drift=2;
+ assert(wr_iot_nettask_boot_rx_restart(&ad)==-1&&init_calls==2&&!ad.wr_iot_boot_mcu_only);
+ assert(killed[cookie.rx1_done_task.id]==1&&killed[cookie.hcca_dma_done_task.id]==1);
+ restart_owned=0;
+'''+tail[pos:]
 with tempfile.TemporaryDirectory(prefix='wr-mcu-nettask-bootstrap-') as td:
  c=Path(td)/'check.c';c.write_text(prefix+tail)
  for abl in (False,True):

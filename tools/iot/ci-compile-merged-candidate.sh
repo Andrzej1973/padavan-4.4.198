@@ -268,14 +268,18 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   for layer in mcu-boot-transport mcu-boot-loader mcu-nettask-bootstrap \
     mcu-boot-open mcu-boot-freeze mcu-boot-rom-quiesce mcu-boot-pse-empty \
     mcu-boot-rx-discard mcu-boot-pse-drain mcu-boot-rx-refresh \
-    mcu-boot-control-retire mcu-boot-ring-rearm mcu-boot-ring-transaction; do
+    mcu-boot-control-retire mcu-boot-ring-rearm mcu-boot-ring-transaction \
+    mcu-checked-sequence-retirement mcu-boot-controller-init mcu-boot-rx-restart \
+    mcu-boot-other-tx-idle mcu-boot-irq-prepare mcu-boot-dma-start; do
     python3 "tools/iot/prepare-$layer.py" "$merged" --install-isolated
   done
   for fixture in mcu-boot-transport mcu-boot-builders mcu-nettask-bootstrap \
     mcu-boot-open mcu-boot-open-core mcu-boot-rom-quiesce mcu-boot-pse-empty \
     mcu-boot-rx-discard mcu-boot-pse-drain mcu-boot-rx-refresh \
     mcu-boot-control-retire mcu-boot-ring-rearm mcu-boot-ring-transaction \
-    fw-method1 mcu-rx-bounds; do
+    mcu-checked-sequence-retirement mcu-boot-controller-init mcu-boot-rx-restart \
+    mcu-boot-other-tx-idle mcu-boot-irq-prepare mcu-boot-irq-owner \
+    mcu-boot-dma-start mcu-boot-dma-owner fw-method1 mcu-rx-bounds; do
     python3 "tools/iot/check-$fixture.py" "$merged"
   done
   for fixture in allocator release lifetime destructors; do
@@ -385,7 +389,10 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
     wr_iot_mcu_checked_rx_packet wr_iot_mcu_boot_reserve wr_iot_mcu_boot_alloc \
     wr_iot_mcu_boot_send wr_iot_mcu_boot_rom_quiesce wr_iot_mcu_boot_rx_refresh \
     wr_iot_mcu_boot_control_retire wr_iot_mcu_boot_ring_rearm \
-    wr_iot_mcu_boot_ring_transaction; do
+    wr_iot_mcu_boot_ring_transaction wr_iot_mcu_boot_controller_init \
+    wr_iot_mcu_boot_rx_restart wr_iot_mcu_boot_other_tx_idle \
+    wr_iot_mcu_boot_irq_prepare wr_iot_mcu_boot_dma_start \
+    wr_iot_mcu_boot_dma_start_hw wr_iot_mcu_boot_dma_stop_hw; do
     awk -v name="$symbol" '$4 == "FUNC" && $7 != "UND" && $3 > 0 && $8 == name { found=1 } END { exit !found }' \
       "$results/mt76x3-symbols.txt"
   done

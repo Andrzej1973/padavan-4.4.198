@@ -12,7 +12,7 @@ code=r'''
 #include "mcu-sequence-reservation.h"
 #include <assert.h>
 typedef unsigned char UCHAR;
-struct cmd_msg {unsigned int wr_iot_sequence_slot;};
+struct cmd_msg {unsigned int wr_iot_sequence_slot,wr_iot_checked;};
 typedef struct {int wr_iot_mcu_sender_lock;struct wr_iot_mcu_sequence_reservation wr_iot_sequence;struct wr_iot_mcu_sender_owner wr_iot_mcu_sender_owner;} RTMP_ADAPTER;
 static int held;
 #define RTMP_SPIN_LOCK_IRQSAVE(l,f) do{(void)(l);*(f)=0;assert(!held);held=1;}while(0)
@@ -36,8 +36,28 @@ int main(void){
  return 0;
 }
 '''
+if 'wr_iot_mcu_sequence_reserve_checked' in fn:
+ code=code.replace(' return 0;',r'''
+ a=(RTMP_ADAPTER){0};
+ struct cmd_msg checked={0};checked.wr_iot_checked=1;
+ unsigned first=AndesGetCmdMsgSeq(&a,&checked);assert(first==1);
+ assert(AndesGetCmdMsgSeq(&a,&checked)==first);
+ assert(wr_iot_mcu_sequence_finish(&a.wr_iot_sequence,first,0));
+ for(unsigned i=0;i<30;i++){
+  struct cmd_msg ordinary={0};unsigned id=AndesGetCmdMsgSeq(&a,&ordinary);
+  assert(id&&id!=first);assert(wr_iot_mcu_sequence_finish(&a.wr_iot_sequence,id,0));
+ }
+ for(unsigned i=0;i<14;i++){
+  struct cmd_msg next={0};next.wr_iot_checked=1;
+  unsigned id=AndesGetCmdMsgSeq(&a,&next);assert(id&&id!=first);
+  assert(wr_iot_mcu_sequence_finish(&a.wr_iot_sequence,id,0));
+ }
+ checked=(struct cmd_msg){0};checked.wr_iot_checked=1;
+ assert(!AndesGetCmdMsgSeq(&a,&checked)&&!a.wr_iot_sequence.occupied);
+ assert(a.wr_iot_sequence.retired==0xfffe&&!a.wr_iot_sequence.quarantined&&!a.wr_iot_sequence.poisoned);
+ return 0;''')
 with tempfile.TemporaryDirectory(prefix='wr-sequence-allocator-') as d:
  c=Path(d)/'check.c';c.write_text(code)
- subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(here),str(c),'-o',d+'/check'],check=True)
+ subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(a.candidate/'include'),'-I'+str(here),str(c),'-o',d+'/check'],check=True)
  subprocess.run([d+'/check'],check=True)
 print('PASS actual allocator reserve/reentry/exhaustion/corruption and init preservation; real concurrency unproved')

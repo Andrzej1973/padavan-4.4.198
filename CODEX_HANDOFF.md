@@ -1,3 +1,72 @@
+## 2026-11-05 Sol: checked ID/controller/RX/IRQ/DMA package verified for CI
+
+Peer82 recipe now installs six further coherent layers: checked-ID retirement,
+checked controller recreation, explicit frozen RX restart, other-TX idle gate,
+IRQ software preparation and checked DMA start/stop. Final-source host suite
+covers all old+new actors (28 checker invocations, including native/OS_ABL/
+WORKQUEUE profiles), sequence ownership and Method1 C90. Full generated-source
+hash inventory, shell syntax and whitespace pass. Module symbols require real
+defined new controller/RX/TX/IRQ/DMA actors. Wire-gap test remains an intentional
+unprotected negative control, clearly labeled when candidate retirement exists;
+protected allocator/ACK retirement test separately passes. No assertions removed.
+
+No safe ledger reset/firmware epoch, explicit IRQ unmask, Method1 success
+binding or runtime acceptance yet. Checked pool exhaustion still refuses after
+15 IDs. Normal command/data admission remain closed. Source/host success is
+not target evidence. Preparing one local commit/push while earlier standard
+758 runs, per independent CI lanes. Once758 succeeds queue exact8dbe9b4247150b8a48167bc167ee8641416ba28b optional even if branch has advanced;
+then verify the next standard and queue its own exact optional.
+
+Remote independently checked at8dbe9b4, no outgoing earlier commits. Phase
+scratch sources/binaries removed (sequential13.9MB trees and small fixtures).
+Retain13.9MB source input for unfinished integration; docs/reference owner
+materials excluded. Router unchanged.
+
+## 2026-11-05 Sol: checked DMA-only start/stop local
+
+New prepare-mcu-boot-dma-start.py adds exclusive core DMA state/lease and
+hardware actor. Requires ring4/controller2/RX2/IRQ2, frozen sender owner,
+idle MAC/IRQ/DMA and all7 other TX rings idle. Reads SDK WPDMA union once,
+rejects bus/enable/busy/burst errors, saves exact disabled config, enables
+TX/RX DMA+writeback/burst without AsicSetMacTxRx/RT28XXDMAEnable side effects.
+Readback compares complete config except legitimate hardware busy bits;
+rechecks masked IRQ, stopped MAC and owner. Success publishes state2 under
+same locked final identity check. No IRQ enable, command thaw or ledger reset.
+
+Failure stops outside locks via exclusive historical state1/saved config,
+masks IRQ, writes known disabled baseline, polls2-clean DMA reads up to200
+attempts and verifies IRQ0. Failed state3 means stop readback confirmed;4 means
+unknown stop. Both retain controller/tasklets/rings and fail boot; no free or
+false shutdown claim. Active callbacks/admission and hardware epoch still need
+separate final integration.
+
+Actual SDK union+DMA idle poll and core state-machine ASan/UBSan fixtures pass
+config preservation, legitimate busy, partial/bus/MAC/IRQ/context failure,
+nested/duplicate/stage refusal, final context loss and unverified-stop retention.
+Mutations omitting enable readback, IRQ-off stop proof or failure stop caught.
+IRQ leaf/owner and Method1 C90 regressions, full generated inventory pass.
+All hardware/OS injected; new layers remain local/unpublished. Test trees and
+binaries removed;13.9MB source input retained for unfinished integration.
+
+ABI666 run42041105460 succeeded; standard758 run42041105449 remains active for
+published8dbe9b4247150b8a48167bc167ee8641416ba28b. Queue that exact optional
+SHA after standard success even if next source package advances branch. Next
+finish/verify coherent local candidate package and publish sequentially while
+CI lanes run, then explicit MCU IRQ unmask and justified epoch/Method1 binding.
+Do not impose all-lanes barrier. Router/owner inputs unchanged.
+
+## 2026-11-05 Sol: Method1 C90 fix published, standard758 active
+
+Published exactly8dbe9b4247150b8a48167bc167ee8641416ba28b via SSH; independent
+ls-remote matches. Outgoing range fromc6bda095 contained this one fix commit.
+Standard758 run42041105449 and ABI666 run42041105460 now active for exact SHA.
+After758 succeeds, check duplicates and dispatch required iot/peer82 optional
+with verification_revision=8dbe9b4247150b8a48167bc167ee8641416ba28b. Failed757
+not rerun unchanged. New local retirement/controller/RX/IRQ layers remain
+unstaged/unpublished; do not accidentally include them in failure-fix pushes.
+Monitor regression/Nim and loader C90 host checks passed; target fix awaits CI.
+Router unchanged.
+
 ## 2026-11-05 Sol: optional757 target failure fixed locally
 
 Optional757 run42038010637 failed target compilation at Method1 line2308,

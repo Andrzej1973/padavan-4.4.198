@@ -52,5 +52,12 @@ with tempfile.TemporaryDirectory(prefix='wr-ack-epoch-gap-') as d:
 }
 '''
  c.write_text(s)
+ # This negative control intentionally uses the old unretired model and a
+ # fresh host ledger. Keep its wire-ambiguity assertions independent of the
+ # protected candidate allocator exercised by checked-sequence-retirement.
+ if 'wr_iot_mcu_sequence_reserve_checked' in (a.candidate/'include/mcu-sequence-reservation.h').read_text():
+  s=s.replace('KNOWN GAP REPRODUCED:', 'NEGATIVE CONTROL (checked-ID policy bypassed):')
+  s=s.replace('successful-reply duplicate gap remains', 'wire ambiguity still requires a verified ledger-reset boundary')
+  c.write_text(s)
  subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(here),str(c),'-o',d+'/check'],check=True)
  subprocess.run([d+'/check'],check=True)
