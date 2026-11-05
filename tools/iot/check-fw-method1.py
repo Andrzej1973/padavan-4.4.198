@@ -80,7 +80,43 @@ int main(void){
  puts("PASS actual reload Method1: cold/warm start, ROM timeout, address/scatter/start errors, run timeout; command/MMIO operations injected");
 }
 '''
+if 'wr_iot_fw_command_alloc' in s:
+ prefix=prefix.replace('#define RTMP_PCI_SUPPORT 1',
+                       '#define RTMP_PCI_SUPPORT 1\n#define MT_MAC 1\n#include "mcu-boot-ticket.h"')
+ prefix=prefix.replace('int FWLoad;} RTMP_ADAPTER;',
+                       'int FWLoad;unsigned wr_iot_boot_active;struct wr_iot_mcu_boot_ticket wr_iot_boot_ticket;} RTMP_ADAPTER;')
+ for old in ('CmdRestartDLReq(RTMP_ADAPTER *ad)',
+             'CmdAddressLenReq(RTMP_ADAPTER *ad,unsigned addr,unsigned len,unsigned flags)',
+             'CmdFwScatters(RTMP_ADAPTER *ad,unsigned char *image,unsigned len)',
+             'CmdFwStartReq(RTMP_ADAPTER *ad,unsigned mode,unsigned addr)'):
+  assert prefix.count(old)==1
+  prefix=prefix.replace(old,old[:-1]+',const struct wr_iot_mcu_boot_ticket *boot)')
+ prefix=prefix.replace('(void)ad;',
+     '(void)ad;assert(boot==(ad->wr_iot_boot_active?&ad->wr_iot_boot_ticket:NULL));')
+ tail=tail.replace('for(warm=0;warm<2;warm++)',
+                   'for(unsigned owned=0;owned<2;owned++)for(warm=0;warm<2;warm++)')
+ tail=tail.replace('RTMP_ADAPTER ad={0};', 'RTMP_ADAPTER ad={0};ad.wr_iot_boot_active=owned;')
 with tempfile.TemporaryDirectory(prefix='wr-fw-method1-') as td:
  c=Path(td)/'check.c';c.write_text(prefix+body+tail)
- subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-pie','-no-pie',str(c),'-o',td+'/check'],check=True)
+ subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(a.candidate/'include'),str(c),'-o',td+'/check'],check=True)
  subprocess.run([td+'/check'],check=True)
+if 'wr_iot_fw_command_alloc' in s:
+ one_time_tail=r'''
+int main(void){
+ unsigned char image[64]={0};RTMP_ADAPTER ad={0};
+ ad.chipCap.fw_header_image=image;ad.chipCap.fw_len=sizeof(image);
+ for(warm=0;warm<2;warm++){
+  ad.wr_iot_boot_active=1;phase=addresses=scatters=starts=restarts=writes=delays=0;
+  assert(AndesMTLoadFwMethod1(&ad)==NDIS_STATUS_FAILURE);
+  assert(!addresses&&!scatters&&!starts&&!restarts&&!writes);
+ }
+ ad.wr_iot_boot_active=0;warm=1;fault=phase=0;
+ assert(!AndesMTLoadFwMethod1(&ad)&&ad.FWLoad==1&&ad.MCUCtrl.Stage==FW_RUN_TIME);
+ assert(!addresses&&!scatters&&!starts&&!restarts);
+ puts("PASS actual LOAD_FW_ONE_TIME Method1 refuses boot lease before MMIO and preserves ordinary warm-firmware path");
+}
+'''
+ with tempfile.TemporaryDirectory(prefix='wr-fw-method1-once-') as td:
+  c=Path(td)/'check.c';c.write_text('#define LOAD_FW_ONE_TIME 1\n'+prefix+body+one_time_tail)
+  subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-Wno-unused-function','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(a.candidate/'include'),str(c),'-o',td+'/check'],check=True)
+  subprocess.run([td+'/check'],check=True)

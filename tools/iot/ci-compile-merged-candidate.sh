@@ -265,6 +265,19 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   python3 tools/iot/prepare-mcu-rx-direct.py "$merged" --install-isolated
   python3 tools/iot/check-mcu-rx-direct.py "$merged"
   python3 tools/iot/check-mcu-rx-bounds.py "$merged"
+  for layer in mcu-boot-transport mcu-boot-loader mcu-nettask-bootstrap \
+    mcu-boot-open mcu-boot-freeze mcu-boot-rom-quiesce mcu-boot-pse-empty \
+    mcu-boot-rx-discard mcu-boot-pse-drain mcu-boot-rx-refresh \
+    mcu-boot-control-retire mcu-boot-ring-rearm mcu-boot-ring-transaction; do
+    python3 "tools/iot/prepare-$layer.py" "$merged" --install-isolated
+  done
+  for fixture in mcu-boot-transport mcu-boot-builders mcu-nettask-bootstrap \
+    mcu-boot-open mcu-boot-open-core mcu-boot-rom-quiesce mcu-boot-pse-empty \
+    mcu-boot-rx-discard mcu-boot-pse-drain mcu-boot-rx-refresh \
+    mcu-boot-control-retire mcu-boot-ring-rearm mcu-boot-ring-transaction \
+    fw-method1 mcu-rx-bounds; do
+    python3 "tools/iot/check-$fixture.py" "$merged"
+  done
   for fixture in allocator release lifetime destructors; do
     python3 "tools/iot/check-mcu-sequence-$fixture.py" "$merged"
   done
@@ -369,7 +382,10 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
     wr_iot_mbss_poll_work_fn wr_iot_mbss_poll_join \
     wr_iot_mbss_poll_stop_join wr_iot_mbss_recovery_handoff wr_iot_mcu_send_owned_off \
     wr_iot_mt_prepare_close_rx wr_iot_nettask_data_exit wr_iot_ap_release_after_join \
-    wr_iot_mcu_checked_rx_packet; do
+    wr_iot_mcu_checked_rx_packet wr_iot_mcu_boot_reserve wr_iot_mcu_boot_alloc \
+    wr_iot_mcu_boot_send wr_iot_mcu_boot_rom_quiesce wr_iot_mcu_boot_rx_refresh \
+    wr_iot_mcu_boot_control_retire wr_iot_mcu_boot_ring_rearm \
+    wr_iot_mcu_boot_ring_transaction; do
     awk -v name="$symbol" '$4 == "FUNC" && $7 != "UND" && $3 > 0 && $8 == name { found=1 } END { exit !found }' \
       "$results/mt76x3-symbols.txt"
   done

@@ -1,3 +1,408 @@
+## 2026-11-05 Sol: bootstrap candidate CI package locally verified
+
+CI peer82 now installs all13 bootstrap layers after checked direct RX and runs
+all15 final-source bootstrap/Method1/RX fixtures. Module symbol checks require
+real defined boot reserve/alloc/send/ROM/RX/control/rearm/transaction functions.
+Reload full-module evidence expands from6 to9 actual Kbuild TUs, adding
+andes_core, cmm_data_pci and rtmp_init with exact candidate source hashes.
+
+Full retained-input generation and final-source host suites pass, including
+transport/freeze, builders, native+OS_ABL nettask, NETIF/core-open, composed ROM,
+PSE/raw RX/drain/refresh/control/rearm/transaction, reload+one-time Method1,
+RX bounds and sequence allocator/release/lifetime/destructors/gap fixtures.
+Known successful-ACK duplicate gap still reproduced, not claimed solved.
+Nine synthetic task-config parser tests pass including new TUs; shell syntax,
+full manifest inventory and diff whitespace pass. Scratch trees removed;
+parser fixture removed62747bytes. No target result for bootstrap yet.
+
+Preparing one coherent commit/push on current branch; remote rechecked at
+c348946ba56301a96b8e9e35640a9c7c07da2941, no active CI at observation.
+After publication verify standard exact SHA, then queue peer82 optional for
+that SHA without duplicates. No epoch commit or Method1 success binding yet.
+Owner reference inputs remain untracked and outside this package.
+
+## 2026-11-05 Sol: owned four-stage ring transaction local
+
+New prepare-mcu-boot-ring-transaction.py composes ROM quiesce -> transactional
+RX payload refresh -> control packet retirement -> narrow ring register rearm.
+Adapter fields initialized only at allocation record busy, last verified stage
+and sticky failure. Claim under transition->sender lock validates exact ticket
+and original admission context. Caller ticket copied privately, so aliasing
+adapter ticket cannot silently change identity mid-operation. Blocking actors
+run outside locks; each stage publishes only after peer/frozen/context checks.
+Nested/duplicate callers do not mutate owner's failure state. Any accepted
+transaction failure retains last stage, marks bootstrap failed and refuses
+replay. Final success rechecks locked context. No quarantine/sequence reset,
+controller restart, tasklet/data admission or Method1 success binding yet.
+
+Actual coordinator ASan/UBSan fixture covers each actor refusal, peer/context
+loss at every boundary, final context loss, ticket alias mutation, nested and
+duplicate/wrong-ticket/busy/failed/partial-state/atomic-context rejection.
+Private ticket snapshot removal and sticky-failure removal mutations caught.
+Ring rearm/control/RX/ROM regressions pass. Full generated-source inventory and
+duplicate installation refusal pass. Suboperations injected in coordinator
+fixture; individual actors separately tested, not target or runtime evidence.
+
+Next prepare a coherent CI candidate package for these local bootstrap layers
+and full target compilation before authorizing sequence retirement/controller
+restart and Method1 binding. Existing published CI recipe still ends at direct
+RX; no bootstrap target result exists. Keep closed success gate meanwhile.
+Temporary generated source/test binaries removed (~14MB per sequential tree);
+13.9MB source input retained for unfinished integration. No router/owner input
+or unrelated shared-checkout change removed.
+
+## 2026-11-05 Sol: narrow CTRL/RX ring programming local
+
+New prepare-mcu-boot-ring-rearm.py adds frozen ROM owner helper for CTRL5,
+RX0 and RX1 only. Reviewed vendor mt_asic_init_txrx_ring assigns control5;
+SDK WPDMA_RST_IDX_STRUC supplies TX5/RX0/RX1 mask0x30020. Generator pins vendor
+MT initializer and TXD body. No global reset/all-ring initializer reuse.
+Preflight checks coherent storage/physical cell continuity, address width and
+alignment, retired CTRL packets/empty descriptors and prepared RX buffers.
+With DMA/IRQ/controller still off, barrier, narrow reset then base/count/CIDX
+writes. All12 register readbacks including DIDX0 must pass, followed by owner/
+PSE gate, before software indices/register addresses publish. No DMA enable,
+callback rearm, normal admission or sequence retirement. BE path refuses.
+
+Actual helper ASan/UBSan uses SDK RXD/TXD/reset layout and reduced4-entry
+geometry. Tests every readback failure, pre/post ownership failure, malformed
+storage/physical address/pending packet/DDONE; verifies software indices remain
+unchanged on failure and other registers untouched. Global-reset mutation and
+missing-DIDX-readback mutation caught. Control retirement/RX refresh/ROM actor
+regressions pass. Full source inventory and duplicate install refusal pass.
+This is mocked MMIO source evidence, not verified silicon behavior, target or
+image evidence. Bootstrap layers remain local/unpublished/unbound to Method1.
+
+Next compose ROM quiesce -> RX refresh -> control retirement -> narrow rearm
+with explicit retained failure state, then authorize sequence retirement only
+from that complete owner transaction and implement boot-controller/tasklet
+restart before Method1 binding. Keep poison/accounting errors distinct from
+hardware-response quarantine. Current initialization success gate stays closed.
+Temporary generated source/test binaries removed (~14MB per sequential tree);
+13.9MB source input retained for unfinished integration. Router/owner inputs
+and unrelated shared work preserved.
+
+## 2026-11-05 Sol: frozen control-ring packet retirement local
+
+Source audit confirmed PCI AndesFreeCmdMsg releases metadata, not net_pkt;
+RTMPHandleTxRing8DmaDone owns normal CtrlRing packet unmap/free. New isolated
+prepare-mcu-boot-control-retire.py adds sole frozen ROM owner helper under
+CtrlRingLock, gated by PSE/controller/DMA-off/join predicate. Entire inventory
+validated before release: coherent descriptor layout/storage, bounded indices,
+no second segment, packet length, exact PacketPa/SDPtr0 and address width,
+no duplicate live packet or DMA mapping. Pending and completed descriptors
+both handled; NULL packet is already retired. Clear packet owner, unmap/free
+once, zero descriptor/trailing word and mark DMADONE. No hardware index writes,
+normal admission or sequence reset. Little-endian path reviewed; BE refuses.
+
+Actual SDK TXD ASan/UBSan fixture (reduced4-entry ring) passes normal/pending/
+completed ownership, malformed last-cell refusal with no partial cleanup,
+aliases, bad mapping/length/index/storage, postcommit gate failure and repeat
+cleanup. Mutation removing ownership clear is caught. RX refresh/composed ROM
+regressions pass. Full source inventory and duplicate-install refusal pass.
+MMIO/packet/DMA operations injected; target and runtime not verified. All new
+bootstrap layers remain local/unpublished; actual Method1 success gate closed.
+
+Next implement narrow control/RX hardware ring reset/base/count/index readback
+and retained failure ownership, then firmware-epoch commit and Method1 binding.
+Do not use global all-ring reset without auditing untouched TX/MGMT/BCN state.
+Temporary generated trees/binaries removed (~14MB per sequential test); retained
+13.9MB source input supports unfinished work. Router/owner inputs untouched.
+
+## 2026-11-05 Sol: transactional RX payload refresh local
+
+New prepare-mcu-boot-rx-refresh.py / mcu-boot-rx-refresh.inc adds a frozen
+owner-only replacement of both RX payload inventories in cmm_data_pci.c.
+Requires existing PSE/controller/DMA-off gate and validated empty raw RX batch.
+Allocates every replacement before swapping any cell; checks DMA_MAPPING_ERROR
+explicitly (vendor allocator leaves this check commented), address width and
+payload VA. Revalidates after allocations. Private staging owns new mappings
+before commit and old mappings after swap, allowing exactly-once unmap/free.
+Descriptors rebuilt with SDK layout/zeroed trailing word and write barrier.
+No HW register writes, index reset, normal admission or sequence retirement.
+A postcommit context failure retains replacement buffers in normal cell owners.
+
+Actual helper ASan/UBSan host fixture uses SDK RXD and reduced4-entry geometry;
+all8 positions checked for allocation/mapping/high-address/null-VA failure,
+precommit context loss, postcommit refusal and staging allocation failure.
+Exactly-one live mapping/packet owner verified after each case. Removing the
+DMA error or post-allocation context check is caught. Prior raw RX, PSE,
+bounded drain and composed ROM fixtures pass; generated full hash inventory
+and duplicate install refusal pass. OS/MMIO/DMA mocked, no target/runtime claim.
+Generator pins reviewed vendor packet allocator and descriptor layout bodies.
+
+Next audit/retire control-ring packet mappings and implement narrow hardware
+ring rearm/readback before epoch commit and Method1 binding. PCI normal
+AndesFreeCmdMsg frees message metadata only, while AndesForceFreeCmdMsg also
+frees its packet: preserve that ownership distinction when retiring CtrlRing.
+All bootstrap code remains local/unpublished. Phase temp trees/binaries removed
+(~14MB source per sequential test);13.9MB input retained for unfinished work.
+Owner reference inputs, unrelated changes and router state preserved.
+
+## 2026-11-05 Sol: bounded live RX/PSE drain composed locally
+
+PSE snapshot now returns -1 invalid / 0 busy / 1 empty. New isolated
+prepare-mcu-boot-pse-drain.py composes actual ROM actor: freeze, stop MAC,
+mask/synchronize IRQ, join tasklets, mask/synchronize again, bounded live RX
+raw discard/PSE drain, disable DMA and verify idle, synchronize, final raw
+discard, empty MCU queues/controller exit, final PSE predicate. At most200
+attempts with1ms gaps; invalid observations abort, busy retries, two consecutive
+empty observations required. No sequence reset, ring rearm or normal admission.
+
+Actual SDK snapshot/raw-discard fixtures and new coordinator/order ASan/UBSan
+fixtures pass. Composed actor exercises14 injected failures. Mutations that
+retry invalid observations, fail to reset consecutive-empty count, or omit
+post-join IRQ remask are caught. Full generated-source hash inventory and
+duplicate-install refusal pass. Existing ROM checker delegates to composed
+actor fixture when the new layer is present. Hardware/joins/MMIO injected;
+no target/image/runtime claim. All bootstrap layers still local, unpublished.
+
+Next refresh control and both RX storage/registers under the proven frozen
+owner, preserving failure cleanup ownership, before implementing epoch commit
+and binding Method1 success. Current initialization gate remains closed.
+Temporary candidate trees/test binaries removed automatically (roughly14MB
+per sequential tree); retained13.9MB input supports unfinished integration.
+No owner inputs, shared unfinished work or router state changed.
+
+## 2026-11-05 Sol: bounded raw RX discard primitive local
+
+New local prepare-mcu-boot-rx-discard.py adds a real two-ring discard batch in
+cmm_data_pci.c. It requires frozen owner, ROM, stopped MAC, masked IRQ and
+joined callback lanes; validates both ring inventories/register mappings and
+each buffer/descriptor before mutation. Only DDONE-completed control words
+are returned with memory barriers and CIDX readback. Payload mappings stay
+device-owned. No packet parsing, allocation, release, AP/UAPSD/BA callback or
+sequence reset occurs. Existing buffers are recycled without the ordinary
+GetPacketFromRxRing invalid-fragment/allocation side paths. One batch is at
+most two ring lengths; empty is only a momentary batch snapshot.
+
+Generator pins the reviewed Linux pci_alloc_consistent allocator body and MT
+RX descriptor layout. Actual helper host ASan/UBSan uses SDK descriptor types
+and reduced4-entry rings: all wraps, both rings, index/DDONE ordering race,
+invalid mapping/storage/index, lost ownership, continuous producer bound,
+barrier order and failed CIDX write/readback. Removing DDONE guard is caught.
+PSE/RX-filter/ROM fixtures and full candidate inventory pass. These are not
+MIPS or hardware evidence. All temporary source/binaries removed.
+
+Next connect this primitive to a bounded live-DMA drain coordinator: freeze
+constructors, stop MAC producers, mask/synchronize IRQ and join tasklets,
+discard both rings while PSE drains, then stop DMA and join controller;
+recheck PSE and refresh both RX/control storage/registers before sequence
+retirement. Current ROM actor stops DMA first and is not yet bound; revise
+that orchestration rather than pretend queued PSE data drains with DMA off.
+Nonempty WLAN queues may need a separately validated purge/reset operation;
+vendor firmware-handshake PSE reset is not automatically valid in ROM.
+No normal admission/epoch commit or bootstrap publication yet. 13.9MB input
+retained for unfinished integration; owner references/router untouched.
+
+## 2026-11-05 Sol: known PSE queue emptiness predicate local, drain still needed
+
+Source audit: vendor wr_iot_pse_reset_raw uses816c request/result handshake
+and refers to firmware abort on timeout, so do not transplant it as a ROM-only
+reset. PDMA reset polls client TX FIFO and reenables hardware; it does not
+prove host-bound old-response retirement. SDK pse.h + cmm_info diagnostics
+identify P0 queues0..2, P1 queues0..3, P2 queues0..13 and five used-page
+counters. Header-only PSE reset bits have no implementation example here.
+
+New local prepare-mcu-boot-pse-empty.py binds reviewed queue inventory/masks
+to a bounded predicate after frozen ownership, ROM, stopped MAC TX/RX, joined
+lanes, controller-off and DMA/IRQ-off checks. Two sweeps read used pages and
+all21 first-frame IDs under IndirectUpdateLock, verify selector echo and
+restore prior selector on each exit. No delay while lock held. No frame
+removal, PSE reset, quarantine clear or epoch certificate is produced.
+Host ASan/UBSan tested every nonempty queue, page counts, malformed/failed
+selector/bus reads, restoration failure and context drift. Mutation removing
+FID check is caught. ROM/transport/nettask/RX fixtures and full inventory pass.
+
+RX restriction now follows wr_iot_boot_active rather than tasklet-live flag,
+so unsolicited/data packets remain suppressed after joining MCU tasklets.
+Actual parser fixture verifies this with boot active and MCU-only flag clear.
+Next implement controlled discard/drain of both RX rings while hardware can
+empty host-bound queues, then disable/join and refresh ring storage/registers.
+Do not enable original RX0 tasklet blindly: it also runs UAPSD/BA callbacks.
+Nonempty queues currently refuse; that is an incomplete path, not a substitute
+for required drain/rearm. All bootstrap additions remain local, out of CI and
+unpublished. Temporary source/binaries removed; 13.9MB input retained.
+Router unchanged; full port/IoT acceptance remains open.
+
+## 2026-11-05 Sol: ROM-confirmed DMA/IRQ/RX/controller quiesce actor local
+
+New local prepare-mcu-boot-rom-quiesce.py adds actual driver actor in MT7603
+MCU TU. Under Method1 owner after checked NETIF IRQ request: validates exact
+Andes controller-exit hook, live owned MCU-only context and ROM-not-RAM CR;
+freezes/drains boot construction, executes FW DMA/IRQ stop, verifies IRQ mask
+and two-clean disabled/idle DMA reads, synchronizes registered IRQ, joins
+network tasklets, refuses nonempty MCU queues, exits/joins controller and
+rechecks controller-off, ownership, ROM, IRQ mask and DMA. IRQ is not freed.
+No sequence reset, ring mutation or ordinary admission occurs.
+
+Actual actor + actual DMA-readback helper host ASan/UBSan passed success/order
+and16 injected failures: wrong ROM/bus, freeze refusal, mask/DMA failures, IRQ
+context invalidation, RX join failure, remaining queues, controller-exit
+failure, final CR changes, NIC removal and wrong exit hook. Mutation removing
+pre-join DMA readback is detected. Transport freeze/nettask/core-open/Method1
+fixtures and full source inventory pass. All hardware/OS/joins remain injected.
+
+Actor is intentionally not yet called by Method1: implement control + both
+RX-ring refresh and hardware response-queue retirement first, then bind the
+whole ROM/rearm transaction. The checked init success gate stays closed.
+Source audit confirms wr_iot_mt_poll_txrx_empty only polls PDMA busy flags;
+its name is NOT proof that old responses in HIF/PSE queues were retired. Do
+not clear sequence quarantine based on this poll or ROM+host ring reset alone.
+Next audit/implement actual hardware response producer/queue retirement and
+fresh RX/control storage/register readback. Bootstrap remains unpublished and
+outside CI pending coherent integration. Temporary source/binaries removed;
+13.9MB input retained. Router unchanged; full port goal remains active.
+
+## 2026-11-05 Sol: boot construction fence before ROM/RX retirement local
+
+New local prepare-mcu-boot-freeze.py splits identity/context validation from
+constructor/sender admission. Freeze serializes under transition->sender
+locks, refuses an executing send, blocks all future boot construction/send,
+then waits outside locks for existing message leases to finish. Timeout and
+epoch drift retain frozen state and all terminal claims. Frozen ownership
+revalidates the exact new-open/previous-close context and drained messages.
+No quarantine clear, bus operation, hardware epoch or normal rearm occurs.
+This must be consumed by the real ROM/RX quiesce/rearm actor next.
+
+Actual API host ASan/UBSan passed private-builder drain, late constructor
+refusal, timeout retention, retry after actual drain, epoch invalidation and
+inflight-send refusal. Removing construction-frozen check makes the regression
+fail. Open/core/nettask/RX/Method1 fixtures passed on the same final inventory.
+Temporary source/test trees removed. Keep local until full epoch integration.
+
+Source audit for the next actor: hif_sys_init resets CmdQ and all data rings,
+so do not reuse it for a narrow MCU epoch boundary. Both RX0 and RX1 need
+retirement, since blocked RX0 can still contain stale DMA packets. A checked
+ROM read must precede DMA/IRQ disable, synchronize_irq and actual RX/tasklet/
+controller joins; then refresh control/RX storage and verified register indices
+before sequence retirement. INTERRUPT_IN_USE is set only after MCUSysInit in
+this vendor init path, so it is not a valid prerequisite for ROM-stage IRQ
+synchronization. Use the checked successful NETIF IRQ-request provenance.
+No ring refresh or ROM actor is implemented by this fence alone.
+
+Optional754 succeeded for c348946. Independently audited artifacts13385567991
+and13385688867: all three module sizes/SHA256/ELF32LE MIPS and profile report
+links match. Direct RX function is defined600/596/600 bytes in baseline/WSC/
+reload. WSC macros and reload cmm_data TU present. Compact original evidence
+in docs/evidence/WR1200JS-BUILD754; no binaries/ZIP retained. These results do
+NOT cover local bootstrap TX/loader/nettask/open/freeze. Router unchanged.
+
+## 2026-11-05 Sol: reserve-before-IRQ and checked failed-open release local
+
+Local prepare-mcu-boot-open.py extends existing kernel peer-open request
+actions without changing prior values/layout. NETIF requests BOOT_PREPARE
+after peer BEGIN and before diagnostics/profile/IRQ; core validates CONFIG
+identity and reserves retained-close bootstrap (ordinary cold open unchanged).
+One-time firmware mode refuses retained boot before IRQ. NETIF now checks
+request_irq return and records actual acquisition. Failed init requests core
+IRQ_READY before peer FAIL, then releases only an acquired IRQ with confirmed
+controller stopped, joined MCU/data lanes, zero invocation/message users and
+DMA disabled/idle. Failure retains IRQ/adapter ownership; uncertainty and
+quarantine remain unchanged. No duplicate destructive unwind is attempted.
+
+Until ROM/RX/ring epoch commit is implemented, rt28xx_init explicitly routes
+active bootstrap through its existing err6 cleanup after MCUSysInit. This is
+a deliberate incomplete integration gate, not successful same-adapter reopen.
+Do not remove it just to obtain success; implement the verified commit edge.
+
+Host ASan/UBSan passed actual NETIF open + request client for reserve/request/
+init failures, release ordering and retained IRQ. Actual core helpers + ioctl
+dispatch passed both reload and LOAD_FW_ONE_TIME profiles, peer identity,
+controller/join/message/DMA refusal and uncertainty preservation. Actual MCU
+nettask entry/exit, RX gate, builders, full Method1, transport and close tests
+passed on the same full inventory. Duplicate layer install refused. Core
+reserve/DMA and OS/IRQ operations are injected; no target/runtime claim.
+All bootstrap transport/loader/nettask/open changes remain local, outside CI
+and unpublished until coherent epoch-commit integration. Temporary source/
+binary trees removed; retained 13.9MB input still needed. Router unchanged.
+
+## 2026-11-05 Sol: resumed; actual MCU-only nettask init/exit prepared locally
+
+Goal resumed by owner. Git still c348946; all previous local boot-TX/loader
+files preserved. Standard752 and ABI663 succeeded. Optional751(dc8f546) and
+753(17145033) succeeded while paused. Checked no equivalent optional c348946
+and dispatched once run41961613090 for exact c348946ba56301a96b8e9e35640a9c7c07da2941.
+These are CI states, not independent verification of those newer artifacts.
+
+Local prepare-mcu-nettask-bootstrap.py binds real RtmpNetTaskInit/Exit to
+MCU-only branch when explicit boot lease is active. Requires revalidated
+boot ownership plus joined global/data lanes and retained terminal claim;
+initializes RX1 and control-TX tasklets only, admits them through global gate
+and leaves data gate closed/joined. Failure joins only successfully created
+objects. Boot exit blocks/drains and joins only these two; ordinary path kept.
+During MCU-only phase RX parser rejects non-event packets and suppresses all
+generic event callbacks; only allocation-free checked ACK can execute.
+No normal sender/message claim or sequence quarantine is reset.
+
+Actual entry/exit + scheduler host ASan/UBSan tests passed for native and
+OS_ABL init-result profiles: data fence, partial init cleanup, ownership drift,
+nested exit refusal, repeated init/exit and ordinary full init path. RX prefix
+fixture checks bootstrap data/unsolicited suppression and checked-ACK routing.
+Method1, actual builders, boot transport and four message lifetime suites pass
+on the same full installed inventory; duplicate layer install refused.
+OS callbacks/MMIO remain mocked; no MIPS/runtime claim. Keep this local until
+reservation-before-IRQ hook and failure unwind are bound; then add ROM/RX/ring
+epoch retirement and normal publication. New helpers not published or in CI.
+Temporary source/binary trees removed; 13.9MB original generated input retained
+for unfinished integration. Owner references untouched; router unchanged.
+
+## 2026-11-04 Sol: actual loader builders use optional owned boot ticket locally
+
+Local prepare-mcu-boot-loader.py threads a ticket through actual restart,
+address/length, scatter/chunk loop and FW-start builders. Method1 selects its
+reserved adapter ticket; ordinary Method2/ROM-patch callers pass NULL. Boot
+path uses only dedicated allocator/sender, refuses ROM-patch command and
+LOAD_FW_ONE_TIME shortcut. No new reservation call/tasklet reinit/epoch commit
+is enabled yet, so this remains unpublished with the preceding transport API.
+
+Host ASan/UBSan actual builders passed boot vs ordinary allocation/send routing,
+wire payloads, three scatter chunks, stop on second chunk error, allocation
+failure and boot ROM-patch refusal. Full Method1 passed cold/warm command and
+timeout failures with both ticket modes. Separate actual LOAD_FW_ONE_TIME
+compilation refuses boot before MMIO and preserves ordinary warm reuse. Boot
+transport/direct RX/close fixtures and complete installed manifest matched.
+Temporary copies/binaries removed; retained 13.9MB input remains required.
+Next bind reservation before IRQ/tasklet init and MCU-only lane, then prove
+ROM/RX/ring retirement before ordinary admission; no quarantine reset added.
+
+Optional749/run41894174306 succeeded for verified source07ea86d; independent
+artifact13355598019 audit matched all three module byte counts/SHA256/ELF32LE
+MIPS and defined sender/OFF symbols. Profile report links and WSC effective
+macros verified; baseline/WSC OFF is still8-byte refusal, reload856-byte body.
+Compact evidence in docs/evidence/WR1200JS-BUILD749; no ZIP/modules retained.
+These results do not cover newer scatter/load-state/RX or local boot-TX work.
+Standard750 succeeded on17145033; queued exact-SHA optional753/run41898354725
+once behind active751. Dispatch HEADc348946; source/input report is decisive.
+Standard752 remains active; ABI663 succeeded. Router unchanged.
+
+## 2026-11-04 Sol: bounded/direct RX published; explicit boot-TX API local
+
+Remote c348946ba56301a96b8e9e35640a9c7c07da2941 confirmed. Standard752/
+41896602338 queued; ABI663/41896602043 active at last check. Older optional
+749 verifies07ea86d; optional751 verifiesdc8f546. Do not duplicate them.
+
+Local prepare-mcu-boot-transport.py adds an actual isolated adapter/message
+API, not loader binding: reserve from completed close-body provenance and
+new START plus exact peer CONFIG ownership/idle close executor; private boot
+constructor counts message lifetime while ordinary construction stays barred;
+serialized boot sender permits only selected checked boot commands or no-wait
+scatter through the exact PCI kickout, retaining terminal claims/quarantine.
+Old controller must be stopped at reserve, initialized before construction.
+No tasklet lane or normal admission is reopened. Failure retains uncertainty;
+transport-consumed messages are never inspected afterward. No epoch clear.
+
+Actual generated API host ASan/UBSan passed invalid close/open provenance,
+active controller/close executor, private allocation failure, nested send
+refusal, unsupported command/mode/tag/PCI hook refusal, consumed-message
+lifetime and error retention. RX direct/bounds, boot ACK, scatter and close
+fixtures passed on the same full installed inventory. Temporary source and
+binaries removed. This API is NOT added to CI or published yet: bind it to
+actual loader and MCU-only tasklet initialization before publication; add
+ROM/RX/ring epoch retirement before enabling ordinary construction.
+Four new transport files remain local/untracked. Retained 13.9MB input still
+needed. Owner references untouched. Router unchanged.
+
 ## 2026-11-04 Sol: coherent bounded/direct-RX package verified for publication
 
 Final isolated candidate includes bounded PCI event entry, allocation-free

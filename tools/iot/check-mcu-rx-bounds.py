@@ -82,6 +82,30 @@ if (a.candidate/'include/wr-iot-mcu-rx-direct.inc').exists():
         '  if(valid){calls=direct_calls=0;direct_handled=1;blk.Flags=0;\n'
         '   assert(parse_rx_packet_type(&ad,&blk,packet)==0);\n'
         '   assert(!calls&&direct_calls==1&&blk.Flags==1);direct_handled=0;}')
+if (a.candidate/'include/wr-iot-mcu-nettask-bootstrap.inc').exists():
+ fixture='#define CONFIG_ANDES_SUPPORT 1\n'+fixture
+ fixture=fixture.replace('typedef struct {struct {void (*rx_event_handler)(void *,void *);} chipOps;} RTMP_ADAPTER;',
+                         'typedef struct {struct {void (*rx_event_handler)(void *,void *);} chipOps;unsigned wr_iot_boot_mcu_only;} RTMP_ADAPTER;')
+ fixture=fixture.replace('static unsigned calls,direct_calls,direct_handled;',
+                         'static unsigned calls,direct_calls,direct_handled,normal_calls;')
+ fixture=fixture.replace('default: break;', 'case 2: normal_calls++;break;\ndefault: break;')
+ anchor=' puts("PASS actual PCI RX prefix/event case'
+ pos=fixture.index(anchor)
+ fixture=fixture[:pos]+r'''
+ word=(2u<<29)|12;memcpy(packet,&word,4);ad.wr_iot_boot_mcu_only=1;
+ blk.PDMALen=12;blk.Flags=0;calls=direct_calls=normal_calls=0;
+ assert(parse_rx_packet_type(&ad,&blk,packet)==0&&!normal_calls&&!direct_calls&&!calls);
+ ad.wr_iot_boot_mcu_only=0;
+ assert(parse_rx_packet_type(&ad,&blk,packet)==0&&normal_calls==1);
+ word=(7u<<29)|12;memcpy(packet,&word,4);ad.wr_iot_boot_mcu_only=1;
+ calls=direct_calls=0;direct_handled=0;blk.Flags=0;
+ assert(parse_rx_packet_type(&ad,&blk,packet)==0&&!calls&&direct_calls==1&&blk.Flags==1);
+ direct_handled=1;blk.Flags=0;
+ assert(parse_rx_packet_type(&ad,&blk,packet)==0&&!calls&&direct_calls==2&&blk.Flags==1);
+'''+fixture[pos:]
+if 'ad->wr_iot_boot_active && rx_pkt_type' in s:
+ fixture=fixture.replace('unsigned wr_iot_boot_mcu_only;', 'unsigned wr_iot_boot_mcu_only,wr_iot_boot_active;')
+ fixture=fixture.replace('ad.wr_iot_boot_mcu_only','ad.wr_iot_boot_active')
 with tempfile.TemporaryDirectory(prefix='wr-mcu-rx-bounds-') as td:
  c=Path(td)/'check.c';c.write_text(fixture)
  subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-pie','-no-pie',str(c),'-o',td+'/check'],check=True)
