@@ -27,7 +27,6 @@ typedef uint32_t UINT32;typedef unsigned long ULONG;typedef unsigned char UCHAR;
 #define NDIS_STATUS_SUCCESS 0
 #define NDIS_STATUS_FAILURE 1
 #define HIF_MT 1
-#define TOP_MISC2 1
 #define MT_INT_MASK_CSR 2
 #define ARB_SCR 3
 #define MT_ARB_SCR_TXDIS 0x100u
@@ -55,7 +54,7 @@ union descriptor {RXD_STRUC d;UINT32 word[4];};static union descriptor descripto
 #define wmb() (write_barriers++)
 static int wr_iot_mcu_boot_frozen_owned(RTMP_ADAPTER *ad){assert(ad==current&&!held);return context;}
 static UINT32 read_register(unsigned reg){
- if(reg==TOP_MISC2)return mode==1?2:1;
+ if(reg==0x1134U)return mode==1?2:1;
  if(reg==MT_INT_MASK_CSR)return mode==2?1:0;
  if(reg==ARB_SCR)return mode==3?0:0x300;
  assert(held);if(reg==200||reg==216)return cpu_hw[(reg-200)/16];

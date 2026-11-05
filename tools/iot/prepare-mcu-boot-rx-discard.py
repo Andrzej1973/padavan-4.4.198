@@ -10,6 +10,8 @@ actual={str(f.relative_to(src)):hashlib.sha256(f.read_bytes()).hexdigest() for f
 if (manifest.get('production_installed') is not False or manifest.get('target_compiled') is not False or
     'mcu_boot_pse_empty' not in manifest or 'mcu_boot_rx_discard' in manifest or actual!=manifest['merged_driver_sha256']):
  p.error('Expected unchanged isolated known-PSE snapshot candidate')
+if (src/'mcu/andes_mt.c').read_text().count('#define TOP_MISC2 0x1134\n')!=1:
+ raise ValueError('Unreviewed MT7603 ROM status register')
 util=(src/'os/linux/rt_rbus_pci_util.c').read_text();start=util.index('void RtmpAllocDescBuf(');end=util.index('\n}',start)+2
 if hashlib.sha256(util[start:end].encode()).hexdigest()!='d4e08420f6627e5bcff20d532d295878fb181d66941daf075eefabc440974566':raise ValueError('Unreviewed coherent descriptor allocator')
 sdk=(src/'include/mac/mac_mt/mt_mac_pci.h').read_text()

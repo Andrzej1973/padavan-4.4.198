@@ -1,3 +1,41 @@
+## 2026-11-05 Sol: RX TU-private register dependency fixed locally
+
+During source audit while standard755/ABI664 run, found TOP_MISC2 is defined
+only inside mcu/andes_mt.c, while raw discard is compiled in cmm_data_pci.c.
+The host fixture's synthetic TOP_MISC2 had hidden this cross-TU error. Raw
+helper now uses its own namespaced ROM register0x1134U; generator verifies
+exact vendor TOP_MISC2 definition before installation. Fixture no longer
+defines TOP_MISC2, uses actual register address, and old dependency mutation
+fails compilation as expected. Actual raw RX ASan/UBSan and full generation/
+manifest inventory pass. Scratch sources/binaries removed.
+
+This source-caught compile dependency is not a failed GitHub run; monitor
+parser changes are not needed. Preparing narrow follow-up package. Existing
+standard755 remains active (firmware build observed), ABI664 active (packet
+isolation check observed). Do not interrupt active runs. Old bootstrap
+candidate e4ebec0 needs this fix; optional compilation should use replacement
+SHA rather than knowingly submit obsolete source. No epoch/normal admission
+change and no router access. Separate audit confirms successful checked IDs
+are reusable in current ledger, so duplicate-ACK gap persists; retirement
+must remain distinct from timeout quarantine and poison/accounting state.
+
+## 2026-11-05 Sol: bootstrap package published, standard755 queued
+
+Published exactly one commit e4ebec0824b0a24b431b547902c8c72205179d21
+(feat(iot): compile owned MCU bootstrap ring transaction in candidate CI).
+Outgoing range from prior remote c348946 contained this commit only. SSH push
+and independent ls-remote confirm exact remote SHA. All bootstrap source,
+generators/host fixtures, candidate recipe and9-TU reload evidence now included.
+Compact independently audited749/754 evidence included; docs/reference owner
+inputs remain untracked/preserved. No router access/change.
+
+GitHub created standard755 run41969148874 and ABI664 run41969148833 for exact
+head e4ebec0824b0a24b431b547902c8c72205179d21; both queued at first observation.
+No optional dispatched yet: wait for standard success, inspect existing lane
+runs/inputs, then queue exact SHA iot/peer82. Target bootstrap result remains
+pending; green standard alone will not prove optional candidate compilation.
+Failure triage must compare monitor artifact with original failed job.
+
 ## 2026-11-05 Sol: bootstrap candidate CI package locally verified
 
 CI peer82 now installs all13 bootstrap layers after checked direct RX and runs

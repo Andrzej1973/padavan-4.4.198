@@ -3,6 +3,8 @@
  * joined, boot constructors frozen. Payload mappings remain device-owned;
  * no payload read, parser, allocation, packet release or AP callback occurs.
  * One batch is bounded. Empty is a snapshot, not a hardware epoch receipt. */
+/* SDK's TOP_MISC2 macro is private to andes_mt.c, not this translation unit. */
+#define WR_IOT_BOOT_ROM_STATUS_REG 0x1134U
 INT wr_iot_mcu_boot_rx_discard_batch(RTMP_ADAPTER *ad,unsigned int *empty)
 {
  UINT32 value,hw,control;ULONG flags=0;
@@ -25,7 +27,7 @@ INT wr_iot_mcu_boot_rx_discard_batch(RTMP_ADAPTER *ad,unsigned int *empty)
  if(!joined || RTMP_TEST_FLAG(ad,fRTMP_ADAPTER_NIC_NOT_EXIST))return NDIS_STATUS_FAILURE;
  RTMP_IO_READ32(ad,MT_INT_MASK_CSR,&value);
  if(value)return NDIS_STATUS_FAILURE;
- RTMP_IO_READ32(ad,TOP_MISC2,&value);
+ RTMP_IO_READ32(ad,WR_IOT_BOOT_ROM_STATUS_REG,&value);
  if(value==~(UINT32)0||(value&3U)!=1U)return NDIS_STATUS_FAILURE;
  RTMP_IO_READ32(ad,ARB_SCR,&value);
  if(value==~(UINT32)0||(value&(MT_ARB_SCR_TXDIS|MT_ARB_SCR_RXDIS))!=
