@@ -1,0 +1,69 @@
+{
+  "run_id": 42048793620,
+  "artifact_id": 13430080710,
+  "verified_revision": "084e551d6e785d1c37d717807451393c4eba522d",
+  "modules": {
+    "mt76x3_ap.ko": {
+      "bytes": 5687576,
+      "sha256": "8f9f069f47bf60ad82b86df01f6669d8a5eca5c6ce08fad95a52d25073acf324",
+      "elf": "ELF32 little-endian MIPS",
+      "defined_functions": {
+        "wr_iot_mcu_boot_reserve": 632,
+        "wr_iot_mcu_boot_alloc": 420,
+        "wr_iot_mcu_boot_send": 768,
+        "wr_iot_mcu_boot_rom_quiesce": 1048,
+        "wr_iot_mcu_boot_rx_refresh": 672,
+        "wr_iot_mcu_boot_control_retire": 748,
+        "wr_iot_mcu_boot_ring_rearm": 1248,
+        "wr_iot_mcu_boot_ring_transaction": 676,
+        "wr_iot_mcu_boot_controller_init": 960,
+        "wr_iot_mcu_boot_rx_restart": 600,
+        "wr_iot_mcu_boot_irq_prepare": 564,
+        "wr_iot_mcu_boot_dma_start": 660
+      },
+      "report_sha256": "40da5d1e480bd74e4f5478b2565471f26816bc02f4e1ae547e2737d07f4ebbb9"
+    },
+    "reload-feature/mt76x3_ap-reload.ko": {
+      "bytes": 5688860,
+      "sha256": "ddfcbd468b32c7971b3693a42f118fd3159356eb420455f4cd7b79121d72937d",
+      "elf": "ELF32 little-endian MIPS",
+      "defined_functions": {
+        "wr_iot_mcu_boot_reserve": 632,
+        "wr_iot_mcu_boot_alloc": 420,
+        "wr_iot_mcu_boot_send": 768,
+        "wr_iot_mcu_boot_rom_quiesce": 1048,
+        "wr_iot_mcu_boot_rx_refresh": 672,
+        "wr_iot_mcu_boot_control_retire": 748,
+        "wr_iot_mcu_boot_ring_rearm": 1248,
+        "wr_iot_mcu_boot_ring_transaction": 676,
+        "wr_iot_mcu_boot_controller_init": 960,
+        "wr_iot_mcu_boot_rx_restart": 600,
+        "wr_iot_mcu_boot_irq_prepare": 564,
+        "wr_iot_mcu_boot_dma_start": 660
+      },
+      "report_sha256": "7210ab93db9ce89e82ab92f11ec8417cd496237715970a1ddd3df6f50b827ab8"
+    },
+    "wsc-feature/mt76x3_ap-wsc.ko": {
+      "bytes": 6297164,
+      "sha256": "b34bb91018f83ce0e6c0efa095e02a0da8ab20a50f7f2f9facc3bc41612d41a7",
+      "elf": "ELF32 little-endian MIPS",
+      "defined_functions": {
+        "wr_iot_mcu_boot_reserve": 640,
+        "wr_iot_mcu_boot_alloc": 424,
+        "wr_iot_mcu_boot_send": 772,
+        "wr_iot_mcu_boot_rom_quiesce": 1060,
+        "wr_iot_mcu_boot_rx_refresh": 672,
+        "wr_iot_mcu_boot_control_retire": 748,
+        "wr_iot_mcu_boot_ring_rearm": 1248,
+        "wr_iot_mcu_boot_ring_transaction": 680,
+        "wr_iot_mcu_boot_controller_init": 976,
+        "wr_iot_mcu_boot_rx_restart": 608,
+        "wr_iot_mcu_boot_irq_prepare": 576,
+        "wr_iot_mcu_boot_dma_start": 672
+      },
+      "report_sha256": "66b9af9a8d12639dd06745109e725de4a7da756684698e73a784b1b2914a7691"
+    }
+  },
+  "runtime_verified": false,
+  "production_installed": false
+}

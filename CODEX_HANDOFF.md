@@ -1,3 +1,210 @@
+## 2026-11-05 Sol: retired-ID boundary locally verified and CI recipe extended
+
+The new isolated retired-ID boundary runs only after stage1 ring transaction,
+frozen ROM provenance, drained sender and double PSE-empty observation. It
+requires no active/poisoned/quarantined ID and clears only retired history plus
+cursor while preserving all unresolved state; it stamps ticket-bound source
+provenance but grants neither firmware runtime nor data admission. The actual
+ASan/UBSan fixture covers18 refusal/race conditions and an executed mutation
+that removes retired reset. All composed lifecycle fixtures and the full source
+manifest passed against the generated candidate. `peer82` now installs and
+checks IRQ filter/unmask, aggregate hardware, ROM observer and this boundary.
+No target build, production install, ROMFS result or device operation occurred.
+The retained13.9MB input remains needed for the next local generation pass.
+
+## 2026-11-05 Sol: optional761 completed and independently audited
+
+Live run42048793620 is completed/success. Verification artifact13427057098
+pins requested/verified source084e551d6e785d1c37d717807451393c4eba522d.
+Probe13430080710 independently checked in memory: baseline5687576B,
+WSC6297164B, reload5688860B; all report SHA256/size and ELF32 LE MIPS agree.
+Twelve nonstub defined bootstrap functions present in all3 modules, including
+controller-init/RX-restart/IRQ-prepare/DMA-start. Feature report SHA256 binds
+baseline. Compact evidence docs/evidence/WR1200JS-BUILD761; no ZIP/modules
+saved, no persistent audit scratch to remove. This is isolated target evidence
+only; later local layers remain uncompiled and production/runtime unaccepted.
+
+Retired-boundary source/generator remain unfinished and untested. Next: actual
+boundary refusal/race fixtures, complete generated manifest/parent checks and
+aggregate fixture adaptation before Method1 hardware binding. No router access,
+new build dispatch or source publication in this audit. HEAD fd13f3c unchanged.
+
+## 2026-11-05 Sol: Method1 ROM provenance observer local, no epoch reset
+
+New prepare-mcu-boot-rom-observe.py binds observer into actual Method1 after
+checked restart return/ROM-ready loop, before address/download commands. A
+C90-safe local flag records successful restart; cold-ROM kind1 vs checked-
+restart kind2 stamped with exact boot peer/radio serial+epoch. Observer validates
+role/controller/messages/stage/device flags under locks BEFORE any MMIO, checks
+ROM-not-RAM twice, then revalidates peer and private ticket before stamping.
+Repeated/wrong/partial/reset contexts refuse. No ledger mutation, hardware-stage
+activation, constructor/data thaw or epoch grant. Success gate remains closed.
+
+Actual observer host ASan/UBSan exercises both kinds, all16 failure cases,
+zero MMIO for invalid preconditions, bus/RAM/drift, peer/ticket/NIC races and
+duplicate refusal, with unchanged ledger. Private ticket removal or accepting
+RAM instead of ROM fails executed C assertions. Actual Method1 fixture covers
+cold/warm, checked restart failure/ROM timeout, observation failure before any
+download, ordinary path and LOAD_FW_ONE_TIME refusal; C90 diagnostic retained.
+Aggregate hardware/checked retirement regressions, full manifest and duplicate
+install refusal pass. Temp sources/binaries removed (~14MB per tree);13.9MB
+unfinished input retained. New observer and IRQ/unmask/aggregate remain local.
+
+Optional761 run42048793620 active at isolated merged IoT target compile, source
+084e551d. No result claimed; no duplicate dispatch. Next gate retired-ID boundary
+on this exact ROM provenance PLUS full frozen ring transaction/PSE/RX/IRQ/DMA
+conditions before controller recreation; refuse poison, occupied IDs and any
+unresolved timeout quarantine. Do not use observer alone as reset permission.
+Then bind complete hardware/thaw flow into Method1 and verify final admission
+separately. Router/owner references unchanged.
+
+## 2026-11-05 Sol: aggregate frozen boot hardware transaction local;760 audited
+
+New prepare-mcu-boot-hardware.py composes ring transaction -> checked controller
+-> frozen RX restart -> IRQ preparation -> DMA start -> MCU IRQ unmask. Outer
+state/stage validates untouched entry, exact private ticket snapshot, peer/frozen
+context and device flags at boundaries, forbidding nested/duplicate/partial
+replay. Captures initial SDK DMA-off baseline before ROM quiesce, so early
+failures also have a known stop config. Accepted failure blocks IRQ rearm first,
+then attempts DMA stop, retains all rings/controller/tasklets and records last
+stage plus verified/unknown stop. No cleanup replay of allocations/descriptors.
+No ledger reset, firmware epoch receipt, command/data admission or Method1 bind.
+
+Actual aggregate host ASan/UBSan fixture covers all6 actor refusals, context
+loss at all6 boundaries, nested/duplicate/partial state, private ticket mutation,
+late NIC/final identity, initial bus error, and unknown stop. Ledger unchanged.
+Removing ticket snapshot, IRQ abort, or initial baseline fallback fails executed
+C assertions. Actual IRQ-unmask/rearm/DMA regressions and full inventory pass.
+Temp source/binaries removed (~14MB tree);13.9MB unfinished input retained.
+
+Optional760 run42048786377 completed success for8dbe9b4247150b8a48167bc167ee8641416ba28b,
+dispatch084e551d, verified independently via13426296317. Probe13427062608 read
+in memory: baseline5658096/WSC6267524/reload5659380 bytes, all ELF32 LE MIPS,
+exact report SHA/size and8 real non-stub bootstrap APIs. Feature reports bind
+baseline report; WSC effective flags verified, reload9 effective TUs without
+LOAD_FW_ONE_TIME verified. Compact reports/checks docs/evidence/WR1200JS-BUILD760;
+ZIP/modules not retained. Target compilation only, no IoT runtime acceptance.
+Optional761 run42048793620 now active for084e551d and will cover published
+ID/controller/RX/IRQprep/DMA package. New ISR/unmask/aggregate still local.
+Next define/verify complete ROM/RX/ring epoch receipt before clearing retired
+IDs (never clear unresolved quarantine or poison), then Method1 success binding.
+Router/owner reference inputs unchanged.
+
+## 2026-11-05 Sol: MCU-only IRQ unmask/abort local
+
+New prepare-mcu-boot-irq-unmask.py follows the raw ISR filter. Core lease
+requires frozen sender, ring4/controller2/RX2/IRQ2/DMA2 with valid saved DMA-off
+baseline and no NIC/reset/halt flags. Net actor under irq->interrupt->lane locks
+verifies exact software mask/pending state, live MCU tasks/data fence, enabled
+DMA, stopped MAC and IRQ0. Owns/sets START_UP for ISR eligibility plus IRQ_ACTIVE,
+orders flags before writing RX1|TX5 mask0x202 and verifies readback. Does not
+set in-band command flag, thaw constructors, open data RX or reset ledger.
+
+Success publishes under final locked identity+device-flag check. Any accepted
+failure first blocks MCU scheduler/rearm under lane lock and masks IRQ; clears
+only owned startup flag, retains pending state and controller/tasklets/rings.
+Then historical DMA lease stops hardware and distinguishes verified/unknown
+stop. No free/false shutdown claim. Unknown state remains held for later cleanup.
+
+Actual net actor + actual rt2860_int_enable host ASan/UBSan prove flags-before-
+write, exact mask, DMA/MAC/lane/readback refusals, pending preservation and
+late tasklet cannot reenable after abort. Actual owner fixture covers nested/
+duplicate/stage/device flags, helper/context/final NIC race, abort-before-stop
+and unverified stop retention. Removing rearm block or final device-flag check
+fails executed C assertions. ISR/native+OS_ABL nettask regressions, full manifest
+and duplicate-install refusal pass. Temporary sources/binaries removed (~14MB
+per generated tree),13.9MB unfinished input retained. New ISR/unmask layers
+still local/unpublished; host/OS/MMIO injected, no runtime/target claim.
+
+Optional760 run42048786377 currently compiles isolated target IoT candidate;
+761 pending. Standard762 and ABI668 succeeded for monitor-onlyfd13f3c6; prior
+084e551d optional already queued covers unchanged candidate source, no duplicate
+optional for monitor-only delta. Next compose complete boot hardware stages,
+authorize only justified epoch/retired-ID boundary (never clear poison or
+unresolved quarantine merely from host reset), then Method1 success binding.
+Router/owner reference inputs unchanged.
+
+## 2026-11-05 Sol: bootstrap ISR raw-source filter local before IRQ unmask
+
+Audit found hardware IRQ mask alone insufficient: RTMPHandleInterrupt reads
+raw source and handles WF_MAC_INT_3 before normal dispatch; masked pending
+WF/data bits can piggyback on a bootstrap IRQ. New isolated
+prepare-mcu-boot-irq-filter.py restricts raw source to RX1|TX5 immediately after
+MT read and before any WF handler when boot_active. All-ones bus read sets
+NIC_NOT_EXIST/HALT and returns before WF MMIO. Ordinary path unchanged. No
+IRQ enable, constructor thaw or firmware/ledger epoch claim.
+
+Actual ISR prefix host ASan/UBSan uses SDK bits and all32 individual/mixed/raw
+sources. Tests ordinary behavior, bootstrap exclusion of data/WF, RX1/TX5
+selection and NIC removal. Broadened AND->OR mutation fails executed C asserts,
+not source-text matching. Native+OS_ABL nettask/DMA regressions and full source
+inventory pass; duplicate installation refused. Generated sources/binaries
+removed (~14MB per tree);13.9MB unfinished source input retained. New filter
+remains local/unpublished until coherent IRQ-unmask package is ready.
+
+Optional760 run42048786377 active; independently read verification-source
+artifact13426296317: dispatch084e551d, requested/verified8dbe9b4247150b8a48167bc167ee8641416ba28b.
+Optional761 run42048793620 pending for084e551d. Standard762 run42049309941
+active forfd13f3c6, ABI668 run42049309784 succeeded. No duplicate dispatch.
+Next explicit IRQ unmask must set START_UP for ISR eligibility while keeping
+in-band commands/constructors frozen, maintain narrow software mask, and block
+MCU schedule/rearm before failure masking/stop to prevent late tasklet IRQ
+reenable. Keep actual firmware epoch/reset acceptance separate. Router and
+owner reference inputs unchanged.
+
+## 2026-11-05 Sol: owner-requested monitor deployed on both branches
+
+Owner explicitly requested fixing/directing monitor for both branches and
+publishing immediately. Working branch monitor commitfd13f3c643fc06f8c44d286354e5630cd8b2b6aa
+published via SSH; main monitor-only commit70964a3dab872f83478bccce3e7c37a4e4ec176c
+published via SSH. Remote refs independently match. Main tree created from
+exact d1dc0eba parent using temporary private index; diff verified exactly
+workflow/build_monitor/check_build_monitor, identical to tested working files.
+Shared checkout/branch/index, firmware code and owner references preserved.
+
+Central workflow watches supported failures across branches without branch
+filter, includes ABI, uses trusted main parser with bounded last16MiB/latest60
+matching lines, reports head_branch, queues monitor runs without cancellation,
+keeps success/dedup silence and removes old recurring/default-main push polling.
+Added explicit one-run manual replay isolated from normal dedup state. Nim
+monitor/log tests and workflow checks pass, including both-branch failures,
+success silence, duplicate silence and late757 C90 error.
+
+Live manual checks both succeeded: monitor42049379434 inspected working-branch
+failure42038010637, artifact13424519969 recovered exact late C90 compiler cause
+and branch; monitor42049470069 inspected main ABI failure39139250586,
+artifact13425549338 reported main/inspect-driver-abi/failed source-parser step.
+Compact checksum evidence docs/evidence/MONITOR-BOTH-BRANCHES-2026-11-05.json.
+No fake failed builds, recurring Codex automation or router operations.
+Temporary Nim caches/binaries/private Git index removed.
+
+Firmware continuation: standard758/759 + ABI666/667 succeeded. Dispatched
+optional760 run42048786377 verifying8dbe9b4 and queued optional761
+run42048793620 verifying084e551d, both dispatched from084e551d; no duplicates.
+First verification-source artifact13426296317 identified for independent read.
+Next inspect optional results and continue MCU-only IRQ unmask/epoch work.
+No claim that monitor success proves firmware target/runtime completion.
+
+## 2026-11-05 Sol: checked retirement/controller/DMA package published
+
+Published084e551d6e785d1c37d717807451393c4eba522d, exactly one coherent commit
+beyond8dbe9b4; SSH push and independent ls-remote match. All new source,
+generators/fixtures and peer82 recipe included. Standard759 run42042581014
+pending behind active758 run42041105449; ABI667 run42042581032 active. ABI666
+already succeeded for8dbe9b4. No optional duplicate or active cancellation.
+
+After758 succeeds, dispatch iot/peer82 with exact verification_revision
+8dbe9b4247150b8a48167bc167ee8641416ba28b to verify757 C90 fix independently,
+even though branch now084e551d. After759 succeeds queue its own exact084e551d
+optional; standard/optional lanes remain independent. Current host package
+passed28 final-source checks; no new target result yet. Source identity must
+be verified via verification-source artifact, not dispatch head alone.
+
+Next explicit MCU-only IRQ unmask and verified epoch/Method1 binding; keep
+normal command/data admission and success gate closed meanwhile. Worktree
+contains only owner docs/reference input plus this handoff note; inputs retained.
+Router unchanged. No broad cleanup;13.9MB unfinished source input retained.
+
 ## 2026-11-05 Sol: checked ID/controller/RX/IRQ/DMA package verified for CI
 
 Peer82 recipe now installs six further coherent layers: checked-ID retirement,

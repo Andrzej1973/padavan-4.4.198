@@ -97,6 +97,23 @@ if 'wr_iot_fw_command_alloc' in s:
  tail=tail.replace('for(warm=0;warm<2;warm++)',
                    'for(unsigned owned=0;owned<2;owned++)for(warm=0;warm<2;warm++)')
  tail=tail.replace('RTMP_ADAPTER ad={0};', 'RTMP_ADAPTER ad={0};ad.wr_iot_boot_active=owned;')
+if 'wr_iot_mcu_boot_rom_observe(' in body:
+ prefix+=r'''
+static unsigned observed,observe_fail;
+static int wr_iot_mcu_boot_rom_observe(RTMP_ADAPTER *ad,const struct wr_iot_mcu_boot_ticket *boot,unsigned acked){
+ assert(ad->wr_iot_boot_active&&boot==&ad->wr_iot_boot_ticket&&acked==(unsigned)warm);observed++;return observe_fail?1:0;
+}
+'''
+ tail=tail.replace('ad.MCUCtrl.Stage=9;', 'observed=0;ad.MCUCtrl.Stage=9;')
+ tail=tail.replace('assert(writes>=7);','assert(observed==(unsigned)(owned&&fault!=1&&fault!=6));assert(writes>=7);')
+ anchor=' puts("PASS actual reload Method1:';pos=tail.index(anchor)
+ tail=tail[:pos]+r'''
+ RTMP_ADAPTER failed_observation={0};failed_observation.wr_iot_boot_active=1;
+ failed_observation.chipCap.fw_header_image=image;failed_observation.chipCap.fw_len=sizeof(image);
+ warm=fault=phase=addresses=scatters=starts=observed=0;observe_fail=1;
+ assert(AndesMTLoadFwMethod1(&failed_observation)==1&&observed==1&&!addresses&&!scatters&&!starts);
+ observe_fail=0;
+'''+tail[pos:]
 with tempfile.TemporaryDirectory(prefix='wr-fw-method1-') as td:
  c=Path(td)/'check.c';c.write_text(prefix+body+tail)
  subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(a.candidate/'include'),str(c),'-o',td+'/check'],check=True)
