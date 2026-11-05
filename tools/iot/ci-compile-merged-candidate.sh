@@ -272,7 +272,8 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
     mcu-checked-sequence-retirement mcu-boot-controller-init mcu-boot-rx-restart \
     mcu-boot-other-tx-idle mcu-boot-irq-prepare mcu-boot-dma-start \
     mcu-boot-irq-filter mcu-boot-irq-unmask mcu-boot-hardware \
-    mcu-boot-rom-observe mcu-boot-retired-boundary; do
+    mcu-boot-rom-observe mcu-boot-retired-boundary mcu-boot-thaw \
+    mcu-boot-loader-abort mcu-boot-loader-bind; do
     python3 "tools/iot/prepare-$layer.py" "$merged" --install-isolated
   done
   for fixture in mcu-boot-transport mcu-boot-builders mcu-nettask-bootstrap \
@@ -283,7 +284,8 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
     mcu-boot-other-tx-idle mcu-boot-irq-prepare mcu-boot-irq-owner \
     mcu-boot-dma-start mcu-boot-dma-owner mcu-boot-irq-filter \
     mcu-boot-irq-unmask mcu-boot-irq-unmask-owner mcu-boot-hardware \
-    mcu-boot-rom-observe mcu-boot-retired-boundary fw-method1 mcu-rx-bounds; do
+    mcu-boot-rom-observe mcu-boot-retired-boundary mcu-boot-thaw \
+    mcu-boot-loader-abort fw-method1 mcu-rx-bounds; do
     python3 "tools/iot/check-$fixture.py" "$merged"
   done
   for fixture in allocator release lifetime destructors; do

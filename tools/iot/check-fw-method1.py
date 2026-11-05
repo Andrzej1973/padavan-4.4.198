@@ -114,6 +114,26 @@ static int wr_iot_mcu_boot_rom_observe(RTMP_ADAPTER *ad,const struct wr_iot_mcu_
  assert(AndesMTLoadFwMethod1(&failed_observation)==1&&observed==1&&!addresses&&!scatters&&!starts);
  observe_fail=0;
 '''+tail[pos:]
+if 'wr_iot_mcu_boot_hardware_prepare(' in body:
+ prefix+=r'''
+static unsigned bind_fail,hardware_calls,thaw_calls,abort_calls;
+static int wr_iot_mcu_boot_hardware_prepare(RTMP_ADAPTER *ad,const struct wr_iot_mcu_boot_ticket *t){assert(ad&&t&&observed);hardware_calls++;return bind_fail==1?7:0;}
+static int wr_iot_mcu_boot_thaw(RTMP_ADAPTER *ad,const struct wr_iot_mcu_boot_ticket *t){assert(ad&&t&&observed);thaw_calls++;return bind_fail==2?7:0;}
+static int wr_iot_mcu_boot_loader_abort(RTMP_ADAPTER *ad,const struct wr_iot_mcu_boot_ticket *t){assert(ad&&t);abort_calls++;return 0;}
+'''
+ tail=tail.replace('assert(writes>=7);','if(!owned||!fault)assert(writes>=7);')
+ anchor=' puts("PASS actual reload Method1:';pos=tail.index(anchor)
+ tail=tail[:pos]+r'''
+ for(bind_fail=1;bind_fail<=2;bind_fail++){
+  RTMP_ADAPTER ad={0};ad.wr_iot_boot_active=1;
+  ad.chipCap.fw_header_image=image;ad.chipCap.fw_len=sizeof(image);
+  warm=fault=phase=addresses=scatters=starts=observed=hardware_calls=thaw_calls=abort_calls=0;
+  assert(AndesMTLoadFwMethod1(&ad)==7&&ad.MCUCtrl.Stage==FW_NO_INIT);
+  assert(hardware_calls==1&&thaw_calls==(bind_fail==2)&&abort_calls==1);
+  assert(!addresses&&!scatters&&!starts);
+ }
+ bind_fail=0;
+'''+tail[pos:]
 with tempfile.TemporaryDirectory(prefix='wr-fw-method1-') as td:
  c=Path(td)/'check.c';c.write_text(prefix+body+tail)
  subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(a.candidate/'include'),str(c),'-o',td+'/check'],check=True)

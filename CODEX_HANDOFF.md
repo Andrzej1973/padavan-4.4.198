@@ -1,3 +1,22 @@
+## 2026-11-05 Sol: Method1 hardware/thaw/abort binding locally checked
+
+HEAD ae122707 remains published. Optional764 run42089096422 succeeded for
+that exact SHA; independent module size/SHA256/ELF checks are recorded in
+docs/evidence/WR1200JS-BUILD764-INDEPENDENT.md. New local package installs
+private thaw, historical loader abort and Method1 binding after ROM observer.
+Thaw validates ticket-bound retirement and hardware stages while normal sender
+and data remain fenced. Failure invokes IRQ abort before DMA stop and returns
+before generic SCH cleanup. Initial bootstrap success gate remains closed.
+
+Actual generated thaw/abort host fixtures and Method1 cold/warm/error tests
+pass with ASan/UBSan; Method1 hardware/thaw failures stop before download.
+Helpers/MMIO/locks are injected; no device or target proof for this new package.
+Full generated manifest and duplicate installation gates passed. Peer82 recipe
+includes new layers and fixtures. Pending: outgoing review/push, standard then
+exact-SHA optional verification, final firmware-start/promotion acceptance.
+Temporary fixture binaries self-cleaned; generated candidate retained for
+unfinished integration, owner reference inputs preserved.
+
 ## 2026-11-05 Sol: retired-ID boundary locally verified and CI recipe extended
 
 The new isolated retired-ID boundary runs only after stage1 ring transaction,
