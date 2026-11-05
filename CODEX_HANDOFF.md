@@ -1,3 +1,41 @@
+## 2026-11-05 Sol: invalid PCI RUN observation rejected locally
+
+Method1 loader-bind generator now rejects TOP_MISC2 all-ones PCI read before
+testing RUN bit: 0xffffffff previously satisfied the bit test. Fresh generated
+candidate /tmp/wr-run-readback-vPWaqP passes actual Method1 bus-error cases for
+ordinary/bootstrap paths, with bootstrap abort, plus existing cold/warm/error
+and LOAD_FW_ONE_TIME tests. Thaw/abort/aggregate fixtures and full inventory
+also pass. This fix has no target/runtime proof yet; dd1a301f target evidence
+below covers the prior code. Next batch outgoing changes, then normal-promotion
+implementation. Generated candidate retained for unfinished integration.
+
+## 2026-11-05 Sol: loader target verification succeeded
+
+Run42098417224 completed success for exact dd1a301f. Independent verification
+source13449245292 and probe13449398396 checks confirmed all3 baseline/WSC/reload
+module sizes, SHA256 and ELF32 LE MIPS headers. Compact evidence:
+docs/evidence/WR1200JS-BUILD766-INDEPENDENT.md. No archive/modules retained.
+Next firmware-start receipt and normal promotion remain unimplemented; no
+production IoT or runtime acceptance claim. This supersedes active-run note.
+
+## 2026-11-05 Sol: loader package published; optional verification active
+
+Published HEAD dd1a301fdb38db07b80a3cf6f9b9a3e5513ebe33 via SSH; remote SHA
+confirmed. Standard765 run42096245094 and ABI run42096245306 completed success.
+After checking for duplicates, dispatched optional iot/peer82 run42098417224
+for this exact verification_revision. Live state is in_progress at select;
+no target result claimed. Next inspect candidate result/artifacts, triage any
+failure through monitor plus original diagnostics, then firmware-start receipt
+and normal admission/promotion. Owner's upstream followup docs remain local.
+
+## 2026-11-05: owner added upstream refresh to service audit
+
+Після IoT виконати docs/NILABSENT-UPSTREAM-FOLLOWUP.md у межах аудиту
+WebUI/Zapret2 та сервісів. На момент виконання кожного пункту обов'язково
+повторно перевірити свіжі версії саме nilabsent/padavan-ng й записати точний
+HEAD; зріз c29b12da від 2026-11-05 не вважати актуальним наперед.
+Це план порівняння й адаптації, не підтвердження перенесення функцій.
+
 ## 2026-11-05 Sol: Method1 hardware/thaw/abort binding locally checked
 
 HEAD ae122707 remains published. Optional764 run42089096422 succeeded for

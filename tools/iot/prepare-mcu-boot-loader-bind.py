@@ -20,6 +20,14 @@ body=text[start:end]
 anchor='  ret=wr_iot_mcu_boot_rom_observe(ad,boot,wr_iot_boot_restart_acked);\n  if(ret)goto done;'
 if body.count(anchor)!=1:p.error('Changed Method1 ROM observer anchor')
 body=body.replace(anchor,anchor+'\n  ret=wr_iot_mcu_boot_hardware_prepare(ad,boot);\n  if(ret)goto done;\n  ret=wr_iot_mcu_boot_thaw(ad,boot);\n  if(ret)goto done;')
+anchor='\t\tif ((value & 0x02) == 0x02)\n\t\t\tbreak;'
+if body.count(anchor)!=1:p.error('Changed Method1 RUN readback anchor')
+body=body.replace(anchor,'''        /* An all-ones PCI read is not a firmware RUN observation. */
+        if (value == ~(UINT32)0) {
+            ret = NDIS_STATUS_FAILURE;
+            goto done;
+        }
+'''+anchor)
 anchor='done:\n\tif (ret) Ctl->Stage = FW_NO_INIT;'
 if body.count(anchor)!=1:p.error('Changed Method1 cleanup anchor')
 body=body.replace(anchor,anchor+'''

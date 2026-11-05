@@ -43,7 +43,7 @@ typedef struct {RTMP_CHIP_CAP chipCap;void *OS_Cookie;struct MCU_CTRL MCUCtrl;in
 static int fault,phase,warm,restarts,addresses,scatters,starts,writes,delays;
 static unsigned read_register(unsigned reg){
  if(reg!=TOP_MISC2)return 0;
- if(phase==4)return fault==5?1:2;
+ if(phase==4)return fault==7?~0u:fault==5?1:2;
  if(!phase&&warm)return 2;
  return fault==1?0:1;
 }
@@ -133,6 +133,18 @@ static int wr_iot_mcu_boot_loader_abort(RTMP_ADAPTER *ad,const struct wr_iot_mcu
   assert(!addresses&&!scatters&&!starts);
  }
  bind_fail=0;
+'''+tail[pos:]
+ if 'wr_iot_mcu_boot_loader_abort(' in body:
+  pos=tail.index(' puts("PASS actual reload Method1:')
+  tail=tail[:pos]+r'''
+ for(unsigned owned=0;owned<2;owned++){
+  RTMP_ADAPTER ad={0};ad.wr_iot_boot_active=owned;
+  ad.chipCap.fw_header_image=image;ad.chipCap.fw_len=sizeof(image);
+  warm=phase=addresses=scatters=starts=observed=abort_calls=0;fault=7;
+  assert(AndesMTLoadFwMethod1(&ad)==1&&ad.MCUCtrl.Stage==FW_NO_INIT);
+  assert(starts==1&&abort_calls==owned);
+ }
+ fault=0;
 '''+tail[pos:]
 with tempfile.TemporaryDirectory(prefix='wr-fw-method1-') as td:
  c=Path(td)/'check.c';c.write_text(prefix+body+tail)
