@@ -182,7 +182,8 @@ proc main() =
           continue
         let url = "https://github.com/" & repo & "/actions/runs/" & id & "/attempts/" & attempt
         let message = "BUILD FAILED: " & redact(run{"name"}.getStr) & " #" & number(run, "run_number") &
-          " attempt " & attempt & "\nCommit: " & redact(run{"head_sha"}.getStr) & "\n" & url & "\n"
+          " attempt " & attempt & "\nBranch: " & redact(run{"head_branch"}.getStr) &
+          "\nCommit: " & redact(run{"head_sha"}.getStr) & "\n" & url & "\n"
         var report = "Observed UTC: " & now().utc.format("yyyy-MM-dd'T'HH:mm:ss'Z'") & "\n" & message
         try: report.add details(repo, id, attempt, token, fixturePath.len > 0)
         except CatchableError: report.add "Failure confirmed; detailed job lookup unavailable.\n"
