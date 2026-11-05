@@ -8,6 +8,7 @@ p=argparse.ArgumentParser(description=__doc__);p.add_argument('candidate',type=P
 s=(a.candidate/'mcu/andes_mt.c').read_text()
 start=s.index('static NDIS_STATUS AndesMTLoadFwMethod1(')
 body=s[start:s.index('static NDIS_STATUS AndesMTLoadFwMethod2(',start)]
+body='#pragma GCC diagnostic ignored "-Wdeclaration-after-statement"\n#pragma GCC diagnostic push\n#pragma GCC diagnostic error "-Wdeclaration-after-statement"\n'+body+'\n#pragma GCC diagnostic pop\n'
 prefix=r'''
 #include <assert.h>
 #include <stdint.h>

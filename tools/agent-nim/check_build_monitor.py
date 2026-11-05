@@ -37,6 +37,7 @@ with (nullcontext(sys.argv[2]) if len(sys.argv)>2 else tempfile.TemporaryDirecto
         "check.c:25:110: error: too few arguments to function 'wr_iot_mcu_message_drop'\n"+
         "apcli_sync.c:1368:4: error: 'bHasWscIe' undeclared (first use in this function)\n"+
         "common/wsc.c:3658:5: error: this 'if' clause does not guard... [-Werror=misleading-indentation]\n"+
+        "mcu/andes_mt.c:2308:2: error: ISO C90 forbids mixed declarations and code [-Werror=declaration-after-statement]\n"+
         '##[error]Process completed with exit code 1.\n',encoding='utf-8')
     fixture.write_text(json.dumps({'workflow_runs':[row(435)]}),encoding='utf-8')
     long_job=subprocess.run([str(binary),'--fixture:'+str(fixture),'--state-dir:'+str(root/'long-state')],capture_output=True,text=True,timeout=30,env=late_env)
@@ -45,6 +46,8 @@ with (nullcontext(sys.argv[2]) if len(sys.argv)>2 else tempfile.TemporaryDirecto
     assert "too few arguments to function 'wr_iot_mcu_message_drop'" in long_job.stdout
     assert "'bHasWscIe' undeclared" in long_job.stdout
     assert '[-Werror=misleading-indentation]' in long_job.stdout
+    # Optional757 /42038010637: deployed prefix-only report missed this cause.
+    assert 'mcu/andes_mt.c:2308:2: error: ISO C90' in long_job.stdout
     previous=(state/'last_build_error.log').read_bytes()
     assert 'BUILD FAILED' not in run([row(432),row(431)]).stdout
     assert (state/'last_build_error.log').read_bytes()==previous

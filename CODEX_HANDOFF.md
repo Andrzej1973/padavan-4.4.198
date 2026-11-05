@@ -1,3 +1,178 @@
+## 2026-11-05 Sol: optional757 target failure fixed locally
+
+Optional757 run42038010637 failed target compilation at Method1 line2308,
+C90 declaration-after-statement. Monitor42040531193 artifact13421850337 gives
+correct run/job/step but default-main prefix excerpt misses cause; original
+job127281217626 log and diagnostic13420940827 build.log confirm it. Loader
+generator now selects ticket in declaration initializer and puts one-time
+refusal after PCI declarations. Actual extracted loader host check enforces
+same warning-as-error; reload/one-time/builders/ring transaction/inventory pass,
+and original bad ordering mutation is caught. Monitor's existing branch suffix
+parser passes new exact late-error regression and all offline Nim tests. No
+speculative parser/main changes. Evidence BUILD757-METHOD1-C90-2026-11-05.md.
+
+Preparing narrow fix package only; new local sequence retirement/controller/
+RX/IRQ preparation remain unfinished and excluded. After push verify standard
+exact SHA, then queue corrected peer82 optional. Temp trees/binaries/Nim cache
+removed,13.9MB unfinished source input retained. Router unchanged.
+
+## 2026-11-05 Sol: MCU-only IRQ software preparation local
+
+New prepare-mcu-boot-irq-prepare.py adds core serialized IRQ preparation lease
+and nettask actor. Requires frozen owner/ring4/controller2/RX2, idle hardware
+and all other TX rings idle. Core state untouched/busy/complete/failed refuses
+nested/duplicate callers. Net actor locks irq_lock -> LockInterrupt -> lane
+lock, matching both initializer and ISR/tasklet state writers. Checks MCU-only
+live tasklets/data fence, DMA off, IRQ mask0 and readable source. Saves prior
+enable/disable/pending, installs RX1|TX5 mask0x202 with both bits still disabled,
+clears only bootstrap software pending and W1C sources. IRQ hardware remains0;
+no DMA enable, command thaw, normal mask restore, ledger/epoch change.
+
+Actual SDK mask/leaf host ASan/UBSan tests lock order, preflight/readback/bus/
+source-clear/owner failures, saved state and unrelated pending preservation;
+never writes nonzero IRQ mask. Actual core transaction tests stage/TX idle,
+nested/duplicate/helper/postcheck/final-context failures, retaining live owners.
+Mutations broadening W1C or clearing all software pending caught. Actual RX
+restart/native+OS_ABL nettask regressions, full source inventory pass. Phase
+scratch sources/binaries removed (~14MB generated tree plus small fixtures).
+These layers remain local/unpublished and OS/MMIO injected, not target proof.
+
+Optional757 run42038010637 now actively executing Compile isolated merged IoT
+MT7603 candidate (job127281217626), after firmware build. No result claimed;
+this covers publishedc6bda095 prior bootstrap+RX-register fix only. Next checked
+DMA enable and explicit IRQ unmask using prepared software masks, readback and
+failure stop; keep MAC/data RX and constructor gates closed until justified
+firmware epoch and Method1 transaction.13.9MB unfinished input retained.
+Router/owner inputs untouched; no duplicate dispatch or recurring wakeup.
+
+## 2026-11-05 Sol: non-MCU TX idle gate local before shared DMA restart
+
+Audit found RT28XXDMAEnable enables MAC TX and waits via unchecked helper;
+AndesMTPciFwInit uses broad int_enable_reg. Neither is a safe direct bootstrap
+restart. Enabling shared TX DMA also makes other TX rings eligible even if
+their tasklets are stopped. New isolated prepare-mcu-boot-other-tx-idle.py adds
+read-only gate for all4 data rings, MGMT, BMC and BCN, using actual SDK mapping
+(BE/BK swap, BMC8, BCN7). Requires frozen constructor owner, joined/blocked data
+lane, IRQ masked and DMA off/idle. Checks coherent descriptor/physical inventory,
+no packet ownership, DMADONE, software-free/CPU and exact base/count/CPU/DMA
+readbacks. Nothing is written or reset. BE refuses. No actual hardware enable.
+
+Actual SDK TXD host ASan/UBSan fixture (reduced2-entry geometry per ring) covers
+all7 rings and pending packet/next packet/DDONE, DMA consumer mismatch, failed
+base/count reads, physical/storage mismatch, data fence, DMA/IRQ refusal; verifies
+all ring fields/MMIO unchanged. Removing DMA-index or DDONE checks is caught.
+Full generated source inventory passes; scratch sources/binaries removed.
+New layer remains local, unbound and not target-compiled.
+
+Next implement explicit MCU-only IRQ mask and checked DMA enable without the
+MAC-TX side effect, accounting for ISR/tasklet rearm's use of int_enable_reg,
+int_disable_mask and int_pending under their existing lock order. Validate
+readbacks/failure stop before thaw/firmware epoch commit. Do not replace proof
+with int_enable_reg assignment or broad RTMP_IRQ_ENABLE alone. Optional757
+run42038010637 still active building firmware at latest authoritative poll.
+No new dispatch/router operation;13.9MB unfinished source retained.
+
+## 2026-11-05 Sol: explicit frozen MCU RX-tasklet restart local
+
+New prepare-mcu-boot-rx-restart.py adds a separate restart lease/query and
+MCU-only nettask entry. Requires ringstage4, ctrlstate2, live MCU controller,
+frozen constructor owner, idle DMA, masked IRQ, stopped MAC and ROM status.
+Normal RtmpNetTaskInit still uses unfrozen boot-owned query; explicit restart
+uses its own lease and initializes RX1+hcca only. Data remains blocked/joined,
+terminal release claim retained; no ledger reset, IRQ/DMA enable or command
+thaw. RX state untouched/busy/complete/failed prevents nested/duplicate calls.
+Post-create and final identity checks; failure joins live MCU-only tasks after
+marking failure. Failed join retains live flag/controller for future cleanup.
+
+Actual coordinator host ASan/UBSan covers ROM/IRQ/DMA/stage refusal, pending
+messages, nested/duplicate calls, tasklet failure, post-init/final context loss,
+and retained failed join, preserving ledger/freeze/controller. Actual nettask
+entry/exit tests native+OS_ABL verify normal frozen init refuses, explicit
+restart succeeds, data fence and ownership drift clean only created tasklets.
+Controller-init/checked-retirement regressions and full source inventory pass.
+Mutation tests catch ordinary-query substitution and omitted final identity.
+A fixture detection blind spot was found/fixed: detect exported restart entry,
+not presence of the query being mutated, so tests cannot silently skip cases.
+Duplicate install refused; phase source/binaries removed (~14MB per test).
+
+Optional757 run42038010637 remains active building WR1200JS firmware at latest
+observation; no new run/duplicate. Published c6bda095 target result pending.
+New retirement/controller/RX restart layers still local/unpublished. Next
+validate hardware restart path and exact masks/readbacks while normal admission
+stays closed, then separately justify epoch receipt/ledger retirement and bind
+Method1.13.9MB unfinished source input retained; router/owner inputs untouched.
+
+## 2026-11-05 Sol: checked controller recreation local; optional757 active
+
+New prepare-mcu-boot-controller-init.py derives checked PCI initializer from
+exact reviewed AndesCtrlPciInit body (SHAae90a56b11de21d3076252fe7d6d233797280f7c352ca32ccbf31515fa2510a3).
+OS_ABL tasklet failure returns before queue locks/MCU_INIT; native/WORKQUEUE
+retain their void initialization contracts. Includes public controller-init
+power/DPD/RxStream defaults. New wrapper claims serialized ctrl_state only
+after successful ring stage4, frozen owner, controller-off and PSE/DMA/IRQ gate.
+Stages untouched/busy/complete/failed; nested/repeated/wrong-context callers
+refuse. Failure after creation exits only this controller and keeps boot failed.
+No ledger reset, DMA/IRQ enable, RX-tasklet restart or normal admission.
+
+Actual generated initializer+wrapper ASan/UBSan passes native,OS_ABL,WORKQUEUE
+profiles: failed tasklet, context drift after init, nested/duplicate refusal,
+wrong hook/stage/controller-live/atomic refusal, six queues/locks, defaults and
+unchanged ledger. Removing OS_ABL result check is caught. Checked retirement,
+actual allocator, ring transaction and full manifest/duplicate install checks
+pass. OS/MMIO/queue operations mocked; local layers not yet published/in CI.
+
+Standard755/756 and ABI664/665 completed success. After verifying no duplicate,
+dispatched optional757 run42038010637, iot/peer82, exact source
+c6bda0958258d9538414bc05b4d58a781f56e778. Run active; independently read artifact
+13418074718 verification-source: dispatch/requested/verified all matchc6bda095,
+runtime_verified:false. This build covers prior bootstrap package+RX-register
+fix, not new local ID retirement/controller-init. Await actual target result;
+triage monitor+original job on failure. No periodic wakeups/duplicate dispatch.
+Next explicit MCU-only RX-tasklet recreation while constructors stay frozen,
+then hardware RX/DMA/IRQ restart and separately justified epoch/ledger commit.
+Temp trees/binaries removed (~14MB per sequential test);13.9MB unfinished-work
+input retained. Owner references/shared unfinished work/router unchanged.
+
+## 2026-11-05 Sol: checked sequence retirement local, no reset API
+
+New isolated prepare-mcu-checked-sequence-retirement.py extends candidate
+ledger with retired mask distinct from occupied/quarantined/poisoned. Actual
+AndesGetCmdMsgSeq selects checked reserve API only for wr_iot_checked messages;
+first checked allocation consumes ID until a separately proven epoch. Lease
+reentry remains valid; destruction drops occupied but not retired. Ordinary
+commands skip all retired IDs, including successful checked IDs. No reset or
+quarantine clearing added. Allocation before failed transmission also consumes
+ID conservatively. After15 checked IDs, exhaustion refuses rather than reuse.
+This is incomplete until firmware/RX boundary and replenishment are verified.
+
+Actual allocator fixture now reads exact candidate ledger header and exercises
+checked success/reentry/ordinary wrap/exhaustion. Dedicated extracted actual
+ACK branch test rejects old successful ACK across30 ordinary allocations;
+checks all15 consumed, timeout quarantine independent and poison retained.
+Ignoring retired mask or conflating retirement with timeout quarantine mutations
+are caught. Existing allocator fixture still passes on previous source input;
+ring transaction fixture and full manifest/duplicate install refusal pass.
+All tests host/injected; new layer is local, not in published CI recipe yet.
+
+Authoritative CI:755 run41969148874 still building WR1200JS firmware;756
+run41969597660 pending;ABI665 run41969597655 active private IoT mailbox check.
+No optional dispatched, no duplicate or cancellation. Current published SHA
+c6bda0958258d9538414bc05b4d58a781f56e778. Queue optional exact SHA after756
+success and triage any real failure via monitor+original job. Temporary candidate
+trees/binaries removed (~14MB per test),13.9MB unfinished-work input retained.
+Router, owner references and unrelated shared work untouched.
+
+## 2026-11-05 Sol: RX register fix published, standard756 pending
+
+SSH push and ls-remote confirm c6bda0958258d9538414bc05b4d58a781f56e778,
+exactly one follow-up commit beyond e4ebec0. New standard756 run41969597660
+pending behind active755 run41969148874; new ABI665 run41969597655 active.
+ABI664 run41969148833 completed successfully for e4ebec0 (not bootstrap target
+module proof). No optional duplicate or active-run cancellation. After756
+succeeds, queue c6bda095 exact iot/peer82 candidate and inspect actual target
+logs/artifacts. Old e4ebec0 candidate superseded by verified source fix.
+Router untouched; known successful-ACK duplicate gap remains next source work.
+
 ## 2026-11-05 Sol: RX TU-private register dependency fixed locally
 
 During source audit while standard755/ABI664 run, found TOP_MISC2 is defined

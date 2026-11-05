@@ -73,14 +73,19 @@ text=text.replace(anchor,helpers+anchor,1)
 start=text.index('static NDIS_STATUS AndesMTLoadFwMethod1(');end=text.index('static NDIS_STATUS AndesMTLoadFwMethod2(',start);body=text[start:end]
 anchor='\tstruct MCU_CTRL *Ctl = &ad->MCUCtrl;';assert body.count(anchor)==1
 body=body.replace(anchor,anchor+'''
- const struct wr_iot_mcu_boot_ticket *boot=NULL;
 #if defined(MT_MAC) && defined(RTMP_PCI_SUPPORT)
- if(ad->wr_iot_boot_active)boot=&ad->wr_iot_boot_ticket;
+ const struct wr_iot_mcu_boot_ticket *boot=ad->wr_iot_boot_active?&ad->wr_iot_boot_ticket:NULL;
+#else
+ const struct wr_iot_mcu_boot_ticket *boot=NULL;
 #endif
+''')
+anchor='\n\tif (cap->load_code_method == BIN_FILE_METHOD) {';assert body.count(anchor)==1
+body=body.replace(anchor,'''
 #ifdef LOAD_FW_ONE_TIME
  /* Reusing live firmware cannot establish the required new boot epoch. */
  if(boot)return NDIS_STATUS_FAILURE;
-#endif''')
+#endif
+'''+anchor)
 text=text[:start]+body+text[end:]
 header=(src/'include/mcu/andes_core.h').read_text();anchor='VOID AndesFreeCmdMsg(struct cmd_msg *msg);';assert header.count(anchor)==1
 header=header.replace(anchor,anchor+'\nVOID AndesForceFreeCmdMsg(struct cmd_msg *msg);')
