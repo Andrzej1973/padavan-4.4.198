@@ -1,23 +1,24 @@
 name: Agent build failure monitor
 on:
-  workflow_run:
-    workflows: [Build selected router firmware, Padavan Linux 4.4.198 WR1200JS, Service runtime state checks]
-    types: [completed]
-  schedule:
-    - cron: '17,47 * * * *'
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths: ['tools/agent-nim/build_monitor.nim', 'tools/agent-nim/build_log.nim', 'tools/agent-nim/config.nims', 'tools/agent-nim/check_build_monitor.py', 'tools/agent-nim/check_build_log.py', '.github/workflows/monitor-agent.yml']
+    inputs:
+      failed_run_id:
+        description: 'Inspect one failed run without changing normal deduplication'
+        required: true
+        type: string
+  workflow_run:
+    workflows: [Build selected router firmware, Padavan Linux 4.4.198 WR1200JS, Service runtime state checks, Band Steering driver ABI]
+    types: [completed]
 permissions:
   contents: read
   actions: read
 concurrency:
   group: agent-build-failure-monitor
   cancel-in-progress: false
+  queue: max
 jobs:
   monitor:
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'failure'
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'failure'
     runs-on: ubuntu-22.04
     timeout-minutes: 10
     steps:
@@ -50,9 +51,15 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          MONITOR_RUN_ID: ${{ github.event.workflow_run.id }}
+          MONITOR_RUN_ID: ${{ github.event.workflow_run.id || inputs.failed_run_id }}
+          MONITOR_REPLAY: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
-          if [ -n "$MONITOR_RUN_ID" ]; then
+          if [ "$MONITOR_REPLAY" = true ]; then
+            bin/build-monitor --run-id:"$MONITOR_RUN_ID" --state-dir:.codex/replay
+            if [ -f .codex/replay/last_build_error.log ]; then
+              cp .codex/replay/last_build_error.log .codex/last_build_error.log
+            fi
+          elif [ -n "$MONITOR_RUN_ID" ]; then
             bin/build-monitor --run-id:"$MONITOR_RUN_ID"
           else
             bin/build-monitor --once
