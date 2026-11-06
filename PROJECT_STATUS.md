@@ -1,3 +1,30 @@
+## Sol: scheduler owner package locally verified
+
+New isolated owner layer adds allocation-only scheduler_state and locked
+ticket-bound claim/owned/finish. Claim freezes private constructors; completion
+retains freeze and marks2(success)/3(failure). Run composes hardware checker and
+historical loader-abort on failure. Generated hardware checker uses frozen
+scheduler-owned query rather than unfrozen boot-owned query. New declarations
+remain within original config guards. No MCUSysInit invocation or normal
+admission. Quota/remap serialization still required before binding.
+
+Fresh TemporaryDirectory generation passed owner, scheduler native/FPGA and
+Method1 ASan/UBSan, SDK-result mutation and full inventory. Scratch trees from
+these fresh checks auto-removed. Peer82 recipe includes owner generation/test.
+Package remains local pending outgoing review/push. Standard769 for d9058aa9
+still live at firmware build, ABI succeeded; queue its exact optional after
+standard succeeds even if branch advances.
+
+## Sol: scheduler staging published as d9058aa9
+
+SSH remote confirmed d9058aa9b270cf3541455a7b987714aee8c90f8d. Standard769
+run42152765689 and ABI42152765701 are live in_progress for that exact SHA.
+After standard succeeds, queue optional iot/peer82 with verification_revision
+d9058aa9b270cf3541455a7b987714aee8c90f8d, checking duplicates first. Scheduler
+remains unbound; this package must not be called runtime-ready. Owner reference
+inputs are the only untracked paths after publication; generated candidate
+retained for next quota/lease implementation.
+
 ## Sol: scheduler staging package prepared for target verification
 
 Scheduler checker is now staged unbound by prepare-mcu-boot-scheduler.py after

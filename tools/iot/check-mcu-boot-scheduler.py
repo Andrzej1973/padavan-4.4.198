@@ -59,10 +59,16 @@ int main(void){for(rev=0;rev<2;rev++)for(fault=0;fault<16;fault++){
  if(fault==11)assert(!reads&&!calls);
  if(fault==13)assert(!reads&&!calls);
  if(fault==1||fault==2)assert(!calls);
-}puts("PASS scheduler wrapper: both revisions, invalid RUN/remap/SDK/mode and frozen refusal; SDK/MMIO injected");}
+}puts("PASS scheduler wrapper: both revisions, RUN/remap/SDK/mode/owner/clock and constructor-state gates; SDK/MMIO injected");}
 '''
 with tempfile.TemporaryDirectory(prefix='wr-scheduler-') as td:
  c=Path(td)/'test.c';body=(a.candidate/'include/wr-iot-mcu-boot-scheduler.inc').read_text()
+ if 'wr_iot_mcu_boot_scheduler_owned(ad)' in body:
+  prefix=prefix.replace('wr_iot_mcu_boot_owned(', 'wr_iot_mcu_boot_scheduler_owned(')
+  tail=tail.replace('a.MCUCtrl.Stage=3;reads=calls=writes=0;',
+                    'a.MCUCtrl.Stage=3;a.wr_iot_boot_frozen=1;reads=calls=writes=0;')
+  tail=tail.replace('if(fault==6)a.wr_iot_boot_frozen=1;',
+                    'if(fault==6)a.wr_iot_boot_frozen=0;')
  c.write_text(prefix+body+tail)
  for flags in ([],['-DCONFIG_FPGA_MODE']):
   subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-pie','-no-pie',*flags,str(c),'-o',td+'/test'],check=True)
