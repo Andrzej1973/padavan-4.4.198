@@ -1,3 +1,31 @@
+## Sol: EFUSE checked startup route and fresh-message cancellation
+
+Reviewed SDK EFUSE callback uses same8-byte common result with command0x21;
+whitelist/parser/RX fixtures extended explicitly. Actual EFUSE builder now
+uses private config alloc/init/send in bootstrap; normal SDK payload/route
+preserved. Invalid EEPROM mode now cancels private allocated message without
+TX, records owner failure and frees outside locks. Submitted-message flag
+prevents cancellation after ownership transfer to transport.
+ASan/UBSan real builder/SDK struct tests pass EFUSE/FLASH with injected fill,
+firmware/allocation failures, invalid mode/no leak; parser/direct/locked RX
+cover0x21 alongside channel/power. Prior MAC/RF cycles, checked-ID/stale ACK and
+boot-result regression pass; full inventory and outer gate unchanged.
+Evidence WR1200JS-CHECKED-EFUSE-HOST.md. EEPROM fill/calibration, target/image
+and runtime remain unverified. Source FWLoad/ATE conditions documented, no
+LOAD_FW_ONE_TIME bootstrap restriction bypassed.
+Scratch candidates ~14MB each auto-removed; baseline remains for unfinished IoT.
+Next EDCA/slot-time noresponse proofs, startup observations/checked-ID budget,
+owner init/error lifecycle and normal data promotion. No router operations.
+
+## Sol: extended-config publication receipt
+
+SSH push accepted exact41f93359f18a4da5b59813268ba84d8dd8895b1b above4c2fa97a;
+one outgoing coherent commit. Standard801/run42241320791 PENDING;
+ABI42241320563 IN_PROGRESS. Previous standard797/run42238552867 still
+IN_PROGRESS when rechecked. No equivalent optional dispatch before standard
+success. Current source package target/image/runtime remain unverified.
+Local receipt retained for next coherent package; docs/reference untouched.
+
 ## Sol: checked channel/TX-power extended completion connected locally
 
 New isolated mcu-config-ext layer validates SDK8-byte result contract and routes

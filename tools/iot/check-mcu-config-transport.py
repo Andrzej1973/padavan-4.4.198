@@ -57,7 +57,7 @@ typedef unsigned UINT32;typedef int INT32;typedef unsigned short UINT16;typedef 
 struct task_struct {unsigned refs;};static struct task_struct owner,foreign,*current;
 static void get_task_struct(struct task_struct *t){assert(t&&!held);t->refs++;}
 static void put_task_struct(struct task_struct *t){assert(t&&!held&&t->refs);t->refs--;}
-struct cmd_msg {void *priv,*net_pkt;unsigned wr_iot_config_ext_result,wr_iot_config_mac_query,wr_iot_config_mac_generation,wr_iot_config_mac_write,wr_iot_config_mac_address,wr_iot_config_mac_value,wr_iot_config_rf_query,wr_iot_config_rf_generation,wr_iot_config_rf_write,wr_iot_config_rf_stream,wr_iot_config_rf_address,wr_iot_config_rf_value;unsigned wr_iot_config_owned,cmd_type,ext_cmd_type,set_query,need_wait,need_rsp,need_retransmit,rsp_payload_len,wr_iot_checked,used,pq_id,wr_iot_response_done,wr_iot_unsubmitted,wr_iot_firmware_result,timeout,retransmit_times,ack_done;char *rsp_payload;MSG_RSP_HANDLER rsp_handler;unsigned long wr_iot_config_peer_serial,wr_iot_config_radio_serial,wr_iot_config_radio_epoch,wr_iot_config_close_serial,wr_iot_config_close_epoch;unsigned char payload[64];};
+struct cmd_msg {void *priv,*net_pkt;unsigned wr_iot_config_submitted,wr_iot_config_ext_result,wr_iot_config_mac_query,wr_iot_config_mac_generation,wr_iot_config_mac_write,wr_iot_config_mac_address,wr_iot_config_mac_value,wr_iot_config_rf_query,wr_iot_config_rf_generation,wr_iot_config_rf_write,wr_iot_config_rf_stream,wr_iot_config_rf_address,wr_iot_config_rf_value;unsigned wr_iot_config_owned,cmd_type,ext_cmd_type,set_query,need_wait,need_rsp,need_retransmit,rsp_payload_len,wr_iot_checked,used,pq_id,wr_iot_response_done,wr_iot_unsubmitted,wr_iot_firmware_result,timeout,retransmit_times,ack_done;char *rsp_payload;MSG_RSP_HANDLER rsp_handler;unsigned long wr_iot_config_peer_serial,wr_iot_config_radio_serial,wr_iot_config_radio_epoch,wr_iot_config_close_serial,wr_iot_config_close_epoch;unsigned char payload[64];};
 #define GET_OS_PKT_LEN(p) (((struct cmd_msg *)(p))->used)
 #define GET_OS_PKT_DATAPTR(p) (((struct cmd_msg *)(p))->payload)
 static int checked_policy(RTMP_ADAPTER *,struct cmd_msg *);
@@ -104,14 +104,19 @@ if mac_read:
  names+=['CmdMultiPleMacRegAccessRead']
  prefix+='\nstatic void CmdMultipleMacRegAccessReadCb(void){}\n'
 if ext_config:
- names+=['CmdChannelSwitch']
+ prefix=prefix.replace('struct wr_iot_mcu_boot_ticket ticket;','unsigned eeprom_type;struct wr_iot_mcu_boot_ticket ticket;')
+ names+=['CmdChannelSwitch','CmdEfusBufferModeSet']
  sdk=(a.candidate/'include/mcu/andes_mt.h').read_text()
  import re
  sku=re.search(r'#define\s+SKU_SIZE\s+(\d+)',sdk).group(1)
  start=sdk.index('typedef struct _EXT_CMD_CHAN_SWITCH_T');end=sdk.index(';',sdk.index('} EXT_CMD_CHAN_SWITCH_T',start))+1
  prefix+='\n#define SKU_SIZE '+sku+'\n#define EXT_CMD_CHANNEL_SWITCH 8\nstatic void EventExtCmdResult(void){}\n'+sdk[start:end]+'\n'
+ start=sdk.index('typedef struct _BIN_CONTENT_T');end=sdk.index(';',sdk.index('} EXT_CMD_EFUSE_BUFFER_MODE_T',start))+1
+ prefix+='\n#undef DBGPRINT\nstatic void fixture_log(const char *fmt,...){(void)fmt;}\n#define DBGPRINT(level,args) fixture_log args\n'+sdk[start:end]+'\n#define EXT_CMD_EFUSE_BUFFER_MODE 0x21\n#define EEPROM_EFUSE 1\n#define EEPROM_FLASH 2\n#define EEPROM_MODE_EFUSE 0\n#define EEPROM_MODE_BUFFER 1\nstatic void CmdEfuseBufferModeRsp(void){}\nstatic void CmdFillEeprom(RTMP_ADAPTER *ad,EXT_CMD_EFUSE_BUFFER_MODE_T *p){assert(ad);p->ucCount=2;p->aBinContent[0].u2Addr=7;p->aBinContent[0].ucValue=8;}\n'
+ prefix=prefix.replace('payload[64]','payload[2048]')
+
 for name in names:
- start=mt.index('INT32 '+name+'(');builders.append(mt[start:mt.index('\n}\n',start)+3])
+ start=mt.index(('VOID ' if name=='CmdEfusBufferModeSet' else 'INT32 ')+name+'(');builders.append(mt[start:mt.index('\n}\n',start)+3])
 tail=r'''
 static RTMP_ADAPTER valid(void){RTMP_ADAPTER ad={0};ad.ticket=(struct wr_iot_mcu_boot_ticket){1,2,3,4,5};
  ad.wr_iot_boot_active=ad.wr_iot_boot_frozen=ad.wr_iot_boot_mcu_only=1;ad.wr_iot_boot_hw_state=2;ad.wr_iot_boot_hw_stage=6;
@@ -315,11 +320,25 @@ for(unsigned mode=0;mode<6;mode++){
  if(mode==3)transport_result=1;
  if(mode==5)defer_free=wait_timeout=1;
  assert(CmdChannelSwitch(&ad,1,1,0,2,2)==(mode?1:0));
- if(mode==5){assert(pending);AndesForceFreeCmdMsg(pending);pending=NULL;}
+ if(mode==5){assert(pending);unsigned oldfree=freed;assert(wr_iot_mcu_config_cancel(&ad,pending)==1&&pending->wr_iot_config_submitted&&freed==oldfree);AndesForceFreeCmdMsg(pending);pending=NULL;}
  assert(!ad.wr_iot_boot_config_unconfirmed);
  assert(wr_iot_mcu_boot_config_finish(&ad,&ad.ticket,!mode)==(mode?1:0));
  assert(!owner.refs&&!foreign.refs);
 }
+for(unsigned mode=0;mode<5;mode++){
+ RTMP_ADAPTER ad=valid();current=&owner;peer_ok=1;alloc_fail=defer_free=wait_timeout=read_mode=0;transport_result=0;sent=0;
+ ad.eeprom_type=mode==4?3:mode==0?EEPROM_EFUSE:EEPROM_FLASH;
+ assert(!wr_iot_mcu_boot_config_begin(&ad,&ad.ticket));
+ if(mode==2)read_mode=1;
+ if(mode==3)alloc_fail=1;
+ unsigned before=allocated,oldfree=freed;CmdEfusBufferModeSet(&ad);
+ assert(allocated==before+1);
+ assert(freed==oldfree+(mode==3?0:1));
+ assert(sent==(mode>=3?0:1));
+ assert(wr_iot_mcu_boot_config_finish(&ad,&ad.ticket,1)==(mode>=2?1:0));
+ assert(!owner.refs&&!ad.wr_iot_mcu_sender_owner.messages);
+}
+puts("PASS actual EFUSE builder: EFUSE/FLASH route, injected content, firmware/alloc failures and invalid mode cancellation without TX/message leak");
 puts("PASS actual channel builder: checked extended status/echo, transport failure, peer drift and TX-done timeout; owner retains failures, no ledger grant");
 '''+tail[pos:]
 with tempfile.TemporaryDirectory(prefix='wr-config-transport-') as td:

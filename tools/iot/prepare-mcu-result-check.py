@@ -145,7 +145,7 @@ if 'wr_iot_config_ext_result&&' in (a.candidate/'mcu/andes_mt.c').read_text():
  base.cmd_type=0xed;base.set_query=CMD_SET;base.wr_iot_config_rf_query=base.wr_iot_config_mac_query=0;base.wr_iot_config_ext_result=1;
  ev.fw_rxd_0.field.length=sizeof(ev)+8;ev.fw_rxd_1.field.eid=0xed;ev.fw_rxd_1.field.seq_num=7;
  pkt.size=sizeof(ev)+8;
- for(unsigned ext=8;ext<=17;ext+=9)for(unsigned bad=0;bad<8;bad++){
+ for(unsigned ext=8;ext<=33;ext=ext==8?17:ext==17?33:34)for(unsigned bad=0;bad<8;bad++){
  base.ext_cmd_type=ext;ev.fw_rxd_2.field.ext_eid=bad==6?ext:0;
  memset(pkt.bytes,0,sizeof(pkt.bytes));pkt.bytes[sizeof(ev)]=(unsigned char)ext;
  altered=pkt;if(bad>=1&&bad<=4)altered.bytes[sizeof(ev)+3+bad]=1;
@@ -154,6 +154,6 @@ if 'wr_iot_config_ext_result&&' in (a.candidate/'mcu/andes_mt.c').read_text():
  dispatch(&msg,&ev,&altered);assert(msg.ack_done==1&&msg.wr_iot_firmware_result==(bad?1:0));
  }
  ev.fw_rxd_2.field.ext_eid=0;
- puts("PASS locked extended result: channel/TX-power status, echo, event and direction");
+ puts("PASS locked extended result: channel/TX-power/EFUSE status, echo, event and direction");
 '''+tail[pos:]
 a.output.write_text(prefix + branch + tail, encoding='utf-8')

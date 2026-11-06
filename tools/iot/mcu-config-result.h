@@ -50,10 +50,10 @@ static inline int wr_iot_config_mac_read_matches(
  return wr_iot_config_le32(payload+20)==0U&&
         wr_iot_config_le32(payload+24)==address&&wr_iot_config_le32(payload+28)==value;
 }
-/* Reviewed channel/TX-power common extended result: command echo byte0,
+/* Reviewed channel/TX-power/EFUSE common extended result: command echo byte0,
  * reserved bytes1..3, LE firmware status word4; ext event0 is not command ID. */
 static inline int wr_iot_config_ext_command(unsigned int ext)
-{return ext==0x08U||ext==0x11U;}
+{return ext==0x08U||ext==0x11U||ext==0x21U;}
 static inline int wr_iot_config_ext_success(unsigned int command,unsigned int ext,
  int is_set,unsigned int event,unsigned int event_ext,const unsigned char *payload,
  unsigned int payload_bytes,unsigned int packet_bytes,unsigned int wire_bytes,

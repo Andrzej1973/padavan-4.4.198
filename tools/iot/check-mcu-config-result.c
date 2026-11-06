@@ -5,7 +5,7 @@ static void store32(unsigned char *p,unsigned v)
 {p[0]=(unsigned char)v;p[1]=(unsigned char)(v>>8);p[2]=(unsigned char)(v>>16);p[3]=(unsigned char)(v>>24);}
 int main(void)
 {
- for(unsigned ext=8;ext<=17;ext+=9){
+ for(unsigned ext=8;ext<=33;ext=ext==8?17:ext==17?33:34){
  unsigned char unaligned[9]={0},*p=unaligned+1;p[0]=(unsigned char)ext;
  assert(wr_iot_config_ext_success(0xed,ext,1,0xed,0,p,8,20,20,12));
  for(unsigned byte=4;byte<8;byte++)for(unsigned bit=0;bit<8;bit++){
@@ -21,8 +21,8 @@ int main(void)
  assert(!wr_iot_config_ext_success(0xed,ext,1,0xed,0,p,8,20,21,12));
  assert(!wr_iot_config_ext_success(0xed,ext,1,0xed,0,p,8,20,20,~0U));
  }
- assert(!wr_iot_config_ext_command(0x21));
- puts("PASS channel/TX-power extended result: unaligned, command echo, all status bits, SET/event/length/null/overflow gates");
+ assert(!wr_iot_config_ext_command(0x22));
+ puts("PASS channel/TX-power/EFUSE extended result: unaligned, command echo, all status bits, SET/event/length/null/overflow gates");
  unsigned char payload[32]={0};unsigned i,len;
  assert(wr_iot_config_multi_write_success(0xed,0x0e,1,0xed,0x0e,payload,32,44,44,12));
  for(i=20;i<24;i++){

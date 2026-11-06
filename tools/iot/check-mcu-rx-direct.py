@@ -140,7 +140,7 @@ if 'wr_iot_config_ext_result&&' in (a.candidate/'include/wr-iot-mcu-rx-direct.in
  pos=fixture.index(' puts("PASS actual allocation-free checked RX:')
  fixture=fixture[:pos]+r'''
  ad.MCUCtrl.flags=1;
- for(unsigned ext=8;ext<=17;ext+=9)for(unsigned bad=0;bad<8;bad++){
+ for(unsigned ext=8;ext<=33;ext=ext==8?17:ext==17?33:34)for(unsigned bad=0;bad<8;bad++){
  struct cmd_msg msg={.seq=7,.wr_iot_checked=1,.need_wait=1,.cmd_type=0xed,.ext_cmd_type=ext,.set_query=CMD_SET,
  .wr_iot_config_ext_result=1,.wr_iot_firmware_result=1};
  memset(&ev,0,sizeof(ev));memset(packet,0,sizeof(packet));ev.fw_rxd_0.field.length=sizeof(ev)+8;
@@ -154,7 +154,7 @@ if 'wr_iot_config_ext_result&&' in (a.candidate/'include/wr-iot-mcu-rx-direct.in
  assert(msg.ack_done==1&&msg.wr_iot_firmware_result==(bad?1:0));
  assert(wr_iot_mcu_checked_rx_packet(&ad,packet,sizeof(ev)+8)&&msg.ack_done==1);
  }
- puts("PASS actual extended RX: channel/TX-power status bytes, command echo, event, SET direction and duplicate completion");
+ puts("PASS actual extended RX: channel/TX-power/EFUSE status bytes, command echo, event, SET direction and duplicate completion");
 '''+fixture[pos:]
 with tempfile.TemporaryDirectory(prefix='wr-mcu-rx-direct-') as td:
  c=Path(td)/'check.c';c.write_text(fixture)
