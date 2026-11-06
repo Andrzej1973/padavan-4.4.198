@@ -1,3 +1,17 @@
+## Sol: PCI command dispatch admission locally verified — 2026-11-06
+
+New command-admission generator references each dequeued command before body
+execution and releases before cleanup. Denied work still follows original
+cleanup/free path. Deferred periodic reset drain occurs after release, including
+reset_pending denial, retaining NIC/halt exclusion. Fresh generated-envelope
+ASan/UBSan checks pass native/feature/reset variants; transport/control fixtures
+and complete inventory pass. No target/runtime proof. Recipe includes new layer.
+Denied normal commands are discarded: audit required startup configuration work
+before promotion. GPIOGetValue also appears in WSC button header macro; trace
+WSC timers next, not only C callers. Evidence WR1200JS-COMMAND-ADMISSION-HOST.md.
+Temporary candidate/executable scratch auto-removed; prior unfinished inputs
+and owner docs/reference preserved. Publish only this coherent worker package.
+
 ## Sol: control admission package host-verified — 2026-11-06
 
 Isolated generator now wraps Linux ioctl and MLME periodic bodies on MT7603 PCI.
