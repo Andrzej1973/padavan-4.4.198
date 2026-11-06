@@ -15058,3 +15058,24 @@ retained; ZIP/modules not persisted. This proves candidate target compilation,
 not final image/ROMFS or device runtime. Standard809/ABI exact47a158e also
 SUCCESS. Optional806 exact04bf80d remains pending.
 
+## Sol: AP auto-channel/startup scope narrows, but does not open, IoT admission
+
+Audited the checked candidate source path and retained
+`WR1200JS-AP-STARTUP-COMMAND-SCOPE.md`.  On AP auto-channel boot,
+`rtmp_init_inf.c` enables PCI interrupt and `RTMPEnableRxTx()` before channel
+selection and before `APStartUp()`.  `APStartUp()` later reaches EDCA/slot time,
+direct-MMIO RDG/WTBL, internal command-thread protection, rates, beacons,
+sync/pre-TBTT and Band Steering.  EDCA/slot are the relevant no-response MCU
+operations and remain retained as active intents; direct MMIO or internal
+command-thread work must not be mislabelled as an Andes ACK dependency.
+
+Consequently neither an `APStartUp()`-adjacent finish nor a first-open-only
+shortcut is acceptable: the former is too late for automatic-channel Rx/Tx,
+and the rescan thread calls `APStop()` then `APStartUp()` again.  No bootstrap
+gate was opened and no normal data admission, image or runtime claim was made.
+Next: bind the task-pinned configuration owner and mandatory failure/abandon
+path into real outer init, account the checked-ID budget by actual branch, and
+derive a pre-RxTx release condition without changing channel settings.  The
+new audit is source-only; the previous target evidence still applies only to
+its exact candidate SHA.  Owner `docs/reference/` untouched.
+

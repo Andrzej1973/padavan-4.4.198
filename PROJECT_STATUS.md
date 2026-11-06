@@ -15680,3 +15680,21 @@ retained; ZIP/modules not persisted. This proves candidate target compilation,
 not final image/ROMFS or device runtime. Standard809/ABI exact47a158e also
 SUCCESS. Optional806 exact04bf80d remains pending.
 
+## Sol: AP startup command scope audited; release point remains unresolved
+
+Source audit of the checked candidate confirms that AP auto-channel selection
+enables interrupt/DMA/MAC RxTx before `APStartUp()`.  `APStartUp()` then
+performs EDCA/slot-time programming, direct-MMIO RDG/WTBL/protection work,
+rate/beacon setup and Band Steering initialization.  EDCA (`0x27`) and slot
+time (`0x28`) remain the only identified no-response MCU operations in that
+path; their existing intent journals remain unresolved by design.  Do not
+advance the outer bootstrap gate at `APStartUp()` or after it: neither point
+covers the auto-channel path, and a rescan invokes `APStartUp()` again.
+
+Recorded source-only evidence: `docs/evidence/WR1200JS-AP-STARTUP-COMMAND-SCOPE.md`.
+No source gate, settings, firmware image, or router state changed.  Next
+implementation work is a real outer-init owner/error/abandon binding plus a
+bounded checked-command budget and a safe pre-RxTx release condition.  Latest
+published `e799ea3` standard run #810 remains in progress; its ABI run
+completed successfully.  Owner `docs/reference/` remains untouched.
+
