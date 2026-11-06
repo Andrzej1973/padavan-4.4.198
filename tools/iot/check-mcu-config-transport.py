@@ -21,6 +21,7 @@ rf_pending=(a.candidate/'include/mcu-config-rf-pending.h').exists()
 rf_read=(a.candidate/'include/wr-iot-mcu-config-rf-read.inc').exists()
 mac_read=(a.candidate/'include/wr-iot-mcu-config-mac-read.inc').exists()
 ext_config='mcu_config_ext' in json.loads(Path(str(a.candidate)+'.manifest.json').read_text())
+timing_config=(a.candidate/'include/mcu-config-timing-pending.h').exists()
 mac_pending='wr_iot_config_mac_pending' in (a.candidate/'include/rtmp.h').read_text()
 if rf_pending:
  prefix='#include "mcu-config-rf-pending.h"\n'+prefix
@@ -29,6 +30,10 @@ if rf_pending:
 if mac_pending:
  prefix=prefix.replace('struct wr_iot_mcu_boot_ticket ticket;',
   'struct wr_iot_config_rf_pending wr_iot_config_mac_pending;struct wr_iot_mcu_boot_ticket ticket;')
+if timing_config:
+ prefix='#include "mcu-config-timing-pending.h"\n'+prefix
+ prefix=prefix.replace('struct wr_iot_mcu_boot_ticket ticket;',
+  'struct wr_iot_config_timing_pending wr_iot_config_edca_pending,wr_iot_config_slot_pending;struct wr_iot_mcu_boot_ticket ticket;')
 prefix+=r'''
 #include <stdlib.h>
 #include "mcu-config-result.h"
@@ -115,6 +120,14 @@ if ext_config:
  prefix+='\n#undef DBGPRINT\nstatic void fixture_log(const char *fmt,...){(void)fmt;}\n#define DBGPRINT(level,args) fixture_log args\n'+sdk[start:end]+'\n#define EXT_CMD_EFUSE_BUFFER_MODE 0x21\n#define EEPROM_EFUSE 1\n#define EEPROM_FLASH 2\n#define EEPROM_MODE_EFUSE 0\n#define EEPROM_MODE_BUFFER 1\nstatic void CmdEfuseBufferModeRsp(void){}\nstatic void CmdFillEeprom(RTMP_ADAPTER *ad,EXT_CMD_EFUSE_BUFFER_MODE_T *p){assert(ad);p->ucCount=2;p->aBinContent[0].u2Addr=7;p->aBinContent[0].ucValue=8;}\n'
  prefix=prefix.replace('payload[64]','payload[2048]')
 
+if timing_config:
+ names+=['CmdEdcaParameterSet','CmdSlotTimeSet']
+ sdk=(a.candidate/'include/mcu/andes_mt.h').read_text()
+ for begin,end in [('typedef struct _TX_AC_PARAM_T','} CMD_EDCA_SET_T'),('typedef struct _CMD_SLOT_TIME_SET_T','}CMD_SLOT_TIME_SET_T')]:
+  start=sdk.index(begin);finish=sdk.index(';',sdk.index(end,start))+1
+  prefix+='\n'+sdk[start:finish]+'\n'
+ prefix+='\n#define EXT_CMD_ID_EDCA_SET 0x27\n#define EXT_CMD_ID_SLOT_TIME_SET 0x28\n#define NdisZeroMemory(p,n) memset(p,0,n)\n#define cpu2le16(x) (x)\n'
+ prefix=prefix.replace('typedef struct _TX_AC_PARAM_T','#define CMD_EDCA_AC_MAX 4\ntypedef struct _TX_AC_PARAM_T')
 for name in names:
  start=mt.index(('VOID ' if name=='CmdEfusBufferModeSet' else 'INT32 ')+name+'(');builders.append(mt[start:mt.index('\n}\n',start)+3])
 tail=r'''
@@ -340,6 +353,56 @@ for(unsigned mode=0;mode<5;mode++){
 }
 puts("PASS actual EFUSE builder: EFUSE/FLASH route, injected content, firmware/alloc failures and invalid mode cancellation without TX/message leak");
 puts("PASS actual channel builder: checked extended status/echo, transport failure, peer drift and TX-done timeout; owner retains failures, no ledger grant");
+'''+tail[pos:]
+if timing_config:
+ pos=tail.index('puts("PASS owner/config transport')
+ tail=tail[:pos]+r'''
+for(unsigned mode=0;mode<8;mode++){
+ RTMP_ADAPTER ad=valid();current=&owner;peer_ok=1;alloc_fail=defer_free=wait_timeout=read_mode=0;transport_result=0;sent=0;
+ CMD_EDCA_SET_T edca={0};edca.ucTotalNum=mode==1?0:mode==2?5:mode==3?4:1;
+ for(unsigned i=0;i<4;i++){edca.rAcParam[i].ucAcNum=i;edca.rAcParam[i].ucVaildBit=15;edca.rAcParam[i].ucAifs=2;}
+ if(mode==4)edca.rAcParam[0].ucAcNum=4;
+ if(mode==5)transport_result=1;
+ if(mode==6)defer_free=wait_timeout=1;
+ if(mode==7)ad.wr_iot_boot_config_unconfirmed=~0U;
+ assert(!wr_iot_mcu_boot_config_begin(&ad,&ad.ticket));
+ unsigned bad=mode!=0&&mode!=3;
+ assert(CmdEdcaParameterSet(&ad,edca)==(int)bad);
+ if(mode==6){assert(pending);AndesForceFreeCmdMsg(pending);pending=NULL;}
+ if(!bad||mode==5||mode==6){
+  assert(ad.wr_iot_config_edca_pending.ticket.active&&ad.wr_iot_boot_config_unconfirmed==1);
+  assert(ad.wr_iot_config_edca_pending.ticket.address==4U+8U*edca.ucTotalNum);
+  assert(!memcmp(ad.wr_iot_config_edca_pending.bytes,&edca,4+8*edca.ucTotalNum));
+ }else assert(!ad.wr_iot_config_edca_pending.ticket.active&&!sent);
+ if(!bad){unsigned old=sent;assert(CmdEdcaParameterSet(&ad,edca)==1&&sent==old&&ad.wr_iot_boot_config_unconfirmed==1);}
+ assert(wr_iot_mcu_boot_config_finish(&ad,&ad.ticket,1)==1&&!owner.refs);
+}
+{
+ RTMP_ADAPTER ad=valid();current=&owner;peer_ok=1;alloc_fail=defer_free=wait_timeout=read_mode=0;transport_result=0;
+ assert(!wr_iot_mcu_boot_config_begin(&ad,&ad.ticket));
+ assert(!CmdSlotTimeSet(&ad,9,10,2,0x1234));
+ assert(ad.wr_iot_config_slot_pending.ticket.active&&ad.wr_iot_boot_config_unconfirmed==1);
+ const unsigned char expected[8]={9,10,2,0,0x34,0x12,0,0};
+ assert(!memcmp(expected,ad.wr_iot_config_slot_pending.bytes,8));
+ ad.wr_iot_boot_config_unconfirmed=0;
+ assert(wr_iot_mcu_boot_config_finish(&ad,&ad.ticket,1)==1&&!owner.refs);
+}
+{
+ unsigned char slot[8]={9,10,2,0,0x34,0x12,0,0};
+ assert(wr_iot_config_timing_valid(0x28,slot,8));
+ for(unsigned i=0;i<12;i++)if(i!=8)assert(!wr_iot_config_timing_valid(0x28,slot,i));
+ slot[3]=1;assert(!wr_iot_config_timing_valid(0x28,slot,8));slot[3]=0;
+ assert(!wr_iot_config_timing_valid(0x28,NULL,8));
+ assert(!wr_iot_config_timing_valid(0x29,slot,8));
+ struct wr_iot_config_timing_pending record={0};record.ticket.generation=~0U;
+ assert(!wr_iot_config_timing_record(&record,1,2,3,4,5,0x28,slot,8)&&record.ticket.poisoned);
+ unsigned char edca[36]={2,0,0,0,0,15,2,0,0,0,0,0,1,15,2,0,0,0,0,0};
+ assert(wr_iot_config_timing_valid(0x27,edca,20));
+ edca[12]=0;assert(!wr_iot_config_timing_valid(0x27,edca,20));edca[12]=1;
+ edca[5]=16;assert(!wr_iot_config_timing_valid(0x27,edca,20));edca[5]=15;
+ edca[6]=16;assert(!wr_iot_config_timing_valid(0x27,edca,20));
+}
+puts("PASS actual EDCA/slot builders: bounded EDCA before copy, serialized intent/full ticket before TX, no overwrite, transport/timeout retention, overflow and pending finish refusal; no execution proof");
 '''+tail[pos:]
 with tempfile.TemporaryDirectory(prefix='wr-config-transport-') as td:
  c=Path(td)/'check.c';reader=(a.candidate/'include/wr-iot-mcu-config-rf-read.inc').read_text() if rf_read else ''

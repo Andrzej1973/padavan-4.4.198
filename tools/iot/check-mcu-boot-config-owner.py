@@ -20,6 +20,10 @@ if (a.candidate/'include/mcu-config-rf-pending.h').exists():
 if 'wr_iot_config_mac_pending' in (a.candidate/'include/rtmp.h').read_text():
  prefix=prefix.replace('struct wr_iot_mcu_boot_ticket ticket;',
   'struct wr_iot_config_rf_pending wr_iot_config_mac_pending;struct wr_iot_mcu_boot_ticket ticket;')
+if (a.candidate/'include/mcu-config-timing-pending.h').exists():
+ prefix='#include "mcu-config-timing-pending.h"\n'+prefix
+ prefix=prefix.replace('struct wr_iot_mcu_boot_ticket ticket;',
+  'struct wr_iot_config_timing_pending wr_iot_config_edca_pending,wr_iot_config_slot_pending;struct wr_iot_mcu_boot_ticket ticket;')
 prefix+=r'''
 #define wr_iot_boot_ticket ticket
 #define FW_RUN_TIME 3

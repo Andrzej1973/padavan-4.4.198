@@ -1,3 +1,10 @@
+## Sol: EFUSE publication receipt
+
+Published and SSH ls-remote verified04bf80d392f7c79d1aea5ecd2bf0ec69f4318e71;
+one outgoing commit above41f93359. Standard802/run42242001752 PENDING;
+ABI42242001119 IN_PROGRESS. Results apply only after exact-SHA completion.
+Local CI receipt retained for next coherent publication; docs/reference unchanged.
+
 ## Sol: EFUSE checked startup route and fresh-message cancellation
 
 Reviewed SDK EFUSE callback uses same8-byte common result with command0x21;
@@ -14983,3 +14990,17 @@ OpenRouter: відкрий той самий WSL checkout `/home/andrzej/padavan
 поточні diff без змін. Можна почати з аудиту Modern WebUI або Zapret2 та
 працювати лише в окремих не-IoT шляхах після явного прийняття ролі. Не
 прошивати/перезавантажувати роутер і не змінювати його конфігурацію.
+## Sol: EDCA/slot-time no-response intents journaled without execution claim
+
+Actual SDK builders use no response/callback/storage, so their TX result cannot
+prove firmware execution. New isolated timing records retain exact EDCA/slot
+bytes plus peer/radio/close receipt before TX and block config finish while
+active. EDCA rejects invalid count before allocation/copy and validates all
+record fields; slot validates fixed serialized format. No clearing/readback API
+was inferred from WMM source reads without an ordered firmware receipt.
+ASan/UBSan actual-builder/owner/transport checks pass invalid formats, exact
+bytes, duplicate/timeout/transport retention, overflow and finish refusal.
+Evidence WR1200JS-CONFIG-TIMING-HOST.md. Target/image/runtime pending, outer
+startup refusal retained. Next identify a safe execution proof or retain these
+effects through abort, then complete config-owner lifecycle/ID budget/data gate.
+
