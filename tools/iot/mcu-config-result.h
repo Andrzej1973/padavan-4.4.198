@@ -1,4 +1,4 @@
-/* Pinned SDK multiple-MAC-register write response only.
+/* Bounded result/readback formats for reviewed SDK configuration messages.
  * Sequence/ticket ownership and transport completion are separate gates. */
 #ifndef WR_IOT_MCU_CONFIG_RESULT_H
 #define WR_IOT_MCU_CONFIG_RESULT_H
@@ -37,5 +37,17 @@ static inline int wr_iot_config_rf_read_matches(
  return wr_iot_config_le32(payload)==stream&&
         wr_iot_config_le32(payload+4)==address&&
         wr_iot_config_le32(payload+8)==value;
+}
+/* Reviewed multi-register query, exactly one MAC record after SDK prefix20. */
+static inline int wr_iot_config_mac_read_matches(
+ unsigned int command,unsigned int ext,int is_query,unsigned int event,unsigned int event_ext,
+ const unsigned char *payload,unsigned int payload_bytes,unsigned int packet_bytes,
+ unsigned int wire_bytes,unsigned int header_bytes,unsigned int address,unsigned int value)
+{
+ if(command!=0xedU||ext!=0x0eU||!is_query||event!=0xedU||event_ext!=0x0eU||
+    !payload||payload_bytes!=32U||!header_bytes||header_bytes>~0U-32U||
+    packet_bytes!=header_bytes+32U||wire_bytes!=packet_bytes)return 0;
+ return wr_iot_config_le32(payload+20)==0U&&
+        wr_iot_config_le32(payload+24)==address&&wr_iot_config_le32(payload+28)==value;
 }
 #endif

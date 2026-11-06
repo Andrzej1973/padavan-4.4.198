@@ -1,3 +1,19 @@
+## Sol: MAC intent/parser staged using reviewed multi-read protocol
+
+Found SDK CmdMultiPleMacRegAccessRead with known extended0x0e response and
+prefix20 + one12-byte MAC type/address/value record. No direct0xc2 EID inferred.
+MAC QUERY parser matches exact type0/address/full LE value/envelope. Generator
+anchors check enum ordering, callback and builder format. Actual no-response
+MAC builder now records exact serialized address/value and full ticket/generation
+before TX, in a separate instance of shared ticket/tuple record. Duplicate MAC
+write cannot overwrite it; active/poisoned record blocks finish even at count0.
+ASan/UBSan pure parser plus actual builder/transport/owner and prior RF cycle
+checks pass; full inventory verified. Scratch (~14MB) auto-removed. CI stages
+layer/tests. Evidence WR1200JS-MAC-INTENT-READ-PROTOCOL-HOST.md. Target/runtime
+pending; MAC query admission/retirement not yet connected. Outer gate remains.
+Next wire checked MAC read to its record snapshot and retire only its proof,
+then complete configuration/ACK budget/owner lifecycle/normal data promotion.
+
 ## Sol: checked RF readback/proof retirement connected in isolated candidate
 
 CI followup: standard793/run42233304783 SUCCESS for exact98d82ba1. After

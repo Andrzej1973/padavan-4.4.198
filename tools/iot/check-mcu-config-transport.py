@@ -19,10 +19,14 @@ prefix=prefix.replace('*(f)=0;assert(held==1);held=2;', '*(f)=held;assert(held<=
 prefix=prefix.replace('assert(held==2);held=1;', 'assert(held==2);held=*(f);')
 rf_pending=(a.candidate/'include/mcu-config-rf-pending.h').exists()
 rf_read=(a.candidate/'include/wr-iot-mcu-config-rf-read.inc').exists()
+mac_pending='wr_iot_config_mac_pending' in (a.candidate/'include/rtmp.h').read_text()
 if rf_pending:
  prefix='#include "mcu-config-rf-pending.h"\n'+prefix
  prefix=prefix.replace('struct wr_iot_mcu_boot_ticket ticket;',
   'struct wr_iot_config_rf_pending wr_iot_config_rf_pending;struct wr_iot_mcu_boot_ticket ticket;')
+if mac_pending:
+ prefix=prefix.replace('struct wr_iot_mcu_boot_ticket ticket;',
+  'struct wr_iot_config_rf_pending wr_iot_config_mac_pending;struct wr_iot_mcu_boot_ticket ticket;')
 prefix+=r'''
 #include <stdlib.h>
 #include "mcu-config-result.h"
@@ -51,7 +55,7 @@ typedef unsigned UINT32;typedef int INT32;typedef unsigned short UINT16;typedef 
 struct task_struct {unsigned refs;};static struct task_struct owner,foreign,*current;
 static void get_task_struct(struct task_struct *t){assert(t&&!held);t->refs++;}
 static void put_task_struct(struct task_struct *t){assert(t&&!held&&t->refs);t->refs--;}
-struct cmd_msg {void *priv,*net_pkt;unsigned wr_iot_config_rf_query,wr_iot_config_rf_generation,wr_iot_config_rf_write,wr_iot_config_rf_stream,wr_iot_config_rf_address,wr_iot_config_rf_value;unsigned wr_iot_config_owned,cmd_type,ext_cmd_type,set_query,need_wait,need_rsp,need_retransmit,rsp_payload_len,wr_iot_checked,used,pq_id,wr_iot_response_done,wr_iot_unsubmitted,wr_iot_firmware_result,timeout,retransmit_times,ack_done;char *rsp_payload;MSG_RSP_HANDLER rsp_handler;unsigned long wr_iot_config_peer_serial,wr_iot_config_radio_serial,wr_iot_config_radio_epoch,wr_iot_config_close_serial,wr_iot_config_close_epoch;unsigned char payload[64];};
+struct cmd_msg {void *priv,*net_pkt;unsigned wr_iot_config_mac_write,wr_iot_config_mac_address,wr_iot_config_mac_value,wr_iot_config_rf_query,wr_iot_config_rf_generation,wr_iot_config_rf_write,wr_iot_config_rf_stream,wr_iot_config_rf_address,wr_iot_config_rf_value;unsigned wr_iot_config_owned,cmd_type,ext_cmd_type,set_query,need_wait,need_rsp,need_retransmit,rsp_payload_len,wr_iot_checked,used,pq_id,wr_iot_response_done,wr_iot_unsubmitted,wr_iot_firmware_result,timeout,retransmit_times,ack_done;char *rsp_payload;MSG_RSP_HANDLER rsp_handler;unsigned long wr_iot_config_peer_serial,wr_iot_config_radio_serial,wr_iot_config_radio_epoch,wr_iot_config_close_serial,wr_iot_config_close_epoch;unsigned char payload[64];};
 #define GET_OS_PKT_LEN(p) (((struct cmd_msg *)(p))->used)
 #define GET_OS_PKT_DATAPTR(p) (((struct cmd_msg *)(p))->payload)
 static int checked_policy(RTMP_ADAPTER *,struct cmd_msg *);
@@ -223,6 +227,33 @@ for(unsigned mode=0;mode<8;mode++){
  assert(wr_iot_mcu_boot_config_finish(&ad,&ad.ticket,1)==1&&!owner.refs);
 }
 puts("PASS RF write/read/retirement: exact tuple, stale generation/peer, mismatch/timeout retain proof and output, one counter decrement, duplicate query refusal, next generation and MAC counter preservation; transport ACK injected via real parser");
+'''+tail[pos:]
+if mac_pending:
+ pos=tail.index('puts("PASS owner/config transport')
+ tail=tail[:pos]+r'''
+{
+ RTMP_ADAPTER ad=valid();current=&owner;peer_ok=1;alloc_fail=defer_free=wait_timeout=read_mode=0;transport_result=0;sent=0;
+ assert(!wr_iot_mcu_boot_config_begin(&ad,&ad.ticket));assert(!CmdAccessRegWrite(&ad,0x1234,0x89abcdefU));
+ assert(wr_iot_config_rf_record_matches(&ad.wr_iot_config_mac_pending,1,1,2,3,4,5,0,0x1234,0x89abcdefU));
+ assert(CmdAccessRegWrite(&ad,0x1234,1)==1&&sent==1&&ad.wr_iot_boot_config_unconfirmed==1);
+ assert(wr_iot_config_rf_record_matches(&ad.wr_iot_config_mac_pending,1,1,2,3,4,5,0,0x1234,0x89abcdefU));
+ assert(wr_iot_mcu_boot_config_finish(&ad,&ad.ticket,1)==1&&!owner.refs);
+}
+{
+ RTMP_ADAPTER ad=valid();current=&owner;peer_ok=1;alloc_fail=defer_free=wait_timeout=read_mode=0;transport_result=0;sent=0;
+ assert(!wr_iot_mcu_boot_config_begin(&ad,&ad.ticket));struct cmd_msg *m=wr_iot_mcu_config_alloc(&ad,8);assert(m);
+ m->cmd_type=CMD_ACCESS_REG;m->ext_cmd_type=EXT_CMD_NA;m->set_query=CMD_SET;
+ m->wr_iot_config_mac_write=1;m->wr_iot_config_mac_address=1;m->wr_iot_config_mac_value=2;
+ struct _CMD_ACCESS_REG_T bad={1,3};AndesAppendCmdMsg(m,(char *)&bad,sizeof(bad));
+ assert(wr_iot_mcu_config_send(&ad,m)==1&&!sent&&!ad.wr_iot_config_mac_pending.active&&!ad.wr_iot_boot_config_unconfirmed);
+ assert(wr_iot_mcu_boot_config_finish(&ad,&ad.ticket,1)==1&&!owner.refs);
+}
+for(unsigned mode=0;mode<2;mode++){
+ RTMP_ADAPTER ad=valid();current=&owner;peer_ok=1;assert(!wr_iot_mcu_boot_config_begin(&ad,&ad.ticket));
+ if(mode)ad.wr_iot_config_mac_pending.poisoned=1;else ad.wr_iot_config_mac_pending.active=1;
+ assert(!ad.wr_iot_boot_config_unconfirmed&&wr_iot_mcu_boot_config_finish(&ad,&ad.ticket,1)==1&&!owner.refs);
+}
+puts("PASS exact MAC intent before TX: serialized payload, full ticket, no pending overwrite, mismatched tags and poisoned/pending finish refusal");
 '''+tail[pos:]
 with tempfile.TemporaryDirectory(prefix='wr-config-transport-') as td:
  c=Path(td)/'check.c';reader=(a.candidate/'include/wr-iot-mcu-config-rf-read.inc').read_text() if rf_read else ''

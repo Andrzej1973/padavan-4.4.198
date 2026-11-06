@@ -1,5 +1,6 @@
-/* Caller serializes access. One RF write awaits proof at a time; this record
- * neither reads hardware nor changes the adapter's unconfirmed counter. */
+/* Caller serializes access. One write awaits proof per record; RF and MAC
+ * keep separate instances of this wire-independent ticket/tuple record.
+ * It neither reads hardware nor changes the unconfirmed counter. */
 #ifndef WR_IOT_MCU_CONFIG_RF_PENDING_H
 #define WR_IOT_MCU_CONFIG_RF_PENDING_H
 struct wr_iot_config_rf_pending {
