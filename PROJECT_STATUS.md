@@ -15769,3 +15769,13 @@ acceptance; that integration coverage remains outstanding. Temporary test
 directories are automatically removed; no scratch retained. Owner
 `docs/reference/` remains untouched.
 
+# TX-power owned transport coverage — 2026-11-06
+
+Extended the actual generated-builder fixture to invoke `CmdSetTxPowerCtrl`.
+Fresh pinned recovery/peer composition, reviewed steering/RSSI merge and all
+MCU/config preparation layers completed locally. ASan/UBSan fixture passes
+success, allocation failure, firmware failure, transport failure, peer drift
+and deferred-destructor timeout. Each failure prevents config-owner success;
+message/task accounting is checked. This is injected host evidence, not an
+actual firmware reply or runtime result. EDCA/slot proof remains unresolved.
+

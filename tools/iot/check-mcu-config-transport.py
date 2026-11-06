@@ -3,6 +3,7 @@
 import argparse
 import ast
 import json
+import re
 from pathlib import Path
 import subprocess
 import tempfile
@@ -110,8 +111,20 @@ if mac_read:
  prefix+='\nstatic void CmdMultipleMacRegAccessReadCb(void){}\n'
 if ext_config:
  prefix=prefix.replace('struct wr_iot_mcu_boot_ticket ticket;','unsigned eeprom_type;struct wr_iot_mcu_boot_ticket ticket;')
- names+=['CmdChannelSwitch','CmdEfusBufferModeSet']
+ names+=['CmdChannelSwitch','CmdEfusBufferModeSet','CmdSetTxPowerCtrl']
  sdk=(a.candidate/'include/mcu/andes_mt.h').read_text()
+ tx_start=sdk.index('typedef struct _EXT_CMD_TX_POWER_CTRL_T')
+ tx_end=sdk.index(';',sdk.index('} EXT_CMD_TX_POWER_CTRL_T',tx_start))+1
+ prefix='struct MT_TX_PWR_CAP {unsigned pa_type;};\n'+prefix
+ prefix=prefix.replace('unsigned eeprom_type;', 'unsigned char EEPROMImage[1024];struct {struct MT_TX_PWR_CAP MTTxPwrCap;} chipCap;struct {unsigned TxPowerPercentage;} CommonCfg;unsigned eeprom_type;')
+ prefix+='\ntypedef unsigned short USHORT;\n#define EXT_CMD_SET_TX_POWER_CTRL 0x11\n#define NdisCopyMemory memcpy\n#define RT28xx_EEPROM_READ16(ad,off,value) ((value)=(ad)->EEPROMImage[(off)]|((unsigned)(ad)->EEPROMImage[(off)+1]<<8))\n'+sdk[tx_start:tx_end]+'\n'
+ tx_body=mt[mt.index('VOID CmdSetTxPowerCtrl('):]
+ tx_body=tx_body[:tx_body.index('\n}\n')+3]
+ definitions=(a.candidate/'include/eeprom/mt_e2p_def.h').read_text()
+ for constant in sorted(set(re.findall(r'\b(?:NIC_CONFIGURE_1(?:_TOP)?|TX[01]_G_BAND_\w+|TX_PWR_CCK_1_2M|G_BAND_20_40_BW_PWR_DELTA|STEP_NUM_NEG_7)\b',tx_body))):
+  value=re.search(r'^#define\s+'+constant+r'\s+(0x[0-9a-fA-F]+|\d+)\b',definitions,re.M)
+  if not value:p.error('Missing EEPROM constant '+constant)
+  prefix+='#define '+constant+' '+value.group(1)+'\n'
  import re
  sku=re.search(r'#define\s+SKU_SIZE\s+(\d+)',sdk).group(1)
  start=sdk.index('typedef struct _EXT_CMD_CHAN_SWITCH_T');end=sdk.index(';',sdk.index('} EXT_CMD_CHAN_SWITCH_T',start))+1
@@ -129,7 +142,7 @@ if timing_config:
  prefix+='\n#define EXT_CMD_ID_EDCA_SET 0x27\n#define EXT_CMD_ID_SLOT_TIME_SET 0x28\n#define NdisZeroMemory(p,n) memset(p,0,n)\n#define cpu2le16(x) (x)\n'
  prefix=prefix.replace('typedef struct _TX_AC_PARAM_T','#define CMD_EDCA_AC_MAX 4\ntypedef struct _TX_AC_PARAM_T')
 for name in names:
- start=mt.index(('VOID ' if name=='CmdEfusBufferModeSet' else 'INT32 ')+name+'(');builders.append(mt[start:mt.index('\n}\n',start)+3])
+ start=mt.index(('VOID ' if name in ('CmdEfusBufferModeSet','CmdSetTxPowerCtrl') else 'INT32 ')+name+'(');builders.append(mt[start:mt.index('\n}\n',start)+3])
 tail=r'''
 static RTMP_ADAPTER valid(void){RTMP_ADAPTER ad={0};ad.ticket=(struct wr_iot_mcu_boot_ticket){1,2,3,4,5};
  ad.wr_iot_boot_active=ad.wr_iot_boot_frozen=ad.wr_iot_boot_mcu_only=1;ad.wr_iot_boot_hw_state=2;ad.wr_iot_boot_hw_stage=6;
@@ -352,6 +365,22 @@ for(unsigned mode=0;mode<5;mode++){
  assert(!owner.refs&&!ad.wr_iot_mcu_sender_owner.messages);
 }
 puts("PASS actual EFUSE builder: EFUSE/FLASH route, injected content, firmware/alloc failures and invalid mode cancellation without TX/message leak");
+for(unsigned mode=0;mode<6;mode++){
+ RTMP_ADAPTER ad=valid();current=&owner;peer_ok=1;alloc_fail=defer_free=wait_timeout=read_mode=0;transport_result=0;sent=0;pending=NULL;
+ assert(!wr_iot_mcu_boot_config_begin(&ad,&ad.ticket));
+ if(mode==1)alloc_fail=1;
+ if(mode==2)read_mode=1;
+ if(mode==3)transport_result=1;
+ if(mode==4)read_mode=4;
+ if(mode==5)defer_free=wait_timeout=1;
+ CmdSetTxPowerCtrl(&ad,6);
+ assert(sent==(mode==1?0:1));
+ if(mode==5){assert(pending&&ad.wr_iot_boot_failed);AndesForceFreeCmdMsg(pending);pending=NULL;}
+ assert(!ad.wr_iot_mcu_sender_owner.messages);
+ assert(wr_iot_mcu_boot_config_finish(&ad,&ad.ticket,1)==(mode?1:0));
+ assert(!owner.refs&&!foreign.refs);
+}
+puts("PASS actual TX-power owned builder: success, allocation/firmware/transport failures, peer drift, delayed destruction timeout and retained owner failure");
 puts("PASS actual channel builder: checked extended status/echo, transport failure, peer drift and TX-done timeout; owner retains failures, no ledger grant");
 '''+tail[pos:]
 if timing_config:

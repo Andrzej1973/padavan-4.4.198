@@ -15154,3 +15154,13 @@ payload test covers ownership. EDCA/slot execution proof remains unresolved.
 Optional run 42292865228 verifies source 64dc62b9391d8087390c80821d600d8ad949f8da
 and was confirmed in progress before these edits. No router operations.
 
+# TX-power ownership fixture completed — 2026-11-06
+
+`check-mcu-config-transport.py` now executes generated TX-power code in the
+existing owner/transport fixture; all six success/failure modes pass with
+ASan/UBSan. Full fresh generation was reproduced from pinned SDK and reviewed
+steering/RSSI driver preparation. Final generated source retained at
+`/tmp/wr-iot-tx-owner.DR53cL/mbss-poll-caller` with sibling manifest for the
+unfinished MCU audit; intermediate trees are disposable. Continue with the
+unresolved EDCA/slot execution proof and checked-ID budget. No device action.
+
