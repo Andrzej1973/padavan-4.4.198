@@ -274,7 +274,7 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
     mcu-boot-irq-filter mcu-boot-irq-unmask mcu-boot-hardware \
     mcu-boot-rom-observe mcu-boot-retired-boundary mcu-boot-thaw \
     mcu-boot-loader-abort mcu-boot-loader-bind mcu-boot-scheduler \
-    mcu-boot-scheduler-owner; do
+    mcu-boot-scheduler-owner mcu-boot-scheduler-quota; do
     python3 "tools/iot/prepare-$layer.py" "$merged" --install-isolated
   done
   for fixture in mcu-boot-transport mcu-boot-builders mcu-nettask-bootstrap \
@@ -286,7 +286,7 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
     mcu-boot-dma-start mcu-boot-dma-owner mcu-boot-irq-filter \
     mcu-boot-irq-unmask mcu-boot-irq-unmask-owner mcu-boot-hardware \
     mcu-boot-rom-observe mcu-boot-retired-boundary mcu-boot-thaw \
-    mcu-boot-loader-abort mcu-boot-scheduler mcu-boot-scheduler-owner \
+    mcu-boot-loader-abort mcu-boot-scheduler mcu-boot-scheduler-owner mcu-boot-sdk-quota \
     fw-method1 mcu-rx-bounds; do
     python3 "tools/iot/check-$fixture.py" "$merged"
   done

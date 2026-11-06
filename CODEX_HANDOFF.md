@@ -1,3 +1,27 @@
+## Sol: quota preflight package ready for target CI — 2026-11-06
+
+Fresh CI-sequence generation passed actual SDK quota, scheduler wrapper, owner,
+and Method1 fixtures plus complete SHA inventory and duplicate refusal. Quota
+validation now precedes scheduler writes; non-AP/non-LMAC refuses before MMIO.
+Peer82 recipe stages the new layer/test. No target or runtime acceptance yet.
+Remap audit identifies PSE watchdog, temperature, GPIO, EFUSE, reset and chip
+init users; trace their admission before binding scheduler/normal promotion.
+Fresh scratch candidates were automatically removed (about14MB each); existing
+unfinished inputs/candidate retained. Owner docs/reference preserved.
+
+## Sol: quota SDK body host-checked, still unbound — 2026-11-06
+
+New quota generator and actual generated-SDK fixture remain local. Native and
+256-byte-page ASan/UBSan cases pass E1/E2, BSSID1..16, AMSDU and zero/all-ones/
+subtraction boundaries. Wrapper gates/mutation and full candidate inventory
+also pass. Evidence: docs/evidence/WR1200JS-SCHEDULER-QUOTA-HOST.md.
+No target/runtime proof; resolve remap serialization and integration before
+binding. Positive group0 policy remains conservative, not device validated.
+Standard770 and ABI for published b01f9cb6 succeeded. Optional771/run42155212995
+for d9058aa9 is in_progress; exact b01f9cb6 optional queued via dispatch
+run42155570351. Check both dispatch SHA and verification-source before acceptance.
+This supersedes older pending-publication/standard notes below.
+
 ## Sol: scheduler owner package locally verified
 
 New isolated owner layer adds allocation-only scheduler_state and locked

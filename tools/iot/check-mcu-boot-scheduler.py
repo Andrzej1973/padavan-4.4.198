@@ -63,6 +63,8 @@ int main(void){for(rev=0;rev<2;rev++)for(fault=0;fault<16;fault++){
 '''
 with tempfile.TemporaryDirectory(prefix='wr-scheduler-') as td:
  c=Path(td)/'test.c';body=(a.candidate/'include/wr-iot-mcu-boot-scheduler.inc').read_text()
+ if 'wr_iot_boot_sdk_scheduler_checked(' in body:
+  prefix=prefix.replace('AsicDMASchedulerInit(', 'wr_iot_boot_sdk_scheduler_checked(')
  if 'wr_iot_mcu_boot_scheduler_owned(ad)' in body:
   prefix=prefix.replace('wr_iot_mcu_boot_owned(', 'wr_iot_mcu_boot_scheduler_owned(')
   tail=tail.replace('a.MCUCtrl.Stage=3;reads=calls=writes=0;',
