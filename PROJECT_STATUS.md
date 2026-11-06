@@ -1,3 +1,53 @@
+## Sol: checked channel/TX-power extended completion connected locally
+
+New isolated mcu-config-ext layer validates SDK8-byte result contract and routes
+actual channel/TX-power alloc/init/send through owned config. Generic callback,
+output pointer and retransmission disabled for private messages; ordinary SDK
+payload/route preserved. Both RX branches require exact event0xed/ext0, echoed
+command8/17 and zero full LE status. Sender waits TX-done and late owner/peer
+checks; no pending MAC/RF proof or checked-ID retirement reset performed.
+ASan/UBSan parser, actual channel builder/SDK initializer/core gate/transport,
+direct and locked RX, prior MAC/RF cycles, stale ACK/exhaustion negative controls
+and boot-result regression pass. Full TX-power EEPROM builder source-routed,
+not executed by host fixture; target validation pending. Evidence
+WR1200JS-CHECKED-CONFIG-EXT-HOST.md. CI includes generator stage.
+ABI42239873385 for4c2fa97a SUCCESS; standard798 remains PENDING in last check.
+Next EFUSE format/route, EDCA/slot-time uncertainty/proof, startup observations
+and checked-ID budget before owner init/error binding and data promotion.
+Outer gate remains closed. Scratch ~14MB per generated candidate auto-removed.
+
+## Sol: target evidence785/786 and startup configuration boundary audited
+
+Independently fetched verification-source and probe artifacts for optional785
+run42225923861 exactb253931c and786/run42225929495 exact50b2cbd6. Each source
+matches requested revision; baseline/reload/WSC module size/SHA256 and ELF32 LE
+MIPS independently verified, feature baseline binding checked where reported.
+Compact WR1200JS-RUN-<id>.json records retained; no ZIP/modules written to disk.
+These do not cover later config-readback revisions or production/runtime.
+Fresh full candidate at4c2fa97a has reviewed startup boundary map in
+WR1200JS-CONFIG-SCOPE-SOURCE.json and CONFIG-SCOPE-AUDIT.md. First AP scan can
+admit RX/TX before final open return; config_finish must precede promotion but
+cannot omit EEPROM/PHY stages. Channel/TX-power/EFUSE builders still ordinary
+SDK route; EDCA/slot-time noresponse require separate effect proof. TX-power
+and EFUSE VOID returns mean owner failure retention is mandatory. Next implement
+required extended completion protocols and transaction budget before complete
+config owner binding; preserve outer refusal and checked-ID retirement.
+Temporary ~14MB source tree removed. No other scratch or owner data removed.
+CI observed unchanged798 PENDING and ABI IN_PROGRESS; no result asserted.
+Local evidence/status work remains uncommitted for next coherent package.
+
+## Sol: publication/CI receipt for checked MAC readback
+
+Published and SSH ls-remote verified exact
+4c2fa97aeab68f4beb4ccbfa676998e9733e1c48. Only one outgoing commit above
+341726ae; owner docs/reference remains untouched/untracked. Standard798
+run42239873388 PENDING; ABI42239873385 IN_PROGRESS. No result claimed.
+After checking optional history for duplicates, queued successful prior standard
+sources via current dispatch4c2fa97a: optional799/run42239935036 exacta9f429ea,
+optional800/run42239937993 exact618c4093; both PENDING. Source verification
+must use their verification-source/report, not dispatch headSha. This receipt
+is local handoff bookkeeping for next coherent publication, not a new CI push.
+
 ## Sol: checked MAC readback and proof retirement connected
 
 Isolated MAC single-read now snapshots exact owned pending write/generation and

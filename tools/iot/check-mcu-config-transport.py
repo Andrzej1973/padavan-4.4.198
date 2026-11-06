@@ -20,6 +20,7 @@ prefix=prefix.replace('assert(held==2);held=1;', 'assert(held==2);held=*(f);')
 rf_pending=(a.candidate/'include/mcu-config-rf-pending.h').exists()
 rf_read=(a.candidate/'include/wr-iot-mcu-config-rf-read.inc').exists()
 mac_read=(a.candidate/'include/wr-iot-mcu-config-mac-read.inc').exists()
+ext_config='mcu_config_ext' in json.loads(Path(str(a.candidate)+'.manifest.json').read_text())
 mac_pending='wr_iot_config_mac_pending' in (a.candidate/'include/rtmp.h').read_text()
 if rf_pending:
  prefix='#include "mcu-config-rf-pending.h"\n'+prefix
@@ -56,7 +57,7 @@ typedef unsigned UINT32;typedef int INT32;typedef unsigned short UINT16;typedef 
 struct task_struct {unsigned refs;};static struct task_struct owner,foreign,*current;
 static void get_task_struct(struct task_struct *t){assert(t&&!held);t->refs++;}
 static void put_task_struct(struct task_struct *t){assert(t&&!held&&t->refs);t->refs--;}
-struct cmd_msg {void *priv,*net_pkt;unsigned wr_iot_config_mac_query,wr_iot_config_mac_generation,wr_iot_config_mac_write,wr_iot_config_mac_address,wr_iot_config_mac_value,wr_iot_config_rf_query,wr_iot_config_rf_generation,wr_iot_config_rf_write,wr_iot_config_rf_stream,wr_iot_config_rf_address,wr_iot_config_rf_value;unsigned wr_iot_config_owned,cmd_type,ext_cmd_type,set_query,need_wait,need_rsp,need_retransmit,rsp_payload_len,wr_iot_checked,used,pq_id,wr_iot_response_done,wr_iot_unsubmitted,wr_iot_firmware_result,timeout,retransmit_times,ack_done;char *rsp_payload;MSG_RSP_HANDLER rsp_handler;unsigned long wr_iot_config_peer_serial,wr_iot_config_radio_serial,wr_iot_config_radio_epoch,wr_iot_config_close_serial,wr_iot_config_close_epoch;unsigned char payload[64];};
+struct cmd_msg {void *priv,*net_pkt;unsigned wr_iot_config_ext_result,wr_iot_config_mac_query,wr_iot_config_mac_generation,wr_iot_config_mac_write,wr_iot_config_mac_address,wr_iot_config_mac_value,wr_iot_config_rf_query,wr_iot_config_rf_generation,wr_iot_config_rf_write,wr_iot_config_rf_stream,wr_iot_config_rf_address,wr_iot_config_rf_value;unsigned wr_iot_config_owned,cmd_type,ext_cmd_type,set_query,need_wait,need_rsp,need_retransmit,rsp_payload_len,wr_iot_checked,used,pq_id,wr_iot_response_done,wr_iot_unsubmitted,wr_iot_firmware_result,timeout,retransmit_times,ack_done;char *rsp_payload;MSG_RSP_HANDLER rsp_handler;unsigned long wr_iot_config_peer_serial,wr_iot_config_radio_serial,wr_iot_config_radio_epoch,wr_iot_config_close_serial,wr_iot_config_close_epoch;unsigned char payload[64];};
 #define GET_OS_PKT_LEN(p) (((struct cmd_msg *)(p))->used)
 #define GET_OS_PKT_DATAPTR(p) (((struct cmd_msg *)(p))->payload)
 static int checked_policy(RTMP_ADAPTER *,struct cmd_msg *);
@@ -66,7 +67,7 @@ static int AndesMTPciKickOutCmdMsg(void *ad,void *msg){assert(ad&&msg);return 0;
 static void wr_iot_mcu_message_drop(RTMP_ADAPTER *ad,unsigned slot,unsigned uncertain){assert(ad&&!held&&!slot&&!uncertain&&ad->wr_iot_mcu_sender_owner.messages);ad->wr_iot_mcu_sender_owner.messages--;}
 static struct cmd_msg *wr_iot_mcu_alloc_body(RTMP_ADAPTER *ad,unsigned length){assert(ad&&!held&&length<=MT_UPLOAD_FW_UNIT&&ad->wr_iot_mcu_sender_owner.messages==1);allocated++;if(alloc_fail)return NULL;struct cmd_msg *m=calloc(1,sizeof(*m));assert(m);m->priv=ad;m->net_pkt=m;return m;}
 static void AndesForceFreeCmdMsg(struct cmd_msg *m){assert(m&&!held);wr_iot_mcu_message_drop(m->priv,0,0);freed++;free(m);}
-static int wr_iot_mcu_send_body(RTMP_ADAPTER *ad,struct cmd_msg *m){assert(ad&&!held&&ad->wr_iot_mcu_sender_owner.inflight==1&&ad->wr_iot_mcu_sender_owner.radio_active);if(m->need_wait)assert(m->wr_iot_checked&&!checked_policy(ad,m));else assert(!m->wr_iot_checked&&!m->need_rsp&&!m->rsp_payload_len);sent++;int result=transport_result;if(m->wr_iot_config_rf_query){unsigned char data[12];store_word(data,m->wr_iot_config_rf_stream);store_word(data+4,m->wr_iot_config_rf_address);store_word(data+8,m->wr_iot_config_rf_value);if(read_mode==1)data[8]^=1;if(read_mode==2)data[4]^=1;result=wr_iot_config_rf_read_matches(m->cmd_type,m->ext_cmd_type,m->set_query==CMD_QUERY,0xed,2,data,12,24,24,12,m->wr_iot_config_rf_stream,m->wr_iot_config_rf_address,m->wr_iot_config_rf_value)?0:1;RF_DRIFT}MAC_RESPONSE if(defer_free)pending=m;else AndesForceFreeCmdMsg(m);return result;}
+static int wr_iot_mcu_send_body(RTMP_ADAPTER *ad,struct cmd_msg *m){assert(ad&&!held&&ad->wr_iot_mcu_sender_owner.inflight==1&&ad->wr_iot_mcu_sender_owner.radio_active);if(m->need_wait)assert(m->wr_iot_checked&&!checked_policy(ad,m));else assert(!m->wr_iot_checked&&!m->need_rsp&&!m->rsp_payload_len);sent++;int result=transport_result;if(m->wr_iot_config_rf_query){unsigned char data[12];store_word(data,m->wr_iot_config_rf_stream);store_word(data+4,m->wr_iot_config_rf_address);store_word(data+8,m->wr_iot_config_rf_value);if(read_mode==1)data[8]^=1;if(read_mode==2)data[4]^=1;result=wr_iot_config_rf_read_matches(m->cmd_type,m->ext_cmd_type,m->set_query==CMD_QUERY,0xed,2,data,12,24,24,12,m->wr_iot_config_rf_stream,m->wr_iot_config_rf_address,m->wr_iot_config_rf_value)?0:1;RF_DRIFT}MAC_RESPONSE EXT_RESPONSE if(defer_free)pending=m;else AndesForceFreeCmdMsg(m);return result;}
 static int fake_wait(void){assert(!held);if(pending&&!wait_timeout){AndesForceFreeCmdMsg(pending);pending=NULL;}return !wait_timeout;}
 #define msecs_to_jiffies(n) (n)
 #define wait_event_timeout(q,condition,timeout) ((void)(q),assert((timeout)==5000),fake_wait()?(condition):0)
@@ -85,6 +86,7 @@ static int AndesSendCmdMsg(RTMP_ADAPTER *ad,struct cmd_msg *m){assert(ad&&!m->wr
 static void AndesAppendCmdMsg(struct cmd_msg *m,char *p,unsigned length){assert(m->used+length<=sizeof(m->payload));memcpy(m->payload+m->used,p,length);m->used+=length;}
 '''
 core=(a.candidate/'mcu/andes_core.c').read_text();start=core.index('if (!need_wait || msg->need_retransmit ||')
+prefix=prefix.replace('EXT_RESPONSE',r"""if(m->wr_iot_config_ext_result){unsigned char data[8]={0};data[0]=(unsigned char)m->ext_cmd_type;if(read_mode==1)data[4]=1;if(read_mode==2)data[0]^=1;if(!result)result=wr_iot_config_ext_success(m->cmd_type,m->ext_cmd_type,m->set_query==CMD_SET,0xed,0,data,8,20,20,12)?0:1;if(read_mode==4)peer_ok=0;}""" if ext_config else '')
 prefix=prefix.replace('MAC_RESPONSE',r"""if(m->wr_iot_config_mac_query){unsigned char data[32]={0};store_word(data+24,m->wr_iot_config_mac_address);store_word(data+28,m->wr_iot_config_mac_value);if(read_mode==1)data[28]^=1;if(read_mode==2)data[24]^=1;if(read_mode==7)data[20]=1;result=wr_iot_config_mac_read_matches(m->cmd_type,m->ext_cmd_type,m->set_query==CMD_QUERY,0xed,0x0e,data,32,44,44,12,m->wr_iot_config_mac_address,m->wr_iot_config_mac_value)?0:1;if(read_mode==3)ad->wr_iot_config_mac_pending.generation++;if(read_mode==4)peer_ok=0;}""" if mac_read else '')
 prefix=prefix.replace('RF_DRIFT','if(read_mode==3)ad->wr_iot_config_rf_pending.generation++;if(read_mode==4)peer_ok=0;' if rf_read else '')
 condition=core[start:core.index(') {',start)+1]
@@ -101,6 +103,13 @@ if rf_read:
 if mac_read:
  names+=['CmdMultiPleMacRegAccessRead']
  prefix+='\nstatic void CmdMultipleMacRegAccessReadCb(void){}\n'
+if ext_config:
+ names+=['CmdChannelSwitch']
+ sdk=(a.candidate/'include/mcu/andes_mt.h').read_text()
+ import re
+ sku=re.search(r'#define\s+SKU_SIZE\s+(\d+)',sdk).group(1)
+ start=sdk.index('typedef struct _EXT_CMD_CHAN_SWITCH_T');end=sdk.index(';',sdk.index('} EXT_CMD_CHAN_SWITCH_T',start))+1
+ prefix+='\n#define SKU_SIZE '+sku+'\n#define EXT_CMD_CHANNEL_SWITCH 8\nstatic void EventExtCmdResult(void){}\n'+sdk[start:end]+'\n'
 for name in names:
  start=mt.index('INT32 '+name+'(');builders.append(mt[start:mt.index('\n}\n',start)+3])
 tail=r'''
@@ -296,6 +305,22 @@ for(unsigned mode=0;mode<8;mode++){
  assert(!wr_iot_mcu_boot_config_finish(&ad,&ad.ticket,1)&&!owner.refs);
 }
 puts("PASS MAC checked read: exact tuple, type/address/value mismatch, stale generation/peer, timeout, retained output/proof, duplicate refusal and next generation; injected transport");
+'''+tail[pos:]
+if ext_config:
+ pos=tail.index('puts("PASS owner/config transport')
+ tail=tail[:pos]+r'''
+for(unsigned mode=0;mode<6;mode++){
+ RTMP_ADAPTER ad=valid();current=&owner;peer_ok=1;alloc_fail=defer_free=wait_timeout=read_mode=0;transport_result=0;pending=NULL;
+ assert(!wr_iot_mcu_boot_config_begin(&ad,&ad.ticket));read_mode=mode;
+ if(mode==3)transport_result=1;
+ if(mode==5)defer_free=wait_timeout=1;
+ assert(CmdChannelSwitch(&ad,1,1,0,2,2)==(mode?1:0));
+ if(mode==5){assert(pending);AndesForceFreeCmdMsg(pending);pending=NULL;}
+ assert(!ad.wr_iot_boot_config_unconfirmed);
+ assert(wr_iot_mcu_boot_config_finish(&ad,&ad.ticket,!mode)==(mode?1:0));
+ assert(!owner.refs&&!foreign.refs);
+}
+puts("PASS actual channel builder: checked extended status/echo, transport failure, peer drift and TX-done timeout; owner retains failures, no ledger grant");
 '''+tail[pos:]
 with tempfile.TemporaryDirectory(prefix='wr-config-transport-') as td:
  c=Path(td)/'check.c';reader=(a.candidate/'include/wr-iot-mcu-config-rf-read.inc').read_text() if rf_read else ''

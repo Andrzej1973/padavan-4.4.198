@@ -5,6 +5,24 @@ static void store32(unsigned char *p,unsigned v)
 {p[0]=(unsigned char)v;p[1]=(unsigned char)(v>>8);p[2]=(unsigned char)(v>>16);p[3]=(unsigned char)(v>>24);}
 int main(void)
 {
+ for(unsigned ext=8;ext<=17;ext+=9){
+ unsigned char unaligned[9]={0},*p=unaligned+1;p[0]=(unsigned char)ext;
+ assert(wr_iot_config_ext_success(0xed,ext,1,0xed,0,p,8,20,20,12));
+ for(unsigned byte=4;byte<8;byte++)for(unsigned bit=0;bit<8;bit++){
+ p[byte]=(unsigned char)(1U<<bit);assert(!wr_iot_config_ext_success(0xed,ext,1,0xed,0,p,8,20,20,12));p[byte]=0;}
+ p[0]^=1;assert(!wr_iot_config_ext_success(0xed,ext,1,0xed,0,p,8,20,20,12));p[0]^=1;
+ for(unsigned len=0;len<24;len++)if(len!=8)assert(!wr_iot_config_ext_success(0xed,ext,1,0xed,0,p,len,20,20,12));
+ assert(!wr_iot_config_ext_success(0xed,ext,0,0xed,0,p,8,20,20,12));
+ assert(!wr_iot_config_ext_success(0xec,ext,1,0xed,0,p,8,20,20,12));
+ assert(!wr_iot_config_ext_success(0xed,ext,1,0xec,0,p,8,20,20,12));
+ assert(!wr_iot_config_ext_success(0xed,ext,1,0xed,ext,p,8,20,20,12));
+ assert(!wr_iot_config_ext_success(0xed,ext,1,0xed,0,NULL,8,20,20,12));
+ assert(!wr_iot_config_ext_success(0xed,ext,1,0xed,0,p,8,19,20,12));
+ assert(!wr_iot_config_ext_success(0xed,ext,1,0xed,0,p,8,20,21,12));
+ assert(!wr_iot_config_ext_success(0xed,ext,1,0xed,0,p,8,20,20,~0U));
+ }
+ assert(!wr_iot_config_ext_command(0x21));
+ puts("PASS channel/TX-power extended result: unaligned, command echo, all status bits, SET/event/length/null/overflow gates");
  unsigned char payload[32]={0};unsigned i,len;
  assert(wr_iot_config_multi_write_success(0xed,0x0e,1,0xed,0x0e,payload,32,44,44,12));
  for(i=20;i<24;i++){
