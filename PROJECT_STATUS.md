@@ -15698,3 +15698,21 @@ bounded checked-command budget and a safe pre-RxTx release condition.  Latest
 published `e799ea3` standard run #810 remains in progress; its ABI run
 completed successfully.  Owner `docs/reference/` remains untouched.
 
+## Sol: configuration owner now requires a fresh checked-ID epoch
+
+`wr_iot_mcu_boot_config_ready()` now refuses configuration ownership when the
+checked-sequence `retired` mask is nonzero, in addition to its existing live,
+poison and quarantine guards.  This ensures a configuration phase can start
+only after the existing ROM/RX retirement boundary has recorded and cleared
+the preceding firmware epoch; it never resets the ledger itself.  The owner
+fixture has a distinct retired-ID refusal case and passed on a fresh isolated
+candidate regenerated through the config-owner layer.  The source-only AP
+audit now records that current `nilabsent/padavan-ng` master retains the same
+no-response EDCA/slot-time protocol.
+
+This is host/source evidence only.  It does not prove an effective startup
+branch needs at most fifteen checked IDs, nor does it bind owner begin/finish
+to outer init, open the bootstrap gate, change settings or establish image or
+runtime acceptance.  Temporary candidate scratch was automatically removed;
+owner `docs/reference/` remains untouched.
+

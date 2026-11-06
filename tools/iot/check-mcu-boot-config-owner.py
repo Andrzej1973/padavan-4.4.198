@@ -61,14 +61,15 @@ for(fault=0;fault<8;fault++){
  assert(!owner.refs&&!foreign.refs&&!ad.wr_iot_boot_config_task&&ad.wr_iot_boot_frozen);
  assert(wr_iot_mcu_boot_config_finish(&ad,&t,1)==1&&!owner.refs);
 }
-for(fault=0;fault<7;fault++){
+for(fault=0;fault<8;fault++){
  RTMP_ADAPTER ad=valid();peer_ok=1;current=&owner;
  switch(fault){case 0:ad.wr_iot_boot_fw_state=0;break;case 1:ad.wr_iot_boot_scheduler_state=0;break;
  case 2:ad.wr_iot_boot_fw_radio_epoch++;break;case 3:ad.wr_iot_boot_frozen=0;break;
- case 4:ad.wr_iot_sequence.quarantined=2;break;case 5:ad.bPCIclkOff=1;break;case 6:ad.flags=8;break;}
+ case 4:ad.wr_iot_sequence.quarantined=2;break;case 5:ad.wr_iot_sequence.retired=2;break;
+ case 6:ad.bPCIclkOff=1;break;case 7:ad.flags=8;break;}
  assert(wr_iot_mcu_boot_config_begin(&ad,&ad.ticket)==1&&!owner.refs&&!ad.wr_iot_boot_config_state);
 }
-puts("PASS configuration owner: task pin/release, foreign task/ticket refusal, duplicate, stale receipts, drained state, retained failure and no constructor thaw; context/locks/task references injected");}
+puts("PASS configuration owner: task pin/release, foreign task/ticket refusal, duplicate, stale receipts, drained state, retained failure, retired-ID refusal and no constructor thaw; context/locks/task references injected");}
 '''
 with tempfile.TemporaryDirectory(prefix='wr-config-owner-') as td:
  c=Path(td)/'check.c';c.write_text(prefix+(a.candidate/'include/wr-iot-mcu-boot-config-owner.inc').read_text()+tail)

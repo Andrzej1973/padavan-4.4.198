@@ -15079,3 +15079,23 @@ derive a pre-RxTx release condition without changing channel settings.  The
 new audit is source-only; the previous target evidence still applies only to
 its exact candidate SHA.  Owner `docs/reference/` untouched.
 
+## Sol: fresh checked-ID epoch required before configuration ownership
+
+`mcu-boot-config-owner.inc` now includes `!retired` in its readiness predicate.
+The configuration owner therefore cannot begin while any checked ID remains
+retired from an earlier epoch; only the existing ROM/RX/PSE/ring retirement
+boundary can record and clear that history.  The change does not alter the
+boundary, reset a ledger, or make an exhausted path succeed.  The host fixture
+now injects a nonzero retired mask and a fresh full isolated generation through
+`mcu-boot-config-owner` passed ASan/UBSan execution.  It proves only host
+control flow.  A real branch still needs an explicit <=15 checked-ID proof or
+a separately verified new boundary.
+
+Fresh upstream check: `nilabsent/padavan-ng` master (reported pushed
+2026-11-01) has the same no-wait/no-response/no-callback EDCA (`0x27`) and
+slot-time (`0x28`) implementations.  Do not invent ACK/readback semantics;
+the retained timing intents still block configuration finish.  Next is binding
+the owner/error-abandon lifecycle into the actual outer init path while keeping
+the pre-RxTx gate closed.  No router, image or production claim; owner
+`docs/reference/` untouched.
+

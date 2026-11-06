@@ -17,6 +17,16 @@ configuration owner has a safe, explicitly bounded release point that also
 covers the auto-channel receive/transmit path.  This observation does not
 change user channel settings and does not reject automatic channel selection.
 
+## Current upstream protocol check
+
+On 2026-11-06 the current `master` of `nilabsent/padavan-ng` (reported pushed
+2026-11-01) was checked at
+`trunk/proprietary/rt_wifi/rtpci/4.1.X.X/mt76x3/mcu/andes_mt.c`.  Its
+`CmdEdcaParameterSet()` and `CmdSlotTimeSet()` use the same no-wait,
+no-response, no-callback Andes initializers.  It supplies no newer ACK or
+readback contract for either command.  Therefore this project continues to
+retain their intents rather than manufacture a completion claim.
+
 ## APStartUp inventory
 
 The following calls occur during `APStartUp()` and must not be treated as a

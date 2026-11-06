@@ -23,6 +23,13 @@ prove the whole path remains within 15 unique checked commands or establish a
 new verified boundary before another checked command. Exhaustion is correctly a
 failure, not a reason to reset the ledger.
 
+The configuration-owner readiness predicate now also refuses a nonzero
+`retired` mask. This fails closed unless the existing ROM/RX retirement
+boundary has first recorded and cleared the prior firmware epoch; its fixture
+has a dedicated retained-ID negative case. It does not assert that an actual
+startup branch fits in fifteen IDs, which still requires target and runtime
+branch evidence.
+
 Host fixtures already demonstrate no old successful ACK across thirty attempted
 allocations, exhaustion without reuse, timeout quarantine and the negative
 control where a host-only reset falsely accepts an old ACK. These tests do not
