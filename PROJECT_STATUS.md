@@ -15802,3 +15802,12 @@ and reaches config abandon before MCU teardown. Complete regeneration, target
 compile and runtime remain pending. This interim refusal does not implement
 the required eventual scan/data promotion transition.
 
+# Fixed-channel AP/radio admission — 2026-11-06
+
+Extended unfinished-config refusal to `APStartUp` and `MlmeRadioOn` in outer
+init. Fixed-channel startup can otherwise reach those before the final return
+gate even without entering automatic channel scan. The actual generator loop
+now guards six sites (2 IRQ, 2 RX/TX, AP start, radio on); in-memory source
+transformation checks pass. Full fresh generation and target verification of
+this addition remain pending. Required future scan/data promotion remains open.
+

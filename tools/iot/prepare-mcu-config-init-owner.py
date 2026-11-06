@@ -75,7 +75,8 @@ one('err6:\n', '''err6:
 
 # The final return gate is too late for scan-time hardware admission.
 # Keep every outer-init enable site behind the same unfinished-owner refusal.
-for action in ('RTMP_IRQ_ENABLE(pAd);', 'RTMPEnableRxTx(pAd);'):
+for action in ('RTMP_IRQ_ENABLE(pAd);', 'RTMPEnableRxTx(pAd);',
+               'APStartUp(pAd);', 'MlmeRadioOn(pAd);'):
     if action not in body:
         p.error('Missing startup admission site: ' + action)
     body = body.replace(action, guard + '''

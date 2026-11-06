@@ -22,7 +22,8 @@ err6_tail = body[body.index('err6:'):]
 assert body.index('err6:') < body.index(abandon)
 assert 'MCUSysExit' in err6_tail and err6_tail.index(abandon) < err6_tail.index('MCUSysExit')
 assert 'if(wr_config_started)' in err6_tail[:err6_tail.index('MCUSysExit')]
-for action in ('RTMP_IRQ_ENABLE(pAd);', 'RTMPEnableRxTx(pAd);'):
+for action in ('RTMP_IRQ_ENABLE(pAd);', 'RTMPEnableRxTx(pAd);',
+               'APStartUp(pAd);', 'MlmeRadioOn(pAd);'):
     sites = list(re.finditer(re.escape(action), body))
     assert sites, action
     for site in sites:

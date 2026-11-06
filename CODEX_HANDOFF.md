@@ -15185,3 +15185,11 @@ config abandon at err6; normal scan/data release still requires implementation.
 Timing audit also corrected: full SDK has TMAC_ICR tuple read-back at 0x216a4;
 the remaining issue is execution ordering, not missing register definitions.
 
+# Six outer-init admission guards — 2026-11-06
+
+The config-init generator/checker now cover APStartUp/MlmeRadioOn in addition
+to IRQ/RXTX enables, including fixed-channel startup. Six transformed sites
+verified locally; target build pending. This remains an isolated candidate
+refusal, not functional IoT acceptance. Continue toward the eventual verified
+scan/data transition and command completion/sequence requirements.
+
