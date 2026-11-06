@@ -15047,3 +15047,14 @@ firmware exact60421c08, but its verification-source has no requested optional
 candidate SHA; it does not target-verify mcu-config-timing. Optional805 exact
 60421c08 remains the required candidate evidence.
 
+## Sol: optional805 independently proves timing candidate target compilation
+
+Optional805/run42260975871 exact60421c08 SUCCESS. Independently fetched
+verification-source and iot-merged-driver-probe artifacts: requested and
+verified SHA match60421c08; baseline/reload/WSC modules each match report
+repository SHA, exact bytes/SHA256 and ELF32 little-endian MIPS, with feature
+baseline linkage where supplied. Compact evidence WR1200JS-RUN-42260975871.json
+retained; ZIP/modules not persisted. This proves candidate target compilation,
+not final image/ROMFS or device runtime. Standard809/ABI exact47a158e also
+SUCCESS. Optional806 exact04bf80d remains pending.
+
