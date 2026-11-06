@@ -15657,3 +15657,15 @@ owner to a successful path until its worst case fits15 or a new verified epoch
 boundary exists. Exhaustion must remain failure. Evidence
 WR1200JS-CHECKED-ID-BUDGET-AUDIT.md; source/host only, outer gate remains.
 
+## Sol: post-bootstrap command path remains incomplete and closed
+
+Source audit from rt28xx_init after the closed gate reaches EEPROM/ASIC/PHY and
+then APStartUp. APStartUp initializes BSS/security/WMM state; the WMM and AP
+paths can submit EDCA/slot-time, key and other firmware operations after the
+initial configuration window. Existing private admission covers only reviewed
+config families, not that complete path. Therefore do not move finish to
+APStartUp or remove the outer gate. Normal standard803 compiled the ordinary
+firmware exact60421c08, but its verification-source has no requested optional
+candidate SHA; it does not target-verify mcu-config-timing. Optional805 exact
+60421c08 remains the required candidate evidence.
+
