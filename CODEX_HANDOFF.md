@@ -15023,3 +15023,15 @@ may advance, so acceptance must verify each verification-source/report against
 the requested SHA. The earlier optional800 exact618c4093 remained active at
 the last prior check. No optional success is claimed yet.
 
+## Sol: checked-ID budget gate audited before lifecycle binding
+
+Ledger has only IDs1..15. Checked allocation permanently retires its ID and
+timeout quarantines it; release/task completion does not recycle history. Only
+the reviewed ROM/RX retired boundary can clear retired history, after frozen
+radio receipt/ring/controller/RX/IRQ/DMA/PSE and sender-drain conditions, and
+records mask+epoch first. Config phase currently has multiple checked command
+families; exact effective count depends on startup branches. Do not bind the
+owner to a successful path until its worst case fits15 or a new verified epoch
+boundary exists. Exhaustion must remain failure. Evidence
+WR1200JS-CHECKED-ID-BUDGET-AUDIT.md; source/host only, outer gate remains.
+
