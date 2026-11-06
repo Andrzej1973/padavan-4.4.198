@@ -1,3 +1,23 @@
+## Sol: owned no-response writes staged; unresolved effects block finish
+
+CmdAccessRegWrite and CmdRFRegAccessWrite now use owned configuration transport
+during bootstrap with reviewed SET/no-wait/no-response/no-callback shape. They
+remain unchecked; TX drain is submission completion, not a firmware ACK.
+Retained unconfirmed counter increments before transport and blocks config
+finish; overflow refuses before hardware. No counter-clearing/readback API or
+normal data admission added. Exact SDK protocol/flags anchors are required.
+Fresh actual-builder/initializer/owner/transport ASan/UBSan fixture passes
+immediate/delayed/timeout drain, unresolved finish and overflow cases, plus
+prior synchronous/owner/direct RX checks. Complete inventory and closed outer
+init gate verified. Evidence WR1200JS-CONFIG-NORESPONSE-HOST.md. Scratch (~14MB)
+auto-removed. CI stages layer/tests; target/runtime remain pending.
+Resume verified same checkout/HEAD39909c95 and preserved docs/reference. Standards
+789/790 and ABI succeeded. Duplicate audit then queued optional c893f656 run
+42233066464 and 39909c95 run42233072216 from dispatch39909c95. Optional783/784
+succeeded; optional785 active and786..788 pending on last live check.
+Next required configuration readback and remaining command protocols, owner
+init/finish/error binding, ACK budget/epoch, normal promotion and repeat lifecycle.
+
 ## Sol: owned MAC/RF configuration builders connected locally
 
 New config transport routes actual synchronous multiple-register write builders
