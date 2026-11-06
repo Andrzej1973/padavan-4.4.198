@@ -15757,3 +15757,15 @@ automatic temporary directory and discarded. Both records explicitly mark
 production installation and runtime as false. They do not prove a no-response
 timing effect, checked-ID budget, final ROMFS or router behavior.
 
+# IoT TX-power payload regression — 2026-11-06
+
+Added `tools/iot/check-tx-power-builder.py` and bound it to the isolated IoT
+CI compile script after extraction of the pinned SDK. It executes the retained
+SDK builder with injected EEPROM reads and transport, checking all 44 payload
+bytes through field comparisons across EFUSE/image modes and 12 power-percent
+boundaries, plus allocation refusal. Host GCC with ASan/UBSan passes. This does
+not exercise the generated owned-config route or establish firmware/runtime
+acceptance; that integration coverage remains outstanding. Temporary test
+directories are automatically removed; no scratch retained. Owner
+`docs/reference/` remains untouched.
+

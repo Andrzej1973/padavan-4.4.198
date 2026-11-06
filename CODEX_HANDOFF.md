@@ -15143,3 +15143,14 @@ hashes and explicit non-production/non-runtime labels are retained in
 retained locally. This is target compilation only; retain the closed gate and
 do not infer timing execution, ID-budget, image, or device acceptance.
 
+# IoT TX-power regression continuation — 2026-11-06
+
+Sol added a host test of the retained SDK TX-power builder and its IoT CI
+invocation. Local ASan/UBSan and shell syntax checks pass. Payload coverage
+includes both EEPROM modes, calibration fields, 12 percentage boundaries and
+allocation refusal. Generated config-owner routing is still untested for this
+builder; next extend the owned-transport fixture without claiming that the
+payload test covers ownership. EDCA/slot execution proof remains unresolved.
+Optional run 42292865228 verifies source 64dc62b9391d8087390c80821d600d8ad949f8da
+and was confirmed in progress before these edits. No router operations.
+

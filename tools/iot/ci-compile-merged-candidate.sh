@@ -35,6 +35,7 @@ git -C padavan-4.4 archive --format=tar HEAD \
   trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3 \
   | tar -xf - -C "$pinned"
 pristine="$pinned/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3"
+python3 tools/iot/check-tx-power-builder.py "$pristine"
 if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   mkdir -p "$candidate"
   python3 tools/iot/prepare-current-recovery-chain.py "$pristine" "$candidate/recovery"
