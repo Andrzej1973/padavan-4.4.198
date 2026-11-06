@@ -15118,3 +15118,16 @@ policy for timing intents, then establish an outer release condition before
 auto-channel Rx/Tx. Do not remove the final refusal meanwhile. Owner
 `docs/reference/` untouched.
 
+## Sol: transport completion cannot substitute for firmware receipt
+
+Fresh source audit of the retained MT7603 PCI command path establishes that
+EDCA/slot-time use no-wait messages: sequence zero, no ACK wait, callback or
+firmware-result storage. `AndesSendCmdMsg()` reports attempted kickout; PCI
+TX completion later only moves the host buffer to `tx_doneq` for freeing.
+Neither event proves MCU consumption or execution.  Retained timing intents
+must therefore continue to block configuration finish and the closed IoT gate;
+do not treat DMA/TX completion as ACK.  Evidence:
+`docs/evidence/WR1200JS-NORESPONSE-TRANSPORT-BOUNDARY.md`.  No router/image
+claim or mutation.  Continue only with a documented command-specific ordered
+receipt, or a safe policy that preserves this boundary.
+

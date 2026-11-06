@@ -15731,3 +15731,16 @@ timing intents, remove the pre-RxTx refusal, prove target/image/runtime
 behavior, or change router settings. Temporary scratch was automatically
 removed; owner `docs/reference/` remains untouched.
 
+## Sol: no-response transport completion is not MCU execution evidence
+
+Audited the retained MT7603 PCI command path. EDCA (`0x27`) and slot-time
+(`0x28`) use `need_wait=FALSE`, sequence zero, no callback and no response
+storage. Their `AndesSendCmdMsg()` return follows attempted kickout; the PCI
+TX-complete path merely transfers a no-wait buffer to `tx_doneq` for freeing.
+It does not carry a firmware result or prove that the MCU consumed the command.
+Consequently TX/DMA completion cannot clear the timing journals or open the
+IoT gate. Evidence: `docs/evidence/WR1200JS-NORESPONSE-TRANSPORT-BOUNDARY.md`.
+No source gate, image or router state changed. The next valid path remains a
+documented ordered execution receipt, or a supported policy that does not
+pretend transport completion is firmware ACK.
+
