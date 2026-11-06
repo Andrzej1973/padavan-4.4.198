@@ -1,3 +1,34 @@
+## Sol: control admission package host-verified — 2026-11-06
+
+Isolated generator now wraps Linux ioctl and MLME periodic bodies on MT7603 PCI.
+A transition-lock counter excludes new actors during radio start/bootstrap and
+makes bootstrap reserve refuse already admitted actors. Allocation-only init;
+overflow/underflow poison retained. Original body results/releases preserved.
+Host actual reserve/admission tests and generated wrappers pass; existing CI
+bootstrap fixture sequence passes through RX bounds. Full inventory checked.
+Peer82 CI recipe includes layer and wrapper fixture; no target/runtime proof.
+Other command/GPIO/EFUSE/chip/ATE producers remain to audit before scheduler
+binding. Evidence docs/evidence/WR1200JS-CONTROL-ADMISSION-HOST.md and remap audit.
+Temporary candidates/executables auto-removed (~14MB per generation); unfinished
+prior inputs preserved. Publish as one coherent admission/audit package.
+
+## Sol: remap producer admission gap traced — 2026-11-06
+
+Published quota package a932afd37d6a48e080b908f12e2ca75c0804127b is on SSH
+remote. Standard773/run42155925563 and ABI42155925557 are in_progress.
+Optional771 remains active; optional772/run42155570351 pending (no duplicates).
+Local audit tool verifies the candidate manifest and inventories112 textual
+remap references in11 C files. Evidence: WR1200JS-REMAP-ADMISSION-AUDIT.md and
+WR1200JS-REMAP-USERS.json under docs/evidence.
+Important next change: open initializes/arms MLME periodic timer before
+MCUSysInit; timer enqueues commands which execute watchdog after START_UP.
+Bootstrap IRQ-unmask sets START_UP itself. Close-time joins do not alone exclude
+this new producer. Need bootstrap admission plus queued/in-flight accounting;
+plain flag checks leave races. Temperature ioctl also lacks explicit bootstrap
+gate through Linux/AP prepare path. No source or device claim of serialization.
+Audit sources/evidence remain local for the next coherent integration package.
+No scratch output created; existing unfinished candidates retained.
+
 ## Sol: quota preflight package ready for target CI — 2026-11-06
 
 Fresh CI-sequence generation passed actual SDK quota, scheduler wrapper, owner,

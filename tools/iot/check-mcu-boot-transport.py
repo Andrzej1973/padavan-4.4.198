@@ -14,7 +14,7 @@ fixture=r'''
 #include "mcu-sender-owner.h"
 #include "mcu-boot-ticket.h"
 #include "mcu-boot-result.h"
-typedef int INT32;typedef unsigned long ULONG;
+typedef int INT32;typedef unsigned long ULONG;typedef void VOID;
 #define NDIS_STATUS_SUCCESS 0
 #define NDIS_STATUS_FAILURE 1
 #define HIF_MT 1
@@ -34,6 +34,7 @@ typedef struct adapter {
  struct wr_iot_mcu_sender_owner wr_iot_mcu_sender_owner;
  struct wr_iot_mcu_boot_ticket wr_iot_boot_ticket;
  unsigned wr_iot_boot_active,wr_iot_boot_failed,wr_iot_boot_frozen;
+ unsigned wr_iot_control_users,wr_iot_control_poisoned;
  struct {int (*pci_kick_out_cmd_msg)(struct adapter *,struct cmd_msg *);} chipOps;
 } RTMP_ADAPTER;
 int fake_wait(void);
@@ -170,6 +171,27 @@ if 'wr_iot_mcu_boot_freeze(' in (a.candidate/'include/wr-iot-mcu-boot-transport.
  init(&ad);assert(!wr_iot_mcu_boot_reserve(&ad,11,&t));ad.wr_iot_mcu_sender_owner.inflight=1;
  assert(wr_iot_mcu_boot_freeze(&ad)==1&&!ad.wr_iot_boot_frozen);
  puts("PASS actual boot construction fence: old private builder drain, late constructor rejection, timeout retention, retry after drain and epoch drift; waits injected");
+'''+fixture[pos:]
+control=a.candidate/'include/wr-iot-mcu-control-admission.inc'
+if control.exists():
+ pos=fixture.index('static RTMP_ADAPTER *wait_ad;')
+ fixture=fixture[:pos]+control.read_text()+'\n'+fixture[pos:]
+ pos=fixture.index(' puts("PASS actual boot reserve/allocator/sender:')
+ fixture=fixture[:pos]+r'''
+ init(&ad);ad.wr_iot_transition.busy=0;
+ assert(wr_iot_control_enter(&ad)&&wr_iot_control_enter(&ad));
+ ad.wr_iot_transition.busy=WR_RADIO_START;
+ assert(!wr_iot_control_enter(&ad));
+ assert(wr_iot_mcu_boot_reserve(&ad,11,&t)==1&&!ad.wr_iot_boot_active);
+ wr_iot_control_leave(&ad);assert(ad.wr_iot_control_users==1);
+ assert(wr_iot_mcu_boot_reserve(&ad,11,&t)==1);
+ wr_iot_control_leave(&ad);assert(!wr_iot_mcu_boot_reserve(&ad,11,&t));
+ ad.wr_iot_transition.busy=0;assert(!wr_iot_control_enter(&ad));
+ init(&ad);wr_iot_control_leave(&ad);assert(ad.wr_iot_control_poisoned);
+ assert(wr_iot_mcu_boot_reserve(&ad,11,&t)==1);
+ init(&ad);ad.wr_iot_transition.busy=0;ad.wr_iot_control_users=~0u;
+ assert(!wr_iot_control_enter(&ad)&&ad.wr_iot_control_poisoned);
+ puts("PASS control admission: producer-first drain, bootstrap-first refusal, nested actors, late release, underflow/overflow retention; locks injected");
 '''+fixture[pos:]
 with tempfile.TemporaryDirectory(prefix='wr-mcu-boot-transport-') as td:
  c=Path(td)/'check.c';c.write_text(fixture)
