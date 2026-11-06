@@ -1,3 +1,19 @@
+## Sol: post-firmware init failure policy host-verified
+
+Isolated NICInitializeAdapter captures bootstrap ticket and refuses continuation
+on DMA-idle/ASIC failure, attempts owned abort and never implicitly reloads
+bootstrap firmware. Ordinary bounded retry preserved, but failed NICLoadFirmware
+now propagates failure. Fresh ASan/UBSan fixture native/feature guards plus
+MCUSysInit and command-envelope checks pass; full inventory and preserved outer
+init refusal verified. Target/runtime pending. Caller error cleanup remains
+unfinished: unknown DMA stop must retain resources, not use generic err8 as proof.
+Evidence WR1200JS-POST-FW-INIT-HOST.md. Scratch auto-removed (~14MB candidate).
+Optional772/run42155570351 SUCCESS for b01f9cb6. Independent source13474454121
+and probe13475373323 audit checked all3 module sizes/hash/ELF and feature report
+links. Compact WR1200JS-RUN-42155570351.json; no downloaded binaries retained.
+Next required work stays owner-scoped configuration admission, connected normal
+promotion/error cleanup and repeat lifecycle, then target/image/device gates.
+
 ## Sol: isolated MCUSysInit scheduler routing host-checked
 
 MCUSysInit now captures bootstrap ticket before NICLoadFirmware and invokes
