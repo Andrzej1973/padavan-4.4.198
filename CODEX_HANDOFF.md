@@ -1,3 +1,19 @@
+## Sol: isolated MCUSysInit scheduler routing host-checked
+
+MCUSysInit now captures bootstrap ticket before NICLoadFirmware and invokes
+checked scheduler_run on that route; loader/scheduler failure returns failure
+and attempts historical abort with captured ticket. Ordinary HIF_MT now checks
+SDK TRUE instead of ignoring FALSE. Outer bootstrap-init refusal remains.
+Fresh generated routing fixture passes ASan/UBSan native/MT-USB/MT7603-PCI with
+suboperations injected; full inventory and preserved outer gate checked.
+Recipe stages layer/test; target/runtime pending. Evidence MCU-SYS-SCHEDULER-HOST.
+No all-producer, connected full initialization or normal promotion claim.
+Scratch automatically removed (~14MB candidate); unfinished inputs preserved.
+Standard774 for b8984338 succeeded; duplicate check found no equivalent optional,
+then dispatched exact b8984338 optional run42158450710 from b253931c.
+Next connect required configuration and normal sender/data promotion only after
+producer and lifecycle proof; repeated init/close must not reset uncertainty.
+
 ## Sol: firmware receipt / frozen scheduler handover host-verified
 
 New isolated Method1 completion receipt follows successful checked FW_START
