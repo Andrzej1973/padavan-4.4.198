@@ -93,7 +93,7 @@ if (a.candidate/'include/mcu-boot-result.h').exists():
  prefix='#include "mcu-boot-result.h"\n'+prefix
 if (a.candidate/'include/mcu-config-result.h').exists():
  prefix='#include "mcu-config-result.h"\n#define CMD_SET 1\n#define CMD_QUERY 0\n'+prefix
- prefix=prefix.replace('int wr_iot_response_done;', 'int wr_iot_response_done,set_query,wr_iot_config_rf_query;unsigned wr_iot_config_rf_stream,wr_iot_config_rf_address,wr_iot_config_rf_value;')
+ prefix=prefix.replace('int wr_iot_response_done;', 'int wr_iot_response_done,set_query,wr_iot_config_mac_query;unsigned wr_iot_config_mac_address,wr_iot_config_mac_value;int wr_iot_config_rf_query;unsigned wr_iot_config_rf_stream,wr_iot_config_rf_address,wr_iot_config_rf_value;')
  pos=tail.index(' puts("PASS extracted checked ACK branch:')
  tail=tail[:pos]+r'''
  base.ext_cmd_type=0x0e;base.set_query=CMD_SET;
@@ -122,5 +122,21 @@ if (a.candidate/'include/wr-iot-mcu-config-rf-read.inc').exists():
  msg=base;dispatch(&msg,&ev,&altered);assert(msg.ack_done==1&&msg.wr_iot_firmware_result==(bad_byte?1:0));
  }
  puts("PASS extracted RF read branch: every stream/address/value byte mismatch refuses");
+'''+tail[pos:]
+if (a.candidate/'include/wr-iot-mcu-config-mac-read.inc').exists():
+ pos=tail.index(' puts("PASS extracted checked ACK branch:')
+ tail=tail[:pos]+r'''
+ base.cmd_type=0xed;base.ext_cmd_type=0x0e;base.set_query=CMD_QUERY;base.wr_iot_config_rf_query=0;base.wr_iot_config_mac_query=1;
+ base.wr_iot_config_mac_address=2;base.wr_iot_config_mac_value=0x89abcdefU;
+ ev.fw_rxd_0.field.length=sizeof(ev)+32;ev.fw_rxd_1.field.eid=0xed;ev.fw_rxd_2.field.ext_eid=0x0e;
+ ev.fw_rxd_1.field.seq_num=7;pkt.size=sizeof(ev)+32;memset(pkt.bytes,0,sizeof(pkt.bytes));
+ pkt.bytes[sizeof(ev)+24]=2;pkt.bytes[sizeof(ev)+28]=0xef;
+ pkt.bytes[sizeof(ev)+29]=0xcd;pkt.bytes[sizeof(ev)+30]=0xab;pkt.bytes[sizeof(ev)+31]=0x89;
+ for(unsigned bad_byte=0;bad_byte<13;bad_byte++){
+ altered=pkt;if(bad_byte)altered.bytes[sizeof(ev)+19+bad_byte]^=1;
+ msg=base;dispatch(&msg,&ev,&altered);assert(msg.ack_done==1&&msg.wr_iot_firmware_result==(bad_byte?1:0));
+ }
+ msg=base;msg.set_query=CMD_SET;dispatch(&msg,&ev,&pkt);assert(msg.ack_done==1&&msg.wr_iot_firmware_result==1);
+ puts("PASS extracted MAC read branch: every type/address/value byte mismatch refuses");
 '''+tail[pos:]
 a.output.write_text(prefix + branch + tail, encoding='utf-8')

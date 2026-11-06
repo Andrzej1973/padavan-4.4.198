@@ -33,7 +33,7 @@ typedef uint32_t UINT32;typedef unsigned char UCHAR;typedef int BOOLEAN;
 #define OS_TEST_BIT(bit,p) ((void)(bit),*(p)&1)
 #define le2cpu32(value) (value)
 #define NdisMoveMemory memcpy
-struct cmd_msg {unsigned seq,wr_iot_checked,wr_iot_response_done,need_wait,cmd_type,ext_cmd_type,set_query,wr_iot_config_rf_query,wr_iot_config_rf_stream,wr_iot_config_rf_address,wr_iot_config_rf_value;int wr_iot_firmware_result,ack_done;};
+struct cmd_msg {unsigned seq,wr_iot_checked,wr_iot_response_done,need_wait,cmd_type,ext_cmd_type,set_query,wr_iot_config_mac_query,wr_iot_config_mac_address,wr_iot_config_mac_value,wr_iot_config_rf_query,wr_iot_config_rf_stream,wr_iot_config_rf_address,wr_iot_config_rf_value;int wr_iot_firmware_result,ack_done;};
 struct queue {struct cmd_msg *msg;};
 struct MCU_CTRL {unsigned flags;int ackq_lock;struct queue ackq;};
 typedef struct {struct MCU_CTRL MCUCtrl;} RTMP_ADAPTER;
@@ -115,6 +115,26 @@ if (a.candidate/'include/wr-iot-mcu-config-rf-read.inc').exists():
  assert(wr_iot_mcu_checked_rx_packet(&ad,packet,sizeof(ev)+12)&&msg.ack_done==1);
  }
  puts("PASS actual checked RF read RX: exact stream/address/full value, all12 mismatches and duplicate completion; SDK event layout, no generic callback");
+'''+fixture[pos:]
+if (a.candidate/'include/wr-iot-mcu-config-mac-read.inc').exists():
+ pos=fixture.index(' puts("PASS actual allocation-free checked RX:')
+ fixture=fixture[:pos]+r'''
+ ad.MCUCtrl.flags=1;
+ for(unsigned bad=0;bad<14;bad++){
+ struct cmd_msg msg={.seq=7,.wr_iot_checked=1,.need_wait=1,.cmd_type=0xed,.ext_cmd_type=0x0e,.set_query=CMD_QUERY,
+ .wr_iot_config_mac_query=1,.wr_iot_config_mac_address=2,.wr_iot_config_mac_value=0x89abcdefU,.wr_iot_firmware_result=1};
+ memset(&ev,0,sizeof(ev));memset(packet,0,sizeof(packet));ev.fw_rxd_0.field.length=sizeof(ev)+32;
+ ev.fw_rxd_1.field.seq_num=7;ev.fw_rxd_1.field.eid=0xed;ev.fw_rxd_2.field.ext_eid=0x0e;
+ memcpy(packet,&ev,sizeof(ev));packet[sizeof(ev)+24]=2;
+ packet[sizeof(ev)+28]=0xef;packet[sizeof(ev)+29]=0xcd;packet[sizeof(ev)+30]=0xab;packet[sizeof(ev)+31]=0x89;
+ if(bad&&bad<13)packet[sizeof(ev)+19+bad]^=1;
+ if(bad==13)msg.set_query=CMD_SET;
+ ad.MCUCtrl.ackq.msg=&msg;
+ assert(wr_iot_mcu_checked_rx_packet(&ad,packet,sizeof(ev)+32));
+ assert(msg.ack_done==1&&msg.wr_iot_firmware_result==(bad?1:0));
+ assert(wr_iot_mcu_checked_rx_packet(&ad,packet,sizeof(ev)+32)&&msg.ack_done==1);
+ }
+ puts("PASS actual MAC read RX: every type/address/value byte, wrong direction and duplicate completion");
 '''+fixture[pos:]
 with tempfile.TemporaryDirectory(prefix='wr-mcu-rx-direct-') as td:
  c=Path(td)/'check.c';c.write_text(fixture)

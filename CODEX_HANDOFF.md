@@ -1,3 +1,28 @@
+## Sol: checked MAC readback and proof retirement connected
+
+Isolated MAC single-read now snapshots exact owned pending write/generation and
+uses reviewed EXT_CID/0x0e QUERY protocol, prefix20 plus12-byte MAC record.
+Actual SDK CmdMultiPleMacRegAccessRead routes bootstrap Num==1 only; ordinary
+path retained. Sender validates request bytes/full ticket and retires only the
+matching MAC record after checked reply, TX-done drain and late peer/context.
+Output remains unchanged on failure. Both RX paths exclude MAC-query-tagged
+messages from SET/write-result decoding: new wrong-direction fixture exposed
+and fixed that ambiguity before publication.
+ASan/UBSan checks pass actual builder/initializer/core admission/owner/transport,
+MAC type/address/value byte mutations in direct and locked RX, stale generation,
+peer loss, timeout, duplicate query, next generation, invalid Num/null input and
+RF proof preservation. Checked-ID exhaustion/stale-ACK controls and boot-result
+regression pass. Full manifest hashes verified; outer init refusal unchanged.
+CI stages new layer. Evidence WR1200JS-CHECKED-MAC-READ-HOST.md. Target/image and
+runtime unverified. Temporary ~14MB candidates auto-removed; retained generation
+input remains needed. No other task files removed.
+Observed CI: 796/run42237240023 exact618c4093 SUCCESS, ABI42237240025 SUCCESS;
+794/run42235334299 exacta9f429ea SUCCESS; 797/run42238552867 exact341726ae
+IN_PROGRESS, ABI42238552751 SUCCESS. Optional followup for new successful
+standard revisions remains to queue after exact-source duplicate checks.
+Next: remaining configuration observations/protocols, checked-ID budget/epoch,
+owner init/error/abandon binding, normal data promotion and repeat lifecycle.
+
 ## Sol: MAC intent/parser staged using reviewed multi-read protocol
 
 Found SDK CmdMultiPleMacRegAccessRead with known extended0x0e response and
