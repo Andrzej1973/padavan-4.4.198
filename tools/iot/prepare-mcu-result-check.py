@@ -91,4 +91,22 @@ int main(void){
 '''
 if (a.candidate/'include/mcu-boot-result.h').exists():
  prefix='#include "mcu-boot-result.h"\n'+prefix
+if (a.candidate/'include/mcu-config-result.h').exists():
+ prefix='#include "mcu-config-result.h"\n#define CMD_SET 1\n'+prefix
+ prefix=prefix.replace('int wr_iot_response_done;', 'int wr_iot_response_done,set_query;')
+ tail=tail.replace('base={1,1,1,EXT_CID,5,0,7,0}', 'base={1,1,1,EXT_CID,5,0,7,0,0}')
+ pos=tail.index(' puts("PASS extracted checked ACK branch:')
+ tail=tail[:pos]+r'''
+ base.ext_cmd_type=0x0e;base.set_query=CMD_SET;
+ ev.fw_rxd_0.field.length=sizeof(ev)+32;ev.fw_rxd_2.field.ext_eid=0x0e;
+ pkt.size=sizeof(ev)+32;memset(pkt.bytes,0,sizeof(pkt.bytes));generic_calls=0;
+ msg=base;dispatch(&msg,&ev,&pkt);assert(!msg.wr_iot_firmware_result&&msg.ack_done==1&&!generic_calls);
+ for(unsigned byte=20;byte<24;byte++){
+  altered=pkt;altered.bytes[sizeof(ev)+byte]=1;msg=base;
+  dispatch(&msg,&ev,&altered);assert(msg.wr_iot_firmware_result==1&&msg.ack_done==1&&!generic_calls);
+ }
+ msg=base;msg.set_query=0;dispatch(&msg,&ev,&pkt);assert(msg.wr_iot_firmware_result==1&&msg.ack_done==1);
+ msg=base;msg.seq++;dispatch(&msg,&ev,&pkt);assert(msg.wr_iot_firmware_result==1&&!msg.ack_done);
+ puts("PASS checked MAC-write result: payload failure propagates, read query refused and sequence gate retained; no generic callback");
+'''+tail[pos:]
 a.output.write_text(prefix + branch + tail, encoding='utf-8')

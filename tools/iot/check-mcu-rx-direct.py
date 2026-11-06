@@ -27,11 +27,12 @@ typedef uint32_t UINT32;typedef unsigned char UCHAR;typedef int BOOLEAN;
 #define EXT_CMD_RADIO_ON_OFF_CTRL 5
 #define EXT_EVENT 0xed
 #define EXT_EVENT_CMD_RESULT 0
+#define CMD_SET 1
 #define MCU_INIT 0
 #define OS_TEST_BIT(bit,p) ((void)(bit),*(p)&1)
 #define le2cpu32(value) (value)
 #define NdisMoveMemory memcpy
-struct cmd_msg {unsigned seq,wr_iot_checked,wr_iot_response_done,need_wait,cmd_type,ext_cmd_type;int wr_iot_firmware_result,ack_done;};
+struct cmd_msg {unsigned seq,wr_iot_checked,wr_iot_response_done,need_wait,cmd_type,ext_cmd_type,set_query;int wr_iot_firmware_result,ack_done;};
 struct queue {struct cmd_msg *msg;};
 struct MCU_CTRL {unsigned flags;int ackq_lock;struct queue ackq;};
 typedef struct {struct MCU_CTRL MCUCtrl;} RTMP_ADAPTER;
@@ -74,6 +75,27 @@ int main(void){
 '''
 # No allocator/destructor declaration is present: compiling the actual helper
 # also rejects accidental construction or freeing in this bounded path.
+if (a.candidate/'include/mcu-config-result.h').exists():
+ fixture='#include "mcu-config-result.h"\n'+fixture
+ pos=fixture.index(' puts("PASS actual allocation-free checked RX:')
+ fixture=fixture[:pos]+r'''
+ ad.MCUCtrl.flags=1;
+ for(unsigned status=0;status<5;status++){
+ struct cmd_msg msg={.seq=7,.wr_iot_checked=1,.need_wait=1,.cmd_type=0xed,.ext_cmd_type=0x0e,.set_query=CMD_SET,.wr_iot_firmware_result=1};
+ memset(&ev,0,sizeof(ev));memset(packet,0,sizeof(packet));
+ ev.fw_rxd_0.field.length=sizeof(ev)+32;ev.fw_rxd_1.field.seq_num=7;
+ ev.fw_rxd_1.field.eid=0xed;ev.fw_rxd_2.field.ext_eid=0x0e;
+ memcpy(packet,&ev,sizeof(ev));if(status)packet[sizeof(ev)+19+status]=1;
+ ad.MCUCtrl.ackq.msg=&msg;
+ assert(wr_iot_mcu_checked_rx_packet(&ad,packet,sizeof(ev)+32));
+ assert(msg.ack_done==1&&msg.wr_iot_firmware_result==(status?1:0));
+ assert(wr_iot_mcu_checked_rx_packet(&ad,packet,sizeof(ev)+32)&&msg.ack_done==1);
+ msg.wr_iot_response_done=msg.ack_done=0;msg.set_query=0;
+ assert(wr_iot_mcu_checked_rx_packet(&ad,packet,sizeof(ev)+32));
+ assert(msg.ack_done==1&&msg.wr_iot_firmware_result==1);
+ }
+ puts("PASS actual direct MAC-write ACK: firmware status propagated, query refusal and duplicate completion gate; SDK event layout, no allocation/callback");
+'''+fixture[pos:]
 with tempfile.TemporaryDirectory(prefix='wr-mcu-rx-direct-') as td:
  c=Path(td)/'check.c';c.write_text(fixture)
  subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(a.candidate/'include'),'-I'+str(here),str(c),'-o',td+'/check'],check=True)

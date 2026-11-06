@@ -1,3 +1,23 @@
+## Sol: checked configuration write-result decoding host-verified
+
+New isolated decoder handles reviewed SDK MAC/RF multi-register write status
+(offset20 in32-byte payload) in both checked RX branches. Requires SET direction,
+exact command/event/envelope and zero LE status; leaves sequence and duplicate
+completion gates intact. Generated header/direct SDK RX/locked branch, boot,
+retirement and intentional reuse-gap controls pass ASan/UBSan. Layout/enum/
+builder anchors and full inventory pass. CI stages layer/tests; target pending.
+No config command admission, sender reopen, private factory or data promotion.
+15-slot checked budget remains a real integration requirement, not reset away.
+Evidence WR1200JS-CONFIG-RESULT-HOST.md. Scratch auto-removed (~14MB per candidate).
+Optional777(a932afd3) and779(b8984338) independently audited source and3 MIPS
+modules (bytes/SHA/ELF and baseline links); compact run JSONs retained, no binaries.
+Standards through782 all succeeded. After duplicate audit queued exact-source
+optional: 4c8fc8d -> 42225912180; 1c93b54e -> 42225917854;
+b253931c -> 42225923861; 50b2cbd6 -> 42225929495; e42ce377 -> 42225936298;
+4f6011a6 -> 42225940525. Dispatch revision: 4f6011a6.
+Next owner-scoped command factory/send, no-response semantics and bounded ACK
+policy, then complete configuration/normal promotion/error and repeat lifecycle.
+
 ## Sol: task-pinned config owner staged and host-verified
 
 New isolated begin/finish config owner requires current firmware/scheduler
