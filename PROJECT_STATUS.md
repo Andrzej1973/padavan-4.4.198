@@ -1,3 +1,30 @@
+## Sol: optional771 independently audited; EFUSE/ATE source paths traced
+
+Run42155212995 SUCCESS for exact d9058aa9, dispatched from b01f9cb6.
+verification-source13473944419 confirms requested/verified source. Independently
+checked probe13474479029 baseline/WSC/reload bytes, SHA256 and ELF32 LE MIPS;
+record WR1200JS-RUN-42155212995.json. No ZIP/modules retained. This covers
+scheduler staging, not newer control admission. ABI for4c8fc8d succeeded;
+standards773/774/775 active/pending on last check. EFUSE/ATE/reset source matrix
+recorded; generic RX fallback is already blocked by boot_active in assembled
+candidate, so no duplicate fence added. WSC/alias fixture and audits ready as
+one verification package. Before binding: effective-config/all-producer proof,
+denied startup command policy, firmware receipt and connected normal promotion.
+
+## Sol: WSC GPIO source closure and numeric remap alias checked — 2026-11-06
+
+WSC button poll reaches GPIOGetValue through MlmePeriodicExec, so the identified
+path is covered by its control reference. Fresh generated wrapper plus actual
+WSC GPIO macro passes ASan/UBSan for both pins, with zero denied reads; fixture
+added to peer82 recipe. No target/runtime proof. Found numeric0x2504 alias in
+MtTriggerMCUINT; only identified call is commented. Auditor now derives address
+from header and records symbol/numeric references:115 in12 C files. Alias and
+manifest-drift checks pass. Evidence WR1200JS-WSC-GPIO-REMAP-AUDIT.md.
+Synchronous EEPROM/NIC/MAC init follows MCUSysInit in main open, but alternate
+EFUSE hook/ATE/reset paths still need review before scheduler binding. Local
+source/test/evidence changes await the next coherent package; no push yet.
+Fresh scratch trees (~14MB each) auto-removed; unfinished prior inputs retained.
+
 ## Sol: PCI command dispatch admission locally verified — 2026-11-06
 
 New command-admission generator references each dequeued command before body

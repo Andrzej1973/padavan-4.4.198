@@ -1,5 +1,6 @@
 {
-  "scope": "Textual C source references, including inactive guards/comments; aliases and numeric register accesses require separate audit",
+  "scope": "Textual C references by symbol or derived numeric address, including inactive guards/comments; other expressions and aliases require separate audit",
+  "remap_address": "0x2504",
   "hardware_serialization_proven": false,
   "runtime_verified": false,
   "candidate_inventory_sha256": "a3218d05f9a861758ef84e9fe9418a3f16748c2dfd59498f2345bbc68231c20a",
@@ -241,6 +242,24 @@
         {
           "line": 68,
           "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RestoreValue);"
+        }
+      ]
+    },
+    {
+      "path": "common/mt_ps.c",
+      "sha256": "890b6e9c3cb152a716ede44de280f871f2e6d6781f8b86a26d102c87b4323ed5",
+      "references": [
+        {
+          "line": 153,
+          "text": "RTMP_IO_READ32(pAd, 0x2504, &restore_remap_addr);"
+        },
+        {
+          "line": 154,
+          "text": "RTMP_IO_WRITE32(pAd, 0x2504, 0x81000000);"
+        },
+        {
+          "line": 158,
+          "text": "RTMP_IO_WRITE32(pAd, 0x2504, restore_remap_addr);"
         }
       ]
     },

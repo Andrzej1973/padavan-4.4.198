@@ -288,7 +288,8 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
     mcu-boot-irq-unmask mcu-boot-irq-unmask-owner mcu-boot-hardware \
     mcu-boot-rom-observe mcu-boot-retired-boundary mcu-boot-thaw \
     mcu-boot-loader-abort mcu-boot-scheduler mcu-boot-scheduler-owner mcu-boot-sdk-quota \
-    fw-method1 mcu-rx-bounds mcu-control-wrappers mcu-command-admission; do
+    fw-method1 mcu-rx-bounds mcu-control-wrappers mcu-command-admission \
+    mcu-wsc-gpio-path; do
     python3 "tools/iot/check-$fixture.py" "$merged"
   done
   for fixture in allocator release lifetime destructors; do
