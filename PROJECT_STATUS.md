@@ -15716,3 +15716,18 @@ to outer init, open the bootstrap gate, change settings or establish image or
 runtime acceptance.  Temporary candidate scratch was automatically removed;
 owner `docs/reference/` remains untouched.
 
+## Sol: config owner bound to outer-init abandon path, admission still closed
+
+New `mcu-config-init-owner` binds owner begin after successful `MCUSysInit()`
+and snapshots the boot ticket. Every later `rt28xx_init` failure reaches the
+matching abandon finish before `MCUSysExit()`. A success finish is attempted at
+the normal tail, then deliberately routes to cleanup: normal command/data
+admission remains closed. Fresh full isolated candidate generation through
+timing and this layer passed the owner ASan/UBSan fixture and the new ordering
+check. Evidence: `WR1200JS-CONFIG-OUTER-INIT-HOST.md`.
+
+This is source/host lifecycle binding only. It does not resolve no-response
+timing intents, remove the pre-RxTx refusal, prove target/image/runtime
+behavior, or change router settings. Temporary scratch was automatically
+removed; owner `docs/reference/` remains untouched.
+

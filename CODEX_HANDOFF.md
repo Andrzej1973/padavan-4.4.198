@@ -15099,3 +15099,22 @@ the owner/error-abandon lifecycle into the actual outer init path while keeping
 the pre-RxTx gate closed.  No router, image or production claim; owner
 `docs/reference/` untouched.
 
+## Sol: outer init now owns config begin/abandon; success is intentionally not admission
+
+Added `mcu-config-init-owner` after timing in the peer82 CI generation chain.
+After successful `MCUSysInit`, it snapshots the boot ticket and begins the
+task-pinned configuration owner. Any later error funnels through `err6`, which
+abandon-finishes that owner before `MCUSysExit`; an earlier MCUSys failure never
+has an owner to release. The normal-tail success finish is attempted, but then
+intentionally enters `err8`, so no normal command/data admission or production
+open is implied. An active EDCA/slot intent therefore refuses success and
+follows the same retained-failure cleanup.
+
+Fresh isolated regeneration through all preceding layers, owner ASan/UBSan and
+the new ordering check passed. This is source/host evidence only; it does not
+prove the target compile, image, response/order of no-response firmware calls,
+or device runtime. Next work: derive a real execution proof or safe supported
+policy for timing intents, then establish an outer release condition before
+auto-channel Rx/Tx. Do not remove the final refusal meanwhile. Owner
+`docs/reference/` untouched.
+
