@@ -1,3 +1,17 @@
+## Sol: task-pinned config owner staged and host-verified
+
+New isolated begin/finish config owner requires current firmware/scheduler
+receipts and frozen/drained hardware context. Begin pins Linux current task;
+finish accepts only that task and historical ticket, drops reference outside
+locks, and records software completion/retained failure without thaw/admission.
+ASan/UBSan fixture passes foreign task/ticket, duplicates, missing/stale receipts,
+ledger/device/peer/hardware failure and task-reference balance. Full inventory
+passed. Explicit linux/sched.h added; target API/build proof pending. CI stages
+layer/test. Evidence WR1200JS-CONFIG-OWNER-HOST.md. Scratch auto-removed (~14MB).
+Not called from init yet. Next wire command factory/send with distinct ACK and
+no-response semantics, mandatory finish/abandon cleanup and adapter lifetime;
+keep outer init refusal until normal promotion and repeat-epoch policy proven.
+
 ## Sol: post-firmware init failure policy host-verified
 
 Isolated NICInitializeAdapter captures bootstrap ticket and refuses continuation
