@@ -1,3 +1,43 @@
+## Sol: scheduler staging package prepared for target verification
+
+Scheduler checker is now staged unbound by prepare-mcu-boot-scheduler.py after
+loader-bind; peer82 installs it and executes generated-source fixture. Native
+and CONFIG_FPGA_MODE ASan/UBSan plus SDK-result mutation, full manifest and
+duplicate install refusal passed. Quota helper/tests remain a separate source
+arithmetic prototype, not part of scheduler admission. No MCUSysInit call or
+normal-init gate removal. Outstanding: exclusive ticket/constructor lease,
+remap producer serialization, checked quota acquisition, failure cleanup and
+final firmware/data promotion. Publish only this coherent staging package;
+then standard/exact-SHA optional per existing queue rules.
+
+## Sol: RUN-readback fix target verified; scheduler remains local
+
+Optional run42104711304 completed success for exact5eba943c. Independently
+read source13451081287 and checked probe13451638534 module sizes/SHA256/ELF
+for baseline/WSC/reload. Evidence docs/evidence/WR1200JS-RUN-42104711304.md.
+This supersedes pending-CI notes below. No binary scratch retained.
+
+Scheduler draft/tests are untracked unfinished source. Current tests cover
+native/CONFIG_FPGA_MODE, remap restore attempt, PCI clock loss, owner loss,
+device flags and SDK-result mutation. No scheduler target proof or production
+integration. Next resolve exclusive startup/remap ownership and quota validation,
+then checked MCUSysInit and firmware receipt/promotion. Keep normal-init gate.
+
+## 2026-11-05 Sol: scheduler wrapper draft and pending CI
+
+Published HEAD5eba943c407530cd9edefadf761945ca039c8afb; ABI42102615864
+succeeded, standard767/run42102615915 is live in_progress. Queue exact-SHA
+optional iot/peer82 after standard succeeds; no duplicate dispatch yet.
+
+Local mcu-boot-scheduler.inc/check-mcu-boot-scheduler.py draft checks RUN
+before/after SDK, TRUE return, remap preservation, revision-specific final
+SCH mode and late bootstrap failure. ASan/UBSan tests pass with CONFIG_FPGA_MODE
+both off/on; invalid overridden mode refuses before MMIO. SDK/MMIO injected.
+Not installed or target compiled. Required next: exact locked ticket/lease,
+SDK quota/remap error handling, checked MCUSysInit binding and failure cleanup,
+then firmware receipt and normal sender/data/tasklet promotion. Active-bootstrap
+init refusal remains. Source audit details in METHOD1-THAW-CONTRACT evidence.
+
 ## 2026-11-05 Sol: invalid PCI RUN observation rejected locally
 
 Method1 loader-bind generator now rejects TOP_MISC2 all-ones PCI read before
