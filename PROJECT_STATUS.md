@@ -15790,3 +15790,15 @@ configuration. Preserve owner settings and fail-closed admission while resolving
 this protocol requirement. Runtime reachability for current owner settings is
 not claimed.
 
+# Early configuration admission refusal — 2026-11-06
+
+The isolated config-init generator now refuses all four outer-init full IRQ
+and RX/TX enable sites while config ownership is unfinished. Previously only
+the final successful return was refused, after scan-time enables were possible.
+The source checker rejects the prior generated tree; executing the actual
+generator transformation in memory verifies guards at two IRQ and two RX/TX
+sites. The selected err8 path follows AutoChBssTable/ChannelInfo initialization
+and reaches config abandon before MCU teardown. Complete regeneration, target
+compile and runtime remain pending. This interim refusal does not implement
+the required eventual scan/data promotion transition.
+

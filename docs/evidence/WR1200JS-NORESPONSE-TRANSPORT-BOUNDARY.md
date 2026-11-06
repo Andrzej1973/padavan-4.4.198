@@ -40,10 +40,19 @@ EDCA/slot journal or open normal startup merely because both packets occupied
 the same host control ring.
 
 `AsicGetWmmParam()` can read the WMM MMIO fields for EDCA, but that helper alone
-does not establish an ordering relation with the asynchronous firmware command
-and has no counterpart for the complete slot-time tuple.  It is useful only if
-a future change supplies and validates that missing command-specific ordering
-contract.
+does not establish an ordering relation with the asynchronous firmware command.
+The complete generated SDK also defines `TMAC_ICR` at `0x216a4` in
+`include/mac/mac_mt/wf_tmac.h`: EIFS bits 8:0, RIFS 14:10, SIFS 22:16,
+slot 30:24. `common/cmm_info.c` reads that register and decodes all four fields
+in microseconds. This corrects the earlier limited-overlay audit: a complete
+slot tuple read-back mapping does exist in the SDK.
+
+Upstream Linux `mt7603/mac.c`, `mt7603_mac_set_timing()`, writes the same
+register/fields, corroborating the mapping. Its EIFS value is 360, while this
+SDK's `dot11_base.h` uses 84; retain the requested SDK tuple rather than copying
+upstream defaults. A matching register sample remains an observation of state,
+not proof of command completion or of absence of a later pending writer. A
+future retirement implementation must establish that ordering separately.
 
 The independently refreshed `nilabsent/padavan-ng` `master` source at
 `c29b12da69b1593a6e8cf65cd43767fc99bb6386` (checked 2026-11-06) retains the

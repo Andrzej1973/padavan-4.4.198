@@ -15174,3 +15174,14 @@ the existing boot retirement boundary cannot reset IDs during active config.
 Next investigate firmware-specific sequence/ordering contracts without silently
 changing automatic channel settings or weakening stale-response protection.
 
+# Early RX/TX gate correction — 2026-11-06
+
+Pending target verification: `prepare-mcu-config-init-owner.py` guards every
+outer-init IRQ/RXTX enable while `wr_config_started` is true; source checker
+requires all four guards. Old candidate fails the updated checker as expected.
+Actual transformation verified in memory, full regenerated target not yet run.
+Existing retained temp candidate predates this change. err8 cleanup reaches
+config abandon at err6; normal scan/data release still requires implementation.
+Timing audit also corrected: full SDK has TMAC_ICR tuple read-back at 0x216a4;
+the remaining issue is execution ordering, not missing register definitions.
+

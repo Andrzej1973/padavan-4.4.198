@@ -73,6 +73,16 @@ one('err6:\n', '''err6:
 #endif
 ''')
 
+# The final return gate is too late for scan-time hardware admission.
+# Keep every outer-init enable site behind the same unfinished-owner refusal.
+for action in ('RTMP_IRQ_ENABLE(pAd);', 'RTMPEnableRxTx(pAd);'):
+    if action not in body:
+        p.error('Missing startup admission site: ' + action)
+    body = body.replace(action, guard + '''
+ if(wr_config_started)goto err8;
+#endif
+ ''' + action)
+
 (src / name).write_text(text[:start] + body + text[end:])
 digest = hashlib.sha256((src / name).read_bytes()).hexdigest()
 m['merged_driver_sha256'][name] = digest
@@ -82,6 +92,7 @@ m['mcu_config_init_owner'] = {
     'output_sha256': {name: digest},
     'outer_init_bound': True,
     'success_still_refused': True,
+    'early_irq_rx_tx_refused': True,
     'target_compiled': False,
     'runtime_verified': False,
 }
