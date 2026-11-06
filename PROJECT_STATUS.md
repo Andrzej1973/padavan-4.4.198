@@ -1,3 +1,22 @@
+## Sol: owned MAC/RF configuration builders connected locally
+
+New config transport routes actual synchronous multiple-register write builders
+through current-task/full-ticket allocator/send during bootstrap. Normal route
+preserved. Checked core accepts only tagged reviewed SET/RSP shape. One message
+at a time; ACK result then bounded TX-done/message drain and late context check.
+Timeout retains outstanding work and uncertainty. Owned allocation/refusal and
+transport errors cannot silently complete the phase. Constructors stay frozen.
+Actual SDK initializer/core condition/builders + owner/transport execute in host
+ASan/UBSan fixture; delayed drain/timeout, wrong task/ticket, flags/size and
+failure cases pass. Owner/parser/direct RX and inventory pass; prior fixtures
+passed before the new final test. Outer init gate remains. Evidence:
+docs/evidence/WR1200JS-CONFIG-TRANSPORT-HOST.md. Scratch auto-removed (~14MB each).
+CI stages layer/test; no target/runtime proof. Config owner still unbound to
+init; remaining commands/no-response handling, ACK budget/epoch, error/abandon
+cleanup, normal data promotion and repeated lifecycle remain unfinished.
+Last live CI: standard789 in_progress, ABI succeeded; optional783 in_progress,
+optional784..788 pending. No duplicate dispatch or device operation performed.
+
 ## Sol: checked configuration write-result decoding host-verified
 
 New isolated decoder handles reviewed SDK MAC/RF multi-register write status
