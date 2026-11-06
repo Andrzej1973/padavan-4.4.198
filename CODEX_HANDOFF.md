@@ -1,3 +1,24 @@
+## Sol: checked RF readback/proof retirement connected in isolated candidate
+
+CI followup: standard793/run42233304783 SUCCESS for exact98d82ba1. After
+checking optional titles for duplicates, queued exact98d82ba1 peer82 from the
+published a9f429ea dispatch revision: run42237118860.
+
+Bootstrap CmdRFRegAccessRead snapshots exact owned pending write/generation,
+uses checked query without async output pointer, and decodes exact RF tuple in
+both RX branches. Send validates request bytes and record, then on success
+requires TX-done/message drain, late peer/context and same record proof before
+retiring only that RF record and decrementing one unresolved effect. Caller
+output writes only after synchronous success. Normal SDK reader preserved.
+ASan/UBSan actual builder/owner/initializer/core gate/transport tests pass correct
+and mismatched response, generation/peer drift, timeout/output retention,
+duplicate query, next generation and MAC counter preservation. Actual direct RX
+and locked branch/stale ACK controls pass; full inventory checked. Scratch
+(~14MB candidate) auto-removed. Evidence WR1200JS-CHECKED-RF-READ-HOST.md.
+CI stages layer/fixtures; target/runtime pending. Outer init gate stays closed.
+Still required: MAC and other configuration proofs, checked-ID budget/epochs,
+owner init/error/abandon binding, data promotion and repeated lifecycle.
+
 ## Sol: RF request intent now recorded before TX; host checks pass
 
 New isolated RF pending layer stores full ticket, generation and exact desired

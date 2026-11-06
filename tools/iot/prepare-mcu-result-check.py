@@ -60,7 +60,7 @@ tail = r'''
  lock_held=0;
 }
 int main(void){
- struct message base={1,1,1,EXT_CID,5,0,7,0},msg;
+ struct message base={.wr_iot_checked=1,.wr_iot_firmware_result=1,.need_wait=1,.cmd_type=EXT_CID,.ext_cmd_type=5,.seq=7},msg;
  struct event ev={{ {sizeof(struct event)+8} },{{EXT_EVENT,7}},{{0}}},bad;
  struct packet pkt={{0},sizeof(struct event)+8},altered;
  unsigned int mode;
@@ -92,9 +92,8 @@ int main(void){
 if (a.candidate/'include/mcu-boot-result.h').exists():
  prefix='#include "mcu-boot-result.h"\n'+prefix
 if (a.candidate/'include/mcu-config-result.h').exists():
- prefix='#include "mcu-config-result.h"\n#define CMD_SET 1\n'+prefix
- prefix=prefix.replace('int wr_iot_response_done;', 'int wr_iot_response_done,set_query;')
- tail=tail.replace('base={1,1,1,EXT_CID,5,0,7,0}', 'base={1,1,1,EXT_CID,5,0,7,0,0}')
+ prefix='#include "mcu-config-result.h"\n#define CMD_SET 1\n#define CMD_QUERY 0\n'+prefix
+ prefix=prefix.replace('int wr_iot_response_done;', 'int wr_iot_response_done,set_query,wr_iot_config_rf_query;unsigned wr_iot_config_rf_stream,wr_iot_config_rf_address,wr_iot_config_rf_value;')
  pos=tail.index(' puts("PASS extracted checked ACK branch:')
  tail=tail[:pos]+r'''
  base.ext_cmd_type=0x0e;base.set_query=CMD_SET;
@@ -108,5 +107,20 @@ if (a.candidate/'include/mcu-config-result.h').exists():
  msg=base;msg.set_query=0;dispatch(&msg,&ev,&pkt);assert(msg.wr_iot_firmware_result==1&&msg.ack_done==1);
  msg=base;msg.seq++;dispatch(&msg,&ev,&pkt);assert(msg.wr_iot_firmware_result==1&&!msg.ack_done);
  puts("PASS checked MAC-write result: payload failure propagates, read query refused and sequence gate retained; no generic callback");
+'''+tail[pos:]
+if (a.candidate/'include/wr-iot-mcu-config-rf-read.inc').exists():
+ pos=tail.index(' puts("PASS extracted checked ACK branch:')
+ tail=tail[:pos]+r'''
+ base.cmd_type=0xed;base.ext_cmd_type=2;base.set_query=CMD_QUERY;base.wr_iot_config_rf_query=1;
+ base.wr_iot_config_rf_stream=1;base.wr_iot_config_rf_address=2;base.wr_iot_config_rf_value=0x89abcdefU;
+ ev.fw_rxd_0.field.length=sizeof(ev)+12;ev.fw_rxd_1.field.eid=0xed;ev.fw_rxd_2.field.ext_eid=2;
+ ev.fw_rxd_1.field.seq_num=7;pkt.size=sizeof(ev)+12;memset(pkt.bytes,0,sizeof(pkt.bytes));
+ pkt.bytes[sizeof(ev)]=1;pkt.bytes[sizeof(ev)+4]=2;pkt.bytes[sizeof(ev)+8]=0xef;
+ pkt.bytes[sizeof(ev)+9]=0xcd;pkt.bytes[sizeof(ev)+10]=0xab;pkt.bytes[sizeof(ev)+11]=0x89;
+ for(unsigned bad_byte=0;bad_byte<13;bad_byte++){
+ altered=pkt;if(bad_byte)altered.bytes[sizeof(ev)+bad_byte-1]^=1;
+ msg=base;dispatch(&msg,&ev,&altered);assert(msg.ack_done==1&&msg.wr_iot_firmware_result==(bad_byte?1:0));
+ }
+ puts("PASS extracted RF read branch: every stream/address/value byte mismatch refuses");
 '''+tail[pos:]
 a.output.write_text(prefix + branch + tail, encoding='utf-8')
