@@ -15744,3 +15744,16 @@ No source gate, image or router state changed. The next valid path remains a
 documented ordered execution receipt, or a supported policy that does not
 pretend transport completion is firmware ACK.
 
+## Sol: exact-source target IoT evidence for timing audit and startup-scope packages
+
+Optional814/run42276286492 SUCCESS has source artifact requested=verified
+`e799ea39`; its peer82 `mt76x3_ap.ko` target candidate compiled with Andes,
+MT MAC, PCI and LOAD_FW_ONE_TIME enabled. Optional816/run42277162677 SUCCESS
+independently has requested=verified `33e92aa563`; its matching peer82 module
+also target-compiled. Compact source/probe metadata and module hashes are
+retained in `WR1200JS-RUN-42276286492.json` and
+`WR1200JS-RUN-42277162677.json`; downloaded archives were read only in an
+automatic temporary directory and discarded. Both records explicitly mark
+production installation and runtime as false. They do not prove a no-response
+timing effect, checked-ID budget, final ROMFS or router behavior.
+

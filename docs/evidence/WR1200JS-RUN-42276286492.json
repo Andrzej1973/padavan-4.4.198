@@ -1,0 +1,26 @@
+{
+  "run": 42276286492,
+  "source": {
+    "dispatch_revision": "8dc70d36182951cc47db159bc258f44e8315ef71",
+    "requested_revision": "e799ea39c9149ea4023dc3fe48b680362233d7cb",
+    "verified_revision": "e799ea39c9149ea4023dc3fe48b680362233d7cb",
+    "runtime_verified": false
+  },
+  "source_artifact": 13532758961,
+  "probe_artifact": 13534351527,
+  "candidate": {
+    "variant": "peer82",
+    "module": "mt76x3_ap.ko",
+    "bytes": 5777324,
+    "sha256": "58ab4fd0c00de758d8692fa64f49d36232978d36a0b5eba0982e80cc2390360a",
+    "target_compiled": true,
+    "production_installed": false,
+    "runtime_verified": false,
+    "required_kbuild_macros": {
+      "CONFIG_ANDES_SUPPORT": true,
+      "MT_MAC": true,
+      "RTMP_PCI_SUPPORT": true,
+      "LOAD_FW_ONE_TIME": true
+    }
+  }
+}

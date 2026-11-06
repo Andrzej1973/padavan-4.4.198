@@ -15131,3 +15131,15 @@ do not treat DMA/TX completion as ACK.  Evidence:
 claim or mutation.  Continue only with a documented command-specific ordered
 receipt, or a safe policy that preserves this boundary.
 
+## Sol: optional target checks cover two exact later IoT packages
+
+Optional814 (`42276286492`) SUCCESS independently records requested and
+verified source `e799ea39`; optional816 (`42277162677`) does the same for
+`33e92aa`. Each compiled the peer82 `mt76x3_ap.ko` target candidate with
+actual Andes/MT MAC/PCI/LOAD_FW_ONE_TIME Kbuild macros. Compact artifact IDs,
+hashes and explicit non-production/non-runtime labels are retained in
+`docs/evidence/WR1200JS-RUN-42276286492.json` and
+`docs/evidence/WR1200JS-RUN-42277162677.json`. Archives/modules were not
+retained locally. This is target compilation only; retain the closed gate and
+do not infer timing execution, ID-budget, image, or device acceptance.
+
