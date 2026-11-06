@@ -15164,3 +15164,13 @@ steering/RSSI driver preparation. Final generated source retained at
 unfinished MCU audit; intermediate trees are disposable. Continue with the
 unresolved EDCA/slot execution proof and checked-ID budget. No device action.
 
+# Checked-ID budget audit — 2026-11-06
+
+The autochannel source branch requires 22 checked transactions for 11 channels
+(channel + TX-power each). Current 15-ID permanent retirement cannot cover it.
+Evidence: `docs/evidence/WR1200JS-CONFIG-ID-BUDGET.md`. No cookie exists in the
+declared common result payload. Full-byte sequence support remains unverified;
+the existing boot retirement boundary cannot reset IDs during active config.
+Next investigate firmware-specific sequence/ordering contracts without silently
+changing automatic channel settings or weakening stale-response protection.
+

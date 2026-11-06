@@ -15779,3 +15779,14 @@ and deferred-destructor timeout. Each failure prevents config-owner success;
 message/task accounting is checked. This is injected host evidence, not an
 actual firmware reply or runtime result. EDCA/slot proof remains unresolved.
 
+# Startup ID budget counterexample — 2026-11-06
+
+Source audit establishes an autochannel branch needing two checked MCU commands
+per channel: 22 for an 11-channel list, exceeding 15 one-use IDs. See
+`docs/evidence/WR1200JS-CONFIG-ID-BUDGET.md`. An 8-bit descriptor field is not
+proof of firmware support for IDs 16..255. The existing retired-ID reset needs
+ROM/controller-off/PSE-empty boot state and cannot be called during active
+configuration. Preserve owner settings and fail-closed admission while resolving
+this protocol requirement. Runtime reachability for current owner settings is
+not claimed.
+
