@@ -53,6 +53,23 @@ for(hw_fail=0;hw_fail<2;hw_fail++){
 puts("PASS scheduler claim/finish/run: freeze, duplicate, quarantine, wrong ticket, peer loss and hardware abort; context/locks/hardware injected");}
 '''
 with tempfile.TemporaryDirectory(prefix='wr-scheduler-owner-') as td:
+ if (a.candidate/'include/wr-iot-mcu-boot-firmware-receipt.inc').exists():
+  prefix=prefix.replace('struct wr_iot_mcu_boot_ticket ticket;',
+   'unsigned wr_iot_boot_fw_state;unsigned long wr_iot_boot_fw_radio_serial,wr_iot_boot_fw_radio_epoch;struct wr_iot_mcu_boot_ticket ticket;')
+  tail=tail.replace('a.MCUCtrl.Stage=3;',
+   'a.MCUCtrl.Stage=3;a.wr_iot_boot_frozen=1;a.wr_iot_boot_fw_state=2;a.wr_iot_boot_fw_radio_serial=2;a.wr_iot_boot_fw_radio_epoch=3;')
+  tail=tail.replace('!a.wr_iot_boot_scheduler_state&&!a.wr_iot_boot_frozen',
+   '!a.wr_iot_boot_scheduler_state&&a.wr_iot_boot_frozen')
+  tail=tail.replace('if(fault==1)a.wr_iot_sequence.quarantined=2;',
+   '''if(fault==1)a.wr_iot_sequence.quarantined=2;
+ if(!fault){
+ a.wr_iot_boot_fw_state=0;assert(wr_iot_mcu_boot_scheduler_claim(&a,&t)==1);a.wr_iot_boot_fw_state=2;
+ a.wr_iot_boot_fw_radio_epoch++;assert(wr_iot_mcu_boot_scheduler_claim(&a,&t)==1);a.wr_iot_boot_fw_radio_epoch--;
+ a.wr_iot_boot_fw_radio_serial++;assert(wr_iot_mcu_boot_scheduler_claim(&a,&t)==1);a.wr_iot_boot_fw_radio_serial--;
+ }''')
+  tail=tail.replace('if(fault==3)t.close_epoch++;',
+   'if(fault==3)t.close_epoch++;\n if(fault==4){a.wr_iot_boot_fw_state=0;assert(!wr_iot_mcu_boot_scheduler_owned(&a));}')
+  tail=tail.replace('scheduler_finish(&a,&t,fault!=4)', 'scheduler_finish(&a,&t,1)')
  tail=tail.replace('a.wr_iot_boot_active=1;',
   'a.wr_iot_boot_ctrl_state=a.wr_iot_boot_rx_state=a.wr_iot_boot_irq_state=a.wr_iot_boot_dma_state=a.wr_iot_boot_irq_unmask_state=2;a.wr_iot_boot_mcu_only=1;a.wr_iot_boot_active=1;')
  c=Path(td)/'test.c';c.write_text(prefix+(a.candidate/'include/wr-iot-mcu-boot-scheduler-owner.inc').read_text()+tail)

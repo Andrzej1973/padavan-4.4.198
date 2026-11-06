@@ -146,6 +146,28 @@ static int wr_iot_mcu_boot_loader_abort(RTMP_ADAPTER *ad,const struct wr_iot_mcu
  }
  fault=0;
 '''+tail[pos:]
+if 'wr_iot_mcu_boot_firmware_receipt(' in body:
+ prefix+=r'''
+static unsigned receipt_fail,receipt_calls,receipt_writes;
+static int wr_iot_mcu_boot_firmware_receipt(RTMP_ADAPTER *ad,const struct wr_iot_mcu_boot_ticket *t){
+ assert(ad&&t&&starts==1&&phase==4&&ad->MCUCtrl.Stage==FW_RUN_TIME);
+ receipt_calls++;receipt_writes=writes;return receipt_fail?9:0;
+}
+'''
+ pos=tail.index(' puts("PASS actual reload Method1:')
+ tail=tail[:pos]+r'''
+ for(warm=0;warm<2;warm++)for(receipt_fail=0;receipt_fail<2;receipt_fail++){
+  RTMP_ADAPTER ad={0};ad.wr_iot_boot_active=1;
+  ad.chipCap.fw_header_image=image;ad.chipCap.fw_len=sizeof(image);
+  fault=phase=addresses=scatters=starts=observed=abort_calls=receipt_calls=0;
+  assert(AndesMTLoadFwMethod1(&ad)==(receipt_fail?9:0));
+  assert(receipt_calls==1&&abort_calls==receipt_fail);
+  assert(ad.MCUCtrl.Stage==(receipt_fail?FW_NO_INIT:FW_RUN_TIME));
+  if(receipt_fail)assert((unsigned)writes==receipt_writes);
+ }
+ receipt_fail=0;
+ puts("PASS Method1 receipt binding: cold/warm FW_START plus RUN precede receipt; receipt failure aborts before generic SCH cleanup");
+'''+tail[pos:]
 with tempfile.TemporaryDirectory(prefix='wr-fw-method1-') as td:
  c=Path(td)/'check.c';c.write_text(prefix+body+tail)
  subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(a.candidate/'include'),str(c),'-o',td+'/check'],check=True)

@@ -1,3 +1,19 @@
+## Sol: firmware receipt / frozen scheduler handover host-verified
+
+New isolated Method1 completion receipt follows successful checked FW_START
+and valid RUN observation. It commits current radio serial/epoch under existing
+locks and freezes constructors; scheduler claim/owned/finish require that stamp
+and accept its freeze. Missing/stale receipt refuses. Receipt failure invokes
+loader-abort before generic SCH cleanup. No normal admission or MCUSysInit
+scheduler invocation; initial bootstrap success gate remains closed.
+Complete CI fixture sequence passed; after freeze handover tightening regenerated
+and reran receipt/owner/Method1 plus complete inventory PASS. Target/runtime
+pending. Evidence WR1200JS-FIRMWARE-RECEIPT-HOST.md. Scratch auto-removed.
+Standard773 for a932afd3 succeeded; after duplicate check queued exact-source
+optional run42158035612 (dispatch1c93b54e), while optional772 was active.
+Next finish effective producer proof and startup command policy, connect checked
+scheduler result to normal promotion, then target/image acceptance.
+
 ## Sol: optional771 independently audited; EFUSE/ATE source paths traced
 
 Run42155212995 SUCCESS for exact d9058aa9, dispatched from b01f9cb6.
