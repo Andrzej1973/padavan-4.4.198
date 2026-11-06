@@ -18,6 +18,13 @@ poisoned. The stage deliberately provides no clearing/readback API. Existing
 source-side WMM register reads lack an established ordering and execution
 receipt for this firmware command, so they are not used as a proof.
 
+Call-site audit found EDCA changes from WMM parameter updates and AP EDCA
+application, and slot-time changes after AP capability/ERP decisions. Those
+paths can also run while the AP is operational, so an initialization-only
+receipt or a host reset must not be reused for a later runtime command. The
+current bootstrap gate remains closed and therefore does not claim these live
+paths are admitted.
+
 GCC ASan/UBSan host checks passed actual SDK EDCA and slot-time builders,
 request byte layouts, full tickets, duplicate/timeout/transport retention,
 invalid count/AC/valid-bit/header, unresolved-counter overflow and owner finish

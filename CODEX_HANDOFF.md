@@ -15004,3 +15004,22 @@ Evidence WR1200JS-CONFIG-TIMING-HOST.md. Target/image/runtime pending, outer
 startup refusal retained. Next identify a safe execution proof or retain these
 effects through abort, then complete config-owner lifecycle/ID budget/data gate.
 
+## Sol: timing call-site audit and standard evidence
+
+Call-site audit confirms EDCA updates from AP WMM application and dynamic WMM
+changes, while slot-time follows AP capability/ERP updates; these can occur
+after AP startup. An init-only receipt therefore cannot clear a later live
+request. Standard803/run42249864756 and ABI42249864409 for exact60421c08
+SUCCESS; standard802/ABI for04bf80d and standard801/ABI for41f93359 also
+SUCCESS. Optional exact-source checks are queued separately after duplicate
+inspection. None proves later source, image, or runtime behavior.
+
+## Sol: optional queue receipt after exact standard success
+
+After duplicate inspection, dispatched peer82 candidate checks for exact
+41f93359 (run42260975845), exact04bf80d (run42260975890), and exact60421c0
+(run42260975871). They are distinct optional-lane runs; their dispatch head
+may advance, so acceptance must verify each verification-source/report against
+the requested SHA. The earlier optional800 exact618c4093 remained active at
+the last prior check. No optional success is claimed yet.
+
