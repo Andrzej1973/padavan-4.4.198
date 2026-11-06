@@ -18,4 +18,24 @@ static inline int wr_iot_config_multi_write_success(
   * Byte-wise comparison avoids alignment and host-endian assumptions. */
  return !(payload[20]|payload[21]|payload[22]|payload[23]);
 }
+static inline unsigned int wr_iot_config_le32(const unsigned char *p)
+{
+ return (unsigned int)p[0]|((unsigned int)p[1]<<8)|
+        ((unsigned int)p[2]<<16)|((unsigned int)p[3]<<24);
+}
+/* RF query echoes WiFiStream, Address and Data as three LE words. This
+ * decoder matches a previously recorded desired value; it clears no ledger. */
+static inline int wr_iot_config_rf_read_matches(
+ unsigned int command,unsigned int ext,int is_query,
+ unsigned int event,unsigned int event_ext,const unsigned char *payload,
+ unsigned int payload_bytes,unsigned int packet_bytes,unsigned int wire_bytes,
+ unsigned int header_bytes,unsigned int stream,unsigned int address,unsigned int value)
+{
+ if(command!=0xedU||ext!=2U||!is_query||event!=0xedU||event_ext!=2U||
+    !payload||payload_bytes!=12U||!header_bytes||header_bytes>~0U-12U||
+    packet_bytes!=header_bytes+12U||wire_bytes!=packet_bytes)return 0;
+ return wr_iot_config_le32(payload)==stream&&
+        wr_iot_config_le32(payload+4)==address&&
+        wr_iot_config_le32(payload+8)==value;
+}
 #endif

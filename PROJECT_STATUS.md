@@ -1,3 +1,40 @@
+## Sol: RF request intent now recorded before TX; host checks pass
+
+New isolated RF pending layer stores full ticket, generation and exact desired
+stream/address/value before hardware submission. Sender compares actual12-byte
+serialized payload to builder tags first. One unresolved RF write cannot be
+overwritten; timeout/late TX completion retain the record. Generation overflow
+poisons instead of wrapping. This is host provenance, not a wire nonce.
+Config finish rejects active/poisoned record even if aggregate count is zero.
+Pure record/parser and actual owner/initializer/core gate/RF builder/transport
+ASan/UBSan checks pass, including duplicate, timeout, payload mismatch and stale
+identity; complete inventory/closed outer gate verified. Owner fixture header
+include closure corrected and rerun. Scratch candidates (~14MB each) auto-removed.
+CI stages layer/test. Target/runtime pending. Combined with local RF parser
+preparation and compact independent optional783/784 evidence as one package.
+No RF query admitted or counter cleared. Next bind checked query to the exact
+record snapshot, safely retire only its proof, preserve MAC unresolved writes
+and checked-ID budget, then owner init/error/normal promotion and repeat cycle.
+Published base98d82ba1 remained unchanged; standard793 active and ABI succeeded
+on last poll. Owner docs/reference and unfinished older input preserved.
+
+## Sol: RF readback parser locally prepared; original write record still needed
+
+Added pure RF query decoder for reviewed12-byte stream/address/value response,
+matching full LE words and expected tuple with envelope/query/length gates.
+ASan/UBSan unaligned/status-byte mutation/length cases pass. Fresh generator
+RF enum anchors, prior transport fixture and complete inventory also pass.
+No RX/query admission or unconfirmed-counter clear added: bind originating
+write tuple/full ticket and query identity before resolving a pending write.
+MAC readback EID not inferred from command value. Local changes retained for
+next coherent journal/query integration batch; not pushed as a tiny parser fix.
+Evidence WR1200JS-RF-READBACK-PARSER-HOST.md. Scratch (~14MB) auto-removed.
+Independently audited optional783/run42225912180 exact4c8fc8d and optional784/
+run42225917854 exact1c93b54e: source artifacts and all3 baseline/WSC/reload module
+bytes/SHA256/ELF plus report links match. Compact run JSON records retained;
+no archives/modules saved. Latest published HEAD remains98d82ba1; standard793
+and ABI were active on last poll. No runtime or production readiness claimed.
+
 ## Sol: owned no-response writes staged; unresolved effects block finish
 
 CmdAccessRegWrite and CmdRFRegAccessWrite now use owned configuration transport

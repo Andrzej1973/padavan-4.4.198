@@ -14,7 +14,7 @@ if (m.get('production_installed') is not False or m.get('target_compiled') is no
  'mcu_boot_config_owner' not in m or 'mcu_config_result' in m or actual!=m['merged_driver_sha256']):
  p.error('Expected unchanged isolated config-owner candidate')
 enums=(src/'include/mcu/andes_mt.h').read_text()
-for name,value in [('EXT_CID','0xED'),('EXT_EVENT','0xED'),('EXT_CMD_MULTIPLE_REG_ACCESS','0x0E'),('EXT_EVENT_MULTI_CR_ACCESS','0x0E')]:
+for name,value in [('EXT_CID','0xED'),('EXT_EVENT','0xED'),('EXT_CMD_MULTIPLE_REG_ACCESS','0x0E'),('EXT_EVENT_MULTI_CR_ACCESS','0x0E'),('EXT_CMD_RF_REG_ACCESS','0x02'),('EXT_EVENT_RF_REG_ACCESS','0x2')]:
  if len(re.findall(r'\b'+name+r'\s*=\s*'+value+r'\b',enums,re.I))!=1:p.error('Changed configuration protocol: '+name)
 changes={}
 mt=(src/'mcu/andes_mt.c').read_text()

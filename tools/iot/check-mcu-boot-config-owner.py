@@ -13,6 +13,10 @@ prefix=prefix.replace('static unsigned held, pse_ok, peer_ok, drift_after_pse;',
 prefix=prefix.replace('typedef struct { unsigned flags; } MCU;', 'typedef struct { unsigned flags,Stage; } MCU;')
 prefix=prefix.replace('struct wr_iot_mcu_boot_ticket ticket;',
  'unsigned wr_iot_boot_config_state,wr_iot_boot_config_unconfirmed,wr_iot_boot_active,wr_iot_boot_failed,wr_iot_boot_scheduler_state,wr_iot_boot_fw_state,bPCIclkOff;unsigned long wr_iot_boot_fw_radio_serial,wr_iot_boot_fw_radio_epoch;struct task_struct *wr_iot_boot_config_task;struct wr_iot_mcu_boot_ticket ticket;')
+if (a.candidate/'include/mcu-config-rf-pending.h').exists():
+ prefix='#include "mcu-config-rf-pending.h"\n'+prefix
+ prefix=prefix.replace('struct wr_iot_mcu_boot_ticket ticket;',
+  'struct wr_iot_config_rf_pending wr_iot_config_rf_pending;struct wr_iot_mcu_boot_ticket ticket;')
 prefix+=r'''
 #define wr_iot_boot_ticket ticket
 #define FW_RUN_TIME 3
@@ -61,5 +65,5 @@ puts("PASS configuration owner: task pin/release, foreign task/ticket refusal, d
 '''
 with tempfile.TemporaryDirectory(prefix='wr-config-owner-') as td:
  c=Path(td)/'check.c';c.write_text(prefix+(a.candidate/'include/wr-iot-mcu-boot-config-owner.inc').read_text()+tail)
- subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-pie','-no-pie',str(c),'-o',td+'/check'],check=True)
+ subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(a.candidate/'include'),str(c),'-o',td+'/check'],check=True)
  subprocess.run([td+'/check'],check=True)

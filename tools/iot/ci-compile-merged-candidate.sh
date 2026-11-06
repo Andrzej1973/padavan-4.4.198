@@ -277,7 +277,7 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
     mcu-boot-scheduler-owner mcu-boot-scheduler-quota mcu-control-admission \
     mcu-command-admission mcu-boot-firmware-receipt mcu-sys-scheduler \
     mcu-post-fw-init mcu-boot-config-owner mcu-config-result mcu-config-transport \
-    mcu-config-noresponse; do
+    mcu-config-noresponse mcu-config-rf-pending; do
     python3 "tools/iot/prepare-$layer.py" "$merged" --install-isolated
   done
   for fixture in mcu-boot-transport mcu-boot-builders mcu-nettask-bootstrap \
@@ -293,7 +293,7 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
     fw-method1 mcu-rx-bounds mcu-control-wrappers mcu-command-admission \
     mcu-wsc-gpio-path mcu-boot-firmware-receipt mcu-sys-scheduler \
     mcu-post-fw-init mcu-boot-config-owner mcu-config-result mcu-rx-direct \
-    mcu-config-transport; do
+    mcu-config-transport mcu-config-rf-pending; do
     python3 "tools/iot/check-$fixture.py" "$merged"
   done
   for fixture in allocator release lifetime destructors; do

@@ -17,6 +17,11 @@ prefix=prefix.replace('struct wr_iot_mcu_boot_ticket ticket;',
  'unsigned wr_iot_boot_config_state,wr_iot_boot_config_unconfirmed,wr_iot_boot_active,wr_iot_boot_failed,wr_iot_boot_scheduler_state,wr_iot_boot_fw_state,bPCIclkOff;unsigned long wr_iot_boot_fw_radio_serial,wr_iot_boot_fw_radio_epoch;struct task_struct *wr_iot_boot_config_task;int wr_iot_mcu_sender_wait;struct {int (*pci_kick_out_cmd_msg)(void *,void *);} chipOps;struct wr_iot_mcu_boot_ticket ticket;')
 prefix=prefix.replace('*(f)=0;assert(held==1);held=2;', '*(f)=held;assert(held<=1);held=2;')
 prefix=prefix.replace('assert(held==2);held=1;', 'assert(held==2);held=*(f);')
+rf_pending=(a.candidate/'include/mcu-config-rf-pending.h').exists()
+if rf_pending:
+ prefix='#include "mcu-config-rf-pending.h"\n'+prefix
+ prefix=prefix.replace('struct wr_iot_mcu_boot_ticket ticket;',
+  'struct wr_iot_config_rf_pending wr_iot_config_rf_pending;struct wr_iot_mcu_boot_ticket ticket;')
 prefix+=r'''
 #include <stdlib.h>
 #include "mcu-config-result.h"
@@ -44,12 +49,14 @@ typedef unsigned UINT32;typedef int INT32;typedef unsigned short UINT16;typedef 
 struct task_struct {unsigned refs;};static struct task_struct owner,foreign,*current;
 static void get_task_struct(struct task_struct *t){assert(t&&!held);t->refs++;}
 static void put_task_struct(struct task_struct *t){assert(t&&!held&&t->refs);t->refs--;}
-struct cmd_msg {void *priv;unsigned wr_iot_config_owned,cmd_type,ext_cmd_type,set_query,need_wait,need_rsp,need_retransmit,rsp_payload_len,wr_iot_checked,used,pq_id,wr_iot_response_done,wr_iot_unsubmitted,wr_iot_firmware_result,timeout,retransmit_times,ack_done;char *rsp_payload;MSG_RSP_HANDLER rsp_handler;unsigned long wr_iot_config_peer_serial,wr_iot_config_radio_serial,wr_iot_config_radio_epoch,wr_iot_config_close_serial,wr_iot_config_close_epoch;unsigned char payload[64];};
+struct cmd_msg {void *priv,*net_pkt;unsigned wr_iot_config_rf_write,wr_iot_config_rf_stream,wr_iot_config_rf_address,wr_iot_config_rf_value;unsigned wr_iot_config_owned,cmd_type,ext_cmd_type,set_query,need_wait,need_rsp,need_retransmit,rsp_payload_len,wr_iot_checked,used,pq_id,wr_iot_response_done,wr_iot_unsubmitted,wr_iot_firmware_result,timeout,retransmit_times,ack_done;char *rsp_payload;MSG_RSP_HANDLER rsp_handler;unsigned long wr_iot_config_peer_serial,wr_iot_config_radio_serial,wr_iot_config_radio_epoch,wr_iot_config_close_serial,wr_iot_config_close_epoch;unsigned char payload[64];};
+#define GET_OS_PKT_LEN(p) (((struct cmd_msg *)(p))->used)
+#define GET_OS_PKT_DATAPTR(p) (((struct cmd_msg *)(p))->payload)
 static int checked_policy(RTMP_ADAPTER *,struct cmd_msg *);
 static unsigned alloc_fail,allocated,freed,sent,ordinary_alloc,ordinary_send,defer_free,wait_timeout;static int transport_result;static struct cmd_msg *pending;
 static int AndesMTPciKickOutCmdMsg(void *ad,void *msg){assert(ad&&msg);return 0;}
 static void wr_iot_mcu_message_drop(RTMP_ADAPTER *ad,unsigned slot,unsigned uncertain){assert(ad&&!held&&!slot&&!uncertain&&ad->wr_iot_mcu_sender_owner.messages);ad->wr_iot_mcu_sender_owner.messages--;}
-static struct cmd_msg *wr_iot_mcu_alloc_body(RTMP_ADAPTER *ad,unsigned length){assert(ad&&!held&&length<=MT_UPLOAD_FW_UNIT&&ad->wr_iot_mcu_sender_owner.messages==1);allocated++;if(alloc_fail)return NULL;struct cmd_msg *m=calloc(1,sizeof(*m));assert(m);m->priv=ad;return m;}
+static struct cmd_msg *wr_iot_mcu_alloc_body(RTMP_ADAPTER *ad,unsigned length){assert(ad&&!held&&length<=MT_UPLOAD_FW_UNIT&&ad->wr_iot_mcu_sender_owner.messages==1);allocated++;if(alloc_fail)return NULL;struct cmd_msg *m=calloc(1,sizeof(*m));assert(m);m->priv=ad;m->net_pkt=m;return m;}
 static void AndesForceFreeCmdMsg(struct cmd_msg *m){assert(m&&!held);wr_iot_mcu_message_drop(m->priv,0,0);freed++;free(m);}
 static int wr_iot_mcu_send_body(RTMP_ADAPTER *ad,struct cmd_msg *m){assert(ad&&!held&&ad->wr_iot_mcu_sender_owner.inflight==1&&ad->wr_iot_mcu_sender_owner.radio_active);if(m->need_wait)assert(m->wr_iot_checked&&!checked_policy(ad,m));else assert(!m->wr_iot_checked&&!m->need_rsp&&!m->rsp_payload_len);sent++;if(defer_free)pending=m;else AndesForceFreeCmdMsg(m);return transport_result;}
 static int fake_wait(void){assert(!held);if(pending&&!wait_timeout){AndesForceFreeCmdMsg(pending);pending=NULL;}return !wait_timeout;}
@@ -141,6 +148,41 @@ for(unsigned mode=0;mode<3;mode++){
  assert(wr_iot_mcu_boot_config_finish(&ad,&ad.ticket,1)==1&&!owner.refs);
 }
 puts("PASS no-response MAC/RF builders: TX-only result, immediate/delayed/timeout drain, unresolved effects block finish and counter overflow refuses before hardware");
+'''+tail[pos:]
+if rf_pending:
+ tail=tail.replace('assert(ad.wr_iot_boot_config_unconfirmed==2&&sent==2);',
+ '''assert(ad.wr_iot_boot_config_unconfirmed==2&&sent==2);
+ assert(wr_iot_config_rf_record_matches(&ad.wr_iot_config_rf_pending,1,1,2,3,4,5,1,2,3));
+ assert(CmdRFRegAccessWrite(&ad,1,4,5)==1&&sent==2&&ad.wr_iot_boot_config_unconfirmed==2);
+ assert(wr_iot_config_rf_record_matches(&ad.wr_iot_config_rf_pending,1,1,2,3,4,5,1,2,3));''')
+ pos=tail.index('puts("PASS owner/config transport')
+ tail=tail[:pos]+r'''
+{
+ RTMP_ADAPTER ad=valid();current=&owner;peer_ok=1;alloc_fail=0;defer_free=wait_timeout=1;transport_result=0;pending=NULL;sent=0;
+ assert(!wr_iot_mcu_boot_config_begin(&ad,&ad.ticket));assert(CmdRFRegAccessWrite(&ad,1,2,3)==1);
+ assert(pending&&ad.wr_iot_mcu_sender_owner.messages==1&&ad.wr_iot_boot_config_unconfirmed==1);
+ assert(wr_iot_config_rf_record_matches(&ad.wr_iot_config_rf_pending,1,1,2,3,4,5,1,2,3));
+ assert(wr_iot_mcu_boot_config_finish(&ad,&ad.ticket,1)==1&&!owner.refs);
+ AndesForceFreeCmdMsg(pending);pending=NULL;
+ assert(ad.wr_iot_config_rf_pending.active&&ad.wr_iot_boot_config_unconfirmed==1);
+}
+{
+ RTMP_ADAPTER ad=valid();current=&owner;peer_ok=1;alloc_fail=defer_free=wait_timeout=0;transport_result=0;sent=0;
+ assert(!wr_iot_mcu_boot_config_begin(&ad,&ad.ticket));struct cmd_msg *m=wr_iot_mcu_config_alloc(&ad,12);assert(m);
+ m->cmd_type=EXT_CID;m->ext_cmd_type=EXT_CMD_RF_REG_ACCESS;m->set_query=CMD_SET;
+ m->wr_iot_config_rf_write=1;m->wr_iot_config_rf_stream=1;m->wr_iot_config_rf_address=2;m->wr_iot_config_rf_value=3;
+ struct _CMD_RF_REG_ACCESS_T bad={1,2,4};AndesAppendCmdMsg(m,(char *)&bad,sizeof(bad));
+ assert(wr_iot_mcu_config_send(&ad,m)==1&&!sent&&!ad.wr_iot_config_rf_pending.active&&!ad.wr_iot_boot_config_unconfirmed);
+ assert(wr_iot_mcu_boot_config_finish(&ad,&ad.ticket,1)==1&&!owner.refs);
+}
+puts("PASS actual RF builder records exact serialized payload/full ticket before TX; duplicate write, timeout retention and mismatched metadata refuse");
+for(unsigned mode=0;mode<2;mode++){
+ RTMP_ADAPTER ad=valid();current=&owner;peer_ok=1;
+ assert(!wr_iot_mcu_boot_config_begin(&ad,&ad.ticket));
+ if(mode)ad.wr_iot_config_rf_pending.poisoned=1;else ad.wr_iot_config_rf_pending.active=1;
+ assert(!ad.wr_iot_boot_config_unconfirmed);
+ assert(wr_iot_mcu_boot_config_finish(&ad,&ad.ticket,1)==1&&!owner.refs&&ad.wr_iot_boot_failed);
+}
 '''+tail[pos:]
 with tempfile.TemporaryDirectory(prefix='wr-config-transport-') as td:
  c=Path(td)/'check.c';c.write_text(prefix+(a.candidate/'include/wr-iot-mcu-boot-config-owner.inc').read_text()+(a.candidate/'include/wr-iot-mcu-config-transport.inc').read_text()+'\n'.join(builders)+tail)
