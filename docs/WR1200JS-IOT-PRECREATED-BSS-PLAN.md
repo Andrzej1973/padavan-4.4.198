@@ -1,5 +1,21 @@
 # WR1200JS: IoT через заздалегідь створений MBSSID
 
+Beacon ACK audit: pinned CmdBcnUpdateSet (andes_mt.c:2191) initializes
+need_wait=false, need_retransmit=false, need_rsp=false; argument semantics
+confirmed in andes_core.c:67. This call does not request a response-bearing
+ACK. Its send result is not firmware completion and UpdateBeaconToMcu discards
+it, so it cannot prove beacon disable/drain. PCI HAL_KickOutMgmtTx resolves
+to RtmpPCIMgmtKickOut (rtmp_inf_pcirbs.h:53); DMA ownership remains relevant.
+Effective offload config and remaining transitive calls still need verification.
+
+PCI kickout audit: pinned cmm_data_pci.c:750 RtmpPCIMgmtKickOut maps the packet,
+writes descriptor, advances BcnRing.TxCpuIdx/hardware CIDX and returns0;
+that return is submission, not DMA completion. Existing isolated
+prepare-radio-queue-candidate.py already checks HAL kickout result before
+publishing write-to-DMA state and adds kickout admission. Reuse/review this
+candidate path rather than duplicating a pristine-only fix; completion/drain
+must still be observed before freeing beacon ownership.
+
 2026-11-07. Нова стратегія дозволена власником. Статус: source/host
 feasibility частково підтверджено; implementation/build/runtime НЕ завершені.
 ROM ACK protection та чинні admission gates не змінено.
@@ -316,6 +332,15 @@ not prove ACK-free toggle. Exact AP TU BCN_OFFLOAD_SUPPORT and selected beacon
 callbacks must be inspected before declaring that property. MT AsicSetMbssMode
 also checks MAC alignment for address-mode groups; board base MAC and derived
 Main/Guest/IoT addresses need collision/alignment validation on device.
+
+Selected MT_MAC PCI branch is cmm_mac_pci.c:2678 (not the later legacy
+same-name implementation): RT28xx_UpdateBeaconToAsic takes BcnRingLock and
+calls HAL_KickOutMgmtTx(Q_IDX_BCN), setting BCN_TX_WRITE_TO_DMA. This is a DMA
+beacon queue submission, not by itself a firmware ACK receipt. Separately,
+RT28xx_UpdateBeaconToMcu andes_mt.c:3969 calls CmdBcnUpdateSet:2191 under
+BCN_OFFLOAD_SUPPORT. OFF safety therefore requires DMA/queue observation even
+if the offload macro is absent; the legacy shared-memory branch is not proof
+for MT7603. HAL dispatch and selected offload config remain to be verified.
 
 Collector now includes exact ap_connect Kbuild preprocessing and reports
 BCN_OFFLOAD_SUPPORT. Optional output merged-beacon-config.json accompanies
