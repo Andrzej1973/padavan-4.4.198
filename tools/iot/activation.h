@@ -19,7 +19,8 @@ enum wr_iot_activation_operation {
  WR_IOT_POLICY,WR_IOT_RADIO_PREPARE,
  WR_IOT_DISABLE_SNAPSHOT,WR_IOT_DISABLE_APPLY,WR_IOT_DISABLE_OBSERVE,
  WR_IOT_DISABLE_COMMIT,WR_IOT_DISABLE_SERVICES,
- WR_IOT_MAIN_RADIO_READY
+ WR_IOT_MAIN_RADIO_READY,
+ WR_IOT_RESERVED_READY,WR_IOT_RESERVED_RESTORE,WR_IOT_RESERVED_DISABLE_APPLY
 };
 struct wr_iot_activation_backend {
  /* QUIESCE must establish driver/RF safety for subsequent teardown, not just
@@ -40,10 +41,16 @@ struct wr_iot_activation {
  const struct wr_iot_activation_backend *backend;
  void *context;
  int locked,snapshot,disabling;
+ int precreated; /* selected under service lock, immutable through recovery */
  unsigned int recovery_step;
  unsigned long long generation;
 };
 static inline int wr_iot_activation_call(struct wr_iot_activation *state,enum wr_iot_activation_operation op){
+ if(state->precreated){
+  if(op==WR_IOT_PROFILE||op==WR_IOT_RADIO_PREPARE)return 0;
+  if(op==WR_IOT_RESTORE)op=WR_IOT_RESERVED_RESTORE;
+  if(op==WR_IOT_DISABLE_APPLY)op=WR_IOT_RESERVED_DISABLE_APPLY;
+ }
  return state->backend->perform(state->context,op)==1;
 }
 static inline void wr_iot_activation_release(struct wr_iot_activation *state){
@@ -66,6 +73,7 @@ static inline int wr_iot_activation_recover(struct wr_iot_activation *state){
  unsigned int i,count;
  if(!state||state->state!=WR_IOT_RECOVERY||!state->locked||!state->snapshot)return 0;
  if(state->disabling!=0&&state->disabling!=1)return 0;
+ if(state->precreated!=0&&state->precreated!=1)return 0;
  operations=state->disabling?disable:rollback;
  count=state->disabling?sizeof(disable)/sizeof(disable[0]):sizeof(rollback)/sizeof(rollback[0]);
  /* Startup rollback's captured baseline has no IoT bridge. Remove the owned, down, empty
@@ -83,14 +91,22 @@ static inline int wr_iot_activation_recover(struct wr_iot_activation *state){
  }
  state->snapshot=0;state->recovery_step=0;state->disabling=0;wr_iot_activation_release(state);state->state=WR_IOT_INACTIVE;return 1;
 }
-static inline int wr_iot_activation_start(struct wr_iot_activation *state,const struct wr_iot_activation_backend *backend,void *context){
+static inline int wr_iot_activation_start_mode(struct wr_iot_activation *state,const struct wr_iot_activation_backend *backend,void *context,int precreated){
  static const enum wr_iot_activation_operation operations[]={
   WR_IOT_QUIESCE,WR_IOT_PROFILE,WR_IOT_BRIDGE_PREPARE,WR_IOT_ISOLATE,
   WR_IOT_RADIO_PREPARE,
   WR_IOT_ATTACH,WR_IOT_BRIDGE_UP,WR_IOT_DHCP_START,WR_IOT_POLICY,
   WR_IOT_MAIN_RADIO_READY,WR_IOT_BSS_UP,WR_IOT_OBSERVE
  };
+ static const enum wr_iot_activation_operation reserved_operations[]={
+  WR_IOT_QUIESCE,WR_IOT_RESERVED_READY,WR_IOT_BRIDGE_PREPARE,WR_IOT_ISOLATE,
+  WR_IOT_ATTACH,WR_IOT_BRIDGE_UP,WR_IOT_DHCP_START,WR_IOT_POLICY,
+  WR_IOT_MAIN_RADIO_READY,WR_IOT_BSS_UP,WR_IOT_OBSERVE
+ };
+ const enum wr_iot_activation_operation *selected=precreated?reserved_operations:operations;
+ unsigned int count=precreated?sizeof(reserved_operations)/sizeof(reserved_operations[0]):sizeof(operations)/sizeof(operations[0]);
  unsigned int i;
+ if(precreated!=0&&precreated!=1)return 0;
  /* Bring up the isolated gateway before probing DHCP/DNS on its subnet.
   * ra2 stays DOWN throughout; client access opens only after service readiness.
   * DHCP_START must prove protocol readiness, not merely launch a process. */
@@ -122,14 +138,15 @@ static inline int wr_iot_activation_start(struct wr_iot_activation *state,const 
   * read-only snapshot. Leave the old state and generation untouched. */
  if(backend->cancel_requested(context)){backend->unlock(context);return 0;}
  state->backend=backend;state->context=context;state->locked=1;
+ state->precreated=precreated;
  state->generation++;
  /* Validation/snapshot callbacks must not mutate live network resources. */
  if(!wr_iot_activation_call(state,WR_IOT_VALIDATE)||!wr_iot_activation_call(state,WR_IOT_SNAPSHOT)){
   wr_iot_activation_release(state);return 0;
  }
  state->snapshot=1;state->state=WR_IOT_STARTING;
- for(i=0;i<sizeof(operations)/sizeof(operations[0]);i++){
-  if(backend->cancel_requested(context)||!wr_iot_activation_call(state,operations[i])){
+ for(i=0;i<count;i++){
+  if(backend->cancel_requested(context)||!wr_iot_activation_call(state,selected[i])){
    state->recovery_step=0;state->state=WR_IOT_RECOVERY;wr_iot_activation_recover(state);return 0;
   }
  }
@@ -137,6 +154,18 @@ static inline int wr_iot_activation_start(struct wr_iot_activation *state,const 
   state->recovery_step=0;state->state=WR_IOT_RECOVERY;wr_iot_activation_recover(state);return 0;
  }
  state->state=WR_IOT_ACTIVE;wr_iot_activation_release(state);return 1;
+}
+/* Reserved callbacks are deliberately distinct: legacy backends must refuse
+ * unknown operations instead of silently regenerating/reloading a profile.
+ * READY proves loaded identity/credentials and closed BSS under current owner;
+ * it must never provision, restart, scan or invoke global SSID/auth setters.
+ * RESERVED_RESTORE / DISABLE_APPLY restore only scoped network/service state,
+ * keep the reserved profile intact and observe current Main/Guest unchanged. */
+static inline int wr_iot_activation_start(struct wr_iot_activation *s,const struct wr_iot_activation_backend *b,void *c){
+ return wr_iot_activation_start_mode(s,b,c,0);
+}
+static inline int wr_iot_activation_start_precreated(struct wr_iot_activation *s,const struct wr_iot_activation_backend *b,void *c){
+ return wr_iot_activation_start_mode(s,b,c,1);
 }
 static inline int wr_iot_activation_stop(struct wr_iot_activation *state){
  unsigned long long generation;

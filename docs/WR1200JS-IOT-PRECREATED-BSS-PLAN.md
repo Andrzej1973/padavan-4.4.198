@@ -151,3 +151,27 @@ This is snapshot rejection, NOT a replacement for existing peer/transition
 ownership across the rest of packet processing. Races, multicast/forwarding,
 probe/auth failure responses and complete RF silence need composed review.
 Cold startup hook remains unbound until those checks and target build pass.
+
+## No-reload activation controller implemented (backend pending)
+
+`activation.h` now provides `wr_iot_activation_start_precreated` alongside the
+unchanged legacy entrypoint. Mode is chosen under the existing lock and retained
+through recovery. Reserved start sequence replaces PROFILE/RADIO_PREPARE with
+RESERVED_READY; generic dispatch refuses those two legacy operations in reserved
+mode. Rollback RESTORE and normal OFF DISABLE_APPLY dispatch distinct reserved
+operations. A legacy backend cannot accidentally handle those as a global
+profile restore. Reserved operations must retain third loaded profile, restore
+only owned network/service state and verify current Main/Guest configuration.
+
+READY requires the actual loaded identity/credentials and closed BSS on the
+current adapter generation; mismatch must refuse, never provision implicitly.
+QUIESCE/BSS_UP and all network operations retain their existing ownership,
+readiness and failure obligations. This controller does not supply a production
+backend and therefore does not itself prove no radio restart in backend code.
+
+Host ASan/UBSan: existing activation regression passes; new test executes100
+cycles, injected failure at each of11start stages, loaded-profile rejection,
+retained failed rollback and OFF retry. No legacy profile/reload/restore operation
+reaches the reserved backend. Test receipts are injected; no loaded-driver,
+association, DHCP or physical-RF evidence claimed. Both fixtures added to existing
+candidate CI. Target/ROMFS/runtime and actual backend remain pending.
