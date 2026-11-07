@@ -1,6 +1,6 @@
-/* Isolated owner wrapper; not installed into startup or production.
+/* Owner wrapper for isolated config; no normal startup/data admission grant.
  * Config owner pins lifetime; lock order matches owned command transport. */
-static INT32 wr_iot_mcu_config_slot_owned(RTMP_ADAPTER *ad,
+INT32 wr_iot_mcu_config_slot_owned(RTMP_ADAPTER *ad,
  const struct wr_iot_mcu_boot_ticket *ticket,unsigned int expected)
 {
  ULONG flags=0,owner_flags=0;int ready,result=0;

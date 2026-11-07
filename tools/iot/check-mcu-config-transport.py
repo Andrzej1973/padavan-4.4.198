@@ -463,15 +463,66 @@ for(unsigned mode=0;mode<8;mode++){
 puts("PASS actual EDCA/slot builders: bounded EDCA before copy, serialized intent/full ticket before TX, no overwrite, transport/timeout retention, overflow and pending finish refusal; no execution proof");
 '''+tail[pos:]
 with tempfile.TemporaryDirectory(prefix='wr-config-transport-') as td:
+ if 'mcu_config_slot_direct' in json.loads(Path(str(a.candidate)+'.manifest.json').read_text()):
+  at=tail.index(' assert(!CmdSlotTimeSet(&ad,9,10,2,0x1234));')
+  begin=tail.rfind('\n{\n',0,at)
+  end=tail.index('\n}\n',at)+3
+  tail=tail[:begin]+r'''
+for(unsigned mode=0;mode<6;mode++){
+ RTMP_ADAPTER ad=valid();current=&owner;peer_ok=1;
+ slot_mac=3;slot_reg=0x80808200;slot_calls=slot_reads=slot_fail=0;
+ sent=0;alloc_fail=0;
+ assert(!wr_iot_mcu_boot_config_begin(&ad,&ad.ticket));
+ if(mode==1)slot_mac=0;
+ if(mode==2)slot_fail=1;
+ if(mode==3)ad.wr_iot_config_slot_pending.ticket.generation=1;
+ unsigned before=allocated;
+ assert(CmdSlotTimeSet(&ad,9,10,2,mode==4?512:84)==(mode&&mode!=5?1:0));
+ assert(!sent&&allocated==before&&!ad.wr_iot_config_slot_pending.ticket.active&&
+        !ad.wr_iot_boot_config_unconfirmed);
+ if(!mode||mode==5)assert(slot_reg==0x898a8a54&&slot_calls==1);
+ if(mode==5){assert(!CmdSlotTimeSet(&ad,20,10,2,84));assert(slot_calls==2);}
+ assert(wr_iot_mcu_boot_config_finish(&ad,&ad.ticket,1)==(mode&&mode!=5?1:0));
+ assert(!owner.refs);
+}
+{
+ RTMP_ADAPTER ad=valid();ad.wr_iot_boot_active=0;current=&foreign;
+ slot_calls=slot_reads=0;alloc_fail=0;
+ unsigned before=ordinary_send;
+ assert(!CmdSlotTimeSet(&ad,9,10,2,0x1234));
+ assert(ordinary_send==before+1&&!slot_calls&&!slot_reads);
+ assert(!ad.wr_iot_mcu_sender_owner.messages&&!owner.refs);
+ current=&owner;
+}
+puts("PASS actual direct slot builder: no private firmware TX/allocation/journal, repeated MMIO, range/owner/hardware refusal; ordinary SDK route preserved");
+'''+tail[end:]
  c=Path(td)/'check.c';reader=(a.candidate/'include/wr-iot-mcu-config-rf-read.inc').read_text() if rf_read else ''
  if mac_read:reader+=(a.candidate/'include/wr-iot-mcu-config-mac-read.inc').read_text()
  slot_wrapper=''
  if timing_config:
-  slot_wrapper='\nstatic unsigned slot_calls,slot_fail;\nstatic int wr_iot_config_slot_mmio(RTMP_ADAPTER *ad,unsigned expected){assert(ad&&held==2&&expected==7);slot_calls++;return !slot_fail;}\n'+Path(__file__).with_name('mcu-config-slot-owner.inc').read_text()
+  slot_wrapper=r'''
+#include "mac/mac_mt/wf_tmac.h"
+#define ARB_SCR 1
+#define MT_ARB_SCR_TXDIS 1
+#define MT_ARB_SCR_RXDIS 2
+static unsigned slot_calls,slot_fail,slot_mac,slot_reg,slot_reads;
+static unsigned slot_read(RTMP_ADAPTER *ad,unsigned reg){
+ assert(ad&&held==2);slot_reads++;
+ if(reg==ARB_SCR)return slot_fail==4&&slot_calls?0:slot_mac;
+ assert(reg==TMAC_ICR);return slot_fail==1&&slot_calls?slot_reg^1:slot_reg;
+}
+static void slot_write(RTMP_ADAPTER *ad,unsigned reg,unsigned value){
+ assert(ad&&held==2&&reg==TMAC_ICR);slot_calls++;
+ if(slot_fail!=2)slot_reg=value;
+}
+#define RTMP_IO_READ32(ad,reg,p) (*(p)=slot_read(ad,reg))
+#define RTMP_IO_WRITE32(ad,reg,value) slot_write(ad,reg,value)
+'''+Path(__file__).with_name('mcu-config-slot-mmio.inc').read_text()+Path(__file__).with_name('mcu-config-slot-owner.inc').read_text()
   at=tail.index('puts("PASS owner/config transport')
   tail=tail[:at]+r'''
- for(unsigned fault=0;fault<13;fault++){
+ for(unsigned fault=0;fault<17;fault++){
   RTMP_ADAPTER ad=valid();current=&owner;peer_ok=1;slot_calls=slot_fail=0;
+  slot_mac=3;slot_reg=0x80808200;slot_reads=0;
   assert(!wr_iot_mcu_boot_config_begin(&ad,&ad.ticket));
   struct wr_iot_mcu_boot_ticket t=ad.ticket;
   switch(fault){case 1:current=&foreign;break;case 2:t.radio_epoch++;break;
@@ -484,13 +535,19 @@ with tempfile.TemporaryDirectory(prefix='wr-config-transport-') as td:
    case 9:slot_fail=1;break;
    case 10:ad.wr_iot_mcu_sender_owner.inflight=1;break;
    case 11:ad.wr_iot_mcu_sender_owner.radio_active=1;break;
-   case 12:ad.wr_iot_boot_fw_state=1;break;}
+   case 12:ad.wr_iot_boot_fw_state=1;break;
+   case 13:slot_fail=2;break;
+   case 14:slot_mac=0;break;
+   case 15:slot_fail=4;break;
+   case 16:slot_reg=~0U;break;}
   assert(wr_iot_mcu_config_slot_owned(&ad,&t,7)==(fault?1:0));
-  assert(slot_calls==(!fault||fault==9));
-  if(fault==9)assert(ad.wr_iot_boot_failed);
+  assert(slot_calls==(!fault||fault==9||fault==13||fault==15));
+  if(!fault)assert(slot_reg==0x80808207);
+  if(fault==9||fault>=13)assert(ad.wr_iot_boot_failed);
+  if(fault&&fault<13&&fault!=9)assert(!slot_reads);
   current=&owner;assert(wr_iot_mcu_boot_config_finish(&ad,&ad.ticket,0)==1&&!owner.refs);
  }
- puts("PASS isolated slot owner: task/ticket, pending/history/poison/unconfirmed/messages refusal before I/O and hardware failure retention; MMIO injected");
+ puts("PASS composed slot owner/MMIO: admission before I/O, real primitive, bit preservation, failed write/readback/MAC drift and retained failure; registers injected");
  '''+tail[at:]
  c.write_text(prefix+(a.candidate/'include/wr-iot-mcu-boot-config-owner.inc').read_text()+(a.candidate/'include/wr-iot-mcu-config-transport.inc').read_text()+reader+slot_wrapper+'\n'.join(builders)+tail)
  subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-pie','-no-pie','-DMT7603','-DMT_MAC','-DRTMP_PCI_SUPPORT','-I'+str(a.candidate/'include'),str(c),'-o',td+'/check'],check=True)

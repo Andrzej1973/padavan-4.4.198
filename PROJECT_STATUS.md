@@ -15855,3 +15855,15 @@ primitive remain separately tested and not installed into driver generation.
 Next compose their tests and bind the slot builder without submitting a
 firmware timing command on the private path. No journal clearing is granted.
 
+# Direct private slot builder — 2026-11-07
+
+New manifest-checked `mcu-config-slot-direct` generation layer installs the slot
+codec/owner/MMIO helpers and routes bootstrap CmdSlotTimeSet before allocation.
+It rejects unrepresentable tuples and unresolved timing history; valid private
+calls issue no firmware command and create no timing journal entry. Normal SDK
+route preserved. Actual generated builder plus composed wrapper/MMIO passes
+ASan/UBSan with injected registers, repeat calls, range/owner/hardware failures
+and ordinary SDK route regression. CI layer enabled; target proof pending.
+No production installation, data promotion or device runtime claim. EDCA and
+the checked-ID scan budget remain unresolved.
+

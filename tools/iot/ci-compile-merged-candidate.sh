@@ -286,7 +286,7 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
     mcu-post-fw-init mcu-boot-config-owner mcu-config-result mcu-config-transport \
     mcu-config-noresponse mcu-config-rf-pending mcu-config-rf-read \
     mcu-config-mac-pending mcu-config-mac-read mcu-config-ext mcu-config-timing \
-    mcu-config-init-owner; do
+    mcu-config-init-owner mcu-config-slot-direct; do
     python3 "tools/iot/prepare-$layer.py" "$merged" --install-isolated
   done
   for fixture in mcu-boot-transport mcu-boot-builders mcu-nettask-bootstrap \

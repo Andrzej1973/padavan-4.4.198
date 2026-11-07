@@ -1,4 +1,4 @@
-/* Isolated low-level operation, not installed in the driver yet.
+/* Low-level operation for the isolated generated candidate.
  * Caller must hold an exclusive config lifetime/transition lease and prove
  * no previously submitted firmware timing writer can still execute.
  * Does not enable MAC, retire journal entries, or grant config completion. */

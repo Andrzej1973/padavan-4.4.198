@@ -15229,3 +15229,14 @@ Remaining: compose real primitive with wrapper in the fixture, install via
 manifest-checked generator and bind private slot builder without firmware TX.
 Do not infer runtime, execution ordering or driver installation from this test.
 
+# Private slot MMIO binding checkpoint — 2026-11-07
+
+Generator `prepare-mcu-config-slot-direct.py` successfully applied to retained
+isolated tree; CI sequence includes it after config-init owner. Private slot
+uses validated tuple/owner/MMIO before any message allocation; ordinary SDK
+route regression passes. Composed host fixture now tests real MMIO primitive
+and generated builder with injected I/O. Target compile pending. Retained tree
+contains this new layer but predates newer base config readiness and six guards;
+local tests substitute readiness only in memory. CI must regenerate everything
+fresh. No runtime or firmware completion claim beyond these host checks.
+
