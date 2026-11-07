@@ -145,6 +145,21 @@ int main(void){
  assert(unsolicited==10000&&!completed&&!callbacks&&!held);
  ev->fw_rxd_1.field.seq_num=7;AndesMTRxProcessEvent(&ad,&received);
  assert(completed==1&&callbacks==1&&waiting.ack_done==1&&!held);
+
+ /* Late nonzero ACK with no matching waiter is consumed by this dispatch,
+  * not stored for a future request. RX object freeing is outside this fixture. */
+ ev->fw_rxd_1.field.seq_num=6;
+ for(unsigned n=0;n<10000;n++)AndesMTRxProcessEvent(&ad,&received);
+ assert(completed==1&&callbacks==1&&waiting.ack_done==1&&unsolicited==10000&&!held);
+ ad.MCUCtrl.ackq.msg=NULL;
+ ev->fw_rxd_1.field.seq_num=7;AndesMTRxProcessEvent(&ad,&received);
+ assert(completed==1&&callbacks==1&&!held);
+ /* NEGATIVE CONTROL: installing a new waiter with reused ID changes the
+  * interpretation of the identical old packet; no firmware replay asserted. */
+ struct cmd_msg reused={.seq=7,.need_wait=1,.rsp_payload_len=8,.rsp_handler=callback};
+ ad.MCUCtrl.ackq.msg=&reused;AndesMTRxProcessEvent(&ad,&received);
+ assert(completed==2&&callbacks==2&&reused.ack_done==1&&!held);
+ puts("PASS unmatched nonzero/no-waiter events do not build a response backlog; NEGATIVE CONTROL same captured packet completes newly installed same-ID vendor waiter. Actual firmware timing, free and concurrency not tested.");
  puts("PASS actual vendor TXD 96 combinations; 10000 sequence-zero events take unsolicited path without completing pending sequence7; matching reply completes it. Locks, transport and event freeing injected/not exercised.");
 }
 '''

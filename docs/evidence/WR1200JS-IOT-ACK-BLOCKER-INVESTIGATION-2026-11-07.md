@@ -321,3 +321,16 @@ check-mcu-boot-retired-boundary.py на retained candidate. Source/host scope;
 не доведе ACK semantics. Коли обґрунтований fix буде готовий, потрібні свіжі
 standard/optional target runs, точний SHA, фінальний image gate і окремо
 дозволений runtime plan, наведений вище.
+
+### Unmatched nonzero ACK і очищення host-черги
+
+Додано виконуваний source-extracted RX тест:10,000 подій seq6 за наявного
+waiter seq7 не завершують його; подіяseq7 за порожнього ackq також не створює
+майбутньої відповіді. Потім той самий packet без змін подається після встановлення
+нового waiter seq7 і завершує його. Це negative control з навмисним обходом
+production retirement, а не зафіксована firmware retransmission. ASan/UBSan PASS.
+
+Таким чином, відсутність поточного backlog не означає безпечний reuse:
+потрібно виключити майбутню стару відповідь, а не лише видалити вже отримані.
+Fixture виконує actual vendor dispatcher; wrapper freeing, реальна конкуренція,
+MCU/DMA timing лишаються поза ним. Ця перевірка не змінює BLOCKED у FIXED.

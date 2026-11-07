@@ -727,5 +727,5 @@
   ],
   "limits": "Unpreprocessed C inventory includes feature/other-chip branches; dynamic flags and effective board reachability need separate review.",
   "runtime_verified": false,
-  "host_check": "PASS actual candidate ledger: repeated host-only11/13-channel models exhaust despite zero occupied IDs; timeout quarantined, cancelled allocation retained. Not device restart or full channel execution.\nPASS actual vendor TXD 96 combinations; 10000 sequence-zero events take unsolicited path without completing pending sequence7; matching reply completes it. Locks, transport and event freeing injected/not exercised."
+  "host_check": "PASS unmatched nonzero/no-waiter events do not build a response backlog; NEGATIVE CONTROL same captured packet completes newly installed same-ID vendor waiter. Actual firmware timing, free and concurrency not tested.\nPASS actual candidate ledger: repeated host-only11/13-channel models exhaust despite zero occupied IDs; timeout quarantined, cancelled allocation retained. Not device restart or full channel execution.\nPASS actual vendor TXD 96 combinations; 10000 sequence-zero events take unsolicited path without completing pending sequence7; matching reply completes it. Locks, transport and event freeing injected/not exercised."
 }
