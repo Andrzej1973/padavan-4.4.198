@@ -1,3 +1,18 @@
+## Sol: fresh upstream ACK comparison and live target compile
+
+Revalidated current OpenWrt mt76 master0936617dc529ff9da0385221d3fa6de732231177
+via GitHub API; retrieved MCU sources at that immutable revision and recorded
+SHA256/line evidence. Upstream serializes and cycles four-bit IDs but provides
+no extra generation cookie/duplicate-lifetime proof for our embedded firmware.
+No reuse guard relaxed. Evidence WR1200JS-MCU-UPSTREAM-ACK-AUDIT.json and budget
+audit distinguish implementation precedent from firmware contract.
+Optional841/run42375303427 is confirmed live in Compile isolated merged IoT
+MT7603 candidate; no failed step observed. Its source artifact already proved
+requested==verified03f5dc6. Candidate diagnostic artifact not available yet;
+await this exact run rather than restart. Local HEAD0af299c remains unpushed
+above publishedb8e445c; new audit changes held for coherent batching. No router
+access or large scratch generated; docs/reference unchanged.
+
 ## Sol: identify firmware before choosing ACK reuse contract
 
 Inspected startup AP_AUTO_CH_SEL caller: current private startup is already

@@ -129,3 +129,21 @@ router, nor the firmware ACK reuse/duplicate contract. Do not transfer claims
 from a similarly named upstream image without matching its bytes and protocol.
 Optional CI now retains the pinned embedded-image identity report alongside
 its diagnostics; this report alone is not firmware execution evidence.
+
+## Fresh upstream comparison (2026-11-07)
+
+Inspected OpenWrt mt76 revision `0936617dc529ff9da0385221d3fa6de732231177`
+through the GitHub API with immutable revision selection. Source hashes and
+line references are in `WR1200JS-MCU-UPSTREAM-ACK-AUDIT.json`.
+The MT7603 sender cycles nonzero four-bit sequences. Its parser compares the
+response sequence and marks MCU hang on timeout. The common sender holds a
+mutex through send/response processing and discards mismatched replies.
+
+This is useful precedent for serialized transport but does not establish a
+firmware-specific duplicate-response lifetime bound or generation cookie.
+The upstream image bytes have not been matched to our E1/E2 embedded images.
+It does not justify clearing the current retired ledger or relaxing the
+existing stale-ACK tests. No upstream code was transplanted.
+
+Sources: [MT7603 MCU](https://github.com/openwrt/mt76/blob/0936617dc529ff9da0385221d3fa6de732231177/mt7603/mcu.c),
+[common MCU sender](https://github.com/openwrt/mt76/blob/0936617dc529ff9da0385221d3fa6de732231177/mcu.c).
