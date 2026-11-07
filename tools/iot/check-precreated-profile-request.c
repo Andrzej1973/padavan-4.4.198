@@ -27,5 +27,7 @@ int main(void){
  /* Existing runtime OFF still needs no credentials or network parameters. */
  struct wr_iot_request runtime;f.enable="0";assert(wr_iot_request_read(&runtime,read_value,&f,1,1,0,NULL,0));
  assert(!runtime.enabled&&!runtime.ssid[0]&&!runtime.password[0]);
+ f.enable="";assert(wr_iot_request_read(&runtime,read_value,&f,1,1,0,NULL,0));
+ assert(!runtime.enabled&&!runtime.ssid[0]&&!runtime.password[0]);
  puts("PASS cold request retains validated credentials while OFF/default-OFF; borrowed buffer snapshots and rejection atomicity; runtime OFF behavior unchanged. Empty unprovisioned credentials refuse; startup fallback not implemented.");return 0;
 }

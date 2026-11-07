@@ -309,6 +309,12 @@ These runs do not cover the newer local credential/observation helpers.
 
 ## Cold generator binding
 
+Default-OFF consistency: generic request parser now treats an empty persistent
+enable value as OFF, matching cold reader. Control-record decoder explicitly
+requires wire enable0/1 so malformed empty commands remain rejected without
+output mutation. Request/control-record/cold/factory ASan/UBSan fixtures pass,
+including stripped wire enable regression. Source change not yet target-tested.
+
 ABI42400103914 failed at ralink.c1847 stringop-truncation: pinned helper
 wl_ioctl uses strncpy(ifr_name,ifname,IFNAMSIZ). Prepared helper now rejects
 NULL/overlong names, closes its acquired socket and copies a bounded terminated

@@ -26,6 +26,17 @@ int main(void){
  memset(&record.request,0,sizeof(record.request));
  n=wr_iot_control_encode(body,sizeof(body),&record);assert(n>0);
  assert(wr_iot_control_decode(&decoded,body,(size_t)n)&&!decoded.request.enabled);
+ /* Wire enable must remain explicit even though persistent default is OFF. */
+ {
+  char *enable=strchr(body,'\n');assert(enable);
+  enable=strchr(enable+1,'\n');assert(enable);
+  enable=strchr(enable+1,'\n');assert(enable&&enable[1]=='0');
+  size_t offset=(size_t)(enable+1-body);
+  memcpy(copy,body,offset);memcpy(copy+offset,body+offset+1,(size_t)n-offset-1);
+  before=decoded;
+  assert(!wr_iot_control_decode(&decoded,copy,(size_t)n-1));
+  assert(!memcmp(&decoded,&before,sizeof(decoded)));
+ }
  strcpy(record.request.password,"hidden-secret");assert(!wr_iot_control_encode(body,sizeof(body),&record));
  assert(!wr_iot_control_time("18446744073709551616",&record.created));
  assert(!wr_iot_control_time("0123",&record.created));

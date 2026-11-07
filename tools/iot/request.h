@@ -19,7 +19,7 @@ static inline int wr_iot_request_read(struct wr_iot_request *out,const char *(*r
  if(!out||!read)return 0;
  memset(&candidate,0,sizeof(candidate));value=read(context,"wr_iot_enable");
  if(!value)return 0;
- if(!strcmp(value,"0")){*out=candidate;return 1;}
+ if(!*value||!strcmp(value,"0")){*out=candidate;return 1;}
  if(strcmp(value,"1")||router_mode!=1||radio_on!=1||radio_mode!=0)return 0;
  candidate.enabled=1;
 #define COPY(field,key) do {if(!wr_iot_request_copy(candidate.field,sizeof(candidate.field),read(context,key)))return 0;} while(0)

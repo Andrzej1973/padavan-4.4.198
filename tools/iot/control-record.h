@@ -71,6 +71,8 @@ static inline int wr_iot_control_decode(struct wr_iot_control_request *out,
  if(count!=10||start!=length||strcmp(lines[0],"WR-IOT-1")||
     !wr_iot_control_id(lines[1])||!wr_iot_control_time(lines[2],&candidate.created))return 0;
  for(i=0;i<7;i++)fields.values[i]=lines[i+3];
+ /* Default-OFF applies to absent persistent settings, not wire records. */
+ if(strcmp(fields.values[0],"0")&&strcmp(fields.values[0],"1"))return 0;
  if(!wr_iot_request_read(&candidate.request,wr_iot_control_read,&fields,1,1,0,NULL,0))return 0;
  if(!candidate.request.enabled)for(i=1;i<7;i++)if(fields.values[i][0])return 0;
  memcpy(candidate.id,lines[1],33);*out=candidate;return 1;
