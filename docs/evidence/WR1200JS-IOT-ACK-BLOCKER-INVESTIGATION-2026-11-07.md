@@ -334,3 +334,19 @@ production retirement, а не зафіксована firmware retransmission. A
 потрібно виключити майбутню стару відповідь, а не лише видалити вже отримані.
 Fixture виконує actual vendor dispatcher; wrapper freeing, реальна конкуренція,
 MCU/DMA timing лишаються поза ним. Ця перевірка не змінює BLOCKED у FIXED.
+
+### E1/E2 common-result static comparison
+
+Відтворюваний inspect-mt7603-common-result.py зафіксував E1 helper106448
+та E2 helper106154 у точних раніше ідентифікованих образах. В обох LBI читає
+request byte7 у s4, SBI записує s4 в output byte5; поля opcode/register/offset
+перевірено незалежним декодуванням бітів. E1 external call targets:
+317c,310c,24e4,3a74; E2:2d38,2cdc,21c8,3540. Пара adjacent sethi/ori перед
+E1 jral розібрана явно, без приписування довільних indirect targets.
+
+[JSON disassembly](WR1200JS-MCU-E1-E2-COMMON-RESULT.json) зберігає байтову
+ідентичність образів і адреси. Аналогічна структура підтверджує розпізнавання
+helper, але не доводить ROM ABI, exactly-once output чи відсутність пізніх
+відповідей. Обидва образи мають повний byte-copy, проте це не підтвердження
+high-ID support по всьому шляху і не дозвіл розширювати pool. ROM-докази
+потрібні окремо для E1/E2; live silicon/image selection не перевірено.
