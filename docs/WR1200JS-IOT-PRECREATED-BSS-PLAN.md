@@ -290,6 +290,14 @@ These runs do not cover the newer local credential/observation helpers.
 
 ## Cold generator binding
 
+ABI42400103914 failed at ralink.c1847 stringop-truncation: pinned helper
+wl_ioctl uses strncpy(ifr_name,ifname,IFNAMSIZ). Prepared helper now rejects
+NULL/overlong names, closes its acquired socket and copies a bounded terminated
+name. Extracted function ASan/UBSan with mocked transport passes ra2 acceptance,
+NULL/16-byte refusal and exactly-once socket close. This fixes the source
+instead of suppressing stringop-truncation. Monitor42400283058 had no artifact
+at inspection; original log is causal evidence, monitor comparison pending.
+
 Cold reader follow-up: when Band Steering snapshot wrappers are installed,
 wr_iot_cold_nvram_read now calls wr_profile_safe_get, so IoT fields follow the
 same bound full-NVRAM capture as Main/Guest. Without wrappers it retains the

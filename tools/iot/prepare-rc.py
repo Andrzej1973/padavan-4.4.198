@@ -105,6 +105,10 @@ report['request_snapshot_runtime_adapter_staged']=True
 # Runtime ON/OFF must use the already-created ra2 interface; it must never use
 # the old profile-rewrite/restart path.
 f=rc/'ralink.c';radio=f.read_text(encoding='utf-8')
+ifname_copy='strncpy(pwrq->ifr_name, ifname, IFNAMSIZ);'
+if radio.count(ifname_copy)!=1:raise SystemExit('Wireless ioctl interface-copy anchor changed')
+radio=radio.replace(ifname_copy,
+ 'if (!ifname || strlen(ifname) >= IFNAMSIZ) { close(s); return -1; }\n\tstrcpy(pwrq->ifr_name, ifname);',1)
 profile_snapshot='wr_profile_wlan_get_int(is_aband, "mode_x")' in radio
 anchor='static int\ngen_ralink_config('
 if radio.count(anchor)!=1:raise SystemExit('Ralink generator anchor changed')
