@@ -114,3 +114,21 @@ loaded-profile identity, no-beacon-on-boot і runtime activation backend ще
 точний cold profile hook, потім підключити резервацію і backend без reload.
 Раніше дозволений контрольований provisioning не є дозволом змінити живий
 роутер. ROM ACK issue лишається unresolved окремо.
+
+## Reserved BSS: beacon admission перевірено на candidate
+
+`check-precreated-beacon.py` витягує фактичну BeaconTransmitRequired з retained
+candidate і виконує її з ASan/UBSan у звичайній та WDS конфігурації. За stale
+bBcnSntReq=TRUE відсутній або DOWN secondary netdev не проходить predicate;
+Main/WDS винятки зберігаються. Відкритий secondary потребує також beacon intent.
+Тест підключено після свіжої генерації candidate у наявному optional script.
+Локальний retained candidate старіший за HEAD; свіжий CI ще не запускався.
+
+Source audit: APStartUp має окремий AIRPLAY_SUPPORT writer bBcnSntReq;
+OID_AIRPLAY_ENABLE теж може його підняти. Тому не покладатися лише на початковий
+нуль flag. Existing candidate netdev-running gate потрібний навіть за постійної
+резервації. Vendor ap_sync.c перевіряє if_dev/running перед probe response;
+ap_auth.c також перевіряє це перед authentication і переходить auth_failure
+для DOWN BSS. Association, залишені MAC entries, data paths, recovery queues
+та hardware drain ще потребують окремої композиційної перевірки.
+Це не доказ повної RF/data тиші або готовності cold startup hook.
