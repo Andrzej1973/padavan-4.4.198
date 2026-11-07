@@ -15240,3 +15240,12 @@ contains this new layer but predates newer base config readiness and six guards;
 local tests substitute readiness only in memory. CI must regenerate everything
 fresh. No runtime or firmware completion claim beyond these host checks.
 
+# EDCA MMIO checkpoint — 2026-11-07
+
+`mcu-config-edca-plan.h` and `mcu-config-edca-mmio.inc` are tested isolated
+components using actual SDK addresses. `check-edca-plan.c` covers mapping,
+field validation and partial hardware failure with injected registers under
+ASan/UBSan. CI fixture added. Next share timing ownership exclusion with slot,
+then bind private EDCA builder without firmware TX; ensure every partial-write
+failure prevents config success. Normal driver/runtime remain unverified.
+

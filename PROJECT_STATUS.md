@@ -15867,3 +15867,14 @@ and ordinary SDK route regression. CI layer enabled; target proof pending.
 No production installation, data promotion or device runtime claim. EDCA and
 the checked-ID scan budget remain unresolved.
 
+# EDCA plan and MMIO primitive — 2026-11-07
+
+Added SDK-mapped six-register EDCA plan generation and uninstalled MMIO apply.
+The plan validates all wire records before output; apply snapshots all needed
+registers before first write, preserves unrelated bits, checks disabled MAC and
+verifies every write. Host ASan/UBSan passes four queues/every valid bit,
+LE fields, duplicate/invalid refusal, combined masks, each of six dropped and
+corrupted writes, MAC drift and pre-write snapshot failure. CI runs this fixture.
+No EDCA ownership/builder binding, target or runtime proof yet. Partial write
+failure must be retained by the future owner wrapper; no rollback claim.
+

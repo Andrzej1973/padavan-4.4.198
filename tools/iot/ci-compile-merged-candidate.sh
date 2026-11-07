@@ -42,6 +42,9 @@ gcc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-pie -no-pie
 gcc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-pie -no-pie \
   -I tools/iot -I "$pristine/include" tools/iot/check-slot-mmio.c -o "$results/check-slot-mmio"
 "$results/check-slot-mmio"
+gcc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-pie -no-pie \
+  -I tools/iot -I "$pristine/include" tools/iot/check-edca-plan.c -o "$results/check-edca-plan"
+"$results/check-edca-plan"
 if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   mkdir -p "$candidate"
   python3 tools/iot/prepare-current-recovery-chain.py "$pristine" "$candidate/recovery"
