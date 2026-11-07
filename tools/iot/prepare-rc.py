@@ -4,6 +4,24 @@ import argparse,json
 from pathlib import Path
 p=argparse.ArgumentParser();p.add_argument('source',type=Path);a=p.parse_args()
 rc=a.source/'trunk/user/rc';local=Path(__file__).parent
+# User override lines are data, never printf formats. Keep this correction in
+# the same prepared RC tree whose cold profile consumes AP.dat.
+common=rc/'common_ex.c';common_text=common.read_text(encoding='utf-8')
+begin=common_text.index('load_user_config(FILE *fp,')
+end=common_text.index('\nint\nis_module_loaded',begin)
+loader=common_text[begin:end]
+if loader.count('fprintf(fp, line);')!=1:raise SystemExit('User config literal-write anchor changed')
+loader=loader.replace('fprintf(fp, line);','fputs(line, fp);',1)
+newline="line[strlen(line) - 1] = '\\n';"
+if loader.count(newline)!=1:raise SystemExit('User config newline anchor changed')
+# Preserve every byte, including the last byte of an unterminated value and
+# chunks of a long line. A separator after the file prevents later output
+# from joining an unterminated final line.
+loader=loader.replace(newline,'/* Preserve input bytes; add a file separator after the read loop. */',1)
+close='\t\tfclose(fp_user);'
+if loader.count(close)!=1:raise SystemExit('User config close anchor changed')
+loader=loader.replace(close,"\t\tfputc('\\n', fp);\n"+close,1)
+common.write_text(common_text[:begin]+loader+common_text[end:],encoding='utf-8')
 board=a.source/'trunk/configs/boards/WR1200JS/l1profile.dat'
 s=board.read_text(encoding='utf-8')
 if 'INDEX0_main_ifname=ra0' not in s or 'INDEX0_ext_ifname=ra\n' not in s:raise SystemExit('WR1200JS third BSS interface assumptions changed')

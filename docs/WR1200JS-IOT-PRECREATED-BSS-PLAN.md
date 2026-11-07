@@ -290,6 +290,29 @@ These runs do not cover the newer local credential/observation helpers.
 
 ## Cold generator binding
 
+User override audit at pinned c25283e: ralink.c appends AP.dat through
+common_ex.c:511 load_user_config after generated fields. Vendor
+cmm_profile.c:367 RTMPGetKeyParameter searches the first exact newline+key+=
+using rtstrstr from RTMPFindSection. Appended duplicate BssidNum/SSID3/security
+fields therefore do not override earlier generated values in this parser.
+This does not prove all parameter readers share this policy. The loader also
+uses fprintf(fp,line), a format-string hazard for user-supplied percent signs;
+resolve or contain this path before claiming safe cold startup integration.
+
+Follow-up: prepare-rc.py now anchors the actual load_user_config function in
+common_ex.c and replaces its sole fprintf(fp,line) with fputs(line,fp).
+Host-extracted corrected function passes ASan/UBSan and Wformat-security with
+literal `%s%n%%` input. Existing newline/chunk handling is unchanged and still
+requires review. This correction is local; target compilation and full firmware
+integration remain pending. Disposable extracted test and binaries auto-removed.
+
+Newline follow-up: removed last-byte replacement in the prepared loader;
+fputs preserves each accepted chunk and a final newline separates appended
+configuration. Actual prepared function passes ASan/UBSan for percent text,
+unterminated final values and a700-byte ordinary line. Existing comment/filter
+handling is retained; arbitrary long comment/filter boundary behavior is not
+covered by this result. Target and firmware gates remain open.
+
 Host verification now extracts and executes actual cold admission plus twelve
 per-BSS output statements and SSID3/WPAPSK3 writes. ASan/UBSan PASS covers
 reserved/unreserved output, distinct authentication/encryption inputs, visibility,

@@ -1171,6 +1171,7 @@ jobs:
           cp overlay/padavan-4.4/trunk/configs/boards/WR1200JS/board.h iot-rc-source/trunk/user/rc/ralink_boards.h
           cp overlay/padavan-4.4/trunk/configs/boards/WR1200JS/board.h iot-rc-source/trunk/user/rc/ralink_board.h
           python3 tools/iot/prepare-rc.py iot-rc-source
+          python3 tools/iot/check-user-config-loader.py iot-rc-source
           cp iot-rc-source/iot-rc-source.json abi-results/
           python3 - <<'PY'
           import json
