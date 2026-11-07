@@ -16,8 +16,10 @@ for name,anchor,injection in [
   '\tpEntry = PACInquiry(pAd, pRxBlk->wcid);\n'+guard+'\n if(pEntry&&IS_ENTRY_CLIENT(pEntry)&&\n    !wr_iot_precreated_bss_admitted(pAd,pEntry->func_tb_idx))return FALSE;\n#endif')]:
  s=(src/name).read_text();inc='#include "rt_config.h"'
  if s.count(inc)!=1 or s.count(anchor)!=1:p.error('Changed admission anchor '+name)
- s=s.replace(inc,inc+'\n'+guard+'\n#include "precreated-bss-admission.h"\n#endif',1).replace(anchor,injection,1);changes[name]=s
+ s=s.replace(inc,inc+'\n'+guard+'\n#include "precreated-bss-admission.h"\n#include "precreated-loaded-config.h"\n#include "precreated-key-match.h"\n#endif',1).replace(anchor,injection,1);changes[name]=s
 changes['include/precreated-bss-admission.h']=Path(__file__).with_name('precreated-bss-admission.h').read_text()
+changes['include/precreated-loaded-config.h']=Path(__file__).with_name('precreated-loaded-config.h').read_text()
+changes['include/precreated-key-match.h']=Path(__file__).with_name('precreated-key-match.h').read_text()
 for name,s in changes.items():(src/name).write_text(s)
 hashes={name:hashlib.sha256((src/name).read_bytes()).hexdigest() for name in changes}
 m['merged_driver_sha256'].update(hashes);m['candidate_driver_sha256'].update(hashes)

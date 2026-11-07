@@ -175,3 +175,47 @@ retained failed rollback and OFF retry. No legacy profile/reload/restore operati
 reaches the reserved backend. Test receipts are injected; no loaded-driver,
 association, DHCP or physical-RF evidence claimed. Both fixtures added to existing
 candidate CI. Target/ROMFS/runtime and actual backend remain pending.
+
+## Loaded-profile comparison primitive (unbound)
+
+Source audit confirms SIOCGIWESSID in os/linux/ap_ioctl.c reads actual per-BSS
+SSID; OID authentication query reads AuthMode. Neither proves requested PSK.
+Some OID SSID cases are APCLI-specific; do not use them as AP2 readback.
+
+Added precreated-loaded-config.h: internal driver-side matcher of expected
+netdev, exact SSID bytes/length, WPA2PSK/AES/group AES/802.1X-disabled and32PMK
+bytes against actual BSS_STRUCT. No secret output, log, MCU command or new ioctl.
+Expected PMK must come from independent derivation of requested credentials,
+not copied from loaded state. Existing configuration/lifetime owner required;
+this predicate itself supplies neither serialization nor generation receipt.
+
+Host ASan/UBSan rejects all64single-byte SSID/PMK mutations and wrong device,
+length/security fields. Header staged in isolated candidate for actual type
+compilation; no production callsite/backend authorization yet. No high-level
+claim of loaded identity, PBKDF correctness or runtime credentials verified.
+Remaining backend work: actual request-to-driver binding/independent PMK,
+read/compare under owner, revalidate ticket/generation before BSS open, fail
+mismatch without legacy reload fallback. No arbitrary unsupported vendor
+commands added. Current work local and not covered by854/855.
+
+## Independent requested-key derivation
+
+Added precreated-key-match.h: validate8..63printable passphrase or64hex PMK,
+derive with existing RtmpPasswordHash from requested SSID/password, compare via
+loaded matcher, clear local40byte derived and64byte passphrase buffers using
+volatile writes. No radio/MCU command, setter, new ioctl or secret export. This
+routine must run in task context outside spinlocks, while a configuration lease
+and adapter lifetime pin remain owned; revalidation still mandatory. Existing
+vendor crypto local stack cleanup is not changed or claimed here.
+
+check-precreated-key-match.py extracts actual vendor SHA1, HMAC-SHA1, F and
+RtmpPasswordHash (not injected hash callbacks). ASan/UBSan PASS; four outputs
+match independently computed hashlib PBKDF2-HMAC-SHA1/4096 vectors including
+63character password/32byte SSID. Raw64hex path and wrong-password rejection
+also pass. Legacy crypto source contains non-UTF8 comments; extraction uses
+latin1 then removes comments, preserving executable ASCII source.
+
+Both matcher headers staged for target typecheck; no backend/callsite grant yet.
+Host fixture added to CI; target result pending. Full request-to-driver transport,
+loaded generation receipt and cold hook remain required. This work does not
+claim no-restart physical operation or resolve ROM ACK safety.
