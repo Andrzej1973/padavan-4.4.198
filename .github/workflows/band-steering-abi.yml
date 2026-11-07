@@ -1228,6 +1228,9 @@ jobs:
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
             -c iot-rc-source/trunk/user/rc/wr-iot-profile.c -o abi-results/iot-rc-profile-mips.o
           "$compiler" -std=gnu99 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+            -Wno-error=unused-parameter -Wno-error=sign-compare -Wno-error=pointer-sign \
+            -DBOARD_2G_IN_SOC=0 -DBOARD_5G_IN_SOC=0 \
+            -DBOARD_HAS_2G_RADIO=1 -DBOARD_HAS_5G_RADIO=1 -DBOARD_NUM_USB_PORTS=1 \
             -DBOARD_WR1200JS -DBOARD_RAM_SIZE=128 -DUSE_SMP -DUSE_IPV6 \
             -DUSE_WID_2G=7603 -DUSE_WID_5G=7612 \
             -I"$rc_dir" -I"$shared_dir" -I"$shared_dir/include" \

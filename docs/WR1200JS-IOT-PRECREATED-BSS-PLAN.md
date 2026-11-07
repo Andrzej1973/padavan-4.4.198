@@ -290,6 +290,14 @@ These runs do not cover the newer local credential/observation helpers.
 
 ## Cold generator binding
 
+ABI42399605735 next failure: standalone ralink.c lacked boards.mk compiler
+definitions and -Werror promoted vendor unused-parameter/sign-compare/pointer-sign
+warnings. Monitor42399810218 artifact13585286300 includes the causal board macro
+diagnostic, confirmed original log; parser unchanged. Probe now mirrors pinned
+boards.mk defaults 2G/5G_IN_SOC=0, both radios1 and WR board.mk USB ports1.
+Only those three warning categories remain warnings for this legacy unit;
+other errors and ELF identity gates stay enforced. Target rerun required.
+
 ABI727 run42399242764 passed source preparation then failed compiling ralink.c:
 iwlib.h:75 missing wireless.h. Monitor42399452920 artifact13585190863 correctly
 reports run/commit/job/step and causal fatal error; no parser change required.
@@ -323,6 +331,14 @@ Required next integration is a real RC-to-driver request ownership transport
 using an existing reviewed interface or a separately designed kernel contract;
 the current SSID query alone does not provide key identity. Do not grant
 runtime readiness from host-only proof fixtures or mutable profile files.
+
+Serialization trace: os/linux/rt_main_dev.c:582 rt28xx_ioctl delegates directly
+to rt28xx_ap_ioctl; ap_ioctl.c:122 prepares a shared ioctl context and dispatches
+without a task/config mutex spanning two userspace calls. Pinned Linux
+net/core/dev_ioctl.c acquires RTNL per private ioctl and releases before return.
+Thus separate readback and ifconfig-UP calls cannot inherit a single RTNL
+lease. Any implementation relying on such an inherited lease is invalid;
+internal asynchronous setters/reset owners also need explicit participation.
 
 Existing query candidate found: ap/ap_cfg.c:5532 OID_802_11_PASSPHRASE
 (oid.h0x0649) is guarded by WH_EZ_SETUP. It copies MBSSID PSK to userspace and
