@@ -26,8 +26,9 @@ commands cannot justify opening the current gate.
 Preserve late/duplicate ACK protection. Supporting these settings requires a
 verified protocol epoch/reuse strategy or another proven completion identity;
 silently disabling automatic selection would change the owner's settings and
-does not satisfy the port objective. EDCA/slot execution proof remains a
-separate unresolved requirement.
+does not satisfy the port objective. EDCA/slot execution proof was a
+separate requirement; the later owned direct-MMIO/readback implementation and
+its isolated target checks must be assessed separately from this ACK budget.
 
 ## Wire field versus supported sequence domain
 
@@ -186,3 +187,27 @@ asserted, and production reuse stays prohibited. In-message response_done
 rejects duplicates only for that message lifetime; it does not distinguish a
 new request after ID reuse. An eventual solution must address this exact
 ambiguity, including both RX paths, rather than merely clear the host queue.
+
+## Query-route source check (2026-11-07)
+
+A focused search of pinned SDK include/mcu and mcu sources found channel0x08
+and TX-power0x11 used by CmdChannelSwitch and CmdSetTxPowerCtrl with CMD_SET.
+The command enum names GET_THERMAL_SENSOR explicitly, but provides no separate
+channel/TX-power status query. No corresponding query builder/result layout
+was found in those sources. This is a bounded source finding, not proof that
+the opaque firmware rejects every possible QUERY. Do not flip set_query or
+invent a result layout without a firmware-specific contract. Generic RF/MAC
+queries already have distinct reviewed parsers; their existence does not
+identify the complete channel/calibration state or establish execution order
+for another MCU command.
+
+## Revalidation after optional853 (2026-11-07)
+
+Run42381832296 completed successfully for7bedb0018ac881ff6cfb38f537413638ff716523;
+compact target evidence records all three modules and12 channel TU bindings.
+The channel/coexistence guards do not resolve the ID budget. Re-executed
+check-mcu-rx-direct.py and check-mcu-checked-sequence-retirement.py with
+ASan/UBSan on the retained older candidate: both pass, including the deliberately
+unprotected same-class replay controls and protected exhausted-ledger refusal.
+These tests establish host parser/ledger behavior, not firmware duplicate
+lifetime, fresh candidate generation, image integration or device acceptance.

@@ -1,0 +1,34 @@
+{
+  "run_id": 42381832296,
+  "artifact_id": 13580161163,
+  "source": {
+    "dispatch_revision": "7bedb0018ac881ff6cfb38f537413638ff716523",
+    "requested_revision": "7bedb0018ac881ff6cfb38f537413638ff716523",
+    "verified_revision": "7bedb0018ac881ff6cfb38f537413638ff716523",
+    "runtime_verified": false
+  },
+  "modules": {
+    "baseline": {
+      "module_bytes": 5789184,
+      "module_sha256": "6b853738bb869406f759755b59dc1297ff4e5371a3bf5ca995d89a9043577be4",
+      "channel_report_sha256": "965c24e18e66ca1e471288c338c671eb1bef43cc1ae64ca08e92d76e5739ea2f"
+    },
+    "wsc": {
+      "module_bytes": 6398704,
+      "module_sha256": "ae4861350d006e3077771e92aa44cabf535f63f3ce1b95dce946d6cf794b1f19",
+      "channel_report_sha256": "e097e76e748836a9f6dd836cfc394cb9822e9c971891259ac32af231eb447d9d"
+    },
+    "reload": {
+      "module_bytes": 5791288,
+      "module_sha256": "bd8d2b74b5a66400c64f3957a3a8a2274aa051bf00bfab41375d8d4ca2e68ee0",
+      "channel_report_sha256": "400f83f75804dc5ba8dad9cf83361ba33f52740c803fc2b984788fce414294e9"
+    }
+  },
+  "early_overlap_scan_refused": true,
+  "channel_tu_bindings_verified": 12,
+  "target_compiled": true,
+  "production_installed": false,
+  "runtime_verified": false,
+  "scope": "Isolated channel/coexistence startup guards; does not solve ACK reuse or normal promotion.",
+  "inspection": "Module/report hashes and ELF checked in memory; no binaries retained."
+}
