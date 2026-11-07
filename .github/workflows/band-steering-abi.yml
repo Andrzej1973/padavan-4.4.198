@@ -1234,6 +1234,27 @@ jobs:
             -I"$PWD/iot-rc-source/trunk/user/wireless_tools" \
             -I"$kernel_dir/include/nvram" -idirafter "$kernel_dir/include" \
             -c iot-rc-source/trunk/user/rc/ralink.c -o abi-results/iot-rc-ralink-mips.o
+          python3 - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          source = Path('iot-rc-source/trunk/user/rc/ralink.c')
+          obj = Path('abi-results/iot-rc-ralink-mips.o')
+          data = obj.read_bytes()
+          assert len(data) >= 52, 'Truncated ELF32 object'
+          assert data[:6] == b'\x7fELF\x01\x01', 'Expected ELF32 little endian'
+          assert int.from_bytes(data[16:18], 'little') == 1, 'Expected relocatable object'
+          assert int.from_bytes(data[18:20], 'little') == 8, 'Expected MIPS'
+          assert 'wr_iot_precreated_boot_request_read' in source.read_text()
+          Path('abi-results/iot-cold-profile-compile.json').write_text(json.dumps({
+              'project_commit': os.environ['GITHUB_SHA'],
+              'prepared_source_sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
+              'object_sha256': hashlib.sha256(data).hexdigest(),
+              'target': 'ELF32 little-endian MIPS',
+              'cold_profile_object_compiled': True,
+              'firmware_link_verified': False,
+              'runtime_verified': False,
+          }, indent=2) + '\n')
+          PY
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
             -c iot-rc-source/trunk/user/rc/wr-iot-dhcp.c -o abi-results/iot-rc-dhcp-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
