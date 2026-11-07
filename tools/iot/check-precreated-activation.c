@@ -57,6 +57,38 @@ int main(void){
  f.recovery_fail=WR_IOT_RESERVED_DISABLE_APPLY+1;
  assert(!wr_iot_activation_stop(&s));assert(!f.live&&s.locked&&s.precreated&&f.profile);
  f.recovery_fail=0;assert(wr_iot_activation_stop(&s));
+ /* Every OFF failure retains its transaction for retry. In particular a
+  * failed quiescence must not detach an interface that might still transmit;
+  * later failures must never reopen it or regenerate the radio profile. */
+ const enum wr_iot_activation_operation stop_failures[]={
+  WR_IOT_QUIESCE,WR_IOT_ISOLATE,WR_IOT_DISABLE_SERVICES,
+  WR_IOT_BRIDGE_DOWN,WR_IOT_DETACH,WR_IOT_BRIDGE_REMOVE,
+  WR_IOT_RESERVED_DISABLE_APPLY,WR_IOT_DISABLE_OBSERVE,
+  WR_IOT_GUARD_REMOVE,WR_IOT_DISABLE_COMMIT
+ };
+ for(unsigned n=0;n<sizeof(stop_failures)/sizeof(stop_failures[0]);n++){
+  memset(&s,0,sizeof(s));memset(&f,0,sizeof(f));
+  assert(wr_iot_activation_start_precreated(&s,&b,&f));
+  unsigned opens=(unsigned)f.bss_open_calls;
+  f.main_config=2000+(int)n;
+  f.recovery_fail=stop_failures[n]+1;
+  assert(!wr_iot_activation_stop(&s));
+  assert(s.state==WR_IOT_RECOVERY&&s.locked&&s.snapshot&&s.precreated&&s.disabling);
+  assert(f.locked&&f.stop_snapshot&&f.profile&&f.radio_prepared);
+  assert(f.main_config==2000+(int)n&&(unsigned)f.bss_open_calls==opens&&!forbidden);
+  if(stop_failures[n]==WR_IOT_QUIESCE)
+   assert(f.live&&f.attached&&f.bridge&&f.guard&&f.dhcp);
+  else assert(!f.live);
+  /* The same fault is persistent: a second attempt cannot release ownership. */
+  assert(!wr_iot_activation_stop(&s));
+  assert(s.state==WR_IOT_RECOVERY&&s.locked&&f.locked&&f.profile);
+  f.recovery_fail=0;
+  assert(wr_iot_activation_stop(&s));
+  assert(s.state==WR_IOT_INACTIVE&&!s.locked&&!s.snapshot&&!s.disabling);
+  assert(!f.live&&!f.attached&&!f.bridge&&!f.exists&&!f.guard&&!f.dhcp&&!f.stop_snapshot);
+  assert(f.profile&&f.radio_prepared&&f.main_config==2000+(int)n);
+  assert((unsigned)f.bss_open_calls==opens&&!forbidden);
+ }
  assert(!forbidden);
- puts("PASS precreated activation:100 cycles, all11 start-stage failures, loaded-profile refusal, retained rollback/stop retry, no legacy profile/reload/restore dispatch. Injected backend; loaded identity and hardware pending.");return 0;
+ puts("PASS precreated activation:100 cycles, all11 start-stage and all10 stop-stage failures with persistent-fault retry, loaded-profile refusal, retained rollback, no legacy profile/reload/restore dispatch. Injected backend; loaded identity and hardware pending.");return 0;
 }

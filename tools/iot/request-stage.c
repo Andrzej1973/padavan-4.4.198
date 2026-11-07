@@ -83,8 +83,11 @@ static int wr_iot_request_stage_locked(const char *(*read)(void *,const char *),
     nvram_set_temp("wr_iot_end_t",request.last)){
   (void)wr_iot_request_clear();return 0;
  }
- /* Profile generation may now add ra2. Network/firewall stay quarantined until
-  * the activation backend has proven bridge, dnsmasq and firewall readiness. */
+ /* This gate records a staged request only. Cold generation reserves ra2
+  * independently; never call the physical radio generator from this path.
+  * A precreated activation backend must match the loaded credentials under
+  * its request/lifetime ownership before opening ra2. Network/firewall stay
+  * quarantined until bridge, dnsmasq and firewall readiness is proven. */
  if(strcmp(nvram_safe_get("wr_iot_ssid_t"),request.ssid)||
     strcmp(nvram_safe_get("wr_iot_psk_t"),request.password)||
     strcmp(nvram_safe_get("wr_iot_gateway_t"),request.gateway)||

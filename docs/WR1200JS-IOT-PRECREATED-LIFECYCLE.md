@@ -3,6 +3,53 @@
 Status: incomplete integration; source/host and scoped target evidence only.
 See [acceptance contract](IOT-WIFI-IMPLEMENTATION-CONTRACT.md).
 
+## Owner's pre-reservation acceptance checklist (2026-11-07)
+
+The attached MBSSID pre-reservation request is part of the active IoT task.
+Architecture A is preferred. Neither hidden SSID (B) nor a speculative vendor
+command (C) is an accepted fallback. A credential mismatch must refuse runtime
+activation, not silently regenerate the profile or restart the radio. First
+provisioning and credential changes need a separately designed cold-apply path;
+ordinary ON/OFF must use only the already provisioned BSS.
+
+| Required completion label | Current status and evidence boundary |
+|---|---|
+| THIRD BSS RESERVED | Cold generator and scoped MIPS compilation verified; loaded ra2 pending |
+| IOT RUNTIME ENABLE/DISABLE VERIFIED | Host controller fixture only; production backend unbound |
+| NO PHYSICAL WIFI RESTART DURING IOT TOGGLE | Host reserved-mode dispatch excludes profile/radio preparation; real driver path pending |
+| NO CHANNEL SCAN DURING IOT TOGGLE | Source design only; instrumented physical test pending |
+| MAIN/GUEST REGRESSION TESTED | Injected state preservation only; associated clients pending |
+| NETWORK ISOLATION VERIFIED | Earlier native network fixtures only; final image/device IPv4 and IPv6 tests pending |
+| BUILD VERIFIED | Exact-revision scoped evidence in acceptance contract; latest full integration not built |
+| PHYSICAL RUNTIME VERIFIED | RUNTIME PENDING; no device operation performed for this checklist |
+
+`check-precreated-activation.c` now exercises every ten OFF recovery stages,
+including persistent failure and subsequent retry. Failure of quiescence keeps
+the live BSS attached and isolation retained; later failures never reopen it.
+Successful retry retains the reserved profile and the current Main/Guest model
+state. These are injected backend assertions, not evidence of RF quiescence.
+
+The prepared RC user-config loader now filters whole logical lines, rather
+than independently filtering each 255-byte `fgets` chunk. Long comments and
+forbidden parameters no longer leak their continuation into the profile;
+permitted long values retain continuation bytes even when a chunk begins with
+`#`, `;` or a forbidden key prefix. The executable fixture extracts both the
+actual prepared loader and actual vendor filter. Eleven cases pass host
+ASan/UBSan, including exact chunk boundaries and unterminated final lines.
+This is not a loaded-driver configuration receipt or proof that every radio
+profile override is compatible with the reserved BSS.
+
+Physical acceptance must record the firmware SHA, loaded profile identity,
+Main/Guest client association and continuous traffic before, throughout and
+after at least 100 IoT ON/OFF cycles. Record physical open/close, MCU restart
+and channel-scan counters or equivalent traced call evidence (define the
+instrumentation before testing). Required delta for ordinary toggles is zero.
+For each cycle check IoT DHCP/DNS/internet, bidirectional IPv4/IPv6 isolation
+from LAN and Guest, and actual RF silence/client rejection after OFF. Include
+saved OFF/ON reboot cases and failed enable/disable recovery. A missing counter,
+packet capture or observation remains pending, never a presumed zero. Flash,
+reboot and state-changing device tests require separate owner authorization.
+
 ```mermaid
 flowchart TD
     C[Cold profile generation] --> S[Capture Main/Guest/IoT configuration]

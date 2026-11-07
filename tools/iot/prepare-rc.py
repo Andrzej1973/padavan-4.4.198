@@ -18,6 +18,23 @@ if loader.count(newline)!=1:raise SystemExit('User config newline anchor changed
 # chunks of a long line. A separator after the file prevents later output
 # from joining an unterminated final line.
 loader=loader.replace(newline,'/* Preserve input bytes; add a file separator after the read loop. */',1)
+# fgets chunks are not logical lines. Decide filtering once, then preserve or
+# discard every continuation of that same line. Otherwise a long comment or
+# forbidden parameter can leak its tail into the generated radio profile.
+declaration='char line[256], real_path[128];'
+if loader.count(declaration)!=1:raise SystemExit('User config buffer anchor changed')
+loader=loader.replace(declaration,declaration+'\n\tint line_start = 1, skip_line = 0;',1)
+filter_begin=loader.index("\t\t\tif (line[0] == '\\0'")
+filter_end=loader.index('\t\t\t/* Preserve input bytes;',filter_begin)
+loader=loader[:filter_begin]+'''\t\t\tif (line_start) {
+\t\t\t\tskip_line = line[0] == '\\0' || line[0] == '\\r' ||
+\t\t\t\t            line[0] == '\\n' || line[0] == '#' || line[0] == ';' ||
+\t\t\t\t            (forbid_list && is_param_forbidden(line, forbid_list));
+\t\t\t}
+\t\t\tline_start = strchr(line, '\\n') != NULL;
+\t\t\tif (skip_line) continue;
+\t\t\t
+'''+loader[filter_end:]
 close='\t\tfclose(fp_user);'
 if loader.count(close)!=1:raise SystemExit('User config close anchor changed')
 loader=loader.replace(close,"\t\tfputc('\\n', fp);\n"+close,1)
