@@ -16,7 +16,7 @@
  * Config grammar uses ASCII whitespace and decimal digits, independent of locale. */
 static inline int wr_iot_dns_space(unsigned char c){return c==' '||(c>=9&&c<=13);}
 static inline int wr_iot_dns_digit(unsigned char c){return c>='0'&&c<='9';}
-struct wr_iot_dns_config_budget {unsigned int files;size_t bytes;int dhcp4;unsigned int dhcp_server;};
+struct wr_iot_dns_config_budget {unsigned int files;size_t bytes;int dhcp4;unsigned int dhcp_server;int owned_iot;};
 static inline char *wr_iot_dns_trim(char *value){
  char *end;while(*value==' ')value++;
  end=value+strlen(value);while(end>value&&end[-1]==' ')*--end=0;
@@ -26,6 +26,14 @@ static inline char *wr_iot_dns_trim(char *value){
 static const char wr_iot_dns_meta[]="\000123456 \b\t\n78\r90abcdefABCDE\033F:,.";
 static inline char wr_iot_dns_hide(char c){unsigned int i;for(i=0;i<sizeof(wr_iot_dns_meta)-1;i++)if(c==wr_iot_dns_meta[i])return (char)i;return c;}
 static inline void wr_iot_dns_unhide(char *p){for(;*p;p++)if((unsigned char)*p<sizeof(wr_iot_dns_meta)-1)*p=wr_iot_dns_meta[(unsigned char)*p];}
+/* Conservative ownership marker check after quote decoding. Preserve the
+ * parser's hidden delimiters in the original value for include processing. */
+static inline int wr_iot_dns_config_owned(const char *value){
+ char decoded[512];size_t n=strlen(value);
+ if(n>=sizeof(decoded))return 1;
+ memcpy(decoded,value,n+1);wr_iot_dns_unhide(decoded);
+ return strstr(decoded,"br-iot")!=NULL||strstr(decoded,"wr-iot")!=NULL;
+}
 static inline int wr_iot_dns_config_comments(char *line){
  char *p;int white=1;
  for(p=line;*p;p++){
@@ -121,6 +129,7 @@ static inline int wr_iot_dns_config_read(const char *path,unsigned int depth,str
   if(!wr_iot_dns_config_comments(line)){ok=0;break;}key=wr_iot_dns_trim(line);if(!*key)continue;
   equal=strchr(key,'=');if(!equal){if(!strcmp(key,"dhcp-alternate-port")){budget->dhcp_server=1067;continue;}if(!strcmp(key,"conf-dir")||!strcmp(key,"conf-script")||!strcmp(key,"conf-file")||!strcmp(key,"port")){ok=0;break;}continue;}
   *equal=0;key=wr_iot_dns_trim(key);value=wr_iot_dns_trim(equal+1);
+  if(wr_iot_dns_config_owned(value))budget->owned_iot=1;
   if(!strcmp(key,"port")){
    wr_iot_dns_unhide(value);
    if(!*value){ok=0;break;}
@@ -141,7 +150,7 @@ static inline int wr_iot_dns_config_read(const char *path,unsigned int depth,str
  return ok;
 }
 static inline int wr_iot_dns_config_services_at(const char *path,unsigned int *out,int *dhcp4,unsigned int *dhcp_server){
- struct wr_iot_dns_config_budget budget={0,0,0,67};unsigned int port=53;
+ struct wr_iot_dns_config_budget budget={0,0,0,67,0};unsigned int port=53;
  if(!path||!out||!wr_iot_dns_config_read(path,0,&budget,&port))return 0;
  *out=port;if(dhcp4)*dhcp4=budget.dhcp4;if(dhcp_server)*dhcp_server=budget.dhcp_server;return 1;
 }
@@ -150,5 +159,11 @@ static inline int wr_iot_dns_config_services(const char *path,unsigned int *out,
 }
 static inline int wr_iot_dns_config_port(const char *path,unsigned int *out){
  return wr_iot_dns_config_services(path,out,NULL);
+}
+/* Proves absence of the generated IoT markers across the bounded include
+ * graph, not absence of arbitrary custom DHCP rules or daemon runtime state. */
+static inline int wr_iot_dns_config_without_owned_iot(const char *path){
+ struct wr_iot_dns_config_budget budget={0,0,0,67,0};unsigned int port=53;
+ return path&&wr_iot_dns_config_read(path,0,&budget,&port)&&!budget.owned_iot;
 }
 #endif

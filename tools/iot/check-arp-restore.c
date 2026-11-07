@@ -32,6 +32,8 @@ static int controller_socket_ready(unsigned int port,int dhcp4,unsigned int dhcp
 static int controller_iot_checks;
 static int controller_iot_ready(void){controller_iot_checks++;return controller_fault!=9;}
 #define WR_IOT_CANDIDATE_READY controller_iot_ready
+static int controller_disabled_ready;
+#define WR_IOT_DISABLE_READY() controller_disabled_ready
 static int controller_dns_ready(unsigned int port){assert(port==53);return !controller_dns_bad&&!controller_loop_bad;}
 static int is_dns_dhcpd_run(void){return controller_running;}
 static int get_ap_mode(void){return 0;}
@@ -188,6 +190,18 @@ int main(void){
   assert(!wr_iot_restart_active&&!wr_iot_restart_prepared&&controller_running);
   wr_iot_service_guard_leave(1);
   puts("PASS deferred DNS activation: prepared snapshots retained, regular restart refused, abort restores previous service, failed final readiness retains state and commit retries; daemon injected");
+  assert(wr_iot_dns_disable_prepare()==EBUSY);
+  assert(wr_iot_service_guard_enter(1)==1);
+  assert(wr_iot_dns_disable_prepare()==EINVAL&&!wr_iot_restart_active);
+  controller_disabled_ready=1;assert(!wr_iot_dns_disable_prepare());
+  assert(wr_iot_restart_active&&wr_iot_restart_disabling&&wr_iot_restart_prepared);
+  assert(!wr_iot_dns_disable_prepare());
+  controller_fault=9;assert(wr_iot_dns_disable_prepare()==EIO&&wr_iot_restart_prepared);
+  controller_fault=0;
+  controller_disabled_ready=0;assert(!wr_iot_dns_disable_commit()&&wr_iot_restart_active);
+  controller_disabled_ready=1;assert(wr_iot_dns_disable_commit());
+  assert(!wr_iot_restart_active&&!wr_iot_restart_disabling&&controller_running);
+  wr_iot_service_guard_leave(1);
   assert(!unlink("service.lock"));assert(!unlink("etc/dnsmasq.conf"));assert(!rmdir("etc/dnsmasq/dhcp"));assert(!rmdir("etc/dnsmasq"));assert(!rmdir("etc"));assert(!unlink(WR_IOT_LEASE_PATH));assert(!rmdir("tmp"));assert(!chdir("/tmp"));assert(!rmdir(directory));
  }
 

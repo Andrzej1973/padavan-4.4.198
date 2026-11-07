@@ -30,3 +30,11 @@ int wr_iot_quarantine_ready(void){return eligible(0)&&wr_iot_quarantine_live(0)&
 int wr_iot_policy_rules_ready(const char *ipv4,const char *ipv6){
  return eligible(0)&&wr_iot_policy_live(0,ipv4)&&wr_iot_policy_live(1,ipv6);
 }
+int wr_iot_policy_rules_observed(const char *ipv4,const char *ipv6){
+ int guard;
+ if(!ipv4||!ipv6)return 0;
+ guard=wr_iot_service_guard_dup();if(guard<0)return 0;
+ if(close(guard))return 0;
+ return wr_iot_bss_is_active()&&wr_iot_policy_live(0,ipv4)&&
+        wr_iot_policy_live(1,ipv6)&&wr_iot_bss_is_active();
+}

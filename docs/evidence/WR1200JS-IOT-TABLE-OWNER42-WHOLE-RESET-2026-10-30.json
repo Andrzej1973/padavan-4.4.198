@@ -1,0 +1,34 @@
+{
+  "date": "2026-10-30",
+  "base_commit": "9af5697",
+  "candidate": "peer-lock-lifetime42-20261030",
+  "scope": "whole MacTableReset and MacTableResetWdev bodies with real reservation helpers, mocked deletion/locks/layout",
+  "passed": true,
+  "host_variants": [
+    "without RTMP_MAC_PCI",
+    "with RTMP_MAC_PCI"
+  ],
+  "compiler_flags": [
+    "-std=c11",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Werror"
+  ],
+  "fixture_sha256": "33eeaad3c5c3573b500f0a1aef157cdb296511cedbb19bb9d1bfc7f76dae3d57",
+  "covered": [
+    "preflight failed setup refusal",
+    "scoped reset preserving unrelated failed setup",
+    "exact owner serial provided to reset deletion",
+    "nested reset refused during deletion without altering active owner",
+    "successful reset releases owner",
+    "allocation/deletion failure retains owner and rejects next reset",
+    "final counter clearing only after successful deletion"
+  ],
+  "kernel_concurrency_verified": false,
+  "full_table_clear_admission_bound": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "lifecycle_accepted": false,
+  "full_regression_run": false
+}

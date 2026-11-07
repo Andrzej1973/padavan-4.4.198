@@ -51,3 +51,12 @@ passed. In full build #458 (`39118907721`, commit `deead1d`), Band Steering
 source preparation completed successfully and firmware compilation is in
 progress; the final ROMFS gate has not been reached. This is not evidence that
 the markers are present in #457 or in the installed build #396.
+
+## Later read-only recheck — 2026-10-18 18:19 device time
+
+A new SSH read-only sample supersedes the earlier absent-process/socket result
+for current state: `wr_bs_enable=1`, process PID 951 present, control socket
+present, and `wr-band-steering-ctl status` returned `active`. Both `ra0` and
+`rai0` were `UP`/`LOWER_UP`. This confirms a live daemon/control phase and radio
+interfaces at that later time, but no client roam or steering event was tested.
+See the [sanitized acceleration and steering snapshot](../runtime/WR1200JS-2026-10-18-ACCELERATION-STEERING-SNAPSHOT.md).

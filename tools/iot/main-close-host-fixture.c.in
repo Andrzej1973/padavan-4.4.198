@@ -1,0 +1,141 @@
+#include "main-stop-owned.h"
+#include "main-open-recovery-owner.h"
+#include <assert.h>
+#include <stdio.h>
+#define IN
+#define WDEV_NUM_MAX 1
+#define NDIS_STATUS_SUCCESS 0
+#define NDIS_STATUS_FAILURE 1
+typedef unsigned long ULONG;
+typedef struct adapter *PRTMP_ADAPTER;
+struct net_device { PRTMP_ADAPTER priv; };
+struct adapter {
+ int wr_iot_transition_lock;
+ unsigned int VirtualIfCnt;
+ struct net_device *net_dev;
+ struct wr_iot_radio_transition wr_iot_transition;
+ struct wr_iot_interface_ref wr_iot_interface_refs[WDEV_NUM_MAX+1];
+ struct wr_iot_main_recovery_owner wr_iot_main_recovery;
+ int wr_iot_ticket_wait;
+};
+static int held,pins,preclose,down_calls,down_result,wakes;
+static struct wr_iot_radio_ticket captured_close_ticket;
+static int capture_main_close_claim(
+ struct wr_iot_radio_transition *radio,struct wr_iot_interface_ref *record,
+ const struct wr_iot_interface_ref *slots,unsigned int slot_count,
+ const struct wr_iot_radio_ticket *ticket,unsigned int vendor_count){
+ int accepted=wr_iot_main_close_claim_preclose(radio,record,slots,slot_count,
+                                                ticket,vendor_count);
+ if(accepted)captured_close_ticket=*ticket;
+ return accepted;
+}
+#define wr_iot_main_close_claim_preclose capture_main_close_claim
+#define RTMP_OS_NETDEV_GET_PRIV(dev) ((dev)->priv)
+#define RTMP_IRQ_LOCK(lock,flags) do{(void)(lock);(flags)=0;assert(!held);held=1;}while(0)
+#define RTMP_IRQ_UNLOCK(lock,flags) do{(void)(lock);(void)(flags);assert(held);held=0;}while(0)
+#define VIRTUAL_IF_NUM(ad) ((ad)->VirtualIfCnt)
+#define RT_MOD_DEC_USE_COUNT() do{assert(pins>0);pins--;}while(0)
+#define netif_carrier_off(dev) ((void)(dev),assert(!held))
+#define netif_stop_queue(dev) ((void)(dev),assert(!held))
+#define wake_up_all(wait) do{(void)(wait);assert(!held);wakes++;}while(0)
+#define RTMPInfClose(ad) do{assert((ad)&&!held);preclose++;}while(0)
+static int wr_iot_virtual_down_checked(PRTMP_ADAPTER ad,
+ const struct wr_iot_radio_ticket *ticket){
+ assert(ad&&ticket&&!held);down_calls++;
+ if(down_result)return NDIS_STATUS_FAILURE;
+ assert(ad->VirtualIfCnt>0);
+ ad->VirtualIfCnt--;
+ ad->wr_iot_transition.virtual_down_stage=2;
+ if(ticket->operation==WR_RADIO_CLOSE){
+  ad->wr_iot_transition.shutdown_stage=2;
+  ad->wr_iot_transition.mt_radio_off_stage=4;
+ }
+ return NDIS_STATUS_SUCCESS;
+}
+/* EXTRACTED_MAIN_CLOSE */
+static void setup(struct adapter *ad,struct net_device *dev,
+                  int *peer,unsigned int count){
+ struct wr_iot_interface_ref *r;
+ wr_iot_radio_transition_init(&ad->wr_iot_transition);
+ wr_iot_main_recovery_init(&ad->wr_iot_main_recovery);
+ ad->wr_iot_transition.phase=WR_RADIO_READY;
+ ad->wr_iot_transition.main_ready=1;
+ ad->net_dev=dev;dev->priv=ad;ad->VirtualIfCnt=count;
+ wr_iot_ref_init(&ad->wr_iot_interface_refs[0],dev,1);
+ r=&ad->wr_iot_interface_refs[0];r->family=WR_REF_FAMILY_MAIN;r->published=1;
+ assert(wr_iot_ref_reserve(r,dev,1,7));
+ assert(wr_iot_ref_open_finish(r,dev,1,7,1));
+ if(count>1){
+  r=&ad->wr_iot_interface_refs[1];
+  wr_iot_ref_init(r,peer,2);r->family=WR_REF_FAMILY_MBSS;r->published=1;
+  assert(wr_iot_ref_reserve(r,peer,2,8));
+  assert(wr_iot_ref_open_finish(r,peer,2,8,1));
+ }
+ pins++;
+}
+int main(void){
+ struct adapter only={0},with_peer={0},failed={0},acquired={0},deferred={0};
+ struct net_device a={0},b={0},c={0},d={0},e={0};
+ struct wr_iot_radio_ticket acquired_ticket;
+ unsigned long acquired_generation=0,acquired_token=0,wait_serial=0;
+ int peer=0;
+ setup(&only,&a,&peer,1);
+ assert(MainVirtualIF_close(&a)==0);
+ assert(only.VirtualIfCnt==0&&pins==0&&preclose==1&&down_calls==1&&wakes==1);
+ assert(only.wr_iot_interface_refs[0].phase==WR_REF_IDLE&&!held);
+ setup(&with_peer,&b,&peer,2);
+ assert(MainVirtualIF_close(&b)==0);
+ assert(with_peer.VirtualIfCnt==1&&pins==0&&preclose==2&&down_calls==2&&wakes==2);
+ assert(with_peer.wr_iot_interface_refs[1].phase==WR_REF_OWNED&&!held);
+ setup(&failed,&c,&peer,1);
+ down_result=1;
+ assert(MainVirtualIF_close(&c)==-1);
+ assert(failed.VirtualIfCnt==1&&pins==1&&preclose==3&&down_calls==3);
+ assert(failed.wr_iot_interface_refs[0].phase==WR_REF_CLOSING);
+ assert(failed.wr_iot_transition.busy==WR_RADIO_CLOSE&&!held);
+ assert(MainVirtualIF_close(&c)==-1);
+ assert(pins==1&&preclose==3&&down_calls==3&&!held);
+ assert(wr_iot_main_close_preclose_once(&failed,&c,1,
+                                       &captured_close_ticket)==-1);
+ assert(preclose==3);
+ assert(wr_iot_main_recovery_queue_close(&failed.wr_iot_main_recovery,
+  &failed.wr_iot_transition,&failed.wr_iot_interface_refs[0],
+  failed.wr_iot_interface_refs,WDEV_NUM_MAX+1,&captured_close_ticket,
+  failed.VirtualIfCnt,1,1,WR_MAIN_QUEUE_NORMAL,0));
+ assert(wr_iot_main_recovery_schedule_result(&failed.wr_iot_main_recovery,1));
+ assert(wr_iot_main_recovery_execute(&failed)==-1);
+ assert(failed.wr_iot_main_recovery.phase==WR_MAIN_OWNER_RETAINED);
+ assert(pins==1&&preclose==3&&down_calls==4);
+ assert(!wr_iot_main_recovery_requeue(&failed.wr_iot_main_recovery,3,0));
+ assert(wr_iot_main_recovery_requeue(&failed.wr_iot_main_recovery,3,1));
+ assert(wr_iot_main_recovery_schedule_result(&failed.wr_iot_main_recovery,1));
+ down_result=0;
+ assert(wr_iot_main_recovery_execute(&failed)==0);
+ assert(preclose==3&&down_calls==5&&failed.VirtualIfCnt==0&&wakes==3);
+ assert(failed.wr_iot_interface_refs[0].phase==WR_REF_IDLE);
+ assert(failed.wr_iot_main_recovery.completed&&
+        failed.wr_iot_main_recovery.module_pin_released);
+ assert(wr_iot_main_recovery_complete(&failed.wr_iot_main_recovery,1));
+ assert(pins==0);
+ setup(&acquired,&d,&peer,1);
+ assert(wr_iot_main_close_begin_checked(&acquired,&d,&acquired_ticket,
+         &acquired_generation,&acquired_token,&wait_serial)==0);
+ assert(wr_iot_main_close_preclose_once(&acquired,&d,acquired_generation,
+                                        &acquired_ticket)==0);
+ assert(wr_iot_main_close_continue_checked(&acquired,&d,
+         acquired_generation,acquired_token,&acquired_ticket)==0);
+ RT_MOD_DEC_USE_COUNT();
+ assert(pins==0&&preclose==4&&down_calls==6&&wakes==4);
+ assert(acquired.wr_iot_interface_refs[0].phase==WR_REF_IDLE);
+ setup(&deferred,&e,&peer,1);
+ assert(wr_iot_main_recovery_queue(&deferred.wr_iot_main_recovery,
+  &deferred.wr_iot_transition,&deferred.wr_iot_interface_refs[0],
+  WR_MAIN_RECOVERY_OPEN_ACQUIRED,1,1,WR_MAIN_QUEUE_NORMAL,0));
+ assert(wr_iot_main_recovery_schedule_result(&deferred.wr_iot_main_recovery,1));
+ assert(wr_iot_main_recovery_execute(&deferred)==0);
+ assert(preclose==5&&down_calls==7&&wakes==5&&pins==0);
+ assert(deferred.wr_iot_interface_refs[0].phase==WR_REF_IDLE);
+ assert(wr_iot_main_recovery_complete(&deferred.wr_iot_main_recovery,1));
+ puts("PASS partial main close: ndo_stop, exact-ticket recovery, acquired-open deferred execution");
+ return 0;
+}

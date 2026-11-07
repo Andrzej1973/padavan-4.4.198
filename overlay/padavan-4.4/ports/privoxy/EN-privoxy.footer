@@ -2,3 +2,4 @@ Adm_Svc_privoxy=Enable Privoxy proxy
 CustomConf=Custom configuration
 Service_Privoxy_Title=Privoxy proxy
 Service_Privoxy_Alert_Size=The configuration is too large to save in the web interface. No changes were sent.
+Service_Privoxy_Alert_Save=Privoxy files may have changed temporarily, but saving to persistent storage failed. No service restart was requested. Check available storage and try applying again.

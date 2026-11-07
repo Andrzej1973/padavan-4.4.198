@@ -1,11 +1,13 @@
 #!/bin/sh
-# Candidate helper; integration and target runtime checks are still required.
+# Integrated WR1200JS helper; its presence does not prove physical DNS health.
 STUBBY_BIN=/usr/sbin/stubby
 STUBBY_CONFIG=/etc/storage/stubby/stubby.yml
 PID_FILE=/var/run/stubby.pid
 CA_FILE=/usr/share/stubby/ca-certificates.crt
 
 fail() { logger -t stubby "$*"; echo "$*" >&2; exit 1; }
+
+DNS_LISTENER_GUARD=/usr/bin/stubby-dns-listener-guard.sh
 
 valid_ipv4()
 {
@@ -41,8 +43,8 @@ make_config()
 {
     port=$(nvram get stubby_listen_port)
     case "$port" in ''|*[!0-9]*) fail 'Invalid Stubby listen port';; esac
-    [ "${#port}" -le 5 ] && [ "$port" -ge 1 ] && [ "$port" -le 65535 ] ||
-        fail 'Stubby listen port must be between 1 and 65535'
+    [ "${#port}" -le 5 ] && [ "$port" -ge 1024 ] && [ "$port" -le 65535 ] ||
+        fail 'Stubby listen port must be between 1024 and 65535'
     round_robin=$(nvram get stubby_round_robin)
     case "$round_robin" in 0|1) ;; *) fail 'Invalid Stubby round-robin setting';; esac
     listen_mode=$(nvram get stubby_listen_mode)
@@ -52,6 +54,10 @@ make_config()
         2) listen_address=0.0.0.0;;
         *) fail 'Invalid Stubby listen mode';;
     esac
+    [ -r "$DNS_LISTENER_GUARD" ] || fail 'DNS listener conflict checker is missing'
+    . "$DNS_LISTENER_GUARD"
+    wr_dns_listener_conflict stubby "$listen_address" "$port" ||
+        fail "Cannot safely start Stubby on $listen_address:$port: DoH listener conflicts or its configuration is invalid"
     mode=$(nvram get stubby_mode)
     case "$mode" in
         0|1) auth=GETDNS_AUTHENTICATION_REQUIRED;;

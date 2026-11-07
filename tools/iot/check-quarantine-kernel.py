@@ -21,6 +21,11 @@ def expect(label,family,success):
         diagnostic=subprocess.run([command,'-t','filter'],capture_output=True,text=True,check=True).stdout
         (root/f'{label}-rules.txt').write_text(diagnostic)
         print(diagnostic,flush=True)
+    if not checks[label] and str(family)=='observed':
+        for command in (['ip','-d','link','show','br-iot'],['ip','-d','link','show','ra2'],
+                        ['iptables-legacy-save'],['ip6tables-legacy-save']):
+            observed=subprocess.run(command,capture_output=True,text=True)
+            print(f'[{label}] ' + ' '.join(command) + '\n' + observed.stdout,flush=True)
     assert checks[label],label
 for family in (4,6):
     install(family,'');expect(f'v{family}_empty_rejected',family,False)
@@ -32,9 +37,14 @@ for family in (4,6):
 expect('unguarded_observation_rejected','unguarded',False)
 expect('missing_owned_bridge_rejected','owned',False)
 subprocess.run(['ip','link','add','br-iot','type','bridge'],check=True)
+def disable_ipv6(name):
+    path=Path(f'/proc/sys/net/ipv6/conf/{name}/disable_ipv6')
+    if path.parent.is_dir(): path.write_text('1\n')
+disable_ipv6('br-iot')
 expect('foreign_bridge_rejected','owned',False)
 subprocess.run(['ip','link','set','br-iot','alias','wr1200js-iot-v1'],check=True)
 subprocess.run(['ip','link','add','ra2','type','dummy'],check=True)
+disable_ipv6('ra2')
 expect('owned_guarded_quarantine_ready','owned',True)
 subprocess.run(['ip','link','set','ra2','up'],check=True)
 expect('active_bss_rejected','owned',False)
@@ -57,6 +67,23 @@ for family in (4,6):
     if family==4:
         apply(policy.replace('eth2.2','eth2.3'));expect('v4_wrong_wan_rejected','policy4',False)
     apply(policy);expect(f'v{family}_active_policy_restored',f'policy{family}',True)
+subprocess.run(['ip','link','set','ra2','master','br-iot'],check=True)
+subprocess.run(['ip','link','set','br-iot','up'],check=True)
+subprocess.run(['ip','link','set','ra2','up'],check=True)
+expect('active_owned_policy_observed','observed',True)
+expect('active_bss_still_refuses_mutation_guard','can-apply',False)
+subprocess.run(['ip','link','set','ra2','down'],check=True)
+expect('down_bss_active_observation_refused','observed',False)
+subprocess.run(['ip','link','set','ra2','up'],check=True)
+subprocess.run(['ip','link','add','obs-foreign','type','dummy'],check=True)
+subprocess.run(['ip','link','set','obs-foreign','master','br-iot'],check=True)
+expect('foreign_member_active_observation_refused','observed',False)
+subprocess.run(['ip','link','delete','obs-foreign'],check=True)
+policy=(root/'iot-filter.v4').read_text()
+subprocess.run(['iptables-legacy-restore'],input=policy.replace(':OUTPUT ACCEPT [0:0]\n',':OUTPUT ACCEPT [0:0]\n-A INPUT -j ACCEPT\n',1),text=True,check=True)
+expect('active_policy_prior_accept_observation_refused','observed',False)
+subprocess.run(['iptables-legacy-restore'],input=policy,text=True,check=True)
+expect('active_policy_restored_observation','observed',True)
 (root/'iot-quarantine-kernel.json').write_text(json.dumps({'checks':checks,'scope':'Host legacy netfilter readback; router kernel/offload/activation unverified'},indent=2)+'\n')
 print('PASS live IPv4/IPv6 quarantine readback: actual kernel rules, early accepts and wrong BSS rejected')
 print('PASS live active policy readback: IPv4 scoped DHCP/DNS/WAN and IPv6 drops, prior accept and changed rules/WAN rejected')

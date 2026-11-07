@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Install authenticated USB/IP export settings; no automatic restore yet."""
+"""Install authenticated USB/IP export settings and default-off restore control."""
 import argparse
 from pathlib import Path
 

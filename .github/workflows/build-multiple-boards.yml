@@ -1,11 +1,15 @@
 name: Build selected router firmware
-run-name: TEST Padavan 4.4.198 — build ${{ github.run_number }}
+run-name: "Padavan #${{ github.run_number }} [${{ inputs.run_candidate_checks && 'optional' || 'standard' }}] ${{ inputs.verification_revision || github.sha }} ${{ inputs.candidate_scope || 'iot' }}/${{ inputs.iot_candidate_variant || 'legacy' }}"
 on:
   pull_request:
     branches: [main]
     types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
     inputs:
+      verification_revision:
+        description: Optional exact ancestor SHA to verify independently of the current branch HEAD
+        type: string
+        default: ''
       boards:
         description: Router profiles to build
         type: choice
@@ -15,11 +19,24 @@ on:
         description: Run additional isolated experimental compilations
         type: boolean
         default: false
+      candidate_scope:
+        description: Which isolated candidates to compile when checks are enabled
+        type: choice
+        options: [iot, all]
+        default: iot
+      iot_candidate_variant:
+        description: Isolated IoT candidate to compile when checks are enabled
+        type: choice
+        options: [legacy, v39, v40, v41, v42, peer82]
+        default: legacy
   push:
     branches: [main]
     paths:
       - '.github/workflows/build-multiple-boards.yml'
       - '.github/workflows/build-padavan-4.4-wr1200js.yml'
+      - 'tools/check-inherited-dict-localization.py'
+      - 'tools/check-settings-backup-behavior.js'
+      - 'tools/prepare-flash-save-feedback.py'
       - 'configs.build/wr1200js.config'
       - 'tools/tmp-upload/**'
       - 'tools/generate-router-guide.py'
@@ -66,6 +83,8 @@ on:
       - 'tools/check-zerotier-state.py'
       - 'tools/check-target-busybox.py'
       - 'tools/check-target-busybox-map.py'
+      - 'tools/check-qos-packaging.py'
+      - 'tools/target_busybox_service_map.py'
       - 'tools/check-privoxy-target-config.py'
       - 'tools/prepare-target-busybox.py'
       - 'tools/prepare-ssh-status.py'
@@ -74,6 +93,9 @@ on:
       - 'tools/prepare-discovery-status.py'
       - 'tools/check-discovery-status.py'
       - 'tools/verify-discovery-status-image.py'
+      - 'tools/prepare-wr1200js-cpu-watchdog.py'
+      - 'tools/check-wr1200js-cpu-watchdog.py'
+      - 'tools/verify-wr1200js-cpu-watchdog-image.py'
       - 'overlay/padavan-4.4/ports/ssh/verify-image.py'
       - 'tools/prepare-iperf3-status.py'
       - 'tools/prepare-privoxy-status.py'
@@ -251,13 +273,32 @@ on:
       - 'tools/band-steering/prepare-quiet-status-log.py'
 permissions:
   contents: read
+concurrency:
+  # Normal PR/push verification and explicitly requested candidate builds
+  # may run together; each lane still serializes runs on the same ref.
+  group: firmware-${{ github.ref }}-${{ inputs.run_candidate_checks && 'optional' || 'standard' }}
+  cancel-in-progress: false
+  queue: max
 jobs:
   select:
     runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.boards.outputs.matrix }}
+      revision: ${{ steps.revision.outputs.sha }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - id: revision
+        env:
+          REQUESTED_REVISION: ${{ inputs.verification_revision || '' }}
+          DISPATCH_SHA: ${{ github.sha }}
+          ALLOW_OVERRIDE: ${{ github.event_name == 'workflow_dispatch' && inputs.run_candidate_checks && 'true' || 'false' }}
+        run: python3 tools/select-verification-revision.py --revision "$REQUESTED_REVISION" --dispatch-sha "$DISPATCH_SHA" --allow-override "$ALLOW_OVERRIDE"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: verification-source
+          path: verification-source.json
       - id: boards
         env:
           BOARD_SELECTION: ${{ inputs.boards || 'wr1200js' }}
@@ -273,7 +314,10 @@ jobs:
       matrix: ${{ fromJSON(needs.select.outputs.matrix) }}
     uses: ./.github/workflows/build-padavan-4.4-wr1200js.yml
     with:
+      verification_revision: ${{ needs.select.outputs.revision }}
       run_candidate_checks: ${{ inputs.run_candidate_checks || false }}
+      candidate_scope: ${{ inputs.candidate_scope || 'iot' }}
+      iot_candidate_variant: ${{ inputs.iot_candidate_variant || 'legacy' }}
   downloads:
     if: always() && needs.select.result == 'success'
     needs: [select, build]

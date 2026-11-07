@@ -4,6 +4,24 @@ import argparse,json
 from pathlib import Path
 p=argparse.ArgumentParser();p.add_argument('source',type=Path);a=p.parse_args()
 rc=a.source/'trunk/user/rc';local=Path(__file__).parent
+# User override lines are data, never printf formats. Keep this correction in
+# the same prepared RC tree whose cold profile consumes AP.dat.
+common=rc/'common_ex.c';common_text=common.read_text(encoding='utf-8')
+begin=common_text.index('load_user_config(FILE *fp,')
+end=common_text.index('\nint\nis_module_loaded',begin)
+loader=common_text[begin:end]
+if loader.count('fprintf(fp, line);')!=1:raise SystemExit('User config literal-write anchor changed')
+loader=loader.replace('fprintf(fp, line);','fputs(line, fp);',1)
+newline="line[strlen(line) - 1] = '\\n';"
+if loader.count(newline)!=1:raise SystemExit('User config newline anchor changed')
+# Preserve every byte, including the last byte of an unterminated value and
+# chunks of a long line. A separator after the file prevents later output
+# from joining an unterminated final line.
+loader=loader.replace(newline,'/* Preserve input bytes; add a file separator after the read loop. */',1)
+close='\t\tfclose(fp_user);'
+if loader.count(close)!=1:raise SystemExit('User config close anchor changed')
+loader=loader.replace(close,"\t\tfputc('\\n', fp);\n"+close,1)
+common.write_text(common_text[:begin]+loader+common_text[end:],encoding='utf-8')
 board=a.source/'trunk/configs/boards/WR1200JS/l1profile.dat'
 s=board.read_text(encoding='utf-8')
 if 'INDEX0_main_ifname=ra0' not in s or 'INDEX0_ext_ifname=ra\n' not in s:raise SystemExit('WR1200JS third BSS interface assumptions changed')
@@ -69,7 +87,7 @@ for name in ('bridge.h','subnet.h','types.h'):(headers/name).write_bytes((local/
 for name in ('activation.h','request.h','request-stage.h','radio-profile-state.h','dns-activation.h'):(headers/name).write_bytes((local/name).read_bytes())
 (headers/'request-snapshot.h').write_bytes((local/'request-snapshot.h').read_bytes())
 snapshot=(local/'request-snapshot.c').read_text(encoding='utf-8')
-for name in ('request-snapshot.h','service-guard.h'):
+for name in ('request-snapshot.h','service-guard.h','bridge.h'):
  snapshot=snapshot.replace('#include "'+name+'"','#include "wr-iot/'+name+'"',1)
 (rc/'wr-iot-request-snapshot.c').write_text(snapshot,encoding='utf-8')
 bridge=(local/'bridge.c').read_text(encoding='utf-8').replace('#include "bridge.h"','#include "wr-iot/bridge.h"',1).replace('#include "subnet.h"','#include "wr-iot/subnet.h"',1)
@@ -83,30 +101,72 @@ report={'board':'WR1200JS','candidate_bss':'ra2','bridge_object_installed':True,
 report['activation_headers_staged']=True
 report['request_snapshot_header_staged']=True
 report['request_snapshot_runtime_adapter_staged']=True
-# Profile activation remains gated by an internal temporary preparation state.
+# Cold reservation is part of the one physical-radio configuration generation.
+# Runtime ON/OFF must use the already-created ra2 interface; it must never use
+# the old profile-rewrite/restart path.
 f=rc/'ralink.c';radio=f.read_text(encoding='utf-8')
-anchor='\tfclose(fp);\n\n\treturn 0;\n}\n\nint\ngen_ralink_config_2g'
-coordinated='#ifdef USE_WR_BAND_STEERING_PROFILE\n\t{\n\t\tint failed = ferror(fp);'
-if radio.count(coordinated)==1:anchor=coordinated
-elif radio.count(anchor)!=1:raise SystemExit('Profile completion anchor changed')
-radio=radio.replace('static int\ngen_ralink_config(', '#if defined(BOARD_WR1200JS)\n#include "wr-iot/profile.h"\n#endif\n\nstatic int\ngen_ralink_config(',1)
-hook=r"""#if defined(BOARD_WR1200JS)
- if (!is_aband && nvram_get_int("wr_iot_profile_t") == 1) {
-  char ssid[33],password[65];const char *value;size_t n;int failed=ferror(fp);
-  if (fclose(fp)) failed=1;
-  if (failed || !is_soc_ap || get_ap_mode() || i_mode_x==1 || i_mode_x==3) return -1;
-  value=nvram_safe_get("wr_iot_ssid_t");n=strlen(value);
-  if (n>=sizeof(ssid)) return -1;
-  memcpy(ssid,value,n+1);
-  value=nvram_safe_get("wr_iot_psk_t");n=strlen(value);
-  if (n>=sizeof(password)) return -1;
-  memcpy(password,value,n+1);
-  return wr_iot_profile_apply(dat_file,ssid,password)?0:-1;
- }
+profile_snapshot='wr_profile_wlan_get_int(is_aband, "mode_x")' in radio
+anchor='static int\ngen_ralink_config('
+if radio.count(anchor)!=1:raise SystemExit('Ralink generator anchor changed')
+include=r'''#if defined(BOARD_WR1200JS)
+#include "wr-iot/precreated-profile-request.h"
+#include "wr-iot/precreated-entropy.h"
+static const char *wr_iot_cold_nvram_read(void *unused,const char *key)
+{
+ (void)unused;
+ return nvram_safe_get(key);
+}
 #endif
-"""
-radio=radio.replace(anchor,hook+anchor,1)
-for name in ('profile.h','profile-list.h','profile-line.h','profile-stream.h','profile-file.h'):
+
+'''
+radio=radio.replace(anchor,include+anchor,1)
+decl='int i_stream_tx, i_stream_rx, i_mphy, i_mmcs, i_fphy[2], i_val_mbss[2];'
+if radio.count(decl)!=1:raise SystemExit('Ralink local declaration changed')
+radio=radio.replace(decl,decl+'''\n\tint iot_reserved = 0;\n#if defined(BOARD_WR1200JS)\n\tstruct wr_iot_precreated_profile_request iot_request;\n#endif''',1)
+anchor='\ti_mode_x = nvram_wlan_get_int(is_aband, "mode_x");'
+if profile_snapshot:anchor=anchor.replace('nvram_wlan_get_int','wr_profile_wlan_get_int')
+if radio.count(anchor)!=1:raise SystemExit('Ralink radio-mode anchor changed')
+cold=r'''\ti_mode_x = nvram_wlan_get_int(is_aband, "mode_x");
+#if defined(BOARD_WR1200JS)
+\t/* Reserve ra2 only while generating the initial 2.4 GHz AP profile.
+\t * An unavailable CSPRNG or invalid saved request leaves BssidNum at two:
+\t * never create an open fallback BSS. MBSS_Open controls beacon emission;
+\t * net_wifi deliberately does not ifconfig ra2 up until IoT activation. */
+\tif (!is_aband && is_soc_ap && i_mode_x != 1 && i_mode_x != 3 &&
+\t    wr_iot_precreated_boot_request_read(&iot_request,
+\t      wr_iot_cold_nvram_read, NULL, wr_iot_precreated_entropy, NULL)) {
+\t\ti_ssid_num = 3;
+\t\tiot_reserved = 1;
+\t}
+#endif'''
+cold=cold.replace(r'\t','\t')
+if profile_snapshot:cold=cold.replace('nvram_wlan_get_int','wr_profile_wlan_get_int')
+radio=radio.replace(anchor,cold,1)
+replacements=[
+ ('fprintf(fp, "SSID%d=%s\\n", 2, nvram_wlan_get(is_aband, "guest_ssid"));', 'fprintf(fp, "SSID%d=%s\\n", 2, nvram_wlan_get(is_aband, "guest_ssid"));\n#if defined(BOARD_WR1200JS)\n\tif (iot_reserved) fprintf(fp, "SSID%d=%s\\n", 3, iot_request.ssid);\n#endif'),
+ ('for (i = 3; i <= 8; i++)\n\t\tfprintf(fp, "SSID%d=%s\\n", i, "");', 'for (i = iot_reserved ? 4 : 3; i <= 8; i++)\n\t\tfprintf(fp, "SSID%d=%s\\n", i, "");'),
+ ('fprintf(fp, "WmmCapable=%d;%d\\n", i_wmm, i_wmm);', 'fprintf(fp, "WmmCapable=%d;%d%s\\n", i_wmm, i_wmm, iot_reserved ? ";1" : "");'),
+ ('fprintf(fp, "DLSCapable=%d;%d\\n", 0, 0);', 'fprintf(fp, "DLSCapable=%d;%d%s\\n", 0, 0, iot_reserved ? ";0" : "");'),
+ ('fprintf(fp, "NoForwarding=%d;%d\\n", i_val_mbss[0], i_val_mbss[1]);', 'fprintf(fp, "NoForwarding=%d;%d%s\\n", i_val_mbss[0], i_val_mbss[1], iot_reserved ? ";1" : "");'),
+ ('fprintf(fp, "NoForwardingMBCast=%d;%d\\n", i_val_mbss[0], i_val_mbss[1]);', 'fprintf(fp, "NoForwardingMBCast=%d;%d%s\\n", i_val_mbss[0], i_val_mbss[1], iot_reserved ? ";1" : "");'),
+ ('fprintf(fp, "HideSSID=%d;%d\\n", i_val_mbss[0], i_val_mbss[1]);', 'fprintf(fp, "HideSSID=%d;%d%s\\n", i_val_mbss[0], i_val_mbss[1], iot_reserved ? ";0" : "");'),
+ ('fprintf(fp, "PreAuth=0;0\\n");', 'fprintf(fp, "PreAuth=0;0%s\\n", iot_reserved ? ";0" : "");'),
+ ('fprintf(fp, "IEEE8021X=%d;%d\\n", i_val, 0);', 'fprintf(fp, "IEEE8021X=%d;%d%s\\n", i_val, 0, iot_reserved ? ";0" : "");'),
+ ('fprintf(fp, "FixedTxMode=%d;%d\\n", i_fphy[0], i_fphy[1]);', 'fprintf(fp, "FixedTxMode=%d;%d%s\\n", i_fphy[0], i_fphy[1], iot_reserved ? ";0" : "");'),
+ ('fprintf(fp, "HT_MCS=%d;%d\\n", i_val_mbss[0], i_val_mbss[1]);', 'fprintf(fp, "HT_MCS=%d;%d%s\\n", i_val_mbss[0], i_val_mbss[1], iot_reserved ? ";33" : "");'),
+ ('fprintf(fp, "StationKeepAlive=%d;%d\\n", 0, 0);', 'fprintf(fp, "StationKeepAlive=%d;%d%s\\n", 0, 0, iot_reserved ? ";0" : "");'),
+ ('fprintf(fp, "AuthMode=%s;%s\\n", c_val_mbss[0], c_val_mbss[1]);', 'fprintf(fp, "AuthMode=%s;%s%s\\n", c_val_mbss[0], c_val_mbss[1], iot_reserved ? ";WPA2PSK" : "");'),
+ ('fprintf(fp, "EncrypType=%s;%s\\n", c_val_mbss[0], c_val_mbss[1]);', 'fprintf(fp, "EncrypType=%s;%s%s\\n", c_val_mbss[0], c_val_mbss[1], iot_reserved ? ";AES" : "");'),
+ ('fprintf(fp, "WPAPSK%d=%s\\n", 2, nvram_wlan_get(is_aband, "guest_wpa_psk"));', 'fprintf(fp, "WPAPSK%d=%s\\n", 2, nvram_wlan_get(is_aband, "guest_wpa_psk"));\n#if defined(BOARD_WR1200JS)\n\tif (iot_reserved) fprintf(fp, "WPAPSK%d=%s\\n", 3, iot_request.password);\n#endif'),
+ ('for (i = 3; i <= 8; i++)\n\t\tfprintf(fp, "WPAPSK%d=%s\\n", i, "");', 'for (i = iot_reserved ? 4 : 3; i <= 8; i++)\n\t\tfprintf(fp, "WPAPSK%d=%s\\n", i, "");'),
+]
+for old,new in replacements:
+ if profile_snapshot:
+  old=old.replace('nvram_wlan_get(','wr_profile_wlan_get(')
+  new=new.replace('nvram_wlan_get(','wr_profile_wlan_get(')
+ if radio.count(old)!=1:raise SystemExit('Cold BSS output anchor changed: '+old)
+ radio=radio.replace(old,new,1)
+for name in ('profile.h','profile-list.h','profile-line.h','profile-scan.h','profile-stream.h','profile-file.h','precreated-profile-request.h','precreated-entropy.h'):
  (headers/name).write_bytes((local/name).read_bytes())
 shared=rc/'shared-wifi';shared.mkdir(exist_ok=True)
 (shared/'validate.h').write_bytes((local.parent/'shared-wifi/validate.h').read_bytes())
@@ -115,7 +175,8 @@ profile=(local/'profile.c').read_text(encoding='utf-8').replace('#include "profi
 m.write_text(m.read_text(encoding='utf-8').replace('OBJS += wr-iot-request-stage.o wr-iot-bridge.o','OBJS += wr-iot-request-stage.o wr-iot-bridge.o wr-iot-profile.o'),encoding='utf-8')
 f.write_text(radio,encoding='utf-8')
 report['profile_hook_installed']=True
-report['profile_activation_guard']='wr_iot_profile_t; no startup sets this state yet'
+report['profile_activation_guard']='cold generator only; runtime backend remains unbound'
+report['profile_owned_removal_api_installed']=True
 # Only a future validated network snapshot may activate this service fragment.
 f=rc/'services_ex.c';service=f.read_text(encoding='utf-8')
 anchor='int\nstart_dns_dhcpd(int is_ap_mode)'
@@ -242,7 +303,7 @@ service=service.replace('int\nstart_dns_dhcpd(int is_ap_mode)', 'static int\nwr_
 service=service.replace('void\nstop_dns_dhcpd(void)', 'static void\nwr_iot_stop_dns_raw(void)',1)
 anchor='int\nrestart_dhcpd(void)\n{\n\tstop_dns_dhcpd();\n\treturn start_dns_dhcpd(get_ap_mode());\n}'
 if service.count(anchor)!=1:raise SystemExit('DNS restart serialization anchor changed')
-controller=(local/"restart-controller.inc").read_text(encoding="utf-8").replace('#include "dns-ready.h"','#include "wr-iot/dns-ready.h"').replace('#include "dns-config.h"','#include "wr-iot/dns-config.h"').replace('#include "dhcp-ready.h"','#include "wr-iot/dhcp-ready.h"').replace('#include "dns-sockets.h"','#include "wr-iot/dns-sockets.h"')
+controller=(local/"restart-controller.inc").read_text(encoding="utf-8").replace('#include "dns-ready.h"','#include "wr-iot/dns-ready.h"').replace('#include "dns-config.h"','#include "wr-iot/dns-config.h"').replace('#include "dhcp-ready.h"','#include "wr-iot/dhcp-ready.h"').replace('#include "dns-sockets.h"','#include "wr-iot/dns-sockets.h"').replace('#include "bridge.h"','#include "wr-iot/bridge.h"')
 for name in ("dns-ready.h","dns-config.h","dhcp-ready.h","dns-sockets.h"):(headers/name).write_bytes((local/name).read_bytes())
 wrappers=r"""#if defined(BOARD_WR1200JS)
 static int wr_iot_dns_lock(void)
@@ -496,8 +557,19 @@ static int wr_iot_active_filter_plan(struct wr_iot_firewall *rules,const char *l
 static int wr_iot_firewall_quarantine(FILE *fp,int allow_policy,const char *lan,const char *wan)
 {
  struct wr_iot_firewall rules;
- if(!wr_iot_bridge_is_owned())return 1;
- if(allow_policy&&wr_iot_active_filter_plan(&rules,lan,wan))return fputs(rules.ipv4,fp)>=0;
+ /* ra2 is reserved for the third BSS on this board. Keep it quarantined
+  * even before br-iot ownership is established; a partially attached BSS
+  * must not inherit broad router/LAN accept rules. */
+ if(!wr_iot_bridge_is_owned())
+  return fputs("-A INPUT -i ra2 -j DROP\n"
+               "-A FORWARD -i ra2 -j DROP\n"
+               "-A FORWARD -o ra2 -j DROP\n",fp)>=0;
+ /* Keep an unbridged ra2 path blocked after the br-iot allow policy is
+  * installed too. Routed IoT packets use br-iot as their ingress device. */
+ if(allow_policy&&wr_iot_active_filter_plan(&rules,lan,wan))
+  return fputs("-A INPUT -i ra2 -j DROP\n"
+               "-A FORWARD -i ra2 -j DROP\n"
+               "-A FORWARD -o ra2 -j DROP\n",fp)>=0 && fputs(rules.ipv4,fp)>=0;
  return fputs("-A INPUT -i br-iot -j DROP\n"
               "-A FORWARD -i br-iot -j DROP\n"
               "-A FORWARD -o br-iot -j DROP\n"
@@ -548,6 +620,29 @@ report['iot_wan_nat']='Scoped classic MASQUERADE before existing LAN WAN NAT; re
 report['owned_bridge_firewall_quarantine']='IPv4/IPv6 normal/default builders before generic accepts; IPv4 allow policy requires wr_iot_firewall_t and wr_iot_network_t; activation controller pending'
 report['iot_main_dnsmasq_config_staged']=True
 report['dnsmasq_service_rollback_complete']=False
+report['dns_disable_transaction_api_installed']=True
+report['owned_disable_settings_api_installed']=True
+(headers/'disable-services.h').write_bytes((local/'disable-services.h').read_bytes())
+disable=(local/'disable-services.c').read_text(encoding='utf-8')
+for name in ('disable-services.h','dns-activation.h'):
+ disable=disable.replace('#include "'+name+'"','#include "wr-iot/'+name+'"',1)
+(rc/'wr-iot-disable-services.c').write_text(disable,encoding='utf-8')
+make=m.read_text(encoding='utf-8')
+if make.count('wr-iot-request-snapshot.o')!=1:raise SystemExit('Disable service object anchor changed')
+m.write_text(make.replace('wr-iot-request-snapshot.o','wr-iot-request-snapshot.o wr-iot-disable-services.o',1),encoding='utf-8')
+report['disable_services_adapter_installed']=True
+report['disable_services_controller_bound']=False
+(headers/'disable-controller.h').write_bytes((local/'disable-controller.h').read_bytes())
+disable=(local/'disable-controller.c').read_text(encoding='utf-8')
+for name in ('disable-controller.h','bridge.h'):
+ disable=disable.replace('#include "'+name+'"','#include "wr-iot/'+name+'"',1)
+(rc/'wr-iot-disable-controller.c').write_text(disable,encoding='utf-8')
+make=m.read_text(encoding='utf-8')
+if make.count('wr-iot-disable-services.o')!=1:raise SystemExit('Disable controller object anchor changed')
+m.write_text(make.replace('wr-iot-disable-services.o','wr-iot-disable-services.o wr-iot-disable-controller.o',1),encoding='utf-8')
+report['disable_controller_adapter_installed']=True
+report['disable_controller_radio_bound']=False
+report['dns_disable_scope']='Fresh current service snapshot before bridge removal; exact closed gates, DOWN BSS and absent/owned bridge; bounded include graph must contain no owned IoT markers before commit; activation callback binding pending'
 (headers/'quarantine.h').write_bytes((local/'quarantine.h').read_bytes())
 quarantine=(local/'quarantine.c').read_text(encoding='utf-8')
 for name in ('quarantine.h','quarantine-live.h','bridge.h','service-guard.h'):

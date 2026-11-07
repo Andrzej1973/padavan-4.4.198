@@ -8,6 +8,13 @@ Start with [docs/AGENT-BOOTSTRAP.md](docs/AGENT-BOOTSTRAP.md). It records the
 approved goal, the agent roles, the current verified and unverified state, the
 environment quirks of the development machine and the first checks to run.
 
+## Навігація проєктом
+
+- [Індекс документації](docs/README.md)
+- [Карта репозиторію](docs/REPOSITORY-STRUCTURE.md)
+- [Правила внесення змін](CONTRIBUTING.md)
+- [Поточний статус](PROJECT_STATUS.md) і [передача роботи](CODEX_HANDOFF.md)
+
 ## Selected packages and features
 
 The [WR1200JS configuration](configs.build/wr1200js.config) enables:

@@ -1,0 +1,9 @@
+{
+  "scope": "candidate source binding of permanent command admission closure",
+  "preparer_sha256": "9a457fe214d63b66a14cd1d7b4366971934a6e0f837b5b41e71957e74c97f140",
+  "source_order_passed": true,
+  "owner_fault_fixture_passed": true,
+  "worker_join_bound": false,
+  "target_compiled": false,
+  "runtime_verified": false
+}

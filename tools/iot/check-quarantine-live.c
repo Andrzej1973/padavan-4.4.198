@@ -4,6 +4,14 @@
 #include "firewall.h"
 int main(int argc,char **argv){
  if(argc!=2)return 2;
+ if(!strcmp(argv[1],"observed")){
+  struct wr_iot_firewall rules;struct wr_iot_range lan={0xc0a80100,0xc0a801ff};int token,ready;
+  if(!wr_iot_firewall_plan(&rules,1,"br0","eth2.2","192.168.50.1","255.255.255.0",
+      "192.168.50.20","192.168.50.200",&lan,1))return 2;
+  token=wr_iot_service_guard_enter(1);if(token!=1)return 1;
+  ready=wr_iot_policy_rules_observed(rules.ipv4,rules.ipv6);
+  wr_iot_service_guard_leave(token);return ready?0:1;
+ }
  if(!strcmp(argv[1],"policy4")||!strcmp(argv[1],"policy6")){
   struct wr_iot_firewall rules;struct wr_iot_range lan={0xc0a80100,0xc0a801ff};
   int ipv6=!strcmp(argv[1],"policy6");

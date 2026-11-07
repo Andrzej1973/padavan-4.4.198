@@ -1,0 +1,31 @@
+{
+  "scope": "local composed candidate and sequential injected host tests only",
+  "stage_count": 27,
+  "candidate_file_count": 550,
+  "wds_variants": 11,
+  "hardware_variants": 17,
+  "passed": true,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "lifecycle_accepted": false,
+  "receipts": {
+    "chain": {
+      "path": ".iot-local-check\\peer-retirement-chain27-20261029\\peer-chain.json",
+      "sha256": "384eca9bed303e5e5c975cc033b2375c9bd1cfdb19b77c2dfad95147d6e72ace"
+    },
+    "wds": {
+      "path": ".iot-local-check\\peer-chain27-wds-checks-20261029\\result.json",
+      "sha256": "238263c9f6a4fd7abbbc07f50bde13f9ac89fd05f41d7efb5ff9958743a0b5ee"
+    },
+    "hardware": {
+      "path": ".iot-local-check\\peer-chain27-hardware-checks-20261029\\result.json",
+      "sha256": "90ec0a72c96c1239be677b4423f90ee0d9022eb18b55260feee55f0c35eb6051"
+    }
+  },
+  "open": [
+    "retained failure continuation",
+    "DMA/TxS completion identity",
+    "adapter/module lifetime",
+    "global lock order and initialization resets"
+  ]
+}

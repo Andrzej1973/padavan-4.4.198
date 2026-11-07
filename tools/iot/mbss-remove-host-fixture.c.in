@@ -1,0 +1,73 @@
+/* Injected host primitives: checks removal refusal, not kernel concurrency. */
+#include <assert.h>
+#include <stddef.h>
+typedef int INT;
+typedef unsigned int UINT;
+struct wifi_dev {int *if_dev;};
+typedef struct {struct wifi_dev wdev;int bcn_buf;} BSS_STRUCT;
+typedef struct {struct {BSS_STRUCT MBSSID[3];} ApCfg;unsigned max_bss;} RTMP_ADAPTER;
+#define FIRST_MBSSID 1
+#define MAX_MBSSID_NUM(ad) ((ad)->max_bss)
+#define NDIS_STATUS_SUCCESS 0
+#define NDIS_STATUS_FAILURE 1
+#define FALSE 0
+static int mark_result,deinit_result,mark_calls,cancel_calls,deinit_calls,beacon_marks;
+static int detach_calls,free_calls,wdev_unreg_calls,protect_depth;
+static int *fail_buf;
+static INT wr_iot_mbss_begin_remove(RTMP_ADAPTER *ad,UINT bss,int *dev){
+ (void)ad;assert(dev&&bss<3);mark_calls++;return mark_result;
+}
+static INT wr_iot_mbss_cancel_unmutated(RTMP_ADAPTER *ad,UINT bss,int *dev){
+ (void)ad;assert(dev&&bss<3);cancel_calls++;return NDIS_STATUS_SUCCESS;
+}
+static INT wr_iot_mbss_beacon_done(RTMP_ADAPTER *ad,UINT bss,int *dev){
+ (void)ad;assert(dev&&bss<3);beacon_marks++;return NDIS_STATUS_SUCCESS;
+}
+static INT wdev_bcn_buf_deinit(RTMP_ADAPTER *ad,int *buf){
+ (void)ad;deinit_calls++;return buf==fail_buf?FALSE:deinit_result;
+}
+static void RtmpOSNetDevProtect(int lock_it){
+ protect_depth+=lock_it?1:-1;assert(protect_depth>=0);
+}
+static void RtmpOSNetDevDetach(int *dev){
+ assert(dev&&protect_depth==1);detach_calls++;
+}
+static void rtmp_wdev_idx_unreg(RTMP_ADAPTER *ad,struct wifi_dev *wdev){
+ (void)ad;assert(wdev);wdev_unreg_calls++;
+}
+static void RtmpOSNetDevFree(int *dev){assert(dev);free_calls++;}
+@@MBSS_REMOVE_FUNCTION@@
+int main(void){
+ RTMP_ADAPTER ad={0};int dev=1;
+ ad.max_bss=2;
+ ad.ApCfg.MBSSID[1].wdev.if_dev=&dev;
+ mark_result=NDIS_STATUS_FAILURE;deinit_result=1;
+ assert(MBSS_Remove(&ad)==NDIS_STATUS_FAILURE);
+ assert(mark_calls==1&&!deinit_calls&&!detach_calls&&!free_calls);
+ mark_result=NDIS_STATUS_SUCCESS;deinit_result=FALSE;
+ assert(MBSS_Remove(&ad)==NDIS_STATUS_FAILURE);
+ assert(mark_calls==2&&deinit_calls==1&&cancel_calls==1);
+ assert(!detach_calls&&!free_calls&&ad.ApCfg.MBSSID[1].wdev.if_dev==&dev);
+ deinit_result=1;
+ assert(MBSS_Remove(&ad)==NDIS_STATUS_SUCCESS);
+ assert(mark_calls==3&&deinit_calls==2&&detach_calls==1&&free_calls==1);
+ assert(beacon_marks==1);
+ assert(wdev_unreg_calls==1&&!protect_depth&&!ad.ApCfg.MBSSID[1].wdev.if_dev);
+ /* Two virtual BSS: refusal on the second occurs after the first is freed.
+  * Retry must not deinitialize the freed first BSS again. */
+ {
+  RTMP_ADAPTER two={0};int first=2,second=3,before;
+  two.max_bss=3;
+  two.ApCfg.MBSSID[1].wdev.if_dev=&first;
+  two.ApCfg.MBSSID[2].wdev.if_dev=&second;
+  mark_result=NDIS_STATUS_SUCCESS;deinit_result=1;
+  fail_buf=&two.ApCfg.MBSSID[2].bcn_buf;
+  assert(MBSS_Remove(&two)==NDIS_STATUS_FAILURE);
+  assert(two.ApCfg.MBSSID[1].wdev.if_dev==NULL);
+  assert(two.ApCfg.MBSSID[2].wdev.if_dev==&second);
+  before=deinit_calls;fail_buf=NULL;
+  assert(MBSS_Remove(&two)==NDIS_STATUS_SUCCESS);
+  assert(deinit_calls==before+1);
+ }
+ return 0;
+}

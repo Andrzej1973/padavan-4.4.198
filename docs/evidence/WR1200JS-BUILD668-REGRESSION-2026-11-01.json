@@ -1,0 +1,18 @@
+{
+  "date": "2026-11-01",
+  "source_head": "ac9e7d4c8d83afbbcb2babdc21a34b556caede24",
+  "scope": "Fresh pinned recovery/full-overlay/peer source with exact assembler PCI probe pointer casts; no RSSI merge or terminal overlay",
+  "checks_passed": [
+    "check-retry-rtnl-header.py",
+    "check-joined-rearm.py",
+    "check-main-verify-module-macro.py",
+    "check-radio-off-send.py",
+    "check-agg-temp-lock.py",
+    "check-tasklet-irq-rearm.py",
+    "check-radio-on-retirement-admission.py"
+  ],
+  "pci_source_sha256": "a7635ce354c81da36ae17010655796bf191b44b4b485a7278093c1c52f93ddf0",
+  "target_compiled": false,
+  "production_installed": false,
+  "runtime_verified": false
+}

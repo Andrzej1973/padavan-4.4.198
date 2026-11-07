@@ -1,0 +1,90 @@
+#include "virtual-open-claim.h"
+#include <assert.h>
+#include <stdio.h>
+
+#define WDEV_NUM_MAX 1
+#define CONFIG_AP_SUPPORT 1
+typedef void VOID;
+typedef unsigned long ULONG;
+struct net_device { void *priv; };
+struct adapter {
+ int wr_iot_transition_lock;
+ struct wr_iot_radio_transition wr_iot_transition;
+ struct wr_iot_interface_ref wr_iot_interface_refs[WDEV_NUM_MAX + 1];
+ struct net_device *net_dev;
+ unsigned int VirtualIfCnt;
+ int wr_iot_ticket_wait;
+};
+typedef struct adapter *PRTMP_ADAPTER;
+static int refs, held, mutations, wakes, fail_up, invalidate_after_up;
+#define RTMP_IRQ_LOCK(lock,flags) ((void)(lock),(flags)=0,assert(!held),held=1)
+#define RTMP_IRQ_UNLOCK(lock,flags) ((void)(lock),(void)(flags),assert(held),held=0)
+#define RT_MOD_INC_USE_COUNT() (++refs)
+#define RT_MOD_DEC_USE_COUNT() (--refs)
+#define GET_PAD_FROM_NET_DEV(ad,dev) ((ad)=(dev)->priv)
+#define VIRTUAL_IF_NUM(ad) ((ad)->VirtualIfCnt)
+#define RTMP_DRIVER_AP_MAIN_OPEN(ad) ((void)(ad),assert(!held),mutations++)
+#define RT_MOD_HNAT_REG(dev) ((void)(dev))
+#define netif_start_queue(dev) ((void)(dev))
+#define netif_carrier_on(dev) ((void)(dev))
+#define netif_wake_queue(dev) ((void)(dev))
+#define wake_up_all(wait) ((void)(wait),wakes++)
+static int mock_virtual_up(PRTMP_ADAPTER ad,struct net_device *dev,
+ const struct wr_iot_radio_ticket *ticket,unsigned long generation){
+ struct wr_iot_virtual_open_claim claim={dev,generation,ticket->serial,
+                                       ticket->epoch,ticket->operation};
+ assert(!held);
+ assert(wr_iot_virtual_main_open_claim_matches(&claim,&ad->wr_iot_transition,
+        ad->wr_iot_interface_refs,WDEV_NUM_MAX+1,ad->net_dev,ad->VirtualIfCnt));
+ if(fail_up)return -1;
+ ad->VirtualIfCnt++;
+ if(invalidate_after_up)wr_iot_radio_main_down(&ad->wr_iot_transition);
+ return 0;
+}
+#define VIRTUAL_IF_UP_CLAIM(ad,dev,ticket,generation) \
+ mock_virtual_up((PRTMP_ADAPTER)(ad),(dev),(ticket),(generation))
+
+/* ACTUAL_MAIN_OPEN */
+
+int main(void){
+ struct adapter a={0},b={0},c={0};
+ struct net_device missing={0},dev={&a},good={&b},late={&c};
+ struct wr_iot_interface_ref *record;
+ unsigned long generation=0;
+ assert(MainVirtualIF_open(&missing)==-1&&refs==0&&mutations==0);
+ a.net_dev=&dev;
+ wr_iot_radio_transition_init(&a.wr_iot_transition);
+ assert(MainVirtualIF_open(&dev)==-1&&refs==0&&mutations==0);
+ record=wr_iot_registry_add_family(a.wr_iot_interface_refs,WDEV_NUM_MAX+1,
+                                  &generation,&dev,WR_REF_FAMILY_MAIN);
+ assert(record);record->published=1;
+ fail_up=1;
+ assert(MainVirtualIF_open(&dev)==-1&&refs==1&&mutations==1&&wakes==1);
+ assert(record->phase==WR_REF_UNCERTAIN_OPEN&&record->last_token);
+ assert(a.wr_iot_transition.phase==WR_RADIO_FAULT&&!a.wr_iot_transition.busy);
+ assert(!held);
+ /* Separate adapter models a fresh independent open; the first pin is held. */
+ b.net_dev=&good;
+ wr_iot_radio_transition_init(&b.wr_iot_transition);
+ generation=0;
+ record=wr_iot_registry_add_family(b.wr_iot_interface_refs,WDEV_NUM_MAX+1,
+                                  &generation,&good,WR_REF_FAMILY_MAIN);
+ assert(record);record->published=1;
+ fail_up=0;
+ assert(MainVirtualIF_open(&good)==0&&refs==2&&b.VirtualIfCnt==1&&wakes==2);
+ assert(record->phase==WR_REF_OWNED&&record->last_token);
+ assert(b.wr_iot_transition.phase==WR_RADIO_UNVERIFIED&&!b.wr_iot_transition.main_ready);
+ assert(!held);
+ c.net_dev=&late;
+ wr_iot_radio_transition_init(&c.wr_iot_transition);
+ generation=0;
+ record=wr_iot_registry_add_family(c.wr_iot_interface_refs,WDEV_NUM_MAX+1,
+                                  &generation,&late,WR_REF_FAMILY_MAIN);
+ assert(record);record->published=1;
+ invalidate_after_up=1;
+ assert(MainVirtualIF_open(&late)==-1&&refs==3&&c.VirtualIfCnt==1&&wakes==3);
+ assert(record->phase==WR_REF_UNCERTAIN_OPEN&&record->last_token);
+ assert(c.wr_iot_transition.main_inhibited&&!c.wr_iot_transition.main_ready&&!held);
+ puts("PASS actual composed main open: early failure releases pin, post-mutation and late invalidation retain pin/uncertain record, success owns reference; vendor actions injected");
+ return 0;
+}

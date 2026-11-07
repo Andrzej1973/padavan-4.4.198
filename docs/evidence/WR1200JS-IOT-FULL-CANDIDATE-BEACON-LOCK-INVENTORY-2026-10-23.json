@@ -1,0 +1,157 @@
+{
+  "schema": 1,
+  "scope": "complete pinned MT7603 source tree with 45 candidate driver files overlaid; source-text only, no target compilation",
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "source_archive_sha256": "962a2a7e151adae5e3845d8589e638560ceaa471392d41e834a5107225f52279",
+  "candidate_manifest_sha256": "776569f766b5b172ef2bb08827ea2e162dc6a3d86a31d2a49f4b799d662e9065",
+  "source_file_count": 515,
+  "candidate_overlaid_file_count": 45,
+  "assembled_file_count": 529,
+  "lock_units": 9,
+  "lock_sites": 20,
+  "sites": [
+    {
+      "file": "ap/ap.c",
+      "line": 971,
+      "form": "IRQ",
+      "function": "APStartUp",
+      "active_after_directives": null
+    },
+    {
+      "file": "ap/ap.c",
+      "line": 1425,
+      "form": "IRQ",
+      "function": "APStop",
+      "active_after_directives": null
+    },
+    {
+      "file": "ap/ap_cfg.c",
+      "line": 14616,
+      "form": "IRQ",
+      "function": "Set_BcnStateCtrl_Proc",
+      "active_after_directives": null
+    },
+    {
+      "file": "ap/ap_mbss.c",
+      "line": 297,
+      "form": "SEM",
+      "function": "mbss_cr_enable",
+      "active_after_directives": null
+    },
+    {
+      "file": "ap/ap_mbss.c",
+      "line": 354,
+      "form": "SEM",
+      "function": "mbss_cr_disable",
+      "active_after_directives": null
+    },
+    {
+      "file": "ap/ap_mbss.c",
+      "line": 432,
+      "form": "SEM",
+      "function": "MBSS_Open",
+      "active_after_directives": null
+    },
+    {
+      "file": "ap/ap_mbss.c",
+      "line": 485,
+      "form": "SEM",
+      "function": "MBSS_AbortOpen",
+      "active_after_directives": null
+    },
+    {
+      "file": "ap/ap_nps.c",
+      "line": 77,
+      "form": "SEM",
+      "function": "RT28xx_UpdateTimToAsic",
+      "active_after_directives": null
+    },
+    {
+      "file": "common/cmm_data_pci.c",
+      "line": 2686,
+      "form": "SEM",
+      "function": "RTMPHandleBcnDmaDoneInterrupt",
+      "active_after_directives": null
+    },
+    {
+      "file": "common/cmm_mac_pci.c",
+      "line": 1490,
+      "form": "SEM",
+      "function": "RTMPFreeTxRxRingMemory",
+      "active_after_directives": null
+    },
+    {
+      "file": "common/cmm_mac_pci.c",
+      "line": 1890,
+      "form": "IRQ",
+      "function": "RTMPRingCleanUp",
+      "active_after_directives": null
+    },
+    {
+      "file": "common/cmm_mac_pci.c",
+      "line": 1992,
+      "form": "IRQ",
+      "function": "wr_iot_pdma_reset_raw",
+      "active_after_directives": null
+    },
+    {
+      "file": "common/cmm_mac_pci.c",
+      "line": 2072,
+      "form": "IRQ",
+      "function": "wr_iot_pdma_reset_raw",
+      "active_after_directives": null
+    },
+    {
+      "file": "common/cmm_mac_pci.c",
+      "line": 2118,
+      "form": "IRQ",
+      "function": "wr_iot_pdma_reset_raw",
+      "active_after_directives": null
+    },
+    {
+      "file": "common/cmm_mac_pci.c",
+      "line": 2726,
+      "form": "SEM",
+      "function": "RT28xx_UpdateBeaconToAsic",
+      "active_after_directives": null
+    },
+    {
+      "file": "hw_ctrl/cmm_asic_mt.c",
+      "line": 1518,
+      "form": "SEM",
+      "function": "APCheckBcnQHandler",
+      "active_after_directives": null
+    },
+    {
+      "file": "hw_ctrl/cmm_asic_mt.c",
+      "line": 1653,
+      "form": "SEM",
+      "function": "AsicEnableBssSync",
+      "active_after_directives": null
+    },
+    {
+      "file": "hw_ctrl/cmm_asic_mt.c",
+      "line": 1722,
+      "form": "SEM",
+      "function": "AsicEnableApBssSync",
+      "active_after_directives": null
+    },
+    {
+      "file": "tx_rx/txs.c",
+      "line": 98,
+      "form": "IRQ",
+      "function": "BcnTxSHandler",
+      "active_after_directives": null
+    },
+    {
+      "file": "tx_rx/wdev.c",
+      "line": 140,
+      "form": "IRQ",
+      "function": "wdev_bcn_buf_deinit",
+      "active_after_directives": null
+    }
+  ],
+  "target_compiled": false,
+  "production_installed": false,
+  "runtime_verified": false
+}

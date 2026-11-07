@@ -1,0 +1,57 @@
+{
+  "board": "WR1200JS",
+  "features": {
+    "transmit_beamforming_5ghz": {
+      "status": "unsupported",
+      "kernel_option": "CONFIG_MT76X2_AP_TXBF_SUPPORT",
+      "enabled": false,
+      "evidence": [
+        "overlay/padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config",
+        "artifacts-410/padavan-linux-4.4.198-wr1200js/kernel-effective.config",
+        "docs/evidence/WR1200JS-TXBF-CAPABILITY-2026-10-18.md"
+      ],
+      "reason": "The live kernel disables MT76x2 AP TXBF. This router's Factory TXBF calibration regions at 0x01A0 and 0x81A0 are each 33/33 bytes FF, so RC sets wl_txbf_en=0 and writes ETxBfEnCond=0 even when wl_txbf=1. Generic chipset detection alone must not expose the control."
+    },
+    "multi_user_mimo_5ghz": {
+      "status": "unsupported",
+      "enabled": false,
+      "evidence": [
+        "docs/evidence/WR1200JS-TXBF-CAPABILITY-2026-10-18.md",
+        "overlay/padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config"
+      ],
+      "reason": "MT7612 in this board is a 2x2 802.11ac Wave 1 radio: no MU-MIMO. The live device keeps wl_mumimo unset and the earlier WebUI still rendered a row_mumimo control, which is misleading next to the disabled TXBF policy."
+    },
+    "roaming_24ghz": {
+      "status": "runtime-unverified",
+      "scope": "next build requests k/r/v code; compiled image and physical behavior still require verification",
+      "policy_enforced": true,
+      "kernel_options": {
+        "CONFIG_MT7603E_DOT11K_RRM_SUPPORT": true,
+        "CONFIG_MT7603E_WNM_SUPPORT": true,
+        "CONFIG_MT7603E_DOT11R_FT_SUPPORT": true
+      },
+      "evidence": [
+        "overlay/padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config",
+        "docs/runtime/WR1200JS-2026-10-20-DETAILED-AUDIT.md",
+        "docs/evidence/WR1200JS-KVR24-INTEGRATION-2026-10-20.md"
+      ],
+      "reason": "MT7603E includes RRM, WNM/BTM and FT source paths. Next-build options select all three; image gate requires their linked handlers and defaults remain off. Historical live #474 omits these options.",
+      "build_verified": false,
+      "runtime_verified": false
+    },
+    "roaming_5ghz": {
+      "status": "runtime-unverified",
+      "scope": "k/r objects selected; 802.11v build path and actual management frames/client behavior unverified",
+      "policy_enforced": false,
+      "kernel_options": {
+        "CONFIG_RT_DOT11K_RRM": true,
+        "CONFIG_RT_DOT11R_FT": true
+      },
+      "evidence": [
+        "overlay/padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config",
+        "docs/runtime/WR1200JS-2026-10-20-DETAILED-AUDIT.md"
+      ],
+      "reason": "RRM/FT source selection is not runtime acceptance. WNM source exists but its normal mt76x2_ap Makefile inclusion was not found. The duplicate generator fix does not prove k/v/r operation."
+    }
+  }
+}

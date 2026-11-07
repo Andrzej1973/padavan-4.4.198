@@ -1,0 +1,68 @@
+{
+  "scope": "pinned MT7603/Linux 4.4.198 source audit of radio-on, debug reset and periodic PSE reset producer paths; source-only",
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "source_files": {
+    "mt76x3/common/cmm_mac_pci.c": "82db49fa1822a51268d76f23bce94d886f4d50d6",
+    "mt76x3/common/cmm_cfg.c": "cb3e9607326e473436862132b18de9679cc6c154",
+    "mt76x3/common/mlme.c": "bb23e40cf3301df8d0e58d9fb9f25ef6fdba1c41",
+    "mt76x3/common/rtmp_init_inf.c": "232b6c3d68224e896aaf9364aad871b787bdc578",
+    "mt76x3/common/rtmp_init.c": "a0d9eb2adbbb2ac13e8314806a5ded2f30793623",
+    "mt76x3/ap/ap_cfg.c": "17853ec17d577021ce876c5ec6d8909e27a7453b",
+    "mt76x3/os/linux/rt_rbus_pci_drv.c": "07f1171dc14081af70ba6a1537bf896a9b141be3",
+    "linux/net/wireless/wext-core.c": "b50ee5d622e14d4fb486ce0c533757e958702f54",
+    "linux/net/core/dev_ioctl.c": "151e047ce07283714ce0d9129d9f923f1ac594b4"
+  },
+  "effective_target_config": {
+    "macros_sha256": "f35b24454ceddf03f1dda9d8d39698876a180abc4a1827a67f9d5d1c0b61b1be",
+    "DMA_RESET_SUPPORT": true,
+    "LOAD_FW_ONE_TIME": true,
+    "CONFIG_WIRELESS_EXT": true,
+    "CONFIG_WEXT_PRIV": true,
+    "CONFIG_MT7603E_WSC_NFC_SUPPORT": false
+  },
+  "findings": [
+    {
+      "path": "radio-on and debug reset through WEXT private ioctl",
+      "source": "cmm_cfg.c:1726-1729,2721-2753; wext-core.c:976-992; dev_ioctl.c:563-565",
+      "fact": "WEXT dispatch holds RTNL across the complete driver handler. Set_RadioOn_Proc calls MlmeRadioOn; Set_PDMAWatchDog_Proc with Dbg=2 calls PDMAResetAndRecovery.",
+      "limit": "The RTNL rendezvous alone does not exclude later WEXT handlers. Correction: candidate v39 already wraps PDMA/PSE reset with retirement-aware request/begin checks and rtnl_trylock; Set_RadioOn_Proc remains outside that admission protocol."
+    },
+    {
+      "path": "periodic watchdog and PSE reset",
+      "source": "mlme.c:1704-1711,1795-1815; cmm_mac_pci.c:2145-2152,2566-2603",
+      "fact": "The periodic timer callback enqueues CMDTHREAD_MLME_PERIOIDC_EXEC. With DMA_RESET_SUPPORT, PDMAWatchDog sets pse_reset_flag instead of calling PDMAResetAndRecovery; PSEWatchDog may call PSEResetAndRecovery from the management-command execution path.",
+      "limit": "The timer and command worker run outside RTNL, but candidate raw PSE/PDMA execution enters the retirement-aware reset wrapper and holds RTNL when admitted. Joining the whole periodic callback and command worker remains a separate lifetime requirement; do not describe raw reset execution as unguarded."
+    },
+    {
+      "path": "normal close worker-stop order",
+      "source": "rtmp_init_inf.c:874-888; mlme.c:1301-1325; rt_rbus_pci_drv.c:190-208",
+      "fact": "The close path exits net tasklets, calls MlmeHalt (kills MLME task and cancels periodic timer), then exits the management command task; the command-task exit marks CmdQ stopped and kills the task.",
+      "limit": "This documents shutdown primitives, not that they run before the PCI remove candidate's first terminal hardware action or that every callback has completed successfully."
+    }
+  ],
+  "conclusion": {
+    "early_rtnl_barrier_is_sufficient_for": [
+      "joining currently executing ordinary ndo_open callbacks",
+      "joining currently executing WEXT handlers that hold RTNL"
+    ],
+    "early_rtnl_barrier_is_not_sufficient_for": [
+      "excluding new RadioOn ioctls after the barrier releases",
+      "joining asynchronous MLME/PSE watchdog work outside RTNL",
+      "proving DMA, IRQ, timer, command-queue or callback quiescence"
+    ],
+    "next_required_design": "Guard WEXT RadioOn admission against retirement, relying on the verified RTNL handler lifetime for the admitted call; verify current composed reset wrappers before changing reset execution. Separately establish complete timer/command-worker callback joins.",
+    "production_accepted": false,
+    "target_module_verified": false,
+    "runtime_verified": false
+  },
+  "candidate_correction": {
+    "scope": "checked-in v39 source; latest full composition must be revalidated",
+    "sha256": {
+      "include/wr-iot-reset-admission.inc": "8ddb51b3e97d376b7827a820a4af3536768785f74f4243ad18180fa34be64f3f",
+      "include/radio-transition.h": "daceea4cba598351e8ce61814f4c528478544da6112f00ae84e419441eda486e",
+      "common/cmm_cfg.c": "ab9e85630cd337067b5538d76c5e8c0b8c7647a099bebeb1c7f1f71734cfdb44"
+    },
+    "reset_gate": "request_reset_kind rejects retiring; radio_begin rejects RESET while retiring; admitted reset drain holds RTNL through raw execution",
+    "radio_on_gap": "Set_RadioOn_Proc directly calls MlmeRadioOn without retirement admission"
+  }
+}

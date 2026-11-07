@@ -1,0 +1,18 @@
+{
+  "date": "2026-11-02",
+  "scope": "retained local target command, not latest CI acceptance",
+  "command_sha256": "758ee9c59d9ff8c032ba77c1bf3714525f063f1e3861243fee588b254ed90958",
+  "relevant_defines": [
+    "-DMT7603",
+    "-DMT_MAC",
+    "-DMT7603_E1",
+    "-DMT7603_E2",
+    "-DLOAD_FW_ONE_TIME"
+  ],
+  "hook_define_present": false,
+  "preprocessed_andes_hook_symbol_present": false,
+  "limitations": [
+    "retained local TU command is not latest peer82 CI command",
+    "final ROMFS module dependency closure remains unverified"
+  ]
+}

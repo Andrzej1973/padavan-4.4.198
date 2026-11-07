@@ -1,0 +1,26 @@
+{
+  "repository": "https://github.com/openwrt/mt76",
+  "revision": "0936617dc529ff9da0385221d3fa6de732231177",
+  "retrieval": "GitHub contents API pinned to full revision; inspected current master SHA via commits API",
+  "files": {
+    "mt7603/mcu.c": {
+      "sha256": "ee943c834bb8341d452eb69efc71bc36fbd64cbbddbd0894c73e83396477b7f5",
+      "sequence_allocation_lines": [
+        50,
+        52
+      ],
+      "timeout_hang_line": 26,
+      "response_sequence_match_line": 33
+    },
+    "mcu.c": {
+      "sha256": "e0c3fc3323c0482afbd3a943676e5091e5832da4a1e2f711303183f886f4c79a",
+      "mutex_lock_line": 84,
+      "response_retry_loop_line": 131,
+      "mutex_unlock_line": 136
+    }
+  },
+  "finding": "Current upstream serializes MCU commands and cycles nonzero four-bit sequences; response matching does not supply a generation cookie. This is implementation precedent, not proof of absence of delayed duplicate responses for the pinned SDK embedded firmware.",
+  "firmware_byte_identity_matched": false,
+  "safe_reuse_contract_established": false,
+  "runtime_verified": false
+}

@@ -34,6 +34,21 @@
   build/runtime шляху не є придатними налаштуваннями нашого пристрою.
 - **xiaobei207:** MT76x2 file-read guard, WireGuard compat і окремий аналіз
   HWNAT queue/binding. Деталі й точні SHA: XIAOBEI207-PADAVAN44-AUDIT.md.
+- **Ljzkirito / Actions-Padavan_Redmi-AC2100:** архівний RM2100 workflow і
+  конфіг, без власного дерева прошивки. Наші pinned source, ccache,
+  SHA256/artifacts і LF-правила вже покривають придатні прийоми. Ідея
+  release manifest із SHA256 лишається для етапу прийнятого образу; RM2100
+  адреси, overclock, вимкнені служби та очищення CI не переносити. Див.
+  `evidence/LJZKIRITO-RM2100-DONOR-AUDIT-2026-10-27.md`. Окремо переглянуто
+  всі 38 публічних репозиторіїв власника: Padavan fork не містить власних
+  radio/IoT-патчів; Mi Mini та multi-board workflow — майбутні reference;
+  три конкретні OpenWrt PPP-патчі звірено з pinned `pppd`: захист чужого
+  типового маршруту і обмеження MTU вже є у базі. Лише запис peer gateway
+  відсутній; він умовний кандидат для етапу WAN за наявності реального
+  PPPoE-споживача й перевірок маршруту. Наш каталог моделей уже має
+  перевірку рецептів, тому донорський selector зараз не переносити. Див.
+  `evidence/LJZKIRITO-REPOSITORIES-AUDIT-2026-10-27.md` та
+  `evidence/LJZKIRITO-PPP-AND-BOARD-SELECTOR-COMPARISON-2026-10-27.md`.
 
 ## Черга впровадження
 

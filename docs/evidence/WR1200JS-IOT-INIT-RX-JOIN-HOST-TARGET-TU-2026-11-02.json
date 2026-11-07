@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-02",
+  "scope": "isolated init failure join candidate",
+  "tools_sha256": {
+    "prepare-mcu-init-rx-join.py": "eeee625d0af2861f474e8324bfb04bc02d3b301cd73b0cf9b1740717ed3e9e78",
+    "check-mcu-init-rx-join.py": "58435915759d98214d5f400c88d5bba429d5a284af02abd061136c82d43a74ee"
+  },
+  "checks": [
+    "actual err6 fault fixture ASan/UBSan PASS",
+    "rtmp_init_inf.c MIPS TU compile PASS",
+    "exact merged downstream source gates PASS",
+    "Python YAML affected full bash syntax PASS"
+  ],
+  "full_target_module_verified": false,
+  "runtime_verified": false,
+  "limitations": [
+    "kernel IRQ/RX join mocked in host fixture",
+    "terminal IRQ/DMA quiescence separate",
+    "firmware ACK epoch unresolved"
+  ],
+  "cleanup": "temporary candidates and executables removed"
+}

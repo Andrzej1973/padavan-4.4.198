@@ -1,0 +1,40 @@
+{
+  "scope": "Exact merged isolated candidate through main physical delegation; not image/runtime evidence",
+  "main": "Last-user close delegated to pinned recovery outside RTNL",
+  "mbss": "Callback directly calls executor that permits physical CLOSE at count1, then shared down inline. No MBSS recovery owner field in adapter declaration. Caller/lifetime contract gap remains.",
+  "auxiliary": "WDS/APCLI/monitor reserve rejects vendor_count<=1 before side effects; this is incomplete last-user functionality, not acceptance.",
+  "sources": [
+    {
+      "path": "ap/ap_mbss_inf.c",
+      "sha256": "326ec840c1dd767adb1ddf162793f9d20b9f612021521cdc05c39a7059d279d5",
+      "anchor": "INT MBSS_VirtualIF_Close(",
+      "line": 202
+    },
+    {
+      "path": "include/wr-iot-mbss-close-checked.inc",
+      "sha256": "3e190989b1cf849fb4f7cd2fc2644bca4e8b10a88935ac18d5b33df717cce441",
+      "anchor": "ret=wr_iot_virtual_down_checked(ad,ticket);",
+      "line": 208
+    },
+    {
+      "path": "include/aux-close-claim.h",
+      "sha256": "43b0140963cb12f2635db0f15d9e68f48b70b001a6a23a93dba67894678d95c4",
+      "anchor": "vendor_count<=1",
+      "line": 35
+    },
+    {
+      "path": "include/wr-iot-virtual-down.inc",
+      "sha256": "19409c2970b2e1d8fc602ae7345cf88384dd27624946327900392e052efc1e51",
+      "anchor": "wr_iot_rt28xx_close_checked(pAd->net_dev,ticket)",
+      "line": 46
+    }
+  ],
+  "next": "Bind MBSS deferred owner plus every adapter free and PCI drain fence before outside-RTNL physical dispatch. Preserve family-specific close stages/module ownership; MAIN owner cannot own an MBSS record.",
+  "runtime_verified": false,
+  "scratch_cleanup": {
+    "exclusive_phase_prefix": "wr-last-user-audit-",
+    "files": 8449,
+    "bytes_removed": 195659865,
+    "retained_inputs": "Pinned/prepared/peer trees needed for unfinished IoT"
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "input_sha256": {
+    "mgmt/mgmt_entrytb.c": "e6515864f6fc87950f269e1f79015bc67eda4a09f1b2dce2a51c7c5612e2617c",
+    "include/rtmp.h": "27850a9cfd3f334a4f0c9b0b03958df0df400849ca7957df3995bdd9b01b4626",
+    "common/rtmp_init.c": "9fc1d002acdc80e087c43686ed4088d18d1043d3b8cdef65d498f1c9a4ae0275",
+    "ap/ap_repeater.c": "24e69448945f4967bff075097f42204fa0a67f29be49aaf0756a382dbdd1b2c9",
+    "easy_setup/mt7603_chip_ops.c": "d8cfdc153de3044a1c50aa7e2997f943d62cfa195e3f40c672178041f0ba6bce"
+  },
+  "output_sha256": {
+    "mgmt/mgmt_entrytb.c": "ddb7a7b574feb06a652ff5ad19675aa8c23301f1e22b0895c0bc6e5a2c668ab1",
+    "include/rtmp.h": "bc224c5db96333c59778bcec3b1b258d85cdd78db7fb4464f64dee385aa53d39",
+    "common/rtmp_init.c": "3cb9c71713b12fbc4c1a80a743bbbb51ca7ba72bc3b7e9fc82c85425252fdc95",
+    "ap/ap_repeater.c": "39b63ebb22e5c7c9ab47a0a48d7450f61c034b4c4fe28f773e1f41b1f81a5ee1",
+    "easy_setup/mt7603_chip_ops.c": "d1f25668cba023f8ca975ff707d8872e8b42870be9e27ccb0789b3f754772204"
+  },
+  "scope": "reset reservation and peer mutation admission; full table clear/release bypasses remain",
+  "target_compiled": false,
+  "runtime_verified": false,
+  "lifecycle_accepted": false,
+  "full_table_clear_owner_bound": false,
+  "date": "2026-10-30",
+  "base_commit": "9af5697",
+  "stage": "41 draft, not yet in full chain",
+  "host_checks_passed": [
+    "pure owner stale/duplicate/retained/overflow cases",
+    "actual reset reservation and insertion/deletion fragments with injected locks/layout",
+    "source ordering and reset private-delete serial assertions"
+  ],
+  "full_regression_suite_run": false,
+  "full_candidate_replay_run": false,
+  "whole_reset_bodies_executed": false,
+  "known_gaps": [
+    "full table clear/reopen/release admission not bound",
+    "existing reset fixtures require adaptation before whole-suite execution",
+    "old failed peer cleanup and DMA/TxS lifetime unaccepted"
+  ],
+  "test_source_sha256": {
+    "tools\\iot\\check-peer-table-owner.c": "a475e457dfea876bafbe4758986578b0a061979fc08425993a21ef99de8d3fee",
+    "tools\\iot\\check-peer-table-reset-owner.c": "8e0e60da8fb8bde71a43931cbc60b1f058051c1900331fd274332b2303c69fa7"
+  }
+}

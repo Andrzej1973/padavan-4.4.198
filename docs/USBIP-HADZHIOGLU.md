@@ -8,8 +8,8 @@
 | Kernel configuration | `usbip-core`, `usbip-host`, and `vhci-hcd` selected as modules | Build only when `CONFIG_FIRMWARE_INCLUDE_USBIP=y` |
 | Userspace | `usbip` and `usbipd` built from the matching Linux 4.4 source | Keep kernel/userspace ABI aligned |
 | Runtime dependency | Minimal `libudev.so.1` package | Verify the complete ELF dependency closure |
-| Startup | No automatic daemon startup | Keep `usbipd` stopped by default |
-| WebUI | Localized, read-only module and process status on the USB/printer page | Add guarded device management only after runtime validation |
+| Startup | Default-off managed daemon with boot/shutdown handling and IPv4-only LAN firewall policy | Runtime lifecycle still requires device acceptance |
+| WebUI | Localized module/process status, device inventory, guarded confirmed bind/unbind, and saved export selection with opt-in identity-checked restore | Validate real USB operations, transfer and persistence on the device |
 
 ## Source and package details
 
@@ -86,9 +86,9 @@ and no automatic force-kill fallback. Stopping the parent does not itself prove
 that an exported USB device has been unbound or that an existing kernel transfer
 has ended; service stop and device export state require separate handling.
 
-Implement device inventory, explicit export/unexport, validated persistent
-configuration and authenticated actions together with failure recovery. These
-remain required work; the current observation panel does not fulfill them.
+These were the initial gaps; the 2026-10-18 checkpoint below supersedes this
+statement. Device actions and export-selection/restore code now exist, while
+physical runtime and durable-persistence acceptance remain open.
 
 `tools/usbip/firewall-policy.sh` is an uninstalled component for the managed
 IPv4 daemon. It owns `WRUSBIP_INPUT`, installs a first INPUT hook atomically
@@ -322,7 +322,7 @@ requires a second USB/IP-capable host.
 
 ## Validation status
 
-### Next persistence dependency — 2026-10-16
+### Next persistence dependency — 2026-10-16 (superseded by 2026-10-18 source integration)
 
 Source inspection confirms inventory.inc currently exposes only busid, VID,
 PID, class and export-driver state. device-action.sh compares busid/VID/PID
@@ -342,6 +342,36 @@ compilation and supervised two-host runtime validation.
 
 The read-only SSH probe on 2026-10-16 timed out connecting to 192.168.20.1:22.
 No command ran on the device; this is not evidence of a router outage.
+
+## Current USB/IP source and image checkpoint — 2026-10-18
+
+The current source integrates more than the earlier read-only inventory panel:
+
+- Authenticated, single-flight, explicit bind/unbind actions use a fresh device
+  inventory, confirmation, and the service lifecycle lock. The UI reports an
+  unconfirmed result on timeout and does not infer successful transfer.
+- Export selection is stored atomically in `/etc/storage/usbip/exports.v1`.
+  The selected identity uses VID, PID and USB serial; restore is default off
+  (`usbip_restore=0`) and additionally requires `usbip_enable=1`, the owned
+  daemon, a unique matching serial, full-batch preflight and repeated identity
+  checks under the lifecycle lock. Bus ID is revalidated before each bind.
+- The settings endpoint deliberately replies with `applied:false` and
+  `flash_committed:false`. The local file synchronization result does not prove
+  the router's flash-save path or survive every reboot/power-loss scenario.
+- Firmware build #478, run
+  [39139346947](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/39139346947),
+  completed the exact-image BusyBox USB/IP restore orchestration step and the
+  USB/IP settings ROMFS verifier. It uploaded artifact `usbip-settings-image`
+  (ID `12141546396`, SHA-256
+  `6076fadb588f3738e4ccbf7ac62e420ad430d14ca0d3a42747e5e4a1e2921c9f`).
+  This is image and target-shell-fixture evidence, not router runtime evidence.
+
+Still open: actual module/daemon operation, real bind/unbind and client attach,
+data transfer, storage-save and reboot persistence, hotplug behavior on the
+router, and any authenticated client restriction beyond the LAN firewall.
+`usbipd` has no per-client authentication; exporting a device grants LAN
+clients access to it. Do not equate process/listener state with a working
+transfer. No device action was performed for this checkpoint.
 
 - Build 263 proved the USB/IP tools, modules, and ELF dependency closure in the
   complete WR1200JS image.

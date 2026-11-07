@@ -1,0 +1,10 @@
+{
+  "scope": "Isolated submission entry, callback and ordinary reap remain unbound",
+  "generator_sha256": "33a44fc54c70a41cc5dab30a81d59f3bda33e4830ba8bcb8fe59d9721456f479",
+  "host": "PASS ASan/UBSan actual submission/gate/worker/join fixture; OS scheduling/backend mocked",
+  "target": "PASS exact merged common/rtmp_init.c MIPS TU using retained baseline flags; not full module link",
+  "helper_identity_verified": true,
+  "scratch_removed_bytes": 307912231,
+  "production_installed": false,
+  "runtime_verified": false
+}

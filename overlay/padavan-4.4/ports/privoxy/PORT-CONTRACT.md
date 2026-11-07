@@ -26,9 +26,15 @@ Candidate modernization release pinned to 4.2.0 in SOURCE-PIN.md; CI cross-build
 - Initial trust file is installed as user.trust. Config references /etc/storage/privoxy and /tmp logdir, with file logging disabled; sample Tor forwarding remains commented.
 - Inspected original rc/firewall_ex.c contains no Privoxy or 8118 rule. This does not prove absence in every file; do not invent automatic interception when implementing the service.
 
-Original shell helper saved as upstream-privoxy.sh for comparison. It is not a validated new runtime helper. Its unchecked commands and broad chmod must be reviewed before porting.
+The original shell helper was used for comparison. Its unchecked commands and broad chmod were not copied into the current runtime helper.
 
-New candidate helper privoxy.sh seeds only missing files, keeps existing configuration bytes, derives initial listen address from br0, preserves the template symlink, and propagates storage-save failures. It checks configuration using the documented --no-daemon --config-test before startup. A PID-based duplicate-start check validates /proc/PID/comm. Stop retains the original killall policy, waits up to ten seconds, and rejects restart if the daemon has not exited. rc must retain enabled/AP-mode gating. The helper is not yet installed or run; concurrent invocation behavior and daemon lifecycle require runtime verification.
+The current helper privoxy.sh seeds only missing files, keeps existing configuration bytes, derives initial listen address from br0, preserves the template symlink, and propagates storage-save failures. It checks configuration using --no-daemon --config-test before startup. A PID-based duplicate-start check validates /proc/PID/comm. Stop retains the original killall policy, waits up to ten seconds, and rejects restart if the daemon has not exited. The rc wrapper retains enabled/AP-mode gating. Source and synthetic service-state checks do not establish physical-router lifecycle or persistence.
+
+## WebUI persistence feedback (source change 2026-10-21)
+
+`register-file-routing.py` routes the four editor files to `/etc/storage/privoxy` and calls `mtd_storage.sh save` after a changed file. Source review found that a failed save was previously only logged while the native Apply path still emitted its success callback. The transform now records the failed save, suppresses the pending restart events and success callback, and calls the Privoxy page's localized failure handler. The handler keeps the editor open so the user can retry. Files and unrelated NVRAM values may already have changed in RAM; this is not a transactional rollback. The final-image gate checks for the page callback and HTTPD response marker.
+
+The transform was exercised entirely in memory against a local Padavan `web_ex.c`/`common.h` pair, in the production order: event-bank extension, file routing, then incomplete-POST protection. All transformation markers and callback ordering passed. The final-image verifier now also checks the generated handler's failure-before-success branch and reset of both restart-event banks, in addition to the page callback and HTTPD string. This proves source integration on that fixture only; the new final-image gate itself has not run in CI. Target compilation, forced save-failure browser behavior, and reboot persistence remain unverified. No router state was changed.
 
 ## Package recipe candidate
 

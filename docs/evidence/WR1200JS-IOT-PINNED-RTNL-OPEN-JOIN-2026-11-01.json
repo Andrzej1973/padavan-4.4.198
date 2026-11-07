@@ -1,0 +1,15 @@
+{
+  "revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "origin": "https://github.com/vipshmily/padavan-4.4",
+  "files": {
+    "dev.c": "f6bb16cbf40a0cbbcc00a174156e79ca4f0b66becd91b9354d7b83ef0fabe22a",
+    "rtnetlink.c": "9f80fbdd36157a7ad051b21661f57d8136119cfe8c33f08c68da813dc8d4ae9a"
+  },
+  "evidence": [
+    "dev.c:1313 ASSERT_RTNL before synchronous ndo_open call at1335",
+    "dev.c:7431 unregister_netdevice_queue asserts RTNL",
+    "rtnetlink.c:68 rtnl_lock locks global mutex; unlock delegates netdev_run_todo"
+  ],
+  "conclusion": "Acquiring RTNL after retiring admission serializes with normal ndo_open completion, including wrapper tail. It does not join arbitrary ioctl/direct callers or hardware/IRQ/work producers. Current driver takes RTNL late; earlier remove refusals still bypass this barrier.",
+  "runtime_verified": false
+}

@@ -1,0 +1,15 @@
+{
+  "date": "2026-11-02",
+  "sha256": {
+    "peer-open-owner.h": "9faae19ee1f9829325a63abf44cd5b028c50b90424b039a136964fd8e2bdebb3",
+    "peer-table-owner.h": "e1700ff1576b60796d7909a4a3628d0d6ca7418b9fd6e300b6da3cd1538fed38",
+    "peer-open-dispatch.inc": "6e45bf8ecb60dde46071b2c635c0c036c3ccd48599b4ef305396853e59a842e5"
+  },
+  "findings": [
+    "FAIL retains active table and RETAINED phase",
+    "BEGIN rejects non-IDLE/retained state"
+  ],
+  "existing_owner_and_dispatch_asan_ubsan": "PASS",
+  "runtime_verified": false,
+  "remaining": "outer cleanup bypasses and retained-state recovery"
+}

@@ -1,0 +1,57 @@
+{
+  "input_sha256": {
+    "ap/ap_wds.c": "bfe68aba15f5fca95a6d29503b85fefba719a03ccb08f7a5b54a167fc6bf3449",
+    "ap/ap_wds_inf.c": "a378d9ce362f7c68c524aa145411f9c802906256d681b1ae17b19fb9c4fa6d33",
+    "include/rtmp.h": "990dd1ef28069d745be154222e7bf0edf009321bc116c41785d9b749abd26170"
+  },
+  "output_sha256": {
+    "ap/ap_wds.c": "a339900429a921a4678c6c21d4b6fa84fb347dc7ebe866e89d55f955abff50a9",
+    "ap/ap_wds_inf.c": "44b0a699c0485906ed40c4192f5997fed002312eb1c85e81e940724da6f8927f",
+    "include/rtmp.h": "d9bfe321cbf2844f7303e67b1121a7ec9daed4a14a37424d6d108e738748cb3d"
+  },
+  "scope": "configured peer completion after exact WDS interface open; failure recovery unbound",
+  "main_open_waits_for_closed_wds": false,
+  "failed_wds_open_recovery_bound": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "lifecycle_accepted": false,
+  "date": "2026-10-30",
+  "base_commit": "9af5697",
+  "passed": true,
+  "host_checks": [
+    "actual configured interface helper, lower identity transaction mocked",
+    "whole actual WDS ndo_open, configured helper mocked"
+  ],
+  "source_assertions": [
+    "configured completion after OWNED before HNAT/queue",
+    "exact device/generation rechecked before counted transaction and dev_hold"
+  ],
+  "compiler_flags": [
+    "-std=c11",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Werror"
+  ],
+  "covered": [
+    "closed/main-not-ready WDS cannot first-open physical radio",
+    "configured failure retains module pin and owned record, no queue/HNAT",
+    "lazy/unconfigured WDS has no invented peer",
+    "wrong generation/device/removing/unpublished/PM/retiring refusal",
+    "generation changes before lower transaction refused in mock"
+  ],
+  "all_aux_families_verified": false,
+  "verification_note": "original three-family fixture rejected legacy APCLI open; added explicit --wds-only mode, did not loosen claim checks",
+  "architecture_correction": "defer peer completion to WDS interface open, not main open pending closed WDS; no background worker needed for this synchronous stage",
+  "open_issues": [
+    "failed WDS ndo_open leaves owned record/count/module pin; recovery state not bound",
+    "configuration/address lifetime snapshot not proven against all config writers",
+    "normal WDS tails vs reset owner exclusion remains incomplete",
+    "main open/config clear ownership and full table clears still unbound",
+    "whole vendor identity transaction and target/runtime not verified"
+  ],
+  "fixture_sha256": {
+    "tools\\iot\\check-wds-configured-interface-open.c": "4fe5150dc8f20e9efc08ef53a6dfb4362d64c08f7b994ea499ddd87deb882f30",
+    ".iot-local-check\\wds-configured-open48-wrappers.c": "8372671725ee9491d654d49d05d5180a5edc804a0334467c052ceeaaab075565"
+  }
+}

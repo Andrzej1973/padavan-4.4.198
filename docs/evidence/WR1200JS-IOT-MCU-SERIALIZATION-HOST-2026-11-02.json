@@ -1,0 +1,25 @@
+{
+  "date": "2026-11-02",
+  "scope": "host fixtures and regenerated pinned source binding only",
+  "source": "/tmp/wr-peer82-triage/ap-manifest-ready",
+  "checks": [
+    "five MCU fixtures: GCC O1 ASan UBSan Wall Wextra Werror PASS",
+    "fresh prepare-mcu-sender-binding.py PASS",
+    "check-mcu-sender-binding.py PASS: exact helpers, unchanged vendor bodies, receipt hashes, unwind and release ordering"
+  ],
+  "sha256": {
+    "tools/iot/mcu-sender-owner.h": "6d8f8a2b188086ffbd0cfae2e88f516e1c608be0b1dc4a971515c76d6332b8d9",
+    "tools/iot/mcu-sender-wrapper.inc": "ee3ce1efd6c27a9d26382601a29512c379593719d4df1bbd4dfca7582cc1adaf",
+    "tools/iot/check-mcu-sender-wrapper.c": "cccd85950455bd0f3419d7547bf99f75fa44f9f32c720fec11f2512fa30e146d",
+    "tools/iot/prepare-mcu-sender-binding.py": "07768a38797d67af497324d4bd0fc11cb804bc25fc254b1a8aba2de51ee08e20",
+    "tools/iot/check-mcu-sender-binding.py": "093138d0d0c81c9ce2aae4a397206438d75de41eba7621366a40c108008b9172"
+  },
+  "target_compiled": false,
+  "runtime_verified": false,
+  "remaining": [
+    "firmware ACK epoch and successful result correlation",
+    "owned OFF binding",
+    "external caller and IRQ DMA retirement"
+  ],
+  "cleanup": "temporary candidate and binaries removed by TemporaryDirectory"
+}

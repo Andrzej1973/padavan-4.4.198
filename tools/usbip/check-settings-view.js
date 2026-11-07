@@ -25,9 +25,12 @@ assert.equal(ctx.wrUSBIPSettingsDecode(requests[1].options.data.table_hex)[0].se
 ctx.wrUSBIPSettingsSave();assert.equal(requests.length,2);
 requests[1].success({saved:true,synchronized:true,applied:false,flash_committed:false});requests[1].complete();
 assert.equal(nodes.wr_usbip_settings_result.textContent,'saved');assert(!ctx.wrUSBIPSettingsDirty);
-nodes.wr_usbip_settings_ack.checked=true;ctx.wrUSBIPSettingsSave();requests[2].failure();requests[2].complete();
+ctx.wrUSBIPSettingsDirty=true;nodes.wr_usbip_settings_ack.checked=true;ctx.wrUSBIPSettingsSave();
+requests[2].success({saved:true,synchronized:false,applied:false,flash_committed:false});requests[2].complete();
+assert.equal(nodes.wr_usbip_settings_result.textContent,'unsynced');assert(!ctx.wrUSBIPSettingsDirty);
+nodes.wr_usbip_settings_ack.checked=true;ctx.wrUSBIPSettingsSave();requests[3].failure();requests[3].complete();
 assert(!ctx.wrUSBIPSettingsLoaded&&nodes.wr_usbip_settings_save.disabled);
-ctx.wrUSBIPSettingsDirty=true;ctx.wrUSBIPSettingsLoad();assert.equal(requests.length,3);
-confirm=true;ctx.wrUSBIPSettingsLoad();assert.equal(requests.length,4);
-requests[3].success({state:0});requests[3].complete();assert(!ctx.wrUSBIPSettingsLoaded);
-console.log('PASS USBIP settings view: codec, identity duplicates, confirmed save, one request, uncertain result and draft preservation');
+ctx.wrUSBIPSettingsDirty=true;ctx.wrUSBIPSettingsLoad();assert.equal(requests.length,4);
+confirm=true;ctx.wrUSBIPSettingsLoad();assert.equal(requests.length,5);
+requests[4].success({state:0});requests[4].complete();assert(!ctx.wrUSBIPSettingsLoaded);
+console.log('PASS USBIP settings view: codec, identity duplicates, confirmed save, fsync uncertainty, one request, error result and draft preservation');

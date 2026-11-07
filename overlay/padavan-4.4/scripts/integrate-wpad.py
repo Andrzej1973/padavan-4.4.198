@@ -8,6 +8,22 @@ parser.add_argument("tree", type=Path)
 args = parser.parse_args()
 root = args.tree / "trunk"
 edits = {}
+help_labels = {
+    "EN.footer": "WPAD / PAC: The router serves this file at /wpad.dat and /proxy.pac. It does not announce the proxy URL through DHCP or DNS; configure the PAC URL on clients manually.",
+    "UK.dict": "WPAD / PAC: маршрутизатор надає цей файл за адресами /wpad.dat і /proxy.pac. URL проксі не оголошується через DHCP або DNS; адресу PAC потрібно налаштувати на клієнтах вручну.",
+    "RU.dict": "WPAD / PAC: маршрутизатор предоставляет этот файл по адресам /wpad.dat и /proxy.pac. URL прокси не объявляется через DHCP или DNS; адрес PAC нужно настроить на клиентах вручную.",
+}
+dictionary_root = root / "user/www/dict"
+for filename, value in help_labels.items():
+    path = dictionary_root / filename
+    text = path.read_text(encoding="utf-8")
+    matches = [line for line in text.splitlines() if line.startswith("WRWpadHelp=")]
+    entry = "WRWpadHelp=" + value
+    if matches and matches != [entry]:
+        raise RuntimeError("WPAD help translation already exists with unexpected content in " + filename)
+    if not matches:
+        edits[path] = text.rstrip("\n") + "\n" + entry + "\n"
+
 template = root / "configs/templates/WR1200JS.config"
 template_text = template.read_text(encoding="utf-8")
 if "CONFIG_FIRMWARE_INCLUDE_WPAD" in template_text:
@@ -67,6 +83,7 @@ change("user/www/n56u_ribbon_fixed/Advanced_DHCP_Content.asp", "\tshow_footer();
 change("user/www/n56u_ribbon_fixed/Advanced_DHCP_Content.asp", '                                        <tr id="row_dservers">',
        '                                        <tr id="row_wpad" style="display:none">\n'
        '                                            <td colspan="2">WPAD / PAC (wpad.dat)\n'
+       '                                                <div class="alert alert-info"><#WRWpadHelp#></div>\n'
        '                                                <textarea rows="16" wrap="off" spellcheck="false" maxlength="65536" class="span12" name="scripts.wpad.dat"><% nvram_dump("scripts.wpad.dat",""); %></textarea>\n'
        '                                            </td>\n                                        </tr>\n')
 # All anchors are validated before any writes. Selector registration is separate.

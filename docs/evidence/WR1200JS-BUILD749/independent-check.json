@@ -1,0 +1,43 @@
+{
+  "run_id": 41894174306,
+  "artifact_id": 13355598019,
+  "verified_revision": "07ea86de014e104ea2a3092d24b252288558025f",
+  "modules": {
+    "baseline.json": {
+      "artifact_path": "mt76x3_ap.ko",
+      "bytes": 5594768,
+      "sha256": "7f1c00b4fe376a2c73dff6a6493c7de9e24561f3fc3268cbcedc211d65f95bcd",
+      "elf": "ELF32 little endian MIPS",
+      "defined_function_bytes": {
+        "wr_iot_mt_radio_off_checked": 8,
+        "AndesSendCmdMsg": 648,
+        "wr_iot_mcu_send_owned_off": 784
+      }
+    },
+    "wsc-feature.json": {
+      "artifact_path": "wsc-feature/mt76x3_ap-wsc.ko",
+      "bytes": 6204012,
+      "sha256": "c43a6aa647b29d6d063c0b1ddc42641e0f7ece3d80bb8fef817b08ba893804b5",
+      "elf": "ELF32 little endian MIPS",
+      "defined_function_bytes": {
+        "wr_iot_mt_radio_off_checked": 8,
+        "AndesSendCmdMsg": 652,
+        "wr_iot_mcu_send_owned_off": 792
+      }
+    },
+    "reload-feature.json": {
+      "artifact_path": "reload-feature/mt76x3_ap-reload.ko",
+      "bytes": 5595396,
+      "sha256": "1017c2bfeef3001dec90020dcd3429c19ba676a9f712a278c60e057eef0333b5",
+      "elf": "ELF32 little endian MIPS",
+      "defined_function_bytes": {
+        "wr_iot_mt_radio_off_checked": 856,
+        "AndesSendCmdMsg": 648,
+        "wr_iot_mcu_send_owned_off": 784
+      }
+    }
+  },
+  "baseline_report_sha256": "e36d47a0482f89baa053b3f2185514e27ffb80b108fd12c02331d7927c5fff9f",
+  "profile_report_links_verified": true,
+  "wsc_required_macros_verified": true
+}

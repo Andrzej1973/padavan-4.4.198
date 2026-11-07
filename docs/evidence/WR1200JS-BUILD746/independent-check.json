@@ -1,0 +1,36 @@
+{
+  "target-compile-result.json": {
+    "bytes": 5593408,
+    "sha256": "b53e03386cb07cbc3010496d20eda23f9aef8a3864efc42e872d1898e3c9d24d"
+  },
+  "wsc-feature/result.json": {
+    "bytes": 6202644,
+    "sha256": "e4f550365d2434419d9b322d589391dea83659bee74182af21a5e6fb00db7749"
+  },
+  "reload-feature/result.json": {
+    "bytes": 5594040,
+    "sha256": "6f6e1d90b0700fa487a443dc98b2d76ea27244f19fee8e3da41168dc2a865449"
+  },
+  "wr_iot_mcu_send_owned_off": {
+    "defined": true,
+    "bytes": 784
+  },
+  "wr_iot_mt_prepare_close_rx": {
+    "defined": true,
+    "bytes": 8
+  },
+  "wr_iot_nettask_data_exit": {
+    "defined": true,
+    "bytes": 792
+  },
+  "wr_iot_ap_release_after_join": {
+    "defined": true,
+    "bytes": 1124
+  },
+  "reload_defined_function_bytes": {
+    "wr_iot_mt_prepare_close_rx": 600,
+    "wr_iot_mt_radio_off_checked": 856,
+    "wr_iot_nettask_data_exit": 792,
+    "wr_iot_ap_release_after_join": 1124
+  }
+}

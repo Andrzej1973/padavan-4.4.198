@@ -1,0 +1,27 @@
+{
+  "scope": "actual target preprocessing; definitions do not prove runtime reachability",
+  "writers": [
+    {
+      "function": "PDMAResetAndRecovery",
+      "preprocessed_sha256": "3a66150b7c1e37a21ed24708e0ec99d9dc245ff19f1280a839cce19987261916",
+      "body_sha256": "eefa90ac58609696b8737e061504b4302730b5247c087c575849b1e0faac4d6b",
+      "mask_write_present": false,
+      "nettask_lock_present": false
+    },
+    {
+      "function": "RT28xxPciAsicRadioOn",
+      "preprocessed_sha256": "3a66150b7c1e37a21ed24708e0ec99d9dc245ff19f1280a839cce19987261916",
+      "body_sha256": "c384b16cb904c4ac678095dc12c070264f64921eb99387cde8192b38a1828c34",
+      "mask_write_present": true,
+      "nettask_lock_present": false
+    },
+    {
+      "function": "AndesMTPciFwInit",
+      "preprocessed_sha256": "0b79cd93f68a88339166c0f96734908d7b4608cafee386e9a16fd4abffead8dc",
+      "body_sha256": "bc5985ad52b10ecd62beb30e4a981010661116d5b7d8b880c19fdbc849ba2f4d",
+      "mask_write_present": true,
+      "nettask_lock_present": false
+    }
+  ],
+  "terminal_quiescence_proven": false
+}

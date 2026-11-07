@@ -1,0 +1,30 @@
+{
+  "scope": "MT7603 unpreprocessed source inventory; not target or runtime proof",
+  "source_sha256": {
+    "chips/mt7603.c": "97febaaa4efad09884e6e5daf832da9b57a3a6118d9235458f1aa53648379996",
+    "hw_ctrl/cmm_asic_mt.c": "36d04001c6b4da9d733127242dd5c8705beddca8901d4291d95223c518e02281",
+    "common/cmm_mac_pci.c": "6a165366afaf461b741809213bbd116b205acddb7aab35109ab3c763ba38d534",
+    "common/rtmp_init.c": "cd98dd0d73e5f9a3a57fe7705512b579607929e42436b33cd3ed2f7ed6109cb4",
+    "include/rtmp_chip.h": "d0e027601d8073477c7eac2019faba0719eb7768024559311997a90d99de2a62",
+    "include/mac/mac_mt/mt_mac_pci.h": "98ec68e4156764912c4c855b6fb1b72a30d825b6918137809b6f85c4916ac8e4"
+  },
+  "observations": {
+    "mt7603_disable_tx_rx_hook_null": true,
+    "stop_dma_rx_rejects_hif_mt": true,
+    "stop_dma_tx_rejects_hif_mt": true,
+    "wpdma_success_without_postwrite_readback": true,
+    "void_dma_disable_discards_result": true,
+    "void_rx_tx_disable_calls_void_dma_disable": true,
+    "irq_mask_write_without_readback_or_join": true
+  },
+  "reviewed_shapes_match": true,
+  "terminal_quiescence": "unproven",
+  "production_accepted": false,
+  "runtime_verified": false,
+  "required": [
+    "fence all producers and re-enable paths",
+    "verified device-specific DMA/IRQ stop and bounded receipt",
+    "IRQ/tasklet/work/timer joins and exact owner retirement",
+    "separate inaccessible-device removal path"
+  ]
+}

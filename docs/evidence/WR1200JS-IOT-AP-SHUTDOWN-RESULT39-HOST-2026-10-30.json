@@ -1,0 +1,49 @@
+{
+  "input_sha256": {
+    "ap/ap.c": "87d10f9fc5adb22071ebf7cc7c73c915749acea0e006f961a90d513f2ad8c5df",
+    "include/ap.h": "3bd6a3c18b7175f682446e92c5e51111844485bed246eda561d7d8d4d6745582",
+    "common/rtmp_init_inf.c": "8b995d6bb9f44be4808bdbb66977f08c3b89500589fd465490cebdb9d20ce3f7"
+  },
+  "output_sha256": {
+    "ap/ap.c": "2c39a0bec01a1d31d96bfbfebcc0e0df16b3df5f38b22dab2fc4929262691d1a",
+    "include/ap.h": "eaaae8eb8854dede4be05da3a8e3a49cf868eadd9edaa354614d0a554de509b1",
+    "common/rtmp_init_inf.c": "d26a84c77f53bc29cfc85e38b8893035c5c322ffce8822863c7f149be875d1f7"
+  },
+  "checked_shutdown_callers": 2,
+  "checked_close_refusal_stage": 3,
+  "scope": "APShutdown result into checked driver close; prior effects and legacy outer close remain",
+  "target_compiled": false,
+  "runtime_verified": false,
+  "lifecycle_accepted": false,
+  "date": "2026-10-30",
+  "stage": 39,
+  "base_commit": "9af5697",
+  "passed": true,
+  "extracted_host_variants": 37,
+  "results_sha256": "ef1110fa6cf821eff0d9eaeacdb094466c590231ce103a1ace6c03883914fc6d",
+  "full39_replay_performed": false,
+  "full_checked_close_and_apshutdown_bodies_extracted": true,
+  "injected_operations": [
+    "radio off and APStop result",
+    "allocator/queue/lock operations",
+    "management worker join and MMIO"
+  ],
+  "verified_host_behaviors": [
+    "APShutdown refusal preserves MAC/WDS locks and post-shutdown cleanup",
+    "checked close refusal sets shutdown_stage=3 and returns failure before task/ring teardown",
+    "same-ticket retry refuses without replaying partial stage zero",
+    "virtual-down bridge does not mark close notification complete",
+    "last MBSS close retains WR_REF_CLOSING and module reference on AP shutdown refusal",
+    "APShutdown PCI and non-PCI with WDS/IGMP/WNM feature variants",
+    "predecessor38 checked-close fixture still passes"
+  ],
+  "fixture_fix": "first run failed on missing RT_DEBUG_TRACE in host shim; added constant and reran whole suite successfully",
+  "open_issues": [
+    "RTMPDrvClose remains VOID and rt28xx_close still returns success after its early return",
+    "OS_ABL_FUNC_SUPPORT legacy function pointer contract not changed",
+    "prior side effects including MlmeRadioOff are partial",
+    "higher scan/ATE/SDIO/VOID callers not accepted",
+    "no exclusive reset/insertion ownership or failed-peer cleanup binding",
+    "no target/kernel scheduler/DMA/TxS/runtime acceptance"
+  ]
+}

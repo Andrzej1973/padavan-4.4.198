@@ -1,0 +1,44 @@
+{
+  "run_id": 41494934963,
+  "head": "4284dd4314e365b5aa4fbbe3f1268e17137f6c7a",
+  "target_compile_result": {
+    "schema": 1,
+    "candidate_variant": "peer82",
+    "repository_revision": "4284dd4314e365b5aa4fbbe3f1268e17137f6c7a",
+    "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+    "target_compiled": true,
+    "production_installed": false,
+    "runtime_verified": false,
+    "module": "mt76x3_ap.ko",
+    "module_bytes": 5516204,
+    "module_sha256": "2845574b22085c640216ef26141d6e4144003bb0ef715755965d1549bf9d86f5",
+    "compiled_task_macros": {
+      "KTHREAD_SUPPORT": true,
+      "OS_ABL_FUNC_SUPPORT": false,
+      "CONFIG_PM": false,
+      "RTMP_TIMER_TASK_SUPPORT": false,
+      "WSC_INCLUDED": false
+    },
+    "task_command_sha256": "a71a8ab18d1436427121ed7953055d890a05da7ff69e69b28d85b8df74215da5",
+    "task_source_sha256": "3864d12123d83f0664776023f8090f15ede6172fbd67579b542ab4ae63709f6c"
+  },
+  "wsc_target_tu": {
+    "status": "passed",
+    "scope": "WSC/KTHREAD common/mlme.c TU only",
+    "full_feature_module_verified": false,
+    "runtime_verified": false,
+    "command_sha256": "88d3baa7b3d0d9cf9caacc6d89de797e352f9036b587e953342933843fd68aff",
+    "source_sha256": "b43d3cf867d199d1ecf72dd4a2394818b40777a60cd6f5e752393681bdba8dda",
+    "requested_defines": [
+      "-DWSC_INCLUDED",
+      "-DWSC_AP_SUPPORT",
+      "-DKTHREAD_SUPPORT"
+    ],
+    "object_sha256": "789561518def925acfa20ebd6b64860c61eaf48ae5a59b0dbf98edfc2d27462c",
+    "object_bytes": 140792
+  },
+  "downloaded_module_matches_metadata": true,
+  "elf": "ELF32 little-endian MIPS; flags 0x70001001",
+  "scope": "Published main-close RTNL/delegation candidate module; local MBSS owner/raw-free changes not in this run",
+  "artifact_scratch_removed_bytes": 8563311
+}

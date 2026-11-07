@@ -13,6 +13,9 @@ getdns stub-only/IDN2-off builds need OpenSSL without recursive libunbound. Stub
 
 Preserve requested behavior and settings:
 - Default stubby_enable=0; listen port 5453, listen mode 0 (127.0.0.1).
+- The form, startup generator and dnsmasq emitter accept listener ports
+  1024..65535. Invalid listeners retain strict `no-resolv` behavior; do not
+  silently route ordinary DNS to a system port or rewrite saved settings.
 - Modes 0/1 strict TLS authentication and TLS-only transport; modes 2/3 opportunistic TLS/UDP/TCP. Do not silently convert a user's strict mode to fallback plaintext.
 - Resolver server0..3, IP0..3, round_robin and mode fields must all round-trip through NVRAM/WebUI. Original defaults lack stubby_server_ip3 even though script reads it: inspect migration before adding an empty default.
 - LAN and wildcard listener modes must preserve intentional firewall behavior; do not enable wildcard by default.
@@ -27,6 +30,24 @@ Old helper issues to resolve before reuse:
 - Stop unconditionally SIGKILLs the service; retain a graceful lifecycle and verified exit behavior where supported.
 
 Outstanding: inspect all native lifecycle/dnsmasq/firewall/WebUI paths; pin Stubby/libyaml source hashes; cross-compile with current OpenSSL; image packaging and closure; TLS query/runtime behavior. No Stubby image support is claimed yet.
+
+Status refresh, 2026-10-21: the preceding outstanding list is historical and
+was superseded by integration and build evidence after 2026-10-03. The
+WR1200JS profile selects Stubby; factory default `stubby_enable=0` is preserved.
+Build #504 confirms final-image packaging and an authenticated DoT lookup with
+the image binaries under QEMU. The 2026-10-18 read-only device snapshot reports
+Stubby enabled in strict router-DNS mode at `127.0.0.1:5453`, established
+connections to configured DoT resolvers, and a successful local DNS answer;
+the exact installed image identity and complete DNS-path acceptance remain
+unknown. DoH was disabled in that later sample. Keep physical browser, disable/
+re-enable, reboot persistence and sustained runtime checks open.
+
+The 2026-10-21 source review found that Stubby modes 1/3 and DoH mode 1 each
+append their own `no-resolv`/upstream configuration to dnsmasq, and neither
+integration enforces mutual exclusion. The combined-enabled case has not been
+tested; do not claim that the selected upstream is deterministic or silently
+change the user's choice. See `docs/SERVICE-PORT-AND-SETTINGS-AUDIT.md` for the
+open combined DNS-routing question and next verification.
 
 ## Package recipe draft — 2026-10-03
 

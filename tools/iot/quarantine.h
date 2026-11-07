@@ -9,6 +9,12 @@ int wr_iot_quarantine_can_apply(void);
 int wr_iot_quarantine_apply(void);
 /* Trusted expected rules only; holds guard, owned bridge, BSS still DOWN. */
 int wr_iot_policy_rules_ready(const char *ipv4,const char *ipv6);
+/* Final read-only filter observation after BSS UP. Does not relax any mutation
+ * gate. Requires held guard, owned bridge and sole ra2 active before/after. */
+int wr_iot_policy_rules_observed(const char *ipv4,const char *ipv6);
+/* Rebuild expected rules/current WAN and probe service readiness after BSS UP.
+ * Filter observation alone does not prove NAT, offload bypass or connectivity. */
+int wr_iot_active_filter_observed_current(void);
 /* Rebuild expected policy from current configuration and live inventory. */
 int wr_iot_active_filter_ready(const char *lan,const char *wan);
 int wr_iot_policy_can_apply(void);

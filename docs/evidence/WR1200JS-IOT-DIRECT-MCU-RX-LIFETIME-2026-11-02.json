@@ -1,0 +1,23 @@
+{
+  "date": "2026-11-02",
+  "scope": "MT7603 direct RX event ingress source trace",
+  "files_sha256": {
+    "common/cmm_data.c": "8453ace194ac21304a4a4021c51c5caf2f4fb2c00db2fab87216ba5070123a03",
+    "mcu/mcu.c": "73e7692de59f7cbe5eb08bb5f81c5ee2d5b398f0c16df2449fc464698f8e1500",
+    "mcu/andes_mt.c": "e7e49e1b523461c89c8ed5dd4bc58f0a82e7a533fc9863eb632ea36a7b0dd0f8",
+    "mcu/andes_core.c": "dace085882a8097080b479a37b459dc799724831eece5da16efa41f21370f9a3"
+  },
+  "path": [
+    "mcu.c installs chipOps.rx_event_handler=AndesMTRxEventHandler",
+    "cmm_data.c invokes callback directly on RX packet",
+    "AndesMTRxEventHandler tests MCU_INIT then allocates message and calls AndesMTRxProcessEvent synchronously",
+    "AndesCtrlPciExit clears MCU_INIT and kills cmd_msg_task before queue/lock cleanup"
+  ],
+  "gap": "cmd_msg_task kill alone does not join direct RX callback already past MCU_INIT test; callback entry reads MCU state before message lease allocation",
+  "requirements": [
+    "retire and join physical RX producer before destroying ackq/MCU locks",
+    "hold external adapter entry pin across pre-allocation callback access",
+    "keep direct RX ingress enabled until checked OFF ACK completes, then join it before teardown"
+  ],
+  "runtime_verified": false
+}

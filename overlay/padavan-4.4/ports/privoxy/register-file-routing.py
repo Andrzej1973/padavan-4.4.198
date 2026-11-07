@@ -58,7 +58,7 @@ static int privoxy_dump_textarea(webs_t wp, const char *filename, int default_co
 anchor = 'static u64 restart_needed_bits = 0;'
 if s.count(anchor) != 1:
     raise SystemExit('Inspect helper insertion')
-s = s.replace(anchor, helper + anchor, 1)
+s = s.replace(anchor, helper + '#if defined(APP_PRIVOXY)\nstatic int privoxy_storage_save_failed = 0;\n#endif\n\n' + anchor, 1)
 anchor = '\telse if (strncmp(file, "scripts.", 8)==0)'
 if s.count(anchor) != 1:
     raise SystemExit('Inspect file dump routing')
@@ -95,11 +95,41 @@ anchor = 'validate_asp_apply(webs_t wp, int sid)\n{\n'
 if s.count(anchor) != 1:
     raise SystemExit('Inspect apply function storage flag')
 s = s.replace(anchor, anchor + '#if defined(APP_PRIVOXY)\n\tint privoxy_storage_changed = 0;\n#endif\n', 1)
+anchor = '\tchar buff[160];\n\n\t/* Validate and set variables in table order */'
+if s.count(anchor) != 1:
+    raise SystemExit('Inspect Privoxy Apply validation body')
+s = s.replace(anchor, '\tchar buff[160];\n\n#if defined(APP_PRIVOXY)\n\tprivoxy_storage_save_failed = 0;\n#endif\n\t/* Validate and set variables in table order */', 1)
 anchor = '\treturn (nvram_modified || restart_needed_bits || restart_needed_extended) ? 1 : 0;'
 if s.count(anchor) != 1:
     raise SystemExit('Inspect apply function return')
 s = s.replace(anchor, '#if defined(APP_PRIVOXY)\n'
-    '\tif (privoxy_storage_changed && eval("/sbin/mtd_storage.sh", "save") != 0)\n'
-    '\t\tlogmessage("Privoxy", "Configuration storage save failed");\n#endif\n' + anchor, 1)
+    '\tif (privoxy_storage_changed && eval("/sbin/mtd_storage.sh", "save") != 0) {\n'
+    '\t\tlogmessage("Privoxy", "Configuration storage save failed");\n'
+    '\t\tprivoxy_storage_save_failed = 1;\n\t}\n#endif\n' + anchor, 1)
+anchor = '''\t\tif (!strcmp(action_mode, "  Save  ") || !strcmp(action_mode, " Apply ")) {
+\t\t\tif (!validate_asp_apply(wp, sid))
+\t\t\t\twebsWrite(wp, "<script>no_changes_and_no_committing();</script>\\n");
+\t\t\telse
+\t\t\t\twebsWrite(wp, "<script>done_committing();</script>\\n");
+\t\t}'''
+if s.count(anchor) != 1:
+    raise SystemExit('Inspect native Apply response before Privoxy failure handling')
+replacement = '''\t\tif (!strcmp(action_mode, "  Save  ") || !strcmp(action_mode, " Apply ")) {
+\t\t\tresult = validate_asp_apply(wp, sid);
+#if defined(APP_PRIVOXY)
+\t\t\tif (privoxy_storage_save_failed) {
+\t\t\t\t/* Files may have changed in RAM; do not claim durable success. */
+\t\t\t\trestart_needed_bits = 0;
+\t\t\t\trestart_needed_extended = 0;
+\t\t\t\twebsWrite(wp, "<script>if(parent.privoxySaveFailed)parent.privoxySaveFailed();</script>\\n");
+\t\t\t\treturn 0;
+\t\t\t}
+#endif
+\t\t\tif (!result)
+\t\t\t\twebsWrite(wp, "<script>no_changes_and_no_committing();</script>\\n");
+\t\t\telse
+\t\t\t\twebsWrite(wp, "<script>done_committing();</script>\\n");
+\t\t}'''
+s = s.replace(anchor, replacement, 1)
 args.web.write_text(s, encoding='utf-8')
 print('Privoxy editor file routing added; runtime validation pending')

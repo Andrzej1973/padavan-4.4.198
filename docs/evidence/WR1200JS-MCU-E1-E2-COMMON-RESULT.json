@@ -1,0 +1,472 @@
+{
+  "images": [
+    {
+      "header": "mt7603_firmware.h",
+      "image_sha256": "e1d9cabeeb7d1539ea94665f3e7527968166552e9fc28171e0af7dbaa34ac3a5",
+      "helper_address": 1074248,
+      "sequence_load": 1074264,
+      "sequence_store": 1074364,
+      "calls": [
+        {
+          "site": 1074276,
+          "target": 12668
+        },
+        {
+          "site": 1074308,
+          "target": 12556
+        },
+        {
+          "site": 1074332,
+          "target": 9444
+        },
+        {
+          "site": 1074412,
+          "target": 14964
+        }
+      ],
+      "instructions": [
+        {
+          "address": 1074248,
+          "mnemonic": "smw.adm",
+          "operands": "s0, [sp], s4, 0x2"
+        },
+        {
+          "address": 1074252,
+          "mnemonic": "lwi",
+          "operands": "s2, [a0 + 0x8]"
+        },
+        {
+          "address": 1074256,
+          "mnemonic": "movi",
+          "operands": "a0, 0x14"
+        },
+        {
+          "address": 1074260,
+          "mnemonic": "ori",
+          "operands": "s3, a1, 0x0"
+        },
+        {
+          "address": 1074264,
+          "mnemonic": "lbi",
+          "operands": "s4, [s2 + 0x7]"
+        },
+        {
+          "address": 1074268,
+          "mnemonic": "sethi",
+          "operands": "ta, 0x3"
+        },
+        {
+          "address": 1074272,
+          "mnemonic": "ori",
+          "operands": "ta, ta, 0x17c"
+        },
+        {
+          "address": 1074276,
+          "mnemonic": "jral",
+          "operands": "lp,ta"
+        },
+        {
+          "address": 1074280,
+          "mnemonic": "movi",
+          "operands": "a5, 0xfff"
+        },
+        {
+          "address": 1074284,
+          "mnemonic": "ori",
+          "operands": "s1, a0, 0x0"
+        },
+        {
+          "address": 1074288,
+          "mnemonic": "bne",
+          "operands": "a0, a5, 0x10647c"
+        },
+        {
+          "address": 1074292,
+          "mnemonic": "movi",
+          "operands": "a0, 0x103"
+        },
+        {
+          "address": 1074296,
+          "mnemonic": "j",
+          "operands": "0x1064f4"
+        },
+        {
+          "address": 1074300,
+          "mnemonic": "sethi",
+          "operands": "ta, 0x3"
+        },
+        {
+          "address": 1074304,
+          "mnemonic": "ori",
+          "operands": "ta, ta, 0x10c"
+        },
+        {
+          "address": 1074308,
+          "mnemonic": "jral",
+          "operands": "lp,ta"
+        },
+        {
+          "address": 1074312,
+          "mnemonic": "movi",
+          "operands": "a1, 0x0"
+        },
+        {
+          "address": 1074316,
+          "mnemonic": "movi",
+          "operands": "a2, 0x14"
+        },
+        {
+          "address": 1074320,
+          "mnemonic": "ori",
+          "operands": "s0, a0, 0x0"
+        },
+        {
+          "address": 1074324,
+          "mnemonic": "sethi",
+          "operands": "ta, 0x2"
+        },
+        {
+          "address": 1074328,
+          "mnemonic": "ori",
+          "operands": "ta, ta, 0x4e4"
+        },
+        {
+          "address": 1074332,
+          "mnemonic": "jral",
+          "operands": "lp,ta"
+        },
+        {
+          "address": 1074336,
+          "mnemonic": "movi",
+          "operands": "a4, 0x14"
+        },
+        {
+          "address": 1074340,
+          "mnemonic": "movi",
+          "operands": "a3, -0x2000"
+        },
+        {
+          "address": 1074344,
+          "mnemonic": "movi",
+          "operands": "a2, -0x13"
+        },
+        {
+          "address": 1074348,
+          "mnemonic": "movi",
+          "operands": "a0, 0x0"
+        },
+        {
+          "address": 1074352,
+          "mnemonic": "sbi",
+          "operands": "a2, [s0 + 0x4]"
+        },
+        {
+          "address": 1074356,
+          "mnemonic": "shi",
+          "operands": "a4, [s0 + 0x0]"
+        },
+        {
+          "address": 1074360,
+          "mnemonic": "shi",
+          "operands": "a3, [s0 + 0x2]"
+        },
+        {
+          "address": 1074364,
+          "mnemonic": "sbi",
+          "operands": "s4, [s0 + 0x5]"
+        },
+        {
+          "address": 1074368,
+          "mnemonic": "sbi",
+          "operands": "a0, [s0 + 0x8]"
+        },
+        {
+          "address": 1074372,
+          "mnemonic": "addi",
+          "operands": "s0, s0, 0xc"
+        },
+        {
+          "address": 1074376,
+          "mnemonic": "lbi",
+          "operands": "s2, [s2 + 0x9]"
+        },
+        {
+          "address": 1074380,
+          "mnemonic": "movi",
+          "operands": "a0, 0x0"
+        },
+        {
+          "address": 1074384,
+          "mnemonic": "sbi",
+          "operands": "s2, [s0 + 0x0]"
+        },
+        {
+          "address": 1074388,
+          "mnemonic": "swi",
+          "operands": "s3, [s0 + 0x4]"
+        },
+        {
+          "address": 1074392,
+          "mnemonic": "ori",
+          "operands": "a2, s1, 0x0"
+        },
+        {
+          "address": 1074396,
+          "mnemonic": "movi",
+          "operands": "a1, 0x1"
+        },
+        {
+          "address": 1074400,
+          "mnemonic": "ori",
+          "operands": "a3, a0, 0x0"
+        },
+        {
+          "address": 1074404,
+          "mnemonic": "sethi",
+          "operands": "ta, 0x3"
+        },
+        {
+          "address": 1074408,
+          "mnemonic": "ori",
+          "operands": "ta, ta, 0xa74"
+        },
+        {
+          "address": 1074412,
+          "mnemonic": "jral",
+          "operands": "lp,ta"
+        },
+        {
+          "address": 1074416,
+          "mnemonic": "movi",
+          "operands": "a0, 0x0"
+        },
+        {
+          "address": 1074420,
+          "mnemonic": "lmw.bim",
+          "operands": "s0, [sp], s4, 0x2"
+        },
+        {
+          "address": 1074424,
+          "mnemonic": "ret",
+          "operands": "lp"
+        }
+      ]
+    },
+    {
+      "header": "mt7603_e2_firmware.h",
+      "image_sha256": "e897b5ca7277d77778dda75450956143709e39005affaf2b682c1e7d79fc4c64",
+      "helper_address": 1073492,
+      "sequence_load": 1073508,
+      "sequence_store": 1073584,
+      "calls": [
+        {
+          "site": 1073512,
+          "target": 11576
+        },
+        {
+          "site": 1073536,
+          "target": 11484
+        },
+        {
+          "site": 1073552,
+          "target": 8648
+        },
+        {
+          "site": 1073624,
+          "target": 13632
+        }
+      ],
+      "instructions": [
+        {
+          "address": 1073492,
+          "mnemonic": "smw.adm",
+          "operands": "s0, [sp], s4, 0x2"
+        },
+        {
+          "address": 1073496,
+          "mnemonic": "lwi",
+          "operands": "s2, [a0 + 0x8]"
+        },
+        {
+          "address": 1073500,
+          "mnemonic": "movi",
+          "operands": "a0, 0x14"
+        },
+        {
+          "address": 1073504,
+          "mnemonic": "ori",
+          "operands": "s3, a1, 0x0"
+        },
+        {
+          "address": 1073508,
+          "mnemonic": "lbi",
+          "operands": "s4, [s2 + 0x7]"
+        },
+        {
+          "address": 1073512,
+          "mnemonic": "jal",
+          "operands": "0x2d38"
+        },
+        {
+          "address": 1073516,
+          "mnemonic": "movi",
+          "operands": "a5, 0xfff"
+        },
+        {
+          "address": 1073520,
+          "mnemonic": "ori",
+          "operands": "s1, a0, 0x0"
+        },
+        {
+          "address": 1073524,
+          "mnemonic": "bne",
+          "operands": "a0, a5, 0x106180"
+        },
+        {
+          "address": 1073528,
+          "mnemonic": "movi",
+          "operands": "a0, 0x103"
+        },
+        {
+          "address": 1073532,
+          "mnemonic": "j",
+          "operands": "0x1061e0"
+        },
+        {
+          "address": 1073536,
+          "mnemonic": "jal",
+          "operands": "0x2cdc"
+        },
+        {
+          "address": 1073540,
+          "mnemonic": "movi",
+          "operands": "a1, 0x0"
+        },
+        {
+          "address": 1073544,
+          "mnemonic": "movi",
+          "operands": "a2, 0x14"
+        },
+        {
+          "address": 1073548,
+          "mnemonic": "ori",
+          "operands": "s0, a0, 0x0"
+        },
+        {
+          "address": 1073552,
+          "mnemonic": "jal",
+          "operands": "0x21c8"
+        },
+        {
+          "address": 1073556,
+          "mnemonic": "movi",
+          "operands": "a4, 0x14"
+        },
+        {
+          "address": 1073560,
+          "mnemonic": "movi",
+          "operands": "a3, -0x2000"
+        },
+        {
+          "address": 1073564,
+          "mnemonic": "movi",
+          "operands": "a2, -0x13"
+        },
+        {
+          "address": 1073568,
+          "mnemonic": "movi",
+          "operands": "a0, 0x0"
+        },
+        {
+          "address": 1073572,
+          "mnemonic": "sbi",
+          "operands": "a2, [s0 + 0x4]"
+        },
+        {
+          "address": 1073576,
+          "mnemonic": "shi",
+          "operands": "a4, [s0 + 0x0]"
+        },
+        {
+          "address": 1073580,
+          "mnemonic": "shi",
+          "operands": "a3, [s0 + 0x2]"
+        },
+        {
+          "address": 1073584,
+          "mnemonic": "sbi",
+          "operands": "s4, [s0 + 0x5]"
+        },
+        {
+          "address": 1073588,
+          "mnemonic": "sbi",
+          "operands": "a0, [s0 + 0x8]"
+        },
+        {
+          "address": 1073592,
+          "mnemonic": "addi",
+          "operands": "s0, s0, 0xc"
+        },
+        {
+          "address": 1073596,
+          "mnemonic": "lbi",
+          "operands": "s2, [s2 + 0x9]"
+        },
+        {
+          "address": 1073600,
+          "mnemonic": "movi",
+          "operands": "a0, 0x0"
+        },
+        {
+          "address": 1073604,
+          "mnemonic": "sbi",
+          "operands": "s2, [s0 + 0x0]"
+        },
+        {
+          "address": 1073608,
+          "mnemonic": "swi",
+          "operands": "s3, [s0 + 0x4]"
+        },
+        {
+          "address": 1073612,
+          "mnemonic": "ori",
+          "operands": "a2, s1, 0x0"
+        },
+        {
+          "address": 1073616,
+          "mnemonic": "movi",
+          "operands": "a1, 0x1"
+        },
+        {
+          "address": 1073620,
+          "mnemonic": "ori",
+          "operands": "a3, a0, 0x0"
+        },
+        {
+          "address": 1073624,
+          "mnemonic": "jal",
+          "operands": "0x3540"
+        },
+        {
+          "address": 1073628,
+          "mnemonic": "movi",
+          "operands": "a0, 0x0"
+        },
+        {
+          "address": 1073632,
+          "mnemonic": "lmw.bim",
+          "operands": "s0, [sp], s4, 0x2"
+        },
+        {
+          "address": 1073636,
+          "mnemonic": "ret",
+          "operands": "lp"
+        }
+      ]
+    }
+  ],
+  "conclusion": "Both exact-image common result helpers copy full request byte7 to output byte5. Their four external call addresses differ.",
+  "limits": "Helper identity/call role inferred from structure. No ROM implementation, calling-convention proof, full path coverage, high-ID support, duplicate bound or safe reuse established.",
+  "runtime_verified": false,
+  "reuse_enabled": false
+}

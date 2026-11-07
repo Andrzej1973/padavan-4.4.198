@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "candidate_variant": "peer82",
+  "repository_revision": "1a274b76578aa7a365eb4645df9184a778484b4f",
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "target_compiled": true,
+  "production_installed": false,
+  "runtime_verified": false,
+  "module": "mt76x3_ap.ko",
+  "module_bytes": 5499804,
+  "module_sha256": "8f4962b90f88144d334cce39ce0dc1570f2f16cc3b6c2006431b75441816660c",
+  "compiled_task_macros": {
+    "KTHREAD_SUPPORT": true,
+    "OS_ABL_FUNC_SUPPORT": false,
+    "CONFIG_PM": false,
+    "RTMP_TIMER_TASK_SUPPORT": false,
+    "WSC_INCLUDED": false
+  },
+  "task_command_sha256": "469ee77f02891fdcc3665d2e719742c6b06da60f68f56adb0ce04384331dabd2",
+  "task_source_sha256": "3864d12123d83f0664776023f8090f15ede6172fbd67579b542ab4ae63709f6c",
+  "run_id": 41330209946,
+  "independent_checks": [
+    "Downloaded SHA256 matches compile report",
+    "ELF32 little-endian EM_MIPS",
+    "merged manifest contains mcu_sender_layer"
+  ],
+  "verified_symbols": [
+    "AndesAllocCmdMsg",
+    "AndesSendCmdMsg",
+    "wr_iot_mcu_sender_close_drain",
+    "wr_iot_mcu_sender_release_begin"
+  ],
+  "sender_layer": {
+    "scope": "isolated sender/message source binding and software release gates; shutdown/owned OFF and external lifetime unproved; DO NOT INSTALL",
+    "input_sha256": {
+      "include/rtmp.h": "8739ed3ebd9d7b715074d5ea13add1ab5b0ba4a8b5383889eac8dcdd5490b2c7",
+      "common/rtmp_init.c": "28da09524ff7712a3b2a6d2331ba901889509224f6fdd329b343ed071495e8c6",
+      "mcu/andes_core.c": "1d9d162dbe8e9ca782979977dd0d89f993d5126348d7b36600f20c45b87d65ff",
+      "os/linux/rt_profile.c": "3e45b968dd13082076bb238b4fa0bf52681cb7576e680f4bafe24d0f1f5c691c"
+    },
+    "output_sha256": {
+      "include/rtmp.h": "aa0c3351fb21acc57c9343e4a79f29d6ced1e7dca8ebbecb338298790e8f0e96",
+      "common/rtmp_init.c": "d683b789d6afc24ff44a1a21ba0e60ecc10daac4471bc01a3d83e2b1e60273a0",
+      "mcu/andes_core.c": "27f950013ed4e33bfb8865ef39aa61fb4d2b8f57e187f9cfbd6331e31353d703",
+      "os/linux/rt_profile.c": "2fa71e38477be6b4dfa621bd8ece4fd64dc02a1bfae489a4db66912dde11b9f8"
+    },
+    "production_installed": false,
+    "target_compiled": false,
+    "runtime_verified": false
+  },
+  "limitations": [
+    "No production installation or runtime verification",
+    "Owned OFF/shutdown ordering and ACK epoch remain unresolved",
+    "Software release gate is not IRQ/DMA/external-caller quiescence proof"
+  ]
+}

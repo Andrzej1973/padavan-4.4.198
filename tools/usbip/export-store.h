@@ -8,6 +8,10 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include "export-codec.h"
+/* Test seam; the firmware path retains the ordinary POSIX fsync call. */
+#ifndef WR_USBIP_FSYNC
+#define WR_USBIP_FSYNC(fd) fsync(fd)
+#endif
 enum wr_usbip_store_result { WR_USBIP_STORE_REFUSED=0,WR_USBIP_STORE_SAVED=1,WR_USBIP_STORE_UNCONFIRMED=2 };
 static inline int wr_usbip_store_private_file(const struct stat *s)
 {
@@ -45,7 +49,7 @@ static inline enum wr_usbip_store_result wr_usbip_export_save_locked(const char 
  if(fsync(fd))goto cleanup;
  if(close(fd)){fd=-1;goto cleanup;}fd=-1;
  if(renameat(dir,temp,dir,"exports.v1"))goto cleanup;
- result=fsync(dir)==0?WR_USBIP_STORE_SAVED:WR_USBIP_STORE_UNCONFIRMED;
+ result=WR_USBIP_FSYNC(dir)==0?WR_USBIP_STORE_SAVED:WR_USBIP_STORE_UNCONFIRMED;
  goto done;
 cleanup:
  if(fd>=0){close(fd);fd=-1;}

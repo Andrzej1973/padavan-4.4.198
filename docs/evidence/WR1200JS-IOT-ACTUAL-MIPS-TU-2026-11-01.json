@@ -1,0 +1,84 @@
+{
+  "scope": "actual isolated MIPS translation units using captured rt_linux Kbuild flags adapted to each source; not full Kbuild/link",
+  "source_revision": "69a70ba8f1a96a70b3fe0c13fdd7908365be07b9",
+  "kernel_base": "c25283e915a2a00a763774dd255b14aff997285e",
+  "kernel_config_from_run": 41260184588,
+  "flag_command_from_run": 41258805011,
+  "kernel_config_sha256": "fa047c0252b38d5e9525dbbd80cd1ef8cd4564d01b384edb5d861c200177aaa9",
+  "normal_units_compile_exit": {
+    "rt_main_dev.c": 0,
+    "rtmp_init.c": 0
+  },
+  "apcli_off_only_attempt": "failed: vendor repeater still enabled, inconsistent feature set",
+  "apcli_off_with_dependent_repeater_and_autoconnect_disabled": "failed with correctly ordered -U overrides: unguarded REPEATER_CLIENT_ENTRY declaration",
+  "worker_and_submit_symbols_present": "previous apparent pass invalid: later -D overrode early -U; no APCLI-off acceptance",
+  "module_link_verified": false,
+  "runtime_verified": false,
+  "local_root": "/tmp/wr-iot-target-tu-nug6a699",
+  "related_units": [
+    {
+      "unit": "ap/ap_mbss_inf.c",
+      "exit": 0
+    },
+    {
+      "unit": "ap/ap_apcli_inf.c",
+      "exit": 0
+    },
+    {
+      "unit": "ap/ap_wds_inf.c",
+      "exit": 0
+    },
+    {
+      "unit": "os/linux/rt_profile.c",
+      "exit": 0
+    },
+    {
+      "unit": "os/linux/pci_main_dev.c",
+      "exit": 0
+    }
+  ],
+  "objects": {
+    "os/linux/rt_main_dev.c": {
+      "source_sha256": "5d5119c0a55901d9312097ba17093d5aa37c523e07ac9498bc5cb8b62ea7d0c6",
+      "object_bytes": 106976,
+      "object_sha256": "711dc46910a4a1c5b482294fd26bf15c9228ebc5d99d5859fec4b0733556d1f0",
+      "adapted_command_sha256": "cbe2133e455f81224e66a87d8c1a747fe88f3f56b5e33672331a134a93598075"
+    },
+    "common/rtmp_init.c": {
+      "source_sha256": "d2174068c420e27725ad22f5174835b2e493e2aa47d0e275b9560f3d36248db0",
+      "object_bytes": 115544,
+      "object_sha256": "6fc362cdda0a7ef1b55df2c7b16a846911fca196147020f0a6d0d5c9294d36fc",
+      "adapted_command_sha256": "b1412dac7090e6eb7ade20a5dae71939757963d20c22f9c4737c3ce6646497e8"
+    },
+    "ap/ap_mbss_inf.c": {
+      "source_sha256": "326ec840c1dd767adb1ddf162793f9d20b9f612021521cdc05c39a7059d279d5",
+      "object_bytes": 48628,
+      "object_sha256": "1dc0a78f2b500817382f55758406213379a15c392ace9088f77b7d765b7c565a",
+      "adapted_command_sha256": "827b70e1d8a2fc5ee5dfaaa12f4774643b9d540b4b151249c7dc9e842f085e34"
+    },
+    "ap/ap_apcli_inf.c": {
+      "source_sha256": "70100baa7180d438203cdf74cd19872288f230ae35cb7920a0556319c3309d8f",
+      "object_bytes": 42248,
+      "object_sha256": "66c99d9898404d558340d24fb6a40509a61f95c2dbea10633683625c0873120b",
+      "adapted_command_sha256": "62f7d7a3af19ddc37fcba88b4917bfeaeacc076fa49c0133d89584df053fcee5"
+    },
+    "ap/ap_wds_inf.c": {
+      "source_sha256": "44b0a699c0485906ed40c4192f5997fed002312eb1c85e81e940724da6f8927f",
+      "object_bytes": 38400,
+      "object_sha256": "1242bb70e403f938de97694bb650fd12ece8f56778056fe75ad3bc989320adb3",
+      "adapted_command_sha256": "394657129cbef30b48ab339fe2f7872bf9338795e56a91dd7f2812e0710e25ad"
+    },
+    "os/linux/rt_profile.c": {
+      "source_sha256": "fc8bba9b3ccb2e53b3072a53e2845e8ad6e67eb2ee753682fc2e9bf35c17d4f3",
+      "object_bytes": 47180,
+      "object_sha256": "b4330e7c13b451b126ddb337e4e9ae477a574394e2e9cb481f00dec551d312ab",
+      "adapted_command_sha256": "3097af61836cd704306c7b8f19aa45fd4a4f4bc40ddd5ef8232ddf338d20cd8f"
+    },
+    "os/linux/pci_main_dev.c": {
+      "source_sha256": "692babcb7100cef6a7ae68871c4368995f728ab2fa180331ca70880a6aa8237f",
+      "object_bytes": 35224,
+      "object_sha256": "bbfa0a6e2a5e354ab64a515bb340d41fc6fec7acb52b777c31b25148410e98a6",
+      "adapted_command_sha256": "b1a1630021f6521d8e3b695a6408bd987dd389e228da691a1aa7b9d959bc7c95"
+    }
+  }
+}

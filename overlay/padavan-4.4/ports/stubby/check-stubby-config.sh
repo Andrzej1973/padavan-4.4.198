@@ -127,7 +127,11 @@ rejects 'address with port' 'Invalid address for resolver 0' "$(with 's/^stubby_
 rejects 'name with port' 'Invalid TLS authentication name for resolver 0' "$(with 's/^stubby_server0=.*/stubby_server0=dns.google:853/')"
 rejects 'name starting with dot' 'Invalid TLS authentication name for resolver 0' "$(with 's/^stubby_server0=.*/stubby_server0=.dns.google/')"
 rejects 'missing port' 'Invalid Stubby listen port' "$(with '/^stubby_listen_port=/d')"
-rejects 'port over 65535' 'between 1 and 65535' "$(with 's/^stubby_listen_port=.*/stubby_listen_port=70000/')"
+rejects 'port over 65535' 'between 1024 and 65535' "$(with 's/^stubby_listen_port=.*/stubby_listen_port=70000/')"
+rejects 'system DNS port' 'between 1024 and 65535' "$(with 's/^stubby_listen_port=.*/stubby_listen_port=53/')"
+rejects 'port below minimum' 'between 1024 and 65535' "$(with 's/^stubby_listen_port=.*/stubby_listen_port=1023/')"
+accepts 'minimum listener port' "$(with 's/^stubby_listen_port=.*/stubby_listen_port=1024/')" && has 'minimum listener port' '  - "127.0.0.1@1024"'
+accepts 'maximum listener port' "$(with 's/^stubby_listen_port=.*/stubby_listen_port=65535/')" && has 'maximum listener port' '  - "127.0.0.1@65535"'
 rejects 'missing round-robin' 'Invalid Stubby round-robin setting' "$(with '/^stubby_round_robin=/d')"
 rejects 'unknown listen mode' 'Invalid Stubby listen mode' "$(with 's/^stubby_listen_mode=.*/stubby_listen_mode=3/')"
 rejects 'LAN listener without LAN address' 'Invalid LAN listen address' "$(with 's/^stubby_listen_mode=.*/stubby_listen_mode=1/;/^lan_ipaddr_t=/d')"

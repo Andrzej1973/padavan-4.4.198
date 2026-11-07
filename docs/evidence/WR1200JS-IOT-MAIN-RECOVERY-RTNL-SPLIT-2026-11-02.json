@@ -1,0 +1,27 @@
+{
+  "scope": "Isolated peer82 deferred main-recovery worker only",
+  "changes": [
+    "Enter worker with RTNL for admission/preclose",
+    "Revalidate running deferred owner, device/generation/token and exact continuation action under transition lock",
+    "Unlock RTNL before physical continue while lifetime owner remains held",
+    "Finish or retain using transition lock; worker dispatcher skips a second unlock when executor released RTNL"
+  ],
+  "verification": {
+    "host": "PASS ASan/UBSan extracted executor and original exact-ticket/failed-close/acquired-open fixture; physical down requires RTNL absent and module pin present; retained failure and one pin release; early non-admitted return leaves RTNL held for dispatcher",
+    "target": "PASS exact merged os/linux/rt_main_dev.c MIPS TU",
+    "regression": "PASS actual reopen fence plus existing main module macro/rearm/RTNL gates",
+    "workflow": "PASS YAML and affected full bash syntax"
+  },
+  "files": {
+    "tools/iot/prepare-main-recovery-rtnl-split.py": "7a38549951e265d3d78fab3e12e63af032c66c65df9ceb0e882193f937da2795",
+    "tools/iot/check-main-recovery-rtnl-split.py": "8bba9b3c122b74f5cdc451a7ea01a350b2d2ecdabf7be82e7a3ac0f11836ea9e"
+  },
+  "remaining": [
+    "Ordinary MainVirtualIF_close still continues synchronously under RTNL; delegate final physical CLOSE to pinned owner",
+    "Failed-VERIFY synchronous continuation also remains to convert",
+    "Use retirement-origin close queue only with active PCI drain owner",
+    "Timer/dynamic callback retirement, WDS final reaper and PCI release",
+    "Actual kernel concurrency and runtime not verified"
+  ],
+  "cleanup": "All generated merged trees, fixtures, host binary, target object and syntax temp removed"
+}

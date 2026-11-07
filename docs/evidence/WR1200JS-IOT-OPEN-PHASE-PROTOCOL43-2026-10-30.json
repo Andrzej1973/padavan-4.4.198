@@ -1,0 +1,41 @@
+{
+  "date": "2026-10-30",
+  "base_commit": "9af5697",
+  "scope": "standalone phase/ticket protocol for config-to-startup handoff, no driver binding",
+  "passed": true,
+  "compiler_flags": [
+    "-std=c11",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Werror"
+  ],
+  "source_sha256": {
+    "tools\\iot\\peer-open-owner.h": "88dd1cbade5bd38ab4bfb9810e745bc74c2d3ae6eeec40a3a516252b8e22941c",
+    "tools\\iot\\check-peer-open-owner.c": "fad2064fd8b7b513009816250fae59cc757f7578d54d54a9fd2da404fd705b9d"
+  },
+  "covered": [
+    "readiness refusal without reservation",
+    "CONFIG denies insertion and premature success",
+    "wrong device and stale serial reject phase transition",
+    "only explicit STARTUP ticket grants insertion lease",
+    "one live insertion blocks finish and duplicate claim",
+    "stale lease cannot clear newer insertion",
+    "successful finish releases table",
+    "failure retains table while admitted insertion completes",
+    "late exact insertion completion cannot release retained table",
+    "lease exhaustion retains ownership"
+  ],
+  "driver_bound": false,
+  "os_abl_transport_bound": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "lifecycle_accepted": false,
+  "required_next": [
+    "use existing core ioctl boundary to transport ticket before outer open side effects",
+    "exact init phase validation and config clear ownership",
+    "pass startup ticket only to authorized WDS insertion path",
+    "protect shutdown/full clear/free with same owner",
+    "full regression and coherent target compile"
+  ]
+}

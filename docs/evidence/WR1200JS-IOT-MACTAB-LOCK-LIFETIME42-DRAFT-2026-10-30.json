@@ -1,0 +1,34 @@
+{
+  "input_sha256": {
+    "common/rtmp_init.c": "3cb9c71713b12fbc4c1a80a743bbbb51ca7ba72bc3b7e9fc82c85425252fdc95",
+    "ap/ap.c": "2c39a0bec01a1d31d96bfbfebcc0e0df16b3df5f38b22dab2fc4929262691d1a",
+    "os/linux/rt_profile.c": "3c5ae56ba5c25e1defc38ccb3261302d0f297b20ee77f949a52e96d213e5beb0"
+  },
+  "output_sha256": {
+    "common/rtmp_init.c": "668f930a94303f009dc0152d6c7b71cd26b9980b4a5c78c54b0774d166a5bef8",
+    "ap/ap.c": "d08fdb07a2c42effcde899e4fa0c01c654709c78b3c05f9e06792644b73b7d76",
+    "os/linux/rt_profile.c": "29e1655295d45043beff177ee61e698e70570c73a5ed0e8d8e19771ff40dde86"
+  },
+  "scope": "single fresh adapter MacTabLock initialization and final teardown only",
+  "full_table_clear_owner_bound": false,
+  "adapter_retirement_proven": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "lifecycle_accepted": false,
+  "date": "2026-10-30",
+  "base_commit": "9af5697",
+  "candidate_stage": "42 draft; not added to full chain",
+  "checks_passed": [
+    "source assertions: unique fresh init before owner initialization/publication",
+    "source assertions: no MacTabLock allocation in UserCfgInit or free in UserCfgExit/APShutdown",
+    "source assertions: one final MacTabLock free in RTMPFreeAdapter",
+    "strict optimized actual reservation/gate fragment host test"
+  ],
+  "full_regression_run": false,
+  "known_gaps": [
+    "full table clears still bypass owner",
+    "RTMPFreeAdapter quiescence caller contract not proved",
+    "existing APShutdown test lock-free expectations need adaptation",
+    "fresh full42 replay and target build not performed"
+  ]
+}

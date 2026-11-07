@@ -1,0 +1,60 @@
+{
+  "model": "WR1200JS",
+  "scope": "2.4-GHz compiled driver and ROMFS presence; k/v/r client behavior and interoperability unverified",
+  "runtime_verified": false,
+  "checks": {
+    "CONFIG_MT7603E_DOT11R_FT_SUPPORT": false,
+    "CONFIG_MT7603E_DOT11K_RRM_SUPPORT": false,
+    "CONFIG_MT7603E_WNM_SUPPORT": false,
+    "mt7603_ap_module_selected": true,
+    "linked_module_mips_elf": true,
+    "kvr_code_linked": false,
+    "one_shipped_radio_module": true,
+    "shipped_module_mips_elf": true,
+    "shipped_kvr_code_linked": false,
+    "single_rrm_record": true,
+    "single_wnm_record": true,
+    "single_kvr_emitter": true,
+    "rt_HT_80211KV_control": true,
+    "rt_HT_80211KV_backend": true,
+    "rt_HT_80211KV_factory_off": true,
+    "rt_HT_80211R_control": true,
+    "rt_HT_80211R_backend": true,
+    "rt_HT_80211R_factory_off": true
+  },
+  "required_symbols": [
+    "RRM_ReadParametersFromFile",
+    "RRM_PeerNeighborReqAction",
+    "WNM_ReadParametersFromFile",
+    "PeerWNMAction",
+    "WNMCtrlInit",
+    "FT_rtmp_read_parameters_from_file",
+    "FT_AuthReqHandler",
+    "FT_AssocReqHandler"
+  ],
+  "errors": [],
+  "kernel_config_sha256": "eddda647a47b0a1098259beea36679f8b2071ce5a3f04210571e0d0684078fde",
+  "missing_symbols": [
+    "FT_AssocReqHandler",
+    "FT_AuthReqHandler",
+    "FT_rtmp_read_parameters_from_file",
+    "PeerWNMAction",
+    "RRM_PeerNeighborReqAction",
+    "RRM_ReadParametersFromFile",
+    "WNMCtrlInit",
+    "WNM_ReadParametersFromFile"
+  ],
+  "linked_module_sha256": "d9fb18389ced36655f05dc06539b81c8a9091524e2a3ed129245d63cb1bd8ba0",
+  "romfs_module_sha256": "d0ea9f8b00a27ad360e513bdb14ac0b20164197c28cfd45d953cc979ae99cd99",
+  "missing_shipped_symbols": [
+    "FT_AssocReqHandler",
+    "FT_AuthReqHandler",
+    "FT_rtmp_read_parameters_from_file",
+    "PeerWNMAction",
+    "RRM_PeerNeighborReqAction",
+    "RRM_ReadParametersFromFile",
+    "WNMCtrlInit",
+    "WNM_ReadParametersFromFile"
+  ],
+  "success": false
+}

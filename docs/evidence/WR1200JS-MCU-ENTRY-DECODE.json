@@ -1,0 +1,346 @@
+{
+  "decoder": "pypcode3.3.3 native with NDS32 language assets from4.0.1",
+  "language": "NDS32:BE:32:default",
+  "load_base": 1048576,
+  "load_base_source": "include/mcu/andes_mt.h FW_CODE_START_ADDRESS1; AndesMTLoadFwMethod1 address/start requests",
+  "images": [
+    {
+      "header": "mt7603_firmware.h",
+      "image_sha256": "e1d9cabeeb7d1539ea94665f3e7527968166552e9fc28171e0af7dbaa34ac3a5",
+      "entry_branch_target": 1049060,
+      "blocks": [
+        {
+          "file_offset": 0,
+          "instructions": [
+            {
+              "address": 1048576,
+              "length": 4,
+              "mnemonic": "sethi",
+              "operands": "a0, 0x100"
+            },
+            {
+              "address": 1048580,
+              "length": 4,
+              "mnemonic": "ori",
+              "operands": "a0, a0, 0x1e4"
+            },
+            {
+              "address": 1048584,
+              "length": 4,
+              "mnemonic": "jr",
+              "operands": "a0"
+            },
+            {
+              "address": 1048588,
+              "length": 4,
+              "mnemonic": "smw.adm",
+              "operands": "s0, [sp], s0, 0x2"
+            },
+            {
+              "address": 1048592,
+              "length": 4,
+              "mnemonic": "addi",
+              "operands": "sp, sp, -0x8"
+            },
+            {
+              "address": 1048596,
+              "length": 4,
+              "mnemonic": "sethi",
+              "operands": "a3, 0x80021"
+            },
+            {
+              "address": 1048600,
+              "length": 4,
+              "mnemonic": "lwi",
+              "operands": "a2, [a3 + 0x10]"
+            },
+            {
+              "address": 1048604,
+              "length": 4,
+              "mnemonic": "btst",
+              "operands": "a0, a2, 0x19"
+            },
+            {
+              "address": 1048608,
+              "length": 4,
+              "mnemonic": "beqz",
+              "operands": "a0, 0x100038"
+            },
+            {
+              "address": 1048612,
+              "length": 4,
+              "mnemonic": "sethi",
+              "operands": "s0, 0x80023"
+            },
+            {
+              "address": 1048616,
+              "length": 4,
+              "mnemonic": "sethi",
+              "operands": "a4, 0x500"
+            },
+            {
+              "address": 1048620,
+              "length": 4,
+              "mnemonic": "ori",
+              "operands": "a5, s0, 0x0"
+            }
+          ]
+        },
+        {
+          "file_offset": 484,
+          "instructions": [
+            {
+              "address": 1049060,
+              "length": 4,
+              "mnemonic": "smw.adm",
+              "operands": "s0, [sp], s4, 0x2"
+            },
+            {
+              "address": 1049064,
+              "length": 4,
+              "mnemonic": "sethi",
+              "operands": "ta, 0x10f"
+            },
+            {
+              "address": 1049068,
+              "length": 4,
+              "mnemonic": "ori",
+              "operands": "ta, ta, 0x958"
+            },
+            {
+              "address": 1049072,
+              "length": 4,
+              "mnemonic": "jral",
+              "operands": "lp,ta"
+            },
+            {
+              "address": 1049076,
+              "length": 4,
+              "mnemonic": "sethi",
+              "operands": "ta, 0x100"
+            },
+            {
+              "address": 1049080,
+              "length": 4,
+              "mnemonic": "ori",
+              "operands": "ta, ta, 0xc"
+            },
+            {
+              "address": 1049084,
+              "length": 4,
+              "mnemonic": "jral",
+              "operands": "lp,ta"
+            },
+            {
+              "address": 1049088,
+              "length": 4,
+              "mnemonic": "movi",
+              "operands": "a0, 0x1"
+            },
+            {
+              "address": 1049092,
+              "length": 4,
+              "mnemonic": "sethi",
+              "operands": "ta, 0x108"
+            },
+            {
+              "address": 1049096,
+              "length": 4,
+              "mnemonic": "ori",
+              "operands": "ta, ta, 0xe14"
+            },
+            {
+              "address": 1049100,
+              "length": 4,
+              "mnemonic": "jral",
+              "operands": "lp,ta"
+            },
+            {
+              "address": 1049104,
+              "length": 4,
+              "mnemonic": "sethi",
+              "operands": "ta, 0x100"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "header": "mt7603_e2_firmware.h",
+      "image_sha256": "e897b5ca7277d77778dda75450956143709e39005affaf2b682c1e7d79fc4c64",
+      "entry_branch_target": 1049136,
+      "blocks": [
+        {
+          "file_offset": 0,
+          "instructions": [
+            {
+              "address": 1048576,
+              "length": 4,
+              "mnemonic": "sethi",
+              "operands": "a0, 0x100"
+            },
+            {
+              "address": 1048580,
+              "length": 4,
+              "mnemonic": "ori",
+              "operands": "a0, a0, 0x230"
+            },
+            {
+              "address": 1048584,
+              "length": 4,
+              "mnemonic": "jr",
+              "operands": "a0"
+            },
+            {
+              "address": 1048588,
+              "length": 4,
+              "mnemonic": "smw.adm",
+              "operands": "s0, [sp], s4, 0x2"
+            },
+            {
+              "address": 1048592,
+              "length": 4,
+              "mnemonic": "sethi",
+              "operands": "s0, 0xa0000"
+            },
+            {
+              "address": 1048596,
+              "length": 4,
+              "mnemonic": "ori",
+              "operands": "s0, s0, 0x17c"
+            },
+            {
+              "address": 1048600,
+              "length": 4,
+              "mnemonic": "lwi",
+              "operands": "s2, [s0 + 0x0]"
+            },
+            {
+              "address": 1048604,
+              "length": 4,
+              "mnemonic": "zeb",
+              "operands": "s2, s2"
+            },
+            {
+              "address": 1048608,
+              "length": 4,
+              "mnemonic": "seb",
+              "operands": "a0, s2"
+            },
+            {
+              "address": 1048612,
+              "length": 4,
+              "mnemonic": "bltz",
+              "operands": "a0, 0x1000bc"
+            },
+            {
+              "address": 1048616,
+              "length": 4,
+              "mnemonic": "ori",
+              "operands": "a0, s2, 0x0"
+            },
+            {
+              "address": 1048620,
+              "length": 4,
+              "mnemonic": "jal",
+              "operands": "0x1042a8"
+            }
+          ]
+        },
+        {
+          "file_offset": 560,
+          "instructions": [
+            {
+              "address": 1049136,
+              "length": 4,
+              "mnemonic": "smw.adm",
+              "operands": "s0, [sp], s4, 0xa"
+            },
+            {
+              "address": 1049140,
+              "length": 4,
+              "mnemonic": "addi",
+              "operands": "sp, sp, -0x4"
+            },
+            {
+              "address": 1049144,
+              "length": 4,
+              "mnemonic": "jal",
+              "operands": "0x111f70"
+            },
+            {
+              "address": 1049148,
+              "length": 4,
+              "mnemonic": "sethi",
+              "operands": "a2, 0x80021"
+            },
+            {
+              "address": 1049152,
+              "length": 4,
+              "mnemonic": "lwi",
+              "operands": "a0, [a2 + 0x10]"
+            },
+            {
+              "address": 1049156,
+              "length": 4,
+              "mnemonic": "sethi",
+              "operands": "a1, 0x2000"
+            },
+            {
+              "address": 1049160,
+              "length": 4,
+              "mnemonic": "and",
+              "operands": "a0, a0, a1"
+            },
+            {
+              "address": 1049164,
+              "length": 4,
+              "mnemonic": "beqz",
+              "operands": "a0, 0x100298"
+            },
+            {
+              "address": 1049168,
+              "length": 4,
+              "mnemonic": "sethi",
+              "operands": "fp, 0x50029"
+            },
+            {
+              "address": 1049172,
+              "length": 4,
+              "mnemonic": "movi",
+              "operands": "a0, 0x2"
+            },
+            {
+              "address": 1049176,
+              "length": 4,
+              "mnemonic": "movi",
+              "operands": "a1, 0x0"
+            },
+            {
+              "address": 1049180,
+              "length": 4,
+              "mnemonic": "addi.gp",
+              "operands": ""
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "firmware_ack_contract_verified": false,
+  "runtime_verified": false,
+  "language_assets_sha256": {
+    "nds32.dwarf": "11d3028d1c1cba75ae8410e35185f5960f61fbb86ce269138eea64490d75852f",
+    "nds32be.slaspec": "273c6baf040a36f62a8225ed417510a7549e5a7fa519199365637d487441e9eb",
+    "nds32le.slaspec": "94dab535fe243b97d57c0c3d41bd7cba92a801ae156d47abe6d32bd52ef5020e",
+    "nds32.sinc": "b045960a0ca508dd2162bf577e0e3727a5e4933d6c9684acd7b02cdae33fff63",
+    "lsmw.sinc": "01d0986cf54a80ffc2536ffb8a0bdd17acbdb493e16d7ad75813fa8999cbdb26",
+    "nds32.pspec": "bd1d68e87b51be698b1cbd7259d356b7f078efe1a4d63f0fcc48d47f96431a3a",
+    "nds32.opinion": "8d7e9aa7d7edcff052385d06e359160c28297e512b78a9ae729469e3d5adccbd",
+    "nds32be.sla": "fc3d9c1b21b5e9b187ee85c4287f1855481f1142c1d161d2cd542f03b045785d",
+    "nds32.ldefs": "cb2ccce654ab93c1a8c5c267e0ae8345d58c24a4740de473945db0368d93007a",
+    "nds32.cspec": "f1b11f37a1b51785dc2aaeba575f2ce1b5423f005cbe7a328883dbc31b8d4cbc",
+    "nds32le.sla": "d9733d8d31eac2910f8cce9c9b6496a4bfee955572790bf4aa53ce29c3efe1f5"
+  },
+  "limits": "Bounded static decoding, not emulation or control-flow/ROM resolution. Language/native combination loaded successfully but needs independent decoding confirmation before protocol claims."
+}

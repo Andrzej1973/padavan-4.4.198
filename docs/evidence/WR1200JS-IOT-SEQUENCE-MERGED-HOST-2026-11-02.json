@@ -1,0 +1,38 @@
+{
+  "date": "2026-11-02",
+  "scope": "exact prepared merge plus sequence layers, host/source gates",
+  "checks": [
+    "exhaustion branch",
+    "actual allocator faults",
+    "generated lifetime drop",
+    "actual PCI destructors",
+    "command lifecycle",
+    "retry RTNL header",
+    "main VERIFY macro",
+    "joined rearm",
+    "checked radio-off send",
+    "AGG_TEMP locking",
+    "tasklet IRQ rearm",
+    "radio-on retirement admission",
+    "aux retry scheduler",
+    "RSSI delete lease"
+  ],
+  "all_passed": true,
+  "sha256": {
+    "tools/iot/check-mcu-sequence-slot.c": "192e1c0874e220c291394171ccc74240618e92e8965dd22b3d57668826657608",
+    "tools/iot/check-mcu-sequence-bound.py": "e45800c9b25381aac241b1e282ddec6f59c798bca45a82745e005d6bffd348af",
+    "tools/iot/mcu-sequence-reservation.h": "0e6f5cb52cc0c583c026051d3d3a945ad5605c734ee34a8d0a94c4d387d4e260",
+    "tools/iot/prepare-mcu-sequence-reservation.py": "dda1192ea5c351e0ea18951746a50d440cd157eed33c66549eda6e031df2679c",
+    "tools/iot/check-mcu-sequence-reservation.c": "e3785dd6820491ea9f180aa1570db0dc979f4fc9e0321559cd3f2df1a90d625a",
+    "tools/iot/check-mcu-sequence-lifetime.py": "e1e135bd8dc63f6b22f9fa6a305cf2464099c4fd55dcbb78f1581d9f69544c6f",
+    "tools/iot/reproduce-mcu-sequence-reuse.py": "f7b1e2127b6e493f7dc8d61a872eca469d02b1b2dd08870c7359b18d97ba47da",
+    "tools/iot/check-mcu-sequence-allocator.py": "be67e8af10e422a3e20cc3eb3e67ea577a0fd6017142c7146a57c0fe10dbf32b",
+    "tools/iot/mcu-sequence-slot.h": "3341068fab355efe72add0305cc5236c6cbd5684ee3f6f240b4599951d3ccf9e",
+    "tools/iot/prepare-mcu-sequence-bound.py": "af52e67ab2c36e0e5845bec8024ff9f8b15f1c72351e444322f50c0ddcb7f73b",
+    "tools/iot/check-mcu-sequence-destructors.py": "8b52302d614c996800271f496931110ecb07e38263c7be73cc716098f50a96a2"
+  },
+  "full_sequence_target_compiled": false,
+  "runtime_verified": false,
+  "firmware_epoch_proven": false,
+  "cleanup": "all temporary replay trees and executables removed"
+}

@@ -1,0 +1,33 @@
+{
+  "date": "2026-11-01",
+  "source": "fresh peer/radio-on-retirement-admission",
+  "finding": "MCU cmd_msg_task remains outside network-cookie scheduling owner",
+  "sites": [
+    "mcu/andes_core.c:AndesBhSchedule RTMP_OS_TASKLET_SCHE and WORKQUEUE_BH tasklet_hi_schedule",
+    "mcu/andes_core.c:PciKickOutCmdMsgComplete accesses message/queues before AndesBhSchedule",
+    "mcu/andes_core.c:AndesCtrlPciExit clears MCU_INIT then kills tasklet and frees queue locks"
+  ],
+  "inference": "MCU_INIT flag checks alone do not join an admitted concurrent submit/completion. Source interleaving possible; actual effective-path concurrency still requires validation.",
+  "implementation_requirements": [
+    "Adapter-lifetime MCU admission owner initialized before publication; do not put lifetime guard in already freed MCU queue locks",
+    "Reserve producers before dereferencing message/queue storage; drain reservations before tasklet kill and queue cleanup",
+    "Serialize sender, receive and PCI completion entry paths, including queue operations preceding scheduling",
+    "Do not treat software drain as DMA completion; retain uncertain ring-owned buffers",
+    "Include both WORKQUEUE_BH scheduling variants and OS_ABL access paths"
+  ],
+  "production_installed": false,
+  "runtime_verified": false,
+  "reachability_correction": {
+    "PciKickOutCmdMsgComplete": "Only definition and two declarations found in full candidate tree; no caller or callback assignment found. Do not claim active completion race without further link/call evidence.",
+    "AndesMTRxEventHandler": "Assigned to pChipOps->rx_event_handler in mcu/mcu.c; reads MCU_INIT then allocates/appends/processes event with MCU state. Trace callers of rx_event_handler and network-tasklet join before adding a new owner.",
+    "next": "Establish existing caller lifetime exclusion first; independent admission counter may be unnecessary if all producers are already joined."
+  },
+  "rx_trace": [
+    "mcu/mcu.c installs AndesMTRxEventHandler",
+    "common/cmm_data.c parse_rx_packet_type RX_EVENT invokes chipOps.rx_event_handler",
+    "common/cmm_data_pci.c GetPacketFromRxRing calls parse_rx_packet_type; RxRing1DoneInterruptHandle obtains ring1 packets",
+    "os/linux/rt_rbus_pci_drv.c rx1_done_tasklet invokes RxRing1DoneInterruptHandle; RtmpNetTaskExit blocks scheduling and kills rx1_done_task before MCU_CTRL_EXIT",
+    "mcu/andes_core.c AndesCmdMsgBh also calls AndesRxProcessCmdMsg -> parse_rx_packet_type; it is separately killed in AndesCtrlPciExit"
+  ],
+  "revised_conclusion": "RX network tasklet join provides existing exclusion for traced PCI ring1 entry. Broad claim that every MCU entry needs new owner is unproven. Remaining work: sender admission/join and all direct queue producers before separate MCU BH kill."
+}

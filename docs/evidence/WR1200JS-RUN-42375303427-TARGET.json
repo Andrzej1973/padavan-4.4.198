@@ -1,0 +1,38 @@
+{
+  "run_id": 42375303427,
+  "artifact_id": 13575149767,
+  "repository_revision": "03f5dc6b1b58b738e5c76edf3e08a140f1cc2837",
+  "candidate_variant": "peer82",
+  "modules": {
+    "baseline": {
+      "report_sha256": "64e2a662eb87084c42f9d577195983dacb4e5939560fd7876774ae567ed29385",
+      "module_sha256": "2d06fcee99ea688cf67db668275ab74e80fc47d44af9ed80aa2b72bd602be3d2",
+      "module_bytes": 5788504,
+      "elf": "ELF32 little-endian MIPS relocatable",
+      "target_compiled": true,
+      "production_installed": false,
+      "runtime_verified": false
+    },
+    "wsc": {
+      "report_sha256": "a6d29becbd1db9ae05755ec6e723253b0177b11048a2af02822b2179c8b59619",
+      "module_sha256": "3422e30def0194831af764460899fc4b9e306ec0d8d5413965b187d6598e2ad5",
+      "module_bytes": 6397992,
+      "elf": "ELF32 little-endian MIPS relocatable",
+      "target_compiled": true,
+      "production_installed": false,
+      "runtime_verified": false
+    },
+    "reload": {
+      "report_sha256": "f117fb0d830ec8ac0a6b92689b187560becc9ee1b9512d7ce887e897833e79d1",
+      "module_sha256": "e821d1755f314d6d3117d2ece84d9c552c5691ed41587075fb85caa0a391a91f",
+      "module_bytes": 5790576,
+      "elf": "ELF32 little-endian MIPS relocatable",
+      "target_compiled": true,
+      "production_installed": false,
+      "runtime_verified": false
+    }
+  },
+  "inspection": "Artifact ZIP read and modules independently hashed in memory; no archive/module retained on disk.",
+  "scope": "Isolated target compilation only. Later channel latch/caller/scan fixes are not covered.",
+  "runtime_verified": false
+}

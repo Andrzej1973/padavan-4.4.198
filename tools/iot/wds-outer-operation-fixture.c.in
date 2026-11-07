@@ -1,0 +1,45 @@
+#include <assert.h>
+#include <stddef.h>
+#include "interface-registry.h"
+#include "radio-transition.h"
+#define MAX_WDS_ENTRY 1
+#define WDEV_NUM_MAX 2
+typedef unsigned int UINT;typedef unsigned char UCHAR;typedef unsigned long ULONG;typedef void *PNET_DEV;
+typedef struct {int dummy;} MAC_TABLE_ENTRY;
+typedef struct {int wr_iot_transition_lock,wr_iot_ticket_wait;struct {struct {struct {void *if_dev;} wdev;} WdsEntry[1];} WdsTab;struct wr_iot_radio_transition wr_iot_transition;struct wr_iot_interface_ref wr_iot_interface_refs[3];} RTMP_ADAPTER;
+static int held,body_calls,fail_body,wakes,refs,holds,puts;static MAC_TABLE_ENTRY result;
+#define RTMP_IRQ_LOCK(l,f) do{(void)(l);(f)=0;assert(!held);held=1;}while(0)
+#define RTMP_IRQ_UNLOCK(l,f) do{(void)(l);(void)(f);assert(held);held=0;}while(0)
+#define dev_hold(d) do{(void)(d);assert(held);refs++;holds++;}while(0)
+#define dev_put(d) do{(void)(d);assert(!held&&refs==1);refs--;puts++;}while(0)
+#define wake_up_all(w) do{(void)(w);assert(!held);wakes++;}while(0)
+static MAC_TABLE_ENTRY *wr_iot_wds_insert_body(RTMP_ADAPTER *a,UCHAR *addr,UINT idx){
+(void)addr;(void)idx;assert(!held&&refs==1);body_calls++;
+struct wr_iot_interface_ref *r=&a->wr_iot_interface_refs[0];
+assert(r->peer_operation.active==1&&a->wr_iot_transition.active_tx==1);
+struct wr_iot_radio_transition saved=a->wr_iot_transition;struct wr_iot_radio_ticket ticket;
+assert(wr_iot_radio_request_reset_kind(&a->wr_iot_transition,WR_RADIO_RESET_PSE));
+assert(!wr_iot_radio_begin(&a->wr_iot_transition,a->wr_iot_transition.epoch,WR_RADIO_RESET,&ticket));
+a->wr_iot_transition=saved;
+assert(!wr_iot_registry_begin_remove(r,r->device,r->generation)&&!r->removing);
+assert(!wr_iot_registry_release(r,r->device,r->generation));
+assert(!wr_iot_ref_begin_close(r,r->device,r->generation,r->last_token));
+return fail_body?NULL:&result;}
+/* WR_IOT_EXTRACTED_OUTER_WRAPPER */
+int main(void){RTMP_ADAPTER a={0};int dev;UCHAR addr[6]={0};
+wr_iot_radio_transition_init(&a.wr_iot_transition);
+a.wr_iot_transition.phase=WR_RADIO_READY;a.wr_iot_transition.main_ready=1;
+a.WdsTab.WdsEntry[0].wdev.if_dev=&dev;
+wr_iot_ref_init(&a.wr_iot_interface_refs[0],&dev,1);
+a.wr_iot_interface_refs[0].family=WR_REF_FAMILY_WDS;a.wr_iot_interface_refs[0].published=1;a.wr_iot_interface_refs[0].phase=WR_REF_OWNED;
+assert(MacTableInsertWDSEntry(&a,addr,0)==&result&&!held&&body_calls==1&&wakes==1&&!refs&&holds==1&&puts==1);
+assert(!a.wr_iot_interface_refs[0].peer_operation.active&&!a.wr_iot_transition.active_tx);
+a.wr_iot_transition.busy=WR_RADIO_RESET;
+assert(!MacTableInsertWDSEntry(&a,addr,0)&&body_calls==1);
+assert(!a.wr_iot_interface_refs[0].peer_operation.active&&!a.wr_iot_transition.active_tx);
+a.wr_iot_transition.busy=0;
+fail_body=1;assert(!MacTableInsertWDSEntry(&a,addr,0)&&body_calls==2&&wakes==2&&!refs&&holds==2&&puts==2);
+assert(!a.wr_iot_interface_refs[0].peer_operation.active&&!a.wr_iot_transition.active_tx);
+assert(wr_iot_registry_begin_remove(&a.wr_iot_interface_refs[0],&dev,1));
+assert(!MacTableInsertWDSEntry(&a,addr,0)&&body_calls==2);
+assert(!MacTableInsertWDSEntry(&a,addr,1)&&body_calls==2);return 0;}

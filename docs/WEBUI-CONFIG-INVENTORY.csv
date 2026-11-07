@@ -101,7 +101,6 @@ CONFIG_FIRMWARE_INCLUDE_EOIP,y,True,289,missing service UI
 CONFIG_FIRMWARE_INCLUDE_IPERF3,y,True,295,existing basic controls; extend status
 CONFIG_FIRMWARE_INCLUDE_NFQWS,y,False,299,optional service UI backlog; disabled
 CONFIG_FIRMWARE_INCLUDE_TPROXY,y,True,302,build/platform/library/kernel capability; no standalone service UI inferred
-CONFIG_FIRMWARE_INCLUDE_ZAPRET,y,False,306,optional service UI backlog; disabled
 CONFIG_FIRMWARE_INCLUDE_ZAPRET2,y,False,310,optional service UI backlog; disabled
 CONFIG_FIRMWARE_INCLUDE_QRENCODE,y,True,313,local Wi-Fi QR UI planned
 CONFIG_FIRMWARE_INCLUDE_REDSOCKS2,y,False,316,optional service UI backlog; disabled

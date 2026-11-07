@@ -58,7 +58,13 @@ status_row = '''<tr id="wr_iperf3_status_row">
                                                 <small id="wr_iperf3_observed_at"><#WRIperf3NoObservation#></small>
                                                 <p class="help-block"><#WRIperf3ObservedNote#></p></td>
                                         </tr>'''
-html = html.replace(row_end, row_end + '\n' + status_row, 1)
+test_help_row = '''<tr id="wr_iperf3_test_help_row">
+                                            <th><#WRIperf3TestTitle#></th>
+                                            <td><p><#WRIperf3TestInstructions#></p>
+                                                <code>iperf3 -c <span id="wr_iperf3_lan_address"></span> -t 10</code>
+                                                <p class="help-block"><#WRIperf3TestLimits#></p></td>
+                                        </tr>'''
+html = html.replace(row_end, row_end + '\n' + status_row + '\n' + test_help_row, 1)
 script = r'''
 var wrIperf3StatusBusy = false;
 var wrIperf3Generation = 0, wrIperf3SampledAt = 0;
@@ -92,6 +98,10 @@ function wrIperf3Refresh() {
         .fail(function() { wrIperf3Render(null); })
         .always(function() { wrIperf3StatusBusy = false; });
 }
+function wrIperf3SetTestAddress() {
+    var address = document.getElementById('wr_iperf3_lan_address');
+    if (address) address.textContent = lan_ipaddr || '<#WRIperf3LanAddressUnknown#>';
+}
 '''
 anchor = 'function applyRule(){'
 if html.count(anchor) != 1:
@@ -103,7 +113,9 @@ init_anchor = """if(!found_app_iperf3()){
 init_status = """if(!found_app_iperf3()){
 \t\tshowhide_div('row_iperf3', 0);
 \t\tshowhide_div('wr_iperf3_status_row', 0);
+\t\tshowhide_div('wr_iperf3_test_help_row', 0);
 \t}else{
+\t\twrIperf3SetTestAddress();
 \t\twrIperf3Render(<% wr_iperf3_process_state(); %>);
 \t\twindow.setInterval(wrIperf3Refresh, 30000);
 \t}"""
@@ -121,6 +133,10 @@ translations = {
         'WRIperf3LastObservation': 'Last process observation:',
         'WRIperf3NoObservation': 'No confirmed process observation yet',
         'WRIperf3ObservedNote': 'Shows the saved enable setting and whether the iPerf3 server process is present. It does not verify a client connection or test result. Refreshes every 30 seconds while this page is visible.',
+        'WRIperf3TestTitle': 'Quick LAN speed test',
+        'WRIperf3TestInstructions': 'After enabling iPerf3 and confirming that its process is running, run this command on a computer connected to the router LAN:',
+        'WRIperf3TestLimits': 'The client displays the measured LAN throughput. This does not measure WAN or internet speed. The test runs for 10 seconds with default TCP settings to limit load.',
+        'WRIperf3LanAddressUnknown': 'router LAN address unavailable',
     },
     'UK.dict': {
         'WRIperf3ObservedTitle': 'Спостережений стан процесу',
@@ -133,6 +149,10 @@ translations = {
         'WRIperf3LastObservation': 'Останнє спостереження процесу:',
         'WRIperf3NoObservation': 'Підтвердженого спостереження процесу ще немає',
         'WRIperf3ObservedNote': 'Показує збережене налаштування та наявність серверного процесу iPerf3. Підключення клієнта й результат тесту цим не перевіряються. Оновлення кожні 30 секунд, поки сторінка відкрита.',
+        'WRIperf3TestTitle': 'Коротка перевірка швидкості LAN',
+        'WRIperf3TestInstructions': 'Після ввімкнення iPerf3 і підтвердження, що процес працює, виконайте цю команду на комп’ютері, підключеному до LAN роутера:',
+        'WRIperf3TestLimits': 'Клієнт покаже виміряну швидкість LAN. Це не вимірює швидкість WAN чи інтернету. Тест триває 10 секунд зі стандартними параметрами TCP, щоб обмежити навантаження.',
+        'WRIperf3LanAddressUnknown': 'адреса LAN роутера недоступна',
     },
     'RU.dict': {
         'WRIperf3ObservedTitle': 'Наблюдаемое состояние процесса',
@@ -145,6 +165,10 @@ translations = {
         'WRIperf3LastObservation': 'Последнее наблюдение процесса:',
         'WRIperf3NoObservation': 'Подтверждённого наблюдения процесса пока нет',
         'WRIperf3ObservedNote': 'Показывает сохранённую настройку и наличие серверного процесса iPerf3. Подключение клиента и результат теста этим не проверяются. Обновление каждые 30 секунд, пока страница открыта.',
+        'WRIperf3TestTitle': 'Короткая проверка скорости LAN',
+        'WRIperf3TestInstructions': 'После включения iPerf3 и подтверждения, что процесс работает, выполните эту команду на компьютере, подключённом к LAN роутера:',
+        'WRIperf3TestLimits': 'Клиент покажет измеренную скорость LAN. Это не измеряет скорость WAN или интернета. Тест длится 10 секунд со стандартными настройками TCP, чтобы ограничить нагрузку.',
+        'WRIperf3LanAddressUnknown': 'адрес LAN роутера недоступен',
     },
 }
 for filename, values in translations.items():

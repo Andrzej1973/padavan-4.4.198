@@ -1,0 +1,42 @@
+{
+  "input_sha256": {
+    "ap/ap_wds.c": "a339900429a921a4678c6c21d4b6fa84fb347dc7ebe866e89d55f955abff50a9"
+  },
+  "output_sha256": {
+    "ap/ap_wds.c": "d49c3061063f3711a28a7e70dfe9ccca3c805b0a23ca941dbf1d4bcfc91cef99"
+  },
+  "scope": "synchronous normal WDS transaction versus exclusive reset/ordinary delete; full clears unbound",
+  "target_compiled": false,
+  "runtime_verified": false,
+  "lifecycle_accepted": false,
+  "date": "2026-10-30",
+  "base_commit": "9af5697",
+  "passed": true,
+  "targeted_host_checks": 8,
+  "scope_detail": "actual synchronous table transaction wrapper and delete gate; vendor body and lock primitives mocked",
+  "covered": [
+    "whole normal WDS invocation balances transaction admission on success/failure",
+    "exclusive reset refuses active synchronous transaction",
+    "normal deletion refuses active WDS transaction",
+    "nested synchronous transactions balance count",
+    "invalid ticket/lease pairing refused",
+    "counter exhaustion/underflow poison future admission",
+    "phase/dispatch/insertion/owner/configured helper regressions"
+  ],
+  "source_assertions": [
+    "wrapper precedes configured-interface helper so both normal paths use admission",
+    "raw body includes finishing tails and dev_put before return"
+  ],
+  "updated_header_sha256": "d0aa81b86a86d44d561b39ebec231ca537909a715f656d5dfdfdfe1c94b3308f",
+  "full_vendor_wds_body_executed": false,
+  "full_regression_run": false,
+  "full49_replay_run": false,
+  "known_gaps": [
+    "counter is synchronous balanced-call contract, not asynchronous completion identity",
+    "full table clears and adapter free still bypass owner",
+    "startup ticket path depends on separately claimed valid lease",
+    "config/address lifetime not proven",
+    "failed WDS open owned-state recovery unbound",
+    "no target or kernel concurrency evidence"
+  ]
+}

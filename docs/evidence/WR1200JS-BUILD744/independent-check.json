@@ -1,0 +1,19 @@
+{
+  "target-compile-result.json": {
+    "bytes": 5578312,
+    "sha256": "57e0f34abaceffe120904d5f8938d3a3a9cb508c4a645d71fc2e0c1d45f4f007"
+  },
+  "wsc-feature/result.json": {
+    "bytes": 6187528,
+    "sha256": "044fb969e4b0f8baeac2f5a9a1d74e898e4a712a4b596dde4dfd0802734fee29"
+  },
+  "reload-feature/result.json": {
+    "bytes": 5578084,
+    "sha256": "1a4cee18b797a876821ee23b484ac3ff690612b8b608b9aed236865389095dc8"
+  },
+  "owned_off_symbol": {
+    "bytes": 784,
+    "defined": true,
+    "type": "FUNC"
+  }
+}

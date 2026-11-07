@@ -1,0 +1,22 @@
+{
+  "scope": "Isolated MBSS callback and work contexts; no normal admission or PCI join binding",
+  "verification": {
+    "host": "PASS ASan/UBSan actual generated worker/owner flow; backend injected. Exact-ticket retry, stale generation, context/stop refusal, owner completion and live work after owner reset checked.",
+    "target": "PASS exact merged common/rtmp_init.c, os/linux/rt_main_dev.c, os/linux/rt_profile.c, ap/ap_mbss_inf.c MIPS TUs"
+  },
+  "files": {
+    "tools/iot/mbss-recovery-work.inc": "bc2e430497e03e47521b0dc1128e04ce6ca6b37f15ce294df1fd791f379269f7",
+    "tools/iot/prepare-mbss-work-binding.py": "7dbaba390c0250d0ad45cdae8c2338059d3fc0e224369b01577668c86e2da0f4",
+    "tools/iot/check-mbss-work-binding.py": "c436b4e32e40437fd84c75e1a1fb6d4ac95a373d7972137179579d7465d3dd26"
+  },
+  "remaining": [
+    "External join/reap and netdev release",
+    "PCI drain/stop/join",
+    "Normal MBSS dispatch",
+    "Update existing fixture adapter layouts before pipeline integration",
+    "Device/runtime acceptance"
+  ],
+  "cleanup_removed_mib": 227.0,
+  "production_installed": false,
+  "runtime_verified": false
+}

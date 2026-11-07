@@ -1,0 +1,46 @@
+{
+  "scope": "Reviewed peer82 source input, not final merged image or runtime evidence",
+  "result": "Vendor unregister alone is insufficient for WDS callback retirement",
+  "sources": [
+    {
+      "path": "tx_rx/wdev.c",
+      "sha256": "1ff26946cc17472df28cd75ff05766ade44a2b31115b50ab335aef269d059e01",
+      "anchor": "INT rtmp_wdev_idx_unreg",
+      "line": 30,
+      "finding": "Removes table entry under irq_lock; does not join readers. wdev_search_by_address returns raw pointers without a read-side lifetime lease."
+    },
+    {
+      "path": "tx_rx/wdev_rx.c",
+      "sha256": "457196980973c7351f2d2c276a2359ea49d0ed8eefe0b913ae5fe727c8126ea7",
+      "anchor": "wdev = pAd->wdev_list[wdev_idx];",
+      "line": 226,
+      "finding": "RX loads raw wdev then dereferences VLAN_VID; table removal alone cannot retire a previously loaded pointer."
+    },
+    {
+      "path": "common/netif_block.c",
+      "sha256": "a07cc9d63874b093193cd9944700f239173ddab5beccc2f17e5d528fd8770580",
+      "anchor": "VOID StopNetIfQueue",
+      "line": 67,
+      "finding": "Optional BLOCK_NET_IF path reads table and stores if_dev in a blocked queue; configuration and queue drain must be proven separately."
+    },
+    {
+      "path": "os/linux/rt_rbus_pci_drv.c",
+      "sha256": "b83006235986d79cb4020c310962e275edb10f8d080ed56fe2492f1cfd23dc40",
+      "anchor": "INT RtmpNetTaskExit",
+      "line": 135,
+      "finding": "Checked block/drain precedes tasklet kills and joined receipt. This is a candidate global RX barrier, not proof of all management/timer/network callback retirement."
+    }
+  ],
+  "next_action": "Bind a source-backed global RX/worker retirement receipt on PCI teardown before vendor unregister; inventory management/timer and queued netdev references before allowing registry finish. Preserve normal per-interface operation without globally stopping unrelated interfaces.",
+  "limitations": [
+    "No target feature enablement inferred for BLOCK_NET_IF",
+    "No device checks",
+    "No callback-quiescent success fabricated",
+    "Do not use this peer input to claim downstream init-join/WDS generation layers are absent"
+  ],
+  "verification": {
+    "command": "python3 tools/iot/check-wdev-unregister-reader-lifetime.py <peer82-candidate>",
+    "result": "PASS under ASan/UBSan: actual extracted unregister leaves prior raw reader live even after table slot reuse; object deliberately retained",
+    "meaning": "Counterexample to unregister-as-join, not successful retirement"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-30",
+  "base_commit": "9af5697",
+  "candidate_label": 49,
+  "preparer_step_count": 48,
+  "candidate_file_count": 571,
+  "passed": true,
+  "all_files_match_incremental49": true,
+  "extracted_host_variants": 53,
+  "composed_host_variants": 23,
+  "compiler_flags": [
+    "-std=c11",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Werror"
+  ],
+  "scope": "source replay and mocked host regression composition, not target firmware",
+  "proof_sha256": {
+    ".iot-local-check\\peer-retirement-chain49-20261030\\peer-chain.json": "5722b711780063e8823df37145d98ea1074e8becd29b54c14d092dfcba5ed9d5",
+    ".iot-local-check\\full49-host53-20261030\\result.json": "26799864aebaae0719ec0735d5042735a26f35ab578c98083480645e1ed1010b",
+    ".iot-local-check\\full49-composed-20261030\\result.json": "88e9367da8f7e031692287f29b6b754ea8ba4ec479aec3b64d5457d3048fb115"
+  },
+  "extractor_repairs": [
+    "peer-ready ordering now inspects actual private insertion body instead of public wrapper",
+    "APShutdown and legacy-close lock-free expectations track adapter-owned MacTabLock lifetime"
+  ],
+  "target_compiled": false,
+  "runtime_verified": false,
+  "lifecycle_accepted": false,
+  "known_open_issues": [
+    "outer rt28xx_open/config clear ownership unbound",
+    "full table clears and adapter release bypass owner",
+    "failed configured WDS open retains owned record/count/module pin without recovery binding",
+    "WDS configuration/address writer lifetime unproved",
+    "kernel concurrency, DMA/TxS and old reuse unaccepted"
+  ],
+  "next_action": "bind full-clear/reopen admission using validated consolidated tree; failed-open recovery still required"
+}

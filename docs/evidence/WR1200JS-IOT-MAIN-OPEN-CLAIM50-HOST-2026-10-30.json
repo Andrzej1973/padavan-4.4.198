@@ -1,0 +1,48 @@
+{
+  "input_sha256": {
+    "include/rt_os_net.h": "8e16cae1117e32840bce7856b3e213f8574fdf813d3fb8efd47c8e61c25805f0",
+    "os/linux/rt_main_dev.c": "ca3efffe5f4a07bff1e6dc8263a1955be264de67d4333a3c5661da8cb6d97382",
+    "common/rtmp_init_inf.c": "e4c1357fede7dc933d52c8cd41f50365c7fffed28b2c0d45e656ddd51b4868ef"
+  },
+  "output_sha256": {
+    "include/rt_os_net.h": "2ab319d904d868079e1a847b7ca0f7ee1f4451670317a147e94f91063c781594",
+    "os/linux/rt_main_dev.c": "7413803d8c757189d7280d55d25448aa178c9e1c53ae8f4e596092088037a8a2",
+    "common/rtmp_init_inf.c": "1473ea6418c1c2454e5947b4d2839c6430640217e825743f99e1bf20a7006d47"
+  },
+  "scope": "early outer open and inner config reservation; no final radio readiness proof",
+  "rt28xx_init_abi_changed": true,
+  "coherent_target_module_rebuild_required": true,
+  "shutdown_full_clear_owner_bound": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "lifecycle_accepted": false,
+  "date": "2026-10-30",
+  "base_commit": "9af5697",
+  "passed": true,
+  "baseline_regression_variants": 53,
+  "baseline_candidate": "main-open-table-claim50-20261030",
+  "latest_candidate": "main-open-table-claim50b-20261030",
+  "latest_difference": "only explicit peer-open-request.h include in rt_os_net.h; target admission seam rerun passed",
+  "targeted_admission_check_passed": true,
+  "test_scope": "actual transport/client and extracted entry guards, mocked outer effects and inner init; ops field compiled as mock table",
+  "whole_main_open_or_init_executed": false,
+  "full50_replay_performed": false,
+  "evidence_sha256": {
+    ".iot-local-check\\main-open-claim50-regression-20261030\\result.json": "f59f6867f2e38dea0c45d57cc317b7c90baba20a537fbe947963b17a3977d443",
+    ".iot-local-check\\main-open-claim50b-check.c": "36395898b9f60610a261100a5c9b2487ba7aaa96b12d4eb107586271e877373a"
+  },
+  "covered": [
+    "BEGIN before outer profile/IRQ/diagnostics side effects source order",
+    "CONFIG_CHECK before internal hardware/task init source order",
+    "stale/retained request refusal",
+    "CONFIG release before APStartUp source order",
+    "native/OS_ABL init declarations and function pointer carry explicit request"
+  ],
+  "open_issues": [
+    "full shutdown clears and adapter free still bypass owner",
+    "whole init callback/DMA concurrency unaccepted",
+    "radio readiness not proved by releasing config reservation",
+    "failed configured WDS open recovery still unbound",
+    "all affected target modules need coherent rebuild"
+  ]
+}

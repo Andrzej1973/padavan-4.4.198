@@ -1,0 +1,37 @@
+{
+  "run_id": 42378851073,
+  "artifact_id": 13577533410,
+  "verification_source_artifact_id": 13577777639,
+  "source": {
+    "dispatch_revision": "7bedb0018ac881ff6cfb38f537413638ff716523",
+    "requested_revision": "b8e445cc9dd6503441cf0bd32f27e9269d18bc70",
+    "verified_revision": "b8e445cc9dd6503441cf0bd32f27e9269d18bc70",
+    "runtime_verified": false
+  },
+  "repository_revision": "b8e445cc9dd6503441cf0bd32f27e9269d18bc70",
+  "modules": {
+    "baseline": {
+      "module_bytes": 5789168,
+      "module_sha256": "e82e00fe12fde095484c6ff6148baa5efe93ce2aa08299b5288a260ad79f8d08",
+      "report_sha256": "0176acd7ff8b1cb1300b84b1f11a03f84d3ffa77fc3fcbc228ca26b8c9ab2bed",
+      "elf": "ELF32 LE MIPS relocatable"
+    },
+    "wsc": {
+      "module_bytes": 6398660,
+      "module_sha256": "2836fec46fc146b5fbe69a18055335f7fad0d59aaef7e0392385b9dd521b3b57",
+      "report_sha256": "0979be6abd69e301f5dfc2c59657b166cd82cd34d6902b2cc4e05fdac188e53c",
+      "elf": "ELF32 LE MIPS relocatable"
+    },
+    "reload": {
+      "module_bytes": 5791240,
+      "module_sha256": "628e356267a89eae9175b9259fc382a7c1d872f3602c3324390caf799664d6f0",
+      "report_sha256": "2be03c1faeb6a2a8096757bc373119afc8be80435c698c62ba83d730d428b570",
+      "elf": "ELF32 LE MIPS relocatable"
+    }
+  },
+  "target_compiled": true,
+  "runtime_verified": false,
+  "production_installed": false,
+  "scope": "Isolated compile of scan failure abort; later source guard diagnostics/coexistence gate not covered.",
+  "inspection": "ZIP and module hashes checked in memory; no binary scratch retained."
+}

@@ -1,0 +1,457 @@
+{
+  "schema": 1,
+  "model": "WR1200JS",
+  "installed_firmware": "4.4.198.9-474_4fc90055",
+  "date_utc": "2026-10-20",
+  "scope": "read-only saved flags and observed runtime, not acceptance of all features",
+  "numeric_enable_flags": {
+    "achk_enable": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "adsc_enable": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "aria_enable": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "crond_enable": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "ddns_enable_x": {
+      "value": "1",
+      "assessment": "DDNS server error code 48 retained in log; current successful update unverified"
+    },
+    "dhcp_enable_x": {
+      "value": "1",
+      "assessment": "dnsmasq running; 16 lease records; renew/persistence not exercised"
+    },
+    "dnscrypt_enable": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "doh_enable": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "dr_enable_x": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "enable_ftp": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "enable_samba": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "fw_enable_x": {
+      "value": "1",
+      "assessment": "IPv4/IPv6 filter INPUT/FORWARD default DROP observed; full ruleset traffic validation unverified"
+    },
+    "fw_lw_enable_x": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "help_enable": {
+      "value": "1",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "iperf3_enable": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "lltd_enable": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "lprd_enable": {
+      "value": "1",
+      "assessment": "saved enabled; lpd unavailable in PATH and inspected /usr/sbin path; package/control mismatch requires image comparison"
+    },
+    "macfilter_enable_x": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "mr_enable_x": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "nfsd_enable": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "optw_enable": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "pdnsd_enable": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "privoxy_enable": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "rawd_enable": {
+      "value": "1",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "reboot_schedule_enable": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "rstats_enable": {
+      "value": "1",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "rt_guest_enable": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "sfe_enable": {
+      "value": "2",
+      "assessment": "modules loaded; offloaded-flow/throughput behavior unverified"
+    },
+    "sr_enable_x": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "ss-tunnel_enable": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "ss_enable": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "ss_schedule_enable": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "sshd_enable": {
+      "value": "2",
+      "assessment": "key authentication succeeded; Dropbear -s, LAN TCP/22 observed"
+    },
+    "sshd_enable_gp": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "stubby_enable": {
+      "value": "1",
+      "assessment": "process, loopback listener, strict TLS config, established TCP/853 and local DNS response observed; no full leakage test"
+    },
+    "tor_enable": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "trmd_enable": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "u2ec_enable": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "udpxy_enable_x": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "upnp_enable_x": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "url_enable_x": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "usbip_enable": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "vlmcsd_enable": {
+      "value": "1",
+      "assessment": "process/listener observed; activation behavior unverified"
+    },
+    "vpnc_enable": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "vpns_enable": {
+      "value": "1",
+      "assessment": "wg1 AWG peer recent handshake and transfer counters observed; full server lifecycle unverified"
+    },
+    "vts_enable_x": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "wins_enable": {
+      "value": "1",
+      "assessment": "saved enabled; nmbd unavailable in PATH and inspected /usr/sbin path; package/control mismatch requires image comparison"
+    },
+    "wireguard_enable": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "wl_guest_enable": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "wr_bs_enable": {
+      "value": "1",
+      "assessment": "daemon and ctl status active; client steering unverified"
+    },
+    "xupnpd_enable_x": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "zapret_enable": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "zerotier_enable": {
+      "value": "0",
+      "assessment": "saved value collected; end-to-end runtime not verified"
+    },
+    "zram_enable": {
+      "value": "1",
+      "assessment": "active /dev/zram0 swap observed; toggle/reboot persistence unverified"
+    }
+  },
+  "wifi_select_fields": {
+    "rt_APSDCapable": "1",
+    "rt_HT_80211KV": "1",
+    "rt_HT_80211R": "1",
+    "rt_HT_AMSDU": "0",
+    "rt_HT_AutoBA": "1",
+    "rt_HT_BW": "0",
+    "rt_HT_EXTCHA": "0",
+    "rt_HT_OpMode": "0",
+    "rt_HT_RDG": "0",
+    "rt_PktAggregate": "1",
+    "rt_RBRList_s": "",
+    "rt_TxBurst": "1",
+    "rt_VgaClamp": "0",
+    "rt_airtimefairness": "",
+    "rt_ap_isolate": "0",
+    "rt_auth_mode": "psk",
+    "rt_channel": "13",
+    "rt_closed": "0",
+    "rt_country_code": "GB",
+    "rt_crypto": "aes",
+    "rt_gmode": "3",
+    "rt_gmode_protection": "auto",
+    "rt_greenap": "1",
+    "rt_guest_ap_isolate": "1",
+    "rt_guest_auth_mode": "psk",
+    "rt_guest_closed": "0",
+    "rt_guest_crypto": "aes",
+    "rt_guest_enable": "0",
+    "rt_guest_lan_isolate": "1",
+    "rt_guest_mcs_mode": "1",
+    "rt_ldpc": "0",
+    "rt_mcs_mode": "0",
+    "rt_mode_x": "0",
+    "rt_mrate": "2",
+    "rt_preamble": "1",
+    "rt_radio_x": "1",
+    "rt_sta_auth_mode": "open",
+    "rt_sta_crypto": "aes",
+    "rt_sta_wisp": "0",
+    "rt_stream_rx": "2",
+    "rt_stream_tx": "2",
+    "rt_turbo_qam": "",
+    "rt_wdsapply_x": "0",
+    "rt_wep_x": "0",
+    "rt_wme": "1",
+    "rt_wme_no_ack": "off",
+    "wl_APSDCapable": "1",
+    "wl_HT_80211KV": "1",
+    "wl_HT_80211R": "1",
+    "wl_HT_AMSDU": "1",
+    "wl_HT_AutoBA": "1",
+    "wl_HT_BW": "2",
+    "wl_HT_EXTCHA": "",
+    "wl_HT_OpMode": "1",
+    "wl_HT_RDG": "0",
+    "wl_PktAggregate": "1",
+    "wl_TxBurst": "1",
+    "wl_VgaClamp": "0",
+    "wl_ap_isolate": "0",
+    "wl_auth_mode": "psk",
+    "wl_band_steering": "",
+    "wl_channel": "40",
+    "wl_closed": "0",
+    "wl_country_code": "US",
+    "wl_crypto": "aes",
+    "wl_gmode": "3",
+    "wl_greenap": "1",
+    "wl_guest_ap_isolate": "1",
+    "wl_guest_auth_mode": "open",
+    "wl_guest_closed": "0",
+    "wl_guest_crypto": "aes",
+    "wl_guest_enable": "0",
+    "wl_guest_lan_isolate": "1",
+    "wl_guest_mcs_mode": "7",
+    "wl_ldpc": "0",
+    "wl_mcs_mode": "0",
+    "wl_mode_x": "0",
+    "wl_mumimo": "",
+    "wl_preamble": "1",
+    "wl_radio_x": "1",
+    "wl_sta_auth_mode": "open",
+    "wl_sta_crypto": "aes",
+    "wl_sta_wisp": "0",
+    "wl_stream_rx": "2",
+    "wl_stream_tx": "2",
+    "wl_wdsapply_x": "0",
+    "wl_wep_x": "0",
+    "wl_wme": "1",
+    "wl_wme_no_ack": "off"
+  },
+  "kvr": {
+    "saved_all_four_on": true,
+    "mt7603_k_r_v_build_options": "disabled in live /proc/config.gz",
+    "mt76x2_k_r_build_options": "enabled in live /proc/config.gz; v build/behavior unverified",
+    "driver_config_duplicate_keys": true,
+    "parser_behavior": "RTMPGetKeyParameter selects first matching key; first RRMEnable/WNMEnable records are 0",
+    "runtime_roaming_verified": false
+  },
+  "log_counts": {
+    "hnat_drop": 981,
+    "hnat_drop_rai0": 802,
+    "hnat_drop_ra0": 179,
+    "hnat_reason_0x16": 981,
+    "dropbear": 343,
+    "wifi_eapol_unknown_index": 185,
+    "wifi_assoc_phycap": 162,
+    "wifi_addba_policy": 90,
+    "wifi_mic_mismatch": 22,
+    "bandsteering_exact_null_interface": 18
+  },
+  "raw_snapshot": {
+    "location_outside_repo": "../router-audit-private-20261020",
+    "files": [
+      {
+        "name": "cpu_memory.txt",
+        "bytes": 4232,
+        "sha256": "263c069066467d5d1bed90064107b687037eb98032ad46f957e3c619dbcffd45"
+      },
+      {
+        "name": "dns.txt",
+        "bytes": 29770,
+        "sha256": "8f7397d89edb24ce4db96cca253893a3b4937c37dac20014de5fab179c837fb8"
+      },
+      {
+        "name": "extra.txt",
+        "bytes": 1016,
+        "sha256": "05506a567572deacaba46586baff7b10020766eb353e8f6e21355fd192f40910"
+      },
+      {
+        "name": "final-counters.txt",
+        "bytes": 4020,
+        "sha256": "21ee941a5587e7ddedd31d72dd28ba2bd19423999f5f11234eda4a0e34d5263f"
+      },
+      {
+        "name": "firewall.txt",
+        "bytes": 4658,
+        "sha256": "e179163a88092c9c63c4aeec76ac34c412a63f9e818ca6d0333c4457027bc887"
+      },
+      {
+        "name": "flags-kvr.txt",
+        "bytes": 5294,
+        "sha256": "e1acf20f6572e5d8e63ea84a9417d24ac0b8df86cf717a19d2692043a7b84699"
+      },
+      {
+        "name": "identity.txt",
+        "bytes": 321,
+        "sha256": "8934969444ae27fc85246d3c31ff0cfa538b4c76932a13ff1cf81e35f7d4ef5a"
+      },
+      {
+        "name": "kernel_log.txt",
+        "bytes": 95495,
+        "sha256": "f6d2550e2802f35c77af0c7486df340dd684d8116505a124565e7bde56c87476"
+      },
+      {
+        "name": "log_followup.txt",
+        "bytes": 95608,
+        "sha256": "75f964eb5391f0f36a3360bd91e3f654212b1c7516ac92a7362869f29b1c874c"
+      },
+      {
+        "name": "logging_settings.txt",
+        "bytes": 428,
+        "sha256": "ad0a653debb433f29ff586900344c596e641b0058583be83fe61ec8b7e8e7f27"
+      },
+      {
+        "name": "network.txt",
+        "bytes": 20789,
+        "sha256": "03d0e4f1565f2890125bae5ccc481f1ff8c305ebebbf857e5e5c5c2c1fc603ab"
+      },
+      {
+        "name": "optional-flags.txt",
+        "bytes": 3882,
+        "sha256": "77debf024458cb8a4af0d17624d80174559d3d468d38929ab7c16a317578cee3"
+      },
+      {
+        "name": "processes.txt",
+        "bytes": 6270,
+        "sha256": "8d5d3000dd3328d0fe825ba4443d6a7e67fec783597715f5bf3c35fcf5e7da12"
+      },
+      {
+        "name": "providers.txt",
+        "bytes": 366,
+        "sha256": "e8d5d2951fbe0a7d9ac319b81563839848462b2c4fa7aaea171576715cf05cf0"
+      },
+      {
+        "name": "service-followup.txt",
+        "bytes": 563,
+        "sha256": "c436ce06bc980d310d3dd3d4324dc151c8c738d2a5d3e0e2a6c2aaf99960e851"
+      },
+      {
+        "name": "steering.txt",
+        "bytes": 299,
+        "sha256": "95cd1aa632915a085204e34e8a8628c586874518fb5799f5a83c8531dd8c37ac"
+      },
+      {
+        "name": "storage.txt",
+        "bytes": 2037,
+        "sha256": "babdd3dd0547577cba193e3f17a716975b9b8b82725ddbcfc2ca157c47c5886e"
+      },
+      {
+        "name": "system_log.txt",
+        "bytes": 365766,
+        "sha256": "0b01c4f89ae785fb9eddaff4229f473c14045b86f57c019151a50d057bf93627"
+      },
+      {
+        "name": "thermal.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "verification.txt",
+        "bytes": 12602,
+        "sha256": "c8d47a2141562b8b9ee304e2d39e8e85185b433237ea3ad9c2100fb245d3952b"
+      },
+      {
+        "name": "vpn.txt",
+        "bytes": 493,
+        "sha256": "0d98c22006f9a113f832b40aaad298a62cda5ec8799671ae2954e30cc96e8bc3"
+      },
+      {
+        "name": "wifi.txt",
+        "bytes": 4250,
+        "sha256": "0d5c45a84ebe192b6ba4337488aabb292a8001f888ab836276622a124d7b2a5b"
+      },
+      {
+        "name": "wireless_readonly.txt",
+        "bytes": 698,
+        "sha256": "3f641c59b928d9806994e49f38ab4b285f19243ec41891df90c1295b9955f93f"
+      }
+    ]
+  },
+  "router_mutation_performed": false
+}

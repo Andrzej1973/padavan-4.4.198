@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-30",
+  "base_commit": "9af5697",
+  "scope": "failed insertion ordinary deletion refusal and reset observation/abort only",
+  "full_replay_stages": 36,
+  "incremental_and_full_candidate_files_identical": true,
+  "candidate_file_count": 560,
+  "extracted_host_variants": 27,
+  "composed_host_variants": 23,
+  "passed": true,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "lifecycle_accepted": false,
+  "atomic_reset": false,
+  "parent_refusal_propagated": false,
+  "cleanup_bound": false,
+  "modified_source_sha256": {
+    "include/wr-iot-peer-failed-delete-gate.inc": "1964886a285fed8defd5016daa90bd1d79607e1790b02ced20e46a3ed15910a5",
+    "include/wr-iot-peer-failed-reset-preflight.inc": "1ab0dc7a507f869525e4bc722d86c12d4c97e3262dce275b48faedf108a6b104",
+    "mgmt/mgmt_entrytb.c": "2876e9cb51ab004b9508ee9645ad204e55b8aeb0086359daf5666e200f377788"
+  },
+  "test_results_sha256": {
+    ".iot-local-check/peer-failed-delete36-host-20261030/result.json": "8c7555e7d10c42bf054d10a282ff68937b22c9577bbf44ae8f03b5025e940082",
+    ".iot-local-check/chain36-composed-host-20261030/result.json": "17d22a4783145de32c216e6a1ec796ac40d157cbfd9c404bab87b02511aa7884"
+  },
+  "open_issues": [
+    "reset preflight is an observation and can race with new insertion",
+    "VOID reset callers continue radio shutdown or report success",
+    "no failed insertion process-context cleanup owner",
+    "adapter/module and DMA/TxS completion lifetime unproved"
+  ]
+}

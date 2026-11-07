@@ -1,0 +1,36 @@
+{
+  "board": "WR1200JS",
+  "scope": "CPU timer watchdog controlled by watchdog_cpu",
+  "status": "unsupported",
+  "evidence": {
+    "source_revision": "vipshmily/padavan-4.4@c25283e915a2a00a763774dd255b14aff997285e",
+    "kernel_config": {
+      "CONFIG_MT7621_WDT": "y",
+      "CONFIG_RALINK_WDT": "not set"
+    },
+    "optional_module": "rt_timer_wdg",
+    "module_implementation_found_in_project": false,
+    "device_observation_utc": "2026-10-21T16:18:00Z",
+    "device_observation": {
+      "watchdog_cpu": "1",
+      "rt_timer_wdg_in_proc_modules": false,
+      "rt_timer_wdg_sys_module": false,
+      "rt_timer_wdg_file_under_lib_modules": false,
+      "builtin_watchdog_node_present": true,
+      "builtin_watchdog_servicing_proven": false
+    }
+  },
+  "policy": {
+    "webui_control": "absent",
+    "navigation_link": "absent",
+    "legacy_lifecycle": "inert",
+    "factory_default": "0",
+    "legacy_nvram_values": "preserved but ignored"
+  },
+  "validation": {
+    "source_fixture": "passed",
+    "exact_pinned_source_anchor_check": "passed",
+    "final_romfs_gate": "pending CI",
+    "device_runtime_after_firmware": "pending"
+  }
+}

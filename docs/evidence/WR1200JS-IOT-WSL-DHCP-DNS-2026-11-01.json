@@ -1,0 +1,31 @@
+{
+  "checks": {
+    "process_owned_dns_dhcp_socket_inventory": true,
+    "iot_owned_gateway_protocol_readiness": true,
+    "local_dhcp_inform_without_lease_changes": true,
+    "iot_dhcp_offer_ack_pool_options": true,
+    "lan_dhcp_offer_ack_pool_options": true,
+    "local_dhcp_inform_preserves_existing_client_leases": true,
+    "iot_dns_transaction": true,
+    "main_lan_dns_preserved": true,
+    "local_dns_handler_default": true,
+    "iot_gateway_stopped_daemon_rejected": true,
+    "local_dns_handler_no_hosts_no_ident": true,
+    "local_dns_handler_lan_with_loopback_excluded": true,
+    "alternate_dhcp_server_port_socket_and_inform": true
+  },
+  "scope": "Pinned native dnsmasq host DHCP OFFER/ACK and DNS over isolated IoT/LAN with generated firewall; production RC and target runtime unverified",
+  "runtime_verified": false,
+  "host_kernel": "6.18.54.1-microsoft-standard-WSL2",
+  "dnsmasq_source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "dnsmasq_binary_sha256": "062907157da5a515748be695bc107f1c112f961eda5d3740c10eb4a25b41af07",
+  "isolated_network_and_mount_namespaces": true,
+  "actual_router_checked": false,
+  "source_revision": "6f9a481b61022aa9ccd4c4a6cce7faa0e1260553",
+  "source_sha256": {
+    "tools/iot/check-dhcp-transactions.py": "3a57f2189dbbdc822dcf3d149dd1b7765d2180b33f3df85d2760d72857a54890",
+    "tools/iot/dhcp-write.c": "efe3d5702ae461e35851461ed572fd9ff82501927777140caac8372f5177a2de",
+    "tools/iot/firewall.h": "9e84b33900a53d1b50455c1810c76251603d8ec58762f6fc43000328c6420763",
+    "tools/iot/bridge.c": "a080a8619d8c86fbc156118808c169af34e7896413edc9ab0f6c60fe6b1c3518"
+  }
+}

@@ -36,7 +36,7 @@ command -v dig >/dev/null || { echo 'FAIL dig required'; exit 1; }
 [ -f "$romfs/bin/busybox" ] || { echo 'FAIL image BusyBox missing'; exit 1; }
 "$qemu" -L "$romfs" "$romfs/bin/busybox" sh -c 'type type >/dev/null' ||
     { echo 'FAIL image shell lacks the dependency-check builtin'; exit 1; }
-for pair in "stubby.sh:usr/bin/stubby.sh" "../privoxy/privoxy.sh:usr/bin/privoxy.sh" "../zerotier/firewall-policy.sh:usr/bin/zerotier-policy.sh"; do
+for pair in "stubby.sh:usr/bin/stubby.sh" "../dns-common/dns-listener-guard.sh:usr/bin/stubby-dns-listener-guard.sh" "../privoxy/privoxy.sh:usr/bin/privoxy.sh" "../zerotier/firewall-policy.sh:usr/bin/zerotier-policy.sh"; do
     source_script="$here/${pair%%:*}"
     script="$romfs/${pair#*:}"
     [ -f "$script" ] && [ -x "$script" ] ||
@@ -50,7 +50,29 @@ for pair in "stubby.sh:usr/bin/stubby.sh" "../privoxy/privoxy.sh:usr/bin/privoxy
             { echo "FAIL unsupported command -v dependency check in $script"; exit 1; }
     fi
 done
-echo 'PASS image BusyBox builtin and three service-script syntax checks'
+echo 'PASS image BusyBox builtin and service-script syntax checks'
+
+if [ -f "$romfs/usr/bin/doh_proxy.sh" ]; then
+    for pair in "../doh/doh_proxy.sh:usr/bin/doh_proxy.sh" "../dns-common/dns-listener-guard.sh:usr/bin/doh-dns-listener-guard.sh"; do
+        source_script="$here/${pair%%:*}"
+        script="$romfs/${pair#*:}"
+        [ -f "$script" ] && [ -x "$script" ] && cmp -s "$source_script" "$script" ||
+            { echo "FAIL shipped DoH service script differs or is missing: $script"; exit 1; }
+        "$qemu" -L "$romfs" "$romfs/bin/busybox" sh -n "$script" ||
+            { echo "FAIL image shell rejects $script"; exit 1; }
+    done
+    echo 'PASS image BusyBox syntax and source identity for DoH lifecycle scripts'
+fi
+
+if [ -x "$romfs/usr/sbin/https_dns_proxy" ]; then
+    WR_DOH_BINARY="$romfs/usr/sbin/https_dns_proxy" WR_STUBBY_BINARY="$romfs/usr/sbin/stubby" \
+        "$qemu" -L "$romfs" "$romfs/bin/busybox" sh \
+        "$here/../dns-common/check-listener-conflicts.sh" \
+        "$romfs/usr/bin/stubby-dns-listener-guard.sh" ||
+        { echo 'FAIL image BusyBox DNS listener-conflict scenarios'; exit 1; }
+else
+    echo 'SKIP cross-service listener fixture because DoH is not packaged in this image'
+fi
 
 . "$here/stubby-test-env.sh"
 STUBBY_REAL="$qemu -L $romfs $romfs/usr/sbin/stubby"

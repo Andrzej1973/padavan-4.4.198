@@ -47,6 +47,11 @@ try:
     helper = helper_path.read_text()
     checks['lifecycle'] = bool(helper_path.stat().st_mode & 0o111) and all(x in helper for x in ('flock -x -n 9', 'owned_pid', '-C "$ca"', '9>&-', '65532'))
     checks['helper_syntax'] = subprocess.run(['sh', '-n', str(helper_path)]).returncode == 0
+    guard_path = target('/usr/bin/doh-dns-listener-guard.sh')
+    guard = guard_path.read_text()
+    checks['listener_conflict_guard'] = bool(guard_path.stat().st_mode & 0o111) and 'wr_dns_listener_conflict' in guard and 'stubby_enable' in guard
+    checks['listener_guard_matches_prepared_source'] = guard_path.read_bytes() == (args.trunk / 'user/doh_proxy/dns-listener-guard.sh').read_bytes()
+    checks['lifecycle_rejects_stubby_conflict'] = 'wr_dns_listener_conflict doh' in helper
     checks['ca_bundle'] = hashlib.sha256(target('/usr/share/doh-proxy/cacert.pem').read_bytes()).hexdigest() == 'a41b5d356aea97a529fe27e0f7316d2f9d946d75927476cf9cf1b90637d00505'
     checks['license'] = 'Copyright (c) 2016 Aaron Drew' in target('/usr/share/doh-proxy/LICENSE').read_text()
     page = target('/www/Advanced_Services_DoH.asp').read_text()

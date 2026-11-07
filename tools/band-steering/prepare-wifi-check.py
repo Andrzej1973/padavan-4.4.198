@@ -124,6 +124,15 @@ int main(void)
  wr_band_wifi_child_exit(99,0);
  wr_band_wifi_refresh_exit_status();
  assert(last_state==WR_APPLY_RUNNING && wr_wifi_owner.pid==42);
+ /* Lost owner must not hide the exit of the daemon we spawned. */
+ wr_wifi_last_owner_pid=42;
+ wr_wifi_owner.pid=0;
+ diagnostic_count=0;
+ wr_band_wifi_child_exit(42,0);
+ wr_band_wifi_refresh_exit_status();
+ assert(diagnostic_count==1 && strstr(diagnostic,"clean=1"));
+ assert(last_state==WR_APPLY_OFF_CONFIRMED && last_off && !wr_wifi_last_owner_pid);
+ wr_wifi_owner.pid=42;
  wr_band_wifi_child_exit(42,0);
  diagnostic_count=0;
  wr_band_wifi_refresh_exit_status();

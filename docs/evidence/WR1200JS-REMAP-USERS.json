@@ -1,0 +1,541 @@
+{
+  "scope": "Textual C references by symbol or derived numeric address, including inactive guards/comments; other expressions and aliases require separate audit",
+  "remap_address": "0x2504",
+  "hardware_serialization_proven": false,
+  "runtime_verified": false,
+  "candidate_inventory_sha256": "a3218d05f9a861758ef84e9fe9418a3f16748c2dfd59498f2345bbc68231c20a",
+  "files": [
+    {
+      "path": "ate/mt_mac/mt_ate.c",
+      "sha256": "ca3339380ad951e9599adf63c2e2410572cee59e2a7ab0f3c083331361501d0f",
+      "references": [
+        {
+          "line": 875,
+          "text": "RTMP_IO_READ32(pAd, MCU_PCIE_REMAP_2, &RestoreValue);"
+        },
+        {
+          "line": 878,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 887,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RestoreValue);"
+        },
+        {
+          "line": 903,
+          "text": "RTMP_IO_READ32(pAd, MCU_PCIE_REMAP_2, &RestoreValue);"
+        },
+        {
+          "line": 906,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 915,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RestoreValue);"
+        },
+        {
+          "line": 929,
+          "text": "RTMP_IO_READ32(pAd, MCU_PCIE_REMAP_2, &RestoreValue);"
+        },
+        {
+          "line": 932,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 941,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RestoreValue);"
+        }
+      ]
+    },
+    {
+      "path": "ate/qa_agent.c",
+      "sha256": "2e8bb942e3fc6dc75ee7306b995812ef696fc0d629c4e60882b54e638cadf9c4",
+      "references": [
+        {
+          "line": 833,
+          "text": "RTMP_IO_READ32(pAd, MCU_PCIE_REMAP_2, &RestoreValue);"
+        },
+        {
+          "line": 836,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 838,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RestoreValue);"
+        },
+        {
+          "line": 881,
+          "text": "RTMP_IO_READ32(pAd, MCU_PCIE_REMAP_2, &RestoreValue);"
+        },
+        {
+          "line": 884,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 886,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RestoreValue);"
+        },
+        {
+          "line": 917,
+          "text": "RTMP_IO_READ32(pAd, MCU_PCIE_REMAP_2, &RestoreValue);"
+        },
+        {
+          "line": 920,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 922,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RestoreValue);"
+        }
+      ]
+    },
+    {
+      "path": "chips/mt7603.c",
+      "sha256": "97febaaa4efad09884e6e5daf832da9b57a3a6118d9235458f1aa53648379996",
+      "references": [
+        {
+          "line": 120,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, 0x80080000);"
+        },
+        {
+          "line": 133,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, MT_PSE_BASE_ADDR);"
+        }
+      ]
+    },
+    {
+      "path": "chips/mt7628.c",
+      "sha256": "8ad130270c42971a9a57066390bcff8550b55f577804845cefc286550c03e131",
+      "references": [
+        {
+          "line": 194,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, 0x80080000);"
+        },
+        {
+          "line": 207,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, MT_PSE_BASE_ADDR);"
+        }
+      ]
+    },
+    {
+      "path": "chips/mt7636.c",
+      "sha256": "81f614d746c1807315897340419195be3f39735ccf9e6d7dec9bb7fb4e0795d0",
+      "references": [
+        {
+          "line": 216,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, 0x80080000);"
+        },
+        {
+          "line": 229,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, MT_PSE_BASE_ADDR);"
+        }
+      ]
+    },
+    {
+      "path": "common/cmm_data_pci.c",
+      "sha256": "9882fd55cd5446934293683b51d958f1c513b330838dac7bb7b22465d738f04d",
+      "references": [
+        {
+          "line": 186,
+          "text": "RTMP_IO_READ32(pAd, MCU_PCIE_REMAP_2, &RestoreValue);"
+        },
+        {
+          "line": 189,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 199,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RestoreValue);"
+        },
+        {
+          "line": 205,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RestoreValue);"
+        }
+      ]
+    },
+    {
+      "path": "common/cmm_mac_pci.c",
+      "sha256": "c9b2c67f9df1e94894cb4c62cec21ce0050d3a90bc51c413ca98b3b8e41d1cb2",
+      "references": [
+        {
+          "line": 2019,
+          "text": "RTMP_IO_READ32(pAd, MCU_PCIE_REMAP_2, &RestoreValue);"
+        },
+        {
+          "line": 2022,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 2076,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RestoreValue);"
+        },
+        {
+          "line": 2176,
+          "text": "RTMP_IO_READ32(pAd, MCU_PCIE_REMAP_2, &RestoreValue);"
+        },
+        {
+          "line": 2183,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 2195,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 2204,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 2216,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 2225,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 2231,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RestoreValue);"
+        },
+        {
+          "line": 2290,
+          "text": "RTMP_IO_READ32(pAd, MCU_PCIE_REMAP_2, &RestoreValue);"
+        },
+        {
+          "line": 2296,
+          "text": "//RTMP_IO_READ32(pAd, MCU_PCIE_REMAP_2, &RestoreValue);"
+        },
+        {
+          "line": 2299,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 2351,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RestoreValue);"
+        }
+      ]
+    },
+    {
+      "path": "common/ee_efuse.c",
+      "sha256": "83d9b600e2a1028325b4a63de8b0f0a6cee0bc92079f75640d4c9612e2810368",
+      "references": [
+        {
+          "line": 45,
+          "text": "RTMP_IO_READ32(pAd, MCU_PCIE_REMAP_2, &RestoreValue);"
+        },
+        {
+          "line": 46,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, MT_EEF_BASE - 0x70000);"
+        },
+        {
+          "line": 48,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RestoreValue);"
+        },
+        {
+          "line": 65,
+          "text": "RTMP_IO_READ32(pAd, MCU_PCIE_REMAP_2, &RestoreValue);"
+        },
+        {
+          "line": 66,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, MT_EEF_BASE - 0x70000);"
+        },
+        {
+          "line": 68,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RestoreValue);"
+        }
+      ]
+    },
+    {
+      "path": "common/mt_ps.c",
+      "sha256": "890b6e9c3cb152a716ede44de280f871f2e6d6781f8b86a26d102c87b4323ed5",
+      "references": [
+        {
+          "line": 153,
+          "text": "RTMP_IO_READ32(pAd, 0x2504, &restore_remap_addr);"
+        },
+        {
+          "line": 154,
+          "text": "RTMP_IO_WRITE32(pAd, 0x2504, 0x81000000);"
+        },
+        {
+          "line": 158,
+          "text": "RTMP_IO_WRITE32(pAd, 0x2504, restore_remap_addr);"
+        }
+      ]
+    },
+    {
+      "path": "hw_ctrl/cmm_asic_mt.c",
+      "sha256": "38128cc6a30884800e9e19f0514dde5b45e58f1565fb4a46dcb32db5ec82e1e6",
+      "references": [
+        {
+          "line": 6830,
+          "text": "RTMP_IO_READ32(pAd, MCU_PCIE_REMAP_2, &mac_restore_val);"
+        },
+        {
+          "line": 6831,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, MT_PSE_BASE_ADDR);"
+        },
+        {
+          "line": 6834,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, mac_restore_val);"
+        },
+        {
+          "line": 6857,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, 0x80080000);"
+        },
+        {
+          "line": 6863,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, MT_PSE_BASE_ADDR);"
+        },
+        {
+          "line": 6962,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, 0x80080000);"
+        },
+        {
+          "line": 6967,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, MT_PSE_BASE_ADDR);"
+        },
+        {
+          "line": 7028,
+          "text": "RTMP_IO_READ32(pAd, MCU_PCIE_REMAP_2, &mac_restore_val);"
+        },
+        {
+          "line": 7029,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, MT_PSE_BASE_ADDR);"
+        },
+        {
+          "line": 7032,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, mac_restore_val);"
+        },
+        {
+          "line": 7037,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, mac_restore_val);"
+        },
+        {
+          "line": 7060,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, 0x80080000);"
+        },
+        {
+          "line": 7066,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, MT_PSE_BASE_ADDR);"
+        },
+        {
+          "line": 7167,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, 0x80080000);"
+        },
+        {
+          "line": 7172,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, MT_PSE_BASE_ADDR);"
+        },
+        {
+          "line": 7408,
+          "text": "RTMP_IO_READ32(pAd, MCU_PCIE_REMAP_2, &mac_restore_val);"
+        },
+        {
+          "line": 7409,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, MT_TOP_REMAP_ADDR);"
+        },
+        {
+          "line": 7412,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, mac_restore_val);"
+        }
+      ]
+    },
+    {
+      "path": "hw_ctrl/mt_gpio.c",
+      "sha256": "26196bdc462fb5b9ba37abc7f2033829a0ddc123d1ee51439b504d97e8a5cd7d",
+      "references": [
+        {
+          "line": 26,
+          "text": "RTMP_IO_READ32(pAd, MCU_PCIE_REMAP_2, &RestoreValue);"
+        },
+        {
+          "line": 33,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 42,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 51,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 60,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 69,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 78,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 87,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 96,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 105,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 114,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 123,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 132,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 141,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 150,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 159,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 168,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 177,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 188,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RestoreValue);"
+        },
+        {
+          "line": 197,
+          "text": "RTMP_IO_READ32(pAd, MCU_PCIE_REMAP_2, &RestoreValue);"
+        },
+        {
+          "line": 203,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 205,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RestoreValue);"
+        },
+        {
+          "line": 216,
+          "text": "RTMP_IO_READ32(pAd, MCU_PCIE_REMAP_2, &RestoreValue);"
+        },
+        {
+          "line": 222,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 229,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 236,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 240,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RestoreValue);"
+        },
+        {
+          "line": 253,
+          "text": "RTMP_IO_READ32(pAd, MCU_PCIE_REMAP_2, &RestoreValue);"
+        },
+        {
+          "line": 257,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 259,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RestoreValue);"
+        },
+        {
+          "line": 273,
+          "text": "RTMP_IO_READ32(pAd, MCU_PCIE_REMAP_2, &RestoreValue);"
+        },
+        {
+          "line": 279,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 286,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 290,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RestoreValue);"
+        },
+        {
+          "line": 300,
+          "text": "RTMP_IO_READ32(pAd, MCU_PCIE_REMAP_2, &RestoreValue);"
+        },
+        {
+          "line": 304,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 306,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RestoreValue);"
+        },
+        {
+          "line": 320,
+          "text": "RTMP_IO_READ32(pAd, MCU_PCIE_REMAP_2, &RestoreValue);"
+        },
+        {
+          "line": 326,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 333,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 337,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RestoreValue);"
+        },
+        {
+          "line": 348,
+          "text": "RTMP_IO_READ32(pAd, MCU_PCIE_REMAP_2, &RestoreValue);"
+        },
+        {
+          "line": 354,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 361,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RemapBase);"
+        },
+        {
+          "line": 365,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, RestoreValue);"
+        }
+      ]
+    },
+    {
+      "path": "mac/mt_mac.c",
+      "sha256": "b9c0fc557ad941d032d00832e71eacceee8cf103d69b7b8a63dba5862fc5dc95",
+      "references": [
+        {
+          "line": 1663,
+          "text": "RTMP_IO_WRITE32(pAd, MCU_PCIE_REMAP_2, 0x80080000);"
+        }
+      ]
+    }
+  ]
+}

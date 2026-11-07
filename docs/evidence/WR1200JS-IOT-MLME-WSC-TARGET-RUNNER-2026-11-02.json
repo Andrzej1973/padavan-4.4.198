@@ -1,0 +1,16 @@
+{
+  "status": "passed",
+  "scope": "WSC/KTHREAD common/mlme.c TU only",
+  "full_feature_module_verified": false,
+  "runtime_verified": false,
+  "command_sha256": "3bea3d7c918c1576bfd2facb97818837656b9058547fa9e54eef95c703117979",
+  "source_sha256": "b43d3cf867d199d1ecf72dd4a2394818b40777a60cd6f5e752393681bdba8dda",
+  "requested_defines": [
+    "-DWSC_INCLUDED",
+    "-DWSC_AP_SUPPORT",
+    "-DKTHREAD_SUPPORT"
+  ],
+  "object_sha256": "c831988600eb8e3078f65949a88055e08278afe816ca09dad55fafb8e7b24fa8",
+  "object_bytes": 140624,
+  "command_provenance": "Local retained target flags serialized as Kbuild command fixture, not a new full Kbuild run"
+}

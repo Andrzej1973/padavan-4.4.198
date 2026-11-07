@@ -1,0 +1,25 @@
+{
+  "date": "2026-11-01",
+  "scope": "isolated peer source AP cleanup entry before radio-off; unbound",
+  "assets_sha256": {
+    "tools/iot/prepare-ap-software-shutdown.py": "b8c1dea1037543aeb95f7e7fbf40f470ef7fb9cabda170abc1a8097135445043",
+    "tools/iot/check-ap-before-radio-off.py": "cfc6c6d4776a6614795ee72aaf2977b9bb84ae7bc78a496301eadb6ad9901c5c"
+  },
+  "passed": [
+    "Fresh hash-pinned generator execution",
+    "Exact body preservation by reverse transformation",
+    "Four RTMP_MAC_PCI x CONFIG_MAC_PCI host variants under ASan/UBSan",
+    "Legacy radio-off preserved and new entry skips radio-off/early IRQ disable",
+    "MacTableReset refusal propagated",
+    "Reintroduced unconditional radio-off mutation rejected by runtime assertion",
+    "Reintroduced unconditional IRQ-disable mutation rejected by runtime assertion"
+  ],
+  "limitations": [
+    "Other AP hardware actions remain; not software-only cleanup",
+    "Reduced host feature set; no target compile",
+    "Not bound to checked shutdown; ACK epoch, sender exclusion and retry ordering remain open"
+  ],
+  "production_installed": false,
+  "runtime_verified": false,
+  "workflow_binding": "optional peer82 only: applies after terminal layer, propagates full merged manifest, runs extracted host fixture before target build; not yet executed in CI"
+}

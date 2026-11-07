@@ -1,0 +1,22 @@
+{
+  "scope": "local timer scheduling/dispatch fence and injected host tests",
+  "stage": 33,
+  "passed": true,
+  "variants": {
+    "composed": 16,
+    "extracted": 25
+  },
+  "timer_join_accepted": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "receipts": {
+    "composed": {
+      "path": ".iot-local-check\\peer-timer-fence33-checks-20261030\\result.json",
+      "sha256": "490a9b255dce2eae9572dcadec6fb562f54d4b0721c2e57f67ba10d83473f9f1"
+    },
+    "extracted": {
+      "path": ".iot-local-check\\peer-timer-fence33-chain-checks-20261030\\result.json",
+      "sha256": "55c96d25f5b0f57d8732d4bc37d002607791a07ef937f2f87c0bac9fb16a6b48"
+    }
+  }
+}

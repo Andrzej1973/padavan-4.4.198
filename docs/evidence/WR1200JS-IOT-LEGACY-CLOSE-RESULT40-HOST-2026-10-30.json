@@ -1,0 +1,70 @@
+{
+  "input_sha256": {
+    "common/rtmp_init_inf.c": "d26a84c77f53bc29cfc85e38b8893035c5c322ffce8822863c7f149be875d1f7",
+    "include/rt_os_net.h": "f722d3c3694987483970cad8b402769e7c057fe1cc262e10e4a1890ba86c91ca",
+    "os/linux/rt_main_dev.c": "3f12c64c8b84065b17250192b5baaa8edfdea9c22e01cc6cdaa4f644b2dec64e",
+    "common/cmm_cfg.c": "ab9e85630cd337067b5538d76c5e8c0b8c7647a099bebeb1c7f1f71734cfdb44",
+    "os/linux/pci_main_dev.c": "b4ed5ac669063dae5126c415cf23a638084e1bb22f776792e32923b75079da7a",
+    "os/linux/rt_profile.c": "467d4a8d696fc9a9d47cd0a513e167e94c57be3f2f8fa47cd5c8836cd89e3421",
+    "ap/ap_apcli_inf.c": "11254710fd0391b6053e3af002f0a032f04c54e97cefd4d0d659d0b87ce10a2d"
+  },
+  "output_sha256": {
+    "common/rtmp_init_inf.c": "e4c1357fede7dc933d52c8cd41f50365c7fffed28b2c0d45e656ddd51b4868ef",
+    "include/rt_os_net.h": "8e16cae1117e32840bce7856b3e213f8574fdf813d3fb8efd47c8e61c25805f0",
+    "os/linux/rt_main_dev.c": "ca3efffe5f4a07bff1e6dc8263a1955be264de67d4333a3c5661da8cb6d97382",
+    "common/cmm_cfg.c": "45de3f1a54d428bb0f92125c7fe63c06eaf7e0f97310609ba3e3b5c9f27980bd",
+    "os/linux/pci_main_dev.c": "e9215919b1e7cd6c8b2b137a8c958f69ad584e6c621d4d304f5eb044c83229e3",
+    "os/linux/rt_profile.c": "3c5ae56ba5c25e1defc38ccb3261302d0f297b20ee77f949a52e96d213e5beb0",
+    "ap/ap_apcli_inf.c": "cc741c101e7e5510a7122e7ffabe26ab71f4457b6fdb7ba9b159e60ad446767b"
+  },
+  "scope": "legacy close status and immediate consumers including Monitor/APCLI; lifetime unaccepted",
+  "legacy_virtual_down_callers_checked": 2,
+  "os_abl_return_contract_changed": true,
+  "coherent_target_module_rebuild_required": true,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "lifecycle_accepted": false,
+  "date": "2026-10-30",
+  "stage": 40,
+  "base_commit": "9af5697",
+  "passed": true,
+  "extracted_host_variants": 42,
+  "results_sha256": "6b323eec6016ef7e5b488075c2fd3db72bc842ef62f1513ca3e22ec502c43ef2",
+  "full40_replay_performed": false,
+  "whole_bodies_extracted": [
+    "APShutdown",
+    "RTMPDrvClose",
+    "rt28xx_close",
+    "VIRTUAL_IF_DOWN",
+    "Monitor_VirtualIF_Close",
+    "ApCli_VirtualIF_Close"
+  ],
+  "partial_extractions": [
+    "virtual-down ioctl case",
+    "PCI suspend close guard"
+  ],
+  "host_matrix": [
+    "native",
+    "OS_ABL dispatch",
+    "WIFI_DIAG",
+    "OS_ABL + WIFI_DIAG",
+    "OS_ABL + WIFI_DIAG + HNAT deregistration"
+  ],
+  "abi_scope": "exact ops field/prototype/assignment and macro compiled with mock struct; not full binary ABI layout or mixed module validation",
+  "verified_host_behaviors": [
+    "legacy close failure maps to -EIO before DiagProcExit",
+    "PCI close refusal returns -EBUSY before module decrement and power-down seam",
+    "virtual-down ioctl and wrapper propagate failure after final count decrement",
+    "Monitor/APCLI keep module reference on failure",
+    "already-zero virtual count prevents immediate retry through wrapper",
+    "successful paths still release local module reference"
+  ],
+  "open_issues": [
+    "legacy close has no shared exclusive retry owner or atomic reset/insertion freeze",
+    "PCI and endpoint pre-close side effects not rolled back",
+    "Linux ndo_stop return does not itself prove netdev/adapter/module lifetime",
+    "non-PCI legacy cleanup and hardware failure propagation not accepted",
+    "all target modules must be rebuilt coherently after return contract change",
+    "no target compile, full40 replay, final image or router runtime evidence"
+  ]
+}
