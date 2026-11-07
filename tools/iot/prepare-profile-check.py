@@ -5,6 +5,12 @@ from pathlib import Path
 p=argparse.ArgumentParser();p.add_argument('source',type=Path);p.add_argument('output',type=Path);a=p.parse_args()
 s=(a.source/'trunk/user/rc/ralink.c').read_text(encoding='utf-8')
 if 'wr_iot_precreated_boot_request_read' in s:
+ reader_start=s.index('static const char *wr_iot_cold_nvram_read(')
+ reader_end=s.index('\n}',reader_start)
+ reader=s[reader_start:reader_end]
+ snapshot='wr_profile_wlan_get_int(is_aband, "mode_x")' in s
+ expected='wr_profile_safe_get' if snapshot else 'nvram_safe_get'
+ assert 'return '+expected+'(key);' in reader, 'Cold credentials bypass profile snapshot'
  start=s.index('\t/* Reserve ra2 only while generating')
  end=s.index('\n#endif',start)
  block=s[start:end]

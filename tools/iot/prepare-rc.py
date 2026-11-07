@@ -119,6 +119,8 @@ static const char *wr_iot_cold_nvram_read(void *unused,const char *key)
 #endif
 
 '''
+if profile_snapshot:
+ include=include.replace('return nvram_safe_get(key);','return wr_profile_safe_get(key);')
 radio=radio.replace(anchor,include+anchor,1)
 decl='int i_stream_tx, i_stream_rx, i_mphy, i_mmcs, i_fphy[2], i_val_mbss[2];'
 if radio.count(decl)!=1:raise SystemExit('Ralink local declaration changed')

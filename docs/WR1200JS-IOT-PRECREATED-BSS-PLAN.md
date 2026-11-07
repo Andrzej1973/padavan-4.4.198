@@ -290,6 +290,14 @@ These runs do not cover the newer local credential/observation helpers.
 
 ## Cold generator binding
 
+Cold reader follow-up: when Band Steering snapshot wrappers are installed,
+wr_iot_cold_nvram_read now calls wr_profile_safe_get, so IoT fields follow the
+same bound full-NVRAM capture as Main/Guest. Without wrappers it retains the
+legacy nvram_safe_get accessor. Added generated-reader assertion to reject a
+snapshot bypass. Pristine and composed preparation plus extracted admission/
+output sanitizer checks PASS. This does not create the caller's snapshot lease
+or driver request transport; those bindings remain unfinished.
+
 ABI42399605735 next failure: standalone ralink.c lacked boards.mk compiler
 definitions and -Werror promoted vendor unused-parameter/sign-compare/pointer-sign
 warnings. Monitor42399810218 artifact13585286300 includes the causal board macro
