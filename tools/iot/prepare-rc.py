@@ -105,6 +105,7 @@ report['request_snapshot_runtime_adapter_staged']=True
 # Runtime ON/OFF must use the already-created ra2 interface; it must never use
 # the old profile-rewrite/restart path.
 f=rc/'ralink.c';radio=f.read_text(encoding='utf-8')
+profile_snapshot='wr_profile_wlan_get_int(is_aband, "mode_x")' in radio
 anchor='static int\ngen_ralink_config('
 if radio.count(anchor)!=1:raise SystemExit('Ralink generator anchor changed')
 include=r'''#if defined(BOARD_WR1200JS)
@@ -122,10 +123,10 @@ radio=radio.replace(anchor,include+anchor,1)
 decl='int i_stream_tx, i_stream_rx, i_mphy, i_mmcs, i_fphy[2], i_val_mbss[2];'
 if radio.count(decl)!=1:raise SystemExit('Ralink local declaration changed')
 radio=radio.replace(decl,decl+'''\n\tint iot_reserved = 0;\n#if defined(BOARD_WR1200JS)\n\tstruct wr_iot_precreated_profile_request iot_request;\n#endif''',1)
-anchor='\ti_mode_x = nvram_wlan_get_int(is_aband, "mode_x");\n\ti_phy_mode = calc_phy_mode(nvram_wlan_get_int(is_aband, "gmode"), is_aband);'
+anchor='\ti_mode_x = nvram_wlan_get_int(is_aband, "mode_x");'
+if profile_snapshot:anchor=anchor.replace('nvram_wlan_get_int','wr_profile_wlan_get_int')
 if radio.count(anchor)!=1:raise SystemExit('Ralink radio-mode anchor changed')
 cold=r'''\ti_mode_x = nvram_wlan_get_int(is_aband, "mode_x");
-\ti_phy_mode = calc_phy_mode(nvram_wlan_get_int(is_aband, "gmode"), is_aband);
 #if defined(BOARD_WR1200JS)
 \t/* Reserve ra2 only while generating the initial 2.4 GHz AP profile.
 \t * An unavailable CSPRNG or invalid saved request leaves BssidNum at two:
@@ -138,7 +139,9 @@ cold=r'''\ti_mode_x = nvram_wlan_get_int(is_aband, "mode_x");
 \t\tiot_reserved = 1;
 \t}
 #endif'''
-radio=radio.replace(anchor,cold.replace(r'\t','\t'),1)
+cold=cold.replace(r'\t','\t')
+if profile_snapshot:cold=cold.replace('nvram_wlan_get_int','wr_profile_wlan_get_int')
+radio=radio.replace(anchor,cold,1)
 replacements=[
  ('fprintf(fp, "SSID%d=%s\\n", 2, nvram_wlan_get(is_aband, "guest_ssid"));', 'fprintf(fp, "SSID%d=%s\\n", 2, nvram_wlan_get(is_aband, "guest_ssid"));\n#if defined(BOARD_WR1200JS)\n\tif (iot_reserved) fprintf(fp, "SSID%d=%s\\n", 3, iot_request.ssid);\n#endif'),
  ('for (i = 3; i <= 8; i++)\n\t\tfprintf(fp, "SSID%d=%s\\n", i, "");', 'for (i = iot_reserved ? 4 : 3; i <= 8; i++)\n\t\tfprintf(fp, "SSID%d=%s\\n", i, "");'),
@@ -158,6 +161,9 @@ replacements=[
  ('for (i = 3; i <= 8; i++)\n\t\tfprintf(fp, "WPAPSK%d=%s\\n", i, "");', 'for (i = iot_reserved ? 4 : 3; i <= 8; i++)\n\t\tfprintf(fp, "WPAPSK%d=%s\\n", i, "");'),
 ]
 for old,new in replacements:
+ if profile_snapshot:
+  old=old.replace('nvram_wlan_get(','wr_profile_wlan_get(')
+  new=new.replace('nvram_wlan_get(','wr_profile_wlan_get(')
  if radio.count(old)!=1:raise SystemExit('Cold BSS output anchor changed: '+old)
  radio=radio.replace(old,new,1)
 for name in ('profile.h','profile-list.h','profile-line.h','profile-scan.h','profile-stream.h','profile-file.h','precreated-profile-request.h','precreated-entropy.h'):

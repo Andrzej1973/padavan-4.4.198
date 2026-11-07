@@ -290,6 +290,41 @@ These runs do not cover the newer local credential/observation helpers.
 
 ## Cold generator binding
 
+ABI726 run42398834988 failed before compile: original step reports Ralink
+radio-mode anchor changed. Reproduced with prepare-profile-integration then
+prepare-profile-snapshot: NVRAM reads become wr_profile_* calls. prepare-rc
+now handles those existing snapshot readers without reverting them. Composed
+preparation, extracted cold admission/output and actual loader sanitizer tests
+all pass. Temporary trees auto-removed. Monitor42399023927 artifact
+13584234678 correctly identifies run/job/step but omits the causal anchor
+message, showing exit1 and earlier PASS lines. Parser gap needs a focused
+fixture/filter correction; monitor output was not root-cause evidence.
+
+Runtime gate review: request-stage sets wr_iot_profile_t as staged ownership;
+request-snapshot captures it and restart-controller disable-ready requires it
+cleared alongside network/firewall. Removing or renaming it alone would break
+recovery contracts. Keep this staged gate distinct from cold reservation; it
+does not prove loaded configuration. Runtime backend remains unbound and must
+consume loaded credential proof before BSS_UP, with no profile generator call.
+
+Binding audit: mbss-open-admission.inc currently acquires BSS_OPEN and a
+registry reservation, observes Main outside the transition lock, revalidates
+then invokes raw open. No immutable requested SSID/key or request generation
+arrives at that entry. precreated-open-proof.h consequently cannot be called
+there meaningfully by assigning a constant generation or copying loaded PMK.
+Required next integration is a real RC-to-driver request ownership transport
+using an existing reviewed interface or a separately designed kernel contract;
+the current SSID query alone does not provide key identity. Do not grant
+runtime readiness from host-only proof fixtures or mutable profile files.
+
+Existing query candidate found: ap/ap_cfg.c:5532 OID_802_11_PASSPHRASE
+(oid.h0x0649) is guarded by WH_EZ_SETUP. It copies MBSSID PSK to userspace and
+its trace logs plaintext passphrase. Do not enable WH_EZ_SETUP merely to obtain
+this query, or call it a secret-free loaded-PMK proof. Effective guard and BSS
+index selection must be verified; query alone also does not bind open lifetime
+or prevent a setter after the observation. Prefer internal compare-only proof
+with explicit request ownership instead of exporting/logging loaded secrets.
+
 User override audit at pinned c25283e: ralink.c appends AP.dat through
 common_ex.c:511 load_user_config after generated fields. Vendor
 cmm_profile.c:367 RTMPGetKeyParameter searches the first exact newline+key+=
