@@ -38,6 +38,10 @@ done
 cp "$module" "$results/mt76x3_ap-wsc.ko"
 sha256sum -c "$results/baseline-config.sha256"
 cmp "$feature/.config" "$results/kernel.config"
+python3 tools/iot/check-channel-target-config.py \
+  --kernel "$feature" --driver "$driver" --compiler "$compiler" \
+  --manifest "$results/../merged-source-manifest.json" \
+  --output "$results/channel-target-config.json"
 python3 - "$results" "$driver" <<'PY'
 import hashlib,json,pathlib,sys
 root=pathlib.Path(sys.argv[1])
@@ -79,6 +83,7 @@ report={'scope':'complete isolated MT7603 WSC module',
         'task_macros':task['macros'],'task_command_sha256':task['command_sha256'],
         'task_source_sha256':task['source_sha256']}
 report['wsc_objects']=objects
+report['channel_target_config_sha256']=hashlib.sha256((root/'channel-target-config.json').read_bytes()).hexdigest()
 report['apcli_probe_source']=json.loads((root/'apcli-probe-source.json').read_text())
 (root/'result.json').write_text(json.dumps(report,indent=2)+'\n')
 PY

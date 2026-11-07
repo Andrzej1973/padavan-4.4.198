@@ -36,6 +36,7 @@ git -C padavan-4.4 archive --format=tar HEAD \
   | tar -xf - -C "$pinned"
 pristine="$pinned/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3"
 python3 tools/iot/inspect-mt7603-firmware.py "$pristine" > "$results/pinned-mcu-firmware-identity.json"
+python3 tools/iot/check-channel-target-config-selftest.py
 python3 tools/iot/check-tx-power-builder.py "$pristine"
 gcc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-pie -no-pie \
   -I tools/iot -I "$pristine/include" tools/iot/check-slot-register.c -o "$results/check-slot-register"
@@ -364,6 +365,10 @@ python3 tools/iot/check-task-config.py \
   --kernel "$kernel" --driver "$driver" --compiler "$compiler" \
   --unit rt_rbus_pci_drv --output "$results/merged-nettask-config.json"
 if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
+  python3 tools/iot/check-channel-target-config.py \
+    --kernel "$kernel" --driver "$driver" --compiler "$compiler" \
+    --manifest "$results/merged-source-manifest.json" \
+    --output "$results/channel-target-config.json"
   python3 tools/iot/check-mlme-wsc-target-tu.py \
     --kernel "$kernel" --driver "$driver" --compiler "$compiler" \
     --output "$results/mlme-wsc-target-tu.json"
@@ -480,6 +485,9 @@ report = {
     'task_command_sha256': task['command_sha256'],
     'task_source_sha256': task['source_sha256'],
 }
+if sys.argv[2] == 'peer82':
+    channel = results / 'channel-target-config.json'
+    report['channel_target_config_sha256'] = hashlib.sha256(channel.read_bytes()).hexdigest()
 (results / 'target-compile-result.json').write_text(
     json.dumps(report, indent=2) + '\n', encoding='utf-8')
 PY

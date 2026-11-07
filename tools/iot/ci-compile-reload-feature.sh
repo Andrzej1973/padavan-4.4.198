@@ -39,6 +39,10 @@ cp "$module" "$results/mt76x3_ap-reload.ko"
 python3 tools/iot/check-radio-off-module.py "$module" "$results/radio-off-capability.json" --cross "$cross"
 cmp "$kernel/.config" "$results/kernel.config"
 cmp "$feature/.config" "$results/kernel.config"
+python3 tools/iot/check-channel-target-config.py \
+  --kernel "$feature" --driver "$driver" --compiler "$compiler" \
+  --manifest "$results/../merged-source-manifest.json" \
+  --output "$results/channel-target-config.json"
 python3 - "$results" <<'PY'
 import hashlib,json,pathlib,sys
 root=pathlib.Path(sys.argv[1]); reports={}
@@ -75,6 +79,7 @@ report={'scope':'complete isolated MT7603 reload module',
         'wrapper':json.loads((root/'wrapper-source.json').read_text()),
         'translation_units':reports,'target_compiled':True,
         'production_installed':False,'firmware_epoch_verified':False,
-        'shutdown_verified':False,'runtime_verified':False}
+        'shutdown_verified':False,'runtime_verified':False,
+        'channel_target_config_sha256':hashlib.sha256((root/'channel-target-config.json').read_bytes()).hexdigest()}
 (root/'result.json').write_text(json.dumps(report,indent=2)+'\n')
 PY

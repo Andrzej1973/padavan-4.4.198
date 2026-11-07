@@ -33,15 +33,15 @@ extra=driver/'os/.rt_linux.o.cmd';extra.write_text(line);run('ambiguous-command'
 cmd.write_text(line.replace(compiler.as_posix(),'wrong-compiler'));run('wrong-compiler',False)
 cmd.write_text(line.replace(source.as_posix(),(driver/'wrong.c').as_posix()));run('wrong-source',False)
 cmd.write_text(line);source.write_text('#include "definitely-missing-header.h"\n');run('preprocessor-failure',False)
-for unit,relative in (('andes_core','mcu/andes_core.c'),('cmm_data_pci','common/cmm_data_pci.c'),('rtmp_init','common/rtmp_init.c')):
+for unit,relative in (('andes_core','mcu/andes_core.c'),('cmm_data_pci','common/cmm_data_pci.c'),('rtmp_init','common/rtmp_init.c'),('mt7603','chips/mt7603.c'),('rtmp_init_inf','common/rtmp_init_inf.c'),('ap_autoChSel','ap/ap_autoChSel.c')):
  source=driver/relative;source.parent.mkdir(parents=True,exist_ok=True)
- source.write_text('#define MT_MAC 1\n#define RTMP_PCI_SUPPORT 1\n')
+ source.write_text('#define MT7603 1\n#define MT_MAC 1\n#define RTMP_PCI_SUPPORT 1\n')
  (driver/('.'+unit+'.o.cmd')).write_text('cmd_fixture := '+shlex.quote(compiler.as_posix())+' -c -o ignored.o '+shlex.quote(source.as_posix())+'\n')
  original_args=args;args=[*original_args,'--unit',unit]
  report=run('valid-'+unit,True)
- assert report['macros']['MT_MAC'] and report['macros']['RTMP_PCI_SUPPORT']
+ assert report['macros']['MT7603'] and report['macros']['MT_MAC'] and report['macros']['RTMP_PCI_SUPPORT']
  args=original_args
-print('PASS nine synthetic host task-config controls; not target macro evidence')
+print('PASS synthetic host task-config controls including channel translation units; not target macro evidence')
 bytes_removed=sum(f.stat().st_size for f in base.rglob('*') if f.is_file())
 shutil.rmtree(base)
 print('Removed phase scratch:',bytes_removed,'bytes')

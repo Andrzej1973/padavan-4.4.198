@@ -1,3 +1,22 @@
+## Sol: bind channel guards to actual target translation units
+
+Added check-channel-target-config.py for mt7603, cmm_asic_mt, ap_autoChSel and
+rtmp_init_inf. It reads actual Kbuild commands through check-task-config,
+requires MT7603/MT_MAC/RTMP_PCI_SUPPORT effective macros, exact manifest source
+hashes and ELF32 little-endian MIPS relocatable objects; records object and
+command hashes. Baseline peer82, WSC and reload builds run it, and each final
+report binds its diagnostic SHA256. Existing task parser now supports these
+units and reports MT7603 explicitly. No driver behavior or admission changed.
+Host parser regression and new synthetic provenance controls pass: missing
+guard, source drift, wrong architecture and missing command refuse. Synthetic
+headers are parser fixtures only, never target evidence. Shell syntax/diff
+checks pass. CI now runs the control before expensive compile. Temporary test
+fixtures auto-removed (~109KB existing parser scratch plus temporary new cases).
+Optional841/run42375303427 remains live in isolated merged candidate compile;
+this run predates the new diagnostic gate. No target result asserted yet.
+Current parent28d13172 is published; new checks prepared as one coherent package.
+No router access; docs/reference preserved; ACK reuse contract unresolved.
+
 ## Sol: fresh upstream ACK comparison and live target compile
 
 Revalidated current OpenWrt mt76 master0936617dc529ff9da0385221d3fa6de732231177
