@@ -1,3 +1,21 @@
+## Sol: resumed checked-ID budget regression — 2026-11-07
+
+Current branch codex/wr1200js-service-webui, HEAD
+03f5dc6b1b58b738e5c76edf3e08a140f1cc2837. Resumed as sole writer.
+Host config transport suite passed with the current readiness fragment
+substituted in memory into the retained older generated candidate. New case:
+bootstrap mask6/cursor2 plus thirteen config replies exhausts0xfffe; next
+real reservation refuses; firmware snapshot remains unchanged. This exposes
+the budget blocker, not a solution or complete startup evidence. Audit and
+regression remain local; docs/reference untouched. Next: prove a safe
+completion identity/reuse strategy that accommodates automatic channel scan;
+do not widen sequence domain or clear retirement without firmware evidence.
+Standard run42368416660 exact03f5dc6 observed IN_PROGRESS;
+optional42368427179 observed SUCCESS (dispatch03f5dc6, prior requested source
+dfe7224 per earlier dispatch record; source artifact not revalidated here).
+No router operations. Test temporary outputs auto-removed; retained candidate
+~15MB remains required for unfinished work; no manual cleanup/reclaimed space.
+
 ## Sol: EFUSE publication receipt
 
 Published and SSH ls-remote verified04bf80d392f7c79d1aea5ecd2bf0ec69f4318e71;

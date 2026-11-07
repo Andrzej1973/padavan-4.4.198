@@ -58,3 +58,55 @@ will refuse; relaxing its guards would remove the evidence on which it relies.
 Returning to ROM/reloading firmware would require proving preservation or
 reapplication of the calibration/configuration already sent and would not by
 itself provide transparent batching. No such implementation is established.
+
+## Bootstrap consumes the same ledger
+
+The Method1 private loader performs ROM observation/hardware preparation (which
+contains the retired-ID boundary), then `CmdAddressLenReq`, scatter transfer,
+and `CmdFwStartReq` before committing the firmware receipt. Address/length and
+FW_START wait for checked replies; scatter packets do not reserve checked IDs.
+Thus this successful source path consumes at least two IDs after the boundary,
+leaving at most 13 of the 15 for configuration. A restart request, when needed,
+precedes that boundary and must not be counted as a fresh config ID.
+
+After the receipt, private MCUSysInit performs the owned DMA scheduler operation
+and returns to the outer init/config-owner begin. No additional MCU command is
+present in that direct handover path. Receipt snapshots are necessary because
+requiring an empty retired mask at config begin rejects valid checked boot
+commands; snapshots preserve their IDs rather than replenish the budget.
+
+This is a source-path count, not a complete worst-case count for all loader
+variants or configuration commands. The 22/26-command scan counterexample is
+therefore already excessive even without counting EEPROM/PHY initialization.
+
+### Host regression verification (2026-11-07)
+
+`check-mcu-config-transport.py` now exercises the real config-owner begin/finish
+and TX-power builder with injected transport: bootstrap receipt mask `6`,
+cursor `2`, followed by thirteen successful checked reservations/replies.
+The ledger reaches `0xfffe`; the real sequence reservation helper refuses
+another ID, while the receipt remains mask `6`, cursor `2`. This proves budget
+retention in this host composition, not safe reuse or successful full startup.
+
+The full host transport suite passed on the retained generated candidate
+`/tmp/wr-iot-tx-owner.DR53cL/mbss-poll-caller`, substituting the current
+config-owner readiness fragment in memory because that candidate predates the
+receipt change. Transport, registers and hardware remain injected. A fresh
+generated target build is still required; this run is not image/runtime proof.
+
+## Channel privilege is not an established replacement completion identity
+
+Pinned SDK `mcu/andes_mt.c:1137` defines `CmdChPrivilege`; its request layout
+in `include/mcu/andes_mt.h:393` includes `ucTokenID`. The builder zeroes the
+request and never assigns that token. It initializes the command without a
+wait, response length or callback. This is a separate command (`0x20`), not
+the checked extended channel switch (`0x08`).
+
+`UnsolicitedEventHandler` routes event `0x18` to `EventChPrivilegeHandler`
+(`mcu/andes_mt.c:2804`). That handler does not inspect `Data` or `Length`;
+it updates RMAC RX stream bits from controller state. The pinned SDK therefore
+does not establish a token echo, channel echo, response status, event layout,
+or ordering guarantee that could retire the channel/TX-power transaction.
+The only other C call site found is commented out in ATE. Do not substitute
+this command or treat the unsolicited event as a general execution fence
+without a firmware-specific contract and independent verification.

@@ -412,14 +412,26 @@ puts("PASS actual TX-power owned builder: success, allocation/firmware/transport
   if(fault==3)next.wr_iot_boot_fw_retired=0x10000;
   assert(wr_iot_mcu_boot_config_begin(&next,&next.ticket)==(fault&&fault<4?1:0));
   if(!fault||fault>=4){
+   if(!fault){
+    read_mode=8;sent=0;
+    for(unsigned n=0;n<13;n++){
+     CmdSetTxPowerCtrl(&next,6);assert(sent==n+1&&!next.wr_iot_boot_failed);
+    }
+    struct wr_iot_mcu_sequence_reservation exhausted={0};
+    exhausted.retired=next.wr_iot_sequence.retired;exhausted.cursor=next.wr_iot_sequence.cursor;
+    assert(exhausted.retired==0xfffeU&&!wr_iot_mcu_sequence_reserve_checked(&exhausted));
+    assert(next.wr_iot_boot_fw_retired==6&&next.wr_iot_boot_fw_cursor==2);
+    read_mode=0;
+   }
    if(fault==4)next.wr_iot_sequence.retired=2;
    if(fault==5)next.wr_iot_sequence.cursor=1;
    if(fault==6)next.wr_iot_sequence.poisoned=1;
    assert(wr_iot_mcu_boot_config_finish(&next,&next.ticket,1)==(fault?1:0));
-   assert(next.wr_iot_sequence.retired==(fault==4?2U:6U));
+   assert(next.wr_iot_sequence.retired==(!fault?0xfffeU:fault==4?2U:6U));
   }
   assert(!owner.refs);
  }
+ puts("PASS bootstrap receipt retains two consumed IDs; thirteen config replies exhaust remaining IDs without replenishing the firmware snapshot; injected transport");
  for(unsigned mode=0;mode<4;mode++){
   RTMP_ADAPTER fresh=valid();
   fresh.wr_iot_sequence.retired=mode==0?2:mode==1?1:mode==2?0x10000:0;
