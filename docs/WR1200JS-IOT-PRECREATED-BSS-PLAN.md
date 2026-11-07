@@ -219,3 +219,21 @@ Both matcher headers staged for target typecheck; no backend/callsite grant yet.
 Host fixture added to CI; target result pending. Full request-to-driver transport,
 loaded generation receipt and cold hook remain required. This work does not
 claim no-restart physical operation or resolve ROM ACK safety.
+
+## One-use observation binding primitive
+
+precreated-open-proof.h binds a readback window to existing BSS_OPEN claim,
+exact netdev registry generation and immutable request generation. Begin and
+finish require transition lock; expensive key readback/derivation runs outside.
+Finish reuses virtual_open_claim_matches, requires MBSS family and exact IoT
+device, consumes the proof even on refusal; no second ticket/refcount mutation.
+Task-owned configuration lease and lifetime pin must still span the window;
+uncoordinated setters are not made safe by this token.
+
+ASan/UBSan test passes valid case and14failure variants including reset/close,
+Main down, PM, retirement, registry generation/family/removal, device/serial,
+request change, failed/nonboolean observation and completed virtual-UP. Reuse
+of consumed proof always refuses. Added host CI fixture. This token is not yet
+bound to a production ioctl/backend; it does not turn injected readback into
+hardware evidence. Integration must derive request identity from existing
+activation transaction and match requested credentials independently.
