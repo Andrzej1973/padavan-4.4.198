@@ -1,3 +1,69 @@
+## Sol: optional846 target modules independently verified
+
+Run42376468852 SUCCESS. Source artifact confirms exactf7d51ba; independently
+inspected target artifact13576536787 in memory. Baseline, WSC and reload module
+lengths/SHA256 match reports and ELF32 LE MIPS relocatable headers; feature
+baseline-report hashes match exact baseline bytes. All reports target_compiled,
+production_installed=false, runtime_verified=false. Compact receipt
+WR1200JS-RUN-42376468852-TARGET.json. Later channel patches/normal promotion
+are not covered. No archive/modules written to disk.
+Normal-promotion requirements now retain existing main-open finish_unverified
+and main_open_accepted protocol: private boot must not prematurely publish
+READY or retire its outer radio ticket twice. Separate verify/readback remains
+necessary. No driver change or router access. New audit/receipts kept local
+with earlier notes for coherent batching; docs/reference untouched.
+
+## Sol: normal-promotion scope clarified and dependencies recorded
+
+Audited boot-open/transport/sender sources. Clean cold sender bypasses private
+bootstrap; claimed-close reopen uses it only without LOAD_FW_ONE_TIME.
+Earlier normal-promotion statements apply to private reload/reopen, not all
+cold startup. New WR1200JS-BOOT-NORMAL-PROMOTION-REQUIREMENTS.md names config,
+ID correlation, closed sender/release claim, data consumers, radio ticket,
+peer transaction and hardware prerequisites plus lock/wait constraints. It is
+an unfinished implementation checklist, not a new successful gate. No source
+admission relaxed. Candidate846 still confirmed live in isolated compilation;
+no merged artifact available at check. Continue exact run; no restart.
+No router actions or large scratch. Documentation local for coherent batching.
+
+## Sol: optional846 source receipt and normal-promotion boundary
+
+Revalidated run42376468852 live in isolated merged candidate compile, no failed
+step reported. Independently read verification-source artifact13575792816 in
+memory: requested==verifiedf7d51ba35b1ebf99618c2ed07f1c89cee6d28fc6,
+dispatchc4e2973ef48bcd36803390a3e4c1ef2398846d08. Compact receipt
+WR1200JS-RUN-42376468852-SOURCE.json retained. No target success asserted;
+optional848/run42377606982 exact2278e415 remains PENDING, no duplicate dispatch.
+Normal-promotion audit: config_finish only sets config_state2 and drops owner
+task; generator then deliberately jumps to wr_config_err. boot_thaw grants
+private bootstrap command admission only. Search found no implemented normal
+success commit that safely ends boot_active, reopens ordinary sender and
+promotes data after all config/lifecycle proofs. Do not equate config_state2
+or target compile with normal operation. This remains work after ACK budget,
+not a reason to delete the final refusal. No driver edits this turn.
+Current HEAD544462c local/unpushed; preserve local status and this source
+receipt for next coherent package. No router access or new large scratch;
+source ZIP read only in memory, docs/reference unchanged.
+
+## Sol: retirement/reset safety revalidated and optional848 queued
+
+Actual checked-sequence-retirement fixture passes with latest ACK negative
+controls: old successful response rejected across30 allocations, pool exhausts
+without checked reuse; quarantine/poison remain separate. Actual retired-boundary
+fixture and reset-omission mutation control pass. This is host/source evidence;
+it does not establish hardware firmware/RX epoch or preserving calibration
+through an in-scan restart. Existing boundary requires ROM/controller-off,
+PSE/ring prerequisites incompatible with active configuration; no reset guard
+relaxed. A transparent restart solution still needs ordered config/calibration
+reapplication and independently verified completion, not just renewed IDs.
+Standard840 exact branch2278e415 SUCCESS; searched60 recent optional dispatches
+and found no equivalent peer82/iot2278e415. Queued optional848/run42377606982,
+requested2278e41529772025f87f81ebd537a16e78b5b010, dispatch7bedb001;
+confirmed title/source input and PENDING. Inspect verification-source when it
+starts. Optional846 remains observed live; no duplicate/restart/heartbeat.
+Local HEAD544462c stays unpushed for batching; this receipt kept local. No
+router operations or retained new artifacts; test temporary trees auto-removed.
+
 ## Sol: resumed; same-class stale ACK replay independently reproduced
 
 Resumed sole-writer work at published7bedb001. Local firmware byte-comparison
