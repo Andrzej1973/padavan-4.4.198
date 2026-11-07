@@ -463,6 +463,40 @@ for(unsigned mode=0;mode<8;mode++){
 puts("PASS actual EDCA/slot builders: bounded EDCA before copy, serialized intent/full ticket before TX, no overwrite, transport/timeout retention, overflow and pending finish refusal; no execution proof");
 '''+tail[pos:]
 with tempfile.TemporaryDirectory(prefix='wr-config-transport-') as td:
+ if 'mcu_config_edca_direct' in json.loads(Path(str(a.candidate)+'.manifest.json').read_text()):
+  begin=tail.rfind('for(unsigned mode=0;mode<8;mode++){',0,tail.index(' CMD_EDCA_SET_T edca={0};'))
+  assert begin>=0
+  end=tail.index('\n}\n',begin)+3
+  tail=tail[:begin]+r'''
+for(unsigned mode=0;mode<6;mode++){
+ RTMP_ADAPTER ad=valid();current=&owner;peer_ok=1;
+ slot_mac=3;slot_fail=slot_calls=0;edca_calls=0;edca_fail=mode==2;
+ memset(edca_regs,0,sizeof(edca_regs));sent=0;alloc_fail=0;
+ CMD_EDCA_SET_T edca={0};edca.ucTotalNum=1;
+ edca.rAcParam[0].ucVaildBit=15;edca.rAcParam[0].ucAifs=2;
+ edca.rAcParam[0].ucWinMin=3;edca.rAcParam[0].u2WinMax=15;edca.rAcParam[0].u2Txop=7;
+ assert(!wr_iot_mcu_boot_config_begin(&ad,&ad.ticket));
+ if(mode==1)edca.ucTotalNum=0;
+ if(mode==3)ad.wr_iot_config_slot_pending.ticket.generation=1;
+ if(mode==4)edca.rAcParam[0].ucAcNum=4;
+ unsigned before=allocated;
+ assert(CmdEdcaParameterSet(&ad,edca)==(mode&&mode!=5?1:0));
+ assert(!sent&&allocated==before&&!ad.wr_iot_config_edca_pending.ticket.active&&
+        !ad.wr_iot_boot_config_unconfirmed);
+ if(!mode||mode==5)assert(edca_calls==4);
+ if(mode==5){assert(!CmdEdcaParameterSet(&ad,edca));assert(edca_calls==8);}
+ assert(wr_iot_mcu_boot_config_finish(&ad,&ad.ticket,1)==(mode&&mode!=5?1:0));
+ assert(!owner.refs);
+}
+{
+ RTMP_ADAPTER ad=valid();ad.wr_iot_boot_active=0;current=&foreign;
+ CMD_EDCA_SET_T edca={0};edca.ucTotalNum=1;edca.rAcParam[0].ucVaildBit=15;
+ edca_calls=0;alloc_fail=0;unsigned before=ordinary_send;
+ assert(!CmdEdcaParameterSet(&ad,edca)&&ordinary_send==before+1&&!edca_calls);
+ current=&owner;
+}
+puts("PASS actual direct EDCA builder: no private firmware allocation/TX/journal, repeat register update, validation/owner/partial failure and ordinary SDK route");
+'''+tail[end:]
  if 'mcu_config_slot_direct' in json.loads(Path(str(a.candidate)+'.manifest.json').read_text()):
   at=tail.index(' assert(!CmdSlotTimeSet(&ad,9,10,2,0x1234));')
   begin=tail.rfind('\n{\n',0,at)
@@ -502,22 +536,33 @@ puts("PASS actual direct slot builder: no private firmware TX/allocation/journal
  if timing_config:
   slot_wrapper=r'''
 #include "mac/mac_mt/wf_tmac.h"
+#include "mac/mac_mt/wf_arb.h"
+#undef ARB_SCR
+#undef MT_ARB_SCR_TXDIS
+#undef MT_ARB_SCR_RXDIS
 #define ARB_SCR 1
 #define MT_ARB_SCR_TXDIS 1
 #define MT_ARB_SCR_RXDIS 2
 static unsigned slot_calls,slot_fail,slot_mac,slot_reg,slot_reads;
+static unsigned edca_calls,edca_fail,edca_regs[6];
+static const unsigned edca_addresses[6]={TMAC_ACTXOPLR1,TMAC_ACTXOPLR0,ARB_AIFSR0,ARB_ACCWIR0,ARB_ACCWXR0,ARB_ACCWXR1};
 static unsigned slot_read(RTMP_ADAPTER *ad,unsigned reg){
  assert(ad&&held==2);slot_reads++;
  if(reg==ARB_SCR)return slot_fail==4&&slot_calls?0:slot_mac;
- assert(reg==TMAC_ICR);return slot_fail==1&&slot_calls?slot_reg^1:slot_reg;
+ if(reg==TMAC_ICR)return slot_fail==1&&slot_calls?slot_reg^1:slot_reg;
+ for(unsigned i=0;i<6;i++)if(reg==edca_addresses[i])return edca_fail&&edca_calls?edca_regs[i]^1:edca_regs[i];
+ assert(0);return 0;
 }
 static void slot_write(RTMP_ADAPTER *ad,unsigned reg,unsigned value){
- assert(ad&&held==2&&reg==TMAC_ICR);slot_calls++;
- if(slot_fail!=2)slot_reg=value;
+ assert(ad&&held==2);
+ if(reg==TMAC_ICR){slot_calls++;if(slot_fail!=2)slot_reg=value;return;}
+ for(unsigned i=0;i<6;i++)if(reg==edca_addresses[i]){edca_calls++;edca_regs[i]=value;return;}
+ assert(0);
 }
 #define RTMP_IO_READ32(ad,reg,p) (*(p)=slot_read(ad,reg))
 #define RTMP_IO_WRITE32(ad,reg,value) slot_write(ad,reg,value)
 '''+Path(__file__).with_name('mcu-config-slot-mmio.inc').read_text()+Path(__file__).with_name('mcu-config-slot-owner.inc').read_text()
+  slot_wrapper+='\n'+Path(__file__).with_name('mcu-config-edca-plan.h').read_text()+Path(__file__).with_name('mcu-config-edca-mmio.inc').read_text()+Path(__file__).with_name('mcu-config-edca-owner.inc').read_text()
   at=tail.index('puts("PASS owner/config transport')
   tail=tail[:at]+r'''
  for(unsigned fault=0;fault<17;fault++){
@@ -548,6 +593,18 @@ static void slot_write(RTMP_ADAPTER *ad,unsigned reg,unsigned value){
   current=&owner;assert(wr_iot_mcu_boot_config_finish(&ad,&ad.ticket,0)==1&&!owner.refs);
  }
  puts("PASS composed slot owner/MMIO: admission before I/O, real primitive, bit preservation, failed write/readback/MAC drift and retained failure; registers injected");
+ for(unsigned fault=0;fault<3;fault++){
+  RTMP_ADAPTER ad=valid();unsigned char data[12]={1,0,0,0,0,15,2,3,4,0,5,0};
+  current=&owner;peer_ok=1;edca_calls=0;edca_fail=fault==2;
+  slot_mac=3;slot_fail=slot_calls=0;memset(edca_regs,0,sizeof(edca_regs));
+  assert(!wr_iot_mcu_boot_config_begin(&ad,&ad.ticket));
+  if(fault==1)ad.wr_iot_config_slot_pending.ticket.generation=1;
+  assert(wr_iot_mcu_config_edca_owned(&ad,&ad.ticket,data,12)==(fault?1:0));
+  assert(edca_calls==(fault==1?0:fault==2?1:4));
+  if(fault==2)assert(ad.wr_iot_boot_failed);
+  assert(wr_iot_mcu_boot_config_finish(&ad,&ad.ticket,0)==1&&!owner.refs);
+ }
+ puts("PASS EDCA composed owner/MMIO: prior slot history refuses before I/O, four field writes succeed, first partial readback failure retained and stops writes; registers injected");
  '''+tail[at:]
  c.write_text(prefix+(a.candidate/'include/wr-iot-mcu-boot-config-owner.inc').read_text()+(a.candidate/'include/wr-iot-mcu-config-transport.inc').read_text()+reader+slot_wrapper+'\n'.join(builders)+tail)
  subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-pie','-no-pie','-DMT7603','-DMT_MAC','-DRTMP_PCI_SUPPORT','-I'+str(a.candidate/'include'),str(c),'-o',td+'/check'],check=True)

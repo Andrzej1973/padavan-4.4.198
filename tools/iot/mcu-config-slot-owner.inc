@@ -1,5 +1,19 @@
 /* Owner wrapper for isolated config; no normal startup/data admission grant.
  * Config owner pins lifetime; lock order matches owned command transport. */
+static int wr_iot_mcu_config_timing_ready(RTMP_ADAPTER *ad,
+ const struct wr_iot_mcu_boot_ticket *ticket)
+{
+ return ad->wr_iot_boot_config_state==1&&ad->wr_iot_boot_config_task==current&&
+  wr_iot_mcu_boot_config_ready(ad,ticket,0)&&
+  !ad->wr_iot_mcu_sender_owner.inflight&&!ad->wr_iot_mcu_sender_owner.radio_active&&
+  !ad->wr_iot_boot_config_unconfirmed&&
+  !ad->wr_iot_config_slot_pending.ticket.active&&
+  !ad->wr_iot_config_slot_pending.ticket.poisoned&&
+  !ad->wr_iot_config_slot_pending.ticket.generation&&
+  !ad->wr_iot_config_edca_pending.ticket.active&&
+  !ad->wr_iot_config_edca_pending.ticket.poisoned&&
+  !ad->wr_iot_config_edca_pending.ticket.generation;
+}
 INT32 wr_iot_mcu_config_slot_owned(RTMP_ADAPTER *ad,
  const struct wr_iot_mcu_boot_ticket *ticket,unsigned int expected)
 {
@@ -10,16 +24,7 @@ INT32 wr_iot_mcu_config_slot_owned(RTMP_ADAPTER *ad,
  if(!wr_iot_mcu_boot_peer_matches(ad,ticket->peer_serial))return NDIS_STATUS_FAILURE;
  RTMP_IRQ_LOCK(&ad->wr_iot_transition_lock,flags);
  RTMP_SPIN_LOCK_IRQSAVE(&ad->wr_iot_mcu_sender_lock,&owner_flags);
- ready=ad->wr_iot_boot_config_state==1&&ad->wr_iot_boot_config_task==current&&
-  wr_iot_mcu_boot_config_ready(ad,ticket,0)&&
-  !ad->wr_iot_mcu_sender_owner.inflight&&!ad->wr_iot_mcu_sender_owner.radio_active&&
-  !ad->wr_iot_boot_config_unconfirmed&&
-  !ad->wr_iot_config_slot_pending.ticket.active&&
-  !ad->wr_iot_config_slot_pending.ticket.poisoned&&
-  !ad->wr_iot_config_slot_pending.ticket.generation&&
-  !ad->wr_iot_config_edca_pending.ticket.active&&
-  !ad->wr_iot_config_edca_pending.ticket.poisoned&&
-  !ad->wr_iot_config_edca_pending.ticket.generation;
+ ready=wr_iot_mcu_config_timing_ready(ad,ticket);
  if(ready){
   result=wr_iot_config_slot_mmio(ad,expected);
   if(!result)ad->wr_iot_boot_failed=1;

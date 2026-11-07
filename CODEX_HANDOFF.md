@@ -15249,3 +15249,13 @@ ASan/UBSan. CI fixture added. Next share timing ownership exclusion with slot,
 then bind private EDCA builder without firmware TX; ensure every partial-write
 failure prevents config success. Normal driver/runtime remain unverified.
 
+# Direct EDCA owner/MMIO binding — 2026-11-07
+
+New `prepare-mcu-config-edca-direct.py` applied successfully to retained isolated
+candidate. Private EDCA builder goes through shared timing ownership and six
+register plan before allocation; ordinary SDK route preserved. Composed real
+builder/owner/MMIO host tests pass under ASan/UBSan with injected registers.
+CI sequence updated. Next fresh target compile and audit complete startup
+path, firmware-side writers and remaining checked-ID scan budget. No runtime
+claim and no removal of normal-admission refusal.
+

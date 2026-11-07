@@ -15878,3 +15878,15 @@ corrupted writes, MAC drift and pre-write snapshot failure. CI runs this fixture
 No EDCA ownership/builder binding, target or runtime proof yet. Partial write
 failure must be retained by the future owner wrapper; no rollback claim.
 
+# Direct private EDCA configuration — 2026-11-07
+
+Manifest-checked EDCA generation now installs the plan/MMIO/owner path and
+routes private CmdEdcaParameterSet before allocation. Shared timing readiness
+keeps the same task/ticket/sender/history exclusion as slot. Actual generated
+builder and real owner/MMIO pass host ASan/UBSan with injected registers:
+no private firmware TX/allocation/journal, repeated writes, malformed requests,
+prior timing history, partial failure and unchanged ordinary SDK transport.
+CI layer added after direct slot. Target/full fresh generation still pending;
+retained local source predates other base changes and tests substitute updated
+readiness in memory. No normal scan/data admission or runtime acceptance.
+
