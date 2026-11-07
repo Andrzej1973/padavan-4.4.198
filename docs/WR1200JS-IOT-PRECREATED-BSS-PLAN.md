@@ -309,6 +309,12 @@ These runs do not cover the newer local credential/observation helpers.
 
 ## Cold generator binding
 
+AP startup feature evidence extension: check-task-config now supports exact
+ap/ap.c Kbuild command/preprocessing and records AIRPLAY_SUPPORT, MBSS_SUPPORT
+and WH_EZ_SETUP. Optional merged build emits merged-ap-startup-config.json.
+This closes a reporting gap; no macro value or OFF/RF acceptance is assumed
+before the actual target output is inspected. CLI and shell syntax checks pass.
+
 Default-OFF consistency: generic request parser now treats an empty persistent
 enable value as OFF, matching cold reader. Control-record decoder explicitly
 requires wire enable0/1 so malformed empty commands remain rejected without
@@ -388,6 +394,12 @@ this query, or call it a secret-free loaded-PMK proof. Effective guard and BSS
 index selection must be verified; query alone also does not bind open lifetime
 or prevent a setter after the observation. Prefer internal compare-only proof
 with explicit request ownership instead of exporting/logging loaded secrets.
+
+WEXT fallback checked in actual os/linux/ap_ioctl.c:267: SIOCGIWENCODE is
+explicitly EOPNOTSUPP. No SIOCGIWENCODEEXT/SIOCGIWAUTH read handler exists in
+this AP dispatch; unsupported dispatch cannot be treated as a working key
+query. This closes the standard-WEXT readback alternative for this source,
+without changing firmware commands or weakening stale-ACK protection.
 
 User override audit at pinned c25283e: ralink.c appends AP.dat through
 common_ex.c:511 load_user_config after generated fields. Vendor
