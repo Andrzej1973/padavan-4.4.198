@@ -23,8 +23,10 @@ prefix = r'''
 #define DBGPRINT(...) ((void)0)
 typedef unsigned char UCHAR;
 typedef int BOOLEAN;
-typedef struct {
+typedef struct adapter {
  unsigned wr_iot_boot_active,wr_iot_boot_failed;
+ struct {void (*ChipSwitchChannel)(struct adapter *,UCHAR,BOOLEAN);} chipOps;
+ struct {unsigned hif_type;} chipCap;
  struct {unsigned BBPCurrentBW,Channel,TxStream,RxStream;} CommonCfg;
  struct {unsigned Channel;} LatchRfRegs;
 } RTMP_ADAPTER;
@@ -59,6 +61,41 @@ int main(void){
  puts("PASS channel latch: private command failure/preexisting failure preserves old latch and suppresses later commands; ordinary SDK behavior and both bandwidth branches preserved; MCU injected");
 }
 '''
+outer_path = a.candidate / 'hw_ctrl/cmm_asic_mt.c'
+outer_source = outer_path.read_text()
+outer_start = outer_source.index('VOID AsicSwitchChannel(')
+outer = outer_source[outer_start:outer_source.index('\n}\n', outer_start) + 3]
+caller = 'if(pAd->wr_iot_boot_active&&pAd->wr_iot_boot_failed)return;' in outer
+assert caller, 'Expected installed channel-caller failure guard'
+if caller:
+    body += r'''
+#define VOID void
+#define UINT32 unsigned
+#define HIF_MT 1
+#define RMAC_CHFREQ 0
+#define RTMP_TEST_FLAG(...) 0
+static unsigned reads,writes,agc;
+#define RTMP_IO_READ32(ad,reg,out) (reads++,*(out)=0)
+#define RTMP_IO_WRITE32(ad,reg,value) ((void)(value),writes++)
+#define RTMPSetAGCInitValue(ad,bw) ((void)(bw),agc++)
+''' + outer
+    tail = tail.replace(' puts("PASS channel latch:', r'''
+ for(unsigned active=0;active<2;active++)
+ for(unsigned scan=0;scan<2;scan++)
+ for(mode=0;mode<6;mode++){
+  RTMP_ADAPTER ad={0};ad.wr_iot_boot_active=active;
+  ad.wr_iot_boot_failed=mode==4;ad.CommonCfg.BBPCurrentBW=0;
+  ad.CommonCfg.Channel=3;ad.CommonCfg.TxStream=2;ad.CommonCfg.RxStream=1;
+  ad.LatchRfRegs.Channel=11;ad.chipCap.hif_type=HIF_MT;
+  ad.chipOps.ChipSwitchChannel=mode==5?0:mt7603_switch_channel;
+  channels=powers=failures=reads=writes=agc=0;expected_bw=0;
+  AsicSwitchChannel(&ad,6,scan);
+  unsigned follow=!active||mode==0;
+  assert(reads==follow&&writes==follow&&agc==follow);
+  if(active&&mode==5)assert(failures==1&&ad.wr_iot_boot_failed&&!channels&&!powers);
+ }
+ puts("PASS outer channel caller: real chip wrapper failure suppresses register/AGC side effects; missing callback fails private owner; ordinary SDK route preserved");
+ puts("PASS channel latch:''')
 with tempfile.TemporaryDirectory(prefix='wr-iot-channel-latch-') as temp:
     source = Path(temp) / 'check.c'
     exe = Path(temp) / 'check'

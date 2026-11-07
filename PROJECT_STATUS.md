@@ -1,3 +1,24 @@
+## Sol: outer channel caller stops after private configuration refusal
+
+Added mcu-config-channel-caller after channel-latch. MT_MAC build selects
+hw_ctrl/cmm_asic_mt.o (SDK os/linux/Makefile.6); its AsicSwitchChannel used
+to continue RMAC_CHFREQ writes and AGC after a failed chip callback. Private
+bootstrap now refuses preexisting failure or missing callback before work,
+and returns after a callback records failure. Ordinary SDK behavior retained.
+ASan/UBSan fixture composes real generated chip wrapper and outer caller;
+channel failure, retained failure, power failure, preexisting failure and
+missing callback all prevent post-callback MMIO/AGC; scan/non-scan and ordinary
+paths covered. Checker requires caller guard, preventing accidental skipped
+coverage. Shell syntax/diff checks pass; target/image/runtime remain unverified.
+No ID reuse, normal data admission or router mutation introduced. Temporary
+test output auto-removed; retained ~15MB candidate needed for unfinished work.
+Publication2278e415 verified remotely; standard840/run42375247494 PENDING.
+Standard837/run42368416660 SUCCESS. No equivalent optional03f5dc6 existed in
+recent history; queued peer82/iot optional841/run42375303427 with exact requested
+03f5dc6b1b58b738e5c76edf3e08a140f1cc2837, dispatch2278e415. Verify source
+artifact before attributing results. Other required historical optional cases
+still need queue review; no duplicate or periodic wakeup created.
+
 ## Sol: private channel latch now follows successful config commands
 
 Added isolated mcu-config-channel-latch stage after direct EDCA. The private
