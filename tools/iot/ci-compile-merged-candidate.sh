@@ -311,6 +311,8 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
     mcu-config-transport mcu-config-rf-pending; do
     python3 "tools/iot/check-$fixture.py" "$merged"
   done
+  python3 tools/iot/audit-mcu-ack-intent.py "$pristine" --candidate "$merged" --check \
+    > "$results/mcu-ack-intent-audit.json"
   python3 tools/iot/check-mcu-config-init-owner.py "$merged"
   python3 tools/iot/check-mcu-config-channel-latch.py "$merged"
   python3 tools/iot/check-mcu-config-channel-scan.py "$merged"

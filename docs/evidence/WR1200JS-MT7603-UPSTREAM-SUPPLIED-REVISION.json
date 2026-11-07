@@ -1,0 +1,98 @@
+{
+  "revision": "32faca66bd3f6aa7ec4212d20c7b2d45657fab10",
+  "files": {
+    "mt7603/mcu.c": {
+      "url": "https://kernel.googlesource.com/pub/scm/linux/kernel/git/mtd/linux/+/32faca66bd3f6aa7ec4212d20c7b2d45657fab10/drivers/net/wireless/mediatek/mt76/mt7603/mcu.c",
+      "sha256": "e06e2703f9120c65d043b061431ad071ab4105a3559dd53e8e524d233cec13aa",
+      "relevant_lines": [
+        {
+          "line": 18,
+          "text": "int query, int *wait_seq)"
+        },
+        {
+          "line": 20,
+          "text": "int hdrlen = dev->mcu_running ? sizeof(struct mt7603_mcu_txd) : 12;"
+        },
+        {
+          "line": 22,
+          "text": "struct mt7603_mcu_txd *txd;"
+        },
+        {
+          "line": 23,
+          "text": "u8 seq;"
+        },
+        {
+          "line": 28,
+          "text": "seq = ++mdev->mmio.mcu.msg_seq & 0xf;"
+        },
+        {
+          "line": 30,
+          "text": "seq = ++mdev->mmio.mcu.msg_seq & 0xf;"
+        },
+        {
+          "line": 32,
+          "text": "txd = (struct mt7603_mcu_txd *)skb_push(skb, hdrlen);"
+        },
+        {
+          "line": 49,
+          "text": "txd->ext_cid_ack = 1;"
+        },
+        {
+          "line": 54,
+          "text": "if (wait_seq)"
+        },
+        {
+          "line": 55,
+          "text": "*wait_seq = seq;"
+        },
+        {
+          "line": 78,
+          "text": "skb = mt76_mcu_get_response(&dev->mt76, expires);"
+        },
+        {
+          "line": 129,
+          "text": "int cur_len = min_t(int, 4096 - sizeof(struct mt7603_mcu_txd),"
+        }
+      ]
+    },
+    "mt7603/mcu.h": {
+      "url": "https://kernel.googlesource.com/pub/scm/linux/kernel/git/mtd/linux/+/32faca66bd3f6aa7ec4212d20c7b2d45657fab10/drivers/net/wireless/mediatek/mt76/mt7603/mcu.h",
+      "sha256": "fd72679567aacc545b3b612390cb4e16ab284384f997ea5ef53c1f9b44d9bf82",
+      "relevant_lines": [
+        {
+          "line": 6,
+          "text": "struct mt7603_mcu_txd {"
+        },
+        {
+          "line": 10,
+          "text": "u8 cid;"
+        },
+        {
+          "line": 12,
+          "text": "u8 set_query;"
+        },
+        {
+          "line": 13,
+          "text": "u8 seq;"
+        },
+        {
+          "line": 16,
+          "text": "u8 ext_cid;"
+        },
+        {
+          "line": 18,
+          "text": "u8 ext_cid_ack;"
+        },
+        {
+          "line": 28,
+          "text": "u8 seq;"
+        },
+        {
+          "line": 106,
+          "text": "return mt76_mcu_msg_alloc(data, sizeof(struct mt7603_mcu_txd),"
+        }
+      ]
+    }
+  },
+  "runtime_verified": false
+}

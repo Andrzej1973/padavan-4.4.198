@@ -1,0 +1,731 @@
+{
+  "driver": "/home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3",
+  "source_sha256": {
+    "mcu/andes_mt.c": "680db15bb22ad5bf48283fd3e415a0ada0e4f1f054a401f32b9d2a3c9c60baee",
+    "mcu/andes_core.c": "63bad3b746c781cf98dd99f1f0446ff23816dd0f3dbc5e8e9df66dea74a16017",
+    "include/mcu/andes_mt.h": "818bd8d6010a5cafdd4e3927f8505a346f4628b8bb61b949e9d3c8d87aa00fe2"
+  },
+  "candidate_header_equal": true,
+  "candidate_source_sha256": {
+    "mcu/andes_core.c": "6522635b187e5ecbb12a6183397bd5523c29f4e6f7a2a378ef2b71c9e68b07ab",
+    "mcu/andes_mt.c": "f096af769f257abd4d8c9aa5b8d5bc47d21aa1fbe5cbf28748bfc103d81972e6",
+    "include/mcu-sequence-reservation.h": "439a592559caae64fc91cab58fdd876bc11ca5f6a41f5f9551536d5297ada643"
+  },
+  "initializers": [
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 1,
+      "line": 324,
+      "command": "INIT_CMD_ACCESS_REG",
+      "extended_command": "EXT_CMD_NA",
+      "need_wait": "FALSE",
+      "need_rsp": "FALSE",
+      "retransmit": "FALSE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 2,
+      "line": 367,
+      "command": "INIT_CMD_ACCESS_REG",
+      "extended_command": "EXT_CMD_NA",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 3,
+      "line": 810,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_SEC_ADDREMOVE_KEY",
+      "need_wait": "FALSE",
+      "need_rsp": "TRUE",
+      "retransmit": "FALSE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 4,
+      "line": 846,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_AP_PWR_SAVING_CAPABILITY",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 5,
+      "line": 880,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_PS_RETRIEVE_START",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 6,
+      "line": 913,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_PWR_SAVING",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 7,
+      "line": 941,
+      "command": "MT_RESTART_DL_REQ",
+      "extended_command": "EXT_CMD_NA",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 8,
+      "line": 986,
+      "command": "MT_PATCH_START_REQ",
+      "extended_command": "EXT_CMD_NA",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 9,
+      "line": 988,
+      "command": "MT_TARGET_ADDRESS_LEN_REQ",
+      "extended_command": "EXT_CMD_NA",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 10,
+      "line": 1021,
+      "command": "MT_FW_SCATTER",
+      "extended_command": "EXT_CMD_NA",
+      "need_wait": "FALSE",
+      "need_rsp": "FALSE",
+      "retransmit": "FALSE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 11,
+      "line": 1093,
+      "command": "MT_PATCH_FINISH_REQ",
+      "extended_command": "EXT_CMD_NA",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 12,
+      "line": 1118,
+      "command": "MT_FW_START_REQ",
+      "extended_command": "EXT_CMD_NA",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 13,
+      "line": 1163,
+      "command": "CMD_CH_PRIVILEGE",
+      "extended_command": "EXT_CMD_NA",
+      "need_wait": "FALSE",
+      "need_rsp": "FALSE",
+      "retransmit": "FALSE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 14,
+      "line": 1250,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_MULTIPLE_REG_ACCESS",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 15,
+      "line": 1301,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_MULTIPLE_REG_ACCESS",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 16,
+      "line": 1361,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_MULTIPLE_REG_ACCESS",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 17,
+      "line": 1419,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_MULTIPLE_REG_ACCESS",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 18,
+      "line": 1456,
+      "command": "CMD_ACCESS_REG",
+      "extended_command": "EXT_CMD_NA",
+      "need_wait": "FALSE",
+      "need_rsp": "FALSE",
+      "retransmit": "FALSE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 19,
+      "line": 1498,
+      "command": "CMD_ACCESS_REG",
+      "extended_command": "EXT_CMD_NA",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 20,
+      "line": 1533,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_RF_REG_ACCESS",
+      "need_wait": "FALSE",
+      "need_rsp": "FALSE",
+      "retransmit": "FALSE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 21,
+      "line": 1576,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_RF_REG_ACCESS",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 22,
+      "line": 1691,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_RF_TEST",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 23,
+      "line": 1727,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_RF_TEST",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 24,
+      "line": 1767,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_RADIO_ON_OFF_CTRL",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 25,
+      "line": 1811,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_WIFI_RX_DISABLE",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 26,
+      "line": 1843,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_ID_NOA_OFFLOAD_CTRL",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 27,
+      "line": 1967,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_CHANNEL_SWITCH",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 28,
+      "line": 2011,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_FLUSH_FRAME_WCID",
+      "need_wait": "FALSE",
+      "need_rsp": "FALSE",
+      "retransmit": "FALSE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 29,
+      "line": 2060,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_NIC_CAPABILITY",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 30,
+      "line": 2086,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_FW_LOG_2_HOST",
+      "need_wait": "FALSE",
+      "need_rsp": "FALSE",
+      "retransmit": "FALSE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 31,
+      "line": 2164,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_THERMAL_PROTECT",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 32,
+      "line": 2206,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_ID_BCN_UPDATE",
+      "need_wait": "FALSE",
+      "need_rsp": "FALSE",
+      "retransmit": "FALSE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 33,
+      "line": 3367,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_EFUSE_BUFFER_MODE",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 34,
+      "line": 3414,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_SET_TX_POWER_CTRL",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 35,
+      "line": 3601,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_GET_THEMAL_SENSOR",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 36,
+      "line": 3604,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_GET_THEMAL_SENSOR",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 37,
+      "line": 3639,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_LED_CTRL",
+      "need_wait": "FALSE",
+      "need_rsp": "FALSE",
+      "retransmit": "FALSE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 38,
+      "line": 3700,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_LED_CTRL",
+      "need_wait": "FALSE",
+      "need_rsp": "FALSE",
+      "retransmit": "FALSE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 39,
+      "line": 3829,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_ID_PWR_MGT_BIT_WIFI",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 40,
+      "line": 3862,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_PM_STATE_CTRL",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 41,
+      "line": 3888,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_ID_EDCA_SET",
+      "need_wait": "FALSE",
+      "need_rsp": "FALSE",
+      "retransmit": "FALSE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 42,
+      "line": 3920,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_ID_SLOT_TIME_SET",
+      "need_wait": "FALSE",
+      "need_rsp": "FALSE",
+      "retransmit": "FALSE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 43,
+      "line": 3954,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_ID_CONFIG_INTERNAL_SETTING",
+      "need_wait": "FALSE",
+      "need_rsp": "FALSE",
+      "retransmit": "FALSE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 44,
+      "line": 4053,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_ID_PACKET_FILTER",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 45,
+      "line": 4107,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_ID_WAKEUP_OPTION",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 46,
+      "line": 4139,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_ID_PACKET_FILTER",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 47,
+      "line": 4178,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_ID_PACKET_FILTER",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 48,
+      "line": 4200,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_ID_PACKET_FILTER",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 49,
+      "line": 4257,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_ID_WAKEUP_OPTION",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 50,
+      "line": 4306,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_ID_AC_QUEUE_CONTROL",
+      "need_wait": "FALSE",
+      "need_rsp": "FALSE",
+      "retransmit": "FALSE"
+    },
+    {
+      "path": "mcu/andes_rlt.c",
+      "initializer_index": 1,
+      "line": 864,
+      "command": "CMD_BURST_WRITE",
+      "extended_command": "EXT_CMD_NA",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_rlt.c",
+      "initializer_index": 2,
+      "line": 866,
+      "command": "CMD_BURST_WRITE",
+      "extended_command": "EXT_CMD_NA",
+      "need_wait": "FALSE",
+      "need_rsp": "FALSE",
+      "retransmit": "FALSE"
+    },
+    {
+      "path": "mcu/andes_rlt.c",
+      "initializer_index": 3,
+      "line": 933,
+      "command": "CMD_BURST_READ",
+      "extended_command": "EXT_CMD_NA",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_rlt.c",
+      "initializer_index": 4,
+      "line": 995,
+      "command": "CMD_RANDOM_READ",
+      "extended_command": "EXT_CMD_NA",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_rlt.c",
+      "initializer_index": 5,
+      "line": 1053,
+      "command": "CMD_RANDOM_READ",
+      "extended_command": "EXT_CMD_NA",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_rlt.c",
+      "initializer_index": 6,
+      "line": 1115,
+      "command": "CMD_READ_MODIFY_WRITE",
+      "extended_command": "EXT_CMD_NA",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_rlt.c",
+      "initializer_index": 7,
+      "line": 1117,
+      "command": "CMD_READ_MODIFY_WRITE",
+      "extended_command": "EXT_CMD_NA",
+      "need_wait": "FALSE",
+      "need_rsp": "FALSE",
+      "retransmit": "FALSE"
+    },
+    {
+      "path": "mcu/andes_rlt.c",
+      "initializer_index": 8,
+      "line": 1174,
+      "command": "CMD_READ_MODIFY_WRITE",
+      "extended_command": "EXT_CMD_NA",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_rlt.c",
+      "initializer_index": 9,
+      "line": 1176,
+      "command": "CMD_READ_MODIFY_WRITE",
+      "extended_command": "EXT_CMD_NA",
+      "need_wait": "FALSE",
+      "need_rsp": "FALSE",
+      "retransmit": "FALSE"
+    },
+    {
+      "path": "mcu/andes_rlt.c",
+      "initializer_index": 10,
+      "line": 1244,
+      "command": "CMD_RANDOM_WRITE",
+      "extended_command": "EXT_CMD_NA",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_rlt.c",
+      "initializer_index": 11,
+      "line": 1246,
+      "command": "CMD_RANDOM_WRITE",
+      "extended_command": "EXT_CMD_NA",
+      "need_wait": "FALSE",
+      "need_rsp": "FALSE",
+      "retransmit": "FALSE"
+    },
+    {
+      "path": "mcu/andes_rlt.c",
+      "initializer_index": 12,
+      "line": 1299,
+      "command": "CMD_RANDOM_WRITE",
+      "extended_command": "EXT_CMD_NA",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_rlt.c",
+      "initializer_index": 13,
+      "line": 1301,
+      "command": "CMD_RANDOM_WRITE",
+      "extended_command": "EXT_CMD_NA",
+      "need_wait": "FALSE",
+      "need_rsp": "FALSE",
+      "retransmit": "FALSE"
+    },
+    {
+      "path": "mcu/andes_rlt.c",
+      "initializer_index": 14,
+      "line": 1500,
+      "command": "CMD_POWER_SAVING_OP",
+      "extended_command": "EXT_CMD_NA",
+      "need_wait": "FALSE",
+      "need_rsp": "FALSE",
+      "retransmit": "FALSE"
+    },
+    {
+      "path": "mcu/andes_rlt.c",
+      "initializer_index": 15,
+      "line": 1551,
+      "command": "CMD_FUN_SET_OP",
+      "extended_command": "EXT_CMD_NA",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_rlt.c",
+      "initializer_index": 16,
+      "line": 1553,
+      "command": "CMD_FUN_SET_OP",
+      "extended_command": "EXT_CMD_NA",
+      "need_wait": "FALSE",
+      "need_rsp": "FALSE",
+      "retransmit": "FALSE"
+    },
+    {
+      "path": "mcu/andes_rlt.c",
+      "initializer_index": 17,
+      "line": 1586,
+      "command": "CMD_CALIBRATION_OP",
+      "extended_command": "EXT_CMD_NA",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_rlt.c",
+      "initializer_index": 18,
+      "line": 1621,
+      "command": "CMD_LOAD_CR",
+      "extended_command": "EXT_CMD_NA",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_rlt.c",
+      "initializer_index": 19,
+      "line": 1666,
+      "command": "CMD_SWITCH_CHANNEL_OP",
+      "extended_command": "EXT_CMD_NA",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    },
+    {
+      "path": "mcu/andes_rlt.c",
+      "initializer_index": 20,
+      "line": 1697,
+      "command": "CMD_SWITCH_CHANNEL_OP",
+      "extended_command": "EXT_CMD_NA",
+      "need_wait": "TRUE",
+      "need_rsp": "TRUE",
+      "retransmit": "TRUE"
+    }
+  ],
+  "explicit_no_wait_with_ack": [
+    {
+      "path": "mcu/andes_mt.c",
+      "initializer_index": 3,
+      "line": 810,
+      "command": "EXT_CID",
+      "extended_command": "EXT_CMD_SEC_ADDREMOVE_KEY",
+      "need_wait": "FALSE",
+      "need_rsp": "TRUE",
+      "retransmit": "FALSE"
+    }
+  ],
+  "limits": "Unpreprocessed C inventory includes feature/other-chip branches; dynamic flags and effective board reachability need separate review.",
+  "runtime_verified": false,
+  "host_check": "PASS actual candidate ledger: repeated host-only11/13-channel models exhaust despite zero occupied IDs; timeout quarantined, cancelled allocation retained. Not device restart or full channel execution.\nPASS actual vendor TXD 96 combinations; 10000 sequence-zero events take unsolicited path without completing pending sequence7; matching reply completes it. Locks, transport and event freeing injected/not exercised."
+}
