@@ -41,3 +41,22 @@ for; owner release is separate from PCI/DMA safety and normal data promotion.
 No outer gate removed, no router commands, no production/image/runtime proof.
 Temporary generated tree (~14MB) removed automatically. Existing source input
 retained for unfinished work. Owner docs/reference preserved.
+
+## Nested coexistence scan admission (2026-11-07)
+
+Pinned SDK `APOverlappingBSSScan` in `ap/ap.c` directly calls
+`RTMPEnableRxTx`; it can also initialize/enable IRQs when startup is clear.
+Outer `rt28xx_init` calls it under DOT11N_DRAFT3 when coexistence is enabled
+and forty-MHz intolerance is not set. This is independent of the automatic
+channel-selection branch. Guarding only outer IRQ/RXTX/AP/radio calls leaves
+this nested startup admission path open for a fixed-channel configuration.
+
+The config-init owner generator now refuses before APOverlappingBSSScan while
+its private configuration owner is unfinished, using the existing
+wr_config_err/ATE unwind. The source-order checker requires this site too.
+Ordinary startup and coexistence settings are unchanged; the refusal is not
+successful IoT initialization. Executing the actual generator admission loop
+on the retained init source and compiling its resulting coexistence entry
+with ASan/UBSan confirmed unfinished-private refusal and ordinary admission.
+The retained older source was used only for this bounded fragment test; a
+fresh generated target build remains required.

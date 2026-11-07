@@ -1,3 +1,36 @@
+## Sol: nested coexistence scan admission gap closed
+
+Confirmed SDK APOverlappingBSSScan directly enables RX/TX and conditionally
+IRQs; outer fixed-channel startup could reach it without passing the guarded
+autochannel branch. Config-init generator now uses existing wr_config_err
+refusal before that call while wr_config_started; verifier checks the site,
+manifest records early_overlap_scan_refused. Normal coexistence settings and
+ordinary route preserved. Actual generator admission loop on retained source
+plus ASan/UBSan compiled entry check pass; fresh target generation still needed.
+Scope audit records exact bounded test and nested call evidence. Command-class
+ACK partition audit also records current RX completing wrong-class packets as
+failure, so simply widening per-class budgets is not a safe complete fix.
+Standard839 successful; no equivalent optionalf7d51ba found in recent history,
+queued peer82/iot exactf7d51ba run42376468852 through dispatchc4e2973. Earlier
+optional841 target receipt remains local for next coherent publication.
+No router operations, new large artifacts or manual scratch deletion; tiny
+entry-test temporary directory auto-removed; docs/reference untouched.
+
+## Sol: optional841 independently verified target artifacts
+
+Run42375303427 completed SUCCESS. Read artifact13575149767 entirely in memory;
+verified target result repository_revision03f5dc6b1b58b738e5c76edf3e08a140f1cc2837,
+peer82, and baseline/WSC/reload module byte counts, SHA256 and ELF32 LE MIPS
+relocatable headers. WSC/reload baseline_report_sha256 matches the exact
+baseline report bytes. All reports target_compiled=true, production_installed
+and runtime_verified=false. Compact evidence WR1200JS-RUN-42375303427-TARGET.json.
+Later channel latch/caller/scan patches and current diagnostic gate are not
+covered by this earlier source. No claim of image install, boot or ACK reuse.
+No ZIP/module written to disk; no new retained large scratch. New diagnostic
+package c4e2973 pushed above28d13172 after host parser/provenance controls pass;
+remote SHA and automatic CI creation checked separately. Keep this receipt
+local for next coherent publication; preserve docs/reference.
+
 ## Sol: bind channel guards to actual target translation units
 
 Added check-channel-target-config.py for mt7603, cmm_asic_mt, ap_autoChSel and

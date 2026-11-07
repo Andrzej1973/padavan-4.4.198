@@ -147,3 +147,14 @@ existing stale-ACK tests. No upstream code was transplanted.
 
 Sources: [MT7603 MCU](https://github.com/openwrt/mt76/blob/0936617dc529ff9da0385221d3fa6de732231177/mt7603/mcu.c),
 [common MCU sender](https://github.com/openwrt/mt76/blob/0936617dc529ff9da0385221d3fa6de732231177/mcu.c).
+
+## Command-class partitioning is not an immediate reuse fix
+
+Common extended result byte0 distinguishes channel, TX-power and EFUSE
+commands. However, both current checked RX paths set response_done and default
+to failure on the first same-sequence packet before testing that echo. An old
+response of another class therefore terminates the new waiter as failed;
+merely partitioning retirement masks would introduce false failures. Also,
+repeating the same class still has a finite15-ID budget. Any class-aware
+strategy must first establish admission/mismatch handling for every RX path
+and count all startup/overlap/restore calls. No partition or reuse enabled.
