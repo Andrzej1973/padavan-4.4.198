@@ -237,3 +237,20 @@ of consumed proof always refuses. Added host CI fixture. This token is not yet
 bound to a production ioctl/backend; it does not turn injected readback into
 hardware evidence. Integration must derive request identity from existing
 activation transaction and match requested credentials independently.
+
+## Cold input separate from runtime OFF
+
+precreated-profile-request.h reads/copies validated SSID/key even when runtime
+IoT is OFF. Runtime request.h keeps its original OFF behavior (no credentials
+or network required). New reader defaults empty enable to OFF, rejects invalid
+credentials without writing output, uses existing shared WPA2/AES validator and
+copies borrowed NVRAM buffers before next read. No persistence, radio action,
+implicit credentials or fallback added. Empty unprovisioned keys still refuse;
+production startup must not bind that refusal in a way that breaks Main/Guest.
+Initial default provisioning remains a separate unresolved integration item.
+
+ASan/UBSan host fixture passes OFF/ON/empty-enable, shared-buffer mutation,
+invalid input output preservation and old runtime OFF regression. Added to CI
+host fixtures; current edit local. This is a cold-input building block, not a
+startup hook or evidence of actual loaded ra2. Next bind provisioned cold input
+to precreated-profile, handling unprovisioned factory configuration safely.
