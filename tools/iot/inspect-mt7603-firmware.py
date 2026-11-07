@@ -8,6 +8,8 @@ from pathlib import Path
 
 p = argparse.ArgumentParser(description=__doc__)
 p.add_argument('driver', type=Path)
+p.add_argument('--command-strings', action='store_true',
+               help='Inventory command-related ASCII strings at file offsets; not code or protocol proof')
 a = p.parse_args()
 images = []
 for filename, symbol in (('mt7603_firmware.h', 'MT7603_FirmwareImage'),
@@ -39,6 +41,17 @@ for filename, symbol in (('mt7603_firmware.h', 'MT7603_FirmwareImage'),
         'build_date': image[-19:-4].decode('ascii').rstrip('\0'),
         'crc_verified': False,
     })
+    if a.command_strings:
+        images[-1]['command_strings'] = [
+            {'file_offset': match.start(), 'text': match.group().decode('ascii')}
+            for match in re.finditer(rb'[ -~]{6,}', image[:-36])
+            if re.search(rb'cmd|event|queue|mail|dispatch|response|channel|power',
+                         match.group(), re.I)
+        ]
+        images[-1]['string_scope'] = (
+            'Printable runs in embedded bytes before trailer; offsets are file offsets, '
+            'not execution addresses. Strings do not establish instruction decoding, '
+            'reachability, firmware ordering or ACK uniqueness.')
 print(json.dumps({
     'images': images,
     'scope': 'Embedded initializer identity and Method1 trailer lengths only; '

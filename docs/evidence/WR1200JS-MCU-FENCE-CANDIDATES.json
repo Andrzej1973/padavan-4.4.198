@@ -1,0 +1,25 @@
+{
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "source_path": "mcu/andes_mt.c",
+  "source_sha256": "680db15bb22ad5bf48283fd3e415a0ada0e4f1f054a401f32b9d2a3c9c60baee",
+  "checks": {
+    "CmdFlushFrameByWlanIdx": {
+      "line": 1997,
+      "initializer": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_QUERY, EXT_CMD_FLUSH_FRAME_WCID, FALSE, 0, FALSE, FALSE, 0, NULL, NULL);",
+      "function_sha256": "63f98951839d2b071e53b46b07d3c9525494c02be4597d423e33a86bf5d326f1"
+    },
+    "CmdNicCapability": {
+      "line": 2047,
+      "initializer": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_QUERY, EXT_CMD_NIC_CAPABILITY, TRUE, 0, TRUE, TRUE, 28, NULL, EventExtNicCapability);",
+      "function_sha256": "030cc3c0b1581c47c9f3c2dcc891f290ea7606e2c97bf316eae512cf53f270ff"
+    }
+  },
+  "findings": {
+    "frame_flush": "Per-WCID frame operation requests no response; it cannot serve as a host-observed MCU completion fence.",
+    "nic_capability": "Response prints date/version; no predecessor execution identity, generation cookie or ordering contract is established by this host builder/callback.",
+    "tx_header": "EXT_CID_OPTION_NEED_ACK follows need_rsp; requesting ACK does not itself establish cross-command ordering."
+  },
+  "limits": "Bounded host SDK source audit; no firmware implementation examined, no proof that every possible fence is absent.",
+  "reuse_enabled": false,
+  "runtime_verified": false
+}
