@@ -1,5 +1,34 @@
 # WR1200JS separate IoT Wi-Fi implementation contract
 
+## Current acceptance boundary — 2026-11-07
+
+IoT remains **incomplete and not accepted for production**. Preferred runtime
+strategy is cold reservation of BSS2/ra2, followed by virtual-interface toggles
+without physical radio restart or channel scan. ACK retirement/stale protection
+is unchanged; unknown ROM ACK reuse remains a separate unresolved issue.
+
+Evidence is scoped as follows:
+
+| Requirement | Current evidence | Remaining gate |
+|---|---|---|
+| Cold third-BSS profile generation | Prepared ralink.c MIPS object independently checked at dde26a2c, ABI42400479459 success | Complete linked image and loaded driver profile |
+| Default OFF and request parsing | Host sanitizer tests; empty persistent enable OFF, wire/HTTP require explicit enable | Target verification of latest a18b8fe7 and persistence integration |
+| Virtual BSS lifecycle | Extracted vendor/candidate and injected backend tests | Actual request transport, configuration ownership and backend calls |
+| Main/Guest continuity, no restart/scan | Source traces and host fixtures | Integrated implementation and physical WR1200JS tests |
+| IPv4/IPv6 isolation, DHCP/DNS | Host planner/network fixtures | Full production backend, image and device packet tests |
+| Safe shutdown/release | Isolated ownership/recovery code and target subsets | Complete callback/task/PCI/DMA/IRQ quiescence acceptance |
+
+The key matcher, one-use open proof and precreated activation entry have no
+production call sites yet. Existing WEXT cannot read the needed key identity;
+separate query and UP calls do not share an RTNL lease. Neither SSID equality,
+a mutable .dat file nor a green build replaces a loaded configuration proof.
+Ordinary firmware continues to exclude the experimental RC candidate while
+these gates are open. This is an unfinished integration boundary, not an
+optional board switch that can satisfy mandatory IoT release inclusion.
+
+Details: [precreated lifecycle plan](WR1200JS-IOT-PRECREATED-BSS-PLAN.md) and
+[cold MIPS evidence](evidence/WR1200JS-IOT-COLD-PROFILE-TARGET-ABI-2026-11-07.json).
+
 ## Current acceptance boundary — 2026-11-01
 
 The isolated peer82 candidate at `69a70ba8f1a96a70b3fe0c13fdd7908365be07b9`

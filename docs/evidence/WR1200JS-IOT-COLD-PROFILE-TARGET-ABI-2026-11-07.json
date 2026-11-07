@@ -12,5 +12,15 @@
   "independent_elf32_little_endian_mips_relocatable_verified": true,
   "firmware_link_verified": false,
   "runtime_verified": false,
+  "followup": {
+    "revision": "a18b8fe77b5b7a8f224a6b08f34ee42c355785e6",
+    "run_id": 42401136934,
+    "run_conclusion": "success",
+    "artifact_id": 13584928643,
+    "object_bytes": 62692,
+    "independent_zip_elf_and_sha256_verified": true,
+    "source_and_object_hashes_equal_baseline": true,
+    "runtime_verified": false
+  },
   "scope": "Prepared RC cold profile translation unit; does not prove driver request transport, runtime activation, image installation or device behavior"
 }
