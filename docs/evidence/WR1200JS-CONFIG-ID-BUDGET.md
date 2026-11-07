@@ -211,3 +211,23 @@ ASan/UBSan on the retained older candidate: both pass, including the deliberatel
 unprotected same-class replay controls and protected exhausted-ledger refusal.
 These tests establish host parser/ledger behavior, not firmware duplicate
 lifetime, fresh candidate generation, image integration or device acceptance.
+
+## Exact E2 common-result sequence byte copy (2026-11-07)
+
+Static decoding of exact E2 SHAe897b5ca... locates common result helper106154.
+At106164 it loads request byte7 into s4; at1061b0 it stores s4 into output
+byte5. Independently checked LBI/SBI opcode/register/offset fields match that
+decoding: no4bit mask appears in those instructions. This is stronger than
+the host wire declaration alone, but is only this helper's byte-copy path.
+Intervening out-of-image calls, input queue ownership and output delivery still
+need established contracts. It does not yet prove end-to-end acceptance of
+IDs16..255, the E1/ROM loader path, reserved-ID semantics or duplicate lifetime.
+No sequence domain change is authorized by this partial evidence alone.
+
+Possible bounded-epoch direction: establish full-byte support for the exact
+loaded firmware, then independently bound every checked command in that epoch,
+including scan/restore/recovery and runtime. A255-ID pool remains finite; it
+cannot replace sustainable reuse if any supported operation can exceed it.
+Keep existing retirement and failure behavior while investigating this option.
+Exact decoding, raw call candidates and limits are reproduced by
+inspect-mt7603-mcu-static.py and its E2 startup JSON report.
