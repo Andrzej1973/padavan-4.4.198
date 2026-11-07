@@ -309,11 +309,49 @@ These runs do not cover the newer local credential/observation helpers.
 
 ## Cold generator binding
 
+Beacon transitive audit: APUpdateBeaconFrame ap_connect.c:1720 conditionally
+calls RT28xx_UpdateBeaconToMcu under BCN_OFFLOAD_SUPPORT, then calls
+RT28xx_UpdateBeaconToAsic. Thus absence of a direct MCU call in ap_mbss.c does
+not prove ACK-free toggle. Exact AP TU BCN_OFFLOAD_SUPPORT and selected beacon
+callbacks must be inspected before declaring that property. MT AsicSetMbssMode
+also checks MAC alignment for address-mode groups; board base MAC and derived
+Main/Guest/IoT addresses need collision/alignment validation on device.
+
+Collector now includes exact ap_connect Kbuild preprocessing and reports
+BCN_OFFLOAD_SUPPORT. Optional output merged-beacon-config.json accompanies
+merged-ap-startup-config.json. Synthetic actual-host-preprocessor fixture
+passes defined/absent macro extraction; shell syntax passes. Target output
+pending, no added firmware command, ACK change or runtime readiness grant.
+
+Runtime trace refinement at pinned source: MBSS_VirtualIF_Open dispatches
+MBSS_OPEN then VIRTUAL_INF_UP and MBSS_CR_ENABLE. cmm_cfg.c:1034 invokes
+rt28xx_open only when VIRTUAL_IF_NUM is zero; nonzero path increments count
+and rebuilds beacons. DOWN at1076 calls physical close only on final reference.
+ap_cfg.c:14928 dispatches MBSS_Open directly. MBSS source has no direct scan,
+channel or Andes command call. This establishes the conditional absence of
+physical open/scan entry in the direct MBSS path while Main remains owned;
+it is not a complete transitive MCU/beacon-side-effect or concurrent-close
+proof. Existing transition/reference gates must preserve that prerequisite.
+
 AP startup feature evidence extension: check-task-config now supports exact
 ap/ap.c Kbuild command/preprocessing and records AIRPLAY_SUPPORT, MBSS_SUPPORT
 and WH_EZ_SETUP. Optional merged build emits merged-ap-startup-config.json.
 This closes a reporting gap; no macro value or OFF/RF acceptance is assumed
 before the actual target output is inspected. CLI and shell syntax checks pass.
+
+Local collector integration check: synthetic .ap.o.cmd with actual host GCC
+preprocessing, exact driver/ap/ap.c source validation and generated report
+passes MBSS/AIRPLAY presence and WH_EZ_SETUP absence assertions. Artifacts and
+command hashes emitted successfully. This validates the collector, not target
+macro values. Temporary fixture auto-removed.
+
+Existing artifact13585227318 (optional858, source1f59bdc5) macro dump review:
+all26 available .macros.txt files show MBSS_SUPPORT defined, AIRPLAY_SUPPORT
+and WH_EZ_SETUP absent. This includes channel/startup-related rtamp_init_inf
+(file channel-rtmp_init_inf-config.macros.txt), normal and feature probes.
+No ap/ap.c macro dump is present, so this is supporting evidence only and does
+not replace the newly added exact AP startup TU check. ZIP read in memory;
+no extracted artifacts retained. No runtime or later-revision claim.
 
 Default-OFF consistency: generic request parser now treats an empty persistent
 enable value as OFF, matching cold reader. Control-record decoder explicitly

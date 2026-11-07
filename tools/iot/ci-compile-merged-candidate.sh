@@ -372,6 +372,9 @@ python3 tools/iot/check-task-config.py \
 python3 tools/iot/check-task-config.py \
   --kernel "$kernel" --driver "$driver" --compiler "$compiler" \
   --unit ap --output "$results/merged-ap-startup-config.json"
+python3 tools/iot/check-task-config.py \
+  --kernel "$kernel" --driver "$driver" --compiler "$compiler" \
+  --unit ap_connect --output "$results/merged-beacon-config.json"
 if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   python3 tools/iot/check-channel-target-config.py \
     --kernel "$kernel" --driver "$driver" --compiler "$compiler" \
