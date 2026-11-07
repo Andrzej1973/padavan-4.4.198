@@ -110,3 +110,22 @@ or ordering guarantee that could retire the channel/TX-power transaction.
 The only other C call site found is commented out in ATE. Do not substitute
 this command or treat the unsolicited event as a general execution fence
 without a firmware-specific contract and independent verification.
+
+## Firmware identity boundary
+
+`inspect-mt7603-firmware.py` identifies the two embedded initializers in the
+pinned c25283e driver. E1 is `_e1_drv_tv`, build `20140313215548` (64,132 bytes);
+E2 is `CL173766_R`, build `20171110105932` (74,372 bytes). Exact header/image
+SHA256 and Method1 transfer lengths are recorded in
+`WR1200JS-MCU-FIRMWARE-IDENTITY.json`. Both parsed image hashes/lengths were
+independently matched against C-compiled initializers on the host. Compiler
+outputs were temporary and removed. CRC validity is not established by this
+check.
+
+The SDK chip-capability initialization selects E1/E2 by revision predicates;
+Method1 may instead load an external file under BIN_FILE_METHOD. This inventory
+therefore does not establish the firmware actually running on the owner's
+router, nor the firmware ACK reuse/duplicate contract. Do not transfer claims
+from a similarly named upstream image without matching its bytes and protocol.
+Optional CI now retains the pinned embedded-image identity report alongside
+its diagnostics; this report alone is not firmware execution evidence.

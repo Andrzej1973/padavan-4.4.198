@@ -1,0 +1,35 @@
+{
+  "images": [
+    {
+      "header": "include/mcu/mt7603_firmware.h",
+      "symbol": "MT7603_FirmwareImage",
+      "header_sha256": "def1a721135e8b8aaaafe6235d3d43378b7812b18e608283c624baecdfcbe8e0",
+      "image_sha256": "e1d9cabeeb7d1539ea94665f3e7527968166552e9fc28171e0af7dbaa34ac3a5",
+      "image_bytes": 64132,
+      "declared_payload_bytes": 64092,
+      "method1_transfer_bytes": 64096,
+      "trailer_bytes": 36,
+      "version_field_hex": "5f65315f6472765f7476",
+      "version": "_e1_drv_tv",
+      "build_date": "20140313215548",
+      "crc_verified": false
+    },
+    {
+      "header": "include/mcu/mt7603_e2_firmware.h",
+      "symbol": "MT7603_e2_FirmwareImage",
+      "header_sha256": "aaf9ecf2886894a53e3449323fb2b08741f74909a9470af0ec51177e6e320f3c",
+      "image_sha256": "e897b5ca7277d77778dda75450956143709e39005affaf2b682c1e7d79fc4c64",
+      "image_bytes": 74372,
+      "declared_payload_bytes": 74332,
+      "method1_transfer_bytes": 74336,
+      "trailer_bytes": 36,
+      "version_field_hex": "434c3137333736365f52",
+      "version": "CL173766_R",
+      "build_date": "20171110105932",
+      "crc_verified": false
+    }
+  ],
+  "scope": "Embedded initializer identity and Method1 trailer lengths only; external BIN_FILE_METHOD input and actual hardware selection not verified.",
+  "firmware_ack_identity_contract_verified": false,
+  "runtime_verified": false
+}

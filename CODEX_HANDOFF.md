@@ -1,3 +1,22 @@
+## Sol: identify firmware before choosing ACK reuse contract
+
+Inspected startup AP_AUTO_CH_SEL caller: current private startup is already
+refused before scan RX/TX admission. No extra duplicate outer barrier added.
+New inspect-mt7603-firmware.py inventories exact embedded initializers,
+Method1 length+CRC-byte-count/trailer consistency and SHA256. Both E1/E2
+parsed hashes and byte counts independently match host C-compiled arrays.
+E1 version_e1_drv_tv/date20140313215548; E2 CL173766_R/date20171110105932.
+Durable WR1200JS-MCU-FIRMWARE-IDENTITY.json distinguishes embedded inventory
+from external BIN_FILE_METHOD and actual hardware selection. CRC/ACK identity
+and runtime remain unverified. CI adds pinned identity diagnostic report.
+Optional841/run42375303427 observed live in Build WR1200JS firmware; isolated
+candidate compile has not yet started. Standard842/run42375445206 pending.
+No claimed target progress or duplicate dispatch. Source/diagnostic changes
+held locally for batching; docs/reference untouched. Independent C test files
+were auto-removed; no retained new large artifacts, no manual deletion.
+Next compare an exact firmware-specific completion contract, not generic seq
+field width, before considering retirement reuse; await candidate compile.
+
 ## Sol: private autochannel loop stops after failed channel command
 
 Added mcu-config-channel-scan after channel-caller. APAutoSelectChannel now

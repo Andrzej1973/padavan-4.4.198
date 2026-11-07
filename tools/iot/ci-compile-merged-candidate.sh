@@ -35,6 +35,7 @@ git -C padavan-4.4 archive --format=tar HEAD \
   trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3 \
   | tar -xf - -C "$pinned"
 pristine="$pinned/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3"
+python3 tools/iot/inspect-mt7603-firmware.py "$pristine" > "$results/pinned-mcu-firmware-identity.json"
 python3 tools/iot/check-tx-power-builder.py "$pristine"
 gcc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-pie -no-pie \
   -I tools/iot -I "$pristine/include" tools/iot/check-slot-register.c -o "$results/check-slot-register"
