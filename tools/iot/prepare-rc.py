@@ -83,30 +83,66 @@ report={'board':'WR1200JS','candidate_bss':'ra2','bridge_object_installed':True,
 report['activation_headers_staged']=True
 report['request_snapshot_header_staged']=True
 report['request_snapshot_runtime_adapter_staged']=True
-# Profile activation remains gated by an internal temporary preparation state.
+# Cold reservation is part of the one physical-radio configuration generation.
+# Runtime ON/OFF must use the already-created ra2 interface; it must never use
+# the old profile-rewrite/restart path.
 f=rc/'ralink.c';radio=f.read_text(encoding='utf-8')
-anchor='\tfclose(fp);\n\n\treturn 0;\n}\n\nint\ngen_ralink_config_2g'
-coordinated='#ifdef USE_WR_BAND_STEERING_PROFILE\n\t{\n\t\tint failed = ferror(fp);'
-if radio.count(coordinated)==1:anchor=coordinated
-elif radio.count(anchor)!=1:raise SystemExit('Profile completion anchor changed')
-radio=radio.replace('static int\ngen_ralink_config(', '#if defined(BOARD_WR1200JS)\n#include "wr-iot/profile.h"\n#endif\n\nstatic int\ngen_ralink_config(',1)
-hook=r"""#if defined(BOARD_WR1200JS)
- if (!is_aband && nvram_get_int("wr_iot_profile_t") == 1) {
-  char ssid[33],password[65];const char *value;size_t n;int failed=ferror(fp);
-  if (fclose(fp)) failed=1;
-  if (failed || !is_soc_ap || get_ap_mode() || i_mode_x==1 || i_mode_x==3) return -1;
-  value=nvram_safe_get("wr_iot_ssid_t");n=strlen(value);
-  if (n>=sizeof(ssid)) return -1;
-  memcpy(ssid,value,n+1);
-  value=nvram_safe_get("wr_iot_psk_t");n=strlen(value);
-  if (n>=sizeof(password)) return -1;
-  memcpy(password,value,n+1);
-  return wr_iot_profile_apply(dat_file,ssid,password)?0:-1;
- }
+anchor='static int\ngen_ralink_config('
+if radio.count(anchor)!=1:raise SystemExit('Ralink generator anchor changed')
+include=r'''#if defined(BOARD_WR1200JS)
+#include "wr-iot/precreated-profile-request.h"
+#include "wr-iot/precreated-entropy.h"
+static const char *wr_iot_cold_nvram_read(void *unused,const char *key)
+{
+ (void)unused;
+ return nvram_safe_get(key);
+}
 #endif
-"""
-radio=radio.replace(anchor,hook+anchor,1)
-for name in ('profile.h','profile-list.h','profile-line.h','profile-scan.h','profile-stream.h','profile-file.h'):
+
+'''
+radio=radio.replace(anchor,include+anchor,1)
+decl='int i_stream_tx, i_stream_rx, i_mphy, i_mmcs, i_fphy[2], i_val_mbss[2];'
+if radio.count(decl)!=1:raise SystemExit('Ralink local declaration changed')
+radio=radio.replace(decl,decl+'''\n\tint iot_reserved = 0;\n#if defined(BOARD_WR1200JS)\n\tstruct wr_iot_precreated_profile_request iot_request;\n#endif''',1)
+anchor='\ti_mode_x = nvram_wlan_get_int(is_aband, "mode_x");\n\ti_phy_mode = calc_phy_mode(nvram_wlan_get_int(is_aband, "gmode"), is_aband);'
+if radio.count(anchor)!=1:raise SystemExit('Ralink radio-mode anchor changed')
+cold=r'''\ti_mode_x = nvram_wlan_get_int(is_aband, "mode_x");
+\ti_phy_mode = calc_phy_mode(nvram_wlan_get_int(is_aband, "gmode"), is_aband);
+#if defined(BOARD_WR1200JS)
+\t/* Reserve ra2 only while generating the initial 2.4 GHz AP profile.
+\t * An unavailable CSPRNG or invalid saved request leaves BssidNum at two:
+\t * never create an open fallback BSS. MBSS_Open controls beacon emission;
+\t * net_wifi deliberately does not ifconfig ra2 up until IoT activation. */
+\tif (!is_aband && is_soc_ap && i_mode_x != 1 && i_mode_x != 3 &&
+\t    wr_iot_precreated_boot_request_read(&iot_request,
+\t      wr_iot_cold_nvram_read, NULL, wr_iot_precreated_entropy, NULL)) {
+\t\ti_ssid_num = 3;
+\t\tiot_reserved = 1;
+\t}
+#endif'''
+radio=radio.replace(anchor,cold.replace(r'\t','\t'),1)
+replacements=[
+ ('fprintf(fp, "SSID%d=%s\\n", 2, nvram_wlan_get(is_aband, "guest_ssid"));', 'fprintf(fp, "SSID%d=%s\\n", 2, nvram_wlan_get(is_aband, "guest_ssid"));\n#if defined(BOARD_WR1200JS)\n\tif (iot_reserved) fprintf(fp, "SSID%d=%s\\n", 3, iot_request.ssid);\n#endif'),
+ ('for (i = 3; i <= 8; i++)\n\t\tfprintf(fp, "SSID%d=%s\\n", i, "");', 'for (i = iot_reserved ? 4 : 3; i <= 8; i++)\n\t\tfprintf(fp, "SSID%d=%s\\n", i, "");'),
+ ('fprintf(fp, "WmmCapable=%d;%d\\n", i_wmm, i_wmm);', 'fprintf(fp, "WmmCapable=%d;%d%s\\n", i_wmm, i_wmm, iot_reserved ? ";1" : "");'),
+ ('fprintf(fp, "DLSCapable=%d;%d\\n", 0, 0);', 'fprintf(fp, "DLSCapable=%d;%d%s\\n", 0, 0, iot_reserved ? ";0" : "");'),
+ ('fprintf(fp, "NoForwarding=%d;%d\\n", i_val_mbss[0], i_val_mbss[1]);', 'fprintf(fp, "NoForwarding=%d;%d%s\\n", i_val_mbss[0], i_val_mbss[1], iot_reserved ? ";1" : "");'),
+ ('fprintf(fp, "NoForwardingMBCast=%d;%d\\n", i_val_mbss[0], i_val_mbss[1]);', 'fprintf(fp, "NoForwardingMBCast=%d;%d%s\\n", i_val_mbss[0], i_val_mbss[1], iot_reserved ? ";1" : "");'),
+ ('fprintf(fp, "HideSSID=%d;%d\\n", i_val_mbss[0], i_val_mbss[1]);', 'fprintf(fp, "HideSSID=%d;%d%s\\n", i_val_mbss[0], i_val_mbss[1], iot_reserved ? ";0" : "");'),
+ ('fprintf(fp, "PreAuth=0;0\\n");', 'fprintf(fp, "PreAuth=0;0%s\\n", iot_reserved ? ";0" : "");'),
+ ('fprintf(fp, "IEEE8021X=%d;%d\\n", i_val, 0);', 'fprintf(fp, "IEEE8021X=%d;%d%s\\n", i_val, 0, iot_reserved ? ";0" : "");'),
+ ('fprintf(fp, "FixedTxMode=%d;%d\\n", i_fphy[0], i_fphy[1]);', 'fprintf(fp, "FixedTxMode=%d;%d%s\\n", i_fphy[0], i_fphy[1], iot_reserved ? ";0" : "");'),
+ ('fprintf(fp, "HT_MCS=%d;%d\\n", i_val_mbss[0], i_val_mbss[1]);', 'fprintf(fp, "HT_MCS=%d;%d%s\\n", i_val_mbss[0], i_val_mbss[1], iot_reserved ? ";33" : "");'),
+ ('fprintf(fp, "StationKeepAlive=%d;%d\\n", 0, 0);', 'fprintf(fp, "StationKeepAlive=%d;%d%s\\n", 0, 0, iot_reserved ? ";0" : "");'),
+ ('fprintf(fp, "AuthMode=%s;%s\\n", c_val_mbss[0], c_val_mbss[1]);', 'fprintf(fp, "AuthMode=%s;%s%s\\n", c_val_mbss[0], c_val_mbss[1], iot_reserved ? ";WPA2PSK" : "");'),
+ ('fprintf(fp, "EncrypType=%s;%s\\n", c_val_mbss[0], c_val_mbss[1]);', 'fprintf(fp, "EncrypType=%s;%s%s\\n", c_val_mbss[0], c_val_mbss[1], iot_reserved ? ";AES" : "");'),
+ ('fprintf(fp, "WPAPSK%d=%s\\n", 2, nvram_wlan_get(is_aband, "guest_wpa_psk"));', 'fprintf(fp, "WPAPSK%d=%s\\n", 2, nvram_wlan_get(is_aband, "guest_wpa_psk"));\n#if defined(BOARD_WR1200JS)\n\tif (iot_reserved) fprintf(fp, "WPAPSK%d=%s\\n", 3, iot_request.password);\n#endif'),
+ ('for (i = 3; i <= 8; i++)\n\t\tfprintf(fp, "WPAPSK%d=%s\\n", i, "");', 'for (i = iot_reserved ? 4 : 3; i <= 8; i++)\n\t\tfprintf(fp, "WPAPSK%d=%s\\n", i, "");'),
+]
+for old,new in replacements:
+ if radio.count(old)!=1:raise SystemExit('Cold BSS output anchor changed: '+old)
+ radio=radio.replace(old,new,1)
+for name in ('profile.h','profile-list.h','profile-line.h','profile-scan.h','profile-stream.h','profile-file.h','precreated-profile-request.h','precreated-entropy.h'):
  (headers/name).write_bytes((local/name).read_bytes())
 shared=rc/'shared-wifi';shared.mkdir(exist_ok=True)
 (shared/'validate.h').write_bytes((local.parent/'shared-wifi/validate.h').read_bytes())
@@ -115,7 +151,7 @@ profile=(local/'profile.c').read_text(encoding='utf-8').replace('#include "profi
 m.write_text(m.read_text(encoding='utf-8').replace('OBJS += wr-iot-request-stage.o wr-iot-bridge.o','OBJS += wr-iot-request-stage.o wr-iot-bridge.o wr-iot-profile.o'),encoding='utf-8')
 f.write_text(radio,encoding='utf-8')
 report['profile_hook_installed']=True
-report['profile_activation_guard']='wr_iot_profile_t; no startup sets this state yet'
+report['profile_activation_guard']='cold generator only; runtime backend remains unbound'
 report['profile_owned_removal_api_installed']=True
 # Only a future validated network snapshot may activate this service fragment.
 f=rc/'services_ex.c';service=f.read_text(encoding='utf-8')

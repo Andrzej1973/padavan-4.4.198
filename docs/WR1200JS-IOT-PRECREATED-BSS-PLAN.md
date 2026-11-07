@@ -287,3 +287,35 @@ succeeded. Standard855 run42393659532 is still in progress for6827b43e; its
 ABI42393659492 succeeded. Queued optional peer82/iot verification of exact
 1485b61a890ac0c798453de063783b1c6a7ef427 as run42394787815 after duplicate check.
 These runs do not cover the newer local credential/observation helpers.
+
+## Cold generator binding
+
+Host verification now extracts and executes actual cold admission plus twelve
+per-BSS output statements and SSID3/WPAPSK3 writes. ASan/UBSan PASS covers
+reserved/unreserved output, distinct authentication/encryption inputs, visibility,
+802.1X and fixed-rate fields. This is partial generator execution; user override
+files, complete profile parsing, lifetime serialization and device behavior are
+not established. Temporary pinned RC extraction and binaries auto-removed.
+
+The pinned vendor parser accepts a literal `BssidNum=3`; it clamps only values
+above `MAX_MBSSID_NUM`. MT7603 address-mode selection groups counts up to four,
+so three selects the four-BSSID hardware mode but remains a three-entry software
+configuration. The comment that lists 1/2/4/8 describes hardware address-mode
+groups, not an input validator. This corrects the earlier concern that three
+would necessarily be rejected.
+
+`prepare-rc.py` now changes only the initial 2.4 GHz AP profile generator:
+when a valid stored OFF/ON request or the explicit boot-only entropy policy is
+available, it writes BssidNum=3, SSID3, WPA2PSK/AES and third-BSS isolation
+fields. If credentials or initialized entropy are unavailable it keeps two
+BSSes; it never emits an open third BSS. The prior temporary profile rewrite
+hook was removed, so normal IoT runtime toggles cannot enter that restart path.
+`net_wifi.c` opens only ra0 and permitted ra1 at startup. Vendor `MBSS_Open`
+is the operation that sets `bBcnSntReq`; omitted ra2 stays closed and its beacon
+request remains false. This is source-level call-chain evidence, not RF proof.
+
+The ABI workflow now compiles prepared `ralink.c` with the MIPS toolchain to
+cover the generator and getrandom headers. The new source is not yet covered by
+a completed target build. Runtime activation must still bind the existing
+one-use loaded proof and bridge/firewall transaction before it may `ifconfig
+ra2 up`; physical router testing remains pending.

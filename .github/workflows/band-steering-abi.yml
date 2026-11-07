@@ -1223,6 +1223,13 @@ jobs:
             -c iot-rc-source/trunk/user/rc/wr-iot-bridge.c -o abi-results/iot-rc-bridge-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
             -c iot-rc-source/trunk/user/rc/wr-iot-profile.c -o abi-results/iot-rc-profile-mips.o
+          "$compiler" -std=gnu99 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+            -DBOARD_WR1200JS -DBOARD_RAM_SIZE=128 -DUSE_SMP -DUSE_IPV6 \
+            -DUSE_WID_2G=7603 -DUSE_WID_5G=7612 \
+            -I"$rc_dir" -I"$shared_dir" -I"$shared_dir/include" \
+            -I"$PWD/iot-rc-source/trunk/user/wireless_tools" \
+            -I"$kernel_dir/include/nvram" -idirafter "$kernel_dir/include" \
+            -c iot-rc-source/trunk/user/rc/ralink.c -o abi-results/iot-rc-ralink-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
             -c iot-rc-source/trunk/user/rc/wr-iot-dhcp.c -o abi-results/iot-rc-dhcp-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \

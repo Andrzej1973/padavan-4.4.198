@@ -6,6 +6,7 @@
 #define WR_IOT_PRECREATED_ENTROPY_H
 #include <unistd.h>
 #include <sys/syscall.h>
+#include <asm/unistd.h>
 #include <errno.h>
 #ifndef WR_IOT_GETRANDOM
 #if defined(SYS_getrandom)
