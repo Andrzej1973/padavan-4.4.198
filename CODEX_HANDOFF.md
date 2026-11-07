@@ -15212,3 +15212,11 @@ Host ASan/UBSan passes with changed readiness substituted into retained
 generated source; full fresh generation and target proof pending. Keep the
 15-ID exhaustion and scan counterexample open; do not call this safe reuse.
 
+# Slot MMIO primitive ready for ownership binding — 2026-11-07
+
+`mcu-config-slot-mmio.inc` is intentionally not installed/called by driver
+generation. Actual operation tested with SDK address/masks and injected I/O;
+ASan/UBSan passes. CI fixture added. Next implement and test an exclusive
+config-owner wrapper rejecting pending firmware timing intents before invoking
+this primitive. Hardware read-back alone must not clear submitted journals.
+

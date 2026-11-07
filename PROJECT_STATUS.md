@@ -15834,3 +15834,13 @@ cursor. Test applies the changed readiness fragment to the retained generated
 tree in memory; fresh CI generation/target compilation remain pending.
 This fixes premature post-send refusal, not the >15-command scan budget.
 
+# Isolated slot MMIO primitive — 2026-11-07
+
+Added an uninstalled low-level slot operation: require both MAC disable bits,
+preserve non-IFS bits, write/read-back full TMAC_ICR value and recheck MAC.
+ASan/UBSan tests use actual SDK TMAC_ICR/mask definitions and injected registers;
+dropped writes, mismatches, missing device and MAC drift refuse success. CI
+invokes the fixture. Caller must still supply exclusive config/lifetime lease
+and prove absence of pending firmware timing writers; there is no startup
+binding, journal retirement or completion grant yet. Test scratch removed.
+
