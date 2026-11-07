@@ -1,5 +1,11 @@
 # WR1200JS: IoT через заздалегідь створений MBSSID
 
+Target-report binding extension: summary now embeds AP/beacon macro maps and
+their source/command SHA256 values. Actual embedded guard executed locally:
+complete maps accepted; unavailable report and missing BCN_OFFLOAD_SUPPORT
+entry refused. False macro values are valid evidence, not silently treated as
+missing. Shell/Python syntax checks pass; actual target execution pending.
+
 Beacon ACK audit: pinned CmdBcnUpdateSet (andes_mt.c:2191) initializes
 need_wait=false, need_retransmit=false, need_rsp=false; argument semantics
 confirmed in andes_core.c:67. This call does not request a response-bearing
@@ -7,6 +13,15 @@ ACK. Its send result is not firmware completion and UpdateBeaconToMcu discards
 it, so it cannot prove beacon disable/drain. PCI HAL_KickOutMgmtTx resolves
 to RtmpPCIMgmtKickOut (rtmp_inf_pcirbs.h:53); DMA ownership remains relevant.
 Effective offload config and remaining transitive calls still need verification.
+
+DMA completion source: RTMPHandleBcnDmaDoneInterrupt cmm_data_pci.c:2663
+reads hardware DIDX, unmaps completed descriptors and advances SW free index.
+Despite debug text "change state as idle", actual transition is
+BCN_TX_WRITE_TO_DMA -> BCN_TX_DMA_DONE, not IDLE or RF-silent. BSS is decoded
+from own_mac; pristine unknown values retain default index0, already addressed
+by isolated candidate's validated BSS-index guard. Completion proves descriptor
+reclamation only; hardware beacon queue stop and packet/TxS ownership still
+need their existing checked-off observations before freeing/reusing state.
 
 PCI kickout audit: pinned cmm_data_pci.c:750 RtmpPCIMgmtKickOut maps the packet,
 writes descriptor, advances BcnRing.TxCpuIdx/hardware CIDX and returns0;

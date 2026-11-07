@@ -463,6 +463,14 @@ source = json.loads((results / 'merged-source-manifest.json').read_text(encoding
 module = results / 'mt76x3_ap.ko'
 task = json.loads((results / 'merged-task-config.json').read_text(encoding='utf-8'))
 nettask = json.loads((results / 'merged-nettask-config.json').read_text(encoding='utf-8'))
+ap_startup = json.loads((results / 'merged-ap-startup-config.json').read_text(encoding='utf-8'))
+beacon = json.loads((results / 'merged-beacon-config.json').read_text(encoding='utf-8'))
+for name, unit in [('AP startup', ap_startup), ('beacon', beacon)]:
+    if unit.get('status') != 'complete':
+        raise SystemExit(name + ' configuration evidence missing')
+    if not all(key in unit['macros'] for key in
+               ('MBSS_SUPPORT', 'AIRPLAY_SUPPORT', 'BCN_OFFLOAD_SUPPORT', 'WH_EZ_SETUP')):
+        raise SystemExit(name + ' feature evidence incomplete')
 if nettask['status'] != 'complete':
     raise SystemExit('Merged RX nettask configuration evidence missing')
 if sys.argv[2] == 'peer82':
@@ -491,6 +499,12 @@ report = {
     'module_sha256': hashlib.sha256(module.read_bytes()).hexdigest(),
     'compiled_task_macros': task['macros'],
     'compiled_nettask_macros': nettask['macros'],
+    'compiled_ap_startup_macros': ap_startup['macros'],
+    'compiled_beacon_macros': beacon['macros'],
+    'ap_startup_command_sha256': ap_startup['command_sha256'],
+    'ap_startup_source_sha256': ap_startup['source_sha256'],
+    'beacon_command_sha256': beacon['command_sha256'],
+    'beacon_source_sha256': beacon['source_sha256'],
     'nettask_command_sha256': nettask['command_sha256'],
     'nettask_source_sha256': nettask['source_sha256'],
     'task_command_sha256': task['command_sha256'],
