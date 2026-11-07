@@ -155,5 +155,16 @@ if 'wr_iot_config_ext_result&&' in (a.candidate/'mcu/andes_mt.c').read_text():
  }
  ev.fw_rxd_2.field.ext_eid=0;
  puts("PASS locked extended result: channel/TX-power/EFUSE status, echo, event and direction");
+ /* Deliberately bypass checked-ID retirement: two different host requests
+  * receive the same captured wire result. No request generation is echoed. */
+ for(unsigned ext=8;ext<=33;ext=ext==8?17:ext==17?33:34){
+  base.ext_cmd_type=ext;ev.fw_rxd_2.field.ext_eid=0;
+  memset(pkt.bytes,0,sizeof(pkt.bytes));pkt.bytes[sizeof(ev)]=(unsigned char)ext;
+  for(unsigned request_generation=1;request_generation<=2;request_generation++){
+   msg=base;dispatch(&msg,&ev,&pkt);
+   assert(msg.wr_iot_response_done&&msg.ack_done==1&&!msg.wr_iot_firmware_result);
+  }
+ }
+ puts("NEGATIVE CONTROL locked extended ACK: retirement bypassed, identical old result completes fresh same-command/same-ID request; parser is not a generation fence");
 '''+tail[pos:]
 a.output.write_text(prefix + branch + tail, encoding='utf-8')

@@ -155,6 +155,24 @@ if 'wr_iot_config_ext_result&&' in (a.candidate/'include/wr-iot-mcu-rx-direct.in
  assert(wr_iot_mcu_checked_rx_packet(&ad,packet,sizeof(ev)+8)&&msg.ack_done==1);
  }
  puts("PASS actual extended RX: channel/TX-power/EFUSE status bytes, command echo, event, SET direction and duplicate completion");
+ /* New host messages, same captured old event; production retirement is
+  * intentionally bypassed. In-message response_done is not an epoch. */
+ for(unsigned ext=8;ext<=33;ext=ext==8?17:ext==17?33:34){
+  memset(&ev,0,sizeof(ev));memset(packet,0,sizeof(packet));
+  ev.fw_rxd_0.field.length=sizeof(ev)+8;ev.fw_rxd_1.field.seq_num=7;
+  ev.fw_rxd_1.field.eid=0xed;memcpy(packet,&ev,sizeof(ev));
+  packet[sizeof(ev)]=(unsigned char)ext;
+  for(unsigned request_generation=1;request_generation<=2;request_generation++){
+   struct cmd_msg fresh={.seq=7,.wr_iot_checked=1,.need_wait=1,.cmd_type=0xed,
+    .ext_cmd_type=ext,.set_query=CMD_SET,.wr_iot_config_ext_result=1,
+    .wr_iot_firmware_result=1};
+   ad.MCUCtrl.ackq.msg=&fresh;
+   assert(wr_iot_mcu_checked_rx_packet(&ad,packet,sizeof(ev)+8));
+   assert(fresh.wr_iot_response_done&&fresh.ack_done==1&&!fresh.wr_iot_firmware_result);
+  }
+ }
+ ad.MCUCtrl.ackq.msg=NULL;
+ puts("NEGATIVE CONTROL direct extended ACK: retirement bypassed, identical old result completes fresh same-command/same-ID request; parser is not a generation fence");
 '''+fixture[pos:]
 with tempfile.TemporaryDirectory(prefix='wr-mcu-rx-direct-') as td:
  c=Path(td)/'check.c';c.write_text(fixture)

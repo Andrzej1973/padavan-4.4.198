@@ -1,3 +1,33 @@
+## Sol: resumed; same-class stale ACK replay independently reproduced
+
+Resumed sole-writer work at published7bedb001. Local firmware byte-comparison
+notes from before pause preserved. Added negative controls to generated locked
+ACK fixture and actual direct RX fixture: identical captured success reply
+completes two freshly initialized same-ID/same-command messages for channel,
+TX-power and EFUSE when retirement is deliberately bypassed. Both ASan/UBSan
+suites pass, including prior boot/readback/status tests. This proves parser
+ambiguity, not firmware duplicate timing. No reservation or runtime policy
+changed. Budget audit now names both RX paths and precise test boundaries.
+CI refreshed: standard840 SUCCESS;842 active;843-845/847 pending;optional846
+active. Need optional2278e415 queue review once ready; no duplicate dispatched
+this turn. New audit/test package held locally to avoid another small push.
+No router access. Tiny host fixture trees auto-removed, no new large scratch;
+retained candidate still needed. docs/reference unchanged.
+
+## Sol: exact upstream firmware identity comparison
+
+Compared firmware blobs from OpenWrt mt76 revision0936617dc529ff9da0385221d3fa6de732231177
+in memory against pinned SDK initializer SHA256. E1 is byte-identical. E2 is
+not: upstream ap_pcie/build20160107100755/72180B versus SDK
+CL173766_R/build20171110105932/74372B. Compact hashes/URLs recorded in
+WR1200JS-MCU-UPSTREAM-FIRMWARE-COMPARE.json. Earlier blanket unmatched-image
+statement is superseded by this comparison. No firmware replacement or router
+access, and no lifetime/duplicate ACK contract established. E1 client precedent
+cannot be presented as same-image evidence for E2. Source identity progress;
+retirement remains unchanged. Optional846/run42376468852 confirmed live in
+Build WR1200JS firmware, with no failed step observed. No binary written to
+disk; docs/reference preserved. Hold this audit locally for next source package.
+
 ## Sol: nested coexistence scan admission gap closed
 
 Confirmed SDK APOverlappingBSSScan directly enables RX/TX and conditionally

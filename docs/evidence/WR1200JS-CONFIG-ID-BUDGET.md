@@ -158,3 +158,31 @@ merely partitioning retirement masks would introduce false failures. Also,
 repeating the same class still has a finite15-ID budget. Any class-aware
 strategy must first establish admission/mismatch handling for every RX path
 and count all startup/overlap/restore calls. No partition or reuse enabled.
+
+## Exact upstream image comparison (2026-11-07)
+
+Fetched only the two firmware blobs from immutable OpenWrt mt76 revision
+0936617dc529ff9da0385221d3fa6de732231177 into memory. E1 SHA256 exactly
+matches the pinned SDK initializer. E2 does not: upstream has 72,180 bytes,
+version `ap_pcie`, build20160107100755, SHA256
+1710d02af192d2a274459c76d15d180d84c44bc7811e7e6f3c271245a8bbe5c9;
+our E2 has 74,372 bytes, CL173766_R/build20171110105932. Full source URLs and
+embedded/reference hashes are in WR1200JS-MCU-UPSTREAM-FIRMWARE-COMPARE.json.
+This supersedes the previous statement that neither image had been matched.
+E1 provides same-image implementation precedent for upstream ID cycling; it
+still does not prove a maximum late/duplicate-response lifetime. E2 has no
+same-image comparison to that client. Neither image was replaced, installed
+or retained as a new binary; actual router image selection remains unverified.
+
+## Same-class ACK replay negative controls (2026-11-07)
+
+The generated locked ACK fixture and actual allocation-free direct RX fixture
+now replay the same captured successful common result into two separately
+initialized host requests with the same sequence and command. Both paths
+accept it for channel0x08, TX-power0x11 and EFUSE0x21. ASan/UBSan runs passed on
+the retained candidate. These are deliberately labeled negative controls:
+checked-ID reservation/retirement is bypassed, no firmware packet timing is
+asserted, and production reuse stays prohibited. In-message response_done
+rejects duplicates only for that message lifetime; it does not distinguish a
+new request after ID reuse. An eventual solution must address this exact
+ambiguity, including both RX paths, rather than merely clear the host queue.
