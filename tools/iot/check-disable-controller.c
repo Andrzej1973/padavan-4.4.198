@@ -6,11 +6,11 @@
 struct wr_iot_request_snapshot {int active;char values[9][80];};
 struct wr_iot_disable_services {struct wr_iot_request_snapshot settings;int committed;};
 struct wr_iot_radio_profile_state {int active,generated;};
-struct wr_iot_disable_controller {struct wr_iot_disable_services services;struct wr_iot_radio_profile_state radio;int profile_committed;};
-static int fault,bridge=1,down=1,cancels,service_cancels,removes,profile_commits,service_commits,service_attempts;
+struct wr_iot_disable_controller {struct wr_iot_disable_services services;struct wr_iot_radio_profile_state radio;int profile_committed,precreated,reserved_applied;};
+static int fault,bridge=1,down=1,takes,cancels,service_cancels,removes,profile_commits,service_commits,service_attempts;
 unsigned int if_nametoindex(const char *name){assert(!strcmp(name,"br-iot"));return bridge;}
 int wr_iot_bss_is_down(void){return down;}
-static int wr_iot_radio_profile_take(struct wr_iot_radio_profile_state *s){if(fault==1)return 0;s->active=1;return 1;}
+static int wr_iot_radio_profile_take(struct wr_iot_radio_profile_state *s){takes++;if(fault==1)return 0;s->active=1;return 1;}
 static int wr_iot_radio_profile_cancel(struct wr_iot_radio_profile_state *s){assert(s->active&&!s->generated);s->active=0;cancels++;return 1;}
 static int wr_iot_disable_services_begin(struct wr_iot_disable_services *s){
  if(fault==2)return 0;
@@ -68,6 +68,27 @@ int main(void){
  assert(!wr_iot_disable_apply_services(&s)&&service_commits==1);
  fault=0;assert(wr_iot_disable_commit(&s)&&profile_commits==1&&!s.services.settings.active&&!s.profile_committed);
  assert(!wr_iot_disable_commit(&s));
- puts("PASS actual normal-OFF composition: read-only capture cancellation, settings/service/profile order, partial commit retry without old-profile restore; adapters injected");
+ /* Reserved OFF must never take/remove/commit a radio profile, including
+  * retries after DNS failure or partial service finalization. */
+ int old_takes=takes,old_removes=removes,old_commits=profile_commits,old_cancels=cancels;
+ bridge=1;down=1;fault=2;
+ assert(!wr_iot_disable_begin_precreated(&s)&&!s.precreated);
+ fault=1;assert(wr_iot_disable_begin_precreated(&s)&&s.precreated&&!s.radio.active);
+ fault=0;
+ assert(!wr_iot_disable_begin(&s)&&!wr_iot_disable_begin_precreated(&s));
+ fault=3;assert(!wr_iot_disable_apply_services(&s)&&!s.services.committed);
+ fault=0;assert(wr_iot_disable_apply_services(&s));
+ assert(!wr_iot_disable_apply_profile(&s));
+ assert(!wr_iot_disable_apply_reserved(&s));
+ bridge=0;down=0;assert(!wr_iot_disable_apply_reserved(&s));
+ down=1;fault=8;assert(!wr_iot_disable_apply_reserved(&s));
+ fault=0;assert(!wr_iot_disable_commit(&s));
+ assert(wr_iot_disable_apply_reserved(&s)&&s.reserved_applied);
+ assert(wr_iot_disable_apply_reserved(&s));
+ assert(!wr_iot_disable_apply_services(&s)&&!wr_iot_disable_apply_profile(&s));
+ fault=6;assert(!wr_iot_disable_commit(&s)&&s.precreated&&s.reserved_applied);
+ fault=0;assert(wr_iot_disable_commit(&s)&&!s.precreated&&!s.reserved_applied);
+ assert(takes==old_takes&&removes==old_removes&&profile_commits==old_commits&&cancels==old_cancels);
+ puts("PASS actual normal/reserved OFF composition: capture cancellation, service ordering, partial finalization retry; reserved mode never takes/removes/commits radio profile. Service/profile adapters injected; RF and main/guest lifetime remain outer obligations.");
  return 0;
 }

@@ -1,0 +1,72 @@
+{
+  "schema": 1,
+  "run_id": 42407287069,
+  "artifact_id": 13587898858,
+  "verified_revision": "7e2a644d37427243338b1be4453c27b8152149dc",
+  "candidate_variant": "peer82",
+  "module_bytes": 5790712,
+  "module_sha256": "f0ae2215bebe803b4b56a60a62214370aedf63d18df6a72b3639dffb9fbcbf08",
+  "elf": "ELF32 little-endian MIPS",
+  "target_compiled": true,
+  "production_installed": false,
+  "runtime_verified": false,
+  "units": {
+    "ap": {
+      "scope": "actual ap.c preprocessing only",
+      "source_sha256": "8f55861313a6bb3539a1f3be91885caca9365ddbc9efb7e30caac3969cd59f3f",
+      "command_sha256": "3368f24af7f86d303221ecd12610425d40244acf563c08996466a1597460e5f4",
+      "macro_sha256": "6b80d927ea564c0c4c2a9237036933ced4329351ec1c9e5f815a67ebb0e1c560",
+      "macros": {
+        "KTHREAD_SUPPORT": true,
+        "OS_ABL_FUNC_SUPPORT": false,
+        "CONFIG_PM": false,
+        "RTMP_TIMER_TASK_SUPPORT": false,
+        "WSC_INCLUDED": false,
+        "WSC_AP_SUPPORT": false,
+        "WSC_V2_SUPPORT": false,
+        "WORKQUEUE_BH": false,
+        "CONFIG_ANDES_SUPPORT": true,
+        "MT7603": true,
+        "MT_MAC": true,
+        "RTMP_PCI_SUPPORT": true,
+        "RESOURCE_PRE_ALLOC": true,
+        "LOAD_FW_ONE_TIME": true,
+        "AIRPLAY_SUPPORT": false,
+        "MBSS_SUPPORT": true,
+        "WH_EZ_SETUP": false,
+        "BCN_OFFLOAD_SUPPORT": false
+      }
+    },
+    "beacon": {
+      "scope": "actual ap_connect.c preprocessing only",
+      "source_sha256": "423abcda27d448cd68f9d6fa667c30427fee3ee5019f63ac39ed3b4a0a367d3a",
+      "command_sha256": "3a76f6e63045432647d4c6e619a6380c06d6fc81ed7623a2504fa96706e34a3c",
+      "macro_sha256": "4a48492a74da256dadc4948fd6798deaca68c64d73dc83e0bade03fd702379e1",
+      "macros": {
+        "KTHREAD_SUPPORT": true,
+        "OS_ABL_FUNC_SUPPORT": false,
+        "CONFIG_PM": false,
+        "RTMP_TIMER_TASK_SUPPORT": false,
+        "WSC_INCLUDED": false,
+        "WSC_AP_SUPPORT": false,
+        "WSC_V2_SUPPORT": false,
+        "WORKQUEUE_BH": false,
+        "CONFIG_ANDES_SUPPORT": true,
+        "MT7603": true,
+        "MT_MAC": true,
+        "RTMP_PCI_SUPPORT": true,
+        "RESOURCE_PRE_ALLOC": true,
+        "LOAD_FW_ONE_TIME": true,
+        "AIRPLAY_SUPPORT": false,
+        "MBSS_SUPPORT": true,
+        "WH_EZ_SETUP": false,
+        "BCN_OFFLOAD_SUPPORT": false
+      }
+    }
+  },
+  "limits": [
+    "Source hash taken from report; source bytes not independently reconstructed here.",
+    "Preprocessing and module identity do not prove loaded driver behavior or whole toggle call chain.",
+    "BCN_OFFLOAD_SUPPORT absent excludes only its guarded beacon MCU branch for this exact build."
+  ]
+}

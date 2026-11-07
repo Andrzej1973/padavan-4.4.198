@@ -91,6 +91,38 @@ Pinned vendor references (c25283e):
 | common/cmm_mac_pci.c:2678 | MT_MAC beacon DMA submission under BcnRingLock |
 | common/cmm_data_pci.c:750 | PCI kickout publishes descriptor/CIDX; submission is not drain |
 
+Exact target macro evidence is now available for optional run42407287069,
+revision7e2a644d: [AP/beacon reports](evidence/WR1200JS-IOT-AP-BEACON-TARGET-2026-11-07.json).
+Both actual AP and beacon translation units have MBSS_SUPPORT=true and
+BCN_OFFLOAD_SUPPORT=false, AIRPLAY_SUPPORT=false, WH_EZ_SETUP=false. Archived
+macro/command hashes and the actual ELF32 MIPS module hash were independently
+checked. This excludes the guarded beacon MCU update for this exact build,
+not every possible MCU command during open/close. The MT_MAC CR enable/disable
+in ap/ap_mbss.c:246/293 uses LPON/ARB MMIO. Its success alone is not DMA drain.
+AsicSetMbssMode in hw_ctrl/cmm_asic_mt.c:566 also uses MMIO; the zero-reference
+physical-open branch remains excluded only while the owned Main reference is
+valid. Firmware startup/restart and data/station descendants remain separate.
+
+The existing extracted vendor reference-count test passed1000 third-reference
+cycles with zero physical open/close hook calls and distinct first/last-reference
+behavior. It is now included in optional CI as vendor-virtual-no-restart.json;
+it explicitly does not model beacon descendants, concurrency or merged driver
+behavior. These limits must remain visible when using its result.
+
+The RC disable-controller now has an explicit precreated mode:
+`wr_iot_disable_begin_precreated` captures current service settings without
+taking a radio-file snapshot; `wr_iot_disable_apply_services` uses the same
+scoped DNS/gate teardown; `wr_iot_disable_apply_reserved` requires bridge
+absence, administrative BSS DOWN and current settings ownership, and records
+completion without changing the radio file. Commit retries retain this mode
+and never fall through to legacy profile removal. The actual composition
+fixture verifies no profile take/remove/commit calls, service failures,
+bridge/DOWN/ownership refusal and finalization retry. Full controller TU also
+compiles with actual headers using the CI gnu11 dialect. Target verification
+and activation/backend call-site binding remain pending. RF/DMA quiescence,
+loaded credential proof and Main/Guest lifetime remain the outer owner's
+obligations; administrative DOWN is insufficient for those claims.
+
 No ACK allocation/reuse changes are part of this strategy. Initial startup and
 ordinary radio restart can still encounter the unresolved ROM ACK issue.
 Physical WR1200JS tests must establish Main/Guest continuity, no channel scan,

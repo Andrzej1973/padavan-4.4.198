@@ -315,6 +315,9 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   python3 tools/iot/audit-mcu-ack-intent.py "$pristine" --candidate "$merged" --check \
     > "$results/mcu-ack-intent-audit.json"
   python3 tools/iot/check-precreated-beacon.py "$merged"
+  # Exercise actual pinned vendor reference-count dispatch, keeping the report
+  # explicit that beacon descendants and the merged candidate are not modeled.
+  python3 tools/iot/check-mbss-no-radio-restart.py "$pristine" > "$results/vendor-virtual-no-restart.json"
   python3 tools/iot/check-precreated-key-match.py "$pristine"
   python3 tools/iot/check-mcu-config-init-owner.py "$merged"
   python3 tools/iot/check-mcu-config-channel-latch.py "$merged"

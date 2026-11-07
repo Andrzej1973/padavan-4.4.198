@@ -9,13 +9,20 @@ struct wr_iot_disable_controller {
  struct wr_iot_disable_services services;
  struct wr_iot_radio_profile_state radio;
  int profile_committed;
+ int precreated,reserved_applied;
 };
 /* Read-only fresh capture for DISABLE_SNAPSHOT; zero initialize context. */
 int wr_iot_disable_begin(struct wr_iot_disable_controller *);
+/* Reserved-mode snapshot never captures or modifies the physical radio file.
+ * Outer owner separately proves loaded credentials and Main/Guest lifetime. */
+int wr_iot_disable_begin_precreated(struct wr_iot_disable_controller *);
 /* DISABLE_SERVICES: BSS closed/quarantined, owned bridge still exists. */
 int wr_iot_disable_apply_services(struct wr_iot_disable_controller *);
 /* DISABLE_APPLY after bridge teardown: remove exact owned profile entries. */
 int wr_iot_disable_apply_profile(struct wr_iot_disable_controller *);
+/* RESERVED_DISABLE_APPLY after bridge removal. Retains cold BSS reservation;
+ * administrative DOWN here does not replace the outer RF/DMA observation. */
+int wr_iot_disable_apply_reserved(struct wr_iot_disable_controller *);
 /* DISABLE_COMMIT only AFTER the outer final observation and guard removal.
  * Receipt tracks partial release so a retry never restores an old profile.
  * This API cannot itself establish RF/main/guest health. */
