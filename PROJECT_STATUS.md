@@ -1,3 +1,47 @@
+## Sol: private channel latch now follows successful config commands
+
+Added isolated mcu-config-channel-latch stage after direct EDCA. The private
+MT7603 switch wrapper refuses preexisting owner failure, checks the channel
+command return (including early validation failures), records owner failure,
+and stops before TX-power/latch on error. After the VOID TX-power call it
+checks retained owner failure before changing LatchRfRegs.Channel. Ordinary
+SDK route remains intact. No normal data admission opened and no ID reuse.
+ASan/UBSan host fixture executes generated wrapper: both bandwidth branches,
+channel return failure, success-with-retained-failure, TX-power failure and
+preexisting failure; prior latch retained on every private failure. Ordinary
+behavior covered separately. MCU and hardware injected; target/runtime pending.
+CI stage and host fixture wired into merged candidate compilation. Retained
+~15MB candidate updated with this layer and matching manifest; test temporary
+directory auto-removed. No manual scratch deletion or router operations.
+Current parent HEAD f7d51ba; changes local pending coherent review/publication.
+Next: target compile of wrapper and continue completion-identity/budget work.
+
+## Sol: PR build SHA distinction resolved — 2026-11-07
+
+Run42374940244 is pull_request2. GitHub commit API confirms title revision
+7494783dbbfc3742626bafdbcf45d126e84e9f48 is a synthetic merge whose second
+parent is branch HEAD f7d51ba35b1ebf99618c2ed07f1c89cee6d28fc6. First parent
+70964a3dab872f83478bccce3e7c37a4e4ec176c is the merge base-side snapshot;
+do not replace it with the PR API's separately reported base SHA.
+The title/API difference is expected, not a source-selection bug. Selector
+requires checkout==github.sha and permits override only for optional manual
+dispatch. No verification-source artifact was available while pending, so
+actual checkout/build outcome remains unverified. Evidence:
+docs/evidence/WR1200JS-RUN-42374940244-SOURCE.json. No workflow changes needed.
+For PR standard results record both branch head and tested merge revision;
+optional verification_revision remains an explicit branch ancestor SHA.
+
+## Sol: checked-ID budget regression publication receipt
+
+SSH push and ls-remote confirm f7d51ba35b1ebf99618c2ed07f1c89cee6d28fc6;
+one coherent outgoing commit above03f5dc6. Standard839/run42374940244
+PENDING; ABI42374940123 IN_PROGRESS. API head_sha is f7d51ba for both.
+Firmware run name contains7494783dbbfc3742626bafdbcf45d126e84e9f48,
+which differs from API head_sha: inspect verification-source/inputs before
+attributing the built source or reusing this run. No CI success claimed.
+SDK channel-privilege audit records why its unused token/event handler does
+not establish a replacement completion identity. docs/reference preserved.
+
 ## Sol: resumed checked-ID budget regression — 2026-11-07
 
 Current branch codex/wr1200js-service-webui, HEAD
