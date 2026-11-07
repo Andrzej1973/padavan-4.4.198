@@ -15890,3 +15890,12 @@ CI layer added after direct slot. Target/full fresh generation still pending;
 retained local source predates other base changes and tests substitute updated
 readiness in memory. No normal scan/data admission or runtime acceptance.
 
+# ATE config-refusal cleanup — 2026-11-07
+
+Config-init refusal now jumps to a dedicated label before optional err9/ATEExit
+instead of bypassing ATE cleanup through err8. Applies to early admission guards
+and final config finish refusal. Source checker requires this label ordering.
+Host C cleanup-path smoke check passes with and without CONFIG_ATE; full fresh
+generated target/feature compilation remains pending. No change to ordinary
+SDK error labels or normal admission policy.
+

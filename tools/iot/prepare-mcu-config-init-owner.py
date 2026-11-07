@@ -57,10 +57,10 @@ replacement = '''if (MCUSysInit(pAd) != NDIS_STATUS_SUCCESS)
 one(outer, replacement)
 one('\tDBGPRINT_S(("<==== rt28xx_init, Status=%x\\n", Status));', ''''''+guard+'''
  if(wr_config_started){
-  if(wr_iot_mcu_boot_config_finish(pAd,&wr_config_ticket,1)!=NDIS_STATUS_SUCCESS)goto err8;
+  if(wr_iot_mcu_boot_config_finish(pAd,&wr_config_ticket,1)!=NDIS_STATUS_SUCCESS)goto wr_config_err;
   wr_config_started=0;
   /* Normal command/data admission remains separately closed. */
-  goto err8;
+  goto wr_config_err;
  }
 #endif
 \tDBGPRINT_S(("<==== rt28xx_init, Status=%x\\n", Status));''')
@@ -80,9 +80,10 @@ for action in ('RTMP_IRQ_ENABLE(pAd);', 'RTMPEnableRxTx(pAd);',
     if action not in body:
         p.error('Missing startup admission site: ' + action)
     body = body.replace(action, guard + '''
- if(wr_config_started)goto err8;
+ if(wr_config_started)goto wr_config_err;
 #endif
  ''' + action)
+one('\n#ifdef CONFIG_ATE\nerr9:', '\n'+guard+'\nwr_config_err:\n#endif\n#ifdef CONFIG_ATE\nerr9:')
 
 (src / name).write_text(text[:start] + body + text[end:])
 digest = hashlib.sha256((src / name).read_bytes()).hexdigest()

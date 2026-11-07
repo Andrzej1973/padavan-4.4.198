@@ -15259,3 +15259,10 @@ CI sequence updated. Next fresh target compile and audit complete startup
 path, firmware-side writers and remaining checked-ID scan budget. No runtime
 claim and no removal of normal-admission refusal.
 
+# CONFIG_ATE cleanup correction — 2026-11-07
+
+Config-generated refusal branches now use wr_config_err before conditional
+err9/ATEExit, ensuring ATE teardown then err8 cleanup. Checker updated to require
+label order and all six guarded branches. Host conditional cleanup smoke test
+passed both ATE settings; actual target feature compile still pending.
+

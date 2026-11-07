@@ -17,7 +17,8 @@ assert body.count(begin) == 1 and body.count(finish) == 1 and body.count(abandon
 assert body.index('MCUSysInit(pAd)') < body.index(begin) < body.index('RtmpChipOpsEepromHook')
 assert body.index(finish) < body.index('DBGPRINT_S(("<==== rt28xx_init')
 success = body[body.index(finish):body.index('DBGPRINT_S(("<==== rt28xx_init')]
-assert 'goto err8;' in success and 'Normal command/data admission remains separately closed.' in success
+assert 'goto wr_config_err;' in success and 'Normal command/data admission remains separately closed.' in success
+assert body.index('wr_config_err:') < body.index('err9:') < body.index('ATEExit(pAd);') < body.index('err8:')
 err6_tail = body[body.index('err6:'):]
 assert body.index('err6:') < body.index(abandon)
 assert 'MCUSysExit' in err6_tail and err6_tail.index(abandon) < err6_tail.index('MCUSysExit')
@@ -28,5 +29,5 @@ for action in ('RTMP_IRQ_ENABLE(pAd);', 'RTMPEnableRxTx(pAd);',
     assert sites, action
     for site in sites:
         prefix = body[:site.start()].rstrip()
-        assert prefix.endswith('if(wr_config_started)goto err8;\n#endif'), action
+        assert prefix.endswith('if(wr_config_started)goto wr_config_err;\n#endif'), action
 print('PASS outer config owner: begin after MCUSysInit, every later error reaches abandon, success stays refused before normal admission; source ordering only')
