@@ -1,3 +1,22 @@
+## Sol: private autochannel loop stops after failed channel command
+
+Added mcu-config-channel-scan after channel-caller. APAutoSelectChannel now
+returns invalid channel0 on preexisting private failure or immediately after
+a switch records failure, before lock, scan metadata, busy-counter read,
+wait, statistics update or best-channel selection. It retains the owner's
+failure; it does not disable automatic selection or trim channel lists.
+ASan/UBSan fixture executes actual generated loop with injected switch failures
+at every position of11/13-channel lists and with preexisting failure. Successful
+and ordinary routes retain all channels. Prior composed channel wrapper/caller
+regression passes; shell syntax and diff checks pass. Target/runtime unverified.
+Optional841/run42375303427 is live; fetched verification-source artifact
+13575422330 in memory: requested==verified03f5dc6, dispatch2278e415. Candidate
+compile step still pending at observation; no target result asserted. Compact
+source receipt recorded in WR1200JS-RUN-42375303427-SOURCE.json.
+Temporary host outputs auto-removed. Retained ~15MB generated candidate+manifest
+now includes scan layer and remains necessary for unfinished IoT. No router
+operations; docs/reference preserved. Budget/reuse protocol remains unresolved.
+
 ## Sol: outer channel caller stops after private configuration refusal
 
 Added mcu-config-channel-caller after channel-latch. MT_MAC build selects

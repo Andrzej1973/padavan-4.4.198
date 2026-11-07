@@ -290,7 +290,7 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
     mcu-config-noresponse mcu-config-rf-pending mcu-config-rf-read \
     mcu-config-mac-pending mcu-config-mac-read mcu-config-ext mcu-config-timing \
     mcu-config-init-owner mcu-config-slot-direct mcu-config-edca-direct \
-    mcu-config-channel-latch mcu-config-channel-caller; do
+    mcu-config-channel-latch mcu-config-channel-caller mcu-config-channel-scan; do
     python3 "tools/iot/prepare-$layer.py" "$merged" --install-isolated
   done
   for fixture in mcu-boot-transport mcu-boot-builders mcu-nettask-bootstrap \
@@ -311,6 +311,7 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   done
   python3 tools/iot/check-mcu-config-init-owner.py "$merged"
   python3 tools/iot/check-mcu-config-channel-latch.py "$merged"
+  python3 tools/iot/check-mcu-config-channel-scan.py "$merged"
   for fixture in allocator release lifetime destructors; do
     python3 "tools/iot/check-mcu-sequence-$fixture.py" "$merged"
   done
