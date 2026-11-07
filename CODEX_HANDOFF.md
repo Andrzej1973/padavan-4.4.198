@@ -15202,3 +15202,13 @@ cases. IoT CI invokes `check-slot-register.c` with pristine headers. Next bind
 MMIO only with verified MAC exclusion, owner lifetime and no pending firmware
 writer; codec alone supplies no execution or retirement proof.
 
+# Config ledger continuation correction — 2026-11-07
+
+Base config-owner readiness now distinguishes fresh begin from active config:
+valid retired bits are allowed only in state1. Real allocator/finish calls in
+the TX-power transport fixture accumulate all15 IDs without clearing/reuse;
+post-send success now passes. Fresh begin and corrupt ledger still refuse.
+Host ASan/UBSan passes with changed readiness substituted into retained
+generated source; full fresh generation and target proof pending. Keep the
+15-ID exhaustion and scan counterexample open; do not call this safe reuse.
+

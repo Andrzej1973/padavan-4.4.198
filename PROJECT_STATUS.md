@@ -15822,3 +15822,15 @@ firmware ordering or data-admission grant is implemented by this helper.
 Temporary test binaries removed; retained final candidate remains available
 for unfinished integration work.
 
+# Config continuation versus fresh epoch — 2026-11-07
+
+Fixed config readiness after the first successful checked command. Fresh begin
+still rejects retired IDs; active config now permits a valid retired mask with
+cursor <=15 while retaining occupied/poison/quarantine checks. No IDs are cleared
+or made reusable. The transport fixture now uses the real checked allocator and
+finish functions to accumulate 15 distinct retired IDs across actual TX-power
+builder calls; ASan/UBSan passes. Fresh begin rejects used/corrupt masks and bad
+cursor. Test applies the changed readiness fragment to the retained generated
+tree in memory; fresh CI generation/target compilation remain pending.
+This fixes premature post-send refusal, not the >15-command scan budget.
+

@@ -92,6 +92,16 @@ static int AndesSendCmdMsg(RTMP_ADAPTER *ad,struct cmd_msg *m){assert(ad&&!m->wr
 static void AndesAppendCmdMsg(struct cmd_msg *m,char *p,unsigned length){assert(m->used+length<=sizeof(m->payload));memcpy(m->payload+m->used,p,length);m->used+=length;}
 '''
 core=(a.candidate/'mcu/andes_core.c').read_text();start=core.index('if (!need_wait || msg->need_retransmit ||')
+prefix='#include "mcu-sequence-reservation.h"\n'+prefix
+prefix=prefix.replace('sent++;int result=transport_result;', '''sent++;int result=transport_result;
+if(read_mode==8&&m->wr_iot_checked){
+ struct wr_iot_mcu_sequence_reservation ledger={0};
+ ledger.retired=ad->wr_iot_sequence.retired;ledger.cursor=ad->wr_iot_sequence.cursor;
+ unsigned slot=wr_iot_mcu_sequence_reserve_checked(&ledger);assert(slot);
+ assert(wr_iot_mcu_sequence_finish(&ledger,slot,0));
+ ad->wr_iot_sequence.retired=ledger.retired;
+ ad->wr_iot_sequence.cursor=ledger.cursor;
+}''')
 prefix=prefix.replace('EXT_RESPONSE',r"""if(m->wr_iot_config_ext_result){unsigned char data[8]={0};data[0]=(unsigned char)m->ext_cmd_type;if(read_mode==1)data[4]=1;if(read_mode==2)data[0]^=1;if(!result)result=wr_iot_config_ext_success(m->cmd_type,m->ext_cmd_type,m->set_query==CMD_SET,0xed,0,data,8,20,20,12)?0:1;if(read_mode==4)peer_ok=0;}""" if ext_config else '')
 prefix=prefix.replace('MAC_RESPONSE',r"""if(m->wr_iot_config_mac_query){unsigned char data[32]={0};store_word(data+24,m->wr_iot_config_mac_address);store_word(data+28,m->wr_iot_config_mac_value);if(read_mode==1)data[28]^=1;if(read_mode==2)data[24]^=1;if(read_mode==7)data[20]=1;result=wr_iot_config_mac_read_matches(m->cmd_type,m->ext_cmd_type,m->set_query==CMD_QUERY,0xed,0x0e,data,32,44,44,12,m->wr_iot_config_mac_address,m->wr_iot_config_mac_value)?0:1;if(read_mode==3)ad->wr_iot_config_mac_pending.generation++;if(read_mode==4)peer_ok=0;}""" if mac_read else '')
 prefix=prefix.replace('RF_DRIFT','if(read_mode==3)ad->wr_iot_config_rf_pending.generation++;if(read_mode==4)peer_ok=0;' if rf_read else '')
@@ -381,6 +391,25 @@ for(unsigned mode=0;mode<6;mode++){
  assert(!owner.refs&&!foreign.refs);
 }
 puts("PASS actual TX-power owned builder: success, allocation/firmware/transport failures, peer drift, delayed destruction timeout and retained owner failure");
+{
+ RTMP_ADAPTER ad=valid();current=&owner;peer_ok=1;alloc_fail=defer_free=wait_timeout=0;read_mode=8;transport_result=0;sent=0;
+ assert(!wr_iot_mcu_boot_config_begin(&ad,&ad.ticket));
+ for(unsigned i=0;i<15;i++){
+  CmdSetTxPowerCtrl(&ad,6);
+  assert(sent==i+1&&ad.wr_iot_sequence.retired&&!ad.wr_iot_boot_failed);
+ }
+ assert(ad.wr_iot_sequence.retired==0xfffeU&&ad.wr_iot_sequence.cursor==15);
+ assert(!ad.wr_iot_mcu_sender_owner.messages);
+ assert(!wr_iot_mcu_boot_config_finish(&ad,&ad.ticket,1)&&!owner.refs);
+ read_mode=0;
+ puts("PASS real checked-ID retirement retained through config post-send success; fresh begin remains separate");
+ for(unsigned mode=0;mode<4;mode++){
+  RTMP_ADAPTER fresh=valid();
+  fresh.wr_iot_sequence.retired=mode==0?2:mode==1?1:mode==2?0x10000:0;
+  if(mode==3)fresh.wr_iot_sequence.cursor=16;
+  assert(wr_iot_mcu_boot_config_begin(&fresh,&fresh.ticket)==1&&!owner.refs);
+ }
+}
 puts("PASS actual channel builder: checked extended status/echo, transport failure, peer drift and TX-done timeout; owner retains failures, no ledger grant");
 '''+tail[pos:]
 if timing_config:
