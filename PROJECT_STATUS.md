@@ -15811,3 +15811,14 @@ now guards six sites (2 IRQ, 2 RX/TX, AP start, radio on); in-memory source
 transformation checks pass. Full fresh generation and target verification of
 this addition remain pending. Required future scan/data promotion remains open.
 
+# Slot register encoding — 2026-11-07
+
+Added a pure slot tuple-to-TMAC_ICR encoder with explicit field-range,
+reserved-byte, length and null refusal; output is unchanged on refusal.
+ASan/UBSan tests compare 512 valid tuples against the pinned SDK's actual
+ICR encode/decode macros and check register address 0x216a4. Bound the test to
+IoT CI with the pristine SDK include path. No MMIO write, journal retirement,
+firmware ordering or data-admission grant is implemented by this helper.
+Temporary test binaries removed; retained final candidate remains available
+for unfinished integration work.
+

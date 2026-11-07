@@ -36,6 +36,9 @@ git -C padavan-4.4 archive --format=tar HEAD \
   | tar -xf - -C "$pinned"
 pristine="$pinned/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3"
 python3 tools/iot/check-tx-power-builder.py "$pristine"
+gcc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-pie -no-pie \
+  -I tools/iot -I "$pristine/include" tools/iot/check-slot-register.c -o "$results/check-slot-register"
+"$results/check-slot-register"
 if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   mkdir -p "$candidate"
   python3 tools/iot/prepare-current-recovery-chain.py "$pristine" "$candidate/recovery"

@@ -15193,3 +15193,12 @@ verified locally; target build pending. This remains an isolated candidate
 refusal, not functional IoT acceptance. Continue toward the eventual verified
 scan/data transition and command completion/sequence requirements.
 
+# Slot register codec checkpoint — 2026-11-07
+
+`wr_iot_config_slot_register` encodes the existing SDK timing tuple into
+TMAC_ICR, rejecting values that would truncate. Host ASan/UBSan passes against
+actual pinned SDK macros over 512 tuples plus invalid-input/output-preservation
+cases. IoT CI invokes `check-slot-register.c` with pristine headers. Next bind
+MMIO only with verified MAC exclusion, owner lifetime and no pending firmware
+writer; codec alone supplies no execution or retirement proof.
+

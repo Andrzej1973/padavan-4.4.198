@@ -7,6 +7,20 @@ struct wr_iot_config_timing_pending {
  struct wr_iot_config_rf_pending ticket;
  unsigned char bytes[36];
 };
+/* SDK TMAC_ICR (0x216a4) field encoding only. No I/O, ACK, ordering or
+ * journal retirement grant. Refuse truncation and leave output untouched. */
+static inline int wr_iot_config_slot_register(const unsigned char *data,
+ unsigned int length,unsigned int *value)
+{
+ unsigned int eifs;
+ if(!data||!value||length!=8||data[3]||data[6]||data[7]||
+    data[0]>127U||data[1]>127U||data[2]>31U)return 0;
+ eifs=(unsigned int)data[4]|((unsigned int)data[5]<<8);
+ if(eifs>511U)return 0;
+ *value=eifs|((unsigned int)data[2]<<10)|
+        ((unsigned int)data[1]<<16)|((unsigned int)data[0]<<24);
+ return 1;
+}
 static inline int wr_iot_config_timing_valid(unsigned int ext,
  const unsigned char *data,unsigned int length)
 {
