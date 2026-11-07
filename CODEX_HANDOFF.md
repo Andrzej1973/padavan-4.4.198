@@ -15220,3 +15220,12 @@ ASan/UBSan passes. CI fixture added. Next implement and test an exclusive
 config-owner wrapper rejecting pending firmware timing intents before invoking
 this primitive. Hardware read-back alone must not clear submitted journals.
 
+# Slot owner wrapper checkpoint — 2026-11-07
+
+Uninstalled `mcu-config-slot-owner.inc` checks task/ticket/bootstrap and drained
+sender under existing lock order, rejects active/poisoned/historical EDCA/slot
+records, and retains MMIO failure. 13 injected host cases pass ASan/UBSan.
+Remaining: compose real primitive with wrapper in the fixture, install via
+manifest-checked generator and bind private slot builder without firmware TX.
+Do not infer runtime, execution ordering or driver installation from this test.
+

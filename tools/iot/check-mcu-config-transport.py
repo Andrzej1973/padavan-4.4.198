@@ -465,6 +465,33 @@ puts("PASS actual EDCA/slot builders: bounded EDCA before copy, serialized inten
 with tempfile.TemporaryDirectory(prefix='wr-config-transport-') as td:
  c=Path(td)/'check.c';reader=(a.candidate/'include/wr-iot-mcu-config-rf-read.inc').read_text() if rf_read else ''
  if mac_read:reader+=(a.candidate/'include/wr-iot-mcu-config-mac-read.inc').read_text()
- c.write_text(prefix+(a.candidate/'include/wr-iot-mcu-boot-config-owner.inc').read_text()+(a.candidate/'include/wr-iot-mcu-config-transport.inc').read_text()+reader+'\n'.join(builders)+tail)
+ slot_wrapper=''
+ if timing_config:
+  slot_wrapper='\nstatic unsigned slot_calls,slot_fail;\nstatic int wr_iot_config_slot_mmio(RTMP_ADAPTER *ad,unsigned expected){assert(ad&&held==2&&expected==7);slot_calls++;return !slot_fail;}\n'+Path(__file__).with_name('mcu-config-slot-owner.inc').read_text()
+  at=tail.index('puts("PASS owner/config transport')
+  tail=tail[:at]+r'''
+ for(unsigned fault=0;fault<13;fault++){
+  RTMP_ADAPTER ad=valid();current=&owner;peer_ok=1;slot_calls=slot_fail=0;
+  assert(!wr_iot_mcu_boot_config_begin(&ad,&ad.ticket));
+  struct wr_iot_mcu_boot_ticket t=ad.ticket;
+  switch(fault){case 1:current=&foreign;break;case 2:t.radio_epoch++;break;
+   case 3:ad.wr_iot_config_slot_pending.ticket.generation=1;break;
+   case 4:ad.wr_iot_config_edca_pending.ticket.generation=1;break;
+   case 5:ad.wr_iot_boot_config_unconfirmed=1;break;
+   case 6:ad.wr_iot_config_slot_pending.ticket.poisoned=1;break;
+   case 7:ad.wr_iot_mcu_sender_owner.messages=1;break;
+   case 8:ad.wr_iot_config_edca_pending.ticket.active=1;break;
+   case 9:slot_fail=1;break;
+   case 10:ad.wr_iot_mcu_sender_owner.inflight=1;break;
+   case 11:ad.wr_iot_mcu_sender_owner.radio_active=1;break;
+   case 12:ad.wr_iot_boot_fw_state=1;break;}
+  assert(wr_iot_mcu_config_slot_owned(&ad,&t,7)==(fault?1:0));
+  assert(slot_calls==(!fault||fault==9));
+  if(fault==9)assert(ad.wr_iot_boot_failed);
+  current=&owner;assert(wr_iot_mcu_boot_config_finish(&ad,&ad.ticket,0)==1&&!owner.refs);
+ }
+ puts("PASS isolated slot owner: task/ticket, pending/history/poison/unconfirmed/messages refusal before I/O and hardware failure retention; MMIO injected");
+ '''+tail[at:]
+ c.write_text(prefix+(a.candidate/'include/wr-iot-mcu-boot-config-owner.inc').read_text()+(a.candidate/'include/wr-iot-mcu-config-transport.inc').read_text()+reader+slot_wrapper+'\n'.join(builders)+tail)
  subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-pie','-no-pie','-DMT7603','-DMT_MAC','-DRTMP_PCI_SUPPORT','-I'+str(a.candidate/'include'),str(c),'-o',td+'/check'],check=True)
  subprocess.run([td+'/check'],check=True)

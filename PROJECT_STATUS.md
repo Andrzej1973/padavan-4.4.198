@@ -15844,3 +15844,14 @@ invokes the fixture. Caller must still supply exclusive config/lifetime lease
 and prove absence of pending firmware timing writers; there is no startup
 binding, journal retirement or completion grant yet. Test scratch removed.
 
+# Isolated slot ownership wrapper — 2026-11-07
+
+Added an uninstalled slot-MMIO config wrapper using transition then sender lock
+order. It checks current task/exact context, initialized bootstrap, drained
+sender and no timing intent/history before I/O; hardware refusal retains config
+failure. ASan/UBSan transport fixture passes 13 success/refusal cases with MMIO
+injected, including inflight/radio-active refusal. Wrapper and actual MMIO
+primitive remain separately tested and not installed into driver generation.
+Next compose their tests and bind the slot builder without submitting a
+firmware timing command on the private path. No journal clearing is granted.
+
