@@ -282,6 +282,25 @@ backend remain unfinished; THIRD BSS RESERVED and runtime acceptance pending.
 
 ## CI checkpoint
 
+ABI42400479459 reached diagnostics upload with no failed steps for
+dde26a2cd13e99245d92d3cbbcd16fb6276daf76. Artifact13584964043 contains
+iot-cold-profile-compile.json: ELF32 little-endian MIPS object compiled,
+prepared source SHA2569ef6444b7601fb556efb34ecf9ed65d87580d653ec2b2fe182d79509567bf5c0,
+object SHA256a4f8370a492766ff27a35f7f365da280e38ba1b462a37f0e0e76c02b9dec808c.
+Report source SHA matches requested project revision. firmware_link_verified
+and runtime_verified remain false. Full run final conclusion still pending at
+inspection. ZIP read in memory, no retained extracted build tree.
+
+Optional858 run42398477393 SUCCESS. Artifacts13583869295 verification-source
+and13585227318 iot-merged-driver-probe independently identify source
+1f59bdc5a1d464dfa5d68cded9a7c059eebebc9d. target-compile-result.json reports
+peer82 mt76x3_ap.ko5790712bytes SHA256
+6afcab532bbc9a1c6d8d3b77fb18505e51988de4e7daf474119ad31a4005c2ca,
+target_compiled=true, production_installed=false, runtime_verified=false.
+This covers that revision's isolated driver, not newer cold RC binding or
+on-device Main/Guest/IoT operation. ZIP inspection was in-memory; no extracted
+artifact/build tree retained locally.
+
 Standard854 run42393422760 succeeded for source1485b61a; ABI42393422664 also
 succeeded. Standard855 run42393659532 is still in progress for6827b43e; its
 ABI42393659492 succeeded. Queued optional peer82/iot verification of exact

@@ -1,0 +1,16 @@
+{
+  "revision": "dde26a2cd13e99245d92d3cbbcd16fb6276daf76",
+  "run_id": 42400479459,
+  "run_conclusion": "success",
+  "artifact_id": 13584964043,
+  "artifact_name": "band-steering-mips-abi",
+  "object": "iot-rc-ralink-mips.o",
+  "object_bytes": 62692,
+  "object_sha256": "a4f8370a492766ff27a35f7f365da280e38ba1b462a37f0e0e76c02b9dec808c",
+  "prepared_source_sha256_from_report": "9ef6444b7601fb556efb34ecf9ed65d87580d653ec2b2fe182d79509567bf5c0",
+  "independent_zip_object_hash_verified": true,
+  "independent_elf32_little_endian_mips_relocatable_verified": true,
+  "firmware_link_verified": false,
+  "runtime_verified": false,
+  "scope": "Prepared RC cold profile translation unit; does not prove driver request transport, runtime activation, image installation or device behavior"
+}
