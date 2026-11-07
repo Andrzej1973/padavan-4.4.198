@@ -132,3 +132,22 @@ ap_auth.c також перевіряє це перед authentication і пер
 для DOWN BSS. Association, залишені MAC entries, data paths, recovery queues
 та hardware drain ще потребують окремої композиційної перевірки.
 Це не доказ повної RF/data тиші або готовності cold startup hook.
+
+## Association/data snapshot guard staged
+
+Source review found association after MacTableLookup checks only VALID_MBSS,
+then mutates AuthAssocNotInProgressFlag; an existing client entry could refer
+to a now-closed third BSS. Added isolated prepare-precreated-bss-admission.py:
+MT7603/MT_MAC/PCI guarded check after BSS lookup, before association mutations;
+RX check after PACInquiry for client entries, before data side effects.
+Header rejects third BSS if invalid BssidNum, missing/DOWN interface or absent
+beacon intent. Main/Guest and other chips retain their paths. No MCU commands,
+ID/ACK changes, scans or radio calls introduced.
+
+ASan/UBSan host predicate tests pass; installer tested on a temporary exact
+copy of retained candidate with manifest/anchor checks. Copy auto-removed.
+CI preparation layer and host fixture added, target compilation pending.
+This is snapshot rejection, NOT a replacement for existing peer/transition
+ownership across the rest of packet processing. Races, multicast/forwarding,
+probe/auth failure responses and complete RF silence need composed review.
+Cold startup hook remains unbound until those checks and target build pass.
