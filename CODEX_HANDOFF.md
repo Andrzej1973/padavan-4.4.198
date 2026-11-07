@@ -15266,3 +15266,13 @@ err9/ATEExit, ensuring ATE teardown then err8 cleanup. Checker updated to requir
 label order and all six guarded branches. Host conditional cleanup smoke test
 passed both ATE settings; actual target feature compile still pending.
 
+# Bootstrap ledger handover checkpoint — 2026-11-07
+
+Receipt snapshots retired IDs/cursor under owner locks after FW_START/RUN.
+Config begin matches this snapshot rather than requiring no used IDs; active
+config cannot lose its bits or rewind cursor. No reset/reuse introduced.
+Receipt/config/transport ASan/UBSan checks pass via current fragments applied
+to retained source in memory. Full fresh target compile pending. The scan
+budget must subtract IDs already consumed by bootstrap; do not claim 15 fresh
+config IDs in the real boot path.
+

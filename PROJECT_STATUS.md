@@ -15899,3 +15899,14 @@ Host C cleanup-path smoke check passes with and without CONFIG_ATE; full fresh
 generated target/feature compilation remains pending. No change to ordinary
 SDK error labels or normal admission policy.
 
+# Bootstrap-to-config ledger receipt — 2026-11-07
+
+Firmware receipt now snapshots valid retired-mask/cursor without clearing IDs.
+Config begin requires exact snapshot equality; active config preserves the
+bootstrap retired subset and does not rewind cursor. This replaces the
+unreachable empty-ledger requirement after successful checked FW_START.
+Host ASan/UBSan receipt and config tests pass matching snapshot, stale mask,
+cursor mismatch, corruption, lost bootstrap bits and cursor rewind refusal.
+Generators initialize new adapter fields; target/fresh full generation pending.
+The 15-ID total budget still includes firmware boot commands and remains open.
+

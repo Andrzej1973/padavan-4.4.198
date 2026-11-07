@@ -17,7 +17,12 @@ static int wr_iot_mcu_boot_config_ready(RTMP_ADAPTER *ad,
   !ad->wr_iot_sequence.occupied&&!ad->wr_iot_sequence.poisoned&&
   !ad->wr_iot_sequence.quarantined&&
   !(ad->wr_iot_sequence.retired&~0xfffeU)&&ad->wr_iot_sequence.cursor<=15&&
-  (ad->wr_iot_boot_config_state==1||!ad->wr_iot_sequence.retired)&&
+  !(ad->wr_iot_boot_fw_retired&~0xfffeU)&&ad->wr_iot_boot_fw_cursor<=15&&
+  (ad->wr_iot_boot_config_state==1?
+   ((ad->wr_iot_sequence.retired&ad->wr_iot_boot_fw_retired)==ad->wr_iot_boot_fw_retired&&
+    ad->wr_iot_sequence.cursor>=ad->wr_iot_boot_fw_cursor):
+   (ad->wr_iot_sequence.retired==ad->wr_iot_boot_fw_retired&&
+    ad->wr_iot_sequence.cursor==ad->wr_iot_boot_fw_cursor))&&
   !RTMP_TEST_FLAG(ad,fRTMP_ADAPTER_NIC_NOT_EXIST|fRTMP_ADAPTER_RESET_IN_PROGRESS|
      fRTMP_ADAPTER_HALT_IN_PROGRESS|fRTMP_ADAPTER_SUSPEND);
 }

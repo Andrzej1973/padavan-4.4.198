@@ -12,6 +12,7 @@ tree=ast.parse(Path(__file__).with_name('check-mcu-boot-retired-boundary.py').re
 prefix=next(ast.literal_eval(n.value) for n in tree.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='prefix' for t in n.targets))
 prefix=prefix[:prefix.index('static int wr_iot_mcu_boot_pse_empty')]
 prefix=prefix.replace('static unsigned held, pse_ok, peer_ok, drift_after_pse;','static unsigned held,peer_ok;')
+prefix=prefix.replace('struct wr_iot_mcu_boot_ticket ticket;', 'unsigned wr_iot_boot_fw_retired,wr_iot_boot_fw_cursor;struct wr_iot_mcu_boot_ticket ticket;')
 prefix=prefix.replace('typedef struct { unsigned flags; } MCU;', 'typedef struct { unsigned flags,Stage; } MCU;')
 prefix=prefix.replace('struct {unsigned messages;}', 'struct {unsigned messages,inflight,radio_active,uncertain;}')
 prefix=prefix.replace('struct wr_iot_mcu_boot_ticket ticket;',
@@ -403,6 +404,22 @@ puts("PASS actual TX-power owned builder: success, allocation/firmware/transport
  assert(!wr_iot_mcu_boot_config_finish(&ad,&ad.ticket,1)&&!owner.refs);
  read_mode=0;
  puts("PASS real checked-ID retirement retained through config post-send success; fresh begin remains separate");
+ for(unsigned fault=0;fault<7;fault++){
+  RTMP_ADAPTER next=valid();next.wr_iot_sequence.retired=6;next.wr_iot_sequence.cursor=2;
+  next.wr_iot_boot_fw_retired=6;next.wr_iot_boot_fw_cursor=2;
+  if(fault==1)next.wr_iot_sequence.retired=14;
+  if(fault==2)next.wr_iot_sequence.cursor=3;
+  if(fault==3)next.wr_iot_boot_fw_retired=0x10000;
+  assert(wr_iot_mcu_boot_config_begin(&next,&next.ticket)==(fault&&fault<4?1:0));
+  if(!fault||fault>=4){
+   if(fault==4)next.wr_iot_sequence.retired=2;
+   if(fault==5)next.wr_iot_sequence.cursor=1;
+   if(fault==6)next.wr_iot_sequence.poisoned=1;
+   assert(wr_iot_mcu_boot_config_finish(&next,&next.ticket,1)==(fault?1:0));
+   assert(next.wr_iot_sequence.retired==(fault==4?2U:6U));
+  }
+  assert(!owner.refs);
+ }
  for(unsigned mode=0;mode<4;mode++){
   RTMP_ADAPTER fresh=valid();
   fresh.wr_iot_sequence.retired=mode==0?2:mode==1?1:mode==2?0x10000:0;

@@ -18,9 +18,9 @@ def one(name,old,new):
  if text.count(old)!=1:p.error('Changed firmware receipt anchor: '+name)
  changes[name]=text.replace(old,new)
 one('include/rtmp.h','unsigned int wr_iot_control_users,wr_iot_control_poisoned;',
- 'unsigned int wr_iot_control_users,wr_iot_control_poisoned;\n unsigned int wr_iot_boot_fw_state;\n unsigned long wr_iot_boot_fw_radio_serial,wr_iot_boot_fw_radio_epoch;')
+ 'unsigned int wr_iot_control_users,wr_iot_control_poisoned;\n unsigned int wr_iot_boot_fw_state;\n unsigned int wr_iot_boot_fw_retired,wr_iot_boot_fw_cursor;\n unsigned long wr_iot_boot_fw_radio_serial,wr_iot_boot_fw_radio_epoch;')
 one('common/rtmp_init.c','pAd->wr_iot_control_users=pAd->wr_iot_control_poisoned=0;',
- 'pAd->wr_iot_control_users=pAd->wr_iot_control_poisoned=0;\n        pAd->wr_iot_boot_fw_state=0;\n        pAd->wr_iot_boot_fw_radio_serial=pAd->wr_iot_boot_fw_radio_epoch=0;')
+ 'pAd->wr_iot_control_users=pAd->wr_iot_control_poisoned=0;\n        pAd->wr_iot_boot_fw_state=0;\n        pAd->wr_iot_boot_fw_retired=pAd->wr_iot_boot_fw_cursor=0;\n        pAd->wr_iot_boot_fw_radio_serial=pAd->wr_iot_boot_fw_radio_epoch=0;')
 one('mcu/andes_core.c','#include "wr-iot-mcu-boot-thaw.inc"',
  '#include "wr-iot-mcu-boot-thaw.inc"\n#include "wr-iot-mcu-boot-firmware-receipt.inc"')
 anchor='INT32 wr_iot_mcu_boot_thaw(struct _RTMP_ADAPTER *ad,const struct wr_iot_mcu_boot_ticket *ticket);'

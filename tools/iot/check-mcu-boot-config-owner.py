@@ -10,6 +10,7 @@ tree=ast.parse(Path(__file__).with_name('check-mcu-boot-retired-boundary.py').re
 prefix=next(ast.literal_eval(n.value) for n in tree.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='prefix' for t in n.targets))
 prefix=prefix[:prefix.index('static int wr_iot_mcu_boot_pse_empty')]
 prefix=prefix.replace('static unsigned held, pse_ok, peer_ok, drift_after_pse;','static unsigned held,peer_ok;')
+prefix=prefix.replace('struct wr_iot_mcu_boot_ticket ticket;', 'unsigned wr_iot_boot_fw_retired,wr_iot_boot_fw_cursor;struct wr_iot_mcu_boot_ticket ticket;')
 prefix=prefix.replace('typedef struct { unsigned flags; } MCU;', 'typedef struct { unsigned flags,Stage; } MCU;')
 prefix=prefix.replace('struct wr_iot_mcu_boot_ticket ticket;',
  'unsigned wr_iot_boot_config_state,wr_iot_boot_config_unconfirmed,wr_iot_boot_active,wr_iot_boot_failed,wr_iot_boot_scheduler_state,wr_iot_boot_fw_state,bPCIclkOff;unsigned long wr_iot_boot_fw_radio_serial,wr_iot_boot_fw_radio_epoch;struct task_struct *wr_iot_boot_config_task;struct wr_iot_mcu_boot_ticket ticket;')

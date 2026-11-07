@@ -13,6 +13,7 @@ prefix=prefix.replace('static unsigned held, pse_ok, peer_ok, drift_after_pse;',
 prefix=prefix.replace('typedef struct { unsigned flags; } MCU;', 'typedef struct { unsigned flags,Stage; } MCU;')
 prefix=prefix.replace('struct wr_iot_mcu_boot_ticket ticket;',
  'unsigned wr_iot_boot_fw_state,wr_iot_boot_failed,bPCIclkOff;unsigned long wr_iot_boot_fw_radio_serial,wr_iot_boot_fw_radio_epoch;struct wr_iot_mcu_boot_ticket ticket;')
+prefix=prefix.replace('unsigned wr_iot_boot_fw_state,','unsigned wr_iot_boot_fw_retired,wr_iot_boot_fw_cursor;unsigned wr_iot_boot_fw_state,')
 prefix+='#define FW_RUN_TIME 3\n#define fRTMP_ADAPTER_SUSPEND 8u\n'
 tail=r'''
 int main(void){unsigned fault;
@@ -23,6 +24,7 @@ int main(void){unsigned fault;
  ad.wr_iot_boot_dma_state=ad.wr_iot_boot_irq_unmask_state=2;
  ad.wr_iot_boot_mcu_only=ad.wr_iot_boot_epoch_done=1;
  ad.wr_iot_boot_epoch_radio_serial=2;ad.wr_iot_boot_epoch_radio_epoch=3;ad.MCUCtrl.Stage=FW_RUN_TIME;
+ ad.wr_iot_sequence.retired=6;ad.wr_iot_sequence.cursor=2;
  switch(fault){
  case 1:peer_ok=0;break;case 2:t.radio_epoch++;break;case 3:ad.wr_iot_boot_frozen=1;break;
  case 4:ad.wr_iot_boot_failed=1;break;case 5:ad.bPCIclkOff=1;break;
@@ -36,7 +38,7 @@ int main(void){unsigned fault;
  }
  assert(wr_iot_mcu_boot_firmware_receipt(&ad,&t)==(fault?1:0));assert(!held);
  if(fault)assert(!ad.wr_iot_boot_fw_state&&!ad.wr_iot_boot_fw_radio_serial&&!ad.wr_iot_boot_fw_radio_epoch);
- else {assert(ad.wr_iot_boot_frozen&&ad.wr_iot_boot_fw_state==2&&ad.wr_iot_boot_fw_radio_serial==2&&ad.wr_iot_boot_fw_radio_epoch==3);
+ else {assert(ad.wr_iot_boot_fw_retired==6&&ad.wr_iot_boot_fw_cursor==2&&ad.wr_iot_sequence.retired==6);assert(ad.wr_iot_boot_frozen&&ad.wr_iot_boot_fw_state==2&&ad.wr_iot_boot_fw_radio_serial==2&&ad.wr_iot_boot_fw_radio_epoch==3);
  assert(wr_iot_mcu_boot_firmware_receipt(&ad,&t)==1);}
  }
  puts("PASS actual firmware receipt: exact ticket/epoch, duplicate refusal, hardware/constructor/ledger/device failure gates; context/locks injected, no hardware proof");
