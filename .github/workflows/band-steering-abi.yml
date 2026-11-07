@@ -1172,6 +1172,9 @@ jobs:
           cp overlay/padavan-4.4/trunk/configs/boards/WR1200JS/board.h iot-rc-source/trunk/user/rc/ralink_board.h
           python3 tools/iot/prepare-rc.py iot-rc-source
           python3 tools/iot/check-user-config-loader.py iot-rc-source
+          # Standalone ralink.c probe needs the same generated header as the
+          # wireless-tools build; use its own pinned Makefile selection.
+          make -C iot-rc-source/trunk/user/wireless_tools wireless.h
           cp iot-rc-source/iot-rc-source.json abi-results/
           python3 - <<'PY'
           import json

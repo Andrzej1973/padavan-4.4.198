@@ -290,6 +290,13 @@ These runs do not cover the newer local credential/observation helpers.
 
 ## Cold generator binding
 
+ABI727 run42399242764 passed source preparation then failed compiling ralink.c:
+iwlib.h:75 missing wireless.h. Monitor42399452920 artifact13585190863 correctly
+reports run/commit/job/step and causal fatal error; no parser change required.
+Standalone probe now runs pinned wireless-tools Makefile target wireless.h,
+which selects and copies wireless.22.h. Locally reproduced target PASS in
+temporary pinned extraction; removed automatically. MIPS compile still pending.
+
 ABI726 run42398834988 failed before compile: original step reports Ralink
 radio-mode anchor changed. Reproduced with prepare-profile-integration then
 prepare-profile-snapshot: NVRAM reads become wr_profile_* calls. prepare-rc
@@ -369,8 +376,12 @@ fields. If credentials or initialized entropy are unavailable it keeps two
 BSSes; it never emits an open third BSS. The prior temporary profile rewrite
 hook was removed, so normal IoT runtime toggles cannot enter that restart path.
 `net_wifi.c` opens only ra0 and permitted ra1 at startup. Vendor `MBSS_Open`
-is the operation that sets `bBcnSntReq`; omitted ra2 stays closed and its beacon
-request remains false. This is source-level call-chain evidence, not RF proof.
+sets `bBcnSntReq`, but is not its sole writer: AIRPLAY_SUPPORT APStartUp
+(ap.c:963) and its OID path (ap_cfg.c:3219) can set it on closed BSSes.
+Consequently omitted ra2 alone does not prove beacon silence. The isolated
+candidate's running-netdev beacon admission guard remains required, and exact
+effective feature options plus hardware queue state must be checked. This
+corrects the earlier unconditional false-beacon-request statement.
 
 The ABI workflow now compiles prepared `ralink.c` with the MIPS toolchain to
 cover the generator and getrandom headers. The new source is not yet covered by
