@@ -254,3 +254,36 @@ invalid input output preservation and old runtime OFF regression. Added to CI
 host fixtures; current edit local. This is a cold-input building block, not a
 startup hook or evidence of actual loaded ra2. Next bind provisioned cold input
 to precreated-profile, handling unprovisioned factory configuration safely.
+
+## Factory OFF cold credentials — policy and kernel entropy adapter
+
+For wholly empty SSID/key with runtime OFF, boot-request reader now allows
+an ephemeral 32-byte random key encoded as64hex and boot-only SSID. It marks
+this request unprovisioned, never writes desired NVRAM, and must not authorize
+runtime ON. Partial/invalid saved credentials and empty ON always refuse;
+valid saved credentials are retained even OFF. Entropy error/short/all-zero
+results refuse without output mutation. Temporary entropy bytes are cleared.
+
+precreated-entropy.h invokes existing Linux getrandom with GRND_NONBLOCK=1;
+no guessed syscall number, no PRNG/device fallback, no early-boot wait. Pinned
+c25283e drivers/char/random.c:1619-1641 refuses with EAGAIN until the
+nonblocking pool initializes, then invokes urandom_read. MIPS UAPI declares
+__NR_getrandom in arch/mips/include/uapi/asm/unistd.h. If toolchain headers
+lack the syscall, adapter refuses ENOSYS; target compilation remains required.
+Unavailable factory entropy must leave Main/Guest startup intact and IoT
+unavailable, never expose an unkeyed BSS. This handling is not yet wired into
+the generator, so no claim of startup reservation or production fallback.
+
+Host ASan/UBSan policy and adapter tests PASS (short/error/EAGAIN/ENOSYS/EINTR,
+unchanged rejected output/config, no substitution of partial or ON input).
+Fixtures added to optional CI. No device operation; temporary binaries removed
+automatically. Production cold hook, loaded request binding and runtime network
+backend remain unfinished; THIRD BSS RESERVED and runtime acceptance pending.
+
+## CI checkpoint
+
+Standard854 run42393422760 succeeded for source1485b61a; ABI42393422664 also
+succeeded. Standard855 run42393659532 is still in progress for6827b43e; its
+ABI42393659492 succeeded. Queued optional peer82/iot verification of exact
+1485b61a890ac0c798453de063783b1c6a7ef427 as run42394787815 after duplicate check.
+These runs do not cover the newer local credential/observation helpers.
