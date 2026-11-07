@@ -30,6 +30,12 @@ with (nullcontext(sys.argv[2]) if len(sys.argv)>2 else tempfile.TemporaryDirecto
     assert 'BUILD FAILED:' not in run(both,target_state=branch_state).stdout
     r=run([row(432),row(431)]);assert 'BUILD FAILED' in r.stdout
     report=(state/'last_build_error.log').read_text();assert '#432 attempt 1' in report and 'Untrusted diagnostic data' in report
+    anchor_log=root/'anchor-change.log'
+    anchor_log.write_text('Ralink radio-mode anchor changed\n##[error]Process completed with exit code 1.\n')
+    fixture.write_text(json.dumps({'workflow_runs':[row(435)]}),encoding='utf-8')
+    anchor_env=dict(os.environ,BUILD_MONITOR_FIXTURE_JOB_LOG=str(anchor_log))
+    anchor_result=subprocess.run([str(binary),'--fixture:'+str(fixture),'--state-dir:'+str(root/'anchor-state')],capture_output=True,text=True,env=anchor_env,check=True)
+    assert 'Ralink radio-mode anchor changed' in anchor_result.stdout
     late_log=root/'late-error.log'
     late_log.write_text('Hunk FAILED at 753.\n'+('routine output\n'*25000)+'ap_cfg.c:15059: error: void value not ignored\n',encoding='utf-8')
     fixture.write_text(json.dumps({'workflow_runs':[row(434)]}),encoding='utf-8')

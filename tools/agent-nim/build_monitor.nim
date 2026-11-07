@@ -76,7 +76,8 @@ proc errorExcerpt(raw: string): string =
   var matches: seq[string]
   for line in raw.splitLines:
     let lower = line.toLowerAscii
-    if ["error:", "fatal", "traceback", "assertion", "##[error]", "failed", "exception"].anyIt(it in lower):
+    if ["error:", "fatal", "traceback", "assertion", "##[error]", "failed", "exception"].anyIt(it in lower) or
+        ("anchor" in lower and "changed" in lower):
       matches.add "  | " & redact(line) & "\n"
       if matches.len > 60: matches.delete(0)
   if matches.len == 0: result = "  No recognized error in bounded excerpt; inspect the linked job log.\n"
