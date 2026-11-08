@@ -26,6 +26,7 @@ struct wr_iot_driver_owner {
  struct wr_iot_driver_open_receipt receipt;
  struct wr_iot_driver_open_receipt refusal; /* only proven pre-mutation refusal */
  unsigned int mutation_started;
+ unsigned char uncertain_request_id[16]; /* provenance only, never acceptance */
 };
 /* Called under transition lock after current adapter identity observation.
  * Challenge metadata is not a task/netdev pin and grants no radio permission. */
@@ -99,6 +100,7 @@ static inline int wr_iot_driver_owner_leave(struct wr_iot_driver_owner *o,
  struct wr_iot_virtual_open_claim retained_claim;
  struct wr_iot_driver_open_receipt retained_receipt;
  struct wr_iot_driver_open_receipt retained_refusal;
+ unsigned char retained_id[16];
  volatile unsigned char *wipe;
  if(!o||!radio||!o->active||o->task!=task||o->claim.device!=dev)return 0;
  /* dev_open can fail before ndo_open. Cancel only a still-current unconsumed
@@ -114,6 +116,7 @@ static inline int wr_iot_driver_owner_leave(struct wr_iot_driver_owner *o,
   radio->epoch==o->claim.epoch&&!radio->reset_pending&&!radio->retiring&&
   !radio->pm_suspending&&!radio->pm_suspended&&record&&!record->removing;
  retained_ticket=o->ticket;retained_claim=o->claim;
+ for(i=0;i<16;i++)retained_id[i]=o->request.request_id[i];
  retained_receipt=o->receipt;
  retained_refusal=o->refusal;
  if(clean&&o->consumed&&o->mutation_started&&record->phase==WR_REF_OWNED&&record->published&&
@@ -137,7 +140,10 @@ static inline int wr_iot_driver_owner_leave(struct wr_iot_driver_owner *o,
  o->refusal=retained_refusal;
  /* Keep nonsecret recovery identity on uncertainty, never a borrowed task
   * pointer or credentials. This metadata does not pin the netdev lifetime. */
- if(!clean){o->ticket=retained_ticket;o->claim=retained_claim;}
+ if(!clean){
+  o->ticket=retained_ticket;o->claim=retained_claim;
+  for(i=0;i<16;i++)o->uncertain_request_id[i]=retained_id[i];
+ }
  return clean;
 }
 /* Caller additionally verifies exact current registry/close receipt under the

@@ -84,7 +84,11 @@ int main(void){
    ad.wr_iot_driver_owner.receipt.open_token==serial&&
    ad.wr_iot_driver_owner.receipt.request_id[0]==q.request_id[0]);
   if(fault==1||fault==3)assert(ad.wr_iot_driver_owner.refusal.valid);
-  if(fault==5)assert(ad.wr_iot_driver_owner.poisoned);
+  if(fault==5){
+   assert(ad.wr_iot_driver_owner.poisoned);
+   assert(!memcmp(ad.wr_iot_driver_owner.uncertain_request_id,q.request_id,16));
+   assert(!ad.wr_iot_driver_owner.request.password[0]&&!ad.wr_iot_driver_owner.task);
+  }
   assert(!ad.wr_iot_driver_owner.request.password[0]);
   assert(!ad.wr_iot_transition_lock);
  }

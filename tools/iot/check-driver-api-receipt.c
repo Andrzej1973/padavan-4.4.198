@@ -32,6 +32,8 @@ int main(void){
   if(fault==2)r.reset_pending=1;
   assert(wr_iot_driver_owner_leave(&o,&task,&iot_dev,&r,slots,2)==(fault!=2));
   assert(!o.request.password[0]&&!o.task);
+  for(unsigned j=0;j<16;j++)assert(o.uncertain_request_id[j]==(fault==2?q.request_id[j]:0));
+
   if(fault==1||fault==2||fault==8||fault==9){
    assert(!o.receipt.valid);assert(o.refusal.valid==(fault==1));
    assert(wr_iot_driver_refusal_matches(&o,q.request_id,&iot_dev,q.adapter_epoch,q.device_generation,token)==(fault==1));

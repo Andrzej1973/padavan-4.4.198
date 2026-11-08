@@ -499,3 +499,11 @@ free. Ordinary IoT close/open does not call buffer init/deinit. This supports
 the runtime-builder scope, but does not replace physical teardown acceptance.
 The generated builder fixture also injects a competing builder from inside the
 unlocked snapshot and BSS count change; both refuse, all pins/wakes balance.
+
+Uncertain OPEN provenance (local, 2026-11-08): owner leave now retains original
+nonsecret request nonce beside the already retained claim/ticket on uncertainty.
+Successful/refused clean leave clears this field. Password/request and borrowed
+task pointer still wipe. This identity is not a success, CLOSED or refusal
+receipt and cannot clear poison or authorize rollback. Six owner/entry/receipt
+sanitizer fixtures and actual generated MBSS uncertainty path pass. A future
+recovery endpoint must separately prove current lifetime and safe closure.
