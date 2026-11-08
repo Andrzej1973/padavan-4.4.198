@@ -1297,6 +1297,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          python3 tools/iot/check-radio-stop-contract.py | tee abi-results/iot-radio-stop-contract.txt
           python3 tools/iot/prepare-stop-check.py iot-rc-source abi-results/check-iot-stop.c
           gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -DBOARD_WR1200JS \
             abi-results/check-iot-stop.c -o abi-results/check-iot-stop-wr

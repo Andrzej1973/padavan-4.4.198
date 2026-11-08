@@ -1,0 +1,35 @@
+{
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "pinned_rc_input_sha256": {
+    "trunk/user/rc/common_ex.c": "58fc581b96d3b0437650c3fb50e155193974a00ac253c26b91de3ef41b29f8e9",
+    "trunk/user/rc/net_wifi.c": "98bbe9cfca0af35be4ddb82742022b90cc51c2f7b34834e627ee6c5f2187dc69",
+    "trunk/user/rc/Makefile": "9b22f6b78abc76a6540ccc4ae29a73c9b5dd0bb01a4879c70f63df2a9d4610b6",
+    "trunk/user/rc/ralink.c": "b7d4ae2bf4c29742ccc9059a97db65aaa5fddf0308ba41e383964235837a956b",
+    "trunk/user/rc/services_ex.c": "4a987eb5930dac58fea702490a371202f3d9632bfa380f068886af90a9688393",
+    "trunk/user/rc/net_wan.c": "fe69a60fd3e33e576af775e28e60ee1f89c5aab8034d7bf3e70e913b08c1072f",
+    "trunk/user/rc/net_lan.c": "98eac219370be3ba01512263eba54aac55610001b0acf0585d02625f9396a66a",
+    "trunk/user/rc/net6.c": "723dd177494c9fd47ec7000b0bf84b1df01ba568b4ea89d63fbf47b720613462",
+    "trunk/user/rc/firewall_ex.c": "cc02516c665e620e60859d6cbc5197c59426eeac19481d5c68c1d4acdc95cf22"
+  },
+  "generator_sha256": {
+    "tools/iot/prepare-rc.py": "2c8d9b4397849363b1f0403e48fd93f53a1fbf615f935c87f311a01360469ad7",
+    "tools/iot/prepare-stop-check.py": "059848f852e0c09890f1405ba5b32457b9cc0ee447b61ad097d13e1486d0850c",
+    "tools/iot/check-radio-stop-contract.py": "00b05bc67f43265efea0ee60aab17fb961ea0661fd41dcffafb81ef01ca5b65e",
+    "tools/iot/radio-stop-contract.h": "3c037787d5e6068dd942a4bcaa69a21a8016b898de8336554e8f27a3395c1b27"
+  },
+  "full_prepare_completed": true,
+  "checks": {
+    "independent_gate_cases": 512,
+    "exact_controller_success_only": true,
+    "actual_full_stop_restart_wr": "PASS ASan/UBSan",
+    "actual_full_stop_restart_other_board": "PASS ASan/UBSan",
+    "initial_refusal_before_radio_and_services": true,
+    "second_refusal_before_physical_stop_profile_or_reopen": true,
+    "second_refusal_scope_limit": "stop_8021x_rt already ran; service recovery requires the owning backend, not claimed unchanged",
+    "radio_reload_combinations": 4
+  },
+  "controller_backend_bound": false,
+  "firmware_target_compiled": false,
+  "shipping_image_changed": false,
+  "runtime_verified": false
+}

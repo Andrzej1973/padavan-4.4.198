@@ -47,38 +47,23 @@ anchor='void \nstop_wifi_all_rt(void)\n{'
 if s.count(anchor)!=1 or 'wr_iot_quiesce' in s:raise SystemExit('Wi-Fi stop anchor changed or already prepared')
 helper="""#if defined(BOARD_WR1200JS)
 #include "wr-iot/bridge.h"
+#include "wr-iot/radio-stop-contract.h"
 static int wr_iot_last_stop_result=1;
 static int wr_iot_quiesce(void)
 {
- int failed=0;
  if (!wr_iot_bridge_is_owned() &&
      (nvram_match("wr_iot_network_t","0")||nvram_match("wr_iot_network_t","")) &&
      (nvram_match("wr_iot_profile_t","0")||nvram_match("wr_iot_profile_t","")) &&
      (nvram_match("wr_iot_firewall_t","0")||nvram_match("wr_iot_firewall_t",""))) return 1;
- wif_control("ra2", 0);
- if (!wr_iot_bss_set_down()) {
-  logmessage("IoT Wi-Fi", "BSS stop not confirmed; isolation must be retained");
-  return 0;
- }
- if (!wr_iot_bridge_set_up(0) || !wr_iot_bridge_detach()) {
-  logmessage("IoT Wi-Fi", "Interface/bridge stop not confirmed; isolation must be retained");
-  return 0;
- }
- if (!nvram_match("wr_iot_network_t","0"))
-  failed |= nvram_set_int_temp("wr_iot_network_t", 0)!=0;
- if (!nvram_match("wr_iot_profile_t","0"))
-  failed |= nvram_set_int_temp("wr_iot_profile_t", 0)!=0;
- if (!nvram_match("wr_iot_firewall_t","0"))
-  failed |= nvram_set_int_temp("wr_iot_firewall_t", 0)!=0;
- failed |= !nvram_match("wr_iot_network_t","0") ||
-           !nvram_match("wr_iot_profile_t","0") || !nvram_match("wr_iot_firewall_t","0");
- if(failed)logmessage("IoT Wi-Fi","Service gates not closed; isolation must be retained");
- return !failed;
+ /* The owning activation controller must close/recover IoT while retaining
+  * isolation and service ownership. Administrative DOWN is not this proof.
+  * No independent bridge/gate cleanup follows this callback. */
+ return wr_iot_activation_prepare_radio_stop() == 1;
 }
 #endif
 
 """
-s=s.replace(anchor,helper+anchor+'\n#if defined(BOARD_WR1200JS)\n wr_iot_last_stop_result=wr_iot_quiesce();\n#endif',1)
+s=s.replace(anchor,helper+anchor+'\n#if defined(BOARD_WR1200JS)\n wr_iot_last_stop_result=wr_iot_quiesce();\n if (!wr_iot_last_stop_result) return;\n#endif',1)
 restart_anchor='void\nrestart_wifi_rt(int radio_on, int need_reload_conf)\n{'
 if s.count(restart_anchor)!=1:raise SystemExit('2.4 GHz restart anchor changed')
 s=s.replace(restart_anchor,restart_anchor+'''\n#if defined(BOARD_WR1200JS)
@@ -101,7 +86,7 @@ for name in ('bridge.h','subnet.h','types.h'):(headers/name).write_bytes((local/
 # Keep the activation state machine and the immutable request parser beside the
 # RC objects that will own them.  They are still deliberately unbound here;
 # staging them first makes the real RC include environment a compile gate.
-for name in ('activation.h','request.h','request-stage.h','radio-profile-state.h','dns-activation.h'):(headers/name).write_bytes((local/name).read_bytes())
+for name in ('activation.h','request.h','request-stage.h','radio-profile-state.h','dns-activation.h','radio-stop-contract.h'):(headers/name).write_bytes((local/name).read_bytes())
 (headers/'request-snapshot.h').write_bytes((local/'request-snapshot.h').read_bytes())
 snapshot=(local/'request-snapshot.c').read_text(encoding='utf-8')
 for name in ('request-snapshot.h','service-guard.h','bridge.h'):
@@ -114,7 +99,7 @@ stage=stage.replace('#include "service-guard.h"','#include "wr-iot/service-guard
 stage=stage.replace('#include "network-check.h"','#include "wr-iot/network-check.h"',1)
 (rc/'wr-iot-request-stage.c').write_text(stage,encoding='utf-8')
 m.write_text(m.read_text(encoding='utf-8').replace('OBJS += wr-iot-bridge.o','OBJS += wr-iot-request-stage.o wr-iot-bridge.o'),encoding='utf-8')
-report={'board':'WR1200JS','candidate_bss':'ra2','bridge_object_installed':True,'owned_quiescence_before_radio_stop':True,'activation_integrated':False,'runtime_verified':False}
+report={'board':'WR1200JS','candidate_bss':'ra2','bridge_object_installed':True,'owned_quiescence_before_radio_stop':False,'radio_stop_controller_contract_staged':True,'radio_stop_controller_bound':False,'activation_integrated':False,'runtime_verified':False}
 report['activation_headers_staged']=True
 report['request_snapshot_header_staged']=True
 report['request_snapshot_runtime_adapter_staged']=True
@@ -694,5 +679,5 @@ m.write_text(make.replace('wr-iot-disable-controller.o','wr-iot-disable-controll
 report['linux_driver_api_client_staged']=True
 report['linux_driver_api_client_activation_bound']=False
 (a.source/'iot-rc-source.json').write_text(json.dumps(report,indent=2)+'\n')
-print('PASS WR-only IoT bridge object and owned quiescence source integration; activation pending')
+print('PASS WR-only IoT bridge and controller stop contract staged; controller/activation backend remains unbound')
 
