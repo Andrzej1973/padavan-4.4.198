@@ -1,0 +1,36 @@
+{
+  "failed_run": 42443350358,
+  "attempt": 1,
+  "workflow_head": "e5d7e4c7060c5c6ac1d13282d200dd0ad45cab12",
+  "verified_source": "df67a7024601693f7094fec632b7a96a273f91c3",
+  "lane": "optional",
+  "variant": "peer82",
+  "failed_job": 128617083499,
+  "failed_step": "Compile isolated merged IoT MT7603 candidate",
+  "monitor_run": 42444455498,
+  "monitor_artifact": 13603156347,
+  "monitor_useful": true,
+  "monitor_parser_changed": false,
+  "diagnostic_artifact": 13603320147,
+  "diagnostic_file": "build.log",
+  "causal_lines": [
+    1700,
+    1703,
+    1706
+  ],
+  "errors": [
+    "radio transition missing mt_radio_off_stage",
+    "radio transition missing ap_cleanup_serial"
+  ],
+  "root_cause": "API installer replaced accumulated transition successor with observation-extended frozen base, deleting earlier layer fields/behavior.",
+  "fix": "Apply reviewed BSS_OBSERVE delta to current hash-checked candidate transition header. Install identical extended accumulated text for both transition include names.",
+  "host_verification": [
+    "exact full-header delta",
+    "actual shutdown/cleanup fields init and preservation across observation",
+    "frozen replacement negative regression",
+    "actual generated OPEN,close,exclusive-builder regressions"
+  ],
+  "target_rebuild": "pending",
+  "runtime_verified": false,
+  "scratch": "artifact ZIPs inspected in memory; phase candidates/test binaries auto-removed"
+}

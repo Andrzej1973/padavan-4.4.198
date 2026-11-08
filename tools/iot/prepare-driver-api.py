@@ -6,7 +6,7 @@ p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('source',type=Path)
 p.add_argument('--install-isolated',action='store_true',required=True)
 a=p.parse_args();src=a.source.resolve();local=Path(__file__).parent
-runpy.run_path(str(local/'check-radio-transition-api.py'),run_name='__main__')
+transition_api=runpy.run_path(str(local/'check-radio-transition-api.py'),run_name='__main__')
 mp=Path(str(src)+'.manifest.json');raw=mp.read_bytes();m=json.loads(raw)
 actual={str(f.relative_to(src)):hashlib.sha256(f.read_bytes()).hexdigest() for f in src.rglob('*') if f.is_file()}
 if m.get('production_installed') is not False or m.get('target_compiled') is not False or 'precreated_bss_admission' not in m or 'linux_open_api' in m or actual!=m['merged_driver_sha256']:
@@ -94,7 +94,11 @@ changes[name]=s
 for n in ('driver-api-owner.h','driver-api-wire.h','driver-api-owner-binding.inc','driver-api-open-entry.inc','driver-api-identity.inc','radio-transition-api.h','mbss-close-receipt.h','mbss-closed-probe.h','mt7603-closed-observe.h','mt7603-closed-probe-binding.inc','driver-api-closed-entry.inc'):
  changes['include/'+n]=(local/n).read_text()
 # Historical stages use the frozen base; only the API successor receives the extension.
-changes['include/radio-transition.h']=(local/'radio-transition-api.h').read_text()
+# Extend the accumulated successor, not the frozen base: previous layers add
+# shutdown/cleanup fields and lifecycle transitions that must survive this API.
+extended_transition=transition_api['extend_transition']((src/'include/radio-transition.h').read_text())
+changes['include/radio-transition.h']=extended_transition
+changes['include/radio-transition-api.h']=extended_transition
 # All source anchors/collisions verified before the first mutation.
 for name,s in changes.items():(src/name).write_text(s)
 hashes={n:hashlib.sha256((src/n).read_bytes()).hexdigest() for n in changes}

@@ -329,7 +329,9 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   # Existing extraction fixtures above verify the predecessor layer. Apply
   # the new Linux ABI last, test its actual transformed wrapper, then compile
   # and hash this final source below. This remains an isolated candidate.
+  cp "$merged/include/radio-transition.h" "$results/pre-linux-api-radio-transition.h"
   python3 tools/iot/prepare-driver-api.py "$merged" --install-isolated
+  python3 tools/iot/check-driver-api-transition.py "$results/pre-linux-api-radio-transition.h" "$merged" > "$results/linux-api-transition.txt"
   python3 tools/iot/check-driver-api-mbss.py "$merged" > "$results/linux-open-api-mbss.txt"
   python3 tools/iot/check-beacon-txs-stop.py "$merged" > "$results/beacon-txs-stop.txt"
   python3 tools/iot/check-iot-close-beacon-scope.py "$merged" > "$results/iot-close-beacon-scope.txt"
