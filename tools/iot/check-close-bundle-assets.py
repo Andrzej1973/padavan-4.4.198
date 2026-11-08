@@ -45,3 +45,28 @@ with tempfile.TemporaryDirectory(prefix='wr-bundle-integrate-') as d:
  else:raise AssertionError('Missing include anchor accepted')
  assert edits==before
 print('PASS actual integration function: missing transitive copied, generated shared headers preserved, immutable input, duplicate/missing anchors refuse; no dispatch')
+
+import hashlib
+verify=runpy.run_path(str(here/'close-bundle-assets.py'))['verified_inputs']
+with tempfile.TemporaryDirectory(prefix='wr-bundle-manifest-') as d:
+ driver=Path(d);(driver/'include').mkdir()
+ manifest={'merged_driver_sha256':{}}
+ for name in closure:
+  data=(here/name).read_bytes()
+  if name=='radio-transition.h':data+=b'\n/* prior generated layer */\n'
+  (driver/'include'/name).write_bytes(data)
+  manifest['merged_driver_sha256']['include/'+name]=hashlib.sha256(data).hexdigest()
+ assert len(verify(driver,here,manifest))==len(closure)
+ target=driver/'include/driver-api-close-completion.h';target.write_bytes(target.read_bytes()+b'\n/* drift */\n')
+ try:verify(driver,here,manifest)
+ except ValueError as exc:assert 'manifest drift' in str(exc)
+ else:raise AssertionError('Transitive compiled source drift accepted')
+ # Even a manifest updated alongside tampered direct asset must be rejected.
+ manifest['merged_driver_sha256']['include/driver-api-close-completion.h']=hashlib.sha256(target.read_bytes()).hexdigest()
+ direct=driver/'include/driver-api-close-progress.inc'
+ direct.write_bytes(direct.read_bytes()+b'\n/* unreviewed */\n')
+ manifest['merged_driver_sha256']['include/driver-api-close-progress.inc']=hashlib.sha256(direct.read_bytes()).hexdigest()
+ try:verify(driver,here,manifest)
+ except ValueError as exc:assert 'reviewed source drift' in str(exc)
+ else:raise AssertionError('Updated manifest hid direct source drift')
+print('PASS all compiled closure bytes match manifest; legitimate generated shared header accepted, transitive drift rejected')

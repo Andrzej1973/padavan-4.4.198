@@ -1,0 +1,83 @@
+{
+  "revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "scope": "Pinned beacon long TXD builder and publish callers, no hardware semantics inferred",
+  "files": {
+    "ap/ap_connect.c": {
+      "sha256": "5499298bb20028e56401735b5c6ebc2f3716ad087851282d443fd23120b1ed85",
+      "line": 105,
+      "text": "#ifdef MT_MAC\nVOID write_tmac_info_beacon(RTMP_ADAPTER *pAd, INT apidx, UCHAR *tmac_buf, HTTRANSMIT_SETTING *BeaconTransmit, ULONG frmLen)\n{\n\tMAC_TX_INFO mac_info;\n\n\tNdisZeroMemory((UCHAR *)&mac_info, sizeof(mac_info));\n\n\tmac_info.FRAG = FALSE;\n\tmac_info.CFACK = FALSE;\n\tmac_info.InsTimestamp = TRUE;\n\tmac_info.AMPDU = FALSE;\n\tmac_info.BM = 1;\n\tmac_info.Ack = FALSE;\n\tmac_info.NSeq = TRUE;\n\tmac_info.BASize = 0;\n\tmac_info.WCID = 0;\n\tmac_info.Length = frmLen;\n\tmac_info.TID = 0;\n\tmac_info.TxRate = 0;\n\tmac_info.Txopmode = IFS_HTTXOP;\n#ifdef MT_MAC\n\tmac_info.q_idx = Q_IDX_BCN;\n\tmac_info.TxSPriv = apidx;\n#endif /* MT_MAC */\n\tmac_info.hdr_len = 24;\n\tmac_info.bss_idx = apidx;\n\tmac_info.SpeEn = 1;\n\tmac_info.Preamble = LONG_PREAMBLE;\n\tNdisZeroMemory(tmac_buf, sizeof(TMAC_TXD_L));\n\twrite_tmac_info(pAd, tmac_buf, &mac_info, BeaconTransmit);\n}"
+    },
+    "mac/mt_mac.c": {
+      "sha256": "0503f18843b3ddc5206b6f2565c7a57aedbe7e64f7591f0dc5d6aa5be1355576",
+      "function_first_line": 770,
+      "function_last_line": 1019,
+      "builder_consumes_NSeq": false,
+      "explicit_descriptor_sn_assignment": false,
+      "explicit_sn_vld_assignment": false
+    }
+  },
+  "beacon_builder_calls": [
+    {
+      "path": "ap/ap_connect.c",
+      "line": 512,
+      "context": "\t\tMakeMboOceIE(pAd, wdev, pBeaconFrame+FrameLen, &FrameLen, MBO_FRAME_TYPE_BEACON);\n#endif/* MBO_SUPPORT */\n\n\twrite_tmac_info_beacon(pAd, apidx, tmac_info, &BeaconTransmit, FrameLen);\n\n\t/* step 6. move BEACON TXD and frame content to on-chip memory */\n\tasic_write_bcn_buf(pAd,\n\t\t\t\t\t\ttmac_info, TXWISize,"
+    },
+    {
+      "path": "ap/ap_connect.c",
+      "line": 835,
+      "context": "\n        BeaconTransmit.word = 0;\n\n        //write_tmac_info_beacon(pAd, apidx, tmac_info, &BeaconTransmit, FrameLen);\n\n        pMbss->TimIELocationInBeacon = (UCHAR)FrameLen;\n        pMbss->bcn_buf.cap_ie_pos = sizeof(HEADER_802_11) + TIMESTAMP_LEN + 2;\n"
+    },
+    {
+      "path": "ap/ap_connect.c",
+      "line": 1699,
+      "context": "\t}\n#endif /* A_BAND_SUPPORT */\n\n\twrite_tmac_info_beacon(pAd, apidx, tmac_info, &BeaconTransmit, FrameLen);\n\n        /* step 6. move BEACON TXD and frame content to on-chip memory */\n        asic_write_bcn_buf(pAd,\n                            tmac_info, TXWISize,"
+    }
+  ],
+  "queue_flush_references": [
+    {
+      "path": "common/cmm_data_pci.c",
+      "line": 2707,
+      "text": "RTMP_DCACHE_FLUSH(pBcnRing->Cell[pBcnRing->TxSwFreeIdx].AllocPa, TXD_SIZE);"
+    },
+    {
+      "path": "hw_ctrl/cmm_asic_mt.c",
+      "line": 1338,
+      "text": "/* Flush Beacon Queue */"
+    },
+    {
+      "path": "hw_ctrl/cmm_asic_mt.c",
+      "line": 1341,
+      "text": "RTMP_IO_READ32(pAd, ARB_BCNQCR1, &temp);//check bcn_flush cr status"
+    },
+    {
+      "path": "hw_ctrl/cmm_asic_mt.c",
+      "line": 1346,
+      "text": "printk(\"%s, bcn_flush too long!, j = %x\\n\", __func__, j);"
+    },
+    {
+      "path": "hw_ctrl/cmm_asic_mt.c",
+      "line": 1361,
+      "text": "RTMP_IO_WRITE32(pAd, 0x21c08, val);//flush all stuck bcn"
+    },
+    {
+      "path": "hw_ctrl/cmm_asic_mt.c",
+      "line": 1364,
+      "text": "RTMP_IO_READ32(pAd, 0x21c08, &temp);//flush all stuck bcn"
+    },
+    {
+      "path": "hw_ctrl/cmm_asic_mt.c",
+      "line": 1369,
+      "text": "printk(\"%s, flush all stuck bcn too long!! j = %x\\n\", __func__, j);"
+    }
+  ],
+  "conclusions": [
+    "MT_MAC beacon wrapper sets NSeq TRUE, TxSPriv=apidx, WCID0, Q_IDX_BCN, zeroes descriptor then calls write_tmac_info",
+    "Actual write_tmac_info does not consume NSeq or explicitly assign descriptor SN/sn_vld; wrapper flag alone cannot prove sequence selection",
+    "SN response presence remains insufficient to establish expected unique submission correlation or wrap/reuse safety",
+    "No code modification to firmware protocol/descriptor control justified by this evidence alone"
+  ],
+  "remaining": "Trace actual beacon frame Sequence field and queue-flush register semantics/callback delivery boundary at listed callers; preserve Main/Guest",
+  "runtime_verified": false,
+  "cleanup": "Streamed source in memory only",
+  "callsite_correction": "Line835 is commented out; active calls512/1699. Original text-match list retained as search evidence, not active call count."
+}

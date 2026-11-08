@@ -339,6 +339,9 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   python3 tools/iot/check-driver-api-transition.py "$results/pre-linux-api-radio-transition.h" "$merged" > "$results/linux-api-transition.txt"
   python3 tools/iot/check-driver-api-mbss.py "$merged" > "$results/linux-open-api-mbss.txt"
   python3 tools/iot/check-beacon-txs-stop.py "$merged" > "$results/beacon-txs-stop.txt"
+  # Original-source negative witness, distinct from hardened candidate recovery.
+  python3 tools/iot/check-beacon-flush-timeout.py "$pristine/hw_ctrl/cmm_asic_mt.c" \
+    > "$results/vendor-beacon-flush-timeout.txt"
   python3 tools/iot/check-iot-close-beacon-scope.py "$merged" > "$results/iot-close-beacon-scope.txt"
   python3 tools/iot/check-iot-builder-dma.py "$merged" > "$results/iot-builder-dma.txt"
   python3 tools/iot/check-txs-builder-composition.py "$merged" > "$results/txs-builder-composition.txt"

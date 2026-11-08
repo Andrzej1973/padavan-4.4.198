@@ -147,11 +147,11 @@ def main():
   binding_inputs={name:(local/name).read_bytes() for name in binding_names}
   binding_inputs['driver-api-close-bundle.h']=bundle
   compiled_bundle=driver/'include/driver-api-close-bundle.h'
+  compiled_inputs={}
   if compiled_bundle.exists():
-   if compiled_bundle.read_bytes()!=bundle:raise RuntimeError('Compiled CLOSE bundle differs from reviewed local source')
-   for name,data in binding_inputs.items():
-    if (driver/'include'/name).read_bytes()!=data:
-     raise RuntimeError('Compiled CLOSE bundle asset drift: '+name)
+   manifest=json.loads(Path(str(driver)+'.manifest.json').read_text())
+   compiled_inputs=runpy.run_path(str(local/'close-bundle-assets.py'))['verified_inputs'](driver,local,manifest)
+  report['compiled_bundle_source_sha256']={name:hashlib.sha256(data).hexdigest() for name,data in compiled_inputs.items()}
   report['ordinary_driver_bundle_present']=compiled_bundle.exists()
   driver_input=source.read_bytes()
   report.update(command_sha256=hashlib.sha256(raw).hexdigest(),kernel_config_sha256=hashlib.sha256(before).hexdigest(),
@@ -166,6 +166,8 @@ def main():
    if not all(re.search(r'^#define '+n+r'(?:\s|$)',macros.stdout,re.M) for n in required):raise RuntimeError('Missing MT7603 PCI AP macros')
    result=subprocess.run([str(tool.resolve()),*flags,'-c',str(probe),'-o',str(obj)],cwd=root,capture_output=True,text=True,timeout=120)
    if result.returncode:raise RuntimeError('CLOSE target TU failed: '+result.stderr[-6000:])
+   if any((driver/'include'/name).read_bytes()!=data for name,data in compiled_inputs.items()):
+    raise RuntimeError('Compiled bundle inputs changed during target probe')
    blob=obj.read_bytes()
    if blob[:6]!=b'\x7fELF\x01\x01' or int.from_bytes(blob[16:18],'little')!=1 or int.from_bytes(blob[18:20],'little')!=8:raise RuntimeError('Expected ELF32 little-endian MIPS')
    nm=str(a.compiler.resolve())

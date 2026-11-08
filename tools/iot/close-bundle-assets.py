@@ -33,3 +33,19 @@ def integrate(changes,source,local,main):
    result['include/'+name]=(local/name).read_text()
  result[main]=entry.replace(anchor,'#include "driver-api-close-bundle.h"\n'+anchor,1)
  return result
+
+def verified_inputs(driver,local,manifest):
+ """Snapshot every compiled bundle dependency against the generator manifest."""
+ driver=Path(driver);local=Path(local)
+ recorded=manifest.get('merged_driver_sha256',{})
+ import hashlib
+ result={}
+ direct=re.findall(r'^#include "([^"]+)"$',(local/'driver-api-close-bundle.h').read_text(),re.M)
+ for name in dependencies(local):
+  data=(driver/'include'/name).read_bytes()
+  if hashlib.sha256(data).hexdigest()!=recorded.get('include/'+name):
+   raise ValueError('Compiled bundle manifest drift: '+name)
+  if name in ['driver-api-close-bundle.h',*direct] and data!=(local/name).read_bytes():
+   raise ValueError('Compiled bundle reviewed source drift: '+name)
+  result[name]=data
+ return result

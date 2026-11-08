@@ -1,0 +1,63 @@
+{
+  "revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "scope": "RX parser locking and Andes dequeue boundary source evidence, no drain implementation",
+  "files": {
+    "common/cmm_data_pci.c": {
+      "sha256": "cce10c0bdc7ee3c8b0caaa24afb5a8207f9c497656de4830a27c022664796459",
+      "function_first_line": 1688,
+      "function_last_line": 1996,
+      "events": [
+        {
+          "line": 1701,
+          "text": "NDIS_SPIN_LOCK *pRxRingLock;"
+        },
+        {
+          "line": 1712,
+          "text": "RTMP_SEM_LOCK(pRxRingLock);"
+        },
+        {
+          "line": 1836,
+          "text": "rx_hw_hdr_len = parse_rx_packet_type(pAd, pRxBlk, pRxPacket);"
+        },
+        {
+          "line": 1993,
+          "text": "RTMP_SEM_UNLOCK(pRxRingLock);"
+        }
+      ]
+    },
+    "mcu/andes_core.c": {
+      "sha256": "63bad3b746c781cf98dd99f1f0446ff23816dd0f3dbc5e8e9df66dea74a16017",
+      "function_first_line": 447,
+      "function_last_line": 486,
+      "events": [
+        {
+          "line": 453,
+          "text": "while ((msg = AndesDequeueCmdMsg(ctl, &ctl->rx_doneq))) {"
+        },
+        {
+          "line": 456,
+          "text": "AndesRxProcessCmdMsg(ad, msg);"
+        },
+        {
+          "line": 469,
+          "text": "while ((msg = AndesDequeueCmdMsg(ctl, &ctl->tx_doneq))) {"
+        }
+      ]
+    }
+  },
+  "dequeue_implementation": [
+    {
+      "line": 361,
+      "text": "struct cmd_msg *AndesDequeueCmdMsg(struct MCU_CTRL *ctl, DL_LIST *list)\n{\n\tunsigned long flags;\n\tstruct cmd_msg *msg;\n\tNDIS_SPIN_LOCK *lock;\n\n\tlock = AndesGetSpinLock(ctl, list);\n\n\tRTMP_SPIN_LOCK_IRQSAVE(lock, &flags);\n\tmsg = _AndesDequeueCmdMsg(list);\n\tRTMP_SPIN_UNLOCK_IRQRESTORE(lock, &flags);\n\n\treturn msg;\n}\n\n\n#ifdef RTMP_SDIO_SUPPORT\nVOID SdioKickOutCmdMsgComplete(struct cmd_msg *msg)\n{\n\tRTMP_ADAPTER *pAd = (RTMP_ADAPTER *)msg->priv;\n\tstruct MCU_CTRL *ctl = &pAd->MCUCtrl;\n\n\tif (!OS_TEST_BIT(MCU_INIT, &ctl->flags))\n\t\treturn;\n\n\tif (!msg->need_wait) {\n\t\tAndesUnlinkCmdMsg(msg, &ctl->kickq);\n\t\tDBGPRINT(RT_DEBUG_INFO, (\"%s: msg state = %d\\n\", __FUNCTION__, msg->state));\n\t\tAndesQueueTailCmdMsg(&ctl->tx_doneq, msg, tx_done);\n\t}\n\telse\n\t{\n\t\tmsg->state = wait_ack;\n\t}\n\n\tAndesBhSchedule(pAd);\n}\n#endif\n\n#ifdef RTMP_PCI_SUPPORT\nVOID PciKickOutCmdMsgComplete(PNDIS_PACKET net_pkt)\n{\n\tstruct cmd_msg *msg =CMD_MSG_CB(net_pkt)->msg;\n\tRTMP_ADAPTER *ad = (RTMP_ADAPTER *)msg->priv;\n\tstruct MCU_CTRL *ctl = &ad->MCUCtrl;\n"
+    }
+  ],
+  "conclusions": [
+    "PCI GetPacketFromRxRing invokes parser while holding selected RxRingLock, so taking that lock joins an already executing PCI parser only",
+    "Taking ring lock cannot prove hardware has stopped producing old TxS or exhaust future ring entries",
+    "Andes bottom half dequeues message then runs parser outside queue critical section; queue emptiness is not callback completion",
+    "A valid reusable BSS boundary needs all producer fence, actual flush completion, hardware-to-host report drain and both callback paths accounted, in established lock order",
+    "No global tasklet kill/IRQ mask or MCU ACK change is authorized by this source audit"
+  ],
+  "runtime_verified": false,
+  "cleanup": "Source read in memory, no extracted tree"
+}

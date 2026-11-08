@@ -88,7 +88,7 @@ typedef struct {void *if_dev;} WDEV;
 typedef struct {struct {int bcn_state,bBcnSntReq;} bcn_buf;WDEV wdev;unsigned int WriteBcnDoneTime[1];int timer_loop,bcn_not_idle_time,bcn_recovery_num;} BSS_STRUCT;
 typedef struct {int flags,pse_reset_flag,bPCIclkOff,bcn_reset_en,bcn_not_idle_tx_dma_busy;
  unsigned int bcn_didx_val,dma_force_reset_count;struct {unsigned int hw_didx_addr;} BcnRing;
- struct {int BssidNum;BSS_STRUCT MBSSID[3];} ApCfg;struct {int BeaconPeriod;} CommonCfg;int BcnRingLock;} RTMP_ADAPTER;
+ struct {int BssidNum;BSS_STRUCT MBSSID[3];} ApCfg;struct {unsigned int BeaconPeriod;} CommonCfg;int BcnRingLock;} RTMP_ADAPTER;
 #define RTMP_MAC_PCI 1
 #define DMA_RESET_SUPPORT 1
 #define TXRXCR_DEBUG_SUPPORT 1

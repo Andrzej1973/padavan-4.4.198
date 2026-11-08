@@ -1,0 +1,21 @@
+{
+  "scope": "LOCAL target-probe evidence integrity for complete ordinary bundle closure",
+  "sha256": {
+    "tools/iot/close-bundle-assets.py": "ebf68f3ceb165b9a41bcfa53ec7676448359abeca8bf1c295121498ea122ae17",
+    "tools/iot/check-close-bundle-assets.py": "41c7aa1f14c17d4b736ad49cf3e663beb0ca6353fe53253800161a396382b056",
+    "tools/iot/check-close-bindings-target-tu.py": "c0b59d067522356fc20b6cbd80778def16a1a0c29d5ea2f8850443ea129badc5"
+  },
+  "checks": [
+    "all41 compiled dependency bytes hashed against generated merged_driver_sha256",
+    "direct reviewed bundle assets additionally equal local reviewed bytes",
+    "generated shared predecessor header accepted via manifest rather than raw local comparison",
+    "transitive completion header tampering rejected",
+    "compiled source snapshots rechecked after target compile",
+    "actual integration/closure regression PASS; Python AST/diff PASS",
+    "Updated manifest cannot hide direct reviewed-source tampering; regression PASS"
+  ],
+  "target_executed": false,
+  "runtime_verified": false,
+  "production_routed": false,
+  "cleanup": "Temporary manifest/closure fixtures auto-cleaned"
+}

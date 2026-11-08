@@ -1,0 +1,21 @@
+{
+  "revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "path": "hw_ctrl/cmm_asic_mt.c",
+  "sha256": "a2bcc245b48f709164dcc3bbe73267cb8c7c4f4abe8fc6bebdcd6de5d53e6e45",
+  "scope": "Actual vendor APCheckBcnQHandler flush tail extracted and executed with MMIO/wait stubs",
+  "excerpt_first_line": 1332,
+  "excerpt": "\tif (apidx > 0)\n\t\tval = val | (1 << (apidx+15));\n\telse\n\t\tval = 1;\n\n\tj = 0;\n\t/* Flush Beacon Queue */\n\tRTMP_IO_WRITE32(pAd, ARB_BCNQCR1, val);\n\twhile (1) {\n\t\tRTMP_IO_READ32(pAd, ARB_BCNQCR1, &temp);//check bcn_flush cr status\n\t\tif (temp & val) {\n\t\t\tj++;\n\t\t\tOS_WAIT(1);\n\t\t\tif (j > 1000) {\n\t\t\t\tprintk(\"%s, bcn_flush too long!, j = %x\\n\", __func__, j);\n\t\t\t\tbreak;\n\t\t\t}\n\t\t}\n\t\telse {\n\t\t\tbreak;\n\t\t}\n\t}\n\n\tval = 0xa8c70000;\n\tj = 0;\n\ttemp = 0;\n\tif (apidx > 0)\n\t\tval = val | 0x1000 | (apidx << 8);\n\n\tRTMP_IO_WRITE32(pAd, 0x21c08, val);//flush all stuck bcn\n\n\twhile (1) {\n\t\tRTMP_IO_READ32(pAd, 0x21c08, &temp);//flush all stuck bcn\n\t\tif (temp >> 31) {\n\t\t\tj++;\n\t\t\tOS_WAIT(1);\n\t\t\tif (j > 1000) {\n\t\t\t\tprintk(\"%s, flush all stuck bcn too long!! j = %x\\n\", __func__, j);\n\t\t\t\tbreak;\n\t\t\t}\n\t\t}\n\t\telse {\n\t\t\tbreak;\n\t\t}\n\t}\n\n\t//check filter resilt\n\tRTMP_IO_READ32(pAd, 0x21c0c, &temp);\n\tDBGPRINT(RT_DEBUG_ERROR, (\"flush result = %x\\n\", temp));\n\tDBGPRINT(RT_DEBUG_ERROR, (\"check pse fid Q7:\"));\n\tset_get_fid(pAd, \"7\");\n\n\tval = 0;\n\tif (apidx > 0)\n\t\tval = val | (1 << (apidx+15));\n\telse\n\t\tval = 1;\n\n\tRTMP_IO_READ32(pAd, ARB_BCNQCR0, &temp);//re-enable bcn_start\n\ttemp = temp | val;\n\tRTMP_IO_WRITE32(pAd, ARB_BCNQCR0, temp);\n\n\tpMbss->bcn_buf.bcn_state = BCN_TX_IDLE;\n}",
+  "host_checks": [
+    "PASS actual vendor flush tail: either/both timeout paths continue to re-enable BSS and IDLE; not a checked CLOSE/FIFO/late-TxS receipt"
+  ],
+  "findings": [
+    "BSS2 ARB queue mask bit17, filter command0xa8c71200; scope bits inferred from source only",
+    "Both polls log timeout after1001 waits and break, no failure status returned",
+    "Function continues to ARB queue re-enable and BCN_TX_IDLE even after either/both timeouts",
+    "No evidence flush completes already-generated or queued host TxS callbacks"
+  ],
+  "decision": "Cannot reuse this recovery helper as checked IoT CLOSE receipt; do not invoke it to reopen or clear isolation",
+  "runtime_verified": false,
+  "cleanup": "Temporary source/test binaries auto-cleaned; archive preserved",
+  "candidate_scope_correction": "This is original vendor source only. Existing staged prepare-beacon-recovery-check.py already returns on timeout and gates restart; see CHECKED-BEACON-RECOVERY-REVALIDATED evidence."
+}

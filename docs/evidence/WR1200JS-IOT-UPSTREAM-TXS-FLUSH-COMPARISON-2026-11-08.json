@@ -1,0 +1,54 @@
+{
+  "upstream_repository": "openwrt/mt76",
+  "revision": "0936617dc529ff9da0385221d3fa6de732231177",
+  "scope": "Mechanism comparison only, no cherry-pick or vendor protocol equivalence",
+  "files": {
+    "mt7603/beacon.c": {
+      "sha256": "273ffc26ce26d80d00926cfea02606e233acc1ce93b2fad0f508ccfe4b2ab747",
+      "url": "https://github.com/openwrt/mt76/blob/0936617dc529ff9da0385221d3fa6de732231177/mt7603/beacon.c",
+      "excerpts": [
+        {
+          "line": 41,
+          "text": "\n\tskb = ieee80211_beacon_get(mt76_hw(dev), vif, 0);\n\tif (!skb)\n\t\treturn;\n\n\tif (om_idx)\n\t\tom_idx |= 0x10;\n\tval = MT_DMA_FQCR0_BUSY | MT_DMA_FQCR0_MODE |\n\t\tFIELD_PREP(MT_DMA_FQCR0_TARGET_BSS, om_idx) |\n\t\tFIELD_PREP(MT_DMA_FQCR0_DEST_PORT_ID, 3) |\n\t\tFIELD_PREP(MT_DMA_FQCR0_DEST_QUEUE_ID, 8);\n\n\tspin_lock_bh(&dev->ps_lock);\n\n\tmt76_wr(dev, MT_DMA_FQCR0, val |\n\t\tFIELD_PREP(MT_DMA_FQCR0_TARGET_QID, MT_TX_HW_QUEUE_BCN));\n\tif (!mt76_poll(dev, MT_DMA_FQCR0, MT_DMA_FQCR0_BUSY, 0, 5000)) {\n\t\tdev->beacon_check = MT7603_WATCHDOG_TIMEOUT;\n\t\tdev_kfree_skb(skb);\n\t\tgoto out;\n\t}\n\n\tmt76_wr(dev, MT_DMA_FQCR0, val |\n\t\tFIELD_PREP(MT_DMA_FQCR0_TARGET_QID, MT_TX_HW_QUEUE_BMC));\n\tif (!mt76_poll(dev, MT_DMA_FQCR0, MT_DMA_FQCR0_BUSY, 0, 5000)) {\n\t\tdev->beacon_check = MT7603_WATCHDOG_TIMEOUT;\n\t\tdev_kfree_skb(skb);\n\t\tgoto out;\n\t}"
+        }
+      ]
+    },
+    "mt7603/mac.c": {
+      "sha256": "2ddca5b165e98034a1bf5cd185b62f9af805d5cf970e79a54b1bff912397995a",
+      "url": "https://github.com/openwrt/mt76/blob/0936617dc529ff9da0385221d3fa6de732231177/mt7603/mac.c",
+      "excerpts": [
+        {
+          "line": 975,
+          "text": "\t}\n\n\tif (wcid)\n\t\twlan_idx = wcid->idx;\n\telse\n\t\twlan_idx = MT7603_WTBL_RESERVED;\n\n\tframe_type = (fc & IEEE80211_FCTL_FTYPE) >> 2;\n\tframe_subtype = (fc & IEEE80211_FCTL_STYPE) >> 4;\n\n\tval = FIELD_PREP(MT_TXD0_TX_BYTES, skb->len + MT_TXD_SIZE) |\n\t      FIELD_PREP(MT_TXD0_Q_IDX, q->hw_idx);\n\ttxwi[0] = cpu_to_le32(val);\n\n\tval = MT_TXD1_LONG_FORMAT |\n\t      FIELD_PREP(MT_TXD1_OWN_MAC, vif_idx) |"
+        },
+        {
+          "line": 1198,
+          "text": "\t\tif (idx && (cur_rate->idx != info->status.rates[i].idx ||\n\t\t\t    cur_rate->flags != info->status.rates[i].flags)) {\n\t\t\ti++;\n\t\t\tif (i == ARRAY_SIZE(info->status.rates)) {\n\t\t\t\ti--;\n\t\t\t\tbreak;\n\t\t\t}\n\n\t\t\tinfo->status.rates[i] = *cur_rate;\n\t\t\tinfo->status.rates[i].count = 0;\n\t\t}\n\n\t\tinfo->status.rates[i].count += cur_count;\n\t}\n\nout:\n\tfinal_rate_flags = info->status.rates[i].flags;\n\n\tswitch (FIELD_GET(MT_TX_RATE_MODE, final_rate)) {\n\tcase MT_PHY_TYPE_CCK:\n\t\tcck = true;\n\t\tfallthrough;\n\tcase MT_PHY_TYPE_OFDM:\n\t\tif (dev->mphy.chandef.chan->band == NL80211_BAND_5GHZ)\n\t\t\tsband = &dev->mphy.sband_5g.sband;\n\t\telse\n\t\t\tsband = &dev->mphy.sband_2g.sband;\n\t\tfinal_rate &= GENMASK(5, 0);\n\t\tfinal_rate = mt76_get_rate(&dev->mt76, sband, final_rate,\n\t\t\t\t\t   cck);"
+        }
+      ]
+    },
+    "mt7603/regs.h": {
+      "sha256": "3aa26615f30c1dfd6487ab407d12d63b4ff809f8d4b65b64465e308406baa0bc",
+      "url": "https://github.com/openwrt/mt76/blob/0936617dc529ff9da0385221d3fa6de732231177/mt7603/regs.h",
+      "excerpts": [
+        {
+          "line": 245,
+          "text": "#define MT_DMA_FQCR0\t\t\tMT_WF_DMA(0x008)\n#define MT_DMA_FQCR0_TARGET_WCID\tGENMASK(7, 0)\n#define MT_DMA_FQCR0_TARGET_BSS\t\tGENMASK(13, 8)\n#define MT_DMA_FQCR0_TARGET_QID\t\tGENMASK(20, 16)\n#define MT_DMA_FQCR0_DEST_PORT_ID\tGENMASK(23, 22)\n#define MT_DMA_FQCR0_DEST_QUEUE_ID\tGENMASK(28, 24)\n#define MT_DMA_FQCR0_MODE\t\tBIT(29)\n#define MT_DMA_FQCR0_STATUS\t\tBIT(30)\n#define MT_DMA_FQCR0_BUSY\t\tBIT(31)\n\n#define MT_DMA_RCFR0\t\t\tMT_WF_DMA(0x070)\n#define MT_DMA_VCFR0\t\t\tMT_WF_DMA(0x07c)\n"
+        },
+        {
+          "line": 246,
+          "text": "#define MT_DMA_FQCR0_TARGET_WCID\tGENMASK(7, 0)\n#define MT_DMA_FQCR0_TARGET_BSS\t\tGENMASK(13, 8)\n#define MT_DMA_FQCR0_TARGET_QID\t\tGENMASK(20, 16)\n#define MT_DMA_FQCR0_DEST_PORT_ID\tGENMASK(23, 22)\n#define MT_DMA_FQCR0_DEST_QUEUE_ID\tGENMASK(28, 24)\n#define MT_DMA_FQCR0_MODE\t\tBIT(29)\n#define MT_DMA_FQCR0_STATUS\t\tBIT(30)\n#define MT_DMA_FQCR0_BUSY\t\tBIT(31)\n\n#define MT_DMA_RCFR0\t\t\tMT_WF_DMA(0x070)\n#define MT_DMA_VCFR0\t\t\tMT_WF_DMA(0x07c)\n\n#define MT_DMA_TCFR0\t\t\tMT_WF_DMA(0x080)"
+        }
+      ]
+    }
+  },
+  "findings": [
+    "Upstream per-interface beacon update selects target BSS and BCN then BMC queue through FQCR0, polls BUSY and aborts submission on timeout",
+    "Upstream SN_VALID is cleared for non-QoS-data/non-BAR frames in this builder, including ordinary beacon; upstream does not demonstrate a unique software beacon SN cookie",
+    "Upstream TxS uses WCID+PID lookup, separate ownership architecture; not evidence vendor PID reuse or late report contract is safe",
+    "Per-BSS checked queue flush is a candidate mechanism to compare register bits, but does not itself prove host Rx/late-report drain"
+  ],
+  "vendor_change_authorized_by_evidence": false,
+  "runtime_verified": false,
+  "cleanup": "API file bytes read in memory only, no upstream clone or source archive retained"
+}
