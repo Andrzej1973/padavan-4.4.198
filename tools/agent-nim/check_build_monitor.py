@@ -21,6 +21,12 @@ with (nullcontext(sys.argv[2]) if len(sys.argv)>2 else tempfile.TemporaryDirecto
     run([row(2,conclusion='success'),row(1,name='unrelated')]);assert not (state/'last_build_error.log').exists()
     status=json.loads((state/'build-monitor-status.json').read_text())
     assert status['state']=='ok' and status['runs_examined']==2 and status['pid']>0
+    source_run=row(700);source_run.update(name='Build owned MIPS toolchain',path='.github/workflows/build-owned-toolchain.yml')
+    source_state=root/'source-toolchain'
+    assert 'BUILD FAILED:' in run([source_run],target_state=source_state).stdout
+    assert 'BUILD FAILED:' not in run([source_run],target_state=source_state).stdout
+    source_run.update(id=701,conclusion='success')
+    assert 'BUILD FAILED:' not in run([source_run],target_state=source_state).stdout
     both=[row(600,branch='main'),row(601),row(602,conclusion='success',branch='main'),row(603,conclusion='success')]
     branch_state=root/'both-branches'
     branch_report=run(both,target_state=branch_state).stdout

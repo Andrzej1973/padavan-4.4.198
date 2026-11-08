@@ -1,0 +1,17 @@
+{
+  "nilabsent_revision": "c29b12da69b1593a6e8cf65cd43767fc99bb6386",
+  "nilabsent_mechanism": "crosstool-NG source build, Linux3.4/GCC7 sample and custom libc",
+  "wr1200js_candidate": "pinned Padavan4.4 GCC10 sample with external hash-pinned uClibc1.0.48 custom source",
+  "native_generator_only": "ct-ng1.26 configure/make and olddefconfig completed locally; no compiler/toolchain compilation performed locally",
+  "normalized_config_sha256": "baaef321feeb3430dc950dc20e641b817a77724ae6101d10abed4b6abd3b28ab",
+  "normalized_checks": "PASS actual ct-ng profile ABI/source paths/digest/licenses; negative fixtures PASS; Python/YAML/bash checks PASS",
+  "monitor_checks": "PASS exact staged monitor code+config and failure-once/success-silent fixture for new source-toolchain workflow",
+  "target_toolchain_generated": false,
+  "production_promoted": false,
+  "device_runtime_verified": false,
+  "remaining": [
+    "GitHub source build",
+    "relocated target link and QEMU probes",
+    "exact candidate full firmware/kernel/module regression before promotion"
+  ]
+}
