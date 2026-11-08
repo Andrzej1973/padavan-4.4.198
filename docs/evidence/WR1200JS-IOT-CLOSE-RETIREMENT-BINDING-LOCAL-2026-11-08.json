@@ -1,0 +1,24 @@
+{
+  "scope": "LOCAL actual locked kernel binding with host adapter/work_busy stubs",
+  "hashes": {
+    "tools/iot/driver-api-close-retirement-binding.inc": "a033f7dee222b97761312e3356a2e750143b2352858bab85a1728cde6e1a307f",
+    "tools/iot/check-driver-api-close-retirement-binding.c": "a24663d21d318890ad7375036da5f31eb14bcf65d48184bcc12c2cc522075342",
+    "tools/iot/check-driver-api-close-retirement.c": "382d8e5240f535394e43492f3d7ab7deda1448893b7732869e4788354fef6f24"
+  },
+  "host_asan_ubsan": "PASS17 header cases and20 binding cases; all work_busy calls asserted under lock",
+  "work_checks": [
+    "all MBSS work slots",
+    "MBSS delayed poll",
+    "Main recovery work",
+    "Main delayed recovery reaper",
+    "Main deferred owners"
+  ],
+  "owner_mutated": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "thread_created": false,
+  "module_released": false,
+  "next": "Atomic designated stopped-thread reservation under same lock, full kernel type probe and explicit reference transfer",
+  "target_probe_prepared": true,
+  "target_probe_sha256": "5c2495a27a8df1d984516aa0f0f2c723f5b268004b58a91ab6ec07dc14a69ac8"
+}

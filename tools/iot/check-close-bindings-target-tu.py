@@ -7,13 +7,24 @@ def probe_source(driver,local):
  files=[driver/'os/linux/rt_main_dev.c',local/'driver-api-close-finish.h',
         local/'driver-api-close-recovery.h',local/'driver-api-close-enter.inc',
         local/'driver-api-close-finish-binding.inc',local/'driver-api-close-recovery-binding.inc',
-        local/'driver-api-close-finish-recovery.inc',local/'driver-api-close-entry.inc']
+        local/'driver-api-close-finish-recovery.inc',local/'driver-api-close-entry.inc',
+        local/'driver-api-close-retirement.h',local/'driver-api-close-retirement-binding.inc']
  if any('"' in str(f) or '\n' in str(f) for f in files):raise ValueError('Unsupported include path')
  return '#include <linux/module.h>\n#include <linux/kthread.h>\n'+''.join('#include "'+str(f)+'"\n' for f in files)+'''
 int wr_iot_close_bindings_target_probe(RTMP_ADAPTER *ad,PNET_DEV dev,
  struct ifreq *rq,unsigned char *wire)
 {
  return wr_iot_driver_close_reply(ad,dev,rq,wire);
+}
+/* Locked read-only probe: compiler checks actual adapter/work fields. */
+int wr_iot_close_retirement_target_probe(RTMP_ADAPTER *ad)
+{
+ ULONG flags=0;int ready;
+ if(!ad)return 0;
+ RTMP_IRQ_LOCK(&ad->wr_iot_transition_lock,flags);
+ ready=wr_iot_driver_close_retirement_ready_locked(ad);
+ RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);
+ return ready;
 }
 /* Compile-only kernel-thread tail; never routed or invoked by firmware. */
 int wr_iot_close_module_exit_target_probe(struct task_struct *designated)
@@ -60,7 +71,8 @@ def main():
   binding_names=('driver-api-close-finish.h','driver-api-close-recovery.h',
                  'driver-api-close-enter.inc','driver-api-close-finish-binding.inc',
                  'driver-api-close-recovery-binding.inc','driver-api-close-finish-recovery.inc',
-                 'driver-api-close-entry.inc')
+                 'driver-api-close-entry.inc','driver-api-close-retirement.h',
+                 'driver-api-close-retirement-binding.inc')
   binding_inputs={name:(local/name).read_bytes() for name in binding_names}
   driver_input=source.read_bytes()
   report.update(command_sha256=hashlib.sha256(raw).hexdigest(),kernel_config_sha256=hashlib.sha256(before).hexdigest(),
@@ -89,6 +101,9 @@ def main():
    if not any(line.split()[-1:]==['kthread_create_on_node'] for line in undefined.splitlines()):raise RuntimeError('Expected stopped kthread-create relocation')
    create_row=next((s.split() for s in symbols.splitlines() if s.endswith(' wr_iot_close_module_create_target_probe')),None)
    if not create_row or len(create_row)!=4 or create_row[2].upper()!='T':raise RuntimeError('Stopped kthread create probe missing')
+   retirement_row=next((s.split() for s in symbols.splitlines() if s.endswith(' wr_iot_close_retirement_target_probe')),None)
+   if not retirement_row or len(retirement_row)!=4 or retirement_row[2].upper()!='T' or int(retirement_row[1],16)<=8:raise RuntimeError('Retirement locked probe missing or trivial')
+   report['retirement_locked_binding_compiled']=True
    report['nonreturning_module_exit_compiled']=True
    report['stopped_kthread_create_compiled']=True
    report['thread_exit_context_checks']='designated current task, PF_KTHREAD, not PF_WQ_WORKER; compile only'

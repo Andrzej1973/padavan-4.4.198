@@ -1,0 +1,17 @@
+{
+  "scope": "LOCAL locked state preflight for future thread admission; work_idle must come from actual kernel observation",
+  "hashes": {
+    "tools/iot/driver-api-close-retirement.h": "8c3623e8839768fb0d594b492f5b0e732163e7308c31c4f302cd02d8b16fdecd",
+    "tools/iot/check-driver-api-close-retirement.c": "382d8e5240f535394e43492f3d7ab7deda1448893b7732869e4788354fef6f24"
+  },
+  "host_asan_ubsan": "PASS positive+16refusals and join/poll/completion regressions",
+  "owner_mutated": false,
+  "thread_created": false,
+  "resource_released": false,
+  "rf_acceptance": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "remaining": "Atomic designation and real kernel work-idle binding, thread scheduling/failure path and ownership transfer before release",
+  "target_probe_prepared": true,
+  "target_probe_sha256": "5c2495a27a8df1d984516aa0f0f2c723f5b268004b58a91ab6ec07dc14a69ac8"
+}
