@@ -7,7 +7,7 @@ on:
         required: true
         type: string
   workflow_run:
-    workflows: [Build selected router firmware, Padavan Linux 4.4.198 WR1200JS, Service runtime state checks, Band Steering driver ABI, Build owned MIPS toolchain]
+    workflows: [Build selected router firmware, Padavan Linux 4.4.198 WR1200JS, Service runtime state checks, Band Steering driver ABI, Build owned MIPS toolchain, WR1200JS toolchain comparison]
     types: [completed]
 permissions:
   contents: read

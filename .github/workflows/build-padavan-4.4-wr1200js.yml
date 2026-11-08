@@ -4,6 +4,14 @@ run-name: "WR1200JS Linux 4.4.198 build"
 on:
   workflow_call:
     inputs:
+      toolchain_variant:
+        description: Explicit comparison lane only; production defaults to pinned
+        type: string
+        default: pinned
+      artifact_suffix:
+        description: Artifact namespace for isolated comparison lanes
+        type: string
+        default: ''
       verification_revision:
         description: Resolved source commit from the caller selection job
         type: string
@@ -23,6 +31,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   build-wr1200js:
@@ -41,6 +50,15 @@ jobs:
       - uses: actions/checkout@v6
         with:
           ref: ${{ inputs.verification_revision || github.sha }}
+      - name: Validate isolated compiler lane
+        env:
+          VARIANT: ${{ inputs.toolchain_variant }}
+          SUFFIX: ${{ inputs.artifact_suffix }}
+        run: |
+          case "$VARIANT:$SUFFIX" in
+            pinned:|pinned:-control|source:-source) ;;
+            *) echo 'Unsupported toolchain comparison lane' >&2; exit 1;;
+          esac
       - name: Record exact checked-out source revision
         id: source
         run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
@@ -490,11 +508,13 @@ jobs:
           python3 tools/vpn-profiles/prepare-package.py padavan-4.4 --config configs.build/wr1200js.config
 
       - name: Restore pinned owned toolchain archive
+        if: inputs.toolchain_variant != 'source'
         uses: actions/cache@v6
         with:
           path: ${{ github.workspace }}/.cache/mips-toolchains
           key: mips-toolchain-${{ runner.os }}-de412846a5d057faf132b2463aa29c24f77c79c744f4181c1a287bbeaf1d7256
       - name: Download the Linux 4.4 uClibc toolchain
+        if: inputs.toolchain_variant != 'source'
         run: |
           mkdir -p padavan-4.4/toolchain/toolchain-mipsel
           toolchain_cache="$GITHUB_WORKSPACE/.cache/mips-toolchains/de412846a5d057faf132b2463aa29c24f77c79c744f4181c1a287bbeaf1d7256.tar.xz"
@@ -514,6 +534,18 @@ jobs:
           tar -xJf padavan-4.4/toolchain-mipsel.tar.xz \
             -C padavan-4.4/toolchain/toolchain-mipsel
 
+      - name: Download exact source-generated compiler candidate
+        if: inputs.toolchain_variant == 'source'
+        uses: actions/download-artifact@v8
+        with:
+          name: source-built-mips-toolchain
+          run-id: 42467546674
+          github-token: ${{ github.token }}
+          repository: Andrzej1973/padavan-4.4.198
+          path: source-toolchain
+      - name: Verify and install isolated compiler candidate
+        if: inputs.toolchain_variant == 'source'
+        run: python3 tools/toolchain/install-candidate.py source-toolchain padavan-4.4/toolchain/toolchain-mipsel
       - name: Prepare requested WR Band Steering integration
         id: steering_prepare
         run: |
@@ -974,7 +1006,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: tmp-upload-image-checks
+          name: tmp-upload-image-checks${{ inputs.artifact_suffix }}
           path: tmp-upload-image-check.txt
           if-no-files-found: warn
 
@@ -988,7 +1020,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: wr1200js-radio-capacity
+          name: wr1200js-radio-capacity${{ inputs.artifact_suffix }}
           path: radio-capacity-evidence/
           if-no-files-found: ignore
 
@@ -1024,7 +1056,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: wr1200js-iot-radio-capacity
+          name: wr1200js-iot-radio-capacity${{ inputs.artifact_suffix }}
           path: iot-capacity-evidence/
           if-no-files-found: ignore
 
@@ -1032,7 +1064,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: wr1200js-kvr-image
+          name: wr1200js-kvr-image${{ inputs.artifact_suffix }}
           path: wifi-kvr-image.json
           if-no-files-found: ignore
 
@@ -1040,7 +1072,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: wr1200js-wifi-capabilities
+          name: wr1200js-wifi-capabilities${{ inputs.artifact_suffix }}
           path: wifi-capability-report.json
           if-no-files-found: ignore
 
@@ -1063,7 +1095,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: wan-port-topology
+          name: wan-port-topology${{ inputs.artifact_suffix }}
           path: wan-port-topology.json
           if-no-files-found: ignore
 
@@ -1097,7 +1129,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: eoip-image-checks
+          name: eoip-image-checks${{ inputs.artifact_suffix }}
           path: eoip-image-checks.json
           if-no-files-found: error
 
@@ -1105,7 +1137,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: wr1200js-web-route-checks
+          name: wr1200js-web-route-checks${{ inputs.artifact_suffix }}
           path: web-route-checks.json
           if-no-files-found: ignore
           retention-days: 14
@@ -1114,7 +1146,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: wr1200js-config-checks
+          name: wr1200js-config-checks${{ inputs.artifact_suffix }}
           path: firmware-config-checks.json
           if-no-files-found: ignore
           retention-days: 14
@@ -1163,7 +1195,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: settings-backup-image-checks
+          name: settings-backup-image-checks${{ inputs.artifact_suffix }}
           path: settings-backup-image-checks.json
           if-no-files-found: ignore
           retention-days: 14
@@ -1258,7 +1290,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: vpn-profile-image
+          name: vpn-profile-image${{ inputs.artifact_suffix }}
           path: |
             vpn-profile-image.json
             vpn-link-mips.txt
@@ -1276,7 +1308,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: usbip-settings-image
+          name: usbip-settings-image${{ inputs.artifact_suffix }}
           path: usbip-settings-image.json
           if-no-files-found: ignore
 
@@ -1284,7 +1316,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: target-busybox-audit
+          name: target-busybox-audit${{ inputs.artifact_suffix }}
           path: |
             target-busybox-audit.json
             target-wg-export-check.txt
@@ -1294,7 +1326,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: zram-image-checks
+          name: zram-image-checks${{ inputs.artifact_suffix }}
           path: zram-image-checks.txt
           if-no-files-found: warn
 
@@ -1302,7 +1334,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: stubby-image-checks
+          name: stubby-image-checks${{ inputs.artifact_suffix }}
           retention-days: 14
           if-no-files-found: ignore
           path: |
@@ -1322,7 +1354,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: privoxy-image-checks
+          name: privoxy-image-checks${{ inputs.artifact_suffix }}
           retention-days: 14
           if-no-files-found: ignore
           path: |
@@ -1344,7 +1376,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: iperf3-image-checks
+          name: iperf3-image-checks${{ inputs.artifact_suffix }}
           retention-days: 14
           if-no-files-found: ignore
           path: |
@@ -1361,7 +1393,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: ssh-image-checks
+          name: ssh-image-checks${{ inputs.artifact_suffix }}
           retention-days: 14
           if-no-files-found: ignore
           path: ssh-image-checks.json
@@ -1383,7 +1415,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: doh-image-checks
+          name: doh-image-checks${{ inputs.artifact_suffix }}
           retention-days: 14
           if-no-files-found: ignore
           path: doh-image-checks.json
@@ -1401,7 +1433,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: strongswan-image-checks
+          name: strongswan-image-checks${{ inputs.artifact_suffix }}
           retention-days: 14
           if-no-files-found: error
           path: strongswan-image-checks.json
@@ -1410,7 +1442,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: imq-patch-rejects
+          name: imq-patch-rejects${{ inputs.artifact_suffix }}
           retention-days: 14
           if-no-files-found: ignore
           path: imq-patch-rejects.txt
@@ -1428,7 +1460,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: wan-web-image-checks
+          name: wan-web-image-checks${{ inputs.artifact_suffix }}
           if-no-files-found: ignore
           path: wan-web-image-checks.json
 
@@ -1436,7 +1468,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: rssi-image-checks
+          name: rssi-image-checks${{ inputs.artifact_suffix }}
           if-no-files-found: ignore
           path: rssi-image-checks.json
 
@@ -1468,7 +1500,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: zerotier-image-checks
+          name: zerotier-image-checks${{ inputs.artifact_suffix }}
           if-no-files-found: ignore
           path: |
             zerotier-image-checks.json
@@ -1478,7 +1510,7 @@ jobs:
         if: ${{ !cancelled() && steps.firmware_build.conclusion == 'failure' }}
         uses: actions/upload-artifact@v7
         with:
-          name: failed-firmware-build-evidence-wr1200js
+          name: failed-firmware-build-evidence-wr1200js${{ inputs.artifact_suffix }}
           retention-days: 14
           if-no-files-found: warn
           path: |
@@ -1503,10 +1535,22 @@ jobs:
             firmware-steering-*.json
           include-hidden-files: true
 
+      - name: Capture toolchain comparison evidence
+        if: inputs.artifact_suffix != ''
+        env:
+          TOOLCHAIN_VARIANT: ${{ inputs.toolchain_variant }}
+        run: python3 tools/toolchain/capture-comparison.py padavan-4.4 toolchain-comparison.json
+      - name: Preserve toolchain comparison evidence
+        if: inputs.artifact_suffix != ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: toolchain-comparison${{ inputs.artifact_suffix }}
+          path: toolchain-comparison.json
+          if-no-files-found: error
       - name: Upload WR1200JS images and toolchain checksum
         uses: actions/upload-artifact@v7
         with:
-          name: padavan-linux-4.4.198-wr1200js
+          name: padavan-linux-4.4.198-wr1200js${{ inputs.artifact_suffix }}
           retention-days: 14
           path: |
             padavan-4.4/trunk/images/*.trx
@@ -1607,7 +1651,7 @@ jobs:
         if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (always()) }}
         uses: actions/upload-artifact@v7
         with:
-          name: band-steering-full-driver-probe
+          name: band-steering-full-driver-probe${{ inputs.artifact_suffix }}
           path: band-steering-driver-results/
           if-no-files-found: ignore
 
@@ -1636,7 +1680,7 @@ jobs:
         if: ${{ inputs.run_candidate_checks && (inputs.candidate_scope == 'iot' || inputs.candidate_scope == 'all') && (always()) }}
         uses: actions/upload-artifact@v7
         with:
-          name: iot-merged-driver-probe
+          name: iot-merged-driver-probe${{ inputs.artifact_suffix }}
           path: iot-merged-driver-results/
           if-no-files-found: ignore
 
@@ -1652,7 +1696,7 @@ jobs:
         if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (always()) }}
         uses: actions/upload-artifact@v7
         with:
-          name: band-steering-full-rc-profile-probe
+          name: band-steering-full-rc-profile-probe${{ inputs.artifact_suffix }}
           path: ${{ runner.temp }}/wr1200js-steering-rc-probe/results/
           if-no-files-found: ignore
 
@@ -1682,7 +1726,7 @@ jobs:
         if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (always()) }}
         uses: actions/upload-artifact@v7
         with:
-          name: eoip-candidate-compile
+          name: eoip-candidate-compile${{ inputs.artifact_suffix }}
           if-no-files-found: ignore
           retention-days: 14
           path: |
@@ -1713,7 +1757,7 @@ jobs:
         if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (always()) }}
         uses: actions/upload-artifact@v7
         with:
-          name: band-steering-driver-package-probe
+          name: band-steering-driver-package-probe${{ inputs.artifact_suffix }}
           path: band-steering-driver-package-results/
           if-no-files-found: ignore
           retention-days: 14
@@ -1749,7 +1793,7 @@ jobs:
         if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (always()) }}
         uses: actions/upload-artifact@v7
         with:
-          name: pcre2-candidate
+          name: pcre2-candidate${{ inputs.artifact_suffix }}
           if-no-files-found: ignore
           retention-days: 14
           path: |
@@ -1775,7 +1819,7 @@ jobs:
         if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (always()) }}
         uses: actions/upload-artifact@v7
         with:
-          name: privoxy-candidate
+          name: privoxy-candidate${{ inputs.artifact_suffix }}
           if-no-files-found: ignore
           retention-days: 14
           path: |
@@ -1800,7 +1844,7 @@ jobs:
         if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (always()) }}
         uses: actions/upload-artifact@v7
         with:
-          name: stubby-candidate
+          name: stubby-candidate${{ inputs.artifact_suffix }}
           if-no-files-found: ignore
           retention-days: 14
           path: |
@@ -1856,7 +1900,7 @@ jobs:
         if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (always()) }}
         uses: actions/upload-artifact@v7
         with:
-          name: mt7621-systick-link
+          name: mt7621-systick-link${{ inputs.artifact_suffix }}
           if-no-files-found: ignore
           retention-days: 14
           path: |
@@ -1903,7 +1947,7 @@ jobs:
         if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (always()) }}
         uses: actions/upload-artifact@v7
         with:
-          name: zerotier-1.16.2-candidate
+          name: zerotier-1.16.2-candidate${{ inputs.artifact_suffix }}
           if-no-files-found: ignore
           retention-days: 14
           path: |
@@ -1928,6 +1972,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: board-build-status-wr1200js
+          name: board-build-status-wr1200js${{ inputs.artifact_suffix }}
           path: board-build-status.json
           if-no-files-found: error

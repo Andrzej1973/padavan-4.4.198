@@ -1,0 +1,50 @@
+name: WR1200JS toolchain comparison
+run-name: "WR1200JS compiler A/B ${{ github.sha }}"
+on:
+  push:
+    branches: [codex/wr1200js-service-webui]
+    paths:
+      - '.github/workflows/compare-toolchain-firmware.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: firmware-${{ github.ref }}-optional
+  cancel-in-progress: false
+  queue: max
+jobs:
+  control:
+    uses: ./.github/workflows/build-padavan-4.4-wr1200js.yml
+    with:
+      verification_revision: ${{ github.sha }}
+      toolchain_variant: pinned
+      artifact_suffix: '-control'
+  candidate:
+    needs: control
+    uses: ./.github/workflows/build-padavan-4.4-wr1200js.yml
+    with:
+      verification_revision: ${{ github.sha }}
+      toolchain_variant: source
+      artifact_suffix: '-source'
+  compare:
+    needs: [control, candidate]
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v6
+      - run: python3 tools/toolchain/check-comparison.py
+      - uses: actions/download-artifact@v8
+        with:
+          name: toolchain-comparison-control
+          path: control
+      - uses: actions/download-artifact@v8
+        with:
+          name: toolchain-comparison-source
+          path: source
+      - run: python3 tools/toolchain/compare-images.py control/toolchain-comparison.json source/toolchain-comparison.json comparison.json
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: toolchain-comparison-result
+          path: comparison.json
+          if-no-files-found: error
