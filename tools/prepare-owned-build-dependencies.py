@@ -7,7 +7,7 @@ def valid(path,digest):
  if not path.is_file() or path.is_symlink():return False
  return hashlib.sha256(path.read_bytes()).hexdigest()==digest
 
-def seed(root,cache,entries,fetch):
+def seed(root,cache,entries,fetch,bundle=None):
  cache.mkdir(parents=True,exist_ok=True)
  for entry in entries:
   directory=root/entry['directory'];name=entry['filename'];digest=entry['sha256']
@@ -15,7 +15,12 @@ def seed(root,cache,entries,fetch):
   archive=cache/(digest+'-'+name);partial=archive.with_name(archive.name+'.part')
   try:
    if not valid(archive,digest):
-    fetch(entry['url'],partial)
+    bundled=bundle/name if bundle is not None else None
+    if bundled is not None:
+     if not valid(bundled,digest):raise ValueError('Bundled dependency SHA256 mismatch or missing: '+name)
+     shutil.copyfile(bundled,partial)
+    else:
+     fetch(entry['url'],partial)
     if not valid(partial,digest):raise ValueError('Dependency SHA256 mismatch: '+name)
     partial.replace(archive)
    target=directory/name
@@ -30,4 +35,4 @@ def download(url,path):
  subprocess.run(['curl','--silent','--show-error','--fail','--location','--retry','3','--retry-all-errors','--connect-timeout','20','--max-time','180','-H','Accept: application/octet-stream','--output',str(path),url],check=True)
 if __name__=='__main__':
  entries=json.loads(Path(__file__).resolve().parent.parent.joinpath('configs/owned-build-dependencies.json').read_text())
- seed(Path(sys.argv[1]),Path(sys.argv[2]),entries,download)
+ seed(Path(sys.argv[1]),Path(sys.argv[2]),entries,download,Path(__file__).resolve().parent.parent/'sources/archives')

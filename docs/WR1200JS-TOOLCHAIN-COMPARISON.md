@@ -42,3 +42,11 @@ unchanged. Every cache entry and installed archive is SHA256 checked; partial
 network downloads cannot become accepted source archives. Other dependency
 recipes still use their existing upstream sources; this does not claim a fully
 offline or fully mirrored firmware build.
+
+A/B42474205248 failed before compilation because even the owned mbedTLS asset
+API returned504/connection56. Therefore the three small archives (6,415,071 bytes
+in total) are now also committed in sources/archives and installed offline from
+checkout. The command-line seeder never falls back to the network; missing or
+corrupt repository inputs fail closed. Owned Release remains a preservation copy.
+The existing verified cache may still be used. This eliminates per-build release
+HTTP dependency for these three packages, not all firmware dependencies.

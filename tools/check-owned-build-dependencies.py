@@ -17,3 +17,18 @@ for mode in ['download','cached','corrupt','bad_hash','network']:
   assert len(calls)==(0 if mode=='cached' else 1)
   assert not list(cache.glob('*.part'))
 print('PASS owned dependency download/cache/corruption/hash/network refusal and partial cleanup')
+
+with tempfile.TemporaryDirectory(prefix='wr-bundled-deps-') as d:
+ root=Path(d);directory=root/'trunk/libs/test';directory.mkdir(parents=True);bundle=root/'bundle';bundle.mkdir();cache=root/'cache'
+ digest=hashlib.sha256(b'valid').hexdigest();name='test.tar.gz';entries=[{'directory':'trunk/libs/test','filename':name,'sha256':digest,'url':'must-not-fetch'}]
+ def forbidden(url,path):raise AssertionError('Network attempted for repository inputs')
+ (bundle/name).write_bytes(b'valid');m.seed(root,cache,entries,forbidden,bundle)
+ assert (directory/name).read_bytes()==b'valid'
+ for invalid in ['missing','corrupt']:
+  for f in cache.iterdir():f.unlink()
+  if invalid=='missing':(bundle/name).unlink()
+  else:(bundle/name).write_bytes(b'corrupt')
+  try:m.seed(root,cache,entries,forbidden,bundle)
+  except ValueError:pass
+  else:raise AssertionError('Accepted invalid repository source')
+print('PASS repository archive seeding without network; missing/corrupt bundle fail closed')
