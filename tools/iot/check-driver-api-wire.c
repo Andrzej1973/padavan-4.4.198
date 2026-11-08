@@ -29,4 +29,20 @@ assert(wr_iot_driver_closed_decode(&closed_result,nonce,closed,64)&&closed_resul
 nonce[0]^=1;assert(!wr_iot_driver_closed_decode(&closed_result,nonce,closed,64));nonce[0]^=1;
 closed[63]=3;assert(!wr_iot_driver_closed_decode(&closed_result,nonce,closed,64));closed[63]=1;
 for(unsigned n=0;n<70;n++)if(n!=64)assert(!wr_iot_driver_closed_decode(&closed_result,nonce,closed,n));
+struct wr_iot_driver_refusal_result refusal;
+assert(wr_iot_driver_refusal_query_encode(closed,64,nonce));
+assert(wr_iot_driver_refusal_query_decode(closed_id,closed,64));
+assert(!wr_iot_driver_closed_query_decode(closed_id,closed,64));
+for(unsigned i=24;i<64;i++){closed[i]=1;assert(!wr_iot_driver_refusal_query_decode(closed_id,closed,64));closed[i]=0;}
+assert(wr_iot_driver_refusal_encode(closed,64,nonce,1,2,3));
+assert(wr_iot_driver_refusal_decode(&refusal,nonce,closed,64)&&refusal.attempt_token==3);
+assert(!wr_iot_driver_closed_decode(&closed_result,nonce,closed,64));
+for(unsigned n=0;n<70;n++)if(n!=64)assert(!wr_iot_driver_refusal_decode(&refusal,nonce,closed,n));
+for(unsigned i=0;i<64;i++){
+ unsigned char old=closed[i];closed[i]^=1;
+ assert(!wr_iot_driver_refusal_decode(&refusal,nonce,closed,64)||((i>=24&&i<48)));
+ closed[i]=old;
+}
+assert(wr_iot_driver_closed_encode(closed,64,nonce,1,2,3,4));
+assert(!wr_iot_driver_refusal_decode(&refusal,nonce,closed,64));
 assert(!wr_iot_driver_open_decode(&r,0,144));assert(!wr_iot_driver_open_decode(0,w,144));return 0;}

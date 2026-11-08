@@ -124,6 +124,44 @@ static inline int wr_iot_driver_closed_decode(struct wr_iot_driver_closed_result
  out->adapter_epoch=wr_iot_driver_get64(wire+24);out->device_generation=wr_iot_driver_get64(wire+32);
  out->open_token=wr_iot_driver_get64(wire+40);out->close_serial=wr_iot_driver_get64(wire+48);return 1;
 }
+/* Separate historical refusal record. Never decode it as current CLOSED. */
+struct wr_iot_driver_refusal_result {unsigned long long adapter_epoch,device_generation,attempt_token;};
+static inline int wr_iot_driver_refusal_query_encode(unsigned char *wire,unsigned int length,
+ const unsigned char *id){
+ if(!wr_iot_driver_closed_query_encode(wire,length,id))return 0;
+ wire[4]=6;return 1;
+}
+static inline int wr_iot_driver_refusal_query_decode(unsigned char *id,
+ const unsigned char *wire,unsigned int length){
+ unsigned char copy[64];unsigned int i;
+ if(id)for(i=0;i<16;i++)id[i]=0;
+ if(!id||!wire||length!=64||wire[4]!=6)return 0;
+ for(i=0;i<64;i++)copy[i]=wire[i];
+ copy[4]=4;
+ return wr_iot_driver_closed_query_decode(id,copy,sizeof(copy));
+}
+static inline int wr_iot_driver_refusal_encode(unsigned char *wire,unsigned int length,
+ const unsigned char *id,unsigned long long epoch,unsigned long long generation,
+ unsigned long long token){
+ unsigned int i;
+ if(!wr_iot_driver_refusal_query_encode(wire,length,id))return 0;
+ if(!epoch||!generation||!token){for(i=0;i<length;i++)wire[i]=0;return 0;}
+ wire[4]=7;wr_iot_driver_put64(wire+24,epoch);wr_iot_driver_put64(wire+32,generation);
+ wr_iot_driver_put64(wire+40,token);wr_iot_driver_put64(wire+56,2);return 1;
+}
+static inline int wr_iot_driver_refusal_decode(struct wr_iot_driver_refusal_result *out,
+ const unsigned char *id,const unsigned char *wire,unsigned int length){
+ unsigned int i,difference=0,nonzero=0;
+ if(!out)return 0;
+ out->adapter_epoch=out->device_generation=out->attempt_token=0;
+ if(!id||!wire||length!=64||wire[0]!='W'||wire[1]!='R'||wire[2]!='I'||wire[3]!='2'||wire[4]!=7)return 0;
+ for(i=5;i<8;i++)if(wire[i])return 0;
+ for(i=0;i<16;i++){difference|=wire[8+i]^id[i];nonzero|=id[i];}
+ if(difference||!nonzero||wr_iot_driver_get64(wire+48)||wr_iot_driver_get64(wire+56)!=2||
+    !wr_iot_driver_get64(wire+24)||!wr_iot_driver_get64(wire+32)||!wr_iot_driver_get64(wire+40))return 0;
+ out->adapter_epoch=wr_iot_driver_get64(wire+24);out->device_generation=wr_iot_driver_get64(wire+32);
+ out->attempt_token=wr_iot_driver_get64(wire+40);return 1;
+}
 static inline void wr_iot_driver_request_wipe(struct wr_iot_driver_open_request *r){
  volatile unsigned char *p=(volatile unsigned char *)r;unsigned int i;
  if(r)for(i=0;i<sizeof(*r);i++)p[i]=0;

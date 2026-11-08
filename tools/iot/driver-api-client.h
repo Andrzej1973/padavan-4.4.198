@@ -24,4 +24,6 @@ enum wr_iot_driver_submit_result wr_iot_driver_open_requested(
  * failure clears output and caller must retain isolation/recovery ownership. */
 int wr_iot_driver_closed_configuration_read(const unsigned char *,
  struct wr_iot_driver_closed_result *);
+/* Historical pre-mutation refusal only. Does not authorize network rollback. */
+int wr_iot_driver_refusal_read(const unsigned char *,struct wr_iot_driver_refusal_result *);
 #endif

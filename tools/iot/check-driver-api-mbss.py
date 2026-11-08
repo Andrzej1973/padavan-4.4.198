@@ -49,6 +49,7 @@ static int wr_iot_mbss_open_raw(PNET_DEV dev,const struct wr_iot_radio_ticket *t
  PRTMP_ADAPTER ad=dev->ad;raw_calls++;
  assert(!ad->wr_iot_transition_lock&&generation&&ad->wr_iot_transition.serial==ticket->serial);
  assert(ticket->operation==WR_RADIO_BSS_OPEN);
+ if(dev==ad->ApCfg.MBSSID[2].wdev.if_dev)assert(ad->wr_iot_driver_owner.mutation_started);
  if(fault==4)return -1;
  ad->count++;return 0;
 }
@@ -82,6 +83,7 @@ int main(void){
   if(fault==0)assert(ad.wr_iot_driver_owner.receipt.valid&&
    ad.wr_iot_driver_owner.receipt.open_token==serial&&
    ad.wr_iot_driver_owner.receipt.request_id[0]==q.request_id[0]);
+  if(fault==1||fault==3)assert(ad.wr_iot_driver_owner.refusal.valid);
   if(fault==5)assert(ad.wr_iot_driver_owner.poisoned);
   assert(!ad.wr_iot_driver_owner.request.password[0]);
   assert(!ad.wr_iot_transition_lock);

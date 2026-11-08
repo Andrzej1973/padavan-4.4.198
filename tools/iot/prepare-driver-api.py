@@ -58,6 +58,10 @@ s=s.replace(old,'''if(!ret||(observe_iot&&!wr_iot_virtual_open_claim_matches(
     &adapter->wr_iot_driver_owner.claim,&adapter->wr_iot_transition,
     adapter->wr_iot_interface_refs,WDEV_NUM_MAX+1))||
     adapter->wr_iot_transition.busy!=WR_RADIO_BSS_OPEN||''',1)
+# Mark possible mutation under the owned ticket, before the first raw call.
+raw_anchor=' RTMP_IRQ_UNLOCK(&adapter->wr_iot_transition_lock,flags);\n ret=wr_iot_mbss_open_raw(pDev,&ticket,record->generation);'
+if s.count(raw_anchor)!=1:p.error('MBSS raw mutation boundary changed')
+s=s.replace(raw_anchor,' if(observe_iot)adapter->wr_iot_driver_owner.mutation_started=1;\n'+raw_anchor,1)
 s='#include "precreated-key-match.h"\n'+s
 changes[name]=s
 for n in ('driver-api-owner.h','driver-api-wire.h','driver-api-owner-binding.inc','driver-api-open-entry.inc','driver-api-identity.inc','radio-transition-api.h','mbss-close-receipt.h','mbss-closed-probe.h','mt7603-closed-observe.h','mt7603-closed-probe-binding.inc','driver-api-closed-entry.inc'):

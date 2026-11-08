@@ -419,6 +419,30 @@ The future backend must retain quarantine/recovery and obtain separately proven
 failed-open closure; successful-OPEN CLOSED reporting covers only its defined
 history. Do not silently downgrade uncertainty to an unmutated refusal.
 
+Failed-OPEN recovery groundwork is now explicit: the generated MBSS wrapper
+sets mutation_started under its transition lock immediately before its first
+raw-open call. Each new accepted reservation invalidates earlier successful/
+refused history. Clean leave can retain a nonsecret refusal identity only when
+that boundary was never reached, exact reservation is back IDLE/open_unmutated,
+and ticket/epoch/Main state are clean. Raw-started, uncertain or reset paths
+cannot mint this proof. Key/password buffers still wipe on exit. The refusal
+matcher is historical proof of no BSS mutation by this attempt, not a current
+CLOSED/RF result or automatic network rollback permission.
+Actual generated MBSS sanitizer fixture confirms pre-key/Main refusal history
+and requires the marker at every IoT raw call. Receipt fixture tests marker vs
+IDLE bookkeeping, exact nonce, missing mutation-proof flag and uncertainty.
+The experimental CLOSED ioctl also accepts a distinct op6 refusal query and
+returns op7 historical refusal provenance (flag2, zero close-serial). It cannot
+be decoded as op5 CLOSED configuration. The kernel revalidates original nonce,
+current IDLE/unmutated registry, Main ownership/count and READY epoch with no
+reset/removal/PM/exhaustion before responding. RC uses a separate typed client;
+failed transport or malformed response clears its output. It does not turn an
+uncertain raw OPEN into REJECTED and grants no network rollback permission.
+Eight native ASan/UBSan fixtures pass, including actual endpoint/client fault
+injection and Main-down/removal/exhaustion/suspend refusals. Full-module target
+and physical runtime verification are pending. Future recovery must separately
+validate network baseline and handle possibly acquired BSS references.
+
 ABI asset preservation correction (2026-11-08): run42440703274 failed at
 check-candidate-assets.py:33 for radio-transition.h. Historical generators
 require its exact reviewed CRLF-normalized bytes. Keep that base frozen;

@@ -104,5 +104,38 @@ int main(void){
   if(fault==10){copy_out_error=0;assert(wr_iot_driver_closed_query_encode(wire,64,id));assert(!wr_iot_driver_closed_ioctl(&ad,&iot,&rq));}
   assert(!ad.BcnRingLock&&!ad.wr_iot_transition_lock);
  }
+ for(unsigned fault=0;fault<18;fault++){
+  struct device main_dev={1},iot={0};struct adapter ad={.mt7603=1,.net_dev=&main_dev};
+  unsigned char id[16]={1},wire[64];struct ifreq rq={wire};unsigned long sequence=0;
+  struct wr_iot_driver_refusal_result out;
+  wr_iot_radio_transition_init(&ad.wr_iot_transition);ad.wr_iot_transition.phase=WR_RADIO_READY;ad.wr_iot_transition.main_ready=1;
+  struct wr_iot_interface_ref *m=wr_iot_registry_add_family(ad.wr_iot_interface_refs,3,&sequence,&main_dev,WR_REF_FAMILY_MAIN);
+  struct wr_iot_interface_ref *r=wr_iot_registry_add_family(ad.wr_iot_interface_refs,3,&sequence,&iot,WR_REF_FAMILY_MBSS);
+  m->published=r->published=1;m->phase=WR_REF_OWNED;r->last_token=2;r->open_unmutated=1;
+  ad.wr_iot_driver_owner.refusal=(struct wr_iot_driver_open_receipt){.device=&iot,.epoch=1,.generation=2,.open_token=2,.request_id={1},.valid=1};
+  permitted=rtnl=1;copy_in_error=copy_out_error=0;copies_in=copies_out=0;
+  switch(fault){
+   case 1:permitted=0;break;case 2:id[0]=2;break;case 3:r->open_unmutated=0;break;
+   case 4:ad.wr_iot_driver_owner.refusal.valid=0;break;case 5:ad.wr_iot_transition.epoch++;break;
+   case 6:ad.wr_iot_transition.reset_pending=1;break;case 7:r->phase=WR_REF_OWNED;break;
+   case 8:copy_in_error=1;break;case 9:copy_out_error=1;break;
+   case 10:ad.wr_iot_driver_owner.active=1;break;case 11:ad.wr_iot_closed_probe.active=1;break;
+   case 12:ad.wr_iot_control_users=1;break;case 13:ad.wr_iot_driver_owner.poisoned=1;break;
+   case 14:wr_iot_radio_main_down(&ad.wr_iot_transition);break;
+   case 15:ad.wr_iot_transition.retiring=1;break;
+   case 16:ad.wr_iot_transition.exhausted=1;break;
+   case 17:ad.wr_iot_transition.pm_suspending=1;break;
+  }
+  assert(wr_iot_driver_refusal_query_encode(wire,64,id));
+  int result=wr_iot_driver_closed_ioctl(&ad,&iot,&rq);
+  if(!fault){
+   assert(!result&&wr_iot_driver_refusal_decode(&out,id,wire,64));
+   assert(out.adapter_epoch==1&&out.device_generation==2&&out.attempt_token==2);
+   struct wr_iot_driver_closed_result closed;
+   assert(!wr_iot_driver_closed_decode(&closed,id,wire,64));
+  }else assert(result<0);
+  if(fault==1)assert(!copies_in);
+  assert(!ad.wr_iot_transition_lock&&!ad.BcnRingLock);
+ }
  puts("PASS actual CLOSED configuration entry: original ON nonce/current receipt, partial close/MMIO/DMA/reset refusal, persistent foreign-ticket context, privilege/copy failures. No RF/FIFO/isolation-release proof.");return 0;
 }

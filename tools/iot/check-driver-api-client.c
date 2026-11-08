@@ -25,13 +25,19 @@ static int fake_ioctl(int fd,unsigned long command,...){
   if(bad_reply)r->ifr_data[4]=99;
  }else if(command==WR_IOT_DRIVER_IOCTL_CLOSED_CONFIG){
   unsigned char id[16];unsigned char *wire=(unsigned char *)r->ifr_data;
-  assert(wr_iot_driver_closed_query_decode(id,wire,64));
-  assert(wr_iot_driver_closed_encode(wire,64,id,1,2,3,4));
+  if(wire[4]==6){
+   assert(wr_iot_driver_refusal_query_decode(id,wire,64));
+   assert(wr_iot_driver_refusal_encode(wire,64,id,1,2,3));
+   if(bad_closed_reply==5)wire[48]=1;
+  }else{
+   assert(wr_iot_driver_closed_query_decode(id,wire,64));
+   assert(wr_iot_driver_closed_encode(wire,64,id,1,2,3,4));
+  }
   if(bad_closed_reply==1)wire[8]^=1;
   if(bad_closed_reply==2)wire[63]=3;
   if(bad_closed_reply==3)memset(wire+24,0,8);
   if(bad_closed_reply==4)wire[3]='1';
-  if(bad_closed_reply==5)memset(wire+48,0,8);
+  if(bad_closed_reply==5&&wire[4]==5)memset(wire+48,0,8);
  }else{
   struct wr_iot_driver_open_request decoded;
   assert(command==WR_IOT_DRIVER_IOCTL_OPEN&&wr_iot_driver_open_decode(&decoded,(unsigned char *)r->ifr_data,144));
@@ -89,5 +95,17 @@ int main(void){
  }
  bad_closed_reply=0;assert(wr_iot_driver_closed_configuration_read(query_id,&state));
  assert(state.adapter_epoch==1&&state.device_generation==2&&state.open_token==3&&state.close_serial==4);
+ struct wr_iot_driver_refusal_result refusal={99,99,99};
+ baseline=calls;
+ assert(!wr_iot_driver_refusal_read(empty_id,&refusal)&&calls==baseline&&!refusal.adapter_epoch);
+ socket_error=1;assert(!wr_iot_driver_refusal_read(query_id,&refusal)&&calls==baseline);socket_error=0;
+ ioctl_error=1;assert(!wr_iot_driver_refusal_read(query_id,&refusal)&&!refusal.attempt_token);ioctl_error=0;
+ close_error=1;assert(!wr_iot_driver_refusal_read(query_id,&refusal)&&!refusal.attempt_token);close_error=0;
+ for(bad_closed_reply=1;bad_closed_reply<=5;bad_closed_reply++){
+  assert(!wr_iot_driver_refusal_read(query_id,&refusal));
+  assert(!refusal.adapter_epoch&&!refusal.device_generation&&!refusal.attempt_token);
+ }
+ bad_closed_reply=0;assert(wr_iot_driver_refusal_read(query_id,&refusal));
+ assert(refusal.adapter_epoch==1&&refusal.device_generation==2&&refusal.attempt_token==3);
  puts("PASS actual RC API client: fixed ra2/CLOEXEC, strict identity response, no OPEN before validation, transaction ID/ON validation, one OPEN/no retry, uncertain ioctl/close outcomes and strict CLOSED configuration response; system calls injected, no device operation");return 0;
 }

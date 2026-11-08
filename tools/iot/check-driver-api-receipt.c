@@ -4,7 +4,7 @@
 #include "driver-api-owner.h"
 #include "mbss-closed-probe.h"
 int main(void){
- for(unsigned fault=0;fault<8;fault++){
+ for(unsigned fault=0;fault<10;fault++){
   struct wr_iot_driver_owner o={0};struct wr_iot_radio_transition r;
   struct wr_iot_interface_ref slots[2]={{0}},*main_ref,*iot_ref;
   int main_dev=0,iot_dev=0,task=0;unsigned long sequence=0;
@@ -17,16 +17,27 @@ int main(void){
   r.serial=r.retired_serial=1;
   q.adapter_epoch=r.epoch;q.device_generation=iot_ref->generation;
   assert(wr_iot_driver_owner_query(&o,q.request_id,q.adapter_epoch,q.device_generation));
+  o.receipt.valid=o.refusal.valid=1;o.mutation_started=1;
   assert(wr_iot_driver_owner_reserve(&o,&r,slots,2,&main_dev,&iot_dev,1,&task,&q,0,0));
+  /* Accepted reservation invalidates all history from a preceding attempt. */
+  assert(!o.receipt.valid&&!o.refusal.valid&&!o.mutation_started);
   assert(wr_iot_driver_owner_take(&o,&task,&iot_dev,&r,slots,2));
   unsigned long token=o.ticket.serial;
-  assert(wr_iot_ref_open_finish(iot_ref,&iot_dev,iot_ref->generation,token,fault!=1));
-  if(fault==1)assert(wr_iot_radio_abort_bss_open_unmutated(&r,&o.ticket));
+  o.mutation_started=(fault!=1&&fault!=9);
+  int acquired=fault!=1&&fault!=8&&fault!=9;
+  assert(wr_iot_ref_open_finish(iot_ref,&iot_dev,iot_ref->generation,token,acquired));
+  if(fault==9)iot_ref->open_unmutated=0;
+  if(!acquired)assert(wr_iot_radio_abort_bss_open_unmutated(&r,&o.ticket));
   else assert(wr_iot_radio_finish(&r,&o.ticket,1));
   if(fault==2)r.reset_pending=1;
   assert(wr_iot_driver_owner_leave(&o,&task,&iot_dev,&r,slots,2)==(fault!=2));
   assert(!o.request.password[0]&&!o.task);
-  if(fault==1||fault==2){assert(!o.receipt.valid);continue;}
+  if(fault==1||fault==2||fault==8||fault==9){
+   assert(!o.receipt.valid);assert(o.refusal.valid==(fault==1));
+   assert(wr_iot_driver_refusal_matches(&o,q.request_id,&iot_dev,q.adapter_epoch,q.device_generation,token)==(fault==1));
+   q.request_id[0]^=2;assert(!wr_iot_driver_refusal_matches(&o,q.request_id,&iot_dev,q.adapter_epoch,q.device_generation,token));
+   continue;
+  }
   assert(o.receipt.valid);
   unsigned char id[16];memcpy(id,q.request_id,16);
   unsigned long epoch=r.epoch,generation=iot_ref->generation;

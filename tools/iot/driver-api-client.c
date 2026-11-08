@@ -81,3 +81,17 @@ int wr_iot_driver_closed_configuration_read(const unsigned char *on_id,
  if(result||closed)return 0;
  return wr_iot_driver_closed_decode(out,on_id,wire,sizeof(wire));
 }
+
+int wr_iot_driver_refusal_read(const unsigned char *id,struct wr_iot_driver_refusal_result *out)
+{
+ struct ifreq request={0};unsigned char wire[WR_IOT_DRIVER_CLOSED_BYTES]={0};
+ int fd,result,closed;
+ if(!out)return 0;
+ out->adapter_epoch=out->device_generation=out->attempt_token=0;
+ if(!wr_iot_driver_refusal_query_encode(wire,sizeof(wire),id))return 0;
+ fd=socket(AF_INET,SOCK_DGRAM|SOCK_CLOEXEC,0);if(fd<0)return 0;
+ memcpy(request.ifr_name,"ra2",4);request.ifr_data=(char *)wire;
+ result=ioctl(fd,WR_IOT_DRIVER_IOCTL_CLOSED_CONFIG,&request);closed=close(fd);
+ if(result||closed)return 0;
+ return wr_iot_driver_refusal_decode(out,id,wire,sizeof(wire));
+}

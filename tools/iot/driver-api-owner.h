@@ -24,6 +24,8 @@ struct wr_iot_driver_owner {
  unsigned char query_id[16];
  unsigned long long query_epoch,query_generation;
  struct wr_iot_driver_open_receipt receipt;
+ struct wr_iot_driver_open_receipt refusal; /* only proven pre-mutation refusal */
+ unsigned int mutation_started;
 };
 /* Called under transition lock after current adapter identity observation.
  * Challenge metadata is not a task/netdev pin and grants no radio permission. */
@@ -70,7 +72,7 @@ static inline int wr_iot_driver_owner_reserve(struct wr_iot_driver_owner *o,
  if(!wr_iot_ref_reserve(record,iot_dev,record->generation,o->ticket.serial)){
   wr_iot_radio_abort_bss_open_unmutated(radio,&o->ticket);return 0;
  }
- o->query_valid=0;
+ o->query_valid=0;o->receipt.valid=0;o->refusal.valid=0;o->mutation_started=0;
  o->request=*request;o->task=task;o->active=1;o->consumed=0;
  o->claim.device=iot_dev;o->claim.generation=record->generation;
  o->claim.serial=o->ticket.serial;o->claim.epoch=o->ticket.epoch;
@@ -96,6 +98,7 @@ static inline int wr_iot_driver_owner_leave(struct wr_iot_driver_owner *o,
  struct wr_iot_radio_ticket retained_ticket;
  struct wr_iot_virtual_open_claim retained_claim;
  struct wr_iot_driver_open_receipt retained_receipt;
+ struct wr_iot_driver_open_receipt retained_refusal;
  volatile unsigned char *wipe;
  if(!o||!radio||!o->active||o->task!=task||o->claim.device!=dev)return 0;
  /* dev_open can fail before ndo_open. Cancel only a still-current unconsumed
@@ -112,17 +115,26 @@ static inline int wr_iot_driver_owner_leave(struct wr_iot_driver_owner *o,
   !radio->pm_suspending&&!radio->pm_suspended&&record&&!record->removing;
  retained_ticket=o->ticket;retained_claim=o->claim;
  retained_receipt=o->receipt;
- if(clean&&o->consumed&&record->phase==WR_REF_OWNED&&record->published&&
+ retained_refusal=o->refusal;
+ if(clean&&o->consumed&&o->mutation_started&&record->phase==WR_REF_OWNED&&record->published&&
     record->family==WR_REF_FAMILY_MBSS&&record->last_token==o->claim.serial){
   retained_receipt.device=dev;retained_receipt.epoch=o->claim.epoch;
   retained_receipt.generation=o->claim.generation;retained_receipt.open_token=o->claim.serial;
   for(i=0;i<16;i++)retained_receipt.request_id[i]=o->request.request_id[i];
   retained_receipt.valid=1;
  }else if(!clean)retained_receipt.valid=0;
+ if(clean&&!o->mutation_started&&record->phase==WR_REF_IDLE&&record->open_unmutated&&
+    record->published&&record->family==WR_REF_FAMILY_MBSS&&record->last_token==o->claim.serial){
+  retained_refusal.device=dev;retained_refusal.epoch=o->claim.epoch;
+  retained_refusal.generation=o->claim.generation;retained_refusal.open_token=o->claim.serial;
+  for(i=0;i<16;i++)retained_refusal.request_id[i]=o->request.request_id[i];
+  retained_refusal.valid=1;
+ }else retained_refusal.valid=0;
  wipe=(volatile unsigned char *)o;
  for(i=0;i<sizeof(*o);i++)wipe[i]=0;
  o->poisoned=!clean;
  o->receipt=retained_receipt;
+ o->refusal=retained_refusal;
  /* Keep nonsecret recovery identity on uncertainty, never a borrowed task
   * pointer or credentials. This metadata does not pin the netdev lifetime. */
  if(!clean){o->ticket=retained_ticket;o->claim=retained_claim;}
@@ -138,6 +150,19 @@ static inline int wr_iot_driver_open_receipt_matches(const struct wr_iot_driver_
     o->receipt.device!=dev||o->receipt.epoch!=epoch||
     o->receipt.generation!=generation||o->receipt.open_token!=open_token)return 0;
  for(i=0;i<16;i++)difference|=id[i]^o->receipt.request_id[i];
+ return difference==0;
+}
+/* Historical proof that this admitted attempt never reached the raw mutation
+ * boundary. Caller must separately validate current registry/baseline before
+ * network rollback; this is not a current CLOSED/RF/isolation receipt. */
+static inline int wr_iot_driver_refusal_matches(const struct wr_iot_driver_owner *o,
+ const unsigned char *id,const void *dev,unsigned long epoch,
+ unsigned long generation,unsigned long token){
+ unsigned int i,difference=0;
+ if(!o||!id||o->active||o->poisoned||!o->refusal.valid||!dev||
+    o->refusal.device!=dev||o->refusal.epoch!=epoch||
+    o->refusal.generation!=generation||o->refusal.open_token!=token)return 0;
+ for(i=0;i<16;i++)difference|=id[i]^o->refusal.request_id[i];
  return difference==0;
 }
 #endif
