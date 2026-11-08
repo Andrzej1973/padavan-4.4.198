@@ -1,0 +1,15 @@
+{
+  "scope": "LOCAL locked join identity receipt, kernel dev_put boundary not bound",
+  "hashes": {
+    "tools/iot/driver-api-close-join.h": "45f77f2267bd763ea3e4b38571cded554fbc566b9486e82931eaeb8d780bae0f",
+    "tools/iot/check-driver-api-close-join.c": "f0c707d6f55d3a6eff115a85a97749b3778240c14ed837fcd7a4c71e70ce81f5",
+    "tools/iot/driver-api-close-owner.h": "287c2506715ee58962933858389d695e5bed1d4492d3836e158204eb85d0369d"
+  },
+  "host_asan_ubsan": "PASS14 claim scenarios, wrong/duplicate completion, recovery reset, owner/scheduling/actual worker regressions",
+  "real_dev_put_executed": false,
+  "module_release_implemented": false,
+  "endpoint_installed": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "package_host_checks": "PASS11 C fixtures ASan/UBSan and3 actual compositions; refusal preserves both owners"
+}

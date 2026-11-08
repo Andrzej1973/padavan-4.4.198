@@ -11,6 +11,7 @@ struct wr_iot_driver_close_owner {
  unsigned int active,consumed;
  unsigned int reference_completed,uncertain;
  unsigned int netdev_held,module_held,recovery_netdev_transferred;
+ unsigned int recovery_join_pending,recovery_netdev_returned;
 };
 static inline int wr_iot_driver_close_reserve(
  struct wr_iot_driver_close_owner *close,const struct wr_iot_driver_owner *open,
@@ -34,7 +35,8 @@ static inline int wr_iot_driver_close_reserve(
  close->generation=generation;close->open_token=open_token;
  close->active=1;close->consumed=0;
  close->reference_completed=close->uncertain=0;
- close->netdev_held=close->module_held=close->recovery_netdev_transferred=0;return 1;
+ close->netdev_held=close->module_held=close->recovery_netdev_transferred=0;
+ close->recovery_join_pending=close->recovery_netdev_returned=0;return 1;
 }
 static inline int wr_iot_driver_close_take(
  struct wr_iot_driver_close_owner *close,const void *task,const void *dev,

@@ -24,6 +24,7 @@ close_helpers=runpy.run_path(str(local/'close-owner-composition.py'))
 close_composition=close_helpers['compose']
 changes['include/wr-iot-mbss-recovery-work.inc']=close_helpers['compose_recovery_idle']((src/'include/wr-iot-mbss-recovery-work.inc').read_text())
 changes['include/wr-iot-mbss-recovery-join.inc']=close_helpers['compose_recovery_join']((src/'include/wr-iot-mbss-recovery-join.inc').read_text())
+changes['include/wr-iot-mbss-recovery-join.inc']=close_helpers['compose_recovery_return'](changes['include/wr-iot-mbss-recovery-join.inc'])
 changes['include/wr-iot-mbss-close-checked.inc']=close_composition((src/'include/wr-iot-mbss-close-checked.inc').read_text())
 one('include/rtmp.h','#include "interface-registry.h"','#include "interface-registry.h"\n'+guard+'\n#include "driver-api-owner.h"\n#include "driver-api-close-owner.h"\n#include "mbss-closed-probe.h"\n#endif')
 one('include/rtmp.h','NDIS_SPIN_LOCK wr_iot_transition_lock;','NDIS_SPIN_LOCK wr_iot_transition_lock;\n'+guard+'\n struct wr_iot_driver_owner wr_iot_driver_owner;\n struct wr_iot_driver_close_owner wr_iot_close_owner;\n struct wr_iot_mbss_closed_probe wr_iot_closed_probe;\n#endif')
@@ -127,7 +128,7 @@ if s.count(raw_anchor)!=1:p.error('MBSS raw mutation boundary changed')
 s=s.replace(raw_anchor,' if(observe_iot)adapter->wr_iot_driver_owner.mutation_started=1;\n'+raw_anchor,1)
 s='#include "precreated-key-match.h"\n'+s
 changes[name]=s
-for n in ('driver-api-close-wire.h','driver-api-open-current-wire.h','driver-api-open-current.h','driver-api-open-current-entry.inc','driver-api-close-admission.h','driver-api-close-owner.h','driver-api-close-binding.inc','beacon-filter-owner.h','beacon-filter-owner-kernel.h','driver-api-owner.h','driver-api-wire.h','driver-api-owner-binding.inc','driver-api-open-entry.inc','driver-api-identity.inc','radio-transition-api.h','mbss-close-receipt.h','mbss-closed-probe.h','mt7603-closed-observe.h','mt7603-closed-probe-binding.inc','driver-api-closed-entry.inc'):
+for n in ('driver-api-close-join.h','driver-api-close-wire.h','driver-api-open-current-wire.h','driver-api-open-current.h','driver-api-open-current-entry.inc','driver-api-close-admission.h','driver-api-close-owner.h','driver-api-close-binding.inc','beacon-filter-owner.h','beacon-filter-owner-kernel.h','driver-api-owner.h','driver-api-wire.h','driver-api-owner-binding.inc','driver-api-open-entry.inc','driver-api-identity.inc','radio-transition-api.h','mbss-close-receipt.h','mbss-closed-probe.h','mt7603-closed-observe.h','mt7603-closed-probe-binding.inc','driver-api-closed-entry.inc'):
  changes['include/'+n]=(local/n).read_text()
 # Reuse existing privileged, RTNL-checked 64-byte observation transport.
 compose_open_current=runpy.run_path(str(local/'open-current-composition.py'))['compose']
