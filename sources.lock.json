@@ -129,6 +129,24 @@
       "repository_archive": "sources/archives/amneziawg-tools-ee0f0a9aa34ff0a0da4b3433b9512781cfe02843.tar.gz",
       "preservation_status": "repository-archive-verified",
       "license_inventory_status": "upstream-license-files-retained; component-inventory-pending"
+    },
+    {
+      "id": "wr1200js-source-candidate-toolchain",
+      "kind": "archive",
+      "origin": "https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/42467546674",
+      "generator_revision": "5ef6a8577ae24be27d8d81b3fe44a587d8491a16",
+      "sha256": "5a9254920f52954b2910ad968086135436e320bfb1360928cf96f4f0bf03870a",
+      "size_bytes": 28505088,
+      "preservation_status": "owned-release-verified",
+      "owned_copy": "https://github.com/Andrzej1973/padavan-4.4.198/releases/download/toolchain-source-candidate-v1/mipsel-linux-uclibc-source-candidate.tar.xz",
+      "owned_asset_api": "https://api.github.com/repos/Andrzej1973/padavan-4.4.198/releases/assets/723985597",
+      "license_inventory_status": "installed-license-files-and-source-archives-preserved; component-distribution-review-separate",
+      "checksum_evidence": "Preservation run42483890602; all3 GitHub asset digests/sizes matched original reviewed reports; exact main candidate installed/linked in A/B runs",
+      "source_archives": [
+        "https://api.github.com/repos/Andrzej1973/padavan-4.4.198/releases/assets/723985602",
+        "https://api.github.com/repos/Andrzej1973/padavan-4.4.198/releases/assets/723985600"
+      ],
+      "selection": "candidate; original control retained"
     }
   ]
 }

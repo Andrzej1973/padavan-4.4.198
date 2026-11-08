@@ -47,8 +47,10 @@ is not WR1200JS device acceptance. Host-GCC fixtures are not target builds.
 The optional publish_candidate input creates a distinct prerelease with these
 archives and hashes after success. It never overwrites build-toolchains-v1,
 changes sources.lock.json or promotes the compiler to production automatically.
-Normal firmware continues using the existing byte-preserved toolchain until a
-separate exact-candidate kernel/module/full-image regression and device gate.
+Normal firmware continues using the existing byte-preserved toolchain until
+software candidate review and a focused development-selection package pass.
+Physical acceptance is deferred by the owner until IoT and the new WebUI are
+ready; it does not block the development compiler selection.
 
 This recipe pins its principal inputs and records resolved configuration/source
 hashes; it does not yet claim bit-for-bit reproducibility across host images.
@@ -60,3 +62,17 @@ Monitor watched paths/names are extended for this workflow, with offline
 failure-once/success-silent regression. The deployed monitor still checks out
 trusted main, so those changes take effect there only after normal integration.
 Do not weaken that trusted-checkout rule to monitor an experimental branch.
+
+Reviewed source candidate preservation succeeded in run42483890602.
+[Owned candidate Release](https://github.com/Andrzej1973/padavan-4.4.198/releases/tag/toolchain-source-candidate-v1)
+contains all three source/binary archives and metadata. GitHub asset digests
+were compared with the original archive hashes. Do not redispatch preservation
+for this already complete Release; it does not overwrite existing assets.
+Normal compiler selection still uses the control until a separate change.
+
+Source-variant firmware downloads now use configs/owned-source-toolchain.json
+with immutable owned asset IDs and SHA256 for the compiler and result.json.
+Both files are cached by digest and revalidated, including generator/ABI
+provenance; no expiring Actions-artifact fetch or foreign fallback is used.
+The pinned control download path is retained. This transport update does not
+itself change the normal compiler default.

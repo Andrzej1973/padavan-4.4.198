@@ -1,0 +1,24 @@
+{
+  "release": "https://github.com/Andrzej1973/padavan-4.4.198/releases/tag/toolchain-source-candidate-v1",
+  "files": [
+    {
+      "filename": "mipsel-linux-uclibc-source-candidate.tar.xz",
+      "url": "https://api.github.com/repos/Andrzej1973/padavan-4.4.198/releases/assets/723985597",
+      "sha256": "5a9254920f52954b2910ad968086135436e320bfb1360928cf96f4f0bf03870a",
+      "bytes": 28505088
+    },
+    {
+      "filename": "result.json",
+      "url": "https://api.github.com/repos/Andrzej1973/padavan-4.4.198/releases/assets/723985599",
+      "sha256": "83c2a8c8b0c79dff5d3e5597d775db5f8b134b64fbfa9136d2ede0c881516426",
+      "bytes": 3187
+    }
+  ],
+  "network_fetch": "PASS exact owned asset data verified",
+  "cache_reuse": "PASS no-network callback",
+  "wrong_provenance_and_failure_cleanup_fixtures": "PASS",
+  "control_toolchain_unchanged": true,
+  "default_selection": "pinned",
+  "full_ci_transport_verification": "pending next source-variant build",
+  "runtime_verified": false
+}
