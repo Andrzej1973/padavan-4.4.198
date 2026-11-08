@@ -159,5 +159,43 @@
       "vendor callback changes beacon scheduling state whereas upstream path uses distinct skb/RCU lifecycle"
     ],
     "conclusion": "No proven drop-in beacon anti-stale correlation. Upstream code is comparison evidence, not firmware duplicate-delivery or vendor RF acceptance proof."
+  },
+  "rc_physical_stop_gap": {
+    "source": "tools/iot/prepare-rc.py generated net_wifi.c wr_iot_quiesce; tools/iot/bridge.c wr_iot_bss_set_down",
+    "behavior": "When scoped gates/bridge exist, wif_control ra2 OFF + administrative DOWN is followed by bridge down/detach and clearing temporary network/profile/firewall gates.",
+    "contract_gap": "Administrative flags do not attest driver close stage, FIFO/RF or late TxS retirement. Current activation.h QUIESCE explicitly requires stronger evidence.",
+    "required_fix": "Do not bind runtime activation to this helper as closure proof; preserve isolation through driver uncertainty and coordinate physical-stop/restart with controller-owned transaction before bridge/gate release. Keep proof acquisition distinct from diagnostic query.",
+    "status": "candidate integration gap, not device failure; production activation remains unbound"
+  },
+  "upstream_flush_fields": {
+    "revision": "636a883e2feef5e4ff95695d3c372ceff03960f5",
+    "files": [
+      "drivers/net/wireless/mediatek/mt76/mt7603/beacon.c",
+      "drivers/net/wireless/mediatek/mt76/mt7603/regs.h"
+    ],
+    "freshness": "both immutable files fetched via GitHub and compared equal to current master",
+    "register": "MT_DMA_FQCR0 = WF_DMA_BASE+0x008",
+    "field_match": "Vendor BSS2 value0xa8c71200 decodes busy1,mode1,target_bss0x12,target_qid7,dest_port3,dest_queue8,wcid0. regs.h defines hardware BCN queue7. Matches upstream per-interface beacon filter command.",
+    "upstream_ownership": "update_beacon_iter serializes FQCR operations with ps_lock and polls BUSY; pre-TBTT also has a global flush and queue cleanup. Do not transplant its global flush or reset into scoped IoT OFF.",
+    "host_check": "check-beacon-flush-encoding.py verifies actual vendor command anchors and decodes Main/BSS1/BSS2/BSS3 against pinned field map; PASS, no MMIO",
+    "remaining": [
+      "vendor shared transaction ownership",
+      "timeout/failure retaining isolation",
+      "late TxS lifetime and RF acceptance distinct from queue filtering"
+    ],
+    "implementation": "no new flush execution installed"
+  },
+  "shared_filter_owner": {
+    "scope": "final isolated API candidate, existing MT7603 APCheckBcnQHandler only",
+    "mechanism": "adapter-wide monotonic token owner; short BcnRingLock sections, try admission, vendor polling unlocked",
+    "verification": [
+      "actual generated wrapper ASan/UBSan: contention across BSS and reentry refused before injected vendor body",
+      "early return releases owner; stale token and exhaustion refuse",
+      "invalid inputs and other-chip bypass preserved",
+      "actual vendor inner body compared byte-identical after symbol rename",
+      "OPEN,accumulated transition,DMA-builder,close regressions pass"
+    ],
+    "limits": "No new IoT close-flush execution. No reset/PCI exclusion, firmware lifetime or RF acceptance proof. Target pending.",
+    "scratch": "temporary candidate and binaries auto-removed"
   }
 }

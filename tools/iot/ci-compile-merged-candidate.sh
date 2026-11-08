@@ -336,6 +336,8 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   python3 tools/iot/check-beacon-txs-stop.py "$merged" > "$results/beacon-txs-stop.txt"
   python3 tools/iot/check-iot-close-beacon-scope.py "$merged" > "$results/iot-close-beacon-scope.txt"
   python3 tools/iot/check-iot-builder-dma.py "$merged" > "$results/iot-builder-dma.txt"
+  python3 tools/iot/check-beacon-flush-encoding.py "$merged" > "$results/beacon-flush-encoding.json"
+  python3 tools/iot/check-beacon-filter-owner.py "$merged" > "$results/beacon-filter-owner.txt"
 fi
 cp "$merged.manifest.json" "$results/merged-source-manifest.json"
 cp -a "$merged/." "$driver/"

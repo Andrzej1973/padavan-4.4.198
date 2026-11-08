@@ -51,6 +51,37 @@ one('include/wr-iot-beacon-producer-kernel.h',
  '  RTMP_SEM_UNLOCK(&ad->BcnRingLock);\n'
  '  if (wake) wake_up_all(&ad->wr_iot_beacon_wait);\n'
  ' }\n return ok;\n}\n\nstatic inline void wr_iot_bcn_producer_end')
+# Serialize existing shared DMA filter commands across BSS recovery callers.
+one('include/rtmp.h','#include "mbss-closed-probe.h"',
+ '#include "mbss-closed-probe.h"\n#include "beacon-filter-owner.h"')
+one('include/rtmp.h',' struct wr_iot_mbss_closed_probe wr_iot_closed_probe;',
+ ' struct wr_iot_mbss_closed_probe wr_iot_closed_probe;\n struct wr_iot_beacon_filter_owner wr_iot_beacon_filter_owner;')
+one('common/rtmp_init.c','NdisZeroMemory(&pAd->wr_iot_closed_probe,sizeof(pAd->wr_iot_closed_probe));',
+ 'NdisZeroMemory(&pAd->wr_iot_closed_probe,sizeof(pAd->wr_iot_closed_probe));\n        NdisZeroMemory(&pAd->wr_iot_beacon_filter_owner,sizeof(pAd->wr_iot_beacon_filter_owner));')
+name='hw_ctrl/cmm_asic_mt.c';text=(src/name).read_text()
+signature='VOID APCheckBcnQHandler(RTMP_ADAPTER *pAd, INT apidx, BOOLEAN *is_pretbtt_int)'
+if text.count(signature)!=1:p.error('Shared beacon recovery signature changed')
+start=text.index(signature);end=text.index('\n}',start)+2
+inner=text[start:end].replace(signature,'static '+signature.replace('APCheckBcnQHandler','wr_iot_APCheckBcnQHandler_inner'),1)
+wrapper='''
+VOID APCheckBcnQHandler(RTMP_ADAPTER *pAd, INT apidx, BOOLEAN *is_pretbtt_int)
+{
+#if defined(MT7603) && defined(MT_MAC) && defined(RTMP_PCI_SUPPORT)
+ unsigned long token=0;
+ if(!is_pretbtt_int)return;
+ if(!pAd){*is_pretbtt_int=FALSE;return;}
+ if(IS_MT7603(pAd)){
+  *is_pretbtt_int=FALSE;
+  if(!wr_iot_bcn_filter_enter(pAd,&token))return;
+  wr_iot_APCheckBcnQHandler_inner(pAd,apidx,is_pretbtt_int);
+  if(!wr_iot_bcn_filter_leave(pAd,token))*is_pretbtt_int=FALSE;
+  return;
+ }
+#endif
+ wr_iot_APCheckBcnQHandler_inner(pAd,apidx,is_pretbtt_int);
+}
+'''
+changes[name]=text[:start]+'#include "beacon-filter-owner-kernel.h"\n'+inner+wrapper+text[end:]
 main='os/linux/rt_main_dev.c'
 signature='INT rt28xx_ioctl(PNET_DEV net_dev, struct ifreq *rq, INT cmd)\n{'
 one(main,signature,guard+'\n#include <linux/rtnetlink.h>\n#include <linux/capability.h>\n#include "driver-api-owner-binding.inc"\n#include "driver-api-open-entry.inc"\n#include "driver-api-identity.inc"\n#include "mbss-closed-probe.h"\n#include "mt7603-closed-observe.h"\n#include "mt7603-closed-probe-binding.inc"\n#include "driver-api-closed-entry.inc"\n#endif\n'+signature)
@@ -91,7 +122,7 @@ if s.count(raw_anchor)!=1:p.error('MBSS raw mutation boundary changed')
 s=s.replace(raw_anchor,' if(observe_iot)adapter->wr_iot_driver_owner.mutation_started=1;\n'+raw_anchor,1)
 s='#include "precreated-key-match.h"\n'+s
 changes[name]=s
-for n in ('driver-api-owner.h','driver-api-wire.h','driver-api-owner-binding.inc','driver-api-open-entry.inc','driver-api-identity.inc','radio-transition-api.h','mbss-close-receipt.h','mbss-closed-probe.h','mt7603-closed-observe.h','mt7603-closed-probe-binding.inc','driver-api-closed-entry.inc'):
+for n in ('beacon-filter-owner.h','beacon-filter-owner-kernel.h','driver-api-owner.h','driver-api-wire.h','driver-api-owner-binding.inc','driver-api-open-entry.inc','driver-api-identity.inc','radio-transition-api.h','mbss-close-receipt.h','mbss-closed-probe.h','mt7603-closed-observe.h','mt7603-closed-probe-binding.inc','driver-api-closed-entry.inc'):
  changes['include/'+n]=(local/n).read_text()
 # Historical stages use the frozen base; only the API successor receives the extension.
 # Extend the accumulated successor, not the frozen base: previous layers add

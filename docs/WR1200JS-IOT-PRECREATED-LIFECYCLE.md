@@ -515,3 +515,12 @@ current registry/epoch without hardware or owner mutation. RC matches its
 retained ON identity. This diagnostic is explicitly incompatible with CLOSED
 and refusal decoders; it cannot clear poison, permit retry or release isolation.
 Actual endpoint/client/wire sanitizer tests pass; target/runtime pending.
+
+Shared filter ownership (local candidate, 2026-11-08): existing MT7603 beacon
+recovery runs through an adapter-wide try-owner with monotonic token, acquired
+and released under short BcnRingLock sections. Vendor body remains unchanged;
+no lock is held over its polling. Contention returns without entering the body,
+including a different BSS reentering. Stale token or serial exhaustion cannot
+release/reuse the owner. Actual generated wrapper sanitizer fixture covers
+reentry, early return, invalid input and non-MT7603 bypass. This does not fence
+physical reset/PCI by itself, perform a new close-flush, or prove RF/TxS retirement.
