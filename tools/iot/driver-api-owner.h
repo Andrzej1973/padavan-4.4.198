@@ -5,6 +5,7 @@
 #ifndef WR_IOT_DRIVER_API_OWNER_H
 #define WR_IOT_DRIVER_API_OWNER_H
 #include "driver-api-wire.h"
+#include "radio-transition-api.h"
 #include "virtual-open-claim.h"
 /* Nonsecret identity only; device pointer is compared, never dereferenced and
  * never substitutes for a netdev/lifetime pin or current registry check. */

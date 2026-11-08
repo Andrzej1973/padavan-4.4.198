@@ -418,3 +418,15 @@ OPEN receipt cannot be declared REJECTED just because CLOSED lacks a receipt.
 The future backend must retain quarantine/recovery and obtain separately proven
 failed-open closure; successful-OPEN CLOSED reporting covers only its defined
 history. Do not silently downgrade uncertainty to an unmutated refusal.
+
+ABI asset preservation correction (2026-11-08): run42440703274 failed at
+check-candidate-assets.py:33 for radio-transition.h. Historical generators
+require its exact reviewed CRLF-normalized bytes. Keep that base frozen;
+radio-transition-api.h contains the reviewed BSS_OBSERVE extension. API owner/
+closed-probe native code includes the extension first; the final checked API
+installer alone replaces the candidate radio header after historical layers.
+check-radio-transition-api.py verifies exact derivation from the frozen base
+with only the approved additions. Original10 asset pins are unchanged and
+LF/CRLF/tamper checks pass. Monitor42440963466 artifact13600669739 identified
+the correct source run/step and causal assert; original failed log confirms it.
+No monitor parser change needed. Fresh target rerun remains required.

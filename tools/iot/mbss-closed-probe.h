@@ -3,6 +3,7 @@
  * This is not an RF/FIFO/late-callback receipt or isolation-release permission. */
 #ifndef WR_IOT_MBSS_CLOSED_PROBE_H
 #define WR_IOT_MBSS_CLOSED_PROBE_H
+#include "radio-transition-api.h"
 #include "mbss-close-receipt.h"
 struct wr_iot_mbss_closed_probe {
  struct wr_iot_radio_ticket ticket;

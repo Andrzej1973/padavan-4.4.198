@@ -7,7 +7,7 @@
 #ifndef WR_IOT_RADIO_TRANSITION_H
 #define WR_IOT_RADIO_TRANSITION_H
 enum wr_iot_radio_phase {WR_RADIO_DOWN,WR_RADIO_READY,WR_RADIO_CLOSING,WR_RADIO_FAULT,WR_RADIO_UNVERIFIED,WR_RADIO_SUSPENDING,WR_RADIO_SUSPENDED};
-enum wr_iot_radio_operation {WR_RADIO_START=1,WR_RADIO_BSS_OPEN,WR_RADIO_RESET,WR_RADIO_CLOSE,WR_RADIO_BSS_CLOSE,WR_RADIO_MAIN_OPEN,WR_RADIO_VERIFY,WR_RADIO_AUX_OPEN,WR_RADIO_AUX_CLOSE,WR_RADIO_AUX_START,WR_RADIO_BSS_OBSERVE};
+enum wr_iot_radio_operation {WR_RADIO_START=1,WR_RADIO_BSS_OPEN,WR_RADIO_RESET,WR_RADIO_CLOSE,WR_RADIO_BSS_CLOSE,WR_RADIO_MAIN_OPEN,WR_RADIO_VERIFY,WR_RADIO_AUX_OPEN,WR_RADIO_AUX_CLOSE,WR_RADIO_AUX_START};
 enum wr_iot_reset_kind {WR_RADIO_RESET_PDMA=1,WR_RADIO_RESET_PSE=2};
 struct wr_iot_radio_ticket {unsigned long serial,epoch;int operation;unsigned int reset_kind;enum wr_iot_radio_phase prior_phase;int prior_ready;};
 struct wr_iot_radio_transition {
@@ -157,8 +157,6 @@ static inline int wr_iot_radio_begin(struct wr_iot_radio_transition *s,
   if(operation==WR_RADIO_START||operation==WR_RADIO_AUX_START){if(s->phase!=WR_RADIO_DOWN)return 0;}
   else if(operation==WR_RADIO_MAIN_OPEN){
    if(s->phase!=WR_RADIO_READY&&s->phase!=WR_RADIO_UNVERIFIED)return 0;
-  }else if(operation==WR_RADIO_BSS_OBSERVE){
-   if(s->phase!=WR_RADIO_READY||!s->main_ready||s->main_inhibited)return 0;
   }else if(operation==WR_RADIO_VERIFY){
    if((s->phase!=WR_RADIO_UNVERIFIED&&s->phase!=WR_RADIO_READY)||s->main_inhibited)return 0;
   }else if(operation==WR_RADIO_BSS_CLOSE||operation==WR_RADIO_AUX_CLOSE){
@@ -200,15 +198,6 @@ static inline int wr_iot_radio_abort_bss_open_unmutated(
     s->busy!=WR_RADIO_BSS_OPEN||s->serial!=t->serial)return 0;
  s->busy=0;s->retired_serial=t->serial;
  return 1;
-}
-/* End a read-only BSS observation. Preserve every current readiness/intent
- * bit, including reset/main-down that arrived while readback ran unlocked.
- * Retirement itself is not acceptance of the observed BSS state. */
-static inline int wr_iot_radio_bss_observe_end(struct wr_iot_radio_transition *s,
- const struct wr_iot_radio_ticket *t){
- if(!s||!t||t->operation!=WR_RADIO_BSS_OBSERVE||
-    s->busy!=WR_RADIO_BSS_OBSERVE||s->serial!=t->serial)return 0;
- s->busy=0;s->retired_serial=t->serial;return 1;
 }
 /* Auxiliary (AP-client/WDS/monitor) open uses the same exclusive ticket but
  * cannot impersonate MBSS. Abort only before any driver/vendor mutation. */
@@ -307,8 +296,6 @@ static inline int wr_iot_radio_begin_aux_stop(struct wr_iot_radio_transition *s,
  * Close requested during admitted work must never be undone by late success. */
 static inline int wr_iot_radio_finish(struct wr_iot_radio_transition *s,
  const struct wr_iot_radio_ticket *t,int observed_success){
- /* Pure BSS observation retires only via its non-mutating end helper. */
- if(t->operation==WR_RADIO_BSS_OBSERVE)return 0;
  if(!s->epoch||!s->busy||s->busy!=t->operation||s->serial!=t->serial)return 0;
  /* Suspend invalidates in-flight success. Preserve its reset request and retire
   * the ticket without publishing READY; PCI power-down must wait for this. */
