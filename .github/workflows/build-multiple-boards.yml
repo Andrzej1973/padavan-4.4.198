@@ -1,5 +1,5 @@
 name: Build selected router firmware
-run-name: "Padavan #${{ github.run_number }} [${{ inputs.run_candidate_checks && 'optional' || 'standard' }}] ${{ inputs.verification_revision || github.sha }} ${{ inputs.candidate_scope || 'iot' }}/${{ inputs.iot_candidate_variant || 'legacy' }}"
+run-name: "Padavan #${{ github.run_number }} [${{ inputs.run_candidate_checks && 'optional' || 'standard' }}] ${{ inputs.verification_revision || github.sha }} tc=${{ inputs.toolchain_variant || 'source' }} ${{ inputs.candidate_scope || 'iot' }}/${{ inputs.iot_candidate_variant || 'legacy' }}"
 on:
   pull_request:
     branches: [main]
@@ -10,6 +10,11 @@ on:
         description: Optional exact ancestor SHA to verify independently of the current branch HEAD
         type: string
         default: ''
+      toolchain_variant:
+        description: WR1200JS development compiler (pinned selects original control)
+        type: choice
+        options: [source, pinned]
+        default: source
       boards:
         description: Router profiles to build
         type: choice
@@ -316,6 +321,7 @@ jobs:
     uses: ./.github/workflows/build-padavan-4.4-wr1200js.yml
     with:
       verification_revision: ${{ needs.select.outputs.revision }}
+      toolchain_variant: ${{ inputs.toolchain_variant || 'source' }}
       run_candidate_checks: ${{ inputs.run_candidate_checks || false }}
       candidate_scope: ${{ inputs.candidate_scope || 'iot' }}
       iot_candidate_variant: ${{ inputs.iot_candidate_variant || 'legacy' }}

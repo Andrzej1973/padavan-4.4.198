@@ -47,8 +47,9 @@ is not WR1200JS device acceptance. Host-GCC fixtures are not target builds.
 The optional publish_candidate input creates a distinct prerelease with these
 archives and hashes after success. It never overwrites build-toolchains-v1,
 changes sources.lock.json or promotes the compiler to production automatically.
-Normal firmware continues using the existing byte-preserved toolchain until
-software candidate review and a focused development-selection package pass.
+WR1200JS development firmware now defaults to the preserved source compiler
+after software A/B42482182188 passed. The original byte-preserved compiler
+remains selectable as pinned for explicit control/rollback builds.
 Physical acceptance is deferred by the owner until IoT and the new WebUI are
 ready; it does not block the development compiler selection.
 
@@ -68,11 +69,14 @@ Reviewed source candidate preservation succeeded in run42483890602.
 contains all three source/binary archives and metadata. GitHub asset digests
 were compared with the original archive hashes. Do not redispatch preservation
 for this already complete Release; it does not overwrite existing assets.
-Normal compiler selection still uses the control until a separate change.
+The subsequent development-selection package changes the WR1200JS default
+to source; explicit pinned control remains available in Run workflow.
 
 Source-variant firmware downloads now use configs/owned-source-toolchain.json
 with immutable owned asset IDs and SHA256 for the compiler and result.json.
 Both files are cached by digest and revalidated, including generator/ABI
 provenance; no expiring Actions-artifact fetch or foreign fallback is used.
-The pinned control download path is retained. This transport update does not
-itself change the normal compiler default.
+The pinned control download path is retained. Compiler verification tools
+come from the dispatch SHA in a separate CI-only sparse checkout; firmware
+source may be an older exact ancestor. The artifact records both firmware and
+loader revisions. This prevents an older source from missing the newer loader.

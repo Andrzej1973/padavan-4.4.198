@@ -5,9 +5,9 @@ on:
   workflow_call:
     inputs:
       toolchain_variant:
-        description: Explicit comparison lane only; production defaults to pinned
+        description: WR1200JS development compiler; pinned retains the original control
         type: string
-        default: pinned
+        default: source
       artifact_suffix:
         description: Artifact namespace for isolated comparison lanes
         type: string
@@ -56,7 +56,7 @@ jobs:
           SUFFIX: ${{ inputs.artifact_suffix }}
         run: |
           case "$VARIANT:$SUFFIX" in
-            pinned:|pinned:-control|source:-source) ;;
+            pinned:|pinned:-control|source:|source:-source) ;;
             *) echo 'Unsupported toolchain comparison lane' >&2; exit 1;;
           esac
       - name: Record exact checked-out source revision
@@ -534,22 +534,39 @@ jobs:
           tar -xJf padavan-4.4/toolchain-mipsel.tar.xz \
             -C padavan-4.4/toolchain/toolchain-mipsel
 
+      - name: Load compiler verification tools from dispatch revision
+        if: inputs.toolchain_variant == 'source'
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          path: .toolchain-verification
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /tools/toolchain/
+            /tools/prepare-owned-build-dependencies.py
+            /configs/owned-source-toolchain.json
+            /.github/workflows/build-padavan-4.4-wr1200js.yml
+            /.github/workflows/build-multiple-boards.yml
+            /.github/workflows/compare-toolchain-firmware.yml
       - name: Restore owned source compiler cache
         if: inputs.toolchain_variant == 'source'
         uses: actions/cache@v6
         with:
           path: ${{ github.workspace }}/.cache/wr1200js-source-toolchain
-          key: wr1200js-source-toolchain-${{ runner.os }}-${{ hashFiles('configs/owned-source-toolchain.json') }}
+          key: wr1200js-source-toolchain-${{ runner.os }}-${{ hashFiles('.toolchain-verification/configs/owned-source-toolchain.json') }}
       - name: Download verified source compiler from owned Release
         if: inputs.toolchain_variant == 'source'
         run: |
-          python3 tools/toolchain/check-owned-candidate.py
-          python3 tools/toolchain/fetch-owned-candidate.py source-toolchain "$GITHUB_WORKSPACE/.cache/wr1200js-source-toolchain"
+          python3 .toolchain-verification/tools/toolchain/check-toolchain-selection.py
+          python3 .toolchain-verification/tools/toolchain/check-owned-candidate.py
+          python3 .toolchain-verification/tools/toolchain/fetch-owned-candidate.py source-toolchain "$GITHUB_WORKSPACE/.cache/wr1200js-source-toolchain"
+          git -C .toolchain-verification rev-parse HEAD > toolchain-loader-revision.txt
       - name: Verify and install isolated compiler candidate
         if: inputs.toolchain_variant == 'source'
         run: |
-          python3 tools/toolchain/check-extraction.py
-          python3 tools/toolchain/install-candidate.py source-toolchain padavan-4.4/toolchain/toolchain-mipsel
+          python3 .toolchain-verification/tools/toolchain/check-extraction.py
+          python3 .toolchain-verification/tools/toolchain/install-candidate.py source-toolchain padavan-4.4/toolchain/toolchain-mipsel
       - name: Prepare requested WR Band Steering integration
         id: steering_prepare
         run: |
@@ -1568,6 +1585,7 @@ jobs:
           path: |
             padavan-4.4/trunk/images/*.trx
             toolchain-sha256.txt
+            toolchain-loader-revision.txt
             unsupported-firmware-options.txt
             firmware-requested.config
             firmware-image-checks.json
