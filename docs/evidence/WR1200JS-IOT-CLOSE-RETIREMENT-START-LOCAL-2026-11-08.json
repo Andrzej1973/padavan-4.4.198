@@ -1,0 +1,18 @@
+{
+  "scope": "LOCAL RTNL-guarded wake binding, actual kernel APIs host stubbed",
+  "hashes": {
+    "tools/iot/driver-api-close-retirement-start.inc": "3401b5f2c22e2a0836cf65ea43d0d5144d5b6961a7a26303a546a8fa820099ee",
+    "tools/iot/check-driver-api-close-retirement-start.c": "e5307a213332feebd1416a7b644955fc0b2d83daeaea58046fe22170c6ca206c",
+    "tools/iot/check-driver-api-close-retirement.c": "aeab867205c2b212ca0606880c90805c29ad7320a503696f4812184fdf6810be",
+    "tools/iot/check-close-bindings-target-tu.py": "89c6e7241650b0261700ed66f834f5c6e630e4ddac8cb5d2b468eaca540a55e9"
+  },
+  "host_asan_ubsan": "PASS5 wake outcomes: success, ambiguous0, changed state, cancellation fence, missingRTNL; duplicate no second wake",
+  "caller_task_ref_consumed_on_success": true,
+  "ambiguous_wake_retains_handle_and_started_fence": true,
+  "module_hold_transferred": false,
+  "fixed_thread_body_installed": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "endpoint_installed": false,
+  "additional_checks": "PASS self/foreign refusal, repeat ambiguous wake no second wake; five C fixtures ASan/UBSan, Python/shell syntax"
+}

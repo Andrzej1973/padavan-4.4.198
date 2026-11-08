@@ -51,6 +51,12 @@ static void put_task_struct(struct task_struct *t){assert(!test_locked&&t->refs)
 static int kthread_stop(struct task_struct *t){assert(!test_locked&&t==&stopped_task&&t->refs);stop_calls++;t->refs--;if(stop_drift)create_ad->wr_iot_close_owner.generation++;return stop_result;}
 #include "driver-api-close-retirement-create.inc"
 #include "driver-api-close-retirement-cancel.inc"
+#ifdef WR_CLOSE_START_BINDING_TEST
+static int wake_calls,wake_accept=1,rtnl_held=1;
+static int rtnl_is_locked(void){return rtnl_held;}
+static int wake_up_process(struct task_struct *t){assert(test_locked&&t==&stopped_task);wake_calls++;return wake_accept;}
+#include "driver-api-close-retirement-start.inc"
+#endif
 #endif
 #endif
 int main(void){
@@ -132,6 +138,33 @@ int main(void){
     else{assert(!task&&!ad.wr_iot_close_owner.retirement_task);assert(stop_calls==(create_mode==2));if(create_mode==2)assert(!stopped_task.refs);}
    }
    ad.wr_iot_close_owner=before;ad.wr_iot_transition=radio;
+#ifdef WR_CLOSE_START_BINDING_TEST
+   create_mode=0;
+   for(unsigned start_fault=0;start_fault<5;start_fault++){
+    ad.wr_iot_close_owner=before;ad.wr_iot_transition=radio;
+    wake_calls=0;wake_accept=start_fault!=1;rtnl_held=1;
+    struct task_struct *task=0;
+    assert(!wr_iot_driver_close_retirement_prepare(&ad,retirement_body,&task));
+    struct task_struct *self=current,other={1},*foreign=&other;
+    assert(wr_iot_driver_close_retirement_start(&ad,&self)==-EDEADLK&&!wake_calls);
+    assert(wr_iot_driver_close_retirement_start(&ad,&foreign)==-EBUSY&&!wake_calls);
+    if(start_fault==2)ad.wr_iot_transition.retiring=1;
+    if(start_fault==3)ad.wr_iot_close_owner.retirement_canceling=1;
+    if(start_fault==4)rtnl_held=0;
+    int status=wr_iot_driver_close_retirement_start(&ad,&task);
+    assert(status==(start_fault==0?0:start_fault==1?-EUCLEAN:-EBUSY));
+    assert(!body_calls&&ad.wr_iot_close_owner.module_held&&ad.wr_iot_close_owner.active);
+    if(!start_fault){
+     assert(!task&&wake_calls==1&&stopped_task.refs==1&&ad.wr_iot_close_owner.retirement_started);
+     assert(wr_iot_driver_close_retirement_start(&ad,&task)==-EINVAL&&wake_calls==1);
+    }else if(start_fault==1){
+     assert(task==&stopped_task&&wake_calls==1&&task->refs==2&&ad.wr_iot_close_owner.retirement_started);
+     assert(wr_iot_driver_close_retirement_cancel(&ad,&task)==-EBUSY);
+     assert(wr_iot_driver_close_retirement_start(&ad,&task)==-EBUSY&&wake_calls==1);
+    }else assert(task==&stopped_task&&!wake_calls&&task->refs==2&&!ad.wr_iot_close_owner.retirement_started);
+   }
+   ad.wr_iot_close_owner=before;ad.wr_iot_transition=radio;
+#endif
   }
 #endif
   test_locked=1;
