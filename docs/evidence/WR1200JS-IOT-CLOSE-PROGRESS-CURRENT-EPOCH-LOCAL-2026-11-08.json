@@ -1,0 +1,12 @@
+{
+  "scope": "LOCAL refuse stale completed progress status after adapter radio state changed",
+  "sha256": {
+    "tools/iot/driver-api-close-progress.inc": "cc7a2c166c08672eb131585f3883c70824218dd7862c7705a72c3e640886da51",
+    "tools/iot/check-driver-api-close-synchronous-chain.c": "0e0c7f6b71f57ab293e8e5729478ae037ac4026815cb12bcaaa61de923c1935f"
+  },
+  "checks": "22 CLOSE fixtures PASS -O2 ASan/UBSan; current epoch/reset/retiring/PM suspending/suspended five negative cases preserve owner and counts",
+  "behavior": "Successful reference retirement no longer returns0 for stale adapter epoch or reset/PM/retiring state; no release or OPEN permission added",
+  "target_verified": false,
+  "runtime_verified": false,
+  "cleanup": "Temporary binaries removed"
+}

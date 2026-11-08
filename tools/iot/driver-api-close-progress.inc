@@ -15,7 +15,11 @@ static INT wr_iot_driver_close_progress(RTMP_ADAPTER *ad,PNET_DEV dev,
  transferred=ad->wr_iot_close_owner.retirement_module_transferred;
  designated=ad->wr_iot_close_owner.retirement_task!=NULL;
  if(matched&&transferred)
-  matched=!wr_iot_driver_close_blocks_adapter_retirement(&ad->wr_iot_close_owner);
+  /* Retained owner provenance is not a current-adapter receipt after reset. */
+  matched=ad->wr_iot_transition.epoch==ad->wr_iot_close_owner.ticket.epoch&&
+   !ad->wr_iot_transition.reset_pending&&!ad->wr_iot_transition.retiring&&
+   !ad->wr_iot_transition.pm_suspending&&!ad->wr_iot_transition.pm_suspended&&
+   !wr_iot_driver_close_blocks_adapter_retirement(&ad->wr_iot_close_owner);
  RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);
  if(!matched)return -EBUSY;
  if(transferred)return 0;

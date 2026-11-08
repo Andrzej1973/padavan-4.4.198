@@ -162,6 +162,18 @@ int main(void){
  assert(c->synchronous_netdev_returned&&!c->recovery_netdev_transferred);
  rtnl_held=1;
  assert(!wr_iot_driver_close_progress(&ad,&dev,&progress)&&create_calls==1&&chain_puts==1);
+ for(unsigned stale=0;stale<5;stale++){
+  struct wr_iot_radio_transition saved=ad.wr_iot_transition;
+  struct wr_iot_driver_close_owner retained=*c;
+  if(stale==0)ad.wr_iot_transition.epoch++;
+  if(stale==1)ad.wr_iot_transition.reset_pending=1;
+  if(stale==2)ad.wr_iot_transition.retiring=1;
+  if(stale==3)ad.wr_iot_transition.pm_suspending=1;
+  if(stale==4)ad.wr_iot_transition.pm_suspended=1;
+  assert(wr_iot_driver_close_progress(&ad,&dev,&progress)==-EBUSY);
+  assert(!memcmp(&retained,c,sizeof(retained))&&create_calls==1&&chain_puts==1);
+  ad.wr_iot_transition=saved;
+ }
  }
  puts("PASS composed synchronous chain: finish -> one dev_put receipt -> fixed create -> wake -> exact task claim -> core exit; active OPEN fence retained; scheduler/refs injected");
  return 0;
