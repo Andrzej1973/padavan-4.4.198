@@ -2,6 +2,7 @@
 # Full opt-in diagnostic module A/B builds; never install in production image.
 set -euo pipefail
 python3 tools/iot/check-psm-diagnostics.py
+python3 tools/iot/check-psm-build-report.py
 kernel=$1
 compiler=$2
 results=$3
@@ -35,21 +36,35 @@ for mode in off on; do
   else
     grep -Fq 'wr_ps event=' "$results/strings-$mode.txt"
   fi
-  mkdir "$results/commands-$mode"
+  mkdir "$results/commands-$mode" "$results/objects-$mode"
   for unit in common/mt_ps ap/ap ap/ap_connect tx_rx/txs; do
     cp "$driver/${unit%/*}/.${unit##*/}.o.cmd" "$results/commands-$mode/${unit##*/}.cmd"
+    cp "$driver/$unit.o" "$results/objects-$mode/${unit##*/}.o"
   done
   cmp "$feature/.config" "$results/kernel.config"
 done
-python3 - "$results" <<'PY'
+python3 - "$results" "$driver" <<'PY'
 import hashlib,json,sys
 from pathlib import Path
-r=Path(sys.argv[1]);out={'target_compiled':True,'production_installed':False,'runtime_verified':False,'variants':{}}
+r=Path(sys.argv[1]);driver=Path(sys.argv[2]);out={'target_compiled':True,'production_installed':False,'runtime_verified':False,'variants':{}}
 for mode in ['off','on']:
  data=(r/f'mt76x3_ap-psm-{mode}.ko').read_bytes()
  assert data[:6]==b'\x7fELF\x01\x01' and int.from_bytes(data[18:20],'little')==8
- for cmd in (r/f'commands-{mode}').glob('*.cmd'):
-  assert ('-DWR_IOT_PSM_DIAG' in cmd.read_text())==(mode=='on')
- out['variants'][mode]={'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}
+ objects={}
+ commands=list((r/f'commands-{mode}').glob('*.cmd'))
+ assert {p.stem for p in commands}=={'mt_ps','ap','ap_connect','txs'}
+ for cmd in commands:
+  # Test the actual compiler command, not its dependency/include text.
+  compile_lines=[line for line in cmd.read_text().splitlines() if line.startswith('cmd_') and ':=' in line]
+  assert len(compile_lines)==1
+  assert ('-DWR_IOT_PSM_DIAG' in compile_lines[0].split())==(mode=='on')
+  obj=(r/f'objects-{mode}'/(cmd.stem+'.o')).read_bytes()
+  assert obj[:6]==b'\x7fELF\x01\x01' and int.from_bytes(obj[18:20],'little')==8
+  objects[cmd.stem]={'object_sha256':hashlib.sha256(obj).hexdigest(),'command_sha256':hashlib.sha256(cmd.read_bytes()).hexdigest()}
+
+ out['variants'][mode]={'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest(),'objects':objects}
+assert out['variants']['off']['sha256']!=out['variants']['on']['sha256']
+out['source_sha256']={name:hashlib.sha256((driver/name).read_bytes()).hexdigest() for name in
+ ['common/mt_ps.c','ap/ap.c','ap/ap_connect.c','tx_rx/txs.c','include/wr-iot-psm-diag.h']}
 (r/'target-result.json').write_text(json.dumps(out,indent=2)+'\n')
 PY

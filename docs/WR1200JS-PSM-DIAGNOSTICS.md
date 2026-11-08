@@ -109,3 +109,9 @@ injected kernel atomic/ratelimit APIs: OFF arguments are not evaluated; ON outpu
 is bounded and invalid event index refused. Native ASan/UBSan tests pass.
 Pinned-source and current API-successor clean patch application pass. Actual
 kernel atomics/locking and target APIs remain for the full GitHub module builds.
+
+Local follow-up, awaiting next coherent publication: A/B evidence now also
+requires exactly four named MIPS objects, checks the define only in actual
+Kbuild compiler command lines, hashes every affected source/command/object and
+requires distinct OFF/ON module hashes. Shell/report-builder syntax and native
+header tests pass; these checks themselves are not MIPS build results.
