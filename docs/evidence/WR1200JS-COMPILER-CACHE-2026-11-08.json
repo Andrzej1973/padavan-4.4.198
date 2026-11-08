@@ -1,0 +1,52 @@
+{
+  "scope": "Compiler-cache fix; source/host verified, CI cache effectiveness not yet measured",
+  "baseline": [
+    {
+      "run": 42501759789,
+      "lane": "standard",
+      "firmware_minutes": 11.4,
+      "ccache_hits": 1811,
+      "ccache_cacheable": 10421,
+      "ccache_hit_percent": 17.38,
+      "cache_gb": 0.5
+    },
+    {
+      "run": 42498359662,
+      "lane": "optional",
+      "firmware_minutes": 23.1,
+      "candidate_minutes": 9.2,
+      "ccache_hits": 1811,
+      "ccache_cacheable": 10421,
+      "ccache_hit_percent": 17.38,
+      "candidate_bypasses_cache": true
+    }
+  ],
+  "changes": [
+    "Unique run/attempt save keys with compatible toolchain restore prefix",
+    "Save and statistics after optional stages",
+    "Explicit system ccache before exact compiler for isolated kernel/modules",
+    "Strict system-prefix unwrap preserves pinned compiler checks",
+    "Before/after optional ccache stats in candidate artifact"
+  ],
+  "checks": [
+    "Real repeated host C compilation gives cache hit with identical object",
+    "Untrusted cache path/options and wrong compiler refused",
+    "Task-config/capacity/channel parser regressions PASS",
+    "Workflow YAML, Python and shell syntax PASS"
+  ],
+  "hashes": {
+    ".github/workflows/build-padavan-4.4-wr1200js.yml": "2ee220b9d40cbe8e1d3ae504f4a2e977550a771675b59990060fa9d9fe986fe2",
+    "tools/iot/ci-compile-merged-candidate.sh": "9604e00bc4fd3fda7544ca4ac60f6da5da1090b5c2afb018d6862f0aba7e25d2",
+    "tools/iot/kbuild-compiler.py": "9654dbbe82b4d20cffd03d974c539e6ce5366c2b440f77b0a3e76d2dcd4b56d2",
+    "tools/iot/check-compiler-cache.py": "d8ec14c9f478b4ad29e2105381e1f4a11895d225c27776004a4e2b58ee40dd11",
+    "tools/iot/check-task-config.py": "34c7a08397123f0f61ffa2fb5da9f85e99a966a7ee01120c76ad79ed15d64ce6",
+    "tools/iot/check-task-config-selftest.py": "1ebcc3027202e490e96da123aa1de4c15f399e3d7ad417d1f3af5c07d4104c24",
+    "tools/iot/check-capacity.py": "4cf4d9c895cf8188debba04bff00a3ef8dfd2e14cec57f94db0b73ff80469ae4",
+    "tools/iot/check-close-bindings-target-tu.py": "25422852c4880467c2eba8caa3c177143d394b3c8807d294265dad7a4bc239f4",
+    "tools/iot/check-radio-off-reload-target-tu.py": "c200ce6c6d202ab9ae5671656eae264410596d10bc9b17d119e8c398374797ca",
+    "tools/iot/check-mlme-wsc-target-tu.py": "84840f51f4978f665e52d90844d9e2d195e70a963591e7ac058477286093fda1"
+  },
+  "ci_verified": false,
+  "speedup_measured": false,
+  "runtime_verified": false
+}

@@ -2,6 +2,8 @@
 """Read actual rt_linux.o Kbuild flags; never infer its macros from another TU."""
 import argparse,hashlib,json,re,shlex,shutil,subprocess
 from pathlib import Path
+import runpy
+unwrap_ccache=runpy.run_path(str(Path(__file__).with_name('kbuild-compiler.py')))['unwrap_ccache']
 p=argparse.ArgumentParser()
 p.add_argument('--kernel',type=Path,required=True)
 p.add_argument('--driver',type=Path,required=True)
@@ -15,7 +17,7 @@ try:
  if len(commands)!=1:raise RuntimeError('Expected exactly one '+a.unit+' Kbuild command')
  data=commands[0].read_bytes(); lines=re.findall(r'^cmd_.*? := (.+)$',data.decode(),re.M)
  if len(lines)!=1:raise RuntimeError('Expected one compiler command')
- argv=shlex.split(lines[0])
+ argv=unwrap_ccache(shlex.split(lines[0]))
  if not argv or any(t in (';','&&','||','|','>','<') for t in argv):raise RuntimeError('Invalid compiler command')
  tool=Path(argv[0])
  if not tool.is_absolute():

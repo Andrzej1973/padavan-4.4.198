@@ -10,6 +10,8 @@ import subprocess
 import tempfile
 from collections import Counter
 from pathlib import Path
+import runpy
+unwrap_ccache=runpy.run_path(str(Path(__file__).with_name('kbuild-compiler.py')))['unwrap_ccache']
 
 
 FUNCTION_DECLARATION = re.compile(
@@ -61,7 +63,7 @@ def recorded_kbuild_command(driver, kernel, compiler, source):
                           command_file.read_text(encoding='utf-8'), re.M)
     if len(commands) != 1:
         raise RuntimeError('Expected one Kbuild compiler command')
-    argv = shlex.split(commands[0])
+    argv=unwrap_ccache(shlex.split(commands[0]))
     if not argv:
         raise RuntimeError('Kbuild compiler command is empty')
     recorded = Path(argv[0])
@@ -351,7 +353,7 @@ def main():
         if len(commands) != 1:
             raise RuntimeError('Expected one actual Kbuild compiler command')
 
-        argv = shlex.split(commands[0])
+        argv=unwrap_ccache(shlex.split(commands[0]))
         if not argv:
             raise RuntimeError('Kbuild compiler command is empty')
         compiler = Path(argv[0])

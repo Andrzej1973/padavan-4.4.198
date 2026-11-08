@@ -380,8 +380,13 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
     -I"$driver/include" -c tools/iot/check-peer-rssi-delete.c \
     -o "$results/peer-rssi-delete-mips.o"
 fi
-make -C "$kernel" ARCH=mips CROSS_COMPILE="$cross" -j2 vmlinux modules \
+# Preserve the actual compiler in the recorded command after the explicit cache
+# prefix. Verifiers unwrap system ccache and still check exact compiler identity.
+command -v ccache >/dev/null
+ccache --show-stats > "$results/ccache-before.txt"
+make -C "$kernel" ARCH=mips CROSS_COMPILE="$cross" CC="/usr/bin/ccache $compiler" -j2 vmlinux modules \
   2>&1 | tee "$results/build.log"
+ccache --show-stats > "$results/ccache-after.txt"
 cmp tools/iot/mt7603-main-observe.h "$driver/include/mt7603-main-observe.h"
 # Record actual rt_linux TU macros from the merged candidate Kbuild.
 python3 tools/iot/check-task-config.py \

@@ -114,17 +114,14 @@ jobs:
       - name: Check QoS tc packaging selections before firmware compilation
         run: python3 tools/check-qos-packaging.py
 
-      - name: Select daily compiler cache key
-        id: cache_day
-        run: echo "day=$(date -u +%Y%m%d)" >> "$GITHUB_OUTPUT"
-
       - name: Restore compiler cache
         id: compiler_cache
         uses: actions/cache/restore@v6
         with:
           path: ${{ env.CCACHE_DIR }}
-          key: wr1200js-ccache-v2-${{ runner.os }}-uclibc-${{ steps.cache_day.outputs.day }}
+          key: wr1200js-ccache-v3-${{ runner.os }}-${{ inputs.toolchain_variant }}-${{ github.run_id }}-${{ github.run_attempt }}${{ inputs.artifact_suffix }}
           restore-keys: |
+            wr1200js-ccache-v3-${{ runner.os }}-${{ inputs.toolchain_variant }}-
             wr1200js-ccache-v2-${{ runner.os }}-uclibc-
             wr1200js-ccache-v1-${{ runner.os }}-uclibc-
 
@@ -133,6 +130,10 @@ jobs:
           ccache --version
           ccache --max-size "$CCACHE_MAXSIZE"
           ccache --zero-stats
+          # Ancestor verification may predate this cache regression checker.
+          if [ -f tools/iot/check-compiler-cache.py ]; then
+            python3 tools/iot/check-compiler-cache.py
+          fi
 
       - name: Check source retry timeout and lock regressions
         run: |
@@ -1194,21 +1195,6 @@ jobs:
           python3 tools/bind-router-guide-image.py "$image" SETUP_WR1200JS.md SETUP_WR1200JS.txt
           python3 tools/bind-router-guide-image.py "$image" SETUP_WR1200JS.md SETUP_WR1200JS.txt --check
 
-      - name: Compiler cache statistics
-        if: always()
-        run: |
-          if command -v ccache >/dev/null; then
-            ccache --show-stats | tee ccache-statistics.txt
-            { echo '### WR1200JS compiler cache'; echo '```text'; cat ccache-statistics.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
-          fi
-
-      - name: Save compiler cache
-        if: ${{ success() && steps.compiler_cache.outputs.cache-hit != 'true' }}
-        uses: actions/cache/save@v6
-        with:
-          path: ${{ env.CCACHE_DIR }}
-          key: ${{ steps.compiler_cache.outputs.cache-primary-key }}
-
       - name: Verify WPAD image packaging
         run: |
           python3 overlay/padavan-4.4/scripts/verify-wpad.py \
@@ -1988,6 +1974,21 @@ jobs:
             zerotier-candidate-prepared.sha256
             zerotier-candidate/make-linux.mk
             zerotier-candidate/zerotier-one
+
+      - name: Compiler cache statistics
+        if: always()
+        run: |
+          if command -v ccache >/dev/null; then
+            ccache --show-stats | tee ccache-statistics.txt
+            { echo '### WR1200JS compiler cache'; echo '```text'; cat ccache-statistics.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Save compiler cache
+        if: ${{ success() && steps.compiler_cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v6
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ${{ steps.compiler_cache.outputs.cache-primary-key }}
 
       - name: Record WR1200JS board build status
         if: always()

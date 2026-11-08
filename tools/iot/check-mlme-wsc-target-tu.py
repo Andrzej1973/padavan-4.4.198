@@ -5,6 +5,8 @@ A translation-unit feature regression check, not a linked feature module.
 """
 import argparse,hashlib,json,re,shlex,shutil,subprocess,sys,tempfile
 from pathlib import Path
+import runpy
+unwrap_ccache=runpy.run_path(str(Path(__file__).with_name('kbuild-compiler.py')))['unwrap_ccache']
 p=argparse.ArgumentParser(description=__doc__)
 for name in ('kernel','driver','compiler','output'):p.add_argument('--'+name,type=Path,required=True)
 a=p.parse_args();root=a.kernel.resolve();driver=a.driver.resolve()
@@ -15,7 +17,7 @@ try:
  if len(files)!=1:raise RuntimeError('Expected one MLME Kbuild command')
  raw=files[0].read_bytes();lines=re.findall(r'^cmd_.*? := (.+)$',raw.decode(),re.M)
  if len(lines)!=1:raise RuntimeError('Expected one compiler command')
- argv=shlex.split(lines[0])
+ argv=unwrap_ccache(shlex.split(lines[0]))
  if not argv or any(t in (';','&&','||','|','>','<') for t in argv):raise RuntimeError('Unsupported compiler command')
  tool=Path(argv[0]);tool=tool if tool.is_absolute() else Path(str(root/tool) if '/' in argv[0] else shutil.which(argv[0]) or '')
  if tool.resolve()!=a.compiler.resolve():raise RuntimeError('Compiler identity mismatch')

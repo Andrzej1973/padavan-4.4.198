@@ -2,6 +2,8 @@
 """Compile staged CLOSE bindings with the actual rt_main_dev Kbuild flags; no ioctl installation."""
 import argparse,hashlib,json,re,shlex,shutil,subprocess,tempfile
 from pathlib import Path
+import runpy
+unwrap_ccache=runpy.run_path(str(Path(__file__).with_name('kbuild-compiler.py')))['unwrap_ccache']
 
 def probe_source(driver,local):
  files=[driver/'os/linux/rt_main_dev.c',local/'driver-api-close-finish.h',
@@ -70,7 +72,7 @@ def main():
   if len(files)!=1:raise RuntimeError('Expected exactly one rt_main_dev Kbuild command')
   raw=files[0].read_bytes();lines=re.findall(r'^cmd_.*? := (.+)$',raw.decode(),re.M)
   if len(lines)!=1:raise RuntimeError('Expected one compiler command')
-  argv=shlex.split(lines[0])
+  argv=unwrap_ccache(shlex.split(lines[0]))
   if not argv or any(t in (';','&&','||','|','>','<') for t in argv):raise RuntimeError('Unsupported command')
   tool=Path(argv[0])
   if not tool.is_absolute():tool=Path(str(root/tool) if '/' in argv[0] else shutil.which(argv[0]) or '')

@@ -28,6 +28,10 @@ assert r['target_driver_compiled'] is False
 assert Path(r['source_command_artifact']).read_text()==line
 assert Path(r['macro_artifact']).is_file()
 assert r['preprocess_argv'][-2:]==['-E','-dM']
+cmd.write_text(line.replace(':= ',':= /usr/bin/ccache ',1));run('system-ccache',True)
+cmd.write_text(line.replace(':= ',':= /tmp/ccache ',1));run('foreign-cache-prefix',False)
+cmd.write_text(line.replace(':= ',':= /usr/bin/ccache ',1).replace(compiler.as_posix(),'wrong-compiler'));run('ccache-wrong-compiler',False)
+cmd.write_text(line)
 cmd.unlink();run('missing-command',False);cmd.write_text(line)
 extra=driver/'os/.rt_linux.o.cmd';extra.write_text(line);run('ambiguous-command',False);extra.unlink()
 cmd.write_text(line.replace(compiler.as_posix(),'wrong-compiler'));run('wrong-compiler',False)

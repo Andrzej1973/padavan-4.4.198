@@ -2,6 +2,8 @@
 """Compile checked-off body excluded by LOAD_FW_ONE_TIME; TU evidence only."""
 import argparse,hashlib,json,re,shlex,shutil,subprocess,tempfile
 from pathlib import Path
+import runpy
+unwrap_ccache=runpy.run_path(str(Path(__file__).with_name('kbuild-compiler.py')))['unwrap_ccache']
 p=argparse.ArgumentParser(description=__doc__)
 for name in ('kernel','driver','compiler','output'):
  p.add_argument('--'+name,type=Path,required=True)
@@ -17,7 +19,7 @@ try:
  if len(files)!=1:raise RuntimeError('Expected exactly one ASIC MT Kbuild command')
  raw=files[0].read_bytes();lines=re.findall(r'^cmd_.*? := (.+)$',raw.decode(),re.M)
  if len(lines)!=1:raise RuntimeError('Expected one compiler command')
- argv=shlex.split(lines[0])
+ argv=unwrap_ccache(shlex.split(lines[0]))
  if not argv or any(t in (';','&&','||','|','>','<') for t in argv):
   raise RuntimeError('Unsupported compiler command')
  tool=Path(argv[0])
