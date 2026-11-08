@@ -34,11 +34,26 @@ jobs:
           git -C padavan-4.4 checkout --detach ff77acc51a4ad5d88660f0ac25a34a1f6f9060c6
           test "$(git -C padavan-4.4 rev-parse HEAD)" = "ff77acc51a4ad5d88660f0ac25a34a1f6f9060c6"
 
+      - name: Restore pinned owned toolchain archive
+        uses: actions/cache@v6
+        with:
+          path: ${{ github.workspace }}/.cache/mips-toolchains
+          key: mips-toolchain-${{ runner.os }}-928db92fb2dd2d9f7cc540a40cbadaa2224b582e7b186f46c743d458ad768dc6
       - name: Fetch the upstream MIPS little-endian toolchain
         run: |
           cd padavan-4.4/toolchain-mipsel
-          curl --fail --location --retry 5 --output mipsel-linux-uclibc.tar.xz \
-            https://github.com/hanwckf/padavan-toolchain/releases/download/linux-4.4-v1.0/mipsel-linux-uclibc.tar.xz
+          toolchain_cache="$GITHUB_WORKSPACE/.cache/mips-toolchains/928db92fb2dd2d9f7cc540a40cbadaa2224b582e7b186f46c743d458ad768dc6.tar.xz"
+          mkdir -p "$(dirname "$toolchain_cache")"
+          trap 'rm -f -- "$toolchain_cache.part"' EXIT
+          if ! echo '928db92fb2dd2d9f7cc540a40cbadaa2224b582e7b186f46c743d458ad768dc6  '"$toolchain_cache" | sha256sum -c - >/dev/null 2>&1; then
+            curl --fail --location --retry 3 --connect-timeout 20 --max-time 180 \
+              --header 'Accept: application/octet-stream' \
+              --output "$toolchain_cache.part" \
+              https://api.github.com/repos/Andrzej1973/padavan-4.4.198/releases/assets/723466301
+            echo '928db92fb2dd2d9f7cc540a40cbadaa2224b582e7b186f46c743d458ad768dc6  '"$toolchain_cache.part" | sha256sum -c -
+            mv -- "$toolchain_cache.part" "$toolchain_cache"
+          fi
+          cp -- "$toolchain_cache" mipsel-linux-uclibc.tar.xz
           sha256sum mipsel-linux-uclibc.tar.xz | tee toolchain-sha256.txt
           mkdir -p toolchain-4.4.x
           tar -xJf mipsel-linux-uclibc.tar.xz -C toolchain-4.4.x

@@ -1,0 +1,33 @@
+{
+  "observed_utc": "2026-11-08T09:18:28.618351+00:00",
+  "release": "https://github.com/Andrzej1973/padavan-4.4.198/releases/tag/build-toolchains-v1",
+  "original_archives_unchanged": true,
+  "artifacts": [
+    {
+      "name": "mipsel-linux-uclibc.tar.xz",
+      "id": 723466303,
+      "original_asset_id": 168807451,
+      "bytes": 28358192,
+      "sha256": "de412846a5d057faf132b2463aa29c24f77c79c744f4181c1a287bbeaf1d7256"
+    },
+    {
+      "name": "mipsel-linux-uclibc-control.tar.xz",
+      "id": 723466301,
+      "original_asset_id": 37588740,
+      "bytes": 13925308,
+      "sha256": "928db92fb2dd2d9f7cc540a40cbadaa2224b582e7b186f46c743d458ad768dc6"
+    }
+  ],
+  "independent_roundtrip": "Both downloaded again using unauthenticated curl with octet-stream from our GitHub asset API; byte sizes and SHA256 match originals",
+  "workflow_tests": "PASS25 offline actual shell cases; all5YAML parse; original pinned archive verifier PASS both; exact CI regression step and old-revision branch checks PASS",
+  "cache": "shared GITHUB_WORKSPACE archive cache keyed by OS+SHA256; each restored archive hashed before use; invalid cache redownloaded; partial download only renamed after hash acceptance",
+  "source_compatibility": "libyaml and owned-toolchain regression checks only required for source revisions containing corresponding new features; no attempt to execute absent checker for historical candidate",
+  "toolchain_compilation": "not rebuilt; byte-for-byte preserved",
+  "runtime_verified": false,
+  "cleanup": {
+    "removed_path": "/tmp/wr-toolchain-mirror-w0sa_h0s",
+    "bytes_reclaimed": 84572359,
+    "retained": "owned GitHub release assets and committed source/hash evidence",
+    "local_archives_retained": false
+  }
+}

@@ -49,12 +49,13 @@
       "kind": "archive",
       "origin": "https://github.com/vipshmily/padavan-4.4/releases/download/toolchain/mipsel-linux-uclibc.tar.xz",
       "sha256": "de412846a5d057faf132b2463aa29c24f77c79c744f4181c1a287bbeaf1d7256",
-      "preservation_status": "local-archive-verified; owned-release-copy-pending",
-      "owned_copy": null,
+      "preservation_status": "owned-release-verified",
+      "owned_copy": "https://github.com/Andrzej1973/padavan-4.4.198/releases/download/build-toolchains-v1/mipsel-linux-uclibc.tar.xz",
       "license_inventory_status": "pending-component-inventory",
       "size_bytes": 28358192,
       "local_backup_relative_path": "sources/archives/mipsel-linux-uclibc.tar.xz",
-      "checksum_evidence": "Successful run 37133812785, job 111234099261; independently matched local download on 2026-10-03"
+      "checksum_evidence": "Successful run 37133812785, job 111234099261; independently matched local download on 2026-10-03; owned GitHub release round-trip verification 2026-11-08",
+      "owned_asset_api": "https://api.github.com/repos/Andrzej1973/padavan-4.4.198/releases/assets/723466303"
     },
     {
       "id": "pcre2",
@@ -81,6 +82,18 @@
       "owned_copy": "sources/archives/https_dns_proxy-0ba0525.tar.gz",
       "license_inventory_status": "MIT-preserved-in-archive-and-sources/licenses/https-dns-proxy-LICENSE",
       "note": "Donor filename does not independently prove upstream commit; exact archive bytes are pinned."
+    },
+    {
+      "id": "mipsel-linux-uclibc-control-toolchain",
+      "kind": "archive",
+      "origin": "https://github.com/hanwckf/padavan-toolchain/releases/download/linux-4.4-v1.0/mipsel-linux-uclibc.tar.xz",
+      "sha256": "928db92fb2dd2d9f7cc540a40cbadaa2224b582e7b186f46c743d458ad768dc6",
+      "size_bytes": 13925308,
+      "owned_copy": "https://github.com/Andrzej1973/padavan-4.4.198/releases/download/build-toolchains-v1/mipsel-linux-uclibc-control.tar.xz",
+      "owned_asset_api": "https://api.github.com/repos/Andrzej1973/padavan-4.4.198/releases/assets/723466301",
+      "preservation_status": "owned-release-verified",
+      "license_inventory_status": "pending-component-inventory",
+      "checksum_evidence": "Original upstream asset37588740 and owned release round-trip SHA256 verified 2026-11-08"
     }
   ]
 }

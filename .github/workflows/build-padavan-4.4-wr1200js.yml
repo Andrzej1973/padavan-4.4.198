@@ -119,7 +119,16 @@ jobs:
       - name: Check source retry timeout and lock regressions
         run: |
           python3 tools/check-source-retry.py
-          python3 tools/check-libyaml-download.py
+          # Reusable workflow may verify an ancestor predating this checker.
+          # New atomic-download sources must always supply and pass it.
+          if grep -q '^SRC_FALLBACK_URL = ' overlay/padavan-4.4/ports/stubby/libyaml/Makefile; then
+            python3 tools/check-libyaml-download.py
+          else
+            echo 'Legacy verified source: atomic libyaml download test not applicable'
+          fi
+          if grep -q 'api.github.com/repos/Andrzej1973/padavan-4.4.198/releases/assets/' .github/workflows/build-padavan-4.4-wr1200js.yml; then
+            python3 tools/check-owned-toolchains.py
+          fi
 
       - name: Fetch pinned Padavan 4.4.198 source
         env:
@@ -480,12 +489,26 @@ jobs:
           node tools/vpn-status/check-qr-export.js
           python3 tools/vpn-profiles/prepare-package.py padavan-4.4 --config configs.build/wr1200js.config
 
+      - name: Restore pinned owned toolchain archive
+        uses: actions/cache@v6
+        with:
+          path: ${{ github.workspace }}/.cache/mips-toolchains
+          key: mips-toolchain-${{ runner.os }}-de412846a5d057faf132b2463aa29c24f77c79c744f4181c1a287bbeaf1d7256
       - name: Download the Linux 4.4 uClibc toolchain
         run: |
           mkdir -p padavan-4.4/toolchain/toolchain-mipsel
-          curl --fail --location --retry 5 \
-            --output padavan-4.4/toolchain-mipsel.tar.xz \
-            https://github.com/vipshmily/padavan-4.4/releases/download/toolchain/mipsel-linux-uclibc.tar.xz
+          toolchain_cache="$GITHUB_WORKSPACE/.cache/mips-toolchains/de412846a5d057faf132b2463aa29c24f77c79c744f4181c1a287bbeaf1d7256.tar.xz"
+          mkdir -p "$(dirname "$toolchain_cache")"
+          trap 'rm -f -- "$toolchain_cache.part"' EXIT
+          if ! echo 'de412846a5d057faf132b2463aa29c24f77c79c744f4181c1a287bbeaf1d7256  '"$toolchain_cache" | sha256sum -c - >/dev/null 2>&1; then
+            curl --fail --location --retry 3 --connect-timeout 20 --max-time 180 \
+              --header 'Accept: application/octet-stream' \
+              --output "$toolchain_cache.part" \
+              https://api.github.com/repos/Andrzej1973/padavan-4.4.198/releases/assets/723466303
+            echo 'de412846a5d057faf132b2463aa29c24f77c79c744f4181c1a287bbeaf1d7256  '"$toolchain_cache.part" | sha256sum -c -
+            mv -- "$toolchain_cache.part" "$toolchain_cache"
+          fi
+          cp -- "$toolchain_cache" padavan-4.4/toolchain-mipsel.tar.xz
           sha256sum padavan-4.4/toolchain-mipsel.tar.xz | tee toolchain-sha256.txt
           python3 tools/verify-source-archive.py mipsel-linux-uclibc-toolchain padavan-4.4/toolchain-mipsel.tar.xz
           tar -xJf padavan-4.4/toolchain-mipsel.tar.xz \
