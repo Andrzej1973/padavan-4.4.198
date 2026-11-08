@@ -1,3 +1,24 @@
+/* Read-only original uncertain OPEN provenance. RTNL/capability checked by
+ * common entry; no hardware access, poison clear, or acceptance permission. */
+static INT wr_iot_driver_uncertain_reply(RTMP_ADAPTER *ad,PNET_DEV dev,struct ifreq *rq,unsigned char *wire)
+{
+ unsigned char nonce[16];ULONG flags=0;unsigned int i,difference=0;int matched=0;
+ struct wr_iot_driver_owner *owner=&ad->wr_iot_driver_owner;
+ struct wr_iot_interface_ref *record;
+ if(!wr_iot_driver_uncertain_query_decode(nonce,wire,WR_IOT_DRIVER_CLOSED_BYTES))return -EINVAL;
+ RTMP_IRQ_LOCK(&ad->wr_iot_transition_lock,flags);
+ record=wr_iot_registry_find(ad->wr_iot_interface_refs,WDEV_NUM_MAX+1,dev,owner->claim.generation);
+ for(i=0;i<16;i++)difference|=nonce[i]^owner->uncertain_request_id[i];
+ if(!difference&&owner->poisoned&&!owner->active&&owner->claim.device==dev&&
+    owner->claim.operation==WR_RADIO_BSS_OPEN&&record&&record->published&&!record->removing&&
+    record->family==WR_REF_FAMILY_MBSS&&record->last_token==owner->claim.serial&&
+    owner->claim.epoch==ad->wr_iot_transition.epoch)
+  matched=wr_iot_driver_uncertain_encode(wire,WR_IOT_DRIVER_CLOSED_BYTES,nonce,
+   owner->claim.epoch,owner->claim.generation,owner->claim.serial);
+ RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);
+ if(!matched)return -EAGAIN;
+ return copy_to_user(rq->ifr_data,wire,WR_IOT_DRIVER_CLOSED_BYTES)?-EFAULT:0;
+}
 /* Called only after the common RTNL/capability/copy checks below. Returns
  * historical no-mutation provenance, never CLOSED/RF or rollback permission. */
 static INT wr_iot_driver_refusal_reply(RTMP_ADAPTER *ad,PNET_DEV dev,
@@ -44,6 +65,7 @@ static INT wr_iot_driver_closed_ioctl(RTMP_ADAPTER *ad,PNET_DEV dev,struct ifreq
  if(!ns_capable(dev_net(dev)->user_ns,CAP_NET_ADMIN))return -EPERM;
  if(!IS_MT7603(ad))return -EOPNOTSUPP;
  if(copy_from_user(wire,rq->ifr_data,sizeof(wire)))return -EFAULT;
+ if(wire[4]==8)return wr_iot_driver_uncertain_reply(ad,dev,rq,wire);
  if(wire[4]==6)return wr_iot_driver_refusal_reply(ad,dev,rq,wire);
  if(!wr_iot_driver_closed_query_decode(nonce,wire,sizeof(wire)))return -EINVAL;
  RTMP_IRQ_LOCK(&ad->wr_iot_transition_lock,flags);

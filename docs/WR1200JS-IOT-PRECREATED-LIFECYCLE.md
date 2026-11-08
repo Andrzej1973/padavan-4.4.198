@@ -507,3 +507,11 @@ task pointer still wipe. This identity is not a success, CLOSED or refusal
 receipt and cannot clear poison or authorize rollback. Six owner/entry/receipt
 sanitizer fixtures and actual generated MBSS uncertainty path pass. A future
 recovery endpoint must separately prove current lifetime and safe closure.
+
+Uncertainty diagnostics (local API, 2026-11-08): op8 queries and op9/flag4
+responses carry original uncertain attempt identity only. The common RTNL and
+capability checks remain; endpoint matches poisoned owner nonce/claim and
+current registry/epoch without hardware or owner mutation. RC matches its
+retained ON identity. This diagnostic is explicitly incompatible with CLOSED
+and refusal decoders; it cannot clear poison, permit retry or release isolation.
+Actual endpoint/client/wire sanitizer tests pass; target/runtime pending.

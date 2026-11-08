@@ -162,6 +162,36 @@ static inline int wr_iot_driver_refusal_decode(struct wr_iot_driver_refusal_resu
  out->adapter_epoch=wr_iot_driver_get64(wire+24);out->device_generation=wr_iot_driver_get64(wire+32);
  out->attempt_token=wr_iot_driver_get64(wire+40);return 1;
 }
+/* Diagnostic uncertainty provenance; never a CLOSED/refusal receipt. */
+struct wr_iot_driver_uncertain_result {unsigned long long adapter_epoch,device_generation,attempt_token;};
+static inline int wr_iot_driver_uncertain_query_encode(unsigned char *wire,unsigned int length,const unsigned char *id){
+ if(!wr_iot_driver_refusal_query_encode(wire,length,id))return 0;
+ wire[4]=8;return 1;
+}
+static inline int wr_iot_driver_uncertain_query_decode(unsigned char *id,const unsigned char *wire,unsigned int length){
+ unsigned char copy[64];unsigned int i;
+ if(id)for(i=0;i<16;i++)id[i]=0;
+ if(!id||!wire||length!=64||wire[4]!=8)return 0;
+ for(i=0;i<64;i++)copy[i]=wire[i];
+ copy[4]=6;return wr_iot_driver_refusal_query_decode(id,copy,64);
+}
+static inline int wr_iot_driver_uncertain_encode(unsigned char *wire,unsigned int length,const unsigned char *id,
+ unsigned long long epoch,unsigned long long generation,unsigned long long token){
+ if(!wr_iot_driver_refusal_encode(wire,length,id,epoch,generation,token))return 0;
+ wire[4]=9;wr_iot_driver_put64(wire+56,4);return 1;
+}
+static inline int wr_iot_driver_uncertain_decode(struct wr_iot_driver_uncertain_result *out,const unsigned char *id,
+ const unsigned char *wire,unsigned int length){
+ unsigned char copy[64];unsigned int i;struct wr_iot_driver_refusal_result decoded;
+ if(!out)return 0;
+ out->adapter_epoch=out->device_generation=out->attempt_token=0;
+ if(!wire||length!=64||wire[4]!=9||wr_iot_driver_get64(wire+56)!=4)return 0;
+ for(i=0;i<64;i++)copy[i]=wire[i];
+ copy[4]=7;wr_iot_driver_put64(copy+56,2);
+ if(!wr_iot_driver_refusal_decode(&decoded,id,copy,64))return 0;
+ out->adapter_epoch=decoded.adapter_epoch;out->device_generation=decoded.device_generation;
+ out->attempt_token=decoded.attempt_token;return 1;
+}
 static inline void wr_iot_driver_request_wipe(struct wr_iot_driver_open_request *r){
  volatile unsigned char *p=(volatile unsigned char *)r;unsigned int i;
  if(r)for(i=0;i<sizeof(*r);i++)p[i]=0;

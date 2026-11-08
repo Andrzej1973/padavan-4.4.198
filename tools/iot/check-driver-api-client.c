@@ -25,7 +25,10 @@ static int fake_ioctl(int fd,unsigned long command,...){
   if(bad_reply)r->ifr_data[4]=99;
  }else if(command==WR_IOT_DRIVER_IOCTL_CLOSED_CONFIG){
   unsigned char id[16];unsigned char *wire=(unsigned char *)r->ifr_data;
-  if(wire[4]==6){
+  if(wire[4]==8){
+   assert(wr_iot_driver_uncertain_query_decode(id,wire,64));
+   assert(wr_iot_driver_uncertain_encode(wire,64,id,1,2,3));
+  }else if(wire[4]==6){
    assert(wr_iot_driver_refusal_query_decode(id,wire,64));
    assert(wr_iot_driver_refusal_encode(wire,64,id,1,2,3));
    if(bad_closed_reply==5)wire[48]=1;
@@ -116,6 +119,17 @@ int main(void){
  open_only_error=0;
  assert(attempt.identity.adapter_epoch==1&&attempt.identity.device_generation==2&&attempt.request_id[0]==1);
  assert(wr_iot_driver_attempt_refused(&attempt));
+ struct wr_iot_driver_uncertain_result diagnostic;
+ assert(wr_iot_driver_uncertain_read(&attempt,&diagnostic)&&diagnostic.attempt_token==3);
+ socket_error=1;assert(!wr_iot_driver_uncertain_read(&attempt,&diagnostic)&&!diagnostic.attempt_token);socket_error=0;
+ close_error=1;assert(!wr_iot_driver_uncertain_read(&attempt,&diagnostic)&&!diagnostic.attempt_token);close_error=0;
+ attempt.identity.device_generation++;assert(!wr_iot_driver_uncertain_read(&attempt,&diagnostic)&&!diagnostic.device_generation);attempt.identity.device_generation--;
+
+ attempt.identity.adapter_epoch++;assert(!wr_iot_driver_uncertain_read(&attempt,&diagnostic)&&!diagnostic.attempt_token);attempt.identity.adapter_epoch--;
+ ioctl_error=1;assert(!wr_iot_driver_uncertain_read(&attempt,&diagnostic)&&!diagnostic.adapter_epoch);ioctl_error=0;
+ for(bad_closed_reply=1;bad_closed_reply<=4;bad_closed_reply++)assert(!wr_iot_driver_uncertain_read(&attempt,&diagnostic));
+ bad_closed_reply=0;
+
  attempt.identity.adapter_epoch++;assert(!wr_iot_driver_attempt_refused(&attempt));attempt.identity.adapter_epoch--;
  attempt.identity.device_generation++;assert(!wr_iot_driver_attempt_refused(&attempt));attempt.identity.device_generation--;
  ioctl_error=1;assert(!wr_iot_driver_attempt_refused(&attempt));ioctl_error=0;

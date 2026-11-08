@@ -15,7 +15,11 @@
     "include/wr-iot-beacon-producer-kernel.h": "e361ee23fae01a2383b3b9a07138e30656c28fb25196d4dd3d874f854adad121",
     "tx_rx/wdev.c": "d007cba5eb770f51bd4c83cde4e2bb89d0328af5ca01286aa162c22f01bebb16",
     "os/linux/rt_profile.c": "67ed8efbb5ffc8cfd5eaefc54339214bb57be8a1a5b6be0e6723cc9239499cc5",
-    "common/rtmp_init_inf.c": "e821580861d63ec40bbf41ad4051afa34454e4b7ff5ca56ae04447a866fa8241"
+    "common/rtmp_init_inf.c": "e821580861d63ec40bbf41ad4051afa34454e4b7ff5ca56ae04447a866fa8241",
+    "include/mac/mac_mt/wf_dma.h": "b82a96ad3de79e9a282de0761262551b870b7892411a90f1ad92c1aa6946c701",
+    "common/mt_io.c": "f0969d59c568029f6260c1095cf23eaec683d922de13ec4580f0e08d2993eaea",
+    "include/os/rt_linux.h": "64fa14e65eda5427286237bf57f80d7c995f20e7eb4e7ac546b7c8b201cd0350",
+    "os/linux/rt_linux.c": "3864d12123d83f0664776023f8090f15ede6172fbd67579b542ab4ae63709f6c"
   },
   "chain": [
     "AddTxSStatus allocates UNUSED PID and local Generation",
@@ -124,5 +128,36 @@
     "scope": "MT7603 exact three-BSS BSS2 only; shared gate remains counted for others",
     "lifecycle_evidence": "physical rtmp_init_inf initializer and rt_profile deinit inspected here select MAIN_MBSSID, not BSS2; BSS2 init follows netdev attach in MBSS init, removal checks begin_remove and producer remove_ready. Ordinary close has no init/deinit.",
     "limits": "Does not prove all aliases, full physical teardown, firmware delivery, RF quiet or target compatibility."
+  },
+  "vendor_flush_alternative": {
+    "source": "hw_ctrl/cmm_asic_mt.c APCheckBcnQHandler",
+    "arb": "write ARB_BCNQCR1 bit0 for Main or bit(apidx+15), poll until selected bit clears, bounded wait1000",
+    "distinction": "mbss_cr_disable only disables TBTT/PRE/ARB enable bits and reads back; no queue-flush polling",
+    "unproven": [
+      "WF_DMA filter completion semantics for RF/FIFO retirement",
+      "late TxS report exclusion",
+      "shared WF_DMA filter command/result transaction serialization against another BSS recovery",
+      "safe error rollback preserving Main/Guest"
+    ],
+    "decision": "Do not transplant recovery sequence as a CLOSED proof. Need hardware semantics and transaction ownership before implementing close flush; do not clear poison or release isolation based on completion bit alone.",
+    "register_scope_correction": "0x21c08/0x21c0c fall in WF_DMA_BASE0x21c00, mapped from0x60160000. Earlier PSE label was an inference, not a named register definition. No symbolic fields for +8/+c found in inspected headers.",
+    "filter_command": "write0xa8c70000 plus secondary0x1000|(apidx<<8) to0x21c08, poll bit31 clears, read result0x21c0c",
+    "wait_semantics": "OS_WAIT uses interrupt busy delay(time*1000us) or process wait at least ONE_TICK;1000 poll iterations is not proof of a1-second wall-clock bound."
+  },
+  "register_search_scope": "Literal addresses/command and WF_DMA-base aliases searched; no named offset+8/+c field definition found. This does not exclude indirect/debug arbitrary register access.",
+  "upstream_comparison": {
+    "checked": "2026-11-08",
+    "repository": "torvalds/linux",
+    "revision": "636a883e2feef5e4ff95695d3c372ceff03960f5",
+    "file": "drivers/net/wireless/mediatek/mt76/mt7603/mac.c",
+    "git_blob": "fa0bf9a201ce2d43b48981aab75b70ff21ff5c51",
+    "url": "https://github.com/torvalds/linux/blob/636a883e2feef5e4ff95695d3c372ceff03960f5/drivers/net/wireless/mediatek/mt76/mt7603/mac.c",
+    "freshness": "latest file commit queried; immutable content independently fetched and equal to current master file",
+    "findings": [
+      "mt7603_mac_write_txwi selects explicit TXD sequence for QoS data/BAR, clearing SN_VALID otherwise, including beacon",
+      "mt7603_mac_add_txs extracts PID and WCID and uses WCID/skb status lookup",
+      "vendor callback changes beacon scheduling state whereas upstream path uses distinct skb/RCU lifecycle"
+    ],
+    "conclusion": "No proven drop-in beacon anti-stale correlation. Upstream code is comparison evidence, not firmware duplicate-delivery or vendor RF acceptance proof."
   }
 }

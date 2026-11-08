@@ -42,4 +42,6 @@ int wr_iot_driver_closed_configuration_read(const unsigned char *,
  struct wr_iot_driver_closed_result *);
 /* Historical pre-mutation refusal only. Does not authorize network rollback. */
 int wr_iot_driver_refusal_read(const unsigned char *,struct wr_iot_driver_refusal_result *);
+/* Diagnostic only: never authorizes retry, rollback or isolation release. */
+int wr_iot_driver_uncertain_read(const struct wr_iot_driver_attempt *,struct wr_iot_driver_uncertain_result *);
 #endif

@@ -128,3 +128,20 @@ int wr_iot_driver_attempt_closed(const struct wr_iot_driver_attempt *attempt,
     observed.device_generation!=attempt->identity.device_generation)return 0;
  *out=observed;return 1;
 }
+
+int wr_iot_driver_uncertain_read(const struct wr_iot_driver_attempt *attempt,struct wr_iot_driver_uncertain_result *out)
+{
+ struct ifreq request={0};unsigned char wire[WR_IOT_DRIVER_CLOSED_BYTES]={0};
+ struct wr_iot_driver_uncertain_result observed;int fd,result,closed;
+ if(!out)return 0;
+ memset(out,0,sizeof(*out));
+ if(!attempt||!attempt->identity.adapter_epoch||!attempt->identity.device_generation||
+    !wr_iot_driver_uncertain_query_encode(wire,sizeof(wire),attempt->request_id))return 0;
+ fd=socket(AF_INET,SOCK_DGRAM|SOCK_CLOEXEC,0);if(fd<0)return 0;
+ memcpy(request.ifr_name,"ra2",4);request.ifr_data=(char *)wire;
+ result=ioctl(fd,WR_IOT_DRIVER_IOCTL_CLOSED_CONFIG,&request);closed=close(fd);
+ if(result||closed||!wr_iot_driver_uncertain_decode(&observed,attempt->request_id,wire,sizeof(wire))||
+    observed.adapter_epoch!=attempt->identity.adapter_epoch||
+    observed.device_generation!=attempt->identity.device_generation)return 0;
+ *out=observed;return 1;
+}
