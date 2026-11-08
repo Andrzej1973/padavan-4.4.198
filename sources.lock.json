@@ -118,6 +118,17 @@
       "owned_asset_api": "https://api.github.com/repos/Andrzej1973/padavan-4.4.198/releases/assets/723676758",
       "preservation_status": "owned-release-and-repository-verified",
       "repository_archive": "sources/archives/libqrencode-715e29fd4cd71b6e452ae0f4e36d917b43122ce8.tar.gz"
+    },
+    {
+      "id": "amneziawg-tools-build-archive",
+      "kind": "archive",
+      "revision": "ee0f0a9aa34ff0a0da4b3433b9512781cfe02843",
+      "origin": "https://codeload.github.com/amnezia-vpn/amneziawg-tools/tar.gz/ee0f0a9aa34ff0a0da4b3433b9512781cfe02843",
+      "sha256": "22438f231d39ea27e4bdc69707ec3103357f3cecc9ad3eecba18a61e5b39c9b9",
+      "size_bytes": 161936,
+      "repository_archive": "sources/archives/amneziawg-tools-ee0f0a9aa34ff0a0da4b3433b9512781cfe02843.tar.gz",
+      "preservation_status": "repository-archive-verified",
+      "license_inventory_status": "upstream-license-files-retained; component-inventory-pending"
     }
   ]
 }

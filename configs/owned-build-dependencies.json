@@ -19,5 +19,12 @@
     "url": "https://api.github.com/repos/Andrzej1973/padavan-4.4.198/releases/assets/723676762",
     "sha256": "53c156e1ba416a20da8e65395daa132da0d80e76910424caca3fcdae7831d384",
     "origin": "https://github.com/PCRE2Project/pcre2/releases/download/pcre2-10.49/pcre2-10.49.tar.bz2"
+  },
+  {
+    "directory": "trunk/user/amneziawg",
+    "filename": "amneziawg-tools-ee0f0a9aa34ff0a0da4b3433b9512781cfe02843.tar.gz",
+    "sha256": "22438f231d39ea27e4bdc69707ec3103357f3cecc9ad3eecba18a61e5b39c9b9",
+    "url": "https://codeload.github.com/amnezia-vpn/amneziawg-tools/tar.gz/ee0f0a9aa34ff0a0da4b3433b9512781cfe02843",
+    "origin": "https://github.com/amnezia-vpn/amneziawg-tools/archive/ee0f0a9aa34ff0a0da4b3433b9512781cfe02843.tar.gz"
   }
 ]

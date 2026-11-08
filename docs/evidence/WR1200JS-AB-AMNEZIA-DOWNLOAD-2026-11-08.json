@@ -1,0 +1,17 @@
+{
+  "run_id": 42475968553,
+  "failed_step": "Build WR1200JS firmware",
+  "original_log_verified": true,
+  "root_cause": "HTTP503 downloading pinned amneziawg-tools ee0f0a9aa34ff0a0da4b3433b9512781cfe02843; curl22 and amneziawg_only Error2",
+  "fix": "Add exact commit archive to checked-in SHA256-verified offline seeding; no version or settings change",
+  "archive": {
+    "directory": "trunk/user/amneziawg",
+    "filename": "amneziawg-tools-ee0f0a9aa34ff0a0da4b3433b9512781cfe02843.tar.gz",
+    "sha256": "22438f231d39ea27e4bdc69707ec3103357f3cecc9ad3eecba18a61e5b39c9b9",
+    "url": "https://codeload.github.com/amnezia-vpn/amneziawg-tools/tar.gz/ee0f0a9aa34ff0a0da4b3433b9512781cfe02843",
+    "origin": "https://github.com/amnezia-vpn/amneziawg-tools/archive/ee0f0a9aa34ff0a0da4b3433b9512781cfe02843.tar.gz"
+  },
+  "tests": "Existing seed/cache failure fixtures PASS; actual four archive offline SHA256 seeding PASS",
+  "candidate_toolchain_tested": false,
+  "monitor": "No corresponding comparison monitor observed; deployed trusted-main watched-list integration remains pending"
+}
