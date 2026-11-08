@@ -1,0 +1,13 @@
+{
+  "run_id": 42471418213,
+  "source_sha": "a400defb70ef3573761ca44603faab717c2d1c9b",
+  "failed_job": "control / build-wr1200js",
+  "failed_step": "Capture toolchain comparison evidence",
+  "root_cause": "rglob selected lib/ccache/mipsel-linux-uclibc-gcc; neighboring readelf does not exist",
+  "original_log": "FileNotFoundError: padavan-4.4/toolchain/toolchain-mipsel/lib/ccache/mipsel-linux-uclibc-readelf",
+  "firmware_build": "Build and prior image steps completed; comparison capture failed afterward. Source candidate skipped due control dependency.",
+  "monitor": "No monitor run for this comparison observed; trusted-main workflow has not yet integrated added watched name/path. Do not weaken trusted checkout.",
+  "fix": "Select exactly one bin GCC/readelf pair, require both files; reject missing or ambiguous pair.",
+  "tests": "PASS fake tree containing earlier ccache alias plus correct bin pair; missing binutils refusal; prior comparison negative matrix",
+  "production_default_changed": false
+}

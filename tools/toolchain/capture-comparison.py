@@ -4,8 +4,10 @@ import hashlib,json,os,subprocess,sys,re
 from pathlib import Path
 root=Path(sys.argv[1]);romfs=root/'trunk/romfs'
 def digest(p):return hashlib.sha256(p.read_bytes()).hexdigest()
-compiler=next((root/'toolchain/toolchain-mipsel').rglob('mipsel-linux-uclibc-gcc'))
-readelf=compiler.with_name('mipsel-linux-uclibc-readelf')
+import importlib.util
+spec=importlib.util.spec_from_file_location('tool_paths',Path(__file__).with_name('tool-paths.py'))
+tool_paths=importlib.util.module_from_spec(spec);spec.loader.exec_module(tool_paths)
+compiler,readelf=tool_paths.select(root/'toolchain/toolchain-mipsel')
 def command(*args):return subprocess.check_output([str(x) for x in args],text=True)
 files={}
 for p in sorted(romfs.rglob('*')):

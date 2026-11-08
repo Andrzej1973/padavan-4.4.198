@@ -32,4 +32,15 @@ with tempfile.TemporaryDirectory(prefix='wr-toolchain-compare-check-') as d:
  try:installer.validate(r,p)
  except ValueError:pass
  else:raise AssertionError('wrong hash')
-print('PASS comparison source/lane/config/inclusion gates and candidate provenance/hash rejection')
+paths=module('tool-paths')
+with tempfile.TemporaryDirectory(prefix='wr-tool-paths-') as d:
+ root=Path(d);(root/'lib/ccache').mkdir(parents=True);(root/'bin').mkdir()
+ (root/'lib/ccache/mipsel-linux-uclibc-gcc').touch()
+ for name in ['gcc','readelf']:(root/('bin/mipsel-linux-uclibc-'+name)).touch()
+ compiler,readelf=paths.select(root)
+ assert compiler.parent==root/'bin' and readelf.parent==root/'bin'
+ readelf.unlink()
+ try:paths.select(root)
+ except ValueError:pass
+ else:raise AssertionError('Accepted missing binutils')
+print('PASS comparison gates, provenance/hash rejection and ccache wrapper vs actual binutils regression')
