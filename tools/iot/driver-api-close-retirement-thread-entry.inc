@@ -6,7 +6,7 @@ static INT wr_iot_driver_close_retirement_thread_enter(RTMP_ADAPTER *ad)
  ULONG flags=0;int accepted;
  if(!ad||!(current->flags&PF_KTHREAD)||(current->flags&PF_WQ_WORKER))return -EPERM;
  RTMP_IRQ_LOCK(&ad->wr_iot_transition_lock,flags);
- accepted=ad->wr_iot_close_owner.retirement_task==current&&
+ accepted=!ad->wr_iot_close_owner.retirement_handle&&ad->wr_iot_close_owner.retirement_task==current&&
   ad->wr_iot_close_owner.retirement_started&&!ad->wr_iot_close_owner.retirement_canceling&&
   !ad->wr_iot_close_owner.retirement_entered&&
   wr_iot_driver_close_retirement_ready_locked(ad);
@@ -18,7 +18,7 @@ static INT wr_iot_driver_close_retirement_thread_enter(RTMP_ADAPTER *ad)
 /* Matching designated task, before returning to core after failed validation.
  * API keeps its module reference and adapter fence, so returning module text
  * remains live. Clear only this task's borrowed pointer; no ref/drop or retry.
- * A concurrent cancellation fence stays set for its external stop owner. */
+ * A concurrent cancellation fence and tracked caller handle stay retained. */
 static INT wr_iot_driver_close_retirement_thread_refuse(RTMP_ADAPTER *ad,int error)
 {
  ULONG flags=0;int matched;
@@ -45,7 +45,7 @@ static INT wr_iot_driver_close_retirement_thread_claim(RTMP_ADAPTER *ad)
  ULONG flags=0;int accepted;
  if(!ad||!(current->flags&PF_KTHREAD)||(current->flags&PF_WQ_WORKER))return 0;
  RTMP_IRQ_LOCK(&ad->wr_iot_transition_lock,flags);
- accepted=ad->wr_iot_close_owner.retirement_task==current&&
+ accepted=!ad->wr_iot_close_owner.retirement_handle&&ad->wr_iot_close_owner.retirement_task==current&&
   ad->wr_iot_close_owner.retirement_started&&ad->wr_iot_close_owner.retirement_entered&&
   !ad->wr_iot_close_owner.retirement_canceling&&
   !ad->wr_iot_close_owner.retirement_module_transferred&&

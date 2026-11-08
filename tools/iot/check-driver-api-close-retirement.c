@@ -1,3 +1,6 @@
+#if defined(WR_CLOSE_THREAD_BODY_TEST) && !defined(WR_CLOSE_START_BINDING_TEST)
+#define WR_CLOSE_START_BINDING_TEST
+#endif
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
@@ -24,13 +27,29 @@ typedef struct {
 #define IS_MT7603(ad) ((ad)->chip)
 #define VIRTUAL_IF_NUM(ad) ((ad)->count)
 static int test_locked;
-static int work_busy(struct work_struct *w){assert(test_locked);return w->busy;}
+#ifdef WR_CLOSE_LAUNCH_TEST
+static RTMP_ADAPTER *launch_ad;static int launch_drift;
+#endif
+static int work_busy(struct work_struct *w){
+ assert(test_locked);
+#ifdef WR_CLOSE_LAUNCH_TEST
+ if(launch_ad&&launch_drift&&launch_ad->wr_iot_close_owner.retirement_task){
+  launch_ad->wr_iot_transition.retiring=1;launch_drift=0;
+ }
+#endif
+ return w->busy;
+}
 #include "driver-api-close-retirement-binding.inc"
 #ifdef WR_CLOSE_CREATE_BINDING_TEST
 #include <errno.h>
-struct task_struct {unsigned refs,flags;};
+struct task_struct {unsigned refs,flags;void *vfork_done;};
 static struct task_struct stopped_task,creator_task;
+#ifdef WR_CLOSE_DYNAMIC_CURRENT_TEST
+static struct task_struct *test_current=&creator_task;
+#define current test_current
+#else
 #define current (&creator_task)
+#endif
 static RTMP_ADAPTER *create_ad;
 static int stop_result=-EINTR,stop_drift;
 static int create_mode,create_calls,stop_calls,body_calls;
@@ -53,11 +72,13 @@ create_calls++;create_ad=data;
  if(create_mode==1)return (void *)-12L;
  if(create_mode==2)((RTMP_ADAPTER *)data)->wr_iot_transition.retiring=1;
  if(create_mode==3)return 0;
- stopped_task.refs=1;return &stopped_task;
+ stopped_task.refs=1;stopped_task.vfork_done=&stopped_task;return &stopped_task;
 }
 static void get_task_struct(struct task_struct *t){assert(!test_locked);t->refs++;}
 static void put_task_struct(struct task_struct *t){assert(!test_locked&&t->refs);t->refs--;}
 static int kthread_stop(struct task_struct *t){assert(!test_locked&&t==&stopped_task&&t->refs);stop_calls++;t->refs--;if(stop_drift)create_ad->wr_iot_close_owner.generation++;return stop_result;}
+static int rtnl_held=1;
+static int rtnl_is_locked(void){return rtnl_held;}
 #include "driver-api-close-retirement-create.inc"
 #include "driver-api-close-retirement-cancel.inc"
 #ifdef WR_CLOSE_THREAD_ENTRY_TEST
@@ -82,8 +103,7 @@ static void run_successful_body(RTMP_ADAPTER *ad){
 }
 #endif
 #ifdef WR_CLOSE_START_BINDING_TEST
-static int wake_calls,wake_accept=1,rtnl_held=1;
-static int rtnl_is_locked(void){return rtnl_held;}
+static int wake_calls,wake_accept=1;
 static int wake_up_process(struct task_struct *t){assert(test_locked&&t==&stopped_task);wake_calls++;return wake_accept;}
 #include "driver-api-close-retirement-start.inc"
 #endif
@@ -146,11 +166,14 @@ int main(void){
      assert(task==&stopped_task&&task->refs==2&&ad.wr_iot_close_owner.retirement_task==task);
      struct task_struct *self=current;
      assert(wr_iot_driver_close_retirement_cancel(&ad,&self)==-EDEADLK&&!stop_calls);
-     struct task_struct other={1,0},*foreign=&other;
+     struct task_struct other={.refs=1},*foreign=&other;
      assert(wr_iot_driver_close_retirement_cancel(&ad,&foreign)==-EBUSY&&!stop_calls);
      ad.wr_iot_close_owner.retirement_started=1;
      assert(wr_iot_driver_close_retirement_cancel(&ad,&task)==-EBUSY&&!stop_calls);
      ad.wr_iot_close_owner.retirement_started=0;
+     rtnl_held=0;
+     assert(wr_iot_driver_close_retirement_cancel(&ad,&task)==-EBUSY&&!stop_calls);
+     rtnl_held=1;
      assert(!wr_iot_driver_close_retirement_cancel(&ad,&task));
      assert(!task&&!stopped_task.refs&&stop_calls==1&&!ad.wr_iot_close_owner.retirement_task);
      assert(ad.wr_iot_close_owner.module_held&&ad.wr_iot_close_owner.active&&!body_calls);
@@ -222,6 +245,9 @@ int main(void){
    create_mode=0;struct task_struct *fixed_task=0;
    assert(!wr_iot_driver_close_retirement_prepare_fixed(&ad,&fixed_task));
    assert(fixed_task==&stopped_task);
+   wake_calls=0;wake_accept=rtnl_held=1;
+   assert(!wr_iot_driver_close_retirement_start(&ad,&fixed_task));
+   assert(!fixed_task&&!ad.wr_iot_close_owner.retirement_handle);
    /* No actual scheduler: execute exact fixed body as designated current. */
    ad.wr_iot_close_owner.retirement_task=current;
    ad.wr_iot_close_owner.retirement_started=1;
@@ -253,7 +279,7 @@ int main(void){
     wake_calls=0;wake_accept=start_fault!=1;rtnl_held=1;
     struct task_struct *task=0;
     assert(!wr_iot_driver_close_retirement_prepare(&ad,retirement_body,&task));
-    struct task_struct *self=current,other={1,0},*foreign=&other;
+    struct task_struct *self=current,other={.refs=1},*foreign=&other;
     assert(wr_iot_driver_close_retirement_start(&ad,&self)==-EDEADLK&&!wake_calls);
     assert(wr_iot_driver_close_retirement_start(&ad,&foreign)==-EBUSY&&!wake_calls);
     if(start_fault==2)ad.wr_iot_transition.retiring=1;

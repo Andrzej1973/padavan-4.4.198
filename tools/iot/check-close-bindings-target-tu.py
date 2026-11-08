@@ -12,9 +12,9 @@ def probe_source(driver,local):
         local/'driver-api-close-synchronous-put.h',local/'driver-api-close-synchronous-put.inc',
         local/'driver-api-close-finish-recovery.inc',local/'driver-api-close-entry.inc',
         local/'driver-api-close-retirement.h',local/'driver-api-close-retirement-binding.inc',
-        local/'driver-api-close-retirement-create.inc',local/'driver-api-close-retirement-cancel.inc',local/'driver-api-close-retirement-start.inc',local/'driver-api-close-retirement-thread-entry.inc',local/'driver-api-close-retirement-thread-body.inc']
+        local/'driver-api-close-retirement-create.inc',local/'driver-api-close-retirement-cancel.inc',local/'driver-api-close-retirement-start.inc',local/'driver-api-close-retirement-thread-entry.inc',local/'driver-api-close-retirement-thread-body.inc',local/'driver-api-close-retirement-launch.inc',local/'driver-api-close-retirement-reconcile.inc']
  if any('"' in str(f) or '\n' in str(f) for f in files):raise ValueError('Unsupported include path')
- return '#include <linux/module.h>\n#include <linux/kthread.h>\n#include <linux/rtnetlink.h>\n'+''.join('#include "'+str(f)+'"\n' for f in files)+'''
+ return '#include <linux/module.h>\n#include <linux/kthread.h>\n#include <linux/sched.h>\n#include <linux/rtnetlink.h>\n'+''.join('#include "'+str(f)+'"\n' for f in files)+'''
 int wr_iot_close_bindings_target_probe(RTMP_ADAPTER *ad,PNET_DEV dev,
  struct ifreq *rq,unsigned char *wire)
 {
@@ -62,6 +62,14 @@ int wr_iot_close_retirement_fixed_target_probe(RTMP_ADAPTER *ad,struct task_stru
 {
  return wr_iot_driver_close_retirement_prepare_fixed(ad,task);
 }
+int wr_iot_close_retirement_launch_target_probe(RTMP_ADAPTER *ad,struct task_struct **task)
+{
+ return wr_iot_driver_close_retirement_launch(ad,task);
+}
+int wr_iot_close_retirement_reconcile_target_probe(RTMP_ADAPTER *ad,struct task_struct **task)
+{
+ return wr_iot_driver_close_retirement_reconcile(ad,task);
+}
 /* Compile-only kernel-thread tail; never routed or invoked by firmware. */
 int wr_iot_close_module_exit_target_probe(struct task_struct *designated)
 {
@@ -108,7 +116,7 @@ def main():
                  'driver-api-close-enter.inc','driver-api-close-finish-binding.inc',
                  'driver-api-close-recovery-binding.inc','driver-api-close-finish-recovery.inc',
                  'driver-api-close-entry.inc','driver-api-close-synchronous-put.h','driver-api-close-synchronous-put.inc','driver-api-close-retirement.h',
-                 'driver-api-close-retirement-binding.inc','driver-api-close-retirement-create.inc','driver-api-close-retirement-cancel.inc','driver-api-close-retirement-start.inc','driver-api-close-retirement-thread-entry.inc','driver-api-close-retirement-thread-body.inc')
+                 'driver-api-close-retirement-binding.inc','driver-api-close-retirement-create.inc','driver-api-close-retirement-cancel.inc','driver-api-close-retirement-start.inc','driver-api-close-retirement-thread-entry.inc','driver-api-close-retirement-thread-body.inc','driver-api-close-retirement-launch.inc','driver-api-close-retirement-reconcile.inc')
   binding_inputs={name:(local/name).read_bytes() for name in binding_names}
   driver_input=source.read_bytes()
   report.update(command_sha256=hashlib.sha256(raw).hexdigest(),kernel_config_sha256=hashlib.sha256(before).hexdigest(),

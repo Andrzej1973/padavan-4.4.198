@@ -1,0 +1,28 @@
+{
+  "scope": "LOCAL staged fixed retirement launch with caller-owned error handle; no production ioctl",
+  "sha256": {
+    "tools/iot/driver-api-close-retirement-launch.inc": "257f268175096ec33be9f1692a238016d64e680970d130b3707a3c58c5e94370",
+    "tools/iot/check-driver-api-close-synchronous-chain.c": "0ab2ece5b7acd6d4b6ddab02e238fa03b1ef69077e4d61878f2aedb75a8c3de4",
+    "tools/iot/check-driver-api-close-retirement.c": "e4ab1a1d7ee98da1a29deafb88865059d77e4601f19a8525dea1ad1f7389cc5a",
+    "tools/iot/check-close-bindings-target-tu.py": "305bb40fe125eab83a42b6c68092d1e6ba681056e82fa0f19c7ec2afbfc4fd9e",
+    "tools/iot/ci-compile-merged-candidate.sh": "730b3466431ae97812c8db84d127d26b076dcd0f6d832c9c0745e59a419ee1ff"
+  },
+  "host_result": "19 CLOSE fixtures PASS -O2 ASan/UBSan; Python AST/bash/diff checks PASS",
+  "chain_scenarios": [
+    "success through finish, real synchronous binding, fixed prepare/start and core exit mock",
+    "post-wake radio state refusal retains module/API fence",
+    "wrong worker context retains module/API fence",
+    "no RTNL refuses before creation",
+    "kthread creation error propagated",
+    "ambiguous wake keeps handle/ref/started fence, no stop, duplicate launch refuses without overwrite",
+    "post-create admission drift stops never-woken task",
+    "post-designation pre-start drift cancels never-woken task and returns caller ref"
+  ],
+  "error_handle_contract": "Caller must retain non-NULL handle on error; only success or confirmed cancellation consumes it",
+  "target_verified": false,
+  "runtime_verified": false,
+  "production_installed": false,
+  "cleanup": "TemporaryDirectory native outputs removed; no retained artifact trees",
+  "tracked_reference_followup": "WR1200JS-IOT-CLOSE-PERSISTENT-HANDLE-LOCAL-2026-11-08.json",
+  "reconciliation_followup": "Staged nonwaiting reconcile implemented; see CLOSE-TASK-REF-RECONCILE-LOCAL and SOURCE evidence"
+}

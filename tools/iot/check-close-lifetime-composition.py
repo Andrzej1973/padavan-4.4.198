@@ -49,7 +49,7 @@ int main(void){
  assert(ad.wr_iot_close_owner.active);
 #ifdef MT7603
  struct wr_iot_driver_close_owner ready=ad.wr_iot_close_owner;
- for(unsigned fault=0;fault<12;fault++){
+ for(unsigned fault=0;fault<13;fault++){
   ad.wr_iot_close_owner=ready;
   switch(fault){
    case 0:ad.wr_iot_close_owner.module_held=1;break;
@@ -64,6 +64,7 @@ int main(void){
    case 9:ad.wr_iot_close_owner.recovery_join_pending=1;break;
    case 10:ad.wr_iot_close_owner.recovery_netdev_returned=0;break;
    case 11:ad.wr_iot_close_owner.retirement_module_transferred=0;break;
+   case 12:ad.wr_iot_close_owner.retirement_handle=&ad;break;
   }
   assert(!wr_iot_mbss_recovery_idle_locked(&ad));
  }

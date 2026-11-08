@@ -8,6 +8,8 @@ struct wr_iot_driver_close_owner {
  struct wr_iot_radio_ticket ticket;
  const void *device,*task;
  const void *retirement_task;
+ /* Mirrors the one prepare caller ref, not an additional task reference. */
+ const void *retirement_handle;
  unsigned int retirement_started,retirement_canceling,retirement_entered;
  unsigned int retirement_module_transferred;
  int retirement_error;
@@ -38,7 +40,7 @@ static inline int wr_iot_driver_close_blocks_adapter_retirement(
 {
  if(!close||!close->active)return 0;
  return !close->retirement_module_transferred||!close->consumed||close->task||
-  close->module_held||close->netdev_held||close->retirement_task||
+  close->module_held||close->netdev_held||close->retirement_task||close->retirement_handle||
   close->retirement_started||close->retirement_entered||close->retirement_canceling||
   !wr_iot_driver_close_netdev_return_complete(close);
 }
@@ -51,7 +53,7 @@ static inline int wr_iot_driver_close_reserve(
  unsigned int vendor_count,unsigned int control_users,int control_blocked,int probe_active)
 {
  struct wr_iot_radio_ticket ticket;struct wr_iot_interface_ref *record;
- if(!close||close->active||close->retirement_task||!task||
+ if(!close||close->active||close->retirement_task||close->retirement_handle||!task||
     !wr_iot_driver_close_admissible(open,nonce,radio,slots,count,main_dev,iot_dev,
       epoch,generation,open_token,vendor_count,control_users,control_blocked,probe_active))return 0;
  record=wr_iot_registry_find_owned(slots,count,iot_dev);
@@ -61,7 +63,7 @@ static inline int wr_iot_driver_close_reserve(
  record->close_epoch=ticket.epoch;record->close_vendor_count=vendor_count;
  record->close_prior_phase=(int)ticket.prior_phase;record->close_prior_ready=ticket.prior_ready;
  close->ticket=ticket;close->device=iot_dev;close->task=task;
- close->generation=generation;close->open_token=open_token;close->retirement_task=0;
+ close->generation=generation;close->open_token=open_token;close->retirement_task=close->retirement_handle=0;
  close->retirement_started=close->retirement_canceling=close->retirement_entered=0;
  close->retirement_error=0;close->retirement_module_transferred=0;
  close->active=1;close->consumed=0;

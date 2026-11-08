@@ -1,0 +1,21 @@
+{
+  "scope": "LOCAL host composition of actual synchronous finish, netdev receipt, fixed task create/start/claim/core tail",
+  "sha256": {
+    "tools/iot/check-driver-api-close-synchronous-chain.c": "0ab2ece5b7acd6d4b6ddab02e238fa03b1ef69077e4d61878f2aedb75a8c3de4",
+    "tools/iot/check-driver-api-close-retirement.c": "e4ab1a1d7ee98da1a29deafb88865059d77e4601f19a8525dea1ad1f7389cc5a",
+    "tools/iot/ci-compile-merged-candidate.sh": "730b3466431ae97812c8db84d127d26b076dcd0f6d832c9c0745e59a419ee1ff"
+  },
+  "result": "PASS -O2 -Wall -Wextra -Werror ASan/UBSan",
+  "scenarios": [
+    "success: one dev_put, creator extra task ref consumed by actual start, designated exact current claims module hold, nonreturning core exit mock once; active OPEN fence retained",
+    "post-wake retiring state: own task pointer cleared, module hold and adapter fence retained, no core module exit",
+    "wrong workqueue context: same retained pin/fence behavior, EPERM, no module exit"
+  ],
+  "boundaries": "primitives, reference counts and context switch injected; actual scheduler, IRQ/DMA, firmware and device behavior not executed",
+  "production_installed": false,
+  "target_verified": false,
+  "cleanup": "TemporaryDirectory compilation artifacts removed",
+  "additional_verification": "Actual launch helper integrated; see CLOSE-RETIREMENT-LAUNCH-LOCAL evidence for eight scenarios",
+  "tracked_reference_followup": "WR1200JS-IOT-CLOSE-PERSISTENT-HANDLE-LOCAL-2026-11-08.json",
+  "reconciliation_followup": "Staged nonwaiting reconcile implemented; see CLOSE-TASK-REF-RECONCILE-LOCAL and SOURCE evidence"
+}
