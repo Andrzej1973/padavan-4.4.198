@@ -1,12 +1,6 @@
 name: Build owned MIPS toolchain
 run-name: "Toolchain source candidate ${{ github.sha }}"
 on:
-  push:
-    branches: [codex/wr1200js-service-webui]
-    paths:
-      - '.github/workflows/build-owned-toolchain.yml'
-      - 'toolchains/wr1200js/**'
-      - 'tools/toolchain/**'
   workflow_dispatch:
     inputs:
       publish_candidate:

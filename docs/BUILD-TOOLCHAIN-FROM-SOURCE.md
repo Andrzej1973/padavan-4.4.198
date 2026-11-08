@@ -21,8 +21,9 @@ Inputs are in toolchains/wr1200js/sources.json and crosstool.config:
   tarballs are cached and preserved in the source artifacts. This does not mean
   all dependencies are already mirrored in our own GitHub.
 
-Run **Build owned MIPS toolchain** on GitHub Actions. Changes to this recipe on
-the shared codex branch also trigger one run. Heavy compilation is refused
+Run **Build owned MIPS toolchain** manually through GitHub Actions → Run workflow.
+Only workflow_dispatch is enabled: pushes and pull requests do not rebuild the
+compiler, including changes to its recipe or tools. Heavy compilation is refused
 outside GITHUB_ACTIONS; the local checks only normalize/test the recipe.
 The job has a separate queued concurrency group and a240-minute limit. It does
 not block or replace the standard/optional firmware lanes.
