@@ -35,7 +35,7 @@ static struct namespace *dev_net(PNET_DEV dev){assert(dev);return &space;}
 static int ns_capable(void *ns,int cap){assert(ns==space.user_ns&&cap==12);return capable;}
 static int netif_running(PNET_DEV dev){return dev->running;}
 static unsigned long copy_from_user(void *to,const void *from,unsigned long n){
- copies++;assert(n==144);if(copy_error)return 1;memcpy(to,from,n);return 0;
+ copies++;assert(n==144||n==32);if(copy_error)return 1;memcpy(to,from,n);return 0;
 }
 #include "driver-api-owner-binding.inc"
 static int dev_open(PNET_DEV dev){
@@ -61,8 +61,12 @@ static unsigned long copy_to_user(void *to,const void *from,unsigned long n){
 }
 #include "driver-api-identity.inc"
 
+static int identity_call(RTMP_ADAPTER *ad,PNET_DEV dev,struct ifreq *rq){
+ unsigned char nonce[16]={3};assert(wr_iot_driver_query_encode((unsigned char *)rq->ifr_data,32,nonce));
+ return wr_iot_driver_identity_ioctl(ad,dev,rq);
+}
 int main(void){
- unsigned char wire[144]={'W','R','I','1',1};
+ unsigned char wire[144]={'W','R','I','2',1};
  RTMP_ADAPTER ad={.mt7603=1,.vendor_count=1,.ApCfg.BssidNum=3};
  device dev={0},main_dev={0};struct ifreq rq={wire};unsigned long sequence=0;
  ad.net_dev=&main_dev;ad.ApCfg.MBSSID[2].wdev.if_dev=&dev;opening=&ad;
@@ -75,18 +79,20 @@ int main(void){
 
  unsigned char identity_wire[32];struct ifreq identity_rq={identity_wire};
  struct wr_iot_driver_identity identity;
- capable=0;assert(wr_iot_driver_identity_ioctl(&ad,&dev,&identity_rq)==-EPERM&&!query_copies);capable=1;
- assert(wr_iot_driver_identity_ioctl(&ad,&main_dev,&identity_rq)==-EBUSY&&!query_copies);
+ capable=0;assert(identity_call(&ad,&dev,&identity_rq)==-EPERM&&!query_copies);capable=1;
+ assert(identity_call(&ad,&main_dev,&identity_rq)==-EBUSY&&!query_copies);
  ad.wr_iot_transition.reset_pending=1;
- assert(wr_iot_driver_identity_ioctl(&ad,&dev,&identity_rq)==-EBUSY&&!query_copies);
+ assert(identity_call(&ad,&dev,&identity_rq)==-EBUSY&&!query_copies);
  ad.wr_iot_transition.reset_pending=0;
- query_copy_error=1;assert(wr_iot_driver_identity_ioctl(&ad,&dev,&identity_rq)==-EFAULT);query_copy_error=0;
+ query_copy_error=1;assert(identity_call(&ad,&dev,&identity_rq)==-EFAULT);
+ assert(!ad.wr_iot_driver_owner.query_valid);query_copy_error=0;
  memset(identity_wire,0xa5,sizeof(identity_wire));
- assert(!wr_iot_driver_identity_ioctl(&ad,&dev,&identity_rq));
+ assert(!identity_call(&ad,&dev,&identity_rq));
  assert(wr_iot_driver_identity_decode(&identity,identity_wire,sizeof(identity_wire)));
  assert(identity.adapter_epoch==1&&identity.device_generation==2);
  assert(!ad.wr_iot_transition.serial&&!ad.wr_iot_driver_owner.active);
  for(unsigned i=0;i<32;i++)if((i>=5&&i<8)||i>=24)assert(!identity_wire[i]);
+ copies=0;
  assert(wr_iot_driver_open_ioctl(NULL,&dev,&rq)==-EINVAL&&!copies);
  locked=0;assert(wr_iot_driver_open_ioctl(&ad,&dev,&rq)==-EBUSY&&!copies);locked=1;
  capable=0;assert(wr_iot_driver_open_ioctl(&ad,&dev,&rq)==-EPERM&&!copies);capable=1;
@@ -99,11 +105,14 @@ int main(void){
  ad.wr_iot_boot_active=1;assert(wr_iot_driver_open_ioctl(&ad,&dev,&rq)==-EBUSY&&!opens);ad.wr_iot_boot_active=0;
  skip_ndo=1;assert(wr_iot_driver_open_ioctl(&ad,&dev,&rq)==-ENETDOWN&&opens==1);
  assert(ad.wr_iot_ticket_wait==1&&!ad.wr_iot_driver_owner.active&&!ad.wr_iot_transition.busy);skip_ndo=0;
+ assert(!identity_call(&ad,&dev,&identity_rq));
  open_error=-EBUSY;assert(wr_iot_driver_open_ioctl(&ad,&dev,&rq)==-EBUSY&&opens==2&&!ad.wr_iot_driver_owner.active);
+ assert(!identity_call(&ad,&dev,&identity_rq));
  open_error=0;assert(!wr_iot_driver_open_ioctl(&ad,&dev,&rq)&&opens==3);
+ assert(!identity_call(&ad,&dev,&identity_rq));
  leave_ok=0;assert(wr_iot_driver_open_ioctl(&ad,&dev,&rq)==-EUCLEAN&&opens==4);
  assert(ad.wr_iot_control_poisoned&&ad.wr_iot_driver_owner.poisoned&&!ad.wr_iot_driver_owner.request.password[0]);
- assert(wr_iot_driver_identity_ioctl(&ad,&dev,&identity_rq)==-EBUSY);
+ assert(identity_call(&ad,&dev,&identity_rq)==-EBUSY);
  assert(wr_iot_driver_open_ioctl(&ad,&dev,&rq)==-EBUSY&&opens==4);
  puts("PASS composed actual OPEN entry and adapter owner: privilege, identity/control/bootstrap refusal, single-ticket consume, open error and poisoned leave; dev_open/netdev hooks injected, no real ioctl or RF proof");
  return 0;

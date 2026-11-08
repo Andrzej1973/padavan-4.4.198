@@ -32,7 +32,7 @@ static int wr_iot_driver_request_leave(RTMP_ADAPTER *ad,PNET_DEV dev,void *owner
 static int dev_open(PNET_DEV dev){assert(dev&&enters);opens++;return open_error;}
 #include "driver-api-open-entry.inc"
 int main(void){
- unsigned char wire[144]={'W','R','I','1',1};
+ unsigned char wire[144]={'W','R','I','2',1};
  RTMP_ADAPTER ad={1};device dev={0};struct ifreq rq={wire};
  wire[15]=1;wire[23]=2;wire[24]=3;wire[40]=3;wire[41]=8;
  memcpy(wire+48,"IoT",3);memcpy(wire+80,"password",8);

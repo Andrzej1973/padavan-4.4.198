@@ -260,3 +260,43 @@ outcome classification. Prepared RC stages/links the client and ABI workflow
 compiles its MIPS object; the actual staging block/native TU and YAML parse
 pass locally. Full fresh generation and target client proof remain pending.
 Activation call sites still need to map uncertainty into retained recovery.
+
+RC client now composes a validated ON request and exact32-lowercase-hex control
+transaction ID with a fresh driver identity, then sends OPEN once. All-zero ID,
+OFF/malformed/unterminated credentials and invalid identity refuse before OPEN.
+Internal credential snapshot is wiped on every exit; caller request is unchanged.
+Actual client ASan/UBSan fixture verifies transaction-byte mapping, unchanged
+input, query failure without OPEN and uncertainty after failed OPEN following
+successful query. Network isolation/cancellation/recovery remain outer backend
+requirements; this helper does not by itself bind control-server activation.
+
+New integration counterexample: check-driver-api-incarnation.c demonstrates
+that a syntactically valid old OPEN request can pass owner admission after a
+fresh adapter reconstructs epoch1 and the same registry generation sequence.
+This is model admission, not a physical open: PMK/hardware checks still apply.
+Do not call current identity/open binding safe across adapter recreation.
+Required correction: identity query must carry the RC transaction nonce and
+record a one-use query challenge in the current adapter; OPEN must consume that
+challenge alongside epoch/generation. Fresh adapter starts without a challenge,
+so old queried requests refuse even when numeric counters repeat. This avoids
+relying on an assumed persistent module counter or unverified kernel entropy.
+Counterexample is a known-gap demonstration, not a passing acceptance fixture;
+convert it to stale-recreation refusal coverage when the challenge is bound.
+
+Incarnation correction implemented locally: wire version is now WRI2, with
+op3 identity request carrying the16-byte RC nonce and op2 identity response.
+WRI1 requests/responses are rejected without fallback. Query arms nonce plus
+observed epoch/generation in the current adapter owner, without retaining a
+task/netdev pointer across userspace calls. OPEN requires exact nonce and query
+identity and consumes query validity when its existing BSS_OPEN ticket is
+reserved. A reconstructed adapter has no armed query, even if counters repeat.
+Failed response copy drops only the matching challenge under the same lock.
+This is not a defense against a privileged caller deliberately re-querying an
+old transaction; RC mailbox single-use ownership remains required.
+
+The previous incarnation counterexample is now a refusal regression. Six API
+host fixtures and actual generated MBSS regression pass ASan/UBSan, including
+wrong nonce, consumed query, response-copy invalidation and WRI1 rejection.
+RC requested-open passes the same transaction nonce through query and OPEN and
+wipes credentials. This closes the demonstrated model admission gap; final
+kernel target and device lifecycle remain unverified. No ACK protocol change.

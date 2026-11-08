@@ -11,8 +11,30 @@ struct wr_iot_driver_owner {
  struct wr_iot_virtual_open_claim claim;
  struct wr_iot_radio_ticket ticket;
  const void *task;
- unsigned int active,consumed,poisoned;
+ unsigned int active,consumed,poisoned,query_valid;
+ unsigned char query_id[16];
+ unsigned long long query_epoch,query_generation;
 };
+/* Called under transition lock after current adapter identity observation.
+ * Challenge metadata is not a task/netdev pin and grants no radio permission. */
+static inline int wr_iot_driver_owner_query(struct wr_iot_driver_owner *o,
+ const unsigned char *id,unsigned long long epoch,unsigned long long generation){
+ unsigned int i,nonzero=0;
+ if(!o||!id||o->active||o->poisoned||!epoch||!generation)return 0;
+ for(i=0;i<16;i++)nonzero|=id[i];
+ if(!nonzero)return 0;
+ for(i=0;i<16;i++)o->query_id[i]=id[i];
+ o->query_epoch=epoch;o->query_generation=generation;o->query_valid=1;return 1;
+}
+static inline void wr_iot_driver_owner_query_drop(struct wr_iot_driver_owner *o,
+ const unsigned char *id,unsigned long long epoch,unsigned long long generation){
+ unsigned int i,difference=0;
+ if(!o||!id||o->query_epoch!=epoch||o->query_generation!=generation)return;
+ for(i=0;i<16;i++)difference|=o->query_id[i]^id[i];
+ if(difference)return;
+ o->query_valid=0;
+ for(i=0;i<16;i++)o->query_id[i]=0;
+}
 static inline int wr_iot_driver_owner_reserve(struct wr_iot_driver_owner *o,
  struct wr_iot_radio_transition *radio,struct wr_iot_interface_ref *slots,
  unsigned int count,const void *main_dev,const void *iot_dev,
@@ -20,9 +42,13 @@ static inline int wr_iot_driver_owner_reserve(struct wr_iot_driver_owner *o,
  const struct wr_iot_driver_open_request *request,unsigned int control_users,
  int control_blocked)
 {
- struct wr_iot_interface_ref *main_ref,*record;
+ struct wr_iot_interface_ref *main_ref,*record;unsigned int i,difference=0;
  if(!o||!radio||!request||!task||!iot_dev||iot_dev==main_dev||o->active||
     o->poisoned||control_users||control_blocked)return 0;
+ if(!o->query_valid||request->adapter_epoch!=o->query_epoch||
+    request->device_generation!=o->query_generation)return 0;
+ for(i=0;i<16;i++)difference|=request->request_id[i]^o->query_id[i];
+ if(difference)return 0;
  main_ref=wr_iot_registry_find_owned(slots,count,main_dev);
  record=wr_iot_registry_find_openable(slots,count,iot_dev);
  if(!main_ref||main_ref->family!=WR_REF_FAMILY_MAIN||main_ref->removing||
@@ -34,6 +60,7 @@ static inline int wr_iot_driver_owner_reserve(struct wr_iot_driver_owner *o,
  if(!wr_iot_ref_reserve(record,iot_dev,record->generation,o->ticket.serial)){
   wr_iot_radio_abort_bss_open_unmutated(radio,&o->ticket);return 0;
  }
+ o->query_valid=0;
  o->request=*request;o->task=task;o->active=1;o->consumed=0;
  o->claim.device=iot_dev;o->claim.generation=record->generation;
  o->claim.serial=o->ticket.serial;o->claim.epoch=o->ticket.epoch;

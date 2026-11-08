@@ -12,11 +12,16 @@ int main(void){
   main_ref=wr_iot_registry_add_family(slots,2,&sequence,&main_dev,WR_REF_FAMILY_MAIN);
   iot_ref=wr_iot_registry_add_family(slots,2,&sequence,&iot_dev,WR_REF_FAMILY_MBSS);
   assert(main_ref&&iot_ref);main_ref->published=iot_ref->published=1;main_ref->phase=WR_REF_OWNED;
-  q.adapter_epoch=r.epoch;q.device_generation=iot_ref->generation;memcpy(q.password,"password",9);
+  q.request_id[0]=1;q.adapter_epoch=r.epoch;q.device_generation=iot_ref->generation;memcpy(q.password,"password",9);
+  assert(wr_iot_driver_owner_query(&o,q.request_id,q.adapter_epoch,q.device_generation));
+  q.request_id[0]^=2;
+  assert(!wr_iot_driver_owner_reserve(&o,&r,slots,2,&main_dev,&iot_dev,1,&task,&q,0,0));
+  q.request_id[0]^=2;
   assert(!wr_iot_driver_owner_reserve(&o,&r,slots,2,&main_dev,&iot_dev,1,&task,&q,1,0));
   assert(!wr_iot_driver_owner_reserve(&o,&r,slots,2,&main_dev,&iot_dev,1,&task,&q,0,1));
   assert(wr_iot_driver_owner_reserve(&o,&r,slots,2,&main_dev,&iot_dev,1,&task,&q,0,0));
   assert(r.busy==WR_RADIO_BSS_OPEN&&iot_ref->phase==WR_REF_RESERVED);
+  assert(!o.query_valid);
   assert(!wr_iot_driver_owner_take(&o,&other,&iot_dev,&r,slots,2));
   assert(!wr_iot_driver_owner_leave(&o,&other,&iot_dev,&r,slots,2)&&o.active);
   if(fault==1){assert(wr_iot_driver_owner_leave(&o,&task,&iot_dev,&r,slots,2));assert(iot_ref->phase==WR_REF_IDLE&&!r.busy);continue;}

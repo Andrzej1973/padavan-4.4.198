@@ -62,10 +62,11 @@ int main(void){
   ref=wr_iot_registry_add_family(ad.wr_iot_interface_refs,3,&sequence,&main_dev,WR_REF_FAMILY_MAIN);ref->published=1;ref->phase=WR_REF_OWNED;
   ref=wr_iot_registry_add_family(ad.wr_iot_interface_refs,3,&sequence,&guest,WR_REF_FAMILY_MBSS);ref->published=1;
   ref=wr_iot_registry_add_family(ad.wr_iot_interface_refs,3,&sequence,&iot,WR_REF_FAMILY_MBSS);ref->published=1;
-  q.adapter_epoch=ad.wr_iot_transition.epoch;q.device_generation=ref->generation;q.ssid_length=3;q.password_length=8;memcpy(q.ssid,"IoT",3);memcpy(q.password,"password",8);
+  q.request_id[0]=1;q.adapter_epoch=ad.wr_iot_transition.epoch;q.device_generation=ref->generation;q.ssid_length=3;q.password_length=8;memcpy(q.ssid,"IoT",3);memcpy(q.password,"password",8);
   raw_calls=key_calls=main_calls=0;
   if(fault==6){assert(MBSS_VirtualIF_Open(&iot)==-1&&!raw_calls&&!key_calls);continue;}
   if(fault==7){assert(!MBSS_VirtualIF_Open(&guest)&&raw_calls==1&&!key_calls&&!main_calls&&ad.count==2);continue;}
+  assert(wr_iot_driver_owner_query(&ad.wr_iot_driver_owner,q.request_id,q.adapter_epoch,q.device_generation));
   assert(wr_iot_driver_owner_reserve(&ad.wr_iot_driver_owner,&ad.wr_iot_transition,ad.wr_iot_interface_refs,3,&main_dev,&iot,1,current,&q,0,0));
   unsigned long serial=ad.wr_iot_transition.serial;
   int result=MBSS_VirtualIF_Open(&iot);

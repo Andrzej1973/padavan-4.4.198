@@ -1,14 +1,17 @@
 /* Nonsecret CLOSED-BSS identity observation, called under ioctl RTNL.
- * Does not reserve an open or promise that this identity remains current. */
+ * Arms a one-use RC nonce on this adapter, not an open/lifetime lease. */
 static INT wr_iot_driver_identity_ioctl(RTMP_ADAPTER *ad,PNET_DEV dev,struct ifreq *rq)
 {
  unsigned char wire[WR_IOT_DRIVER_IDENTITY_BYTES]={0};
  struct wr_iot_interface_ref *record,*main_ref;
+ unsigned char nonce[16];unsigned long long epoch=0,generation=0;
  ULONG flags=0;int ready=0;
  if(!ad||!dev||!rq)return -EINVAL;
  if(!rtnl_is_locked())return -EBUSY;
  if(!ns_capable(dev_net(dev)->user_ns,CAP_NET_ADMIN))return -EPERM;
  if(!IS_MT7603(ad))return -EOPNOTSUPP;
+ if(copy_from_user(wire,rq->ifr_data,sizeof(wire)))return -EFAULT;
+ if(!wr_iot_driver_query_decode(nonce,wire,sizeof(wire)))return -EINVAL;
  RTMP_IRQ_LOCK(&ad->wr_iot_transition_lock,flags);
  record=wr_iot_registry_find_openable(ad->wr_iot_interface_refs,WDEV_NUM_MAX+1,dev);
  main_ref=wr_iot_registry_find_owned(ad->wr_iot_interface_refs,WDEV_NUM_MAX+1,ad->net_dev);
@@ -24,8 +27,17 @@ static INT wr_iot_driver_identity_ioctl(RTMP_ADAPTER *ad,PNET_DEV dev,struct ifr
     !ad->wr_iot_transition.busy&&!ad->wr_iot_transition.main_inhibited&&
     !ad->wr_iot_transition.reset_pending&&!ad->wr_iot_transition.retiring&&
     !ad->wr_iot_transition.pm_suspending&&!ad->wr_iot_transition.pm_suspended)
-  ready=wr_iot_driver_identity_encode(wire,sizeof(wire),ad->wr_iot_transition.epoch,record->generation);
+ {
+  epoch=ad->wr_iot_transition.epoch;generation=record->generation;
+  ready=wr_iot_driver_owner_query(&ad->wr_iot_driver_owner,nonce,epoch,generation)&&
+   wr_iot_driver_identity_encode(wire,sizeof(wire),epoch,generation);
+ }
  RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);
  if(!ready)return -EBUSY;
- return copy_to_user(rq->ifr_data,wire,sizeof(wire))?-EFAULT:0;
+ if(copy_to_user(rq->ifr_data,wire,sizeof(wire))){
+  RTMP_IRQ_LOCK(&ad->wr_iot_transition_lock,flags);
+  wr_iot_driver_owner_query_drop(&ad->wr_iot_driver_owner,nonce,epoch,generation);
+  RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);return -EFAULT;
+ }
+ return 0;
 }

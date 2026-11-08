@@ -28,7 +28,7 @@ static inline int wr_iot_driver_identity_encode(unsigned char *wire,unsigned int
  if(!wire||length!=WR_IOT_DRIVER_IDENTITY_BYTES)return 0;
  for(i=0;i<length;i++)wire[i]=0;
  if(!epoch||!generation)return 0;
- wire[0]='W';wire[1]='R';wire[2]='I';wire[3]='1';wire[4]=2;
+ wire[0]='W';wire[1]='R';wire[2]='I';wire[3]='2';wire[4]=2;
  wr_iot_driver_put64(wire+8,epoch);wr_iot_driver_put64(wire+16,generation);return 1;
 }
 /* Observation only. OPEN revalidates both identities under its own owner. */
@@ -38,12 +38,38 @@ static inline int wr_iot_driver_identity_decode(struct wr_iot_driver_identity *o
  if(!out)return 0;
  out->adapter_epoch=out->device_generation=0;
  if(!wire||length!=WR_IOT_DRIVER_IDENTITY_BYTES||wire[0]!='W'||wire[1]!='R'||
-    wire[2]!='I'||wire[3]!='1'||wire[4]!=2)return 0;
+    wire[2]!='I'||wire[3]!='2'||wire[4]!=2)return 0;
  for(i=5;i<8;i++)if(wire[i])return 0;
  for(i=24;i<32;i++)if(wire[i])return 0;
  if(!wr_iot_driver_get64(wire+8)||!wr_iot_driver_get64(wire+16))return 0;
  out->adapter_epoch=wr_iot_driver_get64(wire+8);
  out->device_generation=wr_iot_driver_get64(wire+16);return 1;
+}
+/* Identity request carries the RC nonce; response remains epoch/generation. */
+static inline int wr_iot_driver_query_encode(unsigned char *wire,unsigned int length,
+ const unsigned char *id){
+ unsigned int i,nonzero=0;
+ if(!wire||length!=32)return 0;
+ for(i=0;i<32;i++)wire[i]=0;
+ if(!id)return 0;
+ for(i=0;i<16;i++)nonzero|=id[i];
+ if(!nonzero)return 0;
+ wire[0]='W';wire[1]='R';wire[2]='I';wire[3]='2';wire[4]=3;
+ for(i=0;i<16;i++)wire[8+i]=id[i];
+ return 1;
+}
+static inline int wr_iot_driver_query_decode(unsigned char *id,
+ const unsigned char *wire,unsigned int length){
+ unsigned int i,nonzero=0;
+ if(!id)return 0;
+ for(i=0;i<16;i++)id[i]=0;
+ if(!wire||length!=32||wire[0]!='W'||wire[1]!='R'||wire[2]!='I'||wire[3]!='2'||wire[4]!=3)return 0;
+ for(i=5;i<8;i++)if(wire[i])return 0;
+ for(i=24;i<32;i++)if(wire[i])return 0;
+ for(i=0;i<16;i++)nonzero|=wire[8+i];
+ if(!nonzero)return 0;
+ for(i=0;i<16;i++)id[i]=wire[8+i];
+ return 1;
 }
 static inline void wr_iot_driver_request_wipe(struct wr_iot_driver_open_request *r){
  volatile unsigned char *p=(volatile unsigned char *)r;unsigned int i;
@@ -58,7 +84,7 @@ static inline int wr_iot_driver_open_decode(struct wr_iot_driver_open_request *o
  if(!out)return 0;
  wr_iot_driver_request_wipe(out);
  if(!wire||length!=WR_IOT_DRIVER_OPEN_BYTES)goto done;
- if(wire[0]!='W'||wire[1]!='R'||wire[2]!='I'||wire[3]!='1'||wire[4]!=1)goto done;
+ if(wire[0]!='W'||wire[1]!='R'||wire[2]!='I'||wire[3]!='2'||wire[4]!=1)goto done;
  for(i=5;i<8;i++)if(wire[i])goto done;
  for(i=42;i<48;i++)if(wire[i])goto done;
  r.adapter_epoch=wr_iot_driver_get64(wire+8);
@@ -89,7 +115,7 @@ static inline int wr_iot_driver_open_encode(unsigned char *wire,unsigned int len
  if(!wire||length!=WR_IOT_DRIVER_OPEN_BYTES)return 0;
  for(i=0;i<length;i++)wire[i]=0;
  if(!r||r->ssid_length<1||r->ssid_length>32||r->password_length<8||r->password_length>64)goto done;
- wire[0]='W';wire[1]='R';wire[2]='I';wire[3]='1';wire[4]=1;
+ wire[0]='W';wire[1]='R';wire[2]='I';wire[3]='2';wire[4]=1;
  wr_iot_driver_put64(wire+8,r->adapter_epoch);
  wr_iot_driver_put64(wire+16,r->device_generation);
  for(i=0;i<16;i++)wire[24+i]=r->request_id[i];
