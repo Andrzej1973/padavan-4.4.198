@@ -1,0 +1,32 @@
+{
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "file": "trunk/linux-4.4.x/kernel/kthread.c",
+  "sha256": "18de32a056a7d252f0b0a09e11c1430fd94c2daa6789897ce834ebf837172e5b",
+  "excerpts": [
+    {
+      "line": 52,
+      "text": "};\n\nenum KTHREAD_BITS {\n\tKTHREAD_IS_PER_CPU = 0,\n\tKTHREAD_SHOULD_STOP,\n\tKTHREAD_SHOULD_PARK,\n\tKTHREAD_IS_PARKED,\n};\n\n#define __to_kthread(vfork)\t\\\n\tcontainer_of(vfork, struct kthread, exited)\n\nstatic inline struct kthread *to_kthread(struct task_struct *k)\n{\n\treturn __to_kthread(k->vfork_done);\n}\n\nstatic struct kthread *to_live_kthread(struct task_struct *k)\n{\n\tstruct completion *vfork = ACCESS_ONCE(k->vfork_done);"
+    },
+    {
+      "line": 82,
+      "text": " * value will be passed through to kthread_stop().\n */\nbool kthread_should_stop(void)\n{\n\treturn test_bit(KTHREAD_SHOULD_STOP, &to_kthread(current)->flags);\n}\nEXPORT_SYMBOL(kthread_should_stop);\n\n/**\n * kthread_should_park - should this kthread park now?\n *\n * When someone calls kthread_park() on your kthread, it will be woken\n * and this will return true.  You should then do the necessary\n * cleanup and call kthread_parkme()\n *\n * Similar to kthread_should_stop(), but this keeps the thread alive\n * and in a park position. kthread_unpark() \"restarts\" the thread and\n * calls the thread function again.\n */\nbool kthread_should_park(void)"
+    },
+    {
+      "line": 178,
+      "text": "\t__kthread_parkme(to_kthread(current));\n}\nEXPORT_SYMBOL_GPL(kthread_parkme);\n\nstatic int kthread(void *_create)\n{\n\t/* Copy data: it's on kthread's stack */\n\tstruct kthread_create_info *create = _create;\n\tint (*threadfn)(void *data) = create->threadfn;\n\tvoid *data = create->data;\n\tstruct completion *done;\n\tstruct kthread self;\n\tint ret;\n\n\tself.flags = 0;\n\tself.data = data;\n\tinit_completion(&self.exited);\n\tinit_completion(&self.parked);\n\tcurrent->vfork_done = &self.exited;\n"
+    },
+    {
+      "line": 208,
+      "text": "\tschedule();\n\n\tret = -EINTR;\n\n\tif (!test_bit(KTHREAD_SHOULD_STOP, &self.flags)) {\n\t\tcgroup_kthread_ready();\n\t\t__kthread_parkme(&self);\n\t\tret = threadfn(data);\n\t}\n\t/* we can't just return, we must preserve \"self\" on stack */\n\tdo_exit(ret);\n}\n\n/* called from do_fork() to get node information for about to be created task */\nint tsk_fork_get_node(struct task_struct *tsk)\n{\n#ifdef CONFIG_NUMA\n\tif (tsk == kthreadd_task)\n\t\treturn tsk->pref_node_fork;\n#endif"
+    },
+    {
+      "line": 490,
+      "text": " *\n * Returns the result of threadfn(), or %-EINTR if wake_up_process()\n * was never called.\n */\nint kthread_stop(struct task_struct *k)\n{\n\tstruct kthread *kthread;\n\tint ret;\n\n\ttrace_sched_kthread_stop(k);\n\n\tget_task_struct(k);\n\tkthread = to_live_kthread(k);\n\tif (kthread) {\n\t\tset_bit(KTHREAD_SHOULD_STOP, &kthread->flags);\n\t\t__kthread_unpark(k, kthread);\n\t\twake_up_process(k);\n\t\twait_for_completion(&kthread->exited);\n\t\tput_task_stack(k);\n\t}"
+    },
+    {
+      "line": 500,
+      "text": "\n\tget_task_struct(k);\n\tkthread = to_live_kthread(k);\n\tif (kthread) {\n\t\tset_bit(KTHREAD_SHOULD_STOP, &kthread->flags);\n\t\t__kthread_unpark(k, kthread);\n\t\twake_up_process(k);\n\t\twait_for_completion(&kthread->exited);\n\t\tput_task_stack(k);\n\t}\n\tret = k->exit_code;\n\tput_task_struct(k);\n\n\ttrace_sched_kthread_stop_ret(ret);\n\treturn ret;\n}\nEXPORT_SYMBOL(kthread_stop);\n\nint kthreadd(void *unused)\n{"
+    }
+  ],
+  "scope": "Pinned kernel task bootstrap/stop semantics only, no runtime test"
+}

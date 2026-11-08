@@ -17,3 +17,16 @@ static INT wr_iot_driver_close_retirement_ready_locked(RTMP_ADAPTER *ad)
   ad->net_dev,VIRTUAL_IF_NUM(ad),ad->wr_iot_mbss_recovery,WDEV_NUM_MAX+1,
   &ad->wr_iot_mbss_poll_state,&ad->wr_iot_mbss_reaper_gate,1);
 }
+
+/* The caller created this task stopped and owns its lifetime. Publish the
+ * designation before wake, under the SAME lock as readiness validation.
+ * No module-reference transfer occurs here; failures keep API ownership. */
+static INT wr_iot_driver_close_retirement_designate_locked(RTMP_ADAPTER *ad,
+ const void *stopped_task)
+{
+ if(!ad||!stopped_task||ad->wr_iot_close_owner.retirement_task||
+    ad->wr_iot_close_owner.retirement_started||ad->wr_iot_close_owner.retirement_canceling||
+    !wr_iot_driver_close_retirement_ready_locked(ad))return 0;
+ ad->wr_iot_close_owner.retirement_task=stopped_task;
+ return 1;
+}

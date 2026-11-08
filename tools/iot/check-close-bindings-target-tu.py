@@ -8,7 +8,8 @@ def probe_source(driver,local):
         local/'driver-api-close-recovery.h',local/'driver-api-close-enter.inc',
         local/'driver-api-close-finish-binding.inc',local/'driver-api-close-recovery-binding.inc',
         local/'driver-api-close-finish-recovery.inc',local/'driver-api-close-entry.inc',
-        local/'driver-api-close-retirement.h',local/'driver-api-close-retirement-binding.inc']
+        local/'driver-api-close-retirement.h',local/'driver-api-close-retirement-binding.inc',
+        local/'driver-api-close-retirement-create.inc',local/'driver-api-close-retirement-cancel.inc']
  if any('"' in str(f) or '\n' in str(f) for f in files):raise ValueError('Unsupported include path')
  return '#include <linux/module.h>\n#include <linux/kthread.h>\n'+''.join('#include "'+str(f)+'"\n' for f in files)+'''
 int wr_iot_close_bindings_target_probe(RTMP_ADAPTER *ad,PNET_DEV dev,
@@ -16,15 +17,27 @@ int wr_iot_close_bindings_target_probe(RTMP_ADAPTER *ad,PNET_DEV dev,
 {
  return wr_iot_driver_close_reply(ad,dev,rq,wire);
 }
-/* Locked read-only probe: compiler checks actual adapter/work fields. */
-int wr_iot_close_retirement_target_probe(RTMP_ADAPTER *ad)
+/* Compile-only locked designation: actual adapter/work fields checked. */
+int wr_iot_close_retirement_target_probe(RTMP_ADAPTER *ad,const void *stopped_task)
 {
  ULONG flags=0;int ready;
  if(!ad)return 0;
  RTMP_IRQ_LOCK(&ad->wr_iot_transition_lock,flags);
  ready=wr_iot_driver_close_retirement_ready_locked(ad);
+ if(ready&&stopped_task)ready=wr_iot_driver_close_retirement_designate_locked(ad,stopped_task);
  RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);
  return ready;
+}
+/* Compile-only prepare: stopped task remains caller-owned on success. */
+int wr_iot_close_retirement_prepare_target_probe(RTMP_ADAPTER *ad,
+ int (*fn)(void *),struct task_struct **out)
+{
+ return wr_iot_driver_close_retirement_prepare(ad,fn,out);
+}
+/* Compile-only stopped-task cancellation; no runtime route. */
+int wr_iot_close_retirement_cancel_target_probe(RTMP_ADAPTER *ad,struct task_struct **task)
+{
+ return wr_iot_driver_close_retirement_cancel(ad,task);
 }
 /* Compile-only kernel-thread tail; never routed or invoked by firmware. */
 int wr_iot_close_module_exit_target_probe(struct task_struct *designated)
@@ -72,7 +85,7 @@ def main():
                  'driver-api-close-enter.inc','driver-api-close-finish-binding.inc',
                  'driver-api-close-recovery-binding.inc','driver-api-close-finish-recovery.inc',
                  'driver-api-close-entry.inc','driver-api-close-retirement.h',
-                 'driver-api-close-retirement-binding.inc')
+                 'driver-api-close-retirement-binding.inc','driver-api-close-retirement-create.inc','driver-api-close-retirement-cancel.inc')
   binding_inputs={name:(local/name).read_bytes() for name in binding_names}
   driver_input=source.read_bytes()
   report.update(command_sha256=hashlib.sha256(raw).hexdigest(),kernel_config_sha256=hashlib.sha256(before).hexdigest(),
