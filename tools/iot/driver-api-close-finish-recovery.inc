@@ -17,6 +17,11 @@ static INT wr_iot_driver_close_finish_recover(RTMP_ADAPTER *ad,PNET_DEV dev,
  RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);
  if(!matched)return 0;
  completed=wr_iot_driver_close_request_finish(ad,dev,task,linux_status);
- if(!completed)*handoff=wr_iot_driver_close_recovery_submit(ad,dev);
+ if(!completed){
+  *handoff=wr_iot_driver_close_recovery_submit(ad,dev);
+  /* Match the existing MBSS handoff: a retained worker needs the bounded
+   * retry/poll caller as well. Failure never reverses accepted ownership. */
+  if(*handoff>=0&&wr_iot_mbss_poll_schedule(ad)!=0)*handoff=1;
+ }
  return completed;
 }
