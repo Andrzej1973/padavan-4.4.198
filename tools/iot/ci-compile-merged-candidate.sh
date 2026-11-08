@@ -331,6 +331,7 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   # and hash this final source below. This remains an isolated candidate.
   python3 tools/iot/prepare-driver-api.py "$merged" --install-isolated
   python3 tools/iot/check-driver-api-mbss.py "$merged" > "$results/linux-open-api-mbss.txt"
+  python3 tools/iot/check-beacon-txs-stop.py "$merged" > "$results/beacon-txs-stop.txt"
 fi
 cp "$merged.manifest.json" "$results/merged-source-manifest.json"
 cp -a "$merged/." "$driver/"

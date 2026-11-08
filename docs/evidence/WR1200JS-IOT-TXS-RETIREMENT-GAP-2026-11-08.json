@@ -1,0 +1,64 @@
+{
+  "scope": "retained isolated predecessor source, not production or latest compiled module",
+  "date": "2026-11-08",
+  "source_files": {
+    "tx_rx/txs.c": "9e2f5fca7709a2fd0adb758cf05d84138d8adf3254e6a7c4eb9574ff1384733c",
+    "common/cmm_data_pci.c": "9882fd55cd5446934293683b51d958f1c513b330838dac7bb7b22465d738f04d",
+    "ap/ap_mbss.c": "06a7502c86f718e715c5fc6f8f1332065876bccde4a1582c418e31eacc752e76",
+    "include/wr-iot-mbss-close-checked.inc": "2d4c8c3a78927c17490c8d1d9fc18f5f4754f9c3b6f415cc2a5d427684d196c2",
+    "common/cmm_data.c": "adb0a9b1587f0d2da7dbcb71f99b7da7a67e6c9550f2f1c7866dc7c7ad22ff7a",
+    "include/mac/mac_mt/mt_mac.h": "fbd92533367d0f77d2a41184861e83bda5699899b56c98ed9cc2f64fbde56203",
+    "ap/ap_connect.c": "423abcda27d448cd68f9d6fa667c30427fee3ee5019f63ac39ed3b4a0a367d3a",
+    "mac/mt_mac.c": "b9c0fc557ad941d032d00832e71eacceee8cf103d69b7b8a63dba5862fc5dc95"
+  },
+  "chain": [
+    "AddTxSStatus allocates UNUSED PID and local Generation",
+    "ParseTxSPacket passes PID to RemoveTxSStatus",
+    "RemoveTxSStatus claims USED PID; no report-generation comparison",
+    "BcnTxSHandler refuses BCN_TX_STOP under beacon lock",
+    "callback_done decrements in-flight; WrTxSCompleteClaim makes PID UNUSED",
+    "WrBeaconTxSOutstanding checks current reservations/callbacks only"
+  ],
+  "confirmed": "Current software snapshot does not establish absence of future reports. Local reservation generation protects cancellation, not RX report matching.",
+  "conditional_risk": "If duplicate/delayed report survives PID reuse it can claim a later reservation; hardware behavior not established here.",
+  "not_proven": [
+    "actual hardware duplicate delivery",
+    "RF/FIFO retirement",
+    "latest optional target compile",
+    "device acceptance"
+  ],
+  "required_next": [
+    "inspect hardware report fields and RX caller validation for independent correlation",
+    "prove duplicate exclusion or bounded delivery from source/protocol/device evidence",
+    "keep isolation and recovery ownership until safe lifecycle proven",
+    "verify exact target code path and hardware TXD SN semantics before attempting sequence correlation",
+    "evaluate whether late callback can be made harmless while keeping BSS objects allocated; distinguish memory retirement from RF isolation acceptance"
+  ],
+  "ack_protocol_changed": false,
+  "runtime_verified": false,
+  "rx_chain": {
+    "caller": "common/cmm_data.c: RMAC_RX_PKT_TYPE_RX_TXS validates declared count/size relation, endian converts, passes txs_d4->pid and txs_d0->txsfm plus raw report",
+    "fields": "TXS_D_4 has 8-bit pid and 12-bit sn; TXS_D_1 timestamp and TXS_D_3 wlan_idx/rxv_sn exist",
+    "validation": "No reservation-generation comparison in caller or RemoveTxSStatus. SN/timestamp logging is not admission correlation. No claim these fields can safely correlate beacons without TX side/protocol proof."
+  },
+  "host_verification": {
+    "generator": "tools/iot/prepare-beacon-txs-ledger-check.py --expect-generation-exhaustion",
+    "result": "PASS extracted actual ledger/parser ASan/UBSan; existing negative stale PID witness reproduced",
+    "new_fixture_added": false,
+    "hardware_delivery_proven": false,
+    "scratch": "temporary extraction and binary auto-removed"
+  },
+  "tx_chain": {
+    "beacon": "write_tmac_info_beacon: zero MAC_TX_INFO, NSeq TRUE, Ack FALSE, InsTimestamp TRUE, TxSPriv=apidx; zero TMAC buffer; call write_tmac_info; return local TxSReservationGeneration/Pid",
+    "tmac": "write_tmac_info assigns AddTxSStatus returned PID to txd_5->pid and saves local generation in MAC_TX_INFO, not an observed RX cookie",
+    "sequence": "MT writer has no NSeq read or sn_vld/SN assignment found; do not import semantics from legacy rtmp_mac NSEQ handling",
+    "conclusion": "No demonstrated software-selected per-reservation sequence echoed in TxS. SN(12-bit) and timestamp cannot be promoted to anti-stale correlation without hardware semantics/wrap/order proof."
+  },
+  "callback_check": {
+    "tool": "tools/iot/check-beacon-txs-stop.py",
+    "result": "PASS ASan/UBSan extracted actual BcnTxSHandler: STOP state unchanged, bounds reject, reopened state accepts same raw report and mutates bookkeeping",
+    "scope": "non-DBG selected callback, mock adapter/locks; not device or MMIO",
+    "ci": "isolated peer82 after API preparation",
+    "implication": "STOP safety cannot be generalized to reopen; report correlation or independently proven report retirement still needed"
+  }
+}
