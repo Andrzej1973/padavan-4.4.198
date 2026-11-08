@@ -7,7 +7,7 @@ static INT wr_iot_driver_close_reply(RTMP_ADAPTER *ad,PNET_DEV dev,
  struct ifreq *rq,unsigned char *wire)
 {
  struct wr_iot_driver_close_request request;
- int status;
+ int status,handoff;
  (void)rq;
  if(!wr_iot_driver_close_request_decode(&request,wire,64))return -EINVAL;
  if(!netif_running(dev))return -EAGAIN;
@@ -19,6 +19,6 @@ static INT wr_iot_driver_close_reply(RTMP_ADAPTER *ad,PNET_DEV dev,
  /* Linux ignores ndo_stop errors. Finish must validate the actual executor's
   * ticket/record completion; admin DOWN and dev_close==0 are insufficient.
   * On any ambiguity retain close provenance and isolation for recovery. */
- if(!wr_iot_driver_close_request_finish(ad,dev,current,status))return -EUCLEAN;
+ if(!wr_iot_driver_close_finish_recover(ad,dev,current,status,&handoff))return -EUCLEAN;
  return status;
 }

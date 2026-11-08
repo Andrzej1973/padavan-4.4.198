@@ -9,7 +9,8 @@
 enum wr_iot_mbss_recovery_source {
  WR_MBSS_RECOVERY_OPEN_ACQUIRED,
  WR_MBSS_RECOVERY_CLOSE_INCOMPLETE,
- WR_MBSS_RECOVERY_UNCERTAIN
+ WR_MBSS_RECOVERY_UNCERTAIN,
+ WR_MBSS_RECOVERY_RESERVED_CLOSE
 };
 enum wr_iot_mbss_recovery_action {
  WR_MBSS_RECOVERY_NONE,
@@ -91,6 +92,14 @@ static inline int wr_iot_mbss_recovery_queue(
     record->family!=WR_REF_FAMILY_MBSS)return 0;
  if(source==WR_MBSS_RECOVERY_OPEN_ACQUIRED){
   if(record->phase!=WR_REF_OWNED||ticket)return 0;
+ }else if(source==WR_MBSS_RECOVERY_RESERVED_CLOSE){
+  /* An API reserved one BSS_CLOSE ticket but ndo_stop never consumed it.
+   * No vendor close has begun: do not fabricate a CLOSING/stage receipt. */
+  if(record->phase!=WR_REF_OWNED||record->removing||record->removal_stage||
+     record->close_running||record->close_uncertain_reason||!ticket||
+     ticket->operation!=WR_RADIO_BSS_CLOSE||!ticket->serial||
+     !wr_iot_mbss_recovery_ticket_recorded(record,ticket)||
+     !wr_iot_mbss_recovery_ticket_current(radio,ticket))return 0;
  }else if(source==WR_MBSS_RECOVERY_CLOSE_INCOMPLETE){
   if(record->phase!=WR_REF_CLOSING||!record->close_serial||
      (record->close_stage!=2&&record->close_stage!=3)||
@@ -112,7 +121,7 @@ static inline int wr_iot_mbss_recovery_queue(
  }else return 0;
  owner->device=record->device;owner->generation=record->generation;
  owner->open_token=record->last_token;
- owner->close_serial=ticket?record->close_serial:0;
+ owner->close_serial=ticket?ticket->serial:0;
  if(ticket){owner->close_ticket=*ticket;owner->close_ticket_valid=1;}
  else owner->close_ticket_valid=0;
  owner->source=source;owner->phase=WR_MBSS_OWNER_QUEUED;
@@ -146,7 +155,18 @@ static inline enum wr_iot_mbss_recovery_action wr_iot_mbss_recovery_action(
    return WR_MBSS_RECOVERY_NONE;
   return WR_MBSS_RECOVERY_BEGIN_CLOSE;
  }
- if(owner->source==WR_MBSS_RECOVERY_CLOSE_INCOMPLETE){
+ if(owner->source==WR_MBSS_RECOVERY_RESERVED_CLOSE&&record->phase==WR_REF_OWNED){
+  if(record->removing||record->removal_stage||record->close_running||
+     record->close_uncertain_reason||!owner->close_ticket_valid||
+     owner->close_serial!=owner->close_ticket.serial||
+     owner->close_ticket.operation!=WR_RADIO_BSS_CLOSE||
+     !wr_iot_mbss_recovery_ticket_recorded(record,&owner->close_ticket)||
+     !wr_iot_mbss_recovery_ticket_current(radio,&owner->close_ticket)||
+     !wr_iot_registry_count_matches(slots,count,vendor_count))return WR_MBSS_RECOVERY_NONE;
+  return WR_MBSS_RECOVERY_CONTINUE_CLOSE;
+ }
+ if(owner->source==WR_MBSS_RECOVERY_CLOSE_INCOMPLETE||
+    owner->source==WR_MBSS_RECOVERY_RESERVED_CLOSE){
   if(record->phase!=WR_REF_CLOSING||
      record->close_serial!=owner->close_serial||
      !owner->close_ticket_valid||
@@ -220,7 +240,8 @@ static inline int wr_iot_mbss_recovery_record_uncertain(
  const struct wr_iot_interface_ref *record,
  const struct wr_iot_radio_transition *radio){
  if(!owner||!record||!radio||owner->phase!=WR_MBSS_OWNER_RUNNING||
-    owner->source!=WR_MBSS_RECOVERY_CLOSE_INCOMPLETE||owner->completed||
+    (owner->source!=WR_MBSS_RECOVERY_CLOSE_INCOMPLETE&&
+     owner->source!=WR_MBSS_RECOVERY_RESERVED_CLOSE)||owner->completed||
     !owner->deferred_owners||!owner->close_ticket_valid||
     record->device!=owner->device||record->generation!=owner->generation||
     record->last_token!=owner->open_token||!record->published||

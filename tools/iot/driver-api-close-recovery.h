@@ -43,7 +43,16 @@ static inline int wr_iot_driver_close_transfer_recovery(
 {
  if(!close||!close->netdev_held||!close->module_held||
     close->recovery_netdev_transferred)return 0;
- if(!wr_iot_driver_close_queue_recovery(close,recovery,record,radio,
+ if(!close->consumed){
+  /* Finish cleared the borrowed task. Existing worker will execute this
+   * reserved ticket directly; do not impersonate or rerun ndo_stop. */
+  if(!record||!radio||!close->active||close->task||!close->uncertain||
+     close->reference_completed||record->device!=close->device||
+     record->generation!=close->generation||record->last_token!=close->open_token||
+     !wr_iot_mbss_recovery_queue(recovery,record,radio,
+       WR_MBSS_RECOVERY_RESERVED_CLOSE,&close->ticket,1,1))return 0;
+  close->consumed=1;
+ }else if(!wr_iot_driver_close_queue_recovery(close,recovery,record,radio,
     close->netdev_held,close->module_held,close->active))return 0;
  close->netdev_held=0;
  close->recovery_netdev_transferred=1;

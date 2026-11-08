@@ -13,7 +13,7 @@ static int wr_iot_driver_close_request_enter(RTMP_ADAPTER *ad,PNET_DEV dev,const
  assert(ad&&dev&&owner==current&&r->adapter_epoch==1&&r->device_generation==2&&r->open_token==3&&r->open_request_id[0]==1);enters++;return enter_status;
 }
 static int dev_close(PNET_DEV dev){assert(enters&&dev);closes++;dev->running=0;return close_status;}
-static int wr_iot_driver_close_request_finish(RTMP_ADAPTER *ad,PNET_DEV dev,const void *owner,int status){assert(ad&&dev&&owner==current&&closes&&status==close_status);finishes++;return finish_ok;}
+static int wr_iot_driver_close_finish_recover(RTMP_ADAPTER *ad,PNET_DEV dev,const void *owner,int status,int *handoff){assert(ad&&dev&&owner==current&&closes&&status==close_status&&handoff);*handoff=-1;finishes++;return finish_ok;}
 #include "driver-api-close-entry.inc"
 int main(void){
  unsigned char wire[64];struct wr_iot_driver_close_request request={{1},1,2,3};

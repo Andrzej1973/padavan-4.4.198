@@ -6,16 +6,14 @@ from pathlib import Path
 def probe_source(driver,local):
  files=[driver/'os/linux/rt_main_dev.c',local/'driver-api-close-finish.h',
         local/'driver-api-close-recovery.h',local/'driver-api-close-enter.inc',
-        local/'driver-api-close-finish-binding.inc',local/'driver-api-close-recovery-binding.inc']
+        local/'driver-api-close-finish-binding.inc',local/'driver-api-close-recovery-binding.inc',
+        local/'driver-api-close-finish-recovery.inc',local/'driver-api-close-entry.inc']
  if any('"' in str(f) or '\n' in str(f) for f in files):raise ValueError('Unsupported include path')
  return '#include <linux/module.h>\n'+''.join('#include "'+str(f)+'"\n' for f in files)+'''
 int wr_iot_close_bindings_target_probe(RTMP_ADAPTER *ad,PNET_DEV dev,
- const struct wr_iot_driver_close_request *request,int linux_status)
+ struct ifreq *rq,unsigned char *wire)
 {
- int result=wr_iot_driver_close_request_enter(ad,dev,request,current);
- if(result)return result;
- if(wr_iot_driver_close_request_finish(ad,dev,current,linux_status))return -EINVAL;
- return wr_iot_driver_close_recovery_submit(ad,dev);
+ return wr_iot_driver_close_reply(ad,dev,rq,wire);
 }
 '''
 

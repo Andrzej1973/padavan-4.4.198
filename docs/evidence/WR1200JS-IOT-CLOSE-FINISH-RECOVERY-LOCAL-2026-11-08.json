@@ -1,0 +1,19 @@
+{
+  "scope": "LOCAL staged synchronous entry -> same-task finish -> existing recovery submission",
+  "hashes": {
+    "tools/iot/driver-api-close-finish-recovery.inc": "1065b456f6cea308e866c6bd9287857e2fc4aaba1208babfa4c349e379aff7bb",
+    "tools/iot/driver-api-close-entry.inc": "b0d29c2ce5f611f778377d9a83fa572c4edb515c75a14bd208c32fe874bc5d0d",
+    "tools/iot/check-driver-api-close-entry.c": "db10b1c7a2d29c52691300e2c584045c1e70a042ab65ff4f1b827000238245b1",
+    "tools/iot/check-driver-api-close-recovery-binding.c": "28092fc4b960139c5a35deb964089bb37d235781b48a3c753b444dd998b0171e",
+    "tools/iot/check-close-bindings-target-tu.py": "385df7f125be0447c4bccb0fdb1f794dddc83078508b51f2bbfa6b7a170a4fd1"
+  },
+  "asan_ubsan": "PASS entry/recovery scheduling, reserved ticket and actual worker/executor fixtures",
+  "foreign_or_duplicate_finish_schedules": false,
+  "target_probe_includes_entire_staged_entry": true,
+  "production_ioctl_installed": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "extra_module_retirement_bound": false,
+  "early_stage_fault_tests": "PASS generation drift after CR/vendor success retains stages0/1 without retry or clearing foreign running state",
+  "publication_scope": "Host verified; endpoint not installed; target/runtime unverified"
+}
