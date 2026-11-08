@@ -481,3 +481,21 @@ an IoT close side effect. Guest, other chips/HIF and other BSS counts keep the
 original calls. Actual extracted MBSS_Close ASan/UBSan fixture verifies these
 branches and failed-drain early exit. Target compilation and physical acceptance
 pending; this does not prove late TxS retirement or RF quiescence.
+
+Local candidate builder admission (2026-11-08): final API layer reserves the
+existing producer pin exclusively for exact three-BSS MT7603 BSS2, checks DMA
+outside BcnRingLock while retaining that pin, then revalidates producer admission.
+Busy/unknown DMA or close revocation releases the pin and refuses buffer access.
+Other BSS/chips retain counted producers. Actual generated kernel-binding host
+fixture checks overlap refusal, DMA positive/error, close race and Guest behavior;
+OPEN/close regressions pass. This protects the admitted builder path only;
+init/deinit/alias lifetime audit, target compile and RF/TxS retirement are still
+required before production binding or isolation release.
+
+Lifecycle scope audit: inspected physical netdev initialization and rt_profile
+beacon deinitialization select MAIN_MBSSID. BSS2 allocation follows successful
+MBSS attach; MBSS removal uses begin_remove and producer remove_ready before
+free. Ordinary IoT close/open does not call buffer init/deinit. This supports
+the runtime-builder scope, but does not replace physical teardown acceptance.
+The generated builder fixture also injects a competing builder from inside the
+unlocked snapshot and BSS count change; both refuse, all pins/wakes balance.

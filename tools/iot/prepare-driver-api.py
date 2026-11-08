@@ -29,6 +29,28 @@ one('include/wr-iot-mcu-control-admission.inc','ready=!ad->wr_iot_control_poison
 # or rebuild unrelated active beacon buffers as a side effect of this close.
 one('ap/ap_mbss.c','\tAPMakeAllBssBeacon(pAd);\n\tAPUpdateAllBeaconFrame(pAd);',
     '\tAPMakeAllBssBeacon(pAd);\n\tif (!(IS_MT7603(pAd) && pAd->chipCap.hif_type == HIF_MT &&\n\t      pAd->ApCfg.BssidNum == 3 && BssId == 2))\n\t\tAPUpdateAllBeaconFrame(pAd);')
+# BSS2 builders share the counted producer gate, but must be exclusive before
+# inspecting mapped cells. Keep the pin while checking DMA outside ring lock.
+one('include/wr-iot-beacon-producer-kernel.h',
+ ' int ok;\n if (!ad || !ticket', ' int ok, protect;\n if (!ad || !ticket')
+one('include/wr-iot-beacon-producer-kernel.h',
+ ' ok = wr_iot_beacon_gate_begin(gate, gate->generation, ticket);',
+ ' protect = IS_MT7603(ad) && ad->ApCfg.BssidNum == 3 && bss == 2;\n'
+ ' ok = (!protect || !gate->active) &&\n'
+ '      wr_iot_beacon_gate_begin(gate, gate->generation, ticket);')
+one('include/wr-iot-beacon-producer-kernel.h',
+ ' RTMP_SEM_UNLOCK(&ad->BcnRingLock);\n return ok;\n}\n\nstatic inline void wr_iot_bcn_producer_end',
+ ' RTMP_SEM_UNLOCK(&ad->BcnRingLock);\n'
+ ' if (ok && protect) {\n'
+ '  int dma = WrBeaconDmaOutstanding(ad, (UINT32)bss), wake = 0;\n'
+ '  RTMP_SEM_LOCK(&ad->BcnRingLock);\n'
+ '  if (dma != 0 || ad->ApCfg.BssidNum != 3 || !wr_iot_beacon_gate_submit(gate, ticket)) {\n'
+ '   ok = 0;\n'
+ '   if (wr_iot_beacon_gate_end(gate, ticket) && !gate->active) wake = 1;\n'
+ '  }\n'
+ '  RTMP_SEM_UNLOCK(&ad->BcnRingLock);\n'
+ '  if (wake) wake_up_all(&ad->wr_iot_beacon_wait);\n'
+ ' }\n return ok;\n}\n\nstatic inline void wr_iot_bcn_producer_end')
 main='os/linux/rt_main_dev.c'
 signature='INT rt28xx_ioctl(PNET_DEV net_dev, struct ifreq *rq, INT cmd)\n{'
 one(main,signature,guard+'\n#include <linux/rtnetlink.h>\n#include <linux/capability.h>\n#include "driver-api-owner-binding.inc"\n#include "driver-api-open-entry.inc"\n#include "driver-api-identity.inc"\n#include "mbss-closed-probe.h"\n#include "mt7603-closed-observe.h"\n#include "mt7603-closed-probe-binding.inc"\n#include "driver-api-closed-entry.inc"\n#endif\n'+signature)

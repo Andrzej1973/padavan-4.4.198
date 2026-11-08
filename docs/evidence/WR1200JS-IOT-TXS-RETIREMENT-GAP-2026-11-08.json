@@ -12,7 +12,10 @@
     "mac/mt_mac.c": "b9c0fc557ad941d032d00832e71eacceee8cf103d69b7b8a63dba5862fc5dc95",
     "common/cmm_mac_pci.c": "c9b2c67f9df1e94894cb4c62cec21ce0050d3a90bc51c413ca98b3b8e41d1cb2",
     "include/iface/rtmp_inf_pcirbs.h": "4b499d401b71f420db2ef2727df39449b81bf3fe0b1c505181f56977353f5850",
-    "include/wr-iot-beacon-producer-kernel.h": "e361ee23fae01a2383b3b9a07138e30656c28fb25196d4dd3d874f854adad121"
+    "include/wr-iot-beacon-producer-kernel.h": "e361ee23fae01a2383b3b9a07138e30656c28fb25196d4dd3d874f854adad121",
+    "tx_rx/wdev.c": "d007cba5eb770f51bd4c83cde4e2bb89d0328af5ca01286aa162c22f01bebb16",
+    "os/linux/rt_profile.c": "67ed8efbb5ffc8cfd5eaefc54339214bb57be8a1a5b6be0e6723cc9239499cc5",
+    "common/rtmp_init_inf.c": "e821580861d63ec40bbf41ad4051afa34454e4b7ff5ca56ae04447a866fa8241"
   },
   "chain": [
     "AddTxSStatus allocates UNUSED PID and local Generation",
@@ -93,7 +96,7 @@
       "ensure close revocation waits for builder and publication, retain Main/Guest unaffected",
       "test concurrent builders, DMA completion, stale TxS, close/reopen and failure paths on actual transformed code"
     ],
-    "status": "design incomplete; no drop-in snapshot workaround applied; independent DMA safety alone does not prove RF/FIFO quiet"
+    "status": "Local final API candidate adds exclusive BSS2 counted pin plus unlocked DMA readback and locked revalidation; five fault cases and Guest regression pass. Not yet target/runtime verified."
   },
   "all_beacon_writer_audit": {
     "correction": "APMakeBssBeacon returns on HIF_MT before obtaining/write buffer; do not classify it as active MT beacon writer merely from function name.",
@@ -107,5 +110,19 @@
     "result": "PASS actual extracted MBSS_Close with and without BAND_STEERING, six branch cases; generated OPEN wrapper regression and DBG/non-DBG beacon callback PASS",
     "target_compiled": false,
     "runtime_verified": false
+  },
+  "writer_inventory": {
+    "direct_references": "rg BeaconPkt over candidate C sources: wdev allocation/free; ap_connect legacy builder and runtime update; cmm_mac_pci MT submit and separately guarded RTMP/RLT submit. This inventory does not claim pointer-alias completeness.",
+    "selected_writer": "APUpdateBeaconFrame wrapper -> inner; HIF_MT legacy APMakeBssBeacon returns before buffer write. RTMP/RLT second submit implementation not selected MT implementation.",
+    "allocation": "wdev_bcn_buf_init from MBSS init and physical initialization; sets IDLE even when BeaconPkt already allocated.",
+    "free": "wdev_bcn_buf_deinit from MBSS removal and rt_profile teardown; state-IDLE check alone is not independent DMA proof. IoT MBSS_Close itself does not call deinit.",
+    "next": "reserve exclusive BSS2 builder before first buffer access, validate DMA absence under lifetime pin, audit init/removal admission against same lifetime; keep physical teardown acceptance separate."
+  },
+  "builder_verification": {
+    "fixture": "tools/iot/check-iot-builder-dma.py",
+    "result": "PASS ASan/UBSan actual generated helper: racing builder inside snapshot refuses; busy/unknown DMA, close revoke, BSS count change refuse and release pin/wake",
+    "scope": "MT7603 exact three-BSS BSS2 only; shared gate remains counted for others",
+    "lifecycle_evidence": "physical rtmp_init_inf initializer and rt_profile deinit inspected here select MAIN_MBSSID, not BSS2; BSS2 init follows netdev attach in MBSS init, removal checks begin_remove and producer remove_ready. Ordinary close has no init/deinit.",
+    "limits": "Does not prove all aliases, full physical teardown, firmware delivery, RF quiet or target compatibility."
   }
 }
