@@ -19,6 +19,22 @@ enum wr_iot_driver_submit_result wr_iot_driver_open_submit(
  * own network policy, cancellation and recovery; this is not activation. */
 enum wr_iot_driver_submit_result wr_iot_driver_open_requested(
  const char *,const struct wr_iot_request *);
+/* Caller supplies a unique nonce per attempt and retains this under its
+ * serialized service owner until recovery completes. Never reuse an ON nonce.
+ * Retained nonsecret identity for recovery of this exact attempted OPEN.
+ * NOT_SUBMITTED clears it; UNCERTAIN retains it, never a rollback permission. */
+struct wr_iot_driver_attempt {
+ struct wr_iot_driver_identity identity;
+ unsigned char request_id[16];
+};
+enum wr_iot_driver_submit_result wr_iot_driver_open_requested_tracked(
+ const char *,const struct wr_iot_request *,struct wr_iot_driver_attempt *);
+/* Match refusal against the original attempted identity, not a fresh query. */
+int wr_iot_driver_attempt_refused(const struct wr_iot_driver_attempt *);
+/* Current configuration-only CLOSED bound to retained successful ON identity.
+ * Neither this nor historical refusal authorizes isolation release. */
+int wr_iot_driver_attempt_closed(const struct wr_iot_driver_attempt *,
+ struct wr_iot_driver_closed_result *);
 /* Original successful ON nonce, not a new OFF transaction ID. Returns only
  * current configuration/close-reference observation. No RF/drain permission;
  * failure clears output and caller must retain isolation/recovery ownership. */

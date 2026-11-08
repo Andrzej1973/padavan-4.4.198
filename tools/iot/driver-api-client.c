@@ -34,13 +34,15 @@ done:
  for(i=0;i<sizeof(wire);i++)wipe[i]=0;
  return outcome;
 }
-enum wr_iot_driver_submit_result wr_iot_driver_open_requested(
- const char *id,const struct wr_iot_request *input)
+enum wr_iot_driver_submit_result wr_iot_driver_open_requested_tracked(
+ const char *id,const struct wr_iot_request *input,struct wr_iot_driver_attempt *attempt)
 {
  struct wr_iot_driver_open_request request={0};struct wr_iot_driver_identity identity;
  struct wr_shared_wifi_fields fields;
  enum wr_iot_driver_submit_result result=WR_IOT_DRIVER_NOT_SUBMITTED;
  unsigned int i,nonzero=0;size_t ssid_length,password_length;
+ if(!attempt)return WR_IOT_DRIVER_NOT_SUBMITTED;
+ memset(attempt,0,sizeof(*attempt));
  if(!input||input->enabled!=1||!id||strnlen(id,33)!=32||
     !memchr(input->ssid,0,sizeof(input->ssid))||
     !memchr(input->password,0,sizeof(input->password)))goto done;
@@ -63,6 +65,9 @@ enum wr_iot_driver_submit_result wr_iot_driver_open_requested(
  if(!wr_iot_driver_identity_read(&identity,request.request_id))goto done;
  request.adapter_epoch=identity.adapter_epoch;request.device_generation=identity.device_generation;
  result=wr_iot_driver_open_submit(&request);
+ if(result!=WR_IOT_DRIVER_NOT_SUBMITTED){
+  attempt->identity=identity;memcpy(attempt->request_id,request.request_id,16);
+ }
 done:
  wr_iot_driver_request_wipe(&request);return result;
 }
@@ -94,4 +99,32 @@ int wr_iot_driver_refusal_read(const unsigned char *id,struct wr_iot_driver_refu
  result=ioctl(fd,WR_IOT_DRIVER_IOCTL_CLOSED_CONFIG,&request);closed=close(fd);
  if(result||closed)return 0;
  return wr_iot_driver_refusal_decode(out,id,wire,sizeof(wire));
+}
+
+enum wr_iot_driver_submit_result wr_iot_driver_open_requested(
+ const char *id,const struct wr_iot_request *input)
+{
+ struct wr_iot_driver_attempt attempt;
+ return wr_iot_driver_open_requested_tracked(id,input,&attempt);
+}
+int wr_iot_driver_attempt_refused(const struct wr_iot_driver_attempt *attempt)
+{
+ struct wr_iot_driver_refusal_result refusal;
+ if(!attempt||!attempt->identity.adapter_epoch||!attempt->identity.device_generation)return 0;
+ if(!wr_iot_driver_refusal_read(attempt->request_id,&refusal))return 0;
+ return refusal.adapter_epoch==attempt->identity.adapter_epoch&&
+  refusal.device_generation==attempt->identity.device_generation;
+}
+
+int wr_iot_driver_attempt_closed(const struct wr_iot_driver_attempt *attempt,
+ struct wr_iot_driver_closed_result *out)
+{
+ struct wr_iot_driver_closed_result observed;
+ if(!out)return 0;
+ memset(out,0,sizeof(*out));
+ if(!attempt||!attempt->identity.adapter_epoch||!attempt->identity.device_generation||
+    !wr_iot_driver_closed_configuration_read(attempt->request_id,&observed)||
+    observed.adapter_epoch!=attempt->identity.adapter_epoch||
+    observed.device_generation!=attempt->identity.device_generation)return 0;
+ *out=observed;return 1;
 }

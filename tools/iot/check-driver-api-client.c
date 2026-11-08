@@ -107,5 +107,32 @@ int main(void){
  }
  bad_closed_reply=0;assert(wr_iot_driver_refusal_read(query_id,&refusal));
  assert(refusal.adapter_epoch==1&&refusal.device_generation==2&&refusal.attempt_token==3);
+ struct wr_iot_driver_attempt attempt;
+ memset(&attempt,0xff,sizeof(attempt));
+ assert(wr_iot_driver_open_requested_tracked("bad",&requested,&attempt)==WR_IOT_DRIVER_NOT_SUBMITTED);
+ assert(!attempt.identity.adapter_epoch&&!attempt.request_id[0]);
+ open_only_error=1;
+ assert(wr_iot_driver_open_requested_tracked(id,&requested,&attempt)==WR_IOT_DRIVER_OPEN_UNCERTAIN);
+ open_only_error=0;
+ assert(attempt.identity.adapter_epoch==1&&attempt.identity.device_generation==2&&attempt.request_id[0]==1);
+ assert(wr_iot_driver_attempt_refused(&attempt));
+ attempt.identity.adapter_epoch++;assert(!wr_iot_driver_attempt_refused(&attempt));attempt.identity.adapter_epoch--;
+ attempt.identity.device_generation++;assert(!wr_iot_driver_attempt_refused(&attempt));attempt.identity.device_generation--;
+ ioctl_error=1;assert(!wr_iot_driver_attempt_refused(&attempt));ioctl_error=0;
+ assert(!wr_iot_driver_attempt_refused(NULL));
+ assert(wr_iot_driver_attempt_closed(&attempt,&state)&&state.close_serial==4);
+ attempt.identity.adapter_epoch++;assert(!wr_iot_driver_attempt_closed(&attempt,&state));
+ assert(!state.adapter_epoch&&!state.open_token&&!state.close_serial);attempt.identity.adapter_epoch--;
+ attempt.identity.device_generation++;assert(!wr_iot_driver_attempt_closed(&attempt,&state));
+ assert(!state.device_generation);attempt.identity.device_generation--;
+ ioctl_error=1;assert(!wr_iot_driver_attempt_closed(&attempt,&state));ioctl_error=0;
+ assert(!wr_iot_driver_attempt_closed(NULL,&state)&&!state.close_serial);
+ assert(!wr_iot_driver_attempt_closed(&attempt,NULL));
+ socket_error=1;
+ assert(wr_iot_driver_open_requested_tracked(id,&requested,&attempt)==WR_IOT_DRIVER_NOT_SUBMITTED);
+ assert(!attempt.identity.adapter_epoch&&!attempt.identity.device_generation);
+ for(unsigned j=0;j<16;j++)assert(!attempt.request_id[j]);
+ socket_error=0;
+
  puts("PASS actual RC API client: fixed ra2/CLOEXEC, strict identity response, no OPEN before validation, transaction ID/ON validation, one OPEN/no retry, uncertain ioctl/close outcomes and strict CLOSED configuration response; system calls injected, no device operation");return 0;
 }

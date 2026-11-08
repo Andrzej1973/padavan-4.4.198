@@ -454,3 +454,20 @@ with only the approved additions. Original10 asset pins are unchanged and
 LF/CRLF/tamper checks pass. Monitor42440963466 artifact13600669739 identified
 the correct source run/step and causal assert; original failed log confirms it.
 No monitor parser change needed. Fresh target rerun remains required.
+
+RC recovery identity (local work, 2026-11-08): tracked OPEN preserves only the
+original nonce and observed adapter/device generations after any attempted
+submission, including UNCERTAIN; NOT_SUBMITTED clears the context. A distinct
+refusal reader compares both generations against this retained context rather
+than obtaining fresh identity. Caller must serialize and use a unique nonce for
+each attempt. Native actual-client sanitizer tests cover retained uncertainty,
+invalid requests and epoch/generation mismatch. This is still not activation
+backend binding or quiescence/guard-release proof.
+
+The tracked CLOSED reader likewise rejects adapter/device generation mismatch
+against retained ON identity and clears every result on failure. Both refusal
+and CLOSED are typed observations; neither bypasses activation QUIESCE. The
+standalone optimized RC client translation unit and actual syscall-injected
+sanitizer fixture pass. Backend still needs RF/DMA/late-callback evidence for
+possibly mutated BSS, plus service/signal serialization, before production
+binding; configuration snapshots must not silently weaken that requirement.
