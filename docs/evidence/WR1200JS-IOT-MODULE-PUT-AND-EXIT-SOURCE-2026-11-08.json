@@ -1,0 +1,60 @@
+{
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "scope": "Availability and nonreturning core exit path only; no retirement thread installed",
+  "files": {
+    "trunk/linux-4.4.x/include/linux/module.h": {
+      "sha256": "825c8e8c46ef63f003518b6e65f0e5515549a480078594377d7c784db1e5275e",
+      "excerpts": [
+        {
+          "line": 574,
+          "text": "\t\t\t\t\t     struct module *, unsigned long),\n\t\t\t\t   void *data);\n\nextern void __module_put_and_exit(struct module *mod, long code)\n\t__attribute__((noreturn));\n#define module_put_and_exit(code) __module_put_and_exit(THIS_MODULE, code)\n\n#ifdef CONFIG_MODULE_UNLOAD\nint module_refcount(struct module *mod);\nvoid __symbol_put(const char *symbol);\n#define symbol_put(x) __symbol_put(VMLINUX_SYMBOL_STR(x))\nvoid symbol_put_addr(void *addr);\n"
+        },
+        {
+          "line": 576,
+          "text": "\nextern void __module_put_and_exit(struct module *mod, long code)\n\t__attribute__((noreturn));\n#define module_put_and_exit(code) __module_put_and_exit(THIS_MODULE, code)\n\n#ifdef CONFIG_MODULE_UNLOAD\nint module_refcount(struct module *mod);\nvoid __symbol_put(const char *symbol);\n#define symbol_put(x) __symbol_put(VMLINUX_SYMBOL_STR(x))\nvoid symbol_put_addr(void *addr);\n\n/* Sometimes we know we already have a refcount, and it's easier not\n   to handle the error case (which only happens with rmmod --wait). */"
+        },
+        {
+          "line": 747,
+          "text": "\treturn 0;\n}\n\n#define module_put_and_exit(code) do_exit(code)\n\nstatic inline void print_modules(void)\n{\n}\n\nstatic inline bool module_requested_async_probing(struct module *module)\n{\n\treturn false;\n}"
+        }
+      ]
+    },
+    "trunk/linux-4.4.x/kernel/module.c": {
+      "sha256": "9cb816ad8de0dc1bcbe272be34ab8ab42fca9cf1c0ee4924d05b811dbe28368d",
+      "excerpts": [
+        {
+          "line": 362,
+          "text": " * A thread that wants to hold a reference to a module only while it\n * is running can call this to safely exit.  nfsd and lockd use this.\n */\nvoid __module_put_and_exit(struct module *mod, long code)\n{\n\tmodule_put(mod);\n\tdo_exit(code);\n}\nEXPORT_SYMBOL(__module_put_and_exit);\n\n/* Find a module section: 0 means not found. */\nstatic unsigned int find_sec(const struct load_info *info, const char *name)\n{"
+        },
+        {
+          "line": 367,
+          "text": "\tmodule_put(mod);\n\tdo_exit(code);\n}\nEXPORT_SYMBOL(__module_put_and_exit);\n\n/* Find a module section: 0 means not found. */\nstatic unsigned int find_sec(const struct load_info *info, const char *name)\n{\n\tunsigned int i;\n\n\tfor (i = 1; i < info->hdr->e_shnum; i++) {\n\t\tElf_Shdr *shdr = &info->sechdrs[i];\n\t\t/* Alloc bit cleared means \"ignore it.\" */"
+        }
+      ]
+    },
+    "trunk/linux-4.4.x/include/linux/kthread.h": {
+      "sha256": "980abcb44ef374f16c2df9cdd83f89ea241e42d1009855b25b0ce8207f9e05fe",
+      "excerpts": [
+        {
+          "line": 8,
+          "text": "\n__printf(4, 5)\nstruct task_struct *kthread_create_on_node(int (*threadfn)(void *data),\n\t\t\t\t\t   void *data,\n\t\t\t\t\t   int node,\n\t\t\t\t\t   const char namefmt[], ...);\n\n#define kthread_create(threadfn, data, namefmt, arg...) \\\n\tkthread_create_on_node(threadfn, data, NUMA_NO_NODE, namefmt, ##arg)\n\n"
+        },
+        {
+          "line": 13,
+          "text": "\t\t\t\t\t   const char namefmt[], ...);\n\n#define kthread_create(threadfn, data, namefmt, arg...) \\\n\tkthread_create_on_node(threadfn, data, NUMA_NO_NODE, namefmt, ##arg)\n\n\nstruct task_struct *kthread_create_on_cpu(int (*threadfn)(void *data),\n\t\t\t\t\t  void *data,\n\t\t\t\t\t  unsigned int cpu,\n\t\t\t\t\t  const char *namefmt);\n"
+        },
+        {
+          "line": 14,
+          "text": "\n#define kthread_create(threadfn, data, namefmt, arg...) \\\n\tkthread_create_on_node(threadfn, data, NUMA_NO_NODE, namefmt, ##arg)\n\n\nstruct task_struct *kthread_create_on_cpu(int (*threadfn)(void *data),\n\t\t\t\t\t  void *data,\n\t\t\t\t\t  unsigned int cpu,\n\t\t\t\t\t  const char *namefmt);\n\n/**"
+        }
+      ]
+    }
+  },
+  "runtime_verified": false,
+  "release_implemented": false,
+  "verified_mechanism": "Core __module_put_and_exit is exported, noreturn declared; module_put then do_exit. CONFIG_MODULES-disabled macro maps to do_exit.",
+  "compile_probe_prepared": true,
+  "probe_script_sha256": "338f8cc256787c4d22210de2734ae64d524cf5a45677494104c8ba99f638ac05",
+  "target_compiled": false,
+  "context_probe": "Designated PF_KTHREAD task excluding PF_WQ_WORKER, stopped create via kthread_create, no wake"
+}

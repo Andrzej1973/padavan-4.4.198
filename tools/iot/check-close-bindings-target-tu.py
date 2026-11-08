@@ -9,11 +9,24 @@ def probe_source(driver,local):
         local/'driver-api-close-finish-binding.inc',local/'driver-api-close-recovery-binding.inc',
         local/'driver-api-close-finish-recovery.inc',local/'driver-api-close-entry.inc']
  if any('"' in str(f) or '\n' in str(f) for f in files):raise ValueError('Unsupported include path')
- return '#include <linux/module.h>\n'+''.join('#include "'+str(f)+'"\n' for f in files)+'''
+ return '#include <linux/module.h>\n#include <linux/kthread.h>\n'+''.join('#include "'+str(f)+'"\n' for f in files)+'''
 int wr_iot_close_bindings_target_probe(RTMP_ADAPTER *ad,PNET_DEV dev,
  struct ifreq *rq,unsigned char *wire)
 {
  return wr_iot_driver_close_reply(ad,dev,rq,wire);
+}
+/* Compile-only kernel-thread tail; never routed or invoked by firmware. */
+int wr_iot_close_module_exit_target_probe(struct task_struct *designated)
+{
+ if(current!=designated || !(current->flags&PF_KTHREAD) ||
+    (current->flags&PF_WQ_WORKER))return -EPERM;
+ module_put_and_exit(0);
+}
+/* Create stopped: an eventual binding must publish exact task ownership
+ * before waking it. This compile-only probe is not called by the driver. */
+struct task_struct *wr_iot_close_module_create_target_probe(int (*fn)(void *),void *data)
+{
+ return kthread_create(fn,data,"wr-iot-retire");
 }
 '''
 
@@ -69,6 +82,16 @@ def main():
    symbols=subprocess.check_output([nm[:-3]+'nm','-S',str(obj)],text=True)
    row=next((s.split() for s in symbols.splitlines() if s.endswith(' wr_iot_close_bindings_target_probe')),None)
    if not row or len(row)!=4 or row[2].upper()!='T' or int(row[1],16)<=8:raise RuntimeError('Probe missing or optimized to trivial refusal')
+   exit_row=next((s.split() for s in symbols.splitlines() if s.endswith(' wr_iot_close_module_exit_target_probe')),None)
+   if not exit_row or len(exit_row)!=4 or exit_row[2].upper()!='T':raise RuntimeError('Nonreturning module exit probe missing')
+   undefined=subprocess.check_output([nm[:-3]+'nm','-u',str(obj)],text=True)
+   if not any(line.split()[-1:] in [['__module_put_and_exit'],['do_exit']] for line in undefined.splitlines()):raise RuntimeError('Expected core module exit relocation')
+   if not any(line.split()[-1:]==['kthread_create_on_node'] for line in undefined.splitlines()):raise RuntimeError('Expected stopped kthread-create relocation')
+   create_row=next((s.split() for s in symbols.splitlines() if s.endswith(' wr_iot_close_module_create_target_probe')),None)
+   if not create_row or len(create_row)!=4 or create_row[2].upper()!='T':raise RuntimeError('Stopped kthread create probe missing')
+   report['nonreturning_module_exit_compiled']=True
+   report['stopped_kthread_create_compiled']=True
+   report['thread_exit_context_checks']='designated current task, PF_KTHREAD, not PF_WQ_WORKER; compile only'
    if (root/'.config').read_bytes()!=before:raise RuntimeError('Kernel config changed')
    if source.read_bytes()!=driver_input or any((local/name).read_bytes()!=data for name,data in binding_inputs.items()):raise RuntimeError('CLOSE source changed during target probe')
    a.output.with_suffix('.o').write_bytes(blob)
