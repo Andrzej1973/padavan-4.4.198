@@ -70,7 +70,7 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   gcc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
     -Itools/iot "$results/checked-radio-result.c" -o "$results/checked-radio-result"
   "$results/checked-radio-result"
-  for fixture in check-mcu-sender-owner check-mcu-sender-wrapper check-mcu-sender-drain check-mcu-sender-release check-mcu-message-lifetime check-mcu-sequence-reservation check-precreated-profile check-precreated-bss-admission check-activation check-precreated-activation check-precreated-loaded-config check-precreated-open-proof check-precreated-profile-request check-precreated-boot-request check-precreated-entropy check-driver-api-wire check-driver-api-open-entry check-driver-api-owner check-driver-api-owner-binding check-driver-api-client check-driver-api-incarnation check-mbss-close-receipt check-mt7603-closed-observe check-mbss-closed-probe check-mt7603-closed-binding check-driver-api-receipt check-driver-api-closed-entry check-driver-api-close-admission check-driver-api-close-owner; do
+  for fixture in check-mcu-sender-owner check-mcu-sender-wrapper check-mcu-sender-drain check-mcu-sender-release check-mcu-message-lifetime check-mcu-sequence-reservation check-precreated-profile check-precreated-bss-admission check-activation check-precreated-activation check-precreated-loaded-config check-precreated-open-proof check-precreated-profile-request check-precreated-boot-request check-precreated-entropy check-driver-api-wire check-driver-api-open-entry check-driver-api-owner check-driver-api-owner-binding check-driver-api-client check-driver-api-incarnation check-mbss-close-receipt check-mt7603-closed-observe check-mbss-closed-probe check-mt7603-closed-binding check-driver-api-receipt check-driver-api-closed-entry check-driver-api-close-admission check-driver-api-close-owner check-driver-api-close-binding; do
     gcc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
       -Itools/iot "tools/iot/$fixture.c" -o "$results/$fixture"
     "$results/$fixture"
@@ -330,6 +330,7 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   # the new Linux ABI last, test its actual transformed wrapper, then compile
   # and hash this final source below. This remains an isolated candidate.
   cp "$merged/include/radio-transition.h" "$results/pre-linux-api-radio-transition.h"
+  python3 tools/iot/check-close-owner-composition.py > "$results/close-owner-composition.txt"
   python3 tools/iot/prepare-driver-api.py "$merged" --install-isolated
   python3 tools/iot/check-driver-api-transition.py "$results/pre-linux-api-radio-transition.h" "$merged" > "$results/linux-api-transition.txt"
   python3 tools/iot/check-driver-api-mbss.py "$merged" > "$results/linux-open-api-mbss.txt"

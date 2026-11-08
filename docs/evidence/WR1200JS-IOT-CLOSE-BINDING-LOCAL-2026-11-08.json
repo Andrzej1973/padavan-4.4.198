@@ -1,0 +1,18 @@
+{
+  "scope": "Actual adapter-bound take helper, not installed in generated driver",
+  "files": {
+    "tools/iot/driver-api-close-binding.inc": "b68b3cf085eb18b44ba09c82c4f225e6c5acff8c984f5567f1bbc7dd16ad06d0",
+    "tools/iot/check-driver-api-close-binding.c": "c8bf18b3ceea05f1a12a947c7028bdcebb72a6b2d15622b88c9505a3a404457a"
+  },
+  "host_asan_ubsan": "PASS",
+  "legacy_no_owner_sentinel": 1,
+  "owned_failure_sentinel": -1,
+  "owned_success_sentinel": 0,
+  "duplicate_take_refused": true,
+  "ticket_serial_unchanged": true,
+  "locks_balanced": true,
+  "recovery_owner_retained": true,
+  "generator_integration": false,
+  "target_compiled": false,
+  "runtime_verified": false
+}

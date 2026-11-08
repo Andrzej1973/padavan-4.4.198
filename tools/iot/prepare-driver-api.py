@@ -20,9 +20,11 @@ def one(name,old,new):
  if s.count(old)!=1:p.error('OPEN API anchor changed: '+name+' '+repr(old[:65]))
  changes[name]=s.replace(old,new,1)
 guard='#if defined(MT7603) && defined(MT_MAC) && defined(RTMP_PCI_SUPPORT)'
-one('include/rtmp.h','#include "interface-registry.h"','#include "interface-registry.h"\n'+guard+'\n#include "driver-api-owner.h"\n#include "mbss-closed-probe.h"\n#endif')
-one('include/rtmp.h','NDIS_SPIN_LOCK wr_iot_transition_lock;','NDIS_SPIN_LOCK wr_iot_transition_lock;\n'+guard+'\n struct wr_iot_driver_owner wr_iot_driver_owner;\n struct wr_iot_mbss_closed_probe wr_iot_closed_probe;\n#endif')
-one('common/rtmp_init.c','pAd->wr_iot_control_users=pAd->wr_iot_control_poisoned=0;','pAd->wr_iot_control_users=pAd->wr_iot_control_poisoned=0;\n        NdisZeroMemory(&pAd->wr_iot_driver_owner,sizeof(pAd->wr_iot_driver_owner));\n        NdisZeroMemory(&pAd->wr_iot_closed_probe,sizeof(pAd->wr_iot_closed_probe));')
+close_composition=runpy.run_path(str(local/'close-owner-composition.py'))['compose']
+changes['include/wr-iot-mbss-close-checked.inc']=close_composition((src/'include/wr-iot-mbss-close-checked.inc').read_text())
+one('include/rtmp.h','#include "interface-registry.h"','#include "interface-registry.h"\n'+guard+'\n#include "driver-api-owner.h"\n#include "driver-api-close-owner.h"\n#include "mbss-closed-probe.h"\n#endif')
+one('include/rtmp.h','NDIS_SPIN_LOCK wr_iot_transition_lock;','NDIS_SPIN_LOCK wr_iot_transition_lock;\n'+guard+'\n struct wr_iot_driver_owner wr_iot_driver_owner;\n struct wr_iot_driver_close_owner wr_iot_close_owner;\n struct wr_iot_mbss_closed_probe wr_iot_closed_probe;\n#endif')
+one('common/rtmp_init.c','pAd->wr_iot_control_users=pAd->wr_iot_control_poisoned=0;','pAd->wr_iot_control_users=pAd->wr_iot_control_poisoned=0;\n        NdisZeroMemory(&pAd->wr_iot_driver_owner,sizeof(pAd->wr_iot_driver_owner));\n        NdisZeroMemory(&pAd->wr_iot_close_owner,sizeof(pAd->wr_iot_close_owner));\n        NdisZeroMemory(&pAd->wr_iot_closed_probe,sizeof(pAd->wr_iot_closed_probe));')
 one('include/wr-iot-mcu-control-admission.inc','ready=!ad->wr_iot_control_poisoned&&!ad->wr_iot_boot_active&&','ready=!ad->wr_iot_driver_owner.active&&!ad->wr_iot_driver_owner.poisoned&&\n       !ad->wr_iot_control_poisoned&&!ad->wr_iot_boot_active&&')
 # Reserved IoT close already revokes its producer and checked executor disables
 # its CR. Preserve MAC-mode remake, but do not advance shared DTIM/coexistence
@@ -122,7 +124,7 @@ if s.count(raw_anchor)!=1:p.error('MBSS raw mutation boundary changed')
 s=s.replace(raw_anchor,' if(observe_iot)adapter->wr_iot_driver_owner.mutation_started=1;\n'+raw_anchor,1)
 s='#include "precreated-key-match.h"\n'+s
 changes[name]=s
-for n in ('beacon-filter-owner.h','beacon-filter-owner-kernel.h','driver-api-owner.h','driver-api-wire.h','driver-api-owner-binding.inc','driver-api-open-entry.inc','driver-api-identity.inc','radio-transition-api.h','mbss-close-receipt.h','mbss-closed-probe.h','mt7603-closed-observe.h','mt7603-closed-probe-binding.inc','driver-api-closed-entry.inc'):
+for n in ('driver-api-close-admission.h','driver-api-close-owner.h','driver-api-close-binding.inc','beacon-filter-owner.h','beacon-filter-owner-kernel.h','driver-api-owner.h','driver-api-wire.h','driver-api-owner-binding.inc','driver-api-open-entry.inc','driver-api-identity.inc','radio-transition-api.h','mbss-close-receipt.h','mbss-closed-probe.h','mt7603-closed-observe.h','mt7603-closed-probe-binding.inc','driver-api-closed-entry.inc'):
  changes['include/'+n]=(local/n).read_text()
 # Historical stages use the frozen base; only the API successor receives the extension.
 # Extend the accumulated successor, not the frozen base: previous layers add
