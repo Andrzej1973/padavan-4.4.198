@@ -1,0 +1,13 @@
+{
+  "scope": "Target probe prepared, NOT executed for MIPS",
+  "probe_generation": "PASS entry/finish/recovery references present, no dev_close execution",
+  "shell_syntax": "PASS",
+  "hashes": {
+    "tools/iot/check-close-bindings-target-tu.py": "361d778d37e6214fe91e1c399d2426efafe6a0cd8541df2deb9ac559ba2b4e4d",
+    "tools/iot/ci-compile-merged-candidate.sh": "4ea285a554d9b9ca4f81f6e39b968b643a4ca8c0c30cccc4f3328d0e9728e0fe"
+  },
+  "target_compiled": false,
+  "runtime_verified": false,
+  "production_endpoint_installed": false,
+  "failure_report": "PASS missing Kbuild command returns failure JSON, never target success"
+}
