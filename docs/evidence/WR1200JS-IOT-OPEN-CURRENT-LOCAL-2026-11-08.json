@@ -1,0 +1,22 @@
+{
+  "scope": "Current owned OPEN reference snapshot and proposed wire; no ioctl/RC consumer yet",
+  "sha256": {
+    "tools/iot/driver-api-open-current.h": "8aef50625cde39b8d0f9e1907aade9d363e0bf8313b07fc7af997e52411b5447",
+    "tools/iot/driver-api-open-current-wire.h": "c2cd892cf6763bc0d7f92d81499c90d9ff873d01df23774f6359d0ad32cb56f2",
+    "tools/iot/check-driver-api-open-current.c": "be715e7aafc51cf3b2a4df8bc79de911334e51f1f941531d3176b6bbff14add4",
+    "tools/iot/check-driver-api-open-current-wire.c": "fe9d70d91debb7ae99f956e59dd07ba41e825f0a77f85fc2729197b7b4264b89"
+  },
+  "host_asan_ubsan": "PASS",
+  "shared_actual_close_admission_checked": true,
+  "valid_guest_absent_present": true,
+  "invalid_states": 27,
+  "snapshot_no_state_mutation": true,
+  "failure_output_cleared": true,
+  "wire_query_opcode": 11,
+  "wire_reply_opcode": 12,
+  "nonce_epoch_generation_bound_token": true,
+  "does_not_authorize_isolation_release": true,
+  "target_compiled": false,
+  "endpoint_bound": false,
+  "runtime_verified": false
+}

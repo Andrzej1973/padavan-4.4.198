@@ -1,0 +1,22 @@
+{
+  "scope": "Proposed request syntax only, Linux API endpoint not installed",
+  "hashes": {
+    "tools/iot/driver-api-close-wire.h": "e9616dea37fc6c253eb55333faf5804e789678d6c7958aa9c37cec0a9fc9d428",
+    "tools/iot/check-driver-api-close-wire.c": "40f9dbb0223450b657977807a2192f52630c880875a27b9f951598d7aff5ec63"
+  },
+  "host_asan_ubsan": "PASS",
+  "record_bytes": 64,
+  "opcode": 10,
+  "fields": [
+    "original OPEN nonce16",
+    "adapter epoch64",
+    "device generation64",
+    "open token64"
+  ],
+  "contains_credentials": false,
+  "response_decoders_reject_request": true,
+  "rc_gap": "Tracked RC attempt stores nonce/epoch/generation but no current successful OPEN token; implement owned current OPEN receipt query before constructing CLOSE, do not infer serial or use historical CLOSED token",
+  "target_compiled": false,
+  "endpoint_bound": false,
+  "runtime_verified": false
+}

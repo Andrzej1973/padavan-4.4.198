@@ -2,6 +2,7 @@
 #define WR_IOT_DRIVER_API_CLIENT_H
 #include "driver-api-wire.h"
 #include "request.h"
+#include "driver-api-open-current-wire.h"
 enum wr_iot_driver_submit_result {
  WR_IOT_DRIVER_NOT_SUBMITTED=0,
  WR_IOT_DRIVER_OPEN_COMPLETED=1,
@@ -44,4 +45,8 @@ int wr_iot_driver_closed_configuration_read(const unsigned char *,
 int wr_iot_driver_refusal_read(const unsigned char *,struct wr_iot_driver_refusal_result *);
 /* Diagnostic only: never authorizes retry, rollback or isolation release. */
 int wr_iot_driver_uncertain_read(const struct wr_iot_driver_attempt *,struct wr_iot_driver_uncertain_result *);
+/* Current owned-reference snapshot only. Caller retains original OPEN attempt;
+ * a subsequent CLOSE must revalidate token/identity, not rely on this as lease. */
+int wr_iot_driver_open_current_read(const struct wr_iot_driver_attempt *,
+ struct wr_iot_driver_open_current_result *);
 #endif

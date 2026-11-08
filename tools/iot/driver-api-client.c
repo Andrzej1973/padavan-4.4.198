@@ -145,3 +145,19 @@ int wr_iot_driver_uncertain_read(const struct wr_iot_driver_attempt *attempt,str
     observed.device_generation!=attempt->identity.device_generation)return 0;
  *out=observed;return 1;
 }
+
+int wr_iot_driver_open_current_read(const struct wr_iot_driver_attempt *attempt,
+ struct wr_iot_driver_open_current_result *out)
+{
+ struct ifreq request={0};unsigned char wire[64]={0};int fd,result,closed;
+ if(!out)return 0;
+ memset(out,0,sizeof(*out));
+ if(!attempt||!attempt->identity.adapter_epoch||!attempt->identity.device_generation||
+    !wr_iot_driver_open_current_query_encode(wire,sizeof(wire),attempt->request_id))return 0;
+ fd=socket(AF_INET,SOCK_DGRAM|SOCK_CLOEXEC,0);if(fd<0)return 0;
+ memcpy(request.ifr_name,"ra2",4);request.ifr_data=(char *)wire;
+ result=ioctl(fd,WR_IOT_DRIVER_IOCTL_CLOSED_CONFIG,&request);closed=close(fd);
+ if(result||closed)return 0;
+ return wr_iot_driver_open_current_decode(out,attempt->request_id,
+   attempt->identity.adapter_epoch,attempt->identity.device_generation,wire,sizeof(wire));
+}

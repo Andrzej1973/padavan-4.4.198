@@ -1,0 +1,22 @@
+{
+  "scope": "Local isolated driver/RC generator wiring and actual syscall-injected client/endpoint",
+  "sha256": {
+    "tools/iot/driver-api-client.c": "2927c7324fc234d0b6300b5c73040a674da58c07d6674afa30e54864ce1aa043",
+    "tools/iot/driver-api-client.h": "500d726f2876356e6e99eab3c4b621814f7a55866398793ba89d4fc0c6334616",
+    "tools/iot/driver-api-open-current-entry.inc": "94b9dbac74960ce4c80fd3ba2bd4eb625cb931369edeae99af2925e09ae4bdf5",
+    "tools/iot/check-driver-api-open-current-entry.c": "9ad223dd7d882d8d9f5ec30e67ea183d2ecf434345cf3c355242c85da7a95349",
+    "tools/iot/check-driver-api-client.c": "3669e7f480758c008edc2379a01dcf8c9d5ad47eef980c8852c249a7ef647c96",
+    "tools/iot/prepare-driver-api.py": "ae8935817a8b780147dbc7226d90553ea4b3670b49b522de3860f526e7bccc7e",
+    "tools/iot/prepare-rc.py": "b959d781bde66c9ee722f33358c87cf33db61df6027ce189abb855d6f11291a7"
+  },
+  "client_host_asan_ubsan": "PASS",
+  "entry_host_asan_ubsan": "PASS",
+  "read_only": true,
+  "ioctl_transport": "Existing privileged RTNL CLOSED_CONFIG transport, query opcode11 reply12",
+  "user_copy_outside_spinlock": true,
+  "full_generator_chain_verified": false,
+  "target_compiled": false,
+  "close_endpoint_installed": false,
+  "isolation_release_authorized": false,
+  "runtime_verified": false
+}

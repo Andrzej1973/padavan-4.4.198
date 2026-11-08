@@ -124,8 +124,11 @@ if s.count(raw_anchor)!=1:p.error('MBSS raw mutation boundary changed')
 s=s.replace(raw_anchor,' if(observe_iot)adapter->wr_iot_driver_owner.mutation_started=1;\n'+raw_anchor,1)
 s='#include "precreated-key-match.h"\n'+s
 changes[name]=s
-for n in ('driver-api-close-admission.h','driver-api-close-owner.h','driver-api-close-binding.inc','beacon-filter-owner.h','beacon-filter-owner-kernel.h','driver-api-owner.h','driver-api-wire.h','driver-api-owner-binding.inc','driver-api-open-entry.inc','driver-api-identity.inc','radio-transition-api.h','mbss-close-receipt.h','mbss-closed-probe.h','mt7603-closed-observe.h','mt7603-closed-probe-binding.inc','driver-api-closed-entry.inc'):
+for n in ('driver-api-close-wire.h','driver-api-open-current-wire.h','driver-api-open-current.h','driver-api-open-current-entry.inc','driver-api-close-admission.h','driver-api-close-owner.h','driver-api-close-binding.inc','beacon-filter-owner.h','beacon-filter-owner-kernel.h','driver-api-owner.h','driver-api-wire.h','driver-api-owner-binding.inc','driver-api-open-entry.inc','driver-api-identity.inc','radio-transition-api.h','mbss-close-receipt.h','mbss-closed-probe.h','mt7603-closed-observe.h','mt7603-closed-probe-binding.inc','driver-api-closed-entry.inc'):
  changes['include/'+n]=(local/n).read_text()
+# Reuse existing privileged, RTNL-checked 64-byte observation transport.
+compose_open_current=runpy.run_path(str(local/'open-current-composition.py'))['compose']
+changes['include/driver-api-closed-entry.inc']=compose_open_current(changes['include/driver-api-closed-entry.inc'])
 # Historical stages use the frozen base; only the API successor receives the extension.
 # Extend the accumulated successor, not the frozen base: previous layers add
 # shutdown/cleanup fields and lifecycle transitions that must survive this API.

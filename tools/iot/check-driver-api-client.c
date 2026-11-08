@@ -25,7 +25,10 @@ static int fake_ioctl(int fd,unsigned long command,...){
   if(bad_reply)r->ifr_data[4]=99;
  }else if(command==WR_IOT_DRIVER_IOCTL_CLOSED_CONFIG){
   unsigned char id[16];unsigned char *wire=(unsigned char *)r->ifr_data;
-  if(wire[4]==8){
+  if(wire[4]==11){
+   assert(wr_iot_driver_open_current_query_decode(id,wire,64));
+   assert(wr_iot_driver_open_current_encode(wire,64,id,1,2,3));
+  }else if(wire[4]==8){
    assert(wr_iot_driver_uncertain_query_decode(id,wire,64));
    assert(wr_iot_driver_uncertain_encode(wire,64,id,1,2,3));
   }else if(wire[4]==6){
@@ -142,6 +145,15 @@ int main(void){
  ioctl_error=1;assert(!wr_iot_driver_attempt_closed(&attempt,&state));ioctl_error=0;
  assert(!wr_iot_driver_attempt_closed(NULL,&state)&&!state.close_serial);
  assert(!wr_iot_driver_attempt_closed(&attempt,NULL));
+ struct wr_iot_driver_open_current_result current;
+ assert(wr_iot_driver_open_current_read(&attempt,&current)&&current.open_token==3);
+ attempt.identity.adapter_epoch++;assert(!wr_iot_driver_open_current_read(&attempt,&current)&&!current.open_token);attempt.identity.adapter_epoch--;
+ attempt.identity.device_generation++;assert(!wr_iot_driver_open_current_read(&attempt,&current)&&!current.open_token);attempt.identity.device_generation--;
+ for(bad_closed_reply=1;bad_closed_reply<=4;bad_closed_reply++)assert(!wr_iot_driver_open_current_read(&attempt,&current)&&!current.open_token);
+ bad_closed_reply=0;ioctl_error=1;assert(!wr_iot_driver_open_current_read(&attempt,&current)&&!current.open_token);ioctl_error=0;
+ close_error=1;assert(!wr_iot_driver_open_current_read(&attempt,&current)&&!current.open_token);close_error=0;
+ socket_error=1;assert(!wr_iot_driver_open_current_read(&attempt,&current)&&!current.open_token);socket_error=0;
+ assert(!wr_iot_driver_open_current_read(NULL,&current)&&!current.open_token);
  socket_error=1;
  assert(wr_iot_driver_open_requested_tracked(id,&requested,&attempt)==WR_IOT_DRIVER_NOT_SUBMITTED);
  assert(!attempt.identity.adapter_epoch&&!attempt.identity.device_generation);
