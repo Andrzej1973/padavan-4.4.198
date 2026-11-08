@@ -1,0 +1,19 @@
+{
+  "scope": "LOCAL uninstalled progress transport privilege/interface checks",
+  "sha256": {
+    "tools/iot/driver-api-close-progress-ioctl.inc": "0b5748011e5c8e595ba471dc2e75b9aec8e4379f6dd5b99f89c53155299f621e",
+    "tools/iot/check-driver-api-close-progress-ioctl.c": "aa455d52d0eee982d9ff010e9a9ae2518ae4da6359d08c6760065f5bc6ae3ff4",
+    "tools/iot/check-close-bindings-target-tu.py": "79f6455d3dd1d0dd407c7f908b2826fb9eff9b532a5a1b4804bc8e6bf8cd5e7d",
+    "tools/iot/ci-compile-merged-candidate.sh": "9740082a4bb867f7c4366feaffdb9211d8aef5bc381d487ad117c9a58c19ab83",
+    "docs/WR1200JS-IOT-CLOSE-PROGRESS-API.md": "ae47ca838918f77234447c5dc6f7036d530b62712c16ef03e3ce7b0c5fe248cf"
+  },
+  "checks": "11 host scenarios PASS -O2 ASan/UBSan plus null arguments; Python AST/bash/diff PASS",
+  "ordering": "RTNL then namespace CAP_NET_ADMIN then MT7603 then locked exact third BSS/netdev identity before fixed64 copy; strict decode before orchestration",
+  "length_contract": "ifreq private transport has no user-provided length field; fixed64 copy fault refuses; decoder checks format not accessibility",
+  "target_probe": "Actual transport included and exported compile-only caller prepared",
+  "production_installed": false,
+  "target_verified": false,
+  "runtime_verified": false,
+  "cleanup": "TemporaryDirectory binaries removed",
+  "package_verification": "22 optimized CLOSE fixtures PASS ASan/UBSan; actual transport through decoder/matcher/launch/reconcile composed; target integration pending"
+}

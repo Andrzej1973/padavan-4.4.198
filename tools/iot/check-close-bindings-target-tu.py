@@ -7,12 +7,12 @@ unwrap_ccache=runpy.run_path(str(Path(__file__).with_name('kbuild-compiler.py'))
 
 def probe_source(driver,local):
  files=[driver/'os/linux/rt_main_dev.c',local/'driver-api-close-finish.h',
-        local/'driver-api-close-recovery.h',local/'driver-api-close-enter.inc',
+        local/'driver-api-close-recovery.h',local/'driver-api-close-progress-match.h',local/'driver-api-close-enter.inc',
         local/'driver-api-close-finish-binding.inc',local/'driver-api-close-recovery-binding.inc',
         local/'driver-api-close-synchronous-put.h',local/'driver-api-close-synchronous-put.inc',
         local/'driver-api-close-finish-recovery.inc',local/'driver-api-close-entry.inc',
         local/'driver-api-close-retirement.h',local/'driver-api-close-retirement-binding.inc',
-        local/'driver-api-close-retirement-create.inc',local/'driver-api-close-retirement-cancel.inc',local/'driver-api-close-retirement-start.inc',local/'driver-api-close-retirement-thread-entry.inc',local/'driver-api-close-retirement-thread-body.inc',local/'driver-api-close-retirement-launch.inc',local/'driver-api-close-retirement-reconcile.inc']
+        local/'driver-api-close-retirement-create.inc',local/'driver-api-close-retirement-cancel.inc',local/'driver-api-close-retirement-start.inc',local/'driver-api-close-retirement-thread-entry.inc',local/'driver-api-close-retirement-thread-body.inc',local/'driver-api-close-retirement-launch.inc',local/'driver-api-close-retirement-reconcile.inc',local/'driver-api-close-progress.inc',local/'driver-api-close-progress-wire.h',local/'driver-api-close-progress-entry.inc',local/'driver-api-close-progress-ioctl.inc']
  if any('"' in str(f) or '\n' in str(f) for f in files):raise ValueError('Unsupported include path')
  return '#include <linux/module.h>\n#include <linux/kthread.h>\n#include <linux/sched.h>\n#include <linux/rtnetlink.h>\n'+''.join('#include "'+str(f)+'"\n' for f in files)+'''
 int wr_iot_close_bindings_target_probe(RTMP_ADAPTER *ad,PNET_DEV dev,
@@ -23,6 +23,17 @@ int wr_iot_close_bindings_target_probe(RTMP_ADAPTER *ad,PNET_DEV dev,
 int wr_iot_close_synchronous_put_target_probe(RTMP_ADAPTER *ad,PNET_DEV dev)
 {
  return wr_iot_driver_close_synchronous_put(ad,dev);
+}
+int wr_iot_close_progress_match_target_probe(RTMP_ADAPTER *ad,PNET_DEV dev,
+ const struct wr_iot_driver_close_request *request)
+{
+ ULONG flags=0;int matched;
+ if(!ad)return 0;
+ RTMP_IRQ_LOCK(&ad->wr_iot_transition_lock,flags);
+ matched=wr_iot_driver_close_progress_matches(&ad->wr_iot_close_owner,
+  &ad->wr_iot_driver_owner,dev,request);
+ RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);
+ return matched;
 }
 /* Compile-only locked designation: actual adapter/work fields checked. */
 int wr_iot_close_retirement_target_probe(RTMP_ADAPTER *ad,const void *stopped_task)
@@ -70,6 +81,21 @@ int wr_iot_close_retirement_reconcile_target_probe(RTMP_ADAPTER *ad,struct task_
 {
  return wr_iot_driver_close_retirement_reconcile(ad,task);
 }
+int wr_iot_close_progress_target_probe(RTMP_ADAPTER *ad,PNET_DEV dev,
+ const struct wr_iot_driver_close_request *request)
+{
+ return wr_iot_driver_close_progress(ad,dev,request);
+}
+int wr_iot_close_progress_reply_target_probe(RTMP_ADAPTER *ad,PNET_DEV dev,
+ const unsigned char *wire)
+{
+ return wr_iot_driver_close_progress_reply(ad,dev,wire);
+}
+int wr_iot_close_progress_ioctl_target_probe(RTMP_ADAPTER *ad,PNET_DEV dev,
+ struct ifreq *rq)
+{
+ return wr_iot_driver_close_progress_ioctl(ad,dev,rq);
+}
 /* Compile-only kernel-thread tail; never routed or invoked by firmware. */
 int wr_iot_close_module_exit_target_probe(struct task_struct *designated)
 {
@@ -112,11 +138,11 @@ def main():
   if len(sources)!=1:raise RuntimeError('Expected one C source')
   source=Path(sources[0]);source=source if source.is_absolute() else root/source
   if source.resolve()!=(driver/'os/linux/rt_main_dev.c').resolve():raise RuntimeError('Unexpected source')
-  binding_names=('driver-api-close-finish.h','driver-api-close-recovery.h',
+  binding_names=('driver-api-close-finish.h','driver-api-close-recovery.h','driver-api-close-progress-match.h',
                  'driver-api-close-enter.inc','driver-api-close-finish-binding.inc',
                  'driver-api-close-recovery-binding.inc','driver-api-close-finish-recovery.inc',
                  'driver-api-close-entry.inc','driver-api-close-synchronous-put.h','driver-api-close-synchronous-put.inc','driver-api-close-retirement.h',
-                 'driver-api-close-retirement-binding.inc','driver-api-close-retirement-create.inc','driver-api-close-retirement-cancel.inc','driver-api-close-retirement-start.inc','driver-api-close-retirement-thread-entry.inc','driver-api-close-retirement-thread-body.inc','driver-api-close-retirement-launch.inc','driver-api-close-retirement-reconcile.inc')
+                 'driver-api-close-retirement-binding.inc','driver-api-close-retirement-create.inc','driver-api-close-retirement-cancel.inc','driver-api-close-retirement-start.inc','driver-api-close-retirement-thread-entry.inc','driver-api-close-retirement-thread-body.inc','driver-api-close-retirement-launch.inc','driver-api-close-retirement-reconcile.inc','driver-api-close-progress.inc','driver-api-close-progress-wire.h','driver-api-close-progress-entry.inc','driver-api-close-progress-ioctl.inc')
   binding_inputs={name:(local/name).read_bytes() for name in binding_names}
   driver_input=source.read_bytes()
   report.update(command_sha256=hashlib.sha256(raw).hexdigest(),kernel_config_sha256=hashlib.sha256(before).hexdigest(),

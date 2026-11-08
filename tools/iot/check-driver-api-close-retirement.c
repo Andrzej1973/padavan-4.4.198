@@ -15,6 +15,7 @@ typedef struct {
  void *net_dev;
  struct {unsigned BssidNum;struct {struct {const void *if_dev;}wdev;}MBSSID[3];}ApCfg;
  struct wr_iot_driver_close_owner wr_iot_close_owner;
+ struct wr_iot_driver_owner wr_iot_driver_owner;
  struct wr_iot_radio_transition wr_iot_transition;
  struct wr_iot_interface_ref wr_iot_interface_refs[2];
  struct wr_iot_mbss_recovery_owner wr_iot_mbss_recovery[2];

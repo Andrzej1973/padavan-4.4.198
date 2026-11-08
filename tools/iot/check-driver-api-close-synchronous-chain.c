@@ -30,6 +30,19 @@ static void dev_put(PNET_DEV dev){
 static int wr_iot_driver_close_recovery_submit(RTMP_ADAPTER *ad,PNET_DEV dev){(void)ad;(void)dev;assert(!"synchronous chain queued recovery");return -1;}
 static int wr_iot_mbss_poll_schedule(RTMP_ADAPTER *ad){(void)ad;assert(!"synchronous chain scheduled poll");return -1;}
 #include "driver-api-close-finish-recovery.inc"
+#include "driver-api-close-progress-match.h"
+#include "driver-api-close-progress.inc"
+#include "driver-api-close-progress-wire.h"
+#include "driver-api-close-progress-entry.inc"
+struct ifreq {void *ifr_data;};
+struct progress_namespace {void *user_ns;};
+static struct progress_namespace progress_ns;
+static int progress_capable=1,progress_copy_fault,progress_copies;
+#define CAP_NET_ADMIN 12
+static struct progress_namespace *dev_net(PNET_DEV dev){assert(dev);return &progress_ns;}
+static int ns_capable(void *ns,int cap){assert(ns==progress_ns.user_ns&&cap==12);return progress_capable;}
+static int copy_from_user(void *to,const void *from,unsigned long n){assert(!test_locked&&n==64);progress_copies++;if(progress_copy_fault)return 1;memcpy(to,from,n);return 0;}
+#include "driver-api-close-progress-ioctl.inc"
 int main(void){
  retirement_regressions();
  static RTMP_ADAPTER ad;int dev,main_dev;unsigned long sequence=0;
@@ -63,7 +76,31 @@ int main(void){
  if(scenario==5)wake_accept=0;
  if(scenario==6)create_mode=2;
  if(scenario==7)launch_drift=1;
- int launch_status=wr_iot_driver_close_retirement_launch(&ad,&handle);
+ struct wr_iot_driver_close_request progress={{1},1,2,2};
+ ad.wr_iot_driver_owner.receipt.valid=1;ad.wr_iot_driver_owner.receipt.device=&dev;
+ ad.wr_iot_driver_owner.receipt.epoch=1;ad.wr_iot_driver_owner.receipt.generation=2;
+ ad.wr_iot_driver_owner.receipt.open_token=2;ad.wr_iot_driver_owner.receipt.request_id[0]=1;
+ if(!scenario){
+  progress.open_token++;
+  assert(wr_iot_driver_close_progress(&ad,&dev,&progress)==-EBUSY&&!create_calls);
+  progress.open_token--;
+ }
+ unsigned char progress_wire[64];
+ assert(wr_iot_driver_close_request_encode(progress_wire,64,&progress));
+ assert(wr_iot_driver_close_progress_reply(&ad,&dev,progress_wire)==-EINVAL&&!create_calls);
+ assert(wr_iot_driver_close_progress_encode(progress_wire,64,&progress));
+ struct ifreq progress_rq={progress_wire};
+ progress_capable=0;progress_copies=0;
+ assert(wr_iot_driver_close_progress_ioctl(&ad,&dev,&progress_rq)==(rtnl_held?-EPERM:-EBUSY));
+ assert(!progress_copies&&!create_calls);progress_capable=1;
+ if(rtnl_held){
+  progress_copy_fault=1;
+  assert(wr_iot_driver_close_progress_ioctl(&ad,&dev,&progress_rq)==-EFAULT&&!create_calls);
+  progress_copy_fault=0;
+ }
+ int launch_status=wr_iot_driver_close_progress_ioctl(&ad,&dev,&progress_rq);
+ handle=(struct task_struct *)c->retirement_handle;
+ if(launch_status==-EINPROGRESS)launch_status=0;
  if(scenario>=3){
   assert(launch_status==(scenario==4?-12:scenario==5?-EUCLEAN:-EBUSY));
   assert(c->active&&c->module_held&&chain_puts==1&&!exit_calls);
@@ -91,7 +128,8 @@ int main(void){
    assert(wr_iot_driver_close_retirement_reconcile(&ad,&handle)==-EUCLEAN);
    assert(c->retirement_handle==handle&&handle->refs==2);
    c->generation=saved_generation;
-   assert(!wr_iot_driver_close_retirement_reconcile(&ad,&handle));
+   assert(wr_iot_driver_close_progress(&ad,&dev,&progress)==-EAGAIN);
+   handle=(struct task_struct *)c->retirement_handle;
    assert(!handle&&!c->retirement_handle&&stopped_task.refs==1&&c->module_held&&c->active);
    assert(wr_iot_driver_close_retirement_reconcile(&ad,&handle)==-EINVAL);
   }else{
@@ -103,6 +141,7 @@ int main(void){
   continue;
  }
  assert(!launch_status);
+ assert(wr_iot_driver_close_progress(&ad,&dev,&progress)==-EINPROGRESS&&create_calls==1);
  assert(!handle&&wake_calls==1&&stopped_task.refs==1&&c->retirement_task==&stopped_task);
  /* Inject core scheduling of the exact designated task after callback RTNL. */
  rtnl_held=0;test_current=&stopped_task;stopped_task.flags=PF_KTHREAD;
@@ -121,6 +160,8 @@ int main(void){
  assert(c->active&&c->retirement_module_transferred&&!c->module_held&&!c->retirement_task);
  assert(!wr_iot_driver_close_blocks_adapter_retirement(c));
  assert(c->synchronous_netdev_returned&&!c->recovery_netdev_transferred);
+ rtnl_held=1;
+ assert(!wr_iot_driver_close_progress(&ad,&dev,&progress)&&create_calls==1&&chain_puts==1);
  }
  puts("PASS composed synchronous chain: finish -> one dev_put receipt -> fixed create -> wake -> exact task claim -> core exit; active OPEN fence retained; scheduler/refs injected");
  return 0;

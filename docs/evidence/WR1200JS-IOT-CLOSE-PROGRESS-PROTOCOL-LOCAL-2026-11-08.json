@@ -1,0 +1,22 @@
+{
+  "scope": "LOCAL operation13 progress protocol/reply, not routed in production dispatcher",
+  "sha256": {
+    "tools/iot/driver-api-close-progress-wire.h": "e1c546e1651b66a3e3fde66f22cb4d2c1234974c2412e948584e102243b7294e",
+    "tools/iot/driver-api-close-progress-entry.inc": "d418aafd3096a8f29ff7a62e1e1088b8cebe90dddf62ed413e16d78c4c119cb4",
+    "tools/iot/driver-api-close-progress.inc": "2b66d273c181965be2520ff3d7a2353f29bd15f8aba83b59177ccf6d65c09bc1",
+    "tools/iot/driver-api-close-progress-match.h": "2c57eabab319696cdbe7eb379e538f4caa7e8dc1d86cebfce8217fffebdea5b2",
+    "tools/iot/check-driver-api-close-progress-wire.c": "52cd55c2a7ae316ad9af87416f6965f4acb6861f26e0ea9db6529772a4a9ea90",
+    "tools/iot/check-driver-api-close-synchronous-chain.c": "275436e01a9dd1c1137ef424455a1a12e12280001d86e290573a9028cf83b444",
+    "tools/iot/check-close-bindings-target-tu.py": "79f6455d3dd1d0dd407c7f908b2826fb9eff9b532a5a1b4804bc8e6bf8cd5e7d",
+    "docs/WR1200JS-IOT-CLOSE-PROGRESS-API.md": "ae47ca838918f77234447c5dc6f7036d530b62712c16ef03e3ce7b0c5fe248cf"
+  },
+  "verification": "21 CLOSE fixtures PASS -O2 ASan/UBSan, target-probe Python AST/bash syntax/diff PASS",
+  "protocol": "Strict64 bytes, opcode13 vs CLOSE10 mutually rejected, reserved fields and truncations reject/clear output",
+  "composition": "Actual staged reply decodes progress then executes actual matcher/progress/launch/reconcile chain; CLOSE packet refused before create",
+  "security_boundary": "Common RTNL, CAP_NET_ADMIN, hardware/interface, fixed-length copy enforcement required before routing; reply is not standalone authorized endpoint",
+  "production_installed": false,
+  "target_verified": false,
+  "runtime_verified": false,
+  "cleanup": "Temporary native binaries removed",
+  "package_verification": "22 optimized CLOSE fixtures PASS ASan/UBSan; actual transport through decoder/matcher/launch/reconcile composed; target integration pending"
+}

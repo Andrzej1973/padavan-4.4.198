@@ -1,0 +1,16 @@
+{
+  "scope": "LOCAL locked CLOSE progress request matcher, no endpoint or side effects",
+  "sha256": {
+    "tools/iot/driver-api-close-progress-match.h": "2c57eabab319696cdbe7eb379e538f4caa7e8dc1d86cebfce8217fffebdea5b2",
+    "tools/iot/check-driver-api-close-progress-match.c": "f9caa85626efffae7e354aeee7f7d8c28d8bd84a06ef0ef8202b9b4c6369f73f",
+    "tools/iot/check-close-bindings-target-tu.py": "79f6455d3dd1d0dd407c7f908b2826fb9eff9b532a5a1b4804bc8e6bf8cd5e7d",
+    "tools/iot/ci-compile-merged-candidate.sh": "9740082a4bb867f7c4366feaffdb9211d8aef5bc381d487ad117c9a58c19ab83"
+  },
+  "checks": "15 scenarios PASS -O2 ASan/UBSan; compares wire 64-bit fields before narrowing, rejects wrong nonce/device/ticket/task/reset/poison; owner unchanged",
+  "target_probe": "prepared actual locked vendor-adapter caller",
+  "target_verified": false,
+  "runtime_verified": false,
+  "production_installed": false,
+  "cleanup": "Native test binaries auto-cleaned",
+  "package_verification": "22 optimized CLOSE fixtures PASS ASan/UBSan; actual transport through decoder/matcher/launch/reconcile composed; target integration pending"
+}
