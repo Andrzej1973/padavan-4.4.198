@@ -471,3 +471,13 @@ standalone optimized RC client translation unit and actual syscall-injected
 sanitizer fixture pass. Backend still needs RF/DMA/late-callback evidence for
 possibly mutated BSS, plus service/signal serialization, before production
 binding; configuration snapshots must not silently weaken that requirement.
+
+Reserved IoT close scope correction (local candidate, 2026-11-08): final API
+installer retains APMakeAllBssBeacon/MAC mode handling, kickout and revoke/drain,
+but skips APUpdateAllBeaconFrame only for MT7603 HIF_MT with exactly three BSS
+and closing BSS2. Its target beacon is revoked; periodic updates handle other
+BSS on their normal schedule instead of advancing global DTIM/coexistence as
+an IoT close side effect. Guest, other chips/HIF and other BSS counts keep the
+original calls. Actual extracted MBSS_Close ASan/UBSan fixture verifies these
+branches and failed-drain early exit. Target compilation and physical acceptance
+pending; this does not prove late TxS retirement or RF quiescence.

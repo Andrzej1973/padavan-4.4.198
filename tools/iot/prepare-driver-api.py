@@ -24,6 +24,11 @@ one('include/rtmp.h','#include "interface-registry.h"','#include "interface-regi
 one('include/rtmp.h','NDIS_SPIN_LOCK wr_iot_transition_lock;','NDIS_SPIN_LOCK wr_iot_transition_lock;\n'+guard+'\n struct wr_iot_driver_owner wr_iot_driver_owner;\n struct wr_iot_mbss_closed_probe wr_iot_closed_probe;\n#endif')
 one('common/rtmp_init.c','pAd->wr_iot_control_users=pAd->wr_iot_control_poisoned=0;','pAd->wr_iot_control_users=pAd->wr_iot_control_poisoned=0;\n        NdisZeroMemory(&pAd->wr_iot_driver_owner,sizeof(pAd->wr_iot_driver_owner));\n        NdisZeroMemory(&pAd->wr_iot_closed_probe,sizeof(pAd->wr_iot_closed_probe));')
 one('include/wr-iot-mcu-control-admission.inc','ready=!ad->wr_iot_control_poisoned&&!ad->wr_iot_boot_active&&','ready=!ad->wr_iot_driver_owner.active&&!ad->wr_iot_driver_owner.poisoned&&\n       !ad->wr_iot_control_poisoned&&!ad->wr_iot_boot_active&&')
+# Reserved IoT close already revokes its producer and checked executor disables
+# its CR. Preserve MAC-mode remake, but do not advance shared DTIM/coexistence
+# or rebuild unrelated active beacon buffers as a side effect of this close.
+one('ap/ap_mbss.c','\tAPMakeAllBssBeacon(pAd);\n\tAPUpdateAllBeaconFrame(pAd);',
+    '\tAPMakeAllBssBeacon(pAd);\n\tif (!(IS_MT7603(pAd) && pAd->chipCap.hif_type == HIF_MT &&\n\t      pAd->ApCfg.BssidNum == 3 && BssId == 2))\n\t\tAPUpdateAllBeaconFrame(pAd);')
 main='os/linux/rt_main_dev.c'
 signature='INT rt28xx_ioctl(PNET_DEV net_dev, struct ifreq *rq, INT cmd)\n{'
 one(main,signature,guard+'\n#include <linux/rtnetlink.h>\n#include <linux/capability.h>\n#include "driver-api-owner-binding.inc"\n#include "driver-api-open-entry.inc"\n#include "driver-api-identity.inc"\n#include "mbss-closed-probe.h"\n#include "mt7603-closed-observe.h"\n#include "mt7603-closed-probe-binding.inc"\n#include "driver-api-closed-entry.inc"\n#endif\n'+signature)

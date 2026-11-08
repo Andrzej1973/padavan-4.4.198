@@ -9,7 +9,10 @@
     "common/cmm_data.c": "adb0a9b1587f0d2da7dbcb71f99b7da7a67e6c9550f2f1c7866dc7c7ad22ff7a",
     "include/mac/mac_mt/mt_mac.h": "fbd92533367d0f77d2a41184861e83bda5699899b56c98ed9cc2f64fbde56203",
     "ap/ap_connect.c": "423abcda27d448cd68f9d6fa667c30427fee3ee5019f63ac39ed3b4a0a367d3a",
-    "mac/mt_mac.c": "b9c0fc557ad941d032d00832e71eacceee8cf103d69b7b8a63dba5862fc5dc95"
+    "mac/mt_mac.c": "b9c0fc557ad941d032d00832e71eacceee8cf103d69b7b8a63dba5862fc5dc95",
+    "common/cmm_mac_pci.c": "c9b2c67f9df1e94894cb4c62cec21ce0050d3a90bc51c413ca98b3b8e41d1cb2",
+    "include/iface/rtmp_inf_pcirbs.h": "4b499d401b71f420db2ef2727df39449b81bf3fe0b1c505181f56977353f5850",
+    "include/wr-iot-beacon-producer-kernel.h": "e361ee23fae01a2383b3b9a07138e30656c28fb25196d4dd3d874f854adad121"
   },
   "chain": [
     "AddTxSStatus allocates UNUSED PID and local Generation",
@@ -56,9 +59,53 @@
   },
   "callback_check": {
     "tool": "tools/iot/check-beacon-txs-stop.py",
-    "result": "PASS ASan/UBSan extracted actual BcnTxSHandler: STOP state unchanged, bounds reject, reopened state accepts same raw report and mutates bookkeeping",
-    "scope": "non-DBG selected callback, mock adapter/locks; not device or MMIO",
+    "result": "PASS both ASan/UBSan variants: STOP state unchanged, bounds reject, reopened-state mutation and history wrap witnessed",
+    "scope": "DBG and non-DBG actual callback, mock adapter/locks; timestamp/SN write and history index wrap checked; not device or MMIO",
     "ci": "isolated peer82 after API preparation",
     "implication": "STOP safety cannot be generalized to reopen; report correlation or independently proven report retirement still needed"
+  },
+  "disable_host_txs_alternative": {
+    "existing_control": "TxSTypeCtlPerPktType: host/MCU enable masks indexed by packet type/subtype, not BSS. WlanIdx mask is separate and not per-BSS beacon selection.",
+    "dependency": "Beacon DMA completion changes WRITE_TO_DMA to DMA_DONE; BcnTxSHandler returns it to IDLE. APUpdateBeaconFrame non-IDLE path invokes queue recovery or returns.",
+    "verdict": "No safe per-IoT TxS-off equivalent proven. Global host beacon TxS disable could affect Main/Guest and stall beacon scheduling. Not implemented.",
+    "distinction": "TxS reports are distinct from MCU ACK; neither safety mechanism is disabled."
+  },
+  "retained_buffer_followup": {
+    "observed": "RT28xx_UpdateBeaconToAsic obtains bcn_buf->BeaconPkt and passes packet/buffer to HAL_KickOutMgmtTx, then marks WRITE_TO_DMA. No per-submission clone in this caller.",
+    "limit": "HAL mapping and packet lifetime must be inspected before claiming aliasing or use-after-free; this caller alone does not prove either.",
+    "next": "trace HAL_KickOutMgmtTx implementation and DMA cell ownership before considering callback changes harmless"
+  },
+  "dma_chain": {
+    "dispatch": "HAL_KickOutMgmtTx macro -> RtmpPCIMgmtKickOut",
+    "submission": "MT7603 Q_IDX_BCN selects BcnRing cell; maps pSrcBufVA directly via PCI_MAP_SINGLE, stores same pPacket and mapping, fills SDPtr0/SDLen0 and advances hardware cidx. No packet clone in this function.",
+    "reap": "Beacon completion advances to hardware didx, PCI_UNMAP_SINGLE, clears cell pNdisPacket, then changes WRITE_TO_DMA to DMA_DONE.",
+    "conclusion": "Retained BSS allocation alone does not demonstrate buffer immutability during active DMA. A stale callback changing state to IDLE may invalidate scheduling assumptions if hardware duplicate delivery exists. This is a conditional risk, not a demonstrated device failure.",
+    "host_check": "PASS actual extracted WrBeaconDmaOutstanding ASan/UBSan existing owner/unknown/ring-mismatch/lock-release fixture. No target/device proof.",
+    "scratch": "temporary extraction and binary auto-removed"
+  },
+  "independent_dma_gate_review": {
+    "existing_gate": "wr_iot_bcn_producer_begin calls counted lifetime gate under BcnRingLock; multiple active producers permitted. APUpdateBeaconFrame and APMakeBssTimFrame use it.",
+    "why_snapshot_insufficient": "DMA snapshot locks internally and releases before caller mutates buffer. It neither reserves exclusive builder ownership nor excludes another subsequent submission. Holding BcnRingLock across builder would nest locks used by final submission/recovery.",
+    "implementation_requirements": [
+      "inventory all BeaconPkt writers and all final submissions including APMakeAllBssBeacon",
+      "separate per-BSS exclusive builder ownership from counted lifetime pins",
+      "reserve builder and confirm no mapped cell for same packet before first buffer write under compatible lock ordering",
+      "ensure close revocation waits for builder and publication, retain Main/Guest unaffected",
+      "test concurrent builders, DMA completion, stale TxS, close/reopen and failure paths on actual transformed code"
+    ],
+    "status": "design incomplete; no drop-in snapshot workaround applied; independent DMA safety alone does not prove RF/FIFO quiet"
+  },
+  "all_beacon_writer_audit": {
+    "correction": "APMakeBssBeacon returns on HIF_MT before obtaining/write buffer; do not classify it as active MT beacon writer merely from function name.",
+    "global_close": "MBSS_Close calls APMakeAllBssBeacon then APUpdateAllBeaconFrame after target producer revocation.",
+    "shared_side_effects": "APUpdateAllBeaconFrame advances shared DTIM, evaluates optional 20/40 coexistence changes, calls APUpdateBeaconFrame for all BSS. APMakeAll also recomputes BcnBufIdx and AsicSetMbssMode.",
+    "next_patch_scope": "Evaluate omitting global remake/update only for reserved MT7603 IoT close after checked CR-disable/revocation; prove fixed BssidNum=3/MAC mask and target beacon disable do not depend on those calls. Preserve Guest/other chip behavior. Add actual close-body regression before implementation acceptance.",
+    "status": "local final-API candidate correction implemented and host-tested: skip only APUpdateAllBeaconFrame for MT7603 HIF_MT BssidNum3 closing BSS2; preserve MAC remake, other branches. Not TxS retirement proof."
+  },
+  "close_scope_verification": {
+    "tool": "tools/iot/check-iot-close-beacon-scope.py",
+    "result": "PASS actual extracted MBSS_Close with and without BAND_STEERING, six branch cases; generated OPEN wrapper regression and DBG/non-DBG beacon callback PASS",
+    "target_compiled": false,
+    "runtime_verified": false
   }
 }
