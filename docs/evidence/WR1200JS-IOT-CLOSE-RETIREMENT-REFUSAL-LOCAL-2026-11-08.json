@@ -1,0 +1,19 @@
+{
+  "scope": "LOCAL matching-task refusal cleanup before core bootstrap return, no module handoff",
+  "hashes": {
+    "tools/iot/driver-api-close-retirement-thread-entry.inc": "858350cc8df87f0f5d0e12af5995e3e906f3a7efae55fd49f9917130a851151c",
+    "tools/iot/driver-api-close-owner.h": "5d5cc9990542698819b6e949aab7d2678716962b34b3af65d9a7dc59c37ec76b",
+    "tools/iot/driver-api-close-retirement-binding.inc": "ade9a8f4eb6315126b0d8a76eaa4861a3d189ff295eb0173ee9774ac91875300",
+    "tools/iot/check-driver-api-close-retirement.c": "9f1c83a5a9922bdb726dfbf09f713f1a15de8834af85268775a6bbf8cf622380",
+    "tools/iot/check-close-bindings-target-tu.py": "3805340c8539c221fc82ddbd215e60b0387bd9414a977b4a54fa5fad72274e43"
+  },
+  "host_asan_ubsan": "PASS matching refusal, foreign task unchanged, duplicate no mutation, bad error rejected; entry/start/create/owner regressions; matching canceled task retains cancellation fence",
+  "borrowed_pointer_cleared_on_matching_refusal": true,
+  "module_hold_retained": true,
+  "api_fence_retained": true,
+  "cancellation_fence_preserved": true,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "thread_body_complete": false,
+  "package_regression": "PASS all 16 check-driver-api-close-*.c fixtures with ASan/UBSan; Python AST and bash syntax PASS"
+}

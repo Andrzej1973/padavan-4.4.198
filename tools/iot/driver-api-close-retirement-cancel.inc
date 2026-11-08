@@ -13,7 +13,7 @@ static INT wr_iot_driver_close_retirement_cancel(RTMP_ADAPTER *ad,
  RTMP_IRQ_LOCK(&ad->wr_iot_transition_lock,flags);
  if(!ad->wr_iot_close_owner.active||!ad->wr_iot_close_owner.module_held||
     ad->wr_iot_close_owner.retirement_task!=task||
-    ad->wr_iot_close_owner.retirement_started||ad->wr_iot_close_owner.retirement_canceling){
+    ad->wr_iot_close_owner.retirement_started||ad->wr_iot_close_owner.retirement_entered||ad->wr_iot_close_owner.retirement_canceling){
   RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);return -EBUSY;
  }
  device=ad->wr_iot_close_owner.device;token=ad->wr_iot_close_owner.open_token;

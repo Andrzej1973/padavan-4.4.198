@@ -26,7 +26,9 @@ static INT wr_iot_driver_close_retirement_designate_locked(RTMP_ADAPTER *ad,
 {
  if(!ad||!stopped_task||ad->wr_iot_close_owner.retirement_task||
     ad->wr_iot_close_owner.retirement_started||ad->wr_iot_close_owner.retirement_canceling||
+    ad->wr_iot_close_owner.retirement_entered||
     !wr_iot_driver_close_retirement_ready_locked(ad))return 0;
  ad->wr_iot_close_owner.retirement_task=stopped_task;
+ ad->wr_iot_close_owner.retirement_error=0;
  return 1;
 }

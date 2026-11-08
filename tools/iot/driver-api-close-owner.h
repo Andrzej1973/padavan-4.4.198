@@ -8,7 +8,8 @@ struct wr_iot_driver_close_owner {
  struct wr_iot_radio_ticket ticket;
  const void *device,*task;
  const void *retirement_task;
- unsigned int retirement_started,retirement_canceling;
+ unsigned int retirement_started,retirement_canceling,retirement_entered;
+ int retirement_error;
  unsigned long generation,open_token;
  unsigned int active,consumed;
  unsigned int reference_completed,uncertain;
@@ -35,7 +36,8 @@ static inline int wr_iot_driver_close_reserve(
  record->close_prior_phase=(int)ticket.prior_phase;record->close_prior_ready=ticket.prior_ready;
  close->ticket=ticket;close->device=iot_dev;close->task=task;
  close->generation=generation;close->open_token=open_token;close->retirement_task=0;
- close->retirement_started=close->retirement_canceling=0;
+ close->retirement_started=close->retirement_canceling=close->retirement_entered=0;
+ close->retirement_error=0;
  close->active=1;close->consumed=0;
  close->reference_completed=close->uncertain=0;
  close->netdev_held=close->module_held=close->recovery_netdev_transferred=0;
