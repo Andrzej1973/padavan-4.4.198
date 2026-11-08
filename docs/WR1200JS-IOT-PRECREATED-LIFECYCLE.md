@@ -235,3 +235,28 @@ predecessor extraction fixtures and before final source copy/hash/Kbuild.
 The API's transformed wrapper has its own executable fixture. Predecessor
 fixture success must not be represented as exercising final API semantics.
 Fresh GitHub target compilation and nonsecret identity query remain pending.
+
+Local API follow-up adds CLOSED-BSS identity ioctl0x89fe. It requires RTNL and
+namespace CAP_NET_ADMIN, verifies exact third BSS, owned Main/vendor references,
+idle/nonpoisoned control/bootstrap and READY/nonreset/PM state under the same
+transition lock, then copies a zero-initialized32-byte WRI1/op2 response outside
+the lock. Response contains only BE64 adapter epoch and netdev generation;
+no SSID/key/PMK and no admission ticket. OPEN still rejects stale identities.
+Wire tests cover64-bit endianness, exact lengths, reserved bytes and zero output
+on refusal. Actual query entry is composed with adapter owner in ASan/UBSan
+fixture: privilege before copy, wrong-device/reset/poison refusal, copy error,
+correct response and no ticket/owner mutation all pass. Checked installer routes
+both new ioctls and audits both literal numbers. Retained-source generation and
+MBSS regression pass. New identity code remains local; MIPS query proof pending.
+
+RC transport now has driver-api-client.c/.h: fixed ra2, CLOEXEC datagram socket,
+strict identity response decode and canonical OPEN encoding. Failure before
+OPEN ioctl is NOT_SUBMITTED; any attempted ioctl error or subsequent close
+error is OPEN_UNCERTAIN. OPEN_COMPLETED means synchronous netdev-open only,
+never device/network acceptance. No automatic ioctl retry or logging of keys.
+The client wipes its wire credential buffer on all exits. Actual client host
+fixture passes ASan/UBSan with injected socket/ioctl/close, including partial
+outcome classification. Prepared RC stages/links the client and ABI workflow
+compiles its MIPS object; the actual staging block/native TU and YAML parse
+pass locally. Full fresh generation and target client proof remain pending.
+Activation call sites still need to map uncertainty into retained recovery.

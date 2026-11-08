@@ -8,4 +8,11 @@ for(unsigned n=0;n<160;n++)if(n!=144){assert(!wr_iot_driver_open_decode(&r,w,n))
 for(unsigned i=0;i<144;i++)if((i>=5&&i<8)||(i>=42&&i<48)||(i>=51&&i<80)||i>=88){w[i]=1;assert(!wr_iot_driver_open_decode(&r,w,144));w[i]=0;}
 for(unsigned i=0;i<256;i++){w[40]=i;assert(wr_iot_driver_open_decode(&r,w,144)==(i==3));}w[40]=3;
 for(unsigned i=0;i<256;i++){w[41]=i;assert(wr_iot_driver_open_decode(&r,w,144)==(i==8));}w[41]=8;
+unsigned char response[32];struct wr_iot_driver_identity identity;
+assert(wr_iot_driver_identity_encode(response,32,0x102030405060708ULL,0xfedcba9876543210ULL));
+assert(wr_iot_driver_identity_decode(&identity,response,32));
+assert(identity.adapter_epoch==0x102030405060708ULL&&identity.device_generation==0xfedcba9876543210ULL);
+for(unsigned n=0;n<40;n++)if(n!=32){assert(!wr_iot_driver_identity_decode(&identity,response,n));assert(!identity.adapter_epoch&&!identity.device_generation);}
+for(unsigned i=0;i<32;i++)if((i>=5&&i<8)||i>=24){response[i]=1;assert(!wr_iot_driver_identity_decode(&identity,response,32));response[i]=0;}
+assert(!wr_iot_driver_identity_encode(response,32,0,1));for(unsigned i=0;i<32;i++)assert(!response[i]);
 assert(!wr_iot_driver_open_decode(&r,0,144));assert(!wr_iot_driver_open_decode(0,w,144));return 0;}

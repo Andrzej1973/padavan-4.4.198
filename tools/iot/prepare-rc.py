@@ -681,6 +681,18 @@ if 'int wr_iot_quarantine_apply(void)' in firewall:raise SystemExit('Quarantine 
 firewall+='\n'+(local/'quarantine-apply.inc').read_text(encoding='utf-8')
 path.write_text(firewall,encoding='utf-8')
 report['quarantine_checked_apply_installed']=True
+# Linux API transport is linked only in this isolated prepared RC. Activation
+# still requires the driver's ownership/readback and network recovery backend.
+for name in ('driver-api-client.h','driver-api-wire.h'):
+ (headers/name).write_bytes((local/name).read_bytes())
+client=(local/'driver-api-client.c').read_text(encoding='utf-8')
+client=client.replace('#include "driver-api-client.h"','#include "wr-iot/driver-api-client.h"',1)
+(rc/'wr-iot-driver-api-client.c').write_text(client,encoding='utf-8')
+make=m.read_text(encoding='utf-8')
+if make.count('wr-iot-disable-controller.o')!=1:raise SystemExit('Driver API client object anchor changed')
+m.write_text(make.replace('wr-iot-disable-controller.o','wr-iot-disable-controller.o wr-iot-driver-api-client.o',1),encoding='utf-8')
+report['linux_driver_api_client_staged']=True
+report['linux_driver_api_client_activation_bound']=False
 (a.source/'iot-rc-source.json').write_text(json.dumps(report,indent=2)+'\n')
 print('PASS WR-only IoT bridge object and owned quiescence source integration; activation pending')
 

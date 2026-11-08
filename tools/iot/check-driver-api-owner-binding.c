@@ -53,6 +53,14 @@ static int dev_open(PNET_DEV dev){
  return open_error;
 }
 #include "driver-api-open-entry.inc"
+static unsigned query_copies;static int query_copy_error;
+static unsigned long copy_to_user(void *to,const void *from,unsigned long n){
+ assert(n==32&&!opening->wr_iot_transition_lock);query_copies++;
+ if(query_copy_error)return 1;
+ memcpy(to,from,n);return 0;
+}
+#include "driver-api-identity.inc"
+
 int main(void){
  unsigned char wire[144]={'W','R','I','1',1};
  RTMP_ADAPTER ad={.mt7603=1,.vendor_count=1,.ApCfg.BssidNum=3};
@@ -64,6 +72,21 @@ int main(void){
  ref=wr_iot_registry_add_family(ad.wr_iot_interface_refs,WDEV_NUM_MAX+1,&sequence,&dev,WR_REF_FAMILY_MBSS);assert(ref);ref->published=1;
  wire[15]=1;wire[23]=2;wire[24]=3;wire[40]=3;wire[41]=8;
  memcpy(wire+48,"IoT",3);memcpy(wire+80,"password",8);
+
+ unsigned char identity_wire[32];struct ifreq identity_rq={identity_wire};
+ struct wr_iot_driver_identity identity;
+ capable=0;assert(wr_iot_driver_identity_ioctl(&ad,&dev,&identity_rq)==-EPERM&&!query_copies);capable=1;
+ assert(wr_iot_driver_identity_ioctl(&ad,&main_dev,&identity_rq)==-EBUSY&&!query_copies);
+ ad.wr_iot_transition.reset_pending=1;
+ assert(wr_iot_driver_identity_ioctl(&ad,&dev,&identity_rq)==-EBUSY&&!query_copies);
+ ad.wr_iot_transition.reset_pending=0;
+ query_copy_error=1;assert(wr_iot_driver_identity_ioctl(&ad,&dev,&identity_rq)==-EFAULT);query_copy_error=0;
+ memset(identity_wire,0xa5,sizeof(identity_wire));
+ assert(!wr_iot_driver_identity_ioctl(&ad,&dev,&identity_rq));
+ assert(wr_iot_driver_identity_decode(&identity,identity_wire,sizeof(identity_wire)));
+ assert(identity.adapter_epoch==1&&identity.device_generation==2);
+ assert(!ad.wr_iot_transition.serial&&!ad.wr_iot_driver_owner.active);
+ for(unsigned i=0;i<32;i++)if((i>=5&&i<8)||i>=24)assert(!identity_wire[i]);
  assert(wr_iot_driver_open_ioctl(NULL,&dev,&rq)==-EINVAL&&!copies);
  locked=0;assert(wr_iot_driver_open_ioctl(&ad,&dev,&rq)==-EBUSY&&!copies);locked=1;
  capable=0;assert(wr_iot_driver_open_ioctl(&ad,&dev,&rq)==-EPERM&&!copies);capable=1;
@@ -80,6 +103,7 @@ int main(void){
  open_error=0;assert(!wr_iot_driver_open_ioctl(&ad,&dev,&rq)&&opens==3);
  leave_ok=0;assert(wr_iot_driver_open_ioctl(&ad,&dev,&rq)==-EUCLEAN&&opens==4);
  assert(ad.wr_iot_control_poisoned&&ad.wr_iot_driver_owner.poisoned&&!ad.wr_iot_driver_owner.request.password[0]);
+ assert(wr_iot_driver_identity_ioctl(&ad,&dev,&identity_rq)==-EBUSY);
  assert(wr_iot_driver_open_ioctl(&ad,&dev,&rq)==-EBUSY&&opens==4);
  puts("PASS composed actual OPEN entry and adapter owner: privilege, identity/control/bootstrap refusal, single-ticket consume, open error and poisoned leave; dev_open/netdev hooks injected, no real ioctl or RF proof");
  return 0;
