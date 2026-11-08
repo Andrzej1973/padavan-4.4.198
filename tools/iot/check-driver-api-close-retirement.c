@@ -38,9 +38,18 @@ static int create_mode,create_calls,stop_calls,body_calls;
 #define RTMP_IRQ_UNLOCK(l,f) do{(void)(l);(void)(f);assert(test_locked);test_locked=0;}while(0)
 #define IS_ERR(p) ((p)==(void *)-12L)
 #define PTR_ERR(p) ((int)(long)(p))
+#ifdef WR_CLOSE_THREAD_BODY_TEST
+static int wr_iot_driver_close_retirement_thread(void *context);
+#endif
 static int retirement_body(void *ad){(void)ad;body_calls++;return 0;}
 static struct task_struct *kthread_create(int (*fn)(void *),void *data,const char *name){
- assert(!test_locked&&fn==retirement_body&&name);create_calls++;create_ad=data;
+ assert(!test_locked&&name);
+#ifdef WR_CLOSE_THREAD_BODY_TEST
+ assert(fn==retirement_body||fn==wr_iot_driver_close_retirement_thread);
+#else
+ assert(fn==retirement_body);
+#endif
+create_calls++;create_ad=data;
  if(create_mode==1)return (void *)-12L;
  if(create_mode==2)((RTMP_ADAPTER *)data)->wr_iot_transition.retiring=1;
  if(create_mode==3)return 0;
@@ -55,6 +64,22 @@ static int kthread_stop(struct task_struct *t){assert(!test_locked&&t==&stopped_
 #define PF_KTHREAD 1U
 #define PF_WQ_WORKER 2U
 #include "driver-api-close-retirement-thread-entry.inc"
+#endif
+#ifdef WR_CLOSE_THREAD_BODY_TEST
+#include <setjmp.h>
+static jmp_buf exit_jump;
+static int body_rtnl,exit_calls;
+static void rtnl_lock(void){assert(!body_rtnl&&!test_locked);body_rtnl=1;}
+static void rtnl_unlock(void){assert(body_rtnl&&!test_locked);body_rtnl=0;}
+static void module_put_and_exit(int status) __attribute__((noreturn));
+static void module_put_and_exit(int status){assert(!status&&!body_rtnl&&!test_locked);exit_calls++;longjmp(exit_jump,1);}
+#include "driver-api-close-retirement-thread-body.inc"
+static void run_successful_body(RTMP_ADAPTER *ad){
+ if(!setjmp(exit_jump)){
+  wr_iot_driver_close_retirement_thread(ad);
+  assert(!"successful body returned instead of nonreturning core tail");
+ }
+}
 #endif
 #ifdef WR_CLOSE_START_BINDING_TEST
 static int wake_calls,wake_accept=1,rtnl_held=1;
@@ -94,7 +119,7 @@ int main(void){
    case 17:idle=2;break;case 18:idle=3;break;case 19:idle=4;break;}
   struct wr_iot_driver_close_owner before=close;
 #ifdef WR_CLOSE_KERNEL_BINDING_TEST
-  RTMP_ADAPTER ad={0};ad.chip=1;ad.count=1;ad.net_dev=&main_dev;
+  static RTMP_ADAPTER ad;memset(&ad,0,sizeof(ad));ad.chip=1;ad.count=1;ad.net_dev=&main_dev;
   ad.ApCfg.BssidNum=3;ad.ApCfg.MBSSID[2].wdev.if_dev=close.device;
   ad.wr_iot_close_owner=close;ad.wr_iot_transition=radio;
   memcpy(ad.wr_iot_interface_refs,refs,sizeof(refs));memcpy(ad.wr_iot_mbss_recovery,owners,sizeof(owners));
@@ -172,6 +197,53 @@ int main(void){
     assert(!wr_iot_driver_close_retirement_thread_refuse(&ad,-EAGAIN));
     assert(!memcmp(&refusing,&ad.wr_iot_close_owner,sizeof(refusing)));
    }
+   ad.wr_iot_close_owner=before;ad.wr_iot_transition=radio;
+   creator_task.flags=PF_KTHREAD;
+   assert(!wr_iot_driver_close_retirement_thread_claim(&ad));
+   ad.wr_iot_close_owner.retirement_task=current;
+   ad.wr_iot_close_owner.retirement_started=1;
+   assert(!wr_iot_driver_close_retirement_thread_enter(&ad));
+   ad.wr_iot_close_owner.retirement_canceling=1;
+   struct wr_iot_driver_close_owner denied=ad.wr_iot_close_owner;
+   assert(!wr_iot_driver_close_retirement_thread_claim(&ad));
+   assert(!memcmp(&denied,&ad.wr_iot_close_owner,sizeof(denied)));
+   ad.wr_iot_close_owner.retirement_canceling=0;
+   ad.wr_iot_transition.epoch++;
+   denied=ad.wr_iot_close_owner;
+   assert(!wr_iot_driver_close_retirement_thread_claim(&ad));
+   assert(!memcmp(&denied,&ad.wr_iot_close_owner,sizeof(denied)));
+   ad.wr_iot_transition=radio;
+   assert(wr_iot_driver_close_retirement_thread_claim(&ad));
+   assert(ad.wr_iot_close_owner.active&&!ad.wr_iot_close_owner.module_held&&
+    ad.wr_iot_close_owner.retirement_module_transferred&&!ad.wr_iot_close_owner.retirement_task);
+   assert(!wr_iot_driver_close_retirement_thread_claim(&ad));
+#ifdef WR_CLOSE_THREAD_BODY_TEST
+   ad.wr_iot_close_owner=before;ad.wr_iot_transition=radio;
+   create_mode=0;struct task_struct *fixed_task=0;
+   assert(!wr_iot_driver_close_retirement_prepare_fixed(&ad,&fixed_task));
+   assert(fixed_task==&stopped_task);
+   /* No actual scheduler: execute exact fixed body as designated current. */
+   ad.wr_iot_close_owner.retirement_task=current;
+   ad.wr_iot_close_owner.retirement_started=1;
+   exit_calls=0;
+   run_successful_body(&ad);
+   assert(exit_calls==1&&!body_rtnl&&ad.wr_iot_close_owner.active&&
+    !ad.wr_iot_close_owner.module_held&&ad.wr_iot_close_owner.retirement_module_transferred);
+   ad.wr_iot_close_owner=before;ad.wr_iot_transition=radio;
+   ad.wr_iot_close_owner.retirement_task=current;
+   ad.wr_iot_close_owner.retirement_started=1;
+   ad.wr_iot_transition.retiring=1;
+   assert(wr_iot_driver_close_retirement_thread(&ad)==-EBUSY);
+   assert(exit_calls==1&&!body_rtnl&&ad.wr_iot_close_owner.module_held&&
+    !ad.wr_iot_close_owner.retirement_task&&ad.wr_iot_close_owner.active);
+   ad.wr_iot_close_owner=before;ad.wr_iot_transition=radio;
+   ad.wr_iot_close_owner.retirement_task=current;
+   ad.wr_iot_close_owner.retirement_started=1;
+   creator_task.flags=PF_KTHREAD|PF_WQ_WORKER;
+   assert(wr_iot_driver_close_retirement_thread(&ad)==-EPERM);
+   assert(exit_calls==1&&!body_rtnl&&ad.wr_iot_close_owner.module_held&&
+    !ad.wr_iot_close_owner.retirement_task&&ad.wr_iot_close_owner.active);
+#endif
    ad.wr_iot_close_owner=before;ad.wr_iot_transition=radio;creator_task.flags=0;
 #endif
 #ifdef WR_CLOSE_START_BINDING_TEST

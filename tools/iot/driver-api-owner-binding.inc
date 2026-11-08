@@ -7,7 +7,8 @@ static INT wr_iot_driver_request_enter(RTMP_ADAPTER *ad,PNET_DEV dev,
  ULONG flags=0;int accepted=0;
  if(!ad||!dev||!request||!task||task!=current)return -EINVAL;
  RTMP_IRQ_LOCK(&ad->wr_iot_transition_lock,flags);
- if(IS_MT7603(ad)&&ad->ApCfg.BssidNum>=3&&
+ /* Lifetime retirement never grants permission to reopen a closed BSS. */
+ if(!ad->wr_iot_close_owner.active&&IS_MT7603(ad)&&ad->ApCfg.BssidNum>=3&&
     ad->ApCfg.BssidNum<=sizeof(ad->ApCfg.MBSSID)/sizeof(ad->ApCfg.MBSSID[0])&&
     ad->ApCfg.MBSSID[2].wdev.if_dev==dev&&ad->net_dev!=dev){
   accepted=wr_iot_driver_owner_reserve(&ad->wr_iot_driver_owner,

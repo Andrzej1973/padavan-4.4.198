@@ -21,9 +21,9 @@ typedef unsigned int UINT;
 #define TRUE 1
 #define FALSE 0
 #define WDEV_NUM_MAX 2
-struct owner { unsigned int active; };
+#include "driver-api-close-owner.h"
 struct work { int work; };
-typedef struct { struct owner wr_iot_close_owner; int wr_iot_mbss_recovery[3]; struct work wr_iot_mbss_work[3]; } RTMP_ADAPTER;
+typedef struct { struct wr_iot_driver_close_owner wr_iot_close_owner; int wr_iot_mbss_recovery[3]; struct work wr_iot_mbss_work[3]; } RTMP_ADAPTER;
 static int wr_iot_mbss_recovery_storage_idle(int *r,unsigned n){for(unsigned i=0;i<n;i++)if(r[i])return 0;return 1;}
 static int work_busy(int *w){return *w;}
 '''+changed[start:end]+'''
@@ -37,7 +37,38 @@ int main(void){
 #else
  assert(wr_iot_mbss_recovery_idle_locked(&ad));
 #endif
- ad.wr_iot_close_owner.active=0;
+ /* A complete module handoff retires only lifetime, never active OPEN fence. */
+ ad.wr_iot_close_owner.retirement_module_transferred=1;
+#ifdef MT7603
+ assert(!wr_iot_mbss_recovery_idle_locked(&ad));
+#endif
+ ad.wr_iot_close_owner.consumed=1;
+ ad.wr_iot_close_owner.recovery_netdev_transferred=1;
+ ad.wr_iot_close_owner.recovery_netdev_returned=1;
+ assert(wr_iot_mbss_recovery_idle_locked(&ad));
+ assert(ad.wr_iot_close_owner.active);
+#ifdef MT7603
+ struct wr_iot_driver_close_owner ready=ad.wr_iot_close_owner;
+ for(unsigned fault=0;fault<12;fault++){
+  ad.wr_iot_close_owner=ready;
+  switch(fault){
+   case 0:ad.wr_iot_close_owner.module_held=1;break;
+   case 1:ad.wr_iot_close_owner.retirement_task=&ad;break;
+   case 2:ad.wr_iot_close_owner.task=&ad;break;
+   case 3:ad.wr_iot_close_owner.netdev_held=1;break;
+   case 4:ad.wr_iot_close_owner.retirement_started=1;break;
+   case 5:ad.wr_iot_close_owner.retirement_entered=1;break;
+   case 6:ad.wr_iot_close_owner.retirement_canceling=1;break;
+   case 7:ad.wr_iot_close_owner.consumed=0;break;
+   case 8:ad.wr_iot_close_owner.recovery_netdev_transferred=0;break;
+   case 9:ad.wr_iot_close_owner.recovery_join_pending=1;break;
+   case 10:ad.wr_iot_close_owner.recovery_netdev_returned=0;break;
+   case 11:ad.wr_iot_close_owner.retirement_module_transferred=0;break;
+  }
+  assert(!wr_iot_mbss_recovery_idle_locked(&ad));
+ }
+ ad.wr_iot_close_owner=ready;
+#endif
  for(unsigned i=0;i<3;i++){
   ad.wr_iot_mbss_recovery[i]=1;assert(!wr_iot_mbss_recovery_idle_locked(&ad));ad.wr_iot_mbss_recovery[i]=0;
   ad.wr_iot_mbss_work[i].work=1;assert(!wr_iot_mbss_recovery_idle_locked(&ad));ad.wr_iot_mbss_work[i].work=0;
@@ -48,7 +79,7 @@ int main(void){
 with tempfile.TemporaryDirectory(prefix='wr-close-lifetime-') as tmp:
  src=Path(tmp)/'check.c';out=Path(tmp)/'check';src.write_text(fixture)
  for defines in [[],['-DMT7603','-DMT_MAC','-DRTMP_PCI_SUPPORT']]:
-  subprocess.run(['cc','-std=c99','-Wall','-Wextra','-Werror','-fsanitize=address,undefined',*defines,str(src),'-o',str(out)],check=True)
+  subprocess.run(['cc','-std=c99','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(here),*defines,str(src),'-o',str(out)],check=True)
   subprocess.run([str(out)],check=True)
 # Execute the inner reaper's actual tail, which deliberately bypasses public idle.
 join_compose=runpy.run_path(str(here/'close-owner-composition.py'))['compose_recovery_join']
@@ -74,6 +105,6 @@ join_fixture=fixture[:fixture.index('BOOLEAN wr_iot_mbss_recovery_idle_locked(')
 with tempfile.TemporaryDirectory(prefix='wr-close-join-') as tmp:
  src=Path(tmp)/'check.c';out=Path(tmp)/'check';src.write_text(join_fixture)
  for defines in [[],['-DMT7603','-DMT_MAC','-DRTMP_PCI_SUPPORT']]:
-  subprocess.run(['cc','-std=c99','-Wall','-Wextra','-Werror','-fsanitize=address,undefined',*defines,str(src),'-o',str(out)],check=True)
+  subprocess.run(['cc','-std=c99','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(here),*defines,str(src),'-o',str(out)],check=True)
   subprocess.run([str(out)],check=True)
 print('PASS actual composed lifetime fence: unresolved CLOSE retains adapter, legacy storage/work fences preserved, other targets unchanged; kernel integration/runtime unverified')

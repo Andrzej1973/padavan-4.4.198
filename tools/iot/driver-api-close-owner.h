@@ -9,6 +9,7 @@ struct wr_iot_driver_close_owner {
  const void *device,*task;
  const void *retirement_task;
  unsigned int retirement_started,retirement_canceling,retirement_entered;
+ unsigned int retirement_module_transferred;
  int retirement_error;
  unsigned long generation,open_token;
  unsigned int active,consumed;
@@ -16,6 +17,21 @@ struct wr_iot_driver_close_owner {
  unsigned int netdev_held,module_held,recovery_netdev_transferred;
  unsigned int recovery_join_pending,recovery_netdev_returned;
 };
+/* Lifetime-only fence. Transfer marker is written only by designated thread
+ * after locked readiness and real recovery dev_put receipt. Its local module
+ * reference keeps text alive until core exit; it never accesses adapter again.
+ * Active remains set to reject OPEN: this does not grant RF/isolation authority.
+ * Inconsistent or partial transfer always retains adapter lifetime fence. */
+static inline int wr_iot_driver_close_blocks_adapter_retirement(
+ const struct wr_iot_driver_close_owner *close)
+{
+ if(!close||!close->active)return 0;
+ return !close->retirement_module_transferred||!close->consumed||close->task||
+  close->module_held||close->netdev_held||close->retirement_task||
+  close->retirement_started||close->retirement_entered||close->retirement_canceling||
+  !close->recovery_netdev_transferred||close->recovery_join_pending||
+  !close->recovery_netdev_returned;
+}
 static inline int wr_iot_driver_close_reserve(
  struct wr_iot_driver_close_owner *close,const struct wr_iot_driver_owner *open,
  const unsigned char *nonce,struct wr_iot_radio_transition *radio,
@@ -37,7 +53,7 @@ static inline int wr_iot_driver_close_reserve(
  close->ticket=ticket;close->device=iot_dev;close->task=task;
  close->generation=generation;close->open_token=open_token;close->retirement_task=0;
  close->retirement_started=close->retirement_canceling=close->retirement_entered=0;
- close->retirement_error=0;
+ close->retirement_error=0;close->retirement_module_transferred=0;
  close->active=1;close->consumed=0;
  close->reference_completed=close->uncertain=0;
  close->netdev_held=close->module_held=close->recovery_netdev_transferred=0;

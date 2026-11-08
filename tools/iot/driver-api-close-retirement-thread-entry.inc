@@ -35,3 +35,28 @@ static INT wr_iot_driver_close_retirement_thread_refuse(RTMP_ADAPTER *ad,int err
  RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);
  return matched;
 }
+
+/* Dedicated task takes exactly the extra API module reference. This does not
+ * retire the active adapter fence or authorize OPEN/isolation removal. Caller
+ * holds RTNL; after success it must not access ad again and must exit through
+ * the nonreturning core module_put_and_exit helper. */
+static INT wr_iot_driver_close_retirement_thread_claim(RTMP_ADAPTER *ad)
+{
+ ULONG flags=0;int accepted;
+ if(!ad||!(current->flags&PF_KTHREAD)||(current->flags&PF_WQ_WORKER))return 0;
+ RTMP_IRQ_LOCK(&ad->wr_iot_transition_lock,flags);
+ accepted=ad->wr_iot_close_owner.retirement_task==current&&
+  ad->wr_iot_close_owner.retirement_started&&ad->wr_iot_close_owner.retirement_entered&&
+  !ad->wr_iot_close_owner.retirement_canceling&&
+  !ad->wr_iot_close_owner.retirement_module_transferred&&
+  wr_iot_driver_close_retirement_ready_locked(ad);
+ if(accepted){
+  ad->wr_iot_close_owner.module_held=0;
+  ad->wr_iot_close_owner.retirement_module_transferred=1;
+  ad->wr_iot_close_owner.retirement_task=NULL;
+  ad->wr_iot_close_owner.retirement_started=0;
+  ad->wr_iot_close_owner.retirement_entered=0;
+ }
+ RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);
+ return accepted;
+}

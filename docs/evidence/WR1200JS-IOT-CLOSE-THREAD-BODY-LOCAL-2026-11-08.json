@@ -1,0 +1,22 @@
+{
+  "scope": "LOCAL staged fixed thread body and extra API module-reference transfer; adapter fence retained",
+  "hashes": {
+    "tools/iot/driver-api-close-retirement-thread-entry.inc": "b3c7558470fb692665df2df0fbeee2b6664e4b306f7a5e48675011b12fd5f502",
+    "tools/iot/driver-api-close-retirement-thread-body.inc": "2974c98887e752cca2d0ecc9e49123d6b92390f5d36923c30ae3dbe2d1d5d7b7",
+    "tools/iot/driver-api-close-owner.h": "d851645f521bf1162dadd0a138856abc4bd5cf3adf2a81a6cfdefd47f4eb7bb1",
+    "tools/iot/check-driver-api-close-retirement.c": "9d353518d1ee69952e5ba7d66273c501e215b7bcf02ba1a576faac92348b5006",
+    "tools/iot/check-close-bindings-target-tu.py": "56a00047d876f34c86a8e5a73c347c349df65e41eef294d6cd724b22bdfb7e1b"
+  },
+  "host_sanitizer_fixtures": 17,
+  "host_result": "PASS",
+  "successful_body": "mock core tail reached exactly once with RTNL and transition lock released; API module hold transferred and active fence retained",
+  "refused_body": "returns with module hold and active fence retained, own task designation cleared",
+  "target_verified": false,
+  "runtime_verified": false,
+  "production_installed": false,
+  "rf_or_reopen_authority": false,
+  "cleanup": "TemporaryDirectory binaries removed",
+  "claim_refusals": "missing designation, cancellation and epoch drift refuse without owner mutation; duplicate transfer refused",
+  "optimized_entry_body_checks": "PASS all 17 CLOSE fixtures -O2 ASan/UBSan; fixed body rejects workqueue context and retains API hold",
+  "source_exit_audit": "WR1200JS-IOT-CLOSE-THREAD-EXIT-SOURCE-2026-11-08.json"
+}

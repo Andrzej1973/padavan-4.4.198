@@ -1,0 +1,78 @@
+{
+  "revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "scope": "Pinned kernel source verification of direct module_put_and_exit and kthread exit completion; not target/runtime evidence",
+  "files": {
+    "kernel/kthread.c": {
+      "sha256": "18de32a056a7d252f0b0a09e11c1430fd94c2daa6789897ce834ebf837172e5b",
+      "excerpts": [
+        {
+          "first_line": 178,
+          "last_line": 215,
+          "text": "static int kthread(void *_create)\n{\n\t/* Copy data: it's on kthread's stack */\n\tstruct kthread_create_info *create = _create;\n\tint (*threadfn)(void *data) = create->threadfn;\n\tvoid *data = create->data;\n\tstruct completion *done;\n\tstruct kthread self;\n\tint ret;\n\n\tself.flags = 0;\n\tself.data = data;\n\tinit_completion(&self.exited);\n\tinit_completion(&self.parked);\n\tcurrent->vfork_done = &self.exited;\n\n\t/* If user was SIGKILLed, I release the structure. */\n\tdone = xchg(&create->done, NULL);\n\tif (!done) {\n\t\tkfree(create);\n\t\tdo_exit(-EINTR);\n\t}\n\t/* OK, tell user we're spawned, wait for stop or wakeup */\n\t__set_current_state(TASK_UNINTERRUPTIBLE);\n\tcreate->result = current;\n\tcomplete(done);\n\tschedule();\n\n\tret = -EINTR;\n\n\tif (!test_bit(KTHREAD_SHOULD_STOP, &self.flags)) {\n\t\tcgroup_kthread_ready();\n\t\t__kthread_parkme(&self);\n\t\tret = threadfn(data);\n\t}\n\t/* we can't just return, we must preserve \"self\" on stack */\n\tdo_exit(ret);\n}"
+        },
+        {
+          "first_line": 475,
+          "last_line": 510,
+          "text": "/**\n * kthread_stop - stop a thread created by kthread_create().\n * @k: thread created by kthread_create().\n *\n * Sets kthread_should_stop() for @k to return true, wakes it, and\n * waits for it to exit. This can also be called after kthread_create()\n * instead of calling wake_up_process(): the thread will exit without\n * calling threadfn().\n *\n * If threadfn() may call do_exit() itself, the caller must ensure\n * task_struct can't go away.\n *\n * Returns the result of threadfn(), or %-EINTR if wake_up_process()\n * was never called.\n */\nint kthread_stop(struct task_struct *k)\n{\n\tstruct kthread *kthread;\n\tint ret;\n\n\ttrace_sched_kthread_stop(k);\n\n\tget_task_struct(k);\n\tkthread = to_live_kthread(k);\n\tif (kthread) {\n\t\tset_bit(KTHREAD_SHOULD_STOP, &kthread->flags);\n\t\t__kthread_unpark(k, kthread);\n\t\twake_up_process(k);\n\t\twait_for_completion(&kthread->exited);\n\t\tput_task_stack(k);\n\t}\n\tret = k->exit_code;\n\tput_task_struct(k);\n\n\ttrace_sched_kthread_stop_ret(ret);\n\treturn ret;"
+        }
+      ]
+    },
+    "kernel/exit.c": {
+      "sha256": "37129f87a98071e75948085dabe68311a6e15b88abca980cd551f686812e88a5",
+      "excerpts": [
+        {
+          "first_line": 390,
+          "last_line": 397,
+          "text": "static void exit_mm(struct task_struct *tsk)\n{\n\tstruct mm_struct *mm = tsk->mm;\n\tstruct core_state *core_state;\n\n\tmm_release(tsk, mm);\n\tif (!mm)\n\t\treturn;"
+        },
+        {
+          "first_line": 747,
+          "last_line": 750,
+          "text": "\ttsk->exit_code = code;\n\ttaskstats_exit(tsk, group_dead);\n\n\texit_mm(tsk);"
+        }
+      ]
+    },
+    "kernel/fork.c": {
+      "sha256": "e6d2e0238ced69876a8568ef0c0ccc14ba37b72a544f680a72a646c0e9b6aca2",
+      "excerpts": [
+        {
+          "first_line": 872,
+          "last_line": 883,
+          "text": "static void complete_vfork_done(struct task_struct *tsk)\n{\n\tstruct completion *vfork;\n\n\ttask_lock(tsk);\n\tvfork = tsk->vfork_done;\n\tif (likely(vfork)) {\n\t\ttsk->vfork_done = NULL;\n\t\tcomplete(vfork);\n\t}\n\ttask_unlock(tsk);\n}"
+        },
+        {
+          "first_line": 959,
+          "last_line": 965,
+          "text": "\t/*\n\t * All done, finally we can wake up parent and return this mm to him.\n\t * Also kthread_stop() uses this completion for synchronization.\n\t */\n\tif (tsk->vfork_done)\n\t\tcomplete_vfork_done(tsk);\n}"
+        }
+      ]
+    },
+    "kernel/module.c": {
+      "sha256": "9cb816ad8de0dc1bcbe272be34ab8ab42fca9cf1c0ee4924d05b811dbe28368d",
+      "excerpts": [
+        {
+          "first_line": 360,
+          "last_line": 369,
+          "text": " * is running can call this to safely exit.  nfsd and lockd use this.\n */\nvoid __module_put_and_exit(struct module *mod, long code)\n{\n\tmodule_put(mod);\n\tdo_exit(code);\n}\nEXPORT_SYMBOL(__module_put_and_exit);\n\n/* Find a module section: 0 means not found. */"
+        }
+      ]
+    }
+  },
+  "call_chain": [
+    "__module_put_and_exit: module_put then do_exit",
+    "do_exit: sets exit_code before exit_mm",
+    "exit_mm: calls mm_release even when mm is NULL",
+    "mm_release: complete_vfork_done clears vfork_done and completes waiter",
+    "kthread bootstrap stores self.exited in current->vfork_done",
+    "kthread_stop holds task/stack references and waits for self.exited"
+  ],
+  "conclusions": {
+    "direct_exit_preserves_kernel_stop_completion": true,
+    "module_callback_does_not_return_after_module_put": true,
+    "stop_completion_is_not_full_task_deallocation": true,
+    "no_adapter_access_after_claim_required": true,
+    "active_fence_still_retained": true,
+    "started_task_stop_under_rtnl_forbidden": "Fixed body acquires RTNL; start/cancel serialization and cancel rejection of started/entered tasks must remain to avoid deadlock",
+    "device_verified": false
+  }
+}

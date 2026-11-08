@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "driver-api-owner.h"
+#include "driver-api-close-owner.h"
 typedef int INT;
 typedef struct device {int running;} device,*PNET_DEV;
 #define WDEV_NUM_MAX 2
@@ -15,6 +16,7 @@ typedef struct {
  unsigned wr_iot_boot_active,wr_iot_boot_failed;
  struct {unsigned BssidNum;struct {struct {PNET_DEV if_dev;} wdev;} MBSSID[3];} ApCfg;
  struct wr_iot_driver_owner wr_iot_driver_owner;
+ struct wr_iot_driver_close_owner wr_iot_close_owner;
  struct wr_iot_radio_transition wr_iot_transition;
  struct wr_iot_interface_ref wr_iot_interface_refs[WDEV_NUM_MAX+1];
 } RTMP_ADAPTER;
@@ -103,6 +105,11 @@ int main(void){
  wire[23]=3;assert(wr_iot_driver_open_ioctl(&ad,&dev,&rq)==-EBUSY&&!opens);wire[23]=2;
  ad.wr_iot_control_users=1;assert(wr_iot_driver_open_ioctl(&ad,&dev,&rq)==-EBUSY&&!opens);ad.wr_iot_control_users=0;
  ad.wr_iot_boot_active=1;assert(wr_iot_driver_open_ioctl(&ad,&dev,&rq)==-EBUSY&&!opens);ad.wr_iot_boot_active=0;
+ ad.wr_iot_close_owner.active=1;
+ assert(wr_iot_driver_open_ioctl(&ad,&dev,&rq)==-EBUSY&&!opens&&!ad.wr_iot_driver_owner.active);
+ ad.wr_iot_close_owner.retirement_module_transferred=1;
+ assert(wr_iot_driver_open_ioctl(&ad,&dev,&rq)==-EBUSY&&!opens&&!ad.wr_iot_driver_owner.active);
+ ad.wr_iot_close_owner.active=0;
  skip_ndo=1;assert(wr_iot_driver_open_ioctl(&ad,&dev,&rq)==-ENETDOWN&&opens==1);
  assert(ad.wr_iot_ticket_wait==1&&!ad.wr_iot_driver_owner.active&&!ad.wr_iot_transition.busy);skip_ndo=0;
  assert(!identity_call(&ad,&dev,&identity_rq));
