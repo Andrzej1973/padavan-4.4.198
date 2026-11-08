@@ -1,0 +1,22 @@
+{
+  "run_id": 42463953909,
+  "sha": "c51b0d64788c0b1c149edc6eb4a0ac964f5b3d9b",
+  "attempt": 1,
+  "failed_step": "Build WR1200JS firmware",
+  "monitor_run": 42464277566,
+  "monitor_artifact": 13611336163,
+  "original_diagnostic_artifact": 13610609732,
+  "original_job_log_verified": true,
+  "causal_excerpt": [
+    "HTTP request sent, awaiting response... 504 Gateway Time-out",
+    "make[4]: *** [Makefile:10: download_test] Error 4",
+    "make[4]: Leaving directory '/home/runner/work/padavan-4.4.198/padavan-4.4.198/padavan-4.4/trunk/libs/libyaml'",
+    "make[3]: *** [Makefile:255: libyaml_only] Error 2"
+  ],
+  "root_cause": "libyaml source download HTTP 504; not C compilation",
+  "secondary_errors": "EoIP/StrongSwan output artifacts absent because firmware build stopped",
+  "monitor_gap": "Existing bounded matching omitted gateway response and make Error 4; retained nonfatal patch/config checks instead",
+  "correction": "Local matcher recognizes 504 Gateway Time-out and make *** Error lines; real-case offline fixture added",
+  "action": "rerun failed jobs on same handle, attempt2 requested; no equivalent live c51 standard existed",
+  "runtime_verified": false
+}

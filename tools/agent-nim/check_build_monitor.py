@@ -36,6 +36,14 @@ with (nullcontext(sys.argv[2]) if len(sys.argv)>2 else tempfile.TemporaryDirecto
     anchor_env=dict(os.environ,BUILD_MONITOR_FIXTURE_JOB_LOG=str(anchor_log))
     anchor_result=subprocess.run([str(binary),'--fixture:'+str(fixture),'--state-dir:'+str(root/'anchor-state')],capture_output=True,text=True,env=anchor_env,check=True)
     assert 'Ralink radio-mode anchor changed' in anchor_result.stdout
+    # Real standard42463953909: source download 504 and make error were omitted.
+    download_log=root/'libyaml-504.log'
+    download_log.write_text("HTTP request sent, awaiting response... 504 Gateway Time-out\nmake[4]: *** [Makefile:10: download_test] Error 4\nmake[3]: *** [Makefile:255: libyaml_only] Error 2\n##[error]Process completed with exit code 2.\n")
+    fixture.write_text(json.dumps({'workflow_runs':[row(436)]}),encoding='utf-8')
+    download_env=dict(os.environ,BUILD_MONITOR_FIXTURE_JOB_LOG=str(download_log))
+    download=subprocess.run([str(binary),'--fixture:'+str(fixture),'--state-dir:'+str(root/'download-state')],capture_output=True,text=True,env=download_env,check=True)
+    assert '504 Gateway Time-out' in download.stdout
+    assert 'download_test] Error 4' in download.stdout and 'libyaml_only] Error 2' in download.stdout
     late_log=root/'late-error.log'
     late_log.write_text('Hunk FAILED at 753.\n'+('routine output\n'*25000)+'ap_cfg.c:15059: error: void value not ignored\n',encoding='utf-8')
     fixture.write_text(json.dumps({'workflow_runs':[row(434)]}),encoding='utf-8')
