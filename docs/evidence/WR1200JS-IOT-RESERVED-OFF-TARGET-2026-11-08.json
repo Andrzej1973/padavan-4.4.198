@@ -1,0 +1,20 @@
+{
+  "run_id": 42410701865,
+  "artifact_id": 13589537375,
+  "repository_revision": "6e7b0185a462dd63d50b505ccc04c15097d9c0e7",
+  "object": "iot-rc-disable-controller-mips.o",
+  "object_bytes": 15444,
+  "object_sha256": "9f525bb800ae5e329d109a14c25f6a50e6e3579512ac67cae11140bbccd9e682",
+  "elf": "ELF32 little-endian MIPS ET_REL",
+  "defined_function_bytes": {
+    "wr_iot_disable_begin": 900,
+    "wr_iot_disable_begin_precreated": 160,
+    "wr_iot_disable_apply_services": 368,
+    "wr_iot_disable_apply_profile": 192,
+    "wr_iot_disable_apply_reserved": 180,
+    "wr_iot_disable_commit": 556
+  },
+  "scope": "Actual independently parsed object; not linked RC/image or physical behavior.",
+  "runtime_verified": false,
+  "production_installed": false
+}

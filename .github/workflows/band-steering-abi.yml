@@ -1700,7 +1700,7 @@ jobs:
             tools/iot/check-request-stage.c tools/iot/request-stage.c -o abi-results/check-iot-request-stage
           abi-results/check-iot-request-stage | tee abi-results/iot-request-stage.txt
           gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined "${include_flags[@]}" \
-            tools/iot/check-request-snapshot.c tools/iot/request-stage.c tools/iot/request-snapshot.c tools/iot/disable-services.c -o abi-results/check-iot-request-snapshot
+            tools/iot/check-request-snapshot.c tools/iot/request-stage.c tools/iot/request-snapshot.c tools/iot/disable-services.c tools/iot/disable-controller.c tools/iot/profile.c -o abi-results/check-iot-request-snapshot
           abi-results/check-iot-request-snapshot | tee abi-results/iot-request-snapshot.txt
           gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined \
             tools/iot/check-disable-controller.c -o abi-results/check-iot-disable-controller

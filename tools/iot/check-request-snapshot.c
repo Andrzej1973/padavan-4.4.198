@@ -1,6 +1,7 @@
 #include "request-snapshot.h"
 #include "request-stage.h"
 #include "disable-services.h"
+#include "disable-controller.h"
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
@@ -163,5 +164,41 @@ int main(void){
   assert(!wr_iot_disable_services_finish(&stop)&&depth==1);
   bridge_index=0;assert(wr_iot_disable_services_finish(&stop)&&!depth&&!stop.settings.active&&!stop.committed);
  }
- puts("PASS IoT temporary snapshot: guarded rollback/resume and owned normal-OFF gate/credential cleanup; production startup not bound");return 0;
+ /* Compose actual reserved controller, service adapter and NVRAM snapshot.
+  * Fault each credential cleanup write: partial progress must retain the
+  * guard/receipt and retry without radio-profile removal or gate reopening. */
+ for(failure=1;failure<=6;failure++){
+  struct wr_iot_disable_controller stop={0};
+  reset();bridge_index=7;dns_prepare_error=0;dns_commit_ready=1;
+  for(int i=7;i<10;i++)strcpy(values[i].value,"1");
+  for(int i=10;i<16;i++)strcpy(values[i].value,"owned");
+  assert(wr_iot_disable_begin_precreated(&stop)&&depth==1);
+  assert(!stop.radio.active&&!stop.radio.files.count);
+  assert(wr_iot_disable_apply_services(&stop));
+  assert(!wr_iot_disable_apply_profile(&stop));
+  bridge_index=0;assert(wr_iot_disable_apply_reserved(&stop));
+  writes=0;fail_write=failure;
+  assert(!wr_iot_disable_commit(&stop));
+  assert(stop.precreated&&stop.reserved_applied&&stop.services.committed);
+  assert(stop.services.settings.active&&depth==1&&!stop.radio.active);
+  for(int i=7;i<10;i++)assert(!strcmp(values[i].value,"0"));
+  fail_write=0;assert(wr_iot_disable_commit(&stop)&&!depth);
+  assert(!stop.precreated&&!stop.reserved_applied&&!stop.services.settings.active);
+  for(int i=10;i<16;i++)assert(!values[i].value[0]);
+ }
+ {
+  struct wr_iot_disable_controller stop={0};
+  reset();bridge_index=7;
+  assert(wr_iot_disable_begin_precreated(&stop));
+  assert(wr_iot_disable_apply_services(&stop));
+  bridge_index=0;assert(wr_iot_disable_apply_reserved(&stop));
+  char saved[128];strcpy(saved,find("wr_iot_psk_t")->value);
+  strcpy(find("wr_iot_psk_t")->value,"foreign writer");writes=0;
+  assert(!wr_iot_disable_commit(&stop)&&!writes&&depth==1);
+  assert(stop.precreated&&stop.reserved_applied&&stop.services.settings.active);
+  assert(!strcmp(find("wr_iot_psk_t")->value,"foreign writer"));
+  strcpy(find("wr_iot_psk_t")->value,saved);
+  assert(wr_iot_disable_commit(&stop)&&!depth);
+ }
+ puts("PASS IoT temporary snapshot and actual reserved OFF composition: guarded rollback/resume, gate ownership, all6 partial credential cleanup retries; NVRAM/DNS/netdev hooks injected, production startup and RF unverified");return 0;
 }

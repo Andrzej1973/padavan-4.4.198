@@ -123,8 +123,115 @@ and activation/backend call-site binding remain pending. RF/DMA quiescence,
 loaded credential proof and Main/Guest lifetime remain the outer owner's
 obligations; administrative DOWN is insufficient for those claims.
 
+Target follow-up (2026-11-08): ABI run42410701865 succeeded for6e7b018.
+The actual 15444-byte ELF32 little-endian MIPS ET_REL controller object was
+independently parsed; its defined symbol table contains nonempty reserved
+begin/apply and commit functions. See [object evidence](evidence/WR1200JS-IOT-RESERVED-OFF-TARGET-2026-11-08.json).
+This closes the scoped target translation-unit gate, not linked RC/image,
+activation binding or device runtime. Optional run42436571351 verifies the
+same exact revision separately.
+
 No ACK allocation/reuse changes are part of this strategy. Initial startup and
 ordinary radio restart can still encounter the unresolved ROM ACK issue.
 Physical WR1200JS tests must establish Main/Guest continuity, no channel scan,
 IoT RF silence when OFF, DHCP/DNS/internet and IPv4/IPv6 isolation. A successful
 build or DMA submission cannot establish those properties.
+
+Integrated host follow-up: the request-snapshot fixture now links the actual
+request-stage, request-snapshot, disable-services, disable-controller and
+profile units. All six partial temporary-credential cleanup failures retain
+reserved mode, lock and receipt, keep gates closed and complete on retry.
+A foreign credential change after reserved-apply refuses commit without writes;
+it remains untouched and ownership stays retained. ASan/UBSan passes. DNS,
+NVRAM and netdev hooks remain injected; no RF or production backend claim.
+ABI workflow now links these units for this fixture; new CI execution pending.
+
+Owner decision (2026-11-08): a new documented Linux RC-to-driver API is
+explicitly authorized. Firmware protocol and stale-ACK protection remain
+unchanged. New driver-api-wire.h defines a144-byte OPEN request: WRI1/op1,
+BE64 adapter epoch and netdev generation,16-byte nonzero request identifier,
+explicit SSID/key lengths, zero reserved bytes and canonical zero padding.
+Decoder wipes output on refusal and its temporary credential copy on every
+exit. Syntax acceptance grants no driver permission. Admission must validate
+UTF-8/security, derive and compare PMK under task/config ownership, revalidate
+registry/ticket/epoch, and invoke the existing MBSS open within that ownership.
+No key/PMK may be returned. Retry/status must use nonsecret transaction identity.
+
+Transport audit: pinned net/core/dev_ioctl.c serializes SIOCDEVPRIVATE through
+RTNL, but its default private branch does not itself check CAP_NET_ADMIN.
+The new driver entry must check namespace capability explicitly. Vendor
+rt_os.h's0x8BE0 SIOCDEVPRIVATE fallback applies only to WIRELESS_EXT<=11;
+normal Linux private-device range and WEXT range must not be conflated.
+No ioctl number, dispatcher binding or production activation is installed yet.
+The existing wr_iot_linux_ioctl_raw wrapper holds a control admission; blindly
+routing OPEN beneath it would conflict with the BSS_OPEN owner. Resolve this
+explicitly when binding the new entry, retaining all non-IoT admission rules.
+
+New API entry implementation is staged as driver-api-open-entry.inc, still
+uninstalled: under the kernel ioctl RTNL contract it checks namespace
+CAP_NET_ADMIN before copying144 bytes once, rejects non-MT7603/already-running
+interfaces, decodes the request, requires strong request_enter ownership, calls
+existing dev_open, always leaves an entered owner, and reports EUCLEAN if owner
+release cannot be confirmed. Both local wire and decoded credentials are wiped.
+Its success is netdev-open completion only; RF/network observation is separate.
+The extracted actual entry passes host ASan/UBSan privilege, copy, syntax,
+stale-owner, open-error and leave-error tests with injected kernel hooks.
+No permissive owner implementation, ioctl number or dispatcher was added.
+The CI host fixture list now includes wire/entry tests; target proof pending.
+
+OPEN owner model now reserves the existing BSS_OPEN ticket and registry slot
+before dev_open, under the transition lock. It refuses active control users,
+blocked control/bootstrap state, stale expected epoch/generation or missing
+owned Main/vendor count. MBSS must borrow that same ticket and consume the
+request once for the same task/netdev; it must not start a second ticket.
+Unconsumed current reservation can be canceled when dev_open fails before
+ndo_open. Uncertain consumed/ticket retirement poisons the owner and wipes
+credentials/task pointer while retaining nonsecret claim/ticket recovery
+identity; retained pointer identity is not a lifetime pin. No automatic poison
+clear is supplied. Host ASan/UBSan model tests pass. Driver adapter fields,
+control exclusion, credential compare and MBSS entry binding remain required.
+
+Adapter request enter/leave wrappers are implemented locally in
+ driver-api-owner-binding.inc. Enter checks actual MT7603 third-netdev mapping
+and bounded BssidNum while holding wr_iot_transition_lock, then reserves against
+actual registry/vendor count/control/bootstrap state. Leave uses the same lock
+and propagates uncertain owner state into wr_iot_control_poisoned. The actual
+wrappers, OPEN entry and owner model pass a composed ASan/UBSan fixture; only
+kernel/netdev hooks and device-open body are injected. A fixture-only current
+macro initially collided with the wrapper task argument and was corrected to
+use a distinct current_task_identity symbol. No target-source change was needed
+for that harness failure. Driver fields/dispatcher and MBSS borrow/key proof
+still need a checked generator; this code is not installed or target-verified.
+
+Checked candidate installer prepare-driver-api.py is implemented locally.
+It refuses changed manifests/anchors or an existing literal0x89ff collision,
+adds/initializes adapter owner storage, guards control admission while owner
+is active/poisoned, and routes WR_IOT_DRIVER_IOCTL_OPEN0x89ff before the ordinary
+control lease. The audited pinned driver uses WEXT private0x8be0+ commands;
+this newly allocated Linux device-private slot is an explicit new API.
+Third-BSS MBSS open consumes its already reserved request/ticket, compares
+loaded PMK outside the spinlock, and revalidates the same claim before raw open.
+Main/Guest retain their previous admission path. No firmware command added.
+
+Installer applied successfully to an exact hash-checked copy of the retained
+channel-scan candidate, after its precreated-admission layer. Source ordering
+checks pass; four API host fixtures pass ASan/UBSan. This retained candidate
+predates latest CI and this is not target proof. The temporary source copy
+was removed automatically. Installer is not yet enabled in the full pipeline:
+existing extraction checkers need to understand the changed wrapper, and fresh
+whole-TU/module compilation must pass before publication. A nonsecret identity
+query for RC to obtain the expected epoch/netdev generation is also required.
+
+The actual transformed MBSS wrapper now passes an executable host fixture:
+correct key/Main accepts one borrowed ticket; key mismatch or reset during
+key work never reaches raw-open; ordinary third-BSS open without an API owner
+refuses; Guest follows its previous path. Post-open observation failure leaves
+radio UNVERIFIED and the API owner refuses clean completion. The owner binding
+also wakes ticket waiters outside its lock when canceling before ndo_open.
+The composed entry test verifies this early cancellation and waiter wake.
+
+The installer/checker is now staged at the end of peer82 preparation, after
+predecessor extraction fixtures and before final source copy/hash/Kbuild.
+The API's transformed wrapper has its own executable fixture. Predecessor
+fixture success must not be represented as exercising final API semantics.
+Fresh GitHub target compilation and nonsecret identity query remain pending.

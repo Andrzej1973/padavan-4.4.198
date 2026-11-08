@@ -70,7 +70,7 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   gcc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
     -Itools/iot "$results/checked-radio-result.c" -o "$results/checked-radio-result"
   "$results/checked-radio-result"
-  for fixture in check-mcu-sender-owner check-mcu-sender-wrapper check-mcu-sender-drain check-mcu-sender-release check-mcu-message-lifetime check-mcu-sequence-reservation check-precreated-profile check-precreated-bss-admission check-activation check-precreated-activation check-precreated-loaded-config check-precreated-open-proof check-precreated-profile-request check-precreated-boot-request check-precreated-entropy; do
+  for fixture in check-mcu-sender-owner check-mcu-sender-wrapper check-mcu-sender-drain check-mcu-sender-release check-mcu-message-lifetime check-mcu-sequence-reservation check-precreated-profile check-precreated-bss-admission check-activation check-precreated-activation check-precreated-loaded-config check-precreated-open-proof check-precreated-profile-request check-precreated-boot-request check-precreated-entropy check-driver-api-wire check-driver-api-open-entry check-driver-api-owner check-driver-api-owner-binding; do
     gcc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
       -Itools/iot "tools/iot/$fixture.c" -o "$results/$fixture"
     "$results/$fixture"
@@ -326,6 +326,11 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
     python3 "tools/iot/check-mcu-sequence-$fixture.py" "$merged"
   done
   python3 tools/iot/check-mcu-ack-epoch-gap.py "$merged"
+  # Existing extraction fixtures above verify the predecessor layer. Apply
+  # the new Linux ABI last, test its actual transformed wrapper, then compile
+  # and hash this final source below. This remains an isolated candidate.
+  python3 tools/iot/prepare-driver-api.py "$merged" --install-isolated
+  python3 tools/iot/check-driver-api-mbss.py "$merged" > "$results/linux-open-api-mbss.txt"
 fi
 cp "$merged.manifest.json" "$results/merged-source-manifest.json"
 cp -a "$merged/." "$driver/"
