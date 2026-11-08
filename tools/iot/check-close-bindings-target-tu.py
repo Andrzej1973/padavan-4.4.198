@@ -14,7 +14,7 @@ def probe_source(driver,local):
         local/'driver-api-close-retirement.h',local/'driver-api-close-retirement-binding.inc',
         local/'driver-api-close-retirement-create.inc',local/'driver-api-close-retirement-cancel.inc',local/'driver-api-close-retirement-start.inc',local/'driver-api-close-retirement-thread-entry.inc',local/'driver-api-close-retirement-thread-body.inc',local/'driver-api-close-retirement-launch.inc',local/'driver-api-close-retirement-reconcile.inc',local/'driver-api-close-progress.inc',local/'driver-api-close-progress-wire.h',local/'driver-api-close-progress-entry.inc',local/'driver-api-close-progress-ioctl.inc']
  if any('"' in str(f) or '\n' in str(f) for f in files):raise ValueError('Unsupported include path')
- return '#include <linux/module.h>\n#include <linux/kthread.h>\n#include <linux/sched.h>\n#include <linux/rtnetlink.h>\n'+''.join('#include "'+str(f)+'"\n' for f in files)+'''
+ return '#include <linux/module.h>\n#include <linux/kthread.h>\n#include <linux/sched.h>\n#include <linux/rtnetlink.h>\n'+'#include "'+str(files[0])+'"\n#ifndef WR_IOT_DRIVER_CLOSE_BUNDLE_H\n'+''.join('#include "'+str(f)+'"\n' for f in files[1:])+'#endif\n'+'''
 int wr_iot_close_bindings_target_probe(RTMP_ADAPTER *ad,PNET_DEV dev,
  struct ifreq *rq,unsigned char *wire)
 {
@@ -143,7 +143,16 @@ def main():
                  'driver-api-close-recovery-binding.inc','driver-api-close-finish-recovery.inc',
                  'driver-api-close-entry.inc','driver-api-close-synchronous-put.h','driver-api-close-synchronous-put.inc','driver-api-close-retirement.h',
                  'driver-api-close-retirement-binding.inc','driver-api-close-retirement-create.inc','driver-api-close-retirement-cancel.inc','driver-api-close-retirement-start.inc','driver-api-close-retirement-thread-entry.inc','driver-api-close-retirement-thread-body.inc','driver-api-close-retirement-launch.inc','driver-api-close-retirement-reconcile.inc','driver-api-close-progress.inc','driver-api-close-progress-wire.h','driver-api-close-progress-entry.inc','driver-api-close-progress-ioctl.inc')
+  bundle=(local/'driver-api-close-bundle.h').read_bytes()
   binding_inputs={name:(local/name).read_bytes() for name in binding_names}
+  binding_inputs['driver-api-close-bundle.h']=bundle
+  compiled_bundle=driver/'include/driver-api-close-bundle.h'
+  if compiled_bundle.exists():
+   if compiled_bundle.read_bytes()!=bundle:raise RuntimeError('Compiled CLOSE bundle differs from reviewed local source')
+   for name,data in binding_inputs.items():
+    if (driver/'include'/name).read_bytes()!=data:
+     raise RuntimeError('Compiled CLOSE bundle asset drift: '+name)
+  report['ordinary_driver_bundle_present']=compiled_bundle.exists()
   driver_input=source.read_bytes()
   report.update(command_sha256=hashlib.sha256(raw).hexdigest(),kernel_config_sha256=hashlib.sha256(before).hexdigest(),
                 binding_source_sha256={name:hashlib.sha256(data).hexdigest() for name,data in binding_inputs.items()},
