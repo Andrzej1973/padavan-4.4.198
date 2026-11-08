@@ -18,5 +18,19 @@
   "monitor_gap": "Existing bounded matching omitted gateway response and make Error 4; retained nonfatal patch/config checks instead",
   "correction": "Local matcher recognizes 504 Gateway Time-out and make *** Error lines; real-case offline fixture added",
   "action": "rerun failed jobs on same handle, attempt2 requested; no equivalent live c51 standard existed",
-  "runtime_verified": false
+  "runtime_verified": false,
+  "attempt2": {
+    "monitor_run": 42464855653,
+    "artifact": 13610878326,
+    "same_cause": "original log confirms five GitHub 504 responses for libyaml0.2.5; no third rerun requested",
+    "monitor_504_present": false
+  },
+  "fix": {
+    "preferred_source": "https://pyyaml.org/download/libyaml/yaml-0.2.5.tar.gz",
+    "downloaded_bytes": 609454,
+    "verified_sha256": "c642ae9b75fee120b2d96c712538bd2cf283228d2337df2cf2988e3c02678ef4",
+    "fallback": "existing GitHub release URL",
+    "safety": "verify cache; use partial file and hash before atomic rename; clean partial on failure",
+    "offline_tests": "PASS primary/fallback, wrong hash, all fail, cached and corrupt cache"
+  }
 }

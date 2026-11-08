@@ -117,7 +117,9 @@ jobs:
           ccache --zero-stats
 
       - name: Check source retry timeout and lock regressions
-        run: python3 tools/check-source-retry.py
+        run: |
+          python3 tools/check-source-retry.py
+          python3 tools/check-libyaml-download.py
 
       - name: Fetch pinned Padavan 4.4.198 source
         env:
