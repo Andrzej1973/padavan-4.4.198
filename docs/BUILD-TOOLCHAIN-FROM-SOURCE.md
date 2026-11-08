@@ -31,7 +31,10 @@ not block or replace the standard/optional firmware lanes.
 To preserve the already reviewed source run42467546674 without compiling again,
 set preserve_existing=true and publish_candidate=true in the manual dispatch.
 This skips the build job, verifies the original run/revision, all archive hashes,
-license and source inventory, and creates a separate owned prerelease. It does
+license and source inventory, and creates a separate owned prerelease on the existing reviewed tag
+`toolchain-source-candidate-v1` (exact generator SHA checked). The maintainer
+creates that tag through normal Git before dispatch; Actions cannot create an
+unreviewed historical workflow ref. Publication uses --verify-tag and does
 not select the compiler as default. No push/PR event is enabled.
 
 Output includes the compiler archive, source/recipe/config archives, original

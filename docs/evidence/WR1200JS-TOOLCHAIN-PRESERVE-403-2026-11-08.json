@@ -1,0 +1,21 @@
+{
+  "run": 42483525613,
+  "step": "Preserve candidate without changing compiler selection",
+  "all_three_archive_hashes": "PASS",
+  "source_and_license_inventory": "PASS",
+  "build_job": "skipped",
+  "failure": "HTTP 403: Resource not accessible by integration at POST releases",
+  "token_permissions_observed": {
+    "actions": "read",
+    "contents": "write"
+  },
+  "old_request": "create new per-run tag at historical generator commit",
+  "fix": "Create exact reviewed lightweight tag through authorized SSH Git; verify tag object SHA in CI and publish using --verify-tag, without tag creation or force/overwrite",
+  "tag": "toolchain-source-candidate-v1",
+  "tag_sha": "5ef6a8577ae24be27d8d81b3fe44a587d8491a16",
+  "monitor": "No matching deployed report; default-main watch list lacks this workflow. Existing excerpt omitted causal HTTP403; add bounded matcher and original-log fixture. Branch watch list already includes workflow.",
+  "documentation": "https://github.blog/changelog/2023-11-02-github-actions-enforcing-workflow-scope-when-creating-a-release/",
+  "regression": "HTTP403 cause retained; executable dedup/success filtering checked",
+  "compiler_promoted": false,
+  "runtime_verified": false
+}

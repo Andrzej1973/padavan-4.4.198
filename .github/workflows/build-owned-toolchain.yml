@@ -123,8 +123,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          CANDIDATE_TAG: toolchain-preserved-${{ github.run_id }}-${{ github.run_attempt }}
+          CANDIDATE_TAG: toolchain-source-candidate-v1
         run: |
+          test "$(gh api repos/Andrzej1973/padavan-4.4.198/git/ref/tags/toolchain-source-candidate-v1 --jq .object.sha)" = 5ef6a8577ae24be27d8d81b3fe44a587d8491a16
           cd preserved-candidate
           sha256sum -c SHA256SUMS
           cat > notes.md <<'NOTES'
@@ -134,6 +135,6 @@ jobs:
           NOTES
           gh release create "$CANDIDATE_TAG" ./*.tar.xz SHA256SUMS result.json preservation.json \
             sources.json requested.config effective.config verification.json \
-            --target 5ef6a8577ae24be27d8d81b3fe44a587d8491a16 \
+            --verify-tag \
             --title "Preserved source-built WR1200JS toolchain candidate" \
             --notes-file notes.md --prerelease --latest=false

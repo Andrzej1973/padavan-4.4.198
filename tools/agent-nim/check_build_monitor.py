@@ -59,6 +59,13 @@ with (nullcontext(sys.argv[2]) if len(sys.argv)>2 else tempfile.TemporaryDirecto
     download=subprocess.run([str(binary),'--fixture:'+str(fixture),'--state-dir:'+str(root/'download-state')],capture_output=True,text=True,env=download_env,check=True)
     assert '504 Gateway Time-out' in download.stdout
     assert 'download_test] Error 4' in download.stdout and 'libyaml_only] Error 2' in download.stdout
+    # Preservation42483525613: keep the causal API denial, not only exit 1.
+    denied_log=root/'release-403.log'
+    denied_log.write_text('HTTP 403: Resource not accessible by integration (https://api.github.com/repos/Andrzej1973/padavan-4.4.198/releases)\n##[error]Process completed with exit code 1.\n')
+    fixture.write_text(json.dumps({'workflow_runs':[row(438)]}),encoding='utf-8')
+    denied_env=dict(os.environ,BUILD_MONITOR_FIXTURE_JOB_LOG=str(denied_log))
+    denied=subprocess.run([str(binary),'--fixture:'+str(fixture),'--state-dir:'+str(root/'release-denied')],capture_output=True,text=True,env=denied_env,check=True)
+    assert 'HTTP 403: Resource not accessible by integration' in denied.stdout
     late_log=root/'late-error.log'
     late_log.write_text('Hunk FAILED at 753.\n'+('routine output\n'*25000)+'ap_cfg.c:15059: error: void value not ignored\n',encoding='utf-8')
     fixture.write_text(json.dumps({'workflow_runs':[row(434)]}),encoding='utf-8')
