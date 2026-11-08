@@ -41,7 +41,8 @@ static inline int wr_iot_driver_close_transfer_recovery(
  const struct wr_iot_interface_ref *record,
  const struct wr_iot_radio_transition *radio)
 {
- if(!close||!close->netdev_held||!close->module_held||
+ if(!close||close->synchronous_put_pending||close->synchronous_netdev_returned||
+    !close->netdev_held||!close->module_held||
     close->recovery_netdev_transferred)return 0;
  if(!close->consumed){
   /* Finish cleared the borrowed task. Existing worker will execute this

@@ -18,6 +18,7 @@ static inline int wr_iot_driver_close_join_claim(
 {
  if(!close||!recovery||!record||!receipt||!work_joined||!close->active||
     !close->consumed||close->task||!close->module_held||close->netdev_held||
+    close->synchronous_put_pending||close->synchronous_netdev_returned||
     !close->recovery_netdev_transferred||close->recovery_join_pending||
     close->recovery_netdev_returned||!recovery->completed||
     !recovery->deferred_owners||!recovery->close_ticket_valid||
@@ -48,6 +49,7 @@ static inline int wr_iot_driver_close_join_returned(
  const struct wr_iot_driver_close_join_receipt *receipt)
 {
  if(!close||!receipt||!close->active||!close->consumed||close->task||
+    close->synchronous_put_pending||close->synchronous_netdev_returned||
     !close->module_held||close->netdev_held||!close->recovery_netdev_transferred||
     !close->recovery_join_pending||close->recovery_netdev_returned||
     close->device!=receipt->device||close->generation!=receipt->generation||

@@ -20,8 +20,7 @@ static inline int wr_iot_driver_close_retirement_ready(
 {
  struct wr_iot_interface_ref *main,*record;
  if(!close||!radio||radio->epoch!=close->ticket.epoch||!close->active||!close->consumed||close->task||
-    !close->module_held||close->netdev_held||!close->recovery_netdev_transferred||
-    close->recovery_join_pending||!close->recovery_netdev_returned||
+    !close->module_held||!wr_iot_driver_close_netdev_return_complete(close)||
     close->ticket.operation!=WR_RADIO_BSS_CLOSE||close->ticket.reset_kind||
     !poll||poll->pending||poll->running||poll->unjoined||poll->joining||
     !work_idle||!wr_iot_mbss_reaper_idle(reaper)||

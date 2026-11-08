@@ -9,6 +9,7 @@ def probe_source(driver,local):
  files=[driver/'os/linux/rt_main_dev.c',local/'driver-api-close-finish.h',
         local/'driver-api-close-recovery.h',local/'driver-api-close-enter.inc',
         local/'driver-api-close-finish-binding.inc',local/'driver-api-close-recovery-binding.inc',
+        local/'driver-api-close-synchronous-put.h',local/'driver-api-close-synchronous-put.inc',
         local/'driver-api-close-finish-recovery.inc',local/'driver-api-close-entry.inc',
         local/'driver-api-close-retirement.h',local/'driver-api-close-retirement-binding.inc',
         local/'driver-api-close-retirement-create.inc',local/'driver-api-close-retirement-cancel.inc',local/'driver-api-close-retirement-start.inc',local/'driver-api-close-retirement-thread-entry.inc',local/'driver-api-close-retirement-thread-body.inc']
@@ -18,6 +19,10 @@ int wr_iot_close_bindings_target_probe(RTMP_ADAPTER *ad,PNET_DEV dev,
  struct ifreq *rq,unsigned char *wire)
 {
  return wr_iot_driver_close_reply(ad,dev,rq,wire);
+}
+int wr_iot_close_synchronous_put_target_probe(RTMP_ADAPTER *ad,PNET_DEV dev)
+{
+ return wr_iot_driver_close_synchronous_put(ad,dev);
 }
 /* Compile-only locked designation: actual adapter/work fields checked. */
 int wr_iot_close_retirement_target_probe(RTMP_ADAPTER *ad,const void *stopped_task)
@@ -102,7 +107,7 @@ def main():
   binding_names=('driver-api-close-finish.h','driver-api-close-recovery.h',
                  'driver-api-close-enter.inc','driver-api-close-finish-binding.inc',
                  'driver-api-close-recovery-binding.inc','driver-api-close-finish-recovery.inc',
-                 'driver-api-close-entry.inc','driver-api-close-retirement.h',
+                 'driver-api-close-entry.inc','driver-api-close-synchronous-put.h','driver-api-close-synchronous-put.inc','driver-api-close-retirement.h',
                  'driver-api-close-retirement-binding.inc','driver-api-close-retirement-create.inc','driver-api-close-retirement-cancel.inc','driver-api-close-retirement-start.inc','driver-api-close-retirement-thread-entry.inc','driver-api-close-retirement-thread-body.inc')
   binding_inputs={name:(local/name).read_bytes() for name in binding_names}
   driver_input=source.read_bytes()

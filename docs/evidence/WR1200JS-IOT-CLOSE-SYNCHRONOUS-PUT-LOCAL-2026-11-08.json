@@ -1,0 +1,36 @@
+{
+  "scope": "LOCAL synchronous extra netdev hold return, staged finish bridge and retirement admission; no RF/reopen authorization",
+  "sha256": {
+    "driver-api-close-owner.h": "d15618335100f48272394ace51f06f805815d1e2fac5e06150cca2a7929bdc39",
+    "driver-api-close-synchronous-put.h": "d3a4c0a0d5c700cc6b119503573ac755d113001aac5a3f7cf17f675240e4db54",
+    "driver-api-close-synchronous-put.inc": "4fcb51ec0bf1885d3396958acb3ff8a96db52179114c639e0d89617f4654dcf2",
+    "driver-api-close-finish-recovery.inc": "fc79167c1ef971c8eaf6ed020fafa55c550133e5175db9b6e7e1ecba8173924a",
+    "driver-api-close-join.h": "e65042947eea28d952a4275bcd6ab8e727ac4bcc0d9d9e9e3f1db82bb6c5aadc",
+    "driver-api-close-recovery.h": "63beb5120f8da45ae661ea0307336ba3c143a5f1887d7e6b43bd10e79f67ec25",
+    "driver-api-close-retirement.h": "bb8e8d53ca20d277a4d3208c5a3b34e9a79e6b422622e0b795074e6f19b7f279",
+    "check-driver-api-close-synchronous-put.c": "fe4f7484f26f68d603d28552eafdf7030ec03c7bcdd825e476b0d93648d70c16",
+    "check-driver-api-close-retirement.c": "dae0ed77d882ede528f47c0bf342637d4fee1c37fb37731c28ad2cd7264fb737",
+    "check-close-bindings-target-tu.py": "eaae616a3a4ef07a285826b68b2219aa219e090326d71748568710086e6f5f0c"
+  },
+  "tests": {
+    "close_fixtures": "18 PASS -O2 ASan/UBSan",
+    "actual_sync_binding": "15 scenarios PASS; dev_put outside lock; pending during call; exact ack; duplicate no second put; ack drift retains pending; RTNL/identity/hold/provenance/task-state refusals",
+    "finish_bridge": "PASS actual synchronous finish and put; no recovery or poll; duplicate no second put; failed ack makes bridge fail, retains pending and duplicate never puts again",
+    "retirement": "PASS synchronous returned receipt accepted, pending/mixed origins rejected",
+    "actual_lifetime_and_join_composition": "PASS",
+    "syntax": "Python AST, bash syntax, git diff check PASS",
+    "asset_pins": "PASS 10 reviewed LF/CRLF assets unchanged"
+  },
+  "production_installed": false,
+  "target_verified": false,
+  "runtime_verified": false,
+  "cleanup": "Temporary binaries auto-cleaned; no new persistent artifact tree",
+  "kernel_dev_put_source": {
+    "revision": "c25283e915a2a00a763774dd255b14aff997285e",
+    "path": "trunk/linux-4.4.x/include/linux/netdevice.h",
+    "sha256": "75e8135ec0148d6d3976c319a693c8511d3916bcc5c2aba52f2ae82b0cb9a259",
+    "first_line": 3164,
+    "text": "static inline void dev_put(struct net_device *dev)\n{\n\tthis_cpu_dec(*dev->pcpu_refcnt);\n}",
+    "interpretation": "dev_put decrements per-CPU reference only; caller must preserve registration/adapter lifetime across ack, supplied by RTNL and API fence"
+  }
+}

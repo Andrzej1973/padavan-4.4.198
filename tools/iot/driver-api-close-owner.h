@@ -16,9 +16,20 @@ struct wr_iot_driver_close_owner {
  unsigned int reference_completed,uncertain;
  unsigned int netdev_held,module_held,recovery_netdev_transferred;
  unsigned int recovery_join_pending,recovery_netdev_returned;
+ unsigned int synchronous_put_pending,synchronous_netdev_returned;
 };
+/* Mutually exclusive origins of the extra API netdev reference return. */
+static inline int wr_iot_driver_close_netdev_return_complete(
+ const struct wr_iot_driver_close_owner *close)
+{
+ if(!close||close->netdev_held||close->recovery_join_pending||close->synchronous_put_pending)return 0;
+ if(close->recovery_netdev_transferred)
+  return close->recovery_netdev_returned&&!close->synchronous_netdev_returned;
+ return !close->recovery_netdev_returned&&close->synchronous_netdev_returned&&
+  close->reference_completed&&!close->uncertain;
+}
 /* Lifetime-only fence. Transfer marker is written only by designated thread
- * after locked readiness and real recovery dev_put receipt. Its local module
+ * after locked readiness and a real same-origin dev_put receipt. Its local module
  * reference keeps text alive until core exit; it never accesses adapter again.
  * Active remains set to reject OPEN: this does not grant RF/isolation authority.
  * Inconsistent or partial transfer always retains adapter lifetime fence. */
@@ -29,8 +40,7 @@ static inline int wr_iot_driver_close_blocks_adapter_retirement(
  return !close->retirement_module_transferred||!close->consumed||close->task||
   close->module_held||close->netdev_held||close->retirement_task||
   close->retirement_started||close->retirement_entered||close->retirement_canceling||
-  !close->recovery_netdev_transferred||close->recovery_join_pending||
-  !close->recovery_netdev_returned;
+  !wr_iot_driver_close_netdev_return_complete(close);
 }
 static inline int wr_iot_driver_close_reserve(
  struct wr_iot_driver_close_owner *close,const struct wr_iot_driver_owner *open,
@@ -57,7 +67,8 @@ static inline int wr_iot_driver_close_reserve(
  close->active=1;close->consumed=0;
  close->reference_completed=close->uncertain=0;
  close->netdev_held=close->module_held=close->recovery_netdev_transferred=0;
- close->recovery_join_pending=close->recovery_netdev_returned=0;return 1;
+ close->recovery_join_pending=close->recovery_netdev_returned=0;
+ close->synchronous_put_pending=close->synchronous_netdev_returned=0;return 1;
 }
 static inline int wr_iot_driver_close_take(
  struct wr_iot_driver_close_owner *close,const void *task,const void *dev,

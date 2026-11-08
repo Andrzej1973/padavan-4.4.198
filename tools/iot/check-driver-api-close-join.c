@@ -3,7 +3,7 @@
 #include <string.h>
 #include "driver-api-close-join.h"
 int main(void){
- for(unsigned fault=0;fault<14;fault++){
+ for(unsigned fault=0;fault<16;fault++){
   int dev;struct wr_iot_driver_close_owner close={0};
   struct wr_iot_mbss_recovery_owner recovery={0};struct wr_iot_interface_ref record={0};
   struct wr_iot_driver_close_join_receipt receipt={0};int joined=1;
@@ -24,7 +24,8 @@ int main(void){
    case 7:close.module_held=0;break;case 8:record.removal_stage=1;break;
    case 9:record.close_running=1;break;case 10:recovery.close_ticket.prior_ready=0;break;
    case 11:close.recovery_netdev_returned=1;break;
-   case 12:record.close_uncertain_reason=1;break;case 13:recovery.close_serial++;break;}
+   case 12:record.close_uncertain_reason=1;break;case 13:recovery.close_serial++;break;
+   case 14:close.synchronous_put_pending=1;break;case 15:close.synchronous_netdev_returned=1;break;}
   struct wr_iot_driver_close_owner before=close;
   assert(!wr_iot_driver_close_join_returned(&close,&receipt));
   assert(wr_iot_driver_close_join_claim(&close,&recovery,&record,joined,&receipt)==(fault==0));

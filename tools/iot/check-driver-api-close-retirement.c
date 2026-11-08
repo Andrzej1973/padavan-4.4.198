@@ -289,6 +289,17 @@ int main(void){
 #else
   assert(wr_iot_driver_close_retirement_ready(&close,&radio,refs,2,&main_dev,1,owners,2,&poll,&reaper,idle)==(fault==0));
 #endif
+  if(!fault){
+   close.recovery_netdev_transferred=close.recovery_netdev_returned=0;
+   close.reference_completed=close.synchronous_netdev_returned=1;
+   assert(wr_iot_driver_close_retirement_ready(&close,&radio,refs,2,&main_dev,1,owners,2,&poll,&reaper,1));
+   close.synchronous_put_pending=1;
+   assert(!wr_iot_driver_close_retirement_ready(&close,&radio,refs,2,&main_dev,1,owners,2,&poll,&reaper,1));
+   close.synchronous_put_pending=0;
+   close.recovery_netdev_transferred=close.recovery_netdev_returned=1;
+   assert(!wr_iot_driver_close_retirement_ready(&close,&radio,refs,2,&main_dev,1,owners,2,&poll,&reaper,1));
+   close=before;
+  }
   assert(!memcmp(&before,&close,sizeof(close)));
  }
  puts("PASS retirement preflight: exact returned receipt, durable close/Main and joined poll/recovery/work;conflicts refuse without ownership mutation; thread/release unbound");

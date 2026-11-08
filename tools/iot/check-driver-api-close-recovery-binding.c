@@ -6,6 +6,9 @@ static int wr_iot_mbss_poll_schedule(RTMP_ADAPTER *ad){assert(ad&&!locked);poll_
 static int work_busy(struct close_test_work *w){assert(locked);return w->busy;}
 static int schedule_work(struct close_test_work *w){assert(locked);scheduled_calls++;if(schedule_accept)w->busy=1;return schedule_accept;}
 #include "driver-api-close-recovery-binding.inc"
+#include "driver-api-close-synchronous-put.h"
+static int rtnl_is_locked(void){return 1;}
+#include "driver-api-close-synchronous-put.inc"
 #include "driver-api-close-finish-recovery.inc"
 int main(void){
  close_enter_regression();
