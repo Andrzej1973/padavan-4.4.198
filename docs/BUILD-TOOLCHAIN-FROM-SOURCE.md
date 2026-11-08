@@ -28,6 +28,12 @@ outside GITHUB_ACTIONS; the local checks only normalize/test the recipe.
 The job has a separate queued concurrency group and a240-minute limit. It does
 not block or replace the standard/optional firmware lanes.
 
+To preserve the already reviewed source run42467546674 without compiling again,
+set preserve_existing=true and publish_candidate=true in the manual dispatch.
+This skips the build job, verifies the original run/revision, all archive hashes,
+license and source inventory, and creates a separate owned prerelease. It does
+not select the compiler as default. No push/PR event is enabled.
+
 Output includes the compiler archive, source/recipe/config archives, original
 Linux/libc inputs, downloaded package archives, installed licenses, logs,
 SHA256SUMS and result.json. The builder relocates the compiler before compiling

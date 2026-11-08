@@ -1,8 +1,12 @@
 name: Build owned MIPS toolchain
-run-name: "Toolchain source candidate ${{ github.sha }}"
+run-name: "${{ inputs.preserve_existing && 'Toolchain preservation' || 'Toolchain source candidate' }} ${{ github.sha }}"
 on:
   workflow_dispatch:
     inputs:
+      preserve_existing:
+        description: 'Preserve the reviewed existing compiler artifact in Release without rebuilding'
+        type: boolean
+        default: false
       publish_candidate:
         description: 'Publish verified source-built compiler as a separate prerelease; never promote firmware'
         type: boolean
@@ -15,6 +19,7 @@ concurrency:
   queue: max
 jobs:
   build:
+    if: ${{ !inputs.preserve_existing }}
     runs-on: ubuntu-22.04
     timeout-minutes: 240
     steps:
@@ -82,4 +87,53 @@ jobs:
           PY
           gh release create "$CANDIDATE_TAG" ./*.tar.xz SHA256SUMS result.json \
             --target "$SOURCE_SHA" --title "Source-built MIPS toolchain candidate" \
+            --notes-file notes.md --prerelease --latest=false
+
+  preserve:
+    if: inputs.preserve_existing
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Require explicit candidate publication
+        env:
+          PUBLISH_CANDIDATE: ${{ inputs.publish_candidate }}
+        run: test "$PUBLISH_CANDIDATE" = true
+      - name: Inspect original reviewed source run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api repos/Andrzej1973/padavan-4.4.198/actions/runs/42467546674 > original-run.json
+      - uses: actions/download-artifact@v8
+        with:
+          name: source-built-mips-toolchain
+          run-id: 42467546674
+          github-token: ${{ github.token }}
+          repository: Andrzej1973/padavan-4.4.198
+          path: preserved-candidate
+      - name: Verify exact artifacts and complete source inventory
+        run: |
+          python3 tools/toolchain/check-preserved-artifact.py
+          python3 tools/toolchain/verify-preserved-artifact.py preserved-candidate original-run.json
+      - name: Preserve candidate without changing compiler selection
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          CANDIDATE_TAG: toolchain-preserved-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          cd preserved-candidate
+          sha256sum -c SHA256SUMS
+          cat > notes.md <<'NOTES'
+          Preserved GCC10.5/uClibc1.0.48 MIPSel candidate from reviewed source run42467546674.
+          Exact compiler, generator/kernel/libc/package sources, licenses, reports and hashes are retained.
+          No compiler rebuild, default selection change or physical runtime acceptance is performed here.
+          NOTES
+          gh release create "$CANDIDATE_TAG" ./*.tar.xz SHA256SUMS result.json preservation.json \
+            sources.json requested.config effective.config verification.json \
+            --target 5ef6a8577ae24be27d8d81b3fe44a587d8491a16 \
+            --title "Preserved source-built WR1200JS toolchain candidate" \
             --notes-file notes.md --prerelease --latest=false
