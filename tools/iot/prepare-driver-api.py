@@ -25,7 +25,7 @@ one('common/rtmp_init.c','pAd->wr_iot_control_users=pAd->wr_iot_control_poisoned
 one('include/wr-iot-mcu-control-admission.inc','ready=!ad->wr_iot_control_poisoned&&!ad->wr_iot_boot_active&&','ready=!ad->wr_iot_driver_owner.active&&!ad->wr_iot_driver_owner.poisoned&&\n       !ad->wr_iot_control_poisoned&&!ad->wr_iot_boot_active&&')
 main='os/linux/rt_main_dev.c'
 signature='INT rt28xx_ioctl(PNET_DEV net_dev, struct ifreq *rq, INT cmd)\n{'
-one(main,signature,guard+'\n#include <linux/rtnetlink.h>\n#include <linux/capability.h>\n#include "driver-api-owner-binding.inc"\n#include "driver-api-open-entry.inc"\n#include "driver-api-identity.inc"\n#endif\n'+signature)
+one(main,signature,guard+'\n#include <linux/rtnetlink.h>\n#include <linux/capability.h>\n#include "driver-api-owner-binding.inc"\n#include "driver-api-open-entry.inc"\n#include "driver-api-identity.inc"\n#include "mbss-closed-probe.h"\n#include "mt7603-closed-observe.h"\n#include "mt7603-closed-probe-binding.inc"\n#endif\n'+signature)
 one(main,'if(IS_MT7603(ad)&&!wr_iot_control_enter(ad))return -EBUSY;','if(cmd==WR_IOT_DRIVER_IOCTL_OPEN)return wr_iot_driver_open_ioctl(ad,net_dev,rq);\n if(cmd==WR_IOT_DRIVER_IOCTL_IDENTITY)return wr_iot_driver_identity_ioctl(ad,net_dev,rq);\n if(IS_MT7603(ad)&&!wr_iot_control_enter(ad))return -EBUSY;')
 name='include/wr-iot-mbss-open-admission.inc';s=(src/name).read_text()
 s=s.replace('struct wr_iot_radio_ticket ticket;','struct wr_iot_radio_ticket ticket;\n const struct wr_iot_driver_open_request *api_request=NULL;',1)
@@ -59,7 +59,7 @@ s=s.replace(old,'''if(!ret||(observe_iot&&!wr_iot_virtual_open_claim_matches(
     adapter->wr_iot_transition.busy!=WR_RADIO_BSS_OPEN||''',1)
 s='#include "precreated-key-match.h"\n'+s
 changes[name]=s
-for n in ('driver-api-owner.h','driver-api-wire.h','driver-api-owner-binding.inc','driver-api-open-entry.inc','driver-api-identity.inc'):
+for n in ('driver-api-owner.h','driver-api-wire.h','driver-api-owner-binding.inc','driver-api-open-entry.inc','driver-api-identity.inc','radio-transition.h','mbss-close-receipt.h','mbss-closed-probe.h','mt7603-closed-observe.h','mt7603-closed-probe-binding.inc'):
  changes['include/'+n]=(local/n).read_text()
 # All source anchors/collisions verified before the first mutation.
 for name,s in changes.items():(src/name).write_text(s)

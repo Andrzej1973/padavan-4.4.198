@@ -70,7 +70,7 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   gcc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
     -Itools/iot "$results/checked-radio-result.c" -o "$results/checked-radio-result"
   "$results/checked-radio-result"
-  for fixture in check-mcu-sender-owner check-mcu-sender-wrapper check-mcu-sender-drain check-mcu-sender-release check-mcu-message-lifetime check-mcu-sequence-reservation check-precreated-profile check-precreated-bss-admission check-activation check-precreated-activation check-precreated-loaded-config check-precreated-open-proof check-precreated-profile-request check-precreated-boot-request check-precreated-entropy check-driver-api-wire check-driver-api-open-entry check-driver-api-owner check-driver-api-owner-binding check-driver-api-client check-driver-api-incarnation; do
+  for fixture in check-mcu-sender-owner check-mcu-sender-wrapper check-mcu-sender-drain check-mcu-sender-release check-mcu-message-lifetime check-mcu-sequence-reservation check-precreated-profile check-precreated-bss-admission check-activation check-precreated-activation check-precreated-loaded-config check-precreated-open-proof check-precreated-profile-request check-precreated-boot-request check-precreated-entropy check-driver-api-wire check-driver-api-open-entry check-driver-api-owner check-driver-api-owner-binding check-driver-api-client check-driver-api-incarnation check-mbss-close-receipt check-mt7603-closed-observe check-mbss-closed-probe check-mt7603-closed-binding; do
     gcc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
       -Itools/iot "tools/iot/$fixture.c" -o "$results/$fixture"
     "$results/$fixture"
@@ -459,6 +459,10 @@ if [ "$IOT_CANDIDATE_VARIANT" = v40 ] ||
     awk -v name="$symbol" '$4 == "FUNC" && $7 != "UND" && $3 > 0 && $8 == name { found=1 } END { exit !found }' \
       "$results/mt76x3-symbols.txt"
   done
+fi
+if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
+  awk '$4 == "FUNC" && $7 != "UND" && $3 > 0 && $8 == "wr_iot_mt7603_closed_probe" { found=1 } END { exit !found }' \
+    "$results/mt76x3-symbols.txt"
 fi
 cp "$module" "$results/"
 python3 tools/iot/check-radio-off-module.py "$module" "$results/radio-off-capability.json" --cross "$cross"

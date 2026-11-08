@@ -300,3 +300,70 @@ wrong nonce, consumed query, response-copy invalidation and WRI1 rejection.
 RC requested-open passes the same transaction nonce through query and OPEN and
 wipes credentials. This closes the demonstrated model admission gap; final
 kernel target and device lifecycle remain unverified. No ACK protocol change.
+
+OFF receipt preflight now has mbss-close-receipt.h. It accepts only the exact
+published MBSS registration/generation, original open token, completed local
+close serial/stage4, no uncertain/running close and a nonlast admitted close.
+It also requires current READY Main ownership and matching live vendor refs.
+It intentionally does not require global retired_serial equality: another
+interface can finish after this BSS. Seventeen invalid-state mutations refuse
+under the host sanitizer test; this preflight grants no RF/drain/isolation
+release permission and is not yet installed into a CLOSED ioctl.
+
+Pinned close source trace: ap/ap_mbss.c:423 MbssKickOutStas ->
+ap/ap_assoc.c:3143/3172 per-BSS APMlmeKickOutSta -> MacTableDeleteEntry at3245 ->
+mgmt/mgmt_entrytb.c:960 RTMP_STA_ENTRY_MAC_RESET ->
+include/mac/mac_mt/mt_mac_pci.h:520 AsicDelWcidTab ->
+hw_ctrl/cmm_asic_mt.c:3477 WTBL MMIO and bounded IU_BUSY polling. The isolated
+peer-retirement chain already replaces unchecked WCID deletion with
+wr_iot_delete_wcid_checked; do not propose another pristine-only fix. The
+CmdProcAddRemoveKey name also denotes WTBL MMIO in this pinned MT_MAC source,
+not sufficient evidence of a firmware command. Beacon gate revoke/drain is
+bound by prepare-beacon-producer-candidate.py; CR readback and zero outstanding
+DMA/TxS snapshots remain distinct from proof of late callback/FIFO retirement.
+Future CLOSED status must combine local receipt and appropriate hardware/producer
+observations under lifetime/transition ownership, never expose stage4 as RF proof.
+
+Local CLOSED configuration observer is implemented in mt7603-closed-observe.h.
+Under BcnRingLock it checks Main UP/beacon request, exact IoT netdev DOWN with
+beacon intent clear, revoked/idle producer gate, main ARB queue enabled, IoT
+queue17 disabled and IoT LPON TBTT/PRE_TBTT interrupts disabled. It rejects all-ones
+register reads and invalid adapter flags. Existing DMA/TxS outstanding helpers
+run outside BcnRingLock to avoid recursive locking; afterward the observer
+rechecks the configuration and same producer generation. Post-MMIO flag drift
+also refuses. Host ASan/UBSan fixture passes19 negative cases plus valid state.
+This is configuration plus outstanding snapshots, not proof of RF silence,
+FIFO drain or late-callback retirement; it cannot alone release isolation.
+Not installed into a CLOSED query or used by production activation yet.
+
+Closed observation serialization now uses a distinct BSS_OBSERVE ticket.
+Generic VERIFY was unsuitable: it clears main_ready and failed verification
+can fault Main, even when only the IoT observation is negative. BSS_OBSERVE
+requires READY Main, excludes participating mutators, and retires through a
+separate non-mutating end helper that preserves every current readiness/intent
+bit. Generic radio_finish explicitly refuses this operation. Closed-probe
+begin checks the exact local receipt; finish revalidates that receipt, vendor
+count and its own epoch/serial, then retires even a negative observation without
+inventing Main readiness. Invalidated results refuse; foreign ticket cannot
+be retired and retained context remains active. Caller must wake waiters after
+retirement. No RF/isolation acceptance is supplied by this model.
+Host ASan/UBSan probe tests and existing radio transition, owner/open and closed
+observer regression fixtures pass. New operation/probe remain local and have
+not been compiled as the final MIPS candidate or installed into a CLOSED ioctl.
+
+Internal adapter CLOSED probe binding now composes real transition-lock
+begin/finish with unlocked configuration readback. It refuses active control,
+bootstrap or OPEN owners, wakes waiters only after retiring its exact ticket,
+and returns EAGAIN for negative configuration without changing Main readiness.
+Foreign ticket retirement failure returns EUCLEAN, retains caller-owned probe
+context/lifetimes and poisons controls; caller must not discard it or proceed
+with teardown. The composed host fixture passes these paths with injected MMIO.
+No user CLOSED ioctl or RC activation acceptance is connected yet.
+
+The checked API installer now stages the CLOSED headers and emits an internal
+used probe function in rt_main_dev.c for target compilation. Optional peer82
+requires its nonempty defined ELF symbol after Kbuild. This ensures later
+build evidence covers generated machine code rather than an unused header.
+Retained-source generation and actual MBSS regression pass; fresh target
+result remains pending. This code still does not prove RF/FIFO/late-callback
+retirement or allow isolation release solely on configuration snapshots.
