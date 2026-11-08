@@ -18,7 +18,7 @@ pre=r'''
 #define FALSE 0
 typedef unsigned long ULONG;typedef void VOID;typedef int INT;typedef int BOOLEAN;
 typedef struct {int mt,BcnRingLock,wr_iot_transition_lock,wr_iot_ticket_wait,wr_iot_tx_drain_wait;struct wr_iot_radio_transition wr_iot_transition;struct wr_iot_beacon_filter_owner wr_iot_beacon_filter_owner;} RTMP_ADAPTER;
-static int locked,calls,reenter,early,drain_wakes;
+static int locked,calls,reenter,early,drain_wakes,reset_inside;
 #define IS_MT7603(ad) ((ad)->mt)
 #define RTMP_SEM_LOCK(p) do{(void)(p);assert(!locked);locked=1;}while(0)
 #define RTMP_SEM_UNLOCK(p) do{(void)(p);assert(locked);locked=0;}while(0)
@@ -29,6 +29,12 @@ static int locked,calls,reenter,early,drain_wakes;
 VOID APCheckBcnQHandler(RTMP_ADAPTER *,INT,BOOLEAN *);
 static VOID wr_iot_APCheckBcnQHandler_inner(RTMP_ADAPTER *ad,INT bss,BOOLEAN *out){
  assert(!locked&&bss>=0);calls++;
+ if(reset_inside){
+  struct wr_iot_radio_ticket t;
+  assert(wr_iot_radio_request_reset_kind(&ad->wr_iot_transition,WR_RADIO_RESET_PDMA));
+  assert(!wr_iot_radio_begin(&ad->wr_iot_transition,ad->wr_iot_transition.epoch,WR_RADIO_RESET,&t));
+  assert(ad->wr_iot_transition.active_tx==1);
+ }
  if(reenter){BOOLEAN nested=1;reenter=0;APCheckBcnQHandler(ad,1,&nested);assert(!nested);}
  if(early)return;
  *out=1;
@@ -76,6 +82,14 @@ int main(void){
  assert(!wr_iot_bcn_filter_enter(&ad,&token));
  assert(wr_iot_radio_begin(&ad.wr_iot_transition,epoch,WR_RADIO_RESET,&reset));
  assert(wr_iot_radio_finish(&ad.wr_iot_transition,&reset,0));
+ /* Inject reset intent from the actual wrapped vendor-body call. */
+ wr_iot_radio_transition_init(&ad.wr_iot_transition);
+ ad.wr_iot_transition.phase=WR_RADIO_READY;ad.wr_iot_transition.main_ready=1;
+ reset_inside=1;early=0;APCheckBcnQHandler(&ad,2,&result);reset_inside=0;
+ assert(result&&calls==3&&!ad.wr_iot_transition.active_tx);
+ assert(ad.wr_iot_transition.reset_pending==WR_RADIO_RESET_PDMA);
+ assert(wr_iot_radio_begin(&ad.wr_iot_transition,ad.wr_iot_transition.epoch,WR_RADIO_RESET,&reset));
+ assert(wr_iot_radio_finish(&ad.wr_iot_transition,&reset,0));
  /* Real suspend admission must fence new recovery while the old lease drains. */
  wr_iot_radio_transition_init(&ad.wr_iot_transition);
  ad.wr_iot_transition.phase=WR_RADIO_READY;ad.wr_iot_transition.main_ready=1;
@@ -89,7 +103,7 @@ int main(void){
  assert(!ad.wr_iot_transition.active_tx&&ad.wr_iot_transition.pm_suspending);
  assert(ad.wr_iot_tx_drain_wait==drain_wakes+1);
  assert(ad.wr_iot_ticket_wait==ad.wr_iot_tx_drain_wait);
- ad.mt=0;early=0;APCheckBcnQHandler(&ad,0,&result);assert(result&&calls==3);
+ ad.mt=0;early=0;APCheckBcnQHandler(&ad,0,&result);assert(result&&calls==4);
  puts("PASS actual recovery wrapper: shared BSS exclusion, reentry, early return release, stale token and exhaustion refusal, other chip bypass; vendor body injected, no MMIO proof");
 }
 '''

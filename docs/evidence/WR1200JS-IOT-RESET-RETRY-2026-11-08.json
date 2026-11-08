@@ -1,0 +1,17 @@
+{
+  "scope": "generated command-envelope and reset-executor retry opportunity; not bounded scheduling",
+  "checks": "PASS native ASan/UBSan, three command guards, actual reset fragment contention",
+  "source_hashes": {
+    "common/rtmp_init.c": "7938416f06ab4d72da805f3d4cb92801f7e2e31611a63eb55bd33e76a889a57b",
+    "include/wr-iot-reset-admission.inc": "dc72e2a85fd6a1c8595890ef8dcf8c9c053114019073b9ff34dd6a9b44289d1a"
+  },
+  "finding": "Periodic command tail attempts reset after control lease release, even when periodic body was denied by pending reset. NIC/HALT suppress retry. Reset uses nonblocking RTNL admission.",
+  "limitations": [
+    "No periodic timer delivery or command-worker liveness proof",
+    "No bound if RTNL remains contended",
+    "Last filter leave only wakes drain/ticket waiters; it does not itself schedule reset",
+    "Raw reset return remains hardware-unverified"
+  ],
+  "runtime_verified": false,
+  "scratch": "temporary candidate and binaries removed"
+}

@@ -11,7 +11,8 @@
     "generated OPEN/close/exclusive DMA builder regression",
     "contending recovery releases only its own lifecycle lease and does not wake drain waiters",
     "stale token preserves active lease and both wake counters",
-    "actual suspend request fences fresh recovery while admitted lease drains; last leave wakes both queues"
+    "actual suspend request fences fresh recovery while admitted lease drains; last leave wakes both queues",
+    "reset intent injected inside generated wrapper vendor-body call refuses reset until wrapper returns, then permits explicit reset admission"
   ],
   "result": "PASS",
   "target_compiled": false,
@@ -21,7 +22,8 @@
   "remaining": [
     "target compilation of lease change",
     "real reset/PM/PCI concurrency and hardware completion",
-    "safe RF/TxS retirement and RC backend integration"
+    "safe RF/TxS retirement and RC backend integration",
+    "automatic pending-reset scheduling after contention is not proved by explicit-admission fixture"
   ],
-  "checker_sha256": "95075c9a93beb8f3713c82cb39c71d561cdb10d53e55d6817284062b7206aec6"
+  "checker_sha256": "9aa07e580ebdd5c075ea587c78ac3da66b37b3654f916716442cf99250bc0581"
 }

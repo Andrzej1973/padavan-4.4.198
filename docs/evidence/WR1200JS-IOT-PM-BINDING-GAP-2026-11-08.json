@@ -1,0 +1,57 @@
+{
+  "scope": "retained generated candidate PM source gap; effective WR1200JS CONFIG_PM and physical reachability not verified",
+  "source_sha256": {
+    "os/linux/pci_main_dev.c": "304a4cc07ad7b6863d8407bc0e2cef9b61ee22c16779cf544466da4adf382514",
+    "os/linux/rt_main_dev.c": "f34187ee871ec2b10cd5f97f2796bddde11fe04dd952dabd8406419d4c46b07b",
+    "common/rtmp_init_inf.c": "e821580861d63ec40bbf41ad4051afa34454e4b7ff5ca56ae04447a866fa8241",
+    "common/mlme.c": "dfd611eeb607ba1b7e468dc1102067f79831c5b1e5d2c61567874e16c18f9b19",
+    "include/radio-transition.h": "7c43322405cceae0dba0aa4a509fe06f0d2ef8669b3d5dd41b88a4f427c55684"
+  },
+  "findings": [
+    "PCI suspend/resume callbacks are CONFIG_PM guarded",
+    "Suspend calls wr_iot_radio_request_suspend; no source call of wr_iot_radio_suspend_complete or wr_iot_radio_resume_unverified outside header definitions was found in candidate",
+    "Vendor PCI resume invokes rt28xx_open, which requires peer OPEN admission before rt28xx_init; init recreates management task and MlmeInit periodic timer",
+    "Therefore absence of direct resume command-task wake alone is insufficient evidence of a lost wake; lifecycle and full reinitialization must be reconciled first"
+  ],
+  "required_next": [
+    "Inspect exact image kernel CONFIG_PM before attributing this path to WR1200JS runtime",
+    "Generate final API candidate and repeat binding audit",
+    "Implement checked PM completion/resume ordering only with PCI close/open receipts and partial-failure handling",
+    "Do not clear pm_suspending/pm_suspended or mark READY solely to make OPEN pass"
+  ],
+  "runtime_verified": false,
+  "target_config_evidence": {
+    "run_id": 42461141753,
+    "source_revision": "8f5c5c7e3dbe112fedd7f73996a7c97c5ebd1448",
+    "artifact_id": 13610391749,
+    "archive_sha256": "53d6dc3098fd7afa5d1d4d688984999d2a23844514f7f92c0f25b43b05c7077f",
+    "path": "psm-diagnostics/kernel.config",
+    "config_sha256": "fa047c0252b38d5e9525dbbd80cd1ef8cd4564d01b384edb5d861c200177aaa9",
+    "settings": {
+      "CONFIG_PM": [
+        "# CONFIG_PM is not set"
+      ],
+      "CONFIG_PM_SLEEP": [],
+      "CONFIG_SUSPEND": [
+        "# CONFIG_SUSPEND is not set"
+      ],
+      "CONFIG_HIBERNATION": [
+        "# CONFIG_HIBERNATION is not set"
+      ],
+      "CONFIG_PCI": [
+        "CONFIG_PCI=y"
+      ]
+    },
+    "scope": "kernel config copied by diagnostic feature build; not physical running router"
+  },
+  "final_generated_binding_audit": {
+    "call_sites_in_c": {
+      "wr_iot_radio_suspend_complete(": [],
+      "wr_iot_radio_resume_unverified(": []
+    },
+    "pci_source_sha256": "304a4cc07ad7b6863d8407bc0e2cef9b61ee22c16779cf544466da4adf382514",
+    "candidate": "current local API generator, production false, target compilation not claimed",
+    "later_tick_fixture": "PASS on final generated source"
+  },
+  "priority_decision": "PCI PM binding gap retained for PM-enabled configurations; inactive in verified 8f5c5c7 WR1200JS build, so no PM code change justified for present target. Return priority to BSS RF/TxS retirement."
+}

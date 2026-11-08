@@ -1,0 +1,72 @@
+{
+  "scope": "retained generated predecessor source audit; final API adds ioctl/filter layers, this is not current binary verification",
+  "chain": [
+    {
+      "file": "common/mlme.c",
+      "lines": [
+        1246,
+        1249,
+        1323,
+        1752,
+        1759
+      ],
+      "role": "repeating PeriodicTimer initialization/start, cancellation on halt, callback enqueues periodic command without inspecting result"
+    },
+    {
+      "file": "common/cmm_cmd.c",
+      "lines": [
+        108,
+        115,
+        122,
+        154,
+        175,
+        181
+      ],
+      "role": "allocation can fail; queue state and terminal fence gate insertion; successful insertion wakes command task; legacy wrapper can mask insertion failure"
+    },
+    {
+      "file": "os/linux/rt_rbus_pci_drv.c",
+      "lines": [
+        2058,
+        2061,
+        2063,
+        2072,
+        2073
+      ],
+      "role": "running task waits for wake, exits on wait failure/STOPPED, skips CMDHandler under PM_FlgSuspend"
+    },
+    {
+      "file": "common/rtmp_init.c",
+      "lines": [
+        2976,
+        2978
+      ],
+      "role": "periodic command tail invokes reset drain outside control lease before cleanup"
+    }
+  ],
+  "source_sha256": {
+    "common/mlme.c": "dfd611eeb607ba1b7e468dc1102067f79831c5b1e5d2c61567874e16c18f9b19",
+    "common/cmm_cmd.c": "85ac17c12292783d91efb5090234358416382fe6c4ecbcb6d87d2e30846277a0",
+    "os/linux/rt_rbus_pci_drv.c": "4bff8bb0cc5a254715ea58e7bc36b5755e1aca0436e8d3ca0796d6685caa21f0",
+    "common/rtmp_init.c": "6dc03c706221d57ba58903ea0ad3501131d38df40d38de1a1eba4c8f08e15bd3"
+  },
+  "conclusion": "Source offers periodic retry opportunity, not bounded delivery or successful reset. Suppression under terminal shutdown is expected; reset must not resurrect a retiring adapter.",
+  "next_requirements": [
+    "Verify resume wake/queue behavior for commands accumulated during PM",
+    "Test allocation/insertion failure followed by a successful later tick",
+    "Keep reset_pending until admitted; never infer hardware readiness from VOID reset return"
+  ],
+  "runtime_verified": false,
+  "later_tick_host_test": {
+    "result": "PASS ASan/UBSan",
+    "checker": "tools/iot/check-periodic-enqueue-retry.py",
+    "scope": "actual callback/enqueue and terminal owner predicate; allocator/queue/wakeup injected; worker and hardware excluded",
+    "cases": [
+      "allocation failure then successful later callback",
+      "closed queue then successful later callback",
+      "terminal owner closed plus insertable queue state: three later ticks rejected with no enqueue/wake and allocations freed"
+    ],
+    "ci_integration": "local, not yet published"
+  },
+  "resume_observation": "common/cmm_cfg.c PCI_RESUME clears HALT/RADIO_OFF; no direct command-task wake at that ioctl. PCI resume also calls rt28xx_open; full recreation/timer lifecycle must be inspected before concluding a lost wake."
+}
