@@ -79,6 +79,9 @@ int main(void){
   int clean=wr_iot_driver_owner_leave(&ad.wr_iot_driver_owner,current,&iot,
    &ad.wr_iot_transition,ad.wr_iot_interface_refs,3);
   assert(clean==(fault==0||fault==1||fault==3));
+  if(fault==0)assert(ad.wr_iot_driver_owner.receipt.valid&&
+   ad.wr_iot_driver_owner.receipt.open_token==serial&&
+   ad.wr_iot_driver_owner.receipt.request_id[0]==q.request_id[0]);
   if(fault==5)assert(ad.wr_iot_driver_owner.poisoned);
   assert(!ad.wr_iot_driver_owner.request.password[0]);
   assert(!ad.wr_iot_transition_lock);

@@ -19,4 +19,9 @@ enum wr_iot_driver_submit_result wr_iot_driver_open_submit(
  * own network policy, cancellation and recovery; this is not activation. */
 enum wr_iot_driver_submit_result wr_iot_driver_open_requested(
  const char *,const struct wr_iot_request *);
+/* Original successful ON nonce, not a new OFF transaction ID. Returns only
+ * current configuration/close-reference observation. No RF/drain permission;
+ * failure clears output and caller must retain isolation/recovery ownership. */
+int wr_iot_driver_closed_configuration_read(const unsigned char *,
+ struct wr_iot_driver_closed_result *);
 #endif

@@ -367,3 +367,54 @@ build evidence covers generated machine code rather than an unused header.
 Retained-source generation and actual MBSS regression pass; fresh target
 result remains pending. This code still does not prove RF/FIFO/late-callback
 retirement or allow isolation release solely on configuration snapshots.
+
+Successful OPEN now retains a nonsecret receipt on the adapter owner: exact
+request nonce, device identity, epoch, registry generation and acquired open
+token. It is created only after consumed OPEN has a published owned MBSS ref
+and clean current READY completion. Unmutated refusal creates no new receipt;
+uncertain completion invalidates it. Credential/task buffers are still wiped.
+Stored pointer identity is never a lifetime pin and must match current registry
+before use. Receipt matching requires no active/poisoned owner and exact nonce
+and tuple. Fresh reconstructed owner has no receipt.
+
+Host sanitizer receipt fixture verifies these conditions and composes a later
+nonlast close record/probe with the original OPEN receipt. The actual generated
+MBSS fixture also confirms receipt creation after its successful path and no
+clean completion on unverified observation. This is not RF status or a CLOSED
+wire endpoint yet. RC OFF must retain the original successful ON transaction
+ID for the driver query, separately from the new OFF mailbox transaction ID;
+substituting the OFF ID would not prove closure of that activation. Recovery
+must retain both the activation identity and its own result transaction.
+
+Local CLOSED configuration ioctl0x89fd now accepts a canonical64-byte WRI2/op4
+query containing the original successful ON nonce. It requires namespace
+CAP_NET_ADMIN/RTNL, matches the current adapter's retained OPEN receipt and
+registry generation, and runs the actual persistent BSS_OBSERVE probe. After
+revalidation it returns a zero-initialized WRI2/op5 response containing nonce,
+epoch/generation, open-token, close serial and exactly CONFIGURATION_CLOSED=1.
+Unknown flags, malformed lengths/reserved bytes and mismatched nonce refuse.
+No RF/FIFO/late-callback flag exists; this response alone cannot grant isolation
+release. Active uncertain probe returns EUCLEAN with persistent context retained.
+
+Checked installer stages/initializes the persistent probe, audits all three
+ioctl literals and routes the new endpoint before ordinary control admission.
+Actual CLOSED entry fixture passes13 cases with injected MMIO/syscalls, including
+wrong/absent OPEN receipt, incomplete close, DMA/queue/reset failure, foreign
+ticket retention, privilege/copy errors and safe read-only query retry after
+response copy failure. Wire, OPEN receipt/owner and generated MBSS regressions
+pass ASan/UBSan. New endpoint remains local, not yet target/runtime verified;
+RC CLOSED transport and recovery consumption are the next integration step.
+
+RC CLOSED client now performs one fixed-ra2 CLOEXEC query using the original
+ON nonce, closes the socket once, and decodes only the exact matching WRI2
+CONFIGURATION_CLOSED response. Socket/ioctl/close errors, other nonce/version,
+unknown flags or zero tuple fields clear output and return unconfirmed. No
+automatic retry or RF/isolation-release interpretation. Actual client host
+fixture covers these failures and the valid tuple. Full client TU compiles
+natively; exact MIPS client/query module verification remains pending.
+
+Recovery boundary remains open: an uncertain attempted OPEN with no successful
+OPEN receipt cannot be declared REJECTED just because CLOSED lacks a receipt.
+The future backend must retain quarantine/recovery and obtain separately proven
+failed-open closure; successful-OPEN CLOSED reporting covers only its defined
+history. Do not silently downgrade uncertainty to an unmutated refusal.

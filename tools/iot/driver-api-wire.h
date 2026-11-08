@@ -5,6 +5,10 @@
 #define WR_IOT_DRIVER_API_WIRE_H
 #define WR_IOT_DRIVER_IOCTL_OPEN 0x89ff
 #define WR_IOT_DRIVER_IOCTL_IDENTITY 0x89fe
+#define WR_IOT_DRIVER_IOCTL_CLOSED_CONFIG 0x89fd
+#define WR_IOT_DRIVER_CLOSED_BYTES 64U
+#define WR_IOT_DRIVER_CLOSED_CONFIGURATION 1ULL
+struct wr_iot_driver_closed_result {unsigned long long adapter_epoch,device_generation,open_token,close_serial;};
 #define WR_IOT_DRIVER_OPEN_BYTES 144U
 #define WR_IOT_DRIVER_IDENTITY_BYTES 32U
 struct wr_iot_driver_identity {unsigned long long adapter_epoch,device_generation;};
@@ -70,6 +74,55 @@ static inline int wr_iot_driver_query_decode(unsigned char *id,
  if(!nonzero)return 0;
  for(i=0;i<16;i++)id[i]=wire[8+i];
  return 1;
+}
+/* CLOSED transport reports configuration only, never RF or isolation release. */
+static inline int wr_iot_driver_closed_query_encode(unsigned char *wire,unsigned int length,
+ const unsigned char *id){
+ unsigned int i,nonzero=0;
+ if(!wire||length!=64)return 0;
+ for(i=0;i<64;i++)wire[i]=0;
+ if(!id)return 0;
+ for(i=0;i<16;i++)nonzero|=id[i];
+ if(!nonzero)return 0;
+ wire[0]='W';wire[1]='R';wire[2]='I';wire[3]='2';wire[4]=4;
+ for(i=0;i<16;i++)wire[8+i]=id[i];
+ return 1;
+}
+static inline int wr_iot_driver_closed_query_decode(unsigned char *id,
+ const unsigned char *wire,unsigned int length){
+ unsigned int i,nonzero=0;
+ if(!id)return 0;
+ for(i=0;i<16;i++)id[i]=0;
+ if(!wire||length!=64||wire[0]!='W'||wire[1]!='R'||wire[2]!='I'||wire[3]!='2'||wire[4]!=4)return 0;
+ for(i=5;i<8;i++)if(wire[i])return 0;
+ for(i=24;i<64;i++)if(wire[i])return 0;
+ for(i=0;i<16;i++)nonzero|=wire[8+i];
+ if(!nonzero)return 0;
+ for(i=0;i<16;i++)id[i]=wire[8+i];
+ return 1;
+}
+static inline int wr_iot_driver_closed_encode(unsigned char *wire,unsigned int length,
+ const unsigned char *id,unsigned long long epoch,unsigned long long generation,
+ unsigned long long token,unsigned long long serial){
+ if(!wr_iot_driver_closed_query_encode(wire,length,id))return 0;
+ if(!epoch||!generation||!token||!serial){unsigned int i;for(i=0;i<length;i++)wire[i]=0;return 0;}
+ wire[4]=5;wr_iot_driver_put64(wire+24,epoch);wr_iot_driver_put64(wire+32,generation);
+ wr_iot_driver_put64(wire+40,token);wr_iot_driver_put64(wire+48,serial);
+ wr_iot_driver_put64(wire+56,WR_IOT_DRIVER_CLOSED_CONFIGURATION);return 1;
+}
+static inline int wr_iot_driver_closed_decode(struct wr_iot_driver_closed_result *out,
+ const unsigned char *id,const unsigned char *wire,unsigned int length){
+ unsigned int i,difference=0,nonzero=0;
+ if(!out)return 0;
+ out->adapter_epoch=out->device_generation=out->open_token=out->close_serial=0;
+ if(!id||!wire||length!=64||wire[0]!='W'||wire[1]!='R'||wire[2]!='I'||wire[3]!='2'||wire[4]!=5)return 0;
+ for(i=5;i<8;i++)if(wire[i])return 0;
+ for(i=0;i<16;i++){difference|=wire[8+i]^id[i];nonzero|=id[i];}
+ if(difference||!nonzero||wr_iot_driver_get64(wire+56)!=WR_IOT_DRIVER_CLOSED_CONFIGURATION||
+    !wr_iot_driver_get64(wire+24)||!wr_iot_driver_get64(wire+32)||
+    !wr_iot_driver_get64(wire+40)||!wr_iot_driver_get64(wire+48))return 0;
+ out->adapter_epoch=wr_iot_driver_get64(wire+24);out->device_generation=wr_iot_driver_get64(wire+32);
+ out->open_token=wr_iot_driver_get64(wire+40);out->close_serial=wr_iot_driver_get64(wire+48);return 1;
 }
 static inline void wr_iot_driver_request_wipe(struct wr_iot_driver_open_request *r){
  volatile unsigned char *p=(volatile unsigned char *)r;unsigned int i;

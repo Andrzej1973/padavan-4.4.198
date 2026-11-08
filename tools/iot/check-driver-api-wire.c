@@ -21,4 +21,12 @@ assert(wr_iot_driver_query_encode(query,32,nonce)&&wr_iot_driver_query_decode(de
 assert(decoded_nonce[0]==1);
 query[3]='1';assert(!wr_iot_driver_query_decode(decoded_nonce,query,32));
 assert(wr_iot_driver_identity_encode(response,32,1,2));response[3]='1';assert(!wr_iot_driver_identity_decode(&identity,response,32));
+unsigned char closed[64],closed_id[16];struct wr_iot_driver_closed_result closed_result;
+assert(wr_iot_driver_closed_query_encode(closed,64,nonce)&&wr_iot_driver_closed_query_decode(closed_id,closed,64));
+for(unsigned i=24;i<64;i++){closed[i]=1;assert(!wr_iot_driver_closed_query_decode(closed_id,closed,64));closed[i]=0;}
+assert(wr_iot_driver_closed_encode(closed,64,nonce,1,2,3,4));
+assert(wr_iot_driver_closed_decode(&closed_result,nonce,closed,64)&&closed_result.close_serial==4);
+nonce[0]^=1;assert(!wr_iot_driver_closed_decode(&closed_result,nonce,closed,64));nonce[0]^=1;
+closed[63]=3;assert(!wr_iot_driver_closed_decode(&closed_result,nonce,closed,64));closed[63]=1;
+for(unsigned n=0;n<70;n++)if(n!=64)assert(!wr_iot_driver_closed_decode(&closed_result,nonce,closed,n));
 assert(!wr_iot_driver_open_decode(&r,0,144));assert(!wr_iot_driver_open_decode(0,w,144));return 0;}

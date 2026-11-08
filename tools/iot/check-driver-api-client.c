@@ -10,6 +10,7 @@
 #include "driver-api-client.h"
 static unsigned sockets,calls,closes;static int socket_error,ioctl_error,close_error,bad_reply,open_only_error;
 static unsigned char observed_id[16];
+static int bad_closed_reply;
 static int fake_socket(int domain,int type,int protocol){
  assert(domain==AF_INET&&type==(SOCK_DGRAM|SOCK_CLOEXEC)&&!protocol);sockets++;
  return socket_error?-1:10;
@@ -22,6 +23,15 @@ static int fake_ioctl(int fd,unsigned long command,...){
   unsigned char id[16];assert(wr_iot_driver_query_decode(id,(unsigned char *)r->ifr_data,32));
   assert(wr_iot_driver_identity_encode((unsigned char *)r->ifr_data,32,1,2));
   if(bad_reply)r->ifr_data[4]=99;
+ }else if(command==WR_IOT_DRIVER_IOCTL_CLOSED_CONFIG){
+  unsigned char id[16];unsigned char *wire=(unsigned char *)r->ifr_data;
+  assert(wr_iot_driver_closed_query_decode(id,wire,64));
+  assert(wr_iot_driver_closed_encode(wire,64,id,1,2,3,4));
+  if(bad_closed_reply==1)wire[8]^=1;
+  if(bad_closed_reply==2)wire[63]=3;
+  if(bad_closed_reply==3)memset(wire+24,0,8);
+  if(bad_closed_reply==4)wire[3]='1';
+  if(bad_closed_reply==5)memset(wire+48,0,8);
  }else{
   struct wr_iot_driver_open_request decoded;
   assert(command==WR_IOT_DRIVER_IOCTL_OPEN&&wr_iot_driver_open_decode(&decoded,(unsigned char *)r->ifr_data,144));
@@ -66,5 +76,18 @@ int main(void){
  open_only_error=1;unsigned prior=calls;
  assert(wr_iot_driver_open_requested(id,&requested)==WR_IOT_DRIVER_OPEN_UNCERTAIN&&calls==prior+2);open_only_error=0;
  assert(!strcmp(requested.password,"password"));
- puts("PASS actual RC API client: fixed ra2/CLOEXEC, strict identity response, no OPEN before validation, transaction ID/ON validation, one OPEN/no retry, uncertain ioctl/close outcomes; system calls injected, no device operation");return 0;
+ struct wr_iot_driver_closed_result state={99,99,99,99};unsigned char empty_id[16]={0};
+ baseline=calls;
+ assert(!wr_iot_driver_closed_configuration_read(empty_id,&state)&&calls==baseline&&!state.adapter_epoch);
+ assert(!wr_iot_driver_closed_configuration_read(query_id,NULL)&&calls==baseline);
+ socket_error=1;assert(!wr_iot_driver_closed_configuration_read(query_id,&state)&&calls==baseline);socket_error=0;
+ ioctl_error=1;assert(!wr_iot_driver_closed_configuration_read(query_id,&state)&&!state.close_serial);ioctl_error=0;
+ close_error=1;assert(!wr_iot_driver_closed_configuration_read(query_id,&state)&&!state.open_token);close_error=0;
+ for(bad_closed_reply=1;bad_closed_reply<=5;bad_closed_reply++){
+  assert(!wr_iot_driver_closed_configuration_read(query_id,&state));
+  assert(!state.adapter_epoch&&!state.device_generation&&!state.open_token&&!state.close_serial);
+ }
+ bad_closed_reply=0;assert(wr_iot_driver_closed_configuration_read(query_id,&state));
+ assert(state.adapter_epoch==1&&state.device_generation==2&&state.open_token==3&&state.close_serial==4);
+ puts("PASS actual RC API client: fixed ra2/CLOEXEC, strict identity response, no OPEN before validation, transaction ID/ON validation, one OPEN/no retry, uncertain ioctl/close outcomes and strict CLOSED configuration response; system calls injected, no device operation");return 0;
 }

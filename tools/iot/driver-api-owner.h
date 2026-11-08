@@ -6,6 +6,14 @@
 #define WR_IOT_DRIVER_API_OWNER_H
 #include "driver-api-wire.h"
 #include "virtual-open-claim.h"
+/* Nonsecret identity only; device pointer is compared, never dereferenced and
+ * never substitutes for a netdev/lifetime pin or current registry check. */
+struct wr_iot_driver_open_receipt {
+ const void *device;
+ unsigned long epoch,generation,open_token;
+ unsigned char request_id[16];
+ unsigned int valid;
+};
 struct wr_iot_driver_owner {
  struct wr_iot_driver_open_request request;
  struct wr_iot_virtual_open_claim claim;
@@ -14,6 +22,7 @@ struct wr_iot_driver_owner {
  unsigned int active,consumed,poisoned,query_valid;
  unsigned char query_id[16];
  unsigned long long query_epoch,query_generation;
+ struct wr_iot_driver_open_receipt receipt;
 };
 /* Called under transition lock after current adapter identity observation.
  * Challenge metadata is not a task/netdev pin and grants no radio permission. */
@@ -85,6 +94,7 @@ static inline int wr_iot_driver_owner_leave(struct wr_iot_driver_owner *o,
  struct wr_iot_interface_ref *record;unsigned int i;int clean;
  struct wr_iot_radio_ticket retained_ticket;
  struct wr_iot_virtual_open_claim retained_claim;
+ struct wr_iot_driver_open_receipt retained_receipt;
  volatile unsigned char *wipe;
  if(!o||!radio||!o->active||o->task!=task||o->claim.device!=dev)return 0;
  /* dev_open can fail before ndo_open. Cancel only a still-current unconsumed
@@ -100,12 +110,33 @@ static inline int wr_iot_driver_owner_leave(struct wr_iot_driver_owner *o,
   radio->epoch==o->claim.epoch&&!radio->reset_pending&&!radio->retiring&&
   !radio->pm_suspending&&!radio->pm_suspended&&record&&!record->removing;
  retained_ticket=o->ticket;retained_claim=o->claim;
+ retained_receipt=o->receipt;
+ if(clean&&o->consumed&&record->phase==WR_REF_OWNED&&record->published&&
+    record->family==WR_REF_FAMILY_MBSS&&record->last_token==o->claim.serial){
+  retained_receipt.device=dev;retained_receipt.epoch=o->claim.epoch;
+  retained_receipt.generation=o->claim.generation;retained_receipt.open_token=o->claim.serial;
+  for(i=0;i<16;i++)retained_receipt.request_id[i]=o->request.request_id[i];
+  retained_receipt.valid=1;
+ }else if(!clean)retained_receipt.valid=0;
  wipe=(volatile unsigned char *)o;
  for(i=0;i<sizeof(*o);i++)wipe[i]=0;
  o->poisoned=!clean;
+ o->receipt=retained_receipt;
  /* Keep nonsecret recovery identity on uncertainty, never a borrowed task
   * pointer or credentials. This metadata does not pin the netdev lifetime. */
  if(!clean){o->ticket=retained_ticket;o->claim=retained_claim;}
  return clean;
+}
+/* Caller additionally verifies exact current registry/close receipt under the
+ * same transition lock. This helper alone grants no current-state permission. */
+static inline int wr_iot_driver_open_receipt_matches(const struct wr_iot_driver_owner *o,
+ const unsigned char *id,const void *dev,unsigned long epoch,
+ unsigned long generation,unsigned long open_token){
+ unsigned int i,difference=0;
+ if(!o||!id||o->active||o->poisoned||!o->receipt.valid||!dev||
+    o->receipt.device!=dev||o->receipt.epoch!=epoch||
+    o->receipt.generation!=generation||o->receipt.open_token!=open_token)return 0;
+ for(i=0;i<16;i++)difference|=id[i]^o->receipt.request_id[i];
+ return difference==0;
 }
 #endif

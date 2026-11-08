@@ -66,3 +66,18 @@ enum wr_iot_driver_submit_result wr_iot_driver_open_requested(
 done:
  wr_iot_driver_request_wipe(&request);return result;
 }
+int wr_iot_driver_closed_configuration_read(const unsigned char *on_id,
+ struct wr_iot_driver_closed_result *out)
+{
+ struct ifreq request={0};unsigned char wire[WR_IOT_DRIVER_CLOSED_BYTES]={0};
+ int fd,result,closed;
+ if(!out)return 0;
+ out->adapter_epoch=out->device_generation=out->open_token=out->close_serial=0;
+ if(!wr_iot_driver_closed_query_encode(wire,sizeof(wire),on_id))return 0;
+ fd=socket(AF_INET,SOCK_DGRAM|SOCK_CLOEXEC,0);if(fd<0)return 0;
+ memcpy(request.ifr_name,"ra2",4);request.ifr_data=(char *)wire;
+ result=ioctl(fd,WR_IOT_DRIVER_IOCTL_CLOSED_CONFIG,&request);
+ closed=close(fd);
+ if(result||closed)return 0;
+ return wr_iot_driver_closed_decode(out,on_id,wire,sizeof(wire));
+}
