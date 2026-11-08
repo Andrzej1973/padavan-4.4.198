@@ -1,0 +1,19 @@
+{
+  "scope": "LOCAL stricter Main/IoT ownership admission, not resource release proof",
+  "hashes": {
+    "tools/iot/driver-api-close-admission.h": "7e58154dda1fe718d4fc15769fbada0032c6954fe4722016822b2456e75ffbbe",
+    "tools/iot/check-driver-api-close-admission.c": "e739011292f7da0bebb817d269aedd2015145690cc6941ef9a4bcfeffe540bd0",
+    "tools/iot/check-driver-api-open-current.c": "8bacca70ec3746c60aa19cc72b14aa47a92af124ac63c535f94ce11b16b09820"
+  },
+  "host_asan_ubsan": "PASS admission/current observation34cases each incl32refusals; enter and scheduling regressions",
+  "new_refusals": [
+    "Main zero token",
+    "Main close running",
+    "Main uncertain close",
+    "Main removal stage",
+    "IoT removal stage"
+  ],
+  "target_compiled": false,
+  "runtime_verified": false,
+  "module_release_authorized": false
+}

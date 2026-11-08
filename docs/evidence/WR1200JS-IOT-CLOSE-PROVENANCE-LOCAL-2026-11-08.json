@@ -1,0 +1,13 @@
+{
+  "scope": "LOCAL target evidence provenance enhancement",
+  "source_sha256": "ad1085378986a563385275e2555089e6e2ce8c754b108d7426cf8bca3cdd4efb",
+  "records": [
+    "seven directly included staged binding hashes",
+    "actual vendor rt_main_dev source hash",
+    "existing command/config/probe/object hashes"
+  ],
+  "rejects_source_drift_during_compile": true,
+  "local_checks": "PASS syntax/include generation/missing-Kbuild negative fixture",
+  "target_executed": false,
+  "runtime_verified": false
+}

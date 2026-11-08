@@ -25,7 +25,9 @@ static inline int wr_iot_driver_close_admissible(
  main_ref=wr_iot_registry_find_owned(slots,count,main_dev);
  iot_ref=wr_iot_registry_find_owned(slots,count,iot_dev);
  if(!main_ref||main_ref->family!=WR_REF_FAMILY_MAIN||main_ref->removing||
-    !iot_ref||iot_ref->family!=WR_REF_FAMILY_MBSS||iot_ref->removing||
+    main_ref->removal_stage||!main_ref->last_token||main_ref->close_running||
+    main_ref->close_uncertain_reason||
+    !iot_ref||iot_ref->family!=WR_REF_FAMILY_MBSS||iot_ref->removing||iot_ref->removal_stage||
     iot_ref->generation!=generation||iot_ref->last_token!=open_token||
     iot_ref->close_running||iot_ref->close_uncertain_reason)return 0;
  return wr_iot_registry_count_matches(slots,count,vendor_count);

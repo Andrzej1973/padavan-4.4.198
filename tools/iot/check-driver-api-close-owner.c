@@ -3,7 +3,7 @@
 #include <string.h>
 #include "driver-api-close-owner.h"
 int main(void){
- for(unsigned fault=0;fault<10;fault++){
+ for(unsigned fault=0;fault<12;fault++){
   struct wr_iot_driver_owner open={0};struct wr_iot_driver_close_owner close={0};
   struct wr_iot_radio_transition radio;struct wr_iot_interface_ref slots[2]={{0}};
   int main_dev,iot_dev,task,other;unsigned long sequence=0,generation=0;
@@ -27,6 +27,8 @@ int main(void){
    case 5:record->removing=1;break;case 6:radio.epoch++;break;
    case 7:radio.serial++;break;case 8:record->close_epoch++;break;
    case 9:record->close_running=1;break;
+   case 10:record->removal_stage=1;break;
+   case 11:close.ticket.reset_kind=1;break;
   }
   assert(wr_iot_driver_close_take(&close,caller,device,&radio,slots,2,&ticket,&generation)==(fault==0));
   assert(close.active&&radio.busy==WR_RADIO_BSS_CLOSE);

@@ -44,10 +44,11 @@ static inline int wr_iot_driver_close_take(
  struct wr_iot_interface_ref *record;
  if(!close||!task||!dev||!radio||!ticket||!generation||!close->active||
     close->consumed||close->task!=task||close->device!=dev||
-    close->ticket.operation!=WR_RADIO_BSS_CLOSE||radio->busy!=WR_RADIO_BSS_CLOSE||
+    close->ticket.operation!=WR_RADIO_BSS_CLOSE||close->ticket.reset_kind||
+    radio->busy!=WR_RADIO_BSS_CLOSE||
     radio->epoch!=close->ticket.epoch||radio->serial!=close->ticket.serial)return 0;
  record=wr_iot_registry_find(slots,count,dev,close->generation);
- if(!record||!record->published||record->removing||record->family!=WR_REF_FAMILY_MBSS||
+ if(!record||!record->published||record->removing||record->removal_stage||record->family!=WR_REF_FAMILY_MBSS||
     record->phase!=WR_REF_OWNED||record->last_token!=close->open_token||
     record->close_epoch!=close->ticket.epoch||record->close_vendor_count<=1||
     record->close_prior_phase!=(int)close->ticket.prior_phase||

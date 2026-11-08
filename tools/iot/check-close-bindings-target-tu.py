@@ -44,7 +44,15 @@ def main():
   if len(sources)!=1:raise RuntimeError('Expected one C source')
   source=Path(sources[0]);source=source if source.is_absolute() else root/source
   if source.resolve()!=(driver/'os/linux/rt_main_dev.c').resolve():raise RuntimeError('Unexpected source')
-  report.update(command_sha256=hashlib.sha256(raw).hexdigest(),kernel_config_sha256=hashlib.sha256(before).hexdigest())
+  binding_names=('driver-api-close-finish.h','driver-api-close-recovery.h',
+                 'driver-api-close-enter.inc','driver-api-close-finish-binding.inc',
+                 'driver-api-close-recovery-binding.inc','driver-api-close-finish-recovery.inc',
+                 'driver-api-close-entry.inc')
+  binding_inputs={name:(local/name).read_bytes() for name in binding_names}
+  driver_input=source.read_bytes()
+  report.update(command_sha256=hashlib.sha256(raw).hexdigest(),kernel_config_sha256=hashlib.sha256(before).hexdigest(),
+                binding_source_sha256={name:hashlib.sha256(data).hexdigest() for name,data in binding_inputs.items()},
+                driver_source_sha256=hashlib.sha256(driver_input).hexdigest())
   with tempfile.TemporaryDirectory(prefix='wr-close-target-tu-') as tmp:
    probe=Path(tmp)/'close.c';obj=Path(tmp)/'close.o';probe.write_text(probe_source(driver,local))
    macros=subprocess.run([str(tool.resolve()),*flags,'-E','-dM',str(probe)],cwd=root,capture_output=True,text=True,timeout=60)
@@ -62,6 +70,7 @@ def main():
    row=next((s.split() for s in symbols.splitlines() if s.endswith(' wr_iot_close_bindings_target_probe')),None)
    if not row or len(row)!=4 or row[2].upper()!='T' or int(row[1],16)<=8:raise RuntimeError('Probe missing or optimized to trivial refusal')
    if (root/'.config').read_bytes()!=before:raise RuntimeError('Kernel config changed')
+   if source.read_bytes()!=driver_input or any((local/name).read_bytes()!=data for name,data in binding_inputs.items()):raise RuntimeError('CLOSE source changed during target probe')
    a.output.with_suffix('.o').write_bytes(blob)
    report.update(status='passed',object_sha256=hashlib.sha256(blob).hexdigest(),object_bytes=len(blob),probe_symbol_bytes=int(row[1],16),probe_source_sha256=hashlib.sha256(probe.read_bytes()).hexdigest())
  except (OSError,ValueError,RuntimeError,subprocess.SubprocessError) as e:report['error']=str(e)

@@ -3,7 +3,7 @@
 #include <string.h>
 #include "driver-api-open-current.h"
 int main(void){
- for(unsigned fault=0;fault<29;fault++){
+ for(unsigned fault=0;fault<34;fault++){
   struct wr_iot_driver_owner owner={0};struct wr_iot_radio_transition radio;
   struct wr_iot_interface_ref slots[3]={{0}},*main_ref,*iot_ref;
   unsigned long sequence=0;int main_dev,iot_dev,guest_dev;
@@ -29,6 +29,11 @@ int main(void){
    case 20:radio.pm_suspended=1;break;case 21:radio.busy=WR_RADIO_BSS_OPEN;break;
    case 22:radio.main_inhibited=1;break;case 23:radio.phase=WR_RADIO_UNVERIFIED;break;
    case 24:users=1;break;case 25:blocked=1;break;case 26:probe=1;break;case 27:count=1;break;
+   case 29:main_ref->last_token=0;break;
+   case 30:main_ref->close_running=1;break;
+   case 31:main_ref->close_uncertain_reason=1;break;
+   case 32:main_ref->removal_stage=1;break;
+   case 33:iot_ref->removal_stage=1;break;
    case 28:{
     struct wr_iot_interface_ref *guest=wr_iot_registry_add_family(slots,3,&sequence,&guest_dev,WR_REF_FAMILY_MBSS);
     assert(guest);guest->published=1;guest->phase=WR_REF_OWNED;guest->last_token=3;count=3;break;
@@ -43,6 +48,6 @@ int main(void){
   else assert(!observed.adapter_epoch&&!observed.device_generation&&!observed.open_token);
   assert(!memcmp(&owner,&before_owner,sizeof(owner))&&!memcmp(&radio,&before_radio,sizeof(radio))&&!memcmp(slots,before_slots,sizeof(slots)));
  }
- puts("PASS current OPEN observation and close admission: same successful OPEN nonce/epoch/generation/token and owned Main/count with Guest absent/present;27 refusals, no state mutation; ticket transfer/executor unbound");
+ puts("PASS current OPEN observation and close admission: same successful OPEN nonce/epoch/generation/token and owned Main/count with Guest absent/present;32 refusals, no state mutation; ticket transfer/executor unbound");
  return 0;
 }
