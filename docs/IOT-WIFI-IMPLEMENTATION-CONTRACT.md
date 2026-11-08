@@ -1,5 +1,45 @@
 # WR1200JS separate IoT Wi-Fi implementation contract
 
+## Current acceptance boundary — 2026-11-08
+
+IoT remains **incomplete and not accepted for production**. Cold BSS2 reservation
+and virtual toggles remain the preferred strategy; no physical restart/channel
+scan workaround or ACK/stale-protection relaxation is authorized by these results.
+
+- Diagnostic source `8f5c5c7e3dbe112fedd7f73996a7c97c5ebd1448`: standard
+  `42459102473` and peer82 optional `42461141753` succeeded. Downloaded OFF/ON
+  MIPS modules, all eight affected objects, hashes and four compiler commands per
+  mode were independently checked. This proves diagnostic target compilation,
+  not runtime stability or installation in production. Evidence:
+  `evidence/WR1200JS-PSM-TARGET-894-2026-11-08.json`.
+- Lifecycle lease source `83675c9a6edb2a9ec6f2235681de7e895dbda1cc`: standard
+  `42461728299` and optional `42463260687` succeeded. Downloaded source artifact
+  confirms exact SHA; independent module inspection confirms ELF32 LE MIPS and
+  records hash/size. Final source manifest matches the reviewed lease-header
+  hash, and its wrapper regression report passes. Evidence:
+  `evidence/WR1200JS-IOT-FILTER-LEASE-TARGET-2026-11-08.json`. This establishes
+  compilation/inclusion, not real reset/PM/PCI concurrency or hardware acceptance.
+- Source `c51b0d64788c0b1c149edc6eb4a0ac964f5b3d9b` adds retry/terminal regression
+  checks. Standard `42463953909` attempt1 failed downloading libyaml (HTTP504),
+  not compiling C; attempt2 repeated the same failure. Source
+  `d1d66957b92d81cf4e49d0a210f56c33da2b8253` fixes verified atomic source
+  download/fallback; standard `42465036867` is pending. Source
+  `621c458a01904ef5f1b5577b319a127484640fdb` adds composed TxS/builder checks;
+  its standard `42464607054` is live. Neither result is yet acceptance evidence.
+- The successful diagnostic build's effective kernel config has CONFIG_PM and
+  CONFIG_SUSPEND disabled. PM callback binding limitations are retained for
+  PM-enabled configurations, not attributed to an observed failure here.
+
+Configuration-only CLOSED and close_stage4 bookkeeping do not establish RF/FIFO
+or late-TxS retirement. The conditional reused-PID negative witness remains;
+local Generation is not firmware receive correlation. The composed host test
+shows busy/unknown DMA still blocks the builder despite stale IDLE, but does
+not prove safe reopen. See [remaining retirement requirements](WR1200JS-IOT-BSS-RETIREMENT-REQUIREMENTS.md).
+The experimental production activation/RC backend remains unbound. Main/Guest
+continuity, no scan/restart on toggles, DHCP/DNS/Internet, IPv4/IPv6 isolation,
+persistence, final image inclusion and physical acceptance remain required.
+Older dated blocks below are historical checkpoints, not current completion.
+
 ## Current acceptance boundary — 2026-11-07
 
 IoT remains **incomplete and not accepted for production**. Preferred runtime

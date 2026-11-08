@@ -1,0 +1,40 @@
+{
+  "run_id": 42460096536,
+  "artifacts": [
+    {
+      "id": 13609387248,
+      "archive_sha256": "7bd2ec3aa0593f17a8d874f3bdb62e596523d6af7dc63a3a651f21fe02048f1b",
+      "reports": {
+        "verification-source.json": {
+          "dispatch_revision": "8f5c5c7e3dbe112fedd7f73996a7c97c5ebd1448",
+          "requested_revision": "adc5410ffa0d045bb4ed1d981b1280866789b228",
+          "verified_revision": "adc5410ffa0d045bb4ed1d981b1280866789b228",
+          "runtime_verified": false
+        }
+      }
+    },
+    {
+      "id": 13609876760,
+      "archive_sha256": "1f805af738e50f81535074ca017d0aa1d563654da71c21c2f4ef373a1b2a36e6",
+      "reports": {
+        "psm-diagnostics/target-result.json": {
+          "target_compiled": true,
+          "production_installed": false,
+          "runtime_verified": false,
+          "variants": {
+            "off": {
+              "bytes": 5858712,
+              "sha256": "18ce746569c3c253b7fa0109535e9d7fcdfe24a612797262fa60c1d8712aec1f"
+            },
+            "on": {
+              "bytes": 5864056,
+              "sha256": "dec83be7263b62731de5a742e06f82e2bd5f57300fb0a6378f3b2162c80075a6"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "runtime_verified": false,
+  "production_installed": false
+}

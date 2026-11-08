@@ -1,0 +1,15 @@
+{
+  "revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "files_sha256": {
+    "trunk/linux-4.4.x/include/linux/ratelimit.h": "e98bd6a0992a176866244039c4fd0429195b3aea6014a9f045c78ed403f5f935",
+    "trunk/linux-4.4.x/lib/ratelimit.c": "990121e45e49a392be1e1a0b1eb742dbd3abad19f2cc3c664ac4cdc8c90291fe"
+  },
+  "source_api_verified": [
+    "DEFINE_RATELIMIT_STATE",
+    "__ratelimit",
+    "EXPORT_SYMBOL(___ratelimit)"
+  ],
+  "target_compiled": false,
+  "runtime_verified": false,
+  "scope": "source API/export availability only; no substitute for enabled diagnostic MIPS module build"
+}

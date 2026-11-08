@@ -1,0 +1,13 @@
+{
+  "source_sha256": "9e2f5fca7709a2fd0adb758cf05d84138d8adf3254e6a7c4eb9574ff1384733c",
+  "scope": "actual retained candidate parser/allocator/callback ledger extracted, primitives/handlers injected",
+  "result": "PASS sanitizer ledger invariants; negative stale PID reuse witness reproduced; generation exhaustion refused",
+  "matching_function": "INT32 RemoveTxSStatus(RTMP_ADAPTER *pAd, UINT8 TxSPid, UINT8 *Type, UINT8 *PktPid, \n\t\t\t\t\t\t\t\tUINT8 *PktType, UINT8 *PktSubType, UINT16 *TxRate, UINT32 *TxSPriv)\n{\n\tTXS_CTL *TxSCtl = &pAd->TxSCtl;\n\tULONG Flags;\n\n\tRTMP_SPIN_LOCK_IRQSAVE(&TxSCtl->TxSStatusLock, &Flags);\n\t\n\tif (TxSCtl->TxSStatus[TxSPid].State != TXS_USED) {\n\t\tRTMP_SPIN_UNLOCK_IRQRESTORE(&TxSCtl->TxSStatusLock, &Flags);\n\t\treturn -1;\n\t}\n\t\n\t*Type = TxSCtl->TxSStatus[TxSPid].Type;\n\t*PktPid = TxSCtl->TxSStatus[TxSPid].PktPid;\n\t*PktType = TxSCtl->TxSStatus[TxSPid].PktType;\n\t*PktSubType = TxSCtl->TxSStatus[TxSPid].PktSubType;\n\t*TxRate = TxSCtl->TxSStatus[TxSPid].TxRate;\n\t*TxSPriv = TxSCtl->TxSStatus[TxSPid].Priv;\n\t/* Reserve callback ownership before releasing the PID. */\n\tif (*Type == TXS_TYPE1 && *PktType == FC_TYPE_MGMT &&\n\t    *PktSubType == SUBTYPE_BEACON && *TxSPriv < HW_BEACON_MAX_NUM) {\n\t\tif (TxSCtl->BeaconCallbacksInFlight[*TxSPriv] == 0xffffU) {\n\t\t\tRTMP_SPIN_UNLOCK_IRQRESTORE(&TxSCtl->TxSStatusLock, &Flags);\n\t\t\treturn -1;\n\t\t}\n\t\tTxSCtl->BeaconCallbacksInFlight[*TxSPriv]++;\n\t}\n\tTxSCtl->TxSStatus[TxSPid].State = TXS_CLAIMED;\n\tRTMP_SPIN_UNLOCK_IRQRESTORE(&TxSCtl->TxSStatusLock, &Flags);\n\t\n\treturn 0;\n}",
+  "finding": "RemoveTxSStatus matches PID state, reports stored local metadata and claims entry. Local reservation generation is not supplied by receive report matching. Callback accounting covers admitted execution, not a report arriving after completed PID reuse.",
+  "not_proven": [
+    "Actual duplicate or delayed hardware delivery",
+    "RF queue empty/retired",
+    "Safe timeout bound or hardware sequence correlation"
+  ],
+  "runtime_verified": false
+}

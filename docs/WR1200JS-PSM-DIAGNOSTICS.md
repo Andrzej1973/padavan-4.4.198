@@ -48,8 +48,8 @@ It adds a header and hooks in common/mt_ps.c, ap/ap.c, ap/ap_connect.c,tx_rx/txs
 Default OFF. Compile selected diagnostic driver with `-DWR_IOT_PSM_DIAG`
 added to its Kbuild compiler flags; do not change firmware protocol/ACK guards.
 Use existing GitHub standard then exact-SHA peer82 candidate workflow for full
-MIPS module builds. This patch has clean-apply verification only so far, not
-full target compilation or runtime acceptance. Integrating in the layered
+MIPS module builds. Clean application and native header checks pass; full target compilation
+and runtime acceptance remain unverified. Integrating in the layered
 candidate needs explicit manifest/source-anchor updates; do not apply blindly
 after generators that rewrite these same functions.
 
@@ -110,8 +110,35 @@ is bounded and invalid event index refused. Native ASan/UBSan tests pass.
 Pinned-source and current API-successor clean patch application pass. Actual
 kernel atomics/locking and target APIs remain for the full GitHub module builds.
 
-Local follow-up, awaiting next coherent publication: A/B evidence now also
+Published in commit `8f5c5c7e3dbe112fedd7f73996a7c97c5ebd1448`: A/B evidence
 requires exactly four named MIPS objects, checks the define only in actual
 Kbuild compiler command lines, hashes every affected source/command/object and
 requires distinct OFF/ON module hashes. Shell/report-builder syntax and native
-header tests pass; these checks themselves are not MIPS build results.
+header tests pass; negative report fixtures reject missing units, a define only
+in comments, non-MIPS objects and identical modules. These checks themselves
+are not MIPS build results. Standard `42459102473` and optional `42461141753`
+later succeeded; the independent target checkpoint below supersedes the earlier
+pending status. No runtime result is claimed.
+
+## Target checkpoint: optional run 42460096536
+
+The successful optional run built source `adc5410ffa0d045bb4ed1d981b1280866789b228`,
+confirmed by its verification-source artifact despite dispatch head `8f5c5c7`.
+Its target-result reports separate OFF/ON MIPS modules with different hashes;
+see `docs/evidence/WR1200JS-PSM-TARGET-893-2026-11-08.json` for the original
+report and downloaded archive hashes. Module bytes have not yet been independently
+validated locally for this earlier run. The stronger four-unit evidence gate
+subsequently passed in optional `42461141753` for source `8f5c5c7`, as detailed below. No module was installed in the
+production image and no physical runtime acceptance is claimed.
+
+## Independently verified target checkpoint: run 42461141753
+
+Optional source `8f5c5c7e3dbe112fedd7f73996a7c97c5ebd1448` completed successfully.
+Downloaded source artifact confirms that revision. Independent inspection of the
+probe archive verifies both module and all eight affected object ELF32 little
+endian MIPS headers, recorded byte/hash values, exactly four compiler commands
+per variant, OFF/ON define presence and diagnostic string absence/presence.
+Evidence: `docs/evidence/WR1200JS-PSM-TARGET-894-2026-11-08.json`.
+This establishes target compilation of diagnostics, not runtime stability,
+correct radio retry rates, production installation or resolution of IoT.
+Archives were inspected in memory; no extracted build scratch was retained.
