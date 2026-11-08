@@ -28,3 +28,17 @@ any production default change. No flash/reboot/service operation is performed.
 Host negative fixtures reject wrong source/lane/target, config/inclusion/ABI
 drift and invalid candidate provenance/hash. Results apply only to the exact
 firmware SHA and generator run. Missing output or a failed build is not success.
+
+## Network-failure correction (2026-11-08)
+
+A/B42472697144 control attempt1 failed fetching mbedTLS (HTTP503), attempt2
+failed fetching libqrencode (HTTP504). Neither is a source-toolchain regression.
+configs/owned-build-dependencies.json pins identical mbedTLS2.28.8, qrencode
+commit715e29fd4cd71b6e452ae0f4e36d917b43122ce8 and PCRE2 10.49 source archives
+in our build-dependencies-v1 release. The firmware recipe seeds verified copies
+into their original library directories before make, using an owned cache keyed
+by the committed manifest. Source recipes, versions and compiler settings stay
+unchanged. Every cache entry and installed archive is SHA256 checked; partial
+network downloads cannot become accepted source archives. Other dependency
+recipes still use their existing upstream sources; this does not claim a fully
+offline or fully mirrored firmware build.

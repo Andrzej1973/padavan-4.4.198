@@ -1,0 +1,23 @@
+[
+  {
+    "directory": "trunk/libs/mbedtls",
+    "filename": "mbedtls-2.28.8.tar.gz",
+    "url": "https://api.github.com/repos/Andrzej1973/padavan-4.4.198/releases/assets/723676761",
+    "sha256": "4fef7de0d8d542510d726d643350acb3cdb9dc76ad45611b59c9aa08372b4213",
+    "origin": "https://codeload.github.com/Mbed-TLS/mbedtls/tar.gz/refs/tags/v2.28.8"
+  },
+  {
+    "directory": "trunk/libs/libqrencode",
+    "filename": "libqrencode-715e29fd4cd71b6e452ae0f4e36d917b43122ce8.tar.gz",
+    "url": "https://api.github.com/repos/Andrzej1973/padavan-4.4.198/releases/assets/723676758",
+    "sha256": "7777a49d6b838347ccc35dadd78e47bcf3962536da1b047ccd06a432cf796db9",
+    "origin": "https://codeload.github.com/fukuchi/libqrencode/tar.gz/715e29fd4cd71b6e452ae0f4e36d917b43122ce8"
+  },
+  {
+    "directory": "trunk/libs/libpcre2",
+    "filename": "pcre2-10.49.tar.bz2",
+    "url": "https://api.github.com/repos/Andrzej1973/padavan-4.4.198/releases/assets/723676762",
+    "sha256": "53c156e1ba416a20da8e65395daa132da0d80e76910424caca3fcdae7831d384",
+    "origin": "https://github.com/PCRE2Project/pcre2/releases/download/pcre2-10.49/pcre2-10.49.tar.bz2"
+  }
+]

@@ -634,6 +634,15 @@ jobs:
             configs.build/wr1200js.config \
             padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config
 
+      - name: Restore verified source dependency cache
+        uses: actions/cache@v6
+        with:
+          path: .cache/owned-build-dependencies
+          key: owned-build-deps-${{ runner.os }}-${{ hashFiles('configs/owned-build-dependencies.json') }}
+      - name: Seed verified owned source archives
+        run: |
+          python3 tools/check-owned-build-dependencies.py
+          python3 tools/prepare-owned-build-dependencies.py padavan-4.4 .cache/owned-build-dependencies
       - name: Build WR1200JS firmware
         id: firmware_build
         run: |
