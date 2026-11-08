@@ -18,7 +18,7 @@ concurrency:
   queue: max
 jobs:
   monitor:
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'failure'
+    if: github.event_name == 'workflow_dispatch' || contains(fromJSON('["failure","startup_failure"]'), github.event.workflow_run.conclusion)
     runs-on: ubuntu-22.04
     timeout-minutes: 10
     steps:

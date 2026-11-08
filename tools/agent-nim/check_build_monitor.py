@@ -21,6 +21,15 @@ with (nullcontext(sys.argv[2]) if len(sys.argv)>2 else tempfile.TemporaryDirecto
     run([row(2,conclusion='success'),row(1,name='unrelated')]);assert not (state/'last_build_error.log').exists()
     status=json.loads((state/'build-monitor-status.json').read_text())
     assert status['state']=='ok' and status['runs_examined']==2 and status['pid']>0
+    # Real run42482744141 had no jobs: reusable actions:read exceeded caller.
+    startup_state=root/'workflow-startup'
+    startup=row(698,conclusion='startup_failure')
+    startup_report=run([startup],target_state=startup_state).stdout
+    assert 'BUILD FAILED:' in startup_report and 'Workflow startup/validation failure' in startup_report
+    assert 'reusable workflow permissions' in startup_report
+    assert 'BUILD FAILED:' not in run([startup],target_state=startup_state).stdout
+    startup.update(id=699,conclusion='success')
+    assert 'BUILD FAILED:' not in run([startup],target_state=startup_state).stdout
     source_run=row(700);source_run.update(name='Build owned MIPS toolchain',path='.github/workflows/build-owned-toolchain.yml')
     source_state=root/'source-toolchain'
     assert 'BUILD FAILED:' in run([source_run],target_state=source_state).stdout

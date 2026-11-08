@@ -273,6 +273,7 @@ on:
       - 'tools/band-steering/prepare-quiet-status-log.py'
 permissions:
   contents: read
+  actions: read
 concurrency:
   # Normal PR/push verification and explicitly requested candidate builds
   # may run together; each lane still serializes runs on the same ref.
