@@ -1,0 +1,24 @@
+{
+  "scope": "Locked no-mutation preflight for future close entry; no endpoint/ticket/executor installed",
+  "sha256": {
+    "tools/iot/driver-api-close-admission.h": "5fc4d9db52c400990b1b591680a87805e20fe16babbd196f7e330daacab8542d",
+    "tools/iot/check-driver-api-close-admission.c": "df4a29d190d47806233f638fba7a246d0f0f4657bb5fc9edcce35b3ac022f78c"
+  },
+  "host_asan_ubsan": "PASS",
+  "valid_cases": [
+    "owned Main/IoT, Guest absent",
+    "owned Main/Guest/IoT"
+  ],
+  "refused_states": 27,
+  "identity": "Successful original OPEN nonce/epoch/device generation/token",
+  "caller_requirements": [
+    "RTNL",
+    "adapter transition lock",
+    "adapter/netdev lifetime pins",
+    "reserve and transfer one BSS_CLOSE ticket before unlocking"
+  ],
+  "target_compiled": false,
+  "rf_dma_quiescence": false,
+  "production_bound": false,
+  "runtime_verified": false
+}
