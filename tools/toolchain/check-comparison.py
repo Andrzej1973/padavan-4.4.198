@@ -44,3 +44,32 @@ with tempfile.TemporaryDirectory(prefix='wr-tool-paths-') as d:
  except ValueError:pass
  else:raise AssertionError('Accepted missing binutils')
 print('PASS comparison gates, provenance/hash rejection and ccache wrapper vs actual binutils regression')
+# Three versioned libc implementation filenames may change only with matched
+# image, closure, ABI and export evidence. All other ELF drift still fails.
+a=copy.deepcopy(base);b=copy.deepcopy(new)
+names=['ld-uClibc','libthread_db','libuClibc']
+pairs=[]
+for n in names:
+ old='lib/'+n+'-1.0.43.so';new_name='lib/'+n+'-1.0.48.so'
+ a['elf_files'][old]={'sha256':'old','abi':{'class':1}}
+ b['elf_files'][new_name]={'sha256':'new','abi':{'class':1}}
+ pairs.append({'control':old,'source':new_name,'abi_equal':True,'removed_exports':[]})
+review={'schema':1,'passed':True,'source_sha':a['source_sha'],'control_images':a['images'],'source_images':b['images'],'pairs':pairs,'closure':{lane:{'errors':[],'elf_count':len(a['elf_files'])} for lane in ['control','source']}}
+assert not compare(a,b)['software_comparison_passed']
+assert compare(a,b,review)['software_comparison_passed']
+for edit in ['source','images','closure','exports','pairs']:
+ bad=copy.deepcopy(review)
+ if edit=='source':bad['source_sha']='b'*40
+ if edit=='images':bad['source_images']={}
+ if edit=='closure':bad['closure']['source']['errors']=['missing libc.so.0']
+ if edit=='exports':bad['pairs'][0]['removed_exports']=['required_symbol']
+ if edit=='pairs':bad['pairs'].pop()
+ try:compare(a,b,bad)
+ except ValueError:pass
+ else:raise AssertionError('Accepted invalid libc review '+edit)
+bad=copy.deepcopy(b);bad['elf_files']['unexpected.so']={'sha256':'x','abi':{}}
+recheck=copy.deepcopy(review);recheck['closure']['source']['elf_count']+=1
+assert not compare(a,bad,recheck)['software_comparison_passed']
+bad=copy.deepcopy(b);bad['configs']['extra']={'sha256':'x'}
+assert not compare(a,bad,review)['software_comparison_passed']
+print('PASS reviewed libc rename gates; absent/mismatched review, closure/export failures, unexpected ELF and extra config rejected')

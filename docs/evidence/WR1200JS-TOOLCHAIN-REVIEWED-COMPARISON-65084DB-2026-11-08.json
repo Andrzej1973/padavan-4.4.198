@@ -1,0 +1,105 @@
+{
+  "reviewed_libc_renames": [
+    {
+      "control": "lib/ld-uClibc-1.0.43.so",
+      "source": "lib/ld-uClibc-1.0.48.so",
+      "abi_equal": true,
+      "soname": "ld-uClibc.so.1",
+      "removed_exports": [],
+      "added_exports": [
+        "load_vdso"
+      ],
+      "control_bytes": 68676,
+      "source_bytes": 68744
+    },
+    {
+      "control": "lib/libthread_db-1.0.43.so",
+      "source": "lib/libthread_db-1.0.48.so",
+      "abi_equal": true,
+      "soname": "libthread_db.so.1",
+      "removed_exports": [],
+      "added_exports": [],
+      "control_bytes": 22796,
+      "source_bytes": 22828
+    },
+    {
+      "control": "lib/libuClibc-1.0.43.so",
+      "source": "lib/libuClibc-1.0.48.so",
+      "abi_equal": true,
+      "soname": "libc.so.0",
+      "removed_exports": [],
+      "added_exports": [
+        "__getauxval",
+        "__libc_clock_gettime",
+        "__nanosleep_nocancel",
+        "explicit_bzero",
+        "prlimit64",
+        "reallocarray"
+      ],
+      "control_bytes": 652676,
+      "source_bytes": 718452
+    }
+  ],
+  "abi_changed": [],
+  "source_sha": "65084db1496f03bc2f06e8e6876583456aa35ce2",
+  "config_equal": true,
+  "missing_elf": [],
+  "added_elf": [],
+  "changed_elf": [
+    "lib/libcrypto.so.3",
+    "usr/bin/socat",
+    "lib/libssl.so.3",
+    "lib/libcares.so.2.17.3",
+    "usr/sbin/nfqws2",
+    "lib/liblua.so.5.1.5",
+    "usr/bin/ndisc6",
+    "usr/bin/dropbearmulti",
+    "lib/libpcap.so.1.10.4",
+    "usr/sbin/https_dns_proxy",
+    "lib/libusb-1.0.so.0.4.0",
+    "lib/libmbedx509.so.2.28.8",
+    "lib/libiw.so.30",
+    "bin/busybox",
+    "lib/libshared.so",
+    "lib/libgcc_s.so.1",
+    "usr/bin/rdisc6",
+    "usr/sbin/wr-band-steering-ctl",
+    "lib/modules/4.4.198/kernel/drivers/net/wireless/mediatek/mt76x2_ap/mt76x2_ap.ko",
+    "lib/libmbedcrypto.so.2.28.8",
+    "lib/libmbedtls.so.2.28.8",
+    "lib/libpcre2-posix.so.3.0.9",
+    "lib/libiconv.so.2.6.1",
+    "lib/libz.so.1.3.1",
+    "lib/libsodium.so.26.2.0",
+    "lib/libev.so.4.0.0",
+    "usr/sbin/wr-band-steering",
+    "lib/modules/4.4.198/kernel/drivers/net/wireless/mediatek/mt76x3_ap/mt76x3_ap.ko",
+    "lib/libcurl.so.4.8.0",
+    "lib/libpcre.so.1.2.13",
+    "usr/bin/vlmcsd",
+    "usr/sbin/stubby",
+    "lib/libpcre2-8.so.0.16.1",
+    "bin/inadyn"
+  ],
+  "control_images": {
+    "WR1200JS_4.4.198.9-6_65084db1.trx": {
+      "sha256": "98f1cfe0fed84848295ff5e3f6c303cc44de7595e9e99eebd1b14bbe3760c6ae",
+      "bytes": 13064585
+    }
+  },
+  "source_images": {
+    "WR1200JS_4.4.198.9-6_65084db1.trx": {
+      "sha256": "4b1d4b2eba57d05448e4fd92a727ca308cc021566bc835e6fa29c85e11ee622d",
+      "bytes": 13071901
+    }
+  },
+  "control_compiler": "mipsel-linux-uclibc-gcc (crosstool-NG 1.26.0) 10.5.0\nCopyright (C) 2020 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+  "source_compiler": "mipsel-linux-uclibc-gcc (crosstool-NG 1.26.0 - wr1200js-source-candidate-v1) 10.5.0\nCopyright (C) 2020 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+  "software_comparison_passed": true,
+  "runtime_verified": false,
+  "production_promoted": false,
+  "remaining": [
+    "Review software evidence before development compiler selection; retain pinned control",
+    "Physical runtime acceptance deferred until IoT and new WebUI are ready"
+  ]
+}
