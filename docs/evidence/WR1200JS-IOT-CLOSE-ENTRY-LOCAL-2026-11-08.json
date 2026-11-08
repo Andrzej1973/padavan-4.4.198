@@ -1,0 +1,19 @@
+{
+  "scope": "Proposed synchronous CLOSE entry with required strong reserve/finish bindings injected",
+  "hashes": {
+    "tools/iot/driver-api-close-entry.inc": "61e11540ff37a050f1df51993cfe0e2f2b0bfec05d4761c237ded089f61f6e95",
+    "tools/iot/check-driver-api-close-entry.c": "b58c184657bbeb009fb1216ba4ece034f49f12c2d2cf22eabb1190471330df89"
+  },
+  "host_asan_ubsan": "PASS",
+  "invalid_request_or_down_refuses_before_reserve": true,
+  "reservation_failure_no_dev_close": true,
+  "dev_close_always_followed_by_checked_finish": true,
+  "admin_down_not_acceptance": true,
+  "no_automatic_retry_or_reopen": true,
+  "strong_enter_finish_implemented": false,
+  "generator_installed": false,
+  "target_compiled": false,
+  "rf_dma_verified": false,
+  "runtime_verified": false,
+  "publication_scope": "CLOSE components host verified; idle/join fence composed into isolated candidate; mutation endpoint disabled; kernel bindings staged, not target compiled"
+}

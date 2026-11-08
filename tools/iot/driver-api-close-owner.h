@@ -9,6 +9,8 @@ struct wr_iot_driver_close_owner {
  const void *device,*task;
  unsigned long generation,open_token;
  unsigned int active,consumed;
+ unsigned int reference_completed,uncertain;
+ unsigned int netdev_held,module_held,recovery_netdev_transferred;
 };
 static inline int wr_iot_driver_close_reserve(
  struct wr_iot_driver_close_owner *close,const struct wr_iot_driver_owner *open,
@@ -30,7 +32,9 @@ static inline int wr_iot_driver_close_reserve(
  record->close_prior_phase=(int)ticket.prior_phase;record->close_prior_ready=ticket.prior_ready;
  close->ticket=ticket;close->device=iot_dev;close->task=task;
  close->generation=generation;close->open_token=open_token;
- close->active=1;close->consumed=0;return 1;
+ close->active=1;close->consumed=0;
+ close->reference_completed=close->uncertain=0;
+ close->netdev_held=close->module_held=close->recovery_netdev_transferred=0;return 1;
 }
 static inline int wr_iot_driver_close_take(
  struct wr_iot_driver_close_owner *close,const void *task,const void *dev,

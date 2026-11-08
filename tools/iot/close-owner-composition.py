@@ -20,3 +20,29 @@ def compose(text):
 #endif
  RTMP_IRQ_LOCK(&ad->wr_iot_transition_lock,flags);''',1)
  return guard+'\n#include "driver-api-close-binding.inc"\n#endif\n'+text[:start]+begin+text[stop:]
+
+def compose_recovery_idle(text):
+ """Retain adapter lifetime while an API CLOSE owner remains unresolved."""
+ anchor=' UINT slot;\n if(!ad||'
+ start=text.index('BOOLEAN wr_iot_mbss_recovery_idle_locked(')
+ end=text.index('\n}',start)+2
+ body=text[start:end]
+ if body.count(anchor)!=1 or 'wr_iot_close_owner.active' in text:
+  raise ValueError('Recovery idle CLOSE-owner fence anchor changed')
+ body=body.replace(anchor,''' UINT slot;
+#if defined(MT7603) && defined(MT_MAC) && defined(RTMP_PCI_SUPPORT)
+ /* Reference-only completion does not retire the API lifetime owner. */
+ if(ad && ad->wr_iot_close_owner.active)return FALSE;
+#endif
+ if(!ad||''',1)
+ return text[:start]+body+text[end:]
+
+def compose_recovery_join(text):
+ """The exclusive reaper bypasses public idle; preserve CLOSE fence there too."""
+ anchor=' ready=wr_iot_mbss_recovery_storage_idle(ad->wr_iot_mbss_recovery,WDEV_NUM_MAX+1);'
+ if text.count(anchor)!=1 or 'wr_iot_close_owner.active' in text:
+  raise ValueError('Recovery join CLOSE-owner fence anchor changed')
+ return text.replace(anchor,anchor+'''
+#if defined(MT7603) && defined(MT_MAC) && defined(RTMP_PCI_SUPPORT)
+ if(ad->wr_iot_close_owner.active)ready=0;
+#endif''',1)

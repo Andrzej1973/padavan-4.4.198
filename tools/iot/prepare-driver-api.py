@@ -20,7 +20,10 @@ def one(name,old,new):
  if s.count(old)!=1:p.error('OPEN API anchor changed: '+name+' '+repr(old[:65]))
  changes[name]=s.replace(old,new,1)
 guard='#if defined(MT7603) && defined(MT_MAC) && defined(RTMP_PCI_SUPPORT)'
-close_composition=runpy.run_path(str(local/'close-owner-composition.py'))['compose']
+close_helpers=runpy.run_path(str(local/'close-owner-composition.py'))
+close_composition=close_helpers['compose']
+changes['include/wr-iot-mbss-recovery-work.inc']=close_helpers['compose_recovery_idle']((src/'include/wr-iot-mbss-recovery-work.inc').read_text())
+changes['include/wr-iot-mbss-recovery-join.inc']=close_helpers['compose_recovery_join']((src/'include/wr-iot-mbss-recovery-join.inc').read_text())
 changes['include/wr-iot-mbss-close-checked.inc']=close_composition((src/'include/wr-iot-mbss-close-checked.inc').read_text())
 one('include/rtmp.h','#include "interface-registry.h"','#include "interface-registry.h"\n'+guard+'\n#include "driver-api-owner.h"\n#include "driver-api-close-owner.h"\n#include "mbss-closed-probe.h"\n#endif')
 one('include/rtmp.h','NDIS_SPIN_LOCK wr_iot_transition_lock;','NDIS_SPIN_LOCK wr_iot_transition_lock;\n'+guard+'\n struct wr_iot_driver_owner wr_iot_driver_owner;\n struct wr_iot_driver_close_owner wr_iot_close_owner;\n struct wr_iot_mbss_closed_probe wr_iot_closed_probe;\n#endif')

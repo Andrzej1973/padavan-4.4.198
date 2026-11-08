@@ -1,0 +1,19 @@
+{
+  "scope": "Actual recovery-idle source composition and host execution; no production endpoint",
+  "hashes": {
+    "tools/iot/close-owner-composition.py": "ad284f53a67351a6bfdb29505f874736026339364ee350ceae0b4b6c2198c63c",
+    "tools/iot/prepare-driver-api.py": "3512feb000bfca449590e59da5c5c7be668e2b8d1a3857d6a528d274b77af786",
+    "tools/iot/check-close-lifetime-composition.py": "423eb2e02f15893175e2bc49a9db10f3366d169cf689184c2aa8134c32c1b408",
+    "tools/iot/ci-compile-merged-candidate.sh": "ade3afc10ea646700510799926704d43dbbbe2a1c25a794068f84af98d4ab150"
+  },
+  "asan_ubsan": "PASS guarded MT7603 and unguarded legacy builds",
+  "existing_close_composition": "PASS",
+  "active_close_blocks_adapter_idle": true,
+  "reference_completion_releases_owner": false,
+  "kernel_reference_acquisition_bound": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "inner_reaper_tail_tested": true,
+  "inner_reaper_source": "Actual replacement extracted from prepare-mbss-reaper-gate.py AST; API composition executed on resulting join tail",
+  "publication_scope": "CLOSE components host verified; idle/join fence composed into isolated candidate; mutation endpoint disabled; kernel bindings staged, not target compiled"
+}

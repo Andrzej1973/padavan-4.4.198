@@ -1,0 +1,18 @@
+{
+  "scope": "Locked reference-only synchronous finish, no actual endpoint binding or release",
+  "hashes": {
+    "tools/iot/driver-api-close-owner.h": "bd78a5010f2add5598494c82aa3397255c7c41ad6d57b5f0f4724518b8d03e54",
+    "tools/iot/driver-api-close-completion.h": "dabcc2a5b6d73bdb3086fc804913273a8ff5d1897e385af2971894cc88785996",
+    "tools/iot/driver-api-close-finish.h": "00cd558ddd51ab44d6505598369bf6a7e49b391557a21a051017a049a7cd7c1a",
+    "tools/iot/check-driver-api-close-completion.c": "b1bea31b8d708107d782bb1d1f191f236087b885b7068bd1a9b81285a12ee7d2"
+  },
+  "host_asan_ubsan": "PASS completion/finish + prior owner/admission regressions",
+  "borrowed_task_pointer_cleared": true,
+  "active_owner_ticket_provenance_retained": true,
+  "wrong_owner_and_duplicate_finish_refused": true,
+  "recovery_lifetime_pins_bound": false,
+  "target_compiled": false,
+  "rf_isolation_release": false,
+  "runtime_verified": false,
+  "publication_scope": "CLOSE components host verified; idle/join fence composed into isolated candidate; mutation endpoint disabled; kernel bindings staged, not target compiled"
+}

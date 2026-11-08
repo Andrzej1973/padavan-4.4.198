@@ -14,5 +14,6 @@
   "recovery_owner_retained": true,
   "generator_integration": false,
   "target_compiled": false,
-  "runtime_verified": false
+  "runtime_verified": false,
+  "publication_scope": "CLOSE components host verified; idle/join fence composed into isolated candidate; mutation endpoint disabled; kernel bindings staged, not target compiled"
 }

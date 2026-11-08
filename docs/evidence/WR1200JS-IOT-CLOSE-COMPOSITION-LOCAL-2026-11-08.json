@@ -1,8 +1,8 @@
 {
   "scope": "Local generator wiring; isolated candidate only",
   "hashes": {
-    "tools/iot/prepare-driver-api.py": "e404ca7806a03742391473591c9f60d7726a8d3e2024ddec44641b71adf43ddf",
-    "tools/iot/close-owner-composition.py": "de915cc8988f18b90fd29f9c7d320b78ba19fd210e02e989c2db180b87b81f31",
+    "tools/iot/prepare-driver-api.py": "3512feb000bfca449590e59da5c5c7be668e2b8d1a3857d6a528d274b77af786",
+    "tools/iot/close-owner-composition.py": "ad284f53a67351a6bfdb29505f874736026339364ee350ceae0b4b6c2198c63c",
     "tools/iot/driver-api-close-binding.inc": "b68b3cf085eb18b44ba09c82c4f225e6c5acff8c984f5567f1bbc7dd16ad06d0",
     "tools/iot/check-close-owner-composition.py": "ed1f1efcd62243374cb80a4d00c0a248caeb9ccc34d3aef793ac9464144ec3ce"
   },
@@ -17,5 +17,6 @@
   "recovery_release_bound": false,
   "runtime_verified": false,
   "actual_mbss_callback_template": "Executed exact REPLACEMENT bytes from prepare-mbss-checked-stop-candidate.py; executor injected",
-  "executor_error_propagated": true
+  "executor_error_propagated": true,
+  "publication_scope": "CLOSE components host verified; idle/join fence composed into isolated candidate; mutation endpoint disabled; kernel bindings staged, not target compiled"
 }

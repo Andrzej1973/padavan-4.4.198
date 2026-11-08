@@ -18,5 +18,6 @@
   "rc_gap": "Tracked RC attempt stores nonce/epoch/generation but no current successful OPEN token; implement owned current OPEN receipt query before constructing CLOSE, do not infer serial or use historical CLOSED token",
   "target_compiled": false,
   "endpoint_bound": false,
-  "runtime_verified": false
+  "runtime_verified": false,
+  "publication_scope": "CLOSE components host verified; idle/join fence composed into isolated candidate; mutation endpoint disabled; kernel bindings staged, not target compiled"
 }
