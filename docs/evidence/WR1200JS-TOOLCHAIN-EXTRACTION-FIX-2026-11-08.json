@@ -1,0 +1,36 @@
+{
+  "failed_run": 42476812968,
+  "source_sha": "08b15eb27331fb28f106fd7d9f19df16c9d1da14",
+  "control_job": {
+    "id": 128719900626,
+    "conclusion": "success"
+  },
+  "candidate_job": {
+    "id": 128722752808,
+    "first_failed_step": 28,
+    "cause": "Python 3.10 data_filter uses extraction-root instead of containing-directory semantics for symlinks"
+  },
+  "archive": {
+    "sha256": "5a9254920f52954b2910ad968086135436e320bfb1360928cf96f4f0bf03870a",
+    "bytes": 28505088
+  },
+  "member": "./lib/bfd-plugins/liblto_plugin",
+  "linkname": "../../libexec/gcc/mipsel-linux-uclibc/10.5.0/liblto_plugin",
+  "correct_semantics": "relative to lib/bfd-plugins, remains within prefix; the dormant plugin target is absent in this artifact, not a reason to skip target containment",
+  "fix": "Validate actual symlink target containment; retain standard data_filter for paths/types/metadata/hardlinks and preserve original symlink text. Original archive and provenance/hash gates unchanged.",
+  "checks": {
+    "host_extraction_of_exact_archive": "PASS",
+    "real_gcc_target": "mipsel-linux-uclibc",
+    "real_gcc_version": "10.5.0",
+    "c_and_cpp_cross_link": "PASS ELF32 little-endian MIPS",
+    "extraction_regressions": "PASS valid nested symlink/hardlink and 9 hostile cases",
+    "comparison_regressions": "PASS"
+  },
+  "monitor": {
+    "matching_report": false,
+    "deployed_main_comparison_watched": false,
+    "branch_watch_list_already_correct": true,
+    "parser_change": "none; original LinkOutsideDestinationError matches existing error: rule; no monitor artifact to compare"
+  },
+  "verification_boundary": "Local install and C/C++ link; new full CI result pending, no compiler promotion or physical runtime claim"
+}
