@@ -51,6 +51,15 @@ with (nullcontext(sys.argv[2]) if len(sys.argv)>2 else tempfile.TemporaryDirecto
     anchor_env=dict(os.environ,BUILD_MONITOR_FIXTURE_JOB_LOG=str(anchor_log))
     anchor_result=subprocess.run([str(binary),'--fixture:'+str(fixture),'--state-dir:'+str(root/'anchor-state')],capture_output=True,text=True,env=anchor_env,check=True)
     assert 'Ralink radio-mode anchor changed' in anchor_result.stdout
+    # Optional42640572020: retain the causal Python frame with its ValueError.
+    python_log=root/'reserved-up-traceback.log'
+    python_log.write_text('Traceback (most recent call last):\n  File "tools/iot/reserved-beacon-refresh.py", line 12, in compose\n    start=text.index(START);end=text.index(END,start)\nValueError: substring not found\n##[error]Process completed with exit code 1.\n')
+    fixture.write_text(json.dumps({'workflow_runs':[row(439)]}),encoding='utf-8')
+    python_env=dict(os.environ,BUILD_MONITOR_FIXTURE_JOB_LOG=str(python_log))
+    python_result=subprocess.run([str(binary),'--fixture:'+str(fixture),'--state-dir:'+str(root/'python-state')],capture_output=True,text=True,env=python_env,check=True)
+    assert 'reserved-beacon-refresh.py", line 12, in compose' in python_result.stdout
+    assert 'ValueError: substring not found' in python_result.stdout
+    assert 'BUILD FAILED:' not in subprocess.run([str(binary),'--fixture:'+str(fixture),'--state-dir:'+str(root/'python-state')],capture_output=True,text=True,env=python_env,check=True).stdout
     # Real standard42463953909: source download 504 and make error were omitted.
     download_log=root/'libyaml-504.log'
     download_log.write_text("HTTP request sent, awaiting response... 504 Gateway Time-out\nmake[4]: *** [Makefile:10: download_test] Error 4\nmake[3]: *** [Makefile:255: libyaml_only] Error 2\n##[error]Process completed with exit code 2.\n")

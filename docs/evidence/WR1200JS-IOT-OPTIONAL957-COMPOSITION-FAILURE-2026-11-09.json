@@ -1,0 +1,23 @@
+{
+  "run_id": 42640572020,
+  "revision": "d453a6179c6eabb3af1243bf7e2dc6e7ea8ffb55",
+  "monitor_run": 42643259871,
+  "monitor_artifact": 13684993921,
+  "diagnostic_artifact": 13685199698,
+  "failed_job_id": 129240402185,
+  "failed_step": "Compile isolated merged IoT MT7603 candidate",
+  "original_traceback": "prepare-driver-api.py:40 -> reserved-beacon-refresh.py:12 -> ValueError: substring not found",
+  "root_cause": "Claim-only virtual-UP successor removes arithmetic fallback/comment used as end marker; test only covered earlier generated branch.",
+  "old_host_counterexample": "substring not found",
+  "fix": "Use exact outer claimed-UP closing line; regression covers branch with arithmetic fallback removed, replay/duplicate/missing closing refusal. Scoped DTIM condition unchanged.",
+  "monitor_gap": "Heuristic retained generic traceback/ValueError but omitted source frame. Added bounded Python source frames and ValueError selection with failure-only/dedup fixture. Branch source change only; default-branch monitor not yet deployed.",
+  "checks": [
+    "old failure reproduced",
+    "new transformation passes same final form",
+    "ASan/UBSan executable scoped guard passes",
+    "staged-only Nim monitor compiled with -d:ssl and full offline regression passed"
+  ],
+  "runtime_verified": false,
+  "target_verified": false,
+  "scratch": "ZIP/log parsing memory-only. Temporary Nim cache/binary auto-removed; size not measured. Unrelated existing monitor changes preserved unstaged."
+}

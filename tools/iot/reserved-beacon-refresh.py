@@ -1,6 +1,6 @@
 """Scope the generated claimed-UP refresh; leave periodic/legacy paths intact."""
 START='\t\t\tif (pInfConf->owner_generation ||'
-END='\t\t\t/* Arithmetic guard only;'
+END='\n\t\t\t}'
 CALL='\t\t\t\t\tAPUpdateAllBeaconFrame(pAd);'
 GUARDED='''\t\t\t\t\t/* Reserved ra2 uses the normal periodic DTIM tick. */
 \t\t\t\t\tif (!(IS_MT7603(pAd) && pAd->chipCap.hif_type == HIF_MT &&
@@ -9,7 +9,9 @@ GUARDED='''\t\t\t\t\t/* Reserved ra2 uses the normal periodic DTIM tick. */
 \t\t\t\t\t\tAPUpdateAllBeaconFrame(pAd);'''
 def compose(text):
  if text.count(START)!=1:raise ValueError('Claimed-UP boundary changed')
- start=text.index(START);end=text.index(END,start)
+ start=text.index(START)
+ try:end=text.index(END,start)+len(END)
+ except ValueError:raise ValueError('Claimed-UP closing block changed') from None
  block=text[start:end]
  if block.count(CALL)!=1 or 'Reserved ra2 uses' in block:
   raise ValueError('Claimed-UP refresh changed or already scoped')

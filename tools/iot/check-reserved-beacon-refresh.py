@@ -17,9 +17,20 @@ tree=ast.parse((here/'prepare-virtual-open-claim-candidate.py').read_text())
 values=[ast.literal_eval(n.value).decode() for n in ast.walk(tree)
         if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='checked' for t in n.targets)]
 assert len(values)==1
-source=values[0];patched=api['compose'](source)
+source=values[0]
+# The actual claim-only successor removes the arithmetic fallback/comment.
+# Reproduce that transformation from its reviewed generator literal.
+claim_tree=ast.parse((here/'prepare-virtual-up-claim-only.py').read_text())
+marker=next(ast.literal_eval(n.value) for n in ast.walk(claim_tree)
+ if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='marker' for t in n.targets))
+claim_only=source[:source.index(marker)]+"            return NDIS_STATUS_FAILURE;\n"
+assert marker not in claim_only
+for variant in [source,claim_only]:
+ scoped=api['compose'](variant)
+ assert scoped.replace(api['GUARDED'],api['CALL'],1)==variant
+patched=api['compose'](source)
 assert patched.replace(api['GUARDED'],api['CALL'],1)==source
-for bad in [patched,source.replace(api['CALL'],''),source+source]:
+for bad in [patched,source.replace(api['CALL'],''),source+source,claim_only.replace(api['END'],'')]:
  try:api['compose'](bad)
  except ValueError:pass
  else:raise AssertionError('changed/duplicate source accepted')
