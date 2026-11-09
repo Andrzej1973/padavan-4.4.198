@@ -28,7 +28,7 @@ struct wr_iot_mailbox {int open;};
 static struct wr_iot_control_request queued;
 static struct wr_iot_control_result result;
 static int opens,locked,claim=1,executions,finishes,fail_open,shutdown_delivered,emit_shutdown;
-static int expected_shutdown;
+static int expected_shutdown,fail_finish;
 static enum wr_iot_result_state outcome;
 static unsigned long long now=20;
 static void shutdown_test(int sig){
@@ -53,6 +53,7 @@ static int wr_iot_mailbox_result(struct wr_iot_mailbox *m,struct wr_iot_control_
 }
 static int wr_iot_mailbox_finish(struct wr_iot_mailbox *m,const char *id,enum wr_iot_result_state state,unsigned long long time){
  assert(m->open&&locked&&time==now&&!strcmp(id,queued.id));
+ if(fail_finish)return 0;
  result.state=state;finishes++;return 1;
 }
 static enum wr_iot_result_state wr_iot_activation_execute(const struct wr_iot_control_request *request){
@@ -74,6 +75,9 @@ static enum wr_iot_result_state wr_iot_activation_execute(const struct wr_iot_co
 }
 '''+function+r'''
 static void reset(void){
+ /* Each scenario begins only after its explicit test-only recovery release. */
+ assert(!wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.pending);
+ fail_finish=0;
  memset(&queued,0,sizeof(queued));memset(queued.id,'a',32);
  queued.created=10;queued.request.enabled=1;memset(&result,0,sizeof(result));
  memcpy(result.id,queued.id,33);result.state=WR_IOT_RESULT_RUNNING;
@@ -105,7 +109,21 @@ int main(void){
  reset();outcome=WR_IOT_RESULT_REJECTED;assert(wr_iot_rc_dispatch());
  assert(result.state==WR_IOT_RESULT_REJECTED);
  reset();outcome=WR_IOT_RESULT_QUEUED;assert(wr_iot_rc_dispatch());
- assert(result.state==WR_IOT_RESULT_RECOVERY);
+ assert(result.state==WR_IOT_RESULT_RECOVERY&&wr_iot_rc_shutdown.active);
+ assert(!wr_iot_rc_dispatch()&&executions==1);
+ assert(wr_iot_rc_shutdown_end()==0); /* Explicit test-only recovery. */
+ expected_shutdown=SIGTERM;
+ assert(signal(SIGTERM,shutdown_test)!=SIG_ERR);
+ for(i=0;i<3;i++){
+  reset();outcome=WR_IOT_RESULT_RECOVERY;emit_shutdown=SIGTERM;
+  if(i==1)fail_open=2;
+  if(i==2)fail_finish=1;
+  assert(wr_iot_rc_dispatch()==(i==0));
+  assert(executions==1&&!locked&&!shutdown_delivered);
+  assert(wr_iot_rc_shutdown.active&&wr_iot_rc_shutdown.pending==SIGTERM);
+  assert(!wr_iot_rc_dispatch()&&executions==1);
+  assert(wr_iot_rc_shutdown_end()==SIGTERM); /* Test-only recovery proof. */
+ }
  for(i=1;i<=2;i++){
   reset();fail_open=i;assert(!wr_iot_rc_dispatch()&&!finishes&&!locked);
   assert(executions==(i==2));
