@@ -1,0 +1,20 @@
+{
+  "problem": "Control dispatch replayed pending normal shutdown after RECOVERY, entering stock fatal path which proceeds to LAN teardown/reboot despite reference-only Wi-Fi stop refusal.",
+  "vendor_sources": [
+    "trunk/user/rc/rc.c:839-845",
+    "trunk/user/rc/init.c:95-111"
+  ],
+  "fix": "Retain active shutdown admission and pending signal after RECOVERY, including normalized invalid backend outcomes. Duplicate dispatch is refused. Explicit proven recovery must release the fence; no production recovery implementation supplied.",
+  "checks": [
+    "Actual client/server/mailbox fixture passed ASan/UBSan including deferred SIGTERM during RECOVERY.",
+    "New regression rejects previous server at assertion requiring retained shutdown admission.",
+    "git diff --check passed."
+  ],
+  "production_installed": false,
+  "runtime_verified": false,
+  "limits": [
+    "Does not implement safe RF retirement or production shutdown integration.",
+    "Stock fault-signal behavior remains; only the owned normal-shutdown fence is retained."
+  ],
+  "cleanup": "Both temporary test trees and negative-test mailbox removed; no core dumps or binaries retained."
+}
