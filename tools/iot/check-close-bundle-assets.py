@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Regression for full bundle closure and target-probe duplicate include guard."""
 from pathlib import Path
-import runpy,tempfile,shutil
+import runpy,tempfile,shutil,subprocess,sys
 here=Path(__file__).resolve().parent
 resolve=runpy.run_path(str(here/'close-bundle-assets.py'))['dependencies']
 closure=resolve(here)
@@ -46,7 +46,7 @@ with tempfile.TemporaryDirectory(prefix='wr-bundle-integrate-') as d:
  assert edits==before
 print('PASS actual integration function: missing transitive copied, generated shared headers preserved, immutable input, duplicate/missing anchors refuse; no dispatch')
 
-import hashlib
+import hashlib,json
 verify=runpy.run_path(str(here/'close-bundle-assets.py'))['verified_inputs']
 with tempfile.TemporaryDirectory(prefix='wr-bundle-manifest-') as d:
  driver=Path(d);(driver/'include').mkdir()
@@ -57,6 +57,17 @@ with tempfile.TemporaryDirectory(prefix='wr-bundle-manifest-') as d:
   (driver/'include'/name).write_bytes(data)
   manifest['merged_driver_sha256']['include/'+name]=hashlib.sha256(data).hexdigest()
  assert len(verify(driver,here,manifest))==len(closure)
+ loader=runpy.run_path(str(here/'check-close-bindings-target-tu.py'))['compiled_bundle_inputs']
+ manifest_path=driver/'results/merged-source-manifest.json'
+ manifest_path.parent.mkdir();manifest_path.write_text(json.dumps(manifest))
+ assert not Path(str(driver)+'.manifest.json').exists()
+ assert len(loader(driver,here,manifest_path))==len(closure)
+ try:loader(driver,here,None)
+ except ValueError as exc:assert 'explicit --manifest' in str(exc)
+ else:raise AssertionError('Implicit guessed manifest accepted')
+ try:loader(driver,here,driver/'absent.json')
+ except FileNotFoundError:pass
+ else:raise AssertionError('Absent explicit manifest accepted')
  target=driver/'include/driver-api-close-completion.h';target.write_bytes(target.read_bytes()+b'\n/* drift */\n')
  try:verify(driver,here,manifest)
  except ValueError as exc:assert 'manifest drift' in str(exc)
@@ -73,3 +84,12 @@ print('PASS all compiled closure bytes match manifest; legitimate generated shar
 
 # Ordinary module includes the bundle without routing these staged endpoints.
 runpy.run_path(str(here/"check-close-unbound-build.py"),run_name="__main__")
+
+with tempfile.TemporaryDirectory(prefix='wr-close-diagnostic-') as d:
+ report=Path(d)/'failure.json'
+ result=subprocess.run([sys.executable,str(here/'check-close-bindings-target-tu.py'),
+  '--kernel',str(Path(d)/'missing-kernel'),'--driver',d,'--compiler','/bin/false',
+  '--output',str(report)],capture_output=True,text=True)
+ assert result.returncode==1 and 'CLOSE target TU error:' in result.stdout
+ assert json.loads(report.read_text())['status']=='failed'
+print('PASS explicit result-manifest loader, missing/implicit refusal and actionable failure output')

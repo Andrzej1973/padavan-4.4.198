@@ -5,6 +5,13 @@ from pathlib import Path
 import runpy
 unwrap_ccache=runpy.run_path(str(Path(__file__).with_name('kbuild-compiler.py')))['unwrap_ccache']
 
+def compiled_bundle_inputs(driver,local,manifest_path):
+ if not (driver/'include/driver-api-close-bundle.h').exists():return {}
+ if manifest_path is None:
+  raise ValueError('Ordinary CLOSE bundle requires an explicit --manifest path')
+ manifest=json.loads(Path(manifest_path).read_text())
+ return runpy.run_path(str(local/'close-bundle-assets.py'))['verified_inputs'](driver,local,manifest)
+
 def probe_source(driver,local):
  files=[driver/'os/linux/rt_main_dev.c',local/'driver-api-close-finish.h',
         local/'driver-api-close-recovery.h',local/'driver-api-close-progress-match.h',local/'driver-api-close-enter.inc',
@@ -114,6 +121,7 @@ struct task_struct *wr_iot_close_module_create_target_probe(int (*fn)(void *),vo
 def main():
  p=argparse.ArgumentParser(description=__doc__)
  for name in ('kernel','driver','compiler','output'):p.add_argument('--'+name,type=Path,required=True)
+ p.add_argument('--manifest',type=Path)
  a=p.parse_args();root=a.kernel.resolve();driver=a.driver.resolve();local=Path(__file__).resolve().parent
  report={'status':'failed','scope':'staged CLOSE bindings in actual rt_main_dev TU; not linked or installed','runtime_verified':False,'endpoint_installed':False,'resource_retirement_verified':False}
  a.output.parent.mkdir(parents=True,exist_ok=True)
@@ -147,10 +155,7 @@ def main():
   binding_inputs={name:(local/name).read_bytes() for name in binding_names}
   binding_inputs['driver-api-close-bundle.h']=bundle
   compiled_bundle=driver/'include/driver-api-close-bundle.h'
-  compiled_inputs={}
-  if compiled_bundle.exists():
-   manifest=json.loads(Path(str(driver)+'.manifest.json').read_text())
-   compiled_inputs=runpy.run_path(str(local/'close-bundle-assets.py'))['verified_inputs'](driver,local,manifest)
+  compiled_inputs=compiled_bundle_inputs(driver,local,a.manifest)
   report['compiled_bundle_source_sha256']={name:hashlib.sha256(data).hexdigest() for name,data in compiled_inputs.items()}
   report['ordinary_driver_bundle_present']=compiled_bundle.exists()
   driver_input=source.read_bytes()
@@ -192,7 +197,9 @@ def main():
    if source.read_bytes()!=driver_input or any((local/name).read_bytes()!=data for name,data in binding_inputs.items()):raise RuntimeError('CLOSE source changed during target probe')
    a.output.with_suffix('.o').write_bytes(blob)
    report.update(status='passed',object_sha256=hashlib.sha256(blob).hexdigest(),object_bytes=len(blob),probe_symbol_bytes=int(row[1],16),probe_source_sha256=hashlib.sha256(probe.read_bytes()).hexdigest())
- except (OSError,ValueError,RuntimeError,subprocess.SubprocessError) as e:report['error']=str(e)
+ except (OSError,ValueError,RuntimeError,subprocess.SubprocessError) as e:
+  report['error']=str(e)
+  print('CLOSE target TU error: '+str(e)[-6000:])
  a.output.write_text(json.dumps(report,indent=2)+'\n');print(report['status']+' staged CLOSE target TU; no link/runtime acceptance')
  return 0 if report['status']=='passed' else 1
 if __name__=='__main__':raise SystemExit(main())

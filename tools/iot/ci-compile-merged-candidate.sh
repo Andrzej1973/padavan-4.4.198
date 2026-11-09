@@ -415,6 +415,7 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
     --output "$results/mlme-wsc-target-tu.json"
   python3 tools/iot/check-close-bindings-target-tu.py \
     --kernel "$kernel" --driver "$driver" --compiler "$compiler" \
+    --manifest "$results/merged-source-manifest.json" \
     --output "$results/close-bindings-target-tu.json"
   python3 tools/iot/check-radio-off-reload-target-tu.py \
     --kernel "$kernel" --driver "$driver" --compiler "$compiler" \
