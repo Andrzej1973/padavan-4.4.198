@@ -50,12 +50,24 @@ successful module-reference retirement does not supply the missing evidence.
 Do not enlarge pools, disable TxS globally, reset the radio, discard shared RX
 or change descriptor/firmware semantics speculatively.
 
-Next source investigation: trace the actual beacon frame Sequence field at both active
-submission call sites, hardware override controls, and register semantics
-of the per-BSS filter/flush. If source cannot establish the required behavior,
-obtain MT7603 E1/E2 documentation or a controlled firmware/report capture under
-a separately authorized device test. Such a test must cover duplicate and delayed
-reports across PID/SN wrap while Main/Guest remain connected.
+The 2026-11-09 recheck confirms beacon reporting uses FORMAT0; TYPE1 in the
+allocator is a different classification. The long builder clears the descriptor
+and assigns retry fields without a unique host SN. No timestamp clock/reset/
+wrap contract was established. BMC FLUSH ignores its apidx argument and writes
+the caller's mask; the existing caller uses a global mask. The per-BSSID AC
+STOP/FLUSH primitive writes masks without reporting terminal completion. These
+operations must not be treated as a scoped ra2 retirement receipt.
+
+The next required evidence is the MT7603 E1/E2 contract for per-ra2 accepted
+BCN/BMC/AC work and no-future-TxS delivery, or a demonstrably unique echoed
+identity with a wrap/epoch argument. A controlled firmware/report capture needs
+separate owner authorization and must cover duplicate/delayed reports across
+PID/SN wrap while Main/Guest remain connected. A finite capture alone cannot
+prove an unbounded late-delivery property.
+
+Updated source evidence:
+[queue boundary](evidence/WR1200JS-IOT-BMC-QUIESCE-BOUNDARY-2026-11-09.json),
+[format and SN recheck](evidence/WR1200JS-IOT-TXS-SN-FORMAT-RECHECK-2026-11-09.json).
 
 Reproduction/evidence (host and source only):
 

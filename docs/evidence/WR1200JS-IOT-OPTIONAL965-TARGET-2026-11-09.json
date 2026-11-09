@@ -1,0 +1,117 @@
+{
+  "run": 42680919633,
+  "number": 965,
+  "verified_revision": "232c4a6b5acb7e26d4fcae44fa17d6e42d4395e0",
+  "artifact": 13703847174,
+  "reports": {
+    "target-compile-result.json": {
+      "schema": 1,
+      "candidate_variant": "peer82",
+      "repository_revision": "232c4a6b5acb7e26d4fcae44fa17d6e42d4395e0",
+      "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+      "target_compiled": true,
+      "production_installed": false,
+      "runtime_verified": false,
+      "module": "mt76x3_ap.ko",
+      "module_bytes": 5906788,
+      "module_sha256": "91741f6a78ed5ef2cd9bf390f87ac2c359a69541c61383d9c4f2cec584e69cbc",
+      "ap_startup_command_sha256": "077073893158928569bf3d0ed8e5733726c5115e22dade789aff10a0a937f77b",
+      "ap_startup_source_sha256": "8f55861313a6bb3539a1f3be91885caca9365ddbc9efb7e30caac3969cd59f3f",
+      "beacon_command_sha256": "7f2cddf2c14db50677a962bb4e7c831ec3943452f46cc9c724a0746d52e23872",
+      "beacon_source_sha256": "423abcda27d448cd68f9d6fa667c30427fee3ee5019f63ac39ed3b4a0a367d3a",
+      "nettask_command_sha256": "6d6baaff8aa134fe3078e2ff8d5e6a74d821bb285db916d082d226262f6e7e45",
+      "nettask_source_sha256": "4bff8bb0cc5a254715ea58e7bc36b5755e1aca0436e8d3ca0796d6685caa21f0",
+      "task_command_sha256": "bc384a96d693bb884c1662be64f790945dcc2a7dfb68a61f5a9b7d704e9f16cd",
+      "task_source_sha256": "3864d12123d83f0664776023f8090f15ede6172fbd67579b542ab4ae63709f6c",
+      "channel_target_config_sha256": "083c3f1c501863fb5990a8a6394b3d4858b8e653cb836276d639eb9f8b30b95e"
+    },
+    "close-bindings-target-tu.json": {
+      "status": "passed",
+      "scope": "staged CLOSE bindings in actual rt_main_dev TU; not linked or installed",
+      "runtime_verified": false,
+      "endpoint_installed": false,
+      "resource_retirement_verified": false,
+      "ordinary_driver_bundle_present": true,
+      "command_sha256": "808ac73dd0714d71aaccd5999d64e7a745a9caa79272820a824a7bc857ef1a85",
+      "kernel_config_sha256": "fa047c0252b38d5e9525dbbd80cd1ef8cd4564d01b384edb5d861c200177aaa9",
+      "driver_source_sha256": "65f44a86dc349b45803fec08f0cc8519b8000d0e516b07591c85afe67d200221",
+      "retirement_locked_binding_compiled": true,
+      "nonreturning_module_exit_compiled": true,
+      "stopped_kthread_create_compiled": true,
+      "thread_exit_context_checks": "designated current task, PF_KTHREAD, not PF_WQ_WORKER; compile only",
+      "object_sha256": "ccd972651690cbaa8a7aea71900ddfe7049918c04b2681e00ac476a783de5127",
+      "object_bytes": 270884,
+      "probe_symbol_bytes": 5616,
+      "probe_source_sha256": "78d31a72abe6e86ab05cdb7e964ed0246dcc695634a21789b61564bbd10bd08e"
+    },
+    "reload-feature/result.json": {
+      "scope": "complete isolated MT7603 reload module",
+      "repository_revision": "232c4a6b5acb7e26d4fcae44fa17d6e42d4395e0",
+      "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+      "baseline_report_sha256": "a3b27dafd99d080c2dba63f50b39b1c9db511e96382e996bc66c3202e1aca024",
+      "kernel_config_sha256": "fa047c0252b38d5e9525dbbd80cd1ef8cd4564d01b384edb5d861c200177aaa9",
+      "module_bytes": 5908896,
+      "module_sha256": "6daa30a28f3b1dc0c1d76ac8e12b4789a28f748c6876f6a4e03fd9338311a9d4",
+      "target_compiled": true,
+      "production_installed": false,
+      "firmware_epoch_verified": false,
+      "shutdown_verified": false,
+      "runtime_verified": false,
+      "channel_target_config_sha256": "76a190e785f72dab79190f59eae3586830409ae3c6eb50f12938f98a34614764"
+    },
+    "wsc-feature/result.json": {
+      "scope": "complete isolated MT7603 WSC module",
+      "repository_revision": "232c4a6b5acb7e26d4fcae44fa17d6e42d4395e0",
+      "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+      "baseline_module_sha256": "91741f6a78ed5ef2cd9bf390f87ac2c359a69541c61383d9c4f2cec584e69cbc",
+      "baseline_report_sha256": "a3b27dafd99d080c2dba63f50b39b1c9db511e96382e996bc66c3202e1aca024",
+      "kernel_config_sha256": "fa047c0252b38d5e9525dbbd80cd1ef8cd4564d01b384edb5d861c200177aaa9",
+      "target_compiled": true,
+      "production_installed": false,
+      "runtime_verified": false,
+      "module_bytes": 6516692,
+      "module_sha256": "b7c63ff3207ffeedf34bb8693a86a498cd8f07fb7f2f1221266fc43ac5999036",
+      "task_command_sha256": "6afb84f60e9e21fd3927fd4f84ef95863ec2bd947e23f63e59c7537072518f77",
+      "task_source_sha256": "3864d12123d83f0664776023f8090f15ede6172fbd67579b542ab4ae63709f6c",
+      "channel_target_config_sha256": "a11c0d801bd23f5822a8960a4e22fe357914ab86d50406cbbf72b1c4bc250386"
+    },
+    "psm-diagnostics/target-result.json": {
+      "target_compiled": true,
+      "production_installed": false,
+      "runtime_verified": false
+    }
+  },
+  "modules": {
+    "mt76x3_ap.ko": {
+      "bytes": 5906788,
+      "sha256": "91741f6a78ed5ef2cd9bf390f87ac2c359a69541c61383d9c4f2cec584e69cbc",
+      "elf": "ELF32 little endian MIPS"
+    },
+    "reload-feature/mt76x3_ap-reload.ko": {
+      "bytes": 5908896,
+      "sha256": "6daa30a28f3b1dc0c1d76ac8e12b4789a28f748c6876f6a4e03fd9338311a9d4",
+      "elf": "ELF32 little endian MIPS"
+    },
+    "wsc-feature/mt76x3_ap-wsc.ko": {
+      "bytes": 6516692,
+      "sha256": "b7c63ff3207ffeedf34bb8693a86a498cd8f07fb7f2f1221266fc43ac5999036",
+      "elf": "ELF32 little endian MIPS"
+    },
+    "close-bindings-target-tu.o": {
+      "bytes": 270884,
+      "sha256": "ccd972651690cbaa8a7aea71900ddfe7049918c04b2681e00ac476a783de5127",
+      "elf": "ELF32 little endian MIPS"
+    }
+  },
+  "checks": {
+    "first-beacon-composition.txt": "PASS first-beacon composition: exact anchors, no partial mutation/replay; final-driver hook/wait placement checked when supplied. Target/runtime and RF retirement unverified.\n",
+    "reserved-beacon-refresh.txt": "PASS exact reserved-UP refresh guard: ra2 skips extra global tick; other devices/operations/chips/configs and periodic call preserved. Beacon/MMIO hooks not executed.\nFinal dispatcher scoped refresh sha256=6a1907cdabd24777010f287e3e15adf21c5938b97406df58a57b7c9f44307ed8\n",
+    "open-current-composition.txt": "PASS actual CLOSED configuration entry: original ON nonce/current receipt, partial close/MMIO/DMA/reset refusal, persistent foreign-ticket context, privilege/copy failures. No RF/FIFO/isolation-release proof.\nPASS actual new current-OPEN common dispatch: capability/RTNL before user copy, typed receipt and legacy CLOSED/refusal/uncertainty regressions\n"
+  },
+  "scope_limits": [
+    "Isolated candidate compilation, not production integration or physical runtime.",
+    "RF/FIFO/late-TxS boundary remains unproved; ACK protection unchanged."
+  ],
+  "cleanup": "Downloaded ZIP and parsed objects only in memory; no disk scratch retained.",
+  "independent_hash_comparison": "All three module hashes/sizes and CLOSE object hash match archived reports."
+}

@@ -1,0 +1,32 @@
+{
+  "date": "2026-11-09",
+  "vendor_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "review": "Independent read-only review followed by root inspection of exact preserved vendor source.",
+  "findings": [
+    {
+      "source": "hw_ctrl/cmm_asic_mt.c:6557-6596",
+      "finding": "AsicSetBmcQCR BMC_FLUSH ignores apidx, writes caller mask to ARB_BMCQCR1 and polls whole register for zero up to100 reads. apidx=2 is not per-BSS selection."
+    },
+    {
+      "source": "os/linux/rt_profile.c:817-825",
+      "finding": "Existing USE_BMC flush supplies global mask0x7fff0001; copying this call cannot prove ra2-only retirement."
+    },
+    {
+      "source": "ap/ap_mbss.c:315-329",
+      "finding": "MBSS disable clears per-BSS TBTT/PRE_TBTT and beacon queue start bit; no BMC flush or data/late-TxS completion is established by this block."
+    },
+    {
+      "source": "hw_ctrl/cmm_asic_mt.c:6748-6813",
+      "finding": "MtAsicACQueue accepts BssidIdx/AC map and writes STOP/FLUSH/START masks, but returns VOID with no terminal completion poll or status-delivery join. This is not full ra2 drain proof."
+    }
+  ],
+  "missing_contract": [
+    "Verified per-ra2 BMC/data queue addressing and completion semantics for MT7603E E1/E2.",
+    "Proof no new producer can enqueue across stop, and all in-flight DMA/FIFO/RF/TxS are retired.",
+    "Proof any scoped operation preserves Main/Guest and does not reset or scan physical radio."
+  ],
+  "decision": "Do not bind RC QUIESCE to AsicSetBmcQCR(apidx=2), admin DOWN, or reference-only CLOSE. No safe driver-level fix proven by these interfaces.",
+  "production_patch_applied": false,
+  "runtime_verified": false,
+  "scratch_cleanup": "Exact archive read in memory; no extracted source or build output."
+}
