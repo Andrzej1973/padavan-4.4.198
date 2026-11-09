@@ -19,7 +19,10 @@ static inline int wr_iot_mbss_closed_record_current(
  main_ref=wr_iot_registry_find_owned(slots,count,main_dev);
  record=wr_iot_registry_find(slots,count,iot_dev,generation);
  if(!main_ref||main_ref->family!=WR_REF_FAMILY_MAIN||main_ref->removing||
+    main_ref->removal_stage||!main_ref->last_token||main_ref->close_running||
+    main_ref->close_uncertain_reason||
     !record||record->family!=WR_REF_FAMILY_MBSS||!record->published||record->removing||
+    record->removal_stage||
     record->phase!=WR_REF_IDLE||record->open_unmutated||
     record->last_token!=open_token||record->close_serial!=close_serial||
     record->close_stage!=4U||record->close_running||record->close_uncertain_reason||

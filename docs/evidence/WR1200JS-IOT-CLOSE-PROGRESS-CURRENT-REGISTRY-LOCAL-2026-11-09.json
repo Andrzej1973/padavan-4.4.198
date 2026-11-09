@@ -1,0 +1,32 @@
+{
+  "scope": "LOCAL completed progress requires current registry CLOSED receipt",
+  "sha256": {
+    "tools/iot/driver-api-close-progress.inc": "85bcdb4b6b9957bfd0ea482d4566dfa86eef57a9ecc257d5d91ad4ea64d031da",
+    "tools/iot/check-driver-api-close-synchronous-chain.c": "ea19071d40ace0540d42c834732c91234978168214876c6ab6666e833763c0a7",
+    "tools/iot/mbss-close-receipt.h": "9e82c164b8ec3f2723e15e7117726a2368db8e96e9a3807ab34bb891a0540a7d",
+    "tools/iot/check-mbss-close-receipt.c": "eeb5ec82d5e6aff43624978acdca7f04fc49c4655793ab3a49612de88b96971c"
+  },
+  "before_fix": "New actual-chain regression failed because completed status accepted changed registry",
+  "after_fix": "22 optimized ASan/UBSan CLOSE fixtures PASS; eleven registry mutations refused without owner mutation, additional task creation or reference put",
+  "not_claimed": "RF/reopen, target or runtime acceptance",
+  "cleanup": "Temporary test executables removed",
+  "target_verified": false,
+  "runtime_verified": false,
+  "registry_negative_cases": [
+    "IoT generation",
+    "IoT unpublished",
+    "IoT removing",
+    "close serial",
+    "Main not owned",
+    "vendor count",
+    "IoT removal stage",
+    "Main removal stage",
+    "Main missing token",
+    "Main close running",
+    "Main close uncertain"
+  ],
+  "additional_verification": [
+    "Direct CLOSED receipt ASan/UBSan: baseline accepted, 22 invalid states refused",
+    "check-close-bundle-assets.py PASS: closure, immutable integration and manifest drift refusal"
+  ]
+}

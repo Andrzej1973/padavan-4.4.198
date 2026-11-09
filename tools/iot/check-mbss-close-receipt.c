@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "mbss-close-receipt.h"
 int main(void){
- for(unsigned fault=0;fault<18;fault++){
+ for(unsigned fault=0;fault<23;fault++){
   struct wr_iot_radio_transition r;struct wr_iot_interface_ref slots[2]={{0}},*main_ref,*iot_ref;
   int main_dev=0,iot_dev=0;unsigned long sequence=0;unsigned count=1;
   wr_iot_radio_transition_init(&r);r.phase=WR_RADIO_READY;r.main_ready=1;
@@ -30,8 +30,13 @@ int main(void){
    case 15:r.phase=WR_RADIO_UNVERIFIED;break;
    case 16:count=2;break;
    case 17:iot_ref->published=0;break;
+   case 18:iot_ref->removal_stage=1;break;
+   case 19:main_ref->removal_stage=1;break;
+   case 20:main_ref->last_token=0;break;
+   case 21:main_ref->close_running=1;break;
+   case 22:main_ref->close_uncertain_reason=WR_CLOSE_UNCERTAIN_DMA;break;
   }
   assert(wr_iot_mbss_closed_reference(&r,slots,2,&main_dev,&iot_dev,2,2,3,count)==(fault==0));
  }
- puts("PASS exact nonlast-BSS close reference receipt: local stage/token/epoch, owned Main/count; 17 invalid states refuse. Global retired serial not substituted; no RF/DMA/TxS proof.");return 0;
+ puts("PASS exact nonlast-BSS close reference receipt: local stage/token/epoch, owned Main/count; 22 invalid states refuse. Global retired serial not substituted; no RF/DMA/TxS proof.");return 0;
 }

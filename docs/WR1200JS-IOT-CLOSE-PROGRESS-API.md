@@ -30,7 +30,7 @@ retirement launch. An ambiguous wake keeps the caller reference in the owner.
 
 | Return | Meaning |
 | --- | --- |
-| 0 | Coherent module-reference handoff completed in current radio epoch, with no reset/retiring/PM transition; active OPEN fence remains |
+| 0 | Coherent module-reference handoff completed in current radio epoch, with no reset/retiring/PM transition and a current CLOSED registry receipt (including Main health and no partial removal); active OPEN fence remains |
 | -EINPROGRESS | Task launched or exact designated task still outstanding |
 | -EAGAIN | Core exit not observed, or one refused-task reference reconciled; caller may explicitly query later |
 | -EBUSY | Identity, readiness, ownership or RTNL precondition not satisfied |

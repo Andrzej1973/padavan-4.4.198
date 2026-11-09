@@ -19,7 +19,11 @@ static INT wr_iot_driver_close_progress(RTMP_ADAPTER *ad,PNET_DEV dev,
   matched=ad->wr_iot_transition.epoch==ad->wr_iot_close_owner.ticket.epoch&&
    !ad->wr_iot_transition.reset_pending&&!ad->wr_iot_transition.retiring&&
    !ad->wr_iot_transition.pm_suspending&&!ad->wr_iot_transition.pm_suspended&&
-   !wr_iot_driver_close_blocks_adapter_retirement(&ad->wr_iot_close_owner);
+   !wr_iot_driver_close_blocks_adapter_retirement(&ad->wr_iot_close_owner)&&
+   wr_iot_mbss_closed_reference(&ad->wr_iot_transition,ad->wr_iot_interface_refs,
+    WDEV_NUM_MAX+1,ad->net_dev,dev,ad->wr_iot_close_owner.generation,
+    ad->wr_iot_close_owner.open_token,ad->wr_iot_close_owner.ticket.serial,
+    VIRTUAL_IF_NUM(ad));
  RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);
  if(!matched)return -EBUSY;
  if(transferred)return 0;
