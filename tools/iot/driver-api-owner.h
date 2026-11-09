@@ -91,6 +91,34 @@ static inline const struct wr_iot_driver_open_request *wr_iot_driver_owner_take(
     o->claim.device!=dev||!wr_iot_virtual_open_claim_matches(&o->claim,radio,slots,count))return 0;
  o->consumed=1;return &o->request;
 }
+/* Read-only post-ndo owner proof for a first-beacon wait. This is not the
+ * pre-mutation claim predicate: its ticket is already retired and the IoT
+ * reference must now be owned. Caller holds transition lock and RTNL pins.
+ * Success grants no RF/TxS retirement or network acceptance. */
+static inline int wr_iot_driver_owner_open_current(
+ const struct wr_iot_driver_owner *o,const struct wr_iot_radio_transition *radio,
+ struct wr_iot_interface_ref *slots,unsigned int count,
+ const void *main_dev,const void *iot_dev,unsigned int vendor_count,const void *task)
+{
+ struct wr_iot_interface_ref *main_ref,*record;
+ if(!o||!radio||!task||!main_dev||!iot_dev||main_dev==iot_dev||
+    !o->active||!o->consumed||!o->mutation_started||o->poisoned||o->task!=task||
+    o->claim.device!=iot_dev||o->claim.operation!=WR_RADIO_BSS_OPEN||
+    o->ticket.operation!=WR_RADIO_BSS_OPEN||o->ticket.serial!=o->claim.serial||
+    o->ticket.epoch!=o->claim.epoch||o->request.adapter_epoch!=o->claim.epoch||
+    o->request.device_generation!=o->claim.generation||
+    radio->busy||radio->retired_serial!=o->claim.serial||
+    radio->epoch!=o->claim.epoch||radio->phase!=WR_RADIO_READY||
+    !radio->main_ready||radio->main_inhibited||radio->reset_pending||
+    radio->retiring||radio->pm_suspending||radio->pm_suspended||!vendor_count)return 0;
+ main_ref=wr_iot_registry_find_owned(slots,count,main_dev);
+ record=wr_iot_registry_find(slots,count,iot_dev,o->claim.generation);
+ return main_ref&&main_ref->family==WR_REF_FAMILY_MAIN&&main_ref->published&&
+  !main_ref->removing&&record&&record->family==WR_REF_FAMILY_MBSS&&
+  record->phase==WR_REF_OWNED&&record->published&&!record->removing&&
+  record->last_token==o->claim.serial&&
+  wr_iot_registry_count_matches(slots,count,vendor_count);
+}
 static inline int wr_iot_driver_owner_leave(struct wr_iot_driver_owner *o,
  const void *task,const void *dev,struct wr_iot_radio_transition *radio,
  struct wr_iot_interface_ref *slots,unsigned int count)

@@ -1,4 +1,4 @@
-"""Compose inactive-by-default host beacon receipt hooks into isolated API tree."""
+"""Compose host beacon receipt hooks and bounded wait into isolated API tree."""
 from pathlib import Path
 
 def compose(changes,source,local):
@@ -22,7 +22,9 @@ def compose(changes,source,local):
      '#include "rt_config.h"\n#include "precreated-first-beacon-kernel.h"')
  one('common/cmm_mac_pci.c','\t\tbcn_buf->bcn_state = BCN_TX_WRITE_TO_DMA;\n\t\tRTMP_SEM_UNLOCK(&pAd->BcnRingLock);',
      '\t\tbcn_buf->bcn_state = BCN_TX_WRITE_TO_DMA;\n\t\twr_iot_first_beacon_published_locked(pAd,apidx);\n\t\tRTMP_SEM_UNLOCK(&pAd->BcnRingLock);')
- for asset in ['precreated-first-beacon.h','precreated-first-beacon-kernel.h']:
+ one('os/linux/rt_main_dev.c','#include \"driver-api-owner-binding.inc\"\n#include \"driver-api-open-entry.inc\"',
+     '#include \"driver-api-owner-binding.inc\"\n#include \"precreated-first-beacon-wait.inc\"\n#include \"driver-api-open-entry.inc\"')
+ for asset in ['precreated-first-beacon.h','precreated-first-beacon-kernel.h','precreated-first-beacon-wait.inc']:
   if 'include/'+asset in result or (source/'include'/asset).exists():
    raise ValueError('Unexpected prior first-beacon asset: '+asset)
   result['include/'+asset]=(local/asset).read_text()

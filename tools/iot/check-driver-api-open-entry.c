@@ -10,7 +10,8 @@ struct ifreq {void *ifr_data;};
 struct namespace {void *user_ns;};
 static struct namespace space;
 static int task,locked=1,capable=1,copy_error,enter_error,leave_ok=1,open_error;
-static unsigned copies,enters,leaves,opens;
+static unsigned copies,enters,leaves,opens,waits;
+static int wait_error;
 #define current (&task)
 #define CAP_NET_ADMIN 12
 #define IS_MT7603(ad) ((ad)->mt7603)
@@ -30,6 +31,7 @@ static int wr_iot_driver_request_leave(RTMP_ADAPTER *ad,PNET_DEV dev,void *owner
  assert(ad&&dev&&owner==current&&enters);leaves++;return leave_ok;
 }
 static int dev_open(PNET_DEV dev){assert(dev&&enters);opens++;return open_error;}
+static int wr_iot_driver_first_beacon_wait(RTMP_ADAPTER *ad,PNET_DEV dev,unsigned timeout){assert(ad&&dev&&timeout==3000);waits++;return wait_error;}
 #include "driver-api-open-entry.inc"
 int main(void){
  unsigned char wire[144]={'W','R','I','2',1};
@@ -49,6 +51,8 @@ int main(void){
  open_error=0;leave_ok=0;
  assert(wr_iot_driver_open_ioctl(&ad,&dev,&rq)==-EUCLEAN&&opens==2&&leaves==2);
  leave_ok=1;assert(!wr_iot_driver_open_ioctl(&ad,&dev,&rq)&&opens==3&&leaves==3);
+ assert(waits==2);wait_error=-EUCLEAN;
+ assert(wr_iot_driver_open_ioctl(&ad,&dev,&rq)==-EUCLEAN&&waits==3&&leaves==4);
  puts("PASS actual uninstalled OPEN entry: privilege before copy, syntax/owner refusal, exact open error and mandatory leave; injected owner/dev_open, no real ioctl or RF proof");
  return 0;
 }

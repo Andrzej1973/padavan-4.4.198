@@ -33,3 +33,24 @@ static INT wr_iot_driver_request_leave(RTMP_ADAPTER *ad,PNET_DEV dev,const void 
  if(wake)wake_up_all(&ad->wr_iot_ticket_wait);
  return clean;
 }
+
+/* Snapshot only after ndo_open; never hold transition_lock across ring locks
+ * or a future bounded wait. Revalidate the same snapshot after waking. */
+static inline INT wr_iot_driver_first_beacon_owner_snapshot(RTMP_ADAPTER *ad,
+ PNET_DEV dev,struct wr_iot_virtual_open_claim *snapshot)
+{
+ ULONG flags=0;int owned=0;
+ if(!ad||!dev||!snapshot||!rtnl_is_locked())return 0;
+ RTMP_IRQ_LOCK(&ad->wr_iot_transition_lock,flags);
+ if(IS_MT7603(ad)&&ad->ApCfg.BssidNum==3&&ad->net_dev&&
+    ad->ApCfg.MBSSID[2].wdev.if_dev==dev&&netif_running(dev)&&
+    netif_running(ad->net_dev)&&!ad->wr_iot_close_owner.active&&
+    !ad->wr_iot_control_poisoned&&!ad->wr_iot_boot_active&&!ad->wr_iot_boot_failed){
+  owned=wr_iot_driver_owner_open_current(&ad->wr_iot_driver_owner,
+   &ad->wr_iot_transition,ad->wr_iot_interface_refs,WDEV_NUM_MAX+1,
+   ad->net_dev,dev,VIRTUAL_IF_NUM(ad),current);
+ }
+ if(owned)*snapshot=ad->wr_iot_driver_owner.claim;
+ RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);
+ return owned;
+}

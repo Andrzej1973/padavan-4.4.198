@@ -2,6 +2,8 @@
 #include <errno.h>
 #include <string.h>
 #include <stdio.h>
+#include "beacon-producer-gate.h"
+#include "precreated-first-beacon.h"
 #include "driver-api-owner.h"
 #include "driver-api-close-owner.h"
 typedef int INT;
@@ -10,7 +12,11 @@ typedef struct device {int running;} device,*PNET_DEV;
 #define VIRTUAL_IF_NUM(ad) ((ad)->vendor_count)
 typedef unsigned long ULONG;
 typedef struct {
- int mt7603,wr_iot_transition_lock,wr_iot_ticket_wait;
+ int mt7603,wr_iot_transition_lock,wr_iot_ticket_wait,BcnRingLock,wr_iot_beacon_wait;
+ struct {int hif_type;} chipCap;
+ struct wr_iot_beacon_producer_gate wr_iot_beacon_gates[3];
+ struct wr_iot_first_beacon wr_iot_first_beacon;
+ struct wr_iot_first_beacon_identity wr_iot_first_beacon_capture;
  PNET_DEV net_dev;
  unsigned vendor_count,wr_iot_control_users,wr_iot_control_poisoned;
  unsigned wr_iot_boot_active,wr_iot_boot_failed;
@@ -54,6 +60,7 @@ static int dev_open(PNET_DEV dev){
  }
  return open_error;
 }
+static int wr_iot_driver_first_beacon_wait(RTMP_ADAPTER *ad,PNET_DEV dev,unsigned timeout){assert(ad&&dev&&timeout==3000);return 0;}
 #include "driver-api-open-entry.inc"
 static unsigned query_copies;static int query_copy_error;
 static unsigned long copy_to_user(void *to,const void *from,unsigned long n){

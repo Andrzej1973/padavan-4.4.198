@@ -6,6 +6,7 @@ here=Path(__file__).resolve().parent
 compose=runpy.run_path(str(here/'first-beacon-composition.py'))['compose']
 p=argparse.ArgumentParser(description=__doc__);p.add_argument('driver',nargs='?',type=Path);a=p.parse_args()
 original={
+ 'os/linux/rt_main_dev.c':'#include \"driver-api-owner-binding.inc\"\n#include \"driver-api-open-entry.inc\"',
  'include/rtmp.h':'#include "driver-api-owner.h"\n struct wr_iot_mbss_closed_probe wr_iot_closed_probe;',
  'common/rtmp_init.c':'NdisZeroMemory(&pAd->wr_iot_closed_probe,sizeof(pAd->wr_iot_closed_probe));',
  'include/wr-iot-beacon-producer-kernel.h':'      wr_iot_beacon_gate_begin(gate, gate->generation, ticket);',
@@ -14,7 +15,7 @@ original={
 with tempfile.TemporaryDirectory(prefix='wr-iot-first-beacon-compose-') as td:
  root=Path(td);snapshot=dict(original);result=compose(original,root,here)
  assert original==snapshot
- assert len(result)==6
+ assert len(result)==8
  assert 'wr_iot_first_beacon_capture_locked' in result['include/wr-iot-beacon-producer-kernel.h']
  assert 'wr_iot_first_beacon_published_locked' in result['common/cmm_mac_pci.c']
  for name in original:
@@ -37,6 +38,9 @@ if a.driver:
  block=source[start:source.index('\n}',point)+2]
  assert block.index('HAL_KickOutMgmtTx')<block.index('bcn_buf->bcn_state = BCN_TX_WRITE_TO_DMA;')<block.index(hook)
  assert block.index('goto unsubmitted;',block.index('HAL_KickOutMgmtTx'))<block.index(hook)
- for name in ['precreated-first-beacon.h','precreated-first-beacon-kernel.h']:
+ main=(a.driver/'os/linux/rt_main_dev.c').read_text()
+ assert main.count('#include \"precreated-first-beacon-wait.inc\"')==1
+ assert main.index('#include \"driver-api-owner-binding.inc\"')<main.index('#include \"precreated-first-beacon-wait.inc\"')<main.index('#include \"driver-api-open-entry.inc\"')
+ for name in ['precreated-first-beacon.h','precreated-first-beacon-kernel.h','precreated-first-beacon-wait.inc']:
   assert (a.driver/'include'/name).read_bytes()==(here/name).read_bytes()
-print('PASS first-beacon composition: exact anchors, no partial mutation/replay; final-driver hook placement checked when supplied. Arm/wait endpoint and RF retirement unverified.')
+print('PASS first-beacon composition: exact anchors, no partial mutation/replay; final-driver hook/wait placement checked when supplied. Target/runtime and RF retirement unverified.')
