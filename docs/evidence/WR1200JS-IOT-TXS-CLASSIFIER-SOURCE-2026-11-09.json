@@ -1,0 +1,105 @@
+{
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "scope": "Full vendor mt76x3 C/header search for TxS classifier callers and DMA_TCFR definitions",
+  "findings": [
+    {
+      "path": "chips/mt7603.c",
+      "sha256": "97febaaa4efad09884e6e5daf832da9b57a3a6118d9235458f1aa53648379996",
+      "references": [
+        {
+          "line": 323,
+          "text": "AsicSetTxSClassifyFilter(pAd, TXS2HOST, TXS2H_QID1, TXS2HOST_AGGNUMS, 0x00);"
+        },
+        {
+          "line": 324,
+          "text": "AsicSetTxSClassifyFilter(pAd, TXS2MCU, TXS2M_QID0, TXS2MCU_AGGNUMS, 0x00);"
+        }
+      ]
+    },
+    {
+      "path": "hw_ctrl/cmm_asic_mt.c",
+      "sha256": "a2bcc245b48f709164dcc3bbe73267cb8c7c4f4abe8fc6bebdcd6de5d53e6e45",
+      "references": [
+        {
+          "line": 6652,
+          "text": "VOID AsicSetTxSClassifyFilter(RTMP_ADAPTER *pAd, UINT32 Port, UINT8 DestQ,"
+        }
+      ]
+    },
+    {
+      "path": "include/mac/mac_mt/wf_dma.h",
+      "sha256": "b82a96ad3de79e9a282de0761262551b870b7892411a90f1ad92c1aa6946c701",
+      "references": [
+        {
+          "line": 49,
+          "text": "#define DMA_TCFR0\t\t(WF_DMA_BASE + 0x080)\t/* 0x21c80 */"
+        },
+        {
+          "line": 50,
+          "text": "#define TXS2M_BIT_MAP_MASK (0x7f)"
+        },
+        {
+          "line": 51,
+          "text": "#define TXS2M_BIT_MAP(p) (((p) & 0x7f))"
+        },
+        {
+          "line": 53,
+          "text": "#define TXS2M_AGG_CNT_MASK (0x1f << 8)"
+        },
+        {
+          "line": 54,
+          "text": "#define TXS2M_AGG_CNT(p) (((p) & 0x1f) << 8)"
+        },
+        {
+          "line": 56,
+          "text": "#define TXS2M_QID_MASK (0x3 << 14)"
+        },
+        {
+          "line": 57,
+          "text": "#define TXS2M_QID(p) (((p) & 0x3) << 14)"
+        },
+        {
+          "line": 62,
+          "text": "#define DMA_TCFR1\t\t(WF_DMA_BASE + 0x084)\t/* 0x21c84 */"
+        },
+        {
+          "line": 63,
+          "text": "#define TXS2H_BIT_MAP_MASK (0x7f)"
+        },
+        {
+          "line": 64,
+          "text": "#define TXS2H_BIT_MAP(p) (((p) & 0x7f))"
+        },
+        {
+          "line": 66,
+          "text": "#define TXS2H_AGG_CNT_MASK (0x1f << 8)"
+        },
+        {
+          "line": 67,
+          "text": "#define TXS2H_AGG_CNT(p) (((p) & 0x1f) << 8)"
+        },
+        {
+          "line": 69,
+          "text": "#define TXS2H_QID (1 << 14)"
+        }
+      ]
+    },
+    {
+      "path": "include/rtmp_chip.h",
+      "sha256": "d0e027601d8073477c7eac2019faba0719eb7768024559311997a90d99de2a62",
+      "references": [
+        {
+          "line": 1466,
+          "text": "VOID AsicSetTxSClassifyFilter(struct _RTMP_ADAPTER *pAd, UINT32 Port, UINT8 DestQ,"
+        }
+      ]
+    }
+  ],
+  "analysis": [
+    "AsicSetTxSClassifyFilter reads/writes DMA_TCFR1 for HOST and DMA_TCFR0 for MCU; arguments select destination queue, aggregation count and filter bitmap. No BSS identity, completion poll, delivery fence or callback join in this function.",
+    "MT7603 initializes HOST aggregation count to TXS2HOST_AGGNUMS (31), MCU to TXS2MCU_AGGNUMS (31). This is configuration, not evidence of a maximum delivery latency.",
+    "Changing aggregation or filters does not prove already-generated reports drained. No safe reopen receipt established by this API; do not modify global classification for IoT."
+  ],
+  "runtime_verified": false,
+  "cleanup": "Archive streamed; no source extraction retained"
+}

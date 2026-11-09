@@ -77,3 +77,21 @@ The original vendor flush negative witness is distinct from the staged
 `prepare-beacon-recovery-check.py` hardening, which already returns on timeout
 and checks eligibility under the final restart lock. Revalidation of that
 existing fix passes; it still does not supply the report-delivery boundary.
+
+## TxS classifier is not a delivery fence (2026-11-09)
+
+A full pinned vendor C/header search finds the two initialization calls in
+`chips/mt7603.c:323–324`, implementation in `hw_ctrl/cmm_asic_mt.c:6652–6687`
+and declaration in `include/rtmp_chip.h:1466`. The implementation selects
+DMA_TCFR1 for Host or DMA_TCFR0 for MCU and changes the destination queue,
+aggregation count and filter bitmap. It has no BSS argument, completion poll,
+callback join or returned completion receipt. Register definitions are in
+`include/mac/mac_mt/wf_dma.h:49–69`: bitmap bits0–6, aggregation bits8–12,
+MCU destination bits14–15 / Host destination bit14. The source does not establish
+that this bitmap is a per-BSS filter; do not interpret it as one.
+
+MT7603 initializes both aggregation counts to31. This neither proves a bounded
+report delay nor that reducing aggregation drains reports already generated.
+Consequently this API cannot supply the missing reopen boundary. No classifier
+or aggregation register change was made. Durable source hashes/references:
+`docs/evidence/WR1200JS-IOT-TXS-CLASSIFIER-SOURCE-2026-11-09.json`.

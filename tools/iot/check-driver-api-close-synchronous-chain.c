@@ -162,7 +162,7 @@ int main(void){
  assert(c->synchronous_netdev_returned&&!c->recovery_netdev_transferred);
  rtnl_held=1;
  assert(!wr_iot_driver_close_progress(&ad,&dev,&progress)&&create_calls==1&&chain_puts==1);
- for(unsigned changed=0;changed<11;changed++){
+ for(unsigned changed=0;changed<13;changed++){
   struct wr_iot_interface_ref saved_record=*record,saved_main=*main;
   struct wr_iot_driver_close_owner retained=*c;
   unsigned saved_count=ad.count;
@@ -177,6 +177,8 @@ int main(void){
   if(changed==8)main->last_token=0;
   if(changed==9)main->close_running=1;
   if(changed==10)main->close_uncertain_reason=1;
+  if(changed==11)record->close_prior_phase++;
+  if(changed==12)record->close_prior_ready=!record->close_prior_ready;
   assert(wr_iot_driver_close_progress(&ad,&dev,&progress)==-EBUSY);
   assert(!memcmp(&retained,c,sizeof(retained))&&create_calls==1&&chain_puts==1);
   *record=saved_record;*main=saved_main;ad.count=saved_count;

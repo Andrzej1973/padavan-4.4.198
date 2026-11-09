@@ -1,0 +1,37 @@
+{
+  "run_id": 42554621587,
+  "verification_artifact": 13647260021,
+  "candidate_artifact": 13647064948,
+  "dispatch_revision": "ae1a32b46b77ba227ebd116508bcd00ef3530c6d",
+  "requested_revision": "679ee89c50318ac67f8f0d6583ef5480616e39b4",
+  "verified_revision": "679ee89c50318ac67f8f0d6583ef5480616e39b4",
+  "verification_source_read": true,
+  "close_report": {
+    "status": "passed",
+    "scope": "staged CLOSE bindings in actual rt_main_dev TU; not linked or installed",
+    "object_sha256": "dcc1c1e4bf89e55f51b909c318e507dac8444933b5aa4d49b54f42a9796b4648",
+    "object_bytes": 228160,
+    "probe_symbol_bytes": 5560,
+    "retirement_locked_binding_compiled": true,
+    "nonreturning_module_exit_compiled": true,
+    "stopped_kthread_create_compiled": true
+  },
+  "binary_independently_rehashed": true,
+  "evidence_limit": "Actual object hash and size match target report; object and module independently checked ELF32 little-endian MIPS. Does not cover later progress, ordinary bundle or current registry fix; no runtime proof.",
+  "runtime_verified": false,
+  "endpoint_installed": false,
+  "resource_retirement_verified": false,
+  "cleanup": "Artifact ZIP read in memory; no archive or extracted tree retained.",
+  "independent_binary_checks": {
+    "close-bindings-target-tu.o": {
+      "bytes": 228160,
+      "sha256": "dcc1c1e4bf89e55f51b909c318e507dac8444933b5aa4d49b54f42a9796b4648",
+      "elf": "ELF32 little-endian MIPS"
+    },
+    "mt76x3_ap.ko": {
+      "bytes": 5874844,
+      "sha256": "2e7e685e7c32510880a65a0a3609729e0429b3c73b2c2f299fc2dae00a553b46",
+      "elf": "ELF32 little-endian MIPS"
+    }
+  }
+}
