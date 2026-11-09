@@ -3,7 +3,8 @@
  * enter/finish bindings must retain adapter/netdev and recovery ownership.
  * No generic success fallback. A successful result is checked reference
  * closure only; never RF/isolation acceptance. Do not automatically retry. */
-static INT wr_iot_driver_close_reply(RTMP_ADAPTER *ad,PNET_DEV dev,
+/* Intentionally unbound until lifecycle acceptance; keep ordinary TU strict. */
+static INT __attribute__((unused)) wr_iot_driver_close_reply(RTMP_ADAPTER *ad,PNET_DEV dev,
  struct ifreq *rq,unsigned char *wire)
 {
  struct wr_iot_driver_close_request request;

@@ -1,7 +1,8 @@
 /* Staged standalone transport for operation13, not installed in netdev ops.
  * Fixed64 copy has no user length field (struct ifreq private transport).
  * Decoder enforces exact internal format. No callback fallback or RF claim. */
-static INT wr_iot_driver_close_progress_ioctl(RTMP_ADAPTER *ad,PNET_DEV dev,
+/* Intentionally unbound until lifecycle acceptance; keep ordinary TU strict. */
+static INT __attribute__((unused)) wr_iot_driver_close_progress_ioctl(RTMP_ADAPTER *ad,PNET_DEV dev,
  struct ifreq *rq)
 {
  unsigned char wire[64]={0};ULONG flags=0;int exact;

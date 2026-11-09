@@ -70,3 +70,6 @@ with tempfile.TemporaryDirectory(prefix='wr-bundle-manifest-') as d:
  except ValueError as exc:assert 'reviewed source drift' in str(exc)
  else:raise AssertionError('Updated manifest hid direct source drift')
 print('PASS all compiled closure bytes match manifest; legitimate generated shared header accepted, transitive drift rejected')
+
+# Ordinary module includes the bundle without routing these staged endpoints.
+runpy.run_path(str(here/"check-close-unbound-build.py"),run_name="__main__")
