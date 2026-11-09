@@ -16,5 +16,16 @@
   ],
   "deployment_limit": "Workflow checks out trusted main. Working branch changes do not deploy live monitor until main contains the full matching source/workflow/test package.",
   "runtime_verified": false,
-  "cleanup": "Temporary Nim caches/binaries/fixture logs removed; GitHub logs read in memory"
+  "cleanup": "Temporary Nim caches/binaries/fixture logs removed; GitHub logs read in memory",
+  "trusted_checkout_compatibility": {
+    "verified_main_feature": false,
+    "verified_main_new_test_file": "404 absent",
+    "workflow_rule": "Run new regression only when checked-out trusted source contains per-run report write; if feature present and regression absent, fail.",
+    "cases": [
+      "Old source/no new test: PASS explicit not applicable",
+      "New source/test present: PASS test executed",
+      "New source/test absent: REFUSED"
+    ],
+    "limit": "Does not change trusted main checkout or load code from failing branch."
+  }
 }

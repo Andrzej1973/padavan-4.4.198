@@ -40,7 +40,11 @@ jobs:
           mkdir -p .cache/nim-monitor bin
           nim c -d:release --nimcache:.cache/nim-monitor --out:bin/build-monitor tools/agent-nim/build_monitor.nim
           python3 tools/agent-nim/check_build_monitor.py bin/build-monitor
-          python3 tools/agent-nim/check_monitor_run_report.py bin/build-monitor
+          if grep -Fq 'atomicWrite(directory / "run_build_error.log"' tools/agent-nim/build_monitor.nim; then
+            python3 tools/agent-nim/check_monitor_run_report.py bin/build-monitor
+          else
+            echo 'Trusted monitor predates per-run report support; regression not applicable.'
+          fi
           nim c -d:release --nimcache:.cache/nim-monitor --out:bin/build-log tools/agent-nim/build_log.nim
           python3 tools/agent-nim/check_build_log.py bin/build-log
       - uses: actions/cache/restore@v4
