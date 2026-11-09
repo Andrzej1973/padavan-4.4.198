@@ -1,0 +1,19 @@
+{
+  "scope": "Actual generated PSM diagnostic header host verification with injected kernel APIs",
+  "test_sha256": "d40175a9f2f02a825890cd14d0d11b722efdc592f0b0ef19860f977e77f42227",
+  "checks": [
+    "OFF macro does not evaluate argument side effects",
+    "ON first8 events logged and subsequent12 suppressed",
+    "Counter includes suppressed events: next permitted log reports21",
+    "Five event kinds have independent counters",
+    "Invalid event does not consume log budget"
+  ],
+  "result": "PASS OFF and ON with gnu89 warnings-as-errors ASan/UBSan",
+  "limits": [
+    "Injected atomic implementation is single-threaded; no concurrency runtime claim",
+    "Injected rate limiter validates caller behavior, not Linux timing guarantees",
+    "No driver instrumentation behavior changed",
+    "No target or physical acceptance implied"
+  ],
+  "cleanup": "Temporary header/kernel stubs and executables removed"
+}

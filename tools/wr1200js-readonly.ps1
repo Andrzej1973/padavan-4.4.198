@@ -16,6 +16,7 @@ param(
         'wifi-commands',
         'wifi-stats',
         'wifi-show',
+        'iot-baseline',
         'temperature-paths',
         'txbf-log'
     )]
@@ -91,6 +92,21 @@ done
     'wifi-commands'   = 'iwpriv rai0'
     'wifi-stats'      = 'iwpriv rai0 stat'
     'wifi-show'       = 'iwpriv rai0 show'
+    'iot-baseline' = @'
+echo IOT_INTERFACE_COUNTERS
+cat /proc/net/dev
+for interface in ra0 ra1 ra2; do
+    echo IOT_INTERFACE:$interface
+    for attribute in ifindex operstate carrier; do
+        if [ -r "/sys/class/net/$interface/$attribute" ]; then
+            echo -n "$attribute="
+            cat "/sys/class/net/$interface/$attribute"
+        fi
+    done
+done
+echo IOT_PSM_LOG_TAIL
+dmesg | grep -F 'wr_ps event=' | tail -n 120
+'@
     'temperature-paths' = "find /sys/class/thermal /sys/class/hwmon -type f -name '*temp*' 2>/dev/null"
     'txbf-log'        = "dmesg | grep -iE 'txbf|beamform|implicit|explicit|calibrat|eeprom|efuse'"
 }

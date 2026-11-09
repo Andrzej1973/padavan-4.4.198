@@ -50,8 +50,8 @@ successful module-reference retirement does not supply the missing evidence.
 Do not enlarge pools, disable TxS globally, reset the radio, discard shared RX
 or change descriptor/firmware semantics speculatively.
 
-Next source investigation: trace the actual beacon frame Sequence field at all
-three submission call sites, hardware override controls, and register semantics
+Next source investigation: trace the actual beacon frame Sequence field at both active
+submission call sites, hardware override controls, and register semantics
 of the per-BSS filter/flush. If source cannot establish the required behavior,
 obtain MT7603 E1/E2 documentation or a controlled firmware/report capture under
 a separately authorized device test. Such a test must cover duplicate and delayed
@@ -95,3 +95,20 @@ report delay nor that reducing aggregation drains reports already generated.
 Consequently this API cannot supply the missing reopen boundary. No classifier
 or aggregation register change was made. Durable source hashes/references:
 `docs/evidence/WR1200JS-IOT-TXS-CLASSIFIER-SOURCE-2026-11-09.json`.
+
+## Prepared read-only baseline, not report-delivery evidence
+
+`tools/wr1200js-readonly.ps1 iot-baseline` is a fixed helper check for a future,
+separately authorized device session. It reads `/proc/net/dev`, the ifindex,
+operstate and carrier of ra0/ra1/ra2, and the last120 existing `wr_ps event=`
+kernel messages. It does not invoke private radio commands, reset counters,
+change configuration, restart interfaces or clear dmesg. The helper was parsed
+successfully with Windows PowerShell; it has not been executed on the router.
+
+The network counters are generic cumulative interface counters, not per-frame
+hardware retries, ACK timeouts or TxS correlation records. An absent interface
+or empty PSM log is not success: the diagnostic candidate may not be installed,
+logging may be disabled/rate-limited, or the ring buffer may have wrapped.
+This baseline cannot establish a late-report bound or authorize OPEN. A future
+capture still needs timestamped submission/report identities and both callback
+paths across the explicit CLOSE/OPEN test, plus Main/Guest connectivity evidence.
