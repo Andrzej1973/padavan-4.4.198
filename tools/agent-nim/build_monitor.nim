@@ -197,6 +197,10 @@ proc main() =
         if startedAt >= seen{"_last_error_created_at"}.getStr:
           atomicWrite(directory / "last_build_error.log", report)
           seen["_last_error_created_at"] = %startedAt
+        elif runId.len > 0:
+          # A targeted older run still needs an artifact in this fresh CI job.
+          # Keep the chronological latest marker/report unchanged.
+          atomicWrite(directory / "run_build_error.log", report)
         echo report
         seen[identity] = %run{"updated_at"}.getStr
         atomicWrite(statePath, $seen)

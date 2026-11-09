@@ -1,0 +1,20 @@
+{
+  "failed_run": 42554631707,
+  "monitor_run": 42561214839,
+  "trusted_monitor_revision": "70964a3dab872f83478bccce3e7c37a4e4ec176c",
+  "monitor_job": 128977823776,
+  "evidence": "Original monitor log prints correct two unused-function errors, then upload reports no .codex/last_build_error.log. Artifacts API empty.",
+  "root_cause": "Cached latest-created failure watermark is newer than this older-created/late-finishing optional run. Monitor prints older targeted failure but deliberately does not overwrite latest file; fresh job restores state only, no report.",
+  "fix": "Write run_build_error.log for explicitly targeted older failure without changing latest file/watermark; upload either report path. Keep seen-run dedup and success silence.",
+  "local_verification": [
+    "Before-fix regression reproduces missing report",
+    "After-fix targeted older report plus latest/watermark preservation PASS",
+    "Cached-state-only job PASS",
+    "Dedup and success silence PASS",
+    "Existing monitor executable suite PASS",
+    "Exact staged monitor compiled and checked against committed baseline suite; unrelated local parser changes excluded"
+  ],
+  "deployment_limit": "Workflow checks out trusted main. Working branch changes do not deploy live monitor until main contains the full matching source/workflow/test package.",
+  "runtime_verified": false,
+  "cleanup": "Temporary Nim caches/binaries/fixture logs removed; GitHub logs read in memory"
+}
