@@ -1,0 +1,22 @@
+{
+  "scope": "Local staged reserved-UP source transformation and host receipts; full final generation and target build pending",
+  "checks": {
+    "check-precreated-activation": "PASS precreated activation:100 cycles, all11 start-stage and all10 stop-stage failures with persistent-fault retry, loaded-profile refusal, retained rollback, no legacy profile/reload/restore dispatch. Injected backend; loaded identity and hardware pending.",
+    "check-precreated-mbss-composition": "PASS composed reserved controller/MBSS admission: valid Main opens ra2; revoked Main refuses before raw mutation; unknown retirement retains isolation. Raw IO/network injected; no physical restart/scan/MCU or runtime proof.",
+    "check-precreated-first-beacon": "PASS first-beacon host receipt: pending without submission; identity mismatches/replay/late events/cancel/owner loss refuse; one current accepted submission consumed once. No driver hook, RF or TxS proof.",
+    "scoped-refresh": "PASS exact reserved-UP refresh guard: ra2 skips extra global tick; other devices/operations/chips/configs and periodic call preserved. Beacon/MMIO hooks not executed."
+  },
+  "source_sha256": {
+    "activation.h": "25bed32171e7e1c23a74e0cf288bded7d1c745b16270245fce8f96924376c413",
+    "precreated-first-beacon.h": "5389e84af59385db1597b4a19ed80161e34c377ec4a8fd1eea637131779fbdfa",
+    "check-precreated-first-beacon.c": "6c578c81e2b90a451e40dc0ddecc85c2d0c835ee38bedad4cdf7dd8295676cbb",
+    "check-precreated-mbss-composition.c": "401d607fd32db91603df367cca6f9ad97e5613462b8d9cb7bdb5ac9c3dae85a0",
+    "prepare-driver-api.py": "321ea94da434fba5f2481b79474f058879852dd356ac0f78793bdea7abfb4480",
+    "reserved-beacon-refresh.py": "040db6f27f92f746138330c65c59309e6004a01782339bfbae837ac053935479",
+    "check-reserved-beacon-refresh.py": "d04503f17ad0e3a95868f4c504df59324d416ead4cea409f9f06c988319f9e95",
+    "ci-compile-merged-candidate.sh": "938ee2ccb27036f431019fc7110d18e1297759ed6b0bc3d9e33e7832709e678e"
+  },
+  "production_installed": false,
+  "runtime_verified": false,
+  "scratch_cleanup": "Temporary C fixture executables automatically removed; no full driver extraction."
+}

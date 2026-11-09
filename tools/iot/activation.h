@@ -27,9 +27,13 @@ struct wr_iot_activation_backend {
   * Linux administrative DOWN. Vendor queue-recovery helpers can restart BCN
   * transmission even after a flush timeout; an IDLE software state is not a
   * drain receipt. Unverified quiescence must fail and retain recovery/isolation. */
- /* A transport-completed MCU command is also insufficient: require a bounded
-  * matching firmware success response with proven callback lifetime, followed
-  * by the required hardware observation. Never infer this from RADIO_OFF. */
+ /* If an operation uses an MCU command, transport completion alone is
+  * insufficient: require its matching firmware result and proven callback
+  * lifetime, followed by the required hardware observation. RADIO_OFF is
+  * not a per-BSS drain receipt. A precreated virtual-only backend need not
+  * issue an MCU command or manufacture an MCU ACK receipt: it must instead
+  * prove its actual BSS RF/DMA/TxS retirement boundary. Neither zero physical
+  * restarts nor an empty host queue alone proves that boundary. */
  int (*perform)(void *,enum wr_iot_activation_operation);
  void (*unlock)(void *);
  /* Poll only outside signal context, between bounded backend operations.

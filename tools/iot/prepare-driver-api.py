@@ -35,6 +35,10 @@ one('include/wr-iot-mcu-control-admission.inc','ready=!ad->wr_iot_control_poison
 # or rebuild unrelated active beacon buffers as a side effect of this close.
 one('ap/ap_mbss.c','\tAPMakeAllBssBeacon(pAd);\n\tAPUpdateAllBeaconFrame(pAd);',
     '\tAPMakeAllBssBeacon(pAd);\n\tif (!(IS_MT7603(pAd) && pAd->chipCap.hif_type == HIF_MT &&\n\t      pAd->ApCfg.BssidNum == 3 && BssId == 2))\n\t\tAPUpdateAllBeaconFrame(pAd);')
+# Keep MAC-mode/slot setup, but avoid an extra global DTIM/coexistence tick
+# when opening exactly the reserved ra2. First actual submission is separate.
+changes['common/cmm_cfg.c']=runpy.run_path(str(local/'reserved-beacon-refresh.py'))['compose'](
+ (src/'common/cmm_cfg.c').read_text())
 # BSS2 builders share the counted producer gate, but must be exclusive before
 # inspecting mapped cells. Keep the pin while checking DMA outside ring lock.
 one('include/wr-iot-beacon-producer-kernel.h',
