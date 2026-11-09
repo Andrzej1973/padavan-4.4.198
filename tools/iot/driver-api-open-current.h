@@ -14,7 +14,9 @@ static inline int wr_iot_driver_open_current_observe(
  unsigned long epoch,generation,token;
  if(!out)return 0;
  out->adapter_epoch=out->device_generation=out->open_token=0;
- if(!owner)return 0;
+ /* Configuration receipt alone remains sufficient for CLOSE admission,
+  * but cannot advertise first-publication completion to the RC observer. */
+ if(!owner||owner->receipt.first_beacon_confirmed!=1)return 0;
  epoch=owner->receipt.epoch;generation=owner->receipt.generation;
  token=owner->receipt.open_token;
  if(!wr_iot_driver_close_admissible(owner,nonce,radio,slots,count,main_dev,

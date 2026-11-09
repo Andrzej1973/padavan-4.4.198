@@ -57,6 +57,17 @@ int main(void)
   assert(wr_iot_driver_first_beacon_owner_snapshot(&ad,&dev,&snapshot)==(fault==0));
   assert(!ad.wr_iot_transition_lock&&!memcmp(&snapshot,&prior,sizeof(snapshot)));
   assert(!memcmp(&owner_before,&ad.wr_iot_driver_owner,sizeof(owner_before)));
+  if(!fault){
+   struct wr_iot_virtual_open_claim wrong=prior;wrong.serial++;
+   assert(!wr_iot_driver_first_beacon_confirm(&ad,&dev,&wrong));
+   assert(!ad.wr_iot_driver_owner.receipt.first_beacon_confirmed);
+   assert(wr_iot_driver_first_beacon_confirm(&ad,&dev,&prior));
+   assert(ad.wr_iot_driver_owner.receipt.first_beacon_confirmed==1);
+   assert(!wr_iot_driver_first_beacon_confirm(&ad,&dev,&prior));
+  }else{
+   assert(!wr_iot_driver_first_beacon_confirm(&ad,&dev,&prior));
+   assert(!ad.wr_iot_driver_owner.receipt.first_beacon_confirmed);
+  }
  }
  puts("PASS actual post-open owner snapshot: retired ticket/owned reference, task/epoch/generation/count and Main lifetime required;24 faults refuse without mutation. No wait/RF acceptance.");
  return 0;

@@ -1,0 +1,79 @@
+{
+  "scope": "Isolated receipt metadata and generator fix; source/host evidence only, exact target pending.",
+  "failure": {
+    "run_id": 42675763152,
+    "revision": "7bf708391e222773ca2721f980e716d2b68055e9",
+    "monitor_run": 42677910425,
+    "monitor_artifact": 13701590981,
+    "failed_job": 129356679227,
+    "diagnostic_artifact": 13700962726,
+    "step": "Compile isolated merged IoT MT7603 candidate",
+    "root_cause": "Pinned common/cmm_mac_pci.c uses #include TAB rt_config.h, while composer required literal SPACE. Unique include count is1; whitespace mismatch caused0 matches.",
+    "original_failed_step_confirmed": true,
+    "old_counterexample": "First beacon composition anchor changed: common/cmm_mac_pci.c '#include \"rt_config.h\"'",
+    "fix": "Accept exactly one anchored config include line with spaces/tabs; reject missing/duplicate. Actual pinned source regression and final-driver checks retained.",
+    "monitor_assessment": "Existing bounded report named causal file and include anchor; useful, no new parser change."
+  },
+  "receipt_change": "OPEN_CURRENT requires exact first_beacon_confirmed=1 set only after wait terminal success/current-owner revalidation. Config receipt without confirmation still permits checked CLOSE admission.",
+  "pinned_cmm_mac_sha256": "76d7c82652b0e165c8d9af77295c985b99a0f4533373c96defe0ca2dbfbb1042",
+  "checks": [
+    {
+      "fixture": "check-precreated-first-beacon-wait",
+      "result": "PASS actual bounded first-beacon wait: shared budget, idle producer retry, identity/owner revalidation, no-progress/reject/cancel refusal and retained references on poison. Scheduler/time/MMIO injected; no RF proof."
+    },
+    {
+      "fixture": "check-driver-api-open-current",
+      "result": "PASS current OPEN observation and close admission: same successful OPEN nonce/epoch/generation/token and owned Main/count with Guest absent/present;34 refusals, no state mutation; ticket transfer/executor unbound"
+    },
+    {
+      "fixture": "check-driver-api-receipt",
+      "result": "PASS successful OPEN receipt: exact nonsecret transaction/epoch/netdev/token, no receipt for unmutated/uncertain OPEN, CLOSED local history composition and fresh-owner refusal. No RF acceptance."
+    },
+    {
+      "fixture": "check-first-beacon-owner-snapshot",
+      "result": "PASS actual post-open owner snapshot: retired ticket/owned reference, task/epoch/generation/count and Main lifetime required;24 faults refuse without mutation. No wait/RF acceptance."
+    },
+    {
+      "fixture": "check-driver-api-close-admission",
+      "result": "PASS close admission: same successful OPEN nonce/epoch/generation/token and owned Main/count with Guest absent/present;32 refusals, no state mutation; ticket transfer/executor unbound"
+    },
+    {
+      "fixture": "check-driver-api-owner-binding",
+      "result": "PASS composed actual OPEN entry and adapter owner: privilege, identity/control/bootstrap refusal, single-ticket consume, open error and poisoned leave; dev_open/netdev hooks injected, no real ioctl or RF proof"
+    },
+    {
+      "fixture": "check-driver-api-open-entry",
+      "result": "PASS actual uninstalled OPEN entry: privilege before copy, syntax/owner refusal, exact open error and mandatory leave; injected owner/dev_open, no real ioctl or RF proof"
+    },
+    {
+      "fixture": "check-open-current-composition.py",
+      "result": "PASS actual CLOSED configuration entry: original ON nonce/current receipt, partial close/MMIO/DMA/reset refusal, persistent foreign-ticket context, privilege/copy failures. No RF/FIFO/isolation-release proof.\nPASS actual new current-OPEN common dispatch: capability/RTNL before user copy, typed receipt and legacy CLOSED/refusal/uncertainty regressions"
+    },
+    {
+      "fixture": "check-first-beacon-composition.py",
+      "result": "PASS first-beacon composition: exact anchors, no partial mutation/replay; final-driver hook/wait placement checked when supplied. Target/runtime and RF retirement unverified."
+    },
+    {
+      "fixture": "actual pinned CMM MAC",
+      "result": "PASS first-beacon composition: exact anchors, no partial mutation/replay; final-driver hook/wait placement checked when supplied. Target/runtime and RF retirement unverified."
+    }
+  ],
+  "source_sha256": {
+    "driver-api-owner.h": "0b093e9fd204d508f8f961371bbb2f0c7c770f79c7e491278d95521822fb214a",
+    "driver-api-owner-binding.inc": "848a6b4c748d18824d981296536154537287165ec47504bbbbc6368b013d1d59",
+    "driver-api-open-current.h": "2f15aae778145feae14c90c71489c69c928eb0c7ea71f802e173dda6c75305a9",
+    "precreated-first-beacon-wait.inc": "d4b72488b10a3916a5651d527a85d9eb4bbaae172c0f648eeb8d86f1057be79b",
+    "check-driver-api-open-current.c": "d8761d182840e7b09b29e37e817a9b4c68e2245f13ece053e98c76ccca229541",
+    "check-driver-api-receipt.c": "54c894ee8572464b3a9799bc59e32eb0e017bd5bd4b9e8b53505722a32267d9b",
+    "check-open-current-composition.py": "ad3bdbde72a0f07657f55dedba80db5185f0202979b4ebb2b1727d4c219b2ae5",
+    "check-precreated-first-beacon-wait.c": "0b7b0441c19c6b070a6c7ab13eda0745c95b2d196368ae329aa71a57b64a72bf",
+    "check-first-beacon-owner-snapshot.c": "ef354aef1b8115180b1ae5743fd31170325faa69213b24720e9d71ade83c94bf",
+    "first-beacon-composition.py": "312de6ae9635e72fac7b468eb4262a31d5e5db53379d1e6d05eec4d7f8f162aa",
+    "check-first-beacon-composition.py": "00dbf4a12dc84455e72a33efad01707da1c5c22cd300f2209b3870097084bcc9",
+    "ci-compile-merged-candidate.sh": "6c416382cef9476f9ddfa65f526cf3e0a2014f1d0b6230b0746b2c57c949c7db"
+  },
+  "scratch_bytes_removed": 2275797,
+  "runtime_verified": false,
+  "production_installed": false,
+  "target_verified": false
+}

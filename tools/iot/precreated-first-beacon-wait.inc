@@ -61,7 +61,7 @@ static inline INT wr_iot_driver_first_beacon_wait(RTMP_ADAPTER *ad,PNET_DEV dev,
   ready=wr_iot_first_beacon_finish(&ad->wr_iot_first_beacon,&id,owned);
  else wr_iot_first_beacon_expire(&ad->wr_iot_first_beacon,&id);
  RTMP_SEM_UNLOCK(&ad->BcnRingLock);
- if(ready)return 0;
+ if(ready&&wr_iot_driver_first_beacon_confirm(ad,dev,&before))return 0;
 uncertain:
  /* Poison only this still-owned task/device, never a newer operation. The
   * existing leave path keeps recovery identity and does not export success. */

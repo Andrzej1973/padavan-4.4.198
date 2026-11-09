@@ -20,7 +20,7 @@ insert=r'''
   m->published=r->published=1;m->phase=r->phase=WR_REF_OWNED;m->last_token=1;r->last_token=2;
   ad.wr_iot_driver_owner.receipt.device=&iot;ad.wr_iot_driver_owner.receipt.epoch=1;
   ad.wr_iot_driver_owner.receipt.generation=2;ad.wr_iot_driver_owner.receipt.open_token=2;
-  ad.wr_iot_driver_owner.receipt.valid=1;ad.wr_iot_driver_owner.receipt.request_id[0]=1;
+  ad.wr_iot_driver_owner.receipt.valid=1;ad.wr_iot_driver_owner.receipt.first_beacon_confirmed=1;ad.wr_iot_driver_owner.receipt.request_id[0]=1;
   permitted=rtnl=1;copies_in=copies_out=0;copy_in_error=copy_out_error=0;test_vendor_count=2;
   switch(fault){case 1:permitted=0;break;case 2:rtnl=0;break;case 3:copy_in_error=1;break;case 4:copy_out_error=1;break;case 5:ad.wr_iot_close_owner.active=1;break;case 6:ad.mt7603=0;break;}
   assert(wr_iot_driver_open_current_query_encode(wire,64,nonce));

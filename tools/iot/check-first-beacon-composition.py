@@ -4,7 +4,7 @@ import argparse,runpy,tempfile
 from pathlib import Path
 here=Path(__file__).resolve().parent
 compose=runpy.run_path(str(here/'first-beacon-composition.py'))['compose']
-p=argparse.ArgumentParser(description=__doc__);p.add_argument('driver',nargs='?',type=Path);a=p.parse_args()
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('driver',nargs='?',type=Path);p.add_argument('--pinned-cmm-mac',type=Path);a=p.parse_args()
 original={
  'os/linux/rt_main_dev.c':'#include \"driver-api-owner-binding.inc\"\n#include \"driver-api-open-entry.inc\"',
  'include/rtmp.h':'#include "driver-api-owner.h"\n struct wr_iot_mbss_closed_probe wr_iot_closed_probe;',
@@ -16,6 +16,19 @@ with tempfile.TemporaryDirectory(prefix='wr-iot-first-beacon-compose-') as td:
  root=Path(td);snapshot=dict(original);result=compose(original,root,here)
  assert original==snapshot
  assert len(result)==8
+ for include in ['#include "rt_config.h"','#include\t"rt_config.h"']:
+  variant=dict(original)
+  variant['common/cmm_mac_pci.c']=variant['common/cmm_mac_pci.c'].replace('#include "rt_config.h"',include)
+  assert include+'\n#include "precreated-first-beacon-kernel.h"' in compose(variant,root,here)['common/cmm_mac_pci.c']
+ duplicate=dict(original);duplicate['common/cmm_mac_pci.c']='#include\t"rt_config.h"\n'+duplicate['common/cmm_mac_pci.c']
+ try:compose(duplicate,root,here)
+ except ValueError:pass
+ else:raise AssertionError('duplicate config includes accepted')
+ if a.pinned_cmm_mac:
+  variant=dict(original);variant['common/cmm_mac_pci.c']=a.pinned_cmm_mac.read_text()
+  assert '#include\t"rt_config.h"' in variant['common/cmm_mac_pci.c']
+  assert 'wr_iot_first_beacon_published_locked' in compose(variant,root,here)['common/cmm_mac_pci.c']
+
  assert 'wr_iot_first_beacon_capture_locked' in result['include/wr-iot-beacon-producer-kernel.h']
  assert 'wr_iot_first_beacon_published_locked' in result['common/cmm_mac_pci.c']
  for name in original:

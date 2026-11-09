@@ -344,7 +344,7 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
     > "$results/vendor-beacon-flush-timeout.txt"
   python3 tools/iot/check-iot-close-beacon-scope.py "$merged" > "$results/iot-close-beacon-scope.txt"
   python3 tools/iot/check-reserved-beacon-refresh.py "$merged" > "$results/reserved-beacon-refresh.txt"
-  python3 tools/iot/check-first-beacon-composition.py "$merged" > "$results/first-beacon-composition.txt"
+  python3 tools/iot/check-first-beacon-composition.py "$merged" --pinned-cmm-mac "$pristine/common/cmm_mac_pci.c" > "$results/first-beacon-composition.txt"
   python3 tools/iot/check-iot-builder-dma.py "$merged" > "$results/iot-builder-dma.txt"
   python3 tools/iot/check-txs-builder-composition.py "$merged" > "$results/txs-builder-composition.txt"
   python3 tools/iot/check-beacon-flush-encoding.py "$merged" > "$results/beacon-flush-encoding.json"

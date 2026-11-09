@@ -17,10 +17,10 @@ int main(void){
   r.serial=r.retired_serial=1;
   q.adapter_epoch=r.epoch;q.device_generation=iot_ref->generation;
   assert(wr_iot_driver_owner_query(&o,q.request_id,q.adapter_epoch,q.device_generation));
-  o.receipt.valid=o.refusal.valid=1;o.mutation_started=1;
+  o.receipt.valid=o.refusal.valid=1;o.receipt.first_beacon_confirmed=1;o.mutation_started=1;
   assert(wr_iot_driver_owner_reserve(&o,&r,slots,2,&main_dev,&iot_dev,1,&task,&q,0,0));
   /* Accepted reservation invalidates all history from a preceding attempt. */
-  assert(!o.receipt.valid&&!o.refusal.valid&&!o.mutation_started);
+  assert(!o.receipt.valid&&!o.refusal.valid&&!o.mutation_started&&!o.receipt.first_beacon_confirmed);
   assert(wr_iot_driver_owner_take(&o,&task,&iot_dev,&r,slots,2));
   unsigned long token=o.ticket.serial;
   o.mutation_started=(fault!=1&&fault!=9);
@@ -40,7 +40,7 @@ int main(void){
    q.request_id[0]^=2;assert(!wr_iot_driver_refusal_matches(&o,q.request_id,&iot_dev,q.adapter_epoch,q.device_generation,token));
    continue;
   }
-  assert(o.receipt.valid);
+  assert(o.receipt.valid&&!o.receipt.first_beacon_confirmed);
   unsigned char id[16];memcpy(id,q.request_id,16);
   unsigned long epoch=r.epoch,generation=iot_ref->generation;
   if(fault==3)id[0]^=1;

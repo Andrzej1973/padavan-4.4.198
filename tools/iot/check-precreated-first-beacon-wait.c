@@ -79,6 +79,11 @@ int main(void)
   else if(mode==10){assert(status==-EINVAL&&!ad.wr_iot_driver_owner.poisoned&&!wait_calls);}
   else assert(status==-EUCLEAN&&ad.wr_iot_driver_owner.poisoned&&ad.wr_iot_control_poisoned);
   assert(!ad.wr_iot_first_beacon.pending);
+  assert(ad.wr_iot_driver_owner.receipt.first_beacon_confirmed==(mode==0||mode==11));
+  if(mode==0||mode==11){
+   assert(wr_iot_driver_request_leave(&ad,&dev,current));
+   assert(ad.wr_iot_driver_owner.receipt.valid&&ad.wr_iot_driver_owner.receipt.first_beacon_confirmed==1);
+  }
  }
  puts("PASS actual bounded first-beacon wait: shared budget, idle producer retry, identity/owner revalidation, no-progress/reject/cancel refusal and retained references on poison. Scheduler/time/MMIO injected; no RF proof.");
  return 0;

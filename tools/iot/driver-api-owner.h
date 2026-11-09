@@ -13,7 +13,7 @@ struct wr_iot_driver_open_receipt {
  const void *device;
  unsigned long epoch,generation,open_token;
  unsigned char request_id[16];
- unsigned int valid;
+ unsigned int valid,first_beacon_confirmed;
 };
 struct wr_iot_driver_owner {
  struct wr_iot_driver_open_request request;
@@ -74,6 +74,7 @@ static inline int wr_iot_driver_owner_reserve(struct wr_iot_driver_owner *o,
   wr_iot_radio_abort_bss_open_unmutated(radio,&o->ticket);return 0;
  }
  o->query_valid=0;o->receipt.valid=0;o->refusal.valid=0;o->mutation_started=0;
+ o->receipt.first_beacon_confirmed=o->refusal.first_beacon_confirmed=0;
  o->request=*request;o->task=task;o->active=1;o->consumed=0;
  o->claim.device=iot_dev;o->claim.generation=record->generation;
  o->claim.serial=o->ticket.serial;o->claim.epoch=o->ticket.epoch;
@@ -153,7 +154,7 @@ static inline int wr_iot_driver_owner_leave(struct wr_iot_driver_owner *o,
   retained_receipt.generation=o->claim.generation;retained_receipt.open_token=o->claim.serial;
   for(i=0;i<16;i++)retained_receipt.request_id[i]=o->request.request_id[i];
   retained_receipt.valid=1;
- }else if(!clean)retained_receipt.valid=0;
+ }else if(!clean){retained_receipt.valid=0;retained_receipt.first_beacon_confirmed=0;}
  if(clean&&!o->mutation_started&&record->phase==WR_REF_IDLE&&record->open_unmutated&&
     record->published&&record->family==WR_REF_FAMILY_MBSS&&record->last_token==o->claim.serial){
   retained_refusal.device=dev;retained_refusal.epoch=o->claim.epoch;
