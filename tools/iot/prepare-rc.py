@@ -51,10 +51,9 @@ helper="""#if defined(BOARD_WR1200JS)
 static int wr_iot_last_stop_result=1;
 static int wr_iot_quiesce(void)
 {
- if (!wr_iot_bridge_is_owned() &&
-     (nvram_match("wr_iot_network_t","0")||nvram_match("wr_iot_network_t","")) &&
-     (nvram_match("wr_iot_profile_t","0")||nvram_match("wr_iot_profile_t","")) &&
-     (nvram_match("wr_iot_firewall_t","0")||nvram_match("wr_iot_firewall_t",""))) return 1;
+ /* Empty configuration or an absent bridge cannot rule out an in-flight
+  * driver transaction. Only the owning controller may prove no IoT work
+  * exists, or complete its safe shutdown. Never bypass it using NVRAM. */
  /* The owning activation controller must close/recover IoT while retaining
   * isolation and service ownership. Administrative DOWN is not this proof.
   * No independent bridge/gate cleanup follows this callback. */

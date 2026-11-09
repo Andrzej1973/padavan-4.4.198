@@ -13,28 +13,21 @@ pre=r'''
 #include <assert.h>
 #include <string.h>
 #include <stdio.h>
-static int owned,answer,calls;
-static const char *network,*profile,*firewall;
-static int wr_iot_bridge_is_owned(void){return owned;}
-static int nvram_match(const char *name,const char *value){
- const char *state=0;
- if(!strcmp(name,"wr_iot_network_t"))state=network;
- else if(!strcmp(name,"wr_iot_profile_t"))state=profile;
- else {assert(!strcmp(name,"wr_iot_firewall_t"));state=firewall;}
- return !strcmp(state,value);
-}
+static int answer,calls;
+/* These configuration observations must never authorize physical teardown. */
+#define wr_iot_bridge_is_owned(...) forbidden_bridge_shortcut
+#define nvram_match(...) forbidden_nvram_shortcut
 static int wr_iot_activation_prepare_radio_stop(void){calls++;return answer;}
 '''
 post=r'''
 int main(void){
- const char *values[]={"","0","1","invalid"};
- for(int o=0;o<2;o++)for(int n=0;n<4;n++)for(int p=0;p<4;p++)for(int f=0;f<4;f++)for(int a=-1;a<=2;a++){
-  int scope=o||n>1||p>1||f>1;
-  owned=o;network=values[n];profile=values[p];firewall=values[f];answer=a;calls=0;
-  assert(wr_iot_quiesce()==(!scope||a==1));
-  assert(calls==scope);
+ const int results[]={-117,-1,0,1,2,2147483647};
+ for(unsigned int i=0;i<sizeof(results)/sizeof(results[0]);i++){
+  answer=results[i];calls=0;
+  assert(wr_iot_quiesce()==(answer==1));
+  assert(calls==1);
  }
- puts("PASS actual RC stop preflight: 512 independent gate/ownership cases, empty/zero/invalid settings, exact controller result, no independent network cleanup; backend still unbound");
+ puts("PASS actual RC stop preflight: controller always required; exact success only; no configuration bypass or independent cleanup; backend still unbound");
 }
 '''
 with tempfile.TemporaryDirectory(prefix='wr-iot-radio-stop-') as d:
