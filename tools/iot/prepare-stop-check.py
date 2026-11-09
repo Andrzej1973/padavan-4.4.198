@@ -20,7 +20,7 @@ assert restart.index('stop_wifi_all_rt();')<restart.index('if (!wr_iot_last_stop
 prefix=r"""#include <assert.h>
 #include <string.h>
 #include <stdio.h>
-static int owner,gate,answer,controller_calls,calls,leds,refuse_second;
+static int answer,controller_calls,calls,leds,refuse_second;
 static int auth_stops,auth_starts,starts,profiles,writes,isolations,wan_checks,vga_checks,iapp;
 static const char *names[16];
 #define IFNAME_2G_APCLI "apcli0"
@@ -37,8 +37,8 @@ static const char *names[16];
 static void wif_control(const char *name,int up){assert(!up&&calls<16);names[calls++]=name;}
 #if defined(BOARD_WR1200JS)
 static int wr_iot_last_stop_result=1;
-static int nvram_match(const char *key,const char *value){assert(strstr(key,"wr_iot_")==key);return !gate&&!strcmp(value,"0");}
-static int wr_iot_bridge_is_owned(void){return owner;}
+#define nvram_match(...) forbidden_nvram_shortcut
+#define wr_iot_bridge_is_owned(...) forbidden_bridge_shortcut
 static int wr_iot_activation_prepare_radio_stop(void){controller_calls++;return refuse_second&&controller_calls==2?0:answer;}
 """
 mocks=r"""
@@ -64,22 +64,22 @@ static void reset_counts(void){
  controller_calls=calls=leds=auth_stops=auth_starts=starts=profiles=writes=isolations=wan_checks=vga_checks=iapp=0;
 }
 int main(void){
- for(int o=0;o<2;o++)for(int g=0;g<2;g++)for(int a=-1;a<=2;a++){
-  owner=o;gate=g;answer=a;refuse_second=0;reset_counts();
+ for(int a=-1;a<=2;a++){
+  answer=a;refuse_second=0;reset_counts();
   stop_wifi_all_rt();
 #if defined(BOARD_WR1200JS)
-  if(!(o||g)||a==1)baseline();else assert(!calls&&!leds);
-  assert(controller_calls==(o||g));
+  if(a==1)baseline();else assert(!calls&&!leds);
+  assert(controller_calls==1);
 #else
   baseline();assert(!controller_calls);
 #endif
   for(int radio=0;radio<2;radio++)for(int reload=0;reload<2;reload++){
    reset_counts();restart_wifi_rt(radio,reload);
 #if defined(BOARD_WR1200JS)
-   if((o||g)&&a!=1){
+   if(a!=1){
     assert(controller_calls==1&&!calls&&!leds&&!auth_stops&&!auth_starts&&!starts&&!profiles&&!writes&&!isolations&&!wan_checks&&!vga_checks&&!iapp);continue;
    }
-   assert(controller_calls==2*(o||g));
+   assert(controller_calls==2);
 #else
    assert(!controller_calls);
 #endif
@@ -87,7 +87,7 @@ int main(void){
   }
  }
 #if defined(BOARD_WR1200JS)
- owner=1;gate=1;answer=1;refuse_second=1;reset_counts();restart_wifi_rt(1,1);
+ answer=1;refuse_second=1;reset_counts();restart_wifi_rt(1,1);
  assert(controller_calls==2&&auth_stops==1&&!calls&&!leds&&!auth_starts&&!starts&&!profiles&&!writes&&!isolations&&!wan_checks&&!vga_checks&&!iapp);
 #endif
  puts("PASS full actual RC stop/restart: first/second controller refusal fences physical operations, profile and reopen; radio/reload combinations and other-board behavior preserved; backend unbound");
