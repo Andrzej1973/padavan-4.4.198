@@ -1,0 +1,134 @@
+{
+  "repository": "openwrt/mt76",
+  "revision": "0936617dc529ff9da0385221d3fa6de732231177",
+  "files": {
+    "mt7603/beacon.c": {
+      "sha256": "273ffc26ce26d80d00926cfea02606e233acc1ce93b2fad0f508ccfe4b2ab747",
+      "references": [
+        {
+          "line": 48,
+          "text": "val = MT_DMA_FQCR0_BUSY | MT_DMA_FQCR0_MODE |"
+        },
+        {
+          "line": 57,
+          "text": "if (!mt76_poll(dev, MT_DMA_FQCR0, MT_DMA_FQCR0_BUSY, 0, 5000)) {"
+        },
+        {
+          "line": 65,
+          "text": "if (!mt76_poll(dev, MT_DMA_FQCR0, MT_DMA_FQCR0_BUSY, 0, 5000)) {"
+        }
+      ]
+    },
+    "mt7603/mac.c": {
+      "sha256": "2ddca5b165e98034a1bf5cd185b62f9af805d5cf970e79a54b1bff912397995a",
+      "references": [
+        {
+          "line": 212,
+          "text": "mt76_wr(dev, MT_DMA_FQCR0, MT_DMA_FQCR0_BUSY |"
+        },
+        {
+          "line": 218,
+          "text": "mt76_poll(dev, MT_DMA_FQCR0, MT_DMA_FQCR0_BUSY, 0, 5000);"
+        },
+        {
+          "line": 221,
+          "text": "WARN_ON_ONCE(mt76_rr(dev, MT_DMA_FQCR0) & MT_DMA_FQCR0_BUSY);"
+        },
+        {
+          "line": 942,
+          "text": "mt7603_mac_write_txwi(struct mt7603_dev *dev, __le32 *txwi,"
+        },
+        {
+          "line": 1106,
+          "text": "mt7603_mac_write_txwi(dev, txwi_ptr, tx_info->skb, qid, wcid,"
+        },
+        {
+          "line": 1261,
+          "text": "skb = mt76_tx_status_skb_get(mdev, &sta->wcid, pid, &list);"
+        },
+        {
+          "line": 1277,
+          "text": "void mt7603_mac_add_txs(struct mt7603_dev *dev, void *data)"
+        }
+      ]
+    },
+    "mt7603/main.c": {
+      "sha256": "f9b64665d9a0e4d6442a768214c4bb96a8d293d0ed26127a9bb53a7308e2f1a2",
+      "references": [
+        {
+          "line": 633,
+          "text": "mt7603_flush(struct ieee80211_hw *hw, struct ieee80211_vif *vif,"
+        }
+      ]
+    },
+    "tx.c": {
+      "sha256": "ed812c25d895c8e0f839f46b6e3bfaaf02d7223770c3c8bf9f91123a1f7052c5",
+      "references": [
+        {
+          "line": 145,
+          "text": "return MT_PACKET_ID_NO_SKB;"
+        },
+        {
+          "line": 158,
+          "text": "pid = MT_PACKET_ID_NO_SKB;"
+        },
+        {
+          "line": 176,
+          "text": "mt76_tx_status_skb_get(struct mt76_dev *dev, struct mt76_wcid *wcid, int pktid,"
+        },
+        {
+          "line": 197,
+          "text": "MT_TX_STATUS_SKB_TIMEOUT))"
+        },
+        {
+          "line": 225,
+          "text": "mt76_tx_status_skb_get(dev, wcid, flush ? -1 : 0, &list);"
+        }
+      ]
+    },
+    "mt76.h": {
+      "sha256": "52e6f6342ddd1d4daca145e937f6787a932f0cd33a1a56b84e57e66db2f6e7cb",
+      "references": [
+        {
+          "line": 492,
+          "text": "#define MT_PACKET_ID_NO_SKB\t\t1"
+        },
+        {
+          "line": 502,
+          "text": "#define MT_TX_STATUS_SKB_TIMEOUT\t(HZ / 4)"
+        },
+        {
+          "line": 1605,
+          "text": "struct sk_buff *mt76_tx_status_skb_get(struct mt76_dev *dev,"
+        }
+      ]
+    }
+  },
+  "scope": "Current upstream source reference inventory; mechanism compatibility with pinned vendor still requires comparison",
+  "runtime_verified": false,
+  "cleanup": "API source inspected in memory, no checkout or extracted tree",
+  "mechanism_comparison": [
+    {
+      "file": "mt7603/beacon.c",
+      "lines": "46-75",
+      "finding": "Per-BSS BCN/BMC FQCR flush, BUSY polls, no beacon enqueue on failed poll. Queue flush alone not a late-TxS delivery receipt."
+    },
+    {
+      "file": "mt7603/mac.c",
+      "lines": "1013-1015,1096-1107",
+      "finding": "TXD sets MT_TXD5_TX_STATUS_HOST and PID; ordinary tx_prepare uses mt76_tx_status_skb_add. Does not support an inference that upstream beacon lifecycle simply disables Host TxS."
+    },
+    {
+      "file": "mt7603/main.c",
+      "lines": "633-636",
+      "finding": "mt7603_flush callback empty; not a reusable hardware/host report join mechanism."
+    },
+    {
+      "file": "tx.c",
+      "lines": "176-206",
+      "finding": "Status lookup removes IDR entry; stale cleanup after DMA_DONE and software timeout marks TxS failed/done. This is software completion policy, not proof firmware cannot deliver a later report."
+    }
+  ],
+  "revision_changed_since_prior_audit": false,
+  "conclusion": "No new upstream protocol/delivery boundary established by this refresh. Vendor beacon state mutation and shared PID callback ownership cannot be replaced by mt76 software-status semantics without proof. MCU command ACK and data/beacon TxS remain separate mechanisms."
+}

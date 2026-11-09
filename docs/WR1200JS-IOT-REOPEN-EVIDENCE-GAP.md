@@ -112,3 +112,23 @@ logging may be disabled/rate-limited, or the ring buffer may have wrapped.
 This baseline cannot establish a late-report bound or authorize OPEN. A future
 capture still needs timestamped submission/report identities and both callback
 paths across the explicit CLOSE/OPEN test, plus Main/Guest connectivity evidence.
+
+## Upstream mechanism refresh (2026-11-09)
+
+Current openwrt/mt76 HEAD remains `0936617dc529ff9da0385221d3fa6de732231177`.
+Pinned primary paths:
+[beacon.c](https://github.com/openwrt/mt76/blob/0936617dc529ff9da0385221d3fa6de732231177/mt7603/beacon.c#L46),
+[mac.c](https://github.com/openwrt/mt76/blob/0936617dc529ff9da0385221d3fa6de732231177/mt7603/mac.c#L1013),
+[main.c](https://github.com/openwrt/mt76/blob/0936617dc529ff9da0385221d3fa6de732231177/mt7603/main.c#L633),
+[tx.c](https://github.com/openwrt/mt76/blob/0936617dc529ff9da0385221d3fa6de732231177/tx.c#L176).
+
+Upstream per-BSS beacon/BMC flush aborts enqueue on BUSY poll failure, but does
+not define a late-report horizon. TXWI explicitly requests Host TxS and carries
+PID. The mt7603 flush callback is empty. Shared mt76 status cleanup after
+DMA_DONE and a software timeout removes an IDR entry and reports software
+completion; it does not assert that firmware cannot deliver another report.
+These semantics are distinct from the vendor beacon callback changing BSS state
+and consuming a shared PID reservation. No safe lifecycle proof follows from
+copying the timeout or disabling beacon reports. MCU command ACK and beacon/data
+TxS must remain separate in the investigation. No protocol/TxS setting changed.
+Full source hashes and references are in UPSTREAM-TXS-REFRESH evidence.
