@@ -18,7 +18,8 @@ for selector in ('CONFIG_FIRMWARE_INCLUDE_SQM=n','# CONFIG_FIRMWARE_INCLUDE_SQM 
     report=File()
     arguments=argparse.Namespace(requested=File('CONFIG_FIRMWARE_INCLUDE_SQM=n'),
         effective=File('CONFIG_VENDOR=Ralink\nCONFIG_PRODUCT=MT7621\n'+selector),
-        kernel=File('CONFIG_RALINK_BUILTIN_DTB_NAME="wr1200js"'),report=report)
+        kernel=File('CONFIG_RALINK_BUILTIN_DTB_NAME="wr1200js"\n'
+                    'CONFIG_HW_NAT=y\nCONFIG_RA_NAT_NONE=y'),report=report)
     failed=False
     with patch.object(argparse.ArgumentParser,'parse_args',return_value=arguments):
         try:verifier.main()
@@ -26,6 +27,6 @@ for selector in ('CONFIG_FIRMWARE_INCLUDE_SQM=n','# CONFIG_FIRMWARE_INCLUDE_SQM 
     enabled=selector.endswith('=y') or selector.endswith('=m')
     assert failed==enabled,selector
     data=json.loads(report.text)
-    assert bool(data['mismatches'])==enabled
+    assert data['mismatches']==(['CONFIG_FIRMWARE_INCLUDE_SQM'] if enabled else [])
     assert data['options'][0]['requested_key']=='CONFIG_FIRMWARE_INCLUDE_SQM'
 print('PASS actual WR config verifier: disabled normalized SQM accepted; enabled SQM rejected')

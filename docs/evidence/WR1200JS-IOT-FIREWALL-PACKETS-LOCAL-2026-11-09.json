@@ -1,0 +1,15 @@
+{
+  "status": "NOT VERIFIED",
+  "stage": "isolated user/network/mount namespace attempt",
+  "exit_code": 1,
+  "error": "modprobe: ERROR: could not insert 'ip6_tables': Operation not permitted\nip6tables-restore v1.8.7 (legacy): ip6tables-restore: unable to initialize table 'filter'\n\nError occurred at line: 1\nTry `ip6tables-restore -h' or 'ip6tables-restore --help' for more information.\nTraceback (most recent call last):\n  File \"/home/andrzej/padavan-build/router-guide-work/tools/iot/check-firewall-packets.py\", line 152, in <module>\n    with (root/'iot-filter.v6').open() as f:subprocess.run(['ip6tables-legacy-restore'],stdin=f,check=True)\n  File \"/usr/lib/python3.10/subprocess.py\", line 526, in run\n    raise CalledProcessError(retcode, process.args,\nsubprocess.CalledProcessError: Command '['ip6tables-legacy-restore']' returned non-zero exit status 2.\n",
+  "runtime_verified": false,
+  "cleanup": "Temporary namespace/mounts and fixture inputs removed; no initial namespace fallback",
+  "root_cause": "Host WSL ip6_tables legacy filter unavailable; modprobe not permitted from isolated user namespace. Failure occurred installing IPv6 rules before policy assertions, not evidence of firmware policy bug.",
+  "not_claimed": [
+    "IPv4 packet acceptance",
+    "IPv6 packet acceptance",
+    "Actual DNS/DHCP transactions",
+    "Hardware offload isolation"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "failed_run": 42560503709,
+  "revision": "dc66dbeb529a3042f153ee714cd106c100ef23e7",
+  "failed_job_id": 128975649886,
+  "failed_step": "Execute patched RC failure paths",
+  "monitor_run": 42560613234,
+  "monitor_artifact": 13649382170,
+  "original_job_log_confirmed": "tools/check-sqm-config-policy.py:27 AssertionError CONFIG_FIRMWARE_INCLUDE_SQM=n",
+  "root_cause": "SQM-only fixture omitted new mandatory HW_NAT/RA_NAT_NONE baseline. Verifier rejected missing unrelated requirements before SQM assertion. Production gate correctly rejected incomplete config.",
+  "fix": "Supply valid baseline NAT flags; assert exact mismatch list is SQM only for enabled selectors.",
+  "local_verification": "PASS five normalized SQM forms: n/comment/absent accepted, y/m rejected",
+  "fixture_sha256": "8361ab2b2262c0fc143f9587a7e19047b7e34d985c1534b10f291ede919d7baa",
+  "monitor_assessment": "Correct run/job/step/assertion identified, original log supplied fixture file/line. Useful report; no parser change needed.",
+  "runtime_verified": false,
+  "cleanup": "Logs/monitor ZIP memory-only"
+}
