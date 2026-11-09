@@ -35,3 +35,17 @@ authorization. The Wi-Fi RF/late-TxS reopen blocker remains a distinct issue.
 Evidence files under docs/evidence: HWNAT-SOURCE-PREFLIGHT,
 HWNAT-IMAGE-0DC0A6B, HWNAT-MODULE-0DC0A6B, HWNAT-DTB-0DC0A6B,
 HWNAT-TARGET-FLAGS-6FA32EF and HWNAT-CONFIG-GATE-LOCAL (2026-11-09).
+
+The uImage verifier now also inspects its actual LZMA kernel and embedded DTB.
+It rejects ambiguous/malformed DTBs, IoT external-device entries ra2/rai2/br-iot,
+missing Main entries and changed eth2/eth3 mapping. Decompression is bounded.
+Synthetic mutations and an independently CRC-repaired mutation of the actual
+0dc0a6b image are checked locally: the modified image passes all older structure
+checks but is refused by the new DTB policy. This image gate does not establish
+dynamic registration behavior or physical forwarding isolation.
+
+The parser limits kernel output to64MiB, decoder memory to128MiB, individual
+DTBs to2MiB, candidate parsing to8MiB/128 attempts, depth to64, nodes to8192
+and properties to16384. The workflow runs the regression when the selected
+source verifier contains this gate. Historical optional source revisions retain
+their own verifier behavior; they do not establish the new policy check.

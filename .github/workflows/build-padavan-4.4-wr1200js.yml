@@ -1189,6 +1189,9 @@ jobs:
           test -f "${images[0]}"
           image="${images[0]%.trx}_${GITHUB_SHA:0:8}.trx"
           mv -- "${images[0]}" "$image"
+          if grep -Fq 'iot_hwnat_dtb_policy' overlay/padavan-4.4/scripts/verify-wr1200js-image.py; then
+            python3 tools/iot/check-hwnat-image-policy.py
+          fi
           python3 overlay/padavan-4.4/scripts/verify-wr1200js-image.py \
             "$image" \
             --report firmware-image-checks.json
