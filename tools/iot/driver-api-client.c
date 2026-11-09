@@ -23,6 +23,8 @@ enum wr_iot_driver_submit_result wr_iot_driver_open_submit(
 {
  struct ifreq request={0};unsigned char wire[WR_IOT_DRIVER_OPEN_BYTES]={0};
  volatile unsigned char *wipe=wire;unsigned int i;
+ struct wr_iot_driver_attempt attempt={0};
+ struct wr_iot_driver_open_current_result observed;
  int fd,result,closed;enum wr_iot_driver_submit_result outcome=WR_IOT_DRIVER_NOT_SUBMITTED;
  if(!wr_iot_driver_open_encode(wire,sizeof(wire),input))goto done;
  fd=socket(AF_INET,SOCK_DGRAM|SOCK_CLOEXEC,0);if(fd<0)goto done;
@@ -30,6 +32,13 @@ enum wr_iot_driver_submit_result wr_iot_driver_open_submit(
  result=ioctl(fd,WR_IOT_DRIVER_IOCTL_OPEN,&request);
  closed=close(fd);
  outcome=(result||closed)?WR_IOT_DRIVER_OPEN_UNCERTAIN:WR_IOT_DRIVER_OPEN_COMPLETED;
+ if(outcome==WR_IOT_DRIVER_OPEN_COMPLETED){
+  attempt.identity.adapter_epoch=input->adapter_epoch;
+  attempt.identity.device_generation=input->device_generation;
+  memcpy(attempt.request_id,input->request_id,sizeof(attempt.request_id));
+  if(!wr_iot_driver_open_current_read(&attempt,&observed))
+   outcome=WR_IOT_DRIVER_OPEN_UNCERTAIN;
+ }
 done:
  for(i=0;i<sizeof(wire);i++)wipe[i]=0;
  return outcome;

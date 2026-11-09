@@ -12,7 +12,8 @@ enum wr_iot_driver_submit_result {
  * OPEN consumes it and revalidates identity. Fixed WR1200JS ra2, no caller-selected remote command. */
 int wr_iot_driver_identity_read(struct wr_iot_driver_identity *,const unsigned char *);
 /* Any attempted ioctl failure or post-ioctl close failure is UNCERTAIN.
- * OPEN_COMPLETED is not RF/isolation/client acceptance. No automatic retry. */
+ * OPEN_COMPLETED additionally requires exact current-OPEN receipt readback
+ * after the syscall. It is not RF/isolation/client acceptance. No retry. */
 enum wr_iot_driver_submit_result wr_iot_driver_open_submit(
  const struct wr_iot_driver_open_request *);
 /* Bind a copied RC ON request and its lowercase hex transaction ID to a fresh

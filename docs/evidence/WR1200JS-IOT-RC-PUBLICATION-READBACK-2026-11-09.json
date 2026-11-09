@@ -1,0 +1,21 @@
+{
+  "scope": "Native actual RC client with injected sockets/ioctls/close. No device action or firmware-build acceptance.",
+  "status": "passed",
+  "result": "PASS actual RC API client: fixed ra2/CLOEXEC, strict identity response, no OPEN before validation, transaction ID/ON validation, one OPEN/no retry, uncertain ioctl/close outcomes and strict CLOSED configuration response; system calls injected, no device operation",
+  "behavior": "OPEN_COMPLETED requires successful OPEN ioctl+close followed by exact OPEN_CURRENT readback using original nonce/epoch/generation. Readback failure becomes UNCERTAIN and tracked attempt remains retained; no retry.",
+  "new_faults": [
+    "current-only ioctl refusal",
+    "corrupt current nonce/reply",
+    "current response socket-close failure",
+    "current readback socket creation failure after OPEN"
+  ],
+  "source_sha256": {
+    "driver-api-client.c": "c75b48422eed501f4968e505bd49626f869b0fb9e3dc78cff476111a12128890",
+    "driver-api-client.h": "23e34210dd6bbb824d0c3cdea68ae26982ea60727ceb6ca3827d30baedb54c0c",
+    "check-driver-api-client.c": "53f2265c0c1a3981693fd91e004a5799fbfc3875c7bdca11cb8eab0b9d14e249"
+  },
+  "independent_review": "No call-order/recovery regression found; observation remains a snapshot, not a lease.",
+  "target_verified": false,
+  "runtime_verified": false,
+  "scratch_binary_bytes_removed": 342120
+}
