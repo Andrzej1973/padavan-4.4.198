@@ -1,0 +1,45 @@
+{
+  "scope": "Native host hook/composition tests only; final source composition and MIPS compilation pending. No routed arm/wait/finish operation enabled.",
+  "checks": [
+    {
+      "fixture": "check-precreated-first-beacon",
+      "flags": [],
+      "result": "PASS first-beacon host receipt: pending without submission; identity mismatches/replay/late events/cancel/owner loss refuse; one current accepted submission consumed once. No driver hook, RF or TxS proof."
+    },
+    {
+      "fixture": "check-precreated-first-beacon-kernel",
+      "flags": [],
+      "result": "PASS first-beacon kernel hooks: captured identity, checked host publication, refused stale/cancelled/foreign generations; no RF or driver endpoint proof."
+    },
+    {
+      "fixture": "check-precreated-first-beacon-kernel",
+      "flags": [
+        "-DWR_IOT_OTHER_CHIP"
+      ],
+      "result": "PASS first-beacon kernel hooks: captured identity, checked host publication, refused stale/cancelled/foreign generations; no RF or driver endpoint proof."
+    },
+    {
+      "fixture": "check-first-beacon-composition.py",
+      "result": "PASS first-beacon composition: exact anchors, no partial mutation/replay; final-driver hook placement checked when supplied. Arm/wait endpoint and RF retirement unverified."
+    },
+    {
+      "fixture": "check-reserved-beacon-refresh.py",
+      "result": "PASS exact reserved-UP refresh guard: ra2 skips extra global tick; other devices/operations/chips/configs and periodic call preserved. Beacon/MMIO hooks not executed."
+    }
+  ],
+  "source_sha256": {
+    "precreated-first-beacon.h": "3daa5a68cacb2be0b69072e2c4969c34220c0b7f6e8c544701114b6e65105b32",
+    "precreated-first-beacon-kernel.h": "d409f33bb55f44d9d3c0fbef2a873e04368805830607492a851960115978541b",
+    "check-precreated-first-beacon.c": "4e3398ca9c6ce8c402675af670c2b3cef6e215cbe899bd3e3e54d98fcd1e2161",
+    "check-precreated-first-beacon-kernel.c": "bccc9a869f4c67784ef20a93557e5f855a9b3e2b20820c660978d6fca8d751c6",
+    "first-beacon-composition.py": "df9c426c6e23de17b657b09fe8a8d5de22baef0c0ce80eb8ea8e851a4c30972c",
+    "check-first-beacon-composition.py": "a7f1bf21ce654b80942b34681e2996e0a34b6865a683231e91fa6da0ddc8f0f9",
+    "prepare-driver-api.py": "90bfc4231b90131b189578cf255e94882f953980fa5da70aaea28e3258712f1b",
+    "ci-compile-merged-candidate.sh": "c434416c9f5fe7e4a4ee6b7fa7e1c1989611d266e494f75514c00ce0f94407df"
+  },
+  "review": "Independent read-only review found no concrete defect; finish is terminal, ready is non-consuming.",
+  "target_compiled": false,
+  "production_installed": false,
+  "runtime_verified": false,
+  "scratch_binaries_removed_bytes": 171552
+}

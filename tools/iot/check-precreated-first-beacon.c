@@ -10,6 +10,7 @@ int main(void)
  assert(!wr_iot_first_beacon_arm(NULL,&id));
  assert(wr_iot_first_beacon_arm(&s,&id));
  assert(!wr_iot_first_beacon_arm(&s,&id));
+ assert(!wr_iot_first_beacon_ready(&s,&id));
  /* No tick/submission: never ACTIVE merely because raw open returned. */
  assert(!wr_iot_first_beacon_finish(&s,&id,1));
  assert(!wr_iot_first_beacon_arm(&s,&id));
@@ -33,6 +34,8 @@ int main(void)
   assert(s.pending&&!s.submitted);
  }
  assert(wr_iot_first_beacon_submitted(&s,&id,1));
+ assert(wr_iot_first_beacon_ready(&s,&id));
+ assert(wr_iot_first_beacon_ready(&s,&id));
  assert(!wr_iot_first_beacon_submitted(&s,&id,1));
  assert(!wr_iot_first_beacon_finish(&s,&id,0));
  assert(!wr_iot_first_beacon_finish(&s,&id,1));
@@ -44,6 +47,7 @@ int main(void)
  id.request_generation++;
  assert(wr_iot_first_beacon_arm(&s,&id));
  assert(wr_iot_first_beacon_expire(&s,&id));
+ assert(!wr_iot_first_beacon_ready(&s,&id));
  assert(!wr_iot_first_beacon_submitted(&s,&id,1));
  assert(!wr_iot_first_beacon_finish(&s,&id,1));
  /* Cancellation after accepted enqueue also prevents reporting active. */

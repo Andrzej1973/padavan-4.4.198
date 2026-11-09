@@ -146,6 +146,8 @@ changes['include/driver-api-closed-entry.inc']=compose_open_current(changes['inc
 extended_transition=transition_api['extend_transition']((src/'include/radio-transition.h').read_text())
 changes['include/radio-transition.h']=extended_transition
 changes['include/radio-transition-api.h']=extended_transition
+# Hook producer capture/publication only; no OPEN arm/wait endpoint is enabled.
+changes=runpy.run_path(str(local/'first-beacon-composition.py'))['compose'](changes,src,local)
 # All source anchors/collisions verified before the first mutation.
 for name,s in changes.items():(src/name).write_text(s)
 hashes={n:hashlib.sha256((src/n).read_bytes()).hexdigest() for n in changes}

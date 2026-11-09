@@ -51,7 +51,15 @@ static inline int wr_iot_first_beacon_submitted(struct wr_iot_first_beacon *stat
     !wr_iot_first_beacon_identity_equal(&state->identity,producer))return 0;
  state->submitted=1;return 1;
 }
-/* Consume once after revalidating actual ownership/profile/epoch. A stale
+/* Non-consuming condition for a future bounded wait. Caller holds the same
+ * receipt lock; a true result still requires current ownership at finish. */
+static inline int wr_iot_first_beacon_ready(const struct wr_iot_first_beacon *state,
+ const struct wr_iot_first_beacon_identity *request)
+{
+ return state&&state->pending&&state->submitted&&
+  wr_iot_first_beacon_identity_equal(&state->identity,request);
+}
+/* Terminal consume, NOT a polling API. Consume once after revalidating actual ownership/profile/epoch. A stale
  * consumer cannot cancel a newer request. An invalid current owner consumes
  * its own receipt and requires fail-closed recovery, not global refresh. */
 static inline int wr_iot_first_beacon_finish(struct wr_iot_first_beacon *state,
