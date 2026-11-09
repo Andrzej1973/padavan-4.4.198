@@ -1,0 +1,54 @@
+{
+  "run_id": 42557592602,
+  "revision": "0dc0a6bea80f843bca53f4b857215289c6fc78cd",
+  "artifact_id": 13647649081,
+  "trx_sha256": "693860340dec1a8e179bf2fa710cb8736c8f814b5ed58c00e5263e1925755512",
+  "kernel_sha256": "4ec5e12b0b0a01cd868df27c57754dabff5ee518475e9672c371ae14abcbaba1",
+  "embedded_dtbs": [
+    {
+      "kernel_offset": 5976128,
+      "bytes": 10535,
+      "sha256": "54899d13006b8d4854a32feba4f494c01e019f804aac16a7dd227d4c6fd6f9d0",
+      "properties": [
+        {
+          "node": "",
+          "name": "model",
+          "strings": [
+            "YouHua WR1200JS"
+          ]
+        },
+        {
+          "node": "/hnat@1e100000",
+          "name": "mtketh-wan",
+          "strings": [
+            "eth3"
+          ]
+        },
+        {
+          "node": "/hnat@1e100000",
+          "name": "mtketh-lan",
+          "strings": [
+            "eth2"
+          ]
+        },
+        {
+          "node": "/hnat@1e100000",
+          "name": "ext-devices",
+          "strings": [
+            "usb0",
+            "wwan0",
+            "rax0",
+            "ra0",
+            "rai0",
+            "apclii0",
+            "apclix0",
+            "apcli0"
+          ]
+        }
+      ]
+    }
+  ],
+  "runtime_verified": false,
+  "limits": "Decoded actual embedded FDT properties, not physical runtime or packet isolation acceptance",
+  "cleanup": "ZIP/TRX/kernel/FDT kept in memory only"
+}

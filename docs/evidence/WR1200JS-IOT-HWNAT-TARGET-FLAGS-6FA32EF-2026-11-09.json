@@ -1,0 +1,280 @@
+{
+  "run_id": 42554625088,
+  "verified_revision": "6fa32ef0b16205b00c4e3596790a46074044a56a",
+  "artifact_id": 13648735114,
+  "scope": "Search archived target command/config records for NAT build options",
+  "matches": [
+    {
+      "path": "kernel-before.config",
+      "sha256": "fa047c0252b38d5e9525dbbd80cd1ef8cd4564d01b384edb5d861c200177aaa9",
+      "matching_lines": [
+        "CONFIG_RA_NAT_NONE=y"
+      ]
+    },
+    {
+      "path": "kernel.config",
+      "sha256": "fa047c0252b38d5e9525dbbd80cd1ef8cd4564d01b384edb5d861c200177aaa9",
+      "matching_lines": [
+        "CONFIG_RA_NAT_NONE=y"
+      ]
+    },
+    {
+      "path": "psm-diagnostics/kernel.config",
+      "sha256": "fa047c0252b38d5e9525dbbd80cd1ef8cd4564d01b384edb5d861c200177aaa9",
+      "matching_lines": [
+        "CONFIG_RA_NAT_NONE=y"
+      ]
+    },
+    {
+      "path": "reload-feature/kernel.config",
+      "sha256": "fa047c0252b38d5e9525dbbd80cd1ef8cd4564d01b384edb5d861c200177aaa9",
+      "matching_lines": [
+        "CONFIG_RA_NAT_NONE=y"
+      ]
+    },
+    {
+      "path": "wsc-feature/kernel.config",
+      "sha256": "fa047c0252b38d5e9525dbbd80cd1ef8cd4564d01b384edb5d861c200177aaa9",
+      "matching_lines": [
+        "CONFIG_RA_NAT_NONE=y"
+      ]
+    }
+  ],
+  "limits": "Actual saved preprocessor macro records cover listed translation units only; no whole-image runtime claim.",
+  "runtime_verified": false,
+  "cleanup": "ZIP read in memory only",
+  "preprocessed_macro_records": [
+    {
+      "path": "channel-ap_autoChSel-config.macros.txt",
+      "sha256": "893e8c8523cd06c8e74ff292fb9085b2fe113887507f93f138380d65b5721a5f",
+      "nat_defines": {
+        "CONFIG_HW_NAT": "1",
+        "CONFIG_RA_NAT_NONE": "1"
+      }
+    },
+    {
+      "path": "channel-cmm_asic_mt-config.macros.txt",
+      "sha256": "022af355d634939dd7cb09c74c7bb87c86233657a6ccb46fa09adf3ff2271d51",
+      "nat_defines": {
+        "CONFIG_HW_NAT": "1",
+        "CONFIG_RA_NAT_NONE": "1"
+      }
+    },
+    {
+      "path": "channel-mt7603-config.macros.txt",
+      "sha256": "ed774e7e118e1e4265ed11941efddbfa8493722a5445b5916c88bcb5556efb99",
+      "nat_defines": {
+        "CONFIG_HW_NAT": "1",
+        "CONFIG_RA_NAT_NONE": "1"
+      }
+    },
+    {
+      "path": "channel-rtmp_init_inf-config.macros.txt",
+      "sha256": "39e8c4d2277ada1c3b47400333f20768628dfddbc1ded3ace2cb89f29bc64fe7",
+      "nat_defines": {
+        "CONFIG_HW_NAT": "1",
+        "CONFIG_RA_NAT_NONE": "1"
+      }
+    },
+    {
+      "path": "close-bindings-target-tu.macros.txt",
+      "sha256": "b9e994a47fb10d34a22ef7496e43bfe5b351dcd4d11b642b231779f283caf58f",
+      "nat_defines": {
+        "CONFIG_HW_NAT": "1",
+        "CONFIG_RA_NAT_NONE": "1"
+      }
+    },
+    {
+      "path": "merged-ap-startup-config.macros.txt",
+      "sha256": "084c0fac42b992b7cc8fe135b45970e07488183db09e485230c511be775ffd88",
+      "nat_defines": {
+        "CONFIG_HW_NAT": "1",
+        "CONFIG_RA_NAT_NONE": "1"
+      }
+    },
+    {
+      "path": "merged-beacon-config.macros.txt",
+      "sha256": "db00297f4c0192b64630409cf6905d9a5ddb6a480ec12b844d212b24d55e9112",
+      "nat_defines": {
+        "CONFIG_HW_NAT": "1",
+        "CONFIG_RA_NAT_NONE": "1"
+      }
+    },
+    {
+      "path": "merged-nettask-config.macros.txt",
+      "sha256": "128a2044081e3db569e84c1ec43b3ea3bcdf2e579f0f46a96b0fd864ec397fdf",
+      "nat_defines": {
+        "CONFIG_HW_NAT": "1",
+        "CONFIG_RA_NAT_NONE": "1"
+      }
+    },
+    {
+      "path": "merged-task-config.macros.txt",
+      "sha256": "96889e420f332784f15383ab341cb9ba66ff4d2fd44a7ce1246d2366a65bec6a",
+      "nat_defines": {
+        "CONFIG_HW_NAT": "1",
+        "CONFIG_RA_NAT_NONE": "1"
+      }
+    },
+    {
+      "path": "mlme-wsc-target-tu.macros.txt",
+      "sha256": "d5c5815dc291b3a130d08234b1002d83d3911d08ea6ee5839cc0d5c3a4b8525d",
+      "nat_defines": {
+        "CONFIG_HW_NAT": "1",
+        "CONFIG_RA_NAT_NONE": "1"
+      }
+    },
+    {
+      "path": "radio-off-reload-target-tu.macros.txt",
+      "sha256": "984d48c118ee5183b6a58cae61de2acf13a29bf398ba49c9cf3cfe12e2543994",
+      "nat_defines": {
+        "CONFIG_HW_NAT": "1",
+        "CONFIG_RA_NAT_NONE": "1"
+      }
+    },
+    {
+      "path": "reload-feature/andes_core-config.macros.txt",
+      "sha256": "3ddf41f697d62fe1e262a76cfb046b6cbd7e23d0605005bc43b404f29ac33d83",
+      "nat_defines": {
+        "CONFIG_HW_NAT": "1",
+        "CONFIG_RA_NAT_NONE": "1"
+      }
+    },
+    {
+      "path": "reload-feature/andes_mt-config.macros.txt",
+      "sha256": "46ade301613960178c1c273151db20b31c0cbb18deb8abe470498384c78a42f6",
+      "nat_defines": {
+        "CONFIG_HW_NAT": "1",
+        "CONFIG_RA_NAT_NONE": "1"
+      }
+    },
+    {
+      "path": "reload-feature/channel-ap_autoChSel-config.macros.txt",
+      "sha256": "91255e6bc8e92137e1d9f74a3ad6bba6494209aaa2d49aa13f7316cf1e5eee2d",
+      "nat_defines": {
+        "CONFIG_HW_NAT": "1",
+        "CONFIG_RA_NAT_NONE": "1"
+      }
+    },
+    {
+      "path": "reload-feature/channel-cmm_asic_mt-config.macros.txt",
+      "sha256": "984d48c118ee5183b6a58cae61de2acf13a29bf398ba49c9cf3cfe12e2543994",
+      "nat_defines": {
+        "CONFIG_HW_NAT": "1",
+        "CONFIG_RA_NAT_NONE": "1"
+      }
+    },
+    {
+      "path": "reload-feature/channel-mt7603-config.macros.txt",
+      "sha256": "1d356b5671082d3c4b0462c8e98d1b84d1efb6d5ad52cf9219e2de78851d5899",
+      "nat_defines": {
+        "CONFIG_HW_NAT": "1",
+        "CONFIG_RA_NAT_NONE": "1"
+      }
+    },
+    {
+      "path": "reload-feature/channel-rtmp_init_inf-config.macros.txt",
+      "sha256": "dc4484305166ce10116ae8596069d01fcc12a0328e380fe4fb92e848b84a2a86",
+      "nat_defines": {
+        "CONFIG_HW_NAT": "1",
+        "CONFIG_RA_NAT_NONE": "1"
+      }
+    },
+    {
+      "path": "reload-feature/cmm_asic_mt-config.macros.txt",
+      "sha256": "984d48c118ee5183b6a58cae61de2acf13a29bf398ba49c9cf3cfe12e2543994",
+      "nat_defines": {
+        "CONFIG_HW_NAT": "1",
+        "CONFIG_RA_NAT_NONE": "1"
+      }
+    },
+    {
+      "path": "reload-feature/cmm_data-config.macros.txt",
+      "sha256": "724558f8994776ec5f9895d41bede59024b26358b123f29ae3585afddd62bdce",
+      "nat_defines": {
+        "CONFIG_HW_NAT": "1",
+        "CONFIG_RA_NAT_NONE": "1"
+      }
+    },
+    {
+      "path": "reload-feature/cmm_data_pci-config.macros.txt",
+      "sha256": "6fd6bf8fcdfdfd04b128be95cf02af29c86c157e3efb6790fcb1b73c58039381",
+      "nat_defines": {
+        "CONFIG_HW_NAT": "1",
+        "CONFIG_RA_NAT_NONE": "1"
+      }
+    },
+    {
+      "path": "reload-feature/cmm_mac_pci-config.macros.txt",
+      "sha256": "28d5f0780c667e573dcf52009ae85b45077e6de7305b358a53c7bcbb1f7554da",
+      "nat_defines": {
+        "CONFIG_HW_NAT": "1",
+        "CONFIG_RA_NAT_NONE": "1"
+      }
+    },
+    {
+      "path": "reload-feature/rt_linux-config.macros.txt",
+      "sha256": "d5c8d555f768c5509c6aef54fa6ec4c2bda2a197f91146b5a5b3dfa13bdfab14",
+      "nat_defines": {
+        "CONFIG_HW_NAT": "1",
+        "CONFIG_RA_NAT_NONE": "1"
+      }
+    },
+    {
+      "path": "reload-feature/rt_rbus_pci_drv-config.macros.txt",
+      "sha256": "90bac3ed88c9543fc4d4a999c8a6770a1dba2ff255d0f06a080d7549ae387a59",
+      "nat_defines": {
+        "CONFIG_HW_NAT": "1",
+        "CONFIG_RA_NAT_NONE": "1"
+      }
+    },
+    {
+      "path": "reload-feature/rtmp_init-config.macros.txt",
+      "sha256": "41a7fd3ae78800f7c30f2c558b8dcfe4296a8fcc6d3278882ceece96620c0f24",
+      "nat_defines": {
+        "CONFIG_HW_NAT": "1",
+        "CONFIG_RA_NAT_NONE": "1"
+      }
+    },
+    {
+      "path": "wsc-feature/channel-ap_autoChSel-config.macros.txt",
+      "sha256": "5415239cbb17bb47079b61bee5af7ac2d4342db3fcdeaa75bf8278eebc823955",
+      "nat_defines": {
+        "CONFIG_HW_NAT": "1",
+        "CONFIG_RA_NAT_NONE": "1"
+      }
+    },
+    {
+      "path": "wsc-feature/channel-cmm_asic_mt-config.macros.txt",
+      "sha256": "4a212ac4ec97ed0ef25a14fbb4c20b2ff760a54892fcc06634070cd53ca0d6c7",
+      "nat_defines": {
+        "CONFIG_HW_NAT": "1",
+        "CONFIG_RA_NAT_NONE": "1"
+      }
+    },
+    {
+      "path": "wsc-feature/channel-mt7603-config.macros.txt",
+      "sha256": "288e4d7b039355c425ab29cdcc081e8e496538ace60d6154abe506fbeff922fa",
+      "nat_defines": {
+        "CONFIG_HW_NAT": "1",
+        "CONFIG_RA_NAT_NONE": "1"
+      }
+    },
+    {
+      "path": "wsc-feature/channel-rtmp_init_inf-config.macros.txt",
+      "sha256": "a85fb288cddeca7ebd06506eda8773abf32c0430e247828a72f57b27bc250f30",
+      "nat_defines": {
+        "CONFIG_HW_NAT": "1",
+        "CONFIG_RA_NAT_NONE": "1"
+      }
+    },
+    {
+      "path": "wsc-feature/task-config.macros.txt",
+      "sha256": "62ebf9cb6cedf0e9dee38506aa0af9fe847381894e061cf838fabe949b2f07c4",
+      "nat_defines": {
+        "CONFIG_HW_NAT": "1",
+        "CONFIG_RA_NAT_NONE": "1"
+      }
+    }
+  ]
+}

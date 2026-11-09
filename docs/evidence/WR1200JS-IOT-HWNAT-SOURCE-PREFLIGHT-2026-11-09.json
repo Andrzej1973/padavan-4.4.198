@@ -1,0 +1,204 @@
+{
+  "status": "INVESTIGATION INCOMPLETE",
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "observations": [
+    {
+      "path": "trunk/linux-4.4.x/net/nat/hw_nat/ra_nat.c",
+      "lines": "724-731",
+      "finding": "Legacy conditional path maps dst_port[DP_RA2] to virtual interface index; gated by !CONFIG_RA_HW_NAT_WIFI_NEW_ARCH and MBSS config."
+    },
+    {
+      "path": "overlay/padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config",
+      "line": 952,
+      "finding": "CONFIG_HW_NAT=y in source board profile; not sufficient to establish effective image acceleration options."
+    },
+    {
+      "path": "tools/iot/firewall.h",
+      "finding": "Planner emits br-iot IPv4 forwarding isolation and IPv6 DROP; this does not establish accelerator traversal."
+    },
+    {
+      "path": "trunk/linux-4.4.x/net/nat/hw_nat/ra_nat.c",
+      "lines": "2685-2703",
+      "finding": "NEW_ARCH destination lookup matches skb->dev against global dst_port table; unknown interface returns1."
+    },
+    {
+      "path": "trunk/linux-4.4.x/net/nat/hw_nat/ra_nat.c",
+      "lines": "4405-4413",
+      "finding": "Registers RX/TX hooks unless MANUAL_MODE and NEW_ARCH device registration hooks."
+    },
+    {
+      "path": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/ap/ap_cfg.c",
+      "lines": "12064-12099",
+      "finding": "set_hnat_register iterates every nonnull wdev_list entry and calls register/unregister hook. Invoking on ra0 does not limit operation to ra0."
+    },
+    {
+      "path": "tools/prepare-wifi-hwnat-mode.py",
+      "finding": "Existing mode1 registers Wi-Fi through main interface commands; factory mode2 LAN-only. This does not prove per-IoT offload exclusion."
+    }
+  ],
+  "next_required": [
+    "Inspect dynamic external device registration via HNAT control paths and route bind attribution for ra2/br-iot",
+    "Inspect mtk_sw_nat_hook_tx and registration/flow invalidation lifetime",
+    "Trace IoT source/destination attribution at bind points and existing offload after policy updates",
+    "Design minimal per-IoT exclusion only if necessary, preserving Main/Guest HWNAT",
+    "Authorized physical packet/isolation acceptance with acceleration enabled",
+    "Check registration refresh after mode reapply and IoT UP; per-IoT deny must persist",
+    "Account for existing bind entries during isolation policy/subnet changes, without assuming unregister drains hardware"
+  ],
+  "not_claimed": [
+    "Confirmed firewall bypass",
+    "Hardware isolation acceptance",
+    "Need to disable global HWNAT"
+  ],
+  "runtime_verified": false,
+  "cleanup": "Original archive streamed without extracting source tree",
+  "implementation_selection": {
+    "status": "Confirmed by exact standard0dc0a6b ROMFS module path and ELF symbols",
+    "chain": [
+      "WR1200JS source kernel config CONFIG_RAETH=y (line1341)",
+      "drivers/net/ethernet/Makefile:91 CONFIG_RAETH -> raeth/",
+      "drivers/net/ethernet/raeth/Makefile:1 obj-m += mtk_hnat/",
+      "drivers/net/ethernet/raeth/mtk_hnat/Makefile hw_nat-objs hnat.o hnat_nf_hook.o hnat_debugfs.o hnat_mcast.o"
+    ],
+    "correction": "Earlier net/nat/hw_nat/ra_nat.c references describe alternate legacy implementation, not established WR1200JS active HWNAT. Do not use its dst_port predicates as active-path proof.",
+    "image_evidence": "WR1200JS-IOT-HWNAT-MODULE-0DC0A6B-2026-11-09.json"
+  },
+  "active_source_references": [
+    {
+      "path": "drivers/net/ethernet/raeth/mtk_hnat/hnat.c",
+      "lines": "377-380",
+      "finding": "Installs mtk_sw_nat_hook_tx, RX hook NULL, registration/unregistration hooks."
+    },
+    {
+      "path": "drivers/net/ethernet/raeth/mtk_hnat/hnat_nf_hook.c",
+      "lines": "1533-1594",
+      "finding": "Registration excludes wds prefix, adds named extdev and wifi_hook_if with dev_hold; unregister clears hook slot, dev_put and extif_put_dev. No explicit ra2 exclusion here."
+    },
+    {
+      "path": "drivers/net/ethernet/raeth/mtk_hnat/hnat_nf_hook.c",
+      "lines": "1632-1668",
+      "finding": "Checks IPv6 policy, skb algorithm/magic/hash metadata, output path resolution, LAN/WAN/EXT membership; binding proceeds through fn and skb_to_hnat_info."
+    },
+    {
+      "path": "drivers/net/ethernet/raeth/mtk_hnat/hnat_nf_hook.c",
+      "lines": "1891-1945",
+      "finding": "IPv4/v6 postrouting hooks use NF_IP_PRI_LAST; bridge hooks also installed. Placement supports tracing but is not end-to-end firewall proof."
+    }
+  ],
+  "flow_lifecycle": {
+    "path": "drivers/net/ethernet/raeth/mtk_hnat/hnat_nf_hook.c",
+    "references": [
+      {
+        "lines": "138-154",
+        "finding": "extif_put_dev NULLs ext_entry->dev and dev_put; no flow/cache operation in helper."
+      },
+      {
+        "lines": "181-205",
+        "finding": "Eligible device triggers SMA_ONLY_FWD_CPU, invalidates every BIND entry, clears HWNAT cache, schedules SMA rebuild at jiffies+3*HZ. Global flow operation, not per-IoT invalidation."
+      },
+      {
+        "lines": "215-235",
+        "finding": "NETDEV_GOING_DOWN invokes extif_put_dev when not wifi-hook registered, then foe_clear_all_bind_entries."
+      },
+      {
+        "lines": "1447-1530",
+        "finding": "mtk_sw_nat_hook_tx returns for alg/magic/headroom/hash/bound/reason constraints; writes entry dp and BIND. No explicit IoT source/subnet check."
+      },
+      {
+        "lines": "1579-1594",
+        "finding": "mtk_ppe_dev_unregister_hook clears wifi_hook_if slot, returns netdev refs and calls extif_put_dev; does not itself invoke global bind invalidation."
+      }
+    ],
+    "limits": "Source behavior only; final built module and physical forwarding/cache behavior still unverified. No claim that allowed stable policy leaks."
+  },
+  "wifi_registration_inventory": {
+    "driver_prefix": "drivers/net/wireless/mediatek/mt76x3/",
+    "macro": "include/os/rt_linux.h:1283-1287 RT_MOD_HNAT_REG -> ppe_dev_register_hook",
+    "call_sites": [
+      "ap/ap_apcli_inf.c:118",
+      "ap/ap_mbss_inf.c:151",
+      "ap/ap_wds_inf.c:78",
+      "os/linux/pci_main_dev.c:219",
+      "os/linux/rt_main_dev.c:183",
+      "os/linux/rt_profile.c:1457"
+    ],
+    "direct_call": "ap/ap_cfg.c:12087 adapter-wide loop",
+    "guard_caveat": [
+      "Macro call sites gated CONFIG_RA_HW_NAT_WIFI_NEW_ARCH",
+      "Direct adapter-wide call additionally gated !CONFIG_RA_NAT_NONE",
+      "WR1200JS source board config line953 CONFIG_RA_NAT_NONE=y",
+      "Vendor os/linux/config.mk:343 adds -DCONFIG_RA_NAT_NONE"
+    ],
+    "conclusion": "Inventory alone does not prove compiled Wi-Fi offload or an IoT isolation bypass. Require actual command/macro evidence and HNAT external-interface configuration."
+  },
+  "verified_target_guard": {
+    "evidence": "WR1200JS-IOT-HWNAT-TARGET-FLAGS-6FA32EF-2026-11-09.json",
+    "finding": "Archived actual preprocessed macro records define CONFIG_HW_NAT=1 and CONFIG_RA_NAT_NONE=1; CONFIG_RA_HW_NAT_WIFI_NEW_ARCH not defined in inspected records. Direct source registration inventory not active-path proof."
+  },
+  "board_external_devices": {
+    "source": "overlay/padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/wr1200js.dts",
+    "include": "mt7621-raeth-gmac2.dtsi",
+    "pinned_include_property": "usb0,wwan0,rax0,ra0,rai0,apclii0,apclix0,apcli0",
+    "ra2_in_source_list": false,
+    "limit": "Embedded final DTB independently decoded for standard0dc0a6b; this is image configuration evidence, not runtime.",
+    "image_evidence": "WR1200JS-IOT-HWNAT-DTB-0DC0A6B-2026-11-09.json"
+  },
+  "dynamic_admission": {
+    "path_prefix": "drivers/net/ethernet/raeth/mtk_hnat/",
+    "references": [
+      {
+        "path": "hnat_debugfs.c",
+        "lines": "1294-1320,1858-1861",
+        "finding": "external_interface uses read-only seq_file fops (no write) and S_IRUGO. No external interface add through this file."
+      },
+      {
+        "path": "nf_hnat_mtk.h",
+        "line": 65,
+        "finding": "do_ext2ge_fast_try requires IS_EXT(dev) and !is_from_extge(skb)."
+      },
+      {
+        "path": "hnat_nf_hook.c",
+        "lines": "524-542",
+        "finding": "hnat_set_iif classifies known LAN/PPD/EXT/WAN/ndo_hnat_check; unknown nonbridge input sets INVALID and clears metadata when magic/headroom valid. Bridge input is deliberately preserved, requiring bridge traversal proof."
+      },
+      {
+        "path": "hnat_nf_hook.c",
+        "lines": "715-745",
+        "finding": "IPv4 prerouting classifies input before external fastpath, which may consume packet before normal forwarding. Thus pre-routing admission is part of isolation proof."
+      }
+    ],
+    "conclusion": "Static DTB absence and current macro guards narrow admission; complete br-iot traversal and future mode/driver changes still require gate/runtime evidence."
+  },
+  "bridge_ingress": {
+    "path": "drivers/net/ethernet/raeth/mtk_hnat/hnat_nf_hook.c",
+    "references": [
+      {
+        "lines": "758-780",
+        "finding": "Bridge PRE_ROUTING callback calls hnat_set_head_frags(...hnat_set_iif) on head and frag_list, before its external fastpath branch."
+      },
+      {
+        "lines": "789-800",
+        "finding": "External fastpath requires iface FOE_MAGIC_EXT, not already from extge, unicast destination; may return NF_STOLEN."
+      },
+      {
+        "lines": "524-542",
+        "finding": "Unregistered nonbridge ra2 without ndo_hnat_check becomes FOE_INVALID and metadata cleared if valid/headroom; later br-iot preserves resulting metadata rather than automatically registering it."
+      },
+      {
+        "lines": "1829-1835",
+        "finding": "Bridge postrouting uses shared postrouting admission with fn NULL, so ingress and destination registration remain material."
+      }
+    ],
+    "conclusion": "Normal unregistered-ra2 ingress source path is classified before external fast forwarding. Requires verification of actual netdev ops, bridge callback traversal, headroom/metadata initialization and absence of dynamic registration; not universal packet proof."
+  },
+  "netdev_ops_source": {
+    "prefix": "drivers/net/wireless/mediatek/mt76x3/",
+    "references": [
+      "ap/ap_mbss.c:103 RtmpOSNetDevCreate -> :152 RtmpOSNetDevAttach",
+      "os/linux/rt_linux.c:1548-1553 private ops allocation and full zero",
+      "os/linux/rt_linux.c:1772-1780 assign zeroed ops",
+      "os/linux/rt_linux.c:1675-1729 attaches open/stop/xmit/ioctl/stats, no HNAT callback"
+    ],
+    "search_result": "No ndo_hnat_check references in pinned MT7603 C/headers; no assignments found in inspected current IoT generators/overlay. Source evidence, not runtime pointer inspection."
+  }
+}

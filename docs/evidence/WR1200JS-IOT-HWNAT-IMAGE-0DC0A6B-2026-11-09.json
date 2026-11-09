@@ -1,0 +1,30 @@
+{
+  "run_id": 42557592602,
+  "revision": "0dc0a6bea80f843bca53f4b857215289c6fc78cd",
+  "artifact_id": 13647649081,
+  "kernel_config_sha256": "fa047c0252b38d5e9525dbbd80cd1ef8cd4564d01b384edb5d861c200177aaa9",
+  "kernel_selected_options": [
+    "# CONFIG_NET_SCH_CAKE is not set",
+    "CONFIG_HW_NAT=y"
+  ],
+  "wifi_hwnat_source_report": {
+    "runtime_verified": false,
+    "factory_lan_only": true,
+    "wireless_offload_user_selectable": true,
+    "coordinated_snapshot_adapter": true,
+    "scope": "mode 1 permits a manual Wi-Fi offload trial; factory default mode 2 stays wired-LAN only; runtime performance is unverified",
+    "files": {
+      "trunk/user/rc/net_wifi.c": {
+        "sha256": "9e8043d542406ce0bf951f3b54c1e60a6bc817678bad390178311c5e71a494c3"
+      },
+      "trunk/user/rc/net.c": {
+        "sha256": "f78754858f2892df44d43fed4634f160defdc6befda2ce8894311040739c1291"
+      },
+      "trunk/user/shared/defaults.c": {
+        "sha256": "88618ef6aec4eb5d36f5a73710c19e50b4e756a105c8d03a703d0f8acd1f57e7"
+      }
+    }
+  },
+  "runtime_verified": false,
+  "cleanup": "ZIP read in memory, no TRX or extracted source retained"
+}

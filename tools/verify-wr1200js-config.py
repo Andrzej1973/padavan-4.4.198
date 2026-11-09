@@ -75,8 +75,18 @@ def main():
             errors.append(key)
     if kernel.get('CONFIG_RALINK_BUILTIN_DTB_NAME') != '"wr1200js"':
         errors.append('CONFIG_RALINK_BUILTIN_DTB_NAME')
+    # Preserve the currently audited split: wired HWNAT is retained; vendor
+    # Wi-Fi NAT hooks stay disabled until IoT acceleration admission is proven.
+    nat_policy = {'CONFIG_HW_NAT': 'y', 'CONFIG_RA_NAT_NONE': 'y'}
+    for key, expected in nat_policy.items():
+        if kernel.get(key) != expected:
+            errors.append(key)
     report = {'board': 'wr1200js', 'scope': 'Requested versus effective configuration; not package, runtime or complete-port proof',
               'mismatches': errors, 'options': rows,
+              'iot_hwnat_kernel_policy': {
+                  'required': nat_policy,
+                  'effective': {key: kernel.get(key) for key in nat_policy},
+                  'scope': 'Preserves audited kernel assumptions only; not driver macro, DTB, route or runtime isolation proof'},
               'pending_options': [row['requested_key'] for row in rows if row['status'] == 'port_pending']}
     args.report.write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
     if errors:
