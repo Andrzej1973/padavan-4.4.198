@@ -63,6 +63,27 @@ static const char *wr_modern_persist_value(
 """
 helpers+=filter_code
 source=source.replace(anchor,helpers+anchor,1)
+legacy_signature='validate_cgi(webs_t wp, int sid, const struct wr_shared_wifi_adapter *shared)\n{'
+if source.count(legacy_signature)!=1:
+    parser.error('legacy CGI validator entry changed')
+legacy_guard='''
+ /* Modern credential intent is admitted only by coordinated update_variables_ex.
+  * Reject on legacy CGI before its first variable lookup/write. */
+ if(websGetVar(wp,"wr_modern_wifi_version",NULL)) {
+  websWrite(wp,"Modern credential requests require coordinated apply.");
+  return;
+ }
+'''
+# Insert after declarations, preserving vendor C89 declaration ordering.
+legacy_start=source.index(legacy_signature)
+legacy_end=source.index('\n}',legacy_start)
+legacy_body=source[legacy_start:legacy_end]
+legacy_anchor='\tfor (v = GetVariables(sid); v->name != NULL; v++) {'
+if legacy_body.count(legacy_anchor)!=1:
+    parser.error('legacy CGI variable-loop anchor changed')
+legacy_body=legacy_body.replace(legacy_anchor,legacy_guard+legacy_anchor,1)
+source=source[:legacy_start]+legacy_body+source[legacy_end:]
+
 signature='validate_asp_apply(webs_t wp, int sid, const struct wr_shared_wifi_adapter *shared)'
 if source.count(signature)!=1:
     parser.error('actual apply validator signature changed')

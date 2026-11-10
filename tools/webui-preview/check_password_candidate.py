@@ -20,7 +20,7 @@ static struct fixture *current;
 static unsigned long long restart_needed_bits;
 static char *websGetVar(webs_t wp,char *name,char *fallback) {
  struct fixture *f=wp;const char *v=NULL;
- if(!strcmp(name,"wr_modern_wifi_version"))v=f->modern?"1":NULL;
+ if(!strcmp(name,"wr_modern_wifi_version"))v=f->modern==2?"":f->modern==3?"invalid":f->modern?"1":NULL;
  else if(!strcmp(name,"wr_modern_wifi_band"))v="rt";
  else if(!strcmp(name,"wr_modern_expected_shared"))v=f->shared?"1":"0";
  else if(!strcmp(name,"wr_modern_password_intent"))v=f->intent;
@@ -53,6 +53,11 @@ with tempfile.TemporaryDirectory(prefix='wr-modern-generated-preflight-') as scr
     for tool in (here.parent/'prepare-shared-wifi.py',here/'prepare-password-candidate.py'):
         subprocess.run(['python3',str(tool),str(root)],check=True)
     source=(root/'trunk/user/httpd/web_ex.c').read_text()
+    legacy_start=source.index('validate_cgi(webs_t')
+    legacy_end=source.index('\n}',legacy_start)+2
+    legacy=source[legacy_start:legacy_end]
+    assert legacy.index('Modern credential requests require coordinated apply.')<legacy.index('for (v = GetVariables')
+
     helpers=source[source.index('#include "wr-shared-wifi/adapter.h"'):source.index('static void\nvalidate_cgi')]
     start=source.index('update_variables_ex(')
     end=source.index('\n}',start)
@@ -86,6 +91,10 @@ with tempfile.TemporaryDirectory(prefix='wr-modern-generated-preflight-') as scr
 int main(void) {
  struct fixture f={1,1,0,0,0,NULL,"keep","WLANConfig11b;WLANConfig11a;",""};
  current=&f;run(&f);assert(f.reached==1 && f.errors==0 && f.reads==1);
+ f.modern=2;f.reached=f.errors=f.reads=0;run(&f);assert(f.reached==0 && f.errors==1 && f.reads==0);
+ f.errors=0;legacy_guard_fixture(&f);assert(f.reached==0 && f.errors==1);
+ f.modern=3;f.errors=0;run(&f);assert(f.reached==0 && f.errors==1 && f.reads==0);
+ f.errors=0;legacy_guard_fixture(&f);assert(f.reached==0 && f.errors==1);
  f.modern=0;f.reached=f.errors=f.reads=0;run(&f);
  assert(f.reached==0 && f.errors==1 && f.reads==0);
  f.modern=1;f.script="unsafe";f.errors=0;run(&f);
@@ -97,6 +106,12 @@ int main(void) {
  puts("PASS actual generated preflight: explicit keep reaches shared plan, legacy missing PSK still rejected, script blocked before secret read, change uses posted key; not service-loop/runtime proof");return 0;
 }
 '''
+    # Execute the guard extracted from the actual legacy validator before any
+    # table lookup. Ordinary no-marker Classic input still reaches its boundary.
+    guard=legacy[legacy.index(' if(websGetVar'):legacy.index('\tfor (v = GetVariables')]
+    test+= '\nstatic void legacy_guard_fixture(webs_t wp){\n'+guard+'\ncurrent->reached++;\n}\n'
+    test=test.replace('int main(void) {','static void legacy_guard_fixture(webs_t wp);\nint main(void) {',1)
+    test=test.replace(' current=&f;run(&f);', ' current=&f;legacy_guard_fixture(&f);assert(f.errors==1 && f.reached==0 && f.reads==0);f.modern=0;legacy_guard_fixture(&f);assert(f.reached==1);f.modern=1;f.errors=f.reached=0;run(&f);',1)
     cfile=root/'fixture.c'
     cfile.write_text(test)
     binary=root/'check'

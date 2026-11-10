@@ -245,3 +245,13 @@ cleared flags and no duplicate callbacks. Callback bodies are unmodified;
 unused framework parameter warnings alone are suppressed around extracted EJ
 callbacks. HTTP transport, actual flash writes/RC completion and device behavior
 remain unverified. Evidence: WR1200JS-MODERN-APPLY-LIFECYCLE-HOST-2026-11-10.json.
+
+## Alternate legacy entry guard
+
+The isolated candidate now rejects a present `wr_modern_wifi_version` at the
+start of legacy `validate_cgi`, before variable iteration. Only coordinated
+`update_variables_ex` may admit that marker. This prevents interpreting a Modern
+credential request under ordinary legacy persistence semantics. The actual
+extracted guard is executed with marked/unmarked fixtures; ordinary Classic
+requests without this marker retain the existing path. This is still source/host
+candidate evidence, not production HTTP transport acceptance.
