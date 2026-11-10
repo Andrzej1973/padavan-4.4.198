@@ -20,7 +20,7 @@ with tempfile.TemporaryDirectory(prefix='wr-modern-installer-') as scratch:
     www = source / 'trunk/user/www'
     www.mkdir()
     web = httpd / 'web_ex.c'
-    original = 'struct mime_handler mime_handlers[] = {\n};\n'
+    original = '#include <stdio.h>\n#include \"common.h\"\n#include \"httpd.h\"\nstruct mime_handler mime_handlers[] = {\n};\n'
     web.write_text(original)
     installer = preview / 'prepare-production.py'
 

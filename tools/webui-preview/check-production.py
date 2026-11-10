@@ -18,6 +18,9 @@ wifi=(modern/'wifi.js').read_text(encoding='utf-8')
 schema=json.loads((modern/'wifi-schema.json').read_text(encoding='utf-8'))
 
 assert web_ex.count('static void do_wr_modern_json(')==1
+for header in ('#include <stdio.h>', '#include \"common.h\"', '#include \"httpd.h\"'):
+ if header in web_ex:
+  assert web_ex.index(header)<web_ex.index('static void do_wr_modern_json('), header
 assert '{ "wr_modern.json", "application/json", no_cache_IE, NULL, do_wr_modern_json, 1 }' in web_ex
 assert 'do_wr_modern_json' in web_ex[:web_ex.index('struct mime_handler mime_handlers[]')]
 # Exact routes precede Classic's wildcard HTML/JS handlers; POST has no

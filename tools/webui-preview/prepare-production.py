@@ -85,5 +85,5 @@ assets['wifi-schema.json']=schema.replace('"demo": true','"demo": false',1).enco
 target.mkdir()
 for name,data in assets.items():
  (target/name).write_bytes(data)
-web_ex.write_text(hook+'\n'+source.replace(anchor,anchor+route,1),encoding='utf-8')
+web_ex.write_text(source.replace(anchor,hook+'\n'+anchor+route,1),encoding='utf-8')
 print('Installed /modern/index.html and authenticated /wr_modern.json; Classic assets untouched')

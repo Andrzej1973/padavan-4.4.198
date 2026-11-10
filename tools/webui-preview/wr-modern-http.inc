@@ -49,6 +49,7 @@ static void do_wr_modern_json(const char *url, FILE *stream)
 	unsigned long long memory_total = 0;
 	unsigned long long memory_free = 0;
 	unsigned int memory_percent = 0;
+	int memory_valid = 0;
 	unsigned int hours, minutes, seconds, days;
 	const char *wan_ip;
 	(void)url;
@@ -65,8 +66,10 @@ static void do_wr_modern_json(const char *url, FILE *stream)
 	if (sysinfo(&info) == 0) {
 		memory_total = (unsigned long long)info.totalram * info.mem_unit;
 		memory_free = (unsigned long long)info.freeram * info.mem_unit;
-		if (memory_total)
+		if (memory_total && memory_free <= memory_total) {
 			memory_percent = (unsigned int)(((memory_total - memory_free) * 100ULL) / memory_total);
+			memory_valid = 1;
+		}
 	}
 	wan_ip = wr_modern_nvram("wan0_ipaddr");
 
@@ -76,7 +79,7 @@ static void do_wr_modern_json(const char *url, FILE *stream)
 	fputs("\"internet\":{", stream);
 	wr_modern_json_field(stream, "status",
 		strcmp(wan_ip, "N/A") != 0 && strcmp(wan_ip, "0.0.0.0") != 0
-			? "Підключено" : "Н/Д", 1);
+			? "IP задано · доступ не перевірено" : "Н/Д", 1);
 	wr_modern_json_field(stream, "connection", wr_modern_nvram("wan0_proto"), 1);
 	wr_modern_json_field(stream, "ip", wan_ip, 1);
 	wr_modern_json_field(stream, "uptime", uptime_text, 0);
@@ -91,7 +94,10 @@ static void do_wr_modern_json(const char *url, FILE *stream)
 	fputs("\"speed\":\"Н/Д\",\"clients\":\"Н/Д\"}],", stream);
 	fputs("\"devices\":{\"total\":\"Н/Д\",\"wired\":\"Н/Д\",\"wifi24\":\"Н/Д\",\"wifi5\":\"Н/Д\"},", stream);
 	fputs("\"cpuPercent\":null,", stream);
-	fprintf(stream, "\"memoryPercent\":%u,", memory_percent);
+	if (memory_valid)
+		fprintf(stream, "\"memoryPercent\":%u,", memory_percent);
+	else
+		fputs("\"memoryPercent\":null,", stream);
 	fputs("\"zram\":{\"status\":\"Н/Д\",\"used\":\"Н/Д\",\"compression\":\"Н/Д\",\"percent\":null},", stream);
 	fputs("\"usb\":{\"status\":\"Н/Д\",\"filesystem\":\"Н/Д\",\"freeTotal\":\"Н/Д\"},", stream);
 	fputs("\"interfaces\":{\"status\":\"WAN/LAN з NVRAM\",\"detail\":\"Runtime-перевірка не виконувалась\"},", stream);
@@ -151,7 +157,10 @@ static void do_wr_modern_json(const char *url, FILE *stream)
 	fputs("\"monitoring\":{\"title\":\"Моніторинг\",\"classic\":\"Main_LogStatus_Content.asp\","
 		"\"description\":\"Доступні лише перевірені системні значення.\",\"fields\":["
 		"{\"label\":\"Використання пам’яті\",\"value\":\"", stream);
-	fprintf(stream, "%u%%", memory_percent);
+	if (memory_valid)
+		fprintf(stream, "%u%%", memory_percent);
+	else
+		fputs("Н/Д", stream);
 	fputs("\"},{\"label\":\"Температура CPU\",\"value\":\"Н/Д\"},"
 		"{\"label\":\"Температура Wi-Fi 5 ГГц\",\"value\":\"Н/Д\"}]},", stream);
 	fputs("\"system\":{\"title\":\"Система\",\"classic\":\"Advanced_System_Content.asp\","
