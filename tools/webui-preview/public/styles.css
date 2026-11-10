@@ -313,3 +313,14 @@ dialog p { color: #b8d8f6; line-height: 1.55; }
 .wifi-load-error { color: #ffd1cb; }
 .wifi-pending-label { align-self: center; color: #b6c7df; }
 @media(max-width:600px) { .wifi-general-card { margin: 12px; padding: 14px; } .wifi-section-tabs { flex-wrap: nowrap; overflow-x: auto; } .wifi-section-tabs .wifi-tab { white-space: nowrap; } }
+
+/* Accepted Guest03: identity/security left, access/schedule right. */
+.wifi-guest-grid { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.15fr); gap: 18px; margin: 16px 20px; }
+.wifi-guest-column { min-width: 0; }
+.wifi-guest-grid .wifi-general-card { margin: 0 0 16px; }
+.wifi-guest-grid .wifi-field { grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 12px; }
+.wifi-guest-grid input[type=checkbox]:checked { background: #168dff; }
+.wifi-guest-grid input[type=checkbox]::after { width: 16px; height: 16px; }
+.wifi-guest-grid input[type=checkbox]:checked::after { left: 21px; }
+@media(max-width:1100px) { .wifi-guest-grid { grid-template-columns: minmax(0,1fr); } }
+@media(max-width:600px) { .wifi-guest-grid { margin: 12px; } .wifi-guest-grid .wifi-field { grid-template-columns: minmax(0,1fr); } }

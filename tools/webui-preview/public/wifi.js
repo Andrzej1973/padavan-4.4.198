@@ -30,9 +30,31 @@ const WifiDemo = (() => {
       if(!values || !publicFields.every(key=>typeof values[key]==='string')) return null;
       bands[band]=Object.fromEntries(publicFields.map(key=>[key,values[key]]));
     }
-    return {shared:['0','1'].includes(config.shared)?config.shared:null,bands};
+    const guestFields=['enable','ssid','closed','auth_mode','wpa_mode','crypto','lan_isolate','ap_isolate','macrule','mcs_mode','date_x','time_x','time2_x'];
+    const guests={};
+    for(const band of ['24','5']) {
+      const values=config.guests?.[band];
+      guests[band]=values && guestFields.every(key=>typeof values[key]==='string')
+        ? Object.fromEntries(guestFields.map(key=>[key,values[key]])) : null;
+    }
+    return {shared:['0','1'].includes(config.shared)?config.shared:null,bands,guests};
   }
-  return {commonKeys, sections, makeState, synchronize, route, publicConfiguration};
+  // Classic stores Sunday first; each interval is HHMMHHMM. Invalid stored
+  // values stay unknown rather than silently becoming an enabled schedule.
+  function guestSchedule(date, weekday, weekend) {
+    const interval=value=>{
+      if(typeof value!=='string' || !/^\d{8}$/.test(value)) return null;
+      const parts=[0,2,4,6].map(i=>value.slice(i,i+2));
+      if(Number(parts[0])>23 || Number(parts[2])>23 || Number(parts[1])>59 || Number(parts[3])>59) return null;
+      return {start:parts[0]+':'+parts[1],end:parts[2]+':'+parts[3]};
+    };
+    return {
+      days:typeof date==='string' && /^[01]{7}$/.test(date)
+        ? Object.fromEntries(['sun','mon','tue','wed','thu','fri','sat'].map((day,i)=>[day,date[i]==='1'])) : null,
+      weekday:interval(weekday),weekend:interval(weekend)
+    };
+  }
+  return {commonKeys, sections, makeState, synchronize, route, publicConfiguration, guestSchedule};
 })();
 if (typeof module !== 'undefined') module.exports = WifiDemo;
 
@@ -174,6 +196,62 @@ if (typeof document !== 'undefined') (async () => {
     footer.append(element('span','Збереження в Modern ще розробляється','wifi-pending-label'));
     const classic=element('a','Перейти до Classic','wifi-tab'); classic.href='/Advanced_Wireless2g_Content.asp'; footer.append(classic); panel.append(footer);
   }
+  function render24Guest(panel) {
+    const bands=element('nav',undefined,'wifi-tabs');bands.setAttribute('aria-label','Діапазон Wi-Fi');
+    bands.append(nav('2,4 ГГц','wifi/split/24/guest',true),nav('5 ГГц','wifi/split/5/guest',false));panel.append(bands);
+    const tabs=element('nav',undefined,'wifi-tabs wifi-section-tabs');
+    tabs.setAttribute('aria-label','Налаштування 2,4 ГГц');
+    for(const [id,title] of Object.entries(WifiDemo.sections)) tabs.append(nav(title,'wifi/split/24/'+id,id==='guest'));
+    panel.append(tabs);
+    const grid=element('div',undefined,'wifi-guest-grid');
+    const identityColumn=element('div',undefined,'wifi-guest-column');
+    const accessColumn=element('div',undefined,'wifi-guest-column');
+    grid.append(identityColumn,accessColumn);panel.append(grid);
+    const card=(title,column=identityColumn)=>{const section=element('section',undefined,'wifi-general-card');section.append(element('h2',title));column.append(section);return section;};
+    const read=(section,label,value,toggle=false)=>{
+      const row=element('label',undefined,'wifi-field');row.append(element('span',label));
+      if(value===null || value===undefined || (toggle && !['0','1'].includes(value))) row.append(element('span','Невідомо'));
+      else {const input=element('input');input.disabled=true;input.type=toggle?'checkbox':'text';
+        if(toggle){input.checked=value==='1';input.setAttribute('role','switch');} else input.value=value;
+        row.append(input);}
+      section.append(row);
+    };
+    const heading=card('Гостьова мережа 2,4 ГГц');
+    heading.append(element('p','Показані збережені налаштування; фактичний стан перевіряється окремо.','wifi-note'));
+    const v=configuration?.guests?.['24'];
+    if(!v) heading.append(element('p','Не вдалося прочитати налаштування Guest. Оновіть сторінку або перейдіть до Classic.','wifi-load-error'));
+    else {
+      read(heading,'Увімкнути гостьову мережу',v.enable,true);
+      if(configuration.bands['24'].radio_x==='0') heading.append(element('p','Радіомодуль 2,4 ГГц вимкнено. Гостьова мережа не може працювати без нього.','wifi-note'));
+      const identity=card('Назва гостьової мережі');
+      read(identity,'Назва мережі (SSID)',v.ssid);read(identity,'Приховати SSID',v.closed,true);
+      const security=card('Захист');
+      read(security,'Захист',v.auth_mode==='open'?'Відкрита мережа':v.auth_mode==='psk'?'WPA Personal':null);
+      if(v.auth_mode==='open') security.append(element('p','Гостьова мережа без пароля: трафік Wi-Fi не захищений шифруванням.','wifi-open-warning'));
+      if(v.auth_mode==='psk') {
+        read(security,'Версія WPA',({'1':'WPA','2':'WPA2','0':'WPA + WPA2'})[v.wpa_mode]);
+        read(security,'Шифрування',({aes:'AES',tkip:'TKIP','tkip+aes':'TKIP + AES'})[v.crypto]);
+        security.append(element('p','Пароль залишається без змін. Збережений ключ не завантажується.','wifi-note'));
+      }
+      const isolation=card('Ізоляція та доступ',accessColumn);
+      read(isolation,'Ізолювати від локальної мережі (LAN)',v.lan_isolate,true);
+      read(isolation,'Ізолювати гостьових клієнтів між собою',v.ap_isolate,true);
+      read(isolation,'Використовувати фільтр MAC-адрес',v.macrule,true);
+      isolation.append(element('p','Фактичну ізоляцію необхідно перевірити на пристрої.','wifi-note'),nav('Налаштувати фільтр MAC','wifi/split/24/mac',false));
+      const schedule=card('Розклад гостьової мережі',accessColumn);
+      schedule.append(element('p','Час роутера використовується для розкладу.','wifi-note'));
+      const decoded=WifiDemo.guestSchedule(v.date_x,v.time_x,v.time2_x);
+      for(const [day,label] of [['mon','Пн'],['tue','Вт'],['wed','Ср'],['thu','Чт'],['fri','Пт'],['sat','Сб'],['sun','Нд']])
+        read(schedule,label,decoded.days?(decoded.days[day]?'1':'0'):null,true);
+      for(const [key,title] of [['weekday','Будні'],['weekend','Вихідні']]) read(schedule,title,decoded[key]?decoded[key].start+' – '+decoded[key].end:null);
+      const extra=card('Додатково',accessColumn);
+      const rates={'0':'Без фіксації','1':'HTMIX (1S) 45 Mbps','2':'HTMIX (1S) 30 Mbps','3':'HTMIX (1S) 15 Mbps','4':'OFDM 12 Mbps','5':'OFDM 9 Mbps','6':'OFDM 6 Mbps','7':'CCK 5.5 Mbps','8':'CCK 2 Mbps','9':'CCK 1 Mbps'};
+      read(extra,'Фіксована швидкість передавання',rates[v.mcs_mode]);
+    }
+    const footer=element('div',undefined,'wifi-classic-actions');
+    footer.append(element('span','Збереження в Modern ще розробляється','wifi-pending-label'));
+    const classic=element('a','Перейти до Classic','wifi-tab');classic.href='/Advanced_WGuest2g_Content.asp';footer.append(classic);panel.append(footer);
+  }
   function render() {
     const current = WifiDemo.route(location.hash);
     if (current.view === 'external') return;
@@ -202,6 +280,9 @@ if (typeof document !== 'undefined') (async () => {
         element('p','Тут буде окрема мережа IoT лише для 2,4 ГГц. Налаштування SSID, захисту, підмережі, DHCP/DNS та ізоляції з’являться після готовності керування.','wifi-note'),
         element('p','Увімкнення та зміна налаштувань IoT наразі недоступні.','wifi-note'));
       return;
+    }
+    if (!schema.demo && current.view==='band' && current.band==='24' && current.section==='guest') {
+      render24Guest(panel); return;
     }
     if (!schema.demo && current.view==='band' && current.band==='24' && current.section==='general') {
       render24General(panel); return;

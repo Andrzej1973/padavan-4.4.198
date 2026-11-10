@@ -38,6 +38,18 @@ static const char *nvram_safe_get(const char *name)
 	if (!strcmp(name, "rt_HT_BW") || !strcmp(name, "wl_HT_BW")) return "1";
 	if (!strcmp(name, "rt_gmode") || !strcmp(name, "wl_gmode")) return "2";
 	if (!strcmp(name, "rt_HT_EXTCHA") || !strcmp(name, "wl_HT_EXTCHA")) return "1";
+	if (!strncmp(name, "rt_guest_", 9) || !strncmp(name, "wl_guest_", 9)) {
+		const char *field = name + 9;
+		if (!strcmp(field, "ssid")) return name[0] == 'r' ? "Guest-24" : "Guest-5";
+		if (!strcmp(field, "auth_mode")) return "psk";
+		if (!strcmp(field, "wpa_mode")) return "2";
+		if (!strcmp(field, "crypto")) return "aes";
+		if (!strcmp(field, "date_x")) return "0111110";
+		if (!strcmp(field, "time_x")) return "08002200";
+		if (!strcmp(field, "time2_x")) return "10002300";
+		if (!strcmp(field, "enable") || !strcmp(field, "lan_isolate") || !strcmp(field, "ap_isolate")) return "1";
+		if (!strcmp(field, "closed") || !strcmp(field, "macrule") || !strcmp(field, "mcs_mode")) return "0";
+	}
 	fprintf(stderr, "Unexpected NVRAM read: %s\n", name);
 	exit(2);
 }

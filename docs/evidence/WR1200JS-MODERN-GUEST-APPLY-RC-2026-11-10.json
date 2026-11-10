@@ -1,0 +1,72 @@
+{
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "scope": "pinned baseline source; prepared candidate and target verification still required",
+  "runtime_verified": false,
+  "sources": [
+    {
+      "path": "trunk/user/httpd/variables.c",
+      "sha256": "485da918e84468c74393673068c8998e092ad1fb72e0fc7f53cf9cd7b8f3abef",
+      "snippets": [
+        {
+          "line": 1309,
+          "text": "\t\t\t{\"rt_guest_enable\", \"\", NULL, EVM_RESTART_WIFI2},\n\t\t\t{\"rt_guest_date_x\", \"\", NULL, EVM_RESTART_WIFI2},\n\t\t\t{\"rt_guest_time_x\", \"\", NULL, EVM_RESTART_WIFI2},\n\t\t\t{\"rt_guest_time2_x\", \"\", NULL, EVM_RESTART_WIFI2},\n\t\t\t{\"rt_guest_ssid\", \"\", NULL, EVM_RESTART_WIFI2},\n\t\t\t{\"rt_guest_closed\", \"\", NULL, EVM_RESTART_WIFI2},\n\t\t\t{\"rt_guest_ap_isolate\", \"\", NULL, EVM_RESTART_WIFI2},\n\t\t\t{\"rt_guest_lan_isolate\", \"\", NULL, EVM_RESTART_WIFI2},\n\t\t\t{\"rt_guest_auth_mode\", \"\", NULL, EVM_RESTART_WIFI2},\n\t\t\t{\"rt_guest_wpa_mode\", \"\", NULL, EVM_RESTART_WIFI2},\n\t\t\t{\"rt_guest_crypto\", \"\", NULL, EVM_RESTART_WIFI2},\n\t\t\t{\"rt_guest_wpa_psk\", \"\", NULL, EVM_RESTART_WIFI2},\n\t\t\t{\"rt_guest_macrule\", \"\", NULL, EVM_RESTART_WIFI2},\n\t\t\t{\"rt_guest_mcs_mode\", \"\", NULL, EVM_RESTART_WIFI2},"
+        }
+      ]
+    },
+    {
+      "path": "trunk/user/httpd/web_ex.c",
+      "sha256": "dd6db5e31425491ed18ce0c9eddd2d288e675e1a20473dc47dea4b2f57a67a4e",
+      "snippets": [
+        {
+          "line": 1093,
+          "text": "\t\t\telse if (!strcmp(v->name, \"rt_guest_enable\") ||\n\t\t\t         !strcmp(v->name, \"rt_guest_time_x\") ||\n\t\t\t         !strcmp(v->name, \"rt_guest_time2_x\") ||\n\t\t\t         !strcmp(v->name, \"rt_guest_date_x\"))\n\t\t\t{\n\t\t\t\trt_modified |= WIFI_GUEST_CONTROL_BIT;\n\t\t\t}\n\t\t\telse if (!strcmp(v->name, \"rt_radio_time_x\") ||\n\t\t\t         !strcmp(v->name, \"rt_radio_time2_x\") ||\n\t\t\t         !strcmp(v->name, \"rt_radio_date_x\"))\n\t\t\t{\n\t\t\t\trt_modified |= WIFI_SCHED_CONTROL_BIT;\n\t\t\t}\n#if defined(USE_RT3352_MII)\n\t\t\telse if (!strcmp(v->name, \"rt_radio_x\"))\n\t\t\t{\n\t\t\t\trt_modified |= WIFI_RADIO_CONTROL_BIT;\n\t\t\t}\n#endif\n\t\t\telse"
+        },
+        {
+          "line": 1367,
+          "text": "\tif ((restart_needed_bits & EVM_RESTART_WIFI2) != 0) {\n\t\trestart_needed_bits &= ~EVM_RESTART_WIFI2;\n\t\tif (rt_modified) {\n\t\t\tif (rt_modified & WIFI_COMMON_CHANGE_BIT)\n\t\t\t\tnotify_rc(RCN_RESTART_WIFI2);\n\t\t\telse {\n\t\t\t\tif (rt_modified & WIFI_IWPRIV_CHANGE_BIT)\n\t\t\t\t\tnotify_rc(\"control_wifi_config_rt\");\n\t\t\t\t\n\t\t\t\tif (rt_modified & WIFI_RADIO_CONTROL_BIT)\n\t\t\t\t\tnotify_rc(\"control_wifi_radio_rt\");\n\t\t\t\t\n\t\t\t\tif (rt_modified & WIFI_GUEST_CONTROL_BIT)\n\t\t\t\t\tnotify_rc(\"control_wifi_guest_rt\");\n\t\t\t\t\n\t\t\t\tif (rt_modified & WIFI_SCHED_CONTROL_BIT)\n\t\t\t\t\tnvram_set_int_temp(\"reload_svc_rt\", 1);\n\t\t\t}\n\t\t\trt_modified = 0;\n\t\t}"
+        }
+      ]
+    },
+    {
+      "path": "trunk/user/rc/net_wifi.c",
+      "sha256": "98bbe9cfca0af35be4ddb82742022b90cc51c2f7b34834e627ee6c5f2187dc69",
+      "snippets": [
+        {
+          "line": 1061,
+          "text": "int\ncontrol_guest_rt(int guest_on, int manual)\n{\n\tint is_ap_changed = 0;\n\tconst char *ifname_ap = IFNAME_2G_GUEST;\n\tint radio_on = get_enabled_radio_rt();\n\tint i_mode_x = get_mode_radio_rt();\n#if defined(USE_RT3352_MII)\n\tint is_ap_mode = get_ap_mode();\n#endif\n\n\t// check WDS only, ApCli only or Radio disabled (force or by schedule)\n\tif ((guest_on) && (i_mode_x == 1 || i_mode_x == 3 || !radio_on || !is_interface_up(IFNAME_2G_MAIN)))\n\t{\n\t\treturn 0;\n\t}\n\n\tif (guest_on)\n\t{\n\t\tif (!is_interface_up(ifname_ap)) {\n\t\t\twif_control(ifname_ap, 1);\n\t\t\tis_ap_changed = 1;\n\t\t}\n#if defined(USE_RT3352_MII)\n\t\tif (!is_ap_mode)\n\t\t\tbr_add_del_if(IFNAME_BR, IFNAME_INIC_GUEST_VLAN, 1);\n#else\n\t\tbr_add_del_if(IFNAME_BR, ifname_ap, 1);\n\t\twif_control_m2u(0, ifname_ap);\n#endif\n\t}\n\telse\n\t{\n\t\tif (is_interface_up(ifname_ap)) {\n\t\t\twif_control(ifname_ap, 0);\n\t\t\tis_ap_changed = 1;\n\t\t}\n#if defined(USE_RT3352_MII)\n\t\tif (!is_ap_mode)\n\t\t\tbr_add_del_if(IFNAME_BR, IFNAME_INIC_GUEST_VLAN, 0);\n#else\n\t\tbr_add_del_if(IFNAME_BR, ifname_ap, 0);\n#endif\n\t}\n\n\tif (is_ap_changed)\n\t\trestart_guest_lan_isolation();\n\n\tif (is_ap_changed && !manual)\n\t\tlogmessage(\"WiFi scheduler\", \"2.4GHz guest AP: %s\", (guest_on) ? \"ON\" : \"OFF\");\n\n\treturn is_ap_changed;\n}\n\nstatic void"
+        },
+        {
+          "line": 1336,
+          "text": "int \ntimecheck_wifi(int is_aband, const char *nv_date, const char *nv_time1, const char *nv_time2)\n{\n#define DOW_MASK_SUN (1 << 0)\n#define DOW_MASK_MON (1 << 1)\n#define DOW_MASK_TUE (1 << 2)\n#define DOW_MASK_WED (1 << 3)\n#define DOW_MASK_THU (1 << 4)\n#define DOW_MASK_FRI (1 << 5)\n#define DOW_MASK_SAT (1 << 6)\n\n\ttime_t now;\n\tstruct tm *tm;\n\tchar *aDate, *aTime1, *aTime2;\n\tint i, current_min, current_dow, schedul_dow, iTime1B, iTime1E, iTime2B, iTime2E;\n\n\taDate  = nvram_wlan_get(is_aband, nv_date);\n\taTime1 = nvram_wlan_get(is_aband, nv_time1);\n\taTime2 = nvram_wlan_get(is_aband, nv_time2);\n\n\tif (strlen(aDate) != 7 || strlen(aTime1) != 8 || strlen(aTime2) != 8)\n\t\treturn 1;\n\n\tif (strcmp(aDate, \"1111111\")==0 &&\n\t    strcmp(aTime1, \"00002359\")==0 &&\n\t    strcmp(aTime2, \"00002359\")==0)\n\t\treturn 1;\n\n\t// Mon..Fri time\n\tiTime1B = ((aTime1[0]-'0')*10 + (aTime1[1]-'0'))*60 + (aTime1[2]-'0')*10 + (aTime1[3]-'0');\n\tiTime1E = ((aTime1[4]-'0')*10 + (aTime1[5]-'0'))*60 + (aTime1[6]-'0')*10 + (aTime1[7]-'0');\n\n\t// Sat, Sun time\n\tiTime2B = ((aTime2[0]-'0')*10 + (aTime2[1]-'0'))*60 + (aTime2[2]-'0')*10 + (aTime2[3]-'0');\n\tiTime2E = ((aTime2[4]-'0')*10 + (aTime2[5]-'0'))*60 + (aTime2[6]-'0')*10 + (aTime2[7]-'0');\n\n\ttime(&now);\n\ttm = localtime(&now);\n\tcurrent_min = tm->tm_hour * 60 + tm->tm_min;\n\tcurrent_dow = 1 << tm->tm_wday;\n\n\tschedul_dow = 0;\n\tfor(i=0; i<7; i++){\n\t\tif (aDate[i] == '1')\n\t\t\tschedul_dow |= (1 << i);\n\t}\n\n\t/* Saturday */\n\tif (current_dow & DOW_MASK_SAT)\n\t{\n\t\tif (schedul_dow & DOW_MASK_SAT)\n\t\t{\n\t\t\tif (iTime2B < iTime2E)\n\t\t\t{\n\t\t\t\tif (current_min >= iTime2B && current_min <= iTime2E)\n\t\t\t\t\treturn 1;\n\t\t\t}\n\t\t\telse\n\t\t\t{\n\t\t\t\tif (current_min >= iTime2B)\n\t\t\t\t\treturn 1;\n\t\t\t\t\n\t\t\t\t/* Check Friday -> Saturday after midnight (special check after workweek) */\n\t\t\t\tif ((schedul_dow & DOW_MASK_FRI) && (iTime1B < iTime1E) && (current_min <= iTime2E))\n\t\t\t\t\treturn 1;\n\t\t\t}\n\t\t}\n\t\t\n\t\t/* Check cross-night from Friday */\n\t\tif ((schedul_dow & DOW_MASK_FRI) && (iTime1B >= iTime1E) && (current_min <= iTime1E))\n\t\t\treturn 1;\n\t}\n\telse /* Sunday */\n\tif (current_dow & DOW_MASK_SUN)\n\t{\n\t\tif (schedul_dow & DOW_MASK_SUN)\n\t\t{\n\t\t\tif (iTime2B < iTime2E)\n\t\t\t{\n\t\t\t\tif (current_min >= iTime2B && current_min <= iTime2E)\n\t\t\t\t\treturn 1;\n\t\t\t}\n\t\t\telse\n\t\t\t{\n\t\t\t\tif (current_min >= iTime2B)\n\t\t\t\t\treturn 1;\n\t\t\t}\n\t\t}\n\t\t\n\t\t/* Check cross-night from Saturday */\n\t\tif ((schedul_dow & DOW_MASK_SAT) && (iTime2B >= iTime2E) && (current_min <= iTime2E))\n\t\t\treturn 1;\n\t}\n\telse /* Monday */\n\tif (current_dow & DOW_MASK_MON)\n\t{\n\t\tif (schedul_dow & DOW_MASK_MON)\n\t\t{\n\t\t\tif (iTime1B < iTime1E)\n\t\t\t{\n\t\t\t\tif (current_min >= iTime1B && current_min <= iTime1E)\n\t\t\t\t\treturn 1;\n\t\t\t}\n\t\t\telse\n\t\t\t{\n\t\t\t\tif (current_min >= iTime1B)\n\t\t\t\t\treturn 1;\n\t\t\t\t\n\t\t\t\t/* Check Sunday -> Monday after midnight (special check after weekend) */\n\t\t\t\tif ((schedul_dow & DOW_MASK_SUN) && (iTime2B < iTime2E) && (current_min <= iTime1E))\n\t\t\t\t\treturn 1;\n\t\t\t}\n\t\t}\n\t\t\n\t\t/* Check cross-night from Sunday */\n\t\tif ((schedul_dow & DOW_MASK_SUN) && (iTime2B >= iTime2E) && (current_min <= iTime2E))\n\t\t\treturn 1;\n\t}\n\telse /* Tuesday..Friday */\n\t{\n\t\tif (schedul_dow & current_dow)\n\t\t{\n\t\t\tif (iTime1B < iTime1E)\n\t\t\t{\n\t\t\t\tif (current_min >= iTime1B && current_min <= iTime1E)\n\t\t\t\t\treturn 1;\n\t\t\t}\n\t\t\telse\n\t\t\t{\n\t\t\t\tif (current_min >= iTime1B)\n\t\t\t\t\treturn 1;\n\t\t\t}\n\t\t}\n\t\t\n\t\t/* Check cross-night from previous day */\n\t\tif ((schedul_dow & (current_dow >> 1)) && (iTime1B >= iTime1E) && (current_min <= iTime1E))\n\t\t\treturn 1;\n\t}\n\n\treturn 0;\n}"
+        }
+      ]
+    }
+  ],
+  "verified_host_cases": [
+    "both bands: all 10080 minutes of week, inclusive daytime intervals",
+    "Friday2200 through Saturday0800 spillover",
+    "no enabled days denies",
+    "malformed length returns1 in legacy RC; Modern admission must reject"
+  ],
+  "apply_classes": {
+    "guest_control": [
+      "enable",
+      "date_x",
+      "time_x",
+      "time2_x"
+    ],
+    "common_restart": [
+      "ssid",
+      "closed",
+      "ap_isolate",
+      "lan_isolate",
+      "auth_mode",
+      "wpa_mode",
+      "crypto",
+      "wpa_psk",
+      "macrule",
+      "mcs_mode"
+    ]
+  },
+  "safety": "Do not equate guest-control notification with proven driver no-restart behavior. wif_control can enter virtual interface driver open/close. Credential/isolation changes currently require common restart path; no new apply enabled."
+}

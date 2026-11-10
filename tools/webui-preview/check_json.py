@@ -28,6 +28,14 @@ with tempfile.TemporaryDirectory(prefix='wr-modern-json-semantics-') as scratch:
     for band in config['bands'].values():
         assert set(band)==public
         assert all(isinstance(value,str) for value in band.values())
+    guest_fields={'enable','ssid','closed','auth_mode','wpa_mode','crypto','lan_isolate','ap_isolate','macrule','mcs_mode','date_x','time_x','time2_x'}
+    assert set(config['guests'])=={'24','5'}
+    for guest in config['guests'].values():
+        assert set(guest)==guest_fields
+        assert all(isinstance(value,str) for value in guest.values())
+    assert config['guests']['24']['ssid']=='Guest-24'
+    assert config['guests']['5']['ssid']=='Guest-5'
+    assert config['guests']['24']['date_x']=='0111110'
     assert config['bands']['24']['ssid']==ssid
     assert config['bands']['5']['ssid']=='Home-5G'
     assert config['bands']['24']['channel']=='6'

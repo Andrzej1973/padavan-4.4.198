@@ -58,6 +58,25 @@ static void wr_modern_wifi_band(FILE *stream, const char *prefix)
 	fputc('}', stream);
 }
 
+/* Guest is independent of the shared main-network credentials. */
+static void wr_modern_guest_band(FILE *stream, const char *prefix)
+{
+	static const char *const fields[] = {
+		"enable", "ssid", "closed", "auth_mode", "wpa_mode", "crypto",
+		"lan_isolate", "ap_isolate", "macrule", "mcs_mode",
+		"date_x", "time_x", "time2_x"
+	};
+	char key[40];
+	unsigned int i;
+	fputc('{', stream);
+	for (i = 0; i < sizeof(fields) / sizeof(fields[0]); i++) {
+		snprintf(key, sizeof(key), "%s_guest_%s", prefix, fields[i]);
+		wr_modern_json_field(stream, fields[i], nvram_safe_get(key),
+			i + 1 < sizeof(fields) / sizeof(fields[0]));
+	}
+	fputc('}', stream);
+}
+
 static void do_wr_modern_json(const char *url, FILE *stream)
 {
 	struct sysinfo info;
@@ -116,6 +135,10 @@ static void do_wr_modern_json(const char *url, FILE *stream)
 	wr_modern_wifi_band(stream, "rt");
 	fputs(",\"5\":", stream);
 	wr_modern_wifi_band(stream, "wl");
+	fputs("},\"guests\":{\"24\":", stream);
+	wr_modern_guest_band(stream, "rt");
+	fputs(",\"5\":", stream);
+	wr_modern_guest_band(stream, "wl");
 	fputs("}},", stream);
 	fputs("\"devices\":{\"total\":\"Н/Д\",\"wired\":\"Н/Д\",\"wifi24\":\"Н/Д\",\"wifi5\":\"Н/Д\"},", stream);
 	fputs("\"cpuPercent\":null,", stream);
