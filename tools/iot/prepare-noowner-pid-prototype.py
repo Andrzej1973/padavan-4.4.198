@@ -96,6 +96,8 @@ def main():
               'source_sha256': dict(zip(names, (hashlib.sha256(b).hexdigest() for b in before))),
               'output_sha256': {n: hashlib.sha256((out / n).read_bytes()).hexdigest() for n in names},
               'cold_start_only': True, 'txd_routing_staged': True,
+              'historical_tracked_reports_retired': False,
+              'mode_activation_implemented': False,
               'tracked_submit_accepts_nonowner_token': False,
               'dma_pacing_implemented': False, 'rf_retirement_proven': False,
               'production_installed': False, 'target_compiled': False,

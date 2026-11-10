@@ -13,6 +13,8 @@
   },
   "cold_start_only": true,
   "txd_routing_staged": true,
+  "historical_tracked_reports_retired": false,
+  "mode_activation_implemented": false,
   "tracked_submit_accepts_nonowner_token": false,
   "dma_pacing_implemented": false,
   "rf_retirement_proven": false,
@@ -29,8 +31,10 @@
     "invalid legacy P metadata not consumed by reports",
     "generation overflow fails closed",
     "predecessor negative witness fails as expected",
-    "actual long-TXD branch:3072 scope/pool cases"
+    "actual long-TXD branch:3072 scope/pool cases",
+    "conditional old non-P ra2 report can consume reused Main PID"
   ],
+  "old_tracked_ra2_reports_retired": false,
   "asan_ubsan_passed": true,
-  "scratch_removed_bytes": 889988
+  "scratch_removed_bytes": 903157
 }

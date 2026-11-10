@@ -14,6 +14,9 @@ BODY = r'''
 static unsigned callbacks;
 static INT32 observed_handler(RTMP_ADAPTER *ad, char *data, UINT32 priv)
 { (void)ad;(void)data;assert(priv==42);callbacks++;return 0; }
+static UINT32 late_report_priv;
+static INT32 old_report_handler(RTMP_ADAPTER *ad,char *data,UINT32 priv)
+{ (void)ad;(void)data;late_report_priv=priv;return 0; }
 int main(void)
 {
  unsigned start,i;UINT8 ids[255];UINT32 gens[255];char data[64]={0};
@@ -61,6 +64,26 @@ int main(void)
   assert(memcmp(&snapshot,&ad.TxSCtl,sizeof(snapshot))==0);
  }
  assert(callbacks==256);
+ /* Conditional transition counterexample: a duplicate old tracked ra2
+  * report is injected after its PID was completed and reused by Main.
+  * This does not assert that silicon actually generates duplicates. */
+ {
+  RTMP_ADAPTER ad={0};UINT8 old_pid,new_pid;UINT32 old_gen,new_gen;
+  ad.TxSCtl.TxSValid=TRUE;ad.TxSCtl.TxSPid=7;
+  assert(AddTxSStatus(&ad,TXS_TYPE1,0,FC_TYPE_MGMT,SUBTYPE_BEACON,42,2,&old_pid,&old_gen)==0);
+  assert(old_pid!=WR_IOT_NOOWNER_PID);
+  handler=(TXS_TYPE){0};handler.PktType=FC_TYPE_MGMT;
+  handler.PktSubType=SUBTYPE_BEACON;handler.Format=0;
+  handler.TxSHandler=old_report_handler;use_handler=1;
+  assert(ParseTxSPacket(&ad,old_pid,0,data)==0&&late_report_priv==2);
+  ad.TxSCtl.TxSPid=old_pid;
+  assert(AddTxSStatus(&ad,TXS_TYPE1,0,FC_TYPE_MGMT,SUBTYPE_BEACON,42,0,&new_pid,&new_gen)==0);
+  assert(new_pid==old_pid&&new_gen!=old_gen);
+  assert(ParseTxSPacket(&ad,old_pid,0,data)==0&&late_report_priv==0);
+  assert(ad.TxSCtl.TxSStatus[new_pid].State==TXS_UNUSED);
+  use_handler=0;
+  puts("CONFIRMED conditional old-nonP counterexample: new P invariant does not protect a reused tracked Main PID from an injected old ra2 report; no measured firmware duplicate claimed");
+ }
  puts("PASS actual no-owner allocator/parser: all256 cursors,255-slot exhaustion, duplicate P inertness, no truncation, cancellation and ordinary callback preserved; no TXD/DMA/RF proof");
  return 0;
 }
@@ -192,7 +215,9 @@ def main():
                                  'invalid legacy P metadata not consumed by reports',
                                  'generation overflow fails closed',
                                  'predecessor negative witness fails as expected',
-                                 'actual long-TXD branch:3072 scope/pool cases']
+                                 'actual long-TXD branch:3072 scope/pool cases',
+                                 'conditional old non-P ra2 report can consume reused Main PID']
+        report['old_tracked_ra2_reports_retired'] = False
         report['asan_ubsan_passed'] = True
         scratch_bytes = sum(f.stat().st_size for f in root.rglob('*') if f.is_file())
         report['scratch_removed_bytes'] = scratch_bytes

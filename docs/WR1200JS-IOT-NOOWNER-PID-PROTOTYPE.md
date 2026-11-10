@@ -76,3 +76,16 @@ The [wire-PID inventory](evidence/WR1200JS-IOT-WIRE-PID-WRITERS-AUDIT-2026-11-10
 covers textual references in450 pinned C/H files. It identifies four allocator
 call sites, zero writes and PID2 short templates; it does not exclude arbitrary
 raw-word writers or aliases. Those limits remain before activation.
+
+## Executable old-report transition counterexample
+
+The actual parser fixture also models a previously tracked ra2 beacon report
+completing its non255 PID, then a Main beacon obtaining that same PID with a
+new software generation. An injected old report consumes Main's new metadata.
+This is a conditional host counterexample, not a claim that firmware emits
+duplicates on the device. The new invariant protects reports carrying255; it
+does not repair arbitrary historic non255 reports.
+
+A zeroed software table, a fresh adapter object or a software reset is therefore
+not enough to authorize the new mode. Historical tracked-report retirement
+and mode activation remain explicitly unproved/unimplemented in the prototype.
