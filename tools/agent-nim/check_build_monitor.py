@@ -100,6 +100,20 @@ with (nullcontext(sys.argv[2]) if len(sys.argv)>2 else tempfile.TemporaryDirecto
     assert '[-Werror=misleading-indentation]' in long_job.stdout
     # Optional757 /42038010637: deployed prefix-only report missed this cause.
     assert 'mcu/andes_mt.c:2308:2: error: ISO C90' in long_job.stdout
+    # Standard974/42840458493: generated ROMFS asset absent; monitor report
+    # contained earlier libyaml diagnostics but omitted the causal traceback.
+    missing_asset_log=root/'modern-romfs-missing.log'
+    missing_asset_log.write_text('checking optional feature... failed\n'
+        'Traceback (most recent call last):\n'
+        '  File "tools/webui-preview/check_image.py", line 18, in check\n'
+        "FileNotFoundError: [Errno 2] No such file or directory: 'trunk/romfs/www/modern/index.html'\n"
+        'Firmware build verification failed: python3 ../tools/webui-preview/check_image.py .\n',encoding='utf-8')
+    fixture.write_text(json.dumps({'workflow_runs':[row(974)]}),encoding='utf-8')
+    missing_env=dict(os.environ,BUILD_MONITOR_FIXTURE_JOB_LOG=str(missing_asset_log))
+    missing_report=subprocess.run([str(binary),'--fixture:'+str(fixture),'--state-dir:'+str(root/'modern-missing-state')],capture_output=True,text=True,timeout=15,env=missing_env)
+    assert missing_report.returncode==0,(missing_report.stdout,missing_report.stderr)
+    assert 'FileNotFoundError:' in missing_report.stdout
+    assert 'trunk/romfs/www/modern/index.html' in missing_report.stdout
     previous=(state/'last_build_error.log').read_bytes()
     assert 'BUILD FAILED' not in run([row(432),row(431)]).stdout
     assert (state/'last_build_error.log').read_bytes()==previous

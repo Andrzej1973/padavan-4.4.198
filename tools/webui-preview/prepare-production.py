@@ -13,11 +13,18 @@ web_ex=httpd/'web_ex.c'
 www=root/'trunk/user/www'
 target=www/'modern'
 shared=here.parent/'shared-wifi/ui.js'
+www_makefile=www/'Makefile'
+copy_anchor='\tcp -R $(WEBUI_NAME) $(ROMFS_DIR)/www\n'
+copy_modern='\tcp -R modern $(ROMFS_DIR)/www/modern\n'
 
 if not web_ex.is_file() or not www.is_dir() or not shared.is_file():
  p.error('not a prepared Padavan source tree')
 if target.exists():
  p.error('Modern target already exists; refusing to overwrite')
+
+makefile=www_makefile.read_text(encoding='utf-8')
+if makefile.count(copy_anchor)!=1 or copy_modern in makefile:
+ p.error('www ROMFS copy anchor changed or Modern already integrated')
 
 source=web_ex.read_text(encoding='utf-8')
 anchor='struct mime_handler mime_handlers[] = {\n'
@@ -86,4 +93,5 @@ target.mkdir()
 for name,data in assets.items():
  (target/name).write_bytes(data)
 web_ex.write_text(source.replace(anchor,hook+'\n'+anchor+route,1),encoding='utf-8')
+www_makefile.write_text(makefile.replace(copy_anchor,copy_anchor+copy_modern,1),encoding='utf-8')
 print('Installed /modern/index.html and authenticated /wr_modern.json; Classic assets untouched')

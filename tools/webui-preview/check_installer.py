@@ -19,6 +19,9 @@ with tempfile.TemporaryDirectory(prefix='wr-modern-installer-') as scratch:
     httpd.mkdir(parents=True)
     www = source / 'trunk/user/www'
     www.mkdir()
+    makefile = www / 'Makefile'
+    make_original = 'WEBUI_NAME=n56u_ribbon_fixed\nromfs:\n\tcp -R $(WEBUI_NAME) $(ROMFS_DIR)/www\n'
+    makefile.write_text(make_original)
     web = httpd / 'web_ex.c'
     original = '#include <stdio.h>\n#include \"common.h\"\n#include \"httpd.h\"\nstruct mime_handler mime_handlers[] = {\n};\n'
     web.write_text(original)
@@ -47,9 +50,24 @@ with tempfile.TemporaryDirectory(prefix='wr-modern-installer-') as scratch:
     assert web.read_text() == original
     assert not (www / 'modern').exists()
     path.write_bytes(saved)
+    makefile.write_text('changed Makefile')
+    assert run().returncode != 0
+    assert web.read_text() == original
+    assert not (www / 'modern').exists()
+    makefile.write_text(make_original)
     result = run()
     assert result.returncode == 0, result.stderr
     subprocess.run([sys.executable, str(preview / 'check-production.py'), str(source)], check=True)
+    # Execute the actual patched recipe, rather than copying Modern by hand.
+    classic = www / 'n56u_ribbon_fixed'
+    classic.mkdir()
+    (classic / 'index.asp').write_text('Classic fixture')
+    recipe_root = source / 'recipe-root'
+    recipe_root.mkdir()
+    subprocess.run(['make', '-C', str(www), 'romfs', 'ROMFS_DIR=' + str(recipe_root)], check=True)
+    for asset in (www / 'modern').iterdir():
+        assert (recipe_root / 'www/modern' / asset.name).read_bytes() == asset.read_bytes()
+    assert (recipe_root / 'www/index.asp').read_text() == 'Classic fixture'
     # Exercise the image gate with a synthetic ROMFS, including two failures.
     import importlib.util
     spec = importlib.util.spec_from_file_location('modern_image', HERE / 'check_image.py')

@@ -12,6 +12,8 @@ a=p.parse_args()
 root=a.source.resolve(strict=True)
 web_ex=(root/'trunk/user/httpd/web_ex.c').read_text(encoding='utf-8')
 modern=root/'trunk/user/www/modern'
+makefile=(root/'trunk/user/www/Makefile').read_text(encoding='utf-8')
+assert '\tcp -R $(WEBUI_NAME) $(ROMFS_DIR)/www\n\tcp -R modern $(ROMFS_DIR)/www/modern\n' in makefile
 index=(modern/'index.html').read_text(encoding='utf-8')
 app=(modern/'app.js').read_text(encoding='utf-8')
 wifi=(modern/'wifi.js').read_text(encoding='utf-8')

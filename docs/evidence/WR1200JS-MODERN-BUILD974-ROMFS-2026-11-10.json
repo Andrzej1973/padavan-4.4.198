@@ -1,0 +1,17 @@
+{
+  "failed_run": 42840458493,
+  "sha": "fa3f067ecd6baca3bd6a40c538d49cc9edb28dd8",
+  "monitor_run": 42843934147,
+  "monitor_artifact": 13776233667,
+  "original_job": 129917767062,
+  "cause": "FileNotFoundError: trunk/romfs/www/modern/index.html; www Makefile copies only WEBUI_NAME, excluding sibling modern directory",
+  "correction": "Installer now patches exact ROMFS recipe to copy Modern after Classic; preflight validates Makefile anchor before mutation",
+  "verification": [
+    "actual pinned www Makefile romfs target with board config stub: seven assets exact, Classic retained",
+    "installer failed-Makefile preflight and recipe regression PASS",
+    "monitor current parser fixture with actual missing-file class PASS"
+  ],
+  "monitor_gap": "Deployed report omitted causal late traceback. Current parser and current trusted main code already recognize error:/traceback; offline case passes. No speculative filter mutation. Retrieval/completeness gap remains to investigate; fixture retained.",
+  "runtime_verified": false,
+  "scratch_removed": true
+}
