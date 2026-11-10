@@ -1,0 +1,40 @@
+{
+  "vendor_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "host_buffer_boundary": {
+    "source": [
+      "common/cmm_data_pci.c:2695-2738",
+      "tools/iot/prepare-driver-api.py:43-64",
+      "tools/iot/prepare-radio-queue-candidate.py:609-681"
+    ],
+    "finding": "Existing exclusive producer pin plus checked zero outstanding ra2 DMA cells supports host-buffer rebuild under the PCI DMA ownership contract. DMA_DONE alone is not the admission proof.",
+    "device_dma_acceptance": false
+  },
+  "required_nonowner_pacing_receipt": [
+    "Same live exclusive ra2 producer/configuration generation.",
+    "Zero outstanding ra2 DMA cells, unknown ownership refused.",
+    "Successful serialized per-ra2 BCN and BMC queue flushes, fail on BUSY/timeout.",
+    "Same generation revalidated and exactly one submission permitted."
+  ],
+  "upstream_reference": "https://github.com/openwrt/mt76/blob/0936617dc529ff9da0385221d3fa6de732231177/mt7603/beacon.c",
+  "upstream_scope_caution": "Scoped iterator43-63 flushes BCN/BMC; whole tasklet also globally flushes CAB109-113 and can invoke global recovery. Do not import whole tasklet.",
+  "vendor_gap": "Existing recovery encoding covers BCN queue7, not equivalent per-ra2 BCN+BMC pacing. Old recovery timeout/reenable behavior is not a substitute.",
+  "idle_stub": {
+    "source": "hw_ctrl/cmm_asic_mt.c:4412-4415",
+    "body": "return TRUE;",
+    "observes_hardware": false,
+    "references": [
+      "phy/phy.c:40",
+      "include/rtmp_chip.h:1431"
+    ],
+    "warning": "Must not satisfy strong RC QUIESCE or RF-empty proof based on function name/return."
+  },
+  "remaining_acceptance": [
+    "Per-BSS queue flush completion semantics and Main/Guest preservation.",
+    "Old tracked non-P report transition.",
+    "Data/AC/station teardown, final RF silence and no-future-callback proof.",
+    "Independent MCU ROM ACK reuse contract."
+  ],
+  "production_patch_applied": false,
+  "runtime_verified": false,
+  "cleanup": "Archive read in memory only; no extracted driver or binary."
+}

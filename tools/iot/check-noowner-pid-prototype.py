@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Exercise actual generated allocator/parser; bounded host-only experiment."""
+"""Exercise actual allocator/parser and selected TXD branch; host experiment."""
 import argparse
 import json
 import resource
+import runpy
 import subprocess
 import tarfile
 import tempfile
@@ -65,6 +66,53 @@ int main(void)
 }
 '''
 
+ROUTE_MODELS = r'''
+#define HIF_MT 1
+#define Q_IDX_BCN 2
+#define IS_MT7603(ad) ((ad)->mt)
+struct mac_info {unsigned bss_idx,TxSPriv,q_idx,WCID,PID;
+ UINT32 TxSReservationGeneration;UINT8 TxSReservationPid;};
+struct word2 {unsigned frm_type,sub_type;};
+struct word5 {unsigned pid,tx_status_2_host;};
+struct word6 {unsigned tx_rate;};
+static void route(RTMP_ADAPTER *pAd,struct mac_info *info,
+ struct word2 *txd_2,struct word5 *txd_5,struct word6 *txd_6){
+ UINT8 status_pid;UINT32 status_generation;
+'''
+ROUTE_MAIN = r'''
+}
+int main(void){
+ for(unsigned mask=0;mask<512;mask++)for(unsigned bss=0;bss<3;bss++)
+ for(unsigned full=0;full<2;full++){
+  RTMP_ADAPTER ad={0};TXS_CTL snapshot;struct mac_info info={0};
+  struct word2 d2={0};struct word5 d5={0};struct word6 d6={42};
+  ad.mt=!!(mask&1);ad.chipCap.hif_type=!!(mask&2);
+  ad.ApCfg.BssidNum=mask&4?3:4;info.bss_idx=bss;
+  info.q_idx=mask&8?Q_IDX_BCN:99;info.TxSPriv=mask&16?2:1;
+  info.WCID=mask&32?0:1;info.PID=mask&64?0:1;
+  d2.frm_type=mask&128?FC_TYPE_MGMT:2;
+  d2.sub_type=mask&256?SUBTYPE_BEACON:9;
+  if(full)for(unsigned i=0;i<256;i++)if(i!=WR_IOT_NOOWNER_PID)
+   ad.TxSCtl.TxSStatus[i].State=TXS_USED;
+  memcpy(&snapshot,&ad.TxSCtl,sizeof(snapshot));
+  route(&ad,&info,&d2,&d5,&d6);
+  if(mask==511&&bss==2){
+   assert(d5.pid==WR_IOT_NOOWNER_PID&&d5.tx_status_2_host==1);
+   assert(info.TxSReservationPid==WR_IOT_NOOWNER_PID&&!info.TxSReservationGeneration);
+   assert(memcmp(&snapshot,&ad.TxSCtl,sizeof(snapshot))==0);
+  }else if(!full){
+   assert(d5.pid!=WR_IOT_NOOWNER_PID&&d5.tx_status_2_host==1);
+   assert(info.TxSReservationPid==d5.pid&&info.TxSReservationGeneration==1);
+   assert(ad.TxSCtl.ReservationGeneration==1);
+  }else{
+   assert(!d5.tx_status_2_host&&!info.TxSReservationGeneration);
+   assert(ad.TxSCtl.TxSFailCount==snapshot.TxSFailCount+1);
+  }
+ }
+ puts("PASS actual long-TXD branch:3072 scope/pool cases, only exact ra2 beacon selects non-owning PID without allocation; tracked alternatives preserved; submit/DMA/RF unbound");
+}
+'''
+
 
 def run(script, *args):
     subprocess.run(['python3', str(HERE / script), *map(str, args)], check=True)
@@ -107,8 +155,8 @@ def main():
             marker = 'static RTMP_ADAPTER *current;'
             assert text.count(marker) == 1
             # Same extracted actual functions on both sides of the witness.
-            fixture.write_text(constants[0] + '\n' +
-                               text.split(marker)[0] + BODY)
+            extracted = constants[0] + '\n' + text.split(marker)[0]
+            fixture.write_text(extracted + BODY)
             exe = root / label
             subprocess.run(['gcc', '-std=gnu11', '-Wall', '-Wextra', '-Werror',
                             '-O2', '-fsanitize=address,undefined', '-fno-pie',
@@ -120,6 +168,22 @@ def main():
             else:
                 assert result.returncode != 0 and 'ids[i]!=WR_IOT_NOOWNER_PID' in result.stderr
                 print('PASS negative witness: predecessor can allocate P')
+        # Exercise the newly generated actual checked-callsite branch with
+        # the actual allocator functions, not a mirrored selection predicate.
+        model = 'typedef struct adapter {TXS_CTL TxSCtl;} RTMP_ADAPTER;'
+        assert extracted.count(model) == 1
+        extracted = extracted.replace(model, 'typedef struct adapter {TXS_CTL TxSCtl;int mt;'
+                                      'struct {unsigned hif_type;} chipCap;'
+                                      'struct {unsigned BssidNum;} ApCfg;} RTMP_ADAPTER;')
+        policy = runpy.run_path(str(HERE / 'prepare-noowner-pid-prototype.py'))
+        mac = (prototype / names[2]).read_text()
+        branch = mac[mac.index(policy['ROUTE_START']):mac.index(policy['ROUTE_END'])]
+        fixture, exe = root / 'route.c', root / 'route'
+        fixture.write_text(extracted + ROUTE_MODELS + branch + ROUTE_MAIN)
+        subprocess.run(['gcc', '-std=gnu11', '-Wall', '-Wextra', '-Werror', '-O2',
+                        '-fsanitize=address,undefined', '-fno-pie', '-no-pie',
+                        str(fixture), '-o', str(exe)], check=True)
+        subprocess.run([str(exe)], check=True)
         report = json.loads((prototype / 'noowner-pid-prototype.json').read_text())
         report['host_checks'] = ['all256 allocator cursors', '255 unique owned slots/exhaustion',
                                  'duplicate P leaves whole control state unchanged',
@@ -127,7 +191,8 @@ def main():
                                  'ordinary tracked callback/claimed completion preserved',
                                  'invalid legacy P metadata not consumed by reports',
                                  'generation overflow fails closed',
-                                 'predecessor negative witness fails as expected']
+                                 'predecessor negative witness fails as expected',
+                                 'actual long-TXD branch:3072 scope/pool cases']
         report['asan_ubsan_passed'] = True
         scratch_bytes = sum(f.stat().st_size for f in root.rglob('*') if f.is_file())
         report['scratch_removed_bytes'] = scratch_bytes

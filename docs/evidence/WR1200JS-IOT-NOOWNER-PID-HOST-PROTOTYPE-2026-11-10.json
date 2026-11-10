@@ -3,14 +3,17 @@
   "usable_software_slots": 255,
   "source_sha256": {
     "tx_rx/txs.c": "43cf2b911344fd8b3f39f9fbfcb5c85eb4f0c5cb23eee3a6502c446b9482239f",
-    "include/mac/mac_mt/mt_mac.h": "bbae34d8dc4928e30a05687342308ce5dfd8e6f5e869d84ad0b5c4bf7dc982ec"
+    "include/mac/mac_mt/mt_mac.h": "bbae34d8dc4928e30a05687342308ce5dfd8e6f5e869d84ad0b5c4bf7dc982ec",
+    "mac/mt_mac.c": "b9c0fc557ad941d032d00832e71eacceee8cf103d69b7b8a63dba5862fc5dc95"
   },
   "output_sha256": {
     "tx_rx/txs.c": "4a6d13af7543696fb4c26f5aa90e3070e9651d6160f6e41733cc0678f8587c64",
-    "include/mac/mac_mt/mt_mac.h": "077d1c4158dde1e63b70e0de6b1897ba8b580495efafe49d32d3897104e0b0ed"
+    "include/mac/mac_mt/mt_mac.h": "077d1c4158dde1e63b70e0de6b1897ba8b580495efafe49d32d3897104e0b0ed",
+    "mac/mt_mac.c": "2cc5d05ed110f304e4899531f0dc4c0c503549a5b987419c07b474ffe4806b21"
   },
   "cold_start_only": true,
-  "txd_routing_implemented": false,
+  "txd_routing_staged": true,
+  "tracked_submit_accepts_nonowner_token": false,
   "dma_pacing_implemented": false,
   "rf_retirement_proven": false,
   "production_installed": false,
@@ -25,8 +28,9 @@
     "ordinary tracked callback/claimed completion preserved",
     "invalid legacy P metadata not consumed by reports",
     "generation overflow fails closed",
-    "predecessor negative witness fails as expected"
+    "predecessor negative witness fails as expected",
+    "actual long-TXD branch:3072 scope/pool cases"
   ],
   "asan_ubsan_passed": true,
-  "scratch_removed_bytes": 723730
+  "scratch_removed_bytes": 889988
 }

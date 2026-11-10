@@ -1,0 +1,234 @@
+{
+  "rows": [
+    {
+      "file": "chips/mt7603.c",
+      "line": 111,
+      "text": "dw5->pid = PID_DATA_AMPDU;"
+    },
+    {
+      "file": "chips/mt7628.c",
+      "line": 185,
+      "text": "dw5->pid = PID_DATA_AMPDU;"
+    },
+    {
+      "file": "chips/mt7636.c",
+      "line": 207,
+      "text": "dw5->pid = PID_DATA_AMPDU;"
+    },
+    {
+      "file": "include/mac/mac_mt/mt_mac.h",
+      "line": 1640,
+      "text": "UINT8 AddTxSStatus(struct _RTMP_ADAPTER *pAd, UINT8 Type, UINT8 PktPid, UINT8 PktType,"
+    },
+    {
+      "file": "mac/mt_mac.c",
+      "line": 949,
+      "text": "txd_5->pid = info->PID;"
+    },
+    {
+      "file": "mac/mt_mac.c",
+      "line": 957,
+      "text": "txd_5->pid = 0;"
+    },
+    {
+      "file": "mac/mt_mac.c",
+      "line": 973,
+      "text": "txd_5->pid = AddTxSStatus(pAd, TXS_TYPE0, info->PID, 0, 0,"
+    },
+    {
+      "file": "mac/mt_mac.c",
+      "line": 1009,
+      "text": "txd_5->pid = AddTxSStatus(pAd, TXS_TYPE1, 0,"
+    },
+    {
+      "file": "mac/mt_mac.c",
+      "line": 1275,
+      "text": "txd_5->pid = 0;"
+    },
+    {
+      "file": "mac/mt_mac.c",
+      "line": 1291,
+      "text": "txd_5->pid = AddTxSStatus(pAd, TXS_TYPE0, pTxBlk->Pid, 0, 0,"
+    },
+    {
+      "file": "mac/mt_mac.c",
+      "line": 1326,
+      "text": "txd_5->pid = AddTxSStatus(pAd, TXS_TYPE1, 0,"
+    },
+    {
+      "file": "os/linux/diag.c",
+      "line": 925,
+      "text": "diag_ctrl_db->process_info.entry[index].pid = pid;"
+    },
+    {
+      "file": "os/linux/diag.c",
+      "line": 949,
+      "text": "diag_ctrl_db->process_info.entry[index].pid = -1;"
+    },
+    {
+      "file": "os/linux/diag.c",
+      "line": 1431,
+      "text": "diag_ctrl_db->process_info.entry[index].pid = -1;"
+    },
+    {
+      "file": "tx_rx/txs.c",
+      "line": 774,
+      "text": "UINT8 AddTxSStatus(RTMP_ADAPTER *pAd, UINT8 Type, UINT8 PktPid, UINT8 PktType,"
+    }
+  ],
+  "metadata": [
+    {
+      "file": "common/rtmp_init_inf.c",
+      "line": 235,
+      "text": "InitTxSTypeTable(pAd);"
+    },
+    {
+      "file": "common/rtmp_init_inf.c",
+      "line": 984,
+      "text": "ExitTxSTypeTable(pAd);"
+    },
+    {
+      "file": "include/mac/mac_mt/mt_mac.h",
+      "line": 1593,
+      "text": "TXS_STATUS TxSStatus[TXS_STATUS_NUM];"
+    },
+    {
+      "file": "include/mac/mac_mt/mt_mac.h",
+      "line": 1614,
+      "text": "INT32 InitTxSTypeTable(struct _RTMP_ADAPTER *pAd);"
+    },
+    {
+      "file": "include/mac/mac_mt/mt_mac.h",
+      "line": 1615,
+      "text": "INT32 ExitTxSTypeTable(struct _RTMP_ADAPTER *pAd);"
+    },
+    {
+      "file": "tx_rx/txs.c",
+      "line": 283,
+      "text": "INT32 InitTxSTypeTable(RTMP_ADAPTER *pAd)"
+    },
+    {
+      "file": "tx_rx/txs.c",
+      "line": 313,
+      "text": "NdisZeroMemory(&TxSCtl->TxSStatus[Index], sizeof(TXS_STATUS));"
+    },
+    {
+      "file": "tx_rx/txs.c",
+      "line": 358,
+      "text": "INT32 ExitTxSTypeTable(RTMP_ADAPTER *pAd)"
+    },
+    {
+      "file": "tx_rx/txs.c",
+      "line": 779,
+      "text": "if (TxSCtl->TxSStatus[TxSCtl->TxSPid].State == TXS_USED)"
+    },
+    {
+      "file": "tx_rx/txs.c",
+      "line": 784,
+      "text": "TxSCtl->TxSStatus[TxSCtl->TxSPid].TxSPid = TxSCtl->TxSPid;"
+    },
+    {
+      "file": "tx_rx/txs.c",
+      "line": 785,
+      "text": "TxSCtl->TxSStatus[TxSCtl->TxSPid].State = TXS_USED;"
+    },
+    {
+      "file": "tx_rx/txs.c",
+      "line": 786,
+      "text": "TxSCtl->TxSStatus[TxSCtl->TxSPid].Type = Type;"
+    },
+    {
+      "file": "tx_rx/txs.c",
+      "line": 787,
+      "text": "TxSCtl->TxSStatus[TxSCtl->TxSPid].PktPid = PktPid;"
+    },
+    {
+      "file": "tx_rx/txs.c",
+      "line": 788,
+      "text": "TxSCtl->TxSStatus[TxSCtl->TxSPid].PktType = PktType;"
+    },
+    {
+      "file": "tx_rx/txs.c",
+      "line": 789,
+      "text": "TxSCtl->TxSStatus[TxSCtl->TxSPid].PktSubType = PktSubType;"
+    },
+    {
+      "file": "tx_rx/txs.c",
+      "line": 790,
+      "text": "TxSCtl->TxSStatus[TxSCtl->TxSPid].TxRate = TxRate;"
+    },
+    {
+      "file": "tx_rx/txs.c",
+      "line": 791,
+      "text": "TxSCtl->TxSStatus[TxSCtl->TxSPid].Priv = Priv;"
+    },
+    {
+      "file": "tx_rx/txs.c",
+      "line": 803,
+      "text": "TxSCtl->TxSStatus[TxSPid].State = TXS_UNUSED;"
+    },
+    {
+      "file": "tx_rx/txs.c",
+      "line": 805,
+      "text": "*Type = TxSCtl->TxSStatus[TxSPid].Type;"
+    },
+    {
+      "file": "tx_rx/txs.c",
+      "line": 806,
+      "text": "*PktPid = TxSCtl->TxSStatus[TxSPid].PktPid;"
+    },
+    {
+      "file": "tx_rx/txs.c",
+      "line": 807,
+      "text": "*PktType = TxSCtl->TxSStatus[TxSPid].PktType;"
+    },
+    {
+      "file": "tx_rx/txs.c",
+      "line": 808,
+      "text": "*PktSubType = TxSCtl->TxSStatus[TxSPid].PktSubType;"
+    },
+    {
+      "file": "tx_rx/txs.c",
+      "line": 809,
+      "text": "*TxRate = TxSCtl->TxSStatus[TxSCtl->TxSPid].TxRate;"
+    },
+    {
+      "file": "tx_rx/txs.c",
+      "line": 810,
+      "text": "*TxSPriv = TxSCtl->TxSStatus[TxSPid].Priv;"
+    }
+  ],
+  "vendor_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "scanned_c_h_files": 450,
+  "matched_file_sha256": {
+    "chips/mt7603.c": "97febaaa4efad09884e6e5daf832da9b57a3a6118d9235458f1aa53648379996",
+    "chips/mt7628.c": "8ad130270c42971a9a57066390bcff8550b55f577804845cefc286550c03e131",
+    "chips/mt7636.c": "81f614d746c1807315897340419195be3f39735ccf9e6d7dec9bb7fb4e0795d0",
+    "common/rtmp_init_inf.c": "fcf2b2d6da578b3709a5575c92a1ad3f7bdf5cf85684fa4313ba2fcdf137fe94",
+    "include/mac/mac_mt/mt_mac.h": "32835ba6b46e2bd3995986e1a48114242a755d128ab8bfc10238f5fdf4ce7002",
+    "mac/mt_mac.c": "0503f18843b3ddc5206b6f2565c7a57aedbe7e64f7591f0dc5d6aa5be1355576",
+    "os/linux/diag.c": "f2e6d9838c3715a9b1bb5524b05dc9c113f15312c532e04e4b659fa5162a9f78",
+    "tx_rx/txs.c": "58f963297852e7a864be13a7b9b7ea5ffd2a394a36309e736eef6691acee0524"
+  },
+  "scope": "Textual PID assignment/allocator-call and TxS initialization/reset inventory; raw word writes, aliases and generated variants need separate review. Not an exhaustive semantic proof.",
+  "findings": [
+    "Four regular allocator callsites in mac/mt_mac.c are covered by the checked allocator conversion.",
+    "Short templates in mt7603/mt7628/mt7636 use logical PID_DATA_AMPDU=2, not255. MT7603 is the board-relevant case.",
+    "Long special info->PID direct assignment is inside literal if(0) under WH_EZ_SETUP; cannot treat arbitrary future direct assignment as covered.",
+    "InitTxSTypeTable zeroes all slots; permanent allocator exclusion does not depend on slot initialization or cursor.",
+    "os/linux/diag.c pid fields are process IDs, not wire TxS IDs."
+  ],
+  "additional_issue": {
+    "status": "Generator-level gap identified; final-tree confirmation still required before patch claim.",
+    "description": "Current tracked ra2 can propagate zero TxS reservation generation on allocation failure; no later positive generation guard found before HAL/publication receipt. This is separate from future no-owner mode.",
+    "refs": [
+      "tools/iot/prepare-txs-status-candidate.py:245-267",
+      "tools/iot/prepare-radio-queue-candidate.py:377,443-520",
+      "tools/iot/first-beacon-composition.py"
+    ],
+    "next_action": "Confirm final candidate and reject tracked ra2 submission with generation0 before HAL/state/publication; preserve other BSS/chips and existing cancel semantics."
+  },
+  "production_patch_applied": false,
+  "runtime_verified": false,
+  "scratch_removed_bytes": 4960
+}
