@@ -1,0 +1,38 @@
+{
+  "scope": "isolated candidate transport and complete actual handle_request host fixture",
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "checks": [
+    "complete actual HTTP method/header/route/query parsing",
+    "POST marked route permits; GET/HEAD/other route/query denied",
+    "duplicate or missing custom header denied",
+    "OPTIONS preflight returns501",
+    "auth rejection before input/output",
+    "marked Modern auth required in inherited local-trust state1",
+    "Classic local-trust behavior preserved",
+    "per-request authorization reset",
+    "main credential and Guest denied-transport rejection before secret read",
+    "24 full update/commit/notify scenarios across171 actual field names"
+  ],
+  "substitutes": [
+    "auth algorithm/login state",
+    "input CGI body parser",
+    "template output and NVRAM in separate fixture"
+  ],
+  "not_verified": [
+    "actual Basic auth algorithm",
+    "real sockets/browser CORS",
+    "combined dispatcher/body/template/NVRAM end-to-end",
+    "target compile",
+    "request freshness/external writer races",
+    "runtime"
+  ],
+  "production_installed": false,
+  "runtime_verified": false,
+  "scratch_removed": true,
+  "files_sha256": {
+    "guest-transport.h": "0d26166113d47efd03fdbf019303a0fd5a9794f981e4f31c6b49c7181db27486",
+    "prepare-guest-transport.py": "539956eb8c78531fad06a2e21277d5dd60d79e8789af9e465c98c3bf28b0960c",
+    "guest-http-fixture.c.inc": "abcd4ffb8157e0541132a366edbfa94774b0ee0ca75db1f85e6c71ff446ef303",
+    "check_guest_candidate.py": "ea034566ac0e3a0d826dc7aada9cbcbee5e4ebc83f0bf6a1999362727ffdc527"
+  }
+}

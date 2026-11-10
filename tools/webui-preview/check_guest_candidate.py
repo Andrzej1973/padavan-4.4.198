@@ -5,11 +5,17 @@ here=pathlib.Path(__file__).resolve().parent
 with tempfile.TemporaryDirectory(prefix='wr-modern-guest-candidate-') as scratch:
  root=pathlib.Path(scratch)
  with tarfile.open(sys.argv[1]) as archive:
-  for name in ('httpd/web_ex.c','httpd/variables.c','shared/defaults.c'):
+  for name in ('httpd/web_ex.c','httpd/httpd.c','httpd/variables.c','shared/defaults.c'):
    p=root/'trunk/user'/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(archive.extractfile('trunk/user/'+name).read())
- for tool in (here.parent/'prepare-shared-wifi.py',here/'prepare-password-candidate.py',here/'prepare-guest-candidate.py'):
+ for tool in (here.parent/'prepare-shared-wifi.py',here/'prepare-password-candidate.py',here/'prepare-guest-candidate.py',here/'prepare-guest-transport.py'):
   subprocess.run(['python3',str(tool),str(root)],check=True)
  source=(root/'trunk/user/httpd/web_ex.c').read_text()
+ server=(root/'trunk/user/httpd/httpd.c').read_text()
+ request=server[server.index('handle_request(FILE *conn_fp, const conn_item_t *item)'):]
+ assert request.index('wr_modern_guest_post_authorized = 0;')<request.index('fgets(line,')
+ assert request.index('if (!auth_check(authorization))')<request.index('wr_modern_guest_post_authorized = wr_modern_guest_transport_allowed(')<request.index('handler->input(file,')
+ assert 'strncasecmp(cur, "X-WR-Modern:", 12)' in request
+
  helpers=source[source.index('#include "wr-shared-wifi/adapter.h"'):source.index('static void\nvalidate_cgi')]
  legacy=source[source.index('validate_cgi(webs_t'):source.index('validate_asp_apply(webs_t')]
  assert legacy.index('wr_modern_guest_version')<legacy.index('for (v = GetVariables')
@@ -20,7 +26,8 @@ with tempfile.TemporaryDirectory(prefix='wr-modern-guest-candidate-') as scratch
  fixture=fixture.replace('#include "guest-adapter.h"','#include "guest-adapter.h"\n#include "adapter.h"')
  stubs=r'''
  typedef void *webs_t;
- static int errors,reached;
+ static int errors,reached,transport_allowed=1;
+ int wr_modern_guest_post_allowed(void){return transport_allowed;}
  static unsigned long long restart_needed_bits;
  static char *websGetVar(webs_t wp,char *key,char *fallback){const char *v=cgi(wp,key);return (char *)(v?v:fallback);}
  static char *nvram_safe_get(const char *key){if(!strcmp(key,"wr_wifi_shared"))return "1";return (char *)nv(NULL,key);}
@@ -46,6 +53,8 @@ with tempfile.TemporaryDirectory(prefix='wr-modern-guest-candidate-') as scratch
   version="bad";run(NULL);assert(reached==2&&errors==1&&reads==2);version="1";
   inject="wr_modern_wifi_version";run(NULL);assert(reached==2&&errors==2&&reads==2);inject=NULL;
   values[11]="24002500";run(NULL);assert(reached==2&&errors==3&&reads==2);
+  values[11]="08002200";transport_allowed=0;run(NULL);assert(reached==2&&errors==4&&reads==2);
+  version=NULL;inject="wr_modern_wifi_version";run(NULL);assert(reached==2&&errors==5&&reads==2);
   puts("PASS actual generated Guest CGI preflight/filter: both bands with main shared1, namespace injection blocked, bad metadata/schedule reject before secret; not full persistence/runtime");
  }
  '''
@@ -71,7 +80,43 @@ static char *websGetVar(webs_t wp,char *name,char *fallback){return guest_cgi(wp
   begin=source.index(marker);end=source.index('\n}',begin)+2;callbacks.append(signature+'\n'+source[begin:end])
  lifecycle='\n#pragma GCC diagnostic push\n#pragma GCC diagnostic ignored "-Wunused-parameter"\n'+'\n'.join(callbacks)+'\n#pragma GCC diagnostic pop\n'
  template=template.replace('/* GENERATED_HELPERS */',helpers).replace('/* GENERATED_APPLY */',actual+lifecycle)
- template+=(here/'guest-persistence-main.c.inc').read_text()
+ update_start=source.index('update_variables_ex(');update_end=source.index('\n}',update_start)+2
+ update='static int\n'+source[update_start:update_end]
+ whole_stubs=r"""
+ int wr_modern_guest_post_allowed(void){return 1;}
+ typedef unsigned int u32;
+ #define GROUP_FLAG_ADD 1
+ #define GROUP_FLAG_REMOVE 2
+ #define EVM_RESTART_WAN (1ULL<<10)
+ #define EVM_RESTART_IPV6 (1ULL<<11)
+ #define EVT_RESTART_WAN 30
+ #define EVT_RESTART_WIFI2 8
+ #define EVT_RESTART_WIFI5 8
+ #define EVT_RESTART_REBOOT 60
+ #define MAX(a,b) ((a)>(b)?(a):(b))
+ static char *svc_pop_list(char *list,char separator){static char name[64];char *end=strchr(list,separator);size_t n;if(!*list)return NULL;assert(end);n=(size_t)(end-list);assert(n<sizeof(name));memcpy(name,list,n);name[n]=0;return name;}
+ static const char *GetServiceId(int sid){return sid==0?"WLANConfig11b":sid==1?"WLANConfig11a":NULL;}
+ static int response_done,response_unchanged,response_errors;
+ static int websWrite(webs_t wp,const char *fmt,...){(void)wp;if(strstr(fmt,"done_committing"))response_done++;else if(strstr(fmt,"no_changes_and_no_committing"))response_unchanged++;else if(strstr(fmt,"Invalid Modern"))response_errors++;return 0;}
+ static int apply_cgi_group(webs_t wp,int sid,void *unused,const char *id,int flag){(void)wp;(void)sid;(void)unused;(void)id;(void)flag;abort();return 0;}
+ static void nvram_clr_group_temp(struct variable *v){(void)v;abort();}
+ static void validate_cgi(webs_t wp,int sid,const struct wr_shared_wifi_adapter *shared){(void)wp;(void)sid;(void)shared;abort();}
+ static int eval(const char *name){(void)name;abort();return 0;}
+ static void sys_script(const char *name){(void)name;abort();}
+ static int nvram_match(const char *name,const char *value){return !strcmp(nvram_safe_get(name),value);}
+ """
+ # Actual request entry uses events' wait-time metadata; fixture has no generic events.
+ template=template.replace('u64 event_mask,event_unmask;','u64 event_mask,event_unmask;unsigned int max_time;').replace('events_desc[]={{NULL,0,0}}','events_desc[]={{NULL,0,0,0}}')
+ # Place stubs after types/helpers/apply, before complete request function.
+ template+=whole_stubs+'\n#pragma GCC diagnostic push\n#pragma GCC diagnostic ignored "-Wunused-parameter"\n'+update+'\n#pragma GCC diagnostic pop\n'
+ main=(here/'guest-persistence-main.c.inc').read_text()
+ main=main.replace('assert(validate_asp_apply(NULL,band,&plan,&modern)==1);','assert(update_variables_ex(0,NULL,0,NULL)==0);')
+ # start_apply.htm runs update -> commit -> notify in the same request. Replay
+ # must happen after that complete sequence, not between update and notification.
+ main=main.replace('count=writes;assert(update_variables_ex(0,NULL,0,NULL)==0);assert(writes==count);','count=writes;')
+ main=main.replace(' asus_nvram_commit(0,NULL,0,NULL);ej_notify_services(0,NULL,0,NULL);assert(commits==', ' assert(update_variables_ex(0,NULL,0,NULL)==0);assert(writes==count);\n asus_nvram_commit(0,NULL,0,NULL);ej_notify_services(0,NULL,0,NULL);assert(commits==')
+
+ template+=main
  (root/'fixture.c').write_text(template)
  subprocess.run(['gcc','-std=c99','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(root/'trunk/user/httpd'),str(root/'fixture.c'),'-o',str(root/'fixture')],check=True)
  subprocess.run([str(root/'fixture')],check=True)
@@ -90,3 +135,10 @@ static char *websGetVar(webs_t wp,char *name,char *fallback){return guest_cgi(wp
  subprocess.run(['gcc','-std=c99','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(root/'trunk/user/httpd'),str(root/'fixture.c'),'-o',str(root/'fixture')],check=True)
  subprocess.run([str(root/'fixture')],check=True)
  print('PASS actual WLAN name/type union',counts,'with malicious non-Guest fields; fixture events, not target-config acceptance')
+
+ # Exercise complete actual server dispatcher with controlled auth/body/output hooks.
+ begin=server.index('static void\nhandle_request(');end=server.index('\n}',begin)+2
+ http_fixture=(here/'guest-http-fixture.c.inc').read_text().replace('/* ACTUAL_HANDLE_REQUEST */',server[begin:end])
+ (root/'http-fixture.c').write_text(http_fixture)
+ subprocess.run(['gcc','-std=c99','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(root/'trunk/user/httpd'),str(root/'http-fixture.c'),'-o',str(root/'http-fixture')],check=True)
+ subprocess.run([str(root/'http-fixture')],check=True)

@@ -45,7 +45,7 @@ with tempfile.TemporaryDirectory(prefix='wr-modern-json-semantics-') as scratch:
     empty=json.loads(subprocess.check_output([binary,'0','']))
     assert empty['wifiConfiguration']['bands']['24']['ssid']==''
     assert empty['wifi'][0]['ssid']=='N/A'  # Overview retains explicit unknown label.
-    for fixture in ('password-intent','password-request','radio24-validate','guest-schedule','guest-request','guest-adapter'):
+    for fixture in ('password-intent','password-request','radio24-validate','guest-schedule','guest-request','guest-adapter','guest-transport'):
         password_binary=str(Path(scratch)/fixture)
         subprocess.run(['gcc','-std=c99','-Wall','-Wextra','-Werror',
                         '-fsanitize=address,undefined','-fno-pie','-no-pie',

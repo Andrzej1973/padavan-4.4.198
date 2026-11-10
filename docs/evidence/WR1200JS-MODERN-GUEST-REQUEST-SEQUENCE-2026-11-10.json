@@ -1,0 +1,19 @@
+{
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "path": "trunk/user/www/n56u_ribbon_fixed/start_apply.htm",
+  "sha256": "ec6fbb600d3ee88d12772490dc6dfb7f94142ba7242efc61dbccdecdf1e59668",
+  "line": 118,
+  "sequence": [
+    "<% update_variables(); %>",
+    "<% asus_nvram_commit(); %>",
+    "<% notify_services(); %>"
+  ],
+  "host_verified": "24 Guest scenarios through complete generated update_variables_ex service loop, then actual commit and notify; twice across representative and86/85 field union",
+  "negative_witness": "A second update before notification resets restart_needed_bits. This is an invalid split-request sequence; preserve existing single-template ordering.",
+  "limitations": [
+    "HTTP parser/template dispatcher not executed by fixture",
+    "No request freshness token or external NVRAM writer synchronization established",
+    "No device service/driver/runtime acceptance"
+  ],
+  "runtime_verified": false
+}
