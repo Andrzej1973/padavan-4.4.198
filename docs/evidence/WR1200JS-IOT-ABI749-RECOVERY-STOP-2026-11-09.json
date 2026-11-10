@@ -1,0 +1,32 @@
+{
+  "run": 42686718338,
+  "source": "5a3caacbdd6daf64e9ac4354a291ecc9a67788ab",
+  "artifact": 13705960541,
+  "checks": {
+    "iot-control-channel.txt": "PASS IoT control channel: fixed notification, queued/running/applied separation, no duplicate execution, retained recovery, private result IDs\n",
+    "iot-dispatch-core.txt": "PASS actual RC dispatch: available shutdown signal paths, transaction envelope, uncertain recovery and no replay; injected IPC\n",
+    "iot-radio-stop-contract.txt": "PASS actual RC stop preflight: controller always required; exact success only; no configuration bypass or independent cleanup; backend still unbound\n",
+    "iot-stop-other.txt": "PASS full actual RC stop/restart: first/second controller refusal fences physical operations, profile and reopen; radio/reload combinations and other-board behavior preserved; backend unbound\n",
+    "iot-stop-wr.txt": "PASS full actual RC stop/restart: first/second controller refusal fences physical operations, profile and reopen; radio/reload combinations and other-board behavior preserved; backend unbound\n"
+  },
+  "objects": {
+    "iot-control-server-mips.o": {
+      "bytes": 2916,
+      "sha256": "199b37f25b6ff697e1d51ea2f33d5e67b68c4105c6e03b501f512437c7c7ebb2",
+      "elf": "ELF32 little endian MIPS"
+    },
+    "iot-dispatch-core-mips.o": {
+      "bytes": 14080,
+      "sha256": "01db4bab5e952220343083993abcb24ccb42f7ba8000e6d522e0e0629c745594",
+      "elf": "ELF32 little endian MIPS"
+    },
+    "iot-stop-mips.o": {
+      "bytes": 8192,
+      "sha256": "e2a4214fd99cfebab5f4acc659a62ca741163cef9566c32429fb55db5d84de01",
+      "elf": "ELF32 little endian MIPS"
+    }
+  },
+  "runtime_verified": false,
+  "scope": "Actual isolated target objects plus host fixture results; not full production RC link or RF acceptance.",
+  "cleanup": "ZIP and objects parsed in memory; no retained disk scratch."
+}

@@ -1,0 +1,25 @@
+{
+  "run": 42687860482,
+  "number": 969,
+  "artifact": 13707231144,
+  "dispatch_revision": "26d759c789e2f85e622b872029a53c6105b2b595",
+  "verified_revision": "843f6f549a450fb3f81ddf17437523d1059e1d56",
+  "independent_modules": {
+    "mt76x3_ap.ko": {
+      "bytes": 5906788,
+      "sha256": "d3cd29f9e931c4d28f49735b8e672aac99bad370f0392d88f721fcb4f0fd6ea3"
+    },
+    "reload-feature/mt76x3_ap-reload.ko": {
+      "bytes": 5908896,
+      "sha256": "28ccb060bc6804664b731ddf49fc42ecbbc2c85783cb39bcf5060817afa0d95f"
+    },
+    "wsc-feature/mt76x3_ap-wsc.ko": {
+      "bytes": 6516692,
+      "sha256": "0d9024c375f1c632c9a863f4592f3532adde490f1add4eacbf8f518b1b346e02"
+    }
+  },
+  "production_installed": false,
+  "runtime_verified": false,
+  "scope": "Isolated module artifacts independently match reported hashes; not production RC integration, safe RF retirement or runtime.",
+  "cleanup": "ZIP/modules inspected in memory only."
+}

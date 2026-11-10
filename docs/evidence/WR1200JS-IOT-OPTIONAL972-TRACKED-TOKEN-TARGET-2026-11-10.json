@@ -1,0 +1,34 @@
+{
+  "run": 42753273923,
+  "number": 972,
+  "artifacts": [
+    13734551750,
+    13735216186
+  ],
+  "modules": {
+    "mt76x3_ap.ko": {
+      "bytes": 5907144,
+      "sha256": "c789e8b7571a3246ea487e29a11b60a75f486f04c31010c04efa2444aaf3f578"
+    },
+    "reload-feature/mt76x3_ap-reload.ko": {
+      "bytes": 5909252,
+      "sha256": "bbbae3c04cf4124d03a1ca69f556edcc41852a015f5cfb786cbf78aee7194de1"
+    },
+    "wsc-feature/mt76x3_ap-wsc.ko": {
+      "bytes": 6517080,
+      "sha256": "d08de17dace7bdc989733231ce89a11c75b1fe76cf3028a510655e39e0c5d339"
+    }
+  },
+  "runtime_verified": false,
+  "source": {
+    "dispatch_revision": "945baa49fe7117c50c457c1f3f057f85c5e14401",
+    "requested_revision": "66241da6a7e37a001ee3828400d41a9234b28d7d",
+    "verified_revision": "66241da6a7e37a001ee3828400d41a9234b28d7d",
+    "runtime_verified": false
+  },
+  "actual_final_submit_check": "PASS actual tracked beacon submit: initial zero-token scope refuses before packet/ring; locked layout recheck blocks HAL/publication; other scopes and cancellation preserved; injected hardware only\nRemoved tracked-beacon phase scratch: 55044B; no RF/runtime claim\n",
+  "scope": "Final assembled candidate host submit check plus independent MIPS module inspection; not full RC integration or RF/late-TxS/runtime acceptance.",
+  "cleanup": "ZIP and objects parsed in memory; no extracted artifact retained.",
+  "manifest_has_linux_api": true,
+  "final_driver_submit_check_passed": true
+}

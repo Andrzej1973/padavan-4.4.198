@@ -25,12 +25,40 @@ is claimed. Older successful runs prove only their exact recorded source.
 - [PSM variants](evidence/WR1200JS-IOT-OPTIONAL965-PSM-2026-11-09.json): independent module hashes; no physical PSM result.
 - [Reopen contract](WR1200JS-IOT-REOPEN-EVIDENCE-GAP.md), [queue controls](evidence/WR1200JS-IOT-BMC-QUIESCE-BOUNDARY-2026-11-09.json), [SN/format](evidence/WR1200JS-IOT-TXS-SN-FORMAT-RECHECK-2026-11-09.json).
 
+## Follow-up verified 2026-11-10
+
+Standard967 source843f and968 source1c succeeded; optional966 sourceb8 and969
+source843f succeeded. ABI749 source5a3 succeeded. Independently inspected the
+actual ABI server/dispatch/stop MIPS objects and five archived host reports:
+[ABI evidence](evidence/WR1200JS-IOT-ABI749-RECOVERY-STOP-2026-11-09.json).
+Optional969 verification-source confirms source843f despite dispatch head26d;
+three actual module hashes/sizes match their archived reports:
+[target evidence](evidence/WR1200JS-IOT-OPTIONAL969-TARGET-2026-11-10.json).
+These results do not establish full production RC link, RF retirement or runtime.
+Optional970 run42745235335 succeeded for exact1c, with dispatch head26d.
+[Independent target inspection](evidence/WR1200JS-IOT-OPTIONAL970-TARGET-2026-11-10.json)
+confirms baseline/reload/WSC module hashes and the CLOSE target object.
+
 ## Next gates
 
-1. Finish current CI: optional966 sourceb8cd491; standard967843f and9681c; ABI7495a3. Inspect exact source/input artifacts, not run-head alone for optional overrides. Queue required optional after each eligible standard succeeds.
+1. Current required source builds are completed. Reuse their exact source/scope evidence; do not dispatch equivalent runs to address missing protocol guarantees.
 2. Keep missing RF/TxS contract separate from MCU ACK reuse. Do not bind QUIESCE to admin DOWN, empty bridge/NVRAM, reference CLOSE or unconfirmed queue writes.
 3. Complete strong activation/service/shutdown integration only with its required driver ownership and quiescence evidence. No weak or constant-success fallback.
 4. After IoT software requirements pass, continue Modern WebUI/Zapret2 and final image/release verification. Device actions require separate owner authorization.
 
 No firmware/module ZIP was retained locally for this audit; archive/artifact
 inspection used memory. Preserve source, compact evidence and unfinished work.
+
+## Tracked reservation correction verified — 2026-11-10
+
+Standard971 and optional972 succeeded for exact66241da. The optional dispatch
+head was945baa4, while verification-source confirms66241da. The actual final
+assembled submit check passed, and baseline/reload/WSC MIPS modules independently
+match archived hashes/sizes. See
+[972 evidence](evidence/WR1200JS-IOT-OPTIONAL972-TRACKED-TOKEN-TARGET-2026-11-10.json).
+This closes zero-tracked-token submit admission at source/host/target scope;
+it does not close RF retirement or authorize non-owning mode.
+
+[External evidence required](WR1200JS-IOT-EXTERNAL-EVIDENCE-REQUIRED.md) records
+the remaining integration blockers. No queued/running branch jobs remained
+at this checkpoint; do not repeat successful builds as a substitute for them.
