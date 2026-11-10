@@ -1,5 +1,34 @@
 # Padavan Modern local preview (stage 1)
 
+## IoT reservation — 2026-11-10
+
+Modern WebUI development may continue independently of the blocked IoT driver
+work, per the owner's explicit approval. IoT remains mandatory for release.
+Both `#iot` and `#wifi/iot` reserve its 2.4 GHz section with development status;
+neither route exposes editable settings or apply controls. This applies to the
+DEMO and prepared production shell. Future settings cover independent SSID and
+security, subnet, DHCP/DNS and isolation after the actual backend is ready.
+The host/browser evidence is recorded in
+`../../docs/evidence/WR1200JS-MODERN-IOT-RESERVATION-2026-11-10.json`.
+It does not establish image inclusion or router runtime.
+
+Run `python3 check_installer.py` to verify preflight failures preserve the
+source and permit a clean retry. Preflight checks do not guarantee recovery
+from disk I/O errors or interrupted installation.
+
+Production Wi-Fi routes show Classic destinations rather than editable demo
+credentials until the real Modern configuration backend is connected. DEMO
+forms remain available in local preview. Run `node check_wifi_production.js`
+for all 15 production routes (actual renderer with a minimal DOM fixture;
+this check does not replace a browser or device test).
+
+Seven exact Modern static routes precede Classic wildcard handlers, request
+authentication and have no configuration POST callback. The target retains
+Padavan's trusted localhost exception. Unlike the loopback test server, target
+httpd can answer POST with static content after draining its body; preview 405
+checks are not evidence of target method rejection. See the pinned-source audit
+in `../../docs/evidence/WR1200JS-MODERN-HTTP-ROUTING-2026-11-10.json`.
+
 ## Prepared production shell — 2026-10-31
 
 `prepare-production.py` installs the Modern shell into a fetched Padavan tree:
@@ -50,7 +79,7 @@ The latest user task extends the previous home-only scope with isolated Modern
 Wi-Fi pages. Start with `start.bat` as below, then open
 `http://127.0.0.1:8080/modern/#wifi/common` or click **Бездротова мережа**.
 Three sections: shared basics, independent bands (six subsections each), and
-an explicitly unverified IoT draft. Back/forward and visible back links work.
+a reserved, unavailable IoT section. Back/forward and visible back links work.
 Drafts live in memory only and disappear on page reload. Use dummy credentials.
 Buttons simulate a preview confirmation; no router configuration is saved.
 Production Classic files and the existing save path are untouched.

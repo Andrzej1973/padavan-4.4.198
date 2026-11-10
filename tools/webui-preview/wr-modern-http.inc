@@ -96,7 +96,7 @@ static void do_wr_modern_json(const char *url, FILE *stream)
 	fputs("\"usb\":{\"status\":\"Н/Д\",\"filesystem\":\"Н/Д\",\"freeTotal\":\"Н/Д\"},", stream);
 	fputs("\"interfaces\":{\"status\":\"WAN/LAN з NVRAM\",\"detail\":\"Runtime-перевірка не виконувалась\"},", stream);
 	wr_modern_json_field(stream, "uptime", uptime_text, 1);
-	fputs("\"iot\":{\"status\":\"Не підтверджено\",\"detail\":\"Production IoT runtime ще не прийнято\"},", stream);
+	fputs("\"iot\":{\"status\":\"У розробці\",\"detail\":\"Місце для окремої мережі IoT 2,4 ГГц зарезервовано; керування недоступне\"},", stream);
 	fputs("\"temperatures\":{\"cpu\":null,\"radio5\":null,\"note\":\"Н/Д\"},", stream);
 	fputs("\"traffic\":{\"download\":null,\"upload\":null,\"samples\":[]},", stream);
 	fputs("\"processes\":[],\"pages\":{", stream);
@@ -112,9 +112,10 @@ static void do_wr_modern_json(const char *url, FILE *stream)
 	fputs("}]},", stream);
 
 	fputs("\"iot\":{\"title\":\"Мережа IoT\",\"classic\":\"Advanced_Wireless2g_Content.asp\","
-		"\"description\":\"Production IoT lifecycle не прийнятий.\",\"fields\":["
-		"{\"label\":\"Стан\",\"value\":\"Не підтверджено\"},"
-		"{\"label\":\"Ізоляція LAN\",\"value\":\"Не підтверджено\"}]},", stream);
+		"\"description\":\"Тут буде окрема мережа IoT лише для 2,4 ГГц. Керування ще недоступне.\",\"fields\":["
+		"{\"label\":\"Стан\",\"value\":\"У розробці\"},"
+		"{\"label\":\"Діапазон\",\"value\":\"2,4 ГГц\"},"
+		"{\"label\":\"Налаштування\",\"value\":\"З’являться після готовності керування\"}]},", stream);
 
 	fputs("\"lan\":{\"title\":\"Локальна мережа (LAN)\",\"classic\":\"Advanced_APLAN_Content.asp\","
 		"\"description\":\"Поточні read-only значення NVRAM.\",\"fields\":[", stream);

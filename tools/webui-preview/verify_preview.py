@@ -55,7 +55,8 @@ def main() -> None:
     assert_equal(status, 200, "Modern homepage")
     text = html.decode("utf-8")
     assert_equal('lang="uk"' in text, True, "Ukrainian UI")
-    assert_equal("IoT 2.4" in text or "IoT 2,4" in text, False, "IoT exclusion until implementation is complete")
+    assert_equal('href="/modern/#wifi/iot"' in text, True, "reserved IoT Wi-Fi entry")
+    assert_equal('data-route="iot"' in text, True, "reserved IoT navigation entry")
     assert_equal('id="modern-wifi"' in text, True, "isolated Modern Wi-Fi mount")
     assert_equal('id="modern-page"' in text, True, "Modern page mount")
     assert_equal('id="traffic-chart"' in text, True, "WAN traffic mount")
@@ -79,7 +80,7 @@ def main() -> None:
     assert_equal(status, 200, "demo data endpoint")
     data = json.loads(data_bytes)
     assert_equal(data.get("demo"), True, "DEMO marker")
-    assert_equal(data.get("iot", {}).get("status"), "Не підтверджено", "IoT remains explicitly unverified")
+    assert_equal(data.get("iot", {}).get("status"), "У розробці", "IoT reserved and unavailable")
     assert_equal(len(data.get("wifi", [])), 2, "Wi-Fi card count (IoT deferred)")
     pages = data.get("pages", {})
     required_pages = {

@@ -118,12 +118,30 @@ if (typeof document !== 'undefined') (async () => {
     heading.append(element('h1','Бездротова мережа')); panel.append(heading);
     const tabs=element('nav',undefined,'wifi-tabs'); tabs.setAttribute('aria-label','Розділи Wi-Fi');
     tabs.append(nav('Спільні','wifi/common',current.view==='common'),nav('Розділені','wifi/split',['split','band'].includes(current.view)),nav('IoT 2,4 ГГц','wifi/iot',current.view==='iot')); panel.append(tabs);
-    panel.append(element('p',modeLabel+' • Чернетки зберігаються до перезавантаження сторінки. Перехід між вкладками не застосовує налаштувань.','wifi-note'));
+    panel.append(element('p',schema.demo ? 'DEMO • Чернетки зберігаються до перезавантаження сторінки. Перехід між вкладками не застосовує налаштувань.' : 'READ-ONLY • Налаштування Wi-Fi доступні у Padavan Classic.','wifi-note'));
     if (notice) { const status=element('p',notice,'wifi-note'); status.setAttribute('role','status'); panel.append(status); }
     if (current.view==='split') {
       const cards=element('div',undefined,'wifi-band-links');
       for (const band of ['24','5']) cards.append(nav('Wi-Fi '+(band==='24'?'2,4':'5')+' ГГц →','wifi/split/'+band+'/general',false));
       panel.append(cards,element('p','Професійні параметри кожного діапазону доступні також при спільних SSID і паролі.','wifi-note')); return;
+    }
+    if (current.view==='iot') {
+      panel.append(element('h2','IoT — у розробці','wifi-subheading'),
+        element('p','Тут буде окрема мережа IoT лише для 2,4 ГГц. Налаштування SSID, захисту, підмережі, DHCP/DNS та ізоляції з’являться після готовності керування.','wifi-note'),
+        element('p','Увімкнення та зміна налаштувань IoT наразі недоступні.','wifi-note'));
+      return;
+    }
+    if (!schema.demo) {
+      panel.append(element('p','Керування Wi-Fi у Modern ще не підключено. Поточні параметри переглядайте та змінюйте у Classic.','wifi-note'));
+      const bands=current.view==='band' ? [current.band] : ['24','5'];
+      for (const band of bands) {
+        const section=current.view==='band' ? current.section : 'general';
+        const page=schema.pages[band][section];
+        if (!/^Advanced_[A-Za-z0-9_]+\.asp$/.test(page.classic)) throw Error('Invalid Classic destination');
+        const link=element('a','Відкрити Classic: Wi-Fi '+(band==='24'?'2,4':'5')+' ГГц — '+WifiDemo.sections[section],'wifi-tab');
+        link.href='/'+page.classic; panel.append(link);
+      }
+      return;
     }
     const form=element('form',undefined,'wifi-settings'); form.autocomplete='off';
     const error=element('p','','wifi-error'); error.setAttribute('role','alert'); error.tabIndex=-1; form.append(error);
@@ -136,12 +154,6 @@ if (typeof document !== 'undefined') (async () => {
       selector.addEventListener('input',()=>{state.shared=selector.checked;});
       basic(form,state.common,true);
       action=()=>{ if(state.shared) WifiDemo.synchronize(state,window.WRSharedWifi.plan); };
-    } else if (current.view==='iot') {
-      panel.append(element('p','IoT: макет окремої мережі. Додатковий BSS підтверджений на рівні джерел; активація ra2, окремий DHCP та firewall у виробничому образі й на роутері не прийняті. Перемикачі ізоляції — лише проєктні параметри.','wifi-note'));
-      basic(form,state.iot);
-      field(form,state.iot,'clientIsolation','Ізоляція клієнтів — не перевірено',null,'checkbox');
-      field(form,state.iot,'lanIsolation','Ізоляція від основної LAN — не перевірено',null,'checkbox');
-      action=()=>window.WRSharedWifi.plan('0','1','rt',state.iot);
     } else {
       const band=current.band; const prefix=band==='24'?'rt_':'wl_';
       panel.append(nav('← Вибір діапазону','wifi/split',false),element('h2','Wi-Fi '+(band==='24'?'2,4':'5')+' ГГц','wifi-subheading'));

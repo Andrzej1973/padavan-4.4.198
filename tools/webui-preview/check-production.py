@@ -20,6 +20,19 @@ schema=json.loads((modern/'wifi-schema.json').read_text(encoding='utf-8'))
 assert web_ex.count('static void do_wr_modern_json(')==1
 assert '{ "wr_modern.json", "application/json", no_cache_IE, NULL, do_wr_modern_json, 1 }' in web_ex
 assert 'do_wr_modern_json' in web_ex[:web_ex.index('struct mime_handler mime_handlers[]')]
+# Exact routes precede Classic's wildcard HTML/JS handlers; POST has no
+# settings input callback and JSON schema is actually servable by httpd.
+for name,mime in {
+ 'index.html':'text/html', 'app.js':'text/javascript',
+ 'wifi.js':'text/javascript', 'shared-wifi.js':'text/javascript',
+ 'wifi-schema.json':'application/json', 'styles.css':'text/css',
+ 'favicon.svg':'image/svg+xml',
+}.items():
+ route=f'{{ "modern/{name}", "{mime}", no_cache_IE, NULL, do_file, 1 }}'
+ assert web_ex.count(route)==1, name
+ wildcard=web_ex.find('{ \"**.htm*\"')
+ if wildcard!=-1:
+  assert web_ex.index(route)<wildcard, name
 assert '/api/dashboard.json' not in app
 assert 'fetch("/wr_modern.json"' in app
 assert "fetch('/modern/wifi-schema.json'" in wifi

@@ -1,0 +1,20 @@
+{
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "httpd_sha256": "93ae0816f514791a2a113df04b2266fe27e521838c203e2b612703d658141252",
+  "web_ex_sha256": "dd6db5e31425491ed18ce0c9eddd2d288e675e1a20473dc47dea4b2f57a67a4e",
+  "references": {
+    "httpd.c:965-972": "first matching MIME route wins",
+    "httpd.c:981-992": "need_auth invokes Basic authentication for non-local login states 2/3",
+    "httpd.c:525-541": "localhost remains the existing trusted exception; no authentication redesign",
+    "httpd.c:994-999": "NULL input callback drains POST body without applying configuration",
+    "web_ex.c:4241-4245": "Classic wildcard HTML uses do_html_apply_post/do_ej; Modern exact routes precede it"
+  },
+  "result": "PASS pinned-source preparation and exact routes; all seven static assets use need_auth=1, NULL input, do_file",
+  "limits": [
+    "Source checks only; HTTP daemon not executed",
+    "POST may return static content; not guaranteed HTTP 405",
+    "Loopback preview method rejection does not prove target behavior",
+    "No MIPS/image/device verification"
+  ],
+  "scratch_removed": true
+}

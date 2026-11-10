@@ -1,0 +1,38 @@
+{
+  "scope": "Host source/HTTP/actual headless browser checks only; no firmware image or router runtime",
+  "browser_routes": [
+    {
+      "mode": "demo",
+      "route": "wifi/iot",
+      "no_form_or_mutation_control": true,
+      "visible_reservation": true
+    },
+    {
+      "mode": "demo",
+      "route": "iot",
+      "no_form_or_mutation_control": true,
+      "visible_reservation": true
+    },
+    {
+      "mode": "production",
+      "route": "wifi/iot",
+      "no_form_or_mutation_control": true,
+      "visible_reservation": true
+    },
+    {
+      "mode": "production",
+      "route": "iot",
+      "no_form_or_mutation_control": true,
+      "visible_reservation": true
+    }
+  ],
+  "source_scratch_removed_bytes": 338219,
+  "production_json_iot_status": "У розробці",
+  "runtime_verified": false,
+  "production_wifi_followup": {
+    "check": "node tools/webui-preview/check_wifi_production.js",
+    "routes": 15,
+    "scope": "Actual renderer with minimal DOM fixture, not a browser test",
+    "result": "PASS: no draft forms or invented credentials; exact Classic destinations"
+  }
+}

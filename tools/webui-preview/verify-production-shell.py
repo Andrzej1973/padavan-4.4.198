@@ -45,7 +45,7 @@ data=json.loads(payload)
 assert data['demo'] is False
 assert len(data['pages'])==11
 assert len(data['serviceTiles'])==14
-assert data['iot']['status']=='Не підтверджено'
+assert data['iot']['status']=='У розробці'
 for method in ('POST','PUT','PATCH','DELETE','OPTIONS'):
  status,_=get('/',method,b'x' if method in ('POST','PUT','PATCH') else None)
  assert status==405,method

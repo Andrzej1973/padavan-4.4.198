@@ -216,7 +216,7 @@ function renderGenericPage(route) {
   title.textContent = page.title;
   const demo = document.createElement("span");
   demo.className = "demo-chip";
-  demo.textContent = dashboardData?.demo ? "DEMO" : "LIVE";
+  demo.textContent = route === "iot" ? "У розробці" : (dashboardData?.demo ? "DEMO" : "LIVE");
   heading.append(title, demo);
   const description = document.createElement("p");
   description.className = "page-description";
@@ -240,6 +240,11 @@ function renderGenericPage(route) {
     log.className = "demo-log";
     log.textContent = page.log.join("\n");
     panel.append(log);
+  }
+
+  if (route === "iot") {
+    mount.append(panel);
+    return true;
   }
 
   const footer = document.createElement("div");
