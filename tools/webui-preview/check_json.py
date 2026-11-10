@@ -24,7 +24,7 @@ with tempfile.TemporaryDirectory(prefix='wr-modern-json-semantics-') as scratch:
     assert config['schemaVersion']==1 and config['source']=='stored-nvram'
     assert config['runtimeVerified'] is False and config['shared']=='0'
     assert set(config['bands'])=={'24','5'}
-    public={'ssid','auth_mode','wep_x','wpa_mode','crypto','radio_x','closed','channel','HT_BW'}
+    public={'ssid','auth_mode','wep_x','wpa_mode','crypto','radio_x','closed','channel','HT_BW','gmode','HT_EXTCHA'}
     for band in config['bands'].values():
         assert set(band)==public
         assert all(isinstance(value,str) for value in band.values())
@@ -37,4 +37,11 @@ with tempfile.TemporaryDirectory(prefix='wr-modern-json-semantics-') as scratch:
     empty=json.loads(subprocess.check_output([binary,'0','']))
     assert empty['wifiConfiguration']['bands']['24']['ssid']==''
     assert empty['wifi'][0]['ssid']=='N/A'  # Overview retains explicit unknown label.
+    for fixture in ('password-intent','password-request','radio24-validate'):
+        password_binary=str(Path(scratch)/fixture)
+        subprocess.run(['gcc','-std=c99','-Wall','-Wextra','-Werror',
+                        '-fsanitize=address,undefined','-fno-pie','-no-pie',
+                        '-I'+str(HERE.parent/'shared-wifi'),'-I'+str(HERE),
+                        str(HERE/('check-'+fixture+'.c')),'-o',password_binary],check=True)
+        subprocess.run([password_binary],check=True)
 print('PASS actual C JSON handler: normal/error/zero/inconsistent RAM; WAN address is not reachability; ASan/UBSan; scratch removed')

@@ -36,6 +36,8 @@ static const char *nvram_safe_get(const char *name)
 	if (!strcmp(name, "rt_radio_x") || !strcmp(name, "wl_radio_x")) return "1";
 	if (!strcmp(name, "rt_closed") || !strcmp(name, "wl_closed")) return "0";
 	if (!strcmp(name, "rt_HT_BW") || !strcmp(name, "wl_HT_BW")) return "1";
+	if (!strcmp(name, "rt_gmode") || !strcmp(name, "wl_gmode")) return "2";
+	if (!strcmp(name, "rt_HT_EXTCHA") || !strcmp(name, "wl_HT_EXTCHA")) return "1";
 	fprintf(stderr, "Unexpected NVRAM read: %s\n", name);
 	exit(2);
 }

@@ -158,3 +158,18 @@ passwords, validates the client schema and never substitutes demo settings on
 read failure. Stored state is distinct from live radio status. Save/apply and
 explicit keep/change PSK remain unfinished; these cards are not full form
 acceptance. Target/image evidence for this slice must follow its own SHA.
+
+## Isolated Modern CGI target candidate
+
+The optional lane prepares `ci_compile_http_candidate.py` after the production
+firmware build. It copies HTTP sources without objects into an isolated sibling
+package and uses the firmware root Makefile's normal toolchain environment to
+compile/link the complete candidate. It never invokes romfs/install. Reports
+record repository revision, candidate/header hashes, ELF identity and dependencies,
+plus before/after production source/image hashes. Temporary source/build copies
+are removed; only candidate diagnostics/binary are uploaded to GitHub.
+
+This new CI integration is pending its first execution. Host checks alone do
+not establish target success. Credential preflight/persistence remains isolated;
+radio policy, full form and HTTP response acceptance are unfinished. Production
+Apply remains disabled. No extra page design is started before its ready image.

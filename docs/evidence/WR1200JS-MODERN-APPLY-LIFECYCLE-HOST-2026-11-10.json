@@ -1,0 +1,30 @@
+{
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "command": "python3 tools/webui-preview/check_password_candidate.py <pinned-source-archive>",
+  "actual_functions": [
+    "generated preflight/callbacks",
+    "validate_asp_apply",
+    "nvram_commit_safe",
+    "asus_nvram_commit",
+    "ej_notify_services"
+  ],
+  "scenarios": 8,
+  "checks": [
+    "independent/shared keep/change",
+    "guest/radio/file and encoded-input filtering",
+    "replay writes unchanged",
+    "automatic commit once",
+    "manual mode skips automatic flash commit",
+    "selected/all shared Wi-Fi notifications once",
+    "flags cleared after callbacks"
+  ],
+  "substitutes": [
+    "representative service tables",
+    "in-memory NVRAM",
+    "flash and RC counters",
+    "SSID encoder stub; delegation only"
+  ],
+  "scope": "Host ASan/UBSan execution of extracted actual functions; no entire HTTP server, actual flash/RC/radio, target or device proof",
+  "scratch_removed": true,
+  "runtime_verified": false
+}

@@ -20,7 +20,7 @@ const WifiDemo = (() => {
     if (parts[1] === 'split' && ['24','5'].includes(parts[2])) return {view:'band', band:parts[2], section:Object.hasOwn(sections, parts[3]) ? parts[3] : 'general'};
     return {view:['common','split','iot'].includes(parts[1]) ? parts[1] : 'common'};
   }
-  const publicFields=['ssid','auth_mode','wep_x','wpa_mode','crypto','radio_x','closed','channel','HT_BW'];
+  const publicFields=['ssid','auth_mode','wep_x','wpa_mode','crypto','radio_x','closed','channel','HT_BW','gmode','HT_EXTCHA'];
   function publicConfiguration(data) {
     const config=data?.wifiConfiguration;
     if(config?.schemaVersion!==1 || config.source!=='stored-nvram' || config.runtimeVerified!==false) return null;
@@ -121,6 +121,59 @@ if (typeof document !== 'undefined') (async () => {
       dialog.append(cancel,ok); document.body.append(dialog); dialog.showModal(); cancel.focus();
     });
   }
+  function render24General(panel) {
+    const bands=element('nav',undefined,'wifi-tabs'); bands.setAttribute('aria-label','Діапазон Wi-Fi');
+    bands.append(nav('2,4 ГГц','wifi/split/24/general',true),nav('5 ГГц','wifi/split/5/general',false)); panel.append(bands);
+    const tabs=element('nav',undefined,'wifi-tabs wifi-section-tabs'); tabs.setAttribute('aria-label','Налаштування 2,4 ГГц');
+    for(const [id,title] of Object.entries(WifiDemo.sections)) tabs.append(nav(title,'wifi/split/24/'+id,id==='general'));
+    panel.append(tabs);
+    const v=configuration?.bands['24'];
+    const card=(title)=>{ const section=element('section',undefined,'wifi-general-card'); section.append(element('h2',title)); panel.append(section); return section; };
+    const read=(section,label,value,kind='text')=>{
+      const row=element('label',undefined,'wifi-field'); row.append(element('span',label));
+      if(kind==='checkbox' && value!=='0' && value!=='1') {
+        row.append(element('span','Невідомо')); section.append(row); return;
+      }
+      const input=element('input'); input.type=kind; input.disabled=true;
+      if(kind==='checkbox') {input.checked=value==='1'; input.setAttribute('role','switch');}
+      else input.value=value || 'Не задано';
+      row.append(input); section.append(row);
+    };
+    const heading=card('Основна мережа 2,4 ГГц');
+    heading.append(element('p','Показані збережені налаштування. Фактичний стан мережі перевіряється окремо.','wifi-note'));
+    if(!v) {
+      heading.append(element('p','Не вдалося прочитати конфігурацію. Оновіть сторінку або перейдіть до Classic.','wifi-load-error'));
+    } else {
+      read(heading,'Увімкнути радіомодуль 2,4 ГГц',v.radio_x,'checkbox');
+      const identity=card('Назва мережі');
+      if(configuration.shared==='1') {
+        const note=element('div',undefined,'wifi-shared-lock');
+        note.append(element('span','Назва та захист спільні для 2,4 і 5 ГГц'),nav('Редагувати у Спільних','wifi/common',false)); identity.append(note);
+      }
+      read(identity,'Назва мережі (SSID)',v.ssid);
+      identity.append(element('p',new TextEncoder().encode(v.ssid).length+' / 32 байти UTF-8','wifi-byte-count'));
+      read(identity,'Приховати SSID',v.closed,'checkbox');
+      const radio=card('Радіопараметри');
+      read(radio,'Режим мережі',{'2':'b/g/n','1':'b/g','5':'g/n','3':'Лише n','4':'Лише g','0':'Лише b'}[v.gmode] || 'Невідомий збережений режим');
+      const usesHT=['2','3','5'].includes(v.gmode);
+      if(usesHT) read(radio,'Ширина каналу',{'0':'20 МГц','1':'20/40 МГц'}[v.HT_BW] || 'Невідомо');
+      read(radio,'Канал',v.channel==='0'?'Автоматично':v.channel);
+      if(usesHT && v.HT_BW==='1') read(radio,'Додатковий канал',{'0':'Нижче','1':'Вище'}[v.HT_EXTCHA] || 'Невідомо');
+      const security=card('Захист основної мережі');
+      if(v.auth_mode==='open' && v.wep_x==='0') security.append(element('p','Мережа без пароля: дані не захищені шифруванням Wi-Fi.','wifi-open-warning'));
+      else if(v.auth_mode==='psk' && v.wep_x==='0') {
+        read(security,'Метод захисту','WPA Personal');
+        read(security,'Версія WPA',{'0':'WPA / WPA2','1':'WPA','2':'WPA2'}[v.wpa_mode] || 'Невідомо');
+        read(security,'Шифрування',{'aes':'AES','tkip':'TKIP','tkip+aes':'TKIP + AES'}[v.crypto] || 'Інше збережене шифрування');
+        security.append(element('p','Пароль не завантажується. Збереження або зміна пароля в Modern ще розробляється.','wifi-note'));
+      } else security.append(element('p','Збережено інший режим захисту. Його не буде автоматично змінено; налаштування доступні у Classic.','wifi-note'));
+    }
+    const advanced=card('Професійні налаштування');
+    advanced.append(element('p','Розклад, потужність, пороги сигналу та додаткові параметри доступні у вкладці Професійні.','wifi-note'),nav('Професійні','wifi/split/24/advanced',false));
+    const footer=element('div',undefined,'wifi-classic-actions');
+    footer.append(element('span','Збереження в Modern ще розробляється','wifi-pending-label'));
+    const classic=element('a','Перейти до Classic','wifi-tab'); classic.href='/Advanced_Wireless2g_Content.asp'; footer.append(classic); panel.append(footer);
+  }
   function render() {
     const current = WifiDemo.route(location.hash);
     if (current.view === 'external') return;
@@ -149,6 +202,9 @@ if (typeof document !== 'undefined') (async () => {
         element('p','Тут буде окрема мережа IoT лише для 2,4 ГГц. Налаштування SSID, захисту, підмережі, DHCP/DNS та ізоляції з’являться після готовності керування.','wifi-note'),
         element('p','Увімкнення та зміна налаштувань IoT наразі недоступні.','wifi-note'));
       return;
+    }
+    if (!schema.demo && current.view==='band' && current.band==='24' && current.section==='general') {
+      render24General(panel); return;
     }
     if (!schema.demo) {
       panel.append(element('p','Збережені основні параметри доступні нижче. Зміна налаштувань Wi-Fi поки виконується у Classic.','wifi-note'));

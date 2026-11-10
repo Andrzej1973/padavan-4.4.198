@@ -1194,6 +1194,19 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
+      - name: Compile isolated Modern credential HTTP candidate
+        if: inputs.run_candidate_checks
+        run: python3 tools/webui-preview/ci_compile_http_candidate.py padavan-4.4 --output modern-http-candidate
+
+      - name: Preserve isolated Modern HTTP candidate diagnostics
+        if: always() && inputs.run_candidate_checks
+        uses: actions/upload-artifact@v7
+        with:
+          name: modern-http-candidate${{ inputs.artifact_suffix }}
+          path: modern-http-candidate/
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Verify WR1200JS image upload structure
         run: |
           images=(padavan-4.4/trunk/images/WR1200JS_*.trx)
