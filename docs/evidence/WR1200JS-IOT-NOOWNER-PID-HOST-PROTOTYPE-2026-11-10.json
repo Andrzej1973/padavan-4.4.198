@@ -1,0 +1,32 @@
+{
+  "wire_pid": 255,
+  "usable_software_slots": 255,
+  "source_sha256": {
+    "tx_rx/txs.c": "43cf2b911344fd8b3f39f9fbfcb5c85eb4f0c5cb23eee3a6502c446b9482239f",
+    "include/mac/mac_mt/mt_mac.h": "bbae34d8dc4928e30a05687342308ce5dfd8e6f5e869d84ad0b5c4bf7dc982ec"
+  },
+  "output_sha256": {
+    "tx_rx/txs.c": "4a6d13af7543696fb4c26f5aa90e3070e9651d6160f6e41733cc0678f8587c64",
+    "include/mac/mac_mt/mt_mac.h": "077d1c4158dde1e63b70e0de6b1897ba8b580495efafe49d32d3897104e0b0ed"
+  },
+  "cold_start_only": true,
+  "txd_routing_implemented": false,
+  "dma_pacing_implemented": false,
+  "rf_retirement_proven": false,
+  "production_installed": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "host_checks": [
+    "all256 allocator cursors",
+    "255 unique owned slots/exhaustion",
+    "duplicate P leaves whole control state unchanged",
+    "invalid511 not truncated to P",
+    "generation-safe cancellation",
+    "ordinary tracked callback/claimed completion preserved",
+    "invalid legacy P metadata not consumed by reports",
+    "generation overflow fails closed",
+    "predecessor negative witness fails as expected"
+  ],
+  "asan_ubsan_passed": true,
+  "scratch_removed_bytes": 723730
+}
