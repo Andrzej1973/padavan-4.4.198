@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Execute actual generated credential/shared preflight prefix, not HTTP persistence."""
 import argparse
+import re
+import json
 import subprocess
 import tarfile
 import tempfile
@@ -132,5 +134,38 @@ int main(void) {
     subprocess.run(['gcc','-std=c99','-Wall','-Wextra','-Werror','-fsanitize=address,undefined',
                     '-fno-pie','-no-pie','-I'+str(root/'trunk/user/httpd'),str(cfile),'-o',str(binary)],check=True)
     subprocess.run([str(binary)],check=True)
+    # Repeat with every name/type from the generated WLAN tables. Conditional
+    # branches are unioned deliberately; event flags remain fixture constants.
+    variables=(root/'trunk/user/httpd/variables.c').read_text()
+    full=persistence
+    counts=[]
+    for sid,service in enumerate(('11b','11a')):
+        tail=variables[variables.index('struct variable variables_WLANConfig'+service+'[] = {'):]
+        body=tail[:re.search(r'^\s*};',tail,re.M).start()]
+        rows=re.findall(r'\{\s*"([^"\n]+)"\s*,\s*"([^"\n]*)"\s*,',body)
+        assert len(rows)>=80
+        counts.append(len(rows))
+        table='static struct variable table'+str(sid==1 and 5 or 2)+'[]={'
+        begin=full.index(table);end=full.index('};',begin)+2
+        entries=[f' {{{json.dumps(name)},{json.dumps(kind)},NULL,{3 if name=="wr_wifi_shared" else sid+1}}}' for name,kind in rows]
+        replacement=table+'\n'+',\n'.join(entries)+',\n {NULL,NULL,NULL,0}};'
+        full=full[:begin]+replacement+full[end:]
+    boundary=' return fallback;}'
+    assert full.count(boundary)==1
+    injection=r"""
+ {int t;struct variable *entry;
+  for(t=0;t<2;t++)for(entry=GetVariables(t);entry->name;entry++)if(!strcmp(entry->name,name)) {
+   const char *suffix=(!strncmp(name,"rt_",3)||!strncmp(name,"wl_",3))?name+3:name;
+   if(!strcmp(suffix,"ssid")||!strcmp(suffix,"auth_mode")||!strcmp(suffix,"wep_x")||!strcmp(suffix,"wpa_mode")||!strcmp(suffix,"crypto")||!strcmp(suffix,"wpa_psk")||!strcmp(name,"wr_wifi_shared"))return fallback;
+   return "injected";
+  }
+ }
+"""
+    full=full.replace(boundary,injection+boundary)
+    cfile.write_text(full)
+    subprocess.run(['gcc','-std=c99','-Wall','-Wextra','-Werror','-fsanitize=address,undefined',
+                    '-fno-pie','-no-pie','-I'+str(root/'trunk/user/httpd'),str(cfile),'-o',str(binary)],check=True)
+    subprocess.run([str(binary)],check=True)
+    print('PASS all generated WLAN field names/types:',counts,'conditional union; fixture event constants, not target-config proof')
 
 print('Candidate source/compiler scratch removed')

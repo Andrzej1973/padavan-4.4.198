@@ -30,6 +30,7 @@ try:
         copied=prepared/'trunk/user/httpd'
         shutil.copytree(httpd,copied,ignore=shutil.ignore_patterns('*.o','*.d','httpd','*~'))
         subprocess.run(['python3',str(Path(__file__).parent/'prepare-password-candidate.py'),str(prepared)],check=True)
+        subprocess.run(['python3',str(Path(__file__).parent/'prepare-guest-candidate.py'),str(prepared)],check=True)
         report['candidate_web_ex_sha256']=digest(copied/'web_ex.c')
         # A sibling package preserves ../../ROOTDIR and existing shared libraries.
         with tempfile.TemporaryDirectory(prefix='wr-modern-http-build-',dir=root/'trunk/user') as target:
@@ -54,7 +55,7 @@ try:
             dynamic=subprocess.check_output(['readelf','-d',str(binary)],text=True)
             (output/'readelf-dynamic.txt').write_text(dynamic)
             report.update(target_compiled=True,binary_bytes=len(data),binary_sha256=digest(binary),elf='ELF32 little-endian MIPS',
-                          candidate_headers_sha256={name:digest(copied/'wr-shared-wifi'/name) for name in ('password-intent.h','password-request.h')})
+                          candidate_headers_sha256={name:digest(copied/'wr-shared-wifi'/name) for name in ('password-intent.h','password-request.h','guest-schedule.h','guest-request.h','guest-adapter.h')})
             shutil.copyfile(binary,output/'httpd-candidate')
 finally:
     report['production_after']={'source':digest(httpd/'web_ex.c'),'image_binary':digest(production)}

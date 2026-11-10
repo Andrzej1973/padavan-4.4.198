@@ -43,25 +43,25 @@ static struct variable *GetVariables(int sid){return sid?table5:table2;}
 struct pair {char name[40],value[160];};
 static struct pair store[64];static int used,writes,nvram_modified,auth_nvram_changed,rt_modified,wl_modified;
 static u64 restart_needed_bits;
-static int shared_mode;static const char *posted_key;
+static int shared_mode,source_band;static const char *posted_key;
 static char *nvram_safe_get(const char *name){int i;for(i=0;i<used;i++)if(!strcmp(store[i].name,name))return store[i].value;return "";}
 static int nvram_set(const char *name,const char *value){int i;for(i=0;i<used;i++)if(!strcmp(store[i].name,name))break;assert(i<64);if(i==used)used++;assert(strlen(name)<40&&strlen(value)<160);strcpy(store[i].name,name);strcpy(store[i].value,value);writes++;return 0;}
 static int nvram_get_int(const char *name){return atoi(nvram_safe_get(name));}
 static int nvram_set_int(const char *name,int value){char text[32];snprintf(text,sizeof(text),"%d",value);return nvram_set(name,text);}
 static char *websGetVar(webs_t wp,char *name,char *fallback){(void)wp;
  if(!strcmp(name,"wr_modern_wifi_version"))return "1";
- if(!strcmp(name,"wr_modern_wifi_band"))return "rt";
+ if(!strcmp(name,"wr_modern_wifi_band"))return source_band?"wl":"rt";
  if(!strcmp(name,"wr_modern_expected_shared"))return shared_mode?"1":"0";
  if(!strcmp(name,"wr_modern_password_intent"))return posted_key?"change":"keep";
  if(!strcmp(name,"action_mode"))return " Apply ";
  if(!strcmp(name,"action_script"))return "";
- if(!strcmp(name,"sid_list"))return shared_mode?"WLANConfig11b;WLANConfig11a;":"WLANConfig11b;";
- if(!strcmp(name,"rt_ssid"))return "Stored";
- if(!strcmp(name,"rt_auth_mode"))return "psk";
- if(!strcmp(name,"rt_wep_x"))return "0";
- if(!strcmp(name,"rt_wpa_mode"))return "2";
- if(!strcmp(name,"rt_crypto"))return "aes";
- if(!strcmp(name,"rt_wpa_psk"))return (char *)posted_key;
+ if(!strcmp(name,"sid_list"))return shared_mode?"WLANConfig11b;WLANConfig11a;":source_band?"WLANConfig11a;":"WLANConfig11b;";
+ if(!strcmp(name,source_band?"wl_ssid":"rt_ssid"))return "Stored";
+ if(!strcmp(name,source_band?"wl_auth_mode":"rt_auth_mode"))return "psk";
+ if(!strcmp(name,source_band?"wl_wep_x":"rt_wep_x"))return "0";
+ if(!strcmp(name,source_band?"wl_wpa_mode":"rt_wpa_mode"))return "2";
+ if(!strcmp(name,source_band?"wl_crypto":"rt_crypto"))return "aes";
+ if(!strcmp(name,source_band?"wl_wpa_psk":"rt_wpa_psk"))return (char *)posted_key;
  if(!strcmp(name,"rt_ssid2")||!strcmp(name,"rt_channel")||!strcmp(name,"wl_channel")||!strcmp(name,"rt_guest_ssid")||!strcmp(name,"wl_guest_ssid")||!strcmp(name,"scripts.test"))return "injected";
  return fallback;}
 static int get_login_safe(void){return 1;}
@@ -89,21 +89,24 @@ static void reset(int shared){used=writes=nvram_modified=auth_nvram_changed=rt_m
  nvram_set("wr_wifi_shared",shared?"1":"0");nvram_set("rt_ssid","Before-2g");nvram_set("wl_ssid","Before-5g");
  nvram_set("rt_wpa_psk","stored-passphrase");nvram_set("wl_wpa_psk","other-passphrase");
  nvram_set("rt_channel","6");nvram_set("wl_channel","44");nvram_set("rt_guest_ssid","Guest2");nvram_set("wl_guest_ssid","Guest5");writes=0;}
-static void exercise(int shared,int change,int manual){struct wr_modern_password_context modern={0};struct wr_shared_wifi_adapter plan;int count;
- reset(shared);commits=notify2=notify5=0;nvram_set("nvram_manual",manual?"1":"0");writes=0;if(change)posted_key="new-passphrase";modern.wp=NULL;modern.band="rt";
+static void exercise(int shared,int change,int manual,int band){struct wr_modern_password_context modern={0};struct wr_shared_wifi_adapter plan;int count,b;
+ const char *secret=change?"new-passphrase":band?"other-passphrase":"stored-passphrase";
+ source_band=band;reset(shared);commits=notify2=notify5=0;nvram_set("nvram_manual",manual?"1":"0");writes=0;if(change)posted_key="new-passphrase";modern.wp=NULL;modern.band=band?"wl":"rt";
  assert(wr_modern_password_request(&modern.password,wr_shared_cgi_read,wr_shared_nv_read,NULL)==WR_SHARED_WIFI_OK);modern.active=1;
  assert(wr_shared_wifi_prepare(&plan,&modern,wr_modern_cgi_read,wr_modern_nv_read)==WR_SHARED_WIFI_OK);
- assert(validate_asp_apply(NULL,0,&plan,&modern)==1);if(shared)assert(validate_asp_apply(NULL,1,&plan,&modern)==1);
- assert(!strcmp(nvram_safe_get("rt_ssid"),"Stored"));assert(!strcmp(nvram_safe_get("rt_ssid2"),"encoded:Stored"));
- assert(!strcmp(nvram_safe_get("rt_wpa_psk"),change?"new-passphrase":"stored-passphrase"));
- assert(!strcmp(nvram_safe_get("wl_ssid"),shared?"Stored":"Before-5g"));
- assert(!strcmp(nvram_safe_get("wl_wpa_psk"),shared?(change?"new-passphrase":"stored-passphrase"):"other-passphrase"));
+ for(b=0;b<2;b++)if(shared||b==band)assert(validate_asp_apply(NULL,b,&plan,&modern)==1);
+ assert(!strcmp(nvram_safe_get("rt_ssid"),shared||band==0?"Stored":"Before-2g"));
+ assert(!strcmp(nvram_safe_get("wl_ssid"),shared||band==1?"Stored":"Before-5g"));
+ assert(!strcmp(nvram_safe_get("rt_wpa_psk"),shared||band==0?secret:"stored-passphrase"));
+ assert(!strcmp(nvram_safe_get("wl_wpa_psk"),shared||band==1?secret:"other-passphrase"));
+ if(shared||band==0)assert(!strcmp(nvram_safe_get("rt_ssid2"),"encoded:Stored"));
+ if(shared||band==1)assert(!strcmp(nvram_safe_get("wl_ssid2"),"encoded:Stored"));
  assert(!strcmp(nvram_safe_get("rt_channel"),"6")&&!strcmp(nvram_safe_get("wl_channel"),"44"));
  assert(!strcmp(nvram_safe_get("rt_guest_ssid"),"Guest2")&&!strcmp(nvram_safe_get("wl_guest_ssid"),"Guest5"));
- assert(!*nvram_safe_get("scripts.test"));assert(!auth_nvram_changed);assert(restart_needed_bits==(shared?3U:1U));
- count=writes;assert(validate_asp_apply(NULL,0,&plan,&modern)==1);if(shared)assert(validate_asp_apply(NULL,1,&plan,&modern)==1);assert(writes==count);
+ assert(!*nvram_safe_get("scripts.test"));assert(!auth_nvram_changed);assert(restart_needed_bits==(shared?3U:band?2U:1U));
+ count=writes;for(b=0;b<2;b++)if(shared||b==band)assert(validate_asp_apply(NULL,b,&plan,&modern)==1);assert(writes==count);
  asus_nvram_commit(0,NULL,0,NULL);assert(commits==(manual?0:1));assert(nvram_modified==0);
- ej_notify_services(0,NULL,0,NULL);assert(notify2==1 && notify5==shared);assert(!restart_needed_bits && !rt_modified && !wl_modified);
- asus_nvram_commit(0,NULL,0,NULL);ej_notify_services(0,NULL,0,NULL);assert(commits==(manual?0:1) && notify2==1 && notify5==shared);
+ ej_notify_services(0,NULL,0,NULL);assert(notify2==(shared||band==0) && notify5==(shared||band==1));assert(!restart_needed_bits && !rt_modified && !wl_modified);
+ asus_nvram_commit(0,NULL,0,NULL);ej_notify_services(0,NULL,0,NULL);assert(commits==(manual?0:1) && notify2==(shared||band==0) && notify5==(shared||band==1));
  wr_modern_password_clear(&modern.password);}
-int main(void){int manual;for(manual=0;manual<2;manual++){exercise(0,0,manual);exercise(0,1,manual);exercise(1,0,manual);exercise(1,1,manual);}puts("PASS complete actual apply validator with fixture tables/NVRAM: keep/change, independent/shared writes, guest/radio/file filtering, encoder delegation, event bits, auto/manual commit and notification deduplication; no HTTP/device proof");return 0;}
+int main(void){int manual,band;for(band=0;band<2;band++)for(manual=0;manual<2;manual++){exercise(0,0,manual,band);exercise(0,1,manual,band);exercise(1,0,manual,band);exercise(1,1,manual,band);}puts("PASS complete actual apply/commit/notify: 16 both-source-band keep/change/shared/manual scenarios; other band/guest/radio preserved; host substitutes only");return 0;}

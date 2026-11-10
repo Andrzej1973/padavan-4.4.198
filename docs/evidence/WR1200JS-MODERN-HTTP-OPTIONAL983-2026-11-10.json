@@ -1,0 +1,30 @@
+{
+  "run_id": 42887816838,
+  "number": 983,
+  "conclusion": "success",
+  "dispatch_revision": "d9fc0549c3ca88a9d6e62bb748c2fb1188ca1bed",
+  "requested_revision": "fb20d3bf111d1bc5d8963e563407459999728f27",
+  "verified_revision": "fb20d3bf111d1bc5d8963e563407459999728f27",
+  "artifacts": {
+    "verification_source": 13795989199,
+    "modern_http_candidate": 13796169677
+  },
+  "independent_binary_check": {
+    "name": "httpd-candidate",
+    "bytes": 347156,
+    "sha256": "3a74d9f0e9c73d557f8ecfb9273136702acd75e4a92ac142b716ab5b296499ee",
+    "class": "ELF32",
+    "endianness": "little",
+    "machine": 8,
+    "matches_ci_report": true
+  },
+  "ci_report": {
+    "target_compiled": true,
+    "production_installed": false,
+    "runtime_verified": false,
+    "production_unchanged": true,
+    "scratch_removed": true
+  },
+  "scope": "Complete isolated credential HTTP candidate compile/link; not Guest adapter (local later work), not image install or runtime",
+  "local_artifacts_retained": false
+}
