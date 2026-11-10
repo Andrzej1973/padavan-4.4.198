@@ -54,8 +54,9 @@ starting `server.py`. The test binds only to loopback.
 Run `verify-production-shell.py` in that mode to check all rewritten assets,
 live JSON shape and mutating-method rejection.
 
-This installer is **not yet called by the firmware build workflow**, and no
-target compilation, ROMFS insertion or router runtime is proven.
+The WR1200JS workflow now calls this installer and checks exact Modern assets
+and compiled route literals in ROMFS, saving `modern-image-check.json`.
+This integration awaits its first target CI result; router runtime is unproven.
 
 ## Full reference-structure preview — 2026-10-31
 

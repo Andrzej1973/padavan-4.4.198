@@ -46,6 +46,7 @@ on:
       - 'tools/tmp-upload/**'
       - 'tools/generate-router-guide.py'
       - 'tools/prepare-build-identity.py'
+      - 'tools/webui-preview/**'
       - 'tools/check-router-guide.py'
       - 'docs/setup/**'
       - 'tools/connected-devices/check-built-radio-capacity.py'

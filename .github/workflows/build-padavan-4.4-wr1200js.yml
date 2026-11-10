@@ -606,6 +606,14 @@ jobs:
             python3 tools/prepare-wifi-qr-ui.py padavan-4.4
           fi
 
+      - name: Prepare read-only Modern WebUI with reserved IoT section
+        run: |
+          node tools/webui-preview/check_wifi.js
+          node tools/webui-preview/check_wifi_production.js
+          python3 tools/webui-preview/check_installer.py
+          python3 tools/webui-preview/prepare-production.py padavan-4.4
+          python3 tools/webui-preview/check-production.py padavan-4.4
+
       - name: Prepare guarded firmware upload tmpfs action
         run: |
           python3 tools/tmp-upload/check-tmp-upload-preparation.py padavan-4.4
@@ -868,6 +876,7 @@ jobs:
             grep -aq 'wr_vpn_profile_observation' trunk/romfs/usr/sbin/httpd
             python3 ../tools/vpn-profiles/prepare-storage-permissions.py . --verify-image
             python3 ../tools/prepare-service-toggle-colors.py . --verify-image
+            python3 ../tools/webui-preview/check_image.py . --report ../modern-image-check.json
             grep -q '/wifi-qrcode-renderer.js' trunk/romfs/www/vpnsrv.asp
             ! grep -q '/qrcode.min.js' trunk/romfs/www/vpnsrv.asp
             grep -q 'wrVPNQrPayload' trunk/romfs/www/vpnsrv.asp
@@ -1578,6 +1587,7 @@ jobs:
             unsupported-firmware-options.txt
             firmware-requested.config
             firmware-image-checks.json
+            modern-image-check.json
             firmware-config-checks.json
             SETUP_WR1200JS.md
             SETUP_WR1200JS.txt
