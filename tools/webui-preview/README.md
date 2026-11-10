@@ -126,3 +126,13 @@ Alternatively, run `py -3 server.py` from this folder and press `Ctrl+C` to stop
 ## Checks
 
 With the server running, run `py -3 verify_preview.py`. This checks local HTTP resources, demo-only data, absent forms, the single approved GitHub Releases link, the intentionally deferred IoT section, unknown-page handling, and server-side rejection of mutating methods. See `VERIFICATION.md` for the prior implementation results and checks that remain unavailable.
+
+## Final TRX content gate
+
+`check_trx_contents.py IMAGE ROMFS --report REPORT` verifies that selected files
+inside the final embedded SquashFS match the already verified ROMFS in bytes
+and modes: Modern assets, httpd, RC, Band Steering/Classic service pages and
+dictionaries, plus enabled Zapret2 binary, wrapper, Lua and license files.
+It complements uImage CRC/size/DTB checks; it does not prove device behavior.
+Run `python3 check_trx_gate.py` for real SquashFS positive/corruption/missing-file
+fixtures. The workflow stores `final-content-check.json` with the exact TRX hash.

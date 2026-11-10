@@ -100,7 +100,7 @@ jobs:
             kmod cpio texinfo help2man libncurses5-dev zlib1g-dev \
             libsqlite3-dev gcc-multilib curl dos2unix unzip wget xxd \
             libltdl-dev libgmp-dev libmpfr-dev libarchive-tools libblkid-dev \
-            python3-docutils ccache
+            python3-docutils ccache squashfs-tools
 
       - name: Check discovery status generator before firmware compilation
         run: python3 tools/check-discovery-status.py --output "$RUNNER_TEMP/wr1200js-discovery-fixture"
@@ -612,6 +612,7 @@ jobs:
           node tools/webui-preview/check_wifi_production.js
           python3 tools/webui-preview/check_installer.py
           python3 tools/webui-preview/check_json.py
+          python3 tools/webui-preview/check_trx_gate.py
           python3 tools/webui-preview/prepare-production.py padavan-4.4
           python3 tools/webui-preview/check-production.py padavan-4.4
 
@@ -1205,6 +1206,12 @@ jobs:
           python3 overlay/padavan-4.4/scripts/verify-wr1200js-image.py \
             "$image" \
             --report firmware-image-checks.json
+          content_options=()
+          if ! grep -qx 'CONFIG_FIRMWARE_INCLUDE_ZAPRET2=y' padavan-4.4/trunk/.config; then
+            content_options+=(--without-zapret2)
+          fi
+          python3 tools/webui-preview/check_trx_contents.py "$image" padavan-4.4/trunk/romfs \
+            "${content_options[@]}" --report final-content-check.json
           python3 tools/bind-router-guide-image.py "$image" SETUP_WR1200JS.md SETUP_WR1200JS.txt
           python3 tools/bind-router-guide-image.py "$image" SETUP_WR1200JS.md SETUP_WR1200JS.txt --check
 
@@ -1589,6 +1596,7 @@ jobs:
             firmware-requested.config
             firmware-image-checks.json
             modern-image-check.json
+            final-content-check.json
             firmware-config-checks.json
             SETUP_WR1200JS.md
             SETUP_WR1200JS.txt
