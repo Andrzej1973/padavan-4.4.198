@@ -142,3 +142,19 @@ and DNS destinations. DEMO keeps explanation dialogs and IoT exposes no control
 link. `node check_classic_navigation.js` checks renderer behavior; the image gate
 also requires Wi-Fi schema destinations to exist in ROMFS. Browser evidence:
 `../../docs/evidence/WR1200JS-MODERN-CLASSIC-BROWSER-2026-11-10.json`.
+
+## Full-page scope and owner Wi-Fi reference
+
+The full coverage ledger is `../../docs/WR1200JS-MODERN-PAGE-COVERAGE.md`;
+all supported pages, subpages and dialogs remain required. Generic Classic
+links do not satisfy functional Modern acceptance. Owner design briefs live in
+`../../docs/modern-design/`; reference images remain in the owner's Downloads
+folder `роутер фото сторінок` and are not deleted or treated as generated scratch.
+
+The next source slice adds a versioned public stored-Wi-Fi projection to the
+existing authenticated JSON handler and displays per-band cards based on the
+owner's Wi-Fi reference. It reads an explicit list of public keys, excludes
+passwords, validates the client schema and never substitutes demo settings on
+read failure. Stored state is distinct from live radio status. Save/apply and
+explicit keep/change PSK remain unfinished; these cards are not full form
+acceptance. Target/image evidence for this slice must follow its own SHA.

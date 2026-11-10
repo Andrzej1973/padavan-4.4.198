@@ -28,6 +28,14 @@ static const char *nvram_safe_get(const char *name)
 	if (!strcmp(name, "rt_channel")) return "6";
 	if (!strcmp(name, "wl_ssid")) return "Home-5G";
 	if (!strcmp(name, "wl_channel")) return "44";
+	if (!strcmp(name, "wr_wifi_shared")) return "0";
+	if (!strcmp(name, "rt_auth_mode") || !strcmp(name, "wl_auth_mode")) return "psk";
+	if (!strcmp(name, "rt_wep_x") || !strcmp(name, "wl_wep_x")) return "0";
+	if (!strcmp(name, "rt_wpa_mode") || !strcmp(name, "wl_wpa_mode")) return "2";
+	if (!strcmp(name, "rt_crypto") || !strcmp(name, "wl_crypto")) return "aes";
+	if (!strcmp(name, "rt_radio_x") || !strcmp(name, "wl_radio_x")) return "1";
+	if (!strcmp(name, "rt_closed") || !strcmp(name, "wl_closed")) return "0";
+	if (!strcmp(name, "rt_HT_BW") || !strcmp(name, "wl_HT_BW")) return "1";
 	fprintf(stderr, "Unexpected NVRAM read: %s\n", name);
 	exit(2);
 }

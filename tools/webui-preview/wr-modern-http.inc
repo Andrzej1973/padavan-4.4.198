@@ -1,7 +1,7 @@
 #if defined(BOARD_WR1200JS)
 static void wr_modern_json_string(FILE *stream, const char *value)
 {
-	const unsigned char *cursor = (const unsigned char *)(value && *value ? value : "N/A");
+	const unsigned char *cursor = (const unsigned char *)(value ? value : "");
 
 	fputc('"', stream);
 	while (*cursor) {
@@ -38,6 +38,24 @@ static void wr_modern_json_field(FILE *stream, const char *name,
 	wr_modern_json_string(stream, value);
 	if (comma)
 		fputc(',', stream);
+}
+
+/* Public stored configuration only. Never enumerate NVRAM or read secret keys. */
+static void wr_modern_wifi_band(FILE *stream, const char *prefix)
+{
+	static const char *const fields[] = {
+		"ssid", "auth_mode", "wep_x", "wpa_mode", "crypto",
+		"radio_x", "closed", "channel", "HT_BW"
+	};
+	char key[32];
+	unsigned int i;
+	fputc('{', stream);
+	for (i = 0; i < sizeof(fields) / sizeof(fields[0]); i++) {
+		snprintf(key, sizeof(key), "%s_%s", prefix, fields[i]);
+		wr_modern_json_field(stream, fields[i], nvram_safe_get(key),
+			i + 1 < sizeof(fields) / sizeof(fields[0]));
+	}
+	fputc('}', stream);
 }
 
 static void do_wr_modern_json(const char *url, FILE *stream)
@@ -92,6 +110,13 @@ static void do_wr_modern_json(const char *url, FILE *stream)
 	wr_modern_json_field(stream, "ssid", wr_modern_nvram("wl_ssid"), 1);
 	wr_modern_json_field(stream, "channel", wr_modern_nvram("wl_channel"), 1);
 	fputs("\"speed\":\"Н/Д\",\"clients\":\"Н/Д\"}],", stream);
+	fputs("\"wifiConfiguration\":{\"schemaVersion\":1,\"source\":\"stored-nvram\",\"runtimeVerified\":false,", stream);
+	wr_modern_json_field(stream, "shared", nvram_safe_get("wr_wifi_shared"), 1);
+	fputs("\"bands\":{\"24\":", stream);
+	wr_modern_wifi_band(stream, "rt");
+	fputs(",\"5\":", stream);
+	wr_modern_wifi_band(stream, "wl");
+	fputs("}},", stream);
 	fputs("\"devices\":{\"total\":\"Н/Д\",\"wired\":\"Н/Д\",\"wifi24\":\"Н/Д\",\"wifi5\":\"Н/Д\"},", stream);
 	fputs("\"cpuPercent\":null,", stream);
 	if (memory_valid)

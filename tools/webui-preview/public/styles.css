@@ -265,3 +265,38 @@ dialog p { color: #b8d8f6; line-height: 1.55; }
   .service-tile { min-height: 110px; }
   .service-icon { width: 49px; height: 49px; }
 }
+
+/* Owner reference: Темна панель налаштувань Wi-Fi YOUHUA.png.
+   Stored configuration cards; no fabricated runtime-success decoration. */
+.wifi-shared-summary, .wifi-apply-pending {
+  margin: 20px; padding: 20px; border: 1px solid #3d557b;
+  border-radius: 14px; background: linear-gradient(115deg,#1c293f,#26334d);
+}
+.wifi-shared-summary { display: grid; grid-template-columns: 56px 1fr auto; gap: 8px 16px; align-items: center; }
+.wifi-shared-summary h2, .wifi-apply-pending h2 { margin: 0; font-size: 20px; }
+.wifi-shared-summary p { grid-column: 2; margin: 0; line-height: 1.6; color: #c3cfe7; }
+.wifi-shared-mark { grid-row: 1 / 3; color: #56aaff; font-size: 42px; text-align: center; }
+.wifi-stored-mode { grid-column: 3; grid-row: 1 / 3; padding: 9px 13px; border: 1px solid #6483ae; border-radius: 24px; color: #d7e5fc; }
+.wifi-saved-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; margin: 20px; }
+.wifi-saved-card { min-width: 0; padding: 20px; border: 1px solid #348ee8; border-radius: 14px; background: linear-gradient(130deg,#1c2b40,#1c2639); }
+.wifi-saved-5 { border-color: #8d73d7; }
+.wifi-saved-card h2 { margin: 7px 0 15px; font-size: 21px; }
+.wifi-band-mark { color: #5caaff; font-weight: 700; }
+.wifi-saved-5 .wifi-band-mark { color: #bb99ff; }
+.wifi-stored-values { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 8px 12px; margin: 0; }
+.wifi-stored-values dt { color: #b3caea; }
+.wifi-stored-values dd { margin: 0; overflow-wrap: anywhere; }
+.wifi-apply-pending .wifi-note { margin: 12px 0 0; }
+.wifi-classic-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 20px; padding-top: 20px; border-top: 1px solid #425778; }
+@media(max-width:760px) {
+  .wifi-saved-grid { grid-template-columns: 1fr; gap: 12px; }
+  .wifi-shared-summary { grid-template-columns: 40px minmax(0,1fr); }
+  .wifi-stored-mode { grid-column: 2; grid-row: auto; justify-self: start; }
+  .wifi-shared-mark { font-size: 32px; }
+}
+@media(max-width:420px) {
+  .wifi-shared-summary, .wifi-apply-pending, .wifi-saved-grid, .wifi-classic-actions { margin: 12px; }
+  .wifi-saved-card, .wifi-shared-summary, .wifi-apply-pending { padding: 14px; }
+  .wifi-stored-values { grid-template-columns: 1fr; gap: 4px; }
+  .wifi-stored-values dd { margin-bottom: 8px; }
+}

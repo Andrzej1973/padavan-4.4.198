@@ -1,0 +1,18 @@
+{
+  "run": 42841441660,
+  "sha": "6ed5dba9d9d88d6129c18d78ced2cd7fde1b3d78",
+  "monitor_run": 42845267758,
+  "monitor_artifact": 13778820269,
+  "original_job": 129926302444,
+  "original_errors": [
+    "2026-11-10T15:25:19.9195897Z ##[group]Run trap 'printf \"Firmware build verification failed: %s\\n\" \"$BASH_COMMAND\" >&2' ERR",
+    "2026-11-10T15:25:19.9196598Z trap 'printf \"Firmware build verification failed: %s\\n\" \"$BASH_COMMAND\" >&2' ERR",
+    "2026-11-10T15:31:15.8202787Z FileNotFoundError: [Errno 2] No such file or directory: 'trunk/romfs/www/modern/index.html'",
+    "2026-11-10T15:31:15.8253558Z ++ printf 'Firmware build verification failed: %s\\n' 'python3 ../tools/webui-preview/check_image.py . --report ../modern-image-check.json'",
+    "2026-11-10T15:31:15.8254113Z Firmware build verification failed: python3 ../tools/webui-preview/check_image.py . --report ../modern-image-check.json"
+  ],
+  "same_cause_as974": true,
+  "correction": "7a7d62075ee31174108863ee75b165179b58c62c; standard977 pending",
+  "monitor_has_causal_path": true,
+  "scope": "Failure triage only; no target acceptance"
+}

@@ -20,7 +20,19 @@ const WifiDemo = (() => {
     if (parts[1] === 'split' && ['24','5'].includes(parts[2])) return {view:'band', band:parts[2], section:Object.hasOwn(sections, parts[3]) ? parts[3] : 'general'};
     return {view:['common','split','iot'].includes(parts[1]) ? parts[1] : 'common'};
   }
-  return {commonKeys, sections, makeState, synchronize, route};
+  const publicFields=['ssid','auth_mode','wep_x','wpa_mode','crypto','radio_x','closed','channel','HT_BW'];
+  function publicConfiguration(data) {
+    const config=data?.wifiConfiguration;
+    if(config?.schemaVersion!==1 || config.source!=='stored-nvram' || config.runtimeVerified!==false) return null;
+    const bands={};
+    for(const band of ['24','5']) {
+      const values=config.bands?.[band];
+      if(!values || !publicFields.every(key=>typeof values[key]==='string')) return null;
+      bands[band]=Object.fromEntries(publicFields.map(key=>[key,values[key]]));
+    }
+    return {shared:['0','1'].includes(config.shared)?config.shared:null,bands};
+  }
+  return {commonKeys, sections, makeState, synchronize, route, publicConfiguration};
 })();
 if (typeof module !== 'undefined') module.exports = WifiDemo;
 
@@ -29,6 +41,13 @@ if (typeof document !== 'undefined') (async () => {
   if (!response.ok) throw Error('Wi-Fi schema unavailable');
   const schema = await response.json();
   if (typeof schema.demo !== 'boolean') throw Error('Unmarked Wi-Fi schema');
+  let configuration=null;
+  if(!schema.demo) {
+    try {
+      const live=await fetch('/wr_modern.json',{credentials:'same-origin',cache:'no-store'});
+      if(live.ok) configuration=WifiDemo.publicConfiguration(await live.json());
+    } catch (_) { /* Keep navigation available; never substitute demo settings. */ }
+  }
   const modeLabel = schema.demo ? 'DEMO' : 'READ-ONLY';
   const state = WifiDemo.makeState();
   const root = document.getElementById('modern-wifi');
@@ -132,15 +151,50 @@ if (typeof document !== 'undefined') (async () => {
       return;
     }
     if (!schema.demo) {
-      panel.append(element('p','Керування Wi-Fi у Modern ще не підключено. Поточні параметри переглядайте та змінюйте у Classic.','wifi-note'));
+      panel.append(element('p','Збережені основні параметри доступні нижче. Зміна налаштувань Wi-Fi поки виконується у Classic.','wifi-note'));
       const bands=current.view==='band' ? [current.band] : ['24','5'];
+      if(current.view==='common') {
+        const summary=element('section',undefined,'wifi-shared-summary');
+        summary.append(element('span','↔','wifi-shared-mark'),element('h2','Одна назва й захист для двох діапазонів'));
+        summary.append(element('p','Канали, ширина, розклад, гостьові мережі та ввімкнення кожного радіомодуля налаштовуються окремо.'));
+        summary.append(element('span',configuration?.shared==='1'?'Збережено: спільні':configuration?.shared==='0'?'Збережено: окремі':'Стан не отримано','wifi-stored-mode'));
+        panel.append(summary);
+      }
+
+      if(current.view==='common' || current.section==='general') {
+        panel.append(element('p','Збережені значення NVRAM. Фактичний стан радіо та застосування цих параметрів тут не перевіряються. Паролі не завантажуються.','wifi-note'));
+        if(!configuration) panel.append(element('p','Не вдалося отримати поточну конфігурацію Wi-Fi. Скористайтеся Classic або оновіть сторінку.','wifi-note'));
+        else {
+          const cards=element('div',undefined,'wifi-saved-grid');
+          for(const band of bands) {
+          const card=element('section',undefined,'wifi-saved-card wifi-saved-'+band);
+          card.append(element('span',band==='24'?'2.4 GHz':'5 GHz','wifi-band-mark'),element('h2','Збережено: '+(band==='24'?'2,4':'5')+' ГГц'));
+          const values=configuration.bands[band];
+          const list=element('dl',undefined,'wifi-stored-values');
+          const security=values.auth_mode==='open' && values.wep_x==='0'?'Відкрита мережа':values.auth_mode==='psk' && values.wep_x==='0'?({'0':'WPA / WPA2 Personal','1':'WPA Personal','2':'WPA2 Personal'}[values.wpa_mode] || 'Інший збережений захист'):'Інший збережений захист';
+          const radio=values.radio_x==='1'?'Увімкнено (збережено)':values.radio_x==='0'?'Вимкнено (збережено)':'Невідомо';
+          const rows=[['SSID',values.ssid || 'Не задано'],['Захист',security],['Радіо',radio]];
+          if(current.view!=='common') rows.push(['Канал',values.channel==='0'?'Автоматично':values.channel || 'Не задано']);
+          for(const [label,value] of rows) list.append(element('dt',label),element('dd',value));
+          card.append(list); cards.append(card);
+          }
+          panel.append(cards);
+        }
+      }
+      if(current.view==='common') {
+        const pending=element('section',undefined,'wifi-apply-pending');
+        pending.append(element('h2','Спільна назва й захист'),element('p','Збереження в Modern ще розробляється. Для зміни назви, захисту або пароля скористайтеся Classic.','wifi-note'));
+        panel.append(pending);
+      }
+      const actions=element('div',undefined,'wifi-classic-actions');
       for (const band of bands) {
         const section=current.view==='band' ? current.section : 'general';
         const page=schema.pages[band][section];
         if (!/^Advanced_[A-Za-z0-9_]+\.asp$/.test(page.classic)) throw Error('Invalid Classic destination');
         const link=element('a','Відкрити Classic: Wi-Fi '+(band==='24'?'2,4':'5')+' ГГц — '+WifiDemo.sections[section],'wifi-tab');
-        link.href='/'+page.classic; panel.append(link);
+        link.href='/'+page.classic; actions.append(link);
       }
+      panel.append(actions);
       return;
     }
     const form=element('form',undefined,'wifi-settings'); form.autocomplete='off';

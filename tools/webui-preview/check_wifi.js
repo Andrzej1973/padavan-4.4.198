@@ -34,3 +34,18 @@ for(const band of ['24','5']) {
 }
 assert.equal(demo.route('#wifi/split/5/unknown').section,'general');
 console.log('PASS: 15 Wi-Fi routes; six sections per band; navigation is pure; shared planner validates and copies only six fields; independent/professional/IoT values retained; unsupported TXBF absent.');
+
+const publicBand={ssid:'stored',auth_mode:'unsupported-stored-code',wep_x:'0',wpa_mode:'2',crypto:'aes',radio_x:'0',closed:'1',channel:'0',HT_BW:'1'};
+const payload={wifiConfiguration:{schemaVersion:1,source:'stored-nvram',runtimeVerified:false,shared:'0',bands:{24:{...publicBand,wpa_psk:'must-not-be-copied'},5:{...publicBand,ssid:'other'}}}};
+const config=demo.publicConfiguration(payload);
+assert.equal(config.bands[24].auth_mode,'unsupported-stored-code');
+assert.equal(config.bands[5].ssid,'other');
+assert(!Object.hasOwn(config.bands[24],'wpa_psk'));
+payload.wifiConfiguration.bands[24].ssid='';
+assert.equal(demo.publicConfiguration(payload).bands[24].ssid,'');
+payload.wifiConfiguration.bands[24].channel=6;
+assert.equal(demo.publicConfiguration(payload),null);
+assert.equal(demo.publicConfiguration({}),null);
+payload.wifiConfiguration.schemaVersion=2;
+assert.equal(demo.publicConfiguration(payload),null);
+console.log('PASS public stored Wi-Fi config: strict schema, independent bands, unknown mode preserved, empty values retained, no secret copying');
