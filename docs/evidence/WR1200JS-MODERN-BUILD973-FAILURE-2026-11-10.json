@@ -1,0 +1,20 @@
+{
+  "failed_run": 42839894676,
+  "sha": "3313e6917dae9f269fd88bad6906ac44a2504553",
+  "monitor_run": 42841501707,
+  "monitor_artifact": 13776666932,
+  "monitor_assessment": "Useful: exact failed job/step and causal FILE/Modern handler errors retained; no parser change justified",
+  "original_job": 129912118769,
+  "original_errors": [
+    "2026-11-10T15:09:24.7822895Z web_ex.c:5:35: error: unknown type name 'FILE'",
+    "2026-11-10T15:09:24.7837184Z web_ex.c:36:34: error: unknown type name 'FILE'",
+    "2026-11-10T15:09:24.7839131Z web_ex.c:46:48: error: unknown type name 'FILE'",
+    "2026-11-10T15:09:24.7841603Z ../shared/nvram_linux.h:13:14: error: conflicting types for 'nvram_safe_get'",
+    "2026-11-10T15:09:24.7844445Z web_ex.c:5590:61: error: 'do_wr_modern_json' undeclared here (not in a function); did you mean 'do_wr_roaming_json'?"
+  ],
+  "root_cause": "Generated Modern hook precedes stdio, nvram and board headers",
+  "correction": "fa3f067ecd6baca3bd6a40c538d49cc9edb28dd8 places hook after headers/declarations before MIME table",
+  "checks": "Pinned-source ordering and host regression pass; target acceptance pending974/975",
+  "secondary_failures": "Missing EoIP/StrongSwan report uploads and downloads follow build failure; not root cause",
+  "runtime_verified": false
+}

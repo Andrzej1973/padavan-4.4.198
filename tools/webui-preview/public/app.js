@@ -251,12 +251,24 @@ function renderGenericPage(route) {
   footer.className = "page-footer";
   const source = document.createElement("span");
   source.textContent = `Classic: ${page.classic}`;
-  const classic = document.createElement("button");
-  classic.type = "button";
-  classic.className = "secondary-button";
-  classic.textContent = "Пояснення Classic";
-  classic.addEventListener("click", () => openUnavailable(page.title, page.classic));
-  footer.append(source, classic);
+  footer.append(source);
+  if (dashboardData.demo) {
+    const classic = document.createElement("button");
+    classic.type = "button";
+    classic.className = "secondary-button";
+    classic.textContent = "Пояснення Classic";
+    classic.addEventListener("click", () => openUnavailable(page.title, page.classic));
+    footer.append(classic);
+  } else {
+    for (const destination of (page.classic || "").split(" / ")) {
+      if (!/^[A-Za-z0-9_]+\.asp$/.test(destination)) continue;
+      const classic = document.createElement("a");
+      classic.className = "secondary-button";
+      classic.textContent = `Відкрити Classic: ${destination}`;
+      classic.href = `/${destination}`;
+      footer.append(classic);
+    }
+  }
   panel.append(footer);
   mount.append(panel);
   return true;

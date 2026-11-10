@@ -56,12 +56,26 @@ with tempfile.TemporaryDirectory(prefix='wr-modern-installer-') as scratch:
     image = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(image)
     romfs = source / 'trunk/romfs'
+    import json
+    schema = json.loads((www / 'modern/wifi-schema.json').read_text())
+    for band in schema['pages'].values():
+        for page in band.values():
+            (www / page['classic']).write_text('Classic fixture')
     shutil.copytree(www, romfs / 'www')
     binary = romfs / 'usr/sbin/httpd'
     binary.parent.mkdir(parents=True)
     routes = ['wr_modern.json', *('modern/' + n.name for n in (www / 'modern').iterdir())]
     binary.write_bytes(b'\0'.join(r.encode() for r in routes) + b'\0')
     image.check(source)  # Synthetic literals do not constitute a target build.
+    destination = romfs / 'www' / schema['pages']['24']['general']['classic']
+    destination.unlink()
+    try:
+        image.check(source)
+        raise AssertionError('missing Classic destination accepted')
+    except ValueError as error:
+        assert 'Missing Classic destination' in str(error)
+    destination.write_text('Classic fixture')
+
     asset = romfs / 'www/modern/app.js'
     saved = asset.read_bytes()
     asset.write_bytes(saved + b'changed')

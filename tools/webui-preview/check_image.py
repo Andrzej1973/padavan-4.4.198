@@ -22,12 +22,18 @@ def check(source):
     schema = json.loads((installed / 'wifi-schema.json').read_text())
     if schema.get('demo') is not False:
         raise ValueError('DEMO Wi-Fi schema in production image')
+    destinations = sorted({page['classic'] for band in schema['pages'].values() for page in band.values()})
+    for destination in destinations:
+        if Path(destination).name != destination or not destination.endswith('.asp'):
+            raise ValueError('Invalid Classic destination: ' + destination)
+        if not (trunk / 'romfs/www' / destination).is_file():
+            raise ValueError('Missing Classic destination in ROMFS: ' + destination)
     httpd = (trunk / 'romfs/usr/sbin/httpd').read_bytes()
     for route in ['wr_modern.json', *('modern/' + n for n in names)]:
         if route.encode() + b'\0' not in httpd:
             raise ValueError('Missing compiled Modern route literal: ' + route)
     return {'scope': 'ROMFS assets and compiled route literals, not runtime/authentication proof',
-            'assets_sha256': hashes, 'httpd_sha256': hashlib.sha256(httpd).hexdigest()}
+            'classic_destinations': destinations, 'assets_sha256': hashes, 'httpd_sha256': hashlib.sha256(httpd).hexdigest()}
 
 
 if __name__ == '__main__':

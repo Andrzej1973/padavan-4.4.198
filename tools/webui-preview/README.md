@@ -136,3 +136,9 @@ dictionaries, plus enabled Zapret2 binary, wrapper, Lua and license files.
 It complements uImage CRC/size/DTB checks; it does not prove device behavior.
 Run `python3 check_trx_gate.py` for real SquashFS positive/corruption/missing-file
 fixtures. The workflow stores `final-content-check.json` with the exact TRX hash.
+
+Production generic pages provide local Classic ASP links, including separate VPN
+and DNS destinations. DEMO keeps explanation dialogs and IoT exposes no control
+link. `node check_classic_navigation.js` checks renderer behavior; the image gate
+also requires Wi-Fi schema destinations to exist in ROMFS. Browser evidence:
+`../../docs/evidence/WR1200JS-MODERN-CLASSIC-BROWSER-2026-11-10.json`.
