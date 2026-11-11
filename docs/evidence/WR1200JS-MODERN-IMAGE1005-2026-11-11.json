@@ -1,0 +1,104 @@
+{
+  "run_id": 43002411476,
+  "artifact_id": 13847497992,
+  "verified_revision": "c4895bec3a73e263d87977a481e9c5fe2cf2c0f3",
+  "runtime_verified": false,
+  "scope": "Independent test-image uImage/DTB and selected Modern bytes/modes verification; not final release or boot acceptance",
+  "provenance": {
+    "verification-source": {
+      "verification-source.json": {
+        "dispatch_revision": "c4895bec3a73e263d87977a481e9c5fe2cf2c0f3",
+        "requested_revision": "",
+        "verified_revision": "c4895bec3a73e263d87977a481e9c5fe2cf2c0f3",
+        "runtime_verified": false
+      }
+    },
+    "board-build-status-wr1200js": {
+      "board-build-status.json": {
+        "board": "wr1200js",
+        "status": "success"
+      }
+    }
+  },
+  "image_name": "WR1200JS_4.4.198.9-1005_c4895bec.trx",
+  "structure": {
+    "scope": "Padavan uImage upload structure and embedded IoT/HWNAT DTB policy; device boot/isolation unverified",
+    "image": "firmware.trx",
+    "bytes": 13100553,
+    "sha256": "6269f5707b64cbfd191b1b61979d7ff3d397e5d624bfe2ffe3e7232f809874b5",
+    "declared_payload_bytes": 13100489,
+    "architecture_id": 5,
+    "compression_id": 3,
+    "checks": {
+      "uimage_magic": true,
+      "product_id": true,
+      "header_crc": true,
+      "declared_length": true,
+      "payload_crc": true,
+      "size_range": true,
+      "iot_hwnat_dtb": true
+    },
+    "iot_hwnat_dtb_policy": {
+      "scope": "Embedded DTB HNAT policy only; no packet/runtime proof",
+      "external_devices": [
+        "usb0",
+        "wwan0",
+        "rax0",
+        "ra0",
+        "rai0",
+        "apclii0",
+        "apclix0",
+        "apcli0"
+      ],
+      "lan": [
+        "eth2"
+      ],
+      "wan": [
+        "eth3"
+      ],
+      "dtb_sha256": "54899d13006b8d4854a32feba4f494c01e019f804aac16a7dd227d4c6fd6f9d0",
+      "kernel_sha256": "6e82513d69c49a8b396f6a1cad21d3633d53d941e9e6f17f4dac1196c6a4db05",
+      "runtime_verified": false
+    }
+  },
+  "squashfs_offset": 1981504,
+  "modern_files": {
+    "www/modern/index.html": {
+      "sha256": "1ed975c55042e4b3c995cadcdde970cb419cb3c35ac0dc12b08696a95aebd9f1",
+      "mode": "0o644",
+      "bytes": 11572
+    },
+    "www/modern/app.js": {
+      "sha256": "1e1d2150bf40b63da19564d679a2eacd3bbb68322cbeb793e7180da6e2bb75e7",
+      "mode": "0o644",
+      "bytes": 18574
+    },
+    "www/modern/wifi.js": {
+      "sha256": "360a8d948a3388c1f3336e0f33a5f1bcdbd7306ee5f17cd51c1c6b00520b817e",
+      "mode": "0o644",
+      "bytes": 37914
+    },
+    "www/modern/shared-wifi.js": {
+      "sha256": "dc0c4f11c6763a7761e095f616ea0e062c0f96c72ac3ecb6f18af227806e9f23",
+      "mode": "0o644",
+      "bytes": 3595
+    },
+    "www/modern/wifi-schema.json": {
+      "sha256": "d8b4a8f6d8c8a49938a4142ed33201eaadb3d296f493bbfec72ee3bc18ac7902",
+      "mode": "0o644",
+      "bytes": 72853
+    },
+    "www/modern/styles.css": {
+      "sha256": "48e1693bf2bf43735d86d6212fba10ef9a1fdb1dc4bf5ac9263905160b445afb",
+      "mode": "0o644",
+      "bytes": 27918
+    },
+    "www/modern/favicon.svg": {
+      "sha256": "4734c64a7d01be56789cff09738c90e3905b245f1a2535182c39dc37586d5cb4",
+      "mode": "0o644",
+      "bytes": 562
+    }
+  },
+  "scratch_removed_bytes": 13651905,
+  "scratch_removed": true
+}

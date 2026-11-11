@@ -1,0 +1,181 @@
+{
+  "run_id": 42999753636,
+  "runtime_verified": false,
+  "artifacts": {
+    "verification-source": {
+      "id": 13847450561,
+      "objects": {},
+      "verification-source.json": {
+        "dispatch_revision": "1b4c4740ba0e7143757aae0f8d04619604ca5fc7",
+        "requested_revision": "1b4c4740ba0e7143757aae0f8d04619604ca5fc7",
+        "verified_revision": "1b4c4740ba0e7143757aae0f8d04619604ca5fc7",
+        "runtime_verified": false
+      }
+    },
+    "board-build-status-wr1200js": {
+      "id": 13847512564,
+      "objects": {},
+      "board-build-status.json": {
+        "board": "wr1200js",
+        "status": "success"
+      }
+    },
+    "modern-http-candidate": {
+      "id": 13847636467,
+      "objects": {
+        "httpd-candidate": {
+          "bytes": 358356,
+          "sha256": "917c0e984937c484acba886b191e1380c41c790c7196be7f4804427ae1e674a3",
+          "elf_type": 2
+        }
+      },
+      "result.json": {
+        "scope": "Isolated complete target HTTP candidate compile/link, not installation or runtime",
+        "repository_revision": "1b4c4740ba0e7143757aae0f8d04619604ca5fc7",
+        "production_before": {
+          "source": "c3de14c8638810a483365d71e0e456e515dc00be7cfae06c235df5c1ba8508e3",
+          "server_source": "a6b984d63e6945321db6072ead28bba2aa7c88ec096ed6ed8e2bdc7b436c1e7a",
+          "cgi_source": "0711f0c103d67860edcb48133a23b449c4035c903a381f6f89bdf58fec7fa503",
+          "image_binary": "ec41c59cf7834f852c65d7c0411a10949bc2e5362fb7eb948518804d305cb0c9"
+        },
+        "target_compiled": true,
+        "production_installed": false,
+        "runtime_verified": false,
+        "candidate_web_ex_sha256": "3476427542f44c7a825301868a6adc19e0b40803d1431b65f656f0021d675503",
+        "command": [
+          "make",
+          "-C",
+          "/home/runner/work/padavan-4.4.198/padavan-4.4.198/padavan-4.4/trunk",
+          "user/wr-modern-http-build-wdza9zt8_only",
+          "TOOLCHAIN=mipsel-linux-uclibc",
+          "CONFIG_CCACHE=y"
+        ],
+        "compile_exit_code": 0,
+        "binary_bytes": 358356,
+        "binary_sha256": "917c0e984937c484acba886b191e1380c41c790c7196be7f4804427ae1e674a3",
+        "elf": "ELF32 little-endian MIPS",
+        "candidate_headers_sha256": {
+          "password-intent.h": "1fa1af3ad5352d9496957edec88ae9ed360cfc0137c20a6d4fb1428fa468908e",
+          "password-request.h": "57ca6730dddd1c5a3769a38fa2029e9cd7260784aa9425d1c8417bfc6aebd298",
+          "guest-schedule.h": "da216a1fc4815368638015598a5c2b843f65dc0a286eccf4d29b4688a5c7fe3a",
+          "guest-request.h": "f3be64128acdd44bc2a5d2259eb0af88c156a8539224baeffef5c291824be93b",
+          "guest-adapter.h": "bf9d9cbd4a4aa2bd7ff01c862bcfc17a5b73d08ce0ed932f53f33cbc2eed7712",
+          "guest-transport.h": "324eb0aae2a295b01159128b08a93156625fa55cbc70a4b3b9a4fe1de2c411ac",
+          "modern-form.h": "827d9242ca039b98c61c13bbbe7df1e52bfdaf3c96311bae190f04849f4817df",
+          "modern-body.h": "cbd6d947111caf331919ff983bb6abb0bb74f734fd590c6465c0f2a6d35d10ec",
+          "guest-batch.h": "30f1cc1f867881da9c987b74adc2f3cd493c0258d3cda2b952dddfa298999ad6",
+          "nvram-batch-client.h": "48bf6f30386c4ab134119f7af7fa5fdaf7ca6a325bdcb274242f47864d59b1b8",
+          "nvram-batch-wire.h": "d12889b1ced78ac2714bcd47dc6d193be73cd8d0a54e5aa3cb72ddba3b6eb0e5"
+        },
+        "production_after": {
+          "source": "c3de14c8638810a483365d71e0e456e515dc00be7cfae06c235df5c1ba8508e3",
+          "server_source": "a6b984d63e6945321db6072ead28bba2aa7c88ec096ed6ed8e2bdc7b436c1e7a",
+          "cgi_source": "0711f0c103d67860edcb48133a23b449c4035c903a381f6f89bdf58fec7fa503",
+          "image_binary": "ec41c59cf7834f852c65d7c0411a10949bc2e5362fb7eb948518804d305cb0c9"
+        },
+        "production_unchanged": true,
+        "scratch_removed": true
+      }
+    },
+    "modern-nvram-candidate": {
+      "id": 13847656209,
+      "objects": {
+        "nvram-client-probe.o": {
+          "bytes": 10600,
+          "sha256": "9658cf9598cdf869a0d0cc5e59c6805a21532d08acdd0eb7d0c9a80d154ed5bb",
+          "elf_type": 1
+        },
+        "nvram-commit-order.o": {
+          "bytes": 69876,
+          "sha256": "988f49c0642dc4ca0b9f0b23f1b9ed9da5f48a5ed33b7a0c81c33d82c66be1e3",
+          "elf_type": 1
+        }
+      },
+      "result.json": {
+        "scope": "Isolated NVRAM kernel TU and userspace ABI probe; not linked or installed in production",
+        "repository_revision": "1b4c4740ba0e7143757aae0f8d04619604ca5fc7",
+        "production_before": {
+          "trunk/linux-4.4.x/drivers/nvram/nvram_linux.c": "5bdfa51add776cfe46eabd5c328859d74822220e7772335d08e21b91750190c1",
+          "trunk/linux-4.4.x/drivers/nvram/nvram.c": "8a978e2e7a31fce4f8ec7ab1b541d16b52599e16746c008d6e02603298d0a2c7",
+          "trunk/linux-4.4.x/drivers/nvram/nvram_linux.o": "ef36b11cd9de9cf267e70ef58016e364e5d21a3bcf73e3e4f397f2b7f2d7713e",
+          "trunk/linux-4.4.x/.config": "fa047c0252b38d5e9525dbbd80cd1ef8cd4564d01b384edb5d861c200177aaa9",
+          "trunk/linux-4.4.x/vmlinux": "1a4517138fdf9ece70ea6a7b28e30c2074241fef7b8e72cd035ef13763e7057f",
+          "trunk/images/WR1200JS_4.4.198.9-1004.trx": "d3f43f402b7ba6107e8befad9226a6187c84bf86be5d1770e182ae186d6fd8df"
+        },
+        "target_compiled": true,
+        "production_installed": false,
+        "runtime_verified": false,
+        "scratch_removed": true,
+        "candidate_source_sha256": "4961b8457d9f2975a9470541e5e24fb754ccdea36b2800718cfaf5ed702af554",
+        "command": [
+          "make",
+          "-C",
+          "/home/runner/work/padavan-4.4.198/padavan-4.4.198/padavan-4.4/trunk/linux-4.4.x",
+          "ARCH=mips",
+          "CROSS_COMPILE=/home/runner/work/padavan-4.4.198/padavan-4.4.198/padavan-4.4/toolchain/toolchain-mipsel/bin/mipsel-linux-uclibc-",
+          "drivers/wr-nvram-order-s6hy8vd2/nvram_linux.o"
+        ],
+        "compile_exit_code": 0,
+        "batch_core_sha256": "d3598b151c58380ce07de0aa390d62ee2bb80d0b9b72ba05ed3117396b778a31",
+        "wire_sha256": {
+          "nvram-batch-wire.h": "d12889b1ced78ac2714bcd47dc6d193be73cd8d0a54e5aa3cb72ddba3b6eb0e5",
+          "nvram-batch-wire.c.inc": "c11e538a323f09eb708a1c6893f7233e7f16eedc25569d135cae241eef521ba5",
+          "nvram-batch-user.c.inc": "4f2ad051fcdb66290e3bdc5f9d781c1d25081206c9ee354fadc8b3cceeb7f4b2"
+        },
+        "kernel_target_compiled": true,
+        "object_bytes": 69876,
+        "object_sha256": "988f49c0642dc4ca0b9f0b23f1b9ed9da5f48a5ed33b7a0c81c33d82c66be1e3",
+        "client_command": [
+          "/home/runner/work/padavan-4.4.198/padavan-4.4.198/padavan-4.4/toolchain/toolchain-mipsel/bin/mipsel-linux-uclibc-gcc",
+          "-std=gnu99",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-I",
+          "/home/runner/work/padavan-4.4.198/padavan-4.4.198/tools/webui-preview",
+          "-I",
+          "/home/runner/work/padavan-4.4.198/padavan-4.4.198/tools/shared-wifi",
+          "-c",
+          "/home/runner/work/padavan-4.4.198/padavan-4.4.198/padavan-4.4/trunk/linux-4.4.x/drivers/wr-nvram-order-s6hy8vd2/client-probe.c",
+          "-o",
+          "/home/runner/work/padavan-4.4.198/padavan-4.4.198/padavan-4.4/trunk/linux-4.4.x/drivers/wr-nvram-order-s6hy8vd2/client-probe.o"
+        ],
+        "client_compile_exit_code": 0,
+        "kernel_abi": {
+          "request_bytes": 5264,
+          "item_bytes": 328,
+          "ioctl_command": 2492485201,
+          "version": 1
+        },
+        "client_abi": {
+          "request_bytes": 5264,
+          "item_bytes": 328,
+          "ioctl_command": 2492485201,
+          "version": 1
+        },
+        "client_target_compiled": true,
+        "abi_match": true,
+        "client_object_sha256": "9658cf9598cdf869a0d0cc5e59c6805a21532d08acdd0eb7d0c9a80d154ed5bb",
+        "client_header_sha256": "48bf6f30386c4ab134119f7af7fa5fdaf7ca6a325bdcb274242f47864d59b1b8",
+        "guest_planner_headers_sha256": {
+          "guest-batch.h": "30f1cc1f867881da9c987b74adc2f3cd493c0258d3cda2b952dddfa298999ad6",
+          "guest-adapter.h": "bf9d9cbd4a4aa2bd7ff01c862bcfc17a5b73d08ce0ed932f53f33cbc2eed7712",
+          "guest-request.h": "f3be64128acdd44bc2a5d2259eb0af88c156a8539224baeffef5c291824be93b",
+          "guest-schedule.h": "da216a1fc4815368638015598a5c2b843f65dc0a286eccf4d29b4688a5c7fe3a"
+        },
+        "shared_validation_sha256": "f8e79f82f43b0b1f908bd6315d165b3a0e1d82d45e2315c8084ebb6b98866dd2",
+        "scratch_bytes": 152389,
+        "production_after": {
+          "trunk/linux-4.4.x/drivers/nvram/nvram_linux.c": "5bdfa51add776cfe46eabd5c328859d74822220e7772335d08e21b91750190c1",
+          "trunk/linux-4.4.x/drivers/nvram/nvram.c": "8a978e2e7a31fce4f8ec7ab1b541d16b52599e16746c008d6e02603298d0a2c7",
+          "trunk/linux-4.4.x/drivers/nvram/nvram_linux.o": "ef36b11cd9de9cf267e70ef58016e364e5d21a3bcf73e3e4f397f2b7f2d7713e",
+          "trunk/linux-4.4.x/.config": "fa047c0252b38d5e9525dbbd80cd1ef8cd4564d01b384edb5d861c200177aaa9",
+          "trunk/linux-4.4.x/vmlinux": "1a4517138fdf9ece70ea6a7b28e30c2074241fef7b8e72cd035ef13763e7057f",
+          "trunk/images/WR1200JS_4.4.198.9-1004.trx": "d3f43f402b7ba6107e8befad9226a6187c84bf86be5d1770e182ae186d6fd8df"
+        },
+        "production_unchanged": true
+      }
+    }
+  }
+}
