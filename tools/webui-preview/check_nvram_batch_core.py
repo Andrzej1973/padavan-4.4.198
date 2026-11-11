@@ -16,6 +16,7 @@ prefix=r'''
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h>
 typedef unsigned int uint;
 #define ARRAY_SIZE(a) (sizeof(a)/sizeof((a)[0]))
 #define ARRAYSIZE ARRAY_SIZE
@@ -27,8 +28,9 @@ static struct nvram_tuple *nvram_hash[257];
 static char arena[NVRAM_VALUES_SPACE],*nvram_values=arena;
 static unsigned long nvram_offset;
 static int nvram_lock,depth,allocations,live,fail_at;
-#define spin_lock_irqsave(lock,flags) do{(void)(lock);assert(!depth);depth=1;(flags)=0;}while(0)
-#define spin_unlock_irqrestore(lock,flags) do{(void)(lock);(void)(flags);assert(depth==1);depth=0;}while(0)
+static pthread_mutex_t host_mutex=PTHREAD_MUTEX_INITIALIZER;
+#define spin_lock_irqsave(lock,flags) do{(void)(lock);assert(!pthread_mutex_lock(&host_mutex));assert(!depth);depth=1;(flags)=0;}while(0)
+#define spin_unlock_irqrestore(lock,flags) do{(void)(lock);(void)(flags);assert(depth==1);depth=0;assert(!pthread_mutex_unlock(&host_mutex));}while(0)
 static void *kmalloc(size_t bytes,int mode){(void)mode;assert(depth==1);allocations++;if(fail_at&&allocations==fail_at)return NULL;void *p=malloc(bytes);if(p)live++;return p;}
 static void kfree(void *p){if(p){assert(depth==1);live--;free(p);}}
 '''
@@ -36,7 +38,7 @@ actual=fn(common,'hash(const char *s)','static inline uint\n')+fn(linux,'_nvram_
 fixture=(here/'nvram-batch-fixture.c.inc').read_text()
 with tempfile.TemporaryDirectory(prefix='wr-nvram-batch-core-') as scratch:
     root=pathlib.Path(scratch);(root/'fixture.c').write_text(prefix+actual+(here/'nvram-batch-core.c.inc').read_text()+fixture)
-    subprocess.run(['gcc','-std=gnu99','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-pie','-no-pie',str(root/'fixture.c'),'-o',str(root/'fixture')],check=True)
+    subprocess.run(['gcc','-std=gnu99','-Wall','-Wextra','-Werror','-pthread','-fsanitize=address,undefined','-fno-pie','-no-pie',str(root/'fixture.c'),'-o',str(root/'fixture')],check=True)
     subprocess.run([str(root/'fixture')],check=True)
     size=sum(p.stat().st_size for p in root.iterdir());print('Owned scratch bytes removed',size)
 assert not root.exists()

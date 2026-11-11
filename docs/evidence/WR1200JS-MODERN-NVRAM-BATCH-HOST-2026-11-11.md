@@ -40,3 +40,28 @@ Cleanup: successful final run inventoried and auto-removed 109707 bytes of
 owned source/executable scratch; directory absence asserted. No firmware,
 archive, source input or unrelated work removed. CI99442963851036 and
 CI99542965079106 freshly report completed/success; artifact acceptance pending.
+
+## Concurrent-writer follow-up
+
+The fixture now substitutes a real pthread mutex for nvram_lock and starts two
+writers at a barrier. ASan/UBSan and warnings-as-errors pass200 trials:100
+competing conditional four-key batches and100 batch versus legacy one-key
+sets. Two batches cannot both accept the same old snapshot; the legacy writer
+can validly overwrite one field after a completed batch. Therefore atomic batch
+publication is not an enduring exclusive apply/commit lease. Scheduling is not
+exhaustively explored; host mutex does not establish kernel IRQ/lock behavior.
+Legacy fixture uses actual _nvram_set under the same lock, but does not execute
+legacy allocation-failure compaction or flash I/O.
+
+Fresh source inspection: nvram_set_temp lines198–208 holds nvram_lock around
+one set and optional compaction. nvram_commit lines301–303 snapshots under
+nvram_lock, then acquires nvram_sem at307 for MTD access. Thus the snapshot is
+outside flash-serialization scope: concurrent commits can snapshot in one order
+and acquire the flash mutex in another. This is an ordering counterexample from
+source, not an observed device failure. A batch-only ioctl cannot close that
+gap. Before integration, establish commit serialization before snapshot creation
+and define whether later external writes invalidate the response, while keeping
+flash errors and runtime service acceptance explicit. Do not hold a spinlock
+across flash operations. Existing borrowed-pointer/compaction issue stays open.
+
+Final follow-up scratch126658 bytes auto-removed and absence asserted.

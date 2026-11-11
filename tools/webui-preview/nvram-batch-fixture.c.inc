@@ -8,6 +8,43 @@ static void reset_store(void)
  for(i=0;i<4;i++)assert(!_nvram_set(names[i],"before",0));
  depth=0;allocations=0;
 }
+static pthread_barrier_t start_barrier;
+struct competing_write {const char *value;int legacy,result;};
+static void *compete(void *opaque)
+{
+ struct competing_write *w=opaque;unsigned long flags;
+ struct wr_nvram_edit request[4];unsigned int i;
+ for(i=0;i<4;i++)request[i]=(struct wr_nvram_edit){names[i],"before",w->value,3};
+ int barrier_result=pthread_barrier_wait(&start_barrier);
+ assert(barrier_result==0||barrier_result==PTHREAD_BARRIER_SERIAL_THREAD);
+ if(w->legacy){
+  spin_lock_irqsave(&nvram_lock,flags);
+  w->result=_nvram_set(names[0],w->value,0);
+  spin_unlock_irqrestore(&nvram_lock,flags);
+ }else w->result=wr_nvram_batch_candidate(request,4);
+ return NULL;
+}
+static void concurrent_cases(void)
+{
+ for(int legacy=0;legacy<=1;legacy++)for(int trial=0;trial<100;trial++){
+  pthread_t threads[2];struct competing_write a={"batch-A",0,99},b={"writer-B",legacy,99};
+  reset_store();assert(!pthread_barrier_init(&start_barrier,NULL,2));
+  assert(!pthread_create(&threads[0],NULL,compete,&a));
+  assert(!pthread_create(&threads[1],NULL,compete,&b));
+  assert(!pthread_join(threads[0],NULL));assert(!pthread_join(threads[1],NULL));
+  assert(!pthread_barrier_destroy(&start_barrier));assert(!depth);
+  if(!legacy){
+   assert((a.result==4&&b.result==-EAGAIN)||(a.result==-EAGAIN&&b.result==4));
+   const char *winner=a.result==4?a.value:b.value;
+   for(unsigned int i=0;i<4;i++)assert(!strcmp(_nvram_get(names[i]),winner));
+  }else{
+   assert(b.result==0&&(a.result==4||a.result==-EAGAIN));
+   assert(!strcmp(_nvram_get(names[0]),b.value));
+   for(unsigned int i=1;i<4;i++)assert(!strcmp(_nvram_get(names[i]),a.result==4?a.value:"before"));
+  }
+ }
+ puts("PASS 200 synchronized two-writer trials: batch CAS has one winner; legacy single-key writer serializes but can overwrite a completed batch");
+}
 int main(void)
 {
  struct wr_nvram_edit edits[4];unsigned int i;unsigned long before;int old_live;
@@ -56,6 +93,7 @@ int main(void)
  }
  fail_at=0;allocations=0;assert(wr_nvram_batch_candidate(full,16)==16);
  for(i=0;i<16;i++)assert(!strcmp(_nvram_get(full[i].name),"collision-after"));
+ concurrent_cases();
  reset_store();depth=1;for(i=0;i<ARRAYSIZE(nvram_hash);i++){struct nvram_tuple *t=nvram_hash[i],*next;while(t){next=t->next;_nvram_free(t);t=next;}nvram_hash[i]=NULL;}depth=0;assert(!live);
  puts("PASS actual NVRAM allocator/hash + batch prototype: 4/16-key allocation faults preserve old state, colliding bucket replacement, CAS/no-op/space/input/new-key/check-only, borrowed old value retained; host lock/heap substitutes, no ioctl/kernel acceptance");return 0;
 }
