@@ -1,0 +1,34 @@
+{
+  "run_id": 43031406487,
+  "artifact_id": 13860819500,
+  "revision": "38753554b1da603e13b2535d04b9d32350b91375",
+  "conclusion": "success",
+  "scope": "Actual MIPS route test translation units and host route regression",
+  "runtime_verified": false,
+  "files": {
+    "iot-route-deadline-mips.o": {
+      "bytes": 6996,
+      "sha256": "1b9df01beb4af8216e095a61a73ee393c89aa3289f332f75c74e7b3c8f3b93e7"
+    },
+    "iot-inventory-mips.o": {
+      "bytes": 14100,
+      "sha256": "82c756644c77c806d2dcaaa3eae00af63a946ca4e1425aa67db951b48c72faf7"
+    },
+    "iot-route-deadline.txt": {
+      "bytes": 139,
+      "sha256": "60e08f15b4dd2c652f476ce4a90271a7d1ab4489591a11cbdff4f0223a3adf8f",
+      "text": "PASS actual route dump total deadline, nonblocking socket, EAGAIN/clock failure and unchanged output on incomplete dump; I/O/time injected"
+    },
+    "iot-inventory.txt": {
+      "bytes": 186,
+      "sha256": "021de10a5372ac96105b294451ee4c4288810280b41094f78a68ed337e9a6a91",
+      "text": "PASS bounded interface inventory, deduplication, subnet conflict, overflow preservation and read-only kernel snapshot; route acquisition verified on host; activation integration pending"
+    }
+  },
+  "source_sha256": {
+    "tools/iot/route-snapshot.h": "2586fa020fe81aaaff12b0ea847792634d8faa3fd16d0f3bd77eba2b07c06d3a",
+    "tools/iot/check-route-deadline.c": "81df7df6935d095504ab06fc506bcf0eaa45447e8b338a05e36924a12ae33505"
+  },
+  "cleanup": "Archive/objects inspected in memory only",
+  "source_matches_verified_git": true
+}

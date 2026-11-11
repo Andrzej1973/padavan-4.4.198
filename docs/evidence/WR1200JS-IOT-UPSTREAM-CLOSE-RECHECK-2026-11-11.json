@@ -1,0 +1,61 @@
+{
+  "upstream_revision": "0936617dc529ff9da0385221d3fa6de732231177",
+  "source_files": {
+    "mt7603/beacon.c": {
+      "sha256": "273ffc26ce26d80d00926cfea02606e233acc1ce93b2fad0f508ccfe4b2ab747",
+      "references": [
+        {
+          "function": "mt7603_update_beacon_iter",
+          "line": 30
+        },
+        {
+          "function": "mt7603_beacon_set_timer",
+          "line": 182
+        }
+      ],
+      "url": "https://github.com/openwrt/mt76/blob/0936617dc529ff9da0385221d3fa6de732231177/mt7603/beacon.c"
+    },
+    "mt7603/main.c": {
+      "sha256": "f9b64665d9a0e4d6442a768214c4bb96a8d293d0ed26127a9bb53a7308e2f1a2",
+      "references": [
+        {
+          "function": "mt7603_remove_interface",
+          "line": 87
+        },
+        {
+          "function": "mt7603_bss_info_changed",
+          "line": 285
+        }
+      ],
+      "url": "https://github.com/openwrt/mt76/blob/0936617dc529ff9da0385221d3fa6de732231177/mt7603/main.c"
+    },
+    "mt7603/mac.c": {
+      "sha256": "2ddca5b165e98034a1bf5cd185b62f9af805d5cf970e79a54b1bff912397995a",
+      "references": [
+        {
+          "function": "mt7603_mac_stop",
+          "line": 1389
+        },
+        {
+          "function": "mt7603_mac_watchdog_reset",
+          "line": 1439
+        }
+      ],
+      "url": "https://github.com/openwrt/mt76/blob/0936617dc529ff9da0385221d3fa6de732231177/mt7603/mac.c"
+    }
+  },
+  "scope": "Fresh upstream MT7603 source comparison for BSS queue/TxS closure",
+  "findings": [
+    "Periodic beacon update polls FQCR0 BUSY for beacon and BMC filtering under ps_lock",
+    "remove_interface disables beacon timer and removes WCID using upstream lifetime helpers",
+    "mac_stop disables the whole MAC",
+    "watchdog_reset disables worker/tasklet/NAPI and resets whole-device DMA/queues"
+  ],
+  "missing_vendor_evidence": [
+    "BSS filter completion ordering against RF and late TxS",
+    "Validated event correlation or producer epoch retirement across reuse"
+  ],
+  "decision": "No verified equivalent vendor per-BSS closure receipt identified in these functions. Continue retaining isolation on uncertain closure.",
+  "runtime_verified": false,
+  "scratch": "Sources decoded in memory only"
+}
