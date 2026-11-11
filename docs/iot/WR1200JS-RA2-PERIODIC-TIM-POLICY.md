@@ -78,3 +78,17 @@ IoT driver/controller integration remains unfinished.
 Runtime tests must cover Main/Guest associations, TIM captures for an actual
 sleeping client during delayed TxS, queue drain, wake/disassociation/AID reuse,
 restart, reboot and physical PCI/DMA/IRQ teardown. No router was contacted.
+
+
+## Periodic progress and OPEN composition
+
+check-periodic-first-beacon.py combines the generated periodic wrapper and
+producer admission with the actual bounded first-beacon wait fixture. The
+optional peer82 step supplies its final driver tree for source equality checks.
+The test exercises18 logical scenarios with scheduler, MMIO and inner beacon
+publication supplied by the fixture. Pending/unknown TxS, non-IDLE beacon state
+and revoked producer retain the pending activation until timeout and recovery.
+A later allowed tick after pending/unknown TxS supplies the matching publication
+and completes the waiting OPEN. Existing cancellation, identity and generation
+cases continue through the same wrapper. Host GCC -O2 warnings-as-errors and
+ASan/UBSan pass. Target CI execution of this new test is pending.
