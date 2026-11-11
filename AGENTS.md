@@ -1,3 +1,27 @@
+## Owner reaffirmed IoT implementation rules — 2026-11-11
+
+For further IoT work, use the actual pinned legacy MediaTek mt76x3 vendor SDK
+and its ownership/lifetime contracts. Keep ra2-specific handling scoped to the
+exact BSS and validated current station context. Preserve Main/Guest operation,
+existing MCU ACK protection, shared TX state machines and radio timing.
+
+Before releasing a DMA descriptor or requeueing an skb, prove the particular
+ring-cell identity, hardware/host ownership and live packet reference. TX rings
+are queue/index based; WCID alone supplies insufficient descriptor identity.
+A delivered TxS can follow DMA completion and packet release. Existing queued
+PS traffic may retain its TIM indication through the normal beacon/wake path
+under the validated ra2 predicate. Deferred packet state requires an actual
+owned packet and a verified lifecycle transition in this SDK.
+
+Keep diagnostics bounded and truthful. The current LE/TIM marker observes
+host handling for the current association. ESP identity, original packet
+identity after WCID reuse, safe OFF/reopen and RF/DMA/IRQ/late-TxS completion
+require their respective evidence. Record source/host checks, target builds,
+final-image checks and physical runtime acceptance separately. Implement safe
+local corrections when supported by source, and report remaining requirements
+explicitly. See docs/iot/WR1200JS-RA2-PS-RETENTION.md and the accompanying
+WR1200JS-RA2-TXS-LE-DIAGNOSTICS.patch for the current implementation scope.
+
 ## Local WSL upgraded — 2026-11-11
 
 Existing local installation now runs Ubuntu24.04.5 with systemd. Its registered
