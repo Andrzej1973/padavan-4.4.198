@@ -1317,6 +1317,9 @@ jobs:
           gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -Itools/iot \
             tools/iot/check-activation.c -o abi-results/check-iot-activation
           abi-results/check-iot-activation | tee abi-results/iot-activation.txt
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -Itools/iot \
+            tools/iot/check-precreated-activation.c -o abi-results/check-iot-precreated-activation
+          abi-results/check-iot-precreated-activation | tee abi-results/iot-precreated-activation.txt
           gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -Itools/iot \
             tools/iot/check-radio-transition.c -o abi-results/check-iot-radio-transition
           abi-results/check-iot-radio-transition | tee abi-results/iot-radio-transition.txt
@@ -1336,6 +1339,8 @@ jobs:
           test -n "$compiler"
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -Itools/iot \
             -c tools/iot/check-activation.c -o abi-results/iot-activation-mips.o
+          "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -Itools/iot \
+            -c tools/iot/check-precreated-activation.c -o abi-results/iot-precreated-activation-mips.o
           "$compiler" -std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -Itools/iot \
             -c tools/iot/check-radio-transition.c -o abi-results/iot-radio-transition-mips.o
 

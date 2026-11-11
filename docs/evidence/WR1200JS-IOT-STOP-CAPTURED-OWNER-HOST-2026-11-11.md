@@ -35,3 +35,23 @@ Cleanup: baseline temp163808B, first corrected fixtures362632B and final extende
 fixtures395272B removed by owned TemporaryDirectory scopes. Final absence check
 passed; no core/core.* file present in checkout. Core dumps explicitly disabled
 for subsequent regression runs. No router operation or retained build tree.
+
+## Target result and missing feature coverage
+
+ABI43004583856 for exact2beb63bf22c26c7957fbb7b06e0de231c6151497 succeeded.
+Actual iot-activation-mips.o is ELF32LE MIPS ET_REL26968B SHA256
+5baa2df07e9bf8baa7708599f3d57ed57d31de2a25fc239370cb17a6d97a2dad.
+Its bytes include the new successor.unlocks==1 regression assertion. Exact
+Git source/header hashes match the working files; successful host activation
+step and text log independently inspected. Object remains a test TU, not the
+production RC link or physical RF/lifetime acceptance. Companion TARGET JSON.
+
+Inspection exposed a precise CI gap: this ABI step did not compile/run the
+separate check-precreated-activation.c fixture, although the firmware optional
+host loop did. Added host execution plus separate MIPS object to existing ABI
+step, preserving concurrency, monitor coverage and all other checks. New
+feature target result pending. Local identical -O2/ASan/UBSan host flags pass
+100 cycles/all start-stop faults;299048B owned scratch removed, absence asserted.
+No speculative CLOSE transport was added: opcode10 exists in staged codec/
+entry but is not routed by the installed candidate ioctl dispatch. OPEN_CURRENT
+or configuration CLOSED observations are not RF retirement/teardown permission.

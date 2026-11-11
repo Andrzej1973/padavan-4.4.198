@@ -1,0 +1,31 @@
+{
+  "run_id": 43004583856,
+  "artifact_id": 13848190987,
+  "revision": "2beb63bf22c26c7957fbb7b06e0de231c6151497",
+  "runtime_verified": false,
+  "scope": "Host activation regression and MIPS fixture translation unit; not linked production RC or RF acceptance",
+  "files": {
+    "iot-activation-mips.o": {
+      "bytes": 26968,
+      "sha256": "5baa2df07e9bf8baa7708599f3d57ed57d31de2a25fc239370cb17a6d97a2dad",
+      "format": "ELF32LE MIPS relocatable",
+      "new_owner_assertion_present": true
+    },
+    "iot-activation.txt": {
+      "bytes": 142,
+      "sha256": "7ee1f0caf971615d2358b6315ca5ac4038ce0d9dbda484cda1c0e135d48c0aca",
+      "text": "PASS IoT activation: stale admission, main-radio readiness, signal-marker cancellation and retained uncertain recovery; injected backend only"
+    }
+  },
+  "source_sha256": {
+    "tools/iot/activation.h": "a63d2d6586f79efcc73b78daa567767f83cff7dee729e6a5c0b57b57a5760f82",
+    "tools/iot/check-activation.c": "622fd6bb346c685352d4b61ef871cc81730f0f52af065276fe00c06a838134f4"
+  },
+  "steps": [
+    {
+      "job_id": 130468778673,
+      "name": "Check IoT activation sequencing and retained recovery",
+      "conclusion": "success"
+    }
+  ]
+}
