@@ -45,6 +45,38 @@ static void concurrent_cases(void)
  }
  puts("PASS 200 synchronized two-writer trials: batch CAS has one winner; legacy single-key writer serializes but can overwrite a completed batch");
 }
+static void wire_cases(void)
+{
+ struct wr_nvram_wire_request packet={0},valid;struct wr_nvram_edit decoded[16],sentinel[16];
+ memset(decoded,0x5a,sizeof(decoded));memcpy(sentinel,decoded,sizeof(decoded));
+ packet.version=1;packet.count=1;packet.items[0].flags=3;
+ strcpy(packet.items[0].name,names[0]);strcpy(packet.items[0].expected,"before");strcpy(packet.items[0].value,"wire-after");
+ valid=packet;
+ for(int fault=0;fault<10;fault++){
+  packet=valid;
+  switch(fault){
+   case 0:packet.version=2;break;
+   case 1:packet.count=17;break;
+   case 2:packet.reserved[0]=1;break;
+   case 3:packet.items[1].flags=1;break;
+   case 4:packet.items[0].reserved[1]=1;break;
+   case 5:memset(packet.items[0].name,'x',64);break;
+   case 6:packet.items[0].value[128]='x';break;
+   case 7:packet.items[0].flags=1;break;
+   case 8:packet.count=2;packet.items[1]=packet.items[0];break;
+   case 9:packet.items[0].name[0]='=';break;
+  }
+  assert(wr_nvram_decode_batch(&packet,sizeof(packet),decoded)==-EINVAL);
+  assert(!memcmp(decoded,sentinel,sizeof(decoded)));
+ }
+ assert(wr_nvram_decode_batch(&valid,sizeof(valid)-1,decoded)==-EINVAL);
+ assert(wr_nvram_decode_batch(&valid,sizeof(valid)+1,decoded)==-EINVAL);
+ assert(!memcmp(decoded,sentinel,sizeof(decoded)));
+ packet=valid;reset_store();assert(wr_nvram_decode_batch(&packet,sizeof(packet),decoded)==1);
+ assert(wr_nvram_batch_candidate(decoded,packet.count)==1);
+ assert(!strcmp(_nvram_get(names[0]),"wire-after"));
+ puts("PASS fixed5264-byte pointer-free request: malformed buffers leave output untouched; decoded request executes actual batch core");
+}
 int main(void)
 {
  struct wr_nvram_edit edits[4];unsigned int i;unsigned long before;int old_live;
@@ -93,7 +125,7 @@ int main(void)
  }
  fail_at=0;allocations=0;assert(wr_nvram_batch_candidate(full,16)==16);
  for(i=0;i<16;i++)assert(!strcmp(_nvram_get(full[i].name),"collision-after"));
- concurrent_cases();
+ concurrent_cases();wire_cases();
  reset_store();depth=1;for(i=0;i<ARRAYSIZE(nvram_hash);i++){struct nvram_tuple *t=nvram_hash[i],*next;while(t){next=t->next;_nvram_free(t);t=next;}nvram_hash[i]=NULL;}depth=0;assert(!live);
  puts("PASS actual NVRAM allocator/hash + batch prototype: 4/16-key allocation faults preserve old state, colliding bucket replacement, CAS/no-op/space/input/new-key/check-only, borrowed old value retained; host lock/heap substitutes, no ioctl/kernel acceptance");return 0;
 }

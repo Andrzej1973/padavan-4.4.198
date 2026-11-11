@@ -25,7 +25,9 @@ def transform(source):
     # An externally visible but unexported, uncalled symbol ensures the object
     # actually contains compiled batch code. No userspace API is installed.
     core = core.replace(signature, 'int wr_nvram_batch_candidate(', 1)
-    return source[:end] + '\n\n' + core + source[end:]
+    wire_header = (here / 'nvram-batch-wire.h').read_text()
+    wire_decoder = (here / 'nvram-batch-wire.c.inc').read_text()
+    return source[:end] + '\n\n' + core + '\n' + wire_header + '\n' + wire_decoder + source[end:]
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)

@@ -48,7 +48,7 @@ static void kfree(void *p){if(p){assert(depth==1);live--;free(p);}}
 actual=fn(common,'hash(const char *s)','static inline uint\n')+fn(linux,'_nvram_realloc(struct','struct nvram_tuple *\n')+fn(linux,'_nvram_free(struct','void\n')+fn(common,'_nvram_get(const char *name)\n{','char *\n')+fn(common,'_nvram_set(const char *name, const char *value, int is_temp)\n{','int\n')
 fixture=(here/'nvram-batch-fixture.c.inc').read_text()
 with tempfile.TemporaryDirectory(prefix='wr-nvram-batch-core-') as scratch:
-    root=pathlib.Path(scratch);(root/'fixture.c').write_text(prefix+actual+(here/'nvram-batch-core.c.inc').read_text()+fixture)
+    root=pathlib.Path(scratch);(root/'fixture.c').write_text(prefix+actual+(here/'nvram-batch-core.c.inc').read_text()+(here/'nvram-batch-wire.h').read_text()+(here/'nvram-batch-wire.c.inc').read_text()+fixture)
     subprocess.run(['gcc','-std=gnu99','-Wall','-Wextra','-Werror','-pthread','-fsanitize=address,undefined','-fno-pie','-no-pie',str(root/'fixture.c'),'-o',str(root/'fixture')],check=True)
     subprocess.run([str(root/'fixture')],check=True)
     size=sum(p.stat().st_size for p in root.iterdir());print('Owned scratch bytes removed',size)

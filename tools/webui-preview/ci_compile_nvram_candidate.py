@@ -58,10 +58,12 @@ try:
         if int.from_bytes(data[16:18], 'little') != 1:
             raise RuntimeError('NVRAM candidate must be relocatable object')
         symbols = subprocess.check_output([cross + 'nm', '--defined-only', str(obj)], text=True)
-        if not any(line.split()[-2:] == ['T', 'wr_nvram_batch_candidate'] for line in symbols.splitlines()):
-            raise RuntimeError('Compiled NVRAM batch function missing from object')
+        for symbol in ('wr_nvram_batch_candidate', 'wr_nvram_decode_batch'):
+            if not any(line.split()[-2:] == ['T', symbol] for line in symbols.splitlines()):
+                raise RuntimeError('Compiled NVRAM function missing from object: ' + symbol)
         (output / 'defined-symbols.txt').write_text(symbols)
         report['batch_core_sha256'] = digest(Path(__file__).with_name('nvram-batch-core.c.inc'))
+        report['wire_sha256'] = {name: digest(Path(__file__).with_name(name)) for name in ('nvram-batch-wire.h', 'nvram-batch-wire.c.inc')}
         report.update(target_compiled=True, object_bytes=len(data), object_sha256=digest(obj))
         shutil.copyfile(obj, output / 'nvram-commit-order.o')
         report['scratch_bytes'] = sum(p.stat().st_size for p in target.rglob('*') if p.is_file())

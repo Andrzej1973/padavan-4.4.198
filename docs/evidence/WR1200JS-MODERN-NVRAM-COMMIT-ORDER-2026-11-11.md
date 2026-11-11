@@ -75,3 +75,25 @@ Python syntax and whitespace checks pass. This updated composition is not
 covered by already running997 or996; needs its own exact-source target run.
 Kernel ABI, userspace ownership/copy, persistence policy and service integration
 remain unfinished; no production activation or runtime acceptance.
+
+## Bounded request decoder
+
+Unpublished candidate layout in nvram-batch-wire.h: fixed5264 bytes, version1,
+count1–16, sixteen328-byte records. __u32 metadata, no pointers, explicit
+reserved bytes; 64-byte name and129-byte expected/value fields including NUL.
+Whole request must be one immutable kernel-owned copy. Decoder checks exact
+size/layout/version, flags, reserved/unused records, canonical zero string tails,
+name syntax and duplicates before changing any output pointer. Absent check/set
+fields must be empty. Native-endian local ABI only; this is not a wire-network
+protocol. No ioctl number has been allocated or exposed.
+
+Host tests execute valid decoded request through actual allocator/hash batch.
+Ten malformed field cases and short/oversized requests reject with untouched
+output. Existing allocator faults/concurrent cases still pass under ASan/UBSan.
+Composed candidate source SHA256:
+c3ac4e68c4f1c20ba50d91c5c11a194719c0009739810fb4bb079dab4719d1bc.
+Fresh scratch155533B auto-removed, absence asserted. CI now requires compiled
+decoder text symbol and records layout/decoder hashes. Still pending: privileged
+user-copy wrapper, explicit copied-buffer wiping, ioctl admission, userspace
+adapter and service integration. Decoder alone is not authorization or safe
+user memory access; never pass a user pointer directly to it.
