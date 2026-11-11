@@ -24,10 +24,11 @@ const reply={schemaVersion:1,state:'configuration_matches',settingsMayHaveChange
   const timeout=guestSubmission((body,options)=>{calls++;signal=options.signal;return new Promise(resolve=>{late=resolve;});},{timeoutMs:2});
   assert.equal((await timeout.submit('private')).state,'unknown');assert.equal(signal.aborted,true);
   late(reply);await new Promise(resolve=>setImmediate(resolve));assert.equal(timeout.getState().state,'unknown');assert.equal(await timeout.submit('again'),false);
-  if(process.argv.includes('--actual-replies')){
-    const replies=JSON.parse(fs.readFileSync(0,'utf8'));assert.equal(replies.length,77);
+  if(process.argv.includes('--actual-replies')||process.argv.includes('--batch-http-replies')){
+    const count=process.argv.includes('--batch-http-replies')?23:77;
+    const replies=JSON.parse(fs.readFileSync(0,'utf8'));assert.equal(replies.length,count);
     for(const value of replies){const got=guestApplyResult(value);assert.equal(got.state,value.state);assert.equal(got.runtimeVerified,false);assert.equal(got.automaticRetry,false);}
-    console.log('PASS actual C JSON -> Modern client:77 replies agree; no radio/flash acceptance');
+    console.log(`PASS actual C JSON -> Modern client:${count} replies agree; no radio/flash acceptance`);
   }
   console.log('PASS Guest client: strict protocol, single pending/send, network loss/timeout unknown, late result ignored, no replay or secret in state; controller not production-bound');
 })().catch(error=>{console.error(error);process.exitCode=1;});

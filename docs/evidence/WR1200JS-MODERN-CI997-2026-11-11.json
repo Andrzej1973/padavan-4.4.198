@@ -1,0 +1,22 @@
+{
+  "run_id": 42967976229,
+  "runtime_verified": false,
+  "artifacts": {
+    "verification-source": {
+      "id": 13832375908,
+      "verification-source.json": {
+        "dispatch_revision": "0ac2349af0f429aa629f061ecae28a7e9d4ffb27",
+        "requested_revision": "",
+        "verified_revision": "0ac2349af0f429aa629f061ecae28a7e9d4ffb27",
+        "runtime_verified": false
+      }
+    },
+    "board-build-status-wr1200js": {
+      "id": 13832054162,
+      "board-build-status.json": {
+        "board": "wr1200js",
+        "status": "success"
+      }
+    }
+  }
+}

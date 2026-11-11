@@ -34,6 +34,7 @@ try:
         subprocess.run(['python3',str(Path(__file__).parent/'prepare-guest-transport.py'),str(prepared)],check=True)
         subprocess.run(['python3',str(Path(__file__).parent/'prepare-modern-body.py'),str(prepared)],check=True)
         subprocess.run(['python3',str(Path(__file__).parent/'prepare-guest-json.py'),str(prepared)],check=True)
+        subprocess.run(['python3',str(Path(__file__).parent/'prepare-guest-batch-http.py'),str(prepared)],check=True)
         report['candidate_web_ex_sha256']=digest(copied/'web_ex.c')
         # A sibling package preserves ../../ROOTDIR and existing shared libraries.
         with tempfile.TemporaryDirectory(prefix='wr-modern-http-build-',dir=root/'trunk/user') as target:
@@ -62,7 +63,7 @@ try:
             dynamic=subprocess.check_output(['readelf','-d',str(binary)],text=True)
             (output/'readelf-dynamic.txt').write_text(dynamic)
             report.update(target_compiled=True,binary_bytes=len(data),binary_sha256=digest(binary),elf='ELF32 little-endian MIPS',
-                          candidate_headers_sha256={name:digest(copied/'wr-shared-wifi'/name) for name in ('password-intent.h','password-request.h','guest-schedule.h','guest-request.h','guest-adapter.h','guest-transport.h','modern-form.h','modern-body.h')})
+                          candidate_headers_sha256={name:digest(copied/'wr-shared-wifi'/name) for name in ('password-intent.h','password-request.h','guest-schedule.h','guest-request.h','guest-adapter.h','guest-transport.h','modern-form.h','modern-body.h','guest-batch.h','nvram-batch-client.h','nvram-batch-wire.h')})
             shutil.copyfile(binary,output/'httpd-candidate')
 finally:
     report['production_after']={'source':digest(httpd/'web_ex.c'),'server_source':digest(httpd/'httpd.c'),'cgi_source':digest(httpd/'cgi.c'),'image_binary':digest(production)}

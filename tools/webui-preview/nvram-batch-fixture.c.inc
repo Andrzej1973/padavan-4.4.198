@@ -1,8 +1,12 @@
 static int client_calls,client_errno,client_result;
 static const void *client_request;
+static int http_ioctl_mode;
+static int http_batch_ioctl(const void *request);
 static int mock_batch_ioctl(int fd,unsigned long command,const void *request)
 {
- assert(fd==7&&command==WR_NVRAM_IOCTL_BATCH_V1&&request==client_request);
+ assert(fd==7&&command==WR_NVRAM_IOCTL_BATCH_V1);
+ if(http_ioctl_mode)return http_batch_ioctl(request);
+ assert(request==client_request);
  client_calls++;errno=client_errno;return client_result;
 }
 #define WR_NVRAM_IOCTL_CALL mock_batch_ioctl
@@ -179,7 +183,7 @@ int main(void)
  }
  fail_at=0;allocations=0;assert(wr_nvram_batch_candidate(full,16)==16);
  for(i=0;i<16;i++)assert(!strcmp(_nvram_get(full[i].name),"collision-after"));
- concurrent_cases();wire_cases();user_copy_cases();client_cases();guest_batch_cases();
+ concurrent_cases();wire_cases();user_copy_cases();client_cases();guest_batch_cases();guest_batch_http_cases();
  reset_store();depth=1;for(i=0;i<ARRAYSIZE(nvram_hash);i++){struct nvram_tuple *t=nvram_hash[i],*next;while(t){next=t->next;_nvram_free(t);t=next;}nvram_hash[i]=NULL;}depth=0;assert(!live);
  puts("PASS actual NVRAM allocator/hash + batch prototype: 4/16-key allocation faults preserve old state, colliding bucket replacement, CAS/no-op/space/input/new-key/check-only, borrowed old value retained; host lock/heap substitutes, no ioctl/kernel acceptance");return 0;
 }

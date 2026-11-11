@@ -62,12 +62,24 @@ static int user_nvram_get(anvram_ioctl_t *p){(void)p;legacy_calls++;return 74;}
 '''
 ioctl_body=fn(generated,'dev_nvram_ioctl(struct file *file, unsigned int req, unsigned long arg)\n{','static long\n').replace('struct file *file,','struct file *file __attribute__((unused)),',1)
 fixture=(here/'nvram-batch-fixture.c.inc').read_text()
-fixture=fixture.replace('int main(void)',(here/'guest-batch-fixture.c.inc').read_text()+'\nint main(void)',1)
+reply=(here/'guest-json-output.c.inc').read_text().split('static void do_wr_modern_guest_apply(')[0]
+handler=reply+(here/'guest-batch-http.c.inc').read_text()
+handler=handler.replace('fopen("/dev/null","w")','fixture_batch_sink("/dev/null","w")').replace('open("/dev/nvram",','fixture_nvram_open("/dev/nvram",').replace('close(fd);','fixture_nvram_close(fd);')
+http_fixture=(here/'guest-batch-http-fixture.c.inc').read_text().replace('/* HTTP_HANDLER */',handler)
+fixture=fixture.replace('int main(void)',(here/'guest-batch-fixture.c.inc').read_text()+'\n'+http_fixture+'\nint main(void)',1)
 user_fixture=(here/'nvram-batch-user-fixture.c.inc').read_text().replace('/* USER_ENTRY */',(here/'nvram-batch-user.c.inc').read_text())
 with tempfile.TemporaryDirectory(prefix='wr-nvram-batch-core-') as scratch:
     root=pathlib.Path(scratch);(root/'fixture.c').write_text(prefix+actual+(here/'nvram-batch-core.c.inc').read_text()+(here/'nvram-batch-wire.h').read_text()+(here/'nvram-batch-wire.c.inc').read_text()+user_fixture+ioctl_constants+ioctl_stubs+ioctl_body+fixture)
     subprocess.run(['gcc','-std=gnu99','-Wall','-Wextra','-Werror','-pthread','-fsanitize=address,undefined','-fno-pie','-no-pie','-I',str(here),'-I',str(here.parent/'shared-wifi'),str(root/'fixture.c'),'-o',str(root/'fixture')],check=True)
-    subprocess.run([str(root/'fixture')],check=True)
+    executed=subprocess.run([str(root/'fixture')],capture_output=True,text=True)
+    if executed.returncode:
+        print(executed.stdout);print(executed.stderr);executed.check_returncode()
+    replies=[]
+    for line in executed.stdout.splitlines():
+        if line.startswith('BATCH_HTTP_REPLY '):replies.append(json.loads(line[len('BATCH_HTTP_REPLY '):]))
+        else:print(line)
+    assert len(replies)==23
+    subprocess.run(['node',str(here/'check_guest_client.js'),'--batch-http-replies'],input=json.dumps(replies),text=True,check=True)
     (root/'client.c').write_text(client_source())
     subprocess.run(['gcc','-std=gnu99','-O2','-Wall','-Wextra','-Werror','-I',str(here),'-I',str(here.parent/'shared-wifi'),'-c',str(root/'client.c'),'-o',str(root/'client.o')],check=True)
     host_abi=read_record('objcopy',root/'fixture',root/'host-abi.bin')

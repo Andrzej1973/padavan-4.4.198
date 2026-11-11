@@ -225,3 +225,46 @@ and use existing notifications only after successful batch and readback.
 Uncertain outcomes must suppress deferred flash/service effects and request
 reload. No source/driver workaround, ACK change, production Apply activation
 or router access was performed here. Full handler binding remains unfinished.
+
+## Isolated HTTP single-batch binding
+
+prepare-guest-batch-http.py replaces only the isolated JSON route handler after
+all existing authentication/body/CGI preparations. It retains original response
+schema and existing commit/notification APIs. Handler rejects unauthorized/busy
+requests, plans a packet, checks actual service table metadata, opens owned
+/dev/nvram descriptor and attempts exactly one batch ioctl. No update_variables_ex
+or individual nvram_set fallback occurs in this route. Unsupported/definite
+refusals suppress flash/notification; EINTR/unknown failures return unconfirmed
+with possible-change indication. All exits close owned resources and wipe packet.
+
+Successful count must agree with planned public/key differences; unexpected
+counts (including unaccounted temporary-tuple conversions) fail unconfirmed.
+Sequential readback observes all checked/set values before populating deferred
+HTTP flags. Mismatch leaves commit/notify unrequested. Existing commit/manual
+mode and notification requests are reported as unverified; no flash or radio
+acceptance. Other writers can still modify state after readback; no exclusive
+apply lease claimed. Legacy Classic and isolated start_apply routes are not
+replaced; atomicity claim is limited to this new JSON path.
+
+Actual table lookup rejects unknown fields, unsafe-login masked fields and
+unexpected event types. Source-generation check independently confirms all28
+Guest rows in pinned variables.c use correct band Wi-Fi event. Common/control
+classification follows source-verified policy; secret-change event inferred
+only when actual changed count exceeds public differences. SSID/security
+changes may request full radio restart; this remains gated from production.
+
+Host actual handler + actual client adapter/ioctl decoder/core pass23 parsed
+JSON responses through actual Modern strict client decoder. Cases: both bands,
+keep/change/open, control/common notification flags, no-op/replay/manual mode,
+9 errno classes, readback race, authorization/busy/unsafe, device/sink failure.
+Credential/copy/descriptor/flash/RC functions are explicit substitutes; this
+is not a real HTTP daemon/socket or actual MTD/kernel test. Existing dispatcher/
+body/auth browser tests cover earlier layer only and must be recomposed later.
+ASan/UBSan and warnings-as-errors pass. Final suite scratch370042B removed.
+Fresh full pinned-source preparation passes exact handler inclusion, one batch,
+no legacy fallback, readback-before-commit-before-notify, exact new headers,
+actual28 field/event rows and rejection of repeated preparation. Candidate
+web_ex SHA2567e365b68745db7bc7f9f8ffb9e6b2a8eb5fe19e10f6bfa3ab99c77697698da98.
+Source scratch292824B removed. Both absence checks pass. CI HTTP compile now
+includes this layer and hashes new headers; its new exact target result remains
+pending. Production renderer, kernel and radio unchanged.
