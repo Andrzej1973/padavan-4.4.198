@@ -193,3 +193,35 @@ validation headers), with source hashes in target report. Native compile and
 ABI comparison pass; target execution still pending. Final scratch304708B
 removed, absence asserted. Next: bind admitted HTTP lifecycle to exactly one
 batch call and reconcile service/commit response without per-field fallback.
+
+## Apply/notification admission boundary
+
+New check_guest_notification_policy.py extracts actual Guest-control and common
+fallback clauses from pinned validate_asp_apply and executes the full actual
+ej_notify_services with notification/RC substitutes. It rejects new unexpected
+Guest-specific branches rather than silently assuming the same classification.
+HTTP source SHA256:dd6db5e31425491ed18ce0c9eddd2d288e675e1a20473dc47dea4b2f57a67a4e.
+
+For each band, enable/date_x/time_x/time2_x map to WIFI_GUEST_CONTROL_BIT;
+the other ten Guest fields (SSID, hidden flag, auth/WPA/cipher, isolation flags,
+MAC rule, rate and key) reach WIFI_COMMON_CHANGE_BIT. Actual notification code
+prioritizes common changes: common-only or mixed common+Guest requests select
+RCN_RESTART_WIFI2/5, while control-only selects control_wifi_guest_rt/wl.
+Tests cover all14 fields on both bands and both mixed-bit cases. Fixture macro
+values are representative masks; restart command constants and notify_rc are
+substituted. This proves branch selection, not actual RC/driver execution or
+whether a hardware channel scan occurs. Earlier actual Guest control fixture
+already separates successful wrapper return from failed ifconfig acceptance.
+
+ASan/UBSan and warnings-as-errors pass. Scratch45209B removed, absence asserted.
+Reproduce:
+```
+PYTHONDONTWRITEBYTECODE=1 python3 tools/webui-preview/check_guest_notification_policy.py /home/andrzej/padavan-build/firmware-source-backup/padavan-4.4-c25283e-git-exact.tar
+```
+
+Do not mark a full Guest credential/SSID apply as restart-free merely because
+its storage is now atomic. New HTTP batch binding must preserve this distinction
+and use existing notifications only after successful batch and readback.
+Uncertain outcomes must suppress deferred flash/service effects and request
+reload. No source/driver workaround, ACK change, production Apply activation
+or router access was performed here. Full handler binding remains unfinished.
