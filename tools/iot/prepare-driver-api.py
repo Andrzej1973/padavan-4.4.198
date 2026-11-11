@@ -176,6 +176,7 @@ changes['include/radio-transition-api.h']=extended_transition
 changes=runpy.run_path(str(local/'first-beacon-composition.py'))['compose'](changes,src,local)
 # Current tracked beacon pacing requires successful reservation before HAL.
 changes['common/cmm_mac_pci.c']=runpy.run_path(str(local/'tracked-beacon-reservation.py'))['compose'](changes['common/cmm_mac_pci.c'])
+changes=runpy.run_path(str(local/'ra2-ps-composition.py'))['compose'](changes,src,local)
 # All source anchors/collisions verified before the first mutation.
 for name,s in changes.items():(src/name).write_text(s)
 hashes={n:hashlib.sha256((src/n).read_bytes()).hexdigest() for n in changes}

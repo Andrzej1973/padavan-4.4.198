@@ -1,0 +1,20 @@
+{
+  "scope": "Localized vendor ra2 sleeping-station queue retention",
+  "source_base": "c25283e915a2a00a763774dd255b14aff997285e",
+  "host_verified": true,
+  "target_verified": false,
+  "runtime_verified": false,
+  "interpretation": "Existing handler has no packet pointer or timeout reason. Retention applies to qualifying sleeping ra2 queued traffic generally until existing station idle deadline.",
+  "cases": 17,
+  "checks": [
+    "Actual extracted SDK maintenance and PsDataTxSHandler",
+    "GCC -O2 -Wall -Wextra -Werror ASan/UBSan",
+    "Repeated composition refusal"
+  ],
+  "scratch_removed_bytes": 96573,
+  "source_sha256": {
+    "tools/iot/ra2-ps-retain.h": "05b8ae101467680127c0294746fe8a4536d93ea3bc7fe96295f5f615e0fad67b",
+    "tools/iot/ra2-ps-composition.py": "861429f365386776a2108bb79e4f95d29c548e8d804bc7b70536ee131d193a48",
+    "tools/iot/check-ra2-ps-retain.py": "8f87eb92dc5c6b78a197ff4f722df56d4ef01b82b879422242a289afe31b602f"
+  }
+}
