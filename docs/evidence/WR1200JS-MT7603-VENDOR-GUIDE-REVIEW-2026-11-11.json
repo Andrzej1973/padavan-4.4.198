@@ -1,0 +1,30 @@
+{
+  "url": "https://widora.cn/_media/zh/mtk_wi-fi_softap_software_programming_guide_v4.6.pdf",
+  "pdf_sha256": "87ab5c8dc5450b22d8b4e5de39ce51fd0a63fa51e4af3bbe5b14446167b7aadb",
+  "bytes": 2736979,
+  "pages": 163,
+  "inspected_sections": [
+    "profile/interface apply pp14-15",
+    "statistics and iwpriv p55",
+    "MBSSID pp57-60"
+  ],
+  "finding": "Configuration-level MBSSID and diagnostic guidance. No per-BSS no-more-TxS/producer retirement or ROM ACK reuse contract identified in reviewed sections and targeted full-text search.",
+  "limits": "Generic older SDK guide; actual pinned MT7603 source remains authoritative. Generic BSSID examples do not establish exact target runtime capabilities.",
+  "full_text_search": [
+    "flush",
+    "retire",
+    "TxS",
+    "RadioOn",
+    "RadioOff",
+    "BssEnable",
+    "sequence",
+    "timeout",
+    "beacon stop/disable"
+  ],
+  "missing_evidence": [
+    "E1/E2 ROM ACK reply lifetime, duplication and reset/epoch invalidation contract",
+    "supported per-BSS no-more-RF/no-more-TxS boundary including DMA/IRQ/callback delivery, or firmware echoed lifetime identity"
+  ],
+  "decision": "IoT production OFF/reopen remains BLOCKED; existing build/host/image results retain their limited verified scopes",
+  "runtime_verified": false
+}
