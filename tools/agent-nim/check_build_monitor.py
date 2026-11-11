@@ -32,6 +32,14 @@ with (nullcontext(sys.argv[2]) if len(sys.argv)>2 else tempfile.TemporaryDirecto
     assert 'BUILD FAILED:' not in subprocess.run(dns_cmd,capture_output=True,text=True,env=dns_env,check=True).stdout
     dns_run.update(id=1011,conclusion='success');fixture.write_text(json.dumps({'workflow_runs':[dns_run]}))
     assert 'BUILD FAILED:' not in subprocess.run(dns_cmd,capture_output=True,text=True,env=dns_env,check=True).stdout
+    # Real1014: late default-source apt could not locate QEMU after mirror fallback.
+    apt_log=root/'apt-qemu-1014.log'
+    apt_log.write_text('E: Unable to locate package qemu-user-static\n##[error]Process completed with exit code 100.\n')
+    fixture.write_text(json.dumps({'workflow_runs':[row(1014)]}),encoding='utf-8')
+    apt_env=dict(os.environ,BUILD_MONITOR_FIXTURE_JOB_LOG=str(apt_log))
+    apt_cmd=[str(binary),'--fixture:'+str(fixture),'--state-dir:'+str(root/'apt-state')]
+    assert 'E: Unable to locate package qemu-user-static' in subprocess.run(apt_cmd,capture_output=True,text=True,env=apt_env,check=True).stdout
+    assert 'BUILD FAILED:' not in subprocess.run(apt_cmd,capture_output=True,text=True,env=apt_env,check=True).stdout
     # Real run42482744141 had no jobs: reusable actions:read exceeded caller.
     startup_state=root/'workflow-startup'
     startup=row(698,conclusion='startup_failure')

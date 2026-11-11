@@ -1,0 +1,18 @@
+{
+  "run": 43049698613,
+  "number": 1015,
+  "host": "ubuntu-24.04",
+  "source": "b85fa3514de74989f035039c1edc7445f1f7f79c",
+  "monitor_run": 43053290766,
+  "monitor_artifact": 13869513891,
+  "monitor_assessment": "Useful: AM_PATH_LIBGCRYPT diagnostic present; no parser change for this failure",
+  "cause": "ntfs-3g autoreconf missing AM_PATH_LIBGCRYPT; subsequent AC_MSG diagnostics are follow-on",
+  "causal_lines": [
+    "build (wr1200js) / build-wr1200js\tUNKNOWN STEP\t2026-11-11T15:55:12.6899491Z configure.ac:337: warning: macro 'AM_PATH_LIBGCRYPT' not found in library",
+    "build (wr1200js) / build-wr1200js\tUNKNOWN STEP\t2026-11-11T15:55:13.7699523Z configure.ac:337: warning: macro 'AM_PATH_LIBGCRYPT' not found in library",
+    "build (wr1200js) / build-wr1200js\tUNKNOWN STEP\t2026-11-11T15:55:14.5530304Z configure.ac:337: error: possibly undefined macro: AM_PATH_LIBGCRYPT"
+  ],
+  "host_dependency": "libgcrypt20-dev supplies /usr/share/aclocal/libgcrypt.m4",
+  "source_reference": "https://packages.ubuntu.com/noble/amd64/libgcrypt20-dev/filelist",
+  "verification": "host fixture verifies required package; target rebuild pending"
+}

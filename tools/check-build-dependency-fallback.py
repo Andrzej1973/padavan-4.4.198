@@ -12,6 +12,8 @@ with tempfile.TemporaryDirectory(prefix='wr-apt-fallback-') as tmp:
 import os, pathlib, sys
 args=sys.argv
 assert 'Dir::Etc::sourceparts=-' in args
+if 'install' in args:
+ assert all(package in args for package in ('qemu-user-static','dnsutils','iptables','proot','libgcrypt20-dev'))
 assert not any('AllowUnauthenticated' in arg or 'trusted=yes' in arg for arg in args)
 source=next(arg.split('=',1)[1] for arg in args if arg.startswith('Dir::Etc::sourcelist='))
 content=pathlib.Path(source).read_text()
@@ -32,4 +34,5 @@ sys.exit(1 if mode=='fail' or (mode=='fallback' and not fallback) else 0)
             capture_output=True,text=True,timeout=10)
         assert result.returncode==code,(case,result.stderr)
         assert log.read_text().splitlines()==expected,(case,log.read_text())
+assert 'apt-get' not in Path('.github/workflows/build-padavan-4.4-wr1200js.yml').read_text(), 'Late apt invocation bypasses selected sources'
 print('PASS apt primary success, independent mirror fallback, final failure; security pocket retained')

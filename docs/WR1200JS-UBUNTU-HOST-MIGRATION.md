@@ -68,3 +68,24 @@ rejects incomplete or expired metadata, and mirror unavailability still fails
 closed. This preserves distro/package selection; it does not promote the host.
 Offline executable fixtures cover primary success, fallback after primary
 failure, final failure and inclusion of the security pocket.
+
+## Build1014 exposed a second apt path
+
+Ubuntu22 firmware build succeeded, but Stubby QEMU gate failed before test
+execution: a late raw apt invocation could not locate qemu-user-static. It used
+the runner default sources rather than the temporary source selection used by
+the successful initial install. QEMU/dnsutils/iptables/proot now belong to the
+initial bounded dependency transaction; later runtime gates perform no apt.
+An offline regression rejects late raw apt calls and verifies those packages
+are included. Monitor report identified the step but omitted the actionable
+package error; a minimal matcher and dedup fixture cover that omission.
+Neither QEMU nor device runtime acceptance is implied by compilation success.
+
+Ubuntu24 run1015 reached ntfs-3g autoreconf and failed on missing
+AM_PATH_LIBGCRYPT (configure.ac337); AC_MSG_ERROR/WARN diagnostics follow that
+missing expansion. libgcrypt20-dev explicitly supplies the host aclocal macro
+/usr/share/aclocal/libgcrypt.m4 according to Ubuntu's Noble package file list:
+https://packages.ubuntu.com/noble/amd64/libgcrypt20-dev/filelist . Added as a host
+build dependency on both control and candidate; target toolchain unchanged.
+Monitor43053290766 already retained the causal diagnostic; no parser change
+needed for1015. Full target build verification of this correction is pending.

@@ -32,8 +32,8 @@ for attempt in 1 2; do
        gawk gettext git gperf libtool libtool-bin pkg-config fakeroot \
        kmod cpio texinfo help2man libncurses-dev zlib1g-dev \
        libsqlite3-dev gcc-multilib curl dos2unix unzip wget xxd \
-       libltdl-dev libgmp-dev libmpfr-dev libarchive-tools libblkid-dev \
-       python3-docutils ccache squashfs-tools; then
+       libltdl-dev libgcrypt20-dev libgmp-dev libmpfr-dev libarchive-tools libblkid-dev \
+       python3-docutils ccache squashfs-tools qemu-user-static dnsutils iptables proot; then
     exit 0
   fi
   echo "Dependency attempt $attempt failed" >&2

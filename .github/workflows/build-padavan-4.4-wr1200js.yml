@@ -1308,7 +1308,6 @@ jobs:
       - name: Resolve names through the image Stubby under QEMU
         run: |
           if grep -q '^CONFIG_FIRMWARE_INCLUDE_STUBBY=y$' configs.build/wr1200js.config; then
-            sudo apt-get install --no-install-recommends -y qemu-user-static dnsutils iptables
             sh overlay/padavan-4.4/ports/stubby/check-stubby-runtime.sh \
               padavan-4.4/trunk/romfs --outage 2>&1 | tee stubby-runtime.txt
             if grep -q '^CONFIG_FIRMWARE_INCLUDE_DOH=y$' configs.build/wr1200js.config; then
@@ -1328,7 +1327,6 @@ jobs:
 
       - name: Verify zram dependencies and shipped swap priority support
         run: |
-          sudo apt-get install --no-install-recommends -y qemu-user-static proot
           set -o pipefail
           python3 tools/verify-zram-image.py padavan-4.4 | tee zram-image-checks.txt
 
