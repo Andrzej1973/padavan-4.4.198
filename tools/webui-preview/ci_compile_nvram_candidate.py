@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compile isolated NVRAM commit-order TU with configured target Kbuild."""
+"""Compile isolated NVRAM batch/commit-order TU with configured target Kbuild."""
 import argparse
 import hashlib
 import importlib.util
@@ -18,7 +18,7 @@ output = args.output.resolve()
 output.mkdir(parents=True, exist_ok=True)
 kernel = root / 'trunk/linux-4.4.x'
 production = kernel / 'drivers/nvram'
-spec = importlib.util.spec_from_file_location('commit_order', Path(__file__).with_name('prepare-nvram-commit-order.py'))
+spec = importlib.util.spec_from_file_location('nvram_batch', Path(__file__).with_name('prepare-nvram-batch-candidate.py'))
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 def digest(path):
@@ -27,7 +27,7 @@ watched = [production / 'nvram_linux.c', production / 'nvram.c', production / 'n
            kernel / '.config', kernel / 'vmlinux']
 watched += list((root / 'trunk/images').glob('*.trx'))
 before = {str(p.relative_to(root)): digest(p) for p in watched}
-report = {'scope': 'Isolated NVRAM commit-order translation unit; not linked or installed',
+report = {'scope': 'Isolated NVRAM batch/commit-order translation unit; no ioctl, not linked or installed',
           'repository_revision': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=Path(__file__).resolve().parents[2], text=True).strip(),
           'production_before': before, 'target_compiled': False,
           'production_installed': False, 'runtime_verified': False, 'scratch_removed': False}
@@ -57,6 +57,11 @@ try:
             raise RuntimeError('NVRAM candidate is not ELF32LE MIPS')
         if int.from_bytes(data[16:18], 'little') != 1:
             raise RuntimeError('NVRAM candidate must be relocatable object')
+        symbols = subprocess.check_output([cross + 'nm', '--defined-only', str(obj)], text=True)
+        if not any(line.split()[-2:] == ['T', 'wr_nvram_batch_candidate'] for line in symbols.splitlines()):
+            raise RuntimeError('Compiled NVRAM batch function missing from object')
+        (output / 'defined-symbols.txt').write_text(symbols)
+        report['batch_core_sha256'] = digest(Path(__file__).with_name('nvram-batch-core.c.inc'))
         report.update(target_compiled=True, object_bytes=len(data), object_sha256=digest(obj))
         shutil.copyfile(obj, output / 'nvram-commit-order.o')
         report['scratch_bytes'] = sum(p.stat().st_size for p in target.rglob('*') if p.is_file())

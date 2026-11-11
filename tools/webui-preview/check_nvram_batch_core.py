@@ -1,11 +1,22 @@
 #!/usr/bin/env python3
 """Actual pinned NVRAM hash/allocator plus isolated batch prototype; host only."""
-import hashlib,json,pathlib,subprocess,sys,tarfile,tempfile
+import hashlib,importlib.util,json,pathlib,subprocess,sys,tarfile,tempfile
 here=pathlib.Path(__file__).resolve().parent
 with tarfile.open(sys.argv[1]) as archive:
     common=archive.extractfile('trunk/linux-4.4.x/drivers/nvram/nvram.c').read().decode()
     linux=archive.extractfile('trunk/linux-4.4.x/drivers/nvram/nvram_linux.c').read().decode()
     header=archive.extractfile('trunk/linux-4.4.x/include/nvram/bcmnvram.h').read().decode()
+spec=importlib.util.spec_from_file_location('nvram_batch',here/'prepare-nvram-batch-candidate.py')
+generator=importlib.util.module_from_spec(spec);spec.loader.exec_module(generator)
+generated=generator.transform(linux)
+expected_core=(here/'nvram-batch-core.c.inc').read_text().replace('static int wr_nvram_batch_candidate(', 'int wr_nvram_batch_candidate(',1)
+assert expected_core in generated
+assert generated.index('_nvram_free(struct')<generated.index('int wr_nvram_batch_candidate(')<generated.index('nvram_commit(void)')
+for invalid in (generated,linux.replace('_nvram_free(struct nvram_tuple *t)','_nvram_free(struct nvram_tuple *renamed)')):
+    try:generator.transform(invalid)
+    except ValueError:pass
+    else:raise AssertionError('Changed/repeated generation must refuse')
+print('PASS exact batch core target composition and changed/repeated source rejection; candidate SHA256',hashlib.sha256(generated.encode()).hexdigest())
 def fn(text,marker,prefix=''):
     a=text.index(marker);return prefix+text[a:text.index('\n}',a)+2]+'\n'
 prefix=r'''

@@ -54,3 +54,24 @@ firmware workflow: failure monitor already covers it; first real failure must
 be compared with monitor artifact before any parser changes. No speculative
 monitor edits. Python syntax and workflow YAML parse passed; target compilation
 remains pending until a new exact-source optional run completes.
+
+## Batch target composition follow-up
+
+`prepare-nvram-batch-candidate.py` composes the existing commit-order correction
+with the exact host-tested batch core after actual _nvram_free definition.
+The candidate exposes a global but unexported/uncalled batch symbol only to
+prevent dead-code elimination during the target object check. It adds no ioctl,
+userspace command, flash call or production hook. The CI object check now
+requires defined text symbol wr_nvram_batch_candidate using the target nm and
+records batch-core SHA256. Thus a passing check must compile the batch body,
+not merely an unused include that the compiler discarded.
+
+Fresh guarded composition of pinned source SHA256:
+2298cbef2e3b9d756bdccd8deef6124a6216ceb9163f874c65ad471c935f9c83.
+Host fixture asserts exact core inclusion and placement, and rejects repeated
+or altered allocator anchors. Actual-core ASan/UBSan cases, including200
+concurrent-writer trials, pass again. Scratch126658B removed, absence asserted.
+Python syntax and whitespace checks pass. This updated composition is not
+covered by already running997 or996; needs its own exact-source target run.
+Kernel ABI, userspace ownership/copy, persistence policy and service integration
+remain unfinished; no production activation or runtime acceptance.
