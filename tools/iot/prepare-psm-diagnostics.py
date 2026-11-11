@@ -15,17 +15,18 @@ header='''/* Diagnostic only. Build with -DWR_IOT_PSM_DIAG; off by default.
 #include <linux/ratelimit.h>
 static inline void wr_iot_ps_diag(unsigned int event,unsigned int bss,
  unsigned int peer,unsigned int x,unsigned int y){
- static atomic_t hits[6]={ATOMIC_INIT(0),ATOMIC_INIT(0),ATOMIC_INIT(0),ATOMIC_INIT(0),ATOMIC_INIT(0),ATOMIC_INIT(0)};
+ static atomic_t hits[7]={ATOMIC_INIT(0),ATOMIC_INIT(0),ATOMIC_INIT(0),ATOMIC_INIT(0),ATOMIC_INIT(0),ATOMIC_INIT(0),ATOMIC_INIT(0)};
  static DEFINE_RATELIMIT_STATE(limit,5*HZ,8);
  unsigned int count;
- if(event>=6)return;
+ if(event>=7)return;
  /* BSS-attributed diagnostics are scoped to the reserved IoT slot. Raw TxS
   * reports have no proven BSS mapping and retain the explicit unknown value. */
  if(event!=4 && bss!=2)return;
  count=(unsigned int)atomic_inc_return(&hits[event]);
  if(__ratelimit(&limit))
-  printk(KERN_INFO "wr_ps event=%u bss=%u peer=%u x=%u y=%u hits=%u site=%s\\n",
-   event,bss,peer,x,y,count,__FILE__);
+  printk(KERN_INFO "wr_ps event=%u bss=%u peer=%u x=%u y=%u hits=%u site=%s%s\\n",
+   event,bss,peer,x,y,count,__FILE__,
+   event==6 ? " mt76x3: ra2 txs-le TIM-retained current-association" : "");
 }
 #else
 #define wr_iot_ps_diag(event,bss,peer,x,y) do {} while(0)

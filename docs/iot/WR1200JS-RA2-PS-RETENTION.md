@@ -65,3 +65,40 @@ beacon fixture passed against prepared sources. This is isolated target-build
 evidence, not production installation or proof of concurrent station runtime.
 See ../evidence/WR1200JS-IOT-OPTIONAL1018-TARGET-2026-11-11.json. ROM ACK and
 safe RF/late-TxS retirement issues remain separate unresolved requirements.
+
+## Delivered lifetime-error telemetry — 2026-11-11
+
+The PS-data callback is registered for PID_PS_DATA/TXS_FORMAT0 in vendor
+`tx_rx/txs.c:325-327`. Its supplied report contains WCID and the LE error bit.
+The current ra2 predicate and live queued traffic must pass before event6 is
+recorded after setting TIM. x records PsQIdleCount and y records enqCount.
+With WR_IOT_PSM_DIAG enabled, the rate-limited marker contains
+`mt76x3: ra2 txs-le TIM-retained current-association`. Current WCID state can be
+observed after WCID reuse, so this marker establishes host TIM retention for
+that current association only. ESP device identification requires independent
+station identity evidence. NULL adapter/report inputs return before decoding.
+
+The DMA path in vendor `common/cmm_data_pci.c:883-915,1063-1092` chooses a shared
+TX queue, advances between TxSwFreeIdx and the hardware TxDmaIdx, unmaps the
+packet DMA mapping and releases the packet. `PsDataTxSHandler:129-145` receives
+Data and Priv without a packet pointer or ring-cell ownership token. Its
+existing action clears PsDeQWaitCnt. An arbitrary WCID-based ring-cell release
+can free hardware-owned memory or affect a reused cell. Requeueing a packet
+already released by DMA completion requires a separately owned retained copy
+and correlation protocol. Those mechanisms remain unimplemented.
+
+The scoped PS queue retention already preserves live queued packets for the
+normal wake/PS-Poll path and periodic TIM serialization. Reset/deauth suppression
+in this callback has no matching reset/deauth call to intercept. Vendor
+`ap/ap.c:2251-2259` already excludes PWR_SAVE from ContinueTxFailCnt eviction.
+Safe OFF/reopen, RF retirement and late-report lifetime synchronization remain
+unverified. A printk observes execution of the host branch. Acceptance requires
+independent completion/isolation and Main/Guest runtime evidence.
+
+The exact incremental C diff is
+`../evidence/WR1200JS-RA2-TXS-LE-DIAGNOSTICS.patch`, based on prepared peer82
+and its diagnostic header at source0705458. Apply via the repository generators
+for builds. The exported diff supports source review and applies to that
+prepared base. ASan/UBSan host tests cover diagnostic OFF/ON, LE/non-LE,
+NULL inputs, Main/Guest and invalid station states. Target verification for
+this new change is pending.

@@ -70,7 +70,12 @@ typedef struct {unsigned int wcid,func_tb_idx,enqCount,PsQIdleCount,PsDeQWaitCnt
 typedef struct {int mt;struct {int BssidNum;struct {struct wifi_dev wdev;struct {int bBcnSntReq;} bcn_buf;} MBSSID[3];} ApCfg;
  struct {MAC_TABLE_ENTRY Content[4];STA_TR_ENTRY tr_entry[4];} MacTab;} RTMP_ADAPTER;
 typedef struct {unsigned int wlan_idx;} TXS_D_3;
-typedef struct {TXS_D_3 txs_d3;} TXS_STRUC;
+typedef struct {unsigned int LE;} TXS_D_0;
+typedef struct {TXS_D_0 txs_d0;TXS_D_3 txs_d3;} TXS_STRUC;
+#ifdef WR_IOT_PSM_DIAG
+static unsigned diag_hits;
+#define wr_iot_ps_diag(e,b,p,x,y) do{assert((e)==6&&(b)==2&&(p)==1);(void)(x);assert((y)==2);diag_hits++;}while(0)
+#endif
 static int tim,flushes;
 #define WLAN_MR_TIM_BIT_SET(ad,bss,aid) do{assert((ad)&&(bss)==2&&(aid)==1);tim=1;}while(0)
 #define WLAN_MR_TIM_BIT_CLEAR(ad,bss,aid) do{}while(0)
@@ -114,8 +119,17 @@ int main(void)
   assert(!wr_iot_ra2_sleeping_pending(&ad,~0U));
   assert(wr_iot_ra2_sleeping_pending(&ad,1)==(fault==0||fault==20));
   TXS_STRUC report={.txs_d3.wlan_idx=1};tim=flushes=0;
+  assert(!PsDataTxSHandler(NULL,(CHAR *)&report,0));
+  assert(!PsDataTxSHandler(&ad,NULL,0));
   assert(!PsDataTxSHandler(&ad,(CHAR *)&report,0));
   assert(tim==(fault==0||fault==20)&&traffic->PsDeQWaitCnt==0&&traffic->enqCount==(fault==16?0U:2U));
+#ifdef WR_IOT_PSM_DIAG
+  assert(diag_hits==0);
+  report.txs_d0.LE=1;
+  assert(!PsDataTxSHandler(&ad,(CHAR *)&report,0));
+  assert(diag_hits==(unsigned)(fault==0||fault==20));
+  diag_hits=0;
+#endif
   /* Maintenance receives its current entry pointer, so the mismatched-WCID
    * cases are tested by the helper/completion above only. */
   if(fault==13||fault==14)continue;
@@ -141,9 +155,14 @@ with tempfile.TemporaryDirectory(prefix='wr-ra2-ps-check-') as scratch:
     code = prefix + sources['include/ra2-ps-retain.h'] + '\n' + completion
     code += '\nstatic void maintenance(RTMP_ADAPTER *pAd,MAC_TABLE_ENTRY *pEntry,STA_TR_ENTRY *tr_entry){\n' + maintenance + '\n}\n' + main
     (root / 'check.c').write_text(code)
-    subprocess.run(['gcc', '-std=gnu11', '-O2', '-Wall', '-Wextra', '-Werror', '-Wno-unused-parameter',
-                    '-fsanitize=address,undefined', '-fno-pie', '-no-pie', str(root / 'check.c'), '-o', str(root / 'check')], check=True)
-    subprocess.run([str(root / 'check')], check=True)
+    for mode in ('off', 'on'):
+        command = ['gcc', '-std=gnu11', '-O2', '-Wall', '-Wextra', '-Werror',
+                   '-Wno-unused-parameter', '-fsanitize=address,undefined',
+                   '-fno-pie', '-no-pie', str(root / 'check.c'), '-o', str(root / 'check')]
+        if mode == 'on':
+            command.append('-DWR_IOT_PSM_DIAG')
+        subprocess.run(command, check=True)
+        subprocess.run([str(root / 'check')], check=True)
     size = sum(path.stat().st_size for path in root.iterdir())
 assert not root.exists()
 print('Owned scratch removed bytes', size)
