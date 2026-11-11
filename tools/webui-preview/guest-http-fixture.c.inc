@@ -14,6 +14,9 @@ typedef struct {int fd,usa;} conn_item_t;
 #define HTTP_METHOD_HEAD 2
 static int http_has_lang,login_fixture=3,status_code,inputs,outputs,observed,auth_calls;
 static int wr_modern_guest_post_authorized;
+static int wr_modern_input_rejected;
+static void wr_modern_body_clear(void){}
+#include "wr-shared-wifi/modern-body.h"
 int wr_modern_guest_post_allowed(void){return wr_modern_guest_post_authorized;}
 static int set_preferred_lang(const char *v){(void)v;return 1;}
 static time_t tdate_parse(const char *v){(void)v;return 0;}
@@ -43,7 +46,7 @@ static int match(const char *pattern,const char *file){return !strcmp(pattern,fi
 static void request(const char *method,const char *path,const char *headers,int auth,int login)
 {
  FILE *stream=tmpfile();conn_item_t item={0};assert(stream);
- fprintf(stream,"%s %s HTTP/1.1\r\nHost: fixture\r\nContent-Length: 0\r\n%s%s\r\n",method,path,auth?"Authorization: Basic fixture-good\r\n":"",headers);rewind(stream);
+ fprintf(stream,"%s %s HTTP/1.1\r\nHost: fixture\r\nContent-Length: 1\r\n%s%s\r\nx",method,path,auth?"Authorization: Basic fixture-good\r\n":"",headers);rewind(stream);
  inputs=outputs=auth_calls=observed=status_code=0;login_fixture=login;
  handle_request(stream,&item);fclose(stream);
 }
@@ -62,5 +65,7 @@ int main(void)
  request("POST","/start_apply.htm","X-WR-Modern: 1\r\n",1,1);assert(inputs==1&&outputs==1&&observed&&auth_calls==1);
  request("POST","/start_apply.htm","",0,1);assert(inputs==1&&outputs==1&&!observed&&!auth_calls); /* Classic exception preserved. */
  request("POST","/start_apply.htm","X-WR-Modern: 1\r\n",0,0);assert(outputs==1&&!observed&&!auth_calls); /* redirected Nologin */
+ request("POST","/start_apply.htm","X-WR-Modern: 1\r\nContent-Length: 1\r\n",1,3);assert(status_code==400&&!inputs&&!outputs);
+ request("POST","/start_apply.htm","X-WR-Modern: 1\r\nTransfer-Encoding: chunked\r\n",1,3);assert(status_code==400&&!inputs&&!outputs);
  puts("PASS actual HTTP handle_request: POST/header/route/query, duplicates, reset, OPTIONS501, authentication ordering incl trusted-local Guest; auth/body/output fixtures, not browser/runtime");return 0;
 }

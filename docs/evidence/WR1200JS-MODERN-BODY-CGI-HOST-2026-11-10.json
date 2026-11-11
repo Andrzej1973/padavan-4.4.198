@@ -1,0 +1,29 @@
+{
+  "scope": "isolated Modern exact-body + existing CGI candidate; host ASan/UBSan",
+  "checks": [
+    "canonical single positive decimal Content-Length1..8192",
+    "duplicate length and Transfer-Encoding rejected before input in dispatcher",
+    "exact fread length; short/zero/oversize reject",
+    "canonical duplicate form fields and malformed/NUL escapes reject before CGI",
+    "actual existing CGI decoding of spaces UTF8/escaped delimiters",
+    "existing CGI percent copy corrected to memmove with source-tail length",
+    "CGI cache and post_buf wiped after successful output, failed input cleared",
+    "authenticated HTM route verified binds real input callback",
+    "24 full apply/commit/notify regression scenarios and171 field union pass"
+  ],
+  "limits": [
+    "dispatcher and actual body/CGI tested separately; combined endpoint still pending",
+    "auth algorithm/real sockets/browser CORS not exercised",
+    "request freshness and external writer synchronization open",
+    "target compile pending",
+    "not production installed or device accepted"
+  ],
+  "runtime_verified": false,
+  "scratch_removed": true,
+  "files_sha256": {
+    "modern-form.h": "827d9242ca039b98c61c13bbbe7df1e52bfdaf3c96311bae190f04849f4817df",
+    "modern-body.h": "cbd6d947111caf331919ff983bb6abb0bb74f734fd590c6465c0f2a6d35d10ec",
+    "prepare-modern-body.py": "f5fc86fa244f42895da8f927811dfc0b9ac42cd7b44c2a29c3cbdbc3ccaba19f",
+    "guest-body-fixture.c.inc": "3eba3e032528c2f25b9a5be0e53f4fdf7bea6278d153a9a0d1eaf78807ec501e"
+  }
+}

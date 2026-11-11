@@ -32,6 +32,7 @@ try:
         subprocess.run(['python3',str(Path(__file__).parent/'prepare-password-candidate.py'),str(prepared)],check=True)
         subprocess.run(['python3',str(Path(__file__).parent/'prepare-guest-candidate.py'),str(prepared)],check=True)
         subprocess.run(['python3',str(Path(__file__).parent/'prepare-guest-transport.py'),str(prepared)],check=True)
+        subprocess.run(['python3',str(Path(__file__).parent/'prepare-modern-body.py'),str(prepared)],check=True)
         report['candidate_web_ex_sha256']=digest(copied/'web_ex.c')
         # A sibling package preserves ../../ROOTDIR and existing shared libraries.
         with tempfile.TemporaryDirectory(prefix='wr-modern-http-build-',dir=root/'trunk/user') as target:
@@ -51,12 +52,15 @@ try:
             data=binary.read_bytes()
             if data[:6]!=b'\x7fELF\x01\x01' or int.from_bytes(data[18:20],'little')!=8:
                 raise RuntimeError('Candidate is not ELF32 little-endian MIPS')
-            if b'Invalid Modern credential request. No settings were saved.' not in data:
-                raise RuntimeError('Candidate credential guard missing from linked binary')
+            guards=(b'Invalid Modern credential request. No settings were saved.',
+                    b'Invalid Modern Guest request. No settings were saved.',
+                    b'Invalid Modern body framing.', b'Invalid Modern body.')
+            if any(marker not in data for marker in guards):
+                raise RuntimeError('Candidate credential/Guest/body guard missing from linked binary')
             dynamic=subprocess.check_output(['readelf','-d',str(binary)],text=True)
             (output/'readelf-dynamic.txt').write_text(dynamic)
             report.update(target_compiled=True,binary_bytes=len(data),binary_sha256=digest(binary),elf='ELF32 little-endian MIPS',
-                          candidate_headers_sha256={name:digest(copied/'wr-shared-wifi'/name) for name in ('password-intent.h','password-request.h','guest-schedule.h','guest-request.h','guest-adapter.h','guest-transport.h')})
+                          candidate_headers_sha256={name:digest(copied/'wr-shared-wifi'/name) for name in ('password-intent.h','password-request.h','guest-schedule.h','guest-request.h','guest-adapter.h','guest-transport.h','modern-form.h','modern-body.h')})
             shutil.copyfile(binary,output/'httpd-candidate')
 finally:
     report['production_after']={'source':digest(httpd/'web_ex.c'),'image_binary':digest(production)}

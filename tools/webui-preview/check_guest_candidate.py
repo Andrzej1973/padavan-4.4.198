@@ -5,9 +5,9 @@ here=pathlib.Path(__file__).resolve().parent
 with tempfile.TemporaryDirectory(prefix='wr-modern-guest-candidate-') as scratch:
  root=pathlib.Path(scratch)
  with tarfile.open(sys.argv[1]) as archive:
-  for name in ('httpd/web_ex.c','httpd/httpd.c','httpd/variables.c','shared/defaults.c'):
+  for name in ('httpd/web_ex.c','httpd/httpd.c','httpd/cgi.c','httpd/variables.c','shared/defaults.c'):
    p=root/'trunk/user'/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(archive.extractfile('trunk/user/'+name).read())
- for tool in (here.parent/'prepare-shared-wifi.py',here/'prepare-password-candidate.py',here/'prepare-guest-candidate.py',here/'prepare-guest-transport.py'):
+ for tool in (here.parent/'prepare-shared-wifi.py',here/'prepare-password-candidate.py',here/'prepare-guest-candidate.py',here/'prepare-guest-transport.py',here/'prepare-modern-body.py'):
   subprocess.run(['python3',str(tool),str(root)],check=True)
  source=(root/'trunk/user/httpd/web_ex.c').read_text()
  server=(root/'trunk/user/httpd/httpd.c').read_text()
@@ -28,6 +28,7 @@ with tempfile.TemporaryDirectory(prefix='wr-modern-guest-candidate-') as scratch
  typedef void *webs_t;
  static int errors,reached,transport_allowed=1;
  int wr_modern_guest_post_allowed(void){return transport_allowed;}
+ void wr_modern_guest_input_fail(void){}
  static unsigned long long restart_needed_bits;
  static char *websGetVar(webs_t wp,char *key,char *fallback){const char *v=cgi(wp,key);return (char *)(v?v:fallback);}
  static char *nvram_safe_get(const char *key){if(!strcmp(key,"wr_wifi_shared"))return "1";return (char *)nv(NULL,key);}
@@ -84,6 +85,7 @@ static char *websGetVar(webs_t wp,char *name,char *fallback){return guest_cgi(wp
  update='static int\n'+source[update_start:update_end]
  whole_stubs=r"""
  int wr_modern_guest_post_allowed(void){return 1;}
+ void wr_modern_guest_input_fail(void){}
  typedef unsigned int u32;
  #define GROUP_FLAG_ADD 1
  #define GROUP_FLAG_REMOVE 2
@@ -142,3 +144,18 @@ static char *websGetVar(webs_t wp,char *name,char *fallback){return guest_cgi(wp
  (root/'http-fixture.c').write_text(http_fixture)
  subprocess.run(['gcc','-std=c99','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(root/'trunk/user/httpd'),str(root/'http-fixture.c'),'-o',str(root/'http-fixture')],check=True)
  subprocess.run([str(root/'http-fixture')],check=True)
+ # Actual marked body callback and corrected existing CGI parser, not substitutes.
+ begin=source.index('static void\ndo_html_apply_post(');end=source.index('\n}',begin)+2
+ body=source[begin:end]
+ begin=source.index('void wr_modern_body_clear(void)');end=source.index('\n}',begin)+2
+ clear=source[begin:end]
+ cgi=(root/'trunk/user/httpd/cgi.c').read_text()
+ body_fixture=(here/'guest-body-fixture.c.inc').read_text().replace('/* ACTUAL_CGI */',cgi).replace('/* ACTUAL_INPUT */',body).replace('/* ACTUAL_CLEAR */',clear)
+ (root/'body-fixture.c').write_text(body_fixture)
+ subprocess.run(['gcc','-std=c99','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(root/'trunk/user/httpd'),str(root/'body-fixture.c'),'-o',str(root/'body-fixture')],check=True)
+ subprocess.run([str(root/'body-fixture')],check=True)
+ from guest_endpoint_fixture import endpoint_fixture
+ joined=endpoint_fixture(template,server,source,cgi,here)
+ (root/'endpoint-fixture.c').write_text(joined)
+ subprocess.run(['gcc','-std=c99','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(root/'trunk/user/httpd'),str(root/'endpoint-fixture.c'),'-o',str(root/'endpoint-fixture')],check=True)
+ subprocess.run([str(root/'endpoint-fixture')],check=True)

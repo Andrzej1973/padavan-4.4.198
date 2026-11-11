@@ -1,0 +1,93 @@
+{
+  "runtime_verified": false,
+  "runs": [
+    {
+      "run_id": 42894971325,
+      "artifacts": {
+        "board-build-status-wr1200js": {
+          "id": 13800937809,
+          "board-build-status.json": {
+            "board": "wr1200js",
+            "status": "success"
+          }
+        },
+        "verification-source": {
+          "id": 13800497072,
+          "verification-source.json": {
+            "dispatch_revision": "b6a8a0ca43abe0a5afcb9bd9ebc9e78e2907f9e3",
+            "requested_revision": "",
+            "verified_revision": "b6a8a0ca43abe0a5afcb9bd9ebc9e78e2907f9e3",
+            "runtime_verified": false
+          }
+        }
+      }
+    },
+    {
+      "run_id": 42896409876,
+      "artifacts": {
+        "board-build-status-wr1200js": {
+          "id": 13802326213,
+          "board-build-status.json": {
+            "board": "wr1200js",
+            "status": "success"
+          }
+        },
+        "verification-source": {
+          "id": 13801061147,
+          "verification-source.json": {
+            "dispatch_revision": "b6a8a0ca43abe0a5afcb9bd9ebc9e78e2907f9e3",
+            "requested_revision": "31e77320bac98803481f7909899e8def77281689",
+            "verified_revision": "31e77320bac98803481f7909899e8def77281689",
+            "runtime_verified": false
+          }
+        },
+        "modern-http-candidate": {
+          "id": 13800049571,
+          "result": {
+            "scope": "Isolated complete target HTTP candidate compile/link, not installation or runtime",
+            "repository_revision": "31e77320bac98803481f7909899e8def77281689",
+            "production_before": {
+              "source": "c3de14c8638810a483365d71e0e456e515dc00be7cfae06c235df5c1ba8508e3",
+              "image_binary": "ec41c59cf7834f852c65d7c0411a10949bc2e5362fb7eb948518804d305cb0c9"
+            },
+            "target_compiled": true,
+            "production_installed": false,
+            "runtime_verified": false,
+            "candidate_web_ex_sha256": "da4063ff872c312fd2d70c34399f5d8945903f4aaf20d41773705d7454c4fbfa",
+            "command": [
+              "make",
+              "-C",
+              "/home/runner/work/padavan-4.4.198/padavan-4.4.198/padavan-4.4/trunk",
+              "user/wr-modern-http-build-zxjsdtbb_only",
+              "TOOLCHAIN=mipsel-linux-uclibc",
+              "CONFIG_CCACHE=y"
+            ],
+            "compile_exit_code": 0,
+            "binary_bytes": 351428,
+            "binary_sha256": "65c0fd673d7f59a4b12d5db3b6601f1e6bb29b6cd5df2cdd7d17e2e1cdfab8f7",
+            "elf": "ELF32 little-endian MIPS",
+            "candidate_headers_sha256": {
+              "password-intent.h": "1fa1af3ad5352d9496957edec88ae9ed360cfc0137c20a6d4fb1428fa468908e",
+              "password-request.h": "57ca6730dddd1c5a3769a38fa2029e9cd7260784aa9425d1c8417bfc6aebd298",
+              "guest-schedule.h": "da216a1fc4815368638015598a5c2b843f65dc0a286eccf4d29b4688a5c7fe3a",
+              "guest-request.h": "f3be64128acdd44bc2a5d2259eb0af88c156a8539224baeffef5c291824be93b",
+              "guest-adapter.h": "95662b7808bd12ea03ef97f02186f131f944897253539edaf399ec1a5a4281a7"
+            },
+            "production_after": {
+              "source": "c3de14c8638810a483365d71e0e456e515dc00be7cfae06c235df5c1ba8508e3",
+              "image_binary": "ec41c59cf7834f852c65d7c0411a10949bc2e5362fb7eb948518804d305cb0c9"
+            },
+            "production_unchanged": true,
+            "scratch_removed": true
+          },
+          "independent_elf": {
+            "bytes": 351428,
+            "sha256": "65c0fd673d7f59a4b12d5db3b6601f1e6bb29b6cd5df2cdd7d17e2e1cdfab8f7",
+            "elf": "ELF32LE MIPS"
+          }
+        }
+      }
+    }
+  ],
+  "artifact_listing_note": "Use per_page=100/pagination: optional989 has31 artifacts, default30 omitted Modern candidate."
+}
