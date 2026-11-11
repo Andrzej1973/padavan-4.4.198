@@ -1,3 +1,11 @@
+## IoT acceptance ledger — 2026-11-11
+
+Current requirement/evidence boundaries and exact inspected checkpoints are
+indexed in docs/iot/WR1200JS-ACCEPTANCE.md. Ubuntu22 IoT remains primary;
+Modern is paused. Candidate compilation is not production installation, and
+reference-close bookkeeping is not RF/DMA/late-TxS retirement. Older "running"
+entries below are historical snapshots; consult the ledger and actual CI.
+
 # WR1200JS separate IoT Wi-Fi implementation contract
 
 ## Current acceptance boundary — 2026-11-08
