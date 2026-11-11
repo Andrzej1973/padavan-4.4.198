@@ -71,7 +71,9 @@ try:
         client_obj = target / 'client-probe.o'
         client.write_text(client_source())
         client_command = [str(compiler), '-std=gnu99', '-O2', '-Wall', '-Wextra', '-Werror',
-                          '-I', str(Path(__file__).resolve().parent), '-c', str(client), '-o', str(client_obj)]
+                          '-I', str(Path(__file__).resolve().parent),
+                          '-I', str(Path(__file__).resolve().parent.parent / 'shared-wifi'),
+                          '-c', str(client), '-o', str(client_obj)]
         report['client_command'] = client_command
         with (output / 'client-compile.log').open('w') as log:
             client_result = subprocess.run(client_command, stdout=log, stderr=subprocess.STDOUT)
@@ -89,6 +91,8 @@ try:
             raise RuntimeError('MIPS kernel/userspace NVRAM ABI mismatch')
         report.update(target_compiled=True, client_target_compiled=True, abi_match=True, client_object_sha256=digest(client_obj),
                       client_header_sha256=digest(Path(__file__).with_name('nvram-batch-client.h')))
+        report['guest_planner_headers_sha256'] = {name: digest(Path(__file__).with_name(name)) for name in ('guest-batch.h', 'guest-adapter.h', 'guest-request.h', 'guest-schedule.h')}
+        report['shared_validation_sha256'] = digest(Path(__file__).resolve().parent.parent / 'shared-wifi/validate.h')
         shutil.copyfile(client_obj, output / 'nvram-client-probe.o')
         report['scratch_bytes'] = sum(p.stat().st_size for p in target.rglob('*') if p.is_file())
     report['scratch_removed'] = not target.exists()

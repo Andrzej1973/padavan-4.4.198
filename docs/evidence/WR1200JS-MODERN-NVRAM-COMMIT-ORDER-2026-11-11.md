@@ -168,3 +168,28 @@ only, not a claimed MIPS command. Full ASan/UBSan host suites pass. Composed
 candidate hash4961b8457d9f2975a9470541e5e24fb754ccdea36b2800718cfaf5ed702af554.
 Scratch197441B removed and absence asserted. Python syntax/whitespace pass.
 MIPS gate execution still pending; no device/runtime evidence added.
+
+## Guest transaction planner
+
+New uninstalled guest-batch.h runs existing Guest metadata/value/snapshot/key
+admission, then owns a fixed request with thirteen public snapshot comparisons.
+Posted fields are compare+set; omitted optional open-security fields compare
+only. Keep-key is a fourteenth check-only item against the owned admitted key:
+concurrent key change rejects the batch instead of overwriting the newer key.
+Explicit change adds set-only key intent, deliberately replacing current key;
+open/keep adds no key item and neither reads nor clears dormant credentials.
+All temporary plan/packet copies are wiped; failed planning leaves caller
+output untouched. The CGI callbacks must refer to an immutable admitted request.
+This planner performs no ioctl, flash, notification or production mutation.
+
+Tests compose actual admission/planner with actual decoder/hash/allocator/core
+for rt/wl x keep/change/open. Concurrent key changes reject all public writes;
+restoring expected key permits the batch. Main/IoT sentinel values stay unchanged.
+After restoring public snapshots, invalid public data rejects before secret
+read and leaves caller output unchanged. Missing optional security values on
+open auth are retained through check-only entries. ASan/UBSan prior cases pass.
+Actual userspace compile probe now also compiles the planner (including existing
+validation headers), with source hashes in target report. Native compile and
+ABI comparison pass; target execution still pending. Final scratch304708B
+removed, absence asserted. Next: bind admitted HTTP lifecycle to exactly one
+batch call and reconcile service/commit response without per-field fallback.

@@ -4,9 +4,13 @@ import subprocess
 
 def client_source():
     return '''#include "nvram-batch-client.h"
+#include "guest-batch.h"
 WR_NVRAM_ABI_RECORD(wr_nvram_client_abi);
 int wr_nvram_client_probe(int fd,const struct wr_nvram_wire_request *request,unsigned int *changed)
 {return wr_nvram_submit_batch(fd,request,changed);}
+int wr_nvram_guest_probe(struct wr_nvram_wire_request *out,wr_modern_guest_read cgi,
+                        wr_modern_guest_read nv,void *context,enum wr_modern_guest_error *reason)
+{(void)wr_modern_guest_persist_value;return wr_modern_guest_build_batch(out,cgi,nv,context,reason);}
 '''
 
 def read_record(objcopy, binary, destination):

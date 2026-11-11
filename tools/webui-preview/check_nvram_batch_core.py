@@ -62,13 +62,14 @@ static int user_nvram_get(anvram_ioctl_t *p){(void)p;legacy_calls++;return 74;}
 '''
 ioctl_body=fn(generated,'dev_nvram_ioctl(struct file *file, unsigned int req, unsigned long arg)\n{','static long\n').replace('struct file *file,','struct file *file __attribute__((unused)),',1)
 fixture=(here/'nvram-batch-fixture.c.inc').read_text()
+fixture=fixture.replace('int main(void)',(here/'guest-batch-fixture.c.inc').read_text()+'\nint main(void)',1)
 user_fixture=(here/'nvram-batch-user-fixture.c.inc').read_text().replace('/* USER_ENTRY */',(here/'nvram-batch-user.c.inc').read_text())
 with tempfile.TemporaryDirectory(prefix='wr-nvram-batch-core-') as scratch:
     root=pathlib.Path(scratch);(root/'fixture.c').write_text(prefix+actual+(here/'nvram-batch-core.c.inc').read_text()+(here/'nvram-batch-wire.h').read_text()+(here/'nvram-batch-wire.c.inc').read_text()+user_fixture+ioctl_constants+ioctl_stubs+ioctl_body+fixture)
-    subprocess.run(['gcc','-std=gnu99','-Wall','-Wextra','-Werror','-pthread','-fsanitize=address,undefined','-fno-pie','-no-pie','-I',str(here),str(root/'fixture.c'),'-o',str(root/'fixture')],check=True)
+    subprocess.run(['gcc','-std=gnu99','-Wall','-Wextra','-Werror','-pthread','-fsanitize=address,undefined','-fno-pie','-no-pie','-I',str(here),'-I',str(here.parent/'shared-wifi'),str(root/'fixture.c'),'-o',str(root/'fixture')],check=True)
     subprocess.run([str(root/'fixture')],check=True)
     (root/'client.c').write_text(client_source())
-    subprocess.run(['gcc','-std=gnu99','-O2','-Wall','-Wextra','-Werror','-I',str(here),'-c',str(root/'client.c'),'-o',str(root/'client.o')],check=True)
+    subprocess.run(['gcc','-std=gnu99','-O2','-Wall','-Wextra','-Werror','-I',str(here),'-I',str(here.parent/'shared-wifi'),'-c',str(root/'client.c'),'-o',str(root/'client.o')],check=True)
     host_abi=read_record('objcopy',root/'fixture',root/'host-abi.bin')
     client_abi=read_record('objcopy',root/'client.o',root/'client-abi.bin')
     assert host_abi==client_abi

@@ -179,7 +179,7 @@ int main(void)
  }
  fail_at=0;allocations=0;assert(wr_nvram_batch_candidate(full,16)==16);
  for(i=0;i<16;i++)assert(!strcmp(_nvram_get(full[i].name),"collision-after"));
- concurrent_cases();wire_cases();user_copy_cases();client_cases();
+ concurrent_cases();wire_cases();user_copy_cases();client_cases();guest_batch_cases();
  reset_store();depth=1;for(i=0;i<ARRAYSIZE(nvram_hash);i++){struct nvram_tuple *t=nvram_hash[i],*next;while(t){next=t->next;_nvram_free(t);t=next;}nvram_hash[i]=NULL;}depth=0;assert(!live);
  puts("PASS actual NVRAM allocator/hash + batch prototype: 4/16-key allocation faults preserve old state, colliding bucket replacement, CAS/no-op/space/input/new-key/check-only, borrowed old value retained; host lock/heap substitutes, no ioctl/kernel acceptance");return 0;
 }
