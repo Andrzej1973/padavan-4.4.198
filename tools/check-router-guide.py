@@ -18,6 +18,11 @@ def main():
             raise SystemExit("guide lacks credential-safety instruction")
         if "Заміна порту WAN" not in value or "switch 67" not in value:
             raise SystemExit("guide lacks the WAN socket replacement guidance")
+        if "Параметр профілю: CONFIG_FIRMWARE_INCLUDE_SQM=y" in value:
+            for required in ("sqm_enable=0", "Advanced_SQM.asp", "Для вимкнення",
+                             "Збережений користувацький вибір", "прискорення"):
+                if required not in value:
+                    raise SystemExit("SQM guide lacks runtime control guidance: " + required)
         if "Параметр профілю: CONFIG_FIRMWARE_INCLUDE_SSLOCAL=y" in value:
             for required in ("ss-local", "SOCKS5", "ss-server", "CONFIG_FIRMWARE_INCLUDE_SSSERVER"):
                 if required not in value:

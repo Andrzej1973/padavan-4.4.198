@@ -132,6 +132,13 @@ jobs:
             python3 -B tools/check-sqm-config-policy.py
           fi
 
+      - name: Check model setup guide coverage before firmware compilation
+        run: |
+          python3 tools/generate-router-guide.py configs.build/wr1200js.config \
+            --model WR1200JS --markdown /tmp/wr1200js-guide.md \
+            --text /tmp/wr1200js-guide.txt --report /tmp/wr1200js-guide.json
+          python3 tools/check-router-guide.py /tmp/wr1200js-guide.md /tmp/wr1200js-guide.txt
+
       - name: Restore compiler cache
         id: compiler_cache
         uses: actions/cache/restore@v6
