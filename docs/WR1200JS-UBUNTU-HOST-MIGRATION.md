@@ -1,3 +1,12 @@
+## Owner priority: IoT on Ubuntu22.04 — 2026-11-11
+
+Continue WR1200JS IoT development and acceptance work on Ubuntu22.04, which
+remains the default build host. Ubuntu24.04 is a deferred candidate: its current
+runs may finish, but host comparison must not block or displace IoT. Switch the
+default only after the required24.04 standard/optional checks pass and their
+artifacts are verified. Do not add libcurl-only investigative builds. Modern
+WebUI remains paused. Router changes still require separate direct approval.
+
 ## Owner steering after the initial comparison
 
 The owner deferred further libcurl root-cause investigation: wait for optional

@@ -169,6 +169,11 @@ batch work instead of publishing every small edit:
 
 ## Build resource placement
 
+Owner priority reaffirmed2026-11-11: continue primary WR1200JS IoT work on
+Ubuntu22.04. Keep Ubuntu24.04 as a deferred candidate until its required checks
+and artifacts pass review; migration work must not block IoT. Do not start extra
+libcurl-only investigation builds. Modern WebUI remains paused.
+
 The owner reaffirmed this rule on 2026-11-01: run lightweight checks and
 individual target translation units locally when experience shows they fit
 WSL2 comfortably. Send resource-intensive firmware, full kernel and full
