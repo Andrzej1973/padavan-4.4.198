@@ -1,0 +1,56 @@
+{
+  "run": 43087507884,
+  "number": 1031,
+  "host": "ubuntu-24.04",
+  "source": {
+    "dispatch_revision": "0e36777a6acf0ebabff84d20476be9d35a894b78",
+    "requested_revision": "0e36777a6acf0ebabff84d20476be9d35a894b78",
+    "verified_revision": "0e36777a6acf0ebabff84d20476be9d35a894b78",
+    "runtime_verified": false
+  },
+  "artifact": 13887468464,
+  "modules": {
+    "mt76x3_ap.ko": {
+      "bytes": 5910000,
+      "sha256": "a138674387ad897eca714b7d23ee53730acc0c762fd354b0b6c06d15eb4d1fb2",
+      "elf32_le_mips": true,
+      "vermagic_4_4_198": true
+    },
+    "psm-diagnostics/mt76x3_ap-psm-off.ko": {
+      "bytes": 5907936,
+      "sha256": "368a4a66768eca3522af52fd2b79763fd98ee914783413fe90ed46f568cb1a0f",
+      "elf32_le_mips": true,
+      "vermagic_4_4_198": true
+    },
+    "psm-diagnostics/mt76x3_ap-psm-on.ko": {
+      "bytes": 5916268,
+      "sha256": "fb89c244b190f84d81c9d8efa532133b87f81cad2c1af35810bca0fcccaae7ea",
+      "elf32_le_mips": true,
+      "vermagic_4_4_198": true
+    },
+    "reload-feature/mt76x3_ap-reload.ko": {
+      "bytes": 5912108,
+      "sha256": "f9b99c2d56b1051787f662aab4cb403fdb327b3dd6f185172506134ce70f53e5",
+      "elf32_le_mips": true,
+      "vermagic_4_4_198": true
+    },
+    "wsc-feature/mt76x3_ap-wsc.ko": {
+      "bytes": 6519908,
+      "sha256": "dc137276dd40e37154199127ee42b4f63ee866691ef88d96985c44ab40d085e3",
+      "elf32_le_mips": true,
+      "vermagic_4_4_198": true
+    }
+  },
+  "psm_translation_unit_flags_and_hashes_verified": true,
+  "baseline_feature_report_linkage_verified": true,
+  "compiler_cache": {
+    "cacheable_calls": 12367,
+    "hits": 12310,
+    "misses": 57,
+    "hit_percent": 99.54
+  },
+  "target_compiled": true,
+  "production_installed": false,
+  "runtime_verified": false,
+  "scope": "Actual five MIPS module bytes and final reports, PSM TU/object flag provenance; no physical or RF/ACK retirement acceptance"
+}
