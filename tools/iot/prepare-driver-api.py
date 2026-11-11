@@ -61,6 +61,32 @@ one('include/wr-iot-beacon-producer-kernel.h',
  '  RTMP_SEM_UNLOCK(&ad->BcnRingLock);\n'
  '  if (wake) wake_up_all(&ad->wr_iot_beacon_wait);\n'
  ' }\n return ok;\n}\n\nstatic inline void wr_iot_bcn_producer_end')
+# Apply TIM preservation only to periodic updates, not initial beacon creation.
+# Caller retains the exclusive producer pin across this check and the builder.
+one('include/wr-iot-beacon-producer-kernel.h',
+ 'static inline void wr_iot_bcn_producer_end',
+ '''static inline int wr_iot_bcn_periodic_ready(RTMP_ADAPTER *ad, INT bss,
+ struct wr_iot_beacon_producer_ticket *ticket)
+{
+ int txs,ready;
+ if(!ad||!ticket)return 0;
+ if(!IS_MT7603(ad)||bss!=2)return 1;
+ txs=WrBeaconTxSOutstanding(ad,(UINT32)bss);
+ RTMP_SEM_LOCK(&ad->BcnRingLock);
+ /* Preserve the mapped beacon, including TIM, while TxS is pending/unknown.
+  * Never force IDLE through shared queue recovery. Next admitted periodic
+  * update consumes the live TIM bitmap; this is not RF retirement proof. */
+ ready=ad->ApCfg.BssidNum==3 && txs==0 &&
+       ad->ApCfg.MBSSID[bss].bcn_buf.bcn_state==BCN_TX_IDLE &&
+       wr_iot_beacon_gate_submit(&ad->wr_iot_beacon_gates[bss],ticket);
+ RTMP_SEM_UNLOCK(&ad->BcnRingLock);
+ return ready;
+}
+
+static inline void wr_iot_bcn_producer_end''')
+one('ap/ap_connect.c',
+ '  wr_iot_APUpdateBeaconFrame_inner(pAd, apidx);\n  wr_iot_bcn_producer_end(pAd, apidx, &ticket);',
+ '  if (wr_iot_bcn_periodic_ready(pAd, apidx, &ticket))\n   wr_iot_APUpdateBeaconFrame_inner(pAd, apidx);\n  wr_iot_bcn_producer_end(pAd, apidx, &ticket);')
 # Serialize existing shared DMA filter commands across BSS recovery callers.
 one('include/rtmp.h','#include "mbss-closed-probe.h"',
  '#include "mbss-closed-probe.h"\n#include "beacon-filter-owner.h"')

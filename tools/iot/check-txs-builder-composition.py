@@ -28,6 +28,9 @@ extra=r'''
 #define IS_MT7603(ad) ((ad)->mt)
 typedef int INT;
 static int dma_result,checks;
+static int WrBeaconTxSOutstanding(RTMP_ADAPTER *ad,UINT32 bss){
+ assert(bss==2&&!ad->BcnRingLock&&ad->wr_iot_beacon_gates[2].active==1);return 0;
+}
 static int WrBeaconDmaOutstanding(RTMP_ADAPTER *ad,UINT32 bss){
  assert(bss==2&&!ad->BcnRingLock&&ad->wr_iot_beacon_gates[2].active==1);
  checks++;return dma_result;

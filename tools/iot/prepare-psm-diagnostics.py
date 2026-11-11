@@ -15,10 +15,13 @@ header='''/* Diagnostic only. Build with -DWR_IOT_PSM_DIAG; off by default.
 #include <linux/ratelimit.h>
 static inline void wr_iot_ps_diag(unsigned int event,unsigned int bss,
  unsigned int peer,unsigned int x,unsigned int y){
- static atomic_t hits[5]={ATOMIC_INIT(0),ATOMIC_INIT(0),ATOMIC_INIT(0),ATOMIC_INIT(0),ATOMIC_INIT(0)};
+ static atomic_t hits[6]={ATOMIC_INIT(0),ATOMIC_INIT(0),ATOMIC_INIT(0),ATOMIC_INIT(0),ATOMIC_INIT(0),ATOMIC_INIT(0)};
  static DEFINE_RATELIMIT_STATE(limit,5*HZ,8);
  unsigned int count;
- if(event>=5)return;
+ if(event>=6)return;
+ /* BSS-attributed diagnostics are scoped to the reserved IoT slot. Raw TxS
+  * reports have no proven BSS mapping and retain the explicit unknown value. */
+ if(event!=4 && bss!=2)return;
  count=(unsigned int)atomic_inc_return(&hits[event]);
  if(__ratelimit(&limit))
   printk(KERN_INFO "wr_ps event=%u bss=%u peer=%u x=%u y=%u hits=%u site=%s\\n",
@@ -48,6 +51,10 @@ edit('ap/ap.c','\t\t\tbDisconnectSta = TRUE;\n\t\t\tDBGPRINT(RT_DEBUG_WARN, ("ag
 \t\t\tDBGPRINT(RT_DEBUG_WARN, ("ageout''')
 edit('ap/ap_connect.c','\t*(ptr + 3) = pAd->ApCfg.DtimPeriod;', '''\t*(ptr + 3) = pAd->ApCfg.DtimPeriod;
  wr_iot_ps_diag(3,apidx,0,pAd->ApCfg.DtimCount,pAd->ApCfg.DtimPeriod);''')
+# This is only host callback/IDLE observation, never RF retirement permission.
+# The checked candidate retains the same assignment inside its admission gate.
+edit('tx_rx/txs.c','\t\t\tpMbss->bcn_buf.bcn_state = BCN_TX_IDLE;', '''\t\t\tpMbss->bcn_buf.bcn_state = BCN_TX_IDLE;
+            wr_iot_ps_diag(5,bss_idx,0,BCN_TX_IDLE,0);''')
 # RX reports already delivered to host only; do not enable extra TX status requests.
 sig='INT32 ParseTxSPacket(RTMP_ADAPTER *pAd, UINT32 Pid, UINT8 Format, CHAR *Data)\n{'
 edit('tx_rx/txs.c',sig,sig+'''
