@@ -1,0 +1,120 @@
+{
+  "run": 43085305425,
+  "number": 1030,
+  "source": "0e36777a6acf0ebabff84d20476be9d35a894b78",
+  "artifact": 13887230932,
+  "image": {
+    "scope": "Padavan uImage upload structure and embedded IoT/HWNAT DTB policy; device boot/isolation unverified",
+    "image": "WR1200JS_4.4.198.9-1030_0e36777a.trx",
+    "bytes": 13122651,
+    "sha256": "4a28d8ed4f2255f66c4d5b2aca77c804a4a53c4e130aa2ae0af72c6da4899ccb",
+    "declared_payload_bytes": 13122587,
+    "architecture_id": 5,
+    "compression_id": 3,
+    "checks": {
+      "uimage_magic": true,
+      "product_id": true,
+      "header_crc": true,
+      "declared_length": true,
+      "payload_crc": true,
+      "size_range": true,
+      "iot_hwnat_dtb": true
+    },
+    "iot_hwnat_dtb_policy": {
+      "scope": "Embedded DTB HNAT policy only; no packet/runtime proof",
+      "external_devices": [
+        "usb0",
+        "wwan0",
+        "rax0",
+        "ra0",
+        "rai0",
+        "apclii0",
+        "apclix0",
+        "apcli0"
+      ],
+      "lan": [
+        "eth2"
+      ],
+      "wan": [
+        "eth3"
+      ],
+      "dtb_sha256": "54899d13006b8d4854a32feba4f494c01e019f804aac16a7dd227d4c6fd6f9d0",
+      "kernel_sha256": "ecf0e2b62fccd620f2cf58ca7f255e642cf96c38def9940d00db5eebca847c72",
+      "runtime_verified": false
+    }
+  },
+  "squashfs_offset": 1981728,
+  "cake_modules": [
+    {
+      "path": "lib/modules/4.4.198/kernel/net/sched/sch_cake.ko",
+      "bytes": 35300,
+      "sha256": "7bd69f000809dfda9eb25ebe4b7f2ba3420fdecc0d9bba3ec07a7f317def303a",
+      "elf32_le_mips": true,
+      "vermagic_4_4_198": true
+    },
+    {
+      "path": "lib/modules/4.4.198/kernel/drivers/net/ifb.ko",
+      "bytes": 8368,
+      "sha256": "a1f38aacd45ee3022f097c274141fd083b23cbe7e3e2049cb8b42878af521b8e",
+      "elf32_le_mips": true,
+      "vermagic_4_4_198": true
+    },
+    {
+      "path": "lib/modules/4.4.198/kernel/net/sched/sch_ingress.ko",
+      "bytes": 2936,
+      "sha256": "9baddd5ba991ca20e38f1d34a62d34affea7264fe38dc95e1a4deb03a73882d2",
+      "elf32_le_mips": true,
+      "vermagic_4_4_198": true
+    },
+    {
+      "path": "lib/modules/4.4.198/kernel/net/sched/cls_u32.ko",
+      "bytes": 13700,
+      "sha256": "c86b67d2c056bbad76de5c1255b7541e645f369dee0c9894e49e918df993df63",
+      "elf32_le_mips": true,
+      "vermagic_4_4_198": true
+    },
+    {
+      "path": "lib/modules/4.4.198/kernel/net/sched/act_mirred.ko",
+      "bytes": 8020,
+      "sha256": "cbd96d521949e7e9a9e31745c9d1f5bbe1e9fa06225dfa6296c64c6c30702073",
+      "elf32_le_mips": true,
+      "vermagic_4_4_198": true
+    }
+  ],
+  "actual_image_checks": {
+    "reviewed_sqm_script": true,
+    "manual_control": true,
+    "bin/tc_elf32_mips": true,
+    "bin/ip_elf32_mips": true,
+    "sbin/rc_elf32_mips": true,
+    "selected_final_content_hashes": true
+  },
+  "ci_cake_report": {
+    "board": "WR1200JS",
+    "scope": "Effective config, ROMFS presence, reviewed script and factory defaults; separate ELF gates and physical runtime required",
+    "status": "runtime-unverified",
+    "checks": {
+      "profile_included": true,
+      "kernel_components": true,
+      "not_default_qdisc": true,
+      "factory_off": true,
+      "sch_cake.ko": true,
+      "ifb.ko": true,
+      "sch_ingress.ko": true,
+      "cls_u32.ko": true,
+      "act_mirred.ko": true,
+      "bin/tc": true,
+      "bin/ip": true,
+      "usr/lib/sqm/run.sh": true,
+      "www/Advanced_SQM.asp": true,
+      "manual_web_control": true,
+      "reviewed_lifecycle": true,
+      "start_requires_enable": true
+    },
+    "manifest_sha256": "502b7c80143b0f927c9b64e5212214cd717af6730b95a926b939940fa1968232",
+    "runtime_verified": false
+  },
+  "optional_run": 43087507884,
+  "scope": "Independent actual TRX/CRC/DTB/SquashFS/module/script/manual form/selected content validation; CI factory source gate recorded separately",
+  "runtime_verified": false
+}

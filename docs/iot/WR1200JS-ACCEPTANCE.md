@@ -47,7 +47,10 @@ This ledger distinguishes implementation from acceptance and supersedes older
 - Standard1029/43080683236 source82044a failed during guide generation after
   successful CAKE inclusion/default-OFF/manual-control image gates. Source
   0e36777 adds the SQM guide and precompile coverage. Standard1030/43085305425
-  is the replacement run; its result is pending.
+  succeeded. Actual TRX13122651B SHA256
+  4a28d8ed4f2255f66c4d5b2aca77c804a4a53c4e130aa2ae0af72c6da4899ccb
+  passed independent CRC/DTB/SquashFS and five CAKE MIPS-module checks.
+  Optional1031/43087507884 is active for the exact0e36777 source.
 - Local Ubuntu24 GCC13.3 passed58 existing standalone ASan/UBSan IoT fixtures,
   actual CLOSE composition and WDS producer capture after the OS upgrade.
   Injected host behavior leaves the RF/DMA/late-TxS boundary unverified.
@@ -61,9 +64,9 @@ Evidence: ../evidence/WR1200JS-IOT-OPTIONAL1018-TARGET-2026-11-11.json,
 
 ## Next gates
 
-1. Inspect1030 standard result and image reports, then queue exact-source
-   Ubuntu24 optional if no equivalent run exists. Inspect actual candidate
-   modules/reports before recording a new target checkpoint.
+1. Inspect optional1031/43087507884 for0e36777. Inspect actual candidate
+   modules/reports before recording a new target checkpoint. Standard1030
+   image evidence is WR1200JS-IMAGE1030-2026-11-11.json.
 2. For safe OFF, obtain or establish a supported per-BSS flush/retirement receipt,
    a command/report correlation contract, or a proven lifetime/pacing design that
    handles late reports across reopen. Do not assume delay, host generation,
