@@ -88,3 +88,23 @@ fields, pending work, sink failure and a failed NVRAM write. Authentication
 computation, socket, NVRAM/flash/RC and template expansion are substitutes. Real
 browser/client integration and exact target result remain open; production
 Modern still has no Apply. See GUEST-JSON-HOST and SNAPSHOT-HOST evidence.
+
+## Client result and one-shot submission controller
+
+Actual wifi.js now strictly decodes the nine-key JSON protocol and maps only
+known observations to fixed Ukrainian messages. Spoofed runtime/flash/service
+acceptance or malformed/extended responses become unknown. configuration_matches
+never labels a running network.77 actual C endpoint replies agree with the client.
+
+An opt-in guestSubmission controller permits exactly one transmit call. Pending
+clicks and terminal replay are blocked. Transport errors and a15s default timeout
+yield unknown; timeout aborts the signal and late replies cannot upgrade it. A
+fresh controller must be created after configuration is reread. No request body,
+error text or secret is placed in the public state or storage; this does not
+claim secure erasure of JavaScript strings.
+
+Production rendering does not instantiate this controller or expose Apply. Real
+fetch/button/dialog integration is pending backend concurrency/lifecycle gates.
+CI runs check_guest_client.js when verifying source revisions that contain it;
+optional ancestor verification before this component remains supported. The
+existing firmware workflow is already watched by the failure monitor.

@@ -610,6 +610,10 @@ jobs:
         run: |
           node tools/webui-preview/check_wifi.js
           node tools/webui-preview/check_wifi_production.js
+          # Optional verification may pin an ancestor before this client existed.
+          if [ -f tools/webui-preview/check_guest_client.js ]; then
+            node tools/webui-preview/check_guest_client.js
+          fi
           node tools/webui-preview/check_classic_navigation.js
           python3 tools/webui-preview/check_installer.py
           python3 tools/webui-preview/check_json.py

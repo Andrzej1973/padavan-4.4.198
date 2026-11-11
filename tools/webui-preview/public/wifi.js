@@ -1,6 +1,7 @@
 "use strict";
 
-// Demo drafts only. No storage, CGI, NVRAM writes, or router requests.
+// Wi-Fi render/protocol helpers. Production remains read-only; Guest submission
+// is opt-in through an injected candidate transport, never started on page load.
 const WifiDemo = (() => {
   const commonKeys = ['ssid', 'auth_mode', 'wep_x', 'wpa_mode', 'crypto', 'wpa_psk'];
   const sections = {general:'Загальні', guest:'Гостьова', bridge:'Міст', mac:'Фільтр MAC-адрес', radius:'Налаштування RADIUS', advanced:'Професійно'};
@@ -54,7 +55,47 @@ const WifiDemo = (() => {
       weekday:interval(weekday),weekend:interval(weekend)
     };
   }
-  return {commonKeys, sections, makeState, synchronize, route, publicConfiguration, guestSchedule};
+  const guestResultKeys=['schemaVersion','state','settingsMayHaveChanged','ramConfigurationMatches','flashCommit','serviceNotification','runtimeVerified','automaticRetry','nextAction'];
+  const unknownGuestResult=()=>Object.freeze({state:'unknown',runtimeVerified:false,automaticRetry:false,requiresReload:true,message:'Результат не підтверджено. Перечитайте налаштування перед повторною спробою.'});
+  function guestApplyResult(reply) {
+    if(!reply || typeof reply!=='object' || Array.isArray(reply) ||
+       Object.keys(reply).length!==guestResultKeys.length || !guestResultKeys.every(key=>Object.hasOwn(reply,key)) ||
+       reply.schemaVersion!==1 || reply.runtimeVerified!==false || reply.automaticRetry!==false ||
+       reply.nextAction!=='reload_configuration' || typeof reply.settingsMayHaveChanged!=='boolean' ||
+       typeof reply.ramConfigurationMatches!=='boolean')return unknownGuestResult();
+    const messages={configuration_matches:'Збережені налаштування відповідають запиту. Роботу мережі ще не підтверджено.',reload_required:'Налаштування змінилися або застаріли. Перечитайте їх перед новою спробою.',busy:'Попередня зміна ще не завершена. Перечитайте налаштування.',rejected:'Запит відхилено. Перечитайте налаштування й перевірте введені дані.',unconfirmed:'Результат не підтверджено; частина налаштувань могла змінитися. Перечитайте їх.',unavailable:'Застосування зараз недоступне. Перечитайте налаштування перед новою спробою.'};
+    if(!Object.hasOwn(messages,reply.state) || reply.ramConfigurationMatches!==(reply.state==='configuration_matches') ||
+       !['not_requested','manual_mode','requested_unverified'].includes(reply.flashCommit) ||
+       !['not_requested','requested_unverified'].includes(reply.serviceNotification))return unknownGuestResult();
+    if(reply.state!=='configuration_matches' && (reply.flashCommit!=='not_requested'||reply.serviceNotification!=='not_requested'))return unknownGuestResult();
+    if(reply.state==='unconfirmed' ? !reply.settingsMayHaveChanged :
+       reply.state!=='configuration_matches' && reply.settingsMayHaveChanged)return unknownGuestResult();
+    if(!reply.settingsMayHaveChanged && (reply.flashCommit!=='not_requested'||reply.serviceNotification!=='not_requested'))return unknownGuestResult();
+    return Object.freeze({state:reply.state,runtimeVerified:false,automaticRetry:false,requiresReload:true,
+      settingsMayHaveChanged:reply.settingsMayHaveChanged,ramConfigurationMatches:reply.ramConfigurationMatches,
+      flashCommit:reply.flashCommit,serviceNotification:reply.serviceNotification,message:messages[reply.state]});
+  }
+  // Opt-in one-shot controller. Production renderer does not instantiate it.
+  // A fresh controller must be created after configuration is reread; never reset
+  // a completed/unknown request and resend the old draft automatically.
+  function guestSubmission(transmit,{timeoutMs=15000}={}) {
+    if(typeof transmit!=='function' || !Number.isInteger(timeoutMs) || timeoutMs<1 || timeoutMs>60000)throw new TypeError('Invalid Guest transport');
+    let state=Object.freeze({state:'ready',runtimeVerified:false,automaticRetry:false});
+    return Object.freeze({getState:()=>state,submit:async body=>{
+      if(state.state!=='ready')return false;
+      state=Object.freeze({state:'pending',runtimeVerified:false,automaticRetry:false});
+      const controller=new AbortController();let timer;
+      const expired=Symbol('expired');
+      try {
+        const timeout=new Promise(resolve=>{timer=setTimeout(()=>{controller.abort();resolve(expired);},timeoutMs);});
+        const reply=await Promise.race([Promise.resolve().then(()=>transmit(body,{signal:controller.signal})),timeout]);
+        state=reply===expired?unknownGuestResult():guestApplyResult(reply);
+      } catch (_) { state=unknownGuestResult(); }
+      finally {clearTimeout(timer);}
+      return state;
+    }});
+  }
+  return {commonKeys, sections, makeState, synchronize, route, publicConfiguration, guestSchedule, guestApplyResult, guestSubmission};
 })();
 if (typeof module !== 'undefined') module.exports = WifiDemo;
 

@@ -173,5 +173,6 @@ static char *websGetVar(webs_t wp,char *name,char *fallback){return guest_cgi(wp
   if reply['state']=='unconfirmed':assert reply['settingsMayHaveChanged'] is True
 
   assert 'endpoint-new-key' not in json.dumps(reply) and 'guest24-password' not in json.dumps(reply)
+ subprocess.run(['node',str(here/'check_guest_client.js'),'--actual-replies'],input=json.dumps(responses),text=True,check=True)
  print('PASS actual JSON Guest route:77 parsed replies, match/reload/busy/rejected/unconfirmed, fresh no-op and stale replay, no runtime/flash acceptance or secret echo')
  print(result.stdout.splitlines()[-1])
