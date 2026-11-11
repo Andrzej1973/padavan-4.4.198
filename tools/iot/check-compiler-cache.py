@@ -18,6 +18,19 @@ with tempfile.TemporaryDirectory(prefix='wr-ccache-check-') as tmp:
  subprocess.run(cmd,env=env,check=True);assert hashlib.sha256(out.read_bytes()).hexdigest()==first
  stats=subprocess.check_output(['/usr/bin/ccache','--print-stats'],env=env,text=True)
  assert sum(int(line.split()[1]) for line in stats.splitlines() if 'cache_hit' in line.split()[0])>=1
+ # Compiler failures must not poison restored successful objects. A changed
+ # source must compile afresh, and the original can still hit afterwards.
+ src.write_text('int broken( {\n')
+ failed=subprocess.run(cmd,env=env,capture_output=True,text=True)
+ assert failed.returncode!=0
+ src.write_text('int cache_probe(int x){return x+9;}\n')
+ subprocess.run(cmd,env=env,check=True)
+ assert hashlib.sha256(out.read_bytes()).hexdigest()!=first
+ src.write_text('int cache_probe(int x){return x+3;}\n')
+ subprocess.run(cmd,env=env,check=True)
+ assert hashlib.sha256(out.read_bytes()).hexdigest()==first
+ stats=subprocess.check_output(['/usr/bin/ccache','--print-stats'],env=env,text=True)
+ assert sum(int(line.split()[1]) for line in stats.splitlines() if 'cache_hit' in line.split()[0])>=2
 workflow=(root/'.github/workflows/build-padavan-4.4-wr1200js.yml').read_text()
 restore=workflow.split('      - name: Restore compiler cache\n',1)[1].split('      - name:',1)[0]
 assert all(x in restore for x in ['github.run_id','github.run_attempt','inputs.toolchain_variant'])

@@ -138,6 +138,7 @@ jobs:
             wr1200js-ccache-v4-${{ inputs.build_host }}-${{ inputs.toolchain_variant }}-
 
       - name: Configure compiler cache
+        id: compiler_cache_setup
         run: |
           ccache --version
           ccache --max-size "$CCACHE_MAXSIZE"
@@ -2045,12 +2046,23 @@ jobs:
         if: always()
         run: |
           if command -v ccache >/dev/null; then
-            ccache --show-stats | tee ccache-statistics.txt
+            ccache --show-stats --verbose | tee ccache-statistics.txt
+            ccache --print-stats > ccache-counters.tsv
             { echo '### WR1200JS compiler cache'; echo '```text'; cat ccache-statistics.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
           fi
 
+      - name: Preserve compiler cache statistics
+        if: ${{ !cancelled() && steps.compiler_cache_setup.outcome == 'success' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: compiler-cache-statistics${{ inputs.artifact_suffix }}
+          path: |
+            ccache-statistics.txt
+            ccache-counters.tsv
+          if-no-files-found: warn
+
       - name: Save compiler cache
-        if: ${{ success() && steps.compiler_cache.outputs.cache-hit != 'true' }}
+        if: ${{ !cancelled() && steps.compiler_cache_setup.outcome == 'success' && steps.compiler_cache.outcome == 'success' && (steps.firmware_build.outcome == 'success' || steps.firmware_build.outcome == 'failure') && steps.compiler_cache.outputs.cache-hit != 'true' }}
         uses: actions/cache/save@v6
         with:
           path: ${{ env.CCACHE_DIR }}
