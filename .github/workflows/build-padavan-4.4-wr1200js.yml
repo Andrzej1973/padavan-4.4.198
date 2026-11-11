@@ -5,9 +5,9 @@ on:
   workflow_call:
     inputs:
       build_host:
-        description: Explicit Ubuntu runner; 22.04 remains the control
+        description: Explicit Ubuntu runner; 24.04 default, 22.04 control
         type: string
-        default: ubuntu-22.04
+        default: ubuntu-24.04
       toolchain_variant:
         description: WR1200JS development compiler; pinned retains the original control
         type: string

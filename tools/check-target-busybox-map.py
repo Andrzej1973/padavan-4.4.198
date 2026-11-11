@@ -35,6 +35,9 @@ expected = {
     'wr_band_steering': (
         {'CONFIG_FIRMWARE_INCLUDE_WR_BAND_STEERING'},
         {'usr/sbin/wr-band-steering', 'usr/sbin/wr-band-steering-ctl', 'sbin/rc'}),
+    'sqm': (
+        {'CONFIG_FIRMWARE_INCLUDE_SQM'},
+        {'usr/lib/sqm/run.sh','bin/tc','bin/ip','sbin/rc','www/Advanced_SQM.asp'}),
     'u2ec': (
         {'CONFIG_FIRMWARE_INCLUDE_U2EC'},
         {'usr/sbin/u2ec'}),

@@ -1,0 +1,32 @@
+{
+  "run": 43076227476,
+  "number": 1028,
+  "host": "ubuntu-24.04",
+  "source": "08294cdaee0557c76004523ea97f67f2ace3b88f",
+  "artifact": 13884390903,
+  "modules": {
+    "mt76x3_ap.ko": {
+      "bytes": 5910000,
+      "sha256": "fe9145f815912da589445dde7e154573cf447a8273e7e0098dbb42a039b3441e"
+    },
+    "psm-diagnostics/mt76x3_ap-psm-off.ko": {
+      "bytes": 5907936,
+      "sha256": "248f4686df6e09b189beb8c1c1201196b81e9950e671231b0d3ef4fc48c545ca"
+    },
+    "psm-diagnostics/mt76x3_ap-psm-on.ko": {
+      "bytes": 5916268,
+      "sha256": "ee21599d2755f1c03f94bf24aa19f83af375498cf8c162a448ac9e1383dbd79d"
+    },
+    "reload-feature/mt76x3_ap-reload.ko": {
+      "bytes": 5912108,
+      "sha256": "5734d562196a424a79b6c24b42f94a67ff4bc3de2a05d046e413bc0558751b23"
+    },
+    "wsc-feature/mt76x3_ap-wsc.ko": {
+      "bytes": 6519908,
+      "sha256": "b7c64f37cc8196c1dcafafdc67ede82a5dbc880a2644ce4f5d2ce4fed49fc512"
+    }
+  },
+  "production_installed": false,
+  "runtime_verified": false,
+  "scope": "Actual five MIPS module identities checked against final reports; owner authorizes host promotion after successful optional"
+}

@@ -1,3 +1,12 @@
+## Ubuntu24 approved and verified — 2026-11-11
+
+Owner requested promotion after successful optional for standard1025.
+Optional1028/43076227476 succeeded for08294cdaee0557c76004523ea97f67f2ace3b88f.
+Actual artifact13884390903 five MIPS modules match final SHA256 reports.
+Ubuntu24.04 is now the default CI host, Ubuntu22.04 retained as explicit control.
+Local WSL remains22.04. IoT stays primary. CAKE requires manual enable/disable
+through existing Classic Advanced_SQM.asp, factory sqm_enable0.
+
 ## Owner priority: IoT on Ubuntu22.04 — 2026-11-11
 
 Continue WR1200JS IoT development and acceptance work on Ubuntu22.04, which

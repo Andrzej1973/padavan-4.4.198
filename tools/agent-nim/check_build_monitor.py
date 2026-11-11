@@ -40,6 +40,14 @@ with (nullcontext(sys.argv[2]) if len(sys.argv)>2 else tempfile.TemporaryDirecto
     apt_cmd=[str(binary),'--fixture:'+str(fixture),'--state-dir:'+str(root/'apt-state')]
     assert 'E: Unable to locate package qemu-user-static' in subprocess.run(apt_cmd,capture_output=True,text=True,env=apt_env,check=True).stdout
     assert 'BUILD FAILED:' not in subprocess.run(apt_cmd,capture_output=True,text=True,env=apt_env,check=True).stdout
+    #1027 SQM admission failure must retain actionable FAIL text.
+    sqm_log=root/'sqm-map-1027.log'
+    sqm_log.write_text("2026-11-11T18:15:01Z FAIL active WR1200JS selectors lack an audit class: ['CONFIG_FIRMWARE_INCLUDE_SQM']\n##[error]Process completed with exit code 1.\n")
+    fixture.write_text(json.dumps({'workflow_runs':[row(1027)]}),encoding='utf-8')
+    sqm_env=dict(os.environ,BUILD_MONITOR_FIXTURE_JOB_LOG=str(sqm_log))
+    sqm_cmd=[str(binary),'--fixture:'+str(fixture),'--state-dir:'+str(root/'sqm-state')]
+    assert 'FAIL active WR1200JS selectors lack an audit class' in subprocess.run(sqm_cmd,capture_output=True,text=True,env=sqm_env,check=True).stdout
+    assert 'BUILD FAILED:' not in subprocess.run(sqm_cmd,capture_output=True,text=True,env=sqm_env,check=True).stdout
     # Real run42482744141 had no jobs: reusable actions:read exceeded caller.
     startup_state=root/'workflow-startup'
     startup=row(698,conclusion='startup_failure')

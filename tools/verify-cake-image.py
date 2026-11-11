@@ -23,6 +23,13 @@ def check(tree):
         checks[name]=len(matches)==1 and matches[0].is_file() and matches[0].stat().st_size>0
     for name in ['bin/tc','bin/ip','usr/lib/sqm/run.sh','www/'+manifest['classic_page']]:
         path=romfs/name;checks[name]=path.is_file() and path.stat().st_size>0
+    page=romfs/('www/'+manifest['classic_page'])
+    page_text=page.read_text() if page.is_file() else ''
+    checks['manual_web_control']=all(marker in page_text for marker in (
+        'action="/start_apply.htm"', 'value="SqmConf;"',
+        'name="sqm_enable" id="sqm_enable_1" value="1"',
+        'name="sqm_enable" id="sqm_enable_0" value="0"',
+        'form.submit();'))
     installed=romfs/'usr/lib/sqm/run.sh';expected=HERE.parent/'overlay/padavan-4.4/ports/sqm/run.sh'
     checks['reviewed_lifecycle']=installed.is_file() and installed.read_bytes()==expected.read_bytes()
     source=(tree/'trunk/user/rc/services.c').read_text()
