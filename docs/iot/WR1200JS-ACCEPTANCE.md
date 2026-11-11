@@ -1,8 +1,9 @@
 # WR1200JS IoT acceptance ledger — 2026-11-11
 
 IoT is mandatory for the release. The current image is a development checkpoint,
-not an IoT release. Primary work continues on Ubuntu22.04. Ubuntu24.04 remains
-a deferred candidate; Modern WebUI development remains paused by the owner.
+not an IoT release. Ubuntu24.04 is the default CI host after optional1028
+verification. The existing local WSL installation also runs Ubuntu24.04.5.
+Ubuntu22.04 remains an explicit CI control. Modern WebUI development remains paused.
 This ledger distinguishes implementation from acceptance and supersedes older
 "currently running" snapshots only for the checkpoints explicitly listed here.
 
@@ -37,18 +38,32 @@ This ledger distinguishes implementation from acceptance and supersedes older
   still need inspection before promoting it to an independently verified checkpoint.
 - Optional1023/43065290017 Ubuntu24 failed a generated WDS host fixture warning,
   not firmware ACK or a cache error.08294cd initializes opaque fixture tags and
-  adds broader early preflight. Standard1024/43069654850 Ubuntu22 is currently
-  active for08294cd; do not attribute its future result to later local docs.
+  adds broader early preflight. Standard1024/43069654850 Ubuntu22 succeeded.
+- Standard1025 Ubuntu24 and optional1026/43073222448 Ubuntu22 succeeded
+  for08294cd. Optional1028/43076227476 Ubuntu24 also succeeded for that exact
+  source. Actual artifact13884390903 contains five MIPS modules whose hashes
+  match the final baseline/PSM/reload/WSC reports. This checkpoint remains an
+  isolated candidate with production_installed=false/runtime_verified=false.
+- Standard1029/43080683236 source82044a failed during guide generation after
+  successful CAKE inclusion/default-OFF/manual-control image gates. Source
+  0e36777 adds the SQM guide and precompile coverage. Standard1030/43085305425
+  is the replacement run; its result is pending.
+- Local Ubuntu24 GCC13.3 passed58 existing standalone ASan/UBSan IoT fixtures,
+  actual CLOSE composition and WDS producer capture after the OS upgrade.
+  Injected host behavior leaves the RF/DMA/late-TxS boundary unverified.
 
 Evidence: ../evidence/WR1200JS-IOT-OPTIONAL1018-TARGET-2026-11-11.json,
 ../evidence/WR1200JS-UBUNTU-STANDARD1016-1017-2026-11-11.json,
 ../evidence/WR1200JS-UBUNTU-STANDARD-CONTENT-2026-11-11.json,
-../evidence/WR1200JS-IOT-OPTIONAL1023-HOST-FIX-2026-11-11.json.
+../evidence/WR1200JS-IOT-OPTIONAL1023-HOST-FIX-2026-11-11.json,
+../evidence/WR1200JS-UBUNTU24-OPTIONAL1028-2026-11-11.json,
+../evidence/WR1200JS-BUILD1029-GUIDE-FAILURE-2026-11-11.json.
 
 ## Next gates
 
-1. Inspect1024 standard result, then queue exact-source Ubuntu22 optional if no
-   equivalent run exists. Inspect actual candidate modules/reports, not just green CI.
+1. Inspect1030 standard result and image reports, then queue exact-source
+   Ubuntu24 optional if no equivalent run exists. Inspect actual candidate
+   modules/reports before recording a new target checkpoint.
 2. For safe OFF, obtain or establish a supported per-BSS flush/retirement receipt,
    a command/report correlation contract, or a proven lifetime/pacing design that
    handles late reports across reopen. Do not assume delay, host generation,
