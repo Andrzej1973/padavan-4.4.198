@@ -24,7 +24,7 @@ with tempfile.TemporaryDirectory(prefix='wr-modern-json-semantics-') as scratch:
     assert config['schemaVersion']==1 and config['source']=='stored-nvram'
     assert config['runtimeVerified'] is False and config['shared']=='0'
     assert set(config['bands'])=={'24','5'}
-    public={'ssid','auth_mode','wep_x','wpa_mode','crypto','radio_x','closed','channel','HT_BW','gmode','HT_EXTCHA'}
+    public={'ssid','auth_mode','wep_x','wpa_mode','crypto','radio_x','closed','channel','HT_BW','gmode','HT_EXTCHA','country_code','radio_date_x','radio_time_x','radio_time2_x'}
     for band in config['bands'].values():
         assert set(band)==public
         assert all(isinstance(value,str) for value in band.values())

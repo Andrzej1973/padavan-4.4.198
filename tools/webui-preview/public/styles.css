@@ -324,3 +324,7 @@ dialog p { color: #b8d8f6; line-height: 1.55; }
 .wifi-guest-grid input[type=checkbox]:checked::after { left: 21px; }
 @media(max-width:1100px) { .wifi-guest-grid { grid-template-columns: minmax(0,1fr); } }
 @media(max-width:600px) { .wifi-guest-grid { margin: 12px; } .wifi-guest-grid .wifi-field { grid-template-columns: minmax(0,1fr); } }
+
+.wifi-radio-days { display:flex; flex-wrap:wrap; gap:12px; margin:14px 0; }
+.wifi-radio-days label { display:flex; align-items:center; gap:5px; }
+.wifi-general-five h2 { color:#dec8ff; }

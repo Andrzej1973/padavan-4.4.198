@@ -45,7 +45,8 @@ static void wr_modern_wifi_band(FILE *stream, const char *prefix)
 {
 	static const char *const fields[] = {
 		"ssid", "auth_mode", "wep_x", "wpa_mode", "crypto",
-		"radio_x", "closed", "channel", "HT_BW", "gmode", "HT_EXTCHA"
+		"radio_x", "closed", "channel", "HT_BW", "gmode", "HT_EXTCHA",
+		"country_code", "radio_date_x", "radio_time_x", "radio_time2_x"
 	};
 	char key[32];
 	unsigned int i;

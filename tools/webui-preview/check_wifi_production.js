@@ -20,7 +20,7 @@ const flatten = n => [n,...n.children.flatMap(flatten)];
     const get=id=>{ if(!nodes.has(id)) nodes.set(id,new Node('main')); return nodes.get(id); };
     let failure;
     vm.runInNewContext(source, {
-      fetch:async url=>({ok:true,json:async()=>url==='/wr_modern.json'?{wifiConfiguration:{schemaVersion:1,source:'stored-nvram',runtimeVerified:false,shared:'0',guests:{'24':{enable:'1',ssid:'Stored Guest <24>',closed:'0',auth_mode:'psk',wpa_mode:'2',crypto:'aes',lan_isolate:'1',ap_isolate:'0',macrule:'0',mcs_mode:'0',date_x:'0111110',time_x:'08002200',time2_x:'10002300',wpa_psk:'DO-NOT-COPY'}},bands:Object.fromEntries(['24','5'].map(b=>[b,{ssid:'Stored-'+b,auth_mode:'psk',wep_x:'0',wpa_mode:'2',crypto:'aes',radio_x:'1',closed:'0',channel:b==='24'?'6':'44',HT_BW:'1',gmode:'2',HT_EXTCHA:'1'}]))}}:({...original,demo:false})}),
+      fetch:async url=>({ok:true,json:async()=>url==='/wr_modern.json'?{wifiConfiguration:{schemaVersion:1,source:'stored-nvram',runtimeVerified:false,shared:'0',guests:{'24':{enable:'1',ssid:'Stored Guest <24>',closed:'0',auth_mode:'psk',wpa_mode:'2',crypto:'aes',lan_isolate:'1',ap_isolate:'0',macrule:'0',mcs_mode:'0',date_x:'0111110',time_x:'08002200',time2_x:'10002300',wpa_psk:'DO-NOT-COPY'}},bands:Object.fromEntries(['24','5'].map(b=>[b,{ssid:'Stored-'+b,auth_mode:'psk',wep_x:'0',wpa_mode:'2',crypto:'aes',radio_x:'1',closed:'0',channel:b==='24'?'6':'44',HT_BW:'1',gmode:'2',HT_EXTCHA:'1',country_code:'UA',radio_date_x:'0111110',radio_time_x:'08002200',radio_time2_x:'10002300'}]))}}:({...original,demo:false})}),
       document:{getElementById:get,querySelector:get,createElement:t=>new Node(t)},
       location:{hash:'#'+route}, window:{addEventListener(){}},
       console:{error:e=>{failure=e;}}, TextEncoder,
@@ -31,9 +31,16 @@ const flatten = n => [n,...n.children.flatMap(flatten)];
     assert.equal(get('modern-wifi').hidden,false,route);
     assert(!content.some(n=>['FORM','BUTTON'].includes(n.tagName)),route);
     const controls=content.filter(n=>['INPUT','SELECT','TEXTAREA'].includes(n.tagName));
-    if(route==='wifi/split/24/general') {
+    if(['wifi/split/24/general','wifi/split/5/general'].includes(route)) {
       assert(controls.length>=8 && controls.every(n=>n.disabled===true),route);
       assert(content.some(n=>n.textContent==='Радіопараметри'));
+      if(route==='wifi/split/5/general'){
+        assert(controls.some(n=>n.value==='a/n'));
+        assert(controls.some(n=>n.value==='UA'));
+        assert(controls.some(n=>n.value==='08:00 – 22:00'));
+        assert(content.some(n=>n.textContent==='Розклад роботи'));
+        assert(!controls.some(n=>n.value==='b/g/n'));
+      }
       assert(!content.some(n=>(n.textContent||'').includes('Мережа без пароля')));
     } else if(route==='wifi/split/24/guest') {
       assert(controls.length>=15 && controls.every(n=>n.disabled===true),route);
@@ -64,7 +71,7 @@ const flatten = n => [n,...n.children.flatMap(flatten)];
 
 // Accepted page02 state gallery describes alternatives, not simultaneous warnings.
 (async()=>{
-  for(const variant of ['open','shared','20mhz','missing','unknown','legacy']) {
+  for(const activeBand of ['24','5']) for(const variant of ['open','shared','20mhz','missing','unknown','legacy']) {
     const nodes=new Map();
     const get=id=>{if(!nodes.has(id))nodes.set(id,new Node('main'));return nodes.get(id);};
     const band={ssid:'Stored',auth_mode:variant==='open'?'open':'psk',wep_x:'0',wpa_mode:'2',crypto:'aes',radio_x:variant==='unknown'?'?':'0',closed:variant==='unknown'?'':'0',channel:'0',HT_BW:variant==='20mhz'?'0':'1',gmode:variant==='legacy'?'0':'2',HT_EXTCHA:'1'};
@@ -73,7 +80,7 @@ const flatten = n => [n,...n.children.flatMap(flatten)];
     vm.runInNewContext(source,{
       fetch:async url=>({ok:true,json:async()=>url==='/wr_modern.json'?data:({...original,demo:false})}),
       document:{getElementById:get,querySelector:get,createElement:t=>new Node(t)},
-      location:{hash:'#wifi/split/24/general'},window:{addEventListener(){}},
+      location:{hash:'#wifi/split/'+activeBand+'/general'},window:{addEventListener(){}},
       console:{error:e=>{failure=e;}},TextEncoder,
     });
     await new Promise(resolve=>setImmediate(resolve));assert.ifError(failure);
@@ -89,7 +96,7 @@ const flatten = n => [n,...n.children.flatMap(flatten)];
     if(variant==='unknown') assert(!content.some(n=>n.tagName==='INPUT' && n.type==='checkbox'));
     assert(!content.some(n=>n.tagName==='BUTTON'||n.tagName==='FORM'));
   }
-  console.log('PASS accepted page02 conditional states: open warning, shared-lock notice, 20MHz dependency, missing-config fallback; no Apply');
+  console.log('PASS accepted page02/04 conditional states: open warning, shared-lock notice, 20MHz dependency, missing-config fallback; no Apply');
 })().catch(e=>{console.error(e);process.exitCode=1;});
 
 (async()=>{

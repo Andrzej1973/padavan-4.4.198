@@ -30,6 +30,7 @@ const WifiDemo = (() => {
       const values=config.bands?.[band];
       if(!values || !publicFields.every(key=>typeof values[key]==='string')) return null;
       bands[band]=Object.fromEntries(publicFields.map(key=>[key,values[key]]));
+      for(const key of ['country_code','radio_date_x','radio_time_x','radio_time2_x']) bands[band][key]=typeof values[key]==='string'?values[key]:null;
     }
     const guestFields=['enable','ssid','closed','auth_mode','wpa_mode','crypto','lan_isolate','ap_isolate','macrule','mcs_mode','date_x','time_x','time2_x'];
     const guests={};
@@ -184,14 +185,18 @@ if (typeof document !== 'undefined') (async () => {
       dialog.append(cancel,ok); document.body.append(dialog); dialog.showModal(); cancel.focus();
     });
   }
-  function render24General(panel) {
+  function renderGeneral(panel,band='24') {
+    const is5=band==='5',label=is5?'5':'2,4';
     const bands=element('nav',undefined,'wifi-tabs'); bands.setAttribute('aria-label','Діапазон Wi-Fi');
-    bands.append(nav('2,4 ГГц','wifi/split/24/general',true),nav('5 ГГц','wifi/split/5/general',false)); panel.append(bands);
-    const tabs=element('nav',undefined,'wifi-tabs wifi-section-tabs'); tabs.setAttribute('aria-label','Налаштування 2,4 ГГц');
-    for(const [id,title] of Object.entries(WifiDemo.sections)) tabs.append(nav(title,'wifi/split/24/'+id,id==='general'));
+    bands.append(nav('2,4 ГГц','wifi/split/24/general',!is5),nav('5 ГГц','wifi/split/5/general',is5)); panel.append(bands);
+    const tabs=element('nav',undefined,'wifi-tabs wifi-section-tabs'); tabs.setAttribute('aria-label','Налаштування '+label+' ГГц');
+    for(const [id,title] of Object.entries(WifiDemo.sections)) tabs.append(nav(title,'wifi/split/'+band+'/'+id,id==='general'));
     panel.append(tabs);
-    const v=configuration?.bands['24'];
-    const card=(title)=>{ const section=element('section',undefined,'wifi-general-card'); section.append(element('h2',title)); panel.append(section); return section; };
+    const v=configuration?.bands[band];
+    const grid=element('div',undefined,'wifi-guest-grid wifi-general-five');
+    const left=element('div',undefined,'wifi-guest-column'),right=element('div',undefined,'wifi-guest-column');
+    if(is5){grid.append(left,right);panel.append(grid);}
+    const card=(title)=>{ const section=element('section',undefined,'wifi-general-card'); section.append(element('h2',title)); (is5?(['Радіопараметри','Розклад роботи','Професійні налаштування'].includes(title)?right:left):panel).append(section); return section; };
     const read=(section,label,value,kind='text')=>{
       const row=element('label',undefined,'wifi-field'); row.append(element('span',label));
       if(kind==='checkbox' && value!=='0' && value!=='1') {
@@ -202,12 +207,12 @@ if (typeof document !== 'undefined') (async () => {
       else input.value=value || 'Не задано';
       row.append(input); section.append(row);
     };
-    const heading=card('Основна мережа 2,4 ГГц');
+    const heading=card('Основна мережа '+label+' ГГц');
     heading.append(element('p','Показані збережені налаштування. Фактичний стан мережі перевіряється окремо.','wifi-note'));
     if(!v) {
       heading.append(element('p','Не вдалося прочитати конфігурацію. Оновіть сторінку або перейдіть до Classic.','wifi-load-error'));
     } else {
-      read(heading,'Увімкнути радіомодуль 2,4 ГГц',v.radio_x,'checkbox');
+      read(heading,'Увімкнути радіомодуль '+label+' ГГц',v.radio_x,'checkbox');
       const identity=card('Назва мережі');
       if(configuration.shared==='1') {
         const note=element('div',undefined,'wifi-shared-lock');
@@ -217,11 +222,26 @@ if (typeof document !== 'undefined') (async () => {
       identity.append(element('p',new TextEncoder().encode(v.ssid).length+' / 32 байти UTF-8','wifi-byte-count'));
       read(identity,'Приховати SSID',v.closed,'checkbox');
       const radio=card('Радіопараметри');
-      read(radio,'Режим мережі',{'2':'b/g/n','1':'b/g','5':'g/n','3':'Лише n','4':'Лише g','0':'Лише b'}[v.gmode] || 'Невідомий збережений режим');
-      const usesHT=['2','3','5'].includes(v.gmode);
-      if(usesHT) read(radio,'Ширина каналу',{'0':'20 МГц','1':'20/40 МГц'}[v.HT_BW] || 'Невідомо');
+      read(radio,'Режим мережі',(is5?{'4':'a/n/ac','3':'n/ac','2':'a/n','1':'Лише n','0':'Лише a'}:{'2':'b/g/n','1':'b/g','5':'g/n','3':'Лише n','4':'Лише g','0':'Лише b'})[v.gmode] || 'Невідомий збережений режим');
+      const usesHT=is5?['1','2','3','4'].includes(v.gmode):['2','3','5'].includes(v.gmode);
+      if(usesHT) read(radio,'Ширина каналу',(is5?{'0':'20 МГц','1':'20/40 МГц','2':'20/40/80 МГц'}:{'0':'20 МГц','1':'20/40 МГц'})[v.HT_BW] || 'Невідомо');
       read(radio,'Канал',v.channel==='0'?'Автоматично':v.channel);
       if(usesHT && v.HT_BW==='1') read(radio,'Додатковий канал',{'0':'Нижче','1':'Вище'}[v.HT_EXTCHA] || 'Невідомо');
+      if(is5){
+        read(radio,'Країна / регіон (збережений код)',v.country_code || 'Не отримано');
+        radio.append(element('p','Доступні канали та ширина залежать від регіону й можливостей пристрою.','wifi-note'));
+        const schedule=card('Розклад роботи');
+        const decoded=WifiDemo.guestSchedule(v.radio_date_x,v.radio_time_x,v.radio_time2_x);
+        schedule.append(element('p','Розклад використовує системний час роутера. Показані збережені інтервали.','wifi-note'));
+        if(decoded.days){
+          const days=element('div',undefined,'wifi-radio-days');
+          for(const [key,title] of [['mon','Пн'],['tue','Вт'],['wed','Ср'],['thu','Чт'],['fri','Пт'],['sat','Сб'],['sun','Нд']]){
+            const label=element('label'),input=element('input');input.type='checkbox';input.disabled=true;input.checked=decoded.days[key];label.append(input,element('span',title));days.append(label);
+          }schedule.append(days);
+        }else schedule.append(element('p','Дні розкладу не отримано або значення некоректне.','wifi-note'));
+        read(schedule,'Будні',decoded.weekday?decoded.weekday.start+' – '+decoded.weekday.end:'Невідомо');
+        read(schedule,'Вихідні',decoded.weekend?decoded.weekend.start+' – '+decoded.weekend.end:'Невідомо');
+      }
       const security=card('Захист основної мережі');
       if(v.auth_mode==='open' && v.wep_x==='0') security.append(element('p','Мережа без пароля: дані не захищені шифруванням Wi-Fi.','wifi-open-warning'));
       else if(v.auth_mode==='psk' && v.wep_x==='0') {
@@ -232,10 +252,11 @@ if (typeof document !== 'undefined') (async () => {
       } else security.append(element('p','Збережено інший режим захисту. Його не буде автоматично змінено; налаштування доступні у Classic.','wifi-note'));
     }
     const advanced=card('Професійні налаштування');
-    advanced.append(element('p','Розклад, потужність, пороги сигналу та додаткові параметри доступні у вкладці Професійні.','wifi-note'),nav('Професійні','wifi/split/24/advanced',false));
+    advanced.append(element('p','Розклад, потужність, пороги сигналу та додаткові параметри доступні у вкладці Професійні.','wifi-note'),nav('Професійні','wifi/split/'+band+'/advanced',false));
     const footer=element('div',undefined,'wifi-classic-actions');
+    if(is5) footer.append(element('p','Застосування радіопараметрів може тимчасово перервати з’єднання Wi-Fi 5 ГГц.','wifi-note'));
     footer.append(element('span','Збереження в Modern ще розробляється','wifi-pending-label'));
-    const classic=element('a','Перейти до Classic','wifi-tab'); classic.href='/Advanced_Wireless2g_Content.asp'; footer.append(classic); panel.append(footer);
+    const classic=element('a','Перейти до Classic','wifi-tab'); classic.href=is5?'/Advanced_Wireless_Content.asp':'/Advanced_Wireless2g_Content.asp'; footer.append(classic); panel.append(footer);
   }
   function render24Guest(panel) {
     const bands=element('nav',undefined,'wifi-tabs');bands.setAttribute('aria-label','Діапазон Wi-Fi');
@@ -325,8 +346,8 @@ if (typeof document !== 'undefined') (async () => {
     if (!schema.demo && current.view==='band' && current.band==='24' && current.section==='guest') {
       render24Guest(panel); return;
     }
-    if (!schema.demo && current.view==='band' && current.band==='24' && current.section==='general') {
-      render24General(panel); return;
+    if (!schema.demo && current.view==='band' && ['24','5'].includes(current.band) && current.section==='general') {
+      renderGeneral(panel,current.band); return;
     }
     if (!schema.demo) {
       panel.append(element('p','Збережені основні параметри доступні нижче. Зміна налаштувань Wi-Fi поки виконується у Classic.','wifi-note'));
