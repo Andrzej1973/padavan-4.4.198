@@ -27,7 +27,7 @@ watched = [production / 'nvram_linux.c', production / 'nvram.c', production / 'n
            kernel / '.config', kernel / 'vmlinux']
 watched += list((root / 'trunk/images').glob('*.trx'))
 before = {str(p.relative_to(root)): digest(p) for p in watched}
-report = {'scope': 'Isolated NVRAM batch/commit-order translation unit; no ioctl, not linked or installed',
+report = {'scope': 'Isolated NVRAM batch ioctl/commit-order translation unit; not linked or installed in production',
           'repository_revision': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=Path(__file__).resolve().parents[2], text=True).strip(),
           'production_before': before, 'target_compiled': False,
           'production_installed': False, 'runtime_verified': False, 'scratch_removed': False}

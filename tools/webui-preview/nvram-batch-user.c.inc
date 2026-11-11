@@ -1,4 +1,4 @@
-/* Isolated callable body only: no ioctl dispatch or exported symbol.
+/* Isolated candidate callable body: no exported symbol or production hook.
  * Generic NVRAM writes require system administration, not network-only rights.
  */
 long wr_nvram_user_batch(const void __user *user_request)

@@ -1,3 +1,12 @@
+static int client_calls,client_errno,client_result;
+static const void *client_request;
+static int mock_batch_ioctl(int fd,unsigned long command,const void *request)
+{
+ assert(fd==7&&command==WR_NVRAM_IOCTL_BATCH_V1&&request==client_request);
+ client_calls++;errno=client_errno;return client_result;
+}
+#define WR_NVRAM_IOCTL_CALL mock_batch_ioctl
+#include "nvram-batch-client.h"
 static const char *names[]={"rt_guest_ssid","rt_guest_enable","rt_guest_crypto","rt_guest_date_x"};
 static void reset_store(void)
 {
@@ -92,7 +101,34 @@ static void user_copy_cases(void)
  assert(!strcmp(_nvram_get(names[0]),"owned-value"));
  assert(!strcmp(packet.items[0].value,"raced-user-value"));assert(user_frees==3&&!user_owned);
  assert(wr_nvram_user_batch(&packet)==-EAGAIN);assert(user_frees==4&&!user_owned);
+ assert(dev_nvram_ioctl(NULL,NVRAM_IOCTL_COMMIT,0)==71);
+ assert(dev_nvram_ioctl(NULL,NVRAM_IOCTL_CLEAR,0)==72);
+ assert(dev_nvram_ioctl(NULL,NVRAM_IOCTL_SET,0)==73);
+ assert(dev_nvram_ioctl(NULL,NVRAM_IOCTL_GET,0)==74);assert(legacy_calls==4);
+ assert(dev_nvram_ioctl(NULL,0xffffffffU,0)==-EINVAL);
+ reset_store();authorized=0;
+ assert(dev_nvram_ioctl(NULL,WR_NVRAM_IOCTL_BATCH_V1,(unsigned long)&packet)==-EPERM);
+ authorized=1;assert(dev_nvram_ioctl(NULL,WR_NVRAM_IOCTL_BATCH_V1,(unsigned long)&packet)==1);
+ assert(!strcmp(_nvram_get(names[0]),"raced-user-value"));assert(legacy_calls==4);
+ puts("PASS actual generated ioctl dispatcher: legacy four commands unchanged, unknown command rejected, new command enforces permission and reaches owned batch");
  puts("PASS actual user-entry body with host substitutes: permission/startup/ENOMEM, partial-copy EFAULT, invalid/stale requests, immutable owned copy and wipe before every free");
+}
+static void client_cases(void)
+{
+ struct wr_nvram_wire_request packet={0};unsigned int result=99;
+ int errors[]={EINVAL,ENOTTY,EPERM,EAGAIN,EFAULT,ENOMEM,ENOSPC,EIO,EINTR};
+ packet.version=1;packet.count=1;client_request=&packet;
+ for(unsigned int i=0;i<ARRAYSIZE(errors);i++){
+  client_errno=errors[i];client_result=-1;int before=client_calls;
+  assert(wr_nvram_submit_batch(7,&packet,&result)==-1);
+  assert(errno==errors[i]&&client_calls==before+1&&result==99);
+ }
+ client_result=2;assert(wr_nvram_submit_batch(7,&packet,&result)==-1&&errno==EPROTO&&result==99);
+ client_result=0;assert(!wr_nvram_submit_batch(7,&packet,&result)&&result==0);
+ client_result=1;assert(!wr_nvram_submit_batch(7,&packet,&result)&&result==1);
+ int before=client_calls;packet.version=2;
+ assert(wr_nvram_submit_batch(7,&packet,&result)==-1&&errno==EINVAL&&result==1&&client_calls==before);
+ puts("PASS actual client adapter: one ioctl attempt per error including EINTR/unsupported kernel, no fallback/retry, output unchanged on errors, bounded success");
 }
 int main(void)
 {
@@ -142,7 +178,7 @@ int main(void)
  }
  fail_at=0;allocations=0;assert(wr_nvram_batch_candidate(full,16)==16);
  for(i=0;i<16;i++)assert(!strcmp(_nvram_get(full[i].name),"collision-after"));
- concurrent_cases();wire_cases();user_copy_cases();
+ concurrent_cases();wire_cases();user_copy_cases();client_cases();
  reset_store();depth=1;for(i=0;i<ARRAYSIZE(nvram_hash);i++){struct nvram_tuple *t=nvram_hash[i],*next;while(t){next=t->next;_nvram_free(t);t=next;}nvram_hash[i]=NULL;}depth=0;assert(!live);
  puts("PASS actual NVRAM allocator/hash + batch prototype: 4/16-key allocation faults preserve old state, colliding bucket replacement, CAS/no-op/space/input/new-key/check-only, borrowed old value retained; host lock/heap substitutes, no ioctl/kernel acceptance");return 0;
 }

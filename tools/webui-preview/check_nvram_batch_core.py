@@ -49,11 +49,22 @@ static void *kmalloc(size_t bytes,int mode){(void)mode;assert(depth==1);allocati
 static void kfree(void *p){if(p){if(p==user_owned){for(unsigned int i=0;i<5264;i++)assert(!((unsigned char *)p)[i]);user_owned=NULL;user_frees++;free(p);}else{assert(depth==1);live--;free(p);}}}
 '''
 actual=fn(common,'hash(const char *s)','static inline uint\n')+fn(linux,'_nvram_realloc(struct','struct nvram_tuple *\n')+fn(linux,'_nvram_free(struct','void\n')+fn(common,'_nvram_get(const char *name)\n{','char *\n')+fn(common,'_nvram_set(const char *name, const char *value, int is_temp)\n{','int\n')
+ioctl_constants='\n'.join(line for line in header.splitlines() if line.startswith('#define NVRAM_IOCTL_'))+'\n'
+ioctl_stubs=r'''
+struct file {int unused;};
+typedef int anvram_ioctl_t;
+static int legacy_calls;
+static int nvram_commit(void){legacy_calls++;return 71;}
+static int nvram_clear(void){legacy_calls++;return 72;}
+static int user_nvram_set(anvram_ioctl_t *p){(void)p;legacy_calls++;return 73;}
+static int user_nvram_get(anvram_ioctl_t *p){(void)p;legacy_calls++;return 74;}
+'''
+ioctl_body=fn(generated,'dev_nvram_ioctl(struct file *file, unsigned int req, unsigned long arg)\n{','static long\n').replace('struct file *file,','struct file *file __attribute__((unused)),',1)
 fixture=(here/'nvram-batch-fixture.c.inc').read_text()
 user_fixture=(here/'nvram-batch-user-fixture.c.inc').read_text().replace('/* USER_ENTRY */',(here/'nvram-batch-user.c.inc').read_text())
 with tempfile.TemporaryDirectory(prefix='wr-nvram-batch-core-') as scratch:
-    root=pathlib.Path(scratch);(root/'fixture.c').write_text(prefix+actual+(here/'nvram-batch-core.c.inc').read_text()+(here/'nvram-batch-wire.h').read_text()+(here/'nvram-batch-wire.c.inc').read_text()+user_fixture+fixture)
-    subprocess.run(['gcc','-std=gnu99','-Wall','-Wextra','-Werror','-pthread','-fsanitize=address,undefined','-fno-pie','-no-pie',str(root/'fixture.c'),'-o',str(root/'fixture')],check=True)
+    root=pathlib.Path(scratch);(root/'fixture.c').write_text(prefix+actual+(here/'nvram-batch-core.c.inc').read_text()+(here/'nvram-batch-wire.h').read_text()+(here/'nvram-batch-wire.c.inc').read_text()+user_fixture+ioctl_constants+ioctl_stubs+ioctl_body+fixture)
+    subprocess.run(['gcc','-std=gnu99','-Wall','-Wextra','-Werror','-pthread','-fsanitize=address,undefined','-fno-pie','-no-pie','-I',str(here),str(root/'fixture.c'),'-o',str(root/'fixture')],check=True)
     subprocess.run([str(root/'fixture')],check=True)
     size=sum(p.stat().st_size for p in root.iterdir());print('Owned scratch bytes removed',size)
 assert not root.exists()

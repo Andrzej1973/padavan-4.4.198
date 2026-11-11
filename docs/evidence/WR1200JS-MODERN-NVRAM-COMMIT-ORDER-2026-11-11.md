@@ -121,3 +121,30 @@ Scratch173094B removed and absence asserted. Kernel-object CI now also requires
 the actual wr_nvram_user_batch text symbol and records entry-body hash.
 Next: versioned ioctl admission and userspace adapter, then complete HTTP/RC
 integration with honest RAM/flash/service results. Production remains unchanged.
+
+## Isolated ioctl admission and userspace client
+
+The latest candidate supersedes earlier no-dispatch checkpoints: generated
+`dev_nvram_ioctl` now routes WR_NVRAM_IOCTL_BATCH_V1 to the privileged owned-copy
+entry. Header defines _IOW('N',0x51,struct wr_nvram_wire_request); compute it with
+target ioctl headers, never hardcode a host numeric encoding (MIPS encodings
+can differ). Existing four numeric commands are untouched; unknown commands
+still EINVAL. This is a new explicitly defined Linux API, not a firmware command.
+It is present only in generated candidate source, not the production kernel.
+
+Userspace `nvram-batch-client.h` takes an already owned device descriptor and
+caller-owned request. It attempts ioctl once, rejects impossible changed counts,
+and leaves the output unchanged on error. EINVAL/ENOTTY on old kernels do not
+fall back to per-field SET; EINTR is not retried. Caller must wipe its own packet,
+classify uncertain syscall/transport outcomes honestly and reload configuration;
+no response claims flash durability or radio acceptance. No automatic request
+replay is introduced. Request descriptor lifetime/HTTP binding still pending.
+
+Host executes actual generated ioctl switch with legacy-handler substitutes:
+all four old paths retain return routing; unknown command rejects; batch path
+checks permission and executes owned-copy core. Actual client adapter tests nine
+error classes including EINTR/unsupported kernel, bounded success and unchanged
+error output with exactly one attempt. ASan/UBSan plus previous suites pass;
+latest host scratch194958B removed, absence asserted. Kernel/user target ioctl
+encoding agreement and real target compilation remain unverified. No runtime
+or ABI availability is claimed for released firmware.
