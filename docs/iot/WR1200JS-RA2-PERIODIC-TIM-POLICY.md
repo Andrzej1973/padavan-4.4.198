@@ -69,9 +69,12 @@ unknown-BSS TxS, invalid events and zero argument evaluation when compiled OFF.
 The diagnostic patch applies cleanly to pinned source. First-beacon composition
 and reserved-UP refresh regression checks pass.
 
-Target candidate/module compilation is pending for this revision. The normal
-firmware still lacks an accepted IoT driver/controller binding; do not install
-this isolated driver into a release merely to make these controls available.
+Optional run43015659462 completed successfully for exact revision
+d5bee48a89505ef954f96bcf443c8a0d241c4130. Independent inspection verified
+the actual5908064-byte MIPS module, diagnostic ON/OFF modules and passing
+producer/TxS fixture output. Evidence is recorded in
+../evidence/WR1200JS-IOT-RA2-PERIODIC-TARGET-2026-11-11.json. Production
+IoT driver/controller integration remains unfinished.
 Runtime tests must cover Main/Guest associations, TIM captures for an actual
 sleeping client during delayed TxS, queue drain, wake/disassociation/AID reuse,
 restart, reboot and physical PCI/DMA/IRQ teardown. No router was contacted.
