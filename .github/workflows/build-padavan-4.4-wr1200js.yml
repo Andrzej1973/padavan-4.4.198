@@ -126,7 +126,11 @@ jobs:
         run: python3 tools/check-target-busybox-map.py
 
       - name: Check QoS tc packaging selections before firmware compilation
-        run: python3 tools/check-qos-packaging.py
+        run: |
+          python3 tools/check-qos-packaging.py
+          if [ -f tools/check-sqm-config-policy.py ]; then
+            python3 -B tools/check-sqm-config-policy.py
+          fi
 
       - name: Restore compiler cache
         id: compiler_cache
