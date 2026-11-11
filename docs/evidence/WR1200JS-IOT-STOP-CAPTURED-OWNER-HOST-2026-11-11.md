@@ -55,3 +55,13 @@ feature target result pending. Local identical -O2/ASan/UBSan host flags pass
 No speculative CLOSE transport was added: opcode10 exists in staged codec/
 entry but is not routed by the installed candidate ioctl dispatch. OPEN_CURRENT
 or configuration CLOSED observations are not RF retirement/teardown permission.
+
+## Separate precreated target fixture verified
+
+ABI43006952508 for66a7ce810cf0246ae03cf21151c972fa4ca3a789 completed
+success. Artifact13848169396 contains actual ELF32LE MIPS relocatable normal
+and precreated fixture objects (26968B and35376B) and successful host reports.
+Exact source/header/workflow bytes match Git. Companion
+WR1200JS-IOT-PRECREATED-ABI-2026-11-11.json records hashes and test output.
+This closes the test-coverage gap above. Production binding and physical
+RF/DMA/TxS acceptance remain pending. No extracted scratch was retained.
