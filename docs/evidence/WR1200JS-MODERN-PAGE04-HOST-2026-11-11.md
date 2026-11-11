@@ -60,3 +60,25 @@ regression. Owned radio scratch51865B and Guest scratch51530B inventoried,
 auto-removed and absence asserted. Source archive retained. This is source/host
 semantics, not execution of watchdog or radio on WR1200JS. Desktop/mobile visual
 check and image/device acceptance remain pending.
+
+## Actual Edge visual check
+
+Opt-in check_page04_browser.py serves actual assets and explicit fixture JSON
+on loopback, starts a fresh isolated Windows Edge profile and uses CDP via
+Windows PowerShell to emulate exact1536/390px viewports. No router connection.
+A test-only banner labels screenshots as local fixtures. Parsed metrics confirm
+actual innerWidth1536/390, document/client width1521/1521 and390/390, no global
+horizontal overflow, expected cards/region/intervals/shared notice, all inputs
+disabled, zero Wi-Fi forms/buttons. Both final screenshots visually inspected:
+two columns desktop and stacked mobile; section tabs scroll locally.
+No claim of pixel-identical full shell or physical phone/router acceptance.
+
+Fixed duplicate professional-card text that incorrectly redirected the already
+visible5GHz schedule. Node15-route and page02/04 conditional regression passed
+again. Final browser assertions passed after correcting PowerShell UTF8/report
+output handling; earlier harness failures are not counted as passing tests.
+Report: WR1200JS-MODERN-PAGE04-BROWSER-2026-11-11.json with asset/screenshot hashes.
+Fresh browser profiles37467850B removed after process termination. After visual
+inspection and independent zero-active-phase-browser check, seven screenshot/
+report files3084847B removed by exact inventoried paths; three phase directories
+absent. Compact evidence/source kept, original design images untouched.

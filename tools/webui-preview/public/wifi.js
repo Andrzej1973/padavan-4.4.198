@@ -252,7 +252,7 @@ if (typeof document !== 'undefined') (async () => {
       } else security.append(element('p','Збережено інший режим захисту. Його не буде автоматично змінено; налаштування доступні у Classic.','wifi-note'));
     }
     const advanced=card('Професійні налаштування');
-    advanced.append(element('p','Розклад, потужність, пороги сигналу та додаткові параметри доступні у вкладці Професійні.','wifi-note'),nav('Професійні','wifi/split/'+band+'/advanced',false));
+    advanced.append(element('p',(is5?'Потужність, пороги сигналу':'Розклад, потужність, пороги сигналу')+' та додаткові параметри доступні у вкладці Професійні.','wifi-note'),nav('Професійні','wifi/split/'+band+'/advanced',false));
     const footer=element('div',undefined,'wifi-classic-actions');
     if(is5) footer.append(element('p','Застосування радіопараметрів може тимчасово перервати з’єднання Wi-Fi 5 ГГц.','wifi-note'));
     footer.append(element('span','Збереження в Modern ще розробляється','wifi-pending-label'));
