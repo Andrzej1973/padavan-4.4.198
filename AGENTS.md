@@ -1,5 +1,15 @@
 # Instructions for every project agent
 
+## Modern WebUI work paused by the owner — 2026-11-11
+
+The owner requested preservation and GitHub publication of all WebUI work,
+then suspension until a separate explicit instruction. Keep WebUI development,
+new page briefs, design implementation and backend activation paused. The
+preserved source, settings model, visual references, verification evidence and
+resume checklist are indexed in `docs/webui/README.md`. Continue authorized
+IoT/network work under the existing single-writer and CI rules.
+
+
 Repository-specific repeatable workflows live in `.agents/skills/`:
 `padavan-webui-integration` for production WebUI/backend changes and
 `padavan-major-project-audit` before a new board, kernel migration or major

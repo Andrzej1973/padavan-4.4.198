@@ -1,0 +1,51 @@
+{
+  "run_id": 43005464137,
+  "conclusion": "success",
+  "source": {
+    "dispatch_revision": "2beb63bf22c26c7957fbb7b06e0de231c6151497",
+    "requested_revision": "c4895bec3a73e263d87977a481e9c5fe2cf2c0f3",
+    "verified_revision": "c4895bec3a73e263d87977a481e9c5fe2cf2c0f3",
+    "runtime_verified": false
+  },
+  "scope": "Independent actual MIPS candidate object/module/HTTP inspection; no image or runtime acceptance",
+  "runtime_verified": false,
+  "files": {
+    "nvram-commit-order.o": {
+      "artifact_id": 13848283162,
+      "bytes": 69876,
+      "sha256": "0fd99b8ff2157c84daa84bb718ca50dbd2eec795cced0ac62bef0130a7d1db26",
+      "elf_type": 1
+    },
+    "nvram-client-probe.o": {
+      "artifact_id": 13848283162,
+      "bytes": 10600,
+      "sha256": "9658cf9598cdf869a0d0cc5e59c6805a21532d08acdd0eb7d0c9a80d154ed5bb",
+      "elf_type": 1
+    },
+    "httpd-candidate": {
+      "artifact_id": 13848268136,
+      "bytes": 358436,
+      "sha256": "2fc79d8b5cdcb5aac714ba240a1c8ef486c21f1c0ae9d1a083b06a3828b34ec6",
+      "elf_type": 2
+    },
+    "mt76x3_ap.ko": {
+      "artifact_id": 13848448523,
+      "bytes": 5907144,
+      "sha256": "f7fd15860508dcb4cc8098bd72a77e87cf77602b0c8de13f761fae6baf0a475b",
+      "elf_type": 1
+    },
+    "psm-diagnostics/mt76x3_ap-psm-off.ko": {
+      "artifact_id": 13848448523,
+      "bytes": 5905104,
+      "sha256": "6762333b990f333d77f43e15c33e1586434d7f51a27977a89243fdf5224d2a86",
+      "elf_type": 1
+    },
+    "psm-diagnostics/mt76x3_ap-psm-on.ko": {
+      "artifact_id": 13848448523,
+      "bytes": 5912348,
+      "sha256": "b91e52ae8e0eb598e78b101d71bff4517c3171064c000f95c5b9292c4404e4cf",
+      "elf_type": 1
+    }
+  },
+  "cleanup": "Artifacts inspected only in memory; no extracted files or retained firmware"
+}

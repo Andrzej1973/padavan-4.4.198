@@ -1,0 +1,115 @@
+# PADAVAN 4.4.198 — Further Development and Preservation Plan
+
+Continue development of the Padavan 4.4.198 firmware in the repository:
+
+https://github.com/Andrzej1973/padavan-4.4.198
+
+## 1. Preserve and Organize All IoT Development Work
+
+Preserve all work completed on the IoT feature set in GitHub, including any materials that currently exist only locally.
+
+- Collect all IoT-related changes from working branches, pull requests, local files, commits, tests, logs, and documentation.
+- Move the work into appropriate GitHub branches while preserving commit history and the provenance of changes wherever possible.
+- Organize the code, research, test results, and unresolved issues into a clear structure.
+- Do not delete previous work, unsuccessful experiments, or technical history.
+
+Create dedicated documentation:
+
+- `IOT_DEVELOPMENT.md` — project history, architecture, implemented functionality, and current development status.
+- `IOT_DEVELOPER_HANDOFF.md` — practical instructions for other developers who want to continue the work.
+- `IOT_TROUBLESHOOTING.md` — investigated problems, hypotheses, unsuccessful approaches, and missing technical evidence.
+- `IOT_TESTING.md` — test methodology, required hardware, test scenarios, and log collection.
+
+Add a clearly visible IoT section to the main repository README, linking to the documentation, relevant branches, and development history.
+
+Preserve attribution for my work: identify Andrzej1973 and link to the relevant commits and pull requests where supported by repository history. Do not attribute other contributors' changes to me.
+
+The goal is to make the IoT work easy for any external developer to discover, understand, and continue without having to reconstruct its history from chat conversations.
+
+## 2. PR #2 — Integrate Non-IoT Changes into the Main Branch
+
+Perform a complete review of PR #2 and integrate all useful firmware fixes and improvements into the main branch, EXCLUDING changes related to IoT.
+
+Proceed as follows:
+
+- Identify and separate IoT and non-IoT changes.
+- Review dependencies, conflicts, and possible side effects.
+- Preserve and integrate all useful non-IoT fixes and their history wherever practical.
+- Do not bring IoT code into the main branch as part of the non-IoT integration.
+- Do not lose existing work or overwrite important changes.
+- After integration, verify the integrity of the main branch and the functionality of the integrated changes.
+
+Keep IoT changes in a separate, clearly organized GitHub development stream.
+
+## 3. Continue Modern WebUI and Core Firmware Development
+
+Continue Modern WebUI and all other planned features independently of the IoT status.
+
+Complete:
+
+- integration of Modern WebUI with actual firmware functionality;
+- connection of the interface to the appropriate system settings and services;
+- verification of the backend, API, authentication, and settings persistence;
+- integration into ROMFS and the production firmware build;
+- compatibility checks for WR1200JS;
+- an audit of all project services, dependencies, and features.
+
+Do not leave demo-only interface elements that imply a feature is operational when the underlying implementation is missing.
+
+After completing the main WR1200JS work, proceed with Xiaomi Mi Mini support, taking its hardware platform and constraints into account.
+
+## 4. IoT — Temporarily Pause the Blocked Part of Development
+
+Do not allow the current IoT problems to block further development or release of the main firmware.
+
+The current MT7603 technical blockers include:
+
+- safe reuse of MCU ACK sequence numbers;
+- confirmation of completion for `ra2` transmissions and TX/TxS reports;
+- stale TxS reports arriving after BSS close and reopen;
+- correctness of DMA state transitions.
+
+Do not attempt to resolve these issues through unverified delays, forced values, bypassed safety checks, or unsafe driver changes.
+
+Resume active work on these issues when the necessary technical evidence has been obtained from real hardware.
+
+The requirement remains unchanged: a separate, fully functional IoT network operating exclusively on the 2.4 GHz band.
+
+## 5. Include an IoT Diagnostic Tool in the Final Firmware
+
+Develop and include a dedicated IoT diagnostic tool in the final firmware.
+
+Its purpose is to collect the information needed to investigate the MT7603 problems and complete the IoT implementation.
+
+The tool should provide:
+
+- controlled IoT tests on the 2.4 GHz band;
+- collection of system, Wi-Fi, and driver logs;
+- timestamps and event-sequence recording;
+- diagnostics for MCU ACK, TX, TxS, and DMA;
+- recording of BSS open, close, and reopen events;
+- capture of driver states, errors, and test results;
+- creation of a single diagnostic archive for subsequent analysis.
+
+Provide a way to launch tests through an appropriate interface or system command.
+
+The tool must not destabilize the router, alter driver safety logic, or create unsafe system load.
+
+Document the log format and test procedure so that other developers can use the collected evidence to investigate the issue.
+
+## 6. Final Project Goal
+
+Prepare stable and verified Padavan 4.4.198 firmware with Modern WebUI and all planned features.
+
+The first target device is WR1200JS, followed by Xiaomi Mi Mini.
+
+The expected results are:
+
+1. The main branch contains all required non-IoT fixes from PR #2 and the completed core features.
+2. Modern WebUI is fully integrated into the firmware.
+3. All IoT work is preserved, organized, and available on GitHub.
+4. Attribution and development history are clear to other developers.
+5. The final firmware includes a diagnostic tool for continued IoT investigation.
+6. IoT remains part of the project's final objective; it is not discarded or forgotten.
+
+**Final outcome:** deliver not merely another firmware build, but a well-organized GitHub project with completed core functionality, preserved IoT development history, and sufficient technical documentation for any qualified developer to continue the work.

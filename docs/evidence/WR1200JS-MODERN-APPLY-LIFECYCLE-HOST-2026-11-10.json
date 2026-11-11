@@ -8,7 +8,7 @@
     "asus_nvram_commit",
     "ej_notify_services"
   ],
-  "scenarios": 8,
+  "scenarios": 16,
   "checks": [
     "independent/shared keep/change",
     "guest/radio/file and encoded-input filtering",
@@ -16,7 +16,8 @@
     "automatic commit once",
     "manual mode skips automatic flash commit",
     "selected/all shared Wi-Fi notifications once",
-    "flags cleared after callbacks"
+    "flags cleared after callbacks",
+    "both rt and wl as source, with distinct stored passwords"
   ],
   "substitutes": [
     "representative service tables",

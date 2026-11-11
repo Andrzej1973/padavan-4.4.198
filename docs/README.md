@@ -1,5 +1,7 @@
 # Документація Padavan WR1200JS
 
+- [WebUI — збережений стан, макети й призупинення](webui/README.md)
+
 ## Почати тут
 
 - [Карта репозиторію та порівняння з Nilabsent](REPOSITORY-STRUCTURE.md)

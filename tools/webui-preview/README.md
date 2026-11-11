@@ -1,3 +1,11 @@
+# WebUI work paused — owner instruction 2026-11-11
+
+All WebUI implementation and new page/design work is paused until the owner's
+separate explicit instruction. The preserved checkpoint and continuation steps
+are indexed in [WebUI preservation](../../docs/webui/README.md). The earlier
+permission to continue development in historical sections below is superseded
+by this instruction.
+
 # Padavan Modern local preview (stage 1)
 
 ## IoT reservation — 2026-11-10

@@ -2,7 +2,7 @@
 #include <assert.h>
 #include <stdio.h>
 int main(void) {
- struct wr_modern_radio24_policy ce={0x3ffeU,1},fcc={0xffeU,1},unknown={0,0};
+ struct wr_modern_radio24_policy ce={0x3ffeU,1,0x3ffeU},fcc={0xffeU,1,0xffeU},unknown={0,0,0};
  struct wr_modern_radio24_request r={"1","0","2","0",NULL,"13"};
  assert(wr_modern_radio24_validate(&r,&ce)==WR_RADIO24_OK);
  assert(wr_modern_radio24_validate(&r,&fcc)==WR_RADIO24_INVALID);
@@ -13,6 +13,12 @@ int main(void) {
  r.channel="06";assert(wr_modern_radio24_validate(&r,&ce)==WR_RADIO24_INVALID);
  r.channel="6x";assert(wr_modern_radio24_validate(&r,&ce)==WR_RADIO24_INVALID);
  r.channel="9";r.width="1";r.extension="1";
+ unknown=ce;unknown.ht40_primary=0;
+ assert(wr_modern_radio24_validate(&r,&unknown)==WR_RADIO24_POLICY_UNAVAILABLE);
+ unknown=ce;unknown.ht40_primary&=~(1U<<9);
+ assert(wr_modern_radio24_validate(&r,&unknown)==WR_RADIO24_INVALID);
+ unknown=ce;unknown.ht40_primary|=1U<<14;
+ assert(wr_modern_radio24_validate(&r,&unknown)==WR_RADIO24_POLICY_UNAVAILABLE);
  assert(wr_modern_radio24_validate(&r,&ce)==WR_RADIO24_OK);
  assert(wr_modern_radio24_validate(&r,&fcc)==WR_RADIO24_INVALID);
  r.extension="0";assert(wr_modern_radio24_validate(&r,&fcc)==WR_RADIO24_OK);

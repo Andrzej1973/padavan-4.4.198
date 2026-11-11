@@ -1,5 +1,36 @@
 # WR1200JS project delivery requirements
 
+## WebUI paused by the owner — 2026-11-11
+
+WebUI development is paused until a separate explicit owner instruction.
+Preserved source, settings model, visual references, verification evidence and
+resumption steps are indexed in [WebUI preservation](webui/README.md).
+
+
+## Two final WebUI variants — owner requirement 2026-11-11
+
+Deliver Modern + Classic and Modern only; compare compressed final images from
+matched inputs. Requirements and release gates:
+[Final WebUI release variants](WR1200JS-FINAL-WEBUI-RELEASE-VARIANTS.md).
+
+
+## WebUI space reserved for IoT — owner clarification 2026-11-10
+
+Preserve a dedicated IoT place in the Modern WebUI navigation and Wi-Fi layout,
+alongside the main 2.4 GHz and 5 GHz controls. IoT itself is 2.4 GHz only.
+Reserve the future configuration/status page and space for SSID/security,
+subnet/DHCP/DNS and isolation controls; reuse the established design language.
+Until the real backend is integrated, show a clear development/unavailable
+state and keep mutation actions disabled. Reserved space must not imply that
+IoT is operational or that a saved toggle changes the router.
+
+Reference supplied by the owner:
+`PADAVAN_4.4.198_Development_Plan_EN.txt`, received 2026-11-10.
+This clarification records the requested WebUI reservation; the attachment's
+other proposed operations require their own task scope and verified execution.
+
+
+
 User UI palette request, 2026-10-17: enabled service toggle controls should
 be green; disabled controls retain neutral grey. Preserve ON/OFF text and
 loading/disabled feedback. Toggle color represents the selected setting;

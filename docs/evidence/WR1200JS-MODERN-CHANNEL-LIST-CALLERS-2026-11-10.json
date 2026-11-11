@@ -1,0 +1,68 @@
+{
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "sites": [
+    {
+      "path": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/ap/ap_cfg.c",
+      "line": 5660,
+      "source_sha256": "109ff5b56b55a7862cb6e5d615b5ce87a92936e527667b52ce958059864d368a",
+      "context": "\tpAd->CommonCfg.CountryCode[2] =\n\t\t(pAd->CommonCfg.Geography == BOTH) ? ' ' : ((pAd->CommonCfg.Geography == IDOR) ? 'I' : 'O');\n\n\tDBGPRINT(RT_DEBUG_ERROR, (\"Set_ChannelGeography_Proc:: Geography = %s\\n\", pAd->CommonCfg.Geography == ODOR ? \"out-door\" : (pAd->CommonCfg.Geography == IDOR ? \"in-door\" : \"both\")));\n\n\t/* After Set ChGeography need invoke SSID change procedural again for Beacon update. */\n\t/* it's no longer necessary since APStartUp will rebuild channel again. */\n\t/*BuildChannelListEx(pAd); */\n\n\treturn TRUE;\n}\n#endif /* EXT_BUILD_CHANNEL_LIST */\n\n\n/*"
+    },
+    {
+      "path": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/ap/ap_cfg.c",
+      "line": 5764,
+      "source_sha256": "109ff5b56b55a7862cb6e5d615b5ce87a92936e527667b52ce958059864d368a",
+      "context": "\tif (success == TRUE)\n\t{\n\t\tNdisZeroMemory(pAd->CommonCfg.CountryCode, sizeof(pAd->CommonCfg.CountryCode));\n\t\tNdisMoveMemory(pAd->CommonCfg.CountryCode, allCountry[index].IsoName, 2);\n\t\tpAd->CommonCfg.CountryCode[2] = ' ';\n\t\t/* After Set ChGeography need invoke SSID change procedural again for Beacon update. */\n\t\t/* it's no longer necessary since APStartUp will rebuild channel again. */\n\t\t/*BuildChannelList(pAd); */\n\n\t\tpAd->CommonCfg.bCountryFlag = TRUE;\n\n\t\t/* if set country string, driver needs to be reset */\n\t\tDBGPRINT(RT_DEBUG_TRACE, (\"Set_CountryString_Proc::(CountryString=%s CountryRegin=%d CountryCode=%s)\\n\",\n\t\t\t\t\t\t\tallCountry[index].pCountryName, pAd->CommonCfg.CountryRegion, pAd->CommonCfg.CountryCode));\n\t}"
+    },
+    {
+      "path": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/common/cmm_info.c",
+      "line": 208,
+      "source_sha256": "7c63c25e3bde70b6965c6cba06b7d8b09c2742fefaddf314ae60f12bfd75463d",
+      "context": "#endif /* EXT_BUILD_CHANNEL_LIST */\n\n\tretval = RT_CfgSetCountryRegion(pAd, arg, BAND_24G);\n\tif (retval == FALSE)\n\t\treturn FALSE;\n\t\n\t/* if set country region, driver needs to be reset*/\n\tBuildChannelList(pAd);\n\n\tDBGPRINT(RT_DEBUG_TRACE, (\"Set_CountryRegion_Proc::(CountryRegion=%d)\\n\", pAd->CommonCfg.CountryRegion));\n\t\n\treturn TRUE;\n}\n\n"
+    },
+    {
+      "path": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/common/cmm_info.c",
+      "line": 238,
+      "source_sha256": "7c63c25e3bde70b6965c6cba06b7d8b09c2742fefaddf314ae60f12bfd75463d",
+      "context": "#endif /* EXT_BUILD_CHANNEL_LIST */\n\n\tretval = RT_CfgSetCountryRegion(pAd, arg, BAND_5G);\n\tif (retval == FALSE)\n\t\treturn FALSE;\n\n\t/* if set country region, driver needs to be reset*/\n\tBuildChannelList(pAd);\n\n\tDBGPRINT(RT_DEBUG_TRACE, (\"Set_CountryRegionABand_Proc::(CountryRegion=%d)\\n\", pAd->CommonCfg.CountryRegionForABand));\n\t\n\treturn TRUE;\n}\n\n"
+    },
+    {
+      "path": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/common/cmm_info.c",
+      "line": 824,
+      "source_sha256": "7c63c25e3bde70b6965c6cba06b7d8b09c2742fefaddf314ae60f12bfd75463d",
+      "context": "{\n\tUCHAR MaxTxPwr = 0;\n\n\tMaxTxPwr = (UCHAR) simple_strtol(arg, 0, 10);\n\n\tif ((MaxTxPwr > 0) && (MaxTxPwr < 0xff)) {\n\t\tpAd->MaxTxPwr = MaxTxPwr;\n\t\tBuildChannelList(pAd);\n\t\tDBGPRINT(RT_DEBUG_OFF, (\"Set MaxTxPwr = %d\\n\", MaxTxPwr));\n\t\treturn TRUE;\n\t}\n\n\tDBGPRINT(RT_DEBUG_ERROR, (\"ERROR: wrong power announced(MaxTxPwr=%d)\\n\", MaxTxPwr));\n\treturn FALSE;\n"
+    },
+    {
+      "path": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/common/cmm_info.c",
+      "line": 2302,
+      "source_sha256": "7c63c25e3bde70b6965c6cba06b7d8b09c2742fefaddf314ae60f12bfd75463d",
+      "context": "\tpAd->CommonCfg.PhyMode = (UCHAR)phymode;\n\n\tDBGPRINT(RT_DEBUG_TRACE,(\"%s(): PhyMode=%d, channel=%d \\n\",\n\t\t\t\t__FUNCTION__, pAd->CommonCfg.PhyMode,\n\t\t\t\tpAd->CommonCfg.Channel));\n\n#ifdef EXT_BUILD_CHANNEL_LIST\n\tBuildChannelListEx(pAd);\n#else\n\tBuildChannelList(pAd);\n#endif /* EXT_BUILD_CHANNEL_LIST */\n\n#ifdef P2P_CHANNEL_LIST_SEPARATE\n\tP2PBuildChannelList(pAd);\n#endif /* P2P_CHANNEL_LIST_SEPARATE */ "
+    },
+    {
+      "path": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/common/cmm_info.c",
+      "line": 2304,
+      "source_sha256": "7c63c25e3bde70b6965c6cba06b7d8b09c2742fefaddf314ae60f12bfd75463d",
+      "context": "\tDBGPRINT(RT_DEBUG_TRACE,(\"%s(): PhyMode=%d, channel=%d \\n\",\n\t\t\t\t__FUNCTION__, pAd->CommonCfg.PhyMode,\n\t\t\t\tpAd->CommonCfg.Channel));\n\n#ifdef EXT_BUILD_CHANNEL_LIST\n\tBuildChannelListEx(pAd);\n#else\n\tBuildChannelList(pAd);\n#endif /* EXT_BUILD_CHANNEL_LIST */\n\n#ifdef P2P_CHANNEL_LIST_SEPARATE\n\tP2PBuildChannelList(pAd);\n#endif /* P2P_CHANNEL_LIST_SEPARATE */ \n\n"
+    },
+    {
+      "path": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/common/cmm_sync.c",
+      "line": 49,
+      "source_sha256": "8563fc44082ae836dd99bddbae8f13b24315f7bd15bd9456c1ffb5a3f7b93662",
+      "context": "\t\tThe outcome is used by driver when doing site survey.\n\n\tIRQL = PASSIVE_LEVEL\n\tIRQL = DISPATCH_LEVEL\n\n\t==========================================================================\n */\nVOID BuildChannelList(RTMP_ADAPTER *pAd)\n{\n\tUCHAR i, j, index=0, num=0;\n\tPCH_DESC pChDesc = NULL;\n\tBOOLEAN bRegionFound = FALSE;\n\tPUCHAR pChannelList = NULL;\n\tPUCHAR pChannelListFlag = NULL;\n"
+    },
+    {
+      "path": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/common/rt_channel.c",
+      "line": 1746,
+      "source_sha256": "5e1a7fc9a1a0a966b48ed8b8f223c457ceadd251053bc3f265eed0060d300b08",
+      "context": "\t\t\t\tregulatoryDomain = pChRegion->DfsType;\n\t\t\toffset = FillChList(pAd, &pChDesp[i], offset, increment, regulatoryDomain);\n        }\n\t}\n}\n\n\nVOID BuildChannelListEx(\n\tIN PRTMP_ADAPTER pAd)\n{\n\tPCH_REGION pChReg;\n\n\tpChReg = GetChRegion(pAd->CommonCfg.CountryCode);\n\tCreateChList(pAd, pChReg, pAd->CommonCfg.Geography);\n}"
+    }
+  ],
+  "scope": "Lexical inventory of direct build-list sites; caller locks and indirect writes require semantic audit",
+  "snapshot_api_implemented": false,
+  "runtime_verified": false,
+  "confirmed_hazard": {
+    "function": "BuildChannelList",
+    "order": "ChannelList zeroed before rebuilding; ChannelListNum assigned at end; early returns exist before count assignment",
+    "implication": "An unsynchronized pointer/count copy can observe partial/zero entries or old count. A new reader-only lock or repeated equality reads are not proof of a coherent snapshot.",
+    "not_claimed": "No observed device failure, and caller serialization not yet established"
+  }
+}

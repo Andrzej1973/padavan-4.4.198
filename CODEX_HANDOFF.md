@@ -1,3 +1,19 @@
+## WebUI preservation and owner pause — 2026-11-11
+
+Owner requested systematized preservation and GitHub publication of all WebUI
+work, then pause until separate explicit instruction. Entry point docs/webui/README.md,
+exact file hashes docs/webui/checkpoint.json, visual source manifest under
+docs/modern-design/references/manifest.json. Source/backends/validation drafts,
+page specs01-04, all25 original PNG references (24 distinct files,26173588B),
+owner development plan and previously local evidence are included. Full Modern
+page/function coverage, reserved IoT section and final Modern+Classic/Modern-only
+requirements remain recorded. Production Apply integration and device acceptance
+are unfinished. Host JSON/validation and15route renderer checks passed at capture.
+Pause is authoritative in AGENTS.md and tools/webui-preview/README.md. Resume
+WebUI only after the owner's separate explicit instruction. Authorized IoT work
+continues separately. Existing IoT package65e5956 and standard43033579859 have
+their own verification state. Shared unrelated changes are preserved.
+
 ## Sol: optional846 target modules independently verified
 
 Run42376468852 SUCCESS. Source artifact confirms exactf7d51ba; independently
