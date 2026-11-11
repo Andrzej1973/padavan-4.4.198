@@ -1,0 +1,22 @@
+{
+  "scope": "Bounded IoT all-table route acquisition during network admission",
+  "root_cause": "Each multipart batch restarted a 3000ms poll timeout, up to128 batches. Blocking recvmsg could wait after poll readiness changed.",
+  "fix": [
+    "One CLOCK_MONOTONIC 3000ms operation budget",
+    "SOCK_NONBLOCK and SOCK_CLOEXEC",
+    "Read/error/deadline refusal preserves caller inventory"
+  ],
+  "baseline": "Original header reproduces second-batch timeout reset assertion failure",
+  "host_checks": [
+    "GCC -O2 -Wall -Wextra -Werror ASan/UBSan mocked I/O/time regression",
+    "Real host interface and netlink route inventory",
+    "Success, total timeout, EAGAIN, clock failure, close accounting and unchanged output on partial failure"
+  ],
+  "runtime_verified": false,
+  "target_verified": false,
+  "scratch_removed_bytes": 134464,
+  "sha256": {
+    "tools/iot/route-snapshot.h": "2586fa020fe81aaaff12b0ea847792634d8faa3fd16d0f3bd77eba2b07c06d3a",
+    "tools/iot/check-route-deadline.c": "81df7df6935d095504ab06fc506bcf0eaa45447e8b338a05e36924a12ae33505"
+  }
+}
