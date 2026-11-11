@@ -1,0 +1,41 @@
+{
+  "checks": {
+    "process_owned_dns_dhcp_socket_inventory": true,
+    "iot_owned_gateway_protocol_readiness": true,
+    "local_dhcp_inform_without_lease_changes": true,
+    "iot_dhcp_offer_ack_pool_options": true,
+    "lan_dhcp_offer_ack_pool_options": true,
+    "local_dhcp_inform_preserves_existing_client_leases": true,
+    "iot_dns_transaction": true,
+    "main_lan_dns_preserved": true,
+    "local_dns_handler_default": true,
+    "iot_gateway_stopped_daemon_rejected": true,
+    "local_dns_handler_no_hosts_no_ident": true,
+    "local_dns_handler_lan_with_loopback_excluded": true,
+    "alternate_dhcp_server_port_socket_and_inform": true
+  },
+  "scope": "Pinned native dnsmasq host DHCP OFFER/ACK and DNS over isolated IoT/LAN with generated firewall; production RC and target runtime unverified",
+  "runtime_verified": false,
+  "host_os": "Ubuntu24.04.5",
+  "host_kernel": "6.18.58.1-microsoft-standard-WSL2",
+  "dnsmasq_source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "dnsmasq_source_directory": "trunk/user/dnsmasq/dnsmasq-2.90",
+  "dnsmasq_binary_sha256": "324d267d295b1c7ce9af59f9742b1cdee3b8ae7cd16733d33d748c48670fcbe5",
+  "native_build": "GCC13.3 make -j1 COPTS=-DNO_DBUS -DNO_IDN -DNO_DNSSEC -DNO_LUA -DNO_UBUS",
+  "source_sha256": {
+    "tools/iot/check-dhcp-transactions.py": "d7d573a32ace84bf8a9672782e5912c709813c3fb35480417b002c4d307853f1",
+    "tools/iot/dhcp-write.c": "efe3d5702ae461e35851461ed572fd9ff82501927777140caac8372f5177a2de",
+    "tools/iot/firewall.h": "9e84b33900a53d1b50455c1810c76251603d8ec58762f6fc43000328c6420763",
+    "tools/iot/bridge.c": "a080a8619d8c86fbc156118808c169af34e7896413edc9ab0f6c60fe6b1c3518",
+    "tools/iot/network-check.c": "d7e244342d0b55ef5873c8706dad3a1fa8b9d2f406afa7cc1c38672807d9e33d"
+  },
+  "daemon_source_sha256": {
+    "dnsmasq.c": "ab90828a86e215833adb42098c07d844ded8773c842377ec92d30306bf0b4c0a",
+    "dhcp.c": "3fd0b42b395bafab4175d7a2d367b1501648c82f0b0855aac00f952032cabade",
+    "rfc2131.c": "fbc4e727a58120371d9f38f39b37126fe56cd4d5dfe3c6c6ed47243e57a11bb2"
+  },
+  "namespace_mount_setup": "private /run tmpfs, then /run/netns created",
+  "parent_run_netns_absent_after_test": true,
+  "daemon_terminated": true,
+  "actual_router_checked": false
+}
