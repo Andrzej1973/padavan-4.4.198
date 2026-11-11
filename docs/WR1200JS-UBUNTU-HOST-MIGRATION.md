@@ -49,3 +49,22 @@ or saved apt/resolver changes. Uses libncurses-dev on both hosts, strict update,
 can still occur and will fail closed. Monitor adds bounded DNS-line recognition
 and a real-case fixture with dedup/success silence. Monitor executes trusted main
 code, so branch-only parser changes are not deployed to that trusted code yet.
+
+## Selective DNS evidence and mirror failover
+
+Run1013 artifact13868188054 confirms all three Ubuntu names time out through
+NSS and curl, while GitHub and Microsoft NSS/HTTPS succeed; no proxy variables
+were present. This narrows the failure to a selective resolution problem; it
+does not identify whether upstream DNS filtering, cache or authoritative DNS
+is responsible. No resolver modification is justified by this evidence alone.
+
+The second bounded apt attempt now selects https://mirrors.xtom.com/ubuntu
+for all four pockets including security. xTom appears in Ubuntu's registered
+archive mirror list: https://launchpad.net/ubuntu/+archivemirrors . Local HTTPS
+probes returned200 for noble/InRelease and jammy-security/InRelease; actual
+runner reachability and package installation remain unverified until CI.
+Ubuntu archive signature/hash validation and TLS remain enabled, strict update
+rejects incomplete or expired metadata, and mirror unavailability still fails
+closed. This preserves distro/package selection; it does not promote the host.
+Offline executable fixtures cover primary success, fallback after primary
+failure, final failure and inclusion of the security pocket.

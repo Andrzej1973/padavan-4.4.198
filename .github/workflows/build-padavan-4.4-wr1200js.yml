@@ -100,7 +100,9 @@ jobs:
 
       - name: Diagnose runner DNS and HTTPS before apt
         timeout-minutes: 2
-        run: python3 tools/diagnose-build-network.py
+        run: |
+          python3 tools/check-build-dependency-fallback.py
+          python3 tools/diagnose-build-network.py
 
       - name: Preserve runner network diagnostics
         if: always()
