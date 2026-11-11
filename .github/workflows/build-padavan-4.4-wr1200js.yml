@@ -148,6 +148,15 @@ jobs:
             python3 tools/iot/check-compiler-cache.py
           fi
 
+      - name: Check IoT CLOSE binding host compiler compatibility early
+        if: ${{ inputs.run_candidate_checks }}
+        run: |
+          probe="$RUNNER_TEMP/wr-iot-close-binding-host"
+          trap 'rm -f -- "$probe"' EXIT
+          gcc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-pie -no-pie \
+            -Itools/iot tools/iot/check-driver-api-close-binding.c -o "$probe"
+          "$probe"
+
       - name: Check source retry timeout and lock regressions
         run: |
           python3 tools/check-source-retry.py

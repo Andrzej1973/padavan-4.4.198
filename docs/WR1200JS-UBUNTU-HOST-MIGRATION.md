@@ -1,3 +1,10 @@
+## Owner steering after the initial comparison
+
+The owner deferred further libcurl root-cause investigation: wait for optional
+results and then decide host adoption. Do not require additional diagnostic
+builds solely to explain internal symbol exports. Generated-flag collection
+remains an unpublished draft, not an enabled migration requirement.
+
 # WR1200JS Ubuntu host candidate — 2026-11-11
 
 Owner authorized this parallel workstream while IoT work continues. Modern WebUI

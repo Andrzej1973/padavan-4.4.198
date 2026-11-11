@@ -22,7 +22,7 @@ static int task,other,locks,unlocks;
 #define RTMP_IRQ_UNLOCK(lock,flags) do{(void)(lock);assert(flags);unlocks++;}while(0)
 #include "driver-api-close-binding.inc"
 int main(void){
- RTMP_ADAPTER ad={0};int main_dev,iot_dev;unsigned long gen=0;
+ RTMP_ADAPTER ad={0};int main_dev=0,iot_dev=0;unsigned long gen=0;
  struct wr_iot_radio_ticket ticket={0};
  assert(wr_iot_driver_close_take_bound(&ad,&iot_dev,&ticket,&gen)==1);
  ad.wr_iot_close_owner.active=1;
