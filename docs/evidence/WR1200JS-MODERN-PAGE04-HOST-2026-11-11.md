@@ -35,3 +35,28 @@ coverage and full firmware/runtime acceptance remain open.
 Cleanup: Node checks used memory only; C fixture temporary directory auto-removed
 by existing check_json.py. No new retained build tree or copied PNG. Original
 images and pinned source archive retained as required inputs.
+
+## Radio schedule semantics audit
+
+Pinned net_wifi.c SHA25698bbe9cfca0af35be4ddb82742022b90cc51c2f7b34834e627ee6c5f2187dc69.
+At921–929, is_radio_allowed_wl/rt directly call timecheck_wifi with the three
+radio_date_x/radio_time_x/radio_time2_x fields. Watchdog uses these wrappers
+at306/348 and reload at422/435. Classic initializes wl_radio_x and wl_closed
+switches (line29); its schedule is the day mask and two intervals, not a separate
+radio-schedule-enable NVRAM key. Defaults218–220 and325–327 are1111111 and
+00002359/00002359. This source path provides no independent schedule master.
+Do not invent one from the reference drawing or conflate it with radio power.
+
+check_guest_rc_schedule.py now supports --radio: executes actual timecheck_wifi
+through the actual two radio wrappers, with clock/NVRAM substitutes. Minute-wise
+checks cover both bands/all days, inclusive boundaries, Friday overnight,
+no selected days and all-days00002359. Actual legacy malformed-length mask
+permits work; UI marks malformed input unknown and does not claim it disables
+radio. No driver/RC behavior was patched. Existing Guest mode also rerun and
+passes, preserving prior behavior. ASan/UBSan and warnings-as-errors pass.
+
+Reproduce with pinned archive path and --radio; omit flag for original Guest
+regression. Owned radio scratch51865B and Guest scratch51530B inventoried,
+auto-removed and absence asserted. Source archive retained. This is source/host
+semantics, not execution of watchdog or radio on WR1200JS. Desktop/mobile visual
+check and image/device acceptance remain pending.

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Execute actual pinned RC schedule function with deterministic host clock/NVRAM."""
 import hashlib,pathlib,subprocess,sys,tarfile,tempfile
+radio_mode='--radio' in sys.argv[2:]
 with tarfile.open(sys.argv[1]) as archive:
     source=archive.extractfile('trunk/user/rc/net_wifi.c').read()
 text=source.decode()
@@ -10,6 +11,10 @@ depth=1;end=body_start+1
 while depth:
     depth+=(text[end]=='{')-(text[end]=='}');end+=1
 function=text[start:end]
+if radio_mode:
+    for name in ('is_radio_allowed_wl','is_radio_allowed_rt'):
+        a=text.index(name+'(void)\n{');b=text.index('\n}',a)+2
+        function+='\nint\n'+text[a:b]+'\n'
 prefix=r'''
 #include <assert.h>
 #include <stdio.h>
@@ -46,12 +51,20 @@ int main(void) {
   assert(run(0,day,minute)==((day==5 && minute>=1320)||(day==6 && minute<=480)));
  days="0000000";
  for(day=0;day<7;day++) assert(run(0,day,600)==0);
+ days="1111111";weekday=weekend="00002359";
+ for(band=0;band<2;band++)for(day=0;day<7;day++)for(minute=0;minute<1440;minute++)assert(run(band,day,minute)==1);
  days="bad";assert(run(0,1,600)==1); /* Actual legacy fail-open, NOT new admission policy. */
  puts("PASS actual RC Guest schedule: both bands, inclusive bounds, Friday overnight, no days, legacy malformed-length fail-open; host only");
 }
 '''
-with tempfile.TemporaryDirectory(prefix='wr-guest-rc-schedule-') as scratch:
+if radio_mode:
+    prefix=prefix.replace('guest_date_x','radio_date_x').replace('guest_time_x','radio_time_x').replace('guest_time2_x','radio_time2_x')
+    suffix=suffix.replace('return timecheck_wifi(band,"guest_date_x","guest_time_x","guest_time2_x");','return band?is_radio_allowed_wl():is_radio_allowed_rt();')
+    suffix=suffix.replace('actual RC Guest schedule','actual RC radio schedule through original is_radio_allowed wrappers')
+with tempfile.TemporaryDirectory(prefix='wr-radio-rc-schedule-' if radio_mode else 'wr-guest-rc-schedule-') as scratch:
     p=pathlib.Path(scratch);(p/'fixture.c').write_text(prefix+function+suffix)
     subprocess.run(['gcc','-std=c99','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-pie','-no-pie',str(p/'fixture.c'),'-o',str(p/'fixture')],check=True)
     subprocess.run([str(p/'fixture')],check=True)
+    print('Owned scratch bytes removed',sum(item.stat().st_size for item in p.iterdir()))
+assert not p.exists()
 print('Pinned net_wifi.c SHA256',hashlib.sha256(source).hexdigest())

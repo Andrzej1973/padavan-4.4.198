@@ -328,3 +328,5 @@ dialog p { color: #b8d8f6; line-height: 1.55; }
 .wifi-radio-days { display:flex; flex-wrap:wrap; gap:12px; margin:14px 0; }
 .wifi-radio-days label { display:flex; align-items:center; gap:5px; }
 .wifi-general-five h2 { color:#dec8ff; }
+
+.wifi-radio-days input[type=checkbox] { width:18px; height:18px; margin:0; }
