@@ -27,7 +27,8 @@ def transform(source):
     core = core.replace(signature, 'int wr_nvram_batch_candidate(', 1)
     wire_header = (here / 'nvram-batch-wire.h').read_text()
     wire_decoder = (here / 'nvram-batch-wire.c.inc').read_text()
-    return source[:end] + '\n\n' + core + '\n' + wire_header + '\n' + wire_decoder + source[end:]
+    user_entry = (here / 'nvram-batch-user.c.inc').read_text()
+    return '#include <linux/capability.h>\n#include <linux/uaccess.h>\n' + source[:end] + '\n\n' + core + '\n' + wire_header + '\n' + wire_decoder + '\n' + user_entry + source[end:]
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)

@@ -11,6 +11,7 @@ generator=importlib.util.module_from_spec(spec);spec.loader.exec_module(generato
 generated=generator.transform(linux)
 expected_core=(here/'nvram-batch-core.c.inc').read_text().replace('static int wr_nvram_batch_candidate(', 'int wr_nvram_batch_candidate(',1)
 assert expected_core in generated
+assert (here/'nvram-batch-user.c.inc').read_text() in generated
 assert generated.index('_nvram_free(struct')<generated.index('int wr_nvram_batch_candidate(')<generated.index('nvram_commit(void)')
 for invalid in (generated,linux.replace('_nvram_free(struct nvram_tuple *t)','_nvram_free(struct nvram_tuple *renamed)')):
     try:generator.transform(invalid)
@@ -39,16 +40,19 @@ static struct nvram_tuple *nvram_hash[257];
 static char arena[NVRAM_VALUES_SPACE],*nvram_values=arena;
 static unsigned long nvram_offset;
 static int nvram_lock,depth,allocations,live,fail_at;
+static void *user_owned;
+static int user_frees;
 static pthread_mutex_t host_mutex=PTHREAD_MUTEX_INITIALIZER;
 #define spin_lock_irqsave(lock,flags) do{(void)(lock);assert(!pthread_mutex_lock(&host_mutex));assert(!depth);depth=1;(flags)=0;}while(0)
 #define spin_unlock_irqrestore(lock,flags) do{(void)(lock);(void)(flags);assert(depth==1);depth=0;assert(!pthread_mutex_unlock(&host_mutex));}while(0)
 static void *kmalloc(size_t bytes,int mode){(void)mode;assert(depth==1);allocations++;if(fail_at&&allocations==fail_at)return NULL;void *p=malloc(bytes);if(p)live++;return p;}
-static void kfree(void *p){if(p){assert(depth==1);live--;free(p);}}
+static void kfree(void *p){if(p){if(p==user_owned){for(unsigned int i=0;i<5264;i++)assert(!((unsigned char *)p)[i]);user_owned=NULL;user_frees++;free(p);}else{assert(depth==1);live--;free(p);}}}
 '''
 actual=fn(common,'hash(const char *s)','static inline uint\n')+fn(linux,'_nvram_realloc(struct','struct nvram_tuple *\n')+fn(linux,'_nvram_free(struct','void\n')+fn(common,'_nvram_get(const char *name)\n{','char *\n')+fn(common,'_nvram_set(const char *name, const char *value, int is_temp)\n{','int\n')
 fixture=(here/'nvram-batch-fixture.c.inc').read_text()
+user_fixture=(here/'nvram-batch-user-fixture.c.inc').read_text().replace('/* USER_ENTRY */',(here/'nvram-batch-user.c.inc').read_text())
 with tempfile.TemporaryDirectory(prefix='wr-nvram-batch-core-') as scratch:
-    root=pathlib.Path(scratch);(root/'fixture.c').write_text(prefix+actual+(here/'nvram-batch-core.c.inc').read_text()+(here/'nvram-batch-wire.h').read_text()+(here/'nvram-batch-wire.c.inc').read_text()+fixture)
+    root=pathlib.Path(scratch);(root/'fixture.c').write_text(prefix+actual+(here/'nvram-batch-core.c.inc').read_text()+(here/'nvram-batch-wire.h').read_text()+(here/'nvram-batch-wire.c.inc').read_text()+user_fixture+fixture)
     subprocess.run(['gcc','-std=gnu99','-Wall','-Wextra','-Werror','-pthread','-fsanitize=address,undefined','-fno-pie','-no-pie',str(root/'fixture.c'),'-o',str(root/'fixture')],check=True)
     subprocess.run([str(root/'fixture')],check=True)
     size=sum(p.stat().st_size for p in root.iterdir());print('Owned scratch bytes removed',size)

@@ -97,3 +97,27 @@ decoder text symbol and records layout/decoder hashes. Still pending: privileged
 user-copy wrapper, explicit copied-buffer wiping, ioctl admission, userspace
 adapter and service integration. Decoder alone is not authorization or safe
 user memory access; never pass a user pointer directly to it.
+
+## Privileged owned-copy entry body
+
+`nvram-batch-user.c.inc` checks CAP_SYS_ADMIN before allocation/copy because
+this generic NVRAM operation can modify system keys, not just network values.
+Uninitialized driver refuses EAGAIN. kzalloc then one copy_from_user obtains a
+fixed-size owned request; partial-copy EFAULT still funnels through explicit
+buffer wiping before kfree. Decoder outputs borrow only that owned copy.
+Result is changed-count or errno; no flash commit, service operation, user copy
+back, ioctl dispatch, export or production hook is introduced. The candidate
+includes actual Linux capability/uaccess declarations for eventual target checks.
+
+Host executes the actual entry body with explicit capability/allocation/copy
+substitutes. It tests denied permissions with zero copy calls, startup refusal,
+allocation failure, partial-copy failure, malformed/stale requests, mutation of
+original user buffer after copy, and complete owned-buffer wipe before every
+free. ASan/UBSan and prior200 concurrent/core/decoder tests pass. This does not
+validate real copy_from_user faults, credentials or kernel ABI execution.
+Composed candidate source SHA256:
+0f11b2eb6a04753b2347a6c377a0eb84189aff7a54e2dbbac215cb5c0ac7b2e6.
+Scratch173094B removed and absence asserted. Kernel-object CI now also requires
+the actual wr_nvram_user_batch text symbol and records entry-body hash.
+Next: versioned ioctl admission and userspace adapter, then complete HTTP/RC
+integration with honest RAM/flash/service results. Production remains unchanged.

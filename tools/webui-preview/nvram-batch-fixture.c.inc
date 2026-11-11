@@ -77,6 +77,23 @@ static void wire_cases(void)
  assert(!strcmp(_nvram_get(names[0]),"wire-after"));
  puts("PASS fixed5264-byte pointer-free request: malformed buffers leave output untouched; decoded request executes actual batch core");
 }
+static void user_copy_cases(void)
+{
+ struct wr_nvram_wire_request packet={0};
+ packet.version=1;packet.count=1;packet.items[0].flags=3;
+ strcpy(packet.items[0].name,names[0]);strcpy(packet.items[0].expected,"before");strcpy(packet.items[0].value,"owned-value");
+ reset_store();authorized=0;assert(wr_nvram_user_batch(&packet)==-EPERM);assert(!copy_calls&&!user_owned);
+ authorized=1;nvram_major=-1;assert(wr_nvram_user_batch(&packet)==-EAGAIN);assert(!copy_calls&&!user_owned);nvram_major=1;
+ copy_alloc_fault=1;assert(wr_nvram_user_batch(&packet)==-ENOMEM);assert(!copy_calls&&!user_owned);copy_alloc_fault=0;
+ copy_fault=1;assert(wr_nvram_user_batch(&packet)==-EFAULT);assert(user_frees==1&&!user_owned);copy_fault=0;
+ assert(!strcmp(_nvram_get(names[0]),"before"));
+ packet.version=2;assert(wr_nvram_user_batch(&packet)==-EINVAL);assert(user_frees==2&&!user_owned);packet.version=1;
+ mutate_user=1;assert(wr_nvram_user_batch(&packet)==1);mutate_user=0;
+ assert(!strcmp(_nvram_get(names[0]),"owned-value"));
+ assert(!strcmp(packet.items[0].value,"raced-user-value"));assert(user_frees==3&&!user_owned);
+ assert(wr_nvram_user_batch(&packet)==-EAGAIN);assert(user_frees==4&&!user_owned);
+ puts("PASS actual user-entry body with host substitutes: permission/startup/ENOMEM, partial-copy EFAULT, invalid/stale requests, immutable owned copy and wipe before every free");
+}
 int main(void)
 {
  struct wr_nvram_edit edits[4];unsigned int i;unsigned long before;int old_live;
@@ -125,7 +142,7 @@ int main(void)
  }
  fail_at=0;allocations=0;assert(wr_nvram_batch_candidate(full,16)==16);
  for(i=0;i<16;i++)assert(!strcmp(_nvram_get(full[i].name),"collision-after"));
- concurrent_cases();wire_cases();
+ concurrent_cases();wire_cases();user_copy_cases();
  reset_store();depth=1;for(i=0;i<ARRAYSIZE(nvram_hash);i++){struct nvram_tuple *t=nvram_hash[i],*next;while(t){next=t->next;_nvram_free(t);t=next;}nvram_hash[i]=NULL;}depth=0;assert(!live);
  puts("PASS actual NVRAM allocator/hash + batch prototype: 4/16-key allocation faults preserve old state, colliding bucket replacement, CAS/no-op/space/input/new-key/check-only, borrowed old value retained; host lock/heap substitutes, no ioctl/kernel acceptance");return 0;
 }
