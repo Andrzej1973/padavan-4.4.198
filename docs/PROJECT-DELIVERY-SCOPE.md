@@ -1,3 +1,14 @@
+## CAKE requirement corrected by the owner — 2026-11-11
+
+CAKE/SQM must be included in WR1200JS firmware and disabled at runtime by
+factory default (`CONFIG_FIRMWARE_INCLUDE_SQM=y`, `sqm_enable=0`). This supersedes
+older "without CAKE"/"CAKE excluded" scope statements, including stale automatic
+goal text. Preserve saved user configuration and acceleration preferences;
+activation is an explicit user choice. Existing Classic SQM integration may be
+restored for this requirement; Modern WebUI development remains paused.
+Target image and physical runtime verification are separate and still required.
+See docs/CAKE-SQM-RESTORATION.md for the historical cause and current gates.
+
 # WR1200JS project delivery requirements
 
 ## WebUI paused by the owner — 2026-11-11

@@ -25,7 +25,7 @@ The [WR1200JS configuration](configs.build/wr1200js.config) enables:
 - **USB and storage:** USBIP, USB printer sharing, HID, NTFS-3G, filesystem tools and zram.
 - **Wi-Fi and interface:** Band Steering integration (off by default), local Wi-Fi QR previews, vendor logo, Ukrainian and Russian translations.
 
-Commented options are excluded. CAKE/SQM, TOR and ZAPRET are excluded from the current profile. Package selection and successful compilation do not prove device operation; Linux 4.4 router runtime verification is still pending.
+Commented options are excluded. CAKE/SQM is included with factory runtime OFF; TOR and legacy ZAPRET remain excluded from the current profile. Package selection and successful compilation do not prove device operation; Linux 4.4 router runtime verification is still pending.
 
 ## Build and download
 

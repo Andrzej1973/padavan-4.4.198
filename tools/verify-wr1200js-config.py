@@ -81,6 +81,13 @@ def main():
     for key, expected in nat_policy.items():
         if kernel.get(key) != expected:
             errors.append(key)
+    # Compile-time inclusion is separate from the factory runtime switch.
+    # Required components for both upload and IFB download shaping must exist.
+    if requested.get('CONFIG_FIRMWARE_INCLUDE_SQM') == 'y':
+        sqm_kernel = json.loads((Path(__file__).parent / 'board-capabilities/wr1200js-cake.json').read_text())['kernel_required']
+        for key, expected in sqm_kernel.items():
+            if kernel.get(key) != expected:
+                errors.append(key)
     report = {'board': 'wr1200js', 'scope': 'Requested versus effective configuration; not package, runtime or complete-port proof',
               'mismatches': errors, 'options': rows,
               'iot_hwnat_kernel_policy': {

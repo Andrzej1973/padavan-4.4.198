@@ -1,0 +1,20 @@
+{
+  "board": "WR1200JS",
+  "feature": "CAKE/SQM",
+  "status": "runtime-unverified",
+  "selector": "CONFIG_FIRMWARE_INCLUDE_SQM",
+  "included": "y",
+  "factory_default": {"sqm_enable": "0"},
+  "kernel_required": {
+    "CONFIG_NET_SCH_CAKE": "m", "CONFIG_IFB": "m",
+    "CONFIG_NET_SCHED": "y", "CONFIG_NET_CLS_ACT": "y",
+    "CONFIG_NET_SCH_INGRESS": "m", "CONFIG_NET_CLS_U32": "m",
+    "CONFIG_NET_ACT_MIRRED": "m"
+  },
+  "modules": ["sch_cake.ko", "ifb.ko", "sch_ingress.ko", "cls_u32.ko", "act_mirred.ko"],
+  "classic_page": "Advanced_SQM.asp",
+  "backend_group": "SqmConf",
+  "rc_event": "EVM_RESTART_SQM",
+  "source_revision": "vipshmily/padavan-4.4@c25283e915a2a00a763774dd255b14aff997285e",
+  "policy": "Include kernel/tc/lifecycle and existing Classic control; factory OFF; preserve saved settings and acceleration preferences. Target image verification pending; no device acceptance."
+}

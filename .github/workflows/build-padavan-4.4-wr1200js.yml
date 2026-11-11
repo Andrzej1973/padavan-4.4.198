@@ -274,6 +274,10 @@ jobs:
           python3 overlay/padavan-4.4/ports/sqm/prepare-packaging.py padavan-4.4
           python3 overlay/padavan-4.4/ports/qos/prepare-packaging.py padavan-4.4
           sh -n padavan-4.4/trunk/user/sqm-qos/scripts/run.sh
+          if [ -f tools/check-cake-default.py ]; then
+            python3 -B tools/check-cake-default.py padavan-4.4
+            python3 -B tools/check-cake-image.py
+          fi
           python3 overlay/padavan-4.4/scripts/add-amneziawg-nvram.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/add-amneziawg-lifecycle.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/add-amneziawg-firewall.py padavan-4.4
@@ -976,12 +980,11 @@ jobs:
             test -s trunk/romfs/etc_ro/lua/5.1/lib/cjson.so
             test -s trunk/romfs/etc_ro/lua/5.1/lib/nixio.so
           fi
-          # Current WR1200JS port scope explicitly excludes CAKE/SQM.
-          grep -q '^CONFIG_FIRMWARE_INCLUDE_SQM=n$' ../configs.build/wr1200js.config
-          # Disabled selectors may be omitted from the normalized config.
-          ! grep -Eq '^CONFIG_FIRMWARE_INCLUDE_SQM=(y|m)$' trunk/.config
+          # Inclusion follows the exact checked-out profile; runtime defaults OFF.
+          # Historical verification can still select an older SQM-excluded profile.
           if grep -q '^CONFIG_FIRMWARE_INCLUDE_SQM=y$' trunk/.config; then
             grep -q '^CONFIG_NET_SCH_CAKE=m$' trunk/linux-4.4.x/.config
+            grep -q '{ "sqm_enable", "0" }' trunk/user/shared/defaults.c
             cake_module="$(find trunk/romfs/lib/modules -name sch_cake.ko -print -quit)"
             test -n "$cake_module"
             modinfo -F vermagic "$cake_module" | grep -q '^4\.4\.198'
@@ -1001,8 +1004,11 @@ jobs:
               fi
             done
             grep -a -q 'wr1200js-sqm.lock' trunk/romfs/sbin/rc
+            if [ -f ../tools/verify-cake-image.py ]; then
+              python3 ../tools/verify-cake-image.py . --report ../cake-image-checks.json
+            fi
           else
-            # The current project scope excludes CAKE from the image.
+            # An older or explicitly SQM-excluded profile must not leak the module.
             ! grep -Eq '^CONFIG_NET_SCH_CAKE=(y|m)$' trunk/linux-4.4.x/.config
             test -z "$(find trunk/romfs/lib/modules -name sch_cake.ko -print -quit)"
           fi
@@ -1070,6 +1076,14 @@ jobs:
             fi
             sha256sum "$image"
           done
+
+      - name: Preserve CAKE inclusion and default-OFF checks
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: cake-image-checks${{ inputs.artifact_suffix }}
+          path: cake-image-checks.json
+          if-no-files-found: warn
 
       - name: Verify staged firmware upload tmpfs action
         run: |

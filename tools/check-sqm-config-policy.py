@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the actual WR config verifier for normalized disabled SQM forms."""
+"""Exercise actual config verifier for inclusion and legacy disabled profiles."""
 import argparse
 import importlib.util
 import json
@@ -13,20 +13,32 @@ class File:
     def read_text(self,**kwargs):return self.text
     def write_text(self,text,**kwargs):self.text=text
 
-for selector in ('CONFIG_FIRMWARE_INCLUDE_SQM=n','# CONFIG_FIRMWARE_INCLUDE_SQM is not set','',
-                 'CONFIG_FIRMWARE_INCLUDE_SQM=y','CONFIG_FIRMWARE_INCLUDE_SQM=m'):
+required={'CONFIG_NET_SCH_CAKE':'m','CONFIG_IFB':'m','CONFIG_NET_SCHED':'y',
+          'CONFIG_NET_CLS_ACT':'y','CONFIG_NET_SCH_INGRESS':'m',
+          'CONFIG_NET_CLS_U32':'m','CONFIG_NET_ACT_MIRRED':'m'}
+def run(requested,selector,kernel_values):
     report=File()
-    arguments=argparse.Namespace(requested=File('CONFIG_FIRMWARE_INCLUDE_SQM=n'),
+    kernel='CONFIG_RALINK_BUILTIN_DTB_NAME="wr1200js"\nCONFIG_HW_NAT=y\nCONFIG_RA_NAT_NONE=y\n'
+    kernel+='\n'.join(k+'='+v for k,v in kernel_values.items())
+    arguments=argparse.Namespace(requested=File('CONFIG_FIRMWARE_INCLUDE_SQM='+requested),
         effective=File('CONFIG_VENDOR=Ralink\nCONFIG_PRODUCT=MT7621\n'+selector),
-        kernel=File('CONFIG_RALINK_BUILTIN_DTB_NAME="wr1200js"\n'
-                    'CONFIG_HW_NAT=y\nCONFIG_RA_NAT_NONE=y'),report=report)
+        kernel=File(kernel),report=report)
     failed=False
     with patch.object(argparse.ArgumentParser,'parse_args',return_value=arguments):
         try:verifier.main()
         except SystemExit:failed=True
-    enabled=selector.endswith('=y') or selector.endswith('=m')
-    assert failed==enabled,selector
-    data=json.loads(report.text)
-    assert data['mismatches']==(['CONFIG_FIRMWARE_INCLUDE_SQM'] if enabled else [])
-    assert data['options'][0]['requested_key']=='CONFIG_FIRMWARE_INCLUDE_SQM'
-print('PASS actual WR config verifier: disabled normalized SQM accepted; enabled SQM rejected')
+    return failed,json.loads(report.text)
+for requested in ('n','y'):
+    for selector in ('CONFIG_FIRMWARE_INCLUDE_SQM=n','# CONFIG_FIRMWARE_INCLUDE_SQM is not set','',
+                     'CONFIG_FIRMWARE_INCLUDE_SQM=y','CONFIG_FIRMWARE_INCLUDE_SQM=m'):
+        failed,data=run(requested,selector,required)
+        valid=selector.endswith('=y') if requested=='y' else not selector.endswith(('=y','=m'))
+        assert failed != valid,(requested,selector,data)
+        assert data['mismatches']==([] if valid else ['CONFIG_FIRMWARE_INCLUDE_SQM'])
+for key in required:
+    altered=dict(required);altered[key]='n'
+    failed,data=run('y','CONFIG_FIRMWARE_INCLUDE_SQM=y',altered)
+    assert failed and key in data['mismatches'],key
+profile=verifier.read_config(Path(__file__).resolve().parents[1]/'configs.build/wr1200js.config')
+assert profile.get('CONFIG_FIRMWARE_INCLUDE_SQM')=='y', 'WR1200JS must include CAKE/SQM; runtime default is separately OFF'
+print('PASS SQM inclusion, normalized historical exclusion and missing CAKE/IFB/ingress components refused')
