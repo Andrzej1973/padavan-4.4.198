@@ -54,3 +54,14 @@ modem sleep with queued traffic, observe TIM and successful delivery on wake,
 repeat across both retrieval states, and inspect queue bounds and station idle
 expiry. Verify Main/Guest traffic during the same test. Device operations need
 the owner's separate authorization under the current project rules.
+
+Target checkpoint: Ubuntu22 optional1018/run43058250743 at4f80200 completed.
+Actual artifact13873798948 contains the baseline MIPS module5910000B,
+SHA256 dc8c0d4abf84ac7a5138dc2bcf05176ea9c5cae8b9ec58c870d6ab8b69f7f04e,
+and four diagnostic/feature variants with matching report hashes. Generated
+helper SHA256 matches this source; prepared ap.c hash matches the compiled
+startup source report. The21-case retention fixture and joined periodic/first
+beacon fixture passed against prepared sources. This is isolated target-build
+evidence, not production installation or proof of concurrent station runtime.
+See ../evidence/WR1200JS-IOT-OPTIONAL1018-TARGET-2026-11-11.json. ROM ACK and
+safe RF/late-TxS retirement issues remain separate unresolved requirements.
