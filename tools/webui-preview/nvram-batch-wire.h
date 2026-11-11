@@ -19,4 +19,9 @@ struct wr_nvram_wire_request {
 /* New Linux-only candidate command; compute using target architecture's ioctl
  * encoding. Existing numeric COMMIT/CLEAR/SET/GET commands are unchanged. */
 #define WR_NVRAM_IOCTL_BATCH_V1 _IOW('N',0x51,struct wr_nvram_wire_request)
+/* Isolated build probes emit identical target-native records in both worlds. */
+#define WR_NVRAM_ABI_RECORD(name) \
+ const __u32 name[4] __attribute__((section(".wr_nvram_abi"),used)) = { \
+ sizeof(struct wr_nvram_wire_request),sizeof(struct wr_nvram_wire_item), \
+ WR_NVRAM_IOCTL_BATCH_V1,WR_NVRAM_WIRE_VERSION }
 #endif

@@ -148,3 +148,23 @@ error output with exactly one attempt. ASan/UBSan plus previous suites pass;
 latest host scratch194958B removed, absence asserted. Kernel/user target ioctl
 encoding agreement and real target compilation remain unverified. No runtime
 or ABI availability is claimed for released firmware.
+
+## Compiled kernel/client ABI comparison gate
+
+The shared header can emit four target-native u32 constants into a dedicated
+.wr_nvram_abi ELF section: request size, item size, ioctl command, version.
+Generator emits the kernel record. CI also compiles actual userspace adapter
+through its actual libc headers using the source MIPS compiler. Target objcopy
+extracts the section from both objects; exact16-byte layout and known sizes/
+version are checked, then both records must be identical. This detects kernel/
+libc ioctl encoding disagreement without running target code or assuming the
+host command number. Both object files and client compile diagnostics retained.
+Overall target_compiled becomes true only after kernel/client compilation and
+ABI comparison pass. Neither object is linked or installed into firmware.
+
+Native host executable and separately compiled actual userspace adapter record
+match: request5264B, item328B, version1. Native ioctl number1418743377 is host
+only, not a claimed MIPS command. Full ASan/UBSan host suites pass. Composed
+candidate hash4961b8457d9f2975a9470541e5e24fb754ccdea36b2800718cfaf5ed702af554.
+Scratch197441B removed and absence asserted. Python syntax/whitespace pass.
+MIPS gate execution still pending; no device/runtime evidence added.

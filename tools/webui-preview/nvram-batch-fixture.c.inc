@@ -7,6 +7,7 @@ static int mock_batch_ioctl(int fd,unsigned long command,const void *request)
 }
 #define WR_NVRAM_IOCTL_CALL mock_batch_ioctl
 #include "nvram-batch-client.h"
+WR_NVRAM_ABI_RECORD(wr_nvram_host_abi);
 static const char *names[]={"rt_guest_ssid","rt_guest_enable","rt_guest_crypto","rt_guest_date_x"};
 static void reset_store(void)
 {

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Actual pinned NVRAM hash/allocator plus isolated batch prototype; host only."""
 import hashlib,importlib.util,json,pathlib,subprocess,sys,tarfile,tempfile
+from nvram_abi_probe import client_source,read_record
 here=pathlib.Path(__file__).resolve().parent
 with tarfile.open(sys.argv[1]) as archive:
     common=archive.extractfile('trunk/linux-4.4.x/drivers/nvram/nvram.c').read().decode()
@@ -66,6 +67,12 @@ with tempfile.TemporaryDirectory(prefix='wr-nvram-batch-core-') as scratch:
     root=pathlib.Path(scratch);(root/'fixture.c').write_text(prefix+actual+(here/'nvram-batch-core.c.inc').read_text()+(here/'nvram-batch-wire.h').read_text()+(here/'nvram-batch-wire.c.inc').read_text()+user_fixture+ioctl_constants+ioctl_stubs+ioctl_body+fixture)
     subprocess.run(['gcc','-std=gnu99','-Wall','-Wextra','-Werror','-pthread','-fsanitize=address,undefined','-fno-pie','-no-pie','-I',str(here),str(root/'fixture.c'),'-o',str(root/'fixture')],check=True)
     subprocess.run([str(root/'fixture')],check=True)
+    (root/'client.c').write_text(client_source())
+    subprocess.run(['gcc','-std=gnu99','-O2','-Wall','-Wextra','-Werror','-I',str(here),'-c',str(root/'client.c'),'-o',str(root/'client.o')],check=True)
+    host_abi=read_record('objcopy',root/'fixture',root/'host-abi.bin')
+    client_abi=read_record('objcopy',root/'client.o',root/'client-abi.bin')
+    assert host_abi==client_abi
+    print('PASS native host/client compiled ABI record match',json.dumps(host_abi),'MIPS acceptance still pending')
     size=sum(p.stat().st_size for p in root.iterdir());print('Owned scratch bytes removed',size)
 assert not root.exists()
 print('Pinned source hashes',json.dumps({'common':hashlib.sha256(common.encode()).hexdigest(),'allocator':hashlib.sha256(linux.encode()).hexdigest(),'header':hashlib.sha256(header.encode()).hexdigest()}))

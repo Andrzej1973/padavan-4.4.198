@@ -8,6 +8,7 @@ from pathlib import Path
 import shutil
 import subprocess
 import tempfile
+from nvram_abi_probe import client_source, read_record
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('source', type=Path)
@@ -27,7 +28,7 @@ watched = [production / 'nvram_linux.c', production / 'nvram.c', production / 'n
            kernel / '.config', kernel / 'vmlinux']
 watched += list((root / 'trunk/images').glob('*.trx'))
 before = {str(p.relative_to(root)): digest(p) for p in watched}
-report = {'scope': 'Isolated NVRAM batch ioctl/commit-order translation unit; not linked or installed in production',
+report = {'scope': 'Isolated NVRAM kernel TU and userspace ABI probe; not linked or installed in production',
           'repository_revision': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=Path(__file__).resolve().parents[2], text=True).strip(),
           'production_before': before, 'target_compiled': False,
           'production_installed': False, 'runtime_verified': False, 'scratch_removed': False}
@@ -64,8 +65,31 @@ try:
         (output / 'defined-symbols.txt').write_text(symbols)
         report['batch_core_sha256'] = digest(Path(__file__).with_name('nvram-batch-core.c.inc'))
         report['wire_sha256'] = {name: digest(Path(__file__).with_name(name)) for name in ('nvram-batch-wire.h', 'nvram-batch-wire.c.inc', 'nvram-batch-user.c.inc')}
-        report.update(target_compiled=True, object_bytes=len(data), object_sha256=digest(obj))
+        report.update(kernel_target_compiled=True, object_bytes=len(data), object_sha256=digest(obj))
         shutil.copyfile(obj, output / 'nvram-commit-order.o')
+        client = target / 'client-probe.c'
+        client_obj = target / 'client-probe.o'
+        client.write_text(client_source())
+        client_command = [str(compiler), '-std=gnu99', '-O2', '-Wall', '-Wextra', '-Werror',
+                          '-I', str(Path(__file__).resolve().parent), '-c', str(client), '-o', str(client_obj)]
+        report['client_command'] = client_command
+        with (output / 'client-compile.log').open('w') as log:
+            client_result = subprocess.run(client_command, stdout=log, stderr=subprocess.STDOUT)
+        report['client_compile_exit_code'] = client_result.returncode
+        if client_result.returncode:
+            print((output / 'client-compile.log').read_text(errors='replace')[-16000:])
+            raise RuntimeError('NVRAM userspace client target compile failed')
+        client_data = client_obj.read_bytes()
+        if client_data[:6] != b'\x7fELF\x01\x01' or int.from_bytes(client_data[18:20], 'little') != 8:
+            raise RuntimeError('NVRAM userspace probe is not ELF32LE MIPS')
+        kernel_abi = read_record(cross + 'objcopy', obj, target / 'kernel-abi.bin')
+        client_abi = read_record(cross + 'objcopy', client_obj, target / 'client-abi.bin')
+        report.update(kernel_abi=kernel_abi, client_abi=client_abi)
+        if kernel_abi != client_abi:
+            raise RuntimeError('MIPS kernel/userspace NVRAM ABI mismatch')
+        report.update(target_compiled=True, client_target_compiled=True, abi_match=True, client_object_sha256=digest(client_obj),
+                      client_header_sha256=digest(Path(__file__).with_name('nvram-batch-client.h')))
+        shutil.copyfile(client_obj, output / 'nvram-client-probe.o')
         report['scratch_bytes'] = sum(p.stat().st_size for p in target.rglob('*') if p.is_file())
     report['scratch_removed'] = not target.exists()
 finally:

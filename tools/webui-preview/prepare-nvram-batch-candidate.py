@@ -25,7 +25,7 @@ def transform(source):
     # An externally visible but unexported, uncalled symbol ensures the object
     # actually contains compiled batch code. No production API is installed.
     core = core.replace(signature, 'int wr_nvram_batch_candidate(', 1)
-    wire_header = (here / 'nvram-batch-wire.h').read_text()
+    wire_header = (here / 'nvram-batch-wire.h').read_text() + '\nWR_NVRAM_ABI_RECORD(wr_nvram_kernel_abi);\n'
     wire_decoder = (here / 'nvram-batch-wire.c.inc').read_text()
     user_entry = (here / 'nvram-batch-user.c.inc').read_text()
     ioctl_anchor = '\tcase NVRAM_IOCTL_COMMIT:\n\t\treturn nvram_commit();'
