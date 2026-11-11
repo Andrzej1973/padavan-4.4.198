@@ -38,3 +38,19 @@ that current RAM equals flash. Batch/user ABI and service sequencing remain open
 CI99642967156122 freshly in_progress for requested5c30f49; not acceptance of
 this uninstalled candidate. Next target-build integration and complete bounded
 batch ABI, without changing production defaults until those checks pass.
+
+## Target-check integration
+
+`ci_compile_nvram_candidate.py` uses the already configured firmware kernel and
+actual source-toolchain prefix. It copies only nvram.c/nvram_linux.c/Makefile to
+an owned temporary sibling under drivers, transforms the copied C, and requests
+that sibling's nvram_linux.o through Kbuild. No full local kernel build,
+link/install/ROMFS or production source replacement. It requires ELF32LE MIPS
+ET_REL, retains object/log/report and checks original sources/object, .config,
+vmlinux and TRX hashes before/after. Scratch deletion is recorded on failure
+as well as success. Optional workflow uploads diagnostics with always(); older
+verification revisions lacking this script skip this new check. Same watched
+firmware workflow: failure monitor already covers it; first real failure must
+be compared with monitor artifact before any parser changes. No speculative
+monitor edits. Python syntax and workflow YAML parse passed; target compilation
+remains pending until a new exact-source optional run completes.

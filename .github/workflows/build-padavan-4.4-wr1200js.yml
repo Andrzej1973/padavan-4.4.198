@@ -1198,6 +1198,22 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
+      - name: Compile isolated NVRAM commit ordering candidate
+        if: inputs.run_candidate_checks
+        run: |
+          if test -f tools/webui-preview/ci_compile_nvram_candidate.py; then
+            python3 tools/webui-preview/ci_compile_nvram_candidate.py padavan-4.4 --output modern-nvram-candidate
+          fi
+
+      - name: Preserve isolated NVRAM candidate diagnostics
+        if: always() && inputs.run_candidate_checks
+        uses: actions/upload-artifact@v7
+        with:
+          name: modern-nvram-candidate${{ inputs.artifact_suffix }}
+          path: modern-nvram-candidate/
+          if-no-files-found: ignore
+          retention-days: 14
+
       - name: Compile isolated Modern credential HTTP candidate
         if: inputs.run_candidate_checks
         run: python3 tools/webui-preview/ci_compile_http_candidate.py padavan-4.4 --output modern-http-candidate
