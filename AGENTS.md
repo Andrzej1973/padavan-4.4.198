@@ -1,3 +1,9 @@
+## Local WSL upgraded — 2026-11-11
+
+Existing local installation now runs Ubuntu24.04.5 with systemd. Its registered
+WSL name remains Ubuntu-22.04, preserving launcher commands and checkout paths.
+Earlier local22.04 OS statements below are historical. Use the same checkout.
+
 ## Ubuntu24 approved and verified — 2026-11-11
 
 Owner requested promotion after successful optional for standard1025.
