@@ -1,0 +1,28 @@
+<!doctype html><meta charset="utf-8"><title>Local Guest protocol fixture</title>
+<body data-status="pending"><pre id="result"></pre>
+<script src="/fixture-client.js"></script>
+<script>
+(async()=>{
+ const auth='Basic '+btoa('fixture:fixture-password');
+ const get=async path=>{const r=await fetch(path,{headers:{Authorization:auth},cache:'no-store'});if(!r.ok)throw Error('fixture GET');return r.json();};
+ const initial=await get('/fixture-state.json');
+ const values={enable:'1',ssid:'Browser Guest Д',closed:'0',auth_mode:'psk',wpa_mode:'2',crypto:'aes',lan_isolate:'1',ap_isolate:'1',macrule:'0',mcs_mode:'0',date_x:'0111110',time_x:'08002200',time2_x:'10002300'};
+ const body=new URLSearchParams({wr_modern_guest_version:'1',wr_modern_guest_band:'rt',wr_modern_guest_password_intent:'keep',sid_list:'WLANConfig11b;',action_mode:' Apply '});
+ for(const [key,value] of Object.entries(values)){body.set('rt_guest_'+key,value);body.set('wr_modern_guest_expected_'+key,initial.guests['24'][key]);}
+ let sends=0;
+ const transmit=async(data,{signal})=>{sends++;const r=await fetch('/wr_modern_guest_apply.json',{method:'POST',headers:{Authorization:auth,'X-WR-Modern':'1','Content-Type':'application/x-www-form-urlencoded'},body:data,signal,credentials:'omit',cache:'no-store',redirect:'error'});if(!r.ok)throw Error('fixture POST');return r.json();};
+ const controller=WifiDemo.guestSubmission(transmit);
+ const pending=controller.submit(body.toString());const duplicate=await controller.submit(body.toString());const first=await pending;
+ if(first.state!=='configuration_matches'||duplicate!==false||sends!==1||first.runtimeVerified!==false)throw Error('first/double');
+ const after=await get('/fixture-state.json');if(after.guests['24'].ssid!==values.ssid)throw Error('UTF8');
+ const replay=await WifiDemo.guestSubmission(transmit).submit(body.toString());if(replay.state!=='reload_required')throw Error('stale');
+ const badAuth=await fetch('/wr_modern_guest_apply.json',{method:'POST',headers:{Authorization:'Basic '+btoa('wrong:password'),'X-WR-Modern':'1'},body:body.toString(),credentials:'omit'});if(badAuth.status!==401)throw Error('auth');
+ const beforeAttack=await get('/fixture-metrics.json');
+ const attacker=new URL(location.href).searchParams.get('attacker');const frame=document.createElement('iframe');
+ const blocked=await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('attack timeout')),10000);window.addEventListener('message',function handler(event){if(event.origin!==attacker||event.source!==frame.contentWindow)return;window.removeEventListener('message',handler);clearTimeout(timer);resolve(event.data.blocked===true);});frame.src=attacker+'/?target='+encodeURIComponent(location.origin);document.body.append(frame);});
+ const afterAttack=await get('/fixture-metrics.json');
+ if(!blocked||afterAttack.posts!==beforeAttack.posts||afterAttack.options<=beforeAttack.options||afterAttack.writes!==beforeAttack.writes)throw Error('CORS');
+ const result={sameOrigin:'configuration_matches',doubleClickBlocked:true,stale:'reload_required',wrongAuth:401,utf8:true,crossOriginBlocked:true,preflightSeen:true,noCrossOriginPost:true,noExtraWrites:true,runtimeVerified:false};
+ document.getElementById('result').textContent=JSON.stringify(result);document.body.dataset.status='pass';
+})().catch(()=>{document.body.dataset.status='fail';document.getElementById('result').textContent='Local fixture check failed';});
+</script>

@@ -1,0 +1,48 @@
+{
+  "scope": "actual local native HTTP/CGI/auth + Edge, not router runtime",
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "client_revision": "5c30f49875d7e274f919c3f97720caafdf7c3d9b",
+  "results": {
+    "sameOrigin": "configuration_matches",
+    "doubleClickBlocked": true,
+    "stale": "reload_required",
+    "wrongAuth": 401,
+    "utf8": true,
+    "crossOriginBlocked": true,
+    "preflightSeen": true,
+    "noCrossOriginPost": true,
+    "noExtraWrites": true
+  },
+  "actual_auth_source_sha256": {
+    "auth_check": "fd2fab9aac85e6d5fac74620ee28725dccf156dc0d7f27bd02ea01cb5fa37a5b",
+    "base64.c": "3f6f2d6abeeef9b844e9565a030fbed4de1bd15c13e8320d15cc91cafc543944"
+  },
+  "substitutes": [
+    "fixture login-state provider and credentials",
+    "NVRAM/flash/RC memory model",
+    "HTTP header/socket launcher wrapper; target daemon/SSL wrapping not executed",
+    "template callback expansion order"
+  ],
+  "limits": [
+    "production forms/fetch binding still disabled",
+    "external writer/partial transaction atomicity unresolved",
+    "no on-router runtime or firmware acceptance",
+    "not exhaustive malformed-authorization audit"
+  ],
+  "runtime_verified": false,
+  "cleanup": {
+    "browser_profile_removed_bytes": 12270513,
+    "native_source_fixture_removed_bytes": 1688370,
+    "native_source_fixture_files": 27,
+    "retained_scratch": [],
+    "native_and_attacker_servers_stopped": true,
+    "edge_command_completed": true
+  },
+  "files_sha256": {
+    "check_guest_browser.py": "e7481035934c12c013474d52064c46ad453a859d53c617ca5a027f1c7c87996b",
+    "guest-browser-protocol.html": "60deb701e26a616eef0d21b9e9390348059a77200532dd39100da16d25f320ff",
+    "guest-socket-main.c.inc": "d0e2794c77719e0019e76efa6313a19aebd1a0c17eb886e5b8ef6586a802fffb",
+    "check_guest_candidate.py": "c0545dcb63520e77c1f942280a790fdda5bf015696b547f7fe0b1d40ee952e52"
+  },
+  "client_module_prefix_sha256": "05dd61e4cc7c7822a1fd426047dc83053d7ca0a3c6c5057c0e22169bebdd5b7d"
+}

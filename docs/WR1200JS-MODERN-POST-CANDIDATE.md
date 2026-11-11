@@ -108,3 +108,23 @@ fetch/button/dialog integration is pending backend concurrency/lifecycle gates.
 CI runs check_guest_client.js when verifying source revisions that contain it;
 optional ancestor verification before this component remains supported. The
 existing firmware workflow is already watched by the failure monitor.
+
+## Real local socket and Edge checkpoint
+
+`check_guest_candidate.py <source-tar> --browser-check` additionally launches a
+loopback-only native C fixture and a separate attacker origin, then headless
+Windows Edge with a fresh temporary profile. Actual pinned auth_check/b64_decode,
+HTTP dispatcher, body/CGI/apply/commit/notify and actual client protocol run over
+real local sockets. Credentials/login state, NVRAM/flash/RC, header/daemon/SSL
+wrapping and template expansion remain fixtures. No router is contacted.
+
+Same-origin update, UTF8, blocked double click, stale reload and wrong-password401
+pass. A known-fixture-credential cross-origin fetch is blocked after actual
+OPTIONS501: browser failure plus OPTIONS counter, unchanged POST/write counters
+are verified. This does not replace production browser/daemon or device tests.
+The Windows-specific browser check is opt-in and is not added to Linux CI.
+
+Latest run inventoried and removed12270513 profile bytes and1688370 native/source
+fixture bytes (27 files), about13.3MiB. Native server/attacker server stopped,
+profile and source scratch confirmed absent. Durable source/fixtures/evidence
+retained; no firmware stored. See GUEST-BROWSER-SOCKET evidence.

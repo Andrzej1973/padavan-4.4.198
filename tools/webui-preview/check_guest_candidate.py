@@ -176,3 +176,14 @@ static char *websGetVar(webs_t wp,char *name,char *fallback){return guest_cgi(wp
  subprocess.run(['node',str(here/'check_guest_client.js'),'--actual-replies'],input=json.dumps(responses),text=True,check=True)
  print('PASS actual JSON Guest route:77 parsed replies, match/reload/busy/rejected/unconfirmed, fresh no-op and stale replay, no runtime/flash acceptance or secret echo')
  print(result.stdout.splitlines()[-1])
+
+ if '--browser-check' in sys.argv:
+  from check_guest_browser import run_browser
+  browser_report=run_browser(joined,server,root,here,sys.argv[1])
+  print(json.dumps(browser_report,ensure_ascii=False))
+
+ scratch_bytes=sum(f.stat().st_size for f in root.rglob('*') if f.is_file() and not f.is_symlink())
+ scratch_files=sum(1 for f in root.rglob('*') if f.is_file() and not f.is_symlink())
+ print('Owned candidate scratch inventory before automatic cleanup:',scratch_files,'files,',scratch_bytes,'bytes')
+assert not root.exists()
+print('Candidate scratch absent after cleanup')

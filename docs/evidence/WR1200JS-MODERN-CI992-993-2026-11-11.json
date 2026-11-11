@@ -1,0 +1,95 @@
+{
+  "runtime_verified": false,
+  "runs": [
+    {
+      "run_id": 42963080664,
+      "artifacts": {
+        "verification-source": {
+          "id": 13829948823,
+          "verification-source.json": {
+            "dispatch_revision": "1bbd2699eea7b367310c37866ad3163b04cb17fe",
+            "requested_revision": "",
+            "verified_revision": "1bbd2699eea7b367310c37866ad3163b04cb17fe",
+            "runtime_verified": false
+          }
+        },
+        "board-build-status-wr1200js": {
+          "id": 13829643913,
+          "board-build-status.json": {
+            "board": "wr1200js",
+            "status": "success"
+          }
+        }
+      }
+    },
+    {
+      "run_id": 42962701668,
+      "artifacts": {
+        "board-build-status-wr1200js": {
+          "id": 13830901569,
+          "board-build-status.json": {
+            "board": "wr1200js",
+            "status": "success"
+          }
+        },
+        "modern-http-candidate": {
+          "id": 13830760581,
+          "independent_elf": {
+            "bytes": 354036,
+            "sha256": "327a5d20794186dd586e9447aa81b8ee8450c97372c4a727330c1dbfb24d1cb9",
+            "elf": "ELF32LE MIPS"
+          },
+          "result.json": {
+            "scope": "Isolated complete target HTTP candidate compile/link, not installation or runtime",
+            "repository_revision": "abb438f579215c86cb22e94a03ca7f9ff57334dc",
+            "production_before": {
+              "source": "c3de14c8638810a483365d71e0e456e515dc00be7cfae06c235df5c1ba8508e3",
+              "image_binary": "ec41c59cf7834f852c65d7c0411a10949bc2e5362fb7eb948518804d305cb0c9"
+            },
+            "target_compiled": true,
+            "production_installed": false,
+            "runtime_verified": false,
+            "candidate_web_ex_sha256": "cf2786325af9f0210f1cd03f4ab64787f11925513ba732e6c3839fbe7940c90a",
+            "command": [
+              "make",
+              "-C",
+              "/home/runner/work/padavan-4.4.198/padavan-4.4.198/padavan-4.4/trunk",
+              "user/wr-modern-http-build-rh7ivju8_only",
+              "TOOLCHAIN=mipsel-linux-uclibc",
+              "CONFIG_CCACHE=y"
+            ],
+            "compile_exit_code": 0,
+            "binary_bytes": 354036,
+            "binary_sha256": "327a5d20794186dd586e9447aa81b8ee8450c97372c4a727330c1dbfb24d1cb9",
+            "elf": "ELF32 little-endian MIPS",
+            "candidate_headers_sha256": {
+              "password-intent.h": "1fa1af3ad5352d9496957edec88ae9ed360cfc0137c20a6d4fb1428fa468908e",
+              "password-request.h": "57ca6730dddd1c5a3769a38fa2029e9cd7260784aa9425d1c8417bfc6aebd298",
+              "guest-schedule.h": "da216a1fc4815368638015598a5c2b843f65dc0a286eccf4d29b4688a5c7fe3a",
+              "guest-request.h": "f3be64128acdd44bc2a5d2259eb0af88c156a8539224baeffef5c291824be93b",
+              "guest-adapter.h": "95662b7808bd12ea03ef97f02186f131f944897253539edaf399ec1a5a4281a7",
+              "guest-transport.h": "0d26166113d47efd03fdbf019303a0fd5a9794f981e4f31c6b49c7181db27486",
+              "modern-form.h": "827d9242ca039b98c61c13bbbe7df1e52bfdaf3c96311bae190f04849f4817df",
+              "modern-body.h": "cbd6d947111caf331919ff983bb6abb0bb74f734fd590c6465c0f2a6d35d10ec"
+            },
+            "production_after": {
+              "source": "c3de14c8638810a483365d71e0e456e515dc00be7cfae06c235df5c1ba8508e3",
+              "image_binary": "ec41c59cf7834f852c65d7c0411a10949bc2e5362fb7eb948518804d305cb0c9"
+            },
+            "production_unchanged": true,
+            "scratch_removed": true
+          }
+        },
+        "verification-source": {
+          "id": 13829598823,
+          "verification-source.json": {
+            "dispatch_revision": "abb438f579215c86cb22e94a03ca7f9ff57334dc",
+            "requested_revision": "abb438f579215c86cb22e94a03ca7f9ff57334dc",
+            "verified_revision": "abb438f579215c86cb22e94a03ca7f9ff57334dc",
+            "runtime_verified": false
+          }
+        }
+      }
+    }
+  ]
+}
