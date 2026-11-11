@@ -92,15 +92,25 @@ jobs:
         run: python3 tools/check-workflow-expression-size.py
 
       - name: Install build dependencies
+        timeout-minutes: 12
         run: |
-          sudo apt-get update
-          sudo apt-get install --no-install-recommends -y \
-            autoconf automake autopoint cmake bison build-essential flex \
-            gawk gettext git gperf libtool libtool-bin pkg-config fakeroot \
-            kmod cpio texinfo help2man libncurses5-dev zlib1g-dev \
-            libsqlite3-dev gcc-multilib curl dos2unix unzip wget xxd \
-            libltdl-dev libgmp-dev libmpfr-dev libarchive-tools libblkid-dev \
-            python3-docutils ccache squashfs-tools
+          apt_options=(-o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20)
+          for attempt in 1 2; do
+            if sudo timeout --kill-after=15s 180s apt-get "${apt_options[@]}" -o APT::Update::Error-Mode=any update &&
+               sudo timeout --kill-after=15s 180s apt-get "${apt_options[@]}" install --no-install-recommends -y \
+                autoconf automake autopoint cmake bison build-essential flex \
+                gawk gettext git gperf libtool libtool-bin pkg-config fakeroot \
+                kmod cpio texinfo help2man libncurses5-dev zlib1g-dev \
+                libsqlite3-dev gcc-multilib curl dos2unix unzip wget xxd \
+                libltdl-dev libgmp-dev libmpfr-dev libarchive-tools libblkid-dev \
+                python3-docutils ccache squashfs-tools; then
+              break
+            fi
+            if [ "$attempt" -eq 2 ]; then
+              echo "Build dependency installation failed after two bounded attempts" >&2
+              exit 1
+            fi
+          done
 
       - name: Check discovery status generator before firmware compilation
         run: python3 tools/check-discovery-status.py --output "$RUNNER_TEMP/wr1200js-discovery-fixture"
