@@ -1,0 +1,23 @@
+{
+  "run_id": 43046834522,
+  "number": 1012,
+  "host": "ubuntu-24.04",
+  "source": "70379fe0245fb685638744845ed0b5d6e245ce50",
+  "monitor_run": 43047672055,
+  "monitor_artifact": 13867134117,
+  "failed_job": 130613095423,
+  "failed_step": "Install build dependencies",
+  "compile_started": false,
+  "cause": "DNS resolution failures for archive.ubuntu.com and security.ubuntu.com; direct official sources did not resolve the failure",
+  "monitor_assessment": "Useful: causal E: Failed to fetch lines preserved; no new parser change needed",
+  "evidence": [
+    "build (wr1200js) / build-wr1200js\tUNKNOWN STEP\t2026-11-11T15:19:42.6614601Z E: Failed to fetch https://archive.ubuntu.com/ubuntu/dists/noble/InRelease  Temporary failure resolving 'archive.ubuntu.com'",
+    "build (wr1200js) / build-wr1200js\tUNKNOWN STEP\t2026-11-11T15:19:42.6616456Z E: Failed to fetch https://archive.ubuntu.com/ubuntu/dists/noble-updates/InRelease  Temporary failure resolving 'archive.ubuntu.com'",
+    "build (wr1200js) / build-wr1200js\tUNKNOWN STEP\t2026-11-11T15:19:42.6618085Z E: Failed to fetch https://archive.ubuntu.com/ubuntu/dists/noble-backports/InRelease  Temporary failure resolving 'archive.ubuntu.com'",
+    "build (wr1200js) / build-wr1200js\tUNKNOWN STEP\t2026-11-11T15:19:42.6619873Z E: Failed to fetch https://security.ubuntu.com/ubuntu/dists/noble-security/InRelease  Temporary failure resolving 'security.ubuntu.com'",
+    "build (wr1200js) / build-wr1200js\tUNKNOWN STEP\t2026-11-11T15:21:42.8655919Z E: Failed to fetch https://archive.ubuntu.com/ubuntu/dists/noble/InRelease  Temporary failure resolving 'archive.ubuntu.com'",
+    "build (wr1200js) / build-wr1200js\tUNKNOWN STEP\t2026-11-11T15:21:42.8658026Z E: Failed to fetch https://archive.ubuntu.com/ubuntu/dists/noble-updates/InRelease  Temporary failure resolving 'archive.ubuntu.com'",
+    "build (wr1200js) / build-wr1200js\tUNKNOWN STEP\t2026-11-11T15:21:42.8659294Z E: Failed to fetch https://archive.ubuntu.com/ubuntu/dists/noble-backports/InRelease  Temporary failure resolving 'archive.ubuntu.com'",
+    "build (wr1200js) / build-wr1200js\tUNKNOWN STEP\t2026-11-11T15:21:42.8660463Z E: Failed to fetch https://security.ubuntu.com/ubuntu/dists/noble-security/InRelease  Temporary failure resolving 'security.ubuntu.com'"
+  ]
+}
