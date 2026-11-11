@@ -1,0 +1,29 @@
+{
+  "cancelled_run_id": 43033579859,
+  "failed_job_id": 130566647493,
+  "failed_step": "Install build dependencies",
+  "failure_window_utc": [
+    "2026-11-11T13:56:05Z",
+    "2026-11-11T15:01:05Z"
+  ],
+  "cause": "Runner DNS failures resolving azure.archive.ubuntu.com during apt update/install",
+  "original_error": "Process completed with exit code 100",
+  "final_run_conclusion": "cancelled by owner request",
+  "monitor": "monitor-agent.yml only runs for failure/startup_failure; cancelled run has no error artifact",
+  "fix_revision": "099b4bb0e8aac6ddd1b3433d39dca4871208fb6d",
+  "fix": [
+    "apt strict update error mode",
+    "20-second HTTP/HTTPS timeouts and one acquire retry",
+    "180-second per-command timeout",
+    "two update/install attempts",
+    "12-minute step timeout"
+  ],
+  "checks": [
+    "YAML parsed",
+    "bash -n passed",
+    "mock success/retry/terminal failure passed"
+  ],
+  "replacement_run_id": 43044376432,
+  "replacement_run_number": 1010,
+  "replacement_status_at_dispatch": "queued"
+}

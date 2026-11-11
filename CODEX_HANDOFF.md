@@ -1,3 +1,16 @@
+## Ubuntu host candidate and build1010 triage — 2026-11-11
+
+Owner authorized Ubuntu24.04 comparison alongside IoT; default22.04 and local
+WSL unchanged. See docs/WR1200JS-UBUNTU-HOST-MIGRATION.md. Build1010/43044376432
+failed before compilation: original job130604550400 confirms Azure Ubuntu mirror
+DNS failures. Monitor43045561471 correctly identified step but omitted DNS line;
+minimal parser recognition + regression added, trusted-main deployment pending.
+CI uses invocation-local official apt sources and bounded retries; no resolver
+or saved apt changes. Existing dispatcher accepts explicit build_host, isolates
+Ubuntu24 queues and host-built caches; source toolchain remains unchanged.
+Host mock apt/YAML and monitor fixtures pass. Standard+optional matching-source
+comparison and device acceptance remain pending. Modern WebUI stays paused.
+
 ## WebUI preservation and owner pause — 2026-11-11
 
 Owner requested systematized preservation and GitHub publication of all WebUI

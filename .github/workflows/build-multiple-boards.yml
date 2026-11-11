@@ -1,11 +1,16 @@
 name: Build selected router firmware
-run-name: "Padavan #${{ github.run_number }} [${{ inputs.run_candidate_checks && 'optional' || 'standard' }}] ${{ inputs.verification_revision || github.sha }} tc=${{ inputs.toolchain_variant || 'source' }} ${{ inputs.candidate_scope || 'iot' }}/${{ inputs.iot_candidate_variant || 'legacy' }}"
+run-name: "Padavan #${{ github.run_number }} [${{ inputs.run_candidate_checks && 'optional' || 'standard' }}] ${{ inputs.verification_revision || github.sha }} host=${{ inputs.build_host || 'ubuntu-22.04' }} tc=${{ inputs.toolchain_variant || 'source' }} ${{ inputs.candidate_scope || 'iot' }}/${{ inputs.iot_candidate_variant || 'legacy' }}"
 on:
   pull_request:
     branches: [main]
     types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
     inputs:
+      build_host:
+        description: Build host candidate; 22.04 remains the control
+        type: choice
+        options: [ubuntu-22.04, ubuntu-24.04]
+        default: ubuntu-22.04
       verification_revision:
         description: Optional exact ancestor SHA to verify independently of the current branch HEAD
         type: string
@@ -283,7 +288,7 @@ permissions:
 concurrency:
   # Normal PR/push verification and explicitly requested candidate builds
   # may run together; each lane still serializes runs on the same ref.
-  group: firmware-${{ github.ref }}-${{ inputs.run_candidate_checks && 'optional' || 'standard' }}
+  group: firmware-${{ github.ref }}-${{ inputs.run_candidate_checks && 'optional' || 'standard' }}${{ inputs.build_host == 'ubuntu-24.04' && '-ubuntu24' || '' }}
   cancel-in-progress: false
   queue: max
 jobs:
@@ -321,6 +326,7 @@ jobs:
       matrix: ${{ fromJSON(needs.select.outputs.matrix) }}
     uses: ./.github/workflows/build-padavan-4.4-wr1200js.yml
     with:
+      build_host: ${{ inputs.build_host || 'ubuntu-22.04' }}
       verification_revision: ${{ needs.select.outputs.revision }}
       toolchain_variant: ${{ inputs.toolchain_variant || 'source' }}
       run_candidate_checks: ${{ inputs.run_candidate_checks || false }}

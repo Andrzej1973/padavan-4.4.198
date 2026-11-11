@@ -21,6 +21,17 @@ with (nullcontext(sys.argv[2]) if len(sys.argv)>2 else tempfile.TemporaryDirecto
     run([row(2,conclusion='success'),row(1,name='unrelated')]);assert not (state/'last_build_error.log').exists()
     status=json.loads((state/'build-monitor-status.json').read_text())
     assert status['state']=='ok' and status['runs_examined']==2 and status['pid']>0
+    # Build1010: causal apt DNS line must survive bounded filtering.
+    dns_log=root/'apt-dns-1010.log'
+    dns_log.write_text("Temporary failure resolving 'azure.archive.ubuntu.com'\nBuild dependency installation failed after two bounded attempts\n")
+    dns_run=row(1010);dns_run.update(name='Build selected router firmware',path='.github/workflows/build-multiple-boards.yml')
+    fixture.write_text(json.dumps({'workflow_runs':[dns_run]}),encoding='utf-8')
+    dns_env=dict(os.environ,BUILD_MONITOR_FIXTURE_JOB_LOG=str(dns_log))
+    dns_cmd=[str(binary),'--fixture:'+str(fixture),'--state-dir:'+str(root/'dns-state')]
+    assert "Temporary failure resolving 'azure.archive.ubuntu.com'" in subprocess.run(dns_cmd,capture_output=True,text=True,env=dns_env,check=True).stdout
+    assert 'BUILD FAILED:' not in subprocess.run(dns_cmd,capture_output=True,text=True,env=dns_env,check=True).stdout
+    dns_run.update(id=1011,conclusion='success');fixture.write_text(json.dumps({'workflow_runs':[dns_run]}))
+    assert 'BUILD FAILED:' not in subprocess.run(dns_cmd,capture_output=True,text=True,env=dns_env,check=True).stdout
     # Real run42482744141 had no jobs: reusable actions:read exceeded caller.
     startup_state=root/'workflow-startup'
     startup=row(698,conclusion='startup_failure')

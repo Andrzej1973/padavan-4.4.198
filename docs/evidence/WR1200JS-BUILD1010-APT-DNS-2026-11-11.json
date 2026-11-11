@@ -1,0 +1,16 @@
+{
+  "run_id": 43044376432,
+  "source": "099b4bb0e8aac6ddd1b3433d39dca4871208fb6d",
+  "job_id": 130604550400,
+  "monitor_run": 43045561471,
+  "monitor_artifact": 13865614745,
+  "step": "Install build dependencies",
+  "firmware_compile_started": false,
+  "causal_lines": [
+    "build (wr1200js) / build-wr1200js\tUNKNOWN STEP\t2026-11-11T15:05:40.6556265Z   Temporary failure resolving 'azure.archive.ubuntu.com'",
+    "build (wr1200js) / build-wr1200js\tUNKNOWN STEP\t2026-11-11T15:06:00.5632889Z   Temporary failure resolving 'azure.archive.ubuntu.com'",
+    "build (wr1200js) / build-wr1200js\tUNKNOWN STEP\t2026-11-11T15:08:40.4208526Z   Temporary failure resolving 'azure.archive.ubuntu.com'",
+    "build (wr1200js) / build-wr1200js\tUNKNOWN STEP\t2026-11-11T15:09:00.4439817Z   Temporary failure resolving 'azure.archive.ubuntu.com'"
+  ],
+  "monitor_gap": "DNS causal lines omitted; failed run/job/step correctly identified"
+}

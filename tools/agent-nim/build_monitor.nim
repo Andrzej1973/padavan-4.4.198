@@ -80,7 +80,7 @@ proc errorExcerpt(raw: string): string =
         "valueerror:" in lower or ("file \"" in lower and ", line " in lower) or
         ("anchor" in lower and "changed" in lower) or
         ("make" in lower and "***" in lower and " error " in lower) or
-        "504 gateway time-out" in lower or "http 403:" in lower:
+        "504 gateway time-out" in lower or "http 403:" in lower or "temporary failure resolving" in lower:
       matches.add "  | " & redact(line) & "\n"
       if matches.len > 60: matches.delete(0)
   if matches.len == 0: result = "  No recognized error in bounded excerpt; inspect the linked job log.\n"
