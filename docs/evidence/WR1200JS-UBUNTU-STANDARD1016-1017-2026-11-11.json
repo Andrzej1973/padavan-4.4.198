@@ -1,0 +1,103 @@
+{
+  "scope": "actual standard artifact structure and embedded HNAT DTB comparison; optional driver and device acceptance pending",
+  "revision": "4f80200ee6cd969a96f7319b0839b23606ac1038",
+  "hosts": {
+    "ubuntu-22.04": {
+      "run": 43053592915,
+      "artifact": 13873145263,
+      "image": "padavan-4.4/trunk/images/WR1200JS_4.4.198.9-1016_4f80200e.trx",
+      "bytes": 13101069,
+      "sha256": "9ca59e942566c34e0fd249cbebc1eec7f6890d43bffd166b1d453ec76730c612",
+      "checks": {
+        "magic": true,
+        "header_crc": true,
+        "payload_crc": true,
+        "declared_length": true,
+        "partition_size": true,
+        "architecture_mips": true,
+        "product": true
+      },
+      "hnat": {
+        "scope": "Embedded DTB HNAT policy only; no packet/runtime proof",
+        "external_devices": [
+          "usb0",
+          "wwan0",
+          "rax0",
+          "ra0",
+          "rai0",
+          "apclii0",
+          "apclix0",
+          "apcli0"
+        ],
+        "lan": [
+          "eth2"
+        ],
+        "wan": [
+          "eth3"
+        ],
+        "dtb_sha256": "54899d13006b8d4854a32feba4f494c01e019f804aac16a7dd227d4c6fd6f9d0",
+        "kernel_sha256": "685cd249df3736c761af431ed0baf9639d4d2c91172b952e055c56357f27e6b5",
+        "runtime_verified": false
+      }
+    },
+    "ubuntu-24.04": {
+      "run": 43053615585,
+      "artifact": 13871424289,
+      "image": "padavan-4.4/trunk/images/WR1200JS_4.4.198.9-1017_4f80200e.trx",
+      "bytes": 13083973,
+      "sha256": "91260e19f522b1a7464c65d4e774eb0a2975b81703670ffdb049607b913a1015",
+      "checks": {
+        "magic": true,
+        "header_crc": true,
+        "payload_crc": true,
+        "declared_length": true,
+        "partition_size": true,
+        "architecture_mips": true,
+        "product": true
+      },
+      "hnat": {
+        "scope": "Embedded DTB HNAT policy only; no packet/runtime proof",
+        "external_devices": [
+          "usb0",
+          "wwan0",
+          "rax0",
+          "ra0",
+          "rai0",
+          "apclii0",
+          "apclix0",
+          "apcli0"
+        ],
+        "lan": [
+          "eth2"
+        ],
+        "wan": [
+          "eth3"
+        ],
+        "dtb_sha256": "54899d13006b8d4854a32feba4f494c01e019f804aac16a7dd227d4c6fd6f9d0",
+        "kernel_sha256": "3a31d1dfa98c238deea70d36da79a08ebe6e8370cc33fd65f13de6afa0fceda5",
+        "runtime_verified": false
+      }
+    }
+  },
+  "size_delta_ubuntu24_minus22": -17096,
+  "config_gate_reports": {
+    "artifact_ids": [
+      13871951732,
+      13871583560
+    ],
+    "identical": true,
+    "sha256": [
+      "0fd60931be72d22ee011c40eca0586e7dd5f6d6b038b36c83377929963f6b791",
+      "0fd60931be72d22ee011c40eca0586e7dd5f6d6b038b36c83377929963f6b791"
+    ],
+    "scope": "Configured options covered by config gate; complete effective configs/package manifest comparison pending"
+  },
+  "optional": {
+    "ubuntu-22.04": 43058250743,
+    "ubuntu-24.04": 43058278935,
+    "source": "4f80200ee6cd969a96f7319b0839b23606ac1038",
+    "candidate_scope": "iot",
+    "variant": "peer82",
+    "status": "dispatched, success not yet established"
+  }
+}

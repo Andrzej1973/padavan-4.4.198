@@ -89,3 +89,27 @@ https://packages.ubuntu.com/noble/amd64/libgcrypt20-dev/filelist . Added as a ho
 build dependency on both control and candidate; target toolchain unchanged.
 Monitor43053290766 already retained the causal diagnostic; no parser change
 needed for1015. Full target build verification of this correction is pending.
+
+## Standard image comparison at4f80200
+
+1016 Ubuntu22 and1017 Ubuntu24 passed standard; exact source/toolchain selection
+matches. Independently verified uImage CRC/length/product/partition and embedded
+HNAT policy for both actual artifact images. Full firmware/kernel configs match.
+Both SquashFS inventories contain1534 regular/symlink records and identical paths;
+17 byte differences, including three dictionary build timestamps. Ubuntu24 TRX
+is17096B smaller. Full evidence is recorded in
+`evidence/WR1200JS-UBUNTU-STANDARD1016-1017-2026-11-11.json` and
+`evidence/WR1200JS-UBUNTU-STANDARD-CONTENT-2026-11-11.json`.
+
+libcurl has763 fewer defined dynamic exports on24, but all100 curl_-prefixed
+exports match; NEEDED/SONAME/interpreter/MIPS flags match. No undefined imports
+of removed names were found across287 Ubuntu24 image ELFs. This excludes neither
+external plugins nor dlsym lookup and does not establish identical behavior.
+Both logs accept -fvisibility=hidden; staged HTTP dependencies selected correctly.
+The quiet library builds do not expose enough actual compile/link flags to
+explain visibility differences; capture generated CMake/libtool flag provenance
+in the next coherent CI verification before claiming a root cause. Keep22 default.
+
+Optional1018/43058250743 (22) and1019/43058278935 (24) verify exact4f80200/iot/peer82;
+dispatched only after both standard successes, with no matching optional active.
+Their target/feature results and device acceptance are still pending.
