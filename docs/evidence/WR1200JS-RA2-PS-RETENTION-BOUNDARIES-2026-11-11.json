@@ -1,0 +1,22 @@
+{
+  "scope": "host execution of extracted actual vendor maintenance and completion with candidate composition",
+  "vendor_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "command": "python3 tools/iot/check-ra2-ps-retain.py --archive /home/andrzej/padavan-build/firmware-source-backup/padavan-4.4-c25283e-git-exact.tar",
+  "cases": 21,
+  "sanitizers": [
+    "address",
+    "undefined"
+  ],
+  "result": "PASS",
+  "new_coverage": [
+    "active MAC entry with sleeping TR entry refuses retention and uses vendor active-station maintenance",
+    "zero AID",
+    "missing netdevice",
+    "both DONE and IDLE retrieval states",
+    "null adapter and out-of-range WCIDs",
+    "sleep/wake/re-sleep/idle-expiry resumes original flush"
+  ],
+  "runtime_verified": false,
+  "target_compilation": "pending optional for this test revision",
+  "scratch_removed_bytes": 56527
+}

@@ -79,7 +79,7 @@ static void rtmp_tx_swq_exit(RTMP_ADAPTER *ad,unsigned int wcid){flushes++;ad->M
 main = r'''
 int main(void)
 {
- for(int fault=0;fault<17;fault++){
+ for(int fault=0;fault<21;fault++){
   struct device dev={1};struct wifi_dev foreign={&dev};
   RTMP_ADAPTER ad={.mt=1,.ApCfg.BssidNum=3};
   MAC_TABLE_ENTRY *entry=&ad.MacTab.Content[1];STA_TR_ENTRY *traffic=&ad.MacTab.tr_entry[1];
@@ -104,21 +104,34 @@ int main(void)
    case 14:traffic->wcid=2;break;
    case 15:traffic->PsMode=PWR_ACTIVE;break;
    case 16:traffic->enqCount=0;break;
+   case 17:entry->PsMode=PWR_ACTIVE;break;
+   case 18:entry->Aid=0;break;
+   case 19:ad.ApCfg.MBSSID[2].wdev.if_dev=NULL;break;
+   case 20:traffic->ps_state=APPS_RETRIEVE_IDLE;break;
   }
-  assert(wr_iot_ra2_sleeping_pending(&ad,1)==(fault==0));
+  assert(!wr_iot_ra2_sleeping_pending(NULL,1));
+  assert(!wr_iot_ra2_sleeping_pending(&ad,MAX_LEN_OF_MAC_TABLE));
+  assert(!wr_iot_ra2_sleeping_pending(&ad,~0U));
+  assert(wr_iot_ra2_sleeping_pending(&ad,1)==(fault==0||fault==20));
   TXS_STRUC report={.txs_d3.wlan_idx=1};tim=flushes=0;
   assert(!PsDataTxSHandler(&ad,(CHAR *)&report,0));
-  assert(tim==(fault==0)&&traffic->PsDeQWaitCnt==0&&traffic->enqCount==(fault==16?0U:2U));
+  assert(tim==(fault==0||fault==20)&&traffic->PsDeQWaitCnt==0&&traffic->enqCount==(fault==16?0U:2U));
   /* Maintenance receives its current entry pointer, so the mismatched-WCID
    * cases are tested by the helper/completion above only. */
   if(fault==13||fault==14)continue;
   tim=0;maintenance(&ad,entry,traffic);
-  if(!fault){
+  if(fault==0||fault==20){
    assert(!flushes&&traffic->enqCount==2&&tim&&traffic->PsQIdleCount==0);
    entry->PsMode=PWR_ACTIVE;traffic->PsMode=PWR_ACTIVE;
    maintenance(&ad,entry,traffic);
    assert(!traffic->PsQIdleCount&&!flushes&&traffic->enqCount==2);
-  }else if(fault!=16)assert(flushes==1&&traffic->enqCount==0);
+   /* Sleeping again must not retain data after the association idle deadline. */
+   entry->PsMode=PWR_SAVE;traffic->PsMode=PWR_SAVE;
+   traffic->PsQIdleCount=2;entry->NoDataIdleCount=entry->StaIdleTimeout;
+   tim=0;maintenance(&ad,entry,traffic);
+   assert(flushes==1&&traffic->enqCount==0&&!tim);
+  }else if(fault==17)assert(!flushes&&traffic->enqCount==2&&!traffic->PsQIdleCount);
+  else if(fault!=16)assert(flushes==1&&traffic->enqCount==0);
  }
  puts("PASS actual SDK PS maintenance/completion: scoped ra2 retention/TIM, Main/Guest/foreign/expired/wake refusal, bounded AID and existing completion accounting; station I/O and wake dequeue injected");
 }

@@ -37,10 +37,15 @@ Queue and station access use the surrounding SDK maintenance/callback context.
 Full concurrent runtime behavior requires target/device verification.
 
 Host verification extracts the actual patched maintenance block and actual
-PsDataTxSHandler, exercising17 conditions with GCC -O2 warnings-as-errors and
+PsDataTxSHandler, exercising21 conditions with GCC -O2 warnings-as-errors and
 ASan/UBSan. It checks queue preservation, TIM marking, completion accounting,
 Main/Guest and foreign wdev rejection, idle expiry, AID bounds, WCID mismatch,
-empty queues and wake state. Source composition rejects repeated preparation.
+empty queues and wake state. Additional boundaries reject null adapters, out-of-range
+WCIDs, zero AID and a missing netdevice. Both APPS_RETRIEVE_DONE and
+APPS_RETRIEVE_IDLE retain qualified data. A sleep/wake/re-sleep/idle-expiry
+sequence confirms that expiry resumes the original queue flush. Active-station
+maintenance clears the idle counter without flushing, matching the vendor code.
+Source composition rejects repeated preparation.
 The peer82 workflow runs this test on its final prepared source before compiling
 the entire module and diagnostic variants.
 
