@@ -173,17 +173,26 @@ static inline int wr_iot_activation_start_precreated(struct wr_iot_activation *s
 }
 static inline int wr_iot_activation_stop(struct wr_iot_activation *state){
  unsigned long long generation;
+ const struct wr_iot_activation_backend *backend;
+ void *context;
  if(!state)return 0;
  if(state->state==WR_IOT_INACTIVE)return !state->locked&&!state->snapshot&&!state->disabling;
  if(state->state==WR_IOT_ACTIVE){
   generation=state->generation;
-  if(!wr_iot_activation_call(state,WR_IOT_LOCK))return 0;
+  /* Caller pins both captured objects through acquisition and any release. */
+  backend=state->backend;context=state->context;
+  if(!backend||!backend->perform||!backend->unlock)return 0;
+  if(backend->perform(context,WR_IOT_LOCK)!=1)return 0;
   /* A preceding stop or a stop followed by a new start may have completed
    * while this caller waited. Never stop that newer activation. */
-  if(state->generation!=generation||state->state!=WR_IOT_ACTIVE||
+  if(state->backend!=backend||state->context!=context||
+     state->generation!=generation||state->state!=WR_IOT_ACTIVE||
      state->locked||!state->snapshot||state->disabling){
-   state->backend->unlock(state->context);
-   return state->generation==generation&&state->state==WR_IOT_INACTIVE&&
+   /* The lock belongs to the captured owner, even when a successor was
+    * published during acquisition. Never release that successor's lock. */
+   backend->unlock(context);
+   return state->backend==backend&&state->context==context&&
+          state->generation==generation&&state->state==WR_IOT_INACTIVE&&
           !state->locked&&!state->snapshot&&!state->disabling;
   }
   state->locked=1;

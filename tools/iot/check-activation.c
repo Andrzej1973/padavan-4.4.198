@@ -13,13 +13,23 @@ struct fixture {int fail,partial_fail,recovery_fail,locked,unlocks,live,guard,dh
  int cancel_after,cancelled,cancel_polls,cancel_recovery_fail,signal_after;
  struct wr_iot_activation *state_on_lock;
  enum wr_iot_activation_state lock_state;
- int lock_bump_generation;};
+ int lock_bump_generation;
+ const struct wr_iot_activation_backend *lock_replace_backend;
+ void *lock_replace_context;
+ int lock_complete_stop;};
 static int operation(void *context,enum wr_iot_activation_operation op){
  struct fixture *f=context;
  if(op==WR_IOT_LOCK){if(f->fail==(int)op+1)return 0;assert(!f->locked);f->locked=1;
   if(f->state_on_lock){
    f->state_on_lock->state=f->lock_state;
    if(f->lock_bump_generation)f->state_on_lock->generation++;
+   if(f->lock_replace_backend)f->state_on_lock->backend=f->lock_replace_backend;
+   if(f->lock_replace_context)f->state_on_lock->context=f->lock_replace_context;
+   if(f->lock_complete_stop){
+    f->state_on_lock->snapshot=f->state_on_lock->locked=f->state_on_lock->disabling=0;
+    f->live=f->guard=f->dhcp=f->profile=f->policy=f->attached=f->bridge=f->exists=0;
+    f->radio_prepared=f->main_ready=f->stop_snapshot=0;
+   }
   }
   return 1;}
  assert(f->locked);
@@ -102,6 +112,24 @@ int main(void){
  assert(!f.stop_snapshot&&!f.disable_applies);
  f.state_on_lock=NULL;f.lock_bump_generation=0;
  assert(wr_iot_activation_stop(&state));
+ /* Logical owner may change while LOCK waits. Unlock the exact acquired
+  * backend/context, never the newly published owner. No real parallel C
+  * accesses are simulated: the LOCK callback publishes the successor. */
+ for(unsigned replacement=0;replacement<6;replacement++){
+  const struct wr_iot_activation_backend successor_backend={operation,unlock,cancel_requested};
+  struct fixture successor;
+  memset(&state,0,sizeof(state));memset(&f,0,sizeof(f));
+  assert(wr_iot_activation_start(&state,&backend,&f));successor=f;
+  f.state_on_lock=&state;f.lock_state=replacement>=4?WR_IOT_INACTIVE:WR_IOT_ACTIVE;
+  f.lock_bump_generation=replacement<3;f.lock_complete_stop=replacement>=4;
+  if(replacement==0||replacement==2||replacement==5)f.lock_replace_context=&successor;
+  if(replacement==1||replacement==2||replacement==3||replacement==5)f.lock_replace_backend=&successor_backend;
+  assert(wr_iot_activation_stop(&state)==(replacement==4));
+  assert(state.state==(replacement>=4?WR_IOT_INACTIVE:WR_IOT_ACTIVE)&&!state.locked&&!f.locked);
+  assert(f.live==(replacement<4));
+  assert(f.unlocks==2&&successor.unlocks==1&&!successor.locked);
+  assert(!f.stop_snapshot&&!successor.stop_snapshot&&!f.disable_applies&&!successor.disable_applies);
+ }
  memset(&state,0,sizeof(state));memset(&f,0,sizeof(f));
  assert(wr_iot_activation_start(&state,&backend,&f));assert(state.state==WR_IOT_ACTIVE&&f.live&&!f.locked);
  assert(!wr_iot_activation_start(&state,&backend,&f));
