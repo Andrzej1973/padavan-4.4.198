@@ -7,6 +7,10 @@ with tarfile.open(sys.argv[1]) as archive:
     common=archive.extractfile('trunk/linux-4.4.x/drivers/nvram/nvram.c').read().decode()
     linux=archive.extractfile('trunk/linux-4.4.x/drivers/nvram/nvram_linux.c').read().decode()
     header=archive.extractfile('trunk/linux-4.4.x/include/nvram/bcmnvram.h').read().decode()
+    cgi=archive.extractfile('trunk/user/httpd/cgi.c').read().decode()
+# Match the isolated Modern body preparer's sole CGI correction exactly.
+assert cgi.count('strncpy(s, s + 2, strlen(s) + 1);')==1
+cgi=cgi.replace('strncpy(s, s + 2, strlen(s) + 1);','memmove(s, s + 2, strlen(s + 2) + 1);')
 spec=importlib.util.spec_from_file_location('nvram_batch',here/'prepare-nvram-batch-candidate.py')
 generator=importlib.util.module_from_spec(spec);spec.loader.exec_module(generator)
 generated=generator.transform(linux)
@@ -66,10 +70,15 @@ reply=(here/'guest-json-output.c.inc').read_text().split('static void do_wr_mode
 handler=reply+(here/'guest-batch-http.c.inc').read_text()
 handler=handler.replace('fopen("/dev/null","w")','fixture_batch_sink("/dev/null","w")').replace('open("/dev/nvram",','fixture_nvram_open("/dev/nvram",').replace('close(fd);','fixture_nvram_close(fd);')
 http_fixture=(here/'guest-batch-http-fixture.c.inc').read_text().replace('/* HTTP_HANDLER */',handler)
+assert http_fixture.count('return guest_cgi(ctx,key);')==1
+http_fixture=http_fixture.replace('return guest_cgi(ctx,key);','return http_actual_cgi?get_cgi((char *)key):guest_cgi(ctx,key);')
+http_fixture='static int http_actual_cgi;\n'+http_fixture
+http_fixture+='\n'+(here/'guest-batch-cgi-fixture.c.inc').read_text()
 fixture=fixture.replace('int main(void)',(here/'guest-batch-fixture.c.inc').read_text()+'\n'+http_fixture+'\nint main(void)',1)
+fixture=fixture.replace('guest_batch_http_cases();','guest_batch_http_cases();guest_batch_cgi_cases();',1)
 user_fixture=(here/'nvram-batch-user-fixture.c.inc').read_text().replace('/* USER_ENTRY */',(here/'nvram-batch-user.c.inc').read_text())
 with tempfile.TemporaryDirectory(prefix='wr-nvram-batch-core-') as scratch:
-    root=pathlib.Path(scratch);(root/'fixture.c').write_text(prefix+actual+(here/'nvram-batch-core.c.inc').read_text()+(here/'nvram-batch-wire.h').read_text()+(here/'nvram-batch-wire.c.inc').read_text()+user_fixture+ioctl_constants+ioctl_stubs+ioctl_body+fixture)
+    root=pathlib.Path(scratch);(root/'fixture.c').write_text(prefix+cgi+actual+(here/'nvram-batch-core.c.inc').read_text()+(here/'nvram-batch-wire.h').read_text()+(here/'nvram-batch-wire.c.inc').read_text()+user_fixture+ioctl_constants+ioctl_stubs+ioctl_body+fixture)
     subprocess.run(['gcc','-std=gnu99','-Wall','-Wextra','-Werror','-pthread','-fsanitize=address,undefined','-fno-pie','-no-pie','-I',str(here),'-I',str(here.parent/'shared-wifi'),str(root/'fixture.c'),'-o',str(root/'fixture')],check=True)
     executed=subprocess.run([str(root/'fixture')],capture_output=True,text=True)
     if executed.returncode:
