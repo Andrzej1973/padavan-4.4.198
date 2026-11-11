@@ -54,7 +54,7 @@ static void setup(RTMP_ADAPTER *ad,int *dev){
  assert(wr_iot_aux_retry_schedule_result(&ad->wr_iot_aux_family_retry,0));
 }
 int main(void){
- RTMP_ADAPTER ad;int dev;
+ RTMP_ADAPTER ad;int dev=0;
  assert(wr_iot_aux_family_retry_rearm_joined(0)==-EBUSY);
  setup(&ad,&dev);assert(wr_iot_aux_family_retry_rearm_joined(&ad)==0&&schedules==1&&!held);
  setup(&ad,&dev);ad.wr_iot_transition.retiring=1;

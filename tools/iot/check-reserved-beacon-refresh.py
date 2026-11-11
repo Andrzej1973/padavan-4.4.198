@@ -48,7 +48,7 @@ static void invoke(struct adapter *pAd,void *device,int operation){
  struct {void *device;int operation;} claim={device,operation};
 '''+guard+r'''
 }
-int main(void){int main_dev,guest,iot;struct adapter ad={.mt=1,.chipCap.hif_type=HIF_MT,.ApCfg.BssidNum=3};
+int main(void){int main_dev=0,guest=0,iot=0;struct adapter ad={.mt=1,.chipCap.hif_type=HIF_MT,.ApCfg.BssidNum=3};
  ad.ApCfg.MBSSID[2].wdev.if_dev=&iot;
  invoke(&ad,&iot,WR_RADIO_BSS_OPEN);assert(ticks==0);
  invoke(&ad,&main_dev,WR_RADIO_BSS_OPEN);assert(ticks==1);

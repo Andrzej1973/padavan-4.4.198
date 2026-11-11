@@ -20,7 +20,7 @@ static void RtmpOSNetDevProtect(int on){assert(!held);protected=on;}
 static int snapshot(struct adapter *pAd,struct wifi_dev *wdev,unsigned long *saved){unsigned long wr_generation;
 '''+capture+r'''
 *saved=wr_generation;return 0;}
-int main(void){struct adapter a={0};int device;struct wifi_dev w={&device};unsigned long saved=99;
+int main(void){struct adapter a={0};int device=0;struct wifi_dev w={&device};unsigned long saved=99;
 struct wr_iot_interface_ref *r=&a.wr_iot_interface_refs[0];wr_iot_ref_init(r,&device,2);r->family=WR_REF_FAMILY_WDS;r->published=1;r->removing=1;r->last_token=1;r->close_stage=2;
 assert(snapshot(&a,&w,&saved)==0&&saved==2&&!held&&protected);
 r->generation=3;assert(!wr_iot_registry_after_unregister(r,&device,saved,1)&&!r->removal_stage);

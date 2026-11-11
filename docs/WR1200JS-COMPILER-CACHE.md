@@ -34,3 +34,8 @@ percentage. No diagnostic rebuild is required for this cache audit.
 Evidence: `evidence/WR1200JS-COMPILER-CACHE-AUDIT-2026-11-11.json`.
 References: https://ccache.dev/manual/4.9.1.html#_cache_statistics and
 https://github.com/actions/cache/tree/main/save .
+
+Observed verification: failed optional1023 at60072c1 produced cache key
+wr1200js-ccache-v4-ubuntu-24.04-source-43065290017-1 (120582939B, created
+2026-11-11T17:20:45Z). This confirms save-after-late-failure on an actual runner;
+the failure remains a failure and is not hidden by cache persistence.

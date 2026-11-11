@@ -34,7 +34,7 @@ INT wr_iot_mbss_close_checked(PNET_DEV dev,unsigned long generation,const struct
 '''
 post=r'''
 int main(void){
- int dev,main_dev;unsigned long sequence=0,generation;struct wr_iot_radio_ticket ticket;
+ int dev=0,main_dev=0;unsigned long sequence=0,generation;struct wr_iot_radio_ticket ticket;
  for(int result=-1;result<=1;result++){
   test_adapter=(adapter){0};wr_iot_radio_transition_init(&test_adapter.wr_iot_transition);test_adapter.wr_iot_transition.phase=WR_RADIO_READY;test_adapter.wr_iot_transition.main_ready=1;
   struct wr_iot_interface_ref *r=wr_iot_registry_add_family(test_adapter.wr_iot_interface_refs,2,&sequence,&dev,WR_REF_FAMILY_MBSS);
