@@ -1,5 +1,6 @@
 /* Host fixture only; actual apply/commit/notify functions precede this. */
 static const char *guest_values[]={"1","Accepted Guest","0","psk","2","aes","1","1","0","0","0111110","08002200","10002300"};
+static char expected_guest[13][160];
 static char *guest_cgi(webs_t wp,char *name,char *fallback)
 {
  char key[40];unsigned int i;(void)wp;
@@ -9,6 +10,10 @@ static char *guest_cgi(webs_t wp,char *name,char *fallback)
  if(!strcmp(name,"action_mode"))return " Apply ";
  if(!strcmp(name,"action_script"))return "";
  if(!strcmp(name,"sid_list"))return source_band?"WLANConfig11a;":"WLANConfig11b;";
+ for(i=0;i<13;i++){
+  snprintf(key,sizeof(key),"wr_modern_guest_expected_%s",wr_modern_guest_fields[i]);
+  if(!strcmp(key,name))return expected_guest[i];
+ }
  for(i=0;i<13;i++){
   snprintf(key,sizeof(key),"%s_guest_%s",source_band?"wl":"rt",wr_modern_guest_fields[i]);
   if(!strcmp(key,name))return (char *)guest_values[i];
@@ -34,6 +39,10 @@ static void guest_exercise(int shared,int change,int manual,int band,int open)
  nvram_set("rt_guest_ssid","Old24");nvram_set("wl_guest_ssid","Old5");
  nvram_set("rt_guest_wpa_psk","Guest24-secret");nvram_set("wl_guest_wpa_psk","Guest5-secret");
  nvram_set("rt_channel","6");nvram_set("wl_channel","44");writes=0;
+ for(unsigned int i=0;i<13;i++){
+  snprintf(key,sizeof(key),"%s_guest_%s",band?"wl":"rt",wr_modern_guest_fields[i]);
+  snprintf(expected_guest[i],sizeof(expected_guest[i]),"%s",nvram_safe_get(key));
+ }
  modern.wp=NULL;
  assert(wr_modern_guest_admit(&modern.guest,wr_shared_cgi_read,wr_shared_nv_read,NULL)==WR_SHARED_WIFI_OK);modern.guest_active=1;
  assert(wr_shared_wifi_prepare(&plan,&modern,wr_modern_cgi_read,wr_modern_nv_read)==WR_SHARED_WIFI_OK);

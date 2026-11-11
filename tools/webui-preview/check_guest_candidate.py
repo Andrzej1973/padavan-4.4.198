@@ -7,7 +7,7 @@ with tempfile.TemporaryDirectory(prefix='wr-modern-guest-candidate-') as scratch
  with tarfile.open(sys.argv[1]) as archive:
   for name in ('httpd/web_ex.c','httpd/httpd.c','httpd/cgi.c','httpd/variables.c','shared/defaults.c'):
    p=root/'trunk/user'/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(archive.extractfile('trunk/user/'+name).read())
- for tool in (here.parent/'prepare-shared-wifi.py',here/'prepare-password-candidate.py',here/'prepare-guest-candidate.py',here/'prepare-guest-transport.py',here/'prepare-modern-body.py'):
+ for tool in (here.parent/'prepare-shared-wifi.py',here/'prepare-password-candidate.py',here/'prepare-guest-candidate.py',here/'prepare-guest-transport.py',here/'prepare-modern-body.py',here/'prepare-guest-json.py'):
   subprocess.run(['python3',str(tool),str(root)],check=True)
  source=(root/'trunk/user/httpd/web_ex.c').read_text()
  server=(root/'trunk/user/httpd/httpd.c').read_text()
@@ -98,8 +98,8 @@ static char *websGetVar(webs_t wp,char *name,char *fallback){return guest_cgi(wp
  #define MAX(a,b) ((a)>(b)?(a):(b))
  static char *svc_pop_list(char *list,char separator){static char name[64];char *end=strchr(list,separator);size_t n;if(!*list)return NULL;assert(end);n=(size_t)(end-list);assert(n<sizeof(name));memcpy(name,list,n);name[n]=0;return name;}
  static const char *GetServiceId(int sid){return sid==0?"WLANConfig11b":sid==1?"WLANConfig11a":NULL;}
- static int response_done,response_unchanged,response_errors;
- static int websWrite(webs_t wp,const char *fmt,...){(void)wp;if(strstr(fmt,"done_committing"))response_done++;else if(strstr(fmt,"no_changes_and_no_committing"))response_unchanged++;else if(strstr(fmt,"Invalid Modern"))response_errors++;return 0;}
+ static int response_done,response_unchanged,response_errors,response_conflicts;
+ static int websWrite(webs_t wp,const char *fmt,...){(void)wp;if(strstr(fmt,"done_committing"))response_done++;else if(strstr(fmt,"no_changes_and_no_committing"))response_unchanged++;else if(strstr(fmt,"Invalid Modern"))response_errors++;else if(strstr(fmt,"Modern Guest snapshot needs reload")){response_errors++;response_conflicts++;}return 0;}
  static int apply_cgi_group(webs_t wp,int sid,void *unused,const char *id,int flag){(void)wp;(void)sid;(void)unused;(void)id;(void)flag;abort();return 0;}
  static void nvram_clr_group_temp(struct variable *v){(void)v;abort();}
  static void validate_cgi(webs_t wp,int sid,const struct wr_shared_wifi_adapter *shared){(void)wp;(void)sid;(void)shared;abort();}
@@ -158,4 +158,20 @@ static char *websGetVar(webs_t wp,char *name,char *fallback){return guest_cgi(wp
  joined=endpoint_fixture(template,server,source,cgi,here)
  (root/'endpoint-fixture.c').write_text(joined)
  subprocess.run(['gcc','-std=c99','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(root/'trunk/user/httpd'),str(root/'endpoint-fixture.c'),'-o',str(root/'endpoint-fixture')],check=True)
- subprocess.run([str(root/'endpoint-fixture')],check=True)
+ result=subprocess.run([str(root/'endpoint-fixture')],check=True,capture_output=True,text=True)
+ responses=[json.loads(line) for line in result.stdout.splitlines() if line.startswith('{')]
+ assert len(responses)==77
+ assert {r['state'] for r in responses}=={'configuration_matches','reload_required','busy','rejected','unconfirmed','unavailable'}
+ for reply in responses:
+  assert reply['schemaVersion']==1 and reply['runtimeVerified'] is False and reply['automaticRetry'] is False
+  assert set(reply)=={'schemaVersion','state','settingsMayHaveChanged','ramConfigurationMatches','flashCommit','serviceNotification','runtimeVerified','automaticRetry','nextAction'}
+  assert reply['nextAction']=='reload_configuration'
+  assert reply['ramConfigurationMatches'] is (reply['state']=='configuration_matches')
+  assert reply['flashCommit'] in {'not_requested','manual_mode','requested_unverified'}
+  assert reply['serviceNotification'] in {'not_requested','requested_unverified'}
+  if reply['state'] in {'rejected','reload_required','busy','unavailable'}:assert reply['settingsMayHaveChanged'] is False
+  if reply['state']=='unconfirmed':assert reply['settingsMayHaveChanged'] is True
+
+  assert 'endpoint-new-key' not in json.dumps(reply) and 'guest24-password' not in json.dumps(reply)
+ print('PASS actual JSON Guest route:77 parsed replies, match/reload/busy/rejected/unconfirmed, fresh no-op and stale replay, no runtime/flash acceptance or secret echo')
+ print(result.stdout.splitlines()[-1])

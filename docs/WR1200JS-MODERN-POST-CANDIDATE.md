@@ -36,3 +36,55 @@ Evidence: WR1200JS-MODERN-ENDPOINT-HOST-2026-11-11.json and earlier BODY-CGI,
 TRANSPORT and REQUEST-SEQUENCE reports. Earlier candidate target31e7732 was
 verified independently in CI988-989 evidence; it does not cover this body change.
 Temporary source/C/binary trees were automatically removed; no firmware retained.
+
+## Local Guest snapshot precondition — 2026-11-11
+
+Guest candidate now requires13 `wr_modern_guest_expected_<field>` values from
+the previously displayed public Guest configuration. Exact selected-band NVRAM
+comparison occurs before the secret read and all writes. Missing or changed
+public values reject unchanged; no PSK is part of the posted snapshot.26 pure
+missing/mismatch checks and a joined newer-SSID witness pass with zero secret
+reads/writes/commit/notify. Old-body replay after a change is rejected; after a
+lost response, reread configuration rather than retrying an old draft blindly.
+
+This is an optimistic public precondition, not authorization or atomic CAS.
+External writers may race between compare and persistence; secret-only changes
+are not represented. Keep intent reads the current key at admission. Request-ID
+ledger, coherent snapshot/concurrency policy, structured conflict response and
+client integration are still open. Production Apply remains disabled.
+
+### Guest rejection reason
+
+Candidate admission now reports internal NONE/INVALID/RELOAD without changing
+the owned-plan-on-reject invariant. Missing or changed public snapshot yields
+RELOAD; the actual CGI candidate emits `Modern Guest snapshot needs reload.`
+Distinct error counters in the joined fixture verify all24 stale replays and
+the newer-SSID witness without writes or secret reads. This remains the Classic
+HTML response with HTTP200, not a JSON/409 API. Structured result/retry handling
+is still required. No driver/runtime success is implied by admission success.
+
+## Isolated Guest JSON route
+
+`prepare-guest-json.py` adds authenticated `wr_modern_guest_apply.json` only to
+the isolated candidate. Same POST/custom-header/exact-body/CGI gates apply. It
+uses the existing update/apply/commit/notify functions, directing legacy script
+output to a sink. The result is fixed-schema JSON with no credential/SSID echo.
+
+States: configuration_matches / reload_required / busy / rejected / unconfirmed /
+unavailable. Successful RAM readback is not flash or radio acceptance: flash and
+notification report requested_unverified, runtimeVerified is always false. Auto
+retry is always false; reread configuration after a lost response or stale draft.
+Applications use HTTP200; framing/auth errors retain server400/401 handling.
+
+The candidate refuses pending HTTP changes and compares all13 public fields plus
+the owned key after actual apply. A fault-injected partial write returns
+unconfirmed/settingsMayHaveChanged, suppresses deferred commit/notify and does
+not roll back RAM. This limitation prevents production activation until the
+atomicity/concurrency policy is established. External NVRAM writers remain a race.
+
+77 JSON replies pass strict schema/state checks through the joined actual host
+HTTP/body/CGI/application chain, including stale replay, fresh no-op, invalid
+fields, pending work, sink failure and a failed NVRAM write. Authentication
+computation, socket, NVRAM/flash/RC and template expansion are substitutes. Real
+browser/client integration and exact target result remain open; production
+Modern still has no Apply. See GUEST-JSON-HOST and SNAPSHOT-HOST evidence.

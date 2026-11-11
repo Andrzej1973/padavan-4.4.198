@@ -9,7 +9,7 @@ def replace(old,new,count=1):
  if source.count(old)!=count:p.error('candidate anchor changed: '+old[:80])
  source=source.replace(old,new)
 replace('#include "wr-shared-wifi/password-request.h"','#include "wr-shared-wifi/password-request.h"\n#include "wr-shared-wifi/guest-adapter.h"')
-replace(' struct wr_modern_password_plan password;',' struct wr_modern_password_plan password;\n int guest_active;\n struct wr_modern_guest_plan guest;')
+replace(' struct wr_modern_password_plan password;',' struct wr_modern_password_plan password;\n int guest_active;\n struct wr_modern_guest_plan guest;\n enum wr_modern_guest_error guest_error;')
 replace(' struct wr_modern_password_context *request=context;\n if(request->active &&',''' struct wr_modern_password_context *request=context;
  /* Guest never participates in main SSID/key projection, including injected
   * unrelated main/radio fields. Final persistence filter drops them too. */
@@ -21,9 +21,12 @@ replace(' if(!modern->active)return value;',' if(modern->guest_active)return wr_
 replace(' if(websGetVar(wp,"wr_modern_wifi_version",NULL)) {\n  websWrite',' if(websGetVar(wp,"wr_modern_wifi_version",NULL)||websGetVar(wp,"wr_modern_guest_version",NULL)) {\n  websWrite')
 replace(' modern.wp=(void *)wp;',''' modern.wp=(void *)wp;
  if(websGetVar(wp,"wr_modern_guest_version",NULL)) {
-  if(wr_modern_guest_admit(&modern.guest,wr_shared_cgi_read,
-                          wr_shared_nv_read,(void *)wp)!=WR_SHARED_WIFI_OK) {
-   websWrite(wp,"Invalid Modern Guest request. No settings were saved.");
+  if(wr_modern_guest_admit_reason(&modern.guest,wr_shared_cgi_read,
+                          wr_shared_nv_read,(void *)wp,&modern.guest_error)!=WR_SHARED_WIFI_OK) {
+   if(modern.guest_error==WR_GUEST_ERROR_RELOAD)
+    websWrite(wp,"Modern Guest snapshot needs reload.");
+   else
+    websWrite(wp,"Invalid Modern Guest request. No settings were saved.");
    wr_modern_guest_clear(&modern.guest);return 0;
   }
   modern.guest_active=1;
