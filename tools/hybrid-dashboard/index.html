@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Padavan — стан роутера</title>
+<link rel="stylesheet" href="dashboard.css">
+<script defer src="dashboard.js"></script>
+</head>
+<body>
+<header class="topbar"><a class="brand" href="/index.asp"><strong>Padavan</strong><span>Advanced Router Firmware</span></a><a class="classic" href="/index.asp">Класичний інтерфейс</a></header>
+<div class="layout">
+<nav class="sidebar" aria-label="Навігація">
+<a class="active" href="/hybrid/index.html">Головна</a>
+<a href="/device-map/internet.asp">Інтернет</a>
+<a href="/Advanced_Wireless_Content.asp">Бездротова мережа</a>
+<a href="/device-map/intranet.asp">Локальна мережа</a>
+<a href="/device-map/clients.asp">Пристрої</a>
+<a href="/Main_WStatus2g_Content.asp">Wi-Fi 2,4 ГГц</a>
+<a href="/Advanced_SQM.asp">Керування трафіком</a>
+<a href="/Main_LogStatus_Content.asp">Журнал</a>
+<a href="/index.asp">Усі налаштування</a>
+</nav>
+<main>
+<section class="panel"><h1>Стан системи</h1><p id="status" role="status">Завантаження показників…</p>
+<div class="metrics">
+<article><h2>Інтернет</h2><p id="wan">—</p><a href="/device-map/internet.asp">Детальніше</a></article>
+<article><h2>Локальна мережа</h2><p id="lan">—</p><a href="/device-map/intranet.asp">Відкрити</a></article>
+<article><h2>Мережа IoT</h2><p>У розробці</p><span>ra2</span></article>
+<article><h2>Wi-Fi 2,4 ГГц</h2><p>Стан у Classic</p><a href="/Main_WStatus2g_Content.asp">Відкрити</a></article>
+<article><h2>Пристрої</h2><p>Список клієнтів</p><a href="/device-map/clients.asp">Відкрити</a></article>
+<article><h2>Процесор</h2><p id="cpu">—</p></article>
+<article><h2>Використання пам’яті</h2><p id="memory">—</p></article>
+<article><h2>Час роботи</h2><p id="uptime">—</p></article>
+</div></section>
+</main>
+</div>
+</body>
+</html>

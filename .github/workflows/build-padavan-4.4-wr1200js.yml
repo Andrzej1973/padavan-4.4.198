@@ -662,6 +662,8 @@ jobs:
           python3 tools/webui-preview/check_trx_gate.py
           python3 tools/webui-preview/prepare-production.py padavan-4.4
           python3 tools/webui-preview/check-production.py padavan-4.4
+          node tools/hybrid-dashboard/check-dashboard.js
+          python3 tools/hybrid-dashboard/prepare.py padavan-4.4
 
       - name: Prepare guarded firmware upload tmpfs action
         run: |
@@ -926,6 +928,7 @@ jobs:
             python3 ../tools/vpn-profiles/prepare-storage-permissions.py . --verify-image
             python3 ../tools/prepare-service-toggle-colors.py . --verify-image
             python3 ../tools/webui-preview/check_image.py . --report ../modern-image-check.json
+            python3 ../tools/hybrid-dashboard/check-image.py .
             grep -q '/wifi-qrcode-renderer.js' trunk/romfs/www/vpnsrv.asp
             ! grep -q '/qrcode.min.js' trunk/romfs/www/vpnsrv.asp
             grep -q 'wrVPNQrPayload' trunk/romfs/www/vpnsrv.asp
