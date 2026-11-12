@@ -1,0 +1,223 @@
+--- a/ap/ap_data.c
++++ b/ap/ap_data.c
+@@ -26,6 +26,7 @@
+ 	--------	----------		----------------------------------------------
+ */
+ #include "rt_config.h"
++#include "ra2-ps-retain.h"
+ 
+ 
+ INT ApAllowToSendPacket(
+@@ -44,6 +45,10 @@
+ #endif
+ 	STA_TR_ENTRY *tr_entry = NULL;
+ 
++    if (IS_MT7603(pAd) && pAd->ApCfg.BssidNum == 3 &&
++        wdev == &pAd->ApCfg.MBSSID[2].wdev &&
++        !pAd->ApCfg.MBSSID[2].bcn_buf.bBcnSntReq)
++        return FALSE;
+ 	RTMP_QueryPacketInfo(pPacket, &PacketInfo, &pSrcBufVA, &SrcBufLen);
+ #ifdef NEW_IXIA_METHOD
+ 	if (pAd->ContinousTxCnt != 1) {
+@@ -2130,7 +2135,8 @@
+ 	else
+ 	{
+ 		/* Unicast */
+-		if (pTxBlk->tr_entry && pTxBlk->tr_entry->PsDeQWaitCnt)
++		if (pTxBlk->tr_entry && pTxBlk->tr_entry->PsDeQWaitCnt &&
++            !wr_iot_ra2_station(pAd,pTxBlk->tr_entry->wcid))
+ 			pTxBlk->Pid = PID_PS_DATA;
+ 	}
+ 
+--- a/ap/ap_mbss.c
++++ b/ap/ap_mbss.c
+@@ -42,6 +42,7 @@
+ 
+ 
+ #include "rt_config.h"
++#include "ra2-software-off.h"
+ 
+ 
+ /* --------------------------------- Public -------------------------------- */
+@@ -366,6 +367,8 @@
+ 		return -1;
+ 	}
+ 
++    if (!wr_iot_ra2_software_open(pAd,pDev)) return -1;
++
+ #ifdef AIRPLAY_SUPPORT
+ 		if (AIRPLAY_ON(pAd))
+ 			pAd->ApCfg.MBSSID[BssId].bcn_buf.bBcnSntReq = TRUE;
+@@ -418,6 +421,7 @@
+         return -1;
+ 
+ 	RTMP_OS_NETDEV_STOP_QUEUE(pDev);
++ if (wr_iot_ra2_software_stop(pAd,pDev)<0) return -1;
+ 
+ 	/* kick out all stas behind the Bss */
+ 	MbssKickOutStas(pAd, BssId, REASON_DISASSOC_INACTIVE);
+--- a/common/cmm_data.c
++++ b/common/cmm_data.c
+@@ -25,6 +25,7 @@
+ 
+ 
+ #include "rt_config.h"
++#include "ra2-ps-retain.h"
+ 
+ 
+ UCHAR	SNAP_802_1H[] = {0xaa, 0xaa, 0x03, 0x00, 0x00, 0x00};
+@@ -1856,7 +1857,8 @@
+ 				break;
+ 		}
+ 
+-		if (pMacEntry && pAd->MacTab.tr_entry[wcid].PsDeQWaitCnt)
++		if (pMacEntry && pAd->MacTab.tr_entry[wcid].PsDeQWaitCnt &&
++            !wr_iot_ra2_station(pAd,wcid))
+ 			PID = PID_PS_DATA;
+ 
+ 		mac_info.WCID = wcid;
+--- a/common/cmm_data_pci.c
++++ b/common/cmm_data_pci.c
+@@ -29,6 +29,7 @@
+ 
+ 
+ #include	"rt_config.h"
++#include "ra2-ps-retain.h"
+ 
+ 
+ VOID dump_txd(RTMP_ADAPTER *pAd, TXD_STRUC *pTxD)
+@@ -2367,7 +2368,8 @@
+ 				break;
+ 		}
+ 		mac_info.WCID = wcid;
+-		if (pMacEntry && pAd->MacTab.tr_entry[wcid].PsDeQWaitCnt)
++		if (pMacEntry && pAd->MacTab.tr_entry[wcid].PsDeQWaitCnt &&
++            !wr_iot_ra2_station(pAd,wcid))
+ 			mac_info.PID = PID_PS_DATA;
+ 		else
+ 			mac_info.PID = PID_MGMT;
+--- a/include/ra2-ps-retain.h
++++ b/include/ra2-ps-retain.h
+@@ -2,7 +2,7 @@
+  * Read existing association/queue fields without retaining station pointers. */
+ #ifndef WR_IOT_RA2_PS_RETAIN_H
+ #define WR_IOT_RA2_PS_RETAIN_H
+-static inline int wr_iot_ra2_sleeping_pending(RTMP_ADAPTER *ad,unsigned int wcid)
++static inline int wr_iot_ra2_station(RTMP_ADAPTER *ad,unsigned int wcid)
+ {
+  MAC_TABLE_ENTRY *entry;
+  STA_TR_ENTRY *traffic;
+@@ -15,7 +15,16 @@
+         entry->func_tb_idx==2&&traffic->func_tb_idx==2&&
+         entry->wdev==&ad->ApCfg.MBSSID[2].wdev&&
+         ad->ApCfg.MBSSID[2].wdev.if_dev&&
+-        ad->ApCfg.MBSSID[2].bcn_buf.bBcnSntReq&&
++        traffic->wdev==entry->wdev;
++}
++static inline int wr_iot_ra2_sleeping_pending(RTMP_ADAPTER *ad,unsigned int wcid)
++{
++ MAC_TABLE_ENTRY *entry;
++ STA_TR_ENTRY *traffic;
++ if(!wr_iot_ra2_station(ad,wcid))return 0;
++ entry=&ad->MacTab.Content[wcid];
++ traffic=&ad->MacTab.tr_entry[wcid];
++ return ad->ApCfg.MBSSID[2].bcn_buf.bBcnSntReq&&
+         entry->PsMode==PWR_SAVE&&traffic->PsMode==PWR_SAVE&&
+         entry->Aid>0&&entry->Aid<WLAN_MAX_NUM_OF_TIM*8U&&
+         entry->NoDataIdleCount<entry->StaIdleTimeout&&traffic->enqCount>0;
+--- /dev/null
++++ b/include/ra2-software-off.h
+@@ -0,0 +1,81 @@
++/* Caller owns the ra2 MBSS close registration/transition. Existing SDK table
++ * lock serializes station deletion. DMA cells remain with normal completion. */
++#ifndef WR_IOT_RA2_SOFTWARE_OFF_H
++#define WR_IOT_RA2_SOFTWARE_OFF_H
++#ifdef WR_IOT_PSM_DIAG
++#include <linux/ratelimit.h>
++#endif
++/* 0 leaves another interface unchanged; 1 completes software gating/drain;
++ * -1 retains the gates after an invalid multicast ownership observation. */
++static inline int wr_iot_ra2_software_stop(RTMP_ADAPTER *ad,PNET_DEV dev)
++{
++ unsigned int wcid,mcast;
++ int result=-1;
++ ULONG flags;
++ STA_TR_ENTRY *traffic;
++ struct wifi_dev *wdev;
++ if(!ad||!dev||!IS_MT7603(ad)||ad->ApCfg.BssidNum!=3||
++    ad->ApCfg.MBSSID[2].wdev.if_dev!=dev)return 0;
++ wdev=&ad->ApCfg.MBSSID[2].wdev;
++ RTMP_SEM_LOCK(&ad->BcnRingLock);
++ ad->ApCfg.MBSSID[2].bcn_buf.bBcnSntReq=FALSE;
++ RTMP_SEM_UNLOCK(&ad->BcnRingLock);
++ NdisAcquireSpinLock(&ad->MacTabLock);
++ RTMP_IRQ_LOCK(&ad->irq_lock,flags);
++ for(wcid=0;wcid<MAX_LEN_OF_TR_TABLE;wcid++){
++  traffic=&ad->MacTab.tr_entry[wcid];
++  if(IS_ENTRY_NONE(traffic)||traffic->wcid!=wcid||
++     traffic->func_tb_idx!=2||traffic->wdev!=wdev)continue;
++  traffic->enq_cap=FALSE;
++  traffic->deq_cap=FALSE;
++  traffic->PsDeQWaitCnt=0;
++  traffic->PsQIdleCount=0;
++ }
++ RTMP_IRQ_UNLOCK(&ad->irq_lock,flags);
++ /* Station queues are drained once by the following vendor MBSS_Close ->
++  * MacTableDeleteEntry -> tr_tb_reset_entry. The permanent multicast entry
++  * needs its own software queue drain and will be re-enabled on MBSS open. */
++ mcast=wdev->tr_tb_idx;
++ if(mcast<MAX_LEN_OF_TR_TABLE && mcast==(UCHAR)mcast && mcast!=WCID_ALL){
++  traffic=&ad->MacTab.tr_entry[mcast];
++  if(traffic->EntryType==ENTRY_CAT_MCAST&&traffic->wcid==mcast&&
++     traffic->func_tb_idx==2&&traffic->wdev==wdev){
++   rtmp_tx_swq_exit(ad,mcast);
++   result=1;
++  }
++ }
++ NdisReleaseSpinLock(&ad->MacTabLock);
++#ifdef WR_IOT_PSM_DIAG
++ printk_ratelimited(KERN_INFO "mt76x3: ra2 software-off queues-gated\n");
++#endif
++ return result;
++}
++static inline int wr_iot_ra2_software_open(RTMP_ADAPTER *ad,PNET_DEV dev)
++{
++ unsigned int mcast;
++ ULONG flags;
++ int ready=0;
++ STA_TR_ENTRY *traffic;
++ struct wifi_dev *wdev;
++ if(!ad||!dev)return 0;
++ if(!IS_MT7603(ad)||ad->ApCfg.BssidNum!=3||
++    ad->ApCfg.MBSSID[2].wdev.if_dev!=dev)return 1;
++ wdev=&ad->ApCfg.MBSSID[2].wdev;
++ mcast=wdev->tr_tb_idx;
++ if(mcast>=MAX_LEN_OF_TR_TABLE || mcast!=(UCHAR)mcast || mcast==WCID_ALL)return 0;
++ NdisAcquireSpinLock(&ad->MacTabLock);
++ RTMP_IRQ_LOCK(&ad->irq_lock,flags);
++ traffic=&ad->MacTab.tr_entry[mcast];
++ if(traffic->EntryType==ENTRY_CAT_MCAST&&traffic->wcid==mcast&&
++    traffic->func_tb_idx==2&&traffic->wdev==wdev){
++  ready=1;
++  traffic->enq_cap=TRUE;
++  traffic->deq_cap=TRUE;
++  traffic->PsDeQWaitCnt=0;
++  traffic->PsQIdleCount=0;
++ }
++ RTMP_IRQ_UNLOCK(&ad->irq_lock,flags);
++ NdisReleaseSpinLock(&ad->MacTabLock);
++ return ready;
++}
++#endif
+--- a/tx_rx/txs.c
++++ b/tx_rx/txs.c
+@@ -156,6 +156,9 @@
+                 pAd->MacTab.tr_entry[txs_d3->wlan_idx].enqCount);
+ #endif
+     }
++    /* Periodic SDK timeout owns ra2 PS-Poll pacing. Delayed reports cannot
++     * acknowledge a newer poll or acquire ownership of its queued packet. */
++    if (wr_iot_ra2_station(pAd,txs_d3->wlan_idx)) return 0;
+ 	if (pAd->MacTab.tr_entry[txs_d3->wlan_idx].PsDeQWaitCnt) {
+ 		/* After a successfull Tx of dequeued PS data, we clear PsDeQWaitCnt */
+ 		pAd->MacTab.tr_entry[txs_d3->wlan_idx].PsDeQWaitCnt = 0;

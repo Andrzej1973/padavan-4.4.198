@@ -1,0 +1,40 @@
+{
+  "date": "2026-11-12",
+  "base_revision": "80c5a06d15d64c58cb161f3d390d4ff0036b134f",
+  "vendor_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "policy": "Owner selected existing SDK software timeout and queue cleanup; proprietary ROM material removed as requested prerequisite",
+  "implemented": [
+    "all three ra2 PS-data PID selection sites use ordinary packet PID",
+    "ra2 PS completion leaves wait state to existing two-pass periodic timeout",
+    "scoped OFF beacon/queue admission and native owned multicast drain",
+    "native station deletion owns unicast cleanup, native DMA completion owns hardware packets",
+    "multicast capability restore before beacon lock and rollback gating",
+    "diagnostic software-off marker and bounded read-only collector"
+  ],
+  "host_checks": [
+    "actual prepared PS PID decisions, repeated TxS and SDK periodic wait block under ASan/UBSan OFF/ON",
+    "software OFF/open/rollback bindings, Main/Guest preservation, invalid owner and WCID_ALL refusal under ASan/UBSan OFF/ON",
+    "58 existing host fixtures plus CLOSE composition and WDS capture",
+    "diagnostic header OFF/ON",
+    "CLOSE bundle source/ownership regression suite",
+    "exported C diff apply check against pinned SDK plus prior ra2 policy"
+  ],
+  "source_hashes": {
+    "ap/ap.c": "307783d34cbec74860ba6bb770b88e84eb88ef3da633b1d973fd7538b4a60aad",
+    "tx_rx/txs.c": "58f963297852e7a864be13a7b9b7ea5ffd2a394a36309e736eef6691acee0524",
+    "ap/ap_mbss.c": "402a0a3dfc95bc52347262fcd7ff18f70922a9b2d1dcb72a8c6657c0013bb616",
+    "ap/ap_data.c": "7c13d3de6e87a85bee545c0fbc79d9b7348bbd70a172e0008a0629da87feaaf3",
+    "common/cmm_data.c": "8453ace194ac21304a4a4021c51c5caf2f4fb2c00db2fab87216ba5070123a03",
+    "common/cmm_data_pci.c": "cce10c0bdc7ee3c8b0caaa24afb5a8207f9c497656de4830a27c022664796459"
+  },
+  "patch_sha256": "5cc4503d3626e333b2f24c08bd7125359c2e9d20a7cad8e7ab744b8396455b9d",
+  "target_compiled": false,
+  "production_installed": false,
+  "runtime_verified": false,
+  "remaining": [
+    "target full prepared-driver checks and feature compilation",
+    "production RC/controller lifecycle binding",
+    "full checked-close/beacon recovery and hardware traffic runtime acceptance"
+  ],
+  "tradeoff": "ra2 PS-Poll pacing can wait for two existing periodic maintenance passes"
+}

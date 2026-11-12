@@ -1,3 +1,13 @@
+## Owner selected software IoT recovery — 2026-11-12
+
+Continue ra2 late-TxS recovery and software OFF using the existing vendor SDK
+WCID tables, queue ownership, descriptor completion and bounded software
+timeouts. Implement and verify these paths from available source. Proprietary
+ROM specifications are no longer a requested prerequisite. Keep DMA packet
+release with its established owner and preserve Main/Guest behavior. Record
+software OFF/queue recovery, target compilation and physical runtime evidence
+at their actual verification level.
+
 ## Owner reaffirmed IoT implementation rules — 2026-11-11
 
 For further IoT work, use the actual pinned legacy MediaTek mt76x3 vendor SDK

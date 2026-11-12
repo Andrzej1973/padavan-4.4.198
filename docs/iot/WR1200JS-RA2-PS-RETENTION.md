@@ -1,3 +1,10 @@
+## Software recovery policy update — 2026-11-12
+
+Current ra2 PS-data pacing and software OFF are described in
+WR1200JS-SOFTWARE-RECOVERY.md. Ra2 now uses the existing periodic wait timeout;
+the earlier completion-driven PsDeQWaitCnt behavior below records historical
+checkpoints. New target and physical verification are pending for this policy.
+
 # WR1200JS ra2 PSM queue retention
 
 The SDK implementation uses MAC_TABLE_ENTRY.func_tb_idx and an exact wdev

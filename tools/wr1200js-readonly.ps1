@@ -105,7 +105,7 @@ for interface in ra0 ra1 ra2; do
     done
 done
 echo IOT_PSM_LOG_TAIL
-dmesg | grep -F 'wr_ps event=' | tail -n 120
+dmesg | grep -E 'wr_ps event=|mt76x3: ra2 software-off queues-gated' | tail -n 120
 '@
     'temperature-paths' = "find /sys/class/thermal /sys/class/hwmon -type f -name '*temp*' 2>/dev/null"
     'txbf-log'        = "dmesg | grep -iE 'txbf|beamform|implicit|explicit|calibrat|eeprom|efuse'"

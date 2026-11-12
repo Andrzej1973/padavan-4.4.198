@@ -27,6 +27,7 @@ static void BndStrg_SetInfFlags(PRTMP_ADAPTER ad,int *wdev,PBND_STRG_CLI_TABLE t
 #define RTMP_OS_NETDEV_GET_PRIV(d) ((d)->ad)
 #define RT28xx_MBSS_IdxGet(ad,d) ((void)(ad),(d)->index)
 #define RTMP_OS_NETDEV_STOP_QUEUE(d) ((void)(d),stop++)
+static int wr_iot_ra2_software_stop(PRTMP_ADAPTER ad,PNET_DEV dev){assert(ad&&dev&&stop==1&&!kick);return 1;}
 static void MbssKickOutStas(PRTMP_ADAPTER ad,int b,int reason){assert(ad&&b>=0&&reason==4);kick++;}
 static int wr_iot_bcn_revoke_and_drain(PRTMP_ADAPTER ad,int b){assert(ad&&b>=0);drain++;return allow;}
 static void APMakeAllBssBeacon(PRTMP_ADAPTER ad){assert(ad&&drain);make++;}

@@ -2,7 +2,7 @@
  * Read existing association/queue fields without retaining station pointers. */
 #ifndef WR_IOT_RA2_PS_RETAIN_H
 #define WR_IOT_RA2_PS_RETAIN_H
-static inline int wr_iot_ra2_sleeping_pending(RTMP_ADAPTER *ad,unsigned int wcid)
+static inline int wr_iot_ra2_station(RTMP_ADAPTER *ad,unsigned int wcid)
 {
  MAC_TABLE_ENTRY *entry;
  STA_TR_ENTRY *traffic;
@@ -15,7 +15,16 @@ static inline int wr_iot_ra2_sleeping_pending(RTMP_ADAPTER *ad,unsigned int wcid
         entry->func_tb_idx==2&&traffic->func_tb_idx==2&&
         entry->wdev==&ad->ApCfg.MBSSID[2].wdev&&
         ad->ApCfg.MBSSID[2].wdev.if_dev&&
-        ad->ApCfg.MBSSID[2].bcn_buf.bBcnSntReq&&
+        traffic->wdev==entry->wdev;
+}
+static inline int wr_iot_ra2_sleeping_pending(RTMP_ADAPTER *ad,unsigned int wcid)
+{
+ MAC_TABLE_ENTRY *entry;
+ STA_TR_ENTRY *traffic;
+ if(!wr_iot_ra2_station(ad,wcid))return 0;
+ entry=&ad->MacTab.Content[wcid];
+ traffic=&ad->MacTab.tr_entry[wcid];
+ return ad->ApCfg.MBSSID[2].bcn_buf.bBcnSntReq&&
         entry->PsMode==PWR_SAVE&&traffic->PsMode==PWR_SAVE&&
         entry->Aid>0&&entry->Aid<WLAN_MAX_NUM_OF_TIM*8U&&
         entry->NoDataIdleCount<entry->StaIdleTimeout&&traffic->enqCount>0;

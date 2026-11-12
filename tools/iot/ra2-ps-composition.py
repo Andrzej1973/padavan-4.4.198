@@ -49,7 +49,30 @@ def compose(changes, source, local):
                 pAd->MacTab.tr_entry[txs_d3->wlan_idx].enqCount);
 #endif
     }
+    /* Periodic SDK timeout owns ra2 PS-Poll pacing. Delayed reports cannot
+     * acknowledge a newer poll or acquire ownership of its queued packet. */
+    if (wr_iot_ra2_station(pAd,txs_d3->wlan_idx)) return 0;
 	if (pAd->MacTab.tr_entry[txs_d3->wlan_idx].PsDeQWaitCnt) {''')
+    # ra2 uses the existing periodic PS-Poll timeout, so its frames retain
+    # their ordinary packet PID. Avoid creating PS-data completion dependencies.
+    decisions = [
+        ('ap/ap_data.c',
+         'if (pTxBlk->tr_entry && pTxBlk->tr_entry->PsDeQWaitCnt)',
+         'if (pTxBlk->tr_entry && pTxBlk->tr_entry->PsDeQWaitCnt &&\n'
+         '            !wr_iot_ra2_station(pAd,pTxBlk->tr_entry->wcid))'),
+        ('common/cmm_data.c',
+         'if (pMacEntry && pAd->MacTab.tr_entry[wcid].PsDeQWaitCnt)',
+         'if (pMacEntry && pAd->MacTab.tr_entry[wcid].PsDeQWaitCnt &&\n'
+         '            !wr_iot_ra2_station(pAd,wcid))'),
+        ('common/cmm_data_pci.c',
+         'if (pMacEntry && pAd->MacTab.tr_entry[wcid].PsDeQWaitCnt)',
+         'if (pMacEntry && pAd->MacTab.tr_entry[wcid].PsDeQWaitCnt &&\n'
+         '            !wr_iot_ra2_station(pAd,wcid))'),
+    ]
+    for name, old, new in decisions:
+        include = '#include\t"rt_config.h"' if name == 'common/cmm_data_pci.c' else '#include "rt_config.h"'
+        replace(name, include, include + '\n#include "ra2-ps-retain.h"')
+        replace(name, old, new)
     name = 'include/ra2-ps-retain.h'
     if name in result or (source / name).exists():
         raise ValueError('ra2 PS retention already present')

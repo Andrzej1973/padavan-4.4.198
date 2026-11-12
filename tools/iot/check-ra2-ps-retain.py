@@ -20,7 +20,7 @@ if args.archive:
     spec.loader.exec_module(policy)
     with tarfile.open(args.archive) as archive:
         sources = {name: archive.extractfile('trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/' + name).read().decode()
-                   for name in ['ap/ap.c', 'tx_rx/txs.c']}
+                   for name in ['ap/ap.c', 'tx_rx/txs.c', 'ap/ap_data.c', 'common/cmm_data.c', 'common/cmm_data_pci.c']}
     original = dict(sources)
     with tempfile.TemporaryDirectory(prefix='wr-ra2-ps-compose-') as scratch:
         root = Path(scratch)
@@ -34,16 +34,38 @@ if args.archive:
     assert original['ap/ap.c'].count('wr_iot_ra2_sleeping_pending') == 0
 else:
     sources = {name: (args.driver / name).read_text()
-               for name in ['ap/ap.c', 'tx_rx/txs.c', 'include/ra2-ps-retain.h']}
+               for name in ['ap/ap.c', 'tx_rx/txs.c', 'ap/ap_data.c', 'common/cmm_data.c', 'common/cmm_data_pci.c', 'include/ra2-ps-retain.h']}
 assert sources['include/ra2-ps-retain.h'] == (here / 'ra2-ps-retain.h').read_text()
 ap = sources['ap/ap.c']
 start = ap.index('\t\t/* 3. garbage collect the ps_queue')
 end = ap.index('\n#ifdef UAPSD_SUPPORT', start)
 maintenance = ap[start:end]
+wait_start = ap.index('\t\t\t\tif (tr_entry->PsDeQWaitCnt)')
+wait_end = ap.index('\n\t\t\t}', wait_start)
+wait_timeout = ap[wait_start:wait_end]
+
 txs = sources['tx_rx/txs.c']
 start = txs.index('INT32 PsDataTxSHandler(')
 completion = txs[start:txs.index('\n}', start) + 2]
 assert 'wr_iot_ra2_sleeping_pending' in maintenance and 'wr_iot_ra2_sleeping_pending' in completion
+# Compile the three actual prepared PS-data PID decisions with injected fields.
+pid_functions = ''
+for name, start, setup, result in [
+    ('ap/ap_data.c', 'if (pTxBlk->tr_entry && pTxBlk->tr_entry->PsDeQWaitCnt',
+     'struct {STA_TR_ENTRY *tr_entry;unsigned Pid;} block={&pAd->MacTab.tr_entry[wcid],99},*pTxBlk=&block;', 'block.Pid'),
+    ('common/cmm_data.c', 'if (pMacEntry && pAd->MacTab.tr_entry[wcid].PsDeQWaitCnt',
+     'MAC_TABLE_ENTRY *pMacEntry=&pAd->MacTab.Content[wcid];unsigned PID=99;', 'PID'),
+    ('common/cmm_data_pci.c', 'if (pMacEntry && pAd->MacTab.tr_entry[wcid].PsDeQWaitCnt',
+     'MAC_TABLE_ENTRY *pMacEntry=&pAd->MacTab.Content[wcid];struct {unsigned PID;} mac_info={99};', 'mac_info.PID'),
+]:
+    text = sources[name]
+    begin = text.index(start)
+    decision = text[begin:text.index(';', begin)+1]
+    function = {'ap/ap_data.c':'pid_data', 'common/cmm_data.c':'pid_management',
+                'common/cmm_data_pci.c':'pid_pci'}[name]
+    pid_functions += ('\nstatic unsigned '+function+'(RTMP_ADAPTER *pAd,unsigned wcid)\n{\n'
+                      +setup+'\n'+decision+'\nreturn '+result+';\n}\n')
+
 prefix = r'''
 #include <assert.h>
 #include <stdio.h>
@@ -66,7 +88,7 @@ typedef char CHAR;
 struct device {int running;};
 struct wifi_dev {struct device *if_dev;};
 typedef struct {unsigned int wcid,func_tb_idx,Aid,NoDataIdleCount,StaIdleTimeout;int client,Sst,PsMode;struct wifi_dev *wdev;} MAC_TABLE_ENTRY;
-typedef struct {unsigned int wcid,func_tb_idx,enqCount,PsQIdleCount,PsDeQWaitCnt;int PsMode,ps_state;} STA_TR_ENTRY;
+typedef struct {unsigned int wcid,func_tb_idx,enqCount,PsQIdleCount,PsDeQWaitCnt;int PsMode,ps_state;struct wifi_dev *wdev;} STA_TR_ENTRY;
 typedef struct {int mt;struct {int BssidNum;struct {struct wifi_dev wdev;struct {int bBcnSntReq;} bcn_buf;} MBSSID[3];} ApCfg;
  struct {MAC_TABLE_ENTRY Content[4];STA_TR_ENTRY tr_entry[4];} MacTab;} RTMP_ADAPTER;
 typedef struct {unsigned int wlan_idx;} TXS_D_3;
@@ -76,6 +98,7 @@ typedef struct {TXS_D_0 txs_d0;TXS_D_3 txs_d3;} TXS_STRUC;
 static unsigned diag_hits;
 #define wr_iot_ps_diag(e,b,p,x,y) do{assert((e)==6&&(b)==2&&(p)==1);(void)(x);assert((y)==2);diag_hits++;}while(0)
 #endif
+#define PID_PS_DATA 7
 static int tim,flushes;
 #define WLAN_MR_TIM_BIT_SET(ad,bss,aid) do{assert((ad)&&(bss)==2&&(aid)==1);tim=1;}while(0)
 #define WLAN_MR_TIM_BIT_CLEAR(ad,bss,aid) do{}while(0)
@@ -91,7 +114,7 @@ int main(void)
   ad.ApCfg.MBSSID[2].wdev.if_dev=&dev;ad.ApCfg.MBSSID[2].bcn_buf.bBcnSntReq=1;
   *entry=(MAC_TABLE_ENTRY){.wcid=1,.func_tb_idx=2,.Aid=1,.StaIdleTimeout=300,
    .client=1,.Sst=SST_ASSOC,.PsMode=PWR_SAVE,.wdev=&ad.ApCfg.MBSSID[2].wdev};
-  *traffic=(STA_TR_ENTRY){.wcid=1,.func_tb_idx=2,.enqCount=2,.PsQIdleCount=2,.PsDeQWaitCnt=1,.PsMode=PWR_SAVE,.ps_state=APPS_RETRIEVE_DONE};
+  *traffic=(STA_TR_ENTRY){.wcid=1,.func_tb_idx=2,.enqCount=2,.PsQIdleCount=2,.PsDeQWaitCnt=1,.PsMode=PWR_SAVE,.ps_state=APPS_RETRIEVE_DONE,.wdev=&ad.ApCfg.MBSSID[2].wdev};
   switch(fault){
    case 1:ad.mt=0;break;
    case 2:ad.ApCfg.BssidNum=2;break;
@@ -118,11 +141,14 @@ int main(void)
   assert(!wr_iot_ra2_sleeping_pending(&ad,MAX_LEN_OF_MAC_TABLE));
   assert(!wr_iot_ra2_sleeping_pending(&ad,~0U));
   assert(wr_iot_ra2_sleeping_pending(&ad,1)==(fault==0||fault==20));
+  assert(pid_data(&ad,1)==(wr_iot_ra2_station(&ad,1)?99U:7U));
+  assert(pid_management(&ad,1)==(wr_iot_ra2_station(&ad,1)?99U:7U));
+  assert(pid_pci(&ad,1)==(wr_iot_ra2_station(&ad,1)?99U:7U));
   TXS_STRUC report={.txs_d3.wlan_idx=1};tim=flushes=0;
   assert(!PsDataTxSHandler(NULL,(CHAR *)&report,0));
   assert(!PsDataTxSHandler(&ad,NULL,0));
   assert(!PsDataTxSHandler(&ad,(CHAR *)&report,0));
-  assert(tim==(fault==0||fault==20)&&traffic->PsDeQWaitCnt==0&&traffic->enqCount==(fault==16?0U:2U));
+  assert(tim==(fault==0||fault==20)&&traffic->PsDeQWaitCnt==(unsigned)wr_iot_ra2_station(&ad,1)&&traffic->enqCount==(fault==16?0U:2U));
 #ifdef WR_IOT_PSM_DIAG
   assert(diag_hits==0);
   report.txs_d0.LE=1;
@@ -130,6 +156,17 @@ int main(void)
   assert(diag_hits==(unsigned)(fault==0||fault==20));
   diag_hits=0;
 #endif
+  if(wr_iot_ra2_station(&ad,1)){
+   /* Duplicated/delayed TxS cannot acknowledge a newly armed PS-Poll. */
+   traffic->PsDeQWaitCnt=1;
+   assert(!PsDataTxSHandler(&ad,(CHAR *)&report,0)&&traffic->PsDeQWaitCnt==1);
+   software_wait_tick(traffic);assert(traffic->PsDeQWaitCnt==2);
+   assert(!PsDataTxSHandler(&ad,(CHAR *)&report,0)&&traffic->PsDeQWaitCnt==2);
+   software_wait_tick(traffic);assert(!traffic->PsDeQWaitCnt);
+#ifdef WR_IOT_PSM_DIAG
+   diag_hits=0;
+#endif
+  }
   /* Maintenance receives its current entry pointer, so the mismatched-WCID
    * cases are tested by the helper/completion above only. */
   if(fault==13||fault==14)continue;
@@ -152,7 +189,8 @@ int main(void)
 '''
 with tempfile.TemporaryDirectory(prefix='wr-ra2-ps-check-') as scratch:
     root = Path(scratch)
-    code = prefix + sources['include/ra2-ps-retain.h'] + '\n' + completion
+    code = prefix + sources['include/ra2-ps-retain.h'] + '\n' + pid_functions + completion
+    code += '\nstatic void software_wait_tick(STA_TR_ENTRY *tr_entry){\n' + wait_timeout + '\n}\n'
     code += '\nstatic void maintenance(RTMP_ADAPTER *pAd,MAC_TABLE_ENTRY *pEntry,STA_TR_ENTRY *tr_entry){\n' + maintenance + '\n}\n' + main
     (root / 'check.c').write_text(code)
     for mode in ('off', 'on'):
