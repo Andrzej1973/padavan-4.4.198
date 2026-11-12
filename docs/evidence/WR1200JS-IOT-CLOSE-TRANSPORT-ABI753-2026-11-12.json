@@ -9,5 +9,17 @@
   "elf32_le_mips": true,
   "close_and_progress_symbols_present": true,
   "scope": "Actual generated RC client MIPS object from successful ABI753. Driver candidate and full runtime verification separate.",
-  "runtime_verified": false
+  "runtime_verified": false,
+  "elf_symbol_table_functions": {
+    "wr_iot_driver_close_submit": {
+      "bytes": 8,
+      "global_defined_function": true,
+      "executable_section": true
+    },
+    "wr_iot_driver_close_progress_submit": {
+      "bytes": 8,
+      "global_defined_function": true,
+      "executable_section": true
+    }
+  }
 }

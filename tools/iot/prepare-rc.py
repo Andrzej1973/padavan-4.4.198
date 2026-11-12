@@ -675,6 +675,14 @@ client=client.replace('#include "driver-api-client.h"','#include "wr-iot/driver-
 make=m.read_text(encoding='utf-8')
 if make.count('wr-iot-disable-controller.o')!=1:raise SystemExit('Driver API client object anchor changed')
 m.write_text(make.replace('wr-iot-disable-controller.o','wr-iot-disable-controller.o wr-iot-driver-api-client.o',1),encoding='utf-8')
+(headers/'driver-close-controller.h').write_bytes((local/'driver-close-controller.h').read_bytes())
+close_controller=(local/'driver-close-controller.c').read_text(encoding='utf-8')
+close_controller=close_controller.replace('#include "driver-close-controller.h"','#include "wr-iot/driver-close-controller.h"',1)
+(rc/'wr-iot-driver-close-controller.c').write_text(close_controller,encoding='utf-8')
+make=m.read_text(encoding='utf-8')
+if make.count('wr-iot-driver-api-client.o')!=1:raise SystemExit('Driver close controller object anchor changed')
+m.write_text(make.replace('wr-iot-driver-api-client.o','wr-iot-driver-api-client.o wr-iot-driver-close-controller.o',1),encoding='utf-8')
+report['linux_driver_close_controller_staged']=True
 report['linux_driver_api_client_staged']=True
 report['linux_driver_api_client_activation_bound']=False
 (a.source/'iot-rc-source.json').write_text(json.dumps(report,indent=2)+'\n')

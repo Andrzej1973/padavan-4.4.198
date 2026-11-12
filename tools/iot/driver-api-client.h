@@ -62,6 +62,10 @@ enum wr_iot_driver_close_submit_result {
  WR_IOT_DRIVER_CLOSE_PENDING=2,
  WR_IOT_DRIVER_CLOSE_UNCERTAIN=3
 };
+/* Construct CLOSE identity from the retained OPEN attempt and its observed
+ * current receipt. No ioctl or ownership transfer occurs in this helper. */
+int wr_iot_driver_close_request_from_open(struct wr_iot_driver_close_request *,
+ const struct wr_iot_driver_attempt *,const struct wr_iot_driver_open_current_result *);
 enum wr_iot_driver_close_submit_result wr_iot_driver_close_submit(
  const struct wr_iot_driver_close_request *);
 enum wr_iot_driver_close_submit_result wr_iot_driver_close_progress_submit(

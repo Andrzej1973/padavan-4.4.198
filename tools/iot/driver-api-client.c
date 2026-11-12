@@ -172,6 +172,25 @@ int wr_iot_driver_open_current_read(const struct wr_iot_driver_attempt *attempt,
    attempt->identity.adapter_epoch,attempt->identity.device_generation,wire,sizeof(wire));
 }
 
+int wr_iot_driver_close_request_from_open(struct wr_iot_driver_close_request *out,
+ const struct wr_iot_driver_attempt *attempt,const struct wr_iot_driver_open_current_result *current)
+{
+ unsigned int i,nonzero=0;
+ if(!out)return 0;
+ memset(out,0,sizeof(*out));
+ if(!attempt||!current||!attempt->identity.adapter_epoch||
+    !attempt->identity.device_generation||!current->open_token||
+    current->adapter_epoch!=attempt->identity.adapter_epoch||
+    current->device_generation!=attempt->identity.device_generation)return 0;
+ for(i=0;i<sizeof(attempt->request_id);i++)nonzero|=attempt->request_id[i];
+ if(!nonzero)return 0;
+ memcpy(out->open_request_id,attempt->request_id,sizeof(out->open_request_id));
+ out->adapter_epoch=current->adapter_epoch;
+ out->device_generation=current->device_generation;
+ out->open_token=current->open_token;
+ return 1;
+}
+
 /* The operation result covers the kernel call only. Keep the original OPEN
  * identity and network isolation until the controller completes recovery. */
 static enum wr_iot_driver_close_submit_result wr_iot_driver_close_exchange(

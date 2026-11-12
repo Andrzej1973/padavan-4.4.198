@@ -100,3 +100,15 @@ reply functions and injected executor/syscalls. The existing58 standalone
 fixtures and RC source preparation/client compilation pass. MIPS verification
 of this transport continuation is pending. Full controller activation and
 owner release/reopen integration remain unfinished.
+
+The RC client now also builds a CLOSE request from the retained OPEN attempt
+and current OPEN receipt, checking epoch, generation, nonzero nonce and token.
+This local helper does not submit an ioctl or bind the activation controller.
+Host ASan/UBSan validates matching and mismatched identities. Target build and
+complete controller integration for this addition remain pending.
+
+The isolated RC staging now includes a close controller that retains the
+original request, submits CLOSE once and advances the same operation through
+explicit progress calls. Pending and ambiguous outcomes preserve state. Its
+reference-retired result does not release network isolation or the OPEN fence.
+The activation backend and complete reopen sequence remain unbound.

@@ -185,7 +185,18 @@ int main(void){
   assert(!strcmp(requested.password,"password"));
  }
  current_only_error=current_close_error=bad_closed_reply=0;fail_socket_at=0;
- struct wr_iot_driver_close_request close_request={{1},1,2,3};
+ struct wr_iot_driver_close_request close_request={{1},1,2,3}, built;
+ struct wr_iot_driver_attempt saved={{1,2},{1}};
+ struct wr_iot_driver_open_current_result receipt={1,2,3};
+ assert(wr_iot_driver_close_request_from_open(&built,&saved,&receipt));
+ assert(!memcmp(&built,&close_request,sizeof(built)));
+ receipt.adapter_epoch++;assert(!wr_iot_driver_close_request_from_open(&built,&saved,&receipt)&&!built.open_token);receipt.adapter_epoch--;
+ receipt.device_generation++;assert(!wr_iot_driver_close_request_from_open(&built,&saved,&receipt)&&!built.open_token);receipt.device_generation--;
+ receipt.open_token=0;assert(!wr_iot_driver_close_request_from_open(&built,&saved,&receipt));receipt.open_token=3;
+ saved.request_id[0]=0;assert(!wr_iot_driver_close_request_from_open(&built,&saved,&receipt));saved.request_id[0]=1;
+ assert(!wr_iot_driver_close_request_from_open(NULL,&saved,&receipt));
+ assert(!wr_iot_driver_close_request_from_open(&built,NULL,&receipt));
+ assert(!wr_iot_driver_close_request_from_open(&built,&saved,NULL));
  for(unsigned mode=0;mode<2;mode++){
   for(unsigned fault=0;fault<8;fault++){
    struct wr_iot_driver_close_request input=close_request;
