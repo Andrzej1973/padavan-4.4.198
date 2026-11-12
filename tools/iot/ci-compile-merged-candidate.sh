@@ -567,6 +567,12 @@ if sys.argv[2] == 'peer82':
     json.dumps(report, indent=2) + '\n', encoding='utf-8')
 PY
 if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
+  python3 -B tools/iot/check-driver-api-close-release-binding.py > "$results/ra2-close-release-binding.txt"
+  python3 -B tools/iot/check-release-dispatch-composition.py > "$results/ra2-close-release-dispatch.txt"
+  gcc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
+    -fno-pie -no-pie -Itools/iot tools/iot/check-driver-api-close-release.c \
+    -o "$results/ra2-close-release-check"
+  "$results/ra2-close-release-check" > "$results/ra2-close-release-reference.txt"
   experiment="$RUNNER_TEMP/wr1200js-ra2-no-host-experiment"
   python3 tools/iot/prepare-ra2-no-host-experiment.py "$merged" "$experiment"
   cp "$experiment.manifest.json" "$results/ra2-no-host-source-manifest.json"
