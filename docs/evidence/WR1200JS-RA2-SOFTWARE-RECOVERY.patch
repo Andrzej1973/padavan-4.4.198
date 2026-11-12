@@ -12,10 +12,10 @@
  #endif
  	STA_TR_ENTRY *tr_entry = NULL;
  
-+    if (IS_MT7603(pAd) && pAd->ApCfg.BssidNum == 3 &&
-+        wdev == &pAd->ApCfg.MBSSID[2].wdev &&
-+        !pAd->ApCfg.MBSSID[2].bcn_buf.bBcnSntReq)
-+        return FALSE;
++	if (IS_MT7603(pAd) && pAd->ApCfg.BssidNum == 3 &&
++	    wdev == &pAd->ApCfg.MBSSID[2].wdev &&
++	    !pAd->ApCfg.MBSSID[2].bcn_buf.bBcnSntReq)
++		return FALSE;
  	RTMP_QueryPacketInfo(pPacket, &PacketInfo, &pSrcBufVA, &SrcBufLen);
  #ifdef NEW_IXIA_METHOD
  	if (pAd->ContinousTxCnt != 1) {
@@ -39,20 +39,22 @@
  
  
  /* --------------------------------- Public -------------------------------- */
-@@ -366,6 +367,8 @@
+@@ -366,6 +367,9 @@
  		return -1;
  	}
  
-+    if (!wr_iot_ra2_software_open(pAd,pDev)) return -1;
++	if (!wr_iot_ra2_software_open(pAd,pDev))
++		return -1;
 +
  #ifdef AIRPLAY_SUPPORT
  		if (AIRPLAY_ON(pAd))
  			pAd->ApCfg.MBSSID[BssId].bcn_buf.bBcnSntReq = TRUE;
-@@ -418,6 +421,7 @@
+@@ -418,6 +422,8 @@
          return -1;
  
  	RTMP_OS_NETDEV_STOP_QUEUE(pDev);
-+ if (wr_iot_ra2_software_stop(pAd,pDev)<0) return -1;
++	if (wr_iot_ra2_software_stop(pAd,pDev)<0)
++		return -1;
  
  	/* kick out all stas behind the Bss */
  	MbssKickOutStas(pAd, BssId, REASON_DISASSOC_INACTIVE);

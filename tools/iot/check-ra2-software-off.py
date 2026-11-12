@@ -58,7 +58,7 @@ opening = sources['ap/ap_mbss.c'].split('INT32 MBSS_Open(PNET_DEV pDev)', 1)[1].
 if 'RTMP_SEM_LOCK(&pAd->BcnRingLock);' in opening:
     assert opening.index('wr_iot_ra2_software_open') < opening.index('RTMP_SEM_LOCK(&pAd->BcnRingLock);')
 text = sources['ap/ap_data.c']
-begin = text.index('    if (IS_MT7603(pAd) && pAd->ApCfg.BssidNum == 3 &&')
+begin = text.index('\tif (IS_MT7603(pAd) && pAd->ApCfg.BssidNum == 3 &&')
 end = text.index('\tRTMP_QueryPacketInfo(', begin)
 admission = text[begin:end]
 prefix = r'''
@@ -190,7 +190,7 @@ with tempfile.TemporaryDirectory(prefix='wr-ra2-software-off-check-') as directo
     root = Path(directory)
     code = prefix + (here / 'ra2-software-off.h').read_text()
     code += '\nstatic int data_allowed(RTMP_ADAPTER *pAd,struct wifi_dev *wdev)\n{\n'
-    code += admission + '\nreturn 1;\n}\n' + main
+    code += admission + '\n\treturn 1;\n}\n' + main
     source, binary = root / 'check.c', root / 'check'
     source.write_text(code)
     (root / 'linux').mkdir()

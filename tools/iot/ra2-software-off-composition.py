@@ -24,7 +24,7 @@ def compose(changes, source, local):
     if opening.count(anchor) != 1:
         raise ValueError('Software OPEN restore anchor changed')
     opening = opening.replace(anchor,
-        '    if (!wr_iot_ra2_software_open(pAd,pDev)) return -1;\n\n' + anchor, 1)
+        '\tif (!wr_iot_ra2_software_open(pAd,pDev))\n\t\treturn -1;\n\n' + anchor, 1)
     text = text[:begin] + opening + text[end:]
     # Prepared open rollback must close capabilities restored before beacon
     # publication. Both predecessor layouts place this hook before their lock.
@@ -47,7 +47,7 @@ def compose(changes, source, local):
     if closing.count(anchor) != 1:
         raise ValueError('Software OFF admission anchor changed')
     closing = closing.replace(anchor, anchor +
-        '\n if (wr_iot_ra2_software_stop(pAd,pDev)<0) return -1;', 1)
+        '\n\tif (wr_iot_ra2_software_stop(pAd,pDev)<0)\n\t\treturn -1;', 1)
     result[name] = text[:begin] + closing
     name = 'ap/ap_data.c'
     text = result.get(name)
@@ -59,10 +59,10 @@ def compose(changes, source, local):
     tail = text[begin:end]
     if tail.count(anchor) != 1:
         raise ValueError('Software OFF packet admission anchor changed')
-    tail = tail.replace(anchor, '''    if (IS_MT7603(pAd) && pAd->ApCfg.BssidNum == 3 &&
-        wdev == &pAd->ApCfg.MBSSID[2].wdev &&
-        !pAd->ApCfg.MBSSID[2].bcn_buf.bBcnSntReq)
-        return FALSE;
+    tail = tail.replace(anchor, '''	if (IS_MT7603(pAd) && pAd->ApCfg.BssidNum == 3 &&
+	    wdev == &pAd->ApCfg.MBSSID[2].wdev &&
+	    !pAd->ApCfg.MBSSID[2].bcn_buf.bBcnSntReq)
+		return FALSE;
 ''' + anchor, 1)
     result[name] = text[:begin] + tail + text[end:]
     name = 'include/ra2-software-off.h'

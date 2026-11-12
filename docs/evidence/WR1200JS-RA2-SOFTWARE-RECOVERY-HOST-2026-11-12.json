@@ -17,7 +17,9 @@
     "58 existing host fixtures plus CLOSE composition and WDS capture",
     "diagnostic header OFF/ON",
     "CLOSE bundle source/ownership regression suite",
-    "exported C diff apply check against pinned SDK plus prior ra2 policy"
+    "exported C diff apply check against pinned SDK plus prior ra2 policy",
+    "read-only collector retains old and software-OFF marker families",
+    "SDK-indented next statement reproduces -Werror=misleading-indentation; corrected guards pass OFF/ON"
   ],
   "source_hashes": {
     "ap/ap.c": "307783d34cbec74860ba6bb770b88e84eb88ef3da633b1d973fd7538b4a60aad",
@@ -27,7 +29,7 @@
     "common/cmm_data.c": "8453ace194ac21304a4a4021c51c5caf2f4fb2c00db2fab87216ba5070123a03",
     "common/cmm_data_pci.c": "cce10c0bdc7ee3c8b0caaa24afb5a8207f9c497656de4830a27c022664796459"
   },
-  "patch_sha256": "5cc4503d3626e333b2f24c08bd7125359c2e9d20a7cad8e7ab744b8396455b9d",
+  "patch_sha256": "2d60f45e1497a265842781002e3ffff3ca2409ce30814692e839f11e197b6706",
   "target_compiled": false,
   "production_installed": false,
   "runtime_verified": false,
@@ -36,5 +38,40 @@
     "production RC/controller lifecycle binding",
     "full checked-close/beacon recovery and hardware traffic runtime acceptance"
   ],
-  "tradeoff": "ra2 PS-Poll pacing can wait for two existing periodic maintenance passes"
+  "tradeoff": "ra2 PS-Poll pacing can wait for two existing periodic maintenance passes",
+  "vendor_ps_pid_references": [
+    {
+      "path": "ap/ap_data.c",
+      "line": 2134,
+      "text": "pTxBlk->Pid = PID_PS_DATA;"
+    },
+    {
+      "path": "common/cmm_data.c",
+      "line": 1860,
+      "text": "PID = PID_PS_DATA;"
+    },
+    {
+      "path": "common/cmm_data_pci.c",
+      "line": 2371,
+      "text": "mac_info.PID = PID_PS_DATA;"
+    },
+    {
+      "path": "include/mac/mac_mt/mt_mac.h",
+      "line": 1517,
+      "text": "PID_PS_DATA,"
+    },
+    {
+      "path": "tx_rx/txs.c",
+      "line": 326,
+      "text": "AddTxSTypePerPkt(pAd, PID_PS_DATA, TXS_FORMAT0, PsDataTxSHandler);"
+    },
+    {
+      "path": "tx_rx/txs.c",
+      "line": 327,
+      "text": "TxSTypeCtlPerPkt(pAd, PID_PS_DATA, TXS_FORMAT0, FALSE, TRUE, FALSE, 0);"
+    }
+  ],
+  "standard_run": 43153342253,
+  "host_scratch_removed_bytes": 1621398,
+  "initial_build_revision": "be177cf704408707e27e4503c32972a9c7274a1f"
 }
