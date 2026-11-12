@@ -101,4 +101,17 @@ with tempfile.TemporaryDirectory(prefix='wr-ra2-bundle-compose-') as scratch:
     assert (output / 'include/wr-iot-beacon-producer-gate.h').read_bytes() == (here / 'beacon-producer-gate.h').read_bytes()
     assert hashes == {str(p.relative_to(source)): hashlib.sha256(p.read_bytes()).hexdigest()
                       for p in source.rglob('*') if p.is_file()}
+    helper_path = source / 'ap/ap_connect.c'
+    original_helper = helper_path.read_text()
+    helper_path.write_text(original_helper.replace('mac_info.TxSPriv = apidx;',
+                                                  'mac_info.TxSPriv = apidx; mac_info.PID = 7;', 1))
+    drift_hashes = {str(p.relative_to(source)): hashlib.sha256(p.read_bytes()).hexdigest()
+                    for p in source.rglob('*') if p.is_file()}
+    manifest['merged_driver_sha256'] = manifest['candidate_driver_sha256'] = drift_hashes
+    Path(str(source) + '.manifest.json').write_text(json.dumps(manifest))
+    refused_output = root / 'refused-pid'
+    refused = subprocess.run(['python3', '-B', str(here / 'prepare-ra2-no-host-experiment.py'),
+                              str(source), str(refused_output)], capture_output=True, text=True)
+    assert refused.returncode and 'zero-PID contract changed' in refused.stderr
+    assert not refused_output.exists()
     print('PASS nine-path source composition from actual generator fragments, output hashes and input preservation. Full driver/Kbuild verification pending.')

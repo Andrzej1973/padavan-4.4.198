@@ -73,5 +73,23 @@
     "fixture_sha256": "dd7610b5b2252cd0640e58247204d1dbb60bdbeca8eb75991416549da19127a9",
     "finding": "Actual composed MT virtual wrapper calls its inner builder only after producer acquisition and periodic readiness. Experimental readiness requires exact BssidNum3 before constructor entry. A count mismatch is refused before beacon PID allocation through this wrapper.",
     "limits": "Source-composition assertion; no hardware epoch, all-path concurrency, or reopen acceptance."
+  },
+  "constructor_preparation_gate": {
+    "file": "tools/iot/prepare-ra2-no-host-experiment.py",
+    "sha256": "135345481e688594359223d87720cdd8b7b9f1c8f21ed18e75465e0b255dd112",
+    "checks": [
+      "MT helper zero-initializes MAC_TX_INFO",
+      "q_idx is beacon queue",
+      "TxSPriv and bss_idx derive from apidx",
+      "No explicit PID assignment in helper",
+      "One expected write_tmac_info call"
+    ],
+    "regression": "Actual bundle fixture injects nonzero PID into helper, updates input hashes, confirms refusal before output creation. Normal nine-path composition passes.",
+    "scope": "Source preparation gate only; no installed lifecycle or runtime acceptance."
+  },
+  "reopen_window_check": {
+    "fixture": "tools/iot/check-ra2-beacon-dma-window.c",
+    "result": "passed ASan/UBSan",
+    "scope": "Retained DMA_DONE through producer revoke, old pin drain, new generation, stale ticket rejection, DOWN refusal and exact natural-window handoff. Device, DMA and TSF accesses injected. API owner release remains unimplemented."
   }
 }

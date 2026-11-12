@@ -29,6 +29,21 @@ if 'linux_open_api' not in manifest:
 here = Path(__file__).resolve().parent
 policy = runpy.run_path(str(here / 'ra2-beacon-no-host-status.py'))
 lower = runpy.run_path(str(here / 'ra2-beacon-no-host-submit.py'))
+# The static no-host policy relies on the MT helper's zero PID and exact BSS
+# metadata from its first invocation. Reject drift before writing any output.
+connect_input = (source / 'ap/ap_connect.c').read_text()
+constructor_start = connect_input.index('UINT32 write_tmac_info_beacon(')
+constructor_end = connect_input.index('\n}', constructor_start) + 2
+constructor = connect_input[constructor_start:constructor_end]
+required_metadata = (
+    'NdisZeroMemory((UCHAR *)&mac_info, sizeof(mac_info));',
+    'mac_info.q_idx = Q_IDX_BCN;',
+    'mac_info.TxSPriv = apidx;',
+    'mac_info.bss_idx = apidx;',
+    'write_tmac_info(pAd, tmac_buf, &mac_info, BeaconTransmit);',
+)
+if any(constructor.count(item) != 1 for item in required_metadata) or 'mac_info.PID' in constructor:
+    parser.error('MT beacon helper identity or zero-PID contract changed')
 changes = {}
 changes['mac/mt_mac.c'] = policy['compose']((source / 'mac/mt_mac.c').read_text())
 changes['tx_rx/txs.c'] = policy['compose_callback']((source / 'tx_rx/txs.c').read_text())

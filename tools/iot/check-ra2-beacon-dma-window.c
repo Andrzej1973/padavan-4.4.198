@@ -91,6 +91,40 @@ int main(void)
   assert(!wr_iot_ra2_beacon_prepare_next(&ad,&ticket,now,dma,txs));
   assert(!memcmp(&before,&ad,sizeof(ad)));
  }
+ /* A retained DMA_DONE buffer can pass through a closed producer generation
+  * and wait for the next natural window after the caller reopens admission.
+  * This models gate/pacing only, not the API CLOSE-owner release operation. */
+ {
+  RTMP_ADAPTER ad={.chip=0x7603,.CommonCfg.BeaconPeriod=100,.ApCfg.BssidNum=3};
+  struct device dev={1};
+  struct wr_iot_beacon_producer_ticket old={0},next={0};
+  struct wr_iot_beacon_producer_gate *gate=&ad.wr_iot_beacon_gates[2];
+  ad.ApCfg.MBSSID[2].wdev.if_dev=&dev;
+  ad.ApCfg.MBSSID[2].bcn_buf.bBcnSntReq=1;
+  ad.ApCfg.MBSSID[2].bcn_buf.bcn_state=BCN_TX_DMA_DONE;
+  ad.ApCfg.MBSSID[2].WriteBcnDoneTime[0]=1000;
+  dma_result=txs_result=revoke_on_snapshot=0;
+  assert(wr_iot_beacon_gate_open(gate,1));
+  assert(wr_iot_beacon_gate_begin(gate,1,&old));
+  assert(wr_iot_beacon_gate_revoke(gate,1));
+  assert(!wr_iot_beacon_gate_open(gate,2));
+  assert(wr_iot_beacon_gate_end(gate,&old));
+  dev.running=0;ad.ApCfg.MBSSID[2].bcn_buf.bBcnSntReq=0;
+  assert(wr_iot_beacon_gate_drained(gate,1));
+  assert(wr_iot_beacon_gate_open(gate,2));
+  assert(wr_iot_beacon_gate_begin(gate,2,&next));
+  assert(!wr_iot_beacon_gate_submit(gate,&old));
+  tsf=103400;
+  assert(!wr_iot_bcn_periodic_ready(&ad,2,&next));
+  dev.running=1;ad.ApCfg.MBSSID[2].bcn_buf.bBcnSntReq=1;
+  tsf=103399;
+  assert(!wr_iot_bcn_periodic_ready(&ad,2,&next));
+  assert(ad.ApCfg.MBSSID[2].bcn_buf.bcn_state==BCN_TX_DMA_DONE);
+  tsf=103400;
+  assert(wr_iot_bcn_periodic_ready(&ad,2,&next));
+  assert(ad.ApCfg.MBSSID[2].bcn_buf.bcn_state==BCN_TX_IDLE);
+  assert(wr_iot_beacon_gate_end(gate,&next));
+ }
  puts("PASS unbound ra2 pacing: DMA/TxS unknowns, exact period, TSF wrap/backward ambiguity, exclusive producer and revoke; no RF or epoch proof");
  return 0;
 }
