@@ -65,6 +65,17 @@ Evidence: ../evidence/WR1200JS-IOT-OPTIONAL1018-TARGET-2026-11-11.json,
 ../evidence/WR1200JS-UBUNTU24-OPTIONAL1028-2026-11-11.json,
 ../evidence/WR1200JS-BUILD1029-GUIDE-FAILURE-2026-11-11.json.
 
+## LE telemetry target checkpoint — 2026-11-12
+
+Standard1033/43136969650 succeeded for89def54; actual TRX independently
+passed CRC/size/product/MIPS/HNAT checks. Optional1034/43147103108 succeeded
+for that exact source. Actual artifact13912579138 five MIPS modules match
+final reports. New LE/TIM marker is present in PSM ON module and txs.o,
+absent in OFF module and txs.o; object/command hashes and flags verified.
+Evidence WR1200JS-IMAGE1033-2026-11-12.json and
+WR1200JS-IOT-OPTIONAL1034-TARGET-2026-11-12.json. Production binding,
+per-BSS safe OFF/reopen and physical runtime remain open.
+
 ## Next gates
 
 1. Standard1030 image and optional1031 target artifacts for0e36777 are

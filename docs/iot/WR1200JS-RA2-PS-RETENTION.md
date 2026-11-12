@@ -100,5 +100,10 @@ The exact incremental C diff is
 and its diagnostic header at source0705458. Apply via the repository generators
 for builds. The exported diff supports source review and applies to that
 prepared base. ASan/UBSan host tests cover diagnostic OFF/ON, LE/non-LE,
-NULL inputs, Main/Guest and invalid station states. Target verification for
-this new change is pending.
+NULL inputs, Main/Guest and invalid station states. Optional1034/43147103108
+for89def54 succeeded on Ubuntu24. Actual artifact13912579138 five MIPS
+modules match final reports. The new marker is present in diagnostic ON
+module and txs.o, absent in OFF module and txs.o; compiler-command/object
+hashes and WR_IOT_PSM_DIAG flags match the reports. This verifies target
+compilation of the diagnostic change. Physical lifetime/runtime acceptance
+remains open. Evidence ../evidence/WR1200JS-IOT-OPTIONAL1034-TARGET-2026-11-12.json.
