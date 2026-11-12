@@ -1,0 +1,129 @@
+{
+  "scope": "Unbound source experiment, not installed in peer82 or production",
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "implementation": "tools/iot/ra2-beacon-no-host-status.py",
+  "verification": "tools/iot/check-ra2-beacon-no-host-status.py",
+  "evidence": [
+    "Extracted four exact pinned files into temporary directory; existing hash-checked TxS preparer generated the checked constructor",
+    "Compiled actual transformed TYPE1 branch with injected allocator under GCC ASan/UBSan",
+    "300 repetitions of11 cases passed: exact ra2 no allocation/host status; Main, Guest, scope mismatches and allocator failure preserved",
+    "Reversing the sole policy condition reproduces the original source byte-for-byte",
+    "Already-composed and changed constructors rejected; existing global host-status OFF remains OFF with no allocation"
+  ],
+  "unchanged": [
+    "TYPE0 and data constructor branches",
+    "MCU ACK protection and MCU-directed status",
+    "Tracked zero-generation submission refusal",
+    "DMA descriptor release ownership",
+    "Production and peer82 preparation pipelines"
+  ],
+  "not_proven": [
+    "Reservation-free natural-window pacing",
+    "Mapped buffer lifecycle through repeated OFF/reopen",
+    "Safe acceptance of late prior tracked reports",
+    "MIPS target compilation",
+    "Physical runtime"
+  ],
+  "next": "Use existing attempted-update TSF timestamp for conservative rate limiting only. Keep independent DMA ownership checks and producer identity. Verify timestamp slot lifetime without TxS timer_loop advancement, 32-bit wrap/reset behavior and actual periodic call sites before binding reservation-free mode.",
+  "production_installed": false,
+  "target_verified": false,
+  "runtime_verified": false,
+  "scratch": "Temporary pinned inputs, generated checked files and ASan binaries removed automatically; no artifact archive retained",
+  "pacing_source_findings": [
+    {
+      "file": "ap/ap_connect.c",
+      "line": 1730,
+      "finding": "Existing update path records TSF Lowpart into WriteBcnDoneTime[timer_loop] after RT28xx_UpdateBeaconToAsic. The call result is not checked here, so this is an attempted-update timestamp, not a successful DMA/RF receipt."
+    },
+    {
+      "file": "hw_ctrl/cmm_asic_mt.c",
+      "line": 1295,
+      "finding": "Existing recovery subtracts that timestamp from TSF Lowpart and refuses repeated updates inside BeaconPeriod*1024 microseconds."
+    }
+  ],
+  "unbound_pacing_component": {
+    "file": "tools/iot/ra2-beacon-dma-window.h",
+    "fixture": "tools/iot/check-ra2-beacon-dma-window.c",
+    "checks": "17 GCC ASan/UBSan cases; exact period boundary, DMA/TxS pending and unknown, layout/slot bounds, exclusive generation-owned producer, revoke, ordinary TSF wrap, backward/half-range refusal; predicate leaves adapter byte-identical",
+    "limits": "Caller must establish a reservation-free epoch independently, pin producer and hold BcnRingLock. No state transition, packet release, descriptor publication or RF retirement is implemented by this predicate.",
+    "state_handoff": "wr_iot_ra2_beacon_prepare_next changes only bcn_state DMA_DONE->IDLE after pacing/producer/snapshot predicate; no packet, ring-cell, TIM or timestamp write. Remains unbound and requires separately established reservation-free epoch and caller radio/lifetime admission.",
+    "transition_checks": "17 ASan/UBSan cases additionally execute handoff, compare entire modeled adapter except expected state, and reject repeated handoff without another DMA_DONE publication."
+  },
+  "periodic_composition": {
+    "file": "tools/iot/ra2-beacon-periodic-experiment.inc",
+    "composer": "compose_periodic in ra2-beacon-no-host-status.py",
+    "host_verification": [
+      "Actual producer header transformations replayed from prepare-driver-api AST; new periodic function composed once, repeated compose rejected",
+      "Actual experimental C function compiled by DMA-window fixture with ASan/UBSan",
+      "17 cases plus revoke-during-DMA-snapshot and Guest bypass pass; no lock spans snapshot/MMIO helper"
+    ],
+    "binding": "None; tracked lower submit guard, production and peer82 unchanged",
+    "remaining": "Cold reservation-free mode, prior tracked report handling, descriptor validation at lower submission, owner release/reopen and MIPS/runtime verification"
+  },
+  "descriptor_validator": {
+    "file": "tools/iot/ra2-beacon-no-host-txd.h",
+    "test": "tools/iot/check-ra2-beacon-no-host-txd.py",
+    "verification": "GCC ASan/UBSan with actual pinned vendor little-endian TXD0..7 bitfields, long structure and constants.14 scope/status cases, unaligned input and every truncated length pass. Full DWORD4 pn_low uses single shared declaration.",
+    "predicate": "Long LMAC beacon queue, own_mac0x12/WCID0/no-ACK/normal80211 management beacon, broadcast, host TxS0/MCU TxS0/PID0",
+    "limitations": "Descriptor format only; caller must prove packet identity, readable length, producer generation, DMA ownership and cold epoch. No tracked guard bypass or driver binding."
+  },
+  "packet_predicate": {
+    "file": "tools/iot/ra2-beacon-no-host-packet.h",
+    "verification": "Actual descriptor fixture additionally passes11 injected packet/producer cases under ASan/UBSan: foreign packet pointer rejected before dereference, stale ticket, shared producer, length/data mismatch, beacon OFF, DMA busy/unknown, non-IDLE, revoked gate. Adapter and TXD unchanged.",
+    "requirements": "Caller holds BcnRingLock and adapter/netdev lifetime, carries actual original builder ticket and obtains DMA snapshot under that exclusive producer; readable live skb reference still comes from SDK owner. Do not synthesize ticket from gate.",
+    "binding": "Not installed. Existing lower submit ABI does not yet carry original builder ticket; preserve tracked guard until it does. No cold-epoch or RF proof."
+  },
+  "builder_ticket_abi": {
+    "composer": "compose_builder_ticket in ra2-beacon-no-host-status.py",
+    "test": "tools/iot/check-ra2-beacon-builder-ticket.py",
+    "behavior": "Actual wrapper ticket pointer reaches inner builder; original ticket copied into existing CPU-only WR_BCN_TXS_RESERVATION passed by value. Main fallback passesNULL; no gate-derived ticket. Firmware TXD layout unchanged.",
+    "verification": "ASan/UBSan uses actual wrapper, API transformations and reservation declaration extracted from generator AST. Injected inner body verifies original identity survives producer-end, Main zero metadata, Guest and invalid-index refusal. Repeated ABI composition rejected.",
+    "limits": "Full vendor inner body, final prepared module and all downstream ABI consumers still require target verification. Mode and guard bypass remain unbound."
+  },
+  "lower_submit_composition": {
+    "file": "tools/iot/ra2-beacon-no-host-submit.py",
+    "test": "tools/iot/check-ra2-beacon-no-host-submit.py --archive <exact-pinned-sdk.tar>",
+    "source": "Actual pinned lower function transformed by existing checked kickout/reservation/publication generators, then experiment composer",
+    "behavior": "Requires original producer metadata and zero PID/generation; DMA snapshot outside BcnRingLock; packet validator under lock before HAL; original ring/full/HAL failure and unsubmitted rollback retained. Guest path unchanged.",
+    "verification": "GCC ASan/UBSan8 lower-flow cases plus Guest bypass; packet validator and DMA/HAL injected. Separate actual-bitfield packet validator fixture covers its decode and ownership predicates. Repeat composition refused.",
+    "limitations": "Not installed in peer82 or production. Full composed module/cold epoch/callback lifecycle/reopen remain unverified; no authorization to install this fragment alone."
+  },
+  "callback_policy": {
+    "composer": "compose_callback in ra2-beacon-no-host-status.py",
+    "test": "tools/iot/check-ra2-beacon-no-host-callback.py",
+    "verification": "Actual hash-checked staged vendor callback compiled with ASan/UBSan, DBG off/on. Three repeated reports for exact MT7603/3BSS/ra2 do not alter any BSS field. Main/Guest, other chip, STOP and out-of-range behavior preserved. Repeat composition rejected.",
+    "scope": "Reject BSS state/timer/diagnostic-slot mutation only; shared parser PID matching and claim retirement untouched.",
+    "limitations": "Does not prove cold epoch or fix PID aliasing; constructor/pacing/ticket/lower/callback must be composed and target-built together. Not installed."
+  },
+  "periodic_idle_admission": {
+    "correction": "Require current ra2 if_dev, running interface and beacon request before either IDLE admission or DMA_DONE transition",
+    "verification": "20 ASan/UBSan pacing cases, including IDLE plus down/null interface or beacon request off, pass",
+    "status": "Local experimental source, complete bundle and target verification pending"
+  },
+  "bundle_composition": {
+    "test": "tools/iot/check-ra2-no-host-bundle.py --archive <pinned-archive>",
+    "verification": "Passed nine-path composition using actual pinned source, checked TxS preparation, lower submit predecessor, producer wrapper and API producer transforms. Output hashes equal both manifest maps. Input source hashes preserved.",
+    "scope": "Relevant source-fragment integration. Full final driver dependency closure and MIPS Kbuild remain pending.",
+    "temporary_outputs": "Removed automatically"
+  },
+  "target_unit_runner": {
+    "file": "tools/iot/check-ra2-no-host-target-units.py",
+    "units": [
+      "mac/mt_mac.c",
+      "tx_rx/txs.c",
+      "ap/ap_connect.c",
+      "common/cmm_mac_pci.c"
+    ],
+    "checks": "Manifest input identity, recorded Kbuild compiler/source identity, experimental source/include remapping, ELF32 LE MIPS outputs, saved objects/logs/commands and kernel configuration identity",
+    "local_verification": "Python syntax and invalid-source rejection/report fixture pass",
+    "execution": "Actual MIPS execution pending recorded Kbuild .cmd files and full candidate tree"
+  },
+  "ci_integration": {
+    "workflow_path": "tools/iot/ci-compile-merged-candidate.sh",
+    "placement": "peer82 optional after baseline module report, before feature variants",
+    "execution": "Separate experiment source tree plus four target TUs using original Kbuild commands",
+    "local_package_checks": "Nine-path composition, builder ticket, constructor branch, DBG on/off callback, actual TXD fields/packet predicate,20 pacing cases and lower submit C replay pass. Bash syntax and whitespace pass.",
+    "target_verified": false,
+    "runtime_verified": false
+  }
+}

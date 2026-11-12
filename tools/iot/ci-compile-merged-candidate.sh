@@ -567,6 +567,19 @@ if sys.argv[2] == 'peer82':
     json.dumps(report, indent=2) + '\n', encoding='utf-8')
 PY
 if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
+  experiment="$RUNNER_TEMP/wr1200js-ra2-no-host-experiment"
+  python3 tools/iot/prepare-ra2-no-host-experiment.py "$merged" "$experiment"
+  cp "$experiment.manifest.json" "$results/ra2-no-host-source-manifest.json"
+  python3 tools/iot/check-ra2-beacon-no-host-status.py "$driver/mac/mt_mac.c" \
+    > "$results/ra2-no-host-policy.txt"
+  python3 tools/iot/check-ra2-beacon-no-host-txd.py "$driver/include/mac/mac_mt/mt_mac.h" \
+    > "$results/ra2-no-host-txd.txt"
+  python3 tools/iot/check-ra2-beacon-no-host-callback.py "$driver" \
+    > "$results/ra2-no-host-callback.txt"
+  python3 tools/iot/check-ra2-beacon-builder-ticket.py > "$results/ra2-no-host-ticket.txt"
+  python3 tools/iot/check-ra2-no-host-target-units.py \
+    --kernel "$kernel" --driver "$driver" --experiment "$experiment" \
+    --compiler "$compiler" --output "$results/ra2-no-host-target"
   bash tools/iot/ci-compile-wsc-feature.sh "$kernel" "$compiler" "$results/wsc-feature"
   bash tools/iot/ci-compile-reload-feature.sh "$kernel" "$compiler" "$results/reload-feature"
   bash tools/iot/ci-compile-psm-diagnostics.sh "$kernel" "$compiler" "$results/psm-diagnostics"
