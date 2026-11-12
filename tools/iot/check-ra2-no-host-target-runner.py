@@ -3,6 +3,7 @@
 import ast
 import hashlib
 import json
+import shlex
 from pathlib import Path
 import shutil
 import subprocess
@@ -54,4 +55,40 @@ with tempfile.TemporaryDirectory(prefix='wr-ra2-target-runner-') as scratch:
         assert result.returncode and expected in report['error'] and not report['units']
         assert (kernel / '.config').read_bytes() == config
     assert (output / 'mac_mt_mac.c.macros.txt').is_file()
+    dependency_function = next(node for node in tree.body if isinstance(node, ast.FunctionDef)
+                               and node.name == 'verify_dependencies')
+    dependency_namespace = {'Path': Path, 'shlex': shlex, 'hashlib': hashlib}
+    exec(compile(ast.Module(body=[dependency_function], type_ignores=[]),
+                 'actual-dependency-check', 'exec'), dependency_namespace)
+    verify = dependency_namespace['verify_dependencies']
+    text = 'object.o: ' + str(experiment / 'mac/mt_mac.c') + '\\\n ' + str(kernel / '.config') + '\n'
+    assert verify(text, kernel, driver, experiment, hashes) == hashes
+    # Exercise GCC's actual dependency syntax alongside explicit refusal cases.
+    header = experiment / 'mac/local.h'
+    header.write_text('#define EXPERIMENT_VALUE 7\n')
+    unit = experiment / 'mac/mt_mac.c'
+    unit.write_text('#include "local.h"\nint experimental = EXPERIMENT_VALUE;\n')
+    real_hashes = {str(path.relative_to(experiment)): hashlib.sha256(path.read_bytes()).hexdigest()
+                   for path in (unit, header)}
+    dependency_file = root / 'actual.d'
+    subprocess.run([str(compiler), '-MD', '-MF', str(dependency_file), '-c',
+                    str(unit), '-o', str(root / 'host-test.o')], check=True, timeout=30)
+    assert verify(dependency_file.read_text(), kernel, driver, experiment, real_hashes) == real_hashes
+    unit.write_text('int experimental;\n')
+    for invalid, expected_error in (
+            ('object.o: ' + str(driver / 'mac/mt_mac.c'), 'Baseline driver dependency'),
+            ('object.o: ' + str(kernel / '.config'), 'No experimental dependencies')):
+        try:
+            verify(invalid, kernel, driver, experiment, hashes)
+        except RuntimeError as error:
+            assert expected_error in str(error)
+        else:
+            raise AssertionError('Invalid dependency input accepted')
+    (experiment / 'mac/mt_mac.c').write_text('changed after snapshot\n')
+    try:
+        verify(text, kernel, driver, experiment, hashes)
+    except RuntimeError as error:
+        assert 'differs from manifest' in str(error)
+    else:
+        raise AssertionError('Changed compiler input accepted')
 print('PASS target runner root/nested include mapping, manifest refusal and actual excluded-branch preprocessing refusal')

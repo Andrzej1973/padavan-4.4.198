@@ -23,6 +23,29 @@ def remap_driver_argument(value, driver, relative_driver, experiment):
     return value
 
 
+def verify_dependencies(text, kernel, driver, experiment, expected):
+    """Hash experimental inputs actually read by the compiler."""
+    flat = text.replace('\\\n', ' ')
+    if ': ' not in flat:
+        raise RuntimeError('Missing compiler dependency target')
+    inputs = shlex.split(flat.split(': ', 1)[1])
+    verified = {}
+    for name in inputs:
+        path = Path(name)
+        path = (path if path.is_absolute() else kernel / path).resolve()
+        if path.is_relative_to(driver):
+            raise RuntimeError('Baseline driver dependency used by experiment')
+        if path.is_relative_to(experiment):
+            relative = str(path.relative_to(experiment))
+            digest = hashlib.sha256(path.read_bytes()).hexdigest()
+            if expected.get(relative) != digest:
+                raise RuntimeError('Experimental dependency differs from manifest')
+            verified[relative] = digest
+    if not verified:
+        raise RuntimeError('No experimental dependencies recorded')
+    return verified
+
+
 parser = argparse.ArgumentParser(description=__doc__)
 for name in ('kernel', 'driver', 'experiment', 'compiler', 'output'):
     parser.add_argument('--' + name, type=Path, required=True)
@@ -94,18 +117,22 @@ try:
             if not all(effective.values()):
                 raise RuntimeError('Experimental MT7603 PCI AP branches excluded for ' + unit)
             obj = Path(scratch) / (Path(unit).stem + '.o')
-            command = [str(compiler), *filtered, '-c', '-o', str(obj)]
+            dependencies = args.output.resolve() / (label + '.d')
+            command = [str(compiler), *filtered, '-MD', '-MF', str(dependencies), '-c', '-o', str(obj)]
             result = subprocess.run(command, cwd=kernel, capture_output=True, text=True, timeout=180)
             (args.output / (label + '.log')).write_text(result.stdout + result.stderr)
             if result.returncode:
                 raise RuntimeError('Compilation failed for ' + unit)
+            verified_dependencies = verify_dependencies(dependencies.read_text(), kernel, driver,
+                                                        experiment, actual)
             data = obj.read_bytes()
             if data[:6] != b'\x7fELF\x01\x01' or int.from_bytes(data[18:20], 'little') != 8:
                 raise RuntimeError('Expected ELF32 little-endian MIPS for ' + unit)
             shutil.copyfile(obj, args.output / (label + '.o'))
             report['units'][unit] = {'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest(),
                                      'command': command, 'effective_macros': effective,
-                                     'macro_sha256': hashlib.sha256(macros.stdout.encode()).hexdigest()}
+                                     'macro_sha256': hashlib.sha256(macros.stdout.encode()).hexdigest(),
+                                     'verified_dependencies': verified_dependencies}
     if (kernel / '.config').read_bytes() != config:
         raise RuntimeError('Kernel configuration changed')
     report['status'] = 'passed'
