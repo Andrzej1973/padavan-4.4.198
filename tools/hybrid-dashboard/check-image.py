@@ -9,7 +9,8 @@ parser.add_argument('source', type=Path)
 args = parser.parse_args()
 here = Path(__file__).resolve().parent
 www = args.source / 'trunk/romfs/www'
-assets = ('index.html', 'dashboard.css', 'dashboard.js')
+assets = ('index.html', 'dashboard.css', 'dashboard.js',
+          'iot-status.html', 'iot-status.css', 'iot-status.js')
 classic = ('index.asp', 'system_status_data.asp', 'status_wanlink.asp',
            'status_lanlink.asp', 'device-map/internet.asp', 'device-map/intranet.asp',
            'device-map/clients.asp', 'Main_WStatus2g_Content.asp',

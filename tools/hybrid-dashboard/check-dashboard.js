@@ -70,5 +70,9 @@ async function flush() { await new Promise((resolve) => setImmediate(resolve)); 
   responses.push(reply("function wanlink_status() { return 0;}"));
   await timers[1]();
   assert.equal(elements.wan.textContent, "Підключено");
+  for (const fixture of ["check-iot-status.js", "check-iot-status-dom.js"]) {
+    require("node:child_process").execFileSync(process.execPath,
+      [require("node:path").join(__dirname, fixture)], { stdio: "inherit", timeout: 15000 });
+  }
   console.log("PASS hybrid status parsing, CPU deltas, invalid and unavailable responses");
 })().catch((error) => { console.error(error); process.exitCode = 1; });

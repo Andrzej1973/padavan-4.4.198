@@ -21,3 +21,15 @@ backend rejects the Linux workspace URI, so the Edge executable was used.
 Firmware inclusion, browser telemetry on real ASP responses, authentication,
 per-interface counts, complete service dashboard and hardware acceptance
 remain pending. The local workflow edits have not yet been published.
+
+
+The local shared monitor is `iot-status.html`, with 2.4 GHz main/IoT and5 GHz
+main observations from the existing `/wr_devices.json` endpoint. Run
+`node tools/hybrid-dashboard/check-iot-status.js` for snapshot attribution and
+`node tools/hybrid-dashboard/check-iot-status-dom.js` for the actual controller
+with injected DOM/fetch. The latter covers filters/search, stale clearing,
+retry, duplicate request refusal and back-cache resume. Actual Edge1536/390
+fixture rendering passed before the back-cache correction; evidence and its
+limits are in docs/evidence/WR1200JS-HYBRID-MONITOR-BROWSER-2026-11-12.json.
+SSID/radio state/PSM and embedded log telemetry remain unavailable. Target
+image and router acceptance for the monitor are pending.

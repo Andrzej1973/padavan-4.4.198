@@ -13,7 +13,8 @@ makefile = www / 'Makefile'
 classic = www / 'n56u_ribbon_fixed'
 target = www / 'hybrid'
 here = Path(__file__).resolve().parent
-assets = ('index.html', 'dashboard.css', 'dashboard.js')
+assets = ('index.html', 'dashboard.css', 'dashboard.js',
+          'iot-status.html', 'iot-status.css', 'iot-status.js')
 anchor = '\tcp -R $(WEBUI_NAME) $(ROMFS_DIR)/www\n'
 copy = '\tcp -R hybrid $(ROMFS_DIR)/www/hybrid\n'
 if not classic.is_dir() or not makefile.is_file():

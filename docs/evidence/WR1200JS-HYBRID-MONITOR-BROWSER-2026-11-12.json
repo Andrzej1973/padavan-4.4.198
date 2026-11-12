@@ -1,0 +1,52 @@
+{
+  "scope": "Actual Edge CDP at1536 and390 CSS pixels with local fixtures only",
+  "report": [
+    {
+      "metrics": {
+        "width": 1536,
+        "documentWidth": 1536,
+        "clientWidth": 1536,
+        "rows": 3,
+        "cards": 3,
+        "injectedImages": 0,
+        "text": "<img src=x onerror=alert(1)>Основна 2,4 ГГц192.168.1.200:11:22:33:44:55-55Немає даних<img src=x onerror=alert(1)>Основна 5 ГГц192.168.1.200:11:22:33:44:55-60Немає данихSensor fixtureIoT 2,4 ГГц—00:11:22:33:44:66-70Немає даних",
+        "status": "Поточний знімок спостережених Wi-Fi клієнтів."
+      },
+      "requestedWidth": 1536,
+      "screenshot_sha256": "f1dad5e576449943e196b09610b0b9adbf1c391852ed76a20747ab0bd53d84c0"
+    },
+    {
+      "metrics": {
+        "width": 390,
+        "documentWidth": 390,
+        "clientWidth": 390,
+        "rows": 3,
+        "cards": 3,
+        "injectedImages": 0,
+        "text": "<img src=x onerror=alert(1)>Основна 2,4 ГГц192.168.1.200:11:22:33:44:55-55Немає даних<img src=x onerror=alert(1)>Основна 5 ГГц192.168.1.200:11:22:33:44:55-60Немає данихSensor fixtureIoT 2,4 ГГц—00:11:22:33:44:66-70Немає даних",
+        "status": "Поточний знімок спостережених Wi-Fi клієнтів."
+      },
+      "requestedWidth": 390,
+      "screenshot_sha256": "d652c7ce685052c688fc487ebc8e8ae02dfcee0b49427fe49ffd3a14019b97ce"
+    }
+  ],
+  "runtime_verified": false,
+  "visual_inspection": "Desktop1536 and mobile390 inspected. Three cards, responsive stacked mobile layout, table scroll confined to its container. Hostile hostname visibly remains literal text.",
+  "limits": [
+    "Fixture responses only",
+    "Filter/error/retry interactions not exercised in this browser pass",
+    "SSID/radio state/PSM/log telemetry unavailable",
+    "Firmware integration and router runtime unverified"
+  ],
+  "cleanup": {
+    "screenshots_removed_bytes": 145160,
+    "profile_removed": true
+  },
+  "subsequent_host_checks": {
+    "fixture": "tools/hybrid-dashboard/check-iot-status-dom.js",
+    "fixture_sha256": "ddb14eda709aa31591c124f35a6f61111f8639aea1c6f9ee994f7bb4d3c5bc76",
+    "result": "passed",
+    "scope": "Actual JS with injected DOM/fetch exercises filters/search, stale-result clearing, retry, one request at a time and pagehide/pageshow back-cache restoration.",
+    "change": "Restored polling after persisted pageshow. Earlier screenshot pass predates this lifecycle correction."
+  }
+}
