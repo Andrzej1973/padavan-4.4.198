@@ -336,6 +336,7 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   python3 tools/iot/check-open-current-composition.py > "$results/open-current-composition.txt"
   python3 tools/iot/check-close-bundle-assets.py
   python3 tools/iot/prepare-driver-api.py "$merged" --install-isolated
+  python3 tools/iot/check-close-dispatch-composition.py --driver "$merged" > "$results/close-dispatch-composition.txt"
   python3 tools/iot/check-ra2-ps-retain.py --driver "$merged" > "$results/ra2-ps-retain.txt"
   python3 tools/iot/check-ra2-software-off.py --driver "$merged" > "$results/ra2-software-off.txt"
   python3 tools/iot/check-driver-api-transition.py "$results/pre-linux-api-radio-transition.h" "$merged" > "$results/linux-api-transition.txt"

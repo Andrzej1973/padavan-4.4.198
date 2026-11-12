@@ -1,9 +1,9 @@
-/* Proposed synchronous Linux CLOSE entry. Common ioctl has already checked
+/* Isolated candidate synchronous Linux CLOSE entry. Common ioctl has already checked
  * RTNL, CAP_NET_ADMIN, MT7603 and copied the fixed 64-byte request. Strong
  * enter/finish bindings must retain adapter/netdev and recovery ownership.
  * No generic success fallback. A successful result is checked reference
  * closure only; never RF/isolation acceptance. Do not automatically retry. */
-/* Intentionally unbound until lifecycle acceptance; keep ordinary TU strict. */
+/* Standalone probes also compile this entry without a common dispatcher. */
 static INT __attribute__((unused)) wr_iot_driver_close_reply(RTMP_ADAPTER *ad,PNET_DEV dev,
  struct ifreq *rq,unsigned char *wire)
 {

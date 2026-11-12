@@ -3,6 +3,7 @@
 #include <net/if.h>
 #include <unistd.h>
 #include <string.h>
+#include <errno.h>
 #include "driver-api-client.h"
 int wr_iot_driver_identity_read(struct wr_iot_driver_identity *out,const unsigned char *id)
 {
@@ -169,4 +170,36 @@ int wr_iot_driver_open_current_read(const struct wr_iot_driver_attempt *attempt,
  if(result||closed)return 0;
  return wr_iot_driver_open_current_decode(out,attempt->request_id,
    attempt->identity.adapter_epoch,attempt->identity.device_generation,wire,sizeof(wire));
+}
+
+/* The operation result covers the kernel call only. Keep the original OPEN
+ * identity and network isolation until the controller completes recovery. */
+static enum wr_iot_driver_close_submit_result wr_iot_driver_close_exchange(
+ const struct wr_iot_driver_close_request *input,int progress)
+{
+ struct ifreq request={0};unsigned char wire[WR_IOT_DRIVER_CLOSE_REQUEST_BYTES];
+ int fd,result,closed,saved_error;
+ if(!(progress?wr_iot_driver_close_progress_encode(wire,sizeof(wire),input):
+                wr_iot_driver_close_request_encode(wire,sizeof(wire),input)))
+  return WR_IOT_DRIVER_CLOSE_NOT_SUBMITTED;
+ fd=socket(AF_INET,SOCK_DGRAM|SOCK_CLOEXEC,0);
+ if(fd<0)return WR_IOT_DRIVER_CLOSE_NOT_SUBMITTED;
+ memcpy(request.ifr_name,"ra2",4);request.ifr_data=(char *)wire;
+ result=ioctl(fd,WR_IOT_DRIVER_IOCTL_CLOSED_CONFIG,&request);
+ saved_error=errno;closed=close(fd);
+ if(closed)return WR_IOT_DRIVER_CLOSE_UNCERTAIN;
+ if(!result)return WR_IOT_DRIVER_CLOSE_CALL_COMPLETED;
+ if(progress&&(saved_error==EAGAIN||saved_error==EINPROGRESS))
+  return WR_IOT_DRIVER_CLOSE_PENDING;
+ return WR_IOT_DRIVER_CLOSE_UNCERTAIN;
+}
+enum wr_iot_driver_close_submit_result wr_iot_driver_close_submit(
+ const struct wr_iot_driver_close_request *input)
+{
+ return wr_iot_driver_close_exchange(input,0);
+}
+enum wr_iot_driver_close_submit_result wr_iot_driver_close_progress_submit(
+ const struct wr_iot_driver_close_request *input)
+{
+ return wr_iot_driver_close_exchange(input,1);
 }

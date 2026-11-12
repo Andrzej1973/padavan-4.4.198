@@ -1,4 +1,4 @@
-/* Proposed Linux-only CLOSE request, not an installed ioctl or response.
+/* Linux-only CLOSE request for isolated candidate operation10.
  * Carries original successful OPEN identity only, never SSID/password.
  * Syntax acceptance cannot authorize mutation, retry or isolation release. */
 #ifndef WR_IOT_DRIVER_API_CLOSE_WIRE_H

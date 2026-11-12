@@ -2,8 +2,8 @@
  * throughout entry. Successful reservation installs the existing active-owner
  * adapter fence, plus a distinct netdev/module hold retained across dev_close.
  * These are EXTRA holds, not the original open's module ownership. No release
- * is allowed on reference-only completion. Not installed until retirement and
- * recovery ownership transfer are implemented and verified. */
+ * is allowed on reference-only completion. The isolated candidate dispatcher
+ * uses the checked retirement and recovery ownership-transfer bindings. */
 static INT wr_iot_driver_close_request_enter(RTMP_ADAPTER *ad,PNET_DEV dev,
  const struct wr_iot_driver_close_request *request,const void *task)
 {

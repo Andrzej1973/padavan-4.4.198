@@ -1,6 +1,6 @@
-/* Compile-only fixed retirement body. API active fence intentionally remains:
+/* Fixed retirement body for the isolated candidate. API active fence remains:
  * lifetime-reference retirement is not RF/FIFO/late-TxS or reopen proof.
- * No production route installs or starts this body yet.
+ * Candidate progress can launch this body after checked ownership readiness.
  * Linux 4.4 direct do_exit completes kthread_stop via exit_mm/mm_release;
  * completion is not task deallocation. Do not kthread_stop a started instance
  * while holding RTNL: this body acquires RTNL itself. Only never-woken task

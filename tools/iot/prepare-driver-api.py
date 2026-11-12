@@ -160,9 +160,10 @@ s='#include "precreated-key-match.h"\n'+s
 changes[name]=s
 for n in ('driver-api-close-join.h','driver-api-close-wire.h','driver-api-open-current-wire.h','driver-api-open-current.h','driver-api-open-current-entry.inc','driver-api-close-admission.h','driver-api-close-owner.h','driver-api-close-binding.inc','beacon-filter-owner.h','beacon-filter-owner-kernel.h','driver-api-owner.h','driver-api-wire.h','driver-api-owner-binding.inc','driver-api-open-entry.inc','driver-api-identity.inc','radio-transition-api.h','mbss-close-receipt.h','mbss-closed-probe.h','mt7603-closed-observe.h','mt7603-closed-probe-binding.inc','driver-api-closed-entry.inc'):
  changes['include/'+n]=(local/n).read_text()
-# Compile staged CLOSE/progress helpers in the actual isolated driver TU.
-# No operation10/13 dispatch is enabled by this include-only integration.
+# Bind existing CLOSE/progress helpers in the isolated driver TU.
+# Common dispatch retains RTNL/capability, fixed-copy and exact third-BSS checks.
 changes=runpy.run_path(str(local/'close-bundle-assets.py'))['integrate'](changes,src,local,main)
+changes['include/driver-api-closed-entry.inc']=runpy.run_path(str(local/'close-dispatch-composition.py'))['compose'](changes['include/driver-api-closed-entry.inc'])
 # Reuse existing privileged, RTNL-checked 64-byte observation transport.
 compose_open_current=runpy.run_path(str(local/'open-current-composition.py'))['compose']
 changes['include/driver-api-closed-entry.inc']=compose_open_current(changes['include/driver-api-closed-entry.inc'])

@@ -1,4 +1,4 @@
-/* Staged Linux-only progress operation, not a wire opcode or installed ioctl.
+/* Linux-only progress operation behind the isolated candidate common ioctl.
  * Caller owns RTNL and registration/adapter lifetime. All launch/reconcile
  * callers must share that serialization. Returns reference-retirement status
  * only; active OPEN/isolation fence remains. Never retries dev_close. */

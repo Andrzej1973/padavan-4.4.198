@@ -1,5 +1,5 @@
-/* Proposed progress reply. Common ioctl must enforce RTNL, CAP_NET_ADMIN,
- * MT7603 and fixed64 copy first, exactly as CLOSE. Not routed/installed yet.
+/* Isolated candidate progress reply. Common ioctl enforces RTNL, CAP_NET_ADMIN,
+ * MT7603, exact ra2 and fixed64 copy first, exactly as CLOSE.
  * No netif_running precondition: this advances existing CLOSE after admin DOWN.
  * Never opens/closes a netdev or treats reference status as RF acceptance. */
 static INT wr_iot_driver_close_progress_reply(RTMP_ADAPTER *ad,PNET_DEV dev,

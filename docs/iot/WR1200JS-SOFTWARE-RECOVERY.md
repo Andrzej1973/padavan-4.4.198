@@ -77,3 +77,26 @@ Runtime acceptance requires repeated ra2 ON/OFF with Main/Guest traffic,
 PS-Poll latency measurements, pending traffic at OFF, DHCP/DNS/firewall checks,
 DMA completion accounting, and inspection of recovery outcomes. Device-side
 operations require separate owner authorization.
+
+## CLOSE transport continuation
+
+The next isolated candidate connects existing Linux operations10 and13 to the
+common 0x89fd private ioctl. RTNL, namespace CAP_NET_ADMIN, MT7603 and fixed64
+user copy precede dispatch. A locked exact-three-BSS/current-ra2 check rejects
+Main/Guest and changed interface topology. The existing CLOSE decoder and
+owner reservation revalidate the original OPEN nonce, epoch, generation and
+token before dev_close. Progress accepts an administratively DOWN ra2 and
+advances only the matching retained operation.
+
+The RC client sends each request once to fixed ra2 using a CLOEXEC socket.
+Invalid input/socket creation failure reports NOT_SUBMITTED. Any ambiguous
+submitted CLOSE or descriptor-close failure reports UNCERTAIN. Progress
+EAGAIN/EINPROGRESS reports PENDING for a later explicit controller invocation.
+A successful syscall reports CALL_COMPLETED. The controller must retain its
+identity and isolation ownership through the subsequent lifecycle checks.
+
+Host fixtures execute both generated routes with the actual CLOSE/progress
+reply functions and injected executor/syscalls. The existing58 standalone
+fixtures and RC source preparation/client compilation pass. MIPS verification
+of this transport continuation is pending. Full controller activation and
+owner release/reopen integration remain unfinished.

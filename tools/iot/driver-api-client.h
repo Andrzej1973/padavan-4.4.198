@@ -3,6 +3,7 @@
 #include "driver-api-wire.h"
 #include "request.h"
 #include "driver-api-open-current-wire.h"
+#include "driver-api-close-progress-wire.h"
 enum wr_iot_driver_submit_result {
  WR_IOT_DRIVER_NOT_SUBMITTED=0,
  WR_IOT_DRIVER_OPEN_COMPLETED=1,
@@ -50,4 +51,19 @@ int wr_iot_driver_uncertain_read(const struct wr_iot_driver_attempt *,struct wr_
  * a subsequent CLOSE must revalidate token/identity, not rely on this as lease. */
 int wr_iot_driver_open_current_read(const struct wr_iot_driver_attempt *,
  struct wr_iot_driver_open_current_result *);
+/* Fixed ra2 CLOSE transport. Input must retain the successful OPEN nonce,
+ * epoch, generation and token under the serialized controller owner.
+ * No automatic CLOSE retry. Progress advances the same retained operation.
+ * CALL_COMPLETED proves kernel-call completion only. Isolation and the OPEN
+ * fence remain owned until the separate lifecycle completion checks pass. */
+enum wr_iot_driver_close_submit_result {
+ WR_IOT_DRIVER_CLOSE_NOT_SUBMITTED=0,
+ WR_IOT_DRIVER_CLOSE_CALL_COMPLETED=1,
+ WR_IOT_DRIVER_CLOSE_PENDING=2,
+ WR_IOT_DRIVER_CLOSE_UNCERTAIN=3
+};
+enum wr_iot_driver_close_submit_result wr_iot_driver_close_submit(
+ const struct wr_iot_driver_close_request *);
+enum wr_iot_driver_close_submit_result wr_iot_driver_close_progress_submit(
+ const struct wr_iot_driver_close_request *);
 #endif

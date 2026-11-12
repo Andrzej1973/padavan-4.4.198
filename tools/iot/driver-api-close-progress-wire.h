@@ -1,6 +1,6 @@
 /* New Linux-only operation 13: advance reference retirement of existing CLOSE.
  * Same fixed identity layout as operation10; deliberately incompatible opcode.
- * Not installed in common ioctl dispatcher. No RF/reopen status is returned. */
+ * Routed in the isolated candidate common dispatcher. No RF/reopen status is returned. */
 #ifndef WR_IOT_DRIVER_API_CLOSE_PROGRESS_WIRE_H
 #define WR_IOT_DRIVER_API_CLOSE_PROGRESS_WIRE_H
 #include "driver-api-close-wire.h"
