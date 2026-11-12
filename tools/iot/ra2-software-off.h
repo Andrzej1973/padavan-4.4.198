@@ -26,8 +26,8 @@ static inline int wr_iot_ra2_software_stop(RTMP_ADAPTER *ad,PNET_DEV dev)
   traffic=&ad->MacTab.tr_entry[wcid];
   if(IS_ENTRY_NONE(traffic)||traffic->wcid!=wcid||
      traffic->func_tb_idx!=2||traffic->wdev!=wdev)continue;
-  traffic->enq_cap=FALSE;
-  traffic->deq_cap=FALSE;
+  WRITE_ONCE(traffic->enq_cap,FALSE);
+  WRITE_ONCE(traffic->deq_cap,FALSE);
   traffic->PsDeQWaitCnt=0;
   traffic->PsQIdleCount=0;
  }
@@ -69,8 +69,8 @@ static inline int wr_iot_ra2_software_open(RTMP_ADAPTER *ad,PNET_DEV dev)
  if(traffic->EntryType==ENTRY_CAT_MCAST&&traffic->wcid==mcast&&
     traffic->func_tb_idx==2&&traffic->wdev==wdev){
   ready=1;
-  traffic->enq_cap=TRUE;
-  traffic->deq_cap=TRUE;
+  WRITE_ONCE(traffic->enq_cap,TRUE);
+  WRITE_ONCE(traffic->deq_cap,TRUE);
   traffic->PsDeQWaitCnt=0;
   traffic->PsQIdleCount=0;
  }

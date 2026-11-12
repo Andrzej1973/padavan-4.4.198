@@ -1,0 +1,77 @@
+{
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "source_sha256": {
+    "ap/ap_connect.c": "5499298bb20028e56401735b5c6ebc2f3716ad087851282d443fd23120b1ed85",
+    "ap/ap_mbss.c": "402a0a3dfc95bc52347262fcd7ff18f70922a9b2d1dcb72a8c6657c0013bb616",
+    "ap/ap.c": "307783d34cbec74860ba6bb770b88e84eb88ef3da633b1d973fd7538b4a60aad",
+    "common/cmm_profile.c": "813d3ca6930be7f7d67bed03d105751ad50a1dd5d6380a1e0034fe18c9f029cc",
+    "common/rtmp_init.c": "f4bc432661900513e026c2abe05c4d861dc1982990968ad5c276ed6444fef011",
+    "common/rtmp_init_inf.c": "fcf2b2d6da578b3709a5575c92a1ad3f7bdf5cf85684fa4313ba2fcdf137fe94",
+    "mac/mt_mac.c": "0503f18843b3ddc5206b6f2565c7a57aedbe7e64f7591f0dc5d6aa5be1355576",
+    "tx_rx/txs.c": "58f963297852e7a864be13a7b9b7ea5ffd2a394a36309e736eef6691acee0524"
+  },
+  "scope": "Cold-start source audit of isolated no-host ra2 experiment",
+  "findings": [
+    {
+      "source": "common/rtmp_init_inf.c:235",
+      "fact": "InitTxSTypeTable precedes hif_sys_init and RtmpNetTaskInit in rt28xx_init.",
+      "limit": "Initialization ordering alone does not prove absence of old hardware reports."
+    },
+    {
+      "source": "tx_rx/txs.c:311-318",
+      "fact": "Initialization zeroes TxSStatus slots and enables host beacon TxS for all WLAN indices.",
+      "limit": "Never use table zeroing as proof of hardware/RF retirement."
+    },
+    {
+      "source": "ap/ap_connect.c:106-134",
+      "fact": "MT beacon helper zeroes MAC_TX_INFO and TXD, leaves PID zero, assigns both bss_idx and TxSPriv from apidx and calls write_tmac_info."
+    },
+    {
+      "source": "ap/ap_connect.c:277-282",
+      "fact": "APMakeBssBeacon returns for HIF_MT before its later constructor call. Live MT beacon construction is in APUpdateBeaconFrame."
+    },
+    {
+      "source": "mac/mt_mac.c:959-1016",
+      "fact": "Zero PID selects TYPE1. Experimental static exact-three-BSS ra2 predicate suppresses allocation in that branch from its first qualifying invocation.",
+      "limit": "Predicate continuity depends on BssidNum and actual build composition."
+    },
+    {
+      "source": "ap/ap_mbss.c:103-110",
+      "fact": "Virtual netdev allocation failure rewrites BssidNum to failed index.",
+      "consequence": "Cold-mode acceptance must include successful exact-three-BSS registration. Do not treat configured BssidNum as immutable."
+    }
+  ],
+  "next_required": [
+    "Verify composed profile/init and all constructor call sites retain exact ra2 identity before publication.",
+    "Define admission on registration failure and lifecycle changes before enabling experiment.",
+    "Verify no production tracked-to-untracked live mode transition is exposed.",
+    "Complete isolated module link, then scoped owner release/reopen integration."
+  ],
+  "target_compilation_this_audit": false,
+  "runtime_verified": false,
+  "activation_ready": false,
+  "host_checks": {
+    "passed": [
+      "check-precreated-profile",
+      "check-precreated-bss-admission",
+      "check-precreated-loaded-config",
+      "check-driver-api-owner-binding"
+    ],
+    "instrumentation": "GCC ASan/UBSan",
+    "fixture_sha256": {
+      "check-precreated-profile": "41e5f8fab2251581fc72d6f73a1c94e3233af2af14755509127a54d838010aba",
+      "check-precreated-bss-admission": "a7a08443cf09f66485e89c1729145c4e58cc32e0cd542274472d7bcaa256d03a",
+      "check-precreated-loaded-config": "8db72bbdc83f8710b9fa1c70bcc0037859d1ff67595be4dbafebfaee355c56e2",
+      "check-driver-api-owner-binding": "b19c9fce1a3a09bc38a1fe937afe0648448af16f0967dc839418f5f6ca69a44f"
+    },
+    "limits": "Injected adapter/netdev state, no target or device execution. General third-BSS admission permits count4; Linux OPEN owner binding separately requires exact count3."
+  },
+  "cleanup": "Temporary fixture executables removed by TemporaryDirectory.",
+  "composed_producer_check": {
+    "result": "passed",
+    "fixture": "tools/iot/check-ra2-no-host-bundle.py",
+    "fixture_sha256": "dd7610b5b2252cd0640e58247204d1dbb60bdbeca8eb75991416549da19127a9",
+    "finding": "Actual composed MT virtual wrapper calls its inner builder only after producer acquisition and periodic readiness. Experimental readiness requires exact BssidNum3 before constructor entry. A count mismatch is refused before beacon PID allocation through this wrapper.",
+    "limits": "Source-composition assertion; no hardware epoch, all-path concurrency, or reopen acceptance."
+  }
+}

@@ -76,6 +76,20 @@ with tempfile.TemporaryDirectory(prefix='wr-ra2-bundle-compose-') as scratch:
     Path(str(source) + '.manifest.json').write_text(json.dumps(manifest))
     output = root / 'experiment'
     subprocess.run(['python3', '-B', str(here / 'prepare-ra2-no-host-experiment.py'), str(source), str(output)], check=True)
+    # Every MT virtual beacon builder call must remain behind the periodic
+    # predicate. Otherwise a count mismatch could reach the tracked allocator
+    # before lower submission rejects the experimental packet.
+    connect_output = (output / 'ap/ap_connect.c').read_text()
+    wrapper_start = connect_output.index('VOID APUpdateBeaconFrame(RTMP_ADAPTER *pAd, INT apidx)')
+    wrapper_end = connect_output.index('\n}', wrapper_start) + 2
+    wrapper_output = connect_output[wrapper_start:wrapper_end]
+    guarded_call = ('  if (wr_iot_bcn_periodic_ready(pAd, apidx, &ticket))\n'
+                    '   wr_iot_APUpdateBeaconFrame_inner(pAd, apidx, &ticket);')
+    assert wrapper_output.count(guarded_call) == 1
+    assert wrapper_output.index('wr_iot_bcn_producer_begin(') < wrapper_output.index(guarded_call)
+    assert wrapper_output.index(guarded_call) < wrapper_output.index('wr_iot_bcn_producer_end(')
+    periodic_output = (output / 'include/wr-iot-beacon-producer-kernel.h').read_text()
+    assert 'ready=ad->ApCfg.BssidNum==3&&' in periodic_output
     result = json.loads(Path(str(output) + '.manifest.json').read_text())
     actual = {str(p.relative_to(output)): hashlib.sha256(p.read_bytes()).hexdigest()
               for p in output.rglob('*') if p.is_file()}

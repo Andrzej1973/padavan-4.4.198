@@ -1,0 +1,40 @@
+{
+  "run": 43287762252,
+  "number": 1066,
+  "source": "6393edc8e52da1a413f53c4d7114fa9232d7efe2",
+  "artifact": 13976324305,
+  "target_report": {
+    "target_module_linked": true,
+    "module_bytes": 5970476,
+    "module_sha256": "d5b31b32221892cf2363d39b5932dc3d7f327d718ce6708680aee5114b590074",
+    "production_installed": false,
+    "activation_ready": false,
+    "runtime_verified": false
+  },
+  "verified_symbols": [
+    "APUpdateBeaconFrame",
+    "BcnTxSHandler",
+    "RT28xx_UpdateBeaconToAsic"
+  ],
+  "source_manifest_sha256": "fcb532e912465c2223339797e3d912ebb1fd553cea67b606c5946fce0ddaab0a",
+  "changed_paths": [
+    "ap/ap_connect.c",
+    "common/cmm_mac_pci.c",
+    "include/ra2-beacon-dma-window.h",
+    "include/ra2-beacon-no-host-packet.h",
+    "include/ra2-beacon-no-host-txd.h",
+    "include/rtmp.h",
+    "include/wr-iot-beacon-producer-kernel.h",
+    "mac/mt_mac.c",
+    "tx_rx/txs.c"
+  ],
+  "scope": "Actual complete experimental ELF32 little-endian MIPS module verified against size/hash and defined function symbols. Source manifest preserves compile-only status.",
+  "runtime_verified": false,
+  "remaining": [
+    "Cold-mode lifecycle integration",
+    "Owner release/reopen",
+    "RC activation backend and network acceptance",
+    "Physical WR1200JS testing"
+  ],
+  "cleanup": "Artifact archive processed in memory, no extracted module retained."
+}

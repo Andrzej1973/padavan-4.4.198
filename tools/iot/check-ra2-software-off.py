@@ -66,6 +66,7 @@ prefix = r'''
 #include <stdio.h>
 #include <string.h>
 #define TRUE 1
+#define WRITE_ONCE(field,value) ((field)=(value))
 #define FALSE 0
 #define MAX_LEN_OF_TR_TABLE 256
 #define WCID_ALL 255

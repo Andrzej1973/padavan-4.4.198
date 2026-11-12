@@ -1,0 +1,35 @@
+{
+  "scope": "Existing queue join, reference completion, retirement and progress matching contracts",
+  "checks_passed": [
+    "check-uapsd-retire-queues",
+    "check-driver-api-close-completion",
+    "check-driver-api-close-retirement",
+    "check-driver-api-close-progress-match"
+  ],
+  "fixture_sha256": {
+    "check-uapsd-retire-queues": "c80d50b18f3ad4653589993e4753ebefbc237dbf8110c265009938ff552c2a4f",
+    "check-driver-api-close-completion": "b1bea31b8d708107d782bb1d1f191f236087b885b7068bd1a9b81285a12ee7d2",
+    "check-driver-api-close-retirement": "1839fea830345b971fe70c31f40ca8de2217d9fab8134182d2161784ca0d23ae",
+    "check-driver-api-close-progress-match": "f9caa85626efffae7e354aeee7f7d8c28d8bd84a06ef0ef8202b9b4c6369f73f"
+  },
+  "source_findings": [
+    "UAPSD deletion join disables enqueue/dequeue under irq_lock before joining UAPSDEOSPLock. Queue lists and EOSP packet detach under UAPSD lock, release after unlock.",
+    "CLOSE completion requires the same epoch/serial/generation/open token and retired registry reference.",
+    "Reference completion and retirement retain active owner; they do not currently authorize a subsequent OPEN."
+  ],
+  "remaining": [
+    "Bind closed no-host beacon/producer/DMA observations to scoped owner release",
+    "Revalidate exact identity/current registration and Main readiness",
+    "Keep packet release with existing DMA and queue owners",
+    "Target and physical OFF/reopen verification"
+  ],
+  "runtime_verified": false,
+  "cleanup": "Temporary fixture binaries removed automatically.",
+  "local_correction": {
+    "file": "tools/iot/ra2-software-off.h",
+    "sha256": "1f5c85547bf1c57ff6cd97018090ebef177a55bd329c00bf5f38ce26c4b3b421",
+    "change": "Four scoped enqueue/dequeue capability stores use WRITE_ONCE under existing irq_lock, matching UAPSD READ_ONCE and established reset-writer convention.",
+    "checks": "check-ra2-software-off.py on exact archive passed in both diagnostic configurations with injected lock/queue ownership checks.",
+    "limits": "Compiler-visible scalar publication only. No added memory-order or complete UAPSD/DMA lifetime claim. Target compilation pending."
+  }
+}
