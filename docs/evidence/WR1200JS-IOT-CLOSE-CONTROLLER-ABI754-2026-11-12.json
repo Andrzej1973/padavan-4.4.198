@@ -1,0 +1,19 @@
+{
+  "run": 43241209428,
+  "number": 754,
+  "revision": "73ed42045dac6836c925886fe9575975ee161af0",
+  "artifact": 13956475073,
+  "objects": {
+    "iot-rc-driver-api-client-mips.o": {
+      "bytes": 13284,
+      "sha256": "8c22ef50843b21cdc02defee5ffa17479914c7e977b64c9523929f25a882dc8f"
+    },
+    "iot-rc-driver-close-controller-mips.o": {
+      "bytes": 1976,
+      "sha256": "438390ce2aede33c9eda5e37f08464b8465a05badf52399da066fa1f04ef20dc"
+    }
+  },
+  "elf32_le_mips": true,
+  "runtime_verified": false,
+  "scope": "Isolated prepared RC object compilation, full activation unbound"
+}

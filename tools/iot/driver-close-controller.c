@@ -17,7 +17,8 @@ int wr_iot_close_controller_begin(struct wr_iot_close_controller *state,
 int wr_iot_close_controller_progress(struct wr_iot_close_controller *state)
 {
  enum wr_iot_driver_close_submit_result result;
- if(!state||state->phase!=WR_IOT_CLOSE_SUBMITTED)return 0;
+ if(!state||(state->phase!=WR_IOT_CLOSE_SUBMITTED&&
+             state->phase!=WR_IOT_CLOSE_UNCERTAIN))return 0;
  result=wr_iot_driver_close_progress_submit(&state->request);
  if(result==WR_IOT_DRIVER_CLOSE_CALL_COMPLETED){
   state->phase=WR_IOT_CLOSE_REFERENCE_RETIRED;return 1;

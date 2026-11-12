@@ -38,9 +38,25 @@ int main(void)
  assert(!wr_iot_close_controller_progress(&state)&&progresses==3);
  memset(&state,0,sizeof(state));close_result=WR_IOT_DRIVER_CLOSE_UNCERTAIN;
  assert(!wr_iot_close_controller_begin(&state,&attempt,&receipt)&&state.phase==WR_IOT_CLOSE_UNCERTAIN);
- assert(!wr_iot_close_controller_progress(&state)&&state.request.open_token==3);
+ progress_result=WR_IOT_DRIVER_CLOSE_PENDING;
+ assert(!wr_iot_close_controller_progress(&state)&&state.request.open_token==3&&state.phase==WR_IOT_CLOSE_UNCERTAIN);
+ progress_result=WR_IOT_DRIVER_CLOSE_CALL_COMPLETED;
+ assert(wr_iot_close_controller_progress(&state)&&state.phase==WR_IOT_CLOSE_REFERENCE_RETIRED);
  memset(&state,0,sizeof(state));close_result=WR_IOT_DRIVER_CLOSE_CALL_COMPLETED;
  assert(wr_iot_close_controller_begin(&state,&attempt,&receipt));progress_result=WR_IOT_DRIVER_CLOSE_UNCERTAIN;
  assert(!wr_iot_close_controller_progress(&state)&&state.phase==WR_IOT_CLOSE_UNCERTAIN);
+ struct wr_iot_driver_close_request retained=state.request;
+ unsigned close_count=closes;
+ assert(!wr_iot_close_controller_begin(&state,&attempt,&receipt)&&closes==close_count);
+ progress_result=WR_IOT_DRIVER_CLOSE_NOT_SUBMITTED;
+ assert(!wr_iot_close_controller_progress(&state)&&state.phase==WR_IOT_CLOSE_UNCERTAIN);
+ progress_result=WR_IOT_DRIVER_CLOSE_PENDING;
+ assert(!wr_iot_close_controller_progress(&state)&&state.phase==WR_IOT_CLOSE_UNCERTAIN);
+ assert(!memcmp(&state.request,&retained,sizeof(retained)));
+ progress_result=WR_IOT_DRIVER_CLOSE_CALL_COMPLETED;
+ assert(wr_iot_close_controller_progress(&state)&&state.phase==WR_IOT_CLOSE_REFERENCE_RETIRED);
+ unsigned progress_count=progresses;
+ assert(!wr_iot_close_controller_progress(&state)&&progresses==progress_count&&closes==close_count);
+ assert(!wr_iot_close_controller_begin(&state,&attempt,&receipt)&&closes==close_count);
  puts("PASS single CLOSE submission, pending progress and retained uncertain ownership");return 0;
 }

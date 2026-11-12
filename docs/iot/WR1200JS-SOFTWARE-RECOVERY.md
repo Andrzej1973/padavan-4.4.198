@@ -112,3 +112,9 @@ original request, submits CLOSE once and advances the same operation through
 explicit progress calls. Pending and ambiguous outcomes preserve state. Its
 reference-retired result does not release network isolation or the OPEN fence.
 The activation backend and complete reopen sequence remain unbound.
+
+Explicit progress can also reconcile a submitted CLOSE with an uncertain
+result, retaining the exact request through pending or failed transport. A
+successful matching kernel progress observation advances reference retirement.
+Repeated CLOSE submission remains refused. This change is locally tested and
+requires target validation before inclusion in an accepted candidate.

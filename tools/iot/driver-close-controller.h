@@ -16,5 +16,7 @@ struct wr_iot_close_controller {
 };
 int wr_iot_close_controller_begin(struct wr_iot_close_controller *,
  const struct wr_iot_driver_attempt *,const struct wr_iot_driver_open_current_result *);
+/* Explicit progress may reconcile an uncertain CLOSE with the same identity.
+ * Kernel matching remains authoritative. This never submits CLOSE again. */
 int wr_iot_close_controller_progress(struct wr_iot_close_controller *);
 #endif
