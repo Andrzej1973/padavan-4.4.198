@@ -1,0 +1,15 @@
+{
+  "run": 43095696537,
+  "source": "80f0cb60582e49c64afe0fa769bf5a5dd74bb5ea",
+  "first_observed_conclusion": "startup_failure",
+  "first_observed_job_count": 0,
+  "annotation_url": "https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/43095696537",
+  "annotation": "An unexpected error has occurred and we have been automatically notified; errors are sometimes temporary, try again",
+  "github_request_id": "870dee3c-de0f-11f1-88be-ecab9a728554",
+  "workflow_diff_vs_successful1031": "empty",
+  "monitor_run_for_this_failure": "absent from inspected latest monitor runs",
+  "existing_monitor_handles_startup_failure": true,
+  "monitor_change_required": false,
+  "recovery": "gh run rerun same run; confirmed queued, completion pending",
+  "runtime_verified": false
+}
