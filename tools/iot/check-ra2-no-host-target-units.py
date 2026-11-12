@@ -11,6 +11,18 @@ import shutil
 import subprocess
 import tempfile
 
+
+def remap_driver_argument(value, driver, relative_driver, experiment):
+    """Rewrite recorded driver paths, including an include of its root."""
+    for old in (str(driver), relative_driver):
+        value = value.replace(old + '/', str(experiment) + '/')
+        if value == old:
+            value = str(experiment)
+        elif value in ('-I' + old, '-iquote' + old, '-isystem' + old):
+            value = value[:-len(old)] + str(experiment)
+    return value
+
+
 parser = argparse.ArgumentParser(description=__doc__)
 for name in ('kernel', 'driver', 'experiment', 'compiler', 'output'):
     parser.add_argument('--' + name, type=Path, required=True)
@@ -65,15 +77,25 @@ try:
                     value = str(experiment / unit)
                     source_count += 1
                 else:
-                    value = value.replace(str(driver) + '/', str(experiment) + '/')
-                    value = value.replace(relative_driver + '/', str(experiment) + '/')
+                    value = remap_driver_argument(value, driver, relative_driver, experiment)
                 filtered.append(value)
             if source_count != 1:
                 raise RuntimeError('Missing source for ' + unit)
+            macros = subprocess.run([str(compiler), *filtered, '-E', '-dM'],
+                                    cwd=kernel, capture_output=True, text=True, timeout=120)
+            label = unit.replace('/', '_')
+            (args.output / (label + '.macros.txt')).write_text(macros.stdout)
+            if macros.returncode:
+                (args.output / (label + '.log')).write_text(macros.stderr)
+                raise RuntimeError('Preprocessing failed for ' + unit)
+            required = ('MT7603', 'MT_MAC', 'RTMP_PCI_SUPPORT', 'RTMP_MAC_PCI', 'CONFIG_AP_SUPPORT')
+            effective = {name: bool(re.search(r'^#define ' + name + r'(?:\s|$)', macros.stdout, re.M))
+                         for name in required}
+            if not all(effective.values()):
+                raise RuntimeError('Experimental MT7603 PCI AP branches excluded for ' + unit)
             obj = Path(scratch) / (Path(unit).stem + '.o')
             command = [str(compiler), *filtered, '-c', '-o', str(obj)]
             result = subprocess.run(command, cwd=kernel, capture_output=True, text=True, timeout=180)
-            label = unit.replace('/', '_')
             (args.output / (label + '.log')).write_text(result.stdout + result.stderr)
             if result.returncode:
                 raise RuntimeError('Compilation failed for ' + unit)
@@ -82,7 +104,8 @@ try:
                 raise RuntimeError('Expected ELF32 little-endian MIPS for ' + unit)
             shutil.copyfile(obj, args.output / (label + '.o'))
             report['units'][unit] = {'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest(),
-                                     'command': command}
+                                     'command': command, 'effective_macros': effective,
+                                     'macro_sha256': hashlib.sha256(macros.stdout.encode()).hexdigest()}
     if (kernel / '.config').read_bytes() != config:
         raise RuntimeError('Kernel configuration changed')
     report['status'] = 'passed'
