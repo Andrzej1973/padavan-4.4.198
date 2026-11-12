@@ -632,6 +632,7 @@ jobs:
           python3 tools/connected-devices/prepare-rssi-decision.py padavan-4.4
           python3 tools/connected-devices/prepare-rssi-removal.py padavan-4.4
           python3 tools/connected-devices/prepare-rssi-query.py padavan-4.4
+          python3 tools/iot/prepare-wifi-stats-ratio.py padavan-4.4/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3
 
       - name: Keep wireless offload manually selectable with LAN-only factory default
         run: |
