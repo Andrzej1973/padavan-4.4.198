@@ -39,6 +39,11 @@ changes['include/wr-iot-beacon-producer-kernel.h'] = policy['compose_periodic'](
 changes['common/cmm_mac_pci.c'] = lower['compose']((source / 'common/cmm_mac_pci.c').read_text())
 for name in ('ra2-beacon-dma-window.h', 'ra2-beacon-no-host-txd.h', 'ra2-beacon-no-host-packet.h'):
     changes['include/' + name] = (here / name).read_text()
+for name in changes:
+    changes[name] = changes[name].replace('#include "beacon-producer-gate.h"',
+                                        '#include "wr-iot-beacon-producer-gate.h"')
+if not (source / 'include/wr-iot-beacon-producer-gate.h').is_file():
+    parser.error('Missing prepared SDK producer-gate header')
 # Validate every transformation before creating the output tree.
 shutil.copytree(source, output)
 for name, content in changes.items():

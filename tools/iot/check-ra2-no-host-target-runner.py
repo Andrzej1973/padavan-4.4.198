@@ -55,6 +55,16 @@ with tempfile.TemporaryDirectory(prefix='wr-ra2-target-runner-') as scratch:
         assert result.returncode and expected in report['error'] and not report['units']
         assert (kernel / '.config').read_bytes() == config
     assert (output / 'mac_mt_mac.c.macros.txt').is_file()
+    unit_for_error = experiment / 'mac/mt_mac.c'
+    original_unit = unit_for_error.read_bytes()
+    unit_for_error.write_text('#include "missing-producer-gate-regression.h"\n')
+    failure_hashes = {'mac/mt_mac.c': hashlib.sha256(unit_for_error.read_bytes()).hexdigest()}
+    manifest.write_text(json.dumps({'candidate_driver_sha256': failure_hashes,
+                                   'ra2_no_host_experiment': {'activation_ready': False}}))
+    failure = subprocess.run(arguments, capture_output=True, text=True, timeout=30)
+    assert failure.returncode and 'fatal error:' in failure.stderr
+    assert 'missing-producer-gate-regression.h' in failure.stderr
+    unit_for_error.write_bytes(original_unit)
     dependency_function = next(node for node in tree.body if isinstance(node, ast.FunctionDef)
                                and node.name == 'verify_dependencies')
     dependency_namespace = {'Path': Path, 'shlex': shlex, 'hashlib': hashlib}

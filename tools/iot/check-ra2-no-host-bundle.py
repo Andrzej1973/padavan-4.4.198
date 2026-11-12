@@ -68,6 +68,7 @@ with tempfile.TemporaryDirectory(prefix='wr-ra2-bundle-compose-') as scratch:
                 connect = connect.replace(old, new, 1)
     (source / 'ap/ap_connect.c').write_text(connect)
     (source / 'include/wr-iot-beacon-producer-kernel.h').write_text(header)
+    (source / 'include/wr-iot-beacon-producer-gate.h').write_bytes((here / 'beacon-producer-gate.h').read_bytes())
     hashes = {str(p.relative_to(source)): hashlib.sha256(p.read_bytes()).hexdigest()
               for p in source.rglob('*') if p.is_file()}
     manifest = {'production_installed': False, 'target_compiled': False,
@@ -81,6 +82,9 @@ with tempfile.TemporaryDirectory(prefix='wr-ra2-bundle-compose-') as scratch:
     assert result['merged_driver_sha256'] == actual == result['candidate_driver_sha256']
     assert len(result['ra2_no_host_experiment']['changed_paths']) == 9
     assert result['ra2_no_host_experiment']['activation_ready'] is False
+    for name in result['ra2_no_host_experiment']['changed_paths']:
+        assert '#include "beacon-producer-gate.h"' not in (output / name).read_text()
+    assert (output / 'include/wr-iot-beacon-producer-gate.h').read_bytes() == (here / 'beacon-producer-gate.h').read_bytes()
     assert hashes == {str(p.relative_to(source)): hashlib.sha256(p.read_bytes()).hexdigest()
                       for p in source.rglob('*') if p.is_file()}
     print('PASS nine-path source composition from actual generator fragments, output hashes and input preservation. Full driver/Kbuild verification pending.')

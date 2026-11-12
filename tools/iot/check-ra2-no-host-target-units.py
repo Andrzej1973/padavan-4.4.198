@@ -9,6 +9,7 @@ import runpy
 import shlex
 import shutil
 import subprocess
+import sys
 import tempfile
 
 
@@ -110,6 +111,7 @@ try:
             (args.output / (label + '.macros.txt')).write_text(macros.stdout)
             if macros.returncode:
                 (args.output / (label + '.log')).write_text(macros.stderr)
+                print(macros.stderr[-6000:], file=sys.stderr)
                 raise RuntimeError('Preprocessing failed for ' + unit)
             required = ('MT7603', 'MT_MAC', 'RTMP_PCI_SUPPORT', 'RTMP_MAC_PCI', 'CONFIG_AP_SUPPORT')
             effective = {name: bool(re.search(r'^#define ' + name + r'(?:\s|$)', macros.stdout, re.M))
@@ -122,6 +124,7 @@ try:
             result = subprocess.run(command, cwd=kernel, capture_output=True, text=True, timeout=180)
             (args.output / (label + '.log')).write_text(result.stdout + result.stderr)
             if result.returncode:
+                print(result.stderr[-6000:], file=sys.stderr)
                 raise RuntimeError('Compilation failed for ' + unit)
             verified_dependencies = verify_dependencies(dependencies.read_text(), kernel, driver,
                                                         experiment, actual)
