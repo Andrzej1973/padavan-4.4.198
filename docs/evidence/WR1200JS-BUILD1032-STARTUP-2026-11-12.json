@@ -10,6 +10,11 @@
   "monitor_run_for_this_failure": "absent from inspected latest monitor runs",
   "existing_monitor_handles_startup_failure": true,
   "monitor_change_required": false,
-  "recovery": "gh run rerun same run; confirmed queued, completion pending",
-  "runtime_verified": false
+  "recovery": "same-run rerun returned to terminal startup_failure with zero jobs; new standard dispatched after terminal confirmation",
+  "runtime_verified": false,
+  "replacement_run": 43136969650,
+  "replacement_number": 1033,
+  "replacement_source": "89def5426f8d62bbeadca339e10f157ba660c445",
+  "replacement_observed_status": "in_progress; select succeeded and firmware job fetching pinned source",
+  "github_actions_status_during_recovery": "operational, no active incidents in status API"
 }
