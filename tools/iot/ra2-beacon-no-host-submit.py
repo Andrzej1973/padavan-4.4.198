@@ -20,7 +20,9 @@ def compose(source):
 \t/* Unbound no-host mode accepts only the original builder producer. */
 \tif (IS_MT7603(pAd) && pAd->chipCap.hif_type == HIF_MT && apidx == 2 &&
 \t    (pAd->ApCfg.BssidNum != 3 || reservation.generation || reservation.pid ||
-\t     !reservation.producer.active || !reservation.producer.generation))
+\t     !reservation.producer.active || !reservation.producer.generation ||
+\t     (ULONG)pAd->chipCap.tx_hw_hdr_len > (ULONG)MAX_BEACON_SIZE ||
+\t     FrameLen > (ULONG)MAX_BEACON_SIZE - (ULONG)pAd->chipCap.tx_hw_hdr_len))
 \t\tgoto unsubmitted;
 '''
     locked = '''

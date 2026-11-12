@@ -125,5 +125,11 @@
     "local_package_checks": "Nine-path composition, builder ticket, constructor branch, DBG on/off callback, actual TXD fields/packet predicate,20 pacing cases and lower submit C replay pass. Bash syntax and whitespace pass.",
     "target_verified": false,
     "runtime_verified": false
+  },
+  "lower_submit_size_bounds": {
+    "source_evidence": "Pinned tx_rx/wdev.c wdev_bcn_buf_init allocates MAX_BEACON_SIZE",
+    "change": "Before SET_OS_PKT_LEN, reject header size beyond allocation or FrameLen beyond remaining allocation, using ULONG subtraction after header bound",
+    "verification": "Actual lower C ASan/UBSan validates exact allocation boundary, one byte excess, oversized header and UINT_MAX frame. Failure leaves packet length, ring and HAL untouched. Nine-path composition passes.",
+    "limits": "Submission boundary check. Earlier frame construction and physical device acceptance require their own verification."
   }
 }
