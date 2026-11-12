@@ -32,6 +32,7 @@ with tempfile.TemporaryDirectory(prefix='wr-iot-host-preflight-') as scratch:
                         '-fsanitize=address,undefined', '-fno-pie', '-no-pie',
                         '-I'+str(here), str(here / (name+'.c')), '-o', str(binary)], check=True)
         subprocess.run([str(binary)], check=True)
+    subprocess.run([sys.executable, '-B', str(here / 'check-periodic-first-beacon.py')], check=True)
     subprocess.run([sys.executable, '-B', str(here / 'check-close-owner-composition.py')], check=True)
     subprocess.run([sys.executable, '-B', str(here / 'check-close-dispatch-composition.py')], check=True)
     subprocess.run([sys.executable, '-B', str(here / 'check-close-probe-codegen.py')], check=True)

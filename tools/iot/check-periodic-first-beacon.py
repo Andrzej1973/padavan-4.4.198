@@ -53,8 +53,11 @@ if args.driver:
 fixture = (here / 'check-precreated-first-beacon-wait.c').read_text()
 # Inline only the shared ABI fixture to extend its synthetic adapter layout.
 owner = (here / 'check-driver-api-owner-binding.c').read_text()
-owner = owner.replace('struct {struct {PNET_DEV if_dev;} wdev;} MBSSID[3];',
-                      'struct {struct {PNET_DEV if_dev;} wdev;struct {int bcn_state,bBcnSntReq;} bcn_buf;} MBSSID[3];')
+layout = 'struct {struct {PNET_DEV if_dev;} wdev;} MBSSID['
+if owner.count(layout) != 1:
+    raise RuntimeError('Shared adapter layout changed before beacon fixture extension')
+owner = owner.replace(layout,
+    'struct {struct {PNET_DEV if_dev;} wdev;struct {int bcn_state,bBcnSntReq;} bcn_buf;} MBSSID[', 1)
 owner = owner.replace('unsigned BssidNum;', 'unsigned char BssidNum;')
 fixture = fixture.replace('#include "check-driver-api-owner-binding.c"', owner)
 extra = r'''

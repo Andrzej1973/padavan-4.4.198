@@ -1,0 +1,30 @@
+{
+  "failed_run": 43252564500,
+  "number": 1052,
+  "requested_source": "30734c7565cf89126fa55bb879e6336f917a27bd",
+  "dispatch_revision": "43232ab8175b2b827864976a3fe3d1863d50792e",
+  "failed_job": 131304396985,
+  "failed_step": "Compile isolated merged IoT MT7603 candidate",
+  "monitor_run": 43255083921,
+  "monitor_artifact": 13959484703,
+  "diagnostic_artifact": 13960692504,
+  "causal_error": "check-periodic-first-beacon generated adapter has no bcn_buf member",
+  "cause": "Fixture extension silently matched literal MBSSID[3]. Shared adapter storage changed to4 for real SDK-capacity regression, so extension did not run.",
+  "correction": [
+    "Match unique adapter type prefix independently of array capacity and fail immediately if layout anchor changes",
+    "Run periodic composition fixture in early host compatibility preflight",
+    "Capture selected SHA256-verified final source before post-API host checks, including failed phases"
+  ],
+  "monitor_assessment": "Useful: correct run/job/step and causal compiler lines matched original job log. Bounded excerpt includes nonfatal earlier lines; parser unchanged.",
+  "diagnostic_confirmation": "periodic-first-beacon.txt empty, prior first-beacon-composition report present; actual first failing compiler lines confirmed in original job131304396985",
+  "local_verification": [
+    "Periodic composition/OPEN wait regression passes GCC ASan/UBSan",
+    "58 existing standalone fixtures and extended preflight pass",
+    "Source exporter selected/excluded/repeat/hash-drift checks pass",
+    "bash -n and diff whitespace checks pass"
+  ],
+  "target_verified": false,
+  "runtime_verified": false,
+  "experimental_mode_installed": false,
+  "scratch": "Temporary fixture/snapshot trees removed; host log removed after packaging"
+}

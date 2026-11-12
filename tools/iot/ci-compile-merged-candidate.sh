@@ -337,6 +337,9 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   python3 tools/iot/check-close-bundle-assets.py
   python3 tools/iot/check-close-probe-codegen.py > "$results/close-probe-codegen.txt"
   python3 tools/iot/prepare-driver-api.py "$merged" --install-isolated
+  # Preserve final source even when a following host-composition check fails.
+  cp "$merged.manifest.json" "$results/merged-source-manifest.json"
+  python3 tools/iot/capture-prepared-source.py "$merged.manifest.json" "$merged" "$results/prepared-source"
   python3 tools/iot/check-close-dispatch-composition.py --driver "$merged" > "$results/close-dispatch-composition.txt"
   python3 tools/iot/check-ra2-ps-retain.py --driver "$merged" > "$results/ra2-ps-retain.txt"
   python3 tools/iot/check-ra2-software-off.py --driver "$merged" > "$results/ra2-software-off.txt"
@@ -371,6 +374,7 @@ for name, expected in manifest['candidate_driver_sha256'].items():
         raise SystemExit('Isolated source copy mismatch: ' + name)
     path.touch()
 PY
+python3 tools/iot/capture-prepared-source.py "$results/merged-source-manifest.json" "$driver" "$results/prepared-source"
 python3 tools/iot/check_mbss_cr_enable.py "$driver/ap/ap_mbss_inf.c" \
   --compiler "$(command -v gcc)"
 compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" \
