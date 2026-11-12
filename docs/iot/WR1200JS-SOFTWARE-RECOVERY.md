@@ -62,9 +62,15 @@ SDK locks and queue release are injected in the control-helper fixture.
 The prepared-driver CI also executes these checks before module compilation.
 
 This implementation is composed into the isolated peer82 driver candidate.
-Target compilation for this package is pending. Production RC/controller
-binding and physical runtime acceptance remain unfinished. The existing
-checked close/recovery still tracks beacon DMA/TxS and resource ownership.
+Optional1038/run43156619976 for b4d73312002e708a85311c1b33903d215a012ec4
+passed target compilation on Ubuntu24.04. Independent artifact checks cover
+five ELF32 little-endian MIPS modules, module/report hashes, diagnostic
+ON/OFF markers and saved compiler-command/object provenance. Prepared-driver
+ASan/UBSan fixtures passed in both diagnostic modes. Evidence is recorded in
+`../evidence/WR1200JS-IOT-OPTIONAL1038-TARGET-2026-11-12.json`.
+Standard1037 separately passed actual image CRC/product/size/MIPS/HNAT checks.
+Production RC/controller binding and physical runtime acceptance remain
+unfinished. The existing checked close/recovery still tracks beacon DMA/TxS and resource ownership.
 The new software stop hook establishes queue/admission state within that path.
 
 Runtime acceptance requires repeated ra2 ON/OFF with Main/Guest traffic,

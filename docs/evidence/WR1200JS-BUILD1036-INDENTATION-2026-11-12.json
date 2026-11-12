@@ -1,0 +1,17 @@
+{
+  "run": 43154503888,
+  "number": 1036,
+  "source": "be177cf704408707e27e4503c32972a9c7274a1f",
+  "failed_job": 130971260668,
+  "failed_step": "Compile isolated merged IoT MT7603 candidate",
+  "causal_error": "ap/ap_data.c:53:5: error: this if clause does not guard... [-Werror=misleading-indentation]",
+  "monitor_run": 43156137999,
+  "monitor_artifact": 13915753354,
+  "monitor_causal_error_matched_original_job": true,
+  "monitor_change_required": false,
+  "fix_source": "b4d73312002e708a85311c1b33903d215a012ec4",
+  "fix": "Match native SDK tab indentation and retain a following SDK-indented statement in the host admission fixture",
+  "host_regression": "Old guard reproduces compiler error; corrected OFF/ON ASan/UBSan fixture passes",
+  "verification_pending_standard": 43155077689,
+  "target_verified": false
+}
