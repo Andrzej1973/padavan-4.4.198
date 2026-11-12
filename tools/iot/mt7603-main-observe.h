@@ -14,7 +14,7 @@ static inline int wr_iot_mt7603_main_config_observed(PRTMP_ADAPTER ad){
     !RTMP_TEST_FLAG(ad,fRTMP_ADAPTER_HALT_IN_PROGRESS|
        fRTMP_ADAPTER_RESET_IN_PROGRESS|fRTMP_ADAPTER_NIC_NOT_EXIST|
        fRTMP_ADAPTER_RADIO_OFF|fRTMP_ADAPTER_DISABLE_DEQUEUEPACKET)&&
-    ad->ApCfg.BssidNum>=3&&
+    ad->ApCfg.BssidNum==3&&
     ad->ApCfg.BssidNum<=sizeof(ad->ApCfg.MBSSID)/sizeof(ad->ApCfg.MBSSID[0])&&
     ad->ApCfg.MBSSID[0].wdev.if_dev==ad->net_dev&&netif_running(ad->net_dev)&&
     ad->ApCfg.MBSSID[0].bcn_buf.bBcnSntReq&&
@@ -50,6 +50,7 @@ static inline int wr_iot_mt7603_bss_config_observed(
        fRTMP_ADAPTER_RESET_IN_PROGRESS|fRTMP_ADAPTER_NIC_NOT_EXIST|
        fRTMP_ADAPTER_RADIO_OFF|fRTMP_ADAPTER_DISABLE_DEQUEUEPACKET)&&
     ad->ApCfg.BssidNum>bss_id&&
+    (bss_id!=2U||ad->ApCfg.BssidNum==3)&&
     ad->ApCfg.BssidNum<=sizeof(ad->ApCfg.MBSSID)/sizeof(ad->ApCfg.MBSSID[0])&&
     ad->ApCfg.MBSSID[0].wdev.if_dev==ad->net_dev&&
     netif_running(ad->net_dev)&&

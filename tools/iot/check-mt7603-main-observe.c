@@ -6,7 +6,7 @@ struct device {int running;};
 typedef struct device *PNET_DEV;
 typedef struct adapter {unsigned int flags;int chip,BcnRingLock;struct device *net_dev;
  struct {unsigned int BssidNum;struct {struct {struct device *if_dev;} wdev;
- struct {int bBcnSntReq;} bcn_buf;} MBSSID[3];} ApCfg;} *PRTMP_ADAPTER;
+ struct {int bBcnSntReq;} bcn_buf;} MBSSID[4];} ApCfg;} *PRTMP_ADAPTER;
 #define IS_MT7603(ad) ((ad)->chip==0x7603)
 #define netif_running(dev) ((dev)->running)
 #define fRTMP_ADAPTER_START_UP 1U
@@ -47,7 +47,7 @@ int main(void){
    (mode==0||mode==7||mode==11||mode==17));
   assert(!a.BcnRingLock&&reads<=1);
  }
- for(int mode=0;mode<10;mode++){
+ for(int mode=0;mode<12;mode++){
   unsigned int bss_id=mode==0?1U:2U;
   memset(&a,0,sizeof(a));a.flags=3;a.chip=0x7603;a.net_dev=&main_dev;
   a.ApCfg.BssidNum=3;a.ApCfg.MBSSID[0].wdev.if_dev=&main_dev;
@@ -65,8 +65,10 @@ int main(void){
   if(mode==7)iot.running=0;
   if(mode==8)a.ApCfg.BssidNum=2;
   if(mode==9)bss_id=3U;
+  if(mode==10)a.ApCfg.BssidNum=4;
+  if(mode==11){bss_id=1U;a.ApCfg.BssidNum=4;reg_value=1U|(1U<<16);}
   assert(wr_iot_mt7603_bss_config_observed(&a,
-   mode==3?&main_dev:&iot,bss_id)==(mode==0||mode==1));
+   mode==3?&main_dev:&iot,bss_id)==(mode==0||mode==1||mode==11));
   assert(!a.BcnRingLock&&reads<=1);
  }
  assert(!wr_iot_mt7603_main_config_observed(NULL));

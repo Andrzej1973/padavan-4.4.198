@@ -5,7 +5,7 @@ typedef unsigned int UINT32;
 typedef struct device {int running;} *PNET_DEV;
 typedef struct adapter {
  int mt7603,BcnRingLock;unsigned flags;PNET_DEV net_dev;
- struct {unsigned BssidNum;struct {struct {PNET_DEV if_dev;} wdev;struct {int bBcnSntReq;} bcn_buf;} MBSSID[3];} ApCfg;
+ struct {unsigned BssidNum;struct {struct {PNET_DEV if_dev;} wdev;struct {int bBcnSntReq;} bcn_buf;} MBSSID[4];} ApCfg;
  struct wr_iot_beacon_producer_gate wr_iot_beacon_gates[3];
 } *PRTMP_ADAPTER;
 #define IS_MT7603(ad) ((ad)->mt7603)
@@ -37,11 +37,12 @@ static int WrBeaconTxSOutstanding(PRTMP_ADAPTER ad,unsigned id){
  if(drift==1)ad->wr_iot_beacon_gates[2].generation++;
  if(drift==2)ad->wr_iot_beacon_gates[2].accepting=1;
  if(drift==3)ad->flags|=fRTMP_ADAPTER_RESET_IN_PROGRESS;
+ if(drift==5)ad->ApCfg.BssidNum=4;
  return txs;
 }
 #include "mt7603-closed-observe.h"
 int main(void){
- for(unsigned fault=0;fault<20;fault++){
+ for(unsigned fault=0;fault<22;fault++){
   struct device main_dev={1},iot={0};struct adapter ad={.mt7603=1,.flags=3,.net_dev=&main_dev,.ApCfg.BssidNum=3};
   ad.ApCfg.MBSSID[0].wdev.if_dev=&main_dev;ad.ApCfg.MBSSID[0].bcn_buf.bBcnSntReq=1;
   ad.ApCfg.MBSSID[2].wdev.if_dev=&iot;ad.wr_iot_beacon_gates[2].generation=4;
@@ -57,6 +58,8 @@ int main(void){
    case 13:dma=1;break;case 14:txs=1;break;case 15:dma=-1;break;
    case 16:drift=1;break;case 17:drift=2;break;case 18:drift=3;break;
    case 19:drift=4;break;
+   case 20:ad.ApCfg.BssidNum=4;break;
+   case 21:drift=5;break;
   }
   assert(wr_iot_mt7603_closed_config_observed(&ad,&iot)==(fault==0));
   assert(!ad.BcnRingLock);

@@ -10,7 +10,7 @@ static INT __attribute__((used)) wr_iot_mt7603_closed_probe(PRTMP_ADAPTER ad,PNE
  if(!ad||!dev||!probe)return -EINVAL;
  if(!rtnl_is_locked())return -EBUSY;
  RTMP_IRQ_LOCK(&ad->wr_iot_transition_lock,flags);
- if(IS_MT7603(ad)&&ad->ApCfg.BssidNum>=3&&
+ if(IS_MT7603(ad)&&ad->ApCfg.BssidNum==3&&
     ad->ApCfg.BssidNum<=sizeof(ad->ApCfg.MBSSID)/sizeof(ad->ApCfg.MBSSID[0])&&
     ad->ApCfg.MBSSID[2].wdev.if_dev==dev&&dev!=ad->net_dev&&
     !ad->wr_iot_control_users&&!ad->wr_iot_control_poisoned&&

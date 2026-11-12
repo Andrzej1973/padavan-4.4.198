@@ -1,0 +1,18 @@
+{
+  "scope": "Isolated MT7603 configuration observers and closed probe admission",
+  "issue": "Array-capacity bounds were mistaken for the exact three-BSS ra2 contract. Larger valid storage allowed four-BSS observations.",
+  "changes": [
+    "Require exactly3BSS in main readiness and closed configuration observer",
+    "Require exactly3BSS for ra2 postopen observation, preserving Guest existing capacity-based admission",
+    "Require exactly3BSS before closed probe reservation"
+  ],
+  "regression_evidence": "Both observer fixtures fail on prior implementation after increasing modeled storage to4. Updated closed test rejects initial4 and count drift during outstanding checks. Guest four-BSS postopen observation remains accepted.",
+  "verification": [
+    "Four actual observer/closed-binding/closed-entry fixtures passed GCC ASan/UBSan",
+    "git diff --check passed"
+  ],
+  "target_verified": false,
+  "runtime_verified": false,
+  "full_safe_off_reopen_complete": false,
+  "scratch": "Test binaries removed by TemporaryDirectory; no scratch retained"
+}
