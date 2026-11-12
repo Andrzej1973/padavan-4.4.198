@@ -580,6 +580,7 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   python3 tools/iot/check-ra2-no-host-target-units.py \
     --kernel "$kernel" --driver "$driver" --experiment "$experiment" \
     --compiler "$compiler" --output "$results/ra2-no-host-target"
+  bash tools/iot/ci-compile-ra2-no-host-module.sh "$kernel" "$compiler" "$experiment" "$results/ra2-no-host-module"
   bash tools/iot/ci-compile-wsc-feature.sh "$kernel" "$compiler" "$results/wsc-feature"
   bash tools/iot/ci-compile-reload-feature.sh "$kernel" "$compiler" "$results/reload-feature"
   bash tools/iot/ci-compile-psm-diagnostics.sh "$kernel" "$compiler" "$results/psm-diagnostics"
