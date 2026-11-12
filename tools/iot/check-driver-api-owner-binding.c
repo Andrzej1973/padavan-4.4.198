@@ -20,7 +20,7 @@ typedef struct {
  PNET_DEV net_dev;
  unsigned vendor_count,wr_iot_control_users,wr_iot_control_poisoned;
  unsigned wr_iot_boot_active,wr_iot_boot_failed;
- struct {unsigned BssidNum;struct {struct {PNET_DEV if_dev;} wdev;} MBSSID[3];} ApCfg;
+ struct {unsigned BssidNum;struct {struct {PNET_DEV if_dev;} wdev;} MBSSID[4];} ApCfg;
  struct wr_iot_driver_owner wr_iot_driver_owner;
  struct wr_iot_driver_close_owner wr_iot_close_owner;
  struct wr_iot_radio_transition wr_iot_transition;

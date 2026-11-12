@@ -1,0 +1,15 @@
+{
+  "scope": "Isolated vendor driver OPEN owner admission",
+  "root_cause": "request_enter accepted BssidNum>=3 while subsequent first-beacon and close lifecycle require exactly3. Real SDK MBSSID storage can exceed3; array-capacity check did not enforce the lifecycle contract.",
+  "fix": "Require BssidNum==3 before reserving owner/ticket. Keep storage bounds check.",
+  "regression": "Fixture MBSSID capacity increased to4. Four-BSS OPEN fails with -EBUSY and leaves owner/query and radio transition byte-identical; normal three-BSS request then succeeds. Old code failed this assertion.",
+  "host_checks": [
+    "58 existing standalone ASan/UBSan fixtures and CLOSE composition preflight passed",
+    "OPEN adapter owner, first-beacon owner snapshot and bounded first-beacon wait ASan/UBSan passed",
+    "git diff --check passed"
+  ],
+  "target_build_verified": false,
+  "runtime_verified": false,
+  "safe_off_reopen_completed": false,
+  "scratch": "Temporary test binaries removed automatically; only small preflight log retained until publication"
+}

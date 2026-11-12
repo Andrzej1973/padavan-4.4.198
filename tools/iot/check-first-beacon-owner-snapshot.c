@@ -19,6 +19,16 @@ int main(void)
   request.request_id[0]=1;request.adapter_epoch=ad.wr_iot_transition.epoch;
   request.device_generation=ref->generation;
   assert(wr_iot_driver_owner_query(&ad.wr_iot_driver_owner,request.request_id,request.adapter_epoch,request.device_generation));
+  /* Real SDK arrays can hold more BSS than this exact three-BSS contract.
+   * Reject changed BssidNum before consuming the query or reserving a ticket. */
+  struct wr_iot_driver_owner unopened=ad.wr_iot_driver_owner;
+  struct wr_iot_radio_transition radio_before=ad.wr_iot_transition;
+  ad.ApCfg.BssidNum=4;
+  assert(wr_iot_driver_request_enter(&ad,&dev,&request,current)==-EBUSY);
+  assert(!ad.wr_iot_transition_lock);
+  assert(!memcmp(&unopened,&ad.wr_iot_driver_owner,sizeof(unopened)));
+  assert(!memcmp(&radio_before,&ad.wr_iot_transition,sizeof(radio_before)));
+  ad.ApCfg.BssidNum=3;
   assert(wr_iot_driver_request_enter(&ad,&dev,&request,current)==0);
   assert(!wr_iot_driver_first_beacon_owner_snapshot(&ad,&dev,&snapshot));
   assert(wr_iot_driver_owner_take(&ad.wr_iot_driver_owner,current,&dev,&ad.wr_iot_transition,ad.wr_iot_interface_refs,3));
