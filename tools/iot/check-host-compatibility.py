@@ -34,6 +34,7 @@ with tempfile.TemporaryDirectory(prefix='wr-iot-host-preflight-') as scratch:
         subprocess.run([str(binary)], check=True)
     subprocess.run([sys.executable, '-B', str(here / 'check-close-owner-composition.py')], check=True)
     subprocess.run([sys.executable, '-B', str(here / 'check-close-dispatch-composition.py')], check=True)
+    subprocess.run([sys.executable, '-B', str(here / 'check-close-probe-codegen.py')], check=True)
     candidate = root / 'wds-producer-capture'
     (candidate / 'ap').mkdir(parents=True)
     (candidate / 'ap/ap_wds.c').write_text(captures[0]+'\t\t\tRtmpOSNetDevDetach(wdev->if_dev);\nwr_generation, 1);\n')

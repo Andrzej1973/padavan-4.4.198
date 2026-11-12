@@ -25,7 +25,12 @@ def probe_source(driver,local):
 int wr_iot_close_bindings_target_probe(RTMP_ADAPTER *ad,PNET_DEV dev,
  struct ifreq *rq,unsigned char *wire)
 {
- return wr_iot_driver_close_reply(ad,dev,rq,wire);
+ int status=wr_iot_driver_close_reply(ad,dev,rq,wire);
+ /* Keep the probe call visible when the real dispatcher also uses this body.
+  * An empty register barrier prevents a sibling jump without emitting code
+  * for a constant-refusal implementation. The size guard remains effective. */
+ asm volatile("" : : "r" (status));
+ return status;
 }
 int wr_iot_close_synchronous_put_target_probe(RTMP_ADAPTER *ad,PNET_DEV dev)
 {
@@ -178,8 +183,11 @@ def main():
    nm=str(a.compiler.resolve())
    if not nm.endswith('gcc'):raise RuntimeError('Expected cross gcc name')
    symbols=subprocess.check_output([nm[:-3]+'nm','-S',str(obj)],text=True)
+   a.output.with_suffix('.o').write_bytes(blob)
+   a.output.with_suffix('.symbols.txt').write_text(symbols)
    row=next((s.split() for s in symbols.splitlines() if s.endswith(' wr_iot_close_bindings_target_probe')),None)
-   if not row or len(row)!=4 or row[2].upper()!='T' or int(row[1],16)<=8:raise RuntimeError('Probe missing or optimized to trivial refusal')
+   report['probe_symbol_row']=row
+   if not row or len(row)!=4 or row[2].upper()!='T' or int(row[1],16)<=8:raise RuntimeError('Probe missing or optimized to trivial refusal: '+str(row))
    exit_row=next((s.split() for s in symbols.splitlines() if s.endswith(' wr_iot_close_module_exit_target_probe')),None)
    if not exit_row or len(exit_row)!=4 or exit_row[2].upper()!='T':raise RuntimeError('Nonreturning module exit probe missing')
    undefined=subprocess.check_output([nm[:-3]+'nm','-u',str(obj)],text=True)

@@ -1,0 +1,13 @@
+{
+  "run": 43229715106,
+  "number": 753,
+  "revision": "ec9f9c54e0b0a22025612a08767f9ba9d3275c65",
+  "artifact": 13949328355,
+  "object": "iot-rc-driver-api-client-mips.o",
+  "bytes": 12776,
+  "sha256": "0e5fe56c92c3cd30a521823474bc92a661df1d2fda889c16d6ed92439ff4b57d",
+  "elf32_le_mips": true,
+  "close_and_progress_symbols_present": true,
+  "scope": "Actual generated RC client MIPS object from successful ABI753. Driver candidate and full runtime verification separate.",
+  "runtime_verified": false
+}
