@@ -26,6 +26,22 @@ static inline int wr_iot_bcn_filter_enter(RTMP_ADAPTER *ad,unsigned long *token)
  }
  return ok;
 }
+/* A recovery result is only a snapshot, never permission for future TX.
+ * The ra2 caller still needs its normal producer admission. Revoke the result
+ * when reset/suspend/close intent arrived while the vendor body was polling.
+ * Do not acquire a second TX lease or change the shared transition machine. */
+static inline int wr_iot_bcn_filter_ra2_continue(RTMP_ADAPTER *ad){
+ int ready;ULONG flags=0;
+ RTMP_IRQ_LOCK(&ad->wr_iot_transition_lock,flags);
+ ready=ad->wr_iot_transition.epoch&&ad->wr_iot_transition.active_tx&&
+  !ad->wr_iot_transition.retiring&&!ad->wr_iot_transition.pm_suspending&&
+  !ad->wr_iot_transition.pm_suspended&&
+  ad->wr_iot_transition.phase==WR_RADIO_READY&&
+  ad->wr_iot_transition.main_ready&&!ad->wr_iot_transition.main_inhibited&&
+  !ad->wr_iot_transition.reset_pending&&!ad->wr_iot_transition.busy;
+ RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);
+ return ready;
+}
 static inline int wr_iot_bcn_filter_leave(RTMP_ADAPTER *ad,unsigned long token){
  int ok,wake=0;ULONG flags=0;
  RTMP_SEM_LOCK(&ad->BcnRingLock);

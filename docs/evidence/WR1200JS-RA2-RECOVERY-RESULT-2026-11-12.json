@@ -1,0 +1,20 @@
+{
+  "scope": "Isolated ra2 beacon-recovery wrapper result, not hardware drain",
+  "cause": "Reset/suspend intent can arrive while vendor recovery body polls. The old wrapper only released the lease, retaining a positive continue result for ra2.",
+  "correction": "Under existing transition lock, snapshot current TX eligibility before releasing the existing lease; revoke ra2 continue output on pending reset/suspend/close. No second lease, shared state transition, DMA release or queue mutation.",
+  "tests": [
+    "Generated wrapper literal extracted from producer AST, compiled by existing wrapper fixture with GCC ASan/UBSan",
+    "Reset-in-body and suspend-in-body revoke ra2 result and release active_tx",
+    "Main reset-in-body legacy result retained; other chip bypass retained",
+    "Old wrapper with revalidation removed fails updated regression",
+    "git diff --check passed"
+  ],
+  "limits": [
+    "Vendor body/MMIO injected; actual prepared source and MIPS build pending",
+    "Snapshot grants no future TX permission; subsequent normal producer admission remains mandatory",
+    "Does not establish safe OFF/reopen or RF completion"
+  ],
+  "runtime_verified": false,
+  "target_verified": false,
+  "scratch": "Temporary wrapper tree and test binaries removed automatically"
+}

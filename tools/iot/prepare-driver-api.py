@@ -110,6 +110,7 @@ VOID APCheckBcnQHandler(RTMP_ADAPTER *pAd, INT apidx, BOOLEAN *is_pretbtt_int)
   *is_pretbtt_int=FALSE;
   if(!wr_iot_bcn_filter_enter(pAd,&token))return;
   wr_iot_APCheckBcnQHandler_inner(pAd,apidx,is_pretbtt_int);
+  if(apidx==2&&!wr_iot_bcn_filter_ra2_continue(pAd))*is_pretbtt_int=FALSE;
   if(!wr_iot_bcn_filter_leave(pAd,token))*is_pretbtt_int=FALSE;
   return;
  }
