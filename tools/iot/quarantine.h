@@ -27,6 +27,8 @@ int wr_iot_policy_can_apply(void);
 int wr_iot_active_filter_apply(const char *lan,const char *wan);
 /* Uses the same WAN selection as start_firewall_ex, refuses changes mid-apply. */
 int wr_iot_active_filter_apply_current(void);
+/* Read-only pre-OPEN observation; current WAN must remain unchanged. */
+int wr_iot_active_filter_ready_current(void);
 /* POLICY operation: services ready, held guard and BSS DOWN; failure is not
  * recovery completion. Caller must retain snapshots and run full recovery. */
 int wr_iot_policy_enable_current(void);

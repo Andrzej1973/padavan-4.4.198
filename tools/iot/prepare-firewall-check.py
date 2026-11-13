@@ -43,6 +43,7 @@ while depth:
 active_apply=s[start:end]
 for anchor in ('int wr_iot_quarantine_reapply(void)\n{',
                'static int wr_iot_policy_current_wan(char out[16])\n{',
+               'int wr_iot_active_filter_ready_current(void)\n{',
                'int wr_iot_active_filter_apply_current(void)\n{',
                'int wr_iot_policy_enable_current(void)\n{',
                'static int wr_iot_active_filter_observed(const char *lan,const char *wan)\n{',
@@ -81,7 +82,7 @@ static int wr_iot_bridge_address_matches(const char *g,const char *m){
 }
 static int nvram_set_int_temp(const char *key,int value){assert(!strcmp(key,"wr_iot_firewall_t"));gate=value;return set_failed;}
 static int wr_iot_network_services_ready(const char *g){assert(!strcmp(g,gateway));return services_ready;}
-static const char *current_wan="eth2.2";static int change_wan;
+static const char *current_wan="eth2.2";static int change_wan,ready_change_wan;
 static int observed_ready=1,observed_calls,observed_drift;
 static const char *range_end="192.168.50.200";
 static int wr_iot_policy_rules_observed(const char *v4,const char *v6){
@@ -96,7 +97,7 @@ static char *get_wan_unit_value(int unit,const char *key){assert(unit==0&&!strcm
 static void get_wan_ifname(char out[16]){strcpy(out,"eth2.2");}
 static int wr_iot_policy_rules_ready(const char *v4,const char *v6){
  assert(strstr(v4,"--dport 53 -j ACCEPT")&&strstr(v4,"-o eth2.2"));
- assert(strstr(v6,"-A INPUT -i br-iot -j DROP"));policy_calls++;return policy_ready;
+ assert(strstr(v6,"-A INPUT -i br-iot -j DROP"));policy_calls++;if(ready_change_wan)current_wan="eth2.3";return policy_ready;
 }
 static int wr_iot_quarantine_can_apply(void){return apply_allowed;}
 static int reapply_allowed=1;
@@ -160,6 +161,11 @@ int main(void){
  route_ok=0;assert(!wr_iot_active_filter_observed_current());route_ok=1;
  change_wan=1;assert(!wr_iot_active_filter_observed_current());
  change_wan=0;current_wan="eth2.2";apply_allowed=1;
+ int read_only_calls=apply_calls;
+ assert(wr_iot_active_filter_ready_current()&&apply_calls==read_only_calls);
+ policy_ready=0;assert(!wr_iot_active_filter_ready_current()&&apply_calls==read_only_calls);policy_ready=1;
+ ready_change_wan=1;assert(!wr_iot_active_filter_ready_current()&&apply_calls==read_only_calls);
+ ready_change_wan=0;current_wan="eth2.2";
  gate=0;services_ready=0;assert(!wr_iot_policy_enable_current());assert(!gate&&!apply_calls);
  services_ready=1;assert(wr_iot_policy_enable_current());assert(gate==1);
  gate=0;policy_ready=0;assert(!wr_iot_policy_enable_current());assert(gate==0);policy_ready=1;

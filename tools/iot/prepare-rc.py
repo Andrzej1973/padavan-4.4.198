@@ -690,6 +690,16 @@ for name in ('precreated-stop.h','service-guard.h','bridge.h'):
 make=m.read_text(encoding='utf-8')
 if make.count('wr-iot-driver-close-controller.o')!=1:raise SystemExit('Precreated stop object anchor changed')
 m.write_text(make.replace('wr-iot-driver-close-controller.o','wr-iot-driver-close-controller.o wr-iot-precreated-stop.o',1),encoding='utf-8')
+(headers/'driver-open-controller.h').write_bytes((local/'driver-open-controller.h').read_bytes())
+open_owner=(local/'driver-open-controller.c').read_text(encoding='utf-8')
+for name in ('driver-open-controller.h','request-stage.h','service-guard.h','network-check.h','bridge.h','quarantine.h'):
+ open_owner=open_owner.replace('#include "'+name+'"','#include "wr-iot/'+name+'"',1)
+(rc/'wr-iot-driver-open-controller.c').write_text(open_owner,encoding='utf-8')
+make=m.read_text(encoding='utf-8')
+if make.count('wr-iot-precreated-stop.o')!=1:raise SystemExit('Driver OPEN controller object anchor changed')
+m.write_text(make.replace('wr-iot-precreated-stop.o','wr-iot-precreated-stop.o wr-iot-driver-open-controller.o',1),encoding='utf-8')
+report['driver_open_controller_staged']=True
+report['driver_open_controller_bound']=False
 report['precreated_stop_owner_staged']=True
 report['precreated_stop_runtime_bound']=False
 report['linux_driver_close_controller_staged']=True

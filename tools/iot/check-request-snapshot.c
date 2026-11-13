@@ -7,6 +7,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include "request.h"
 
 struct entry {const char *key;char value[128];};
 static struct entry values[]={
@@ -216,6 +217,22 @@ int main(void){
   assert(!strcmp(find("wr_iot_psk_t")->value,"foreign writer"));
   strcpy(find("wr_iot_psk_t")->value,saved);
   assert(wr_iot_disable_commit(&stop)&&!depth);
+ }
+ {
+  struct wr_iot_request request={.enabled=1,.ssid="IoT test",.password="password123",
+   .gateway="192.168.50.1",.mask="255.255.255.0",.first="192.168.50.20",.last="192.168.50.200"};
+  prepared(&s);strcpy(values[8].value,"1");strcpy(values[9].value,"1");
+  int before=writes;
+  assert(wr_iot_request_stage_matches(&request)&&writes==before);
+  for(int field=7;field<16;field++){
+   char saved[128];strcpy(saved,values[field].value);strcpy(values[field].value,"foreign");
+   assert(!wr_iot_request_stage_matches(&request)&&writes==before);
+   strcpy(values[field].value,saved);
+  }
+  guard_invalid=1;assert(!wr_iot_request_stage_matches(&request));guard_invalid=0;
+  memset(request.ssid,'x',sizeof(request.ssid));assert(!wr_iot_request_stage_matches(&request));
+  strcpy(values[8].value,"0");strcpy(values[9].value,"0");
+  assert(wr_iot_request_snapshot_restore(&s)&&wr_iot_request_snapshot_finish(&s)&&!depth);
  }
  puts("PASS IoT temporary snapshot and actual reserved OFF composition: guarded rollback/resume, gate ownership, all6 partial credential cleanup retries; NVRAM/DNS/netdev hooks injected, production startup and RF unverified");return 0;
 }

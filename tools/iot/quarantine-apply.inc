@@ -70,6 +70,13 @@ int wr_iot_active_filter_apply(const char *lan,const char *wan)
  return 0;
 #endif
 }
+int wr_iot_active_filter_ready_current(void)
+{
+ char before[16],after[16];
+ if(!wr_iot_policy_current_wan(before)||
+    !wr_iot_active_filter_ready(IFNAME_BR,before))return 0;
+ return wr_iot_policy_current_wan(after)&&!strcmp(before,after);
+}
 int wr_iot_active_filter_apply_current(void)
 {
  char before[16],after[16];

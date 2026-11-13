@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <unistd.h>
 #include <net/if.h>
 #include "request-stage.h"
 #include "request.h"
@@ -116,4 +117,23 @@ int wr_iot_request_stage_from(const char *(*read)(void *,const char *),void *con
 int wr_iot_request_stage(int router_mode,int radio_on,int radio_mode)
 {
  return wr_iot_request_stage_from(wr_iot_request_nvram,NULL,router_mode,radio_on,radio_mode);
+}
+
+int wr_iot_request_stage_matches(const struct wr_iot_request *request)
+{
+ static const char *const keys[]={"wr_iot_ssid_t","wr_iot_psk_t",
+  "wr_iot_gateway_t","wr_iot_mask_t","wr_iot_start_t","wr_iot_end_t"};
+ const char *expected[6];size_t capacities[6],i;int guard;
+ if(!request||request->enabled!=1)return 0;
+ guard=wr_iot_service_guard_dup();if(guard<0)return 0;
+ if(close(guard))return 0;
+#define FIELD(n,name) expected[n]=request->name;capacities[n]=sizeof(request->name)
+ FIELD(0,ssid);FIELD(1,password);FIELD(2,gateway);FIELD(3,mask);FIELD(4,first);FIELD(5,last);
+#undef FIELD
+ if(strcmp(nvram_safe_get("wr_iot_profile_t"),"1")||
+    strcmp(nvram_safe_get("wr_iot_network_t"),"1")||
+    strcmp(nvram_safe_get("wr_iot_firewall_t"),"1"))return 0;
+ for(i=0;i<6;i++)if(!memchr(expected[i],0,capacities[i])||
+    strcmp(nvram_safe_get(keys[i]),expected[i]))return 0;
+ return 1;
 }
