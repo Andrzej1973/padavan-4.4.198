@@ -1,0 +1,54 @@
+{
+  "implementation": [
+    "tools/iot/start-runner.c",
+    "tools/iot/start-runner.h"
+  ],
+  "test": "check-start-runner.c ASan/UBSan PASS",
+  "scope": "actual runner, component adapters injected",
+  "cases": [
+    "success",
+    "read-only cancel",
+    "stage mutation pre-OPEN rollback",
+    "network failure pre-OPEN rollback",
+    "uncertain OPEN CLOSE then rollback",
+    "precommit refusal CLOSE then rollback",
+    "uncertain DNS commit retained without replay",
+    "confirmed DNS commit failure normal OFF then closed rollback"
+  ],
+  "fixture_correction": "confirmed-commit adapter returns committed on first call, expected call count corrected from2 to1",
+  "pending": [
+    "actual component composition including normal OFF",
+    "prepared RC/MIPS",
+    "production execute/result bindings",
+    "image/device verification"
+  ],
+  "runtime_verified": false,
+  "cleanup": "TemporaryDirectory binaries removed",
+  "preopen_composition": {
+    "test": "check-start-runner-composition.py",
+    "result": "PASS ASan/UBSan actual runner/admission/stage/snapshot/pre-OPEN rollback",
+    "cases": "16 staging setter faults and network refusal; exact9 baseline values, guard released only after restoration, no OPEN/DNS abort, pending shutdown retained",
+    "adapters": "network/driver/netdev observations injected",
+    "fixture_correction": "Reused fixture candidate_read was unused with Werror; explicitly checked fixture accessor then reran successfully"
+  },
+  "commit_phase_integration_fix": {
+    "cause": "Successful first commit step returns0 with DNS_COMMITTED; runner incorrectly treated normal progress as failure and started OFF.",
+    "fix": "Capture phase before call; route to normal OFF only when already DNS_COMMITTED before a refused second step.",
+    "test": "ASan/UBSan actual runner fixture now models two-step success and second-step failure; PASS",
+    "scope": "component adapters injected; full actual commit/runner composition pending"
+  },
+  "actual_commit_composition": {
+    "test": "check-start-runner-commit-composition.c",
+    "result": "PASS ASan/UBSan strict GCC",
+    "coverage": "actual runner + actual start-commit.c; two-step success, commit uncertainty no replay, suspend refusal -> normal OFF",
+    "limitations": "admission/network/DNS/CLOSE/OFF resource components injected; production binding and device verification pending",
+    "cleanup": "TemporaryDirectory compiler outputs removed"
+  },
+  "host_fixture_mode_fix": "Full preflight uses strict C11; added _GNU_SOURCE before fixture headers for existing POSIX file API declarations. Both runner fixtures then pass. No production API change.",
+  "prepared_rc": {
+    "source": "pinned c25283e40 RC files",
+    "result": "PASS exact runner/header/object verification and native staged TU compile",
+    "dependency_fix": "RC preparation now stages control-record.h independently of control preparation",
+    "mips": "workflow includes runner TU; new-source result pending"
+  }
+}
