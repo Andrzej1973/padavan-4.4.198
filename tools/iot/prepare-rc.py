@@ -682,6 +682,16 @@ close_controller=close_controller.replace('#include "driver-close-controller.h"'
 make=m.read_text(encoding='utf-8')
 if make.count('wr-iot-driver-api-client.o')!=1:raise SystemExit('Driver close controller object anchor changed')
 m.write_text(make.replace('wr-iot-driver-api-client.o','wr-iot-driver-api-client.o wr-iot-driver-close-controller.o',1),encoding='utf-8')
+(headers/'precreated-stop.h').write_bytes((local/'precreated-stop.h').read_bytes())
+stop_owner=(local/'precreated-stop.c').read_text(encoding='utf-8')
+for name in ('precreated-stop.h','service-guard.h','bridge.h'):
+ stop_owner=stop_owner.replace('#include "'+name+'"','#include "wr-iot/'+name+'"',1)
+(rc/'wr-iot-precreated-stop.c').write_text(stop_owner,encoding='utf-8')
+make=m.read_text(encoding='utf-8')
+if make.count('wr-iot-driver-close-controller.o')!=1:raise SystemExit('Precreated stop object anchor changed')
+m.write_text(make.replace('wr-iot-driver-close-controller.o','wr-iot-driver-close-controller.o wr-iot-precreated-stop.o',1),encoding='utf-8')
+report['precreated_stop_owner_staged']=True
+report['precreated_stop_runtime_bound']=False
 report['linux_driver_close_controller_staged']=True
 report['linux_driver_api_client_staged']=True
 report['linux_driver_api_client_activation_bound']=False
