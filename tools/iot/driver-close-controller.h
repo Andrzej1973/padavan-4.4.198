@@ -25,4 +25,8 @@ int wr_iot_close_controller_progress(struct wr_iot_close_controller *);
 /* Advance only after reference retirement. Retains original identity across
  * uncertain release replies. Requires the experimental operation14 driver. */
 int wr_iot_close_controller_release(struct wr_iot_close_controller *);
+/* One bounded recovery step: at most one progress/release ioctl per call.
+ * Returns1 only at OWNER_RELEASED; never submits CLOSE or clears the receipt.
+ * The activation owner must still establish its network teardown predicates. */
+int wr_iot_close_controller_advance(struct wr_iot_close_controller *);
 #endif

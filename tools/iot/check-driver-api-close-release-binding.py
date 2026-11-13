@@ -16,9 +16,25 @@ prefix = prefix.replace(' struct wr_iot_driver_owner wr_iot_driver_owner;',
 prefix = prefix.replace('} *PRTMP_ADAPTER;', '} RTMP_ADAPTER,*PRTMP_ADAPTER;')
 prefix = prefix.replace('assert(!*(lock));*(lock)=1;',
                         'assert(!ad->BcnRingLock&&!ad->wr_iot_transition_lock);*(lock)=1;')
+# Inject intent after the second producer snapshot, immediately before the
+# final transition lock. This exercises the disjoint-lock commit boundary.
+prefix = prefix.replace('#define RTMP_IRQ_LOCK(lock,flags)',
+                        'static void before_transition_lock(RTMP_ADAPTER *ad);\n'
+                        '#define RTMP_IRQ_LOCK(lock,flags)')
+prefix = prefix.replace('(flags)=0;assert(',
+                        '(flags)=0;before_transition_lock(ad);assert(')
 code = prefix + r'''
 #define WR_IOT_RA2_NO_HOST_MODE 1
-static int fault,progress_calls,probe_calls;
+static int fault,progress_calls,probe_calls,transition_locks;
+static void before_transition_lock(RTMP_ADAPTER *ad)
+{
+ assert(!ad->BcnRingLock&&!ad->wr_iot_transition_lock);
+ if(++transition_locks!=2)return;
+ if(fault==9)assert(wr_iot_radio_request_reset_kind(&ad->wr_iot_transition,WR_RADIO_RESET_PDMA));
+ if(fault==10)ad->wr_iot_transition.pm_suspending=1;
+ if(fault==11)ad->wr_iot_transition.retiring=1;
+ if(fault==12)ad->wr_iot_transition.epoch++;
+}
 static int rtnl_is_locked(void){return fault!=1;}
 static INT wr_iot_driver_close_progress(RTMP_ADAPTER *ad,PNET_DEV dev,
  const struct wr_iot_driver_close_request *request)
@@ -46,7 +62,7 @@ static INT wr_iot_mt7603_closed_probe(RTMP_ADAPTER *ad,PNET_DEV dev,
 #include "driver-api-close-release-binding.inc"
 int main(void)
 {
- for(fault=0;fault<9;fault++){
+ for(fault=0;fault<13;fault++){
   struct device main_dev={1},iot_dev={0};
   RTMP_ADAPTER storage={.mt7603=1,.net_dev=&main_dev,.ApCfg.BssidNum=3},*ad=&storage;
   struct wr_iot_driver_close_request request={{1},1,2,3};
@@ -70,7 +86,7 @@ int main(void)
   open->receipt.generation=2;open->receipt.open_token=3;open->receipt.request_id[0]=1;
   if(fault==7)ad->wr_iot_beacon_gates[2].active=1;
   if(fault==8)open->active=1;
-  progress_calls=probe_calls=0;
+  progress_calls=probe_calls=transition_locks=0;
   int status=wr_iot_driver_close_release(ad,&iot_dev,&request);
   assert((status==0)==(fault==0));
   assert(close->active==(fault!=0));
@@ -83,7 +99,7 @@ int main(void)
    assert(wr_iot_driver_close_release(ad,&iot_dev,&request)==-EAGAIN);
   }
  }
- puts("PASS actual experimental release binding: progress/probe refusal, reset/generation/control drift, disjoint locks, replay and replaced OPEN receipt; injected hardware and retirement");
+ puts("PASS actual experimental release binding: progress/probe refusal, reset/generation/control drift, post-snapshot reset/PM/removal/epoch intent, disjoint locks, replay and replaced OPEN receipt; injected hardware and retirement");
  return 0;
 }
 '''

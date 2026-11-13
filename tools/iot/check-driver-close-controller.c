@@ -74,5 +74,25 @@ int main(void)
  assert(wr_iot_close_controller_release(&state)&&releases==release_count);
  assert(!wr_iot_close_controller_begin(&state,&attempt,&receipt)&&closes==close_count);
  assert(!wr_iot_close_controller_release(NULL));
- puts("PASS single CLOSE submission, pending progress and retained uncertain ownership");return 0;
+ /* Recovery polling must not report quiescence at mere reference retirement
+  * and may issue at most one ioctl, with no hidden CLOSE retry. */
+ memset(&state,0,sizeof(state));
+ unsigned old_closes=closes,old_progress=progresses,old_releases=releases;
+ assert(!wr_iot_close_controller_advance(NULL));
+ assert(!wr_iot_close_controller_advance(&state));
+ assert(closes==old_closes&&progresses==old_progress&&releases==old_releases);
+ close_result=WR_IOT_DRIVER_CLOSE_CALL_COMPLETED;
+ assert(wr_iot_close_controller_begin(&state,&attempt,&receipt));
+ progress_result=WR_IOT_DRIVER_CLOSE_CALL_COMPLETED;
+ assert(!wr_iot_close_controller_advance(&state));
+ assert(state.phase==WR_IOT_CLOSE_REFERENCE_RETIRED);
+ assert(progresses==old_progress+1&&releases==old_releases&&closes==old_closes+1);
+ release_result=WR_IOT_DRIVER_CLOSE_UNCERTAIN;
+ assert(!wr_iot_close_controller_advance(&state));
+ assert(state.phase==WR_IOT_CLOSE_RELEASE_UNCERTAIN&&releases==old_releases+1);
+ release_result=WR_IOT_DRIVER_CLOSE_CALL_COMPLETED;
+ assert(wr_iot_close_controller_advance(&state));
+ assert(releases==old_releases+2&&closes==old_closes+1&&progresses==old_progress+1);
+ assert(wr_iot_close_controller_advance(&state)&&releases==old_releases+2);
+ puts("PASS single CLOSE submission, retained uncertain ownership and one-ioctl recovery steps; retirement is not owner release");return 0;
 }

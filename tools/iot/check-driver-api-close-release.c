@@ -55,7 +55,17 @@ int main(void)
    assert(!close.active);
    assert(wr_iot_driver_close_release_reference(&close,&open,&request,&radio,
      slots,2,&main_dev,&device,1,&probe,&producer,7));
-   open.receipt.valid=0;
+   /* A fresh Linux OPEN reservation invalidates the old release receipt.
+    * Exercise the actual reserve helper, not a fabricated valid-bit change. */
+   struct wr_iot_driver_open_request next={0};int task;
+   next.request_id[0]=2;next.adapter_epoch=radio.epoch;
+   next.device_generation=iot->generation;
+   radio.serial=radio.retired_serial;
+   assert(wr_iot_driver_owner_query(&open,next.request_id,radio.epoch,iot->generation));
+   assert(wr_iot_driver_owner_reserve(&open,&radio,slots,2,&main_dev,&device,
+      1,&task,&next,0,0));
+   assert(open.active&&!open.receipt.valid&&iot->phase==WR_REF_RESERVED);
+   assert(!close.active);
    assert(!wr_iot_driver_close_release_reference(&close,&open,&request,&radio,
      slots,2,&main_dev,&device,1,&probe,&producer,7));
   }

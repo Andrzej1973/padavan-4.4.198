@@ -46,3 +46,21 @@ int wr_iot_close_controller_release(struct wr_iot_close_controller *state)
   state->phase=WR_IOT_CLOSE_RELEASE_PENDING;
  return 0;
 }
+
+int wr_iot_close_controller_advance(struct wr_iot_close_controller *state)
+{
+ if(!state)return 0;
+ switch(state->phase){
+ case WR_IOT_CLOSE_SUBMITTED:
+ case WR_IOT_CLOSE_UNCERTAIN:
+  (void)wr_iot_close_controller_progress(state);
+  return 0;
+ case WR_IOT_CLOSE_REFERENCE_RETIRED:
+ case WR_IOT_CLOSE_RELEASE_PENDING:
+ case WR_IOT_CLOSE_RELEASE_UNCERTAIN:
+ case WR_IOT_CLOSE_OWNER_RELEASED:
+  return wr_iot_close_controller_release(state);
+ default:
+  return 0;
+ }
+}
