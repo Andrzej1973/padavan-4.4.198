@@ -10,10 +10,11 @@ enum wr_iot_start_runner_phase {
  WR_IOT_RUN_IDLE,WR_IOT_RUN_STAGE,WR_IOT_RUN_NETWORK,WR_IOT_RUN_OPEN,
  WR_IOT_RUN_COMMIT,WR_IOT_RUN_COMMITTED_OFF,WR_IOT_RUN_CLOSE,WR_IOT_RUN_PRE_ROLLBACK,
  WR_IOT_RUN_CLOSED_ROLLBACK,WR_IOT_RUN_UNCERTAIN,
- WR_IOT_RUN_ACTIVE,WR_IOT_RUN_REJECTED
+ WR_IOT_RUN_ACTIVE,WR_IOT_RUN_REJECTED,WR_IOT_RUN_STOPPING,WR_IOT_RUN_STOPPED
 };
 struct wr_iot_start_runner {
  pid_t owner;
+ int busy;
  enum wr_iot_start_runner_phase phase;
  struct wr_iot_control_request input;
  unsigned char nonce[16];
@@ -32,4 +33,8 @@ int wr_iot_start_runner_begin(struct wr_iot_start_runner *,
 /* One phase; RECOVERY result retains shutdown and service ownership. Caller
  * continues this same object rather than replaying a claimed request. */
 enum wr_iot_result_state wr_iot_start_runner_step(struct wr_iot_start_runner *);
+/* RC continuation uses the retained request identity; it must never reload
+ * credentials or initialize a replacement runner from mailbox state. */
+enum wr_iot_result_state wr_iot_start_runner_continue(struct wr_iot_start_runner *,
+ const char *,unsigned long long);
 #endif

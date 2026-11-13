@@ -35,7 +35,7 @@ int main(void){
   }
   quarantine_ready=1;
   enum wr_iot_result_state result=WR_IOT_RESULT_RECOVERY;
-  for(unsigned i=0;i<55&&result==WR_IOT_RESULT_RECOVERY;i++)result=wr_iot_start_runner_step(&s);
+  for(unsigned i=0;i<55&&result==WR_IOT_RESULT_RECOVERY;i++)result=wr_iot_start_runner_continue(&s,input.id,input.created);
   assert(result==WR_IOT_RESULT_REJECTED&&!depth&&!s.admission.snapshot.active&&s.open.phase==WR_IOT_OPEN_CONFIRMED&&abort_calls==0&&s.stop.phase==WR_IOT_STOP_COMPLETE&&closes==1&&progresses==1&&releases==1);
   for(unsigned i=0;i<9;i++)assert(!strcmp(baseline[i],values[7+i].value));
   assert(!wr_iot_rc_shutdown.pending);

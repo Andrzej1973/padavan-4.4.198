@@ -1,0 +1,29 @@
+{
+  "scope": "local active normal-OFF composition; driver/network adapters injected",
+  "implementation": [
+    "active-stop owns new OFF ID/created under same PID",
+    "resume retained snapshot guard before OFF admission",
+    "existing precreated-stop controls CLOSE/isolation/DNS/bridge",
+    "discard startup baseline only after normal OFF completion; do not restore it",
+    "STOPPING/STOPPED prevent old ON continuation from returning APPLIED"
+  ],
+  "tests": [
+    "strict native active-stop TU PASS",
+    "ASan UBSan actual runner/admission/snapshot/precreated-stop/close-controller composition PASS",
+    "three isolation refusals retain both snapshots and guards",
+    "wrong request/time/busy calls do not submit CLOSE",
+    "one CLOSE/progress/release; terminal retry no replay",
+    "temporary settings zero/empty after complete; no baseline restoration",
+    "Successful OFF clears retained ON request credentials; final targeted ASan/UBSan composition PASS",
+    "Full check-host-compatibility.py PASS exit0:71 standalone fixtures plus actual composition suite"
+  ],
+  "integration": "Actual pinned RC40-file subset prepared; exact transformed active-stop/start-runner sources and single Makefile objects verified; both prepared TUs compile natively with -Wall -Wextra -Werror -O2. MIPS ABI workflow extended; execution pending publication.",
+  "remaining": [
+    "prepared RC compilation",
+    "full preflight",
+    "production backend/scheduler binding",
+    "OFF/reopen lifecycle",
+    "physical runtime"
+  ],
+  "cleanup": "TemporaryDirectory outputs removed, no retained scratch"
+}

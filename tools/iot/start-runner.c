@@ -45,7 +45,7 @@ static void runner_recover(struct wr_iot_start_runner *s)
   s->phase=WR_IOT_RUN_CLOSE;
  else s->phase=WR_IOT_RUN_UNCERTAIN;
 }
-enum wr_iot_result_state wr_iot_start_runner_step(struct wr_iot_start_runner *s)
+static enum wr_iot_result_state runner_step(struct wr_iot_start_runner *s)
 {
  if(!s||s->owner!=getpid())return WR_IOT_RESULT_RECOVERY;
  switch(s->phase){
@@ -100,4 +100,23 @@ enum wr_iot_result_state wr_iot_start_runner_step(struct wr_iot_start_runner *s)
  if(s->phase==WR_IOT_RUN_ACTIVE)return WR_IOT_RESULT_APPLIED;
  if(s->phase==WR_IOT_RUN_REJECTED)return WR_IOT_RESULT_REJECTED;
  return WR_IOT_RESULT_RECOVERY;
+}
+
+enum wr_iot_result_state wr_iot_start_runner_step(struct wr_iot_start_runner *s)
+{
+ enum wr_iot_result_state result;
+ if(!s||s->owner!=getpid()||s->busy||!wr_iot_rc_shutdown.active)
+  return WR_IOT_RESULT_RECOVERY;
+ s->busy=1;result=runner_step(s);s->busy=0;
+ return result;
+}
+enum wr_iot_result_state wr_iot_start_runner_continue(struct wr_iot_start_runner *s,
+ const char *id,unsigned long long created)
+{
+ if(!s||!id||!created||s->owner!=getpid()||s->busy||
+    !wr_iot_control_id(id)||
+    !memchr(s->input.id,0,sizeof(s->input.id))||
+    strcmp(id,s->input.id)||created!=s->input.created)
+  return WR_IOT_RESULT_RECOVERY;
+ return wr_iot_start_runner_step(s);
 }

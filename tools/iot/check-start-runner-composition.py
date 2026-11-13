@@ -24,7 +24,7 @@ int main(void){
   fail_write=failure;assert(wr_iot_start_runner_step(&s)==WR_IOT_RESULT_RECOVERY);
   fail_write=0;wr_iot_rc_shutdown.pending=SIGTERM;
   enum wr_iot_result_state result=WR_IOT_RESULT_RECOVERY;
-  for(unsigned i=0;i<20&&result==WR_IOT_RESULT_RECOVERY;i++)result=wr_iot_start_runner_step(&s);
+  for(unsigned i=0;i<20&&result==WR_IOT_RESULT_RECOVERY;i++)result=wr_iot_start_runner_continue(&s,input.id,input.created);
   assert(result==WR_IOT_RESULT_REJECTED&&!depth&&!s.admission.snapshot.active&&s.open.phase==WR_IOT_OPEN_IDLE&&!abort_calls);
   for(unsigned i=0;i<9;i++)assert(!strcmp(baseline[i],values[7+i].value));
   assert(wr_iot_rc_shutdown.pending==SIGTERM);

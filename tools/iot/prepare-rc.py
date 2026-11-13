@@ -767,6 +767,18 @@ if make.count('wr-iot-start-commit.o')!=1:raise SystemExit('Startup runner objec
 m.write_text(make.replace('wr-iot-start-commit.o','wr-iot-start-commit.o wr-iot-start-runner.o',1),encoding='utf-8')
 report['start_runner_staged']=True
 report['start_runner_runtime_bound']=False
+
+(headers/'active-stop.h').write_bytes((local/'active-stop.h').read_bytes())
+unit=(local/'active-stop.c').read_text(encoding='utf-8')
+for name in ('active-stop.h','rc-shutdown-admission.h'):
+ unit=unit.replace('#include "'+name+'"','#include "wr-iot/'+name+'"',1)
+(rc/'wr-iot-active-stop.c').write_text(unit,encoding='utf-8')
+make=m.read_text(encoding='utf-8')
+if make.count('wr-iot-start-runner.o')!=1:raise SystemExit('Active stop object anchor changed')
+m.write_text(make.replace('wr-iot-start-runner.o','wr-iot-start-runner.o wr-iot-active-stop.o',1),encoding='utf-8')
+report['active_stop_staged']=True
+report['active_stop_runtime_bound']=False
+
 report['start_network_staged']=True
 report['start_network_runtime_bound']=False
 report['start_admission_staged']=True

@@ -1,0 +1,29 @@
+{
+  "scope": "local retained runner continuation; not production backend binding",
+  "changes": [
+    "same PID/ID/created continuation of existing runner",
+    "busy guard around each step",
+    "shutdown admission required",
+    "composition recovery loops use identity checked continuation"
+  ],
+  "checks": [
+    "strict C11 O2 standalone ASan UBSan PASS",
+    "pre-OPEN actual snapshot rollback composition PASS",
+    "post-OPEN delayed CLOSE composition PASS",
+    "committed startup failure normal OFF composition PASS"
+  ],
+  "negative_checks": [
+    "foreign ID",
+    "different creation time",
+    "foreign owner",
+    "busy/reentrant step",
+    "inactive shutdown admission"
+  ],
+  "remaining": [
+    "production execute/continue/result bindings",
+    "bounded RC scheduling",
+    "new target compilation",
+    "physical runtime acceptance"
+  ],
+  "cleanup": "TemporaryDirectory outputs removed; no retained scratch"
+}
