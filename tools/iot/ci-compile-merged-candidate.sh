@@ -630,3 +630,8 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   bash tools/iot/ci-compile-reload-feature.sh "$kernel" "$compiler" "$results/reload-feature"
   bash tools/iot/ci-compile-psm-diagnostics.sh "$kernel" "$compiler" "$results/psm-diagnostics"
 fi
+
+# Full user-space candidate link is separate from driver and image acceptance.
+if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
+  bash tools/iot/compile-runtime-link.sh "$PWD/padavan-4.4/trunk" "$compiler" "$results/runtime-link"
+fi
