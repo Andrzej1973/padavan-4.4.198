@@ -56,6 +56,7 @@ with tempfile.TemporaryDirectory(prefix='wr-iot-host-preflight-') as scratch:
     subprocess.run([sys.executable, '-B', str(here / 'check-active-stop-composition.py')], check=True)
     subprocess.run([sys.executable, '-B', str(here / 'check-activation-owner-composition.py')], check=True)
     subprocess.run([sys.executable, '-B', str(here / 'check-rc-owner-composition.py')], check=True)
+    subprocess.run([sys.executable, '-B', str(here / 'check-activation-observe-composition.py')], check=True)
     subprocess.run([sys.executable, '-B', str(here / 'check-start-network-composition.py')], check=True)
     subprocess.run([sys.executable, '-B', str(here / 'check-dns-recovery-state.py')], check=True)
     subprocess.run([sys.executable, '-B', str(here / 'check-dns-abort-composition.py')], check=True)

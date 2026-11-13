@@ -8,13 +8,20 @@ body=next(ast.literal_eval(n.value) for n in ast.parse(source).body if isinstanc
 prefix=(here/'check-start-closed-rollback-composition.c').read_text().split('int main(void){',1)[0]
 prefix='\n'.join(line for line in prefix.splitlines() if not line.startswith(('int wr_iot_open_controller_recovery_read(', 'int wr_iot_close_controller_begin(', 'int wr_iot_close_controller_advance(')))+'\n'
 prefix+=(here/'check-driver-close-controller.c').read_text().split('int main(void)',1)[0]
-body=body.split('int main(void){',1)[0]+r'''
+observer_source=(here/'check-activation-observe-composition.py').read_text()
+observer_hooks=next(ast.literal_eval(n.value) for n in ast.parse(observer_source).body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='hooks' for t in n.targets))
+body=body.replace('s->phase=WR_IOT_COMMIT_ACTIVE;return 1;','s->owner=getpid();s->open_token=3;s->phase=WR_IOT_COMMIT_ACTIVE;return 1;')
+body=body.split('int main(void){',1)[0]+observer_hooks+r'''
 static char mailbox_directory[]="/tmp/iot-rc-owner-mailbox-XXXXXX";
 #define WR_IOT_CONTROL_DIRECTORY mailbox_directory
 #include "control-server.c"
+#include "activation-observe.h"
+#define WR_IOT_NOTIFY() ((void)0)
+#include "control-client.c"
 static struct wr_iot_activation_owner backend;
 static unsigned executions,continuations;
 static volatile sig_atomic_t shutdowns;
+int wr_iot_activation_result_observed(const struct wr_iot_control_result *r){return wr_iot_activation_owner_observed(&backend,r);}
 static void signal_handler(int sig){assert(sig==SIGTERM);if(!wr_iot_rc_shutdown_note(sig))shutdowns++;}
 enum wr_iot_result_state wr_iot_activation_execute(const struct wr_iot_control_request *r){
  executions++;return wr_iot_activation_owner_execute(&backend,r,1,1,0);
@@ -34,6 +41,7 @@ static void terminal(const char *id){
  assert(wr_iot_mailbox_result(&m,&result)&&!strcmp(id,result.id)&&result.state==WR_IOT_RESULT_APPLIED);
  assert(faccessat(m.directory,"request",F_OK,0)&&errno==ENOENT);
  wr_iot_mailbox_close(&m);
+ assert(wr_iot_rc_status(id,&result)&&result.state==WR_IOT_RESULT_APPLIED);
 }
 int main(void){
  struct wr_iot_control_request on={.id="01010101010101010101010101010101",.request={.enabled=1,.ssid="IoT",.password="password123",.gateway="192.168.50.1",.mask="255.255.255.0",.first="192.168.50.20",.last="192.168.50.200"}};
@@ -72,6 +80,6 @@ int main(void){
 with tempfile.TemporaryDirectory(prefix='iot-rc-owner-compose-') as d:
  subprocess.run([sys.executable,str(here/'prepare-request-stage-check.py'),d],check=True)
  unit=Path(d)/'check.c';unit.write_text(prefix+body);binary=Path(d)/'check'
- units=('control-mailbox.c','activation-owner.c','active-stop.c','start-runner.c','start-network-rollback.c','start-close.c','start-closed-rollback.c','precreated-stop.c','start-admission.c','request-stage.c','request-snapshot.c','disable-services.c','disable-controller.c','profile.c')
+ units=('activation-observe.c','control-mailbox.c','activation-owner.c','active-stop.c','start-runner.c','start-network-rollback.c','start-close.c','start-closed-rollback.c','precreated-stop.c','start-admission.c','request-stage.c','request-snapshot.c','disable-services.c','disable-controller.c','profile.c')
  subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+d,'-I'+str(here),str(unit),*[str(here/n) for n in units],'-o',str(binary)],check=True)
  subprocess.run([str(binary)],check=True)

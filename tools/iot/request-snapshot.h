@@ -24,6 +24,10 @@ int wr_iot_request_snapshot_finish(struct wr_iot_request_snapshot *);
  * This detects current value differences, not intervening change-and-revert. */
 int wr_iot_request_snapshot_suspend(struct wr_iot_request_snapshot *);
 int wr_iot_request_snapshot_resume(struct wr_iot_request_snapshot *);
+/* Read-only ACTIVE observation under a separately held service guard.
+ * Does not resume, refresh expected values or take ownership on behalf of status. */
+int wr_iot_request_snapshot_expected_current(const struct wr_iot_request_snapshot *);
+
 /* Separate normal-OFF mode: capture CURRENT values with the owned bridge
  * present. Close gates only after administrative BSS DOWN; retain bridge for
  * DNS service recovery. Forget credentials only after bridge removal.
@@ -36,4 +40,6 @@ int wr_iot_request_disable_close_gates(struct wr_iot_request_snapshot *);
 /* Read-only owned values check after gate closure, before profile mutation. */
 int wr_iot_request_disable_ready(struct wr_iot_request_snapshot *);
 int wr_iot_request_disable_forget(struct wr_iot_request_snapshot *);
+/* Caller holds service guard; temporary OFF gates and credentials only. */
+int wr_iot_request_disabled_current(void);
 #endif

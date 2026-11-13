@@ -26,9 +26,22 @@ int main(void){
  assert(owner.snapshot.active&&!owner.snapshot.token&&owner.snapshot.expected_valid);
  for(unsigned field=7;field<16;field++){
   char saved[128];strcpy(saved,values[field].value);strcpy(values[field].value,"foreign-active");
+  assert(!wr_iot_request_snapshot_expected_current(&owner.snapshot));
+  int guard=wr_iot_service_guard_enter(1);assert(guard==1);
+  struct wr_iot_request_snapshot before=owner.snapshot;
+  int before_writes=writes;
+  assert(!wr_iot_request_snapshot_expected_current(&owner.snapshot));
+  assert(!memcmp(&before,&owner.snapshot,sizeof(before))&&writes==before_writes&&depth==1);
+  wr_iot_service_guard_leave(guard);
   assert(!wr_iot_request_snapshot_resume(&owner.snapshot)&&!depth&&!owner.snapshot.token);
   strcpy(values[field].value,saved);
  }
+ assert(!wr_iot_request_snapshot_expected_current(&owner.snapshot));
+ int observation_guard=wr_iot_service_guard_enter(1);assert(observation_guard==1);
+ struct wr_iot_request_snapshot observation_before=owner.snapshot;
+ assert(wr_iot_request_snapshot_expected_current(&owner.snapshot));
+ assert(!memcmp(&observation_before,&owner.snapshot,sizeof(observation_before))&&depth==1);
+ wr_iot_service_guard_leave(observation_guard);
  assert(wr_iot_request_snapshot_resume(&owner.snapshot)&&depth==1);
  for(unsigned i=0;i<9;i++)assert(!strcmp(owner.snapshot.values[i],baseline[i]));
  /* Fixture only: administrative/radio/bridge teardown is injected here. */

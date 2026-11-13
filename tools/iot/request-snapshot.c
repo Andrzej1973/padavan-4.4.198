@@ -163,3 +163,23 @@ int wr_iot_request_snapshot_resume(struct wr_iot_request_snapshot *s)
  }
  s->token=token;return 1;
 }
+
+int wr_iot_request_snapshot_expected_current(const struct wr_iot_request_snapshot *s)
+{
+ int fd;
+ if(!s||!s->active||s->token||s->owner!=getpid()||s->recovering||
+    s->disabling||!s->expected_valid)return 0;
+ fd=wr_iot_service_guard_dup();
+ if(fd<0)return 0;
+ if(close(fd))return 0;
+ return expected_matches(s);
+}
+
+int wr_iot_request_disabled_current(void)
+{
+ size_t i;int fd=wr_iot_service_guard_dup();
+ if(fd<0)return 0;
+ if(close(fd))return 0;
+ for(i=0;i<9;i++)if(strcmp(nvram_safe_get(keys[i]),i<3?"0":""))return 0;
+ return 1;
+}

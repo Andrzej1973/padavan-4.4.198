@@ -790,6 +790,18 @@ m.write_text(make.replace('wr-iot-active-stop.o','wr-iot-active-stop.o wr-iot-ac
 report['activation_owner_staged']=True
 report['activation_owner_runtime_bound']=False
 
+(headers/'activation-observe.h').write_bytes((local/'activation-observe.h').read_bytes())
+unit=(local/'activation-observe.c').read_text(encoding='utf-8')
+for name in ('activation-observe.h','service-guard.h','request-stage.h','network-check.h','bridge.h','quarantine.h','dns-activation.h'):
+ unit=unit.replace('#include "'+name+'"','#include "wr-iot/'+name+'"',1)
+(rc/'wr-iot-activation-observe.c').write_text(unit,encoding='utf-8')
+make=m.read_text(encoding='utf-8')
+if make.count('wr-iot-activation-owner.o')!=1:raise SystemExit('Activation observer object anchor changed')
+m.write_text(make.replace('wr-iot-activation-owner.o','wr-iot-activation-owner.o wr-iot-activation-observe.o',1),encoding='utf-8')
+report['activation_observer_staged']=True
+report['activation_observer_runtime_bound']=False
+
+
 
 report['start_network_staged']=True
 report['start_network_runtime_bound']=False

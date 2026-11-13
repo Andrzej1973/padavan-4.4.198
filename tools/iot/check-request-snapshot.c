@@ -42,7 +42,7 @@ static struct entry *find(const char *key){size_t i;for(i=0;i<sizeof(values)/siz
 int wr_iot_service_guard_enter(int enabled){assert(enabled==1);if(!depth&&busy)return 0;depth++;return 1;}
 void wr_iot_service_guard_leave(int token){assert(token==1&&depth>0);depth--;}
 int wr_iot_service_guard_dup(void){
- assert(depth>0);
+ if(depth<=0)return -1; /* Match actual service-guard refusal without ownership. */
 #ifdef _WIN32
  return guard_invalid?-1:open("NUL",O_RDONLY);
 #else

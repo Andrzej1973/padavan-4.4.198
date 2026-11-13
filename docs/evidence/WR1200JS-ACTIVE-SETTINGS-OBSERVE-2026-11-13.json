@@ -1,0 +1,19 @@
+{
+  "scope": "local read-only ACTIVE expected-settings observer; not full network/device status",
+  "implementation": "request_snapshot_expected_current validates suspended snapshot ownership and held service guard, compares all9 expected temporary values without refreshing snapshot",
+  "verification": [
+    "ASan UBSan actual startup/commit/snapshot composition PASS",
+    "Each of9 foreign current values rejected without writes or snapshot mutation",
+    "No guard refuses; separate held guard permits matching values",
+    "Actual DNS commit/finish composition regression PASS"
+  ],
+  "fixture_change": "service_guard_dup now returns -1 when depth0, matching actual service-guard.c instead of assert",
+  "remaining": [
+    "Complete live network/driver observation adapter",
+    "Strong RC mode/status bindings",
+    "Bounded scheduler",
+    "OFF/reopen",
+    "New target compilation"
+  ],
+  "cleanup": "TemporaryDirectory trees auto-removed; checked repository root for core dumps, none present"
+}
