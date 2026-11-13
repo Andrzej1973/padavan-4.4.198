@@ -96,6 +96,7 @@ bridge=(local/'bridge.c').read_text(encoding='utf-8').replace('#include "bridge.
 stage=(local/'request-stage.c').read_text(encoding='utf-8').replace('#include "request-stage.h"','#include "wr-iot/request-stage.h"',1).replace('#include "request.h"','#include "wr-iot/request.h"',1)
 stage=stage.replace('#include "service-guard.h"','#include "wr-iot/service-guard.h"',1)
 stage=stage.replace('#include "network-check.h"','#include "wr-iot/network-check.h"',1)
+stage=stage.replace('#include "bridge.h"','#include "wr-iot/bridge.h"',1)
 (rc/'wr-iot-request-stage.c').write_text(stage,encoding='utf-8')
 m.write_text(m.read_text(encoding='utf-8').replace('OBJS += wr-iot-bridge.o','OBJS += wr-iot-request-stage.o wr-iot-bridge.o'),encoding='utf-8')
 report={'board':'WR1200JS','candidate_bss':'ra2','bridge_object_installed':True,'owned_quiescence_before_radio_stop':False,'radio_stop_controller_contract_staged':True,'radio_stop_controller_bound':False,'activation_integrated':False,'runtime_verified':False}
@@ -707,6 +708,16 @@ for name in ('start-admission.h','request-stage.h','driver-api-client.h','servic
 make=m.read_text(encoding='utf-8')
 if make.count('wr-iot-driver-open-controller.o')!=1:raise SystemExit('Startup admission object anchor changed')
 m.write_text(make.replace('wr-iot-driver-open-controller.o','wr-iot-driver-open-controller.o wr-iot-start-admission.o',1),encoding='utf-8')
+(headers/'start-network.h').write_bytes((local/'start-network.h').read_bytes())
+network_start=(local/'start-network.c').read_text(encoding='utf-8')
+for name in ('start-network.h', 'driver-api-client.h', 'service-guard.h', 'rc-shutdown-admission.h', 'bridge.h', 'network-check.h', 'request-stage.h', 'quarantine.h', 'dns-activation.h'):
+ network_start=network_start.replace('#include "'+name+'"','#include "wr-iot/'+name+'"',1)
+(rc/'wr-iot-start-network.c').write_text(network_start,encoding='utf-8')
+make=m.read_text(encoding='utf-8')
+if make.count('wr-iot-start-admission.o')!=1:raise SystemExit('Startup network object anchor changed')
+m.write_text(make.replace('wr-iot-start-admission.o','wr-iot-start-admission.o wr-iot-start-network.o',1),encoding='utf-8')
+report['start_network_staged']=True
+report['start_network_runtime_bound']=False
 report['start_admission_staged']=True
 report['start_admission_runtime_bound']=False
 report['driver_open_controller_staged']=True

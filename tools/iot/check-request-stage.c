@@ -5,6 +5,9 @@
 
 struct entry {const char *key;char value[80];};
 static int held,busy,enters,leaves;
+int wr_iot_bridge_is_owned(void){return 0;}
+int wr_iot_bss_is_down(void){return 0;}
+int wr_iot_bridge_address_matches(const char *g,const char *m){(void)g;(void)m;return 0;}
 int wr_iot_service_guard_dup(void){return -1;} /* Standalone staging owns no outer activation guard. */
 static unsigned int bridge_index;
 static int network_ok=1,network_checks;

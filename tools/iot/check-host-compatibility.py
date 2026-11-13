@@ -35,6 +35,7 @@ with tempfile.TemporaryDirectory(prefix='wr-iot-host-preflight-') as scratch:
     subprocess.run([sys.executable, '-B', str(here / 'check-quarantine-reapply.py')], check=True)
     subprocess.run([sys.executable, '-B', str(here / 'check-normal-off-composition.py')], check=True)
     subprocess.run([sys.executable, '-B', str(here / 'check-start-staging-composition.py')], check=True)
+    subprocess.run([sys.executable, '-B', str(here / 'check-start-network-composition.py')], check=True)
     subprocess.run([sys.executable, '-B', str(here / 'check-precreated-idle-binding.py')], check=True)
     subprocess.run([sys.executable, '-B', str(here / 'check-initial-idle-lifetime.py')], check=True)
     subprocess.run([sys.executable, '-B', str(here / 'check-initial-idle-join.py')], check=True)

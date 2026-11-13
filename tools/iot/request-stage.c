@@ -4,6 +4,7 @@
 #include "request-stage.h"
 #include "request.h"
 #include "network-check.h"
+#include "bridge.h"
 #include "service-guard.h"
 #include "rc.h"
 #include <string.h>
@@ -119,7 +120,8 @@ int wr_iot_request_stage(int router_mode,int radio_on,int radio_mode)
  return wr_iot_request_stage_from(wr_iot_request_nvram,NULL,router_mode,radio_on,radio_mode);
 }
 
-int wr_iot_request_stage_matches(const struct wr_iot_request *request)
+static int wr_iot_request_stage_matches_gates(const struct wr_iot_request *request,
+ const char *network,const char *firewall)
 {
  static const char *const keys[]={"wr_iot_ssid_t","wr_iot_psk_t",
   "wr_iot_gateway_t","wr_iot_mask_t","wr_iot_start_t","wr_iot_end_t"};
@@ -131,9 +133,34 @@ int wr_iot_request_stage_matches(const struct wr_iot_request *request)
  FIELD(0,ssid);FIELD(1,password);FIELD(2,gateway);FIELD(3,mask);FIELD(4,first);FIELD(5,last);
 #undef FIELD
  if(strcmp(nvram_safe_get("wr_iot_profile_t"),"1")||
-    strcmp(nvram_safe_get("wr_iot_network_t"),"1")||
-    strcmp(nvram_safe_get("wr_iot_firewall_t"),"1"))return 0;
+    strcmp(nvram_safe_get("wr_iot_network_t"),network)||
+    strcmp(nvram_safe_get("wr_iot_firewall_t"),firewall))return 0;
  for(i=0;i<6;i++)if(!memchr(expected[i],0,capacities[i])||
     strcmp(nvram_safe_get(keys[i]),expected[i]))return 0;
  return 1;
+}
+
+int wr_iot_request_stage_matches(const struct wr_iot_request *request)
+{
+ return wr_iot_request_stage_matches_gates(request,"1","1");
+}
+int wr_iot_request_network_enable(const struct wr_iot_request *request)
+{
+ if(!wr_iot_request_stage_matches_gates(request,"0","0")||
+    !wr_iot_bridge_is_owned()||!wr_iot_bss_is_down()||
+    !wr_iot_bridge_address_matches(request->gateway,request->mask)||
+    !wr_iot_network_check(request->gateway,request->mask,request->first,request->last)||
+    !wr_iot_request_stage_matches_gates(request,"0","0"))return 0;
+ /* A failing setter may still mutate. Retain outer snapshot/recovery and
+  * never roll it back here or open the firewall/radio as compensation. */
+ if(nvram_set_int_temp("wr_iot_network_t",1))return 0;
+ return wr_iot_request_stage_matches_gates(request,"1","0")&&
+    wr_iot_bridge_is_owned()&&wr_iot_bss_is_down()&&
+    wr_iot_bridge_address_matches(request->gateway,request->mask);
+}
+
+int wr_iot_request_prepared_matches(const struct wr_iot_request *request,int network,int firewall)
+{
+ if((network!=0&&network!=1)||(firewall!=0&&firewall!=1))return 0;
+ return wr_iot_request_stage_matches_gates(request,network?"1":"0",firewall?"1":"0");
 }

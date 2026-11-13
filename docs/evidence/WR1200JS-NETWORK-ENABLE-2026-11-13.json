@@ -1,0 +1,20 @@
+{
+  "scope": "Local guarded candidate network gate before DHCP/DNS generation",
+  "source": "request-stage.c:wr_iot_request_network_enable",
+  "preconditions": "Held guard, exact six staged values/profile1/network0/firewall0, owned bridge/address, ra2 DOWN and route/subnet validation. Recheck staged values immediately before setter.",
+  "mutation": "Only wr_iot_network_t=1; firewall remains0, ra2 remains DOWN. Setter failure retains outer startup snapshot; no compensating unowned mutation.",
+  "checks": "PASS actual request-stage/snapshot/service composition ASan/UBSan: foreign bridge, UP ra2, wrong address, failed/silent gate write, success/readback and duplicate refusal; startup16-fault staging regression also passes. External NVRAM/netdev hooks injected.",
+  "staging": "Local prepare-rc installs start-network object/header; exact-source verifier and ABI target TU added. Actual pinned network native TU compiles; stage native TU compiles with minimal RC declarations. Initial attempt with incomplete full RC tree lacked generated ralink_boards.h; not a firmware compile failure. Full target headers pending ABI.",
+  "production_bound": false,
+  "runtime_verified": false,
+  "cleanup": "Temporary fixtures/staging trees removed; completed host log removed (15324bytes).",
+  "sequencer": {
+    "source": "start-network.c/.h",
+    "scope": "Local pre-OPEN bridge/quarantine/attach/UP/network/DNS/policy/READY, one phase per call",
+    "checks": "PASS actual sequencer ASan/UBSan seven ordered operation failures and pending shutdown, retained startup snapshot/no replay; resource operations injected",
+    "admission": "Current initial-idle epoch/generation and increasing serial, held guard/pid/shutdown and exact staged gates rechecked per phase",
+    "remaining": "Full actual-resource composition, rollback owner, staging/native/MIPS build and activation dispatch still pending"
+  },
+  "actual_composition": "PASS check-start-network-composition.py actual sequencer plus source-extracted request matcher/network gate writer:7 operation faults and pending shutdown, correct gate ordering, no replay. External NVRAM/bridge/DNS/firewall observations injected.",
+  "full_preflight": "PASS early host compatibility: 68 existing standalone fixtures, CLOSE composition and WDS producer capture; actual driver binding checked later"
+}
