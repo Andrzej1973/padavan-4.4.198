@@ -726,6 +726,26 @@ if make.count('wr-iot-start-network.o')!=1:raise SystemExit('Startup rollback ob
 m.write_text(make.replace('wr-iot-start-network.o','wr-iot-start-network.o wr-iot-start-network-rollback.o',1),encoding='utf-8')
 report['start_network_rollback_staged']=True
 report['start_network_rollback_runtime_bound']=False
+(headers/'start-close.h').write_bytes((local/'start-close.h').read_bytes())
+unit=(local/'start-close.c').read_text(encoding='utf-8')
+for name in ('start-close.h', 'service-guard.h', 'rc-shutdown-admission.h'):
+ unit=unit.replace('#include "'+name+'"','#include "wr-iot/'+name+'"',1)
+(rc/'wr-iot-start-close.c').write_text(unit,encoding='utf-8')
+make=m.read_text(encoding='utf-8')
+if make.count('wr-iot-start-network-rollback.o')!=1:raise SystemExit('Post-CLOSE object anchor changed')
+m.write_text(make.replace('wr-iot-start-network-rollback.o','wr-iot-start-network-rollback.o wr-iot-start-close.o',1),encoding='utf-8')
+report['start_close_staged']=True
+report['start_close_runtime_bound']=False
+(headers/'start-closed-rollback.h').write_bytes((local/'start-closed-rollback.h').read_bytes())
+unit=(local/'start-closed-rollback.c').read_text(encoding='utf-8')
+for name in ('start-closed-rollback.h', 'driver-api-client.h', 'service-guard.h', 'rc-shutdown-admission.h', 'bridge.h', 'dns-activation.h'):
+ unit=unit.replace('#include "'+name+'"','#include "wr-iot/'+name+'"',1)
+(rc/'wr-iot-start-closed-rollback.c').write_text(unit,encoding='utf-8')
+make=m.read_text(encoding='utf-8')
+if make.count('wr-iot-start-network-rollback.o')!=1:raise SystemExit('Post-CLOSE object anchor changed')
+m.write_text(make.replace('wr-iot-start-network-rollback.o','wr-iot-start-network-rollback.o wr-iot-start-closed-rollback.o',1),encoding='utf-8')
+report['start_closed_rollback_staged']=True
+report['start_closed_rollback_runtime_bound']=False
 report['start_network_staged']=True
 report['start_network_runtime_bound']=False
 report['start_admission_staged']=True
