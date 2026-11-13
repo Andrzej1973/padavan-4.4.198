@@ -716,6 +716,16 @@ for name in ('start-network.h', 'driver-api-client.h', 'service-guard.h', 'rc-sh
 make=m.read_text(encoding='utf-8')
 if make.count('wr-iot-start-admission.o')!=1:raise SystemExit('Startup network object anchor changed')
 m.write_text(make.replace('wr-iot-start-admission.o','wr-iot-start-admission.o wr-iot-start-network.o',1),encoding='utf-8')
+(headers/'start-network-rollback.h').write_bytes((local/'start-network-rollback.h').read_bytes())
+rollback=(local/'start-network-rollback.c').read_text(encoding='utf-8')
+for name in ('start-network-rollback.h', 'driver-api-client.h', 'service-guard.h', 'rc-shutdown-admission.h', 'bridge.h', 'dns-activation.h'):
+ rollback=rollback.replace('#include "'+name+'"','#include "wr-iot/'+name+'"',1)
+(rc/'wr-iot-start-network-rollback.c').write_text(rollback,encoding='utf-8')
+make=m.read_text(encoding='utf-8')
+if make.count('wr-iot-start-network.o')!=1:raise SystemExit('Startup rollback object anchor changed')
+m.write_text(make.replace('wr-iot-start-network.o','wr-iot-start-network.o wr-iot-start-network-rollback.o',1),encoding='utf-8')
+report['start_network_rollback_staged']=True
+report['start_network_rollback_runtime_bound']=False
 report['start_network_staged']=True
 report['start_network_runtime_bound']=False
 report['start_admission_staged']=True

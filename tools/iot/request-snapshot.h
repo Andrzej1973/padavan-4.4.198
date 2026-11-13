@@ -14,6 +14,8 @@ struct wr_iot_request_snapshot {
 };
 int wr_iot_request_snapshot_take(struct wr_iot_request_snapshot *);
 int wr_iot_request_snapshot_restore(struct wr_iot_request_snapshot *);
+/* Fresh readback of restored startup baseline under retained guard. */
+int wr_iot_request_snapshot_restored_current(struct wr_iot_request_snapshot *);
 int wr_iot_request_snapshot_finish(struct wr_iot_request_snapshot *);
 /* Retain baseline across ACTIVE without retaining a nested service lock.
  * Resume before stop/recovery; failed acquisition leaves baseline intact.

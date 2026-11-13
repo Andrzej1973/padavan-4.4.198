@@ -73,7 +73,10 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   python3 tools/iot/check-quarantine-reapply.py
   python3 tools/iot/check-normal-off-composition.py
   python3 tools/iot/check-start-staging-composition.py
+  python3 tools/iot/check-start-rollback-composition.py
   python3 tools/iot/check-start-network-composition.py
+  python3 tools/iot/check-dns-recovery-state.py
+  python3 tools/iot/check-dns-abort-composition.py
   python3 tools/iot/check-precreated-idle-binding.py
   python3 tools/iot/check-initial-idle-lifetime.py
   python3 tools/iot/check-initial-idle-join.py

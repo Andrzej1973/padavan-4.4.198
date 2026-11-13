@@ -16,6 +16,7 @@ static const char *candidate_read(void *context,const char *key){
  for(unsigned i=0;i<7;i++)if(!strcmp(key,logical[i]))return values[i].value;
  assert(0);return NULL;
 }
+#ifndef WR_IOT_START_FIXTURE_NO_MAIN
 int main(void){
  assert(existing_snapshot_checks()==0);
  unsigned char nonce[16]={1};
@@ -41,3 +42,5 @@ int main(void){
  puts("PASS actual startup admission + staging + snapshot:16 setter faults, retained baseline/guard, cancel/replay refusal and exact restore before bridge/OPEN; external NVRAM/device observations injected");
  return 0;
 }
+
+#endif

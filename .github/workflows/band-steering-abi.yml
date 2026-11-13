@@ -1302,6 +1302,8 @@ jobs:
             -c iot-rc-source/trunk/user/rc/wr-iot-start-admission.c -o abi-results/iot-rc-start-admission-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
             -c iot-rc-source/trunk/user/rc/wr-iot-start-network.c -o abi-results/iot-rc-start-network-mips.o
+          "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+            -c iot-rc-source/trunk/user/rc/wr-iot-start-network-rollback.c -o abi-results/iot-rc-start-network-rollback-mips.o
           python3 tools/iot/prepare-activation-header-check.py iot-rc-source abi-results/check-iot-activation-headers.c
           include_flags=(-I"$PWD/iot-rc-source/trunk/user/rc" -I"$PWD/iot-rc-source/trunk/user/shared")
           gcc -std=gnu11 -Wall -Wextra -Werror -O2 "${include_flags[@]}" -c abi-results/check-iot-activation-headers.c -o abi-results/iot-activation-headers-native.o

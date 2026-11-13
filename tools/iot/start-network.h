@@ -12,7 +12,12 @@ enum wr_iot_start_network_phase {
  WR_IOT_NET_ENABLE,WR_IOT_NET_DNS,WR_IOT_NET_POLICY,WR_IOT_NET_READY,
  WR_IOT_NET_RECOVERY
 };
-struct wr_iot_start_network {enum wr_iot_start_network_phase phase;};
+struct wr_iot_start_network {
+ enum wr_iot_start_network_phase phase;
+ /* Set before each resource operation, never cleared on failure. DNS prepare
+  * can mutate even when it returns an error; rollback needs this provenance. */
+ unsigned int attempted;
+};
 /* One phase, return1 only at READY. On failure retains snapshot and phase
  * becomes RECOVERY. No radio OPEN/close/restart or implicit rollback occurs. */
 int wr_iot_start_network_step(struct wr_iot_start_network *,

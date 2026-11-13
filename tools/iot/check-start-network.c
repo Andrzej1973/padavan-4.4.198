@@ -38,6 +38,8 @@ int main(void){
    ready=wr_iot_start_network_step(&state,&owner,&request,nonce);
   }
   assert(ready==(fail==0));assert(owner.snapshot.active&&owner.mutation_started);
+  unsigned int expected=fail==0?127U:fail==8?31U:((1U<<(unsigned int)fail)-1U);
+  assert(state.attempted==expected);
   if(fail){assert(state.phase==WR_IOT_NET_RECOVERY);int before=operations;assert(!wr_iot_start_network_step(&state,&owner,&request,nonce)&&operations==before);}
   else assert(state.phase==WR_IOT_NET_READY&&operations==7&&policy);
  }

@@ -116,6 +116,14 @@ int wr_iot_request_snapshot_restore(struct wr_iot_request_snapshot *s)
  for(i=0;i<3;i++)failed |= strcmp(nvram_safe_get(keys[i]),s->values[i])!=0;
  s->restored=!failed;return s->restored;
 }
+int wr_iot_request_snapshot_restored_current(struct wr_iot_request_snapshot *s)
+{
+ size_t i;
+ if(!valid(s)||s->disabling||!s->recovering||!s->restored||if_nametoindex("br-iot"))return 0;
+ for(i=0;i<9;i++)if(!memchr(s->values[i],0,sizeof(s->values[i]))||
+    strcmp(nvram_safe_get(keys[i]),s->values[i]))return 0;
+ return 1;
+}
 int wr_iot_request_snapshot_finish(struct wr_iot_request_snapshot *s)
 {
  int token;

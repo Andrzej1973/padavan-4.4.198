@@ -1,0 +1,26 @@
+{
+  "scope": "Local retained DNS transaction state observation for startup rollback",
+  "source": "restart-controller.inc:wr_iot_dns_activation_recovery_state",
+  "semantics": "0 no active retained transaction only if guard/binding/transaction markers clear;1 current startup transaction with valid lock and outer guard;-1 unknown/disable/ownership conflict. No mutation.",
+  "verification": "PASS actual function extracted with ASan/UBSan: absent, stale markers, active/incomplete, disable mode, invalid lock, guard failure and close failure. Existing service_transaction_finish source confirms active0 after release.",
+  "limits": "Not bound to rollback owner yet. Absent retained transaction is not evidence of rollback after commit; outer owner must retain attempt/commit history. Full prepared RC target check pending.",
+  "runtime_verified": false,
+  "cleanup": "Temporary test source/binary removed automatically",
+  "abort_composition": {
+    "test": "tools/iot/check-dns-abort-composition.py",
+    "result": "PASS ASan/UBSan",
+    "source": "actual restart-controller.inc finish/recover/recovery_state/abort functions",
+    "faults": [
+      "foreign lock",
+      "service restore",
+      "lease capture",
+      "lease restore",
+      "daemon launch",
+      "service readiness",
+      "journal unbind",
+      "transaction finish"
+    ],
+    "scope": "resource and daemon adapters injected; not physical runtime",
+    "fixture_correction": "A failed lease capture is retried; only successful capture identity must be retained."
+  }
+}

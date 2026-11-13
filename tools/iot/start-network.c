@@ -26,6 +26,7 @@ int wr_iot_start_network_step(struct wr_iot_start_network *s,
  if(!wr_iot_bss_is_down())goto failed;
  if(!wr_iot_request_prepared_matches(request,
     s->phase>WR_IOT_NET_ENABLE,s->phase==WR_IOT_NET_READY))goto failed;
+ if(s->phase<WR_IOT_NET_READY)s->attempted|=1U<<(unsigned int)s->phase;
  switch(s->phase){
  case WR_IOT_NET_BRIDGE:
   ok=wr_iot_network_check(request->gateway,request->mask,request->first,request->last)&&

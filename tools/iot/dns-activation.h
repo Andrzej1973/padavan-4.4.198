@@ -12,6 +12,10 @@
 int wr_iot_dns_activation_prepare(void);
 int wr_iot_dns_activation_commit(void);
 int wr_iot_dns_activation_abort(void);
+/* Read-only under outer service owner:0 no retained transaction,1 owned startup
+ * transaction,-1 unknown/foreign/disable state. Absence is not rollback proof
+ * after a committed transaction; caller must retain its own attempt history. */
+int wr_iot_dns_activation_recovery_state(void);
 /* Normal OFF: caller has quiesced BSS and closed all three gates under its
  * guard. An existing bridge must be owned; keep it until service commit so
  * service failure can recover the current baseline. Captures a NEW baseline, regenerates normal

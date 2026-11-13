@@ -215,6 +215,20 @@ int wr_iot_dns_activation_commit(void)
  if(!wr_iot_dns_activation_ready())return 0;
  return wr_iot_restart_finish();
 }
+int wr_iot_dns_activation_recovery_state(void)
+{
+ int guard=wr_iot_service_guard_dup();
+ if(guard<0)return -1;
+ if(close(guard))return -1;
+ if(!wr_iot_restart_active)
+  return (!wr_iot_restart_guard&&!wr_iot_restart_bound&&
+          !wr_iot_restart_state.transaction.active)?0:-1;
+ if(wr_iot_restart_disabling||wr_iot_restart_guard!=1||
+    !wr_iot_restart_state.transaction.active||
+    !wr_iot_service_lock_valid(&wr_iot_restart_state.transaction.lock,
+      WR_IOT_SERVICE_LOCK_PATH))return -1;
+ return 1;
+}
 int wr_iot_dns_activation_abort(void)
 {
  int guard;
