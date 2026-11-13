@@ -5,7 +5,7 @@ import subprocess,tempfile
 here=Path(__file__).resolve().parent
 with tempfile.TemporaryDirectory(prefix='iot-rc-mode-') as d:
  root=Path(d)
- (root/'rc.h').write_text('int get_ap_mode(void);\nint get_enabled_radio_rt(void);\nint is_radio_on_rt(void);\nint get_mode_radio_rt(void);\n')
+ (root/'rc.h').write_text('void fixture_stdio_required(FILE *);\nint get_ap_mode(void);\nint get_enabled_radio_rt(void);\nint is_radio_on_rt(void);\nint get_mode_radio_rt(void);\n')
  fixture=root/'check.c'
  fixture.write_text(r'''
 #include <assert.h>
@@ -30,6 +30,10 @@ int main(void){
  return 0;
 }
 ''')
+ # Preserve the real vendor-header requirement that exposed the ABI failure.
+ broken=root/'before.c';broken.write_text((here/'rc-mode.c').read_text().replace('#include <stdio.h>\n',''))
+ failed=subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-I'+d,'-I'+str(here),'-c',str(broken),'-o',str(root/'before.o')],capture_output=True,text=True)
+ assert failed.returncode and 'FILE' in failed.stderr
  binary=root/'check'
  subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+d,'-I'+str(here),str(fixture),str(here/'rc-mode.c'),'-o',str(binary)],check=True)
  subprocess.run([str(binary)],check=True)

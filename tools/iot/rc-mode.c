@@ -1,4 +1,5 @@
 /* Staged RC-only mode adapter. No physical radio operation. */
+#include <stdio.h>
 #include <unistd.h>
 #include "rc.h"
 #include "rc-backend.h"

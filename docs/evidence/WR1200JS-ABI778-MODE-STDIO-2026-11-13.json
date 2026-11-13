@@ -1,0 +1,20 @@
+{
+  "failed_run": 43513260051,
+  "failed_sha": "0b9b810408af204c0560302d9836e84631d08fa8",
+  "job": "inspect-driver-abi",
+  "step": "Compile experimental IoT RC runtime and private status IPC",
+  "cause": "New rc-mode TU includes vendor rc.h/shutils.h before stdio.h; vendor headers require FILE declaration from caller",
+  "monitor": {
+    "run": 43513713385,
+    "artifact": 14078524604,
+    "name": "agent-build-error-43513713385",
+    "comparison": "Original failed step confirms FILE errors with rc-mode include chain; monitor correct and useful; no parser change"
+  },
+  "fix": "Include stdio.h before rc.h in own mode TU; do not change shared vendor headers",
+  "checks": [
+    "Native mode sanitizer test PASS",
+    "Regression removes stdio include and reproduces FILE compiler error with vendor-header-shaped shim"
+  ],
+  "cleanup": "1375-byte monitor zip and TemporaryDirectory fixture trees removed",
+  "runtime_acceptance": false
+}
