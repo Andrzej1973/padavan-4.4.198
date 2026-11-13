@@ -1,0 +1,85 @@
+#!/usr/bin/env python3
+"""Actual runner/admission/stage/snapshot/post-OPEN CLOSE rollback; driver/netdev hooks injected."""
+from pathlib import Path
+import subprocess,sys,tempfile
+here=Path(__file__).resolve().parent
+prefix=(here/'check-start-closed-rollback-composition.c').read_text().split('int main(void){',1)[0]
+prefix='\n'.join(line for line in prefix.splitlines() if not line.startswith(('int wr_iot_open_controller_recovery_read(', 'int wr_iot_close_controller_begin(', 'int wr_iot_close_controller_advance(')))+'\n'
+close_fixture=(here/'check-driver-close-controller.c').read_text().split('int main(void)',1)[0]
+prefix+=close_fixture
+body=r'''
+#include "activation-owner.h"
+int wr_iot_start_network_step(struct wr_iot_start_network*n,struct wr_iot_start_admission*a,const struct wr_iot_request*r,const unsigned char*nonce){assert(a->staged&&r->enabled&&nonce);n->phase=WR_IOT_NET_READY;n->attempted=127;bridge_index=7;rollback_dns=0;strcpy(values[8].value,"1");strcpy(values[9].value,"1");return 1;}
+int wr_iot_open_controller_submit(struct wr_iot_open_controller*s,const char*id,const struct wr_iot_request*r){assert(id&&r);s->owner=getpid();s->attempt=(struct wr_iot_driver_attempt){{1,2},{1}};s->phase=WR_IOT_OPEN_CONFIRMED;return 1;}
+int wr_iot_start_commit_step(struct wr_iot_start_commit*s,struct wr_iot_start_admission*a,const struct wr_iot_start_network*n,const struct wr_iot_open_controller*o,const struct wr_iot_request*r){assert(a&&n&&o&&r);assert(wr_iot_request_snapshot_suspend(&a->snapshot));s->phase=WR_IOT_COMMIT_ACTIVE;return 1;}
+int wr_iot_open_controller_recovery_read(const struct wr_iot_open_controller*s,struct wr_iot_driver_open_recovery_result*r){assert(s->owner==getpid());*r=(struct wr_iot_driver_open_recovery_result){1,2,3};return 1;}
+int wr_iot_driver_open_recovery_read(const struct wr_iot_driver_attempt*a,struct wr_iot_driver_open_recovery_result*r){assert(a->request_id[0]==1);*r=(struct wr_iot_driver_open_recovery_result){1,2,3};return 1;}
+int main(void){
+ assert(candidate_read(NULL,"wr_iot_enable"));
+ struct wr_iot_control_request input={.id="01010101010101010101010101010101",.created=1,.request={.enabled=1,.ssid="IoT",.password="password123",.gateway="192.168.50.1",.mask="255.255.255.0",.first="192.168.50.20",.last="192.168.50.200"}};
+ for(int failure=0;failure<=0;failure++){
+  struct wr_iot_activation_owner owner={0};
+  struct wr_iot_start_runner *runner=&owner.start;
+#define s (*runner)
+reset();idle_reads=0;rollback_dns=0;abort_calls=0;closes=progresses=releases=0;close_result=WR_IOT_DRIVER_CLOSE_UNCERTAIN;progress_result=release_result=WR_IOT_DRIVER_CLOSE_CALL_COMPLETED;
+  wr_iot_rc_shutdown.active=1;wr_iot_rc_shutdown.pending=0;
+  char baseline[9][128];for(unsigned i=0;i<9;i++)strcpy(baseline[i],values[7+i].value);
+  struct wr_iot_control_request idle_off={.id="03030303030303030303030303030303",.created=1};
+  assert(wr_iot_activation_owner_execute(&owner,&idle_off,1,1,0)==WR_IOT_RESULT_REJECTED&&!depth);
+  assert(wr_iot_activation_owner_execute(&owner,&input,1,1,0)==WR_IOT_RESULT_RECOVERY&&depth==1);
+  assert(wr_iot_activation_owner_execute(&owner,&input,1,1,0)==WR_IOT_RESULT_RECOVERY);
+  fail_write=failure;assert(wr_iot_activation_owner_continue(&owner,input.id,input.created)==WR_IOT_RESULT_RECOVERY);
+  fail_write=0;
+  while(s.phase!=WR_IOT_RUN_ACTIVE)(void)wr_iot_activation_owner_continue(&owner,input.id,input.created);
+  assert(!depth&&s.admission.snapshot.active&&!s.admission.snapshot.token);
+  struct wr_iot_control_request off={.id="02020202020202020202020202020202",.created=2};
+  
+  char owned_value[128];strcpy(owned_value,values[7].value);
+  strcpy(values[7].value,"foreign");
+  assert(wr_iot_activation_owner_execute(&owner,&off,1,1,0)==WR_IOT_RESULT_REJECTED);
+  assert(owner.phase==WR_IOT_OWNER_ACTIVE&&!depth&&!closes);
+  strcpy(values[7].value,owned_value);
+  assert(wr_iot_activation_owner_execute(&owner,&off,1,1,0)==WR_IOT_RESULT_RECOVERY);
+  assert(wr_iot_activation_owner_execute(&owner,&off,1,1,0)==WR_IOT_RESULT_RECOVERY);
+  assert(s.phase==WR_IOT_RUN_STOPPING);
+  assert(wr_iot_start_runner_continue(&s,input.id,input.created)==WR_IOT_RESULT_RECOVERY);
+  unsigned before_closes=closes;
+  assert(wr_iot_activation_owner_continue(&owner,input.id,off.created)==WR_IOT_RESULT_RECOVERY);
+  assert(wr_iot_activation_owner_continue(&owner,off.id,off.created+1)==WR_IOT_RESULT_RECOVERY);
+  owner.stop.busy=1;
+  assert(wr_iot_activation_owner_continue(&owner,off.id,off.created)==WR_IOT_RESULT_RECOVERY);
+  owner.stop.busy=0;assert(closes==before_closes);
+  while(owner.stop.stop.phase!=WR_IOT_STOP_ISOLATE)
+   assert(wr_iot_activation_owner_continue(&owner,off.id,off.created)==WR_IOT_RESULT_RECOVERY);
+  assert(depth==3&&s.admission.snapshot.active&&owner.stop.stop.disable.services.settings.active);
+  quarantine_ready=0;unsigned previous_closes=closes;
+  for(unsigned retry=0;retry<3;retry++){
+   assert(wr_iot_activation_owner_continue(&owner,off.id,off.created)==WR_IOT_RESULT_RECOVERY);
+   assert(owner.stop.stop.phase==WR_IOT_STOP_ISOLATE&&depth==3&&closes==previous_closes);
+   assert(s.admission.snapshot.active&&owner.stop.stop.disable.services.settings.active);
+  }
+  quarantine_ready=1;wr_iot_rc_shutdown.pending=SIGTERM;
+  enum wr_iot_result_state result=WR_IOT_RESULT_RECOVERY;
+  for(unsigned i=0;i<55&&result==WR_IOT_RESULT_RECOVERY;i++)result=wr_iot_activation_owner_continue(&owner,off.id,off.created);
+  assert(result==WR_IOT_RESULT_APPLIED&&!depth&&!s.admission.snapshot.active&&s.open.phase==WR_IOT_OPEN_CONFIRMED&&abort_calls==0&&owner.stop.stop.phase==WR_IOT_STOP_COMPLETE&&closes==1&&progresses==1&&releases==1);
+  (void)baseline;for(unsigned i=0;i<9;i++)assert(!strcmp(i<3?"0":"",values[7+i].value));
+  assert(wr_iot_activation_owner_continue(&owner,off.id,off.created)==WR_IOT_RESULT_APPLIED);
+  assert(s.phase==WR_IOT_RUN_STOPPED);
+  struct wr_iot_request empty={0};assert(!memcmp(&s.input.request,&empty,sizeof(empty)));
+  assert(wr_iot_start_runner_continue(&s,input.id,input.created)==WR_IOT_RESULT_RECOVERY);
+  assert(closes==1&&progresses==1&&releases==1);
+  assert(wr_iot_rc_shutdown.active&&wr_iot_rc_shutdown.pending==SIGTERM);
+  assert(owner.phase==WR_IOT_OWNER_OFF);
+  assert(wr_iot_activation_owner_execute(&owner,&input,1,1,0)==WR_IOT_RESULT_REJECTED);
+#undef s
+
+ }
+ puts("PASS retained activation owner with actual runner/admission/snapshot/normal OFF: ACTIVE then requested normal OFF/CLOSE/progress/release retains both snapshots/three guards across repeated isolation refusal, then discards startup baseline without restoring gates and releases guards; network/driver hooks injected");
+}
+'''
+with tempfile.TemporaryDirectory(prefix='iot-activation-owner-compose-') as d:
+ subprocess.run([sys.executable,str(here/'prepare-request-stage-check.py'),d],check=True)
+ unit=Path(d)/'check.c';unit.write_text(prefix+body);binary=Path(d)/'check'
+ units=('activation-owner.c','active-stop.c','start-runner.c','start-network-rollback.c','start-close.c','start-closed-rollback.c','precreated-stop.c','start-admission.c','request-stage.c','request-snapshot.c','disable-services.c','disable-controller.c','profile.c')
+ subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+d,'-I'+str(here),str(unit),*[str(here/n) for n in units],'-o',str(binary)],check=True)
+ subprocess.run([str(binary)],check=True)

@@ -1,0 +1,33 @@
+{
+  "scope": "local retained activation orchestration; production adapters/scheduler not installed",
+  "sources": [
+    "tools/iot/activation-owner.c",
+    "tools/iot/activation-owner.h",
+    "tools/iot/check-activation-owner-composition.py"
+  ],
+  "checks": [
+    "GNU11 -O2 Wall Wextra Werror native TU PASS",
+    "ASan UBSan actual ON->ACTIVE->requested OFF composition PASS",
+    "unknown initial OFF rejected before mutation",
+    "duplicate execution during pending work does not replay",
+    "foreign current settings refuse OFF before CLOSE/guard retention",
+    "wrong ID/time/busy calls refused",
+    "pending SIGTERM remains deferred through OFF completion",
+    "terminal retry does not repeat CLOSE",
+    "old ON no longer APPLIED after OFF",
+    "Actual RC mailbox/server + retained owner/runner/OFF composition ASan UBSan PASS: ON/OFF APPLIED publication, one execute each, retained isolation retries, pending shutdown delivered after publication",
+    "Actual prepared activation-owner native TU and exact source/Makefile transformations PASS"
+  ],
+  "limitations": [
+    "Driver/network adapters injected",
+    "Mode/status strong bindings and bounded RC scheduler still unbound",
+    "OFF->ON reopen admission remains unimplemented; no fallback to initial-idle",
+    "MIPS target compilation pending"
+  ],
+  "cleanup": "All temporary build/prepared trees removed; completed preflight log 20323 bytes removed after durable evidence recorded",
+  "preflight": {
+    "status": "PASS",
+    "exit_code": 0,
+    "scope": "71 standalone fixtures plus composition suite including actual RC owner ON/OFF"
+  }
+}

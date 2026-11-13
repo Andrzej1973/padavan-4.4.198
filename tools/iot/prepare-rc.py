@@ -779,6 +779,18 @@ m.write_text(make.replace('wr-iot-start-runner.o','wr-iot-start-runner.o wr-iot-
 report['active_stop_staged']=True
 report['active_stop_runtime_bound']=False
 
+(headers/'activation-owner.h').write_bytes((local/'activation-owner.h').read_bytes())
+unit=(local/'activation-owner.c').read_text(encoding='utf-8')
+for name in ('activation-owner.h','rc-shutdown-admission.h'):
+ unit=unit.replace('#include "'+name+'"','#include "wr-iot/'+name+'"',1)
+(rc/'wr-iot-activation-owner.c').write_text(unit,encoding='utf-8')
+make=m.read_text(encoding='utf-8')
+if make.count('wr-iot-active-stop.o')!=1:raise SystemExit('Activation owner object anchor changed')
+m.write_text(make.replace('wr-iot-active-stop.o','wr-iot-active-stop.o wr-iot-activation-owner.o',1),encoding='utf-8')
+report['activation_owner_staged']=True
+report['activation_owner_runtime_bound']=False
+
+
 report['start_network_staged']=True
 report['start_network_runtime_bound']=False
 report['start_admission_staged']=True
