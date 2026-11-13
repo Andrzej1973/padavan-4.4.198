@@ -85,7 +85,7 @@ for name in ('bridge.h','subnet.h','types.h'):(headers/name).write_bytes((local/
 # Keep the activation state machine and the immutable request parser beside the
 # RC objects that will own them.  They are still deliberately unbound here;
 # staging them first makes the real RC include environment a compile gate.
-for name in ('activation.h','request.h','request-stage.h','radio-profile-state.h','dns-activation.h','radio-stop-contract.h','driver-api-close-wire.h','driver-api-close-progress-wire.h','driver-api-close-release-wire.h','driver-api-open-current-wire.h'):(headers/name).write_bytes((local/name).read_bytes())
+for name in ('activation.h','request.h','request-stage.h','radio-profile-state.h','dns-activation.h','radio-stop-contract.h','driver-api-close-wire.h','driver-api-close-progress-wire.h','driver-api-close-release-wire.h','driver-api-open-current-wire.h','driver-api-open-recovery-wire.h'):(headers/name).write_bytes((local/name).read_bytes())
 (headers/'request-snapshot.h').write_bytes((local/'request-snapshot.h').read_bytes())
 snapshot=(local/'request-snapshot.c').read_text(encoding='utf-8')
 for name in ('request-snapshot.h','service-guard.h','bridge.h'):

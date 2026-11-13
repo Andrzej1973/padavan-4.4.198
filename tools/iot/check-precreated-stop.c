@@ -14,7 +14,7 @@ void wr_iot_service_guard_leave(int token){assert(token==1&&depth>0);depth--;}
 int wr_iot_service_guard_dup(void){assert(depth==2);return open("/dev/null",O_RDONLY);}
 int wr_iot_disable_begin_precreated(struct wr_iot_disable_controller *s){assert(depth==1);depth++;s->precreated=1;s->services.settings.active=1;return 1;}
 int wr_iot_disable_services_cancel(struct wr_iot_disable_services *s){assert(depth==2&&s->settings.active);s->settings.active=0;depth--;return 1;}
-int wr_iot_driver_open_current_read(const struct wr_iot_driver_attempt *a,struct wr_iot_driver_open_current_result *out){assert(depth==2&&a->request_id[0]==1);*out=(struct wr_iot_driver_open_current_result){1,2,3};return query_ok;}
+int wr_iot_driver_open_recovery_read(const struct wr_iot_driver_attempt *a,struct wr_iot_driver_open_recovery_result *out){assert(depth==2&&a->request_id[0]==1);*out=(struct wr_iot_driver_open_recovery_result){1,2,3};return query_ok;}
 int wr_iot_driver_close_request_from_open(struct wr_iot_driver_close_request *out,const struct wr_iot_driver_attempt *a,const struct wr_iot_driver_open_current_result *r){memcpy(out->open_request_id,a->request_id,16);out->adapter_epoch=r->adapter_epoch;out->device_generation=r->device_generation;out->open_token=r->open_token;return 1;}
 enum wr_iot_driver_close_submit_result wr_iot_driver_close_submit(const struct wr_iot_driver_close_request *r){assert(r->open_request_id[0]==1&&r->open_token==3);closes++;down=1;return WR_IOT_DRIVER_CLOSE_UNCERTAIN;}
 enum wr_iot_driver_close_submit_result wr_iot_driver_close_progress_submit(const struct wr_iot_driver_close_request *r){assert(r->open_token==3);progresses++;return WR_IOT_DRIVER_CLOSE_CALL_COMPLETED;}

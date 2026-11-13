@@ -1,4 +1,4 @@
-"""Route operation14 only in the complete compile-only no-host experiment."""
+"""Route software release14 and recovery-query15 only in the complete compile-only no-host experiment."""
 
 def compose(entry):
     copy = ' if(copy_from_user(wire,rq->ifr_data,sizeof(wire)))return -EFAULT;'
@@ -11,6 +11,7 @@ def compose(entry):
            for guard in guards):
         raise ValueError('Experimental release privilege boundary changed')
     route = '''
+ if(wire[4]==15)return wr_iot_driver_open_recovery_reply(ad,dev,rq,wire);
  if(wire[4]==WR_IOT_DRIVER_CLOSE_RELEASE_OPCODE){
   struct wr_iot_driver_close_request request;
   if(!wr_iot_driver_close_release_decode(&request,wire,sizeof(wire)))return -EINVAL;
@@ -19,5 +20,8 @@ def compose(entry):
 '''
     return ('#define WR_IOT_RA2_NO_HOST_MODE 1\n'
             '#include "driver-api-close-release-wire.h"\n'
-            '#include "driver-api-close-release-binding.inc"\n' +
+            '#include "driver-api-close-release-binding.inc"\n'
+            '#include "driver-api-open-current.h"\n'
+            '#include "driver-api-open-recovery-wire.h"\n'
+            '#include "driver-api-open-recovery-entry.inc"\n' +
             entry.replace(copy, copy + route, 1))

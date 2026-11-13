@@ -48,6 +48,14 @@ int main(void){
   assert(wr_iot_driver_open_current_observe(&owner,nonce,&radio,slots,3,&main_dev,&iot_dev,count,users,blocked,probe,&observed)==(fault==0||fault==28));
   if(fault==0||fault==28)assert(observed.adapter_epoch==1&&observed.device_generation==2&&observed.open_token==2);
   else assert(!observed.adapter_epoch&&!observed.device_generation&&!observed.open_token);
+  /* A first-beacon wait failure must not hide a configuration receipt
+   * already sufficient for CLOSE. Recovery still rejects every other fault. */
+  observed=(struct wr_iot_driver_open_current_result){99,99,99};
+  int recoverable=fault==0||fault==28||fault==34||fault==35;
+  assert(wr_iot_driver_open_recovery_observe(&owner,nonce,&radio,slots,3,
+    &main_dev,&iot_dev,count,users,blocked,probe,&observed)==recoverable);
+  if(recoverable)assert(observed.adapter_epoch==1&&observed.device_generation==2&&observed.open_token==2);
+  else assert(!observed.adapter_epoch&&!observed.device_generation&&!observed.open_token);
   assert(!memcmp(&owner,&before_owner,sizeof(owner))&&!memcmp(&radio,&before_radio,sizeof(radio))&&!memcmp(slots,before_slots,sizeof(slots)));
  }
  puts("PASS current OPEN observation and close admission: same successful OPEN nonce/epoch/generation/token and owned Main/count with Guest absent/present;34 refusals, no state mutation; ticket transfer/executor unbound");

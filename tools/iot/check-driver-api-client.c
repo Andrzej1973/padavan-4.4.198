@@ -37,10 +37,10 @@ static int fake_ioctl(int fd,unsigned long command,...){
    assert(decoded.open_request_id[0]==1);
    errno=close_control_error;
    return close_control_error?-1:0;
-  }else if(wire[4]==11){
-   current_response=1;
-   assert(wr_iot_driver_open_current_query_decode(id,wire,64));
-   assert(wr_iot_driver_open_current_encode(wire,64,id,1,2,3));
+  }else if(wire[4]==11||wire[4]==15){
+   int recovery=wire[4]==15;current_response=1;
+   assert(recovery?wr_iot_driver_open_recovery_query_decode(id,wire,64):wr_iot_driver_open_current_query_decode(id,wire,64));
+   assert(recovery?wr_iot_driver_open_recovery_encode(wire,64,id,1,2,3):wr_iot_driver_open_current_encode(wire,64,id,1,2,3));
   }else if(wire[4]==8){
    assert(wr_iot_driver_uncertain_query_decode(id,wire,64));
    assert(wr_iot_driver_uncertain_encode(wire,64,id,1,2,3));
@@ -167,6 +167,15 @@ int main(void){
  close_error=1;assert(!wr_iot_driver_open_current_read(&attempt,&current)&&!current.open_token);close_error=0;
  socket_error=1;assert(!wr_iot_driver_open_current_read(&attempt,&current)&&!current.open_token);socket_error=0;
  assert(!wr_iot_driver_open_current_read(NULL,&current)&&!current.open_token);
+ struct wr_iot_driver_open_recovery_result recovery;
+ assert(wr_iot_driver_open_recovery_read(&attempt,&recovery)&&recovery.open_token==3);
+ attempt.identity.adapter_epoch++;assert(!wr_iot_driver_open_recovery_read(&attempt,&recovery)&&!recovery.open_token);attempt.identity.adapter_epoch--;
+ attempt.identity.device_generation++;assert(!wr_iot_driver_open_recovery_read(&attempt,&recovery)&&!recovery.open_token);attempt.identity.device_generation--;
+ for(bad_closed_reply=1;bad_closed_reply<=4;bad_closed_reply++)assert(!wr_iot_driver_open_recovery_read(&attempt,&recovery)&&!recovery.open_token);
+ bad_closed_reply=0;ioctl_error=1;assert(!wr_iot_driver_open_recovery_read(&attempt,&recovery)&&!recovery.open_token);ioctl_error=0;
+ close_error=1;assert(!wr_iot_driver_open_recovery_read(&attempt,&recovery)&&!recovery.open_token);close_error=0;
+ socket_error=1;assert(!wr_iot_driver_open_recovery_read(&attempt,&recovery)&&!recovery.open_token);socket_error=0;
+ assert(!wr_iot_driver_open_recovery_read(NULL,&recovery)&&!recovery.open_token);
  socket_error=1;
  assert(wr_iot_driver_open_requested_tracked(id,&requested,&attempt)==WR_IOT_DRIVER_NOT_SUBMITTED);
  assert(!attempt.identity.adapter_epoch&&!attempt.identity.device_generation);

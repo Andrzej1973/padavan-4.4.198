@@ -95,7 +95,7 @@ with tempfile.TemporaryDirectory(prefix='wr-ra2-bundle-compose-') as scratch:
     actual = {str(p.relative_to(output)): hashlib.sha256(p.read_bytes()).hexdigest()
               for p in output.rglob('*') if p.is_file()}
     assert result['merged_driver_sha256'] == actual == result['candidate_driver_sha256']
-    assert len(result['ra2_no_host_experiment']['changed_paths']) == 13
+    assert len(result['ra2_no_host_experiment']['changed_paths']) == 16
     assert result['ra2_no_host_experiment']['activation_ready'] is False
     for name in result['ra2_no_host_experiment']['changed_paths']:
         assert '#include "beacon-producer-gate.h"' not in (output / name).read_text()
@@ -115,4 +115,4 @@ with tempfile.TemporaryDirectory(prefix='wr-ra2-bundle-compose-') as scratch:
                               str(source), str(refused_output)], capture_output=True, text=True)
     assert refused.returncode and 'zero-PID contract changed' in refused.stderr
     assert not refused_output.exists()
-    print('PASS thirteen-path source composition from actual generator fragments, output hashes and input preservation. Full driver/Kbuild verification pending.')
+    print('PASS sixteen-path source composition from actual generator fragments, output hashes and input preservation. Full driver/Kbuild verification pending.')

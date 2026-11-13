@@ -47,11 +47,15 @@ static int stop_closed_current(struct wr_iot_precreated_stop *s)
 int wr_iot_precreated_stop_step(struct wr_iot_precreated_stop *s)
 {
  struct wr_iot_driver_open_current_result receipt;
+ struct wr_iot_driver_open_recovery_result recovery;
  if(!s)return 0;
  if(s->phase==WR_IOT_STOP_COMPLETE)return s->owner==getpid()&&!s->guard;
  if(!stop_owned(s))return 0;
  if(s->phase==WR_IOT_STOP_CLOSE_BEGIN){
-  if(!wr_iot_driver_open_current_read(&s->attempt,&receipt))return 0;
+  if(!wr_iot_driver_open_recovery_read(&s->attempt,&recovery))return 0;
+  receipt.adapter_epoch=recovery.adapter_epoch;
+  receipt.device_generation=recovery.device_generation;
+  receipt.open_token=recovery.open_token;
   (void)wr_iot_close_controller_begin(&s->close,&s->attempt,&receipt);
   if(s->close.phase!=WR_IOT_CLOSE_IDLE)s->phase=WR_IOT_STOP_CLOSE;
   return 0;

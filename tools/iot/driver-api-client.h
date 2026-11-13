@@ -3,6 +3,7 @@
 #include "driver-api-wire.h"
 #include "request.h"
 #include "driver-api-open-current-wire.h"
+#include "driver-api-open-recovery-wire.h"
 #include "driver-api-close-progress-wire.h"
 #include "driver-api-close-release-wire.h"
 enum wr_iot_driver_submit_result {
@@ -63,6 +64,10 @@ enum wr_iot_driver_close_submit_result {
  WR_IOT_DRIVER_CLOSE_PENDING=2,
  WR_IOT_DRIVER_CLOSE_UNCERTAIN=3
 };
+/* Recovery-only configuration token; never evidence that ON completed.
+ * Normal open_submit retains the separate first-publication query. */
+int wr_iot_driver_open_recovery_read(const struct wr_iot_driver_attempt *,
+ struct wr_iot_driver_open_recovery_result *);
 /* Construct CLOSE identity from the retained OPEN attempt and its observed
  * current receipt. No ioctl or ownership transfer occurs in this helper. */
 int wr_iot_driver_close_request_from_open(struct wr_iot_driver_close_request *,

@@ -54,13 +54,14 @@ changes['include/wr-iot-beacon-producer-kernel.h'] = policy['compose_periodic'](
 changes['common/cmm_mac_pci.c'] = lower['compose']((source / 'common/cmm_mac_pci.c').read_text())
 for name in ('ra2-beacon-dma-window.h', 'ra2-beacon-no-host-txd.h', 'ra2-beacon-no-host-packet.h'):
     changes['include/' + name] = (here / name).read_text()
-# Install release only in this complete compile-only no-host tree. The
+# Install release/recovery only in this complete compile-only no-host tree. The
 # common dispatcher already owns RTNL/capability and fixed64-byte copy checks.
 entry_name = 'include/driver-api-closed-entry.inc'
 changes[entry_name] = runpy.run_path(str(here / 'release-dispatch-composition.py'))['compose'](
     (source / entry_name).read_text())
 for name in ('driver-api-close-release.h', 'driver-api-close-release-binding.inc',
-             'driver-api-close-release-wire.h'):
+             'driver-api-close-release-wire.h', 'driver-api-open-current.h',
+             'driver-api-open-recovery-wire.h', 'driver-api-open-recovery-entry.inc'):
     changes['include/' + name] = (here / name).read_text()
 for name in changes:
     changes[name] = changes[name].replace('#include "beacon-producer-gate.h"',
@@ -81,7 +82,7 @@ manifest['ra2_no_host_experiment'] = {
     'target_compiled': False,
     'runtime_verified': False,
     'activation_ready': False,
-    'remaining': ['cold epoch and shared PID handling', 'release target checks and RC reopen integration',
+    'remaining': ['cold epoch and shared PID handling', 'release/recovery target checks and RC reopen integration',
                   'full target compilation and physical verification'],
     'changed_paths': sorted(changes),
 }

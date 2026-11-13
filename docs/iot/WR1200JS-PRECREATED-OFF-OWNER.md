@@ -20,3 +20,10 @@ ACK protection and DMA packet release owners are unchanged.
 Host checks inject external resource operations. Prepared native compilation,
 MIPS compilation, full image validation and physical runtime are separate gates.
 See `docs/evidence/WR1200JS-PRECREATED-OFF-OWNER-2026-11-13.json`.
+
+The experimental recovery-only query15/reply16 exposes a CLOSE-admissible
+configuration token even when the first beacon wait did not complete. It is
+a distinct type from normal ON query11/reply12. The normal acceptance gate
+remains strict. CLOSE_BEGIN now uses recovery observation, then CLOSE itself
+revalidates the same receipt. Poisoned or stale contexts remain refused; this
+does not implement startup baseline rollback or grant RF acceptance.

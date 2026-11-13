@@ -1,0 +1,27 @@
+{
+  "scope": "First-publication timeout hides otherwise CLOSE-admissible OPEN receipt from RC",
+  "source_chain": [
+    "driver-api-open-entry.inc:dev_open then bounded first_beacon_wait; request_leave always executes",
+    "driver-api-owner.h:wr_iot_driver_owner_leave may retain valid configuration receipt with first_beacon_confirmed0 after clean owned mutation",
+    "driver-api-close-admission.h:CLOSE admission requires original receipt/current registry but not first_beacon_confirmed",
+    "driver-api-open-current.h:normal observer requires first_beacon_confirmed1",
+    "precreated-stop.c:CLOSE_BEGIN currently reads normal current OPEN; timeout-only case cannot obtain token"
+  ],
+  "host_witness": "check-driver-api-open-current.c faults34/35 preserve CLOSE admission while strict ON observation refuses. Actual helper now also exercises separate recovery observation across all36 faults without state mutation.",
+  "local_change": "Extracted recovery-only observer using unchanged CLOSE admission. Normal observer retains first-publication requirement; distinct experimental ioctl reply exports recovery token only.",
+  "verification": "PASS actual36-case observer, strict wire/cross-type rejection, actual reply binding, common privilege/copy/BSS routes, RC syscall fault cases and OFF owner checks with GCC ASan/UBSan. Actual16-path source composition passes. Prepared pinned RC client/stop native TUs compile. Full63-fixture host preflight PASS.",
+  "remaining": [
+    "MIPS full experimental module and RC target checks for this source",
+    "Production ON/admission and startup rollback/service integration",
+    "Physical WR1200JS acceptance"
+  ],
+  "status": "Implemented in experimental software path; target/runtime acceptance pending",
+  "runtime_verified": false,
+  "cleanup": "Temporary test trees/binaries removed; completed host log removed (12889bytes), no retained scratch.",
+  "implementation": {
+    "kernel": "Distinct recovery-only query15/reply16 under existing RTNL/CAP_NET_ADMIN/MT7603 common entry, exact ra2 and unchanged CLOSE admissibility. Only separate no-host experiment installs route.",
+    "wire": "Separate recovery result/decoder; normal ON11/12 and first-publication requirement retained.",
+    "rc": "Recovery-only client read supplies CLOSE_BEGIN token; original nonce/epoch/generation retained, no OPEN retry.",
+    "bundle": "16-path no-host experimental composer includes observer and typed recovery reply."
+  }
+}
