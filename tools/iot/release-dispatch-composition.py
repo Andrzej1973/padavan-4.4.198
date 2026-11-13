@@ -11,6 +11,7 @@ def compose(entry):
            for guard in guards):
         raise ValueError('Experimental release privilege boundary changed')
     route = '''
+ if(wire[4]==WR_IOT_IDLE_QUERY)return wr_iot_precreated_idle_reply(ad,dev,rq,wire);
  if(wire[4]==15)return wr_iot_driver_open_recovery_reply(ad,dev,rq,wire);
  if(wire[4]==WR_IOT_DRIVER_CLOSE_RELEASE_OPCODE){
   struct wr_iot_driver_close_request request;
@@ -23,5 +24,8 @@ def compose(entry):
             '#include "driver-api-close-release-binding.inc"\n'
             '#include "driver-api-open-current.h"\n'
             '#include "driver-api-open-recovery-wire.h"\n'
-            '#include "driver-api-open-recovery-entry.inc"\n' +
+            '#include "driver-api-open-recovery-entry.inc"\n'
+            '#include "precreated-idle-wire.h"\n'
+            '#include "precreated-idle-probe-binding.inc"\n'
+            '#include "precreated-idle-entry.inc"\n' +
             entry.replace(copy, copy + route, 1))

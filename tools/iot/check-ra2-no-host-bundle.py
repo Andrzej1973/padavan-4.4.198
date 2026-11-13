@@ -70,6 +70,22 @@ with tempfile.TemporaryDirectory(prefix='wr-ra2-bundle-compose-') as scratch:
     (source / 'include/wr-iot-beacon-producer-kernel.h').write_text(header)
     (source / 'include/wr-iot-beacon-producer-gate.h').write_bytes((here / 'beacon-producer-gate.h').read_bytes())
     (source / 'include/driver-api-closed-entry.inc').write_bytes((here / 'driver-api-closed-entry.inc').read_bytes())
+    # Reproduce the actual API storage/init and retirement predecessor layers.
+    rtmp = (source / 'include/rtmp.h').read_text()
+    rtmp += '\n#include "mbss-closed-probe.h"\n struct wr_iot_mbss_closed_probe wr_iot_closed_probe;\n'
+    (source / 'include/rtmp.h').write_text(rtmp)
+    (source / 'common/rtmp_init.c').write_text('NdisZeroMemory(&pAd->wr_iot_closed_probe,sizeof(pAd->wr_iot_closed_probe));\n')
+    owners = runpy.run_path(str(here / 'close-owner-composition.py'))
+    work = owners['compose_recovery_idle']((here / 'mbss-recovery-work.inc').read_text())
+    join = (here / 'mbss-recovery-join.inc').read_text()
+    tree = ast.parse((here / 'prepare-mbss-reaper-gate.py').read_text())
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == 'one' and len(node.args) == 3:
+            if isinstance(node.args[1], ast.Constant) and node.args[1].value == ' ready=wr_iot_mbss_recovery_idle_locked(ad);':
+                old, new = map(ast.literal_eval, node.args[1:]); assert join.count(old) == 1; join = join.replace(old, new)
+    join = owners['compose_recovery_join'](join)
+    (source / 'include/wr-iot-mbss-recovery-work.inc').write_text(work)
+    (source / 'include/wr-iot-mbss-recovery-join.inc').write_text(join)
     hashes = {str(p.relative_to(source)): hashlib.sha256(p.read_bytes()).hexdigest()
               for p in source.rglob('*') if p.is_file()}
     manifest = {'production_installed': False, 'target_compiled': False,
@@ -95,7 +111,7 @@ with tempfile.TemporaryDirectory(prefix='wr-ra2-bundle-compose-') as scratch:
     actual = {str(p.relative_to(output)): hashlib.sha256(p.read_bytes()).hexdigest()
               for p in output.rglob('*') if p.is_file()}
     assert result['merged_driver_sha256'] == actual == result['candidate_driver_sha256']
-    assert len(result['ra2_no_host_experiment']['changed_paths']) == 16
+    assert len(result['ra2_no_host_experiment']['changed_paths']) == 24
     assert result['ra2_no_host_experiment']['activation_ready'] is False
     for name in result['ra2_no_host_experiment']['changed_paths']:
         assert '#include "beacon-producer-gate.h"' not in (output / name).read_text()
@@ -115,4 +131,4 @@ with tempfile.TemporaryDirectory(prefix='wr-ra2-bundle-compose-') as scratch:
                               str(source), str(refused_output)], capture_output=True, text=True)
     assert refused.returncode and 'zero-PID contract changed' in refused.stderr
     assert not refused_output.exists()
-    print('PASS sixteen-path source composition from actual generator fragments, output hashes and input preservation. Full driver/Kbuild verification pending.')
+    print('PASS twenty-four-path source composition from actual generator fragments, output hashes and input preservation. Full driver/Kbuild verification pending.')

@@ -63,6 +63,17 @@ for name in ('driver-api-close-release.h', 'driver-api-close-release-binding.inc
              'driver-api-close-release-wire.h', 'driver-api-open-current.h',
              'driver-api-open-recovery-wire.h', 'driver-api-open-recovery-entry.inc'):
     changes['include/' + name] = (here / name).read_text()
+lifetime = runpy.run_path(str(here / 'initial-idle-lifetime-composition.py'))
+changes['include/rtmp.h'], changes['common/rtmp_init.c'] = lifetime['storage'](
+    changes['include/rtmp.h'], (source / 'common/rtmp_init.c').read_text())
+work_name = 'include/wr-iot-mbss-recovery-work.inc'
+join_name = 'include/wr-iot-mbss-recovery-join.inc'
+changes[work_name], changes[join_name] = lifetime['retirement'](
+    (source / work_name).read_text(), (source / join_name).read_text())
+for name in ('precreated-idle-reference.h', 'precreated-idle-probe.h',
+             'precreated-idle-probe-binding.inc', 'precreated-idle-wire.h',
+             'precreated-idle-entry.inc'):
+    changes['include/' + name] = (here / name).read_text()
 for name in changes:
     changes[name] = changes[name].replace('#include "beacon-producer-gate.h"',
                                         '#include "wr-iot-beacon-producer-gate.h"')
