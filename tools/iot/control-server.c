@@ -97,3 +97,8 @@ int wr_iot_rc_continue(void){
  pending=wr_iot_rc_shutdown_end();if(pending)raise(pending);
  return 1;
 }
+
+int wr_iot_rc_pending(void){
+ return wr_iot_continuation.active&&wr_iot_continuation.owner==getpid()&&
+  wr_iot_rc_shutdown.active;
+}

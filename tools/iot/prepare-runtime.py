@@ -1,0 +1,45 @@
+#!/usr/bin/env python3
+"""Install RC runtime/status adapters into an experimental prepared tree only.
+
+Requires actual RC, HTTP and control preparation. This is not production image
+admission: initial-OFF/reopen and physical acceptance remain separate gates.
+"""
+import argparse,json
+from pathlib import Path
+p=argparse.ArgumentParser();p.add_argument('source',type=Path);a=p.parse_args()
+local=Path(__file__).parent;rc=a.source/'trunk/user/rc';http=a.source/'trunk/user/httpd'
+if (a.source/'iot-runtime-source.json').exists():raise SystemExit('Runtime candidate already prepared')
+control=json.loads((a.source/'iot-control-source.json').read_text())
+if control.get('board')!='WR1200JS' or not (rc/'wr-iot/activation-owner.h').is_file():
+ raise SystemExit('Full WR RC/control candidates required')
+pending={}
+def once(text,anchor,replacement):
+ if text.count(anchor)!=1:raise SystemExit('Runtime source anchor changed: '+anchor[:60])
+ return text.replace(anchor,replacement,1)
+init=(rc/'init.c').read_text()
+init=once(init,'#include "wr-iot/rc-shutdown-admission.h"','#include "wr-iot/rc-shutdown-admission.h"\n#include "wr-iot/rc-runtime.h"')
+init=once(init,'\t\t\t\tsigsuspend(&ss);','''#if defined(BOARD_WR1200JS)
+\t\t\t\twr_iot_rc_wait(&ss,&sig_usr1_received,&sig_alrm_received);
+#else
+\t\t\t\tsigsuspend(&ss);
+#endif''')
+pending[rc/'init.c']=init.encode()
+common=('status-channel','status-endpoint')
+for root,units,anchor in ((rc,('rc-backend','rc-mode','rc-runtime')+common,'wr-iot-control-mailbox.o wr-iot-control-server.o'),(http,('status-client',)+common,'wr-iot-control-mailbox.o wr-iot-control-client.o')):
+ text=(root/'Makefile').read_text()
+ text=once(text,anchor,anchor+' '+' '.join('wr-iot-'+u+'.o' for u in units));pending[root/'Makefile']=text.encode()
+ headers=('status-channel.h','status-endpoint.h','precreated-entropy.h')+(('rc-backend.h','rc-runtime.h') if root==rc else ())
+ for name in headers:
+  target=root/'wr-iot'/name;data=(local/name).read_bytes()
+  if target.exists() and target.read_bytes()!=data:raise SystemExit('Conflicting runtime header: '+str(target))
+  pending[target]=data
+ for unit in units:
+  text=(local/(unit+'.c')).read_text()
+  for header in local.glob('*.h'):
+   text=text.replace('#include "'+header.name+'"','#include "wr-iot/'+header.name+'"')
+  target=root/('wr-iot-'+unit+'.c')
+  if target.exists():raise SystemExit('Refuse to overwrite runtime source: '+str(target))
+  pending[target]=text.encode()
+for target,data in pending.items():target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(data)
+(a.source/'iot-runtime-source.json').write_text(json.dumps({'board':'WR1200JS','activation_backend_installed':True,'http_private_status_backend_installed':True,'pid1_wait_bound':True,'status_peer_pid':1,'status_peer_uid':0,'progress_period_ms':100,'initial_off_admission':False,'off_reopen_admission':False,'production_ready':False,'runtime_verified':False},indent=2)+'\n')
+print('PASS experimental WR runtime/backend/status sources staged; initial OFF/reopen and production acceptance unresolved')

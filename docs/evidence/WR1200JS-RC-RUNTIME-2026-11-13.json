@@ -1,0 +1,31 @@
+{
+  "scope": "local runtime wait and experimental source preparation, not production admission",
+  "source_chain": [
+    "pinned trunk/user/rc/init.c init_main_loop",
+    "prepare-control normal shutdown admission",
+    "prepare-runtime board-scoped sigsuspend replacement",
+    "rc-runtime ppoll and bounded continuation/status service"
+  ],
+  "checks": [
+    "Real ppoll/signal/fork/socket ASan UBSan PASS",
+    "Preexisting notification flag has priority",
+    "One continuation no earlier than100ms deadline",
+    "Blocked pending SIGUSR1 wakes atomically with old mask restored",
+    "Real child status query served during idle",
+    "Actual control channel regression ASan UBSan PASS",
+    "Actual pinned RC+HTTP prepared then runtime preparation PASS",
+    "Prepared backend/runtime/socket/HTTPD client native TUs PASS",
+    "Full check-host-compatibility PASS exit0:71 standalone fixtures plus composition and new IPC/runtime cases",
+    "Final exact prepared RC/HTTP source and header/Make board selection PASS",
+    "WR1200JS and OTHER wait-branch probes PASS after initializing signal mask/marking unused test variables",
+    "Final prepared backend/runtime/socket/HTTPD native TUs PASS",
+    "Workflow YAML and new-step bash syntax PASS"
+  ],
+  "limitations": [
+    "Full target init.c/mode TU not yet compiled",
+    "Experimental scheduler source not called by production image prep",
+    "Initial OFF and OFF->ON reopen unimplemented",
+    "Experimental source preparation now wired into ABI target checks; not production image prep"
+  ],
+  "cleanup": "All test socket dirs and TemporaryDirectory prepared/build trees removed; no retained scratch"
+}

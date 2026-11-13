@@ -1710,7 +1710,7 @@ jobs:
           set -euo pipefail
           mkdir -p abi-results/iot-http-source/trunk/user/{httpd,rc}
           cp source/trunk/user/httpd/{httpd.c,web_ex.c,Makefile} abi-results/iot-http-source/trunk/user/httpd/
-          cp iot-rc-source/trunk/user/rc/{rc.c,init.c,Makefile} abi-results/iot-http-source/trunk/user/rc/
+          cp -a iot-rc-source/trunk/user/rc/. abi-results/iot-http-source/trunk/user/rc/
           python3 tools/iot/prepare-http.py abi-results/iot-http-source
           python3 tools/iot/prepare-control.py abi-results/iot-http-source
           python3 tools/iot/check-http-source.py abi-results/iot-http-source abi-results/check-iot-http-metadata.c
@@ -1743,6 +1743,49 @@ jobs:
                 -c "$root/wr-iot-control-$unit.c" -o "abi-results/iot-installed-$directory-$unit-mips.o"
             done
           done
+
+      - name: Compile experimental IoT RC runtime and private status IPC
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/iot/prepare-runtime.py abi-results/iot-http-source
+          python3 tools/iot/check-runtime-source.py abi-results/iot-http-source abi-results/runtime-source-check
+          for board in WR1200JS OTHER; do
+            gcc -std=gnu11 -Wall -Wextra -Werror -Wno-unused-function -DBOARD_$board \
+              abi-results/runtime-source-check/wait-branch.c -o abi-results/runtime-source-check/wait-$board
+            abi-results/runtime-source-check/wait-$board
+          done
+          python3 tools/iot/check-rc-mode.py
+          python3 tools/iot/check-rc-backend-composition.py
+          python3 tools/iot/check-status-channel.py
+          python3 tools/iot/check-status-endpoint.py
+          python3 tools/iot/check-rc-runtime.py
+          compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
+          test -n "$compiler"
+          for role in rc httpd; do
+            units="status-channel status-endpoint"
+            if [ "$role" = rc ]; then units="$units rc-backend rc-runtime"; else units="$units status-client"; fi
+            for unit in $units; do
+              "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+                -c "abi-results/iot-http-source/trunk/user/$role/wr-iot-$unit.c" \
+                -o "abi-results/iot-runtime-$role-$unit-mips.o"
+            done
+          done
+          runtime_rc="$PWD/abi-results/iot-http-source/trunk/user/rc"
+          shared_dir="$PWD/iot-rc-source/trunk/user/shared"
+          kernel_dir="$PWD/iot-rc-source/trunk/linux-4.4.x"
+          for unit in init wr-iot-rc-mode; do
+            "$compiler" -std=gnu99 -O2 -mips32r2 -mabi=32 -msoft-float \
+              -Werror=implicit-function-declaration -Werror=incompatible-pointer-types \
+              -DBOARD_2G_IN_SOC=0 -DBOARD_5G_IN_SOC=0 -DBOARD_HAS_2G_RADIO=1 -DBOARD_HAS_5G_RADIO=1 \
+              -DBOARD_NUM_USB_PORTS=1 -DBOARD_WR1200JS -DBOARD_RAM_SIZE=128 -DUSE_SMP -DUSE_IPV6 \
+              -DUSE_WID_2G=7603 -DUSE_WID_5G=7612 \
+              -I"$runtime_rc" -I"$shared_dir" -I"$shared_dir/include" \
+              -I"$PWD/iot-rc-source/trunk/user/wireless_tools" -I"$kernel_dir/include/nvram" \
+              -idirafter "$kernel_dir/include" -c "$runtime_rc/$unit.c" \
+              -o "abi-results/iot-runtime-$unit-mips.o"
+          done
+          cp abi-results/iot-http-source/iot-runtime-source.json abi-results/iot-runtime-source.json
 
       - name: Check IoT request staging before activation
         shell: bash
