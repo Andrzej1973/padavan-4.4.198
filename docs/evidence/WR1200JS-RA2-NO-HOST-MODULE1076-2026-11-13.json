@@ -1,0 +1,43 @@
+{
+  "run": 43356002248,
+  "number": 1076,
+  "source": "ef82883689ee28f90b60765556e1c5d6b8cfc4d2",
+  "artifact": 14006154713,
+  "target_report": {
+    "target_module_linked": true,
+    "module_bytes": 5989092,
+    "module_sha256": "d1504d8515182456c46195a6cd4ede0f31b25444de05bb6d0735527579df3b8f",
+    "production_installed": false,
+    "activation_ready": false,
+    "runtime_verified": false
+  },
+  "verified_defined_symbols": [
+    "APUpdateBeaconFrame",
+    "BcnTxSHandler",
+    "RT28xx_UpdateBeaconToAsic"
+  ],
+  "source_manifest_sha256": "3e7a56aba2b3a025e31a079d7e5059dfcea507c77cdbd8cb5ba3b3a3fe42023a",
+  "changed_paths": [
+    "ap/ap_connect.c",
+    "common/cmm_mac_pci.c",
+    "include/driver-api-close-release-binding.inc",
+    "include/driver-api-close-release-wire.h",
+    "include/driver-api-close-release.h",
+    "include/driver-api-closed-entry.inc",
+    "include/ra2-beacon-dma-window.h",
+    "include/ra2-beacon-no-host-packet.h",
+    "include/ra2-beacon-no-host-txd.h",
+    "include/rtmp.h",
+    "include/wr-iot-beacon-producer-kernel.h",
+    "mac/mt_mac.c",
+    "tx_rx/txs.c"
+  ],
+  "scope": "Actual linked experimental ELF32 little-endian MIPS module hash/size and three defined beacon functions verified. Full build source manifest includes13 paths with release API.",
+  "symbol_limit": "Static wr_iot_driver_close_release has no separate defined symbol; no claim that symbol presence proves operation14. Source manifest and build pipeline establish compilation scope.",
+  "runtime_verified": false,
+  "remaining": [
+    "RC activation backend and reopen/network integration",
+    "Physical WR1200JS acceptance"
+  ],
+  "cleanup": "Archive/module processed in memory; no extracted scratch retained."
+}

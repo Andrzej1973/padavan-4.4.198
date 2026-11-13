@@ -27,7 +27,7 @@ for unit,names in (('disable-services',('disable-services.h','dns-activation.h',
         raise SystemExit('Installed disable adapter differs: '+unit)
     if (rc/'Makefile').read_text(encoding='utf-8').count('wr-iot-'+unit+'.o')!=1:
         raise SystemExit('Disable object missing or duplicated: '+unit)
-for name in ('disable-services.h','disable-controller.h','request-snapshot.h','dns-activation.h','radio-profile-state.h','profile.h','profile-scan.h','profile-line.h','profile-list.h'):
+for name in ('disable-services.h','disable-controller.h','request-snapshot.h','dns-activation.h','radio-profile-state.h','profile.h','profile-scan.h','profile-line.h','profile-list.h','quarantine.h'):
     if (rc/'wr-iot'/name).read_bytes()!=(local/name).read_bytes():
         raise SystemExit('Installed disable service header differs: '+name)
 service=(rc/'services_ex.c').read_text(encoding='utf-8')
@@ -43,6 +43,8 @@ installed=service[begin:end]
 if 'wr_iot_network_services_ready' not in installed:
     raise SystemExit('installed candidate readiness does not use protocol check')
 firewall=(rc/'firewall_ex.c').read_text(encoding='utf-8')
+if firewall.count((local/'quarantine-apply.inc').read_text(encoding='utf-8'))!=1:
+    raise SystemExit('Installed quarantine/policy adapter differs from reviewed source')
 anchor='int wr_iot_quarantine_apply(void)\n{'
 if firewall.count(anchor)!=1:raise SystemExit('installed quarantine apply missing or duplicated')
 begin=firewall.index(anchor);end=firewall.index('\n}',begin)+2

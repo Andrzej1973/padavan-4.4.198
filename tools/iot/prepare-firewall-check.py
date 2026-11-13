@@ -41,7 +41,8 @@ start=s.index(anchor);opening=s.index('{',start);depth=1;end=opening+1
 while depth:
     depth+=(s[end]=='{')-(s[end]=='}');end+=1
 active_apply=s[start:end]
-for anchor in ('static int wr_iot_policy_current_wan(char out[16])\n{',
+for anchor in ('int wr_iot_quarantine_reapply(void)\n{',
+               'static int wr_iot_policy_current_wan(char out[16])\n{',
                'int wr_iot_active_filter_apply_current(void)\n{',
                'int wr_iot_policy_enable_current(void)\n{',
                'static int wr_iot_active_filter_observed(const char *lan,const char *wan)\n{',
@@ -98,6 +99,8 @@ static int wr_iot_policy_rules_ready(const char *v4,const char *v6){
  assert(strstr(v6,"-A INPUT -i br-iot -j DROP"));policy_calls++;return policy_ready;
 }
 static int wr_iot_quarantine_can_apply(void){return apply_allowed;}
+static int reapply_allowed=1;
+static int wr_iot_quarantine_can_reapply(void){return reapply_allowed;}
 static int wr_iot_policy_can_apply(void){return apply_allowed;}
 static void start_firewall_ex(void){apply_calls++;if(apply_changed)gate=1;if(active_changed)gate=0;if(change_wan)current_wan="eth2.3";}
 static int wr_iot_quarantine_ready(void){assert(apply_calls);return apply_ready;}
@@ -207,6 +210,12 @@ int main(void){
  apply_ready=0;assert(!wr_iot_quarantine_apply());assert(apply_calls==2);apply_ready=1;
  apply_changed=1;assert(!wr_iot_quarantine_apply());assert(apply_calls==3&&gate==1);
  apply_changed=0;gate=0;assert(wr_iot_quarantine_apply());assert(apply_calls==4);
+ /* Normal OFF retains an UP bridge: cold apply eligibility may refuse,
+  * while the separate current owned/DOWN-BSS reapply eligibility permits. */
+ apply_allowed=0;assert(wr_iot_quarantine_reapply());assert(apply_calls==5);
+ reapply_allowed=0;assert(!wr_iot_quarantine_reapply());assert(apply_calls==5);
+ reapply_allowed=1;gate=1;assert(!wr_iot_quarantine_reapply());assert(apply_calls==5);gate=0;
+ apply_allowed=1;
  puts("PASS installed quarantine apply: disabled gates and eligible bridge required, final policy failure and post-script gate change rejected; firewall execution injected");
  puts("PASS installed IoT firewall and scoped NAT helpers: scoped allow, ownership/gates, DNS/DHCP ports, inventory failures and overlap quarantine; kernel observations injected");return 0;
 }
