@@ -18,7 +18,7 @@ report=json.loads((a.source/'iot-rc-source.json').read_text(encoding='utf-8'))
 if not report['disable_services_adapter_installed'] or report['disable_services_controller_bound'] or not report['disable_controller_adapter_installed'] or report['disable_controller_radio_bound']:
     raise SystemExit('Candidate disable service scope changed')
 local=Path(__file__).parent
-for unit,names in (('disable-services',('disable-services.h','dns-activation.h')),
+for unit,names in (('disable-services',('disable-services.h','dns-activation.h','quarantine.h')),
                    ('disable-controller',('disable-controller.h','bridge.h'))):
     expected=(local/(unit+'.c')).read_text(encoding='utf-8')
     for name in names:

@@ -21,6 +21,12 @@ static int depth,busy,writes,fail_write,silent_write,guard_invalid;
 static unsigned int bridge_index;
 static int bridge_owned=1,bss_down=1;
 static int dns_prepare_error,dns_commit_ready=1,dns_prepares,dns_commits;
+static int quarantine_ready=1,quarantine_calls;
+int wr_iot_quarantine_reapply(void){
+ assert(depth&&bridge_index&&bridge_owned&&bss_down);
+ assert(!strcmp(values[7].value,"0")&&!strcmp(values[8].value,"0")&&!strcmp(values[9].value,"0"));
+ quarantine_calls++;return quarantine_ready;
+}
 int wr_iot_dns_disable_prepare(void){
  assert(depth&&bridge_index&&bss_down);
  assert(!strcmp(values[7].value,"0")&&!strcmp(values[8].value,"0")&&!strcmp(values[9].value,"0"));
@@ -151,7 +157,18 @@ int main(void){
  {
   struct wr_iot_disable_services stop={0};
   reset();bridge_index=7;
+  for(int i=7;i<10;i++)strcpy(values[i].value,"1");
   assert(wr_iot_disable_services_begin(&stop)&&depth==1);
+  /* Failed firewall observation preserves snapshot, bridge and service guard.
+   * Retry never opens a gate or starts DNS before quarantine is observed. */
+  bss_down=0;assert(!wr_iot_disable_services_isolate(&stop)&&!quarantine_calls);
+  bss_down=1;quarantine_ready=0;
+  assert(!wr_iot_disable_services_isolate(&stop)&&quarantine_calls==1);
+  assert(depth==1&&bridge_index==7&&stop.settings.active&&!dns_prepares);
+  quarantine_ready=1;assert(wr_iot_disable_services_isolate(&stop)&&quarantine_calls==2);
+  quarantine_ready=0;assert(!wr_iot_disable_services_apply(&stop));
+  assert(!dns_prepares&&depth==1&&stop.settings.active&&bridge_index==7);
+  quarantine_ready=1;
   dns_prepare_error=1;
   assert(!wr_iot_disable_services_apply(&stop)&&dns_prepares==1&&!dns_commits&&depth==1);
   assert(!wr_iot_disable_services_finish(&stop));

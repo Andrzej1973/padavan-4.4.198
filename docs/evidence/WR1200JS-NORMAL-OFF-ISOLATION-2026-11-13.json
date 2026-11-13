@@ -1,0 +1,12 @@
+{
+  "scope": "Normal-OFF owned snapshot gates, quarantine and service sequencing",
+  "source": [
+    "tools/iot/disable-services.c:wr_iot_disable_services_isolate",
+    "tools/iot/disable-services.c:wr_iot_disable_services_apply"
+  ],
+  "behavior": "Close gates via current disable snapshot and require quarantine reapply before any uncommitted DNS teardown. Failure keeps snapshot/guard/bridge. Completed service transaction remains idempotent.",
+  "verification": "Actual snapshot, request-stage, disable-services, disable-controller and profile units linked together under GCC ASan/UBSan; injected NVRAM/DNS/netdev/firewall boundary. All existing cleanup fault cases and new DOWN/quarantine refusal/retry pass.",
+  "staging": "New quarantine header include mapped in prepare-rc and exact header-check producer. New composition runner added to optional and early host preflight.",
+  "remaining": "Target build, full activation callback binding, driver quiescence and physical acceptance remain pending.",
+  "cleanup": "Temporary test headers and binaries removed automatically"
+}

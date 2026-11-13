@@ -33,6 +33,7 @@ with tempfile.TemporaryDirectory(prefix='wr-iot-host-preflight-') as scratch:
                         '-I'+str(here), str(here / (name+'.c')), '-o', str(binary)], check=True)
         subprocess.run([str(binary)], check=True)
     subprocess.run([sys.executable, '-B', str(here / 'check-quarantine-reapply.py')], check=True)
+    subprocess.run([sys.executable, '-B', str(here / 'check-normal-off-composition.py')], check=True)
     subprocess.run([sys.executable, '-B', str(here / 'check-ra2-no-host-target-runner.py')], check=True)
     subprocess.run([sys.executable, '-B', str(here / 'check-periodic-first-beacon.py')], check=True)
     subprocess.run([sys.executable, '-B', str(here / 'check-close-owner-composition.py')], check=True)

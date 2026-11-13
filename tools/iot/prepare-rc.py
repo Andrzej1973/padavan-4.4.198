@@ -631,7 +631,7 @@ report['dns_disable_transaction_api_installed']=True
 report['owned_disable_settings_api_installed']=True
 (headers/'disable-services.h').write_bytes((local/'disable-services.h').read_bytes())
 disable=(local/'disable-services.c').read_text(encoding='utf-8')
-for name in ('disable-services.h','dns-activation.h'):
+for name in ('disable-services.h','dns-activation.h','quarantine.h'):
  disable=disable.replace('#include "'+name+'"','#include "wr-iot/'+name+'"',1)
 (rc/'wr-iot-disable-services.c').write_text(disable,encoding='utf-8')
 make=m.read_text(encoding='utf-8')
