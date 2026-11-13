@@ -1,0 +1,40 @@
+{
+  "source": "tools/iot/start-commit.c",
+  "status": "local software controller; not production bound",
+  "test": "check-start-commit.c ASan/UBSan PASS:7 injected fault cases",
+  "semantics": [
+    "strict confirmed OPEN and staged request/services/filter checks before commit",
+    "one DNS commit attempt; uncertainty retained",
+    "after confirmed commit, fresh checks precede snapshot suspend",
+    "original baseline remains active, guard token cleared only on successful suspend",
+    "post-commit failure requires normal OFF/recovery; startup DNS abort prohibited"
+  ],
+  "verification": {
+    "host": true,
+    "mips": false,
+    "image": false,
+    "device": false
+  },
+  "cleanup": "TemporaryDirectory test binary removed",
+  "composition": {
+    "check-start-commit-composition.py": "PASS actual admission/stage/snapshot and final commit; DNS adapter injected",
+    "check-start-dns-commit-composition.py": "PASS actual DNS commit/finish/state with admission/stage/snapshot/final commit; readiness/files/service adapters injected",
+    "invariants": [
+      "DNS nested guard released before snapshot guard",
+      "all9 foreign ACTIVE values refuse snapshot resume",
+      "original baseline retained and restored in fixture"
+    ],
+    "physical_runtime": false
+  },
+  "prepared_rc": {
+    "result": "PASS",
+    "source": "40 pinned RC files from c25283e archive,board l1profile overlay",
+    "checks": [
+      "prepare-rc.py",
+      "exact staged source/header/Makefile object verification",
+      "native GCC gnu11 Wall Wextra Werror O2 compile"
+    ],
+    "mips": "ABI workflow now includes staged wr-iot-start-commit.c; pending",
+    "production_bound": false
+  }
+}

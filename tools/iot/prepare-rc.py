@@ -746,6 +746,16 @@ if make.count('wr-iot-start-network-rollback.o')!=1:raise SystemExit('Post-CLOSE
 m.write_text(make.replace('wr-iot-start-network-rollback.o','wr-iot-start-network-rollback.o wr-iot-start-closed-rollback.o',1),encoding='utf-8')
 report['start_closed_rollback_staged']=True
 report['start_closed_rollback_runtime_bound']=False
+(headers/'start-commit.h').write_bytes((local/'start-commit.h').read_bytes())
+unit=(local/'start-commit.c').read_text(encoding='utf-8')
+for name in ('start-commit.h', 'service-guard.h', 'rc-shutdown-admission.h', 'request-stage.h', 'network-check.h', 'quarantine.h', 'dns-activation.h'):
+ unit=unit.replace('#include "'+name+'"','#include "wr-iot/'+name+'"',1)
+(rc/'wr-iot-start-commit.c').write_text(unit,encoding='utf-8')
+make=m.read_text(encoding='utf-8')
+if make.count('wr-iot-start-close.o')!=1:raise SystemExit('Startup commit object anchor changed')
+m.write_text(make.replace('wr-iot-start-close.o','wr-iot-start-close.o wr-iot-start-commit.o',1),encoding='utf-8')
+report['start_commit_staged']=True
+report['start_commit_runtime_bound']=False
 report['start_network_staged']=True
 report['start_network_runtime_bound']=False
 report['start_admission_staged']=True
