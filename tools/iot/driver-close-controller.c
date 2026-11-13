@@ -26,3 +26,23 @@ int wr_iot_close_controller_progress(struct wr_iot_close_controller *state)
  if(result==WR_IOT_DRIVER_CLOSE_UNCERTAIN)state->phase=WR_IOT_CLOSE_UNCERTAIN;
  return 0;
 }
+
+int wr_iot_close_controller_release(struct wr_iot_close_controller *state)
+{
+ enum wr_iot_driver_close_submit_result result;
+ if(!state)return 0;
+ if(state->phase==WR_IOT_CLOSE_OWNER_RELEASED)return 1;
+ if(state->phase!=WR_IOT_CLOSE_REFERENCE_RETIRED&&
+    state->phase!=WR_IOT_CLOSE_RELEASE_PENDING&&
+    state->phase!=WR_IOT_CLOSE_RELEASE_UNCERTAIN)return 0;
+ result=wr_iot_driver_close_release_submit(&state->request);
+ if(result==WR_IOT_DRIVER_CLOSE_CALL_COMPLETED){
+  state->phase=WR_IOT_CLOSE_OWNER_RELEASED;return 1;
+ }
+ if(result==WR_IOT_DRIVER_CLOSE_UNCERTAIN)
+  state->phase=WR_IOT_CLOSE_RELEASE_UNCERTAIN;
+ else if(result==WR_IOT_DRIVER_CLOSE_PENDING&&
+         state->phase!=WR_IOT_CLOSE_RELEASE_UNCERTAIN)
+  state->phase=WR_IOT_CLOSE_RELEASE_PENDING;
+ return 0;
+}

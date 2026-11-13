@@ -4,6 +4,7 @@
 #include "request.h"
 #include "driver-api-open-current-wire.h"
 #include "driver-api-close-progress-wire.h"
+#include "driver-api-close-release-wire.h"
 enum wr_iot_driver_submit_result {
  WR_IOT_DRIVER_NOT_SUBMITTED=0,
  WR_IOT_DRIVER_OPEN_COMPLETED=1,
@@ -69,5 +70,9 @@ int wr_iot_driver_close_request_from_open(struct wr_iot_driver_close_request *,
 enum wr_iot_driver_close_submit_result wr_iot_driver_close_submit(
  const struct wr_iot_driver_close_request *);
 enum wr_iot_driver_close_submit_result wr_iot_driver_close_progress_submit(
+ const struct wr_iot_driver_close_request *);
+/* Experimental no-host driver only. Success releases software CLOSE owner;
+ * network policy and runtime acceptance remain with the activation backend. */
+enum wr_iot_driver_close_submit_result wr_iot_driver_close_release_submit(
  const struct wr_iot_driver_close_request *);
 #endif

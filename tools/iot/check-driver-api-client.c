@@ -28,10 +28,11 @@ static int fake_ioctl(int fd,unsigned long command,...){
   if(bad_reply)r->ifr_data[4]=99;
  }else if(command==WR_IOT_DRIVER_IOCTL_CLOSED_CONFIG){
   unsigned char id[16];unsigned char *wire=(unsigned char *)r->ifr_data;
-  if(wire[4]==10||wire[4]==13){
+  if(wire[4]==10||wire[4]==13||wire[4]==14){
    struct wr_iot_driver_close_request decoded;
    assert((wire[4]==10?wr_iot_driver_close_request_decode(&decoded,wire,64):
-           wr_iot_driver_close_progress_decode(&decoded,wire,64)));
+           wire[4]==13?wr_iot_driver_close_progress_decode(&decoded,wire,64):
+           wr_iot_driver_close_release_decode(&decoded,wire,64)));
    assert(decoded.adapter_epoch==1&&decoded.device_generation==2&&decoded.open_token==3);
    assert(decoded.open_request_id[0]==1);
    errno=close_control_error;
@@ -197,7 +198,7 @@ int main(void){
  assert(!wr_iot_driver_close_request_from_open(NULL,&saved,&receipt));
  assert(!wr_iot_driver_close_request_from_open(&built,NULL,&receipt));
  assert(!wr_iot_driver_close_request_from_open(&built,&saved,NULL));
- for(unsigned mode=0;mode<2;mode++){
+ for(unsigned mode=0;mode<3;mode++){
   for(unsigned fault=0;fault<8;fault++){
    struct wr_iot_driver_close_request input=close_request;
    unsigned prior_calls=calls,prior_closes=closes;
@@ -211,7 +212,8 @@ int main(void){
     case 6:close_error=1;break;
     case 7:close_control_error=EAGAIN;close_error=1;break;
    }
-   enum wr_iot_driver_close_submit_result outcome=mode?
+   enum wr_iot_driver_close_submit_result outcome=mode==2?
+    wr_iot_driver_close_release_submit(&input):mode==1?
     wr_iot_driver_close_progress_submit(&input):wr_iot_driver_close_submit(&input);
    enum wr_iot_driver_close_submit_result expected=fault==0?WR_IOT_DRIVER_CLOSE_CALL_COMPLETED:
     fault<=2?WR_IOT_DRIVER_CLOSE_NOT_SUBMITTED:

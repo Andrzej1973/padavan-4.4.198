@@ -194,13 +194,13 @@ int wr_iot_driver_close_request_from_open(struct wr_iot_driver_close_request *ou
 /* The operation result covers the kernel call only. Keep the original OPEN
  * identity and network isolation until the controller completes recovery. */
 static enum wr_iot_driver_close_submit_result wr_iot_driver_close_exchange(
- const struct wr_iot_driver_close_request *input,int progress)
+ const struct wr_iot_driver_close_request *input,unsigned int operation)
 {
  struct ifreq request={0};unsigned char wire[WR_IOT_DRIVER_CLOSE_REQUEST_BYTES];
  int fd,result,closed,saved_error;
- if(!(progress?wr_iot_driver_close_progress_encode(wire,sizeof(wire),input):
-                wr_iot_driver_close_request_encode(wire,sizeof(wire),input)))
+ if(!wr_iot_driver_close_request_encode(wire,sizeof(wire),input))
   return WR_IOT_DRIVER_CLOSE_NOT_SUBMITTED;
+ wire[4]=operation;
  fd=socket(AF_INET,SOCK_DGRAM|SOCK_CLOEXEC,0);
  if(fd<0)return WR_IOT_DRIVER_CLOSE_NOT_SUBMITTED;
  memcpy(request.ifr_name,"ra2",4);request.ifr_data=(char *)wire;
@@ -208,17 +208,24 @@ static enum wr_iot_driver_close_submit_result wr_iot_driver_close_exchange(
  saved_error=errno;closed=close(fd);
  if(closed)return WR_IOT_DRIVER_CLOSE_UNCERTAIN;
  if(!result)return WR_IOT_DRIVER_CLOSE_CALL_COMPLETED;
- if(progress&&(saved_error==EAGAIN||saved_error==EINPROGRESS))
+ if(operation!=WR_IOT_DRIVER_CLOSE_REQUEST_OPCODE&&
+    (saved_error==EAGAIN||saved_error==EINPROGRESS))
   return WR_IOT_DRIVER_CLOSE_PENDING;
  return WR_IOT_DRIVER_CLOSE_UNCERTAIN;
 }
 enum wr_iot_driver_close_submit_result wr_iot_driver_close_submit(
  const struct wr_iot_driver_close_request *input)
 {
- return wr_iot_driver_close_exchange(input,0);
+ return wr_iot_driver_close_exchange(input,WR_IOT_DRIVER_CLOSE_REQUEST_OPCODE);
 }
 enum wr_iot_driver_close_submit_result wr_iot_driver_close_progress_submit(
  const struct wr_iot_driver_close_request *input)
 {
- return wr_iot_driver_close_exchange(input,1);
+ return wr_iot_driver_close_exchange(input,WR_IOT_DRIVER_CLOSE_PROGRESS_OPCODE);
+}
+
+enum wr_iot_driver_close_submit_result wr_iot_driver_close_release_submit(
+ const struct wr_iot_driver_close_request *input)
+{
+ return wr_iot_driver_close_exchange(input,WR_IOT_DRIVER_CLOSE_RELEASE_OPCODE);
 }
