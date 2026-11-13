@@ -78,6 +78,14 @@ with (nullcontext(sys.argv[2]) if len(sys.argv)>2 else tempfile.TemporaryDirecto
     anchor_env=dict(os.environ,BUILD_MONITOR_FIXTURE_JOB_LOG=str(anchor_log))
     anchor_result=subprocess.run([str(binary),'--fixture:'+str(fixture),'--state-dir:'+str(root/'anchor-state')],capture_output=True,text=True,env=anchor_env,check=True)
     assert 'Ralink radio-mode anchor changed' in anchor_result.stdout
+    # ABI43366265834: collect2 alone omitted the missing symbol.
+    link_log=root/'undefined-reference.log'
+    link_log.write_text("request-stage.c:(.text+0x23d1): undefined reference to `wr_iot_service_guard_dup'\ncollect2: error: ld returned 1 exit status\n")
+    fixture.write_text(json.dumps({'workflow_runs':[row(765)]}),encoding='utf-8')
+    link_env=dict(os.environ,BUILD_MONITOR_FIXTURE_JOB_LOG=str(link_log))
+    link_cmd=[str(binary),'--fixture:'+str(fixture),'--state-dir:'+str(root/'link-state')]
+    assert 'undefined reference to `wr_iot_service_guard_dup' in subprocess.run(link_cmd,capture_output=True,text=True,env=link_env,check=True).stdout
+    assert 'BUILD FAILED:' not in subprocess.run(link_cmd,capture_output=True,text=True,env=link_env,check=True).stdout
     # Optional42640572020: retain the causal Python frame with its ValueError.
     python_log=root/'reserved-up-traceback.log'
     python_log.write_text('Traceback (most recent call last):\n  File "tools/iot/reserved-beacon-refresh.py", line 12, in compose\n    start=text.index(START);end=text.index(END,start)\nValueError: substring not found\n##[error]Process completed with exit code 1.\n')

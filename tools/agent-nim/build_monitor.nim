@@ -76,7 +76,7 @@ proc errorExcerpt(raw: string): string =
   var matches: seq[string]
   for line in raw.splitLines:
     let lower = line.toLowerAscii
-    if ["error:", "fatal", "traceback", "assertion", "##[error]", "failed", "exception"].anyIt(it in lower) or
+    if ["error:", "undefined reference", "fatal", "traceback", "assertion", "##[error]", "failed", "exception"].anyIt(it in lower) or
         "valueerror:" in lower or ("file \"" in lower and ", line " in lower) or
         ("anchor" in lower and "changed" in lower) or
         ("make" in lower and "***" in lower and " error " in lower) or

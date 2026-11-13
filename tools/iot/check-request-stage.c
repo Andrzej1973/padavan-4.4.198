@@ -5,6 +5,7 @@
 
 struct entry {const char *key;char value[80];};
 static int held,busy,enters,leaves;
+int wr_iot_service_guard_dup(void){return -1;} /* Standalone staging owns no outer activation guard. */
 static unsigned int bridge_index;
 static int network_ok=1,network_checks;
 int wr_iot_network_check(const char *gateway,const char *mask,const char *first,const char *last){assert(held);assert(!strcmp(gateway,"192.168.50.1")&&!strcmp(mask,"255.255.255.0")&&!strcmp(first,"192.168.50.20")&&!strcmp(last,"192.168.50.200"));network_checks++;return network_ok;}

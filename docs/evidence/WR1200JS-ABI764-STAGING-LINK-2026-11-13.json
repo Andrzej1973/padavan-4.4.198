@@ -1,0 +1,15 @@
+{
+  "failed_run": 43366265834,
+  "source": "0456830ffd13f643e76d90eb8ad30c4911f0aa60",
+  "failed_step": "Check IoT request staging before activation",
+  "cause": "Standalone check-request-stage fixture lacks wr_iot_service_guard_dup dependency introduced by read-only matcher",
+  "monitor": {
+    "run": 43366587861,
+    "artifact": 14010477196,
+    "comparison": "Correct run/job/step, but excerpt omitted undefined-reference causal symbol and retained collect2 only"
+  },
+  "fix": "Fixture explicitly refuses outer activation guard; exact standalone link/run added to early composition preflight. Monitor adds undefined reference match plus dedup regression.",
+  "checks": "PASS actual standalone staging and OFF composition ASan/UBSan; compiled Nim monitor and complete offline regression suite pass",
+  "cleanup": "Temporary headers/binaries/Nim cache removed automatically",
+  "runtime_verified": false
+}

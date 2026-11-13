@@ -8,6 +8,12 @@ here=Path(__file__).resolve().parent
 with tempfile.TemporaryDirectory(prefix='iot-normal-off-') as d:
     root=Path(d)
     subprocess.run([sys.executable,str(here/'prepare-request-stage-check.py'),d],check=True)
+    staging=root/'staging'
+    subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-O2',
+                    '-fsanitize=address,undefined','-fno-pie','-no-pie',
+                    '-I'+d,'-I'+str(here),str(here/'check-request-stage.c'),
+                    str(here/'request-stage.c'),'-o',str(staging)],check=True)
+    subprocess.run([str(staging)],check=True)
     binary=root/'check'
     units=('check-request-snapshot.c','request-stage.c','request-snapshot.c',
            'disable-services.c','disable-controller.c','profile.c')
