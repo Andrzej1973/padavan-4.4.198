@@ -4,6 +4,7 @@
 #include "request.h"
 #include "driver-api-open-current-wire.h"
 #include "driver-api-open-recovery-wire.h"
+#include "precreated-idle-wire.h"
 #include "driver-api-close-progress-wire.h"
 #include "driver-api-close-release-wire.h"
 enum wr_iot_driver_submit_result {
@@ -34,6 +35,10 @@ struct wr_iot_driver_attempt {
 };
 enum wr_iot_driver_submit_result wr_iot_driver_open_requested_tracked(
  const char *,const struct wr_iot_request *,struct wr_iot_driver_attempt *);
+/* Initial never-opened configuration only. Caller owns service/config guard
+ * and unique request nonce. Returned serial is observation identity, never a
+ * CLOSE token, loaded-key acceptance or permission surviving this read. */
+int wr_iot_driver_initial_idle_read(const unsigned char *,struct wr_iot_idle_result *);
 /* Match refusal against the original attempted identity, not a fresh query. */
 int wr_iot_driver_attempt_refused(const struct wr_iot_driver_attempt *);
 /* Current configuration-only CLOSED bound to retained successful ON identity.

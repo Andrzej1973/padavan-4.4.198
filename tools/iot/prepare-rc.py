@@ -85,7 +85,7 @@ for name in ('bridge.h','subnet.h','types.h'):(headers/name).write_bytes((local/
 # Keep the activation state machine and the immutable request parser beside the
 # RC objects that will own them.  They are still deliberately unbound here;
 # staging them first makes the real RC include environment a compile gate.
-for name in ('activation.h','request.h','request-stage.h','radio-profile-state.h','dns-activation.h','radio-stop-contract.h','driver-api-close-wire.h','driver-api-close-progress-wire.h','driver-api-close-release-wire.h','driver-api-open-current-wire.h','driver-api-open-recovery-wire.h'):(headers/name).write_bytes((local/name).read_bytes())
+for name in ('activation.h','request.h','request-stage.h','radio-profile-state.h','dns-activation.h','radio-stop-contract.h','driver-api-close-wire.h','driver-api-close-progress-wire.h','driver-api-close-release-wire.h','driver-api-open-current-wire.h','driver-api-open-recovery-wire.h','precreated-idle-wire.h'):(headers/name).write_bytes((local/name).read_bytes())
 (headers/'request-snapshot.h').write_bytes((local/'request-snapshot.h').read_bytes())
 snapshot=(local/'request-snapshot.c').read_text(encoding='utf-8')
 for name in ('request-snapshot.h','service-guard.h','bridge.h'):
@@ -698,6 +698,17 @@ for name in ('driver-open-controller.h','request-stage.h','service-guard.h','net
 make=m.read_text(encoding='utf-8')
 if make.count('wr-iot-precreated-stop.o')!=1:raise SystemExit('Driver OPEN controller object anchor changed')
 m.write_text(make.replace('wr-iot-precreated-stop.o','wr-iot-precreated-stop.o wr-iot-driver-open-controller.o',1),encoding='utf-8')
+for name in ('start-admission.h','rc-shutdown-admission.h'):
+ (headers/name).write_bytes((local/name).read_bytes())
+admission=(local/'start-admission.c').read_text(encoding='utf-8')
+for name in ('start-admission.h','request-stage.h','driver-api-client.h','service-guard.h','rc-shutdown-admission.h'):
+ admission=admission.replace('#include "'+name+'"','#include "wr-iot/'+name+'"',1)
+(rc/'wr-iot-start-admission.c').write_text(admission,encoding='utf-8')
+make=m.read_text(encoding='utf-8')
+if make.count('wr-iot-driver-open-controller.o')!=1:raise SystemExit('Startup admission object anchor changed')
+m.write_text(make.replace('wr-iot-driver-open-controller.o','wr-iot-driver-open-controller.o wr-iot-start-admission.o',1),encoding='utf-8')
+report['start_admission_staged']=True
+report['start_admission_runtime_bound']=False
 report['driver_open_controller_staged']=True
 report['driver_open_controller_bound']=False
 report['precreated_stop_owner_staged']=True

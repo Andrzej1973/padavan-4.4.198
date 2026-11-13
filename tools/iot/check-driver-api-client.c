@@ -41,6 +41,10 @@ static int fake_ioctl(int fd,unsigned long command,...){
    int recovery=wire[4]==15;current_response=1;
    assert(recovery?wr_iot_driver_open_recovery_query_decode(id,wire,64):wr_iot_driver_open_current_query_decode(id,wire,64));
    assert(recovery?wr_iot_driver_open_recovery_encode(wire,64,id,1,2,3):wr_iot_driver_open_current_encode(wire,64,id,1,2,3));
+  }else if(wire[4]==17){
+   assert(wr_iot_idle_query_decode(id,wire,64));
+   assert(wr_iot_idle_reply_encode(wire,64,id,1,2,3));
+   if(bad_closed_reply==6)wire[4]=16;
   }else if(wire[4]==8){
    assert(wr_iot_driver_uncertain_query_decode(id,wire,64));
    assert(wr_iot_driver_uncertain_encode(wire,64,id,1,2,3));
@@ -158,6 +162,18 @@ int main(void){
  ioctl_error=1;assert(!wr_iot_driver_attempt_closed(&attempt,&state));ioctl_error=0;
  assert(!wr_iot_driver_attempt_closed(NULL,&state)&&!state.close_serial);
  assert(!wr_iot_driver_attempt_closed(&attempt,NULL));
+ struct wr_iot_idle_result idle={99,99,99};
+ assert(wr_iot_driver_initial_idle_read(query_id,&idle)&&idle.epoch==1&&idle.generation==2&&idle.serial==3);
+ for(bad_closed_reply=1;bad_closed_reply<=6;bad_closed_reply++){
+  if(bad_closed_reply==5)continue;
+  assert(!wr_iot_driver_initial_idle_read(query_id,&idle)&&!idle.epoch&&!idle.serial);
+ }
+ bad_closed_reply=0;ioctl_error=1;assert(!wr_iot_driver_initial_idle_read(query_id,&idle)&&!idle.serial);ioctl_error=0;
+ close_error=1;assert(!wr_iot_driver_initial_idle_read(query_id,&idle)&&!idle.serial);close_error=0;
+ socket_error=1;assert(!wr_iot_driver_initial_idle_read(query_id,&idle)&&!idle.serial);socket_error=0;
+ unsigned old_sockets=sockets;
+ assert(!wr_iot_driver_initial_idle_read(NULL,&idle)&&!idle.serial&&sockets==old_sockets);
+ assert(!wr_iot_driver_initial_idle_read(query_id,NULL)&&sockets==old_sockets);
  struct wr_iot_driver_open_current_result current;
  assert(wr_iot_driver_open_current_read(&attempt,&current)&&current.open_token==3);
  attempt.identity.adapter_epoch++;assert(!wr_iot_driver_open_current_read(&attempt,&current)&&!current.open_token);attempt.identity.adapter_epoch--;

@@ -21,7 +21,8 @@ local=Path(__file__).parent
 for unit,names in (('disable-services',('disable-services.h','dns-activation.h','quarantine.h')),
                    ('disable-controller',('disable-controller.h','bridge.h')),
                    ('precreated-stop',('precreated-stop.h','service-guard.h','bridge.h')),
-                   ('driver-open-controller',('driver-open-controller.h', 'request-stage.h', 'service-guard.h', 'network-check.h', 'bridge.h', 'quarantine.h'))):
+                   ('driver-open-controller',('driver-open-controller.h', 'request-stage.h', 'service-guard.h', 'network-check.h', 'bridge.h', 'quarantine.h')),
+                   ('start-admission',('start-admission.h','request-stage.h','driver-api-client.h','service-guard.h','rc-shutdown-admission.h'))):
     expected=(local/(unit+'.c')).read_text(encoding='utf-8')
     for name in names:
         expected=expected.replace('#include "'+name+'"','#include "wr-iot/'+name+'"',1)
@@ -29,7 +30,7 @@ for unit,names in (('disable-services',('disable-services.h','dns-activation.h',
         raise SystemExit('Installed disable adapter differs: '+unit)
     if (rc/'Makefile').read_text(encoding='utf-8').count('wr-iot-'+unit+'.o')!=1:
         raise SystemExit('Disable object missing or duplicated: '+unit)
-for name in ('disable-services.h','disable-controller.h','request-snapshot.h','dns-activation.h','radio-profile-state.h','profile.h','profile-scan.h','profile-line.h','profile-list.h','quarantine.h','precreated-stop.h','driver-open-controller.h','request-stage.h'):
+for name in ('disable-services.h','disable-controller.h','request-snapshot.h','dns-activation.h','radio-profile-state.h','profile.h','profile-scan.h','profile-line.h','profile-list.h','quarantine.h','precreated-stop.h','driver-open-controller.h','request-stage.h','start-admission.h','rc-shutdown-admission.h','precreated-idle-wire.h'):
     if (rc/'wr-iot'/name).read_bytes()!=(local/name).read_bytes():
         raise SystemExit('Installed disable service header differs: '+name)
 service=(rc/'services_ex.c').read_text(encoding='utf-8')
