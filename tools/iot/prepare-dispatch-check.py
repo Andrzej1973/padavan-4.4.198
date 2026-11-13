@@ -16,6 +16,7 @@ shutdown=(Path(__file__).with_name('rc-shutdown-admission.h')).read_text(encodin
 a.output.write_text(r'''#include <assert.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/types.h>
 #include <unistd.h>
 '''+shutdown+r'''
 struct wr_iot_rc_shutdown_admission wr_iot_rc_shutdown;

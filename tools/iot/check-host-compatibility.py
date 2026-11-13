@@ -32,6 +32,15 @@ with tempfile.TemporaryDirectory(prefix='wr-iot-host-preflight-') as scratch:
                         '-fsanitize=address,undefined', '-fno-pie', '-no-pie',
                         '-I'+str(here), str(here / (name+'.c')), '-o', str(binary)], check=True)
         subprocess.run([str(binary)], check=True)
+    # Match the ABI workflow's strict C11 generated-dispatch check. GNU11 can
+    # expose POSIX typedefs transitively and hide a missing sys/types.h.
+    dispatch = root / 'iot-dispatch-core.c'
+    subprocess.run([sys.executable, '-B', str(here / 'prepare-dispatch-check.py'),
+                    str(here / 'control-server.c'), str(dispatch)], check=True)
+    subprocess.run(['gcc', '-std=c11', '-Wall', '-Wextra', '-Werror', '-O2',
+                    '-fsanitize=address,undefined', '-fno-pie', '-no-pie',
+                    str(dispatch), '-o', str(root / 'check-iot-dispatch-core')], check=True)
+    subprocess.run([str(root / 'check-iot-dispatch-core')], check=True)
     subprocess.run([sys.executable, '-B', str(here / 'check-quarantine-reapply.py')], check=True)
     subprocess.run([sys.executable, '-B', str(here / 'check-normal-off-composition.py')], check=True)
     subprocess.run([sys.executable, '-B', str(here / 'check-start-staging-composition.py')], check=True)
