@@ -62,6 +62,7 @@ with tempfile.TemporaryDirectory(prefix='wr-iot-host-preflight-') as scratch:
     subprocess.run([sys.executable, '-B', str(here / 'check-status-channel.py')], check=True)
     subprocess.run([sys.executable, '-B', str(here / 'check-status-endpoint.py')], check=True)
     subprocess.run([sys.executable, '-B', str(here / 'check-rc-runtime.py')], check=True)
+    subprocess.run([sys.executable, '-B', str(here / 'check-radio-stop-fence.py')], check=True)
     subprocess.run([sys.executable, '-B', str(here / 'check-initial-off-composition.py')], check=True)
     subprocess.run([sys.executable, '-B', str(here / 'check-initial-off-owner-composition.py')], check=True)
     subprocess.run([sys.executable, '-B', str(here / 'check-reopen-admission.py')], check=True)

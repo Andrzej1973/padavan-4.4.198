@@ -1,8 +1,11 @@
+#include <time.h>
 #include "control-channel.h"
 #include "rc-backend.h"
 #include "activation-observe.h"
 #include "service-guard.h"
 #include "rc-shutdown-admission.h"
+#include "radio-stop-contract.h"
+#include "precreated-entropy.h"
 static struct wr_iot_activation_owner backend;
 enum wr_iot_result_state wr_iot_activation_execute(const struct wr_iot_control_request *request)
 {
@@ -28,4 +31,29 @@ enum wr_iot_result_state wr_iot_activation_continue(const char *id,unsigned long
 int wr_iot_rc_backend_observed(const struct wr_iot_control_result *result)
 {
  return wr_iot_activation_owner_observed(&backend,result);
+}
+
+int wr_iot_activation_prepare_radio_stop(void)
+{
+ struct wr_iot_initial_off initial={0};
+ struct wr_iot_control_request request={0};
+ struct timespec now;unsigned char random[32];int guard,ok=0;
+ static const char hex[]="0123456789abcdef";
+ if(!wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||backend.busy)return 0;
+ /* A completed software CLOSE is not a physical-radio drain certificate.
+  * Only the never-opened case is currently admitted; retain every other
+  * owner's context and isolation without replaying or synthesizing OFF. */
+ if(backend.phase!=WR_IOT_OWNER_IDLE&&backend.phase!=WR_IOT_OWNER_INITIAL_OFF)return 0;
+ guard=wr_iot_service_guard_enter(1);if(guard!=1)return 0;
+ if(backend.phase==WR_IOT_OWNER_INITIAL_OFF){
+  ok=wr_iot_initial_off_observed(&backend.initial_off);goto done;
+ }
+ if(clock_gettime(CLOCK_MONOTONIC,&now)||now.tv_sec<=0||
+    wr_iot_precreated_entropy(NULL,random,sizeof(random))!=(int)sizeof(random))goto done;
+ for(unsigned i=0;i<16;i++){
+  request.id[2*i]=hex[random[i]>>4];request.id[2*i+1]=hex[random[i]&15];
+ }
+ request.created=(unsigned long long)now.tv_sec;
+ ok=wr_iot_initial_off_begin(&initial,&request);
+ done:wr_iot_service_guard_leave(guard);return ok==1;
 }

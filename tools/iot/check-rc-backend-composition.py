@@ -15,6 +15,9 @@ body=body.split('int main(void){',1)[0]+observer_hooks+r'''
 static char mailbox_directory[]="/tmp/iot-rc-owner-mailbox-XXXXXX";
 #define WR_IOT_CONTROL_DIRECTORY mailbox_directory
 #include "control-server.c"
+static int entropy_fail;
+static long stop_entropy(void *out,unsigned int n,unsigned int flags){assert(n==32&&flags==1);if(entropy_fail)return -1;memset(out,1,n);return n;}
+#define WR_IOT_GETRANDOM(out,n,flags) stop_entropy(out,n,flags)
 #include "rc-backend.c"
 #include "activation-observe.h"
 #define WR_IOT_NOTIFY() ((void)0)
@@ -41,6 +44,29 @@ static void terminal(const char *id){
  assert(wr_iot_rc_status(id,&result)&&result.state==WR_IOT_RESULT_APPLIED);
 }
 int main(void){
+ reset();idle_reads=0;rollback_dns=0;
+ for(unsigned i=7;i<16;i++)strcpy(values[i].value,i<10?"0":"");
+ assert(!wr_iot_activation_prepare_radio_stop());
+ wr_iot_rc_shutdown.active=1;
+ entropy_fail=1;assert(!wr_iot_activation_prepare_radio_stop()&&!depth);
+ entropy_fail=0;assert(wr_iot_activation_prepare_radio_stop()&&!depth);
+ struct wr_iot_control_request initial_request={.id="01010101010101010101010101010101",.created=1};
+ assert(wr_iot_activation_owner_execute(&backend,&initial_request,1,1,0)==WR_IOT_RESULT_APPLIED);
+ assert(backend.phase==WR_IOT_OWNER_INITIAL_OFF&&wr_iot_activation_prepare_radio_stop());
+ backend.initial_off.idle.epoch++;
+ assert(!wr_iot_activation_prepare_radio_stop());backend.initial_off.idle.epoch--;
+ memset(&backend,0,sizeof(backend)); /* Initial OFF owns no resources. */
+
+ unsigned before=idle_reads;
+ const enum wr_iot_activation_owner_phase refused[]={WR_IOT_OWNER_START,WR_IOT_OWNER_ACTIVE,WR_IOT_OWNER_STOP,WR_IOT_OWNER_OFF,WR_IOT_OWNER_REJECTED};
+ for(unsigned i=0;i<sizeof(refused)/sizeof(refused[0]);i++){
+  backend.phase=refused[i];assert(!wr_iot_activation_prepare_radio_stop()&&idle_reads==before&&!depth);
+ }
+ backend.phase=WR_IOT_OWNER_IDLE;backend.busy=1;
+ assert(!wr_iot_activation_prepare_radio_stop());backend.busy=0;
+ wr_iot_rc_shutdown.pending=SIGTERM;assert(!wr_iot_activation_prepare_radio_stop());
+ wr_iot_rc_shutdown.pending=0;wr_iot_rc_shutdown.active=0;
+
  struct wr_iot_control_request on={.id="01010101010101010101010101010101",.request={.enabled=1,.ssid="IoT",.password="password123",.gateway="192.168.50.1",.mask="255.255.255.0",.first="192.168.50.20",.last="192.168.50.200"}};
  struct wr_iot_control_request off={.id="02020202020202020202020202020202"};
  assert(candidate_read(NULL,"wr_iot_enable"));

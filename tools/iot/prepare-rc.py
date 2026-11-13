@@ -77,6 +77,22 @@ restart=restart.replace(stop_anchor,stop_anchor+'''\n#if defined(BOARD_WR1200JS)
  if (!wr_iot_last_stop_result) return;
 #endif''',1)
 s=s[:begin]+restart+s[end:]
+
+# Keep every early refusal inside one balanced physical-call fence. The nested
+# stop-all call obtains a LIFO token from the same process-context outer fence.
+for signature,label,is_stop in ((anchor,'wr_iot_stop_done',True),(restart_anchor,'wr_iot_restart_done',False)):
+ start=s.index(signature);opening=s.index('{',start);depth=1;finish=opening+1
+ while depth:
+  if s[finish]=='{':depth+=1
+  elif s[finish]=='}':depth-=1
+  finish+=1
+ body=s[opening+1:finish-1]
+ body=body.replace('return;','goto '+label+';')
+ entry='\n#if defined(BOARD_WR1200JS)\n struct wr_iot_radio_stop_fence wr_iot_fence={0};\n if(!wr_iot_radio_stop_fence_begin(&wr_iot_fence)){wr_iot_last_stop_result=0;return;}\n#endif\n'
+ exit='\n#if defined(BOARD_WR1200JS)\n'+label+':\n if(!wr_iot_radio_stop_fence_end(&wr_iot_fence))wr_iot_last_stop_result=0;\n#endif\n'
+ s=s[:opening+1]+entry+body+exit+s[finish-1:]
+s=s.replace('#include "wr-iot/radio-stop-contract.h"','#include "wr-iot/radio-stop-contract.h"\n#include "wr-iot/radio-stop-fence.h"',1)
+
 m=rc/'Makefile';make=m.read_text(encoding='utf-8');anchor='OBJS += gpio_btn.o btn_action.o'
 if make.count(anchor)!=1:raise SystemExit('RC object anchor changed')
 make=make.replace(anchor,anchor+'\nifneq ($(findstring -DBOARD_WR1200JS,$(CFLAGS)),)\nOBJS += wr-iot-bridge.o\nendif',1)
@@ -838,6 +854,15 @@ make=m.read_text(encoding='utf-8')
 if make.count('wr-iot-initial-off.o')!=1:raise SystemExit('Reopen object anchor changed')
 objects=' '.join('wr-iot-'+stem+'.o' for stem,names in (('reopen-admission', ('reopen-admission.h', 'service-guard.h', 'request-snapshot.h', 'bridge.h', 'dns-activation.h')), ('reopen-start', ('reopen-start.h', 'request-stage.h', 'service-guard.h', 'rc-shutdown-admission.h')), ('reopen-network', ('reopen-network.h', 'driver-api-client.h', 'service-guard.h', 'rc-shutdown-admission.h', 'bridge.h', 'network-check.h', 'request-stage.h', 'quarantine.h', 'dns-activation.h')), ('reopen-rollback', ('reopen-rollback.h', 'driver-api-client.h', 'service-guard.h', 'rc-shutdown-admission.h', 'bridge.h', 'dns-activation.h'))))
 m.write_text(make.replace('wr-iot-initial-off.o','wr-iot-initial-off.o '+objects,1),encoding='utf-8')
+(headers/'radio-stop-fence.h').write_bytes((local/'radio-stop-fence.h').read_bytes())
+unit=(local/'radio-stop-fence.c').read_text()
+for name in ('radio-stop-fence.h','rc-shutdown-admission.h'):
+ unit=unit.replace('#include "'+name+'"','#include "wr-iot/'+name+'"',1)
+(rc/'wr-iot-radio-stop-fence.c').write_text(unit)
+make=m.read_text()
+if make.count('wr-iot-initial-off.o')!=1:raise SystemExit('Radio fence object anchor changed')
+m.write_text(make.replace('wr-iot-initial-off.o','wr-iot-initial-off.o wr-iot-radio-stop-fence.o',1))
+report['radio_stop_fence_staged']=True
 report['reopen_staged']=True
 report['reopen_runtime_bound']=False
 

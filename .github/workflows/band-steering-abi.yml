@@ -1320,7 +1320,7 @@ jobs:
             -c iot-rc-source/trunk/user/rc/wr-iot-activation-observe.c -o abi-results/iot-rc-activation-observe-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
             -c iot-rc-source/trunk/user/rc/wr-iot-initial-off.c -o abi-results/iot-rc-initial-off-mips.o
-          for unit in reopen-admission reopen-start reopen-network reopen-rollback; do
+          for unit in reopen-admission reopen-start reopen-network reopen-rollback radio-stop-fence; do
             "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
               -c "iot-rc-source/trunk/user/rc/wr-iot-$unit.c" -o "abi-results/iot-rc-$unit-mips.o"
           done
@@ -1778,6 +1778,7 @@ jobs:
           python3 tools/iot/check-status-channel.py
           python3 tools/iot/check-status-endpoint.py
           python3 tools/iot/check-rc-runtime.py
+          python3 tools/iot/check-radio-stop-fence.py
           compiler="$(find "$PWD/toolchain" -name mipsel-linux-uclibc-gcc -print -quit)"
           test -n "$compiler"
           for role in rc httpd; do

@@ -15,8 +15,8 @@ helper=function('static int wr_iot_quiesce(void)')
 stop=function('void \nstop_wifi_all_rt(void)')
 assert stop.index('wr_iot_last_stop_result=wr_iot_quiesce();')<stop.index('wif_control(IFNAME_2G_APCLI, 0);')
 restart=function('void\nrestart_wifi_rt(int radio_on, int need_reload_conf)')
-assert restart.index('if (!wr_iot_quiesce()) return;')<restart.index('stop_8021x_rt();')<restart.index('gen_ralink_config_2g(0);')
-assert restart.index('stop_wifi_all_rt();')<restart.index('if (!wr_iot_last_stop_result) return;')<restart.index('gen_ralink_config_2g(0);')
+assert restart.index('if (!wr_iot_quiesce()) goto wr_iot_restart_done;')<restart.index('stop_8021x_rt();')<restart.index('gen_ralink_config_2g(0);')
+assert restart.index('stop_wifi_all_rt();')<restart.index('if (!wr_iot_last_stop_result) goto wr_iot_restart_done;')<restart.index('gen_ralink_config_2g(0);')
 prefix=r"""#include <assert.h>
 #include <string.h>
 #include <stdio.h>
@@ -39,7 +39,10 @@ static void wif_control(const char *name,int up){assert(!up&&calls<16);names[cal
 static int wr_iot_last_stop_result=1;
 #define nvram_match(...) forbidden_nvram_shortcut
 #define wr_iot_bridge_is_owned(...) forbidden_bridge_shortcut
-static int wr_iot_activation_prepare_radio_stop(void){controller_calls++;return refuse_second&&controller_calls==2?0:answer;}
+static int inject_term;
+static volatile sig_atomic_t delivered;
+static void fence_signal(int sig){if(!wr_iot_rc_shutdown_note(sig))delivered++;}
+static int wr_iot_activation_prepare_radio_stop(void){assert(wr_iot_rc_shutdown.active);if(inject_term){inject_term=0;assert(!kill(getpid(),SIGTERM));}controller_calls++;return refuse_second&&controller_calls==2?0:answer;}
 """
 mocks=r"""
 static void stop_8021x_rt(void){auth_stops++;}
@@ -90,8 +93,24 @@ int main(void){
  answer=1;refuse_second=1;reset_counts();restart_wifi_rt(1,1);
  assert(controller_calls==2&&auth_stops==1&&!calls&&!leds&&!auth_starts&&!starts&&!profiles&&!writes&&!isolations&&!wan_checks&&!vga_checks&&!iapp);
 #endif
+#if defined(BOARD_WR1200JS)
+ assert(!wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.pending);
+ struct sigaction action={0};action.sa_handler=fence_signal;sigemptyset(&action.sa_mask);
+ assert(!sigaction(SIGTERM,&action,NULL));
+ reset_counts();answer=0;refuse_second=0;inject_term=1;
+ restart_wifi_rt(1,1);
+ assert(delivered==1&&!wr_iot_rc_shutdown.active&&!calls&&!auth_stops&&!profiles);
+ reset_counts();answer=1;inject_term=1;
+ stop_wifi_all_rt();
+ assert(delivered==2&&!wr_iot_rc_shutdown.active&&calls==7);
+#endif
  puts("PASS full actual RC stop/restart: first/second controller refusal fences physical operations, profile and reopen; radio/reload combinations and other-board behavior preserved; backend unbound");
 }
 
 """
+local=Path(__file__).resolve().parent
+fence=(local/'radio-stop-fence.c').read_text()
+for name in ('radio-stop-fence.h','rc-shutdown-admission.h'):
+ fence=fence.replace('#include "'+name+'"','#include "'+str(local/name)+'"')
+prefix=prefix.replace('static int wr_iot_last_stop_result=1;',fence+'\nstruct wr_iot_rc_shutdown_admission wr_iot_rc_shutdown;\nstatic int wr_iot_last_stop_result=1;')
 a.output.write_text(prefix+helper+'\n#endif\n'+stop+'\n'+mocks+'\n'+restart+'\n'+tail,encoding='utf-8')

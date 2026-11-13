@@ -1,0 +1,34 @@
+{
+  "sdk_pin": "c25283e915a2a00a763774dd255b14aff997285e",
+  "observed_chain": [
+    {
+      "source": "os/linux/rt_main_dev.c",
+      "line": 125,
+      "call": "RTMPInfClose before VIRTUAL_IF_DOWN"
+    },
+    {
+      "source": "os/linux/rt_main_dev.c",
+      "line": 226,
+      "call": "rt28xx_close -> RTMPDrvClose"
+    },
+    {
+      "source": "ap/ap.c",
+      "line": 1317,
+      "function": "APStop",
+      "observed": [
+        "interrupt disable1331",
+        "HALT_IN_PROGRESS1359",
+        "AsicDisableSync1371",
+        "per-BSS timer cancellation1386"
+      ]
+    }
+  ],
+  "scope": "pinned source only; full RTMPDrvClose DMA/ring/task cleanup chain not yet located/validated",
+  "prepared_runtime": "PASS exact source/header checks and backend/fence native -Werror TUs",
+  "host_suite": {
+    "session": 25952,
+    "state": "live at last poll",
+    "log": "/tmp/wr-iot-radio-fence-preflight.log"
+  },
+  "runtime": "not tested"
+}

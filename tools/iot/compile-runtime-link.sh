@@ -40,7 +40,7 @@ make -f "$probe/Makefile" iot-runtime-link ROOTDIR="$trunk" LINUXDIR=linux-4.4.x
   CC="$compiler" STRIP="${cross}strip" AR="${cross}ar" \
   2>&1 | tee "$results/build.log"
 "${cross}nm" "$probe/trunk/user/rc/wr-iot-rc-backend.o" > "$results/backend-symbols.txt"
-for symbol in wr_iot_activation_execute wr_iot_activation_continue wr_iot_rc_backend_observed; do
+for symbol in wr_iot_activation_execute wr_iot_activation_continue wr_iot_rc_backend_observed wr_iot_activation_prepare_radio_stop; do
   grep -Eq "[[:space:]]T[[:space:]]$symbol\$" "$results/backend-symbols.txt"
 done
 mkdir -p "$probe/staged/usr/sbin"

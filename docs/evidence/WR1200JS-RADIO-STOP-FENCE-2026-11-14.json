@@ -1,0 +1,27 @@
+{
+  "implemented": "process-context nested signal fence, not yet bound to net_wifi",
+  "result": "PASS strict C11 -Werror O2 ASan/UBSan",
+  "assertions": [
+    "nested LIFO and duplicate refusal",
+    "existing shutdown owner refusal",
+    "queued SIGTERM deferred until outer cleanup then delivered once",
+    "manual deferred shutdown delivered once",
+    "original signal mask including initially blocked TERM restored"
+  ],
+  "sources": {
+    "radio-stop-fence.h": "6c389801dec27a36740baac61213e85aa4dc1f4df4f90181572f147ddb3ce404",
+    "radio-stop-fence.c": "ac8f7d108171b52b8bbd0a472477de5726a59b5d633076550a67036bd0c71981",
+    "check-radio-stop-fence.c": "45f28d35964cb130e2821700f8b2fb265009a7896ecc545d26c851896e9088c9"
+  },
+  "remaining": [
+    "implement strong retained backend radio-stop callback and appropriate driver teardown evidence",
+    "MIPS/full link checks",
+    "runtime acceptance"
+  ],
+  "cleanup": "own completed test binary39232bytes removed",
+  "device_modified": false,
+  "integration": "prepare-rc wraps complete stock stop/restart bodies; early returns jump to balanced cleanup, nested stop-all gets shared LIFO fence",
+  "prepared_checks": "PASS exact prepared source/header checker and actual complete stop/restart bodies GNU11 ASan/UBSan for WR1200JS and OTHER",
+  "signal_integration_tests": "PASS SIGTERM during first callback refusal and successful stop; outer fence balanced",
+  "ci": "standalone registered in host/ABI/optional; actual module MIPS TU added"
+}
