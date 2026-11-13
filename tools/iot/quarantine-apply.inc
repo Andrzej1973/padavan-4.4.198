@@ -28,6 +28,22 @@ int wr_iot_quarantine_apply(void)
  return 0;
 #endif
 }
+/* Reinstall quarantine before normal-OFF service teardown, while its owned
+ * bridge still supplies the current service baseline. Unlike cold startup,
+ * this path must not demand bridge DOWN. Both paths keep ra2 DOWN. */
+int wr_iot_quarantine_reapply(void)
+{
+#if defined(USE_IPV6)
+ if (!nvram_match("wr_iot_network_t","0") ||
+     !nvram_match("wr_iot_firewall_t","0") ||
+     !wr_iot_quarantine_can_reapply()) return 0;
+ start_firewall_ex();
+ return nvram_match("wr_iot_network_t","0") &&
+        nvram_match("wr_iot_firewall_t","0") && wr_iot_quarantine_ready();
+#else
+ return 0;
+#endif
+}
 static int wr_iot_policy_current_wan(char out[16])
 {
  const char *value=get_wan_unit_value(0,"ifname_t");

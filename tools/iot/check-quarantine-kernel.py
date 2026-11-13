@@ -53,6 +53,10 @@ expect('owned_down_bss_ready','owned',True)
 expect('down_bridge_can_apply','can-apply',True)
 subprocess.run(['ip','link','set','br-iot','up'],check=True)
 expect('active_bridge_apply_rejected','can-apply',False)
+expect('active_bridge_closed_bss_reapply_permitted','can-reapply',True)
+subprocess.run(['ip','link','set','ra2','up'],check=True)
+expect('active_bss_reapply_rejected','can-reapply',False)
+subprocess.run(['ip','link','set','ra2','down'],check=True)
 subprocess.run(['ip','link','set','br-iot','down'],check=True)
 for family in (4,6):
     executable='ip6tables-legacy-restore' if family==6 else 'iptables-legacy-restore'

@@ -19,10 +19,11 @@ int main(int argc,char **argv){
       "192.168.50.20","192.168.50.200",&lan,1))return 2;
   return wr_iot_policy_live(ipv6,ipv6?rules.ipv6:rules.ipv4)?0:1;
  }
- if(!strcmp(argv[1],"owned")||!strcmp(argv[1],"can-apply")){
+ if(!strcmp(argv[1],"owned")||!strcmp(argv[1],"can-apply")||!strcmp(argv[1],"can-reapply")){
   int token=wr_iot_service_guard_enter(1),ready;
   if(token!=1)return 1;
-  ready=!strcmp(argv[1],"can-apply")?wr_iot_quarantine_can_apply():wr_iot_quarantine_ready();
+  ready=!strcmp(argv[1],"can-reapply")?wr_iot_quarantine_can_reapply():
+        !strcmp(argv[1],"can-apply")?wr_iot_quarantine_can_apply():wr_iot_quarantine_ready();
   wr_iot_service_guard_leave(token);return ready?0:1;
  }
  if(!strcmp(argv[1],"unguarded"))return wr_iot_quarantine_ready()?0:1;

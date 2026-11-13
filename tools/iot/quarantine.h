@@ -7,6 +7,11 @@ int wr_iot_quarantine_ready(void);
 int wr_iot_quarantine_can_apply(void);
 /* Installed in firewall_ex.c. Caller retains service guard throughout. */
 int wr_iot_quarantine_apply(void);
+/* Normal OFF: ra2 DOWN, owned bridge may remain UP for DNS/DHCP teardown.
+ * Requires held service guard and closed network/firewall gates. Retains the
+ * bridge; no RF/DMA completion or service commit is implied. */
+int wr_iot_quarantine_can_reapply(void);
+int wr_iot_quarantine_reapply(void);
 /* Trusted expected rules only; holds guard, owned bridge, BSS still DOWN. */
 int wr_iot_policy_rules_ready(const char *ipv4,const char *ipv6);
 /* Final read-only filter observation after BSS UP. Does not relax any mutation
