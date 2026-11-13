@@ -1,0 +1,18 @@
+{
+  "scope": "local reopen network sequencer; external resource and witness observer adapters injected",
+  "implementation": "Same7 resource operations and attempted-bit provenance as initial network preparation, but explicit reopened context and matching CLOSED witness epoch/generation/full64serial required every step",
+  "checks": [
+    "ASan UBSan with actual request matcher/network gate writer PASS",
+    "Seven operations/order success",
+    "Each resource failure and pending SIGTERM retain snapshot/RECOVERY without replay",
+    "Missing witness refuses before resource operation",
+    "Initial-idle query counter unchanged"
+  ],
+  "remaining": [
+    "Composition with actual copied CLOSED witness and resource rollback",
+    "Separate pre-OPEN reopen rollback",
+    "Owner/new runner OPEN handoff",
+    "Full preflight/target staging/build/runtime"
+  ],
+  "cleanup": "TemporaryDirectory compilation removed; no retained scratch"
+}

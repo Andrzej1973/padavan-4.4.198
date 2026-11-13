@@ -1,0 +1,19 @@
+{
+  "terminal_sessions": [
+    48164,
+    66792
+  ],
+  "removed": [
+    {
+      "path": "/tmp/wr-iot-reopen-runner-preflight.log",
+      "bytes": 23818,
+      "sha256": "92a44cdefc29f4571f1a53a3fe05925b3e7a3c4793abe1f032c4f74b022c4c3b"
+    },
+    {
+      "path": "/tmp/wr-iot-reopen-linkfix-preflight.log",
+      "bytes": 25017,
+      "sha256": "1bab194c5aed36ad73e69cd67a8758b0707c4aa3377e772031d9068844dd472a"
+    }
+  ],
+  "preserved": "source, tests and minimal scoped evidence"
+}

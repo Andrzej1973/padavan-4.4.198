@@ -1,0 +1,33 @@
+{
+  "result": "PASS ASan/UBSan check-reopen-owner.py",
+  "sources": {
+    "tools/iot/activation-owner.c": "c4f73581256bee4283aded6ac1f3cdca8e9f5ed3cb154faec0819defb4cae934",
+    "tools/iot/activation-owner.h": "32252410277d35c8515028e9088837e6905b955d94f053fe6b7a857f83e3b87b",
+    "tools/iot/check-reopen-owner.py": "84264250326a88aa38c09981d421ddf0e425a32e31ce520d78f63dfe88f7f2b6"
+  },
+  "implemented": [
+    "OFF->ON only after guarded retained CLOSED witness",
+    "new runner remains at stable owner.start address",
+    "invalid request before ownership restores completed OFF and stop pointer",
+    "rejected pre-OPEN reopen uses prior CLOSED, never initial idle",
+    "submitted rejected reopen refuses until new witness implemented"
+  ],
+  "checked": [
+    "initial ON/OFF",
+    "invalid reopen restores OFF",
+    "second ON with replay refusal",
+    "second OFF stable pointer and two CLOSE/progress/release totals"
+  ],
+  "injected": [
+    "firmware OPEN/token responses",
+    "commit",
+    "network resources"
+  ],
+  "pending": [
+    "fault and rejected-reopen retries",
+    "post-OPEN rejected new CLOSE witness",
+    "full regression after owner edits",
+    "prepared source recheck and MIPS"
+  ],
+  "runtime_verified": false
+}

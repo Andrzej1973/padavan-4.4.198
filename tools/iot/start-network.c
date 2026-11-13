@@ -13,6 +13,7 @@ int wr_iot_start_network_step(struct wr_iot_start_network *s,
  const unsigned char *nonce)
 {
  struct wr_iot_idle_result current;int fd,ok=0;
+ if(owner&&owner->reopened)return 0;
  if(!s||!owner||!request||s->phase<WR_IOT_NET_BRIDGE||s->phase>WR_IOT_NET_READY||
     !owner->admitted||!owner->mutation_started||!owner->staged||
     !owner->snapshot.active||owner->snapshot.owner!=getpid()||owner->snapshot.token!=1||

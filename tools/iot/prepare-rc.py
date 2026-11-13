@@ -759,7 +759,7 @@ report['start_commit_runtime_bound']=False
 (headers/'control-record.h').write_bytes((local/'control-record.h').read_bytes())
 (headers/'start-runner.h').write_bytes((local/'start-runner.h').read_bytes())
 unit=(local/'start-runner.c').read_text(encoding='utf-8')
-for name in ('start-runner.h','rc-shutdown-admission.h'):
+for name in ('start-runner.h','rc-shutdown-admission.h','reopen-start.h','reopen-network.h','reopen-rollback.h'):
  unit=unit.replace('#include "'+name+'"','#include "wr-iot/'+name+'"',1)
 (rc/'wr-iot-start-runner.c').write_text(unit,encoding='utf-8')
 make=m.read_text(encoding='utf-8')
@@ -781,7 +781,7 @@ report['active_stop_runtime_bound']=False
 
 (headers/'activation-owner.h').write_bytes((local/'activation-owner.h').read_bytes())
 unit=(local/'activation-owner.c').read_text(encoding='utf-8')
-for name in ('activation-owner.h','rc-shutdown-admission.h'):
+for name in ('activation-owner.h','rc-shutdown-admission.h','reopen-admission.h','service-guard.h','bridge.h','dns-activation.h'):
  unit=unit.replace('#include "'+name+'"','#include "wr-iot/'+name+'"',1)
 (rc/'wr-iot-activation-owner.c').write_text(unit,encoding='utf-8')
 make=m.read_text(encoding='utf-8')
@@ -826,6 +826,21 @@ report['precreated_stop_runtime_bound']=False
 report['linux_driver_close_controller_staged']=True
 report['linux_driver_api_client_staged']=True
 report['linux_driver_api_client_activation_bound']=False
+# Reopen sources retain the old CLOSED witness until new OPEN submission.
+for name in ('reopen-witness.h','reopen-admission.h','reopen-start.h','reopen-network.h','reopen-rollback.h'):
+ (headers/name).write_bytes((local/name).read_bytes())
+for stem,names in (('reopen-admission', ('reopen-admission.h', 'service-guard.h', 'request-snapshot.h', 'bridge.h', 'dns-activation.h')), ('reopen-start', ('reopen-start.h', 'request-stage.h', 'service-guard.h', 'rc-shutdown-admission.h')), ('reopen-network', ('reopen-network.h', 'driver-api-client.h', 'service-guard.h', 'rc-shutdown-admission.h', 'bridge.h', 'network-check.h', 'request-stage.h', 'quarantine.h', 'dns-activation.h')), ('reopen-rollback', ('reopen-rollback.h', 'driver-api-client.h', 'service-guard.h', 'rc-shutdown-admission.h', 'bridge.h', 'dns-activation.h'))):
+ unit=(local/(stem+'.c')).read_text(encoding='utf-8')
+ for name in names:
+  unit=unit.replace('#include "'+name+'"','#include "wr-iot/'+name+'"',1)
+ (rc/('wr-iot-'+stem+'.c')).write_text(unit,encoding='utf-8')
+make=m.read_text(encoding='utf-8')
+if make.count('wr-iot-initial-off.o')!=1:raise SystemExit('Reopen object anchor changed')
+objects=' '.join('wr-iot-'+stem+'.o' for stem,names in (('reopen-admission', ('reopen-admission.h', 'service-guard.h', 'request-snapshot.h', 'bridge.h', 'dns-activation.h')), ('reopen-start', ('reopen-start.h', 'request-stage.h', 'service-guard.h', 'rc-shutdown-admission.h')), ('reopen-network', ('reopen-network.h', 'driver-api-client.h', 'service-guard.h', 'rc-shutdown-admission.h', 'bridge.h', 'network-check.h', 'request-stage.h', 'quarantine.h', 'dns-activation.h')), ('reopen-rollback', ('reopen-rollback.h', 'driver-api-client.h', 'service-guard.h', 'rc-shutdown-admission.h', 'bridge.h', 'dns-activation.h'))))
+m.write_text(make.replace('wr-iot-initial-off.o','wr-iot-initial-off.o '+objects,1),encoding='utf-8')
+report['reopen_staged']=True
+report['reopen_runtime_bound']=False
+
 (a.source/'iot-rc-source.json').write_text(json.dumps(report,indent=2)+'\n')
 print('PASS WR-only IoT bridge and controller stop contract staged; controller/activation backend remains unbound')
 

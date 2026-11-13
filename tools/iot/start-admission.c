@@ -8,7 +8,7 @@
 int wr_iot_start_admission_begin(struct wr_iot_start_admission *s,const unsigned char *nonce)
 {
  struct wr_iot_idle_result before,after;int guard;
- if(!s||s->mutation_started||s->staged||s->admitted||s->snapshot.active||s->snapshot.token||
+ if(!s||s->reopened||s->mutation_started||s->staged||s->admitted||s->snapshot.active||s->snapshot.token||
     !wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending)return 0;
  guard=wr_iot_service_guard_enter(1);if(guard!=1)return 0;
  if(!wr_iot_driver_initial_idle_read(nonce,&before)||
@@ -36,7 +36,7 @@ int wr_iot_start_admission_stage(struct wr_iot_start_admission *s,const unsigned
  const char *(*read)(void *,const char *),void *context,int router_mode,int radio_on,int radio_mode)
 {
  struct wr_iot_idle_result current;int fd;
- if(!s||!s->admitted||s->mutation_started||s->staged||!read||
+ if(!s||s->reopened||!s->admitted||s->mutation_started||s->staged||!read||
     !s->snapshot.active||s->snapshot.owner!=getpid()||s->snapshot.token!=1||
     s->snapshot.recovering||s->snapshot.disabling||
     !wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending)return 0;

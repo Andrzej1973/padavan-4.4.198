@@ -12,6 +12,7 @@ int wr_iot_start_network_rollback_step(struct wr_iot_start_network_rollback *s,
  const struct wr_iot_open_controller *open,const unsigned char *nonce)
 {
  struct wr_iot_idle_result current;int fd,dns;
+ if(owner&&owner->reopened)return 0;
  if(!s||!network||!owner||!open||network->phase!=WR_IOT_NET_RECOVERY||
     (open->phase!=WR_IOT_OPEN_IDLE&&open->phase!=WR_IOT_OPEN_NOT_SUBMITTED))return 0;
  /* These phases carry no driver attempt. Never erase an unexpected identity

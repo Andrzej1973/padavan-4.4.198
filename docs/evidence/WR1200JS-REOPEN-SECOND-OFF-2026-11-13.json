@@ -1,0 +1,28 @@
+{
+  "test": "check-reopen-runner-open.py",
+  "sha256": "f66fc9b1ad0e7522e4141c0732c5a8365bd895a1fd529c7d601b59a7ee10145e",
+  "result": "PASS ASan/UBSan",
+  "actual": [
+    "second startup runner",
+    "OPEN controller",
+    "reopen admission/stage/network",
+    "normal active-stop and precreated CLOSE controller",
+    "snapshot ownership"
+  ],
+  "asserted": [
+    "new 16-byte nonce",
+    "new token and 64-bit close serial",
+    "duplicate OPEN/OFF does not replay",
+    "two CLOSE/progress/release invocations total",
+    "second STOPPED context fresh CLOSED check",
+    "first stopped runner/stop unchanged bytewise",
+    "guard released after second OFF"
+  ],
+  "injected": [
+    "firmware command transport/recovery/CLOSED observations",
+    "commit",
+    "network resources"
+  ],
+  "owner_integration": "not yet implemented; OFF/rejected reopen requires retention and retry policy",
+  "device_runtime_verified": false
+}

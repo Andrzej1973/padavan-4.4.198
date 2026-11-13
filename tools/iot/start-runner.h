@@ -3,6 +3,7 @@
 #ifndef WR_IOT_START_RUNNER_H
 #define WR_IOT_START_RUNNER_H
 #include "control-record.h"
+#include "reopen-witness.h"
 #include "start-commit.h"
 #include "start-closed-rollback.h"
 #include "precreated-stop.h"
@@ -18,6 +19,7 @@ struct wr_iot_start_runner {
  enum wr_iot_start_runner_phase phase;
  struct wr_iot_control_request input;
  unsigned char nonce[16];
+ struct wr_iot_reopen_witness prior_closed;
  struct wr_iot_start_admission admission;
  struct wr_iot_start_network network;
  struct wr_iot_open_controller open;
@@ -37,4 +39,7 @@ enum wr_iot_result_state wr_iot_start_runner_step(struct wr_iot_start_runner *);
  * credentials or initialize a replacement runner from mailbox state. */
 enum wr_iot_result_state wr_iot_start_runner_continue(struct wr_iot_start_runner *,
  const char *,unsigned long long);
+/* New zero-initialized runner; retains copied previous CLOSED witness. */
+int wr_iot_start_runner_begin_reopen(struct wr_iot_start_runner *,
+ const struct wr_iot_control_request *,int,int,int,const struct wr_iot_reopen_witness *);
 #endif

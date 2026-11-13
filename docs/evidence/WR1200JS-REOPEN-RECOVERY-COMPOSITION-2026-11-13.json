@@ -1,0 +1,27 @@
+{
+  "scope": "actual host controller composition up to new OPEN; no full ON/OFF/ON",
+  "linked": [
+    "completed active-stop/start-runner",
+    "copied CLOSED witness",
+    "reopen_start_begin/reopen_start_stage",
+    "reopen_rollback_step",
+    "actual request-stage/snapshot/disable controllers"
+  ],
+  "checks": [
+    "ASan UBSan success plus16 setter-fault positions PASS",
+    "Partially created new bridge cleaned through bounded rollback",
+    "Wrong CLOSED serial retains new bridge/snapshot/guard before cleanup",
+    "Previous STOPPED runner and completed stop bytewise unchanged after retry recovery",
+    "Full completed-OFF observation still succeeds after each recovery"
+  ],
+  "injected": [
+    "driver CLOSED transport and network/daemon resource primitives"
+  ],
+  "remaining": [
+    "Actual reopen network composition",
+    "Runner/owner second request handoff",
+    "New OPEN and post-OPEN recovery",
+    "Target staging/full preflight/runtime"
+  ],
+  "cleanup": "TemporaryDirectory build removed, no retained scratch"
+}

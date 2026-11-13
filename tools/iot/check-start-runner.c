@@ -18,6 +18,12 @@ int wr_iot_start_network_rollback_step(struct wr_iot_start_network_rollback*b,st
 int wr_iot_start_closed_rollback_step(struct wr_iot_start_network_rollback*b,struct wr_iot_start_network*n,struct wr_iot_start_admission*a,const struct wr_iot_open_controller*o,struct wr_iot_start_close*c){assert(b&&n&&o&&c);post_rolls++;a->snapshot.active=0;return 1;}
 int wr_iot_precreated_stop_begin(struct wr_iot_precreated_stop*s,const struct wr_iot_driver_attempt*a){assert(a);normal_off++;s->phase=WR_IOT_STOP_CLOSE_BEGIN;return 1;}
 int wr_iot_precreated_stop_step(struct wr_iot_precreated_stop*s){s->phase=WR_IOT_STOP_COMPLETE;s->close.phase=WR_IOT_CLOSE_OWNER_RELEASED;s->close_serial=5;return 1;}
+
+int wr_iot_reopen_start_begin(struct wr_iot_start_admission *a,const struct wr_iot_reopen_witness *w){(void)a;(void)w;assert(0);return 0;}
+int wr_iot_reopen_start_stage(struct wr_iot_start_admission*a,const struct wr_iot_reopen_witness*w,const char*(*r)(void*,const char*),void*c,int x,int y,int z){(void)a;(void)w;(void)r;(void)c;(void)x;(void)y;(void)z;assert(0);return 0;}
+int wr_iot_reopen_network_step(struct wr_iot_start_network*n,struct wr_iot_start_admission*a,const struct wr_iot_request*r,const struct wr_iot_reopen_witness*w){(void)n;(void)a;(void)r;(void)w;assert(0);return 0;}
+int wr_iot_reopen_rollback_step(struct wr_iot_start_network_rollback*b,struct wr_iot_start_network*n,struct wr_iot_start_admission*a,const struct wr_iot_open_controller*o,const struct wr_iot_reopen_witness*w){(void)b;(void)n;(void)a;(void)o;(void)w;assert(0);return 0;}
+int wr_iot_reopen_witness_current(const struct wr_iot_reopen_witness*w){(void)w;assert(0);return 0;}
 #include "start-runner.c"
 int main(void){
  struct wr_iot_control_request input={.id="11111111111111111111111111111111",.created=1,.request={.enabled=1,.ssid="IoT",.password="password123",.gateway="192.168.50.1",.mask="255.255.255.0",.first="192.168.50.20",.last="192.168.50.200"}};

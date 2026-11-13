@@ -6,7 +6,7 @@ p=argparse.ArgumentParser();p.add_argument('source',type=Path);p.add_argument('o
 local=Path(__file__).parent;rc=a.source/'trunk/user/rc';http=a.source/'trunk/user/httpd'
 report=json.loads((a.source/'iot-runtime-source.json').read_text())
 assert report['board']=='WR1200JS' and report['activation_backend_installed'] and report['pid1_wait_bound']
-assert not report['production_ready'] and not report['runtime_verified'] and not report['off_reopen_admission']
+assert not report['production_ready'] and not report['runtime_verified'] and report['off_reopen_admission']
 a.output.mkdir(parents=True,exist_ok=True)
 shared=a.output/'make-headers';shared.mkdir(exist_ok=True)
 for name in ['boards.mk','cflags.mk']:(shared/name).write_text('')

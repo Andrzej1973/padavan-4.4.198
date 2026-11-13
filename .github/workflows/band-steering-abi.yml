@@ -1320,6 +1320,10 @@ jobs:
             -c iot-rc-source/trunk/user/rc/wr-iot-activation-observe.c -o abi-results/iot-rc-activation-observe-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
             -c iot-rc-source/trunk/user/rc/wr-iot-initial-off.c -o abi-results/iot-rc-initial-off-mips.o
+          for unit in reopen-admission reopen-start reopen-network reopen-rollback; do
+            "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+              -c "iot-rc-source/trunk/user/rc/wr-iot-$unit.c" -o "abi-results/iot-rc-$unit-mips.o"
+          done
           python3 tools/iot/prepare-activation-header-check.py iot-rc-source abi-results/check-iot-activation-headers.c
           include_flags=(-I"$PWD/iot-rc-source/trunk/user/rc" -I"$PWD/iot-rc-source/trunk/user/shared")
           gcc -std=gnu11 -Wall -Wextra -Werror -O2 "${include_flags[@]}" -c abi-results/check-iot-activation-headers.c -o abi-results/iot-activation-headers-native.o
@@ -1760,6 +1764,16 @@ jobs:
           python3 tools/iot/check-rc-mode.py
           python3 tools/iot/check-initial-off-composition.py
           python3 tools/iot/check-initial-off-owner-composition.py
+          python3 tools/iot/check-reopen-admission.py
+          python3 tools/iot/check-reopen-start.py
+          python3 tools/iot/check-reopen-stage.py
+          python3 tools/iot/check-reopen-network.py
+          python3 tools/iot/check-reopen-rollback.py
+          python3 tools/iot/check-reopen-recovery-composition.py
+          python3 tools/iot/check-reopen-network-recovery.py
+          python3 tools/iot/check-reopen-runner.py
+          python3 tools/iot/check-reopen-runner-open.py
+          python3 tools/iot/check-reopen-owner.py
           python3 tools/iot/check-rc-backend-composition.py
           python3 tools/iot/check-status-channel.py
           python3 tools/iot/check-status-endpoint.py

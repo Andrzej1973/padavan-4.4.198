@@ -1,0 +1,23 @@
+{
+  "scope": "local reopen staging through actual request-stage/snapshot; no network/OPEN",
+  "implementation": [
+    "Explicit post-CLOSE admission marker and same driver epoch/generation/close serial",
+    "Fresh CLOSED witness before mutation and after writer; immutable copied witness through call",
+    "Mutation latched before guarded staging writer",
+    "Failure retains new snapshot/guard, no automatic repeat or cancel after mutation"
+  ],
+  "checks": [
+    "ASan UBSan17 cases: success plus16 setter failure positions",
+    "Foreign witness refused before mutation",
+    "No initial-idle calls",
+    "Repeated staging and post-mutation cancel refused",
+    "Pre-OPEN no-bridge snapshot restore/readback/finish PASS"
+  ],
+  "remaining": [
+    "Reopen network and bounded pre-OPEN rollback integration",
+    "Runner/owner handoff with old STOPPED context",
+    "Actual new OPEN/loaded-key admission",
+    "Full preflight/target staging and physical acceptance"
+  ],
+  "cleanup": "TemporaryDirectory tests removed; no retained scratch"
+}

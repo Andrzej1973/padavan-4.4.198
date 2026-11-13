@@ -1,0 +1,22 @@
+{
+  "scope": "local second runner composition through pre-OPEN recovery only",
+  "changes": [
+    "New begin_reopen retains copied CLOSED witness and new request separately",
+    "STAGE/NETWORK/PRE_ROLLBACK select explicit reopen methods",
+    "Before OPEN current CLOSED required; previous witness submitted once new attempt may exist",
+    "Existing initial begin preserved"
+  ],
+  "checks": [
+    "Actual second runner/reopen admission/stage/network/rollback ASan UBSan PASS",
+    "Old stopped runner/stop context unchanged",
+    "Initial runner standalone and actual two-step commit fixtures strict C11 ASan UBSan PASS"
+  ],
+  "remaining": [
+    "Full preflight running",
+    "Resolve all initial composition dependency links if preflight exposes them",
+    "Prepared source includes/object staging for new runner dependencies",
+    "Second OPEN/commit/post-OPEN recovery composition",
+    "Owner handoff and production admission"
+  ],
+  "cleanup": "Targeted TemporaryDirectories removed; active preflight log retained until result"
+}

@@ -1,0 +1,25 @@
+{
+  "scope": "host actual reopen witness/admission/staging/network/rollback composition up to OPEN",
+  "checks": [
+    "ASan UBSan8 scenarios PASS:7 network failure positions and success cancelled after READY",
+    "Exact staged request matcher/network gate writer linked",
+    "Retained original CLOSED witness used during network setup and rollback",
+    "Changed close serial refuses cleanup with new bridge and guard retained",
+    "All recovery scenarios preserve old stopped runner/stop context bytewise",
+    "Full prior OFF observation succeeds after rollback"
+  ],
+  "fixture_corrections": [
+    "Generator insertion anchor corrected to C main inside body",
+    "Read exact staged candidate request instead of unrelated initial request SSID"
+  ],
+  "injected": [
+    "Driver CLOSED transport",
+    "Bridge/DNS/firewall resource operations"
+  ],
+  "remaining": [
+    "Second-runner OPEN/commit/post-OPEN recovery integration",
+    "Full ON/OFF/ON with loaded credential match",
+    "Target staging/fullpreflight/runtime"
+  ],
+  "cleanup": "TemporaryDirectory successful/failed build trees removed"
+}

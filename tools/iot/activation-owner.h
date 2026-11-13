@@ -20,8 +20,9 @@ struct wr_iot_activation_owner {
 /* Execute claims a new envelope once. START/STOP reject replay without mutation.
  * OFF requires owned ACTIVE or a fresh initial-never-opened observation,
  * never inferred interface presence.
- * A fully recovered rejected START can be replaced; OFF->ON needs reopen proof
- * and is deliberately not routed through initial-never-opened admission. */
+ * A fully recovered rejected START can be replaced. OFF->ON uses a fresh
+ * retained CLOSED witness, never initial-never-opened admission. Rejected
+ * reopen after a submitted OPEN requires its own completed rollback/CLOSE witness. */
 enum wr_iot_result_state wr_iot_activation_owner_execute(struct wr_iot_activation_owner *,
  const struct wr_iot_control_request *,int,int,int);
 /* Exactly one bounded controller step using the original private context. */

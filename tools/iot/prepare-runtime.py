@@ -41,5 +41,5 @@ for root,units,anchor in ((rc,('rc-backend','rc-mode','rc-runtime')+common,'wr-i
   if target.exists():raise SystemExit('Refuse to overwrite runtime source: '+str(target))
   pending[target]=text.encode()
 for target,data in pending.items():target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(data)
-(a.source/'iot-runtime-source.json').write_text(json.dumps({'board':'WR1200JS','activation_backend_installed':True,'http_private_status_backend_installed':True,'pid1_wait_bound':True,'status_peer_pid':1,'status_peer_uid':0,'progress_period_ms':100,'initial_off_admission':True,'off_reopen_admission':False,'production_ready':False,'runtime_verified':False},indent=2)+'\n')
-print('PASS experimental WR runtime/backend/status sources staged; initial OFF staged; reopen and production acceptance unresolved')
+(a.source/'iot-runtime-source.json').write_text(json.dumps({'board':'WR1200JS','activation_backend_installed':True,'http_private_status_backend_installed':True,'pid1_wait_bound':True,'status_peer_pid':1,'status_peer_uid':0,'progress_period_ms':100,'initial_off_admission':True,'off_reopen_admission':True,'production_ready':False,'runtime_verified':False},indent=2)+'\n')
+print('PASS experimental WR runtime/backend/status sources staged; initial OFF and CLOSED-witness reopen staged; production acceptance unresolved')

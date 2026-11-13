@@ -1,0 +1,34 @@
+{
+  "host_suite": {
+    "session": 66792,
+    "exit_code": 0,
+    "log": "/tmp/wr-iot-reopen-linkfix-preflight.log",
+    "scope": "full registered host suite before final OPEN fixture strengthening"
+  },
+  "strengthened_open_test": {
+    "exit_code": 0,
+    "sha256": "77e0e4e48fa9c84b1700ae747b469e76ebede01c638a703cabaa0ac1ed484fb3",
+    "actual_modules": [
+      "start-runner",
+      "driver-open-controller",
+      "reopen-admission",
+      "reopen-start",
+      "reopen-network",
+      "request-stage",
+      "request-snapshot"
+    ],
+    "assertions": [
+      "two OPEN submissions, distinct complete nonce",
+      "attempt equals second runner nonce",
+      "same OPEN-controller cannot resubmit",
+      "old STOPPED runner and stop unchanged"
+    ],
+    "injected": [
+      "firmware submit/recovery",
+      "commit",
+      "network resources"
+    ]
+  },
+  "target": "prepared native compilation only; MIPS pending",
+  "device": "unverified"
+}

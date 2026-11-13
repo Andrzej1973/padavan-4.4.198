@@ -93,6 +93,16 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   python3 tools/iot/check-rc-runtime.py
   python3 tools/iot/check-initial-off-composition.py
   python3 tools/iot/check-initial-off-owner-composition.py
+  python3 tools/iot/check-reopen-admission.py
+  python3 tools/iot/check-reopen-start.py
+  python3 tools/iot/check-reopen-stage.py
+  python3 tools/iot/check-reopen-network.py
+  python3 tools/iot/check-reopen-rollback.py
+  python3 tools/iot/check-reopen-recovery-composition.py
+  python3 tools/iot/check-reopen-network-recovery.py
+  python3 tools/iot/check-reopen-runner.py
+  python3 tools/iot/check-reopen-runner-open.py
+  python3 tools/iot/check-reopen-owner.py
   python3 tools/iot/check-start-network-composition.py
   python3 tools/iot/check-dns-recovery-state.py
   python3 tools/iot/check-dns-abort-composition.py

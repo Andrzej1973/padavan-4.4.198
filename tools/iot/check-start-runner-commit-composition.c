@@ -28,6 +28,12 @@ int wr_iot_dns_activation_recovery_state(void){return dns;}
 int wr_iot_dns_activation_commit(void){commits++;if(fault==6)return 0;dns=0;return 1;}
 int wr_iot_request_snapshot_suspend(struct wr_iot_request_snapshot*s){if(fault==7)return 0;s->token=0;s->expected_valid=1;return 1;}
 #include "start-commit.c"
+
+int wr_iot_reopen_start_begin(struct wr_iot_start_admission *a,const struct wr_iot_reopen_witness *w){(void)a;(void)w;assert(0);return 0;}
+int wr_iot_reopen_start_stage(struct wr_iot_start_admission*a,const struct wr_iot_reopen_witness*w,const char*(*r)(void*,const char*),void*c,int x,int y,int z){(void)a;(void)w;(void)r;(void)c;(void)x;(void)y;(void)z;assert(0);return 0;}
+int wr_iot_reopen_network_step(struct wr_iot_start_network*n,struct wr_iot_start_admission*a,const struct wr_iot_request*r,const struct wr_iot_reopen_witness*w){(void)n;(void)a;(void)r;(void)w;assert(0);return 0;}
+int wr_iot_reopen_rollback_step(struct wr_iot_start_network_rollback*b,struct wr_iot_start_network*n,struct wr_iot_start_admission*a,const struct wr_iot_open_controller*o,const struct wr_iot_reopen_witness*w){(void)b;(void)n;(void)a;(void)o;(void)w;assert(0);return 0;}
+int wr_iot_reopen_witness_current(const struct wr_iot_reopen_witness*w){(void)w;assert(0);return 0;}
 #include "start-runner.c"
 int main(void){
  struct wr_iot_control_request input={.id="11111111111111111111111111111111",.created=1,.request={.enabled=1,.ssid="IoT",.password="password123",.gateway="192.168.50.1",.mask="255.255.255.0",.first="192.168.50.20",.last="192.168.50.200"}};

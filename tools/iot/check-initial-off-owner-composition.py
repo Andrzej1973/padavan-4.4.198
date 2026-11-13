@@ -31,7 +31,7 @@ body=body.replace(anchor,anchor+'\n  assert(!wr_iot_activation_owner_observed(&o
 body=body.replace('PASS retained activation owner with actual runner/admission/snapshot/normal OFF:', 'PASS actual owner initial OFF/live observation -> first ON -> normal OFF:')
 with tempfile.TemporaryDirectory(prefix='iot-initial-off-owner-') as d:
  subprocess.run([sys.executable,str(here/'prepare-request-stage-check.py'),d],check=True)
- unit=Path(d)/'check.c';unit.write_text(prefix+body);binary=Path(d)/'check'
+ unit=Path(d)/'check.c';unit.write_text(prefix+'\n#include "check-reopen-unused.h"\n'+body);binary=Path(d)/'check'
  units=('activation-observe.c','initial-off.c','activation-owner.c','active-stop.c','start-runner.c','start-network-rollback.c','start-close.c','start-closed-rollback.c','precreated-stop.c','start-admission.c','request-stage.c','request-snapshot.c','disable-services.c','disable-controller.c','profile.c')
  subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+d,'-I'+str(here),str(unit),*[str(here/n) for n in units],'-o',str(binary)],check=True)
  subprocess.run([str(binary)],check=True)

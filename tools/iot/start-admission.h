@@ -9,6 +9,7 @@ struct wr_iot_start_admission {
  struct wr_iot_request_snapshot snapshot;
  struct wr_iot_idle_result idle;
  int admitted,mutation_started,staged;
+ int reopened; /* Post-CLOSE admission: never call initial-idle paths. */
 };
 int wr_iot_start_admission_begin(struct wr_iot_start_admission *,const unsigned char *);
 /* Stage once through the existing guarded writer. Marks possible mutation

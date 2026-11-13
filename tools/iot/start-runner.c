@@ -1,6 +1,9 @@
 #include <string.h>
 #include <unistd.h>
 #include "start-runner.h"
+#include "reopen-start.h"
+#include "reopen-network.h"
+#include "reopen-rollback.h"
 #include "rc-shutdown-admission.h"
 static const char *runner_read(void *context,const char *key)
 {
@@ -13,8 +16,9 @@ static const char *runner_read(void *context,const char *key)
 #undef FIELD
  return NULL;
 }
-int wr_iot_start_runner_begin(struct wr_iot_start_runner *s,
- const struct wr_iot_control_request *input,int router,int radio,int mode)
+static int runner_begin(struct wr_iot_start_runner *s,
+ const struct wr_iot_control_request *input,int router,int radio,int mode,
+ const struct wr_iot_reopen_witness *previous)
 {
  struct wr_iot_request checked;unsigned i;
  if(!s||!input||s->owner||s->phase!=WR_IOT_RUN_IDLE||
@@ -30,11 +34,23 @@ int wr_iot_start_runner_begin(struct wr_iot_start_runner *s,
   unsigned char a=input->id[2*i],b=input->id[2*i+1];
   s->nonce[i]=(unsigned char)(((a<='9'?a-'0':a-'a'+10)<<4)|(b<='9'?b-'0':b-'a'+10));
  }
- if(!wr_iot_start_admission_begin(&s->admission,s->nonce)){
+ if(previous)s->prior_closed=*previous;
+ if(!(previous?wr_iot_reopen_start_begin(&s->admission,&s->prior_closed):
+              wr_iot_start_admission_begin(&s->admission,s->nonce))){
   s->phase=s->admission.snapshot.active?WR_IOT_RUN_UNCERTAIN:WR_IOT_RUN_REJECTED;
   return 0;
  }
  s->phase=WR_IOT_RUN_STAGE;return 1;
+}
+int wr_iot_start_runner_begin(struct wr_iot_start_runner *s,
+ const struct wr_iot_control_request *r,int router,int radio,int mode)
+{return runner_begin(s,r,router,radio,mode,NULL);}
+int wr_iot_start_runner_begin_reopen(struct wr_iot_start_runner *s,
+ const struct wr_iot_control_request *r,int router,int radio,int mode,
+ const struct wr_iot_reopen_witness *w)
+{
+ if(!w||w->owner!=getpid()||!w->valid||w->submitted)return 0;
+ return runner_begin(s,r,router,radio,mode,w);
 }
 static void runner_recover(struct wr_iot_start_runner *s)
 {
@@ -50,19 +66,22 @@ static enum wr_iot_result_state runner_step(struct wr_iot_start_runner *s)
  if(!s||s->owner!=getpid())return WR_IOT_RESULT_RECOVERY;
  switch(s->phase){
  case WR_IOT_RUN_STAGE:
-  if(wr_iot_start_admission_stage(&s->admission,s->nonce,runner_read,&s->input.request,1,1,0))s->phase=WR_IOT_RUN_NETWORK;
+  if(s->prior_closed.valid?wr_iot_reopen_start_stage(&s->admission,&s->prior_closed,runner_read,&s->input.request,1,1,0):wr_iot_start_admission_stage(&s->admission,s->nonce,runner_read,&s->input.request,1,1,0))s->phase=WR_IOT_RUN_NETWORK;
   else if(s->admission.mutation_started)runner_recover(s);
   else if(wr_iot_start_admission_cancel(&s->admission))s->phase=WR_IOT_RUN_REJECTED;
   else s->phase=WR_IOT_RUN_UNCERTAIN;
   break;
  case WR_IOT_RUN_NETWORK:
-  if(wr_iot_start_network_step(&s->network,&s->admission,&s->input.request,s->nonce))s->phase=WR_IOT_RUN_OPEN;
+  if(s->prior_closed.valid?wr_iot_reopen_network_step(&s->network,&s->admission,&s->input.request,&s->prior_closed):wr_iot_start_network_step(&s->network,&s->admission,&s->input.request,s->nonce))s->phase=WR_IOT_RUN_OPEN;
   else if(s->network.phase==WR_IOT_NET_RECOVERY)runner_recover(s);
   break;
  case WR_IOT_RUN_OPEN:
   if(wr_iot_rc_shutdown.pending){runner_recover(s);break;}
+  if(s->prior_closed.valid&&!wr_iot_reopen_witness_current(&s->prior_closed)){runner_recover(s);break;}
   if(wr_iot_open_controller_submit(&s->open,s->input.id,&s->input.request))s->phase=WR_IOT_RUN_COMMIT;
   else runner_recover(s);
+  if(s->prior_closed.valid&&s->open.phase!=WR_IOT_OPEN_IDLE&&s->open.phase!=WR_IOT_OPEN_NOT_SUBMITTED)
+   s->prior_closed.submitted=1;
   break;
  case WR_IOT_RUN_COMMIT: {
   enum wr_iot_start_commit_phase before=s->commit.phase;
@@ -90,7 +109,7 @@ static enum wr_iot_result_state runner_step(struct wr_iot_start_runner *s)
   if(wr_iot_start_close_step(&s->close,&s->admission,&s->open))s->phase=WR_IOT_RUN_CLOSED_ROLLBACK;
   break;
  case WR_IOT_RUN_PRE_ROLLBACK:
-  if(wr_iot_start_network_rollback_step(&s->rollback,&s->network,&s->admission,&s->open,s->nonce))s->phase=WR_IOT_RUN_REJECTED;
+  if(s->prior_closed.valid?wr_iot_reopen_rollback_step(&s->rollback,&s->network,&s->admission,&s->open,&s->prior_closed):wr_iot_start_network_rollback_step(&s->rollback,&s->network,&s->admission,&s->open,s->nonce))s->phase=WR_IOT_RUN_REJECTED;
   break;
  case WR_IOT_RUN_CLOSED_ROLLBACK:
   if(wr_iot_start_closed_rollback_step(&s->rollback,&s->network,&s->admission,&s->open,&s->close))s->phase=WR_IOT_RUN_REJECTED;
