@@ -42,4 +42,6 @@ int wr_iot_request_disable_ready(struct wr_iot_request_snapshot *);
 int wr_iot_request_disable_forget(struct wr_iot_request_snapshot *);
 /* Caller holds service guard; temporary OFF gates and credentials only. */
 int wr_iot_request_disabled_current(void);
+/* Initial OFF: gates absent or0; all temporary credential/range fields empty. */
+int wr_iot_request_initial_off_current(void);
 #endif

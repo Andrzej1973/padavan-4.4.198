@@ -8,7 +8,7 @@ static int notifications,executions;
 static int observation_result=1,observations;
 static int replace_during_observation;
 static volatile sig_atomic_t shutdown_delivered;
-static int defer_shutdown_once;
+static int defer_shutdown_once,block_publication;
 static char replacement_id[33];
 static enum wr_iot_result_state backend_result=WR_IOT_RESULT_APPLIED;
 static void notify_test(void);
@@ -47,6 +47,12 @@ enum wr_iot_result_state wr_iot_activation_execute(const struct wr_iot_control_r
   assert(raise(SIGTERM)==0);
   assert(!shutdown_delivered&&wr_iot_rc_shutdown.pending==SIGTERM);
   assert(signal(SIGTERM,shutdown_test)!=SIG_ERR);
+ }
+ if(block_publication){
+  char path[PATH_MAX];block_publication=0;
+  assert(snprintf(path,sizeof(path),"%s/result.new",test_directory)<(int)sizeof(path));
+  int fd=open(path,O_WRONLY|O_CREAT|O_EXCL,0600);assert(fd>=0);
+  assert(write(fd,"retained",8)==8&&!close(fd));
  }
  /* A duplicate RC notification during execution cannot replay this request. */
  assert(!wr_iot_rc_dispatch());
@@ -96,6 +102,18 @@ int main(void){
  assert(!wr_iot_rc_continue()&&continuations==2);
  assert(wr_iot_rc_status(other,&result)&&result.state==WR_IOT_RESULT_APPLIED);
  assert(!wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.pending);
+ backend_result=WR_IOT_RESULT_REJECTED;block_publication=1;shutdown_delivered=0;defer_shutdown_once=1;
+ assert(wr_iot_rc_submit(&request,id));
+ assert(!wr_iot_rc_dispatch()&&executions==3&&wr_iot_rc_pending());
+ assert(!shutdown_delivered&&wr_iot_rc_shutdown.pending==SIGTERM);
+ assert(wr_iot_rc_status(id,&result)&&result.state==WR_IOT_RESULT_RUNNING);
+ assert(snprintf(path,sizeof(path),"%s/result.new",test_directory)<(int)sizeof(path));
+ int blocked=open(path,O_RDONLY);char retained[9]={0};assert(blocked>=0);
+ assert(read(blocked,retained,8)==8&&!strcmp(retained,"retained")&&!close(blocked));
+ assert(!unlink(path));
+ assert(wr_iot_rc_continue()&&executions==3&&continuations==2&&shutdown_delivered==1&&!wr_iot_rc_pending());
+ assert(wr_iot_rc_status(id,&result)&&result.state==WR_IOT_RESULT_REJECTED);
+
  assert(snprintf(path,sizeof(path),"%s/result",test_directory)<(int)sizeof(path));assert(!unlink(path));
  assert(snprintf(path,sizeof(path),"%s/lock",test_directory)<(int)sizeof(path));assert(!unlink(path));
  assert(!rmdir(test_directory));

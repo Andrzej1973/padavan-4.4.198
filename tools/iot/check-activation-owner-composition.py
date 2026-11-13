@@ -80,6 +80,6 @@ reset();idle_reads=0;rollback_dns=0;abort_calls=0;closes=progresses=releases=0;c
 with tempfile.TemporaryDirectory(prefix='iot-activation-owner-compose-') as d:
  subprocess.run([sys.executable,str(here/'prepare-request-stage-check.py'),d],check=True)
  unit=Path(d)/'check.c';unit.write_text(prefix+body);binary=Path(d)/'check'
- units=('activation-owner.c','active-stop.c','start-runner.c','start-network-rollback.c','start-close.c','start-closed-rollback.c','precreated-stop.c','start-admission.c','request-stage.c','request-snapshot.c','disable-services.c','disable-controller.c','profile.c')
+ units=('initial-off.c','activation-owner.c','active-stop.c','start-runner.c','start-network-rollback.c','start-close.c','start-closed-rollback.c','precreated-stop.c','start-admission.c','request-stage.c','request-snapshot.c','disable-services.c','disable-controller.c','profile.c')
  subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+d,'-I'+str(here),str(unit),*[str(here/n) for n in units],'-o',str(binary)],check=True)
  subprocess.run([str(binary)],check=True)

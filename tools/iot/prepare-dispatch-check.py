@@ -29,7 +29,8 @@ struct wr_iot_control_result {char id[33];enum wr_iot_result_state state;unsigne
 struct wr_iot_mailbox {int open;};
 static struct wr_iot_control_request queued;
 static struct wr_iot_control_result result;
-static int opens,locked,claim=1,executions,finishes,fail_open,shutdown_delivered,emit_shutdown;
+static int opens,locked,claim=1,executions,finishes,fail_open,emit_shutdown;
+static volatile sig_atomic_t shutdown_delivered;
 static int expected_shutdown,fail_finish,continuations;
 static enum wr_iot_result_state outcome;
 static unsigned long long now=20;
@@ -144,9 +145,24 @@ int main(void){
  assert(wr_iot_rc_continue()&&continuations==1&&executions==1);
  assert(result.state==WR_IOT_RESULT_REJECTED&&!wr_iot_rc_shutdown.active);
  assert(!wr_iot_rc_continue()&&continuations==1);
+ for(i=0;i<2;i++){
+  assert(signal(SIGTERM,shutdown_test)!=SIG_ERR);
+  reset();outcome=i?WR_IOT_RESULT_REJECTED:WR_IOT_RESULT_APPLIED;
+  fail_finish=1;emit_shutdown=SIGTERM;
+  assert(!wr_iot_rc_dispatch()&&executions==1&&wr_iot_rc_pending());
+  assert(wr_iot_rc_shutdown.pending==SIGTERM&&!shutdown_delivered);
+  fail_finish=0;outcome=WR_IOT_RESULT_RECOVERY;
+  assert(wr_iot_rc_continue()&&!continuations&&executions==1&&!wr_iot_rc_pending());
+  assert(result.state==(i?WR_IOT_RESULT_REJECTED:WR_IOT_RESULT_APPLIED)&&shutdown_delivered==1);
+ }
  for(i=1;i<=2;i++){
   reset();fail_open=i;assert(!wr_iot_rc_dispatch()&&!finishes&&!locked);
   assert(executions==(i==2));
+  if(i==2){
+   assert(wr_iot_rc_pending()&&wr_iot_continuation.terminal);
+   fail_open=0;outcome=WR_IOT_RESULT_RECOVERY;
+   assert(wr_iot_rc_continue()&&!wr_iot_rc_pending()&&!continuations&&executions==1);
+  }
  }
  reset();now=0;assert(!wr_iot_rc_dispatch()&&!opens&&!executions);
  reset();claim=0;assert(!wr_iot_rc_dispatch()&&!executions&&!finishes&&!locked);

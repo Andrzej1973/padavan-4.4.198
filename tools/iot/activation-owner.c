@@ -19,13 +19,23 @@ enum wr_iot_result_state wr_iot_activation_owner_execute(struct wr_iot_activatio
   return WR_IOT_RESULT_RECOVERY;
  if(!request->created||!memchr(request->id,0,sizeof(request->id))||
     !wr_iot_control_id(request->id))return WR_IOT_RESULT_REJECTED;
+ if(s->phase==WR_IOT_OWNER_INITIAL_OFF&&!strcmp(request->id,s->initial_off.id))return WR_IOT_RESULT_REJECTED;
+ if((s->phase==WR_IOT_OWNER_IDLE||s->phase==WR_IOT_OWNER_INITIAL_OFF)&&request->request.enabled==0){
+  struct wr_iot_initial_off initial={0};
+  s->busy=1;
+  if(wr_iot_initial_off_begin(&initial,request)){
+   s->initial_off=initial;s->owner=getpid();s->phase=WR_IOT_OWNER_INITIAL_OFF;
+   result=WR_IOT_RESULT_APPLIED;
+  }else result=WR_IOT_RESULT_REJECTED;
+  s->busy=0;return result;
+ }
  if(s->phase==WR_IOT_OWNER_ACTIVE){
   s->busy=1;
   if(wr_iot_active_stop_begin(&s->stop,&s->start,request))s->phase=WR_IOT_OWNER_STOP;
   else result=WR_IOT_RESULT_REJECTED;
   s->busy=0;return result;
  }
- if(s->phase!=WR_IOT_OWNER_IDLE&&s->phase!=WR_IOT_OWNER_REJECTED)
+ if(s->phase!=WR_IOT_OWNER_IDLE&&s->phase!=WR_IOT_OWNER_REJECTED&&s->phase!=WR_IOT_OWNER_INITIAL_OFF)
   return WR_IOT_RESULT_REJECTED;
  if(request->request.enabled!=1)return WR_IOT_RESULT_REJECTED;
  if(s->phase==WR_IOT_OWNER_REJECTED){
@@ -58,6 +68,10 @@ enum wr_iot_result_state wr_iot_activation_owner_continue(struct wr_iot_activati
  case WR_IOT_OWNER_STOP:
   result=wr_iot_active_stop_continue(&s->stop,id,created);
   if(result==WR_IOT_RESULT_APPLIED)s->phase=WR_IOT_OWNER_OFF;
+  break;
+ case WR_IOT_OWNER_INITIAL_OFF:
+  if(wr_iot_control_id(id)&&!strcmp(id,s->initial_off.id)&&created==s->initial_off.created)
+   result=WR_IOT_RESULT_APPLIED;
   break;
  case WR_IOT_OWNER_ACTIVE:
  case WR_IOT_OWNER_REJECTED:

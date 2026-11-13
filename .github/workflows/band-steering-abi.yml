@@ -1318,6 +1318,8 @@ jobs:
             -c iot-rc-source/trunk/user/rc/wr-iot-activation-owner.c -o abi-results/iot-rc-activation-owner-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
             -c iot-rc-source/trunk/user/rc/wr-iot-activation-observe.c -o abi-results/iot-rc-activation-observe-mips.o
+          "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
+            -c iot-rc-source/trunk/user/rc/wr-iot-initial-off.c -o abi-results/iot-rc-initial-off-mips.o
           python3 tools/iot/prepare-activation-header-check.py iot-rc-source abi-results/check-iot-activation-headers.c
           include_flags=(-I"$PWD/iot-rc-source/trunk/user/rc" -I"$PWD/iot-rc-source/trunk/user/shared")
           gcc -std=gnu11 -Wall -Wextra -Werror -O2 "${include_flags[@]}" -c abi-results/check-iot-activation-headers.c -o abi-results/iot-activation-headers-native.o
@@ -1756,6 +1758,8 @@ jobs:
             abi-results/runtime-source-check/wait-$board
           done
           python3 tools/iot/check-rc-mode.py
+          python3 tools/iot/check-initial-off-composition.py
+          python3 tools/iot/check-initial-off-owner-composition.py
           python3 tools/iot/check-rc-backend-composition.py
           python3 tools/iot/check-status-channel.py
           python3 tools/iot/check-status-endpoint.py

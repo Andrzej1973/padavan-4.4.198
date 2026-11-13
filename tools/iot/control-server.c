@@ -34,12 +34,14 @@ int wr_iot_rc_dispatch(void){
   * Do not replay a pending shutdown into the stock fatal path, which would
   * continue LAN teardown even if the Wi-Fi stop helper refuses. Only a
   * separately confirmed recovery owner may release this admission fence. */
- retain_shutdown=outcome==WR_IOT_RESULT_RECOVERY;
- if(retain_shutdown){
-  memcpy(wr_iot_continuation.id,request.id,sizeof(request.id));
-  wr_iot_continuation.created=request.created;
-  wr_iot_continuation.owner=getpid();wr_iot_continuation.active=1;
- }
+ /* Even an immediate terminal result must survive failed publication.
+  * Retain only nonsecret identity/outcome; retry publication, never execute. */
+ retain_shutdown=1;
+ memcpy(wr_iot_continuation.id,request.id,sizeof(request.id));
+ wr_iot_continuation.created=request.created;
+ wr_iot_continuation.owner=getpid();wr_iot_continuation.active=1;
+ wr_iot_continuation.terminal=outcome!=WR_IOT_RESULT_RECOVERY;
+ wr_iot_continuation.outcome=outcome;
 
  now=wr_iot_control_now();
  if(!now||!wr_iot_mailbox_open(&m,WR_IOT_CONTROL_DIRECTORY,0)){
@@ -47,6 +49,9 @@ int wr_iot_rc_dispatch(void){
  }
  finished=wr_iot_mailbox_finish(&m,request.id,outcome,now);
  wr_iot_mailbox_close(&m);memset(&request,0,sizeof(request));
+ if(finished&&wr_iot_continuation.terminal){
+  memset(&wr_iot_continuation,0,sizeof(wr_iot_continuation));retain_shutdown=0;
+ }
 done:
  /* Only terminal activation results may release this request's fence.
   * RECOVERY keeps both admission and the first pending shutdown signal;

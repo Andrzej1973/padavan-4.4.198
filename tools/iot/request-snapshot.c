@@ -183,3 +183,16 @@ int wr_iot_request_disabled_current(void)
  for(i=0;i<9;i++)if(strcmp(nvram_safe_get(keys[i]),i<3?"0":""))return 0;
  return 1;
 }
+
+int wr_iot_request_initial_off_current(void)
+{
+ size_t i;int fd=wr_iot_service_guard_dup();const char *value;
+ if(fd<0)return 0;
+ if(close(fd))return 0;
+ for(i=0;i<9;i++){
+  value=nvram_safe_get(keys[i]);
+  if(i<3){if(*value&&strcmp(value,"0"))return 0;}
+  else if(*value)return 0;
+ }
+ return 1;
+}

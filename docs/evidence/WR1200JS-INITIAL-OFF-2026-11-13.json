@@ -1,0 +1,21 @@
+{
+  "scope": "Source/host initial never-opened OFF; not RF/CLOSE retirement or device acceptance",
+  "implementation": [
+    "Double fresh initial-idle observation with stable nonzero epoch/generation and increasing serial",
+    "Service guard, no bridge, administrative BSS DOWN, no owned DNS recovery",
+    "Temporary gates absent or0, all six temporary credential/range values empty",
+    "Retain only nonsecret transaction/nonce/driver identity",
+    "Live status rechecks initial-idle and all OFF conditions",
+    "Initial OFF->first ON admitted; post-CLOSE OFF->ON remains separate/refused"
+  ],
+  "checks": [
+    "Actual initial-off/snapshot ASan UBSan PASS",
+    "First/second driver-read failure, generation drift, pending shutdown and zero nonce refuse before proof publication",
+    "All9 foreign temp fields plus bridge/BSS/DNS/epoch/generation/serial refusal",
+    "Actual owner initial OFF/status -> first ON -> normal OFF composition PASS",
+    "Full preflight exit0:71 standalone fixtures plus compositions",
+    "Exact prepared initial-off/owner/observer headers and native TUs PASS"
+  ],
+  "target": "New initial-off MIPS compile queued only after publication; inspected previous runtime objects cover058bfd8, not this change",
+  "cleanup": "TemporaryDirectory trees removed; completed log removed after durable results recorded"
+}

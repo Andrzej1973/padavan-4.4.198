@@ -14,6 +14,12 @@ int wr_iot_activation_owner_observed(const struct wr_iot_activation_owner *s,
  const struct wr_iot_start_runner *a;int guard,ok=0;
  if(!s||!r||s->owner!=getpid()||s->busy||r->state!=WR_IOT_RESULT_APPLIED||
     !r->created||!memchr(r->id,0,sizeof(r->id))||!wr_iot_control_id(r->id))return 0;
+ if(s->phase==WR_IOT_OWNER_INITIAL_OFF){
+  if(strcmp(r->id,s->initial_off.id)||r->created!=s->initial_off.created)return 0;
+  guard=wr_iot_service_guard_enter(1);if(guard!=1)return 0;
+  ok=wr_iot_initial_off_observed(&s->initial_off);
+  wr_iot_service_guard_leave(guard);return ok;
+ }
  a=&s->start;
  if(a->owner!=getpid()||a->busy)return 0;
  guard=wr_iot_service_guard_enter(1);if(guard!=1)return 0;

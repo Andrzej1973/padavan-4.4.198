@@ -1,0 +1,15 @@
+{
+  "scope": "RC immediate terminal result publication recovery",
+  "implementation": "Cache nonsecret terminal outcome and shutdown fence after backend APPLIED/REJECTED until mailbox publication succeeds; never replay execute or continue backend",
+  "checks": [
+    "Strict C11 O2 ASan UBSan generated dispatch PASS for APPLIED/REJECTED publication failures and failed mailbox reopen",
+    "Actual mailbox/control-channel ASan UBSan PASS with result.new injected only after RUNNING claim",
+    "Injected8-byte publication obstacle retained unchanged until fixture removes it",
+    "Pending SIGTERM delivered only after terminal publication; no backend continuation on cached outcome"
+  ],
+  "fixture_corrections": [
+    "Signal counter volatile sig_atomic_t",
+    "Reinstall strict-C11 signal handler per scenario"
+  ],
+  "cleanup": "TemporaryDirectory outputs removed; no root core files found"
+}
