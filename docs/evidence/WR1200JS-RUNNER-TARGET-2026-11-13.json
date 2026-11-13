@@ -1,0 +1,18 @@
+{
+  "source_sha": "9a76288e05a5942d636bafbfbe4c3b467c2dc5bd",
+  "run": 43499941288,
+  "artifact_id": 14073552834,
+  "object": "iot-rc-start-runner-mips.o",
+  "bytes": 7708,
+  "sha256": "52ad6370d5f9951fcd1273fcab5f08ab6b960894c9d882208295f06ea56d96ca",
+  "elf": "ELF32 little-endian MIPS",
+  "defined_symbols": [
+    "    28: 0000033c  1984 FUNC    GLOBAL DEFAULT    1 wr_iot_start_runner_begin",
+    "    36: 00000afc   876 FUNC    GLOBAL DEFAULT    1 wr_iot_start_runner_step"
+  ],
+  "scope": "actual target object; not full RC link/image/device acceptance",
+  "runtime_verified": false,
+  "scratch_retained": "/mnt/c/Users/ANDRZEJ/AppData/Local/Temp/codex-iot-runner-abi-43499941288",
+  "scratch_bytes": 44964097,
+  "cleanup": "recursive cleanup rejected by automatic policy; retained"
+}

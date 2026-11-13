@@ -52,9 +52,14 @@ enum wr_iot_result_state wr_iot_activation_execute(const struct wr_iot_control_r
  assert(!wr_iot_rc_dispatch());
  return backend_result;
 }
+static int continuations;
+enum wr_iot_result_state wr_iot_activation_continue(const char *id,unsigned long long created){
+ assert(wr_iot_control_id(id)&&created&&wr_iot_rc_shutdown.active);
+ assert(!wr_iot_rc_continue());continuations++;return backend_result;
+}
 int main(void){
  struct wr_iot_request request={0};struct wr_iot_control_result result;
- struct wr_iot_mailbox m;char id[33],other[33],path[PATH_MAX];
+ char id[33],other[33],path[PATH_MAX];
  assert(signal(SIGTERM,shutdown_test)!=SIG_ERR);
  assert(mkdtemp(test_directory));
  assert(wr_iot_rc_submit(&request,id)&&notifications==1&&wr_iot_control_id(id));
@@ -84,12 +89,12 @@ int main(void){
  assert(!shutdown_delivered&&wr_iot_rc_shutdown.active&&wr_iot_rc_shutdown.pending==SIGTERM);
  assert(wr_iot_rc_status(other,&result)&&result.state==WR_IOT_RESULT_RECOVERY);
  assert(!wr_iot_rc_submit(&request,id)&&!wr_iot_rc_dispatch()&&executions==2);
- /* Only emulate explicit confirmed recovery; the real backend is absent. */
- wr_iot_mailbox_init(&m);assert(wr_iot_mailbox_open(&m,test_directory,0));
- assert(wr_iot_mailbox_finish(&m,other,WR_IOT_RESULT_REJECTED,wr_iot_control_now()));
- wr_iot_mailbox_close(&m);
- /* Test-only confirmation: no real recovery backend is installed. */
- assert(wr_iot_rc_shutdown_end()==SIGTERM);
+ assert(wr_iot_rc_continue()&&continuations==1&&executions==2);
+ assert(wr_iot_rc_shutdown.active&&wr_iot_rc_shutdown.pending==SIGTERM&&!shutdown_delivered);
+ backend_result=WR_IOT_RESULT_APPLIED;
+ assert(wr_iot_rc_continue()&&continuations==2&&executions==2&&shutdown_delivered==1);
+ assert(!wr_iot_rc_continue()&&continuations==2);
+ assert(wr_iot_rc_status(other,&result)&&result.state==WR_IOT_RESULT_APPLIED);
  assert(!wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.pending);
  assert(snprintf(path,sizeof(path),"%s/result",test_directory)<(int)sizeof(path));assert(!unlink(path));
  assert(snprintf(path,sizeof(path),"%s/lock",test_directory)<(int)sizeof(path));assert(!unlink(path));

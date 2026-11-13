@@ -1,0 +1,25 @@
+{
+  "scope": "local source and host fixtures; not target/device acceptance",
+  "tests": {
+    "actual_control_channel": "PASS strict GCC ASan UBSan",
+    "generated_actual_dispatch": "PASS strict GCC ASan UBSan",
+    "foreign_identity": "refused before backend",
+    "terminal_publication_failure": "cached terminal result retried without backend replay",
+    "explicit_recovery_applied": "PASS actual mailbox and control channel; ordinary finish still refuses",
+    "terminal_unlink_retry": "PASS exact terminal identity only",
+    "host_preflight": "PASS 71 standalone fixtures plus actual composition suite; exit 0"
+  },
+  "remaining": [
+    "production activation execute/continue/result bindings",
+    "bounded RC scheduling",
+    "target compilation for this change",
+    "physical runtime acceptance"
+  ],
+  "ci": {
+    "standard": 43499959403,
+    "standard_conclusion": "success",
+    "source": "9a76288e05a5942d636bafbfbe4c3b467c2dc5bd",
+    "optional_dispatched": 43502081788
+  },
+  "cleanup": "test TemporaryDirectory removed; earlier ABI scratch retained as documented"
+}

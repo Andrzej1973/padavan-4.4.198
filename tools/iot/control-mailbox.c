@@ -140,17 +140,19 @@ static int request_read(struct wr_iot_mailbox *m,struct wr_iot_control_request *
  status=status==1?wr_iot_control_decode(out,buffer,n):0;
  memset(buffer,0,sizeof(buffer));return status;
 }
-int wr_iot_mailbox_finish(struct wr_iot_mailbox *m,const char *id,
- enum wr_iot_result_state next,unsigned long long now){
+static int mailbox_finish(struct wr_iot_mailbox *m,const char *id,
+ enum wr_iot_result_state next,unsigned long long now,unsigned long long continued_created){
  struct wr_iot_control_request request={0};struct wr_iot_control_result r;
  if(!wr_iot_control_id(id)||!request_read(m,&request)||strcmp(id,request.id)||
-    result_read(m,&r)!=1||strcmp(r.id,id)||r.created!=request.created||now<r.observed)goto fail;
+    result_read(m,&r)!=1||strcmp(r.id,id)||r.created!=request.created||now<r.observed||
+    (continued_created&&r.created!=continued_created))goto fail;
  memset(&request,0,sizeof(request));
  if(next!=WR_IOT_RESULT_APPLIED&&next!=WR_IOT_RESULT_REJECTED&&next!=WR_IOT_RESULT_RECOVERY)return 0;
  if(r.state!=next){
   if(r.state!=WR_IOT_RESULT_RUNNING&&
      !(r.state==WR_IOT_RESULT_QUEUED&&next==WR_IOT_RESULT_REJECTED)&&
-     !(r.state==WR_IOT_RESULT_RECOVERY&&next==WR_IOT_RESULT_REJECTED))return 0;
+     !(r.state==WR_IOT_RESULT_RECOVERY&&
+       (next==WR_IOT_RESULT_REJECTED||(continued_created&&next==WR_IOT_RESULT_APPLIED))))return 0;
   r.state=next;r.observed=now;
   if(!result_write(m,&r))return 0;
  }else if(next==WR_IOT_RESULT_RECOVERY){
@@ -161,6 +163,23 @@ int wr_iot_mailbox_finish(struct wr_iot_mailbox *m,const char *id,
   * retried with this same terminal state without executing activation again. */
  return valid(m)&&!unlinkat(m->directory,"request",0)&&!fsync(m->directory);
  fail:memset(&request,0,sizeof(request));return 0;
+}
+int wr_iot_mailbox_finish(struct wr_iot_mailbox *m,const char *id,
+ enum wr_iot_result_state next,unsigned long long now){
+ return mailbox_finish(m,id,next,now,0);
+}
+int wr_iot_mailbox_finish_continued(struct wr_iot_mailbox *m,const char *id,
+ unsigned long long created,pid_t owner,enum wr_iot_result_state next,unsigned long long now){
+ struct stat st;struct wr_iot_control_result result;
+ if(!created||owner!=getpid()||!valid(m)||!wr_iot_control_id(id))return 0;
+ /* unlink may have succeeded before directory fsync failed. Retry durability
+  * of this exact terminal result without requiring deleted credentials. */
+ if(fstatat(m->directory,"request",&st,AT_SYMLINK_NOFOLLOW)&&errno==ENOENT){
+  return (next==WR_IOT_RESULT_APPLIED||next==WR_IOT_RESULT_REJECTED)&&
+   result_read(m,&result)==1&&!strcmp(result.id,id)&&result.created==created&&
+   result.state==next&&now>=result.observed&&!fsync(m->directory);
+ }
+ return mailbox_finish(m,id,next,now,created);
 }
 int wr_iot_mailbox_claim(struct wr_iot_mailbox *m,unsigned long long now,
  struct wr_iot_control_request *out){

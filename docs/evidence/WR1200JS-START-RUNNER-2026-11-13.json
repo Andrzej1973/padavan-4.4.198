@@ -50,5 +50,32 @@
     "result": "PASS exact runner/header/object verification and native staged TU compile",
     "dependency_fix": "RC preparation now stages control-record.h independently of control preparation",
     "mips": "workflow includes runner TU; new-source result pending"
+  },
+  "postopen_composition": {
+    "test": "check-start-runner-close-composition.py",
+    "result": "PASS ASan/UBSan actual runner/admission/stage/snapshot/start-close/CLOSE controller/closed rollback",
+    "case": "uncertain OPEN -> one CLOSE/progress/release -> exact9 baseline restored and guard released",
+    "adapters": "network/OPEN transport/driver observations injected",
+    "fixture_correction": "Initial text generation replaced Python split anchor as well as C main; corrected anchor then passed",
+    "pending": "whole normal OFF composition, production dispatch, MIPS verification",
+    "delayed_completion": "PASS3 pending progress +3 pending release calls retain bridge/baseline/guard, one CLOSE only; final rollback preserves pending SIGTERM"
+  },
+  "normal_off_composition": {
+    "test": "check-start-runner-off-composition.py",
+    "result": "PASS ASan/UBSan actual runner/admission/stage/snapshot/normal stop/CLOSE/disable services/controller/closed rollback",
+    "case": "confirmed commit completion failure -> fresh normal OFF -> exact9 startup baseline restored; all guards released",
+    "adapters": "commit outcome, DNS service operations, network/driver transport injected",
+    "fixture_correction": "Missing fixed recovery-read transport stub caused initial link failure; added adapter then passed",
+    "runtime_verified": false
+  },
+  "published_target_ci": {
+    "sha": "9a76288e05a5942d636bafbfbe4c3b467c2dc5bd",
+    "abi_run": 43499941288,
+    "abi_conclusion": "success",
+    "scope": "workflow success; actual MIPS object artifact not independently inspected in this turn",
+    "standard_run": 43499959403,
+    "standard_status": "in_progress",
+    "image_verified": false,
+    "device_verified": false
   }
 }

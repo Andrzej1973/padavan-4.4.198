@@ -72,7 +72,18 @@ int main(void){
  assert(!unlink(request_path)&&!unlink(scratch)); /* Fixture-owned incomplete publication. */
  assert(!chmod(directory,0755));assert(!wr_iot_mailbox_submit(&m,&request));assert(!chmod(directory,0700));
  assert(wr_iot_mailbox_submit(&m,&request));assert(wr_iot_mailbox_claim(&m,141,&claimed));
- assert(wr_iot_mailbox_finish(&m,request.id,WR_IOT_RESULT_APPLIED,142));
+ assert(wr_iot_mailbox_finish(&m,request.id,WR_IOT_RESULT_RECOVERY,142));
+ assert(!wr_iot_mailbox_finish(&m,request.id,WR_IOT_RESULT_APPLIED,143));
+ assert(!wr_iot_mailbox_finish_continued(&m,request.id,0,getpid(),WR_IOT_RESULT_APPLIED,143));
+ assert(!wr_iot_mailbox_finish_continued(&m,request.id,request.created+1,getpid(),WR_IOT_RESULT_APPLIED,143));
+ assert(!wr_iot_mailbox_finish_continued(&m,request.id,request.created,0,WR_IOT_RESULT_APPLIED,143));
+ assert(wr_iot_mailbox_result(&m,&result)&&result.state==WR_IOT_RESULT_RECOVERY);
+ assert(!access(request_path,F_OK));
+ assert(wr_iot_mailbox_finish_continued(&m,request.id,request.created,getpid(),WR_IOT_RESULT_APPLIED,143));
+ /* Retry after credential unlink: only the same terminal result is durable. */
+ assert(wr_iot_mailbox_finish_continued(&m,request.id,request.created,getpid(),WR_IOT_RESULT_APPLIED,144));
+ assert(!wr_iot_mailbox_finish_continued(&m,request.id,request.created,getpid(),WR_IOT_RESULT_REJECTED,144));
+ assert(!wr_iot_mailbox_finish_continued(&m,request.id,request.created+1,getpid(),WR_IOT_RESULT_APPLIED,144));
  assert(wr_iot_mailbox_result(&m,&result)&&result.state==WR_IOT_RESULT_APPLIED);
  wr_iot_mailbox_close(&m);
  assert(!unlink(result_path)&&!unlink(outside));path(scratch,directory,"lock");assert(!unlink(scratch));

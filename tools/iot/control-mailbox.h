@@ -23,5 +23,12 @@ int wr_iot_mailbox_claim(struct wr_iot_mailbox *,unsigned long long now,
  * after confirmed rollback. Terminal cleanup is retryable without reexecution. */
 int wr_iot_mailbox_finish(struct wr_iot_mailbox *,const char *id,
  enum wr_iot_result_state,unsigned long long now);
+/* Only the live RC continuation owner may publish its backend's retained
+ * outcome. Caller must retain same-PID operation context, validate ID/created
+ * before and after backend progress, and never reconstruct it from disk.
+ * This internal contract is not a capability against malicious same-process C.
+ * Generic finish/claim behavior remains unchanged. */
+int wr_iot_mailbox_finish_continued(struct wr_iot_mailbox *,const char *id,
+ unsigned long long created,pid_t owner,enum wr_iot_result_state,unsigned long long now);
 int wr_iot_mailbox_result(struct wr_iot_mailbox *,struct wr_iot_control_result *);
 #endif

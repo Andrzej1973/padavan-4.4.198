@@ -11,11 +11,12 @@ source=a.server.read_text(encoding='utf-8')
 anchor='int wr_iot_rc_dispatch(void)'
 if source.count(anchor)!=1:
     raise SystemExit('RC dispatch missing or duplicated')
-function=source[source.index(anchor):].strip()
+function=source[source.index('static struct {'):].strip()
 shutdown=(Path(__file__).with_name('rc-shutdown-admission.h')).read_text(encoding='utf-8')
 a.output.write_text(r'''#include <assert.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 '''+shutdown+r'''
 struct wr_iot_rc_shutdown_admission wr_iot_rc_shutdown;
 #define WR_IOT_CONTROL_DIRECTORY "fixture"
@@ -28,7 +29,7 @@ struct wr_iot_mailbox {int open;};
 static struct wr_iot_control_request queued;
 static struct wr_iot_control_result result;
 static int opens,locked,claim=1,executions,finishes,fail_open,shutdown_delivered,emit_shutdown;
-static int expected_shutdown,fail_finish;
+static int expected_shutdown,fail_finish,continuations;
 static enum wr_iot_result_state outcome;
 static unsigned long long now=20;
 static void shutdown_test(int sig){
@@ -56,6 +57,11 @@ static int wr_iot_mailbox_finish(struct wr_iot_mailbox *m,const char *id,enum wr
  if(fail_finish)return 0;
  result.state=state;finishes++;return 1;
 }
+static int wr_iot_mailbox_finish_continued(struct wr_iot_mailbox *m,const char *id,
+ unsigned long long created,pid_t owner,enum wr_iot_result_state state,unsigned long long time){
+ assert(created==queued.created&&owner==getpid());
+ return wr_iot_mailbox_finish(m,id,state,time);
+}
 static enum wr_iot_result_state wr_iot_activation_execute(const struct wr_iot_control_request *request){
  assert(!locked&&!strcmp(request->id,queued.id)&&request->created==queued.created);
  assert(request->request.enabled==queued.request.enabled);executions++;
@@ -73,14 +79,16 @@ static enum wr_iot_result_state wr_iot_activation_execute(const struct wr_iot_co
  }
  return outcome;
 }
+static enum wr_iot_result_state wr_iot_activation_continue(const char *id,unsigned long long created){assert(id&&created);continuations++;return outcome;}
 '''+function+r'''
 static void reset(void){
  /* Each scenario begins only after its explicit test-only recovery release. */
  assert(!wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.pending);
- fail_finish=0;
+ memset(&wr_iot_continuation,0,sizeof(wr_iot_continuation));
+ fail_finish=continuations=0;
  memset(&queued,0,sizeof(queued));memset(queued.id,'a',32);
  queued.created=10;queued.request.enabled=1;memset(&result,0,sizeof(result));
- memcpy(result.id,queued.id,33);result.state=WR_IOT_RESULT_RUNNING;
+ memcpy(result.id,queued.id,33);result.created=queued.created;result.state=WR_IOT_RESULT_RUNNING;
  opens=locked=executions=finishes=fail_open=shutdown_delivered=emit_shutdown=0;claim=1;now=20;
  outcome=WR_IOT_RESULT_APPLIED;
 }
@@ -124,6 +132,17 @@ int main(void){
   assert(!wr_iot_rc_dispatch()&&executions==1);
   assert(wr_iot_rc_shutdown_end()==SIGTERM); /* Test-only recovery proof. */
  }
+ reset();outcome=WR_IOT_RESULT_RECOVERY;
+ assert(wr_iot_rc_dispatch()&&executions==1);
+ result.created++;assert(!wr_iot_rc_continue()&&!continuations);
+ result.created--;result.id[0]='b';assert(!wr_iot_rc_continue()&&!continuations);
+ result.id[0]='a';outcome=WR_IOT_RESULT_REJECTED;fail_finish=1;
+ assert(!wr_iot_rc_continue()&&continuations==1&&wr_iot_rc_shutdown.active);
+ /* Publication retry uses cached terminal proof, never executes backend twice. */
+ outcome=WR_IOT_RESULT_RECOVERY;fail_finish=0;
+ assert(wr_iot_rc_continue()&&continuations==1&&executions==1);
+ assert(result.state==WR_IOT_RESULT_REJECTED&&!wr_iot_rc_shutdown.active);
+ assert(!wr_iot_rc_continue()&&continuations==1);
  for(i=1;i<=2;i++){
   reset();fail_open=i;assert(!wr_iot_rc_dispatch()&&!finishes&&!locked);
   assert(executions==(i==2));

@@ -80,6 +80,8 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   python3 tools/iot/check-start-commit-composition.py
   python3 tools/iot/check-start-dns-commit-composition.py
   python3 tools/iot/check-start-runner-composition.py
+  python3 tools/iot/check-start-runner-close-composition.py
+  python3 tools/iot/check-start-runner-off-composition.py
   python3 tools/iot/check-start-network-composition.py
   python3 tools/iot/check-dns-recovery-state.py
   python3 tools/iot/check-dns-abort-composition.py

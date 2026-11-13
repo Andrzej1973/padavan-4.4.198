@@ -19,6 +19,11 @@ int wr_iot_rc_status(const char *,struct wr_iot_control_result *);
  * interface presence alone is insufficient. No weak success fallback. */
 int wr_iot_activation_result_observed(const struct wr_iot_control_result *);
 int wr_iot_rc_dispatch(void);
+/* Explicit same-process continuation; never reclaim/replay request credentials.
+ * Strong backend must match retained ID+creation time to its live owner. */
+int wr_iot_rc_continue(void);
+enum wr_iot_result_state wr_iot_activation_continue(const char *,unsigned long long);
+
 /* RC backend must hold the service guard, validate current mode/routes, own
  * rollback and return APPLIED only after observed success, REJECTED only before
  * mutation or after complete recovery, otherwise RECOVERY. Strong unresolved
