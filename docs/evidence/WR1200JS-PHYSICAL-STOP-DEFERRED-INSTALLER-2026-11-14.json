@@ -1,0 +1,22 @@
+{
+  "scope": "dormant isolated delegated candidate layer",
+  "source_paths": [
+    "include/rtmp.h",
+    "common/rtmp_init.c",
+    "os/linux/rt_main_dev.c",
+    "peer-open-dispatch",
+    "mbss-recovery-work/join"
+  ],
+  "checks": [
+    "reviewed source snippet manifest and complete output hash validation",
+    "source and legacy executor bytewise unchanged",
+    "changed input and duplicate refuse before output",
+    "optional shell syntax PASS"
+  ],
+  "optional_integration": "after raw recovery free fence, before full target Kbuild",
+  "production_installed": false,
+  "endpoint_installed": false,
+  "reset_admission_complete": false,
+  "target_compiled": false,
+  "runtime_verified": false
+}

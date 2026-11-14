@@ -1,0 +1,47 @@
+#!/usr/bin/env python3
+"""Stage dormant ARM storage and actual deferred Main hook in an isolated copy.
+
+No endpoint or ACK/DMA policy changes; not production or runtime acceptance.
+"""
+import argparse,hashlib,json,runpy,shutil
+from pathlib import Path
+p=argparse.ArgumentParser(description=__doc__)
+p.add_argument('source',type=Path);p.add_argument('output',type=Path)
+a=p.parse_args();src=a.source.resolve(strict=True);out=a.output.resolve()
+if out.exists() or src==out or src in out.parents or out in src.parents:
+ p.error('new separate output required')
+if any(f.is_symlink() for f in src.rglob('*')):p.error('symlink input refused')
+m=json.loads(src.with_name(src.name+'.manifest.json').read_text())
+hashes=lambda root:{str(f.relative_to(root)):hashlib.sha256(f.read_bytes()).hexdigest() for f in root.rglob('*') if f.is_file()}
+if m.get('production_installed') is not False or hashes(src)!=m.get('merged_driver_sha256') or 'main_physical_close_delegation_layer' not in m:
+ p.error('intact delegated candidate required')
+here=Path(__file__).resolve().parent
+helpers=runpy.run_path(str(here/'physical-stop-executor.py'))
+main=runpy.run_path(str(here/'physical-stop-main-binding.py'))
+paths=('include/rtmp.h','common/rtmp_init.c','os/linux/rt_main_dev.c',
+ 'include/wr-iot-peer-open-dispatch.inc','include/wr-iot-mbss-recovery-work.inc',
+ 'include/wr-iot-mbss-recovery-join.inc')
+texts={n:(src/n).read_text() for n in paths}
+try:
+ texts[paths[0]],texts[paths[1]]=helpers['compose_adapter'](texts[paths[0]],texts[paths[1]])
+ texts[paths[2]]=main['compose'](texts[paths[2]])
+ texts[paths[3]]=helpers['compose_open_dispatch'](texts[paths[3]])
+ texts[paths[4]],texts[paths[5]]=helpers['compose_retirement'](texts[paths[4]],texts[paths[5]])
+except ValueError as e:p.error(str(e))
+for n in ('physical-stop-record.h','physical-stop-lifetime.h'):
+ if (src/'include'/n).exists():p.error('already staged '+n)
+shutil.copytree(src,out)
+for n,text in texts.items():(out/n).write_text(text)
+for n in ('physical-stop-record.h','physical-stop-lifetime.h'):
+ shutil.copyfile(here/n,out/'include'/n)
+m['merged_driver_sha256']=hashes(out)
+if 'candidate_driver_sha256' in m:
+ for n in paths:m['candidate_driver_sha256'][n]=m['merged_driver_sha256'][n]
+ for n in ('physical-stop-record.h','physical-stop-lifetime.h'):
+  m['candidate_driver_sha256']['include/'+n]=m['merged_driver_sha256']['include/'+n]
+m['physical_stop_deferred_layer']={'dormant':True,'main_worker_hook':True,
+ 'legacy_executor_modified':False,'endpoint_installed':False,
+ 'reset_admission_complete':False,'target_compiled':False,'runtime_verified':False}
+m.update(production_installed=False,target_compiled=False,runtime_verified=False)
+out.with_name(out.name+'.manifest.json').write_text(json.dumps(m,indent=2)+'\n')
+print('PASS staged dormant deferred Main ARM hook/storage; endpoint/reset/physical completion unbound')

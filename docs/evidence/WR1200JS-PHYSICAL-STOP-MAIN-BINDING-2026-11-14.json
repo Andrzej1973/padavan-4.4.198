@@ -1,0 +1,18 @@
+{
+  "scope": "source transformation of actual Main recovery continuation with extracted C host fixture",
+  "implementation": "transition-lock ARM lifetime capture immediately before actual checked physical continuation; refused binding retains existing recovery owner",
+  "checks": [
+    "wrong saved ARM OPEN token refuses before virtual DOWN and retains module pin",
+    "joined bounded retry after corrected snapshot captures exact existing recovery close ticket and executes DOWN once",
+    "duplicate source transformation refused"
+  ],
+  "result": "PASS C11 -Werror O2 ASan UBSan",
+  "full_candidate_installed": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "remaining": [
+    "compose storage and this transform into delegated full candidate",
+    "transaction endpoint ARM and completion binding",
+    "full target and physical checks"
+  ]
+}

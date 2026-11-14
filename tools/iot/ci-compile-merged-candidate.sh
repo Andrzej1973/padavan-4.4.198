@@ -154,6 +154,8 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   python3 tools/iot/prepare-raw-recovery-free-fence.py "$merged" "$candidate/raw-recovery-free-fenced"
   merged="$candidate/raw-recovery-free-fenced"
   python3 tools/iot/check-raw-recovery-free-fence.py "$merged"
+  python3 tools/iot/prepare-physical-stop-deferred-candidate.py "$merged" "$candidate/physical-stop-deferred"
+  merged="$candidate/physical-stop-deferred"
   gcc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
     -Itools/iot tools/iot/check-pci-netdev-preclose.c -o "$results/check-pci-netdev-preclose"
   "$results/check-pci-netdev-preclose"
