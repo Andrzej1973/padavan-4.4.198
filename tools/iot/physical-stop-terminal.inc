@@ -13,6 +13,7 @@ static inline int wr_iot_physical_stop_terminal_prepare(struct wr_iot_physical_s
  if(!s||s->owner||s->status||s->ready||!wr_iot_physical_stop_request_valid(r)||
     (r->action!=WR_STOP_CANCEL&&r->action!=WR_STOP_RELEASE))return 0;
  s->owner=get_pid(task_pid(current));if(!s->owner)return 0;
+ {struct wr_iot_physical_stop_origin empty={0};s->origin=empty;}
  s->request=*r;s->status=r->action==WR_STOP_CANCEL?WR_STOP_CANCELLED:WR_STOP_RELEASED;
  return 1;
 }

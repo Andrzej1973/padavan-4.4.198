@@ -1,6 +1,7 @@
 # Physical restart: identity handoff still required
 
-Status: implementation required; no production or physical runtime acceptance.
+Status: old completion identity capture implemented locally; new-identity
+handoff/resume still required. No production or physical runtime acceptance.
 This concerns physical restart after a prior IoT OPEN, not ordinary ra2 toggles.
 
 Source findings verified on 2026-11-14:
@@ -15,9 +16,12 @@ Source findings verified on 2026-11-14:
   does not erase that history or turn a prior OPEN into initial idle.
 - `physical-stop-lifetime.h`, `wr_iot_physical_stop_lifetime_end`: ending the
   completed lifetime clears Main identity and ticket validity in that context.
-- `physical-stop-terminal-types.h`: the terminal cache retains PID identity,
-  original physical request and terminal status, without a Main old-to-new
-  identity mapping. RELEASED is a cleanup receipt, not a resume authorization.
+- `physical-stop-terminal-types.h`: terminal cache now includes a pointer-free
+  old Main completion origin. `physical-stop-release.inc` captures it from a
+  freshly revalidated actual Main release under the transition lock before
+  lifetime end. New-identity mapping is still absent; RELEASED is a cleanup
+  receipt, not a resume authorization. Snapshot `valid` alone is insufficient:
+  terminal ready/RELEASED and exact PID/request are also mandatory.
 - `rc-quiesce.h`: desired settings survive normal OFF in a private RC context.
   They are user intent, not a driver identity or loaded-key receipt.
 
@@ -29,7 +33,7 @@ unchanged.
 
 Next implementation sequence:
 
-1. Before physical lifetime end, retain a bounded kernel-derived completion
+1. Implemented locally: before physical lifetime end, retain a bounded kernel-derived completion
    identity for the exact old Main ticket/registration and old IoT CLOSE.
    Keep it outside released task/module/netdev ownership. Preserve existing
    disjoint lock ordering and terminal retry behavior; no naked stale pointers.

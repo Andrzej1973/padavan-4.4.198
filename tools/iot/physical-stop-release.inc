@@ -26,6 +26,32 @@ static INT __attribute__((unused)) wr_iot_physical_stop_release_owned(
  }
  RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);
  if(exact)exact=wr_iot_physical_stop_main_complete(ad,main_dev,serial)==0;
+ if(exact){
+  /* Preserve the checked old Main identity before lifetime_end clears it.
+   * Derive solely from actual driver state, under the existing disjoint lock;
+   * the cached request/PID binds this receipt to its original transaction. */
+  RTMP_IRQ_LOCK(&ad->wr_iot_transition_lock,flags);
+  {
+   const struct wr_iot_physical_stop_lifetime *s=&ad->wr_iot_physical_lifetime;
+   struct wr_iot_interface_ref *main_record=wr_iot_registry_find(
+    ad->wr_iot_interface_refs,WDEV_NUM_MAX+1,main_dev,s->main_generation);
+   exact=s->main_device==main_dev&&
+    wr_iot_physical_stop_lifetime_main_released(s,serial,&ad->wr_iot_main_recovery,
+     &ad->wr_iot_transition,main_record,VIRTUAL_IF_NUM(ad))&&
+    s->main_generation&&s->main_open_token&&s->arm_radio_epoch&&
+    s->main_ticket.serial&&s->main_ticket.epoch&&ad->wr_iot_transition.epoch;
+   if(exact){
+    terminal->origin.main_generation=s->main_generation;
+    terminal->origin.main_open_token=s->main_open_token;
+    terminal->origin.arm_epoch=s->arm_radio_epoch;
+    terminal->origin.ticket_serial=s->main_ticket.serial;
+    terminal->origin.ticket_epoch=s->main_ticket.epoch;
+    terminal->origin.completion_epoch=ad->wr_iot_transition.epoch;
+    terminal->origin.valid=1;
+   }
+  }
+  RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);
+ }
  if(!exact){wr_iot_physical_stop_terminal_clear(terminal);return -EAGAIN;}
  RTMP_IRQ_LOCK(&ad->MacTabLock,flags);
  detached=wr_iot_physical_stop_pins_detach(&ad->wr_iot_physical_pins,

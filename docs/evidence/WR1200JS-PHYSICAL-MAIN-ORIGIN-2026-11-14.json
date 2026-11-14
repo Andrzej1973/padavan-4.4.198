@@ -1,0 +1,58 @@
+{
+  "scope": "Kernel-derived pointer-free old Main origin retained across physical lifetime end",
+  "implementation": [
+    "RELEASE revalidates actual checked Main release under transition lock after main_complete",
+    "captures Main generation/OPEN token, ARM epoch, Main physical ticket serial/epoch and completion epoch",
+    "no request-supplied Main identity, no device/task/module pointer in origin",
+    "terminal remains unready until actual detach/puts/lifetime end commit",
+    "prepare and clear zero origin; duplicate wire reply leaves origin unchanged",
+    "wire length and existing ACK/driver queue behavior unchanged"
+  ],
+  "checks": {
+    "host_suite_parts": 34,
+    "suite_session": 53138,
+    "suite_exit": 0,
+    "sanitizers": "O2 ASan/UBSan",
+    "actual_RELEASE": "saved identity matches after lifetime end; duplicate replies unchanged; clear zeroes validity",
+    "terminal_cache": "fresh prepare clears stale origin, wrong/foreign/incomplete cleanup refusal unchanged",
+    "restart_guard": "STOP cleanup balanced, restart RELEASE retains admission and intent",
+    "quiesce_epoch": "changed epoch refuses old CLOSE while desired settings remain retained"
+  },
+  "ci_queued_after_standard_success": [
+    {
+      "standard": 43564063411,
+      "verified_source": "5eb67f9bc40fd69094c33a984a3d79cc3c543164",
+      "optional": 43576248126
+    },
+    {
+      "standard": 43564413938,
+      "verified_source": "c3b7e2abaf1c49ec57a783776de09dd2ea246671",
+      "optional": 43576252336
+    },
+    {
+      "standard": 43565223676,
+      "verified_source": "55eaf120433a0cfbd6999a3e8fd43019ba1e55da",
+      "optional": 43576256390
+    },
+    {
+      "standard": 43568582999,
+      "verified_source": "13a16e3506f2aefe4f3207ba852b253fedf980fd",
+      "optional": 43576260363
+    }
+  ],
+  "optional_dispatch_revision": "13a16e3506f2aefe4f3207ba852b253fedf980fd",
+  "optional_deduplicated": true,
+  "pending": [
+    "new Main/ra2 identity mapping with exact issuer/original physical attempt",
+    "single-use OPEN admission and lost reply recovery",
+    "desired configuration handoff and verified RC restart/resume consumer",
+    "stock entrypoints",
+    "MIPS origin change verification",
+    "physical runtime acceptance"
+  ],
+  "new_origin_is_OPEN_permission": false,
+  "production_orchestration": false,
+  "target_verified": false,
+  "runtime_verified": false,
+  "scratch": "Temporary native/prepared trees auto-removed; bounded logs removed after PASS"
+}

@@ -128,3 +128,13 @@ The physical-restart identity audit and required Linux-side handoff are recorded
 in `WR1200JS-PHYSICAL-RESTART-REBIND.md`. Existing post-CLOSE and initial-idle
 admission must remain strict across epoch changes. Desired settings survive a
 changed-epoch refusal; this is not permission to reuse the old CLOSE.
+
+The actual RELEASE binding now captures a pointer-free old Main origin before
+lifetime end: generation, OPEN token, ARM epoch, physical ticket serial/epoch
+and completion epoch. The source is a second fresh checked Main-release
+predicate under the transition lock, not request-supplied Main fields. Capture
+has no nested MacTab lock, puts, firmware command or extra teardown. Terminal
+ready remains false until actual record/pin/lifetime cleanup commits; snapshot
+valid alone never grants permission. CANCEL/preparation clear origin; terminal
+clear zeroes it. Wire replies remain64 bytes and carry no new fields. No fresh
+Main/ra2 handoff or OPEN admission is installed by retaining this old origin.

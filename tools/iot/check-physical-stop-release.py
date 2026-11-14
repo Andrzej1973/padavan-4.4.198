@@ -17,17 +17,33 @@ insert=r'''
    assert(wr_iot_physical_stop_release_owned(&ad,&main_dev,&bad,serial,
      &ad.wr_iot_physical_terminal)==-EAGAIN);
    assert(identity.refs==1&&modules==2&&ad.wr_iot_physical_lifetime.active);
+   unsigned long saved_generation=ad.wr_iot_physical_lifetime.main_generation;
+   unsigned long saved_token=ad.wr_iot_physical_lifetime.main_open_token;
+   unsigned long saved_arm_epoch=ad.wr_iot_physical_lifetime.arm_radio_epoch;
+   unsigned long saved_ticket=ad.wr_iot_physical_lifetime.main_ticket.serial;
+   unsigned long saved_ticket_epoch=ad.wr_iot_physical_lifetime.main_ticket.epoch;
+   unsigned long saved_completion=ad.wr_iot_transition.epoch;
    assert(!wr_iot_physical_stop_release_owned(&ad,&main_dev,&rel,serial,
      &ad.wr_iot_physical_terminal));
    assert(!ad.wr_iot_physical_lifetime.active&&modules==1&&tasks==1&&devices==1);
    assert(ad.wr_iot_physical_stop.phase==WR_PHYS_STOP_IDLE&&identity.refs==2);
+   assert(ad.wr_iot_physical_terminal.origin.valid==1);
+   assert(ad.wr_iot_physical_terminal.origin.main_generation==saved_generation);
+   assert(ad.wr_iot_physical_terminal.origin.main_open_token==saved_token);
+   assert(ad.wr_iot_physical_terminal.origin.arm_epoch==saved_arm_epoch);
+   assert(ad.wr_iot_physical_terminal.origin.ticket_serial==saved_ticket);
+   assert(ad.wr_iot_physical_terminal.origin.ticket_epoch==saved_ticket_epoch);
+   assert(ad.wr_iot_physical_terminal.origin.completion_epoch==saved_completion);
+
+   struct wr_iot_physical_stop_origin saved_origin=ad.wr_iot_physical_terminal.origin;
    for(unsigned i=0;i<3;i++){
     assert(wr_iot_physical_stop_terminal_reply(&ad.wr_iot_physical_terminal,&rel,wire,64));
     assert(wr_iot_physical_stop_response_decode(&response,wire,64,&rel));
     assert(response.status==WR_STOP_RELEASED&&modules==1&&identity.refs==2);
+    assert(!memcmp(&saved_origin,&ad.wr_iot_physical_terminal.origin,sizeof(saved_origin)));
    }
    assert(wr_iot_physical_stop_terminal_clear(&ad.wr_iot_physical_terminal));
-   assert(identity.refs==1);
+   assert(identity.refs==1&&!ad.wr_iot_physical_terminal.origin.valid);
    return 0;
   }
 '''
