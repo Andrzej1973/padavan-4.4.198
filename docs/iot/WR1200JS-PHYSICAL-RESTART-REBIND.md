@@ -531,3 +531,20 @@ prepare-rc.py policy adapters. Host evidence: Guest controller preparation JSON
 in docs/evidence; 72-part suite and focused sanitizer/fault checks passed.
 Target firmware and physical acceptance remain pending. Full restart scheduling,
 routed firewall restoration and final ownership release are still unfinished.
+
+### Successful restart baseline handoff remains separate
+
+restart-generation.c retains the pre-generation radio-profile snapshot after
+Main may have started; abort/restore deliberately refuse at that point.
+radio-profile-state.h:wr_iot_radio_profile_finish requires recovering/recovered
+and matching restored_file, so it is not a successful-start commit operation.
+Do not weaken that predicate or call restore after Main UP.
+
+rebind-start.c captures a distinct request snapshot before staged IoT writes;
+rebind-commit.c suspends it only after current OPEN token, services and filter
+checks. rebind-observe.c revalidates that ACTIVE owner and expected snapshot.
+These checks do not themselves transfer the earlier generation snapshot.
+A future finalizer must retain both stable owners until the new ACTIVE owner,
+Main/Guest policy and exact physical origin are revalidated, then retire only
+the old private baseline without overwriting the running profile. Failure must
+retain recovery ownership and guards. No such finalizer is claimed implemented.

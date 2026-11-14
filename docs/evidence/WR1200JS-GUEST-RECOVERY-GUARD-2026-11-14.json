@@ -1,0 +1,15 @@
+{
+  "scope": "Guest host ownership regression checks",
+  "checks": [
+    "controller service guard absent: no DOWN attempt consumed",
+    "guard restored: one DOWN",
+    "guard lost after DOWN observation: phase becomes recovery",
+    "actual bridge/isolation/controller composition",
+    "extracted SDK isolation policy AP/mode/radio drift",
+    "26 prepared translation units compile C11 Werror O2"
+  ],
+  "preparation_exit": 0,
+  "preparation_log_sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a",
+  "target_verified": false,
+  "device_verified": false
+}

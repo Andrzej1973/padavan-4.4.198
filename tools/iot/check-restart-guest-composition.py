@@ -35,7 +35,9 @@ int wr_iot_rc_restart_guest_policy(int*out){*out=desired;return 1;}
 int wr_iot_rc_restart_guest_isolation_policy(int*out){*out=1;return 1;}
 enum wr_iot_restart_up_result wr_iot_restart_guest_up(void){assert(!up&&current_master==1&&wr_iot_restart_guest_isolation_current(1));ups++;up=1;return WR_RESTART_UP_UNCERTAIN;}
 enum wr_iot_restart_up_result wr_iot_restart_guest_down(void){downs++;up=0;return WR_RESTART_UP_UNCERTAIN;}
+#define close f_close
 #include "restart-guest-controller.c"
+#undef close
 int main(int argc,char**argv){
  assert(argc==2);snprintf(isolate_path,sizeof(isolate_path),"%s/isolate",argv[1]);
  wr_iot_rc_shutdown.active=1;struct wr_iot_restart_main main={0};struct wr_iot_restart_guest guest={0};
@@ -45,6 +47,7 @@ int main(int argc,char**argv){
  assert(!wr_iot_restart_guest_step(&guest)&&up&&ups==1&&guest.phase==WR_GUEST_WAIT);
  assert(wr_iot_restart_guest_step(&guest)&&guest.phase==WR_GUEST_ADMIN_UP&&ups==1&&adds==1);
  FILE*f=fopen(isolate_path,"w");assert(f&&fputs("0\n",f)>=0&&!fclose(f));
+ guard_ok=0;assert(!wr_iot_restart_guest_step(&guest)&&up&&!downs);guard_ok=1;
  assert(!wr_iot_restart_guest_step(&guest)&&ups==1&&adds==1); /* No unsafe isolation rewrite after UP. */
  assert(!up&&downs==1&&guest.phase==WR_GUEST_DOWN_OBSERVED);
  assert(!wr_iot_restart_guest_step(&guest)&&downs==1&&ups==1);

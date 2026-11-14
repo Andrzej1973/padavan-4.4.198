@@ -96,7 +96,8 @@ int wr_iot_rc_restart_guest_isolation_policy(int *out)
  if(get_ap_mode()||get_mode_radio_rt()!=0||get_enabled_radio_rt()!=1)return 0;
  before=nvram_wlan_get_int(0,"guest_lan_isolate");
  after=nvram_wlan_get_int(0,"guest_lan_isolate");
- if((before!=0&&before!=1)||before!=after)return 0;
+ if((before!=0&&before!=1)||before!=after||get_ap_mode()||
+    get_mode_radio_rt()!=0||get_enabled_radio_rt()!=1)return 0;
  *out=before;return 1;
 }
 /* Profile generation only; never the combined stop/restart helper. */

@@ -5,9 +5,12 @@ code=r'''
 #define _GNU_SOURCE
 #include <assert.h>
 #include <stdio.h>
+#include <unistd.h>
 #include "restart-guest-controller.h"
 #include "rc-shutdown-admission.h"
 struct wr_iot_rc_shutdown_admission wr_iot_rc_shutdown;
+static int guard_ok=1;
+int wr_iot_service_guard_dup(void){return guard_ok?dup(STDERR_FILENO):-1;}
 static int main_ok=1,desired=1,policy_ok=1,state,reads_ok=1,ups,downs;
 static enum wr_iot_restart_up_result result;
 int wr_iot_restart_main_lan_step(struct wr_iot_restart_main*m){assert(m);return main_ok;}
@@ -36,12 +39,14 @@ int main(void){
   assert(!wr_iot_restart_guest_step(&s)&&ups==1);
   if(outcome==WR_RESTART_UP_NOT_SUBMITTED){state=1;assert(!wr_iot_restart_guest_step(&s)&&ups==1);continue;}
   state=1;assert(wr_iot_restart_guest_step(&s)&&s.phase==WR_GUEST_ADMIN_UP);
-  desired=0;assert(!wr_iot_restart_guest_step(&s)&&ups==1);desired=1;
+  guard_ok=0;desired=0;assert(!wr_iot_restart_guest_step(&s)&&!downs&&s.phase==WR_GUEST_RECOVER_DOWN);
+  guard_ok=1;assert(!wr_iot_restart_guest_step(&s)&&downs==1);desired=1;
   wr_iot_rc_shutdown.pending=SIGTERM;assert(!wr_iot_restart_guest_step(&s));wr_iot_rc_shutdown.pending=0;
   assert(!wr_iot_restart_guest_step(&s)&&ups==1&&adds==1&&downs==1&&s.phase==WR_GUEST_RECOVER_DOWN);
   reads_ok=0;state=0;assert(!wr_iot_restart_guest_step(&s)&&s.phase==WR_GUEST_RECOVER_DOWN&&downs==1);
   reads_ok=1;assert(!wr_iot_restart_guest_step(&s)&&s.phase==WR_GUEST_DOWN_OBSERVED&&downs==1);
-  state=1;assert(!wr_iot_restart_guest_step(&s)&&downs==1&&ups==1&&s.phase==WR_GUEST_RECOVER_DOWN);
+  guard_ok=0;assert(!wr_iot_restart_guest_step(&s)&&s.phase==WR_GUEST_RECOVER_DOWN&&downs==1);
+  guard_ok=1;state=1;assert(!wr_iot_restart_guest_step(&s)&&downs==1&&ups==1&&s.phase==WR_GUEST_RECOVER_DOWN);
  }
  /* Independently exercise each post-UP invalidation, not just policy drift. */
  for(int fault=0;fault<4;fault++){

@@ -5,6 +5,7 @@
 #include "restart-guest-bridge.h"
 #include "restart-guest-isolation.h"
 #include "rc-shutdown-admission.h"
+#include "service-guard.h"
 int wr_iot_restart_guest_begin(struct wr_iot_restart_guest *s,struct wr_iot_restart_main *main)
 {
  int desired,isolate;
@@ -19,7 +20,7 @@ int wr_iot_restart_guest_begin(struct wr_iot_restart_guest *s,struct wr_iot_rest
 }
 int wr_iot_restart_guest_step(struct wr_iot_restart_guest *s)
 {
- int desired,isolate,state,ok=0;enum wr_iot_restart_up_result result;
+ int desired,isolate,state,fd,ok=0;enum wr_iot_restart_up_result result;
  if(!s||s->owner!=getpid()||s->busy||!s->main||
     (s->phase<WR_GUEST_BRIDGE||s->phase>WR_GUEST_DOWN_OBSERVED||s->phase==WR_GUEST_NO_SUBMISSION)||
     !wr_iot_rc_shutdown.active)return 0;
@@ -60,6 +61,11 @@ int wr_iot_restart_guest_step(struct wr_iot_restart_guest *s)
  if(s->phase!=WR_GUEST_WAIT&&s->phase!=WR_GUEST_ADMIN_UP)goto done;
  s->phase=WR_GUEST_RECOVER_DOWN;
  recover:
+ /* Recovery bypasses failed Main/policy checks, never the outer service lock.
+  * Leave the attempt unused if ownership cannot be demonstrated. */
+ s->phase=WR_GUEST_RECOVER_DOWN;
+ fd=wr_iot_service_guard_dup();if(fd<0)goto done;
+ if(close(fd))goto done;
  if(!s->down_attempted){
   s->down_attempted=1;
   (void)wr_iot_restart_guest_down();
