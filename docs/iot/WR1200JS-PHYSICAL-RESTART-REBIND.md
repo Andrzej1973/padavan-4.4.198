@@ -548,3 +548,41 @@ A future finalizer must retain both stable owners until the new ACTIVE owner,
 Main/Guest policy and exact physical origin are revalidated, then retire only
 the old private baseline without overwriting the running profile. Failure must
 retain recovery ownership and guards. No such finalizer is claimed implemented.
+
+### Guest policy gate clarification after direct SDK inspection
+
+net_wifi.c:1168-1187 writes Guest isolate_mode then returns in router mode;
+ebtables policy at1189-1208 belongs to AP mode. A new routed Guest firewall is
+not an established compatibility prerequisite. Earlier references to that gate
+were conservative assumptions, now superseded by this source evidence. Preserve
+saved Guest L2 policy, while keeping dedicated IoT IPv4/IPv6 routed isolation.
+The controller remains unbound because full orchestration/finalization and
+configured WDS/APCLI/802.1X restoration are still unfinished (restart_wifi_rt
+lines780-784). request_snapshot retains temporary NVRAM values, not a second
+copy of the radio profile file; generation owns that separate file baseline.
+
+### Mode0 service restoration scope
+
+The candidate requires mode0. In the pinned SDK WDS activation requires1/2
+(net_wifi.c561), and APCLI requires3/4 plus sta_ssid (642). Therefore mode0
+must retain these interfaces DOWN rather than activate them as generic restart
+work. Main/Guest startup still needs the applicable enterprise daemon and RSSI
+policy: start_8021x_rt847-858 starts rtinicapd when is_need_8021x(auth_mode), then
+applies saved KickStaRssiLow/AssocReqRssiThres to a live WLAN. These void helpers
+ignore command results; a checked one-shot adapter and later observation are
+needed, with uncertain attempts retained. No adapter is yet claimed implemented.
+
+### Experimental mode0 service sequence implementation
+
+restart-services.[ch] now retains stable Main/policy references and marks each
+of three operations attempted before SDK dispatch. UNCERTAIN/NOT_SUBMITTED
+stops without automatic replay. SUBMITTED means all commands returned zero,
+with fresh Main/policy checks; it is not service readiness. prepare-rc.py emits
+fixed conditional rtinicapd -i ra0 and per-BSS RSSI operations, rejecting values
+outside[-100,0] before the vendor CHAR conversion. The rtinicapd name observer
+is process presence only, not PID ownership or authentication acceptance.
+
+Actual controller + extracted SDK adapter composition and27 prepared native
+TUs pass. Full74 suite passed; newly registered composition makes75 parts but
+no full75 run is claimed. Runtime object included experimentally, scheduler
+binding remains false. Target/service/driver/device acceptance still pending.

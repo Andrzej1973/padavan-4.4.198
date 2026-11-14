@@ -9,8 +9,8 @@ struct wr_iot_restart_guest {
  enum wr_iot_restart_guest_phase phase;
  struct wr_iot_restart_main *main;
 };
-/* Ordered DOWN bridge -> vendor L2 isolation -> UP. Caller separately
- * establishes routed firewall policy before using this private controller.
+/* Ordered DOWN bridge -> vendor router-mode L2 isolation -> UP.
+ * Preserves Guest SDK policy; dedicated IoT routed isolation is separate.
  * Not scheduler-bound. Results are administrative/policy only, not Guest ready.
  * Retain original Main and generation objects; never copy live contexts. */
 int wr_iot_restart_guest_begin(struct wr_iot_restart_guest *,struct wr_iot_restart_main *);

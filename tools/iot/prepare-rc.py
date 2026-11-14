@@ -50,6 +50,7 @@ helper="""#if defined(BOARD_WR1200JS)
 #include "wr-iot/bridge.h"
 #include "wr-iot/restart-main-state.h"
 #include "wr-iot/restart-guest-policy.h"
+#include "wr-iot/restart-service-policy.h"
 #include "wr-iot/service-guard.h"
 #include "wr-iot/radio-stop-contract.h"
 static int wr_iot_last_stop_result=1;
@@ -99,6 +100,55 @@ int wr_iot_rc_restart_guest_isolation_policy(int *out)
  if((before!=0&&before!=1)||before!=after||get_ap_mode()||
     get_mode_radio_rt()!=0||get_enabled_radio_rt()!=1)return 0;
  *out=before;return 1;
+}
+int is_need_8021x(char *auth_mode);
+/* Mode0 restoration only. These are the existing SDK auth/RSSI operations,
+ * split into checked submissions; no physical restart or WDS/APCLI activation. */
+int wr_iot_rc_restart_service_policy(struct wr_iot_restart_service_policy *out)
+{
+ struct wr_iot_restart_service_policy p;int fd;
+ if(!out)return 0;
+ fd=wr_iot_service_guard_dup();if(fd<0)return 0;if(close(fd))return 0;
+ if(get_ap_mode()||get_mode_radio_rt()!=0||get_enabled_radio_rt()!=1||
+    !is_interface_up(IFNAME_2G_MAIN))return 0;
+ p.enterprise=!!is_need_8021x(nvram_wlan_get(0,"auth_mode"));
+ p.kick_rssi=nvram_get_int("rt_KickStaRssiLow");
+ p.assoc_rssi=nvram_get_int("rt_AssocReqRssiThres");
+ /* Validate before the vendor setter narrows simple_strtol to CHAR. */
+ if(p.kick_rssi < -100||p.kick_rssi > 0||p.assoc_rssi < -100||p.assoc_rssi > 0)return 0;
+ if(p.enterprise!=!!is_need_8021x(nvram_wlan_get(0,"auth_mode"))||
+    p.kick_rssi!=nvram_get_int("rt_KickStaRssiLow")||
+    p.assoc_rssi!=nvram_get_int("rt_AssocReqRssiThres")||get_ap_mode()||
+    get_mode_radio_rt()!=0||get_enabled_radio_rt()!=1||!is_interface_up(IFNAME_2G_MAIN))return 0;
+ *out=p;return 1;
+}
+enum wr_iot_restart_service_result wr_iot_rc_restart_service_submit(
+ const struct wr_iot_restart_service_policy *expected,unsigned int slot)
+{
+ struct wr_iot_restart_service_policy current;int result;
+ if(!expected||slot>2||!wr_iot_rc_restart_service_policy(&current)||
+    current.enterprise!=expected->enterprise||current.kick_rssi!=expected->kick_rssi||
+    current.assoc_rssi!=expected->assoc_rssi)return WR_SERVICE_NOT_SUBMITTED;
+ if(slot==0){
+  if(!current.enterprise)return WR_SERVICE_RETURNED;
+  result=eval("rtinicapd","-i",IFNAME_2G_MAIN);
+ }else if(slot==1)
+  result=doSystem("iwpriv %s set %s=%d",IFNAME_2G_MAIN,"KickStaRssiLow",current.kick_rssi);
+ else
+  result=doSystem("iwpriv %s set %s=%d",IFNAME_2G_MAIN,"AssocReqRssiThres",current.assoc_rssi);
+ return result?WR_SERVICE_UNCERTAIN:WR_SERVICE_RETURNED;
+}
+/* Process-name liveness only: not PID ownership, authentication or RSSI
+ * readback. Caller must not use this alone as service completion evidence. */
+int wr_iot_rc_restart_auth_process_current(const struct wr_iot_restart_service_policy *expected)
+{
+ struct wr_iot_restart_service_policy current;int running;
+ if(!expected||!wr_iot_rc_restart_service_policy(&current)||
+    current.enterprise!=expected->enterprise||current.kick_rssi!=expected->kick_rssi||
+    current.assoc_rssi!=expected->assoc_rssi)return 0;
+ running=pids("rtinicapd");
+ if(running<0)return 0;
+ return current.enterprise?running>0:running==0;
 }
 /* Profile generation only; never the combined stop/restart helper. */
 int wr_iot_rc_restart_generate(int disable_autoscan)
@@ -937,6 +987,7 @@ if make.count('wr-iot-initial-off.o')!=1:raise SystemExit('Reopen object anchor 
 objects=' '.join('wr-iot-'+stem+'.o' for stem,names in (('reopen-admission', ('reopen-admission.h', 'service-guard.h', 'request-snapshot.h', 'bridge.h', 'dns-activation.h')), ('reopen-start', ('reopen-start.h', 'request-stage.h', 'service-guard.h', 'rc-shutdown-admission.h')), ('reopen-network', ('reopen-network.h', 'driver-api-client.h', 'service-guard.h', 'rc-shutdown-admission.h', 'bridge.h', 'network-check.h', 'request-stage.h', 'quarantine.h', 'dns-activation.h')), ('reopen-rollback', ('reopen-rollback.h', 'driver-api-client.h', 'service-guard.h', 'rc-shutdown-admission.h', 'bridge.h', 'dns-activation.h'))))
 m.write_text(make.replace('wr-iot-initial-off.o','wr-iot-initial-off.o '+objects,1),encoding='utf-8')
 (headers/'restart-guest-policy.h').write_bytes((local/'restart-guest-policy.h').read_bytes())
+(headers/'restart-service-policy.h').write_bytes((local/'restart-service-policy.h').read_bytes())
 (headers/'restart-main-state.h').write_bytes((local/'restart-main-state.h').read_bytes())
 (headers/'radio-stop-fence.h').write_bytes((local/'radio-stop-fence.h').read_bytes())
 unit=(local/'radio-stop-fence.c').read_text()

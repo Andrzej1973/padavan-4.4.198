@@ -1,0 +1,12 @@
+{
+  "scope": "Guest saved-policy compatibility and restart service ordering, source only",
+  "source": "trunk/user/rc/net_wifi.c",
+  "sha256": "98bbe9cfca0af35be4ddb82742022b90cc51c2f7b34834e627ee6c5f2187dc69",
+  "references": {
+    "router_isolation": "1168-1178: router mode Guest guest_lan_isolate uses isolate_mode; AP mode ebtables separate",
+    "restart": "restart_wifi_rt: starts Main/Guest/APCLI and8021x then guest isolation, WAN/LED/iappd"
+  },
+  "conclusion": "Router-mode Guest restoration should preserve existing L2 isolate_mode policy; a new routed Guest firewall is not an established SDK prerequisite. IoT dedicated routed isolation remains mandatory. Full restart must still restore supported services and all configured virtual interfaces.",
+  "target_verified": false,
+  "runtime_verified": false
+}
