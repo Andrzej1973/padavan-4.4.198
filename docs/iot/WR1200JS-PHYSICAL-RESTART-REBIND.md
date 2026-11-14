@@ -219,3 +219,22 @@ OPEN nonce. Both reads require newer epoch and same registration; drift or
 uncertain ioctl clears output. It does not submit OPEN or grant a lease across
 network changes. The future staging/network steps must re-observe before OPEN
 and retain recovery/isolation if any observation fails.
+
+Local `rebind-start.c` provides separate new-epoch staging admission. It takes
+a normal existing request snapshot between two fresh rebind observations,
+retaining snapshot ownership if read-only cleanup fails. Stage revalidates
+identity before and after the existing guarded writer, marks possible mutation
+before calling it, and never repeats a mutated stage. Failed writes/drift retain
+the baseline and service guard for recovery. Normal initial-idle and same-epoch
+reopen functions are unchanged. Network steps, rollback/commit and actual RC
+scheduler still need binding; this helper is not installed or activated yet.
+Native fixture injects observation/snapshot/writer actors; target/runtime pending.
+
+Local `rebind-network.c` preserves the existing seven operations: bridge,
+quarantine, attachment, bridge UP, network-enable, DNS preparation and policy.
+It uses retained rebind admission and fresh new-epoch observations around each
+resource mutation. Failures keep attempted bits/snapshot and enter RECOVERY,
+without replay or implicit rollback. Native tests execute actual sequencer and
+request matcher/gate writer with resource/readback adapters injected, including
+post-operation epoch drift. These sources are not runtime-installed yet;
+rollback, commit and actual RC orchestration must be bound before activation.
