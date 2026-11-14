@@ -123,3 +123,8 @@ STOP terminal cleanup and CANCEL/refusal keep their balanced cleanup semantics.
 This fixes the potential unguarded interval between physical completion and
 restart consumption in the staged controller; it does not complete restart
 or provide physical acceptance. Metadata explicitly records resume unbound.
+
+The physical-restart identity audit and required Linux-side handoff are recorded
+in `WR1200JS-PHYSICAL-RESTART-REBIND.md`. Existing post-CLOSE and initial-idle
+admission must remain strict across epoch changes. Desired settings survive a
+changed-epoch refusal; this is not permission to reuse the old CLOSE.

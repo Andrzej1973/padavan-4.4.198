@@ -6,6 +6,9 @@ source=(here/'check-rc-backend-composition.py').read_text()
 ns={'__file__':str(here/'check-rc-backend-composition.py')}
 exec(compile(source[:source.index('with tempfile.TemporaryDirectory(')],'<actual RC fixture setup>','exec'),ns)
 units=next(ast.literal_eval(n.value) for n in ast.walk(ast.parse(source)) if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='units' for t in n.targets))
+ns['prefix']='static unsigned long long quiesce_read_epoch=1;\n'+ns['prefix']
+assert ns['prefix'].count('{1,2,3,observed_serial}')==1
+ns['prefix']=ns['prefix'].replace('{1,2,3,observed_serial}','{quiesce_read_epoch,2,3,observed_serial}')
 body=ns['body'];a=body.index(' submit(&off);');b=body.index(' char path[PATH_MAX];',a)
 body=body[:a]+r'''
  struct wr_iot_rc_quiesce q={0};struct wr_iot_driver_closed_result receipt={0};
@@ -31,6 +34,10 @@ body=body[:a]+r'''
  assert(backend.phase==WR_IOT_OWNER_OFF&&!backend.start.input.request.enabled);
  assert(!backend.start.input.request.password[0]);
  assert(!memcmp(&q.desired,&desired,sizeof(desired))); /* Normal OFF wiped runner, not resume intent. */
+ quiesce_read_epoch=2;
+ assert(!wr_iot_rc_quiesce_advance(&q,&receipt)&&!receipt.adapter_epoch&&!receipt.close_serial);
+ assert(q.complete&&q.resume_needed&&!memcmp(&q.desired,&desired,sizeof(desired)));
+ quiesce_read_epoch=1;
  observed_serial++;assert(!wr_iot_rc_quiesce_advance(&q,&receipt)&&!receipt.close_serial);observed_serial--;
  assert(wr_iot_rc_quiesce_advance(&q,&receipt));
  q.owner++;assert(!wr_iot_rc_quiesce_advance(&q,&receipt)&&!receipt.close_serial);q.owner--;

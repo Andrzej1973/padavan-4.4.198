@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include "precreated-idle-reference.h"
 int main(void){
- for(unsigned fault=0;fault<24;fault++){
+ for(unsigned fault=0;fault<26;fault++){
   struct wr_iot_radio_transition radio;struct wr_iot_interface_ref slots[3]={0};
   int main_dev,iot_dev,guest_dev;unsigned long sequence=0;unsigned count=1;
   wr_iot_radio_transition_init(&radio);radio.phase=WR_RADIO_READY;radio.main_ready=1;
@@ -23,6 +23,8 @@ int main(void){
    case 19:radio.epoch=0;break;case 20:radio.exhausted=1;break;
    case 21:main->last_token=0;break;case 22:iot->family=WR_REF_FAMILY_WDS;break;
    case 23:{struct wr_iot_interface_ref *g=wr_iot_registry_add_family(slots,3,&sequence,&guest_dev,WR_REF_FAMILY_MBSS);g->published=1;g->phase=WR_REF_OWNED;g->last_token=3;count=2;break;}
+   case 24:radio.epoch++;iot->last_token=2;break;
+   case 25:radio.epoch++;iot->close_serial=2;break;
   }
   struct wr_iot_radio_transition before=radio;struct wr_iot_interface_ref saved[3];memcpy(saved,slots,sizeof(saved));
   assert(wr_iot_precreated_idle_reference(&radio,slots,3,&main_dev,&iot_dev,2,count)==(fault==0||fault==23));
