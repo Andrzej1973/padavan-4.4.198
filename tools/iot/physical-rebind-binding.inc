@@ -39,3 +39,29 @@ static INT __attribute__((unused)) wr_iot_physical_rebind_observe(
  if(wake)wake_up_all(&ad->wr_iot_ticket_wait);
  return status;
 }
+
+#include "physical-rebind-open.h"
+/* Internal alternative to normal request_enter. Outer ioctl must independently
+ * validate capability/copies and supply both exact requests before calling.
+ * Existing ndo_open/loaded-key/first-beacon/leave paths remain mandatory. */
+static INT __attribute__((unused)) wr_iot_physical_rebind_request_enter(
+ RTMP_ADAPTER *ad,PNET_DEV dev,const struct wr_iot_physical_stop_request *physical,
+ const struct wr_iot_driver_open_request *request)
+{
+ ULONG flags=0;int accepted=0;
+ if(!ad||!dev||!physical||!request)return -EINVAL;
+ if(!rtnl_is_locked())return -EBUSY;
+ RTMP_IRQ_LOCK(&ad->wr_iot_transition_lock,flags);
+ if(IS_MT7603(ad)&&ad->ApCfg.BssidNum==3&&dev!=ad->net_dev&&
+    ad->ApCfg.MBSSID[2].wdev.if_dev==dev&&!ad->wr_iot_control_users&&
+    !ad->wr_iot_control_poisoned&&!ad->wr_iot_boot_active&&!ad->wr_iot_boot_failed&&
+    !ad->wr_iot_close_owner.active&&!ad->wr_iot_physical_lifetime.active){
+  accepted=wr_iot_physical_rebind_open_reserve(&ad->wr_iot_physical_rebind_probe,
+   &ad->wr_iot_physical_terminal,task_pid(current),physical,&ad->wr_iot_main_recovery,
+   &ad->wr_iot_driver_owner,&ad->wr_iot_transition,ad->wr_iot_interface_refs,
+   WDEV_NUM_MAX+1,ad->net_dev,dev,VIRTUAL_IF_NUM(ad),current,request,
+   ad->wr_iot_control_users,ad->wr_iot_control_poisoned);
+ }
+ RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);
+ return accepted?0:-EBUSY;
+}

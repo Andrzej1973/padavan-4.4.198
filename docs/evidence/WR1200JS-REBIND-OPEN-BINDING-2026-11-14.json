@@ -1,0 +1,28 @@
+{
+  "scope": "Internal vendor rebind request_enter and OPEN execution",
+  "implementation": [
+    "actual current/PID under transition lock",
+    "one-use claim plus existing owner reserve",
+    "existing dev_open and first beacon wait",
+    "mandatory request_leave on every accepted admission",
+    "private credential copy wiped, caller input unchanged"
+  ],
+  "checks": {
+    "existing36part_suite_session": 63768,
+    "existing36part_suite_exit": 0,
+    "final_execution_addition": "separate actual execution fixture PASS strict O2 ASan/UBSan",
+    "actual_binding_reserve": "85613 PASS conflict unspent, reserve once, duplicate refusal, no claim refund",
+    "installer": "PASS staged headers and entry snippets"
+  },
+  "new_suite_parts": 37,
+  "full37_claimed": false,
+  "pending": [
+    "capability checked external transport and bounded wire decoding",
+    "uncertain OPEN recovery API",
+    "RC desired resume",
+    "target/device acceptance"
+  ],
+  "production_orchestration": false,
+  "runtime_verified": false,
+  "scratch": "Temporary native trees auto-removed; bounded suite log removed after evidence"
+}

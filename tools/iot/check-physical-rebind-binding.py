@@ -65,6 +65,19 @@ int main(void){
   reads=0;int result=wr_iot_physical_rebind_observe(ad,&iot_dev,&request);
   assert((result==0)==(fault==0));
   assert(!ad->BcnRingLock&&!ad->wr_iot_transition_lock&&i->close_epoch==5&&main_dev.running);
+  if(!fault){
+   struct wr_iot_driver_open_request open_request={.adapter_epoch=7,.device_generation=2,.request_id={8}};
+   assert(wr_iot_driver_owner_query(&ad->wr_iot_driver_owner,open_request.request_id,7,2));
+   ad->wr_iot_control_users=1;
+   assert(wr_iot_physical_rebind_request_enter(ad,&iot_dev,&request,&open_request)==-EBUSY);
+   assert(!ad->wr_iot_physical_rebind_probe.spent);
+   ad->wr_iot_control_users=0;
+   assert(!wr_iot_physical_rebind_request_enter(ad,&iot_dev,&request,&open_request));
+   assert(ad->wr_iot_physical_rebind_probe.spent&&ad->wr_iot_driver_owner.active);
+   assert(wr_iot_physical_rebind_request_enter(ad,&iot_dev,&request,&open_request)==-EBUSY);
+   assert(wr_iot_driver_owner_leave(&ad->wr_iot_driver_owner,current,&iot_dev,&ad->wr_iot_transition,ad->wr_iot_interface_refs,3));
+   assert(ad->wr_iot_physical_rebind_probe.spent&&!ad->wr_iot_driver_owner.active);
+  }
   if(fault==6)assert(result==-EUCLEAN&&ad->wr_iot_physical_rebind_probe.active&&ad->wr_iot_control_poisoned);
   else assert(!ad->wr_iot_physical_rebind_probe.active);
   if(fault==1||fault==2||fault==9)assert(!reads);

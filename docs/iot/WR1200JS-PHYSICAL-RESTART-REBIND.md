@@ -142,3 +142,22 @@ reserve/leave: conflict refuses without spending; accepted reserve produces one
 ticket; duplicate refuses; pre-mutation leave clears owner but never refunds the
 handoff. The helper is not installed/routed yet. Recovery after spent admission
 and actual RC/API routing remain required before activation.
+
+The internal `wr_iot_physical_rebind_request_enter` now supplies actual
+`current`/`task_pid(current)` and performs claim plus existing owner reserve
+under one transition critical section. It rejects active CLOSE/physical
+lifetime, boot/control poison, foreign BSS and missing RTNL. The isolated
+installer stages the open helper. Actual binding tests exercise reserve,
+control conflict, duplicate and existing pre-mutation owner_leave. No external
+ioctl route calls it yet; capability-checked transport, dev_open/first-beacon/
+leave orchestration, uncertain recovery and RC resume remain pending.
+
+Internal `physical-rebind-open-entry.inc` now composes rebind request_enter,
+existing dev_open, existing first-beacon wait and mandatory request_leave.
+Admission failure never calls dev_open/leave; any accepted admission leaves
+after dev_open error or beacon timeout; failed leave overrides with EUCLEAN.
+A private credential copy is wiped and caller input remains untouched. The
+outer transport must still capability-check/decode both requests and retain
+RTNL/module/adapter/netdevice lifetime. No external route is installed. Native
+execution test injects lifecycle actors and covers these error paths; actual
+owner reservation and observer are tested separately. Target/runtime pending.

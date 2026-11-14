@@ -39,7 +39,7 @@ with tempfile.TemporaryDirectory(prefix='wr-stop-deferred-installer-') as d:
  assert (out/'include/physical-rebind-probe-types.h').is_file()
  assert (out/'include/physical-rebind-probe.h').is_file()
  binding=(out/'include/physical-rebind-binding.inc').read_text()
- assert binding.count('task_pid(current)')==2
+ assert binding.count('task_pid(current)')==3
  assert binding.index('RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);')<binding.index('observed=wr_iot_mt7603_closed_config_observed(ad,dev);')
  assert '#include "physical-rebind-binding.inc"' in (out/'include/driver-api-closed-entry.inc').read_text()
 
