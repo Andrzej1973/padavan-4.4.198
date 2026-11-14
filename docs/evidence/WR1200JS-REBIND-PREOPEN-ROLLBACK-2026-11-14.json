@@ -1,0 +1,32 @@
+{
+  "scope": "Local pre-OPEN rollback for physical rebind network preparation",
+  "implementation": [
+    "same-PID retained rebind snapshot required",
+    "OPEN phase IDLE/NOT_SUBMITTED and completely empty attempt required",
+    "fresh new-epoch rebind configuration before each cleanup phase",
+    "existing bridge down/detach/remove,DNS abort,settings restore and observation/finish sequence",
+    "pending normal shutdown held by external admission",
+    "failed restore or unknown configuration retains baseline/guard"
+  ],
+  "checks": {
+    "actual_snapshot_composition_session": 93156,
+    "result": "PASS strict O2 ASan/UBSan; partial restore retries,9foreign baseline changes, unknown observation, possible OPEN/identity refusal, exact restore and pending shutdown",
+    "resource_readback": "injected"
+  },
+  "full_suite": {
+    "parts": 45,
+    "session": 30178,
+    "status": "running",
+    "log": "/tmp/wr-rebind-network-suite.log"
+  },
+  "pending": [
+    "post-OPEN CLOSE rollback",
+    "commit",
+    "experimental runtime preparation/target link",
+    "RC scheduler",
+    "physical acceptance"
+  ],
+  "runtime_installed": false,
+  "runtime_verified": false,
+  "scratch": "Native fixture trees auto-removed; full suite log retained while active"
+}

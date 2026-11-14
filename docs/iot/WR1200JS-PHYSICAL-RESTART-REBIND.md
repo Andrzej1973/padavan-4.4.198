@@ -238,3 +238,20 @@ without replay or implicit rollback. Native tests execute actual sequencer and
 request matcher/gate writer with resource/readback adapters injected, including
 post-operation epoch drift. These sources are not runtime-installed yet;
 rollback, commit and actual RC orchestration must be bound before activation.
+
+Local `rebind-rollback.c` handles only pre-OPEN network recovery. It rejects
+possible submitted OPEN and even nonempty attempt metadata in IDLE. Existing
+bridge/DNS/settings rollback is reused with fresh new-epoch configuration
+observation before every phase. Snapshot/guard survive failed restore or foreign
+baseline; pending normal shutdown is not released by this function. Actual
+snapshot composition tests cover partial retries and all9 baseline changes,
+with external resources/readback injected. Post-OPEN CLOSE rollback and commit
+are still required before RC/runtime installation.
+
+Local `rebind-commit.c` requires CURRENT rebind OPEN with exact retained ID and
+new epoch/generation, plus a fresh current-token query and existing network/
+firewall/staged-settings observations. DNS commit is attempted once; uncertainty
+retains context and cannot replay commit. Snapshot suspend occurs only after
+DNS committed and observations pass. Native test covers recovery-only rejection,
+seven existing fault cases, pending shutdown and nonce mismatch, with actors
+injected. Runtime/runner integration and post-OPEN CLOSE rollback are pending.
