@@ -200,3 +200,20 @@ fixture proves zero Main UP and no replay after uncertain state update. Existing
 restore/Guest/multicast/service composition, profile/finish/premain checks and
 native preparation pass with explicitly injected SDK adapters. The watchdog
 reload event still has no delivery receipt. No new target/runtime claim.
+
+
+## IAPP exact-script audit and firewall preparation candidate
+
+Pinned trunk/user/ralinkiappd/iappd.sh::stop sleeps twice when a daemon is
+present. start launches ralinkiappd in background, writes neighbor sysctls for
+br0/eth2/ra0 and selected rai0/rax0 paths, then appends TCP/UDP3517 INPUT rules
+unconditionally. Direct synchronous restart in the RC progress window would
+block and repeated starts accumulate rules. Process launch is not readiness.
+Standalone prepare-iappd.py converts only these two fixed appends to existence
+checks followed by add. Executed shell fixture proves two sequential starts add
+each rule once; duplicate/changed source refuses. It is not installed into the
+firmware preparation yet and does not serialize competing firewall writers.
+Command errors and concurrent replacement need the existing firewall ownership
+contract at integration. Do not claim this removes the script sleeps or makes
+its lifecycle nonblocking. Full-suite84131 remains independent on unchanged
+registered e2c9162 inputs; these new standalone files are not covered by it.
