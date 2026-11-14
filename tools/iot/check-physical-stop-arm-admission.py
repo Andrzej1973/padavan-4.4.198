@@ -9,12 +9,14 @@ context=r'''
 #include <errno.h>
 #include "physical-stop-lifetime.h"
 #include "physical-stop-record.h"
+#include "physical-stop-pin-types.h"
 #define WR_IOT_RA2_NO_HOST_MODE 1
 #define WDEV_NUM_MAX 1
 typedef int INT;typedef unsigned long ULONG;typedef void *PNET_DEV;
 typedef struct {
  int BcnRingLock,wr_iot_transition_lock,MacTabLock;
  struct wr_iot_physical_stop_record wr_iot_physical_stop;
+ struct wr_iot_physical_stop_pins wr_iot_physical_pins,wr_iot_physical_pending_pins;
  struct {unsigned BssidNum;struct {struct {PNET_DEV if_dev;} wdev;} MBSSID[3];} ApCfg;
  PNET_DEV net_dev;
  unsigned VirtualIfCnt,wr_iot_control_users,wr_iot_control_poisoned;
@@ -76,7 +78,7 @@ body=setup+r'''
   assert(wr_iot_physical_stop_arm_admit(&ad,&main_dev,&arm,&serial)==-EAGAIN);
   assert(serial==77);
   {RTMP_ADAPTER before=ad;
-   for(unsigned drift=0;drift<7;drift++){
+   for(unsigned drift=0;drift<8;drift++){
     switch(drift){
      case 0:ad.wr_iot_interface_refs[0].generation++;break;
      case 1:ad.wr_iot_interface_refs[0].last_token++;break;
@@ -85,6 +87,7 @@ body=setup+r'''
      case 4:ad.wr_iot_transition.phase=WR_RADIO_CLOSING;break;
      case 5:ad.wr_iot_transition.epoch++;break;
      case 6:ad.wr_iot_physical_stop.phase=WR_PHYS_STOP_ARMED;break;
+     case 7:ad.wr_iot_physical_pending_pins.module=1;break;
     }
     assert(wr_iot_physical_stop_arm_abort_unpublished(&ad,&main_dev,1)==-EBUSY);
     assert(ad.wr_iot_physical_lifetime.active&&!held);

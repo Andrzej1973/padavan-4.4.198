@@ -3,12 +3,8 @@
  * adapter-owned lock, but acquire/drop run outside locks. This does not pin
  * PCI hardware by itself: remove must refuse while the record/bundle is owned.
  * Only unpublished local bundles may be copied into/out of an adapter slot. */
-struct wr_iot_physical_stop_pins {
- struct task_struct *task;
- struct net_device *device;
- unsigned int module;
-};
-static int wr_iot_physical_stop_pins_acquire(struct wr_iot_physical_stop_pins *p,
+#include "physical-stop-pin-types.h"
+static inline int wr_iot_physical_stop_pins_acquire(struct wr_iot_physical_stop_pins *p,
  struct task_struct *task,struct net_device *device)
 {
  if(!p||p->task||p->device||p->module||!task||task!=current||!device)return 0;
@@ -19,7 +15,7 @@ static int wr_iot_physical_stop_pins_acquire(struct wr_iot_physical_stop_pins *p
 /* May be used only after exact ARMED cancellation or COMPLETE release detached
  * the bundle under the lock. A failed/RUNNING record retains its references.
  * Clear first so dev_put callbacks cannot find a reusable owned local bundle. */
-static int wr_iot_physical_stop_pins_drop(struct wr_iot_physical_stop_pins *p)
+static inline int wr_iot_physical_stop_pins_drop(struct wr_iot_physical_stop_pins *p)
 {
  struct task_struct *task;struct net_device *device;
  if(!p||!p->module||!p->task||!p->device)return 0;
@@ -30,7 +26,7 @@ static int wr_iot_physical_stop_pins_drop(struct wr_iot_physical_stop_pins *p)
 /* Caller already owns RTNL/adapter lifetime and MacTabLock. local was acquired
  * outside locks. Admission identity/CLOSED checks must run in their existing
  * serialized owner before this transfer; this helper does not invent proof. */
-static int wr_iot_physical_stop_pins_publish(struct wr_iot_physical_stop_pins *slot,
+static inline int wr_iot_physical_stop_pins_publish(struct wr_iot_physical_stop_pins *slot,
  struct wr_iot_physical_stop_pins *local,struct wr_iot_physical_stop_record *record,
  unsigned long long epoch,unsigned long long generation,unsigned long long token,
  unsigned long long closed_serial,const unsigned char *nonce,
@@ -45,7 +41,7 @@ static int wr_iot_physical_stop_pins_publish(struct wr_iot_physical_stop_pins *s
 /* Caller keeps a separate synchronous ioctl/module/adapter pin until this
  * detached local bundle is dropped outside the lock. Never access an adapter
  * after releasing its final reference. Failed/RUNNING attempts stay owned. */
-static int wr_iot_physical_stop_pins_detach(struct wr_iot_physical_stop_pins *slot,
+static inline int wr_iot_physical_stop_pins_detach(struct wr_iot_physical_stop_pins *slot,
  struct wr_iot_physical_stop_pins *local,struct wr_iot_physical_stop_record *record,
  unsigned long long serial,unsigned long long epoch,unsigned long long generation,
  const unsigned char *nonce,int cancel)
@@ -62,7 +58,7 @@ static int wr_iot_physical_stop_pins_detach(struct wr_iot_physical_stop_pins *sl
 /* Read under the SAME MacTabLock as publication/detach, with RTNL held across
  * detach plus reference return. Do not sample this under transition lock alone.
  * Partial/inconsistent bundle state refuses adapter retirement as well. */
-static int wr_iot_physical_stop_blocks_retirement(
+static inline int wr_iot_physical_stop_blocks_retirement(
  const struct wr_iot_physical_stop_record *record,
  const struct wr_iot_physical_stop_pins *slot)
 {

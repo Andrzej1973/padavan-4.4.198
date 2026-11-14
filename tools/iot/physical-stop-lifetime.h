@@ -3,12 +3,14 @@
 #ifndef WR_IOT_PHYSICAL_STOP_LIFETIME_H
 #define WR_IOT_PHYSICAL_STOP_LIFETIME_H
 #include "radio-transition.h"
+#include "physical-stop-wire.h"
 #include "main-open-recovery-owner.h"
 struct wr_iot_physical_stop_lifetime {
  unsigned long serial;unsigned int active;
  const void *main_device;
  unsigned long main_generation,main_open_token,arm_radio_serial,arm_radio_epoch;
  unsigned long long arm_record_serial;
+ struct wr_iot_physical_stop_request arm_request;
  struct wr_iot_radio_ticket main_ticket;
  int main_ticket_valid;
 };
@@ -20,7 +22,7 @@ static inline unsigned long wr_iot_physical_stop_lifetime_begin(
     radio->exhausted||radio->phase!=WR_RADIO_READY||!radio->main_ready)return 0;
  s->serial++;s->active=1;
  s->main_device=0;s->main_generation=s->main_open_token=s->arm_radio_serial=0;
- s->arm_radio_epoch=s->arm_record_serial=0;
+ s->arm_radio_epoch=s->arm_record_serial=0;s->arm_request.action=0;
  s->main_ticket_valid=0;
  return s->serial;
 }
@@ -109,7 +111,7 @@ static inline int wr_iot_physical_stop_lifetime_end(
  if(!s||!s->active||!serial||s->serial!=serial||record_idle!=1||pins_returned!=1)return 0;
  s->active=0;s->main_device=0;s->main_ticket_valid=0;
  s->main_generation=s->main_open_token=s->arm_radio_serial=0;
- s->arm_radio_epoch=s->arm_record_serial=0;return 1;
+ s->arm_radio_epoch=s->arm_record_serial=0;s->arm_request.action=0;return 1;
 }
 static inline int wr_iot_physical_stop_lifetime_blocks(
  const struct wr_iot_physical_stop_lifetime *s)

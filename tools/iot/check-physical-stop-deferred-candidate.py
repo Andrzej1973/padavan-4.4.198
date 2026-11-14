@@ -28,6 +28,10 @@ with tempfile.TemporaryDirectory(prefix='wr-stop-deferred-installer-') as d:
  src.with_name(src.name+'.manifest.json').write_text(json.dumps(manifest))
  out=root/'prepared';run(src,out,True)
  assert hashes()==before
+ for field in ('wr_iot_physical_pins','wr_iot_physical_pending_pins'):
+  assert ('struct wr_iot_physical_stop_pins '+field+';') in (out/'include/rtmp.h').read_text()
+  assert (out/'common/rtmp_init.c').read_text().count('NdisZeroMemory(&pAd->'+field+',')==1
+
  result=json.loads(out.with_name(out.name+'.manifest.json').read_text())
  assert result['physical_stop_deferred_layer']['main_worker_hook']
  assert not result['physical_stop_deferred_layer']['endpoint_installed']

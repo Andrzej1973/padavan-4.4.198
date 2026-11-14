@@ -26,7 +26,9 @@ static INT __attribute__((unused)) wr_iot_physical_stop_arm_admit(
   * never nest MacTabLock with transition or beacon locks. */
  RTMP_IRQ_LOCK(&ad->MacTabLock,flags);
  exact=ad->wr_iot_physical_stop.phase==WR_PHYS_STOP_IDLE&&
-       !ad->wr_iot_physical_stop.task;
+       !ad->wr_iot_physical_stop.task&&
+       !ad->wr_iot_physical_pins.module&&!ad->wr_iot_physical_pins.task&&
+       !ad->wr_iot_physical_pins.device;
  record_serial=ad->wr_iot_physical_stop.serial;
  RTMP_IRQ_UNLOCK(&ad->MacTabLock,flags);
  if(!exact)return -EBUSY;
@@ -47,7 +49,10 @@ static INT __attribute__((unused)) wr_iot_physical_stop_arm_admit(
  if(exact)accepted=wr_iot_physical_stop_lifetime_begin_main(
   &ad->wr_iot_physical_lifetime,&ad->wr_iot_transition,
   &ad->wr_iot_main_recovery,main_record,main_dev);
- if(accepted)ad->wr_iot_physical_lifetime.arm_record_serial=record_serial;
+ if(accepted){
+  ad->wr_iot_physical_lifetime.arm_record_serial=record_serial;
+  ad->wr_iot_physical_lifetime.arm_request=*request;
+ }
  RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);
  if(!accepted)return -EAGAIN;
  *serial=accepted;return 0;
@@ -66,7 +71,11 @@ static INT __attribute__((unused)) wr_iot_physical_stop_arm_abort_unpublished(
  if(!rtnl_is_locked())return -EBUSY;
  RTMP_IRQ_LOCK(&ad->MacTabLock,flags);
  idle=ad->wr_iot_physical_stop.phase==WR_PHYS_STOP_IDLE&&
-      !ad->wr_iot_physical_stop.task;
+      !ad->wr_iot_physical_stop.task&&
+      !ad->wr_iot_physical_pins.module&&!ad->wr_iot_physical_pins.task&&
+      !ad->wr_iot_physical_pins.device&&
+      !ad->wr_iot_physical_pending_pins.module&&!ad->wr_iot_physical_pending_pins.task&&
+      !ad->wr_iot_physical_pending_pins.device;
  record_serial=ad->wr_iot_physical_stop.serial;
  RTMP_IRQ_UNLOCK(&ad->MacTabLock,flags);
  if(!idle)return -EBUSY;
