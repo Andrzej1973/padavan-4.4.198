@@ -58,9 +58,9 @@ static void dev_put(struct net_device *dev){
     &ad->wr_iot_main_recovery,1));
   assert(!wr_iot_main_recovery_complete(&ad->wr_iot_main_recovery,1));
   assert(!wr_iot_main_recovery_finish_netdev_release(
-    &ad->wr_iot_main_recovery,dev,0));
+    &ad->wr_iot_main_recovery,dev,&ad->wr_iot_transition,0));
   assert(!wr_iot_main_recovery_finish_netdev_release(
-    &ad->wr_iot_main_recovery,ad,1));
+    &ad->wr_iot_main_recovery,ad,&ad->wr_iot_transition,1));
  }
  dev->held--;put_count++;
 }

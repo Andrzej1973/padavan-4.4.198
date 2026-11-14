@@ -105,10 +105,45 @@ int main(void){
  assert(!wr_iot_main_recovery_mark_module_pin_released(&owner,1,1));
  assert(owner.phase==WR_MAIN_OWNER_RUNNING&&owner.module_pin_released);
  assert(!wr_iot_main_recovery_complete(&owner,0));
- assert(wr_iot_main_recovery_complete(&owner,1));
+ assert(!owner.last_release.valid);
+ assert(wr_iot_main_recovery_begin_netdev_release(&owner,1));
+ assert(!owner.last_release.valid);
+ assert(!wr_iot_main_recovery_complete(&owner,1));
+ assert(wr_iot_main_recovery_finish_netdev_release(&owner,&main_dev,&radio,1));
+ assert(owner.phase==WR_MAIN_OWNER_IDLE&&!owner.deferred_owners);
+ assert(owner.last_release.valid&&owner.last_release.device==&main_dev&&
+        owner.last_release.generation==4&&owner.last_release.open_token==7&&
+        owner.last_release.close_serial==refs[0].close_serial&&
+        owner.last_release.ticket.serial==ticket.serial&&
+        owner.last_release.ticket.epoch==ticket.epoch);
+
+ assert(wr_iot_main_recovery_release_current(&owner,&radio,&refs[0],0));
+ {struct wr_iot_radio_transition changed=radio;
+  struct wr_iot_interface_ref stale=refs[0];
+  assert(!wr_iot_main_recovery_release_current(&owner,&radio,&refs[0],1));
+  changed.epoch++;
+  assert(!wr_iot_main_recovery_release_current(&owner,&changed,&refs[0],0));
+  changed=radio;changed.serial++;
+  assert(!wr_iot_main_recovery_release_current(&owner,&changed,&refs[0],0));
+  changed=radio;changed.active_tx=1;
+  assert(!wr_iot_main_recovery_release_current(&owner,&changed,&refs[0],0));
+  stale.generation++;
+  assert(!wr_iot_main_recovery_release_current(&owner,&radio,&stale,0));
+  stale=refs[0];stale.last_token++;
+  assert(!wr_iot_main_recovery_release_current(&owner,&radio,&stale,0));
+  stale=refs[0];stale.removing=1;
+  assert(!wr_iot_main_recovery_release_current(&owner,&radio,&stale,0));
+  stale=refs[0];stale.published=0;
+  assert(!wr_iot_main_recovery_release_current(&owner,&radio,&stale,0));
+  changed=radio;changed.retiring=1;
+  assert(!wr_iot_main_recovery_release_current(&owner,&changed,&refs[0],0));
+  changed=radio;changed.reset_pending=1;
+  assert(!wr_iot_main_recovery_release_current(&owner,&changed,&refs[0],0));
+ }
 
  /* An uncertain main open never authorizes an unproven virtual DOWN. */
  wr_iot_main_recovery_init(&owner);
+ assert(!owner.last_release.valid);
  refs[0].phase=WR_REF_UNCERTAIN_OPEN;refs[0].last_token=8;
  assert(wr_iot_main_recovery_queue(&owner,&radio,&refs[0],
         WR_MAIN_RECOVERY_UNCERTAIN,1,1,WR_MAIN_QUEUE_NORMAL,0));

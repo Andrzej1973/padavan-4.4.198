@@ -23,6 +23,15 @@ enum wr_iot_main_recovery_phase {
  WR_MAIN_OWNER_IDLE, WR_MAIN_OWNER_QUEUED, WR_MAIN_OWNER_RUNNING,
  WR_MAIN_OWNER_RETAINED, WR_MAIN_OWNER_STOPPING
 };
+/* Software receipt only: joined callback and returned native references.
+ * Does not certify DMA, RF, IRQ or firmware ACK retirement. */
+struct wr_iot_main_recovery_release_receipt {
+ const void *device;
+ unsigned long generation,open_token,close_serial;
+ struct wr_iot_radio_ticket ticket;
+ unsigned long completion_epoch;
+ int valid;
+};
 struct wr_iot_main_recovery_owner {
  const void *device;
  unsigned long generation,open_token,close_serial;
@@ -33,6 +42,7 @@ struct wr_iot_main_recovery_owner {
  int close_ticket_valid,stop_requested,completed,module_pin_released;
  int schedule_recorded;
  int netdev_release_started;
+ struct wr_iot_main_recovery_release_receipt last_release;
 };
 static inline void wr_iot_main_recovery_init(
  struct wr_iot_main_recovery_owner *owner){
@@ -41,6 +51,7 @@ static inline void wr_iot_main_recovery_init(
  owner->phase=WR_MAIN_OWNER_IDLE;owner->deferred_owners=0;owner->attempts=0;
  owner->failed_submissions=0;owner->schedule_recorded=0;
  owner->close_ticket_valid=0;owner->stop_requested=0;owner->completed=0;
+ owner->last_release.valid=0;
  owner->module_pin_released=0;owner->netdev_release_started=0;
 }
 static inline int wr_iot_main_recovery_ticket_recorded(
@@ -120,6 +131,7 @@ static inline int wr_iot_main_recovery_queue(
  owner->phase=WR_MAIN_OWNER_QUEUED;owner->deferred_owners=1;
  owner->attempts=0;owner->failed_submissions=0;
  owner->schedule_recorded=0;owner->stop_requested=0;owner->completed=0;
+ owner->last_release.valid=0;
  owner->module_pin_released=0;owner->netdev_release_started=0;owner->close_serial=0;
  owner->close_ticket_valid=0;return 1;
 }
@@ -163,6 +175,7 @@ static inline int wr_iot_main_recovery_queue_close(
  owner->phase=WR_MAIN_OWNER_QUEUED;owner->deferred_owners=1;
  owner->attempts=0;owner->failed_submissions=0;
  owner->schedule_recorded=0;owner->stop_requested=0;owner->completed=0;
+ owner->last_release.valid=0;
  owner->module_pin_released=0;owner->netdev_release_started=0;return 1;
 }
 static inline int wr_iot_main_recovery_begin(
@@ -378,10 +391,47 @@ static inline int wr_iot_main_recovery_complete(
  * completion path must not reset the owner while that put is in progress. */
 static inline int wr_iot_main_recovery_finish_netdev_release(
  struct wr_iot_main_recovery_owner *owner,const void *device,
- int reference_returned){
+ const struct wr_iot_radio_transition *radio,int reference_returned){
+ struct wr_iot_main_recovery_release_receipt receipt={0};
  if(!owner||!device||!reference_returned||owner->device!=device||
     !owner->netdev_release_started||!owner->deferred_owners||
     !owner->completed||!owner->module_pin_released)return 0;
- wr_iot_main_recovery_init(owner);return 1;
+ receipt.device=owner->device;receipt.generation=owner->generation;
+ receipt.open_token=owner->open_token;receipt.close_serial=owner->close_serial;
+ if(owner->close_ticket_valid)receipt.ticket=owner->close_ticket;
+ receipt.completion_epoch=radio?radio->epoch:0;
+ receipt.valid=radio&&radio->phase==WR_RADIO_DOWN&&!radio->busy&&
+  radio->serial==receipt.ticket.serial&&
+  radio->retired_serial==receipt.ticket.serial&&
+  radio->epoch>=receipt.ticket.epoch&&
+  owner->close_ticket_valid&&owner->close_serial&&
+  owner->generation&&owner->open_token&&owner->close_ticket.serial&&
+  owner->close_ticket.epoch&&!owner->close_ticket.reset_kind&&
+  owner->close_ticket.operation==WR_RADIO_CLOSE;
+ wr_iot_main_recovery_init(owner);
+ owner->last_release=receipt;return 1;
 }
+/* Snapshot under transition lock together with registry and vendor count.
+ * This validates software retirement freshness only, never hardware silence. */
+static inline int wr_iot_main_recovery_release_current(
+ const struct wr_iot_main_recovery_owner *owner,
+ const struct wr_iot_radio_transition *radio,
+ const struct wr_iot_interface_ref *record,unsigned int vendor_count){
+ const struct wr_iot_main_recovery_release_receipt *r;
+ if(!owner||!radio||!record||vendor_count||
+    owner->phase!=WR_MAIN_OWNER_IDLE||owner->deferred_owners||
+    owner->netdev_release_started)return 0;
+ r=&owner->last_release;
+ return r->valid&&radio->phase==WR_RADIO_DOWN&&!radio->busy&&
+  !radio->main_ready&&!radio->active_tx&&!radio->reset_pending&&
+  !radio->retiring&&!radio->pm_suspending&&!radio->pm_suspended&&
+  radio->epoch==r->completion_epoch&&radio->serial==r->ticket.serial&&
+  radio->retired_serial==r->ticket.serial&&
+  record->published&&!record->removing&&record->family==WR_REF_FAMILY_MAIN&&
+  record->device==r->device&&record->generation==r->generation&&
+  record->last_token==r->open_token&&record->phase==WR_REF_IDLE&&
+  record->close_stage==4U&&record->close_serial==r->close_serial&&
+  wr_iot_main_recovery_ticket_recorded(record,&r->ticket);
+}
+
 #endif

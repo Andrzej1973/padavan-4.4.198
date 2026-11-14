@@ -19,7 +19,8 @@ INT wr_iot_main_recovery_join_complete(RTMP_ADAPTER *adapter)
   * PCI retirement must continue to see this fence during the unlocked call. */
  dev_put((struct net_device *)device);
  RTMP_IRQ_LOCK(&adapter->wr_iot_transition_lock, flags);
- completed = wr_iot_main_recovery_finish_netdev_release(owner, device, 1);
+ completed = wr_iot_main_recovery_finish_netdev_release(
+   owner, device, &adapter->wr_iot_transition, 1);
  RTMP_IRQ_UNLOCK(&adapter->wr_iot_transition_lock, flags);
  return completed;
 }
