@@ -470,3 +470,23 @@ and bands retain the baseline branch. Extracted-fragment tests inject each
 stdio failure and verify one close. Both new objects and the SDK wrapper have
 strong target-symbol gates.19 prepared native TUs compile; no Main startup,
 target-image or physical acceptance is claimed.
+
+### Retained Main UP controller (experimental)
+
+`restart-main-up.c` uses fixed ra0 GETFLAGS followed by one SETFLAGS preserving
+other flags. Socket/GET/already-UP refusal is NOT_SUBMITTED; SET or final-close
+errors are UNCERTAIN. No internal retry or readiness inference occurs.
+`restart-main-controller.c` retains the generation owner by pointer and marks
+`main_may_have_started` before any transport call. This monotonic fence disables
+pre-start profile restore even if Main later appears DOWN. NOT_SUBMITTED stays
+retained for explicit recovery because a foreign UP cannot authorize restore.
+
+WAIT/READY steps verify retained physical origin, journal-owned profile identity,
+profile credentials and a fresh exact physical rebind observation with a newer
+Main epoch. Once pinned, that epoch cannot change silently. UP success alone
+never sets READY; pending shutdown, foreign owner or zero future OPEN nonce
+refuse. READY is a software driver/configuration predicate only, not Main bridge,
+Guest, DHCP/client/RF acceptance. Actual journal/controller composition tests
+cover uncertain UP once, profile replacement with identical content, changed
+RELEASE, no pre-start restore after UP and epoch drift. Physical/UP/probe actors
+are injected. Runtime prep links both objects; scheduler remains unbound.

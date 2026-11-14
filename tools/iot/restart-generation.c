@@ -54,14 +54,14 @@ int wr_iot_restart_generation_begin(struct wr_iot_restart_generation *s)
 }
 int wr_iot_restart_generation_abort(struct wr_iot_restart_generation *s)
 {
- if(!s||s->owner!=getpid()||s->busy||!s->profile.active||
+ if(!s||s->owner!=getpid()||s->busy||s->main_may_have_started||!s->profile.active||
     s->phase<WR_RESTART_GEN_CAPTURED||s->phase>WR_RESTART_GEN_RECOVERING||
     !origin_current(&s->origin)||!wr_iot_restart_main_down())return 0;
  s->phase=WR_RESTART_GEN_RECOVERING;return 1;
 }
 static int generation_step(struct wr_iot_restart_generation *s)
 {
- if(!s->profile.active||!origin_current(&s->origin)||!wr_iot_restart_main_down())return 0;
+ if(s->main_may_have_started||!s->profile.active||!origin_current(&s->origin)||!wr_iot_restart_main_down())return 0;
  if(s->phase==WR_RESTART_GEN_CAPTURED){
   if(wr_iot_rc_shutdown.pending){s->phase=WR_RESTART_GEN_RECOVERING;return 0;}
   if(!s->origin.intent.reload){s->phase=WR_RESTART_GEN_GENERATED;return 0;}
@@ -72,7 +72,9 @@ static int generation_step(struct wr_iot_restart_generation *s)
   return 0;
  }
  if(s->phase==WR_RESTART_GEN_GENERATED||s->phase==WR_RESTART_GEN_VERIFIED){
-  if(!wr_iot_rc_shutdown.pending&&wr_iot_restart_profile_current(&s->origin.desired)&&
+  if(!wr_iot_rc_shutdown.pending&&
+     wr_iot_generated_matches(&s->profile.files.generated[0],s->profile.files.paths[0])&&
+     wr_iot_restart_profile_current(&s->origin.desired)&&
      origin_current(&s->origin)&&wr_iot_restart_main_down()){
    s->phase=WR_RESTART_GEN_VERIFIED;return 1;
   }
@@ -95,4 +97,9 @@ int wr_iot_restart_generation_step(struct wr_iot_restart_generation *s)
  int ok;
  if(!s||s->owner!=getpid()||s->busy||!wr_iot_rc_shutdown.active)return 0;
  s->busy=1;ok=generation_step(s);s->busy=0;return ok;
+}
+
+int wr_iot_restart_generation_origin_current(const struct wr_iot_restart_generation *s)
+{
+ return s&&s->owner==getpid()&&!s->busy&&s->profile.active&&origin_current(&s->origin);
 }

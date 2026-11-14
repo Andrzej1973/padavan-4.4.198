@@ -43,6 +43,9 @@ int main(int argc,char**argv){
   if(fault==0||fault==2){
    assert(wr_iot_restart_generation_step(&s)&&s.phase==WR_RESTART_GEN_VERIFIED&&s.profile.active);
    assert(wr_iot_restart_generation_step(&s)&&generator_calls==(fault==2?0:1));
+   s.main_may_have_started=1;
+   assert(!wr_iot_restart_generation_abort(&s)&&!wr_iot_restart_generation_step(&s)&&s.profile.active);
+   s.main_may_have_started=0; /* fixture restores pre-submission state only */
    assert(wr_iot_restart_generation_abort(&s));
   }
   for(unsigned i=0;i<4&&s.phase!=WR_RESTART_GEN_ROLLED_BACK;i++)assert(!wr_iot_restart_generation_step(&s));

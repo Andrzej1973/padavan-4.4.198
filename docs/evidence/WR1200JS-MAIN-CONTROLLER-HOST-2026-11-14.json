@@ -1,0 +1,37 @@
+{
+  "base": "bfa2d5545b176aec777f0cfbeaad380ef411ecc0",
+  "checks": [
+    "check-restart-main-controller.py PASS O2 ASan/UBSan injected generation/transport/probe",
+    "check-restart-generation.py PASS actual journal plus post-UP restoration fence",
+    "check-restart-main-up.py PASS syscall injection",
+    "check-restart-main-composition.py PASS actual generation/journal/controller with physical/UP/probe injected",
+    "prepared runtime session73712 exit0:21 copied TUs native C11",
+    "session79021 exit0: actual composition rejects same-content foreign inode;21 prepared TUs compile after generated-file gate",
+    "session3888 exit0: generation/controller/composition focused regression after file gate",
+    "session89858 exit0 final zero-nonce/pending/foreign-owner refusals and composition"
+  ],
+  "implementation": "local uncommitted restart-main-controller.c/h plus transport",
+  "behavior": "one UP, uncertain read-only probe, pinned new epoch, monotonic generation restore fence; exact retained physical origin rechecked before and after ready probe",
+  "runtime_linked": true,
+  "target_verified": false,
+  "runtime_verified": false,
+  "remaining": [
+    "full62 suite terminal result",
+    "Main bridge/Guest/services",
+    "post-UP recovery and baseline completion",
+    "scheduler",
+    "target and physical acceptance"
+  ],
+  "cleanup": {
+    "completed_log_bytes": 17236,
+    "log_retained": false,
+    "test_trees": "automatically removed"
+  },
+  "full_suite": {
+    "session": 76790,
+    "parts": 62,
+    "exit_code": 0,
+    "status": "PASS; final file-gate and refusal edits also checked by focused sessions3888/79021/89858",
+    "log_sha256": "c960100383360029570c16f40915155cacccbcbe48c66123808c5a719ee32ffc"
+  }
+}
