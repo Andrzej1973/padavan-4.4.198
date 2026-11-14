@@ -9,6 +9,7 @@ struct wr_iot_physical_rebind_probe {
  const struct pid *issuer;
  const void *main_device,*iot_device;
  struct wr_iot_physical_stop_request request;
- unsigned int active,accepted;
+ unsigned int active,accepted,spent;
+ unsigned char open_request_id[16];
 };
 #endif

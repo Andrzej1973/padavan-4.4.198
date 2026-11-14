@@ -1,0 +1,25 @@
+{
+  "scope": "One-use host handoff claim after accepted current-epoch observation",
+  "implementation": [
+    "accepted probe exact issuer/devices/original RELEASE required",
+    "fresh paired origin/Main/ra2 and exact observation epoch/serial/retired serial required",
+    "nonzero future OPEN request ID copied before marking spent",
+    "claim clears accepted and records spent",
+    "same physical transaction cannot begin observation again after claim",
+    "different valid future terminal transaction can reset claim state only through fresh admission"
+  ],
+  "checks": [
+    "strict O2 ASan/UBSan origin/probe fixture PASS zero OPEN ID, serial drift, duplicate claim and spent-transaction reprobe refusal",
+    "actual vendor CLOSED binding/observer fixture23807 PASS"
+  ],
+  "pending": [
+    "atomic binding with actual OPEN owner admission",
+    "claimed OPEN uncertainty/recovery and new transport",
+    "RC desired configuration resume",
+    "target/device acceptance"
+  ],
+  "claim_is_loaded_key_or_OPEN_acceptance": false,
+  "production_orchestration": false,
+  "runtime_verified": false,
+  "scratch": "Temporary native fixture trees auto-removed"
+}

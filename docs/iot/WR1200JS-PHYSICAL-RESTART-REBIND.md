@@ -122,3 +122,13 @@ terminal PID return while the probe is active. The types-only header is copied
 and hashed by both physical-stop installers. The observation functions and
 actual configuration readback are still not bound into a callable endpoint.
 No live probe may be discarded to bypass a failed ticket retirement.
+
+The accepted probe now supports a one-use host handoff claim for a nonzero future
+OPEN request ID. Claim revalidates exact issuer/devices/original RELEASE and
+paired identities, plus the exact current observation epoch/serial/retired serial
+and Main generation/token. It copies the ID, clears accepted and marks spent.
+Duplicate claim and reprobe of the same physical transaction refuse. A later
+valid different terminal transaction can start a fresh observation. This helper
+does not invoke OPEN or prove loaded keys. Final OPEN admission must claim under
+the same transition lock and retain the claimed ID for uncertain OPEN recovery;
+it must not reset spent merely because a call failed. That binding is pending.

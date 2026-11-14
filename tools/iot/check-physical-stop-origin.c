@@ -115,6 +115,19 @@ int main(void)
   if(fault==3)records[1].close_serial++;
   assert(wr_iot_physical_rebind_probe_finish(&probe,&t,terminal.owner,&q,&owner,&r,records,2,&device,&iot_device,1,fault==4?0:1)==(fault==0));
   assert(!probe.active&&!r.busy&&records[1].close_epoch==5);
+  if(!fault){
+   unsigned char open_id[16]={9},empty_id[16]={0};
+   assert(!wr_iot_physical_rebind_claim(&probe,&t,terminal.owner,&q,&owner,&r,records,2,&device,&iot_device,1,empty_id));
+   assert(probe.accepted&&!probe.spent);
+   r.serial++;r.retired_serial++;
+   assert(!wr_iot_physical_rebind_claim(&probe,&t,terminal.owner,&q,&owner,&r,records,2,&device,&iot_device,1,open_id));
+   r.serial--;r.retired_serial--;
+   assert(wr_iot_physical_rebind_claim(&probe,&t,terminal.owner,&q,&owner,&r,records,2,&device,&iot_device,1,open_id));
+   assert(probe.spent&&!probe.accepted&&probe.open_request_id[0]==9);
+   assert(!wr_iot_physical_rebind_claim(&probe,&t,terminal.owner,&q,&owner,&r,records,2,&device,&iot_device,1,open_id));
+   assert(!wr_iot_physical_rebind_probe_begin(&probe,&t,terminal.owner,&q,&owner,&r,records,2,&device,&iot_device,1));
+  }
+
   assert(!wr_iot_physical_rebind_probe_finish(&probe,&t,terminal.owner,&q,&owner,&r,records,2,&device,&iot_device,1,1));
  }
  return 0;
