@@ -6,6 +6,7 @@ ns={'__file__':str(here/'check-physical-stop-candidate.py')}
 source=(here/'check-physical-stop-candidate.py').read_text()
 exec(compile(source[:source.index("with tempfile.TemporaryDirectory(")],'<reviewed fixture setup>','exec'),ns)
 files=dict(ns['files'])
+files['include/driver-api-closed-entry.inc']='#define WR_IOT_RA2_NO_HOST_MODE 1\n'
 files['include/wr-iot-reset-admission.inc']=(here/'reset-admission.inc').read_text()
 files['os/linux/rt_main_dev.c']=(here/'main-close-checked.inc').read_text()
 files['include/main-open-recovery-owner.h']=(here/'main-open-recovery-owner.h').read_text()
@@ -16,11 +17,15 @@ with tempfile.TemporaryDirectory(prefix='wr-stop-deferred-installer-') as d:
  hashes=lambda:{n:hashlib.sha256((src/n).read_bytes()).hexdigest() for n in files}
  before=hashes()
  manifest={'production_installed':False,'merged_driver_sha256':before,
- 'candidate_driver_sha256':dict(before),'main_physical_close_delegation_layer':{'physical_close_delegated':True}}
+ 'candidate_driver_sha256':dict(before),'main_physical_close_delegation_layer':{'physical_close_delegated':True},'ra2_no_host_experiment':{}}
  src.with_name(src.name+'.manifest.json').write_text(json.dumps(manifest))
  def run(inp,out,ok):
   r=subprocess.run([sys.executable,'-B',str(here/'prepare-physical-stop-deferred-candidate.py'),str(inp),str(out)],capture_output=True,text=True)
   assert (r.returncode==0)==ok,r.stderr
+ missing=dict(manifest);missing.pop('ra2_no_host_experiment')
+ src.with_name(src.name+'.manifest.json').write_text(json.dumps(missing))
+ run(src,root/'missing-no-host',False);assert not (root/'missing-no-host').exists()
+ src.with_name(src.name+'.manifest.json').write_text(json.dumps(manifest))
  out=root/'prepared';run(src,out,True)
  assert hashes()==before
  result=json.loads(out.with_name(out.name+'.manifest.json').read_text())

@@ -1,0 +1,15 @@
+{
+  "scope": "dormant actual adapter ARM admission source",
+  "implementation": "BcnRingLock producer snapshot then disjoint transition-lock released-ra2-CLOSE verification and Main ARM identity admission",
+  "checks": [
+    "correct released CLOSE -> ARM with actual adapter field fixture",
+    "seven invalid context cases and duplicate refuse",
+    "18part host suite96844 exit0; latest installer rerun PASS",
+    "no-host manifest missing refused",
+    "generated include real newlines and shell syntax checked"
+  ],
+  "optional_scope_correction": "move dormant layer after prepare-ra2-no-host-experiment: initial-idle storage/retirement anchors only exist there",
+  "endpoint_installed": false,
+  "target_compiled": false,
+  "runtime_verified": false
+}

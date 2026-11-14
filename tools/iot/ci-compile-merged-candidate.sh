@@ -154,8 +154,6 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   python3 tools/iot/prepare-raw-recovery-free-fence.py "$merged" "$candidate/raw-recovery-free-fenced"
   merged="$candidate/raw-recovery-free-fenced"
   python3 tools/iot/check-raw-recovery-free-fence.py "$merged"
-  python3 tools/iot/prepare-physical-stop-deferred-candidate.py "$merged" "$candidate/physical-stop-deferred"
-  merged="$candidate/physical-stop-deferred"
   gcc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
     -Itools/iot tools/iot/check-pci-netdev-preclose.c -o "$results/check-pci-netdev-preclose"
   "$results/check-pci-netdev-preclose"
@@ -617,6 +615,13 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   "$results/ra2-close-release-check" > "$results/ra2-close-release-reference.txt"
   experiment="$RUNNER_TEMP/wr1200js-ra2-no-host-experiment"
   python3 tools/iot/prepare-ra2-no-host-experiment.py "$merged" "$experiment"
+  # ARM storage relies on the no-host experiment's idle-probe retirement gate.
+  if ! grep -qx '# CONFIG_PM is not set' "$kernel/.config"; then
+    echo '::error::Physical-stop ARM candidate requires CONFIG_PM=n until PCI suspend lifetime binding is verified' >&2
+    exit 1
+  fi
+  python3 tools/iot/prepare-physical-stop-deferred-candidate.py "$experiment" "$candidate/physical-stop-deferred"
+  experiment="$candidate/physical-stop-deferred"
   cp "$experiment.manifest.json" "$results/ra2-no-host-source-manifest.json"
   python3 tools/iot/check-ra2-beacon-no-host-status.py "$driver/mac/mt_mac.c" \
     > "$results/ra2-no-host-policy.txt"

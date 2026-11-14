@@ -1,0 +1,22 @@
+{
+  "source": "pinned c25283e mt76x3 os/linux/pci_main_dev.c",
+  "source_sha256": "ea7ec584066b1f9afb1586aca5144d9dca2abbdf6bcf3de84f7f3cc774d0138e",
+  "finding": "rt_pci_suspend is CONFIG_PM guarded; IfNum>0 barrier does not cover zero-count path before unconditional pci_disable_device",
+  "board_config": "# CONFIG_PM is not set",
+  "target_evidence": {
+    "run": 43539968840,
+    "artifact": 14092203453,
+    "configs": [
+      "kernel.config",
+      "psm-diagnostics/kernel.config",
+      "ra2-no-host-module/kernel.config",
+      "reload-feature/kernel.config",
+      "wsc-feature/kernel.config"
+    ],
+    "all": "# CONFIG_PM is not set"
+  },
+  "local_gate": "optional dormant ARM candidate refuses enabled/missing CONFIG_PM disablement",
+  "checks": "exact shell gate disabled accepted, enabled/missing rejected; bash syntax PASS",
+  "limits": "PM lifecycle not implemented; target evidence covers c3a281 only, new builds must pass gate",
+  "router_actions": false
+}

@@ -13,35 +13,38 @@ if out.exists() or src==out or src in out.parents or out in src.parents:
 if any(f.is_symlink() for f in src.rglob('*')):p.error('symlink input refused')
 m=json.loads(src.with_name(src.name+'.manifest.json').read_text())
 hashes=lambda root:{str(f.relative_to(root)):hashlib.sha256(f.read_bytes()).hexdigest() for f in root.rglob('*') if f.is_file()}
-if m.get('production_installed') is not False or hashes(src)!=m.get('merged_driver_sha256') or 'main_physical_close_delegation_layer' not in m:
+if m.get('production_installed') is not False or hashes(src)!=m.get('merged_driver_sha256') or 'main_physical_close_delegation_layer' not in m or 'ra2_no_host_experiment' not in m:
  p.error('intact delegated candidate required')
 here=Path(__file__).resolve().parent
 helpers=runpy.run_path(str(here/'physical-stop-executor.py'))
 main=runpy.run_path(str(here/'physical-stop-main-binding.py'))
 paths=('include/rtmp.h','common/rtmp_init.c','os/linux/rt_main_dev.c',
  'include/wr-iot-peer-open-dispatch.inc','include/wr-iot-mbss-recovery-work.inc',
- 'include/wr-iot-mbss-recovery-join.inc','include/wr-iot-reset-admission.inc')
+ 'include/wr-iot-mbss-recovery-join.inc','include/wr-iot-reset-admission.inc','include/driver-api-closed-entry.inc')
 texts={n:(src/n).read_text() for n in paths}
 try:
  texts[paths[0]],texts[paths[1]]=helpers['compose_adapter'](texts[paths[0]],texts[paths[1]])
  texts[paths[2]]=main['compose'](texts[paths[2]])
  texts[paths[6]]=main['compose_reset'](texts[paths[6]])
+ if texts[paths[7]].count('#define WR_IOT_RA2_NO_HOST_MODE 1')!=1:
+  raise ValueError('verified no-host dispatch definition required')
+ texts[paths[7]]+='\n#include "physical-stop-arm-admission.inc"\n' 
  texts[paths[3]]=helpers['compose_open_dispatch'](texts[paths[3]])
  texts[paths[4]],texts[paths[5]]=helpers['compose_retirement'](texts[paths[4]],texts[paths[5]])
 except ValueError as e:p.error(str(e))
-for n in ('physical-stop-record.h','physical-stop-lifetime.h'):
+for n in ('physical-stop-record.h','physical-stop-lifetime.h','physical-stop-prior-close.h','physical-stop-wire.h','physical-stop-arm-admission.inc'):
  if (src/'include'/n).exists():p.error('already staged '+n)
 shutil.copytree(src,out)
 for n,text in texts.items():(out/n).write_text(text)
-for n in ('physical-stop-record.h','physical-stop-lifetime.h'):
- shutil.copyfile(here/n,out/'include'/n)
+for n in ('physical-stop-record.h','physical-stop-lifetime.h','physical-stop-prior-close.h','physical-stop-wire.h','physical-stop-arm-admission.inc'):
+ (out/'include'/n).write_text((here/n).read_text().replace('#include \"beacon-producer-gate.h\"', '#include \"wr-iot-beacon-producer-gate.h\"'))
 m['merged_driver_sha256']=hashes(out)
 if 'candidate_driver_sha256' in m:
  for n in paths:m['candidate_driver_sha256'][n]=m['merged_driver_sha256'][n]
- for n in ('physical-stop-record.h','physical-stop-lifetime.h'):
+ for n in ('physical-stop-record.h','physical-stop-lifetime.h','physical-stop-prior-close.h','physical-stop-wire.h','physical-stop-arm-admission.inc'):
   m['candidate_driver_sha256']['include/'+n]=m['merged_driver_sha256']['include/'+n]
 m['physical_stop_deferred_layer']={'dormant':True,'main_worker_hook':True,
- 'legacy_executor_modified':False,'endpoint_installed':False,
+ 'legacy_executor_modified':False,'endpoint_installed':False,'arm_admission_source_staged':True,
  'reset_arm_gate_staged':True,'reset_admission_complete':False,'target_compiled':False,'runtime_verified':False}
 m.update(production_installed=False,target_compiled=False,runtime_verified=False)
 out.with_name(out.name+'.manifest.json').write_text(json.dumps(m,indent=2)+'\n')
