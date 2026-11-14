@@ -78,6 +78,17 @@ restart=restart.replace(stop_anchor,stop_anchor+'''\n#if defined(BOARD_WR1200JS)
 #endif''',1)
 s=s[:begin]+restart+s[end:]
 
+# Preserve other boards; any failed 2.4 GHz down command fences reload/open.
+for interface in ('IFNAME_2G_APCLI','IFNAME_2G_WDS3','IFNAME_2G_WDS2','IFNAME_2G_WDS1','IFNAME_2G_WDS0','IFNAME_2G_GUEST','IFNAME_2G_MAIN'):
+ call='wif_control('+interface+', 0);'
+ begin=s.index(anchor);finish=s.index(restart_anchor,begin)
+ fragment=s[begin:finish]
+ if fragment.count(call)!=1:raise SystemExit('Radio down call changed: '+interface)
+ replacement='#if defined(BOARD_WR1200JS)\n if(wif_control('+interface+', 0)!=0){wr_iot_last_stop_result=0;return;}\n#else\n '+call+'\n#endif'
+ fragment=fragment.replace(call,replacement,1)
+ s=s[:begin]+fragment+s[finish:]
+
+
 # Keep every early refusal inside one balanced physical-call fence. The nested
 # stop-all call obtains a LIFO token from the same process-context outer fence.
 for signature,label,is_stop in ((anchor,'wr_iot_stop_done',True),(restart_anchor,'wr_iot_restart_done',False)):

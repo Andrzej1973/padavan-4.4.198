@@ -45,9 +45,9 @@ int wr_iot_activation_prepare_radio_stop(void)
   * owner's context and isolation without replaying or synthesizing OFF. */
  if(backend.phase!=WR_IOT_OWNER_IDLE&&backend.phase!=WR_IOT_OWNER_INITIAL_OFF)return 0;
  guard=wr_iot_service_guard_enter(1);if(guard!=1)return 0;
- if(backend.phase==WR_IOT_OWNER_INITIAL_OFF){
-  ok=wr_iot_initial_off_observed(&backend.initial_off);goto done;
- }
+ /* A physical restart may replace the adapter after a previous INITIAL_OFF.
+  * Capture a new never-opened proof each time. The old public OFF result keeps
+  * its own identity and must not become a lease for the replacement adapter. */
  if(clock_gettime(CLOCK_MONOTONIC,&now)||now.tv_sec<=0||
     wr_iot_precreated_entropy(NULL,random,sizeof(random))!=(int)sizeof(random))goto done;
  for(unsigned i=0;i<16;i++){

@@ -13,14 +13,14 @@ def function(anchor):
  return s[start:end]
 helper=function('static int wr_iot_quiesce(void)')
 stop=function('void \nstop_wifi_all_rt(void)')
-assert stop.index('wr_iot_last_stop_result=wr_iot_quiesce();')<stop.index('wif_control(IFNAME_2G_APCLI, 0);')
+assert stop.index('wr_iot_last_stop_result=wr_iot_quiesce();')<stop.index('wif_control(IFNAME_2G_APCLI, 0)')
 restart=function('void\nrestart_wifi_rt(int radio_on, int need_reload_conf)')
 assert restart.index('if (!wr_iot_quiesce()) goto wr_iot_restart_done;')<restart.index('stop_8021x_rt();')<restart.index('gen_ralink_config_2g(0);')
 assert restart.index('stop_wifi_all_rt();')<restart.index('if (!wr_iot_last_stop_result) goto wr_iot_restart_done;')<restart.index('gen_ralink_config_2g(0);')
 prefix=r"""#include <assert.h>
 #include <string.h>
 #include <stdio.h>
-static int answer,controller_calls,calls,leds,refuse_second;
+static int answer,controller_calls,calls,leds,refuse_second,fail_down;
 static int auth_stops,auth_starts,starts,profiles,writes,isolations,wan_checks,vga_checks,iapp;
 static const char *names[16];
 #define IFNAME_2G_APCLI "apcli0"
@@ -34,7 +34,7 @@ static const char *names[16];
 #define LED_OFF 0
 #define LED_ON 1
 #define LED_CONTROL(a,b) ((void)(a),(void)(b),leds++)
-static void wif_control(const char *name,int up){assert(!up&&calls<16);names[calls++]=name;}
+static int wif_control(const char *name,int up){assert(!up&&calls<16);names[calls++]=name;return fail_down==calls?-1:0;}
 #if defined(BOARD_WR1200JS)
 static int wr_iot_last_stop_result=1;
 #define nvram_match(...) forbidden_nvram_shortcut
@@ -94,6 +94,13 @@ int main(void){
  assert(controller_calls==2&&auth_stops==1&&!calls&&!leds&&!auth_starts&&!starts&&!profiles&&!writes&&!isolations&&!wan_checks&&!vga_checks&&!iapp);
 #endif
 #if defined(BOARD_WR1200JS)
+ for(int failure=1;failure<=7;failure++){
+  reset_counts();answer=1;refuse_second=0;fail_down=failure;
+  restart_wifi_rt(1,1);
+  assert(calls==failure&&!wr_iot_last_stop_result&&!profiles&&!writes&&!starts&&!auth_starts);
+  assert(!wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.pending);
+ }
+ fail_down=0;
  assert(!wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.pending);
  struct sigaction action={0};action.sa_handler=fence_signal;sigemptyset(&action.sa_mask);
  assert(!sigaction(SIGTERM,&action,NULL));

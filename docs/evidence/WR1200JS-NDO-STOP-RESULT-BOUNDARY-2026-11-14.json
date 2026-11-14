@@ -1,0 +1,20 @@
+{
+  "sdk_pin": "c25283e915a2a00a763774dd255b14aff997285e",
+  "source": "trunk/linux-4.4.x/net/core/dev.c",
+  "lines": [
+    1417,
+    1418,
+    1420,
+    1425
+  ],
+  "observed": "__dev_close_many calls ops->ndo_stop(dev) without checking result, clears IFF_UP, returns0",
+  "consequence": "Successful interface DOWN ioctl and IFF_UP clear are not proof that vendor RTMPDrvClose completed",
+  "existing_vendor_status": "prepare-legacy-close-result.py propagates within vendor wrappers but does not change Linux net/core/dev.c",
+  "required_design": "A separate exact driver-side physical-close completion observation tied to retained adapter identity/attempt; missing, stale or failed observation prevents RC reload/open",
+  "do_not_change": [
+    "kernel generic netdev state machines",
+    "firmware protocol",
+    "ACK reuse protection"
+  ],
+  "runtime_verified": false
+}

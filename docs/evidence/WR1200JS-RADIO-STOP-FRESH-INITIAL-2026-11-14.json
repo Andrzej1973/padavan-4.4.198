@@ -1,0 +1,20 @@
+{
+  "issue": "Retained INITIAL_OFF epoch cannot be a physical-restart admission lease after adapter replacement",
+  "fix": "Both IDLE and INITIAL_OFF take a fresh entropy-bound double never-opened observation on each call; public original OFF receipt is untouched",
+  "test": "PASS actual backend/mailbox/owner ASan/UBSan",
+  "assertions": [
+    "modified cached epoch does not authorize callback; two new driver queries required",
+    "cached public OFF epoch not rewritten",
+    "entropy failure still refuses INITIAL_OFF",
+    "all post-OPEN states refuse without initial query"
+  ],
+  "sources": {
+    "tools/iot/rc-backend.c": "377633dcd7df5292975a4995d7ddfd54725ae5eda28a12f6540111329e95a3e5",
+    "tools/iot/check-rc-backend-composition.py": "1035e2e497c5284ee80d4800572ce119a68a05adce9a5ce1c49f62897b57be9b"
+  },
+  "target": "not yet compiled for MIPS",
+  "device": "not tested",
+  "remaining": "post-OPEN physical restart remains unimplemented/refused",
+  "prepared_runtime": "PASS exact RC/HTTP/control/runtime source and board selection",
+  "prepared_backend_native_TU": "PASS GNU11 -Wall -Wextra -Werror O2"
+}

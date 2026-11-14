@@ -54,7 +54,11 @@ int main(void){
  assert(wr_iot_activation_owner_execute(&backend,&initial_request,1,1,0)==WR_IOT_RESULT_APPLIED);
  assert(backend.phase==WR_IOT_OWNER_INITIAL_OFF&&wr_iot_activation_prepare_radio_stop());
  backend.initial_off.idle.epoch++;
- assert(!wr_iot_activation_prepare_radio_stop());backend.initial_off.idle.epoch--;
+ unsigned refreshed=idle_reads;
+ assert(wr_iot_activation_prepare_radio_stop()&&idle_reads==refreshed+2);
+ assert(backend.initial_off.idle.epoch!=1); /* Old receipt not overwritten. */
+ backend.initial_off.idle.epoch--;
+ entropy_fail=1;assert(!wr_iot_activation_prepare_radio_stop());entropy_fail=0;
  memset(&backend,0,sizeof(backend)); /* Initial OFF owns no resources. */
 
  unsigned before=idle_reads;
