@@ -92,3 +92,19 @@ A real blocked-SIGTERM fixture covers stale CLOSE, existing session and failed
 mask restore, then successful cleanup with no AUX/ARM/Main calls. Physical/auth,
 scheduler, finish/cancel/quiesce and native checks pass separately. Target and
 device evidence remain pending; stock entrypoints are still unbound.
+
+
+## Per-BSS multicast transport candidate
+
+Pinned netutils.c::brport_set_m2u sets both multicast_fast_leave and
+multicast_to_unicast. The new restart-multicast transport supports only ra0/ra1,
+requires service guard and br0 membership, compares ifindex before/after, and
+reads back both exact0/1 values. It refuses absent attributes rather than creating
+files. A failed apply can partially update attributes: the caller must record
+attempt before submission and retain uncertainty, never blindly replay.
+Actual regular-file read/write tests pass with guard/master/ifindex actors;
+ra2, foreign master, guard loss, index drift and missing attribute are covered.
+Runtime preparation compiles/copies it, but Main/Guest controllers do not yet
+invoke it. Saved IgmpSnEnable and USE_IGMP_SNOOP gating must be added at the owning
+policy layer before claiming stock parity. Host/native evidence does not prove
+kernel sysfs or physical multicast operation.

@@ -1,0 +1,22 @@
+{
+  "scope": "ra0/ra1 multicast transport staged in runtime preparation, not controller-bound",
+  "checks": {
+    "actual_file_IO_ASan_UBSan": "PASS",
+    "native_preparation": "PASS;75089 exit0"
+  },
+  "source_sha256": {
+    "tools/iot/restart-multicast.c": "dc740bd70a1d1a1b1c3d7e0f20a39ecd6930f181b9f487b16575724183f4a91f",
+    "tools/iot/restart-multicast.h": "8e2f68e548c34204cb0dce3621c90710a380dbdbbd6dbf8600d8943a6b201ce9",
+    "tools/iot/check-restart-multicast.py": "bef3f86fff290d612f9d64f9a222d548c3a116ab418e11b428a4400acd2afb8f"
+  },
+  "remaining": [
+    "IgmpSnEnable saved policy and USE_IGMP_SNOOP gating",
+    "Main/Guest controller once-only submission",
+    "MIPS/kernel/device verification"
+  ],
+  "completed_scratch_removed": {
+    "path": "/tmp/wr-multicast-native.log",
+    "bytes": 307,
+    "sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a"
+  }
+}
