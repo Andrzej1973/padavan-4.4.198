@@ -1,0 +1,22 @@
+{
+  "scope": "dormant combined transaction provider and ioctl transport source; dispatch not enabled",
+  "implementation": [
+    "ARM admits/replaces terminal, acquires persistent pending refs, publishes record; failures drop extras then abort unchanged unpublished state",
+    "duplicate ARM uses exact QUERY record without extra references",
+    "QUERY authenticates exact request before checked software completion publication",
+    "CANCEL/RELEASE use existing primitives and durable terminal reply before active-lifetime requirement"
+  ],
+  "checks": [
+    "actual provider fixture20279 PASS ARM/lost reply/QUERY/RELEASE/retry",
+    "latest fixture61588 PASS additionally try_module_get failure -> ENOMEM, baseline refs and inactive lifetime",
+    "installer snippet composition PASS",
+    "strict C11 -Werror O2 ASan UBSan"
+  ],
+  "target_compiled": false,
+  "runtime_verified": false,
+  "remaining": [
+    "full SDK target source compilation",
+    "ioctl opcode/dispatch and RC client integration",
+    "physical lifetime and hardware/device acceptance"
+  ]
+}
