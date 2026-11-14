@@ -1,0 +1,42 @@
+{
+  "date": "2026-11-14",
+  "source_base": "b9a554ab45a63beeaa427932aab682e0cdd25d13",
+  "implementation": "tools/iot/rebind-runner.c",
+  "host_checks": {
+    "check-rebind-runner.py": "PASS actual runner success plus13 faults; adapters injected",
+    "check-rebind-runner-close.py": "PASS actual runner/CLOSE controller/closed rollback; transport/resources injected",
+    "prepared_runtime": "PASS session26050 exit0:13 actual copied TUs strict native C11",
+    "physical_stop_suite": {
+      "session": 43703,
+      "status": "PASS",
+      "parts": 50,
+      "exit_code": 0,
+      "log_sha256": "b9569a0dc6d89deed6c2793c04488b54d05a43423ad6145d094393a90d01a1e0"
+    }
+  },
+  "boundaries": [
+    "exact retained physical RELEASE and fresh new epoch",
+    "validated copied request and immutable continuation id/created",
+    "single OPEN submission and fresh CURRENT before commit",
+    "pre-OPEN rollback versus post-OPEN CLOSE rollback",
+    "DNS uncertainty retained without replay",
+    "confirmed DNS commit failure uses normal OFF before baseline restoration",
+    "outer physical restart guards remain caller-owned"
+  ],
+  "runtime_linked": true,
+  "rc_scheduler_bound": false,
+  "target_verified": false,
+  "runtime_verified": false,
+  "remaining": [
+    "quiesce ACTIVE and retain desired ON request across physical stop",
+    "expose exact retained physical RELEASE to resume owner",
+    "checked Main startup without repeating physical stop",
+    "RC wait-loop/entrypoint orchestration",
+    "target compilation and physical acceptance"
+  ],
+  "cleanup": {
+    "test_trees": "TemporaryDirectory automatic removal",
+    "completed_log_bytes": 13588,
+    "completed_log_retained": false
+  }
+}

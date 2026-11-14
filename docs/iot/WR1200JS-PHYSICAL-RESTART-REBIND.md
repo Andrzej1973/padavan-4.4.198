@@ -284,3 +284,26 @@ symbol gates. Full48 host suite passed before the linkage edit; the changed
 runtime preparer separately passed12 native translation units afterward.
 Transport/resources are injected; no MIPS or physical-runtime claim. Restart
 entrypoint orchestration remains false. Scratch test trees auto-removed.
+
+### Retained resume runner — 2026-11-14
+
+`rebind-runner.c` composes new-epoch admission/staging/network preparation,
+exact one-use OPEN, fresh CURRENT, commit, pre-OPEN rollback and post-OPEN CLOSE
+rollback. It validates and copies the ON request and retains ID/created and
+contexts across bounded step calls; foreign continuations and busy callers do
+not progress it. OPEN includes existing bridge/address/services/firewall and
+staged-settings checks, with fresh physical rebind observation. The transient
+credential envelope is wiped after submission. A successful ioctl alone does
+not authorize COMMIT. No old CLOSE epoch is rewritten.
+
+DNS commit uncertainty retains recovery ownership without replay. Failure
+before commit uses explicit CLOSE then startup rollback; confirmed commit
+failure uses existing normal OFF before restoring the startup baseline. The
+caller must retain the outer physical restart guards throughout. Native
+failure-injected tests cover success/13 faults and actual runner -> CLOSE
+controller -> closed rollback composition. Normal OFF component behavior is
+separately checked by its existing tests; this runner test injects that adapter.
+Experimental runtime linkage and13 prepared native TUs pass. Full target and
+physical verification remain required; RC scheduler/physical restart entrypoints
+are still unbound. Next integrate ACTIVE quiesce/desired retention, exact
+physical RELEASE transfer, checked Main startup and the retained resume owner.
