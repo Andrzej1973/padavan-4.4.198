@@ -375,3 +375,24 @@ retained isolation failure, desired preservation and new-epoch CLOSED.
 Ordinary ON after rebind OFF and repeated physical-resume cycles still require
 explicit implementation; they currently refuse without initial-idle fallback.
 Checked Main startup, scheduler, target build and physical acceptance remain.
+
+### Ordinary ON after rebind OFF — 2026-11-14
+
+RC `rebind_reopen` accepts a fresh ON only after a fully observed rebind OFF.
+It obtains an exact pointer-free CLOSED witness in the new epoch and verifies
+it again through the existing reopen predicate. Dormant legacy state must be
+completed/unowned or empty. No live runner, stop or snapshot is copied: the
+ordinary runner begins directly at its final backend address. Rebind routing
+is retired only after this new runner has claimed its context. Pre-claim failure
+keeps the source OFF owner; private quiesce still works after dormant legacy
+state has been discarded.
+
+The ordinary path thereafter uses the existing CLOSED-reopen/normal OFF
+architecture. It never reuses initial-idle admission or the physical one-use
+rebind claim. The native RC composition checks invalid mode, CLOSED serial
+drift, stable handoff, ACTIVE status and a subsequent public OFF with new OPEN
+token/CLOSED serial while the epoch stays unchanged. Physical rebind probe and
+initial-idle counters remain unchanged. Network and driver actors are injected;
+this does not prove device association or RF behavior. Direct repeated physical
+resume without this ordinary handoff remains separate unfinished work, along
+with checked Main startup, scheduler, target and physical verification.

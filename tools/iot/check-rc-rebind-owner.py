@@ -64,9 +64,9 @@ int main(void){
  assert(wr_iot_rc_backend_observed(&result)&&wr_iot_rc_backend_closed(&receipt)&&receipt.close_serial==observed_serial);
  struct wr_iot_rc_quiesce already={0};assert(wr_iot_rc_quiesce_begin(&already,&off)&&already.complete&&!already.resume_needed);
  observed_serial++;assert(!wr_iot_rc_backend_closed(&receipt)&&!receipt.close_serial);observed_serial--;
- assert(wr_iot_activation_execute(&on)==WR_IOT_RESULT_REJECTED); /* Ordinary reopen remains explicit follow-up, no false initial-idle fallback. */
+ assert(wr_iot_activation_execute(&on)==WR_IOT_RESULT_REJECTED); /* Stale ON ID must remain refused; fresh re-ON is checked separately. */
  assert(submits==1&&closes==1&&progresses==1&&releases==1);
- puts("PASS actual RC rebind routing/owner/runner/admission/commit/OFF/observer: old tuple mismatch refused, stable owner, CURRENT active status, private quiesce and public continuation routed to same runner, guard retention, desired settings survive OFF, new-epoch CLOSED; network/driver and old OFF provenance injected; ordinary re-ON pending");
+ puts("PASS actual RC rebind routing/owner/runner/admission/commit/OFF/observer: old tuple mismatch refused, stable owner, CURRENT active status, private quiesce and public continuation routed to same runner, guard retention, desired settings survive OFF, new-epoch CLOSED; network/driver and old OFF provenance injected; stale ON refused; fresh reopen covered separately");
 }
 '''
 # New OPEN nonce is3; existing fixed transport fixture uses1. Validate the new

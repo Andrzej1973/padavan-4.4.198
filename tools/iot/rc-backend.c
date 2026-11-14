@@ -11,6 +11,51 @@
 #include "precreated-entropy.h"
 static struct wr_iot_activation_owner backend;
 static struct wr_iot_rebind_owner rebind;
+/* Only fully completed OFF contexts may retire. The old legacy OFF is
+ * dormant provenance, never copied; new runner starts at its final address. */
+static enum wr_iot_result_state rebind_reopen(const struct wr_iot_control_request *request,
+ const struct wr_iot_rc_mode *mode)
+{
+ struct wr_iot_control_result result={0};
+ struct wr_iot_driver_closed_result closed={0};
+ struct wr_iot_reopen_witness witness={0};int admitted;
+ if(rebind.owner!=getpid()||rebind.busy||rebind.phase!=WR_REBIND_OWNER_OFF||
+    wr_iot_rc_shutdown.pending||request->request.enabled!=1||!request->created||
+    !memchr(request->id,0,sizeof(request->id))||!wr_iot_control_id(request->id)||
+    !strcmp(request->id,rebind.start.input.id)||!strcmp(request->id,rebind.stop.id)||
+    request->created<rebind.start.input.created||request->created<rebind.stop.created)
+  return WR_IOT_RESULT_REJECTED;
+ if(backend.busy||
+    !((!backend.owner&&backend.phase==WR_IOT_OWNER_IDLE&&!backend.start.owner&&!backend.stop.owner)||
+      (backend.owner==getpid()&&backend.phase==WR_IOT_OWNER_OFF&&
+       backend.start.owner==getpid()&&backend.start.phase==WR_IOT_RUN_STOPPED&&
+       !backend.start.busy&&backend.stop.owner==getpid()&&!backend.stop.busy&&backend.stop.complete&&
+       backend.stop.active==&backend.start&&backend.stop.stop.phase==WR_IOT_STOP_COMPLETE&&
+       backend.stop.stop.close.phase==WR_IOT_CLOSE_OWNER_RELEASED))||
+    backend.start.admission.snapshot.active||backend.start.admission.snapshot.token||
+    backend.stop.stop.guard||backend.stop.stop.disable.services.settings.active||
+    backend.stop.stop.disable.services.settings.token||backend.stop.stop.disable.radio.active||
+    backend.stop.stop.disable.radio.files.count||
+    rebind.stop.stop.disable.radio.active||rebind.stop.stop.disable.radio.files.count)
+  return WR_IOT_RESULT_RECOVERY;
+ memcpy(result.id,rebind.stop.id,sizeof(result.id));result.created=rebind.stop.created;
+ result.state=WR_IOT_RESULT_APPLIED;
+ if(!wr_iot_rebind_owner_closed(&rebind,&result,&closed))return WR_IOT_RESULT_RECOVERY;
+ witness.owner=getpid();witness.valid=1;witness.attempt=rebind.start.open.attempt;
+ witness.open_token=closed.open_token;witness.close_serial=closed.close_serial;
+ if(!wr_iot_reopen_witness_current(&witness))return WR_IOT_RESULT_RECOVERY;
+ /* Both prior contexts are now completed and unowned. Do not copy either
+  * runner/stop/snapshot. Keep rebind routing until the new runner claims. */
+ memset(&backend,0,sizeof(backend));
+ admitted=wr_iot_start_runner_begin_reopen(&backend.start,request,
+  mode->router,mode->radio,mode->mode,&witness);
+ if(!backend.start.owner)return WR_IOT_RESULT_REJECTED;
+ backend.owner=getpid();
+ backend.phase=backend.start.phase==WR_IOT_RUN_REJECTED?WR_IOT_OWNER_REJECTED:WR_IOT_OWNER_START;
+ memset(&rebind,0,sizeof(rebind));
+ return !admitted&&backend.phase==WR_IOT_OWNER_REJECTED?
+  WR_IOT_RESULT_REJECTED:WR_IOT_RESULT_RECOVERY;
+}
 enum wr_iot_result_state wr_iot_activation_execute(const struct wr_iot_control_request *request)
 {
  struct wr_iot_rc_mode mode={0};enum wr_iot_result_state result;
@@ -26,7 +71,9 @@ enum wr_iot_result_state wr_iot_activation_execute(const struct wr_iot_control_r
  if(request->request.enabled==1&&wr_iot_rc_mode_read(&mode)!=1){
   wr_iot_service_guard_leave(guard);return WR_IOT_RESULT_REJECTED;
  }
- result=rebind.owner?wr_iot_rebind_owner_execute(&rebind,request):
+ if(rebind.owner&&rebind.phase==WR_REBIND_OWNER_OFF&&request->request.enabled==1)
+  result=rebind_reopen(request,&mode);
+ else result=rebind.owner?wr_iot_rebind_owner_execute(&rebind,request):
   wr_iot_activation_owner_execute(&backend,request,mode.router,mode.radio,mode.mode);
  wr_iot_service_guard_leave(guard);return result;
 }
@@ -91,7 +138,7 @@ int wr_iot_rc_quiesce_begin(struct wr_iot_rc_quiesce *s,
  int guard,accepted=0;
  if(!s||!off||s->owner||s->active||s->complete||s->busy||s->resume_needed||
     !wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||backend.busy||
-    backend.owner!=getpid()||off->request.enabled!=0||!off->created||
+    (rebind.owner?rebind.owner:backend.owner)!=getpid()||off->request.enabled!=0||!off->created||
     !memchr(off->id,0,sizeof(off->id))||!wr_iot_control_id(off->id))return 0;
  guard=wr_iot_service_guard_enter(1);if(guard!=1)return 0;
  if(rebind.owner){
@@ -143,7 +190,7 @@ int wr_iot_rc_quiesce_advance(struct wr_iot_rc_quiesce *s,
  if(!out)return 0;
  memset(out,0,sizeof(*out));
  if(!s||s->owner!=getpid()||s->busy||!wr_iot_rc_shutdown.active||
-    backend.owner!=getpid()||backend.busy||!s->created||
+    (rebind.owner?rebind.owner:backend.owner)!=getpid()||backend.busy||!s->created||
     !memchr(s->id,0,sizeof(s->id))||!wr_iot_control_id(s->id))return 0;
  if((!s->active&&!s->complete)||
     strcmp(s->id,rebind.owner?rebind.stop.id:backend.stop.id)||

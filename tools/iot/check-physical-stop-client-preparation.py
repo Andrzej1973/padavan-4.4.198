@@ -21,7 +21,7 @@ with tempfile.TemporaryDirectory(prefix='wr-stop-client-prepared-') as d:
  assert manifest['physical_stop_private_quiesce_linked']
  assert manifest['physical_stop_transport_linked'] and not manifest['physical_stop_rc_orchestration']
  assert manifest['physical_stop_wait_continuation_bound'] and not manifest['physical_stop_rc_entrypoints_bound']
- assert manifest['rebind_backend_routing_linked']
+ assert manifest['rebind_backend_routing_linked'] and manifest['rebind_off_reopen_handoff']
  assert manifest['rebind_active_off_observer_linked']
  assert manifest['rebind_close_helpers_linked'] and manifest['rebind_runner_linked']
  assert not manifest['physical_stop_restart_resume_bound'] and manifest['rebind_network_helpers_linked']
