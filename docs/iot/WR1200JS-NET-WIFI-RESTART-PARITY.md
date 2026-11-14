@@ -62,3 +62,17 @@ injected. It adds no sleep or polling loop; the existing doSystem command itself
 is synchronous, so hard command-duration bounds are not established. Name-based
 semantics match stock and do not claim PID ownership. Preparation and physical
 binding remain pending. Existing full-suite22508 inputs were not edited.
+
+
+## Authentication stop bound to private physical progression
+
+Prepared net_wifi now receives the fixed-service adapter and its header; runtime
+preparation copies/compiles the auth controller. After private IoT OFF quiescence,
+physical progress starts auth stop in a separate tick before AUX/ARM/Main. Fresh
+absence is rechecked for every later AUX/ARM admission; reappearance retains
+without a signal replay. Actual physical/controller composition passes with
+service actors injected. Native preparation and physical/quiesce/finish/cancel
+checks pass. The full d7fdc49 registered suite exited0 before these changes;
+new auth tests are now registered but no new full-head pass is claimed.
+Pending-shutdown recovery during pre-ARM auth-stop uncertainty and stock net_wifi
+entrypoint binding remain open. No device operation or target acceptance implied.

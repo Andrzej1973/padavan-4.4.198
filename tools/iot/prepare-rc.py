@@ -47,6 +47,7 @@ anchor='void \nstop_wifi_all_rt(void)\n{'
 if s.count(anchor)!=1 or 'wr_iot_quiesce' in s:raise SystemExit('Wi-Fi stop anchor changed or already prepared')
 helper="""#if defined(BOARD_WR1200JS)
 #include <errno.h>
+#include <signal.h>
 #include "wr-iot/bridge.h"
 #include "wr-iot/restart-main-state.h"
 #include "wr-iot/restart-guest-policy.h"
@@ -159,6 +160,7 @@ int wr_iot_rc_restart_generate(int disable_autoscan)
 #endif
 
 """
+helper=helper.replace("/* Profile generation only;", "#include \"wr-iot/restart-auth-stop.h\"\n"+(local/"restart-auth-stop-sdk.inc").read_text()+"\n/* Profile generation only;",1)
 s=s.replace(anchor,helper+anchor+'\n#if defined(BOARD_WR1200JS)\n wr_iot_last_stop_result=wr_iot_quiesce();\n if (!wr_iot_last_stop_result) return;\n#endif',1)
 restart_anchor='void\nrestart_wifi_rt(int radio_on, int need_reload_conf)\n{'
 if s.count(restart_anchor)!=1:raise SystemExit('2.4 GHz restart anchor changed')
@@ -988,6 +990,7 @@ objects=' '.join('wr-iot-'+stem+'.o' for stem,names in (('reopen-admission', ('r
 m.write_text(make.replace('wr-iot-initial-off.o','wr-iot-initial-off.o '+objects,1),encoding='utf-8')
 (headers/'restart-guest-policy.h').write_bytes((local/'restart-guest-policy.h').read_bytes())
 (headers/'restart-service-policy.h').write_bytes((local/'restart-service-policy.h').read_bytes())
+(headers/'restart-auth-stop.h').write_bytes((local/'restart-auth-stop.h').read_bytes())
 (headers/'restart-main-state.h').write_bytes((local/'restart-main-state.h').read_bytes())
 (headers/'radio-stop-fence.h').write_bytes((local/'radio-stop-fence.h').read_bytes())
 unit=(local/'radio-stop-fence.c').read_text()

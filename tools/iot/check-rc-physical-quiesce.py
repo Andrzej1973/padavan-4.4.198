@@ -10,6 +10,9 @@ units=next(ast.literal_eval(n.value) for n in ast.walk(ast.parse(source)) if isi
 body=ns['body'];a=body.index('int main(void){')
 hooks=r'''
 #include "rc-physical-stop.c"
+int wr_iot_auth_stop_begin(struct wr_iot_auth_stop*s,unsigned long long now){assert(now);s->owner=getpid();return 1;}
+int wr_iot_auth_stop_step(struct wr_iot_auth_stop*s,unsigned long long now){assert(s->owner==getpid()&&now);return 1;}
+
 int wr_iot_restart_scheduler_unowned(void){return 1;}
 int wr_iot_restart_scheduler_prepare(void){assert(!wr_iot_rc_shutdown.active);return 1;}
 int wr_iot_restart_prehandoff_cancel_check(struct wr_iot_restart_restore*s){(void)s;return 0;}

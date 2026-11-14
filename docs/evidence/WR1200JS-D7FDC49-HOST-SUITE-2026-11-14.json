@@ -1,0 +1,9 @@
+{
+  "scope": "registered physical-stop suite d7fdc49 unchanged inputs",
+  "session": 22508,
+  "exit_code": 0,
+  "log_sha256": "87fd95f6292a170ff082608ddef131e8311a78c238c4f9ce8469c9927a6c08cd",
+  "log_bytes": 28838,
+  "excluded": "new unregistered auth-stop component files",
+  "device_runtime": false
+}

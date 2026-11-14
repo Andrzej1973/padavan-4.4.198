@@ -1,6 +1,8 @@
 #define _GNU_SOURCE
 #include <string.h>
 #include <unistd.h>
+#include <time.h>
+#include "restart-auth-stop.h"
 #include "rc-physical-stop.h"
 #include "rc-backend.h"
 #include "restart-scheduler.h"
@@ -20,6 +22,7 @@ static struct {
  struct wr_iot_radio_stop_fence fence;
  unsigned int aux_next;
  unsigned char nonce[16];
+ struct wr_iot_auth_stop auth;
  int guard,finishing,result;
 } physical;
 static int physical_begin(const struct wr_iot_rc_physical_intent *intent,
@@ -81,6 +84,15 @@ void wr_iot_rc_physical_step(void)
    wr_iot_service_guard_leave(guard);return;
   }
   if(physical.session.phase==WR_PHYSICAL_SESSION_IDLE){
+   struct timespec now;unsigned long long ms;
+   if(clock_gettime(CLOCK_MONOTONIC,&now)||now.tv_sec<=0){wr_iot_service_guard_leave(guard);return;}
+   ms=(unsigned long long)now.tv_sec*1000+(unsigned long long)now.tv_nsec/1000000;
+   if(!physical.auth.owner){
+    (void)wr_iot_auth_stop_begin(&physical.auth,ms);
+    wr_iot_service_guard_leave(guard);return;
+   }
+   if(!wr_iot_auth_stop_step(&physical.auth,ms)){wr_iot_service_guard_leave(guard);return;}
+
    if(physical.aux_next<6){
     if(wr_iot_rc_physical_aux_down(physical.aux_next)==1)physical.aux_next++;
    }else if(wr_iot_rc_backend_closed(&closed)){
