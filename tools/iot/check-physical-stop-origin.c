@@ -141,6 +141,12 @@ int main(void)
   assert(wr_iot_driver_owner_query(&opened,open_request.request_id,7,3));
   assert(!wr_iot_physical_rebind_open_reserve(&probe,&terminal,terminal.owner,&request,&owner,&opened,&r,records,2,&device,&iot_device,1,&task,&open_request,1,0));
   assert(!probe.spent&&probe.accepted&&!opened.active);
+  for(unsigned old=0;old<3;old++){
+   unsigned char *prior=old==0?opened.receipt.request_id:old==1?opened.refusal.request_id:opened.uncertain_request_id;
+   memcpy(prior,open_request.request_id,16);
+   assert(!wr_iot_physical_rebind_open_reserve(&probe,&terminal,terminal.owner,&request,&owner,&opened,&r,records,2,&device,&iot_device,1,&task,&open_request,0,0));
+   assert(!probe.spent&&probe.accepted&&!opened.active);memset(prior,0,16);
+  }
   assert(wr_iot_physical_rebind_open_reserve(&probe,&terminal,terminal.owner,&request,&owner,&opened,&r,records,2,&device,&iot_device,1,&task,&open_request,0,0));
   assert(probe.spent&&opened.active&&r.busy==WR_RADIO_BSS_OPEN&&records[1].phase==WR_REF_RESERVED);
   assert(!wr_iot_physical_rebind_open_reserve(&probe,&terminal,terminal.owner,&request,&owner,&opened,&r,records,2,&device,&iot_device,1,&task,&open_request,0,0));

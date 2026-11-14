@@ -15,7 +15,7 @@ static inline int wr_iot_physical_rebind_open_reserve(
  const void *main_dev,const void *iot_dev,unsigned vendor_count,const void *task,
  const struct wr_iot_driver_open_request *request,unsigned control_users,int blocked)
 {
- unsigned i,difference=0;
+ unsigned i,difference=0,prior_open=0,prior_refusal=0,prior_uncertain=0;
  if(!open_owner||!request||!task||open_owner->active||open_owner->poisoned||
     control_users||blocked||!open_owner->query_valid||
     request->adapter_epoch!=open_owner->query_epoch||
@@ -24,6 +24,12 @@ static inline int wr_iot_physical_rebind_open_reserve(
     request->device_generation!=physical_request->generation)return 0;
  for(i=0;i<16;i++)difference|=request->request_id[i]^open_owner->query_id[i];
  if(difference)return 0;
+ for(i=0;i<16;i++){
+  prior_open|=request->request_id[i]^open_owner->receipt.request_id[i];
+  prior_refusal|=request->request_id[i]^open_owner->refusal.request_id[i];
+  prior_uncertain|=request->request_id[i]^open_owner->uncertain_request_id[i];
+ }
+ if(!prior_open||!prior_refusal||!prior_uncertain)return 0;
  if(!wr_iot_physical_rebind_claim(probe,terminal,issuer,physical_request,main_owner,
     radio,slots,count,main_dev,iot_dev,vendor_count,request->request_id))return 0;
  return wr_iot_driver_owner_reserve(open_owner,radio,slots,count,main_dev,iot_dev,

@@ -205,3 +205,10 @@ receipt reads require exact epoch/generation/token; recovery-only reads retain
 phase and never certify ON or release admission. The controller is linked into
 experimental runtime but is not invoked by the restart scheduler. Network
 policy, desired configuration handoff and device verification remain external.
+
+Rebind OPEN reservation now rejects a request ID equal to any retained prior
+OPEN receipt, refusal or uncertain request ID before consuming the handoff.
+Fresh ID remains mandatory even after radio epoch changes. Native sanitizer
+fixture covers all three reuse sources with unspent claim/idle owner, followed
+by successful fresh reservation; actual vendor binding fixture also passes.
+This does not reset or erase prior evidence to obtain admission.
