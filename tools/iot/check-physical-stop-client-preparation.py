@@ -10,11 +10,13 @@ with tempfile.TemporaryDirectory(prefix='wr-stop-client-prepared-') as d:
  (rc/'init.c').write_text('#include "wr-iot/rc-shutdown-admission.h"\n\t\t\t\tsigsuspend(&ss);\n')
  (rc/'Makefile').write_text('OBJS += wr-iot-control-mailbox.o wr-iot-control-server.o\n')
  (http/'Makefile').write_text('OBJS += wr-iot-control-mailbox.o wr-iot-control-client.o\n')
- (rc/'wr-iot/driver-api-wire.h').write_bytes((here/'driver-api-wire.h').read_bytes())
+ for header in ('driver-api-wire.h','radio-stop-fence.h','rc-shutdown-admission.h','service-guard.h','rc-backend.h','control-record.h','request.h','types.h','subnet.h'):
+  (rc/'wr-iot'/header).write_bytes((here/header).read_bytes())
  subprocess.run(['python3',str(here/'prepare-runtime.py'),str(root)],check=True)
  manifest=json.loads((root/'iot-runtime-source.json').read_text())
  assert manifest['physical_stop_transport_linked'] and not manifest['physical_stop_rc_orchestration']
- for name in ('physical-stop-client','physical-stop-down','physical-stop-session'):
+ assert manifest['physical_stop_wait_continuation_bound'] and not manifest['physical_stop_rc_entrypoints_bound']
+ for name in ('physical-stop-client','physical-stop-down','physical-stop-session','rc-physical-stop'):
   assert (rc/'Makefile').read_text().count('wr-iot-'+name+'.o')==1
   subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-O2','-I'+str(rc),'-c',str(rc/('wr-iot-'+name+'.c')),'-o',str(root/(name+'.o'))],check=True)
  duplicate=subprocess.run(['python3',str(here/'prepare-runtime.py'),str(root)],capture_output=True)

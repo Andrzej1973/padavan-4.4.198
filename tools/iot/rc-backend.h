@@ -1,6 +1,6 @@
 #ifndef WR_IOT_RC_BACKEND_H
 #define WR_IOT_RC_BACKEND_H
-#include "control-record.h"
+struct wr_iot_control_result;
 struct wr_iot_rc_mode {int router,radio,mode;};
 /* Strong RC read-only adapter. Caller holds service guard; exactly1 means the
  * three fields were read. It does not generate profiles or restart a radio. */

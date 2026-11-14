@@ -10,7 +10,9 @@ static char directory[]="/tmp/iot-rc-runtime-XXXXXX";
 #define WR_IOT_RUNTIME_UID geteuid()
 #include "rc-runtime.c"
 static volatile int notification,alarm_flag;
-static int pending,steps,observations;
+static int pending,steps,observations,physical_pending,physical_steps;
+int wr_iot_rc_physical_pending(void){return physical_pending;}
+void wr_iot_rc_physical_step(void){physical_steps++;}
 int wr_iot_rc_pending(void){return pending;}
 int wr_iot_rc_continue(void){steps++;return 1;}
 int wr_iot_rc_backend_observed(const struct wr_iot_control_result *r){assert(r->state==WR_IOT_RESULT_APPLIED);observations++;return 1;}
@@ -33,6 +35,8 @@ int main(void){
  pending=1;wr_iot_rc_wait(&empty,&notification,&alarm_flag);assert(initialized&&steps==1&&endpoint.listener>=0);
  unsigned long long due=next_progress;wr_iot_rc_wait(&empty,&notification,&alarm_flag);
  assert(steps==2&&runtime_ms()>=due);pending=0;
+ physical_pending=1;wr_iot_rc_wait(&empty,&notification,&alarm_flag);
+ assert(physical_steps==1&&steps==2);physical_pending=0;
  assert(!sigprocmask(SIG_BLOCK,&blocked,&old));pid_t child=fork();assert(child>=0);
  if(!child){assert(!kill(getppid(),SIGUSR1));_exit(0);}
  wr_iot_rc_wait(&empty,&notification,&alarm_flag);assert(notification&&steps==2);

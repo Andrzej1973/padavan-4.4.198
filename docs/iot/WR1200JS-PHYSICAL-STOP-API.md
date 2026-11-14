@@ -72,3 +72,17 @@ The caller must retain actual shutdown/service admission across the whole
 session; ownership of those guards, scheduler wiring, fresh CLOSE extraction,
 and Main/Guest stop order integration are still pending. No production callback
 is switched by linking this unit. No elapsed timeout is a completion proof.
+
+`rc-physical-stop.c` retains a validated stop/restart intent, service guard and
+normal-shutdown fence in one RC-process context. Beginning refuses another
+active shutdown owner, requires a fresh private backend OFF/CLOSE receipt and
+nonblocking entropy, and claims no firmware state until the session ARM step.
+Preparation failure still receives balanced deferred cleanup. The PID1 wait
+loop advances pending physical sessions at the existing100ms cadence. Guard
+revalidation failure retains state; lost replies never release the guards.
+Terminal consumption returns the copied intent exactly once, after guard and
+signal cleanup. It does not run stock restart, attest a fresh reopen identity
+or turn a completed receipt into an unlimited restart lease.
+The actual stop/restart entry-point admission, active-IoT OFF initiation, AUX/
+Guest ordering, deferred intent consumer and fresh safe-reopen validation remain
+unbound. `physical_stop_rc_orchestration` therefore remains false.
