@@ -1,0 +1,19 @@
+{
+  "failed_run": 43562024527,
+  "verified_revision": "ea3eba39ca50db9369fd50beb8ddeb297d11ea16",
+  "monitor_run": 43563545046,
+  "monitor_artifact": 14101417282,
+  "monitor_useful": true,
+  "error": "rtmp.h:119: physical-stop-record.h: No such file or directory",
+  "cause": "CI copied original ra2_no_host_experiment.changed_paths only, omitting subsequently composed physical-stop files despite validating their hashes",
+  "fix": "Install all candidate_driver_sha256 entries into isolated kernel overlay; retain hash validation",
+  "checks": [
+    "actual embedded CI Python install block copies later header and Main hook",
+    "input drift refused before copy",
+    "deferred installer fixture PASS",
+    "bash -n PASS"
+  ],
+  "target_verified": false,
+  "runtime_verified": false,
+  "scratch": "Temporary fixture auto-removed; artifact read in memory; no retained build tree"
+}

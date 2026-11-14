@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Link the experimental driver in an isolated kernel copy on GitHub Actions.
 set -euo pipefail
+python3 -B tools/iot/check-ra2-no-host-module-copy.py
 kernel=$1
 compiler=$2
 experiment=$3
@@ -24,7 +25,9 @@ if metadata['activation_ready'] is not False or manifest['production_installed']
 for name,expected in manifest['candidate_driver_sha256'].items():
     if hashlib.sha256((source/name).read_bytes()).hexdigest()!=expected:
         raise SystemExit('Experiment input drift: '+name)
-for name in metadata['changed_paths']:
+# Later composed layers add files beyond the original no-host changed_paths.
+# Install the complete hash-verified candidate overlay, including those headers.
+for name in manifest['candidate_driver_sha256']:
     if Path(name).is_absolute() or '..' in Path(name).parts:
         raise SystemExit('Invalid experiment path')
     target=driver/name
