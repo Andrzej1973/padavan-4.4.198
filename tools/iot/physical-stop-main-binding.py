@@ -29,3 +29,19 @@ def compose(source):
 '''
     body=body.replace(anchor,guard+anchor,1)
     return source[:start]+body+source[end:]
+
+def compose_reset(source):
+    """Existing transition lock protects both reset admission and ARM lifetime."""
+    anchors={
+      ' if(pAd->wr_iot_transition.reset_pending)':
+      ' if(!wr_iot_physical_stop_lifetime_blocks(&pAd->wr_iot_physical_lifetime) &&\n    pAd->wr_iot_transition.reset_pending)',
+      ' wr_iot_radio_request_reset_kind(&pAd->wr_iot_transition,kind);':
+      ' if(!wr_iot_physical_stop_lifetime_blocks(&pAd->wr_iot_physical_lifetime))\n  wr_iot_radio_request_reset_kind(&pAd->wr_iot_transition,kind);',
+    }
+    if 'wr_iot_physical_stop_lifetime_blocks' in source:
+        raise ValueError('reset lifetime already bound')
+    for old,new in anchors.items():
+        if source.count(old)!=1:
+            raise ValueError('changed reset admission anchor')
+        source=source.replace(old,new,1)
+    return source

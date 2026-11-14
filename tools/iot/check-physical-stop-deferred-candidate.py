@@ -6,6 +6,7 @@ ns={'__file__':str(here/'check-physical-stop-candidate.py')}
 source=(here/'check-physical-stop-candidate.py').read_text()
 exec(compile(source[:source.index("with tempfile.TemporaryDirectory(")],'<reviewed fixture setup>','exec'),ns)
 files=dict(ns['files'])
+files['include/wr-iot-reset-admission.inc']=(here/'reset-admission.inc').read_text()
 files['os/linux/rt_main_dev.c']=(here/'main-close-checked.inc').read_text()
 files['include/main-open-recovery-owner.h']=(here/'main-open-recovery-owner.h').read_text()
 with tempfile.TemporaryDirectory(prefix='wr-stop-deferred-installer-') as d:

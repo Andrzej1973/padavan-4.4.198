@@ -20,11 +20,12 @@ helpers=runpy.run_path(str(here/'physical-stop-executor.py'))
 main=runpy.run_path(str(here/'physical-stop-main-binding.py'))
 paths=('include/rtmp.h','common/rtmp_init.c','os/linux/rt_main_dev.c',
  'include/wr-iot-peer-open-dispatch.inc','include/wr-iot-mbss-recovery-work.inc',
- 'include/wr-iot-mbss-recovery-join.inc')
+ 'include/wr-iot-mbss-recovery-join.inc','include/wr-iot-reset-admission.inc')
 texts={n:(src/n).read_text() for n in paths}
 try:
  texts[paths[0]],texts[paths[1]]=helpers['compose_adapter'](texts[paths[0]],texts[paths[1]])
  texts[paths[2]]=main['compose'](texts[paths[2]])
+ texts[paths[6]]=main['compose_reset'](texts[paths[6]])
  texts[paths[3]]=helpers['compose_open_dispatch'](texts[paths[3]])
  texts[paths[4]],texts[paths[5]]=helpers['compose_retirement'](texts[paths[4]],texts[paths[5]])
 except ValueError as e:p.error(str(e))
@@ -41,7 +42,7 @@ if 'candidate_driver_sha256' in m:
   m['candidate_driver_sha256']['include/'+n]=m['merged_driver_sha256']['include/'+n]
 m['physical_stop_deferred_layer']={'dormant':True,'main_worker_hook':True,
  'legacy_executor_modified':False,'endpoint_installed':False,
- 'reset_admission_complete':False,'target_compiled':False,'runtime_verified':False}
+ 'reset_arm_gate_staged':True,'reset_admission_complete':False,'target_compiled':False,'runtime_verified':False}
 m.update(production_installed=False,target_compiled=False,runtime_verified=False)
 out.with_name(out.name+'.manifest.json').write_text(json.dumps(m,indent=2)+'\n')
 print('PASS staged dormant deferred Main ARM hook/storage; endpoint/reset/physical completion unbound')
