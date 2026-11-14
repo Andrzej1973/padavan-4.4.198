@@ -12,7 +12,7 @@ replacing `restart_wifi_rt`. Existing source compilation does not prove parity.
 |---|---|---|
 | `stop_8021x_rt()` before DOWN | Missing orchestration | Guarded one-attempt stop before AUX/Main; uncertain result retained |
 | APCLI/WDS/Guest/Main DOWN | Private fixed AUX slots and Main session | Bind request once; never invoke stock combined stop afterward |
-| `gen_ralink_config_2g(0)` conditional on reload | Owned generation always runs | Honor captured reload intent, or explicitly prove required generation preserves no-reload semantics |
+| `gen_ralink_config_2g(0)` conditional on reload | Existing captured reload0 skips generator | Verified no-reload bytes/inode/mtime/ctime preservation; reload_svc_rt flag remains separate |
 | `reload_svc_rt=1` when reload | Missing | Set only for corresponding captured reload; do not repeat generation |
 | `mlme_state_rt(radio_on)` | Missing | Preserve `mlme_radio_rt` policy; distinguish NVRAM from driver readiness |
 | Main/Guest UP and br0 attachment | Controllers implemented | Use existing exact generation/Main/Guest checks |
@@ -143,3 +143,17 @@ multicast component actor, while the restore composition uses the real multicast
 controller. The latest full suite predates this integration. No MIPS/image/device
 acceptance is claimed. Remaining reload/mlme/LED/iappd/WAN and stock entrypoint
 parity gaps remain open.
+
+
+## No-reload audit correction
+
+The initial parity table incorrectly described unconditional generation.
+`restart-generation.c::generation_step` has skipped generation when captured
+intent.reload is0 since be8c0a3. Existing generation tests cover zero calls.
+A focused check now also proves original profile bytes, device/inode, size and
+mtime/ctime remain unchanged through repeated verification, and abort remains
+refused after possible Main UP. The first fixture run measured metadata before
+its baseline setup; moving the measurement after setup fixed that fixture error.
+No production generator change was needed. The new test is standalone/unregistered
+while full-suite75467 uses unchanged1b74afc inputs. This does not resolve the
+missing conditional reload_svc_rt update or imply target/runtime acceptance.
