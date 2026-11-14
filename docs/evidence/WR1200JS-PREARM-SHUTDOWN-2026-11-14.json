@@ -1,0 +1,30 @@
+{
+  "scope": "pre-ARM normal shutdown under private physical ownership",
+  "checks": {
+    "real_SIGTERM_faults_and_cleanup": "PASS;60822 and44366",
+    "physical_auth_scheduler": "PASS;97641",
+    "finish_cancel_quiesce": "PASS;34213",
+    "native_preparation": "PASS;60822; before final finishing-path guard refinement"
+  },
+  "source_sha256": {
+    "tools/iot/rc-physical-stop.c": "1204dfc97aacc70c88126c9cc7bc540a2de2d5383793199405e2458c6242b8a7",
+    "tools/iot/check-physical-prearm-shutdown.py": "bf2292d678b55d3af012ffc80cd44838a313a60ce382c46f7792dd460824c7df"
+  },
+  "limits": [
+    "backend/auth observation actors injected",
+    "no target/device acceptance",
+    "stock net_wifi entrypoints unbound"
+  ],
+  "completed_scratch_removed": [
+    {
+      "path": "/tmp/wr-prearm-native.log",
+      "bytes": 307,
+      "sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a"
+    },
+    {
+      "path": "/tmp/wr-prearm-quiesce.log",
+      "bytes": 406,
+      "sha256": "799edcee5ea83360144b40d10ff9e960df1e639185d691f5baee09762e488a05"
+    }
+  ]
+}

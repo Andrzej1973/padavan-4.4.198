@@ -70,8 +70,18 @@ void wr_iot_rc_physical_step(void)
 {
  struct wr_iot_driver_closed_result closed={0};
  struct wr_iot_physical_stop_request request={0};
- int guard,result=0;
+ int guard,result=0;sigset_t queued;
  if(!wr_iot_rc_physical_pending())return;
+ if(wr_iot_rc_shutdown.active&&!sigpending(&queued)){
+  if(sigismember(&queued,SIGTERM)==1)(void)wr_iot_rc_shutdown_note(SIGTERM);
+#ifdef SIGQUIT
+  else if(sigismember(&queued,SIGQUIT)==1)(void)wr_iot_rc_shutdown_note(SIGQUIT);
+#endif
+ }
+ if(!physical.finishing&&wr_iot_rc_shutdown.pending&&physical.session.phase==WR_PHYSICAL_SESSION_IDLE&&
+    (!physical.quiesce.owner||physical.quiesced)){
+  (void)wr_iot_rc_physical_prearm_cancel();return;
+ }
  if(!physical.finishing){
   /* Revalidate the retained lock, balancing only this nested guard. Missing
    * admission retains ownership instead of progressing driver operations. */
@@ -263,5 +273,28 @@ int wr_iot_rc_physical_preresume_cancel(void)
  valid=wr_iot_rc_physical_resume_read(&observed);
  resume_wipe(&observed,sizeof(observed));
  if(!valid)return 0;
+ return wr_iot_radio_stop_fence_end_cleanup(&physical.fence,preresume_cancel_cleanup,NULL);
+}
+
+int wr_iot_rc_physical_prearm_cancel(void)
+{
+ struct wr_iot_driver_closed_result closed={0};int guard,valid;
+ if(!wr_iot_restart_scheduler_unowned()||physical.owner!=getpid()||
+    physical.finishing||physical.result||physical.guard!=1||
+    physical.session.owner||physical.session.busy||physical.session.phase!=WR_PHYSICAL_SESSION_IDLE||
+    physical.fence.owner!=getpid()||physical.fence.level!=1||
+    !wr_iot_rc_shutdown.active||
+    (wr_iot_rc_shutdown.pending!=SIGTERM
+#ifdef SIGQUIT
+     &&wr_iot_rc_shutdown.pending!=SIGQUIT
+#endif
+    )||(physical.quiesce.owner&&(!physical.quiesced||!physical.quiesce.complete||
+      physical.quiesce.active||physical.quiesce.busy||physical.quiesce.owner!=getpid())))return 0;
+ guard=wr_iot_service_guard_enter(1);if(guard!=1)return 0;
+ valid=wr_iot_rc_backend_closed(&closed);
+ wr_iot_service_guard_leave(guard);
+ if(!valid)return 0;
+ /* No ARM/descriptor transition/Main DOWN has been submitted by this owner.
+  * Administrative AUX/auth changes need no restart for a normal shutdown. */
  return wr_iot_radio_stop_fence_end_cleanup(&physical.fence,preresume_cancel_cleanup,NULL);
 }

@@ -76,3 +76,19 @@ checks pass. The full d7fdc49 registered suite exited0 before these changes;
 new auth tests are now registered but no new full-head pass is claimed.
 Pending-shutdown recovery during pre-ARM auth-stop uncertainty and stock net_wifi
 entrypoint binding remain open. No device operation or target acceptance implied.
+
+
+## Pre-ARM normal shutdown cancellation
+
+Physical progress observes blocked SIGTERM/SIGQUIT before further operations.
+Before a session/ARM exists, normal shutdown can finish without waiting for an
+uncertain auth-stop receipt: fresh backend CLOSED, completed private quiescence,
+idle scheduler and owned outer fence are required. No Main DOWN was submitted
+by this physical owner. Cleanup wipes retained desired settings and releases
+the guard before deferred signal replay; the physical terminal is taken once.
+Pending quiescence continues through its existing OFF path; cancellation cannot
+bypass an unfinished OFF. Once a session owns ARM, this shortcut refuses.
+A real blocked-SIGTERM fixture covers stale CLOSE, existing session and failed
+mask restore, then successful cleanup with no AUX/ARM/Main calls. Physical/auth,
+scheduler, finish/cancel/quiesce and native checks pass separately. Target and
+device evidence remain pending; stock entrypoints are still unbound.
