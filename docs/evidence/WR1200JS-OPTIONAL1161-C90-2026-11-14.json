@@ -1,0 +1,21 @@
+{
+  "failed_run": 43576248126,
+  "verified_revision": "5eb67f9bc40fd69094c33a984a3d79cc3c543164",
+  "monitor_run": 43577567059,
+  "monitor_artifact": 14106578319,
+  "monitor_useful": true,
+  "original_log_confirmed": [
+    "physical-stop-response.h:31 declaration-after-statement",
+    "physical-stop-response.h:44 declaration-after-statement"
+  ],
+  "fix": "Move action declarations to beginning of enclosing blocks; no codec behavior change",
+  "regression": "response fixture now compiled with -Wdeclaration-after-statement -Werror in host suite",
+  "checks": [
+    "response native O2 ASan/UBSan with target warning PASS",
+    "prepared runtime strict C11 PASS",
+    "preceding35part suite34629 exit0 covers composed origin/issuer package before response declaration-only delta",
+    "origin tests60negative plus null/empty registry PASS"
+  ],
+  "target_verified": false,
+  "runtime_verified": false
+}

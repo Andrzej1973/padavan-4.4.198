@@ -3,6 +3,7 @@
 #ifndef WR_IOT_PHYSICAL_STOP_ORIGIN_H
 #define WR_IOT_PHYSICAL_STOP_ORIGIN_H
 #include "physical-stop-terminal-types.h"
+#include "physical-stop-response.h"
 #include "main-open-recovery-owner.h"
 static inline int wr_iot_physical_stop_origin_matches(
  const struct wr_iot_physical_stop_origin *s,
@@ -56,5 +57,34 @@ static inline int wr_iot_physical_stop_origin_iot_history(
     record->close_stage!=4U)return 0;
  return record->generation==request->generation&&record->last_token==request->open_token&&
   record->close_serial==request->closed_serial&&record->close_epoch==request->epoch;
+}
+/* Rebind preflight composes actual new Main readiness with old ra2 history.
+ * It preserves the old close_epoch. Current hardware configuration observation
+ * must run under its own admitted BSS_OBSERVE ticket before OPEN admission. */
+static inline int wr_iot_physical_stop_origin_pair(
+ const struct wr_iot_physical_stop_terminal *terminal,
+ const struct pid *issuer,const struct wr_iot_physical_stop_request *request,
+ const struct wr_iot_main_recovery_owner *owner,
+ const struct wr_iot_radio_transition *radio,
+ struct wr_iot_interface_ref *slots,unsigned int count,
+ const void *main_device,const void *iot_device,unsigned int vendor_count)
+{
+ struct wr_iot_interface_ref *main_record,*iot_record;unsigned i;
+ if(!terminal||terminal->ready!=1||terminal->status!=WR_STOP_RELEASED||
+    !issuer||terminal->owner!=issuer||!wr_iot_physical_stop_request_valid(request)||
+    request->action!=WR_STOP_RELEASE||request->attempt!=terminal->request.attempt||
+    request->epoch!=terminal->request.epoch||request->generation!=terminal->request.generation||
+    request->open_token!=terminal->request.open_token||
+    request->closed_serial!=terminal->request.closed_serial||
+    !slots||!count||!main_device||!iot_device||main_device==iot_device||
+    !wr_iot_physical_stop_request_valid(&terminal->request)||
+    terminal->request.action!=WR_STOP_RELEASE||!vendor_count)return 0;
+ for(i=0;i<sizeof(request->nonce);i++)
+  if(request->nonce[i]!=terminal->request.nonce[i])return 0;
+ main_record=wr_iot_registry_find_owned(slots,count,main_device);
+ iot_record=wr_iot_registry_find(slots,count,iot_device,terminal->request.generation);
+ return wr_iot_physical_stop_origin_main_ready(&terminal->origin,owner,radio,main_record)&&
+  wr_iot_physical_stop_origin_iot_history(&terminal->request,iot_record,iot_device)&&
+  wr_iot_registry_count_matches(slots,count,vendor_count);
 }
 #endif

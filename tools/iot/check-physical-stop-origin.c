@@ -74,5 +74,31 @@ int main(void)
   }
   assert(!wr_iot_physical_stop_origin_iot_history(&q,&r,&iot_device));
  }
+ struct wr_iot_interface_ref slots[2]={main_record,iot};
+ struct wr_iot_physical_stop_terminal terminal={0};
+ terminal.owner=(struct pid *)&device;terminal.request=request;
+ terminal.ready=1;terminal.status=WR_STOP_RELEASED;terminal.origin=original;
+ assert(wr_iot_physical_stop_origin_pair(&terminal,terminal.owner,&request,&owner,&radio,slots,2,&device,&iot_device,1));
+ for(unsigned i=0;i<8;i++){
+  struct wr_iot_physical_stop_terminal t=terminal;
+  unsigned vendor_count=1;
+  switch(i){case 0:t.ready=0;break;case 1:t.status=WR_STOP_CANCELLED;break;
+   case 2:t.owner=0;break;case 3:t.request.action=WR_STOP_CANCEL;break;
+   case 4:t.request.generation++;break;case 5:vendor_count=2;break;
+   case 6:t.origin.main_open_token++;break;case 7:t.request.closed_serial++;break;}
+  assert(!wr_iot_physical_stop_origin_pair(&t,terminal.owner,&request,&owner,&radio,slots,2,&device,&iot_device,vendor_count));
+ }
+ assert(!wr_iot_physical_stop_origin_pair(&terminal,(struct pid *)&iot_device,&request,&owner,&radio,slots,2,&device,&iot_device,1));
+ for(unsigned i=0;i<7;i++){
+  struct wr_iot_physical_stop_request q=request;
+  switch(i){case 0:q.attempt++;break;case 1:q.epoch++;break;
+   case 2:q.generation++;break;case 3:q.open_token++;break;
+   case 4:q.closed_serial++;break;case 5:q.nonce[15]++;break;
+   case 6:q.action=WR_STOP_CANCEL;break;}
+  assert(!wr_iot_physical_stop_origin_pair(&terminal,terminal.owner,&q,&owner,&radio,slots,2,&device,&iot_device,1));
+ }
+ assert(!wr_iot_physical_stop_origin_pair(&terminal,terminal.owner,&request,&owner,&radio,0,2,&device,&iot_device,1));
+ assert(!wr_iot_physical_stop_origin_pair(&terminal,terminal.owner,&request,&owner,&radio,slots,0,&device,&iot_device,1));
+ assert(slots[1].close_epoch==5&&radio.epoch==7);
  return 0;
 }

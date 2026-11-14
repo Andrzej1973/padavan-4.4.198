@@ -8,6 +8,7 @@ int main(void){
  for(unsigned action=WR_STOP_ARM;action<=WR_STOP_RELEASE;action++){
   r.action=action;r.attempt=action==WR_STOP_ARM?0:0x200000003ULL;
   for(unsigned status=0;status<8;status++){
+   struct wr_iot_physical_stop_request request_out;
    unsigned long long serial=action==WR_STOP_ARM?0x200000003ULL:r.attempt;
    int valid=(action==WR_STOP_ARM&&status==WR_STOP_ARMED)||
     (action==WR_STOP_QUERY&&status>=WR_STOP_ARMED&&status<=WR_STOP_FAILED)||
@@ -17,11 +18,11 @@ int main(void){
    if(!valid){for(unsigned i=0;i<64;i++)assert(!wire[i]);continue;}
    assert(wr_iot_physical_stop_response_decode(&out,wire,64,&r));
    assert(out.status==status&&out.identity.attempt==serial&&out.identity.action==action);
-   struct wr_iot_physical_stop_request request_out;
    assert(!wr_iot_physical_stop_request_decode(&request_out,wire,64));
    for(unsigned field=0;field<64;field++){
+    int accepted;
     memcpy(bad,wire,64);bad[field]^=0x80;
-    int accepted=wr_iot_physical_stop_response_decode(&out,bad,64,&r);
+    accepted=wr_iot_physical_stop_response_decode(&out,bad,64,&r);
     /* ARM assigns its new serial; exact subsequent QUERY must bind it. */
     if(action==WR_STOP_ARM&&field>=40&&field<48)continue;
     assert(!accepted&&!out.status&&!out.identity.attempt);

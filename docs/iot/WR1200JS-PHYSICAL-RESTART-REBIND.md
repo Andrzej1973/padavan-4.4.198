@@ -78,3 +78,19 @@ state. Twelve refusal cases pass with the same strict native sanitizer build as
 the18 Main readiness and14 old-origin tests. This is historical identity only:
 it does not replace current-epoch beacon/key/probe checks, exact terminal issuer
 or single-use OPEN admission. Both new predicates remain unbound to transport.
+
+The local paired preflight now requires a ready RELEASED terminal cache, its
+valid original RELEASE request, exact old origin, new Main readiness, exact
+ra2 history and actual registry/vendor count agreement. Fifty-two negative
+native cases pass. The preflight checks that PID storage exists; the predicate now compares the exact retained PID identity and every original
+RELEASE field/nonce. The binding must supply actual task_pid(current), never
+a PID pointer selected from request data, under the correct serialization. No transport calls this predicate yet. Existing CLOSED probe
+requires `close_epoch == radio.epoch`; the old epoch is deliberately preserved,
+so that probe must not be reused by rewriting history. A distinct admitted
+current-epoch configuration observation is still needed before rebind/OPEN.
+
+Exact issuer/request correlation now rejects foreign PID identity, changed
+attempt, epoch, generation, OPEN token, CLOSE serial, nonce and CANCEL action.
+There are60 negative cases across origin/Main/ra2/terminal/request tests. This
+remains a preflight without transport or current configuration observation; the
+new caller must pin adapter/netdevices and provide actual kernel PID identity.
