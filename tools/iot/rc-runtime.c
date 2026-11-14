@@ -7,6 +7,7 @@
 #include "control-channel.h"
 #include "rc-backend.h"
 #include "rc-physical-stop.h"
+#include "restart-scheduler.h"
 #include "status-endpoint.h"
 #ifndef WR_IOT_RUNTIME_UID
 #define WR_IOT_RUNTIME_UID 0
@@ -44,7 +45,7 @@ void wr_iot_rc_wait(const sigset_t *wait_mask,const volatile int *notification,
   * under the vendor's supplied wait mask, not lost between test and sleep. */
  if(sigprocmask(SIG_BLOCK,&blocked,&previous))return;
  if(*notification||*alarm)goto done;
- runtime_init();pending=wr_iot_rc_pending()||wr_iot_rc_physical_pending();now=runtime_ms();
+ runtime_init();pending=wr_iot_rc_pending()||wr_iot_rc_physical_pending()||wr_iot_restart_scheduler_pending();now=runtime_ms();
  fd=wr_iot_status_endpoint_ready_fd(&endpoint);
  p.fd=fd;p.events=POLLIN;p.revents=0;
  if(pending||endpoint.connection>=0){
@@ -65,9 +66,10 @@ void wr_iot_rc_wait(const sigset_t *wait_mask,const volatile int *notification,
  if(*notification||*alarm)goto done;
  (void)wr_iot_status_endpoint_step(&endpoint,wr_iot_rc_backend_observed);
  now=runtime_ms();
- if((wr_iot_rc_pending()||wr_iot_rc_physical_pending())&&now&&now>=next_progress){
+ if((wr_iot_rc_pending()||wr_iot_rc_physical_pending()||wr_iot_restart_scheduler_pending())&&now&&now>=next_progress){
   next_progress=now+100;
   if(wr_iot_rc_physical_pending())wr_iot_rc_physical_step();
+  else if(wr_iot_restart_scheduler_pending())(void)wr_iot_restart_scheduler_step();
   else (void)wr_iot_rc_continue();
  }
  done:(void)sigprocmask(SIG_SETMASK,&previous,NULL);

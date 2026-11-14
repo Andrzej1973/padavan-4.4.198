@@ -692,3 +692,17 @@ with owning actors injected. No net_wifi/rc-runtime entrypoints are installed.
 Full95 suite passed; final34-TU native preparation and later focused tests passed
 separately.99 parts registered afterward; no full99 claim. Target checks and
 physical runtime remain required for this unpublished-at-test-time candidate.
+
+
+### RC resume progress integration — host candidate
+
+The PID1 ppoll wait now advances an explicitly started private restart scheduler
+at the existing 100 ms cadence, after physical-stop progress and before ordinary
+IoT continuation. Notification/alarm priority and status IPC remain intact.
+No automatic resume begin or net_wifi entrypoint is installed. Preparation
+records progress binding separately from begin and overall restart binding.
+Actual RC plus actual scheduler composition passed with the resume owner actor
+injected; physical priority, ordinary-command exclusion, cadence, status IPC and
+signal wake are covered. The fixture refuses changed substitution anchors.
+The composition is registered in the full host suite; a new full run is pending.
+These checks do not prove MIPS firmware behavior or physical runtime acceptance.

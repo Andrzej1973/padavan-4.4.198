@@ -10,7 +10,9 @@ static char directory[]="/tmp/iot-rc-runtime-XXXXXX";
 #define WR_IOT_RUNTIME_UID geteuid()
 #include "rc-runtime.c"
 static volatile int notification,alarm_flag;
-static int pending,steps,observations,physical_pending,physical_steps;
+static int pending,steps,observations,physical_pending,physical_steps,resume_pending,resume_steps;
+int wr_iot_restart_scheduler_pending(void){return resume_pending;}
+int wr_iot_restart_scheduler_step(void){resume_steps++;return 0;}
 int wr_iot_rc_physical_pending(void){return physical_pending;}
 void wr_iot_rc_physical_step(void){physical_steps++;}
 int wr_iot_rc_pending(void){return pending;}
@@ -37,6 +39,12 @@ int main(void){
  assert(steps==2&&runtime_ms()>=due);pending=0;
  physical_pending=1;wr_iot_rc_wait(&empty,&notification,&alarm_flag);
  assert(physical_steps==1&&steps==2);physical_pending=0;
+ resume_pending=pending=1;wr_iot_rc_wait(&empty,&notification,&alarm_flag);
+ assert(resume_steps==1&&steps==2);
+ physical_pending=1;wr_iot_rc_wait(&empty,&notification,&alarm_flag);
+ assert(physical_steps==2&&resume_steps==1&&steps==2);physical_pending=0;
+ unsigned long long resume_due=next_progress;wr_iot_rc_wait(&empty,&notification,&alarm_flag);
+ assert(resume_steps==2&&steps==2&&runtime_ms()>=resume_due);resume_pending=pending=0;
  assert(!sigprocmask(SIG_BLOCK,&blocked,&old));pid_t child=fork();assert(child>=0);
  if(!child){assert(!kill(getppid(),SIGUSR1));_exit(0);}
  wr_iot_rc_wait(&empty,&notification,&alarm_flag);assert(notification&&steps==2);

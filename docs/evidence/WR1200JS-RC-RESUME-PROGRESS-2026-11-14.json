@@ -1,0 +1,43 @@
+{
+  "scope": "WR1200JS host RC resume progress; not MIPS/image/device acceptance",
+  "source_sha256": {
+    "tools/iot/rc-runtime.c": "8598ff160b119db0366f3db6bb539549dc54929967ab3746d2654b8993adb9d6",
+    "tools/iot/check-rc-runtime.c": "ea87dddbf9a7ab96b81da9cc69f5e8dc39fec888ca3b54c7813ca715589e07df",
+    "tools/iot/check-rc-scheduler-composition.py": "7e1bf49bb4623f108d2cf8966201527862d1058a2293fb5a64ce2d766c6d8b46",
+    "tools/iot/check-physical-stop-suite.py": "1e5e97a9305e2062ec3acb0125fc25349947f935a4f184d3c68fd61ce2cb6bec",
+    "tools/iot/prepare-runtime.py": "33e6c9c1bfc2aba6c13cf3784b6560de1020d39f9a2cabf0eb222b7cc119f785",
+    "tools/iot/check-physical-stop-client-preparation.py": "d40b944fadeede1f02c8fff1f6fc728b6bfe49487f190f81438187239fd00138"
+  },
+  "checks": {
+    "rc_runtime": "PASS; actual runtime, scheduler actor",
+    "rc_scheduler_composition": "PASS; actual runtime and scheduler, resume owner actor; ASan/UBSan",
+    "native_preparation": "PASS; retained native34-TU preparation log",
+    "full_suite_first": "FAIL; handler exceeded60s, no assertion diagnostic",
+    "handler_isolated": "PASS; elapsed32.85s exit0",
+    "full_suite_retry": "RUNNING; session23234; handler budget120s, others60s"
+  },
+  "logs": {
+    "/tmp/wr-rc-scheduler-composition.log": {
+      "bytes": 422,
+      "sha256": "47921ce192e2fef308ce9cc8b145b102c2e01fff659a58587d98f8a27f7c627d"
+    },
+    "/tmp/wr-rc-resume-progress-preparation.log": {
+      "bytes": 307,
+      "sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a"
+    },
+    "/tmp/wr-handler-timing.log": {
+      "bytes": 1311,
+      "sha256": "dd0eb77d3178d01af027f5eb9eaaba1b198fd91491e27cdfb2cd4f956881d315"
+    },
+    "/tmp/wr-resume-progress-suite.log": {
+      "bytes": 9072,
+      "sha256": "7a1ad4158e44ca018ae2dc951f0215ff32c56fb50051d22ff52d54b7ce2df4de"
+    }
+  },
+  "gates": {
+    "resume_progress_bound": true,
+    "resume_begin_bound": false,
+    "net_wifi_restart_bound": false,
+    "device_actions": false
+  }
+}
