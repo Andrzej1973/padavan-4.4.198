@@ -434,4 +434,50 @@ static inline int wr_iot_main_recovery_release_current(
   wr_iot_main_recovery_ticket_recorded(record,&r->ticket);
 }
 
+/* Capture only a newly admitted physical-close owner after ARM's radio serial.
+ * Both snapshots and this copy require the same transition lock. This does
+ * not submit work or acquire references; the retained owner already owns them. */
+static inline int wr_iot_main_recovery_capture_physical_ticket(
+ const struct wr_iot_main_recovery_owner *owner,
+ const struct wr_iot_radio_transition *radio,
+ const struct wr_iot_interface_ref *record,unsigned long arm_serial,
+ struct wr_iot_radio_ticket *out){
+ if(!owner||!radio||!record||!out||radio->retiring||radio->reset_pending||
+    radio->pm_suspending||radio->pm_suspended||!owner->deferred_owners||
+    owner->completed||owner->stop_requested||!owner->close_ticket_valid||
+    owner->source!=WR_MAIN_RECOVERY_CLOSE_INCOMPLETE||
+    (owner->phase!=WR_MAIN_OWNER_QUEUED&&owner->phase!=WR_MAIN_OWNER_RUNNING&&
+     owner->phase!=WR_MAIN_OWNER_RETAINED)||
+    !owner->schedule_recorded||owner->close_ticket.operation!=WR_RADIO_CLOSE||
+    owner->close_ticket.serial<=arm_serial||
+    record->device!=owner->device||record->generation!=owner->generation||
+    record->last_token!=owner->open_token||record->phase!=WR_REF_CLOSING||
+    record->family!=WR_REF_FAMILY_MAIN||!record->published||record->removing||
+    record->close_serial!=owner->close_serial||
+    (record->close_stage!=2U&&record->close_stage!=3U)||
+    !wr_iot_main_recovery_ticket_recorded(record,&owner->close_ticket)||
+    !wr_iot_main_recovery_ticket_current(radio,&owner->close_ticket))return 0;
+ *out=owner->close_ticket;return 1;
+}
+/* A consumer must retain the admitted MAIN close tuple, independently of the
+ * earlier ra2 CLOSE tuple. Current radio state alone cannot identify its request.
+ * Caller supplies kernel-owned ticket/identity under the transition lock. */
+static inline int wr_iot_main_recovery_release_for_ticket(
+ const struct wr_iot_main_recovery_owner *owner,
+ const struct wr_iot_radio_transition *radio,
+ const struct wr_iot_interface_ref *record,unsigned int vendor_count,
+ const struct wr_iot_radio_ticket *expected,unsigned long generation,
+ unsigned long open_token){
+ const struct wr_iot_main_recovery_release_receipt *r;
+ if(!expected||expected->operation!=WR_RADIO_CLOSE||expected->reset_kind||
+    !expected->serial||!expected->epoch||!generation||!open_token||
+    !wr_iot_main_recovery_release_current(owner,radio,record,vendor_count))
+  return 0;
+ r=&owner->last_release;
+ return r->generation==generation&&r->open_token==open_token&&
+  r->ticket.serial==expected->serial&&r->ticket.epoch==expected->epoch&&
+  r->ticket.prior_phase==expected->prior_phase&&
+  r->ticket.prior_ready==expected->prior_ready;
+}
+
 #endif

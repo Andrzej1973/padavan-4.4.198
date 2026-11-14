@@ -90,6 +90,38 @@ int main(void){
         WR_MAIN_RECOVERY_CONTINUE_CLOSE);
  assert(wr_iot_main_recovery_copy_close_ticket(&owner,&refs[0],&radio,
         refs,2,1,&copy)&&copy.serial==ticket.serial);
+ assert(wr_iot_main_recovery_capture_physical_ticket(&owner,&radio,&refs[0],
+   ticket.serial-1,&copy));
+ assert(copy.serial==ticket.serial&&copy.epoch==ticket.epoch);
+ assert(!wr_iot_main_recovery_capture_physical_ticket(&owner,&radio,&refs[0],
+   ticket.serial,&copy));
+ {struct wr_iot_interface_ref stale=refs[0];stale.generation++;
+  assert(!wr_iot_main_recovery_capture_physical_ticket(&owner,&radio,&stale,
+    ticket.serial-1,&copy));
+ }
+ {struct wr_iot_main_recovery_owner changed;
+  struct wr_iot_radio_transition altered;
+  struct wr_iot_radio_ticket sentinel={0};
+  unsigned fault;
+  sentinel.serial=12345;
+  for(fault=0;fault<8;fault++){
+   changed=owner;altered=radio;copy=sentinel;
+   switch(fault){
+    case 0:changed.schedule_recorded=0;break;
+    case 1:changed.completed=1;break;
+    case 2:changed.stop_requested=1;break;
+    case 3:changed.source=WR_MAIN_RECOVERY_CLOSE_UNCERTAIN;break;
+    case 4:changed.close_ticket_valid=0;break;
+    case 5:altered.retiring=1;break;
+    case 6:altered.pm_suspending=1;break;
+    case 7:altered.reset_pending=1;break;
+   }
+   assert(!wr_iot_main_recovery_capture_physical_ticket(&changed,&altered,
+     &refs[0],ticket.serial-1,&copy));
+   assert(copy.serial==sentinel.serial); /* refused read cannot publish ticket */
+  }
+ }
+
  assert(!wr_iot_main_recovery_mark_completed(&owner,&refs[0]));
  assert(!wr_iot_main_close_note_checked_down(&refs[0],&ticket,1,0));
  assert(wr_iot_main_close_note_checked_down(&refs[0],&ticket,1,1));
@@ -118,6 +150,24 @@ int main(void){
         owner.last_release.ticket.epoch==ticket.epoch);
 
  assert(wr_iot_main_recovery_release_current(&owner,&radio,&refs[0],0));
+ assert(wr_iot_main_recovery_release_for_ticket(&owner,&radio,&refs[0],0,
+   &ticket,4,7));
+ {struct wr_iot_radio_ticket other=ticket;
+  other.serial++;
+  assert(!wr_iot_main_recovery_release_for_ticket(&owner,&radio,&refs[0],0,
+    &other,4,7));
+  other=ticket;other.epoch++;
+  assert(!wr_iot_main_recovery_release_for_ticket(&owner,&radio,&refs[0],0,
+    &other,4,7));
+  other=ticket;other.operation=WR_RADIO_BSS_CLOSE;
+  assert(!wr_iot_main_recovery_release_for_ticket(&owner,&radio,&refs[0],0,
+    &other,4,7));
+  assert(!wr_iot_main_recovery_release_for_ticket(&owner,&radio,&refs[0],0,
+    &ticket,5,7));
+  assert(!wr_iot_main_recovery_release_for_ticket(&owner,&radio,&refs[0],0,
+    &ticket,4,8));
+ }
+
  {struct wr_iot_radio_transition changed=radio;
   struct wr_iot_interface_ref stale=refs[0];
   assert(!wr_iot_main_recovery_release_current(&owner,&radio,&refs[0],1));
