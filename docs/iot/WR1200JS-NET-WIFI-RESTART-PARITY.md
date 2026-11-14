@@ -108,3 +108,20 @@ Runtime preparation compiles/copies it, but Main/Guest controllers do not yet
 invoke it. Saved IgmpSnEnable and USE_IGMP_SNOOP gating must be added at the owning
 policy layer before claiming stock parity. Host/native evidence does not prove
 kernel sysfs or physical multicast operation.
+
+
+## Captured multicast policy and one-shot controller
+
+Prepared WR helper now exports multicast policy under guard/mode0/radio/Guest
+checks. Both USE_IGMP_SNOOP branches are tested: no conversion attributes are
+required with snooping; otherwise exact stable IgmpSnEnable is normalized using
+SDK boolean semantics. Policy observation performs no NVRAM writes.
+The staged multicast controller retains policy and exact Main/Guest pointers,
+requires Guest's Main pointer to match, marks each BSS attempt before applying,
+and never retries uncertainty. Main precedes enabled Guest; Guest OFF and snoop
+branches omit their writes. READY rechecks policy, owners and attribute values.
+Host controller tests pass with owner/transport actors; actual transport and
+SDK policy tests are separate. Native preparation passed after adding the GNU
+feature macro required by included profile receipt declarations. Root restore
+integration and finalizer/retirement ownership for this controller remain pending;
+these components alone do not complete restart parity.
