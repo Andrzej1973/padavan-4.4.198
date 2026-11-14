@@ -329,3 +329,26 @@ external driver/resources injected. Existing STOP/restart fence regression and
 prepared runtime compilation also pass. Stock restart routing, checked Main
 startup and rebind-runner ownership/continuation remain unbound. No target or
 physical acceptance follows from these host tests.
+
+### Rebind ACTIVE normal OFF and observation helpers — 2026-11-14
+
+`rebind-active-stop.c` owns the original rebind runner by pointer. It resumes
+that runner's suspended snapshot, executes existing precreated normal OFF,
+retains snapshots/guards on failure, then discards the baseline and wipes copied
+ON credentials only after full OFF. No live runner is copied into a legacy
+startup context and no old epoch is substituted.
+
+`rebind-observe.c` checks fresh ACTIVE settings/network/services/firewall and
+exact new-epoch OPEN/current token, including commit/open nonces. OFF observation
+requires the original stop pointer, released CLOSE identity, completed service
+cleanup and cleared temporary settings. CLOSE extraction holds the service guard
+across full OFF observation and a second driver read; drift clears output.
+These are software/configuration receipts, not physical RF acceptance.
+
+The host fixture uses real snapshot/stage/suspend/resume, normal OFF, CLOSE
+controller and observers. It checks nine foreign configuration fields in ACTIVE
+and OFF, identity/token/nonce drift, second-read CLOSE serial drift and retained
+three guards during isolation failure. Driver/netdev/resource actors are
+injected.15 prepared native TUs compile. Both helpers are experimentally linked
+with strong target symbols; backend routing/owner adoption and physical resume
+remain unbound. Checked Main startup and scheduler integration remain necessary.
