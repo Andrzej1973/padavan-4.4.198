@@ -23,7 +23,7 @@ with tempfile.TemporaryDirectory(prefix='wr-stop-client-prepared-') as d:
  assert manifest['physical_stop_transport_linked'] and not manifest['physical_stop_rc_orchestration']
  assert manifest['physical_stop_wait_continuation_bound'] and not manifest['physical_stop_rc_entrypoints_bound']
  assert manifest['restart_guest_down_preparation_linked']
- assert manifest['restart_resume_progress_bound'] and not manifest['restart_resume_begin_bound']
+ assert manifest['restart_resume_progress_bound'] and manifest['restart_resume_begin_bound']
  assert manifest['restart_resume_linked'] and not manifest['restart_resume_bound']
  assert manifest['restart_restore_linked'] and not manifest['restart_restore_bound']
  assert manifest['restart_services_linked'] and not manifest['restart_services_bound']

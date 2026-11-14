@@ -736,3 +736,21 @@ refuses without another identity. Existing explicit begin remains available for
 composition tests. Fresh-begin tests and existing scheduler compositions pass;
 automatic begin/net_wifi orchestration remains unbound, and MIPS/runtime evidence
 is pending. Full-suite retry23234 began before these latest changes.
+
+
+### RC RELEASE-to-begin integration
+
+An unowned scheduler reports pending when the private physical owner exposes
+restart/radio RELEASE under active admission. RC therefore holds ordinary
+continuation while entropy is unavailable, and attempts fresh begin in its
+existing100ms progress slot. Begin occupies one tick; restore is advanced on a
+later tick. A retained begin is never replaced. Pending admission before begin
+retains the physical owner; this path does not invent cancellation proof.
+The actual RC/scheduler composition covers entropy refusal, automatic fresh
+begin, later resume progress, physical priority, status IPC and signal wake,
+with physical/resume owners injected. Native preparation passes with begin_bound
+true; overall restart and physical net_wifi entrypoints remain unbound. Terminal
+retirement must still be orchestrated before another physical restart.
+Full-suite retry23234 exited0, but sources changed during that run: this is
+partial/version-mixed regression evidence, not an immutable full-head pass.
+Target and device verification remain separate.

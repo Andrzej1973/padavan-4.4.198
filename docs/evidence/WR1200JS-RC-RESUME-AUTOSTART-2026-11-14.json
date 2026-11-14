@@ -1,0 +1,54 @@
+{
+  "scope": "RC physical RELEASE to fresh resume begin; not overall physical restart binding",
+  "sources": {
+    "tools/iot/restart-scheduler.c": "5bbffb7acb2aa0bdddc1abec3ffc05461ac4cc2099d8929543f3828cd3244f21",
+    "tools/iot/check-rc-resume-autostart.py": "cd9432e21228afa0654296c989e4c793d928ab90af8f94e027397ff1dfe95207",
+    "tools/iot/prepare-runtime.py": "03c8f783f6bf0a1238a5c0dd11383ab6fe60321516606e42f405b59b37c91bdf",
+    "tools/iot/check-physical-stop-client-preparation.py": "4ae839b2e0e5d810a244d215fcc6153bb88d5931976f12ccb055406396fbd86f"
+  },
+  "checks": {
+    "actual_RC_scheduler_autostart": "PASS; session6457; physical/resume actors injected",
+    "scheduler_shutdown": "PASS; session6457",
+    "native_preparation": "PASS; session6457 exit0",
+    "full_suite_retry": "session23234 exit0; source edits during run, mixed-version regression evidence only"
+  },
+  "pending": [
+    "net_wifi physical restart entrypoints",
+    "terminal retirement orchestration",
+    "pre-owner pending admission cancellation proof",
+    "MIPS/image/device acceptance"
+  ],
+  "ci": {
+    "ABI2f752eb": {
+      "run": 43633456633,
+      "result": "success"
+    },
+    "standard03ca95a": {
+      "run": 43632646470,
+      "result": "success"
+    },
+    "optional03ca95a": "not dispatched: optional1211 active and1214 pending; preserve existing queued run"
+  },
+  "completed_scratch_removed": [
+    {
+      "path": "/tmp/wr-resume-progress-suite-retry.log",
+      "bytes": 27761,
+      "sha256": "00cc36e362ae0dd8a438bfe30475b19c229ad639aa59c924a1bc410f5434916d"
+    },
+    {
+      "path": "/tmp/wr-resume-progress-suite.log",
+      "bytes": 9072,
+      "sha256": "7a1ad4158e44ca018ae2dc951f0215ff32c56fb50051d22ff52d54b7ce2df4de"
+    },
+    {
+      "path": "/tmp/wr-handler-timing.log",
+      "bytes": 1311,
+      "sha256": "dd0eb77d3178d01af027f5eb9eaaba1b198fd91491e27cdfb2cd4f956881d315"
+    },
+    {
+      "path": "/tmp/wr-resume-autostart-preparation.log",
+      "bytes": 307,
+      "sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a"
+    }
+  ]
+}

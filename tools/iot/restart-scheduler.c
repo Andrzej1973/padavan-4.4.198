@@ -29,14 +29,19 @@ int wr_iot_restart_scheduler_begin_fresh(void)
 }
 int wr_iot_restart_scheduler_pending(void)
 {
- return resume.owner&&resume.phase!=WR_RESUME_DONE&&resume.phase!=WR_RESUME_CANCELLED;
+ struct wr_iot_rc_physical_intent intent={0};
+ if(resume.owner)return resume.phase!=WR_RESUME_DONE&&resume.phase!=WR_RESUME_CANCELLED;
+ /* Hold ordinary continuation across RELEASE -> begin, including entropy
+  * refusal. A pending admission signal retains the physical owner here. */
+ return wr_iot_rc_shutdown.active&&wr_iot_rc_physical_restart_ready(&intent)&&
+        intent.restart&&intent.radio_on;
 }
 int wr_iot_restart_scheduler_step(void)
 {
  sigset_t queued;unsigned char bytes[32];struct timespec now;
  struct wr_iot_control_request off={0};unsigned i;int admitted;
  static const char hex[]="0123456789abcdef";
- if(!resume.owner)return 0;
+ if(!resume.owner){(void)wr_iot_restart_scheduler_begin_fresh();return 0;}
  /* The outer physical fence masks normal shutdown signals. Observe them
   * without consuming the kernel pending signal or changing its mask. */
  if(wr_iot_rc_shutdown.active&&!sigpending(&queued)){
