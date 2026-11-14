@@ -1,0 +1,49 @@
+{
+  "scope": "host orchestration and native preparation",
+  "checks": [
+    "stable-address embedded generation/Main/Guest/services order",
+    "Main begin attempted once despite uncertain return",
+    "actual Guest/services composition pending -> one Guest DOWN, no reopen/replay",
+    "28 copied TUs C11 Werror O2 native preparation57836 exit0"
+  ],
+  "actors_injected": "generation/Main driver, SDK policy/commands, Guest network/UP/DOWN actors; not full actual source chain",
+  "preparation_log_sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a",
+  "scheduler_bound": false,
+  "profile_finalizer_implemented": false,
+  "target_verified": false,
+  "runtime_verified": false,
+  "profile_composition": "Actual restore + generation/profile journal/Main ASan/UBSan PASS with real temp profile; Guest/services/driver/UP/bridge actors injected. Baseline retained, abort fenced after possible Main UP, origin drift refused.",
+  "test_scope": "Complementary compositions; no single full actual chain or device acceptance claimed",
+  "exact_backend_active_observer": {
+    "session": 77694,
+    "exit_code": 0,
+    "scope": "actual RC backend/rebind owner/runner/admission/commit/observer composition; old OFF provenance and driver/network actors injected",
+    "checks": [
+      "exact ID/created/desired settings",
+      "encoded64-byte physical RELEASE",
+      "new Main epoch/generation",
+      "fresh current ACTIVE owner and OPEN token via existing observer",
+      "wrong epoch/attempt/created/password refused"
+    ],
+    "log_sha256": "819e0f3737575cad632a3116727b5c9ae811068ac5b93414776de1e3ae1e0cd9"
+  },
+  "restore_exact_active_consumer": "Retains handoff created, reconstructs exact request ID/desired parameters, checks owned origin before/after private backend ACTIVE observer, wipes temporary credential envelope. Positive/negative/pending/foreign-context focused test PASS with backend actor injected.",
+  "final_preparation": {
+    "session": 1891,
+    "exit_code": 0,
+    "translation_units": 28,
+    "log_sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a"
+  },
+  "suite77": {
+    "session": 45570,
+    "exit_code": 0,
+    "log_sha256": "3be01fd18674577b504e8279eab7225b314b94cadcee8c05a20943727d197ec3",
+    "scope": "preceded exact ACTIVE observer/consumer; final focused tests cover later changes"
+  },
+  "suite78": {
+    "session": 83845,
+    "exit_code": 0,
+    "log_sha256": "18afbbe7bfbdaa390acacc8be5760d5c04f038eaf0183fe23de47e6701c2a9cd",
+    "scope": "final tested restore/rebind observer sources, before new fence fault test registration"
+  }
+}

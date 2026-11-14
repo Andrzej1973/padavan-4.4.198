@@ -586,3 +586,34 @@ Actual controller + extracted SDK adapter composition and27 prepared native
 TUs pass. Full74 suite passed; newly registered composition makes75 parts but
 no full75 run is claimed. Runtime object included experimentally, scheduler
 binding remains false. Target/service/driver/device acceptance still pending.
+
+### Finalization ordering still to implement
+
+rc-physical-stop.c deliberately stops after finishing==1 for restart while
+retaining service guard and radio-stop-fence. restart_ready/resume_read depend
+on that retained state; physical_take consumes only terminal result and clears
+the process-local physical object. radio-stop-fence requires LIFO closure and
+can fail restoring the signal mask. No timer or generic APPLIED status may
+release this state.
+
+The future exact resume consumer must therefore revalidate the bound ACTIVE
+owner plus profile/Main/Guest/service policy while the physical origin remains
+readable, retain a checked nested service lock across terminal transition, and
+finish only its own signal fence. Mask-restoration failure must retain enough
+baseline and terminal metadata for retry. Only after that transition may the
+old private generation snapshot be discarded without restoring the live file,
+and copied credentials wiped. Current normal-OFF independently captures and
+transforms the CURRENT profile, so old startup bytes must never be replayed.
+This ordering is a design requirement, not an implemented finalizer claim.
+
+#### Signal replay ordering correction
+
+Direct radio-stop-fence.c inspection and injected syscall fault test show that
+successful outer end restores the mask, ends shutdown admission, then raises
+the pending signal before returning. Therefore a simple end-then-cleanup caller
+is unsafe: normal shutdown may run first. Earlier ordering text is incomplete.
+The required completion primitive must retain token/baseline on mask failure,
+and after successful unmask perform already-validated infallible private cleanup
+while admission is still active, before ending admission/replaying the signal.
+No such cleanup primitive is implemented yet. Existing end semantics must remain
+unchanged for other callers; nested LIFO ownership must still be enforced.

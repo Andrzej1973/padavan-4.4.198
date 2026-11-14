@@ -46,6 +46,13 @@ int main(void){
  assert(!wr_iot_activation_prepare_radio_stop());
  struct wr_iot_driver_closed_result receipt={0};assert(!wr_iot_rc_backend_closed(&receipt)&&!receipt.close_serial);
  struct wr_iot_control_request off={.id="04040404040404040404040404040404",.created=4};
+ struct wr_iot_driver_identity expected_identity={2,2};
+ assert(wr_iot_rc_rebind_active_current(&on,&physical,&expected_identity));
+ expected_identity.adapter_epoch++;assert(!wr_iot_rc_rebind_active_current(&on,&physical,&expected_identity));expected_identity.adapter_epoch--;
+ physical.attempt++;assert(!wr_iot_rc_rebind_active_current(&on,&physical,&expected_identity));physical.attempt--;
+ on.created++;assert(!wr_iot_rc_rebind_active_current(&on,&physical,&expected_identity));on.created--;
+ on.request.password[0]='X';assert(!wr_iot_rc_rebind_active_current(&on,&physical,&expected_identity));on.request.password[0]=rebind.start.input.request.password[0];
+ assert(wr_iot_rc_rebind_active_current(&on,&physical,&expected_identity));
  struct wr_iot_rc_quiesce q={0};struct wr_iot_request desired=rebind.start.input.request;
  assert(wr_iot_rc_quiesce_begin(&q,&off)&&q.resume_needed&&q.active&&rebind.phase==WR_REBIND_OWNER_STOP);
  assert(!memcmp(&q.desired,&desired,sizeof(desired)));

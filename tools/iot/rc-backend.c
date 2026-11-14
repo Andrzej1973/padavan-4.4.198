@@ -246,3 +246,25 @@ int wr_iot_rc_rebind_begin(const struct wr_iot_control_request *request,
   ok=wr_iot_rebind_owner_begin(&rebind,request,physical,mode.router,mode.radio,mode.mode);
  wr_iot_service_guard_leave(guard);return ok;
 }
+
+int wr_iot_rc_rebind_active_current(const struct wr_iot_control_request *request,
+ const struct wr_iot_physical_stop_request *physical,const struct wr_iot_driver_identity *identity)
+{
+ struct wr_iot_control_result result={0};unsigned char a[64],b[64];
+ if(!request||!physical||!identity||!wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||
+    rebind.owner!=getpid()||rebind.busy||rebind.phase!=WR_REBIND_OWNER_ACTIVE||
+    !request->created||request->request.enabled!=1||
+    !memchr(request->id,0,sizeof(request->id))||!wr_iot_control_id(request->id)||
+    strcmp(request->id,rebind.start.input.id)||request->created!=rebind.start.input.created||
+    identity->adapter_epoch!=rebind.start.start.identity.adapter_epoch||
+    identity->device_generation!=rebind.start.start.identity.device_generation||
+    !wr_iot_physical_stop_request_encode(a,sizeof(a),physical)||
+    !wr_iot_physical_stop_request_encode(b,sizeof(b),&rebind.start.start.physical)||
+    memcmp(a,b,sizeof(a)))return 0;
+#define SAME(f) if(!memchr(request->request.f,0,sizeof(request->request.f))||strcmp(request->request.f,rebind.start.input.request.f))return 0;
+ SAME(ssid) SAME(password) SAME(gateway) SAME(mask) SAME(first) SAME(last)
+#undef SAME
+ memcpy(result.id,request->id,sizeof(result.id));result.created=request->created;
+ result.state=WR_IOT_RESULT_APPLIED;
+ return wr_iot_rebind_owner_observed(&rebind,&result);
+}

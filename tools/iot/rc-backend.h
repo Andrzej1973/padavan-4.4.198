@@ -17,4 +17,8 @@ struct wr_iot_physical_stop_request;
  * fresh new-Main checks inside runner, stable owner; caller keeps outer guards. */
 int wr_iot_rc_rebind_begin(const struct wr_iot_control_request *,
  const struct wr_iot_physical_stop_request *);
+struct wr_iot_driver_identity;
+/* Exact private ACTIVE rebind owner, not generic APPLIED/OFF status. */
+int wr_iot_rc_rebind_active_current(const struct wr_iot_control_request *,
+ const struct wr_iot_physical_stop_request *,const struct wr_iot_driver_identity *);
 #endif
