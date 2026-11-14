@@ -1,6 +1,7 @@
 #include <time.h>
 #include <net/if.h>
 #include "dns-activation.h"
+#include "bridge.h"
 #include <string.h>
 #include "control-channel.h"
 #include "rc-backend.h"
