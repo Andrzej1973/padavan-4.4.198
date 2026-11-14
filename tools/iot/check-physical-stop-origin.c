@@ -1,6 +1,6 @@
 #include <assert.h>
 #include <string.h>
-#include "physical-stop-origin.h"
+#include "physical-rebind-probe.h"
 int main(void)
 {
  int device;
@@ -100,5 +100,22 @@ int main(void)
  assert(!wr_iot_physical_stop_origin_pair(&terminal,terminal.owner,&request,&owner,&radio,0,2,&device,&iot_device,1));
  assert(!wr_iot_physical_stop_origin_pair(&terminal,terminal.owner,&request,&owner,&radio,slots,0,&device,&iot_device,1));
  assert(slots[1].close_epoch==5&&radio.epoch==7);
+ for(unsigned fault=0;fault<7;fault++){
+  struct wr_iot_physical_rebind_probe probe={0};
+  struct wr_iot_radio_transition r=radio;
+  struct wr_iot_interface_ref records[2]={slots[0],slots[1]};
+  assert(wr_iot_physical_rebind_probe_begin(&probe,&terminal,terminal.owner,&request,&owner,&r,records,2,&device,&iot_device,1));
+  assert(!wr_iot_physical_rebind_probe_begin(&probe,&terminal,terminal.owner,&request,&owner,&r,records,2,&device,&iot_device,1));
+  struct wr_iot_physical_stop_terminal t=terminal;
+  struct wr_iot_physical_stop_request q=request;
+  if(fault==5){q.nonce[0]++;t.request=q;}
+  if(fault==6){q.attempt++;t.request=q;}
+  if(fault==1)r.epoch++;
+  if(fault==2)records[0].last_token++;
+  if(fault==3)records[1].close_serial++;
+  assert(wr_iot_physical_rebind_probe_finish(&probe,&t,terminal.owner,&q,&owner,&r,records,2,&device,&iot_device,1,fault==4?0:1)==(fault==0));
+  assert(!probe.active&&!r.busy&&records[1].close_epoch==5);
+  assert(!wr_iot_physical_rebind_probe_finish(&probe,&t,terminal.owner,&q,&owner,&r,records,2,&device,&iot_device,1,1));
+ }
  return 0;
 }

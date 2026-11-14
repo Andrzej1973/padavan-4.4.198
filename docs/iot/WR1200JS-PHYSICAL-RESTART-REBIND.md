@@ -94,3 +94,23 @@ attempt, epoch, generation, OPEN token, CLOSE serial, nonce and CANCEL action.
 There are60 negative cases across origin/Main/ra2/terminal/request tests. This
 remains a preflight without transport or current configuration observation; the
 new caller must pin adapter/netdevices and provide actual kernel PID identity.
+
+Local `physical-rebind-probe.h` adds begin/finish around existing BSS_OBSERVE
+admission. Begin requires exact paired identity and snapshots the new Main
+generation/token. Finish retires only its own ticket, then requires unchanged
+epoch, successful configuration observation and a fresh paired identity/count
+check. Epoch/Main token/ra2 identity drift and failed readback reject without
+rewriting old CLOSE history. Failed ticket retirement retains the active probe.
+Native sanitizer tests use injected readback and exercise real radio ticket
+functions. This API-only header is not installed into the vendor candidate yet;
+it must be bound to the existing BcnRing-protected actual configuration observer
+with pinned lifetime before any transport or OPEN permission is exposed.
+
+Probe identity is now retained across unlocked readback: actual issuer pointer,
+Main/IoT devices and original RELEASE tuple/nonce are copied at begin and
+required at finish. Even a newly valid replacement terminal cache with another
+nonce/attempt cannot complete the previous probe. Caller-held lifetime pins
+remain mandatory; these copied pointers do not acquire references. Seven
+observation outcomes, including terminal replacement, pass strict sanitizer
+checks. Next persistent storage/teardown fencing and actual observer binding
+remain required before installing this header into the candidate driver.
