@@ -157,3 +157,17 @@ its baseline setup; moving the measurement after setup fixed that fixture error.
 No production generator change was needed. The new test is standalone/unregistered
 while full-suite75467 uses unchanged1b74afc inputs. This does not resolve the
 missing conditional reload_svc_rt update or imply target/runtime acceptance.
+
+
+## SDK radio/reload state adapter candidate
+
+Standalone restart-radio-state-sdk.inc requires service guard, mode0, enabled
+radio and administrative Main DOWN before fixed RAM NVRAM writes. reload0 never
+writes reload_svc_rt; reload1 writes1 with readback before mlme_state_rt(1).
+Final guard/mode/radio/Main checks and readback refuse partial or uncertain state.
+No nvram commit, interface UP or timing-register change is performed.
+ASan/UBSan fixture covers admission failures, unchanged reload0 flag and each
+readback refusal. SDK setters/observers are actors. This adapter remains unbound:
+root must mark a single attempt before calling after profile verification and
+before Main UP. Do not infer RF state from mlme_radio_rt. Existing full-suite
+75467 uses unchanged1b74afc code and excludes this new standalone component.
