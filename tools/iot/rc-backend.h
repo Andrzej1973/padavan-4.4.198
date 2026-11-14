@@ -11,4 +11,10 @@ int wr_iot_rc_backend_observed(const struct wr_iot_control_result *);
 struct wr_iot_driver_closed_result;
 /* Fresh software CLOSE from the private retained OFF owner, never mailbox-only. */
 int wr_iot_rc_backend_closed(struct wr_iot_driver_closed_result *);
+struct wr_iot_control_request;
+struct wr_iot_physical_stop_request;
+/* Private resume admission: exact retained old OFF/physical RELEASE tuple,
+ * fresh new-Main checks inside runner, stable owner; caller keeps outer guards. */
+int wr_iot_rc_rebind_begin(const struct wr_iot_control_request *,
+ const struct wr_iot_physical_stop_request *);
 #endif

@@ -18,6 +18,7 @@ static char mailbox_directory[]="/tmp/iot-rc-owner-mailbox-XXXXXX";
 static int entropy_fail;
 static long stop_entropy(void *out,unsigned int n,unsigned int flags){assert(n==32&&flags==1);if(entropy_fail)return -1;memset(out,1,n);return n;}
 #define WR_IOT_GETRANDOM(out,n,flags) stop_entropy(out,n,flags)
+#include "check-rebind-owner-unused.h"
 #include "rc-backend.c"
 #include "activation-observe.h"
 #define WR_IOT_NOTIFY() ((void)0)

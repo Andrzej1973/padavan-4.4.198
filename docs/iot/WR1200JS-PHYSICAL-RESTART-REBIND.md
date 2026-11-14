@@ -352,3 +352,26 @@ three guards during isolation failure. Driver/netdev/resource actors are
 injected.15 prepared native TUs compile. Both helpers are experimentally linked
 with strong target symbols; backend routing/owner adoption and physical resume
 remain unbound. Checked Main startup and scheduler integration remain necessary.
+
+### RC backend rebind routing — 2026-11-14
+
+`rebind-owner.c` embeds the new runner and pointer-based normal OFF at a stable
+address. `wr_iot_rc_rebind_begin` in RC backend requires the exact prior retained
+OFF tuple, completed/unowned legacy OFF, a fresh request identity and current
+mode. Old OFF is provenance only: fresh physical RELEASE/new-Main admission
+still occurs inside the runner before staging. Live contexts are not copied.
+
+Once retained, public execute/continue/status and fresh CLOSED extraction route
+to the rebind owner; old ON receipts cannot report ACTIVE. Private quiesce also
+uses this owner, preserves desired settings and continues the same normal OFF.
+Legacy-only composition fixtures resolve new owner adapters with assertions
+that must remain unreachable, preserving their original verification scope.
+
+The new RC composition executes real owner/runner/admission/staging/commit/
+normal OFF and observers; it injects old OFF provenance, network and driver
+actors. It covers wrong old tuple, foreign continuation, ACTIVE token drift,
+retained isolation failure, desired preservation and new-epoch CLOSED.
+16 prepared native TUs compile. This is not physical restart scheduler binding.
+Ordinary ON after rebind OFF and repeated physical-resume cycles still require
+explicit implementation; they currently refuse without initial-idle fallback.
+Checked Main startup, scheduler, target build and physical acceptance remain.
