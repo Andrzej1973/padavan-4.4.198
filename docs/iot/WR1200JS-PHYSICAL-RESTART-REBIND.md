@@ -171,3 +171,12 @@ identity is trusted without actual kernel admission. Native sanitizer/target
 declaration-warning test covers truncation/header/stale tuple and wipe. No
 wrapper/dispatch installed yet. The future wrapper must check capability before
 reading either request and independently validate its own bounded copy.
+
+`physical-rebind-ioctl.inc` now independently checks RTNL, namespace capability,
+MT7603 and exact ra2 before userspace reads. It copies8-byte header, selects
+constant72/216 length, copies whole request and compares the header before strict
+decode. Copies/credential-bearing request are wiped on return. Handler executes
+once without automatic retry; original errors remain visible. Native wrapper
+fixture covers both copy faults, header race, foreign BSS and exact dispatch.
+Installer stages it after execution helpers, but no ioctl discriminator routes
+WRRB yet. Userspace transport/uncertain recovery and RC resume are pending.
