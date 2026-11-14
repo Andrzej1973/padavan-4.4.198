@@ -30,6 +30,7 @@ try:
  if texts[paths[7]].count('#define WR_IOT_RA2_NO_HOST_MODE 1')!=1:
   raise ValueError('verified no-host dispatch definition required')
  texts[paths[7]]=runpy.run_path(str(here/'physical-stop-dispatch.py'))['compose'](texts[paths[7]])
+ texts[paths[7]]=runpy.run_path(str(here/'physical-rebind-dispatch.py'))['compose'](texts[paths[7]])
  texts[paths[7]]+='\n#include "physical-stop-arm-admission.inc"\n#include "physical-stop-pins.inc"\n#include "physical-stop-arm-publication.inc"\n#include "physical-stop-main-completion.inc"\n#include "physical-stop-terminal.inc"\n#include "physical-stop-cancel.inc"\n#include "physical-stop-terminal-replace.inc"\n#include "physical-stop-release.inc"\n#include "physical-stop-query.inc"\n#include "physical-stop-handler.inc"\n#include "physical-stop-ioctl.inc"\n#include "physical-rebind-binding.inc"\n#include "physical-rebind-open-entry.inc"\n#include "physical-rebind-ioctl.inc"\n'
  texts[paths[3]]=helpers['compose_open_dispatch'](texts[paths[3]])
  texts[paths[4]],texts[paths[5]]=helpers['compose_retirement'](texts[paths[4]],texts[paths[5]])
@@ -46,7 +47,7 @@ if 'candidate_driver_sha256' in m:
  for n in ('physical-stop-record.h','physical-rebind-probe-types.h','physical-rebind-probe.h','physical-rebind-open.h','physical-rebind-binding.inc','physical-rebind-open-entry.inc','physical-rebind-wire.h','physical-rebind-ioctl.inc','physical-stop-origin.h','physical-stop-lifetime.h','physical-stop-pin-types.h','physical-stop-terminal-types.h','physical-stop-prior-close.h','physical-stop-wire.h','physical-stop-arm-admission.inc','physical-stop-pins.inc','physical-stop-arm-publication.inc','physical-stop-main-completion.inc','physical-stop-terminal.inc','physical-stop-response.h','physical-stop-cancel.inc','physical-stop-terminal-replace.inc','physical-stop-release.inc','physical-stop-query.inc','physical-stop-handler.inc','physical-stop-ioctl.inc'):
   m['candidate_driver_sha256']['include/'+n]=m['merged_driver_sha256']['include/'+n]
 m['physical_stop_deferred_layer']={'dormant':False,'experimental_only':True,'main_worker_hook':True,
- 'legacy_executor_modified':False,'endpoint_installed':True,'endpoint_scope':'isolated no-host experiment only','ioctl_existing':'0x89fd','request_magic':'WPSQ','arm_admission_source_staged':True,
+ 'legacy_executor_modified':False,'endpoint_installed':True,'endpoint_scope':'isolated no-host experiment only','rebind_endpoint_installed':True,'rebind_request_magic':'WRRB','ioctl_existing':'0x89fd','request_magic':'WPSQ','arm_admission_source_staged':True,
  'reset_arm_gate_staged':True,'reset_admission_complete':False,'target_compiled':False,'runtime_verified':False}
 m.update(production_installed=False,target_compiled=False,runtime_verified=False)
 out.with_name(out.name+'.manifest.json').write_text(json.dumps(m,indent=2)+'\n')

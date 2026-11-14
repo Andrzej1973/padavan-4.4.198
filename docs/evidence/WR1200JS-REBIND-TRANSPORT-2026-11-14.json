@@ -1,0 +1,38 @@
+{
+  "scope": "Experimental WRRB route plus fixed ra2 RC client",
+  "implementation": [
+    "exact WRRB discriminator after existing CLOSED_CONFIG authorization/copy",
+    "independent wrapper full validation",
+    "fixedra2 socket CLOEXEC/one existing ioctl/no retry",
+    "invalid/socket failure NOT_SUBMITTED, ioctl/close failure UNCERTAIN",
+    "zero ioctl return IOCTL_RETURNED only, not physical acceptance",
+    "volatile wire credential wipe, caller input unchanged",
+    "experimental runtime object linked, no scheduler activation"
+  ],
+  "checks": {
+    "route40suite_session": 71181,
+    "route40suite_exit": 0,
+    "client_fixture_session": 53720,
+    "client_result": "PASS strict O2 ASan/UBSan with target declaration warning",
+    "actual_prepared_runtime_session": 34896,
+    "prepared_runtime": "PASS strictC11 fiveTUs including rebind client",
+    "installer": "PASS final metadata assertions",
+    "shell_syntax": "PASS"
+  },
+  "new_suite_parts": 41,
+  "full41_claimed": false,
+  "pending": [
+    "target driver/RC link",
+    "uncertain OPEN receipt recovery",
+    "RC restart/resume orchestration",
+    "physical acceptance"
+  ],
+  "ci_optional": {
+    "run": 43579304057,
+    "verified_source": "166d46689ecb2bb6b81ad0c901607aca4e71e253",
+    "dispatch": "3dbe6cdc3587978b609b1e70ea2e867526201035"
+  },
+  "production_orchestration": false,
+  "runtime_verified": false,
+  "scratch": "Native prepared/temp trees auto-removed; bounded40suite log removed after PASS"
+}

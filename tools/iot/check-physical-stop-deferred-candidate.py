@@ -56,6 +56,8 @@ with tempfile.TemporaryDirectory(prefix='wr-stop-deferred-installer-') as d:
  result=json.loads(out.with_name(out.name+'.manifest.json').read_text())
  assert result['physical_stop_deferred_layer']['main_worker_hook']
  assert result['physical_stop_deferred_layer']['endpoint_installed']
+ assert result['physical_stop_deferred_layer']['rebind_endpoint_installed']
+ assert 'return wr_iot_physical_rebind_ioctl(ad,dev,rq);' in (out/'include/driver-api-closed-entry.inc').read_text()
  assert result['physical_stop_deferred_layer']['endpoint_scope']=='isolated no-host experiment only'
  assert (out/'include/wr-iot-peer-close-executor.inc').read_bytes()==(src/'include/wr-iot-peer-close-executor.inc').read_bytes()
  assert 'wr_iot_physical_stop_lifetime_capture_main(' in (out/'os/linux/rt_main_dev.c').read_text()

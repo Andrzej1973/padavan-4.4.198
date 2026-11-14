@@ -17,7 +17,7 @@ with tempfile.TemporaryDirectory(prefix='wr-stop-client-prepared-') as d:
  assert manifest['physical_stop_transport_linked'] and not manifest['physical_stop_rc_orchestration']
  assert manifest['physical_stop_wait_continuation_bound'] and not manifest['physical_stop_rc_entrypoints_bound']
  assert not manifest['physical_stop_restart_resume_bound']
- for name in ('physical-stop-client','physical-stop-down','physical-stop-session','rc-physical-stop'):
+ for name in ('physical-stop-client','physical-stop-down','physical-stop-session','rc-physical-stop','physical-rebind-client'):
   assert (rc/'Makefile').read_text().count('wr-iot-'+name+'.o')==1
   subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-O2','-I'+str(rc),'-c',str(rc/('wr-iot-'+name+'.c')),'-o',str(root/(name+'.o'))],check=True)
  duplicate=subprocess.run(['python3',str(here/'prepare-runtime.py'),str(root)],capture_output=True)

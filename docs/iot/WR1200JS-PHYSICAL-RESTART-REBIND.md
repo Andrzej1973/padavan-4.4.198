@@ -180,3 +180,20 @@ once without automatic retry; original errors remain visible. Native wrapper
 fixture covers both copy faults, header race, foreign BSS and exact dispatch.
 Installer stages it after execution helpers, but no ioctl discriminator routes
 WRRB yet. Userspace transport/uncertain recovery and RC resume are pending.
+
+The isolated no-host installer now routes exact WRRB magic from existing
+CLOSED_CONFIG after its original privilege checks and bounded initial copy.
+The wrapper independently repeats authorization and its own full payload copy.
+WPSQ remains routed as before; unknown/reply magic falls through. Source
+transformer rejects missing guards/prerequisite or duplicate application.
+Metadata explicitly reports the rebind endpoint installed in the experimental
+candidate only, with production_installed=false. Native route and installer
+checks pass; userspace client and uncertain-result recovery still pending.
+
+Fixed-ra2 userspace client now sends the existing CLOSED_CONFIG ioctl once via
+CLOEXEC socket. Invalid syntax/socket acquisition is NOT_SUBMITTED; attempted
+ioctl or close failure is UNCERTAIN; zero return is IOCTL_RETURNED only. It
+never retries OPEN and wipes its wire buffer on every path, preserving caller
+input. Runtime preparer links the client in experimental RC and target link
+checks its symbol. The RC scheduler does not call it yet. Exact OPEN identity
+receipt/recovery remains required before guard release or resume acceptance.
