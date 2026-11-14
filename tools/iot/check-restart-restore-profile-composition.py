@@ -16,6 +16,7 @@ int wr_iot_restart_services_step(struct wr_iot_restart_services*s){return s->mai
 int wr_iot_rc_rebind_begin(const struct wr_iot_control_request*r,const struct wr_iot_physical_stop_request*p){(void)r;(void)p;return 0;}
 int wr_iot_rc_rebind_active_current(const struct wr_iot_control_request*r,const struct wr_iot_physical_stop_request*p,const struct wr_iot_driver_identity*i){(void)r;(void)p;(void)i;return 0;}
 #include "check-multicast-owner-actor.h"
+int wr_iot_rc_restart_radio_state(int reload){assert(reload==0||reload==1);return 1;}
 #include "restart-restore.c"
 int main(int argc,char**argv){
  assert(argc==2);snprintf(profile_path,sizeof(profile_path),"%s/profile",argv[1]);

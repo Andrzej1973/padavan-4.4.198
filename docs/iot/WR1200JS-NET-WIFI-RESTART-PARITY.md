@@ -188,3 +188,15 @@ required integration check.
 Full-suite75467 handle and its /tmp log are missing in the current environment.
 Its result is unavailable, not inferred successful from prior progress. Reverify
 an immutable integrated revision on CI or a new bounded host run.
+
+
+## Radio/reload state bound before Main submission
+
+Root restore revalidates generation before the fixed SDK state update, marks
+radio_state_attempted before invoking it and retains on any refusal or pending
+shutdown. Main begin follows only a successful return, never a repeated setter.
+Prepared WR helper/header now installs the real adapter. Actual root failure
+fixture proves zero Main UP and no replay after uncertain state update. Existing
+restore/Guest/multicast/service composition, profile/finish/premain checks and
+native preparation pass with explicitly injected SDK adapters. The watchdog
+reload event still has no delivery receipt. No new target/runtime claim.

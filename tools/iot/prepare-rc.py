@@ -162,6 +162,7 @@ int wr_iot_rc_restart_generate(int disable_autoscan)
 """
 helper=helper.replace("/* Profile generation only;", "#include \"wr-iot/restart-auth-stop.h\"\n"+(local/"restart-auth-stop-sdk.inc").read_text()+"\n/* Profile generation only;",1)
 helper=helper.replace("/* Profile generation only;", "#include \"wr-iot/restart-multicast-policy.h\"\n"+(local/"restart-multicast-policy-sdk.inc").read_text()+"\n/* Profile generation only;",1)
+helper=helper.replace("/* Profile generation only;", "#include \"wr-iot/restart-radio-state.h\"\n"+(local/"restart-radio-state-sdk.inc").read_text()+"\n/* Profile generation only;",1)
 s=s.replace(anchor,helper+anchor+'\n#if defined(BOARD_WR1200JS)\n wr_iot_last_stop_result=wr_iot_quiesce();\n if (!wr_iot_last_stop_result) return;\n#endif',1)
 restart_anchor='void\nrestart_wifi_rt(int radio_on, int need_reload_conf)\n{'
 if s.count(restart_anchor)!=1:raise SystemExit('2.4 GHz restart anchor changed')
@@ -992,6 +993,7 @@ m.write_text(make.replace('wr-iot-initial-off.o','wr-iot-initial-off.o '+objects
 (headers/'restart-guest-policy.h').write_bytes((local/'restart-guest-policy.h').read_bytes())
 (headers/'restart-service-policy.h').write_bytes((local/'restart-service-policy.h').read_bytes())
 (headers/'restart-auth-stop.h').write_bytes((local/'restart-auth-stop.h').read_bytes())
+(headers/'restart-radio-state.h').write_bytes((local/'restart-radio-state.h').read_bytes())
 (headers/'restart-multicast-policy.h').write_bytes((local/'restart-multicast-policy.h').read_bytes())
 (headers/'restart-main-state.h').write_bytes((local/'restart-main-state.h').read_bytes())
 (headers/'radio-stop-fence.h').write_bytes((local/'radio-stop-fence.h').read_bytes())

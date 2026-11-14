@@ -26,6 +26,7 @@ int wr_iot_rc_restart_multicast_policy(struct wr_iot_multicast_policy*p){*p=(str
 int wr_iot_restart_multicast_apply(unsigned b,int enabled){assert(!service_calls&&enabled&&b==(unsigned)mc_calls);mc_calls++;return 1;}
 int wr_iot_restart_multicast_current(unsigned b,int enabled){assert(b<2&&enabled);return 1;}
 #include "restart-multicast-controller.c"
+int wr_iot_rc_restart_radio_state(int reload){assert(reload==0||reload==1);return 1;}
 #include "restart-restore.c"
 int main(void){
  struct wr_iot_restart_restore s={0};unsigned char id[16]={7};wr_iot_rc_shutdown.active=1;

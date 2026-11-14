@@ -4,10 +4,11 @@
 #include "restart-restore.h"
 #include "rc-shutdown-admission.h"
 #include "rc-backend.h"
+#include "restart-radio-state.h"
 int wr_iot_restart_restore_begin(struct wr_iot_restart_restore *s,const unsigned char *id)
 {
  unsigned i,nonzero=0;
- if(!s||!id||s->owner||s->busy||s->phase!=WR_RESTORE_IDLE||
+ if(!s||!id||s->owner||s->busy||s->radio_state_attempted||s->phase!=WR_RESTORE_IDLE||
     s->generation.owner||s->main.owner||s->guest.owner||s->services.owner||s->multicast.owner||
     !wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending)return 0;
  for(i=0;i<16;i++)nonzero|=id[i];
@@ -39,6 +40,12 @@ int wr_iot_restart_restore_step(struct wr_iot_restart_restore *s)
   if(wr_iot_restart_generation_step(&s->generation))s->phase=WR_RESTORE_MAIN_START;
   break;
  case WR_RESTORE_MAIN_START:
+  if(s->radio_state_attempted)break;
+  if(!wr_iot_restart_generation_step(&s->generation))break;
+  s->radio_state_attempted=1;
+  s->phase=WR_RESTORE_RETAINED;
+  if(!wr_iot_rc_restart_radio_state(s->generation.origin.intent.reload))break;
+  if(wr_iot_rc_shutdown.pending)break;
   /* Never repeat Main begin, even on uncertain transport return. */
   s->phase=WR_RESTORE_MAIN_WAIT;
   (void)wr_iot_restart_main_begin(&s->main,&s->generation,s->open_id);

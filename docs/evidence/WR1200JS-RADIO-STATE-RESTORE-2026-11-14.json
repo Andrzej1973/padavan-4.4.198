@@ -1,0 +1,47 @@
+{
+  "scope": "one-attempt SDK RAM radio state before Main UP; host/native only",
+  "checks": {
+    "focused_failure_adapter_restore": "PASS;1484",
+    "native_preparation": "PASS;95600",
+    "profile_finish": "PASS;72042",
+    "premain_shutdown": "PASS;76688"
+  },
+  "sources": {
+    "restart-restore.c": "ee872375025beab4789c70a7f61da44744a824078cae060ee8252bd715c9a437",
+    "restart-restore.h": "746bc67cb834a82917a0907ddbb5e8e847f0090f4fd010aeef1d9d59b72e1c48",
+    "prepare-rc.py": "40965b012709a5f6f3747ffc124aee6b1da65c2f27f73b8f111ad1972fc25e17",
+    "prepare-runtime.py": "311db0001f1f5ee1e59a9ca7d7091d6de9ad802b5de25d8e516dcd07272372e2",
+    "check-restore-radio-failure.py": "56025c1a5d215408d3a8ec654319ed38a58c5c3cbc75accd9363fb3ebcb61865"
+  },
+  "limitations": [
+    "SDK setter and external resource actors injected",
+    "watchdog event delivery not proven",
+    "MIPS and physical runtime pending"
+  ],
+  "scratch": [
+    {
+      "path": "/tmp/wr-radio-bound-native.log",
+      "bytes": 307,
+      "sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a",
+      "removed": true
+    },
+    {
+      "path": "/tmp/wr-radio-bound-profile.log",
+      "bytes": 243,
+      "sha256": "74a344cddaab7d9ca58205124c920ef86fb72e726b33780b474480c716e656d0",
+      "removed": true
+    },
+    {
+      "path": "/tmp/wr-radio-bound-finish.log",
+      "bytes": 311,
+      "sha256": "9272de1b1bac2a60c393a7778bd966d812ba9fd623ae146ef9b4e01c0b8e6680",
+      "removed": true
+    },
+    {
+      "path": "/tmp/wr-radio-bound-shutdown.log",
+      "bytes": 507,
+      "sha256": "301d0507c753eef0264f0097b83b8b92f2f67f8d326c3a6a64f7787ee416007d",
+      "removed": true
+    }
+  ]
+}
