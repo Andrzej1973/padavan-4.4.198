@@ -1,4 +1,6 @@
 #include <time.h>
+#include <net/if.h>
+#include "dns-activation.h"
 #include <string.h>
 #include "control-channel.h"
 #include "rc-backend.h"
@@ -313,4 +315,37 @@ int wr_iot_rc_rebind_shutdown_closed(const struct wr_iot_control_result *on,
  if(!wr_iot_rebind_owner_closed(&rebind,&result,&closed)||
     closed.adapter_epoch!=identity->adapter_epoch||closed.device_generation!=identity->device_generation)return 0;
  *out=closed;return 1;
+}
+
+int wr_iot_rc_rebind_preopen_rejected(const struct wr_iot_control_result *on,
+ const struct wr_iot_physical_stop_request *physical,const struct wr_iot_driver_identity *identity)
+{
+ struct wr_iot_driver_identity current={0};unsigned char a[64],b[64];unsigned i;int guard,ok;
+ if(!on||!physical||!identity||!wr_iot_rc_shutdown.active||
+    (wr_iot_rc_shutdown.pending!=SIGTERM
+#ifdef SIGQUIT
+     &&wr_iot_rc_shutdown.pending!=SIGQUIT
+#endif
+    )||rebind.owner!=getpid()||rebind.busy||rebind.phase!=WR_REBIND_OWNER_REJECTED||
+    rebind.start.owner!=getpid()||rebind.start.busy||rebind.start.phase!=WR_IOT_RUN_REJECTED||
+    !memchr(on->id,0,sizeof(on->id))||!wr_iot_control_id(on->id)||!on->created||
+    strcmp(on->id,rebind.start.input.id)||on->created!=rebind.start.input.created||
+    rebind.start.start.admission.snapshot.active||rebind.start.start.admission.snapshot.token||
+    (rebind.start.start.admission.mutation_started&&rebind.start.rollback.phase!=WR_IOT_ROLL_DONE)||
+    (rebind.start.open.phase!=WR_REBIND_OPEN_IDLE&&rebind.start.open.phase!=WR_REBIND_OPEN_NOT_SUBMITTED)||
+    rebind.start.open.busy||rebind.start.close.owner||
+    rebind.start.open.attempt.identity.adapter_epoch||rebind.start.open.attempt.identity.device_generation||
+    identity->adapter_epoch!=rebind.start.start.identity.adapter_epoch||
+    identity->device_generation!=rebind.start.start.identity.device_generation||
+    !wr_iot_physical_stop_request_encode(a,sizeof(a),physical)||
+    !wr_iot_physical_stop_request_encode(b,sizeof(b),&rebind.start.start.physical)||memcmp(a,b,sizeof(a)))return 0;
+ for(i=0;i<16;i++)if(rebind.start.open.attempt.request_id[i])return 0;
+ guard=wr_iot_service_guard_enter(1);if(guard!=1)return 0;
+ ok=!if_nametoindex("br-iot")&&wr_iot_request_disabled_current()&&wr_iot_bss_is_down()&&
+  wr_iot_dns_activation_recovery_state()==0&&
+  wr_iot_rebind_configuration_current(physical,rebind.start.start.open_id,&current)&&
+  current.adapter_epoch==identity->adapter_epoch&&current.device_generation==identity->device_generation&&
+  !if_nametoindex("br-iot")&&wr_iot_request_disabled_current()&&wr_iot_bss_is_down()&&
+  wr_iot_dns_activation_recovery_state()==0;
+ wr_iot_service_guard_leave(guard);return ok;
 }

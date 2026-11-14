@@ -17,6 +17,7 @@ int wr_iot_rc_physical_resume_finish(struct wr_iot_restart_restore*s){(void)s;as
 int wr_iot_rc_physical_resume_cancel(struct wr_iot_restart_restore*s,const struct wr_iot_rc_quiesce*q){(void)s;(void)q;assert(0);return 0;}
 int wr_iot_rc_physical_take(struct wr_iot_rc_physical_intent*i){(void)i;assert(0);return 0;}
 int wr_iot_restart_guest_step(struct wr_iot_restart_guest*g){(void)g;assert(0);return 0;}
+int wr_iot_restart_restore_preopen_rejected(struct wr_iot_restart_restore*s){(void)s;return 0;}
 #include "restart-resume.c"
 int main(void){
  struct wr_iot_control_request on={.id="11111111111111111111111111111111",.created=1,.request={.enabled=1,.ssid="IoT",.password="password123",.gateway="192.168.50.1",.mask="255.255.255.0",.first="192.168.50.20",.last="192.168.50.200"}};

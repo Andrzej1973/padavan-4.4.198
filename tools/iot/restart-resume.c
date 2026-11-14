@@ -45,15 +45,17 @@ int wr_iot_restart_resume_step(struct wr_iot_restart_resume*s)
   if(!s->shutdown.owner){
    for(i=0;i<16;i++){request.id[2*i]=hex[s->restore.open_id[i]>>4];request.id[2*i+1]=hex[s->restore.open_id[i]&15];}
    (void)wr_iot_activation_continue(request.id,s->created);
-   (void)wr_iot_rc_quiesce_shutdown_begin(&s->shutdown,&s->stop_input);
+   if(wr_iot_restart_restore_preopen_rejected(&s->restore))s->phase=WR_RESUME_SHUTDOWN_ROLLBACK;
+   else (void)wr_iot_rc_quiesce_shutdown_begin(&s->shutdown,&s->stop_input);
    break;
   }
   if(wr_iot_rc_quiesce_advance(&s->shutdown,&closed))s->phase=WR_RESUME_SHUTDOWN_CLOSED;
   break;
+ case WR_RESUME_SHUTDOWN_ROLLBACK:
  case WR_RESUME_SHUTDOWN_CLOSED:
   if(s->restore.phase!=WR_RESTORE_CANCELLED){
    (void)wr_iot_restart_guest_step(&s->restore.guest);
-   if(!wr_iot_rc_physical_resume_cancel(&s->restore,&s->shutdown))break;
+   if(!wr_iot_rc_physical_resume_cancel(&s->restore,s->phase==WR_RESUME_SHUTDOWN_ROLLBACK?NULL:&s->shutdown))break;
   }
   if(wr_iot_rc_physical_take(&intent)==-1){s->phase=WR_RESUME_CANCELLED;done=-1;}
   break;

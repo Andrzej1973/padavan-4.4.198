@@ -1,0 +1,41 @@
+{
+  "package": "372da9a",
+  "removed_logs": [
+    {
+      "path": "/tmp/wr-rebind-shutdown.log",
+      "bytes": 614,
+      "sha256": "2d8dc36fd0814e3954c9f3b290c2f5f369c08aad6cf77205279c800c09f24ad9"
+    },
+    {
+      "path": "/tmp/wr-rebind-normal-regression.log",
+      "bytes": 426,
+      "sha256": "819e0f3737575cad632a3116727b5c9ae811068ac5b93414776de1e3ae1e0cd9"
+    },
+    {
+      "path": "/tmp/wr-rebind-shutdown-exact.log",
+      "bytes": 614,
+      "sha256": "2d8dc36fd0814e3954c9f3b290c2f5f369c08aad6cf77205279c800c09f24ad9"
+    },
+    {
+      "path": "/tmp/wr-resume-shutdown-preparation.log",
+      "bytes": 307,
+      "sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a"
+    },
+    {
+      "path": "/tmp/wr-resume-cancel-preparation.log",
+      "bytes": 307,
+      "sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a"
+    },
+    {
+      "path": "/tmp/wr-pump-backend-shutdown.log",
+      "bytes": 645,
+      "sha256": "0d56ef74ab740feeb20bf5b81433344da58403d73a7c65446a6b88bb420b57d3"
+    },
+    {
+      "path": "/tmp/wr-resume-cancellation-suite.log",
+      "bytes": 22769,
+      "sha256": "264de356db8b56b02482acfa740128d997b66c69c229b4958e69bfcfd14d5a4a"
+    }
+  ],
+  "reclaimed_bytes": 25682
+}

@@ -15,6 +15,7 @@ int wr_iot_rc_physical_resume_finish(struct wr_iot_restart_restore*s){(void)s;as
 int wr_iot_rc_physical_take(struct wr_iot_rc_physical_intent*i){(void)i;assert(0);return 0;}
 int wr_iot_restart_guest_step(struct wr_iot_restart_guest*g){(void)g;return 0;}
 int wr_iot_rc_physical_resume_cancel(struct wr_iot_restart_restore*s,const struct wr_iot_rc_quiesce*q){(void)s;(void)q;return 0;}
+int wr_iot_restart_restore_preopen_rejected(struct wr_iot_restart_restore*s){(void)s;return 0;}
 #include "restart-resume.c"
 static int pump_advance(struct wr_iot_restart_resume*p,struct wr_iot_driver_closed_result*out){
  assert(!wr_iot_restart_resume_step(p));

@@ -32,4 +32,6 @@ int wr_iot_restart_restore_finish_check(struct wr_iot_restart_restore *);
 struct wr_iot_rc_quiesce;
 /* Shutdown-only exact CLOSED + Guest DOWN, never startup-profile restoration. */
 int wr_iot_restart_restore_cancel_check(struct wr_iot_restart_restore *,const struct wr_iot_rc_quiesce *);
+/* Completed pre-OPEN rollback witness, distinct from normal OFF/CLOSED. */
+int wr_iot_restart_restore_preopen_rejected(struct wr_iot_restart_restore *);
 #endif

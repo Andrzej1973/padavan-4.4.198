@@ -26,4 +26,7 @@ struct wr_iot_rc_quiesce;
 int wr_iot_rc_rebind_shutdown_closed(const struct wr_iot_control_result *,
  const struct wr_iot_physical_stop_request *,const struct wr_iot_driver_identity *,
  const struct wr_iot_rc_quiesce *,struct wr_iot_driver_closed_result *);
+/* Completed pre-OPEN rejection only; not an OFF/CLOSED token or reopen lease. */
+int wr_iot_rc_rebind_preopen_rejected(const struct wr_iot_control_result *,
+ const struct wr_iot_physical_stop_request *,const struct wr_iot_driver_identity *);
 #endif

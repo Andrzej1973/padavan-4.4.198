@@ -21,9 +21,10 @@ int wr_iot_rc_physical_take(struct wr_iot_rc_physical_intent*out){takes++;out->r
 static int shutdown_begins,shutdown_steps;
 int wr_iot_rc_quiesce_shutdown_begin(struct wr_iot_rc_quiesce*q,const struct wr_iot_control_request*r){assert(!r->request.enabled&&!r->request.password[0]);shutdown_begins++;q->owner=getpid();return 1;}
 int wr_iot_rc_quiesce_advance(struct wr_iot_rc_quiesce*q,struct wr_iot_driver_closed_result*c){assert(q->owner==getpid());shutdown_steps++;*c=(struct wr_iot_driver_closed_result){2,2,3,4};q->complete=1;return 1;}
-static int cancel_ok,cancels;
+static int cancel_ok,cancels,preopen_ok;
 int wr_iot_restart_guest_step(struct wr_iot_restart_guest*g){(void)g;return 0;}
-int wr_iot_rc_physical_resume_cancel(struct wr_iot_restart_restore*s,const struct wr_iot_rc_quiesce*q){assert(q->complete);cancels++;if(cancel_ok)s->phase=WR_RESTORE_CANCELLED;return cancel_ok;}
+int wr_iot_rc_physical_resume_cancel(struct wr_iot_restart_restore*s,const struct wr_iot_rc_quiesce*q){assert((q&&q->complete)||(!q&&preopen_ok));cancels++;if(cancel_ok)s->phase=WR_RESTORE_CANCELLED;return cancel_ok;}
+int wr_iot_restart_restore_preopen_rejected(struct wr_iot_restart_restore*s){(void)s;return preopen_ok;}
 #include "restart-resume.c"
 int main(void){
  struct wr_iot_restart_resume s={0};unsigned char id[16]={7};wr_iot_rc_shutdown.active=1;
@@ -55,6 +56,12 @@ int main(void){
  assert(!wr_iot_restart_resume_step(&cancel)&&cancel.restore.phase==WR_RESTORE_CANCELLED&&cancels==2);
  take_ok=-1;assert(wr_iot_restart_resume_step(&cancel)==-1&&cancels==2);
  assert(wr_iot_restart_resume_step(&cancel)==-1&&cancels==2);
+ struct wr_iot_restart_resume preopen={0};wr_iot_rc_shutdown.pending=0;begin_ok=prepared=1;
+ assert(wr_iot_restart_resume_begin(&preopen,id,10));assert(!wr_iot_restart_resume_step(&preopen));
+ wr_iot_rc_shutdown.pending=SIGTERM;assert(wr_iot_restart_resume_shutdown(&preopen,&off));preopen_ok=1;
+ int old_shutdowns=shutdown_begins;
+ assert(!wr_iot_restart_resume_step(&preopen)&&preopen.phase==WR_RESUME_SHUTDOWN_ROLLBACK&&!preopen.shutdown.owner&&shutdown_begins==old_shutdowns);
+ assert(wr_iot_restart_resume_step(&preopen)==-1&&preopen.phase==WR_RESUME_CANCELLED&&shutdown_begins==old_shutdowns);
  puts("PASS resume pump: one handoff despite uncertain admission, retained backend continuation, finish failure retry, completed cleanup never repeated while terminal take retries, DONE stable, begin refusal retained; owner actors injected");
 }
 '''
