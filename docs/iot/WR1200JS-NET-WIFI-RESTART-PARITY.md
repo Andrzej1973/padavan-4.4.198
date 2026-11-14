@@ -53,3 +53,12 @@ waiting, loops with sleep(1), and may sleep after SIGKILL. Calling it from the
 RC progress tick would defeat nonblocking operation. `check_apcli_wan` can call
 full_restart_wan on MAN/WISP mismatch regardless of mode0; preserve this side
 effect under explicit ownership instead of assuming it is inert.
+
+
+The standalone `restart-auth-stop-sdk.inc` now supplies exact fixed-service
+presence and TERM/KILL commands under the existing service guard and mode0 gate.
+Adapter plus actual controller ASan/UBSan composition passes; SDK functions are
+injected. It adds no sleep or polling loop; the existing doSystem command itself
+is synchronous, so hard command-duration bounds are not established. Name-based
+semantics match stock and do not claim PID ownership. Preparation and physical
+binding remain pending. Existing full-suite22508 inputs were not edited.
