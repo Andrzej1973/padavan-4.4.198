@@ -1,0 +1,36 @@
+{
+  "scope": "Local Linux-only request envelope, not firmware protocol",
+  "layout": {
+    "magic": "WRRB",
+    "version": 1,
+    "operation_byte": 5,
+    "reserved_bytes": [
+      6,
+      7
+    ],
+    "physical_RELEASE_offset": 8,
+    "physical_bytes": 64,
+    "OPEN_offset": 72,
+    "OPEN_bytes": 144,
+    "observe_total": 72,
+    "open_total": 216
+  },
+  "validation": [
+    "exact operation/length pairing",
+    "existing strict physical and OPEN decoders",
+    "physical action RELEASE only",
+    "OPEN epoch strictly newer, registration generation equal",
+    "volatile wipe temporary credential-bearing objects and refused output"
+  ],
+  "checks": "Native strict O2 ASan/UBSan plus -Wdeclaration-after-statement -Werror PASS; truncation/header corruption, stale epoch, wrong generation, CANCEL refusal and wipe",
+  "pending": [
+    "capability checked bounded ioctl wrapper",
+    "route installation and userspace client",
+    "uncertain OPEN recovery",
+    "RC resume",
+    "target/device acceptance"
+  ],
+  "ioctl_installed": false,
+  "runtime_verified": false,
+  "scratch": "Temporary native test directory automatically removed"
+}

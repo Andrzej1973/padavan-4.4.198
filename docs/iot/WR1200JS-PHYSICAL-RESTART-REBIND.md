@@ -161,3 +161,13 @@ outer transport must still capability-check/decode both requests and retain
 RTNL/module/adapter/netdevice lifetime. No external route is installed. Native
 execution test injects lifecycle actors and covers these error paths; actual
 owner reservation and observer are tested separately. Target/runtime pending.
+
+Local Linux-only envelope `physical-rebind-wire.h`: WRRB/version1, operation
+byte5 (1 observe,2 OPEN), reserved bytes6–7 zero. Original64-byte RELEASE starts
+at8; optional144-byte existing OPEN starts at72. Exact total lengths72/216.
+OPEN syntax additionally requires newer epoch and same registration generation.
+No native pointers/padding or firmware changes. This is syntax only, no copied
+identity is trusted without actual kernel admission. Native sanitizer/target
+declaration-warning test covers truncation/header/stale tuple and wipe. No
+wrapper/dispatch installed yet. The future wrapper must check capability before
+reading either request and independently validate its own bounded copy.
