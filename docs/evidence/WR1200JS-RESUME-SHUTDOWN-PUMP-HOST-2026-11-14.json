@@ -1,0 +1,20 @@
+{
+  "scope": "private resume pump owning components injected",
+  "checks": [
+    "fresh OFF identity only, caller credentials not retained",
+    "pending normal shutdown required for cancel entry",
+    "one shutdown admission then owned OFF continuation",
+    "CLOSED retains physical fence and root baseline for separate cancellation consumer",
+    "no ordinary ACTIVE finish or take after CLOSED",
+    "30 copied native TUs C11 Werror O2 compile"
+  ],
+  "preparation": {
+    "session": 79798,
+    "exit_code": 0,
+    "log_sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a"
+  },
+  "complementary_evidence": "actual backend shutdown-OFF composition checked separately, no single full actual pump/driver chain claim",
+  "scheduler_bound": false,
+  "cancellation_finalizer_implemented": false,
+  "runtime_verified": false
+}

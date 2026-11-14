@@ -1,0 +1,39 @@
+{
+  "scope": "actual RC backend/rebind owner/normal OFF composition with deferred shutdown",
+  "checks": [
+    "regular quiesce refuses pending signal",
+    "shutdown-only entry requires SIGTERM/SIGQUIT",
+    "normal owned OFF closes once, retains guards through isolation failure",
+    "desired ON credentials wiped, resume_needed false",
+    "already OFF fresh receipt accepted without new ON request",
+    "original nonshutdown owner regression PASS"
+  ],
+  "sessions": {
+    "shutdown": 88650,
+    "normal_regression": 55939
+  },
+  "exit_codes": [
+    0,
+    0
+  ],
+  "log_sha256": {
+    "/tmp/wr-rebind-shutdown.log": "2d8dc36fd0814e3954c9f3b290c2f5f369c08aad6cf77205279c800c09f24ad9",
+    "/tmp/wr-rebind-normal-regression.log": "819e0f3737575cad632a3116727b5c9ae811068ac5b93414776de1e3ae1e0cd9"
+  },
+  "actors_injected": "driver/network/old OFF provenance",
+  "scheduler_bound": false,
+  "runtime_verified": false,
+  "exact_closed_observer": {
+    "session": 76995,
+    "exit_code": 0,
+    "log_sha256": "2d8dc36fd0814e3954c9f3b290c2f5f369c08aad6cf77205279c800c09f24ad9",
+    "checks": [
+      "exact original ON ID/created",
+      "encoded old physical RELEASE",
+      "new Main identity",
+      "specific completed no-resume OFF context",
+      "fresh driver CLOSE from actual owner",
+      "wrong ON created/attempt/epoch/resume_needed refuse, output cleared"
+    ]
+  }
+}

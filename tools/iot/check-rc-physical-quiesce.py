@@ -11,6 +11,7 @@ body=ns['body'];a=body.index('int main(void){')
 hooks=r'''
 #include "rc-physical-stop.c"
 int wr_iot_restart_restore_finish_check(struct wr_iot_restart_restore*s){(void)s;return 0;}
+int wr_iot_restart_restore_cancel_check(struct wr_iot_restart_restore*s,const struct wr_iot_rc_quiesce*q){(void)s;(void)q;return 0;}
 #include "physical-stop-down.h"
 static int physical_calls,physical_downs,physical_aux;
 int wr_iot_rc_physical_aux_down(unsigned slot){assert(depth>=2&&slot==(unsigned)physical_aux&&!physical_calls&&!physical_downs);physical_aux++;return 1;}

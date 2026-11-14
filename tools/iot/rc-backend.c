@@ -129,15 +129,15 @@ int wr_iot_rc_backend_closed(struct wr_iot_driver_closed_result *out)
  return wr_iot_activation_owner_closed(&backend,&result,out);
 }
 
-int wr_iot_rc_quiesce_begin(struct wr_iot_rc_quiesce *s,
- const struct wr_iot_control_request *off)
+static int quiesce_begin(struct wr_iot_rc_quiesce *s,
+ const struct wr_iot_control_request *off,int shutdown)
 {
  struct wr_iot_control_result observed={0};
  struct wr_iot_driver_closed_result closed={0};
  struct wr_iot_request desired={0};
  int guard,accepted=0;
  if(!s||!off||s->owner||s->active||s->complete||s->busy||s->resume_needed||
-    !wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||backend.busy||
+    !wr_iot_rc_shutdown.active||(!shutdown&&wr_iot_rc_shutdown.pending)||backend.busy||
     (rebind.owner?rebind.owner:backend.owner)!=getpid()||off->request.enabled!=0||!off->created||
     !memchr(off->id,0,sizeof(off->id))||!wr_iot_control_id(off->id))return 0;
  guard=wr_iot_service_guard_enter(1);if(guard!=1)return 0;
@@ -182,6 +182,24 @@ int wr_iot_rc_quiesce_begin(struct wr_iot_rc_quiesce *s,
  memcpy(s->id,backend.stop.id,sizeof(s->id));s->created=backend.stop.created;
  accepted=1;
  done:memset(&desired,0,sizeof(desired));wr_iot_service_guard_leave(guard);return accepted;
+}
+int wr_iot_rc_quiesce_begin(struct wr_iot_rc_quiesce *s,const struct wr_iot_control_request *off)
+{return quiesce_begin(s,off,0);}
+int wr_iot_rc_quiesce_shutdown_begin(struct wr_iot_rc_quiesce *s,const struct wr_iot_control_request *off)
+{
+ int accepted;
+ if(wr_iot_rc_shutdown.pending!=SIGTERM
+#ifdef SIGQUIT
+    &&wr_iot_rc_shutdown.pending!=SIGQUIT
+#endif
+   )return 0;
+ accepted=quiesce_begin(s,off,1);
+ if(accepted){
+  volatile unsigned char *p=(volatile unsigned char *)&s->desired;size_t n=sizeof(s->desired);
+  while(n--)*p++=0;
+  s->resume_needed=0;
+ }
+ return accepted;
 }
 int wr_iot_rc_quiesce_advance(struct wr_iot_rc_quiesce *s,
  struct wr_iot_driver_closed_result *out)
@@ -267,4 +285,32 @@ int wr_iot_rc_rebind_active_current(const struct wr_iot_control_request *request
  memcpy(result.id,request->id,sizeof(result.id));result.created=request->created;
  result.state=WR_IOT_RESULT_APPLIED;
  return wr_iot_rebind_owner_observed(&rebind,&result);
+}
+
+int wr_iot_rc_rebind_shutdown_closed(const struct wr_iot_control_result *on,
+ const struct wr_iot_physical_stop_request *physical,const struct wr_iot_driver_identity *identity,
+ const struct wr_iot_rc_quiesce *off,struct wr_iot_driver_closed_result *out)
+{
+ struct wr_iot_control_result result={0};struct wr_iot_driver_closed_result closed={0};
+ unsigned char a[64],b[64];
+ if(!out)return 0;
+ memset(out,0,sizeof(*out));
+ if(!on||!physical||!identity||!off||!wr_iot_rc_shutdown.active||
+    (wr_iot_rc_shutdown.pending!=SIGTERM
+#ifdef SIGQUIT
+     &&wr_iot_rc_shutdown.pending!=SIGQUIT
+#endif
+    )||rebind.owner!=getpid()||rebind.busy||rebind.phase!=WR_REBIND_OWNER_OFF||
+    !memchr(on->id,0,sizeof(on->id))||!wr_iot_control_id(on->id)||
+    !on->created||strcmp(on->id,rebind.start.input.id)||on->created!=rebind.start.input.created||
+    off->owner!=getpid()||off->busy||off->active||!off->complete||off->resume_needed||
+    !memchr(off->id,0,sizeof(off->id))||strcmp(off->id,rebind.stop.id)||off->created!=rebind.stop.created||
+    identity->adapter_epoch!=rebind.start.start.identity.adapter_epoch||
+    identity->device_generation!=rebind.start.start.identity.device_generation||
+    !wr_iot_physical_stop_request_encode(a,sizeof(a),physical)||
+    !wr_iot_physical_stop_request_encode(b,sizeof(b),&rebind.start.start.physical)||memcmp(a,b,sizeof(a)))return 0;
+ memcpy(result.id,off->id,sizeof(result.id));result.created=off->created;result.state=WR_IOT_RESULT_APPLIED;
+ if(!wr_iot_rebind_owner_closed(&rebind,&result,&closed)||
+    closed.adapter_epoch!=identity->adapter_epoch||closed.device_generation!=identity->device_generation)return 0;
+ *out=closed;return 1;
 }

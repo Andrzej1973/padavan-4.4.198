@@ -4,7 +4,7 @@
 #include "restart-services.h"
 enum wr_iot_restart_restore_phase {WR_RESTORE_IDLE,WR_RESTORE_PROFILE,WR_RESTORE_MAIN_START,
  WR_RESTORE_MAIN_WAIT,WR_RESTORE_GUEST_BEGIN,WR_RESTORE_GUEST_WAIT,
- WR_RESTORE_SERVICE_BEGIN,WR_RESTORE_SERVICE_WAIT,WR_RESTORE_PREPARED,WR_RESTORE_RETAINED,WR_RESTORE_HANDOFF,WR_RESTORE_FINISHED};
+ WR_RESTORE_SERVICE_BEGIN,WR_RESTORE_SERVICE_WAIT,WR_RESTORE_PREPARED,WR_RESTORE_RETAINED,WR_RESTORE_HANDOFF,WR_RESTORE_FINISHED,WR_RESTORE_CANCELLED};
 struct wr_iot_restart_restore {
  pid_t owner;int busy;
  unsigned long long handoff_created;
@@ -29,4 +29,7 @@ int wr_iot_restart_restore_rebind_current(struct wr_iot_restart_restore *);
 /* Read-only software completion prerequisites after OPEN. Process presence
  * is not auth readiness, saved profile is not loaded-key/RF acceptance. */
 int wr_iot_restart_restore_finish_check(struct wr_iot_restart_restore *);
+struct wr_iot_rc_quiesce;
+/* Shutdown-only exact CLOSED + Guest DOWN, never startup-profile restoration. */
+int wr_iot_restart_restore_cancel_check(struct wr_iot_restart_restore *,const struct wr_iot_rc_quiesce *);
 #endif

@@ -635,3 +635,24 @@ checks (finish observations/driver/resources injected). Full81 host suite PASS;
 are complementary, not a single full hardware chain or physical acceptance.
 Scheduler binding remains false. Pending shutdown recovery after rebind still
 needs integration with the owning OFF path before activating RC entrypoints.
+
+### Private resume pump and cancellation candidate
+
+restart-resume.[ch] now orders restore, one exact rebind admission, retained
+backend continuation, verified physical finish and terminal take. Pending normal
+shutdown after handoff accepts a distinct OFF identity, advances the owning
+normal-OFF transaction, requires exact CLOSED plus Guest DOWN, then uses the
+same cleanup-before-signal primitive with terminal cancellation result -1.
+The OFF envelope retains no caller credentials. Completed cleanup is never
+replayed while terminal take is retried.
+
+Actual pump/backend/normal-OFF composition passes with radio/network actors
+injected; actual physical cancellation/signal cleanup is separately verified.
+31 prepared native TUs and full85 host suite pass. Two newer compositions make
+87 registered parts; no full87 run is claimed. Scheduler remains unbound.
+
+Pending shutdown before OPEN can roll back to REJECTED without ACTIVE/OFF.
+The actual pump/runner test proves no OPEN and one rollback, retaining old
+profile/admission. A distinct verified completion witness for this rejected
+state remains to implement before enabling RC entrypoints. Do not substitute
+an OFF/CLOSED receipt for a command that was never submitted.

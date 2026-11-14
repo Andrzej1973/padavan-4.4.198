@@ -38,4 +38,6 @@ struct wr_iot_restart_restore;
 /* Exact ACTIVE resume consumer; failed proof/mask restore retains ownership.
  * Success retires only old private baseline, never restores the live profile. */
 int wr_iot_rc_physical_resume_finish(struct wr_iot_restart_restore *);
+struct wr_iot_rc_quiesce;
+int wr_iot_rc_physical_resume_cancel(struct wr_iot_restart_restore *,const struct wr_iot_rc_quiesce *);
 #endif

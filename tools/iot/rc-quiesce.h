@@ -17,6 +17,9 @@ struct wr_iot_rc_quiesce {
  * accepts an already owned/fresh OFF without inventing a prior ON request.
  * Caller retains shutdown/service admission across all continuation calls. */
 int wr_iot_rc_quiesce_begin(struct wr_iot_rc_quiesce *,const struct wr_iot_control_request *);
+/* Shutdown-only OFF admission under retained SIGTERM/SIGQUIT. Never creates
+ * an ON resume request; copied desired credentials are wiped immediately. */
+int wr_iot_rc_quiesce_shutdown_begin(struct wr_iot_rc_quiesce *,const struct wr_iot_control_request *);
 /* One existing OFF recovery step, followed by fresh CLOSE observation when
  * complete. Does not ARM, stop Main or authorize adapter reset/reopen. */
 int wr_iot_rc_quiesce_advance(struct wr_iot_rc_quiesce *,struct wr_iot_driver_closed_result *);

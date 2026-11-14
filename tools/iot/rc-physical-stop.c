@@ -176,3 +176,23 @@ int wr_iot_rc_physical_resume_finish(struct wr_iot_restart_restore *s)
  if(!finished)s->busy=0;
  return finished;
 }
+
+static void resume_cancel_cleanup(void *context)
+{
+ struct wr_iot_restart_restore *s=context;
+ resume_cleanup(s);
+ s->phase=WR_RESTORE_CANCELLED;physical.result=-1;
+}
+int wr_iot_rc_physical_resume_cancel(struct wr_iot_restart_restore *s,const struct wr_iot_rc_quiesce *off)
+{
+ int cancelled;
+ if(!s||s->owner!=getpid()||s->busy||s->phase!=WR_RESTORE_HANDOFF||
+    physical.owner!=getpid()||physical.finishing!=1||physical.result||physical.guard!=1||
+    !physical.intent.restart||physical.fence.owner!=getpid()||physical.fence.level!=1||
+    physical.session.owner!=getpid()||physical.session.busy||physical.session.phase!=WR_PHYSICAL_SESSION_COMPLETE||
+    !wr_iot_restart_restore_cancel_check(s,off))return 0;
+ s->busy=1;
+ cancelled=wr_iot_radio_stop_fence_end_cleanup(&physical.fence,resume_cancel_cleanup,s);
+ if(!cancelled)s->busy=0;
+ return cancelled;
+}

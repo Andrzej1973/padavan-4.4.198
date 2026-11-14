@@ -21,4 +21,9 @@ struct wr_iot_driver_identity;
 /* Exact private ACTIVE rebind owner, not generic APPLIED/OFF status. */
 int wr_iot_rc_rebind_active_current(const struct wr_iot_control_request *,
  const struct wr_iot_physical_stop_request *,const struct wr_iot_driver_identity *);
+struct wr_iot_rc_quiesce;
+/* Shutdown-only fresh CLOSED for this exact ON/physical/identity and OFF owner. */
+int wr_iot_rc_rebind_shutdown_closed(const struct wr_iot_control_result *,
+ const struct wr_iot_physical_stop_request *,const struct wr_iot_driver_identity *,
+ const struct wr_iot_rc_quiesce *,struct wr_iot_driver_closed_result *);
 #endif
