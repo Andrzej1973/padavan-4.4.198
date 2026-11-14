@@ -1,0 +1,20 @@
+{
+  "scope": "local adapter-owned terminal storage and CANCEL binding",
+  "implementation": "split terminal type header, fresh-only zeroed adapter cache, CANCEL accepts only adapter cache address, ARM refuses existing terminal owner",
+  "checks": [
+    "CANCEL typed retry regression uses actual adapter cache",
+    "installer verifies field and exactly-once fresh zeroing",
+    "existing terminal owner refuses new ARM without overwriting",
+    "21part suite92221 exit0 O2 ASan UBSan",
+    "23part suite93451 exit0 strict O2 ASan UBSan",
+    "latest installer assertion verifies free fence and outside-lock PID return"
+  ],
+  "target_compiled": false,
+  "runtime_verified": false,
+  "remaining": [
+    "full handler/query/release integration",
+    "full target and physical checks"
+  ],
+  "replacement": "same issuer, new nonce; failed admission restores cache/PID; successful ARM puts old PID outside locks",
+  "final_free": "actual raw recovery free fence rejects active lifetime or partial pin bundles, detaches terminal under MacTabLock and puts PID outside locks; cold uninitialized storage untouched"
+}

@@ -10,6 +10,7 @@ context=r'''
 #include "physical-stop-lifetime.h"
 #include "physical-stop-record.h"
 #include "physical-stop-pin-types.h"
+#include "physical-stop-terminal-types.h"
 #define WR_IOT_RA2_NO_HOST_MODE 1
 #define WDEV_NUM_MAX 1
 typedef int INT;typedef unsigned long ULONG;typedef void *PNET_DEV;
@@ -17,6 +18,7 @@ typedef struct {
  int BcnRingLock,wr_iot_transition_lock,MacTabLock;
  struct wr_iot_physical_stop_record wr_iot_physical_stop;
  struct wr_iot_physical_stop_pins wr_iot_physical_pins,wr_iot_physical_pending_pins;
+ struct wr_iot_physical_stop_terminal wr_iot_physical_terminal;
  struct {unsigned BssidNum;struct {struct {PNET_DEV if_dev;} wdev;} MBSSID[3];} ApCfg;
  PNET_DEV net_dev;
  unsigned VirtualIfCnt,wr_iot_control_users,wr_iot_control_poisoned;
@@ -39,7 +41,7 @@ static int held,rtnl=1;
 #define RTMP_IRQ_LOCK(l,f) do{(void)(l);(f)=0;assert(!held);held=2;}while(0)
 #define RTMP_IRQ_UNLOCK(l,f) do{(void)(l);(void)(f);assert(held==2);held=0;}while(0)
 #include "physical-stop-arm-admission.inc"
-int main(void){for(unsigned fault=0;fault<9;fault++){
+int main(void){for(unsigned fault=0;fault<10;fault++){
 '''
 body=setup+r'''
  assert(wr_iot_driver_close_release_reference(&close,&open,&request,&radio,
@@ -64,6 +66,7 @@ body=setup+r'''
   case 6:ad.wr_iot_physical_lifetime.active=1;break;
   case 7:rtnl=0;break;
   case 8:ad.wr_iot_transition.serial++;break;
+  case 9:ad.wr_iot_physical_terminal.owner=(struct pid *)&main_dev;break;
  }
  int status=wr_iot_physical_stop_arm_admit(&ad,&main_dev,&arm,&serial);
  assert(!held);
@@ -108,4 +111,4 @@ with tempfile.TemporaryDirectory(prefix='wr-stop-arm-binding-') as d:
  c=Path(d)/'check.c';c.write_text(prefix+context+body)
  subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(here),str(c),'-o',d+'/check'],check=True)
  subprocess.run([d+'/check'],check=True)
-print('PASS actual ARM adapter admission: released ra2 CLOSE and Main registry snapshot with disjoint locks; eight refusals and duplicate; no endpoint/target/runtime proof')
+print('PASS actual ARM adapter admission: released ra2 CLOSE and Main registry snapshot with disjoint locks; nine refusals and duplicate; no endpoint/target/runtime proof')

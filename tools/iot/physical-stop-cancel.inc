@@ -13,6 +13,7 @@ static INT __attribute__((unused)) wr_iot_physical_stop_cancel_owned(
  if(!ad||!main_dev||!serial||!terminal||
     !wr_iot_physical_stop_request_valid(request)||request->action!=WR_STOP_CANCEL)
   return -EINVAL;
+ if(terminal!=&ad->wr_iot_physical_terminal)return -EINVAL;
  if(!rtnl_is_locked())return -EBUSY;
  if(!wr_iot_physical_stop_terminal_prepare(terminal,request))return -EBUSY;
  RTMP_IRQ_LOCK(&ad->wr_iot_transition_lock,flags);

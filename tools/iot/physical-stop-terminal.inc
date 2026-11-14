@@ -1,14 +1,12 @@
+#ifndef WR_IOT_PHYSICAL_STOP_TERMINAL_IMPL
+#define WR_IOT_PHYSICAL_STOP_TERMINAL_IMPL
 /* Kernel-only bounded terminal cache. Caller serializes access, pins adapter
  * for each call and keeps cache outside resources freed by radio close.
  * get_pid/put_pid retain only PID identity, not adapter/module/RF ownership.
  * Clear only detached cache outside locks at final adapter retirement or
  * before a newly admitted ARM replaces the previous terminal transaction. */
 #include "physical-stop-response.h"
-struct wr_iot_physical_stop_terminal {
- struct pid *owner;
- struct wr_iot_physical_stop_request request;
- unsigned int status,ready;
-};
+#include "physical-stop-terminal-types.h"
 static inline int wr_iot_physical_stop_terminal_prepare(struct wr_iot_physical_stop_terminal *s,
  const struct wr_iot_physical_stop_request *r)
 {
@@ -47,3 +45,5 @@ static inline int wr_iot_physical_stop_terminal_clear(struct wr_iot_physical_sto
  if(!s||!s->owner)return 0;
  owner=s->owner;*s=empty;put_pid(owner);return 1;
 }
+
+#endif

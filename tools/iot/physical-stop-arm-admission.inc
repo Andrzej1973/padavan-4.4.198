@@ -28,7 +28,7 @@ static INT __attribute__((unused)) wr_iot_physical_stop_arm_admit(
  exact=ad->wr_iot_physical_stop.phase==WR_PHYS_STOP_IDLE&&
        !ad->wr_iot_physical_stop.task&&
        !ad->wr_iot_physical_pins.module&&!ad->wr_iot_physical_pins.task&&
-       !ad->wr_iot_physical_pins.device;
+       !ad->wr_iot_physical_pins.device&&!ad->wr_iot_physical_terminal.owner;
  record_serial=ad->wr_iot_physical_stop.serial;
  RTMP_IRQ_UNLOCK(&ad->MacTabLock,flags);
  if(!exact)return -EBUSY;

@@ -6,6 +6,7 @@ ns={'__file__':str(here/'check-physical-stop-candidate.py')}
 source=(here/'check-physical-stop-candidate.py').read_text()
 exec(compile(source[:source.index("with tempfile.TemporaryDirectory(")],'<reviewed fixture setup>','exec'),ns)
 files=dict(ns['files'])
+files['include/wr-iot-raw-recovery-free-fence.inc']=(here/'raw-recovery-free-fence.inc').read_text()
 files['include/driver-api-closed-entry.inc']='#define WR_IOT_RA2_NO_HOST_MODE 1\n'
 files['include/wr-iot-reset-admission.inc']=(here/'reset-admission.inc').read_text()
 files['os/linux/rt_main_dev.c']=(here/'main-close-checked.inc').read_text()
@@ -28,6 +29,14 @@ with tempfile.TemporaryDirectory(prefix='wr-stop-deferred-installer-') as d:
  src.with_name(src.name+'.manifest.json').write_text(json.dumps(manifest))
  out=root/'prepared';run(src,out,True)
  assert hashes()==before
+ raw=(out/'include/wr-iot-raw-recovery-free-fence.inc').read_text()
+ assert 'wr_iot_physical_lifetime.active' in raw
+ assert 'wr_iot_physical_stop_terminal_clear(&terminal)' in raw
+ assert raw.index('RTMP_IRQ_UNLOCK(&ad->MacTabLock,flags);')<raw.index('wr_iot_physical_stop_terminal_clear(&terminal)')
+
+ assert 'struct wr_iot_physical_stop_terminal wr_iot_physical_terminal;' in (out/'include/rtmp.h').read_text()
+ assert (out/'common/rtmp_init.c').read_text().count('NdisZeroMemory(&pAd->wr_iot_physical_terminal,')==1
+
  for field in ('wr_iot_physical_pins','wr_iot_physical_pending_pins'):
   assert ('struct wr_iot_physical_stop_pins '+field+';') in (out/'include/rtmp.h').read_text()
   assert (out/'common/rtmp_init.c').read_text().count('NdisZeroMemory(&pAd->'+field+',')==1

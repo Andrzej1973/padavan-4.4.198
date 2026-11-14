@@ -42,12 +42,12 @@ try:
     texts[names[3]]=helpers.compose_open_dispatch(texts[names[3]])
     texts[names[4]],texts[names[5]]=helpers.compose_retirement(texts[names[4]],texts[names[5]])
 except ValueError as e:p.error(str(e))
-for n in ('physical-stop-record.h','physical-stop-lifetime.h','physical-stop-pin-types.h'):
+for n in ('physical-stop-record.h','physical-stop-lifetime.h','physical-stop-pin-types.h','physical-stop-terminal-types.h','physical-stop-wire.h'):
     if (src/'include'/n).exists():p.error('physical-stop header already present: '+n)
 # Validate every transformation before creating the output.
 shutil.copytree(src,out,symlinks=True)
 for n,text in texts.items():(out/n).write_text(text)
-for n in ('physical-stop-record.h','physical-stop-lifetime.h','physical-stop-pin-types.h'):
+for n in ('physical-stop-record.h','physical-stop-lifetime.h','physical-stop-pin-types.h','physical-stop-terminal-types.h','physical-stop-wire.h'):
     shutil.copyfile(here/n,out/'include'/n)
 hashes=lambda root:{str(f.relative_to(root)):hashlib.sha256(f.read_bytes()).hexdigest()
                     for f in root.rglob('*') if f.is_file() and not f.is_symlink()}

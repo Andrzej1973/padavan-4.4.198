@@ -72,3 +72,31 @@ def compose_reset(source):
             raise ValueError('changed reset admission anchor')
         source=source.replace(old,new,1)
     return source
+
+def compose_raw_free(source):
+    """Extend the existing cold/live direct-free fence; no puts under locks."""
+    if 'wr_iot_physical_terminal' in source:
+        raise ValueError('physical raw-free fence already installed')
+    old=' ready=!ad->wr_iot_registration_inflight &&'
+    if source.count(old)!=1:
+        raise ValueError('changed raw-free admission')
+    source=source.replace(old,' ready=!ad->wr_iot_physical_lifetime.active &&\n  !ad->wr_iot_registration_inflight &&',1)
+    source='#include "physical-stop-terminal.inc"\n'+source
+    old=' RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);\n return ready;'
+    new=''' RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);
+ if(ready){
+  struct wr_iot_physical_stop_terminal terminal={0},empty={0};
+  RTMP_IRQ_LOCK(&ad->MacTabLock,flags);
+  ready=ad->wr_iot_physical_stop.phase==WR_PHYS_STOP_IDLE&&
+   !ad->wr_iot_physical_stop.task&&!ad->wr_iot_physical_pins.module&&
+   !ad->wr_iot_physical_pins.task&&!ad->wr_iot_physical_pins.device&&
+   !ad->wr_iot_physical_pending_pins.module&&
+   !ad->wr_iot_physical_pending_pins.task&&!ad->wr_iot_physical_pending_pins.device;
+  if(ready){terminal=ad->wr_iot_physical_terminal;ad->wr_iot_physical_terminal=empty;}
+  RTMP_IRQ_UNLOCK(&ad->MacTabLock,flags);
+  if(terminal.owner)wr_iot_physical_stop_terminal_clear(&terminal);
+ }
+ return ready;'''
+    if source.count(old)!=1:
+        raise ValueError('changed raw-free return')
+    return source.replace(old,new,1)

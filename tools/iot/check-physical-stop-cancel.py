@@ -13,29 +13,29 @@ static void put_pid(struct pid *p){assert(p==&identity&&!held&&p->refs>1);p->ref
 int main(void){''')
 body=base['body'].replace(' struct wr_iot_physical_stop_pins detached={0};','');anchor=' assert(wr_iot_physical_stop_arm_abort_unpublished(&ad,&main_dev,serial)==-EBUSY);'
 body=body[:body.index(anchor)]+r'''
- struct wr_iot_physical_stop_terminal terminal={0};
+
  struct wr_iot_physical_stop_request cancel=arm;
  unsigned char wire[64];struct wr_iot_physical_stop_response response;
  cancel.action=WR_STOP_CANCEL;cancel.attempt=attempt;
  ad.wr_iot_interface_refs[0].generation++;
- assert(wr_iot_physical_stop_cancel_owned(&ad,&main_dev,&cancel,serial,&terminal)==-EBUSY);
- assert(identity.refs==1&&!terminal.owner&&modules==2&&!held);
+ assert(wr_iot_physical_stop_cancel_owned(&ad,&main_dev,&cancel,serial,&ad.wr_iot_physical_terminal)==-EBUSY);
+ assert(identity.refs==1&&!ad.wr_iot_physical_terminal.owner&&modules==2&&!held);
  ad.wr_iot_interface_refs[0].generation--;
  ad.wr_iot_physical_stop.phase=WR_PHYS_STOP_RUNNING;
- assert(wr_iot_physical_stop_cancel_owned(&ad,&main_dev,&cancel,serial,&terminal)==-EBUSY);
- assert(identity.refs==1&&!terminal.owner&&ad.wr_iot_physical_lifetime.active);
+ assert(wr_iot_physical_stop_cancel_owned(&ad,&main_dev,&cancel,serial,&ad.wr_iot_physical_terminal)==-EBUSY);
+ assert(identity.refs==1&&!ad.wr_iot_physical_terminal.owner&&ad.wr_iot_physical_lifetime.active);
  ad.wr_iot_physical_stop.phase=WR_PHYS_STOP_ARMED;
- assert(!wr_iot_physical_stop_cancel_owned(&ad,&main_dev,&cancel,serial,&terminal));
+ assert(!wr_iot_physical_stop_cancel_owned(&ad,&main_dev,&cancel,serial,&ad.wr_iot_physical_terminal));
  assert(!ad.wr_iot_physical_lifetime.active&&modules==1&&tasks==1&&devices==1);
- assert(terminal.ready&&identity.refs==2);
+ assert(ad.wr_iot_physical_terminal.ready&&identity.refs==2);
  for(unsigned retry=0;retry<3;retry++){
-  assert(wr_iot_physical_stop_terminal_reply(&terminal,&cancel,wire,sizeof(wire)));
+  assert(wr_iot_physical_stop_terminal_reply(&ad.wr_iot_physical_terminal,&cancel,wire,sizeof(wire)));
   assert(wr_iot_physical_stop_response_decode(&response,wire,sizeof(wire),&cancel));
   assert(response.status==WR_STOP_CANCELLED);
   assert(modules==1&&tasks==1&&devices==1&&identity.refs==2);
  }
- assert(wr_iot_physical_stop_terminal_clear(&terminal));
- assert(identity.refs==1&&!terminal.owner);
+ assert(wr_iot_physical_stop_terminal_clear(&ad.wr_iot_physical_terminal));
+ assert(identity.refs==1&&!ad.wr_iot_physical_terminal.owner);
  return 0;
 }
 '''
