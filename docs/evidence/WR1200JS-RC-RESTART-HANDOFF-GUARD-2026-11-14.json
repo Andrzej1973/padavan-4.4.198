@@ -1,0 +1,35 @@
+{
+  "scope": "Correct staged RC guard lifetime at physical RELEASE for restart intent",
+  "finding": "Previously physical RELEASE released RC service/shutdown admission before captured restart intent was consumed, exposing a potential interleaving gap",
+  "fix": [
+    "restart physical RELEASE retains service/shutdown guards and exact intent",
+    "read-only restart_ready observes intent under guard validation",
+    "take refuses intermediate restart-ready state",
+    "repeated step calls neither issue more ioctls nor release signal mask",
+    "no timer-based guard release",
+    "STOP and CANCEL/refusal retain balanced terminal cleanup"
+  ],
+  "checks": {
+    "command": "python3 -B tools/iot/check-rc-physical-stop.py",
+    "result": "PASS O2 ASan/UBSan; actual session/fence with transport/backend injected; STOP cleanup signal once, restart guards still held, take refused, repeated step no IO, pending SIGTERM deferred",
+    "prepared_runtime_TUs": "PASS strict C11 client/down/session/RC physical controller",
+    "actual_rc_wait_fixture": "PASS",
+    "shell_syntax": "PASS"
+  },
+  "previous_full_suite": {
+    "parts": 34,
+    "revision": "13a16e3506f2aefe4f3207ba852b253fedf980fd",
+    "not_claimed_for_this_delta": true
+  },
+  "pending": [
+    "verified stock-restart/fresh-driver-identity/IoT-resume consumer",
+    "retained desired configuration handoff from private OFF",
+    "actual stop/restart entrypoints",
+    "MIPS verification",
+    "physical runtime acceptance"
+  ],
+  "production_orchestration": false,
+  "restart_resume_bound": false,
+  "runtime_verified": false,
+  "scratch": "Phase native/prepared test directories automatically removed; no retained build output"
+}

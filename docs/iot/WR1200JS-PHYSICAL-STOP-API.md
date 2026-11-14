@@ -112,3 +112,14 @@ The physical controller does not yet call this preparation: its future caller
 must retain the desired request until post-radio-restart identity validation and
 resume are implemented. Do not clear that context at physical RELEASE or reuse
 the old adapter's CLOSE as an OPEN permission for a replacement epoch.
+
+Restart handoff correction: an acknowledged physical RELEASE alone no longer
+releases RC guards for a restart intent. `restart_ready` observes the copied
+intent while shutdown and service admission remain held. `take` refuses that
+intermediate state; repeated step calls do not issue more ioctls or restore
+signals. The verified stock-restart/fresh-identity/IoT-resume consumer has not
+been bound, so restart remains retained at this gate. No timeout releases it.
+STOP terminal cleanup and CANCEL/refusal keep their balanced cleanup semantics.
+This fixes the potential unguarded interval between physical completion and
+restart consumption in the staged controller; it does not complete restart
+or provide physical acceptance. Metadata explicitly records resume unbound.

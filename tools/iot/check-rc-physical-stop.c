@@ -39,7 +39,7 @@ int main(void)
 {
  struct sigaction action={0};action.sa_handler=handler;sigemptyset(&action.sa_mask);
  assert(!sigaction(SIGTERM,&action,NULL));
- struct wr_iot_rc_physical_intent intent={1,1,1},out={0},bad={0,1,0};
+ struct wr_iot_rc_physical_intent intent={0,0,0},out={0},bad={0,1,0};
  assert(!wr_iot_rc_physical_begin(&bad)&&!wr_iot_rc_shutdown.active);
  for(int failure=0;failure<3;failure++){
   guard_fail=failure==0;closed_fail=failure==1;entropy_fail=failure==2;
@@ -50,7 +50,7 @@ int main(void)
  }
  guard_fail=closed_fail=entropy_fail=0;
  assert(wr_iot_rc_physical_begin(&intent)&&depth==1&&wr_iot_rc_shutdown.active);
- intent.reload=0; /* Stored intent must not follow caller edits. */
+ intent.restart=1; /* Stored STOP must not follow caller edits. */
  assert(!wr_iot_rc_physical_begin(&intent));
  guard_fail=1;wr_iot_rc_physical_step();assert(!calls&&depth==1);guard_fail=0;
  aux_fail=1;wr_iot_rc_physical_step();assert(!aux_calls&&!calls&&!downs);aux_fail=0;
@@ -67,6 +67,19 @@ int main(void)
  outcome=WR_PHYSICAL_CALL_UNCERTAIN;wr_iot_rc_physical_step();assert(depth==1&&!shutdowns);
  outcome=WR_PHYSICAL_CALL_ACKNOWLEDGED;wr_iot_rc_physical_step();
  assert(!depth&&!wr_iot_rc_shutdown.active&&!wr_iot_rc_physical_pending()&&shutdowns==1&&downs==1);
- assert(wr_iot_rc_physical_take(&out)==1&&out.restart==1&&out.radio_on==1&&out.reload==1);
- assert(!wr_iot_rc_physical_take(&out));return 0;
+ assert(wr_iot_rc_physical_take(&out)==1&&out.restart==0&&out.radio_on==0&&out.reload==0);
+ assert(!wr_iot_rc_physical_take(&out));
+ /* A successful restart's physical RELEASE must retain both guards and intent;
+  * neither repeated steps nor terminal consumption can skip the resume gate. */
+ calls=downs=aux_calls=0;shutdowns=0;intent=(struct wr_iot_rc_physical_intent){1,1,1};
+ assert(wr_iot_rc_physical_begin(&intent));
+ for(unsigned i=0;i<20&&wr_iot_rc_physical_pending();i++)wr_iot_rc_physical_step();
+ assert(!wr_iot_rc_physical_pending()&&depth==1&&wr_iot_rc_shutdown.active&&downs==1);
+ assert(wr_iot_rc_physical_restart_ready(&out)&&out.restart&&out.radio_on&&out.reload);
+ assert(!wr_iot_rc_physical_take(&out));
+ int previous=calls;wr_iot_rc_physical_step();assert(calls==previous&&depth==1);
+ assert(!kill(getpid(),SIGTERM)&&!shutdowns);
+ assert(wr_iot_rc_physical_restart_ready(&out)&&depth==1&&!shutdowns);
+ /* Process exit ends this injected fixture; no production cleanup bypass. */
+ return 0;
 }

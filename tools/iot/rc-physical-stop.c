@@ -39,7 +39,8 @@ int wr_iot_rc_physical_begin(const struct wr_iot_rc_physical_intent *intent)
  refuse:physical.finishing=-1;return 1;
 }
 int wr_iot_rc_physical_pending(void)
-{return physical.owner==getpid()&&!physical.result;}
+{return physical.owner==getpid()&&!physical.result&&
+ !(physical.finishing==1&&physical.intent.restart);}
 void wr_iot_rc_physical_step(void)
 {
  struct wr_iot_driver_closed_result closed={0};
@@ -67,11 +68,25 @@ void wr_iot_rc_physical_step(void)
   if(!result)return;
   physical.finishing=result;
  }
+ /* Physical RELEASE is not completion of the captured restart intent.
+  * Keep admission and desired-context ownership until a verified restart /
+  * fresh-identity resume consumer exists. Never expose an unguarded gap to
+  * another control request or queued normal shutdown. No timer releases it. */
+ if(physical.finishing==1&&physical.intent.restart)return;
  if(physical.guard==1){wr_iot_service_guard_leave(1);physical.guard=0;}
  /* Clear guards before restoring signals; a pending normal shutdown can run
   * only after exact terminal cleanup. Failed mask restoration retains fence. */
  if(!wr_iot_radio_stop_fence_end(&physical.fence))return;
  physical.result=physical.finishing;
+}
+int wr_iot_rc_physical_restart_ready(struct wr_iot_rc_physical_intent *intent)
+{
+ int guard;
+ if(!intent||physical.owner!=getpid()||physical.finishing!=1||
+    !physical.intent.restart||physical.result||physical.guard!=1||
+    !wr_iot_rc_shutdown.active)return 0;
+ guard=wr_iot_service_guard_enter(1);if(guard!=1)return 0;
+ *intent=physical.intent;wr_iot_service_guard_leave(guard);return 1;
 }
 int wr_iot_rc_physical_take(struct wr_iot_rc_physical_intent *intent)
 {
