@@ -13,6 +13,7 @@ int wr_iot_restart_resume_retire(struct wr_iot_restart_resume *s)
  if(r->owner!=getpid()||r->busy||
     r->phase!=(s->phase==WR_RESUME_DONE?WR_RESTORE_FINISHED:WR_RESTORE_CANCELLED)||
     r->generation.phase!=WR_RESTART_GEN_COMMITTED||r->generation.busy||r->generation.profile.active||r->generation.profile.files.count||
+    r->multicast.busy||r->multicast.main||r->multicast.guest||
     r->main.busy||r->guest.busy||r->services.busy||r->main.generation||r->guest.main||r->services.main||
     s->shutdown.active||s->shutdown.busy)return 0;
  for(i=0;i<WR_IOT_BUNDLE_MAX;i++)if(r->generation.profile.files.saved[i].data)return 0;

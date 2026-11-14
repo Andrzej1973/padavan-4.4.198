@@ -16,6 +16,7 @@ int wr_iot_restart_services_step(struct wr_iot_restart_services*s){return s->mai
 int wr_iot_rc_rebind_begin(const struct wr_iot_control_request*r,const struct wr_iot_physical_stop_request*p){(void)r;(void)p;return 0;}
 static int active_ok,guest_ok=1,auth_ok=1;
 int wr_iot_rc_rebind_active_current(const struct wr_iot_control_request*r,const struct wr_iot_physical_stop_request*p,const struct wr_iot_driver_identity*i){(void)r;(void)p;(void)i;return active_ok;}
+#include "check-multicast-owner-actor.h"
 #include "restart-restore.c"
 int wr_iot_rc_restart_guest_policy(int*out){*out=1;return guest_ok;}
 int wr_iot_rc_restart_guest_isolation_policy(int*out){*out=1;return 1;}
@@ -45,6 +46,9 @@ int main(int argc,char**argv){
  assert(wr_iot_restart_restore_finish_check(&s)&&s.generation.profile.active);
  guest_ok=0;assert(!wr_iot_restart_restore_finish_check(&s));guest_ok=1;
  auth_ok=0;assert(!wr_iot_restart_restore_finish_check(&s));auth_ok=1;
+ s.multicast.busy=1;assert(!wr_iot_restart_restore_finish_check(&s));s.multicast.busy=0;
+ s.multicast.phase=WR_MC_UNCERTAIN;assert(!wr_iot_restart_restore_finish_check(&s));s.multicast.phase=WR_MC_READY;
+ s.multicast.main=NULL;assert(!wr_iot_restart_restore_finish_check(&s));s.multicast.main=&s.main;
  s.services.attempted=3;assert(!wr_iot_restart_restore_finish_check(&s));s.services.attempted=7;
  assert(wr_iot_restart_restore_finish_check(&s)&&ups==1&&generator_calls==1);
  /* Process-only fixture cleanup. Production snapshot remains retained. */

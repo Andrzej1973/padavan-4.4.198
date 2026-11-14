@@ -16,6 +16,7 @@ static void finish_handler(int sig){
  if(wr_iot_rc_shutdown_note(sig))return;
  assert(observed->phase==WR_RESTORE_CANCELLED&&!observed->generation.profile.active);
  assert(!observed->generation.profile.files.saved[0].data&&!observed->generation.origin.desired.password[0]);
+ assert(!observed->multicast.main&&!observed->multicast.guest);
  assert(!physical.quiesce.desired.password[0]&&physical.result==-1&&!physical.guard&&!depth);
  shutdowns++;
 }
@@ -27,7 +28,7 @@ int main(void){
  for(int i=0;i<30&&wr_iot_rc_physical_pending();i++)wr_iot_rc_physical_step();
  assert(physical.finishing==1&&physical.guard==1&&depth==1&&wr_iot_rc_shutdown.active);
  struct wr_iot_rc_quiesce off_context={0};
- struct wr_iot_restart_restore root={0};observed=&root;root.owner=getpid();root.phase=WR_RESTORE_HANDOFF;
+ struct wr_iot_restart_restore root={0};observed=&root;root.owner=getpid();root.phase=WR_RESTORE_HANDOFF;root.multicast.main=&root.main;root.multicast.guest=&root.guest;
  root.generation.profile.active=1;root.generation.profile.files.count=1;
  root.generation.profile.files.saved[0].data=malloc(8);assert(root.generation.profile.files.saved[0].data);
  root.generation.profile.files.saved[0].size=8;memset(root.generation.profile.files.saved[0].data,'s',8);

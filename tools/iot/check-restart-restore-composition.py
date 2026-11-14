@@ -20,6 +20,12 @@ int wr_iot_rc_rebind_begin(const struct wr_iot_control_request*r,const struct wr
 int wr_iot_rc_rebind_active_current(const struct wr_iot_control_request*r,const struct wr_iot_physical_stop_request*p,const struct wr_iot_driver_identity*i){(void)r;(void)p;(void)i;return 0;}
 int wr_iot_restart_generation_origin_current(const struct wr_iot_restart_generation*g){return g->owner==getpid();}
 int wr_iot_restart_generation_abort(struct wr_iot_restart_generation*g){(void)g;return 0;}
+#include "restart-multicast-controller.h"
+static int mc_calls;
+int wr_iot_rc_restart_multicast_policy(struct wr_iot_multicast_policy*p){*p=(struct wr_iot_multicast_policy){1,1,desired};return policy_ok;}
+int wr_iot_restart_multicast_apply(unsigned b,int enabled){assert(!service_calls&&enabled&&b==(unsigned)mc_calls);mc_calls++;return 1;}
+int wr_iot_restart_multicast_current(unsigned b,int enabled){assert(b<2&&enabled);return 1;}
+#include "restart-multicast-controller.c"
 #include "restart-restore.c"
 int main(void){
  struct wr_iot_restart_restore s={0};unsigned char id[16]={7};wr_iot_rc_shutdown.active=1;
@@ -27,13 +33,13 @@ int main(void){
  assert(wr_iot_restart_restore_begin(&s,id));
  int prepared=0;
  for(int i=0;i<25&&!prepared;i++)prepared=wr_iot_restart_restore_step(&s);
- assert(prepared&&s.phase==WR_RESTORE_PREPARED&&main_ups==1&&ups==1&&adds==1&&service_calls==3);
+ assert(prepared&&s.phase==WR_RESTORE_PREPARED&&main_ups==1&&ups==1&&adds==1&&service_calls==3&&mc_calls==2);
  assert(s.guest.main==&s.main&&s.services.main==&s.main&&s.main.generation==&s.generation);
  wr_iot_rc_shutdown.pending=SIGTERM;
  assert(!wr_iot_restart_restore_step(&s)&&downs==1&&!state&&s.guest.phase==WR_GUEST_DOWN_OBSERVED);
- assert(!wr_iot_restart_restore_step(&s)&&downs==1&&service_calls==3);
+ assert(!wr_iot_restart_restore_step(&s)&&downs==1&&service_calls==3&&mc_calls==2);
  wr_iot_rc_shutdown.pending=0;
- assert(!wr_iot_restart_restore_step(&s)&&downs==1&&ups==1&&main_ups==1&&service_calls==3);
+ assert(!wr_iot_restart_restore_step(&s)&&downs==1&&ups==1&&main_ups==1&&service_calls==3&&mc_calls==2);
  puts("PASS restore/actual Guest/services controllers: ordered preparation, stable references, uncertain Guest UP reconciled, pending delegated to one DOWN, no resume/replay afterward; generation/Main/SDK/transport actors injected");
 }
 '''

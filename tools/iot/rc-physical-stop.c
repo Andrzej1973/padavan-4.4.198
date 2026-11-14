@@ -182,6 +182,7 @@ static void resume_cleanup(void *context)
  resume_wipe(&physical.quiesce.desired,sizeof(physical.quiesce.desired));
  s->generation.phase=WR_RESTART_GEN_COMMITTED;
  s->main.generation=NULL;s->guest.main=NULL;s->services.main=NULL;
+ s->multicast.main=NULL;s->multicast.guest=NULL;
  s->phase=WR_RESTORE_FINISHED;s->busy=0;
  physical.result=1;
  wr_iot_service_guard_leave(1);physical.guard=0;
@@ -189,7 +190,7 @@ static void resume_cleanup(void *context)
 int wr_iot_rc_physical_resume_finish(struct wr_iot_restart_restore *s)
 {
  int finished;
- if(!s||s->owner!=getpid()||s->busy||s->phase!=WR_RESTORE_HANDOFF||
+ if(!s||s->owner!=getpid()||s->busy||s->multicast.busy||s->phase!=WR_RESTORE_HANDOFF||
     physical.owner!=getpid()||physical.finishing!=1||physical.result||physical.guard!=1||
     !physical.intent.restart||physical.fence.owner!=getpid()||physical.fence.level!=1||
     physical.session.owner!=getpid()||physical.session.busy||
@@ -210,7 +211,7 @@ static void resume_cancel_cleanup(void *context)
 int wr_iot_rc_physical_resume_cancel(struct wr_iot_restart_restore *s,const struct wr_iot_rc_quiesce *off)
 {
  int cancelled;
- if(!s||s->owner!=getpid()||s->busy||s->phase!=WR_RESTORE_HANDOFF||
+ if(!s||s->owner!=getpid()||s->busy||s->multicast.busy||s->phase!=WR_RESTORE_HANDOFF||
     physical.owner!=getpid()||physical.finishing!=1||physical.result||physical.guard!=1||
     !physical.intent.restart||physical.fence.owner!=getpid()||physical.fence.level!=1||
     physical.session.owner!=getpid()||physical.session.busy||physical.session.phase!=WR_PHYSICAL_SESSION_COMPLETE||
@@ -224,7 +225,7 @@ int wr_iot_rc_physical_resume_cancel(struct wr_iot_restart_restore *s,const stru
 int wr_iot_rc_physical_premain_cancel(struct wr_iot_restart_restore *s)
 {
  int cancelled;
- if(!s||s->owner!=getpid()||s->busy||
+ if(!s||s->owner!=getpid()||s->busy||s->multicast.busy||
     (s->phase!=WR_RESTORE_PROFILE&&s->phase!=WR_RESTORE_MAIN_START&&s->phase!=WR_RESTORE_RETAINED)||
     s->main.owner||s->guest.owner||s->services.owner||
     !wr_iot_rc_shutdown.active||
@@ -245,7 +246,7 @@ int wr_iot_rc_physical_premain_cancel(struct wr_iot_restart_restore *s)
 int wr_iot_rc_physical_prehandoff_cancel(struct wr_iot_restart_restore *s)
 {
  int cancelled;
- if(!s||s->busy||physical.owner!=getpid()||physical.finishing!=1||physical.result||
+ if(!s||s->busy||s->multicast.busy||physical.owner!=getpid()||physical.finishing!=1||physical.result||
     physical.guard!=1||!physical.intent.restart||physical.fence.owner!=getpid()||physical.fence.level!=1||
     physical.session.owner!=getpid()||physical.session.busy||physical.session.phase!=WR_PHYSICAL_SESSION_COMPLETE||
     !wr_iot_restart_prehandoff_cancel_check(s))return 0;

@@ -25,7 +25,9 @@ int main(void){
   wr_iot_rc_shutdown.pending=SIGTERM;assert(!wr_iot_restart_multicast_step(&s)&&!calls);wr_iot_rc_shutdown.pending=0;
   for(int i=0;i<(guest?2:1);i++)assert(!wr_iot_restart_multicast_step(&s));
   assert(wr_iot_restart_multicast_step(&s)&&calls==(guest?2:1));
-  reads_ok=0;assert(!wr_iot_restart_multicast_step(&s));reads_ok=1;
+  assert(wr_iot_restart_multicast_observed(&s));
+  owners=0;assert(wr_iot_restart_multicast_observed(&s));owners=1;
+  reads_ok=0;assert(!wr_iot_restart_multicast_observed(&s));assert(!wr_iot_restart_multicast_step(&s));reads_ok=1;
   assert(wr_iot_restart_multicast_step(&s));
  }
  struct wr_iot_multicast s={0};calls=0;guest=1;fail=1;

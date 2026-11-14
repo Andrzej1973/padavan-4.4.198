@@ -2,6 +2,7 @@
 #define WR_IOT_RESTART_RESTORE_H
 #include "restart-guest-controller.h"
 #include "restart-services.h"
+#include "restart-multicast-controller.h"
 enum wr_iot_restart_restore_phase {WR_RESTORE_IDLE,WR_RESTORE_PROFILE,WR_RESTORE_MAIN_START,
  WR_RESTORE_MAIN_WAIT,WR_RESTORE_GUEST_BEGIN,WR_RESTORE_GUEST_WAIT,
  WR_RESTORE_SERVICE_BEGIN,WR_RESTORE_SERVICE_WAIT,WR_RESTORE_PREPARED,WR_RESTORE_RETAINED,WR_RESTORE_HANDOFF,WR_RESTORE_FINISHED,WR_RESTORE_CANCELLED};
@@ -14,6 +15,7 @@ struct wr_iot_restart_restore {
  struct wr_iot_restart_main main;
  struct wr_iot_restart_guest guest;
  struct wr_iot_restart_services services;
+ struct wr_iot_multicast multicast;
 };
 /* Zero-initialize at final stable address. Never copy retained contexts.
  * PREPARED is pre-OPEN software preparation only. No baseline/guard release,

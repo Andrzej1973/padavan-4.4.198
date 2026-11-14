@@ -125,3 +125,21 @@ SDK policy tests are separate. Native preparation passed after adding the GNU
 feature macro required by included profile receipt declarations. Root restore
 integration and finalizer/retirement ownership for this controller remain pending;
 these components alone do not complete restart parity.
+
+
+## Multicast bound before service startup
+
+Root restore embeds multicast at its final stable address and gates service
+begin/progress/PREPARED on its readiness. Actual restore/Guest/multicast/services
+composition verifies both BSS attempts before any service command. Pre-OPEN
+owner checks remain in normal progress. After handoff, finish uses a read-only
+multicast observation together with exact rebind ACTIVE proof; it never invokes
+old pre-OPEN Main checks. Busy/uncertain/foreign-parent multicast refuses finish.
+Physical finish/cancel cleanup clears multicast parent pointers before deferred
+shutdown replay. Terminal retirement refuses remaining parent pointers or busy.
+Focused source/composition/native checks pass; owner and transport actors remain
+explicit in their respective fixtures. Root/profile fixtures use a named
+multicast component actor, while the restore composition uses the real multicast
+controller. The latest full suite predates this integration. No MIPS/image/device
+acceptance is claimed. Remaining reload/mlme/LED/iappd/WAN and stock entrypoint
+parity gaps remain open.

@@ -11,6 +11,8 @@ int wr_iot_restart_restore_finish_check(struct wr_iot_restart_restore *s)
 {
  struct wr_iot_restart_service_policy policy;int desired,isolate,state;
  if(!s||!wr_iot_restart_restore_rebind_current(s)||
+    s->multicast.main!=&s->main||s->multicast.guest!=&s->guest||
+    !wr_iot_restart_multicast_observed(&s->multicast)||
     s->generation.phase!=WR_RESTART_GEN_VERIFIED||!s->generation.main_may_have_started||
     !s->generation.profile.active||s->generation.profile.files.count!=1||
     s->generation.profile.files.pending||s->generation.profile.recovering||s->generation.profile.removing||

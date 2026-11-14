@@ -1,0 +1,50 @@
+{
+  "scope": "root restore multicast before services; cleanup/retirement integration",
+  "checks": {
+    "actual_restore_Guest_multicast_services": "PASS;67281; SDK/transport actors injected",
+    "root_profile_premain_finish": "PASS;71441; named multicast actor where excluded",
+    "actual_multicast_observer": "PASS;71441; no pre-OPEN owner progression after ACTIVE observation",
+    "physical_cleanup_and_retirement": "PASS;52134; multicast parent pointers cleared before signal replay",
+    "native_preparation": "PASS;41226 exit0"
+  },
+  "source_sha256": {
+    "tools/iot/restart-restore.c": "b9027551d1022ef839f5971d5f47e1275c67290c01583d5c48d1588068ee2069",
+    "tools/iot/restart-finish-check.c": "92fe7ee7d887d2cb770d0f966781f4556562ffd0dfad5157da5f0b672472bce9",
+    "tools/iot/rc-physical-stop.c": "67461192907b78383c4c242759263f6f3b04957b143c39af26c4056a300cc060",
+    "tools/iot/restart-resume-retire.c": "51020751fd0065c0f432b6d86bb283dc74577355333265cc523999fa095e9b7b",
+    "tools/iot/restart-multicast-controller.c": "f636801c772b6f0954dff8080de37236b0090ea76eac8638632396b506624de4"
+  },
+  "remaining": [
+    "full integrated suite",
+    "MIPS/image verification",
+    "other stock restart side effects and net_wifi binding",
+    "physical acceptance"
+  ],
+  "completed_scratch_removed": [
+    {
+      "path": "/tmp/wr-mc-root-finish.log",
+      "bytes": 311,
+      "sha256": "9272de1b1bac2a60c393a7778bd966d812ba9fd623ae146ef9b4e01c0b8e6680"
+    },
+    {
+      "path": "/tmp/wr-mc-root-native.log",
+      "bytes": 307,
+      "sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a"
+    },
+    {
+      "path": "/tmp/wr-mc-root-profile.log",
+      "bytes": 243,
+      "sha256": "74a344cddaab7d9ca58205124c920ef86fb72e726b33780b474480c716e656d0"
+    },
+    {
+      "path": "/tmp/wr-mc-root-finish-retry.log",
+      "bytes": 311,
+      "sha256": "9272de1b1bac2a60c393a7778bd966d812ba9fd623ae146ef9b4e01c0b8e6680"
+    },
+    {
+      "path": "/tmp/wr-mc-root-premain.log",
+      "bytes": 507,
+      "sha256": "301d0507c753eef0264f0097b83b8b92f2f67f8d326c3a6a64f7787ee416007d"
+    }
+  ]
+}

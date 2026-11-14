@@ -18,6 +18,9 @@ int main(void){
   s.restore.phase=cancelled?WR_RESTORE_CANCELLED:WR_RESTORE_FINISHED;
   strcpy(s.stop_input.request.password,"private-copy");
   wr_iot_rc_shutdown.active=1;assert(!wr_iot_restart_resume_retire(&s));wr_iot_rc_shutdown.active=0;
+  s.restore.multicast.main=&s.restore.main;assert(!wr_iot_restart_resume_retire(&s));s.restore.multicast.main=NULL;
+  s.restore.multicast.guest=&s.restore.guest;assert(!wr_iot_restart_resume_retire(&s));s.restore.multicast.guest=NULL;
+  s.restore.multicast.busy=1;assert(!wr_iot_restart_resume_retire(&s));s.restore.multicast.busy=0;
   s.restore.main.generation=&s.restore.generation;assert(!wr_iot_restart_resume_retire(&s));s.restore.main.generation=NULL;
   s.restore.generation.profile.files.saved[3].data=(unsigned char*)1;assert(!wr_iot_restart_resume_retire(&s));s.restore.generation.profile.files.saved[3].data=NULL;
   s.shutdown.active=1;assert(!wr_iot_restart_resume_retire(&s));s.shutdown.active=0;

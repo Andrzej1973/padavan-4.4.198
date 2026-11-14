@@ -22,6 +22,7 @@ static int active_ok,active_reads;
 int wr_iot_rc_rebind_active_current(const struct wr_iot_control_request*r,const struct wr_iot_physical_stop_request*p,const struct wr_iot_driver_identity*i){assert(r->created==10&&!strcmp(r->id,"01000000000000000000000000000000")&&r->request.enabled==1&&p&&i);active_reads++;return active_ok;}
 int wr_iot_restart_generation_origin_current(const struct wr_iot_restart_generation*g){return g->owner==getpid();}
 int wr_iot_restart_generation_abort(struct wr_iot_restart_generation*g){(void)g;return 0;}
+#include "check-multicast-owner-actor.h"
 #include "restart-restore.c"
 int main(void){
  struct wr_iot_restart_restore s={0};unsigned char id[16]={1};wr_iot_rc_shutdown.active=1;

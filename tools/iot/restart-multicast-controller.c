@@ -36,3 +36,15 @@ int wr_iot_restart_multicast_step(struct wr_iot_multicast*s)
  s->next++;s->phase=(s->next==(p.guest?2U:1U))?WR_MC_READY:WR_MC_SUBMIT;
  done:s->busy=0;return ready;
 }
+
+int wr_iot_restart_multicast_observed(struct wr_iot_multicast*s)
+{
+ struct wr_iot_multicast_policy p;
+ if(!s||s->owner!=getpid()||s->busy||s->phase!=WR_MC_READY||
+    !s->main||!s->guest||s->guest->main!=s->main||
+    !wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||
+    !wr_iot_rc_restart_multicast_policy(&p)||!mc_same(&s->policy,&p))return 0;
+ return !p.required||(s->attempted==(p.guest?3U:1U)&&
+  wr_iot_restart_multicast_current(0,p.enabled)&&
+  (!p.guest||wr_iot_restart_multicast_current(1,p.enabled)));
+}

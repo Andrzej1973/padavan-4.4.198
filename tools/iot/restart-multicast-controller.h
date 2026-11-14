@@ -13,4 +13,6 @@ struct wr_iot_multicast {
 };
 int wr_iot_restart_multicast_begin(struct wr_iot_multicast *,struct wr_iot_restart_main *,struct wr_iot_restart_guest *);
 int wr_iot_restart_multicast_step(struct wr_iot_multicast *);
+/* Read-only after rebind ACTIVE proof: never runs pre-OPEN Main checks. */
+int wr_iot_restart_multicast_observed(struct wr_iot_multicast *);
 #endif

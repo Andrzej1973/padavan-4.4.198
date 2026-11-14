@@ -8,7 +8,7 @@ int wr_iot_restart_restore_begin(struct wr_iot_restart_restore *s,const unsigned
 {
  unsigned i,nonzero=0;
  if(!s||!id||s->owner||s->busy||s->phase!=WR_RESTORE_IDLE||
-    s->generation.owner||s->main.owner||s->guest.owner||s->services.owner||
+    s->generation.owner||s->main.owner||s->guest.owner||s->services.owner||s->multicast.owner||
     !wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending)return 0;
  for(i=0;i<16;i++)nonzero|=id[i];
  if(!nonzero)return 0;
@@ -55,11 +55,13 @@ int wr_iot_restart_restore_step(struct wr_iot_restart_restore *s)
   break;
  case WR_RESTORE_SERVICE_BEGIN:
   if(!wr_iot_restart_guest_step(&s->guest))break;
+  if(!s->multicast.owner)(void)wr_iot_restart_multicast_begin(&s->multicast,&s->main,&s->guest);
+  if(!wr_iot_restart_multicast_step(&s->multicast))break;
   if(wr_iot_restart_services_begin(&s->services,&s->main))s->phase=WR_RESTORE_SERVICE_WAIT;
   break;
  case WR_RESTORE_SERVICE_WAIT:
  case WR_RESTORE_PREPARED:
-  if(!wr_iot_restart_guest_step(&s->guest))break;
+  if(!wr_iot_restart_guest_step(&s->guest)||!wr_iot_restart_multicast_step(&s->multicast))break;
   if(wr_iot_restart_services_step(&s->services)){
    s->phase=WR_RESTORE_PREPARED;ok=1;
   }
