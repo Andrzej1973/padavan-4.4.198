@@ -247,3 +247,20 @@ source CLI semantics and ownership remain integration prerequisites.
 Full immutable registered e2c9162 host suite84131 exited0. Source log hash/size
 recorded in E2C9162-HOST-SUITE evidence, finished log removed. New standalone IAPP
 checks are separate and not part of that suite. MIPS/image/device remain separate.
+
+
+## IAPP asynchronous child transport candidate
+
+PID1 init.c::catch_sig_reap uses waitpid(-1,NULL,WNOHANG), discarding child exit
+statuses. A direct later waitpid on an IAPP child is therefore insufficient.
+Standalone restart-iapp-child uses a supervisor and nonblocking CLOEXEC pipe;
+the supervisor resets inherited SIGCHLD handling and owns its script child's
+wait result. The parent reads an explicit success/failure byte, treating EOF or
+unknown receipt as failure. Command exec resets signal handlers/mask and closes
+inherited nonstandard descriptors before fixed /usr/bin/iappd.sh restart. No
+arbitrary arguments, PID killing or automatic resubmission are exposed.
+Actual fork/exec/pipe test under PID1-style reaper passes for script exit0 and7.
+This is script completion only, not daemon readiness. Source is standalone:
+service/firewall ownership, shutdown handling, supervisor lifetime/guard pinning,
+command-duration policy, firmware copy/link and root binding remain open. A hung
+script retains uncertainty; no timer authorizes duplicate restart. No router use.
