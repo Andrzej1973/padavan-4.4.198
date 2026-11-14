@@ -264,3 +264,14 @@ This is script completion only, not daemon readiness. Source is standalone:
 service/firewall ownership, shutdown handling, supervisor lifetime/guard pinning,
 command-duration policy, firmware copy/link and root binding remain open. A hung
 script retains uncertainty; no timer authorizes duplicate restart. No router use.
+
+
+IAPP supervisor now closes inherited nonstandard descriptors except its receipt
+pipe before forking the script. Parent alone retains service/status ownership.
+A real pipe EOF fixture verifies inherited writer closure while the script is
+still running, rather than only after child exit. Missing exec yields failure,
+not success/retry; exit0/nonzero and generic PID1 reaping remain covered. Script
+fixture waits1s to distinguish descriptor cleanup from command completion.
+Parent must keep its ownership until receipt; no child pins are implied. The
+component remains uninstalled and needs shutdown/root/finalizer integration.
+ABI43638435042 for e2c9162 succeeded; this does not cover the new IAPP module.

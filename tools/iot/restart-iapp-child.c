@@ -18,7 +18,12 @@ int wr_iot_iapp_child_begin(struct wr_iot_iapp_child*s)
  if(supervisor<0){close(pipes[0]);close(pipes[1]);s->fd=-1;s->result=-1;return 0;}
  if(!supervisor){
   struct sigaction action={0};sigset_t empty;pid_t command;int status;unsigned char receipt=2;
+  int inherited;long descriptor_limit=sysconf(_SC_OPEN_MAX);
   close(pipes[0]);
+  if(descriptor_limit<0||descriptor_limit>1048576)goto report;
+  /* Parent alone owns the service guard/status sockets. Keep only receipt. */
+  for(inherited=3;inherited<descriptor_limit;inherited++)
+   if(inherited!=pipes[1])close(inherited);
   /* Supervisor owns its command status; PID1's inherited handler must not reap it. */
   action.sa_handler=SIG_DFL;sigemptyset(&action.sa_mask);
   if(sigaction(SIGCHLD,&action,NULL))goto report;
