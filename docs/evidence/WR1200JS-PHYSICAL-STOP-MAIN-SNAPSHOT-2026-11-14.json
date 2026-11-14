@@ -1,0 +1,20 @@
+{
+  "scope": "local uninstalled physical-stop lifetime composition",
+  "implementation": "begin_main validates owned published Main record and idle recovery under transition lock, saves device/generation/open token/radio serial; capture_main uses only retained values; end clears snapshot",
+  "checks": [
+    "full14part host suite70178 PASS before final composition addition",
+    "final lifetime and main-owner sanitizer fixtures PASS after composition addition",
+    "actual radio begin_main_stop + registry close + recovery queue/schedule + capture succeeds",
+    "wrong lifetime serial and altered saved token refuse",
+    "combined ARM snapshot -> main stop -> queued recovery -> checked completion -> module receipt -> netdev receipt -> exact release observation PASS",
+    "early release, vendor count nonzero and altered captured serial refuse",
+    "already-completed first QUERY positive; conflicting captured ticket and wrong OPEN token refuse without publication",
+    "serial MAX and epoch MAX-1 refuse without mutating inactive lifetime; strict lifetime sanitizer test PASS"
+  ],
+  "target_compiled": false,
+  "runtime_verified": false,
+  "remaining": "invoke from actual transaction handler with real locking/admission/pin contract",
+  "followup": "lifetime retains captured Main ticket, refuses replacement by different ticket, release observer validates retained ticket against post-dev_put last_release even after owner reset",
+  "query_after_completion": "capture_released_main recovers retained exact Main physical ticket for ARM-time OPEN, validates fresh radio/registry; refuses mismatching existing ticket and foreign saved token",
+  "counter_admission": "begin_main refuses saturated radio serial or epoch lacking two increments for READY -> main_down -> physical CLOSING, before snapshot/fence publication"
+}

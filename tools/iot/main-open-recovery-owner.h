@@ -441,6 +441,7 @@ static inline int wr_iot_main_recovery_capture_physical_ticket(
  const struct wr_iot_main_recovery_owner *owner,
  const struct wr_iot_radio_transition *radio,
  const struct wr_iot_interface_ref *record,unsigned long arm_serial,
+ unsigned long expected_generation,unsigned long expected_open_token,
  struct wr_iot_radio_ticket *out){
  if(!owner||!radio||!record||!out||radio->retiring||radio->reset_pending||
     radio->pm_suspending||radio->pm_suspended||!owner->deferred_owners||
@@ -449,7 +450,9 @@ static inline int wr_iot_main_recovery_capture_physical_ticket(
     (owner->phase!=WR_MAIN_OWNER_QUEUED&&owner->phase!=WR_MAIN_OWNER_RUNNING&&
      owner->phase!=WR_MAIN_OWNER_RETAINED)||
     !owner->schedule_recorded||owner->close_ticket.operation!=WR_RADIO_CLOSE||
-    owner->close_ticket.serial<=arm_serial||
+    owner->close_ticket.serial<=arm_serial||!expected_generation||
+    !expected_open_token||owner->generation!=expected_generation||
+    owner->open_token!=expected_open_token||
     record->device!=owner->device||record->generation!=owner->generation||
     record->last_token!=owner->open_token||record->phase!=WR_REF_CLOSING||
     record->family!=WR_REF_FAMILY_MAIN||!record->published||record->removing||

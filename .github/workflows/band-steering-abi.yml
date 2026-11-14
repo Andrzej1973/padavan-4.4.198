@@ -151,6 +151,10 @@ jobs:
             trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x2
             trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3
             trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3_ap
+      - name: Verify experimental physical-stop host contracts
+        run: python3 tools/iot/check-physical-stop-suite.py
+      - name: Verify reviewed recovery predecessor normalization
+        run: python3 tools/iot/check-reviewed-recovery-predecessor.py
       - name: Verify steering package dependency checker logic
         run: python3 tools/band-steering/check-package-closure.py
       - name: Verify WR board steering selectors and factory OFF

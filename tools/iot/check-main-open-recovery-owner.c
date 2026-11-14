@@ -91,13 +91,17 @@ int main(void){
  assert(wr_iot_main_recovery_copy_close_ticket(&owner,&refs[0],&radio,
         refs,2,1,&copy)&&copy.serial==ticket.serial);
  assert(wr_iot_main_recovery_capture_physical_ticket(&owner,&radio,&refs[0],
-   ticket.serial-1,&copy));
+   ticket.serial-1,4,7,&copy));
  assert(copy.serial==ticket.serial&&copy.epoch==ticket.epoch);
  assert(!wr_iot_main_recovery_capture_physical_ticket(&owner,&radio,&refs[0],
-   ticket.serial,&copy));
+   ticket.serial-1,5,7,&copy));
+ assert(!wr_iot_main_recovery_capture_physical_ticket(&owner,&radio,&refs[0],
+   ticket.serial-1,4,8,&copy));
+ assert(!wr_iot_main_recovery_capture_physical_ticket(&owner,&radio,&refs[0],
+   ticket.serial,4,7,&copy));
  {struct wr_iot_interface_ref stale=refs[0];stale.generation++;
   assert(!wr_iot_main_recovery_capture_physical_ticket(&owner,&radio,&stale,
-    ticket.serial-1,&copy));
+    ticket.serial-1,4,7,&copy));
  }
  {struct wr_iot_main_recovery_owner changed;
   struct wr_iot_radio_transition altered;
@@ -117,7 +121,7 @@ int main(void){
     case 7:altered.reset_pending=1;break;
    }
    assert(!wr_iot_main_recovery_capture_physical_ticket(&changed,&altered,
-     &refs[0],ticket.serial-1,&copy));
+     &refs[0],ticket.serial-1,4,7,&copy));
    assert(copy.serial==sentinel.serial); /* refused read cannot publish ticket */
   }
  }
