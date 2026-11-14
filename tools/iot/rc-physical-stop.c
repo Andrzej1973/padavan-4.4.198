@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include "rc-physical-stop.h"
 #include "rc-backend.h"
+#include "restart-scheduler.h"
 #include "restart-restore.h"
 #include "rc-quiesce.h"
 #include "physical-stop-session.h"
@@ -29,6 +30,7 @@ static int physical_begin(const struct wr_iot_rc_physical_intent *intent,
  if(!intent||intent->restart>1||intent->radio_on>1||intent->reload>1||
     (!intent->restart&&(intent->radio_on||intent->reload))||physical.owner||
     wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending)return 0;
+ if(!wr_iot_restart_scheduler_prepare())return 0;
  if(!wr_iot_radio_stop_fence_begin(&physical.fence))return 0;
  physical.owner=getpid();physical.intent=*intent;
  physical.guard=wr_iot_service_guard_enter(1);

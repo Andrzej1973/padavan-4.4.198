@@ -768,3 +768,16 @@ admission refusal, retained live-profile refusal, terminal retirement and repeat
 idle prepare. Fresh identity and RC autostart compositions pass separately.
 The physical begin caller has not yet been wired to this prerequisite; do not
 claim repeated net_wifi restart completion from this API alone.
+
+
+### Physical admission now requires scheduler preparation
+
+Both private physical begin paths check scheduler_prepare after request/owner/
+admission validation and before obtaining a new radio-stop fence. The actual
+physical/scheduler/retirement composition proves retained/live-profile refusal
+without a new physical owner, fence or driver call; consumed terminal retirement
+precedes the next admission. A subsequent entropy failure still balances the
+new fence through the existing physical terminal path. Physical quiesce and
+resume-finish compositions pass; native source preparation passes. This binds
+the private admission API only: stock net_wifi restart entrypoints and physical
+runtime acceptance remain pending.
