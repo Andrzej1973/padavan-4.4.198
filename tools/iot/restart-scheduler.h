@@ -11,4 +11,7 @@ int wr_iot_restart_scheduler_pending(void);
 int wr_iot_restart_scheduler_step(void);
 int wr_iot_restart_scheduler_shutdown(const char *,unsigned long long);
 int wr_iot_restart_scheduler_retire(void);
+/* Before acquiring a new physical fence: reuse idle storage, or retire only
+ * a consumed terminal owner using the complete resource/admission verifier. */
+int wr_iot_restart_scheduler_prepare(void);
 #endif

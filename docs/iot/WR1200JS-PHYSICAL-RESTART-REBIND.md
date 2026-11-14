@@ -754,3 +754,17 @@ retirement must still be orchestrated before another physical restart.
 Full-suite retry23234 exited0, but sources changed during that run: this is
 partial/version-mixed regression evidence, not an immutable full-head pass.
 Target and device verification remain separate.
+
+
+### Pre-fence scheduler reuse admission
+
+scheduler_prepare is an explicit process-context prerequisite for the next
+physical transaction, before acquiring its signal/admission fence. Idle storage
+is accepted only outside shutdown admission. An existing owner must pass the
+actual terminal retirement verifier, including consumed DONE/CANCELLED state,
+profile/resources and parent-pointer checks. No memset recovery is introduced.
+Actual scheduler/resume/retirement two-cycle composition passes, including live
+admission refusal, retained live-profile refusal, terminal retirement and repeated
+idle prepare. Fresh identity and RC autostart compositions pass separately.
+The physical begin caller has not yet been wired to this prerequisite; do not
+claim repeated net_wifi restart completion from this API alone.

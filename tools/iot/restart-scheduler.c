@@ -74,3 +74,10 @@ int wr_iot_restart_scheduler_shutdown(const char *id,unsigned long long created)
 }
 int wr_iot_restart_scheduler_retire(void)
 {return wr_iot_restart_resume_retire(&resume);}
+
+int wr_iot_restart_scheduler_prepare(void)
+{
+ if(wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending)return 0;
+ if(!resume.owner)return resume.phase==WR_RESUME_IDLE&&!resume.busy;
+ return wr_iot_restart_resume_retire(&resume);
+}

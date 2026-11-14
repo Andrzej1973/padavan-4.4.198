@@ -1,0 +1,19 @@
+{
+  "scope": "pre-fence scheduler reuse API; physical begin caller not bound",
+  "checks": {
+    "scheduler_resume_retirement_two_cycles": "PASS;61258; actual scheduler/pump/retire, component actors injected",
+    "fresh_identity_and_RC_autostart": "PASS;61258",
+    "native_preparation": "PASS;58930 exit0"
+  },
+  "sources": {
+    "tools/iot/restart-scheduler.c": "5f8bf1286a8809c89d09365a7345f7b6a558e2469d8f138c6c52207319e2823d",
+    "tools/iot/restart-scheduler.h": "94bb9edcb2009c0623b46396295f5f37900f5625629e72ab7483cf8de9853482",
+    "tools/iot/check-scheduler-resume-composition.py": "2b18e7cb4ad32119008d100ef48e292c57643e160004bf34603a7d72683818c9"
+  },
+  "target_runtime": "unverified",
+  "completed_scratch": {
+    "bytes": 307,
+    "sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a",
+    "removed": "/tmp/wr-scheduler-prepare-native.log"
+  }
+}
