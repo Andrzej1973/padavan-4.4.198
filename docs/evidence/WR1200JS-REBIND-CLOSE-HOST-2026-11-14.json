@@ -1,0 +1,40 @@
+{
+  "date": "2026-11-14",
+  "source_base": "cdb8fcf64ae45b25783d645375a52ad68c7f2938",
+  "standard": {
+    "run": 43593044595,
+    "conclusion": "success"
+  },
+  "abi": {
+    "run": 43593041572,
+    "conclusion": "success"
+  },
+  "optional_dispatched": 43595973717,
+  "implementation": "tools/iot/rebind-close.c",
+  "host_checks": {
+    "check-rebind-close.py": "PASS gcc ASan/UBSan actual CLOSE controller with injected transport",
+    "check-start-close.py": "PASS regression",
+    "physical-stop-suite": "PASS 48 parts session56282 exit0 before runtime linkage; changed runtime preparer separately rechecked",
+    "prepared_runtime": "PASS session10258 exit0:12 copied translation units strict native C11",
+    "compile-runtime-link.sh": "bash -n PASS"
+  },
+  "guards": [
+    "exact retained physical RELEASE identity",
+    "strictly newer adapter epoch",
+    "matching generation and OPEN nonce",
+    "same PID, nonbusy OPEN, active snapshot and service guard",
+    "one CLOSE submission; bounded progress/release",
+    "fresh CLOSED serial before acceptance"
+  ],
+  "target_verified": false,
+  "runtime_verified": false,
+  "runtime_linked": true,
+  "remaining": [
+    "retained restart runner with DNS-commit boundary and normal OFF recovery",
+    "RC scheduler integration",
+    "target compilation and physical acceptance"
+  ],
+  "cleanup": "TemporaryDirectory test trees removed automatically; no persistent binary artifacts",
+  "whitespace": "Full shared-tree diff check finds pre-existing trailing whitespace in unrelated historical PROJECT_STATUS/CODEX_HANDOFF blocks; preserved",
+  "suite_log_sha256": "9d184e0c0e3df0173a2a068873114fe5edbc85cbe7a11d8cf718473226964272"
+}

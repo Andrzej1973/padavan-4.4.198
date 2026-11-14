@@ -263,3 +263,24 @@ host suite passed; target linking and physical behavior remain pending. Metadata
 reports helpers linked while restart_resume_bound remains false. Composition
 with the retained restart owner, post-OPEN CLOSE recovery and scheduler is still
 required; mere linkage does not enable resume.
+
+### Post-OPEN recovery helpers — 2026-11-14
+
+`rebind-close.c` retains the new-epoch OPEN attempt and uses the existing CLOSE
+controller for submission/progress/owner release. Exact retained physical
+RELEASE, newer epoch, matching generation/OPEN ID, PID, snapshot and service
+guards are required. Fresh CLOSED serial is pinned and revalidated; an uncertain
+reply cannot authorize network teardown or a new OPEN.
+
+`rebind-closed-rollback.c` applies existing bridge/DNS/settings cleanup only
+after this CLOSE owner release. It rechecks the same serial and ra2 DOWN before
+every phase; failure retains the snapshot and phase. Caller must serialize DNS
+commit: startup rollback is for the pre-commit path. After DNS commit has been
+attempted, the future runner must retain uncertainty or complete normal OFF
+before entering settings cleanup. These helpers do not implement that runner.
+
+Both helpers are linked into experimental runtime preparation with strong
+symbol gates. Full48 host suite passed before the linkage edit; the changed
+runtime preparer separately passed12 native translation units afterward.
+Transport/resources are injected; no MIPS or physical-runtime claim. Restart
+entrypoint orchestration remains false. Scratch test trees auto-removed.
