@@ -49,6 +49,8 @@ helper="""#if defined(BOARD_WR1200JS)
 #include <errno.h>
 #include "wr-iot/bridge.h"
 #include "wr-iot/restart-main-state.h"
+#include "wr-iot/restart-guest-policy.h"
+#include "wr-iot/service-guard.h"
 #include "wr-iot/radio-stop-contract.h"
 static int wr_iot_last_stop_result=1;
 static int wr_iot_quiesce(void)
@@ -71,6 +73,31 @@ int wr_iot_rc_physical_aux_down(unsigned int slot)
  errno=0;
  if(!if_nametoindex(names[slot]))return errno==ENODEV||errno==ENXIO;
  return wif_control(names[slot],0)==0;
+}
+/* Same existing Guest enable/schedule policy as normal AP startup. */
+int wr_iot_rc_restart_guest_policy(int *out)
+{
+ int fd,enabled,before,after;
+ if(!out)return 0;
+ fd=wr_iot_service_guard_dup();if(fd<0)return 0;if(close(fd))return 0;
+ if(get_ap_mode()||get_mode_radio_rt()!=0||get_enabled_radio_rt()!=1)return 0;
+ enabled=get_enabled_guest_rt();before=is_guest_allowed_rt();
+ if((enabled!=0&&enabled!=1)||(before!=0&&before!=1)||(!enabled&&before))return 0;
+ after=is_guest_allowed_rt();
+ if(before!=after||enabled!=get_enabled_guest_rt()||get_ap_mode()||
+    get_mode_radio_rt()!=0||get_enabled_radio_rt()!=1)return 0;
+ *out=before;return 1;
+}
+int wr_iot_rc_restart_guest_isolation_policy(int *out)
+{
+ int fd,before,after;
+ if(!out)return 0;
+ fd=wr_iot_service_guard_dup();if(fd<0)return 0;if(close(fd))return 0;
+ if(get_ap_mode()||get_mode_radio_rt()!=0||get_enabled_radio_rt()!=1)return 0;
+ before=nvram_wlan_get_int(0,"guest_lan_isolate");
+ after=nvram_wlan_get_int(0,"guest_lan_isolate");
+ if((before!=0&&before!=1)||before!=after)return 0;
+ *out=before;return 1;
 }
 /* Profile generation only; never the combined stop/restart helper. */
 int wr_iot_rc_restart_generate(int disable_autoscan)
@@ -908,6 +935,7 @@ make=m.read_text(encoding='utf-8')
 if make.count('wr-iot-initial-off.o')!=1:raise SystemExit('Reopen object anchor changed')
 objects=' '.join('wr-iot-'+stem+'.o' for stem,names in (('reopen-admission', ('reopen-admission.h', 'service-guard.h', 'request-snapshot.h', 'bridge.h', 'dns-activation.h')), ('reopen-start', ('reopen-start.h', 'request-stage.h', 'service-guard.h', 'rc-shutdown-admission.h')), ('reopen-network', ('reopen-network.h', 'driver-api-client.h', 'service-guard.h', 'rc-shutdown-admission.h', 'bridge.h', 'network-check.h', 'request-stage.h', 'quarantine.h', 'dns-activation.h')), ('reopen-rollback', ('reopen-rollback.h', 'driver-api-client.h', 'service-guard.h', 'rc-shutdown-admission.h', 'bridge.h', 'dns-activation.h'))))
 m.write_text(make.replace('wr-iot-initial-off.o','wr-iot-initial-off.o '+objects,1),encoding='utf-8')
+(headers/'restart-guest-policy.h').write_bytes((local/'restart-guest-policy.h').read_bytes())
 (headers/'restart-main-state.h').write_bytes((local/'restart-main-state.h').read_bytes())
 (headers/'radio-stop-fence.h').write_bytes((local/'radio-stop-fence.h').read_bytes())
 unit=(local/'radio-stop-fence.c').read_text()

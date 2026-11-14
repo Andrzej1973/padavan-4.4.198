@@ -1,0 +1,21 @@
+{
+  "scope": "host compilation of actual prepared sources",
+  "translation_units": 26,
+  "checks": [
+    "gcc C11 -Wall -Wextra -Werror -O2",
+    "exact Makefile entries",
+    "duplicate preparation refused",
+    "Guest controller linked metadata true and bound false"
+  ],
+  "log_sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a",
+  "target_build_verified": false,
+  "runtime_verified": false,
+  "production_ready": false,
+  "note": "Earlier full recovery suite85946 started before controller preparation integration changed. Separate final preparer check10106 exit0 covers26 copied units; full suite still running.",
+  "recovery_suite": {
+    "session": 85946,
+    "exit_code": 0,
+    "log_sha256": "957670e5583aac07277c4c5848118ff0ab6d9ba8f4e8f41f092c2a32a0f39ab5",
+    "scope": "72 host suite parts; preparer integration separately verified by10106, additional controller fault tests passed afterward"
+  }
+}

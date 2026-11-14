@@ -1,0 +1,11 @@
+{
+  "scope": "pinned SDK source observation only",
+  "sdk_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "source": "trunk/user/rc/firewall_ex.c",
+  "sha256": "cc02516c665e620e60859d6cbc5197c59426eeac19481d5c68c1d4acdc95cf22",
+  "guest_or_isolate_literal_matches": 0,
+  "conclusion": "No Guest/isolate literal in this file; not proof of absence elsewhere, nor routed firewall acceptance. Guest controller remains unbound.",
+  "recovery": "Local fixed ra1 DOWN single attempt then independent administrative readback; no DMA/TxS retirement claim",
+  "target_verified": false,
+  "device_verified": false
+}

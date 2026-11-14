@@ -508,3 +508,26 @@ driver actors injected. Full66 host suite passed;22 prepared native TUs compile.
 The adapter/controller are experimentally linked with target symbol gates.
 Guest/services, post-UP recovery, baseline finalization and scheduler remain
 unfinished. No target image or physical runtime acceptance is implied.
+
+## Guest restoration candidate (2026-11-14)
+
+The experimental runtime preparation now includes a private Guest controller.
+It captures the existing enabled/schedule and guest_lan_isolate policy via
+checked SDK adapters, attaches fixed ra1 to br0 while DOWN, writes and reads
+vendor L2 isolate_mode before UP, then submits UP once. Readiness results are
+administrative only. Routed firewall policy is a separate, unfinished gate;
+controller calls remain unbound to the RC scheduler.
+
+After a submitted UP, lost Main/policy/bridge/isolation evidence or a pending
+shutdown switches to retained recovery. One fixed ra1 DOWN attempt precedes
+independent administrative readback. No repeated UP/DOWN or isolation rewrite
+occurs after UP. A failed readback retains recovery; later UP invalidates the
+DOWN observation. This does not prove DMA/TxS retirement or authorize baseline
+release. Pre-OPEN refusal and NOT_SUBMITTED UP do not acquire foreign Guest
+ownership. The retained Main/generation objects must outlive the controller.
+
+Source: tools/iot/restart-guest-{controller,up,bridge,isolation}.[ch] and
+prepare-rc.py policy adapters. Host evidence: Guest controller preparation JSON
+in docs/evidence; 72-part suite and focused sanitizer/fault checks passed.
+Target firmware and physical acceptance remain pending. Full restart scheduling,
+routed firewall restoration and final ownership release are still unfinished.
