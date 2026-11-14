@@ -1,0 +1,15 @@
+{
+  "failed_run": 43603629609,
+  "source": "be8c0a34a9bf4253e704eb000840453a396026ab",
+  "first_error": "Ralink generator close anchor changed",
+  "cause": "Band Steering prepared generator has checked enabled branch and fallback fclose/return/#endif tail; IoT transform accepted only plain SDK tail",
+  "fix": "exact plain or Band Steering fallback tail, total match count1; preserve Band Steering checked branch",
+  "checks": {
+    "check-generator-close.py": "PASS actual transformer plain/band/missing/duplicate and checked stdio behavior",
+    "scoped_diff_check": "PASS"
+  },
+  "standard1192": "success",
+  "target_verified": false,
+  "runtime_verified": false,
+  "monitor": "latest monitor runs skipped; original ABI failed log used"
+}

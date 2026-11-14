@@ -5,6 +5,18 @@ import ast,subprocess,tempfile
 here=Path(__file__).resolve().parent
 module=ast.parse((here/'prepare-rc.py').read_text())
 fragment=next(ast.literal_eval(n.value) for n in module.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='iot_generator_checked_close' for t in n.targets))
+function=next(n for n in module.body if isinstance(n,ast.FunctionDef) and n.name=='checked_generator_tail')
+namespace={'iot_generator_checked_close':fragment}
+exec(compile(ast.Module(body=[function],type_ignores=[]),'<actual tail transform>','exec'),namespace)
+transform=namespace['checked_generator_tail']
+plain='\tfclose(fp);\n\n\treturn 0;\n}\n\nint\ngen_ralink_config_2g'
+band='\tfclose(fp);\n\treturn 0;\n#endif\n}\n\nint\ngen_ralink_config_2g'
+assert transform(plain)==fragment+'\n}\n\nint\ngen_ralink_config_2g'
+assert transform(band)==fragment+'\n#endif\n}\n\nint\ngen_ralink_config_2g'
+for bad in ('changed',plain+band,plain+plain):
+ try:transform(bad)
+ except SystemExit:pass
+ else:raise AssertionError('ambiguous/missing tail accepted')
 code=r'''
 #include <stdio.h>
 #include <assert.h>

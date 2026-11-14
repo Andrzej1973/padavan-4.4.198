@@ -233,9 +233,16 @@ iot_generator_checked_close = """#if defined(BOARD_WR1200JS)
 	fclose(fp);
 
 	return 0;"""
-iot_generator_close_anchor='\tfclose(fp);\n\n\treturn 0;\n}\n\nint\ngen_ralink_config_2g'
-if radio.count(iot_generator_close_anchor)!=1:raise SystemExit('Ralink generator close anchor changed')
-radio=radio.replace(iot_generator_close_anchor,iot_generator_checked_close+'\n}\n\nint\ngen_ralink_config_2g',1)
+def checked_generator_tail(radio):
+ plain='\tfclose(fp);\n\n\treturn 0;\n}\n\nint\ngen_ralink_config_2g'
+ band='\tfclose(fp);\n\treturn 0;\n#endif\n}\n\nint\ngen_ralink_config_2g'
+ # Band Steering already checks its enabled branch. Add WR2g checks only
+ # to its fallback branch, preserving the existing coordinated writer.
+ matches=radio.count(plain)+radio.count(band)
+ if matches!=1:raise SystemExit('Ralink generator close anchor changed')
+ if plain in radio:return radio.replace(plain,iot_generator_checked_close+'\n}\n\nint\ngen_ralink_config_2g',1)
+ return radio.replace(band,iot_generator_checked_close+'\n#endif\n}\n\nint\ngen_ralink_config_2g',1)
+radio=checked_generator_tail(radio)
 for name in ('profile.h','profile-list.h','profile-line.h','profile-scan.h','profile-stream.h','profile-file.h','precreated-profile-request.h','precreated-entropy.h'):
  (headers/name).write_bytes((local/name).read_bytes())
 shared=rc/'shared-wifi';shared.mkdir(exist_ok=True)
