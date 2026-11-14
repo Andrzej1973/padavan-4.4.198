@@ -17,4 +17,44 @@ static inline int wr_iot_physical_stop_origin_matches(
   s->completion_epoch==r->completion_epoch&&s->ticket_epoch>s->arm_epoch&&
   s->completion_epoch>=s->ticket_epoch;
 }
+/* Same-registration Main reopen only. A replacement adapter/registration needs
+ * its own distinct handoff; address reuse never satisfies this predicate.
+ * This checks Main software state, not ra2 readiness or RF/DMA retirement. */
+static inline int wr_iot_physical_stop_origin_main_ready(
+ const struct wr_iot_physical_stop_origin *origin,
+ const struct wr_iot_main_recovery_owner *owner,
+ const struct wr_iot_radio_transition *radio,
+ const struct wr_iot_interface_ref *main_record)
+{
+ if(!origin||!owner||!radio||!main_record||
+    !wr_iot_physical_stop_origin_matches(origin,&owner->last_release)||
+    owner->phase!=WR_MAIN_OWNER_IDLE||owner->deferred_owners||
+    owner->netdev_release_started||owner->device||
+    radio->phase!=WR_RADIO_READY||!radio->main_ready||radio->busy||radio->active_tx||
+    radio->reset_pending||radio->retiring||radio->exhausted||radio->main_inhibited||
+    radio->pm_suspending||radio->pm_suspended||
+    radio->epoch<=origin->completion_epoch||radio->serial<=origin->ticket_serial||
+    radio->serial!=radio->retired_serial)return 0;
+ return main_record->device==owner->last_release.device&&
+  main_record->family==WR_REF_FAMILY_MAIN&&main_record->published==1&&
+  !main_record->removing&&!main_record->removal_stage&&
+  main_record->phase==WR_REF_OWNED&&main_record->generation==origin->main_generation&&
+  main_record->last_token>origin->main_open_token&&!main_record->close_running&&
+  !main_record->close_uncertain_reason;
+}
+/* Historical ra2 CLOSE identity only, deliberately not current-epoch CLOSED
+ * admission. Fresh beacon/key/probe and exact issuer still need validation. */
+static inline int wr_iot_physical_stop_origin_iot_history(
+ const struct wr_iot_physical_stop_request *request,
+ const struct wr_iot_interface_ref *record,const void *iot_device)
+{
+ if(!wr_iot_physical_stop_request_valid(request)||request->action!=WR_STOP_RELEASE||
+    !record||!iot_device||record->device!=iot_device||
+    record->family!=WR_REF_FAMILY_MBSS||record->published!=1||
+    record->removing||record->removal_stage||record->phase!=WR_REF_IDLE||
+    record->open_unmutated||record->close_running||record->close_uncertain_reason||
+    record->close_stage!=4U)return 0;
+ return record->generation==request->generation&&record->last_token==request->open_token&&
+  record->close_serial==request->closed_serial&&record->close_epoch==request->epoch;
+}
 #endif

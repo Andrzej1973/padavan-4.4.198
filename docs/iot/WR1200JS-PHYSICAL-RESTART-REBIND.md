@@ -61,3 +61,20 @@ Regression evidence:
   with prior OPEN and prior CLOSE history. Both remain rejected, without state
   mutation. This fixture is already run by the optional merged-candidate job.
 - Both passed strict O2 ASan/UBSan locally. Target and device checks remain open.
+
+Local same-registration Main readiness predicate now compares the old origin
+with actual last_release and requires READY/Main-ready, newer epoch and retired
+radio serial, no active worker release/reset/PM/TX, same published Main device
+and generation, and a strictly newer OPEN token. Native tests cover18 rejection
+cases in addition to14 old-origin mismatches. This predicate is not yet called
+by a new transport/admission path; it is not ra2 or RF readiness. Replacement
+registrations are deliberately unsupported by this predicate and need their own
+verified mapping rather than address-based acceptance.
+
+Local ra2 historical identity predicate now requires the original RELEASE tuple
+and exact published MBSS device/generation/OPEN token/CLOSE serial/old epoch,
+IDLE with completed close stage4 and no removal/uncertain/running/unmutated-open
+state. Twelve refusal cases pass with the same strict native sanitizer build as
+the18 Main readiness and14 old-origin tests. This is historical identity only:
+it does not replace current-epoch beacon/key/probe checks, exact terminal issuer
+or single-use OPEN admission. Both new predicates remain unbound to transport.
