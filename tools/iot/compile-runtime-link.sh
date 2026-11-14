@@ -49,6 +49,8 @@ for entry in physical-stop-client:wr_iot_physical_stop_call physical-stop-down:w
   "${cross}nm" "$probe/trunk/user/rc/wr-iot-$unit.o" > "$results/$unit-symbols.txt"
   grep -Eq "[[:space:]]T[[:space:]]$symbol\$" "$results/$unit-symbols.txt"
 done
+"${cross}nm" "$probe/trunk/user/rc/net_wifi.o" > "$results/physical-aux-symbols.txt"
+grep -Eq '[[:space:]]T[[:space:]]wr_iot_rc_physical_aux_down$' "$results/physical-aux-symbols.txt"
 mkdir -p "$probe/staged/usr/sbin"
 for role in rc httpd; do
   binary="$probe/trunk/user/$role/$role"

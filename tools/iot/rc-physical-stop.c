@@ -13,6 +13,8 @@ static struct {
  struct wr_iot_rc_physical_intent intent;
  struct wr_iot_physical_session session;
  struct wr_iot_radio_stop_fence fence;
+ unsigned int aux_next;
+ unsigned char nonce[16];
  int guard,finishing,result;
 } physical;
 int wr_iot_rc_physical_begin(const struct wr_iot_rc_physical_intent *intent)
@@ -31,7 +33,8 @@ int wr_iot_rc_physical_begin(const struct wr_iot_rc_physical_intent *intent)
  request.action=WR_STOP_ARM;request.epoch=closed.adapter_epoch;
  request.generation=closed.device_generation;request.open_token=closed.open_token;
  request.closed_serial=closed.close_serial;memcpy(request.nonce,entropy,16);
- if(!wr_iot_physical_session_begin(&physical.session,&request))goto refuse;
+ if(!wr_iot_physical_stop_request_valid(&request))goto refuse;
+ memcpy(physical.nonce,request.nonce,sizeof(physical.nonce));
  return 1;
  refuse:physical.finishing=-1;return 1;
 }
@@ -39,14 +42,27 @@ int wr_iot_rc_physical_pending(void)
 {return physical.owner==getpid()&&!physical.result;}
 void wr_iot_rc_physical_step(void)
 {
- int guard,result;
+ struct wr_iot_driver_closed_result closed={0};
+ struct wr_iot_physical_stop_request request={0};
+ int guard,result=0;
  if(!wr_iot_rc_physical_pending())return;
  if(!physical.finishing){
   /* Revalidate the retained lock, balancing only this nested guard. Missing
    * admission retains ownership instead of progressing driver operations. */
   if(!wr_iot_rc_shutdown.active||physical.guard!=1)return;
   guard=wr_iot_service_guard_enter(1);if(guard!=1)return;
-  result=wr_iot_physical_session_advance(&physical.session);
+  if(physical.session.phase==WR_PHYSICAL_SESSION_IDLE){
+   if(physical.aux_next<6){
+    if(wr_iot_rc_physical_aux_down(physical.aux_next)==1)physical.aux_next++;
+   }else if(wr_iot_rc_backend_closed(&closed)){
+    /* AUX closure can change driver state. Capture the actual current CLOSE
+     * again after all six administrative downs, before creating the ARM. */
+    request.action=WR_STOP_ARM;request.epoch=closed.adapter_epoch;
+    request.generation=closed.device_generation;request.open_token=closed.open_token;
+    request.closed_serial=closed.close_serial;memcpy(request.nonce,physical.nonce,16);
+    (void)wr_iot_physical_session_begin(&physical.session,&request);
+   }
+  }else result=wr_iot_physical_session_advance(&physical.session);
   wr_iot_service_guard_leave(guard);
   if(!result)return;
   physical.finishing=result;

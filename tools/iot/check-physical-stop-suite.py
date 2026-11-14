@@ -17,7 +17,7 @@ with tempfile.TemporaryDirectory(prefix='iot-physical-stop-suite-') as d:
                         '-I'+str(here),str(here/('check-physical-stop-'+name+'.c')),
                         '-o',str(binary)]+([str(here/'physical-stop-session.c')] if name=='session' else []),check=True)
         subprocess.run([str(binary)],check=True,timeout=15)
-    for name in ('executor','retirement','candidate','terminal-composition','prior-close','main-binding','deferred-candidate','reset-binding','arm-admission','arm-publication','main-completion','cancel','terminal-replace','terminal-free','release','query','handler','dispatch','client-preparation'):
+    for name in ('executor','retirement','candidate','terminal-composition','prior-close','main-binding','deferred-candidate','reset-binding','arm-admission','arm-publication','main-completion','cancel','terminal-replace','terminal-free','release','query','handler','dispatch','client-preparation','aux'):
         subprocess.run([sys.executable,'-B',str(here/('check-physical-stop-'+name+'.py'))],check=True,timeout=60)
 for name in ('check-rc-physical-stop.py','check-rc-runtime.py'):
     subprocess.run([sys.executable,'-B',str(here/name)],check=True,timeout=60)

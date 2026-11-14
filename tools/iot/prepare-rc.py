@@ -46,6 +46,7 @@ f=rc/'net_wifi.c';s=f.read_text(encoding='utf-8')
 anchor='void \nstop_wifi_all_rt(void)\n{'
 if s.count(anchor)!=1 or 'wr_iot_quiesce' in s:raise SystemExit('Wi-Fi stop anchor changed or already prepared')
 helper="""#if defined(BOARD_WR1200JS)
+#include <errno.h>
 #include "wr-iot/bridge.h"
 #include "wr-iot/radio-stop-contract.h"
 static int wr_iot_last_stop_result=1;
@@ -58,6 +59,17 @@ static int wr_iot_quiesce(void)
   * isolation and service ownership. Administrative DOWN is not this proof.
   * No independent bridge/gate cleanup follows this callback. */
  return wr_iot_activation_prepare_radio_stop() == 1;
+}
+/* Administrative AUX/Guest DOWN only. Driver completion is separately owned
+ * by the physical Main transaction; no Main interface is accepted here. */
+int wr_iot_rc_physical_aux_down(unsigned int slot)
+{
+ static const char *const names[]={IFNAME_2G_APCLI,IFNAME_2G_WDS3,
+  IFNAME_2G_WDS2,IFNAME_2G_WDS1,IFNAME_2G_WDS0,IFNAME_2G_GUEST};
+ if(slot>=sizeof(names)/sizeof(names[0]))return 0;
+ errno=0;
+ if(!if_nametoindex(names[slot]))return errno==ENODEV||errno==ENXIO;
+ return wif_control(names[slot],0)==0;
 }
 #endif
 

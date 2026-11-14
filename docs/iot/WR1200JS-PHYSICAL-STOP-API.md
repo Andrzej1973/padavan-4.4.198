@@ -86,3 +86,15 @@ or turn a completed receipt into an unlimited restart lease.
 The actual stop/restart entry-point admission, active-IoT OFF initiation, AUX/
 Guest ordering, deferred intent consumer and fresh safe-reopen validation remain
 unbound. `physical_stop_rc_orchestration` therefore remains false.
+
+The retained controller now advances the exact SDK AUX order before ARM:
+APCLI, WDS3, WDS2, WDS1, WDS0, Guest. The prepared `net_wifi.c` adapter
+uses existing `IFNAME_2G_*` constants and its existing private `wif_control`.
+There is no Main slot. Each continuation attempts one slot; command or lookup
+errors retain that slot and guards. ENODEV/ENXIO from an absent optional
+interface completes only that administrative slot, without claiming driver
+retirement. After all slots, the private backend CLOSE is read afresh; ARM
+identity comes from that read, rather than the pre-AUX snapshot. Missing fresh
+CLOSE retains the operation without issuing Main DOWN. Actual peer/worker
+retirement remains required by the subsequent physical Main driver receipt.
+This does not initiate OFF for an ACTIVE IoT owner or enable stock entrypoints.

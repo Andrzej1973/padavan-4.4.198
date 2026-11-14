@@ -5,6 +5,9 @@ struct wr_iot_rc_physical_intent {unsigned restart,radio_on,reload;};
  * the intent, including recoverable preparation failure. step/take must finish
  * that claim. Does not execute the stock restart or authorize reopen. */
 int wr_iot_rc_physical_begin(const struct wr_iot_rc_physical_intent *);
+/* Strong prepared net_wifi adapter. Fixed six AUX/Guest slots, never Main.
+ * Success is administrative DOWN only, not driver completion. */
+int wr_iot_rc_physical_aux_down(unsigned int);
 int wr_iot_rc_physical_pending(void);
 void wr_iot_rc_physical_step(void);
 /* Exactly one terminal consumption:1 RELEASE acknowledged,-1 cancelled/refused,

@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include "rc-shutdown-admission.h"
 #include "physical-stop-down.h"
-static int depth,guard_fail,closed_fail,entropy_fail,calls,downs;
+static int depth,guard_fail,closed_fail,entropy_fail,calls,downs,aux_calls,aux_fail;
 static volatile sig_atomic_t shutdowns;
 struct wr_iot_rc_shutdown_admission wr_iot_rc_shutdown;
 static long entropy(void *out,unsigned n,unsigned flags)
@@ -16,7 +16,9 @@ int wr_iot_service_guard_enter(int enabled)
 {assert(enabled==1);if(guard_fail)return 0;depth++;return 1;}
 void wr_iot_service_guard_leave(int token){assert(token==1&&depth);depth--;}
 int wr_iot_rc_backend_closed(struct wr_iot_driver_closed_result *out)
-{assert(depth==1&&wr_iot_rc_shutdown.active);if(closed_fail)return 0;*out=(struct wr_iot_driver_closed_result){11,12,13,14};return 1;}
+{assert(depth>=1&&wr_iot_rc_shutdown.active);if(closed_fail)return 0;*out=(struct wr_iot_driver_closed_result){11,12,13,14};return 1;}
+int wr_iot_rc_physical_aux_down(unsigned int slot)
+{assert(depth==2&&slot<6&&!calls&&!downs);if(aux_fail)return 0;assert(slot==(unsigned)aux_calls);aux_calls++;return 1;}
 static unsigned query_status=WR_STOP_RUNNING;
 static enum wr_iot_physical_call_result outcome=WR_PHYSICAL_CALL_ACKNOWLEDGED;
 enum wr_iot_physical_call_result wr_iot_physical_stop_call(
@@ -51,6 +53,11 @@ int main(void)
  intent.reload=0; /* Stored intent must not follow caller edits. */
  assert(!wr_iot_rc_physical_begin(&intent));
  guard_fail=1;wr_iot_rc_physical_step();assert(!calls&&depth==1);guard_fail=0;
+ aux_fail=1;wr_iot_rc_physical_step();assert(!aux_calls&&!calls&&!downs);aux_fail=0;
+ for(int i=0;i<6;i++)wr_iot_rc_physical_step();
+ assert(aux_calls==6&&!calls&&!downs);
+ closed_fail=1;wr_iot_rc_physical_step();assert(!calls&&!downs);closed_fail=0;
+ wr_iot_rc_physical_step();assert(!calls&&!downs);
  outcome=WR_PHYSICAL_CALL_UNCERTAIN;wr_iot_rc_physical_step();assert(calls==1&&!downs&&depth==1);
  outcome=WR_PHYSICAL_CALL_ACKNOWLEDGED;wr_iot_rc_physical_step();assert(calls==2&&!downs);
  wr_iot_rc_physical_step();assert(downs==1);
