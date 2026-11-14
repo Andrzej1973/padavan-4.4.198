@@ -706,3 +706,20 @@ injected; physical priority, ordinary-command exclusion, cadence, status IPC and
 signal wake are covered. The fixture refuses changed substitution anchors.
 The composition is registered in the full host suite; a new full run is pending.
 These checks do not prove MIPS firmware behavior or physical runtime acceptance.
+
+
+### Pending shutdown at the scheduler boundary
+
+The private scheduler now observes kernel-pending SIGTERM/SIGQUIT while the
+physical fence masks them, retaining both the mask and pending signal. Existing
+admission records the request. After handoff, before continuing ON, the scheduler
+creates an entropy-backed OFF identity and monotonic timestamp and asks the
+existing resume shutdown consumer to admit it. Entropy failure, invalid/backward
+clock or refused admission retains ownership and prevents ON progress. Accepted
+shutdown advances the existing OFF pump; no driver ACK/DMA behavior changes.
+A real blocked SIGTERM fixture verifies non-consumption and all listed refusal
+paths with injected entropy/clock/resume adapters. Existing scheduler/pump and
+RC/scheduler compositions pass separately. This remains a source/host candidate;
+new MIPS and physical runtime evidence are required. Begin/net_wifi hooks remain
+unbound. The earlier full-suite retry started before this change and cannot
+establish complete coverage of this addition.

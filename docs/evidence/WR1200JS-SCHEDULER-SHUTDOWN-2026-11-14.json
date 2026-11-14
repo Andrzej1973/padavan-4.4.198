@@ -1,0 +1,25 @@
+{
+  "scope": "host scheduler pending-shutdown integration; no MIPS/device claim",
+  "source_sha256": {
+    "tools/iot/restart-scheduler.c": "5f91c17aa39aad8eeff6a1ff63634b7712ae9d849444a0583164424d9f6b0372",
+    "tools/iot/check-scheduler-shutdown.py": "7e7e85d04a862f451a35007f5968e71bdf5c2f043776568a3e678b39c2295d77"
+  },
+  "checks": {
+    "blocked_SIGTERM": "PASS; real blocked signal retained in kernel",
+    "entropy_clock_admission_failure": "PASS; no ON continuation",
+    "existing_scheduler_compositions": "PASS; scheduler/pump/retirement and RC/scheduler",
+    "native_preparation": "PASS; session62766 exit0",
+    "full_suite": "retry23234 started before this addition; no complete coverage claim"
+  },
+  "unbound": [
+    "resume begin",
+    "net_wifi restart entrypoints"
+  ],
+  "scratch": {
+    "/tmp/wr-scheduler-shutdown-preparation.log": {
+      "sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a",
+      "bytes": 307,
+      "retained": "small diagnostic evidence; full phase unfinished"
+    }
+  }
+}
