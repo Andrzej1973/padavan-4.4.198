@@ -212,6 +212,14 @@ int wr_iot_rc_rebind_begin(const struct wr_iot_control_request *request,
  const struct wr_iot_physical_stop_request *physical)
 {
  struct wr_iot_rc_mode mode={0};int guard,ok=0;
+ if(rebind.owner){
+  if(!request||!physical||!wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending)return 0;
+  guard=wr_iot_service_guard_enter(1);if(guard!=1)return 0;
+  if(wr_iot_rc_mode_read(&mode)==1)
+   ok=wr_iot_rebind_owner_restart(&rebind,request,physical,mode.router,mode.radio,mode.mode);
+  wr_iot_service_guard_leave(guard);return ok;
+ }
+
  if(!request||!physical||rebind.owner||rebind.busy||backend.owner!=getpid()||backend.busy||
     backend.phase!=WR_IOT_OWNER_OFF||!wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||
     physical->action!=WR_STOP_RELEASE||!wr_iot_physical_stop_request_valid(physical)||

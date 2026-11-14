@@ -14,6 +14,10 @@ struct wr_iot_rebind_owner {
 };
 int wr_iot_rebind_owner_begin(struct wr_iot_rebind_owner *,
  const struct wr_iot_control_request *,const struct wr_iot_physical_stop_request *,int,int,int);
+/* Repeat physical restart only from fully completed/unowned OFF. Retains
+ * previous completion on read-only refusal; never copies a live context. */
+int wr_iot_rebind_owner_restart(struct wr_iot_rebind_owner *,
+ const struct wr_iot_control_request *,const struct wr_iot_physical_stop_request *,int,int,int);
 enum wr_iot_result_state wr_iot_rebind_owner_execute(struct wr_iot_rebind_owner *,
  const struct wr_iot_control_request *);
 enum wr_iot_result_state wr_iot_rebind_owner_continue(struct wr_iot_rebind_owner *,

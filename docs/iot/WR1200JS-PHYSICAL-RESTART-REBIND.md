@@ -396,3 +396,24 @@ initial-idle counters remain unchanged. Network and driver actors are injected;
 this does not prove device association or RF behavior. Direct repeated physical
 resume without this ordinary handoff remains separate unfinished work, along
 with checked Main startup, scheduler, target and physical verification.
+
+### Direct repeated physical resume admission — 2026-11-14
+
+`wr_iot_rebind_owner_restart` validates the current completed rebind OFF tuple
+for a subsequent physical RELEASE. Snapshots, service guards, profile captures
+and unused startup recovery owners must be inactive before replacing the owner.
+Only this completed/unowned context may be retained as rollback metadata; no
+live runner/snapshot is copied. On read-only refusal the exact completion is
+restored and its internal stop pointer repaired. A new partial snapshot/guard
+keeps the new owner and cannot be overwritten with the previous completion.
+RC private begin routes subsequent admission to this owner while keeping the
+old/new epoch receipts distinct.
+
+The native RC composition covers epoch2 OFF -> epoch3 ACTIVE/OFF, stale tuple,
+invalid mode, read-only probe refusal and epoch4 partial-snapshot cancellation
+failure. Driver, network and physical completion actors are injected. This is
+admission evidence, not a claim of repeated hardware restarts. Checked Main
+startup (including desired profile/key loading before init), full scheduler and
+outer guard completion remain required. The pinned SDK restart_wifi_rt mixes
+stop/profile generation/AP/WDS/APCLI startup, so the whole stock helper cannot
+be replayed after the already-owned physical RELEASE.
