@@ -9,6 +9,9 @@ body=ns['body'].split('int main(int argc',1)[0]+r'''
 static int ups,probe_ok;static unsigned long long new_epoch=2;
 enum wr_iot_restart_up_result wr_iot_restart_main_up(void){ups++;main_down=0;return WR_RESTART_UP_UNCERTAIN;}
 int wr_iot_rebind_configuration_current(const struct wr_iot_physical_stop_request*p,const unsigned char*id,struct wr_iot_driver_identity*out){assert(p->epoch==1&&id[0]==7);*out=(struct wr_iot_driver_identity){new_epoch,2};return probe_ok;}
+#include "restart-main-bridge.h"
+enum wr_iot_main_bridge_result wr_iot_restart_main_bridge_attach(void){assert(0);return WR_MAIN_BRIDGE_REFUSED;}
+int wr_iot_restart_main_bridge_current(void){assert(0);return 0;}
 #include "restart-main-controller.c"
 int main(int argc,char**argv){
  assert(argc==2);snprintf(profile_path,sizeof(profile_path),"%s/profile",argv[1]);

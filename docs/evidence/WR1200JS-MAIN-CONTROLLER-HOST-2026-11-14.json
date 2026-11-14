@@ -8,7 +8,8 @@
     "prepared runtime session73712 exit0:21 copied TUs native C11",
     "session79021 exit0: actual composition rejects same-content foreign inode;21 prepared TUs compile after generated-file gate",
     "session3888 exit0: generation/controller/composition focused regression after file gate",
-    "session89858 exit0 final zero-nonce/pending/foreign-owner refusals and composition"
+    "session89858 exit0 final zero-nonce/pending/foreign-owner refusals and composition",
+    "session2056 exit0: actual generation/journal/Main controller/UP transport composed; SETFLAGS error after possible ndo_open, no retry, file replacement gate"
   ],
   "implementation": "local uncommitted restart-main-controller.c/h plus transport",
   "behavior": "one UP, uncertain read-only probe, pinned new epoch, monotonic generation restore fence; exact retained physical origin rechecked before and after ready probe",
@@ -33,5 +34,7 @@
     "exit_code": 0,
     "status": "PASS; final file-gate and refusal edits also checked by focused sessions3888/79021/89858",
     "log_sha256": "c960100383360029570c16f40915155cacccbcbe48c66123808c5a719ee32ffc"
-  }
+  },
+  "next_suite_parts": 63,
+  "next_suite_run": false
 }

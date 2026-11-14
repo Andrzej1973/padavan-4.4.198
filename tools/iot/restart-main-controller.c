@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include "restart-main-controller.h"
 #include "restart-profile.h"
+#include "restart-main-bridge.h"
 #include "rc-shutdown-admission.h"
 int wr_iot_restart_main_begin(struct wr_iot_restart_main *s,
  struct wr_iot_restart_generation *g,const unsigned char *id)
@@ -45,4 +46,20 @@ int wr_iot_restart_main_step(struct wr_iot_restart_main *s)
      (current.adapter_epoch==s->identity.adapter_epoch&&current.device_generation==s->identity.device_generation))&&
     wr_iot_restart_generation_origin_current(s->generation)&&!wr_iot_rc_shutdown.pending){s->identity=current;s->phase=WR_MAIN_READY;ok=1;}
  s->busy=0;return ok;
+}
+
+int wr_iot_restart_main_lan_step(struct wr_iot_restart_main *s)
+{
+ int ok;
+ if(!s||!wr_iot_restart_main_step(s))return 0;
+ s->busy=1;
+ if(!s->bridge_attempted){
+  s->bridge_attempted=1;
+  (void)wr_iot_restart_main_bridge_attach();
+ }
+ ok=wr_iot_restart_main_bridge_current();
+ s->busy=0;
+ /* A bridge result alone cannot replace driver/profile/physical-origin
+  * observation. Retain attempted flag on every failure, never replay add. */
+ return ok&&wr_iot_restart_main_step(s);
 }

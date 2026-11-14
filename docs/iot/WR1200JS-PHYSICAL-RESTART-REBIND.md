@@ -490,3 +490,21 @@ Guest, DHCP/client/RF acceptance. Actual journal/controller composition tests
 cover uncertain UP once, profile replacement with identical content, changed
 RELEASE, no pre-start restore after UP and epoch drift. Physical/UP/probe actors
 are injected. Runtime prep links both objects; scheduler remains unbound.
+
+### Checked Main LAN attachment
+
+The pinned SDK defines ra0/br0 in netutils.h; its bridge helper does not perform
+post-ioctl membership readback. `restart-main-bridge.c` restricts operations to
+these names, checks service ownership, actual bridge type, stable indexes, Main
+UP and master link. It refuses foreign masters. An already attached interface
+is observed without another add; mutation/close errors remain uncertain.
+`wr_iot_restart_main_lan_step` records its one attempt before calling the adapter,
+then uses readback only. Both before and after bridge observation it requires
+fresh Main driver/profile/origin readiness. Lost membership cannot replay add.
+
+Actual controller/bridge-transport composition passes error-after-add, readback
+reconciliation, foreign/detached membership and epoch refusal, with syscall and
+driver actors injected. Full66 host suite passed;22 prepared native TUs compile.
+The adapter/controller are experimentally linked with target symbol gates.
+Guest/services, post-UP recovery, baseline finalization and scheduler remain
+unfinished. No target image or physical runtime acceptance is implied.

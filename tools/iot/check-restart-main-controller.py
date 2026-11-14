@@ -18,6 +18,9 @@ enum wr_iot_restart_up_result wr_iot_restart_main_up(void){calls++;return outcom
 int wr_iot_restart_profile_current(const struct wr_iot_request*r){assert(r);return profile_ok;}
 int wr_iot_rebind_configuration_current(const struct wr_iot_physical_stop_request*p,const unsigned char*i,struct wr_iot_driver_identity*r){assert(p->epoch==1&&i[0]==7);*r=(struct wr_iot_driver_identity){epoch,3};return probe_ok;}
 #define wr_iot_generated_matches(expected,path) ((void)(expected),(void)(path),1)
+#include "restart-main-bridge.h"
+enum wr_iot_main_bridge_result wr_iot_restart_main_bridge_attach(void){assert(0);return WR_MAIN_BRIDGE_REFUSED;}
+int wr_iot_restart_main_bridge_current(void){assert(0);return 0;}
 #include "restart-main-controller.c"
 int main(void){
  for(int n=0;n<3;n++){
