@@ -5,13 +5,18 @@
 #include <signal.h>
 #include <errno.h>
 #include "restart-iapp-child.h"
+#include "service-guard.h"
+#include "rc-shutdown-admission.h"
+static int iapp_guard(void)
+{int fd=wr_iot_service_guard_dup();return fd>=0&&close(fd)==0;}
 #ifndef WR_IOT_IAPP_SCRIPT
 #define WR_IOT_IAPP_SCRIPT "/usr/bin/iappd.sh"
 #endif
 int wr_iot_iapp_child_begin(struct wr_iot_iapp_child*s)
 {
  int pipes[2];pid_t supervisor;
- if(!s||s->owner||s->attempted)return 0;
+ if(!s||s->owner||s->attempted||!wr_iot_rc_shutdown.active||
+    wr_iot_rc_shutdown.pending||!iapp_guard())return 0;
  if(pipe2(pipes,O_CLOEXEC|O_NONBLOCK))return 0;
  s->owner=getpid();s->attempted=1;s->fd=pipes[0];
  supervisor=fork();
@@ -49,6 +54,8 @@ int wr_iot_iapp_child_step(struct wr_iot_iapp_child*s)
 {
  unsigned char receipt;ssize_t count;
  if(!s||s->owner!=getpid()||!s->attempted)return -1;
+ if(!wr_iot_rc_shutdown.active||!iapp_guard())return 0;
+ /* Pending shutdown may drain an existing receipt, never start another command. */
  if(s->result)return s->result;
  if(s->fd<0)return -1;
  count=read(s->fd,&receipt,1);
@@ -56,4 +63,12 @@ int wr_iot_iapp_child_step(struct wr_iot_iapp_child*s)
  s->result=count==1&&receipt==1?1:-1;
  if(close(s->fd))s->result=-1;
  s->fd=-1;return s->result;
+}
+
+int wr_iot_iapp_child_closed(const struct wr_iot_iapp_child*s)
+{
+ if(!s)return 0;
+ if(!s->owner)return !s->attempted&&!s->result;
+ return s->owner==getpid()&&s->attempted&&s->fd==-1&&
+        (s->result==1||s->result==-1);
 }

@@ -1,0 +1,21 @@
+{
+  "scope": "IAPP child ownership gate and runtime unit staging; root unbound",
+  "checks": {
+    "actual_process_guard_admission_pending": "PASS;19692",
+    "native_preparation": "PASS;45320"
+  },
+  "source_sha256": {
+    "tools/iot/restart-iapp-child.c": "2875e6309cd1b48057ef7e09ee2f90c57bf42fbdf22b3604248ef820be0752fb",
+    "tools/iot/restart-iapp-child.h": "3bea6e20d2487380b40870863bad920a52ceaa1ac11a78d0746a89c93432a571",
+    "tools/iot/check-restart-iapp-child.py": "2a375af7def985f93344d755d06d30507eb45f12fa2d10b0ed78249231cc9fb2"
+  },
+  "pending": [
+    "root/finish/cancel binding",
+    "firewall writer coordination",
+    "target/image/device acceptance"
+  ],
+  "scratch_removed": {
+    "bytes": 307,
+    "sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a"
+  }
+}

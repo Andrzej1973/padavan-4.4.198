@@ -275,3 +275,14 @@ fixture waits1s to distinguish descriptor cleanup from command completion.
 Parent must keep its ownership until receipt; no child pins are implied. The
 component remains uninstalled and needs shutdown/root/finalizer integration.
 ABI43638435042 for e2c9162 succeeded; this does not cover the new IAPP module.
+
+
+IAPP child begin now checks active admission, no pending shutdown and current
+service guard before pipe/fork. Existing receipt drain requires retained admission
+and guard, but permits pending shutdown without any new launch. A closed predicate
+reports only idle or consumed success/failure with no live pipe; it does not
+convert failure into restart success. Actual process tests cover pre-admission,
+guard loss, pre-begin pending refusal and post-begin pending drain. Runtime
+preparation now copies/compiles the child unit/header; native check passes.
+The unit is registered in host suite, but root/finish/cancel remain unbound.
+Firewall writer coordination remains a separate unmet prerequisite.

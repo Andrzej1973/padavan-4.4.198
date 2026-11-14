@@ -8,4 +8,6 @@ struct wr_iot_iapp_child {pid_t owner;int attempted,fd,result;};
 int wr_iot_iapp_child_begin(struct wr_iot_iapp_child *);
 /* 1 script returned0,-1 failed/missing receipt,0 pending. */
 int wr_iot_iapp_child_step(struct wr_iot_iapp_child *);
+/* No live result pipe remains; failure is closed but never successful restart. */
+int wr_iot_iapp_child_closed(const struct wr_iot_iapp_child *);
 #endif
