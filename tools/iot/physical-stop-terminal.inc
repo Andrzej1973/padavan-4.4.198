@@ -9,7 +9,7 @@ struct wr_iot_physical_stop_terminal {
  struct wr_iot_physical_stop_request request;
  unsigned int status,ready;
 };
-static int wr_iot_physical_stop_terminal_prepare(struct wr_iot_physical_stop_terminal *s,
+static inline int wr_iot_physical_stop_terminal_prepare(struct wr_iot_physical_stop_terminal *s,
  const struct wr_iot_physical_stop_request *r)
 {
  if(!s||s->owner||s->status||s->ready||!wr_iot_physical_stop_request_valid(r)||
@@ -20,14 +20,14 @@ static int wr_iot_physical_stop_terminal_prepare(struct wr_iot_physical_stop_ter
 }
 /* Receipts must be derived from actual record/pin/fence cleanup in binding,
  * never copied from user input. Until then a prepared cache cannot reply. */
-static int wr_iot_physical_stop_terminal_commit(struct wr_iot_physical_stop_terminal *s,
+static inline int wr_iot_physical_stop_terminal_commit(struct wr_iot_physical_stop_terminal *s,
  int record_idle,int refs_returned,int lifetime_ended)
 {
  if(!s||!s->owner||s->owner!=task_pid(current)||s->ready||
     record_idle!=1||refs_returned!=1||lifetime_ended!=1)return 0;
  s->ready=1;return 1;
 }
-static int wr_iot_physical_stop_terminal_reply(const struct wr_iot_physical_stop_terminal *s,
+static inline int wr_iot_physical_stop_terminal_reply(const struct wr_iot_physical_stop_terminal *s,
  const struct wr_iot_physical_stop_request *r,unsigned char *wire,unsigned int length)
 {
  unsigned i;
@@ -41,7 +41,7 @@ static int wr_iot_physical_stop_terminal_reply(const struct wr_iot_physical_stop
  for(i=0;i<16;i++)if(r->nonce[i]!=s->request.nonce[i])return 0;
  return wr_iot_physical_stop_response_encode(wire,length,r,r->attempt,s->status);
 }
-static int wr_iot_physical_stop_terminal_clear(struct wr_iot_physical_stop_terminal *s)
+static inline int wr_iot_physical_stop_terminal_clear(struct wr_iot_physical_stop_terminal *s)
 {
  struct pid *owner;struct wr_iot_physical_stop_terminal empty={0};
  if(!s||!s->owner)return 0;

@@ -1,0 +1,17 @@
+{
+  "scope": "actual adapter CANCEL primitive with caller-retained terminal storage, no endpoint",
+  "implementation": "prepare PID-owned reply cache before mutation; unchanged Main/ARM checked under transition lock; exact ARMED record/pins detach under MacTabLock; real extra-reference return outside locks; end lifetime then commit cache",
+  "checks": [
+    "Main generation drift and RUNNING record refuse without leaked PID ref or lost pins",
+    "success restores extra module/task/netdev refs to baseline before ending lifetime",
+    "three retained typed CANCELLED replies after lost first copy do not repeat cleanup",
+    "21part suite30925 exit0 O2 ASan UBSan"
+  ],
+  "target_compiled": false,
+  "runtime_verified": false,
+  "remaining": [
+    "adapter-owned terminal cache and cleanup binding",
+    "full handler/query/release integration",
+    "target and physical checks"
+  ]
+}
