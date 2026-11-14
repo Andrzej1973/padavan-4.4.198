@@ -197,3 +197,11 @@ never retries OPEN and wipes its wire buffer on every path, preserving caller
 input. Runtime preparer links the client in experimental RC and target link
 checks its symbol. The RC scheduler does not call it yet. Exact OPEN identity
 receipt/recovery remains required before guard release or resume acceptance.
+
+Experimental RC `physical-rebind-controller.c` retains only nonsecret OPEN
+attempt identity and same-PID ownership after one rebind ioctl. Guard failure
+refuses before submission. A possible submission cannot be replayed. Current
+receipt reads require exact epoch/generation/token; recovery-only reads retain
+phase and never certify ON or release admission. The controller is linked into
+experimental runtime but is not invoked by the restart scheduler. Network
+policy, desired configuration handoff and device verification remain external.

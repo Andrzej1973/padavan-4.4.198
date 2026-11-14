@@ -43,7 +43,7 @@ make -f "$probe/Makefile" iot-runtime-link ROOTDIR="$trunk" LINUXDIR=linux-4.4.x
 for symbol in wr_iot_activation_execute wr_iot_activation_continue wr_iot_rc_backend_observed wr_iot_activation_prepare_radio_stop wr_iot_rc_quiesce_begin wr_iot_rc_quiesce_advance; do
   grep -Eq "[[:space:]]T[[:space:]]$symbol\$" "$results/backend-symbols.txt"
 done
-for entry in physical-stop-client:wr_iot_physical_stop_call physical-stop-down:wr_iot_physical_stop_down physical-stop-session:wr_iot_physical_session_begin physical-stop-session:wr_iot_physical_session_advance rc-physical-stop:wr_iot_rc_physical_begin rc-physical-stop:wr_iot_rc_physical_step rc-physical-stop:wr_iot_rc_physical_restart_ready physical-rebind-client:wr_iot_physical_rebind_call; do
+for entry in physical-stop-client:wr_iot_physical_stop_call physical-stop-down:wr_iot_physical_stop_down physical-stop-session:wr_iot_physical_session_begin physical-stop-session:wr_iot_physical_session_advance rc-physical-stop:wr_iot_rc_physical_begin rc-physical-stop:wr_iot_rc_physical_step rc-physical-stop:wr_iot_rc_physical_restart_ready physical-rebind-client:wr_iot_physical_rebind_call physical-rebind-controller:wr_iot_rebind_open_submit physical-rebind-controller:wr_iot_rebind_open_current; do
   unit="${entry%%:*}"
   symbol="${entry#*:}"
   "${cross}nm" "$probe/trunk/user/rc/wr-iot-$unit.o" > "$results/$unit-symbols.txt"

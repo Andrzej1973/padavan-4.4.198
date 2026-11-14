@@ -1,0 +1,28 @@
+{
+  "scope": "Experimental RC retained rebind OPEN controller",
+  "implementation": [
+    "actual service/shutdown guard required",
+    "one submission per same-PID context",
+    "nonsecret exact attempt retained after any attempted ioctl",
+    "NOT_SUBMITTED clears attempt",
+    "current read requires exact epoch/generation/nonzero token",
+    "recovery read exact token only, never changes phase/accepts ON",
+    "no retry or guard release from uncertainty",
+    "linked into experimental RC with target symbol checks"
+  ],
+  "checks": [
+    "native strict O2 ASan/UBSan target declaration warning PASS: both uncertain/returned outcomes, guards, duplicate submit, foreign PID, drift/output clearing, recovery phase retained",
+    "actual runtime preparation strictC11 sixTUs PASS",
+    "runtime link shell syntax PASS"
+  ],
+  "new_suite_parts": 42,
+  "full42_rerun_claimed": false,
+  "pending": [
+    "network policy and actual restart/resume scheduler integration",
+    "target driver/RC link",
+    "physical runtime acceptance"
+  ],
+  "production_orchestration": false,
+  "runtime_verified": false,
+  "scratch": "Temporary native/prepared directories auto-removed"
+}
