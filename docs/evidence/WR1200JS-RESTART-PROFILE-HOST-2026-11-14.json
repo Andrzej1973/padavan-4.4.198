@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-14",
+  "source_base": "506e590f2d03387d09335c1b29e97e27fae957ef",
+  "implementation": "tools/iot/restart-profile.c",
+  "source_findings": {
+    "cold_generator": "prepare-rc.py uses precreated_boot_request_read(saved wr_iot_enable/ssid/psk), reserving BSSID3 independent of runtime enable",
+    "key_policy": "valid saved OFF credentials reused; ephemeral factory key only for wholly empty unprovisioned OFF",
+    "driver_boundary": "loaded-key comparison and first-beacon pipeline remain mandatory in OPEN; profile readback is not loaded-key proof",
+    "pinned_startup": "start_wifi_ap_rt calls mlme_state_rt then unchecked Main/Guest wif_control/bridge; its void return cannot certify readiness"
+  },
+  "behavior": [
+    "fixed existing radio profile path; retained service guard required",
+    "validated saved credentials compared with immutable desired ON request",
+    "existing strict no-write third-BSS scanner",
+    "two independent bounded regular-file captures compared byte-for-byte and by inode/metadata",
+    "saved credentials and final path read back; symlink/nonregular/oversize/refusal rejected",
+    "private heap bytes and credential snapshots wiped before release",
+    "no NVRAM/profile writes, generator, Main/BSS open or activation permission"
+  ],
+  "host_checks": {
+    "check-restart-profile.py": "PASS ASan/UBSan actual cold parser/scanner/file capture with borrowed NVRAM and injected external same-size change",
+    "prepared_runtime": "PASS session10029 exit0:17 actual copied TUs native C11",
+    "physical_stop_suite": {
+      "session": 29594,
+      "status": "PASS",
+      "parts": 56,
+      "exit_code": 0,
+      "log_sha256": "289e915f09201e6c423d127a42cf66d938bcf34dd96477a99d357d381e359fda"
+    }
+  },
+  "runtime_linked": true,
+  "main_startup_bound": false,
+  "target_verified": false,
+  "runtime_verified": false,
+  "remaining": [
+    "owned profile generation/recovery and one-shot checked Main startup",
+    "complete physical restart scheduler and outer guard release",
+    "target compilation and physical acceptance"
+  ],
+  "ci": {
+    "standard1184": "success",
+    "optional1184_source_dispatched": 43601685195,
+    "optional1181": "success"
+  },
+  "cleanup": {
+    "test_trees": "TemporaryDirectory automatic removal",
+    "completed_log_bytes": 15939,
+    "completed_log_retained": false,
+    "sdk_sources": "read selected member in memory; no extracted tree"
+  }
+}

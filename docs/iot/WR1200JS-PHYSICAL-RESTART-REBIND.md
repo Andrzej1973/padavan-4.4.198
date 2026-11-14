@@ -417,3 +417,27 @@ startup (including desired profile/key loading before init), full scheduler and
 outer guard completion remain required. The pinned SDK restart_wifi_rt mixes
 stop/profile generation/AP/WDS/APCLI startup, so the whole stock helper cannot
 be replayed after the already-owned physical RELEASE.
+
+### Saved key/profile correspondence before Main startup — 2026-11-14
+
+The cold generator already reads saved `wr_iot_ssid`/`wr_iot_psk` independently
+of temporary activation gates. Valid saved credentials are reserved at BSSID3
+while OFF; a factory random key is only for wholly empty unprovisioned OFF.
+A private NVRAM credential override is therefore unnecessary. Runtime enable
+policy remains owned by the retained RC transaction, not this cold parser.
+
+`restart-profile.c` compares saved credentials with the immutable desired ON
+request, validates the existing third-BSS profile through the no-write scanner,
+then independently rereads the fixed profile bytes/inode and saved credentials
+under the retained service guard. It refuses missing/nonregular/symlink/oversize
+files and byte drift, including same-size modification. Owned buffers and
+credential snapshots are wiped on every release. It neither generates nor
+writes a profile, changes NVRAM or opens a BSS. Match is current file evidence,
+not a future lease, loaded-key verification, association or RF acceptance.
+
+Native tests execute the actual cold parser/profile scanner/capture and inject
+borrowed NVRAM, guard failure and an external file change.17 prepared native TUs
+compile; target symbol gate includes the observer. It remains unbound to Main
+startup. The pinned AP helper calls mlme_state_rt and ignores Main/Guest ioctl/
+bridge results, so its void return cannot certify readiness. Owned generation/
+recovery, checked one-shot Main startup, scheduler and physical tests remain.
