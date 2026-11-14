@@ -1,0 +1,30 @@
+{
+  "scope": "Retained RC physical-stop transaction linked into experimental runtime only",
+  "implementation": [
+    "same issuing PID, immutable request tuple and nonce",
+    "one transport operation per advance, reentrancy refused",
+    "ARM uncertainty retained before DOWN",
+    "DOWN attempted at most once; possible submission always QUERY",
+    "only complete QUERY advances to RELEASE",
+    "lost terminal replies retry identical CANCEL/RELEASE",
+    "no elapsed-time or ioctl-zero completion assumption"
+  ],
+  "checks": {
+    "host_suite_parts": 30,
+    "host_suite_exit": 0,
+    "sanitizers": "ASan/UBSan O2",
+    "prepared_translation_units": "client/down/session strict C11 PASS",
+    "shell_syntax": "PASS"
+  },
+  "pending": [
+    "retained shutdown and service guards across scheduler continuation",
+    "fresh owned CLOSE extraction from actual RC backend",
+    "Main/Guest stop order binding",
+    "MIPS full link",
+    "hardware retirement/reopen and physical runtime acceptance"
+  ],
+  "production_orchestration": false,
+  "target_verified": false,
+  "runtime_verified": false,
+  "scratch": "Temporary host binaries/preparation auto-removed; bounded suite log removed after success"
+}

@@ -59,3 +59,16 @@ never changes interface flags. The separate fixed DOWN helper is linked into
 the experimental RC candidate but neither helper is called by production RC
 or the current initial-only radio-stop callback. Retained RC orchestration and
 Main/Guest stop order remain pending.
+
+`physical-stop-session.c` now retains the exact issuing PID and request across
+one-operation advances in the experimental RC link. Lost ARM replies retry the
+identical ARM before DOWN; DOWN is submitted at most once. NOT_SUBMITTED DOWN
+selects CANCEL; possibly submitted DOWN selects QUERY. ARMED/RUNNING/FAILED or
+unavailable QUERY retain the session without another DOWN or reopen permission.
+Only COMPLETE selects RELEASE, and only its acknowledged reply completes the
+session. Lost CANCEL/RELEASE replies repeat the identical terminal operation.
+Foreign PID and recursive advances refuse without transport calls.
+The caller must retain actual shutdown/service admission across the whole
+session; ownership of those guards, scheduler wiring, fresh CLOSE extraction,
+and Main/Guest stop order integration are still pending. No production callback
+is switched by linking this unit. No elapsed timeout is a completion proof.

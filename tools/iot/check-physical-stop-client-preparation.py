@@ -14,7 +14,7 @@ with tempfile.TemporaryDirectory(prefix='wr-stop-client-prepared-') as d:
  subprocess.run(['python3',str(here/'prepare-runtime.py'),str(root)],check=True)
  manifest=json.loads((root/'iot-runtime-source.json').read_text())
  assert manifest['physical_stop_transport_linked'] and not manifest['physical_stop_rc_orchestration']
- for name in ('physical-stop-client','physical-stop-down'):
+ for name in ('physical-stop-client','physical-stop-down','physical-stop-session'):
   assert (rc/'Makefile').read_text().count('wr-iot-'+name+'.o')==1
   subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-O2','-I'+str(rc),'-c',str(rc/('wr-iot-'+name+'.c')),'-o',str(root/(name+'.o'))],check=True)
  duplicate=subprocess.run(['python3',str(here/'prepare-runtime.py'),str(root)],capture_output=True)
