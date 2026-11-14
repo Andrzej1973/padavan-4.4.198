@@ -104,6 +104,13 @@ int main(void){
  assert(!wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.pending&&shutdowns==1);
  assert(backend.phase==WR_IOT_OWNER_OFF&&!depth&&closes==1&&progresses==1&&releases==1);
  terminal(off.id);assert(!wr_iot_rc_continue());
+ struct wr_iot_driver_closed_result physical_closed={0};
+ assert(wr_iot_rc_backend_closed(&physical_closed)&&physical_closed.close_serial&&!depth);
+ observed_serial++;
+ assert(!wr_iot_rc_backend_closed(&physical_closed)&&!physical_closed.close_serial&&!depth);
+ observed_serial--;
+ assert(wr_iot_rc_backend_closed(&physical_closed));
+
  char path[PATH_MAX];
  for(unsigned i=0;i<2;i++){
   assert(snprintf(path,sizeof(path),"%s/%s",mailbox_directory,i?"lock":"result")<(int)sizeof(path));

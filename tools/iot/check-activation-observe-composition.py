@@ -8,6 +8,8 @@ body=next(ast.literal_eval(n.value) for n in ast.parse(source).body if isinstanc
 prefix=(here/'check-start-closed-rollback-composition.c').read_text().split('int main(void){',1)[0]
 prefix='\n'.join(line for line in prefix.splitlines() if not line.startswith(('int wr_iot_open_controller_recovery_read(', 'int wr_iot_close_controller_begin(', 'int wr_iot_close_controller_advance(')))+'\n'
 prefix+=(here/'check-driver-close-controller.c').read_text().split('int main(void)',1)[0]
+prefix='static int closed_drift_after;\n'+prefix
+prefix=prefix.replace('3,observed_serial};return 1;}','3,observed_serial+(closed_drift_after>0&&!--closed_drift_after)};return 1;}')
 body=body.replace('#include "activation-owner.h"','#include "activation-observe.h"')
 body=body.replace('s->phase=WR_IOT_COMMIT_ACTIVE;return 1;','s->owner=getpid();s->open_token=3;s->phase=WR_IOT_COMMIT_ACTIVE;return 1;')
 hooks=r'''
@@ -56,6 +58,22 @@ body=body.replace(anchor,anchor+r'''
   s.admission.snapshot.active=1;assert(!wr_iot_activation_owner_observed(&owner,&observed));s.admission.snapshot.active=0;
   assert(!memcmp(&before,&owner,sizeof(owner))&&writes==before_writes&&!depth);
 ''')
+body=r'''assert(!memcmp(&before,&owner,sizeof(owner))&&writes==before_writes&&!depth);
+  struct wr_iot_driver_closed_result receipt={0};
+  assert(wr_iot_activation_owner_closed(&owner,&observed,&receipt));
+  assert(receipt.adapter_epoch&&receipt.device_generation&&receipt.open_token&&receipt.close_serial&&!depth);
+  observed_serial++;
+  assert(!wr_iot_activation_owner_closed(&owner,&observed,&receipt));
+  assert(!receipt.adapter_epoch&&!receipt.device_generation&&!receipt.open_token&&!receipt.close_serial&&!depth);
+  observed_serial--;
+  closed_drift_after=2; /* First observation valid; second driver read drifts. */
+  assert(!wr_iot_activation_owner_closed(&owner,&observed,&receipt));
+  assert(!receipt.close_serial&&!depth&&!closed_drift_after);
+  owner.phase=WR_IOT_OWNER_ACTIVE;
+  assert(!wr_iot_activation_owner_closed(&owner,&observed,&receipt)&&!depth);
+  owner.phase=WR_IOT_OWNER_OFF;
+  assert(!memcmp(&before,&owner,sizeof(owner))&&writes==before_writes);'''.join(body.rsplit('assert(!memcmp(&before,&owner,sizeof(owner))&&writes==before_writes&&!depth);',1))
+
 body=body.replace('PASS retained activation owner with actual runner/admission/snapshot/normal OFF:', 'PASS read-only activation observation with actual owner/runner/snapshot/normal OFF:')
 with tempfile.TemporaryDirectory(prefix='iot-activation-observe-compose-') as d:
  subprocess.run([sys.executable,str(here/'prepare-request-stage-check.py'),d],check=True)

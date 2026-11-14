@@ -1,4 +1,5 @@
 #include <time.h>
+#include <string.h>
 #include "control-channel.h"
 #include "rc-backend.h"
 #include "activation-observe.h"
@@ -56,4 +57,15 @@ int wr_iot_activation_prepare_radio_stop(void)
  request.created=(unsigned long long)now.tv_sec;
  ok=wr_iot_initial_off_begin(&initial,&request);
  done:wr_iot_service_guard_leave(guard);return ok==1;
+}
+
+int wr_iot_rc_backend_closed(struct wr_iot_driver_closed_result *out)
+{
+ struct wr_iot_control_result result={0};
+ if(!out)return 0;
+ memset(out,0,sizeof(*out));
+ if(backend.phase!=WR_IOT_OWNER_OFF||backend.busy)return 0;
+ memcpy(result.id,backend.stop.id,sizeof(result.id));
+ result.created=backend.stop.created;result.state=WR_IOT_RESULT_APPLIED;
+ return wr_iot_activation_owner_closed(&backend,&result,out);
 }

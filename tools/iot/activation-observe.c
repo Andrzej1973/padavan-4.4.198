@@ -62,3 +62,25 @@ int wr_iot_activation_owner_observed(const struct wr_iot_activation_owner *s,
  }
  wr_iot_service_guard_leave(guard);return ok;
 }
+
+int wr_iot_activation_owner_closed(const struct wr_iot_activation_owner *s,
+ const struct wr_iot_control_result *r,struct wr_iot_driver_closed_result *out)
+{
+ struct wr_iot_driver_closed_result closed={0};int guard,ok=0;
+ if(!out)return 0;
+ memset(out,0,sizeof(*out));
+ if(!s||!r||s->owner!=getpid()||s->busy||s->phase!=WR_IOT_OWNER_OFF)return 0;
+ /* Keep the service guard continuously held across the full existing OFF
+  * observation and the second driver read. The nested observer balances only
+  * its own guard level. Never reconstruct ownership from public mailbox data. */
+ guard=wr_iot_service_guard_enter(1);if(guard!=1)return 0;
+ if(wr_iot_activation_owner_observed(s,r)&&
+    wr_iot_driver_attempt_closed(&s->start.open.attempt,&closed)&&
+    closed.adapter_epoch==s->start.open.attempt.identity.adapter_epoch&&
+    closed.device_generation==s->start.open.attempt.identity.device_generation&&
+    closed.open_token&&closed.open_token==s->stop.stop.close.request.open_token&&
+    closed.close_serial&&closed.close_serial==s->stop.stop.close_serial){
+  *out=closed;ok=1;
+ }
+ wr_iot_service_guard_leave(guard);return ok;
+}

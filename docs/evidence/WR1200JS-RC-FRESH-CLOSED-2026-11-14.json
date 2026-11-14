@@ -1,0 +1,37 @@
+{
+  "scope": "Fresh software CLOSE extraction for subsequent RC physical-stop ARM",
+  "source": [
+    "tools/iot/activation-observe.c:wr_iot_activation_owner_closed",
+    "tools/iot/rc-backend.c:wr_iot_rc_backend_closed"
+  ],
+  "invariants": [
+    "retained actual same-PID OFF owner only",
+    "continuous service guard across complete existing OFF observation and second driver CLOSE read",
+    "exact adapter epoch, device generation, OPEN token and CLOSE serial",
+    "output cleared on refusal",
+    "no mailbox-only reconstructed owner",
+    "no configuration writes, DOWN, restart or driver lifecycle mutation"
+  ],
+  "checks": [
+    {
+      "command": "python3 -B tools/iot/check-activation-observe-composition.py",
+      "result": "PASS O2 ASan/UBSan; stale serial, ACTIVE owner, output clearing and identity drift specifically on second driver read"
+    },
+    {
+      "command": "python3 -B tools/iot/check-rc-backend-composition.py",
+      "result": "PASS O2 ASan/UBSan; actual mailbox/owner/ON/OFF and private backend fresh CLOSE extraction"
+    }
+  ],
+  "integration_findings": [
+    "Existing physical stop/restart entry points return synchronously while Main physical close is delegated",
+    "Scheduler must retain stop/restart intent and shutdown/service admission across QUERY, without allowing stock profile reload/reopen on pending result"
+  ],
+  "pending": [
+    "RC physical session scheduler and persistent guard binding",
+    "target verification",
+    "physical runtime acceptance"
+  ],
+  "production_orchestration": false,
+  "runtime_verified": false,
+  "scratch": "Native test/prepared directories auto-removed"
+}
