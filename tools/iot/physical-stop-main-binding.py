@@ -80,7 +80,7 @@ def compose_raw_free(source):
     old=' ready=!ad->wr_iot_registration_inflight &&'
     if source.count(old)!=1:
         raise ValueError('changed raw-free admission')
-    source=source.replace(old,' ready=!ad->wr_iot_physical_lifetime.active &&\n  !ad->wr_iot_registration_inflight &&',1)
+    source=source.replace(old,' ready=!ad->wr_iot_physical_lifetime.active &&\n  !ad->wr_iot_physical_rebind_probe.active &&\n  !ad->wr_iot_registration_inflight &&',1)
     source='#include "physical-stop-terminal.inc"\n'+source
     old=' RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);\n return ready;'
     new=''' RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);

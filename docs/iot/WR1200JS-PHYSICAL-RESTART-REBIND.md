@@ -114,3 +114,11 @@ remain mandatory; these copied pointers do not acquire references. Seven
 observation outcomes, including terminal replacement, pass strict sanitizer
 checks. Next persistent storage/teardown fencing and actual observer binding
 remain required before installing this header into the candidate driver.
+
+Probe storage is now staged in the isolated candidate adapter and zeroed only
+at fresh allocation, before publication. Both recovery retirement gates and
+raw-free fencing reject an active rebind probe. Raw-free test verifies no
+terminal PID return while the probe is active. The types-only header is copied
+and hashed by both physical-stop installers. The observation functions and
+actual configuration readback are still not bound into a callable endpoint.
+No live probe may be discarded to bypass a failed ticket retirement.

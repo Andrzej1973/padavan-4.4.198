@@ -12,6 +12,7 @@ code=r'''
 #include "physical-stop-lifetime.h"
 #include "physical-stop-pin-types.h"
 #include "physical-stop-terminal-types.h"
+#include "physical-rebind-probe-types.h"
 #define WDEV_NUM_MAX 1
 #define TRUE 1
 #define FALSE 0
@@ -32,6 +33,7 @@ typedef struct {
  struct wr_iot_physical_stop_lifetime wr_iot_physical_lifetime;
  struct wr_iot_physical_stop_pins wr_iot_physical_pins,wr_iot_physical_pending_pins;
  struct wr_iot_physical_stop_terminal wr_iot_physical_terminal;
+ struct wr_iot_physical_rebind_probe wr_iot_physical_rebind_probe;
 } RTMP_ADAPTER;
 static int held,puts;
 struct pid {int refs;};static struct pid identity={2};
@@ -49,6 +51,9 @@ int main(void){
  wr_iot_main_recovery_init(&ad.wr_iot_main_recovery);
  for(unsigned i=0;i<2;i++)wr_iot_mbss_recovery_init(&ad.wr_iot_mbss_recovery[i]);
  ad.wr_iot_physical_terminal.owner=&identity;ad.wr_iot_physical_terminal.ready=1;
+ ad.wr_iot_physical_rebind_probe.active=1;
+ assert(!wr_iot_raw_recovery_free_fence(&ad)&&!puts&&identity.refs==2);
+ ad.wr_iot_physical_rebind_probe.active=0;
  ad.wr_iot_physical_lifetime.active=1;
  assert(!wr_iot_raw_recovery_free_fence(&ad)&&!puts&&identity.refs==2);
  ad.wr_iot_physical_lifetime.active=0;ad.wr_iot_physical_pending_pins.module=1;

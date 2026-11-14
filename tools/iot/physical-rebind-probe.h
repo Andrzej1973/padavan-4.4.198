@@ -2,17 +2,11 @@
 #define WR_IOT_PHYSICAL_REBIND_PROBE_H
 #include "radio-transition-api.h"
 #include "physical-stop-origin.h"
+#include "physical-rebind-probe-types.h"
 /* Caller pins adapter/netdevices/PID and serializes begin/finish under transition
  * lock. Configuration readback runs unlocked under its own BcnRing protection.
  * Failed retirement retains active context; no caller may discard it. */
-struct wr_iot_physical_rebind_probe {
- struct wr_iot_radio_ticket ticket;
- unsigned long main_generation,main_token;
- const struct pid *issuer;
- const void *main_device,*iot_device;
- struct wr_iot_physical_stop_request request;
- unsigned int active,accepted;
-};
+
 static inline int wr_iot_physical_rebind_probe_begin(
  struct wr_iot_physical_rebind_probe *p,
  const struct wr_iot_physical_stop_terminal *terminal,const struct pid *issuer,

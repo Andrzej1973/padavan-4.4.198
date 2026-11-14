@@ -34,6 +34,18 @@ with tempfile.TemporaryDirectory(prefix='wr-stop-deferred-installer-') as d:
  assert 'wr_iot_physical_stop_terminal_clear(&terminal)' in raw
  assert raw.index('RTMP_IRQ_UNLOCK(&ad->MacTabLock,flags);')<raw.index('wr_iot_physical_stop_terminal_clear(&terminal)')
 
+ assert 'struct wr_iot_physical_rebind_probe wr_iot_physical_rebind_probe;' in (out/'include/rtmp.h').read_text()
+ assert (out/'common/rtmp_init.c').read_text().count('NdisZeroMemory(&pAd->wr_iot_physical_rebind_probe,')==1
+ assert (out/'include/physical-rebind-probe-types.h').is_file()
+ assert (out/'include/physical-rebind-probe.h').is_file()
+ binding=(out/'include/physical-rebind-binding.inc').read_text()
+ assert binding.count('task_pid(current)')==2
+ assert binding.index('RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);')<binding.index('observed=wr_iot_mt7603_closed_config_observed(ad,dev);')
+ assert '#include "physical-rebind-binding.inc"' in (out/'include/driver-api-closed-entry.inc').read_text()
+
+ for name in ('include/wr-iot-mbss-recovery-work.inc','include/wr-iot-mbss-recovery-join.inc'):
+  assert 'ad->wr_iot_physical_rebind_probe.active' in (out/name).read_text()
+ assert 'ad->wr_iot_physical_rebind_probe.active' in raw
  assert 'struct wr_iot_physical_stop_terminal wr_iot_physical_terminal;' in (out/'include/rtmp.h').read_text()
  assert (out/'common/rtmp_init.c').read_text().count('NdisZeroMemory(&pAd->wr_iot_physical_terminal,')==1
 

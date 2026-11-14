@@ -70,9 +70,9 @@ def compose_adapter(header,initialization):
     end=initialization.index('wr_iot_radio_transition_init(&pAd->wr_iot_transition);',begin)
     if not begin<initialization.index(init)<end:
         raise ValueError('Close executor no longer initialized before publication')
-    header=header.replace(include,include+'\n#include "physical-stop-record.h"\n#include "physical-stop-lifetime.h"\n#include "physical-stop-pin-types.h"\n#include "physical-stop-terminal-types.h"',1)
-    header=header.replace(field,field+'\n struct wr_iot_physical_stop_record wr_iot_physical_stop;\n struct wr_iot_physical_stop_lifetime wr_iot_physical_lifetime;\n struct wr_iot_physical_stop_pins wr_iot_physical_pins;\n struct wr_iot_physical_stop_pins wr_iot_physical_pending_pins;\n struct wr_iot_physical_stop_terminal wr_iot_physical_terminal;',1)
-    initialization=initialization.replace(init,init+'\n\t\tNdisZeroMemory(&pAd->wr_iot_physical_stop,sizeof(pAd->wr_iot_physical_stop));\n\t\tNdisZeroMemory(&pAd->wr_iot_physical_lifetime,sizeof(pAd->wr_iot_physical_lifetime));\n\t\tNdisZeroMemory(&pAd->wr_iot_physical_pins,sizeof(pAd->wr_iot_physical_pins));\n\t\tNdisZeroMemory(&pAd->wr_iot_physical_pending_pins,sizeof(pAd->wr_iot_physical_pending_pins));\n\t\tNdisZeroMemory(&pAd->wr_iot_physical_terminal,sizeof(pAd->wr_iot_physical_terminal));',1)
+    header=header.replace(include,include+'\n#include "physical-stop-record.h"\n#include "physical-stop-lifetime.h"\n#include "physical-stop-pin-types.h"\n#include "physical-stop-terminal-types.h"\n#include "physical-rebind-probe-types.h"',1)
+    header=header.replace(field,field+'\n struct wr_iot_physical_stop_record wr_iot_physical_stop;\n struct wr_iot_physical_stop_lifetime wr_iot_physical_lifetime;\n struct wr_iot_physical_stop_pins wr_iot_physical_pins;\n struct wr_iot_physical_stop_pins wr_iot_physical_pending_pins;\n struct wr_iot_physical_stop_terminal wr_iot_physical_terminal;\n struct wr_iot_physical_rebind_probe wr_iot_physical_rebind_probe;',1)
+    initialization=initialization.replace(init,init+'\n\t\tNdisZeroMemory(&pAd->wr_iot_physical_stop,sizeof(pAd->wr_iot_physical_stop));\n\t\tNdisZeroMemory(&pAd->wr_iot_physical_lifetime,sizeof(pAd->wr_iot_physical_lifetime));\n\t\tNdisZeroMemory(&pAd->wr_iot_physical_pins,sizeof(pAd->wr_iot_physical_pins));\n\t\tNdisZeroMemory(&pAd->wr_iot_physical_pending_pins,sizeof(pAd->wr_iot_physical_pending_pins));\n\t\tNdisZeroMemory(&pAd->wr_iot_physical_terminal,sizeof(pAd->wr_iot_physical_terminal));\n\t\tNdisZeroMemory(&pAd->wr_iot_physical_rebind_probe,sizeof(pAd->wr_iot_physical_rebind_probe));',1)
     return header,initialization
 
 def compose_retirement(work,join):
@@ -82,7 +82,7 @@ def compose_retirement(work,join):
             raise ValueError('Physical lifetime retirement anchor changed')
         return text.replace(old,new,1)
     work=once(work,' if(ad && (ad->wr_iot_idle_probe.active ||',
-              ' if(ad && (wr_iot_physical_stop_lifetime_blocks(&ad->wr_iot_physical_lifetime) ||\n     ad->wr_iot_idle_probe.active ||')
+              ' if(ad && (wr_iot_physical_stop_lifetime_blocks(&ad->wr_iot_physical_lifetime) ||\n     ad->wr_iot_physical_rebind_probe.active ||\n     ad->wr_iot_idle_probe.active ||')
     join=once(join,' if(ad->wr_iot_idle_probe.active ||',
-              ' if(wr_iot_physical_stop_lifetime_blocks(&ad->wr_iot_physical_lifetime) ||\n    ad->wr_iot_idle_probe.active ||')
+              ' if(wr_iot_physical_stop_lifetime_blocks(&ad->wr_iot_physical_lifetime) ||\n     ad->wr_iot_physical_rebind_probe.active ||\n    ad->wr_iot_idle_probe.active ||')
     return work,join

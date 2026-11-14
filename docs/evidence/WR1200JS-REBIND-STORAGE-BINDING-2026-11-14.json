@@ -1,0 +1,35 @@
+{
+  "scope": "Experimental persistent rebind probe with actual vendor CLOSED observation",
+  "implementation": [
+    "adapter-owned types storage initialized once before publication",
+    "active probe blocks both retirement paths and raw free",
+    "actual internal binding uses RTNL, task_pid(current), adapter BSS/control/physical owner checks",
+    "real CLOSED observer called outside transition lock with existing BcnRing protection",
+    "finish revalidates exact ticket/issuer/request/epoch/Main/ra2",
+    "unretirable ticket retains probe and poisons admission",
+    "no ioctl route or OPEN permission"
+  ],
+  "checks": {
+    "existing35part_suite_session": 53242,
+    "existing35part_suite_exit": 0,
+    "note": "suite started before final binding addition; separate actual binding fixture covers addition",
+    "actual_binding_fixture_session": 36726,
+    "actual_binding_fixture_exit": 0,
+    "binding_cases": 10,
+    "sanitizers": "O2 ASan/UBSan",
+    "installers": "both PASS; deferred asserts fresh storage/header hash/three fences/unlock-before-readback",
+    "direct_free": "active probe prevents terminal PID return PASS"
+  },
+  "new_suite_parts": 36,
+  "full36_rerun_claimed": false,
+  "pending": [
+    "target module compilation",
+    "single-use rebind receipt and transport",
+    "OPEN admission and RC desired settings resume",
+    "device acceptance"
+  ],
+  "production_orchestration": false,
+  "target_verified": false,
+  "runtime_verified": false,
+  "scratch": "Native fixture directories auto-removed; failed and successful bounded suite logs removed after evidence retained"
+}
