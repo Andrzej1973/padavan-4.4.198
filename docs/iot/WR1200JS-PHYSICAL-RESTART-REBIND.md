@@ -255,3 +255,11 @@ retains context and cannot replay commit. Snapshot suspend occurs only after
 DNS committed and observations pass. Native test covers recovery-only rejection,
 seven existing fault cases, pending shutdown and nonce mismatch, with actors
 injected. Runtime/runner integration and post-OPEN CLOSE rollback are pending.
+
+Experimental runtime preparation now links rebind staging/network/rollback/
+commit objects and requires their strong symbols during target RC-link checks.
+Ten actual prepared translation units compile under strict native C11. Full46
+host suite passed; target linking and physical behavior remain pending. Metadata
+reports helpers linked while restart_resume_bound remains false. Composition
+with the retained restart owner, post-OPEN CLOSE recovery and scheduler is still
+required; mere linkage does not enable resume.
