@@ -28,7 +28,7 @@ try:
  texts[paths[6]]=main['compose_reset'](texts[paths[6]])
  if texts[paths[7]].count('#define WR_IOT_RA2_NO_HOST_MODE 1')!=1:
   raise ValueError('verified no-host dispatch definition required')
- texts[paths[7]]+='\n#include "physical-stop-arm-admission.inc"\n' 
+ texts[paths[7]]+='\n#include "physical-stop-arm-admission.inc"\n'
  texts[paths[3]]=helpers['compose_open_dispatch'](texts[paths[3]])
  texts[paths[4]],texts[paths[5]]=helpers['compose_retirement'](texts[paths[4]],texts[paths[5]])
 except ValueError as e:p.error(str(e))
@@ -37,7 +37,7 @@ for n in ('physical-stop-record.h','physical-stop-lifetime.h','physical-stop-pri
 shutil.copytree(src,out)
 for n,text in texts.items():(out/n).write_text(text)
 for n in ('physical-stop-record.h','physical-stop-lifetime.h','physical-stop-prior-close.h','physical-stop-wire.h','physical-stop-arm-admission.inc'):
- (out/'include'/n).write_text((here/n).read_text().replace('#include \"beacon-producer-gate.h\"', '#include \"wr-iot-beacon-producer-gate.h\"'))
+ (out/'include'/n).write_text((here/n).read_text().replace('#include "beacon-producer-gate.h"', '#include "wr-iot-beacon-producer-gate.h"'))
 m['merged_driver_sha256']=hashes(out)
 if 'candidate_driver_sha256' in m:
  for n in paths:m['candidate_driver_sha256'][n]=m['merged_driver_sha256'][n]

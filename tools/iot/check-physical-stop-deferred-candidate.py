@@ -33,6 +33,8 @@ with tempfile.TemporaryDirectory(prefix='wr-stop-deferred-installer-') as d:
  assert not result['physical_stop_deferred_layer']['endpoint_installed']
  assert (out/'include/wr-iot-peer-close-executor.inc').read_bytes()==(src/'include/wr-iot-peer-close-executor.inc').read_bytes()
  assert 'wr_iot_physical_stop_lifetime_capture_main(' in (out/'os/linux/rt_main_dev.c').read_text()
+ assert '\n#include "physical-stop-arm-admission.inc"\n' in (out/'include/driver-api-closed-entry.inc').read_text()
+ assert '#include "beacon-producer-gate.h"' not in (out/'include/physical-stop-prior-close.h').read_text()
  assert all(hashlib.sha256((out/n).read_bytes()).hexdigest()==h for n,h in result['merged_driver_sha256'].items())
  run(out,root/'duplicate',False);assert not (root/'duplicate').exists()
  (src/'os/linux/rt_main_dev.c').write_text('changed')
