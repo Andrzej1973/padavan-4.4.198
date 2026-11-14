@@ -33,3 +33,23 @@ Keep stock entrypoints unbound until these gaps have implementation and focused
 composition coverage, followed by exact MIPS/image verification. Preserve the
 ACK/stale-response mechanism. Ordinary ra2 toggles must continue to avoid physical
 restart/scan. Device acceptance remains a separate owner-authorized stage.
+
+
+## Authentication-stop controller candidate
+
+`restart-auth-stop.[ch]` implements SDK timing without sleeping: TERM once,
+three-second observation, KILL once, one-second observation. Missing/uncertain
+submission or expiry retains the owner; no retry storm or physical DOWN follows.
+A stopped process is re-observed before readiness. Backward monotonic time and
+pending admission refuse progress. Process-name absence is only administrative
+stop evidence. Host ASan/UBSan test passes with service adapters injected.
+This new module is not yet linked into preparation or physical begin. Actual
+fixed-service adapters/guard and integration tests are the next step. Existing
+full-suite22508 continues on unchanged d7fdc49 inputs and does not cover this new
+unregistered controller. No target or device acceptance claim.
+
+The pinned `common_ex.c::kill_services` always permits at least one second of
+waiting, loops with sleep(1), and may sleep after SIGKILL. Calling it from the
+RC progress tick would defeat nonblocking operation. `check_apcli_wan` can call
+full_restart_wan on MAN/WISP mismatch regardless of mode0; preserve this side
+effect under explicit ownership instead of assuming it is inert.
