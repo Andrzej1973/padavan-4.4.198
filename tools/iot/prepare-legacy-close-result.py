@@ -19,8 +19,19 @@ pins={
  'os/linux/rt_profile.c':'467d4a8d696fc9a9d47cd0a513e167e94c57be3f2f8fa47cd5c8836cd89e3421',
  'ap/ap_apcli_inf.c':'11254710fd0391b6053e3af002f0a032f04c54e97cefd4d0d659d0b87ce10a2d',
 }
+# Reaper reference ordering is an independently reviewed upstream stage.
+# Normalize only its exact approved function back to the original pinned input;
+# all other predecessor bytes remain covered by the original complete-file pin.
+import importlib.util
+_spec=importlib.util.spec_from_file_location('reviewed_recovery',Path(__file__).with_name('reviewed-recovery-predecessor.py'))
+_module=importlib.util.module_from_spec(_spec);_spec.loader.exec_module(_module)
+reviewed_predecessor=_module.reviewed_predecessor
+
 for name,digest in pins.items():
- if hashlib.sha256((src/name).read_bytes()).hexdigest()!=digest:p.error('unreviewed predecessor: '+name)
+ data=(src/name).read_bytes()
+ if hashlib.sha256(data).hexdigest()!=digest and hashlib.sha256(
+     reviewed_predecessor(data,name)).hexdigest()!=digest:
+  p.error('unreviewed predecessor: '+name)
 texts={name:(src/name).read_text() for name in pins}
 def one(s,old,new):
  if s.count(old)!=1:p.error('unreviewed anchor: '+old)

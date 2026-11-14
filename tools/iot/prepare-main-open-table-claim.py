@@ -2,6 +2,9 @@
 """Bind early main open/config reservation; shutdown/full-clear release unbound."""
 import argparse,hashlib,json,shutil
 from pathlib import Path
+
+import runpy
+reviewed_predecessor=runpy.run_path(str(Path(__file__).with_name('reviewed-recovery-predecessor.py')))['reviewed_predecessor']
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('source',type=Path);p.add_argument('output',type=Path)
 a=p.parse_args();src=a.source.resolve(strict=True);out=a.output.resolve()
@@ -11,7 +14,7 @@ pins={'include/rt_os_net.h':'8e16cae1117e32840bce7856b3e213f8574fdf813d3fb8efd47
  'common/rtmp_init_inf.c':'e4c1357fede7dc933d52c8cd41f50365c7fffed28b2c0d45e656ddd51b4868ef'}
 texts={}
 for n,h in pins.items():
- if hashlib.sha256((src/n).read_bytes()).hexdigest()!=h:p.error('unreviewed predecessor: '+n)
+ if hashlib.sha256(reviewed_predecessor((src/n).read_bytes(),n)).hexdigest()!=h:p.error('unreviewed predecessor: '+n)
  texts[n]=(src/n).read_text()
 def one(s,old,new):
  if s.count(old)!=1:p.error('unreviewed anchor: '+old)

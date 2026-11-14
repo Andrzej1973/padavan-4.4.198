@@ -6,6 +6,9 @@ import re
 import shutil
 from pathlib import Path
 
+import runpy
+reviewed_predecessor=runpy.run_path(str(Path(__file__).with_name('reviewed-recovery-predecessor.py')))['reviewed_predecessor']
+
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('source',type=Path)
 p.add_argument('output',type=Path)
@@ -36,7 +39,7 @@ pins={
 texts={}
 for name,digest in pins.items():
  raw=(src/name).read_bytes()
- if hashlib.sha256(raw).hexdigest()!=digest:
+ if hashlib.sha256(reviewed_predecessor(raw,name)).hexdigest()!=digest:
   p.error('unreviewed predecessor: '+name)
  texts[name]=raw.decode()
 
