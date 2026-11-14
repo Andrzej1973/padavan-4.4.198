@@ -228,3 +228,11 @@ and duplicate preparation fails without mutation. This standalone check accepts
 commands or prove target iptables -C support, firewall-writer serialization,
 service readiness or nonblocking lifecycle. Those gates remain required before
 installation. No full archive extraction or persistent copy was created.
+
+
+Pinned iptables1.8.7 `iptables/iptables.c` source SHA256
+02b79eda91661d0de8436a166214d67872057df36fc85c361739b7576543542a
+parses case 'C' as CMD_CHECK and dispatches it to check_entry. Reproducible
+check-iappd-iptables-source.py passed against the preserved archive. This proves
+source capability only; effective firmware selection, final binary and kernel
+behavior remain unverified. No archive extraction or persistent scratch.
