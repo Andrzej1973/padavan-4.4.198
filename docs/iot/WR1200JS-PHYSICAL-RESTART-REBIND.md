@@ -723,3 +723,16 @@ RC/scheduler compositions pass separately. This remains a source/host candidate;
 new MIPS and physical runtime evidence are required. Begin/net_wifi hooks remain
 unbound. The earlier full-suite retry started before this change and cannot
 establish complete coverage of this addition.
+
+
+### Fresh resume begin identity
+
+The private scheduler exposes begin_fresh for process-context orchestration.
+It checks physical RELEASE, restart/radio intent and shutdown admission before
+requesting nonblocking entropy and CLOCK_MONOTONIC seconds. Short entropy reads,
+clock failure and an all-zero16-byte ID refuse before restore ownership. Bytes
+are wiped after use. Once begin claims even a retained owner, repeated begin
+refuses without another identity. Existing explicit begin remains available for
+composition tests. Fresh-begin tests and existing scheduler compositions pass;
+automatic begin/net_wifi orchestration remains unbound, and MIPS/runtime evidence
+is pending. Full-suite retry23234 began before these latest changes.

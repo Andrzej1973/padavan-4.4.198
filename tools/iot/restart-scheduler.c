@@ -13,6 +13,20 @@ int wr_iot_restart_scheduler_begin(const unsigned char *id,unsigned long long cr
     !wr_iot_rc_physical_restart_ready(&intent)||!intent.restart||!intent.radio_on)return 0;
  return wr_iot_restart_resume_begin(&resume,id,created);
 }
+int wr_iot_restart_scheduler_begin_fresh(void)
+{
+ struct wr_iot_rc_physical_intent intent={0};struct timespec now;
+ unsigned char bytes[32]={0};unsigned i;unsigned nonzero=0;int result=0;
+ if(resume.owner||!wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||
+    !wr_iot_rc_physical_restart_ready(&intent)||!intent.restart||!intent.radio_on)return 0;
+ if(clock_gettime(CLOCK_MONOTONIC,&now)||now.tv_sec<=0||
+    wr_iot_precreated_entropy(NULL,bytes,sizeof(bytes))!=(int)sizeof(bytes))goto done;
+ for(i=0;i<16;i++)nonzero|=bytes[i];
+ if(!nonzero)goto done;
+ result=wr_iot_restart_scheduler_begin(bytes,(unsigned long long)now.tv_sec);
+ done:{volatile unsigned char*p=bytes;for(i=0;i<sizeof(bytes);i++)p[i]=0;}
+ return result;
+}
 int wr_iot_restart_scheduler_pending(void)
 {
  return resume.owner&&resume.phase!=WR_RESUME_DONE&&resume.phase!=WR_RESUME_CANCELLED;
