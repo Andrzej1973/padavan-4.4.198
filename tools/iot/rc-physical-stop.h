@@ -40,6 +40,8 @@ struct wr_iot_restart_restore;
 int wr_iot_rc_physical_resume_finish(struct wr_iot_restart_restore *);
 struct wr_iot_rc_quiesce;
 int wr_iot_rc_physical_resume_cancel(struct wr_iot_restart_restore *,const struct wr_iot_rc_quiesce *);
+/* Only exact RELEASE with no scheduler/restore owner; normal shutdown only. */
+int wr_iot_rc_physical_preresume_cancel(void);
 int wr_iot_rc_physical_premain_cancel(struct wr_iot_restart_restore *);
 int wr_iot_rc_physical_prehandoff_cancel(struct wr_iot_restart_restore *);
 #endif

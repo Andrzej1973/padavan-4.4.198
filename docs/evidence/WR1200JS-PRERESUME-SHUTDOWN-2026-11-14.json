@@ -1,0 +1,26 @@
+{
+  "scope": "physical RELEASE shutdown before resume owner; source/host only",
+  "checks": {
+    "physical_scheduler_session_fence_SIGTERM": "PASS;85603; actual signal, session-busy refusal then cancellation/take once",
+    "native_preparation": "PASS;85603 exit0",
+    "finish_cancel_fresh_scheduler": "PASS;73066",
+    "RC_autostart_shutdown_compositions": "PASS;27191"
+  },
+  "source_sha256": {
+    "tools/iot/rc-physical-stop.c": "7c26bfff31f92fdc2f17772b75ceec3e0c794f1db0c874df14f04b46c32eb9cd",
+    "tools/iot/restart-scheduler.c": "65416adfd8039e90aa93ea24d326ece29208ed7c8468c73faabab365581e3d03",
+    "tools/iot/check-physical-scheduler-prepare.py": "4d07e51184bd703f4491b468f7de8e6ebaf920ad082eb4111e4aa5aa3cd6ad7e"
+  },
+  "older_ci": {
+    "fb92282_ABI": {
+      "run": 43634271433,
+      "result": "success",
+      "covers_new_changes": false
+    }
+  },
+  "scratch_removed": {
+    "path": "/tmp/wr-preresume-native.log",
+    "bytes": 307,
+    "sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a"
+  }
+}

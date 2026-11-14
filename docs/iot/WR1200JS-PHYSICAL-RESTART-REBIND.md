@@ -781,3 +781,18 @@ new fence through the existing physical terminal path. Physical quiesce and
 resume-finish compositions pass; native source preparation passes. This binds
 the private admission API only: stock net_wifi restart entrypoints and physical
 runtime acceptance remain pending.
+
+
+### Shutdown after RELEASE before resume ownership
+
+The scheduler observes kernel-pending shutdown before testing resume ownership.
+With no owner, pending normal shutdown invokes a narrow physical cancellation:
+exact retained RELEASE/session completion, outer fence and idle scheduler are
+required. No profile generation or Main reopen has occurred through this owner.
+Cleanup wipes retained desired settings and releases the guard before deferred
+signal replay. A successful cancellation is consumed once by the scheduler.
+Actual physical/scheduler/session/fence composition passes with a blocked SIGTERM;
+session-busy refusal retains ownership and the signal, then completion consumes
+the physical terminal without creating resume. Existing shutdown/fresh-begin/
+RC-autostart/finish/cancel tests and native preparation pass separately. Hardware
+and backend observations remain injected; MIPS and device evidence are pending.

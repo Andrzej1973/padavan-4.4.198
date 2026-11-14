@@ -41,7 +41,7 @@ int wr_iot_restart_scheduler_step(void)
  sigset_t queued;unsigned char bytes[32];struct timespec now;
  struct wr_iot_control_request off={0};unsigned i;int admitted;
  static const char hex[]="0123456789abcdef";
- if(!resume.owner){(void)wr_iot_restart_scheduler_begin_fresh();return 0;}
+
  /* The outer physical fence masks normal shutdown signals. Observe them
   * without consuming the kernel pending signal or changing its mask. */
  if(wr_iot_rc_shutdown.active&&!sigpending(&queued)){
@@ -49,6 +49,13 @@ int wr_iot_restart_scheduler_step(void)
 #ifdef SIGQUIT
   else if(sigismember(&queued,SIGQUIT)==1)(void)wr_iot_rc_shutdown_note(SIGQUIT);
 #endif
+ }
+ if(!resume.owner){
+  if(wr_iot_rc_shutdown.pending){
+   struct wr_iot_rc_physical_intent stopped={0};
+   if(wr_iot_rc_physical_preresume_cancel())(void)wr_iot_rc_physical_take(&stopped);
+  }else (void)wr_iot_restart_scheduler_begin_fresh();
+  return 0;
  }
  if(wr_iot_rc_shutdown.pending&&resume.restore.phase==WR_RESTORE_HANDOFF&&
     (resume.phase==WR_RESUME_REBIND||resume.phase==WR_RESUME_FINISH)){
@@ -81,3 +88,6 @@ int wr_iot_restart_scheduler_prepare(void)
  if(!resume.owner)return resume.phase==WR_RESUME_IDLE&&!resume.busy;
  return wr_iot_restart_resume_retire(&resume);
 }
+
+int wr_iot_restart_scheduler_unowned(void)
+{return !resume.owner&&!resume.busy&&resume.phase==WR_RESUME_IDLE;}

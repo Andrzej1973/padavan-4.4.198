@@ -22,6 +22,8 @@ int wr_iot_restart_resume_begin(struct wr_iot_restart_resume*s,const unsigned ch
 int wr_iot_restart_resume_step(struct wr_iot_restart_resume*s){(void)s;return 0;}
 int wr_iot_restart_resume_shutdown(struct wr_iot_restart_resume*s,const struct wr_iot_control_request*r){(void)s;(void)r;assert(0);return 0;}
 int wr_iot_restart_resume_retire(struct wr_iot_restart_resume*s){(void)s;return 0;}
+int wr_iot_rc_physical_preresume_cancel(void){assert(0);return 0;}
+int wr_iot_rc_physical_take(struct wr_iot_rc_physical_intent*i){(void)i;assert(0);return 0;}
 #include "restart-scheduler.c"
 int main(void){
  assert(!wr_iot_restart_scheduler_begin_fresh()&&!entropy_calls&&!begins);

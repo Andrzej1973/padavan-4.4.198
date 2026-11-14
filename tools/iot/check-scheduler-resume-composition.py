@@ -9,6 +9,7 @@ exec(compile(source[:source.index('\nwith tempfile.TemporaryDirectory(')],'<reus
 code=ns['code'].split('int main(void)',1)[0]+r'''
 static int ready;
 int wr_iot_rc_physical_restart_ready(struct wr_iot_rc_physical_intent*i){i->restart=i->radio_on=1;return ready;}
+int wr_iot_rc_physical_preresume_cancel(void){assert(0);return 0;}
 #include "restart-scheduler.c"
 int main(void){
  unsigned char id[16]={7};
