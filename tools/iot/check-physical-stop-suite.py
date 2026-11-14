@@ -19,6 +19,6 @@ with tempfile.TemporaryDirectory(prefix='iot-physical-stop-suite-') as d:
         subprocess.run([str(binary)],check=True,timeout=15)
     for name in ('executor','retirement','candidate','terminal-composition','prior-close','main-binding','deferred-candidate','reset-binding','arm-admission','arm-publication','main-completion','cancel','terminal-replace','terminal-free','release','query','handler','dispatch','client-preparation','aux'):
         subprocess.run([sys.executable,'-B',str(here/('check-physical-stop-'+name+'.py'))],check=True,timeout=60)
-for name in ('check-rc-physical-stop.py','check-rc-runtime.py'):
+for name in ('check-rc-physical-stop.py','check-rc-runtime.py','check-rc-quiesce.py'):
     subprocess.run([sys.executable,'-B',str(here/name)],check=True,timeout=60)
 print('PASS physical-stop candidate host suite: uninstalled driver bindings, API transport and target/device acceptance remain pending')

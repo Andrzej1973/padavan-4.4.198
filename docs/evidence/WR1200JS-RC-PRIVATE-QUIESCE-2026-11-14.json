@@ -1,0 +1,33 @@
+{
+  "scope": "Private preparation of actual ACTIVE RC IoT owner for later physical-stop integration",
+  "root_cause_for_snapshot": "active-stop.c normal OFF clears active->input.request after completed teardown; directly reusing it would lose desired resume settings",
+  "implementation": [
+    "fresh ACTIVE owner configuration/network observation before OFF",
+    "copy desired request into private same-PID context before existing OFF begin",
+    "retain exact OFF id and creation time through existing owner continuation",
+    "normal OFF CLOSE/progress/release and isolation path unchanged",
+    "fresh driver CLOSE needed at completion and subsequent observation",
+    "already OFF does not invent desired ON settings",
+    "no driver ARM/Main DOWN/reopen or credentials telemetry from preparation API"
+  ],
+  "checks": {
+    "physical_stop_suite_parts": 34,
+    "suite_session": 6842,
+    "suite_exit": 0,
+    "sanitizers": "O2 ASan/UBSan",
+    "actual_private_OFF_composition": "PASS; isolation refusal, CLOSE once, fresh receipt, original runner request wiped while private desired unchanged, foreign/stale contexts, already OFF",
+    "actual_existing_backend_composition": "PASS",
+    "prepared_runtime_TUs": "strict C11 PASS"
+  },
+  "pending": [
+    "call private quiesce from physical controller and preserve desired request through terminal handoff",
+    "actual stock stop/restart entrypoints",
+    "post-radio-restart fresh identity and desired IoT resume",
+    "MIPS full link",
+    "physical runtime acceptance"
+  ],
+  "production_orchestration": false,
+  "target_verified": false,
+  "runtime_verified": false,
+  "scratch": "Temporary native fixture/prepared trees auto-removed, suite log removed after PASS"
+}

@@ -28,7 +28,7 @@ common=('status-channel','status-endpoint')
 for root,units,anchor in ((rc,('rc-backend','rc-mode','rc-runtime','physical-stop-client','physical-stop-down','physical-stop-session','rc-physical-stop')+common,'wr-iot-control-mailbox.o wr-iot-control-server.o'),(http,('status-client',)+common,'wr-iot-control-mailbox.o wr-iot-control-client.o')):
  text=(root/'Makefile').read_text()
  text=once(text,anchor,anchor+' '+' '.join('wr-iot-'+u+'.o' for u in units));pending[root/'Makefile']=text.encode()
- headers=('status-channel.h','status-endpoint.h','precreated-entropy.h')+(('rc-backend.h','rc-runtime.h','physical-stop-client.h','physical-stop-down.h','physical-stop-session.h','rc-physical-stop.h','physical-stop-response.h','physical-stop-wire.h') if root==rc else ())
+ headers=('status-channel.h','status-endpoint.h','precreated-entropy.h')+(('rc-backend.h','rc-quiesce.h','rc-runtime.h','physical-stop-client.h','physical-stop-down.h','physical-stop-session.h','rc-physical-stop.h','physical-stop-response.h','physical-stop-wire.h') if root==rc else ())
  for name in headers:
   target=root/'wr-iot'/name;data=(local/name).read_bytes()
   if target.exists() and target.read_bytes()!=data:raise SystemExit('Conflicting runtime header: '+str(target))

@@ -98,3 +98,17 @@ identity comes from that read, rather than the pre-AUX snapshot. Missing fresh
 CLOSE retains the operation without issuing Main DOWN. Actual peer/worker
 retirement remains required by the subsequent physical Main driver receipt.
 This does not initiate OFF for an ACTIVE IoT owner or enable stock entrypoints.
+
+`rc-quiesce.h` and the private backend now provide preparation of an ACTIVE IoT
+owner for physical-stop integration. Admission first observes the actual ACTIVE
+owner's configuration/network state, then copies its desired request into a
+private same-process context before initiating existing normal OFF. OFF uses
+its original CLOSE/progress/release and network-isolation path, without replay.
+The desired request survives normal OFF clearing the runner's original request.
+No SSID/password is added to output, mailbox records or telemetry by this API.
+Advance retains the original OFF identity and admission; only a fresh released
+CLOSE completes preparation. Already OFF has no inferred desired ON state.
+The physical controller does not yet call this preparation: its future caller
+must retain the desired request until post-radio-restart identity validation and
+resume are implemented. Do not clear that context at physical RELEASE or reuse
+the old adapter's CLOSE as an OPEN permission for a replacement epoch.

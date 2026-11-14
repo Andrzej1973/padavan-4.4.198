@@ -40,7 +40,7 @@ make -f "$probe/Makefile" iot-runtime-link ROOTDIR="$trunk" LINUXDIR=linux-4.4.x
   CC="$compiler" STRIP="${cross}strip" AR="${cross}ar" \
   2>&1 | tee "$results/build.log"
 "${cross}nm" "$probe/trunk/user/rc/wr-iot-rc-backend.o" > "$results/backend-symbols.txt"
-for symbol in wr_iot_activation_execute wr_iot_activation_continue wr_iot_rc_backend_observed wr_iot_activation_prepare_radio_stop; do
+for symbol in wr_iot_activation_execute wr_iot_activation_continue wr_iot_rc_backend_observed wr_iot_activation_prepare_radio_stop wr_iot_rc_quiesce_begin wr_iot_rc_quiesce_advance; do
   grep -Eq "[[:space:]]T[[:space:]]$symbol\$" "$results/backend-symbols.txt"
 done
 for entry in physical-stop-client:wr_iot_physical_stop_call physical-stop-down:wr_iot_physical_stop_down physical-stop-session:wr_iot_physical_session_begin physical-stop-session:wr_iot_physical_session_advance rc-physical-stop:wr_iot_rc_physical_begin rc-physical-stop:wr_iot_rc_physical_step; do
