@@ -217,3 +217,14 @@ Command errors and concurrent replacement need the existing firewall ownership
 contract at integration. Do not claim this removes the script sleeps or makes
 its lifecycle nonblocking. Full-suite84131 remains independent on unchanged
 registered e2c9162 inputs; these new standalone files are not covered by it.
+
+
+Pinned IAPP preparation has now been exercised against the complete preserved
+SDK script (SHA256 f414c96fe5270b18320a5bce75b95736469113b1302bb170999a01558c0f25d6).
+Only the two exact rule lines change; reverse substitution reproduces every
+original byte. CLI invocation preserves executable permission bits, sh -n passes,
+and duplicate preparation fails without mutation. This standalone check accepts
+--archive for another exact SDK archive path. It does not execute daemon/sysctl
+commands or prove target iptables -C support, firewall-writer serialization,
+service readiness or nonblocking lifecycle. Those gates remain required before
+installation. No full archive extraction or persistent copy was created.

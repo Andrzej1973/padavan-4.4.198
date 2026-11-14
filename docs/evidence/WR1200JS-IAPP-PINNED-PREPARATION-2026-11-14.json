@@ -1,0 +1,21 @@
+{
+  "scope": "full pinned IAPP script transformation source verification",
+  "sdk_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "input_sha256": "f414c96fe5270b18320a5bce75b95736469113b1302bb170999a01558c0f25d6",
+  "checks": {
+    "session84254": "exit0",
+    "only_two_line_changes": "PASS; reverse substitution exact bytes",
+    "executable_mode": "PASS",
+    "sh_n": "PASS",
+    "duplicate_no_mutation": "PASS",
+    "sequential_rule_idempotence": "earlier standalone actor check PASS"
+  },
+  "test_sha256": "73ad587659a59d95087d7eb5849d7b3d10e20a8b458476d99d9fcae9b5235b89",
+  "pending": [
+    "target iptables -C capability",
+    "firewall writer coordination",
+    "owned asynchronous IAPP lifecycle",
+    "firmware installation and runtime acceptance"
+  ],
+  "cleanup": "in-memory archive member and TemporaryDirectory removed; no archive extraction"
+}
