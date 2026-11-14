@@ -48,6 +48,7 @@ if s.count(anchor)!=1 or 'wr_iot_quiesce' in s:raise SystemExit('Wi-Fi stop anch
 helper="""#if defined(BOARD_WR1200JS)
 #include <errno.h>
 #include "wr-iot/bridge.h"
+#include "wr-iot/restart-main-state.h"
 #include "wr-iot/radio-stop-contract.h"
 static int wr_iot_last_stop_result=1;
 static int wr_iot_quiesce(void)
@@ -70,6 +71,12 @@ int wr_iot_rc_physical_aux_down(unsigned int slot)
  errno=0;
  if(!if_nametoindex(names[slot]))return errno==ENODEV||errno==ENXIO;
  return wif_control(names[slot],0)==0;
+}
+/* Profile generation only; never the combined stop/restart helper. */
+int wr_iot_rc_restart_generate(int disable_autoscan)
+{
+ if(disable_autoscan!=0)return -1;
+ return gen_ralink_config_2g(0);
 }
 #endif
 
@@ -213,6 +220,22 @@ for old,new in replacements:
   new=new.replace('nvram_wlan_get(','wr_profile_wlan_get(')
  if radio.count(old)!=1:raise SystemExit('Cold BSS output anchor changed: '+old)
  radio=radio.replace(old,new,1)
+# SDK generator otherwise ignores stream errors. Preserve other boards/bands;
+# fail WR SoC2g generation so its retained file owner can recover the baseline.
+iot_generator_checked_close = """#if defined(BOARD_WR1200JS)
+	if (!is_aband && is_soc_ap) {
+		int wr_iot_io_failed = ferror(fp) != 0;
+		if (fflush(fp) != 0) wr_iot_io_failed = 1;
+		if (fclose(fp) != 0) wr_iot_io_failed = 1;
+		return wr_iot_io_failed ? -1 : 0;
+	}
+#endif
+	fclose(fp);
+
+	return 0;"""
+iot_generator_close_anchor='\tfclose(fp);\n\n\treturn 0;\n}\n\nint\ngen_ralink_config_2g'
+if radio.count(iot_generator_close_anchor)!=1:raise SystemExit('Ralink generator close anchor changed')
+radio=radio.replace(iot_generator_close_anchor,iot_generator_checked_close+'\n}\n\nint\ngen_ralink_config_2g',1)
 for name in ('profile.h','profile-list.h','profile-line.h','profile-scan.h','profile-stream.h','profile-file.h','precreated-profile-request.h','precreated-entropy.h'):
  (headers/name).write_bytes((local/name).read_bytes())
 shared=rc/'shared-wifi';shared.mkdir(exist_ok=True)
@@ -221,6 +244,7 @@ profile=(local/'profile.c').read_text(encoding='utf-8').replace('#include "profi
 (rc/'wr-iot-profile.c').write_text(profile,encoding='utf-8')
 m.write_text(m.read_text(encoding='utf-8').replace('OBJS += wr-iot-request-stage.o wr-iot-bridge.o','OBJS += wr-iot-request-stage.o wr-iot-bridge.o wr-iot-profile.o'),encoding='utf-8')
 f.write_text(radio,encoding='utf-8')
+report['profile_generator_checked_io']=True
 report['profile_hook_installed']=True
 report['profile_activation_guard']='cold generator only; runtime backend remains unbound'
 report['profile_owned_removal_api_installed']=True
@@ -877,6 +901,7 @@ make=m.read_text(encoding='utf-8')
 if make.count('wr-iot-initial-off.o')!=1:raise SystemExit('Reopen object anchor changed')
 objects=' '.join('wr-iot-'+stem+'.o' for stem,names in (('reopen-admission', ('reopen-admission.h', 'service-guard.h', 'request-snapshot.h', 'bridge.h', 'dns-activation.h')), ('reopen-start', ('reopen-start.h', 'request-stage.h', 'service-guard.h', 'rc-shutdown-admission.h')), ('reopen-network', ('reopen-network.h', 'driver-api-client.h', 'service-guard.h', 'rc-shutdown-admission.h', 'bridge.h', 'network-check.h', 'request-stage.h', 'quarantine.h', 'dns-activation.h')), ('reopen-rollback', ('reopen-rollback.h', 'driver-api-client.h', 'service-guard.h', 'rc-shutdown-admission.h', 'bridge.h', 'dns-activation.h'))))
 m.write_text(make.replace('wr-iot-initial-off.o','wr-iot-initial-off.o '+objects,1),encoding='utf-8')
+(headers/'restart-main-state.h').write_bytes((local/'restart-main-state.h').read_bytes())
 (headers/'radio-stop-fence.h').write_bytes((local/'radio-stop-fence.h').read_bytes())
 unit=(local/'radio-stop-fence.c').read_text()
 for name in ('radio-stop-fence.h','rc-shutdown-admission.h'):

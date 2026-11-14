@@ -441,3 +441,32 @@ compile; target symbol gate includes the observer. It remains unbound to Main
 startup. The pinned AP helper calls mlme_state_rt and ignores Main/Guest ioctl/
 bridge results, so its void return cannot certify readiness. Owned generation/
 recovery, checked one-shot Main startup, scheduler and physical tests remain.
+
+### Owned pre-start profile generation — 2026-11-14
+
+`restart-generation.c` captures the fixed radio profile through the existing
+journal only with the exact retained RELEASE/intent/desired context and Main
+administratively DOWN. It attempts the isolated SDK generator once, marking
+UNCERTAIN before mutation. No-reload skips generation. Successful readback of
+saved credentials/third BSS reaches VERIFIED while retaining the baseline;
+this does not open Main or release any physical guard. A later Main/resume
+owner still needs explicit baseline finalization.
+
+Partial errors use existing identity-checked journal restoration. Foreign inode
+or an unrecorded/pending write keeps recovery ownership and cannot trigger
+another generator call or blind restore. Each step performs one phase;
+normal pending shutdown permits cleanup but prevents generation. A read-only
+post-capture refusal cancels its capture; completed rollback clears copied
+request credentials. Native tests use actual capture/journal/restore/observer,
+with physical/Main state and SDK actors injected, including pending-write and
+foreign-file refusal. Fixed ra0 state reads use only SIOCGIFFLAGS and never
+substitute administrative DOWN for the separate physical RELEASE receipt.
+
+Pinned SDK inspection confirmed gen_ralink_config_2g delegates to the SoC2g
+generator and the existing path matches RT2860AP.dat. Its original tail ignored
+stream/final-close errors. The preparer now checks ferror/fflush/fclose only for
+WR1200JS SoC2g and returns-1 on failure, allowing owned rollback. Other boards
+and bands retain the baseline branch. Extracted-fragment tests inject each
+stdio failure and verify one close. Both new objects and the SDK wrapper have
+strong target-symbol gates.19 prepared native TUs compile; no Main startup,
+target-image or physical acceptance is claimed.
