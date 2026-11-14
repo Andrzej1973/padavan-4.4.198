@@ -33,6 +33,13 @@ int main(void){
  assert(!wr_iot_iapp_child_begin(&s));int result=0;
  for(int i=0;i<200&&!result;i++){result=wr_iot_iapp_child_step(&s);if(!result)usleep(10000);}
  assert(result==EXPECTED&&s.fd==-1&&wr_iot_iapp_child_step(&s)==EXPECTED&&wr_iot_iapp_child_closed(&s));
+ int lost[2];assert(!pipe2(lost,O_NONBLOCK));close(lost[1]);
+ struct wr_iot_iapp_child unknown={.owner=getpid(),.attempted=1,.fd=lost[0]};
+ assert(wr_iot_iapp_child_step(&unknown)==-2&&!wr_iot_iapp_child_closed(&unknown));
+ assert(wr_iot_iapp_child_step(&unknown)==-2&&!wr_iot_iapp_child_begin(&unknown));
+ int invalid[2];assert(!pipe2(invalid,O_NONBLOCK));unsigned char bad=9;assert(write(invalid[1],&bad,1)==1);close(invalid[1]);
+ unknown=(struct wr_iot_iapp_child){.owner=getpid(),.attempted=1,.fd=invalid[0]};
+ assert(wr_iot_iapp_child_step(&unknown)==-2&&!wr_iot_iapp_child_closed(&unknown));
 }
 '''
 with tempfile.TemporaryDirectory(prefix='wr-iapp-child-') as d:

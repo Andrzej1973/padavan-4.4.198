@@ -6,7 +6,8 @@ struct wr_iot_iapp_child {pid_t owner;int attempted,fd,result;};
  * service/firewall ownership before begin and retain it through uncertainty.
  * result1 means script exit0, not daemon readiness. No retry or PID killing. */
 int wr_iot_iapp_child_begin(struct wr_iot_iapp_child *);
-/* 1 script returned0,-1 failed/missing receipt,0 pending. */
+/* 1 script returned0,-1 confirmed command failure,-2 unknown completion,
+ * 0 pending. Unknown completion must retain outer ownership. */
 int wr_iot_iapp_child_step(struct wr_iot_iapp_child *);
 /* No live result pipe remains; failure is closed but never successful restart. */
 int wr_iot_iapp_child_closed(const struct wr_iot_iapp_child *);

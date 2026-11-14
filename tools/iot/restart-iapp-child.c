@@ -60,8 +60,10 @@ int wr_iot_iapp_child_step(struct wr_iot_iapp_child*s)
  if(s->fd<0)return -1;
  count=read(s->fd,&receipt,1);
  if(count<0&&(errno==EAGAIN||errno==EWOULDBLOCK||errno==EINTR))return 0;
- s->result=count==1&&receipt==1?1:-1;
- if(close(s->fd))s->result=-1;
+ /* Only the supervisor's recognized receipt proves command wait completed.
+  * EOF/read errors can mean a dead supervisor with a still-running command. */
+ s->result=count==1?(receipt==1?1:receipt==2?-1:-2):-2;
+ if(close(s->fd))s->result=-2;
  s->fd=-1;return s->result;
 }
 

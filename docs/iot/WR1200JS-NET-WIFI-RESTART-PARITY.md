@@ -286,3 +286,13 @@ guard loss, pre-begin pending refusal and post-begin pending drain. Runtime
 preparation now copies/compiles the child unit/header; native check passes.
 The unit is registered in host suite, but root/finish/cancel remain unbound.
 Firewall writer coordination remains a separate unmet prerequisite.
+
+
+IAPP receipt handling now distinguishes confirmed command failure(-1) from
+unknown completion(-2). EOF/read/close error or an unknown byte cannot prove
+that a command stopped if its supervisor died. Unknown remains retained and
+closed refuses; no relaunch or outer cleanup is authorized. Only recognized
+success/failure receipts from the supervisor (or failure to fork before a command
+exists) establish closed state. Real pipe EOF/malformed-receipt tests pass along
+with actual exec/reaper tests; native preparation passes. This corrects earlier
+wording that grouped missing receipt with a closed failure. Root remains unbound.
