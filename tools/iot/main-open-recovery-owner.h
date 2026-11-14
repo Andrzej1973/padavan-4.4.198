@@ -32,6 +32,7 @@ struct wr_iot_main_recovery_owner {
  unsigned int deferred_owners,attempts,failed_submissions;
  int close_ticket_valid,stop_requested,completed,module_pin_released;
  int schedule_recorded;
+ int netdev_release_started;
 };
 static inline void wr_iot_main_recovery_init(
  struct wr_iot_main_recovery_owner *owner){
@@ -40,7 +41,7 @@ static inline void wr_iot_main_recovery_init(
  owner->phase=WR_MAIN_OWNER_IDLE;owner->deferred_owners=0;owner->attempts=0;
  owner->failed_submissions=0;owner->schedule_recorded=0;
  owner->close_ticket_valid=0;owner->stop_requested=0;owner->completed=0;
- owner->module_pin_released=0;
+ owner->module_pin_released=0;owner->netdev_release_started=0;
 }
 static inline int wr_iot_main_recovery_ticket_recorded(
  const struct wr_iot_interface_ref *record,
@@ -119,7 +120,7 @@ static inline int wr_iot_main_recovery_queue(
  owner->phase=WR_MAIN_OWNER_QUEUED;owner->deferred_owners=1;
  owner->attempts=0;owner->failed_submissions=0;
  owner->schedule_recorded=0;owner->stop_requested=0;owner->completed=0;
- owner->module_pin_released=0;owner->close_serial=0;
+ owner->module_pin_released=0;owner->netdev_release_started=0;owner->close_serial=0;
  owner->close_ticket_valid=0;return 1;
 }
 /* Failed ndo_stop may leave a recorded CLOSING reference after the void
@@ -162,7 +163,7 @@ static inline int wr_iot_main_recovery_queue_close(
  owner->phase=WR_MAIN_OWNER_QUEUED;owner->deferred_owners=1;
  owner->attempts=0;owner->failed_submissions=0;
  owner->schedule_recorded=0;owner->stop_requested=0;owner->completed=0;
- owner->module_pin_released=0;return 1;
+ owner->module_pin_released=0;owner->netdev_release_started=0;return 1;
 }
 static inline int wr_iot_main_recovery_begin(
  struct wr_iot_main_recovery_owner *owner){
@@ -358,10 +359,29 @@ static inline int wr_iot_main_recovery_request_stop(
   owner->phase=WR_MAIN_OWNER_STOPPING;
  return 1;
 }
+/* Transition lock held. Preserve the owner fence while dev_put runs outside
+ * the lock; only this claimant may return the retained netdev reference. */
+static inline int wr_iot_main_recovery_begin_netdev_release(
+ struct wr_iot_main_recovery_owner *owner,int work_joined){
+ if(!owner||!work_joined||!owner->completed||!owner->module_pin_released||
+    !owner->deferred_owners||!owner->device||owner->netdev_release_started)
+  return 0;
+ owner->netdev_release_started=1;return 1;
+}
 static inline int wr_iot_main_recovery_complete(
  struct wr_iot_main_recovery_owner *owner,int work_joined){
  if(!owner||!work_joined||!owner->completed||!owner->module_pin_released||
-    !owner->deferred_owners)return 0;
+    !owner->deferred_owners||owner->netdev_release_started)return 0;
+ wr_iot_main_recovery_init(owner);return 1;
+}
+/* Only the claimant calls this after its real dev_put has returned. A second
+ * completion path must not reset the owner while that put is in progress. */
+static inline int wr_iot_main_recovery_finish_netdev_release(
+ struct wr_iot_main_recovery_owner *owner,const void *device,
+ int reference_returned){
+ if(!owner||!device||!reference_returned||owner->device!=device||
+    !owner->netdev_release_started||!owner->deferred_owners||
+    !owner->completed||!owner->module_pin_released)return 0;
  wr_iot_main_recovery_init(owner);return 1;
 }
 #endif

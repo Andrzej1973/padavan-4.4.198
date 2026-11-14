@@ -11,13 +11,16 @@ INT wr_iot_main_recovery_join_complete(RTMP_ADAPTER *adapter)
  if (!adapter) return 0;
  owner = &adapter->wr_iot_main_recovery;
  RTMP_IRQ_LOCK(&adapter->wr_iot_transition_lock, flags);
- if (owner->completed && owner->module_pin_released) {
+ if (wr_iot_main_recovery_begin_netdev_release(owner, 1))
   device = owner->device;
-  completed = wr_iot_main_recovery_complete(owner, 1);
- }
  RTMP_IRQ_UNLOCK(&adapter->wr_iot_transition_lock, flags);
- if (completed)
-  dev_put((struct net_device *)device);
+ if (!device) return 0;
+ /* Keep deferred_owners and exact identity live until the actual put returns.
+  * PCI retirement must continue to see this fence during the unlocked call. */
+ dev_put((struct net_device *)device);
+ RTMP_IRQ_LOCK(&adapter->wr_iot_transition_lock, flags);
+ completed = wr_iot_main_recovery_finish_netdev_release(owner, device, 1);
+ RTMP_IRQ_UNLOCK(&adapter->wr_iot_transition_lock, flags);
  return completed;
 }
 

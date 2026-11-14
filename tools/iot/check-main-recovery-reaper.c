@@ -46,7 +46,24 @@ static int module_refs,close_begin_failure,preclose_failure;
 #define netif_wake_queue(dev) ((void)(dev))
 #define wake_up_all(wait) ((void)(wait))
 static void dev_hold(struct net_device *dev){assert(dev);dev->held++;held_count++;}
-static void dev_put(struct net_device *dev){assert(dev&&dev->held);dev->held--;put_count++;}
+static void dev_put(struct net_device *dev){
+ RTMP_ADAPTER *ad;
+ assert(!locked&&dev&&dev->held);
+ ad=dev->priv;
+ if(ad&&ad->wr_iot_main_recovery.netdev_release_started){
+  assert(ad->wr_iot_main_recovery.deferred_owners);
+  assert(ad->wr_iot_main_recovery.device==dev);
+  assert(ad->wr_iot_main_recovery.phase!=WR_MAIN_OWNER_IDLE);
+  assert(!wr_iot_main_recovery_begin_netdev_release(
+    &ad->wr_iot_main_recovery,1));
+  assert(!wr_iot_main_recovery_complete(&ad->wr_iot_main_recovery,1));
+  assert(!wr_iot_main_recovery_finish_netdev_release(
+    &ad->wr_iot_main_recovery,dev,0));
+  assert(!wr_iot_main_recovery_finish_netdev_release(
+    &ad->wr_iot_main_recovery,ad,1));
+ }
+ dev->held--;put_count++;
+}
 static int schedule_work(struct work_struct *work){
  assert(locked&&work);scheduled++;
  if(!allow_schedule)return 0;
@@ -150,7 +167,7 @@ static unsigned long setup(RTMP_ADAPTER *ad,struct net_device *dev){
  struct wr_iot_interface_ref *record;
  unsigned long generation=0;
  *ad=(RTMP_ADAPTER){0};*dev=(struct net_device){0};
- ad->net_dev=dev;ad->VirtualIfCnt=1;
+ ad->net_dev=dev;dev->priv=ad;ad->VirtualIfCnt=1;
  wr_iot_radio_transition_init(&ad->wr_iot_transition);
  ad->wr_iot_transition.phase=WR_RADIO_UNVERIFIED;
  wr_iot_main_recovery_init(&ad->wr_iot_main_recovery);
