@@ -18,6 +18,7 @@ with tempfile.TemporaryDirectory(prefix='wr-stop-client-prepared-') as d:
  (rc/'shared-wifi/validate.h').write_bytes((here.parent/'shared-wifi/validate.h').read_bytes())
  subprocess.run(['python3',str(here/'prepare-runtime.py'),str(root)],check=True)
  manifest=json.loads((root/'iot-runtime-source.json').read_text())
+ assert manifest['physical_stop_private_quiesce_linked']
  assert manifest['physical_stop_transport_linked'] and not manifest['physical_stop_rc_orchestration']
  assert manifest['physical_stop_wait_continuation_bound'] and not manifest['physical_stop_rc_entrypoints_bound']
  assert manifest['rebind_close_helpers_linked'] and manifest['rebind_runner_linked']

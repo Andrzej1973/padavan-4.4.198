@@ -17,6 +17,20 @@ int wr_iot_service_guard_enter(int enabled)
 void wr_iot_service_guard_leave(int token){assert(token==1&&depth);depth--;}
 int wr_iot_rc_backend_closed(struct wr_iot_driver_closed_result *out)
 {assert(depth>=1&&wr_iot_rc_shutdown.active);if(closed_fail)return 0;*out=(struct wr_iot_driver_closed_result){11,12,13,14};return 1;}
+static int quiesce_steps;
+int wr_iot_rc_quiesce_begin(struct wr_iot_rc_quiesce *q,const struct wr_iot_control_request *off)
+{
+ assert(depth==1&&off->request.enabled==0);
+ q->owner=getpid();q->active=q->resume_needed=1;
+ q->desired.enabled=1;strcpy(q->desired.ssid,"retained IoT");strcpy(q->desired.password,"fixture password");
+ return 1;
+}
+int wr_iot_rc_quiesce_advance(struct wr_iot_rc_quiesce *q,struct wr_iot_driver_closed_result *out)
+{
+ assert(depth==2&&q->owner==getpid()&&!calls&&!downs&&!aux_calls);
+ if(++quiesce_steps<3)return 0;
+ q->active=0;q->complete=1;return wr_iot_rc_backend_closed(out);
+}
 int wr_iot_rc_physical_aux_down(unsigned int slot)
 {assert(depth==2&&slot<6&&!calls&&!downs);if(aux_fail)return 0;assert(slot==(unsigned)aux_calls);aux_calls++;return 1;}
 static unsigned query_status=WR_STOP_RUNNING;
@@ -72,11 +86,23 @@ int main(void)
  /* A successful restart's physical RELEASE must retain both guards and intent;
   * neither repeated steps nor terminal consumption can skip the resume gate. */
  calls=downs=aux_calls=0;shutdowns=0;intent=(struct wr_iot_rc_physical_intent){1,1,1};
- assert(wr_iot_rc_physical_begin(&intent));
+ struct wr_iot_control_request off={.id="11111111111111111111111111111111",.created=1};
+ struct wr_iot_rc_physical_resume resume={0};
+ assert(!wr_iot_rc_physical_resume_read(&resume)&&!resume.physical.epoch);
+ off.request.enabled=1;assert(!wr_iot_rc_physical_begin_quiesce(&intent,&off));off.request.enabled=0;
+ assert(wr_iot_rc_physical_begin_quiesce(&intent,&off));
+ for(unsigned i=0;i<2;i++){wr_iot_rc_physical_step();assert(!calls&&!aux_calls&&!downs&&depth==1);}
+ assert(!wr_iot_rc_physical_resume_read(&resume));
  for(unsigned i=0;i<20&&wr_iot_rc_physical_pending();i++)wr_iot_rc_physical_step();
  assert(!wr_iot_rc_physical_pending()&&depth==1&&wr_iot_rc_shutdown.active&&downs==1);
  assert(wr_iot_rc_physical_restart_ready(&out)&&out.restart&&out.radio_on&&out.reload);
  assert(!wr_iot_rc_physical_take(&out));
+ assert(wr_iot_rc_physical_resume_read(&resume)&&resume.resume_needed&&resume.desired.enabled);
+ assert(!strcmp(resume.desired.ssid,"retained IoT")&&!strcmp(resume.desired.password,"fixture password"));
+ assert(resume.physical.action==WR_STOP_RELEASE&&resume.physical.attempt==19&&resume.physical.epoch==11);
+ struct wr_iot_rc_physical_resume saved=resume;
+ resume.desired.ssid[0]='X';assert(wr_iot_rc_physical_resume_read(&resume));
+ assert(!memcmp(&saved,&resume,sizeof(saved))&&depth==1);
  int previous=calls;wr_iot_rc_physical_step();assert(calls==previous&&depth==1);
  assert(!kill(getpid(),SIGTERM)&&!shutdowns);
  assert(wr_iot_rc_physical_restart_ready(&out)&&depth==1&&!shutdowns);

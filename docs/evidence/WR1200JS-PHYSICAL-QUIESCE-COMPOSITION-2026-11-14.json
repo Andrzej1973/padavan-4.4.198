@@ -1,0 +1,47 @@
+{
+  "date": "2026-11-14",
+  "source_base": "990c0c606f406f398179fcb7b49af78cefb9573c",
+  "implementation": [
+    "tools/iot/rc-physical-stop.c",
+    "tools/iot/rc-physical-stop.h"
+  ],
+  "behavior": [
+    "private begin_quiesce acquires outer guards and calls actual existing RC quiesce",
+    "entropy failure occurs before normal OFF starts",
+    "one OFF continuation per step; AUX/ARM wait for fresh released CLOSE",
+    "copied desired settings retained through OFF clearing old ON request",
+    "private resume_read returns exact terminal RELEASE tuple and desired settings without consuming guards",
+    "session COMPLETE retains QUERY identity; snapshot reconstructs acknowledged RELEASE action only, preserving all tuple fields"
+  ],
+  "host_checks": {
+    "check-rc-physical-stop.py": "PASS actual physical session/fence; quiesce adapter injected",
+    "check-rc-physical-quiesce.py": "PASS actual RC backend/activation/OFF/physical session/fence composition; driver/resources injected",
+    "physical_stop_suite": {
+      "session": 1636,
+      "status": "PASS",
+      "parts": 51,
+      "exit_code": 0,
+      "log_sha256": "6851f2d78db59fa04f3bb5f815393a0a6225682deb792380c6eba6a4377d393c"
+    },
+    "prepared_runtime": "PASS within full51 suite:13 actual copied TUs strict native C11"
+  },
+  "known_test_correction": "Initial host test caught QUERY versus RELEASE retained action; resume snapshot now requires COMPLETE/QUERY and reconstructs terminal action without rewriting identity",
+  "private_quiesce_linked": true,
+  "stock_restart_entrypoint_bound": false,
+  "main_startup_bound": false,
+  "resume_runner_bound": false,
+  "target_verified": false,
+  "runtime_verified": false,
+  "remaining": [
+    "checked Main startup under retained guards",
+    "new resume runner ownership and continuation",
+    "backend status/normal OFF ownership for the retained rebind ACTIVE runner; never copy live contexts",
+    "RC scheduler/stock entrypoint routing",
+    "target and physical acceptance"
+  ],
+  "cleanup": {
+    "temporary_test_trees": "automatically removed",
+    "completed_log_bytes": 14089,
+    "completed_log_retained": false
+  }
+}

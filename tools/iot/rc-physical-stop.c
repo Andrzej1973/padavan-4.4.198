@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include "rc-physical-stop.h"
 #include "rc-backend.h"
+#include "rc-quiesce.h"
 #include "physical-stop-session.h"
 #include "radio-stop-fence.h"
 #include "rc-shutdown-admission.h"
@@ -12,12 +13,15 @@ static struct {
  pid_t owner;
  struct wr_iot_rc_physical_intent intent;
  struct wr_iot_physical_session session;
+ struct wr_iot_rc_quiesce quiesce;
+ int quiesced;
  struct wr_iot_radio_stop_fence fence;
  unsigned int aux_next;
  unsigned char nonce[16];
  int guard,finishing,result;
 } physical;
-int wr_iot_rc_physical_begin(const struct wr_iot_rc_physical_intent *intent)
+static int physical_begin(const struct wr_iot_rc_physical_intent *intent,
+ const struct wr_iot_control_request *off)
 {
  struct wr_iot_driver_closed_result closed={0};
  struct wr_iot_physical_stop_request request={0};unsigned char entropy[32];
@@ -28,6 +32,12 @@ int wr_iot_rc_physical_begin(const struct wr_iot_rc_physical_intent *intent)
  physical.owner=getpid();physical.intent=*intent;
  physical.guard=wr_iot_service_guard_enter(1);
  if(physical.guard!=1)goto refuse;
+ if(off){
+  /* Entropy failure must precede normal OFF admission/mutation. */
+  if(wr_iot_precreated_entropy(NULL,entropy,sizeof(entropy))!=(int)sizeof(entropy))goto refuse;
+  if(!wr_iot_rc_quiesce_begin(&physical.quiesce,off))goto refuse;
+  memcpy(physical.nonce,entropy,sizeof(physical.nonce));return 1;
+ }
  if(!wr_iot_rc_backend_closed(&closed)||
     wr_iot_precreated_entropy(NULL,entropy,sizeof(entropy))!=(int)sizeof(entropy))goto refuse;
  request.action=WR_STOP_ARM;request.epoch=closed.adapter_epoch;
@@ -37,6 +47,15 @@ int wr_iot_rc_physical_begin(const struct wr_iot_rc_physical_intent *intent)
  memcpy(physical.nonce,request.nonce,sizeof(physical.nonce));
  return 1;
  refuse:physical.finishing=-1;return 1;
+}
+int wr_iot_rc_physical_begin(const struct wr_iot_rc_physical_intent *intent)
+{return physical_begin(intent,NULL);}
+int wr_iot_rc_physical_begin_quiesce(const struct wr_iot_rc_physical_intent *intent,
+ const struct wr_iot_control_request *off)
+{
+ if(!off||off->request.enabled||!off->created||
+    !memchr(off->id,0,sizeof(off->id))||!wr_iot_control_id(off->id))return 0;
+ return physical_begin(intent,off);
 }
 int wr_iot_rc_physical_pending(void)
 {return physical.owner==getpid()&&!physical.result&&
@@ -52,6 +71,12 @@ void wr_iot_rc_physical_step(void)
    * admission retains ownership instead of progressing driver operations. */
   if(!wr_iot_rc_shutdown.active||physical.guard!=1)return;
   guard=wr_iot_service_guard_enter(1);if(guard!=1)return;
+  if(physical.quiesce.owner&&!physical.quiesced){
+   /* One normal-OFF continuation per window; no AUX/Main operations until
+    * its exact retained transaction has fresh released CLOSE evidence. */
+   if(wr_iot_rc_quiesce_advance(&physical.quiesce,&closed))physical.quiesced=1;
+   wr_iot_service_guard_leave(guard);return;
+  }
   if(physical.session.phase==WR_PHYSICAL_SESSION_IDLE){
    if(physical.aux_next<6){
     if(wr_iot_rc_physical_aux_down(physical.aux_next)==1)physical.aux_next++;
@@ -94,4 +119,27 @@ int wr_iot_rc_physical_take(struct wr_iot_rc_physical_intent *intent)
  if(!intent||physical.owner!=getpid()||!physical.result)return 0;
  *intent=physical.intent;result=physical.result;
  memset(&physical,0,sizeof(physical));return result;
+}
+
+int wr_iot_rc_physical_resume_read(struct wr_iot_rc_physical_resume *out)
+{
+ struct wr_iot_rc_physical_intent intent={0};
+ if(!out)return 0;
+ memset(out,0,sizeof(*out));
+ if(!wr_iot_rc_physical_restart_ready(&intent)||
+    physical.session.owner!=getpid()||physical.session.busy||
+    physical.session.phase!=WR_PHYSICAL_SESSION_COMPLETE||
+    physical.session.request.action!=WR_STOP_QUERY||
+    !wr_iot_physical_stop_request_valid(&physical.session.request)||
+    (physical.quiesce.owner&&(!physical.quiesced||!physical.quiesce.complete||
+     physical.quiesce.active||physical.quiesce.busy||physical.quiesce.owner!=getpid())))return 0;
+ /* Session retains QUERY identity; COMPLETE proves the same identity was
+  * acknowledged for RELEASE. Reconstruct only that terminal action byte. */
+ out->intent=intent;out->physical=physical.session.request;
+ out->physical.action=WR_STOP_RELEASE;
+ if(physical.quiesce.owner){
+  out->resume_needed=physical.quiesce.resume_needed;
+  if(out->resume_needed)out->desired=physical.quiesce.desired;
+ }
+ return 1;
 }

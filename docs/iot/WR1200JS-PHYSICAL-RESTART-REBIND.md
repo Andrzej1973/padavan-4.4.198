@@ -307,3 +307,25 @@ Experimental runtime linkage and13 prepared native TUs pass. Full target and
 physical verification remain required; RC scheduler/physical restart entrypoints
 are still unbound. Next integrate ACTIVE quiesce/desired retention, exact
 physical RELEASE transfer, checked Main startup and the retained resume owner.
+
+### Physical owner now retains ACTIVE quiesce — 2026-11-14
+
+Private `wr_iot_rc_physical_begin_quiesce` takes an explicit fresh OFF envelope,
+then acquires the physical fence/service guard and delegates to existing RC
+quiesce. Entropy failure precedes OFF admission. Each physical step performs
+at most one OFF continuation; no AUX shutdown, ARM or Main DOWN occurs until
+quiesce yields the exact released CLOSE. Desired ON settings remain in the
+retained private context after normal OFF wipes the previous ON runner.
+
+`wr_iot_rc_physical_resume_read` returns a private pointer-free copy of desired
+settings and the acknowledged physical RELEASE tuple while retaining all
+guards/intent. The session retains QUERY as its base identity even at COMPLETE;
+only the terminal action is reconstructed as RELEASE. Epoch/generation/token/
+CLOSE serial/attempt/nonce remain unchanged. Output is cleared on refusal;
+credentials must never be sent to telemetry and must be wiped after use.
+
+Actual backend -> normal OFF -> physical session/fence composition passes with
+external driver/resources injected. Existing STOP/restart fence regression and
+prepared runtime compilation also pass. Stock restart routing, checked Main
+startup and rebind-runner ownership/continuation remain unbound. No target or
+physical acceptance follows from these host tests.

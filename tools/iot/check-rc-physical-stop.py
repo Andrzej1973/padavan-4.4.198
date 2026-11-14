@@ -9,4 +9,4 @@ with tempfile.TemporaryDirectory(prefix='wr-rc-physical-') as d:
   str(here/'check-rc-physical-stop.c'),str(here/'physical-stop-session.c'),
   str(here/'radio-stop-fence.c'),'-o',str(binary)],check=True)
  subprocess.run([str(binary)],check=True,timeout=15)
-print('PASS actual retained RC admission/session/fence: intent copied, preparation refusal balanced, guards held across uncertainty, DOWN once, deferred SIGTERM after STOP cleanup, restart RELEASE keeps guards; backend/transport hooks injected')
+print('PASS actual retained RC admission/session/fence: intent copied, preparation refusal balanced, guards held across uncertainty, DOWN once, deferred SIGTERM after STOP cleanup, restart RELEASE keeps guards; private quiesce precedes AUX/ARM and resume snapshot preserves desired settings/exact RELEASE; backend/transport hooks injected')
