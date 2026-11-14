@@ -8,11 +8,13 @@ setup=source[source.index('  int main_dev,device;'):source.index('  switch(fault
 context=r'''
 #include <errno.h>
 #include "physical-stop-lifetime.h"
+#include "physical-stop-record.h"
 #define WR_IOT_RA2_NO_HOST_MODE 1
 #define WDEV_NUM_MAX 1
 typedef int INT;typedef unsigned long ULONG;typedef void *PNET_DEV;
 typedef struct {
- int BcnRingLock,wr_iot_transition_lock;
+ int BcnRingLock,wr_iot_transition_lock,MacTabLock;
+ struct wr_iot_physical_stop_record wr_iot_physical_stop;
  struct {unsigned BssidNum;struct {struct {PNET_DEV if_dev;} wdev;} MBSSID[3];} ApCfg;
  PNET_DEV net_dev;
  unsigned VirtualIfCnt,wr_iot_control_users,wr_iot_control_poisoned;
@@ -35,16 +37,18 @@ static int held,rtnl=1;
 #define RTMP_IRQ_LOCK(l,f) do{(void)(l);(f)=0;assert(!held);held=2;}while(0)
 #define RTMP_IRQ_UNLOCK(l,f) do{(void)(l);(void)(f);assert(held==2);held=0;}while(0)
 #include "physical-stop-arm-admission.inc"
-int main(void){for(unsigned fault=0;fault<8;fault++){
+int main(void){for(unsigned fault=0;fault<9;fault++){
 '''
 body=setup+r'''
  assert(wr_iot_driver_close_release_reference(&close,&open,&request,&radio,
   slots,2,&main_dev,&device,1,&probe,&producer,7));
  RTMP_ADAPTER ad={0};unsigned long serial=77;
+ ad.wr_iot_physical_stop.serial=1ULL<<40;
  struct wr_iot_physical_stop_request arm={.action=WR_STOP_ARM,.epoch=1,
    .generation=2,.open_token=3,.closed_serial=4,.nonce={9}};
  ad.net_dev=&main_dev;ad.ApCfg.BssidNum=3;ad.ApCfg.MBSSID[2].wdev.if_dev=&device;
  ad.VirtualIfCnt=1;ad.wr_iot_close_owner=close;ad.wr_iot_driver_owner=open;
+ radio.serial=radio.retired_serial;
  ad.wr_iot_transition=radio;memcpy(ad.wr_iot_interface_refs,slots,sizeof(slots));
  ad.wr_iot_closed_probe=probe;ad.wr_iot_beacon_gates[2]=producer;
  wr_iot_main_recovery_init(&ad.wr_iot_main_recovery);
@@ -57,18 +61,43 @@ body=setup+r'''
   case 5:ad.wr_iot_transition.reset_pending=1;break;
   case 6:ad.wr_iot_physical_lifetime.active=1;break;
   case 7:rtnl=0;break;
+  case 8:ad.wr_iot_transition.serial++;break;
  }
  int status=wr_iot_physical_stop_arm_admit(&ad,&main_dev,&arm,&serial);
  assert(!held);
  if(fault){assert(status<0&&serial==77);}
  else{
   assert(!status&&serial==1&&ad.wr_iot_physical_lifetime.active);
+  assert(ad.wr_iot_physical_lifetime.arm_record_serial==(1ULL<<40));
   assert(ad.wr_iot_physical_lifetime.main_device==&main_dev);
   assert(ad.wr_iot_physical_lifetime.main_generation==main->generation);
   assert(ad.wr_iot_physical_lifetime.main_open_token==main->last_token);
   serial=77;
   assert(wr_iot_physical_stop_arm_admit(&ad,&main_dev,&arm,&serial)==-EAGAIN);
   assert(serial==77);
+  {RTMP_ADAPTER before=ad;
+   for(unsigned drift=0;drift<7;drift++){
+    switch(drift){
+     case 0:ad.wr_iot_interface_refs[0].generation++;break;
+     case 1:ad.wr_iot_interface_refs[0].last_token++;break;
+     case 2:ad.wr_iot_main_recovery.phase=WR_MAIN_OWNER_RUNNING;break;
+     case 3:ad.wr_iot_physical_lifetime.main_ticket_valid=1;break;
+     case 4:ad.wr_iot_transition.phase=WR_RADIO_CLOSING;break;
+     case 5:ad.wr_iot_transition.epoch++;break;
+     case 6:ad.wr_iot_physical_stop.phase=WR_PHYS_STOP_ARMED;break;
+    }
+    assert(wr_iot_physical_stop_arm_abort_unpublished(&ad,&main_dev,1)==-EBUSY);
+    assert(ad.wr_iot_physical_lifetime.active&&!held);
+    ad=before;
+   }
+  }
+  ad.wr_iot_physical_stop.serial++;
+  assert(wr_iot_physical_stop_arm_abort_unpublished(&ad,&main_dev,1)==-EBUSY);
+  assert(ad.wr_iot_physical_lifetime.active);
+  ad.wr_iot_physical_stop.serial--;
+  assert(wr_iot_physical_stop_arm_abort_unpublished(&ad,&main_dev,1)==0);
+  assert(!ad.wr_iot_physical_lifetime.active);
+  assert(wr_iot_physical_stop_arm_abort_unpublished(&ad,&main_dev,1)==-EBUSY);
  }
 }return 0;}
 '''
@@ -76,4 +105,4 @@ with tempfile.TemporaryDirectory(prefix='wr-stop-arm-binding-') as d:
  c=Path(d)/'check.c';c.write_text(prefix+context+body)
  subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(here),str(c),'-o',d+'/check'],check=True)
  subprocess.run([d+'/check'],check=True)
-print('PASS actual ARM adapter admission: released ra2 CLOSE and Main registry snapshot with disjoint locks; seven refusals and duplicate; no endpoint/target/runtime proof')
+print('PASS actual ARM adapter admission: released ra2 CLOSE and Main registry snapshot with disjoint locks; eight refusals and duplicate; no endpoint/target/runtime proof')

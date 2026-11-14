@@ -7,7 +7,8 @@
 struct wr_iot_physical_stop_lifetime {
  unsigned long serial;unsigned int active;
  const void *main_device;
- unsigned long main_generation,main_open_token,arm_radio_serial;
+ unsigned long main_generation,main_open_token,arm_radio_serial,arm_radio_epoch;
+ unsigned long long arm_record_serial;
  struct wr_iot_radio_ticket main_ticket;
  int main_ticket_valid;
 };
@@ -19,6 +20,7 @@ static inline unsigned long wr_iot_physical_stop_lifetime_begin(
     radio->exhausted||radio->phase!=WR_RADIO_READY||!radio->main_ready)return 0;
  s->serial++;s->active=1;
  s->main_device=0;s->main_generation=s->main_open_token=s->arm_radio_serial=0;
+ s->arm_radio_epoch=s->arm_record_serial=0;
  s->main_ticket_valid=0;
  return s->serial;
 }
@@ -31,7 +33,8 @@ static inline unsigned long wr_iot_physical_stop_lifetime_begin_main(
  unsigned long serial;
  /* READY -> main_down -> physical CLOSING consumes two epoch increments.
   * Refuse before acquiring this fence when that exact close cannot be issued. */
- if(!radio||radio->serial==~0UL||radio->epoch>~0UL-2UL||
+ if(!radio||radio->serial!=radio->retired_serial||
+    radio->serial==~0UL||radio->epoch>~0UL-2UL||
     !owner||owner->phase!=WR_MAIN_OWNER_IDLE||owner->deferred_owners||
     owner->netdev_release_started||!main_record||!main_device||
     main_record->device!=main_device||main_record->family!=WR_REF_FAMILY_MAIN||
@@ -42,6 +45,7 @@ static inline unsigned long wr_iot_physical_stop_lifetime_begin_main(
  if(!serial)return 0;
  s->main_device=main_device;s->main_generation=main_record->generation;
  s->main_open_token=main_record->last_token;s->arm_radio_serial=radio->serial;
+ s->arm_radio_epoch=radio->epoch;
  return serial;
 }
 static inline int wr_iot_physical_stop_lifetime_capture_main(
@@ -104,7 +108,8 @@ static inline int wr_iot_physical_stop_lifetime_end(
 {
  if(!s||!s->active||!serial||s->serial!=serial||record_idle!=1||pins_returned!=1)return 0;
  s->active=0;s->main_device=0;s->main_ticket_valid=0;
- s->main_generation=s->main_open_token=s->arm_radio_serial=0;return 1;
+ s->main_generation=s->main_open_token=s->arm_radio_serial=0;
+ s->arm_radio_epoch=s->arm_record_serial=0;return 1;
 }
 static inline int wr_iot_physical_stop_lifetime_blocks(
  const struct wr_iot_physical_stop_lifetime *s)
