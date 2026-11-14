@@ -60,14 +60,14 @@ static inline int wr_iot_physical_stop_begin(struct wr_iot_physical_stop_record 
     s->phase!=WR_PHYS_STOP_ARMED)return 0;
  s->phase=WR_PHYS_STOP_RUNNING;return 1;
 }
-/* Bind ONLY after the real legacy body AND executor leave, not ndo_stop/ioctl
+/* Bind ONLY after the real close body AND executor leave, not ndo_stop/ioctl
  * status. A failed/unfinished close retains task/module ownership for recovery.
  * These software postconditions do not independently prove RF retirement. */
-static inline int wr_iot_physical_stop_finish_at_epoch(struct wr_iot_physical_stop_record *s,
+static inline int wr_iot_physical_stop_finish_core(struct wr_iot_physical_stop_record *s,
  unsigned long long serial,unsigned long long epoch,unsigned long long generation,
  const unsigned char *nonce,const void *task,int body_succeeded,
  const struct wr_iot_peer_close_executor *executor,
- const struct wr_iot_peer_table_owner *table,unsigned int legacy_close_state,
+ const struct wr_iot_peer_table_owner *table,int close_receipt_valid,
  unsigned long long observed_completion_epoch)
 {
  if(!wr_iot_physical_stop_matches(s,serial,epoch,generation,nonce,task)||
@@ -75,9 +75,28 @@ static inline int wr_iot_physical_stop_finish_at_epoch(struct wr_iot_physical_st
  if(!body_succeeded||!observed_completion_epoch||observed_completion_epoch<epoch||
     !wr_iot_peer_close_executor_idle(executor)||!table||
     !table->closed||table->active||table->retained||table->poisoned||
-    table->transactions||legacy_close_state!=2U){s->phase=WR_PHYS_STOP_FAILED;return 0;}
+    table->transactions||!close_receipt_valid){s->phase=WR_PHYS_STOP_FAILED;return 0;}
  s->completion_epoch=observed_completion_epoch;s->phase=WR_PHYS_STOP_COMPLETE;return 1;
 }
+/* Legacy and checked paths have different native completion receipts. */
+static inline int wr_iot_physical_stop_finish_at_epoch(struct wr_iot_physical_stop_record *s,
+ unsigned long long serial,unsigned long long epoch,unsigned long long generation,
+ const unsigned char *nonce,const void *task,int body_succeeded,
+ const struct wr_iot_peer_close_executor *executor,
+ const struct wr_iot_peer_table_owner *table,unsigned int legacy_close_state,
+ unsigned long long completion_epoch)
+{return wr_iot_physical_stop_finish_core(s,serial,epoch,generation,nonce,task,
+ body_succeeded,executor,table,legacy_close_state==2U,completion_epoch);}
+static inline int wr_iot_physical_stop_finish_checked_at_epoch(
+ struct wr_iot_physical_stop_record *s,unsigned long long serial,
+ unsigned long long epoch,unsigned long long generation,const unsigned char *nonce,
+ const void *task,const struct wr_iot_peer_close_executor *executor,
+ const struct wr_iot_peer_table_owner *table,int main_release_verified,
+ unsigned int shutdown_stage,unsigned int radio_off_stage,
+ unsigned int virtual_down_stage,unsigned long long completion_epoch)
+{return wr_iot_physical_stop_finish_core(s,serial,epoch,generation,nonce,task,
+ main_release_verified,executor,table,
+ shutdown_stage==2U&&radio_off_stage==4U&&virtual_down_stage==2U,completion_epoch);}
 /* Compatibility for model fixtures whose radio epoch does not change.
  * Actual physical-close binding must sample the real resulting epoch and use
  * finish_at_epoch, not assume that the pre-close epoch survived teardown. */

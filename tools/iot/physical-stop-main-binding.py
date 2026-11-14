@@ -11,21 +11,48 @@ def compose(source):
     anchor=' if (wr_iot_main_close_continue_checked(adapter, net_dev, generation,'
     if body.count(anchor)!=1 or 'wr_iot_physical_stop_lifetime_capture_main' in body:
         raise ValueError('changed/already-bound Main continuation')
-    guard=''' /* Same existing transition lock; no nested MacTabLock or work joins.
-  * Retain the exact accepted worker ticket before physical close starts. */
- RTMP_IRQ_LOCK(&adapter->wr_iot_transition_lock, flags);
- bound = 1;
- if (adapter->wr_iot_physical_lifetime.active) {
-  struct wr_iot_radio_ticket physical_ticket;
-  record = wr_iot_registry_find(adapter->wr_iot_interface_refs,
-                                WDEV_NUM_MAX + 1, net_dev, generation);
-  bound = wr_iot_physical_stop_lifetime_capture_main(
-    &adapter->wr_iot_physical_lifetime,
-    adapter->wr_iot_physical_lifetime.serial, owner,
-    &adapter->wr_iot_transition, record, &physical_ticket);
+    guard=''' /* Bind existing recovery ownership before claiming the physical record.
+  * Locks stay disjoint; cancellation wins or RUNNING wins under MacTabLock. */
+ {
+  int physical_armed;
+  struct wr_iot_physical_stop_request physical_request={0};
+  unsigned long long physical_prior_serial=0;
+  RTMP_IRQ_LOCK(&adapter->wr_iot_transition_lock, flags);
+  physical_armed=adapter->wr_iot_physical_lifetime.active;
+  bound = 1;
+  if (physical_armed) {
+   struct wr_iot_radio_ticket physical_ticket;
+   record = wr_iot_registry_find(adapter->wr_iot_interface_refs,
+                                 WDEV_NUM_MAX + 1, net_dev, generation);
+   bound = wr_iot_physical_stop_lifetime_capture_main(
+     &adapter->wr_iot_physical_lifetime,
+     adapter->wr_iot_physical_lifetime.serial, owner,
+     &adapter->wr_iot_transition, record, &physical_ticket);
+   physical_request=adapter->wr_iot_physical_lifetime.arm_request;
+   physical_prior_serial=adapter->wr_iot_physical_lifetime.arm_record_serial;
+  }
+  RTMP_IRQ_UNLOCK(&adapter->wr_iot_transition_lock, flags);
+  if (!bound) goto retain;
+  if (physical_armed) {
+   struct wr_iot_physical_stop_record *physical=&adapter->wr_iot_physical_stop;
+   struct wr_iot_physical_stop_pins *pins=&adapter->wr_iot_physical_pins;
+   RTMP_IRQ_LOCK(&adapter->MacTabLock, flags);
+   bound=physical_request.action==WR_STOP_ARM&&pins->module==1&&pins->task&&
+    pins->device==net_dev&&physical_prior_serial!=~0ULL&&
+    physical->serial==physical_prior_serial+1&&
+    physical->open_token==physical_request.open_token&&
+    physical->closed_serial==physical_request.closed_serial&&
+    wr_iot_physical_stop_matches(physical,physical->serial,physical_request.epoch,
+      physical_request.generation,physical_request.nonce,pins->task);
+   if(bound&&physical->phase==WR_PHYS_STOP_ARMED)
+    bound=wr_iot_physical_stop_begin(physical,physical->serial,
+      physical_request.epoch,physical_request.generation,
+      physical_request.nonce,pins->task);
+   else if(bound)bound=physical->phase==WR_PHYS_STOP_RUNNING;
+   RTMP_IRQ_UNLOCK(&adapter->MacTabLock, flags);
+   if (!bound) goto retain;
+  }
  }
- RTMP_IRQ_UNLOCK(&adapter->wr_iot_transition_lock, flags);
- if (!bound) goto retain;
 '''
     body=body.replace(anchor,guard+anchor,1)
     return source[:start]+body+source[end:]

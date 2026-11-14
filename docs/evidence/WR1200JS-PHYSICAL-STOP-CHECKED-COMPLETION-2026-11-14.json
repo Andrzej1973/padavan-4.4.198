@@ -1,0 +1,20 @@
+{
+  "scope": "software checked Main recovery -> physical metadata completion bridge",
+  "implementation": [
+    "exact issuer-pinned record claimed ARMED->RUNNING under MacTabLock before checked worker DOWN",
+    "transition-lock exact Main release receipt and native shutdown2/radiooff4/virtualdown2 stages",
+    "MacTabLock exact record/issuer pins/executor idle/table drained -> checked completion at actual observed epoch",
+    "duplicate completion rechecks current table/executor; stale or poisoned state refuses"
+  ],
+  "checks": [
+    "cancelled record stops worker before DOWN; RUNNING cannot cancel",
+    "incomplete Main ref receipt -> EAGAIN",
+    "matching complete software receipt -> COMPLETE and repeatable read",
+    "changed epoch -> EAGAIN, poisoned table -> EUCLEAN",
+    "20part suite61143 PASS and latest completion fixture rerun PASS O2 ASan UBSan"
+  ],
+  "hardware_receipts_in_fixture": "injected, not physical RF DMA IRQ or firmware evidence",
+  "endpoint_installed": false,
+  "target_compiled": false,
+  "runtime_verified": false
+}

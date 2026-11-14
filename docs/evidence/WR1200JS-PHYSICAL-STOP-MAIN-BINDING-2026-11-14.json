@@ -4,7 +4,11 @@
   "checks": [
     "wrong saved ARM OPEN token refuses before virtual DOWN and retains module pin",
     "joined bounded retry after corrected snapshot captures exact existing recovery close ticket and executes DOWN once",
-    "duplicate source transformation refused"
+    "duplicate source transformation refused",
+    "cancelled record refuses worker before DOWN",
+    "valid record becomes RUNNING; base record cancel then refuses",
+    "same exact RUNNING record may continue existing bounded recovery",
+    "19part suite85023 exit0 O2 ASan UBSan"
   ],
   "result": "PASS C11 -Werror O2 ASan UBSan",
   "full_candidate_installed": false,
@@ -14,5 +18,6 @@
     "compose storage and this transform into delegated full candidate",
     "transaction endpoint ARM and completion binding",
     "full target and physical checks"
-  ]
+  ],
+  "local_followup": "after exact recovery/lifetime ticket capture, claim original issuer-pinned physical record ARMED->RUNNING under disjoint MacTabLock before actual checked DOWN"
 }
