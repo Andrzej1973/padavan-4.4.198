@@ -10,7 +10,7 @@ struct wr_iot_rc_shutdown_admission wr_iot_rc_shutdown;
 static int phase,ups,main_ok=1,guest_ok=1,services_ok=1,guest_calls;
 int wr_iot_restart_generation_begin(struct wr_iot_restart_generation*g){assert(!phase);phase=1;g->owner=getpid();g->origin.desired.enabled=1;return 1;}
 int wr_iot_restart_generation_step(struct wr_iot_restart_generation*g){assert(g->owner==getpid()&&phase==1);phase=2;return 1;}
-int wr_iot_restart_main_begin(struct wr_iot_restart_main*m,struct wr_iot_restart_generation*g,const unsigned char*id){assert(phase==2&&id[0]&&g->owner==getpid());phase=3;ups++;m->owner=getpid();m->generation=g;return 0;}
+int wr_iot_restart_main_begin(struct wr_iot_restart_main*m,struct wr_iot_restart_generation*g,const unsigned char*id){assert(phase==2&&id[0]&&g->owner==getpid());phase=3;ups++;m->owner=getpid();m->generation=g;g->main_may_have_started=1;return 0;}
 int wr_iot_restart_main_lan_step(struct wr_iot_restart_main*m){assert(m->generation);return main_ok;}
 int wr_iot_restart_guest_begin(struct wr_iot_restart_guest*g,struct wr_iot_restart_main*m){assert(phase==3&&m->owner==getpid());phase=4;g->owner=getpid();g->main=m;return 1;}
 int wr_iot_restart_guest_step(struct wr_iot_restart_guest*g){assert(g->main);guest_calls++;return guest_ok;}
@@ -21,6 +21,7 @@ int wr_iot_rc_rebind_begin(const struct wr_iot_control_request*r,const struct wr
 static int active_ok,active_reads;
 int wr_iot_rc_rebind_active_current(const struct wr_iot_control_request*r,const struct wr_iot_physical_stop_request*p,const struct wr_iot_driver_identity*i){assert(r->created==10&&!strcmp(r->id,"01000000000000000000000000000000")&&r->request.enabled==1&&p&&i);active_reads++;return active_ok;}
 int wr_iot_restart_generation_origin_current(const struct wr_iot_restart_generation*g){return g->owner==getpid();}
+int wr_iot_restart_generation_abort(struct wr_iot_restart_generation*g){(void)g;return 0;}
 #include "restart-restore.c"
 int main(void){
  struct wr_iot_restart_restore s={0};unsigned char id[16]={1};wr_iot_rc_shutdown.active=1;

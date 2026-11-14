@@ -1,0 +1,42 @@
+{
+  "scope": "isolated post-Main pre-handoff software proof; not wired to cleanup",
+  "actual_components": [
+    "profile journal",
+    "generation",
+    "Main controller",
+    "restore controller"
+  ],
+  "injected_actors": [
+    "Guest state",
+    "physical RELEASE source",
+    "driver closed-configuration probe",
+    "UP and bridge transport"
+  ],
+  "checks": [
+    "Guest UP/owned unclosed phase refuses",
+    "handoff started refuses",
+    "foreign RELEASE refuses",
+    "Main NOT_SUBMITTED refuses",
+    "foreign pinned epoch refuses",
+    "pending profile journal refuses",
+    "no shutdown signal refuses",
+    "identical-content foreign inode refuses",
+    "valid owned state passes without mutation"
+  ],
+  "sanitizers": "ASan/UBSan O2 Wall Wextra Werror PASS",
+  "target_verified": false,
+  "runtime_verified": false,
+  "physical_cleanup_bound": false,
+  "integration": "Physical prehandoff cancellation and private resume pump now wired experimentally; scheduler unbound",
+  "additional_checks": [
+    "physical fence mask failure retains baseline; success cleanup before real SIGTERM with proof actor",
+    "pump proof refusal and terminal take retry after admission clear",
+    "32 prepared native C TUs PASS17598"
+  ],
+  "suite93": {
+    "session": 15728,
+    "exit_code": 0,
+    "log_sha256": "937b6142d0a58351c90339bcf28424482fbf37b6b0abab9c28ac98edf6a56949",
+    "scope": "started before post-Main prehandoff additions; final focused checks separate"
+  }
+}

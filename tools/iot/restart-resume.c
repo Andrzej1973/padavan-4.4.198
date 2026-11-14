@@ -27,6 +27,21 @@ int wr_iot_restart_resume_step(struct wr_iot_restart_resume*s)
  s->busy=1;
  switch(s->phase){
  case WR_RESUME_RESTORE:
+  if(s->restore.phase==WR_RESTORE_CANCELLED||
+     (wr_iot_rc_shutdown.pending&&!s->restore.generation.main_may_have_started)){
+   if(s->restore.phase!=WR_RESTORE_CANCELLED){
+    (void)wr_iot_restart_restore_step(&s->restore);
+    if(!wr_iot_rc_physical_premain_cancel(&s->restore))break;
+   }
+   if(wr_iot_rc_physical_take(&intent)==-1){s->phase=WR_RESUME_CANCELLED;done=-1;}
+   break;
+  }
+  if(wr_iot_rc_shutdown.pending&&s->restore.generation.main_may_have_started){
+   (void)wr_iot_restart_restore_step(&s->restore);
+   if(!wr_iot_rc_physical_prehandoff_cancel(&s->restore))break;
+   if(wr_iot_rc_physical_take(&intent)==-1){s->phase=WR_RESUME_CANCELLED;done=-1;}
+   break;
+  }
   if(!wr_iot_restart_restore_step(&s->restore))break;
   for(i=0;i<16;i++){request.id[2*i]=hex[s->restore.open_id[i]>>4];request.id[2*i+1]=hex[s->restore.open_id[i]&15];}
   request.created=s->created;request.request=s->restore.generation.origin.desired;

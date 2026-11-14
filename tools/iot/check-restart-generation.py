@@ -55,6 +55,7 @@ int main(int argc,char**argv){
  }
  struct wr_iot_restart_generation cancelled={0};make_profile();origin_reads=0;fail_origin_at=3;
  assert(!wr_iot_restart_generation_begin(&cancelled)&&cancelled.phase==WR_RESTART_GEN_ROLLED_BACK&&!cancelled.profile.active);
+ assert(wr_iot_restart_profile_receipt_current(&cancelled.rollback_receipt));
  assert(!unlink(profile_path));
  puts("PASS actual restart generation/profile journal: one generator call, no-reload skip, exact RELEASE/Main-DOWN gating, valid profile readback retains baseline, partial failure restores bytes, foreign inode/pending journal refuse overwrite or replay, pending shutdown cleanup, post-capture read-only cancellation; SDK/physical/Main state injected, no Main UP");
 }

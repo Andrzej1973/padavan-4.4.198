@@ -19,6 +19,8 @@ int wr_iot_rc_physical_resume_finish(struct wr_iot_restart_restore*s){(void)s;as
 int wr_iot_rc_physical_resume_cancel(struct wr_iot_restart_restore*s,const struct wr_iot_rc_quiesce*q){assert(!q&&wr_iot_restart_restore_cancel_check(s,NULL));cancel_calls++;s->phase=WR_RESTORE_CANCELLED;s->generation.profile.active=0;return 1;}
 int wr_iot_rc_physical_take(struct wr_iot_rc_physical_intent*out){take_calls++;out->restart=1;return -1;}
 int wr_iot_restart_guest_step(struct wr_iot_restart_guest*g){guest_up=0;guest_downs++;g->phase=WR_GUEST_DOWN_OBSERVED;return 0;}
+int wr_iot_rc_physical_premain_cancel(struct wr_iot_restart_restore*s){(void)s;return 0;}
+int wr_iot_rc_physical_prehandoff_cancel(struct wr_iot_restart_restore*s){(void)s;return 0;}
 #include "restart-resume.c"
 '''
 body=body.replace('int main(void){',hooks+'\nint main(void){',1)

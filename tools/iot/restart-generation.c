@@ -46,6 +46,7 @@ int wr_iot_restart_generation_begin(struct wr_iot_restart_generation *s)
  s->owner=getpid();s->phase=WR_RESTART_GEN_CAPTURED;
  if(!origin_current(&s->origin)||!wr_iot_restart_main_down()||wr_iot_rc_shutdown.pending){
   /* Read-only capture: cancellation cannot restore/overwrite the file. */
+  (void)wr_iot_restart_profile_receipt_cancel_take(&s->rollback_receipt,&s->profile);
   if(wr_iot_radio_profile_cancel(&s->profile)){s->phase=WR_RESTART_GEN_ROLLED_BACK;generation_wipe(&s->origin.desired,sizeof(s->origin.desired));}
   else s->phase=WR_RESTART_GEN_RECOVERING;
   return 0;
@@ -86,6 +87,9 @@ static int generation_step(struct wr_iot_restart_generation *s)
   return 0;
  }
  if(s->phase==WR_RESTART_GEN_RESTORED){
+  if(!s->rollback_receipt.valid&&
+     !wr_iot_restart_profile_receipt_take(&s->rollback_receipt,&s->profile))return 0;
+  if(!wr_iot_restart_profile_receipt_current(&s->rollback_receipt))return 0;
   if(wr_iot_radio_profile_finish(&s->profile)){
    s->phase=WR_RESTART_GEN_ROLLED_BACK;generation_wipe(&s->origin.desired,sizeof(s->origin.desired));
   }
@@ -102,4 +106,20 @@ int wr_iot_restart_generation_step(struct wr_iot_restart_generation *s)
 int wr_iot_restart_generation_origin_current(const struct wr_iot_restart_generation *s)
 {
  return s&&s->owner==getpid()&&!s->busy&&s->profile.active&&origin_current(&s->origin);
+}
+
+int wr_iot_restart_generation_rollback_current(const struct wr_iot_restart_generation *s)
+{
+ struct wr_iot_rc_physical_resume current={0};unsigned char a[64],b[64];int ok=0;
+ if(!s||s->owner!=getpid()||s->busy||s->main_may_have_started||
+    s->phase!=WR_RESTART_GEN_ROLLED_BACK||s->profile.active||s->profile.files.count||
+    !wr_iot_rc_shutdown.active||!wr_iot_restart_main_down()||
+    !wr_iot_restart_profile_receipt_current(&s->rollback_receipt))return 0;
+ if(!wr_iot_rc_physical_resume_read(&current)||!origin_valid(&current)||
+    s->origin.intent.restart!=current.intent.restart||s->origin.intent.radio_on!=current.intent.radio_on||
+    s->origin.intent.reload!=current.intent.reload||
+    !wr_iot_physical_stop_request_encode(a,sizeof(a),&s->origin.physical)||
+    !wr_iot_physical_stop_request_encode(b,sizeof(b),&current.physical)||memcmp(a,b,sizeof(a)))goto done;
+ if(wr_iot_restart_main_down()&&wr_iot_restart_profile_receipt_current(&s->rollback_receipt))ok=1;
+ done:generation_wipe(&current,sizeof(current));return ok;
 }

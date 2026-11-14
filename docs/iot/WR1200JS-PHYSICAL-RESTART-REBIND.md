@@ -656,3 +656,39 @@ The actual pump/runner test proves no OPEN and one rollback, retaining old
 profile/admission. A distinct verified completion witness for this rejected
 state remains to implement before enabling RC entrypoints. Do not substitute
 an OFF/CLOSED receipt for a command that was never submitted.
+
+### Pre-Main cancellation completion prerequisite (2026-11-14)
+
+Pending shutdown now drives generation abort/rollback only before the monotonic
+main_may_have_started flag. Actual-file checks cover pending before generation,
+after generation and foreign file replacement. Foreign replacement retains
+recovery and never overwrites that file. This does not complete physical restart.
+
+The existing radio_profile_finish clears the whole profile state, including
+restored_file and path; restart_generation then clears copied desired settings.
+Consequently ROLLED_BACK alone cannot prove that the restored file remains
+current at later physical-fence completion. Do not finalize merely from that
+enum. A pre-Main terminal consumer needs a retained non-secret file receipt/path
+captured before snapshot disposal, an independently matched physical RELEASE,
+Main still DOWN, and no Main/Guest/service submission. File identity must be
+revalidated at completion; failure retains physical ownership. This receipt
+must not retain the discarded credential buffer or authorize profile replay.
+No such terminal consumer is implemented yet. Full91 suite45123 is running.
+
+### Pre-handoff shutdown and reusable private scheduler candidate
+
+Pending shutdown before Main UP now drives owned generation rollback, retaining
+file identity metadata without profile bytes before wiping the snapshot. Exact
+rollback proof checks current file, Main DOWN and physical RELEASE. After a
+possible Main UP, cancellation instead requires current owned generated profile,
+fresh closed ra2 configuration and Guest DOWN; startup profile is never restored.
+Both paths use the existing cleanup-before-signal physical cancellation and
+terminal take, including retries after admission has been cleared.
+
+Private restart-scheduler owns a stable resume object and gates begin on retained
+physical restart readiness. Terminal retirement refuses live resources and wipes
+all private state before reuse. Scheduler/resume/retirement two-cycle tests pass
+with owning actors injected. No net_wifi/rc-runtime entrypoints are installed.
+Full95 suite passed; final34-TU native preparation and later focused tests passed
+separately.99 parts registered afterward; no full99 claim. Target checks and
+physical runtime remain required for this unpublished-at-test-time candidate.

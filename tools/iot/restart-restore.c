@@ -25,6 +25,12 @@ int wr_iot_restart_restore_step(struct wr_iot_restart_restore *s)
  if(wr_iot_rc_shutdown.pending){
   /* Guest owns its submitted UP and must retain/observe its DOWN recovery.
    * Main/profile ownership remains fenced; no broad cleanup is inferred. */
+  if(!s->generation.main_may_have_started&&s->generation.owner==getpid()){
+   /* Before Main submission, use the existing owned profile rollback. Never
+    * restore after a possible UP, even if later administrative DOWN is seen. */
+   (void)wr_iot_restart_generation_abort(&s->generation);
+   (void)wr_iot_restart_generation_step(&s->generation);
+  }
   if(s->guest.owner)(void)wr_iot_restart_guest_step(&s->guest);
   goto done;
  }

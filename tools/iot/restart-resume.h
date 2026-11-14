@@ -19,4 +19,7 @@ int wr_iot_restart_resume_step(struct wr_iot_restart_resume *);
 /* Fresh OFF envelope only, for pending normal shutdown after handoff.
  * CLOSED remains retained until a separate verified cancellation consumer. */
 int wr_iot_restart_resume_shutdown(struct wr_iot_restart_resume *,const struct wr_iot_control_request *);
+/* Only consumed terminal state with no live resources; volatile private wipe.
+ * Returns1 when reusable zero state established,0 leaves retained state. */
+int wr_iot_restart_resume_retire(struct wr_iot_restart_resume *);
 #endif

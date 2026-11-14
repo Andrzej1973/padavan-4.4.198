@@ -15,10 +15,11 @@ enum wr_iot_restart_service_result wr_iot_rc_restart_service_submit(const struct
 #include "restart-services.c"
 int wr_iot_restart_generation_begin(struct wr_iot_restart_generation*g){g->owner=getpid();return 1;}
 int wr_iot_restart_generation_step(struct wr_iot_restart_generation*g){assert(g->owner==getpid());return 1;}
-int wr_iot_restart_main_begin(struct wr_iot_restart_main*m,struct wr_iot_restart_generation*g,const unsigned char*id){assert(id[0]);main_ups++;m->owner=getpid();m->generation=g;return 0;}
+int wr_iot_restart_main_begin(struct wr_iot_restart_main*m,struct wr_iot_restart_generation*g,const unsigned char*id){assert(id[0]);main_ups++;m->owner=getpid();m->generation=g;g->main_may_have_started=1;return 0;}
 int wr_iot_rc_rebind_begin(const struct wr_iot_control_request*r,const struct wr_iot_physical_stop_request*p){(void)r;(void)p;return 0;}
 int wr_iot_rc_rebind_active_current(const struct wr_iot_control_request*r,const struct wr_iot_physical_stop_request*p,const struct wr_iot_driver_identity*i){(void)r;(void)p;(void)i;return 0;}
 int wr_iot_restart_generation_origin_current(const struct wr_iot_restart_generation*g){return g->owner==getpid();}
+int wr_iot_restart_generation_abort(struct wr_iot_restart_generation*g){(void)g;return 0;}
 #include "restart-restore.c"
 int main(void){
  struct wr_iot_restart_restore s={0};unsigned char id[16]={7};wr_iot_rc_shutdown.active=1;
