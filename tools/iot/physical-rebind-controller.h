@@ -20,4 +20,9 @@ int wr_iot_rebind_open_current(struct wr_iot_rebind_open_controller *,
 /* Recovery token does not set CURRENT or authorize retry/guard release. */
 int wr_iot_rebind_open_recovery(const struct wr_iot_rebind_open_controller *,
  struct wr_iot_driver_open_recovery_result *);
+/* Fresh software CLOSED observation for staged network admission. Uses same
+ * future OPEN ID in both identity queries; never submits OPEN or certifies RF.
+ * Guard ownership remains with caller across subsequent network phases. */
+int wr_iot_rebind_configuration_current(const struct wr_iot_physical_stop_request *,
+ const unsigned char *,struct wr_iot_driver_identity *);
 #endif

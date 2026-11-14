@@ -212,3 +212,10 @@ Fresh ID remains mandatory even after radio epoch changes. Native sanitizer
 fixture covers all three reuse sources with unspent claim/idle owner, followed
 by successful fresh reservation; actual vendor binding fixture also passes.
 This does not reset or erase prior evidence to obtain admission.
+
+RC configuration helper now requires identity-before, one WRRB observation and
+identity-after under retained shutdown/service guards, using the same future
+OPEN nonce. Both reads require newer epoch and same registration; drift or
+uncertain ioctl clears output. It does not submit OPEN or grant a lease across
+network changes. The future staging/network steps must re-observe before OPEN
+and retain recovery/isolation if any observation fails.
