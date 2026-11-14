@@ -10,6 +10,7 @@ units=next(ast.literal_eval(n.value) for n in ast.walk(ast.parse(source)) if isi
 body=ns['body'];a=body.index('int main(void){')
 hooks=r'''
 #include "rc-physical-stop.c"
+int wr_iot_restart_restore_finish_check(struct wr_iot_restart_restore*s){(void)s;return 0;}
 #include "physical-stop-down.h"
 static int physical_calls,physical_downs,physical_aux;
 int wr_iot_rc_physical_aux_down(unsigned slot){assert(depth>=2&&slot==(unsigned)physical_aux&&!physical_calls&&!physical_downs);physical_aux++;return 1;}

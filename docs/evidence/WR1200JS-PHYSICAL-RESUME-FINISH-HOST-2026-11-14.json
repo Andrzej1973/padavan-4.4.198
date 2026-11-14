@@ -1,0 +1,26 @@
+{
+  "scope": "host physical resume finalizer and actual signal fence",
+  "checks": [
+    "failed finish proof retains state",
+    "failed mask restore retains heap baseline/guard and clears busy for retry",
+    "retry performs snapshot release and volatile credential wipe before real queued SIGTERM delivery",
+    "Main/Guest/services parent pointers cleared",
+    "terminal result consumed once",
+    "original physical STOP/fence regression pass",
+    "29 prepared native TUs compile C11 Werror O2"
+  ],
+  "test_actors": "finish proof and driver/resource actors injected; actual session/fence/cleanup/heap release/signal handling",
+  "preparation": {
+    "session": 52565,
+    "exit_code": 0,
+    "log_sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a"
+  },
+  "scheduler_bound": false,
+  "target_verified": false,
+  "runtime_verified": false,
+  "suite81": {
+    "session": 1702,
+    "exit_code": 0,
+    "log_sha256": "c3387a94963239fc2e59357413742fc4883c4f0f3bc7ccb71543ec9bf4227dac"
+  }
+}

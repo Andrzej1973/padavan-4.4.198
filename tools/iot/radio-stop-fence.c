@@ -5,11 +5,12 @@
 #include "rc-shutdown-admission.h"
 static pid_t fence_owner;
 static unsigned fence_depth;
+static int fence_finishing;
 static sigset_t saved_mask;
 int wr_iot_radio_stop_fence_begin(struct wr_iot_radio_stop_fence *s)
 {
  sigset_t blocked,previous;
- if(!s||s->owner||s->level)return 0;
+ if(!s||s->owner||s->level||fence_finishing)return 0;
  if(fence_depth){
   if(fence_owner!=getpid()||!wr_iot_rc_shutdown.active||
      wr_iot_rc_shutdown.pending||fence_depth==~0U)return 0;
@@ -26,17 +27,26 @@ int wr_iot_radio_stop_fence_begin(struct wr_iot_radio_stop_fence *s)
  saved_mask=previous;fence_owner=getpid();fence_depth=1;
  s->owner=getpid();s->level=1;return 1;
 }
-int wr_iot_radio_stop_fence_end(struct wr_iot_radio_stop_fence *s)
+static int fence_end(struct wr_iot_radio_stop_fence *s,void (*cleanup)(void *),void *context)
 {
  int pending;
- if(!s||s->owner!=getpid()||fence_owner!=getpid()||
+ if(fence_finishing||!s||s->owner!=getpid()||fence_owner!=getpid()||
     !s->level||s->level!=fence_depth||!wr_iot_rc_shutdown.active)return 0;
+ if(cleanup&&fence_depth!=1)return 0;
  if(fence_depth>1){--fence_depth;memset(s,0,sizeof(*s));return 1;}
  /* Unmask while admission is still active: a queued normal shutdown records
   * its signal instead of tearing down the caller before balanced cleanup. */
- if(sigprocmask(SIG_SETMASK,&saved_mask,NULL))return 0;
+ fence_finishing=1;
+ if(sigprocmask(SIG_SETMASK,&saved_mask,NULL)){fence_finishing=0;return 0;}
+ if(cleanup)cleanup(context);
  pending=wr_iot_rc_shutdown_end();
- fence_depth=0;fence_owner=0;memset(s,0,sizeof(*s));
+ fence_depth=0;fence_owner=0;memset(s,0,sizeof(*s));fence_finishing=0;
  if(pending)raise(pending);
  return 1;
 }
+
+int wr_iot_radio_stop_fence_end(struct wr_iot_radio_stop_fence *s)
+{return fence_end(s,NULL,NULL);}
+int wr_iot_radio_stop_fence_end_cleanup(struct wr_iot_radio_stop_fence *s,
+ void (*cleanup)(void *),void *context)
+{return cleanup?fence_end(s,cleanup,context):0;}

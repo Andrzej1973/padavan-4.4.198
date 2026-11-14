@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include "rc-physical-stop.h"
 #include "rc-backend.h"
+#include "restart-restore.h"
 #include "rc-quiesce.h"
 #include "physical-stop-session.h"
 #include "radio-stop-fence.h"
@@ -142,4 +143,36 @@ int wr_iot_rc_physical_resume_read(struct wr_iot_rc_physical_resume *out)
   if(out->resume_needed)out->desired=physical.quiesce.desired;
  }
  return 1;
+}
+
+static void resume_wipe(void *data,size_t size)
+{volatile unsigned char *p=data;while(size--)*p++=0;}
+/* Already validated; no setters, restore or fallible observation.
+ * Runs under active admission before deferred shutdown delivery. */
+static void resume_cleanup(void *context)
+{
+ struct wr_iot_restart_restore *s=context;
+ wr_iot_bundle_release(&s->generation.profile.files);
+ resume_wipe(&s->generation.profile,sizeof(s->generation.profile));
+ resume_wipe(&s->generation.origin.desired,sizeof(s->generation.origin.desired));
+ resume_wipe(&physical.quiesce.desired,sizeof(physical.quiesce.desired));
+ s->generation.phase=WR_RESTART_GEN_COMMITTED;
+ s->main.generation=NULL;s->guest.main=NULL;s->services.main=NULL;
+ s->phase=WR_RESTORE_FINISHED;s->busy=0;
+ physical.result=1;
+ wr_iot_service_guard_leave(1);physical.guard=0;
+}
+int wr_iot_rc_physical_resume_finish(struct wr_iot_restart_restore *s)
+{
+ int finished;
+ if(!s||s->owner!=getpid()||s->busy||s->phase!=WR_RESTORE_HANDOFF||
+    physical.owner!=getpid()||physical.finishing!=1||physical.result||physical.guard!=1||
+    !physical.intent.restart||physical.fence.owner!=getpid()||physical.fence.level!=1||
+    physical.session.owner!=getpid()||physical.session.busy||
+    physical.session.phase!=WR_PHYSICAL_SESSION_COMPLETE||
+    !wr_iot_restart_restore_finish_check(s))return 0;
+ s->busy=1;
+ finished=wr_iot_radio_stop_fence_end_cleanup(&physical.fence,resume_cleanup,s);
+ if(!finished)s->busy=0;
+ return finished;
 }

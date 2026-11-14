@@ -6,7 +6,7 @@
 #include "rc-physical-stop.h"
 enum wr_iot_restart_generation_phase {WR_RESTART_GEN_IDLE,WR_RESTART_GEN_CAPTURED,
  WR_RESTART_GEN_UNCERTAIN,WR_RESTART_GEN_GENERATED,WR_RESTART_GEN_VERIFIED,
- WR_RESTART_GEN_RECOVERING,WR_RESTART_GEN_RESTORED,WR_RESTART_GEN_ROLLED_BACK};
+ WR_RESTART_GEN_RECOVERING,WR_RESTART_GEN_RESTORED,WR_RESTART_GEN_ROLLED_BACK,WR_RESTART_GEN_COMMITTED};
 struct wr_iot_restart_generation {
  pid_t owner;int busy;
  int main_may_have_started; /* Monotonic: prohibits pre-start profile restore. */

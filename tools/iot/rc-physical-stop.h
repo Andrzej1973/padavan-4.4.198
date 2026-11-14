@@ -34,4 +34,8 @@ int wr_iot_rc_physical_restart_ready(struct wr_iot_rc_physical_intent *);
 /* Exactly one terminal consumption:1 STOP RELEASE acknowledged,-1 cancelled/refused,
  * 0 pending/absent/foreign. Captured intent is returned only at terminal state. */
 int wr_iot_rc_physical_take(struct wr_iot_rc_physical_intent *);
+struct wr_iot_restart_restore;
+/* Exact ACTIVE resume consumer; failed proof/mask restore retains ownership.
+ * Success retires only old private baseline, never restores the live profile. */
+int wr_iot_rc_physical_resume_finish(struct wr_iot_restart_restore *);
 #endif

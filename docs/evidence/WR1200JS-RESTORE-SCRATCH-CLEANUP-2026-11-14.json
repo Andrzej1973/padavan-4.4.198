@@ -1,0 +1,37 @@
+{
+  "completed_package": "eed775d",
+  "logs_removed": [
+    {
+      "path": "/tmp/wr-restore-suite.log",
+      "size": 20491,
+      "sha256": "3be01fd18674577b504e8279eab7225b314b94cadcee8c05a20943727d197ec3"
+    },
+    {
+      "path": "/tmp/wr-restore-active-suite.log",
+      "size": 20734,
+      "sha256": "18afbbe7bfbdaa390acacc8be5760d5c04f038eaf0183fe23de47e6701c2a9cd"
+    },
+    {
+      "path": "/tmp/wr-restore-preparation.log",
+      "size": 307,
+      "sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a"
+    },
+    {
+      "path": "/tmp/wr-restore-handoff-preparation.log",
+      "size": 307,
+      "sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a"
+    },
+    {
+      "path": "/tmp/wr-restore-active-preparation.log",
+      "size": 307,
+      "sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a"
+    },
+    {
+      "path": "/tmp/wr-rebind-active-observer.log",
+      "size": 426,
+      "sha256": "819e0f3737575cad632a3116727b5c9ae811068ac5b93414776de1e3ae1e0cd9"
+    }
+  ],
+  "reclaimed_bytes": 42572,
+  "source_and_shared_dirt_preserved": true
+}

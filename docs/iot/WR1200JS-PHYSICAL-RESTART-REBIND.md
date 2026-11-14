@@ -617,3 +617,21 @@ and after successful unmask perform already-validated infallible private cleanup
 while admission is still active, before ending admission/replaying the signal.
 No such cleanup primitive is implemented yet. Existing end semantics must remain
 unchanged for other callers; nested LIFO ownership must still be enforced.
+
+### Physical resume finish candidate implemented
+
+rc-physical-stop.c now exposes an explicit private resume_finish consumer. It
+requires retained COMPLETE/restart/outer-fence/service ownership and the exact
+post-OPEN finish check. radio-stop-fence_end_cleanup invokes prevalidated
+infallible cleanup only after successful mask restore while admission remains
+active, before deferred shutdown replay. Failure retains the old profile and
+guard for fresh verification/retry. Cleanup discards the private baseline without
+restoring the live profile, wipes copied credentials, clears parent pointers,
+marks restore/generation terminal and exposes one physical_take result.
+
+Actual session/fence/heap cleanup with real queued SIGTERM passes sanitizer
+checks (finish observations/driver/resources injected). Full81 host suite PASS;
+29 prepared native TUs PASS. Exact source/backend/profile finish-gate checks
+are complementary, not a single full hardware chain or physical acceptance.
+Scheduler binding remains false. Pending shutdown recovery after rebind still
+needs integration with the owning OFF path before activating RC entrypoints.
