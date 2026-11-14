@@ -26,8 +26,9 @@ int main(void){
  down=0;assert(!wr_iot_rc_restart_radio_state(1)&&!writes);down=1;
  assert(wr_iot_rc_restart_radio_state(0)&&writes==1&&reload_value==7&&mlme_value==1);
  writes=0;mlme_value=0;fail_reload=1;
- assert(!wr_iot_rc_restart_radio_state(1)&&writes==1&&reload_value==7&&!mlme_value);
- writes=0;fail_reload=0;fail_mlme=1;
+ assert(wr_iot_rc_restart_radio_state(1)&&writes==2&&reload_value==7&&mlme_value==1);
+ /* A consumed/lost event cannot be distinguished by this adapter: no delivery claim. */
+ writes=0;mlme_value=0;fail_reload=0;fail_mlme=1;
  assert(!wr_iot_rc_restart_radio_state(1)&&writes==2&&reload_value==1&&!mlme_value);
  writes=0;fail_mlme=0;assert(wr_iot_rc_restart_radio_state(1)&&writes==2);
 }
@@ -36,4 +37,4 @@ with tempfile.TemporaryDirectory(prefix='wr-radio-state-') as d:
  p=Path(d)/'test.c';p.write_text(code);b=Path(d)/'test'
  subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(here),str(p),'-o',str(b)],check=True)
  subprocess.run([str(b)],check=True,timeout=15)
-print('PASS SDK radio/reload state adapter: guard/mode/radio/Main-DOWN gates, fixed keys, reload0 preserves flag, reload/MLME readback failures refuse, no commit or RF operation; SDK actors injected')
+print('PASS SDK radio/reload state adapter: guard/mode/radio/Main-DOWN gates, fixed keys, reload0 preserves flag, reload event has no persistence receipt; MLME readback failure refuses, no commit or RF operation; SDK actors injected')

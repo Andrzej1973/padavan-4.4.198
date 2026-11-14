@@ -171,3 +171,20 @@ readback refusal. SDK setters/observers are actors. This adapter remains unbound
 root must mark a single attempt before calling after profile verification and
 before Main UP. Do not infer RF state from mlme_radio_rt. Existing full-suite
 75467 uses unchanged1b74afc code and excludes this new standalone component.
+
+
+## Watchdog reload event correction
+
+Pinned watchdog.c lines341–345 consumes reload_svc_rt1 by resetting it0 and
+invalidating RADIO2/GUEST2 schedule caches. update_svc_status_wifi2 also clears
+it at421. Therefore producer-side persistence readback is not a valid delivery
+receipt. The standalone radio-state adapter now sends the fixed event without
+requiring it to remain1; MLME readback and admission checks remain. The host test
+passes even when the event is no longer observable, and explicitly makes no
+successful-delivery claim. This supersedes earlier reload-readback descriptions.
+No root binding has been enabled. Scheduler consumer coordination remains a
+required integration check.
+
+Full-suite75467 handle and its /tmp log are missing in the current environment.
+Its result is unavailable, not inferred successful from prior progress. Reverify
+an immutable integrated revision on CI or a new bounded host run.
