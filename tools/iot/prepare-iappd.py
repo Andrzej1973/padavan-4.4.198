@@ -9,7 +9,8 @@ def transform(source):
   old='iptables -A INPUT -i br0 -p '+protocol+' --dport 3517 -j ACCEPT'
   if source.count(old)!=1:raise ValueError('IAPP firewall anchor changed: '+protocol)
   check=old.replace(' -A INPUT',' -C INPUT')
-  source=source.replace(old,check+' 2>/dev/null || '+old,1)
+  replacement='if '+check+' 2>/dev/null; then :; else\n        iapp_rule_status=$?\n        [ \"$iapp_rule_status\" -eq 1 ] || return \"$iapp_rule_status\"\n        '+old+' || return $?\n    fi'
+  source=source.replace(old,replacement,1)
  return source
 
 if __name__=='__main__':

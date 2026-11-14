@@ -12,7 +12,7 @@ source=raw.decode();expected=transform(source)
 restored=expected
 for proto in ('tcp','udp'):
  old='iptables -A INPUT -i br0 -p '+proto+' --dport 3517 -j ACCEPT'
- replacement=old.replace(' -A INPUT',' -C INPUT')+' 2>/dev/null || '+old
+ replacement='if '+old.replace(' -A INPUT',' -C INPUT')+' 2>/dev/null; then :; else\n        iapp_rule_status=$?\n        [ "$iapp_rule_status" -eq 1 ] || return "$iapp_rule_status"\n        '+old+' || return $?\n    fi'
  assert restored.count(replacement)==1
  restored=restored.replace(replacement,old,1)
 assert restored.encode()==raw

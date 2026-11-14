@@ -236,3 +236,14 @@ parses case 'C' as CMD_CHECK and dispatches it to check_entry. Reproducible
 check-iappd-iptables-source.py passed against the preserved archive. This proves
 source capability only; effective firmware selection, final binary and kernel
 behavior remain unverified. No archive extraction or persistent scratch.
+
+
+IAPP rule preparation now distinguishes check status1 from other failures.
+Only1 permits an append; other nonzero statuses return from start without adding.
+Append failure is propagated too. Executed shell fixture injects check status2
+and proves no extra rule append; pinned-script byte/mode/syntax tests pass again.
+This does not prove all status1 errors mean absence or solve concurrent writers;
+source CLI semantics and ownership remain integration prerequisites.
+Full immutable registered e2c9162 host suite84131 exited0. Source log hash/size
+recorded in E2C9162-HOST-SUITE evidence, finished log removed. New standalone IAPP
+checks are separate and not part of that suite. MIPS/image/device remain separate.
