@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Stage dormant ARM storage and actual deferred Main hook in an isolated copy.
 
-No endpoint or ACK/DMA policy changes; not production or runtime acceptance.
+Experimental existing-ioctl endpoint only; no ACK/DMA policy changes or production acceptance.
 """
 import argparse,hashlib,json,runpy,shutil
 from pathlib import Path
@@ -29,6 +29,7 @@ try:
  texts[paths[8]]=main['compose_raw_free'](texts[paths[8]])
  if texts[paths[7]].count('#define WR_IOT_RA2_NO_HOST_MODE 1')!=1:
   raise ValueError('verified no-host dispatch definition required')
+ texts[paths[7]]=runpy.run_path(str(here/'physical-stop-dispatch.py'))['compose'](texts[paths[7]])
  texts[paths[7]]+='\n#include "physical-stop-arm-admission.inc"\n#include "physical-stop-pins.inc"\n#include "physical-stop-arm-publication.inc"\n#include "physical-stop-main-completion.inc"\n#include "physical-stop-terminal.inc"\n#include "physical-stop-cancel.inc"\n#include "physical-stop-terminal-replace.inc"\n#include "physical-stop-release.inc"\n#include "physical-stop-query.inc"\n#include "physical-stop-handler.inc"\n#include "physical-stop-ioctl.inc"\n'
  texts[paths[3]]=helpers['compose_open_dispatch'](texts[paths[3]])
  texts[paths[4]],texts[paths[5]]=helpers['compose_retirement'](texts[paths[4]],texts[paths[5]])
@@ -44,9 +45,9 @@ if 'candidate_driver_sha256' in m:
  for n in paths:m['candidate_driver_sha256'][n]=m['merged_driver_sha256'][n]
  for n in ('physical-stop-record.h','physical-stop-lifetime.h','physical-stop-pin-types.h','physical-stop-terminal-types.h','physical-stop-prior-close.h','physical-stop-wire.h','physical-stop-arm-admission.inc','physical-stop-pins.inc','physical-stop-arm-publication.inc','physical-stop-main-completion.inc','physical-stop-terminal.inc','physical-stop-response.h','physical-stop-cancel.inc','physical-stop-terminal-replace.inc','physical-stop-release.inc','physical-stop-query.inc','physical-stop-handler.inc','physical-stop-ioctl.inc'):
   m['candidate_driver_sha256']['include/'+n]=m['merged_driver_sha256']['include/'+n]
-m['physical_stop_deferred_layer']={'dormant':True,'main_worker_hook':True,
- 'legacy_executor_modified':False,'endpoint_installed':False,'arm_admission_source_staged':True,
+m['physical_stop_deferred_layer']={'dormant':False,'experimental_only':True,'main_worker_hook':True,
+ 'legacy_executor_modified':False,'endpoint_installed':True,'endpoint_scope':'isolated no-host experiment only','ioctl_existing':'0x89fd','request_magic':'WPSQ','arm_admission_source_staged':True,
  'reset_arm_gate_staged':True,'reset_admission_complete':False,'target_compiled':False,'runtime_verified':False}
 m.update(production_installed=False,target_compiled=False,runtime_verified=False)
 out.with_name(out.name+'.manifest.json').write_text(json.dumps(m,indent=2)+'\n')
-print('PASS staged dormant deferred Main ARM hook/storage; endpoint/reset/physical completion unbound')
+print('PASS staged experimental no-host physical-stop endpoint; RC/reset/physical acceptance incomplete')

@@ -1,0 +1,20 @@
+{
+  "scope": "isolated no-host experimental Linux endpoint only",
+  "ioctl": "existing0x89fd CLOSED_CONFIG, no new number",
+  "discriminator": "WPSQ exact four bytes; WPSR and foreign prefixes retain original dispatch",
+  "authorization": "RTNL namespace CAP_NET_ADMIN MT7603 checks precede routing copy; physical wrapper independently rechecks exact main/BSS and decodes second complete copied request",
+  "checks": [
+    "actual copied route predicate C11 -Werror O2 ASan UBSan PASS",
+    "missing privilege guards and repeated composition refused",
+    "installer exact manifest and output hash assertions PASS",
+    "full27part suite43613 exit0 strict host/source/composition checks; installer rerun PASS after metadata/doc correction"
+  ],
+  "production_installed": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "remaining": [
+    "full target compile and symbol checks",
+    "RC ordering and retained client",
+    "physical WR1200JS acceptance"
+  ]
+}

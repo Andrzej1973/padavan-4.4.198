@@ -7,7 +7,7 @@ source=(here/'check-physical-stop-candidate.py').read_text()
 exec(compile(source[:source.index("with tempfile.TemporaryDirectory(")],'<reviewed fixture setup>','exec'),ns)
 files=dict(ns['files'])
 files['include/wr-iot-raw-recovery-free-fence.inc']=(here/'raw-recovery-free-fence.inc').read_text()
-files['include/driver-api-closed-entry.inc']='#define WR_IOT_RA2_NO_HOST_MODE 1\n'
+files['include/driver-api-closed-entry.inc']='#define WR_IOT_RA2_NO_HOST_MODE 1\n'+(here/'driver-api-closed-entry.inc').read_text()
 files['include/wr-iot-reset-admission.inc']=(here/'reset-admission.inc').read_text()
 files['os/linux/rt_main_dev.c']=(here/'main-close-checked.inc').read_text()
 files['include/main-open-recovery-owner.h']=(here/'main-open-recovery-owner.h').read_text()
@@ -43,7 +43,8 @@ with tempfile.TemporaryDirectory(prefix='wr-stop-deferred-installer-') as d:
 
  result=json.loads(out.with_name(out.name+'.manifest.json').read_text())
  assert result['physical_stop_deferred_layer']['main_worker_hook']
- assert not result['physical_stop_deferred_layer']['endpoint_installed']
+ assert result['physical_stop_deferred_layer']['endpoint_installed']
+ assert result['physical_stop_deferred_layer']['endpoint_scope']=='isolated no-host experiment only'
  assert (out/'include/wr-iot-peer-close-executor.inc').read_bytes()==(src/'include/wr-iot-peer-close-executor.inc').read_bytes()
  assert 'wr_iot_physical_stop_lifetime_capture_main(' in (out/'os/linux/rt_main_dev.c').read_text()
  assert '\n#include "physical-stop-arm-admission.inc"\n' in (out/'include/driver-api-closed-entry.inc').read_text()
