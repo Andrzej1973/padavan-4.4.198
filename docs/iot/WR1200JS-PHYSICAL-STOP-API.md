@@ -50,3 +50,12 @@ current target must have CONFIG_PM=n; zero-interface PCI suspend synchronization
 is unfinished. RC orchestration, full target verification of this endpoint and
 physical WR1200JS acceptance remain required. Do not enable production startup
 or permit post-OPEN RC restart based solely on these source fixtures.
+
+`physical-stop-client.c` provides fixed-ra0 userspace transport for these four
+operations. It returns NOT_SUBMITTED for invalid input/socket acquisition,
+UNCERTAIN after attempted ioctl/close/response validation failure, and
+ACKNOWLEDGED only for an exact typed reply. It performs no automatic retry and
+never changes interface flags. The separate fixed DOWN helper is linked into
+the experimental RC candidate but neither helper is called by production RC
+or the current initial-only radio-stop callback. Retained RC orchestration and
+Main/Guest stop order remain pending.
