@@ -132,3 +132,13 @@ valid different terminal transaction can start a fresh observation. This helper
 does not invoke OPEN or prove loaded keys. Final OPEN admission must claim under
 the same transition lock and retain the claimed ID for uncertain OPEN recovery;
 it must not reset spent merely because a call failed. That binding is pending.
+
+`physical-rebind-open.h` locally composes claim and the existing actual
+`wr_iot_driver_owner_reserve` under one caller-held transition lock. OPEN query
+identity, new epoch/generation and control state are checked before claim.
+Existing owner logic still reserves its own BSS_OPEN/registry token; credentials
+and mutation policy are unchanged. Native sanitizer tests execute real owner
+reserve/leave: conflict refuses without spending; accepted reserve produces one
+ticket; duplicate refuses; pre-mutation leave clears owner but never refunds the
+handoff. The helper is not installed/routed yet. Recovery after spent admission
+and actual RC/API routing remain required before activation.

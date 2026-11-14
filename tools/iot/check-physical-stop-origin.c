@@ -1,6 +1,6 @@
 #include <assert.h>
 #include <string.h>
-#include "physical-rebind-probe.h"
+#include "physical-rebind-open.h"
 int main(void)
 {
  int device;
@@ -129,6 +129,23 @@ int main(void)
   }
 
   assert(!wr_iot_physical_rebind_probe_finish(&probe,&t,terminal.owner,&q,&owner,&r,records,2,&device,&iot_device,1,1));
+ }
+ {
+  struct wr_iot_physical_rebind_probe probe={0};
+  struct wr_iot_radio_transition r=radio;
+  struct wr_iot_interface_ref records[2]={slots[0],slots[1]};
+  struct wr_iot_driver_owner opened={0};int task;
+  struct wr_iot_driver_open_request open_request={.adapter_epoch=7,.device_generation=3,.request_id={8}};
+  assert(wr_iot_physical_rebind_probe_begin(&probe,&terminal,terminal.owner,&request,&owner,&r,records,2,&device,&iot_device,1));
+  assert(wr_iot_physical_rebind_probe_finish(&probe,&terminal,terminal.owner,&request,&owner,&r,records,2,&device,&iot_device,1,1));
+  assert(wr_iot_driver_owner_query(&opened,open_request.request_id,7,3));
+  assert(!wr_iot_physical_rebind_open_reserve(&probe,&terminal,terminal.owner,&request,&owner,&opened,&r,records,2,&device,&iot_device,1,&task,&open_request,1,0));
+  assert(!probe.spent&&probe.accepted&&!opened.active);
+  assert(wr_iot_physical_rebind_open_reserve(&probe,&terminal,terminal.owner,&request,&owner,&opened,&r,records,2,&device,&iot_device,1,&task,&open_request,0,0));
+  assert(probe.spent&&opened.active&&r.busy==WR_RADIO_BSS_OPEN&&records[1].phase==WR_REF_RESERVED);
+  assert(!wr_iot_physical_rebind_open_reserve(&probe,&terminal,terminal.owner,&request,&owner,&opened,&r,records,2,&device,&iot_device,1,&task,&open_request,0,0));
+  assert(wr_iot_driver_owner_leave(&opened,&task,&iot_device,&r,records,2));
+  assert(!opened.active&&!r.busy&&probe.spent); /* Pre-mutation cancellation never refunds handoff. */
  }
  return 0;
 }
