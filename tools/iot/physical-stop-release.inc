@@ -2,6 +2,7 @@
  * No physical teardown or waits. RELEASE requires exact checked Main completion.
  * Terminal is prepared before mutation, committed only after actual puts/end.
  * Include after admission, pins and terminal helpers. */
+#include "physical-stop-origin.h"
 static INT __attribute__((unused)) wr_iot_physical_stop_release_owned(
  RTMP_ADAPTER *ad,PNET_DEV main_dev,
  const struct wr_iot_physical_stop_request *request,unsigned long serial,
@@ -48,6 +49,8 @@ static INT __attribute__((unused)) wr_iot_physical_stop_release_owned(
     terminal->origin.ticket_epoch=s->main_ticket.epoch;
     terminal->origin.completion_epoch=ad->wr_iot_transition.epoch;
     terminal->origin.valid=1;
+    exact=wr_iot_physical_stop_origin_matches(&terminal->origin,
+     &ad->wr_iot_main_recovery.last_release);
    }
   }
   RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);

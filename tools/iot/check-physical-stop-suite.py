@@ -10,7 +10,7 @@ import tempfile
 here=Path(__file__).resolve().parent
 with tempfile.TemporaryDirectory(prefix='iot-physical-stop-suite-') as d:
     root=Path(d)
-    for name in ('record','down','pins','lifetime','wire','response','observe','terminal','ioctl','client','session'):
+    for name in ('record','down','pins','lifetime','wire','response','observe','terminal','ioctl','client','session','origin'):
         binary=root/name
         subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-O2',
                         '-fsanitize=address,undefined','-fno-pie','-no-pie',
