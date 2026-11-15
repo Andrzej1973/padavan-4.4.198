@@ -358,3 +358,13 @@ syntax passes and changed input refuses. CLI writes are not a filesystem atomic
 transaction: candidate trees must be discarded on write error. Neither transform
 is installed in firmware preparation yet. Full SDK compile/image parity remains
 required; this test is source composition, not a complete prepared SDK build.
+
+
+Experimental prepare-iappd-policy-source now installs the pair only after a
+WR1200JS runtime manifest with production_ready=false. It checks both source
+paths, validates both transformations and shell syntax before writes, preserves
+script mode and emits input/output hashes in a final manifest. Wrong board,
+production and duplicate inputs are tested to refuse without mutation. On any
+write failure the candidate must be discarded; final manifest/hash verification
+is required downstream. This installer is not yet invoked by the main workflow,
+and IAPP root launch remains false. Full SDK compile/image acceptance pending.
