@@ -6,6 +6,7 @@
 #include "rc-runtime.h"
 #include "radio-off-owner.h"
 #include "radio-on-owner.h"
+#include "cold-on-scheduler.h"
 #include "radio-off-followup.h"
 #include "rc-shutdown-admission.h"
 #include "control-channel.h"
@@ -94,7 +95,7 @@ void wr_iot_rc_wait(const sigset_t *wait_mask,const volatile int *notification,
   * under the vendor's supplied wait mask, not lost between test and sleep. */
  if(sigprocmask(SIG_BLOCK,&blocked,&previous))return;
  if(*notification||*alarm)goto done;
- runtime_init();pending=radio_off_redispatch||radio_off_pending()||wr_iot_radio_on_pending()||wr_iot_rc_pending()||wr_iot_rc_physical_pending()||wr_iot_restart_scheduler_pending();now=runtime_ms();
+ runtime_init();pending=radio_off_redispatch||radio_off_pending()||wr_iot_cold_on_pending()||wr_iot_radio_on_pending()||wr_iot_rc_pending()||wr_iot_rc_physical_pending()||wr_iot_restart_scheduler_pending();now=runtime_ms();
  fd=wr_iot_status_endpoint_ready_fd(&endpoint);
  p.fd=fd;p.events=POLLIN;p.revents=0;
  if(pending||endpoint.connection>=0){
@@ -115,9 +116,12 @@ void wr_iot_rc_wait(const sigset_t *wait_mask,const volatile int *notification,
  if(*notification||*alarm)goto done;
  (void)wr_iot_status_endpoint_step(&endpoint,wr_iot_rc_backend_observed);
  now=runtime_ms();
- if((radio_off_redispatch||radio_off_pending()||wr_iot_radio_on_pending()||wr_iot_rc_pending()||wr_iot_rc_physical_pending()||wr_iot_restart_scheduler_pending())&&now&&now>=next_progress){
+ if((radio_off_redispatch||radio_off_pending()||wr_iot_cold_on_pending()||wr_iot_radio_on_pending()||wr_iot_rc_pending()||wr_iot_rc_physical_pending()||wr_iot_restart_scheduler_pending())&&now&&now>=next_progress){
   next_progress=now+100;
   if(radio_off_pending())radio_off_continue();
+  else if(wr_iot_cold_on_pending()){
+   if(wr_iot_cold_on_step()==1&&wr_iot_cold_on_retire())radio_off_redispatch=1;
+  }
   else if(wr_iot_radio_on_pending()){
    if(wr_iot_radio_on_step()==1&&wr_iot_radio_on_retire())radio_off_redispatch=1;
   }

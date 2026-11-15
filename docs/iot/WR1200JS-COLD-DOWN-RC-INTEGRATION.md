@@ -427,3 +427,27 @@ are injected. Preparation compiles the composed backend and checks its exported
 symbol. No target/runtime acceptance follows. Public scheduler binding remains
 required. The unclaimed-backend handoff refusal also routes through the existing
 exact never-started prehandoff predicate rather than stranding the local handoff.
+
+## Stable PID1 slot and RC wait scheduling composed
+
+`cold-on-scheduler.[ch]` owns one static noncopied cold root. Its pending query
+identifies only that root, not global ownership flags belonging to historical
+ON/OFF paths. RC wait now includes this slot in its existing 100ms cadence and
+continues it after the OFF owner, before historical ON/redispatch/physical/resume
+work. A successful root step must pass fresh retirement before one later
+redispatch; checked cancellation does not retire or redispatch as success.
+
+Actual RC ppoll/status/mailbox tests cover the new cold boundary, old ON and
+ordinary wait-loop regressions. The static slot fixture composes the actual
+wrapper/root with injected children and verifies stable child pointers for both
+intents, refused duplicate begin and retained release/retirement failures.
+Preparation/ABI units/source checks and target symbol gates include the wrapper.
+The standalone wrapper defines its own GNU feature namespace for filesystem
+headers; it must not depend on the including fixture's feature macros.
+
+The stock radio-entry selector is still unbound. Before binding, distinguish
+first startup/no valid retired Main DOWN proof from the cold continuation:
+no historical physical OFF receipt alone is not sufficient evidence to claim
+a cold root. Preserve the existing native never-opened guard for first startup;
+repeat exact DOWN proof inside cold admission after any read-only selection.
+No target/device acceptance is asserted by this scheduler composition.
