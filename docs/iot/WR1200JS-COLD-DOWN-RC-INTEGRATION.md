@@ -215,3 +215,16 @@ Current public/scheduler cold entry remains false; post-UP shutdown and root
 integration still require implementation and target/image/device verification.
 The completed host suite on c40e389a covered the prior enabled package and is
 recorded independently from these newer disabled checks.
+
+## Pending shutdown before initial backend handoff
+
+`cold-on-prehandoff.c` verifies a retained cold owner after possible Main UP,
+with pending SIGTERM/SIGQUIT, owned profile and exact parent chain. Guest must
+already be administratively DOWN through its existing own-UP recovery. Two
+initial-IDLE probes verify a newer READY adapter epoch, same never-opened ra2
+registration and increasing serial; a captured Main identity must agree.
+`rc-cold-prehandoff.inc` refuses any claimed initial backend/start/stop/rebind.
+Both enabled and disabled intent fixtures pass with actual cold parents/profile/
+Guest and backend predicate; driver/SDK transport remains injected. No Main UP,
+profile rollback or cleanup occurs in this predicate. It is staged for compilation;
+signal-fenced shutdown cleanup and post-handoff shutdown are still outstanding.
