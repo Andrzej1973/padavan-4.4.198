@@ -4,6 +4,7 @@
 #include <time.h>
 #include <unistd.h>
 #include "rc-runtime.h"
+#include "radio-off-owner.h"
 #include "control-channel.h"
 #include "rc-backend.h"
 #include "rc-physical-stop.h"
@@ -16,6 +17,16 @@ static struct wr_iot_status_endpoint endpoint;
 static int initialized,listening,disabled;
 static unsigned long long next_init;
 static unsigned long long next_progress;
+static struct wr_iot_radio_off_owner radio_off_owner;
+static int radio_off_reload;
+static int radio_off_pending(void)
+{return radio_off_owner.owner==getpid()&&!radio_off_owner.result;}
+int wr_iot_rc_radio_off_begin(const struct wr_iot_control_request *off,int reload)
+{
+ if((reload!=0&&reload!=1)||radio_off_owner.owner||radio_off_owner.busy)return 0;
+ if(!wr_iot_radio_off_begin(&radio_off_owner,off))return 0;
+ radio_off_reload=reload;return 1;
+}
 static unsigned long long runtime_ms(void)
 {struct timespec t;if(clock_gettime(CLOCK_MONOTONIC,&t)||t.tv_sec<=0)return 0;return (unsigned long long)t.tv_sec*1000+(unsigned long long)t.tv_nsec/1000000;}
 static void runtime_init(void)
@@ -45,7 +56,7 @@ void wr_iot_rc_wait(const sigset_t *wait_mask,const volatile int *notification,
   * under the vendor's supplied wait mask, not lost between test and sleep. */
  if(sigprocmask(SIG_BLOCK,&blocked,&previous))return;
  if(*notification||*alarm)goto done;
- runtime_init();pending=wr_iot_rc_pending()||wr_iot_rc_physical_pending()||wr_iot_restart_scheduler_pending();now=runtime_ms();
+ runtime_init();pending=radio_off_pending()||wr_iot_rc_pending()||wr_iot_rc_physical_pending()||wr_iot_restart_scheduler_pending();now=runtime_ms();
  fd=wr_iot_status_endpoint_ready_fd(&endpoint);
  p.fd=fd;p.events=POLLIN;p.revents=0;
  if(pending||endpoint.connection>=0){
@@ -66,9 +77,10 @@ void wr_iot_rc_wait(const sigset_t *wait_mask,const volatile int *notification,
  if(*notification||*alarm)goto done;
  (void)wr_iot_status_endpoint_step(&endpoint,wr_iot_rc_backend_observed);
  now=runtime_ms();
- if((wr_iot_rc_pending()||wr_iot_rc_physical_pending()||wr_iot_restart_scheduler_pending())&&now&&now>=next_progress){
+ if((radio_off_pending()||wr_iot_rc_pending()||wr_iot_rc_physical_pending()||wr_iot_restart_scheduler_pending())&&now&&now>=next_progress){
   next_progress=now+100;
-  if(wr_iot_rc_physical_pending())wr_iot_rc_physical_step();
+  if(radio_off_pending())(void)wr_iot_radio_off_step(&radio_off_owner,radio_off_reload);
+  else if(wr_iot_rc_physical_pending())wr_iot_rc_physical_step();
   else if(wr_iot_restart_scheduler_pending())(void)wr_iot_restart_scheduler_step();
   else (void)wr_iot_rc_continue();
  }

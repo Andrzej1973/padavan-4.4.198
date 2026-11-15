@@ -163,3 +163,13 @@ composition covers a complete second transaction through this step API alone,
 cached terminal/no replay and entropy failure without policy. Focused owner,
 composition and exact take checks PASS. RC wait binding and SDK follow-up remain
 open; this step reports physical outcome only. Target symbols required.
+
+Private RC OFF admission now retains a static owner/reload and the actual
+ppoll continuation prioritizes its guarded step before generic physical,
+resume and ordinary continuation. A refused policy capture cannot fall through
+to generic physical progress. Terminal owner remains retained, with no new
+admission until future verified follow-up acknowledges it. The stock/UI OFF
+entry is still unbound. Manifest records progress_bound independently.
+Actual ppoll + OFF consumer composition, existing RC runtime and scheduler
+ASan/UBSan checks PASS; SDK/physical actors injected. New check registered.
+No device actions or target claim for this new binding.

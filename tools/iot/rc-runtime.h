@@ -3,5 +3,9 @@
 #include <signal.h>
 /* Called only from PID1's existing main-loop wait, never a signal handler.
  * Existing SIGUSR1/SIGALRM flag handling stays in the vendor loop. */
+struct wr_iot_control_request;
+/* Private process-context admission only; no stock/UI OFF entry binding.
+ * Terminal owner retained for the future verified SDK follow-up consumer. */
+int wr_iot_rc_radio_off_begin(const struct wr_iot_control_request *,int);
 void wr_iot_rc_wait(const sigset_t *,const volatile int *,const volatile int *);
 #endif
