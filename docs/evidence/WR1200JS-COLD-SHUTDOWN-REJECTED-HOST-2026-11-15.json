@@ -1,0 +1,25 @@
+{
+  "scope": "distinct pending cold pre-OPEN rejection observer, never a CLOSE receipt",
+  "checks": {
+    "actual_RC_predicate_GCC_Werror_asan_ubsan": "PASS",
+    "exact_bound_parent_envelope_and_radio_identity": "PASS",
+    "mutated_start_requires_rollback_DONE_snapshot_released": "PASS",
+    "OPEN_IDLE_or_NOT_SUBMITTED_zero_identity_nonce_only": "PASS",
+    "new_READY_initial_IDLE_double_read": "PASS",
+    "uncertain_OPEN_or_residual_snapshot_attempt_refused": "PASS",
+    "prepared_backend_GNU11_Werror_nm_symbols": "PASS"
+  },
+  "actors": [
+    "driver initial-IDLE transport",
+    "full CLOSE observer for parallel CLOSED tests"
+  ],
+  "sha256": {
+    "tools/iot/rc-cold-shutdown.h": "e3d23e94bb84325b15c56c232a3e3fa127b70becef88f7d5bb78eee5a68f02f3",
+    "tools/iot/rc-cold-shutdown.inc": "c4bc8c3259d191699b7b837c5ca0f4bb76d4669a436d946162e4c7428d571846",
+    "tools/iot/check-rc-cold-shutdown.py": "5d3619751ed05dbea80fb4f7f4a78efec0a4aee773610f649e501ecc5a25eed4"
+  },
+  "shutdown_controller_bound": false,
+  "cleanup_connected": false,
+  "target_verified": false,
+  "physical_verified": false
+}

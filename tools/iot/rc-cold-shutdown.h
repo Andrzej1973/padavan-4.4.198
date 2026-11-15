@@ -6,4 +6,6 @@
  * Fresh software CLOSE receipt, not RF/DMA/IRQ retirement or reopen permission. */
 int wr_iot_rc_cold_shutdown_closed(const struct wr_iot_cold_owner *,const struct wr_iot_cold_handoff *,
  const struct wr_iot_rc_quiesce *,struct wr_iot_driver_closed_result *);
+/* Distinct completed pre-OPEN rejection: no CLOSE token/serial is invented. */
+int wr_iot_rc_cold_shutdown_rejected(const struct wr_iot_cold_owner *,const struct wr_iot_cold_handoff *);
 #endif

@@ -23,6 +23,11 @@ int wr_iot_activation_owner_closed(const struct wr_iot_activation_owner*s,const 
  *out=(struct wr_iot_driver_closed_result){5,2,7,9};if(drift==1)out->adapter_epoch++;if(drift==2)out->device_generation++;if(drift==3)out->open_token=0;if(drift==4)out->close_serial=0;if(drift==5)out->open_token++;if(drift==6)out->close_serial++;
  return observer_ok;
 }
+unsigned int if_nametoindex(const char*n){assert(!strcmp(n,"br-iot"));return 0;}
+int wr_iot_request_initial_off_current(void){return 1;}
+int wr_iot_bss_is_down(void){return 1;}
+int wr_iot_dns_activation_recovery_state(void){return 0;}
+int wr_iot_driver_initial_idle_read(const unsigned char*n,struct wr_iot_idle_result*out){static unsigned serial;assert(n);*out=(struct wr_iot_idle_result){5,2,++serial};return 1;}
 #include "rc-cold-shutdown.inc"
 int main(void){
  struct wr_iot_cold_owner p={0};struct wr_iot_cold_handoff h={0};struct wr_iot_rc_quiesce off={0};struct wr_iot_driver_closed_result out;
@@ -46,10 +51,20 @@ int main(void){
  rebind.owner=getpid();assert(!wr_iot_rc_cold_shutdown_closed(&p,&h,&off,&out));rebind.owner=0;
  h.identity.adapter_epoch++;assert(!wr_iot_rc_cold_shutdown_closed(&p,&h,&off,&out));h.identity.adapter_epoch--;
  assert(wr_iot_rc_cold_shutdown_closed(&p,&h,&off,&out)&&!depth);
+ backend.phase=WR_IOT_OWNER_REJECTED;backend.start.phase=WR_IOT_RUN_REJECTED;
+ memset(&backend.stop,0,sizeof(backend.stop));memset(&backend.start.open,0,sizeof(backend.start.open));
+ assert(wr_iot_rc_cold_shutdown_rejected(&p,&h)&&!depth);
+ backend.start.admission.mutation_started=1;assert(!wr_iot_rc_cold_shutdown_rejected(&p,&h));backend.start.rollback.phase=WR_IOT_ROLL_DONE;
+ assert(wr_iot_rc_cold_shutdown_rejected(&p,&h));
+ backend.start.admission.snapshot.active=1;assert(!wr_iot_rc_cold_shutdown_rejected(&p,&h));backend.start.admission.snapshot.active=0;
+ backend.start.open.phase=WR_IOT_OPEN_RECOVERY;assert(!wr_iot_rc_cold_shutdown_rejected(&p,&h));
+ backend.start.open.phase=WR_IOT_OPEN_NOT_SUBMITTED;backend.start.open.owner=getpid();assert(wr_iot_rc_cold_shutdown_rejected(&p,&h));
+ backend.start.open.attempt.request_id[0]=1;assert(!wr_iot_rc_cold_shutdown_rejected(&p,&h));backend.start.open.attempt.request_id[0]=0;
+ backend.start.open.attempt.identity.adapter_epoch=5;assert(!wr_iot_rc_cold_shutdown_rejected(&p,&h));
 }
 '''
 with tempfile.TemporaryDirectory(prefix='wr-cold-stop-') as d:
  p=Path(d)/'check.c';p.write_text(body);b=Path(d)/'check'
  subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(here),str(p),'-o',str(b)],check=True)
  subprocess.run([str(b)],check=True,timeout=15)
-print('PASS exact cold post-handoff shutdown CLOSED: bound parent/ON/OFF identity, pending signal and complete no-resume OFF, stale/ACTIVE/rebind/credential refusal, zero output on failure; existing CLOSED observer actor')
+print('PASS cold post-handoff CLOSED and distinct pre-OPEN rejection: bound parent/ON/OFF identity, pending signal and complete no-resume OFF, stale/ACTIVE/rebind/credential refusal, zero output on failure; rollback done/snapshot gone/zero attempt metadata/new IDLE required; existing CLOSED observer actor')

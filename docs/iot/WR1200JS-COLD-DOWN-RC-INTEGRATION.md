@@ -254,3 +254,15 @@ refuse with zero output. The prior startup profile is not compared/restored afte
 normal OFF's owned profile change. Focused predicate fixture uses an existing
 CLOSED-observer actor; prepared backend compilation and nm symbol checks pass.
 No shutdown controller, pre-OPEN rejection alternative or cleanup is bound yet.
+
+## Distinct pre-OPEN rejection observer staged
+
+`wr_iot_rc_cold_shutdown_rejected` requires the same bound cold ON identity and
+completed initial backend REJECTED state under pending shutdown. If settings
+mutation started, rollback must be DONE with no active snapshot/token. OPEN must
+be IDLE or NOT_SUBMITTED with no identity/request nonce left, and no CLOSE/stop
+owner exists. Two fresh READY initial-IDLE responses, absent IoT bridge, temporary
+OFF gates and no DNS recovery confirm the never-opened state. This returns only
+a rejection proof; it never fabricates an OPEN token or CLOSE serial. Host
+predicate tests and prepared backend/symbol checks pass. Actual shutdown
+controller/cleanup composition and driver-level runtime evidence remain required.
