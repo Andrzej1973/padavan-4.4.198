@@ -8,6 +8,8 @@ static INT wr_iot_precreated_down_observed(PRTMP_ADAPTER ad,PNET_DEV dev,
  ULONG flags=0;int peers,exact;
  if(!ad||!dev||!generation)return -EINVAL;
  if(!rtnl_is_locked())return -EBUSY;
+ /* Failed allocation/unwind may not have initialized either lock. */
+ if(!READ_ONCE(ad->wr_iot_recovery_storage_live))return -EAGAIN;
  if(!IS_MT7603(ad)||ad->ApCfg.BssidNum!=3||
     ad->ApCfg.MBSSID[2].wdev.if_dev!=dev||ad->net_dev==dev||
     netif_running(dev)||netif_running(ad->net_dev))return -EAGAIN;

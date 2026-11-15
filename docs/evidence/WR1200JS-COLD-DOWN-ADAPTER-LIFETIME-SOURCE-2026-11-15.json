@@ -48,5 +48,21 @@
   "new_route_installed": false,
   "runtime_verified": false,
   "kernel_ioctl_source": "trunk/linux-4.4.x/net/core/dev_ioctl.c",
-  "kernel_private_ioctl_rtnl": "inspected dev_ioctl private command path: rtnl_lock spans dev_ifsioc; registration removal uses unregister_netdevice under netdev protection. Must still verify all transformed free/unwind paths before binding."
+  "kernel_private_ioctl_rtnl": "inspected dev_ioctl private command path: rtnl_lock spans dev_ifsioc; registration removal uses unregister_netdevice under netdev protection. Must still verify all transformed free/unwind paths before binding.",
+  "transformed_free_audit": {
+    "source": [
+      "prepare-raw-recovery-free-fence.py",
+      "raw-recovery-free-fence.inc",
+      "prepare-adapter-free-result.py",
+      "prepare-adapter-free-result-check.py"
+    ],
+    "findings": [
+      "raw free and controller exit run recovery fence before MCU sender release",
+      "live fence permanently retires radio then rejects registered refs/owners/work",
+      "cold storage path avoids recovery locks",
+      "free result propagated to PCI/SDIO caller guards",
+      "DOWN observer now refuses cold storage before locks"
+    ],
+    "remaining": "exact final candidate transformed removal/init output and all raw entry paths must be checked before new route binding"
+  }
 }

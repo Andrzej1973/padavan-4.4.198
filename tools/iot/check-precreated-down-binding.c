@@ -9,7 +9,7 @@ enum {WR_PEER_OPEN_IDLE=0};
 struct fake_adapter {
  int wr_iot_peer_delete_active;unsigned long wr_iot_peer_close_serial;
  struct {int phase,active_lease;} wr_iot_peer_open_owner;
- int chip,count;PNET_DEV net_dev;struct {int BssidNum;struct {struct {PNET_DEV if_dev;} wdev;} MBSSID[3];} ApCfg;
+ int chip,count;unsigned int wr_iot_recovery_storage_live;PNET_DEV net_dev;struct {int BssidNum;struct {struct {PNET_DEV if_dev;} wdev;} MBSSID[3];} ApCfg;
  int MacTabLock,wr_iot_transition_lock;
  struct wr_iot_peer_table_owner wr_iot_peer_table_owner;
  struct wr_iot_peer_close_executor wr_iot_peer_close_executor;
@@ -23,6 +23,7 @@ struct fake_adapter {
 typedef struct fake_adapter *PRTMP_ADAPTER;
 static int held,rtnl=1,running,locks,drift_peer;
 static struct fake_adapter *drift_adapter;
+#define READ_ONCE(value) (value)
 #define IS_MT7603(ad) ((ad)->chip)
 #define VIRTUAL_IF_NUM(ad) ((ad)->count)
 #define RTMP_IRQ_LOCK(lock,flags) do{(void)(lock);(void)(flags);assert(!held);held=1;locks++;if(drift_peer&&locks==2)drift_adapter->wr_iot_peer_table_owner.transactions=1;}while(0)
@@ -76,9 +77,12 @@ int main(void){
  executor.retained=1;assert(!wr_iot_precreated_down_peers_current(&table,&executor));executor.retained=0;
  executor.serial=1;assert(!wr_iot_precreated_down_peers_current(&table,&executor));executor.serial=0;
  assert(wr_iot_precreated_down_peers_current(&table,&executor));
- struct fake_adapter ad={0};ad.chip=1;ad.net_dev=&main_device;ad.ApCfg.BssidNum=3;ad.ApCfg.MBSSID[2].wdev.if_dev=&iot_device;
+ struct fake_adapter ad={0};ad.chip=1;ad.wr_iot_recovery_storage_live=1;ad.net_dev=&main_device;ad.ApCfg.BssidNum=3;ad.ApCfg.MBSSID[2].wdev.if_dev=&iot_device;
  ad.wr_iot_main_recovery=owner;ad.wr_iot_transition=radio;memcpy(ad.wr_iot_interface_refs,slots,sizeof(slots));ad.wr_iot_peer_table_owner=table;
  struct fake_adapter before=ad;
+ ad.wr_iot_recovery_storage_live=0;locks=0;
+ assert(wr_iot_precreated_down_observed(&ad,&iot_device,i->generation)==-EAGAIN&&!locks&&!held);
+ ad=before;
  assert(!wr_iot_precreated_down_observed(&ad,&iot_device,i->generation)&&!held&&!memcmp(&ad,&before,sizeof(ad)));
  rtnl=0;assert(wr_iot_precreated_down_observed(&ad,&iot_device,i->generation)==-EBUSY);rtnl=1;
  running=1;assert(wr_iot_precreated_down_observed(&ad,&iot_device,i->generation)==-EAGAIN);running=0;
