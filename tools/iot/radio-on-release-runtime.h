@@ -4,6 +4,8 @@
 #define WR_IOT_RADIO_ON_RELEASE_RUNTIME_H
 #include "radio-on-release.h"
 static struct wr_iot_on_restore *radio_on_releasing;
+static int (*radio_on_disabled_observer)(struct wr_iot_on_restore *,void *);
+static void *radio_on_disabled_context;
 static void rc_on_release_wipe(void *data,size_t length)
 {volatile unsigned char *p=data;while(length--)*p++=0;}
 static void rc_on_release_cleanup(void *context)
@@ -19,7 +21,7 @@ static void rc_on_release_cleanup(void *context)
  s->main.generation=NULL;s->guest.main=NULL;s->services.guest=NULL;
  s->multicast.main=NULL;s->multicast.guest=NULL;
  a->phase=WR_ON_ADMISSION_RELEASED;a->busy=0;
- wr_iot_rc_shutdown.radio_off_owned=0;s->phase=WR_ON_RESTORE_RELEASED;s->busy=0;radio_on_releasing=NULL;
+ wr_iot_rc_shutdown.radio_off_owned=0;s->phase=WR_ON_RESTORE_RELEASED;s->busy=0;radio_on_releasing=NULL;radio_on_disabled_observer=NULL;radio_on_disabled_context=NULL;
  wr_iot_service_guard_leave(a->guard);a->guard=0;
 }
 static int rc_on_release_capture_profile(struct wr_iot_on_restore *s)
@@ -54,6 +56,32 @@ int wr_iot_rc_radio_on_release(struct wr_iot_on_restore *s)
      memcmp(expected,current,sizeof(current))||!rc_on_release_capture_profile(s))return 0;
   radio_on_releasing=s;s->phase=WR_ON_RESTORE_RELEASING;
  }
+ s->busy=1;
+ if(!wr_iot_radio_stop_fence_end_cleanup(&a->fence,rc_on_release_cleanup,s)){s->busy=0;return 0;}
+ return s->phase==WR_ON_RESTORE_RELEASED;
+}
+
+/* Disabled branch stays PREPARED across unmask failures so every retry can
+ * revalidate the complete parent/idle proof without inventing ACTIVE. */
+int wr_iot_rc_radio_on_disabled_release(struct wr_iot_on_restore *s,
+ int (*observe)(struct wr_iot_on_restore *,void *),void *context)
+{
+ struct wr_iot_on_admission *a;unsigned char before[64],after[64];
+ if(!s||!observe||!context||s->owner!=getpid()||s->busy||
+    s->phase!=WR_ON_RESTORE_PREPARED||s->generation.desired.enabled!=0||
+    !s->generation.admission||!wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||
+    !radio_off_receipt_valid||!wr_iot_rc_shutdown.radio_off_owned||
+    (radio_on_releasing&&(radio_on_releasing!=s||radio_on_disabled_observer!=observe||
+     radio_on_disabled_context!=context)))return 0;
+ a=s->generation.admission;
+ if(a->owner!=getpid()||a->busy!=1||a->guard!=1||a->fence.owner!=getpid()||
+    a->fence.level!=1||a->phase!=WR_ON_ADMISSION_CAPTURED||
+    !wr_iot_physical_stop_request_encode(before,sizeof(before),&a->released)||
+    !wr_iot_physical_stop_request_encode(after,sizeof(after),&radio_off_receipt)||
+    memcmp(before,after,sizeof(before)))return 0;
+ if(!s->wan.owner&&!wr_iot_wan_followup_capture(&s->wan,1))return 0;
+ if(!observe(s,context)||!rc_on_release_capture_profile(s)||!observe(s,context))return 0;
+ radio_on_releasing=s;radio_on_disabled_observer=observe;radio_on_disabled_context=context;
  s->busy=1;
  if(!wr_iot_radio_stop_fence_end_cleanup(&a->fence,rc_on_release_cleanup,s)){s->busy=0;return 0;}
  return s->phase==WR_ON_RESTORE_RELEASED;

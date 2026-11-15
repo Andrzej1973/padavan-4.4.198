@@ -2,6 +2,7 @@
 #include <string.h>
 #include <unistd.h>
 #include "radio-on-disabled.h"
+#include "radio-on-release.h"
 #include "rc-shutdown-admission.h"
 #include "restart-guest-policy.h"
 #include "restart-guest-isolation.h"
@@ -63,4 +64,15 @@ int wr_iot_on_disabled_release_current(struct wr_iot_on_disabled *s)
     !wr_iot_rc_restart_wan_current(1,r->wan.plan)||
     !wr_iot_generated_matches(&p->files.generated[0],p->files.paths[0]))return 0;
  return wr_iot_on_disabled_current(s);
+}
+
+static int disabled_release_observe(struct wr_iot_on_restore *r,void *context)
+{
+ struct wr_iot_on_disabled *s=context;
+ return s&&s->restore==r&&wr_iot_on_disabled_release_current(s);
+}
+int wr_iot_on_disabled_release(struct wr_iot_on_disabled *s)
+{
+ if(!s||s->owner!=getpid()||s->busy||!s->restore)return 0;
+ return wr_iot_rc_radio_on_disabled_release(s->restore,disabled_release_observe,s);
 }

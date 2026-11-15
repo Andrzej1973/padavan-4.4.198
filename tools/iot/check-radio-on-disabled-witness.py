@@ -17,6 +17,7 @@ int wr_iot_initial_off_restarted_observed(const struct wr_iot_initial_off*s,cons
 static int auth_ok=1,wan_ok=1;
 int wr_iot_rc_restart_auth_process_current(const struct wr_iot_restart_service_policy*p){(void)p;return auth_ok;}
 int wr_iot_rc_restart_wan_current(int on,enum wr_iot_wan_followup plan){assert(on==1&&plan==WR_WAN_NONE);return wan_ok;}
+int wr_iot_rc_radio_on_disabled_release(struct wr_iot_on_restore*r,int(*f)(struct wr_iot_on_restore*,void*),void*c){(void)r;(void)f;(void)c;assert(0);return 0;}
 #include "radio-on-disabled.c"
 
 #include "radio-on-restore.h"
