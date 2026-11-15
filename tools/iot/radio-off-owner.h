@@ -10,5 +10,8 @@ int wr_iot_radio_off_begin(struct wr_iot_radio_off_owner *,const struct wr_iot_c
 /* Capture once under retained physical admission/guard, before terminal take. */
 int wr_iot_radio_off_prepare(struct wr_iot_radio_off_owner *,int);
 int wr_iot_radio_off_poll(struct wr_iot_radio_off_owner *);
+/* One nonblocking physical step; policy refusal holds AUX/Main progress.
+ * Pending normal shutdown may advance physical cleanup without SDK followup. */
+int wr_iot_radio_off_step(struct wr_iot_radio_off_owner *,int);
 int wr_iot_radio_off_take(struct wr_iot_radio_off_owner *);
 #endif

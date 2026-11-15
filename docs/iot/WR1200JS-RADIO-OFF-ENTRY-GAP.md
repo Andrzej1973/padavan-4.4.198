@@ -153,3 +153,13 @@ terminal consumption until owner acknowledgement. Actual controller/session/
 fence composition tests cover capture retry/cache/mismatch and no post-take
 read; SDK reads injected. Capture is not automatically invoked by RC yet.
 ABI43669741641 SUCCESS for7aae9e94 predates this prepare operation.
+
+Private OFF step now captures policy before physical progress, advances at most
+one actual controller step, then polls the exact result. Capture refusal blocks
+AUX/Main progress; pending shutdown can progress physical cleanup without new
+SDK effects. Exact read-only off_failed identity query permits already-refused
+preparation to clean up even when policy capture is unavailable. Actual
+composition covers a complete second transaction through this step API alone,
+cached terminal/no replay and entropy failure without policy. Focused owner,
+composition and exact take checks PASS. RC wait binding and SDK follow-up remain
+open; this step reports physical outcome only. Target symbols required.

@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include "radio-off-owner.h"
 #include "rc-physical-stop.h"
+#include "rc-shutdown-admission.h"
 int wr_iot_radio_off_begin(struct wr_iot_radio_off_owner *s,const struct wr_iot_control_request *off)
 {
  struct wr_iot_rc_physical_intent intent={0};int claimed;
@@ -36,6 +37,18 @@ int wr_iot_radio_off_poll(struct wr_iot_radio_off_owner *s)
  s->busy=1;result=wr_iot_rc_physical_take_off(s->id,s->created);
  if(result==1||result==-1)s->result=result;
  s->busy=0;return s->result;
+}
+int wr_iot_radio_off_step(struct wr_iot_radio_off_owner *s,int reload)
+{
+ if(!s||s->owner!=getpid()||s->busy||(reload!=0&&reload!=1))return 0;
+ if(s->result)return s->result;
+ if(s->policy_ready&&s->policy.reload!=reload)return 0;
+ if(!wr_iot_rc_shutdown.pending&&!wr_iot_rc_physical_off_failed(s->id,s->created)&&
+    !wr_iot_radio_off_prepare(s,reload))return 0;
+ s->busy=1;
+ if(wr_iot_rc_physical_pending())wr_iot_rc_physical_step();
+ s->busy=0;
+ return wr_iot_radio_off_poll(s);
 }
 int wr_iot_radio_off_take(struct wr_iot_radio_off_owner *s)
 {

@@ -36,6 +36,8 @@ int wr_iot_rc_physical_restart_ready(struct wr_iot_rc_physical_intent *);
 int wr_iot_rc_physical_take(struct wr_iot_rc_physical_intent *);
 /* Private non-restart OFF only: exact original envelope, one terminal take.
  * A matching envelope never authorizes reopen or substitutes for completion. */
+/* Exact read-only preparation/terminal failure query; no completion grant. */
+int wr_iot_rc_physical_off_failed(const char *,unsigned long long);
 int wr_iot_rc_physical_take_off(const char *,unsigned long long);
 struct wr_iot_restart_restore;
 /* Exact ACTIVE resume consumer; failed proof/mask restore retains ownership.

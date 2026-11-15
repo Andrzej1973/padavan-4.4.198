@@ -157,6 +157,14 @@ int wr_iot_rc_physical_take(struct wr_iot_rc_physical_intent *intent)
  memset(&physical,0,sizeof(physical));return result;
 }
 
+int wr_iot_rc_physical_off_failed(const char *id,unsigned long long created)
+{
+ return id&&strnlen(id,sizeof(physical.stop_id))==32&&created&&
+  physical.owner==getpid()&&!physical.intent.restart&&!physical.intent.radio_on&&
+  !physical.intent.reload&&physical.stop_created==created&&
+  !memcmp(physical.stop_id,id,sizeof(physical.stop_id))&&
+  (physical.finishing==-1||physical.result==-1);
+}
 int wr_iot_rc_physical_take_off(const char *id,unsigned long long created)
 {
  struct wr_iot_rc_physical_intent intent={0};
