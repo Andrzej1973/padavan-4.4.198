@@ -97,3 +97,18 @@ begin/poll/take and exact physical take symbols. Actual transformed source
 compiles under strict host C11 (-Werror); POSIX declarations explicitly enabled.
 Prepared-source, OFF actor and actual composition checks PASS. No RC wait
 activation or SDK OFF follow-up is implied; target results still required.
+
+## OFF authentication and stored radio policy
+
+Pinned SDK start_8021x_rt returns when get_enabled_radio_rt()==0 on this
+non-RT3352 board. It otherwise may launch rtinicapd based on auth mode before
+checking find_wlan_if_up. Therefore radio_on argument alone is insufficient
+to omit authentication: stored radio policy must be captured and validated.
+mlme_state_rt writes nvram_set_int("mlme_radio_rt",is_on); it does not commit
+NVRAM. Preserve that state update separately from stored rt_radio_x and from
+profile generation. Do not call a combined AP starter merely to obtain this
+state write after physical RELEASE. Existing WAN planner already supports
+radio_on=0 and suppresses reconnect while retaining MAN/WISP mismatch restart.
+
+Runtime-source manifest now distinguishes radio_off_consumer_linked=true from
+radio_off_entry_bound=false; source/preparation verifiers enforce both.
