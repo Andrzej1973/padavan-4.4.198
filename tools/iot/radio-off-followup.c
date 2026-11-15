@@ -121,3 +121,25 @@ enum wr_iot_off_followup_phase wr_iot_off_followup_step(struct wr_iot_off_follow
 #endif
  s->busy=0;return s->phase;
 }
+
+int wr_iot_off_followup_final_current(const struct wr_iot_off_followup *s)
+{
+ const struct wr_iot_radio_profile_state *p;unsigned slot;
+ if(!s||s->owner!=getpid()||s->busy||s->phase!=WR_OFF_FOLLOWUP_FINAL_PENDING||
+    !followup_current(s)||s->bridge_slot!=7||s->bridge_verify!=7||s->postwan_slot!=7||
+    !s->state_attempted||!s->auth_attempted||!s->wan.attempted||!s->wan.returned||
+    s->wan.busy||s->wan.owner!=getpid()||s->iapp.owner!=getpid()||s->iapp.busy||
+    s->iapp.result!=1||s->iapp.guard||s->iapp.child||s->iapp.fence.owner||s->iapp.fence.level||
+    !wr_iot_iapp_child_closed(&s->child)||s->child.result!=1||
+    s->profile.owner!=getpid()||s->profile.busy||s->profile.phase!=WR_OFF_PROFILE_VERIFIED)return 0;
+ p=&s->profile.baseline;
+ if(!wr_iot_radio_profile_guard()||p->owner!=getpid()||!p->active||p->recovering||
+    p->recovered||p->removing||p->files.count!=1||p->files.pending||p->files.restored||
+    (s->policy.reload&&(!p->generated||!p->files.sealed))||
+    (!s->policy.reload&&(p->generated||p->files.journalled))||
+    !wr_iot_generated_matches(&p->files.generated[0],p->files.paths[0])||
+    !wr_iot_radio_off_observed(&s->released)||!wr_iot_rc_off_profile_current())return 0;
+ for(slot=0;slot<7;slot++)if(!wr_iot_radio_off_bridge_observed(&s->released,slot))return 0;
+ return followup_current(s)&&wr_iot_radio_off_observed(&s->released)&&
+  wr_iot_generated_matches(&p->files.generated[0],p->files.paths[0])&&wr_iot_radio_profile_guard();
+}

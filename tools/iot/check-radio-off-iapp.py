@@ -16,7 +16,7 @@ int wr_iot_terminal_iapp_begin(struct wr_iot_terminal_iapp*s,struct wr_iot_iapp_
 }
 int wr_iot_terminal_iapp_step(struct wr_iot_terminal_iapp*s){
  assert(s->owner==getpid()&&wr_iot_rc_shutdown.active);iapp_steps++;
- if(iapp_result){s->child=0;wr_iot_rc_shutdown.active=0;}
+ if(iapp_result){s->child->owner=getpid();s->child->attempted=1;s->child->fd=-1;s->child->result=iapp_result;s->result=iapp_result;s->child=0;wr_iot_rc_shutdown.active=0;}
  return iapp_result;
 }
 ''')
@@ -37,6 +37,15 @@ int main(int argc,char**argv){
   assert(wr_iot_off_followup_step(&s)==(failure?WR_OFF_FOLLOWUP_RETAINED:WR_OFF_FOLLOWUP_FINAL_PENDING));
   assert(iapp_begins==1&&iapp_steps==2&&s.profile.baseline.active&&wr_iot_rc_shutdown.radio_off_owned);
   wr_iot_rc_shutdown.pending=0;
+  if(!failure){
+   assert(wr_iot_service_guard_enter(1)==1);
+   assert(wr_iot_off_followup_final_current(&s));
+   s.child.fd=9;assert(!wr_iot_off_followup_final_current(&s));s.child.fd=-1;
+   s.profile.baseline.files.pending=1;assert(!wr_iot_off_followup_final_current(&s));s.profile.baseline.files.pending=0;
+   observed=0;assert(!wr_iot_off_followup_final_current(&s));observed=1;
+   assert(wr_iot_off_followup_final_current(&s)&&s.profile.baseline.active&&wr_iot_rc_shutdown.radio_off_owned);
+   wr_iot_service_guard_leave(1);
+  }
   for(int i=0;i<3;i++)(void)wr_iot_off_followup_step(&s);
   assert(iapp_begins==1&&iapp_steps==2&&generator_calls==1&&!wan_calls);
   wr_iot_bundle_release(&s.profile.baseline.files);assert(!unlink(profile_path));

@@ -412,3 +412,14 @@ owned. Default/unpaired gate0 remains IAPP_PENDING. Order/pending/failure tests
 PASS with terminal actor plus existing real terminal/fence fixture; prepared
 C11 compile PASS. ABI now compiles paired enabled OFF followup as well as inert
 default. No script/daemon readiness or final OFF acceptance is implied.
+
+Read-only final_current preflight requires exact retained policy/RELEASE,
+completed profile/RAM/bridge/auth/WAN phases, closed successful IAPP child and
+no terminal fence/guard/child pointer, verified profile journal with unchanged
+current file, fresh physical DOWN and seven detached interface observations
+under caller-owned service guard. Pending journal/live child/DOWN failure
+fixtures refuse; successful preflight retains baseline and public exclusion.
+This is not readiness of WAN/auth/IAPP daemon and does not release resources.
+Signal-fenced final cleanup and RC retirement/deferred dispatch are still
+required before enabling public OFF. Host enabled-gate test PASS; full target
+link requires preflight symbol. No target/device claim for this addition.

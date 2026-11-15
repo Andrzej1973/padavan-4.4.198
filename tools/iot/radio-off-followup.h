@@ -9,5 +9,7 @@ enum wr_iot_off_followup_phase {WR_OFF_FOLLOWUP_IDLE,WR_OFF_FOLLOWUP_PROFILE_BEG
 struct wr_iot_off_followup {pid_t owner;int busy,state_attempted,auth_attempted;unsigned bridge_slot,bridge_verify,postwan_slot;const struct wr_iot_radio_off_owner *off;enum wr_iot_off_followup_phase phase;struct wr_iot_radio_off_policy policy;struct wr_iot_physical_stop_request released;struct wr_iot_off_profile profile;struct wr_iot_off_wan wan;struct wr_iot_iapp_child child;struct wr_iot_terminal_iapp iapp;};
 int wr_iot_off_followup_begin(struct wr_iot_off_followup *,const struct wr_iot_radio_off_owner *);
 /* Advances one phase, returns current phase; never acknowledges/clears OFF. */
+/* Read-only final preflight under caller-owned guard. Does not retire baseline. */
+int wr_iot_off_followup_final_current(const struct wr_iot_off_followup *);
 enum wr_iot_off_followup_phase wr_iot_off_followup_step(struct wr_iot_off_followup *);
 #endif
