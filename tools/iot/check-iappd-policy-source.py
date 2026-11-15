@@ -21,7 +21,7 @@ with tempfile.TemporaryDirectory(prefix='wr-iapp-policy-source-') as d:
  assert subprocess.run(cmd,capture_output=True).returncode and before==(fw.read_bytes(),sh.read_bytes())
  gate.write_text('#define WR_IOT_IAPP_POLICY_PREPARED 0\n')
  subprocess.run(cmd,check=True)
- report=json.loads((root/'iot-iapp-policy-source.json').read_text());assert not report['iapp_root_launch_bound']
+ report=json.loads((root/'iot-iapp-policy-source.json').read_text());assert report['iapp_root_launch_bound']
  assert fw.read_text().count('WR_IAPP_BUILDER_RULES')==2 and 'iptables -A' not in sh.read_text()
  assert sh.stat().st_mode&0o777==0o755
  subprocess.run(['python3','-B',str(here/'check-iappd-policy-manifest.py'),str(root)],check=True)

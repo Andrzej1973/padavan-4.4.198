@@ -20,11 +20,11 @@ pair=runpy.run_path(str(here/'prepare-iappd-policy-pair.py'))['prepare_pair']
 new_fw,new_sh=pair(old_fw.decode(),old_sh.decode())
 # Syntax-check generated script without executing daemon/firewall commands.
 subprocess.run(['sh','-n'],input=new_sh.encode(),check=True)
-meta={'board':'WR1200JS','production_ready':False,'iapp_root_launch_bound':False,'iapp_compile_gate_enabled':True,
+meta={'board':'WR1200JS','production_ready':False,'iapp_root_launch_bound':True,'iapp_compile_gate_enabled':True,
  'firewall_policy_builder_bound':True,'script_firewall_mutation_removed':True,
  'inputs_sha256':{'firewall':hashlib.sha256(old_fw).hexdigest(),'script':hashlib.sha256(old_sh).hexdigest()},
  'outputs_sha256':{'firewall':hashlib.sha256(new_fw.encode()).hexdigest(),'script':hashlib.sha256(new_sh.encode()).hexdigest()}}
 # Any filesystem failure invalidates this entire candidate tree; no release
 # consumer may accept it without this final manifest and matching output hashes.
 fw.write_text(new_fw);script.write_text(new_sh);gate.write_text("#define WR_IOT_IAPP_POLICY_PREPARED 1\n");report.write_text(json.dumps(meta,indent=2)+'\n')
-print('PASS experimental paired IAPP policy staged; root launch/target/runtime remain unverified')
+print('PASS experimental paired IAPP policy staged; guarded root launch enabled in candidate; target/runtime remain unverified')

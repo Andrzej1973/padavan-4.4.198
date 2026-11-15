@@ -403,3 +403,18 @@ both source transformations. Manifest verification requires the enabled gate
 as well as source hashes. Unexpected/already-enabled gate refuses before source
 writes. Host installer and native preparation pass. Root does not yet consume
 this gate; launch remains unbound until the guarded root branch is implemented.
+
+
+## Guarded root IAPP launch implemented
+
+Root consumes PREPARED policy gate: after Guest/multicast/services, it marks one
+IAPP launch attempt before calling begin, then waits for successful receipt
+before PREPARED/handoff. Admission failure cannot replay launch; existing service
+phase remains cancellable. Existing receipt draining precedes pending shutdown;
+unknown completion blocks cleanup. Default/local gate0 skips launch. Paired
+candidate gate1 enables it and manifest records that binding. Host gated-root
+fixture covers pending, success, failed command and failed admission with actors;
+default restore and prehandoff checks pass separately. Native preparation passes.
+ABI now explicitly compiles the gate1 prepared restore with MIPS compiler after
+policy installation. New MIPS/image/runtime results are pending, and main firmware
+workflow still needs paired preparation before claiming IAPP installed there.

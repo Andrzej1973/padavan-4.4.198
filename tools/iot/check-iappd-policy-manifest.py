@@ -6,7 +6,7 @@ p=argparse.ArgumentParser();p.add_argument('source',type=Path);a=p.parse_args()
 m=json.loads((a.source/'iot-iapp-policy-source.json').read_text())
 assert m['iapp_compile_gate_enabled']
 assert (a.source/'trunk/user/rc/wr-iot/restart-iapp-policy.h').read_text()=='#define WR_IOT_IAPP_POLICY_PREPARED 1\n'
-assert m['board']=='WR1200JS' and not m['production_ready'] and not m['iapp_root_launch_bound']
+assert m['board']=='WR1200JS' and not m['production_ready'] and m['iapp_root_launch_bound']
 fw=(a.source/'trunk/user/rc/firewall_ex.c').read_bytes();sh=(a.source/'trunk/user/ralinkiappd/iappd.sh').read_bytes()
 assert hashlib.sha256(fw).hexdigest()==m['outputs_sha256']['firewall']
 assert hashlib.sha256(sh).hexdigest()==m['outputs_sha256']['script']
