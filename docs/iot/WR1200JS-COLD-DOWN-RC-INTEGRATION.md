@@ -14,6 +14,16 @@ repeats this observation and compares all three fields with a captured baseline.
 Neither function changes driver state, generates a ticket or grants a future
 reopen lease. The caller must retain its exclusion and object lifetime contract.
 
+## Private cold admission implemented
+
+`cold-on-admission.c` now captures a distinct typed DOWN baseline and the actual
+read-only radio profile under the existing service guard and signal fence.
+Historical RELEASE excludes this path. Repeated current checks surround profile
+capture. A claimed refusal retains the fence/context until explicit cancellation;
+cancellation frees capture only, preserves foreign file changes and runs before
+pending shutdown replay. Failed signal-mask restoration retains ownership.
+The component is staged for compilation but is not routed from public RC entry.
+
 ## Required integration, still incomplete
 
 1. `radio-on-admission.c` currently requires `wr_iot_rc_radio_off_receipt` and
