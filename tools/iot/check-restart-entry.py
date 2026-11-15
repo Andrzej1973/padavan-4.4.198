@@ -22,6 +22,7 @@ int wr_iot_rc_physical_begin_quiesce(const struct wr_iot_rc_physical_intent*i,co
 int wr_iot_rc_radio_off_receipt(struct wr_iot_physical_stop_request*r){(void)r;assert(0);return 0;}
 int wr_iot_rc_radio_on_saved_request(struct wr_iot_request*r){(void)r;assert(0);return 0;}
 int wr_iot_rc_radio_on_begin(const struct wr_iot_control_request*r,int reload){(void)r;(void)reload;assert(0);return 0;}
+int wr_iot_rc_radio_off_begin(const struct wr_iot_control_request*r,int reload){(void)r;(void)reload;assert(0);return 0;}
 #include "restart-entry.c"
 int main(void){
  wr_iot_rc_shutdown.radio_on_owned=1;assert(!wr_iot_restart_entry(1,1)&&!reads&&!calls&&!held);wr_iot_rc_shutdown.radio_on_owned=0;

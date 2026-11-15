@@ -65,3 +65,31 @@ enum wr_iot_radio_entry_result wr_iot_radio_on_entry(int radio_on,int reload)
     wr_iot_rc_radio_on_begin(&request,reload))result=WR_RADIO_ENTRY_OWNED;
  entry_wipe(bytes,sizeof(bytes));entry_wipe(&request,sizeof(request));return result;
 }
+
+enum wr_iot_radio_entry_result wr_iot_radio_off_entry(int radio_on,int reload)
+{
+ struct wr_iot_control_request request={0};struct wr_iot_physical_stop_request receipt={0};
+ struct wr_iot_rc_mode a={0},b={0};struct timespec now;
+ unsigned char bytes[32]={0};unsigned i,nonzero=0;int guard,valid=0;
+ enum wr_iot_radio_entry_result result=WR_RADIO_ENTRY_REFUSED;
+ static const char hex[]="0123456789abcdef";
+ if(radio_on!=0)return WR_RADIO_ENTRY_NATIVE;
+ if((reload!=0&&reload!=1)||wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||
+    wr_iot_rc_shutdown.radio_on_owned||wr_iot_rc_shutdown.radio_off_owned)return result;
+ /* An existing receipt is preserved, never replaced by a second OFF. */
+ if(wr_iot_rc_radio_off_receipt(&receipt))return result;
+ if(!wr_iot_rc_restart_owned())return WR_RADIO_ENTRY_NATIVE;
+ guard=wr_iot_service_guard_enter(1);if(guard!=1)return result;
+ if(wr_iot_rc_mode_read(&a)&&a.router==1&&a.mode==0&&
+    clock_gettime(CLOCK_MONOTONIC,&now)==0&&now.tv_sec>0&&
+    wr_iot_precreated_entropy(NULL,bytes,sizeof(bytes))==(int)sizeof(bytes)&&
+    wr_iot_rc_mode_read(&b)&&a.router==b.router&&a.radio==b.radio&&a.mode==b.mode&&
+    wr_iot_rc_restart_owned()){
+  for(i=0;i<16;i++){nonzero|=bytes[i];request.id[2*i]=hex[bytes[i]>>4];request.id[2*i+1]=hex[bytes[i]&15];}
+  request.created=(unsigned long long)now.tv_sec;valid=nonzero!=0;
+ }
+ wr_iot_service_guard_leave(guard);
+ if(valid&&!wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.pending&&
+    wr_iot_rc_radio_off_begin(&request,reload))result=WR_RADIO_ENTRY_OWNED;
+ entry_wipe(bytes,sizeof(bytes));entry_wipe(&request,sizeof(request));return result;
+}
