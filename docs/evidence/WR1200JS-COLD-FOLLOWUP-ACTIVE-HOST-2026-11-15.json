@@ -1,0 +1,27 @@
+{
+  "scope": "uncomposed private post-release ACTIVE/profile observer and WAN followup gate",
+  "checks": {
+    "actual_parent_cleanup_binding_profile_and_fence_host_asan_ubsan": "PASS",
+    "exact_backend_envelope_driver_identity_full_observer": "PASS",
+    "profile_drift_false_ACTIVE_pending_refuse": "PASS",
+    "fresh_service_guard_balanced_without_parent_pointer": "PASS",
+    "existing_WAN_NONE_plan_one_attempt_returned_no_service_submission": "PASS"
+  },
+  "actors": [
+    "backend initial runner/full ACTIVE transport",
+    "SDK parent and WAN policy"
+  ],
+  "sha256": {
+    "tools/iot/rc-cold-followup.inc": "5da4eaa7a47b43b19ac5817c6b6d8f926b9fae1a06e5639c41d2ad8193d12c21",
+    "tools/iot/check-rc-cold-followup.py": "1a1db20f2f8114d4620ba799d5f8a21c1c00276c784cd6468f4145b815d64c6c"
+  },
+  "remaining": [
+    "non-NONE WAN submission fixture",
+    "Guest/service/multicast followup policy receipt",
+    "LED/IAPP and final owner retirement",
+    "runtime composition and post-UP shutdown"
+  ],
+  "runtime_composed": false,
+  "target_verified": false,
+  "device_verified": false
+}
