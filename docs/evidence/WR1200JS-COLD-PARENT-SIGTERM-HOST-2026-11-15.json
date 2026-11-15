@@ -1,0 +1,18 @@
+{
+  "scope": "real SIGTERM during private cold parent release callback",
+  "result": "PASS GCC Werror ASan UBSan",
+  "checks": [
+    "queued SIGTERM blocked by real fence",
+    "failed unmask retains resources and signal",
+    "successful cleanup precedes replay",
+    "handler sees no parent binding or credentials or guard",
+    "ACTIVE backend preserved",
+    "no WAN submitted"
+  ],
+  "sha256": {
+    "tools/iot/check-rc-cold-release-signal.py": "4667ef90ad16f9d76d9c00d4b09c6cecb1a119a4ae10f3a347c4059f887d53a1"
+  },
+  "runtime_composed": false,
+  "target_verified": false,
+  "device_verified": false
+}
