@@ -18,6 +18,12 @@ for marker in ('static struct wr_iot_activation_owner backend;','static struct w
  if backend.count(marker)!=1:raise SystemExit('Exact runtime backend owners required')
 signature='void\nrestart_wifi_rt(int radio_on, int need_reload_conf)\n{'
 if net.count(signature)!=1 or 'WR_IOT_PRIVATE_RESTART_ENTRY' in net or 'wr_iot_rc_restart_owned' in backend:raise SystemExit('Restart source anchor changed')
+fence='if(!wr_iot_radio_stop_fence_begin(&wr_iot_fence)){wr_iot_last_stop_result=0;return;}'
+opening=net.index(signature)+len(signature)-1
+finish=opening+1;depth=1
+while depth and finish<len(net):
+ depth+=(net[finish]=='{')-(net[finish]=='}');finish+=1
+if depth or net[opening:finish].count(fence)!=1:raise SystemExit('Prepared legacy restart fence required')
 anchor='wr-iot-restart-scheduler.o'
 if make.count(anchor)!=1:raise SystemExit('Runtime scheduler object required')
 header=rc/'wr-iot/restart-entry.h';unit=rc/'wr-iot-restart-entry.c'

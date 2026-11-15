@@ -585,3 +585,8 @@ ABI runs cover the private entry adapter and transformed-source refusal tests.
 Both newly registered checks passed locally; the previously completed full
 suite did not include them. No firmware or device acceptance is implied.
 TemporaryDirectory fixtures were removed by the checks; no scratch retained.
+
+The entry installer now requires the exact prepared legacy fence inside the
+restart function before mutation. The manifest checker requires its presence
+and hook ordering. A missing-fence fixture refuses installation; both entry
+checks pass. This preserves the fallback admission requirement at source level.
