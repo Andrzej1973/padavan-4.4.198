@@ -483,3 +483,20 @@ saved-entry/root and prepared-hook-before-legacy regressions pass. Selection and
 root tests are not a physical first-boot acceptance test; full SDK/MIPS/image and
 device checks remain required. This binds the paired experimental entry only;
 it does not promote the candidate to production firmware or change ACK safety.
+
+## Pending signal inside terminal child completion
+
+Cold ON and disabled terminal owners opt into `defer_pending_shutdown`. The
+terminal step re-reads queued normal signals after the child continuation and
+before ordinary fence release. A signal raised inside child_step after the
+root's earlier signal observation now marks the same terminal shutdown-held;
+it does not release its guard or replay the signal before backend OFF handling.
+The ordinary non-opted IAPP path retains its original completion behavior.
+
+The actual fence fixture injects real SIGTERM from child_step, verifies no early
+signal delivery and retained guard/fence, then uses the checked shutdown finish.
+Normal terminal and both cold terminal regressions remain separate checks. This
+proves the injected interleaving only: it does not establish atomicity against
+signals arriving after the final check/unmask, nor prove general post-ACTIVE
+router shutdown or physical PCI/DMA/IRQ retirement. Those boundaries remain
+required before runtime acceptance; no stale-ACK or TX queue logic is changed.

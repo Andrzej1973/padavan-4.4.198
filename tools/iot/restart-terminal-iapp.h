@@ -3,7 +3,7 @@
 #include "restart-iapp-child.h"
 #include "radio-stop-fence.h"
 struct wr_iot_terminal_iapp {
- pid_t owner;int busy,guard,attempted,result,shutdown_held;
+ pid_t owner;int busy,guard,attempted,result,shutdown_held,defer_pending_shutdown;
  struct wr_iot_radio_stop_fence fence;
  struct wr_iot_iapp_child *child;
 };

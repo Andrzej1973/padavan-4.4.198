@@ -1,0 +1,36 @@
+{
+  "base_revision": "3067f279e326694f6d8c01ef57cba8d35bd9a19e",
+  "checks": [
+    {
+      "command": "python3 -B tools/iot/check-terminal-iapp-shutdown.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -B tools/iot/check-terminal-iapp.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -B tools/iot/check-rc-cold-terminal.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -B tools/iot/check-rc-cold-disabled-terminal.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -B tools/iot/check-physical-stop-client-preparation.py",
+      "result": "PASS"
+    }
+  ],
+  "scope": "Actual terminal/fence, SIGTERM injected during child-step after earlier root check; guard/fence retained for owned shutdown finish. Child and parent readiness actors.",
+  "sha256": {
+    "restart-terminal-iapp.c": "31948e4df9df8aaf8d10a9783b70603c73f34dde621c06fb985530be03f88fc7",
+    "restart-terminal-iapp.h": "1edd6fefdabbe9a58c4511bbd4ddedf91b498eb1f053db2e7d5aa7f7540a875a",
+    "rc-cold-terminal.inc": "b2b9c718f679c32a567413d1e8ffed3d21eae80dc537344a18ad900c2515a1e2",
+    "rc-cold-disabled-terminal.inc": "d02d0ef1a5572742ec6ced9cf820ccb195d7fc7e1037348c98c4c23e534d8ac2",
+    "check-terminal-iapp-shutdown.py": "c0951376d4102271b3e7c10aafe81b721c0c0cd14e6d19818f20dabe17bca5e8"
+  },
+  "all_signal_interleavings_proven": false,
+  "post_active_router_shutdown_verified": false,
+  "physical_runtime_verified": false
+}

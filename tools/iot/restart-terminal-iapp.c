@@ -44,6 +44,17 @@ int wr_iot_terminal_iapp_step(struct wr_iot_terminal_iapp*s)
   result=s->child->result==1?1:-1;
  }
  s->result=result;
+ /* Cold-root owners must finish backend OFF before replaying shutdown. A
+  * signal can become pending inside child_step after the root's earlier
+  * signal observation; keep the same child/fence instead of releasing here. */
+ if(s->defer_pending_shutdown){
+  if(sigpending(&queued)){s->busy=0;return 0;}
+  if(sigismember(&queued,SIGTERM)==1)(void)wr_iot_rc_shutdown_note(SIGTERM);
+#ifdef SIGQUIT
+  else if(sigismember(&queued,SIGQUIT)==1)(void)wr_iot_rc_shutdown_note(SIGQUIT);
+#endif
+  if(wr_iot_rc_shutdown.pending){s->shutdown_held=1;s->busy=0;return 0;}
+ }
  if(!wr_iot_radio_stop_fence_end_cleanup(&s->fence,terminal_cleanup,s)){
   s->busy=0;return 0;
  }

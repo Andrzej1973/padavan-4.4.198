@@ -40,7 +40,9 @@ static int wr_iot_cold_disabled_terminal_step(struct wr_iot_cold_disabled_termin
  }
 #if WR_IOT_IAPP_POLICY_PREPARED
  if(s->phase==WR_COLD_DISABLED_TERM_IAPP_PENDING&&s->led_returned&&!s->terminal.owner&&
-    wr_iot_terminal_iapp_begin(&s->terminal,&s->child))s->phase=WR_COLD_DISABLED_TERM_IAPP;
+    wr_iot_terminal_iapp_begin(&s->terminal,&s->child)){
+  s->terminal.defer_pending_shutdown=1;s->phase=WR_COLD_DISABLED_TERM_IAPP;
+ }
 #endif
  done:s->busy=0;return result;
 }
