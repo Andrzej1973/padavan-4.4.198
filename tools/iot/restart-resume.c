@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include "restart-resume.h"
 #include "control-channel.h"
+#include "rc-backend.h"
 #include "restart-iapp-policy.h"
 #include "rc-shutdown-admission.h"
 static void envelope_wipe(void *data,size_t size)
@@ -90,7 +91,14 @@ int wr_iot_restart_resume_step(struct wr_iot_restart_resume*s)
   break;
 #if WR_IOT_IAPP_POLICY_PREPARED
  case WR_RESUME_WAN:
-  if(wr_iot_wan_followup_step(&s->wan)){s->phase=WR_RESUME_DONE;done=1;}
+  if(wr_iot_wan_followup_step(&s->wan)){
+   struct wr_iot_control_result observed={0};
+   for(i=0;i<16;i++){observed.id[2*i]=hex[s->restore.open_id[i]>>4];observed.id[2*i+1]=hex[s->restore.open_id[i]&15];}
+   observed.created=s->created;observed.state=WR_IOT_RESULT_APPLIED;
+   /* Fresh backend proof covers owned bridge/subnet/services/filter and the
+    * exact current OPEN token after WAN's route/VLAN/firewall side effects. */
+   if(wr_iot_rc_backend_observed(&observed)){s->phase=WR_RESUME_DONE;done=1;}
+  }
   break;
 #endif
  default:break;

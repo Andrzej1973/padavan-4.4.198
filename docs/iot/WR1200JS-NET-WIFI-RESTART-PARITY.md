@@ -489,3 +489,17 @@ follow-up before claiming final network readiness. Current DONE only denotes SDK
 return. Stock order WAN->LED->IAPP also differs from pre-cleanup IAPP candidate;
 terminal ordering remains an open parity gate. Do not enable stock net_wifi hook
 or declare stable network completion without resolving these dependencies.
+
+
+## Post-WAN IoT observation now gates DONE
+
+Resume no longer treats WAN return alone as DONE. It reconstructs its exact ON
+id/creation result and invokes the retained RC backend ACTIVE observer. The real
+rebind observer checks owned snapshot/staging, subnet/bridge address, DHCP/DNS,
+current active firewall and exact OPEN token, under its own service guard. It is
+usable after outer admission release. Failed observation retains WR_RESUME_WAN;
+subsequent steps re-observe without another WAN dispatch/take. Host actual pump/
+WAN fixture verifies refusal then later success with observer injected; native
+preparation passes. This is host/source integration, not evidence of successful
+physical WAN/IoT recovery. Automatic repair of a persistent post-WAN mismatch and
+stock WAN/LED/IAPP ordering remain unresolved integration requirements.
