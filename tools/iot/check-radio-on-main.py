@@ -15,6 +15,10 @@ int wr_iot_rebind_configuration_current(const struct wr_iot_physical_stop_reques
  memset(out,0,sizeof(*out));out->adapter_epoch=identity_fault==1?1:identity_fault==3?3:2;
  out->device_generation=identity_fault==2?3:2;return identity_fault!=4;
 }
+#include "restart-main-bridge.h"
+static int attaches,membership;
+enum wr_iot_main_bridge_result wr_iot_restart_main_bridge_attach(void){attaches++;return WR_MAIN_BRIDGE_UNCERTAIN;}
+int wr_iot_restart_main_bridge_current(void){return membership;}
 #include "radio-on-main.c"
 int main(int argc,char**argv){
  (void)check;assert(argc==2);snprintf(profile_path,sizeof(profile_path),"%s/profile",argv[1]);
@@ -37,6 +41,14 @@ int main(int argc,char**argv){
    assert(wr_iot_on_main_step(&m)&&ups==1);
    receipt.attempt++;assert(!wr_iot_on_main_step(&m));receipt.attempt--;
   }else assert(!wr_iot_on_main_step(&m));
+  if(outcome<2){
+   attaches=membership=0;identity_fault=4;
+   assert(!wr_iot_on_main_lan_step(&m)&&!attaches);identity_fault=0;
+   assert(!wr_iot_on_main_lan_step(&m)&&attaches==1&&m.bridge_attempted);
+   assert(!wr_iot_on_main_lan_step(&m)&&attaches==1);
+   membership=1;assert(wr_iot_on_main_lan_step(&m)&&attaches==1);
+   membership=0;assert(!wr_iot_on_main_lan_step(&m)&&attaches==1);
+  }
   assert(ups==1&&generator_calls==1&&a.profile.active&&a.busy);
   /* Fixture teardown only; no post-UP retirement API is implemented here. */
   wr_iot_bundle_release(&a.profile.files);memset(&a.profile,0,sizeof(a.profile));a.busy=0;

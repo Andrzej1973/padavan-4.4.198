@@ -2,6 +2,7 @@
 #include <string.h>
 #include <unistd.h>
 #include "radio-on-main.h"
+#include "restart-main-bridge.h"
 #include "rc-shutdown-admission.h"
 int wr_iot_on_main_begin(struct wr_iot_on_main *s,struct wr_iot_on_generation *g,const unsigned char *id)
 {
@@ -38,4 +39,17 @@ int wr_iot_on_main_step(struct wr_iot_on_main *s)
   s->identity=current;s->phase=WR_ON_MAIN_READY;ok=1;
  }
  s->busy=0;return ok;
+}
+
+int wr_iot_on_main_lan_step(struct wr_iot_on_main *s)
+{
+ int ok;
+ if(!s||!wr_iot_on_main_step(s))return 0;
+ s->busy=1;
+ if(!s->bridge_attempted){
+  s->bridge_attempted=1;
+  (void)wr_iot_restart_main_bridge_attach();
+ }
+ ok=wr_iot_restart_main_bridge_current();s->busy=0;
+ return ok&&wr_iot_on_main_step(s);
 }
