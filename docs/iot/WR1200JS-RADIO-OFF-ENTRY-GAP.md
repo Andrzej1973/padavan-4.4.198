@@ -23,3 +23,23 @@ for required LED/auth/IAPP/WAN behavior before selecting those side effects.
 
 The current full host suite remains separate evidence. Its success cannot
 prove this not-yet-bound OFF entry. The radio_on=0 refusal remains in place.
+
+## Pinned SDK OFF behavior confirmed
+
+Inspected trunk/user/rc/net_wifi.c directly in the retained exact c25283e
+archive without extraction. restart_wifi_rt(0,reload) calls stop_8021x_rt,
+stop_wifi_all_rt; reload additionally generates the profile and sets temporary
+reload_svc_rt=1. start_wifi_ap_rt(0) detaches Main/Guest from br0 and calls
+mlme_state_rt(0). start_wifi_wds_rt(0) detaches all four WDS interfaces;
+start_wifi_apcli_rt(0) detaches APCLI. No interface-UP branch is selected.
+The subsequent auth starter, Guest isolation and IAPP restart remain calls
+whose OFF-specific behavior must be traced before replacing them.
+
+check_apcli_wan(0,0) skips AP mode; in router mode it still invokes
+full_restart_wan when MAN and configured WISP bands differ. It does not
+invoke try_wan_reconnect for radio OFF. Therefore physical descriptor drain
+alone does not preserve the SDK OFF network/configuration semantics.
+
+ABI43667886374 completed success for6c786921. Local full-suite session62243
+and its log disappeared before terminal observation: local full result is
+UNVERIFIED, not PASS. Do not infer its exit status from absence.
