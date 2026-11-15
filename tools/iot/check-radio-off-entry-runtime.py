@@ -11,6 +11,7 @@ code=code.replace('off_transport=physical_pending=1;', 'assert(!entry_guard);off
 code=code.replace('&&t==7','&&t>0')
 actors=r'''
 #include "restart-entry.c"
+enum wr_iot_radio_entry_result wr_iot_cold_on_entry(int on,int reload){(void)on;(void)reload;assert(0);return WR_RADIO_ENTRY_REFUSED;}
 static int off_entry_entropy(void*b,unsigned n,unsigned flags){assert(entry_guard&&n==32&&flags==1);memset(b,0x11,n);return 32;}
 int wr_iot_service_guard_enter(int on){assert(on==1&&!entry_guard);entry_guard=1;return 1;}
 int wr_iot_rc_restart_owned(void){return 1;}

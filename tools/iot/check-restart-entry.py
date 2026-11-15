@@ -9,6 +9,8 @@ code=r'''
 #include "rc-backend.h"
 #include "rc-physical-stop.h"
 #include "rc-shutdown-admission.h"
+#include "restart-entry.h"
+enum wr_iot_radio_entry_result wr_iot_cold_on_entry(int on,int reload){(void)on;(void)reload;return WR_RADIO_ENTRY_NATIVE;}
 struct wr_iot_rc_shutdown_admission wr_iot_rc_shutdown;
 static int owned=1;
 int wr_iot_rc_restart_owned(void){return owned;}

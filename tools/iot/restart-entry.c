@@ -10,6 +10,7 @@
 #include "rc-shutdown-admission.h"
 #include "rc-runtime.h"
 #include "radio-on-owner.h"
+#include "cold-on-entry.h"
 static void entry_wipe(void*p,size_t n)
 {volatile unsigned char*b=p;while(n--)*b++=0;}
 int wr_iot_restart_entry(int radio_on,int reload)
@@ -48,7 +49,7 @@ enum wr_iot_radio_entry_result wr_iot_radio_on_entry(int radio_on,int reload)
  if(radio_on!=1)return WR_RADIO_ENTRY_NATIVE;
  if((reload!=0&&reload!=1)||wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||
     wr_iot_rc_shutdown.radio_on_owned||wr_iot_rc_shutdown.radio_off_owned)return result;
- if(!wr_iot_rc_radio_off_receipt(&receipt))return WR_RADIO_ENTRY_NATIVE;
+ if(!wr_iot_rc_radio_off_receipt(&receipt))return wr_iot_cold_on_entry(radio_on,reload);
  if(receipt.action!=WR_STOP_RELEASE||!wr_iot_physical_stop_request_valid(&receipt))return result;
  guard=wr_iot_service_guard_enter(1);if(guard!=1)return result;
  if(wr_iot_rc_radio_on_saved_request(&request.request)&&

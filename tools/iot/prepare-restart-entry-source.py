@@ -7,8 +7,9 @@ p=argparse.ArgumentParser();p.add_argument('source',type=Path);a=p.parse_args()
 root=a.source.resolve();rc=root/'trunk/user/rc';report=root/'iot-restart-entry-source.json'
 for candidate in (report,rc/'wr-iot/restart-entry.h',rc/'wr-iot-restart-entry.c'):
  if candidate.is_symlink() or not candidate.parent.resolve().is_relative_to(root):raise SystemExit('Refuse symlink/outside output')
-for candidate in (root/'iot-iapp-policy-source.json',rc/'wr-iot/restart-iapp-policy.h',rc/'net_wifi.c',rc/'wr-iot-rc-backend.c',rc/'Makefile'):
+for candidate in (root/'iot-iapp-policy-source.json',rc/'wr-iot/restart-iapp-policy.h',rc/'net_wifi.c',rc/'wr-iot-rc-backend.c',rc/'Makefile',rc/'wr-iot/radio-entry-result.h'):
  if candidate.is_symlink() or not candidate.is_file() or not candidate.resolve().is_relative_to(root):raise SystemExit('Refuse missing/symlink/outside input')
+if (rc/'wr-iot/radio-entry-result.h').read_bytes()!=(here/'radio-entry-result.h').read_bytes():raise SystemExit('Shared radio entry result header changed')
 if report.exists():raise SystemExit('Restart entry already prepared')
 m=json.loads((root/'iot-iapp-policy-source.json').read_text())
 if m.get('board')!='WR1200JS' or m.get('production_ready') is not False or not m.get('iapp_compile_gate_enabled'):raise SystemExit('Paired experimental WR policy required')
@@ -53,5 +54,5 @@ for h in here.glob('*.h'):text=text.replace('#include "'+h.name+'"','#include "w
 (rc/'net_wifi.c').write_text(net);(rc/'wr-iot-rc-backend.c').write_text(backend)
 (rc/'Makefile').write_text(make.replace(anchor,anchor+' wr-iot-restart-entry.o',1))
 header.write_bytes((here/'restart-entry.h').read_bytes());unit.write_text(text)
-report.write_text(json.dumps({'board':'WR1200JS','production_ready':False,'private_restart_hook_bound':True,'historical_radio_on_hook_bound':True,'owned_radio_off_hook_bound':True,'physical_runtime_verified':False,'source_sha256':{'net_wifi.c':hashlib.sha256(net.encode()).hexdigest(),'wr-iot-rc-backend.c':hashlib.sha256(backend.encode()).hexdigest(),'wr-iot-restart-entry.c':hashlib.sha256(text.encode()).hexdigest(),'Makefile':hashlib.sha256((rc/'Makefile').read_bytes()).hexdigest()}},indent=2)+'\n')
+report.write_text(json.dumps({'board':'WR1200JS','production_ready':False,'private_restart_hook_bound':True,'historical_radio_on_hook_bound':True,'cold_radio_on_hook_bound':True,'owned_radio_off_hook_bound':True,'physical_runtime_verified':False,'source_sha256':{'net_wifi.c':hashlib.sha256(net.encode()).hexdigest(),'wr-iot-rc-backend.c':hashlib.sha256(backend.encode()).hexdigest(),'wr-iot-restart-entry.c':hashlib.sha256(text.encode()).hexdigest(),'Makefile':hashlib.sha256((rc/'Makefile').read_bytes()).hexdigest()}},indent=2)+'\n')
 print('PASS experimental private restart hook staged before legacy fence; driver/image/runtime acceptance pending')

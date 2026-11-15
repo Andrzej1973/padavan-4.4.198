@@ -18,6 +18,8 @@ static int entry_clock(clockid_t,struct timespec *);
 '''
 body+=r'''
 int wr_iot_rc_radio_off_begin(const struct wr_iot_control_request*r,int reload){(void)r;(void)reload;assert(0);return 0;}
+#include "restart-entry.h"
+enum wr_iot_radio_entry_result wr_iot_cold_on_entry(int on,int reload){(void)on;(void)reload;return WR_RADIO_ENTRY_NATIVE;}
 #include "restart-entry.c"
 static int entry_entropy(void*b,unsigned n,unsigned f){assert(n==32&&f==1);memset(b,0,n);((unsigned char*)b)[0]=1;return 32;}
 static int entry_clock(clockid_t id,struct timespec*out){assert(id==CLOCK_MONOTONIC);out->tv_sec=10;out->tv_nsec=0;return 0;}

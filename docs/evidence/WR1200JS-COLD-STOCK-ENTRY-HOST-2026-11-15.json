@@ -1,0 +1,62 @@
+{
+  "revision_base": "877ab7088b98ea03b2500654e451407ea44e398a",
+  "checks": [
+    {
+      "command": "python3 -B tools/iot/check-cold-on-select.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -B tools/iot/check-cold-on-entry.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -B tools/iot/check-radio-on-entry.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -B tools/iot/check-restart-entry.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -B tools/iot/check-radio-off-entry-runtime.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -B tools/iot/check-radio-on-entry-root.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -B tools/iot/check-restart-entry-source.py",
+      "result": "PASS"
+    }
+  ],
+  "preparation_result": {
+    "command": "python3 -B tools/iot/check-physical-stop-client-preparation.py",
+    "result": "PASS",
+    "scope": "New entry/scheduler/result headers removed before actual staging; standalone prepared RC backend/root/cold entry/selector C11/GNU11 Werror compile, exact source equality and duplicate refusal"
+  },
+  "scope": "Actual restart entry/cold selector/entry, read-only double DOWN and saved request with transport/mode/NVRAM/root actors; historical and prepared hook regressions. NATIVE still requires existing never-opened guard; no physical startup evidence.",
+  "sha256": {
+    "cold-on-select.c": "865ac1a1cf50e48f9fab4652f69b1a4d6ca536589d07218017681eabd6376149",
+    "cold-on-select.h": "368e0b00c995f2adc78c71d93c64cc0cb94a51f9383723e1f428db4f3ef7aa6c",
+    "cold-on-entry.c": "79734e5f5319e99a7543daed6c0974c6c00072b3aa41171e7574392d78f886d2",
+    "cold-on-entry.h": "7e2a04d59524d4148864f96e6e922cd4dfc3678f52bca35e7836bbbccb7756f0",
+    "radio-entry-result.h": "3d647b0494be3542a02c24ac26409e5708d91d2c267afda70e3673f7d0948b83",
+    "restart-entry.c": "4f50927d7f3468ba98fe8fa1b5ec6c675c683ae71fa02a965a4a5fb761274114",
+    "restart-entry.h": "42b3781827bd8f1521737b38b36efe44cd9d96fe9ac9e68de05f471bce3c443f",
+    "check-cold-on-select.py": "2a36c1b11250c26137d8ed052273099bd1a64e2b8307a2b66fcde80d4ef5f3d5",
+    "check-cold-on-entry.py": "61d8a467e8efcc3fc51d32d5ba0006c03b1eec48ded010147a330c298a583867",
+    "prepare-runtime.py": "0b8980f00b2b9905c59ec220f4b43699a7ea7cf8df4f8d3d0fe7633d5425fdcc",
+    "check-runtime-source.py": "296cc2035166f3bd0d697013e706bdb79052259437fab4378059dff7d8749c67",
+    "check-physical-stop-client-preparation.py": "3aa2f1b709b5a668df5fdd0909d5d35cccfef45a7794f94dbba1933f23f78b43",
+    "prepare-restart-entry-source.py": "72202a5fa7e0deae5437b8ef7a4d206c051bc6b927251321ab4fb2b13865cb2a",
+    "check-restart-entry-manifest.py": "ed38b244d0451ca86c82c6408e11ae4c172bf2be45006ecbd8d2e82bd94219ce",
+    "check-restart-entry-source.py": "75deffc434af64e89eaff8899b960941c57fb81a58e3488484cc001bb0cc842f",
+    "check-physical-stop-suite.py": "8026f39760ee70f3fdd3bb008ca3c48d5b2ce96a9b9caf7e9e1327df8bcb26fe",
+    "compile-runtime-link.sh": "7f2df78bcdcb46790b493ad18b4a0dd7d5d01930e8ffc4183701d919eca909ae"
+  },
+  "paired_experimental_stock_entry_bound": true,
+  "production_promoted": false,
+  "target_build_verified": false,
+  "physical_runtime_verified": false
+}

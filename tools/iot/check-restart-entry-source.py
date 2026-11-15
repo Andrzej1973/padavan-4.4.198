@@ -5,6 +5,7 @@ with tempfile.TemporaryDirectory(prefix='wr-entry-source-') as d:
  root=Path(d);rc=root/'trunk/user/rc';(rc/'wr-iot').mkdir(parents=True)
  (root/'iot-iapp-policy-source.json').write_text(json.dumps({'board':'WR1200JS','production_ready':False,'iapp_compile_gate_enabled':True}))
  (rc/'wr-iot/restart-iapp-policy.h').write_text('#define WR_IOT_IAPP_POLICY_PREPARED 1\n')
+ (rc/'wr-iot/radio-entry-result.h').write_bytes((here/'radio-entry-result.h').read_bytes())
  (rc/'net_wifi.c').write_text('static int legacy,wr_iot_last_stop_result;\nstruct wr_iot_radio_stop_fence {int unused;};\nstatic int wr_iot_radio_stop_fence_begin(struct wr_iot_radio_stop_fence*f){(void)f;return 1;}\nvoid\nrestart_wifi_rt(int radio_on, int need_reload_conf)\n{\n struct wr_iot_radio_stop_fence wr_iot_fence={0};\n if(!wr_iot_radio_stop_fence_begin(&wr_iot_fence)){wr_iot_last_stop_result=0;return;}\n (void)radio_on;(void)need_reload_conf;legacy++;\n}\n')
  (rc/'wr-iot-rc-backend.c').write_text('enum {WR_IOT_OWNER_IDLE,WR_IOT_OWNER_INITIAL_OFF,OTHER};\nstruct wr_iot_activation_owner {int phase,busy;};struct wr_iot_rebind_owner {int owner;};\nstatic struct wr_iot_activation_owner backend;\nstatic struct wr_iot_rebind_owner rebind;\n')
  (rc/'Makefile').write_text('OBJS=wr-iot-restart-scheduler.o\n')

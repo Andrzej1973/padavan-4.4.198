@@ -13,6 +13,9 @@ body=s[start:end]
 assert body.count('WR_IOT_PRIVATE_RESTART_ENTRY')==1
 assert body.count('if(!wr_iot_radio_stop_fence_begin(&wr_iot_fence)){wr_iot_last_stop_result=0;return;}')==1
 assert m['historical_radio_on_hook_bound'] and m['owned_radio_off_hook_bound']
+assert m['cold_radio_on_hook_bound']
+assert (rc/'wr-iot/radio-entry-result.h').read_bytes()==(Path(__file__).resolve().parent/'radio-entry-result.h').read_bytes()
+assert 'return wr_iot_cold_on_entry(radio_on,reload);' in (rc/'wr-iot-restart-entry.c').read_text()
 assert body.index('wr_iot_radio_off_entry(')<body.index('wr_iot_radio_on_entry(')<body.index('wr_iot_restart_entry(')<body.index('wr_iot_radio_stop_fence_begin(')
 assert 'if(wr_iot_radio_on_entry(radio_on,need_reload_conf)!=WR_RADIO_ENTRY_NATIVE)return;' in body
 assert 'if(wr_iot_restart_entry(radio_on,need_reload_conf))return;' in body

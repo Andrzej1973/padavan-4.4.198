@@ -451,3 +451,35 @@ no historical physical OFF receipt alone is not sufficient evidence to claim
 a cold root. Preserve the existing native never-opened guard for first startup;
 repeat exact DOWN proof inside cold admission after any read-only selection.
 No target/device acceptance is asserted by this scheduler composition.
+
+## Stock ON entry selects cold continuation in the paired experiment
+
+`cold-on-select.[ch]` is a guarded read-only preflight outside any signal fence.
+It requires no historical physical-OFF receipt or RC owner and two matching
+nonzero DOWN tuples, Main administratively DOWN, temporary IoT OFF policy,
+absent bridge and inactive BSS/DNS. A missing first DOWN proof or Main already
+UP delegates only to the existing native guard, not to unguarded Main UP.
+A successful first proof followed by transport/identity/mode/policy drift refuses.
+The preflight retains no profile, credentials, signal mask or borrowed context.
+
+When there is no historical OFF receipt, the existing `wr_iot_radio_on_entry`
+now calls `cold-on-entry`. After eligibility it copies the existing saved ON/OFF
+request under a balanced service guard, releases that borrowed guard and claims
+the static root. Cold admission repeats full DOWN proof under its own fence.
+Every failure after eligibility is REFUSED, never native fallback. Request and
+entropy buffers are wiped on return. The historical receipt path is unchanged.
+
+The common radio-entry result enum lives in `radio-entry-result.h`, explicitly
+staged before the entry unit is compiled; cold entry does not depend on the later
+restart-hook header installer. That installer requires the matching shared header
+and reports the cold hook binding. The preparation fixture removes the four new
+prerequisite headers before staging so broad baseline fixture inputs cannot mask
+a missing runtime header. Prepared-source/target symbol gates include both units.
+
+Host checks compose actual restart entry + cold selector/entry with transport,
+saved-request and root actors, covering absent/partial proof, both intents,
+duplicate refusal and no post-eligibility fallback. Historical ON, OFF ppoll,
+saved-entry/root and prepared-hook-before-legacy regressions pass. Selection and
+root tests are not a physical first-boot acceptance test; full SDK/MIPS/image and
+device checks remain required. This binds the paired experimental entry only;
+it does not promote the candidate to production firmware or change ACK safety.
