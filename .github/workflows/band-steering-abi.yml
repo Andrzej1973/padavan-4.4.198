@@ -1788,7 +1788,7 @@ jobs:
           test -n "$compiler"
           for role in rc httpd; do
             units="status-channel status-endpoint"
-            if [ "$role" = rc ]; then units="$units rc-backend rc-runtime restart-iapp-child restart-terminal-iapp radio-off-owner radio-off-observe radio-off-profile radio-off-profile-check radio-off-followup radio-off-bridge"; else units="$units status-client"; fi
+            if [ "$role" = rc ]; then units="$units rc-backend rc-runtime restart-iapp-child restart-terminal-iapp radio-off-owner radio-off-observe radio-off-profile radio-off-followup radio-off-bridge"; else units="$units status-client"; fi
             for unit in $units; do
               "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
                 -c "abi-results/iot-http-source/trunk/user/$role/wr-iot-$unit.c" \
@@ -1798,7 +1798,7 @@ jobs:
           runtime_rc="$PWD/abi-results/iot-http-source/trunk/user/rc"
           shared_dir="$PWD/iot-rc-source/trunk/user/shared"
           kernel_dir="$PWD/iot-rc-source/trunk/linux-4.4.x"
-          for unit in init wr-iot-rc-mode; do
+          for unit in init wr-iot-rc-mode wr-iot-radio-off-profile-check; do
             "$compiler" -std=gnu99 -O2 -mips32r2 -mabi=32 -msoft-float \
               -Werror=implicit-function-declaration -Werror=incompatible-pointer-types \
               -DBOARD_2G_IN_SOC=0 -DBOARD_5G_IN_SOC=0 -DBOARD_HAS_2G_RADIO=1 -DBOARD_HAS_5G_RADIO=1 \

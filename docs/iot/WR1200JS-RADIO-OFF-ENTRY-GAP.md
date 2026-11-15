@@ -334,3 +334,10 @@ composition tests cover ordered seven-slot success and uncertain first detach
 with retained baseline; actual syscall helper separately passes. Prepared C11
 translation units PASS; helper staged for MIPS ABI/full target symbol gate.
 Network/service/WAN/IAPP completion and owner retirement remain open.
+
+ABI e05b6189/43673346614 failed in the minimal MIPS unit loop: SDK rc.h
+from radio-off-profile-check required ralink_boards.h. Original failed log and
+monitor43673736308 agree. The profile-check unit is moved to the existing SDK
+unit loop with actual shared/kernel include paths and board defines, alongside
+init/rc-mode. No stub header or weakened compiler diagnostics. Target result
+for this correction remains pending; standard43673348876 succeeded separately.
