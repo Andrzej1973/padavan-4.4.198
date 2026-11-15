@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <unistd.h>
 #include "radio-off-profile.h"
 #include "radio-off-observe.h"

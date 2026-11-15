@@ -286,3 +286,12 @@ reload0 inode preservation, normal generation, partial failure, invalid successf
 output and foreign inode. SDK generator and physical observation are injected.
 Not staged/RC-bound yet; final baseline retirement/rollback cleanup remains open.
 Fixture-only cleanup frees retained RAM after asserting non-retirement.
+
+OFF profile owner/check modules are now staged by prepare-runtime, verified
+against exact source/header content and board Make selection, included in
+MIPS ABI and required full target symbols. Prepared separate C11/-Werror
+translation units PASS after explicitly enabling GNU filesystem declarations
+before system headers. Registered profile recovery test PASS.
+ABI43672264696 SUCCESS forad895ce5 predates the RAM-state/profile package.
+OFF profile owner still retains baseline and is not a full lifecycle consumer;
+SDK bridge/services/WAN/IAPP, final retirement and device acceptance remain open.

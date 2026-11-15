@@ -12,7 +12,7 @@ assert not report['production_ready'] and not report['runtime_verified'] and rep
 a.output.mkdir(parents=True,exist_ok=True)
 shared=a.output/'make-headers';shared.mkdir(exist_ok=True)
 for name in ['boards.mk','cflags.mk']:(shared/name).write_text('')
-for root,units in [(rc,['rc-backend','rc-mode','rc-runtime','radio-off-owner','radio-off-observe','status-channel','status-endpoint']),(http,['status-client','status-channel','status-endpoint'])]:
+for root,units in [(rc,['rc-backend','rc-mode','rc-runtime','radio-off-owner','radio-off-observe','radio-off-profile','radio-off-profile-check','status-channel','status-endpoint']),(http,['status-client','status-channel','status-endpoint'])]:
  for u in units:
   expected=(local/(u+'.c')).read_text()
   for h in local.glob('*.h'):expected=expected.replace('#include "'+h.name+'"','#include "wr-iot/'+h.name+'"')
@@ -20,7 +20,7 @@ for root,units in [(rc,['rc-backend','rc-mode','rc-runtime','radio-off-owner','r
  for flag,enabled in [('-DBOARD_WR1200JS',True),('-DBOARD_OTHER',False),('',False)]:
   run=subprocess.run(['make','--no-print-directory','-f',str((root/'Makefile').resolve()),'SHDIR='+str(shared.resolve()),'CFLAGS='+flag,'--eval=print_iot_runtime:;@echo $(OBJS)','print_iot_runtime'],check=True,capture_output=True,text=True)
   for u in units:assert (('wr-iot-'+u+'.o') in run.stdout.split())==enabled,(u,flag)
- for name in ['status-channel.h','status-endpoint.h','precreated-entropy.h']+(['rc-backend.h','rc-runtime.h','radio-off-owner.h','radio-off-observe.h'] if root==rc else []):
+ for name in ['status-channel.h','status-endpoint.h','precreated-entropy.h']+(['rc-backend.h','rc-runtime.h','radio-off-owner.h','radio-off-observe.h','radio-off-profile.h'] if root==rc else []):
   assert (root/'wr-iot'/name).read_bytes()==(local/name).read_bytes(),name
 init=(rc/'init.c').read_text()
 anchor='''#if defined(BOARD_WR1200JS)
