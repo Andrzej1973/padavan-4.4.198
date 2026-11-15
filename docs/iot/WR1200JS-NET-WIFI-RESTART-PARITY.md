@@ -324,3 +324,16 @@ call after reaping its test command. Actual supervisor emits unknown3; parent
 returns-2 and refuses closed and duplicate begin. The fixture reaps children and
 removes its temporary script. This tests the wait-error branch in addition to
 raw malformed/EOF receipt parsing. Host ASan/UBSan PASS; no target/runtime claim.
+
+
+## Firewall writer integration decision
+
+Exact firewall_ex.c has iptables-restore calls at1233,1280,1339,1359,2091,2134
+and2223 (last uses-n). Existing service-lock explicitly protects participating
+writers only. Current preparation does not wrap all these paths with that lock.
+Consequently IAPP service-guard admission does not prove firewall serialization.
+Keep root launch disabled. Integrate fixed IAPP INPUT policy into the owned
+normal/default firewall builders, then remove independent script additions only
+with source/image parity checks. Preserve post-firewall hooks and final isolation
+readback. This is a source-identified integration gap, not evidence of a device
+race. Input hash and exact calls recorded in IAPP-FIREWALL-WRITERS evidence.
