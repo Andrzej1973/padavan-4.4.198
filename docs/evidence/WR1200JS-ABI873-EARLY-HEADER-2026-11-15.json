@@ -1,0 +1,18 @@
+{
+  "run": 43705598313,
+  "revision": "4fe0a41cf32d502dc8bb368cd6f13bfeceb8036c",
+  "failed_step": "Prepare pinned RC IoT bridge and owned radio-stop hook",
+  "error": "initial-off.h:8:10 fatal error: physical-stop-wire.h: No such file or directory",
+  "cause": "new initial-OFF header dependency staged only by later prepare-runtime, absent in earlier prepare-rc compilation",
+  "fix": "stage physical-stop-wire.h before initial-off.h in prepare-rc",
+  "regression": "check-initial-off-header-staging.py compiles actual transitive header closure in isolated output include directory, asserts staging order",
+  "monitor": {
+    "run": 43706119218,
+    "artifact": 14158612614,
+    "correct_run_job_step_error": true,
+    "parser_change_needed": false
+  },
+  "host_header_check": "PASS",
+  "target_rerun": "pending dispatch",
+  "runtime_verified": false
+}

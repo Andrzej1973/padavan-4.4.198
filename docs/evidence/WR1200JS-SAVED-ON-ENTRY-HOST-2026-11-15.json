@@ -17,9 +17,16 @@
     "check-radio-on-saved-request.py",
     "check-restart-entry.py",
     "check-radio-on-sdk-mode.py",
-    "check-physical-stop-client-preparation.py"
+    "check-physical-stop-client-preparation.py",
+    "check-radio-on-entry-root.py"
   ],
   "public_hook_bound": false,
   "target_verified": false,
-  "runtime_verified": false
+  "runtime_verified": false,
+  "actual_root_cases": [
+    "saved IoT ON/OFF through DONE and retirement",
+    "duplicate entry refuses",
+    "only ON uses rebind OPEN",
+    "missing receipt after retirement routes native"
+  ]
 }
