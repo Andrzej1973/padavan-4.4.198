@@ -1,0 +1,20 @@
+{
+  "scope": "private pending prehandoff shutdown cleanup after Main UP, both IoT intents",
+  "checks": {
+    "actual_parent_profile_Guest_backend_predicate_real_fence_SIGTERM_asan_ubsan": "PASS",
+    "failed_unmask_retains_root_profile_guard": "PASS",
+    "successful_cleanup_precedes_real_signal_replay": "PASS",
+    "current_generated_profile_identity_unchanged_after_cleanup": "PASS",
+    "no_Main_replay_old_profile_restore_or_second_Guest_DOWN": "PASS",
+    "prepared_backend_GNU11_and_component_C11": "PASS"
+  },
+  "sha256": {
+    "tools/iot/cold-on-shutdown.c": "1220191330b35886a6e0ca1ed95cb55ef7729b72282adf48ae4551e29d2ca014",
+    "tools/iot/cold-on-shutdown.h": "965afd0da57fe86525c16ddc11c7a031c3b07cbce3ad2f7ce4c01cef82411c0e",
+    "tools/iot/check-cold-on-shutdown.py": "e3aa747998841ff62a67bd5f8673d30a7dc77d66d801b7fda46d259eb7836b12"
+  },
+  "public_root_shutdown_bound": false,
+  "post_handoff_shutdown_implemented": false,
+  "target_verified": false,
+  "physical_verified": false
+}

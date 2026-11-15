@@ -228,3 +228,17 @@ Both enabled and disabled intent fixtures pass with actual cold parents/profile/
 Guest and backend predicate; driver/SDK transport remains injected. No Main UP,
 profile rollback or cleanup occurs in this predicate. It is staged for compilation;
 signal-fenced shutdown cleanup and post-handoff shutdown are still outstanding.
+
+## Prehandoff shutdown cleanup staged
+
+`cold-on-shutdown.c` checks stable parent/Main/generation/admission ownership and
+an idle RC backend before allowing one existing own-Guest recovery step. The
+pending prehandoff proof then gates outer signal-fence cleanup. Cleanup wipes
+private profile bytes, desired credentials and child pointers; it releases the
+guard and OFF exclusion while preserving the live fence token until fence_end.
+The current generated profile file remains unchanged; Main is neither reopened
+nor rolled back. Real queued SIGTERM runs after successful cleanup; failed unmask
+retains the root/profile/guard for exact-context retry. Both intent fixtures and
+prepared compilation pass. This private function is staged but no public root
+shutdown caller is bound. Shutdown after initial backend handoff still requires
+its own exact CLOSED or completed pre-OPEN rejection path.
