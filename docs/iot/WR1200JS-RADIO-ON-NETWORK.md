@@ -245,3 +245,21 @@ Host actual-root cancellation now tests three windows: immediately after
 capture, before generation, and after generation. All preserve baseline bytes,
 old OFF receipt and zero Main UP; only the latter two require one RAM rollback.
 Target and runtime acceptance are still separate.
+
+## Reconciling an uncertain pre-UP RAM rollback
+
+Cancelled retirement no longer requires the setter's successful return as a
+permanent latch. It still requires that one rollback attempt occurred, restored
+profile ownership, no possible Main UP or child owner, exact retained OFF receipt,
+and fresh read-only RAM OFF plus physical DOWN. If the setter returned an error
+but these independent observations later succeed, cleanup may proceed without
+repeating the setter. Failed readback, stale receipt or mode drift keeps the root.
+The read-only SDK adapter now rechecks router/mode after the DOWN query.
+
+Actual-root host fixture covers uncertain return with failed readback, later
+successful observation, stale receipt despite successful RAM readback, no second
+setter, and deferred SIGTERM after cleanup. Separate constructed SDK fixture
+checks mode drift during readback with no mutation. Normal owner and prepared
+separate-unit regressions also passed. These are host checks with SDK/backend
+actors; target and physical acceptance remain unproven. No post-UP recovery
+permission is created by this change.

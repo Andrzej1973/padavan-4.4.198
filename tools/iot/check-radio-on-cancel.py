@@ -4,7 +4,11 @@ import subprocess,tempfile
 here=Path(__file__).resolve().parent
 source=(here/'check-radio-on-owner.py').read_text();ns={'__file__':str(here/'check-radio-on-owner.py')}
 exec(source.rsplit('with tempfile.TemporaryDirectory(',1)[0],ns)
-body=ns['body'].split('int main(int argc',1)[0].replace('return down&&rollback_calls>0;', 'return down;')+r'''
+body=ns['body'].split('int main(int argc',1)[0]
+body=body.replace('static int rollback_calls;', 'static int rollback_calls,rollback_uncertain,rollback_observed=1;')
+body=body.replace('rollback_calls++;return 1;', 'rollback_calls++;return !rollback_uncertain;')
+body=body.replace('return down&&rollback_calls>0;', 'return down&&rollback_observed;')
+body+=r'''
 static int cancel_signals;
 static void cancelled_signal(int sig){
  if(wr_iot_rc_shutdown_note(sig))return;
@@ -15,7 +19,8 @@ static void cancelled_signal(int sig){
 int main(int argc,char**argv){
  (void)check;(void)shutdown_handler;assert(argc==2);snprintf(profile_path,sizeof(profile_path),"%s/profile",argv[1]);
  strcpy(desired.gateway,"192.168.50.1");strcpy(desired.mask,"255.255.255.0");strcpy(desired.first,"192.168.50.20");strcpy(desired.last,"192.168.50.200");
- for(int after_generation=-1;after_generation<2;after_generation++){
+ for(int scenario=0;scenario<5;scenario++){
+  int after_generation=scenario<3?scenario-1:1;rollback_uncertain=scenario>=3;rollback_observed=scenario<3;
   receipt=(struct wr_iot_physical_stop_request){WR_STOP_RELEASE,1,2,3,4,5,{1}};radio_off_receipt_valid=1;
   down=1;partial=identity_fault=0;ups=generator_calls=rollback_calls=0;make_profile();
   FILE*f=fopen(profile_path,"a");assert(f&&fputs("# original baseline\n",f)>=0&&!fclose(f));
@@ -27,6 +32,16 @@ int main(int argc,char**argv){
   assert(!raise(SIGTERM));fail_unmask=1;
   int prior=cancel_signals;
   assert(!wr_iot_radio_on_step()&&on_owner.owner&&on_owner.admission.profile.active&&rollback_calls==(after_generation>=0)&&!ups&&cancel_signals==prior);
+  if(rollback_uncertain){
+   assert(!on_owner.restore.rollback_state_returned);
+   fail_unmask=0;
+   assert(!wr_iot_radio_on_step()&&rollback_calls==1&&on_owner.owner&&cancel_signals==prior);
+   if(scenario==4){
+    receipt.attempt++;rollback_observed=1;
+    assert(!wr_iot_radio_on_step()&&rollback_calls==1&&on_owner.owner);receipt.attempt--;
+   }
+   rollback_observed=1;
+  }
   fail_unmask=0;
   assert(wr_iot_radio_on_step()==-1&&cancel_signals==prior+1&&!on_owner.owner&&!depth&&radio_off_receipt_valid);
   assert(generator_calls==(after_generation>0)&&rollback_calls==(after_generation>=0)&&!ups&&!wr_iot_radio_on_pending());

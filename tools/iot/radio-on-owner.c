@@ -83,7 +83,7 @@ static int on_cancelled_finish(void)
  if(g->owner!=getpid()||g->busy||g->main_may_have_started||g->phase!=WR_ON_GEN_RESTORED||
     g->admission!=a||r->main.owner||r->guest.owner||r->services.owner||r->multicast.owner||
     r->wan.owner||r->terminal.owner||r->child.owner||r->child.attempted||
-    !r->rollback_state_attempted||!r->rollback_state_returned||a->owner!=getpid()||
+    !r->rollback_state_attempted||a->owner!=getpid()||
     a->busy!=1||a->guard!=1||a->fence.owner!=getpid()||a->fence.level!=1||
     !wr_iot_rc_shutdown.active||!wr_iot_rc_shutdown.radio_off_owned||!wr_iot_rc_shutdown.radio_on_owned||
     !wr_iot_radio_profile_owned(&a->profile)||!a->profile.recovered||!a->profile.recovering||

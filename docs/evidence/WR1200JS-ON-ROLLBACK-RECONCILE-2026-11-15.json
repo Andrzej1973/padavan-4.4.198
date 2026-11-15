@@ -1,0 +1,17 @@
+{
+  "checks_passed": [
+    "check-radio-on-cancel.py",
+    "check-radio-on-rollback-state.py",
+    "check-radio-on-owner.py",
+    "check-physical-stop-client-preparation.py"
+  ],
+  "source_sha256": {
+    "radio-on-owner.c": "3b6f950f8e0963dde39229ecdeb8b826140124587f080a711d320e961069e93c",
+    "radio-on-rollback-state-sdk.inc": "226003a9fa7803d6619212ea183cf8f345d2788b863d6fb8372cb304363e0097",
+    "check-radio-on-cancel.py": "485e78a2765ce9f857c3cc708f82b0f0bcf0d092e28408c6ead6baa20fc2094e"
+  },
+  "scope": "Actual root/fence/profile with SDK/backend actors; one attempted rollback reconciled by fresh read-only state, no mutation replay",
+  "target_verified": false,
+  "device_verified": false,
+  "scratch": "TemporaryDirectory removed on exit"
+}
