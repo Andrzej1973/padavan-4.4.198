@@ -1,0 +1,18 @@
+{
+  "scope": "compile-only candidate DOWN route plus staged RC client",
+  "route_applied": true,
+  "production_installed": false,
+  "checks": [
+    "common dispatch fixture PASS",
+    "actual reply/reference fixture PASS",
+    "client syscall fixture PASS",
+    "prepared C11 units PASS after explicit GNU feature macro exposes ifreq"
+  ],
+  "full_suite_base": "e911f67d EXIT0; new route/client registered after base completion",
+  "remaining": [
+    "actual vendor target compilation",
+    "RC cold admission integration",
+    "final image/device acceptance"
+  ],
+  "runtime_verified": false
+}

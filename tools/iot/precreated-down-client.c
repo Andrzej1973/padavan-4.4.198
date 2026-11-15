@@ -1,3 +1,6 @@
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <net/if.h>

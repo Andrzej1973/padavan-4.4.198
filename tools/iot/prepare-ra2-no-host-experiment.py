@@ -59,6 +59,7 @@ for name in ('ra2-beacon-dma-window.h', 'ra2-beacon-no-host-txd.h', 'ra2-beacon-
 entry_name = 'include/driver-api-closed-entry.inc'
 changes[entry_name] = runpy.run_path(str(here / 'release-dispatch-composition.py'))['compose'](
     (source / entry_name).read_text())
+changes[entry_name] = runpy.run_path(str(here / 'down-dispatch-composition.py'))['compose'](changes[entry_name])
 for name in ('driver-api-close-release.h', 'driver-api-close-release-binding.inc',
              'driver-api-close-release-wire.h', 'driver-api-open-current.h',
              'driver-api-open-recovery-wire.h', 'driver-api-open-recovery-entry.inc'):
@@ -73,7 +74,8 @@ changes[work_name], changes[join_name] = lifetime['retirement'](
 for name in ('precreated-idle-reference.h', 'precreated-idle-probe.h',
              'precreated-idle-probe-binding.inc', 'precreated-idle-wire.h',
              'precreated-idle-entry.inc', 'precreated-down-reference.h',
-             'precreated-down-binding.inc', 'peer-table-owner.h', 'peer-close-executor.h'):
+             'precreated-down-binding.inc', 'precreated-down-wire.h',
+             'precreated-down-reply.inc', 'peer-table-owner.h', 'peer-close-executor.h'):
     changes['include/' + name] = (here / name).read_text()
 for name in changes:
     changes[name] = changes[name].replace('#include "beacon-producer-gate.h"',
@@ -95,7 +97,7 @@ manifest['ra2_no_host_experiment'] = {
     'runtime_verified': False,
     'activation_ready': False,
     'cold_down_observer_compile_only': True,
-    'cold_down_query_routed': False,
+    'cold_down_query_routed': True,
     'remaining': ['cold epoch and shared PID handling', 'release/recovery target checks and RC reopen integration',
                   'full target compilation and physical verification'],
     'changed_paths': sorted(changes),
