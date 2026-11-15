@@ -513,3 +513,19 @@ adapter and actual resume/WAN ordering tests pass with hardware/helper actors;
 native preparation passes. Physical LED indication is not acceptance evidence.
 IAPP still precedes the deferred WAN in the current candidate, so full stock
 WAN->LED->IAPP parity remains unresolved; do not enable stock restart hook yet.
+
+
+## Terminal WAN -> LED -> IAPP order restored
+
+This supersedes the earlier candidate's pre-handoff IAPP launch. Restore now
+reaches PREPARED without IAPP. After exact physical take, WAN return and fresh
+IoT observation, LED runs once and a separate terminal-IAPP transaction acquires
+its own signal fence/service guard. Its child is the stable embedded root child.
+Pending shutdown before launch cancels without exec; once launched, pending
+shutdown drains its receipt while retaining guard/fence. Unknown stays retained;
+confirmed completion cleans guard before signal replay. No command replay.
+Resume DONE follows terminal success; retirement rejects remaining terminal
+fence/guard/child. Actual fence/SIGTERM tests, root/WAN order composition, legacy
+resume/scheduler, real child tests and native preparation pass. ABI adds target
+compile of terminal unit and gate1 resume. SDK/MIPS/image/device results pending;
+stock net_wifi entrypoint remains unbound and persistent post-WAN repair is open.

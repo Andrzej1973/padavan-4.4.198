@@ -77,14 +77,6 @@ int wr_iot_restart_restore_step(struct wr_iot_restart_restore *s)
  case WR_RESTORE_PREPARED:
   if(!wr_iot_restart_guest_step(&s->guest)||!wr_iot_restart_multicast_step(&s->multicast))break;
   if(wr_iot_restart_services_step(&s->services)){
-#if WR_IOT_IAPP_POLICY_PREPARED
-   if(!s->iapp_launch_attempted){
-    s->iapp_launch_attempted=1;
-    (void)wr_iot_iapp_child_begin(&s->iapp);
-    break;
-   }
-   if(!wr_iot_iapp_child_closed(&s->iapp)||s->iapp.result!=1)break;
-#endif
    s->phase=WR_RESTORE_PREPARED;ok=1;
   }
   break;

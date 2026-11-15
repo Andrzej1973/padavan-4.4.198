@@ -3,6 +3,7 @@
 #include "restart-restore.h"
 #include "rc-quiesce.h"
 #include "restart-wan-followup.h"
+#include "restart-terminal-iapp.h"
 enum wr_iot_restart_resume_phase {WR_RESUME_IDLE,WR_RESUME_RESTORE,WR_RESUME_REBIND,WR_RESUME_FINISH,WR_RESUME_DONE,WR_RESUME_RETAINED,WR_RESUME_SHUTDOWN,WR_RESUME_SHUTDOWN_CLOSED,WR_RESUME_CANCELLED,WR_RESUME_SHUTDOWN_ROLLBACK,WR_RESUME_WAN};
 struct wr_iot_restart_resume {
  pid_t owner;int busy;unsigned led_attempted,led_returned;unsigned long long created;
@@ -11,6 +12,7 @@ struct wr_iot_restart_resume {
  struct wr_iot_rc_quiesce shutdown;
  struct wr_iot_control_request stop_input;
  struct wr_iot_wan_followup_state wan;
+ struct wr_iot_terminal_iapp terminal;
 };
 /* Private process-context consumer AFTER exact physical RELEASE. Caller keeps
  * this at final address and supplies fresh nonzero ID/monotonic creation time.

@@ -12,6 +12,7 @@ int wr_iot_restart_resume_retire(struct wr_iot_restart_resume *s)
  if(s->wan.owner&&(s->wan.owner!=getpid()||
     (s->phase==WR_RESUME_DONE&&(!s->wan.attempted||!s->wan.returned))))return 0;
  if(s->phase==WR_RESUME_DONE&&s->led_attempted&&!s->led_returned)return 0;
+ if(s->terminal.guard||s->terminal.busy||s->terminal.child||s->terminal.fence.owner)return 0;
  r=&s->restore;
  if(r->owner!=getpid()||r->busy||!wr_iot_iapp_child_closed(&r->iapp)||
     r->phase!=(s->phase==WR_RESUME_DONE?WR_RESTORE_FINISHED:WR_RESTORE_CANCELLED)||

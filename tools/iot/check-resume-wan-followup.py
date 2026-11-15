@@ -7,7 +7,9 @@ code=next(ast.literal_eval(n.value) for n in tree.body if isinstance(n,ast.Assig
 code=code.replace('if(finish_ok)s->phase=WR_RESTORE_FINISHED;','if(finish_ok){s->phase=WR_RESTORE_FINISHED;wr_iot_rc_shutdown.active=0;}')
 code='#define WR_IOT_IAPP_POLICY_H\n#define WR_IOT_IAPP_POLICY_PREPARED 1\n'+code
 code+=r'''
-static int dispatches,network_ok,leds;
+static int dispatches,network_ok,leds,terminal_steps;
+int wr_iot_terminal_iapp_begin(struct wr_iot_terminal_iapp*t,struct wr_iot_iapp_child*c){assert(leds==1&&dispatches==1);t->owner=getpid();t->child=c;return 1;}
+int wr_iot_terminal_iapp_step(struct wr_iot_terminal_iapp*t){assert(t->owner==getpid());terminal_steps++;return terminal_steps>1;}
 int wr_iot_rc_restart_led_on(void){assert(network_ok&&dispatches==1&&takes==2);leds++;return 1;}
 int wr_iot_rc_backend_observed(const struct wr_iot_control_result*r){assert(r->state==WR_IOT_RESULT_APPLIED&&r->created==10&&!strcmp(r->id,"07000000000000000000000000000000"));return network_ok;}
 int wr_iot_rc_restart_wan_current(int on,enum wr_iot_wan_followup p){return on==1&&p==WR_WAN_RECONNECT;}
@@ -25,7 +27,8 @@ int main(void){
  wr_iot_rc_shutdown.pending=SIGTERM;assert(!wr_iot_restart_resume_step(&s)&&!dispatches);wr_iot_rc_shutdown.pending=0;
  assert(!wr_iot_restart_resume_step(&s)&&dispatches==1&&s.phase==WR_RESUME_WAN);
  assert(!wr_iot_restart_resume_step(&s)&&dispatches==1&&takes==2);
- network_ok=1;assert(wr_iot_restart_resume_step(&s)&&dispatches==1&&s.phase==WR_RESUME_DONE);
+ network_ok=1;assert(!wr_iot_restart_resume_step(&s)&&dispatches==1&&s.phase==WR_RESUME_WAN);
+ assert(wr_iot_restart_resume_step(&s)&&s.phase==WR_RESUME_DONE&&leds==1&&terminal_steps==2);
  assert(wr_iot_restart_resume_step(&s)&&dispatches==1&&takes==2&&leds==1);
 }
 '''
