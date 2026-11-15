@@ -3,6 +3,8 @@
 /* Component actor for fixtures whose scope excludes multicast policy/IO. */
 #include <unistd.h>
 #include "restart-multicast-controller.h"
+#include "restart-iapp-child.h"
+int wr_iot_iapp_child_step(struct wr_iot_iapp_child*s){(void)s;assert(0);return -2;}
 int wr_iot_restart_multicast_begin(struct wr_iot_multicast*s,struct wr_iot_restart_main*m,struct wr_iot_restart_guest*g)
 {s->owner=getpid();s->main=m;s->guest=g;s->phase=WR_MC_READY;return 1;}
 int wr_iot_restart_multicast_step(struct wr_iot_multicast*s)

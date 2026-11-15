@@ -23,6 +23,12 @@ int wr_iot_restart_restore_step(struct wr_iot_restart_restore *s)
  int ok=0;
  if(!s||s->owner!=getpid()||s->busy||!wr_iot_rc_shutdown.active)return 0;
  s->busy=1;
+ if(s->iapp.attempted&&!wr_iot_iapp_child_closed(&s->iapp)){
+  /* Drain only the existing command. Unknown completion keeps the root and
+   * outer cleanup fenced even during normal shutdown; never relaunch here. */
+  (void)wr_iot_iapp_child_step(&s->iapp);
+  goto done;
+ }
  if(wr_iot_rc_shutdown.pending){
   /* Guest owns its submitted UP and must retain/observe its DOWN recovery.
    * Main/profile ownership remains fenced; no broad cleanup is inferred. */

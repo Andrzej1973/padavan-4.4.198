@@ -386,3 +386,12 @@ completed log removed. ABI now explicitly compiles prepared restart-iapp-child
 with the pinned MIPS/uClibc compiler; this object was not covered by the former
 small runtime subset. Native preparation preflight and workflow parse pass.
 Actual MIPS result is pending, and does not imply script/kernel/device readiness.
+
+
+Root restore now drains an attempted, not-confirmed-closed IAPP child before
+other progression, including pending shutdown. Unknown completion remains fenced;
+confirmed failure can reach existing cancellation checks. No new launch is
+performed by this path. Focused actual-root test covers sticky unknown result and
+a separate pending-to-failure scenario with child adapter injected. Restore/
+Guest/multicast/services, finish/premain and native checks pass. Root launch is
+still disabled; paired source verification and final terminal ordering remain.
