@@ -10,7 +10,9 @@
     "actual peer/reference observer",
     "final exact epoch/serial/reference recheck",
     "malformed/control/RTNL refusal clears reply",
-    "adapter unchanged"
+    "adapter unchanged",
+    "epoch drift injected at final transition-lock acquisition returns EAGAIN and zero reply",
+    "Main close ticket serial drift at final snapshot returns EAGAIN and zero reply"
   ],
   "limits": [
     "outer caller must protect adapter lifetime",
