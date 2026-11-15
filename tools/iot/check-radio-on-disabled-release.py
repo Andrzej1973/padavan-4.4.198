@@ -9,6 +9,8 @@ body=ns['body'].split('int main(int argc',1)[0]+r'''
 static int idle_ok=1;
 int wr_iot_initial_off_begin(struct wr_iot_initial_off*s,const struct wr_iot_control_request*r){assert(!r->request.enabled);s->owner=getpid();s->ready=1;return 1;}
 int wr_iot_initial_off_restarted_observed(const struct wr_iot_initial_off*s,const struct wr_iot_physical_stop_request*r,const struct wr_iot_driver_identity*m){assert(s->ready&&r->action==WR_STOP_RELEASE&&m->adapter_epoch==2);return idle_ok;}
+int wr_iot_on_followup_observed(struct wr_iot_on_restore*r,int(*o)(struct wr_iot_on_restore*,void*),void*c){(void)r;(void)o;(void)c;assert(0);return 0;}
+int wr_iot_initial_off_observed(const struct wr_iot_initial_off*s){(void)s;assert(0);return 0;}
 #include "radio-on-disabled.c"
 int main(int argc,char**argv){
  (void)check;(void)shutdown_handler;assert(argc==2);snprintf(profile_path,sizeof(profile_path),"%s/profile",argv[1]);

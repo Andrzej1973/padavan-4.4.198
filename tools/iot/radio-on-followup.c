@@ -29,7 +29,7 @@ static int on_followup_parent(struct wr_iot_on_restore *s)
     !wr_iot_rc_restart_auth_process_current(&policy))return 0;
  return 1;
 }
-static int on_followup_network(struct wr_iot_on_restore *s)
+static int on_enabled_followup_network(struct wr_iot_on_restore *s)
 {
  static const char hex[]="0123456789abcdef";
  struct wr_iot_control_result r={0};unsigned i;int guard,ok;
@@ -42,11 +42,24 @@ static int on_followup_network(struct wr_iot_on_restore *s)
   !wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.pending;
  wr_iot_service_guard_leave(guard);return ok;
 }
-int wr_iot_on_followup_step(struct wr_iot_on_restore *s)
+static int on_followup_network(struct wr_iot_on_restore *s,
+ int (*observe)(struct wr_iot_on_restore *,void *),void *context)
+{
+ int guard,ok;
+ if(!observe)return on_enabled_followup_network(s);
+ if(wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||wr_iot_rc_shutdown.radio_off_owned)return 0;
+ guard=wr_iot_service_guard_enter(1);if(guard!=1)return 0;
+ ok=on_followup_parent(s)&&observe(s,context)&&on_followup_parent(s)&&
+  !wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.pending;
+ wr_iot_service_guard_leave(guard);return ok;
+}
+static int on_followup_step(struct wr_iot_on_restore *s,
+ int (*observe)(struct wr_iot_on_restore *,void *),void *context)
+
 {
  int result=0,terminal;
  if(!s||s->owner!=getpid()||s->busy)return 0;
- if(s->phase==WR_ON_RESTORE_DONE)return on_followup_network(s);
+ if(s->phase==WR_ON_RESTORE_DONE)return on_followup_network(s,observe,context);
  s->busy=1;
  /* Drain existing child even while its terminal fence/admission is active. */
  if(s->phase==WR_ON_RESTORE_IAPP){
@@ -54,7 +67,7 @@ int wr_iot_on_followup_step(struct wr_iot_on_restore *s)
   if(terminal<0)s->phase=WR_ON_RESTORE_RETAINED;
   else if(terminal==1&&wr_iot_iapp_child_closed(&s->child)&&s->child.result==1&&
           !s->terminal.child&&!s->terminal.guard&&!s->terminal.fence.owner&&
-          !s->terminal.fence.level&&on_followup_network(s)){
+          !s->terminal.fence.level&&on_followup_network(s,observe,context)){
    s->phase=WR_ON_RESTORE_DONE;result=1;
   }
   goto done;
@@ -66,14 +79,20 @@ int wr_iot_on_followup_step(struct wr_iot_on_restore *s)
   s->phase=WR_ON_RESTORE_WAN;goto done;
  }
  if(s->phase==WR_ON_RESTORE_WAN){
-  if(!wr_iot_wan_followup_step(&s->wan)||!on_followup_network(s))goto done;
+  if(!wr_iot_wan_followup_step(&s->wan)||!on_followup_network(s,observe,context))goto done;
   if(!s->led_attempted){s->led_attempted=1;s->led_returned=wr_iot_rc_restart_led_on()==1;}
   if(!s->led_returned){s->phase=WR_ON_RESTORE_RETAINED;goto done;}
   s->phase=WR_ON_RESTORE_IAPP_PENDING;goto done;
  }
 #if WR_IOT_IAPP_POLICY_PREPARED
- if(s->phase==WR_ON_RESTORE_IAPP_PENDING&&s->led_returned&&on_followup_network(s)&&
+ if(s->phase==WR_ON_RESTORE_IAPP_PENDING&&s->led_returned&&on_followup_network(s,observe,context)&&
     !s->terminal.owner&&wr_iot_terminal_iapp_begin(&s->terminal,&s->child))s->phase=WR_ON_RESTORE_IAPP;
 #endif
  done:s->busy=0;return result;
 }
+
+int wr_iot_on_followup_step(struct wr_iot_on_restore *s)
+{return on_followup_step(s,NULL,NULL);}
+int wr_iot_on_followup_observed(struct wr_iot_on_restore *s,
+ int (*observe)(struct wr_iot_on_restore *,void *),void *context)
+{return observe&&context?on_followup_step(s,observe,context):0;}

@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include "radio-on-disabled.h"
 #include "radio-on-release.h"
+#include "radio-on-followup.h"
 #include "rc-shutdown-admission.h"
 #include "restart-guest-policy.h"
 #include "restart-guest-isolation.h"
@@ -75,4 +76,18 @@ int wr_iot_on_disabled_release(struct wr_iot_on_disabled *s)
 {
  if(!s||s->owner!=getpid()||s->busy||!s->restore)return 0;
  return wr_iot_rc_radio_on_disabled_release(s->restore,disabled_release_observe,s);
+}
+
+static int disabled_followup_observe(struct wr_iot_on_restore *r,void *context)
+{
+ struct wr_iot_on_disabled *s=context;
+ return s&&s->owner==getpid()&&s->restore==r&&!r->handoff_created&&
+  s->idle.idle.epoch==r->main.identity.adapter_epoch&&
+  s->idle.idle.generation==r->main.identity.device_generation&&
+  wr_iot_restart_disabled_profile_current()&&wr_iot_initial_off_observed(&s->idle);
+}
+int wr_iot_on_disabled_followup(struct wr_iot_on_disabled *s)
+{
+ if(!s||s->owner!=getpid()||s->busy||!s->restore)return 0;
+ return wr_iot_on_followup_observed(s->restore,disabled_followup_observe,s);
 }

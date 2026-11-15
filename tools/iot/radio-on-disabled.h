@@ -14,4 +14,5 @@ int wr_iot_on_disabled_current(struct wr_iot_on_disabled *);
 int wr_iot_on_disabled_release_current(struct wr_iot_on_disabled *);
 /* RC-owned checked parent release; RELEASED still requires WAN/IAPP followup. */
 int wr_iot_on_disabled_release(struct wr_iot_on_disabled *);
+int wr_iot_on_disabled_followup(struct wr_iot_on_disabled *);
 #endif
