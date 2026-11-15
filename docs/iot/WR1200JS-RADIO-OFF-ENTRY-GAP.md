@@ -62,3 +62,14 @@ failed SIG_SETMASK into the actual STOP/session/fence fixture. It verifies
 retained password/guard/unpublished result, no terminal take before cleanup,
 same-fence successful retry without another driver call, and publication/wipe
 visible in the real deferred SIGTERM handler. ASan/UBSan PASS; no target claim.
+
+## Exact private OFF terminal take
+
+The physical owner now retains the original private OFF envelope identity
+independently of the quiesce receipt (an already-OFF receipt may use an older
+identity). wr_iot_rc_physical_take_off requires exact id/time, local process
+ownership and a non-restart OFF intent before consuming terminal success or
+failure once. Pending/foreign/malformed/restart calls leave the owner intact.
+The registered ASan/UBSan fixture passed real controller/session/fence with
+injected transport. This is the terminal consumption primitive only; RC OFF
+pump and SDK side effects are still not bound. No image/device claim.

@@ -19,6 +19,7 @@ static struct {
  struct wr_iot_physical_session session;
  struct wr_iot_rc_quiesce quiesce;
  int quiesced;
+ char stop_id[33];unsigned long long stop_created;
  struct wr_iot_radio_stop_fence fence;
  unsigned int aux_next;
  unsigned char nonce[16];
@@ -36,6 +37,7 @@ static int physical_begin(const struct wr_iot_rc_physical_intent *intent,
  if(!wr_iot_restart_scheduler_prepare())return 0;
  if(!wr_iot_radio_stop_fence_begin(&physical.fence))return 0;
  physical.owner=getpid();physical.intent=*intent;
+ if(off){memcpy(physical.stop_id,off->id,sizeof(physical.stop_id));physical.stop_created=off->created;}
  physical.guard=wr_iot_service_guard_enter(1);
  if(physical.guard!=1)goto refuse;
  if(off){
@@ -153,6 +155,16 @@ int wr_iot_rc_physical_take(struct wr_iot_rc_physical_intent *intent)
  if(!intent||physical.owner!=getpid()||!physical.result)return 0;
  *intent=physical.intent;result=physical.result;
  memset(&physical,0,sizeof(physical));return result;
+}
+
+int wr_iot_rc_physical_take_off(const char *id,unsigned long long created)
+{
+ struct wr_iot_rc_physical_intent intent={0};
+ if(!id||strnlen(id,sizeof(physical.stop_id))!=32||!created||
+    physical.owner!=getpid()||physical.intent.restart||physical.intent.radio_on||
+    physical.intent.reload||physical.stop_created!=created||
+    memcmp(physical.stop_id,id,sizeof(physical.stop_id)))return 0;
+ return wr_iot_rc_physical_take(&intent);
 }
 
 int wr_iot_rc_physical_resume_read(struct wr_iot_rc_physical_resume *out)
