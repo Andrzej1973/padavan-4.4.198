@@ -384,3 +384,12 @@ controller ordering test PASS; prepared RC C11 units compile. Adapter staged
 into SDK helper and full target symbol gate. Actual SDK launch duration is
 unbounded as in existing eval; no nonblocking process-readiness claim.
 WAN/IAPP and final retirement still unbound.
+
+OFF controller now admits the retained WAN helper on a separate tick after
+auth RETURNED, then advances WAN once and retains POSTWAN (unfinished).
+Actual profile/RAM/controller plus WAN helper composition PASS NONE/full paths,
+ordered auth/bridge verification before WAN submit and no repeated call.
+SDK WAN behavior/readiness is injected; post-WAN network reconciliation and
+IAPP still required before baseline/owner retirement. WAN helper staged in
+experimental RC, MIPS ABI and full target symbol checks; prepared C11 PASS.
+ABI43682525761 SUCCESS forb670018d excludes later WAN/auth/verification additions.

@@ -82,5 +82,11 @@ enum wr_iot_off_followup_phase wr_iot_off_followup_step(struct wr_iot_off_follow
    wr_iot_service_guard_leave(token);
   }
  }
+ if(entered==WR_OFF_FOLLOWUP_NETWORK_PENDING&&s->phase==WR_OFF_FOLLOWUP_NETWORK_PENDING){
+  if(wr_iot_off_wan_begin(&s->wan,s->off))s->phase=WR_OFF_FOLLOWUP_WAN;
+ }
+ if(entered==WR_OFF_FOLLOWUP_WAN&&s->phase==WR_OFF_FOLLOWUP_WAN){
+  if(wr_iot_off_wan_step(&s->wan))s->phase=WR_OFF_FOLLOWUP_POSTWAN;
+ }
  s->busy=0;return s->phase;
 }
