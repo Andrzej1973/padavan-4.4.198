@@ -295,3 +295,23 @@ uses actual cold parent/profile/handoff/predicates and real SIGTERM/fence with a
 full-CLOSE observer actor; failed unmask retains all resources and current OFF
 profile identity remains unchanged. Prepared backend and symbol checks pass.
 Public root shutdown scheduling remains unbound and target/device gates remain.
+
+## Stable cold root normal completion candidate
+
+`cold-on-root.[ch]` now retains the cold owner, initial backend handoff,
+nonsecret release and terminal continuation at stable addresses for both saved
+IoT ON and OFF intent. Each step invokes one existing child continuation.
+Admission or backend refusal remains owned; it never selects native fallback.
+An OFF observer claimed by a failed fresh begin observation is polled through
+`current`, never begun twice. Release wrappers repeat their own full proof;
+terminal DONE is re-observed and retirement repeats its current proof before
+wiping the root. The independent ACTIVE/INITIAL_OFF backend remains owned by RC.
+
+The controller fixture checks both intents with injected child actors, including
+capture/release refusal, pending signal drain in the existing terminal child,
+and failed retirement retaining the exact root. This is host controller evidence,
+not composed driver, MIPS image or physical evidence. Scheduler/public entry,
+pre-UP recovery and root shutdown routing are still unbound. In particular,
+pending shutdown before terminal continuation retains the root until its exact
+pre/post-handoff cleanup can be composed; do not install this normal-only root
+as a replacement for the running startup path.

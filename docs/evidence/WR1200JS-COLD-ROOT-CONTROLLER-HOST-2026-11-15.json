@@ -1,0 +1,16 @@
+{
+  "revision_base": "0a66b08ee7bda1a3f7867b6599ccc5a79e95ae23",
+  "check": "python3 -B tools/iot/check-cold-on-root.py",
+  "result": "PASS",
+  "compiler": "host gcc -std=c11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined",
+  "scope": "Actual private root controller, injected child functions; enabled and disabled intent, stable pointers, no repeat begin after ownership, failed release and retirement retention, terminal drain under pending",
+  "sha256": {
+    "cold-on-root.c": "dafadf41559732088eeccf3217aaec703dfa15848ad60d810299f7da08da11e4",
+    "cold-on-root.h": "b7f70fdf9af41318ad37c2c6c95f27b38bef6ae89d0ea69fe92625734cdd1257",
+    "check-cold-on-root.py": "9058b1c16f482b8fb6bb9119673dfe5f09a65b61dc3549d7eb2430e681086c32"
+  },
+  "public_entry_bound": false,
+  "root_shutdown_routing_bound": false,
+  "target_build_verified": false,
+  "physical_runtime_verified": false
+}
