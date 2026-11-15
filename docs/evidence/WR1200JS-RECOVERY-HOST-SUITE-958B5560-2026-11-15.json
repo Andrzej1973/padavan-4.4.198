@@ -1,0 +1,13 @@
+{
+  "exit_code": 0,
+  "log_sha256": "8dc74a40c581080492c6f263cbed963811c79738c1cdb425dfe3c18881e9b48a",
+  "log_bytes": 42054,
+  "session": 76744,
+  "observed_exit_code": 0,
+  "coverage": "Registered suite958b5560; new unregistered post-UP witnesses verified separately",
+  "tail": [
+    "PASS actual Guest controller/DOWN bridge/isolate composition: bridge before isolation before UP, post-UP isolation loss triggers one DOWN, observed without reopening; bridge syscalls/Main/policy/UP injected, real file IO; routed firewall not verified",
+    "PASS physical-stop candidate host suite: uninstalled driver bindings, API transport and target/device acceptance remain pending"
+  ],
+  "device_verified": false
+}

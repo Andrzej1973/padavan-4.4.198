@@ -20,9 +20,9 @@ and must not be called with synthetic restart objects for the new ON root.
 Host C11-Werror ASan/UBSan actual restore composition passes Guest UP refusal,
 one Guest DOWN on pending shutdown, fresh positive proof, old epoch, wrong device
 generation, stale receipt, NOT_SUBMITTED Main and post-handoff refusal. Baseline
-and guards remain held. SDK/identity boundaries are injected. The observer is
-not yet registered/staged/bound: the earlier full host suite is live, so its
-registered inputs were preserved. Next bind this proof to bounded root cleanup
+and guards remain held. SDK/identity boundaries are injected. The observer is now registered and staged for experimental target compilation
+after the earlier full host suite completed with observed exit0. Root cleanup
+binding is still pending. Next bind this proof to bounded root cleanup
 for stock shutdown, then implement exact post-handoff CLOSE/rejection handling.
 No target, image or physical runtime acceptance is claimed. Fixture scratch was
 removed by TemporaryDirectory.
@@ -44,3 +44,21 @@ to this exact parent's Guest/Main objects whenever they have an owner. Zero
 busy flags alone do not establish that relationship. The host fixture rejects
 foreign PIDs and each detached parent pointer independently; a valid chain
 continues to pass without any additional mutation.
+
+## Post-handoff witnesses
+
+`radio-on-shutdown-check.c` validates ON-specific HANDOFF, exact creation time,
+new Main identity and old physical RELEASE through existing strong backend
+witnesses. A newly owned OFF must be terminal CLOSED; pre-OPEN rejection uses
+its separate no-OPEN/no-resource witness and is never mislabeled CLOSED.
+Guest must be DOWN and parent origin still current. Neither case restores the
+obsolete startup profile. The host fixture uses actual ON restore/handoff/Guest
+recovery with a backend boundary actor and rejects pending/state/epoch/receipt
+mismatches. Prepared separate C11-Werror units pass; MIPS and real backend
+composition remain separate. Both observers are included in ABI/target symbol
+gates, with no public shutdown cleanup binding yet.
+
+The full registered recovery suite958b5560 completed with observed exit0. Its
+log hash/result and coverage boundary were saved; completed exact scratch
+(42,172 bytes) was removed. New witnesses have separate focused evidence and
+are not retroactively included in that full-suite result.
