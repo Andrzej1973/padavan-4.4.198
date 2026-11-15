@@ -98,7 +98,8 @@ int wr_iot_activation_prepare_radio_stop(void)
  struct wr_iot_control_request request={0};
  struct timespec now;unsigned char random[32];int guard,ok=0;
  static const char hex[]="0123456789abcdef";
- if(!wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||backend.busy||rebind.owner)return 0;
+ if(!wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||backend.busy||rebind.owner||
+    wr_iot_rc_shutdown.radio_on_owned||wr_iot_rc_shutdown.radio_off_owned)return 0;
  /* A completed software CLOSE is not a physical-radio drain certificate.
   * Only the never-opened case is currently admitted; retain every other
   * owner's context and isolation without replaying or synthesizing OFF. */

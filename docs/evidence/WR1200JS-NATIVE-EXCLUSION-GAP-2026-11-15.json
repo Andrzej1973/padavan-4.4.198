@@ -1,0 +1,19 @@
+{
+  "source_revision": "6b042e90",
+  "reproducer": "tools/iot/check-native-radio-exclusion.py (before fix, expected refusal fails; diagnostic initially confirmed acceptance)",
+  "status": "APPLIED",
+  "call_chain": [
+    "prepared restart hook: private entry may refuse and return0",
+    "native restart enters fence",
+    "activation_prepare_radio_stop checks active/pending/backend/rebind only",
+    "INITIAL_OFF accepts fresh idle despite process-owned ON/OFF exclusion"
+  ],
+  "impact": "potential concurrent native restart during disabled root WAN/IAPP after parent release",
+  "candidate": "docs/iot/WR1200JS-NATIVE-EXCLUSION-CANDIDATE.patch",
+  "candidate_applied": true,
+  "public_binding": false,
+  "runtime_verified": false,
+  "candidate_host_result": "PASS actual RC/backend composition using isolated candidate source: ON/OFF process ownership refuses; normal initial OFF path and existing lifecycle tests pass",
+  "regression_fixture": "tools/iot/check-native-radio-exclusion.py",
+  "candidate_regression": "PASS C11/gnu11 Werror ASan/UBSan actual backend composition: both flags refuse with unchanged idle count and no guard depth; clearing flags restores fresh two-read native admission"
+}
