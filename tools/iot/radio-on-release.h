@@ -11,4 +11,7 @@ int wr_iot_rc_radio_on_release(struct wr_iot_on_restore *);
  * and ON exclusion, without changing signals/admission. Invoked before replay.
  * Failed mask restore retains exact callback/context for same-owner retry. */
 int wr_iot_rc_radio_on_shutdown_release(struct wr_iot_on_restore *,void (*)(void *),void *);
+/* Post-handoff uses exact new OFF CLOSED; NULL selects pre-OPEN REJECTED. */
+struct wr_iot_rc_quiesce;
+int wr_iot_rc_radio_on_shutdown_closed_release(struct wr_iot_on_restore *,const struct wr_iot_rc_quiesce *,void (*)(void *),void *);
 #endif

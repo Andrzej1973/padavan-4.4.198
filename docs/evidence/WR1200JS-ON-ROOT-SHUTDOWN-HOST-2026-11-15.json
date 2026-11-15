@@ -1,0 +1,25 @@
+{
+  "source_sha256": {
+    "radio-on-owner.c": "24d56f98910e6b5b014d6fec74ac94eaf28ccb130c7fd08276507ced3fee047e",
+    "radio-on-release-runtime.h": "d6330953df2d91d34b465331c44e483f42777bc627270b1fd12517cf9204d72c",
+    "radio-on-shutdown-check.c": "c9ec3eb9200b9e3adc29ca3ace8fe4af068eb0fa84c03504d625ec087b207bc3",
+    "check-radio-on-root-shutdown.py": "dea8cdec489e9a38280e3fd2f9c9c2e27483847a9e508cbdb686d4457ce86602"
+  },
+  "checks_passed": [
+    "check-radio-on-root-shutdown.py C11 Werror ASan UBSan",
+    "check-radio-on-owner.py",
+    "check-radio-on-postup-cancel.py",
+    "check-radio-on-cancel.py",
+    "check-radio-on-followup.py",
+    "check-rc-runtime.py",
+    "check-rc-radio-on-composition.py",
+    "check-rc-scheduler-composition.py",
+    "check-physical-stop-client-preparation.py"
+  ],
+  "scope": "Actual root, controller, terminal predicates and RC signal-fence cleanup; SDK/backend/quiesce boundaries injected",
+  "root_posthandoff_bound": true,
+  "stock_entry_bound": false,
+  "target_verified": false,
+  "device_verified": false,
+  "scratch": "TemporaryDirectory removed"
+}

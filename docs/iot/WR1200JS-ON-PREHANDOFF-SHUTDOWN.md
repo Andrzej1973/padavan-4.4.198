@@ -104,3 +104,25 @@ and existing post-UP cancellation regression pass. Modules are staged/registered
 with ABI/target-symbol gates but not yet bound into root post-handoff cleanup.
 Root entropy/stop-ID generation, final RC receipt invalidation and same-fence
 cleanup remain next. No public entry, target result or physical acceptance.
+
+## Post-handoff root and RC cleanup binding
+
+The ON root now generates a distinct OFF identity/time only after pending
+shutdown, using nonblocking initialized entropy and monotonic time no earlier
+than handoff. Entropy failure cannot begin an OFF. After a shutdown owner is
+admitted, only its stable controller advances. CLOSED and REJECTED select their
+respective RC witnesses. RC's shutdown release records the same restore, OFF
+pointer, callback/context and branch across failed-mask retries and revalidates
+the exact terminal witness and original receipt each time. Successful cleanup
+invalidates the old OFF receipt, frees obsolete baseline memory without
+restoring it, and wipes the whole ON root before pending stock shutdown replay.
+No new OPEN, guessed sequence, global ACK change or Main-reset shortcut is used.
+
+The actual-root host fixture passes entropy refusal, one accepted OFF, Guest
+drain, CLOSED and pre-OPEN REJECTED paths, failed unmask retention/retry and real
+SIGTERM after root/receipt cleanup. Existing pre-UP, post-UP prehandoff,
+follow-up/RC/scheduler and prepared separate translation-unit checks pass.
+Backend/quiesce/SDK boundaries are actors; this does not prove actual target
+backend CLOSE or hardware RF/DMA retirement. The private root is integrated;
+public stock OFF/ON binding, cold/IoT-OFF admission, non-shutdown failure policy
+and final firmware/device acceptance remain open.

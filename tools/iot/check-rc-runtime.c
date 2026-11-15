@@ -14,6 +14,7 @@ static char directory[]="/tmp/iot-rc-runtime-XXXXXX";
 #define WR_IOT_RUNTIME_UID geteuid()
 #include "rc-runtime.c"
 #ifndef WR_IOT_RUNTIME_FIXTURE_EXTERNAL_ON_RELEASE
+int wr_iot_on_shutdown_closed_current(struct wr_iot_on_restore*s,const struct wr_iot_rc_quiesce*o){(void)s;(void)o;assert(0);return 0;}
 int wr_iot_on_prehandoff_cancel_current(struct wr_iot_on_restore*s){(void)s;assert(0);return 0;}
 int wr_iot_on_release_current(struct wr_iot_on_restore *s){(void)s;assert(0);return 0;}
 int wr_iot_wan_followup_capture(struct wr_iot_wan_followup_state *s,int on){(void)s;(void)on;assert(0);return 0;}

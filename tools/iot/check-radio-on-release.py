@@ -25,6 +25,9 @@ void wr_iot_rc_restart_wan_submit(enum wr_iot_wan_followup p){assert(p==WR_WAN_F
 #include "radio-on-release.c"
 #include "radio-on-prehandoff.c"
 #define radio_off_receipt receipt
+#ifndef WR_IOT_FIXTURE_REAL_ON_SHUTDOWN
+int wr_iot_on_shutdown_closed_current(struct wr_iot_on_restore*s,const struct wr_iot_rc_quiesce*o){(void)s;(void)o;assert(0);return 0;}
+#endif
 #include "radio-on-release-runtime.h"
 #undef radio_off_receipt
 static struct wr_iot_on_restore *releasing;

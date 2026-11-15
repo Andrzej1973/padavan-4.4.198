@@ -62,8 +62,10 @@ int wr_iot_rc_radio_on_release(struct wr_iot_on_restore *s)
 /* Post-UP shutdown keeps the CURRENT generated profile for stock shutdown.
  * Never restore the pre-UP bytes. Only RC can invalidate its old OFF receipt. */
 #include "radio-on-prehandoff.h"
+#include "radio-on-shutdown-check.h"
 static struct {
  struct wr_iot_on_restore *restore;
+ const struct wr_iot_rc_quiesce *off;int posthandoff;
  void (*cleanup)(void *);void *context;
 } rc_on_shutdown;
 static void rc_on_shutdown_cleanup(void *unused)
@@ -84,8 +86,8 @@ static void rc_on_shutdown_cleanup(void *unused)
  /* Final root wipe/exclusion release must precede pending signal replay. */
  cleanup(context);
 }
-int wr_iot_rc_radio_on_shutdown_release(struct wr_iot_on_restore *s,
- void (*cleanup)(void *),void *context)
+static int rc_on_shutdown_release(struct wr_iot_on_restore *s,
+ const struct wr_iot_rc_quiesce *off,int posthandoff,void (*cleanup)(void *),void *context)
 {
  struct wr_iot_on_admission *a;unsigned char before[64],after[64];
  if(!s||!cleanup||s->owner!=getpid()||s->busy||!s->generation.admission||
@@ -100,15 +102,20 @@ int wr_iot_rc_radio_on_shutdown_release(struct wr_iot_on_restore *s,
     !wr_iot_rc_shutdown.radio_off_owned||!radio_off_receipt_valid||
     !wr_iot_physical_stop_request_encode(before,sizeof(before),&a->released)||
     !wr_iot_physical_stop_request_encode(after,sizeof(after),&radio_off_receipt)||memcmp(before,after,sizeof(before)))return 0;
- if(!wr_iot_on_prehandoff_cancel_current(s))return 0;
+ if(posthandoff?!wr_iot_on_shutdown_closed_current(s,off):!wr_iot_on_prehandoff_cancel_current(s))return 0;
  if(rc_on_shutdown.restore){
-  if(rc_on_shutdown.restore!=s||rc_on_shutdown.cleanup!=cleanup||rc_on_shutdown.context!=context)return 0;
+  if(rc_on_shutdown.restore!=s||rc_on_shutdown.cleanup!=cleanup||rc_on_shutdown.context!=context||rc_on_shutdown.off!=off||rc_on_shutdown.posthandoff!=posthandoff)return 0;
  }else{
   if(radio_on_releasing)return 0;
-  rc_on_shutdown.restore=s;rc_on_shutdown.cleanup=cleanup;rc_on_shutdown.context=context;
+  rc_on_shutdown.restore=s;rc_on_shutdown.off=off;rc_on_shutdown.posthandoff=posthandoff;rc_on_shutdown.cleanup=cleanup;rc_on_shutdown.context=context;
  }
  s->busy=1;
  if(!wr_iot_radio_stop_fence_end_cleanup(&a->fence,rc_on_shutdown_cleanup,NULL)){s->busy=0;return 0;}
  return 1;
 }
+int wr_iot_rc_radio_on_shutdown_release(struct wr_iot_on_restore *s,void (*cleanup)(void *),void *context)
+{return rc_on_shutdown_release(s,NULL,0,cleanup,context);}
+int wr_iot_rc_radio_on_shutdown_closed_release(struct wr_iot_on_restore *s,
+ const struct wr_iot_rc_quiesce *off,void (*cleanup)(void *),void *context)
+{return rc_on_shutdown_release(s,off,1,cleanup,context);}
 #endif

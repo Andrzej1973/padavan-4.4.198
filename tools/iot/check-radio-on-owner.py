@@ -17,6 +17,11 @@ static void make_saved_profile(void){
 }
 int wr_iot_rc_restart_generate(int arg)''').replace('make_profile();return 0;}', 'make_saved_profile();return 0;}')
 body+=r'''
+#include "radio-on-shutdown.h"
+#ifndef WR_IOT_FIXTURE_REAL_ON_SHUTDOWN
+int wr_iot_on_shutdown_begin(struct wr_iot_on_shutdown*s,struct wr_iot_on_restore*r,const struct wr_iot_control_request*o){(void)s;(void)r;(void)o;assert(0);return 0;}
+int wr_iot_on_shutdown_step(struct wr_iot_on_shutdown*s){(void)s;assert(0);return 0;}
+#endif
 #include "radio-on-owner.c"
 int main(int argc,char**argv){
  (void)check;assert(argc==2);snprintf(profile_path,sizeof(profile_path),"%s/profile",argv[1]);

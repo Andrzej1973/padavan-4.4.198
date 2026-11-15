@@ -9,7 +9,8 @@ int wr_iot_on_shutdown_closed_current(struct wr_iot_on_restore *s,const struct w
  static const char hex[]="0123456789abcdef";
  struct wr_iot_control_result on={0};struct wr_iot_driver_closed_result closed={0};
  unsigned i;int state;
- if(!s||s->owner!=getpid()||s->busy||s->phase!=WR_ON_RESTORE_HANDOFF||
+ if(!s||s->owner!=getpid()||s->busy||s->services.busy||s->multicast.busy||
+    s->wan.owner||s->terminal.owner||s->child.owner||s->child.attempted||s->phase!=WR_ON_RESTORE_HANDOFF||
     !s->handoff_created||!wr_iot_rc_shutdown.active||
     (wr_iot_rc_shutdown.pending!=SIGTERM
 #ifdef SIGQUIT
@@ -36,7 +37,8 @@ int wr_iot_on_shutdown_closed_current(struct wr_iot_on_restore *s,const struct w
 int wr_iot_on_shutdown_rejected_current(struct wr_iot_on_restore *s)
 {
  static const char hex[]="0123456789abcdef";struct wr_iot_control_result on={0};unsigned i;
- if(!s||s->owner!=getpid()||s->busy||s->phase!=WR_ON_RESTORE_HANDOFF||!s->handoff_created||
+ if(!s||s->owner!=getpid()||s->busy||s->services.busy||s->multicast.busy||
+    s->wan.owner||s->terminal.owner||s->child.owner||s->child.attempted||s->phase!=WR_ON_RESTORE_HANDOFF||!s->handoff_created||
     s->main.owner!=getpid()||s->main.generation!=&s->generation||
     !s->generation.admission||!s->generation.admission->profile.active||!wr_iot_on_generation_origin_current(&s->generation))return 0;
  for(i=0;i<16;i++){on.id[2*i]=hex[s->open_id[i]>>4];on.id[2*i+1]=hex[s->open_id[i]&15];}
