@@ -1,0 +1,23 @@
+{
+  "scope": "uncomposed disabled cold postrelease initial-OFF/profile/policy observation and WAN gate",
+  "checks": {
+    "actual_disabled_parent_cleanup_initial_OFF_profile_policy_real_fence_asan_ubsan": "PASS",
+    "envelope_identity_saved_policy_Guest_auth_pending_drift_refused": "PASS",
+    "all_WAN_plans_NONE_restart_reconnect": "PASS",
+    "post_submit_observation_loss_retains_no_replay": "PASS",
+    "fresh_guard_balanced_no_parent_pointer": "PASS",
+    "no_IoT_OPEN": "PASS"
+  },
+  "actors": [
+    "SDK Main/Guest/service/multicast and WAN transport",
+    "driver initial-IDLE"
+  ],
+  "sha256": {
+    "tools/iot/rc-cold-disabled-followup.inc": "c09e2441ff8bc3014032ddff349406144c172917a497905642f374267ea608bd",
+    "tools/iot/check-rc-cold-disabled-followup.py": "e40ba15728e753c0c8625e3dceb3fa92b613fd996d6098eed307a1c828404417"
+  },
+  "runtime_composed": false,
+  "LED_IAPP_retirement_connected": false,
+  "target_verified": false,
+  "physical_verified": false
+}
