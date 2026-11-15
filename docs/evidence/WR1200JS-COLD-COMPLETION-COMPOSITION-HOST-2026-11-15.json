@@ -1,0 +1,30 @@
+{
+  "scope": "experimental prepared RC backend now composes detach/release/followup/terminal with private exports",
+  "checks": {
+    "actual_prepared_backend_GNU11_Werror_object": "PASS",
+    "private_RC_completion_T_symbols_nm": "PASS",
+    "other_prepared_C11_units": "PASS",
+    "exact_composed_source_verifier_and_corruption_rejection": "PASS",
+    "terminal_fixture_through_exported_wrappers_both_policy_gates": "PASS",
+    "real_SIGTERM_fixture": "PASS"
+  },
+  "validation_correction": "older preparation fixture did not compile rc-backend itself; now uses actual activation-owner header instead of prerequisite marker",
+  "sha256": {
+    "tools/iot/rc-cold-completion.h": "ff4caeb5ee0e81d59209dcde0817dbfcc4b624d71ebaf46e4031e9508f47f202",
+    "tools/iot/rc-cold-completion.inc": "ed9ae120602b212af755fbd803c8feb9ae2fc685221b32ede4c32f23121c446f",
+    "tools/iot/rc-cold-release.inc": "2965256c3e8207f587771941381668edf5a296ccdf7599cf0ae74a043e1082a8",
+    "tools/iot/rc-cold-terminal.inc": "12f6c62028f60b1fedc964b50d35ecd373940e471c62f4d43eeb8b06b4ebecbb",
+    "tools/iot/prepare-runtime.py": "ad18ac264b8a38bbd0c1ba0b25288fd9c3f409c5d7c43c0287023dd04038ccc6",
+    "tools/iot/check-runtime-source.py": "7f1566f898f699adf559542a754f2cd905df789ac27bd522f9c6175aa7fd6a95",
+    "tools/iot/check-physical-stop-client-preparation.py": "8029d12ed7697e8a38b9c38bda07ae4db6c13463fb3f961a5314ec8d20005752"
+  },
+  "public_entry_bound": false,
+  "target_verified": false,
+  "physical_verified": false,
+  "remaining": [
+    "post-UP shutdown",
+    "disabled cold completion",
+    "root/public entry integration",
+    "target/image/device gates"
+  ]
+}

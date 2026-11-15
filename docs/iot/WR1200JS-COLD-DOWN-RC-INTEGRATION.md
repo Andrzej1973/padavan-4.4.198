@@ -185,3 +185,18 @@ The host test runs actual cold parent cleanup, WAN and IAPP terminal/fence with
 SDK and child-result actors, both policy gates and final retirement. These
 private fragments remain uncomposed; public entry, post-UP shutdown and disabled
 IoT completion are still outstanding. Software checks do not certify RF/runtime.
+
+## Private completion API composed into experimental RC
+
+Prepared rc-backend now contains detach, parent cleanup, post-release policy/
+ACTIVE/WAN observer and LED/IAPP terminal code. `rc-cold-completion.h` supplies
+stable caller-owned context types; private exported wrappers expose release,
+terminal begin/step/retire. Exact-source validation mirrors all named fragments.
+The host preparation fixture now compiles the actual prepared backend in GNU11
+and checks its four completion symbols with nm, using the real activation owner
+header. Earlier fixture compilation covered individual RC units but omitted the
+backend; that older evidence must not be read as backend compilation. Other
+prepared units retain C11 Werror checks. Terminal integration uses the exported
+wrappers with both policy gates; pending SIGTERM composition still passes.
+No public cold entry or scheduler caller is enabled. Post-UP shutdown, disabled
+completion and root integration remain before runtime activation.

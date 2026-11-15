@@ -46,6 +46,7 @@ int wr_iot_iapp_child_step(struct wr_iot_iapp_child*s){if(child_outcome==0)retur
 #undef WR_IOT_IAPP_POLICY_PREPARED
 #define WR_IOT_IAPP_POLICY_PREPARED TEST_IAPP_GATE
 #include "rc-cold-terminal.inc"
+#include "rc-cold-completion.inc"
 int main(int argc,char**argv){
  (void)check;assert(argc==2);snprintf(profile_path,sizeof(profile_path),"%s/profile",argv[1]);
  strcpy(desired.gateway,"192.168.30.1");strcpy(desired.mask,"255.255.255.0");strcpy(desired.first,"192.168.30.10");strcpy(desired.last,"192.168.30.40");
@@ -85,17 +86,17 @@ int main(int argc,char**argv){
     struct wr_iot_cold_parent_release parent_release={0};
     struct wr_iot_activation_owner backend_before=backend;
     fail_release_unmask=1;
-    assert(!wr_iot_cold_parent_release(&parent_release,&release)&&!parent_release.released);
+    assert(!wr_iot_rc_cold_parent_release(&parent_release,&release)&&!parent_release.released);
     assert(wr_iot_cold_backend_parent==&owner&&owner.admission.profile.active&&depth==1);
     assert(!memcmp(&backend,&backend_before,sizeof(backend))&&wr_iot_rc_shutdown.active);
     fail_release_unmask=0;
-    assert(wr_iot_cold_parent_release(&parent_release,&release)&&parent_release.released);
+    assert(wr_iot_rc_cold_parent_release(&parent_release,&release)&&parent_release.released);
     assert(!memcmp(&backend,&backend_before,sizeof(backend))&&!wr_iot_cold_backend_parent);
     assert(!owner.owner&&!owner.admission.profile.active&&!owner.admission.profile.files.count&&!depth);
     assert(!owner.admission.fence.owner&&!handoff.owner&&!release.parent&&!release.handoff);
     for(size_t j=0;j<sizeof(owner.generation);j++)assert(!((unsigned char*)&owner.generation)[j]);
     assert(!wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.radio_off_owned&&wr_iot_rc_shutdown.radio_on_owned);
-    assert(!wr_iot_cold_parent_release(&parent_release,&release)&&!wan_submits);
+    assert(!wr_iot_rc_cold_parent_release(&parent_release,&release)&&!wan_submits);
     assert(wr_iot_cold_followup_active(&release)&&!depth);
     guest_desired=0;assert(!wr_iot_cold_followup_active(&release));guest_desired=1;
     auth=0;assert(!wr_iot_cold_followup_active(&release));auth=1;
@@ -115,33 +116,33 @@ int main(int argc,char**argv){
     wr_iot_rc_shutdown.pending=SIGTERM;assert(!wr_iot_cold_followup_active(&release));wr_iot_rc_shutdown.pending=0;
     assert(wr_iot_cold_followup_active(&release));
     struct wr_iot_cold_terminal terminal_owner={0};led_calls=child_calls=0;child_outcome=wan_plan==1?-1:wan_plan==2?0:1;
-    assert(wr_iot_cold_terminal_begin(&terminal_owner,&parent_release));
-    assert(!wr_iot_cold_terminal_begin(&terminal_owner,&parent_release));
-    active_proof=0;assert(!wr_iot_cold_terminal_step(&terminal_owner)&&!led_calls&&!child_calls);active_proof=1;
-    assert(!wr_iot_cold_terminal_step(&terminal_owner)&&led_calls==1);
+    assert(wr_iot_rc_cold_terminal_begin(&terminal_owner,&parent_release));
+    assert(!wr_iot_rc_cold_terminal_begin(&terminal_owner,&parent_release));
+    active_proof=0;assert(!wr_iot_rc_cold_terminal_step(&terminal_owner)&&!led_calls&&!child_calls);active_proof=1;
+    assert(!wr_iot_rc_cold_terminal_step(&terminal_owner)&&led_calls==1);
     if(!WR_IOT_IAPP_POLICY_PREPARED){
-     for(int wait=0;wait<4;wait++)assert(!wr_iot_cold_terminal_step(&terminal_owner)&&!child_calls&&!wr_iot_rc_shutdown.active);
+     for(int wait=0;wait<4;wait++)assert(!wr_iot_rc_cold_terminal_step(&terminal_owner)&&!child_calls&&!wr_iot_rc_shutdown.active);
      assert(terminal_owner.phase==WR_COLD_TERM_IAPP_PENDING&&led_calls==1);
      wr_iot_rc_shutdown.radio_on_owned=0;assert(!unlink(profile_path));continue;
     }
-    assert(!wr_iot_cold_terminal_step(&terminal_owner)&&wr_iot_rc_shutdown.active);
-    assert(!wr_iot_cold_terminal_step(&terminal_owner)&&child_calls==1);
+    assert(!wr_iot_rc_cold_terminal_step(&terminal_owner)&&wr_iot_rc_shutdown.active);
+    assert(!wr_iot_rc_cold_terminal_step(&terminal_owner)&&child_calls==1);
     if(wan_plan==2){
-     for(int wait=0;wait<3;wait++)assert(!wr_iot_cold_terminal_step(&terminal_owner)&&child_calls==1&&wr_iot_rc_shutdown.active);
+     for(int wait=0;wait<3;wait++)assert(!wr_iot_rc_cold_terminal_step(&terminal_owner)&&child_calls==1&&wr_iot_rc_shutdown.active);
      child_outcome=1;
     }
-    assert(wr_iot_cold_terminal_step(&terminal_owner)==(wan_plan!=1));
+    assert(wr_iot_rc_cold_terminal_step(&terminal_owner)==(wan_plan!=1));
     assert(!wr_iot_rc_shutdown.active&&!depth&&led_calls==1&&child_calls==1);
-    for(int repeat=0;repeat<3;repeat++)assert(wr_iot_cold_terminal_step(&terminal_owner)==(wan_plan!=1));
+    for(int repeat=0;repeat<3;repeat++)assert(wr_iot_rc_cold_terminal_step(&terminal_owner)==(wan_plan!=1));
     assert(led_calls==1&&child_calls==1&&wan_submits==(wan_plan!=WR_WAN_NONE));
     if(wan_plan!=1){
-     active_proof=0;assert(!wr_iot_cold_terminal_retire(&terminal_owner)&&wr_iot_rc_shutdown.radio_on_owned);active_proof=1;
-     assert(wr_iot_cold_terminal_retire(&terminal_owner)&&!terminal_owner.owner&&!parent_release.release&&!release.owner);
-     assert(!wr_iot_rc_shutdown.radio_on_owned&&!wr_iot_cold_terminal_retire(&terminal_owner));
+     active_proof=0;assert(!wr_iot_rc_cold_terminal_retire(&terminal_owner)&&wr_iot_rc_shutdown.radio_on_owned);active_proof=1;
+     assert(wr_iot_rc_cold_terminal_retire(&terminal_owner)&&!terminal_owner.owner&&!parent_release.release&&!release.owner);
+     assert(!wr_iot_rc_shutdown.radio_on_owned&&!wr_iot_rc_cold_terminal_retire(&terminal_owner));
      assert(!memcmp(&backend,&backend_before,sizeof(backend)));
      assert(!unlink(profile_path));continue;
     }
-    assert(!wr_iot_cold_terminal_retire(&terminal_owner));
+    assert(!wr_iot_rc_cold_terminal_retire(&terminal_owner));
     FILE*changed=fopen(profile_path,"a");assert(changed&&fputs("# foreign change\n",changed)>=0&&!fclose(changed));
     assert(!wr_iot_cold_followup_active(&release)&&!depth&&wan_submits==(wan_plan!=WR_WAN_NONE));
     assert(!memcmp(&backend,&backend_before,sizeof(backend)));

@@ -1,10 +1,7 @@
 /* Uncomposed RC-private candidate, after rc-cold-start/detach fragments.
  * Keep this stable owner through WAN/IAPP completion and checked retirement.
  * Public routing/post-UP shutdown is intentionally not enabled by this file. */
-struct wr_iot_cold_parent_release {
- struct wr_iot_cold_release *release;
- int busy,released;
-};
+#include "rc-cold-completion.h"
 static void wr_iot_cold_release_wipe(void *p,size_t n)
 {volatile unsigned char *b=p;while(n--)*b++=0;}
 static void wr_iot_cold_parent_cleanup(void *context)

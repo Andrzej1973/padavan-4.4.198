@@ -2,14 +2,7 @@
  * IAPP gate must be the paired source policy, never a request-controlled bit. */
 #include "restart-terminal-iapp.h"
 #include "restart-iapp-policy.h"
-enum wr_iot_cold_terminal_phase {WR_COLD_TERM_IDLE,WR_COLD_TERM_WAN,WR_COLD_TERM_IAPP_PENDING,
- WR_COLD_TERM_IAPP,WR_COLD_TERM_DONE,WR_COLD_TERM_RETAINED};
-struct wr_iot_cold_terminal {
- pid_t owner;int busy,led_attempted,led_returned;
- enum wr_iot_cold_terminal_phase phase;
- struct wr_iot_cold_parent_release *parent_release;
- struct wr_iot_terminal_iapp terminal;struct wr_iot_iapp_child child;
-};
+#include "rc-cold-completion.h"
 static int wr_iot_cold_terminal_begin(struct wr_iot_cold_terminal *s,
  struct wr_iot_cold_parent_release *released)
 {
