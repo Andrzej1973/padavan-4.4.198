@@ -13,7 +13,9 @@ static inline int wr_iot_precreated_down_reference(
  struct wr_iot_interface_ref *main,*iot;unsigned int i;
  if(!owner||!radio||!slots||!main_dev||!iot_dev||main_dev==iot_dev||
     !generation||vendor_count||owner->last_release.device!=main_dev||
-    !owner->last_release.generation||radio->exhausted)return 0;
+    !owner->last_release.generation||owner->device||owner->generation||
+    owner->open_token||owner->close_serial||owner->close_ticket_valid||
+    owner->schedule_recorded||radio->exhausted)return 0;
  main=wr_iot_registry_find(slots,count,main_dev,owner->last_release.generation);
  iot=wr_iot_registry_find(slots,count,iot_dev,generation);
  if(!main||!iot||!wr_iot_main_recovery_release_current(owner,radio,main,vendor_count)||

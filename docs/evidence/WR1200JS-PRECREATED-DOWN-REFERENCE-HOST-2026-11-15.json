@@ -13,7 +13,11 @@
     "Main READY",
     "missing Main release receipt",
     "deferred Main owner",
-    "nonzero vendor count"
+    "nonzero vendor count",
+    "residual live Main device",
+    "residual close ticket",
+    "residual schedule marker",
+    "residual open token"
   ],
   "read_only": true,
   "limits": [
@@ -23,5 +27,6 @@
     "never-started fresh adapter is separate from completed Main close",
     "no ioctl binding, RC integration or target build yet"
   ],
-  "runtime_verified": false
+  "runtime_verified": false,
+  "owner_release_requirement": "live device/generation/token/close serial/ticket/schedule fields cleared, matching main_recovery_finish_netdev_release reset-before-receipt publication"
 }

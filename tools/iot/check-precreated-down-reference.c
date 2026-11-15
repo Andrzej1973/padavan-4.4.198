@@ -30,6 +30,10 @@ int main(void){
  radio.phase=WR_RADIO_READY;assert(!CURRENT());radio=saved_radio;
  owner.last_release.valid=0;assert(!CURRENT());owner=saved_owner;
  owner.deferred_owners=1;assert(!CURRENT());owner=saved_owner;
+ owner.device=&main_device;assert(!CURRENT());owner=saved_owner;
+ owner.close_ticket_valid=1;assert(!CURRENT());owner=saved_owner;
+ owner.schedule_recorded=1;assert(!CURRENT());owner=saved_owner;
+ owner.open_token=3;assert(!CURRENT());owner=saved_owner;
  assert(!wr_iot_precreated_down_reference(&owner,&radio,slots,3,&main_device,&iot_device,i->generation,1));
  assert(CURRENT());
  return 0;
