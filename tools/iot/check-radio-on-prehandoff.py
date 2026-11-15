@@ -23,6 +23,11 @@ int main(int argc,char**argv){
  r.handoff_created=10;assert(!wr_iot_on_prehandoff_cancel_current(&r));r.handoff_created=0;
  r.main.phase=WR_ON_MAIN_NOT_SUBMITTED;assert(!wr_iot_on_prehandoff_cancel_current(&r));r.main.phase=WR_ON_MAIN_READY;
  receipt.attempt++;assert(!wr_iot_on_prehandoff_cancel_current(&r));receipt.attempt--;
+ r.services.owner=getpid()+1;assert(!wr_iot_on_prehandoff_cancel_current(&r));r.services.owner=getpid();
+ r.services.guest=NULL;assert(!wr_iot_on_prehandoff_cancel_current(&r));r.services.guest=&r.guest;
+ r.multicast.owner=getpid()+1;assert(!wr_iot_on_prehandoff_cancel_current(&r));r.multicast.owner=getpid();
+ r.multicast.main=NULL;assert(!wr_iot_on_prehandoff_cancel_current(&r));r.multicast.main=&r.main;
+ r.multicast.guest=NULL;assert(!wr_iot_on_prehandoff_cancel_current(&r));r.multicast.guest=&r.guest;
 #define BUSY(f) r.f=1;assert(!wr_iot_on_prehandoff_cancel_current(&r));r.f=0;
  BUSY(services.busy) BUSY(multicast.busy) BUSY(guest.busy) BUSY(wan.owner)
  BUSY(terminal.owner) BUSY(child.attempted)

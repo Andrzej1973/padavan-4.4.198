@@ -26,6 +26,8 @@ int wr_iot_on_prehandoff_cancel_current(struct wr_iot_on_restore *s)
      &&wr_iot_rc_shutdown.pending!=SIGQUIT
 #endif
     )||!wr_iot_on_generation_origin_current(&s->generation))return 0;
+ if((s->services.owner&&(s->services.owner!=getpid()||s->services.guest!=&s->guest))||
+    (s->multicast.owner&&(s->multicast.owner!=getpid()||s->multicast.main!=&s->main||s->multicast.guest!=&s->guest)))return 0;
  if(s->guest.owner&&(s->guest.owner!=getpid()||s->guest.busy||s->guest.main!=&s->main||
     (s->guest.phase!=WR_ON_GUEST_DOWN_OBSERVED&&s->guest.phase!=WR_ON_GUEST_POLICY_OFF)))return 0;
  if(!wr_iot_restart_guest_admin_state(&guest)||guest||

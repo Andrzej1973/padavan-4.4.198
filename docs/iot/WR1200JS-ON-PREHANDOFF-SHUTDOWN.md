@@ -38,3 +38,9 @@ with an in-flight child. The expanded host fixture independently corrupts each
 predicate and confirms retained ownership with no extra UP/DOWN submission.
 The root cleanup binding remains deferred until the live full suite terminates;
 its registered sources are unchanged during execution.
+
+The service and multicast children must also belong to this process and point
+to this exact parent's Guest/Main objects whenever they have an owner. Zero
+busy flags alone do not establish that relationship. The host fixture rejects
+foreign PIDs and each detached parent pointer independently; a valid chain
+continues to pass without any additional mutation.
