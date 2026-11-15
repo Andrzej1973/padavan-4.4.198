@@ -170,3 +170,18 @@ unit is staged for RC/ABI/link compilation. Standalone detach/cleanup/signal/
 followup/WAN tests are now registered in the full host suite. Runtime cleanup/
 followup fragments remain uncomposed until LED/IAPP owner, retirement and post-UP
 shutdown handling are complete. Target/image/device verification stays separate.
+
+## Cold LED/IAPP terminal and retirement candidate
+
+`rc-cold-terminal.inc` owns WAN, one LED attempt and one existing IAPP terminal
+transaction at stable addresses. Unknown child completion drains that same
+context; confirmed failure remains retained and never replays the command.
+The default IAPP policy gate is inert; only paired prepared policy permits the
+terminal begin. DONE requires a successful closed child, balanced terminal
+fence/guard and a fresh full post-release ACTIVE/profile/policy observation.
+Final retirement repeats this proof before wiping nonsecret release/terminal
+contexts and clearing ON exclusion, preserving the independent ACTIVE backend.
+The host test runs actual cold parent cleanup, WAN and IAPP terminal/fence with
+SDK and child-result actors, both policy gates and final retirement. These
+private fragments remain uncomposed; public entry, post-UP shutdown and disabled
+IoT completion are still outstanding. Software checks do not certify RF/runtime.
