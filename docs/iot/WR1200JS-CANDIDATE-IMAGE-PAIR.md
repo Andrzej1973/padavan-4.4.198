@@ -77,3 +77,20 @@ optional artifact's `isolated-image/WR1200JS-IoT-CANDIDATE-<sha>.trx`, with SHA2
 it covers complete extraction plus header/payload CRC and content/mode refusal.
 Vendor packaging execution, flash partition limits/release gates and physical
 runtime are not proven by that host fixture. New optional execution is required.
+
+## Board flash-limit and HNAT gates on the candidate
+
+The candidate path now validates the existing board catalogue contract against
+`wr1200js.dts`/SPI16M layout and the normal image verifier's default. Firmware
+partition is 0x50000..0xfc0000 (0xf70000 = 16187392 bytes); Config, Factory and
+Storage remain separate. It then runs the same `verify-wr1200js-image.py` used
+for normal firmware on the isolated candidate. This enforces product/header/CRC,
+declared length, minimum/maximum image range and embedded IoT/HWNAT DTB policy.
+The complete SquashFS extraction check remains independent.
+
+The retained candidate's digest must match both board and extraction reports,
+and the staging source/closure proof must describe the same revision. The final
+isolated-image-verification report records bytes and remaining partition bytes,
+while production promotion and physical runtime stay false. Actual CI image
+execution is still required; host catalogue drift and SquashFS tests only prove
+the gates themselves, not that a real candidate has passed them.

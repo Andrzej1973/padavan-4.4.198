@@ -8,6 +8,13 @@ revision="$4"
 test -d "$trunk/romfs"
 test -x "$compiler"
 test -s "$results/paired-image-inputs.json"
+python3 - <<'PY'
+import runpy
+from pathlib import Path
+validate=runpy.run_path('tools/repository/board_catalog.py')['validate_wr_layout']
+layout=validate(Path.cwd())
+print('PASS WR1200JS layout/image-size contract:',layout['firmware'])
+PY
 probe="$(mktemp -d "$RUNNER_TEMP/wr-iot-romfs.XXXXXX")"
 trap 'find "$probe" -depth -delete' EXIT
 cross="${compiler%gcc}"
@@ -63,6 +70,8 @@ make -f "$probe/image.mk" ROOTDIR="$trunk" CROSS_COMPILE="$cross" \
 shopt -s nullglob
 images=("$probe/images/"*.trx)
 test "${#images[@]}" = 1
+python3 overlay/padavan-4.4/scripts/verify-wr1200js-image.py "${images[0]}" \
+  --report "$results/isolated-trx-board-gates.json"
 python3 -B tools/iot/verify-isolated-trx.py "${images[0]}" "$probe/romfs" \
   --unsquashfs "$trunk/tools/mksquashfs_xz/unsquashfs" \
   --report "$results/isolated-trx-content.json"
@@ -70,4 +79,27 @@ sha256sum -c "$results/isolated-image-baseline.sha256"
 mkdir "$results/isolated-image"
 cp "${images[0]}" "$results/isolated-image/WR1200JS-IoT-CANDIDATE-${revision:0:8}.trx"
 sha256sum "$results/isolated-image/"*.trx > "$results/isolated-image.sha256"
+python3 - "$results" "$revision" <<'PY'
+import hashlib,json,sys
+from pathlib import Path
+root=Path(sys.argv[1]);revision=sys.argv[2]
+board=json.loads((root/'isolated-trx-board-gates.json').read_text())
+content=json.loads((root/'isolated-trx-content.json').read_text())
+stage=json.loads((root/'isolated-romfs-stage.json').read_text())
+images=list((root/'isolated-image').glob('*.trx'))
+if len(images)!=1:raise SystemExit('Require one retained candidate TRX')
+digest=hashlib.file_digest(images[0].open('rb'),'sha256').hexdigest()
+if board['sha256']!=digest or content['image_sha256']!=digest or not all(board['checks'].values()):
+ raise SystemExit('Image reports do not describe the retained candidate')
+if stage['source_revision']!=revision or not stage['baseline_unchanged'] or not stage['dependency_closure_at_image_paths_verified']:
+ raise SystemExit('Staging proof does not match this source')
+report={'source_revision':revision,'candidate_image':images[0].name,'sha256':digest,
+        'bytes':images[0].stat().st_size,'firmware_partition_bytes':16187392,
+        'remaining_partition_bytes':16187392-images[0].stat().st_size,
+        'isolated_image_build_verified':True,'board_structure_and_hwnat_policy_verified':True,
+        'complete_romfs_extraction_verified':content['isolated_trx_contents_verified'],
+        'dependency_closure_at_image_paths_verified':True,'production_promoted':False,
+        'physical_runtime_verified':False}
+(root/'isolated-image-verification.json').write_text(json.dumps(report,indent=2)+'\n')
+PY
 printf '%s\n' 'PASS isolated candidate TRX built/extracted; NOT runtime accepted or promoted to release'
