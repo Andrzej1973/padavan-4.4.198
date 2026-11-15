@@ -55,6 +55,7 @@ for entry in radio-off-owner:wr_iot_radio_off_begin radio-off-owner:wr_iot_radio
 done
 "${cross}nm" "$probe/trunk/user/rc/net_wifi.o" > "$results/physical-aux-symbols.txt"
 grep -Eq '[[:space:]]T[[:space:]]wr_iot_rc_physical_aux_down$' "$results/physical-aux-symbols.txt"
+grep -Eq '[[:space:]]T[[:space:]]wr_iot_rc_radio_off_policy$' "$results/physical-aux-symbols.txt"
 grep -Eq '[[:space:]]T[[:space:]]wr_iot_rc_restart_guest_policy$' "$results/physical-aux-symbols.txt"
 grep -Eq '[[:space:]]T[[:space:]]wr_iot_rc_restart_generate$' "$results/physical-aux-symbols.txt"
 mkdir -p "$probe/staged/usr/sbin"

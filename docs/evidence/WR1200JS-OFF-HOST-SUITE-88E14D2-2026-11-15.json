@@ -1,0 +1,9 @@
+{
+  "revision": "88e14d23d217dec07fbe8b567c481751510aefe6",
+  "suite": "tools/iot/check-physical-stop-suite.py",
+  "exit_code": 0,
+  "log_sha256": "008b9be65eeeecd5e6ef1bfcfc6ea1ab882be3d652083d5307883bfd744fed47",
+  "log_bytes": 34086,
+  "observed_session": 44482,
+  "scope": "All registered physical-stop host checks at88e14d2; later standalone OFF policy excluded; no target/image/device acceptance"
+}

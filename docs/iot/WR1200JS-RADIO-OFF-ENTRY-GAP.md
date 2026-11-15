@@ -137,3 +137,10 @@ invalid values and reconnect-on-OFF, and leaves output untouched on refusal.
 The host ASan/UBSan fixture passed all stored-radio/auth/reload combinations
 and refusal cases. This is observed-drift checking, not all-writer atomicity.
 It is unregistered/unbound: no SDK mutation, daemon or WAN submission.
+
+OFF policy adapter is now embedded by prepare-rc in the actual net_wifi helper
+construction with explicit policy/admission headers. The registered test
+evaluates the preparer's helper assignments and verifies exact adapter inclusion
+before exercising its SDK actor fixture. Full target-link requires the policy
+symbol from net_wifi.o. Policy/service/AUX host checks PASS; actual SDK MIPS
+link still requires CI. This staging does not enable OFF orchestration.
