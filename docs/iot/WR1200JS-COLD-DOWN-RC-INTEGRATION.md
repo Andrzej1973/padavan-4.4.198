@@ -157,3 +157,16 @@ cleanup occurs here. The current function may complete missing capture; it is
 not a purely read-only observer. Actual cold-parent/handoff/profile fixture and
 prepared C11 object compilation pass. RC binding release, signal-fenced cleanup,
 post-UP shutdown and final WAN/IAPP followup remain required before public entry.
+
+## Nonsecret post-release policy retained
+
+`cold-on-policy.c/h` retains Guest enable/isolation, service enterprise/RSSI and
+multicast policy by value. Release captures it before parent cleanup and validates
+current policy before completion. The post-release full ACTIVE/profile observer
+also verifies this policy under its fresh guard. No parent pointers, SSIDs or keys
+are stored. Actual cleanup/followup tests refuse Guest/auth/multicast/RSSI drift;
+all WAN plans still avoid replay after uncertain post-call observation. The new
+unit is staged for RC/ABI/link compilation. Standalone detach/cleanup/signal/
+followup/WAN tests are now registered in the full host suite. Runtime cleanup/
+followup fragments remain uncomposed until LED/IAPP owner, retirement and post-UP
+shutdown handling are complete. Target/image/device verification stays separate.

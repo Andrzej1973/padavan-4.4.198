@@ -18,10 +18,10 @@ static int wr_iot_cold_followup_active(const struct wr_iot_cold_release *r)
     !wr_iot_rc_shutdown.radio_on_owned)return 0;
  guard=wr_iot_service_guard_enter(1);if(guard!=1)return 0;
  memcpy(observed.id,r->id,sizeof(observed.id));observed.created=r->created;observed.state=WR_IOT_RESULT_APPLIED;
- ok=wr_iot_restart_profile_receipt_current(&r->profile)&&
+ ok=wr_iot_cold_policy_current(&r->policy)&&wr_iot_restart_profile_receipt_current(&r->profile)&&
   wr_iot_activation_owner_observed(&backend,&observed)&&
   wr_iot_restart_profile_receipt_current(&r->profile)&&
-  !wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.pending;
+  !wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.pending&&wr_iot_cold_policy_current(&r->policy);
  wr_iot_service_guard_leave(guard);return ok;
 }
 /* One existing WAN followup attempt. A successful return is SDK return plus

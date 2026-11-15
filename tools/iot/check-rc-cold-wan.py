@@ -31,6 +31,7 @@ int wr_iot_rc_restart_wan_plan(int on,enum wr_iot_wan_followup*out){assert(on==1
 int wr_iot_rc_restart_wan_current(int on,enum wr_iot_wan_followup plan){assert(on==1&&plan==(enum wr_iot_wan_followup)wan_plan);return wan_current;}
 void wr_iot_rc_restart_wan_submit(enum wr_iot_wan_followup plan){assert(plan==(enum wr_iot_wan_followup)wan_plan);wan_submits++;if(lose_active_after_wan)active_proof=0;}
 #include "restart-wan-followup.c"
+#include "cold-on-policy.c"
 #include "cold-on-release.c"
 #include "rc-cold-detach.inc"
 #include "rc-cold-release.inc"
@@ -86,6 +87,11 @@ int main(int argc,char**argv){
     assert(!wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.radio_off_owned&&wr_iot_rc_shutdown.radio_on_owned);
     assert(!wr_iot_cold_parent_release(&parent_release,&release)&&!wan_submits);
     assert(wr_iot_cold_followup_active(&release)&&!depth);
+    guest_desired=0;assert(!wr_iot_cold_followup_active(&release));guest_desired=1;
+    auth=0;assert(!wr_iot_cold_followup_active(&release));auth=1;
+    mc_fail=1;assert(!wr_iot_cold_followup_active(&release));mc_fail=0;
+    release.policy.services.kick_rssi++;assert(!wr_iot_cold_followup_active(&release));release.policy.services.kick_rssi--;
+    assert(wr_iot_cold_followup_active(&release));
     wan_current=0;assert(!wr_iot_cold_followup_wan(&release)&&!release.wan.attempted);wan_current=1;
     lose_active_after_wan=1;
     assert(wr_iot_cold_followup_wan(&release)==(wan_plan==WR_WAN_NONE));

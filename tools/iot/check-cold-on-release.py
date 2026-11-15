@@ -31,6 +31,7 @@ int wr_iot_rc_restart_wan_plan(int on,enum wr_iot_wan_followup*out){assert(on==1
 int wr_iot_rc_restart_wan_current(int on,enum wr_iot_wan_followup plan){assert(on==1&&plan==WR_WAN_NONE);return wan_current;}
 void wr_iot_rc_restart_wan_submit(enum wr_iot_wan_followup plan){(void)plan;wan_submits++;}
 #include "restart-wan-followup.c"
+#include "cold-on-policy.c"
 #include "cold-on-release.c"
 int main(int argc,char**argv){
  (void)check;assert(argc==2);snprintf(profile_path,sizeof(profile_path),"%s/profile",argv[1]);

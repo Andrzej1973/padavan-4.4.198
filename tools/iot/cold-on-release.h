@@ -1,6 +1,7 @@
 #ifndef WR_IOT_COLD_ON_RELEASE_H
 #define WR_IOT_COLD_ON_RELEASE_H
 #include "cold-on-handoff.h"
+#include "cold-on-policy.h"
 #include "restart-profile-receipt.h"
 #include "restart-wan-followup.h"
 /* Private stable release preparation. Captures only nonsecret file identity
@@ -11,6 +12,7 @@ struct wr_iot_cold_release {
  struct wr_iot_cold_owner *parent;struct wr_iot_driver_identity identity;
  char id[33];unsigned long long created;
  struct wr_iot_restart_profile_receipt profile;
+ struct wr_iot_cold_policy policy;
  struct wr_iot_wan_followup_state wan;
 };
 /* Once claimed, retain this same context on every failure. */
