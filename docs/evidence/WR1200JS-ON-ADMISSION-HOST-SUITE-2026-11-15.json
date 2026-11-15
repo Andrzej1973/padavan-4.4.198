@@ -1,0 +1,14 @@
+{
+  "suite": "tools/iot/check-physical-stop-suite.py",
+  "session": 97573,
+  "observed_exit_code": 0,
+  "log_sha256": "ade5d8c0e19215ec4e7e54bc4d62e14fb07f0e78c3c5bc78a57e0bbc38956095",
+  "log_bytes": 38272,
+  "coverage": "Registered pre-generation suite through09468d33; excludes standalone73fcd13a generation and subsequent Main work",
+  "tail": [
+    "PASS exact Guest DOWN ra1/br0 bridge adapter: readback membership, no duplicate add, foreign master refused, DOWN/guard/index/bridge checks, ioctl/close uncertainty; syscalls injected",
+    "PASS actual Guest controller/DOWN bridge/isolate composition: bridge before isolation before UP, post-UP isolation loss triggers one DOWN, observed without reopening; bridge syscalls/Main/policy/UP injected, real file IO; routed firewall not verified",
+    "PASS physical-stop candidate host suite: uninstalled driver bindings, API transport and target/device acceptance remain pending"
+  ],
+  "runtime_verified": false
+}
