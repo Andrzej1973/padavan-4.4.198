@@ -233,3 +233,15 @@ fixture separately verifies no setter on current-state checks. Normal root and
 prepared separate-unit checks pass. Public OFF/ON remains unbound; cancellation
 before generation admission, RAM failure uncertainty, post-UP shutdown/failure,
 cold/IoT-OFF paths and physical runtime acceptance remain to complete.
+
+## Cancellation immediately after capture
+
+Pending shutdown in ADMITTED now has a separate read-only cancellation path:
+no restore child may own anything; captured profile must remain unchanged and
+unjournalled, original OFF receipt/current DOWN and RAM OFF must all match.
+It uses the same bounded root cleanup before deferred signal replay, without
+profile generation or a RAM setter. Failed mask restoration keeps all state.
+Host actual-root cancellation now tests three windows: immediately after
+capture, before generation, and after generation. All preserve baseline bytes,
+old OFF receipt and zero Main UP; only the latter two require one RAM rollback.
+Target and runtime acceptance are still separate.

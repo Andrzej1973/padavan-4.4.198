@@ -58,6 +58,23 @@ static void on_cancelled_cleanup(void *unused)
  wr_iot_rc_shutdown.radio_off_owned=0;wr_iot_rc_shutdown.radio_on_owned=0;
  wr_iot_service_guard_leave(guard);
 }
+static int on_early_cancel_finish(void)
+{
+ struct wr_iot_on_admission *a=&on_owner.admission;
+ struct wr_iot_physical_stop_request receipt={0};unsigned char before[64],after[64];
+ if(on_owner.phase!=ON_OWNER_ADMITTED||on_owner.restore.owner||
+    a->owner!=getpid()||a->busy||a->guard!=1||a->phase!=WR_ON_ADMISSION_CAPTURED||
+    a->fence.owner!=getpid()||a->fence.level!=1||!wr_iot_rc_shutdown.active||
+    !wr_iot_radio_profile_owned(&a->profile)||a->profile.generated||a->profile.recovering||a->profile.removing||
+    a->profile.files.count!=1||a->profile.files.journalled||a->profile.files.dirty||a->profile.files.pending||
+    !wr_iot_generated_matches(&a->profile.files.generated[0],a->profile.files.paths[0])||
+    !wr_iot_rc_radio_off_receipt(&receipt)||
+    !wr_iot_physical_stop_request_encode(before,sizeof(before),&a->released)||
+    !wr_iot_physical_stop_request_encode(after,sizeof(after),&receipt)||memcmp(before,after,sizeof(before))||
+    !wr_iot_rc_radio_on_rollback_current(&a->released)||
+    !wr_iot_radio_recovery_down_observed(&a->released))return 0;
+ return wr_iot_radio_stop_fence_end_cleanup(&a->fence,on_cancelled_cleanup,NULL);
+}
 static int on_cancelled_finish(void)
 {
  struct wr_iot_on_restore *r=&on_owner.restore;struct wr_iot_on_generation *g=&r->generation;
@@ -90,6 +107,10 @@ int wr_iot_radio_on_step(void)
 #endif
  }
  on_owner.busy=1;
+ if(wr_iot_rc_shutdown.pending&&on_owner.phase==ON_OWNER_ADMITTED){
+  if(on_early_cancel_finish())return -1;
+  on_owner.busy=0;return 0;
+ }
  if(wr_iot_rc_shutdown.pending&&!on_owner.restore.generation.main_may_have_started&&
     on_owner.restore.generation.owner==getpid()){
   (void)wr_iot_on_restore_step(&on_owner.restore);
