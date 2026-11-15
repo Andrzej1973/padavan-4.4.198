@@ -7,7 +7,7 @@ with tempfile.TemporaryDirectory(prefix='wr-iapp-policy-source-') as d:
  fw.parent.mkdir(parents=True);sh.parent.mkdir(parents=True)
  text=''
  for name,ret in [('ipt_filter_rules','return 0;'),('ipt_filter_default','return;')]:
-  text+='\n'+name+'(FILE*fp)\n{\n#if defined(BOARD_WR1200JS)\n if(!quarantine(fp)){fclose(fp);logmessage("IoT Wi-Fi","Firewall quarantine write failed");'+ret+'}\n#endif\n}\n'
+  text+='\n'+name+'(FILE*fp)\n{\n#if defined(BOARD_WR1200JS)\n if(!wr_iot_firewall_quarantine(fp)){fclose(fp);logmessage("IoT Wi-Fi","Firewall quarantine write failed");'+ret+'}\n#endif\n}\n'
  fw.write_text(text);sh.write_text('#!/bin/sh\nstart(){\n'+''.join('iptables -A INPUT -i br0 -p '+p+' --dport 3517 -j ACCEPT\n' for p in ('tcp','udp'))+'}\n');sh.chmod(0o755)
  cmd=['python3','-B',str(here/'prepare-iappd-policy-source.py'),str(root)]
  before=(fw.read_bytes(),sh.read_bytes())
@@ -19,5 +19,9 @@ with tempfile.TemporaryDirectory(prefix='wr-iapp-policy-source-') as d:
  report=json.loads((root/'iot-iapp-policy-source.json').read_text());assert not report['iapp_root_launch_bound']
  assert fw.read_text().count('WR_IAPP_BUILDER_RULES')==2 and 'iptables -A' not in sh.read_text()
  assert sh.stat().st_mode&0o777==0o755
+ subprocess.run(['python3','-B',str(here/'check-iappd-policy-manifest.py'),str(root)],check=True)
+ original=sh.read_text();sh.write_text(original+'# drift\n')
+ assert subprocess.run(['python3','-B',str(here/'check-iappd-policy-manifest.py'),str(root)],capture_output=True).returncode
+ sh.write_text(original)
  after=(fw.read_bytes(),sh.read_bytes());assert subprocess.run(cmd,capture_output=True).returncode and after==(fw.read_bytes(),sh.read_bytes())
 print('PASS candidate policy installer: board/experimental/duplicate refusal before mutation, paired output/manifest and executable mode preserved; SDK bodies separately checked, no target claim')

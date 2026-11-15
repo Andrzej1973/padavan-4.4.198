@@ -368,3 +368,12 @@ production and duplicate inputs are tested to refuse without mutation. On any
 write failure the candidate must be discarded; final manifest/hash verification
 is required downstream. This installer is not yet invoked by the main workflow,
 and IAPP root launch remains false. Full SDK compile/image acceptance pending.
+
+
+ABI workflow now stages the exact SDK IAPP script alongside prepared runtime
+firewall sources, invokes paired preparation, checks output manifest SHA256,
+quarantine-before-IAPP ordering and script mutation removal, and uploads its
+manifest with ABI diagnostics. Host installer test verifies post-preparation
+script drift refuses; workflow YAML parses. This added step is source verification,
+not an additional full firewall MIPS compile or ROMFS admission. Root launch stays
+false. A dispatched run is required before claiming actual CI success.

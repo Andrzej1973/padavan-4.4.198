@@ -1810,6 +1810,18 @@ jobs:
           done
           cp abi-results/iot-http-source/iot-runtime-source.json abi-results/iot-runtime-source.json
 
+      - name: Prepare paired IAPP policy in experimental WR sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/iot/check-iappd-builder.py
+          python3 tools/iot/check-iappd-policy-source.py
+          mkdir -p abi-results/iot-http-source/trunk/user/ralinkiappd
+          cp source/trunk/user/ralinkiappd/iappd.sh abi-results/iot-http-source/trunk/user/ralinkiappd/
+          python3 tools/iot/prepare-iappd-policy-source.py abi-results/iot-http-source
+          python3 tools/iot/check-iappd-policy-manifest.py abi-results/iot-http-source
+          cp abi-results/iot-http-source/iot-iapp-policy-source.json abi-results/iot-iapp-policy-source.json
+
       - name: Check IoT request staging before activation
         shell: bash
         run: |
