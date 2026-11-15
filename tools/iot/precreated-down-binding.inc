@@ -12,7 +12,9 @@ static INT wr_iot_precreated_down_observed(PRTMP_ADAPTER ad,PNET_DEV dev,
     ad->ApCfg.MBSSID[2].wdev.if_dev!=dev||ad->net_dev==dev||
     netif_running(dev)||netif_running(ad->net_dev))return -EAGAIN;
  RTMP_IRQ_LOCK(&ad->MacTabLock,flags);
- peers=wr_iot_precreated_down_peers_current(&ad->wr_iot_peer_table_owner,
+ peers=!ad->wr_iot_peer_delete_active&&!ad->wr_iot_peer_close_serial&&
+  ad->wr_iot_peer_open_owner.phase==WR_PEER_OPEN_IDLE&&
+  !ad->wr_iot_peer_open_owner.active_lease&&wr_iot_precreated_down_peers_current(&ad->wr_iot_peer_table_owner,
   &ad->wr_iot_peer_close_executor);
  RTMP_IRQ_UNLOCK(&ad->MacTabLock,flags);
  if(!peers)return -EAGAIN;
@@ -29,7 +31,9 @@ static INT wr_iot_precreated_down_observed(PRTMP_ADAPTER ad,PNET_DEV dev,
  /* A peer owner may have appeared between the disjoint snapshots. Recheck
   * it; success remains a point-in-time observation, never a future lease. */
  RTMP_IRQ_LOCK(&ad->MacTabLock,flags);
- peers=wr_iot_precreated_down_peers_current(&ad->wr_iot_peer_table_owner,
+ peers=!ad->wr_iot_peer_delete_active&&!ad->wr_iot_peer_close_serial&&
+  ad->wr_iot_peer_open_owner.phase==WR_PEER_OPEN_IDLE&&
+  !ad->wr_iot_peer_open_owner.active_lease&&wr_iot_precreated_down_peers_current(&ad->wr_iot_peer_table_owner,
   &ad->wr_iot_peer_close_executor);
  RTMP_IRQ_UNLOCK(&ad->MacTabLock,flags);
  return peers?0:-EAGAIN;

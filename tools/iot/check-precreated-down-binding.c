@@ -5,7 +5,10 @@
 #include <errno.h>
 typedef int INT;typedef unsigned long ULONG;typedef const void *PNET_DEV;
 #define WDEV_NUM_MAX 2
+enum {WR_PEER_OPEN_IDLE=0};
 struct fake_adapter {
+ int wr_iot_peer_delete_active;unsigned long wr_iot_peer_close_serial;
+ struct {int phase,active_lease;} wr_iot_peer_open_owner;
  int chip,count;PNET_DEV net_dev;struct {int BssidNum;struct {struct {PNET_DEV if_dev;} wdev;} MBSSID[3];} ApCfg;
  int MacTabLock,wr_iot_transition_lock;
  struct wr_iot_peer_table_owner wr_iot_peer_table_owner;
@@ -81,6 +84,10 @@ int main(void){
  running=1;assert(wr_iot_precreated_down_observed(&ad,&iot_device,i->generation)==-EAGAIN);running=0;
  ad.wr_iot_control_users=1;assert(wr_iot_precreated_down_observed(&ad,&iot_device,i->generation)==-EAGAIN);ad=before;
  ad.wr_iot_peer_table_owner.transactions=1;assert(wr_iot_precreated_down_observed(&ad,&iot_device,i->generation)==-EAGAIN);ad=before;
+ ad.wr_iot_peer_delete_active=1;assert(wr_iot_precreated_down_observed(&ad,&iot_device,i->generation)==-EAGAIN);ad=before;
+ ad.wr_iot_peer_close_serial=1;assert(wr_iot_precreated_down_observed(&ad,&iot_device,i->generation)==-EAGAIN);ad=before;
+ ad.wr_iot_peer_open_owner.phase=1;assert(wr_iot_precreated_down_observed(&ad,&iot_device,i->generation)==-EAGAIN);ad=before;
+ ad.wr_iot_peer_open_owner.active_lease=1;assert(wr_iot_precreated_down_observed(&ad,&iot_device,i->generation)==-EAGAIN);ad=before;
  locks=0;drift_peer=1;drift_adapter=&ad;
  assert(wr_iot_precreated_down_observed(&ad,&iot_device,i->generation)==-EAGAIN&&!held);
  drift_peer=0;ad=before;

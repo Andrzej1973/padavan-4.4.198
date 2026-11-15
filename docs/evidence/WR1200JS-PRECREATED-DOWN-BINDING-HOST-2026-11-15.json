@@ -10,7 +10,11 @@
     "control/boot/close ownership and reference predicate under transition lock",
     "no nested locks",
     "adapter unchanged on success",
-    "peer transaction injected between first peer snapshot and transition snapshot refuses on final peer recheck"
+    "peer transaction injected between first peer snapshot and transition snapshot refuses on final peer recheck",
+    "active peer delete refuses",
+    "retained close serial refuses",
+    "open owner non-idle refuses",
+    "open owner lease refuses"
   ],
   "limits": [
     "caller must pin adapter/module/Main/ra2 lifetime",
@@ -20,5 +24,6 @@
     "actual vendor target compile pending"
   ],
   "runtime_verified": false,
-  "lifetime_audit": "existing physical-stop ioctl and close-enter explicitly require outer adapter lifetime; module/netdev holds alone do not independently prove adapter allocation lifetime. New DOWN observation remains uninstalled until common entry establishes that contract."
+  "lifetime_audit": "existing physical-stop ioctl and close-enter explicitly require outer adapter lifetime; module/netdev holds alone do not independently prove adapter allocation lifetime. New DOWN observation remains uninstalled until common entry establishes that contract.",
+  "adapter_release_source": "tools/iot/peer-adapter-release.inc: peer delete active, close serial and open owner phase/active lease are additional necessary exclusions"
 }
