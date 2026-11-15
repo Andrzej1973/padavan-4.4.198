@@ -25,6 +25,8 @@ int wr_iot_rc_physical_off_read(const char*i,unsigned long long t,struct wr_iot_
 int wr_iot_rc_physical_take_off(const char*i,unsigned long long t){assert(!strcmp(i,"11111111111111111111111111111111")&&t==7);return off_terminal;}
 #include "radio-off-owner.c"
 ''')
+code=code.replace('int wr_iot_off_followup_begin(struct wr_iot_off_followup*s,const struct wr_iot_radio_off_owner*o){(void)s;(void)o;assert(0);return 0;}', 'static int followup_begins,followup_steps;\nint wr_iot_off_followup_begin(struct wr_iot_off_followup*s,const struct wr_iot_radio_off_owner*o){assert(o==&radio_off_owner&&o->result==1&&!physical_pending);followup_begins++;s->owner=getpid();s->phase=WR_OFF_FOLLOWUP_PROFILE_BEGIN;return 1;}')
+code=code.replace('enum wr_iot_off_followup_phase wr_iot_off_followup_step(struct wr_iot_off_followup*s){(void)s;assert(0);return WR_OFF_FOLLOWUP_IDLE;}', 'enum wr_iot_off_followup_phase wr_iot_off_followup_step(struct wr_iot_off_followup*s){assert(s->owner==getpid()&&followup_begins==1);followup_steps++;s->phase=WR_OFF_FOLLOWUP_NETWORK_PENDING;return s->phase;}')
 code=code.replace('void wr_iot_rc_physical_step(void){physical_steps++;}', 'void wr_iot_rc_physical_step(void){physical_steps++;if(off_transport){assert(policy_reads&&policy_allowed);physical_pending=0;wr_iot_rc_shutdown.active=0;off_terminal=1;}}')
 a=' assert(wr_iot_status_endpoint_close(&endpoint));'
 assert code.count(a)==1
@@ -40,8 +42,14 @@ code=code.replace(a,r'''
  assert(policy_reads==2&&physical_steps==off_base+1&&steps==ordinary&&resume_steps==scheduled);
  assert(wr_iot_rc_shutdown.radio_off_owned&&radio_off_owner.result==1&&radio_off_pending()&&radio_off_owner.policy_ready);
  assert(!wr_iot_rc_radio_off_begin(&off,1)); /* Follow-up has not acknowledged it. */
+ assert(!followup_begins&&!followup_steps);
  wr_iot_rc_wait(&empty,&notification,&alarm_flag);
  assert(physical_steps==off_base+1&&steps==ordinary&&resume_steps==scheduled&&policy_reads==2);
+ assert(followup_begins==1&&!followup_steps);
+ wr_iot_rc_wait(&empty,&notification,&alarm_flag);
+ assert(followup_begins==1&&followup_steps==1&&radio_off_followup.phase==WR_OFF_FOLLOWUP_NETWORK_PENDING);
+ assert(physical_steps==off_base+1&&policy_reads==2&&steps==ordinary&&resume_steps==scheduled);
+
 
  pending=resume_pending=0;notification=1;wr_iot_rc_wait(&empty,&notification,&alarm_flag);
  assert(physical_steps==off_base+1&&policy_reads==2);notification=0;

@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include "rc-runtime.h"
 #include "radio-off-owner.h"
+#include "radio-off-followup.h"
 #include "rc-shutdown-admission.h"
 #include "control-channel.h"
 #include "rc-backend.h"
@@ -20,6 +21,7 @@ static unsigned long long next_init;
 static unsigned long long next_progress;
 static struct wr_iot_radio_off_owner radio_off_owner;
 static int radio_off_reload;
+static struct wr_iot_off_followup radio_off_followup;
 static int radio_off_pending(void)
 {return radio_off_owner.owner==getpid();}
 int wr_iot_rc_radio_off_begin(const struct wr_iot_control_request *off,int reload)
@@ -27,6 +29,14 @@ int wr_iot_rc_radio_off_begin(const struct wr_iot_control_request *off,int reloa
  if((reload!=0&&reload!=1)||radio_off_owner.owner||radio_off_owner.busy||wr_iot_rc_shutdown.radio_off_owned)return 0;
  if(!wr_iot_radio_off_begin(&radio_off_owner,off))return 0;
  wr_iot_rc_shutdown.radio_off_owned=1;radio_off_reload=reload;return 1;
+}
+static void radio_off_continue(void)
+{
+ if(radio_off_owner.owner!=getpid())return;
+ if(!radio_off_owner.result){(void)wr_iot_radio_off_step(&radio_off_owner,radio_off_reload);return;}
+ if(radio_off_owner.result!=1)return;
+ if(!radio_off_followup.owner)(void)wr_iot_off_followup_begin(&radio_off_followup,&radio_off_owner);
+ else (void)wr_iot_off_followup_step(&radio_off_followup);
 }
 static unsigned long long runtime_ms(void)
 {struct timespec t;if(clock_gettime(CLOCK_MONOTONIC,&t)||t.tv_sec<=0)return 0;return (unsigned long long)t.tv_sec*1000+(unsigned long long)t.tv_nsec/1000000;}
@@ -80,7 +90,7 @@ void wr_iot_rc_wait(const sigset_t *wait_mask,const volatile int *notification,
  now=runtime_ms();
  if((radio_off_pending()||wr_iot_rc_pending()||wr_iot_rc_physical_pending()||wr_iot_restart_scheduler_pending())&&now&&now>=next_progress){
   next_progress=now+100;
-  if(radio_off_pending())(void)wr_iot_radio_off_step(&radio_off_owner,radio_off_reload);
+  if(radio_off_pending())radio_off_continue();
   else if(wr_iot_rc_physical_pending())wr_iot_rc_physical_step();
   else if(wr_iot_restart_scheduler_pending())(void)wr_iot_restart_scheduler_step();
   else (void)wr_iot_rc_continue();

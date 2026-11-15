@@ -306,3 +306,12 @@ plus SDK RAM adapter host ASan/UBSan fixture PASS; SDK writes and DOWN query
 remain actors. Modules staged for MIPS ABI/target symbol checks; prepared C11
 compile passed. Stable RC follow-up invocation and remaining network/service
 phases still need binding before public radio-OFF activation.
+
+Private RC wait now retains a stable follow-up context. A physical success tick
+is followed by a separate follow-up admission tick, then one profile/RAM phase
+per normal cadence. Physical failure does not enter SDK follow-up. NETWORK_PENDING
+and RETAINED keep OFF ownership/public exclusion, never acknowledge completion.
+Actual RC wait fixture checks admission once, later progress, no physical replay
+and ordinary/resume exclusion (follow-up actor injected); actual profile/RAM
+composition separately passes. Runtime manifest distinguishes this partial
+profile/RAM binding from the still-unbound public radio OFF entry.
