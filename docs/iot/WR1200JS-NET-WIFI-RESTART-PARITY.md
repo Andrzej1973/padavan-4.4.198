@@ -428,3 +428,16 @@ retains candidate script/manifest. Base firmware/binaries remain hash-checked
 and unchanged. Shell syntax, sparse checkout YAML assertion and host installer
 checks pass; new SDK target result pending. This activates only the isolated
 experimental target-link candidate, not the release firmware image.
+
+
+## WAN terminal follow-up planning
+
+Pure restart-wan-plan captures check_apcli_wan decisions after interface-name
+resolution: AP mode skips; MAN/WISP band mismatch needs full WAN restart;
+unchanged active APCLI on the changed enabled band needs reconnect; otherwise
+none.72 valid combinations match a transcription of the pinned SDK branches;
+invalid identities refuse. This is not proof of live interface resolution or
+SDK execution. The eventual follow-up must occur after release of radio/service
+ownership; calling full_restart_wan inside resume would cross the unfinished
+transaction. Planner is standalone/unbound, not permission to drop WAN actions.
+CI058542e ABI43665781009 pending and standard43665783692 running at last check.
