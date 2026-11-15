@@ -9,7 +9,8 @@
     "peer table/executor under MacTabLock",
     "control/boot/close ownership and reference predicate under transition lock",
     "no nested locks",
-    "adapter unchanged on success"
+    "adapter unchanged on success",
+    "peer transaction injected between first peer snapshot and transition snapshot refuses on final peer recheck"
   ],
   "limits": [
     "caller must pin adapter/module/Main/ra2 lifetime",
@@ -18,5 +19,6 @@
     "no RF/DMA/IRQ claim",
     "actual vendor target compile pending"
   ],
-  "runtime_verified": false
+  "runtime_verified": false,
+  "lifetime_audit": "existing physical-stop ioctl and close-enter explicitly require outer adapter lifetime; module/netdev holds alone do not independently prove adapter allocation lifetime. New DOWN observation remains uninstalled until common entry establishes that contract."
 }

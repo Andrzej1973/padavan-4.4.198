@@ -25,5 +25,12 @@ static INT wr_iot_precreated_down_observed(PRTMP_ADAPTER ad,PNET_DEV dev,
    &ad->wr_iot_transition,ad->wr_iot_interface_refs,WDEV_NUM_MAX+1,
    ad->net_dev,dev,generation,VIRTUAL_IF_NUM(ad));
  RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);
- return exact?0:-EAGAIN;
+ if(!exact)return -EAGAIN;
+ /* A peer owner may have appeared between the disjoint snapshots. Recheck
+  * it; success remains a point-in-time observation, never a future lease. */
+ RTMP_IRQ_LOCK(&ad->MacTabLock,flags);
+ peers=wr_iot_precreated_down_peers_current(&ad->wr_iot_peer_table_owner,
+  &ad->wr_iot_peer_close_executor);
+ RTMP_IRQ_UNLOCK(&ad->MacTabLock,flags);
+ return peers?0:-EAGAIN;
 }

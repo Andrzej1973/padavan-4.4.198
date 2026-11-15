@@ -18,10 +18,11 @@ struct fake_adapter {
  struct {int active;} wr_iot_close_owner;
 };
 typedef struct fake_adapter *PRTMP_ADAPTER;
-static int held,rtnl=1,running;
+static int held,rtnl=1,running,locks,drift_peer;
+static struct fake_adapter *drift_adapter;
 #define IS_MT7603(ad) ((ad)->chip)
 #define VIRTUAL_IF_NUM(ad) ((ad)->count)
-#define RTMP_IRQ_LOCK(lock,flags) do{(void)(lock);(void)(flags);assert(!held);held=1;}while(0)
+#define RTMP_IRQ_LOCK(lock,flags) do{(void)(lock);(void)(flags);assert(!held);held=1;locks++;if(drift_peer&&locks==2)drift_adapter->wr_iot_peer_table_owner.transactions=1;}while(0)
 #define RTMP_IRQ_UNLOCK(lock,flags) do{(void)(lock);(void)(flags);assert(held);held=0;}while(0)
 static int rtnl_is_locked(void){return rtnl;}
 static int netif_running(PNET_DEV dev){assert(dev);return running;}
@@ -80,6 +81,9 @@ int main(void){
  running=1;assert(wr_iot_precreated_down_observed(&ad,&iot_device,i->generation)==-EAGAIN);running=0;
  ad.wr_iot_control_users=1;assert(wr_iot_precreated_down_observed(&ad,&iot_device,i->generation)==-EAGAIN);ad=before;
  ad.wr_iot_peer_table_owner.transactions=1;assert(wr_iot_precreated_down_observed(&ad,&iot_device,i->generation)==-EAGAIN);ad=before;
+ locks=0;drift_peer=1;drift_adapter=&ad;
+ assert(wr_iot_precreated_down_observed(&ad,&iot_device,i->generation)==-EAGAIN&&!held);
+ drift_peer=0;ad=before;
  assert(!wr_iot_precreated_down_observed(&ad,&iot_device,i->generation)&&!held);
  return 0;
 }
