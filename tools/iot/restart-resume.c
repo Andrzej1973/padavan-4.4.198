@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include "restart-resume.h"
 #include "control-channel.h"
+#include "restart-iapp-policy.h"
 #include "rc-shutdown-admission.h"
 static void envelope_wipe(void *data,size_t size)
 {volatile unsigned char*p=data;while(size--)*p++=0;}
@@ -75,9 +76,23 @@ int wr_iot_restart_resume_step(struct wr_iot_restart_resume*s)
   if(wr_iot_rc_physical_take(&intent)==-1){s->phase=WR_RESUME_CANCELLED;done=-1;}
   break;
  case WR_RESUME_FINISH:
+#if WR_IOT_IAPP_POLICY_PREPARED
+  if(!s->wan.owner&&!wr_iot_wan_followup_capture(&s->wan,1))break;
+#endif
   if(s->restore.phase!=WR_RESTORE_FINISHED&&!wr_iot_rc_physical_resume_finish(&s->restore))break;
-  if(wr_iot_rc_physical_take(&intent)==1){s->phase=WR_RESUME_DONE;done=1;}
+  if(wr_iot_rc_physical_take(&intent)==1){
+#if WR_IOT_IAPP_POLICY_PREPARED
+   s->phase=WR_RESUME_WAN;
+#else
+   s->phase=WR_RESUME_DONE;done=1;
+#endif
+  }
   break;
+#if WR_IOT_IAPP_POLICY_PREPARED
+ case WR_RESUME_WAN:
+  if(wr_iot_wan_followup_step(&s->wan)){s->phase=WR_RESUME_DONE;done=1;}
+  break;
+#endif
  default:break;
  }
  envelope_wipe(&request,sizeof(request));s->busy=0;return done;

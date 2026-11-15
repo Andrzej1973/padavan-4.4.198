@@ -461,3 +461,17 @@ repeat. Return means call returned, not WAN ready. Native preparation and host
 snapshot/controller tests pass. Root/terminal-take binding is still absent;
 caller must prove physical terminal consumption before dispatch. No live WAN
 or router action was performed.
+
+
+## WAN follow-up bound to consumed physical terminal
+
+With prepared-policy gate enabled, resume captures WAN plan before physical
+finish cleanup. Failed take holds it; successful take moves to WR_RESUME_WAN,
+without dispatch in that tick or another take. The following scheduler window
+runs the one-shot follow-up only outside active/pending admission. DONE follows
+SDK return, not WAN readiness. Default gate0 behavior remains unchanged.
+Retirement refuses a DONE owner with unfinished WAN follow-up. Actual resume/WAN
+controller fixture proves capture/take/dispatch order, active/pending refusal and
+no duplicate invocation. Existing resume/scheduler and native checks pass. ABI
+now additionally compiles prepared gate1 resume. Target/image/device acceptance
+is pending; stock net_wifi entrypoints and LED terminal policy remain unbound.

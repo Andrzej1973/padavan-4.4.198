@@ -1,0 +1,30 @@
+{
+  "scope": "prepared-policy resume WAN followup after successful terminal take",
+  "checks": {
+    "actual_resume_WAN_controller": "PASS;24093",
+    "legacy_resume_scheduler": "PASS;24093",
+    "native_retire": "PASS;81716"
+  },
+  "sources": {
+    "tools/iot/restart-resume.c": "6048b97a572db7184e1bf4f0bfb0dfc522dee0b45e7534551e48d0c15aec2091",
+    "tools/iot/restart-resume-retire.c": "09ea715044bdb1a09b228ced5b18e983a8c8b5dd2a6962758058e0be7960ff6c",
+    "tools/iot/check-resume-wan-followup.py": "f6fdd98e84533d8fc7b1a184b71204d5c73957ded58a2fcb43584a241882f5f5"
+  },
+  "limits": [
+    "physical and SDK adapters injected",
+    "DONE means SDK return, not WAN ready",
+    "MIPS/image/device unverified"
+  ],
+  "logs_removed": [
+    {
+      "path": "/tmp/wr-wan-bound-native.log",
+      "bytes": 307,
+      "sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a"
+    },
+    {
+      "path": "/tmp/wr-wan-staged-native.log",
+      "bytes": 307,
+      "sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a"
+    }
+  ]
+}
