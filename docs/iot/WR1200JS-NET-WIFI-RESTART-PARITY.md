@@ -395,3 +395,11 @@ performed by this path. Focused actual-root test covers sticky unknown result an
 a separate pending-to-failure scenario with child adapter injected. Restore/
 Guest/multicast/services, finish/premain and native checks pass. Root launch is
 still disabled; paired source verification and final terminal ordering remain.
+
+
+Runtime preparation now emits restart-iapp-policy.h with PREPARED0. Only paired
+policy installation accepts that exact inactive gate and writes PREPARED1 after
+both source transformations. Manifest verification requires the enabled gate
+as well as source hashes. Unexpected/already-enabled gate refuses before source
+writes. Host installer and native preparation pass. Root does not yet consume
+this gate; launch remains unbound until the guarded root branch is implemented.

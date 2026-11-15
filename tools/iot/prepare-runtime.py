@@ -13,6 +13,7 @@ control=json.loads((a.source/'iot-control-source.json').read_text())
 if control.get('board')!='WR1200JS' or not (rc/'wr-iot/activation-owner.h').is_file():
  raise SystemExit('Full WR RC/control candidates required')
 pending={}
+pending[rc/"wr-iot/restart-iapp-policy.h"]=b"#define WR_IOT_IAPP_POLICY_PREPARED 0\n"
 def once(text,anchor,replacement):
  if text.count(anchor)!=1:raise SystemExit('Runtime source anchor changed: '+anchor[:60])
  return text.replace(anchor,replacement,1)
