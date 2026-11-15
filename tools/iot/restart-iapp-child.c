@@ -66,11 +66,3 @@ int wr_iot_iapp_child_step(struct wr_iot_iapp_child*s)
  if(close(s->fd))s->result=-2;
  s->fd=-1;return s->result;
 }
-
-int wr_iot_iapp_child_closed(const struct wr_iot_iapp_child*s)
-{
- if(!s)return 0;
- if(!s->owner)return !s->attempted&&!s->result;
- return s->owner==getpid()&&s->attempted&&s->fd==-1&&
-        (s->result==1||s->result==-1);
-}

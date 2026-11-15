@@ -1,6 +1,7 @@
 #ifndef WR_IOT_RESTART_IAPP_CHILD_H
 #define WR_IOT_RESTART_IAPP_CHILD_H
 #include <sys/types.h>
+#include <unistd.h>
 struct wr_iot_iapp_child {pid_t owner;int attempted,fd,result;};
 /* Zero-init at final address. One fixed script restart. Caller must establish
  * service/firewall ownership before begin and retain it through uncertainty.
@@ -10,5 +11,11 @@ int wr_iot_iapp_child_begin(struct wr_iot_iapp_child *);
  * 0 pending. Unknown completion must retain outer ownership. */
 int wr_iot_iapp_child_step(struct wr_iot_iapp_child *);
 /* No live result pipe remains; failure is closed but never successful restart. */
-int wr_iot_iapp_child_closed(const struct wr_iot_iapp_child *);
+static inline int wr_iot_iapp_child_closed(const struct wr_iot_iapp_child*s)
+{
+ if(!s)return 0;
+ if(!s->owner)return !s->attempted&&!s->result;
+ return s->owner==getpid()&&s->attempted&&s->fd==-1&&
+        (s->result==1||s->result==-1);
+}
 #endif

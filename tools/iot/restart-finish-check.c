@@ -10,7 +10,8 @@
 int wr_iot_restart_restore_finish_check(struct wr_iot_restart_restore *s)
 {
  struct wr_iot_restart_service_policy policy;int desired,isolate,state;
- if(!s||!wr_iot_restart_restore_rebind_current(s)||
+ if(!s||!wr_iot_iapp_child_closed(&s->iapp)||
+    (s->iapp.attempted&&s->iapp.result!=1)||!wr_iot_restart_restore_rebind_current(s)||
     s->multicast.main!=&s->main||s->multicast.guest!=&s->guest||
     !wr_iot_restart_multicast_observed(&s->multicast)||
     s->generation.phase!=WR_RESTART_GEN_VERIFIED||!s->generation.main_may_have_started||

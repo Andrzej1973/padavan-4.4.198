@@ -10,7 +10,7 @@ int wr_iot_restart_resume_retire(struct wr_iot_restart_resume *s)
  if(!s||s->owner!=getpid()||s->busy||wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||
     (s->phase!=WR_RESUME_DONE&&s->phase!=WR_RESUME_CANCELLED))return 0;
  r=&s->restore;
- if(r->owner!=getpid()||r->busy||
+ if(r->owner!=getpid()||r->busy||!wr_iot_iapp_child_closed(&r->iapp)||
     r->phase!=(s->phase==WR_RESUME_DONE?WR_RESTORE_FINISHED:WR_RESTORE_CANCELLED)||
     r->generation.phase!=WR_RESTART_GEN_COMMITTED||r->generation.busy||r->generation.profile.active||r->generation.profile.files.count||
     r->multicast.busy||r->multicast.main||r->multicast.guest||

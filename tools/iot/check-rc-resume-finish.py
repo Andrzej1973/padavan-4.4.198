@@ -35,7 +35,10 @@ int main(void){
  proof_ok=1;fail_mask=1;
  assert(!kill(getpid(),SIGTERM)&&!shutdowns);
  assert(!wr_iot_rc_physical_resume_finish(&root)&&root.generation.profile.active&&root.generation.profile.files.saved[0].data&&depth==1&&!root.busy&&!physical.result);
- fail_mask=0;assert(wr_iot_rc_physical_resume_finish(&root));
+ fail_mask=0;
+ root.iapp=(struct wr_iot_iapp_child){.owner=getpid(),.attempted=1,.fd=-1,.result=-2};
+ assert(!wr_iot_rc_physical_resume_finish(&root)&&physical.guard==1);
+ root.iapp.result=1;assert(wr_iot_rc_physical_resume_finish(&root));
  assert(shutdowns==1&&root.phase==WR_RESTORE_FINISHED&&!wr_iot_rc_shutdown.active&&depth==0);
  assert(!root.main.generation&&!root.guest.main&&!root.services.main);
  assert(!wr_iot_rc_physical_resume_finish(&root)&&shutdowns==1);

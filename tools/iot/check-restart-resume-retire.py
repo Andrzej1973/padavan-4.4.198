@@ -21,6 +21,8 @@ int main(void){
   s.restore.multicast.main=&s.restore.main;assert(!wr_iot_restart_resume_retire(&s));s.restore.multicast.main=NULL;
   s.restore.multicast.guest=&s.restore.guest;assert(!wr_iot_restart_resume_retire(&s));s.restore.multicast.guest=NULL;
   s.restore.multicast.busy=1;assert(!wr_iot_restart_resume_retire(&s));s.restore.multicast.busy=0;
+  s.restore.iapp=(struct wr_iot_iapp_child){.owner=getpid(),.attempted=1,.fd=-1,.result=-2};
+  assert(!wr_iot_restart_resume_retire(&s));s.restore.iapp=(struct wr_iot_iapp_child){0};
   s.restore.main.generation=&s.restore.generation;assert(!wr_iot_restart_resume_retire(&s));s.restore.main.generation=NULL;
   s.restore.generation.profile.files.saved[3].data=(unsigned char*)1;assert(!wr_iot_restart_resume_retire(&s));s.restore.generation.profile.files.saved[3].data=NULL;
   s.shutdown.active=1;assert(!wr_iot_restart_resume_retire(&s));s.shutdown.active=0;

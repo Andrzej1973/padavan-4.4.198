@@ -296,3 +296,16 @@ success/failure receipts from the supervisor (or failure to fork before a comman
 exists) establish closed state. Real pipe EOF/malformed-receipt tests pass along
 with actual exec/reaper tests; native preparation passes. This corrects earlier
 wording that grouped missing receipt with a closed failure. Root remains unbound.
+
+
+## Root cleanup fence for IAPP child
+
+Root now reserves a stable embedded IAPP context. Physical finish, cancellation,
+pre-Main/pre-handoff cancellation and terminal retirement refuse a live or
+unknown-completion child. Finish additionally refuses a confirmed script failure;
+cancellation can accept confirmed failure only with its existing independent
+CLOSED/Guest/physical proofs. No IAPP begin is yet invoked by root.
+Actual physical finish/cancel fixtures inject unknown child completion and prove
+guard retention; retirement does likewise. Real child-process tests remain green.
+Native preparation passes. This is cleanup protection, not IAPP lifecycle or
+firewall ownership completion; root launch remains disabled until those gates.
