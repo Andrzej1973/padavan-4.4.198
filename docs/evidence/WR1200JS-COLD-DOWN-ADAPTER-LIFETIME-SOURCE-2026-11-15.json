@@ -1,0 +1,52 @@
+{
+  "sdk_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "functions": [
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/os/linux/rt_main_dev.c",
+      "line": 582,
+      "symbol": "INT rt28xx_ioctl(",
+      "file_sha256": "47357250d8e7c5dea3b11ae28e03aa35bcba6e9d8cae660948e420f279c9bbd4",
+      "source": "INT rt28xx_ioctl(PNET_DEV net_dev, struct ifreq *rq, INT cmd)\n{\n\tVOID *pAd = NULL;\n\tINT ret = 0;\n\tULONG OpMode;\n\n\tGET_PAD_FROM_NET_DEV(pAd, net_dev);\n\tif (pAd == NULL)\n\t{\n\t\t/* if 1st open fail, pAd will be free;\n\t\t   So the net_dev->priv will be NULL in 2rd open */\n\t\treturn -ENETDOWN;\n\t}\n\n\tRTMP_DRIVER_OP_MODE_GET(pAd, &OpMode);\n\n#ifdef CONFIG_AP_SUPPORT\n/*\tIF_DEV_CONFIG_OPMODE_ON_AP(pAd) */\n\tRT_CONFIG_IF_OPMODE_ON_AP(OpMode)\n\t{\t\t\n\t\tret = rt28xx_ap_ioctl(net_dev, rq, cmd);\n\t}\n#endif /* CONFIG_AP_SUPPORT */\n\n\n\treturn ret;\n}"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/os/linux/rt_main_dev.c",
+      "line": 729,
+      "symbol": "RtmpPhyNetDevExit(",
+      "file_sha256": "47357250d8e7c5dea3b11ae28e03aa35bcba6e9d8cae660948e420f279c9bbd4",
+      "source": "RtmpPhyNetDevExit(VOID *pAd, PNET_DEV net_dev)\n{\n\n#ifdef CONFIG_AP_SUPPORT\n#ifdef APCLI_SUPPORT\n\t/* remove all AP-client virtual interfaces. */\n\tRT28xx_ApCli_Remove(pAd);\n#endif /* APCLI_SUPPORT */\n\n#ifdef WDS_SUPPORT\n\t/* remove all WDS virtual interfaces. */\n\tRT28xx_WDS_Remove(pAd);\n#endif /* WDS_SUPPORT */\n\n#ifdef MBSS_SUPPORT\n\tRT28xx_MBSS_Remove(pAd);\n#endif /* MBSS_SUPPORT */\n#endif /* CONFIG_AP_SUPPORT */\n\n#ifdef CONFIG_SNIFFER_SUPPORT\n\tRT28xx_Monitor_Remove(pAd);\n#endif\t/* CONFIG_SNIFFER_SUPPORT */\n\n\n#ifdef INF_PPA_SUPPORT\n\tRTMP_DRIVER_INF_PPA_EXIT(pAd);\n#endif /* INF_PPA_SUPPORT */\n\n\t/* Unregister network device */\n\tif (net_dev != NULL)\n\t{\n\t\tprintk(\"RtmpOSNetDevDetach(): RtmpOSNetDeviceDetach(), dev->name=%s!\\n\", net_dev->name);\n\t\tRtmpOSNetDevProtect(1);\n\t\tRtmpOSNetDevDetach(net_dev);\n\t\tRtmpOSNetDevProtect(0);\n\t}\n\n\treturn TRUE;\n\n}"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/os/linux/pci_main_dev.c",
+      "line": 386,
+      "symbol": "static VOID DEVEXIT rt_pci_remove(",
+      "file_sha256": "ea7ec584066b1f9afb1586aca5144d9dca2abbdf6bcf3de84f7f3cc774d0138e",
+      "source": "static VOID DEVEXIT rt_pci_remove(struct pci_dev *pci_dev)\n{\n\tPNET_DEV net_dev = pci_get_drvdata(pci_dev);\n\tVOID *pAd = NULL;\n\tULONG csr_addr = net_dev->base_addr;\n\n\n\tGET_PAD_FROM_NET_DEV(pAd, net_dev);\n\t\n\tDBGPRINT(RT_DEBUG_TRACE, (\"===> %s()\\n\", __FUNCTION__));\n\n#ifdef WIFI_DIAG\n\tDiagProcMemFree();\n#endif\n\n\tif (pAd != NULL)\n\t{\n\t\t/* Unregister/Free all allocated net_device. */\n\t\tRtmpPhyNetDevExit(pAd, net_dev);\n\n\n\t\t/* Free RTMP_ADAPTER related structures. */\n\t\tRtmpRaDevCtrlExit(pAd);\n\t\t\n\t\t/* Unmap CSR base address */\n\t\tiounmap((char *)(csr_addr));\n\t\t\n\t\t/* release memory region */\n\t\trelease_mem_region(pci_resource_start(pci_dev, 0), pci_resource_len(pci_dev, 0));\n\t}\n\telse\n\t{\n\t\t/* Unregister network device */\n\t\tRtmpOSNetDevDetach(net_dev);\n\n\t\t/* Unmap CSR base address */\n\t\tiounmap((char *)(net_dev->base_addr));\n\n\t\t/* release memory region */\n\t\trelease_mem_region(pci_resource_start(pci_dev, 0), pci_resource_len(pci_dev, 0));\n\t}\n\n\t/* Free the root net_device */\n\tRtmpOSNetDevFree(net_dev);\n}"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/common/rtmp_init.c",
+      "line": 2431,
+      "symbol": "BOOLEAN RtmpRaDevCtrlExit(",
+      "file_sha256": "f4bc432661900513e026c2abe05c4d861dc1982990968ad5c276ed6444fef011",
+      "source": "BOOLEAN RtmpRaDevCtrlExit(IN VOID *pAdSrc)\n{\n\tRTMP_ADAPTER *pAd = (RTMP_ADAPTER *)pAdSrc;\n\tINT index;\n\n#ifdef MULTIPLE_CARD_SUPPORT\nextern UINT8  MC_CardUsed[MAX_NUM_OF_MULTIPLE_CARD];\n\n\tif ((pAd->MC_RowID >= 0) && (pAd->MC_RowID <= MAX_NUM_OF_MULTIPLE_CARD))\n\t\tMC_CardUsed[pAd->MC_RowID] = 0; /* not clear MAC address*/\n#endif /* MULTIPLE_CARD_SUPPORT */\n\n\n#ifdef RLT_MAC\n\tif ((IS_MT76x0(pAd) || IS_MT76x2(pAd))&& (pAd->WlanFunCtrl.field.WLAN_EN == 1))\n\t{\n\t\trlt_wlan_chip_onoff(pAd, FALSE, FALSE);\n\t}\n#endif /* RLT_MAC */\n\n    RTMP_SEM_EVENT_DESTORY(&(pAd->AutoRateLock));\n\tRTMP_SEM_EVENT_DESTORY(&(pAd->e2p_read_lock));\n\n\n\t/*\n\t\tFree ProbeRespIE Table\n\t*/\n\tfor (index = 0; index < MAX_LEN_OF_BSS_TABLE; index++)\n\t{\n\t\tif (pAd->ProbeRespIE[index].pIe)\n\t\t\tos_free_mem(pAd, pAd->ProbeRespIE[index].pIe);\n\t}\n\n#ifdef RESOURCE_PRE_ALLOC\n\tRTMPFreeTxRxRingMemory(pAd);\n#endif /* RESOURCE_PRE_ALLOC */\n\n\tRTMPFreeAdapter(pAd);\n\n\treturn TRUE;\n}"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/os/linux/rt_linux.c",
+      "line": 1619,
+      "symbol": "RtmpOSNetDevDetach(",
+      "file_sha256": "cd105c06fb07e7518f3f4d08efd703e9d98fbec85d47bcdc222db7fe42d08cd8",
+      "source": "RtmpOSNetDevDetach(PNET_DEV pNetDev)\n{\n#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,31)\n\tstruct net_device_ops *pNetDevOps = (struct net_device_ops *)pNetDev->netdev_ops;\n#endif\n\n\tunregister_netdevice(pNetDev);\n\n#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,31)\n\tvfree(pNetDevOps);\n#endif\n}"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/os/linux/rt_linux.c",
+      "line": 1505,
+      "symbol": "RtmpOSNetDevFree(",
+      "file_sha256": "cd105c06fb07e7518f3f4d08efd703e9d98fbec85d47bcdc222db7fe42d08cd8",
+      "source": "RtmpOSNetDevFree(PNET_DEV pNetDev)\n{\n\tASSERT(pNetDev);\n\n#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)\n\tfree_netdev(pNetDev);\n#else\n\tkfree(pNetDev);\n#endif\n\n#ifdef VENDOR_FEATURE4_SUPPORT\n\tprintk(\"OS_NumOfMemAlloc = %ld, OS_NumOfMemFree = %ld\\n\",\n\t\t\tOS_NumOfMemAlloc, OS_NumOfMemFree);\n#endif /* VENDOR_FEATURE4_SUPPORT */\n#ifdef VENDOR_FEATURE2_SUPPORT\n\tprintk(\"OS_NumOfPktAlloc = %ld, OS_NumOfPktFree = %ld\\n\",\n\t\t\tOS_NumOfPktAlloc, OS_NumOfPktFree);\n#endif /* VENDOR_FEATURE2_SUPPORT */\n}"
+    }
+  ],
+  "conclusion": "ioctl borrows adapter from netdev; PCI removal unregisters netdevs then destroys adapter. RTNL assertion and netdev/module references alone are not an independently proven adapter lease. Need exact transformed removal/registration ordering and synchronization before installing new DOWN route.",
+  "new_route_installed": false,
+  "runtime_verified": false,
+  "kernel_ioctl_source": "trunk/linux-4.4.x/net/core/dev_ioctl.c",
+  "kernel_private_ioctl_rtnl": "inspected dev_ioctl private command path: rtnl_lock spans dev_ifsioc; registration removal uses unregister_netdevice under netdev protection. Must still verify all transformed free/unwind paths before binding."
+}
