@@ -19,6 +19,8 @@ int wr_iot_radio_off_begin(struct wr_iot_radio_off_owner*s,const struct wr_iot_c
 int wr_iot_radio_off_step(struct wr_iot_radio_off_owner*s,int reload){(void)s;(void)reload;assert(0);return 0;}
 int wr_iot_off_followup_begin(struct wr_iot_off_followup*s,const struct wr_iot_radio_off_owner*o){(void)s;(void)o;assert(0);return 0;}
 enum wr_iot_off_followup_phase wr_iot_off_followup_step(struct wr_iot_off_followup*s){(void)s;assert(0);return WR_OFF_FOLLOWUP_IDLE;}
+int wr_iot_off_followup_finish(struct wr_iot_off_followup*s,struct wr_iot_radio_off_owner*o){(void)s;(void)o;assert(0);return 0;}
+int wr_iot_rc_dispatch(void){assert(0);return 0;}
 int wr_iot_restart_scheduler_pending(void){return resume_pending;}
 int wr_iot_restart_scheduler_step(void){resume_steps++;return 0;}
 int wr_iot_rc_physical_pending(void){return physical_pending;}

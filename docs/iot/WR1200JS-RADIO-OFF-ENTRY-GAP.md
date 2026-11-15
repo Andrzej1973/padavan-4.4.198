@@ -433,3 +433,15 @@ preflight/mutations. Real SIGTERM+injected mask-failure ASan/UBSan fixture PASS.
 Function is not yet called by RC retirement; public OFF entry remains unbound.
 DONE is software sequence completion only, not runtime acceptance or daemon
 readiness. Registered regression and required target symbol added.
+
+RC now invokes final finish/retry for FINAL_PENDING/FINALIZING, then retires
+only resource-free DONE on a separate tick. It refuses new private admission
+while terminal owner or redispatch remains. A following bounded tick attempts
+public mailbox dispatch once (mailbox owns claim/dedup); no repeated SDK action.
+If that attempt cannot claim, ordinary client notification/retry semantics remain
+required; no guaranteed delivery claim. Actual RC actor fixture proves finish
+refusal retention, completion->retire->dispatch ordering, no stale parent use
+and no private admission in retirement gap. Existing runtime/scheduler and
+actual final signal-fence tests PASS. ABI43683137091 SUCCESS forbd4ba865 predates
+this finalization package. Public radio OFF entry still unbound; failures and
+shutdown before finalization require lifecycle acceptance separately.

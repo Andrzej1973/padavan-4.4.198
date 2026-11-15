@@ -27,6 +27,8 @@ int wr_iot_rc_physical_take_off(const char*i,unsigned long long t){assert(!strcm
 ''')
 code=code.replace('int wr_iot_off_followup_begin(struct wr_iot_off_followup*s,const struct wr_iot_radio_off_owner*o){(void)s;(void)o;assert(0);return 0;}', 'static int followup_begins,followup_steps;\nint wr_iot_off_followup_begin(struct wr_iot_off_followup*s,const struct wr_iot_radio_off_owner*o){assert(o==&radio_off_owner&&o->result==1&&!physical_pending);followup_begins++;s->owner=getpid();s->phase=WR_OFF_FOLLOWUP_PROFILE_BEGIN;return 1;}')
 code=code.replace('enum wr_iot_off_followup_phase wr_iot_off_followup_step(struct wr_iot_off_followup*s){(void)s;assert(0);return WR_OFF_FOLLOWUP_IDLE;}', 'enum wr_iot_off_followup_phase wr_iot_off_followup_step(struct wr_iot_off_followup*s){assert(s->owner==getpid()&&followup_begins==1);followup_steps++;s->phase=WR_OFF_FOLLOWUP_NETWORK_PENDING;return s->phase;}')
+code=code.replace('int wr_iot_off_followup_finish(struct wr_iot_off_followup*s,struct wr_iot_radio_off_owner*o){(void)s;(void)o;assert(0);return 0;}', 'static int finish_calls,finish_allowed,redispatches;\nint wr_iot_off_followup_finish(struct wr_iot_off_followup*s,struct wr_iot_radio_off_owner*o){finish_calls++;if(!finish_allowed)return 0;memset(o,0,sizeof(*o));s->phase=WR_OFF_FOLLOWUP_DONE;wr_iot_rc_shutdown.radio_off_owned=0;return 1;}')
+code=code.replace('int wr_iot_rc_dispatch(void){assert(0);return 0;}', 'int wr_iot_rc_dispatch(void){assert(!radio_off_owner.owner&&!radio_off_followup.owner&&!wr_iot_rc_shutdown.radio_off_owned);redispatches++;return 0;}')
 code=code.replace('void wr_iot_rc_physical_step(void){physical_steps++;}', 'void wr_iot_rc_physical_step(void){physical_steps++;if(off_transport){assert(policy_reads&&policy_allowed);physical_pending=0;wr_iot_rc_shutdown.active=0;off_terminal=1;}}')
 a=' assert(wr_iot_status_endpoint_close(&endpoint));'
 assert code.count(a)==1
@@ -51,6 +53,13 @@ code=code.replace(a,r'''
  assert(physical_steps==off_base+1&&policy_reads==2&&steps==ordinary&&resume_steps==scheduled);
 
 
+ radio_off_followup.phase=WR_OFF_FOLLOWUP_FINAL_PENDING;
+ wr_iot_rc_wait(&empty,&notification,&alarm_flag);assert(finish_calls==1&&!redispatches&&radio_off_owner.owner);
+ finish_allowed=1;wr_iot_rc_wait(&empty,&notification,&alarm_flag);
+ assert(finish_calls==2&&radio_off_followup.phase==WR_OFF_FOLLOWUP_DONE&&!radio_off_owner.owner&&!redispatches);
+ assert(!wr_iot_rc_radio_off_begin(&off,1));
+ wr_iot_rc_wait(&empty,&notification,&alarm_flag);assert(!radio_off_followup.owner&&radio_off_redispatch&&!redispatches);assert(!wr_iot_rc_radio_off_begin(&off,1));
+ wr_iot_rc_wait(&empty,&notification,&alarm_flag);assert(redispatches==1&&!radio_off_redispatch);
  pending=resume_pending=0;notification=1;wr_iot_rc_wait(&empty,&notification,&alarm_flag);
  assert(physical_steps==off_base+1&&policy_reads==2);notification=0;
 '''+a)
