@@ -83,3 +83,24 @@ Pre-UP cancellation, follow-up, actual RC/ON/OFF/scheduler and staged separate
 unit regressions pass. Target-link now requires the private release symbol.
 The public OFF/ON entry remains unbound; post-handoff quiesce/closed/rejected
 cleanup still requires integration, along with cold/IoT-OFF and device gates.
+
+## Post-handoff shutdown controller
+
+`radio-on-shutdown.c` retains a borrowed stable ON restore and a private quiesce
+child. Admission requires pending normal shutdown, HANDOFF, a current origin and
+an OFF ID different from ON with creation time no earlier than the handoff. Only
+OFF identity/time are stored, never arbitrary caller credentials. Each tick
+drains owned Guest and advances the existing rebind owner, checks separately for
+pre-OPEN rejection, or admits the existing shutdown OFF/quiesce. Once admitted,
+only that quiesce advances. Terminal CLOSED/REJECTED calls are fresh read-only
+observations with no repeated OFF or OPEN submission. Unknown state retains all
+ownership; no whole-transaction timeout/completion guarantee is claimed.
+
+Host actual-parent/check composition with backend actors passes admission/time/
+ID checks, credential omission, unavailable admission retention, one admitted
+OFF, pending drain, exact CLOSED and REJECTED-without-OFF, stale receipt refusal
+and terminal calls without backend mutation. Prepared separate C11-Werror units
+and existing post-UP cancellation regression pass. Modules are staged/registered
+with ABI/target-symbol gates but not yet bound into root post-handoff cleanup.
+Root entropy/stop-ID generation, final RC receipt invalidation and same-fence
+cleanup remain next. No public entry, target result or physical acceptance.

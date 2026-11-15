@@ -16,7 +16,7 @@ int wr_iot_on_shutdown_closed_current(struct wr_iot_on_restore *s,const struct w
      &&wr_iot_rc_shutdown.pending!=SIGQUIT
 #endif
     )||s->main.owner!=getpid()||s->main.generation!=&s->generation||
-    !s->generation.admission||!s->generation.main_may_have_started||!s->generation.admission||!s->generation.admission->profile.active||
+    !s->generation.admission||!s->generation.main_may_have_started||!s->generation.admission->profile.active||
     !wr_iot_on_generation_origin_current(&s->generation)||
     s->guest.owner!=getpid()||s->guest.busy||s->guest.main!=&s->main||
     (s->guest.desired!=0&&s->guest.desired!=1)||

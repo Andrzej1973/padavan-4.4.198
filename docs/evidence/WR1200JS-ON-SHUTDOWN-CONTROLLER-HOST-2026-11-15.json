@@ -1,0 +1,13 @@
+{
+  "checks_passed": [
+    "check-radio-on-shutdown.py C11 Werror ASan UBSan",
+    "check-physical-stop-client-preparation.py",
+    "check-radio-on-postup-cancel.py"
+  ],
+  "source_sha256": "e283d679f4a46b506ae55788cf3b1e68dd8e1aff08eaec5ab1b9a09c2c996729",
+  "scope": "Actual parent/profile/Guest and terminal predicate chain; backend/quiesce actors injected",
+  "root_posthandoff_bound": false,
+  "target_verified": false,
+  "device_verified": false,
+  "scratch": "TemporaryDirectory removed"
+}
