@@ -7,6 +7,11 @@
 struct wr_iot_rc_shutdown_admission {
  volatile sig_atomic_t active;
  volatile sig_atomic_t pending;
+ /* Optional PID1 normal-shutdown router. Disabled until a physical-stop
+  * consumer is bound. Signal context writes only the first requested signal;
+  * this is distinct from the current transaction's active/pending admission. */
+ volatile sig_atomic_t normal_route_armed;
+ volatile sig_atomic_t normal_route_requested;
  /* Process-context OFF exclusion; signal handlers never read/write it.
   * Separate from active/pending, retained across physical shutdown_end. */
  unsigned int radio_off_owned;
@@ -16,7 +21,8 @@ struct wr_iot_rc_shutdown_admission {
 extern struct wr_iot_rc_shutdown_admission wr_iot_rc_shutdown;
 
 static inline int wr_iot_rc_shutdown_begin(void){
- if(wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending)return 0;
+ if(wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||
+    wr_iot_rc_shutdown.normal_route_requested)return 0;
  wr_iot_rc_shutdown.active=1;
  return 1;
 }
@@ -24,14 +30,28 @@ static inline int wr_iot_rc_shutdown_begin(void){
  * SIGPWR and process faults retain the stock immediate path.
  * Keep the first signal; do not call RC, malloc, logging or locks here. */
 static inline int wr_iot_rc_shutdown_note(int sig){
- if(!wr_iot_rc_shutdown.active ||
-    (sig!=SIGTERM
+ if(sig!=SIGTERM
 #ifdef SIGQUIT
      &&sig!=SIGQUIT
 #endif
-    ))return 0;
- if(!wr_iot_rc_shutdown.pending)wr_iot_rc_shutdown.pending=sig;
- return 1;
+   )return 0;
+ if(wr_iot_rc_shutdown.active){
+  if(!wr_iot_rc_shutdown.pending)wr_iot_rc_shutdown.pending=sig;
+  return 1;
+ }
+ if(wr_iot_rc_shutdown.normal_route_armed){
+  if(!wr_iot_rc_shutdown.normal_route_requested)wr_iot_rc_shutdown.normal_route_requested=sig;
+  return 1;
+ }
+ return 0;
+}
+/* Process-context preparation only; no default/automatic arm. The consumer
+ * must retain request ownership until exact physical completion and must not
+ * clear a pending request merely because a software BSS CLOSE completed. */
+static inline int wr_iot_rc_shutdown_route_arm(void){
+ if(wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||
+    wr_iot_rc_shutdown.normal_route_requested)return 0;
+ wr_iot_rc_shutdown.normal_route_armed=1;return 1;
 }
 static inline int wr_iot_rc_shutdown_end(void){
  int pending;
