@@ -1,6 +1,6 @@
 """Actual runtime preparer links isolated client objects without RC activation."""
 from pathlib import Path
-import json,subprocess,tempfile
+import ast,json,subprocess,tempfile
 here=Path(__file__).resolve().parent
 with tempfile.TemporaryDirectory(prefix='wr-stop-client-prepared-') as d:
  root=Path(d);rc=root/'trunk/user/rc';http=root/'trunk/user/httpd'
@@ -56,6 +56,23 @@ with tempfile.TemporaryDirectory(prefix='wr-stop-client-prepared-') as d:
  for name in ('physical-stop-client','physical-stop-down','physical-stop-session','rc-physical-stop','physical-rebind-client','physical-rebind-controller','rebind-start','rebind-network','rebind-rollback','rebind-commit','rebind-close','rebind-closed-rollback','rebind-runner','rebind-active-stop','rebind-observe','rebind-owner','restart-profile','restart-main-state','restart-generation','restart-main-up','restart-main-controller','restart-main-bridge','restart-guest-up','restart-guest-bridge','restart-guest-isolation','restart-guest-controller','restart-services','restart-restore','restart-finish-check','restart-resume','restart-cancel-check','restart-prehandoff-check','restart-resume-retire','restart-scheduler','restart-auth-stop','restart-multicast','restart-multicast-controller','restart-iapp-child','restart-wan-followup','restart-terminal-iapp','radio-off-owner','radio-off-observe','radio-on-admission','radio-on-generation','radio-on-main','radio-on-guest','radio-on-services','radio-on-multicast','radio-on-restore','radio-on-disabled','precreated-down-client','precreated-down-observe','cold-on-admission','cold-on-generation','precreated-down-recovery','cold-on-recovery','cold-on-main','cold-on-guest','cold-on-services','cold-on-multicast','cold-on-owner','cold-on-handoff','cold-on-release','radio-on-handoff','radio-on-release','radio-on-followup','radio-on-owner','radio-on-prehandoff','radio-on-shutdown-check','radio-on-shutdown','radio-on-aux','radio-off-profile','radio-off-profile-check','radio-off-followup','radio-off-bridge','radio-off-wan'):
   assert (rc/'Makefile').read_text().count('wr-iot-'+name+'.o')==1
   subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-O2','-I'+str(rc),'-c',str(rc/('wr-iot-'+name+'.c')),'-o',str(root/(name+'.o'))],check=True)
+ # Execute the actual verifier's source-equality loop against prepared units,
+ # including the composed private backend. Deliberate corruption must refuse.
+ verifier=ast.parse((here/'check-runtime-source.py').read_text())
+ outer=next(n for n in verifier.body if isinstance(n,ast.For) and isinstance(n.target,ast.Tuple))
+ source_check=outer.body[0]
+ code=compile(ast.Module(body=[source_check],type_ignores=[]),'<actual-runtime-source-check>','exec')
+ env={'local':here,'root':rc,'units':['rc-backend','cold-on-release']}
+ exec(code,env)
+ backend_path=rc/'wr-iot-rc-backend.c';original=backend_path.read_text()
+ backend_path.write_text(original+'/* unexpected source */')
+ try:
+  exec(code,env)
+ except AssertionError:
+  pass
+ else:
+  raise AssertionError('runtime source verifier accepted backend corruption')
+ backend_path.write_text(original)
  duplicate=subprocess.run(['python3',str(here/'prepare-runtime.py'),str(root)],capture_output=True)
  assert duplicate.returncode!=0
 print('PASS actual runtime preparation: fixed client/DOWN objects copied and compile, exact Makefile entries, no orchestration flag, duplicate refused; full SDK/MIPS separate')

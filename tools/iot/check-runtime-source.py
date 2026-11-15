@@ -23,6 +23,7 @@ for name in ['boards.mk','cflags.mk']:(shared/name).write_text('')
 for root,units in [(rc,['rc-backend','rc-mode','rc-runtime','radio-off-owner','radio-off-observe','radio-on-admission','radio-on-generation','radio-on-main','radio-on-guest','radio-on-services','radio-on-multicast','radio-on-restore','radio-on-disabled','precreated-down-client','precreated-down-observe','cold-on-admission','cold-on-generation','precreated-down-recovery','cold-on-recovery','cold-on-main','cold-on-guest','cold-on-services','cold-on-multicast','cold-on-owner','cold-on-handoff','cold-on-release','radio-on-handoff','radio-on-release','radio-on-followup','radio-on-owner','radio-on-prehandoff','radio-on-shutdown-check','radio-on-shutdown','radio-on-aux','radio-off-profile','radio-off-profile-check','radio-off-followup','radio-off-bridge','radio-off-wan','status-channel','status-endpoint']),(http,['status-client','status-channel','status-endpoint'])]:
  for u in units:
   expected=(local/(u+'.c')).read_text()
+  if u=='rc-backend':expected+='\n#include "rc-cold-start.h"\n'+(local/'rc-cold-start.inc').read_text()
   for h in local.glob('*.h'):expected=expected.replace('#include "'+h.name+'"','#include "wr-iot/'+h.name+'"')
   assert (root/('wr-iot-'+u+'.c')).read_text()==expected,u
  for flag,enabled in [('-DBOARD_WR1200JS',True),('-DBOARD_OTHER',False),('',False)]:
