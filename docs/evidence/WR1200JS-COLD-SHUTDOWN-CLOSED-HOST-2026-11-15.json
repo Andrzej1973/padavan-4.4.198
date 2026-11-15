@@ -1,0 +1,22 @@
+{
+  "scope": "RC-private cold post-handoff shutdown completed-CLOSE observation",
+  "checks": {
+    "actual_RC_predicate_asan_ubsan": "PASS",
+    "bound_parent_ON_OFF_and_exact_epoch_generation_token_serial": "PASS",
+    "complete_OFF_no_resume_or_desired_credentials": "PASS",
+    "stale_ACTIVE_rebind_pending_missing_refused_zero_output": "PASS",
+    "prepared_backend_GNU11_Werror_and_nm_symbol": "PASS"
+  },
+  "actors": [
+    "existing full activation-owner CLOSED observer"
+  ],
+  "sha256": {
+    "tools/iot/rc-cold-shutdown.h": "aa01f2c33144c8c79a70a4cf286beaf3ab8b9984a1d3af8a45d6ab7e60486069",
+    "tools/iot/rc-cold-shutdown.inc": "997ef2d5991df045d3108abacb4076f5719a8168b6e19c43cc72a43d0863e7bf",
+    "tools/iot/check-rc-cold-shutdown.py": "d4f9272061d57671827d830134ce26150e42cf195ad175106487b6db9a896f08"
+  },
+  "shutdown_controller_bound": false,
+  "cleanup_connected": false,
+  "target_verified": false,
+  "physical_verified": false
+}

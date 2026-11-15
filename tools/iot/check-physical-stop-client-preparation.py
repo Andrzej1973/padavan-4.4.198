@@ -31,7 +31,7 @@ with tempfile.TemporaryDirectory(prefix='wr-stop-client-prepared-') as d:
  assert manifest['cold_completion_private_api_linked'] and not manifest['cold_completion_public_entry_bound']
  assert manifest['cold_backend_initial_start_linked']
  assert (rc/'wr-iot-rc-backend.c').read_text().count('int wr_iot_rc_cold_start_begin(')==1
- for symbol in ['wr_iot_rc_cold_start_begin','wr_iot_rc_cold_active_current','wr_iot_rc_cold_start_progress','wr_iot_rc_cold_parent_release','wr_iot_rc_cold_terminal_begin','wr_iot_rc_cold_terminal_step','wr_iot_rc_cold_terminal_retire','wr_iot_rc_cold_disabled_parent_release','wr_iot_rc_cold_disabled_terminal_begin','wr_iot_rc_cold_disabled_terminal_step','wr_iot_rc_cold_disabled_terminal_retire']:
+ for symbol in ['wr_iot_rc_cold_start_begin','wr_iot_rc_cold_active_current','wr_iot_rc_cold_start_progress','wr_iot_rc_cold_parent_release','wr_iot_rc_cold_terminal_begin','wr_iot_rc_cold_terminal_step','wr_iot_rc_cold_terminal_retire','wr_iot_rc_cold_shutdown_closed','wr_iot_rc_cold_disabled_parent_release','wr_iot_rc_cold_disabled_terminal_begin','wr_iot_rc_cold_disabled_terminal_step','wr_iot_rc_cold_disabled_terminal_retire']:
   assert ('rc-backend:'+symbol) in (here/'compile-runtime-link.sh').read_text()
  assert manifest['cold_on_main_linked'] and manifest['cold_on_preup_recovery_linked'] and not manifest['cold_on_entry_bound']
  assert manifest['radio_on_admission_linked'] and not manifest['radio_on_entry_bound']
@@ -60,7 +60,7 @@ with tempfile.TemporaryDirectory(prefix='wr-stop-client-prepared-') as d:
   assert (rc/'Makefile').read_text().count('wr-iot-'+name+'.o')==1
   subprocess.run(['gcc','-std=gnu11' if name=='rc-backend' else '-std=c11','-Wall','-Wextra','-Werror','-O2','-I'+str(rc),'-c',str(rc/('wr-iot-'+name+'.c')),'-o',str(root/(name+'.o'))],check=True)
  symbols=subprocess.check_output(['nm',str(root/'rc-backend.o')],text=True)
- for symbol in ['wr_iot_rc_cold_parent_release','wr_iot_rc_cold_terminal_begin','wr_iot_rc_cold_terminal_step','wr_iot_rc_cold_terminal_retire','wr_iot_rc_cold_disabled_parent_release','wr_iot_rc_cold_disabled_terminal_begin','wr_iot_rc_cold_disabled_terminal_step','wr_iot_rc_cold_disabled_terminal_retire']:
+ for symbol in ['wr_iot_rc_cold_parent_release','wr_iot_rc_cold_terminal_begin','wr_iot_rc_cold_terminal_step','wr_iot_rc_cold_terminal_retire','wr_iot_rc_cold_shutdown_closed','wr_iot_rc_cold_disabled_parent_release','wr_iot_rc_cold_disabled_terminal_begin','wr_iot_rc_cold_disabled_terminal_step','wr_iot_rc_cold_disabled_terminal_retire']:
   assert any(line.split()[-2:]==['T',symbol] for line in symbols.splitlines()),symbol
  # Execute the actual verifier's source-equality loop against prepared units,
  # including the composed private backend. Deliberate corruption must refuse.

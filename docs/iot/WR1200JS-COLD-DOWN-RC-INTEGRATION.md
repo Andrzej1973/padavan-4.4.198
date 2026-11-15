@@ -242,3 +242,15 @@ retains the root/profile/guard for exact-context retry. Both intent fixtures and
 prepared compilation pass. This private function is staged but no public root
 shutdown caller is bound. Shutdown after initial backend handoff still requires
 its own exact CLOSED or completed pre-OPEN rejection path.
+
+## Post-handoff shutdown exact CLOSE observer staged
+
+`rc-cold-shutdown.inc` observes only the same bound cold initial backend and
+completed owned OFF under pending normal shutdown. It matches original ON and
+fresh OFF envelope, adapter/ra2 identity, open token and close serial against the
+existing backend's full CLOSE observer and retained stop controller. OFF resume
+flags or desired credentials, ACTIVE/rebind/foreign owners and stale tuples
+refuse with zero output. The prior startup profile is not compared/restored after
+normal OFF's owned profile change. Focused predicate fixture uses an existing
+CLOSED-observer actor; prepared backend compilation and nm symbol checks pass.
+No shutdown controller, pre-OPEN rejection alternative or cleanup is bound yet.
