@@ -29,8 +29,11 @@ int main(void){
  mode=1;assert(!wr_iot_rc_radio_on_rollback_state(&r)&&!writes);mode=0;
  down=0;assert(!wr_iot_rc_radio_on_rollback_state(&r)&&!writes);down=1;
  assert(wr_iot_rc_radio_on_rollback_state(&r)&&writes==1&&!value);
+ int before=writes;assert(wr_iot_rc_radio_on_rollback_current(&r)&&writes==before);
+ value=1;assert(!wr_iot_rc_radio_on_rollback_current(&r)&&writes==before);
  value=1;fail_write=1;assert(!wr_iot_rc_radio_on_rollback_state(&r)&&writes==2&&value);fail_write=0;
  reads=0;post_drift=1;assert(!wr_iot_rc_radio_on_rollback_state(&r)&&writes==3&&!value);
+ post_drift=0;down=0;assert(!wr_iot_rc_radio_on_rollback_current(&r)&&writes==3);
 }
 '''
 with tempfile.TemporaryDirectory(prefix='wr-on-rollback-state-') as d:

@@ -11,6 +11,7 @@ static int rollback_calls;
 static int ram_calls,ram_fail,mc_calls,mc_fail,mc_read=1,aux_ok=1;
 int wr_iot_on_aux_down_current(void){return aux_ok;}
 int wr_iot_rc_radio_on_rollback_state(const struct wr_iot_physical_stop_request*r){assert(depth&&down&&r->action==WR_STOP_RELEASE);rollback_calls++;return 1;}
+int wr_iot_rc_radio_on_rollback_current(const struct wr_iot_physical_stop_request*r){assert(depth&&r->action==WR_STOP_RELEASE);return down&&rollback_calls>0;}
 int wr_iot_rc_restart_radio_state(int reload){assert(depth&&down&&reload>=0&&reload<=1&&!ups);ram_calls++;return !ram_fail;}
 int wr_iot_rc_restart_multicast_policy(struct wr_iot_multicast_policy*p){p->required=p->enabled=1;p->guest=guest_desired;return 1;}
 int wr_iot_restart_multicast_apply(unsigned bss,int enabled){assert(enabled==1&&bss==(unsigned)mc_calls&&guest_state==guest_desired);mc_calls++;return !mc_fail;}

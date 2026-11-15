@@ -5,4 +5,6 @@
  * Sets only RAM mlme_radio_rt0; never rewinds watchdog reload event or commits.
  * Caller marks attempt before invocation and retains any uncertainty. */
 int wr_iot_rc_radio_on_rollback_state(const struct wr_iot_physical_stop_request *);
+/* Read-only fresh OFF-state proof for cancelled retirement; no setter retry. */
+int wr_iot_rc_radio_on_rollback_current(const struct wr_iot_physical_stop_request *);
 #endif

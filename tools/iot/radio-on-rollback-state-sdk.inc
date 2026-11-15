@@ -11,3 +11,13 @@ int wr_iot_rc_radio_on_rollback_state(const struct wr_iot_physical_stop_request 
  fd=wr_iot_service_guard_dup();if(fd<0)return 0;if(close(fd))return 0;
  return 1;
 }
+
+int wr_iot_rc_radio_on_rollback_current(const struct wr_iot_physical_stop_request *released)
+{
+ int fd;
+ fd=wr_iot_service_guard_dup();if(fd<0)return 0;if(close(fd))return 0;
+ if(get_ap_mode()||get_mode_radio_rt()!=0||nvram_get_int("mlme_radio_rt")!=0||
+    !wr_iot_radio_recovery_down_observed(released)||nvram_get_int("mlme_radio_rt")!=0)return 0;
+ fd=wr_iot_service_guard_dup();if(fd<0)return 0;if(close(fd))return 0;
+ return 1;
+}

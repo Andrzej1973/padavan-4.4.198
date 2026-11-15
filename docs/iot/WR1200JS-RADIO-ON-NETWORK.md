@@ -214,3 +214,22 @@ composition, full ON-owner/release regression and prepared separate-unit checks
 passed. Pending pre-UP recovery calls rollback once, never Main UP, and keeps
 baseline/ownership. SDK and DOWN boundaries are injected; target/device status
 remains unverified. TemporaryDirectory scratch removed after checks.
+
+## Verified cancelled pre-UP retirement
+
+The ON root now handles pending shutdown after generation admission and before
+any possible Main UP: profile recovery, one RAM OFF rollback, then read-only
+RAM/DOWN/receipt/file checks. The cancellation finish requires no Main/Guest/
+service/multicast/WAN/IAPP child ownership. Failed mask restoration retains the
+whole root. Successful outer fence cleanup volatile-wipes profile buffers and
+root credentials, clears process exclusions and releases the guard before
+pending shutdown replay. It preserves the historical OFF receipt. Step returns
+-1 only after that cancelled root has been released; this is not ON success.
+
+Actual root C11-Werror ASan/UBSan fixture passes cancellation both before and
+after generation, baseline byte restoration, one RAM call, failed unmask retry,
+zero Main UP and real SIGTERM delivery after cleanup. SDK read-only rollback
+fixture separately verifies no setter on current-state checks. Normal root and
+prepared separate-unit checks pass. Public OFF/ON remains unbound; cancellation
+before generation admission, RAM failure uncertainty, post-UP shutdown/failure,
+cold/IoT-OFF paths and physical runtime acceptance remain to complete.
