@@ -1,0 +1,12 @@
+{
+  "sdk_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "source": "trunk/user/rc/net_wifi.c",
+  "sha256": "98bbe9cfca0af35be4ddb82742022b90cc51c2f7b34834e627ee6c5f2187dc69",
+  "functions": {
+    "start_wifi_wds_rt": 557,
+    "start_wifi_apcli_rt": 637
+  },
+  "policy": "WDS UP only mode1/2; APCLI UP only mode3/4 plus saved SSID; mode0 detach branches",
+  "implementation": "radio-on-aux.c read-only absent-or-DOWN plus detached gate, no global startup helper calls",
+  "device_verified": false
+}

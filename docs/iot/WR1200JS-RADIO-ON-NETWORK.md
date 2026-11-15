@@ -30,7 +30,34 @@ translation units compile with C11-Werror. Tests clean their temporary trees.
 
 The preparer, ABI unit list, source/Make verifier and target-link symbol gates
 include these modules. They remain unbound to the public RC physical OFF/ON
-entry. Multicast/WDS/APCLI, WAN/IAPP, IoT rebind, post-UP rollback, OFF receipt
+entry. WAN/IAPP, IoT rebind, post-UP rollback, OFF receipt
 consumption and final transaction retirement remain to integrate and verify.
 No new target or device acceptance is claimed. Existing ordinary ra2 toggle,
 MCU ACK protection and global driver queues/timing are unchanged.
+
+## Ordered restore and mode0 AUX policy
+
+`radio-on-restore.c` owns children at stable addresses and advances one phase
+per tick: generation, one RAM-state attempt before any Main UP, Main/LAN, Guest,
+multicast, then services. PREPARED remains an observation with all baselines and
+outer guards retained. RAM failure prevents UP and is not retried. Multicast
+uses existing fixed BSS0/BSS1 adapters, records attempt before writing, omits
+Guest when disabled, and refuses policy/readback drift. Uncertain writes are
+not replayed. Pending shutdown may drain Guest's owned DOWN; complete parent
+shutdown recovery remains to integrate.
+
+The actual pinned SDK net_wifi.c activates WDS only in mode1/2 and APCLI only
+in mode3/4 with saved SSID. Our mode0 scope requires the inactive alternatives:
+`radio-on-aux.c` observes wds3,wds2,wds1,wds0,apcli0 absent or administrative
+DOWN with no master. Missing interface is accepted only ENODEV/ENXIO; interface
+index, mode and guard are rechecked. No foreign AUX interface is stopped or
+detached. Source hash/function lines are recorded in
+WR1200JS-ON-MODE0-AUX-POLICY-2026-11-15.json.
+
+Host C11-Werror ASan/UBSan composition passed the whole new restore chain,
+reload0/Guest OFF, one RAM write, RAM failure before UP, uncertain multicast
+blocking services, current multicast/AUX loss and pending Guest recovery.
+Separate multicast and AUX fixtures cover policy/identity/syscall refusals.
+Prepared separate translation units are checked; new MIPS/target results remain
+pending. No private/public RC entry binding, WAN/IAPP, ra2 rebind or final
+receipt/guard retirement is implied by PREPARED.
