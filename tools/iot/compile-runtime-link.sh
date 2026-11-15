@@ -57,6 +57,7 @@ done
 grep -Eq '[[:space:]]T[[:space:]]wr_iot_rc_physical_aux_down$' "$results/physical-aux-symbols.txt"
 grep -Eq '[[:space:]]T[[:space:]]wr_iot_rc_radio_off_policy$' "$results/physical-aux-symbols.txt"
 grep -Eq '[[:space:]]T[[:space:]]wr_iot_rc_radio_off_state$' "$results/physical-aux-symbols.txt"
+grep -Eq '[[:space:]]T[[:space:]]wr_iot_rc_radio_off_auth$' "$results/physical-aux-symbols.txt"
 grep -Eq '[[:space:]]T[[:space:]]wr_iot_rc_restart_guest_policy$' "$results/physical-aux-symbols.txt"
 grep -Eq '[[:space:]]T[[:space:]]wr_iot_rc_restart_generate$' "$results/physical-aux-symbols.txt"
 mkdir -p "$probe/staged/usr/sbin"

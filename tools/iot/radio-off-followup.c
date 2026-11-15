@@ -3,6 +3,7 @@
 #include <string.h>
 #include "radio-off-followup.h"
 #include "radio-off-state.h"
+#include "radio-off-auth.h"
 #include "radio-off-bridge.h"
 #include "radio-off-observe.h"
 #include "rc-shutdown-admission.h"
@@ -67,8 +68,19 @@ enum wr_iot_off_followup_phase wr_iot_off_followup_step(struct wr_iot_off_follow
   }
  }
  if(entered==WR_OFF_FOLLOWUP_BRIDGE_VERIFY&&s->phase==WR_OFF_FOLLOWUP_BRIDGE_VERIFY){
-  if(s->bridge_verify>=7)s->phase=WR_OFF_FOLLOWUP_NETWORK_PENDING;
+  if(s->bridge_verify>=7)s->phase=WR_OFF_FOLLOWUP_AUTH;
   else if(wr_iot_radio_off_bridge_observed(&s->released,s->bridge_verify))s->bridge_verify++;
+ }
+ if(entered==WR_OFF_FOLLOWUP_AUTH&&s->phase==WR_OFF_FOLLOWUP_AUTH&&!s->auth_attempted){
+  token=wr_iot_service_guard_enter(1);
+  if(token==1){
+   if(wr_iot_radio_off_observed(&s->released)){
+    s->auth_attempted=1;
+    s->phase=wr_iot_rc_radio_off_auth(&s->policy,&s->released)==WR_OFF_AUTH_RETURNED?
+     WR_OFF_FOLLOWUP_NETWORK_PENDING:WR_OFF_FOLLOWUP_RETAINED;
+   }
+   wr_iot_service_guard_leave(token);
+  }
  }
  s->busy=0;return s->phase;
 }

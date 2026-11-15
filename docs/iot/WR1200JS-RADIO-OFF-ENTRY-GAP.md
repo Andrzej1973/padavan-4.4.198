@@ -373,3 +373,14 @@ shutdown holds. Host ASan/UBSan fixture PASS NONE/full, stale policy/DOWN refusa
 and reentrant no replay. Return means call returned, not WAN readiness. Not
 controller-bound: preceding auth/service policy and post-WAN network observations
 remain required, as does IAPP/final baseline retirement. No target/runtime claim.
+
+OFF auth phase follows bridge verification. SDK adapter preserves stored-radio/
+auth behavior: enterprise rtinicapd launch only when stored radio enabled and
+enterprise policy still matches; no RSSI commands with all2GHz interfaces DOWN.
+Fresh release observation/guard/mode checks surround launch. Caller marks one
+attempt; REFUSED or UNCERTAIN conservatively retains, no implicit replay.
+RETURNED is not daemon readiness. Host policy-combination/uncertainty tests and
+controller ordering test PASS; prepared RC C11 units compile. Adapter staged
+into SDK helper and full target symbol gate. Actual SDK launch duration is
+unbounded as in existing eval; no nonblocking process-readiness claim.
+WAN/IAPP and final retirement still unbound.
