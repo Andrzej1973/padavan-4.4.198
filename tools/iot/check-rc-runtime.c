@@ -13,6 +13,12 @@ static char directory[]="/tmp/iot-rc-runtime-XXXXXX";
 #define WR_IOT_CONTROL_DIRECTORY directory
 #define WR_IOT_RUNTIME_UID geteuid()
 #include "rc-runtime.c"
+#ifndef WR_IOT_RUNTIME_FIXTURE_EXTERNAL_ON_RELEASE
+int wr_iot_on_release_current(struct wr_iot_on_restore *s){(void)s;assert(0);return 0;}
+int wr_iot_wan_followup_capture(struct wr_iot_wan_followup_state *s,int on){(void)s;(void)on;assert(0);return 0;}
+int wr_iot_radio_stop_fence_end_cleanup(struct wr_iot_radio_stop_fence *s,void(*cleanup)(void*),void*c){(void)s;(void)cleanup;(void)c;assert(0);return 0;}
+void wr_iot_service_guard_leave(int token){(void)token;assert(0);}
+#endif
 static volatile int notification,alarm_flag;
 static int pending,steps,observations,physical_pending,physical_steps,resume_pending,resume_steps;
 int wr_iot_radio_off_begin(struct wr_iot_radio_off_owner*s,const struct wr_iot_control_request*r){(void)s;(void)r;return 0;}

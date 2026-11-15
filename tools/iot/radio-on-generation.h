@@ -2,7 +2,7 @@
 #define WR_IOT_RADIO_ON_GENERATION_H
 #include "radio-on-admission.h"
 #include "restart-profile.h"
-enum wr_iot_on_generation_phase {WR_ON_GEN_IDLE,WR_ON_GEN_CAPTURED,WR_ON_GEN_GENERATED,WR_ON_GEN_VERIFIED,WR_ON_GEN_RESTORING,WR_ON_GEN_RESTORED};
+enum wr_iot_on_generation_phase {WR_ON_GEN_IDLE,WR_ON_GEN_CAPTURED,WR_ON_GEN_GENERATED,WR_ON_GEN_VERIFIED,WR_ON_GEN_RESTORING,WR_ON_GEN_RESTORED,WR_ON_GEN_COMMITTED};
 /* Stable-address owner borrows admission exclusively: admission.busy stays set
  * until a future checked handoff/retirement. No Main UP in this component. */
 struct wr_iot_on_generation {

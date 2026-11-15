@@ -24,6 +24,7 @@ static int radio_off_reload,radio_off_redispatch;
 static struct wr_iot_off_followup radio_off_followup;
 static struct wr_iot_physical_stop_request radio_off_receipt;
 static int radio_off_receipt_valid;
+#include "radio-on-release-runtime.h"
 int wr_iot_rc_radio_off_receipt(struct wr_iot_physical_stop_request *out)
 {
  if(!out)return 0;

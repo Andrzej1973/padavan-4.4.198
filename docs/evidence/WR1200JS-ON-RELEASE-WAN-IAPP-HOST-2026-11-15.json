@@ -1,0 +1,26 @@
+{
+  "date": "2026-11-15",
+  "checks_passed": [
+    "check-radio-on-release.py (C11 Werror ASan UBSan)",
+    "check-radio-on-followup.py (default and paired gate)",
+    "check-radio-on-restore.py",
+    "check-physical-stop-client-preparation.py",
+    "check-rc-runtime.py",
+    "check-rc-radio-off-composition.py",
+    "check-rc-scheduler-composition.py",
+    "check-rc-resume-autostart.py"
+  ],
+  "source_sha256": {
+    "radio-on-release.c": "ac9b0b22641f935c58d252894ed1a57b3af25b7e2d31c9c09a6238ff5b85cd15",
+    "radio-on-release-runtime.h": "26e6446919c53e1f6b1c5895f8754f5c6a7b4980b56f61065e520ade76546cc6",
+    "radio-on-followup.c": "b24710edf0cc11399044f927d59477546efadb61a7de2c018658f1de67cdfacd",
+    "rc-runtime.c": "3f9067ce5080d5a32c3ffb85fdb59445f183b8d8fd6c0cdf12c337261134ef31"
+  },
+  "scope": "Host composition: actual profile/journal/fence/RC receipt cleanup/WAN helper/terminal controller; SDK, backend and child transport actors",
+  "terminal_states": "Parent RELEASED differs from final software DONE; default IAPP gate stays pending; paired success fresh network required; failure/unknown retained",
+  "cleanup": "Fixture TemporaryDirectory trees removed on exit; no retained logs/build artifacts",
+  "target_verified": false,
+  "image_verified": false,
+  "device_verified": false,
+  "public_radio_on_off_entry_bound": false
+}

@@ -87,3 +87,51 @@ controllers with a backend actor. Prepared separate translation units also
 compile. This does not replace real target rebind, image or device evidence.
 The API remains private and unbound to RC OFF/ON entry; failure/shutdown recovery,
 receipt consumption, final retirement and WAN/IAPP remain unfinished.
+
+## Parent release after ACTIVE, before WAN/IAPP
+
+`radio-on-release.c` performs read-only preflight for the exact private ACTIVE
+rebind, current profile generation and credentials, Main bridge, Guest state
+and isolation, multicast and all submitted service slots. It also checks copied
+service policy and process-name auth liveness (not authentication acceptance),
+plus a captured, still-current WAN plan.
+
+`radio-on-release-runtime.h` is included only in RC runtime, beside the retained
+OFF receipt. It preflights before consuming that exact receipt. Release uses the
+original outer signal fence and service guard. Failed mask restore leaves the
+profile, receipt, context and guards intact. Same-context retry is local and
+checks the retained receipt again. Once mask restoration succeeds, bounded
+cleanup wipes credentials and historical receipt, releases the baseline/guard
+and clears child ownership pointers before pending SIGTERM is replayed. Status
+is RELEASED, not DONE. The captured WAN plan survives and may execute once only
+after admission/guard release. No public entry or scheduler is activated here.
+
+Host C11-Werror ASan/UBSan composition passed actual preflight, journal/profile,
+RC-owned cleanup and signal fence: auth/WAN/service refusal, no backend progress
+from preflight, failed unmask retention, successful retry, credential/receipt
+clearing before a real deferred SIGTERM, and one WAN call only after release.
+RC wait, OFF-consumer and scheduler regression fixtures passed; prepared separate
+translation units passed. Backend, SDK and WAN boundaries are injected. Target
+and device acceptance remain distinct. WAN/IAPP completion, root scheduling,
+post-UP failure/shutdown recovery and public OFF/ON entry binding remain required.
+
+## Post-release WAN and terminal IAPP
+
+`radio-on-followup.c` advances RELEASED -> WAN -> IAPP_PENDING -> IAPP -> DONE.
+WAN executes the captured plan once only after parent release. A fresh exact
+backend resource observation must follow WAN before one LED call or IAPP.
+Missing network proof retains WAN without resubmitting it. LED uncertainty is
+retained without replay. The default IAPP gate stops at IAPP_PENDING; the paired
+installer enables the existing terminal IAPP controller and its one-shot child.
+An unknown child result keeps its service guard/fence and drains only that
+child. Confirmed failure is retained, while success plus fresh network evidence
+permits software DONE. Later DONE reads still require current network proof.
+
+Host C11-Werror ASan/UBSan checks use actual parent release, receipt cleanup,
+WAN helper, terminal controller and signal fence with injected SDK/backend/child
+boundaries. They cover post-WAN network loss, no WAN/LED/script replay, inert
+default gate, paired success, child failure and unknown-result draining. ABI
+includes both default and paired-gate MIPS compilation for the new follow-up.
+Prepared separate translation units compile; target/image/device acceptance is
+still pending. Root RC begin/progress/retirement binding, cold-OFF handling and
+post-UP failure/shutdown recovery remain required before enabling public OFF/ON.

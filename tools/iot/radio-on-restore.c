@@ -10,6 +10,7 @@ int wr_iot_on_restore_begin(struct wr_iot_on_restore *s,struct wr_iot_on_admissi
 {
  unsigned i,nonzero=0;
  if(!s||!a||!desired||!id||s->owner||s->busy||s->radio_state_attempted||s->phase!=WR_ON_RESTORE_IDLE||
+    s->wan.owner||s->terminal.owner||s->child.owner||s->child.attempted||s->led_attempted||s->led_returned||
     s->generation.owner||s->main.owner||s->guest.owner||s->services.owner||s->multicast.owner||
     !wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending)return 0;
  for(i=0;i<16;i++)nonzero|=id[i];

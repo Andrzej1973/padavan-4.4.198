@@ -1788,7 +1788,7 @@ jobs:
           test -n "$compiler"
           for role in rc httpd; do
             units="status-channel status-endpoint"
-            if [ "$role" = rc ]; then units="$units rc-backend rc-runtime restart-iapp-child restart-terminal-iapp radio-off-owner radio-off-observe radio-on-admission radio-on-generation radio-on-main radio-on-guest radio-on-services radio-on-multicast radio-on-restore radio-on-handoff radio-on-aux radio-off-profile radio-off-followup radio-off-bridge radio-off-wan"; else units="$units status-client"; fi
+            if [ "$role" = rc ]; then units="$units rc-backend rc-runtime restart-iapp-child restart-terminal-iapp radio-off-owner radio-off-observe radio-on-admission radio-on-generation radio-on-main radio-on-guest radio-on-services radio-on-multicast radio-on-restore radio-on-handoff radio-on-release radio-on-followup radio-on-aux radio-off-profile radio-off-followup radio-off-bridge radio-off-wan"; else units="$units status-client"; fi
             for unit in $units; do
               "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
                 -c "abi-results/iot-http-source/trunk/user/$role/wr-iot-$unit.c" \
@@ -1826,6 +1826,8 @@ jobs:
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float             -c abi-results/iot-http-source/trunk/user/rc/wr-iot-restart-restore.c             -o abi-results/iot-iapp-enabled-restore-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -c abi-results/iot-http-source/trunk/user/rc/wr-iot-restart-resume.c -o abi-results/iot-iapp-enabled-resume-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -c abi-results/iot-http-source/trunk/user/rc/wr-iot-radio-off-followup.c -o abi-results/iot-iapp-enabled-off-followup-mips.o
+          "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -c abi-results/iot-http-source/trunk/user/rc/wr-iot-radio-on-followup.c -o abi-results/iot-iapp-enabled-on-followup-mips.o
+          python3 tools/iot/check-radio-on-followup.py
           python3 tools/iot/check-radio-off-iapp.py
           python3 tools/iot/check-resume-wan-followup.py
           python3 tools/iot/check-terminal-iapp.py
