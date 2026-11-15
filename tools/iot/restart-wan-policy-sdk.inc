@@ -35,3 +35,10 @@ int wr_iot_rc_restart_wan_plan(int radio_on,enum wr_iot_wan_followup*out)
  *out=wr_iot_restart_wan_plan(0,wr_iot_wan_band(man),wr_iot_wan_band(wisp),0,radio_on);
  return *out!=WR_WAN_INVALID;
 }
+
+void wr_iot_rc_restart_wan_submit(enum wr_iot_wan_followup plan)
+{
+ /* Fixed SDK calls; caller records attempt and owns post-radio ordering. */
+ if(plan==WR_WAN_FULL_RESTART)full_restart_wan();
+ else if(plan==WR_WAN_RECONNECT)try_wan_reconnect(1,0);
+}

@@ -18,6 +18,8 @@ static int close(int fd){assert(fd==9);return 0;}
 static int get_ap_mode(void){return ap;}
 static const char*get_man_ifname(int band){assert(!band);if(!man)return 0;strcpy(shared,man);return shared;}
 static const char*get_apcli_wisp_ifname(void){reads++;if(!wisp)return 0;strcpy(shared,drift&&reads==2?"apclii0":wisp);return shared;}
+static void full_restart_wan(void){assert(0);}
+static void try_wan_reconnect(int modem,long pause){(void)modem;(void)pause;assert(0);}
 #include "restart-wan-policy-sdk.inc"
 int main(void){
  enum wr_iot_wan_followup p=WR_WAN_INVALID;

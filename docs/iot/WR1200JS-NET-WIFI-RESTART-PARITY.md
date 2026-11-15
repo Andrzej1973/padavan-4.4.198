@@ -450,3 +450,14 @@ missing/oversized names and drift are checked. A fixture with deliberately share
 helper buffer passes and verifies stable mismatch/reconnect/no-op decisions.
 No WAN operation is invoked. Actual helper extraction/target declaration checks,
 prepared source binding and once-only post-release dispatch remain required.
+
+
+WAN adapter/controller now staged in prepared RC sources. Exact SDK declarations
+confirm void full_restart_wan(void), void try_wan_reconnect(int,long), and char*
+get_apcli_wisp_ifname(void). Fixed submission uses full restart or reconnect(1,0).
+Controller captures once under admission and refuses dispatch while active or
+pending; marks attempt before SDK call, so reentrant and repeated step cannot
+repeat. Return means call returned, not WAN ready. Native preparation and host
+snapshot/controller tests pass. Root/terminal-take binding is still absent;
+caller must prove physical terminal consumption before dispatch. No live WAN
+or router action was performed.
