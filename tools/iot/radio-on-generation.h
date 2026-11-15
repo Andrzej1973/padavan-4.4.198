@@ -21,4 +21,6 @@ int wr_iot_on_generation_abort(struct wr_iot_on_generation *);
 /* Pre-UP recovery only, including pending shutdown. Restores owned baseline
  * with fresh DOWN proof; retains profile/guards, never generates or opens. */
 int wr_iot_on_generation_recover(struct wr_iot_on_generation *);
+/* Checks selected profile: ON credentials or explicit saved OFF; no writes. */
+int wr_iot_on_generation_profile_current(const struct wr_iot_on_generation *);
 #endif

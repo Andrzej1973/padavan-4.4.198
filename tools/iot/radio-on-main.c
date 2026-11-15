@@ -29,7 +29,7 @@ int wr_iot_on_main_step(struct wr_iot_on_main *s)
  s->busy=1;
  if(wr_iot_on_generation_origin_current(g)&&
     wr_iot_generated_matches(&g->admission->profile.files.generated[0],g->admission->profile.files.paths[0])&&
-    wr_iot_restart_profile_current(&g->desired)&&
+    wr_iot_on_generation_profile_current(g)&&
     wr_iot_rebind_configuration_current(&g->admission->released,s->open_id,&current)&&
     current.adapter_epoch>g->admission->released.epoch&&
     current.device_generation==g->admission->released.generation&&

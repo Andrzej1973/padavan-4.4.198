@@ -22,6 +22,13 @@ static int on_generation_current(struct wr_iot_on_generation *s,int require_down
   wr_iot_rc_radio_on_mode_read(&mode)&&mode.router==1&&mode.radio==1&&mode.mode==0&&
   (!require_down||wr_iot_radio_resume_down_observed(&a->released));
 }
+int wr_iot_on_generation_profile_current(const struct wr_iot_on_generation *s)
+{
+ if(!s)return 0;
+ if(s->desired.enabled==1)return wr_iot_restart_profile_current(&s->desired);
+ if(s->desired.enabled!=0||s->desired.ssid[0]||s->desired.password[0])return 0;
+ return wr_iot_restart_disabled_profile_current();
+}
 int wr_iot_on_generation_begin(struct wr_iot_on_generation *s,
  struct wr_iot_on_admission *a,const struct wr_iot_request *desired,int reload)
 {
@@ -29,14 +36,15 @@ int wr_iot_on_generation_begin(struct wr_iot_on_generation *s,
     a->owner!=getpid()||a->busy||a->phase!=WR_ON_ADMISSION_CAPTURED||
     a->profile.generated||a->profile.recovering||a->profile.removing||
     a->profile.files.journalled||a->profile.files.dirty||a->profile.files.pending||
-    desired->enabled!=1||(reload!=0&&reload!=1)||
+    (desired->enabled!=0&&desired->enabled!=1)||
+    (!desired->enabled&&(desired->ssid[0]||desired->password[0]))||(reload!=0&&reload!=1)||
     !memchr(desired->ssid,0,sizeof(desired->ssid))||!memchr(desired->password,0,sizeof(desired->password))||
     wr_iot_rc_shutdown.pending)return 0;
  /* Capture-only admission cancellation is excluded before any generator call. */
  a->busy=1;s->admission=a;s->desired=*desired;
  if(!on_generation_current(s,1)||
     !wr_iot_generated_matches(&a->profile.files.generated[0],a->profile.files.paths[0])||
-    (!reload&&!wr_iot_restart_profile_current(&s->desired))||wr_iot_rc_shutdown.pending){
+    (!reload&&!wr_iot_on_generation_profile_current(s))||wr_iot_rc_shutdown.pending){
   volatile unsigned char *p=(volatile unsigned char *)&s->desired;size_t n=sizeof(s->desired);
   while(n--)*p++=0;
   s->admission=NULL;a->busy=0;return 0;
@@ -62,7 +70,7 @@ int wr_iot_on_generation_step(struct wr_iot_on_generation *s)
   }
  }else if(s->phase==WR_ON_GEN_GENERATED||s->phase==WR_ON_GEN_VERIFIED){
   if(wr_iot_generated_matches(&s->admission->profile.files.generated[0],s->admission->profile.files.paths[0])&&
-     wr_iot_restart_profile_current(&s->desired)&&on_generation_current(s,1)&&!wr_iot_rc_shutdown.pending){s->phase=WR_ON_GEN_VERIFIED;result=1;}
+     wr_iot_on_generation_profile_current(s)&&on_generation_current(s,1)&&!wr_iot_rc_shutdown.pending){s->phase=WR_ON_GEN_VERIFIED;result=1;}
   else s->phase=WR_ON_GEN_RESTORING;
  }else if(s->phase==WR_ON_GEN_RESTORING){
   if(wr_iot_radio_profile_restore(&s->admission->profile)){s->phase=WR_ON_GEN_RESTORED;result=-1;}
