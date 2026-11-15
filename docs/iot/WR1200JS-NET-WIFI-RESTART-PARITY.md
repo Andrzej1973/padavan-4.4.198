@@ -543,3 +543,17 @@ begin in host ASan/UBSan test. SDK/physical actors are injected. The module is n
 yet linked or bound to net_wifi; cold/initial-OFF and radio-OFF cases retain their
 separate admission requirements. Existing full suite13982 continues unchanged
 registered code, excluding this standalone component.
+
+
+## Experimental net_wifi restart hook installer
+
+prepare-restart-entry-source stages private entry object/header and wraps prepared
+restart_wifi_rt before its legacy fence. A claimed intent returns before combined
+SDK stop/reopen. Prepared backend exports an ownership predicate: IDLE/INITIAL_OFF
+are never-opened legacy candidates; rebind owner, busy or any other phase routes
+toward the private entry. Entry return0 never bypasses the existing legacy
+never-opened quiescence gate. Source installer requires paired experimental policy
+gate1 and refuses duplicate/changed anchors before writes. Executed fixture proves
+claim exclusion and predicate decisions, with SDK body/entry actors. Full SDK
+compile/link and driver endpoint compatibility remain pending. Installer is not
+yet called by CI/main firmware; default image behavior is unchanged.

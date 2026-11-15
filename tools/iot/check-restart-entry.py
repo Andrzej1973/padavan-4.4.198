@@ -10,6 +10,8 @@ code=r'''
 #include "rc-physical-stop.h"
 #include "rc-shutdown-admission.h"
 struct wr_iot_rc_shutdown_admission wr_iot_rc_shutdown;
+static int owned=1;
+int wr_iot_rc_restart_owned(void){return owned;}
 static int held,guard=1,mode_ok=1,drift,reads,entropy_ok=1,claimed=1,calls;
 int wr_iot_service_guard_enter(int on){assert(on==1);if(!guard)return 0;held++;return 1;}
 void wr_iot_service_guard_leave(int token){assert(token==1&&held==1);held--;}
@@ -19,6 +21,7 @@ static int entropy(void*b,unsigned n,unsigned f){assert(held&&n==32&&f==1);memse
 int wr_iot_rc_physical_begin_quiesce(const struct wr_iot_rc_physical_intent*i,const struct wr_iot_control_request*r){assert(!held&&!wr_iot_rc_shutdown.active&&!r->request.enabled&&!r->request.password[0]&&r->created&&strlen(r->id)==32&&i->restart&&i->radio_on&&i->reload==1);calls++;return claimed;}
 #include "restart-entry.c"
 int main(void){
+ owned=0;assert(!wr_iot_restart_entry(1,1)&&!calls);owned=1;
  assert(!wr_iot_restart_entry(0,1)&&!calls);assert(!wr_iot_restart_entry(1,2));
  guard=0;assert(!wr_iot_restart_entry(1,1));guard=1;
  entropy_ok=0;assert(!wr_iot_restart_entry(1,1)&&!held&&!calls);entropy_ok=1;
