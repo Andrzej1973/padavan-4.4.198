@@ -34,7 +34,11 @@ int main(void){
  up=1;int before=calls;assert(!wr_iot_radio_off_observed(&r)&&calls==before&&!depth);up=0;
  wr_iot_rc_shutdown.active=1;assert(!wr_iot_radio_off_observed(&r));
  reads=0;assert(wr_iot_radio_resume_down_observed(&r)&&!depth);
- wr_iot_rc_shutdown.pending=SIGTERM;assert(!wr_iot_radio_resume_down_observed(&r));wr_iot_rc_shutdown.pending=0;
+ wr_iot_rc_shutdown.pending=SIGTERM;assert(!wr_iot_radio_resume_down_observed(&r));
+ reads=0;assert(wr_iot_radio_recovery_down_observed(&r)&&!depth);
+ up=1;assert(!wr_iot_radio_recovery_down_observed(&r));up=0;
+ drift=3;assert(!wr_iot_radio_recovery_down_observed(&r));drift=0;
+ wr_iot_rc_shutdown.pending=0;
  wr_iot_rc_shutdown.active=0;assert(!wr_iot_radio_resume_down_observed(&r));
  r.action=WR_STOP_QUERY;assert(!wr_iot_radio_off_observed(&r));assert(!wr_iot_radio_off_observed(0));
 }

@@ -75,3 +75,19 @@ int wr_iot_on_generation_origin_current(struct wr_iot_on_generation *s)
 {
  return s&&s->owner==getpid()&&!s->busy&&on_generation_current(s,0);
 }
+
+int wr_iot_on_generation_recover(struct wr_iot_on_generation *s)
+{
+ int result=0;
+ if(!s||s->owner!=getpid()||s->busy||s->main_may_have_started||
+    s->phase<WR_ON_GEN_CAPTURED||s->phase>WR_ON_GEN_RESTORED||
+    !on_generation_current(s,0)||
+    !wr_iot_radio_recovery_down_observed(&s->admission->released))return 0;
+ s->busy=1;
+ /* No generator, Main UP or guard release is reachable from recovery. */
+ s->phase=WR_ON_GEN_RESTORING;
+ if(wr_iot_radio_profile_restore(&s->admission->profile)){
+  s->phase=WR_ON_GEN_RESTORED;result=-1;
+ }
+ s->busy=0;return result;
+}

@@ -25,6 +25,8 @@ int wr_iot_on_restore_step(struct wr_iot_on_restore *s)
  if(!s||s->owner!=getpid()||s->busy||!wr_iot_rc_shutdown.active)return 0;
  s->busy=1;
  if(wr_iot_rc_shutdown.pending){
+  if(s->generation.owner==getpid()&&!s->generation.main_may_have_started)
+   (void)wr_iot_on_generation_recover(&s->generation);
   /* Only Guest's own submitted UP can authorize its bounded DOWN recovery.
    * Profile/Main and outer ownership remain retained for root cleanup. */
   if(s->guest.owner)(void)wr_iot_on_guest_step(&s->guest);

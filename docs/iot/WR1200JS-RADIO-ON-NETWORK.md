@@ -180,3 +180,20 @@ scheduler/autostart and prepared separate-unit checks pass. Child failure and
 pre-UP failure retain ownership; complete pre/post-UP failure/shutdown cleanup,
 cold/IoT-OFF admission and stock/UI entry binding remain unfinished. Only private
 root progress is bound; no public OFF/ON activation or device acceptance.
+
+## Pending-shutdown pre-UP profile recovery
+
+The dedicated recovery DOWN observer accepts active admission with a pending
+normal shutdown, while preserving exact RELEASE/QUERY matching, Main DOWN,
+stable ifindex and service ownership. Normal OFF/resume observers still reject
+pending shutdown. `wr_iot_on_generation_recover` independently forbids any
+possible Main UP, never generates a profile, and restores only the owned
+journalled baseline. Foreign or uncertain file ownership remains retained.
+The restore controller invokes this path on pending shutdown before Main UP.
+Baseline and guards remain retained afterward: RAM rollback and final cancelled
+retirement are still required. This is not post-UP teardown permission.
+
+Focused host observer, actual journal/profile generation, full ON owner,
+restore composition and prepared-unit checks cover this addition. Tests verify
+pending recovery, UP/stale refusal, no generator replay, no recovery after
+main_may_have_started, and retained ownership. No target/device claim.

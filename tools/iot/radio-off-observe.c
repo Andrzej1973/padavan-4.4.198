@@ -5,13 +5,13 @@
 #include "rc-shutdown-admission.h"
 #include "restart-main-state.h"
 #include "service-guard.h"
-static int radio_down_observed(const struct wr_iot_physical_stop_request *released,int admission)
+static int radio_down_observed(const struct wr_iot_physical_stop_request *released,int admission,int recovery)
 {
  struct wr_iot_physical_stop_request query;
  struct wr_iot_physical_stop_response reply={0},checked={0};
  unsigned char wire[64];unsigned index;int token,ok=0;
  if(!wr_iot_physical_stop_request_valid(released)||released->action!=WR_STOP_RELEASE||
-    !wr_iot_rc_shutdown.radio_off_owned||wr_iot_rc_shutdown.active!=admission||wr_iot_rc_shutdown.pending)return 0;
+    !wr_iot_rc_shutdown.radio_off_owned||wr_iot_rc_shutdown.active!=admission||(!recovery&&wr_iot_rc_shutdown.pending))return 0;
  query=*released;query.action=WR_STOP_QUERY;
  token=wr_iot_service_guard_enter(1);if(token!=1)return 0;
  index=if_nametoindex("ra0");
@@ -21,11 +21,14 @@ static int radio_down_observed(const struct wr_iot_physical_stop_request *releas
     wr_iot_physical_stop_response_decode(&checked,wire,sizeof(wire),&query)&&
     checked.status==WR_STOP_COMPLETE&&wr_iot_restart_main_down()&&
     if_nametoindex("ra0")==index&&wr_iot_rc_shutdown.radio_off_owned&&
-    wr_iot_rc_shutdown.active==admission&&!wr_iot_rc_shutdown.pending)ok=1;
+    wr_iot_rc_shutdown.active==admission&&(recovery||!wr_iot_rc_shutdown.pending))ok=1;
  wr_iot_service_guard_leave(token);return ok;
 }
 
 int wr_iot_radio_off_observed(const struct wr_iot_physical_stop_request *released)
-{return radio_down_observed(released,0);}
+{return radio_down_observed(released,0,0);}
 int wr_iot_radio_resume_down_observed(const struct wr_iot_physical_stop_request *released)
-{return radio_down_observed(released,1);}
+{return radio_down_observed(released,1,0);}
+
+int wr_iot_radio_recovery_down_observed(const struct wr_iot_physical_stop_request *released)
+{return radio_down_observed(released,1,1);}

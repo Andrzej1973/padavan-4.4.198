@@ -17,6 +17,7 @@ void wr_iot_service_guard_leave(int token){assert(token==1&&depth);depth--;}
 int wr_iot_rc_radio_off_receipt(struct wr_iot_physical_stop_request *r){*r=receipt;return 1;}
 int wr_iot_rc_radio_on_mode_read(struct wr_iot_rc_mode *m){m->router=m->radio=1;m->mode=0;return 1;}
 int wr_iot_radio_resume_down_observed(const struct wr_iot_physical_stop_request*r){assert(depth&&wr_iot_rc_shutdown.active&&r->action==WR_STOP_RELEASE);return down;}
+int wr_iot_radio_recovery_down_observed(const struct wr_iot_physical_stop_request*r){return wr_iot_radio_resume_down_observed(r);}
 int wr_iot_rc_off_profile_current(void){return wr_iot_restart_profile_current(&desired);}
 int wr_iot_rc_restart_generate(int arg){assert(depth&&!arg);generator_calls++;if(partial){replace_file("partial\n",8);return partial==2?0:-1;}make_profile();return 0;}
 #include "radio-on-admission.c"
@@ -48,7 +49,14 @@ int main(int argc,char**argv){
   }else{
    assert(wr_iot_on_generation_step(&g)==1&&g.phase==WR_ON_GEN_VERIFIED);
    assert(wr_iot_on_generation_step(&g)==1&&generator_calls==(fault!=0));
-   if(fault==5){assert(wr_iot_on_generation_abort(&g));assert(wr_iot_on_generation_step(&g)==-1);}
+   if(fault==5){
+    wr_iot_rc_shutdown.pending=SIGTERM;
+    g.main_may_have_started=1;assert(!wr_iot_on_generation_recover(&g));g.main_may_have_started=0;
+    down=0;assert(!wr_iot_on_generation_recover(&g));down=1;
+    assert(wr_iot_on_generation_recover(&g)==-1&&a.busy&&a.profile.active);
+    assert(wr_iot_on_generation_recover(&g)==-1&&generator_calls==1);
+    wr_iot_rc_shutdown.pending=0;
+   }
   }
   assert(generator_calls==(fault!=0)&&!wr_iot_on_admission_cancel(&a));
   /* Fixture teardown of retained state; production retirement is not bound. */

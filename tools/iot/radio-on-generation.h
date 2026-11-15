@@ -18,4 +18,7 @@ int wr_iot_on_generation_step(struct wr_iot_on_generation *);
 /* Read-only retained origin check after possible Main UP; not readiness. */
 int wr_iot_on_generation_origin_current(struct wr_iot_on_generation *);
 int wr_iot_on_generation_abort(struct wr_iot_on_generation *);
+/* Pre-UP recovery only, including pending shutdown. Restores owned baseline
+ * with fresh DOWN proof; retains profile/guards, never generates or opens. */
+int wr_iot_on_generation_recover(struct wr_iot_on_generation *);
 #endif
