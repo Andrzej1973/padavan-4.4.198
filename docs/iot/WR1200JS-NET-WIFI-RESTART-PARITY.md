@@ -576,3 +576,12 @@ and requires exact backend owner declarations. Fault fixtures mutate each source
 anchor and prove no other source/output manifest was written; symlink target
 remains unchanged. This found and corrected missing backend-anchor admission.
 Host source-hook/manifest test passes; target link remains pending.
+
+## Restart-entry regression registration — 2026-11-15
+
+The physical-stop host suite now invokes check-restart-entry.py and
+check-restart-entry-source.py. ABI already invokes that suite, so future
+ABI runs cover the private entry adapter and transformed-source refusal tests.
+Both newly registered checks passed locally; the previously completed full
+suite did not include them. No firmware or device acceptance is implied.
+TemporaryDirectory fixtures were removed by the checks; no scratch retained.
