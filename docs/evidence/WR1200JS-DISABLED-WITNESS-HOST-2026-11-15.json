@@ -23,5 +23,23 @@
   "runtime_verified": false,
   "target_verified": false,
   "root_integration": false,
-  "remaining": "terminal disabled release/followup/root and public entry binding"
+  "remaining": "terminal disabled release/followup/root and public entry binding",
+  "release_preflight": {
+    "checks": [
+      "exact active admission/fence/profile lifecycle",
+      "fresh disabled parent and idle before/after",
+      "captured unsubmitted radio-ON WAN plan",
+      "unchanged Guest/isolation/service policy",
+      "live authentication proof",
+      "generated file identity current"
+    ],
+    "negative_cases": [
+      "uncaptured WAN",
+      "auth unavailable",
+      "WAN proof unavailable",
+      "already submitted WAN"
+    ],
+    "implemented": true,
+    "cleanup_bound": false
+  }
 }

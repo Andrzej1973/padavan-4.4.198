@@ -14,6 +14,9 @@ int wr_iot_initial_off_begin(struct wr_iot_initial_off*s,const struct wr_iot_con
 int wr_iot_initial_off_restarted_observed(const struct wr_iot_initial_off*s,const struct wr_iot_physical_stop_request*r,const struct wr_iot_driver_identity*m){
  assert(s->owner==getpid()&&r->action==WR_STOP_RELEASE&&m->adapter_epoch==2);idle_checks++;return idle_ok;
 }
+static int auth_ok=1,wan_ok=1;
+int wr_iot_rc_restart_auth_process_current(const struct wr_iot_restart_service_policy*p){(void)p;return auth_ok;}
+int wr_iot_rc_restart_wan_current(int on,enum wr_iot_wan_followup plan){assert(on==1&&plan==WR_WAN_NONE);return wan_ok;}
 #include "radio-on-disabled.c"
 
 #include "radio-on-restore.h"
@@ -55,6 +58,14 @@ int main(int argc,char**argv){
    struct wr_iot_on_disabled witness={0};struct wr_iot_control_request disabled={.id="01000000000000000000000000000000",.created=10};
    assert(wr_iot_on_disabled_begin(&witness,&restore,&disabled));
    assert(!wr_iot_on_disabled_begin(&witness,&restore,&disabled));
+   assert(!wr_iot_on_disabled_release_current(&witness));
+   restore.wan.owner=getpid();restore.wan.radio_on=1;restore.wan.plan=WR_WAN_NONE;
+   assert(wr_iot_on_disabled_release_current(&witness));
+   auth_ok=0;assert(!wr_iot_on_disabled_release_current(&witness));auth_ok=1;
+   wan_ok=0;assert(!wr_iot_on_disabled_release_current(&witness));wan_ok=1;
+   restore.wan.attempted=1;assert(!wr_iot_on_disabled_release_current(&witness));restore.wan.attempted=0;
+   assert(wr_iot_on_disabled_release_current(&witness));
+
    idle_ok=0;assert(!wr_iot_on_disabled_current(&witness));idle_ok=1;
    assert(wr_iot_on_disabled_current(&witness));
    identity_fault=3;
