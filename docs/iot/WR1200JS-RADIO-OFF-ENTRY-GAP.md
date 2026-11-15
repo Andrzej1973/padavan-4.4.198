@@ -129,3 +129,11 @@ calling the combined stock restart would repeat physical operations. Pending
 normal shutdown must suppress new follow-up submissions and finish owned cleanup.
 Do not expose radio_off_entry_bound=true until this complete sequence and the
 RC continuation/cancellation paths are composed and target-linked.
+
+Standalone radio-off-policy-sdk.inc now captures reload, stored radio/auth
+requirement and radio-OFF WAN plan under active admission and existing guard.
+It requires router/mode0, repeats observations, refuses pending shutdown, drift,
+invalid values and reconnect-on-OFF, and leaves output untouched on refusal.
+The host ASan/UBSan fixture passed all stored-radio/auth/reload combinations
+and refusal cases. This is observed-drift checking, not all-writer atomicity.
+It is unregistered/unbound: no SDK mutation, daemon or WAN submission.
