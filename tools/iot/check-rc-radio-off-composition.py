@@ -35,8 +35,11 @@ code=code.replace(a,r'''
  assert(policy_reads==1&&physical_steps==off_base&&steps==ordinary&&resume_steps==scheduled);
  policy_allowed=1;wr_iot_rc_wait(&empty,&notification,&alarm_flag);
  assert(policy_reads==2&&physical_steps==off_base+1&&steps==ordinary&&resume_steps==scheduled);
- assert(radio_off_owner.result==1&&!radio_off_pending()&&radio_off_owner.policy_ready);
+ assert(radio_off_owner.result==1&&radio_off_pending()&&radio_off_owner.policy_ready);
  assert(!wr_iot_rc_radio_off_begin(&off,1)); /* Follow-up has not acknowledged it. */
+ wr_iot_rc_wait(&empty,&notification,&alarm_flag);
+ assert(physical_steps==off_base+1&&steps==ordinary&&resume_steps==scheduled&&policy_reads==2);
+
  pending=resume_pending=0;notification=1;wr_iot_rc_wait(&empty,&notification,&alarm_flag);
  assert(physical_steps==off_base+1&&policy_reads==2);notification=0;
 '''+a)

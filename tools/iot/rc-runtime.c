@@ -20,7 +20,7 @@ static unsigned long long next_progress;
 static struct wr_iot_radio_off_owner radio_off_owner;
 static int radio_off_reload;
 static int radio_off_pending(void)
-{return radio_off_owner.owner==getpid()&&!radio_off_owner.result;}
+{return radio_off_owner.owner==getpid();}
 int wr_iot_rc_radio_off_begin(const struct wr_iot_control_request *off,int reload)
 {
  if((reload!=0&&reload!=1)||radio_off_owner.owner||radio_off_owner.busy)return 0;

@@ -173,3 +173,11 @@ entry is still unbound. Manifest records progress_bound independently.
 Actual ppoll + OFF consumer composition, existing RC runtime and scheduler
 ASan/UBSan checks PASS; SDK/physical actors injected. New check registered.
 No device actions or target claim for this new binding.
+
+RC wait now retains OFF priority after physical terminal result, until a future
+verified follow-up consumer retires the private owner. Repeated bounded ticks
+return cached result without repeating physical/policy operations; resume and
+ordinary wait-loop continuation do not slip between STOP and SDK follow-up.
+Actual RC/OFF fixture checks the terminal tick with both other lanes pending.
+This is wait-loop exclusion only: notification-driven/public control admission
+must also be audited before enabling the entrypoint. No public OFF binding.
