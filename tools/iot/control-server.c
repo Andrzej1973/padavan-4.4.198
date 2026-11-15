@@ -10,7 +10,7 @@ int wr_iot_rc_dispatch(void){
  struct wr_iot_mailbox m;struct wr_iot_control_request request={0};
  struct wr_iot_control_result previous;
  enum wr_iot_result_state outcome;unsigned long long now;int claimed,finished=0,pending,retain_shutdown=0;
- if(wr_iot_rc_shutdown.radio_off_owned||!wr_iot_rc_shutdown_begin())return 0;
+ if(wr_iot_rc_shutdown.radio_off_owned||wr_iot_rc_shutdown.radio_on_owned||!wr_iot_rc_shutdown_begin())return 0;
  now=wr_iot_control_now();if(!now)goto done;
  wr_iot_mailbox_init(&m);
  if(!wr_iot_mailbox_open(&m,WR_IOT_CONTROL_DIRECTORY,0))goto done;

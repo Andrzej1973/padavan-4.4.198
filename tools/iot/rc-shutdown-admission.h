@@ -10,6 +10,8 @@ struct wr_iot_rc_shutdown_admission {
  /* Process-context OFF exclusion; signal handlers never read/write it.
   * Separate from active/pending, retained across physical shutdown_end. */
  unsigned int radio_off_owned;
+ /* ON root survives parent release through WAN/IAPP; process context only. */
+ unsigned int radio_on_owned;
 };
 extern struct wr_iot_rc_shutdown_admission wr_iot_rc_shutdown;
 

@@ -64,7 +64,7 @@ enum wr_iot_result_state wr_iot_activation_execute(const struct wr_iot_control_r
  struct wr_iot_rc_mode mode={0};enum wr_iot_result_state result;
  int guard;
  if(!request)return WR_IOT_RESULT_REJECTED;
- if(wr_iot_rc_shutdown.radio_off_owned)return WR_IOT_RESULT_RECOVERY;
+ if(wr_iot_rc_shutdown.radio_off_owned||wr_iot_rc_shutdown.radio_on_owned)return WR_IOT_RESULT_RECOVERY;
  if(!wr_iot_rc_shutdown.active)return WR_IOT_RESULT_RECOVERY;
  /* Never let a failed new mode observation turn an already retained recovery
   * into a terminal rejection. Only continuation can advance that owner. */

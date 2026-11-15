@@ -1,0 +1,34 @@
+{
+  "checks_passed": [
+    "check-radio-on-owner.py",
+    "check-rc-radio-on-composition.py",
+    "check-rc-backend-composition.py",
+    "check-radio-on-generation.py",
+    "check-radio-on-admission.py",
+    "check-radio-on-sdk-mode.py",
+    "check-radio-on-followup.py",
+    "check-radio-on-release.py",
+    "check-rc-runtime.py",
+    "check-rc-radio-off-composition.py",
+    "check-rc-scheduler-composition.py",
+    "check-rc-resume-autostart.py",
+    "check-physical-stop-client-preparation.py"
+  ],
+  "scope": "Host C11/gnu11 Werror ASan UBSan; actual root and children, actual RC mode, profile IO, release and terminal fences; SDK/backend boundaries injected; separate actual ppoll with root actor",
+  "source_sha256": {
+    "radio-on-owner.c": "794a4a60d534770657f4036370dc0ce2e4c9e4bfb33b84dc398250593dd95650",
+    "rc-runtime.c": "100e6420589866cb9a9850769735af342e751b9f1403598d4699a0d461d7943a",
+    "rc-shutdown-admission.h": "6c6e758ade1d40b2048d882bd2adb18bcdfe82164cf8de8ba2ebe213edebb3e4",
+    "control-server.c": "7952daee2a29ff1b6458a962e582719f9e44b7a2d33755235d3b9b2a0e852ee8",
+    "radio-on-followup.c": "dc82134397847e2d44039245365fd7c41f9691d51711980b109c451aa307f543",
+    "radio-on-admission.c": "e545cfeb93014b06edc7972aaa2be5796b410a3108d15edc5398355cd1aae47f",
+    "radio-on-generation.c": "e480641055f9f324b26f1bb54df0608e9ad253cc5dc4132728cd780784a1cd10"
+  },
+  "root_progress_bound": true,
+  "stock_or_ui_radio_on_entry_bound": false,
+  "target_verified": false,
+  "device_verified": false,
+  "remaining": "Cold/IoT-OFF and pre/post-UP failure/shutdown cleanup before public binding; target/image/device gates",
+  "cleanup": "All fixture TemporaryDirectory trees removed; no retained scratch",
+  "covered_additions": "reload1 old SSID baseline to newly saved profile; mismatch rollback, metadata-only profile receipt after release, lost Guest/MC/profile blocks completion"
+}

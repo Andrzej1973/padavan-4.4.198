@@ -36,7 +36,7 @@ int wr_iot_on_generation_begin(struct wr_iot_on_generation *s,
  a->busy=1;s->admission=a;s->desired=*desired;
  if(!on_generation_current(s,1)||
     !wr_iot_generated_matches(&a->profile.files.generated[0],a->profile.files.paths[0])||
-    !wr_iot_restart_profile_current(&s->desired)||wr_iot_rc_shutdown.pending){
+    (!reload&&!wr_iot_restart_profile_current(&s->desired))||wr_iot_rc_shutdown.pending){
   volatile unsigned char *p=(volatile unsigned char *)&s->desired;size_t n=sizeof(s->desired);
   while(n--)*p++=0;
   s->admission=NULL;a->busy=0;return 0;

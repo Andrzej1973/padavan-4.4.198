@@ -84,13 +84,18 @@ int main(void){
  assert(wr_iot_activation_execute(&on)==WR_IOT_RESULT_RECOVERY&&!depth&&!mode_reads&&backend.phase==WR_IOT_OWNER_IDLE);
  assert(!wr_iot_rc_shutdown_end()&&wr_iot_rc_shutdown.radio_off_owned);
  wr_iot_rc_shutdown.radio_off_owned=0;
+ wr_iot_rc_shutdown.radio_on_owned=1;wr_iot_rc_shutdown.active=1;
+ assert(wr_iot_activation_execute(&on)==WR_IOT_RESULT_RECOVERY&&!depth&&!mode_reads&&backend.phase==WR_IOT_OWNER_IDLE);
+ assert(!wr_iot_rc_shutdown_end()&&wr_iot_rc_shutdown.radio_on_owned);wr_iot_rc_shutdown.radio_on_owned=0;
  wr_iot_rc_shutdown.active=1;mode_ok=0;
  assert(wr_iot_activation_execute(&on)==WR_IOT_RESULT_REJECTED&&!depth&&backend.phase==WR_IOT_OWNER_IDLE);
  wr_iot_rc_shutdown.active=0;mode_ok=1;
 
  submit(&on);wr_iot_rc_shutdown.radio_off_owned=1;
  assert(!wr_iot_rc_dispatch()&&!wr_iot_rc_shutdown.active&&!wr_iot_continuation.active&&backend.phase==WR_IOT_OWNER_IDLE);
- wr_iot_rc_shutdown.radio_off_owned=0;
+ wr_iot_rc_shutdown.radio_off_owned=0;wr_iot_rc_shutdown.radio_on_owned=1;
+ assert(!wr_iot_rc_dispatch()&&!wr_iot_rc_shutdown.active&&!wr_iot_continuation.active);
+ wr_iot_rc_shutdown.radio_on_owned=0;
  assert(wr_iot_rc_dispatch()&&wr_iot_rc_shutdown.active);
  assert(!wr_iot_rc_dispatch());
  mode_ok=0;int previous_mode_reads=mode_reads;

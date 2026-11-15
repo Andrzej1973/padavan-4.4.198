@@ -24,15 +24,15 @@ int wr_iot_rc_restart_generate(int arg){assert(depth&&!arg);generator_calls++;if
 #include "radio-on-generation.c"
 int main(int argc,char**argv){
  (void)check;assert(argc==2);snprintf(profile_path,sizeof(profile_path),"%s/profile",argv[1]);
- for(int fault=0;fault<6;fault++){
+ for(int fault=0;fault<7;fault++){
   struct wr_iot_on_admission a={0};struct wr_iot_on_generation g={0};
   generator_calls=0;partial=fault==2?1:fault==3?2:0;make_profile();
   FILE*f=fopen(profile_path,"a");assert(f&&fputs("# baseline\n",f)>=0&&!fclose(f));
   assert(wr_iot_on_admission_begin(&a)&&a.phase==WR_ON_ADMISSION_CAPTURED);
   struct wr_iot_request wrong=desired;strcpy(wrong.ssid,"foreign");
-  assert(!wr_iot_on_generation_begin(&g,&a,&wrong,1)&&!a.busy&&!g.owner&&!g.admission);
+  assert(!wr_iot_on_generation_begin(&g,&a,&wrong,0)&&!a.busy&&!g.owner&&!g.admission);
   for(size_t i=0;i<sizeof(g.desired);i++)assert(!((unsigned char*)&g.desired)[i]);
-  assert(wr_iot_on_generation_begin(&g,&a,&desired,fault!=0)&&a.busy);
+  assert(wr_iot_on_generation_begin(&g,&a,fault==6?&wrong:&desired,fault!=0)&&a.busy);
   assert(!wr_iot_on_admission_cancel(&a)&&!wr_iot_on_generation_begin(&g,&a,&desired,1));
   wr_iot_rc_shutdown.pending=SIGTERM;
   assert(!wr_iot_on_generation_step(&g)&&!generator_calls&&g.phase==WR_ON_GEN_CAPTURED&&a.busy);
@@ -40,7 +40,7 @@ int main(int argc,char**argv){
   down=0;assert(!wr_iot_on_generation_step(&g)&&!generator_calls);down=1;
   assert(!wr_iot_on_generation_step(&g)&&generator_calls==(fault!=0));
   if(fault==4){char foreign[1100];snprintf(foreign,sizeof(foreign),"%s/foreign",argv[1]);f=fopen(foreign,"w");assert(f&&fputs("foreign\n",f)>=0&&!fclose(f)&&!rename(foreign,profile_path));}
-  if(fault>=2&&fault<=4){
+  if((fault>=2&&fault<=4)||fault==6){
    if(fault!=2)assert(!wr_iot_on_generation_step(&g));
    assert(g.phase==WR_ON_GEN_RESTORING);
    int result=wr_iot_on_generation_step(&g);assert(result==(fault==4?0:-1));

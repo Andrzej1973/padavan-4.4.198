@@ -30,8 +30,8 @@ translation units compile with C11-Werror. Tests clean their temporary trees.
 
 The preparer, ABI unit list, source/Make verifier and target-link symbol gates
 include these modules. They remain unbound to the public RC physical OFF/ON
-entry. WAN/IAPP, IoT rebind, post-UP rollback, OFF receipt
-consumption and final transaction retirement remain to integrate and verify.
+entry. Cold/IoT-OFF and failure/shutdown recovery plus stock entry binding remain to
+integrate; private root retirement and follow-up are described below.
 No new target or device acceptance is claimed. Existing ordinary ra2 toggle,
 MCU ACK protection and global driver queues/timing are unchanged.
 
@@ -86,7 +86,7 @@ It uses actual admission/profile/journal/Main/Guest/multicast/services/restore
 controllers with a backend actor. Prepared separate translation units also
 compile. This does not replace real target rebind, image or device evidence.
 The API remains private and unbound to RC OFF/ON entry; failure/shutdown recovery,
-receipt consumption, final retirement and WAN/IAPP remain unfinished.
+cold/IoT-OFF handling and stock entry binding remain unfinished.
 
 ## Parent release after ACTIVE, before WAN/IAPP
 
@@ -112,8 +112,8 @@ from preflight, failed unmask retention, successful retry, credential/receipt
 clearing before a real deferred SIGTERM, and one WAN call only after release.
 RC wait, OFF-consumer and scheduler regression fixtures passed; prepared separate
 translation units passed. Backend, SDK and WAN boundaries are injected. Target
-and device acceptance remain distinct. WAN/IAPP completion, root scheduling,
-post-UP failure/shutdown recovery and public OFF/ON entry binding remain required.
+and device acceptance remain distinct. Post-UP failure/shutdown recovery and public OFF/ON entry binding remain
+required; private scheduling and follow-up are described below.
 
 ## Post-release WAN and terminal IAPP
 
@@ -133,5 +133,50 @@ boundaries. They cover post-WAN network loss, no WAN/LED/script replay, inert
 default gate, paired success, child failure and unknown-result draining. ABI
 includes both default and paired-gate MIPS compilation for the new follow-up.
 Prepared separate translation units compile; target/image/device acceptance is
-still pending. Root RC begin/progress/retirement binding, cold-OFF handling and
-post-UP failure/shutdown recovery remain required before enabling public OFF/ON.
+still pending. Stock entry binding, cold-OFF handling and post-UP failure/shutdown recovery
+remain required before enabling public OFF/ON.
+
+## Stable private RC ON owner and public exclusion
+
+`radio-on-owner.c` keeps admission and all children at stable addresses. Its
+private begin validates bounded credentials/subnet and nonzero request nonce
+before taking the outer fence. One phase/tick advances restore, exact handoff,
+ACTIVE observation, parent release and WAN/IAPP. Input credentials are dropped
+after generation captures them. A separate process-only `radio_on_owned` survives
+parent release and shutdown_end; public dispatch refuses before mailbox claim,
+direct activation refuses before mode/resources, and private OFF admission is
+also excluded. Private rebind/terminal continuation remains possible.
+
+RC ppoll prioritizes OFF then ON ownership before deferred dispatch, physical
+restart, prior restart scheduler or ordinary continuation. Failed retirement
+keeps exclusion. Software DONE retirement requires closed children, no profile
+buffers/guards/pointers, cleared desired/input copies, consumed OFF receipt and
+fresh owned network/parent proof. Only then is the root wiped and ON exclusion
+cleared; one later tick attempts deferred mailbox dispatch.
+
+Explicit reload1 admission permits a nonempty older profile baseline under
+fresh physical DOWN and exact file identity. It does not require old bytes to
+match newly saved SSID/key before generation. One SDK generation must then
+match the desired/saved profile before Main UP. reload0 keeps strict prechecks;
+failed post-generation validation restores the captured baseline. Host tests
+cover actual old IoT -> newly saved IoT-new profile generation and mismatch
+rollback without loosening DOWN/new-Main identity checks.
+
+After parent release a metadata-only profile receipt (including nanosecond
+mtime/ctime) survives without profile bytes/keys. Post-WAN/IAPP observations hold
+a service guard and recheck that receipt, live Main/LAN and AUX, Guest policy/
+bridge/isolation, multicast policy/readbacks and service policy/auth liveness
+alongside the exact IoT backend. Lost Guest isolation or profile drift cannot be
+hidden by a still-ACTIVE IoT backend. These are software observations, not RF or
+daemon authentication acceptance.
+
+C11-Werror ASan/UBSan actual root/mode/profile/release/WAN/terminal composition
+passes success and retained failure, no request/UP/WAN/script replay, validation,
+ON exclusion through parent release, fresh retirement and consumed-receipt reuse
+refusal. Actual RC ppoll with a root boundary actor proves priority, cadence,
+failed retirement and later redispatch. Actual mailbox/backend composition
+proves both ON guards and preservation across shutdown_end. Existing OFF,
+scheduler/autostart and prepared separate-unit checks pass. Child failure and
+pre-UP failure retain ownership; complete pre/post-UP failure/shutdown cleanup,
+cold/IoT-OFF admission and stock/UI entry binding remain unfinished. Only private
+root progress is bound; no public OFF/ON activation or device acceptance.

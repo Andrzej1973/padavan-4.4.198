@@ -33,6 +33,8 @@ int main(int argc,char**argv){
   assert(!wr_iot_on_followup_step(&restore)&&restore.phase==WR_ON_RESTORE_WAN&&!wan_submits);
   network_current=0;assert(!wr_iot_on_followup_step(&restore)&&wan_submits==1&&!led_calls&&!child_begins);
   assert(!wr_iot_on_followup_step(&restore)&&wan_submits==1);network_current=1;
+  guest_isolated=0;assert(!wr_iot_on_followup_step(&restore)&&!led_calls&&!child_begins);guest_isolated=1;
+  mc_read=0;assert(!wr_iot_on_followup_step(&restore)&&!led_calls&&!child_begins);mc_read=1;
   assert(!wr_iot_on_followup_step(&restore)&&led_calls==1&&restore.phase==WR_ON_RESTORE_IAPP_PENDING);
   assert(!wr_iot_on_followup_step(&restore));
 #if WR_IOT_IAPP_POLICY_PREPARED
@@ -42,7 +44,10 @@ int main(int argc,char**argv){
   int result=wr_iot_on_followup_step(&restore);
   assert(result==!child_failure&&!depth&&!wr_iot_rc_shutdown.active&&child_begins==1);
   assert(restore.phase==(child_failure?WR_ON_RESTORE_RETAINED:WR_ON_RESTORE_DONE));
-  if(!child_failure){assert(wr_iot_on_followup_step(&restore));network_current=0;assert(!wr_iot_on_followup_step(&restore));network_current=1;}
+  if(!child_failure){
+   assert(wr_iot_on_followup_step(&restore));network_current=0;assert(!wr_iot_on_followup_step(&restore));network_current=1;
+   if(!fault){FILE*f=fopen(profile_path,"a");assert(f&&fputs("# foreign drift\n",f)>=0&&!fclose(f));assert(!wr_iot_on_followup_step(&restore)&&child_begins==1&&wan_submits==1);}
+  }
 #else
   assert(restore.phase==WR_ON_RESTORE_IAPP_PENDING&&!child_begins&&!depth);
 #endif

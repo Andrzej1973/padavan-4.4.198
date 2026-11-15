@@ -15,12 +15,12 @@ static int on_same_receipt(const struct wr_iot_physical_stop_request *expected)
   wr_iot_physical_stop_request_encode(a,sizeof(a),expected)&&
   wr_iot_physical_stop_request_encode(b,sizeof(b),&current)&&!memcmp(a,b,sizeof(a));
 }
-int wr_iot_on_admission_begin(struct wr_iot_on_admission *s)
+static int on_admission_begin(struct wr_iot_on_admission *s,int reload)
 {
  struct wr_iot_rc_mode before={0},after={0};struct wr_iot_physical_stop_request receipt={0};int token;
- if(!s||s->owner||s->busy||s->phase!=WR_ON_ADMISSION_IDLE||s->profile.active||s->profile.files.count||
+ if((reload!=0&&reload!=1)||!s||s->owner||s->busy||s->phase!=WR_ON_ADMISSION_IDLE||s->profile.active||s->profile.files.count||
     s->fence.owner||s->fence.level||s->guard||wr_iot_rc_shutdown.active||
-    wr_iot_rc_shutdown.pending||wr_iot_rc_shutdown.radio_off_owned)return 0;
+    wr_iot_rc_shutdown.pending||wr_iot_rc_shutdown.radio_off_owned||wr_iot_rc_shutdown.radio_on_owned)return 0;
  s->busy=1;token=wr_iot_service_guard_enter(1);if(token!=1){s->busy=0;return 0;}
  if(!wr_iot_rc_radio_off_receipt(&receipt)||receipt.action!=WR_STOP_RELEASE||
     !wr_iot_physical_stop_request_valid(&receipt)||!wr_iot_rc_radio_on_mode_read(&before)||
@@ -31,10 +31,11 @@ int wr_iot_on_admission_begin(struct wr_iot_on_admission *s)
  s->owner=getpid();s->guard=token;s->released=receipt;s->phase=WR_ON_ADMISSION_REFUSED;
  wr_iot_rc_shutdown.radio_off_owned=1;
  if(on_same_receipt(&s->released)&&wr_iot_radio_resume_down_observed(&s->released)&&
-    wr_iot_rc_off_profile_current()&&wr_iot_radio_profile_take(&s->profile)&&
+    (reload||wr_iot_rc_off_profile_current())&&wr_iot_radio_profile_take(&s->profile)&&
+    s->profile.files.saved[0].existed&&s->profile.files.saved[0].size&&
     wr_iot_rc_radio_on_mode_read(&after)&&before.router==after.router&&before.radio==after.radio&&before.mode==after.mode&&
     on_same_receipt(&s->released)&&wr_iot_radio_resume_down_observed(&s->released)&&
-    wr_iot_rc_off_profile_current()&&s->profile.files.count==1&&
+    (reload||wr_iot_rc_off_profile_current())&&s->profile.files.count==1&&
     wr_iot_generated_matches(&s->profile.files.generated[0],s->profile.files.paths[0])&&
     !wr_iot_rc_shutdown.pending)s->phase=WR_ON_ADMISSION_CAPTURED;
  s->busy=0;return 1;
@@ -58,3 +59,8 @@ int wr_iot_on_admission_cancel(struct wr_iot_on_admission *s)
  if(!wr_iot_radio_stop_fence_end_cleanup(&s->fence,on_cancel_cleanup,s)){s->busy=0;return 0;}
  return s->phase==WR_ON_ADMISSION_CANCELLED;
 }
+
+int wr_iot_on_admission_begin(struct wr_iot_on_admission *s)
+{return on_admission_begin(s,0);}
+int wr_iot_on_admission_begin_reload(struct wr_iot_on_admission *s,int reload)
+{return on_admission_begin(s,reload);}
