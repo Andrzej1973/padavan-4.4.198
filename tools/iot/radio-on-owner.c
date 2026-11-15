@@ -66,7 +66,14 @@ static int on_early_cancel_finish(void)
 {
  struct wr_iot_on_admission *a=&on_owner.admission;
  struct wr_iot_physical_stop_request receipt={0};unsigned char before[64],after[64];
- if(on_owner.phase!=ON_OWNER_ADMITTED||on_owner.restore.owner||
+ struct wr_iot_on_restore *r=&on_owner.restore;
+ int refused=on_owner.phase==ON_OWNER_RETAINED&&r->owner==getpid()&&
+  !r->busy&&r->phase==WR_ON_RESTORE_RETAINED&&!r->generation.owner&&
+  !r->generation.busy&&!r->generation.admission&&!r->generation.main_may_have_started&&
+  !r->radio_state_attempted&&!r->rollback_state_attempted&&!r->main.owner&&
+  !r->guest.owner&&!r->multicast.owner&&!r->services.owner&&!r->wan.owner&&
+  !r->terminal.owner&&!r->child.owner&&!r->child.attempted&&!r->handoff_created;
+ if(!((on_owner.phase==ON_OWNER_ADMITTED&&!r->owner)||refused)||
     a->owner!=getpid()||a->busy||a->guard!=1||a->phase!=WR_ON_ADMISSION_CAPTURED||
     a->fence.owner!=getpid()||a->fence.level!=1||!wr_iot_rc_shutdown.active||
     !wr_iot_radio_profile_owned(&a->profile)||a->profile.generated||a->profile.recovering||a->profile.removing||
@@ -128,6 +135,10 @@ int wr_iot_radio_on_step(void)
 #endif
  }
  on_owner.busy=1;
+ if(on_owner.phase==ON_OWNER_RETAINED&&!on_owner.restore.generation.owner){
+  if(on_early_cancel_finish())return -1;
+  on_owner.busy=0;return 0;
+ }
  if(wr_iot_rc_shutdown.pending&&on_owner.phase==ON_OWNER_ADMITTED){
   if(on_early_cancel_finish())return -1;
   on_owner.busy=0;return 0;

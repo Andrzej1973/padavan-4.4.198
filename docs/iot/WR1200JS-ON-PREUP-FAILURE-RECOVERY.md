@@ -32,3 +32,18 @@ six direct parent ticks after partial generation leave the profile RESTORED,
 RAM ON calls zero, Main UP zero and no Main owner. This tests the parent directly,
 independent of root interception. The full-suite process and temporary log were
 lost across an environment transition; no full-suite pass is claimed for it.
+
+## Capture-only refusal
+
+If generation begin refuses after admission, the parent may own a RETAINED
+restore with no generation owner. The root now permits capture-only cleanup
+in this exact state. It requires no Main/Guest/service/multicast/WAN/terminal/
+child owner, no radio write attempt, no generation admission or handoff, and
+reuses unchanged-profile/original-OFF-receipt/fresh-RAM-OFF/DOWN validation.
+No generator or RAM write is retried. A failed unmask retains ownership.
+The new registered capture-refusal fixture checks stale proof, changed file,
+RAM not OFF, unmask retry and real deferred SIGTERM after root cleanup.
+
+The full registered suite passed on a1502a1a before this patch was applied.
+Focused capture/cancel/owner and separate prepared C11 checks pass afterward;
+this distinction is preserved in the evidence.

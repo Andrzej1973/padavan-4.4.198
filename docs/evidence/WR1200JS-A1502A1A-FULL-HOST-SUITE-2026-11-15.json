@@ -1,0 +1,10 @@
+{
+  "revision": "a1502a1afdb8f086340d8b0ae483754e298d39d3",
+  "exit_code": 0,
+  "suite": "tools/iot/check-physical-stop-suite.py",
+  "log_sha256": "0e4ce509e10d6e378f15c5d6d884572d6c060f5e907ce767d7f4f9ed40711e00",
+  "log_bytes": 43624,
+  "pass_markers": 212,
+  "scope": "complete registered host suite; source/kernel/SDK boundary actors; not target/image/device acceptance",
+  "source_changed_during_run": false
+}
