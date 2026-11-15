@@ -144,3 +144,12 @@ evaluates the preparer's helper assignments and verifies exact adapter inclusion
 before exercising its SDK actor fixture. Full target-link requires the policy
 symbol from net_wifi.o. Policy/service/AUX host checks PASS; actual SDK MIPS
 link still requires CI. This staging does not enable OFF orchestration.
+
+The private OFF owner now has an explicit prepare operation retaining a validated
+policy snapshot. It refuses foreign/busy/terminal owners and invalid reload,
+retries read-only capture on refusal, caches one successful capture and rejects
+a different reload without re-reading. Policy remains available after physical
+terminal consumption until owner acknowledgement. Actual controller/session/
+fence composition tests cover capture retry/cache/mismatch and no post-take
+read; SDK reads injected. Capture is not automatically invoked by RC yet.
+ABI43669741641 SUCCESS for7aae9e94 predates this prepare operation.

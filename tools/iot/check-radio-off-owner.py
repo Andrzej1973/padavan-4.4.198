@@ -16,6 +16,7 @@ int wr_iot_rc_physical_take_off(const char*id,unsigned long long created){
  assert(!strcmp(id,"11111111111111111111111111111111")&&created==7);
  assert(current->busy&&!wr_iot_radio_off_poll(current)&&!wr_iot_radio_off_take(current));takes++;return terminal;
 }
+int wr_iot_rc_radio_off_policy(int reload,struct wr_iot_radio_off_policy*p){(void)reload;(void)p;assert(0);return 0;}
 #include "radio-off-owner.c"
 int main(void){
  struct wr_iot_radio_off_owner s={0};current=&s;
