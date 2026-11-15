@@ -24,7 +24,15 @@ int wr_iot_rc_mode_read(struct wr_iot_rc_mode *m){mode_reads++;m->router=1;m->ra
 int wr_iot_radio_resume_down_observed(const struct wr_iot_physical_stop_request*r){assert(depth&&wr_iot_rc_shutdown.active&&wr_iot_rc_shutdown.radio_off_owned&&r->action==WR_STOP_RELEASE);return down;}
 int wr_iot_rc_off_profile_current(void){profile_reads++;if(change_profile&&profile_reads>1){FILE*f=fopen(profile_path,"w");assert(f&&fputs("foreign profile\n",f)>=0&&!fclose(f));}return profile_ok;}
 #include "radio-on-admission.c"
+static int fail_unmask,signals;
+static int mask_hook(int how,const sigset_t *set,sigset_t *old){if(how==SIG_SETMASK&&fail_unmask)return -1;return sigprocmask(how,set,old);}
+#define sigprocmask mask_hook
 #include "radio-stop-fence.c"
+#undef sigprocmask
+static void shutdown_handler(int sig){
+ if(wr_iot_rc_shutdown_note(sig))return;
+ assert(!depth&&!wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.radio_off_owned);signals++;
+}
 static void baseline(void){FILE*f=fopen(profile_path,"w");assert(f&&fputs("unchanged baseline\n",f)>=0&&!fclose(f));}
 static void unchanged(void){char b[64]={0};FILE*f=fopen(profile_path,"r");assert(f&&fgets(b,sizeof(b),f)&&!fclose(f)&&!strcmp(b,"unchanged baseline\n"));}
 int main(int argc,char**argv){
@@ -43,6 +51,16 @@ int main(int argc,char**argv){
   }
   assert(!depth&&!wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.radio_off_owned);if(fault==7){char b[64];FILE*f=fopen(profile_path,"r");assert(f&&fgets(b,sizeof(b),f)&&!fclose(f)&&!strcmp(b,"foreign profile\n"));baseline();}unchanged();
  }
+ /* Actual blocked signal replay must follow credential and guard cleanup. */
+ available=mode_ok=down=profile_ok=1;change_receipt=change_mode=change_profile=0;
+ struct wr_iot_on_admission pending={0};
+ struct sigaction sa={0};sa.sa_handler=shutdown_handler;sigemptyset(&sa.sa_mask);
+ assert(!sigaction(SIGTERM,&sa,NULL));
+ assert(wr_iot_on_admission_begin(&pending)&&pending.profile.active);
+ assert(!raise(SIGTERM)&&!signals);
+ fail_unmask=1;assert(!wr_iot_on_admission_cancel(&pending)&&pending.profile.active&&depth==1&&wr_iot_rc_shutdown.active&&!signals);
+ fail_unmask=0;assert(wr_iot_on_admission_cancel(&pending)&&signals==1&&!pending.profile.active&&!depth);
+ unchanged();
  assert(!unlink(profile_path));
 }
 '''
