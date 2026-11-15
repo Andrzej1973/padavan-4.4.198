@@ -379,3 +379,23 @@ that fixture assert unreachable. The separate signal fixture tests real queued
 SIGTERM and injected time/entropy/children. Host/preparation checks pass; public
 scheduler entry and post-parent-release root shutdown remain unbound. MIPS,
 image and physical acceptance remain separate.
+
+## Held terminal shutdown drain primitive
+
+`restart-terminal-iapp` now supplies an explicit pending-shutdown drain which
+never launches a child, observes only the current owned child, and retains the
+outer service guard/signal fence after known completion or prelaunch cancel.
+Unknown completion stays retained. Once held, the ordinary terminal step cannot
+release that fence. A separate checked finish accepts an infallible parent
+cleanup callback; it releases the service guard and invokes parent cleanup
+before pending signal replay. Failed unmask retains the exact terminal state.
+Containing storage must remain allocated until fence completion, even when
+parent cleanup wipes its contents.
+
+The new host test exercises actual fence/queued SIGTERM and cleanup order,
+both child success/failure and prelaunch cancellation, unknown retention and
+failed unmask. Child result and parent readiness are injected. Existing normal
+terminal and enabled/disabled cold terminal regression checks remain required.
+This primitive is not yet called by cold root pending routing: backend-specific
+post-parent-release ACTIVE/OFF proof and root cleanup still need composition.
+No global queue, MCU protocol, ACK reuse or radio timing changes are involved.

@@ -1,0 +1,37 @@
+{
+  "revision_base": "cd7ecab61d1009137142813fd50fde37d3450911",
+  "checks": [
+    {
+      "command": "python3 -B tools/iot/check-terminal-iapp-shutdown.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -B tools/iot/check-terminal-iapp.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -B tools/iot/check-rc-cold-terminal.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -B tools/iot/check-rc-cold-disabled-terminal.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -B tools/iot/check-physical-stop-client-preparation.py",
+      "result": "PASS"
+    }
+  ],
+  "scope": "Actual terminal and signal fence, real queued SIGTERM; child receipt and parent completion proof injected. Unknown child retention, no relaunch, normal-step hold guard, failed unmask preserves exact state, parent cleanup before signal. Existing terminal regressions and prepared RC host Werror compilation pass.",
+  "sha256": {
+    "restart-terminal-iapp.c": "1e6b3738e9cd0d8f6246d1c21212ac8af7956748bd6ea174af69222a9269e90c",
+    "restart-terminal-iapp.h": "acfb971e62468e33891697b251774d9e5d547159631ccfa2ad40624ec6735c85",
+    "check-terminal-iapp-shutdown.py": "d17671ffd25ab2a5f9fbb110ce6e625af5368604b0bdb16efb1975fe4972b314",
+    "check-physical-stop-suite.py": "012a6fdb7b7ce95eb4a2830c4fe6ba2e3f1bc3d11bc43a8171125734cc1ed12c",
+    "compile-runtime-link.sh": "ac42fb8834bcd46b3ecbff77a257fa347390fcf7d492a18f54e6588412175fcf"
+  },
+  "cold_root_postrelease_shutdown_bound": false,
+  "backend_off_proven_by_this_check": false,
+  "target_build_verified": false,
+  "physical_runtime_verified": false
+}
