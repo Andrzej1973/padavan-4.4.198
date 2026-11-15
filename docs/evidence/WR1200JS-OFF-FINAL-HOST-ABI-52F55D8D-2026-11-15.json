@@ -1,0 +1,11 @@
+{
+  "revision": "52f55d8d4f73bc179d578eb58e8239dbecacbe39",
+  "suite": "tools/iot/check-physical-stop-suite.py",
+  "exit_code": 0,
+  "log_sha256": "c4ced307e91d092783d96dcf05c9e75264f87a5c7224215bfde0c172a963918f",
+  "log_bytes": 38058,
+  "observed_session": 50780,
+  "abi_run": 43683672962,
+  "abi_conclusion": "success",
+  "scope": "Registered physical-stop host suite and ABI at52f55d8d; SDK/driver actors remain where fixtures state; no final image or physical runtime acceptance"
+}
