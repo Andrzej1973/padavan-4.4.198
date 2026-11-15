@@ -1,0 +1,23 @@
+{
+  "scope": "standalone cold pre-UP recovery and checked retirement",
+  "checks": {
+    "actual_profile_journal_restore_guard_signal_fence_asan_ubsan": "PASS",
+    "pending_sigterm_replayed_after_private_resources_released": "PASS",
+    "failed_unmask_retains_profile_guard_owner": "PASS",
+    "foreign_inode_and_possible_main_up_refuse": "PASS",
+    "successful_finish_wipes_admission_generation": "PASS"
+  },
+  "sha256": {
+    "tools/iot/cold-on-recovery.c": "37d6db4898002d6f4a09f3cc0e707ae5084ca4e3a4b86bebfb8ec36fb8e3f0bc",
+    "tools/iot/cold-on-recovery.h": "22fd0ac6eae40a91737767ae7cb2a5fdfa14e8b09ea90bfb1b1534ec3667d09e",
+    "tools/iot/check-cold-on-recovery.py": "5b21f5f1ca56e21cec3096d4658543b2286ebbfd6d89a949a9f0a92963655d3b"
+  },
+  "runtime_staged": false,
+  "public_entry_bound": false,
+  "target_verified": false,
+  "physical_verified": false,
+  "remaining": [
+    "register and stage after active suite terminal result",
+    "connect cold owner and Main READY/rebind lifecycle"
+  ]
+}
