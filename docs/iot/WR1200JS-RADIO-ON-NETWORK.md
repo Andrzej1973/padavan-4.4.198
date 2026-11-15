@@ -61,3 +61,29 @@ Separate multicast and AUX fixtures cover policy/identity/syscall refusals.
 Prepared separate translation units are checked; new MIPS/target results remain
 pending. No private/public RC entry binding, WAN/IAPP, ra2 rebind or final
 receipt/guard retirement is implied by PREPARED.
+
+## Exact private rebind handoff
+
+`radio-on-handoff.c` requires PREPARED, the stable child pointer chain, matching
+OPEN nonce/request ID, creation time and all six immutable desired fields.
+Fresh restore observations precede the only backend begin. HANDOFF and creation
+time are recorded before calling the backend; even a refusal may retain partial
+admission and cannot cause another begin. The existing RC rebind backend retains
+its normal old OFF provenance and fresh new-Main validation; no restart-origin
+object is fabricated and no old receipt is rewritten to the new epoch.
+
+Continuation reconstructs the exact private envelope, advances the retained
+backend by ID/time and requires its exact ACTIVE proof for original physical
+RELEASE and new Main identity. APPLIED alone is insufficient. Origin/AUX and
+multicast observations are repeated; the temporary credential-bearing envelope
+is volatile-wiped. A separate read-only `wr_iot_on_rebind_current` never calls
+activation_continue and is available for final preflight.
+
+C11-Werror ASan/UBSan composition passed mismatched nonce, each desired field,
+zero time, one begin for success/refusal, APPLIED-without-ACTIVE refusal, exact
+ACTIVE, epoch/receipt/AUX/multicast drift and no progress from read-only checks.
+It uses actual admission/profile/journal/Main/Guest/multicast/services/restore
+controllers with a backend actor. Prepared separate translation units also
+compile. This does not replace real target rebind, image or device evidence.
+The API remains private and unbound to RC OFF/ON entry; failure/shutdown recovery,
+receipt consumption, final retirement and WAN/IAPP remain unfinished.

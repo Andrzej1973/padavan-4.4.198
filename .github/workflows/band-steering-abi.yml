@@ -1788,7 +1788,7 @@ jobs:
           test -n "$compiler"
           for role in rc httpd; do
             units="status-channel status-endpoint"
-            if [ "$role" = rc ]; then units="$units rc-backend rc-runtime restart-iapp-child restart-terminal-iapp radio-off-owner radio-off-observe radio-on-admission radio-on-generation radio-on-main radio-on-guest radio-on-services radio-on-multicast radio-on-restore radio-on-aux radio-off-profile radio-off-followup radio-off-bridge radio-off-wan"; else units="$units status-client"; fi
+            if [ "$role" = rc ]; then units="$units rc-backend rc-runtime restart-iapp-child restart-terminal-iapp radio-off-owner radio-off-observe radio-on-admission radio-on-generation radio-on-main radio-on-guest radio-on-services radio-on-multicast radio-on-restore radio-on-handoff radio-on-aux radio-off-profile radio-off-followup radio-off-bridge radio-off-wan"; else units="$units status-client"; fi
             for unit in $units; do
               "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float \
                 -c "abi-results/iot-http-source/trunk/user/$role/wr-iot-$unit.c" \
