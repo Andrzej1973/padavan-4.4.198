@@ -29,7 +29,7 @@ int main(int argc,char**argv){
   assert(!wr_iot_radio_on_step()&&on_owner.owner&&on_owner.admission.profile.active&&rollback_calls==(after_generation>=0)&&!ups&&cancel_signals==prior);
   fail_unmask=0;
   assert(wr_iot_radio_on_step()==-1&&cancel_signals==prior+1&&!on_owner.owner&&!depth&&radio_off_receipt_valid);
-  assert(generator_calls==after_generation&&rollback_calls==(after_generation>=0)&&!ups&&!wr_iot_radio_on_pending());
+  assert(generator_calls==(after_generation>0)&&rollback_calls==(after_generation>=0)&&!ups&&!wr_iot_radio_on_pending());
   char bytes[4096];f=fopen(profile_path,"r");assert(f);size_t n=fread(bytes,1,sizeof(bytes)-1,f);bytes[n]=0;
   assert(!fclose(f)&&strstr(bytes,"# original baseline\n")&&!unlink(profile_path));
  }
