@@ -112,3 +112,20 @@ radio_on=0 and suppresses reconnect while retaining MAN/WISP mismatch restart.
 
 Runtime-source manifest now distinguishes radio_off_consumer_linked=true from
 radio_off_entry_bound=false; source/preparation verifiers enforce both.
+
+## Required OFF orchestration ordering
+
+The terminal consumer is deliberately insufficient for full OFF completion.
+Before releasing physical admission, capture immutable OFF follow-up policy
+under the owning guard, including reload request, stored radio/auth state and
+WAN selection. Existing WAN capture requires active admission, whereas dispatch
+requires admission inactive; capturing only after take is invalid.
+
+After exact RELEASE and terminal take, execute only reviewed OFF SDK effects
+under fresh identity/policy checks: bridge detach, temporary mlme state, optional
+profile/reload marker, conditional auth policy, Guest isolation, WAN and paired
+IAPP sequencing. Each effect needs an attempt marker and uncertainty retention;
+calling the combined stock restart would repeat physical operations. Pending
+normal shutdown must suppress new follow-up submissions and finish owned cleanup.
+Do not expose radio_off_entry_bound=true until this complete sequence and the
+RC continuation/cancellation paths are composed and target-linked.

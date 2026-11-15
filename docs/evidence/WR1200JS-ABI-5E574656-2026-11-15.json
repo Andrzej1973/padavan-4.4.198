@@ -1,0 +1,12 @@
+{
+  "run": 43669276091,
+  "revision": "5e574656a805d768e5375be71dc3aa13bceaa4c1",
+  "conclusion": "success",
+  "confirmed_steps": [
+    "Verify experimental physical-stop host contracts",
+    "Compile experimental IoT RC runtime and private status IPC",
+    "Prepare paired IAPP policy in experimental WR sources",
+    "Verify current IoT recovery successor on host and MIPS"
+  ],
+  "scope_exclusion": "Does not cover later private OFF consumer additions f32867c through 88e14d2; no image or physical runtime acceptance"
+}
