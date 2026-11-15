@@ -28,3 +28,21 @@ admission symbols and the active-admission DOWN observer. Manifest fields keep
 linked preparation distinct from an unbound radio-on entry. Host preparation
 compiles the separate staged translation unit with C11 -Werror. Target results
 for this change remain pending publication and CI.
+
+## Saved policy differs from physical UP
+
+The first implementation incorrectly called the general live mode reader.
+Pinned SDK `is_radio_on_rt()` reports live interface UP (and MLME in its optional
+branch), whereas `get_enabled_radio_rt()` reads saved `radio_x`. After physical
+OFF all interfaces are DOWN; the live reader therefore returns radio0 even
+when saved ON policy is selected. The prior injected mode actors returned1
+and did not cover that adapter boundary.
+
+Admission and generation now call the separate guarded
+`wr_iot_rc_radio_on_mode_read`, which reads saved policy only. The general live
+reader and post-UP AUX checks remain unchanged. This does not grant readiness:
+fresh physical DOWN is still required before generation, then exact new Main
+identity before network progression. The actual RC adapter/restore composition
+fixture reproduces live0/saved1 and completes the new host chain, while saved0
+refuses before fence acquisition. See WR1200JS-ON-LIVE-VS-SAVED-MODE evidence.
+Target and device verification remain separate; public OFF/ON is still unbound.

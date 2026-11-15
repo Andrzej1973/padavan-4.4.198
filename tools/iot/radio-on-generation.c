@@ -19,7 +19,7 @@ static int on_generation_current(struct wr_iot_on_generation *s,int require_down
   wr_iot_rc_radio_off_receipt(&r)&&
   wr_iot_physical_stop_request_encode(expected,sizeof(expected),&a->released)&&
   wr_iot_physical_stop_request_encode(current,sizeof(current),&r)&&!memcmp(expected,current,sizeof(current))&&
-  wr_iot_rc_mode_read(&mode)&&mode.router==1&&mode.radio==1&&mode.mode==0&&
+  wr_iot_rc_radio_on_mode_read(&mode)&&mode.router==1&&mode.radio==1&&mode.mode==0&&
   (!require_down||wr_iot_radio_resume_down_observed(&a->released));
 }
 int wr_iot_on_generation_begin(struct wr_iot_on_generation *s,

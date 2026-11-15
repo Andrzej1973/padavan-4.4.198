@@ -1,0 +1,22 @@
+{
+  "sdk_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "source": "trunk/user/rc/net_wifi.c",
+  "source_sha256": "98bbe9cfca0af35be4ddb82742022b90cc51c2f7b34834e627ee6c5f2187dc69",
+  "function_lines": {
+    "get_enabled_radio_rt": 122,
+    "is_radio_on_rt": 905
+  },
+  "cause": "Original rc-mode radio requires saved enabled AND live interface UP. This falsely refuses new physical OFF-to-ON admission while all radio interfaces are correctly DOWN. Earlier mode actors returned1 and missed the adapter boundary.",
+  "fix": "Separate wr_iot_rc_radio_on_mode_read for saved radio_x/router/mode under guard. Only new ON admission/generation use it; live reader unchanged. Physical DOWN and new epoch remain independently required.",
+  "checks_passed": [
+    "check-rc-mode.py",
+    "check-radio-on-sdk-mode.py",
+    "check-radio-on-admission.py",
+    "check-radio-on-generation.py",
+    "check-radio-on-followup.py",
+    "check-physical-stop-client-preparation.py"
+  ],
+  "evidence_scope": "Actual RC mode implementation with SDK query actors + actual ON child composition; not device execution",
+  "target_verified": false,
+  "device_verified": false
+}

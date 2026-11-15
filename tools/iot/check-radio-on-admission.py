@@ -20,7 +20,7 @@ int wr_iot_service_guard_enter(int enabled){assert(enabled==1);depth++;return 1;
 void wr_iot_service_guard_leave(int token){assert(token==1&&depth);depth--;}
 int wr_iot_service_guard_dup(void){return depth?open("/dev/null",O_RDONLY):-1;}
 int wr_iot_rc_radio_off_receipt(struct wr_iot_physical_stop_request *r){receipt_reads++;*r=receipt;if(change_receipt&&receipt_reads>1)r->attempt++;return available;}
-int wr_iot_rc_mode_read(struct wr_iot_rc_mode *m){mode_reads++;m->router=1;m->radio=mode_ok;m->mode=change_mode&&mode_reads>1;return 1;}
+int wr_iot_rc_radio_on_mode_read(struct wr_iot_rc_mode *m){mode_reads++;m->router=1;m->radio=mode_ok;m->mode=change_mode&&mode_reads>1;return 1;}
 int wr_iot_radio_resume_down_observed(const struct wr_iot_physical_stop_request*r){assert(depth&&wr_iot_rc_shutdown.active&&wr_iot_rc_shutdown.radio_off_owned&&r->action==WR_STOP_RELEASE);return down;}
 int wr_iot_rc_off_profile_current(void){profile_reads++;if(change_profile&&profile_reads>1){FILE*f=fopen(profile_path,"w");assert(f&&fputs("foreign profile\n",f)>=0&&!fclose(f));}return profile_ok;}
 #include "radio-on-admission.c"

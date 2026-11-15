@@ -24,7 +24,11 @@ int main(void){
  held=1;assert(wr_iot_rc_mode_read(&result)&&result.router==1&&result.radio==1&&result.mode==0);
  ap=1;assert(wr_iot_rc_mode_read(&result)&&result.router==0);ap=0;
  enabled=0;assert(wr_iot_rc_mode_read(&result)&&result.radio==0);enabled=1;
- on=0;assert(wr_iot_rc_mode_read(&result)&&result.radio==0);on=1;
+ on=0;assert(wr_iot_rc_mode_read(&result)&&result.radio==0);
+ int live_queries=queries;assert(wr_iot_rc_radio_on_mode_read(&result)&&result.radio==1&&queries==live_queries+3);
+ enabled=0;assert(wr_iot_rc_radio_on_mode_read(&result)&&result.radio==0);enabled=1;on=1;
+ held=0;before=result;assert(!wr_iot_rc_radio_on_mode_read(&result)&&!memcmp(&before,&result,sizeof(result)));held=1;
+ assert(!wr_iot_rc_radio_on_mode_read(0));
  for(mode=0;mode<=4;mode++)assert(wr_iot_rc_mode_read(&result)&&result.mode==mode);
  assert(!wr_iot_rc_mode_read(0));
  return 0;
@@ -37,4 +41,4 @@ int main(void){
  binary=root/'check'
  subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+d,'-I'+str(here),str(fixture),str(here/'rc-mode.c'),'-o',str(binary)],check=True)
  subprocess.run([str(binary)],check=True)
-print('PASS actual RC mode reader: held guard, unchanged output on refusal, AP/radio disabled and mode0..4; RC queries injected, no radio mutation')
+print('PASS actual live/saved RC mode readers: live OFF differs from saved ON, saved OFF refuses, held guard and unchanged output on refusal, AP/mode0..4; SDK queries injected, no radio mutation')

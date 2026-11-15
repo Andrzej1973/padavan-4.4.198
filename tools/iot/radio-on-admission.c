@@ -23,7 +23,7 @@ int wr_iot_on_admission_begin(struct wr_iot_on_admission *s)
     wr_iot_rc_shutdown.pending||wr_iot_rc_shutdown.radio_off_owned)return 0;
  s->busy=1;token=wr_iot_service_guard_enter(1);if(token!=1){s->busy=0;return 0;}
  if(!wr_iot_rc_radio_off_receipt(&receipt)||receipt.action!=WR_STOP_RELEASE||
-    !wr_iot_physical_stop_request_valid(&receipt)||!wr_iot_rc_mode_read(&before)||
+    !wr_iot_physical_stop_request_valid(&receipt)||!wr_iot_rc_radio_on_mode_read(&before)||
     before.router!=1||before.radio!=1||before.mode!=0||
     !wr_iot_radio_stop_fence_begin(&s->fence)){
   s->busy=0;wr_iot_service_guard_leave(token);return 0;
@@ -32,7 +32,7 @@ int wr_iot_on_admission_begin(struct wr_iot_on_admission *s)
  wr_iot_rc_shutdown.radio_off_owned=1;
  if(on_same_receipt(&s->released)&&wr_iot_radio_resume_down_observed(&s->released)&&
     wr_iot_rc_off_profile_current()&&wr_iot_radio_profile_take(&s->profile)&&
-    wr_iot_rc_mode_read(&after)&&before.router==after.router&&before.radio==after.radio&&before.mode==after.mode&&
+    wr_iot_rc_radio_on_mode_read(&after)&&before.router==after.router&&before.radio==after.radio&&before.mode==after.mode&&
     on_same_receipt(&s->released)&&wr_iot_radio_resume_down_observed(&s->released)&&
     wr_iot_rc_off_profile_current()&&s->profile.files.count==1&&
     wr_iot_generated_matches(&s->profile.files.generated[0],s->profile.files.paths[0])&&
