@@ -56,3 +56,24 @@ payload hashes. Only then does the staging report mark actual-path closure true.
 Reports remain in the existing candidate artifact; the temporary copied ROMFS
 is deleted by its owning script. No TRX build or normal-image replacement is
 performed by this step. CI execution of this new step remains pending.
+
+## Isolated candidate TRX build and complete extraction gate
+
+Pinned `trunk/vendors/Ralink/Makefile` defines the image format: `romfs.post`
+uses its bundled SquashFS tool and `image` objcopies/compresses the existing
+vmlinux, aligns the kernel and uses the vendor mkimage with its kernel-length
+metadata. The optional staging script now invokes those rules through the
+existing vendor wrapper with new ROMFSDIR and IMAGEDIR. It does not call the
+normal top-level romfs installer or replace the normal firmware image.
+
+After packaging, `verify-isolated-trx.py` checks U-Boot header/payload size and
+CRC, Linux/MIPS/kernel type, exactly one valid embedded SquashFS, then extracts
+and compares every entry/hash/mode/symlink against the staged ROMFS. A settings
+file changed outside the replacement list fails too. Baseline vmlinux/config
+hashes are rechecked. Only verified candidate TRX is copied under the existing
+optional artifact's `isolated-image/WR1200JS-IoT-CANDIDATE-<sha>.trx`, with SHA256.
+
+`check-isolated-trx.py` uses actual SquashFS and a synthetic kernel/U-Boot header;
+it covers complete extraction plus header/payload CRC and content/mode refusal.
+Vendor packaging execution, flash partition limits/release gates and physical
+runtime are not proven by that host fixture. New optional execution is required.

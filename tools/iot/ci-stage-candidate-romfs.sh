@@ -44,3 +44,30 @@ stage['module_vermagic_checked']=True
 (root/'isolated-romfs-stage.json').write_text(json.dumps(stage,indent=2)+'\n')
 PY
 printf '%s\n' 'PASS isolated real ROMFS staging and actual-path dependencies; no TRX or device acceptance'
+# Use the pinned vendor image rules with isolated output directories. Do not run
+# top-level romfs (which would reinstall/strip into the normal baseline tree).
+mkdir "$probe/images"
+cat > "$probe/image.mk" <<'MAKE'
+.EXPORT_ALL_VARIABLES:
+include $(ROOTDIR)/versions.inc
+.DEFAULT_GOAL := isolated-image
+.PHONY: isolated-image
+isolated-image:
+	$(MAKE) -C $(ROOTDIR)/vendors romfs.post image ROOTDIR=$(ROOTDIR) LINUXDIR=linux-4.4.x LINUX_CONFIG=$(ROOTDIR)/linux-4.4.x/.config PROJECT_CONFIG=$(ROOTDIR)/.config ARCH_CONFIG=$(ROOTDIR)/config.arch FIRMWARE_KERNEL_VER=4.4 CROSS_COMPILE=$(CROSS_COMPILE) ROMFSDIR=$(IOT_ROMFS) IMAGEDIR=$(IOT_IMAGES)
+MAKE
+sha256sum "$trunk/linux-4.4.x/vmlinux" "$trunk/linux-4.4.x/.config" \
+  "$trunk/.config" "$trunk/config.arch" > "$results/isolated-image-baseline.sha256"
+make -f "$probe/image.mk" ROOTDIR="$trunk" CROSS_COMPILE="$cross" \
+  IOT_ROMFS="$probe/romfs" IOT_IMAGES="$probe/images" \
+  2>&1 | tee "$results/isolated-image-build.log"
+shopt -s nullglob
+images=("$probe/images/"*.trx)
+test "${#images[@]}" = 1
+python3 -B tools/iot/verify-isolated-trx.py "${images[0]}" "$probe/romfs" \
+  --unsquashfs "$trunk/tools/mksquashfs_xz/unsquashfs" \
+  --report "$results/isolated-trx-content.json"
+sha256sum -c "$results/isolated-image-baseline.sha256"
+mkdir "$results/isolated-image"
+cp "${images[0]}" "$results/isolated-image/WR1200JS-IoT-CANDIDATE-${revision:0:8}.trx"
+sha256sum "$results/isolated-image/"*.trx > "$results/isolated-image.sha256"
+printf '%s\n' 'PASS isolated candidate TRX built/extracted; NOT runtime accepted or promoted to release'
