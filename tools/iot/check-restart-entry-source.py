@@ -10,6 +10,7 @@ with tempfile.TemporaryDirectory(prefix='wr-entry-source-') as d:
  (rc/'Makefile').write_text('OBJS=wr-iot-restart-scheduler.o\n')
  cmd=['python3','-B',str(here/'prepare-restart-entry-source.py'),str(root)]
  subprocess.run(cmd,check=True)
+ subprocess.run(['python3','-B',str(here/'check-restart-entry-manifest.py'),str(root)],check=True)
  net=(rc/'net_wifi.c').read_text();back=(rc/'wr-iot-rc-backend.c').read_text()
  assert net.index('WR_IOT_PRIVATE_RESTART_ENTRY')<net.index('legacy++')
  code='#define BOARD_WR1200JS\n#include <assert.h>\nstatic int claimed;\nint wr_iot_restart_entry(int on,int reload){assert(on==1&&reload==1);return claimed;}\n'+net+back+r'''
@@ -24,5 +25,8 @@ int main(void){
  p=root/'test.c';p.write_text(code);b=root/'test'
  subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-I'+str(rc),str(p),'-o',str(b)],check=True)
  subprocess.run([str(b)],check=True,timeout=5)
+ original=(rc/'net_wifi.c').read_text();(rc/'net_wifi.c').write_text(original+'// drift\n')
+ assert subprocess.run(['python3','-B',str(here/'check-restart-entry-manifest.py'),str(root)],capture_output=True).returncode
+ (rc/'net_wifi.c').write_text(original)
  before=(rc/'net_wifi.c').read_bytes();assert subprocess.run(cmd,capture_output=True).returncode and (rc/'net_wifi.c').read_bytes()==before
 print('PASS prepared restart hook: claim returns before legacy body, never-opened versus owned predicate, duplicate installer refuses; SDK body/entry actors, full SDK compilation pending')

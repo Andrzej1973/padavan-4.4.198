@@ -557,3 +557,13 @@ gate1 and refuses duplicate/changed anchors before writes. Executed fixture prov
 claim exclusion and predicate decisions, with SDK body/entry actors. Full SDK
 compile/link and driver endpoint compatibility remain pending. Installer is not
 yet called by CI/main firmware; default image behavior is unchanged.
+
+
+Experimental compile-runtime-link now invokes the entry installer after original
+runtime-source verification, verifies exact manifest hashes and hook ordering,
+and requires both private entry and backend ownership symbols in target objects.
+It preserves the entry manifest with target diagnostics. Host installer/executed
+hook and deliberate source-drift rejection pass; bash-n passes. Corrected ABI
+058542e43665781009 and standard1223/43665783692 succeeded, but predate this hook.
+New full target-link results remain pending. Base firmware is still hash-checked
+and not replaced by the experimental binaries.
