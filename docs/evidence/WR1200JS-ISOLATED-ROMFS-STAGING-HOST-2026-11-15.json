@@ -1,0 +1,17 @@
+{
+  "revision_base": "07843bd66f5483c3bc4634f3073da99de809caec",
+  "checks": [
+    "python3 -B tools/iot/check-stage-candidate-romfs.py PASS",
+    "bash -n tools/iot/ci-compile-merged-candidate.sh PASS"
+  ],
+  "scope": "Synthetic MIPS payload and baseline fixtures. Actual staging routine verifies four replacement hashes and all unrelated file/mode/symlink state; refuses config/source/module/alias mismatch before copy.",
+  "sha256": {
+    "stage-candidate-romfs.py": "ea797a2c298ae03b0403eae22132529e11b9b0c6746865c15432766437b73ea0",
+    "check-stage-candidate-romfs.py": "0f9d9b906afc31e4bb6c081fb89c0e1b633ad7ba6a43cae370120bdb9db8c282",
+    "ci-compile-merged-candidate.sh": "70c52a4532788c69f7c9a443cbd0b289d87fa835f4d16c32c0546c45fbf5cfc7"
+  },
+  "real_target_romfs_staged": false,
+  "actual_path_dependency_closure_verified": false,
+  "trx_built": false,
+  "physical_runtime_verified": false
+}

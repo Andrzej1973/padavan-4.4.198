@@ -23,3 +23,23 @@ into an isolated baseline ROMFS, preserve configuration and paired IAPP policy,
 verify dependency closure at actual destinations, rebuild the image and inspect
 its extracted contents. An old successful candidate cannot establish inclusion
 of newer boot/root code. Physical WR1200JS acceptance remains separate.
+
+## Isolated ROMFS staging tool
+
+`stage-candidate-romfs.py` consumes the exact pair manifest and regenerates its
+input checks before copying anything. Output must be new and disjoint from the
+baseline/results. Baseline and candidate kernel config bytes must match; a
+configured driver built against a different kernel cannot be combined silently.
+A coherent configured-kernel candidate build is required on mismatch.
+
+The tool discovers one regular `mt76x3_ap.ko` below actual `lib/modules`, rejects
+aliased replacement files/parent symlinks, and replaces that module, `/sbin/rc`,
+HTTPD and IAPP only in the new copy. All unrelated entries, modes and symlink
+targets must compare exactly, including RC multicall links and saved defaults.
+The original baseline is rehashed and must remain unchanged. Failed post-copy
+verification leaves an unaccepted output for diagnosis; it never edits baseline.
+The report explicitly does not claim actual-path dependency closure or TRX build.
+
+`check-stage-candidate-romfs.py` covers synthetic positive staging and config,
+source, duplicate module and symlink refusals. Real candidate/baseline staging,
+actual-path closure, image build/extraction and device verification remain open.
