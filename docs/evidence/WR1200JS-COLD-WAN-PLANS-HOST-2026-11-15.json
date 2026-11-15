@@ -1,0 +1,23 @@
+{
+  "scope": "actual cold cleanup/ACTIVE and WAN followup composition with SDK transport actor",
+  "result": "PASS GCC Werror ASan UBSan",
+  "plans": [
+    "NONE",
+    "FULL_RESTART",
+    "RECONNECT"
+  ],
+  "checks": [
+    "NONE no submission",
+    "other plans submit once",
+    "policy refusal before call consumes no attempt",
+    "post-call ACTIVE loss refuses completion",
+    "ACTIVE recovery never replays WAN",
+    "parent profile/guard released, backend preserved"
+  ],
+  "sha256": {
+    "tools/iot/check-rc-cold-wan.py": "bc8aafa3b2c9adc6fa7a10e97d0e17c91a91f91c5c91b47719b27f21b76c56e6"
+  },
+  "runtime_composed": false,
+  "target_verified": false,
+  "physical_verified": false
+}

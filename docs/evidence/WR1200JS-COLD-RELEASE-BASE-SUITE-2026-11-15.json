@@ -1,0 +1,11 @@
+{
+  "session": 39302,
+  "exit_code": 0,
+  "registered_input_base": "6b5d04f7",
+  "log_sha256": "52148ffdfde54d4d84876dc1843ea6fff7ae4a222f5836a0302993a8172e780c",
+  "log_bytes": 51075,
+  "final_marker": "PASS physical-stop candidate host suite: uninstalled driver bindings, API transport and target/device acceptance remain pending",
+  "coverage_boundary": "client-preparation passed before verifier/preparation regression edits8ccc3f92; those edits separately tested; unregistered detach/release/followup/signal tests excluded",
+  "target_verified": false,
+  "physical_verified": false
+}
