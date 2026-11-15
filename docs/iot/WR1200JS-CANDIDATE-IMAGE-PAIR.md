@@ -94,3 +94,17 @@ isolated-image-verification report records bytes and remaining partition bytes,
 while production promotion and physical runtime stay false. Actual CI image
 execution is still required; host catalogue drift and SquashFS tests only prove
 the gates themselves, not that a real candidate has passed them.
+
+## Radio feature preservation in the staged driver
+
+Before packaging, the exact staged MT7603 module is inspected with target
+readelf. `verify-candidate-radio-features.py` reuses the existing KVR image
+verifier's required 802.11k/v/r functions/config gates, adds both radio steering
+config selectors and defined BndStrg_MsgHandle, APUpdateBeaconFrame and
+BcnTxSHandler. Every symbol must be FUNC, defined and nonzero-sized; mere text,
+UND entries and data objects do not pass. This supplements unchanged-ROMFS
+checks for 5 GHz and service payloads; it is not an interoperability test.
+
+The isolated image summary requires the feature report before verification can
+be recorded. Synthetic table mutations cover missing, undefined, zero-sized,
+data and steering-config failures. Real staged-module execution is pending CI.

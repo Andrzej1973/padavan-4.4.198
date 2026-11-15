@@ -36,6 +36,11 @@ python3 tools/band-steering/verify-package-closure.py "$probe/romfs" "$probe/rom
 module="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["module_destination"])' "$results/isolated-romfs-stage.json")"
 "${cross}readelf" -p .modinfo "$probe/romfs/$module" > "$results/isolated-romfs-module-info.txt"
 grep -Eq 'vermagic=4\.4\.198([[:space:]]|$)' "$results/isolated-romfs-module-info.txt"
+"${cross}readelf" -sW "$probe/romfs/$module" > "$results/isolated-romfs-radio-symbols.txt"
+python3 -B tools/iot/check-candidate-radio-features.py
+python3 -B tools/iot/verify-candidate-radio-features.py "$trunk/linux-4.4.x/.config" \
+  "$results/isolated-romfs-radio-symbols.txt" --report "$results/isolated-romfs-radio-features.json"
+
 python3 - "$results" <<'PY'
 import json,sys
 from pathlib import Path
@@ -93,10 +98,12 @@ if board['sha256']!=digest or content['image_sha256']!=digest or not all(board['
  raise SystemExit('Image reports do not describe the retained candidate')
 if stage['source_revision']!=revision or not stage['baseline_unchanged'] or not stage['dependency_closure_at_image_paths_verified']:
  raise SystemExit('Staging proof does not match this source')
+features=json.loads((root/'isolated-romfs-radio-features.json').read_text())
+if not features['radio_feature_code_verified']:raise SystemExit('Radio feature code check failed')
 report={'source_revision':revision,'candidate_image':images[0].name,'sha256':digest,
         'bytes':images[0].stat().st_size,'firmware_partition_bytes':16187392,
         'remaining_partition_bytes':16187392-images[0].stat().st_size,
-        'isolated_image_build_verified':True,'board_structure_and_hwnat_policy_verified':True,
+        'isolated_image_build_verified':True,'board_structure_and_hwnat_policy_verified':True,'radio_feature_code_verified':True,
         'complete_romfs_extraction_verified':content['isolated_trx_contents_verified'],
         'dependency_closure_at_image_paths_verified':True,'production_promoted':False,
         'physical_runtime_verified':False}
