@@ -203,3 +203,20 @@ Failure cleanup uses its exact failure query without requiring a success receipt
 Focused physical take/receipt, owner, actual composition and RC ppoll checks PASS.
 This retained receipt is provenance for fresh follow-up validation, not a fresh
 observation or authorization to mutate the replacement/current adapter.
+
+## Source correction: ordinary CLOSED cannot observe physical DOWN
+
+Source tracing disproved the proposed radio-off-current observer. The ordinary
+ra2 CLOSED_CONFIG path calls mbss-closed-probe.h and mbss-close-receipt.h, whose
+preflight explicitly requires WR_RADIO_READY/main_ready and original epoch.
+Physical Main close instead retires to WR_RADIO_DOWN with an advanced epoch.
+The observer's mock admitted an impossible combination. Commit ee81df7 was
+reverted before publication; no fallback or READY relaxation was introduced.
+
+Existing main-open-recovery-owner.h already provides the appropriate read-only
+wr_iot_main_recovery_release_current predicate for DOWN, exact Main registration,
+last software release, epoch/serial and zero vendor count. New origin_main_down
+composes it with the cached physical origin. A host C11 ASan/UBSan fixture passes
+exact DOWN and refuses READY/epoch/registration/count drift. This predicate
+requires a dedicated Linux read-only terminal-observation binding before RC use;
+ordinary CLOSED and a historical terminal reply cannot substitute for it.

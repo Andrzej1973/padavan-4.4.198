@@ -18,6 +18,17 @@ static inline int wr_iot_physical_stop_origin_matches(
   s->completion_epoch==r->completion_epoch&&s->ticket_epoch>s->arm_epoch&&
   s->completion_epoch>=s->ticket_epoch;
 }
+/* Fresh same-registration Main DOWN after this physical RELEASE. Compose the
+ * actual checked Main software-release predicate; no BSS READY/CLOSED probe. */
+static inline int wr_iot_physical_stop_origin_main_down(
+ const struct wr_iot_physical_stop_origin *origin,
+ const struct wr_iot_main_recovery_owner *owner,
+ const struct wr_iot_radio_transition *radio,
+ const struct wr_iot_interface_ref *main_record,unsigned int vendor_count)
+{
+ return owner&&wr_iot_physical_stop_origin_matches(origin,&owner->last_release)&&
+  wr_iot_main_recovery_release_current(owner,radio,main_record,vendor_count);
+}
 /* Same-registration Main reopen only. A replacement adapter/registration needs
  * its own distinct handoff; address reuse never satisfies this predicate.
  * This checks Main software state, not ra2 readiness or RF/DMA retirement. */
