@@ -16,6 +16,16 @@ int wr_iot_rc_backend_observed(const struct wr_iot_control_result *);
 struct wr_iot_driver_closed_result;
 /* Fresh software CLOSE from the private retained OFF owner, never mailbox-only. */
 int wr_iot_rc_backend_closed(struct wr_iot_driver_closed_result *);
+struct wr_iot_initial_off;
+struct wr_iot_physical_initial_request;
+/* Fresh never-opened observation for physical ARM; caller retains witness and
+ * service/shutdown admission. Never returns a legacy CLOSE certificate. */
+int wr_iot_rc_backend_initial_request(const struct wr_iot_initial_off *,
+ const unsigned char *,struct wr_iot_physical_initial_request *);
+/* Retained successful prepare_radio_stop witness, reobserved at each call.
+ * Failed preparation never publishes a partially initialized replacement. */
+int wr_iot_rc_backend_prepared_initial_request(const unsigned char *,
+ struct wr_iot_physical_initial_request *);
 struct wr_iot_request;
 /* Caller holds service/config guard; copied stable saved ON/OFF intent. */
 int wr_iot_rc_radio_on_saved_request(struct wr_iot_request *);

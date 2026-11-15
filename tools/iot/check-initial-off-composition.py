@@ -51,6 +51,17 @@ int main(void){
  s.idle.epoch++;assert(!wr_iot_initial_off_observed(&s));s=retained;
  s.idle.generation++;assert(!wr_iot_initial_off_observed(&s));s=retained;
  s.idle.serial=~0ULL;assert(!wr_iot_initial_off_observed(&s));s=retained;
+ struct wr_iot_physical_initial_request arm={0};unsigned char nonce[16]={9};
+ assert(wr_iot_initial_off_physical_request(&s,nonce,&arm));
+ assert(arm.action==WR_STOP_ARM&&arm.epoch==s.idle.epoch&&
+  arm.generation==s.idle.generation&&arm.idle_serial>s.idle.serial&&!arm.attempt);
+ assert(!memcmp(&s,&retained,sizeof(s)));
+ s.owner++;assert(!wr_iot_initial_off_physical_request(&s,nonce,&arm));s=retained;
+ assert(!arm.action&&!arm.epoch);
+ memset(nonce,0,16);assert(!wr_iot_initial_off_physical_request(&s,nonce,&arm));nonce[0]=9;
+ wr_iot_rc_shutdown.pending=SIGTERM;
+ assert(!wr_iot_initial_off_physical_request(&s,nonce,&arm));wr_iot_rc_shutdown.pending=0;
+ assert(!memcmp(&s,&retained,sizeof(s)));
  struct wr_iot_physical_stop_request released={WR_STOP_RELEASE,10,2,3,4,5,{1}};
  struct wr_iot_driver_identity main={11,2};
  assert(wr_iot_initial_off_restarted_observed(&s,&released,&main));

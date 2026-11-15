@@ -51,3 +51,21 @@ Remaining before activation:
 
 Software candidate preparation, target build, final image inspection and device
 acceptance remain separate evidence levels. IoT and the port remain incomplete.
+
+## RC support follow-up
+
+The follow-up adds a distinct WPIQ user-space client/session and a retained
+`rc-initial-stop` subcontroller. It drains authentication and six AUX interfaces,
+then obtains a fresh initial ARM from the backend before advancing the session.
+The backend retains a successfully prepared initial witness and reobserves it;
+failed preparation cannot publish a partial replacement. The transport performs
+one ioctl per call; uncertain replies retain exact identity. A possibly submitted
+Main DOWN is never repeated; a definitely unsubmitted DOWN uses CANCEL.
+
+RC preparers stage all required headers and objects. Target-link checks require
+client, session, backend and controller symbols. Host tests exercise actual C
+with injected external effects. These declarations are not proof of MIPS linkage.
+The original physical owner and OFF/reopen terminal consumers still need a
+verified initial-origin selection and tagged RELEASE path. The new subcontroller
+is linked for candidate compilation but is not activated by the main loop.
+No production normal-shutdown routing or router settings are changed.

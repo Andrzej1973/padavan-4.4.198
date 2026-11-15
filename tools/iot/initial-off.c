@@ -57,3 +57,23 @@ int wr_iot_initial_off_restarted_observed(const struct wr_iot_initial_off *s,
     !wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending)return 0;
  return wr_iot_initial_off_observed(s);
 }
+
+int wr_iot_initial_off_physical_request(const struct wr_iot_initial_off *s,
+ const unsigned char *nonce,struct wr_iot_physical_initial_request *out)
+{
+ struct wr_iot_idle_result current={0};
+ struct wr_iot_physical_initial_request candidate={0};unsigned i;
+ if(!out)return 0;
+ memset(out,0,sizeof(*out));
+ if(!s||!nonce||s->owner!=getpid()||!s->ready||!s->created||
+    !memchr(s->id,0,sizeof(s->id))||!wr_iot_control_id(s->id)||
+    !wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||!off_current())return 0;
+ if(!wr_iot_driver_initial_idle_read(s->nonce,&current)||
+    current.epoch!=s->idle.epoch||current.generation!=s->idle.generation||
+    current.serial<=s->idle.serial||!off_current()||wr_iot_rc_shutdown.pending)return 0;
+ candidate.action=WR_STOP_ARM;candidate.epoch=current.epoch;
+ candidate.generation=current.generation;candidate.idle_serial=current.serial;
+ for(i=0;i<16;i++)candidate.nonce[i]=nonce[i];
+ if(!wr_iot_physical_initial_valid(&candidate,0))return 0;
+ *out=candidate;return 1;
+}

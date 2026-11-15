@@ -14,6 +14,7 @@
 #include "precreated-entropy.h"
 static struct wr_iot_activation_owner backend;
 static struct wr_iot_rebind_owner rebind;
+static struct wr_iot_initial_off physical_initial;
 int wr_iot_rc_boot_idle(void)
 {
  return !rebind.owner&&!backend.busy&&!backend.start.owner&&!backend.stop.owner&&
@@ -122,7 +123,27 @@ int wr_iot_activation_prepare_radio_stop(void)
  }
  request.created=(unsigned long long)now.tv_sec;
  ok=wr_iot_initial_off_begin(&initial,&request);
+ if(ok==1)physical_initial=initial;
  done:wr_iot_service_guard_leave(guard);return ok==1;
+}
+
+int wr_iot_rc_backend_initial_request(const struct wr_iot_initial_off *initial,
+ const unsigned char *nonce,struct wr_iot_physical_initial_request *out)
+{
+ if(!out)return 0;
+ memset(out,0,sizeof(*out));
+ if(!wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||backend.busy||rebind.owner||
+    backend.start.owner||backend.stop.owner||backend.start.admission.snapshot.active||
+    backend.start.admission.snapshot.token||
+    !((!backend.owner&&backend.phase==WR_IOT_OWNER_IDLE)||
+      (backend.owner==getpid()&&backend.phase==WR_IOT_OWNER_INITIAL_OFF)))return 0;
+ return wr_iot_initial_off_physical_request(initial,nonce,out);
+}
+
+int wr_iot_rc_backend_prepared_initial_request(const unsigned char *nonce,
+ struct wr_iot_physical_initial_request *out)
+{
+ return wr_iot_rc_backend_initial_request(&physical_initial,nonce,out);
 }
 
 int wr_iot_rc_backend_closed(struct wr_iot_driver_closed_result *out)

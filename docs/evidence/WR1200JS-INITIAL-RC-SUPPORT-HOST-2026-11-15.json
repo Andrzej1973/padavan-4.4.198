@@ -1,0 +1,42 @@
+{
+  "observed_utc": "2026-11-15T19:03:08.596399+00:00",
+  "checks": [
+    {
+      "test": "check-physical-initial-client.py",
+      "exit_code": 0,
+      "output": "PASS fixed ra0 initial WPIQ client:4 actions, no retries, socket failures not submitted, ioctl/close/malformed replies uncertain, exact response and input/output alias; kernel mocked\nPASS distinct WPIQ client/session: exact nonce/attempt, uncertain calls retain phase, one DOWN, no replay after possible submission, CANCEL/RELEASE terminal retries, foreign/reentrant refusal; syscalls/kernel mocked, RC integration pending\n"
+    },
+    {
+      "test": "check-rc-initial-stop.py",
+      "exit_code": 0,
+      "output": "PASS RC initial auth/AUX/fresh ARM/session: foreign and pending refusal, failed observation retained, uncertain ARM, one possible DOWN, COMPLETE/RELEASE or unsubmitted-DOWN/CANCEL, typed terminal no replay; outer owner/device integration pending\n"
+    },
+    {
+      "test": "check-initial-off-composition.py",
+      "exit_code": 0,
+      "output": "Prepared minimal RC declarations for IoT request-stage probe\nPASS actual initial never-opened OFF: double fresh idle, absent/zero gates, empty temp credentials, all9 foreign fields and bridge/BSS/DNS/epoch/generation/serial refusal; no writes, driver/network hooks injected\n"
+    },
+    {
+      "test": "check-rc-backend-composition.py",
+      "exit_code": 0,
+      "output": "Prepared minimal RC declarations for IoT request-stage probe\nPASS actual RC backend/mailbox/server/client/owner/runner/OFF: ON and OFF published APPLIED, duplicate dispatch refused, delayed isolation retains guard, pending SIGTERM delivered only after terminal publication; external resource/driver hooks injected\n"
+    },
+    {
+      "test": "check-initial-off-header-staging.py",
+      "exit_code": 0,
+      "output": "PASS early initial-OFF staged header closure: physical RELEASE wire available before runtime; isolated include path, actual header compiled\n"
+    },
+    {
+      "test": "check-physical-initial-runtime-staging.py",
+      "exit_code": 0,
+      "output": "PASS runtime-declared WPIQ client/session object/header closure compiles without repository include fallback; actual SDK Make/target linkage pending\n"
+    },
+    {
+      "test": "check-rc-physical-stop.py",
+      "exit_code": 0,
+      "output": "PASS actual retained RC admission/session/fence: intent copied, preparation refusal balanced, guards held across uncertainty, DOWN once, deferred SIGTERM after STOP cleanup, restart RELEASE keeps guards; private quiesce precedes AUX/ARM and resume snapshot preserves desired settings/exact RELEASE; backend/transport hooks injected\n"
+    }
+  ],
+  "all_passed": true,
+  "scope": "Focused RC INITIAL_OFF support and original physical-controller regression host checks, not full suite or MIPS/device acceptance"
+}

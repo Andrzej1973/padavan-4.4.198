@@ -51,6 +51,33 @@ int main(void){
  wr_iot_rc_shutdown.active=1;
  entropy_fail=1;assert(!wr_iot_activation_prepare_radio_stop()&&!depth);
  entropy_fail=0;assert(wr_iot_activation_prepare_radio_stop()&&!depth);
+ {struct wr_iot_physical_initial_request prepared_arm={0};unsigned char nonce[16]={7};
+  int token=wr_iot_service_guard_enter(1);assert(token==1);
+  assert(wr_iot_rc_backend_prepared_initial_request(nonce,&prepared_arm));
+  assert(prepared_arm.action==WR_STOP_ARM&&prepared_arm.idle_serial>physical_initial.idle.serial);
+  struct wr_iot_initial_off retained_initial=physical_initial;
+  entropy_fail=1;assert(!wr_iot_activation_prepare_radio_stop());entropy_fail=0;
+  assert(!memcmp(&retained_initial,&physical_initial,sizeof(physical_initial)));
+  assert(wr_iot_rc_backend_prepared_initial_request(nonce,&prepared_arm));
+  physical_initial.owner++;
+  assert(!wr_iot_rc_backend_prepared_initial_request(nonce,&prepared_arm)&&!prepared_arm.action);
+  physical_initial=retained_initial;
+  wr_iot_service_guard_leave(token);
+ }
+
+ struct wr_iot_control_request physical_off={.id="01010101010101010101010101010101",.created=1};
+ struct wr_iot_initial_off physical_initial={0};
+ struct wr_iot_physical_initial_request physical_arm={0};unsigned char physical_nonce[16]={9};
+ assert(wr_iot_initial_off_begin(&physical_initial,&physical_off));
+ int initial_guard=wr_iot_service_guard_enter(1);assert(initial_guard==1);
+ assert(wr_iot_rc_backend_initial_request(&physical_initial,physical_nonce,&physical_arm));
+ assert(physical_arm.action==WR_STOP_ARM&&physical_arm.idle_serial>physical_initial.idle.serial);
+ backend.busy=1;assert(!wr_iot_rc_backend_initial_request(&physical_initial,physical_nonce,&physical_arm));backend.busy=0;
+ assert(!physical_arm.action);
+ backend.owner=getpid()+1;assert(!wr_iot_rc_backend_initial_request(&physical_initial,physical_nonce,&physical_arm));backend.owner=0;
+ wr_iot_rc_shutdown.pending=SIGTERM;
+ assert(!wr_iot_rc_backend_initial_request(&physical_initial,physical_nonce,&physical_arm));wr_iot_rc_shutdown.pending=0;
+ wr_iot_service_guard_leave(initial_guard);
  struct wr_iot_control_request initial_request={.id="01010101010101010101010101010101",.created=1};
  assert(wr_iot_activation_owner_execute(&backend,&initial_request,1,1,0)==WR_IOT_RESULT_APPLIED);
  assert(backend.phase==WR_IOT_OWNER_INITIAL_OFF&&wr_iot_activation_prepare_radio_stop());
