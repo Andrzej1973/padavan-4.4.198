@@ -456,3 +456,14 @@ preserved exact tuple after retirement, copy isolation and duplicate OFF refusal
 Main resume from completed physical OFF still needs a dedicated owner path:
 normal rc-backend quiesce on OFF calls READY-only ra2 CLOSED and cannot be used.
 Public OFF entry remains unbound until OFF->ON/cold/failure paths are complete.
+
+Dedicated resume-DOWN observation now reuses the same exact read-only QUERY
+implementation but requires active private admission plus retained radio
+ownership, while ordinary OFF observation still requires admission inactive.
+Both recheck their expected admission state after transport. Host test proves
+OFF refuses active, resume accepts only active/no pending, and neither grants
+UP or consumes receipt. Existing restart Main controller cannot be passed a
+synthetic OFF origin: it explicitly validates live restart generation/desired
+ON profile. A dedicated OFF->ON owner with proper profile and receipt lifetime
+remains required. Exact optionals bd4ba86543685512163 and52f55d843685514781
+queued after successful standards/dedup; target-link results pending.
