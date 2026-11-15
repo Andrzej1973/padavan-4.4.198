@@ -101,3 +101,17 @@ All are staged for compilation; public cold entry remains disabled. Host tests
 use actual cold parent/profile controllers with SDK transport actors, plus
 policy/failure tests and prepared C11 object checks. Stable root, initial backend
 handoff and post-UP shutdown/retirement remain required before binding.
+
+## Stable cold owner staged through pre-OPEN boundary
+
+`cold-on-owner.c` now owns stable admission/generation/Main/Guest/multicast/service
+objects and advances one child phase per invocation. Validated control input is
+kept only until generation capture; unused request credentials are wiped on
+capture/refusal. Partial generation can recover before Main UP. Every submitted
+operation retains its no-replay state and all guards on uncertainty. PREPARED
+requires fresh parent/child pointer and readiness checks; it is not ACTIVE/DONE.
+The root relies on active admission plus OFF exclusion until a future checked
+parent release; it does not set or clear an unrelated ON exclusion. Public RC,
+backend initial-start handoff, post-UP shutdown and root retirement are not bound.
+Host integration tests use actual cold parent/profile controllers with injected
+SDK boundary operations. Prepared RC C11 object compilation passed.
