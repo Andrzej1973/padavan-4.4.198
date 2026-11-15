@@ -12,6 +12,10 @@ struct wr_iot_rc_shutdown_admission {
   * this is distinct from the current transaction's active/pending admission. */
  volatile sig_atomic_t normal_route_armed;
  volatile sig_atomic_t normal_route_requested;
+ /* Final stock handoff, published only after exact physical RELEASE.
+  * Zero until private cleanup; original signal and single delivery survive
+  * route disarm and failed process-context raise. */
+ volatile sig_atomic_t replay_signal,replay_ready,replay_delivered;
  /* Process-context OFF exclusion; signal handlers never read/write it.
   * Separate from active/pending, retained across physical shutdown_end. */
  unsigned int radio_off_owned;
@@ -22,7 +26,7 @@ extern struct wr_iot_rc_shutdown_admission wr_iot_rc_shutdown;
 
 static inline int wr_iot_rc_shutdown_begin(void){
  if(wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||
-    wr_iot_rc_shutdown.normal_route_requested)return 0;
+    wr_iot_rc_shutdown.normal_route_requested||wr_iot_rc_shutdown.replay_signal)return 0;
  wr_iot_rc_shutdown.active=1;
  return 1;
 }
@@ -35,6 +39,11 @@ static inline int wr_iot_rc_shutdown_note(int sig){
      &&sig!=SIGQUIT
 #endif
    )return 0;
+ if(wr_iot_rc_shutdown.replay_signal){
+  if(!wr_iot_rc_shutdown.replay_ready||wr_iot_rc_shutdown.replay_delivered||
+     sig!=wr_iot_rc_shutdown.replay_signal)return 1;
+  wr_iot_rc_shutdown.replay_delivered=1;return 0;
+ }
  if(wr_iot_rc_shutdown.active){
   if(!wr_iot_rc_shutdown.pending)wr_iot_rc_shutdown.pending=sig;
   return 1;
@@ -50,8 +59,19 @@ static inline int wr_iot_rc_shutdown_note(int sig){
  * clear a pending request merely because a software BSS CLOSE completed. */
 static inline int wr_iot_rc_shutdown_route_arm(void){
  if(wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||
-    wr_iot_rc_shutdown.normal_route_requested)return 0;
+    wr_iot_rc_shutdown.normal_route_requested||wr_iot_rc_shutdown.replay_signal)return 0;
  wr_iot_rc_shutdown.normal_route_armed=1;return 1;
+}
+/* Process-context retry only, never called from a signal handler. A failed
+ * raise leaves the exact original signal ready for a later PID1 window. */
+static inline int wr_iot_rc_shutdown_replay_pending(void){
+ return wr_iot_rc_shutdown.replay_signal&&wr_iot_rc_shutdown.replay_ready&&
+  !wr_iot_rc_shutdown.replay_delivered;
+}
+static inline int wr_iot_rc_shutdown_replay_step(void){
+ if(!wr_iot_rc_shutdown_replay_pending())return 0;
+ return raise(wr_iot_rc_shutdown.replay_signal)==0&&
+  wr_iot_rc_shutdown.replay_delivered;
 }
 static inline int wr_iot_rc_shutdown_end(void){
  int pending;

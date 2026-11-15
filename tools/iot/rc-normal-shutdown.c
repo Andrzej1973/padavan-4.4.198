@@ -11,6 +11,15 @@ static struct {
  struct wr_iot_control_request off;
  int generated,claimed,retained,spent;
 } normal_shutdown;
+static pid_t notification_owner;
+static int normal_signal(int sig)
+{
+ return sig==SIGTERM
+#ifdef SIGQUIT
+  ||sig==SIGQUIT
+#endif
+ ;
+}
 static int requested(void)
 {
  return wr_iot_rc_shutdown.normal_route_armed&&
@@ -21,7 +30,25 @@ static int requested(void)
   );
 }
 int wr_iot_rc_normal_shutdown_pending(void)
-{return !normal_shutdown.spent&&(normal_shutdown.owner==getpid()||requested());}
+{return wr_iot_rc_shutdown_replay_pending()||(!normal_shutdown.spent&&(normal_shutdown.owner==getpid()||requested()||
+ (wr_iot_rc_shutdown.normal_route_armed&&normal_signal(wr_iot_rc_shutdown.pending))));}
+/* Single PID1 process-context writer. The owner claim linearizes admission
+ * before a later signal; no signal mask is inherited by asynchronous Wi-Fi
+ * fences started in the notification handler. Signal context only records the
+ * normal request, and cannot run the physical shutdown controller. */
+int wr_iot_rc_normal_notification_begin(void)
+{
+ if(wr_iot_rc_shutdown.replay_signal)return 0;
+ if(!wr_iot_rc_shutdown.normal_route_armed)return 1;
+ if(notification_owner||requested()||normal_signal(wr_iot_rc_shutdown.pending))return 0;
+ notification_owner=getpid();
+ if(requested()||normal_signal(wr_iot_rc_shutdown.pending)){
+  notification_owner=0;return 0;
+ }
+ return 1;
+}
+void wr_iot_rc_normal_notification_end(void)
+{if(notification_owner==getpid())notification_owner=0;}
 static void normal_shutdown_retire(void *context)
 {
  (void)context;
@@ -31,7 +58,8 @@ int wr_iot_rc_normal_shutdown_step(void)
 {
  unsigned char bytes[32]={0};unsigned i,nonzero=0;
  unsigned long long now;static const char hex[]="0123456789abcdef";
- if(!wr_iot_rc_normal_shutdown_pending()||!requested()||normal_shutdown.retained)return 0;
+ if(wr_iot_rc_shutdown_replay_pending())return wr_iot_rc_shutdown_replay_step();
+ if(notification_owner||!wr_iot_rc_normal_shutdown_pending()||!requested()||normal_shutdown.retained)return 0;
  if(normal_shutdown.owner&&normal_shutdown.owner!=getpid())return 0;
  if(!normal_shutdown.claimed){
   /* Existing owners must drain, not be replaced by this controller. */

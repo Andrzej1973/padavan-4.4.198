@@ -8,6 +8,17 @@ with tempfile.TemporaryDirectory(prefix='wr-stop-client-prepared-') as d:
  (root/'iot-control-source.json').write_text(json.dumps({'board':'WR1200JS'}))
  (rc/'wr-iot/activation-owner.h').write_text('/* prerequisite marker only */')
  (rc/'init.c').write_text('#include "wr-iot/rc-shutdown-admission.h"\n\tinit_router();\n\t\twhile ( !sig_usr1_received &&\n\t\t\t!sig_alrm_received ) {\n\t\t\t\tsigsuspend(&ss);\n}\n')
+ (rc/'init.c').write_text((rc/'init.c').read_text()+'''\t\tif (sig_usr1_received) {
+\t\t\tsig_usr1_received = 0;
+\t\t\thandle_notifications();
+\t\t}
+\t\tif (sig_alrm_received) {
+\t\t\tsig_alrm_received = 0;
+#if defined (USE_USB_SUPPORT) || defined (USE_STORAGE)
+\t\t\ton_deferred_hotplug_dev();
+#endif
+\t\t}
+''')
  (rc/'rc.h').write_text('const char *nvram_safe_get(const char *);\n')
  (rc/'Makefile').write_text('OBJS += wr-iot-control-mailbox.o wr-iot-control-server.o\n')
  (http/'Makefile').write_text('OBJS += wr-iot-control-mailbox.o wr-iot-control-client.o\n')
@@ -34,7 +45,9 @@ with tempfile.TemporaryDirectory(prefix='wr-stop-client-prepared-') as d:
    subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-DBOARD_'+board,'-DWR_IOT_IAPP_POLICY_PREPARED='+gate,str(boot_probe),'-o',str(binary)],check=True)
    subprocess.run([str(binary)],check=True,timeout=5)
 
- loop=init[init.index('#if defined(BOARD_WR1200JS)\n\t\twhile '):]
+ loop_start=init.index('#if defined(BOARD_WR1200JS)\n\t\twhile ')
+ loop_end=init.index('\n}\n',loop_start)+3
+ loop=init[loop_start:loop_end]
  loop_probe=r'''#define _POSIX_C_SOURCE 200809L
 #include <assert.h>
 #include <signal.h>
@@ -61,6 +74,33 @@ int main(void){
   binary=root/('shutdown-wait-hook-'+board)
   subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-DBOARD_'+board,str(loop_file),'-o',str(binary)],check=True)
   subprocess.run([str(binary)],check=True,timeout=5)
+ notification_probe=r'''#include <assert.h>
+int sig_usr1_received=1,sig_alrm_received=1,routed=1,actions,ends;
+int wr_iot_rc_normal_notification_begin(void){return !routed;}
+void wr_iot_rc_normal_notification_end(void){ends++;}
+void handle_notifications(void){actions++;routed=1;}
+void on_deferred_hotplug_dev(void){actions++;}
+void dispatch(void){
+'''+init[loop_end:]+r'''
+}
+int main(void){
+ dispatch();
+#if defined(BOARD_WR1200JS)
+ assert(sig_usr1_received==1&&sig_alrm_received==1&&!actions&&!ends);
+ routed=0;dispatch();
+ assert(!sig_usr1_received&&sig_alrm_received==1&&actions==1&&ends==1);
+#else
+ assert(!sig_usr1_received&&!sig_alrm_received&&actions==2&&!ends);
+#endif
+ return 0;
+}
+'''
+ notify_file=root/'shutdown-notification-hook.c';notify_file.write_text(notification_probe)
+ for board in ('WR1200JS','OTHER'):
+  binary=root/('shutdown-notification-hook-'+board)
+  subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-DUSE_USB_SUPPORT','-DBOARD_'+board,str(notify_file),'-o',str(binary)],check=True)
+  subprocess.run([str(binary)],check=True,timeout=5)
+ assert manifest['normal_shutdown_notification_bound']
  assert manifest['normal_shutdown_controller_linked'] and manifest['normal_shutdown_dispatch_bound']
  assert not manifest['normal_shutdown_route_armed']
  assert manifest['radio_on_root_progress_bound'] and not manifest['radio_on_entry_bound']

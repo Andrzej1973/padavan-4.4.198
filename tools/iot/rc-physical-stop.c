@@ -241,9 +241,13 @@ int wr_iot_rc_physical_shutdown_release_cleanup(const char *id,unsigned long lon
   * private state is retired; once disarmed, stock shutdown may run safely. */
  memset(&physical,0,sizeof(physical));
  if(cleanup)cleanup(context);
+ /* Publish a closed replay gate before clearing either routing field.
+  * Signals at clear/disarm are swallowed until private retirement is final. */
+ wr_iot_rc_shutdown.replay_signal=original;
  wr_iot_rc_shutdown.normal_route_requested=0;
  wr_iot_rc_shutdown.normal_route_armed=0;
- (void)raise(original);
+ wr_iot_rc_shutdown.replay_ready=1;
+ (void)wr_iot_rc_shutdown_replay_step();
  return 1;
 }
 int wr_iot_rc_physical_shutdown_release(const char *id,unsigned long long created)

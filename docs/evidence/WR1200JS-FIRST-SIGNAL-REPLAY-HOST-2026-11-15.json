@@ -1,0 +1,30 @@
+{
+  "scope": "post-full-suite focused host regression only",
+  "full_suite_for_this_revision": false,
+  "checks": {
+    "replay_real_TERM_QUIT_boundaries": "PASS",
+    "failed_raise_after_spent_controller_exact_retry": "PASS",
+    "prepared_runtime_and_notification_hooks": "PASS",
+    "runtime_ppoll_priority": "PASS",
+    "actual_backend_routed_OFF_RELEASE": "PASS (previous turn; backend/driver actors)",
+    "physical_routed_controller": "PASS (previous turn; IO actors)"
+  },
+  "sha256": {
+    "rc-shutdown-admission.h": "68454d9e46a095b62d6e066d4dd1140b71227928bc5b6fc87d51d9d7d00c67c0",
+    "rc-physical-stop.c": "95c2c06759de9ec85fbd320dac97c92b2e191016dc1ef33fc944fa3ee1640c28",
+    "rc-normal-shutdown.c": "5fff7ea1fcf4f994cf614ef4979817750f006e1b47ff2d526967aa2e5dbb0de7",
+    "rc-normal-shutdown.h": "228b0e5b5442969dd270f2cd6d148f25e84a3e8985e06986ae36c6583764dc01",
+    "prepare-runtime.py": "27e35431c55d15a39b6a456cfb09a515f12cd04d7eea97f9f902a4585ee9422a",
+    "check-shutdown-replay.py": "5466954836330c64bb91744f451b9ed4a6caffc3afe1f279a40fc7abcce6e0d3",
+    "check-rc-normal-shutdown.py": "49e1bad0e26c6385b296ef1741ec3d9bc0b2076edb7918d2a6874836b191b023",
+    "check-physical-stop-client-preparation.py": "47cb0dd13b313a5e9b0ef67ab6795c09840ec60f5f6d9afa17827001216c63cb"
+  },
+  "production_route_armed": false,
+  "target_image_runtime_verified": false,
+  "remaining": [
+    "INITIAL_OFF physical origin",
+    "target compilation for local revisions",
+    "isolated TRX verification",
+    "physical router acceptance"
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "archive_sha256": "05e8ddcd246d3bf3f2f3cc7d6d17e039a0a5acd563fcd7a33e61c1c0e51e1786",
+  "independent_elf_and_hash_check": "PASS",
+  "files": {
+    "mt76x3_ap.ko": {
+      "bytes": 5973200,
+      "sha256": "c33c8ff750efd8e87d3ce965a394a6f3fc8741d29ce94d9e114919950fd36425",
+      "machine": "MIPS",
+      "elf_class": 32
+    },
+    "psm-diagnostics/mt76x3_ap-psm-off.ko": {
+      "bytes": 5971140,
+      "sha256": "3c11941210effbb886e06797ca4b154dc0edf0f0f4732ed7e7be0ef27afb7722",
+      "machine": "MIPS",
+      "elf_class": 32
+    },
+    "psm-diagnostics/mt76x3_ap-psm-on.ko": {
+      "bytes": 5981516,
+      "sha256": "52ca689b25680df03fcccdbc598f6dced82a3e1ccb4104854b17f79af01644d9",
+      "machine": "MIPS",
+      "elf_class": 32
+    },
+    "ra2-no-host-module/mt76x3_ap-ra2-no-host.ko": {
+      "bytes": 6204000,
+      "sha256": "d22994b86e2f1a0f37303683821f2229101193d20b4986ea695367bc12e159cf",
+      "machine": "MIPS",
+      "elf_class": 32
+    },
+    "reload-feature/mt76x3_ap-reload.ko": {
+      "bytes": 5975312,
+      "sha256": "cc9f3fd832158e6dd91e6e8c8dec9c43d3b8b61734ac5ff33d563f88a826a1dd",
+      "machine": "MIPS",
+      "elf_class": 32
+    },
+    "runtime-link/httpd": {
+      "bytes": 399332,
+      "sha256": "4d6b54cd3e2cefc223dc1edece9883952f44bb62cc88f9167c1c299eb0bf7240",
+      "machine": "MIPS",
+      "elf_class": 32
+    },
+    "runtime-link/rc": {
+      "bytes": 955176,
+      "sha256": "6e27801893795f93c68a0b8d92c83d2689c45d80b1d5ac21e4562fa6ff0a4bb5",
+      "machine": "MIPS",
+      "elf_class": 32
+    },
+    "wsc-feature/mt76x3_ap-wsc.ko": {
+      "bytes": 6583204,
+      "sha256": "20f535543196b48f2361e8e2515af62a21b3fcdeb9c47a9fd1de02c3ff11df32",
+      "machine": "MIPS",
+      "elf_class": 32
+    }
+  },
+  "candidate_dependency_reports_match_binaries": true,
+  "production_installed": false,
+  "trx_inclusion_verified": false,
+  "physical_runtime_verified": false,
+  "scope": "Isolated candidate compilation only. Final image and device acceptance are separate.",
+  "run_id": 43728780106,
+  "artifact_id": 14168754382,
+  "source_revision": "2d1263684dc1a984f292e15f86e3eef2a7d8721a",
+  "archive_bytes": 31595626
+}

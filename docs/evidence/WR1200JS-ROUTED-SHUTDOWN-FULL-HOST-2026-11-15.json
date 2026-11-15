@@ -1,0 +1,18 @@
+{
+  "exit_code": 0,
+  "inputs_unchanged": true,
+  "finished_utc": "2026-11-15T17:01:19.770806+00:00",
+  "scope": "host suite only; not target/image/device acceptance",
+  "source_head": "30ee387c",
+  "tested_input_files": 1705,
+  "input_manifest_sha256": "0bbab6d7584391701d4e4cf4d7b3e2d823e07a91f99d353578641c91626aa77b",
+  "log_sha256": "1c22d1088d009ad27daaf72694d80e7ca8e6ffe7aa57c7bd30ad39bc982aec7d",
+  "log_file": "WR1200JS-ROUTED-SHUTDOWN-FULL-HOST-2026-11-15.log",
+  "pass_marker_lines": 289,
+  "known_uncovered": [
+    "final disarm-to-raise opposite signal boundary",
+    "INITIAL_OFF physical shutdown"
+  ],
+  "production_route_armed": false,
+  "physical_runtime_verified": false
+}

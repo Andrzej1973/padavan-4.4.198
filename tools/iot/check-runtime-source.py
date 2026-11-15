@@ -16,6 +16,7 @@ assert report['radio_on_generation_linked'] and report['radio_on_main_linked']
 assert report['radio_on_admission_linked'] and not report['radio_on_entry_bound']
 assert report['radio_off_consumer_linked'] and not report['radio_off_entry_bound']
 assert report['board']=='WR1200JS' and report['activation_backend_installed'] and report['pid1_wait_bound']
+assert report['normal_shutdown_notification_bound']
 assert report['normal_shutdown_controller_linked'] and report['normal_shutdown_dispatch_bound'] and not report['normal_shutdown_route_armed']
 assert not report['production_ready'] and not report['runtime_verified'] and report['off_reopen_admission']
 a.output.mkdir(parents=True,exist_ok=True)

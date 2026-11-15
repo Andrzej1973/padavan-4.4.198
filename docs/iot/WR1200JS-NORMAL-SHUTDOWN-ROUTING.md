@@ -201,3 +201,129 @@ physical shutdown still require proof/implementation before routing can be armed
 The current local changes have no MIPS/image or device acceptance yet.
 Standard1304/029c2228 succeeded; exact optional43733787256 was queued after
 checking duplicates. Its source predates these local shutdown changes.
+
+## Notification admission boundary implemented locally — 2026-11-15
+
+Each pinned SIGUSR1/SIGALRM batch now calls
+`wr_iot_rc_normal_notification_begin` before clearing its flag and calls the
+matching end afterward. With routing unarmed, this keeps the legacy path. With
+routing armed, a recorded route or an active transaction's pending normal
+signal refuses admission and preserves the flag. An admitted process-context
+batch owns the notification slot; normal shutdown stepping refuses until its
+end. Signal context only records shutdown, so an already admitted synchronous
+batch can finish before any process-context physical shutdown progression.
+
+This admission deliberately does not hold a signal mask across notification
+handlers: a handler can start an asynchronous Wi-Fi fence, which must retain its
+actual original mask rather than inherit a temporary notification wrapper mask.
+The second request check after owner publication conservatively refuses a signal
+recorded during admission. Pending normal signals of active IoT transactions
+also keep PID1 in the wait loop until their original fence drains and replays.
+
+Actual controller tests cover an admitted batch followed by SIGTERM, unchanged
+normal signal mask, refused reentry/late admission and active-transaction pending
+signal before route replay. Prepared notification hooks compile and execute for
+WR1200JS and another board, including a shutdown recorded during the first batch
+which leaves the second flag queued. The original runtime and preparation
+regressions pass. Target symbol gates require both admission functions; target
+execution is pending. This addresses the earlier missing admission-boundary
+implementation; all-interleaving/device acceptance and INITIAL_OFF remain open.
+No automatic normal-route arm was added.
+
+## INITIAL_OFF physical source audit — 2026-11-15
+
+The missing path is driver-level Linux admission, not an absent ROM document:
+
+- `precreated-idle-reference.h:wr_iot_precreated_idle_reference` requires ra2's
+  last_token/close_serial/close_epoch/stages to remain zero and Main READY.
+  A prior attempted OPEN cannot qualify. `initial-off.c` binds fresh repeated
+  observations to the same epoch/generation, but does not retire DMA/IRQ.
+- `physical-stop-wire.h:wr_iot_physical_stop_request_valid` requires nonzero
+  OPEN/CLOSE identifiers. `physical-stop-arm-admission.inc` then calls
+  `wr_iot_physical_stop_prior_close`, which validates actual retained released
+  OPEN/CLOSE owners. Substituting nonzero INITIAL_OFF identifiers would be false.
+- `physical-stop-lifetime.h:wr_iot_physical_stop_lifetime_begin_main` captures the
+  actual Main device/generation/OPEN and transition serial under the existing
+  lock; this part does not inherently need a prior ra2 OPEN. Its capture/released
+  checks and actual callback/dev_put joins provide a reusable Main foundation.
+- `physical-stop-query.inc` still requires ra2 CLOSE identity, and
+  `physical-stop-main-completion.inc` requires a closed peer-table owner. A
+  never-opened table must be proven empty/idle via its own registration witness,
+  not relabelled as a completed CLOSE.
+
+Implementation direction, NOT implemented: add a distinctly typed Linux-only
+initial-idle physical admission, carrying its fresh idle observation identity;
+keep existing CLOSE-origin requests and their validation unchanged. The binding
+must latch the same ra2 registration plus real Main lifetime before ARM, then
+verify never-opened history and the exact Main release on QUERY/RELEASE. The
+live initial-idle predicate cannot simply be called after Main DOWN because it
+requires Main READY/nonzero vendor count. Completion must use the latched
+identity under the retained physical fence and actual checked Main completion.
+No firmware field, ACK reuse, WCID DMA flush, global queue or radio timing change
+is needed or authorized by this direction. No initial RF/DMA completion exists
+merely because ra2 has never opened.
+
+## INITIAL_OFF completion composition constraints — 2026-11-15
+
+Read-only follow-up while the full host suite runs: peer-table-owner initialization
+sets serial/active/retained/poisoned/transactions/closed to zero. This is an empty
+software owner, not a CLOSE seal. `physical-stop-record.h:finish_core` and
+`physical-stop-main-completion.inc` explicitly require table.closed. A future
+initial-idle path must therefore capture and validate an independently empty
+never-opened table under MacTabLock and its existing exclusion; it must not set
+closed=1 merely to satisfy those existing functions.
+
+The normal idle reply records the exact BSS_OBSERVE ticket epoch/generation/
+serial after closed-configuration readback. ARM must consume or latch that
+accepted observation before Main lifetime changes and reject later observation,
+OPEN, reset or registration changes. Retain Main device/generation/open token,
+transition serial, adapter/task/module pins and query identity across completion.
+Use a separate origin discriminant for initial-idle versus released-CLOSE;
+old wire validity, CLOSE matching and completed-table predicates stay strict.
+A new origin needs explicit response/retry/terminal semantics and negative tests
+before common endpoint routing. This is the concrete implementation boundary,
+not an assumption that never-opened means hardware idle.
+
+## Final stock replay interleaving still needs a dedicated guard — 2026-11-15
+
+Read-only audit during frozen full-suite execution found an uncovered boundary
+in `wr_iot_rc_physical_shutdown_release_cleanup`: normal_route_requested is
+cleared, routing is disarmed, then raise(original) is called. A second normal
+signal delivered after disarm but before that raise reaches the stock handler
+with its own signal, potentially selecting halt instead of the first reboot
+request (or vice versa). Private physical/controller retirement is already done,
+so this is a first-signal semantics/interleaving gap, not evidence of an early
+DMA free. Existing duplicate-at-mask-restore tests do not cover this later point.
+
+Do not declare all-interleaving final replay accepted. After the current frozen
+suite ends, add a dedicated final replay owner/handler admission that preserves
+the original signal through the stock handoff, with injected signal at each
+clear/disarm/raise boundary, failed replay and duplicate handling. Avoid holding
+a temporary mask that silently changes an asynchronous caller's saved mask.
+The production route remains unarmed while this and INITIAL_OFF are incomplete.
+
+## First-signal replay guard implemented locally — 2026-11-15
+
+Admission now contains sig_atomic_t replay_signal/ready/delivered. After exact
+RELEASE, restored mask and private retirement, final handoff publishes the
+original signal with ready0 before clearing route fields, then sets ready1.
+Normal signals before ready or of the opposite type are swallowed; exactly the
+first matching ready signal reaches stock. delivered remains latched afterward,
+including when stock SIGQUIT returns. Fault signals keep their existing path.
+Ordinary admission/route arming and notification batches refuse after replay.
+
+Process-context replay_step preserves an undelivered signal after raise failure.
+PID1 pending/step handles that retry even after the private controller is spent;
+no second OFF or physical operation is submitted. A focused real-signal fixture
+runs both TERM and QUIT with signals at publication/clear/disarm/ready, injected
+failed raise then retry, opposite signal just before replay and later duplicates.
+The first fixture draft used an ordinary int signal counter; corrected it to
+volatile sig_atomic_t before accepting its result. Focused replay, normal-route,
+fence-fault, physical routed, normal controller and actual backend routed tests
+PASS with ASan/UBSan. This supersedes the specific uncovered disarm-to-raise gap;
+full all-interleaving and physical acceptance are not implied.
+
+The earlier full suite PASS covers the pre-guard source hashes only. The new
+regression is registered; broad target/prepared verification for this revision
+is still required. INITIAL_OFF physical origin remains unimplemented and the
+production route remains unarmed.
