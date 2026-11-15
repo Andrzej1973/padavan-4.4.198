@@ -28,7 +28,7 @@ enum wr_iot_off_bridge_result wr_iot_radio_off_bridge_detach(const struct wr_iot
 }
 static unsigned bridge_observations;
 int wr_iot_radio_off_bridge_observed(const struct wr_iot_physical_stop_request*r,unsigned slot){
- assert(r->action==WR_STOP_RELEASE&&bridge_calls==7&&slot==bridge_observations);bridge_observations++;return 1;
+ assert(r->action==WR_STOP_RELEASE&&bridge_calls==7&&slot==bridge_observations%7);bridge_observations++;return 1;
 }
 static int auth_calls;
 enum wr_iot_off_auth_result wr_iot_rc_radio_off_auth(const struct wr_iot_radio_off_policy*p,const struct wr_iot_physical_stop_request*r){assert(depth&&bridge_observations==7&&p->reload==1&&r->action==WR_STOP_RELEASE);auth_calls++;return WR_OFF_AUTH_RETURNED;}
@@ -41,7 +41,7 @@ int main(int argc,char**argv){
  (void)check;assert(argc==2);snprintf(profile_path,sizeof(profile_path),"%s/profile",argv[1]);
  struct wr_iot_radio_off_owner off={.owner=getpid(),.result=1,.policy_ready=1,.policy={.reload=1},.released={WR_STOP_RELEASE,1,2,3,4,5,{1}}};
  wr_iot_rc_shutdown.radio_off_owned=1;
- for(int fault=0;fault<6;fault++){
+ for(int fault=0;fault<7;fault++){
   struct wr_iot_off_followup s={0};make_profile();generator_calls=state_calls=0;partial=fault==1;state_fail=fault==2;mlme_value=1;bridge_calls=bridge_observations=0;auth_calls=0;off.policy.wan=fault==5?WR_WAN_FULL_RESTART:WR_WAN_NONE;wan_calls=0;bridge_uncertain=fault==3;bridge_refuse=fault==4;
   assert(wr_iot_off_followup_begin(&s,&off));assert(!wr_iot_off_followup_begin(&s,&off));
   off.policy.reload=0;assert(wr_iot_off_followup_step(&s)==WR_OFF_FOLLOWUP_PROFILE_BEGIN&&!generator_calls);off.policy.reload=1;
@@ -53,13 +53,20 @@ int main(int argc,char**argv){
    for(int i=0;i<3;i++)assert(wr_iot_off_followup_step(&s)==WR_OFF_FOLLOWUP_BRIDGE&&!s.bridge_slot&&!bridge_calls);
    bridge_refuse=0;
   }
-  for(int i=0;i<30&&s.phase!=WR_OFF_FOLLOWUP_POSTWAN&&s.phase!=WR_OFF_FOLLOWUP_RETAINED;i++)(void)wr_iot_off_followup_step(&s);
+  if(fault==6){
+   for(int i=0;i<35&&s.phase!=WR_OFF_FOLLOWUP_POSTWAN;i++)(void)wr_iot_off_followup_step(&s);
+   assert(s.phase==WR_OFF_FOLLOWUP_POSTWAN&&s.wan.returned&&bridge_observations==7);
+   observed=0;int submitted=wan_calls;
+   for(int i=0;i<3;i++)assert(wr_iot_off_followup_step(&s)==WR_OFF_FOLLOWUP_POSTWAN&&!s.postwan_slot);
+   assert(wan_calls==submitted&&generator_calls==1);observed=1;
+  }
+  for(int i=0;i<45&&s.phase!=WR_OFF_FOLLOWUP_IAPP_PENDING&&s.phase!=WR_OFF_FOLLOWUP_RETAINED;i++)(void)wr_iot_off_followup_step(&s);
   assert(generator_calls==1&&s.profile.baseline.active&&!depth);
-  assert(s.phase==((fault&&fault!=4&&fault!=5)?WR_OFF_FOLLOWUP_RETAINED:WR_OFF_FOLLOWUP_POSTWAN));
-  assert(auth_calls==((fault==0||fault==4||fault==5)?1:0));assert(bridge_observations==((fault==0||fault==4||fault==5)?7:0));assert(state_calls==(fault!=1));assert(bridge_calls==((fault==0||fault==4||fault==5)?7:fault==3?1:0));int before=state_calls;
+  assert(s.phase==((fault&&fault!=4&&fault!=5&&fault!=6)?WR_OFF_FOLLOWUP_RETAINED:WR_OFF_FOLLOWUP_IAPP_PENDING));
+  assert(auth_calls==((fault==0||fault==4||fault==5||fault==6)?1:0));assert(bridge_observations==((fault==0||fault==4||fault==5||fault==6)?14:0));assert(state_calls==(fault!=1));assert(bridge_calls==((fault==0||fault==4||fault==5||fault==6)?7:fault==3?1:0));int before=state_calls;
   for(int i=0;i<3;i++)(void)wr_iot_off_followup_step(&s);
   assert(state_calls==before&&generator_calls==1&&wr_iot_rc_shutdown.radio_off_owned);
-  assert(wan_calls==(fault==5));if(!fault||fault==4||fault==5)assert(s.wan.attempted&&s.wan.returned);
+  assert(wan_calls==(fault==5));if(!fault||fault==4||fault==5||fault==6)assert(s.wan.attempted&&s.wan.returned);
   /* Fixture-only free after proving ownership/baseline retained. */
   wr_iot_bundle_release(&s.profile.baseline.files);assert(!unlink(profile_path));
  }
@@ -70,4 +77,4 @@ with tempfile.TemporaryDirectory(prefix='wr-off-followup-') as d:
  p=root/'check.c';p.write_text(body);b=root/'check'
  subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+d,'-I'+str(here),str(p),'-o',str(b)],check=True)
  subprocess.run([str(b),d],check=True,timeout=15)
-print('PASS OFF profile-to-RAM followup: actual journal/scanner, generator once before state once, pending hold, restored/partial state retained, POSTWAN unfinished; actual SDK RAM adapter; SDK writes/DOWN/WAN injected, RC progress separately checked')
+print('PASS OFF profile-to-RAM followup: actual journal/scanner, generator once before state once, pending hold, restored/partial state retained, IAPP_PENDING unfinished; actual SDK RAM adapter; SDK writes/DOWN/WAN injected, RC progress separately checked')

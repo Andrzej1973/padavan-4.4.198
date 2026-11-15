@@ -393,3 +393,12 @@ SDK WAN behavior/readiness is injected; post-WAN network reconciliation and
 IAPP still required before baseline/owner retirement. WAN helper staged in
 experimental RC, MIPS ABI and full target symbol checks; prepared C11 PASS.
 ABI43682525761 SUCCESS forb670018d excludes later WAN/auth/verification additions.
+
+Post-WAN phase now rechecks exact physical DOWN and current profile under
+fresh guard, then reobserves seven detached slots across separate ticks before
+IAPP_PENDING. No WAN/generator/bridge mutation is replayed when observation
+fails. Controller fixture injects persistent DOWN refusal after WAN returned,
+proves held ownership/no resubmit, then confirms progression after observation
+recovers. OFF network state observation is not Internet/WAN link readiness,
+nor an atomic multi-interface snapshot. Actual profile/RAM/controller/WAN and
+RC cadence checks PASS; IAPP, final baseline/owner retirement still required.
