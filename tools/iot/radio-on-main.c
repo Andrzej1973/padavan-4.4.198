@@ -11,7 +11,7 @@ int wr_iot_on_main_begin(struct wr_iot_on_main *s,struct wr_iot_on_generation *g
     g->owner!=getpid()||g->busy||g->main_may_have_started||g->phase!=WR_ON_GEN_VERIFIED||
     !wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending)return 0;
  for(i=0;i<16;i++)nonzero|=id[i];
- if(!nonzero||!wr_iot_on_generation_step(g))return 0;
+ if(!nonzero||wr_iot_on_generation_step(g)!=1)return 0;
  s->owner=getpid();s->busy=1;s->generation=g;memcpy(s->open_id,id,16);
  g->main_may_have_started=1;s->phase=WR_ON_MAIN_WAIT;
  result=wr_iot_restart_main_up();

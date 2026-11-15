@@ -20,3 +20,15 @@ and post-handoff shutdown regressions pass. Separate prepared C11 units pass.
 These use injected SDK/backend boundaries. Target build, final image and device
 acceptance remain unverified. Public physical OFF/ON binding remains disabled;
 cold/desired-IoT-OFF lifecycle and post-UP failure handling remain open.
+
+## Generation result contract
+
+The restore controller formerly treated any nonzero generation result as
+readiness. Generation returns -1 when rollback restored the baseline; this
+incorrectly advanced to MAIN_START and could invoke RAM ON despite cancellation.
+Both parent transitions and Main admission now require exactly 1. The new
+`check-radio-on-restored-result.py` failed before the change and passes after:
+six direct parent ticks after partial generation leave the profile RESTORED,
+RAM ON calls zero, Main UP zero and no Main owner. This tests the parent directly,
+independent of root interception. The full-suite process and temporary log were
+lost across an environment transition; no full-suite pass is claimed for it.

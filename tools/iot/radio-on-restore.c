@@ -56,10 +56,10 @@ int wr_iot_on_restore_step(struct wr_iot_on_restore *s)
  if(s->generation.main_may_have_started&&!wr_iot_on_aux_down_current())goto done;
  switch(s->phase){
  case WR_ON_RESTORE_PROFILE:
-  if(wr_iot_on_generation_step(&s->generation))s->phase=WR_ON_RESTORE_MAIN_START;
+  if(wr_iot_on_generation_step(&s->generation)==1)s->phase=WR_ON_RESTORE_MAIN_START;
   break;
  case WR_ON_RESTORE_MAIN_START:
-  if(s->radio_state_attempted||!wr_iot_on_generation_step(&s->generation))break;
+  if(s->radio_state_attempted||wr_iot_on_generation_step(&s->generation)!=1)break;
   s->radio_state_attempted=1;s->phase=WR_ON_RESTORE_RETAINED;
   if(!wr_iot_rc_restart_radio_state(s->generation.reload)||wr_iot_rc_shutdown.pending)break;
   s->phase=WR_ON_RESTORE_MAIN_WAIT;
