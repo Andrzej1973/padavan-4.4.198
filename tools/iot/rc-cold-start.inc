@@ -62,7 +62,7 @@ int wr_iot_rc_cold_active_current(const struct wr_iot_cold_owner *parent,
     !parent->generation.main_may_have_started||parent->generation.admission!=&parent->admission||
     parent->main.generation!=&parent->generation||rebind.owner||backend.owner!=getpid()||backend.busy||backend.phase!=WR_IOT_OWNER_ACTIVE||
     backend.start.owner!=getpid()||backend.start.busy||backend.start.phase!=WR_IOT_RUN_ACTIVE||
-    !wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||!wr_iot_rc_shutdown.radio_off_owned||
+    !wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||!wr_iot_rc_shutdown.radio_off_owned||wr_iot_rc_shutdown.radio_on_owned||
     parent->main.identity.adapter_epoch!=wr_iot_cold_backend_identity.adapter_epoch||
     parent->main.identity.device_generation!=wr_iot_cold_backend_identity.device_generation||
     backend.start.open.attempt.identity.adapter_epoch!=wr_iot_cold_backend_identity.adapter_epoch||
@@ -73,4 +73,26 @@ int wr_iot_rc_cold_active_current(const struct wr_iot_cold_owner *parent,
  observed.state=WR_IOT_RESULT_APPLIED;
  ok=wr_iot_activation_owner_observed(&backend,&observed)&&!wr_iot_rc_shutdown.pending;
  wr_iot_service_guard_leave(guard);return ok;
+}
+
+int wr_iot_rc_cold_start_progress(const struct wr_iot_cold_owner *parent,
+ const struct wr_iot_control_request *request)
+{
+ int guard;
+ if(!parent||!request||wr_iot_cold_backend_parent!=parent||parent->owner!=getpid()||parent->busy||
+    parent->phase!=WR_COLD_OWNER_PREPARED||parent->generation.admission!=&parent->admission||
+    parent->main.generation!=&parent->generation||!parent->generation.main_may_have_started||
+    parent->admission.owner!=getpid()||parent->admission.busy!=1||parent->admission.guard!=1||
+    parent->admission.fence.owner!=getpid()||parent->admission.fence.level!=1||
+    rebind.owner||backend.owner!=getpid()||backend.busy||backend.phase!=WR_IOT_OWNER_START||
+    backend.start.owner!=getpid()||backend.start.busy||!backend.start.admission.admitted||
+    backend.start.admission.idle.epoch!=wr_iot_cold_backend_identity.adapter_epoch||
+    backend.start.admission.idle.generation!=wr_iot_cold_backend_identity.device_generation||
+    parent->main.identity.adapter_epoch!=wr_iot_cold_backend_identity.adapter_epoch||
+    parent->main.identity.device_generation!=wr_iot_cold_backend_identity.device_generation||
+    !wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||!wr_iot_rc_shutdown.radio_off_owned||wr_iot_rc_shutdown.radio_on_owned||
+    !wr_iot_cold_request_same(request,&backend.start.input))return 0;
+ guard=wr_iot_service_guard_enter(1);if(guard!=1)return 0;
+ (void)wr_iot_activation_owner_continue(&backend,request->id,request->created);
+ wr_iot_service_guard_leave(guard);return 1;
 }

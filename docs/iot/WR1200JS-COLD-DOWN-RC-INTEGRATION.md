@@ -130,3 +130,18 @@ compiled but have no cold-owner/public caller yet. Root lifetime, post-UP
 shutdown/retirement and backend continuation handoff remain to connect/test.
 Host binding fixture injects parent/start/ACTIVE adapters; prepared RC compilation
 is separate evidence. Target and device verification are outstanding.
+
+## Cold handoff and exact backend continuation staged
+
+`cold-on-handoff.c` now retains a stable parent pointer and immutable envelope/
+Main identity before its one backend begin attempt. Refusal cannot replay begin.
+Continuation uses only the exact RC-bound START owner; APPLIED never substitutes
+for the full ACTIVE observer. Fresh retained profile, Main LAN, Guest policy/
+isolation/admin state, service policy/auth liveness, multicast and auxiliary DOWN
+checks gate progress and ACTIVE observation without relying on post-OPEN IDLE.
+The profile and outer admission/fence remain retained. Three private RC symbols
+now have explicit optional link gates as well as prepared object compilation.
+Host integration runs actual cold parent/profile and RC binding, injecting initial
+start-runner and full ACTIVE observation; this is not device OPEN acceptance.
+Public cold entry, post-UP shutdown/retirement, disabled-IoT release and final
+WAN/IAPP completion remain incomplete before activation can be enabled.

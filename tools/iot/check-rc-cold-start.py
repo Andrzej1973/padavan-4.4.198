@@ -13,7 +13,7 @@ body=r'''
 struct wr_iot_rc_shutdown_admission wr_iot_rc_shutdown;
 static struct wr_iot_activation_owner backend;
 static struct {pid_t owner;} rebind;
-static int depth,prepared=1,start_calls,start_claim=1,epoch_drift,active_proof;
+static int depth,prepared=1,start_calls,start_claim=1,epoch_drift,active_proof,continues;
 int wr_iot_service_guard_enter(int enabled){assert(enabled==1);depth++;return 1;}
 void wr_iot_service_guard_leave(int token){assert(token==1&&depth);depth--;}
 int wr_iot_cold_owner_step(struct wr_iot_cold_owner*p){assert(depth&&p);return prepared;}
@@ -25,6 +25,10 @@ int wr_iot_start_runner_begin(struct wr_iot_start_runner*s,const struct wr_iot_c
 }
 int wr_iot_activation_owner_observed(const struct wr_iot_activation_owner*s,const struct wr_iot_control_result*r){
  assert(depth&&s==&backend&&r->state==WR_IOT_RESULT_APPLIED);return active_proof;
+}
+enum wr_iot_result_state wr_iot_activation_owner_continue(struct wr_iot_activation_owner*s,const char*id,unsigned long long created){
+ assert(s==&backend&&depth&&!strcmp(id,s->start.input.id)&&created==s->start.input.created);continues++;
+ s->phase=WR_IOT_OWNER_ACTIVE;s->start.phase=WR_IOT_RUN_ACTIVE;s->start.open.attempt.identity=(struct wr_iot_driver_identity){5,2};return WR_IOT_RESULT_APPLIED;
 }
 #include "rc-cold-start.inc"
 int main(void){
@@ -39,7 +43,7 @@ int main(void){
   parent.generation.main_may_have_started=1;parent.generation.admission=&parent.admission;parent.main.generation=&parent.generation;
   memset(&backend,0,sizeof(backend));wr_iot_cold_backend_parent=NULL;memset(&wr_iot_cold_backend_identity,0,sizeof(wr_iot_cold_backend_identity));
   wr_iot_rc_shutdown.active=wr_iot_rc_shutdown.radio_off_owned=1;wr_iot_rc_shutdown.pending=0;
-  prepared=fault!=1;start_claim=fault!=2;epoch_drift=fault==3;start_calls=0;active_proof=0;
+  prepared=fault!=1;start_claim=fault!=2;epoch_drift=fault==3;start_calls=continues=0;active_proof=0;
   struct wr_iot_control_request request=input;
   if(fault==4)request.created++;
   if(fault==5)backend.owner=getpid()+1;
@@ -51,7 +55,10 @@ int main(void){
   if(!claimed)continue;
   assert(!wr_iot_rc_cold_start_begin(&parent,&request)&&start_calls==1);
   assert(!wr_iot_rc_cold_active_current(&parent,&request));
-  if(fault==3){assert(backend.start.phase==WR_IOT_RUN_UNCERTAIN);continue;}
+  if(fault==3){assert(backend.start.phase==WR_IOT_RUN_UNCERTAIN&&!wr_iot_rc_cold_start_progress(&parent,&request)&&!continues);continue;}
+  request.created++;assert(!wr_iot_rc_cold_start_progress(&parent,&request)&&!continues);request.created--;
+  assert(wr_iot_rc_cold_start_progress(&parent,&request)&&continues==1);
+  assert(!wr_iot_rc_cold_start_progress(&parent,&request)&&continues==1);
   backend.phase=WR_IOT_OWNER_ACTIVE;backend.start.phase=WR_IOT_RUN_ACTIVE;
   backend.start.open.attempt.identity=parent.main.identity;
   assert(!wr_iot_rc_cold_active_current(&parent,&request));active_proof=1;
