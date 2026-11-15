@@ -6,9 +6,20 @@ with tempfile.TemporaryDirectory(prefix='wr-entry-source-') as d:
  (root/'iot-iapp-policy-source.json').write_text(json.dumps({'board':'WR1200JS','production_ready':False,'iapp_compile_gate_enabled':True}))
  (rc/'wr-iot/restart-iapp-policy.h').write_text('#define WR_IOT_IAPP_POLICY_PREPARED 1\n')
  (rc/'net_wifi.c').write_text('static int legacy;\nvoid\nrestart_wifi_rt(int radio_on, int need_reload_conf)\n{\n (void)radio_on;(void)need_reload_conf;legacy++;\n}\n')
- (rc/'wr-iot-rc-backend.c').write_text('enum {WR_IOT_OWNER_IDLE,WR_IOT_OWNER_INITIAL_OFF,OTHER};\nstatic struct {int phase,busy;}backend;static struct {int owner;}rebind;\n')
+ (rc/'wr-iot-rc-backend.c').write_text('enum {WR_IOT_OWNER_IDLE,WR_IOT_OWNER_INITIAL_OFF,OTHER};\nstruct wr_iot_activation_owner {int phase,busy;};struct wr_iot_rebind_owner {int owner;};\nstatic struct wr_iot_activation_owner backend;\nstatic struct wr_iot_rebind_owner rebind;\n')
  (rc/'Makefile').write_text('OBJS=wr-iot-restart-scheduler.o\n')
  cmd=['python3','-B',str(here/'prepare-restart-entry-source.py'),str(root)]
+ originals={p:p.read_bytes() for p in (rc/'net_wifi.c',rc/'wr-iot-rc-backend.c',rc/'Makefile')}
+ netpath=rc/'net_wifi.c';outside=root/'external.c';outside.write_bytes(originals[netpath]);netpath.unlink();netpath.symlink_to(outside)
+ assert subprocess.run(cmd,capture_output=True).returncode and outside.read_bytes()==originals[netpath]
+ netpath.unlink();netpath.write_bytes(originals[netpath])
+ for path in originals:
+  path.write_text('changed anchor\n')
+  before={p:p.read_bytes() for p in originals}
+  assert subprocess.run(cmd,capture_output=True).returncode
+  assert before=={p:p.read_bytes() for p in originals}
+  assert not (root/'iot-restart-entry-source.json').exists() and not (rc/'wr-iot-restart-entry.c').exists()
+  path.write_bytes(originals[path])
  subprocess.run(cmd,check=True)
  subprocess.run(['python3','-B',str(here/'check-restart-entry-manifest.py'),str(root)],check=True)
  net=(rc/'net_wifi.c').read_text();back=(rc/'wr-iot-rc-backend.c').read_text()

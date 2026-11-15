@@ -567,3 +567,12 @@ hook and deliberate source-drift rejection pass; bash-n passes. Corrected ABI
 058542e43665781009 and standard1223/43665783692 succeeded, but predate this hook.
 New full target-link results remain pending. Base firmware is still hash-checked
 and not replaced by the experimental binaries.
+
+
+Full registered65056a9 suite13982 exited0; newer standalone restart-entry
+preparation tests are separate. Completed log hash/size saved, log removed.
+Entry source installer now refuses symlink/outside/missing paths before writes
+and requires exact backend owner declarations. Fault fixtures mutate each source
+anchor and prove no other source/output manifest was written; symlink target
+remains unchanged. This found and corrected missing backend-anchor admission.
+Host source-hook/manifest test passes; target link remains pending.

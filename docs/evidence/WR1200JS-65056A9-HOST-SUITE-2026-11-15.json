@@ -1,0 +1,9 @@
+{
+  "revision": "65056a9a",
+  "session": 13982,
+  "exit_code": 0,
+  "scope": "registered physical-stop host suite at65056a9; new standalone entry preparation excluded",
+  "log_sha256": "b91bc86b3e7916b3ad3803e7ea2092fc905b67d3b3d9daceb5720a6362011810",
+  "log_bytes": 32775,
+  "runtime_accepted": false
+}

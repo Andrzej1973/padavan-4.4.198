@@ -4,12 +4,18 @@ from pathlib import Path
 import argparse,json,hashlib
 here=Path(__file__).resolve().parent
 p=argparse.ArgumentParser();p.add_argument('source',type=Path);a=p.parse_args()
-root=a.source;rc=root/'trunk/user/rc';report=root/'iot-restart-entry-source.json'
+root=a.source.resolve();rc=root/'trunk/user/rc';report=root/'iot-restart-entry-source.json'
+for candidate in (report,rc/'wr-iot/restart-entry.h',rc/'wr-iot-restart-entry.c'):
+ if candidate.is_symlink() or not candidate.parent.resolve().is_relative_to(root):raise SystemExit('Refuse symlink/outside output')
+for candidate in (root/'iot-iapp-policy-source.json',rc/'wr-iot/restart-iapp-policy.h',rc/'net_wifi.c',rc/'wr-iot-rc-backend.c',rc/'Makefile'):
+ if candidate.is_symlink() or not candidate.is_file() or not candidate.resolve().is_relative_to(root):raise SystemExit('Refuse missing/symlink/outside input')
 if report.exists():raise SystemExit('Restart entry already prepared')
 m=json.loads((root/'iot-iapp-policy-source.json').read_text())
 if m.get('board')!='WR1200JS' or m.get('production_ready') is not False or not m.get('iapp_compile_gate_enabled'):raise SystemExit('Paired experimental WR policy required')
 if (rc/'wr-iot/restart-iapp-policy.h').read_text()!='#define WR_IOT_IAPP_POLICY_PREPARED 1\n':raise SystemExit('Prepared policy gate required')
 net=(rc/'net_wifi.c').read_text();backend=(rc/'wr-iot-rc-backend.c').read_text();make=(rc/'Makefile').read_text()
+for marker in ('static struct wr_iot_activation_owner backend;','static struct wr_iot_rebind_owner rebind;'):
+ if backend.count(marker)!=1:raise SystemExit('Exact runtime backend owners required')
 signature='void\nrestart_wifi_rt(int radio_on, int need_reload_conf)\n{'
 if net.count(signature)!=1 or 'WR_IOT_PRIVATE_RESTART_ENTRY' in net or 'wr_iot_rc_restart_owned' in backend:raise SystemExit('Restart source anchor changed')
 anchor='wr-iot-restart-scheduler.o'
