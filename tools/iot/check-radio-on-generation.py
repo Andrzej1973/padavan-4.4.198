@@ -22,6 +22,12 @@ int wr_iot_rc_off_profile_current(void){return wr_iot_restart_profile_current(&d
 int wr_iot_rc_restart_generate(int arg){assert(depth&&!arg);generator_calls++;if(partial){replace_file("partial\n",8);return partial==2?0:-1;}make_profile();return 0;}
 #include "radio-on-admission.c"
 #include "radio-stop-fence.c"
+#include "driver-api-client.h"
+static int idle_delivery=1;static unsigned long long idle_serial;
+int wr_iot_driver_initial_idle_read(const unsigned char*id,struct wr_iot_idle_result*out){
+ assert(depth&&id[0]==1);if(!idle_delivery)return 0;
+ *out=(struct wr_iot_idle_result){2,2,++idle_serial};return 1;
+}
 #include "radio-on-generation.c"
 int main(int argc,char**argv){
  (void)check;assert(argc==2);snprintf(profile_path,sizeof(profile_path),"%s/profile",argv[1]);

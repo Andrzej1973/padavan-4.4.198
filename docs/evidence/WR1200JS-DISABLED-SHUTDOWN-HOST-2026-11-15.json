@@ -1,0 +1,31 @@
+{
+  "scope": "private disabled root post-UP shutdown before parent release",
+  "checks": [
+    "Main WAIT",
+    "PREPARED Guest drain",
+    "failed disabled release after WAN capture yields to exact shutdown owner",
+    "failed unmask retains",
+    "two fresh initial idle reads with increasing serial and exact current Main epoch/generation",
+    "idle transport loss refuses cleanup",
+    "Main drift refuses cleanup",
+    "real SIGTERM after root/receipt/guard wipe"
+  ],
+  "invariants": [
+    "no old-profile rollback",
+    "current generated profile preserved",
+    "no second Main UP",
+    "no RAM rollback after UP",
+    "same original RC receipt",
+    "stock handler physical shutdown remains separate"
+  ],
+  "status": "HOST_VERIFIED",
+  "runtime_verified": false,
+  "regressions_passed": [
+    "check-radio-on-disabled-postup-cancel.py",
+    "check-radio-on-postup-cancel.py",
+    "check-radio-on-prehandoff.py",
+    "check-radio-on-disabled-release.py",
+    "check-radio-on-root-shutdown.py",
+    "check-physical-stop-client-preparation.py"
+  ]
+}

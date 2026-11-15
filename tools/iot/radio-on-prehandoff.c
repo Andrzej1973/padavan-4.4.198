@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include "radio-on-prehandoff.h"
 #include "restart-profile.h"
+#include "driver-api-client.h"
 #include "rc-shutdown-admission.h"
 int wr_iot_on_prehandoff_cancel_current(struct wr_iot_on_restore *s)
 {
@@ -10,7 +11,10 @@ int wr_iot_on_prehandoff_cancel_current(struct wr_iot_on_restore *s)
     s->phase<WR_ON_RESTORE_MAIN_WAIT||s->phase>WR_ON_RESTORE_PREPARED||
     s->main.owner!=getpid()||s->main.busy||s->main.generation!=&s->generation||
     (s->main.phase!=WR_ON_MAIN_WAIT&&s->main.phase!=WR_ON_MAIN_READY)||
-    s->guest.busy||s->services.busy||s->multicast.busy||s->wan.owner||
+    s->guest.busy||s->services.busy||s->multicast.busy||
+    (s->wan.owner&&(s->generation.desired.enabled!=0||s->wan.owner!=getpid()||
+     s->wan.radio_on!=1||s->wan.attempted||s->wan.returned||
+     s->wan.plan<WR_WAN_NONE||s->wan.plan>WR_WAN_RECONNECT))||
     s->terminal.owner||s->terminal.child||s->terminal.guard||s->terminal.fence.owner||
     s->child.owner||s->child.attempted||
     !s->generation.admission||!s->generation.main_may_have_started||s->generation.phase!=WR_ON_GEN_VERIFIED||
@@ -32,12 +36,20 @@ int wr_iot_on_prehandoff_cancel_current(struct wr_iot_on_restore *s)
     (s->guest.phase!=WR_ON_GUEST_DOWN_OBSERVED&&s->guest.phase!=WR_ON_GUEST_POLICY_OFF)))return 0;
  if(!wr_iot_restart_guest_admin_state(&guest)||guest||
     !wr_iot_generated_matches(&s->generation.admission->profile.files.generated[0],s->generation.admission->profile.files.paths[0])||
-    !wr_iot_restart_profile_current(&s->generation.desired)||
+    !wr_iot_on_generation_profile_current(&s->generation)||
     !wr_iot_rebind_configuration_current(&s->generation.admission->released,s->open_id,&current)||
     current.adapter_epoch<=s->generation.admission->released.epoch||
     current.device_generation!=s->generation.admission->released.generation||
     (s->main.identity.adapter_epoch&&
      (s->main.identity.adapter_epoch!=current.adapter_epoch||s->main.identity.device_generation!=current.device_generation)))return 0;
+ if(s->generation.desired.enabled==0){
+  struct wr_iot_idle_result before={0},after={0};
+  if(!wr_iot_driver_initial_idle_read(s->open_id,&before)||
+     !wr_iot_driver_initial_idle_read(s->open_id,&after)||
+     before.epoch!=current.adapter_epoch||before.generation!=current.device_generation||
+     after.epoch!=before.epoch||after.generation!=before.generation||
+     !before.serial||after.serial<=before.serial)return 0;
+ }
  return wr_iot_restart_guest_admin_state(&guest)&&!guest&&
   wr_iot_generated_matches(&s->generation.admission->profile.files.generated[0],s->generation.admission->profile.files.paths[0])&&
   wr_iot_on_generation_origin_current(&s->generation);

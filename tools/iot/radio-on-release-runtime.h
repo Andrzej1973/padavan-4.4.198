@@ -134,7 +134,11 @@ static int rc_on_shutdown_release(struct wr_iot_on_restore *s,
  if(rc_on_shutdown.restore){
   if(rc_on_shutdown.restore!=s||rc_on_shutdown.cleanup!=cleanup||rc_on_shutdown.context!=context||rc_on_shutdown.off!=off||rc_on_shutdown.posthandoff!=posthandoff)return 0;
  }else{
-  if(radio_on_releasing)return 0;
+  if(radio_on_releasing&&(radio_on_releasing!=s||!radio_on_disabled_observer||
+     posthandoff||s->generation.desired.enabled!=0))return 0;
+  /* Exact disabled release may yield to pending shutdown only after the
+   * fresh shutdown predicate above; no receipt or profile is released here. */
+  radio_on_releasing=NULL;radio_on_disabled_observer=NULL;radio_on_disabled_context=NULL;
   rc_on_shutdown.restore=s;rc_on_shutdown.off=off;rc_on_shutdown.posthandoff=posthandoff;rc_on_shutdown.cleanup=cleanup;rc_on_shutdown.context=context;
  }
  s->busy=1;
