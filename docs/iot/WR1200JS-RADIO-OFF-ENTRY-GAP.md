@@ -73,3 +73,11 @@ failure once. Pending/foreign/malformed/restart calls leave the owner intact.
 The registered ASan/UBSan fixture passed real controller/session/fence with
 injected transport. This is the terminal consumption primitive only; RC OFF
 pump and SDK side effects are still not bound. No image/device claim.
+
+Standalone radio-off-owner now retains only private id/time and process owner,
+claims physical OFF once, polls the exact terminal take, caches success/failure
+and requires one acknowledgement before reuse. It never drives physical steps
+or repeats admission from poll. Reentrant/foreign/pending/refused/cached-terminal
+ASan/UBSan fixture passed with injected physical actor. Not registered/staged
+or RC-bound yet: real controller composition, SDK follow-up and shutdown policy
+remain required before enabling radio OFF. Temporary fixture removed.
