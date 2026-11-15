@@ -402,3 +402,13 @@ proves held ownership/no resubmit, then confirms progression after observation
 recovers. OFF network state observation is not Internet/WAN link readiness,
 nor an atomic multi-interface snapshot. Actual profile/RAM/controller/WAN and
 RC cadence checks PASS; IAPP, final baseline/owner retirement still required.
+
+Paired-policy-gated IAPP phase follows post-WAN readback. It uses the existing
+stable terminal/child service fence, begins once and drains through active
+admission/pending shutdown before normal follow-up preconditions are evaluated.
+Confirmed failure retains; unknown child retains via existing terminal behavior;
+script exit0 reaches FINAL_PENDING, with profile baseline/public exclusion still
+owned. Default/unpaired gate0 remains IAPP_PENDING. Order/pending/failure tests
+PASS with terminal actor plus existing real terminal/fence fixture; prepared
+C11 compile PASS. ABI now compiles paired enabled OFF followup as well as inert
+default. No script/daemon readiness or final OFF acceptance is implied.

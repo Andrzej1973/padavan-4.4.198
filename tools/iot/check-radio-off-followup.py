@@ -36,6 +36,7 @@ static int wan_calls;
 int wr_iot_rc_restart_wan_current(int on,enum wr_iot_wan_followup plan){assert(depth&&!on&&(plan==WR_WAN_NONE||plan==WR_WAN_FULL_RESTART));return 1;}
 void wr_iot_rc_restart_wan_submit(enum wr_iot_wan_followup p){assert(!depth&&p==WR_WAN_FULL_RESTART&&auth_calls==1&&bridge_observations==7);wan_calls++;}
 #include "radio-off-wan.c"
+int wr_iot_terminal_iapp_step(struct wr_iot_terminal_iapp*s){(void)s;assert(0);return 0;}
 #include "radio-off-followup.c"
 int main(int argc,char**argv){
  (void)check;assert(argc==2);snprintf(profile_path,sizeof(profile_path),"%s/profile",argv[1]);

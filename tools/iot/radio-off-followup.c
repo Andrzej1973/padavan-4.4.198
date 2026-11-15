@@ -8,6 +8,7 @@
 #include "radio-off-observe.h"
 #include "rc-shutdown-admission.h"
 #include "service-guard.h"
+#include "restart-iapp-policy.h"
 static int followup_owner(const struct wr_iot_radio_off_owner *off)
 {
  return off&&off->owner==getpid()&&!off->busy&&off->result==1&&off->policy_ready&&
@@ -37,7 +38,16 @@ int wr_iot_off_followup_begin(struct wr_iot_off_followup *s,const struct wr_iot_
 enum wr_iot_off_followup_phase wr_iot_off_followup_step(struct wr_iot_off_followup *s)
 {
  int result,token;enum wr_iot_off_followup_phase entered;
- if(!s||s->owner!=getpid()||s->busy||!followup_current(s))return s?s->phase:WR_OFF_FOLLOWUP_IDLE;
+ if(!s||s->owner!=getpid()||s->busy)return s?s->phase:WR_OFF_FOLLOWUP_IDLE;
+ /* Once child/fence is owned, drain through the terminal controller even
+  * while its admission is active or a normal shutdown is pending. */
+ if(s->phase==WR_OFF_FOLLOWUP_IAPP){
+  s->busy=1;result=wr_iot_terminal_iapp_step(&s->iapp);
+  if(result==1)s->phase=WR_OFF_FOLLOWUP_FINAL_PENDING;
+  else if(result==-1)s->phase=WR_OFF_FOLLOWUP_RETAINED;
+  s->busy=0;return s->phase;
+ }
+ if(!followup_current(s))return s->phase;
  s->busy=1;entered=s->phase;
  if(s->phase==WR_OFF_FOLLOWUP_PROFILE_BEGIN){
   if(wr_iot_off_profile_begin(&s->profile,s->off))s->phase=WR_OFF_FOLLOWUP_PROFILE;
@@ -98,5 +108,16 @@ enum wr_iot_off_followup_phase wr_iot_off_followup_step(struct wr_iot_off_follow
    wr_iot_service_guard_leave(token);
   }
  }
+#if WR_IOT_IAPP_POLICY_PREPARED
+ if(entered==WR_OFF_FOLLOWUP_IAPP_PENDING&&s->phase==WR_OFF_FOLLOWUP_IAPP_PENDING){
+  token=wr_iot_service_guard_enter(1);
+  if(token==1){
+   result=wr_iot_radio_off_observed(&s->released)&&wr_iot_rc_off_profile_current();
+   wr_iot_service_guard_leave(token);
+   if(result&&followup_current(s)&&wr_iot_terminal_iapp_begin(&s->iapp,&s->child))
+    s->phase=WR_OFF_FOLLOWUP_IAPP;
+  }
+ }
+#endif
  s->busy=0;return s->phase;
 }

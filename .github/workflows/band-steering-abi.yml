@@ -1825,6 +1825,8 @@ jobs:
           test -n "$compiler"
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float             -c abi-results/iot-http-source/trunk/user/rc/wr-iot-restart-restore.c             -o abi-results/iot-iapp-enabled-restore-mips.o
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -c abi-results/iot-http-source/trunk/user/rc/wr-iot-restart-resume.c -o abi-results/iot-iapp-enabled-resume-mips.o
+          "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -c abi-results/iot-http-source/trunk/user/rc/wr-iot-radio-off-followup.c -o abi-results/iot-iapp-enabled-off-followup-mips.o
+          python3 tools/iot/check-radio-off-iapp.py
           python3 tools/iot/check-resume-wan-followup.py
           python3 tools/iot/check-terminal-iapp.py
           python3 tools/iot/check-restore-iapp-launch.py
