@@ -262,3 +262,13 @@ record one attempt; partial/post-observation failure is uncertainty, never retry
 permission. Host ASan/UBSan checks PASS. No flash commit or RF command. Adapter
 is not staged/called yet; profile generation, bridge detach, services/WAN/IAPP
 and final retirement still need complete orchestration.
+
+RAM OFF-state adapter is now embedded in the actual prepare-rc helper construction
+with observer/state headers. Registered fixture verifies exact embedded source
+and exercises SDK actors; existing ON radio-state and OFF policy checks PASS.
+Full experimental target link requires the off-state symbol from net_wifi.o.
+Existing radio-profile-state.h provides baseline capture and journalled generator
+operations suitable for a separate OFF profile owner, but restart-generation's
+origin path explicitly requires radio_on=1 and must not be reused for OFF.
+Profile validation/retirement and rollback for OFF remain to be bound before
+calling the RAM-state adapter from the final lifecycle. No device action.

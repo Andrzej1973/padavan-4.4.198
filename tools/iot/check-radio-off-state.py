@@ -1,6 +1,14 @@
 from pathlib import Path
-import subprocess,tempfile
+import subprocess,tempfile,ast
 here=Path(__file__).resolve().parent
+ns={'local':here}
+for node in ast.parse((here/'prepare-rc.py').read_text()).body:
+ if isinstance(node,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='helper' for t in node.targets):
+  if 'helper' in ns and isinstance(node.value,ast.Constant):break
+  exec(compile(ast.Module(body=[node],type_ignores=[]),'<SDK helper construction>','exec'),ns)
+assert ns['helper'].count((here/'radio-off-state-sdk.inc').read_text())==1
+assert '#include "wr-iot/radio-off-state.h"' in ns['helper']
+
 code=r'''
 #include <assert.h>
 #include <string.h>
