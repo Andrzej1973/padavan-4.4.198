@@ -79,6 +79,7 @@ with tempfile.TemporaryDirectory(prefix='wr-iot-host-preflight-') as scratch:
     subprocess.run([sys.executable, '-B', str(here / 'check-dns-recovery-state.py')], check=True)
     subprocess.run([sys.executable, '-B', str(here / 'check-dns-abort-composition.py')], check=True)
     subprocess.run([sys.executable, '-B', str(here / 'check-precreated-idle-binding.py')], check=True)
+    subprocess.run([sys.executable, '-B', str(here / 'check-down-dispatch-include-order.py')], check=True)
     subprocess.run([sys.executable, '-B', str(here / 'check-initial-idle-lifetime.py')], check=True)
     subprocess.run([sys.executable, '-B', str(here / 'check-initial-idle-join.py')], check=True)
     subprocess.run([sys.executable, '-B', str(here / 'check-ra2-no-host-target-runner.py')], check=True)

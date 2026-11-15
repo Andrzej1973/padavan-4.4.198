@@ -1,0 +1,27 @@
+{
+  "failed_run": 43711252099,
+  "failed_number": 1283,
+  "verified_revision": "c954f5d03ed7a5cdff89517ec12560f01a071da3",
+  "step": "Compile isolated merged IoT MT7603 candidate",
+  "root_cause": "DOWN reply prefixed before static DOWN binding/reference definitions in generated driver-api-closed-entry.inc",
+  "first_error": "precreated-down-reply.inc:25:9 implicit declaration wr_iot_precreated_down_observed",
+  "fix": "Insert reply after the exact single binding include; refuse missing/duplicate anchor",
+  "host_checks": [
+    "check-down-dispatch-include-order.py PASS GNU89 Werror ASan/UBSan actual binding/reply fragments; old order compiler failure reproduced",
+    "check-down-dispatch-composition.py PASS privilege/single-copy route regression"
+  ],
+  "sha256": {
+    "down-dispatch-composition.py": "fb3947d9b199aada6253153496d0831d5044de0cc65ee8ef8cc06948fc95160e",
+    "check-down-dispatch-include-order.py": "2a6c39238267e54ac2b9b9887aa75bab8d0751c5b39dfb697a19c55dfe82b2f1",
+    "check-host-compatibility.py": "f04704e00a66d623637d27a4266cc9a9335ca0962375190b9db019a948009882",
+    "check-physical-stop-suite.py": "f0f545564e5ecf76e8669ea5baad4a7870f8c0e37b5fdfbc66a6e4cc16ad380b"
+  },
+  "full_suite_9594": {
+    "session": 93460,
+    "result": "INTERRUPTED_FOR_CONFIRMED_TARGET_FIX_NOT_PASS",
+    "exit_code": -15,
+    "tracked_inputs_unchanged": true
+  },
+  "target_rebuild": "pending",
+  "physical_runtime_verified": false
+}
