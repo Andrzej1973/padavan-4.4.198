@@ -1,0 +1,22 @@
+{
+  "scope": "standalone cold disabled-IoT READY/initial-OFF observation",
+  "checks": {
+    "actual_cold_parent_profile_and_initial_OFF_asan_ubsan": "PASS",
+    "exact_new_epoch_same_ra2_generation_and_envelope": "PASS",
+    "pending_and_saved_policy_drift_refused": "PASS",
+    "Guest_policy_loss_recovery_DOWN_not_automatically_undone": "PASS"
+  },
+  "actors": [
+    "SDK Main/Guest/multicast/services",
+    "initial-IDLE transport"
+  ],
+  "sha256": {
+    "tools/iot/cold-on-disabled.c": "9c52ab0d0c6672d327a20c7e1f80400af13d89ac217bff3b5525c27d5fe9df75",
+    "tools/iot/cold-on-disabled.h": "40134c8042c724f19d1ecb1af2a25c176a4fd4ec2e028464f392a20e36d89c7c",
+    "tools/iot/check-cold-on-disabled.py": "1f0905e7dd69d621194ab0ae5a50f2c07eab992d387c6ee890911faf0e6d3fbc"
+  },
+  "runtime_staged": false,
+  "disabled_release_implemented": false,
+  "target_verified": false,
+  "physical_verified": false
+}
