@@ -220,3 +220,16 @@ composes it with the cached physical origin. A host C11 ASan/UBSan fixture passe
 exact DOWN and refuses READY/epoch/registration/count drift. This predicate
 requires a dedicated Linux read-only terminal-observation binding before RC use;
 ordinary CLOSED and a historical terminal reply cannot substitute for it.
+
+Standalone physical-stop-terminal-down.inc implements read-only post-RELEASE
+QUERY observation with exact cached PID/nonce/tuple, current Main DOWN origin,
+exact idle Main registration, historical ra2 registration, zero live/pending
+physical pins and idle/closed peer state. Disjoint MacTab/transition lock reads
+run under caller RTNL and adapter lifetime. No holds/puts, workers or firmware
+commands are issued. It returns COMPLETE only for the current software DOWN.
+Actual ARM/Main-completion/RELEASE composition passed ASan/UBSan, including
+no adapter mutation and no reference replay; foreign nonce, epoch drift,
+Main reopened and peer poison refuse. The idle Main lookup uses exact
+device/generation, not find_owned (which excludes completed IDLE records).
+No handler/ioctl route is installed yet; target and device acceptance open.
+Temporary test directories removed by their fixtures.
