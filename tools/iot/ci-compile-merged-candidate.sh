@@ -646,4 +646,5 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   python3 -B tools/iot/check-stage-candidate-romfs.py
   python3 -B tools/iot/package-candidate-pair.py "$results" --revision "$CANDIDATE_SHA" \
     --output "$results/paired-image-inputs.json"
+  bash tools/iot/ci-stage-candidate-romfs.sh "$PWD/padavan-4.4/trunk" "$results" "$compiler" "$CANDIDATE_SHA"
 fi

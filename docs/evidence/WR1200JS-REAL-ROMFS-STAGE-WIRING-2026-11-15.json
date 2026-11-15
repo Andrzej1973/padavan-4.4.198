@@ -1,0 +1,18 @@
+{
+  "base_revision": "293ccbbf9e5ae1a0e14360617ca8b63945d2cb08",
+  "checks": [
+    "bash -n tools/iot/ci-stage-candidate-romfs.sh PASS",
+    "bash -n tools/iot/ci-compile-merged-candidate.sh PASS",
+    "python3 -B tools/iot/check-stage-candidate-romfs.py PASS synthetic positive/negative inputs"
+  ],
+  "sha256": {
+    "ci-stage-candidate-romfs.sh": "760ebafba1eba5a34e25afc99e31f84837597c47ac14fab5f2976914a02b665c",
+    "ci-compile-merged-candidate.sh": "c7ed50451585204e7bd8b9db3b4e6fa509a9f8b3e19c17a884c11c84d315f0c6",
+    "stage-candidate-romfs.py": "ea797a2c298ae03b0403eae22132529e11b9b0c6746865c15432766437b73ea0"
+  },
+  "real_optional_staging_wired": true,
+  "real_optional_staging_executed": false,
+  "actual_path_closure_verified": false,
+  "trx_built": false,
+  "physical_runtime_verified": false
+}

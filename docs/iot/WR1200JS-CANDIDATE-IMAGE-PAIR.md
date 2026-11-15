@@ -43,3 +43,16 @@ The report explicitly does not claim actual-path dependency closure or TRX build
 `check-stage-candidate-romfs.py` covers synthetic positive staging and config,
 source, duplicate module and symlink refusals. Real candidate/baseline staging,
 actual-path closure, image build/extraction and device verification remain open.
+
+## Real optional staging is now wired
+
+After peer82 target link and pair-manifest generation, the optional workflow
+calls `ci-stage-candidate-romfs.sh` on its real baseline ROMFS and kernel config.
+Kernel-config mismatch records `isolated-romfs-kernel-config.diff` and fails;
+it is not treated as permission to combine the module with another kernel.
+The isolated staged tree is checked for actual-path RC/HTTPD dependency closure
+and module vermagic 4.4.198. Hashes in the dependency report must match staged
+payload hashes. Only then does the staging report mark actual-path closure true.
+Reports remain in the existing candidate artifact; the temporary copied ROMFS
+is deleted by its owning script. No TRX build or normal-image replacement is
+performed by this step. CI execution of this new step remains pending.
