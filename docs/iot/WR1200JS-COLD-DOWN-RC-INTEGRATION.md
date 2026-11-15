@@ -339,3 +339,21 @@ The prior full-suite run stopped at the 60-second external budget for
 in 52.78 seconds. It executes nested RELEASE fixtures like handler, so the
 suite now grants this check the same bounded 120-second budget as handler.
 This changes the host test budget only; the stopped suite is not marked PASS.
+
+## Cold root pre-UP cancellation candidate
+
+`cold-on-root-recovery.[ch]` implements irreversible root cancellation before
+any attempted Main UP. Capture-only ownership uses read-only admission cancel;
+a generation borrower uses exact baseline restore and checked pre-UP finish.
+The parent request is wiped and both parent/root are marked retained before
+cleanup, so failed unmask cannot later resume with an empty request. Foreign
+profile ownership retains resources. No Main UP, generator replay, backend
+OPEN or old-profile rollback after an attempted Main UP is reachable.
+
+The fixture uses actual parent, profile snapshots/journal/restore and signal
+fence for both saved intents, before generation and after generation. It queues
+real SIGTERM, injects failed unmask and a foreign inode, then verifies baseline
+restoration, credentials/guard gone before signal replay, and no Main/generator
+replay. SDK/DOWN observations remain injected. Runtime preparation and root
+step scheduling registration are pending while the current full-suite inputs
+are held stable; no target/image/device acceptance follows from this fixture.
