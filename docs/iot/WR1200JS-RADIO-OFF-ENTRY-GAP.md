@@ -56,3 +56,9 @@ Focused RC physical, pre-ARM shutdown and fence fault checks passed with
 ASan/UBSan. OFF entry consumer and SDK side effects remain unimplemented;
 this correction does not enable radio OFF or prove target/device behavior.
 Temporary test directories removed by their fixtures; no scratch retained.
+
+The registered check-physical-stop-mask-failure.py additionally injects a
+failed SIG_SETMASK into the actual STOP/session/fence fixture. It verifies
+retained password/guard/unpublished result, no terminal take before cleanup,
+same-fence successful retry without another driver call, and publication/wipe
+visible in the real deferred SIGTERM handler. ASan/UBSan PASS; no target claim.
