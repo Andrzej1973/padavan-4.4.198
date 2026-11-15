@@ -1,0 +1,30 @@
+{
+  "scope": "experimental RC-private cold initial-start binding; public/root caller not connected",
+  "checks": {
+    "binding_fragment_gcc_werror_asan_ubsan": "PASS",
+    "parent_request_identity_one_begin_and_snapshot_epoch_mismatch": "PASS",
+    "INITIAL_OFF_replay_refused_fresh_identity_allowed": "PASS",
+    "ACTIVE_requires_existing_full_observer": "PASS",
+    "prepared_rc_backend_C11_compilation": "PASS"
+  },
+  "actors": [
+    "parent PREPARED observer",
+    "initial start runner",
+    "full ACTIVE observer"
+  ],
+  "sha256": {
+    "tools/iot/rc-cold-start.h": "1e1c3e993f443e44532f3d8eefdeb894cee488ec5d01a72d4319f0cd369d99bd",
+    "tools/iot/rc-cold-start.inc": "a496e5e3d6b414bc4827038d0167daee056a28f2c87c44dff04487cd3b590ab3",
+    "tools/iot/check-rc-cold-start.py": "90fe8810839353be6e44b7cd3664029c9810c6a1da912d52290e157059d80386",
+    "tools/iot/prepare-runtime.py": "d3b5f8889ef11a595cf32e0ee051b3c0d860ba8c9791caafe2626a596c0e84a2"
+  },
+  "cold_owner_handoff_caller_bound": false,
+  "public_entry_bound": false,
+  "target_verified": false,
+  "physical_verified": false,
+  "ci_c831": {
+    "abi_success": 43712289524,
+    "standard_success": 43712292456,
+    "optional_queued": 43713494007
+  }
+}

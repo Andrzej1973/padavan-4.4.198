@@ -115,3 +115,18 @@ parent release; it does not set or clear an unrelated ON exclusion. Public RC,
 backend initial-start handoff, post-UP shutdown and root retirement are not bound.
 Host integration tests use actual cold parent/profile controllers with injected
 SDK boundary operations. Prepared RC C11 object compilation passed.
+
+## Experimental RC initial-start binding staged
+
+`rc-cold-start.inc` is inlined into prepared experimental rc-backend.c, keeping
+its existing private backend/rebind objects. The helper accepts only exact cold
+parent input/desired request and a fresh PREPARED check, then invokes the existing
+initial start-runner once. The backend's captured IDLE identity must equal cold
+Main identity; mismatch retains UNCERTAIN without progressing to OPEN. Old
+INITIAL_OFF identity replay or time reversal refuses. Bound ACTIVE observation
+requires the same stable parent, envelope, driver identity and existing full
+activation owner observer; APPLIED alone does not suffice. These helpers are
+compiled but have no cold-owner/public caller yet. Root lifetime, post-UP
+shutdown/retirement and backend continuation handoff remain to connect/test.
+Host binding fixture injects parent/start/ACTIVE adapters; prepared RC compilation
+is separate evidence. Target and device verification are outstanding.

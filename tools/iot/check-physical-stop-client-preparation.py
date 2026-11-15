@@ -27,6 +27,8 @@ with tempfile.TemporaryDirectory(prefix='wr-stop-client-prepared-') as d:
  assert manifest['radio_on_guest_linked'] and manifest['radio_on_services_linked']
  assert manifest['radio_on_generation_linked'] and manifest['radio_on_main_linked']
  assert manifest['cold_on_admission_linked'] and manifest['cold_on_generation_linked']
+ assert manifest['cold_backend_initial_start_linked']
+ assert (rc/'wr-iot-rc-backend.c').read_text().count('int wr_iot_rc_cold_start_begin(')==1
  assert manifest['cold_on_main_linked'] and manifest['cold_on_preup_recovery_linked'] and not manifest['cold_on_entry_bound']
  assert manifest['radio_on_admission_linked'] and not manifest['radio_on_entry_bound']
  assert manifest['radio_off_consumer_linked'] and not manifest['radio_off_entry_bound']
