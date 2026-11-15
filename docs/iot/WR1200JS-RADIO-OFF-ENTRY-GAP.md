@@ -272,3 +272,17 @@ operations suitable for a separate OFF profile owner, but restart-generation's
 origin path explicitly requires radio_on=1 and must not be reused for OFF.
 Profile validation/retirement and rollback for OFF remain to be bound before
 calling the RAM-state adapter from the final lifecycle. No device action.
+
+Standalone radio-off-profile now owns the real baseline/journal after exact OFF
+terminal receipt. It captures before generation, skips generator for reload0,
+attempts it once otherwise, validates cold third-BSS content using current saved
+SSID/key and existing scanner, and retains baseline through VERIFIED. Partial
+or invalid output enters guarded restoration; foreign inode/journal uncertainty
+retains without overwrite or generator replay. Baseline restoration returns -1
+with context retained, not completed OFF acceptance. Temporary credential copies
+in radio-off-profile-check are wiped; no requested enable setting is changed.
+Actual profile snapshot/journal/scanner/restore host ASan/UBSan checks PASS for
+reload0 inode preservation, normal generation, partial failure, invalid successful
+output and foreign inode. SDK generator and physical observation are injected.
+Not staged/RC-bound yet; final baseline retirement/rollback cleanup remains open.
+Fixture-only cleanup frees retained RAM after asserting non-retirement.
