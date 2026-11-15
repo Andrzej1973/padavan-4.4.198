@@ -337,3 +337,13 @@ normal/default firewall builders, then remove independent script additions only
 with source/image parity checks. Preserve post-firewall hooks and final isolation
 readback. This is a source-identified integration gap, not evidence of a device
 race. Input hash and exact calls recorded in IAPP-FIREWALL-WRITERS evidence.
+
+
+Standalone prepare-iappd-builder now stages TCP/UDP3517 br0 INPUT policy in IPv4
+normal/default builders immediately after their exact existing WR quarantine
+hooks. Compiled/executed transformed fragments show IoT DROP before IAPP LAN
+ACCEPTs. Missing/duplicate hooks refuse before output; no IPv6/ra2 policy is
+introduced. This is a fragment fixture, not full SDK/image verification. The
+transform is not yet invoked by firmware preparation. Script rule removal must
+be installed atomically with builder integration after exact prepared-SDK proof.
+Full registered aaebbfe suite71195 remains independently active and unchanged.
