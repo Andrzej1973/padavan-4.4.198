@@ -19,9 +19,19 @@ static int cold_release_profile_take(struct wr_iot_cold_release *s)
  if(!wr_iot_restart_profile_receipt_current(&receipt))return 0;
  s->profile=receipt;return 1;
 }
+static int cold_release_binding_current(const struct wr_iot_cold_release *s)
+{
+ return s->handoff&&s->parent&&s->handoff->parent==s->parent&&
+  s->created&&s->created==s->handoff->created&&
+  memchr(s->id,0,sizeof(s->id))&&memchr(s->handoff->id,0,sizeof(s->handoff->id))&&
+  wr_iot_control_id(s->id)&&!strcmp(s->id,s->handoff->id)&&
+  s->identity.adapter_epoch&&s->identity.device_generation&&
+  s->identity.adapter_epoch==s->handoff->identity.adapter_epoch&&
+  s->identity.device_generation==s->handoff->identity.device_generation;
+}
 int wr_iot_cold_release_current(struct wr_iot_cold_release *s)
 {
- if(!s||s->owner!=getpid()||s->busy||!s->handoff||
+ if(!s||s->owner!=getpid()||s->busy||!cold_release_binding_current(s)||
     !wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||
     !wr_iot_cold_handoff_current(s->handoff))return 0;
  s->busy=1;
@@ -31,15 +41,16 @@ int wr_iot_cold_release_current(struct wr_iot_cold_release *s)
     s->wan.plan<WR_WAN_NONE||s->wan.plan>WR_WAN_RECONNECT||
     !wr_iot_rc_restart_wan_current(1,s->wan.plan)||
     !wr_iot_restart_profile_receipt_current(&s->profile)||
-    !wr_iot_cold_handoff_current(s->handoff))goto refused;
+    !wr_iot_cold_handoff_current(s->handoff)||!cold_release_binding_current(s))goto refused;
  s->busy=0;return 1;
  refused:s->busy=0;return 0;
 }
 int wr_iot_cold_release_begin(struct wr_iot_cold_release *s,struct wr_iot_cold_handoff *handoff)
 {
- if(!s||!handoff||s->owner||s->busy||s->handoff||s->profile.valid||s->profile.owner||s->wan.owner||
+ if(!s||!handoff||s->owner||s->busy||s->handoff||s->parent||s->created||s->profile.valid||s->profile.owner||s->wan.owner||
     !wr_iot_cold_handoff_current(handoff))return 0;
- s->owner=getpid();s->handoff=handoff;
+ s->owner=getpid();s->handoff=handoff;s->parent=handoff->parent;s->identity=handoff->identity;
+ memcpy(s->id,handoff->id,sizeof(s->id));s->created=handoff->created;
  (void)wr_iot_cold_release_current(s);
  return 1;
 }

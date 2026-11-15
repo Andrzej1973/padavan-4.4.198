@@ -8,6 +8,8 @@
 struct wr_iot_cold_release {
  pid_t owner;int busy;
  struct wr_iot_cold_handoff *handoff;
+ struct wr_iot_cold_owner *parent;struct wr_iot_driver_identity identity;
+ char id[33];unsigned long long created;
  struct wr_iot_restart_profile_receipt profile;
  struct wr_iot_wan_followup_state wan;
 };

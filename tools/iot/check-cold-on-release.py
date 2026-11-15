@@ -60,6 +60,10 @@ int main(int argc,char**argv){
     assert(!wr_iot_cold_release_begin(&release,&handoff)&&!wr_iot_cold_release_current(&release));
     assert(wan_capture_calls==1&&!wan_submits&&owner.admission.profile.active&&depth==1);
     wan_current=1;assert(wr_iot_cold_release_current(&release)&&wan_capture_calls==1);
+    release.created++;assert(!wr_iot_cold_release_current(&release));release.created--;
+    release.identity.adapter_epoch++;assert(!wr_iot_cold_release_current(&release));release.identity.adapter_epoch--;
+    release.parent=NULL;assert(!wr_iot_cold_release_current(&release));release.parent=&owner;
+    assert(wr_iot_cold_release_current(&release)&&wan_capture_calls==1);
     assert(!wr_iot_wan_followup_step(&release.wan)&&!wan_submits);
     wr_iot_rc_shutdown.pending=SIGTERM;assert(!wr_iot_cold_release_current(&release));wr_iot_rc_shutdown.pending=0;
     release.wan.attempted=1;assert(!wr_iot_cold_release_current(&release));release.wan.attempted=0;
