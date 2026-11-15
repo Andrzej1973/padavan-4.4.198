@@ -1,0 +1,15 @@
+{
+  "sdk_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "file": "trunk/user/rc/net_wifi.c",
+  "function": "restart_guest_lan_isolation",
+  "line": 1147,
+  "sha256": "999684b961c80e7f52f9697c325f307b92932e24db2ad602b44746e52bf39309",
+  "source": "restart_guest_lan_isolation(void)\n{\n\tint bp_isolate, is_need_ebtables = 0;\n\tint is_ap_mode = get_ap_mode();\n\tconst char *rt_ifname_guest = IFNAME_2G_GUEST;\n#if BOARD_HAS_5G_RADIO\n\tconst char *wl_ifname_guest = IFNAME_5G_GUEST;\n\n\tbp_isolate = 0;\n\tif (is_interface_up(wl_ifname_guest)) {\n\t\tif (nvram_wlan_get_int(1, \"guest_lan_isolate\")) {\n\t\t\tif (!is_ap_mode)\n\t\t\t\tbp_isolate = 1;\n\t\t\telse\n\t\t\t\tis_need_ebtables |= 0x10;\n\t\t}\n\t}\n\n\tbrport_set_param_int(wl_ifname_guest, \"isolate_mode\", bp_isolate);\n#endif\n\n\tbp_isolate = 0;\n\tif (is_interface_up(rt_ifname_guest)) {\n\t\tif (nvram_wlan_get_int(0, \"guest_lan_isolate\")) {\n\t\t\tif (!is_ap_mode)\n\t\t\t\tbp_isolate = 1;\n\t\t\telse\n\t\t\t\tis_need_ebtables |= 0x01;\n\t\t}\n\t}\n\n#if defined(USE_RT3352_MII)\n\trt_ifname_guest = IFNAME_INIC_GUEST_VLAN;\n\tif (is_ap_mode)\n\t\tis_need_ebtables &= ~0x01;\n#endif\n\n\tbrport_set_param_int(rt_ifname_guest, \"isolate_mode\", bp_isolate);\n\n\tif (!is_ap_mode)\n\t\treturn;\n\n\tif (is_need_ebtables) {\n\t\tint i_need_dhcp = is_dhcpd_enabled(1);\n\t\t\n\t\tmodule_smart_load(\"ebtable_filter\", NULL);\n\t\tdoSystem(\"ebtables %s\", \"-F\");\n\t\tdoSystem(\"ebtables %s\", \"-X\");\n#if BOARD_HAS_5G_RADIO\n\t\tif (is_need_ebtables & 0x10)\n\t\t\tebtables_filter_guest_ap(wl_ifname_guest, 1, i_need_dhcp);\n#endif\n\t\tif (is_need_ebtables & 0x01)\n\t\t\tebtables_filter_guest_ap(rt_ifname_guest, 0, i_need_dhcp);\n\t}\n\telse if (is_module_loaded(\"ebtables\")) {\n\t\tdoSystem(\"ebtables %s\", \"-F\");\n\t\tdoSystem(\"ebtables %s\", \"-X\");\n\t\t\n\t\tmodule_smart_unload(\"ebt_ip\", 0);\n\t\tmodule_smart_unload(\"ebtable_filter\", 0);\n\t\tmodule_smart_unload(\"ebtables\", 0);\n\t}\n}",
+  "findings": [
+    "Touches both 5GHz and 2GHz guest isolate_mode",
+    "Router mode returns before ebtables operations",
+    "AP mode may flush/delete ebtables filter rules and unload modules",
+    "Detached/down 2GHz guest requires no bridge-port isolation setter, but this omission requires final detached-state observation"
+  ],
+  "status": "Source audit only; OFF service policy/final detached readback not complete"
+}

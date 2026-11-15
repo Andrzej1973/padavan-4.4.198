@@ -347,3 +347,10 @@ advance, no mutation count and no repeated RAM update. After read-only refusal
 clears, exactly seven ordered detaches complete. Existing UNCERTAIN case retains
 after one attempted detach. Actual profile/RAM controller host check PASS.
 ABI correction b670018d/43682525761 remains live; no target success claimed.
+
+Pinned restart_guest_lan_isolation source audit saved separately: helper writes
+5GHz guest and2GHz guest isolate_mode, then returns in router mode. AP-mode
+branches can flush/delete ebtables chains and unload modules. Current private
+OFF policy is router/mode0 only. A scoped detached/down ra1 observer is needed
+to justify omitting the irrelevant 2GHz bridge-port write; do not invoke global
+helper or assume 5GHz readiness from this source audit.
