@@ -16,9 +16,9 @@ int get_mode_radio_rt(void){return 0;}
 int is_radio_on_rt(void){return !down;}
 #include "rc-mode.c"
 ''')
-anchor=' for(int fault=0;fault<4;fault++){'
+anchor='int main(int argc,char**argv){'
 assert body.count(anchor)==1
-body=body.replace(anchor,r'''
+body=body.replace(anchor,anchor+r'''
  struct wr_iot_rc_mode live={0},saved={0};
  depth=1;down=1;
  assert(wr_iot_rc_mode_read(&live)&&!live.radio);
@@ -26,7 +26,6 @@ body=body.replace(anchor,r'''
  depth=0;saved_radio=0;
  struct wr_iot_on_admission refused={0};assert(!wr_iot_on_admission_begin(&refused)&&!refused.owner&&!depth&&!wr_iot_rc_shutdown.active);
  saved_radio=1;
- for(int fault=0;fault<4;fault++){
 ''')
 with tempfile.TemporaryDirectory(prefix='wr-on-sdk-mode-') as d:
     root=Path(d);(root/'rc.h').write_text('const char *nvram_safe_get(const char *);\n')
