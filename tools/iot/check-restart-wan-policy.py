@@ -14,6 +14,8 @@ static int guard=1,ap,drift,reads;
 static const char*man="eth2.2",*wisp;
 static char shared[64];
 static int wr_iot_service_guard_dup(void){return guard?9:-1;}
+static int wr_iot_service_guard_enter(int e){assert(e==1);return guard?1:0;}
+static void wr_iot_service_guard_leave(int t){assert(t==1);}
 static int close(int fd){assert(fd==9);return 0;}
 static int get_ap_mode(void){return ap;}
 static const char*get_man_ifname(int band){assert(!band);if(!man)return 0;strcpy(shared,man);return shared;}
@@ -27,7 +29,8 @@ int main(void){
  assert(wr_iot_rc_restart_wan_plan(1,&p)&&p==WR_WAN_NONE);
  man="apcli0";wisp="apcli0";reads=0;assert(wr_iot_rc_restart_wan_plan(1,&p)&&p==WR_WAN_RECONNECT);
  reads=0;assert(wr_iot_rc_restart_wan_plan(0,&p)&&p==WR_WAN_NONE);
- man="eth2.2";reads=0;assert(wr_iot_rc_restart_wan_plan(1,&p)&&p==WR_WAN_FULL_RESTART);
+ assert(wr_iot_rc_restart_wan_current(1,WR_WAN_RECONNECT));
+ man="eth2.2";reads=0;assert(!wr_iot_rc_restart_wan_current(1,WR_WAN_RECONNECT));reads=0;assert(wr_iot_rc_restart_wan_plan(1,&p)&&p==WR_WAN_FULL_RESTART);
  drift=1;reads=0;p=WR_WAN_INVALID;assert(!wr_iot_rc_restart_wan_plan(1,&p)&&p==WR_WAN_INVALID);drift=0;
  man=0;assert(!wr_iot_rc_restart_wan_plan(1,&p));
  man="0123456789012345";assert(!wr_iot_rc_restart_wan_plan(1,&p));

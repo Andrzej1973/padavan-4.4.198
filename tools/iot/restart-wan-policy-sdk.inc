@@ -42,3 +42,11 @@ void wr_iot_rc_restart_wan_submit(enum wr_iot_wan_followup plan)
  if(plan==WR_WAN_FULL_RESTART)full_restart_wan();
  else if(plan==WR_WAN_RECONNECT)try_wan_reconnect(1,0);
 }
+
+int wr_iot_rc_restart_wan_current(int radio_on,enum wr_iot_wan_followup expected)
+{
+ enum wr_iot_wan_followup current;int token,valid;
+ token=wr_iot_service_guard_enter(1);if(token!=1)return 0;
+ valid=wr_iot_rc_restart_wan_plan(radio_on,&current)&&current==expected;
+ wr_iot_service_guard_leave(token);return valid;
+}

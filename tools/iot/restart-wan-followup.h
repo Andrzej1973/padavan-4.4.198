@@ -8,5 +8,6 @@ int wr_iot_wan_followup_capture(struct wr_iot_wan_followup_state *,int);
  * while shutdown admission is active/pending.1 means SDK call returned, not WAN
  * ready. An attempted call is never repeated, including after reentrancy. */
 int wr_iot_wan_followup_step(struct wr_iot_wan_followup_state *);
+int wr_iot_rc_restart_wan_current(int,enum wr_iot_wan_followup);
 void wr_iot_rc_restart_wan_submit(enum wr_iot_wan_followup);
 #endif

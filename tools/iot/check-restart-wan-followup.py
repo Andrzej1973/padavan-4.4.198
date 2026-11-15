@@ -7,6 +7,8 @@ code=r'''
 #include "restart-wan-followup.h"
 #include "rc-shutdown-admission.h"
 struct wr_iot_rc_shutdown_admission wr_iot_rc_shutdown;
+static int current_ok=1;
+int wr_iot_rc_restart_wan_current(int on,enum wr_iot_wan_followup p){assert(on==1);(void)p;return current_ok;}
 static int valid=1,calls;static enum wr_iot_wan_followup plan;static struct wr_iot_wan_followup_state*current;
 int wr_iot_rc_restart_wan_plan(int on,enum wr_iot_wan_followup*out){assert(on==1);*out=plan;return valid;}
 void wr_iot_rc_restart_wan_submit(enum wr_iot_wan_followup p){assert(p==plan&&!wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.pending);calls++;assert(current->attempted&&!wr_iot_wan_followup_step(current));}
@@ -18,6 +20,7 @@ int main(void){
   assert(wr_iot_wan_followup_capture(&s,1)&&!wr_iot_wan_followup_capture(&s,1));
   assert(!wr_iot_wan_followup_step(&s)&&!calls);wr_iot_rc_shutdown.active=0;
   wr_iot_rc_shutdown.pending=SIGTERM;assert(!wr_iot_wan_followup_step(&s)&&!calls);wr_iot_rc_shutdown.pending=0;
+  current_ok=0;assert(!wr_iot_wan_followup_step(&s)&&!s.attempted&&!calls);current_ok=1;
   assert(wr_iot_wan_followup_step(&s)&&calls==(plan!=WR_WAN_NONE));
   assert(wr_iot_wan_followup_step(&s)&&calls==(plan!=WR_WAN_NONE));
  }

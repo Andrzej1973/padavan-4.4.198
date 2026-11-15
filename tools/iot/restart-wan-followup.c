@@ -14,6 +14,7 @@ int wr_iot_wan_followup_step(struct wr_iot_wan_followup_state*s)
  if(!s||s->owner!=getpid()||wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending)return 0;
  if(s->attempted)return s->returned;
  if(s->plan<WR_WAN_NONE||s->plan>WR_WAN_RECONNECT)return 0;
+ if(!wr_iot_rc_restart_wan_current(s->radio_on,s->plan))return 0;
  s->attempted=1;
  if(s->plan!=WR_WAN_NONE)wr_iot_rc_restart_wan_submit(s->plan);
  s->returned=1;return 1;

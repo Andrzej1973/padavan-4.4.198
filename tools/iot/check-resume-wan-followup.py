@@ -8,6 +8,7 @@ code=code.replace('if(finish_ok)s->phase=WR_RESTORE_FINISHED;','if(finish_ok){s-
 code='#define WR_IOT_IAPP_POLICY_H\n#define WR_IOT_IAPP_POLICY_PREPARED 1\n'+code
 code+=r'''
 static int dispatches;
+int wr_iot_rc_restart_wan_current(int on,enum wr_iot_wan_followup p){return on==1&&p==WR_WAN_RECONNECT;}
 int wr_iot_rc_restart_wan_plan(int on,enum wr_iot_wan_followup*out){assert(on==1);*out=WR_WAN_RECONNECT;return 1;}
 void wr_iot_rc_restart_wan_submit(enum wr_iot_wan_followup p){assert(p==WR_WAN_RECONNECT&&!wr_iot_rc_shutdown.active&&takes==2);dispatches++;}
 #include "restart-wan-followup.c"

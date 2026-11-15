@@ -475,3 +475,17 @@ controller fixture proves capture/take/dispatch order, active/pending refusal an
 no duplicate invocation. Existing resume/scheduler and native checks pass. ABI
 now additionally compiles prepared gate1 resume. Target/image/device acceptance
 is pending; stock net_wifi entrypoints and LED terminal policy remain unbound.
+
+
+WAN follow-up now reacquires the service guard for a fresh SDK identity/plan
+observation immediately before marking its one-shot dispatch. Changed plan or
+failed guard retains without consuming attempt; host snapshot/controller/resume
+and native preparation checks pass. Guard is released before SDK WAN calls to
+avoid nested service deadlock; this is not atomic exclusion against all writers.
+Exact net_wan.c::full_restart_wan clears MAN/br0 routes, flushes caches/MAC table,
+updates router mode/VLAN, conditionally disassembles WAN bridges/configures LAN,
+and starts WAN. Its effect on IoT bridge/routes must be verified/reconciled after
+follow-up before claiming final network readiness. Current DONE only denotes SDK
+return. Stock order WAN->LED->IAPP also differs from pre-cleanup IAPP candidate;
+terminal ordering remains an open parity gate. Do not enable stock net_wifi hook
+or declare stable network completion without resolving these dependencies.
