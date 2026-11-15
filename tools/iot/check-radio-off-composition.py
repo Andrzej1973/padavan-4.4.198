@@ -36,6 +36,7 @@ int main(void){
  off_owner.created++;assert(!wr_iot_radio_off_poll(&off_owner)&&physical.owner);
  off_owner.created=created;int before=calls;
  assert(wr_iot_radio_off_poll(&off_owner)==1&&!physical.owner);
+ assert(off_owner.released.action==WR_STOP_RELEASE&&off_owner.released.epoch==11&&off_owner.released.attempt==19);
  assert(off_owner.policy_ready&&off_owner.policy.reload==1&&off_owner.policy.wan==WR_WAN_FULL_RESTART);
  assert(!wr_iot_radio_off_prepare(&off_owner,1)&&policy_reads==reads);
 

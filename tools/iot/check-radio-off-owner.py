@@ -10,8 +10,11 @@ code=r'''
 struct wr_iot_rc_shutdown_admission wr_iot_rc_shutdown;
 int wr_iot_rc_physical_pending(void){assert(0);return 0;}
 void wr_iot_rc_physical_step(void){assert(0);}
-int wr_iot_rc_physical_off_failed(const char*i,unsigned long long t){(void)i;(void)t;assert(0);return 0;}
 static int admit=1,terminal,begins,takes;
+int wr_iot_rc_physical_off_failed(const char*i,unsigned long long t){(void)i;(void)t;return terminal==-1;}
+int wr_iot_rc_physical_off_read(const char*i,unsigned long long t,struct wr_iot_physical_stop_request*p){
+ (void)i;(void)t;*p=(struct wr_iot_physical_stop_request){WR_STOP_RELEASE,1,2,3,4,5,{1}};return terminal==1;
+}
 static struct wr_iot_radio_off_owner *current;
 int wr_iot_rc_physical_begin_quiesce(const struct wr_iot_rc_physical_intent*i,const struct wr_iot_control_request*r){
  assert(!i->restart&&!i->radio_on&&!i->reload&&!r->request.enabled);

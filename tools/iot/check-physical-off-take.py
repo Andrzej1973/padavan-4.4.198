@@ -13,6 +13,13 @@ int main(void){
  query_status=WR_STOP_COMPLETE;
  for(unsigned i=0;i<40&&wr_iot_rc_physical_pending();i++)wr_iot_rc_physical_step();
  assert(physical.result==1&&!depth&&!wr_iot_rc_shutdown.active);
+ struct wr_iot_physical_stop_request released={0};
+ assert(!wr_iot_rc_physical_off_read(off.id,8,&released)&&!released.epoch);
+ physical.session.busy=1;assert(!wr_iot_rc_physical_off_read(off.id,7,&released));physical.session.busy=0;
+ assert(wr_iot_rc_physical_off_read(off.id,7,&released));
+ assert(released.action==WR_STOP_RELEASE&&released.epoch==11&&released.generation==12&&released.attempt==19);
+ physical.quiesce.active=1;assert(!wr_iot_rc_physical_off_read(off.id,7,&released)&&!released.epoch);physical.quiesce.active=0;
+
  assert(!wr_iot_rc_physical_take_off(NULL,7));
  assert(!wr_iot_rc_physical_take_off("short",7));
  assert(!wr_iot_rc_physical_take_off(off.id,8));
@@ -22,6 +29,7 @@ int main(void){
  int before=calls;
  assert(wr_iot_rc_physical_take_off(off.id,7)==1&&!physical.owner);
  assert(!wr_iot_rc_physical_take_off(off.id,7)&&calls==before);
+ assert(!wr_iot_rc_physical_off_read(off.id,7,&released)&&!released.epoch);
  calls=downs=aux_calls=0;closed_fail=1;
  assert(wr_iot_rc_physical_begin_quiesce(&stop,&off));
  /* Explicit preparation failure still belongs to its original OFF envelope. */

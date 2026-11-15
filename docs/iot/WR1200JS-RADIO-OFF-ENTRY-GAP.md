@@ -193,3 +193,13 @@ clear exclusion. RC/OFF, runtime and scheduler checks PASS. Production clearing
 remains reserved for the future verified SDK-follow-up retirement; no entry
 activation, target or device claim. Deferred mailbox wake/replay after that
 retirement remains required.
+
+The private OFF owner now retains the exact physical RELEASE identity before
+successful terminal consumption. off_read requires matching original OFF id/time,
+local owner, successful terminal state, no guard/fence, completed nonbusy session
+and completed quiesce; it clears output on refusal. Owner validates RELEASE wire
+syntax before take and caches receipt independently of the retired physical owner.
+Failure cleanup uses its exact failure query without requiring a success receipt.
+Focused physical take/receipt, owner, actual composition and RC ppoll checks PASS.
+This retained receipt is provenance for fresh follow-up validation, not a fresh
+observation or authorization to mutate the replacement/current adapter.

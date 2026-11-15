@@ -19,6 +19,9 @@ int wr_iot_rc_radio_off_policy(int reload,struct wr_iot_radio_off_policy*p){
  *p=(struct wr_iot_radio_off_policy){reload,0,0,WR_WAN_NONE};return 1;
 }
 int wr_iot_rc_physical_off_failed(const char*i,unsigned long long t){(void)i;(void)t;return 0;}
+int wr_iot_rc_physical_off_read(const char*i,unsigned long long t,struct wr_iot_physical_stop_request*p){
+ (void)i;(void)t;*p=(struct wr_iot_physical_stop_request){WR_STOP_RELEASE,1,2,3,4,5,{1}};return off_terminal==1;
+}
 int wr_iot_rc_physical_take_off(const char*i,unsigned long long t){assert(!strcmp(i,"11111111111111111111111111111111")&&t==7);return off_terminal;}
 #include "radio-off-owner.c"
 ''')

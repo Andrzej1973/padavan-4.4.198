@@ -165,6 +165,24 @@ int wr_iot_rc_physical_off_failed(const char *id,unsigned long long created)
   !memcmp(physical.stop_id,id,sizeof(physical.stop_id))&&
   (physical.finishing==-1||physical.result==-1);
 }
+int wr_iot_rc_physical_off_read(const char *id,unsigned long long created,
+ struct wr_iot_physical_stop_request *out)
+{
+ if(!out)return 0;
+ memset(out,0,sizeof(*out));
+ if(!id||strnlen(id,sizeof(physical.stop_id))!=32||!created||
+    physical.owner!=getpid()||physical.intent.restart||physical.intent.radio_on||
+    physical.intent.reload||physical.stop_created!=created||
+    memcmp(physical.stop_id,id,sizeof(physical.stop_id))||physical.result!=1||
+    physical.finishing!=1||physical.guard||physical.fence.owner||
+    physical.session.owner!=getpid()||physical.session.busy||
+    physical.session.phase!=WR_PHYSICAL_SESSION_COMPLETE||
+    physical.session.request.action!=WR_STOP_QUERY||
+    !wr_iot_physical_stop_request_valid(&physical.session.request)||
+    !physical.quiesced||physical.quiesce.owner!=getpid()||
+    !physical.quiesce.complete||physical.quiesce.active||physical.quiesce.busy)return 0;
+ *out=physical.session.request;out->action=WR_STOP_RELEASE;return 1;
+}
 int wr_iot_rc_physical_take_off(const char *id,unsigned long long created)
 {
  struct wr_iot_rc_physical_intent intent={0};

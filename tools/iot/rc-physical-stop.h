@@ -38,6 +38,8 @@ int wr_iot_rc_physical_take(struct wr_iot_rc_physical_intent *);
  * A matching envelope never authorizes reopen or substitutes for completion. */
 /* Exact read-only preparation/terminal failure query; no completion grant. */
 int wr_iot_rc_physical_off_failed(const char *,unsigned long long);
+/* Read the exact acknowledged RELEASE identity before terminal consumption. */
+int wr_iot_rc_physical_off_read(const char *,unsigned long long,struct wr_iot_physical_stop_request *);
 int wr_iot_rc_physical_take_off(const char *,unsigned long long);
 struct wr_iot_restart_restore;
 /* Exact ACTIVE resume consumer; failed proof/mask restore retains ownership.
