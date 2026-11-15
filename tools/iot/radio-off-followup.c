@@ -3,6 +3,7 @@
 #include <string.h>
 #include "radio-off-followup.h"
 #include "radio-off-state.h"
+#include "radio-off-bridge.h"
 #include "radio-off-observe.h"
 #include "rc-shutdown-admission.h"
 #include "service-guard.h"
@@ -34,9 +35,9 @@ int wr_iot_off_followup_begin(struct wr_iot_off_followup *s,const struct wr_iot_
 }
 enum wr_iot_off_followup_phase wr_iot_off_followup_step(struct wr_iot_off_followup *s)
 {
- int result,token;
+ int result,token;enum wr_iot_off_followup_phase entered;
  if(!s||s->owner!=getpid()||s->busy||!followup_current(s))return s?s->phase:WR_OFF_FOLLOWUP_IDLE;
- s->busy=1;
+ s->busy=1;entered=s->phase;
  if(s->phase==WR_OFF_FOLLOWUP_PROFILE_BEGIN){
   if(wr_iot_off_profile_begin(&s->profile,s->off))s->phase=WR_OFF_FOLLOWUP_PROFILE;
  }else if(s->phase==WR_OFF_FOLLOWUP_PROFILE){
@@ -50,9 +51,19 @@ enum wr_iot_off_followup_phase wr_iot_off_followup_step(struct wr_iot_off_follow
       wr_iot_radio_off_observed(&s->released)&&wr_iot_rc_off_profile_current()){
     s->state_attempted=1;
     s->phase=wr_iot_rc_radio_off_state(&s->policy,&s->released)?
-     WR_OFF_FOLLOWUP_NETWORK_PENDING:WR_OFF_FOLLOWUP_RETAINED;
+     WR_OFF_FOLLOWUP_BRIDGE:WR_OFF_FOLLOWUP_RETAINED;
    }
    wr_iot_service_guard_leave(token);
+  }
+ }
+ if(entered==WR_OFF_FOLLOWUP_BRIDGE&&s->phase==WR_OFF_FOLLOWUP_BRIDGE){
+  enum wr_iot_off_bridge_result detached;
+  /* State mutation and bridge detach occur in separate RC windows. */
+  if(s->bridge_slot>=7)s->phase=WR_OFF_FOLLOWUP_NETWORK_PENDING;
+  else {
+   detached=wr_iot_radio_off_bridge_detach(&s->released,s->bridge_slot);
+   if(detached==WR_OFF_BRIDGE_DETACHED)s->bridge_slot++;
+   else if(detached==WR_OFF_BRIDGE_UNCERTAIN)s->phase=WR_OFF_FOLLOWUP_RETAINED;
   }
  }
  s->busy=0;return s->phase;

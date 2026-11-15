@@ -325,3 +325,12 @@ Host ASan/UBSan syscall fixture PASS all seven names, absent/already-detached,
 UP/foreign/guard/observation refusal and ioctl/close uncertainty. Not staged
 or controller-bound yet. Full e05b6189 host suite exit0/hash recorded separately;
 completed 37KB scratch removed after evidence capture. No runtime claim.
+
+Bridge phase now follows the RAM state on separate ticks: seven fixed SDK
+slots, at most one detach call per tick, REFUSED retains slot without mutation,
+UNCERTAIN enters RETAINED without replay, completed slots are never resubmitted.
+Only after all seven slots does NETWORK_PENDING become reachable. Controller
+composition tests cover ordered seven-slot success and uncertain first detach
+with retained baseline; actual syscall helper separately passes. Prepared C11
+translation units PASS; helper staged for MIPS ABI/full target symbol gate.
+Network/service/WAN/IAPP completion and owner retirement remain open.
