@@ -622,6 +622,10 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   fi
   python3 tools/iot/prepare-physical-stop-deferred-candidate.py "$experiment" "$candidate/physical-stop-deferred"
   experiment="$candidate/physical-stop-deferred"
+  python3 tools/iot/prepare-physical-initial-storage.py "$experiment" "$candidate/physical-initial" \
+    --bind-main --install-endpoint
+  experiment="$candidate/physical-initial"
+  cp "$experiment/initial-storage-manifest.json" "$results/initial-physical-staging.json"
   cp "$experiment.manifest.json" "$results/ra2-no-host-source-manifest.json"
   python3 tools/iot/check-ra2-beacon-no-host-status.py "$driver/mac/mt_mac.c" \
     > "$results/ra2-no-host-policy.txt"

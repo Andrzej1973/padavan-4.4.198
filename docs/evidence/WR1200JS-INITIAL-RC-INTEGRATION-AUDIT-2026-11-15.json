@@ -1,0 +1,34 @@
+{
+  "observed_utc": "2026-11-15T18:21:39.706824+00:00",
+  "scope": "RC source integration audit; not runtime evidence",
+  "findings": [
+    {
+      "file": "tools/iot/rc-physical-stop.c",
+      "evidence": "physical_step waits for wr_iot_rc_backend_closed and constructs legacy WR_STOP_ARM with open_token/closed_serial",
+      "remaining": "Add explicit initial-origin selection after AUX/auth and fresh idle observation; retain legacy released-CLOSE branch."
+    },
+    {
+      "file": "tools/iot/rc-backend.c",
+      "evidence": "wr_iot_rc_backend_closed accepts backend OFF; prepare_radio_stop separately accepts IDLE/INITIAL_OFF",
+      "remaining": "Expose current exact initial idle receipt without pretending it is released CLOSE."
+    },
+    {
+      "file": "tools/iot/physical-stop-session.h",
+      "evidence": "session stores wr_iot_physical_stop_request only",
+      "remaining": "Add distinct typed initial client/session using WPIQ. One DOWN submission, retained ambiguous ioctl identity, exact terminal cleanup."
+    },
+    {
+      "file": "tools/iot/initial-off.h",
+      "evidence": "wr_iot_initial_off_restarted_observed consumes legacy physical-stop request",
+      "remaining": "Integrate a tagged initial physical RELEASE receipt in OFF/reopen/routed-shutdown consumers; never fabricate OPEN/CLOSE identity."
+    }
+  ],
+  "source_sha256": {
+    "tools/iot/rc-physical-stop.c": "95c2c06759de9ec85fbd320dac97c92b2e191016dc1ef33fc944fa3ee1640c28",
+    "tools/iot/rc-backend.c": "309246d1b1389b84540724f358b1570e960e33871f7f0c0a9e76d6fbba6e3b8f",
+    "tools/iot/physical-stop-session.h": "01265c45cbb26a0008cbd693c7993fa3d1ecd8e5505dae5e78f02c198b8e6f20",
+    "tools/iot/initial-off.h": "44d60cc6682ceddbc156e9deb9a33fc27a12dcc9491c9e0867a69cf681880b25",
+    "tools/iot/ci-compile-merged-candidate.sh": "37fef945fb9c82629ab1a0cad1a4bd7939fe201190dfc2073b0402079abaa159"
+  },
+  "normal_shutdown_route_activation_authorized_by_this_audit": false
+}

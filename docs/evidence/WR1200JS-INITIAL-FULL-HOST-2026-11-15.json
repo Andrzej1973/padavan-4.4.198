@@ -1,0 +1,8 @@
+{
+  "started_utc": "2026-11-15T18:19:27.162444+00:00",
+  "finished_utc": "2026-11-15T18:34:30.599211+00:00",
+  "exit_code": 0,
+  "inputs_unchanged": true,
+  "input_files": 1803,
+  "scope": "Full host physical-stop suite; not MIPS/image/device acceptance"
+}
