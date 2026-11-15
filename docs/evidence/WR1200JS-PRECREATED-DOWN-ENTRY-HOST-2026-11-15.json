@@ -1,0 +1,20 @@
+{
+  "scope": "unrouted fixed-ra2 ioctl wrapper with actual reply/reference/peer composition",
+  "test": "check-precreated-down-entry.py",
+  "host_result": "PASS GCC Werror ASan/UBSan",
+  "checks": [
+    "RTNL/capability/chip before user copy",
+    "storage-live and exact BSS before copy",
+    "fixed64 stack buffer",
+    "copy-in failure no reply",
+    "copy-out failure returns EFAULT without retry",
+    "adapter unchanged"
+  ],
+  "limits": [
+    "adapter allocation lifetime still outer common-entry contract",
+    "no dispatcher route or RC consumer installed",
+    "no physical teardown permission",
+    "target compile pending"
+  ],
+  "runtime_verified": false
+}
