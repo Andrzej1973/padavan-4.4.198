@@ -1,0 +1,18 @@
+{
+  "scope": "uncomposed private backend binding detach callback candidate",
+  "checks": {
+    "actual_binding_and_real_signal_fence_asan_ubsan": "PASS",
+    "preflight_exact_ACTIVE_parent_request_identity": "PASS",
+    "failed_unmask_never_detaches": "PASS",
+    "successful_cleanup_detaches_binding_only": "PASS",
+    "ACTIVE_backend_and_parent_bytewise_preserved": "PASS"
+  },
+  "sha256": {
+    "tools/iot/rc-cold-detach.inc": "6cad49c1b4fbcf2cae1189b5607ed06b038ab5593d7c58e6c3cd124dd86ceb2d",
+    "tools/iot/check-rc-cold-detach.py": "0c598ab75e8ed7eba68e043a71cfb786054ef5b10383f37fd68d7eb5653dec2c"
+  },
+  "runtime_composed": false,
+  "resource_cleanup_connected": false,
+  "target_verified": false,
+  "physical_verified": false
+}
