@@ -22,6 +22,11 @@ body+=r'''
 int wr_iot_on_shutdown_begin(struct wr_iot_on_shutdown*s,struct wr_iot_on_restore*r,const struct wr_iot_control_request*o){(void)s;(void)r;(void)o;assert(0);return 0;}
 int wr_iot_on_shutdown_step(struct wr_iot_on_shutdown*s){(void)s;assert(0);return 0;}
 #endif
+#include "radio-on-disabled.h"
+int wr_iot_initial_off_begin(struct wr_iot_initial_off*s,const struct wr_iot_control_request*r){assert(!r->request.enabled);s->owner=getpid();s->ready=1;s->idle.epoch=2;s->idle.generation=2;return network_current;}
+int wr_iot_initial_off_restarted_observed(const struct wr_iot_initial_off*s,const struct wr_iot_physical_stop_request*r,const struct wr_iot_driver_identity*m){assert(s->ready&&r->action==WR_STOP_RELEASE&&m->adapter_epoch==2);return network_current;}
+int wr_iot_initial_off_observed(const struct wr_iot_initial_off*s){assert(depth&&s->ready);return network_current;}
+#include "radio-on-disabled.c"
 #include "radio-on-owner.c"
 int main(int argc,char**argv){
  (void)check;assert(argc==2);snprintf(profile_path,sizeof(profile_path),"%s/profile",argv[1]);

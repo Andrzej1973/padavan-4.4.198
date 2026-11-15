@@ -9,13 +9,15 @@
 #include "radio-on-rollback-state.h"
 #include "radio-off-observe.h"
 #include "radio-on-shutdown.h"
+#include "radio-on-disabled.h"
 #include "precreated-entropy.h"
 #include <time.h>
 enum on_owner_phase {ON_OWNER_IDLE,ON_OWNER_ADMITTED,ON_OWNER_RESTORE,ON_OWNER_HANDOFF,ON_OWNER_REBIND,ON_OWNER_RELEASE,ON_OWNER_FOLLOWUP,ON_OWNER_DONE,ON_OWNER_RETAINED};
 static struct {
- pid_t owner;int busy,reload;enum on_owner_phase phase;
+ pid_t owner;int busy,reload,iot_enabled;enum on_owner_phase phase;
  struct wr_iot_control_request input;unsigned char nonce[16];
  struct wr_iot_on_shutdown shutdown;
+ struct wr_iot_on_disabled disabled;
  struct wr_iot_on_admission admission;struct wr_iot_on_restore restore;
 } on_owner;
 static void on_owner_wipe(void *data,size_t size)
@@ -25,7 +27,7 @@ int wr_iot_rc_radio_on_begin(const struct wr_iot_control_request *r,int reload)
  struct wr_iot_control_fields fields;struct wr_iot_request desired={0};unsigned char nonce[16]={0};unsigned i,nonzero=0;int owned=0;
  if(!r||(reload!=0&&reload!=1)||on_owner.owner||on_owner.busy||on_owner.phase!=ON_OWNER_IDLE||
     wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||wr_iot_rc_shutdown.radio_off_owned||
-    wr_iot_rc_shutdown.radio_on_owned||r->request.enabled!=1||!r->created||
+    wr_iot_rc_shutdown.radio_on_owned||(r->request.enabled!=0&&r->request.enabled!=1)||!r->created||
     !memchr(r->id,0,sizeof(r->id))||!wr_iot_control_id(r->id))return 0;
 #define BOUNDED(f) if(!memchr(r->request.f,0,sizeof(r->request.f)))return 0;
  BOUNDED(ssid) BOUNDED(password) BOUNDED(gateway) BOUNDED(mask) BOUNDED(first) BOUNDED(last)
@@ -38,10 +40,16 @@ int wr_iot_rc_radio_on_begin(const struct wr_iot_control_request *r,int reload)
  fields.values[0]="1";fields.values[1]=(char*)r->request.ssid;fields.values[2]=(char*)r->request.password;
  fields.values[3]=(char*)r->request.gateway;fields.values[4]=(char*)r->request.mask;
  fields.values[5]=(char*)r->request.first;fields.values[6]=(char*)r->request.last;
- if(!wr_iot_request_read(&desired,wr_iot_control_read,&fields,1,1,0,NULL,0))goto done;
+ if(r->request.enabled){
+  if(!wr_iot_request_read(&desired,wr_iot_control_read,&fields,1,1,0,NULL,0))goto done;
+ }else{
+  /* Disabled intent carries no credentials or subnet to accidentally apply. */
+  if(r->request.ssid[0]||r->request.password[0]||r->request.gateway[0]||
+     r->request.mask[0]||r->request.first[0]||r->request.last[0])goto done;
+ }
  on_owner.busy=1;
  if(!wr_iot_on_admission_begin_reload(&on_owner.admission,reload))goto done;
- on_owner.owner=getpid();on_owner.reload=reload;wr_iot_rc_shutdown.radio_on_owned=1;
+ on_owner.owner=getpid();on_owner.reload=reload;on_owner.iot_enabled=r->request.enabled;wr_iot_rc_shutdown.radio_on_owned=1;
  memcpy(on_owner.input.id,r->id,sizeof(r->id));on_owner.input.created=r->created;
  on_owner.input.request=desired;
  memcpy(on_owner.nonce,nonce,sizeof(nonce));
@@ -180,6 +188,11 @@ int wr_iot_radio_on_step(void)
   else if(on_owner.restore.phase==WR_ON_RESTORE_RETAINED)on_owner.phase=ON_OWNER_RETAINED;
   break;
  case ON_OWNER_HANDOFF:
+  if(!on_owner.iot_enabled){
+   if(on_owner.disabled.owner?wr_iot_on_disabled_current(&on_owner.disabled):
+      wr_iot_on_disabled_begin(&on_owner.disabled,&on_owner.restore,&on_owner.input))on_owner.phase=ON_OWNER_RELEASE;
+   break;
+  }
   r=on_owner.input;r.request=on_owner.restore.generation.desired;
   (void)wr_iot_on_restore_handoff(&on_owner.restore,&r);
   on_owner.phase=on_owner.restore.phase==WR_ON_RESTORE_HANDOFF?ON_OWNER_REBIND:ON_OWNER_RETAINED;
@@ -188,10 +201,10 @@ int wr_iot_radio_on_step(void)
   if(wr_iot_on_rebind_step(&on_owner.restore))on_owner.phase=ON_OWNER_RELEASE;
   break;
  case ON_OWNER_RELEASE:
-  if(wr_iot_rc_radio_on_release(&on_owner.restore))on_owner.phase=ON_OWNER_FOLLOWUP;
+  if(on_owner.iot_enabled?wr_iot_rc_radio_on_release(&on_owner.restore):wr_iot_on_disabled_release(&on_owner.disabled))on_owner.phase=ON_OWNER_FOLLOWUP;
   break;
  case ON_OWNER_FOLLOWUP:
-  if(wr_iot_on_followup_step(&on_owner.restore)){on_owner.phase=ON_OWNER_DONE;result=1;}
+  if(on_owner.iot_enabled?wr_iot_on_followup_step(&on_owner.restore):wr_iot_on_disabled_followup(&on_owner.disabled)){on_owner.phase=ON_OWNER_DONE;result=1;}
   else if(on_owner.restore.phase==WR_ON_RESTORE_RETAINED)on_owner.phase=ON_OWNER_RETAINED;
   break;
  case ON_OWNER_DONE:result=1;break;
@@ -211,11 +224,13 @@ int wr_iot_radio_on_retire(void)
     !r->led_attempted||!r->led_returned||r->terminal.busy||r->terminal.guard||r->terminal.child||
     r->terminal.owner!=getpid()||!r->terminal.attempted||r->terminal.fence.owner||r->terminal.fence.level||r->terminal.result!=1||
     !wr_iot_iapp_child_closed(&r->child)||r->child.result!=1)return 0;
- if(r->handoff_created!=on_owner.input.created||memcmp(r->open_id,on_owner.nonce,16)||wr_iot_rc_radio_off_receipt(&receipt))return 0;
+ if((on_owner.iot_enabled?r->handoff_created!=on_owner.input.created:
+    (r->handoff_created||on_owner.disabled.owner!=getpid()||on_owner.disabled.restore!=r||on_owner.disabled.busy))||
+    memcmp(r->open_id,on_owner.nonce,16)||wr_iot_rc_radio_off_receipt(&receipt))return 0;
  for(i=0;i<sizeof(on_owner.input.request);i++)if(((unsigned char*)&on_owner.input.request)[i])return 0;
  for(i=0;i<sizeof(r->generation.desired);i++)if(((unsigned char*)&r->generation.desired)[i])return 0;
  for(i=0;i<WR_IOT_BUNDLE_MAX;i++)if(a->profile.files.saved[i].data)return 0;
  on_owner.busy=1;
- if(!wr_iot_on_followup_step(r)){on_owner.busy=0;return 0;}
+ if(!(on_owner.iot_enabled?wr_iot_on_followup_step(r):wr_iot_on_disabled_followup(&on_owner.disabled))){on_owner.busy=0;return 0;}
  on_owner_wipe(&on_owner,sizeof(on_owner));wr_iot_rc_shutdown.radio_on_owned=0;return 1;
 }
