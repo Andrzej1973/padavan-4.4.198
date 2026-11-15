@@ -138,6 +138,13 @@ int wr_iot_radio_on_step(void)
   if(on_cancelled_finish())return -1;
   on_owner.busy=0;return 0;
  }
+ if(!wr_iot_rc_shutdown.pending&&on_owner.restore.generation.owner==getpid()&&
+    !on_owner.restore.generation.main_may_have_started&&
+    (on_owner.phase==ON_OWNER_RETAINED||on_owner.restore.generation.phase==WR_ON_GEN_RESTORING||
+     on_owner.restore.generation.phase==WR_ON_GEN_RESTORED)){
+  if(wr_iot_on_restore_preup_recover(&on_owner.restore)==-1&&on_cancelled_finish())return -1;
+  on_owner.busy=0;return 0;
+ }
  if(wr_iot_rc_shutdown.pending&&on_owner.restore.generation.main_may_have_started&&
     !on_owner.restore.handoff_created&&on_owner.restore.generation.admission){
   (void)wr_iot_on_restore_step(&on_owner.restore);

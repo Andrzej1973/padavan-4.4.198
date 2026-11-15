@@ -46,9 +46,11 @@ int main(int argc,char**argv){
   for(int tick=0;tick<50&&!done;tick++){
    done=wr_iot_radio_on_step();
    if(on_owner.restore.phase==WR_ON_RESTORE_RELEASED){saw_release=1;assert(wr_iot_rc_shutdown.radio_on_owned&&!wr_iot_rc_shutdown.radio_off_owned&&!wr_iot_rc_shutdown.active&&!depth);}
-   assert(wr_iot_rc_shutdown.radio_on_owned);
+   if(done!=-1)assert(wr_iot_rc_shutdown.radio_on_owned);
   }
-  if(fault){
+  if(fault==2){
+   assert(done==-1&&!on_owner.owner&&!wr_iot_radio_on_pending()&&!depth&&radio_off_receipt_valid&&!ups&&!wan_submits);
+  }else if(fault){
    assert(!done&&on_owner.phase==ON_OWNER_RETAINED&&wr_iot_radio_on_pending()&&!wr_iot_radio_on_retire());
    assert(fault==1?(saw_release&&ups==1&&child_begins==1):(!ups&&!wan_submits&&on_owner.admission.profile.active));
    /* Fixture-only retained-state teardown; production failure cleanup unfinished. */

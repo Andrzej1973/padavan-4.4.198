@@ -20,6 +20,23 @@ int wr_iot_on_restore_begin(struct wr_iot_on_restore *s,struct wr_iot_on_admissi
  if(wr_iot_on_generation_begin(&s->generation,a,desired,reload))s->phase=WR_ON_RESTORE_PROFILE;
  s->busy=0;return s->phase==WR_ON_RESTORE_PROFILE;
 }
+int wr_iot_on_restore_preup_recover(struct wr_iot_on_restore *s)
+{
+ int restored=0;
+ if(!s||s->owner!=getpid()||s->busy||s->generation.owner!=getpid()||
+    s->generation.main_may_have_started||s->main.owner||s->guest.owner||
+    s->services.owner||s->multicast.owner||s->wan.owner||s->terminal.owner||
+    s->child.owner||s->handoff_created||!wr_iot_rc_shutdown.active)return 0;
+ s->busy=1;
+ if(wr_iot_on_generation_recover(&s->generation)==-1){
+  if(!s->rollback_state_attempted){
+   s->rollback_state_attempted=1;
+   s->rollback_state_returned=wr_iot_rc_radio_on_rollback_state(&s->generation.admission->released)==1;
+  }
+  restored=wr_iot_rc_radio_on_rollback_current(&s->generation.admission->released);
+ }
+ s->busy=0;return restored?-1:0;
+}
 int wr_iot_on_restore_step(struct wr_iot_on_restore *s)
 {
  int ok=0;

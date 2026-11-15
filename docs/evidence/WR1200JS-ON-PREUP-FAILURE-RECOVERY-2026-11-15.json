@@ -1,0 +1,37 @@
+{
+  "scope": "non-shutdown pre-UP root recovery",
+  "checks_passed": [
+    "check-radio-on-failure-recover.py",
+    "check-radio-on-owner.py",
+    "check-radio-on-cancel.py",
+    "check-radio-on-root-shutdown.py",
+    "check-physical-stop-client-preparation.py"
+  ],
+  "compiler": "host GCC C11 Werror; root fixtures ASan/UBSan",
+  "cases": [
+    "partial generator failure restores baseline",
+    "invalid generated profile restores baseline",
+    "foreign replacement inode retained without overwrite",
+    "RAM failure recovers with no Main UP",
+    "pending shutdown regressions"
+  ],
+  "invariants": [
+    "original OFF receipt preserved",
+    "one RAM rollback attempt and fresh readback",
+    "no possible Main UP or owned child permitted",
+    "outer fence releases only after exact profile/RAM/DOWN proof"
+  ],
+  "sha256": {
+    "tools/iot/radio-on-owner.c": "5589fd28f97f90706066776476f0f7de09f47409776c5a167e6c79b946299c64",
+    "tools/iot/radio-on-restore.c": "7d9e0f8c75ee78d44e4110b592d23b77bd07caaab10b7e4c34509ea4fa044939",
+    "tools/iot/radio-on-restore.h": "6cb2db0bf352d2d9303e408fa0660cef85f4e0c605bef57a53117d5d463e9ce0",
+    "tools/iot/check-radio-on-failure-recover.py": "9f6b6daf31377d94c9d62842fef5b4f34a27ef00e3ecddf9d2b3783d065f501f",
+    "tools/iot/check-radio-on-owner.py": "a3c65ec780d306ef52014a59cb17f02870c936fc939c4ef42d68f539b090601e",
+    "tools/iot/check-physical-stop-suite.py": "a26f3e244f962bf24c22e690c5e4f1cf389de4cffac71a3ab1af37183b1fd45e",
+    "tools/iot/compile-runtime-link.sh": "74a43bf83926ada301e3ba7b97e18fcd5f941a30de478a64235aedf1b7716475"
+  },
+  "target_verified": false,
+  "image_verified": false,
+  "runtime_verified": false,
+  "public_entry_bound": false
+}

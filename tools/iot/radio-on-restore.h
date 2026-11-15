@@ -20,4 +20,7 @@ struct wr_iot_on_restore {
 int wr_iot_on_restore_begin(struct wr_iot_on_restore *,struct wr_iot_on_admission *,const struct wr_iot_request *,int reload,const unsigned char *open_id);
 /* One phase/tick.1 only PREPARED observations, never guard/receipt retirement. */
 int wr_iot_on_restore_step(struct wr_iot_on_restore *);
+/* Explicit non-shutdown pre-UP failure recovery: no child/Main may exist.
+ * -1 restored profile plus fresh RAM OFF; retains guards for root cleanup. */
+int wr_iot_on_restore_preup_recover(struct wr_iot_on_restore *);
 #endif
