@@ -1,0 +1,18 @@
+{
+  "scope": "standalone read-only pending normal shutdown DOWN proof; not generation or Main UP permission",
+  "checks": {
+    "actual_c_gcc_werror_asan_ubsan": "PASS",
+    "exact_identity_both_reads_failure": "PASS",
+    "guard_policy_down_ownership_refusal": "PASS",
+    "sigterm_sigquit_preserved_other_signal_refused": "PASS"
+  },
+  "sha256": {
+    "tools/iot/precreated-down-recovery.c": "d9e1351267d227fdc4b6d677d419c9d2cadbbfb2b70e65ff18ae4fecf1feecdb",
+    "tools/iot/precreated-down-recovery.h": "a6a6fd3b4b40ff45b65ea6b09a8a66c9a171d638d7fd168a5ff07d5d5f589277",
+    "tools/iot/check-precreated-down-recovery.py": "c74c17c93d77bb9043509ff4e4699fc2fe854532ad3fb7c62002b88f6db4f95e"
+  },
+  "runtime_staged": false,
+  "generation_recovery_connected": false,
+  "target_verified": false,
+  "physical_verified": false
+}
