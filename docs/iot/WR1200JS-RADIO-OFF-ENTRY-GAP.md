@@ -315,3 +315,13 @@ Actual RC wait fixture checks admission once, later progress, no physical replay
 and ordinary/resume exclusion (follow-up actor injected); actual profile/RAM
 composition separately passes. Runtime manifest distinguishes this partial
 profile/RAM binding from the still-unbound public radio OFF entry.
+
+Standalone radio-off-bridge detaches only fixed SDK 2GHz names from br0, one
+slot/call, with current physical DOWN observation and service guard. It checks
+IFF_UP clear, exact master and stable ifindices; optional absent interfaces
+are accepted, Main absence refuses. Foreign bridge refuses without mutation.
+After DELIF any error/readback uncertainty is retained, never implicit replay.
+Host ASan/UBSan syscall fixture PASS all seven names, absent/already-detached,
+UP/foreign/guard/observation refusal and ioctl/close uncertainty. Not staged
+or controller-bound yet. Full e05b6189 host suite exit0/hash recorded separately;
+completed 37KB scratch removed after evidence capture. No runtime claim.
