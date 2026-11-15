@@ -2,7 +2,7 @@
 from pathlib import Path
 import subprocess,tempfile
 here=Path(__file__).resolve().parent
-code=(here/'check-rc-runtime.c').read_text()
+code='#define WR_IOT_RUNTIME_FIXTURE_EXTERNAL_ADMISSION\n'+(here/'check-rc-runtime.c').read_text()
 old='int wr_iot_radio_off_begin(struct wr_iot_radio_off_owner*s,const struct wr_iot_control_request*r){(void)s;(void)r;return 0;}\nint wr_iot_radio_off_step(struct wr_iot_radio_off_owner*s,int reload){(void)s;(void)reload;assert(0);return 0;}'
 assert code.count(old)==1
 code=code.replace(old,r'''
@@ -35,7 +35,7 @@ code=code.replace(a,r'''
  assert(policy_reads==1&&physical_steps==off_base&&steps==ordinary&&resume_steps==scheduled);
  policy_allowed=1;wr_iot_rc_wait(&empty,&notification,&alarm_flag);
  assert(policy_reads==2&&physical_steps==off_base+1&&steps==ordinary&&resume_steps==scheduled);
- assert(radio_off_owner.result==1&&radio_off_pending()&&radio_off_owner.policy_ready);
+ assert(wr_iot_rc_shutdown.radio_off_owned&&radio_off_owner.result==1&&radio_off_pending()&&radio_off_owner.policy_ready);
  assert(!wr_iot_rc_radio_off_begin(&off,1)); /* Follow-up has not acknowledged it. */
  wr_iot_rc_wait(&empty,&notification,&alarm_flag);
  assert(physical_steps==off_base+1&&steps==ordinary&&resume_steps==scheduled&&policy_reads==2);

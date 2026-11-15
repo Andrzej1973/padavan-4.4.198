@@ -2,7 +2,7 @@
 from pathlib import Path
 import subprocess,tempfile
 here=Path(__file__).resolve().parent
-code=(here/'check-rc-runtime.c').read_text()
+code='#define WR_IOT_RUNTIME_FIXTURE_EXTERNAL_ADMISSION\n'+(here/'check-rc-runtime.c').read_text()
 def replace_once(text, old, new):
  assert text.count(old)==1, 'RC fixture anchor changed: '+old
  return text.replace(old,new,1)

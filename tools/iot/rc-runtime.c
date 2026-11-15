@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include "rc-runtime.h"
 #include "radio-off-owner.h"
+#include "rc-shutdown-admission.h"
 #include "control-channel.h"
 #include "rc-backend.h"
 #include "rc-physical-stop.h"
@@ -23,9 +24,9 @@ static int radio_off_pending(void)
 {return radio_off_owner.owner==getpid();}
 int wr_iot_rc_radio_off_begin(const struct wr_iot_control_request *off,int reload)
 {
- if((reload!=0&&reload!=1)||radio_off_owner.owner||radio_off_owner.busy)return 0;
+ if((reload!=0&&reload!=1)||radio_off_owner.owner||radio_off_owner.busy||wr_iot_rc_shutdown.radio_off_owned)return 0;
  if(!wr_iot_radio_off_begin(&radio_off_owner,off))return 0;
- radio_off_reload=reload;return 1;
+ wr_iot_rc_shutdown.radio_off_owned=1;radio_off_reload=reload;return 1;
 }
 static unsigned long long runtime_ms(void)
 {struct timespec t;if(clock_gettime(CLOCK_MONOTONIC,&t)||t.tv_sec<=0)return 0;return (unsigned long long)t.tv_sec*1000+(unsigned long long)t.tv_nsec/1000000;}

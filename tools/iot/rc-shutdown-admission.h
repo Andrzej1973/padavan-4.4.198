@@ -7,6 +7,9 @@
 struct wr_iot_rc_shutdown_admission {
  volatile sig_atomic_t active;
  volatile sig_atomic_t pending;
+ /* Process-context OFF exclusion; signal handlers never read/write it.
+  * Separate from active/pending, retained across physical shutdown_end. */
+ unsigned int radio_off_owned;
 };
 extern struct wr_iot_rc_shutdown_admission wr_iot_rc_shutdown;
 

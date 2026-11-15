@@ -5,6 +5,10 @@
 #include <signal.h>
 #include <unistd.h>
 #include "rc-backend.h"
+#include "rc-shutdown-admission.h"
+#ifndef WR_IOT_RUNTIME_FIXTURE_EXTERNAL_ADMISSION
+struct wr_iot_rc_shutdown_admission wr_iot_rc_shutdown;
+#endif
 static char directory[]="/tmp/iot-rc-runtime-XXXXXX";
 #define WR_IOT_CONTROL_DIRECTORY directory
 #define WR_IOT_RUNTIME_UID geteuid()

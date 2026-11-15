@@ -181,3 +181,15 @@ ordinary wait-loop continuation do not slip between STOP and SDK follow-up.
 Actual RC/OFF fixture checks the terminal tick with both other lanes pending.
 This is wait-loop exclusion only: notification-driven/public control admission
 must also be audited before enabling the entrypoint. No public OFF binding.
+
+Public OFF exclusion now has a process-only radio_off_owned field in shared RC
+admission state. Signal handlers do not touch it; shutdown_end preserves it.
+Private RC OFF admission sets it after claim, and refuses an existing exclusion.
+Control-server dispatch refuses before shutdown_begin/mailbox claim; direct
+activation_execute returns RECOVERY before guard/mode/resource work.
+Actual backend/mailbox fixture proves the queued request can still dispatch
+after explicit test-only exclusion clearing, and proves shutdown_end does not
+clear exclusion. RC/OFF, runtime and scheduler checks PASS. Production clearing
+remains reserved for the future verified SDK-follow-up retirement; no entry
+activation, target or device claim. Deferred mailbox wake/replay after that
+retirement remains required.
