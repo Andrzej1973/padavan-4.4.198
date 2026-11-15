@@ -1,0 +1,22 @@
+{
+  "scope": "internal uninstalled driver observation",
+  "source": "tools/iot/precreated-down-binding.inc",
+  "test": "check-precreated-down-binding.py",
+  "host_result": "PASS gnu11 Werror ASan/UBSan",
+  "covered": [
+    "RTNL required",
+    "exact MT7603 third BSS and DOWN netdevs",
+    "peer table/executor under MacTabLock",
+    "control/boot/close ownership and reference predicate under transition lock",
+    "no nested locks",
+    "adapter unchanged on success"
+  ],
+  "limits": [
+    "caller must pin adapter/module/Main/ra2 lifetime",
+    "no route installed or output token",
+    "separate lock snapshots are not atomic drain or lease",
+    "no RF/DMA/IRQ claim",
+    "actual vendor target compile pending"
+  ],
+  "runtime_verified": false
+}
