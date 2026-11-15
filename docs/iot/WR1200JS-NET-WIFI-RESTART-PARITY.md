@@ -347,3 +347,14 @@ introduced. This is a fragment fixture, not full SDK/image verification. The
 transform is not yet invoked by firmware preparation. Script rule removal must
 be installed atomically with builder integration after exact prepared-SDK proof.
 Full registered aaebbfe suite71195 remains independently active and unchanged.
+
+
+Exact SDK firewall body composition now uses the actual quarantine-insertion
+AST loop from prepare-rc.py, then applies IAPP builder transformation. Both IPv4
+functions receive one pair after quarantine; IPv6 bodies receive none. The
+paired prepare-iappd-policy-pair validates builder and original script before
+returning either output; removes exactly two script appends. Exact script shell
+syntax passes and changed input refuses. CLI writes are not a filesystem atomic
+transaction: candidate trees must be discarded on write error. Neither transform
+is installed in firmware preparation yet. Full SDK compile/image parity remains
+required; this test is source composition, not a complete prepared SDK build.
