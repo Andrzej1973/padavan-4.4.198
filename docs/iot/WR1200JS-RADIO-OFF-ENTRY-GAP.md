@@ -364,3 +364,12 @@ DELIF; controller test verifies seven ordered observations and no detach replay.
 Host ASan/UBSan and prepared C11 checks PASS. Future Guest-isolation omission
 and final completion still require contextual current observations; 5GHz
 service behavior is not inferred from these tests.
+
+Standalone radio-off-wan retains the pre-STOP plan/RELEASE and permits only
+NONE/full-restart, never reconnect on OFF. Under fresh guard it checks current
+physical DOWN and current WAN plan, then releases guard before the fixed SDK
+call, marking attempt first. Reentrant/repeated calls never resubmit; pending
+shutdown holds. Host ASan/UBSan fixture PASS NONE/full, stale policy/DOWN refusal
+and reentrant no replay. Return means call returned, not WAN readiness. Not
+controller-bound: preceding auth/service policy and post-WAN network observations
+remain required, as does IAPP/final baseline retirement. No target/runtime claim.
