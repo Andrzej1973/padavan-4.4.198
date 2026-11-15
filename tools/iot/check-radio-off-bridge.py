@@ -36,8 +36,10 @@ int main(void){
  struct wr_iot_physical_stop_request r={.action=WR_STOP_RELEASE};
  assert(wr_iot_radio_off_bridge_detach(&r,7)==WR_OFF_BRIDGE_REFUSED&&!deletes);
  for(selected=0;selected<7;selected++){
-  attached=1;assert(wr_iot_radio_off_bridge_detach(&r,selected)==WR_OFF_BRIDGE_DETACHED&&!depth&&!attached);
-  int before=deletes;assert(wr_iot_radio_off_bridge_detach(&r,selected)==WR_OFF_BRIDGE_DETACHED&&deletes==before);
+  attached=1;int prior=deletes;assert(!wr_iot_radio_off_bridge_observed(&r,selected)&&deletes==prior&&attached);
+  assert(wr_iot_radio_off_bridge_detach(&r,selected)==WR_OFF_BRIDGE_DETACHED&&!depth&&!attached);
+  int before=deletes;assert(wr_iot_radio_off_bridge_observed(&r,selected)&&deletes==before);
+  assert(wr_iot_radio_off_bridge_detach(&r,selected)==WR_OFF_BRIDGE_DETACHED&&deletes==before);
   absent=1;assert(wr_iot_radio_off_bridge_detach(&r,selected)==(selected==1?WR_OFF_BRIDGE_REFUSED:WR_OFF_BRIDGE_DETACHED));absent=0;
  }
  selected=0;attached=1;int before=deletes;

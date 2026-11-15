@@ -59,12 +59,16 @@ enum wr_iot_off_followup_phase wr_iot_off_followup_step(struct wr_iot_off_follow
  if(entered==WR_OFF_FOLLOWUP_BRIDGE&&s->phase==WR_OFF_FOLLOWUP_BRIDGE){
   enum wr_iot_off_bridge_result detached;
   /* State mutation and bridge detach occur in separate RC windows. */
-  if(s->bridge_slot>=7)s->phase=WR_OFF_FOLLOWUP_NETWORK_PENDING;
+  if(s->bridge_slot>=7)s->phase=WR_OFF_FOLLOWUP_BRIDGE_VERIFY;
   else {
    detached=wr_iot_radio_off_bridge_detach(&s->released,s->bridge_slot);
    if(detached==WR_OFF_BRIDGE_DETACHED)s->bridge_slot++;
    else if(detached==WR_OFF_BRIDGE_UNCERTAIN)s->phase=WR_OFF_FOLLOWUP_RETAINED;
   }
+ }
+ if(entered==WR_OFF_FOLLOWUP_BRIDGE_VERIFY&&s->phase==WR_OFF_FOLLOWUP_BRIDGE_VERIFY){
+  if(s->bridge_verify>=7)s->phase=WR_OFF_FOLLOWUP_NETWORK_PENDING;
+  else if(wr_iot_radio_off_bridge_observed(&s->released,s->bridge_verify))s->bridge_verify++;
  }
  s->busy=0;return s->phase;
 }

@@ -354,3 +354,13 @@ branches can flush/delete ebtables chains and unload modules. Current private
 OFF policy is router/mode0 only. A scoped detached/down ra1 observer is needed
 to justify omitting the irrelevant 2GHz bridge-port write; do not invoke global
 helper or assume 5GHz readiness from this source audit.
+
+Bridge helper now exposes read-only slot observation using the same fixed-name
+DOWN/master/ifindex/current-release checks, with DELIF disabled. Controller
+performs a separate seven-slot verification phase after detach before entering
+NETWORK_PENDING. Each observation is per tick, not an atomic all-interface
+snapshot or future lease. Helper test proves attached observation performs no
+DELIF; controller test verifies seven ordered observations and no detach replay.
+Host ASan/UBSan and prepared C11 checks PASS. Future Guest-isolation omission
+and final completion still require contextual current observations; 5GHz
+service behavior is not inferred from these tests.

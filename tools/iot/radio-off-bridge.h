@@ -6,4 +6,6 @@ enum wr_iot_off_bridge_result {WR_OFF_BRIDGE_REFUSED,WR_OFF_BRIDGE_DETACHED,WR_O
  * absent optional netdev. REFUSED made no bridge mutation; UNCERTAIN must not
  * be replayed automatically. No radio/interface-UP or arbitrary names. */
 enum wr_iot_off_bridge_result wr_iot_radio_off_bridge_detach(const struct wr_iot_physical_stop_request *,unsigned);
+/* Read-only slot observation; never issues DELIF even when attached. */
+int wr_iot_radio_off_bridge_observed(const struct wr_iot_physical_stop_request *,unsigned);
 #endif

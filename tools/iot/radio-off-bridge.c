@@ -20,8 +20,8 @@ static int off_master(const char *name)
  if((size_t)n>=sizeof(value)-1)return -1;
  value[n]=0;last=strrchr(value,'/');return last&&!strcmp(last+1,"br0")?1:-1;
 }
-enum wr_iot_off_bridge_result wr_iot_radio_off_bridge_detach(
- const struct wr_iot_physical_stop_request *released,unsigned slot)
+static enum wr_iot_off_bridge_result off_bridge_check(
+ const struct wr_iot_physical_stop_request *released,unsigned slot,int detach)
 {
  static const char *const names[]={"ra1","ra0","wds3","wds2","wds1","wds0","apcli0"};
  struct ifreq r={0};struct stat bridge;unsigned index,br;int token,fd,state,result,closed;
@@ -50,6 +50,7 @@ enum wr_iot_off_bridge_result wr_iot_radio_off_bridge_detach(
      wr_iot_radio_off_observed(released))outcome=WR_OFF_BRIDGE_DETACHED;
   goto done;
  }
+ if(!detach){(void)close(fd);goto done;}
  memset(&r,0,sizeof(r));memcpy(r.ifr_name,"br0",4);r.ifr_ifindex=(int)index;
  result=ioctl(fd,SIOCBRDELIF,&r);closed=close(fd);
  outcome=WR_OFF_BRIDGE_UNCERTAIN;
@@ -57,3 +58,9 @@ enum wr_iot_off_bridge_result wr_iot_radio_off_bridge_detach(
     if_nametoindex("br0")==br&&wr_iot_radio_off_observed(released))outcome=WR_OFF_BRIDGE_DETACHED;
  done:wr_iot_service_guard_leave(token);return outcome;
 }
+
+enum wr_iot_off_bridge_result wr_iot_radio_off_bridge_detach(
+ const struct wr_iot_physical_stop_request *released,unsigned slot)
+{return off_bridge_check(released,slot,1);}
+int wr_iot_radio_off_bridge_observed(const struct wr_iot_physical_stop_request *released,unsigned slot)
+{return off_bridge_check(released,slot,0)==WR_OFF_BRIDGE_DETACHED;}
