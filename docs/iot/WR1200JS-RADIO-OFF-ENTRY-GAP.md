@@ -203,3 +203,14 @@ Failure cleanup uses its exact failure query without requiring a success receipt
 Focused physical take/receipt, owner, actual composition and RC ppoll checks PASS.
 This retained receipt is provenance for fresh follow-up validation, not a fresh
 observation or authorization to mutate the replacement/current adapter.
+
+A staged radio-off-current observer now acquires a fresh service guard after
+physical admission ends, requires retained OFF exclusion/no pending shutdown,
+checks the current backend CLOSED tuple against retained RELEASE twice, Main
+administrative DOWN twice and stable nonzero ra0 ifindex. It has no mutating
+operations. Host ASan/UBSan tests inject each tuple field drift, ifindex drift,
+pending signal, guard/backend/Main failures and invalid RELEASE. Prepared C11
+compilation PASS. ABI/target-link include its unit/symbol. Fresh backend query
+availability after actual Main DOWN still needs target/device evidence; refusal
+retains ownership and never grants a timed fallback. Not yet a complete follow-up
+controller or runtime acceptance.
