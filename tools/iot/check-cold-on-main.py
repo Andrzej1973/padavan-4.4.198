@@ -51,6 +51,9 @@ int main(int argc,char**argv){
   assert(wr_iot_cold_admission_begin(&a,nonce)&&a.phase==WR_COLD_CAPTURED);
   assert(wr_iot_cold_generation_begin(&g,&a,&desired,1));
   assert(!wr_iot_cold_generation_step(&g)&&wr_iot_cold_generation_step(&g)==1);
+  wr_iot_rc_shutdown.pending=SIGTERM;
+  assert(!wr_iot_cold_main_begin(&m,&g)&&!up_calls&&!m.owner);
+  wr_iot_rc_shutdown.pending=0;
   up_result=fault==7?WR_RESTART_UP_NOT_SUBMITTED:fault==8?WR_RESTART_UP_UNCERTAIN:WR_RESTART_UP_RETURNED;
   assert(wr_iot_cold_main_begin(&m,&g)==(up_result==WR_RESTART_UP_RETURNED));
   assert(up_calls==1&&g.main_may_have_started&&!wr_iot_cold_main_begin(&m,&g));
@@ -61,6 +64,8 @@ int main(int argc,char**argv){
   if(!fault){
    assert(m.identity.adapter_epoch==5&&m.identity.device_generation==2);
    idle_reads=0;assert(wr_iot_cold_main_step(&m));
+   FILE*f=fopen(profile_path,"a");assert(f&&fputs("# foreign change\n",f)>=0&&!fclose(f));
+   assert(!wr_iot_cold_main_step(&m)&&up_calls==1);
    g.phase=WR_COLD_GEN_RESTORED;assert(!wr_iot_cold_main_step(&m));
   }
   /* Fixture-only teardown: post-UP production retirement is not implemented. */
