@@ -1,0 +1,52 @@
+{
+  "checked_at_utc": "2026-11-15T13:45:05.931105+00:00",
+  "revision": "0a66b08ee7bda1a3f7867b6599ccc5a79e95ae23",
+  "scope": "Fresh host verification after environment restart; no prior missing temporary log accepted",
+  "checks": [
+    {
+      "command": "python3 -B tools/iot/check-cold-on-postshutdown.py",
+      "result": "PASS",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 -B tools/iot/check-rc-cold-shutdown-release.py",
+      "result": "PASS",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 -B tools/iot/check-physical-stop-client-preparation.py",
+      "result": "PASS",
+      "exit_code": 0
+    }
+  ],
+  "sha256": {
+    "cold-on-postshutdown.c": "7cae4d7047172f26acb3b69325a7a3aab64bdc10371dc831dadc9be9a12604c0",
+    "cold-on-postshutdown.h": "ee5ed057fd484591c747ce682f644675f7d63cd076f93fc6472c594e030b7fa2",
+    "rc-cold-shutdown.inc": "47352c78e044b55ab238e084f28c9a4a1fdd255af7cfc74b59172588693a89e0",
+    "rc-cold-shutdown-release.inc": "eb68037ee1acd0b3dea379d1549eb70bdbd162d1e38bbc74369c9af21eca5d2d",
+    "check-cold-on-postshutdown.py": "c8de8f14b4ccfd09b758d96d3be06f1675e910c639a9b5c98f1623236453cc09",
+    "check-rc-cold-shutdown-release.py": "b7ea6d3f484471934055220991abd9bbeb5c502ce5cd48d013f5cc3b4c5c00ed",
+    "check-physical-stop-client-preparation.py": "70e8bc0707f1b45c288b4ab003a6cb1af48c7f477e6763d09c71338af6c2a364",
+    "prepare-runtime.py": "9a384f795253643b77d6f78945bba44e2254451e50e4c43f8071e3c6eda3d819",
+    "check-runtime-source.py": "0eebbd64c6b4928b1a2f7e087260efb57f9a423e70a670ae1ff80155ce387385"
+  },
+  "target_build_verified": false,
+  "physical_runtime_verified": false,
+  "public_cold_entry_bound": false,
+  "full_suite": {
+    "result": "TIMEOUT_NOT_PASS",
+    "session": 70036,
+    "failed_check": "check-physical-terminal-down.py",
+    "limit_seconds": 60,
+    "standalone_recheck": {
+      "result": "PASS",
+      "elapsed_seconds": 52.78,
+      "log": "/tmp/wr-terminal-down-recheck.log"
+    },
+    "correction": "Bounded 120 second budget for this nested RELEASE fixture only; suite not yet reaccepted"
+  },
+  "ci": {
+    "optional1291_run": 43718932696,
+    "observed_status": "pending"
+  }
+}

@@ -315,3 +315,27 @@ pre-UP recovery and root shutdown routing are still unbound. In particular,
 pending shutdown before terminal continuation retains the root until its exact
 pre/post-handoff cleanup can be composed; do not install this normal-only root
 as a replacement for the running startup path.
+
+## Cold root post-UP shutdown routing staged
+
+`cold-on-root-shutdown.c` routes pending normal shutdown before parent release:
+never-opened ON/OFF intent uses the existing exact prehandoff cleanup; a bound
+ON backend uses one fresh OFF envelope, then the same retained stop controller
+and exact CLOSED/rejected release. A changed OFF argument after stop ownership
+cannot replace the original stop. Failed cleanup retains the root unchanged;
+root metadata is wiped only after child cleanup has released credentials and
+guard inside the existing signal fence. No Main reset or old-profile rollback.
+
+Both root units/headers and tests are now registered in runtime preparation,
+source equality checks, host compile checks, target ABI compilation and target
+symbol verification. The root shutdown routing fixture uses child actors;
+existing child fixtures exercise actual cleanup/signal fences separately.
+Pre-UP recovery, fresh OFF generation and scheduler/public root routing remain
+unbound, including post-parent-release root shutdown routing. Compile staging
+is not installation or target/runtime acceptance.
+
+The prior full-suite run stopped at the 60-second external budget for
+`check-physical-terminal-down.py`. The unchanged test then passed standalone
+in 52.78 seconds. It executes nested RELEASE fixtures like handler, so the
+suite now grants this check the same bounded 120-second budget as handler.
+This changes the host test budget only; the stopped suite is not marked PASS.

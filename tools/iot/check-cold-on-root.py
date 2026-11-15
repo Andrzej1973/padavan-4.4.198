@@ -63,6 +63,7 @@ int main(void){
   retire=0;before=state;assert(!wr_iot_cold_root_retire(root)&&!memcmp(&before,&state,sizeof(state)));
   retire=1;assert(wr_iot_cold_root_retire(root));memset(&before,0,sizeof(before));assert(!memcmp(&before,&state,sizeof(state)));
  }
+ root->stop.phase=WR_COLD_STOP_CLOSED;assert(!wr_iot_cold_root_begin(root,&request,1));memset(root,0,sizeof(*root));
  enabled=1;request.request.enabled=1;admit=2;assert(wr_iot_cold_root_begin(root,&request,1));
  assert(state.phase==WR_COLD_ROOT_RETAINED&&!wr_iot_cold_root_step(root)&&!wr_iot_cold_root_begin(root,&request,1));
  memset(&state,0,sizeof(state));admit=1;backend=0;assert(wr_iot_cold_root_begin(root,&request,1));
