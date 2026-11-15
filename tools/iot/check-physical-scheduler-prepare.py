@@ -6,6 +6,16 @@ code=(here/'check-rc-physical-stop.c').read_text().split('int main(void)',1)[0]
 old='static int scheduler_refuse,scheduler_prepares;\nint wr_iot_restart_scheduler_prepare(void){assert(!depth&&!wr_iot_rc_shutdown.active);scheduler_prepares++;return !scheduler_refuse;}'
 assert code.count(old)==1;code=code.replace(old,'').replace('int wr_iot_restart_scheduler_unowned(void){return 1;}','')
 code+=r'''
+static void cancel_handler(int sig)
+{
+ if(!wr_iot_rc_shutdown_note(sig)){
+  assert(!depth&&physical.result==-1&&physical.intent.restart);
+  for(unsigned i=0;i<sizeof(physical.quiesce.desired);i++){
+   assert(!((unsigned char *)&physical.quiesce.desired)[i]);
+  }
+  shutdowns++;
+ }
+}
 #include "restart-scheduler.c"
 #include "restart-resume-retire.c"
 int wr_iot_restart_resume_begin(struct wr_iot_restart_resume*s,const unsigned char*i,unsigned long long t){(void)s;(void)i;(void)t;assert(0);return 0;}
@@ -22,7 +32,7 @@ int main(void){
  assert(wr_iot_rc_physical_begin(&intent)&&!resume.owner&&physical.owner&&wr_iot_rc_shutdown.active);
  wr_iot_rc_physical_step();assert(wr_iot_rc_physical_take(&out)==-1&&!depth&&!wr_iot_rc_shutdown.active);
  assert(wr_iot_restart_scheduler_prepare());
- struct sigaction action={0};action.sa_handler=handler;sigemptyset(&action.sa_mask);
+ struct sigaction action={0};action.sa_handler=cancel_handler;sigemptyset(&action.sa_mask);
  assert(!sigaction(SIGTERM,&action,NULL));
  entropy_fail=0;intent.restart=intent.radio_on=1;query_status=WR_STOP_COMPLETE;
  assert(wr_iot_rc_physical_begin(&intent));
