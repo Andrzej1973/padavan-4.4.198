@@ -15,4 +15,5 @@ static inline enum wr_iot_wan_followup wr_iot_restart_wan_plan(
  if(radio_on&&wisp_band==changed_band)return WR_WAN_RECONNECT;
  return WR_WAN_NONE;
 }
+int wr_iot_rc_restart_wan_plan(int,enum wr_iot_wan_followup *);
 #endif

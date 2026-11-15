@@ -441,3 +441,12 @@ SDK execution. The eventual follow-up must occur after release of radio/service
 ownership; calling full_restart_wan inside resume would cross the unfinished
 transaction. Planner is standalone/unbound, not permission to drop WAN actions.
 CI058542e ABI43665781009 pending and standard43665783692 running at last check.
+
+
+Standalone restart-wan-policy-sdk copies MAN/WISP interface names immediately
+from existing SDK helpers, repeats reads and compares exact names before pure
+planning. This avoids shared static-buffer aliasing. Service guard, AP state,
+missing/oversized names and drift are checked. A fixture with deliberately shared
+helper buffer passes and verifies stable mismatch/reconnect/no-op decisions.
+No WAN operation is invoked. Actual helper extraction/target declaration checks,
+prepared source binding and once-only post-release dispatch remain required.
