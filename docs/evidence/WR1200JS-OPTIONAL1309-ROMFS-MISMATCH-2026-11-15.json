@@ -1,0 +1,27 @@
+{
+  "run_id": 43732936560,
+  "source_revision": "e08c88102eeaaab6e3cd1e077c13ba5ff28fa00c",
+  "monitor_run": 43739222555,
+  "monitor_correct_job_step": true,
+  "monitor_contains_causal_ValueError": true,
+  "original_excerpt": [
+    "build (wr1200js) / build-wr1200js\tUNKNOWN STEP\t2026-11-15T17:05:53.6070075Z make[1]: Leaving directory '/home/runner/work/padavan-4.4.198/padavan-4.4.198/padavan-4.4/trunk/vendors'",
+    "build (wr1200js) / build-wr1200js\tUNKNOWN STEP\t2026-11-15T17:05:55.7799376Z Traceback (most recent call last):",
+    "build (wr1200js) / build-wr1200js\tUNKNOWN STEP\t2026-11-15T17:05:55.7801386Z   File \"/home/runner/work/padavan-4.4.198/padavan-4.4.198/tools/iot/verify-isolated-trx.py\", line 36, in <module>",
+    "build (wr1200js) / build-wr1200js\tUNKNOWN STEP\t2026-11-15T17:05:55.7802667Z     a.report.write_text(json.dumps(verify(a.image,a.romfs,a.unsquashfs),indent=2)+'\\n')",
+    "build (wr1200js) / build-wr1200js\tUNKNOWN STEP\t2026-11-15T17:05:55.7803569Z                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "build (wr1200js) / build-wr1200js\tUNKNOWN STEP\t2026-11-15T17:05:55.7804572Z   File \"/home/runner/work/padavan-4.4.198/padavan-4.4.198/tools/iot/verify-isolated-trx.py\", line 28, in verify",
+    "build (wr1200js) / build-wr1200js\tUNKNOWN STEP\t2026-11-15T17:05:55.7805781Z     raise ValueError('Extracted ROMFS mismatch: '+', '.join(names[:12]))",
+    "build (wr1200js) / build-wr1200js\tUNKNOWN STEP\t2026-11-15T17:05:55.7807107Z ValueError: Extracted ROMFS mismatch: dev/console, dev/kmem, dev/mem, dev/mtd0, dev/mtd0ro, dev/mtd1, dev/mtd1ro, dev/mtd2, dev/mtd2ro, dev/mtd3, dev/mtd3ro, dev/mtd4",
+    "build (wr1200js) / build-wr1200js\tUNKNOWN STEP\t2026-11-15T17:05:55.8379627Z ##[error]Process completed with exit code 1."
+  ],
+  "finding": "Candidate compile and TRX packaging reached content verifier; /dev entry snapshot mismatch. Entry-specific expected/actual details not present in old diagnostic. Underlying cause unconfirmed.",
+  "change": "Extraction subprocess umask=0 only; exact mode/content comparison preserved; bounded expected/actual diagnostics added.",
+  "remaining": [
+    "verify exact /dev entries on new CI run"
+  ],
+  "runtime_verified": false,
+  "host_root_cause": "Non-root unsquashfs inherits umask: mode0666 extracts0644 with same SHA256. Reproduced before fix, passes with subprocess umask=0; pinned4.6.1 unsquashfs sets umask0 only when geteuid0.",
+  "monitor_review": "Full report does contain exact final ValueError; earlier inspection printed only truncated head. No parser change warranted.",
+  "restrictive_parent_umask_077": "PASS; extraction preserves0666 and parent umask stays077"
+}

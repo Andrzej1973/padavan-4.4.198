@@ -21,11 +21,12 @@ def verify(image,romfs,unsquashfs='unsquashfs'):
  expected=snapshot(romfs)
  with tempfile.TemporaryDirectory(prefix='wr-iot-trx-extract-') as d:
   root=Path(d)/'root'
-  subprocess.run([unsquashfs,'-no-progress','-processors','1','-offset',str(offsets[0]),'-dest',str(root),str(image)],check=True,stdout=subprocess.DEVNULL)
+  subprocess.run([unsquashfs,'-no-progress','-processors','1','-offset',str(offsets[0]),'-dest',str(root),str(image)],check=True,stdout=subprocess.DEVNULL,umask=0)
   actual=snapshot(root)
   if expected!=actual:
    names=sorted(n for n in expected.keys()|actual.keys() if expected.get(n)!=actual.get(n))
-   raise ValueError('Extracted ROMFS mismatch: '+', '.join(names[:12]))
+   detail={n:{'expected':expected.get(n),'actual':actual.get(n)} for n in names[:12]}
+   raise ValueError('Extracted ROMFS mismatch: '+json.dumps(detail,sort_keys=True))
  return {'image_sha256':hashlib.sha256(data).hexdigest(),'image_bytes':len(data),'uboot_header_crc_verified':True,
          'payload_crc_verified':True,'squashfs_offset':offsets[0],'all_romfs_entries_verified':len(expected),
          'isolated_trx_contents_verified':True,'production_installed':False,'physical_runtime_verified':False}
