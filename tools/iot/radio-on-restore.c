@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include "radio-on-restore.h"
 #include "restart-radio-state.h"
+#include "radio-on-rollback-state.h"
 #include "radio-on-aux.h"
 #include "rc-shutdown-admission.h"
 int wr_iot_on_restore_begin(struct wr_iot_on_restore *s,struct wr_iot_on_admission *a,
@@ -26,7 +27,10 @@ int wr_iot_on_restore_step(struct wr_iot_on_restore *s)
  s->busy=1;
  if(wr_iot_rc_shutdown.pending){
   if(s->generation.owner==getpid()&&!s->generation.main_may_have_started)
-   (void)wr_iot_on_generation_recover(&s->generation);
+   if(wr_iot_on_generation_recover(&s->generation)==-1&&!s->rollback_state_attempted){
+    s->rollback_state_attempted=1;
+    s->rollback_state_returned=wr_iot_rc_radio_on_rollback_state(&s->generation.admission->released)==1;
+   }
   /* Only Guest's own submitted UP can authorize its bounded DOWN recovery.
    * Profile/Main and outer ownership remain retained for root cleanup. */
   if(s->guest.owner)(void)wr_iot_on_guest_step(&s->guest);

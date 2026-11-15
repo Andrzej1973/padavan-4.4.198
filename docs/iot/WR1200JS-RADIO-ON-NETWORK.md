@@ -197,3 +197,20 @@ Focused host observer, actual journal/profile generation, full ON owner,
 restore composition and prepared-unit checks cover this addition. Tests verify
 pending recovery, UP/stale refusal, no generator replay, no recovery after
 main_may_have_started, and retained ownership. No target/device claim.
+
+## Pre-UP RAM OFF rollback
+
+After pending-shutdown profile recovery returns restored, the restore controller
+records one rollback-state attempt and calls the fixed SDK RAM adapter. It
+requires guard, router mode0 and exact recovery DOWN before and after
+`mlme_state_rt(0)` plus readback of `mlme_radio_rt`. It does not alter saved
+radio_x, rewind the consumable reload event, commit flash or issue radio UP.
+Failed write/readback or post-call drift retains uncertainty without replay.
+The profile baseline and fences still remain held: cancelled final retirement
+has not yet been implemented. No post-UP recovery is authorized by this path.
+
+Host C11-Werror ASan/UBSan constructed SDK helper check, actual restore pending
+composition, full ON-owner/release regression and prepared separate-unit checks
+passed. Pending pre-UP recovery calls rollback once, never Main UP, and keeps
+baseline/ownership. SDK and DOWN boundaries are injected; target/device status
+remains unverified. TemporaryDirectory scratch removed after checks.
