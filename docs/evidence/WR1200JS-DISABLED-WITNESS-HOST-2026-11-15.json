@@ -1,0 +1,27 @@
+{
+  "scope": "stable disabled idle witness borrowing exact PREPARED restore",
+  "checks_passed": [
+    "check-radio-on-disabled-witness.py",
+    "check-physical-stop-client-preparation.py"
+  ],
+  "covered": [
+    "stable parent child pointers",
+    "desired enabled0",
+    "active nonpending guard",
+    "fresh parent before and after idle readback",
+    "idle loss retains",
+    "new Main identity drift refuses",
+    "duplicate begin refuses"
+  ],
+  "invariants": [
+    "no OPEN",
+    "no profile rollback",
+    "no resource retirement",
+    "no live parent copy"
+  ],
+  "boundaries": "actual restore composition; initial idle transport injected and separately covered by initial-off tests",
+  "runtime_verified": false,
+  "target_verified": false,
+  "root_integration": false,
+  "remaining": "terminal disabled release/followup/root and public entry binding"
+}
