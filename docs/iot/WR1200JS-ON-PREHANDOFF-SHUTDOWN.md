@@ -62,3 +62,24 @@ The full registered recovery suite958b5560 completed with observed exit0. Its
 log hash/result and coverage boundary were saved; completed exact scratch
 (42,172 bytes) was removed. New witnesses have separate focused evidence and
 are not retroactively included in that full-suite result.
+
+## Private root prehandoff cleanup binding
+
+RC now exposes a private shutdown-only release entry which validates the
+prehandoff witness, exact original receipt and held outer guard/fence. The ON
+root calls it after draining Guest on pending normal shutdown. It releases the
+baseline without restoring obsolete pre-UP profile bytes, invalidates RC's old
+OFF receipt and invokes the bounded root-wipe callback before deferred signal
+replay. The callback clears root/ON exclusion and never changes admission or
+signals. Failed unmask retains exact restore/callback/context; each retry again
+checks fresh Main/profile/Guest proof. Post-proof identity drift blocks release.
+No Main DOWN, reset or second UP is issued. Physical shutdown remains the stock
+handler's responsibility, not a completion claim from this API.
+
+Host actual-root C11-Werror ASan/UBSan tests cover Main-WAIT and PREPARED, Guest
+recovery, failed mask retention, epoch drift during retry, root/receipt clearing
+before real SIGTERM, unchanged generated file and zero profile/RAM rollback.
+Pre-UP cancellation, follow-up, actual RC/ON/OFF/scheduler and staged separate
+unit regressions pass. Target-link now requires the private release symbol.
+The public OFF/ON entry remains unbound; post-handoff quiesce/closed/rejected
+cleanup still requires integration, along with cold/IoT-OFF and device gates.

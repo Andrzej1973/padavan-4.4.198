@@ -23,6 +23,7 @@ int wr_iot_rc_restart_wan_current(int on,enum wr_iot_wan_followup p){assert(on==
 void wr_iot_rc_restart_wan_submit(enum wr_iot_wan_followup p){assert(p==WR_WAN_FULL_RESTART&&!depth&&!wr_iot_rc_shutdown.active&&!radio_off_receipt_valid);wan_submits++;}
 #include "restart-wan-followup.c"
 #include "radio-on-release.c"
+#include "radio-on-prehandoff.c"
 #define radio_off_receipt receipt
 #include "radio-on-release-runtime.h"
 #undef radio_off_receipt

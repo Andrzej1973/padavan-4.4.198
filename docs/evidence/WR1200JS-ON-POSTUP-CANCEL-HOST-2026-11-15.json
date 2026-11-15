@@ -1,0 +1,22 @@
+{
+  "source_sha256": {
+    "radio-on-release-runtime.h": "cf901b495c0b4796ebab0b3635b66af3f17dda5ca521023de98ac9dbbe551031",
+    "radio-on-owner.c": "6b13ed6d3d6e8949237b4db2f3acf4873b5e97a45ae96d92fa42222666d42ef8",
+    "check-radio-on-postup-cancel.py": "8895e0339e2fd8b7d9c9bdc401fb7525d50cfa923755c33782cf0841b17e1386"
+  },
+  "checks_passed": [
+    "check-radio-on-postup-cancel.py",
+    "check-radio-on-owner.py",
+    "check-radio-on-cancel.py",
+    "check-radio-on-followup.py",
+    "check-rc-runtime.py",
+    "check-rc-radio-on-composition.py",
+    "check-rc-radio-off-composition.py",
+    "check-rc-scheduler-composition.py",
+    "check-physical-stop-client-preparation.py"
+  ],
+  "scope": "Actual private root/RC cleanup/fence with SDK and stock-signal-handler actors; no physical retirement claim",
+  "target_verified": false,
+  "device_verified": false,
+  "scratch": "TemporaryDirectory removed"
+}

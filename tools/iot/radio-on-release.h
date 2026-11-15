@@ -7,4 +7,8 @@ int wr_iot_on_release_current(struct wr_iot_on_restore *);
  * failed mask restore retains baseline/receipt/guards for same-context retry.
  * RELEASED is not DONE: caller still owns WAN/IAPP follow-up. */
 int wr_iot_rc_radio_on_release(struct wr_iot_on_restore *);
+/* Shutdown-only before handoff. Cleanup must infallibly wipe the stable root
+ * and ON exclusion, without changing signals/admission. Invoked before replay.
+ * Failed mask restore retains exact callback/context for same-owner retry. */
+int wr_iot_rc_radio_on_shutdown_release(struct wr_iot_on_restore *,void (*)(void *),void *);
 #endif

@@ -58,4 +58,57 @@ int wr_iot_rc_radio_on_release(struct wr_iot_on_restore *s)
  if(!wr_iot_radio_stop_fence_end_cleanup(&a->fence,rc_on_release_cleanup,s)){s->busy=0;return 0;}
  return s->phase==WR_ON_RESTORE_RELEASED;
 }
+
+/* Post-UP shutdown keeps the CURRENT generated profile for stock shutdown.
+ * Never restore the pre-UP bytes. Only RC can invalidate its old OFF receipt. */
+#include "radio-on-prehandoff.h"
+static struct {
+ struct wr_iot_on_restore *restore;
+ void (*cleanup)(void *);void *context;
+} rc_on_shutdown;
+static void rc_on_shutdown_cleanup(void *unused)
+{
+ struct wr_iot_on_restore *s=rc_on_shutdown.restore;
+ struct wr_iot_on_admission *a=s->generation.admission;
+ void (*cleanup)(void *)=rc_on_shutdown.cleanup;void *context=rc_on_shutdown.context;
+ size_t i;int guard=a->guard;(void)unused;
+ for(i=0;i<a->profile.files.count;i++)if(a->profile.files.saved[i].data)
+  rc_on_release_wipe(a->profile.files.saved[i].data,a->profile.files.saved[i].size);
+ wr_iot_bundle_release(&a->profile.files);rc_on_release_wipe(&a->profile,sizeof(a->profile));
+ radio_off_receipt_valid=0;rc_on_release_wipe(&radio_off_receipt,sizeof(radio_off_receipt));
+ rc_on_release_wipe(&s->generation.desired,sizeof(s->generation.desired));
+ wr_iot_rc_shutdown.radio_off_owned=0;
+ a->guard=0;a->busy=0;
+ memset(&rc_on_shutdown,0,sizeof(rc_on_shutdown));
+ wr_iot_service_guard_leave(guard);
+ /* Final root wipe/exclusion release must precede pending signal replay. */
+ cleanup(context);
+}
+int wr_iot_rc_radio_on_shutdown_release(struct wr_iot_on_restore *s,
+ void (*cleanup)(void *),void *context)
+{
+ struct wr_iot_on_admission *a;unsigned char before[64],after[64];
+ if(!s||!cleanup||s->owner!=getpid()||s->busy||!s->generation.admission||
+    (wr_iot_rc_shutdown.pending!=SIGTERM
+#ifdef SIGQUIT
+     &&wr_iot_rc_shutdown.pending!=SIGQUIT
+#endif
+    ))return 0;
+ a=s->generation.admission;
+ if(a->owner!=getpid()||a->guard!=1||a->busy!=1||a->fence.owner!=getpid()||a->fence.level!=1||
+    !wr_iot_rc_shutdown.active||!wr_iot_rc_shutdown.radio_on_owned||
+    !wr_iot_rc_shutdown.radio_off_owned||!radio_off_receipt_valid||
+    !wr_iot_physical_stop_request_encode(before,sizeof(before),&a->released)||
+    !wr_iot_physical_stop_request_encode(after,sizeof(after),&radio_off_receipt)||memcmp(before,after,sizeof(before)))return 0;
+ if(!wr_iot_on_prehandoff_cancel_current(s))return 0;
+ if(rc_on_shutdown.restore){
+  if(rc_on_shutdown.restore!=s||rc_on_shutdown.cleanup!=cleanup||rc_on_shutdown.context!=context)return 0;
+ }else{
+  if(radio_on_releasing)return 0;
+  rc_on_shutdown.restore=s;rc_on_shutdown.cleanup=cleanup;rc_on_shutdown.context=context;
+ }
+ s->busy=1;
+ if(!wr_iot_radio_stop_fence_end_cleanup(&a->fence,rc_on_shutdown_cleanup,NULL)){s->busy=0;return 0;}
+ return 1;
+}
 #endif

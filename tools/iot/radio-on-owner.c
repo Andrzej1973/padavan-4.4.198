@@ -96,6 +96,11 @@ static int on_cancelled_finish(void)
     !wr_iot_radio_recovery_down_observed(&a->released))return 0;
  return wr_iot_radio_stop_fence_end_cleanup(&a->fence,on_cancelled_cleanup,NULL);
 }
+static void on_postup_root_cleanup(void *context)
+{
+ (void)context;on_owner_wipe(&on_owner,sizeof(on_owner));
+ wr_iot_rc_shutdown.radio_on_owned=0;
+}
 int wr_iot_radio_on_step(void)
 {
  struct wr_iot_control_request r={0};int result=0;sigset_t queued;
@@ -115,6 +120,12 @@ int wr_iot_radio_on_step(void)
     on_owner.restore.generation.owner==getpid()){
   (void)wr_iot_on_restore_step(&on_owner.restore);
   if(on_cancelled_finish())return -1;
+  on_owner.busy=0;return 0;
+ }
+ if(wr_iot_rc_shutdown.pending&&on_owner.restore.generation.main_may_have_started&&
+    !on_owner.restore.handoff_created&&on_owner.restore.generation.admission){
+  (void)wr_iot_on_restore_step(&on_owner.restore);
+  if(wr_iot_rc_radio_on_shutdown_release(&on_owner.restore,on_postup_root_cleanup,NULL))return -1;
   on_owner.busy=0;return 0;
  }
  switch(on_owner.phase){
