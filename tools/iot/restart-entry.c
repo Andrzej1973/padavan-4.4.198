@@ -8,6 +8,8 @@
 #include "service-guard.h"
 #include "precreated-entropy.h"
 #include "rc-shutdown-admission.h"
+#include "rc-runtime.h"
+#include "radio-on-owner.h"
 static void entry_wipe(void*p,size_t n)
 {volatile unsigned char*b=p;while(n--)*b++=0;}
 int wr_iot_restart_entry(int radio_on,int reload)
@@ -34,4 +36,32 @@ int wr_iot_restart_entry(int radio_on,int reload)
  if(valid&&!wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.pending)
   result=wr_iot_rc_physical_begin_quiesce(&intent,&off);
  entry_wipe(bytes,sizeof(bytes));entry_wipe(&off,sizeof(off));return result;
+}
+
+enum wr_iot_radio_entry_result wr_iot_radio_on_entry(int radio_on,int reload)
+{
+ struct wr_iot_physical_stop_request receipt={0},after={0};
+ struct wr_iot_control_request request={0};struct timespec now;
+ unsigned char bytes[32]={0},a[64],b[64];unsigned i,nonzero=0;
+ int guard,valid=0;enum wr_iot_radio_entry_result result=WR_RADIO_ENTRY_REFUSED;
+ static const char hex[]="0123456789abcdef";
+ if(radio_on!=1)return WR_RADIO_ENTRY_NATIVE;
+ if((reload!=0&&reload!=1)||wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||
+    wr_iot_rc_shutdown.radio_on_owned||wr_iot_rc_shutdown.radio_off_owned)return result;
+ if(!wr_iot_rc_radio_off_receipt(&receipt))return WR_RADIO_ENTRY_NATIVE;
+ if(receipt.action!=WR_STOP_RELEASE||!wr_iot_physical_stop_request_valid(&receipt))return result;
+ guard=wr_iot_service_guard_enter(1);if(guard!=1)return result;
+ if(wr_iot_rc_radio_on_saved_request(&request.request)&&
+    clock_gettime(CLOCK_MONOTONIC,&now)==0&&now.tv_sec>0&&
+    wr_iot_precreated_entropy(NULL,bytes,sizeof(bytes))==(int)sizeof(bytes)&&
+    wr_iot_rc_radio_off_receipt(&after)&&
+    wr_iot_physical_stop_request_encode(a,sizeof(a),&receipt)&&
+    wr_iot_physical_stop_request_encode(b,sizeof(b),&after)&&!memcmp(a,b,sizeof(a))){
+  for(i=0;i<16;i++){nonzero|=bytes[i];request.id[2*i]=hex[bytes[i]>>4];request.id[2*i+1]=hex[bytes[i]&15];}
+  request.created=(unsigned long long)now.tv_sec;valid=nonzero!=0;
+ }
+ wr_iot_service_guard_leave(guard);
+ if(valid&&!wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.pending&&
+    wr_iot_rc_radio_on_begin(&request,reload))result=WR_RADIO_ENTRY_OWNED;
+ entry_wipe(bytes,sizeof(bytes));entry_wipe(&request,sizeof(request));return result;
 }

@@ -1,0 +1,25 @@
+{
+  "scope": "unbound receipt-based ON entry and actual saved NVRAM snapshot adapter",
+  "semantics": {
+    "NATIVE": "no historical RC OFF receipt or non-ON action",
+    "OWNED": "private root accepted stable immutable intent",
+    "REFUSED": "known owned/busy/invalid/uncertain case; must not fall through"
+  },
+  "checks": [
+    "fresh unique nonce/monotonic creation",
+    "guarded double saved request and mode readback",
+    "same RC receipt before/after",
+    "guard released before root admission",
+    "request/entropy temporary buffers wiped"
+  ],
+  "tests": [
+    "check-radio-on-entry.py",
+    "check-radio-on-saved-request.py",
+    "check-restart-entry.py",
+    "check-radio-on-sdk-mode.py",
+    "check-physical-stop-client-preparation.py"
+  ],
+  "public_hook_bound": false,
+  "target_verified": false,
+  "runtime_verified": false
+}

@@ -19,6 +19,9 @@ int wr_iot_rc_mode_read(struct wr_iot_rc_mode*m){assert(held);reads++;*m=(struct
 static int entropy(void*b,unsigned n,unsigned f){assert(held&&n==32&&f==1);memset(b,7,n);return entropy_ok?32:15;}
 #define WR_IOT_GETRANDOM(b,n,f) entropy(b,n,f)
 int wr_iot_rc_physical_begin_quiesce(const struct wr_iot_rc_physical_intent*i,const struct wr_iot_control_request*r){assert(!held&&!wr_iot_rc_shutdown.active&&!r->request.enabled&&!r->request.password[0]&&r->created&&strlen(r->id)==32&&i->restart&&i->radio_on&&i->reload==1);calls++;return claimed;}
+int wr_iot_rc_radio_off_receipt(struct wr_iot_physical_stop_request*r){(void)r;assert(0);return 0;}
+int wr_iot_rc_radio_on_saved_request(struct wr_iot_request*r){(void)r;assert(0);return 0;}
+int wr_iot_rc_radio_on_begin(const struct wr_iot_control_request*r,int reload){(void)r;(void)reload;assert(0);return 0;}
 #include "restart-entry.c"
 int main(void){
  wr_iot_rc_shutdown.radio_on_owned=1;assert(!wr_iot_restart_entry(1,1)&&!reads&&!calls&&!held);wr_iot_rc_shutdown.radio_on_owned=0;
