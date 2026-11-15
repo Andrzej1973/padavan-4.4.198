@@ -24,6 +24,17 @@ cancellation frees capture only, preserves foreign file changes and runs before
 pending shutdown replay. Failed signal-mask restoration retains ownership.
 The component is staged for compilation but is not routed from public RC entry.
 
+## Private cold profile generation implemented
+
+`cold-on-generation.c` exclusively borrows cold admission, retaining its guard,
+profile and signal fence. Fresh DOWN provenance precedes generation and restore.
+Reload calls the existing generator at most once; actual journal/scanner checks
+select VERIFIED or retain/restore the captured baseline. Foreign inode changes
+refuse restore. Possible Main UP prohibits every generation/recovery operation.
+Pending shutdown currently retains ownership; pending-aware recovery and checked
+retirement remain to implement before public binding. Host tests exercise the
+actual snapshot, scanner, journal, profile restore and cold admission/fence.
+
 ## Required integration, still incomplete
 
 1. `radio-on-admission.c` currently requires `wr_iot_rc_radio_off_receipt` and

@@ -67,3 +67,11 @@ int wr_iot_cold_admission_cancel(struct wr_iot_cold_admission *s)
  if(!wr_iot_radio_stop_fence_end_cleanup(&s->fence,cold_cancel_cleanup,s)){s->busy=0;return 0;}
  return s->phase==WR_COLD_CANCELLED;
 }
+
+int wr_iot_cold_admission_origin_current(struct wr_iot_cold_admission *s)
+{
+ return s&&s->owner==getpid()&&s->busy==1&&s->guard==1&&s->phase==WR_COLD_CAPTURED&&
+  s->fence.owner==getpid()&&s->fence.level==1&&wr_iot_rc_shutdown.active&&
+  !wr_iot_rc_shutdown.pending&&wr_iot_rc_shutdown.radio_off_owned&&
+  wr_iot_radio_profile_owned(&s->profile)&&s->profile.files.count==1&&cold_origin(s);
+}

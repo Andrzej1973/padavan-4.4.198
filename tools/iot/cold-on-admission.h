@@ -14,6 +14,8 @@ struct wr_iot_cold_admission {
 /* 1 means fence claimed, including retained refusal. Caller must cancel or
  * retain the context; no native fallback after a claim. */
 int wr_iot_cold_admission_begin(struct wr_iot_cold_admission *,const unsigned char *);
+/* Exclusive generation borrower holds busy=1. Fresh DOWN, not profile hash. */
+int wr_iot_cold_admission_origin_current(struct wr_iot_cold_admission *);
 int wr_iot_cold_admission_current(struct wr_iot_cold_admission *);
 /* Read-only capture only; generated or uncertain file state cannot cancel. */
 int wr_iot_cold_admission_cancel(struct wr_iot_cold_admission *);
