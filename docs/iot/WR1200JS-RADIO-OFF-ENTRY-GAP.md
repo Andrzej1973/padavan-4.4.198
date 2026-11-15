@@ -445,3 +445,14 @@ and no private admission in retirement gap. Existing runtime/scheduler and
 actual final signal-fence tests PASS. ABI43683137091 SUCCESS forbd4ba865 predates
 this finalization package. Public radio OFF entry still unbound; failures and
 shutdown before finalization require lifecycle acceptance separately.
+
+OFF->ON audit found the successful RC retirement erased the only retained
+userspace physical RELEASE identity. RC now preserves a separate nonsecret
+receipt after resource-free DONE, before wiping the follow-up. Read-only API
+returns a copy, not current DOWN or ON permission. New private OFF admission
+refuses while that successful receipt awaits a future checked Main-resume
+consumer; no implicit reuse/clear. RC fixture proves unavailable before DONE,
+preserved exact tuple after retirement, copy isolation and duplicate OFF refusal.
+Main resume from completed physical OFF still needs a dedicated owner path:
+normal rc-backend quiesce on OFF calls READY-only ra2 CLOSED and cannot be used.
+Public OFF entry remains unbound until OFF->ON/cold/failure paths are complete.

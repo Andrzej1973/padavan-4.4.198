@@ -22,11 +22,20 @@ static unsigned long long next_progress;
 static struct wr_iot_radio_off_owner radio_off_owner;
 static int radio_off_reload,radio_off_redispatch;
 static struct wr_iot_off_followup radio_off_followup;
+static struct wr_iot_physical_stop_request radio_off_receipt;
+static int radio_off_receipt_valid;
+int wr_iot_rc_radio_off_receipt(struct wr_iot_physical_stop_request *out)
+{
+ if(!out)return 0;
+ memset(out,0,sizeof(*out));
+ if(!radio_off_receipt_valid)return 0;
+ *out=radio_off_receipt;return 1;
+}
 static int radio_off_pending(void)
 {return radio_off_owner.owner==getpid()||radio_off_followup.phase==WR_OFF_FOLLOWUP_DONE;}
 int wr_iot_rc_radio_off_begin(const struct wr_iot_control_request *off,int reload)
 {
- if((reload!=0&&reload!=1)||radio_off_owner.owner||radio_off_owner.busy||radio_off_followup.owner||
+ if((reload!=0&&reload!=1)||radio_off_receipt_valid||radio_off_owner.owner||radio_off_owner.busy||radio_off_followup.owner||
     radio_off_followup.phase!=WR_OFF_FOLLOWUP_IDLE||radio_off_redispatch||wr_iot_rc_shutdown.radio_off_owned)return 0;
  if(!wr_iot_radio_off_begin(&radio_off_owner,off))return 0;
  wr_iot_rc_shutdown.radio_off_owned=1;radio_off_reload=reload;return 1;
@@ -39,6 +48,9 @@ static void radio_off_continue(void)
      radio_off_followup.finish_fence.level||radio_off_followup.off||radio_off_followup.finish_off||
      radio_off_followup.profile.baseline.active||radio_off_followup.profile.baseline.files.count||
      wr_iot_rc_shutdown.radio_off_owned||wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending)return;
+  if(radio_off_receipt_valid||radio_off_followup.released.action!=WR_STOP_RELEASE||
+     !wr_iot_physical_stop_request_valid(&radio_off_followup.released))return;
+  radio_off_receipt=radio_off_followup.released;radio_off_receipt_valid=1;
   memset(&radio_off_followup,0,sizeof(radio_off_followup));radio_off_reload=0;radio_off_redispatch=1;return;
  }
  if(radio_off_owner.owner!=getpid())return;
