@@ -1,0 +1,20 @@
+{
+  "scope": "uncomposed private disabled cold cleanup and inert backend INITIAL_OFF publication",
+  "checks": {
+    "actual_parent_profile_initial_OFF_policy_real_fence_asan_ubsan": "PASS",
+    "active_backend_or_rebind_excluded": "source predicate; active backend fixture PASS",
+    "failed_unmask_retains_profile_guard_and_backend": "PASS",
+    "success_wipes_parent_credentials_profile_guard": "PASS",
+    "only_inert_initial_OFF_receipt_published_no_OPEN": "PASS",
+    "queued_real_SIGTERM_handler_after_cleanup": "PASS"
+  },
+  "sha256": {
+    "tools/iot/rc-cold-disabled-release.inc": "81b0e9192714c58fceb055756396757d67805e686a68938f2e6364d2dcf50a25",
+    "tools/iot/check-rc-cold-disabled-release.py": "e8f54661254b2ce49609e6abe9650407384f7dcb82ad19483c409ca4c048e515",
+    "tools/iot/check-rc-cold-disabled-signal.py": "509ee3d4891f9147e52b05a844b7542ac16f3b4960a39f81ccc1ab966c7c56c4"
+  },
+  "runtime_composed": false,
+  "WAN_IAPP_followup_connected": false,
+  "target_verified": false,
+  "physical_verified": false
+}
