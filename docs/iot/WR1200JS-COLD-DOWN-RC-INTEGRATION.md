@@ -64,3 +64,25 @@ ASan/UBSan: changed epoch/generation/Main serial, zero fields, missing guard,
 inactive or pending admission, policy/bridge/BSS/DNS/Main failure, first and
 second transport-read failure. Prepared RC C11 objects compile. Full SDK target,
 final image and physical WR1200JS acceptance remain separate outstanding gates.
+
+## Main READY and recovery package staged
+
+`cold-on-main.c` now uses the existing initial-IDLE driver probe to check new
+Main READY/configuration and never-opened ra2 registration after one Main UP
+attempt. Same ra2 generation and newer adapter epoch are required; repeated
+observations must agree and their serial must advance. Possible submission
+permanently prohibits old profile rollback, including NOT_SUBMITTED because a
+foreign Main UP is possible. This is configuration evidence, not loaded-key/RF
+acceptance. `cold-on-recovery.c` provides pending-aware pre-UP restore and checked
+retirement; credentials/guard are released before shutdown replay. The earlier
+non-pending generation recovery helper remains available, but pending recovery
+uses the explicit pre-UP recovery component. No post-UP retirement is implemented.
+
+These units and pending DOWN recovery are now staged for RC/ABI compilation,
+with manifest `cold_on_entry_bound=false`. Full registered host suite on43b943dd
+passed before adding these new tests; each new test and expanded prepared C11
+unit compilation also passed separately. Public cold owner, Main LAN/Guest/
+services restoration and initial startup handoff remain incomplete. The existing
+initial `start-runner`/`start-admission` path already accepts never-opened READY
+ra2; audit its backend handoff for reuse rather than synthesizing a physical
+RELEASE or weakening physical-rebind validation.
