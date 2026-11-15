@@ -529,3 +529,17 @@ fence/guard/child. Actual fence/SIGTERM tests, root/WAN order composition, legac
 resume/scheduler, real child tests and native preparation pass. ABI adds target
 compile of terminal unit and gate1 resume. SDK/MIPS/image/device results pending;
 stock net_wifi entrypoint remains unbound and persistent post-WAN repair is open.
+
+
+## Private restart-entry adapter candidate
+
+Standalone restart-entry constructs a fresh private OFF envelope under service
+guard, requires stable router/mode0/radio-ON readings around nonblocking entropy
+and monotonic time, releases its borrowed guard then calls physical_begin_quiesce
+once with copied restart/reload intent. Secret scratch is wiped. Return1 means
+claimed, never completed; return0 does not authorize legacy fallback. Invalid
+inputs, pending admission, short entropy and mode drift refuse before physical
+begin in host ASan/UBSan test. SDK/physical actors are injected. The module is not
+yet linked or bound to net_wifi; cold/initial-OFF and radio-OFF cases retain their
+separate admission requirements. Existing full suite13982 continues unchanged
+registered code, excluding this standalone component.
