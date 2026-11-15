@@ -28,11 +28,14 @@ with tempfile.TemporaryDirectory(prefix='wr-entry-source-') as d:
  subprocess.run(['python3','-B',str(here/'check-restart-entry-manifest.py'),str(root)],check=True)
  net=(rc/'net_wifi.c').read_text();back=(rc/'wr-iot-rc-backend.c').read_text()
  assert net.index('WR_IOT_PRIVATE_RESTART_ENTRY')<net.index('legacy++')
- code='#define BOARD_WR1200JS\n#include <assert.h>\nstatic int claimed;\nint wr_iot_restart_entry(int on,int reload){assert(on==1&&reload==1);return claimed;}\n'+net+back+r'''
+ code='#define BOARD_WR1200JS\n#include <assert.h>\n#include "wr-iot/restart-entry.h"\nstatic int claimed,entry_result,on_entry_calls;\nenum wr_iot_radio_entry_result wr_iot_radio_on_entry(int on,int reload){assert(on==1&&reload==1);on_entry_calls++;return (enum wr_iot_radio_entry_result)entry_result;}\nint wr_iot_restart_entry(int on,int reload){assert(on==1&&reload==1);return claimed;}\n'+net+back+r'''
 int main(void){
  assert(!wr_iot_rc_restart_owned());backend.phase=WR_IOT_OWNER_INITIAL_OFF;assert(!wr_iot_rc_restart_owned());
  backend.phase=OTHER;assert(wr_iot_rc_restart_owned());backend.phase=WR_IOT_OWNER_IDLE;
  rebind.owner=1;assert(wr_iot_rc_restart_owned());rebind.owner=0;backend.busy=1;assert(wr_iot_rc_restart_owned());
+ entry_result=WR_RADIO_ENTRY_OWNED;restart_wifi_rt(1,1);assert(!legacy&&on_entry_calls==1);
+ entry_result=WR_RADIO_ENTRY_REFUSED;restart_wifi_rt(1,1);assert(!legacy&&on_entry_calls==2);
+ entry_result=WR_RADIO_ENTRY_NATIVE;
  claimed=1;restart_wifi_rt(1,1);assert(!legacy);
  claimed=0;restart_wifi_rt(1,1);assert(legacy==1);
 }

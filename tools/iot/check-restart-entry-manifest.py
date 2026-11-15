@@ -12,7 +12,9 @@ s=(rc/'net_wifi.c').read_text();start=s.index('void\nrestart_wifi_rt(');end=s.in
 body=s[start:end]
 assert body.count('WR_IOT_PRIVATE_RESTART_ENTRY')==1
 assert body.count('if(!wr_iot_radio_stop_fence_begin(&wr_iot_fence)){wr_iot_last_stop_result=0;return;}')==1
-assert body.index('wr_iot_restart_entry(')<body.index('wr_iot_radio_stop_fence_begin(')
+assert m['historical_radio_on_hook_bound']
+assert body.index('wr_iot_radio_on_entry(')<body.index('wr_iot_restart_entry(')<body.index('wr_iot_radio_stop_fence_begin(')
+assert 'if(wr_iot_radio_on_entry(radio_on,need_reload_conf)!=WR_RADIO_ENTRY_NATIVE)return;' in body
 assert 'if(wr_iot_restart_entry(radio_on,need_reload_conf))return;' in body
 assert (rc/'Makefile').read_text().count('wr-iot-restart-entry.o')==1
 print('PASS private restart entry manifest hashes/hook-before-fence/object; source only')
