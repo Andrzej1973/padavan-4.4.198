@@ -32,6 +32,10 @@ int wr_iot_cold_on_pending(void){return 0;}
 int wr_iot_cold_on_step(void){assert(0);return 0;}
 int wr_iot_cold_on_retire(void){assert(0);return 0;}
 #endif
+#ifndef WR_IOT_RUNTIME_FIXTURE_EXTERNAL_BOOT
+int wr_iot_rc_boot_pending(void){return 0;}
+int wr_iot_rc_boot_step(void){assert(0);return 0;}
+#endif
 static volatile int notification,alarm_flag;
 static int pending,steps,observations,physical_pending,physical_steps,resume_pending,resume_steps;
 int wr_iot_radio_off_begin(struct wr_iot_radio_off_owner*s,const struct wr_iot_control_request*r){(void)s;(void)r;return 0;}

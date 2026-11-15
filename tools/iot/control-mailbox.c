@@ -135,6 +135,15 @@ int wr_iot_mailbox_submit(struct wr_iot_mailbox *m,const struct wr_iot_control_r
  return status&&result_write(m,&r);
  fail:memset(buffer,0,sizeof(buffer));return 0;
 }
+int wr_iot_mailbox_submit_initial(struct wr_iot_mailbox *m,const struct wr_iot_control_request *request){
+ static const char *const names[]={"request","result","request.new","result.new"};
+ struct stat st;size_t i;
+ if(!valid(m)||!request)return 0;
+ for(i=0;i<sizeof(names)/sizeof(names[0]);i++){
+  if(!fstatat(m->directory,names[i],&st,AT_SYMLINK_NOFOLLOW)||errno!=ENOENT)return 0;
+ }
+ return wr_iot_mailbox_submit(m,request);
+}
 static int request_read(struct wr_iot_mailbox *m,struct wr_iot_control_request *out){
  char buffer[512];size_t n;int status=read_record(m,"request",buffer,sizeof(buffer),&n);
  status=status==1?wr_iot_control_decode(out,buffer,n):0;

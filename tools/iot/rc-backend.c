@@ -14,6 +14,13 @@
 #include "precreated-entropy.h"
 static struct wr_iot_activation_owner backend;
 static struct wr_iot_rebind_owner rebind;
+int wr_iot_rc_boot_idle(void)
+{
+ return !rebind.owner&&!backend.busy&&!backend.start.owner&&!backend.stop.owner&&
+  !backend.start.admission.snapshot.active&&!backend.start.admission.snapshot.token&&
+  ((!backend.owner&&backend.phase==WR_IOT_OWNER_IDLE)||
+   (backend.owner==getpid()&&backend.phase==WR_IOT_OWNER_INITIAL_OFF));
+}
 /* Only fully completed OFF contexts may retire. The old legacy OFF is
  * dormant provenance, never copied; new runner starts at its final address. */
 static enum wr_iot_result_state rebind_reopen(const struct wr_iot_control_request *request,

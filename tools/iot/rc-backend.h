@@ -1,5 +1,7 @@
 #ifndef WR_IOT_RC_BACKEND_H
 #define WR_IOT_RC_BACKEND_H
+/* Read-only PID1 bootstrap eligibility, not driver/network readiness. */
+int wr_iot_rc_boot_idle(void);
 struct wr_iot_control_result;
 struct wr_iot_rc_mode {int router,radio,mode;};
 /* Strong RC read-only adapter. Caller holds service guard; exactly1 means the

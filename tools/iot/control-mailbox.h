@@ -16,6 +16,10 @@ void wr_iot_mailbox_init(struct wr_iot_mailbox *);
 int wr_iot_mailbox_open(struct wr_iot_mailbox *,const char *directory,int create);
 void wr_iot_mailbox_close(struct wr_iot_mailbox *);
 int wr_iot_mailbox_submit(struct wr_iot_mailbox *,const struct wr_iot_control_request *);
+/* Boot-only initial publication. Requires absent request/result AND staging
+ * files under the same held queue lock; never replaces any user transaction,
+ * malformed evidence or interrupted publication. No special claim/replay path. */
+int wr_iot_mailbox_submit_initial(struct wr_iot_mailbox *,const struct wr_iot_control_request *);
 /* Only QUEUED can be claimed. Expired requests are rejected without execution. */
 int wr_iot_mailbox_claim(struct wr_iot_mailbox *,unsigned long long now,
  struct wr_iot_control_request *);

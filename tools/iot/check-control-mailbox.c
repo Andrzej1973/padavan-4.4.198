@@ -27,8 +27,19 @@ int main(void){
  assert(wr_iot_mailbox_open(&m,directory,1));
  assert(!wr_iot_mailbox_open(&other,directory,1));
  strcpy(request.id,"0123456789abcdef0123456789abcdef");request.created=100;
+ /* Initial boot publication must not replace even malformed or interrupted
+  * user evidence, including temporary records and symlinks. */
+ {const char *names[]={"request","result","request.new","result.new"};
+  for(unsigned i=0;i<4;i++){
+   path(scratch,directory,names[i]);fixture_file(scratch);
+   assert(!wr_iot_mailbox_submit_initial(&m,&request));unchanged(scratch);assert(!unlink(scratch));
+   assert(!symlink("missing-target",scratch));assert(!wr_iot_mailbox_submit_initial(&m,&request));
+   struct stat st;assert(!lstat(scratch,&st)&&S_ISLNK(st.st_mode));assert(!unlink(scratch));
+  }
+ }
+ assert(!wr_iot_mailbox_submit_initial(&m,NULL));
  /* Disabled requests are sufficient to exercise transport without a radio. */
- assert(wr_iot_mailbox_submit(&m,&request));
+ assert(wr_iot_mailbox_submit_initial(&m,&request));
  assert(wr_iot_mailbox_result(&m,&result)&&result.state==WR_IOT_RESULT_QUEUED);
  assert(!wr_iot_mailbox_submit(&m,&request));
  memset(&claimed,0x5a,sizeof(claimed));before=claimed;
@@ -47,6 +58,7 @@ int main(void){
  assert(access(request_path,F_OK)&&errno==ENOENT);
  assert(!wr_iot_mailbox_submit(&m,&request)); /* Do not reuse the prior ID. */
  request.id[0]='1';request.created=105;
+ assert(!wr_iot_mailbox_submit_initial(&m,&request)); /* Preserve terminal user history. */
  assert(wr_iot_mailbox_submit(&m,&request));
  memset(&claimed,0x5a,sizeof(claimed));before=claimed;
  assert(!wr_iot_mailbox_claim(&m,136,&claimed)&&!memcmp(&claimed,&before,sizeof(claimed)));
