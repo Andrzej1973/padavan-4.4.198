@@ -3,7 +3,7 @@ from pathlib import Path
 import runpy,subprocess,tempfile,shutil
 here=Path(__file__).resolve().parent
 base=runpy.run_path(str(here/'check-physical-stop-release.py'))
-context=base['context'].replace('int main(void){', '#include "physical-stop-query.inc"\n#include "physical-stop-terminal-replace.inc"\n#include "physical-stop-cancel.inc"\n#include "physical-stop-handler.inc"\nint main(void){')
+context=base['context'].replace('int main(void){', '#include "physical-stop-query.inc"\n#include "physical-stop-terminal-replace.inc"\n#include "physical-stop-cancel.inc"\n#define NdisZeroMemory(p,n) memset(p,0,n)\n#include "physical-stop-terminal-down.inc"\n#include "physical-stop-handler.inc"\nint main(void){')
 context=context.replace('static int modules=1,tasks=1,devices=1;', 'static int modules=1,tasks=1,devices=1,fail_module;').replace('modules++;return 1;', 'if(fail_module)return 0;modules++;return 1;')
 body=base['body']
 a=body.index(' assert(!wr_iot_physical_stop_arm_admit(')

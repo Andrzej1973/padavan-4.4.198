@@ -48,7 +48,11 @@ INT wr_iot_physical_stop_handle(RTMP_ADAPTER *ad,PNET_DEV dev,
   }
   return wr_iot_physical_stop_response_encode(wire,length,request,attempt,WR_STOP_ARMED)?0:-EIO;
  }
- if(!active)return -EAGAIN;
+ if(!active){
+  if(request->action==WR_STOP_QUERY)
+   return wr_iot_physical_stop_terminal_down(ad,dev,request,wire,length);
+  return -EAGAIN;
+ }
  if(request->action==WR_STOP_QUERY){
   /* Completion only records already-returned checked recovery receipts. */
   status=wr_iot_physical_stop_query_owned(ad,dev,request,serial,wire,length);

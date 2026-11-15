@@ -233,3 +233,13 @@ Main reopened and peer poison refuse. The idle Main lookup uses exact
 device/generation, not find_owned (which excludes completed IDLE records).
 No handler/ioctl route is installed yet; target and device acceptance open.
 Temporary test directories removed by their fixtures.
+
+Post-RELEASE QUERY is now routed by the experimental physical transaction
+handler when no physical lifetime is active. It uses the same WPSQ QUERY
+syntax and returns COMPLETE only after the exact terminal/current-DOWN
+observation; ordinary in-flight QUERY and durable RELEASE/CANCEL replies retain
+their paths. The deferred installer stages the new fragment before handler and
+hashes it in the existing manifest. Actual handler composition and installer
+refusal tests PASS; new origin/terminal tests registered in host suite. Existing
+ioctl wrapper retains privilege/RTNL/Main checks. Full driver target build and
+physical runtime remain separate; RC follow-up client is not yet bound.
