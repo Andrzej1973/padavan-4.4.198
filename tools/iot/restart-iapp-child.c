@@ -22,7 +22,7 @@ int wr_iot_iapp_child_begin(struct wr_iot_iapp_child*s)
  supervisor=fork();
  if(supervisor<0){close(pipes[0]);close(pipes[1]);s->fd=-1;s->result=-1;return 0;}
  if(!supervisor){
-  struct sigaction action={0};sigset_t empty;pid_t command;int status;unsigned char receipt=2;
+  struct sigaction action={0};sigset_t empty;pid_t command;int status;unsigned char receipt=3;
   int inherited;long descriptor_limit=sysconf(_SC_OPEN_MAX);
   close(pipes[0]);
   if(descriptor_limit<0||descriptor_limit>1048576)goto report;
@@ -41,9 +41,10 @@ int wr_iot_iapp_child_begin(struct wr_iot_iapp_child*s)
    sigemptyset(&empty);if(sigprocmask(SIG_SETMASK,&empty,NULL))_exit(126);
    execl(WR_IOT_IAPP_SCRIPT,WR_IOT_IAPP_SCRIPT,"restart",(char*)0);_exit(127);
   }
+  if(command<0)receipt=2; /* No script process was created. */
   if(command>0){
    pid_t done;do{done=waitpid(command,&status,0);}while(done<0&&errno==EINTR);
-   if(done==command&&WIFEXITED(status)&&WEXITSTATUS(status)==0)receipt=1;
+   if(done==command)receipt=WIFEXITED(status)&&WEXITSTATUS(status)==0?1:2;
   }
   report:{ssize_t sent;do{sent=write(pipes[1],&receipt,1);}while(sent<0&&errno==EINTR);
    close(pipes[1]);_exit(sent==1?0:1);}

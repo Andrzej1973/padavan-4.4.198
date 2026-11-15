@@ -37,7 +37,7 @@ int main(void){
  struct wr_iot_iapp_child unknown={.owner=getpid(),.attempted=1,.fd=lost[0]};
  assert(wr_iot_iapp_child_step(&unknown)==-2&&!wr_iot_iapp_child_closed(&unknown));
  assert(wr_iot_iapp_child_step(&unknown)==-2&&!wr_iot_iapp_child_begin(&unknown));
- int invalid[2];assert(!pipe2(invalid,O_NONBLOCK));unsigned char bad=9;assert(write(invalid[1],&bad,1)==1);close(invalid[1]);
+ int invalid[2];assert(!pipe2(invalid,O_NONBLOCK));unsigned char bad=3;assert(write(invalid[1],&bad,1)==1);close(invalid[1]);
  unknown=(struct wr_iot_iapp_child){.owner=getpid(),.attempted=1,.fd=invalid[0]};
  assert(wr_iot_iapp_child_step(&unknown)==-2&&!wr_iot_iapp_child_closed(&unknown));
 }

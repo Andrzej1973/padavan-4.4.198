@@ -309,3 +309,11 @@ Actual physical finish/cancel fixtures inject unknown child completion and prove
 guard retention; retirement does likewise. Real child-process tests remain green.
 Native preparation passes. This is cleanup protection, not IAPP lifecycle or
 firewall ownership completion; root launch remains disabled until those gates.
+
+
+Supervisor wait-error correction: receipt defaults to unknown3, not confirmed
+failure2. Only an exact waitpid result supplies success/failure; failed command
+fork supplies confirmed failure because no script exists. Setup/wait errors
+remain unknown. Receipt3 fault fixture refuses closed/cleanup. Actual process
+checks and native preparation pass. This narrows completion evidence only;
+root launch and firewall ownership integration remain pending.
