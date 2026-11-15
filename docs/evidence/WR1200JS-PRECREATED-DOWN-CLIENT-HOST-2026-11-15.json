@@ -1,0 +1,24 @@
+{
+  "scope": "standalone RC transport, not yet staged or called by runtime",
+  "function": "wr_iot_driver_initial_down_read",
+  "test": "check-precreated-down-client.py",
+  "result": "PASS GCC Werror ASan/UBSan",
+  "cases": [
+    "fixed ra2 existing CLOSED_CONFIG ioctl",
+    "zero nonce no socket",
+    "socket failure",
+    "ioctl failure",
+    "close failure",
+    "wrong nonce",
+    "READY idle reply refused",
+    "exact Main close fields returned"
+  ],
+  "invariants": [
+    "single syscall attempt",
+    "close balanced on ioctl failure",
+    "output zero on failure",
+    "no real network or router action"
+  ],
+  "runtime_bound": false,
+  "target_verified": false
+}
