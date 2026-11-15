@@ -66,6 +66,17 @@ int wr_iot_rc_physical_begin_quiesce(const struct wr_iot_rc_physical_intent *int
 int wr_iot_rc_physical_pending(void)
 {return physical.owner==getpid()&&!physical.result&&
  !(physical.finishing==1&&physical.intent.restart);}
+/* Infallible terminal publication before deferred shutdown replay. Keep the
+ * intent/session receipt until the exact terminal consumer takes it. */
+static void physical_stop_cleanup(void *context)
+{
+ volatile unsigned char *p=(volatile unsigned char *)&physical.quiesce.desired;
+ size_t n=sizeof(physical.quiesce.desired);
+ (void)context;
+ while(n--)*p++=0;
+ physical.result=physical.finishing;
+ if(physical.guard==1){wr_iot_service_guard_leave(1);physical.guard=0;}
+}
 void wr_iot_rc_physical_step(void)
 {
  struct wr_iot_driver_closed_result closed={0};
@@ -123,11 +134,9 @@ void wr_iot_rc_physical_step(void)
   * fresh-identity resume consumer exists. Never expose an unguarded gap to
   * another control request or queued normal shutdown. No timer releases it. */
  if(physical.finishing==1&&physical.intent.restart)return;
- if(physical.guard==1){wr_iot_service_guard_leave(1);physical.guard=0;}
- /* Clear guards before restoring signals; a pending normal shutdown can run
-  * only after exact terminal cleanup. Failed mask restoration retains fence. */
- if(!wr_iot_radio_stop_fence_end(&physical.fence))return;
- physical.result=physical.finishing;
+ /* Publish and wipe before deferred signals. Failed mask restoration keeps
+  * the guard, desired context and unpublished result for the same owner. */
+ if(!wr_iot_radio_stop_fence_end_cleanup(&physical.fence,physical_stop_cleanup,NULL))return;
 }
 int wr_iot_rc_physical_restart_ready(struct wr_iot_rc_physical_intent *intent)
 {

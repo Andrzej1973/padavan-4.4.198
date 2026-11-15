@@ -43,3 +43,16 @@ alone does not preserve the SDK OFF network/configuration semantics.
 ABI43667886374 completed success for6c786921. Local full-suite session62243
 and its log disappeared before terminal observation: local full result is
 UNVERIFIED, not PASS. Do not infer its exit status from absence.
+
+## STOP terminal ordering correction
+
+Non-restart/refused physical completion now uses fence_end_cleanup: terminal
+result publication, volatile desired-settings wipe and guard release occur
+while admission remains active, before deferred shutdown replay. Failed mask
+restore retains the original guard/context and unpublished result. Session
+receipt/intent remain for one terminal take. The actual RC/session/fence
+fixture asserts publication and wipe inside its real SIGTERM handler.
+Focused RC physical, pre-ARM shutdown and fence fault checks passed with
+ASan/UBSan. OFF entry consumer and SDK side effects remain unimplemented;
+this correction does not enable radio OFF or prove target/device behavior.
+Temporary test directories removed by their fixtures; no scratch retained.

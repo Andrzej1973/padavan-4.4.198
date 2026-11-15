@@ -58,7 +58,9 @@ enum wr_iot_physical_call_result wr_iot_physical_stop_call(
 enum wr_iot_physical_down_result wr_iot_physical_stop_down(void)
 {assert(depth==2&&wr_iot_rc_shutdown.active);downs++;return WR_PHYSICAL_DOWN_UNCERTAIN;}
 static void handler(int sig)
-{if(!wr_iot_rc_shutdown_note(sig)){assert(!depth);shutdowns++;}}
+{if(!wr_iot_rc_shutdown_note(sig)){assert(!depth&&physical.result==physical.finishing&&physical.result);
+ for(unsigned i=0;i<sizeof(physical.quiesce.desired);i++){assert(!((unsigned char *)&physical.quiesce.desired)[i]);}
+ shutdowns++;}}
 int main(void)
 {
  struct sigaction action={0};action.sa_handler=handler;sigemptyset(&action.sa_mask);
