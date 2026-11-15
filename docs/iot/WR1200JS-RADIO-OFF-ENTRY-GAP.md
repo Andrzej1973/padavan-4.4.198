@@ -81,3 +81,11 @@ or repeats admission from poll. Reentrant/foreign/pending/refused/cached-termina
 ASan/UBSan fixture passed with injected physical actor. Not registered/staged
 or RC-bound yet: real controller composition, SDK follow-up and shutdown policy
 remain required before enabling radio OFF. Temporary fixture removed.
+
+The OFF owner and actual-controller composition checks are now registered in
+the physical-stop suite (therefore future ABI). Composition includes actual
+physical owner, session and fence, with mocked backend/transport: pending poll,
+foreign identity retention, one Main DOWN, exact RELEASE consumption, cached
+terminal receipt, entropy-preparation failure consumption. ASan/UBSan PASS.
+Consumer remains unbound to RC wait and SDK OFF follow-up. Source fixtures
+removed their temporary directories; no retained scratch.
