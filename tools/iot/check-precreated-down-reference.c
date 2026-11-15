@@ -36,5 +36,16 @@ int main(void){
  owner.open_token=3;assert(!CURRENT());owner=saved_owner;
  assert(!wr_iot_precreated_down_reference(&owner,&radio,slots,3,&main_device,&iot_device,i->generation,1));
  assert(CURRENT());
+ struct wr_iot_peer_table_owner table={0};struct wr_iot_peer_close_executor executor={0};
+ assert(!wr_iot_precreated_down_peers_current(&table,&executor));table.closed=1;
+ assert(wr_iot_precreated_down_peers_current(&table,&executor));
+ table.transactions=1;assert(!wr_iot_precreated_down_peers_current(&table,&executor));table.transactions=0;
+ table.retained=1;assert(!wr_iot_precreated_down_peers_current(&table,&executor));table.retained=0;
+ table.poisoned=1;assert(!wr_iot_precreated_down_peers_current(&table,&executor));table.poisoned=0;
+ table.active=1;assert(!wr_iot_precreated_down_peers_current(&table,&executor));table.active=0;
+ executor.running=1;assert(!wr_iot_precreated_down_peers_current(&table,&executor));executor.running=0;
+ executor.retained=1;assert(!wr_iot_precreated_down_peers_current(&table,&executor));executor.retained=0;
+ executor.serial=1;assert(!wr_iot_precreated_down_peers_current(&table,&executor));executor.serial=0;
+ assert(wr_iot_precreated_down_peers_current(&table,&executor));
  return 0;
 }

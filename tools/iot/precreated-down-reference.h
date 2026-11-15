@@ -4,6 +4,8 @@
 #ifndef WR_IOT_PRECREATED_DOWN_REFERENCE_H
 #define WR_IOT_PRECREATED_DOWN_REFERENCE_H
 #include "main-open-recovery-owner.h"
+#include "peer-table-owner.h"
+#include "peer-close-executor.h"
 static inline int wr_iot_precreated_down_reference(
  const struct wr_iot_main_recovery_owner *owner,
  const struct wr_iot_radio_transition *radio,struct wr_iot_interface_ref *slots,
@@ -28,5 +30,15 @@ static inline int wr_iot_precreated_down_reference(
     (slots[i].phase!=WR_REF_IDLE||!slots[i].published||slots[i].removing||
      slots[i].removal_stage||slots[i].close_running||slots[i].close_uncertain_reason))return 0;
  return wr_iot_registry_count_matches(slots,count,0);
+}
+/* Separate MacTabLock observation: do not read these fields while holding
+ * transition lock. Driver binding must retain lifetime across both snapshots
+ * and revalidate reference state afterward; this is not an atomic drain. */
+static inline int wr_iot_precreated_down_peers_current(
+ const struct wr_iot_peer_table_owner *table,
+ const struct wr_iot_peer_close_executor *executor)
+{
+ return table&&table->closed&&!table->active&&!table->retained&&
+  !table->poisoned&&!table->transactions&&wr_iot_peer_close_executor_idle(executor);
 }
 #endif

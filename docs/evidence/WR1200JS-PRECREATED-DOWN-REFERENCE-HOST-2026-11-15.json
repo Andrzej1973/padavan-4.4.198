@@ -28,5 +28,20 @@
     "no ioctl binding, RC integration or target build yet"
   ],
   "runtime_verified": false,
-  "owner_release_requirement": "live device/generation/token/close serial/ticket/schedule fields cleared, matching main_recovery_finish_netdev_release reset-before-receipt publication"
+  "owner_release_requirement": "live device/generation/token/close serial/ticket/schedule fields cleared, matching main_recovery_finish_netdev_release reset-before-receipt publication",
+  "peer_observer": {
+    "implemented": "wr_iot_precreated_down_peers_current",
+    "source_structures": [
+      "wr_iot_peer_table_owner",
+      "wr_iot_peer_close_executor"
+    ],
+    "requires": [
+      "closed table",
+      "no active/retained/poisoned/transactions",
+      "idle executor"
+    ],
+    "negative_checks": "unsealed table, transactions, retained, poison, active, running executor, retained executor, residual serial",
+    "lock": "MacTabLock, separate from reference transition lock; lifetime pinned and reference recheck required",
+    "host_result": "PASS Werror ASan/UBSan"
+  }
 }
