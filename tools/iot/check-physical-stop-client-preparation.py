@@ -27,10 +27,11 @@ with tempfile.TemporaryDirectory(prefix='wr-stop-client-prepared-') as d:
  assert manifest['radio_on_guest_linked'] and manifest['radio_on_services_linked']
  assert manifest['radio_on_generation_linked'] and manifest['radio_on_main_linked']
  assert manifest['cold_on_admission_linked'] and manifest['cold_on_generation_linked']
+ assert manifest['cold_disabled_completion_private_api_linked']
  assert manifest['cold_completion_private_api_linked'] and not manifest['cold_completion_public_entry_bound']
  assert manifest['cold_backend_initial_start_linked']
  assert (rc/'wr-iot-rc-backend.c').read_text().count('int wr_iot_rc_cold_start_begin(')==1
- for symbol in ['wr_iot_rc_cold_start_begin','wr_iot_rc_cold_active_current','wr_iot_rc_cold_start_progress','wr_iot_rc_cold_parent_release','wr_iot_rc_cold_terminal_begin','wr_iot_rc_cold_terminal_step','wr_iot_rc_cold_terminal_retire']:
+ for symbol in ['wr_iot_rc_cold_start_begin','wr_iot_rc_cold_active_current','wr_iot_rc_cold_start_progress','wr_iot_rc_cold_parent_release','wr_iot_rc_cold_terminal_begin','wr_iot_rc_cold_terminal_step','wr_iot_rc_cold_terminal_retire','wr_iot_rc_cold_disabled_parent_release','wr_iot_rc_cold_disabled_terminal_begin','wr_iot_rc_cold_disabled_terminal_step','wr_iot_rc_cold_disabled_terminal_retire']:
   assert ('rc-backend:'+symbol) in (here/'compile-runtime-link.sh').read_text()
  assert manifest['cold_on_main_linked'] and manifest['cold_on_preup_recovery_linked'] and not manifest['cold_on_entry_bound']
  assert manifest['radio_on_admission_linked'] and not manifest['radio_on_entry_bound']
@@ -55,11 +56,11 @@ with tempfile.TemporaryDirectory(prefix='wr-stop-client-prepared-') as d:
  assert manifest['rebind_close_helpers_linked'] and manifest['rebind_runner_linked']
  assert not manifest['physical_stop_restart_resume_bound'] and manifest['rebind_network_helpers_linked']
  (rc/'wr-iot/activation-owner.h').write_bytes((here/'activation-owner.h').read_bytes())
- for name in ('rc-backend','physical-stop-client','physical-stop-down','physical-stop-session','rc-physical-stop','physical-rebind-client','physical-rebind-controller','rebind-start','rebind-network','rebind-rollback','rebind-commit','rebind-close','rebind-closed-rollback','rebind-runner','rebind-active-stop','rebind-observe','rebind-owner','restart-profile','restart-main-state','restart-generation','restart-main-up','restart-main-controller','restart-main-bridge','restart-guest-up','restart-guest-bridge','restart-guest-isolation','restart-guest-controller','restart-services','restart-restore','restart-finish-check','restart-resume','restart-cancel-check','restart-prehandoff-check','restart-resume-retire','restart-scheduler','restart-auth-stop','restart-multicast','restart-multicast-controller','restart-iapp-child','restart-wan-followup','restart-terminal-iapp','radio-off-owner','radio-off-observe','radio-on-admission','radio-on-generation','radio-on-main','radio-on-guest','radio-on-services','radio-on-multicast','radio-on-restore','radio-on-disabled','precreated-down-client','precreated-down-observe','cold-on-admission','cold-on-generation','precreated-down-recovery','cold-on-recovery','cold-on-main','cold-on-guest','cold-on-services','cold-on-multicast','cold-on-owner','cold-on-handoff','cold-on-release','cold-on-policy','radio-on-handoff','radio-on-release','radio-on-followup','radio-on-owner','radio-on-prehandoff','radio-on-shutdown-check','radio-on-shutdown','radio-on-aux','radio-off-profile','radio-off-profile-check','radio-off-followup','radio-off-bridge','radio-off-wan'):
+ for name in ('rc-backend','physical-stop-client','physical-stop-down','physical-stop-session','rc-physical-stop','physical-rebind-client','physical-rebind-controller','rebind-start','rebind-network','rebind-rollback','rebind-commit','rebind-close','rebind-closed-rollback','rebind-runner','rebind-active-stop','rebind-observe','rebind-owner','restart-profile','restart-main-state','restart-generation','restart-main-up','restart-main-controller','restart-main-bridge','restart-guest-up','restart-guest-bridge','restart-guest-isolation','restart-guest-controller','restart-services','restart-restore','restart-finish-check','restart-resume','restart-cancel-check','restart-prehandoff-check','restart-resume-retire','restart-scheduler','restart-auth-stop','restart-multicast','restart-multicast-controller','restart-iapp-child','restart-wan-followup','restart-terminal-iapp','radio-off-owner','radio-off-observe','radio-on-admission','radio-on-generation','radio-on-main','radio-on-guest','radio-on-services','radio-on-multicast','radio-on-restore','radio-on-disabled','precreated-down-client','precreated-down-observe','cold-on-admission','cold-on-generation','precreated-down-recovery','cold-on-recovery','cold-on-main','cold-on-guest','cold-on-services','cold-on-multicast','cold-on-owner','cold-on-handoff','cold-on-release','cold-on-policy','cold-on-disabled','cold-on-disabled-release','radio-on-handoff','radio-on-release','radio-on-followup','radio-on-owner','radio-on-prehandoff','radio-on-shutdown-check','radio-on-shutdown','radio-on-aux','radio-off-profile','radio-off-profile-check','radio-off-followup','radio-off-bridge','radio-off-wan'):
   assert (rc/'Makefile').read_text().count('wr-iot-'+name+'.o')==1
   subprocess.run(['gcc','-std=gnu11' if name=='rc-backend' else '-std=c11','-Wall','-Wextra','-Werror','-O2','-I'+str(rc),'-c',str(rc/('wr-iot-'+name+'.c')),'-o',str(root/(name+'.o'))],check=True)
  symbols=subprocess.check_output(['nm',str(root/'rc-backend.o')],text=True)
- for symbol in ['wr_iot_rc_cold_parent_release','wr_iot_rc_cold_terminal_begin','wr_iot_rc_cold_terminal_step','wr_iot_rc_cold_terminal_retire']:
+ for symbol in ['wr_iot_rc_cold_parent_release','wr_iot_rc_cold_terminal_begin','wr_iot_rc_cold_terminal_step','wr_iot_rc_cold_terminal_retire','wr_iot_rc_cold_disabled_parent_release','wr_iot_rc_cold_disabled_terminal_begin','wr_iot_rc_cold_disabled_terminal_step','wr_iot_rc_cold_disabled_terminal_retire']:
   assert any(line.split()[-2:]==['T',symbol] for line in symbols.splitlines()),symbol
  # Execute the actual verifier's source-equality loop against prepared units,
  # including the composed private backend. Deliberate corruption must refuse.
@@ -67,7 +68,7 @@ with tempfile.TemporaryDirectory(prefix='wr-stop-client-prepared-') as d:
  outer=next(n for n in verifier.body if isinstance(n,ast.For) and isinstance(n.target,ast.Tuple))
  source_check=outer.body[0]
  code=compile(ast.Module(body=[source_check],type_ignores=[]),'<actual-runtime-source-check>','exec')
- env={'local':here,'root':rc,'units':['rc-backend','cold-on-release','cold-on-policy']}
+ env={'local':here,'root':rc,'units':['rc-backend','cold-on-release','cold-on-policy','cold-on-disabled','cold-on-disabled-release']}
  exec(code,env)
  backend_path=rc/'wr-iot-rc-backend.c';original=backend_path.read_text()
  backend_path.write_text(original+'/* unexpected source */')

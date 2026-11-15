@@ -3,15 +3,7 @@
 #include "restart-terminal-iapp.h"
 #include "restart-iapp-policy.h"
 #include "cold-on-disabled-release.h"
-enum wr_iot_cold_disabled_terminal_phase {WR_COLD_DISABLED_TERM_IDLE,WR_COLD_DISABLED_TERM_WAN,WR_COLD_DISABLED_TERM_IAPP_PENDING,
- WR_COLD_DISABLED_TERM_IAPP,WR_COLD_DISABLED_TERM_DONE,WR_COLD_DISABLED_TERM_RETAINED};
-struct wr_iot_cold_disabled_terminal {
- pid_t owner;int busy,led_attempted,led_returned;
- enum wr_iot_cold_disabled_terminal_phase phase;
- struct wr_iot_cold_disabled_parent_release *parent_release;
- struct wr_iot_terminal_iapp terminal;struct wr_iot_iapp_child child;
-};
-
+#include "rc-cold-disabled-completion.h"
 static int wr_iot_cold_disabled_terminal_begin(struct wr_iot_cold_disabled_terminal *s,
  struct wr_iot_cold_disabled_parent_release *released)
 {

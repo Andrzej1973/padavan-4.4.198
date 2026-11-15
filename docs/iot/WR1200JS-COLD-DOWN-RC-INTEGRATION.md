@@ -200,3 +200,18 @@ prepared units retain C11 Werror checks. Terminal integration uses the exported
 wrappers with both policy gates; pending SIGTERM composition still passes.
 No public cold entry or scheduler caller is enabled. Post-UP shutdown, disabled
 completion and root integration remain before runtime activation.
+
+## Disabled completion composed into experimental RC
+
+The never-opened disabled branch now stages initial-OFF observation, release
+preparation, inert INITIAL_OFF backend publication, post-release policy/profile
+proof, all WAN plans and LED/IAPP terminal/retirement. Stable context types and
+private wrappers live in `rc-cold-disabled-completion.h/inc`. Prepared backend
+GNU11 Werror compilation, exact source verification and nm T symbols pass; the
+disabled standalone units pass C11 compilation. Exported-wrapper integration
+covers both IAPP gates, all WAN plans, LED/child failure and retirement; real
+SIGTERM cleanup passes separately. Tests are registered in the host suite.
+Current public/scheduler cold entry remains false; post-UP shutdown and root
+integration still require implementation and target/image/device verification.
+The completed host suite on c40e389a covered the prior enabled package and is
+recorded independently from these newer disabled checks.

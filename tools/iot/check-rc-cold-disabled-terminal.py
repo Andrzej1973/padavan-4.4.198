@@ -47,6 +47,7 @@ int wr_iot_iapp_child_step(struct wr_iot_iapp_child*s){if(!child_outcome)return 
 #undef WR_IOT_IAPP_POLICY_PREPARED
 #define WR_IOT_IAPP_POLICY_PREPARED TEST_IAPP_GATE
 #include "rc-cold-disabled-terminal.inc"
+#include "rc-cold-disabled-completion.inc"
 int main(int argc,char**argv){
  (void)check;assert(argc==4);led_failure=argv[3][0]-'0';disabled_plan=argv[2][0]-'0';assert(disabled_plan>=0&&disabled_plan<=2);snprintf(profile_path,sizeof(profile_path),"%s/profile",argv[1]);
  struct wr_iot_cold_owner owner={0};struct wr_iot_cold_disabled disabled={0};struct wr_iot_control_request input={0};
@@ -78,20 +79,20 @@ int main(int argc,char**argv){
 
  struct wr_iot_cold_disabled_parent_release parent_release={0};
  backend.owner=getpid();backend.phase=WR_IOT_OWNER_ACTIVE;
- assert(!wr_iot_cold_disabled_parent_release(&parent_release,&release)&&depth==1);
+ assert(!wr_iot_rc_cold_disabled_parent_release(&parent_release,&release)&&depth==1);
  memset(&backend,0,sizeof(backend));
  fail_disabled_unmask=1;
- assert(!wr_iot_cold_disabled_parent_release(&parent_release,&release)&&!parent_release.released);
+ assert(!wr_iot_rc_cold_disabled_parent_release(&parent_release,&release)&&!parent_release.released);
  assert(owner.admission.profile.active&&depth==1&&!backend.owner);
  fail_disabled_unmask=0;
- assert(wr_iot_cold_disabled_parent_release(&parent_release,&release)&&parent_release.released);
+ assert(wr_iot_rc_cold_disabled_parent_release(&parent_release,&release)&&parent_release.released);
  assert(!depth&&!owner.owner&&!owner.admission.profile.files.count&&!owner.admission.fence.owner);
  assert(!disabled.owner&&!release.parent&&!release.disabled);
  assert(backend.owner==getpid()&&backend.phase==WR_IOT_OWNER_INITIAL_OFF&&!backend.start.owner&&!backend.stop.owner);
  assert(!strcmp(backend.initial_off.id,release.id)&&backend.initial_off.created==release.created);
  assert(backend.initial_off.idle.epoch==release.identity.adapter_epoch&&backend.initial_off.idle.generation==release.identity.device_generation);
  assert(!wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.radio_off_owned&&wr_iot_rc_shutdown.radio_on_owned);
- assert(!wr_iot_cold_disabled_parent_release(&parent_release,&release));
+ assert(!wr_iot_rc_cold_disabled_parent_release(&parent_release,&release));
  for(size_t j=0;j<sizeof(owner.generation);j++)assert(!((unsigned char*)&owner.generation)[j]);
  assert(wr_iot_cold_disabled_followup_current(&release)&&!depth);
  auth=0;assert(!wr_iot_cold_disabled_followup_wan(&release)&&!release.wan.attempted);auth=1;
@@ -109,33 +110,33 @@ int main(int argc,char**argv){
  assert(wr_iot_cold_disabled_followup_current(&release)&&!depth&&!backend.start.owner);
  struct wr_iot_cold_disabled_terminal terminal_owner={0};
  led_calls=child_calls=0;child_outcome=disabled_plan==1?-1:disabled_plan==2?0:1;
- assert(wr_iot_cold_disabled_terminal_begin(&terminal_owner,&parent_release));
- assert(!wr_iot_cold_disabled_terminal_begin(&terminal_owner,&parent_release));
- auth=0;assert(!wr_iot_cold_disabled_terminal_step(&terminal_owner)&&!led_calls&&!child_calls);auth=1;
- assert(!wr_iot_cold_disabled_terminal_step(&terminal_owner)&&led_calls==1);
+ assert(wr_iot_rc_cold_disabled_terminal_begin(&terminal_owner,&parent_release));
+ assert(!wr_iot_rc_cold_disabled_terminal_begin(&terminal_owner,&parent_release));
+ auth=0;assert(!wr_iot_rc_cold_disabled_terminal_step(&terminal_owner)&&!led_calls&&!child_calls);auth=1;
+ assert(!wr_iot_rc_cold_disabled_terminal_step(&terminal_owner)&&led_calls==1);
  if(led_failure){
-  for(int retry=0;retry<4;retry++)assert(!wr_iot_cold_disabled_terminal_step(&terminal_owner)&&led_calls==1&&!child_calls);
-  assert(terminal_owner.phase==WR_COLD_DISABLED_TERM_RETAINED&&!wr_iot_cold_disabled_terminal_retire(&terminal_owner));
+  for(int retry=0;retry<4;retry++)assert(!wr_iot_rc_cold_disabled_terminal_step(&terminal_owner)&&led_calls==1&&!child_calls);
+  assert(terminal_owner.phase==WR_COLD_DISABLED_TERM_RETAINED&&!wr_iot_rc_cold_disabled_terminal_retire(&terminal_owner));
   wr_iot_rc_shutdown.radio_on_owned=0;assert(!unlink(profile_path));return 0;
  }
  if(!WR_IOT_IAPP_POLICY_PREPARED){
-  for(int wait=0;wait<4;wait++)assert(!wr_iot_cold_disabled_terminal_step(&terminal_owner)&&!child_calls&&!wr_iot_rc_shutdown.active);
+  for(int wait=0;wait<4;wait++)assert(!wr_iot_rc_cold_disabled_terminal_step(&terminal_owner)&&!child_calls&&!wr_iot_rc_shutdown.active);
   assert(terminal_owner.phase==WR_COLD_DISABLED_TERM_IAPP_PENDING);
  }else{
-  assert(!wr_iot_cold_disabled_terminal_step(&terminal_owner)&&wr_iot_rc_shutdown.active);
-  assert(!wr_iot_cold_disabled_terminal_step(&terminal_owner)&&child_calls==1);
+  assert(!wr_iot_rc_cold_disabled_terminal_step(&terminal_owner)&&wr_iot_rc_shutdown.active);
+  assert(!wr_iot_rc_cold_disabled_terminal_step(&terminal_owner)&&child_calls==1);
   if(disabled_plan==2){
-   for(int wait=0;wait<3;wait++)assert(!wr_iot_cold_disabled_terminal_step(&terminal_owner)&&child_calls==1&&wr_iot_rc_shutdown.active);
+   for(int wait=0;wait<3;wait++)assert(!wr_iot_rc_cold_disabled_terminal_step(&terminal_owner)&&child_calls==1&&wr_iot_rc_shutdown.active);
    child_outcome=1;
   }
-  assert(wr_iot_cold_disabled_terminal_step(&terminal_owner)==(disabled_plan!=1));
+  assert(wr_iot_rc_cold_disabled_terminal_step(&terminal_owner)==(disabled_plan!=1));
   assert(!depth&&!wr_iot_rc_shutdown.active&&led_calls==1&&child_calls==1);
-  for(int repeat=0;repeat<3;repeat++)assert(wr_iot_cold_disabled_terminal_step(&terminal_owner)==(disabled_plan!=1));
+  for(int repeat=0;repeat<3;repeat++)assert(wr_iot_rc_cold_disabled_terminal_step(&terminal_owner)==(disabled_plan!=1));
   if(disabled_plan!=1){
-   auth=0;assert(!wr_iot_cold_disabled_terminal_retire(&terminal_owner));auth=1;
-   assert(wr_iot_cold_disabled_terminal_retire(&terminal_owner)&&!terminal_owner.owner&&!release.owner&&!parent_release.release);
+   auth=0;assert(!wr_iot_rc_cold_disabled_terminal_retire(&terminal_owner));auth=1;
+   assert(wr_iot_rc_cold_disabled_terminal_retire(&terminal_owner)&&!terminal_owner.owner&&!release.owner&&!parent_release.release);
    assert(!wr_iot_rc_shutdown.radio_on_owned&&backend.phase==WR_IOT_OWNER_INITIAL_OFF&&!backend.start.owner);
-  }else assert(!wr_iot_cold_disabled_terminal_retire(&terminal_owner));
+  }else assert(!wr_iot_rc_cold_disabled_terminal_retire(&terminal_owner));
  }
  wr_iot_rc_shutdown.radio_on_owned=0;assert(!unlink(profile_path));
 

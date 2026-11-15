@@ -1,8 +1,6 @@
 /* Uncomposed RC-private disabled cold cleanup after rc-cold-start.inc.
  * Only IDLE/INITIAL_OFF backend with no live startup/stop/rebind is eligible. */
-struct wr_iot_cold_disabled_parent_release {
- struct wr_iot_cold_disabled_release *release;int busy,released;
-};
+#include "rc-cold-disabled-completion.h"
 static int wr_iot_cold_disabled_backend_idle(void)
 {
  return !wr_iot_cold_backend_parent&&!rebind.owner&&!backend.busy&&
