@@ -1,0 +1,37 @@
+{
+  "scope": "cold Main LAN and Guest/services/multicast continuations; no public root",
+  "checks": {
+    "main_actual_parent_profile_asan_ubsan": "PASS",
+    "guest_actual_cold_admission_generation_main_profile_fixture": "PASS",
+    "services_policy_and_one_attempt_failure_paths": "PASS",
+    "multicast_order_policy_drift_and_uncertain_no_replay": "PASS",
+    "prepared_runtime_c11_objects": "PASS"
+  },
+  "boundaries": {
+    "guest_main_up_bridge_isolation_sdk": "injected actors",
+    "services": "submission return only, daemon readiness separate",
+    "multicast": "software policy readback",
+    "target_verified": false,
+    "physical_verified": false
+  },
+  "sha256": {
+    "tools/iot/cold-on-main.c": "fcd9662e06b426a50924393ccf3cb1107c0618a7b20d769d1a0a7a4e472f552e",
+    "tools/iot/cold-on-main.h": "c83c6b023552ce1ae7a4dc73df374551b6eda712b3c30d342fdc3adb9b8be572",
+    "tools/iot/check-cold-on-main.py": "e51eb73e055551c02eff6f35fc4e69c50d2c81cf61673db96e47a0aba56f17c8",
+    "tools/iot/cold-on-guest.c": "c6f9006b721504fc33857350cddd9111fcee8d7f80b6d3ab21ada923cc3d261a",
+    "tools/iot/cold-on-guest.h": "d77d1ebce4dd4639c7db6364909f9578ef6a1b1ac6aca9d953d13f003e958f01",
+    "tools/iot/check-cold-on-guest.py": "f33d27d80b754ffd4596fa567f8cd54fa0b9f9e84da4152dc70a9395dda63c94",
+    "tools/iot/cold-on-services.c": "1b7c01689b39d68d041653fed334678cdef2c415e289a968ea510bcdfeb5d4bf",
+    "tools/iot/cold-on-services.h": "315e25cd187fb7459a850da66eb086d8e2a73944b44200974acb10a24b7a6a25",
+    "tools/iot/check-cold-on-services.py": "cee21979cfc53d6a37f1a952af179d849efe0b059b2e339226ca8c1fa8fd9441",
+    "tools/iot/cold-on-multicast.c": "723f9c589193a467b50d28a07173938b23d75e002b5596b932b877cd222e6b73",
+    "tools/iot/cold-on-multicast.h": "c555f9230e61cd812a3c1667d8530f3b30d693cd707a8f8c545821b2d27d6b32",
+    "tools/iot/check-cold-on-multicast.py": "1650fe2b2ed9796e6bbd0f17fc6bdecac7653908b479f726dff58e9ee68af8ec"
+  },
+  "remaining": [
+    "stable cold owner orchestration",
+    "handoff to existing initial start-runner/backend",
+    "post-UP shutdown/retirement",
+    "target/image/runtime gates"
+  ]
+}

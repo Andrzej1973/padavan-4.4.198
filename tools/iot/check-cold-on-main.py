@@ -42,12 +42,16 @@ int wr_iot_driver_initial_idle_read(const unsigned char*id,struct wr_iot_idle_re
 #include "restart-main-up.h"
 enum wr_iot_restart_up_result wr_iot_restart_main_up(void){assert(down);up_calls++;down=0;return up_result;}
 #include "cold-on-generation.c"
+#include "restart-main-bridge.h"
+static int membership=1,attaches;
+enum wr_iot_main_bridge_result wr_iot_restart_main_bridge_attach(void){attaches++;return WR_MAIN_BRIDGE_UNCERTAIN;}
+int wr_iot_restart_main_bridge_current(void){return membership;}
 #include "cold-on-main.c"
 int main(int argc,char**argv){
  (void)check;assert(argc==2);snprintf(profile_path,sizeof(profile_path),"%s/profile",argv[1]);
  for(int fault=0;fault<=8;fault++){
   struct wr_iot_cold_admission a={0};struct wr_iot_cold_generation g={0};struct wr_iot_cold_main m={0};
-  down=1;partial=0;generator_calls=up_calls=idle_reads=0;idle_serial=0;make_profile();
+  down=1;partial=0;membership=1;attaches=0;generator_calls=up_calls=idle_reads=0;idle_serial=0;make_profile();
   assert(wr_iot_cold_admission_begin(&a,nonce)&&a.phase==WR_COLD_CAPTURED);
   assert(wr_iot_cold_generation_begin(&g,&a,&desired,1));
   assert(!wr_iot_cold_generation_step(&g)&&wr_iot_cold_generation_step(&g)==1);
@@ -64,6 +68,9 @@ int main(int argc,char**argv){
   if(!fault){
    assert(m.identity.adapter_epoch==5&&m.identity.device_generation==2);
    idle_reads=0;assert(wr_iot_cold_main_step(&m));
+   assert(wr_iot_cold_main_lan_step(&m)&&attaches==1);
+   assert(wr_iot_cold_main_lan_step(&m)&&attaches==1);
+   membership=0;assert(!wr_iot_cold_main_lan_step(&m)&&attaches==1);membership=1;
    FILE*f=fopen(profile_path,"a");assert(f&&fputs("# foreign change\n",f)>=0&&!fclose(f));
    assert(!wr_iot_cold_main_step(&m)&&up_calls==1);
    g.phase=WR_COLD_GEN_RESTORED;assert(!wr_iot_cold_main_step(&m));

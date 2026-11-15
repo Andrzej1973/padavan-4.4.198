@@ -1,6 +1,7 @@
 #define _GNU_SOURCE
 #include <unistd.h>
 #include "cold-on-main.h"
+#include "restart-main-bridge.h"
 #include "rc-backend.h"
 #include "rc-runtime.h"
 #include "rc-shutdown-admission.h"
@@ -49,4 +50,14 @@ int wr_iot_cold_main_step(struct wr_iot_cold_main *s)
   s->phase=WR_COLD_MAIN_READY;ok=1;
  }
  s->busy=0;return ok;
+}
+
+int wr_iot_cold_main_lan_step(struct wr_iot_cold_main *s)
+{
+ int current;
+ if(!s||!wr_iot_cold_main_step(s))return 0;
+ s->busy=1;
+ if(!s->bridge_attempted){s->bridge_attempted=1;(void)wr_iot_restart_main_bridge_attach();}
+ current=wr_iot_restart_main_bridge_current();s->busy=0;
+ return current&&wr_iot_cold_main_step(s);
 }

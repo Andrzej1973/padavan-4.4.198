@@ -86,3 +86,18 @@ services restoration and initial startup handoff remain incomplete. The existing
 initial `start-runner`/`start-admission` path already accepts never-opened READY
 ra2; audit its backend handoff for reuse rather than synthesizing a physical
 RELEASE or weakening physical-rebind validation.
+
+## Cold Main LAN / Guest / services continuations staged
+
+`cold-on-main.c` now performs at most one existing ra0/br0 attach attempt,
+checking current membership and Main READY before/after. `cold-on-guest.c`
+preserves the established bridge/isolation/UP order and configured Guest OFF.
+Only a submitted Guest UP permits its own one-shot recovery DOWN; uncertain
+foreign/no-submission state is retained. `cold-on-services.c` captures policy
+and submits each of three existing service slots once; return does not prove
+daemon readiness. `cold-on-multicast.c` preserves the existing captured policy,
+ordered per-BSS attempts and readback. No global TX/ACK/DTIM mechanism changes.
+All are staged for compilation; public cold entry remains disabled. Host tests
+use actual cold parent/profile controllers with SDK transport actors, plus
+policy/failure tests and prepared C11 object checks. Stable root, initial backend
+handoff and post-UP shutdown/retirement remain required before binding.
