@@ -12,7 +12,9 @@
     "check-restart-entry.py",
     "check-radio-on-entry.py",
     "check-radio-on-entry-root.py",
-    "check-physical-stop-client-preparation.py"
+    "check-physical-stop-client-preparation.py",
+    "check-radio-off-entry-runtime.py",
+    "check-restart-entry-source.py"
   ],
   "negative_cases": [
     "existing receipt",
@@ -22,7 +24,7 @@
     "private owner refuses"
   ],
   "saved_radio_policy": "0 and1 accepted for OFF admission; physical owner performs its own checks",
-  "public_hook_bound": false,
-  "actual_off_root_composition": "pending",
+  "public_hook_bound": "paired experimental restart source only",
+  "actual_off_root_composition": "PASS actual entry/RC ppoll/OFF owner and receipt; physical and followup boundaries injected",
   "runtime_verified": false
 }

@@ -40,3 +40,11 @@ Prepared-hook source tests pass all three result routes and existing manifest/
 anchor/duplicate protections. Actual saved entry and root composition pass
 IoT ON/OFF separately. Target compilation of the paired SDK body and physical
 runtime remain separate gates; no router modification occurred.
+
+The paired experimental hook now routes owned physical OFF before saved ON and
+owned restart. OFF OWNED/REFUSED cannot fall through; an initial unowned OFF can
+reach native admission. Actual entry/RC ppoll/OFF-owner composition verifies
+receipt publication once and duplicate refusal with physical/followup actors.
+Full cold-path/disabled-root physical OFF handling and target/device gates are
+still separate; this hook does not fabricate an owned CLOSE for a never-opened
+ra2.

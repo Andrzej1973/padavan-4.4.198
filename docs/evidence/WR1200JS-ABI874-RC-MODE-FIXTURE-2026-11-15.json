@@ -1,0 +1,20 @@
+{
+  "run": 43706368306,
+  "revision": "195d78de894f47ffbcfcdf7a3483da9908eb66c3",
+  "step": "Compile experimental IoT RC runtime and private status IPC",
+  "cause": "check-rc-mode.py fake rc.h omitted nvram_safe_get declaration needed by new saved-request adapter",
+  "classification": "host fixture compile failure, not proven MIPS source failure",
+  "fix": "declare injected nvram_safe_get and define explicit saved-OFF stub; exercise actual saved adapter and guard refusal",
+  "checks_passed": [
+    "check-rc-mode.py",
+    "check-radio-on-saved-request.py"
+  ],
+  "monitor": {
+    "run": 43706844300,
+    "artifact": 14158489779,
+    "correct_run_job_step_error": true,
+    "parser_changed": false
+  },
+  "target_rerun": "pending",
+  "runtime_verified": false
+}

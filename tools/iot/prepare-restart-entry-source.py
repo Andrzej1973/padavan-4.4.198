@@ -33,6 +33,7 @@ body='''
 #if defined(BOARD_WR1200JS) && WR_IOT_IAPP_POLICY_PREPARED
  /* WR_IOT_PRIVATE_RESTART_ENTRY: before the legacy physical-call fence.
   * Claimed intent never falls through to combined SDK stop/reopen. */
+ if(wr_iot_radio_off_entry(radio_on,need_reload_conf)!=WR_RADIO_ENTRY_NATIVE)return;
  if(wr_iot_radio_on_entry(radio_on,need_reload_conf)!=WR_RADIO_ENTRY_NATIVE)return;
  if(wr_iot_restart_entry(radio_on,need_reload_conf))return;
 #endif
@@ -52,5 +53,5 @@ for h in here.glob('*.h'):text=text.replace('#include "'+h.name+'"','#include "w
 (rc/'net_wifi.c').write_text(net);(rc/'wr-iot-rc-backend.c').write_text(backend)
 (rc/'Makefile').write_text(make.replace(anchor,anchor+' wr-iot-restart-entry.o',1))
 header.write_bytes((here/'restart-entry.h').read_bytes());unit.write_text(text)
-report.write_text(json.dumps({'board':'WR1200JS','production_ready':False,'private_restart_hook_bound':True,'historical_radio_on_hook_bound':True,'physical_runtime_verified':False,'source_sha256':{'net_wifi.c':hashlib.sha256(net.encode()).hexdigest(),'wr-iot-rc-backend.c':hashlib.sha256(backend.encode()).hexdigest(),'wr-iot-restart-entry.c':hashlib.sha256(text.encode()).hexdigest(),'Makefile':hashlib.sha256((rc/'Makefile').read_bytes()).hexdigest()}},indent=2)+'\n')
+report.write_text(json.dumps({'board':'WR1200JS','production_ready':False,'private_restart_hook_bound':True,'historical_radio_on_hook_bound':True,'owned_radio_off_hook_bound':True,'physical_runtime_verified':False,'source_sha256':{'net_wifi.c':hashlib.sha256(net.encode()).hexdigest(),'wr-iot-rc-backend.c':hashlib.sha256(backend.encode()).hexdigest(),'wr-iot-restart-entry.c':hashlib.sha256(text.encode()).hexdigest(),'Makefile':hashlib.sha256((rc/'Makefile').read_bytes()).hexdigest()}},indent=2)+'\n')
 print('PASS experimental private restart hook staged before legacy fence; driver/image/runtime acceptance pending')
