@@ -5,7 +5,7 @@
 #include "restart-wan-followup.h"
 enum wr_iot_restart_resume_phase {WR_RESUME_IDLE,WR_RESUME_RESTORE,WR_RESUME_REBIND,WR_RESUME_FINISH,WR_RESUME_DONE,WR_RESUME_RETAINED,WR_RESUME_SHUTDOWN,WR_RESUME_SHUTDOWN_CLOSED,WR_RESUME_CANCELLED,WR_RESUME_SHUTDOWN_ROLLBACK,WR_RESUME_WAN};
 struct wr_iot_restart_resume {
- pid_t owner;int busy;unsigned long long created;
+ pid_t owner;int busy;unsigned led_attempted,led_returned;unsigned long long created;
  enum wr_iot_restart_resume_phase phase;
  struct wr_iot_restart_restore restore;
  struct wr_iot_rc_quiesce shutdown;

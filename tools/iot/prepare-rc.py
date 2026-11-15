@@ -164,6 +164,7 @@ helper=helper.replace("/* Profile generation only;", "#include \"wr-iot/restart-
 helper=helper.replace("/* Profile generation only;", "#include \"wr-iot/restart-multicast-policy.h\"\n"+(local/"restart-multicast-policy-sdk.inc").read_text()+"\n/* Profile generation only;",1)
 helper=helper.replace("/* Profile generation only;", "#include \"wr-iot/restart-radio-state.h\"\n"+(local/"restart-radio-state-sdk.inc").read_text()+"\n/* Profile generation only;",1)
 helper=helper.replace("/* Profile generation only;", "#include \"wr-iot/restart-wan-followup.h\"\n"+(local/"restart-wan-policy-sdk.inc").read_text()+"\n/* Profile generation only;",1)
+helper=helper.replace("/* Profile generation only;", (local/"restart-led-sdk.inc").read_text()+"\n/* Profile generation only;",1)
 s=s.replace(anchor,helper+anchor+'\n#if defined(BOARD_WR1200JS)\n wr_iot_last_stop_result=wr_iot_quiesce();\n if (!wr_iot_last_stop_result) return;\n#endif',1)
 restart_anchor='void\nrestart_wifi_rt(int radio_on, int need_reload_conf)\n{'
 if s.count(restart_anchor)!=1:raise SystemExit('2.4 GHz restart anchor changed')

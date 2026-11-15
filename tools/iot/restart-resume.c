@@ -10,7 +10,7 @@ static void envelope_wipe(void *data,size_t size)
 int wr_iot_restart_resume_begin(struct wr_iot_restart_resume*s,const unsigned char*id,unsigned long long created)
 {
  int started;
- if(!s||!id||!created||s->owner||s->busy||s->phase!=WR_RESUME_IDLE||
+ if(!s||!id||!created||s->owner||s->busy||s->led_attempted||s->led_returned||s->phase!=WR_RESUME_IDLE||
     !wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending)return 0;
  s->owner=getpid();s->created=created;s->busy=1;
  started=wr_iot_restart_restore_begin(&s->restore,id);
@@ -97,7 +97,10 @@ int wr_iot_restart_resume_step(struct wr_iot_restart_resume*s)
    observed.created=s->created;observed.state=WR_IOT_RESULT_APPLIED;
    /* Fresh backend proof covers owned bridge/subnet/services/filter and the
     * exact current OPEN token after WAN's route/VLAN/firewall side effects. */
-   if(wr_iot_rc_backend_observed(&observed)){s->phase=WR_RESUME_DONE;done=1;}
+   if(wr_iot_rc_backend_observed(&observed)){
+    if(!s->led_attempted){s->led_attempted=1;s->led_returned=wr_iot_rc_restart_led_on()==1;}
+    if(s->led_returned){s->phase=WR_RESUME_DONE;done=1;}
+   }
   }
   break;
 #endif

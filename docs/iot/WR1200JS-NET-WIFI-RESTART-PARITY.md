@@ -503,3 +503,13 @@ WAN fixture verifies refusal then later success with observer injected; native
 preparation passes. This is host/source integration, not evidence of successful
 physical WAN/IoT recovery. Automatic repair of a persistent post-WAN mismatch and
 stock WAN/LED/IAPP ordering remain unresolved integration requirements.
+
+
+LED_SW2G ON is now one-shot after post-WAN exact backend observation, under fresh
+service guard/router/mode0/radio/Main-UP checks. Attempt is recorded before SDK
+LED call; refusal retains without retry. MT7603's stock VgaClamp helper branch
+is a compile-time no-op and no timing/register operation is introduced. Host LED
+adapter and actual resume/WAN ordering tests pass with hardware/helper actors;
+native preparation passes. Physical LED indication is not acceptance evidence.
+IAPP still precedes the deferred WAN in the current candidate, so full stock
+WAN->LED->IAPP parity remains unresolved; do not enable stock restart hook yet.
