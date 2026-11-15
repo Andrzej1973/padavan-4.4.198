@@ -142,6 +142,7 @@ jobs:
             trunk/user/dnsmasq
             trunk/user/shared
             trunk/user/httpd
+            trunk/user/ralinkiappd
             trunk/user/www
             trunk/user/wireless_tools
             trunk/linux-4.4.x/drivers/nvram

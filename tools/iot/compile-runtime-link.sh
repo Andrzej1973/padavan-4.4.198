@@ -13,13 +13,15 @@ mkdir -p "$results"
 probe="$(mktemp -d "$RUNNER_TEMP/iot-runtime-link.XXXXXX")"
 trap 'find "$probe" -depth -delete' EXIT
 mkdir -p "$probe/trunk/user" "$probe/trunk/configs/boards/WR1200JS"
-cp -a "$trunk/user/rc" "$trunk/user/httpd" "$probe/trunk/user/"
+cp -a "$trunk/user/rc" "$trunk/user/httpd" "$trunk/user/ralinkiappd" "$probe/trunk/user/"
 cp "$trunk/configs/boards/WR1200JS/l1profile.dat" "$probe/trunk/configs/boards/WR1200JS/"
 sha256sum "$trunk/.config" "$trunk/config.arch" "$trunk/linux-4.4.x/.config" \
   "$trunk/user/rc/rc" "$trunk/user/httpd/httpd" > "$results/baseline.sha256"
 for stage in rc http control runtime; do
   python3 "tools/iot/prepare-$stage.py" "$probe"
 done
+python3 tools/iot/prepare-iappd-policy-source.py "$probe"
+python3 tools/iot/check-iappd-policy-manifest.py "$probe"
 python3 tools/iot/check-runtime-source.py "$probe" "$probe/source-check"
 cross="${compiler%gcc}"
 cat > "$probe/Makefile" <<'MAKE'
@@ -70,6 +72,8 @@ for role in rc httpd; do
     --output "$results/$role-dependency-closure.json"
 done
 cp "$probe/iot-runtime-source.json" "$results/"
+cp "$probe/iot-iapp-policy-source.json" "$results/"
+cp "$probe/trunk/user/ralinkiappd/iappd.sh" "$results/iappd-candidate.sh"
 sha256sum "$results/rc" "$results/httpd" > "$results/candidate.sha256"
 sha256sum -c "$results/baseline.sha256"
 printf '%s\n' 'PASS experimental RC/HTTP target link and dependency closure; no image installation or physical acceptance'

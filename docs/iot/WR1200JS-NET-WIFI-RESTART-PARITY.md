@@ -418,3 +418,13 @@ default restore and prehandoff checks pass separately. Native preparation passes
 ABI now explicitly compiles the gate1 prepared restore with MIPS compiler after
 policy installation. New MIPS/image/runtime results are pending, and main firmware
 workflow still needs paired preparation before claiming IAPP installed there.
+
+
+ABI dd9f7d4 run43665195993 failed before C compilation in the new policy step:
+source sparse checkout omitted trunk/user/ralinkiappd/iappd.sh. Added that exact
+directory to the pinned checkout. Experimental compile-runtime-link now copies
+ralinkiappd with RC/HTTP, applies/verifies paired policy before target link and
+retains candidate script/manifest. Base firmware/binaries remain hash-checked
+and unchanged. Shell syntax, sparse checkout YAML assertion and host installer
+checks pass; new SDK target result pending. This activates only the isolated
+experimental target-link candidate, not the release firmware image.
