@@ -31,6 +31,7 @@ int main(void){
   setup(&s,enabled,0);pre_ok=0;before=s;assert(!wr_iot_cold_root_shutdown(&s,NULL)&&!memcmp(&before,&s,sizeof(s)));
   pre_ok=1;assert(wr_iot_cold_root_shutdown(&s,NULL)&&!memcmp(&zero,&s,sizeof(s)));
  }
+ setup(&s,1,1);s.handoff.backend_claimed=0;s.handoff.phase=WR_COLD_HANDOFF_RETAINED;pre_ok=1;assert(wr_iot_cold_root_shutdown(&s,NULL)&&!memcmp(&zero,&s,sizeof(s)));
  setup(&s,1,1);assert(!wr_iot_cold_root_shutdown(&s,NULL)&&!begins);
  assert(!wr_iot_cold_root_shutdown(&s,&off)&&begins==1&&!steps&&!releases);
  off.created=99;stop_ready=0;assert(!wr_iot_cold_root_shutdown(&s,&off)&&begins==1&&steps==1&&!releases);

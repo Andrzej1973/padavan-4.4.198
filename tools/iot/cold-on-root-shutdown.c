@@ -19,11 +19,13 @@ int wr_iot_cold_root_shutdown(struct wr_iot_cold_root *s,
 #endif
     ))return 0;
  s->busy=1;
- if(!s->handoff.owner){
+ if(!s->handoff.owner||(s->handoff.owner==getpid()&&!s->handoff.busy&&
+    s->handoff.parent==&s->parent&&s->handoff.attempted&&!s->handoff.backend_claimed&&
+    s->handoff.phase==WR_COLD_HANDOFF_RETAINED)){
   /* Both saved intents are still never-opened here. The existing predicate
    * repeats backend-never-started, profile and two fresh IDLE observations. */
-  if(!s->stop.owner&&!s->stop.busy&&!s->handoff.attempted&&
-     !s->handoff.backend_claimed&&!s->handoff.parent)
+  if(!s->stop.owner&&!s->stop.busy&&!s->handoff.backend_claimed&&
+     (s->handoff.owner||(!s->handoff.attempted&&!s->handoff.parent)))
    finished=wr_iot_cold_prehandoff_shutdown(&s->parent);
  }else if(s->enabled&&s->handoff.owner==getpid()&&!s->handoff.busy&&
           s->handoff.parent==&s->parent&&s->handoff.attempted&&s->handoff.backend_claimed){

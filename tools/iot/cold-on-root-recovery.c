@@ -15,6 +15,7 @@ int wr_iot_cold_root_preup_recover(struct wr_iot_cold_root *s)
     s->handoff.owner||s->handoff.attempted||s->release.owner||s->released.release||
     s->terminal.owner||s->disabled.owner||s->disabled_release.owner||
     s->disabled_released.release||s->disabled_terminal.owner||s->stop.owner||s->stop.busy||
+    s->final_off_attempted||s->final_off.owner||s->final_off.busy||s->final_off.active||s->final_off.complete||
     !wr_iot_rc_shutdown.active||!wr_iot_rc_shutdown.radio_off_owned||
     wr_iot_rc_shutdown.radio_on_owned)return 0;
  p=&s->parent;g=&p->generation;

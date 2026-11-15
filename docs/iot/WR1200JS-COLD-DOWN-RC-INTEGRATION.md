@@ -399,3 +399,31 @@ terminal and enabled/disabled cold terminal regression checks remain required.
 This primitive is not yet called by cold root pending routing: backend-specific
 post-parent-release ACTIVE/OFF proof and root cleanup still need composition.
 No global queue, MCU protocol, ACK reuse or radio timing changes are involved.
+
+## Post-parent-release shutdown now composed privately
+
+`rc-cold-final-shutdown.inc` binds the root's exact released receipt and terminal
+child to the independent RC backend. Pending terminal shutdown first drains the
+owned IAPP child with the new held-fence primitive. Enabled IoT admits one fresh
+empty OFF envelope through existing shutdown quiesce (which performs full ACTIVE
+observation), then requires completed OFF with no resume credentials and exact
+adapter/generation/open-token/close-serial from the full CLOSED observer. Refused
+OFF cannot be submitted again. Old startup profile identity is intentionally not
+used after normal OFF's owned profile mutation. Policy remains checked.
+
+Disabled IoT uses the separately bound INITIAL_OFF envelope/identity, no live
+start/stop resources, fresh never-opened observation and current disabled profile.
+It never submits OFF or fabricates CLOSED. Both paths require the exact stable
+root/release/terminal pointers and retain resources on drift. Checked terminal
+finish releases its guard, wipes the root and clears ON exclusion before pending
+SIGTERM replay, preserving the independent completed backend. Signal routing now
+uses this path instead of ordinary terminal completion under pending shutdown;
+a fresh OFF ID is generated only after child drain, and never after an attempt.
+
+The actual RC fragment/terminal/fence fixture covers both intents, real SIGTERM,
+stale tuple, rebind/policy/resume/credential refusal, failed unmask and no OFF
+replay; backend, driver observation, policy/file observations and child receipts
+are injected. Preparation compiles the composed backend and checks its exported
+symbol. No target/runtime acceptance follows. Public scheduler binding remains
+required. The unclaimed-backend handoff refusal also routes through the existing
+exact never-started prehandoff predicate rather than stranding the local handoff.

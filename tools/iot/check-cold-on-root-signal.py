@@ -29,6 +29,8 @@ int wr_iot_cold_root_shutdown(struct wr_iot_cold_root*s,const struct wr_iot_cont
  if(stop_done)memset(s,0,sizeof(*s));
  return stop_done;
 }
+static int final_calls;
+int wr_iot_rc_cold_root_final_shutdown(struct wr_iot_cold_root*s,const struct wr_iot_control_request*r){assert(s->phase==WR_COLD_ROOT_TERMINAL);final_calls++;if(r){assert(r->created==8);s->final_off_attempted=1;}return 0;}
 #define clock_gettime fake_clock
 #define sigpending fake_pending
 #include "cold-on-root-signal.c"
@@ -64,7 +66,12 @@ int main(void){
  assert(!wr_iot_cold_root_signal_step(&s)&&entropy_calls==calls&&clock_calls==clocks);
  stop_done=1;assert(wr_iot_cold_root_signal_step(&s)==-1&&!memcmp(&zero,&s,sizeof(s))&&entropy_calls==calls);
  setup(&s);s.handoff.owner=0;assert(!wr_iot_cold_root_signal_step(&s)&&entropy_calls==calls);
- setup(&s);s.phase=WR_COLD_ROOT_TERMINAL;int stops=stop_calls;assert(wr_iot_cold_root_signal_step(&s)==1&&stop_calls==stops&&entropy_calls==calls);
+ setup(&s);s.phase=WR_COLD_ROOT_TERMINAL;int stops=stop_calls;assert(!wr_iot_cold_root_signal_step(&s)&&final_calls==1&&stop_calls==stops&&entropy_calls==calls);
+ s.terminal.terminal.shutdown_held=1;s.release.owner=getpid();s.release.created=7;memset(s.release.id,'1',32);s.released.released=1;s.released.release=&s.release;
+ wr_iot_rc_shutdown.radio_off_owned=0;wr_iot_rc_shutdown.radio_on_owned=1;
+ assert(!wr_iot_cold_root_signal_step(&s)&&s.final_off_attempted&&entropy_calls==calls+1);
+ assert(!wr_iot_cold_root_signal_step(&s)&&entropy_calls==calls+1);calls=entropy_calls;
+ wr_iot_rc_shutdown.radio_on_owned=0;
  setup(&s);pending_fault=1;assert(!wr_iot_cold_root_signal_step(&s)&&entropy_calls==calls);
  setup(&s);s.handoff.parent=NULL;assert(!wr_iot_cold_root_signal_step(&s)&&entropy_calls==calls);
 }

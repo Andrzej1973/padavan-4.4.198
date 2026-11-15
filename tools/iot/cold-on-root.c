@@ -13,7 +13,9 @@ int wr_iot_cold_root_begin(struct wr_iot_cold_root *s,
     s->terminal.owner||s->disabled.owner||s->disabled_release.owner||
     s->disabled_released.release||s->disabled_terminal.owner||s->stop.owner||
     s->stop.busy||s->stop.parent||s->stop.handoff||s->stop.off.owner||
-    s->stop.off_attempted||s->stop.phase!=WR_COLD_STOP_IDLE)return 0;
+    s->stop.off_attempted||s->stop.phase!=WR_COLD_STOP_IDLE||
+    s->final_off_attempted||s->final_off.owner||s->final_off.busy||
+    s->final_off.active||s->final_off.complete||s->final_off.resume_needed)return 0;
  s->busy=1;
  if(!wr_iot_cold_owner_begin(&s->parent,input,reload)){s->busy=0;return 0;}
  s->owner=getpid();s->enabled=input->request.enabled;

@@ -22,6 +22,8 @@ struct wr_iot_cold_root {
  struct wr_iot_cold_disabled_parent_release disabled_released;
  struct wr_iot_cold_disabled_terminal disabled_terminal;
  struct wr_iot_cold_stop stop;
+ int final_off_attempted;
+ struct wr_iot_rc_quiesce final_off;
 };
 /* 1 ownership claimed, including retained refusal. Does not mean ready. */
 int wr_iot_cold_root_begin(struct wr_iot_cold_root *,const struct wr_iot_control_request *,int);
@@ -36,4 +38,8 @@ int wr_iot_cold_root_retire(struct wr_iot_cold_root *);
  * empty OFF envelope. Existing stop ownership is continued without new input.
  * 1 resources released and root wiped, 0 retained; no Main reset/rollback. */
 int wr_iot_cold_root_shutdown(struct wr_iot_cold_root *,const struct wr_iot_control_request *off);
+/* RC-private post-parent-release shutdown. Uses the terminal's retained fence;
+ * fresh OFF input only before one enabled-backend attempt. 1 root released,
+ * 0 retained. INITIAL_OFF follows its own never-opened observation. */
+int wr_iot_rc_cold_root_final_shutdown(struct wr_iot_cold_root *,const struct wr_iot_control_request *off);
 #endif
