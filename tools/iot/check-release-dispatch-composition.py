@@ -57,6 +57,7 @@ static int wr_iot_driver_close_release(RTMP_ADAPTER *ad,PNET_DEV dev,
 '''
 # The actual binding is separately compiled/executed by its dedicated fixture.
 generated = generated.replace('#include "driver-api-close-release-binding.inc"', '')
+generated = generated.replace('#include "precreated-down-binding.inc"', '')
 generated = generated.replace('#include "driver-api-open-recovery-entry.inc"', '')
 generated = generated.replace('#include "precreated-idle-probe-binding.inc"', '').replace('#include "precreated-idle-entry.inc"', '')
 source = source.replace('#include "driver-api-closed-entry.inc"', binding + generated)

@@ -27,5 +27,6 @@ def compose(entry):
             '#include "driver-api-open-recovery-entry.inc"\n'
             '#include "precreated-idle-wire.h"\n'
             '#include "precreated-idle-probe-binding.inc"\n'
+            '#include "precreated-down-binding.inc"\n' +
             '#include "precreated-idle-entry.inc"\n' +
             entry.replace(copy, copy + route, 1))

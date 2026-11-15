@@ -27,5 +27,17 @@
   "runtime_verified": false,
   "lifetime_audit": "existing physical-stop ioctl and close-enter explicitly require outer adapter lifetime; module/netdev holds alone do not independently prove adapter allocation lifetime. New DOWN observation remains uninstalled until common entry establishes that contract.",
   "adapter_release_source": "tools/iot/peer-adapter-release.inc: peer delete active, close serial and open owner phase/active lease are additional necessary exclusions",
-  "initialization_source": "prepare-raw-recovery-free-fence.py publishes storage_live=1 only after recovery locks/work/owners/refs init before ppAdapter publication"
+  "initialization_source": "prepare-raw-recovery-free-fence.py publishes storage_live=1 only after recovery locks/work/owners/refs init before ppAdapter publication",
+  "target_preparation": {
+    "tree": "prepare-ra2-no-host-experiment.py compile-only candidate",
+    "included_by": "release-dispatch-composition.py before existing closed entry",
+    "assets": [
+      "precreated-down-binding.inc",
+      "precreated-down-reference.h",
+      "peer-table-owner.h",
+      "peer-close-executor.h"
+    ],
+    "new_opcode": false,
+    "target_compiled": false
+  }
 }

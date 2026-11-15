@@ -2,7 +2,7 @@
  * lifetime for the entire call. No ioctl route or hardware access installed.
  * MacTabLock and transition lock must never be held together. */
 #include "precreated-down-reference.h"
-static INT wr_iot_precreated_down_observed(PRTMP_ADAPTER ad,PNET_DEV dev,
+static INT __attribute__((unused)) wr_iot_precreated_down_observed(PRTMP_ADAPTER ad,PNET_DEV dev,
  unsigned long generation)
 {
  ULONG flags=0;int peers,exact;
