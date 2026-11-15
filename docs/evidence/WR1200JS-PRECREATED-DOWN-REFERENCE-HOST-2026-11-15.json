@@ -1,0 +1,27 @@
+{
+  "scope": "read-only software reference for Main DOWN with never-opened ra2",
+  "implementation": "precreated-down-reference.h composes actual main_recovery_release_current with strict empty ra2 history and unambiguous idle registry",
+  "checks_passed": [
+    "check-precreated-down-reference.c GCC gnu11 Werror ASan/UBSan"
+  ],
+  "refusals": [
+    "ra2 last token/close serial/unmutated OPEN",
+    "ra2 removal",
+    "peer reserved/close running",
+    "active TX",
+    "wrong epoch",
+    "Main READY",
+    "missing Main release receipt",
+    "deferred Main owner",
+    "nonzero vendor count"
+  ],
+  "read_only": true,
+  "limits": [
+    "requires caller transition lock and lifetime pins",
+    "peer/control/descriptor owner checks not supplied by this predicate",
+    "not RF/DMA/IRQ proof or permission",
+    "never-started fresh adapter is separate from completed Main close",
+    "no ioctl binding, RC integration or target build yet"
+  ],
+  "runtime_verified": false
+}

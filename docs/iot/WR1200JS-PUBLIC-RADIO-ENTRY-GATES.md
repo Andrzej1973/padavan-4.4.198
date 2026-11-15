@@ -48,3 +48,10 @@ receipt publication once and duplicate refusal with physical/followup actors.
 Full cold-path/disabled-root physical OFF handling and target/device gates are
 still separate; this hook does not fabricate an owned CLOSE for a never-opened
 ra2.
+
+The initial idle API requires Main READY and an owned Main reference. It cannot
+certify Main DOWN. `precreated-down-reference.h` now composes the actual completed
+Main software-release predicate with strict never-opened ra2 and idle registry
+checks. This read-only candidate is not an installed ioctl or physical restart
+permission: peer/control/descriptor ownership and pinned lifetime still need
+composition. A fresh adapter which never started Main is a separate case.
