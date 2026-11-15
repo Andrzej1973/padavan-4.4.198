@@ -341,3 +341,9 @@ monitor43673736308 agree. The profile-check unit is moved to the existing SDK
 unit loop with actual shared/kernel include paths and board defines, alongside
 init/rc-mode. No stub header or weakened compiler diagnostics. Target result
 for this correction remains pending; standard43673348876 succeeded separately.
+
+Bridge refusal regression now exercises three REFUSED ticks on slot0: no slot
+advance, no mutation count and no repeated RAM update. After read-only refusal
+clears, exactly seven ordered detaches complete. Existing UNCERTAIN case retains
+after one attempted detach. Actual profile/RAM controller host check PASS.
+ABI correction b670018d/43682525761 remains live; no target success claimed.
