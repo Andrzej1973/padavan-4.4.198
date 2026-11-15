@@ -67,6 +67,11 @@ int main(void)
  assert(!sigaction(SIGTERM,&action,NULL));
  struct wr_iot_rc_physical_intent intent={0,0,0},out={0},bad={0,1,0};
  assert(!wr_iot_rc_physical_begin(&bad)&&!wr_iot_rc_shutdown.active);
+ wr_iot_rc_shutdown.radio_on_owned=1;
+ assert(!wr_iot_rc_physical_begin(&intent)&&!scheduler_prepares&&!physical.owner&&!depth&&!calls&&!downs);
+ wr_iot_rc_shutdown.radio_on_owned=0;wr_iot_rc_shutdown.radio_off_owned=1;
+ assert(!wr_iot_rc_physical_begin(&intent)&&!scheduler_prepares&&!physical.owner&&!depth&&!calls&&!downs);
+ wr_iot_rc_shutdown.radio_off_owned=0;
  scheduler_refuse=1;assert(!wr_iot_rc_physical_begin(&intent)&&scheduler_prepares==1&&!physical.owner&&!depth&&!calls&&!downs);scheduler_refuse=0;
  for(int failure=0;failure<3;failure++){
   guard_fail=failure==0;closed_fail=failure==1;entropy_fail=failure==2;

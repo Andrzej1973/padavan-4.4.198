@@ -17,7 +17,8 @@ int wr_iot_restart_entry(int radio_on,int reload)
  unsigned char bytes[32]={0};unsigned i,nonzero=0;int guard,valid=0,result=0;
  static const char hex[]="0123456789abcdef";
  if(!wr_iot_rc_restart_owned())return 0;
- if(radio_on!=1||(reload!=0&&reload!=1)||wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending)return 0;
+ if(radio_on!=1||(reload!=0&&reload!=1)||wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||
+    wr_iot_rc_shutdown.radio_on_owned||wr_iot_rc_shutdown.radio_off_owned)return 0;
  guard=wr_iot_service_guard_enter(1);if(guard!=1)return 0;
  if(!wr_iot_rc_mode_read(&a)||a.router!=1||a.radio!=1||a.mode!=0||
     clock_gettime(CLOCK_MONOTONIC,&now)||now.tv_sec<=0||

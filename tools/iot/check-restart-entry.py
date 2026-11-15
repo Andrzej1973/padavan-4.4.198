@@ -21,6 +21,8 @@ static int entropy(void*b,unsigned n,unsigned f){assert(held&&n==32&&f==1);memse
 int wr_iot_rc_physical_begin_quiesce(const struct wr_iot_rc_physical_intent*i,const struct wr_iot_control_request*r){assert(!held&&!wr_iot_rc_shutdown.active&&!r->request.enabled&&!r->request.password[0]&&r->created&&strlen(r->id)==32&&i->restart&&i->radio_on&&i->reload==1);calls++;return claimed;}
 #include "restart-entry.c"
 int main(void){
+ wr_iot_rc_shutdown.radio_on_owned=1;assert(!wr_iot_restart_entry(1,1)&&!reads&&!calls&&!held);wr_iot_rc_shutdown.radio_on_owned=0;
+ wr_iot_rc_shutdown.radio_off_owned=1;assert(!wr_iot_restart_entry(1,1)&&!reads&&!calls&&!held);wr_iot_rc_shutdown.radio_off_owned=0;
  owned=0;assert(!wr_iot_restart_entry(1,1)&&!calls);owned=1;
  assert(!wr_iot_restart_entry(0,1)&&!calls);assert(!wr_iot_restart_entry(1,2));
  guard=0;assert(!wr_iot_restart_entry(1,1));guard=1;

@@ -1,0 +1,21 @@
+{
+  "checks_passed": [
+    "check-restart-entry.py",
+    "check-rc-physical-stop.py",
+    "check-radio-off-composition.py",
+    "check-radio-on-root-shutdown.py",
+    "check-restart-entry-source.py",
+    "check-physical-stop-client-preparation.py"
+  ],
+  "source_sha256": {
+    "rc-physical-stop.c": "aac7bc8aff8c23a179d05458ebff3f917c0f6adf4b973c3486bbaf34cf5b76aa",
+    "restart-entry.c": "8dde18fc248f76d018f57a8d31336c32307ea04ce9fda778ccd0cfeb85aef0ca",
+    "initial-off.c": "a926130d0bdcf9fafee4c34b6dc280c490123386b2d286cd4f20995cb2b14f49"
+  },
+  "finding": "Process-only ON/OFF exclusion missing at direct physical and private restart admission after parent release",
+  "fix": "Refuse before scheduler/guard/driver operations while preserving idle path",
+  "cold_iot_off_complete": false,
+  "target_verified": false,
+  "device_verified": false,
+  "scratch": "TemporaryDirectory removed"
+}
