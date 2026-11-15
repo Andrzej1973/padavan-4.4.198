@@ -253,3 +253,12 @@ ifindex/Main/owner/pending drift and uncertain/not-submitted transport. Prepared
 C11/-Werror compilation PASS; staged for MIPS ABI and full target symbol checks.
 ABI43671213212 SUCCESS forfa1d4d0 predates this query/receipt package. Observer
 is not yet connected to SDK OFF mutations; physical runtime remains unverified.
+
+Standalone radio-off-state-sdk.inc implements the SDK RAM-only OFF state
+effect separately from the combined AP lifecycle: conditional reload_svc_rt
+event then mlme_state_rt(0), fixed-key readback and fresh physical DOWN before
+and after. Guard/mode/stored-radio mismatches refuse before writes. Caller must
+record one attempt; partial/post-observation failure is uncertainty, never retry
+permission. Host ASan/UBSan checks PASS. No flash commit or RF command. Adapter
+is not staged/called yet; profile generation, bridge detach, services/WAN/IAPP
+and final retirement still need complete orchestration.
