@@ -1,0 +1,24 @@
+{
+  "scope": "uncomposed disabled cold LED/IAPP/retirement owner",
+  "checks": {
+    "actual_disabled_cleanup_initial_OFF_policy_WAN_real_IAPP_terminal_fence_asan_ubsan": "PASS",
+    "all_WAN_plans_both_IAPP_gates": "PASS",
+    "LED_failure_retained_no_replay_no_child": "PASS",
+    "unknown_child_same_context_retained": "PASS",
+    "confirmed_child_failure_retained_no_replay": "PASS",
+    "retire_requires_fresh_INITIAL_OFF_closed_child_no_guard_fence": "PASS",
+    "INITIAL_OFF_backend_preserved_no_OPEN": "PASS"
+  },
+  "sha256": {
+    "tools/iot/rc-cold-disabled-terminal.inc": "18810f12ac337d802c438cbcdb2a98ab55c4d71413cfe1013a3c557cc3aa7963",
+    "tools/iot/check-rc-cold-disabled-terminal.py": "05f54a2afc48825ae39f3bb594182eaa1bd55c8ed250754a1fc0cfe8f149bb4c"
+  },
+  "actors": [
+    "SDK parent/WAN/LED",
+    "driver initial-IDLE",
+    "child pipe outcome"
+  ],
+  "runtime_composed": false,
+  "target_verified": false,
+  "physical_verified": false
+}
