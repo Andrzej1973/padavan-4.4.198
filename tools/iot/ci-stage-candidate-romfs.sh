@@ -11,7 +11,7 @@ test -s "$results/paired-image-inputs.json"
 python3 - <<'PY'
 import runpy
 from pathlib import Path
-validate=runpy.run_path('tools/repository/board_catalog.py')['validate_wr_layout']
+validate=runpy.run_path('tools/iot/verify-board-layout.py')['validate_wr_layout']
 layout=validate(Path.cwd())
 print('PASS WR1200JS layout/image-size contract:',layout['firmware'])
 PY

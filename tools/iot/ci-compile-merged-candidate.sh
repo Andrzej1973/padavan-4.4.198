@@ -643,6 +643,7 @@ fi
 if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   bash tools/iot/compile-runtime-link.sh "$PWD/padavan-4.4/trunk" "$compiler" "$results/runtime-link"
   python3 -B tools/iot/check-package-candidate-pair.py
+  python3 -B tools/iot/check-board-layout.py
   python3 -B tools/iot/check-stage-candidate-romfs.py
   python3 -B tools/iot/check-isolated-trx.py
   python3 -B tools/iot/package-candidate-pair.py "$results" --revision "$CANDIDATE_SHA" \
