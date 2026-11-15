@@ -89,3 +89,11 @@ foreign identity retention, one Main DOWN, exact RELEASE consumption, cached
 terminal receipt, entropy-preparation failure consumption. ASan/UBSan PASS.
 Consumer remains unbound to RC wait and SDK OFF follow-up. Source fixtures
 removed their temporary directories; no retained scratch.
+
+OFF owner is now staged by prepare-runtime with its header and WR-only object.
+The prepared-source verifier checks exact source/header and board selection.
+ABI includes its MIPS translation unit; full experimental target-link requires
+begin/poll/take and exact physical take symbols. Actual transformed source
+compiles under strict host C11 (-Werror); POSIX declarations explicitly enabled.
+Prepared-source, OFF actor and actual composition checks PASS. No RC wait
+activation or SDK OFF follow-up is implied; target results still required.
