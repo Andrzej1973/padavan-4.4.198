@@ -266,3 +266,17 @@ OFF gates and no DNS recovery confirm the never-opened state. This returns only
 a rejection proof; it never fabricates an OPEN token or CLOSE serial. Host
 predicate tests and prepared backend/symbol checks pass. Actual shutdown
 controller/cleanup composition and driver-level runtime evidence remain required.
+
+## Post-handoff shutdown controller staged
+
+`cold-on-postshutdown.c` owns a stable cold parent/handoff and fresh OFF envelope.
+It drains only the existing own-Guest UP, advances the bound initial startup via
+RC helper, then accepts completed pre-OPEN rejection or starts existing normal
+OFF at most once. A refusal after that attempt retains context; no repeated
+begin is permitted. DRAIN uses existing quiesce continuation plus exact CLOSE
+observer; terminal states require fresh proof on every call. No Main reset,
+old-profile rollback or cleanup occurs. RC helpers independently validate the
+pending parent/ON/radio binding before startup continuation or OFF admission.
+Controller tests use backend/quiesce/Guest actors; RC predicate/wrapper tests are
+separate. Prepared backend and component compilation/symbol checks pass. Exact
+shutdown cleanup and root/public wiring are still required.

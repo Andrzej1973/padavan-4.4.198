@@ -28,6 +28,9 @@ int wr_iot_request_initial_off_current(void){return 1;}
 int wr_iot_bss_is_down(void){return 1;}
 int wr_iot_dns_activation_recovery_state(void){return 0;}
 int wr_iot_driver_initial_idle_read(const unsigned char*n,struct wr_iot_idle_result*out){static unsigned serial;assert(n);*out=(struct wr_iot_idle_result){5,2,++serial};return 1;}
+static int startup_continues,off_begins;
+enum wr_iot_result_state wr_iot_activation_owner_continue(struct wr_iot_activation_owner*s,const char*id,unsigned long long created){assert(s==&backend&&!strcmp(id,s->start.input.id)&&created==7);startup_continues++;s->phase=WR_IOT_OWNER_ACTIVE;return WR_IOT_RESULT_APPLIED;}
+int wr_iot_rc_quiesce_shutdown_begin(struct wr_iot_rc_quiesce*off,const struct wr_iot_control_request*input){assert(off&&input->created==8);off_begins++;off->owner=getpid();return 1;}
 #include "rc-cold-shutdown.inc"
 int main(void){
  struct wr_iot_cold_owner p={0};struct wr_iot_cold_handoff h={0};struct wr_iot_rc_quiesce off={0};struct wr_iot_driver_closed_result out;
@@ -61,6 +64,13 @@ int main(void){
  backend.start.open.phase=WR_IOT_OPEN_NOT_SUBMITTED;backend.start.open.owner=getpid();assert(wr_iot_rc_cold_shutdown_rejected(&p,&h));
  backend.start.open.attempt.request_id[0]=1;assert(!wr_iot_rc_cold_shutdown_rejected(&p,&h));backend.start.open.attempt.request_id[0]=0;
  backend.start.open.attempt.identity.adapter_epoch=5;assert(!wr_iot_rc_cold_shutdown_rejected(&p,&h));
+ backend.phase=WR_IOT_OWNER_START;
+ assert(wr_iot_rc_cold_shutdown_advance(&p,&h)&&startup_continues==1&&!depth);
+ assert(wr_iot_rc_cold_shutdown_advance(&p,&h)&&startup_continues==1);
+ struct wr_iot_control_request request={0};struct wr_iot_rc_quiesce new_off={0};memset(request.id,'3',32);request.created=8;
+ request.request.password[0]='x';assert(!wr_iot_rc_cold_shutdown_off_begin(&p,&h,&new_off,&request)&&!off_begins);request.request.password[0]=0;
+ assert(wr_iot_rc_cold_shutdown_off_begin(&p,&h,&new_off,&request)&&off_begins==1);
+ h.identity.adapter_epoch++;assert(!wr_iot_rc_cold_shutdown_advance(&p,&h)&&startup_continues==1);
 }
 '''
 with tempfile.TemporaryDirectory(prefix='wr-cold-stop-') as d:

@@ -84,3 +84,43 @@ int wr_iot_rc_cold_shutdown_rejected(const struct wr_iot_cold_owner *p,
   wr_iot_dns_activation_recovery_state()==0;
  wr_iot_service_guard_leave(guard);return ok;
 }
+
+static int cold_shutdown_bound_pending(const struct wr_iot_cold_owner *p,const struct wr_iot_cold_handoff *h)
+{
+ return p&&h&&wr_iot_cold_backend_parent==p&&p->owner==getpid()&&!p->busy&&
+  h->owner==getpid()&&!h->busy&&h->parent==p&&h->attempted&&h->backend_claimed&&
+  (h->phase==WR_COLD_HANDOFF_WAIT||h->phase==WR_COLD_HANDOFF_ACTIVE)&&h->created&&
+  memchr(h->id,0,sizeof(h->id))&&wr_iot_control_id(h->id)&&
+  !rebind.owner&&backend.owner==getpid()&&!backend.busy&&backend.start.owner==getpid()&&!backend.start.busy&&
+  memchr(backend.start.input.id,0,sizeof(backend.start.input.id))&&
+  !strcmp(h->id,backend.start.input.id)&&h->created==backend.start.input.created&&
+  p->main.identity.adapter_epoch==wr_iot_cold_backend_identity.adapter_epoch&&
+  p->main.identity.device_generation==wr_iot_cold_backend_identity.device_generation&&
+  h->identity.adapter_epoch==wr_iot_cold_backend_identity.adapter_epoch&&
+  h->identity.device_generation==wr_iot_cold_backend_identity.device_generation&&
+  wr_iot_rc_shutdown.active&&wr_iot_rc_shutdown.radio_off_owned&&!wr_iot_rc_shutdown.radio_on_owned&&
+  (wr_iot_rc_shutdown.pending==SIGTERM
+#ifdef SIGQUIT
+   ||wr_iot_rc_shutdown.pending==SIGQUIT
+#endif
+  );
+}
+int wr_iot_rc_cold_shutdown_advance(const struct wr_iot_cold_owner *p,const struct wr_iot_cold_handoff *h)
+{
+ int guard,active;
+ if(!cold_shutdown_bound_pending(p,h))return 0;
+ guard=wr_iot_service_guard_enter(1);if(guard!=1)return 0;
+ if(backend.phase==WR_IOT_OWNER_START)(void)wr_iot_activation_owner_continue(&backend,h->id,h->created);
+ active=cold_shutdown_bound_pending(p,h)&&backend.phase==WR_IOT_OWNER_ACTIVE;
+ wr_iot_service_guard_leave(guard);return active;
+}
+int wr_iot_rc_cold_shutdown_off_begin(const struct wr_iot_cold_owner *p,const struct wr_iot_cold_handoff *h,
+ struct wr_iot_rc_quiesce *off,const struct wr_iot_control_request *input)
+{
+ if(!off||!input||!cold_shutdown_bound_pending(p,h)||backend.phase!=WR_IOT_OWNER_ACTIVE||
+    !input->created||input->created<h->created||input->request.enabled||
+    !memchr(input->id,0,sizeof(input->id))||!wr_iot_control_id(input->id)||!strcmp(input->id,h->id)||
+    input->request.ssid[0]||input->request.password[0]||input->request.gateway[0]||
+    input->request.mask[0]||input->request.first[0]||input->request.last[0])return 0;
+ return wr_iot_rc_quiesce_shutdown_begin(off,input);
+}
