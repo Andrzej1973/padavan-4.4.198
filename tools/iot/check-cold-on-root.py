@@ -13,6 +13,8 @@ struct wr_iot_rc_shutdown_admission wr_iot_rc_shutdown;
 static struct wr_iot_cold_root *root;
 static int enabled,admit=1,prepare=1,backend=1,active=1,capture=1,release_ok=1,terminal=1,retire=1;
 static int begins,handoffs,disabled_begins,disabled_reads,captures,releases,term_steps,retires;
+int wr_iot_cold_root_signal_step(struct wr_iot_cold_root*s){assert(s==root);return wr_iot_rc_shutdown.pending&&s->phase!=WR_COLD_ROOT_TERMINAL?0:1;}
+int wr_iot_cold_root_preup_recover(struct wr_iot_cold_root*s){assert(s==root);return 0;}
 int wr_iot_cold_owner_begin(struct wr_iot_cold_owner*s,const struct wr_iot_control_request*r,int reload){
  assert(s==&root->parent&&r->request.enabled==enabled&&reload==1);begins++;
  if(!admit)return 0;

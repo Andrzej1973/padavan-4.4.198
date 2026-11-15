@@ -357,3 +357,25 @@ restoration, credentials/guard gone before signal replay, and no Main/generator
 replay. SDK/DOWN observations remain injected. Runtime preparation and root
 step scheduling registration are pending while the current full-suite inputs
 are held stable; no target/image/device acceptance follows from this fixture.
+
+## Root recovery and pending signal continuation composed
+
+`cold-on-root.c` now calls `cold-on-root-signal` before each continuation. It
+notes queued SIGTERM/SIGQUIT while the admission fence blocks signal delivery,
+then routes pre-UP cancellation or existing pre/posthandoff shutdown. For a new
+bound shutdown it creates an empty OFF envelope from monotonic time and the
+existing nonblocking 32-byte entropy API, rejecting failed/short/zero/colliding
+identity. Once stop ownership exists it neither regenerates an envelope nor
+reads time/entropy again. An owned terminal child continues its existing drain.
+A retained pre-UP startup failure also uses irreversible checked cancellation;
+root step returns -1 after release, which never authorizes native fallback for
+the already claimed request.
+
+Recovery/signal units and headers are registered in preparation, equality checks,
+host compilation, ABI target compilation, symbol checks and the host suite.
+The recovery fixture now composes actual root begin/step, signal routing,
+parent/profile/journal/recovery and real pending SIGTERM. Post-UP functions in
+that fixture assert unreachable. The separate signal fixture tests real queued
+SIGTERM and injected time/entropy/children. Host/preparation checks pass; public
+scheduler entry and post-parent-release root shutdown remain unbound. MIPS,
+image and physical acceptance remain separate.

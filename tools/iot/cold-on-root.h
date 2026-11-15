@@ -25,7 +25,9 @@ struct wr_iot_cold_root {
 };
 /* 1 ownership claimed, including retained refusal. Does not mean ready. */
 int wr_iot_cold_root_begin(struct wr_iot_cold_root *,const struct wr_iot_control_request *,int);
-/* One child continuation per call; 1 only terminal software completion. */
+/* One child continuation per call; 1 terminal software completion, -1 checked
+ * cancellation/shutdown released the root. Neither permits native fallback
+ * for an already claimed operation. */
 int wr_iot_cold_root_step(struct wr_iot_cold_root *);
 /* Repeat terminal's fresh proof before clearing only this completed root. */
 int wr_iot_cold_root_retire(struct wr_iot_cold_root *);

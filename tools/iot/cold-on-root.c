@@ -2,6 +2,8 @@
 #include <string.h>
 #include <unistd.h>
 #include "cold-on-root.h"
+#include "cold-on-root-recovery.h"
+#include "cold-on-root-signal.h"
 #include "rc-shutdown-admission.h"
 int wr_iot_cold_root_begin(struct wr_iot_cold_root *s,
  const struct wr_iot_control_request *input,int reload)
@@ -20,11 +22,12 @@ int wr_iot_cold_root_begin(struct wr_iot_cold_root *s,
 }
 int wr_iot_cold_root_step(struct wr_iot_cold_root *s)
 {
- int result=0,ready;
+ int result=0,ready,signal_result;
  if(!s||s->owner!=getpid()||s->busy)return 0;
- /* An owned terminal child must drain through its existing signal fence.
-  * Earlier phases need the separately composed shutdown controller. */
- if(wr_iot_rc_shutdown.pending&&s->phase!=WR_COLD_ROOT_TERMINAL)return 0;
+ signal_result=wr_iot_cold_root_signal_step(s);
+ if(signal_result<=0)return signal_result;
+ if(s->phase==WR_COLD_ROOT_RETAINED&&!s->parent.generation.main_may_have_started)
+  return wr_iot_cold_root_preup_recover(s)?-1:0;
  s->busy=1;
  switch(s->phase){
  case WR_COLD_ROOT_PREPARE:
