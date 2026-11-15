@@ -13,4 +13,7 @@ int wr_iot_cold_postshutdown_begin(struct wr_iot_cold_stop *,struct wr_iot_cold_
  struct wr_iot_cold_handoff *,const struct wr_iot_control_request *);
 /* 1 exact CLOSED or separate completed pre-OPEN rejection, never cleanup. */
 int wr_iot_cold_postshutdown_step(struct wr_iot_cold_stop *);
+/* RC-owned cleanup only after exact terminal proof. Failed mask retains root;
+ * success frees parent snapshots before pending shutdown replay. */
+int wr_iot_rc_cold_postshutdown_release(struct wr_iot_cold_stop *);
 #endif

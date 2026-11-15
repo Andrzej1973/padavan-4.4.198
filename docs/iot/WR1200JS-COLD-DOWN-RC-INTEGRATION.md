@@ -280,3 +280,18 @@ pending parent/ON/radio binding before startup continuation or OFF admission.
 Controller tests use backend/quiesce/Guest actors; RC predicate/wrapper tests are
 separate. Prepared backend and component compilation/symbol checks pass. Exact
 shutdown cleanup and root/public wiring are still required.
+
+## Post-handoff shutdown cleanup composed
+
+`rc-cold-shutdown-release.inc` requires terminal cold shutdown state, retained
+parent/generation/profile ownership and Guest DOWN, then repeats the exact
+backend CLOSE or distinct pre-OPEN rejection proof. Successful outer-fence
+cleanup detaches the borrowed backend parent, wipes cold profile bytes/desired
+credentials/handoff/stop context and releases guard/OFF exclusion before pending
+signal replay. Live parent fence token is preserved until fence_end completes.
+Backend completed OFF/REJECTED state remains intact. No old profile comparison
+or restore occurs after normal OFF's owned profile mutation. Host composition
+uses actual cold parent/profile/handoff/predicates and real SIGTERM/fence with a
+full-CLOSE observer actor; failed unmask retains all resources and current OFF
+profile identity remains unchanged. Prepared backend and symbol checks pass.
+Public root shutdown scheduling remains unbound and target/device gates remain.

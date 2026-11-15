@@ -36,7 +36,7 @@ for root,units,anchor in ((rc,('rc-backend','rc-mode','rc-runtime','physical-sto
   pending[target]=data
  for unit in units:
   text=(local/(unit+'.c')).read_text()
-  if unit=='rc-backend':text+='\n#include "rc-cold-start.h"\n'+(local/'rc-cold-start.inc').read_text()+''.join((local/name).read_text() for name in ['rc-cold-detach.inc','rc-cold-release.inc','rc-cold-followup.inc','rc-cold-terminal.inc','rc-cold-completion.inc','rc-cold-disabled-release.inc','rc-cold-disabled-followup.inc','rc-cold-disabled-terminal.inc','rc-cold-disabled-completion.inc','rc-cold-prehandoff.inc','rc-cold-shutdown.inc'])
+  if unit=='rc-backend':text+='\n#include "rc-cold-start.h"\n'+(local/'rc-cold-start.inc').read_text()+''.join((local/name).read_text() for name in ['rc-cold-detach.inc','rc-cold-release.inc','rc-cold-followup.inc','rc-cold-terminal.inc','rc-cold-completion.inc','rc-cold-disabled-release.inc','rc-cold-disabled-followup.inc','rc-cold-disabled-terminal.inc','rc-cold-disabled-completion.inc','rc-cold-prehandoff.inc','rc-cold-shutdown.inc','rc-cold-shutdown-release.inc'])
   for header in local.glob('*.h'):
    text=text.replace('#include "'+header.name+'"','#include "wr-iot/'+header.name+'"')
   target=root/('wr-iot-'+unit+'.c')
