@@ -295,3 +295,14 @@ before system headers. Registered profile recovery test PASS.
 ABI43672264696 SUCCESS forad895ce5 predates the RAM-state/profile package.
 OFF profile owner still retains baseline and is not a full lifecycle consumer;
 SDK bridge/services/WAN/IAPP, final retirement and device acceptance remain open.
+
+radio-off-followup now composes the actual OFF profile owner then the SDK RAM
+adapter. It retains immutable policy/RELEASE copies and refuses drift in the
+linked OFF owner. Each tick advances one phase; pending shutdown holds work.
+Generated profile verification precedes one marked RAM attempt. Restored profile
+or uncertain RAM writes retain baseline/ownership without replay. Success here
+means NETWORK_PENDING (unfinished), never completed OFF. Actual journal/scanner
+plus SDK RAM adapter host ASan/UBSan fixture PASS; SDK writes and DOWN query
+remain actors. Modules staged for MIPS ABI/target symbol checks; prepared C11
+compile passed. Stable RC follow-up invocation and remaining network/service
+phases still need binding before public radio-OFF activation.

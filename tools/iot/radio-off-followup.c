@@ -1,0 +1,59 @@
+#define _GNU_SOURCE
+#include <unistd.h>
+#include <string.h>
+#include "radio-off-followup.h"
+#include "radio-off-state.h"
+#include "radio-off-observe.h"
+#include "rc-shutdown-admission.h"
+#include "service-guard.h"
+static int followup_owner(const struct wr_iot_radio_off_owner *off)
+{
+ return off&&off->owner==getpid()&&!off->busy&&off->result==1&&off->policy_ready&&
+  wr_iot_physical_stop_request_valid(&off->released)&&off->released.action==WR_STOP_RELEASE&&
+  wr_iot_rc_shutdown.radio_off_owned&&!wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.pending;
+}
+static int followup_current(const struct wr_iot_off_followup *s)
+{
+ unsigned char before[64],after[64];
+ return followup_owner(s->off)&&s->policy.reload==s->off->policy.reload&&
+  s->policy.stored_radio==s->off->policy.stored_radio&&
+  s->policy.auth_required==s->off->policy.auth_required&&s->policy.wan==s->off->policy.wan&&
+  wr_iot_physical_stop_request_encode(before,sizeof(before),&s->released)&&
+  wr_iot_physical_stop_request_encode(after,sizeof(after),&s->off->released)&&
+  !memcmp(before,after,sizeof(before));
+}
+int wr_iot_off_followup_begin(struct wr_iot_off_followup *s,const struct wr_iot_radio_off_owner *off)
+{
+ int token;
+ if(!s||s->owner||s->busy||s->phase!=WR_OFF_FOLLOWUP_IDLE||s->profile.owner||
+    !followup_owner(off))return 0;
+ s->busy=1;token=wr_iot_service_guard_enter(1);
+ if(token!=1){s->busy=0;return 0;}
+ if(!wr_iot_radio_off_observed(&off->released)){s->busy=0;wr_iot_service_guard_leave(token);return 0;}
+ s->owner=getpid();s->off=off;s->policy=off->policy;s->released=off->released;s->phase=WR_OFF_FOLLOWUP_PROFILE_BEGIN;s->busy=0;wr_iot_service_guard_leave(token);return 1;
+}
+enum wr_iot_off_followup_phase wr_iot_off_followup_step(struct wr_iot_off_followup *s)
+{
+ int result,token;
+ if(!s||s->owner!=getpid()||s->busy||!followup_current(s))return s?s->phase:WR_OFF_FOLLOWUP_IDLE;
+ s->busy=1;
+ if(s->phase==WR_OFF_FOLLOWUP_PROFILE_BEGIN){
+  if(wr_iot_off_profile_begin(&s->profile,s->off))s->phase=WR_OFF_FOLLOWUP_PROFILE;
+ }else if(s->phase==WR_OFF_FOLLOWUP_PROFILE){
+  result=wr_iot_off_profile_step(&s->profile);
+  if(result==1)s->phase=WR_OFF_FOLLOWUP_STATE;
+  else if(result==-1)s->phase=WR_OFF_FOLLOWUP_RETAINED;
+ }else if(s->phase==WR_OFF_FOLLOWUP_STATE&&!s->state_attempted){
+  token=wr_iot_service_guard_enter(1);
+  if(token==1){
+   if(s->profile.phase==WR_OFF_PROFILE_VERIFIED&&
+      wr_iot_radio_off_observed(&s->released)&&wr_iot_rc_off_profile_current()){
+    s->state_attempted=1;
+    s->phase=wr_iot_rc_radio_off_state(&s->policy,&s->released)?
+     WR_OFF_FOLLOWUP_NETWORK_PENDING:WR_OFF_FOLLOWUP_RETAINED;
+   }
+   wr_iot_service_guard_leave(token);
+  }
+ }
+ s->busy=0;return s->phase;
+}
