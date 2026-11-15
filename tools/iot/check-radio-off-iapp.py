@@ -55,6 +55,6 @@ int main(int argc,char**argv){
 with tempfile.TemporaryDirectory(prefix='wr-off-iapp-') as d:
  root=Path(d);(root/'rc.h').write_text('const char *nvram_safe_get(const char *);\n')
  p=root/'check.c';p.write_text(body);b=root/'check'
- subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+d,'-I'+str(here),str(p),'-o',str(b)],check=True)
+ subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+d,'-I'+str(here),str(p),str(here/'radio-stop-fence.c'),'-o',str(b)],check=True)
  subprocess.run([str(b),d],check=True,timeout=15)
 print('PASS OFF gated IAPP order: after post-WAN observations, begin once, active/pending shutdown drains terminal, failure retained, final pending preserves baseline/exclusion; terminal actor injected')

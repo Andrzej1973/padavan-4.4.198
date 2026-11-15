@@ -423,3 +423,13 @@ This is not readiness of WAN/auth/IAPP daemon and does not release resources.
 Signal-fenced final cleanup and RC retirement/deferred dispatch are still
 required before enabling public OFF. Host enabled-gate test PASS; full target
 link requires preflight symbol. No target/device claim for this addition.
+
+Final OFF finish now uses a separate outer signal fence after final preflight
+under the retained service guard. Cleanup releases profile snapshot, volatile
+wipes profile/OFF envelope, clears parent pointers/public exclusion, publishes
+DONE and drops guard before deferred shutdown replay. Failed mask restoration
+retains FINALIZING/fence/guard/baseline for the same owner retry without repeating
+preflight/mutations. Real SIGTERM+injected mask-failure ASan/UBSan fixture PASS.
+Function is not yet called by RC retirement; public OFF entry remains unbound.
+DONE is software sequence completion only, not runtime acceptance or daemon
+readiness. Registered regression and required target symbol added.

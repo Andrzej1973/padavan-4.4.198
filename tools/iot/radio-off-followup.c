@@ -143,3 +143,36 @@ int wr_iot_off_followup_final_current(const struct wr_iot_off_followup *s)
  return followup_current(s)&&wr_iot_radio_off_observed(&s->released)&&
   wr_iot_generated_matches(&p->files.generated[0],p->files.paths[0])&&wr_iot_radio_profile_guard();
 }
+
+static void off_finish_wipe(void *data,size_t size)
+{volatile unsigned char *p=data;while(size--)*p++=0;}
+static void off_finish_cleanup(void *context)
+{
+ struct wr_iot_off_followup *s=context;
+ wr_iot_bundle_release(&s->profile.baseline.files);
+ off_finish_wipe(&s->profile,sizeof(s->profile));
+ off_finish_wipe(s->finish_off,sizeof(*s->finish_off));
+ s->finish_off=NULL;s->off=NULL;
+ wr_iot_rc_shutdown.radio_off_owned=0;
+ s->phase=WR_OFF_FOLLOWUP_DONE;s->busy=0;
+ wr_iot_service_guard_leave(s->finish_guard);s->finish_guard=0;
+}
+int wr_iot_off_followup_finish(struct wr_iot_off_followup *s,struct wr_iot_radio_off_owner *off)
+{
+ int token;
+ if(!s||!off||s->owner!=getpid()||s->busy)return 0;
+ if(s->phase==WR_OFF_FOLLOWUP_FINALIZING){
+  if(s->finish_off!=off||s->off!=off||s->finish_guard!=1||
+     s->finish_fence.owner!=getpid()||s->finish_fence.level!=1||!wr_iot_rc_shutdown.active)return 0;
+ }else{
+  if(s->off!=off||s->finish_off||s->finish_guard||s->finish_fence.owner||s->finish_fence.level)return 0;
+  token=wr_iot_service_guard_enter(1);if(token!=1)return 0;
+  if(!wr_iot_off_followup_final_current(s)||!wr_iot_radio_stop_fence_begin(&s->finish_fence)){
+   wr_iot_service_guard_leave(token);return 0;
+  }
+  s->finish_off=off;s->finish_guard=token;s->phase=WR_OFF_FOLLOWUP_FINALIZING;
+ }
+ s->busy=1;
+ if(!wr_iot_radio_stop_fence_end_cleanup(&s->finish_fence,off_finish_cleanup,s)){s->busy=0;return 0;}
+ return s->phase==WR_OFF_FOLLOWUP_DONE;
+}
