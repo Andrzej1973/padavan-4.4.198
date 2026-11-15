@@ -1,0 +1,35 @@
+{
+  "scope": "host/source only; no PID1 activation or physical acceptance",
+  "checks": {
+    "actual_backend_routed_off_release_stock_signal": "PASS; driver/resources actors",
+    "original_SIGTERM_and_SIGQUIT": "PASS",
+    "duplicate_opposite_signal_at_final_unmask": "PASS",
+    "original_blocked_mask_refusal": "PASS",
+    "failed_final_unmask_exact_retry": "PASS",
+    "ordinary_prearm_cancellation": "PASS",
+    "normal_route_and_fence_fault": "PASS",
+    "physical_scheduler_preparation": "PASS"
+  },
+  "source_sha256": {
+    "tools/iot/radio-stop-fence.c": "99dbd6ac578e068d55e18de9fc804aacf46d9c112d68f130dac81cc1d4159b0d",
+    "tools/iot/rc-physical-stop.c": "f067f0a671387d610dc45d51bfe7b4f6b52bfef68519ce32b9f60cfa573260b3",
+    "tools/iot/check-physical-routed-shutdown.py": "5864f2720578208a119247bd9c43a00c7825d2b24d81fafe29e022effb76758c",
+    "tools/iot/check-rc-routed-shutdown.py": "1d4ebfb1b17a6ceca4e28d36ee89fc1682bc9084e5951c634674593526e8e651"
+  },
+  "ci": {
+    "standard1303": {
+      "run_id": 43729929228,
+      "conclusion": "success",
+      "source": "e08c88102eeaaab6e3cd1e077c13ba5ff28fa00c"
+    },
+    "exact_optional_queued": 43732936560
+  },
+  "remaining": [
+    "PID1 dispatcher",
+    "INITIAL_OFF physical lifecycle",
+    "full target/image verification",
+    "physical runtime acceptance"
+  ],
+  "production_route_armed": false,
+  "device_modified": false
+}

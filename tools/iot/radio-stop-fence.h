@@ -5,6 +5,11 @@
 #include <sys/types.h>
 struct wr_iot_radio_stop_fence {pid_t owner;unsigned level;};
 int wr_iot_radio_stop_fence_begin(struct wr_iot_radio_stop_fence *);
+/* Explicit outer claim of an armed normal-route request, retaining its slot.
+ * Pending is the shutdown intent, not ordinary restart cancellation. No caller
+ * may use this admission as proof of physical stop or clear the route on CLOSE.
+ * This entry does not arm routing or acknowledge/replay stock shutdown. */
+int wr_iot_radio_stop_fence_begin_routed_shutdown(struct wr_iot_radio_stop_fence *);
 int wr_iot_radio_stop_fence_end(struct wr_iot_radio_stop_fence *);
 /* Outer fence only. Caller prevalidates all fallible work. Cleanup must be
  * infallible, bounded, non-reentrant and must not alter admission/signals/fence.

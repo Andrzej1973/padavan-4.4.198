@@ -19,6 +19,9 @@ static struct {
  struct wr_iot_physical_session session;
  struct wr_iot_rc_quiesce quiesce;
  int quiesced;
+ int routed_shutdown;
+ int shutdown_release_mask_set;
+ sigset_t shutdown_release_mask;
  char stop_id[33];unsigned long long stop_created;
  struct wr_iot_radio_stop_fence fence;
  unsigned int aux_next;
@@ -27,7 +30,7 @@ static struct {
  int guard,finishing,result;
 } physical;
 static int physical_begin(const struct wr_iot_rc_physical_intent *intent,
- const struct wr_iot_control_request *off)
+ const struct wr_iot_control_request *off,int routed)
 {
  struct wr_iot_driver_closed_result closed={0};
  struct wr_iot_physical_stop_request request={0};unsigned char entropy[32];
@@ -36,15 +39,17 @@ static int physical_begin(const struct wr_iot_rc_physical_intent *intent,
     wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||
     wr_iot_rc_shutdown.radio_on_owned||wr_iot_rc_shutdown.radio_off_owned)return 0;
  if(!wr_iot_restart_scheduler_prepare())return 0;
- if(!wr_iot_radio_stop_fence_begin(&physical.fence))return 0;
- physical.owner=getpid();physical.intent=*intent;
+ if(routed?!wr_iot_radio_stop_fence_begin_routed_shutdown(&physical.fence):
+           !wr_iot_radio_stop_fence_begin(&physical.fence))return 0;
+ physical.owner=getpid();physical.intent=*intent;physical.routed_shutdown=routed;
  if(off){memcpy(physical.stop_id,off->id,sizeof(physical.stop_id));physical.stop_created=off->created;}
  physical.guard=wr_iot_service_guard_enter(1);
  if(physical.guard!=1)goto refuse;
  if(off){
   /* Entropy failure must precede normal OFF admission/mutation. */
   if(wr_iot_precreated_entropy(NULL,entropy,sizeof(entropy))!=(int)sizeof(entropy))goto refuse;
-  if(!wr_iot_rc_quiesce_begin(&physical.quiesce,off))goto refuse;
+  if(routed?!wr_iot_rc_quiesce_shutdown_begin(&physical.quiesce,off):
+             !wr_iot_rc_quiesce_begin(&physical.quiesce,off))goto refuse;
   memcpy(physical.nonce,entropy,sizeof(physical.nonce));return 1;
  }
  if(!wr_iot_rc_backend_closed(&closed)||
@@ -58,13 +63,20 @@ static int physical_begin(const struct wr_iot_rc_physical_intent *intent,
  refuse:physical.finishing=-1;return 1;
 }
 int wr_iot_rc_physical_begin(const struct wr_iot_rc_physical_intent *intent)
-{return physical_begin(intent,NULL);}
+{return physical_begin(intent,NULL,0);}
 int wr_iot_rc_physical_begin_quiesce(const struct wr_iot_rc_physical_intent *intent,
  const struct wr_iot_control_request *off)
 {
  if(!off||off->request.enabled||!off->created||
     !memchr(off->id,0,sizeof(off->id))||!wr_iot_control_id(off->id))return 0;
- return physical_begin(intent,off);
+ return physical_begin(intent,off,0);
+}
+int wr_iot_rc_physical_begin_routed_shutdown(const struct wr_iot_control_request *off)
+{
+ const struct wr_iot_rc_physical_intent intent={0,0,0};
+ if(!off||off->request.enabled||!off->created||
+    !memchr(off->id,0,sizeof(off->id))||!wr_iot_control_id(off->id))return 0;
+ return physical_begin(&intent,off,1);
 }
 int wr_iot_rc_physical_pending(void)
 {return physical.owner==getpid()&&!physical.result&&
@@ -92,7 +104,7 @@ void wr_iot_rc_physical_step(void)
   else if(sigismember(&queued,SIGQUIT)==1)(void)wr_iot_rc_shutdown_note(SIGQUIT);
 #endif
  }
- if(!physical.finishing&&wr_iot_rc_shutdown.pending&&physical.session.phase==WR_PHYSICAL_SESSION_IDLE&&
+ if(!physical.routed_shutdown&&!physical.finishing&&wr_iot_rc_shutdown.pending&&physical.session.phase==WR_PHYSICAL_SESSION_IDLE&&
     (!physical.quiesce.owner||physical.quiesced)){
   (void)wr_iot_rc_physical_prearm_cancel();return;
  }
@@ -153,7 +165,7 @@ int wr_iot_rc_physical_restart_ready(struct wr_iot_rc_physical_intent *intent)
 int wr_iot_rc_physical_take(struct wr_iot_rc_physical_intent *intent)
 {
  int result;
- if(!intent||physical.owner!=getpid()||!physical.result)return 0;
+ if(!intent||physical.routed_shutdown||physical.owner!=getpid()||!physical.result)return 0;
  *intent=physical.intent;result=physical.result;
  memset(&physical,0,sizeof(physical));return result;
 }
@@ -183,6 +195,54 @@ int wr_iot_rc_physical_off_read(const char *id,unsigned long long created,
     !physical.quiesced||physical.quiesce.owner!=getpid()||
     !physical.quiesce.complete||physical.quiesce.active||physical.quiesce.busy)return 0;
  *out=physical.session.request;out->action=WR_STOP_RELEASE;return 1;
+}
+/* Final process-context handoff. Restore the mask while routing is still
+ * armed, so failed unmask or a newly delivered signal cannot lose the owner.
+ * All fallible validation precedes retirement; no driver work is replayed. */
+int wr_iot_rc_physical_shutdown_release(const char *id,unsigned long long created)
+{
+ struct wr_iot_physical_stop_request released={0};
+ sigset_t blocked;int original;
+ if(!physical.routed_shutdown||physical.owner!=getpid())return 0;
+ sigemptyset(&blocked);sigaddset(&blocked,SIGTERM);
+#ifdef SIGQUIT
+ sigaddset(&blocked,SIGQUIT);
+#endif
+ if(!physical.shutdown_release_mask_set){
+  if(sigprocmask(SIG_BLOCK,&blocked,&physical.shutdown_release_mask))return 0;
+  physical.shutdown_release_mask_set=1;
+ }else if(sigprocmask(SIG_BLOCK,&blocked,NULL))return 0;
+ original=wr_iot_rc_shutdown.normal_route_requested;
+ if(!physical.routed_shutdown||!wr_iot_rc_shutdown.normal_route_armed||
+    wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||
+    (original!=SIGTERM
+#ifdef SIGQUIT
+     &&original!=SIGQUIT
+#endif
+    )||!wr_iot_rc_physical_off_read(id,created,&released)){
+  if(!sigprocmask(SIG_SETMASK,&physical.shutdown_release_mask,NULL))
+   physical.shutdown_release_mask_set=0;
+  return 0;
+ }
+ /* Do not clear routing while a caller's original mask blocks shutdown:
+  * a deferred stock replay must not masquerade as synchronous completion. */
+ if(sigismember(&physical.shutdown_release_mask,SIGTERM)==1
+#ifdef SIGQUIT
+    ||sigismember(&physical.shutdown_release_mask,SIGQUIT)==1
+#endif
+   ){
+  if(!sigprocmask(SIG_SETMASK,&physical.shutdown_release_mask,NULL))
+   physical.shutdown_release_mask_set=0;
+  return 0;
+ }
+ if(sigprocmask(SIG_SETMASK,&physical.shutdown_release_mask,NULL))return 0;
+ /* PID1 is the only process-context writer. Signals still route until all
+  * private state is retired; once disarmed, stock shutdown may run safely. */
+ memset(&physical,0,sizeof(physical));
+ wr_iot_rc_shutdown.normal_route_requested=0;
+ wr_iot_rc_shutdown.normal_route_armed=0;
+ (void)raise(original);
+ return 1;
 }
 int wr_iot_rc_physical_take_off(const char *id,unsigned long long created)
 {
@@ -328,7 +388,7 @@ int wr_iot_rc_physical_preresume_cancel(void)
 int wr_iot_rc_physical_prearm_cancel(void)
 {
  struct wr_iot_driver_closed_result closed={0};int guard,valid;
- if(!wr_iot_restart_scheduler_unowned()||physical.owner!=getpid()||
+ if(physical.routed_shutdown||!wr_iot_restart_scheduler_unowned()||physical.owner!=getpid()||
     physical.finishing||physical.result||physical.guard!=1||
     physical.session.owner||physical.session.busy||physical.session.phase!=WR_PHYSICAL_SESSION_IDLE||
     physical.fence.owner!=getpid()||physical.fence.level!=1||

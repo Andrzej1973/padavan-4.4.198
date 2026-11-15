@@ -35,6 +35,12 @@ int wr_iot_rc_quiesce_begin(struct wr_iot_rc_quiesce *q,const struct wr_iot_cont
  q->desired.enabled=1;strcpy(q->desired.ssid,"retained IoT");strcpy(q->desired.password,"fixture password");
  return 1;
 }
+int wr_iot_rc_quiesce_shutdown_begin(struct wr_iot_rc_quiesce *q,const struct wr_iot_control_request *off)
+{
+ assert(wr_iot_rc_shutdown.pending==SIGTERM);
+ if(!wr_iot_rc_quiesce_begin(q,off))return 0;
+ memset(&q->desired,0,sizeof(q->desired));q->resume_needed=0;return 1;
+}
 int wr_iot_rc_quiesce_advance(struct wr_iot_rc_quiesce *q,struct wr_iot_driver_closed_result *out)
 {
  assert(depth==2&&q->owner==getpid()&&!calls&&!downs&&!aux_calls);

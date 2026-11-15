@@ -44,6 +44,19 @@ int main(void){
  fail_restore=1;assert(!wr_iot_radio_stop_fence_end_cleanup(&outer,cleanup,&outer)&&!cleaned&&wr_iot_rc_shutdown.active);
  fail_restore=0;assert(wr_iot_radio_stop_fence_end_cleanup(&outer,cleanup,&outer)&&cleaned==1&&!wr_iot_rc_shutdown.active&&raises==2);
  assert(!wr_iot_radio_stop_fence_end_cleanup(&outer,cleanup,&outer)&&cleaned==1);
+ /* Routed admission retains the original request even across failed unmask. */
+ assert(wr_iot_rc_shutdown_route_arm());
+ assert(wr_iot_rc_shutdown_note(SIGTERM));
+ assert(wr_iot_radio_stop_fence_begin_routed_shutdown(&outer));
+ assert(wr_iot_rc_shutdown.normal_route_requested==SIGTERM&&wr_iot_rc_shutdown.pending==SIGTERM);
+ fail_restore=1;
+ assert(!wr_iot_radio_stop_fence_end(&outer)&&outer.owner==getpid()&&outer.level==1);
+ assert(wr_iot_rc_shutdown.active&&wr_iot_rc_shutdown.pending==SIGTERM&&raises==2);
+ assert(wr_iot_rc_shutdown.normal_route_requested==SIGTERM);
+ assert(!wr_iot_radio_stop_fence_begin_routed_shutdown(&inner));
+ fail_restore=0;assert(wr_iot_radio_stop_fence_end(&outer));
+ assert(raises==3&&!outer.owner&&!wr_iot_rc_shutdown.active);
+ assert(wr_iot_rc_shutdown.normal_route_requested==SIGTERM&&!wr_iot_rc_shutdown_begin());
  puts("PASS actual signal fence fault: failed mask restore retains exact token/depth/admission/pending, same token retry dispatches once, outer LIFO refused; syscall/signal actors injected, no RF proof");
 }
 '''

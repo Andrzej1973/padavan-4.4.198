@@ -7,11 +7,12 @@ static pid_t fence_owner;
 static unsigned fence_depth;
 static int fence_finishing;
 static sigset_t saved_mask;
-int wr_iot_radio_stop_fence_begin(struct wr_iot_radio_stop_fence *s)
+static int fence_begin(struct wr_iot_radio_stop_fence *s,int routed)
 {
  sigset_t blocked,previous;
  if(!s||s->owner||s->level||fence_finishing)return 0;
  if(fence_depth){
+  if(routed)return 0; /* A routed request has exactly one outer owner. */
   if(fence_owner!=getpid()||!wr_iot_rc_shutdown.active||
      wr_iot_rc_shutdown.pending||fence_depth==~0U)return 0;
   s->owner=getpid();s->level=++fence_depth;return 1;
@@ -21,12 +22,30 @@ int wr_iot_radio_stop_fence_begin(struct wr_iot_radio_stop_fence *s)
  sigaddset(&blocked,SIGQUIT);
 #endif
  if(sigprocmask(SIG_BLOCK,&blocked,&previous))return 0;
- if(!wr_iot_rc_shutdown_begin()){
+ if(routed){
+  int requested=wr_iot_rc_shutdown.normal_route_requested;
+  /* Claim under the blocked mask. Preserve the original route witness until
+   * a separate consumer proves physical completion and performs final replay. */
+  if(!wr_iot_rc_shutdown.normal_route_armed||wr_iot_rc_shutdown.active||
+     wr_iot_rc_shutdown.pending||(requested!=SIGTERM
+#ifdef SIGQUIT
+     &&requested!=SIGQUIT
+#endif
+     )){
+   (void)sigprocmask(SIG_SETMASK,&previous,NULL);return 0;
+  }
+  wr_iot_rc_shutdown.active=1;
+  wr_iot_rc_shutdown.pending=requested;
+ }else if(!wr_iot_rc_shutdown_begin()){
   (void)sigprocmask(SIG_SETMASK,&previous,NULL);return 0;
  }
  saved_mask=previous;fence_owner=getpid();fence_depth=1;
  s->owner=getpid();s->level=1;return 1;
 }
+int wr_iot_radio_stop_fence_begin(struct wr_iot_radio_stop_fence *s)
+{return fence_begin(s,0);}
+int wr_iot_radio_stop_fence_begin_routed_shutdown(struct wr_iot_radio_stop_fence *s)
+{return fence_begin(s,1);}
 static int fence_end(struct wr_iot_radio_stop_fence *s,void (*cleanup)(void *),void *context)
 {
  int pending;

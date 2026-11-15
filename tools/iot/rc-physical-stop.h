@@ -12,6 +12,11 @@ int wr_iot_rc_physical_begin(const struct wr_iot_rc_physical_intent *);
  * private OFF envelope; desired ON settings stay in retained process memory. */
 int wr_iot_rc_physical_begin_quiesce(const struct wr_iot_rc_physical_intent *,
  const struct wr_iot_control_request *);
+/* Routed normal shutdown only: retained request is claimed under the signal
+ * fence; OFF suppresses resume and pending intent does not cancel before ARM.
+ * Requires ACTIVE or exact CLOSED backend; INITIAL_OFF is not synthesized.
+ * Completion still requires exact off_read RELEASE, then separate PID1 replay. */
+int wr_iot_rc_physical_begin_routed_shutdown(const struct wr_iot_control_request *);
 struct wr_iot_rc_physical_resume {
  struct wr_iot_rc_physical_intent intent;
  struct wr_iot_physical_stop_request physical;
@@ -40,6 +45,11 @@ int wr_iot_rc_physical_take(struct wr_iot_rc_physical_intent *);
 int wr_iot_rc_physical_off_failed(const char *,unsigned long long);
 /* Read the exact acknowledged RELEASE identity before terminal consumption. */
 int wr_iot_rc_physical_off_read(const char *,unsigned long long,struct wr_iot_physical_stop_request *);
+/* Routed owner only: exact RELEASE, restored unblocked normal-signal mask,
+ * retire private receipt, disarm routing and replay original signal to stock.
+ * Failed validation/unmask retains the receipt; generic take refuses routed.
+ * No PID1 dispatcher/INITIAL_OFF support or automatic route activation here. */
+int wr_iot_rc_physical_shutdown_release(const char *,unsigned long long);
 int wr_iot_rc_physical_take_off(const char *,unsigned long long);
 struct wr_iot_restart_restore;
 /* Exact ACTIVE resume consumer; failed proof/mask restore retains ownership.
