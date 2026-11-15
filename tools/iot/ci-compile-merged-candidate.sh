@@ -642,4 +642,7 @@ fi
 # Full user-space candidate link is separate from driver and image acceptance.
 if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   bash tools/iot/compile-runtime-link.sh "$PWD/padavan-4.4/trunk" "$compiler" "$results/runtime-link"
+  python3 -B tools/iot/check-package-candidate-pair.py
+  python3 -B tools/iot/package-candidate-pair.py "$results" --revision "$CANDIDATE_SHA" \
+    --output "$results/paired-image-inputs.json"
 fi
