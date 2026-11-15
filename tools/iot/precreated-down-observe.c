@@ -28,3 +28,15 @@ int wr_iot_initial_down_observe(const unsigned char *nonce,struct wr_iot_down_re
     before.main_close_serial!=after.main_close_serial||!down_policy())return 0;
  *out=after;return 1;
 }
+
+int wr_iot_initial_down_current(const unsigned char *nonce,
+ const struct wr_iot_down_result *expected)
+{
+ struct wr_iot_down_result baseline,current={0};
+ if(!expected)return 0;
+ baseline=*expected;
+ if(!baseline.epoch||!baseline.generation||!baseline.main_close_serial)return 0;
+ return wr_iot_initial_down_observe(nonce,&current)&&
+  baseline.epoch==current.epoch&&baseline.generation==current.generation&&
+  baseline.main_close_serial==current.main_close_serial;
+}

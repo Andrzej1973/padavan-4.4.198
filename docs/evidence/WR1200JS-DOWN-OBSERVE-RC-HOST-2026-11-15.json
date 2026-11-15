@@ -3,12 +3,13 @@
   "checks": {
     "actual_observer_host_gcc_werror_asan_ubsan": "PASS",
     "prepared_runtime_c11_units": "PASS",
-    "identity_drift_zero_fields_pending_inactive_guard_policy": "PASS"
+    "identity_drift_zero_fields_pending_inactive_guard_policy": "PASS",
+    "captured_identity_revalidation_and_second_read_failure": "PASS"
   },
   "sha256": {
-    "tools/iot/precreated-down-observe.c": "cb274321985ed78607a262c07f1ccd91f4e4ce9fa6053b730ada604dbca229e8",
-    "tools/iot/precreated-down-observe.h": "d6feca019fab99b64118a6b7117a70a49419ce3793566e4381696bb9166b6e98",
-    "tools/iot/check-precreated-down-observe.py": "ff5443964a81c2290eaec5344be78ec3a9825e396ad9a92ca824de5cbf7acd64"
+    "tools/iot/precreated-down-observe.c": "1d2adf3f66613cd56b33e8d0b1968181602c9aec168e41215b01c9be25b55418",
+    "tools/iot/precreated-down-observe.h": "9e1f1cf46d709f74f512d8f0013001aee7e57d9a903ae6e23cb6409b83509d15",
+    "tools/iot/check-precreated-down-observe.py": "fbe05f9984ecb5cbebbcea611890950d977b9cbf1fd3994ae8b2827a172150f1"
   },
   "target_build_verified": false,
   "runtime_verified": false,
