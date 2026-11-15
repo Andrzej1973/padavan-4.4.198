@@ -51,3 +51,38 @@ with tempfile.TemporaryDirectory(prefix='wr-iapp-child-') as d:
   subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(here),'-DWR_IOT_IAPP_SCRIPT="'+str(script)+'"','-DEXPECTED='+('1' if status==0 else '-1'),'-DEXPECTED_PENDING='+('0' if status==127 else '1'),str(p),str(here/'restart-iapp-child.c'),'-o',str(b)],check=True)
   subprocess.run([str(b)],check=True,timeout=5)
 print('PASS actual IAPP child supervisor/pipe/exec: PID1-style reaper cannot steal script receipt, exit0/nonzero distinguished, nonblocking parent polling, duplicate begin refuses; fixture script only, ownership/root binding pending')
+
+# Inject only supervisor wait failure; reap the fixture command first so the
+# test leaves no orphan. Production must retain because it cannot know that.
+with tempfile.TemporaryDirectory(prefix='wr-iapp-wait-fault-') as d:
+ root=Path(d);script=root/'iappd.sh';script.write_text('#!/bin/sh\nexit 0\n');script.chmod(0o700)
+ unit=root/'fault.c'
+ unit.write_text(r'''
+#define _GNU_SOURCE
+#include <assert.h>
+#include <signal.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <errno.h>
+#include "rc-shutdown-admission.h"
+struct wr_iot_rc_shutdown_admission wr_iot_rc_shutdown;
+int wr_iot_service_guard_dup(void){return dup(1);}
+static pid_t lost_wait(pid_t pid,int*status,int flags){
+ pid_t result;do{result=waitpid(pid,status,flags);}while(result<0&&errno==EINTR);
+ assert(result==pid);errno=ECHILD;return -1;
+}
+#define waitpid lost_wait
+#include "restart-iapp-child.c"
+#undef waitpid
+int main(void){
+ struct wr_iot_iapp_child s={0};wr_iot_rc_shutdown.active=1;
+ assert(wr_iot_iapp_child_begin(&s));int result=0;
+ for(int i=0;i<200&&!result;i++){result=wr_iot_iapp_child_step(&s);if(!result)usleep(10000);}
+ assert(result==-2&&!wr_iot_iapp_child_closed(&s)&&!wr_iot_iapp_child_begin(&s));
+ while(waitpid(-1,0,0)<0&&errno==EINTR){}
+}
+''')
+ binary=root/'fault'
+ subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(here),'-DWR_IOT_IAPP_SCRIPT="'+str(script)+'"',str(unit),'-o',str(binary)],check=True)
+ subprocess.run([str(binary)],check=True,timeout=5)
+print('PASS actual supervisor wait-error branch: ECHILD produces unknown receipt, cleanup/duplicate begin refuse; wait result injected after fixture child reaped')

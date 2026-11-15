@@ -317,3 +317,10 @@ fork supplies confirmed failure because no script exists. Setup/wait errors
 remain unknown. Receipt3 fault fixture refuses closed/cleanup. Actual process
 checks and native preparation pass. This narrows completion evidence only;
 root launch and firewall ownership integration remain pending.
+
+
+Direct supervisor wait-failure fixture now injects ECHILD from the actual wait
+call after reaping its test command. Actual supervisor emits unknown3; parent
+returns-2 and refuses closed and duplicate begin. The fixture reaps children and
+removes its temporary script. This tests the wait-error branch in addition to
+raw malformed/EOF receipt parsing. Host ASan/UBSan PASS; no target/runtime claim.
