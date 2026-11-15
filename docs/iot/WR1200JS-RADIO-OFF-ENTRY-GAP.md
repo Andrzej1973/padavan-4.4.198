@@ -243,3 +243,13 @@ hashes it in the existing manifest. Actual handler composition and installer
 refusal tests PASS; new origin/terminal tests registered in host suite. Existing
 ioctl wrapper retains privilege/RTNL/Main checks. Full driver target build and
 physical runtime remain separate; RC follow-up client is not yet bound.
+
+RC radio-off-observe now uses the fixed existing ra0 transport to send QUERY
+only for a retained RELEASE identity. Under a fresh guard it requires Main DOWN,
+stable ifindex, exact typed COMPLETE, retained OFF exclusion and no active/pending
+shutdown. It validates response identity independently and never submits ARM,
+DOWN, CANCEL or RELEASE. Registered host tests cover every tuple field, nonce,
+ifindex/Main/owner/pending drift and uncertain/not-submitted transport. Prepared
+C11/-Werror compilation PASS; staged for MIPS ABI and full target symbol checks.
+ABI43671213212 SUCCESS forfa1d4d0 predates this query/receipt package. Observer
+is not yet connected to SDK OFF mutations; physical runtime remains unverified.
