@@ -7,7 +7,7 @@ with tempfile.TemporaryDirectory(prefix='wr-stop-client-prepared-') as d:
  for role in (rc,http):(role/'wr-iot').mkdir(parents=True)
  (root/'iot-control-source.json').write_text(json.dumps({'board':'WR1200JS'}))
  (rc/'wr-iot/activation-owner.h').write_text('/* prerequisite marker only */')
- (rc/'init.c').write_text('#include "wr-iot/rc-shutdown-admission.h"\n\tinit_router();\n\t\t\t\tsigsuspend(&ss);\n')
+ (rc/'init.c').write_text('#include "wr-iot/rc-shutdown-admission.h"\n\tinit_router();\n\t\twhile ( !sig_usr1_received &&\n\t\t\t!sig_alrm_received ) {\n\t\t\t\tsigsuspend(&ss);\n}\n')
  (rc/'rc.h').write_text('const char *nvram_safe_get(const char *);\n')
  (rc/'Makefile').write_text('OBJS += wr-iot-control-mailbox.o wr-iot-control-server.o\n')
  (http/'Makefile').write_text('OBJS += wr-iot-control-mailbox.o wr-iot-control-client.o\n')
@@ -34,6 +34,35 @@ with tempfile.TemporaryDirectory(prefix='wr-stop-client-prepared-') as d:
    subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-DBOARD_'+board,'-DWR_IOT_IAPP_POLICY_PREPARED='+gate,str(boot_probe),'-o',str(binary)],check=True)
    subprocess.run([str(binary)],check=True,timeout=5)
 
+ loop=init[init.index('#if defined(BOARD_WR1200JS)\n\t\twhile '):]
+ loop_probe=r'''#define _POSIX_C_SOURCE 200809L
+#include <assert.h>
+#include <signal.h>
+int routed=1,waits,legacy;
+int wr_iot_rc_normal_shutdown_pending(void){return routed;}
+void wr_iot_rc_wait(const sigset_t *m,const volatile int *n,const volatile int *a){
+ assert(m&&*n==1&&*a==1);waits++;routed=0;
+}
+int fixture_suspend(const sigset_t *m){assert(m);legacy++;return 0;}
+#define sigsuspend fixture_suspend
+int main(void){
+ int sig_usr1_received=1,sig_alrm_received=1;sigset_t ss;sigemptyset(&ss);
+'''+loop+r'''
+#if defined(BOARD_WR1200JS)
+ assert(waits==1&&!legacy&&!routed);
+#else
+ assert(!waits&&!legacy&&routed);
+#endif
+ assert(sig_usr1_received==1&&sig_alrm_received==1);(void)ss;return 0;
+}
+'''
+ loop_file=root/'shutdown-wait-hook.c';loop_file.write_text(loop_probe)
+ for board in ('WR1200JS','OTHER'):
+  binary=root/('shutdown-wait-hook-'+board)
+  subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-DBOARD_'+board,str(loop_file),'-o',str(binary)],check=True)
+  subprocess.run([str(binary)],check=True,timeout=5)
+ assert manifest['normal_shutdown_controller_linked'] and manifest['normal_shutdown_dispatch_bound']
+ assert not manifest['normal_shutdown_route_armed']
  assert manifest['radio_on_root_progress_bound'] and not manifest['radio_on_entry_bound']
  assert manifest['radio_on_followup_linked']
  assert manifest['radio_on_parent_release_linked']

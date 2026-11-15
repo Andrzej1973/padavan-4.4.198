@@ -199,7 +199,8 @@ int wr_iot_rc_physical_off_read(const char *id,unsigned long long created,
 /* Final process-context handoff. Restore the mask while routing is still
  * armed, so failed unmask or a newly delivered signal cannot lose the owner.
  * All fallible validation precedes retirement; no driver work is replayed. */
-int wr_iot_rc_physical_shutdown_release(const char *id,unsigned long long created)
+int wr_iot_rc_physical_shutdown_release_cleanup(const char *id,unsigned long long created,
+ void (*cleanup)(void *),void *context)
 {
  struct wr_iot_physical_stop_request released={0};
  sigset_t blocked;int original;
@@ -239,11 +240,14 @@ int wr_iot_rc_physical_shutdown_release(const char *id,unsigned long long create
  /* PID1 is the only process-context writer. Signals still route until all
   * private state is retired; once disarmed, stock shutdown may run safely. */
  memset(&physical,0,sizeof(physical));
+ if(cleanup)cleanup(context);
  wr_iot_rc_shutdown.normal_route_requested=0;
  wr_iot_rc_shutdown.normal_route_armed=0;
  (void)raise(original);
  return 1;
 }
+int wr_iot_rc_physical_shutdown_release(const char *id,unsigned long long created)
+{return wr_iot_rc_physical_shutdown_release_cleanup(id,created,NULL,NULL);}
 int wr_iot_rc_physical_take_off(const char *id,unsigned long long created)
 {
  struct wr_iot_rc_physical_intent intent={0};

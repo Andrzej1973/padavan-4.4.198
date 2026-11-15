@@ -50,6 +50,11 @@ int wr_iot_rc_physical_off_read(const char *,unsigned long long,struct wr_iot_ph
  * Failed validation/unmask retains the receipt; generic take refuses routed.
  * No PID1 dispatcher/INITIAL_OFF support or automatic route activation here. */
 int wr_iot_rc_physical_shutdown_release(const char *,unsigned long long);
+/* Optional infallible, bounded PID1-owner retirement after exact completion
+ * and successful mask restore, before disarm/replay. No signal/fence mutation,
+ * driver calls, allocations or reentry in this cleanup. */
+int wr_iot_rc_physical_shutdown_release_cleanup(const char *,unsigned long long,
+ void (*)(void *),void *);
 int wr_iot_rc_physical_take_off(const char *,unsigned long long);
 struct wr_iot_restart_restore;
 /* Exact ACTIVE resume consumer; failed proof/mask restore retains ownership.

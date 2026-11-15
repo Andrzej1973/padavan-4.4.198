@@ -158,3 +158,46 @@ possible signal interleavings. Both fixtures are in the physical suite.
 See evidence/WR1200JS-ROUTED-SHUTDOWN-HOST-2026-11-15.json for exact source hashes.
 Standard1303 succeeded; exact e08c8810 peer82 optional43732936560 was queued after
 a duplicate check. This published CI source predates the local routed changes.
+
+## Process-context normal shutdown controller staged — 2026-11-15
+
+`rc-normal-shutdown.c` retains one private OFF envelope. Existing active/pending,
+radio ON/OFF owners defer admission. Missing monotonic time, unavailable entropy
+or all-zero request identity defer without submitting an OFF. After generation,
+retries preserve the same envelope; once claimed, each call advances at most one
+physical step. Preparation refusal first balances the physical fence, then
+retains the failed request without replay or an automatic second OFF.
+
+Final physical release accepts an optional infallible owner-retirement callback.
+The controller uses it to wipe its envelope and mark itself spent before stock
+signal replay. An already spent controller cannot submit again. Actual
+controller/session/fence tests cover success and preparation refusal, while
+external backend/IO are actors. The existing actual backend routed composition
+also passes after the callback addition. Runtime preparation stages the new
+unit/header and reports controller_linked=true, dispatch_bound=false and
+route_armed=false. Runtime preparer checks pass. No normal-route arm or PID1 wait
+invocation has been added: notification ordering and INITIAL_OFF remain required
+before that binding can be enabled. Full MIPS/image/device evidence is pending.
+
+## PID1 wait dispatch bound, routing still disabled — 2026-11-15
+
+Runtime wait now schedules the normal-shutdown controller after existing OFF,
+cold/ON, physical/restart and backend continuation owners, before bootstrap.
+A pending routed shutdown allows wait progress despite notification/alarm flags;
+those flags stay set. The prepared pinned init loop remains inside its wait
+while normal shutdown is pending and calls wait directly instead of spawning a
+shell or entering notification handlers. Other board loop behavior is retained.
+
+Actual runtime fixture verifies notification retention, normal controller
+progress and prior backend-owner priority. The generated init loop is compiled
+and executed for WR1200JS and another board: only WR drains the routed request,
+and both preserve existing notification/alarm flags. Runtime preparation and
+controller success/refusal regressions pass. Manifest dispatch_bound is now true,
+route_armed remains false. No automatic arm was added.
+
+This loop binding alone does not close the signal-arrival boundary between loop
+exit and notification handling. That boundary and never-opened INITIAL_OFF
+physical shutdown still require proof/implementation before routing can be armed.
+The current local changes have no MIPS/image or device acceptance yet.
+Standard1304/029c2228 succeeded; exact optional43733787256 was queued after
+checking duplicates. Its source predates these local shutdown changes.

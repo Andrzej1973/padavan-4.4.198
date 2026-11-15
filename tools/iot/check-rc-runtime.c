@@ -36,6 +36,11 @@ int wr_iot_cold_on_retire(void){assert(0);return 0;}
 int wr_iot_rc_boot_pending(void){return 0;}
 int wr_iot_rc_boot_step(void){assert(0);return 0;}
 #endif
+#ifndef WR_IOT_RUNTIME_FIXTURE_EXTERNAL_NORMAL_SHUTDOWN
+static int normal_pending,normal_steps;
+int wr_iot_rc_normal_shutdown_pending(void){return normal_pending;}
+int wr_iot_rc_normal_shutdown_step(void){normal_steps++;return 0;}
+#endif
 static volatile int notification,alarm_flag;
 static int pending,steps,observations,physical_pending,physical_steps,resume_pending,resume_steps;
 int wr_iot_radio_off_begin(struct wr_iot_radio_off_owner*s,const struct wr_iot_control_request*r){(void)s;(void)r;return 0;}
@@ -78,6 +83,12 @@ int main(void){
  assert(physical_steps==2&&resume_steps==1&&steps==2);physical_pending=0;
  unsigned long long resume_due=next_progress;wr_iot_rc_wait(&empty,&notification,&alarm_flag);
  assert(resume_steps==2&&steps==2&&runtime_ms()>=resume_due);resume_pending=pending=0;
+ normal_pending=1;notification=1;
+ wr_iot_rc_wait(&empty,&notification,&alarm_flag);
+ assert(normal_steps==1&&notification==1&&steps==2);
+ pending=1;wr_iot_rc_wait(&empty,&notification,&alarm_flag);
+ assert(steps==3&&normal_steps==1);pending=0;steps=2;
+ normal_pending=0;notification=0;
  assert(!sigprocmask(SIG_BLOCK,&blocked,&old));pid_t child=fork();assert(child>=0);
  if(!child){assert(!kill(getppid(),SIGUSR1));_exit(0);}
  wr_iot_rc_wait(&empty,&notification,&alarm_flag);assert(notification&&steps==2);
