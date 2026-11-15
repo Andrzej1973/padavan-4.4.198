@@ -1,0 +1,283 @@
+{
+  "run": 43691352008,
+  "candidate_requested_sha": "28229bf132f8f480cb4a4c8c14955ca8bdeec41e",
+  "dispatch_sha": "68a3e7f1a5b2a287785ae83c3007448ea71d8ede",
+  "verification_source": {
+    "verification-source.json": {
+      "dispatch_revision": "68a3e7f1a5b2a287785ae83c3007448ea71d8ede",
+      "requested_revision": "28229bf132f8f480cb4a4c8c14955ca8bdeec41e",
+      "verified_revision": "28229bf132f8f480cb4a4c8c14955ca8bdeec41e",
+      "runtime_verified": false
+    }
+  },
+  "artifact_id": 14155452722,
+  "artifact_bytes": 31516752,
+  "artifact_sha256": "7b3d0f00da8bb9a204894ac19b61738085f9bbb013c1a9e8a4097217aa7893a2",
+  "reports": {
+    "target-compile-result.json": {
+      "schema": 1,
+      "candidate_variant": "peer82",
+      "repository_revision": "28229bf132f8f480cb4a4c8c14955ca8bdeec41e",
+      "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+      "target_compiled": true,
+      "production_installed": false,
+      "runtime_verified": false,
+      "module": "mt76x3_ap.ko",
+      "module_bytes": 5973200,
+      "module_sha256": "e2675b461ebb8712b1cff86892aac0ac55c757ce63581c1ad78ba976211bab64",
+      "compiled_task_macros": {
+        "KTHREAD_SUPPORT": true,
+        "OS_ABL_FUNC_SUPPORT": false,
+        "CONFIG_PM": false,
+        "RTMP_TIMER_TASK_SUPPORT": false,
+        "WSC_INCLUDED": false,
+        "WSC_AP_SUPPORT": false,
+        "WSC_V2_SUPPORT": false,
+        "WORKQUEUE_BH": false,
+        "CONFIG_ANDES_SUPPORT": true,
+        "MT7603": true,
+        "MT_MAC": true,
+        "RTMP_PCI_SUPPORT": true,
+        "RESOURCE_PRE_ALLOC": true,
+        "LOAD_FW_ONE_TIME": true,
+        "AIRPLAY_SUPPORT": false,
+        "MBSS_SUPPORT": true,
+        "WH_EZ_SETUP": false,
+        "BCN_OFFLOAD_SUPPORT": false
+      },
+      "compiled_nettask_macros": {
+        "KTHREAD_SUPPORT": true,
+        "OS_ABL_FUNC_SUPPORT": false,
+        "CONFIG_PM": false,
+        "RTMP_TIMER_TASK_SUPPORT": false,
+        "WSC_INCLUDED": false,
+        "WSC_AP_SUPPORT": false,
+        "WSC_V2_SUPPORT": false,
+        "WORKQUEUE_BH": false,
+        "CONFIG_ANDES_SUPPORT": true,
+        "MT7603": true,
+        "MT_MAC": true,
+        "RTMP_PCI_SUPPORT": true,
+        "RESOURCE_PRE_ALLOC": true,
+        "LOAD_FW_ONE_TIME": true,
+        "AIRPLAY_SUPPORT": false,
+        "MBSS_SUPPORT": true,
+        "WH_EZ_SETUP": false,
+        "BCN_OFFLOAD_SUPPORT": false
+      },
+      "compiled_ap_startup_macros": {
+        "KTHREAD_SUPPORT": true,
+        "OS_ABL_FUNC_SUPPORT": false,
+        "CONFIG_PM": false,
+        "RTMP_TIMER_TASK_SUPPORT": false,
+        "WSC_INCLUDED": false,
+        "WSC_AP_SUPPORT": false,
+        "WSC_V2_SUPPORT": false,
+        "WORKQUEUE_BH": false,
+        "CONFIG_ANDES_SUPPORT": true,
+        "MT7603": true,
+        "MT_MAC": true,
+        "RTMP_PCI_SUPPORT": true,
+        "RESOURCE_PRE_ALLOC": true,
+        "LOAD_FW_ONE_TIME": true,
+        "AIRPLAY_SUPPORT": false,
+        "MBSS_SUPPORT": true,
+        "WH_EZ_SETUP": false,
+        "BCN_OFFLOAD_SUPPORT": false
+      },
+      "compiled_beacon_macros": {
+        "KTHREAD_SUPPORT": true,
+        "OS_ABL_FUNC_SUPPORT": false,
+        "CONFIG_PM": false,
+        "RTMP_TIMER_TASK_SUPPORT": false,
+        "WSC_INCLUDED": false,
+        "WSC_AP_SUPPORT": false,
+        "WSC_V2_SUPPORT": false,
+        "WORKQUEUE_BH": false,
+        "CONFIG_ANDES_SUPPORT": true,
+        "MT7603": true,
+        "MT_MAC": true,
+        "RTMP_PCI_SUPPORT": true,
+        "RESOURCE_PRE_ALLOC": true,
+        "LOAD_FW_ONE_TIME": true,
+        "AIRPLAY_SUPPORT": false,
+        "MBSS_SUPPORT": true,
+        "WH_EZ_SETUP": false,
+        "BCN_OFFLOAD_SUPPORT": false
+      },
+      "ap_startup_command_sha256": "bdae008528923bf2e5c7f775b3dc73af501905240f008fa6ac81759ec11932a4",
+      "ap_startup_source_sha256": "c9f1589ee1d0b5d5ff941b89593902d214faa95de89b264b55310fa78d2e64e7",
+      "beacon_command_sha256": "7f2cddf2c14db50677a962bb4e7c831ec3943452f46cc9c724a0746d52e23872",
+      "beacon_source_sha256": "494f2c58a28a36b4cbaacee90856dabcfffb114693200ff75cb9192c66cd054a",
+      "nettask_command_sha256": "6d6baaff8aa134fe3078e2ff8d5e6a74d821bb285db916d082d226262f6e7e45",
+      "nettask_source_sha256": "4bff8bb0cc5a254715ea58e7bc36b5755e1aca0436e8d3ca0796d6685caa21f0",
+      "task_command_sha256": "bc384a96d693bb884c1662be64f790945dcc2a7dfb68a61f5a9b7d704e9f16cd",
+      "task_source_sha256": "3864d12123d83f0664776023f8090f15ede6172fbd67579b542ab4ae63709f6c",
+      "channel_target_config_sha256": "2c46f0c2cac2374a410a35328ce0d4a60878914eb233cb048f5fa80b45d83f74"
+    },
+    "runtime-link/iot-runtime-source.json": {
+      "board": "WR1200JS",
+      "activation_backend_installed": true,
+      "http_private_status_backend_installed": true,
+      "pid1_wait_bound": true,
+      "status_peer_pid": 1,
+      "status_peer_uid": 0,
+      "progress_period_ms": 100,
+      "initial_off_admission": true,
+      "off_reopen_admission": true,
+      "physical_stop_transport_linked": true,
+      "physical_stop_private_quiesce_linked": true,
+      "physical_stop_wait_continuation_bound": true,
+      "physical_stop_rc_entrypoints_bound": false,
+      "rebind_network_helpers_linked": true,
+      "rebind_close_helpers_linked": true,
+      "rebind_runner_linked": true,
+      "rebind_active_off_observer_linked": true,
+      "rebind_backend_routing_linked": true,
+      "rebind_off_reopen_handoff": true,
+      "rebind_repeat_admission": true,
+      "restart_profile_observer_linked": true,
+      "restart_generation_linked": true,
+      "restart_main_controller_linked": true,
+      "restart_main_bridge_linked": true,
+      "restart_resume_progress_bound": true,
+      "restart_resume_begin_bound": true,
+      "restart_resume_linked": true,
+      "restart_resume_bound": false,
+      "restart_restore_linked": true,
+      "restart_restore_bound": false,
+      "restart_services_linked": true,
+      "restart_services_bound": false,
+      "restart_guest_controller_linked": true,
+      "restart_guest_controller_bound": false,
+      "restart_guest_up_linked": true,
+      "restart_guest_down_preparation_linked": true,
+      "physical_stop_restart_resume_bound": false,
+      "physical_stop_rc_orchestration": false,
+      "radio_on_handoff_linked": true,
+      "radio_on_restore_linked": true,
+      "radio_on_aux_observer_linked": true,
+      "radio_on_multicast_linked": true,
+      "radio_on_guest_linked": true,
+      "radio_on_services_linked": true,
+      "radio_on_generation_linked": true,
+      "radio_on_main_linked": true,
+      "radio_on_admission_linked": true,
+      "radio_on_entry_bound": false,
+      "radio_off_consumer_linked": true,
+      "radio_off_entry_bound": false,
+      "radio_off_progress_bound": true,
+      "radio_off_profile_ram_progress_bound": true,
+      "production_ready": false,
+      "runtime_verified": false
+    },
+    "runtime-link/rc-dependency-closure.json": {
+      "runtime_verified": false,
+      "production_installed": false,
+      "dependency_closure_verified": true,
+      "elf_files": {
+        "candidate:usr/sbin/rc": {
+          "sha256": "efbe6ec4296af643a19614bc3a40a631d68d4f1036b0270616c611ddbd1918c5",
+          "needed": [
+            "libiw.so.30",
+            "libshared.so",
+            "libdisk.so",
+            "libc.so.0"
+          ]
+        },
+        "image:lib/libiw.so.30": {
+          "sha256": "4c09f83d824dec1e1d8fab2310e1b5e13cb2892ec7d0f978446f43363eea9fa5",
+          "needed": [
+            "libc.so.0"
+          ]
+        },
+        "image:lib/libuClibc-1.0.48.so": {
+          "sha256": "b1769b7b83ff1bdda5623741f400d593783c106626712cb1177cf5072deffe84",
+          "needed": [
+            "ld-uClibc.so.1"
+          ]
+        },
+        "image:lib/ld-uClibc-1.0.48.so": {
+          "sha256": "dacb5a7dcd79e923236975d106220c364b2b23d793879a1e153d96ddb32f10d2",
+          "needed": []
+        },
+        "image:lib/libshared.so": {
+          "sha256": "898c1ae3a482f796ebc14450669d80ae3a53a68d9e0be38467f577cb07c94fb5",
+          "needed": []
+        },
+        "image:lib/libdisk.so": {
+          "sha256": "8cc063e4b37ea073a139fa36852e44480308acd515ef76b93a3313af8bca83bd",
+          "needed": []
+        }
+      },
+      "errors": []
+    },
+    "runtime-link/httpd-dependency-closure.json": {
+      "runtime_verified": false,
+      "production_installed": false,
+      "dependency_closure_verified": true,
+      "elf_files": {
+        "candidate:usr/sbin/httpd": {
+          "sha256": "c0feb1ca6e0e4d991d717d08ed92735b715e3a5fe4aab21ffc0065bbf41cd144",
+          "needed": [
+            "libshared.so",
+            "libiw.so.30",
+            "libdisk.so",
+            "libssl.so.3",
+            "libcrypto.so.3",
+            "libc.so.0"
+          ]
+        },
+        "image:lib/libshared.so": {
+          "sha256": "898c1ae3a482f796ebc14450669d80ae3a53a68d9e0be38467f577cb07c94fb5",
+          "needed": []
+        },
+        "image:lib/libiw.so.30": {
+          "sha256": "4c09f83d824dec1e1d8fab2310e1b5e13cb2892ec7d0f978446f43363eea9fa5",
+          "needed": [
+            "libc.so.0"
+          ]
+        },
+        "image:lib/libuClibc-1.0.48.so": {
+          "sha256": "b1769b7b83ff1bdda5623741f400d593783c106626712cb1177cf5072deffe84",
+          "needed": [
+            "ld-uClibc.so.1"
+          ]
+        },
+        "image:lib/ld-uClibc-1.0.48.so": {
+          "sha256": "dacb5a7dcd79e923236975d106220c364b2b23d793879a1e153d96ddb32f10d2",
+          "needed": []
+        },
+        "image:lib/libdisk.so": {
+          "sha256": "8cc063e4b37ea073a139fa36852e44480308acd515ef76b93a3313af8bca83bd",
+          "needed": []
+        },
+        "image:lib/libssl.so.3": {
+          "sha256": "3cb01582ae199b37e864e0470a2418d9c0023805e6fa11ecf6e0a3dfdcaaa938",
+          "needed": [
+            "libcrypto.so.3",
+            "libc.so.0"
+          ]
+        },
+        "image:lib/libcrypto.so.3": {
+          "sha256": "1f1b2968c58a3c93757a7fb422b3308beb6d3c0c1c5c99c7973390433d34643c",
+          "needed": [
+            "libc.so.0"
+          ]
+        }
+      },
+      "errors": []
+    }
+  },
+  "member_sha256": {
+    "target-compile-result.json": "72415144853ee237ae90e401e020a6c73ff680ddbf3a6849fe86071d45bc2c00",
+    "runtime-link/iot-runtime-source.json": "bd1477715adab1af1c74400d0886b568be51af938698ef1da97a5b95ead13ab4",
+    "runtime-link/rc-dependency-closure.json": "e9e65b41d4ae301e9063602cc714678e1e0f7dd366adf35b2349dfcf7575091b",
+    "runtime-link/httpd-dependency-closure.json": "fa1c1bd54dcd0c1a93af13cb9649ea22c2d2fddb1017b8ac7c547a9fa47398a2"
+  },
+  "rc_elf_header": "ELF Header:\n  Magic:   7f 45 4c 46 01 01 01 00 00 00 00 00 00 00 00 00 \n  Class:                             ELF32\n  Data:                              2's complement, little endian\n  Version:                           1 (current)\n  OS/ABI:                            UNIX - System V\n  ABI Version:                       0\n  Type:                              EXEC (Executable file)\n  Machine:                           MIPS R3000\n  Version:                           0x1\n  Entry point address:               0x40abe0\n  Start of program headers:          52 (bytes into file)\n  Start of section headers:          816900 (bytes into file)\n  Flags:                             0x70001007, noreorder, pic, cpic, o32, mips32r2\n  Size of this header:               52 (bytes)\n  Size of program headers:           32 (bytes)\n  Number of program headers:         10\n  Size of section headers:           40 (bytes)\n  Number of section headers:         28\n  Section header string table index: 27\n",
+  "httpd_elf_header": "ELF Header:\n  Magic:   7f 45 4c 46 01 01 01 00 00 00 00 00 00 00 00 00 \n  Class:                             ELF32\n  Data:                              2's complement, little endian\n  Version:                           1 (current)\n  OS/ABI:                            UNIX - System V\n  ABI Version:                       0\n  Type:                              EXEC (Executable file)\n  Machine:                           MIPS R3000\n  Version:                           0x1\n  Entry point address:               0x406160\n  Start of program headers:          52 (bytes into file)\n  Start of section headers:          397604 (bytes into file)\n  Flags:                             0x70001007, noreorder, pic, cpic, o32, mips32r2\n  Size of this header:               52 (bytes)\n  Size of program headers:           32 (bytes)\n  Number of program headers:         10\n  Size of section headers:           40 (bytes)\n  Number of section headers:         30\n  Section header string table index: 29\n",
+  "newer_local_code_covered": false,
+  "device_verified": false,
+  "scratch": "Archives inspected in memory only, no extracted firmware or build tree retained"
+}

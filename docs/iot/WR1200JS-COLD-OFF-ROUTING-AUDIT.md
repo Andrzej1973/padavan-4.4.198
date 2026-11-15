@@ -30,3 +30,21 @@ Next: define typed never-opened physical stop/resume provenance or explicitly
 validated cold SDK routing, and a saved-IoT-OFF Main/Guest restoration path.
 Do not invent OPEN token/close serial, convert idle to CLOSED, or globally loosen
 physical admission. Keep ordinary precreated ra2 runtime toggle independent.
+
+## Rechecked evidence boundaries
+
+`check-initial-off-composition.py` and `check-initial-off-owner-composition.py`
+were rerun against current source: the existing never-opened initial-OFF
+observation/owner path passes host composition. This does not add a physical
+OFF/ON lifecycle for desired IoT OFF.
+
+Optional1257/43691352008 artifact14155452722 was independently inspected. Its
+verification-source artifact identifies verified28229bf1 versus dispatch68a3e7f1.
+Target result matches verified28229bf1 and reports compiled peer82 MT7603 module
+SHA256 e2675b461ebb8712b1cff86892aac0ac55c757ce63581c1ad78ba976211bab64.
+Actual RC/HTTPD ELF headers are MIPS32r2 and both dependency-closure reports pass
+with no errors. The reports explicitly retain production_installed=false and
+runtime_verified=false. This verifies that older candidate, not subsequent ON
+root/shutdown patches or final image inclusion. Full JSON/hash evidence is kept
+in WR1200JS-OPTIONAL1257-TARGET-LINK-2026-11-15.json. Archives were inspected in
+memory; no extracted firmware/build tree was retained.
