@@ -145,3 +145,15 @@ Host integration runs actual cold parent/profile and RC binding, injecting initi
 start-runner and full ACTIVE observation; this is not device OPEN acceptance.
 Public cold entry, post-UP shutdown/retirement, disabled-IoT release and final
 WAN/IAPP completion remain incomplete before activation can be enabled.
+
+## Cold release preparation staged
+
+`cold-on-release.c` captures the current generated profile identity without file
+bytes/credentials and captures the existing WAN followup plan. It revalidates the
+full handoff ACTIVE before and after capture. Failed WAN policy or observation
+retains the same context/profile/guard; retry does not recapture a completed WAN
+intent. No WAN submission, parent binding removal, guard release or signal fence
+cleanup occurs here. The current function may complete missing capture; it is
+not a purely read-only observer. Actual cold-parent/handoff/profile fixture and
+prepared C11 object compilation pass. RC binding release, signal-fenced cleanup,
+post-UP shutdown and final WAN/IAPP followup remain required before public entry.

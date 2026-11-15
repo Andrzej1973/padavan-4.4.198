@@ -1,0 +1,24 @@
+{
+  "scope": "private cold release preparation only; no release performed",
+  "checks": {
+    "actual_parent_handoff_profile_receipt_and_WAN_capture_asan_ubsan": "PASS",
+    "refusal_retains_profile_guard_and_same_context": "PASS",
+    "WAN_intent_captured_once_no_submission": "PASS",
+    "pending_or_attempted_WAN_refuses": "PASS",
+    "prepared_RC_C11_objects": "PASS"
+  },
+  "sha256": {
+    "tools/iot/cold-on-release.c": "c4ae41f1d6de53c269258fbd7975bd9c7c68b05df3108d38ade2c01095ea60e4",
+    "tools/iot/cold-on-release.h": "ecac1bde5a5b3e383216ca930e937d0775402dea47ccf9dacb02b0d5f18a2b74",
+    "tools/iot/check-cold-on-release.py": "04551a36ae4c33a9324fcf3965682e25048e4a4e0f9168abf2f335f8498b22a7"
+  },
+  "target_verified": false,
+  "device_verified": false,
+  "remaining": [
+    "RC backend parent binding release",
+    "signal-fenced credential/guard cleanup",
+    "post-UP shutdown",
+    "WAN/IAPP followup",
+    "public cold entry"
+  ]
+}
