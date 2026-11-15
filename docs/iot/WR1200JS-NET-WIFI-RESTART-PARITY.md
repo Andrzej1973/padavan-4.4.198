@@ -377,3 +377,12 @@ manifest with ABI diagnostics. Host installer test verifies post-preparation
 script drift refuses; workflow YAML parses. This added step is source verification,
 not an additional full firewall MIPS compile or ROMFS admission. Root launch stays
 false. A dispatched run is required before claiming actual CI success.
+
+
+Full registered host suite for aaebbfe completed with observed exit0 (71195).
+IAPP process/receipt/cleanup checks are included; newer paired firewall source
+checks are separate. Log hash/size retained in AAEBBFE-HOST-SUITE evidence and
+completed log removed. ABI now explicitly compiles prepared restart-iapp-child
+with the pinned MIPS/uClibc compiler; this object was not covered by the former
+small runtime subset. Native preparation preflight and workflow parse pass.
+Actual MIPS result is pending, and does not imply script/kernel/device readiness.

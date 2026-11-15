@@ -1,0 +1,10 @@
+{
+  "revision": "aaebbfe6",
+  "session": 71195,
+  "exit_code": 0,
+  "scope": "registered physical-stop host suite; source inputs unchanged during run",
+  "log_sha256": "4c21679d01c85de34cfebac1eb83a06c44c44bbfeca81c551bf902b9182ae8e5",
+  "log_bytes": 31236,
+  "excluded": "new standalone paired IAPP firewall tests and ABI additions",
+  "target_device_acceptance": false
+}
