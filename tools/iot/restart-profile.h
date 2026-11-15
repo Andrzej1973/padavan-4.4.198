@@ -6,4 +6,6 @@
 #define WR_IOT_RESTART_PROFILE_H
 #include "request.h"
 int wr_iot_restart_profile_current(const struct wr_iot_request *);
+/* Explicit saved-OFF profile proof; same scanner, no generation or ON request. */
+int wr_iot_restart_disabled_profile_current(void);
 #endif

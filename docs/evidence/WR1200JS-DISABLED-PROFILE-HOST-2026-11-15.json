@@ -1,0 +1,24 @@
+{
+  "function": "wr_iot_restart_disabled_profile_current",
+  "scope": "read-only saved OFF + double-read third-BSS profile scanner",
+  "checks_passed": [
+    "check-restart-profile.py",
+    "check-radio-on-generation.py",
+    "check-initial-off-composition.py"
+  ],
+  "invariants": [
+    "saved ON refused before file capture",
+    "same-size mutation between reads refused",
+    "existing ON API semantics preserved",
+    "temporary credentials wiped",
+    "no profile or NVRAM writes"
+  ],
+  "sha256": {
+    "restart-profile.c": "8bef26608d3ee00042ba1ff4ee4faccf4db727c3972067de452f088cb135a3c9",
+    "restart-profile.h": "59ddbf3c82b6d8d0eb57388b1c9151e69cbb99cfefa3b2e631bfd224c0061faf",
+    "check-restart-profile.py": "bc35816636cc876e83b4b2cee7c4738f5eb2f8a8989fe0923f1ed620e3f12c06"
+  },
+  "root_integration": false,
+  "target_verified": false,
+  "runtime_verified": false
+}

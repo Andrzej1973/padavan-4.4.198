@@ -47,7 +47,10 @@ int main(int argc,char**argv){
  struct wr_iot_request desired={.enabled=1,.ssid="IoT",.password="iot-password"};
  make_profile();struct stat before,after;assert(!stat(profile_path,&before));
  assert(check(&desired));assert(!stat(profile_path,&after)&&before.st_ino==after.st_ino&&before.st_size==after.st_size);
- strcpy(saved_enabled,"1");assert(check(&desired));strcpy(saved_enabled,"0");
+ reads=captures=0;assert(wr_iot_restart_disabled_profile_current());
+ strcpy(saved_enabled,"1");assert(check(&desired));reads=captures=0;assert(!wr_iot_restart_disabled_profile_current()&&!captures);strcpy(saved_enabled,"0");
+ reads=captures=0;mutate_second=1;assert(!wr_iot_restart_disabled_profile_current());mutate_second=0;make_profile();
+
  mutate_second=1;assert(!check(&desired)&&captures==2);mutate_second=0;make_profile();
  guard=0;assert(!check(&desired)&&!reads);guard=1;
  strcpy(saved_password,"foreign-password");assert(!check(&desired));strcpy(saved_password,"iot-password");

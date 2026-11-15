@@ -15,6 +15,7 @@ static int drift_generation;
 int wr_iot_driver_initial_idle_read(const unsigned char *nonce,struct wr_iot_idle_result *out){
  idle_calls++;if(idle_failure==idle_calls)return 0;
  int ok=fixture_initial_idle_read(nonce,out);
+ if(ok)out->epoch=11;
  if(drift_generation&&idle_calls==2)out->generation++;
  return ok;
 }
@@ -50,6 +51,16 @@ int main(void){
  s.idle.epoch++;assert(!wr_iot_initial_off_observed(&s));s=retained;
  s.idle.generation++;assert(!wr_iot_initial_off_observed(&s));s=retained;
  s.idle.serial=~0ULL;assert(!wr_iot_initial_off_observed(&s));s=retained;
+ struct wr_iot_physical_stop_request released={WR_STOP_RELEASE,10,2,3,4,5,{1}};
+ struct wr_iot_driver_identity main={11,2};
+ assert(wr_iot_initial_off_restarted_observed(&s,&released,&main));
+ struct wr_iot_physical_stop_request saved_release=released;
+ released.epoch=11;assert(!wr_iot_initial_off_restarted_observed(&s,&released,&main));released=saved_release;
+ released.generation++;assert(!wr_iot_initial_off_restarted_observed(&s,&released,&main));released=saved_release;
+ released.open_token=0;assert(!wr_iot_initial_off_restarted_observed(&s,&released,&main));released=saved_release;
+ main.adapter_epoch++;assert(!wr_iot_initial_off_restarted_observed(&s,&released,&main));main.adapter_epoch--;
+ wr_iot_rc_shutdown.pending=SIGTERM;assert(!wr_iot_initial_off_restarted_observed(&s,&released,&main));wr_iot_rc_shutdown.pending=0;
+ assert(!memcmp(&s,&retained,sizeof(s))&&!memcmp(&released,&saved_release,sizeof(released)));
  wr_iot_service_guard_leave(token);assert(!depth&&writes==before_writes);
  memset(&s,0,sizeof(s));for(unsigned i=7;i<10;i++)values[i].value[0]=0;
  assert(wr_iot_initial_off_begin(&s,&request)&&!depth&&writes==before_writes);

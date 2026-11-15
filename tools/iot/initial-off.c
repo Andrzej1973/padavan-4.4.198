@@ -45,3 +45,15 @@ int wr_iot_initial_off_observed(const struct wr_iot_initial_off *s)
   current.epoch==s->idle.epoch&&current.generation==s->idle.generation&&
   current.serial>s->idle.serial&&off_current();
 }
+
+int wr_iot_initial_off_restarted_observed(const struct wr_iot_initial_off *s,
+ const struct wr_iot_physical_stop_request *released,const struct wr_iot_driver_identity *main)
+{
+ if(!s||!released||!main||released->action!=WR_STOP_RELEASE||
+    !wr_iot_physical_stop_request_valid(released)||!main->adapter_epoch||
+    !main->device_generation||main->adapter_epoch<=released->epoch||
+    main->device_generation!=released->generation||
+    s->idle.epoch!=main->adapter_epoch||s->idle.generation!=main->device_generation||
+    !wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending)return 0;
+ return wr_iot_initial_off_observed(s);
+}
