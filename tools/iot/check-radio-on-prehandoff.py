@@ -23,6 +23,13 @@ int main(int argc,char**argv){
  r.handoff_created=10;assert(!wr_iot_on_prehandoff_cancel_current(&r));r.handoff_created=0;
  r.main.phase=WR_ON_MAIN_NOT_SUBMITTED;assert(!wr_iot_on_prehandoff_cancel_current(&r));r.main.phase=WR_ON_MAIN_READY;
  receipt.attempt++;assert(!wr_iot_on_prehandoff_cancel_current(&r));receipt.attempt--;
+#define BUSY(f) r.f=1;assert(!wr_iot_on_prehandoff_cancel_current(&r));r.f=0;
+ BUSY(services.busy) BUSY(multicast.busy) BUSY(guest.busy) BUSY(wan.owner)
+ BUSY(terminal.owner) BUSY(child.attempted)
+#undef BUSY
+ a.profile.recovering=1;assert(!wr_iot_on_prehandoff_cancel_current(&r));a.profile.recovering=0;
+ a.profile.files.sealed=0;assert(!wr_iot_on_prehandoff_cancel_current(&r));a.profile.files.sealed=1;
+ r.main.phase=WR_ON_MAIN_IDLE;assert(!wr_iot_on_prehandoff_cancel_current(&r));r.main.phase=WR_ON_MAIN_READY;
  assert(wr_iot_on_prehandoff_cancel_current(&r)&&a.busy&&ups==1&&guest_downs==1);
  /* Fixture disposal only: witness grants no post-UP retirement API. */
  wr_iot_rc_shutdown.pending=0;wr_iot_bundle_release(&a.profile.files);memset(&a.profile,0,sizeof(a.profile));a.busy=0;

@@ -26,3 +26,15 @@ registered inputs were preserved. Next bind this proof to bounded root cleanup
 for stock shutdown, then implement exact post-handoff CLOSE/rejection handling.
 No target, image or physical runtime acceptance is claimed. Fixture scratch was
 removed by TemporaryDirectory.
+
+## Child-drain and profile-phase preflight
+
+The witness explicitly refuses busy Guest/service/multicast children, any WAN
+or terminal-IAPP ownership/attempt, and every Main phase except submitted WAIT
+or observed READY. It also rejects profile recovery/removal/restored state and
+checks generated/sealed versus no-reload journal invariants. These are required
+before cleanup is considered: a matching Main alone cannot release a parent
+with an in-flight child. The expanded host fixture independently corrupts each
+predicate and confirms retained ownership with no extra UP/DOWN submission.
+The root cleanup binding remains deferred until the live full suite terminates;
+its registered sources are unchanged during execution.

@@ -1,0 +1,17 @@
+{
+  "source_sha256": "757889b179edd5945423f9bc643351e5fdb620db36c9fde7dec7a3b31750399b",
+  "check": "check-radio-on-prehandoff.py C11 Werror ASan UBSan PASS",
+  "refusals": [
+    "busy Guest/services/multicast",
+    "WAN owner",
+    "terminal owner/child attempt",
+    "Main IDLE/NOT_SUBMITTED",
+    "profile recovery/unsealed generation",
+    "stale receipt/epoch/device",
+    "post handoff"
+  ],
+  "scope": "Actual parent/profile/Guest recovery with SDK and identity actors. Read-only witness, no cleanup or physical claim.",
+  "target_verified": false,
+  "runtime_verified": false,
+  "scratch": "TemporaryDirectory removed on exit"
+}

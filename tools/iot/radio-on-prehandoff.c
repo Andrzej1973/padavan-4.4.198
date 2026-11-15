@@ -9,10 +9,18 @@ int wr_iot_on_prehandoff_cancel_current(struct wr_iot_on_restore *s)
  if(!s||s->owner!=getpid()||s->busy||s->handoff_created||
     s->phase<WR_ON_RESTORE_MAIN_WAIT||s->phase>WR_ON_RESTORE_PREPARED||
     s->main.owner!=getpid()||s->main.busy||s->main.generation!=&s->generation||
-    s->main.phase==WR_ON_MAIN_NOT_SUBMITTED||
+    (s->main.phase!=WR_ON_MAIN_WAIT&&s->main.phase!=WR_ON_MAIN_READY)||
+    s->guest.busy||s->services.busy||s->multicast.busy||s->wan.owner||
+    s->terminal.owner||s->terminal.child||s->terminal.guard||s->terminal.fence.owner||
+    s->child.owner||s->child.attempted||
     !s->generation.admission||!s->generation.main_may_have_started||s->generation.phase!=WR_ON_GEN_VERIFIED||
     !s->generation.admission->profile.active||s->generation.admission->profile.files.count!=1||
-    s->generation.admission->profile.files.pending||!wr_iot_rc_shutdown.active||
+    s->generation.admission->profile.files.pending||
+    s->generation.admission->profile.recovering||s->generation.admission->profile.recovered||
+    s->generation.admission->profile.removing||s->generation.admission->profile.files.restored||
+    (s->generation.reload&&(!s->generation.admission->profile.generated||!s->generation.admission->profile.files.sealed))||
+    (!s->generation.reload&&(s->generation.admission->profile.generated||s->generation.admission->profile.files.journalled))||
+    !wr_iot_rc_shutdown.active||
     (wr_iot_rc_shutdown.pending!=SIGTERM
 #ifdef SIGQUIT
      &&wr_iot_rc_shutdown.pending!=SIGQUIT
