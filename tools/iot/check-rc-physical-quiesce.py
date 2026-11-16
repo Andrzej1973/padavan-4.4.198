@@ -11,6 +11,7 @@ body=ns['body'];a=body.index('int main(void){')
 hooks=r'''
 #include "rc-physical-stop.c"
 int wr_iot_rc_radio_on_saved_request(struct wr_iot_request *r){(void)r;assert(0);return 0;}
+int wr_iot_initial_restart_selected_current(const unsigned char*n,const struct wr_iot_idle_result*r){(void)n;(void)r;assert(0);return 0;}
 #include "physical-initial-session.c"
 #include "rc-initial-stop.c"
 enum wr_iot_physical_call_result wr_iot_physical_initial_call(const struct wr_iot_physical_initial_request *q,struct wr_iot_physical_initial_response *out){(void)q;memset(out,0,sizeof(*out));return WR_PHYSICAL_CALL_NOT_SUBMITTED;}

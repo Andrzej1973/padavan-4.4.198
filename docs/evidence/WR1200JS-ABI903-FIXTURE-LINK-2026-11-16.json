@@ -1,0 +1,20 @@
+{
+  "date": "2026-11-16",
+  "abi_run": 43916917138,
+  "revision": "af52f1401b72d6750438cac55d9c2a90f77699d3",
+  "monitor_run": 43918529201,
+  "cause": "Shared CLOSE-only fixture lacked wr_iot_initial_restart_selected_current adapter; confirmed original linker error.",
+  "focused_check": "check-initial-shutdown-composed.py PASS after existing local fixture adapter correction",
+  "scope": "Host fixture verification only; no production or device acceptance",
+  "full_suite_session": 35529,
+  "full_suite_status": "in progress; previous41199 deliberately stopped by owner",
+  "log_sha256": "ad28d130c2e4c6a25b12254c067c1e4068805c6d9e99dccc726bcbca657dff0a",
+  "focused_shutdown_pair": {
+    "session": 21599,
+    "exit_code": 0,
+    "logs": {
+      "normal-backend.log": "59b1ccc9755d804ac4ea20b8283068ee3eed890cb1164479290c580fa35ff61d",
+      "initial-postrelease.log": "6403cdd11e3168f1782bc632251aa9c347bcf038beed5021bb8577ecd7df05a5"
+    }
+  }
+}

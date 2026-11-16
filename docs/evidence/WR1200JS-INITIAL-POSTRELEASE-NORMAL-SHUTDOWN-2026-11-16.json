@@ -1,0 +1,26 @@
+{
+  "status": "HOST_POST_INITIAL_NORMAL_SHUTDOWN_PASS",
+  "verification": "20815 base composition,61882 stronger replay-time OFF proof,91411 legacy routed regression: all exit0",
+  "scope": "Actual INITIAL lifecycle/parent cleanup/normal controller/backend/physical session/fence; explicit arming; hardware/network policy adapters",
+  "checks": [
+    "Same ACTIVE backend retained after parent detach",
+    "Normal OFF then physical RELEASE before one TERM",
+    "Credentials and owners retired",
+    "No second shutdown dispatch"
+  ],
+  "pending": [
+    "Production arming lifetime/API design and exact target/full-link/image verification"
+  ],
+  "production_armed": false,
+  "runtime_verified": false,
+  "sha256": {
+    "tools/iot/check-initial-postrelease-normal-shutdown.py": "148486bb919800f76d95f89bd3d425908c142cb661f64428cace890bde373f9d",
+    "tools/iot/check-normal-shutdown-backend-composition.py": "c200a784db9aa98331cfba8837c16811dee632bc661e80306bb100a6b0ae1f16",
+    "tools/iot/check-rc-physical-quiesce.py": "2cd88b38f0bef7ed4faffd749737cbc9a0ace4589cd0e163b694b112fcca5936",
+    "tools/iot/check-physical-stop-suite.py": "2c8d5f27c9fe0055d124d517682eb88a188fc8f0acefe8cbfd953879f305cb62"
+  },
+  "logs": {
+    "postrelease-normal-proof.log": "6403cdd11e3168f1782bc632251aa9c347bcf038beed5021bb8577ecd7df05a5",
+    "routed-after-fixture-fix.log": "5e946995341200e5755d160af0bb292e6c76c9a64f21bdc0e6573cc40538b6b4"
+  }
+}
