@@ -57,8 +57,9 @@ int wr_iot_restart_scheduler_step(void)
   }else (void)wr_iot_restart_scheduler_begin_fresh();
   return 0;
  }
- if(wr_iot_rc_shutdown.pending&&resume.restore.phase==WR_RESTORE_HANDOFF&&
-    (resume.phase==WR_RESUME_REBIND||resume.phase==WR_RESUME_FINISH)){
+ if(wr_iot_rc_shutdown.pending&&
+    ((resume.restore.phase==WR_RESTORE_HANDOFF&&(resume.phase==WR_RESUME_REBIND||resume.phase==WR_RESUME_FINISH))||
+     (resume.phase==WR_RESUME_WAN&&resume.restore.phase==WR_RESTORE_FINISHED&&resume.terminal.owner==getpid()))){
   /* Failure retains the owned transaction; never progress ON after shutdown.
    * Generate OFF identity only in process context, before any OFF mutation. */
   if(clock_gettime(CLOCK_MONOTONIC,&now)||now.tv_sec<=0||

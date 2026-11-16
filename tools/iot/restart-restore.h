@@ -10,6 +10,7 @@ enum wr_iot_restart_restore_phase {WR_RESTORE_IDLE,WR_RESTORE_PROFILE,WR_RESTORE
 struct wr_iot_restart_restore {
  pid_t owner;int busy;unsigned radio_state_attempted,iapp_launch_attempted;
  unsigned long long handoff_created;
+ int initial_start_claimed;
  enum wr_iot_restart_restore_phase phase;
  unsigned char open_id[16];
  struct wr_iot_restart_generation generation;

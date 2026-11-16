@@ -13,6 +13,8 @@ enum wr_iot_start_rollback_phase {
 struct wr_iot_start_network_rollback {
  enum wr_iot_start_rollback_phase phase;
  pid_t owner;
+ /* INITIAL uncertain commit requires positive abort, never mere absence. */
+ int dns_abort_required,dns_abort_confirmed;
 };
 /* One bounded phase. Failure preserves current phase, startup snapshot/guard.
  * Caller must keep network owner in RECOVERY and prohibit further OPEN. */

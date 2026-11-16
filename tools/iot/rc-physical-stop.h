@@ -12,6 +12,9 @@ int wr_iot_rc_physical_begin(const struct wr_iot_rc_physical_intent *);
 /* Explicit never-opened origin. Not selected by the normal entry yet; restart
  * stays retained until a typed initial RELEASE consumer completes the owner. */
 int wr_iot_rc_physical_begin_initial(const struct wr_iot_rc_physical_intent *);
+/* Restart INITIAL with a saved desired request captured under the physical
+ * guard before ARM/DOWN. Refusal retains the claimed cleanup path. */
+int wr_iot_rc_physical_begin_initial_saved(const struct wr_iot_rc_physical_intent *);
 int wr_iot_rc_physical_begin_initial_off(const struct wr_iot_control_request *);
 struct wr_iot_physical_initial_request;
 /* Exact ordinary-OFF envelope and completed fence; initial typed receipt only. */

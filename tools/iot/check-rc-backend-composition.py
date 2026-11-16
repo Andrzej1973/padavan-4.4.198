@@ -20,6 +20,10 @@ static long stop_entropy(void *out,unsigned int n,unsigned int flags){assert(n==
 #define WR_IOT_GETRANDOM(out,n,flags) stop_entropy(out,n,flags)
 #include "check-rebind-owner-unused.h"
 #include "rc-backend.c"
+/* Legacy fixture owns no INITIAL restart parent. New composed fixtures opt in. */
+#ifndef WR_IOT_TEST_INITIAL_BACKEND
+static int initial_restart_retained(void){return 0;}
+#endif
 #include "activation-observe.h"
 #define WR_IOT_NOTIFY() ((void)0)
 #include "control-client.c"

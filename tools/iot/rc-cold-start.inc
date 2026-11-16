@@ -17,6 +17,7 @@ static int wr_iot_cold_request_same(const struct wr_iot_control_request *a,
 int wr_iot_rc_cold_start_begin(struct wr_iot_cold_owner *parent,
  const struct wr_iot_control_request *request)
 {
+ if(initial_restart_retained())return 0;
  struct wr_iot_control_request expected={0};int guard,claimed=0;
  if(!parent||!request||parent->owner!=getpid()||parent->busy||parent->phase!=WR_COLD_OWNER_PREPARED||
     wr_iot_cold_backend_parent||rebind.owner||backend.busy||backend.start.owner||backend.stop.owner||
@@ -53,6 +54,7 @@ int wr_iot_rc_cold_start_begin(struct wr_iot_cold_owner *parent,
 int wr_iot_rc_cold_active_current(const struct wr_iot_cold_owner *parent,
  const struct wr_iot_control_request *request)
 {
+ if(initial_restart_retained())return 0;
  struct wr_iot_control_result observed={0};int guard,ok=0;
  if(!parent||!request||wr_iot_cold_backend_parent!=parent||parent->owner!=getpid()||parent->busy||
     parent->phase!=WR_COLD_OWNER_PREPARED||parent->admission.owner!=getpid()||
@@ -78,6 +80,7 @@ int wr_iot_rc_cold_active_current(const struct wr_iot_cold_owner *parent,
 int wr_iot_rc_cold_start_progress(const struct wr_iot_cold_owner *parent,
  const struct wr_iot_control_request *request)
 {
+ if(initial_restart_retained())return 0;
  int guard;
  if(!parent||!request||wr_iot_cold_backend_parent!=parent||parent->owner!=getpid()||parent->busy||
     parent->phase!=WR_COLD_OWNER_PREPARED||parent->generation.admission!=&parent->admission||

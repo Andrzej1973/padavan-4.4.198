@@ -16,6 +16,7 @@ int wr_iot_restart_generation_origin_current(const struct wr_iot_restart_generat
 int wr_iot_restart_generation_step(struct wr_iot_restart_generation*g){assert(!g->main_may_have_started);return 1;}
 enum wr_iot_restart_up_result wr_iot_restart_main_up(void){calls++;return outcome;}
 int wr_iot_restart_profile_current(const struct wr_iot_request*r){assert(r);return profile_ok;}
+int wr_iot_restart_initial_enabled_profile_current(const struct wr_iot_request*r){(void)r;assert(0);return 0;}
 int wr_iot_rebind_configuration_current(const struct wr_iot_physical_stop_request*p,const unsigned char*i,struct wr_iot_driver_identity*r){assert(p->epoch==1&&i[0]==7);*r=(struct wr_iot_driver_identity){epoch,3};return probe_ok;}
 #define wr_iot_generated_matches(expected,path) ((void)(expected),(void)(path),1)
 #include "restart-main-bridge.h"

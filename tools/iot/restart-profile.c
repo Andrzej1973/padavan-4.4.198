@@ -22,7 +22,7 @@ static int profile_current(const struct wr_iot_request *desired,int require_off)
     !memchr(desired->ssid,0,sizeof(desired->ssid))||
     !memchr(desired->password,0,sizeof(desired->password))||!profile_guard())return 0;
  if(!wr_iot_precreated_profile_request_read(&before,profile_saved_read,NULL)||
-    (require_off&&before.requested_enabled!=0)||strcmp(before.ssid,desired->ssid)||strcmp(before.password,desired->password))goto done;
+    ((require_off==1&&before.requested_enabled!=0)||(require_off==-1&&before.requested_enabled!=1))||strcmp(before.ssid,desired->ssid)||strcmp(before.password,desired->password))goto done;
  if(!wr_iot_saved_capture(&first,WR_IOT_RADIO_PROFILE_PATH)||!first.existed||!first.size||
     !wr_iot_profile_disable_buffer(first.data,first.size,desired->ssid,desired->password))goto done;
  /* Independent byte readback under the same caller-owned guard. The scanner
@@ -62,3 +62,6 @@ int wr_iot_restart_disabled_profile_current(void)
  ok=profile_current(&desired,1);
  done:profile_wipe(&saved,sizeof(saved));profile_wipe(&desired,sizeof(desired));return ok;
 }
+
+int wr_iot_restart_initial_enabled_profile_current(const struct wr_iot_request *desired)
+{return profile_current(desired,-1);}

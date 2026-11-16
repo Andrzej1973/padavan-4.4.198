@@ -4,6 +4,7 @@ import subprocess,tempfile
 here=Path(__file__).resolve().parent
 prefix=(here/'check-rc-physical-stop.c').read_text().split('int main(void)',1)[0]
 prefix=prefix.replace('int wr_iot_restart_restore_finish_check(struct wr_iot_restart_restore*s){(void)s;return 0;}', 'static int proof_ok;\nint wr_iot_restart_restore_finish_check(struct wr_iot_restart_restore*s){assert(s);return proof_ok;}')
+prefix=prefix.replace('int wr_iot_restart_restore_cancel_check(struct wr_iot_restart_restore*s,const struct wr_iot_rc_quiesce*q){(void)s;(void)q;return 0;}', 'static int closed_proof; int wr_iot_restart_restore_cancel_check(struct wr_iot_restart_restore*s,const struct wr_iot_rc_quiesce*q){assert(s&&q);return closed_proof;}')
 code=prefix+r'''
 static int fail_mask;
 static int checked_mask(int op,const sigset_t*set,sigset_t*old){if(op==SIG_SETMASK&&fail_mask)return -1;return sigprocmask(op,set,old);}
@@ -11,15 +12,17 @@ static int checked_mask(int op,const sigset_t*set,sigset_t*old){if(op==SIG_SETMA
 #include "radio-stop-fence.c"
 #undef sigprocmask
 static struct wr_iot_restart_restore *observed;
+static int cancel_mode;
 static void finish_handler(int sig){
  if(wr_iot_rc_shutdown_note(sig))return;
- assert(observed->phase==WR_RESTORE_FINISHED&&!observed->generation.profile.active);
+ assert(observed->phase==(cancel_mode?WR_RESTORE_CANCELLED:WR_RESTORE_FINISHED)&&!observed->generation.profile.active);
  assert(!observed->generation.profile.files.saved[0].data&&!observed->generation.origin.desired.password[0]);
  assert(!observed->multicast.main&&!observed->multicast.guest);
- assert(!physical.quiesce.desired.password[0]&&physical.result==1&&!physical.guard&&!depth);
+ assert(!physical.quiesce.desired.password[0]&&physical.result==(cancel_mode?-1:1)&&!physical.guard&&!depth);
  shutdowns++;
 }
-int main(void){
+int main(int argc,char **argv){
+ (void)argv;cancel_mode=argc==2;
  (void)handler;struct sigaction action={0};action.sa_handler=finish_handler;sigemptyset(&action.sa_mask);assert(!sigaction(SIGTERM,&action,NULL));
  struct wr_iot_rc_physical_intent intent={1,1,1},taken={0};
  struct wr_iot_control_request off={.id="11111111111111111111111111111111",.created=1};
@@ -33,21 +36,30 @@ int main(void){
  strcpy(root.generation.origin.desired.password,"secret");
  assert(!wr_iot_rc_physical_resume_finish(&root)&&root.generation.profile.active&&depth==1);
  proof_ok=1;fail_mask=1;
- assert(!kill(getpid(),SIGTERM)&&!shutdowns);
+ if(cancel_mode)assert(!kill(getpid(),SIGTERM)&&!shutdowns);
  assert(!wr_iot_rc_physical_resume_finish(&root)&&root.generation.profile.active&&root.generation.profile.files.saved[0].data&&depth==1&&!root.busy&&!physical.result);
  fail_mask=0;
  root.iapp=(struct wr_iot_iapp_child){.owner=getpid(),.attempted=1,.fd=-1,.result=-2};
  assert(!wr_iot_rc_physical_resume_finish(&root)&&physical.guard==1);
- root.iapp.result=1;assert(wr_iot_rc_physical_resume_finish(&root));
- assert(shutdowns==1&&root.phase==WR_RESTORE_FINISHED&&!wr_iot_rc_shutdown.active&&depth==0);
+ root.iapp.result=1;
+ if(cancel_mode){
+  assert(!wr_iot_rc_physical_resume_finish(&root));
+  assert(wr_iot_rc_shutdown.pending==SIGTERM&&root.generation.profile.active&&depth==1&&!shutdowns);
+  struct wr_iot_rc_quiesce closed={0};
+  assert(!wr_iot_rc_physical_resume_cancel(&root,&closed)&&!shutdowns);
+  closed_proof=1;fail_mask=1;
+  assert(!wr_iot_rc_physical_resume_cancel(&root,&closed)&&root.generation.profile.active&&depth==1);
+  fail_mask=0;assert(wr_iot_rc_physical_resume_cancel(&root,&closed));
+ }else assert(wr_iot_rc_physical_resume_finish(&root));
+ assert(shutdowns==cancel_mode&&root.phase==(cancel_mode?WR_RESTORE_CANCELLED:WR_RESTORE_FINISHED)&&!wr_iot_rc_shutdown.active&&depth==0);
  assert(!root.main.generation&&!root.guest.main&&!root.services.main);
- assert(!wr_iot_rc_physical_resume_finish(&root)&&shutdowns==1);
- assert(wr_iot_rc_physical_take(&taken)==1&&taken.restart);
+ assert(!wr_iot_rc_physical_resume_finish(&root)&&shutdowns==cancel_mode);
+ assert(wr_iot_rc_physical_take(&taken)==(cancel_mode?-1:1)&&taken.restart);
  assert(!wr_iot_rc_physical_take(&taken));
- puts("PASS actual physical resume/fence cleanup: failed proof/mask retains baseline and guard, retry frees private snapshot/wipes credentials before queued SIGTERM replay, terminal take once; finish evidence/driver/resource actors injected");
+ puts("PASS actual physical resume/fence cleanup: failed proof/mask retains baseline and guard, normal finish without signal; queued TERM retains until cancellation proof, failed cancel unmask retains, retry wipes credentials before replay, terminal take once; finish evidence/driver/resource actors injected");
 }
 '''
 with tempfile.TemporaryDirectory(prefix='wr-resume-finish-') as d:
  p=Path(d)/'test.c';p.write_text(code);b=Path(d)/'test'
  subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(here),str(p),str(here/'physical-stop-session.c'),'-o',str(b)],check=True)
- subprocess.run([str(b)],check=True,timeout=15)
+ for args in [[],["cancel"]]:subprocess.run([str(b)]+args,check=True,timeout=15)

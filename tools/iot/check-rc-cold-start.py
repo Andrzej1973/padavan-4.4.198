@@ -30,6 +30,7 @@ enum wr_iot_result_state wr_iot_activation_owner_continue(struct wr_iot_activati
  assert(s==&backend&&depth&&!strcmp(id,s->start.input.id)&&created==s->start.input.created);continues++;
  s->phase=WR_IOT_OWNER_ACTIVE;s->start.phase=WR_IOT_RUN_ACTIVE;s->start.open.attempt.identity=(struct wr_iot_driver_identity){5,2};return WR_IOT_RESULT_APPLIED;
 }
+static int initial_restart_retained(void){return 0;}
 #include "rc-cold-start.inc"
 int main(void){
  struct wr_iot_control_request input={0};memset(input.id,'1',32);input.created=9;input.request.enabled=1;

@@ -55,7 +55,9 @@ int wr_iot_terminal_iapp_step(struct wr_iot_terminal_iapp*s)
 #endif
   if(wr_iot_rc_shutdown.pending){s->shutdown_held=1;s->busy=0;return 0;}
  }
- if(!wr_iot_radio_stop_fence_end_cleanup(&s->fence,terminal_cleanup,s)){
+ if(!(s->defer_pending_shutdown?
+      wr_iot_radio_stop_fence_end_cleanup_unless_shutdown(&s->fence,terminal_cleanup,s):
+      wr_iot_radio_stop_fence_end_cleanup(&s->fence,terminal_cleanup,s))){
   s->busy=0;return 0;
  }
  return result;

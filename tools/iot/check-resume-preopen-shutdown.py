@@ -5,6 +5,7 @@ here=Path(__file__).resolve().parent
 prefix=(here/'check-rebind-runner.c').read_text().split('int main(void)',1)[0]
 code=prefix+r'''
 #include "restart-resume.h"
+#include "check-initial-unreachable.h"
 static struct wr_iot_rebind_runner runner;
 int wr_iot_restart_restore_begin(struct wr_iot_restart_restore*s,const unsigned char*i){(void)s;(void)i;assert(0);return 0;}
 int wr_iot_restart_restore_step(struct wr_iot_restart_restore*s){(void)s;assert(0);return 0;}

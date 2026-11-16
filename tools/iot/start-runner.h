@@ -42,4 +42,11 @@ enum wr_iot_result_state wr_iot_start_runner_continue(struct wr_iot_start_runner
 /* New zero-initialized runner; retains copied previous CLOSED witness. */
 int wr_iot_start_runner_begin_reopen(struct wr_iot_start_runner *,
  const struct wr_iot_control_request *,int,int,int,const struct wr_iot_reopen_witness *);
+/* INITIAL-only pending shutdown entry: abandon partial NETWORK without
+ * executing another forward network step or submitting OPEN. */
+int wr_iot_start_runner_cancel_network(struct wr_iot_start_runner *,const char *,unsigned long long);
+int wr_iot_start_runner_cancel_stage(struct wr_iot_start_runner *,const char *,unsigned long long);
+int wr_iot_start_runner_cancel_uncommitted(struct wr_iot_start_runner *,const char *,unsigned long long);
+int wr_iot_start_runner_cancel_uncertain(struct wr_iot_start_runner *,const char *,unsigned long long);
+int wr_iot_start_runner_cancel_admission(struct wr_iot_start_runner *,const char *,unsigned long long,const struct wr_iot_driver_identity *);
 #endif

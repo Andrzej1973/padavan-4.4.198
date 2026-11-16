@@ -17,8 +17,10 @@
 static struct wr_iot_activation_owner backend;
 static struct wr_iot_rebind_owner rebind;
 static struct wr_iot_initial_off physical_initial;
+static int initial_restart_retained(void);
 int wr_iot_rc_boot_idle(void)
 {
+ if(initial_restart_retained()){return 0;}
  return !rebind.owner&&!backend.busy&&!backend.start.owner&&!backend.stop.owner&&
   !backend.start.admission.snapshot.active&&!backend.start.admission.snapshot.token&&
   ((!backend.owner&&backend.phase==WR_IOT_OWNER_IDLE)||
@@ -71,6 +73,7 @@ static enum wr_iot_result_state rebind_reopen(const struct wr_iot_control_reques
 }
 enum wr_iot_result_state wr_iot_activation_execute(const struct wr_iot_control_request *request)
 {
+ if(initial_restart_retained()){return WR_IOT_RESULT_RECOVERY;}
  struct wr_iot_rc_mode mode={0};enum wr_iot_result_state result;
  int guard;
  if(!request)return WR_IOT_RESULT_REJECTED;
@@ -93,17 +96,20 @@ enum wr_iot_result_state wr_iot_activation_execute(const struct wr_iot_control_r
 }
 enum wr_iot_result_state wr_iot_activation_continue(const char *id,unsigned long long created)
 {
+ if(initial_restart_retained()){return WR_IOT_RESULT_RECOVERY;}
  return rebind.owner?wr_iot_rebind_owner_continue(&rebind,id,created):
   wr_iot_activation_owner_continue(&backend,id,created);
 }
 int wr_iot_rc_backend_observed(const struct wr_iot_control_result *result)
 {
+ if(initial_restart_retained()){return 0;}
  return rebind.owner?wr_iot_rebind_owner_observed(&rebind,result):
   wr_iot_activation_owner_observed(&backend,result);
 }
 
 int wr_iot_activation_prepare_radio_stop(void)
 {
+ if(initial_restart_retained()){return 0;}
  struct wr_iot_initial_off initial={0};
  struct wr_iot_control_request request={0};
  struct timespec now;unsigned char random[32];int guard,ok=0;
@@ -167,6 +173,7 @@ int wr_iot_rc_backend_closed(struct wr_iot_driver_closed_result *out)
 static int quiesce_begin(struct wr_iot_rc_quiesce *s,
  const struct wr_iot_control_request *off,int shutdown)
 {
+ if(initial_restart_retained()){return 0;}
  struct wr_iot_control_result observed={0};
  struct wr_iot_driver_closed_result closed={0};
  struct wr_iot_request desired={0};
@@ -264,6 +271,7 @@ int wr_iot_rc_quiesce_advance(struct wr_iot_rc_quiesce *s,
 int wr_iot_rc_rebind_begin(const struct wr_iot_control_request *request,
  const struct wr_iot_physical_stop_request *physical)
 {
+ if(initial_restart_retained()){return 0;}
  struct wr_iot_rc_mode mode={0};int guard,ok=0;
  if(rebind.owner){
   if(!request||!physical||!wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending)return 0;
@@ -386,6 +394,7 @@ int wr_iot_rc_rebind_preopen_rejected(const struct wr_iot_control_result *on,
 int wr_iot_rc_backend_initial_shutdown_prepare(const struct wr_iot_control_request *off,
  const struct wr_iot_initial_shutdown_owner *owner)
 {
+ if(initial_restart_retained()){return 0;}
  struct wr_iot_initial_off candidate={0};int guard,ok=0;
  if(!off||!wr_iot_initial_shutdown_current(owner)||!wr_iot_rc_boot_idle())return 0;
  guard=wr_iot_service_guard_enter(1);if(guard!=1)return 0;

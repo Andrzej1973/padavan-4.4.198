@@ -15,6 +15,12 @@ int wr_iot_restart_generation_origin_current(const struct wr_iot_restart_generat
 int wr_iot_restart_guest_admin_state(int*out){*out=guest_up;return 1;}
 int wr_iot_rc_rebind_shutdown_closed(const struct wr_iot_control_result*on,const struct wr_iot_physical_stop_request*p,const struct wr_iot_driver_identity*i,const struct wr_iot_rc_quiesce*q,struct wr_iot_driver_closed_result*out){assert(!strcmp(on->id,"07000000000000000000000000000000")&&on->created==10&&p&&i&&q);observations++;*out=(struct wr_iot_driver_closed_result){2,2,3,4};return closed_ok;}
 int wr_iot_rc_rebind_preopen_rejected(const struct wr_iot_control_result*on,const struct wr_iot_physical_stop_request*p,const struct wr_iot_driver_identity*i){assert(on&&p&&i);return rejected_ok;}
+#include "restart-initial-handoff.h"
+int wr_iot_rc_initial_restart_unclaimed_current(struct wr_iot_restart_restore*s,const struct wr_iot_control_request*r){(void)s;(void)r;assert(0);return 0;}
+int wr_iot_rc_initial_restart_preopen_rejected(struct wr_iot_restart_restore*s,const struct wr_iot_control_request*r){(void)s;(void)r;assert(0);return 0;}
+int wr_iot_rc_initial_restart_committed_closed(struct wr_iot_restart_restore*s,const struct wr_iot_control_request*r){(void)s;(void)r;assert(0);return 0;}
+int wr_iot_rc_initial_restart_rollback_closed(struct wr_iot_restart_restore*s,const struct wr_iot_control_request*r){(void)s;(void)r;assert(0);return 0;}
+int wr_iot_rc_initial_restart_shutdown_closed(struct wr_iot_restart_restore*s,const struct wr_iot_control_request*r,const struct wr_iot_rc_quiesce*q,struct wr_iot_driver_closed_result*out){(void)s;(void)r;(void)q;(void)out;assert(0);return 0;}
 #include "restart-cancel-check.c"
 int main(void){
  struct wr_iot_restart_restore s={0};struct wr_iot_rc_quiesce off={0};

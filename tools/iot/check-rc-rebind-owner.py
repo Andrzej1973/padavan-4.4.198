@@ -7,6 +7,7 @@ source=(here/'check-rebind-active-stop.py').read_text();ns={'__file__':str(here/
 exec(compile(source[:source.index('with tempfile.TemporaryDirectory(')],'<rebind fixture setup>','exec'),ns)
 body=ns['body'].split('int main(void){',1)[0]+r'''
 #include "rc-backend.c"
+static int initial_restart_retained(void){return 0;}
 static unsigned probes,submits;
 int wr_iot_rc_mode_read(struct wr_iot_rc_mode*m){assert(depth);*m=(struct wr_iot_rc_mode){1,1,0};return 1;}
 int wr_iot_rebind_configuration_current(const struct wr_iot_physical_stop_request*p,const unsigned char*n,struct wr_iot_driver_identity*out){assert(depth&&p->epoch==1&&p->action==WR_STOP_RELEASE&&n[0]==3);probes++;*out=(struct wr_iot_driver_identity){2,2};return 1;}

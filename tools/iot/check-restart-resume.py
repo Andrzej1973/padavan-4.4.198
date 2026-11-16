@@ -30,6 +30,18 @@ int wr_iot_rc_physical_premain_cancel(struct wr_iot_restart_restore*s){premain_c
 static int prehandoff_calls,prehandoff_ok;
 int wr_iot_rc_physical_prehandoff_cancel(struct wr_iot_restart_restore*s){prehandoff_calls++;if(prehandoff_ok){s->phase=WR_RESTORE_CANCELLED;wr_iot_rc_shutdown.pending=0;wr_iot_rc_shutdown.active=0;}return prehandoff_ok;}
 #include "restart-resume.c"
+/* Ordinary CLOSE/disabled fixtures must never enter enabled INITIAL APIs. */
+int wr_iot_terminal_iapp_shutdown_drain(struct wr_iot_terminal_iapp*s){(void)s;assert(0);return 0;}
+int wr_iot_terminal_iapp_shutdown_finish(struct wr_iot_terminal_iapp*s,void(*cb)(void*),void*c){(void)s;(void)cb;(void)c;assert(0);return 0;}
+int wr_iot_rc_initial_restart_postrelease_shutdown_begin(const struct wr_iot_initial_restart_receipt*r,const struct wr_iot_control_request*off,struct wr_iot_rc_quiesce*q){(void)r;(void)off;(void)q;assert(0);return 0;}
+int wr_iot_rc_initial_restart_postrelease_shutdown_closed(const struct wr_iot_initial_restart_receipt*r,const struct wr_iot_rc_quiesce*q){(void)r;(void)q;assert(0);return 0;}
+
+int wr_iot_restart_initial_cancel_step(struct wr_iot_restart_restore*s){(void)s;assert(0);return 0;}
+int wr_iot_restart_initial_shutdown_step(struct wr_iot_restart_restore*s,const struct wr_iot_control_request*r,struct wr_iot_rc_quiesce*q){(void)s;(void)r;(void)q;assert(0);return 0;}
+int wr_iot_restart_initial_handoff_begin(struct wr_iot_restart_restore*s,const struct wr_iot_control_request*r){(void)s;(void)r;assert(0);return 0;}
+int wr_iot_restart_initial_handoff_step(struct wr_iot_restart_restore*s){(void)s;assert(0);return 0;}
+int wr_iot_rc_initial_restart_receipt(struct wr_iot_restart_restore*s,const struct wr_iot_control_request*r,struct wr_iot_initial_restart_receipt*out){(void)s;(void)r;(void)out;assert(0);return 0;}
+int wr_iot_rc_initial_restart_postrelease_current(const struct wr_iot_initial_restart_receipt*r){(void)r;assert(0);return 0;}
 int main(void){
  struct wr_iot_restart_resume s={0};unsigned char id[16]={7};wr_iot_rc_shutdown.active=1;
  assert(!wr_iot_restart_resume_begin(&s,id,0)&&!s.owner&&!begins);

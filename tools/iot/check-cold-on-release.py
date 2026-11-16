@@ -23,6 +23,7 @@ enum wr_iot_result_state wr_iot_activation_owner_continue(struct wr_iot_activati
  p->phase=WR_IOT_OWNER_ACTIVE;p->start.phase=WR_IOT_RUN_ACTIVE;p->start.open.attempt.identity=(struct wr_iot_driver_identity){5,2};return WR_IOT_RESULT_APPLIED;
 }
 int wr_iot_activation_owner_observed(const struct wr_iot_activation_owner*p,const struct wr_iot_control_result*r){assert(p==&backend&&r->state==WR_IOT_RESULT_APPLIED);return active_proof;}
+static int initial_restart_retained(void){return 0;}
 #include "rc-cold-start.inc"
 #include "cold-on-handoff.c"
 #include "restart-wan-followup.h"

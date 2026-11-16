@@ -16,4 +16,8 @@ int wr_iot_radio_stop_fence_end(struct wr_iot_radio_stop_fence *);
  * Runs after successful mask restore, while admission is active, before pending
  * shutdown replay. Failed restore retains token and never invokes cleanup. */
 int wr_iot_radio_stop_fence_end_cleanup(struct wr_iot_radio_stop_fence *,void (*)(void *),void *);
+/* Normal successful resume only: a shutdown observed during unmask retains
+ * the live fence and skips cleanup. Cancellation uses the unconditional API
+ * only after proving its resource terminal. */
+int wr_iot_radio_stop_fence_end_cleanup_unless_shutdown(struct wr_iot_radio_stop_fence *,void (*)(void *),void *);
 #endif

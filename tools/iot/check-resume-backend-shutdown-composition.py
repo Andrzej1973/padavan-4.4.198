@@ -7,6 +7,7 @@ exec(compile(source[:source.index('\nwith tempfile.TemporaryDirectory(')],'<shut
 body=fixture['body']
 hooks=r'''
 #include "restart-resume.h"
+#include "check-initial-unreachable.h"
 int wr_iot_restart_restore_begin(struct wr_iot_restart_restore*s,const unsigned char*i){(void)s;(void)i;assert(0);return 0;}
 int wr_iot_restart_restore_step(struct wr_iot_restart_restore*s){(void)s;assert(0);return 0;}
 int wr_iot_restart_restore_handoff(struct wr_iot_restart_restore*s,const struct wr_iot_control_request*r){(void)s;(void)r;assert(0);return 0;}

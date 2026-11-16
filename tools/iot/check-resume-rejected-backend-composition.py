@@ -7,6 +7,7 @@ exec(compile(source[:source.index('\nwith tempfile.TemporaryDirectory(')],'<preo
 body=fixture['body']
 hooks=r'''
 #include "restart-resume.h"
+#include "check-initial-unreachable.h"
 static int guest_up=1,cancel_calls,take_calls,guest_downs;
 int wr_iot_restart_generation_origin_current(const struct wr_iot_restart_generation*g){return g->owner==getpid();}
 int wr_iot_restart_guest_admin_state(int*out){*out=guest_up;return 1;}

@@ -1,0 +1,1030 @@
+{
+  "date": "2026-11-16",
+  "status": "HOST_SUITE_RECONCILED_PASS",
+  "base": "18a4e70f049ae283134bf6f71237e419a264ee74",
+  "scope": "234 second-phase physical-stop checks, prior first-phase checks recorded separately",
+  "check_count": 234,
+  "missing": [],
+  "failed": [],
+  "results": {
+    "check-initial-saved-physical.py": {
+      "result": "PASS",
+      "log": "checkpoint-confirmation.log"
+    },
+    "check-parent-backend-composed.py": {
+      "result": "PASS",
+      "log": "checkpoint-confirmation.log"
+    },
+    "check-physical-scheduler-unmask-boundary.py": {
+      "result": "PASS",
+      "log": "checkpoint-confirmation.log"
+    },
+    "check-initial-shutdown-backend.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-initial-shutdown-composed.py": {
+      "result": "PASS",
+      "log": "checkpoint-confirmation.log"
+    },
+    "check-initial-shutdown-controller.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-initial-shutdown-headers.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-initial-shutdown-normal-root.py": {
+      "result": "PASS",
+      "log": "checkpoint-confirmation.log"
+    },
+    "check-initial-shutdown-observation.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-initial-shutdown-owner.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-initial-shutdown-physical.py": {
+      "result": "PASS",
+      "log": "checkpoint-confirmation.log"
+    },
+    "check-restart-entry.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-on-entry.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-off-entry.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-off-entry-runtime.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-on-entry-root.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-initial-off-header-staging.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-precreated-down-reference.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-precreated-down-binding.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-precreated-down-wire.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-precreated-down-reply.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-precreated-down-entry.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-down-dispatch-composition.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-down-dispatch-include-order.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-precreated-down-client.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-precreated-down-observe.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-cold-on-admission.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-cold-on-generation.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-precreated-down-recovery.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-cold-on-recovery.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-cold-on-main.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-cold-on-guest.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-cold-on-services.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-cold-on-multicast.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-cold-on-owner.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-cold-on-handoff.py": {
+      "result": "PASS",
+      "log": "checkpoint-confirmation.log"
+    },
+    "check-cold-on-release.py": {
+      "result": "PASS",
+      "log": "permanent-fixture-rechecks.log"
+    },
+    "check-rc-cold-start.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-rc-cold-detach.py": {
+      "result": "PASS",
+      "log": "checkpoint-confirmation.log"
+    },
+    "check-rc-cold-release.py": {
+      "result": "PASS",
+      "log": "permanent-fixture-rechecks.log"
+    },
+    "check-rc-cold-release-signal.py": {
+      "result": "PASS",
+      "log": "permanent-fixture-rechecks.log"
+    },
+    "check-rc-cold-followup.py": {
+      "result": "PASS",
+      "log": "permanent-fixture-rechecks.log"
+    },
+    "check-rc-cold-wan.py": {
+      "result": "PASS",
+      "log": "permanent-fixture-rechecks.log"
+    },
+    "check-rc-cold-terminal.py": {
+      "result": "PASS",
+      "log": "permanent-fixture-rechecks.log"
+    },
+    "check-cold-on-prehandoff.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-cold-on-shutdown.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-cold-on-postshutdown.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-cold-on-root.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-cold-on-root-shutdown.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-cold-on-root-recovery.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-cold-on-root-signal.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-cold-on-scheduler.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-cold-on-select.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-cold-on-entry.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-rc-cold-shutdown.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-rc-cold-shutdown-release.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-rc-cold-final-shutdown.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-cold-on-disabled.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-cold-on-disabled-release.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-rc-cold-disabled-release.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-rc-cold-disabled-signal.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-rc-cold-disabled-followup.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-rc-cold-disabled-terminal.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-on-saved-request.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-restart-entry-source.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-native-radio-exclusion.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-rc-physical-stop.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-physical-stop-mask-failure.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-physical-off-take.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-physical-off-origin.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-physical-terminal-down.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-off-owner.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-off-composition.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-off-policy.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-off-observe.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-on-admission.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-on-generation.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-on-disabled-generation.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-on-disabled-main.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-on-disabled-restore.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-on-disabled-witness.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-on-disabled-release.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-on-disabled-followup.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-on-disabled-owner.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-on-disabled-postup-cancel.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-on-main.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-on-guest.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-on-services.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-on-multicast.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-on-aux.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-on-restore.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-on-rollback-state.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-on-sdk-mode.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-on-handoff.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-on-release.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-on-followup.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-on-owner.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-on-failure-recover.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-on-capture-refusal.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-on-restored-result.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-on-prehandoff.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-on-shutdown-check.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-on-shutdown.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-on-root-shutdown.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-on-cancel.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-on-postup-cancel.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-rc-radio-on-composition.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-rc-cold-on-composition.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-rc-boot.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-rc-boot-scheduling.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-off-state.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-off-auth.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-off-wan.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-off-profile.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-off-followup.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-off-iapp.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-off-finish.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-radio-off-bridge.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-restart-auth-stop.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-restart-wan-plan.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-restart-led.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-restart-wan-policy.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-restart-wan-followup.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-restart-iapp-child.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-restart-multicast.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-restart-multicast-policy.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-restart-multicast-controller.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-restart-auth-sdk.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-physical-auth-stop.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-physical-prearm-shutdown.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-physical-scheduler-prepare.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-rc-runtime.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-rc-radio-off-composition.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-rc-scheduler-composition.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-rc-resume-autostart.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-rc-quiesce.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-rc-physical-quiesce.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-physical-rebind-binding.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-physical-rebind-open-entry.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-physical-rebind-dispatch.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-rebind-start.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-rebind-network.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-rebind-rollback.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-rebind-commit.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-rebind-close.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-rebind-closed-rollback.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-rebind-runner.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-rebind-runner-close.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-rebind-active-stop.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-rc-rebind-owner.py": {
+      "result": "PASS",
+      "log": "rebind-main-rechecks.log"
+    },
+    "check-rc-rebind-reopen.py": {
+      "result": "PASS",
+      "log": "rebind-main-rechecks.log"
+    },
+    "check-rc-rebind-repeat.py": {
+      "result": "PASS",
+      "log": "rebind-main-rechecks.log"
+    },
+    "check-restart-profile.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-restart-main-state.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-restart-generation.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-generator-close.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-restart-main-up.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-restart-main-controller.py": {
+      "result": "PASS",
+      "log": "rebind-main-rechecks.log"
+    },
+    "check-restart-main-composition.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-restart-main-transport-composition.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-restart-main-bridge.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-restart-main-lan.py": {
+      "result": "PASS",
+      "log": "rebind-main-rechecks.log"
+    },
+    "check-restart-main-lan-composition.py": {
+      "result": "PASS",
+      "log": "rebind-main-rechecks.log"
+    },
+    "check-rc-resume-cancel.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-restart-cancel-check.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-restart-resume-retire.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-resume-retire-composition.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-restart-scheduler.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-scheduler-shutdown.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-scheduler-fresh-begin.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-scheduler-resume-composition.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-rc-prehandoff-cancel.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-restart-prehandoff-check.py": {
+      "result": "PASS",
+      "log": "permanent-suite-regressions.log"
+    },
+    "check-rc-premain-cancel.py": {
+      "result": "PASS",
+      "log": "rebind-main-rechecks.log"
+    },
+    "check-restart-profile-receipt.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-restore-premain-shutdown.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-resume-rejected-backend-composition.py": {
+      "result": "PASS",
+      "log": "resume-fixture-rechecks.log"
+    },
+    "check-rc-resume-preopen-cancel.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-rc-preopen-rejected.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-resume-preopen-shutdown.py": {
+      "result": "PASS",
+      "log": "resume-fixture-rechecks.log"
+    },
+    "check-resume-backend-shutdown-composition.py": {
+      "result": "PASS",
+      "log": "resume-fixture-rechecks.log"
+    },
+    "check-restart-resume.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-resume-wan-followup.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-rc-rebind-shutdown.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-rc-resume-finish.py": {
+      "result": "PASS",
+      "log": "checkpoint-confirmation.log"
+    },
+    "check-restart-finish-check.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-radio-stop-fence-cleanup-route.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-radio-stop-fence-fault.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-rc-physical-initial.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-rc-initial-stop.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-physical-initial-runtime-staging.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-physical-initial-client.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-physical-initial-rearm.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-physical-initial-ioctl.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-physical-initial-handler.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-physical-initial-admission.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-physical-initial-query.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-physical-initial-main-binding.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-physical-initial-deferred-staging.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-physical-initial-staging.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-physical-initial-storage.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-physical-initial-free.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-physical-initial-cleanup-release.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-physical-initial-cleanup.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-physical-initial-release.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-physical-initial-terminal.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-physical-initial-publication.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-physical-initial-completion.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-physical-initial-origin.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-physical-initial-wire.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-normal-shutdown-route.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-shutdown-replay.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-physical-routed-shutdown.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-rc-routed-shutdown.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-rc-normal-shutdown.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-restart-restore-profile-composition.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-restart-restore-composition.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-restart-restore.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-restore-iapp-drain.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-restore-iapp-launch.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-terminal-iapp.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-terminal-iapp-shutdown.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-restart-radio-state.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-restore-radio-failure.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-restart-no-reload.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-restart-services-composition.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-restart-services.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-restart-service-policy.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-restart-guest-policy.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-restart-guest-up.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-restart-guest-controller.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-restart-guest-isolation.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-restart-guest-bridge.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    },
+    "check-restart-guest-composition.py": {
+      "result": "PASS",
+      "log": "final-tail-regressions.log"
+    }
+  },
+  "log_sha256": {
+    "permanent-suite-regressions.log": "7086d5d54e10cd7fa70872fbafe9dbca9cf5ace1994e17489057989deefd11f5",
+    "final-tail-regressions.log": "19206b1c754db989ae9bc88692bd272159065f0ebbcc51b0b4434d592dc85a98",
+    "permanent-fixture-rechecks.log": "c56672281b4e4bd3cd3c1777f3a9f1c5b1c33f3fd658b7d9ea21d47418bb4488",
+    "rebind-main-rechecks.log": "3324924134850d9e8fca307200c278f661ccbd34ba3674c753d0c1a130e96a96",
+    "resume-fixture-rechecks.log": "8ef5913710b5ecc86933aac8baf95bef64befe48a16aab67cb565a270b7a0884",
+    "checkpoint-confirmation.log": "0404124aafb2d718abc7bbe5499d8f5f4584e948f24d80efa8e3499cec00c4b6"
+  },
+  "source_sha256": {
+    ".github/workflows/band-steering-abi.yml": "25259801af1492068d32c5fcdd2f85645cc20e58ea7b2973f5466fe4c863f70e",
+    "docs/iot/WR1200JS-INITIAL-ENABLED-LIFECYCLE.md": "772a25744c22d6429aeee83c049257ebf2bdc128157fe3a535c74ac11490f62b",
+    "tools/iot/check-backend-composed.py": "369d0b212a9288ed4870218f21e62fe2d34dcd7bed1f8c18f180e8bc6a84515e",
+    "tools/iot/check-cold-on-handoff.py": "f79f081990d8684ed30d973b0511e85e504291f261ec2a999d84b16671d7c121",
+    "tools/iot/check-cold-on-release.py": "190dde1206105ee648b90299807078e87d209c10c8302a1e6e7f2cf1e30aa458",
+    "tools/iot/check-initial-saved-physical.py": "f1371420ddc4f487ad8fa0aa11e28c67bfac4de0beffafad381039412db4e144",
+    "tools/iot/check-initial-unreachable.h": "0863e5211e64c0f77f259db42d0fdcdb8e3e86a94d58c9ff34d70f566bc78947",
+    "tools/iot/check-parent-backend-composed.py": "7ca5f6ec164d16f24b2492438e0a4e6a88b05a7f836956a79c0fc58fa2d51948",
+    "tools/iot/check-parent.py": "4e1422f89f216c66a244216daf3ea7aa8383aa8128097c65f7e6c85eec7af5da",
+    "tools/iot/check-physical-parent-backend-composed.py": "d6cddfcd866272b6f4021880e3b000bc4336612875e77b233c30eaf35f0c2108",
+    "tools/iot/check-physical-resume-composed.py": "76951e89352c2ac12e4134c3eb9f184720e8629c398a95f2dce4236bc2a716e8",
+    "tools/iot/check-physical-scheduler-unmask-boundary.py": "ed7d434bf156dd7c2cab79fbde39d8f6448d92de7b75815544c2ac72ec003ce1",
+    "tools/iot/check-physical-scheduler-wan-iapp.py": "52066407038a233edf6fc5bd68d378439a13d36c279fb5dd5c69fb691bdce5c7",
+    "tools/iot/check-physical-stop-client-preparation.py": "ec9fac8d80d766093432cec6269e4688a34145f64ff48799b9dd37e11c6664d5",
+    "tools/iot/check-physical-stop-suite.py": "28e1bbcaee9ec91d7cec71c8ad64b2aed3f8abce7a5a6959bb3828b99557dda1",
+    "tools/iot/check-physical-wan-iapp-composed.py": "16fc10432218aabaaec890a7849b5e89f9a647abe3f4391ab9fe1233f74db2ba",
+    "tools/iot/check-radio-stop-fence-cleanup-route.py": "9559afc9304cc58a183c00a4949454b6ba8f56c85de6030f628b8f1244257487",
+    "tools/iot/check-rc-backend-composition.py": "91e5495952ccc913cca658d3e17c25ef90747ffde1fcb68b8d9e1d14ff1dc2a8",
+    "tools/iot/check-rc-cold-detach.py": "bfed8091de3eabf466fce9e64ba85d1269edb979fc79723a0f7248a863bc5a15",
+    "tools/iot/check-rc-cold-followup.py": "c5962592bdfbe7069438f74b6a79d05e10a77ed30102abdf4f08e5eaa850ebc8",
+    "tools/iot/check-rc-cold-release-signal.py": "90516edc80ba050bfa54face7f54bb777fa448079d51a717bed7847fb130f050",
+    "tools/iot/check-rc-cold-release.py": "8b3cff786b1f022f784d8450369c254828291a048cd3cdf10bf903edc033dcc8",
+    "tools/iot/check-rc-cold-start.py": "3d9046b94377e9664f648a974d0cd68fb0a3cfb93b876a734a34545fe97ecf4e",
+    "tools/iot/check-rc-cold-terminal.py": "9f4627ee46e737e387cdef29e13ba0c9d9d6ed38b75c1be0316c6b75790997eb",
+    "tools/iot/check-rc-cold-wan.py": "83ba57956c97a3fc087c7ebd431fff61c06ba161b4d590d3277cda206e396000",
+    "tools/iot/check-rc-physical-quiesce.py": "eb80aa0cbd939f30d4db8930ee4bb9c530238357c89c19dad398fc8af5093603",
+    "tools/iot/check-rc-physical-stop.c": "d38d66ece4116577c0e15bb48dddc81dfe0ccf910fedd96fcc0098a7b521af31",
+    "tools/iot/check-rc-rebind-owner.py": "fde0a53fe257965b42848e4373da220136f2745c0d1ccdcffe51bb4b296d1d82",
+    "tools/iot/check-rc-resume-finish.py": "60bdaa7055283d4a69bfb332eeec3c50dffad3d499b4080c36dd3f71faf4e9dc",
+    "tools/iot/check-restart-cancel-check.py": "ecd7371e33bdcc590abd249dcd67230d91177392ff81947212a5406a52574004",
+    "tools/iot/check-restart-finish-check.py": "319a3bd5c8f96deca2e13ce4b4b51f3f118ca106e44ef35391ab27a94ceeaed8",
+    "tools/iot/check-restart-main-controller.py": "e2e3fd42df4d8d2c26de93f94038e591c93369ee2a95bf4b5a76d9d32a39c2e0",
+    "tools/iot/check-restart-resume.py": "886bf72956b20e57b8799dddf00781006f8c5f2b7f2872a9428ba4397819803e",
+    "tools/iot/check-resume-backend-shutdown-composition.py": "5388037f502497b7341c39bc5cab08e54ea8c1747157df306c8409a3c9b680a8",
+    "tools/iot/check-resume-preopen-shutdown.py": "3c5153147e7bb47eaf4902958cdbb25f389e463e59afd34da4660b82c04edde1",
+    "tools/iot/check-resume-rejected-backend-composition.py": "307dd064bcb1dde2f865db14ab75ca25b3a9aec7b14c48eae83a8dc61227c71c",
+    "tools/iot/check-runtime-source.py": "e9b4d21b2fe30b2db8cdba87ba43baf323e0e00bb321456b9de948d59376baab",
+    "tools/iot/compile-runtime-link.sh": "2ffdf75055487153db10ac5664abd4044fb861179fb895cd9d337e180fad9ddc",
+    "tools/iot/prepare-runtime.py": "49dbf61162054ed9f027427b8f010dec5cbbd5baa01edd44bf82f8cc259428e0",
+    "tools/iot/radio-stop-fence.c": "657b40b6e02361b02f05c267d49dda10f28b72914f2959c64f733d6a7db190c3",
+    "tools/iot/radio-stop-fence.h": "d8da7e20064a836602952f799d6f6a9a92b7ed9bd38a72f6dac20d51c889bc7d",
+    "tools/iot/rc-backend.c": "3a6235932070da6dac7e70edb8e99f1b428f8c0eb1de17e94b03ed771252859a",
+    "tools/iot/rc-cold-start.inc": "0af9c521d3d6254c5e5f4892dbeac1d3dfd5f3abf278cb14c96bb0adb59c817f",
+    "tools/iot/rc-initial-restart-detach.inc": "a6687012dd8d205b169532a869fbd770dee6d6af5e407ed3f29afa6a2b195678",
+    "tools/iot/rc-initial-restart-start.inc": "34935194a3e8974c76f14ff33c471438d0f61d719fef02a2b2fecfc49d6584f0",
+    "tools/iot/rc-physical-stop.c": "49676810d2be11048aaf92eb6ab9679003149a556412e8c89c2413e143642dff",
+    "tools/iot/rc-physical-stop.h": "2110a453cc35fd881b5754da2de506f288550bfa18ea149aee9a3685d245d047",
+    "tools/iot/restart-cancel-check.c": "08e226b03ee42cdb14091d154367473ab98dd9813a497076b078b1409e509eba",
+    "tools/iot/restart-finish-check.c": "b9ffe3dc4d697f57d5c97f6275f8053bc2872e053d4f94be044f0d2de8f32082",
+    "tools/iot/restart-generation.c": "ed62fb5469fa8950516f754cd828a4ec32069cd2c95f611821b732903ea5cc19",
+    "tools/iot/restart-initial-handoff.c": "89dc1233e1f413d4f42048c419029a4e0f818fc4dd806d6e93a059b2ea971909",
+    "tools/iot/restart-initial-handoff.h": "a4d59e7b5b2e5412ec6ef62120a4c2bd9dbc6bc5834f0014f72167c8cdd6ca8e",
+    "tools/iot/restart-initial-parent.c": "e2de63aa495d928b19c23fd5472c90456dabeff1fbb508ab215a26c8812ddb14",
+    "tools/iot/restart-initial-parent.h": "da31eb001ce907d9aa6dfd90fffd86d4bf8e4c2a5c0b592e991ab5c113feec23",
+    "tools/iot/restart-main-controller.c": "59954f0c6e7eb78750c7accaee66677eac4f6e2874bc4d01662d641dc3c981d7",
+    "tools/iot/restart-profile.c": "608a55b2c5b9d99372ece4479d61be12f2288cd25c01a49ec4a9b95978237be8",
+    "tools/iot/restart-profile.h": "72bddf76af0135ad5f8965bead87db3021410e0760f84d0e45a3d66466a24697",
+    "tools/iot/restart-restore.h": "758791202350ebc97579a65c8b88f8ea96c97e490736cf78baa0c4b00a996e90",
+    "tools/iot/restart-resume.c": "20f47f1757f0bfb6ef858d7572993ef1340505377e6f9e7f4ccdad1066910c1e",
+    "tools/iot/restart-resume.h": "fd30c0c42696a8624a3dc89f20665f0e2c85f97c44b869ee110a2a2af074468c",
+    "tools/iot/restart-scheduler.c": "b896424d8150146bb1d75065d89945cfac3ff4fed0cd58a66afed011d91c3a88",
+    "tools/iot/restart-terminal-iapp.c": "64f5719a52d99a4be874e6e6d8cf6bc09d3fcb61c8be00e6c1b6d2db963c28e9",
+    "tools/iot/start-closed-rollback.c": "55458dd48cd6fe2aaaf712d663413bdb9e560d2091b13de4e659565f04120788",
+    "tools/iot/start-network-rollback.h": "bef3fc2f41fcf6b2d7a35235e534842e9ec9eda8cef3e8d74c2904c805ee0054",
+    "tools/iot/start-runner.c": "60776bc76c3737defb8d3afc3bbf1f5ba9bdca1d5dc7e1af636ca42aee962030",
+    "tools/iot/start-runner.h": "1396dd1182f05cfffc121762277aee6d97d0e9caa6dddd2f5619d6144210ffae"
+  },
+  "limits": [
+    "Interrupted suite reconciled from original collection plus focused reruns, not a single clean invocation",
+    "Some earlier PASS scripts precede subsequent fixture-only edits; exact-SHA CI remains required",
+    "Production routes remain gated; no target/image/device proof for this package"
+  ],
+  "target_verified": false,
+  "runtime_verified": false
+}

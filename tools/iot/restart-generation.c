@@ -11,10 +11,16 @@ static int origin_valid(const struct wr_iot_rc_physical_resume *r)
 {
  if(r&&r->origin==WR_PHYSICAL_ORIGIN_INITIAL){
   struct wr_iot_request empty={0};
-  return r->intent.restart==1&&r->intent.radio_on==1&&r->intent.reload<=1&&
-   !r->resume_needed&&!memcmp(&r->desired,&empty,sizeof(empty))&&
-   !r->physical.action&&r->initial.action==WR_STOP_RELEASE&&
-   wr_iot_physical_initial_valid(&r->initial,0);
+  if(r->intent.restart!=1||r->intent.radio_on!=1||r->intent.reload>1||
+     r->physical.action||r->initial.action!=WR_STOP_RELEASE||
+     !wr_iot_physical_initial_valid(&r->initial,0))return 0;
+  if(!r->desired.enabled)return !r->resume_needed&&!memcmp(&r->desired,&empty,sizeof(empty));
+  if(r->desired.enabled!=1||r->resume_needed!=1)return 0;
+#define INITIAL_BOUNDED(f) if(!memchr(r->desired.f,0,sizeof(r->desired.f)))return 0;
+  INITIAL_BOUNDED(ssid) INITIAL_BOUNDED(password) INITIAL_BOUNDED(gateway)
+  INITIAL_BOUNDED(mask) INITIAL_BOUNDED(first) INITIAL_BOUNDED(last)
+#undef INITIAL_BOUNDED
+  return 1;
  }
  if(!r||r->origin!=WR_PHYSICAL_ORIGIN_CLOSE||r->intent.restart!=1||r->intent.radio_on!=1||r->intent.reload>1||
     r->resume_needed!=1||r->desired.enabled!=1||r->physical.action!=WR_STOP_RELEASE||
@@ -37,7 +43,7 @@ static int physical_origin_equal(const struct wr_iot_rc_physical_resume *a,
   wr_iot_physical_stop_request_encode(right,64,&b->physical)&&!memcmp(left,right,64);
 }
 static int generation_profile_current(const struct wr_iot_rc_physical_resume *r)
-{return r->origin==WR_PHYSICAL_ORIGIN_INITIAL?wr_iot_restart_disabled_profile_current():wr_iot_restart_profile_current(&r->desired);}
+{return r->origin==WR_PHYSICAL_ORIGIN_INITIAL?(r->desired.enabled?wr_iot_restart_initial_enabled_profile_current(&r->desired):wr_iot_restart_disabled_profile_current()):wr_iot_restart_profile_current(&r->desired);}
 static int generation_disabled(int unused)
 {(void)unused;return wr_iot_rc_restart_generate(1);}
 static int origin_current(const struct wr_iot_rc_physical_resume *expected)
@@ -45,7 +51,8 @@ static int origin_current(const struct wr_iot_rc_physical_resume *expected)
  struct wr_iot_rc_physical_resume current={0};int ok=0;
  if(!origin_valid(expected)||!wr_iot_rc_shutdown.active||!wr_iot_radio_profile_guard()||
     !wr_iot_rc_physical_resume_read(&current)||!origin_valid(&current))goto done;
- if(expected->intent.restart!=current.intent.restart||expected->intent.radio_on!=current.intent.radio_on||
+ if(expected->desired.enabled!=current.desired.enabled||expected->resume_needed!=current.resume_needed||
+    expected->intent.restart!=current.intent.restart||expected->intent.radio_on!=current.intent.radio_on||
     expected->intent.reload!=current.intent.reload||
     !physical_origin_equal(expected,&current))goto done;
 #define SAME(f) if(strcmp(expected->desired.f,current.desired.f))goto done;

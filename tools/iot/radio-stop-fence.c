@@ -46,9 +46,9 @@ int wr_iot_radio_stop_fence_begin(struct wr_iot_radio_stop_fence *s)
 {return fence_begin(s,0);}
 int wr_iot_radio_stop_fence_begin_routed_shutdown(struct wr_iot_radio_stop_fence *s)
 {return fence_begin(s,1);}
-static int fence_end(struct wr_iot_radio_stop_fence *s,void (*cleanup)(void *),void *context)
+static int fence_end(struct wr_iot_radio_stop_fence *s,void (*cleanup)(void *),void *context,int defer_shutdown)
 {
- int pending;
+ int pending;sigset_t blocked;
  if(fence_finishing||!s||s->owner!=getpid()||fence_owner!=getpid()||
     !s->level||s->level!=fence_depth||!wr_iot_rc_shutdown.active)return 0;
  if(cleanup&&fence_depth!=1)return 0;
@@ -57,6 +57,16 @@ static int fence_end(struct wr_iot_radio_stop_fence *s,void (*cleanup)(void *),v
   * its signal instead of tearing down the caller before balanced cleanup. */
  fence_finishing=1;
  if(sigprocmask(SIG_SETMASK,&saved_mask,NULL)){fence_finishing=0;return 0;}
+ if(defer_shutdown&&wr_iot_rc_shutdown.pending){
+  /* The handler has recorded the intent while admission is still active.
+   * Re-block for owned shutdown continuation; even re-block failure retains
+   * admission/token and never grants permission to clean up or replay. */
+  sigemptyset(&blocked);sigaddset(&blocked,SIGTERM);
+#ifdef SIGQUIT
+  sigaddset(&blocked,SIGQUIT);
+#endif
+  (void)sigprocmask(SIG_BLOCK,&blocked,NULL);fence_finishing=0;return 0;
+ }
  if(cleanup)cleanup(context);
  pending=wr_iot_rc_shutdown_end();
  fence_depth=0;fence_owner=0;memset(s,0,sizeof(*s));fence_finishing=0;
@@ -65,7 +75,11 @@ static int fence_end(struct wr_iot_radio_stop_fence *s,void (*cleanup)(void *),v
 }
 
 int wr_iot_radio_stop_fence_end(struct wr_iot_radio_stop_fence *s)
-{return fence_end(s,NULL,NULL);}
+{return fence_end(s,NULL,NULL,0);}
 int wr_iot_radio_stop_fence_end_cleanup(struct wr_iot_radio_stop_fence *s,
  void (*cleanup)(void *),void *context)
-{return cleanup?fence_end(s,cleanup,context):0;}
+{return cleanup?fence_end(s,cleanup,context,0):0;}
+
+int wr_iot_radio_stop_fence_end_cleanup_unless_shutdown(struct wr_iot_radio_stop_fence *s,
+ void (*cleanup)(void *),void *context)
+{return cleanup?fence_end(s,cleanup,context,1):0;}

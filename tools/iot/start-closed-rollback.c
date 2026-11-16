@@ -13,6 +13,9 @@ int wr_iot_start_closed_rollback_step(struct wr_iot_start_network_rollback *s,
 {
  int dns;
  if(!s||!network||!owner||!open||!closed||
+    (s->dns_abort_required!=0&&s->dns_abort_required!=1)||
+    (s->dns_abort_confirmed!=0&&s->dns_abort_confirmed!=1)||
+    (s->dns_abort_confirmed&&!s->dns_abort_required)||
     (network->phase!=WR_IOT_NET_READY&&network->phase!=WR_IOT_NET_RECOVERY)||
     closed->close.phase!=WR_IOT_CLOSE_OWNER_RELEASED)return 0;
  if(s->owner&&s->owner!=getpid())return 0;
@@ -20,7 +23,7 @@ int wr_iot_start_closed_rollback_step(struct wr_iot_start_network_rollback *s,
   if(s->phase!=WR_IOT_ROLL_BRIDGE_DOWN)return 0;
   s->owner=getpid();
  }
- if(s->phase==WR_IOT_ROLL_DONE)return !owner->snapshot.active;
+ if(s->phase==WR_IOT_ROLL_DONE)return !owner->snapshot.active&&(!s->dns_abort_required||s->dns_abort_confirmed);
  if(s->phase<WR_IOT_ROLL_BRIDGE_DOWN||s->phase>WR_IOT_ROLL_FINISH||
     !owner->admitted||!owner->mutation_started||!owner->snapshot.active||
     owner->snapshot.owner!=getpid()||owner->snapshot.token!=1||
@@ -36,10 +39,12 @@ int wr_iot_start_closed_rollback_step(struct wr_iot_start_network_rollback *s,
   dns=wr_iot_dns_activation_recovery_state();
   if(dns<0)return 0;
   if(dns==1){
-   if(!(network->attempted&(1U<<WR_IOT_NET_DNS)))return 0;
+   if(s->dns_abort_confirmed||!(network->attempted&(1U<<WR_IOT_NET_DNS)))return 0;
    if(!wr_iot_dns_activation_abort())return 0;
+   if(s->dns_abort_required)s->dns_abort_confirmed=1;
   }
-  if(wr_iot_dns_activation_recovery_state()!=0)return 0;
+  if(wr_iot_dns_activation_recovery_state()!=0||
+     (s->dns_abort_required&&!s->dns_abort_confirmed))return 0;
   break;
  case WR_IOT_ROLL_SETTINGS:
   if(!wr_iot_request_snapshot_restore(&owner->snapshot))return 0;

@@ -27,6 +27,9 @@ int wr_iot_restart_guest_isolation_current(int isolate){return isolate==1;}
 int wr_iot_rc_restart_service_policy(struct wr_iot_restart_service_policy*p){*p=(struct wr_iot_restart_service_policy){0,-75,-80};return 1;}
 int wr_iot_rc_restart_auth_process_current(const struct wr_iot_restart_service_policy*p){(void)p;return auth_ok;}
 #include "restart-finish-check.c"
+#ifndef WR_IOT_TEST_INITIAL_PARENT
+int wr_iot_restart_initial_active_current(struct wr_iot_restart_restore*s){(void)s;assert(0);return 0;}
+#endif
 int main(int argc,char**argv){
  assert(argc==2);snprintf(profile_path,sizeof(profile_path),"%s/profile",argv[1]);
  origin=(struct wr_iot_rc_physical_resume){.intent={1,1,1},.physical={.action=WR_STOP_RELEASE,.epoch=1,.generation=2,.open_token=3,.closed_serial=4,.attempt=5,.nonce={1}},.resume_needed=1,.desired={.enabled=1,.ssid="IoT",.password="iot-password"}};

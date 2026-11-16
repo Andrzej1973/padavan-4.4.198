@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include "restart-restore.h"
 #include "restart-profile.h"
+#include "restart-initial-handoff.h"
 #include "restart-main-bridge.h"
 #include "restart-guest-policy.h"
 #include "restart-guest-bridge.h"
@@ -10,6 +11,8 @@
 static int finish_origin_current(struct wr_iot_restart_restore *s)
 {
  if(!s)return 0;
+ if(s->generation.origin.origin==WR_PHYSICAL_ORIGIN_INITIAL&&s->generation.origin.desired.enabled)
+  return wr_iot_restart_initial_active_current(s);
  if(s->generation.origin.origin==WR_PHYSICAL_ORIGIN_INITIAL)
   return s->owner==getpid()&&!s->busy&&s->phase==WR_RESTORE_PREPARED&&
    s->generation.owner==getpid()&&!s->generation.busy&&
@@ -37,7 +40,7 @@ int wr_iot_restart_restore_finish_check(struct wr_iot_restart_restore *s)
     s->services.phase!=WR_SERVICES_SUBMITTED||s->services.next!=3||s->services.attempted!=7)return 0;
  if(!wr_iot_generated_matches(&s->generation.profile.files.generated[0],s->generation.profile.files.paths[0])||
     !(s->generation.origin.origin==WR_PHYSICAL_ORIGIN_INITIAL?
-      wr_iot_restart_disabled_profile_current():wr_iot_restart_profile_current(&s->generation.origin.desired))||
+      (s->generation.origin.desired.enabled?wr_iot_restart_initial_enabled_profile_current(&s->generation.origin.desired):wr_iot_restart_disabled_profile_current()):wr_iot_restart_profile_current(&s->generation.origin.desired))||
     !wr_iot_restart_main_bridge_current()||
     !wr_iot_rc_restart_guest_policy(&desired)||desired!=s->guest.desired||
     !wr_iot_rc_restart_guest_isolation_policy(&isolate)||isolate!=s->guest.isolate||

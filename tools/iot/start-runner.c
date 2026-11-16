@@ -5,6 +5,8 @@
 #include "reopen-network.h"
 #include "reopen-rollback.h"
 #include "rc-shutdown-admission.h"
+#include "service-guard.h"
+#include "dns-activation.h"
 static const char *runner_read(void *context,const char *key)
 {
  const struct wr_iot_request *r=context;
@@ -138,4 +140,155 @@ enum wr_iot_result_state wr_iot_start_runner_continue(struct wr_iot_start_runner
     strcmp(id,s->input.id)||created!=s->input.created)
   return WR_IOT_RESULT_RECOVERY;
  return wr_iot_start_runner_step(s);
+}
+
+int wr_iot_start_runner_cancel_network(struct wr_iot_start_runner *s,
+ const char *id,unsigned long long created)
+{
+ int fd;unsigned i;
+ if(!s||!id||!created||s->owner!=getpid()||s->busy||
+    s->phase!=WR_IOT_RUN_NETWORK||s->prior_closed.valid||s->admission.reopened||
+    !wr_iot_rc_shutdown.active||
+    (wr_iot_rc_shutdown.pending!=SIGTERM
+#ifdef SIGQUIT
+     &&wr_iot_rc_shutdown.pending!=SIGQUIT
+#endif
+    )||!wr_iot_control_id(id)||!memchr(s->input.id,0,sizeof(s->input.id))||
+    strcmp(id,s->input.id)||created!=s->input.created||
+    !s->admission.admitted||!s->admission.mutation_started||!s->admission.staged||
+    s->admission.snapshot.owner!=getpid()||!s->admission.snapshot.active||
+    s->admission.snapshot.token!=1||
+    (s->open.phase!=WR_IOT_OPEN_IDLE&&s->open.phase!=WR_IOT_OPEN_NOT_SUBMITTED)||
+    s->open.attempt.identity.adapter_epoch||s->open.attempt.identity.device_generation)return 0;
+ for(i=0;i<16;i++)if(s->open.attempt.request_id[i])return 0;
+ fd=wr_iot_service_guard_dup();if(fd<0)return 0;
+ if(close(fd))return 0;
+ s->busy=1;runner_recover(s);s->busy=0;return 1;
+}
+
+int wr_iot_start_runner_cancel_stage(struct wr_iot_start_runner *s,
+ const char *id,unsigned long long created)
+{
+ struct wr_iot_idle_result idle;unsigned i;int fd;
+ if(!s||!id||!created||s->owner!=getpid()||s->busy||
+    s->phase!=WR_IOT_RUN_STAGE||s->prior_closed.valid||s->admission.reopened||
+    !wr_iot_rc_shutdown.active||
+    (wr_iot_rc_shutdown.pending!=SIGTERM
+#ifdef SIGQUIT
+     &&wr_iot_rc_shutdown.pending!=SIGQUIT
+#endif
+    )||!wr_iot_control_id(id)||!memchr(s->input.id,0,sizeof(s->input.id))||
+    strcmp(id,s->input.id)||created!=s->input.created||
+    !s->admission.admitted||s->admission.mutation_started||s->admission.staged||
+    s->admission.snapshot.owner!=getpid()||!s->admission.snapshot.active||
+    s->admission.snapshot.token!=1||s->network.phase!=WR_IOT_NET_BRIDGE||s->network.attempted||
+    s->open.phase!=WR_IOT_OPEN_IDLE||s->open.attempt.identity.adapter_epoch||
+    s->open.attempt.identity.device_generation)return 0;
+ for(i=0;i<16;i++)if(s->open.attempt.request_id[i])return 0;
+ fd=wr_iot_service_guard_dup();if(fd<0)return 0;
+ if(close(fd))return 0;
+ idle=s->admission.idle;s->busy=1;
+ if(!wr_iot_start_admission_cancel(&s->admission)){s->busy=0;return 0;}
+ /* Cancel zeroes admission ownership. Retain only its read-only lifetime/
+  * serial receipt for terminal validation; admitted remains false. */
+ s->admission.idle=idle;s->phase=WR_IOT_RUN_REJECTED;s->busy=0;return 1;
+}
+
+/* DNS has not been attempted while commit remains IDLE. Obtain explicit
+ * CLOSE via the existing recovery path before rolling back any resources. */
+int wr_iot_start_runner_cancel_uncommitted(struct wr_iot_start_runner *s,
+ const char *id,unsigned long long created)
+{
+ int fd;unsigned i,nonzero=0;
+ if(!s||!id||!created||s->owner!=getpid()||s->busy||s->phase!=WR_IOT_RUN_COMMIT||
+    s->commit.phase!=WR_IOT_COMMIT_IDLE||s->prior_closed.valid||s->admission.reopened||
+    !wr_iot_rc_shutdown.active||
+    (wr_iot_rc_shutdown.pending!=SIGTERM
+#ifdef SIGQUIT
+     &&wr_iot_rc_shutdown.pending!=SIGQUIT
+#endif
+    )||!wr_iot_control_id(id)||!memchr(s->input.id,0,sizeof(s->input.id))||
+    strcmp(id,s->input.id)||created!=s->input.created||
+    !s->admission.admitted||!s->admission.mutation_started||!s->admission.staged||
+    s->admission.snapshot.owner!=getpid()||!s->admission.snapshot.active||
+    s->admission.snapshot.token!=1||s->admission.snapshot.recovering||s->admission.snapshot.disabling||
+    s->open.owner!=getpid()||s->open.phase!=WR_IOT_OPEN_CONFIRMED||
+    s->open.attempt.identity.adapter_epoch!=s->admission.idle.epoch||
+    s->open.attempt.identity.device_generation!=s->admission.idle.generation)return 0;
+ for(i=0;i<16;i++)nonzero|=s->open.attempt.request_id[i];
+ if(!nonzero)return 0;
+ if(s->commit.owner){
+  if(s->commit.owner!=getpid()||!s->commit.open_token||
+     memcmp(&s->commit.attempt,&s->open.attempt,sizeof(s->open.attempt)))return 0;
+ }else if(s->commit.open_token)return 0;
+ fd=wr_iot_service_guard_dup();if(fd<0)return 0;
+ if(close(fd))return 0;
+ s->busy=1;runner_recover(s);s->busy=0;return 1;
+}
+
+/* A failed commit is not evidence of either commit or rollback. Only a
+ * positively retained owned startup transaction may enter abort recovery. */
+int wr_iot_start_runner_cancel_uncertain(struct wr_iot_start_runner *s,
+ const char *id,unsigned long long created)
+{
+ int fd;
+ if(!s||!id||!created||s->owner!=getpid()||s->busy||s->phase!=WR_IOT_RUN_UNCERTAIN||
+    s->commit.phase!=WR_IOT_COMMIT_DNS_UNCERTAIN||s->commit.owner!=getpid()||!s->commit.open_token||
+    s->prior_closed.valid||s->admission.reopened||!wr_iot_rc_shutdown.active||
+    (wr_iot_rc_shutdown.pending!=SIGTERM
+#ifdef SIGQUIT
+     &&wr_iot_rc_shutdown.pending!=SIGQUIT
+#endif
+    )||!wr_iot_control_id(id)||!memchr(s->input.id,0,sizeof(s->input.id))||
+    strcmp(id,s->input.id)||created!=s->input.created||
+    !s->admission.admitted||!s->admission.mutation_started||!s->admission.staged||
+    s->admission.snapshot.owner!=getpid()||!s->admission.snapshot.active||
+    s->admission.snapshot.token!=1||s->admission.snapshot.recovering||s->admission.snapshot.disabling||
+    s->open.owner!=getpid()||s->open.phase!=WR_IOT_OPEN_CONFIRMED||
+    s->network.phase!=WR_IOT_NET_READY||
+    memcmp(&s->commit.attempt,&s->open.attempt,sizeof(s->open.attempt))||
+    s->rollback.owner||s->rollback.phase!=WR_IOT_ROLL_BRIDGE_DOWN||
+    s->rollback.dns_abort_required||s->rollback.dns_abort_confirmed)return 0;
+ fd=wr_iot_service_guard_dup();if(fd<0)return 0;
+ if(close(fd)||wr_iot_dns_activation_recovery_state()!=1)return 0;
+ s->busy=1;s->rollback.dns_abort_required=1;runner_recover(s);s->busy=0;return 1;
+}
+
+/* Failed admission may still retain its read-only snapshot. No setter or
+ * OPEN is allowed here; prove the exact new Main idle on both sides of its
+ * release, and retain only that nonsecret receipt for terminal validation. */
+int wr_iot_start_runner_cancel_admission(struct wr_iot_start_runner *s,
+ const char *id,unsigned long long created,const struct wr_iot_driver_identity *expected)
+{
+ struct wr_iot_idle_result before={0},after={0};int fd;unsigned i;
+ if(!s||!id||!created||!expected||!expected->adapter_epoch||!expected->device_generation||
+    s->owner!=getpid()||s->busy||
+    (s->phase!=WR_IOT_RUN_UNCERTAIN&&s->phase!=WR_IOT_RUN_REJECTED)||
+    s->prior_closed.valid||s->admission.reopened||s->admission.admitted||s->admission.idle.serial||
+    s->admission.mutation_started||s->admission.staged||
+    s->commit.phase!=WR_IOT_COMMIT_IDLE||s->commit.owner||s->commit.open_token||
+    s->open.owner||s->open.phase!=WR_IOT_OPEN_IDLE||
+    s->open.attempt.identity.adapter_epoch||s->open.attempt.identity.device_generation||
+    s->network.phase!=WR_IOT_NET_BRIDGE||s->network.attempted||
+    s->rollback.owner||s->rollback.phase!=WR_IOT_ROLL_BRIDGE_DOWN||
+    !wr_iot_rc_shutdown.active||
+    (wr_iot_rc_shutdown.pending!=SIGTERM
+#ifdef SIGQUIT
+     &&wr_iot_rc_shutdown.pending!=SIGQUIT
+#endif
+    )||!wr_iot_control_id(id)||!memchr(s->input.id,0,sizeof(s->input.id))||
+    strcmp(id,s->input.id)||created!=s->input.created)return 0;
+ for(i=0;i<16;i++)if(s->open.attempt.request_id[i])return 0;
+ if(s->admission.snapshot.active){
+  if(s->admission.snapshot.owner!=getpid()||s->admission.snapshot.token!=1||
+     s->admission.snapshot.recovering||s->admission.snapshot.disabling)return 0;
+ }else if(s->admission.snapshot.owner||s->admission.snapshot.token)return 0;
+ fd=wr_iot_service_guard_dup();if(fd<0)return 0;
+ if(close(fd)||!wr_iot_driver_initial_idle_read(s->nonce,&before)||!before.serial||
+    before.epoch!=expected->adapter_epoch||before.generation!=expected->device_generation)return 0;
+ s->busy=1;
+ if(s->admission.snapshot.active&&!wr_iot_start_admission_cancel(&s->admission)){s->busy=0;return 0;}
+ if(!wr_iot_driver_initial_idle_read(s->nonce,&after)||after.serial<=before.serial||
+    after.epoch!=expected->adapter_epoch||after.generation!=expected->device_generation){s->busy=0;return 0;}
+ s->admission.idle=after;s->phase=WR_IOT_RUN_REJECTED;s->busy=0;return 1;
 }
