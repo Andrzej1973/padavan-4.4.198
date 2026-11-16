@@ -79,6 +79,21 @@ int main(void){
  prehandoff_ok=1;take_ok=0;assert(!wr_iot_restart_resume_step(&late)&&prehandoff_calls==2&&late.restore.phase==WR_RESTORE_CANCELLED);
  take_ok=-1;assert(wr_iot_restart_resume_step(&late)==-1&&prehandoff_calls==2);
  assert(wr_iot_restart_resume_step(&late)==-1&&prehandoff_calls==2);
+ struct wr_iot_restart_resume initial={0};wr_iot_rc_shutdown.active=1;
+ wr_iot_rc_shutdown.pending=0;prepared=begin_ok=1;finish_ok=take_ok=0;
+ assert(wr_iot_restart_resume_begin(&initial,id,10));
+ initial.restore.generation.origin.origin=WR_PHYSICAL_ORIGIN_INITIAL;
+ memset(&initial.restore.generation.origin.desired,0,sizeof(initial.restore.generation.origin.desired));
+ initial.restore.phase=WR_RESTORE_PREPARED;
+ int old_handoffs=handoffs,old_continues=continues;
+ assert(!wr_iot_restart_resume_step(&initial)&&initial.phase==WR_RESUME_FINISH);
+ assert(handoffs==old_handoffs&&continues==old_continues);
+ assert(!wr_iot_restart_resume_step(&initial));
+ finish_ok=1;assert(!wr_iot_restart_resume_step(&initial));
+ int initial_finishes=finishes;take_ok=1;
+ assert(wr_iot_restart_resume_step(&initial)==1&&initial.phase==WR_RESUME_DONE);
+ assert(finishes==initial_finishes&&handoffs==old_handoffs&&continues==old_continues);
+ assert(wr_iot_restart_resume_step(&initial)==1&&finishes==initial_finishes);
  puts("PASS resume pump: one handoff despite uncertain admission, retained backend continuation, finish failure retry, completed cleanup never repeated while terminal take retries, DONE stable, begin refusal retained; owner actors injected");
 }
 '''

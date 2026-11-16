@@ -1,0 +1,8 @@
+{
+  "started_utc": "2026-11-16T04:06:32.098669+00:00",
+  "exit_code": 0,
+  "finished_utc": "2026-11-16T04:21:46.159704+00:00",
+  "inputs_unchanged": true,
+  "input_files": 1828,
+  "scope": "Integrated INITIAL routed shutdown full host suite; target/runtime unverified"
+}

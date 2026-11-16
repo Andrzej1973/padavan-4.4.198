@@ -4,7 +4,14 @@ import subprocess,tempfile
 here=Path(__file__).resolve().parent
 source=(here/'check-restart-restore-profile-composition.py').read_text();ns={'__file__':str(here/'check-restart-restore-profile-composition.py')}
 exec(compile(source[:source.index('\nwith tempfile.TemporaryDirectory(')],'<profile fixture>','exec'),ns)
-body=ns['body'];body=body.replace('int main(int argc', 'static int guest_up;\nint wr_iot_restart_guest_admin_state(int*out){*out=guest_up;return 1;}\n#include "restart-prehandoff-check.c"\nint main(int argc',1)
+body=ns['body']
+# This cancellation fixture deliberately retains SIGTERM/foreign profile.
+# Keep its single CLOSE-origin case separate from the parent's additional
+# independent INITIAL_OFF scenario, which starts from clean admission.
+start=body.index(' s=(struct wr_iot_restart_restore){0};')
+end=body.index(' puts(',start)
+body=body[:start]+body[end:]
+body=body.replace('int main(int argc', 'static int guest_up;\nint wr_iot_restart_guest_admin_state(int*out){*out=guest_up;return 1;}\n#include "restart-prehandoff-check.c"\nint main(int argc',1)
 a=body.index(' /* Process-only fixture cleanup.')
 body=body[:a]+r'''
  wr_iot_rc_shutdown.pending=SIGTERM;s.guest.phase=WR_GUEST_DOWN_OBSERVED;

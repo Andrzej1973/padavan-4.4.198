@@ -9,7 +9,14 @@ static void generation_wipe(void *data,size_t length)
 {volatile unsigned char *p=data;while(length--)*p++=0;}
 static int origin_valid(const struct wr_iot_rc_physical_resume *r)
 {
- if(!r||r->intent.restart!=1||r->intent.radio_on!=1||r->intent.reload>1||
+ if(r&&r->origin==WR_PHYSICAL_ORIGIN_INITIAL){
+  struct wr_iot_request empty={0};
+  return r->intent.restart==1&&r->intent.radio_on==1&&r->intent.reload<=1&&
+   !r->resume_needed&&!memcmp(&r->desired,&empty,sizeof(empty))&&
+   !r->physical.action&&r->initial.action==WR_STOP_RELEASE&&
+   wr_iot_physical_initial_valid(&r->initial,0);
+ }
+ if(!r||r->origin!=WR_PHYSICAL_ORIGIN_CLOSE||r->intent.restart!=1||r->intent.radio_on!=1||r->intent.reload>1||
     r->resume_needed!=1||r->desired.enabled!=1||r->physical.action!=WR_STOP_RELEASE||
     !wr_iot_physical_stop_request_valid(&r->physical))return 0;
 #define BOUNDED(f) if(!memchr(r->desired.f,0,sizeof(r->desired.f)))return 0;
@@ -17,15 +24,30 @@ static int origin_valid(const struct wr_iot_rc_physical_resume *r)
 #undef BOUNDED
  return 1;
 }
+static int physical_origin_equal(const struct wr_iot_rc_physical_resume *a,
+ const struct wr_iot_rc_physical_resume *b)
+{
+ unsigned char left[64],right[64];
+ if(!a||!b||a->origin!=b->origin)return 0;
+ if(a->origin==WR_PHYSICAL_ORIGIN_INITIAL)
+  return wr_iot_physical_initial_encode(left,64,&a->initial,0)&&
+   wr_iot_physical_initial_encode(right,64,&b->initial,0)&&!memcmp(left,right,64);
+ if(a->origin!=WR_PHYSICAL_ORIGIN_CLOSE)return 0;
+ return wr_iot_physical_stop_request_encode(left,64,&a->physical)&&
+  wr_iot_physical_stop_request_encode(right,64,&b->physical)&&!memcmp(left,right,64);
+}
+static int generation_profile_current(const struct wr_iot_rc_physical_resume *r)
+{return r->origin==WR_PHYSICAL_ORIGIN_INITIAL?wr_iot_restart_disabled_profile_current():wr_iot_restart_profile_current(&r->desired);}
+static int generation_disabled(int unused)
+{(void)unused;return wr_iot_rc_restart_generate(1);}
 static int origin_current(const struct wr_iot_rc_physical_resume *expected)
 {
- struct wr_iot_rc_physical_resume current={0};unsigned char a[64],b[64];int ok=0;
+ struct wr_iot_rc_physical_resume current={0};int ok=0;
  if(!origin_valid(expected)||!wr_iot_rc_shutdown.active||!wr_iot_radio_profile_guard()||
     !wr_iot_rc_physical_resume_read(&current)||!origin_valid(&current))goto done;
  if(expected->intent.restart!=current.intent.restart||expected->intent.radio_on!=current.intent.radio_on||
     expected->intent.reload!=current.intent.reload||
-    !wr_iot_physical_stop_request_encode(a,sizeof(a),&expected->physical)||
-    !wr_iot_physical_stop_request_encode(b,sizeof(b),&current.physical)||memcmp(a,b,sizeof(a)))goto done;
+    !physical_origin_equal(expected,&current))goto done;
 #define SAME(f) if(strcmp(expected->desired.f,current.desired.f))goto done;
  SAME(ssid) SAME(password) SAME(gateway) SAME(mask) SAME(first) SAME(last)
 #undef SAME
@@ -67,7 +89,7 @@ static int generation_step(struct wr_iot_restart_generation *s)
   if(wr_iot_rc_shutdown.pending){s->phase=WR_RESTART_GEN_RECOVERING;return 0;}
   if(!s->origin.intent.reload){s->phase=WR_RESTART_GEN_GENERATED;return 0;}
   s->phase=WR_RESTART_GEN_UNCERTAIN;
-  if(wr_iot_radio_profile_generate(&s->profile,wr_iot_rc_restart_generate))
+  if(wr_iot_radio_profile_generate(&s->profile,s->origin.origin==WR_PHYSICAL_ORIGIN_INITIAL?generation_disabled:wr_iot_rc_restart_generate))
    s->phase=WR_RESTART_GEN_GENERATED;
   else s->phase=WR_RESTART_GEN_RECOVERING;
   return 0;
@@ -75,7 +97,7 @@ static int generation_step(struct wr_iot_restart_generation *s)
  if(s->phase==WR_RESTART_GEN_GENERATED||s->phase==WR_RESTART_GEN_VERIFIED){
   if(!wr_iot_rc_shutdown.pending&&
      wr_iot_generated_matches(&s->profile.files.generated[0],s->profile.files.paths[0])&&
-     wr_iot_restart_profile_current(&s->origin.desired)&&
+     generation_profile_current(&s->origin)&&
      origin_current(&s->origin)&&wr_iot_restart_main_down()){
    s->phase=WR_RESTART_GEN_VERIFIED;return 1;
   }
@@ -110,7 +132,7 @@ int wr_iot_restart_generation_origin_current(const struct wr_iot_restart_generat
 
 int wr_iot_restart_generation_rollback_current(const struct wr_iot_restart_generation *s)
 {
- struct wr_iot_rc_physical_resume current={0};unsigned char a[64],b[64];int ok=0;
+ struct wr_iot_rc_physical_resume current={0};int ok=0;
  if(!s||s->owner!=getpid()||s->busy||s->main_may_have_started||
     s->phase!=WR_RESTART_GEN_ROLLED_BACK||s->profile.active||s->profile.files.count||
     !wr_iot_rc_shutdown.active||!wr_iot_restart_main_down()||
@@ -118,8 +140,7 @@ int wr_iot_restart_generation_rollback_current(const struct wr_iot_restart_gener
  if(!wr_iot_rc_physical_resume_read(&current)||!origin_valid(&current)||
     s->origin.intent.restart!=current.intent.restart||s->origin.intent.radio_on!=current.intent.radio_on||
     s->origin.intent.reload!=current.intent.reload||
-    !wr_iot_physical_stop_request_encode(a,sizeof(a),&s->origin.physical)||
-    !wr_iot_physical_stop_request_encode(b,sizeof(b),&current.physical)||memcmp(a,b,sizeof(a)))goto done;
+    !physical_origin_equal(&s->origin,&current))goto done;
  if(wr_iot_restart_main_down()&&wr_iot_restart_profile_receipt_current(&s->rollback_receipt))ok=1;
  done:generation_wipe(&current,sizeof(current));return ok;
 }

@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include "restart-main-controller.h"
 #include "restart-profile.h"
+#include "initial-off.h"
 #include "restart-main-bridge.h"
 #include "rc-shutdown-admission.h"
 int wr_iot_restart_main_begin(struct wr_iot_restart_main *s,
@@ -26,6 +27,17 @@ int wr_iot_restart_main_begin(struct wr_iot_restart_main *s,
  }
  s->busy=0;return result==WR_RESTART_UP_RETURNED;
 }
+static int main_origin_observed(struct wr_iot_restart_main *s,
+ struct wr_iot_driver_identity *out)
+{
+ const struct wr_iot_rc_physical_resume *r=&s->generation->origin;
+ if(r->origin==WR_PHYSICAL_ORIGIN_INITIAL)
+  return wr_iot_restart_disabled_profile_current()&&
+   wr_iot_initial_main_current(&r->initial,s->open_id,out);
+ if(r->origin!=WR_PHYSICAL_ORIGIN_CLOSE)return 0;
+ return wr_iot_restart_profile_current(&r->desired)&&
+  wr_iot_rebind_configuration_current(&r->physical,s->open_id,out);
+}
 int wr_iot_restart_main_step(struct wr_iot_restart_main *s)
 {
  struct wr_iot_driver_identity current={0};int ok=0;
@@ -38,10 +50,11 @@ int wr_iot_restart_main_step(struct wr_iot_restart_main *s)
  s->busy=1;
  if(wr_iot_restart_generation_origin_current(s->generation)&&
     wr_iot_generated_matches(&s->generation->profile.files.generated[0],s->generation->profile.files.paths[0])&&
-    wr_iot_restart_profile_current(&s->generation->origin.desired)&&
-    wr_iot_rebind_configuration_current(&s->generation->origin.physical,s->open_id,&current)&&
-    current.adapter_epoch>s->generation->origin.physical.epoch&&
-    current.device_generation==s->generation->origin.physical.generation&&
+    main_origin_observed(s,&current)&&
+    current.adapter_epoch>(s->generation->origin.origin==WR_PHYSICAL_ORIGIN_INITIAL?
+      s->generation->origin.initial.epoch:s->generation->origin.physical.epoch)&&
+    current.device_generation==(s->generation->origin.origin==WR_PHYSICAL_ORIGIN_INITIAL?
+      s->generation->origin.initial.generation:s->generation->origin.physical.generation)&&
     (!s->identity.adapter_epoch||
      (current.adapter_epoch==s->identity.adapter_epoch&&current.device_generation==s->identity.device_generation))&&
     wr_iot_restart_generation_origin_current(s->generation)&&!wr_iot_rc_shutdown.pending){s->identity=current;s->phase=WR_MAIN_READY;ok=1;}

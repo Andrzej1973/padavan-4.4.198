@@ -1,3 +1,5 @@
+#include "initial-shutdown-owner.h"
+#include "initial-off.h"
 #include <time.h>
 #include <net/if.h>
 #include "dns-activation.h"
@@ -379,4 +381,26 @@ int wr_iot_rc_rebind_preopen_rejected(const struct wr_iot_control_result *on,
   !if_nametoindex("br-iot")&&wr_iot_request_disabled_current()&&wr_iot_bss_is_down()&&
   wr_iot_dns_activation_recovery_state()==0;
  wr_iot_service_guard_leave(guard);return ok;
+}
+
+int wr_iot_rc_backend_initial_shutdown_prepare(const struct wr_iot_control_request *off,
+ const struct wr_iot_initial_shutdown_owner *owner)
+{
+ struct wr_iot_initial_off candidate={0};int guard,ok=0;
+ if(!off||!wr_iot_initial_shutdown_current(owner)||!wr_iot_rc_boot_idle())return 0;
+ guard=wr_iot_service_guard_enter(1);if(guard!=1)return 0;
+ if(wr_iot_initial_shutdown_current(owner)&&wr_iot_rc_boot_idle()&&
+    wr_iot_initial_off_begin_shutdown(&candidate,off,owner)&&
+    wr_iot_initial_shutdown_current(owner)&&wr_iot_rc_boot_idle()){
+  physical_initial=candidate;ok=1;
+ }
+ wr_iot_service_guard_leave(guard);return ok;
+}
+int wr_iot_rc_backend_shutdown_initial_request(const struct wr_iot_initial_shutdown_owner *owner,
+ const unsigned char *nonce,struct wr_iot_physical_initial_request *out)
+{
+ if(!out)return 0;
+ memset(out,0,sizeof(*out));
+ if(!wr_iot_initial_shutdown_current(owner)||!wr_iot_rc_boot_idle())return 0;
+ return wr_iot_initial_off_request_shutdown(&physical_initial,nonce,out,owner);
 }

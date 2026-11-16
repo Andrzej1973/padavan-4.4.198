@@ -90,6 +90,7 @@ int wr_iot_restart_restore_handoff(struct wr_iot_restart_restore *s,
 {
  unsigned i;unsigned char nonce[16];int admitted;
  if(!s||!request||s->owner!=getpid()||s->busy||s->phase!=WR_RESTORE_PREPARED||
+    s->generation.origin.origin!=WR_PHYSICAL_ORIGIN_CLOSE||
     !request->created||request->request.enabled!=1||
     !memchr(request->id,0,sizeof(request->id))||!wr_iot_control_id(request->id))return 0;
  for(i=0;i<16;i++){

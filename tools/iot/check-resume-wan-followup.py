@@ -8,6 +8,12 @@ code=code.replace('if(finish_ok)s->phase=WR_RESTORE_FINISHED;','if(finish_ok){s-
 code='#define WR_IOT_IAPP_POLICY_H\n#define WR_IOT_IAPP_POLICY_PREPARED 1\n'+code
 code+=r'''
 static int dispatches,network_ok,leds,terminal_steps;
+static int initial_observations;
+int wr_iot_initial_postrelease_current(const struct wr_iot_physical_initial_request *r,const unsigned char *nonce,const struct wr_iot_driver_identity *expected){
+ assert(r->action==WR_STOP_RELEASE&&nonce[0]==7&&expected->adapter_epoch==2);
+ initial_observations++;return network_ok;
+}
+
 int wr_iot_terminal_iapp_begin(struct wr_iot_terminal_iapp*t,struct wr_iot_iapp_child*c){assert(leds==1&&dispatches==1);t->owner=getpid();t->child=c;return 1;}
 int wr_iot_terminal_iapp_step(struct wr_iot_terminal_iapp*t){assert(t->owner==getpid());terminal_steps++;return terminal_steps>1;}
 int wr_iot_rc_restart_led_on(void){assert(network_ok&&dispatches==1&&takes==2);leds++;return 1;}
@@ -30,6 +36,23 @@ int main(void){
  network_ok=1;assert(!wr_iot_restart_resume_step(&s)&&dispatches==1&&s.phase==WR_RESUME_WAN);
  assert(wr_iot_restart_resume_step(&s)&&s.phase==WR_RESUME_DONE&&leds==1&&terminal_steps==2);
  assert(wr_iot_restart_resume_step(&s)&&dispatches==1&&takes==2&&leds==1);
+ s=(struct wr_iot_restart_resume){0};dispatches=leds=terminal_steps=takes=0;
+ network_ok=0;wr_iot_rc_shutdown.active=1;
+ assert(wr_iot_restart_resume_begin(&s,id,10));
+ s.restore.generation.origin.origin=WR_PHYSICAL_ORIGIN_INITIAL;
+ s.restore.generation.origin.initial=(struct wr_iot_physical_initial_request){.action=WR_STOP_RELEASE,.epoch=1,.generation=2,.idle_serial=3,.attempt=4,.nonce={9}};
+ s.restore.main.identity=(struct wr_iot_driver_identity){2,2};
+ memset(&s.restore.generation.origin.desired,0,sizeof(s.restore.generation.origin.desired));
+ s.restore.phase=WR_RESTORE_PREPARED;
+ assert(!wr_iot_restart_resume_step(&s)&&s.phase==WR_RESUME_FINISH);
+ take_ok=0;assert(!wr_iot_restart_resume_step(&s)&&takes==1&&!dispatches);
+ take_ok=1;assert(!wr_iot_restart_resume_step(&s)&&s.phase==WR_RESUME_WAN);
+ assert(!wr_iot_restart_resume_step(&s)&&dispatches==1);
+ assert(!wr_iot_restart_resume_step(&s)&&initial_observations>=1&&!leds);
+ network_ok=1;assert(!wr_iot_restart_resume_step(&s)&&leds==1);
+ assert(wr_iot_restart_resume_step(&s)&&s.phase==WR_RESUME_DONE&&terminal_steps==2);
+ assert(dispatches==1&&takes==2&&leds==1);
+
 }
 '''
 with tempfile.TemporaryDirectory(prefix='wr-resume-wan-') as d:

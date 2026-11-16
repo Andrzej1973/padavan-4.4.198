@@ -54,6 +54,20 @@ int main(int argc,char**argv){
  assert(wr_iot_restart_restore_finish_check(&s)&&ups==1&&generator_calls==1);
  /* Process-only fixture cleanup. Production snapshot remains retained. */
  wr_iot_bundle_release(&s.generation.profile.files);assert(!unlink(profile_path));
+ s=(struct wr_iot_restart_restore){0};
+ origin=(struct wr_iot_rc_physical_resume){.origin=WR_PHYSICAL_ORIGIN_INITIAL,
+  .intent={1,1,1},.initial={.action=WR_STOP_RELEASE,.epoch=1,.generation=2,
+   .idle_serial=3,.attempt=4,.nonce={9}}};
+ initial_mode=1;ups=0;main_down=1;generator_calls=0;capture_baseline(before,&n);
+ assert(wr_iot_restart_restore_begin(&s,id));
+ int ready=0;for(int i=0;i<25&&!ready;i++)ready=wr_iot_restart_restore_step(&s);
+ assert(ready&&s.phase==WR_RESTORE_PREPARED&&ups==1);
+ assert(wr_iot_restart_restore_finish_check(&s));
+ auth_ok=0;assert(!wr_iot_restart_restore_finish_check(&s));auth_ok=1;
+ s.services.attempted=3;assert(!wr_iot_restart_restore_finish_check(&s));s.services.attempted=7;
+ origin.initial.attempt++;assert(!wr_iot_restart_restore_finish_check(&s));origin.initial.attempt--;
+ assert(wr_iot_restart_restore_finish_check(&s)&&generator_calls==1);
+ wr_iot_bundle_release(&s.generation.profile.files);assert(!unlink(profile_path));
  puts("PASS finish software gate/actual generation/profile/Main/root: ACTIVE, Guest, auth and service receipts checked; generated file owned across Guest/services phases, uncertain Main once, baseline retained and restore fenced after UP, physical-origin drift refused; Guest/services/driver/transport actors injected");
 }
 '''

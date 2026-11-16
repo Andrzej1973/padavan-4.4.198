@@ -2,12 +2,25 @@
 #define WR_IOT_RC_PHYSICAL_STOP_H
 #include "control-record.h"
 #include "physical-stop-wire.h"
+#include "physical-initial-wire.h"
 struct wr_iot_rc_physical_intent {unsigned restart,radio_on,reload;};
 /* Private RC main-loop API, never a signal handler. Returns1 after claiming
  * the intent, including recoverable preparation failure. step/take must finish
  * that claim; restart additionally requires the verified resume consumer.
  * Does not execute the stock restart or authorize reopen. */
 int wr_iot_rc_physical_begin(const struct wr_iot_rc_physical_intent *);
+/* Explicit never-opened origin. Not selected by the normal entry yet; restart
+ * stays retained until a typed initial RELEASE consumer completes the owner. */
+int wr_iot_rc_physical_begin_initial(const struct wr_iot_rc_physical_intent *);
+int wr_iot_rc_physical_begin_initial_off(const struct wr_iot_control_request *);
+struct wr_iot_physical_initial_request;
+/* Exact ordinary-OFF envelope and completed fence; initial typed receipt only. */
+int wr_iot_rc_physical_initial_off_read(const char *,unsigned long long,
+ struct wr_iot_physical_initial_request *);
+
+struct wr_iot_physical_initial_request;
+int wr_iot_rc_physical_initial_release_read(struct wr_iot_physical_initial_request *);
+
 /* ACTIVE -> existing normal OFF before physical work. Caller provides a fresh
  * private OFF envelope; desired ON settings stay in retained process memory. */
 int wr_iot_rc_physical_begin_quiesce(const struct wr_iot_rc_physical_intent *,
@@ -17,7 +30,10 @@ int wr_iot_rc_physical_begin_quiesce(const struct wr_iot_rc_physical_intent *,
  * Requires ACTIVE or exact CLOSED backend; INITIAL_OFF is not synthesized.
  * Completion still requires exact off_read RELEASE, then separate PID1 replay. */
 int wr_iot_rc_physical_begin_routed_shutdown(const struct wr_iot_control_request *);
+enum wr_iot_physical_origin {WR_PHYSICAL_ORIGIN_CLOSE=0,WR_PHYSICAL_ORIGIN_INITIAL=1};
 struct wr_iot_rc_physical_resume {
+ enum wr_iot_physical_origin origin;
+ struct wr_iot_physical_initial_request initial;
  struct wr_iot_rc_physical_intent intent;
  struct wr_iot_physical_stop_request physical;
  int resume_needed;

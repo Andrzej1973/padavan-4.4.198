@@ -3,6 +3,7 @@
 #include "restart-resume.h"
 #include "control-channel.h"
 #include "rc-backend.h"
+#include "initial-off.h"
 #include "restart-iapp-policy.h"
 #include "rc-shutdown-admission.h"
 static void envelope_wipe(void *data,size_t size)
@@ -45,6 +46,13 @@ int wr_iot_restart_resume_step(struct wr_iot_restart_resume*s)
    break;
   }
   if(!wr_iot_restart_restore_step(&s->restore))break;
+  if(s->restore.generation.origin.origin==WR_PHYSICAL_ORIGIN_INITIAL){
+   /* No IoT ON request exists for never-opened OFF. Use the checked disabled
+    * terminal instead of fabricating credentials or a legacy rebind tuple. */
+   if(s->restore.phase==WR_RESTORE_PREPARED)s->phase=WR_RESUME_FINISH;
+   break;
+  }
+
   for(i=0;i<16;i++){request.id[2*i]=hex[s->restore.open_id[i]>>4];request.id[2*i+1]=hex[s->restore.open_id[i]&15];}
   request.created=s->created;request.request=s->restore.generation.origin.desired;
   (void)wr_iot_restart_restore_handoff(&s->restore,&request);
@@ -101,7 +109,11 @@ int wr_iot_restart_resume_step(struct wr_iot_restart_resume*s)
    observed.created=s->created;observed.state=WR_IOT_RESULT_APPLIED;
    /* Fresh backend proof covers owned bridge/subnet/services/filter and the
     * exact current OPEN token after WAN's route/VLAN/firewall side effects. */
-   if(wr_iot_rc_backend_observed(&observed)){
+   if(s->restore.generation.origin.origin==WR_PHYSICAL_ORIGIN_INITIAL?
+      (s->restore.phase==WR_RESTORE_FINISHED&&
+       wr_iot_initial_postrelease_current(&s->restore.generation.origin.initial,
+        s->restore.open_id,&s->restore.main.identity)):
+      wr_iot_rc_backend_observed(&observed)){
     if(!s->led_attempted){s->led_attempted=1;s->led_returned=wr_iot_rc_restart_led_on()==1;}
     if(s->led_returned){
      if(!s->terminal.owner)(void)wr_iot_terminal_iapp_begin(&s->terminal,&s->restore.iapp);

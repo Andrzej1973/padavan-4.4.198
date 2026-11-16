@@ -1,0 +1,8 @@
+{
+  "started_utc": "2026-11-16T03:51:39.191874+00:00",
+  "finished_utc": "2026-11-16T04:05:46.342691+00:00",
+  "exit_code": 0,
+  "inputs_unchanged": true,
+  "input_files": 1818,
+  "scope": "Full host rerun after production rollback-origin comparator fix; no target/runtime acceptance"
+}

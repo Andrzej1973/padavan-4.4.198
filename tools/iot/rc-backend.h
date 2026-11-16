@@ -26,6 +26,10 @@ int wr_iot_rc_backend_initial_request(const struct wr_iot_initial_off *,
  * Failed preparation never publishes a partially initialized replacement. */
 int wr_iot_rc_backend_prepared_initial_request(const unsigned char *,
  struct wr_iot_physical_initial_request *);
+struct wr_iot_control_request;
+struct wr_iot_initial_shutdown_owner;
+int wr_iot_rc_backend_initial_shutdown_prepare(const struct wr_iot_control_request *,const struct wr_iot_initial_shutdown_owner *);
+int wr_iot_rc_backend_shutdown_initial_request(const struct wr_iot_initial_shutdown_owner *,const unsigned char *,struct wr_iot_physical_initial_request *);
 struct wr_iot_request;
 /* Caller holds service/config guard; copied stable saved ON/OFF intent. */
 int wr_iot_rc_radio_on_saved_request(struct wr_iot_request *);

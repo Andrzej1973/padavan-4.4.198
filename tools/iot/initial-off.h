@@ -14,6 +14,17 @@ struct wr_iot_initial_off {
  struct wr_iot_idle_result idle;
  int ready;
 };
+/* Fresh Main READY plus still-never-opened ra2 after typed initial RELEASE.
+ * Caller holds service/shutdown admission; no UP, generation or cleanup. */
+int wr_iot_initial_main_current(const struct wr_iot_physical_initial_request *,
+ const unsigned char *,struct wr_iot_driver_identity *);
+/* Read-only postrelease observer under a temporary service guard. Expected
+ * Main identity is retained by the completed owner; never grants reopen. */
+int wr_iot_initial_postrelease_current(const struct wr_iot_physical_initial_request *,
+ const unsigned char *,const struct wr_iot_driver_identity *);
+struct wr_iot_initial_shutdown_owner;
+int wr_iot_initial_off_begin_shutdown(struct wr_iot_initial_off *,const struct wr_iot_control_request *,const struct wr_iot_initial_shutdown_owner *);
+int wr_iot_initial_off_request_shutdown(const struct wr_iot_initial_off *,const unsigned char *,struct wr_iot_physical_initial_request *,const struct wr_iot_initial_shutdown_owner *);
 int wr_iot_initial_off_begin(struct wr_iot_initial_off *,const struct wr_iot_control_request *);
 /* Caller holds service guard; read-only current observation for same owner. */
 int wr_iot_initial_off_observed(const struct wr_iot_initial_off *);

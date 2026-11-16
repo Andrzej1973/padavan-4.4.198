@@ -4,6 +4,9 @@
 #include <time.h>
 #include "restart-auth-stop.h"
 #include "rc-physical-stop.h"
+#include "rc-initial-stop.h"
+#include "initial-shutdown-owner.h"
+#include "radio-stop-contract.h"
 #include "rc-backend.h"
 #include "restart-scheduler.h"
 #include "restart-restore.h"
@@ -17,6 +20,8 @@ static struct {
  pid_t owner;
  struct wr_iot_rc_physical_intent intent;
  struct wr_iot_physical_session session;
+ struct wr_iot_rc_initial_stop initial;
+ struct wr_iot_initial_shutdown_owner initial_shutdown;
  struct wr_iot_rc_quiesce quiesce;
  int quiesced;
  int routed_shutdown;
@@ -48,12 +53,27 @@ static int physical_begin(const struct wr_iot_rc_physical_intent *intent,
  if(off){
   /* Entropy failure must precede normal OFF admission/mutation. */
   if(wr_iot_precreated_entropy(NULL,entropy,sizeof(entropy))!=(int)sizeof(entropy))goto refuse;
+  if(routed&&wr_iot_rc_boot_idle()){
+   if(!wr_iot_initial_shutdown_claim(&physical.initial_shutdown,&physical.fence)||
+      !wr_iot_rc_backend_initial_shutdown_prepare(off,&physical.initial_shutdown)||
+      !wr_iot_rc_initial_stop_begin_shutdown(&physical.initial,entropy,&physical.initial_shutdown))goto refuse;
+   memcpy(physical.nonce,entropy,sizeof(physical.nonce));return 1;
+  }
   if(routed?!wr_iot_rc_quiesce_shutdown_begin(&physical.quiesce,off):
              !wr_iot_rc_quiesce_begin(&physical.quiesce,off))goto refuse;
   memcpy(physical.nonce,entropy,sizeof(physical.nonce));return 1;
  }
- if(!wr_iot_rc_backend_closed(&closed)||
-    wr_iot_precreated_entropy(NULL,entropy,sizeof(entropy))!=(int)sizeof(entropy))goto refuse;
+ if(!wr_iot_rc_backend_closed(&closed)){
+  /* Missing CLOSE alone is never permission. Admit the distinct initial
+   * origin only through fresh complete software/driver initial observation. */
+  if(wr_iot_precreated_entropy(NULL,entropy,sizeof(entropy))!=(int)sizeof(entropy)||
+     !wr_iot_activation_prepare_radio_stop()||
+     !wr_iot_rc_initial_stop_begin(&physical.initial,entropy)){
+   memset(entropy,0,sizeof(entropy));goto refuse;
+  }
+  memset(entropy,0,sizeof(entropy));return 1;
+ }
+ if(wr_iot_precreated_entropy(NULL,entropy,sizeof(entropy))!=(int)sizeof(entropy))goto refuse;
  request.action=WR_STOP_ARM;request.epoch=closed.adapter_epoch;
  request.generation=closed.device_generation;request.open_token=closed.open_token;
  request.closed_serial=closed.close_serial;memcpy(request.nonce,entropy,16);
@@ -61,6 +81,55 @@ static int physical_begin(const struct wr_iot_rc_physical_intent *intent,
  memcpy(physical.nonce,request.nonce,sizeof(physical.nonce));
  return 1;
  refuse:physical.finishing=-1;return 1;
+}
+/* Explicit initial-origin entry. Existing CLOSED entry stays separate until
+ * tagged resume/OFF consumers are integrated. No live owner replacement. */
+int wr_iot_rc_physical_begin_initial(const struct wr_iot_rc_physical_intent *intent)
+{
+ unsigned char entropy[32];
+ if(!intent||intent->restart>1||intent->radio_on>1||intent->reload>1||
+    (!intent->restart&&(intent->radio_on||intent->reload))||physical.owner||
+    wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||
+    wr_iot_rc_shutdown.radio_on_owned||wr_iot_rc_shutdown.radio_off_owned)return 0;
+ if(!wr_iot_restart_scheduler_prepare())return 0;
+ if(!wr_iot_radio_stop_fence_begin(&physical.fence))return 0;
+ physical.owner=getpid();physical.intent=*intent;
+ physical.guard=wr_iot_service_guard_enter(1);
+ if(physical.guard!=1)goto initial_refuse;
+ if(wr_iot_precreated_entropy(NULL,entropy,sizeof(entropy))!=(int)sizeof(entropy)||
+    !wr_iot_activation_prepare_radio_stop()||
+    !wr_iot_rc_initial_stop_begin(&physical.initial,entropy))goto initial_refuse;
+ memset(entropy,0,sizeof(entropy));return 1;
+ initial_refuse:memset(entropy,0,sizeof(entropy));physical.finishing=-1;return 1;
+}
+int wr_iot_rc_physical_begin_initial_off(const struct wr_iot_control_request *off)
+{
+ const struct wr_iot_rc_physical_intent intent={0,0,0};
+ if(!off||off->request.enabled||!off->created||
+    !memchr(off->id,0,sizeof(off->id))||!wr_iot_control_id(off->id))return 0;
+ if(!wr_iot_rc_physical_begin_initial(&intent))return 0;
+ memcpy(physical.stop_id,off->id,sizeof(physical.stop_id));physical.stop_created=off->created;
+ return 1;
+}
+int wr_iot_rc_physical_initial_off_read(const char *id,unsigned long long created,
+ struct wr_iot_physical_initial_request *out)
+{
+ if(!out)return 0;
+ memset(out,0,sizeof(*out));
+ if(!id||strnlen(id,sizeof(physical.stop_id))!=32||!created||
+    physical.owner!=getpid()||physical.intent.restart||physical.intent.radio_on||
+    physical.intent.reload||physical.stop_created!=created||
+    memcmp(physical.stop_id,id,sizeof(physical.stop_id))||physical.result!=1||
+    physical.finishing!=1||physical.guard||physical.fence.owner)return 0;
+ return wr_iot_rc_initial_stop_released(&physical.initial,out);
+}
+int wr_iot_rc_physical_initial_release_read(struct wr_iot_physical_initial_request *out)
+{
+ if(!out)return 0;
+ memset(out,0,sizeof(*out));
+ if(physical.owner!=getpid()||physical.finishing!=1||physical.guard!=1||
+    !physical.intent.restart||!wr_iot_rc_shutdown.active)return 0;
+ return wr_iot_rc_initial_stop_released(&physical.initial,out);
 }
 int wr_iot_rc_physical_begin(const struct wr_iot_rc_physical_intent *intent)
 {return physical_begin(intent,NULL,0);}
@@ -113,6 +182,12 @@ void wr_iot_rc_physical_step(void)
    * admission retains ownership instead of progressing driver operations. */
   if(!wr_iot_rc_shutdown.active||physical.guard!=1)return;
   guard=wr_iot_service_guard_enter(1);if(guard!=1)return;
+  if(physical.initial.owner){
+   result=wr_iot_rc_initial_stop_step(&physical.initial);
+   wr_iot_service_guard_leave(guard);
+   if(!result)return;
+   physical.finishing=result;goto initial_finish;
+  }
   if(physical.quiesce.owner&&!physical.quiesced){
    /* One normal-OFF continuation per window; no AUX/Main operations until
     * its exact retained transaction has fresh released CLOSE evidence. */
@@ -144,6 +219,7 @@ void wr_iot_rc_physical_step(void)
   if(!result)return;
   physical.finishing=result;
  }
+ initial_finish:
  /* Physical RELEASE is not completion of the captured restart intent.
   * Keep admission and desired-context ownership until a verified restart /
   * fresh-identity resume consumer exists. Never expose an unguarded gap to
@@ -203,6 +279,7 @@ int wr_iot_rc_physical_shutdown_release_cleanup(const char *id,unsigned long lon
  void (*cleanup)(void *),void *context)
 {
  struct wr_iot_physical_stop_request released={0};
+ struct wr_iot_physical_initial_request initial_released={0};
  sigset_t blocked;int original;
  if(!physical.routed_shutdown||physical.owner!=getpid())return 0;
  sigemptyset(&blocked);sigaddset(&blocked,SIGTERM);
@@ -220,7 +297,9 @@ int wr_iot_rc_physical_shutdown_release_cleanup(const char *id,unsigned long lon
 #ifdef SIGQUIT
      &&original!=SIGQUIT
 #endif
-    )||!wr_iot_rc_physical_off_read(id,created,&released)){
+    )||!(physical.initial.owner?
+      wr_iot_rc_physical_initial_off_read(id,created,&initial_released):
+      wr_iot_rc_physical_off_read(id,created,&released))){
   if(!sigprocmask(SIG_SETMASK,&physical.shutdown_release_mask,NULL))
    physical.shutdown_release_mask_set=0;
   return 0;
@@ -267,8 +346,14 @@ int wr_iot_rc_physical_resume_read(struct wr_iot_rc_physical_resume *out)
  struct wr_iot_rc_physical_intent intent={0};
  if(!out)return 0;
  memset(out,0,sizeof(*out));
- if(!wr_iot_rc_physical_restart_ready(&intent)||
-    physical.session.owner!=getpid()||physical.session.busy||
+ if(!wr_iot_rc_physical_restart_ready(&intent))return 0;
+ if(physical.initial.owner){
+  if(!wr_iot_rc_physical_initial_release_read(&out->initial))return 0;
+  out->origin=WR_PHYSICAL_ORIGIN_INITIAL;out->intent=intent;
+  /* Never-opened ra2 has no retained active IoT credentials to resume. */
+  return 1;
+ }
+ if(physical.session.owner!=getpid()||physical.session.busy||
     physical.session.phase!=WR_PHYSICAL_SESSION_COMPLETE||
     physical.session.request.action!=WR_STOP_QUERY||
     !wr_iot_physical_stop_request_valid(&physical.session.request)||
@@ -306,11 +391,16 @@ static void resume_cleanup(void *context)
 int wr_iot_rc_physical_resume_finish(struct wr_iot_restart_restore *s)
 {
  int finished;
- if(!s||s->owner!=getpid()||s->busy||s->multicast.busy||!wr_iot_iapp_child_closed(&s->iapp)||s->phase!=WR_RESTORE_HANDOFF||
+ if(!s||s->owner!=getpid()||s->busy||s->multicast.busy||!wr_iot_iapp_child_closed(&s->iapp)||(s->generation.origin.origin==WR_PHYSICAL_ORIGIN_INITIAL?
+      s->phase!=WR_RESTORE_PREPARED:s->phase!=WR_RESTORE_HANDOFF)||
     physical.owner!=getpid()||physical.finishing!=1||physical.result||physical.guard!=1||
     !physical.intent.restart||physical.fence.owner!=getpid()||physical.fence.level!=1||
-    physical.session.owner!=getpid()||physical.session.busy||
-    physical.session.phase!=WR_PHYSICAL_SESSION_COMPLETE||
+    (s->generation.origin.origin==WR_PHYSICAL_ORIGIN_INITIAL?
+      (physical.initial.session.owner!=getpid()||physical.initial.busy||
+       physical.initial.result!=1||physical.initial.session.busy||
+       physical.initial.session.phase!=WR_INITIAL_PHYSICAL_SESSION_COMPLETE):
+      (physical.session.owner!=getpid()||physical.session.busy||
+       physical.session.phase!=WR_PHYSICAL_SESSION_COMPLETE))||
     !wr_iot_restart_restore_finish_check(s))return 0;
  s->busy=1;
  finished=wr_iot_radio_stop_fence_end_cleanup(&physical.fence,resume_cleanup,s);

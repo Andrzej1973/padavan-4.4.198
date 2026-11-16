@@ -12,6 +12,10 @@ int wr_iot_rebind_configuration_current(const struct wr_iot_physical_stop_reques
 #include "restart-main-bridge.h"
 enum wr_iot_main_bridge_result wr_iot_restart_main_bridge_attach(void){assert(0);return WR_MAIN_BRIDGE_REFUSED;}
 int wr_iot_restart_main_bridge_current(void){assert(0);return 0;}
+#include "initial-off.h"
+int wr_iot_initial_main_current(const struct wr_iot_physical_initial_request *q,const unsigned char *id,struct wr_iot_driver_identity *out){
+ assert(q->action==WR_STOP_RELEASE&&id[0]==7);*out=(struct wr_iot_driver_identity){new_epoch,2};return probe_ok;
+}
 #include "restart-main-controller.c"
 int main(int argc,char**argv){
  assert(argc==2);snprintf(profile_path,sizeof(profile_path),"%s/profile",argv[1]);
@@ -34,6 +38,22 @@ int main(int argc,char**argv){
  assert(wr_iot_restart_profile_current(&origin.desired));
  assert(!wr_iot_restart_main_step(&s)&&ups==1&&g.profile.active);
  /* Test process cleanup frees RAM only; production baseline remains owned. */
+ wr_iot_bundle_release(&g.profile.files);assert(!unlink(profile_path));
+ g=(struct wr_iot_restart_generation){0};s=(struct wr_iot_restart_main){0};
+ origin=(struct wr_iot_rc_physical_resume){.origin=WR_PHYSICAL_ORIGIN_INITIAL,
+  .intent={1,1,1},.initial={.action=WR_STOP_RELEASE,.epoch=1,.generation=2,
+   .idle_serial=3,.attempt=4,.nonce={9}}};
+ initial_mode=1;ups=0;main_down=1;probe_ok=0;generator_calls=0;
+ capture_baseline(before,&n);
+ assert(wr_iot_restart_generation_begin(&g));
+ assert(!wr_iot_restart_generation_step(&g)&&wr_iot_restart_generation_step(&g));
+ assert(!wr_iot_restart_main_begin(&s,&g,id)&&ups==1&&g.main_may_have_started);
+ assert(!wr_iot_restart_main_step(&s));probe_ok=1;
+ origin.initial.attempt++;assert(!wr_iot_restart_main_step(&s));origin.initial.attempt--;
+ assert(wr_iot_restart_main_step(&s)&&ups==1&&s.phase==WR_MAIN_READY);
+ new_epoch=3;assert(!wr_iot_restart_main_step(&s));new_epoch=2;
+ assert(wr_iot_restart_main_step(&s)&&ups==1&&generator_calls==1);
+ assert(!wr_iot_restart_generation_abort(&g)&&g.profile.active);
  wr_iot_bundle_release(&g.profile.files);assert(!unlink(profile_path));
  puts("PASS actual generation/profile journal/Main controller: uncertain UP once, no profile restore after possible UP even when DOWN, changed RELEASE refuses readiness, fresh new epoch pinned; physical/UP/probe actors injected");
 }

@@ -62,6 +62,31 @@ int main(void){
  wr_iot_rc_shutdown.pending=SIGTERM;
  assert(!wr_iot_initial_off_physical_request(&s,nonce,&arm));wr_iot_rc_shutdown.pending=0;
  assert(!memcmp(&s,&retained,sizeof(s)));
+ {
+ struct wr_iot_physical_initial_request initial_release={.action=WR_STOP_RELEASE,
+  .epoch=10,.generation=s.idle.generation,.idle_serial=1,.attempt=2,.nonce={9}};
+ struct wr_iot_driver_identity current={0};
+ assert(wr_iot_initial_main_current(&initial_release,s.nonce,&current));
+ assert(current.adapter_epoch==11&&current.device_generation==s.idle.generation);
+ assert(!wr_iot_initial_postrelease_current(&initial_release,s.nonce,&current));
+ wr_iot_rc_shutdown.active=0;
+ assert(wr_iot_initial_postrelease_current(&initial_release,s.nonce,&current));
+ current.adapter_epoch++;
+ assert(!wr_iot_initial_postrelease_current(&initial_release,s.nonce,&current));current.adapter_epoch--;
+ wr_iot_rc_shutdown.pending=SIGTERM;
+ assert(!wr_iot_initial_postrelease_current(&initial_release,s.nonce,&current));wr_iot_rc_shutdown.pending=0;
+ wr_iot_rc_shutdown.active=1;
+
+ initial_release.epoch=11;
+ assert(!wr_iot_initial_main_current(&initial_release,s.nonce,&current)&&!current.adapter_epoch);
+ initial_release.epoch=10;initial_release.attempt=0;
+ assert(!wr_iot_initial_main_current(&initial_release,s.nonce,&current));initial_release.attempt=2;
+ initial_release.generation++;
+ assert(!wr_iot_initial_main_current(&initial_release,s.nonce,&current));initial_release.generation--;
+ wr_iot_rc_shutdown.pending=SIGTERM;
+ assert(!wr_iot_initial_main_current(&initial_release,s.nonce,&current));wr_iot_rc_shutdown.pending=0;
+ assert(!memcmp(&s,&retained,sizeof(s)));
+ }
  struct wr_iot_physical_stop_request released={WR_STOP_RELEASE,10,2,3,4,5,{1}};
  struct wr_iot_driver_identity main={11,2};
  assert(wr_iot_initial_off_restarted_observed(&s,&released,&main));

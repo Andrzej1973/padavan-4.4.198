@@ -10,10 +10,11 @@ body=body.replace('assert(0);return WR_MAIN_BRIDGE_REFUSED;', 'return WR_MAIN_BR
 body+=r'''
 #include "restart-restore.h"
 int wr_iot_restart_guest_begin(struct wr_iot_restart_guest*g,struct wr_iot_restart_main*m){g->owner=getpid();g->main=m;return 1;}
-int wr_iot_restart_guest_step(struct wr_iot_restart_guest*g){return g->main!=NULL;}
+int wr_iot_restart_guest_step(struct wr_iot_restart_guest*g){return g->main&&wr_iot_restart_main_lan_step(g->main);}
 int wr_iot_restart_services_begin(struct wr_iot_restart_services*s,struct wr_iot_restart_main*m){s->owner=getpid();s->main=m;return 1;}
-int wr_iot_restart_services_step(struct wr_iot_restart_services*s){return s->main!=NULL;}
-int wr_iot_rc_rebind_begin(const struct wr_iot_control_request*r,const struct wr_iot_physical_stop_request*p){(void)r;(void)p;return 0;}
+int wr_iot_restart_services_step(struct wr_iot_restart_services*s){return s->main&&wr_iot_restart_main_lan_step(s->main);}
+static int rebind_attempts;
+int wr_iot_rc_rebind_begin(const struct wr_iot_control_request*r,const struct wr_iot_physical_stop_request*p){(void)r;(void)p;rebind_attempts++;return 0;}
 int wr_iot_rc_rebind_active_current(const struct wr_iot_control_request*r,const struct wr_iot_physical_stop_request*p,const struct wr_iot_driver_identity*i){(void)r;(void)p;(void)i;return 0;}
 #include "check-multicast-owner-actor.h"
 int wr_iot_rc_restart_radio_state(int reload){assert(reload==0||reload==1);return 1;}
@@ -33,6 +34,21 @@ int main(int argc,char**argv){
  origin.physical.attempt++;assert(!wr_iot_restart_main_step(&s.main));origin.physical.attempt--;
  assert(wr_iot_restart_main_step(&s.main)&&ups==1&&generator_calls==1);
  /* Process-only fixture cleanup. Production snapshot remains retained. */
+ wr_iot_bundle_release(&s.generation.profile.files);assert(!unlink(profile_path));
+ s=(struct wr_iot_restart_restore){0};
+ origin=(struct wr_iot_rc_physical_resume){.origin=WR_PHYSICAL_ORIGIN_INITIAL,
+  .intent={1,1,1},.initial={.action=WR_STOP_RELEASE,.epoch=1,.generation=2,
+   .idle_serial=3,.attempt=4,.nonce={9}}};
+ initial_mode=1;ups=0;main_down=1;generator_calls=0;capture_baseline(before,&n);
+ assert(wr_iot_restart_restore_begin(&s,id));
+ prepared=0;for(int i=0;i<25&&!prepared;i++)prepared=wr_iot_restart_restore_step(&s);
+ assert(prepared&&s.phase==WR_RESTORE_PREPARED&&ups==1&&generator_calls==1);
+ assert(s.guest.main==&s.main&&s.services.main==&s.main&&s.generation.profile.active);
+ struct wr_iot_control_request wrong_handoff={.id="07000000000000000000000000000000",.created=1,.request={.enabled=1}};
+ assert(!wr_iot_restart_restore_handoff(&s,&wrong_handoff)&&!rebind_attempts);
+ assert(s.phase==WR_RESTORE_PREPARED&&s.generation.profile.active);
+ origin.initial.attempt++;assert(!wr_iot_restart_restore_step(&s));origin.initial.attempt--;
+ assert(wr_iot_restart_restore_step(&s)&&ups==1&&generator_calls==1);
  wr_iot_bundle_release(&s.generation.profile.files);assert(!unlink(profile_path));
  puts("PASS restore/actual generation/profile/Main: generated file owned across Guest/services phases, uncertain Main once, baseline retained and restore fenced after UP, physical-origin drift refused; Guest/services/driver/transport actors injected");
 }

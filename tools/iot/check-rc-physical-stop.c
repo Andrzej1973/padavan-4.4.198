@@ -63,6 +63,16 @@ enum wr_iot_physical_call_result wr_iot_physical_stop_call(
 }
 enum wr_iot_physical_down_result wr_iot_physical_stop_down(void)
 {assert(depth==2&&wr_iot_rc_shutdown.active);downs++;return WR_PHYSICAL_DOWN_UNCERTAIN;}
+/* Legacy fixture rejects INITIAL_OFF admission; actual initial owner fixture
+ * below supplies the positive adapters and executes the same C controller. */
+int wr_iot_activation_prepare_radio_stop(void){return 0;}
+int wr_iot_rc_backend_prepared_initial_request(const unsigned char *n,struct wr_iot_physical_initial_request *q){(void)n;memset(q,0,sizeof(*q));return 0;}
+enum wr_iot_physical_call_result wr_iot_physical_initial_call(const struct wr_iot_physical_initial_request *q,struct wr_iot_physical_initial_response *out){(void)q;memset(out,0,sizeof(*out));return WR_PHYSICAL_CALL_NOT_SUBMITTED;}
+#include "physical-initial-session.c"
+#include "rc-initial-stop.c"
+int wr_iot_rc_boot_idle(void){return 0;}
+int wr_iot_rc_backend_initial_shutdown_prepare(const struct wr_iot_control_request *r,const struct wr_iot_initial_shutdown_owner *o){(void)r;(void)o;assert(0);return 0;}
+int wr_iot_rc_backend_shutdown_initial_request(const struct wr_iot_initial_shutdown_owner *o,const unsigned char *n,struct wr_iot_physical_initial_request *q){(void)o;(void)n;(void)q;assert(0);return 0;}
 static void handler(int sig)
 {if(!wr_iot_rc_shutdown_note(sig)){assert(!depth&&physical.result==physical.finishing&&physical.result);
  for(unsigned i=0;i<sizeof(physical.quiesce.desired);i++){assert(!((unsigned char *)&physical.quiesce.desired)[i]);}

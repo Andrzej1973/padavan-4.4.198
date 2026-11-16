@@ -21,6 +21,11 @@ int wr_iot_rebind_configuration_current(const struct wr_iot_physical_stop_reques
 #include "restart-main-bridge.h"
 enum wr_iot_main_bridge_result wr_iot_restart_main_bridge_attach(void){assert(0);return WR_MAIN_BRIDGE_REFUSED;}
 int wr_iot_restart_main_bridge_current(void){assert(0);return 0;}
+#include "initial-off.h"
+int wr_iot_initial_main_current(const struct wr_iot_physical_initial_request *q,const unsigned char *id,struct wr_iot_driver_identity *out){
+ assert(q->action==WR_STOP_RELEASE&&id[0]==7);*out=(struct wr_iot_driver_identity){epoch,3};return probe_ok;
+}
+int wr_iot_restart_disabled_profile_current(void){return profile_ok;}
 #include "restart-main-controller.c"
 int main(void){
  for(int n=0;n<3;n++){

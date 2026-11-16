@@ -10,10 +10,11 @@ body+=r'''
 #include "rc-shutdown-admission.h"
 struct wr_iot_rc_shutdown_admission wr_iot_rc_shutdown;
 static struct wr_iot_rc_physical_resume origin;
+static int initial_mode;
 static int main_down=1,generator_failure,generator_calls,origin_reads,fail_origin_at;
 int wr_iot_restart_main_down(void){return main_down;}
 int wr_iot_rc_physical_resume_read(struct wr_iot_rc_physical_resume*out){memset(out,0,sizeof(*out));if(++origin_reads==fail_origin_at)return 0;*out=origin;return 1;}
-int wr_iot_rc_restart_generate(int disabled){assert(!disabled&&main_down&&guard);generator_calls++;if(generator_failure==2){assert(!unlink(profile_path)&&!mkfifo(profile_path,0600));return -1;}if(generator_failure){replace_file("partial\n",8);return -1;}make_profile();return 0;}
+int wr_iot_rc_restart_generate(int disabled){assert(disabled==initial_mode&&main_down&&guard);generator_calls++;if(generator_failure==2){assert(!unlink(profile_path)&&!mkfifo(profile_path,0600));return -1;}if(generator_failure){replace_file("partial\n",8);return -1;}make_profile();return 0;}
 #include "restart-generation.c"
 static void capture_baseline(char*out,size_t*size){make_profile();FILE*f=fopen(profile_path,"a");assert(f&&fputs("# baseline\n",f)>=0&&!fclose(f));f=fopen(profile_path,"r");assert(f);*size=fread(out,1,4096,f);assert(!fclose(f));}
 static void restored(const char*bytes,size_t size){FILE*f=fopen(profile_path,"r");char now[4096];assert(f);size_t n=fread(now,1,sizeof(now),f);assert(!fclose(f)&&n==size&&!memcmp(bytes,now,n));}
@@ -21,6 +22,12 @@ int main(int argc,char**argv){
  assert(argc==2);snprintf(profile_path,sizeof(profile_path),"%s/profile",argv[1]);
  origin=(struct wr_iot_rc_physical_resume){.intent={1,1,1},.physical={.action=WR_STOP_RELEASE,.epoch=1,.generation=2,.open_token=3,.closed_serial=4,.attempt=5,.nonce={1}},.resume_needed=1,.desired={.enabled=1,.ssid="IoT",.password="iot-password"}};
  wr_iot_rc_shutdown.active=1;
+ {struct wr_iot_restart_generation rejected={0};
+  origin.origin=WR_PHYSICAL_ORIGIN_INITIAL;
+  assert(!wr_iot_restart_generation_begin(&rejected)&&!rejected.owner&&!generator_calls);
+  origin.origin=WR_PHYSICAL_ORIGIN_CLOSE;
+ }
+
  for(int fault=0;fault<6;fault++){
   struct wr_iot_restart_generation s={0};char before[4096];size_t n;
   generator_calls=0;generator_failure=fault==5?2:fault==1;origin_reads=fail_origin_at=0;origin.intent.reload=fault==2?0:1;
@@ -52,6 +59,27 @@ int main(int argc,char**argv){
   assert(s.phase==WR_RESTART_GEN_ROLLED_BACK&&!s.profile.active&&!s.profile.files.count&&!s.origin.desired.password[0]);
   restored(before,n);assert(generator_calls==(fault==2||fault==4?0:1));
   assert(!wr_iot_restart_generation_step(&s));wr_iot_rc_shutdown.pending=0;assert(!unlink(profile_path));
+ }
+ {
+ struct wr_iot_rc_physical_resume saved_origin=origin;
+ struct wr_iot_restart_generation initial={0};char before[4096];size_t n;
+ origin=(struct wr_iot_rc_physical_resume){.origin=WR_PHYSICAL_ORIGIN_INITIAL,
+  .intent={1,1,1},.initial={.action=WR_STOP_RELEASE,.epoch=1,.generation=2,
+    .idle_serial=3,.attempt=4,.nonce={9}}};
+ initial_mode=1;generator_calls=0;generator_failure=0;origin_reads=fail_origin_at=0;
+ capture_baseline(before,&n);
+ assert(wr_iot_restart_generation_begin(&initial));
+ origin.initial.attempt++;assert(!wr_iot_restart_generation_step(&initial)&&!generator_calls);origin.initial.attempt--;
+ assert(!wr_iot_restart_generation_step(&initial)&&generator_calls==1);
+ assert(wr_iot_restart_generation_step(&initial)&&initial.phase==WR_RESTART_GEN_VERIFIED);
+ assert(!initial.origin.physical.action&&!initial.origin.desired.enabled);
+ assert(wr_iot_restart_generation_abort(&initial));
+ for(unsigned i=0;i<4&&initial.phase!=WR_RESTART_GEN_ROLLED_BACK;i++)
+  assert(!wr_iot_restart_generation_step(&initial));
+ assert(initial.phase==WR_RESTART_GEN_ROLLED_BACK);
+ assert(wr_iot_restart_generation_rollback_current(&initial));
+ restored(before,n);assert(!unlink(profile_path));
+ origin=saved_origin;initial_mode=0;
  }
  struct wr_iot_restart_generation cancelled={0};make_profile();origin_reads=0;fail_origin_at=3;
  assert(!wr_iot_restart_generation_begin(&cancelled)&&cancelled.phase==WR_RESTART_GEN_ROLLED_BACK&&!cancelled.profile.active);
