@@ -5,7 +5,7 @@ import argparse,json,hashlib
 here=Path(__file__).resolve().parent
 p=argparse.ArgumentParser();p.add_argument('source',type=Path);a=p.parse_args()
 root=a.source.resolve();rc=root/'trunk/user/rc';report=root/'iot-restart-entry-source.json'
-for candidate in (report,rc/'wr-iot/restart-entry.h',rc/'wr-iot-restart-entry.c'):
+for candidate in (report,rc/'wr-iot/restart-entry.h',rc/'wr-iot-restart-entry.c',rc/'wr-iot/initial-restart-entry.h',rc/'wr-iot-initial-restart-entry.c'):
  if candidate.is_symlink() or not candidate.parent.resolve().is_relative_to(root):raise SystemExit('Refuse symlink/outside output')
 for candidate in (root/'iot-iapp-policy-source.json',rc/'wr-iot/restart-iapp-policy.h',rc/'net_wifi.c',rc/'wr-iot-rc-backend.c',rc/'Makefile',rc/'wr-iot/radio-entry-result.h'):
  if candidate.is_symlink() or not candidate.is_file() or not candidate.resolve().is_relative_to(root):raise SystemExit('Refuse missing/symlink/outside input')
@@ -28,14 +28,15 @@ if depth or net[opening:finish].count(fence)!=1:raise SystemExit('Prepared legac
 anchor='wr-iot-restart-scheduler.o'
 if make.count(anchor)!=1:raise SystemExit('Runtime scheduler object required')
 header=rc/'wr-iot/restart-entry.h';unit=rc/'wr-iot-restart-entry.c'
-if header.exists() or unit.exists():raise SystemExit('Refuse existing entry source')
-includes='#if defined(BOARD_WR1200JS)\n#include "wr-iot/restart-entry.h"\n#include "wr-iot/restart-iapp-policy.h"\n#endif\n'
+if header.exists() or unit.exists() or (rc/'wr-iot/initial-restart-entry.h').exists() or (rc/'wr-iot-initial-restart-entry.c').exists():raise SystemExit('Refuse existing entry source')
+includes='#if defined(BOARD_WR1200JS)\n#include "wr-iot/restart-entry.h"\n#include "wr-iot/initial-restart-entry.h"\n#include "wr-iot/restart-iapp-policy.h"\n#endif\n'
 body='''
 #if defined(BOARD_WR1200JS) && WR_IOT_IAPP_POLICY_PREPARED
  /* WR_IOT_PRIVATE_RESTART_ENTRY: before the legacy physical-call fence.
   * Claimed intent never falls through to combined SDK stop/reopen. */
  if(wr_iot_radio_off_entry(radio_on,need_reload_conf)!=WR_RADIO_ENTRY_NATIVE)return;
  if(wr_iot_radio_on_entry(radio_on,need_reload_conf)!=WR_RADIO_ENTRY_NATIVE)return;
+ if(wr_iot_initial_restart_entry(radio_on,need_reload_conf)!=WR_RADIO_ENTRY_NATIVE)return;
  if(wr_iot_restart_entry(radio_on,need_reload_conf))return;
 #endif
 '''
@@ -48,11 +49,15 @@ int wr_iot_rc_restart_owned(void)
   (backend.phase!=WR_IOT_OWNER_IDLE&&backend.phase!=WR_IOT_OWNER_INITIAL_OFF);
 }
 '''
+initial_text=(here/'initial-restart-entry.c').read_text()
+for h in here.glob('*.h'):initial_text=initial_text.replace('#include "'+h.name+'"','#include "wr-iot/'+h.name+'"')
 text=(here/'restart-entry.c').read_text()
 for h in here.glob('*.h'):text=text.replace('#include "'+h.name+'"','#include "wr-iot/'+h.name+'"')
 # All source anchors checked before outputs. Candidate discarded on write error.
 (rc/'net_wifi.c').write_text(net);(rc/'wr-iot-rc-backend.c').write_text(backend)
-(rc/'Makefile').write_text(make.replace(anchor,anchor+' wr-iot-restart-entry.o',1))
+(rc/'Makefile').write_text(make.replace(anchor,anchor+' wr-iot-restart-entry.o wr-iot-initial-restart-entry.o',1))
 header.write_bytes((here/'restart-entry.h').read_bytes());unit.write_text(text)
-report.write_text(json.dumps({'board':'WR1200JS','production_ready':False,'private_restart_hook_bound':True,'historical_radio_on_hook_bound':True,'cold_radio_on_hook_bound':True,'owned_radio_off_hook_bound':True,'physical_runtime_verified':False,'source_sha256':{'net_wifi.c':hashlib.sha256(net.encode()).hexdigest(),'wr-iot-rc-backend.c':hashlib.sha256(backend.encode()).hexdigest(),'wr-iot-restart-entry.c':hashlib.sha256(text.encode()).hexdigest(),'Makefile':hashlib.sha256((rc/'Makefile').read_bytes()).hexdigest()}},indent=2)+'\n')
+(rc/'wr-iot/initial-restart-entry.h').write_bytes((here/'initial-restart-entry.h').read_bytes())
+(rc/'wr-iot-initial-restart-entry.c').write_text(initial_text)
+report.write_text(json.dumps({'board':'WR1200JS','production_ready':False,'private_restart_hook_bound':True,'initial_restart_hook_bound':True,'historical_radio_on_hook_bound':True,'cold_radio_on_hook_bound':True,'owned_radio_off_hook_bound':True,'physical_runtime_verified':False,'source_sha256':{'net_wifi.c':hashlib.sha256(net.encode()).hexdigest(),'wr-iot-rc-backend.c':hashlib.sha256(backend.encode()).hexdigest(),'wr-iot-restart-entry.c':hashlib.sha256(text.encode()).hexdigest(),'wr-iot-initial-restart-entry.c':hashlib.sha256(initial_text.encode()).hexdigest(),'Makefile':hashlib.sha256((rc/'Makefile').read_bytes()).hexdigest()}},indent=2)+'\n')
 print('PASS experimental private restart hook staged before legacy fence; driver/image/runtime acceptance pending')

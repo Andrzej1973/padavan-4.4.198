@@ -7,6 +7,7 @@
 #include "rc-initial-stop.h"
 #include "restart-initial-handoff.h"
 #include "initial-shutdown-owner.h"
+#include "initial-restart-select.h"
 #include "radio-stop-contract.h"
 #include "rc-backend.h"
 #include "restart-scheduler.h"
@@ -118,6 +119,21 @@ int wr_iot_rc_physical_begin_initial_saved(const struct wr_iot_rc_physical_inten
   else physical.finishing=-1;
  }
  wipe=(volatile unsigned char*)&desired;n=sizeof(desired);while(n--)*wipe++=0;
+ return 1;
+}
+/* Selected entry owns refusal cleanup after any physical claim. It cannot
+ * authorize fallback merely because a later lifetime observation failed. */
+int wr_iot_rc_physical_begin_initial_selected(const struct wr_iot_rc_physical_intent *intent,
+ const unsigned char *nonce,const struct wr_iot_idle_result *selected)
+{
+ unsigned i,nonzero=0;
+ if(!nonce||!selected||!selected->epoch||!selected->generation||!selected->serial)return 0;
+ for(i=0;i<16;i++)nonzero|=nonce[i];
+ if(!nonzero||!wr_iot_rc_physical_begin_initial_saved(intent))return 0;
+ if(!physical.finishing&&
+    (!physical.initial_saved||physical.initial.session.owner||physical.initial.session.busy||
+     physical.initial.session.phase!=WR_INITIAL_PHYSICAL_SESSION_IDLE||
+     !wr_iot_initial_restart_selected_current(nonce,selected)))physical.finishing=-1;
  return 1;
 }
 int wr_iot_rc_physical_begin_initial_off(const struct wr_iot_control_request *off)

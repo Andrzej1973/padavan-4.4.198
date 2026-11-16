@@ -15,6 +15,10 @@ int wr_iot_rc_physical_begin_initial(const struct wr_iot_rc_physical_intent *);
 /* Restart INITIAL with a saved desired request captured under the physical
  * guard before ARM/DOWN. Refusal retains the claimed cleanup path. */
 int wr_iot_rc_physical_begin_initial_saved(const struct wr_iot_rc_physical_intent *);
+#include "precreated-idle-wire.h"
+/* Returns claimed even on post-claim proof refusal; step/take owns cleanup. */
+int wr_iot_rc_physical_begin_initial_selected(const struct wr_iot_rc_physical_intent *,
+ const unsigned char *,const struct wr_iot_idle_result *);
 int wr_iot_rc_physical_begin_initial_off(const struct wr_iot_control_request *);
 struct wr_iot_physical_initial_request;
 /* Exact ordinary-OFF envelope and completed fence; initial typed receipt only. */

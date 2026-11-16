@@ -14,6 +14,7 @@ static long entropy(void *out,unsigned n,unsigned flags)
 #include "rc-physical-stop.c"
 int wr_iot_rc_radio_on_saved_request(struct wr_iot_request *r){(void)r;assert(0);return 0;}
 void wr_iot_rc_initial_restart_detach_commit(void){assert(0);}
+int wr_iot_initial_restart_selected_current(const unsigned char*n,const struct wr_iot_idle_result*r){(void)n;(void)r;assert(0);return 0;}
 int wr_iot_auth_stop_begin(struct wr_iot_auth_stop*s,unsigned long long now){assert(now);s->owner=getpid();return 1;}
 int wr_iot_auth_stop_step(struct wr_iot_auth_stop*s,unsigned long long now){assert(s->owner==getpid()&&now);return 1;}
 

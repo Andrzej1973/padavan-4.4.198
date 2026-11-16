@@ -36,6 +36,29 @@ flowchart TD
     H --> I[Receipt-bound WAN / LED / IAPP follow-up]
 ```
 
+## Experimental entry routing
+
+The next entry package stages `initial-restart-entry.c` in the paired gated
+restart hook after historical/cold ON selection and before existing-owned
+restart. Its three results have distinct meaning: NATIVE delegates only an
+inapplicable path; REFUSED stops the hook; OWNED includes retained physical
+cleanup after a failed claim-time observation. Failed driver proof never
+permits legacy fallback.
+
+`initial-restart-select.c` reads software OFF, backend idle, live mode and two
+fresh increasing IDLE receipts under a temporary guard. The physical selected
+entry acquires its own fence/guard, captures saved desired state and repeats
+the exact selected epoch/generation proof with newer serials. A mismatch
+retains the claimed cleanup path before asynchronous ARM/DOWN. This does not
+replace the physical controller's fresh ARM observations after AUX closure.
+
+The entry/selector/physical composition injects epoch, generation, serial,
+read-failure and TERM changes after selection. All hardware, software-policy
+and transport observations are host actors. Binding in an experimental
+prepared source is separate from production image admission and runtime
+acceptance. Normal shutdown routing after parent cleanup remains a separate
+required composition and admission gate.
+
 ## Cancellation proofs
 
 Cancellation distinguishes these cases rather than treating absence as CLOSE:

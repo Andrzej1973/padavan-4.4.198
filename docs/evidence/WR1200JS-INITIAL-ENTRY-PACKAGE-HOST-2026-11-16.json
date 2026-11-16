@@ -1,0 +1,62 @@
+{
+  "status": "EXPERIMENTAL_INITIAL_ENTRY_HOST_PASS",
+  "base": "fe1d3d212c1bf10e6fcbe3923b1e659e7258847f",
+  "checks": [
+    "check-initial-restart-select.py",
+    "check-initial-restart-entry.py",
+    "check-initial-selected-physical.py",
+    "check-initial-selected-composition.py",
+    "check-initial-entry-composition.py",
+    "check-restart-entry-source.py",
+    "check-restart-entry.py",
+    "check-radio-on-entry.py",
+    "check-radio-off-entry.py",
+    "check-cold-on-entry.py",
+    "check-initial-saved-physical.py",
+    "check-physical-scheduler-unmask-boundary.py",
+    "check-physical-stop-client-preparation.py"
+  ],
+  "result": "PASS13",
+  "log_sha256": "cd0e797375204f350aeaa35a407fd522c697e383de467b606449ecfc0a564939",
+  "source_sha256": {
+    ".github/workflows/band-steering-abi.yml": "6285854978884a90e6c865df1a8cc216f4b995534f578188b1c75746837e57a5",
+    "docs/iot/WR1200JS-INITIAL-ENABLED-LIFECYCLE.md": "777b59fedcbd9bec08ddc32a410fd4cee302bacead4ace3951f59518ec684446",
+    "tools/iot/check-initial-entry-composition.py": "ade1b749746bfc36a395b6e008c4d83a82a6afe1ba1f903f1dc2d9f1e5504f3b",
+    "tools/iot/check-initial-restart-entry.py": "0205f44d3f3f91b2c2ee057a52598a63a603c5af9a0c9651256a7748c1f2496f",
+    "tools/iot/check-initial-restart-select.py": "b3c9178ed3d00ca5c325420b2ec00114fa222962d3fbc9dd23d2825963f9b59d",
+    "tools/iot/check-initial-selected-composition.py": "e0158d36e5ae7f0c34c368521d0ecf46ed945fe5eed220b488526565743f78d6",
+    "tools/iot/check-initial-selected-physical.py": "80772a2f07cf8fa97b845b74a328679bc1cf818ff2fe0897b96c719aecd8efe3",
+    "tools/iot/check-physical-stop-client-preparation.py": "e5621be300f4636d78efcd61fe1470d9e7c476dd721704cd099c96ba25dc6d00",
+    "tools/iot/check-physical-stop-suite.py": "573d346df2dfb87e947c0e52c8583a526f8123fffa461338931f8613d0690a97",
+    "tools/iot/check-rc-physical-stop.c": "edf72a03db0f09848540b8018ad896481d88b447208fab8cbc445a8e72fa134a",
+    "tools/iot/check-restart-entry-manifest.py": "79973d4dd9ffba2720f7903f5531bff8fe3392de5de070ca438f470e61683631",
+    "tools/iot/check-restart-entry-source.py": "11e714e031d4ce0b202195444575f4f3541acb719c7b750a9e60c46d6a379eb2",
+    "tools/iot/check-runtime-source.py": "3a330885603d6887d918e72616ac975105a75ebc0c8e6c48a4258eef27a3104e",
+    "tools/iot/compile-runtime-link.sh": "63b3eab86034d5dffcc58e10925e3aa9217b98034bbca1939b3ffa338f80f8da",
+    "tools/iot/initial-restart-entry.c": "c42994aad2efbb19b8758886704ecc477f31c136fbc2c4e2eddaee0cea3a4c81",
+    "tools/iot/initial-restart-entry.h": "384868d02068901e9d223aaa30033d43993e44ff8465aec79d868b4c6a2767dc",
+    "tools/iot/initial-restart-select.c": "a8f074b8b30c260122ed31cb7a3f9bdb38f4ac8aa806c2e1335b4c88e3aa38b9",
+    "tools/iot/initial-restart-select.h": "a184d753aa4569e1b25aef50d670224c0585dbb3a34d66af2a29e8c90f1bbe51",
+    "tools/iot/prepare-restart-entry-source.py": "dc5326d1787bc930305a57c708dfe2892b34424898c35e78b92c9a6ee69abbfb",
+    "tools/iot/prepare-runtime.py": "9fab7eabc12fa537812063e34a4e9cf82bb8799ef5d9dfa176e3704482b7c8c7",
+    "tools/iot/rc-physical-stop.c": "ec5ee22ef99f3f4c2fc49cfbff23379f1026bb2c88f5038e8c2509ee281f7743",
+    "tools/iot/rc-physical-stop.h": "5b1b22aa91e7affd696a06fc316876acf50ec0825451f35e78cd5a5cfdf63aa5"
+  },
+  "scope": [
+    "Actual readonly selector and claim-time observer",
+    "Actual RC entry/selector/physical claim with six lifetime/signal faults",
+    "Generated experimental net_wifi hook with no legacy fallback after refusal",
+    "Existing restart/cold/radioON/radioOFF regressions",
+    "Actual scheduler/unmask boundary with enabled IAPP",
+    "Prepared RC translation units and new selector compile under Werror"
+  ],
+  "limits": [
+    "Hardware/software policy observations and transport remain host actors",
+    "Only experimental paired prepared source hook enabled; production image not admitted",
+    "Target/full-link/image verification pending",
+    "Normal shutdown arming/consumer composition remains separate production gate",
+    "No router changes or physical runtime acceptance"
+  ],
+  "target_verified": false,
+  "runtime_verified": false
+}
