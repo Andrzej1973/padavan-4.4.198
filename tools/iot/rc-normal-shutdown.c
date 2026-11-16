@@ -15,13 +15,25 @@ static pid_t notification_owner;
 /* INITIAL finish preflight, PID1 process context under active admission.
  * Notification ownership is preserved: an admitted batch drains before OFF.
  * The caller separately proves its exact ACTIVE backend and physical owner. */
-int wr_iot_rc_normal_shutdown_arm_ready(void)
+static int normal_shutdown_consumer_available(void)
 {
  return wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.pending&&
   !wr_iot_rc_shutdown.normal_route_requested&&!wr_iot_rc_shutdown.replay_signal&&
-  !wr_iot_rc_shutdown.radio_on_owned&&!wr_iot_rc_shutdown.radio_off_owned&&
   !normal_shutdown.owner&&!normal_shutdown.generated&&!normal_shutdown.claimed&&
   !normal_shutdown.retained&&!normal_shutdown.spent;
+}
+int wr_iot_rc_normal_shutdown_arm_ready(void)
+{
+ return normal_shutdown_consumer_available()&&
+  !wr_iot_rc_shutdown.radio_on_owned&&!wr_iot_rc_shutdown.radio_off_owned;
+}
+/* Private cold parent release only: caller separately proves its exact
+ * ACTIVE parent/backend and outer fence. Retain the cold OFF exclusion until
+ * cleanup transfers it to the ON follow-up owner. This grants no admission. */
+int wr_iot_rc_normal_shutdown_cold_arm_ready(void)
+{
+ return normal_shutdown_consumer_available()&&
+  wr_iot_rc_shutdown.radio_off_owned==1&&!wr_iot_rc_shutdown.radio_on_owned;
 }
 /* Only after successful readiness and exact ACTIVE finish preflight.
  * Signals may have become pending inside cleanup: publish anyway so fence
@@ -29,6 +41,21 @@ int wr_iot_rc_normal_shutdown_arm_ready(void)
  * Single process-context writer; no fallible work at this commit point. */
 void wr_iot_rc_normal_shutdown_arm_commit(void)
 {wr_iot_rc_shutdown.normal_route_armed=1;}
+/* Cold released-root handoff only. No new transaction is admitted here;
+ * exact backend/root and no-live-child proof belongs to the private caller. */
+int wr_iot_rc_normal_shutdown_cold_handoff_ready(void)
+{
+ return !wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.pending&&
+  wr_iot_rc_shutdown.normal_route_armed&&
+  (wr_iot_rc_shutdown.normal_route_requested==SIGTERM
+#ifdef SIGQUIT
+   ||wr_iot_rc_shutdown.normal_route_requested==SIGQUIT
+#endif
+  )&&!wr_iot_rc_shutdown.replay_signal&&
+  wr_iot_rc_shutdown.radio_on_owned==1&&!wr_iot_rc_shutdown.radio_off_owned&&
+  !notification_owner&&!normal_shutdown.owner&&!normal_shutdown.generated&&
+  !normal_shutdown.claimed&&!normal_shutdown.retained&&!normal_shutdown.spent;
+}
 static int normal_signal(int sig)
 {
  return sig==SIGTERM

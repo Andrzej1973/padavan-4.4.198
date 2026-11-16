@@ -34,6 +34,7 @@ void wr_iot_rc_restart_wan_submit(enum wr_iot_wan_followup plan){(void)plan;wan_
 #include "restart-wan-followup.c"
 #include "cold-on-policy.c"
 #include "cold-on-release.c"
+#include "check-cold-normal-consumer.h"
 #include "rc-cold-detach.inc"
 #include "rc-cold-release.inc"
 static struct wr_iot_cold_owner *shutdown_parent;
@@ -97,13 +98,17 @@ int main(int argc,char**argv){
     fail_release_unmask=0;
     assert(wr_iot_cold_parent_release(&parent_release,&release)&&parent_release.released);
     assert(!memcmp(&backend,&backend_before,sizeof(backend))&&!wr_iot_cold_backend_parent);
-    assert(shutdowns==1&&!wr_iot_rc_shutdown.pending);
+    assert(!shutdowns&&!wr_iot_rc_shutdown.pending&&wr_iot_rc_shutdown.normal_route_armed&&
+     wr_iot_rc_shutdown.normal_route_requested==SIGTERM);
     assert(!owner.owner&&!owner.admission.profile.active&&!owner.admission.profile.files.count&&!depth);
     assert(!owner.admission.fence.owner&&!handoff.owner&&!release.parent&&!release.handoff);
     for(size_t j=0;j<sizeof(owner.generation);j++)assert(!((unsigned char*)&owner.generation)[j]);
     assert(!wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.radio_off_owned&&wr_iot_rc_shutdown.radio_on_owned);
     assert(!wr_iot_cold_parent_release(&parent_release,&release)&&!wan_submits);
-    wr_iot_rc_shutdown.radio_on_owned=0;assert(!unlink(profile_path));continue;
+    wr_iot_rc_shutdown.radio_on_owned=0;
+    /* Isolated fixture teardown only; production consumes this route via OFF. */
+    wr_iot_rc_shutdown.normal_route_requested=wr_iot_rc_shutdown.normal_route_armed=0;
+    assert(!unlink(profile_path));continue;
    }
    assert(wr_iot_cold_handoff_current(&handoff)==active_proof&&continues==1);
    guest_desired=0;assert(!wr_iot_cold_handoff_step(&handoff)&&continues==1);guest_desired=1;

@@ -34,6 +34,7 @@ void wr_iot_rc_restart_wan_submit(enum wr_iot_wan_followup plan){assert(plan==(e
 #include "restart-wan-followup.c"
 #include "cold-on-policy.c"
 #include "cold-on-release.c"
+#include "check-cold-normal-consumer.h"
 #include "rc-cold-detach.inc"
 #include "rc-cold-release.inc"
 #include "rc-cold-followup.inc"

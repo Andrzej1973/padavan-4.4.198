@@ -1,3 +1,18 @@
+## Cold ACTIVE normal shutdown host-verified — 2026-11-16
+
+Coherent cold package on base502d497e: exact ACTIVE/consumer preflight, cleanup
+route arm, no-child private root handoff, existing live-IAPP drain preserved.
+Runtime preparer, target-symbol gates and paired-manifest contract require the
+cold bindings. Full physical-stop host suite28741 exit0 (final root_begin/step,
+same real backend, spent/stale refusal, cleanup TERM, OFF/physical RELEASE).
+Additional live-child armed-route regression55914 exit0. Scoped Python/shell/
+whitespace checks PASS. SDK/network/hardware actors remain; MIPS/new-image and
+physical acceptance are pending. No MCU ACK/global queue/radio timing changes.
+Modern remains paused. Unrelated shared changes preserved. Evidence:
+docs/evidence/WR1200JS-COLD-ROUTE-INTEGRATION-2026-11-16.json.
+Next verify published SHA/standard+ABI, queue exact optional on standard success,
+inspect target symbols and image, then continue main-image integration gates.
+
 ## Ubuntu24 approved and verified — 2026-11-11
 
 Owner requested promotion after successful optional for standard1025.

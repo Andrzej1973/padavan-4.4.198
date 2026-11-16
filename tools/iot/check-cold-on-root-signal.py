@@ -33,6 +33,8 @@ static int final_calls;
 int wr_iot_rc_cold_root_final_shutdown(struct wr_iot_cold_root*s,const struct wr_iot_control_request*r){assert(s->phase==WR_COLD_ROOT_TERMINAL);final_calls++;if(r){assert(r->created==8);s->final_off_attempted=1;}return 0;}
 #define clock_gettime fake_clock
 #define sigpending fake_pending
+static int routed_calls,routed_ready;
+int wr_iot_rc_cold_root_routed_handoff(struct wr_iot_cold_root *s){routed_calls++;if(!routed_ready)return 0;memset(s,0,sizeof(*s));return 1;}
 #include "cold-on-root-signal.c"
 #undef sigpending
 #undef clock_gettime
@@ -74,6 +76,15 @@ int main(void){
  wr_iot_rc_shutdown.radio_on_owned=0;
  setup(&s);pending_fault=1;assert(!wr_iot_cold_root_signal_step(&s)&&entropy_calls==calls);
  setup(&s);s.handoff.parent=NULL;assert(!wr_iot_cold_root_signal_step(&s)&&entropy_calls==calls);
+ for(int phase=0;phase<2;phase++){
+  setup(&s);s.enabled=1;s.phase=phase?WR_COLD_ROOT_TERMINAL:WR_COLD_ROOT_TERMINAL_BEGIN;
+  wr_iot_rc_shutdown.active=wr_iot_rc_shutdown.pending=0;
+  wr_iot_rc_shutdown.normal_route_armed=1;wr_iot_rc_shutdown.normal_route_requested=SIGTERM;
+  int observed=routed_calls;routed_ready=0;
+  assert(!wr_iot_cold_root_signal_step(&s)&&s.owner==getpid()&&routed_calls==observed+1&&entropy_calls==calls);
+  routed_ready=1;assert(wr_iot_cold_root_signal_step(&s)==-1&&!s.owner&&entropy_calls==calls);
+ }
+
 }
 '''
 with tempfile.TemporaryDirectory(prefix='wr-cold-root-signal-') as d:

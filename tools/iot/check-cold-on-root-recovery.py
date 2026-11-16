@@ -35,6 +35,7 @@ UNREACHED1(wr_iot_rc_cold_terminal_retire,struct wr_iot_cold_terminal)
 UNREACHED1(wr_iot_rc_cold_disabled_terminal_retire,struct wr_iot_cold_disabled_terminal)
 int wr_iot_cold_root_shutdown(struct wr_iot_cold_root*s,const struct wr_iot_control_request*r){(void)s;(void)r;assert(0);return 0;}
 int wr_iot_rc_cold_root_final_shutdown(struct wr_iot_cold_root*s,const struct wr_iot_control_request*r){(void)s;(void)r;assert(0);return 0;}
+int wr_iot_rc_cold_root_routed_handoff(struct wr_iot_cold_root *s){(void)s;assert(0);return 0;}
 #include "cold-on-root-signal.c"
 #include "cold-on-root.c"
 

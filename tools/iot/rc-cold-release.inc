@@ -1,6 +1,6 @@
-/* Uncomposed RC-private candidate, after rc-cold-start/detach fragments.
+/* RC-private experimental runtime cleanup, after cold start/detach fragments.
  * Keep this stable owner through WAN/IAPP completion and checked retirement.
- * Public routing/post-UP shutdown is intentionally not enabled by this file. */
+ * Backend shutdown remains owned by the normal controller. */
 #include "rc-cold-completion.h"
 static void wr_iot_cold_release_wipe(void *p,size_t n)
 {volatile unsigned char *b=p;while(n--)*b++=0;}
@@ -11,6 +11,7 @@ static void wr_iot_cold_parent_cleanup(void *context)
  int guard=a->guard;size_t i;
  /* Infallible only after exact preflight and successful unmask. ACTIVE backend
   * owns independent startup resources and remains untouched. */
+ wr_iot_rc_normal_shutdown_arm_commit();
  wr_iot_cold_detach_commit();
  for(i=0;i<a->profile.files.count;i++)if(a->profile.files.saved[i].data)
   wr_iot_cold_release_wipe(a->profile.files.saved[i].data,a->profile.files.saved[i].size);

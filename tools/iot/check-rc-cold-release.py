@@ -34,6 +34,7 @@ void wr_iot_rc_restart_wan_submit(enum wr_iot_wan_followup plan){(void)plan;wan_
 #include "restart-wan-followup.c"
 #include "cold-on-policy.c"
 #include "cold-on-release.c"
+#include "check-cold-normal-consumer.h"
 #include "rc-cold-detach.inc"
 #include "rc-cold-release.inc"
 int main(int argc,char**argv){

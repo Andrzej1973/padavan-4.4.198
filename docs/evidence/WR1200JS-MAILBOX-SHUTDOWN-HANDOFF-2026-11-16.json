@@ -1,0 +1,17 @@
+{
+  "date": "2026-11-16",
+  "status": "HOST_MAILBOX_SHUTDOWN_HANDOFF_PASS",
+  "session": 45364,
+  "exit_code": 0,
+  "checks": [
+    "Actual mailbox ON then OFF terminal APPLIED",
+    "Deferred TERM reaches armed normal route after terminal publication",
+    "Backend and close/progress/release counts preserved",
+    "New dispatch and duplicate signal do not replay CLOSE"
+  ],
+  "scope": "Actual RC mailbox/runner/backend; resource and driver actors; physical normal consumer covered separately",
+  "production_source_changed": false,
+  "runtime_verified": false,
+  "test_sha256": "b9e647c652379bb94159e11671edcb8dcbcce17eba55a2aaa9fe9a25c6dbbe8a",
+  "log_sha256": "a2a22ed622c25d8369c8febe1efa9e72c87aeb2b36ec2d4797e39330def6cc90"
+}

@@ -33,6 +33,9 @@ int wr_iot_cold_root_begin(struct wr_iot_cold_root *,const struct wr_iot_control
 int wr_iot_cold_root_step(struct wr_iot_cold_root *);
 /* Repeat terminal's fresh proof before clearing only this completed root. */
 int wr_iot_cold_root_retire(struct wr_iot_cold_root *);
+/* Private RC handoff before IAPP child/fence ownership. Requires exact released
+ * ACTIVE context and armed shutdown route; failure retains the root. */
+int wr_iot_rc_cold_root_routed_handoff(struct wr_iot_cold_root *);
 /* Pending normal shutdown after attempted Main UP and before parent release.
  * off is required only to begin a bound backend shutdown; it must be a fresh
  * empty OFF envelope. Existing stop ownership is continued without new input.

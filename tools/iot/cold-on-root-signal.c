@@ -22,6 +22,13 @@ int wr_iot_cold_root_signal_step(struct wr_iot_cold_root *s)
   else if(sigismember(&queued,SIGQUIT)==1)(void)wr_iot_rc_shutdown_note(SIGQUIT);
 #endif
  }
+ /* A signal after parent release has a route slot, not active pending.
+  * Never start a new IAPP transaction that this slot deliberately excludes.
+  * The private handoff owns all validation and retains on any uncertainty. */
+ if(!wr_iot_rc_shutdown.active&&wr_iot_rc_shutdown.normal_route_requested&&
+    s->enabled==1&&(s->phase==WR_COLD_ROOT_TERMINAL_BEGIN||
+     (s->phase==WR_COLD_ROOT_TERMINAL&&!s->terminal.terminal.attempted)))
+  return wr_iot_rc_cold_root_routed_handoff(s)?-1:0;
  if(!wr_iot_rc_shutdown.pending)return 1;
  if(!wr_iot_rc_shutdown.active||
     (wr_iot_rc_shutdown.pending!=SIGTERM

@@ -32,6 +32,7 @@ enum wr_iot_result_state wr_iot_activation_owner_continue(struct wr_iot_activati
 }
 static int initial_restart_retained(void){return 0;}
 #include "rc-cold-start.inc"
+#include "check-cold-normal-consumer.h"
 #include "rc-cold-detach.inc"
 static int fail_unmask,detach_calls;
 static int detach_mask(int how,const sigset_t *set,sigset_t *old){if(how==SIG_SETMASK&&fail_unmask)return -1;return sigprocmask(how,set,old);}
