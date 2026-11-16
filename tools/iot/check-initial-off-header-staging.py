@@ -33,4 +33,8 @@ with tempfile.TemporaryDirectory(prefix='wr-initial-header-stage-') as d:
   copy(include)
  unit=root/'check.c';unit.write_text('#include "wr-iot/initial-off.h"\nint main(void){return 0;}\n')
  subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-I'+d,str(unit),'-o',str(root/'check')],check=True)
-print('PASS early initial-OFF staged header closure: physical RELEASE wire available before runtime; isolated include path, actual header compiled')
+ # Compile the actual implementation from staged files, not just its public
+ # header. A private C-file include caused ABI897 even though header checks passed.
+ implementation=out/'initial-off.c';implementation.write_bytes((here/'initial-off.c').read_bytes())
+ subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-I'+str(out),'-c',str(implementation),'-o',str(root/'initial-off.o')],check=True)
+print('PASS early initial-OFF staged header closure: physical RELEASE and shutdown dependencies available before runtime; actual header and C implementation compiled using staged paths only')
