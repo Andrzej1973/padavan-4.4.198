@@ -28,6 +28,15 @@ static inline int wr_iot_rc_shutdown_begin(void){
  if(wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||
     wr_iot_rc_shutdown.normal_route_requested||wr_iot_rc_shutdown.replay_signal)return 0;
  wr_iot_rc_shutdown.active=1;
+ /* A routed signal can win after the first check but before publication.
+  * Recheck under active admission. If it won, relinquish this empty claim
+  * before touching the mailbox. Clear only the duplicate pending slot after
+  * switching inactive: later signals now preserve the existing route request. */
+ if(wr_iot_rc_shutdown.normal_route_requested||wr_iot_rc_shutdown.replay_signal){
+  wr_iot_rc_shutdown.active=0;
+  wr_iot_rc_shutdown.pending=0;
+  return 0;
+ }
  return 1;
 }
 /* Called by PID 1's signal handler. Defer only normal RC shutdown requests.

@@ -1,0 +1,20 @@
+{
+  "status": "HOST_ADMISSION_SIGNAL_WINDOW_FIXED",
+  "before": "Actual dispatch assertion failed when real TERM arrived before active publication",
+  "after": "Four TERM/QUIT and duplicate signal cases PASS; request remains QUEUED, backend unchanged, admission balanced",
+  "regression_session": 3068,
+  "regression_exit_code": 0,
+  "test_session": 17736,
+  "test_exit_code": 0,
+  "runtime_verified": false,
+  "target_verified": false,
+  "sha256": {
+    "tools/iot/rc-shutdown-admission.h": "df3bf6b61b092ab0601babede867c69eb13c15b42f2aa2c9df77bc2e2bec8f1e",
+    "tools/iot/check-shutdown-admission-window.py": "350328d4535ea8a579d6bb1c73e8cf13ea7c356d7c02b96000a4113e7ad5f806"
+  },
+  "logs": {
+    "admission-window-before-fixed-fixture.log": "469b4f304b20d2ee800dad874d7105d3eb4977b27a7c1975e7546f5c0e3010c7",
+    "admission-window-after-corrected.log": "9ad8e88d3d5f2ba40c23b81429cc5a2f564856c8cbdeea198cc69f05c655d850",
+    "admission-regression.log": "39a3ca4ca39aee0f2364542688e2e09baf231e1d77a77e45d024bec48f831e47"
+  }
+}
