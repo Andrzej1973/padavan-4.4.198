@@ -34,6 +34,7 @@ int wr_iot_reopen_start_stage(struct wr_iot_start_admission*a,const struct wr_io
 int wr_iot_reopen_network_step(struct wr_iot_start_network*n,struct wr_iot_start_admission*a,const struct wr_iot_request*r,const struct wr_iot_reopen_witness*w){(void)n;(void)a;(void)r;(void)w;assert(0);return 0;}
 int wr_iot_reopen_rollback_step(struct wr_iot_start_network_rollback*b,struct wr_iot_start_network*n,struct wr_iot_start_admission*a,const struct wr_iot_open_controller*o,const struct wr_iot_reopen_witness*w){(void)b;(void)n;(void)a;(void)o;(void)w;assert(0);return 0;}
 int wr_iot_reopen_witness_current(const struct wr_iot_reopen_witness*w){(void)w;assert(0);return 0;}
+int wr_iot_driver_initial_idle_read(const unsigned char*n,struct wr_iot_idle_result*r){(void)n;(void)r;assert(0);return 0;}
 #include "start-runner.c"
 int main(void){
  struct wr_iot_control_request input={.id="11111111111111111111111111111111",.created=1,.request={.enabled=1,.ssid="IoT",.password="password123",.gateway="192.168.50.1",.mask="255.255.255.0",.first="192.168.50.20",.last="192.168.50.200"}};
