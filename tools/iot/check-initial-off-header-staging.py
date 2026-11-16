@@ -35,6 +35,13 @@ with tempfile.TemporaryDirectory(prefix='wr-initial-header-stage-') as d:
  subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-I'+d,str(unit),'-o',str(root/'check')],check=True)
  # Compile the actual implementation from staged files, not just its public
  # header. A private C-file include caused ABI897 even though header checks passed.
- implementation=out/'initial-off.c';implementation.write_bytes((here/'initial-off.c').read_bytes())
- subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-I'+str(out),'-c',str(implementation),'-o',str(root/'initial-off.o')],check=True)
+ # Match prepare-rc's root-level unit and exact include rewriting. Adding a
+ # wr-iot include path here would hide missing transformation entries (ABI898).
+ block=source[source.index("unit=(local/'initial-off.c')"):source.index("(rc/'wr-iot-initial-off.c')")]
+ tree=ast.parse(block)
+ names=next(ast.literal_eval(node.iter) for node in ast.walk(tree) if isinstance(node,ast.For))
+ transformed=(here/'initial-off.c').read_text()
+ for name in names:transformed=transformed.replace('#include "'+name+'"','#include "wr-iot/'+name+'"',1)
+ implementation=root/'wr-iot-initial-off.c';implementation.write_text(transformed)
+ subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-I'+d,'-c',str(implementation),'-o',str(root/'initial-off.o')],check=True)
 print('PASS early initial-OFF staged header closure: physical RELEASE and shutdown dependencies available before runtime; actual header and C implementation compiled using staged paths only')

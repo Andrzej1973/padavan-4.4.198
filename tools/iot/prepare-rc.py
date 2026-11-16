@@ -967,7 +967,7 @@ report['activation_observer_runtime_bound']=False
 (headers/'radio-stop-fence.h').write_bytes((local/'radio-stop-fence.h').read_bytes())
 (headers/'initial-off.h').write_bytes((local/'initial-off.h').read_bytes())
 unit=(local/'initial-off.c').read_text(encoding='utf-8')
-for name in ('initial-off.h','request-snapshot.h','service-guard.h','rc-shutdown-admission.h','driver-api-client.h','bridge.h','dns-activation.h'):
+for name in ('initial-shutdown-owner.h','initial-off.h','request-snapshot.h','service-guard.h','rc-shutdown-admission.h','driver-api-client.h','bridge.h','dns-activation.h'):
  unit=unit.replace('#include "'+name+'"','#include "wr-iot/'+name+'"',1)
 (rc/'wr-iot-initial-off.c').write_text(unit,encoding='utf-8')
 make=m.read_text(encoding='utf-8')
