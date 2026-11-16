@@ -103,6 +103,14 @@ with (nullcontext(sys.argv[2]) if len(sys.argv)>2 else tempfile.TemporaryDirecto
     download=subprocess.run([str(binary),'--fixture:'+str(fixture),'--state-dir:'+str(root/'download-state')],capture_output=True,text=True,env=download_env,check=True)
     assert '504 Gateway Time-out' in download.stdout
     assert 'download_test] Error 4' in download.stdout and 'libyaml_only] Error 2' in download.stdout
+    # ABI899: SystemExit validation lacks a generic error prefix.
+    adapter_log=root/'adapter-drift-abi899.log'
+    adapter_log.write_text('Installed disable adapter differs: initial-off\n##[error]Process completed with exit code 1.\n')
+    fixture.write_text(json.dumps({'workflow_runs':[row(899)]}),encoding='utf-8')
+    adapter_env=dict(os.environ,BUILD_MONITOR_FIXTURE_JOB_LOG=str(adapter_log))
+    adapter_cmd=[str(binary),'--fixture:'+str(fixture),'--state-dir:'+str(root/'adapter-state')]
+    assert 'Installed disable adapter differs: initial-off' in subprocess.run(adapter_cmd,capture_output=True,text=True,env=adapter_env,check=True).stdout
+    assert 'BUILD FAILED:' not in subprocess.run(adapter_cmd,capture_output=True,text=True,env=adapter_env,check=True).stdout
     # Preservation42483525613: keep the causal API denial, not only exit 1.
     denied_log=root/'release-403.log'
     denied_log.write_text('HTTP 403: Resource not accessible by integration (https://api.github.com/repos/Andrzej1973/padavan-4.4.198/releases)\n##[error]Process completed with exit code 1.\n')

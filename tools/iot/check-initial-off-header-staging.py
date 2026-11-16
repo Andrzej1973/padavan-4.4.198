@@ -40,6 +40,13 @@ with tempfile.TemporaryDirectory(prefix='wr-initial-header-stage-') as d:
  block=source[source.index("unit=(local/'initial-off.c')"):source.index("(rc/'wr-iot-initial-off.c')")]
  tree=ast.parse(block)
  names=next(ast.literal_eval(node.iter) for node in ast.walk(tree) if isinstance(node,ast.For))
+ verifier=ast.parse((here/'prepare-activation-header-check.py').read_text())
+ verifier_names=[]
+ for loop in ast.walk(verifier):
+  if isinstance(loop,ast.For) and isinstance(loop.target,ast.Tuple) and isinstance(loop.iter,ast.Tuple):
+   for unit,includes in ast.literal_eval(loop.iter):
+    if unit=='initial-off':verifier_names.append(includes)
+ assert verifier_names==[names],('early preparer/verifier include mapping differs',names,verifier_names)
  transformed=(here/'initial-off.c').read_text()
  for name in names:transformed=transformed.replace('#include "'+name+'"','#include "wr-iot/'+name+'"',1)
  implementation=root/'wr-iot-initial-off.c';implementation.write_text(transformed)

@@ -1,0 +1,15 @@
+{
+  "observed_utc": "2026-11-16T04:55:57.211288+00:00",
+  "failed_run": 43805842816,
+  "monitor_run": 43806724083,
+  "monitor_artifact": 14198971434,
+  "cause": "Early initial-off C now compiles, but prepare-activation-header-check verifier still reconstructed old include mapping, rejecting exact staged adapter bytes",
+  "fix": "Add same initial-shutdown-owner include rewrite to exact verifier mapping; assert early preparer/verifier tuple equality in staged implementation regression",
+  "verification": [
+    "Early staged header and actual transformed C compile PASS",
+    "Exact expected transformed bytes agree; prior verifier tuple demonstrably mismatches"
+  ],
+  "monitor_gap": "Artifact identified run/job/step but omitted causal SystemExit Installed disable adapter differs: initial-off; added exact narrow message match and dedup fixture",
+  "preservation": "Existing unrelated missing-file monitor changes preserved unstaged; only new matcher/test applied to index from HEAD",
+  "target_verified": false
+}

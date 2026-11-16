@@ -79,6 +79,7 @@ proc errorExcerpt(raw: string): string =
     if ["error:", "undefined reference", "fatal", "traceback", "assertion", "##[error]", "failed", "exception"].anyIt(it in lower) or
         "valueerror:" in lower or ("file \"" in lower and ", line " in lower) or
         ("anchor" in lower and "changed" in lower) or
+        "installed disable adapter differs:" in lower or
         ("make" in lower and "***" in lower and " error " in lower) or
         "504 gateway time-out" in lower or "http 403:" in lower or "temporary failure resolving" in lower or "e: unable to locate package" in lower or " fail " in (" " & lower & " ") or lower.startsWith("fail "):
       matches.add "  | " & redact(line) & "\n"
