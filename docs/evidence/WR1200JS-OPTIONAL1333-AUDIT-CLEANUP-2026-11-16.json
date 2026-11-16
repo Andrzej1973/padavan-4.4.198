@@ -1,0 +1,12 @@
+{
+  "date": "2026-11-16",
+  "phase": "Completed independent optional1333 candidate image audit",
+  "removed_path": ".scratch/optional1333-audit",
+  "regular_files": 656,
+  "symlinks_removed_without_following": 45,
+  "logical_bytes": 134819244,
+  "allocated_file_bytes": 136380416,
+  "preserved_evidence": "WR1200JS-OPTIONAL1333-INDEPENDENT-CANDIDATE-IMAGE-2026-11-16.json",
+  "artifact_id": 14259517421,
+  "user_data_removed": false
+}

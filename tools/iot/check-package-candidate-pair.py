@@ -15,10 +15,27 @@ with tempfile.TemporaryDirectory(prefix='wr-pair-check-') as d:
  for role in ('rc','httpd'):
   report('runtime-link/'+role+'-dependency-closure.json',{'dependency_closure_verified':True,'errors':[],'production_installed':False,'elf_files':{'candidate:usr/sbin/'+role:{'sha256':hashlib.sha256(elf(2)).hexdigest()}}})
  report('runtime-link/iot-iapp-policy-source.json',{'board':'WR1200JS','iapp_compile_gate_enabled':True,'production_ready':False})
- for n in ['ra2-no-host-module/source-manifest.json','runtime-link/iot-runtime-source.json','runtime-link/iot-restart-entry-source.json']:report(n,{})
+ report('ra2-no-host-module/source-manifest.json',{})
+ runtime={'board':'WR1200JS','production_ready':False,'normal_shutdown_controller_linked':True,
+  'normal_shutdown_dispatch_bound':True,'normal_shutdown_notification_bound':True,
+  'normal_shutdown_initial_active_arm_bound':True,'initial_off_admission':True,'off_reopen_admission':True}
+ entry={'board':'WR1200JS','production_ready':False,'private_restart_hook_bound':True,
+  'initial_restart_hook_bound':True,'historical_radio_on_hook_bound':True,
+  'cold_radio_on_hook_bound':True,'owned_radio_off_hook_bound':True}
+ report('runtime-link/iot-runtime-source.json',runtime)
+ report('runtime-link/iot-restart-entry-source.json',entry)
  put('ra2-no-host-module/kernel.config',b'# CONFIG_PM is not set\n')
- r=build(root,'a'*40);assert not r['trx_inclusion_verified'] and 'sbin/rc' in r['files']
+ r=build(root,'a'*40);assert not r['trx_inclusion_verified'] and 'sbin/rc' in r['files'] and r['lifecycle_manifest_contract_verified']
  mutations=[('runtime-link/rc',elf(1)),('ra2-no-host-module/kernel.config',b'CONFIG_PM=y\n'),('runtime-link/httpd',b'bad ELF'),('runtime-link/iot-iapp-policy-source.json',b'{}'),('ra2-no-host-module/target-result.json',b'{}')]
+ # Earlier packaging accepted empty lifecycle evidence. Exercise missing,
+ # explicitly disabled and truthy-but-untyped bindings before any image stage.
+ for n,m in [('runtime-link/iot-runtime-source.json',runtime),('runtime-link/iot-restart-entry-source.json',entry)]:
+  mutations.append((n,b'{}'))
+  for field,value in m.items():
+   broken=dict(m);broken.pop(field);mutations.append((n,json.dumps(broken).encode()))
+   if value is True:
+    for invalid in [False,1,'true']:
+     broken=dict(m);broken[field]=invalid;mutations.append((n,json.dumps(broken).encode()))
  for n,blob in mutations:
   previous=(root/n).read_bytes();put(n,blob)
   try:build(root,'a'*40)
@@ -29,4 +46,4 @@ with tempfile.TemporaryDirectory(prefix='wr-pair-check-') as d:
  try:build(root,'a'*40)
  except ValueError:pass
  else:raise AssertionError('symlink accepted')
-print('PASS paired package evidence: exact ELF type/hash closure, experimental module and IAPP policy, PM refusal, symlink refusal; synthetic inputs, no target/image claim')
+print('PASS paired package evidence: exact ELF type/hash closure, experimental module/IAPP policy and typed lifecycle manifests, PM refusal, symlink refusal; synthetic inputs, no target/image claim')

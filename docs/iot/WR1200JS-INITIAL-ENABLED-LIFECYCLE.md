@@ -38,7 +38,7 @@ flowchart TD
 
 ## Experimental entry routing
 
-The next entry package stages `initial-restart-entry.c` in the paired gated
+The integrated entry package stages `initial-restart-entry.c` in the paired gated
 restart hook after historical/cold ON selection and before existing-owned
 restart. Its three results have distinct meaning: NATIVE delegates only an
 inapplicable path; REFUSED stops the hook; OWNED includes retained physical
@@ -56,8 +56,8 @@ The entry/selector/physical composition injects epoch, generation, serial,
 read-failure and TERM changes after selection. All hardware, software-policy
 and transport observations are host actors. Binding in an experimental
 prepared source is separate from production image admission and runtime
-acceptance. Normal shutdown routing after parent cleanup remains a separate
-required composition and admission gate.
+acceptance. Commit `ed81ded6` adds the automatic normal-shutdown route after
+parent cleanup; target/image and device verification remain separate gates.
 
 ## Cancellation proofs
 
@@ -86,14 +86,29 @@ If shutdown is pending before successful finish, the owner routes scoped OFF
 and proves CLOSED before cleanup and signal replay. During the WAN/IAPP tail,
 an existing child drains first; the retained receipt binds normal OFF.
 The conditional fence finish detects a signal delivered during its initial
-SIG_SETMASK, retains admission and returns to the scheduler. This focused
-boundary test is not proof of every signal/cleanup interleaving. The separate
+SIG_SETMASK, retains admission and returns to the scheduler. This boundary check is complemented by the real cleanup-time TERM/QUIT
+publication matrix and the composed shutdown consumer checks. The separate
 `check-radio-stop-fence-cleanup-route.py` injects real TERM/QUIT inside cleanup
 and proves that an already armed normal-shutdown route retains the first
 request after cleanup, without a stock exit or new transaction admission.
-This does not exercise the physical shutdown consumer. Production admission
-still requires the composed route/consumer and its arming path to be verified;
-the runtime preparer currently leaves that route unarmed.
+That standalone matrix alone does not exercise the physical consumer.
+
+Enabled INITIAL finish now checks the actual normal consumer is available,
+after exact ACTIVE finish proof and before cleanup. If unavailable, it retains
+parent, profile, credentials and admission. ACTIVE detach publishes the route
+while admission is still active. A TERM arriving inside cleanup remains queued
+and reaches this route after balanced cleanup. OFF/REJECTED cancellation and
+disabled INITIAL do not publish an ACTIVE-only route.
+
+`check-initial-auto-shutdown.py` covers readiness refusal and real TERM inside
+cleanup with the actual backend and physical controller. The cancellation
+matrix covers STAGE/NETWORK/COMMIT/COMMITTED/UNCERTAIN and disabled INITIAL.
+`check-physical-scheduler-normal-shutdown.py` drains the same OFF backend after
+actual scheduler/WAN/IAPP/root retirement through physical RELEASE, retiring
+owners and credentials before one stock replay. Driver/network observations
+remain actors. The prepared-source manifest records conditional INITIAL ACTIVE
+arming; the route starts unarmed. Host success does not establish target,
+image installation, hardware completion or device acceptance.
 
 ## Preparation and reproducibility
 
@@ -109,6 +124,10 @@ Focused commands, run from repository root:
 python3 tools/iot/check-physical-stop-client-preparation.py
 python3 tools/iot/check-parent-backend-composed.py
 python3 tools/iot/check-physical-scheduler-unmask-boundary.py
+python3 tools/iot/check-normal-shutdown-arm.py
+python3 tools/iot/check-initial-auto-shutdown.py
+python3 tools/iot/check-initial-auto-cancel.py
+python3 tools/iot/check-physical-scheduler-normal-shutdown.py
 python3 tools/iot/check-physical-stop-suite.py
 ```
 
@@ -120,3 +139,5 @@ stale-ACK protection, global queues and radio timing are unchanged.
 
 See `docs/evidence/WR1200JS-INITIAL-PERMANENT-INTEGRATION-2026-11-16.json`
 for the current integration checkpoint and outstanding verification.
+
+Current automatic shutdown host evidence: `docs/evidence/WR1200JS-INITIAL-AUTO-SHUTDOWN-APPLIED-2026-11-16.json`.

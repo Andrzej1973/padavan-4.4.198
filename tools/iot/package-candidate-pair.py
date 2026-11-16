@@ -37,6 +37,18 @@ def build(root,revision):
  policy=report('runtime-link/iot-iapp-policy-source.json')
  if policy.get('board')!='WR1200JS' or not policy.get('iapp_compile_gate_enabled') or policy.get('production_ready') is not False:
   raise ValueError('Paired IAPP policy required')
+ runtime=report('runtime-link/iot-runtime-source.json')
+ entry=report('runtime-link/iot-restart-entry-source.json')
+ for label,manifest,required in (
+  ('runtime',runtime,('normal_shutdown_controller_linked','normal_shutdown_dispatch_bound',
+    'normal_shutdown_notification_bound','normal_shutdown_initial_active_arm_bound',
+    'initial_off_admission','off_reopen_admission')),
+  ('restart',entry,('private_restart_hook_bound','initial_restart_hook_bound',
+    'historical_radio_on_hook_bound','cold_radio_on_hook_bound','owned_radio_off_hook_bound'))):
+  if manifest.get('board')!='WR1200JS' or manifest.get('production_ready') is not False:
+   raise ValueError('Paired experimental '+label+' manifest required')
+  if any(manifest.get(name) is not True for name in required):
+   raise ValueError('Missing paired '+label+' lifecycle binding')
  kernel=read('ra2-no-host-module/kernel.config').decode()
  if 'CONFIG_PM=y' in kernel:raise ValueError('Unverified PCI suspend binding: CONFIG_PM=y')
  inputs=['ra2-no-host-module/kernel.config','ra2-no-host-module/source-manifest.json',
@@ -44,7 +56,7 @@ def build(root,revision):
          'runtime-link/iot-iapp-policy-source.json']
  return {'board':'WR1200JS','source_revision':revision,'files':files,
          'input_sha256':{n:hashlib.sha256(read(n)).hexdigest() for n in inputs},
-         'module_romfs_destination_verified':False,'target_pair_hashes_verified':True,'production_installed':False,
+         'module_romfs_destination_verified':False,'target_pair_hashes_verified':True,'lifecycle_manifest_contract_verified':True,'production_installed':False,
          'trx_inclusion_verified':False,'physical_runtime_verified':False}
 if __name__=='__main__':
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('results',type=Path)

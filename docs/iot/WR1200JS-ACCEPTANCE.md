@@ -7,6 +7,33 @@ Ubuntu22.04 remains an explicit CI control. Modern WebUI development remains pau
 This ledger distinguishes implementation from acceptance and supersedes older
 "currently running" snapshots only for the checkpoints explicitly listed here.
 
+## Current source and image checkpoint — 2026-11-16
+
+- Published `ed81ded6` implements conditional normal-shutdown arming before
+  enabled INITIAL parent cleanup. Actual-source host tests cover refusal,
+  cleanup-time TERM, cancellation, scheduler/WAN/IAPP retirement and the same
+  OFF backend through physical RELEASE before one stock replay. Driver/network
+  adapters remain injected. `1d22e950` corrects the inherited normal-root test
+  actor; its focused test passes. Target verification for this source is pending.
+- Optional1333/43927395686 verifies older `af52f140`. Independent inspection of
+  artifact14259517421 recomputed the coherent pair and TRX CRCs/board gates,
+  checked four embedded replacements and three MIPS ELF files, module vermagic
+  and complete RC/HTTP shared-library closure at actual image paths. Image SHA256
+  `c53acfae8a8efa18ba7647b5ceeed422fc4a9df3399067fab952c42f4f0e112e`,
+  14503716 bytes; remaining firmware partition1683676 bytes. Only selected
+  replacements/dependencies were independently extracted; CI's full-ROMFS
+  preservation result is a separate reported check.
+- This is an isolated image, not production promotion or device acceptance.
+  It does not cover the later automatic-shutdown source. Mandatory main-image
+  installation, loaded ra2/client behavior, RF/DMA/IRQ/late-report completion,
+  Main/Guest regression, persistence and device network isolation remain gates.
+  MCU stale-ACK protection and timing are unchanged; no restart/scan ACK fix is
+  claimed from these lifecycle/image checks.
+
+Evidence: `../evidence/WR1200JS-INITIAL-AUTO-SHUTDOWN-APPLIED-2026-11-16.json`,
+`../evidence/WR1200JS-ABI905-NORMAL-ROOT-ACTOR-2026-11-16.json`,
+`../evidence/WR1200JS-OPTIONAL1333-INDEPENDENT-CANDIDATE-IMAGE-2026-11-16.json`.
+
 | Required behavior | Authoritative evidence inspected | Remaining acceptance |
 | --- | --- | --- |
 | Reserve third2.4GHz BSS; default OFF, independent credentials | Prepared peer82 source/profile checks; source guards compiled in isolated MT7603 module | Actual cold-profile/RC/controller binding and final-image inclusion; secure defaults and reboot on device |
