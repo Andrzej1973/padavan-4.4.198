@@ -963,6 +963,8 @@ report['activation_observer_runtime_bound']=False
 (headers/'physical-stop-wire.h').write_bytes((local/'physical-stop-wire.h').read_bytes())
 (headers/'physical-stop-response.h').write_bytes((local/'physical-stop-response.h').read_bytes())
 (headers/'physical-initial-wire.h').write_bytes((local/'physical-initial-wire.h').read_bytes())
+(headers/'initial-shutdown-owner.h').write_bytes((local/'initial-shutdown-owner.h').read_bytes())
+(headers/'radio-stop-fence.h').write_bytes((local/'radio-stop-fence.h').read_bytes())
 (headers/'initial-off.h').write_bytes((local/'initial-off.h').read_bytes())
 unit=(local/'initial-off.c').read_text(encoding='utf-8')
 for name in ('initial-off.h','request-snapshot.h','service-guard.h','rc-shutdown-admission.h','driver-api-client.h','bridge.h','dns-activation.h'):

@@ -27,6 +27,10 @@ with tempfile.TemporaryDirectory(prefix='wr-initial-header-stage-') as d:
     assert include in available,('header absent from early staging',include)
     copy(include)
  copy('initial-off.h')
+ # The implementation has dependencies not exposed by its public header.
+ for include in re.findall(r'^#include "([^"]+)"',(here/'initial-off.c').read_text(),re.M):
+  assert include in available,('implementation dependency absent from early staging',include)
+  copy(include)
  unit=root/'check.c';unit.write_text('#include "wr-iot/initial-off.h"\nint main(void){return 0;}\n')
  subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-I'+d,str(unit),'-o',str(root/'check')],check=True)
 print('PASS early initial-OFF staged header closure: physical RELEASE wire available before runtime; isolated include path, actual header compiled')
