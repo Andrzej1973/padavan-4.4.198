@@ -1,0 +1,20 @@
+{
+  "date": "2026-11-16",
+  "failed_run": 43936877210,
+  "abi_number": 905,
+  "failed_revision": "ed81ded6a80bac5e8a9b06e6df7cde6b8f2b5ec1",
+  "monitor_run": 43937316002,
+  "cause": "CLOSE-only arm_ready actor inherited by initial normal-root fixture redefined actual normal controller function",
+  "fix": "Remove exact inherited actor before composing actual normal controller; assert exactly one actor",
+  "verification": {
+    "session": 33186,
+    "exit_code": 0,
+    "test": "check-initial-shutdown-normal-root.py",
+    "scope": "Strict host Werror ASan UBSan, injected driver/resource adapters"
+  },
+  "monitor_assessment": "Correct run/job/step/file/function and redefinition captured; no parser change needed",
+  "source_sha256": "486a1f6d56c49eae66dfaeb0008da342edb5f5cd5c7a5c4b7b5e49658443d66c",
+  "log_sha256": "47397892004445bb3adbf08ca4649a0afe8028be7a5c67ac854f3f67004cdc5b",
+  "production_code_changed": false,
+  "runtime_verified": false
+}
