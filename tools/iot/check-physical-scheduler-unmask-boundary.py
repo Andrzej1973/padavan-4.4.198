@@ -21,8 +21,8 @@ backend=backend.replace(a,r"""
   }
 """+a,1)
 backend=backend.replace('if(finish&&!strcmp(mode,"finish_pending")){', 'if(finish&&(!strcmp(mode,"finish_pending")||strstr(mode,"boundary"))){')
-backend=backend.replace('assert(late_signal&&late_unmask&&pump.phase==WR_RESUME_CANCELLED&&physical_replays==1);',
- 'assert((strstr(mode,"boundary")?(boundary_done&&boundary_retained):(late_signal&&late_unmask))&&pump.phase==WR_RESUME_CANCELLED&&physical_replays==1);')
+backend=backend.replace('assert(late_signal&&late_unmask&&pump.phase==WR_RESUME_CANCELLED&&!physical_replays&&wr_iot_rc_shutdown.normal_route_armed&&wr_iot_rc_shutdown.normal_route_requested==SIGTERM);',
+ 'assert((strstr(mode,"boundary")?(boundary_done&&boundary_retained):(late_signal&&late_unmask))&&pump.phase==WR_RESUME_CANCELLED&&(!strcmp(mode,"finish_boundary")?(!wr_iot_rc_shutdown.normal_route_armed&&physical_replays==1):(wr_iot_rc_shutdown.normal_route_armed&&wr_iot_rc_shutdown.normal_route_requested==SIGTERM&&!physical_replays)));')
 a='  assert(wan_plans==1&&wan_dispatches==1&&wan_leds==1);\n  assert(wr_iot_restart_scheduler_step()==-1);physical_fixture_terminal();\n  int st;assert(waitpid(-1,&st,0)>0&&WIFEXITED(st)&&WEXITSTATUS(st)==0);'
 assert a in backend
 backend=backend.replace(a,r"""

@@ -1,0 +1,82 @@
+{
+  "date": "2026-11-16",
+  "status": "APPLIED_AUTO_SHUTDOWN_HOST_VERIFIED_TARGET_PENDING",
+  "checks": {
+    "ready": {
+      "session": 91277,
+      "exit_code": 0
+    },
+    "postrelease": {
+      "session": 60076,
+      "exit_code": 0
+    },
+    "automatic_cleanup_and_term": {
+      "session": 60551,
+      "exit_code": 0
+    },
+    "cancellation_and_disabled": {
+      "session": 7226,
+      "exit_code": 0
+    },
+    "WPIQ_staging": {
+      "exit_code": 0
+    }
+  },
+  "focused_regression_session": 3507,
+  "focused_regression_status": "FAILED at scheduler unmask boundary: legacy stock replay assertion; investigate actual state before correction",
+  "target_verified": false,
+  "runtime_verified": false,
+  "source_sha256": {
+    "tools/iot/rc-normal-shutdown.c": "4027efb1dae7534ba15f715fb76af7da9ffb27661f4caccffe02493bda6f81d9",
+    "tools/iot/rc-normal-shutdown.h": "b6c2871f6a2e7a0e92448f64f6b6c97a2497d03400b1a61890c24e89fdc30e2a",
+    "tools/iot/rc-physical-stop.c": "24f12d7433121025191439d4b887a78e315f99e2e94685ede59674f07ac3cd77",
+    "tools/iot/rc-initial-restart-detach.inc": "6e904ed719f14a7ce51671ddad0b7b29b32d93a0834200721aa18c7586779d0f",
+    "tools/iot/prepare-runtime.py": "5dff68cc035e2309403156104a4f22261f6beae9b625d8a9e5f7fb605ae2d7de",
+    "tools/iot/compile-runtime-link.sh": "b9b849bbade8cf6e87f2cc124e45fac9d9fb1d083f8400c012b254df33ae7939",
+    "tools/iot/check-runtime-source.py": "cb294124dbdb6e061521081383cf31760bcbe584af6c97461f1a9a7a81bad78c",
+    "tools/iot/check-rc-physical-stop.c": "e86a2fa7304e30b197206f3a8872b63376a1c50848354300a4589643f411dd86",
+    "tools/iot/check-rc-physical-quiesce.py": "76c9cf5651e66d3cba2dafa7d206c369603325a90078f3cdaa7615095609ef86",
+    "tools/iot/check-rc-normal-shutdown.py": "cf167ed79ee1c3b3638c554e2a18057dd60fbedd576617c0f81b73c67cce1cae",
+    "tools/iot/check-normal-shutdown-backend-composition.py": "d9e07a1a95165761aa48d8ab0dec8dd621a7ce8175a3261c70b0f54adb14b6a0",
+    "tools/iot/check-parent-backend-composed.py": "571e66978b81c987ae1674ed1569344ac7020f64c98dc33e8e069172e1f99238",
+    "tools/iot/check-physical-parent-backend-composed.py": "c0f654d70bcab13a720fb8bf13d0440238ec61375e28c3298c307ad627f3e388",
+    "tools/iot/check-initial-postrelease-normal-shutdown.py": "2ccc76aae319d7f825be291065895315992e644bd43d22b812fd91825ed3f14e",
+    "tools/iot/check-physical-stop-suite.py": "08852b7dc27a9bd98920219265ea76231e49f3d9ba579eb3cc97788efad5e7ab",
+    "tools/iot/check-physical-wan-iapp-composed.py": "baa0ea300ffa136ca8ac9c5dc1da754320b13804657a96dd63ea380a2c580536",
+    "tools/iot/check-physical-scheduler-unmask-boundary.py": "87734db6cc5e083b568ad378633289740b7c825eff6fcda43d2fd74d13021a68",
+    "tools/iot/check-normal-shutdown-arm.py": "a09d0f53db12473db050bead564d198e30cf84bc343f700458e82d8aebec81bc",
+    "tools/iot/check-initial-auto-shutdown.py": "9d4cfcd1e8589aeaea36558303898ffc1ce75bcc6286cafd54c4f64412760e67",
+    "tools/iot/check-initial-auto-cancel.py": "a6e6ead17767574535ab1382a8dcf7ef1734ed183a8ef38b31e79c29f92537e1",
+    "tools/iot/check-radio-stop-fence-publication.py": "2f129da0f807f3ab0021793ce6c85e501f8f389de2380f937c45cbcf1b68a733",
+    "tools/iot/check-physical-scheduler-normal-shutdown.py": "7fd1a60d79fe1ea9504ad86ee0689acb4b0ead0280d9d52cbfc60e96336dab6c"
+  },
+  "log_sha256": {
+    "applied-auto-shutdown.log": "647b52bf19c854397615befd41265ad8e4960e6d632a7839097cc6178ce729cd",
+    "applied-auto-cancel.log": "4a388a98eff6f9afe51c89070a20841a6e1a45e221c2415eba60a560a30b5da2",
+    "applied-postrelease.log": "6403cdd11e3168f1782bc632251aa9c347bcf038beed5021bb8577ecd7df05a5",
+    "applied-runtime-staging.log": "9cf38fa42e083efc2ef108750514dc88a01b18231caba9765a933abaeddd2adb",
+    "applied-auto-shutdown-refusal.log": "647b52bf19c854397615befd41265ad8e4960e6d632a7839097cc6178ce729cd",
+    "applied-boundary-routed.log": "2a1565af123d88aabe16ab05845c3bc26e843a05ec18b0038e267ca647fad173",
+    "applied-scheduler-normal.log": "755e2d207dbd3fd67abdad4ba190eb6eff7f5291338c22cda70db67d65391769",
+    "applied-final-regression.log": "9885a9a24e93b39f88413962b248727e390baf2ed696839771841206a92a4cf8"
+  },
+  "readiness_refusal_composition": {
+    "session": 63690,
+    "exit_code": 0
+  },
+  "diagnostic_session": 70968,
+  "scheduler_regression": {
+    "original_session": 3507,
+    "original_exit": 1,
+    "cause": "Old test expected immediate stock TERM; actual CANCELLED/OFF with route SIGTERM retained and stock replay0",
+    "boundary_recheck_session": 21737,
+    "boundary_exit": 0,
+    "real_normal_drain_session": 95851,
+    "real_normal_drain_exit": 0,
+    "scope": "Actual scheduler/WAN/IAPP/root retirement, same OFF backend, physical RELEASE before one stock replay"
+  },
+  "final_compatibility_session": 17116,
+  "final_compatibility_status": "PASS",
+  "final_compatibility_exit_code": 0,
+  "coverage_note": "Initial focused sequence3507 passed first8 checks then failed legacy scheduler stock-replay assertion. Corrected scheduler boundary21737 and actual consumer drain95851 pass. Final compatibility17116 passes remaining7 checks. Full updated suite not rerun locally; CI required."
+}

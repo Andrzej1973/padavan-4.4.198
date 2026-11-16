@@ -4,6 +4,7 @@
 #include <time.h>
 #include "restart-auth-stop.h"
 #include "rc-physical-stop.h"
+#include "rc-normal-shutdown.h"
 #include "rc-initial-stop.h"
 #include "restart-initial-handoff.h"
 #include "initial-shutdown-owner.h"
@@ -443,6 +444,8 @@ int wr_iot_rc_physical_resume_finish(struct wr_iot_restart_restore *s)
       (physical.session.owner!=getpid()||physical.session.busy||
        physical.session.phase!=WR_PHYSICAL_SESSION_COMPLETE))||
     !wr_iot_restart_restore_finish_check(s))return 0;
+ if(s->generation.origin.origin==WR_PHYSICAL_ORIGIN_INITIAL&&
+    s->generation.origin.desired.enabled&&!wr_iot_rc_normal_shutdown_arm_ready())return 0;
  s->busy=1;
  finished=wr_iot_radio_stop_fence_end_cleanup_unless_shutdown(&physical.fence,resume_cleanup,s);
  if(!finished)s->busy=0;

@@ -3,6 +3,7 @@ from pathlib import Path
 import subprocess,tempfile
 here=Path(__file__).resolve().parent
 code=(here/'check-rc-physical-stop.c').read_text().split('int main(void)',1)[0]
+code=code.replace('int wr_iot_rc_normal_shutdown_arm_ready(void){assert(0);return 0;}','')
 code=code.replace('#include "rc-shutdown-admission.h"',r'''static int replay_raise_failures;
 static int controlled_replay_raise(int);
 #define raise controlled_replay_raise

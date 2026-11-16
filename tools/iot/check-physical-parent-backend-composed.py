@@ -21,7 +21,7 @@ def remove_function(src,name):
   elif src[i]=='}':level-=1
   i+=1
  return src[:m.start()]+src[i:]
-for name in ['wr_iot_service_guard_enter','wr_iot_service_guard_leave','wr_iot_restart_restore_finish_check','wr_iot_restart_restore_cancel_check','wr_iot_restart_generation_rollback_current']:
+for name in ['wr_iot_rc_normal_shutdown_arm_ready','wr_iot_service_guard_enter','wr_iot_service_guard_leave','wr_iot_restart_restore_finish_check','wr_iot_restart_restore_cancel_check','wr_iot_restart_generation_rollback_current']:
  physical=remove_function(physical,name)
 physical=physical.replace('.epoch=11,.generation=12,.idle_serial=13','.epoch=1,.generation=2,.idle_serial=3').replace('q->idle_serial==13','q->idle_serial==3').replace('out->identity.attempt=19','out->identity.attempt=4')
 physical=physical.replace('strcpy(out->ssid,"saved IoT");strcpy(out->password,"fixture-secret-only");','*out=(struct wr_iot_request){.enabled=1,.ssid="IoT",.password="iot-password",.gateway="192.168.50.1",.mask="255.255.255.0",.first="192.168.50.20",.last="192.168.50.200"};')

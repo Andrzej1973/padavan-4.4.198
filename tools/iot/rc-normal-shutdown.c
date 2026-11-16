@@ -12,6 +12,23 @@ static struct {
  int generated,claimed,retained,spent;
 } normal_shutdown;
 static pid_t notification_owner;
+/* INITIAL finish preflight, PID1 process context under active admission.
+ * Notification ownership is preserved: an admitted batch drains before OFF.
+ * The caller separately proves its exact ACTIVE backend and physical owner. */
+int wr_iot_rc_normal_shutdown_arm_ready(void)
+{
+ return wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.pending&&
+  !wr_iot_rc_shutdown.normal_route_requested&&!wr_iot_rc_shutdown.replay_signal&&
+  !wr_iot_rc_shutdown.radio_on_owned&&!wr_iot_rc_shutdown.radio_off_owned&&
+  !normal_shutdown.owner&&!normal_shutdown.generated&&!normal_shutdown.claimed&&
+  !normal_shutdown.retained&&!normal_shutdown.spent;
+}
+/* Only after successful readiness and exact ACTIVE finish preflight.
+ * Signals may have become pending inside cleanup: publish anyway so fence
+ * replay reaches the normal consumer, rather than falling through to stock.
+ * Single process-context writer; no fallible work at this commit point. */
+void wr_iot_rc_normal_shutdown_arm_commit(void)
+{wr_iot_rc_shutdown.normal_route_armed=1;}
 static int normal_signal(int sig)
 {
  return sig==SIGTERM
