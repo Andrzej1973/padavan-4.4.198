@@ -917,7 +917,7 @@ report['start_commit_runtime_bound']=False
 (headers/'control-record.h').write_bytes((local/'control-record.h').read_bytes())
 (headers/'start-runner.h').write_bytes((local/'start-runner.h').read_bytes())
 unit=(local/'start-runner.c').read_text(encoding='utf-8')
-for name in ('start-runner.h','rc-shutdown-admission.h','reopen-start.h','reopen-network.h','reopen-rollback.h'):
+for name in ('start-runner.h','rc-shutdown-admission.h','reopen-start.h','reopen-network.h','reopen-rollback.h','service-guard.h','dns-activation.h'):
  unit=unit.replace('#include "'+name+'"','#include "wr-iot/'+name+'"',1)
 (rc/'wr-iot-start-runner.c').write_text(unit,encoding='utf-8')
 make=m.read_text(encoding='utf-8')

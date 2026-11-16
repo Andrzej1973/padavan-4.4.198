@@ -1,0 +1,18 @@
+{
+  "run": 43913320317,
+  "abi_number": 901,
+  "head": "2114e90147e7116fd95d7e804d58c7a3815db9df",
+  "cause": "Early RC preparer did not rewrite new service-guard.h/dns-activation.h includes in start-runner.c",
+  "monitor_run": 43915157493,
+  "monitor_assessment": "Correct run/failed RC preparation step, verified against original compiler fatal include error",
+  "fix": "Map both headers in preparer and independent exact-source verifier; add actual generator/staged compilation regression to early host preflight",
+  "verification": "Actual generation and independent verifier agree; strict host syntax compile uses staged headers only, PASS",
+  "target_verified": false,
+  "runtime_verified": false,
+  "sha256": {
+    "tools/iot/prepare-rc.py": "8998d5a436ef9559cca8b72f7ffd28bc3fd7603fc19d5f6acb066e4ae64ee434",
+    "tools/iot/prepare-activation-header-check.py": "86a130ef571548ec2f726bef5f14f205c72977ff7034ca5daa329aa88a8e5505",
+    "tools/iot/check-start-runner-staged-includes.py": "bd08bd1b5066be9179782cf19bc46d74aee60b8387b3a60b60d148ba3c800378",
+    "tools/iot/check-host-compatibility.py": "17a3f3a4854ac154311c5ffd5e15f9c4ecbe376c7275bd80743ed019bd6416b6"
+  }
+}

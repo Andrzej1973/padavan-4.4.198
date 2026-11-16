@@ -12,6 +12,7 @@ import sys
 import tempfile
 
 here = Path(__file__).resolve().parent
+subprocess.run([sys.executable, '-B', str(here / 'check-start-runner-staged-includes.py')], check=True)
 text = (here / 'ci-compile-merged-candidate.sh').read_text()
 loops = re.findall(r'^  for fixture in (check-mcu-sender-owner [^\n]+); do$', text, re.M)
 if len(loops) != 1:
