@@ -19,6 +19,7 @@ void physical_fixture_shutdown_done(void){
 }
 '''
 for name in ['wr_iot_rc_normal_shutdown_arm_ready','wr_iot_rc_normal_shutdown_arm_commit']:backend=remove_function(backend,name)
+backend=backend.replace('#include "check-mailbox-normal-consumer.h"','')
 backend=backend.replace('static volatile sig_atomic_t physical_replays;', 'static int expected_normal_off;static volatile sig_atomic_t physical_replays;').replace('physical_replays++;', 'if(expected_normal_off)assert(backend.phase==WR_IOT_OWNER_OFF&&!backend.start.input.request.password[0]);physical_replays++;')
 backend=backend.replace('int main(int argc,char **argv){','#include "rc-normal-shutdown.c"\nvoid physical_fixture_shutdown_prepare(void);void physical_fixture_shutdown_done(void);\nint main(int argc,char **argv){',1)
 a=' physical_fixture_terminal();assert(wr_iot_rc_initial_restart_postrelease_current(&receipt));'

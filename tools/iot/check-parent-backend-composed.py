@@ -40,6 +40,7 @@ void parent_fixture_drift(int bad){auth_ok=!bad;}
 void parent_fixture_dispose(struct wr_iot_restart_restore *s){wr_iot_bundle_release(&s->generation.profile.files);assert(!unlink(profile_path));}
 '''
 backend=bn['body'].split('int main(void)',1)[0]
+backend=backend.replace('#include "check-mailbox-normal-consumer.h"','#define WR_IOT_CHECK_NORMAL_COMMIT_EXTERNAL 1\n#include "check-mailbox-normal-consumer.h"')
 backend+='int wr_iot_rc_normal_shutdown_arm_ready(void){return wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.pending;}\nvoid wr_iot_rc_normal_shutdown_arm_commit(void){assert(wr_iot_rc_shutdown.active);wr_iot_rc_shutdown.normal_route_armed=1;}\n'
 a=backend.index('static int parent_ok=1;');b=backend.index('#include "rc-initial-restart-start.inc"',a);backend=backend[:a]+backend[b:]
 backend=backend.replace('#include "rc-initial-restart-start.inc"', '#include "rc-initial-restart-start.inc"\n#include "rc-initial-restart-detach.inc"')

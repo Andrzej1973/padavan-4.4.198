@@ -5,7 +5,7 @@ cut=source.index('\nwith tempfile.TemporaryDirectory(')
 ns={'__file__':str(here/'check-physical-parent-backend-composed.py')}
 exec(compile(source[:cut],'<actual initial setup>','exec'),ns)
 physical=ns['physical']
-backend=ns['backend']
+backend=ns['backend'].replace('#include "check-mailbox-normal-consumer.h"','')
 for name in ['wr_iot_rc_normal_shutdown_arm_ready','wr_iot_rc_normal_shutdown_arm_commit']:backend=ns['remove_function'](backend,name)
 a='static volatile sig_atomic_t physical_replays;';assert a in backend
 backend=backend.replace(a,'#include "rc-normal-shutdown.c"\n'+a,1)

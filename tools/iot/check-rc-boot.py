@@ -44,6 +44,7 @@ enum wr_iot_result_state wr_iot_activation_execute(const struct wr_iot_control_r
  execute_calls++;return recovery?WR_IOT_RESULT_RECOVERY:WR_IOT_RESULT_APPLIED;
 }
 enum wr_iot_result_state wr_iot_activation_continue(const char*id,unsigned long long created){assert(wr_iot_rc_shutdown.active&&strlen(id)==32&&created==ticks);continue_calls++;return WR_IOT_RESULT_APPLIED;}
+#include "check-mailbox-route-actor.h"
 #include "control-server.c"
 #include "rc-boot.c"
 static void setup(const char*parent,int scenario){

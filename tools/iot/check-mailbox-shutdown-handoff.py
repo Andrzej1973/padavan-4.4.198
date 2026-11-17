@@ -9,7 +9,7 @@ body=ns['body']
 a=' submit(&off);assert(wr_iot_rc_dispatch()&&wr_iot_rc_shutdown.active);'
 assert body.count(a)==1
 body=body.replace(a,' assert(wr_iot_rc_shutdown_route_arm());\n'+a,1)
-a='assert(!wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.pending&&shutdowns==1);'
+a='assert(!wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.pending&&!shutdowns&&wr_iot_rc_shutdown.normal_route_requested==SIGTERM);'
 assert body.count(a)==1
 body=body.replace(a,'assert(!wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.pending&&!shutdowns&&wr_iot_rc_shutdown.normal_route_requested==SIGTERM);',1)
 a=' terminal(off.id);assert(!wr_iot_rc_continue());'

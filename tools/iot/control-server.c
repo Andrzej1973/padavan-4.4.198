@@ -9,7 +9,7 @@ static struct {
 int wr_iot_rc_dispatch(void){
  struct wr_iot_mailbox m;struct wr_iot_control_request request={0};
  struct wr_iot_control_result previous;
- enum wr_iot_result_state outcome;unsigned long long now;int claimed,finished=0,pending,retain_shutdown=0;
+ enum wr_iot_result_state outcome;unsigned long long now;int claimed,finished=0,pending,retain_shutdown=0,terminal_ready=0;
  if(wr_iot_rc_shutdown.radio_off_owned||wr_iot_rc_shutdown.radio_on_owned||!wr_iot_rc_shutdown_begin())return 0;
  now=wr_iot_control_now();if(!now)goto done;
  wr_iot_mailbox_init(&m);
@@ -42,6 +42,9 @@ int wr_iot_rc_dispatch(void){
  wr_iot_continuation.owner=getpid();wr_iot_continuation.active=1;
  wr_iot_continuation.terminal=outcome!=WR_IOT_RESULT_RECOVERY;
  wr_iot_continuation.outcome=outcome;
+ terminal_ready=wr_iot_continuation.terminal&&
+  (outcome!=WR_IOT_RESULT_APPLIED||wr_iot_rc_backend_applied_route(request.id,request.created));
+ if(wr_iot_continuation.terminal&&!terminal_ready)outcome=WR_IOT_RESULT_RECOVERY;
 
  now=wr_iot_control_now();
  if(!now||!wr_iot_mailbox_open(&m,WR_IOT_CONTROL_DIRECTORY,0)){
@@ -49,7 +52,7 @@ int wr_iot_rc_dispatch(void){
  }
  finished=wr_iot_mailbox_finish(&m,request.id,outcome,now);
  wr_iot_mailbox_close(&m);memset(&request,0,sizeof(request));
- if(finished&&wr_iot_continuation.terminal){
+ if(finished&&terminal_ready){
   memset(&wr_iot_continuation,0,sizeof(wr_iot_continuation));retain_shutdown=0;
  }
 done:
@@ -64,7 +67,7 @@ done:
 
 int wr_iot_rc_continue(void){
  struct wr_iot_mailbox m;struct wr_iot_control_result current;
- enum wr_iot_result_state outcome;unsigned long long now;int finished,pending;
+ enum wr_iot_result_state outcome;unsigned long long now;int finished,pending,terminal_ready;
  if(!wr_iot_continuation.active||wr_iot_continuation.busy||
     wr_iot_continuation.owner!=getpid()||!wr_iot_rc_shutdown.active)return 0;
  now=wr_iot_control_now();if(!now)return 0;
@@ -86,6 +89,9 @@ int wr_iot_rc_continue(void){
    wr_iot_continuation.terminal=1;wr_iot_continuation.outcome=outcome;
   }
  }
+ terminal_ready=wr_iot_continuation.terminal&&
+  (outcome!=WR_IOT_RESULT_APPLIED||wr_iot_rc_backend_applied_route(wr_iot_continuation.id,wr_iot_continuation.created));
+ if(wr_iot_continuation.terminal&&!terminal_ready)outcome=WR_IOT_RESULT_RECOVERY;
  now=wr_iot_control_now();
  if(!now||!wr_iot_mailbox_open(&m,WR_IOT_CONTROL_DIRECTORY,0)){
   wr_iot_continuation.busy=0;return 0;
@@ -97,7 +103,7 @@ int wr_iot_rc_continue(void){
   wr_iot_mailbox_finish_continued(&m,wr_iot_continuation.id,
    wr_iot_continuation.created,wr_iot_continuation.owner,outcome,now);
  wr_iot_mailbox_close(&m);wr_iot_continuation.busy=0;
- if(!finished||!wr_iot_continuation.terminal)return finished;
+ if(!finished||!terminal_ready)return finished;
  memset(&wr_iot_continuation,0,sizeof(wr_iot_continuation));
  pending=wr_iot_rc_shutdown_end();if(pending)raise(pending);
  return 1;

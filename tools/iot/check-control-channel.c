@@ -15,6 +15,7 @@ static void notify_test(void);
 #define WR_IOT_CONTROL_DIRECTORY test_directory
 #define WR_IOT_NOTIFY() notify_test()
 #include "control-client.c"
+#include "check-mailbox-route-actor.h"
 #include "control-server.c"
 static void notify_test(void){notifications++;}
 static void shutdown_test(int sig){

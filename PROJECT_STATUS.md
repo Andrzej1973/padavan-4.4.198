@@ -1,3 +1,21 @@
+## Mailbox ACTIVE auto-arm: full host regression PASS — 2026-11-17
+
+Completed all287 top-level host cases:39 prefix19410 +1 corrected29369 +148
+suffix94358 +1 corrected34508 +98 tail26021(exit0). Two derived-fixture issues
+were corrected: duplicate reduced/real normal controller, and old immediate
+stock TERM expectation after private OFF. Production source stayed unchanged
+during the successful suffix/tail. New actual five-mode mailbox/normal/physical
+composition verifies automatic ACTIVE arming, factory OFF skip, stale/spent
+retention and pending TERM without replaying ON. Source digests and results:
+docs/evidence/WR1200JS-MAILBOX-ACTIVE-ROUTE-INTEGRATION-2026-11-17.json.
+
+Publish coherent mailbox safety package; next dispatch exact standard+ABI,
+then optional for matching successful standard. New target/image/device proof
+remains open. Optional1344 only verifies previous859b cold lifecycle. Continue
+owned saved-profile/Classic integration afterward; runtime OFF must preserve
+saved credentials. Modern paused; unrelated shared edits and inspector retained.
+No router, ACK, DMA, timing or global queue changes. No production promotion.
+
 ## Cold ACTIVE normal shutdown host-verified — 2026-11-16
 
 Coherent cold package on base502d497e: exact ACTIVE/consumer preflight, cleanup

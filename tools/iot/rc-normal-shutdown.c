@@ -136,3 +136,17 @@ int wr_iot_rc_normal_shutdown_step(void)
  wipe:{volatile unsigned char *p=bytes;for(i=0;i<sizeof(bytes);i++)p[i]=0;}
  return 0;
 }
+
+/* Existing ACTIVE terminal handoff, not permission to start new ON work. */
+int wr_iot_rc_normal_shutdown_terminal_arm_ready(void)
+{
+ return wr_iot_rc_shutdown.active==1&&
+  (!wr_iot_rc_shutdown.pending||wr_iot_rc_shutdown.pending==SIGTERM
+#ifdef SIGQUIT
+   ||wr_iot_rc_shutdown.pending==SIGQUIT
+#endif
+  )&&!wr_iot_rc_shutdown.normal_route_requested&&!wr_iot_rc_shutdown.replay_signal&&
+  !wr_iot_rc_shutdown.radio_on_owned&&!wr_iot_rc_shutdown.radio_off_owned&&
+  !normal_shutdown.owner&&!normal_shutdown.generated&&!normal_shutdown.claimed&&
+  !normal_shutdown.retained&&!normal_shutdown.spent;
+}

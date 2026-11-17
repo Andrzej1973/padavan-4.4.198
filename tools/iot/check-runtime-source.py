@@ -20,6 +20,7 @@ assert report['normal_shutdown_notification_bound']
 assert report['normal_shutdown_initial_active_arm_bound']
 assert report['normal_shutdown_cold_active_arm_bound']
 assert report['normal_shutdown_cold_routed_handoff_bound']
+assert report['normal_shutdown_mailbox_active_arm_bound']
 assert report['normal_shutdown_controller_linked'] and report['normal_shutdown_dispatch_bound'] and not report['normal_shutdown_route_armed']
 assert not report['production_ready'] and not report['runtime_verified'] and report['off_reopen_admission']
 a.output.mkdir(parents=True,exist_ok=True)

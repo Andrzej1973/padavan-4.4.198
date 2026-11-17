@@ -35,4 +35,7 @@ enum wr_iot_result_state wr_iot_activation_continue(const char *,unsigned long l
  * credentials merely to implement a status query; copy only what is needed
  * into private controller-owned state before returning. */
 enum wr_iot_result_state wr_iot_activation_execute(const struct wr_iot_control_request *);
+/* Mailbox APPLIED publication gate: arm only exact fresh ACTIVE; OFF skips.
+ * Failure retains the existing continuation/admission; never execute again. */
+int wr_iot_rc_backend_applied_route(const char *,unsigned long long);
 #endif

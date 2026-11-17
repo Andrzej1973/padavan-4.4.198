@@ -42,14 +42,14 @@ body=body[:a]+r'''
  assert(wr_iot_rc_quiesce_advance(&q,&receipt));
  q.owner++;assert(!wr_iot_rc_quiesce_advance(&q,&receipt)&&!receipt.close_serial);q.owner--;
  q.created++;assert(!wr_iot_rc_quiesce_advance(&q,&receipt));q.created--;
- int pending=wr_iot_rc_shutdown_end();assert(pending==SIGTERM);assert(!raise(pending)&&shutdowns==1);
+ int pending=wr_iot_rc_shutdown_end();assert(pending==SIGTERM);assert(!raise(pending)&&!shutdowns&&wr_iot_rc_shutdown.normal_route_requested==SIGTERM);
  struct wr_iot_rc_quiesce already_off={0};wr_iot_rc_shutdown.active=1;
  assert(wr_iot_rc_quiesce_begin(&already_off,&off)&&already_off.complete&&!already_off.resume_needed);
  assert(!already_off.desired.password[0]&&wr_iot_rc_quiesce_advance(&already_off,&receipt));
  assert(!wr_iot_rc_shutdown_end()&&!depth);
 
 '''+body[b:]
-body=body.replace('ON and OFF published APPLIED','ON published APPLIED; private OFF completed').replace('pending SIGTERM delivered only after terminal publication','pending SIGTERM retained through OFF until caller cleanup')
+body=body.replace('ON and OFF published APPLIED','ON published APPLIED; private OFF completed').replace('pending SIGTERM delivered only after terminal publication','pending SIGTERM retained through OFF and routed to normal physical cleanup')
 with tempfile.TemporaryDirectory(prefix='wr-rc-quiesce-') as d:
  subprocess.run([sys.executable,str(here/'prepare-request-stage-check.py'),d],check=True)
  unit=Path(d)/'check.c';unit.write_text(ns['prefix']+'\n#include "check-reopen-unused.h"\n'+body)

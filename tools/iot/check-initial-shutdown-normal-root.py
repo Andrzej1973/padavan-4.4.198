@@ -6,7 +6,7 @@ exec(compile(script[:script.index('\nwith tempfile.TemporaryDirectory(')],'<comp
 # This fixture binds the actual normal controller, not the CLOSE-only actor.
 actor='int wr_iot_rc_normal_shutdown_arm_ready(void){assert(0);return 0;}'
 assert ns['body'].count(actor)==1
-ns['body']=ns['body'].replace(actor,'',1)
+ns['body']=ns['body'].replace(actor,'',1).replace('#include "check-mailbox-normal-consumer.h"','')
 body=ns['body'].split('static unsigned initial_stock,initial_private;',1)[0]+r'''
 #include "rc-normal-shutdown.c"
 static unsigned normal_stock;

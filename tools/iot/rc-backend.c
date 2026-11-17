@@ -7,6 +7,7 @@
 #include <string.h>
 #include "control-channel.h"
 #include "rc-backend.h"
+#include "rc-normal-shutdown.h"
 #include "rc-quiesce.h"
 #include "rebind-owner.h"
 #include "activation-observe.h"
@@ -412,4 +413,34 @@ int wr_iot_rc_backend_shutdown_initial_request(const struct wr_iot_initial_shutd
  memset(out,0,sizeof(*out));
  if(!wr_iot_initial_shutdown_current(owner)||!wr_iot_rc_boot_idle())return 0;
  return wr_iot_initial_off_request_shutdown(&physical_initial,nonce,out,owner);
+}
+
+/* A mailbox APPLIED result cannot release admission around an unarmed ACTIVE
+ * backend. OFF retains its existing terminal behavior and does not arm. */
+int wr_iot_rc_backend_applied_route(const char *id,unsigned long long created)
+{
+ struct wr_iot_control_result result={0};int guard,ok=0,active=0;
+ if(!id||!created||!wr_iot_control_id(id)||initial_restart_retained()||
+    wr_iot_rc_shutdown.active!=1||wr_iot_rc_shutdown.radio_on_owned||
+    wr_iot_rc_shutdown.radio_off_owned)return 0;
+ guard=wr_iot_service_guard_enter(1);if(guard!=1)return 0;
+ if(rebind.owner){
+  if(rebind.owner!=getpid()||rebind.busy)goto done;
+  active=rebind.phase==WR_REBIND_OWNER_ACTIVE;
+  if(!active){ok=rebind.phase==WR_REBIND_OWNER_OFF&&
+   !strcmp(id,rebind.stop.id)&&created==rebind.stop.created;goto done;}
+ }else{
+  if(backend.owner!=getpid()||backend.busy)goto done;
+  active=backend.phase==WR_IOT_OWNER_ACTIVE;
+  if(!active){
+   if(backend.phase==WR_IOT_OWNER_OFF)ok=!strcmp(id,backend.stop.id)&&created==backend.stop.created;
+   else if(backend.phase==WR_IOT_OWNER_INITIAL_OFF)ok=!strcmp(id,backend.initial_off.id)&&created==backend.initial_off.created;
+   goto done;
+  }
+ }
+ if(!wr_iot_rc_normal_shutdown_terminal_arm_ready())goto done;
+ memcpy(result.id,id,sizeof(result.id));result.created=created;result.state=WR_IOT_RESULT_APPLIED;
+ if(!wr_iot_rc_backend_observed(&result)||!wr_iot_rc_normal_shutdown_terminal_arm_ready())goto done;
+ wr_iot_rc_normal_shutdown_arm_commit();ok=1;
+ done:wr_iot_service_guard_leave(guard);return ok;
 }

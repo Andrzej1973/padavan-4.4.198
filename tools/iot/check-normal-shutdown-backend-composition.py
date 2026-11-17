@@ -5,7 +5,7 @@ here=Path(__file__).resolve().parent
 source=(here/'check-rc-routed-shutdown.py').read_text()
 ns={'__file__':str(here/'check-rc-routed-shutdown.py')}
 exec(compile(source[:source.index('\nwith tempfile.TemporaryDirectory(')],'<routed backend>','exec'),ns)
-body=ns['body']
+body=ns['body'].replace('#include "check-mailbox-normal-consumer.h"','')
 body=body.replace('int wr_iot_rc_normal_shutdown_arm_ready(void){assert(0);return 0;}','')
 body=body.replace('static int entropy_fail;', 'static int entropy_fail,normal_entropy;').replace('memset(out,1,n);return n;', 'memset(out,normal_entropy?2:1,n);return n;')
 body=body.replace('assert(wr_iot_rc_shutdown_route_arm()&&!raise(SIGTERM)&&!shutdowns);','normal_entropy=1;assert(wr_iot_rc_shutdown_route_arm()&&!raise(SIGTERM)&&!shutdowns);')

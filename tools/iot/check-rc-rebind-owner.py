@@ -6,6 +6,7 @@ here=Path(__file__).resolve().parent
 source=(here/'check-rebind-active-stop.py').read_text();ns={'__file__':str(here/'check-rebind-active-stop.py')}
 exec(compile(source[:source.index('with tempfile.TemporaryDirectory(')],'<rebind fixture setup>','exec'),ns)
 body=ns['body'].split('int main(void){',1)[0]+r'''
+#include "check-mailbox-normal-consumer.h"
 #include "rc-backend.c"
 static int initial_restart_retained(void){return 0;}
 static unsigned probes,submits;
@@ -41,6 +42,11 @@ int main(void){
  assert(rebind.phase==WR_REBIND_OWNER_ACTIVE&&submits==1&&!depth);
  struct wr_iot_control_result result={.id="03030303030303030303030303030303",.created=3,.state=WR_IOT_RESULT_APPLIED};
  assert(wr_iot_rc_backend_observed(&result));
+ assert(!wr_iot_rc_shutdown.normal_route_armed);
+ live_token=4;assert(!wr_iot_rc_backend_applied_route(on.id,on.created)&&!wr_iot_rc_shutdown.normal_route_armed);live_token=3;
+ assert(!wr_iot_rc_backend_applied_route(on.id,on.created+1)&&!wr_iot_rc_shutdown.normal_route_armed);
+ assert(wr_iot_rc_backend_applied_route(on.id,on.created)&&wr_iot_rc_shutdown.normal_route_armed);
+
  strcpy(result.id,backend.start.input.id);result.created=backend.start.input.created;
  assert(!wr_iot_rc_backend_observed(&result));strcpy(result.id,on.id);result.created=on.created;
  live_token=4;assert(!wr_iot_rc_backend_observed(&result));live_token=3;
@@ -70,6 +76,10 @@ int main(void){
  assert(!rebind.start.input.request.password[0]&&!memcmp(&q.desired,&desired,sizeof(desired)));
  strcpy(result.id,off.id);result.created=off.created;
  assert(wr_iot_rc_backend_observed(&result)&&wr_iot_rc_backend_closed(&receipt)&&receipt.close_serial==observed_serial);
+ /* Isolate the classifier field only after actual OFF released all resources. */
+ wr_iot_rc_shutdown.normal_route_armed=0;
+ assert(wr_iot_rc_backend_applied_route(off.id,off.created)&&!wr_iot_rc_shutdown.normal_route_armed);
+
  struct wr_iot_rc_quiesce already={0};assert(wr_iot_rc_quiesce_begin(&already,&off)&&already.complete&&!already.resume_needed);
  observed_serial++;assert(!wr_iot_rc_backend_closed(&receipt)&&!receipt.close_serial);observed_serial--;
  assert(wr_iot_activation_execute(&on)==WR_IOT_RESULT_REJECTED); /* Stale ON ID must remain refused; fresh re-ON is checked separately. */

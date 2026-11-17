@@ -17,4 +17,7 @@ int wr_iot_rc_normal_shutdown_step(void);
  * record the request. Refusal preserves the vendor flag. No mask changes. */
 int wr_iot_rc_normal_notification_begin(void);
 void wr_iot_rc_normal_notification_end(void);
+/* Existing ACTIVE terminal transfer permits a queued normal TERM/QUIT.
+ * This does not admit new ON work or bypass the caller's exact ACTIVE proof. */
+int wr_iot_rc_normal_shutdown_terminal_arm_ready(void);
 #endif

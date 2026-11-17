@@ -19,6 +19,7 @@ static int entropy_fail;
 static long stop_entropy(void *out,unsigned int n,unsigned int flags){assert(n==32&&flags==1);if(entropy_fail)return -1;memset(out,1,n);return n;}
 #define WR_IOT_GETRANDOM(out,n,flags) stop_entropy(out,n,flags)
 #include "check-rebind-owner-unused.h"
+#include "check-mailbox-normal-consumer.h"
 #include "rc-backend.c"
 /* Legacy fixture owns no INITIAL restart parent. New composed fixtures opt in. */
 #ifndef WR_IOT_TEST_INITIAL_BACKEND
@@ -145,7 +146,7 @@ int main(void){
  assert(!raise(SIGTERM)&&!shutdowns&&wr_iot_rc_shutdown.pending==SIGTERM);
  assert(signal(SIGTERM,signal_handler)!=SIG_ERR);quarantine_ready=1;
  for(unsigned i=0;i<60&&wr_iot_rc_shutdown.active;i++)assert(wr_iot_rc_continue());
- assert(!wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.pending&&shutdowns==1);
+ assert(!wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.pending&&!shutdowns&&wr_iot_rc_shutdown.normal_route_requested==SIGTERM);
  assert(backend.phase==WR_IOT_OWNER_OFF&&!depth&&closes==1&&progresses==1&&releases==1);
  terminal(off.id);assert(!wr_iot_rc_continue());
  struct wr_iot_driver_closed_result physical_closed={0};

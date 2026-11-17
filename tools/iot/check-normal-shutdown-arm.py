@@ -12,6 +12,17 @@ int main(void){
  assert(!wr_iot_rc_normal_shutdown_arm_ready()&&!wr_iot_rc_shutdown.normal_route_armed);
  wr_iot_rc_shutdown.active=1;
  assert(wr_iot_rc_normal_shutdown_arm_ready());
+ assert(wr_iot_rc_normal_shutdown_terminal_arm_ready());
+ wr_iot_rc_shutdown.pending=SIGTERM;
+ assert(wr_iot_rc_normal_shutdown_terminal_arm_ready()&&!wr_iot_rc_normal_shutdown_arm_ready());
+ assert(!wr_iot_rc_shutdown_begin()); /* terminal transfer grants no new ON */
+ wr_iot_rc_shutdown.pending=SIGQUIT;assert(wr_iot_rc_normal_shutdown_terminal_arm_ready());
+ wr_iot_rc_shutdown.pending=SIGPWR;assert(!wr_iot_rc_normal_shutdown_terminal_arm_ready());
+ wr_iot_rc_shutdown.pending=0;normal_shutdown.spent=1;
+ assert(!wr_iot_rc_normal_shutdown_terminal_arm_ready());normal_shutdown.spent=0;
+ wr_iot_rc_shutdown.active=2;assert(!wr_iot_rc_normal_shutdown_terminal_arm_ready());
+ wr_iot_rc_shutdown.active=1;
+
  assert(!wr_iot_rc_normal_shutdown_cold_arm_ready());
  wr_iot_rc_shutdown.radio_off_owned=1;
  assert(wr_iot_rc_normal_shutdown_cold_arm_ready()&&!wr_iot_rc_normal_shutdown_arm_ready());

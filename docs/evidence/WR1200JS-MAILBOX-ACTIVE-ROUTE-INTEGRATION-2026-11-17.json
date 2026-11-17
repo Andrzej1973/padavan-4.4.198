@@ -1,0 +1,152 @@
+{
+  "date": "2026-11-17",
+  "base_revision": "859b9769266f8811038192b341a932dccac316f8",
+  "status": "LOCAL_MAILBOX_ACTIVE_ROUTE_FULL_287_CASE_HOST_PASS",
+  "implementation": [
+    "control-server gates terminal APPLIED publication on backend_applied_route before releasing admission",
+    "Fresh exact ACTIVE/rebind ACTIVE and actual normal-consumer terminal readiness arm the route",
+    "Gate refusal publishes RECOVERY but retains private APPLIED outcome, exact continuation and admission for gate-only retry",
+    "OFF/INITIAL_OFF skip new ACTIVE arm; ordinary rebind proof and wrong identity/time refusal covered",
+    "Terminal readiness allows already pending TERM/QUIT while ordinary shutdown_begin still refuses new ON",
+    "Declaration lives in staged control-channel header; no early runtime-private-header dependency",
+    "Runtime manifest, typed pair contract and target-symbol loop require mailbox ACTIVE arm binding"
+  ],
+  "verified": [
+    {
+      "session": 84578,
+      "exit_code": 0,
+      "scope": "Integrated actual mailbox/backend/normal physical shutdown composition"
+    },
+    {
+      "session": 47058,
+      "exit_code": 0,
+      "scope": "Permanent factory INITIAL_OFF then actual ON/normal OFF/physical RELEASE, five modes including spent/stale/pending TERM"
+    },
+    {
+      "session": 28975,
+      "exit_code": 0,
+      "scope": "Control protocol + backend/mailbox/owner/boot/rebind/cold/parent/INITIAL compatibility; rebind ACTIVE arm and OFF skip with actual backend observer, normal-consumer actor only in backend-only fixture"
+    },
+    {
+      "session": 78235,
+      "exit_code": 0,
+      "scope": "Actual terminal readiness TERM/QUIT acceptance, other signal and spent/invalid active refusal; no new ON admission granted"
+    },
+    {
+      "session": 29369,
+      "exit_code": 0,
+      "scope": "Actual INITIAL auto-shutdown compatibility after removing reduced consumer actor beside real controller"
+    }
+  ],
+  "pending": [
+    "MIPS target compilation for new mailbox route",
+    "Final candidate image audit for exact new revision",
+    "Physical WR1200JS runtime acceptance",
+    "Owned saved-profile and Classic integration"
+  ],
+  "limits": [
+    "SDK/network/hardware observation boundaries remain injected",
+    "Legacy reduced consumer/route actors explicitly do not prove real normal controller",
+    "This package establishes host evidence only; target/image/device verification remains pending",
+    "Optional1344 verified base859b cold lifecycle only, without this new mailbox gate"
+  ],
+  "configuration_persistence_still_open": true,
+  "runtime_verified": false,
+  "production_promoted": false,
+  "regression_resume": {
+    "full_suite_cases": 287,
+    "prefix_successful_cases": 39,
+    "original_failed_case": "check-initial-auto-shutdown.py",
+    "original_failed_session": 19410,
+    "failure": "Legacy normal-consumer actor duplicates actual controller function",
+    "fixed_case_session": 29369,
+    "fixed_case_exit_code": 0,
+    "suffix_start": "check-initial-auto-cancel.py",
+    "main_loop_cases": 251,
+    "prefix_main_loop_cases": 3,
+    "initial_c_cases": 16,
+    "initial_python_cases": 20,
+    "remaining_session": 94358,
+    "remaining_status": "failed_at_quiesce_after148_cases_see_regression_resume_2",
+    "suffix_cases_count": 247,
+    "suffix_cases_sha256": "a295745a55a64b894be5b1f650523cf69814fb22487776af64ac4df3de6e6ed7"
+  },
+  "failure_record": {
+    "session": 19410,
+    "exit_code": 1,
+    "failed_case": "check-initial-auto-shutdown.py",
+    "error": "Duplicate terminal_arm_ready from test actor and actual normal controller",
+    "correction": "Remove actor include from actual-controller postrelease and cancellation fixtures; production logic unchanged by correction"
+  },
+  "regression_resume_2": {
+    "session": 94358,
+    "exit_code": 1,
+    "passed_cases": 148,
+    "failed_case": "check-rc-quiesce.py",
+    "cause": "Derived fixture expected immediate stock TERM after private OFF, but ACTIVE now arms normal physical shutdown route",
+    "correction": "Assert pending TERM routes to normal physical cleanup without stock handler call",
+    "focused_session": 34508,
+    "focused_exit_code": 0,
+    "remaining_session": 26021,
+    "remaining_cases": 98,
+    "remaining_status": "completed",
+    "total_accounting": "39 prefix + 1 INITIAL fix + 148 suffix + 1 quiesce fix + 98 tail = 287",
+    "remaining_exit_code": 0,
+    "passed_case_names_count": 148,
+    "passed_case_names_sha256": "948bd9464565dd904d41c37caa603312f6ede1ff5d1f20b50ad25c2d84dc90ec"
+  },
+  "code_sha256": {
+    "tools/iot/check-control-channel.c": "daad59a4496da772d985de83708822565e799e8abf746d13ced8d8681af4c0ab",
+    "tools/iot/check-initial-auto-cancel.py": "a7abdb1c74ada0e936e9e763e56e69c41037228caccaf0621307a3558941ae8c",
+    "tools/iot/check-initial-postrelease-normal-shutdown.py": "238f3fb0c884fb382d6b1678cf5f4c3affb5dba6da7f0854ba85c4f8195cf961",
+    "tools/iot/check-initial-shutdown-normal-root.py": "1e7f80961cda16bd8b51ccbd242609c592d271f36d6c971c1e079683b0289e78",
+    "tools/iot/check-mailbox-shutdown-handoff.py": "325a36dac6816142271d722c636fc20bfd829b6bdb3862697244ff011fa81a59",
+    "tools/iot/check-normal-shutdown-arm.py": "a9bdd9330e85725d7ce415e7193f8295470a639e2cceb12a8c940f6d686d36bc",
+    "tools/iot/check-normal-shutdown-backend-composition.py": "7584248108a1c0ae29e81278a990494f5a415d00f96f1030c05ec2d11530e672",
+    "tools/iot/check-package-candidate-pair.py": "8581afd593ad10a8c6886e8522c207d942ee862d2bd0c29b821afbb76810c7d9",
+    "tools/iot/check-parent-backend-composed.py": "45fe81a47a4850985a09e738f91d6f71f7f06516486d72422ca7b7de14199e2b",
+    "tools/iot/check-physical-stop-suite.py": "3e48e80238f58c4be61df6e768c6dd782abbb223c69ec0feb392f9eabd7cde8f",
+    "tools/iot/check-rc-backend-composition.py": "f1487313d4dec5c09e4b57ec60f75a543cf043f3e7601307f20cf873c62731bb",
+    "tools/iot/check-rc-boot.py": "a9c4a964fecf1341219fb695491acf757bde624ac4d05f73e67603f404ee8252",
+    "tools/iot/check-rc-owner-composition.py": "8f73d764b84a60a5408afb6b1c93745d9c4f2bd30c5cfe221dc4abed1611c075",
+    "tools/iot/check-rc-rebind-owner.py": "030cc53db702f9bd7cb543dca00003d41bd87aca50f358aac033d64c076b1c21",
+    "tools/iot/check-runtime-source.py": "762434b4f4f6efa74b9b7d9ed648800104628aa1ce165e02ea5bbcac6636dcd4",
+    "tools/iot/compile-runtime-link.sh": "ca3a1287e7635336e380a69bfc442fc6ce0547b8c9ddc9cbd6f6abaa5e88ad49",
+    "tools/iot/control-channel.h": "c43ae1644ab3353520dd447f985519394c4ad8b810abd8f24dc6625f303082ab",
+    "tools/iot/control-server.c": "2691449e6b1a9205e632ec3a589d326e6dd4f118d0baddc0bb90d350c32c0e55",
+    "tools/iot/package-candidate-pair.py": "5cbb5067ac7c44359b9890de317aeac5f71c0893c568388eeaffa6b91194b97c",
+    "tools/iot/prepare-runtime.py": "4d7b000f0ea88c5c99bc4c0483e533b7ebfd0371d26e83bf59870ff179e092c3",
+    "tools/iot/rc-backend.c": "35eada2aa7a8df996d3bde68bdc92aef33c3fe533db0123364208c95d6e89b14",
+    "tools/iot/rc-normal-shutdown.c": "9b11e7b19c6cccdb862f5fdebb614603d4578a4e3b4bf44404cb280db37a97e9",
+    "tools/iot/rc-normal-shutdown.h": "79ab8481ce80a3c4c533ce273f2eaf546f5b3af7c5376cb7dd99c2b5990b9f85",
+    "tools/iot/check-mailbox-active-normal-shutdown.py": "d20b452d6b240fca080d0ff26587fb7fbd7ad3467b13626c34266798932a83e9",
+    "tools/iot/check-mailbox-normal-consumer.h": "31018259f5b929bb348847d9c6ee632eeed849c5e463d7d87d017a17cbea3661",
+    "tools/iot/check-mailbox-route-actor.h": "9a0113c764344f2004617e08645176282eae6eeed876c1469efe74b88467d585",
+    "tools/iot/check-rc-quiesce.py": "b4148e8b1a0a76c6b4229d6b56a5c18e2bf15d5d2d5f8ad41664775a6c1686d4"
+  },
+  "log_sha256": {
+    "full-suite.log": "435cff08d4c92306a3df4bcbb9fb450bbfa2bc2c75fa5b9f16fe9b1103f1ee9b",
+    "full-suite-suffix.log": "26cdfb32d80c573198a24a62d645ccfb71b9efb462e4554de8cb017c9e8cf925",
+    "quiesce-compat.log": "bdaf7d014451c068981d5d7ffd62c656d9d92b1ed02d0c8a633891272840f1d1",
+    "full-suite-tail.log": "7b12700fec84c4e215cbb36e796e00acfa43d4446cb59d16951a764947c088f6"
+  },
+  "source_references": {
+    "tools/iot/control-server.c": {
+      "int wr_iot_rc_dispatch": 9,
+      "int wr_iot_rc_continue": 68
+    },
+    "tools/iot/rc-backend.c": {
+      "int wr_iot_rc_backend_applied_route": 420
+    },
+    "tools/iot/rc-normal-shutdown.c": {
+      "int wr_iot_rc_normal_shutdown_terminal_arm_ready": 141
+    }
+  },
+  "full_suite_result": {
+    "top_level_cases": 287,
+    "exit_code": 0,
+    "accounting": "39 prefix19410 +1 fixed29369 +148 suffix94358 +1 fixed34508 +98 tail26021",
+    "source_unchanged": true,
+    "boundaries": "Host GCC/ASan/UBSan source and composition tests; SDK/network/hardware boundaries injected; not MIPS build or device acceptance"
+  }
+}

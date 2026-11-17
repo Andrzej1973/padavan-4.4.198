@@ -14,6 +14,7 @@ body=body.replace('s->phase=WR_IOT_COMMIT_ACTIVE;return 1;','s->owner=getpid();s
 body=body.split('int main(void){',1)[0]+observer_hooks+r'''
 static char mailbox_directory[]="/tmp/iot-rc-owner-mailbox-XXXXXX";
 #define WR_IOT_CONTROL_DIRECTORY mailbox_directory
+#include "check-mailbox-route-actor.h"
 #include "control-server.c"
 #include "activation-observe.h"
 #define WR_IOT_NOTIFY() ((void)0)

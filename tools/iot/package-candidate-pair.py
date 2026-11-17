@@ -43,6 +43,7 @@ def build(root,revision):
   ('runtime',runtime,('normal_shutdown_controller_linked','normal_shutdown_dispatch_bound',
     'normal_shutdown_notification_bound','normal_shutdown_initial_active_arm_bound',
     'normal_shutdown_cold_active_arm_bound','normal_shutdown_cold_routed_handoff_bound',
+    'normal_shutdown_mailbox_active_arm_bound',
     'initial_off_admission','off_reopen_admission')),
   ('restart',entry,('private_restart_hook_bound','initial_restart_hook_bound',
     'historical_radio_on_hook_bound','cold_radio_on_hook_bound','owned_radio_off_hook_bound'))):
