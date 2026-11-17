@@ -1,3 +1,20 @@
+## Standard1345 / ABI910 preflight fixed and host verified — 2026-11-17
+
+Both failed on the standalone strict-C11 generated dispatch fixture, which
+omitted the new backend_applied_route actor. Production control-channel header
+already declares it; full287 physical-stop suite passed but does not invoke
+this separate generator. Original logs and failure monitors44016659798 and
+44017372947 match the same first causal error; later missing image artifacts
+are follow-on failures. Monitor useful, no parser change needed.
+
+Added explicit queue-only gate actor plus unavailable/retry/pending TERM/no-ON-
+replay cases. Focused97200 PASS. Full host preflight73907 exit0:71 standalone
+fixtures and all listed compositions/CLOSE/WDS checks. No production C, ACK,
+DMA, timing or global queue change. Evidence:
+docs/evidence/WR1200JS-STANDARD1345-DISPATCH-PREFLIGHT-2026-11-17.json.
+Publish this correction then dispatch new standard/ABI; optional only after
+matching standard success. Saved configuration remains unfinished; Modern paused.
+
 ## Mailbox ACTIVE auto-arm: full host regression PASS — 2026-11-17
 
 Completed all287 top-level host cases:39 prefix19410 +1 corrected29369 +148

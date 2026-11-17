@@ -31,7 +31,7 @@ static struct wr_iot_control_request queued;
 static struct wr_iot_control_result result;
 static int opens,locked,claim=1,executions,finishes,fail_open,emit_shutdown;
 static volatile sig_atomic_t shutdown_delivered;
-static int expected_shutdown,fail_finish,continuations;
+static int expected_shutdown,fail_finish,continuations,applied_route_ready,applied_route_calls;
 static enum wr_iot_result_state outcome;
 static unsigned long long now=20;
 static void shutdown_test(int sig){
@@ -82,12 +82,20 @@ static enum wr_iot_result_state wr_iot_activation_execute(const struct wr_iot_co
  return outcome;
 }
 static enum wr_iot_result_state wr_iot_activation_continue(const char *id,unsigned long long created){assert(id&&created);continuations++;return outcome;}
+/* Queue-only backend boundary. The actual backend/normal/physical composition
+ * separately proves radio-route arming; this actor only controls publication. */
+static int wr_iot_rc_backend_applied_route(const char *id,unsigned long long created){
+ assert(!locked&&wr_iot_rc_shutdown.active==1&&id&&
+        !strcmp(id,queued.id)&&created==queued.created);
+ applied_route_calls++;return applied_route_ready;
+}
 '''+function+r'''
 static void reset(void){
  /* Each scenario begins only after its explicit test-only recovery release. */
  assert(!wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.pending);
  memset(&wr_iot_continuation,0,sizeof(wr_iot_continuation));
  fail_finish=continuations=0;
+ applied_route_ready=1;applied_route_calls=0;
  memset(&queued,0,sizeof(queued));memset(queued.id,'a',32);
  queued.created=10;queued.request.enabled=1;memset(&result,0,sizeof(result));
  memcpy(result.id,queued.id,33);result.created=queued.created;result.state=WR_IOT_RESULT_RUNNING;
@@ -102,6 +110,20 @@ int main(void){
  assert(wr_iot_rc_dispatch()&&executions==1&&finishes==1&&!locked);
  assert(shutdown_delivered==1&&!wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.pending);
  assert(result.state==WR_IOT_RESULT_APPLIED);
+ for(i=0;i<2;i++){
+  assert(signal(SIGTERM,shutdown_test)!=SIG_ERR);
+  reset();applied_route_ready=0;emit_shutdown=i?SIGTERM:0;
+  assert(wr_iot_rc_dispatch()&&executions==1&&applied_route_calls==1);
+  assert(result.state==WR_IOT_RESULT_RECOVERY&&wr_iot_rc_pending());
+  assert(wr_iot_continuation.terminal&&wr_iot_continuation.outcome==WR_IOT_RESULT_APPLIED);
+  assert(wr_iot_rc_shutdown.active&&!shutdown_delivered);
+  assert(wr_iot_rc_continue()&&applied_route_calls==2&&!continuations&&executions==1);
+  assert(result.state==WR_IOT_RESULT_RECOVERY&&wr_iot_rc_pending());
+  applied_route_ready=1;
+  assert(wr_iot_rc_continue()&&applied_route_calls==3&&!continuations&&executions==1);
+  assert(result.state==WR_IOT_RESULT_APPLIED&&!wr_iot_rc_pending());
+  assert(shutdown_delivered==i&&!wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.pending);
+ }
 #ifdef SIGQUIT
  expected_shutdown=SIGQUIT;
  assert(signal(SIGQUIT,shutdown_test)!=SIG_ERR);
