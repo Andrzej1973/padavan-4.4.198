@@ -1,3 +1,28 @@
+## Requested-profile private owner candidate: host verified — 2026-11-17
+
+Added complete OFF-preserving configuration codec, once-only native RAM store,
+private operation owner and read-only runtime-backend baseline captures. Store
+capability defaults0 and refuses reads/writes unless the native snapshot overflow
+guard is verified. Private store/owner is not installed or reachable through CGI.
+Only the new backend header is added to runtime staging/source checks. No flash,
+legacy loaded-profile or runtime gate changes; no ACK/DMA/radio timing changes.
+
+Actual owner/store/backend composition58406 PASS; explicit cancel/read-error53899
+PASS; direct INITIAL/rebind states13942 PASS; six compatibility15851 PASS. Full
+early preflight36520 exit0 including new config fixtures and71 standalone cases.
+Backend snapshots cover IDLE,ACTIVE,OFF,INITIAL_OFF,REBIND_ACTIVE,REBIND_OFF.
+Native syscalls/SDK resources/normal consumer remain fixture actors; real service
+guard separately verified. No target/image/device acceptance for this addition.
+See docs/iot/WR1200JS-SAVED-CONFIGURATION.md and
+ docs/evidence/WR1200JS-CONFIG-OWNER-BACKEND-2026-11-17.json.
+
+Next bind configuration-only authenticated request/queue/status and RC wait-loop
+continuation, keeping RAM result distinct from runtime APPLIED. Then integrate
+cold desired-to-loaded promotion and native flash-save policy, followed by
+Classic. Modern paused. Published-base standard1346 and ABI911 succeeded;a176
+optional1347/44019168668 is confirmed live compiling merged MT7603 candidate.
+Do not duplicate or claim that old run verifies the new private owner.
+
 ## Standard1345 / ABI910 preflight fixed and host verified — 2026-11-17
 
 Both failed on the standalone strict-C11 generated dispatch fixture, which

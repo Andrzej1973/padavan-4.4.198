@@ -12,6 +12,8 @@ import sys
 import tempfile
 
 here = Path(__file__).resolve().parent
+for name in ('check-saved-config.py', 'check-saved-config-store.py', 'check-config-owner-backend.py'):
+    subprocess.run([sys.executable, '-B', str(here / name)], check=True)
 subprocess.run([sys.executable, '-B', str(here / 'check-start-runner-staged-includes.py')], check=True)
 text = (here / 'ci-compile-merged-candidate.sh').read_text()
 loops = re.findall(r'^  for fixture in (check-mcu-sender-owner [^\n]+); do$', text, re.M)

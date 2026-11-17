@@ -1,0 +1,116 @@
+#include <assert.h>
+#include <errno.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include "saved-config-store.h"
+#include "rc-shutdown-admission.h"
+#include "service-guard.h"
+struct wr_iot_rc_shutdown_admission wr_iot_rc_shutdown;
+static char native_record[WR_IOT_SAVED_CONFIG_MAX],foreign[WR_IOT_SAVED_CONFIG_MAX];
+static int present,read_error,writes,set_mode,reads;
+int nvram_getall(char *out,int capacity,int temporary)
+{
+ int n;
+ assert(capacity==0x20000&&temporary==1);reads++;
+ if(read_error){errno=ENOSPC;return -1;}
+ memset(out,0,(size_t)capacity);
+ n=snprintf(out,(size_t)capacity,"unrelated=preserve");assert(n>0);
+ if(present)snprintf(out+n+1,(size_t)capacity-n-1,"%s=%s",WR_IOT_SAVED_CONFIG_KEY,native_record);
+ return 0;
+}
+int nvram_set(const char *key,const char *value)
+{
+ assert(!strcmp(key,WR_IOT_SAVED_CONFIG_KEY));writes++;
+ assert(writes==1); /* A single owner never retries SET. */
+ if(set_mode==1)return -1;
+ strcpy(native_record,set_mode==3?foreign:value);present=1;
+ if(set_mode==4)read_error=1;
+ return set_mode==2?-1:0;
+}
+static struct wr_iot_saved_config config={.profile={.enabled=0,.ssid="Configured IoT",
+ .password="valid-password",.gateway="192.168.50.1",.mask="255.255.255.0",
+ .first="192.168.50.20",.last="192.168.50.200"}};
+static const char id[]="0123456789abcdef0123456789abcdef";
+static void reset(void)
+{
+ assert(wr_iot_service_guard_dup()<0);
+ memset(&wr_iot_rc_shutdown,0,sizeof(wr_iot_rc_shutdown));wr_iot_rc_shutdown.active=1;
+ memset(native_record,0,sizeof(native_record));present=read_error=writes=set_mode=reads=0;
+}
+static void empty(const struct wr_iot_saved_store *s)
+{
+ struct wr_iot_saved_store zero={0};assert(!memcmp(s,&zero,sizeof(*s)));
+ assert(wr_iot_service_guard_dup()<0);
+}
+int main(void)
+{
+ struct wr_iot_saved_store s={0},copy;struct wr_iot_saved_config other=config;
+ strcpy(other.profile.ssid,"Foreign IoT");assert(wr_iot_saved_config_encode(foreign,sizeof(foreign),&other));
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED != 1
+ reset();assert(!wr_iot_saved_store_begin(&s,id,1,&config)&&!reads&&!writes);empty(&s);
+ puts("PASS unprepared saved store refuses before native reads or writes");return 0;
+#endif
+ reset();wr_iot_rc_shutdown.active=0;assert(!wr_iot_saved_store_begin(&s,id,1,&config));
+ wr_iot_rc_shutdown.active=1;wr_iot_rc_shutdown.pending=SIGTERM;
+ assert(!wr_iot_saved_store_begin(&s,id,1,&config)&&!reads&&!writes);empty(&s);
+ reset();read_error=1;assert(!wr_iot_saved_store_begin(&s,id,1,&config)&&!writes);empty(&s);
+ reset();present=1;strcpy(native_record,"malformed");
+ assert(!wr_iot_saved_store_begin(&s,id,1,&config)&&!writes);empty(&s);
+ reset();assert(wr_iot_saved_store_begin(&s,id,1,&config)&&!writes);
+ assert(!wr_iot_saved_store_begin(&s,id,1,&config));
+ copy=s;assert(wr_iot_saved_store_step(&copy)==WR_IOT_SAVED_UNCERTAIN&&!writes);
+ assert(!wr_iot_saved_store_finish(&copy)&&!wr_iot_saved_store_cancel(&copy));
+ {pid_t child=fork();int status;assert(child>=0);
+  if(!child){assert(wr_iot_saved_store_step(&s)==WR_IOT_SAVED_UNCERTAIN&&!writes);_exit(0);}
+  assert(waitpid(child,&status,0)==child&&WIFEXITED(status)&&!WEXITSTATUS(status));}
+ assert(wr_iot_saved_store_step(&s)==WR_IOT_SAVED_RAM_READY&&writes==1);
+ assert(wr_iot_saved_store_step(&s)==WR_IOT_SAVED_RAM_READY&&writes==1);
+ assert(!wr_iot_saved_store_cancel(&s));
+ wr_iot_rc_shutdown.pending=SIGTERM;assert(wr_iot_saved_store_finish(&s));empty(&s);
+ assert(wr_iot_rc_shutdown.pending==SIGTERM&&wr_iot_rc_shutdown.active==1);
+ /* The same desired configuration needs no additional SET. */
+ writes=0;wr_iot_rc_shutdown.pending=0;
+ assert(wr_iot_saved_store_begin(&s,id,2,&config));
+ assert(wr_iot_saved_store_step(&s)==WR_IOT_SAVED_RAM_READY&&!writes);
+ assert(wr_iot_saved_store_finish(&s));empty(&s);
+ reset();assert(wr_iot_saved_store_begin(&s,id,3,&config));
+ wr_iot_rc_shutdown.pending=SIGTERM;
+ assert(wr_iot_saved_store_step(&s)==WR_IOT_SAVED_UNCERTAIN&&!writes);
+ assert(wr_iot_saved_store_cancel(&s));empty(&s);
+ /* An uncertain SET that left the old record may be cancelled, not replayed. */
+ reset();set_mode=1;assert(wr_iot_saved_store_begin(&s,id,4,&config));
+ assert(wr_iot_saved_store_step(&s)==WR_IOT_SAVED_UNCERTAIN&&writes==1);
+ assert(wr_iot_saved_store_step(&s)==WR_IOT_SAVED_UNCERTAIN&&writes==1);
+ assert(!wr_iot_saved_store_finish(&s)&&wr_iot_saved_store_cancel(&s));empty(&s);
+ /* A failed setter may have committed the one tuple; fresh read confirms RAM. */
+ reset();set_mode=2;assert(wr_iot_saved_store_begin(&s,id,5,&config));
+ assert(wr_iot_saved_store_step(&s)==WR_IOT_SAVED_UNCERTAIN&&writes==1);
+ assert(wr_iot_saved_store_step(&s)==WR_IOT_SAVED_RAM_READY&&writes==1);
+ assert(wr_iot_saved_store_finish(&s));empty(&s);
+ reset();set_mode=4;assert(wr_iot_saved_store_begin(&s,id,6,&config));
+ assert(wr_iot_saved_store_step(&s)==WR_IOT_SAVED_UNCERTAIN&&writes==1);
+ assert(!wr_iot_saved_store_finish(&s)&&!wr_iot_saved_store_cancel(&s));
+ read_error=0;assert(wr_iot_saved_store_step(&s)==WR_IOT_SAVED_RAM_READY&&writes==1);
+ assert(wr_iot_saved_store_finish(&s));empty(&s);
+ /* Foreign replacement retains the journal and never rolls back its data. */
+ reset();assert(wr_iot_saved_store_begin(&s,id,7,&config));
+ present=1;strcpy(native_record,foreign);
+ assert(wr_iot_saved_store_step(&s)==WR_IOT_SAVED_CONFLICT&&!writes);
+ assert(!wr_iot_saved_store_cancel(&s)&&!wr_iot_saved_store_finish(&s));
+ assert(!strcmp(native_record,foreign)&&s.owner==getpid());
+ /* Explicit fixture-only restoration proves cancellation of the old baseline. */
+ present=0;native_record[0]=0;assert(wr_iot_saved_store_cancel(&s));empty(&s);
+ reset();present=1;strcpy(native_record,foreign);
+ assert(wr_iot_saved_store_begin(&s,id,8,&config));
+ assert(wr_iot_saved_store_cancel(&s)&&!writes&&!strcmp(native_record,foreign));empty(&s);
+ reset();set_mode=3;assert(wr_iot_saved_store_begin(&s,id,9,&config));
+ assert(wr_iot_saved_store_step(&s)==WR_IOT_SAVED_CONFLICT&&writes==1);
+ assert(wr_iot_saved_store_step(&s)==WR_IOT_SAVED_CONFLICT&&writes==1);
+ assert(!wr_iot_saved_store_cancel(&s)&&!wr_iot_saved_store_finish(&s));
+ assert(!strcmp(native_record,foreign));
+ present=0;native_record[0]=0;assert(wr_iot_saved_store_cancel(&s));empty(&s);
+ puts("PASS actual saved store + real service guard + existing snapshot parser: once-only native SET, unknown reads refuse, uncertain writes reobserve without replay, no-op/cancel/foreign retention, PID/address ownership; NVRAM syscall model only, no flash/driver or installed caller");
+ return 0;
+}

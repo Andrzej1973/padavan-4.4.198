@@ -46,6 +46,13 @@ int main(void){
  live_token=4;assert(!wr_iot_rc_backend_applied_route(on.id,on.created)&&!wr_iot_rc_shutdown.normal_route_armed);live_token=3;
  assert(!wr_iot_rc_backend_applied_route(on.id,on.created+1)&&!wr_iot_rc_shutdown.normal_route_armed);
  assert(wr_iot_rc_backend_applied_route(on.id,on.created)&&wr_iot_rc_shutdown.normal_route_armed);
+ struct wr_iot_config_backend config_baseline={0};
+ {int config_guard=wr_iot_service_guard_enter(1);assert(config_guard==1);
+  assert(wr_iot_rc_config_backend_capture(&config_baseline)&&config_baseline.kind==WR_IOT_CONFIG_BACKEND_REBIND_ACTIVE);
+  assert(!strcmp(config_baseline.id,on.id)&&config_baseline.created==on.created);
+  live_token=4;assert(!wr_iot_rc_config_backend_current(&config_baseline));live_token=3;
+  assert(wr_iot_rc_config_backend_current(&config_baseline));wr_iot_service_guard_leave(config_guard);
+ }
 
  strcpy(result.id,backend.start.input.id);result.created=backend.start.input.created;
  assert(!wr_iot_rc_backend_observed(&result));strcpy(result.id,on.id);result.created=on.created;
@@ -79,6 +86,12 @@ int main(void){
  /* Isolate the classifier field only after actual OFF released all resources. */
  wr_iot_rc_shutdown.normal_route_armed=0;
  assert(wr_iot_rc_backend_applied_route(off.id,off.created)&&!wr_iot_rc_shutdown.normal_route_armed);
+ {int config_guard=wr_iot_service_guard_enter(1);assert(config_guard==1);
+  assert(!wr_iot_rc_config_backend_current(&config_baseline));
+  assert(wr_iot_rc_config_backend_capture(&config_baseline)&&config_baseline.kind==WR_IOT_CONFIG_BACKEND_REBIND_OFF);
+  assert(!strcmp(config_baseline.id,off.id)&&config_baseline.created==off.created);
+  assert(wr_iot_rc_config_backend_current(&config_baseline));wr_iot_service_guard_leave(config_guard);
+ }
 
  struct wr_iot_rc_quiesce already={0};assert(wr_iot_rc_quiesce_begin(&already,&off)&&already.complete&&!already.resume_needed);
  observed_serial++;assert(!wr_iot_rc_backend_closed(&receipt)&&!receipt.close_serial);observed_serial--;

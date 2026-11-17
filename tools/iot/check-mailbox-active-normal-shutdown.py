@@ -21,6 +21,15 @@ body=body.replace(a,''' /* Factory INITIAL_OFF requires empty runtime credential
  normal_shutdown.spent=1;submit(&off);
  assert(wr_iot_rc_dispatch()&&!wr_iot_rc_shutdown.active&&backend.phase==WR_IOT_OWNER_INITIAL_OFF);
  assert(!wr_iot_rc_shutdown.normal_route_armed&&!wr_iot_continuation.active&&normal_shutdown.spent);
+ {struct wr_iot_config_backend config_baseline={0};
+  wr_iot_rc_shutdown.active=1;int config_guard=wr_iot_service_guard_enter(1);assert(config_guard==1);
+  assert(!wr_iot_rc_config_backend_capture(&config_baseline)); /* Spent consumer. */
+  normal_shutdown.spent=0;
+  assert(wr_iot_rc_config_backend_capture(&config_baseline)&&config_baseline.kind==WR_IOT_CONFIG_BACKEND_INITIAL_OFF);
+  assert(!strcmp(config_baseline.id,off.id)&&config_baseline.created==off.created);
+  assert(wr_iot_rc_config_backend_current(&config_baseline)&&!wr_iot_rc_shutdown.normal_route_armed);
+  normal_shutdown.spent=1;wr_iot_service_guard_leave(config_guard);wr_iot_rc_shutdown.active=0;
+ }
  terminal(off.id);normal_shutdown.spent=0;
 '''+a,1)
 a='assert(!wr_iot_rc_dispatch()&&!wr_iot_rc_shutdown.active&&!wr_iot_continuation.active&&backend.phase==WR_IOT_OWNER_IDLE);'
