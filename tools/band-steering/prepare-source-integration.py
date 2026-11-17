@@ -42,9 +42,12 @@ def run(name, *arguments):
 save()
 # Check the exact native persistence inputs before any source mutation.
 for check in ('check-native-commit-order.py', 'check-flash-image.py',
-              'check-native-flash-readback.py', 'check-native-flash-source.py'):
+              'check-native-flash-readback.py', 'check-native-flash-source.py',
+              'check-native-conditional-save.py'):
     run('../iot/' + check, root/'trunk/linux-4.4.x/drivers/nvram/nvram_linux.c')
 run('../iot/check-native-flash-reader.py')
+run('../iot/check-flash-save-native.py')
+run('../iot/check-flash-save-attempt.py')
 for name in ('prepare-idle-aging.py', 'prepare-grant-readback.py',
              'prepare-wps-guards.py', 'prepare-channel-stats.py',
              'prepare-main-bss.py', 'prepare-off-ack.py',

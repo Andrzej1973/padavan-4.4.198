@@ -2,7 +2,7 @@
 import hashlib
 from pathlib import Path
 
-PREPARED_SOURCE = '048a2d1c7679f9713738dfb5afebffff6d87b7b8bb44f1d5c4d1db7ef6e4e906'
+PREPARED_SOURCE = '1451c4df1387e49c691bda0edc5f6b70afec4110d23f54ca6d658e72bb61998e'
 
 
 def verify(trunk):

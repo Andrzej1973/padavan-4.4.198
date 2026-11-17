@@ -63,7 +63,7 @@ with tempfile.TemporaryDirectory(prefix="wr-config-stage-") as directory:
             path.write_bytes(content)
         marker = (rc / "wr-iot/config-snapshot-prepared.h").read_text()
         assert "PREPARED " + str(int(prepared)) + "\n" in marker
-        for unit in ("config-server", "config-owner", "saved-config-store", "native-flash-reader", "cold-on-generation", "radio-on-generation", "restart-generation", "restart-profile", "rc-mode"):
+        for unit in ("config-server", "config-owner", "saved-config-store", "native-flash-reader", "flash-save-attempt", "flash-save-native", "cold-on-generation", "radio-on-generation", "restart-generation", "restart-profile", "rc-mode"):
             assert ("wr-iot-" + unit + ".o") in (rc / "Makefile").read_text()
             subprocess.run(["gcc", "-std=gnu11", "-Wall", "-Wextra", "-Werror", "-O2",
                             "-I" + str(rc), "-I"+str(trunk/"linux-4.4.x/include/nvram"), "-fsyntax-only", str(rc / ("wr-iot-" + unit + ".c"))], check=True)

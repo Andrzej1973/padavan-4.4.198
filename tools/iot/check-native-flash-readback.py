@@ -75,6 +75,14 @@ with tempfile.TemporaryDirectory(prefix='wr-native-flash-') as directory:
     native = Path(directory)/'sdk/trunk/linux-4.4.x/drivers/nvram/nvram_linux.c'
     native.parent.mkdir(parents=True)
     native.write_text(ordered)
+    refused=subprocess.run([sys.executable,str(shared/'prepare-nvram-flash-readback.py'),
+                            str(Path(directory)/'sdk')],capture_output=True)
+    assert refused.returncode and native.read_text()==ordered
+    assert not (native.parent/'wr-nvram-flash-wire.h').exists()
+    native.with_name('nvram.c').write_bytes((here/'fixtures/config-native-getall.c').read_bytes())
+    subprocess.run([sys.executable,str(shared/'prepare-nvram-snapshot.py'),
+                    '--kernel-root',str(Path(directory)/'sdk/trunk/linux-4.4.x')],check=True)
+
     subprocess.run([sys.executable,str(shared/'prepare-nvram-flash-readback.py'),
                     str(Path(directory)/'sdk')],check=True)
     assert native.read_text()==prepared

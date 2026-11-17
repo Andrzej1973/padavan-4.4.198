@@ -1,6 +1,6 @@
 # WR1200JS native flash readback contract
 
-Status: byte validator, typed comparison and guarded Linux flash readback are source-staged and host-tested. No new writer, durable-save receipt or device acceptance.
+Status: guarded native readback and conditional save are source-staged and host-tested. RC save routing, durable receipts and device acceptance remain incomplete.
 
 ## Pure byte validator boundary
 
@@ -112,7 +112,7 @@ requires the existing verified native capacity/snapshot capability.
 prepare-runtime stages its RC object/headers and generates a separate capability
 from native-flash-source-guard.py evidence. compile-runtime-link requires source
 capability and the reader target symbol; configuration_flash_bound remains false.
-There is no startup caller, configuration-save route or new flash write here.
+There is no startup caller or configuration-save route; the conditional write API is described below.
 The reader observes bytes only; expected revision ownership/freshness and a durable
 save receipt still need integration outside PID1.
 
@@ -123,3 +123,44 @@ are fixture actors; these do not constitute kernel scheduling, target or device
 verification. The exact pinned input is identified by
 WR1200JS-STANDARD1357-SOURCE-HASH-2026-11-17.json; an older local cache had an extra
 final blank line and must not be used as a whole-file source authority.
+
+## Conditional profile save and child-only attempt journal
+
+The versioned pointer-free Linux request for ioctl 51 is exactly 400 bytes on
+host and MIPS native ABIs (four 32-bit fields plus a 384-byte bounded record).
+CAP_SYS_ADMIN is required. It accepts only the fixed IoT profile key and native
+Config partition. Under nvram_sem and nvram_lock, it compares the expected
+record, validates native manual-save policy and generates the complete native
+image. Automatic mode refuses manual policy; explicit Save may proceed. This is
+the admission linearization point: subsequent native settings changes are later
+operations, not permission to rewrite the admitted snapshot. A temporary-only
+profile excluded from persistent generation refuses before any MTD write.
+
+The handler requires the prepared generator's ENOSPC guard at source installation.
+After generation it releases the spinlock while retaining the flash mutex,
+requires a successful initial flash read, skips an already identical image, or
+writes once then checks full image equality by readback under the same mutex.
+MTD errors or mismatched readback return failure without retry. All allocated
+buffers and request credentials are wiped. Existing native APIs are unchanged.
+No firmware command or radio/ACK behavior changes.
+
+flash-save-attempt.c is a child-only journal binding PID, self address, request
+ID/time, canonical desired record and automatic/explicit mode. It refuses PID1.
+It seals after one conditional ioctl attempt, an already matching flash
+observation or manual-save deferral; later drift/errors cannot trigger another
+write. Pre-submission errors can recover to a first attempt; post-submission
+errors permit observation only. The native adapter calls only conditional ioctl
+51, never unconditional native COMMIT. After an attempted conditional write, OBSERVED additionally requires its
+successful kernel/close receipt: a matching profile alone cannot prove that a
+partial or failed global flash write preserved other settings. Unknown write
+outcomes retain observation-only uncertainty. Public status still needs parent
+request ownership/freshness checks; OBSERVED is not a completed WebUI operation.
+
+Host tests execute actual prepared handler bodies with deterministic admission
+race injection: policy/profile changes at mutex acquisition refuse before
+generation/write; explicit/manual behavior, temporary exclusion, ENOSPC,
+read/write/partial-write/readback errors and cleanup pass. Actual child journal
+and native adapters pass with sanitizer checks and the real snapshot parser.
+RC source stages both objects for target checks, but has no caller or Save route.
+Parent nonblocking child routing, lost-result ownership and final publication
+remain incomplete. A lost child result never authorizes a replacement COMMIT.
