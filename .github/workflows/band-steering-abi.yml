@@ -1273,7 +1273,10 @@ jobs:
           assert data[:6] == b'\x7fELF\x01\x01', 'Expected ELF32 little endian'
           assert int.from_bytes(data[16:18], 'little') == 1, 'Expected relocatable object'
           assert int.from_bytes(data[18:20], 'little') == 8, 'Expected MIPS'
-          assert 'wr_iot_precreated_boot_request_read' in source.read_text()
+          assert 'wr_iot_generation_boot_request_read(&iot_request,' in source.read_text()
+          selector = source.parent/'wr-iot/generation-profile.h'
+          assert selector.read_bytes() == Path('tools/iot/generation-profile.h').read_bytes()
+          assert 'wr_iot_precreated_boot_request_read' in selector.read_text()
           Path('abi-results/iot-cold-profile-compile.json').write_text(json.dumps({
               'project_commit': os.environ['GITHUB_SHA'],
               'prepared_source_sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
