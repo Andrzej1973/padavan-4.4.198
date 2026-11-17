@@ -7,7 +7,7 @@ enum wr_iot_config_phase {
  WR_IOT_CONFIG_RAM_READY,WR_IOT_CONFIG_REJECTED,WR_IOT_CONFIG_RAM_COMMITTED
 };
 struct wr_iot_config_owner {
- pid_t owner;uintptr_t self;int token,admitted,busy;
+ pid_t owner;uintptr_t self;int token,admitted,busy,owns_admission;
  char id[33];unsigned long long created;enum wr_iot_config_phase phase;
  struct wr_iot_config_backend backend;
  struct wr_iot_saved_store store;
@@ -17,13 +17,19 @@ struct wr_iot_config_owner {
 };
 int wr_iot_config_owner_begin(struct wr_iot_config_owner *,const char *,
  unsigned long long,const struct wr_iot_saved_config *);
+/* Shared mailbox server already owns the exact request's shutdown admission.
+ * Adopt that admission; finish releases only guards, leaving admission with
+ * the server until terminal result publication/cleanup has succeeded. */
+int wr_iot_config_owner_begin_admitted(struct wr_iot_config_owner *,const char *,
+ unsigned long long,const struct wr_iot_saved_config *);
 enum wr_iot_config_phase wr_iot_config_owner_step(struct wr_iot_config_owner *,
  const char *,unsigned long long,int cancel);
 /* Read-only status. Never calls step or invokes SET. */
 int wr_iot_config_owner_observed(struct wr_iot_config_owner *,const char *,unsigned long long);
-/* Caller publishes the exact terminal outcome before this cleanup. A failed
- * publication must retain this owner and call neither begin nor execute again.
- * Successful cleanup retains a private RAM receipt, not flash/runtime proof. */
+/* Standalone callers publish before cleanup. An adopting mailbox server may
+ * prepare the private receipt first while retaining its own outer admission
+ * through publication/retries and rechecking the receipt on every retry.
+ * Successful cleanup retains a RAM receipt, not flash/runtime proof. */
 int wr_iot_config_owner_finish(struct wr_iot_config_owner *,const char *,unsigned long long);
 int wr_iot_config_owner_retire(struct wr_iot_config_owner *);
 #endif

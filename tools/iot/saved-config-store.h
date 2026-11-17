@@ -11,12 +11,10 @@
 #define WR_IOT_SAVED_CONFIG_KEY "wr_iot_config_v1"
 /* A source preparer may enable this only after checking the installed native
  * dump overflow guard. Default builds must not infer absence from a dump. */
-#ifndef WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED
-#define WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED 0
-#endif
+#include "config-snapshot-prepared.h"
 enum wr_iot_saved_store_phase {
  WR_IOT_SAVED_IDLE=0,WR_IOT_SAVED_PREPARED,WR_IOT_SAVED_UNCERTAIN,
- WR_IOT_SAVED_RAM_READY,WR_IOT_SAVED_CONFLICT
+ WR_IOT_SAVED_RAM_READY,WR_IOT_SAVED_CONFLICT,WR_IOT_SAVED_NO_SPACE
 };
 struct wr_iot_saved_store {
  pid_t owner;uintptr_t self;int token,attempted,prior_present;

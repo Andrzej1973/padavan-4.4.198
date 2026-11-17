@@ -71,7 +71,7 @@ pending[rc/'rc.c']=main.encode()
 pending[rc/'init.c']=init.encode()
 pending[rc/'Makefile']=rc_make.encode()
 pending[http/'Makefile']=http_make.encode()
-headers=('control-channel.h','control-mailbox.h','control-record.h','service-lock.h',
+headers=('control-channel.h','control-mailbox.h','control-record.h','saved-config.h','service-lock.h',
          'request.h','subnet.h','types.h')
 for root,role in ((rc,'server'),(http,'client')):
     for name in headers:

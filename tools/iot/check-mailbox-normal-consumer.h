@@ -1,3 +1,4 @@
+#include "check-config-server-unused.h"
 /* Reduced normal-consumer boundary for backend-only fixtures. Actual normal
  * controller availability and publication are checked by the mailbox/physical
  * composition. These actors cannot prove target or shutdown completion. */

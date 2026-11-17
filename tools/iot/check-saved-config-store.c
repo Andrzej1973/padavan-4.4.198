@@ -10,14 +10,29 @@
 struct wr_iot_rc_shutdown_admission wr_iot_rc_shutdown;
 static char native_record[WR_IOT_SAVED_CONFIG_MAX],foreign[WR_IOT_SAVED_CONFIG_MAX];
 static int present,read_error,writes,set_mode,reads;
+static size_t fill_to;
+static size_t filler(char *out,size_t used)
+{
+ unsigned slot=0;
+ while(used<fill_to){
+  char key[16];size_t remaining=fill_to-used,bytes=remaining>4096?4096:remaining;
+  int n=snprintf(key,sizeof(key),"fill%u=",slot++);assert(n>0);
+  if(remaining>bytes&&remaining-bytes<20)bytes-=20;
+  assert(bytes>(size_t)n);memcpy(out+used,key,(size_t)n);
+  memset(out+used+n,'x',bytes-(size_t)n-1);out[used+bytes-1]=0;used+=bytes;
+ }
+ return used;
+}
 int nvram_getall(char *out,int capacity,int temporary)
 {
- int n;
+ int n;size_t used;
  assert(capacity==0x20000&&temporary==1);reads++;
  if(read_error){errno=ENOSPC;return -1;}
  memset(out,0,(size_t)capacity);
  n=snprintf(out,(size_t)capacity,"unrelated=preserve");assert(n>0);
- if(present)snprintf(out+n+1,(size_t)capacity-n-1,"%s=%s",WR_IOT_SAVED_CONFIG_KEY,native_record);
+ used=filler(out,(size_t)n+1);
+ if(present){n=snprintf(out+used,(size_t)capacity-used,"%s=%s",WR_IOT_SAVED_CONFIG_KEY,native_record);assert(n>0);used+=(size_t)n+1;}
+ if(used+1>61440){errno=ENOSPC;return -1;} /* Native NOR snapshot capacity. */
  return 0;
 }
 int nvram_set(const char *key,const char *value)
@@ -38,6 +53,7 @@ static void reset(void)
  assert(wr_iot_service_guard_dup()<0);
  memset(&wr_iot_rc_shutdown,0,sizeof(wr_iot_rc_shutdown));wr_iot_rc_shutdown.active=1;
  memset(native_record,0,sizeof(native_record));present=read_error=writes=set_mode=reads=0;
+ fill_to=0;
 }
 static void empty(const struct wr_iot_saved_store *s)
 {
@@ -102,6 +118,21 @@ int main(void)
  assert(!strcmp(native_record,foreign)&&s.owner==getpid());
  /* Explicit fixture-only restoration proves cancellation of the old baseline. */
  present=0;native_record[0]=0;assert(wr_iot_saved_store_cancel(&s));empty(&s);
+ /* Preserve room for the native header/double NUL before attempting SET. */
+ reset();fill_to=61440-20-2-16;
+ assert(!wr_iot_saved_store_begin(&s,id,10,&config)&&!writes);empty(&s);
+ reset();assert(wr_iot_saved_store_begin(&s,id,11,&config));fill_to=61440-20-2-16;
+ assert(wr_iot_saved_store_step(&s)==WR_IOT_SAVED_NO_SPACE&&!writes);
+ assert(wr_iot_saved_store_cancel(&s));empty(&s);
+ /* Replacing an existing tuple counts only its net growth, not two copies. */
+ reset();present=1;strcpy(native_record,foreign);
+ {char desired[WR_IOT_SAVED_CONFIG_MAX];size_t bytes;
+  assert(wr_iot_saved_config_encode(desired,sizeof(desired),&config));
+  bytes=strlen(WR_IOT_SAVED_CONFIG_KEY)+strlen(desired)+2;fill_to=61440-20-2-bytes;
+  assert(wr_iot_saved_store_begin(&s,id,12,&config));
+  assert(wr_iot_saved_store_step(&s)==WR_IOT_SAVED_RAM_READY&&writes==1);
+  assert(wr_iot_saved_store_finish(&s));empty(&s);
+ }
  reset();present=1;strcpy(native_record,foreign);
  assert(wr_iot_saved_store_begin(&s,id,8,&config));
  assert(wr_iot_saved_store_cancel(&s)&&!writes&&!strcmp(native_record,foreign));empty(&s);

@@ -133,6 +133,7 @@ with tempfile.TemporaryDirectory(prefix="wr-config-backend-") as directory:
     subprocess.run([
         "gcc", "-std=gnu11", "-Wall", "-Wextra", "-Werror", "-O2",
         "-fsanitize=address,undefined", "-fno-pie", "-no-pie",
+        "-DWR_IOT_NATIVE_NVRAM_SPACE=61440", "-DWR_IOT_NATIVE_NVRAM_HEADER_BYTES=20",
         "-DWR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED=1", "-I" + directory, "-I" + str(here),
         str(unit), *[str(here / n) for n in units], str(here / "config-owner.c"),
         str(here / "saved-config-store.c"), str(shared / "settings-snapshot.c"),

@@ -6,6 +6,7 @@
 #define WR_IOT_HTTP_REQUEST_H
 #include "http-form.h"
 #include "request.h"
+#include "saved-config.h"
 
 static int wr_iot_http_request_read(struct wr_iot_request *out,int authenticated,
  const char *method,const char *content_type,const char *expected_token,
@@ -25,5 +26,23 @@ static int wr_iot_http_request_read(struct wr_iot_request *out,int authenticated
  if(difference)return 0;
  return wr_iot_request_read(out,wr_iot_http_form_read,&form,router_mode,
                             radio_on,radio_mode,reserved,count);
+}
+/* Configuration-only POST. OFF must carry a complete provisioning profile;
+ * runtime OFF retains its existing minimal form and never supplies secrets. */
+static inline int wr_iot_http_config_request_read(struct wr_iot_saved_config *out,int authenticated,
+ const char *method,const char *content_type,const char *expected_token,
+ const char *body,size_t length)
+{
+ struct wr_iot_http_form form={0};unsigned int difference=0;size_t i;int ok=0;
+ if(!out||authenticated!=1||!method||strcmp(method,"POST")||!content_type||
+    strcmp(content_type,"application/x-www-form-urlencoded")||!expected_token||
+    strlen(expected_token)!=32||!wr_iot_http_config_form_parse(&form,body,length))goto done;
+ for(i=0;i<32;i++){
+  if(wr_iot_http_hex((unsigned char)expected_token[i])<0)goto done;
+  difference|=(unsigned char)expected_token[i]^(unsigned char)form.token[i];
+ }
+ if(difference)goto done;
+ ok=wr_iot_saved_config_read(out,wr_iot_http_form_read,&form,NULL,0);
+ done:wr_iot_saved_wipe(&form,sizeof(form));return ok;
 }
 #endif

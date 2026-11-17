@@ -13,6 +13,7 @@ web=(root/'web_ex.c').read_text(encoding='utf-8')
 for route,handler,input_handler in (
  ('wr_iot_token.cgi','wr_iot_http_token_output','NULL'),
  ('wr_iot_apply.cgi','wr_iot_http_apply_output','wr_iot_http_apply_input'),
+ ('wr_iot_config.cgi','wr_iot_http_config_output','wr_iot_http_apply_input'),
  ('wr_iot_result.cgi','wr_iot_http_result_output','NULL')):
     entry='{ "'+route+'", "application/json", no_cache_IE, '+input_handler+', '+handler+', 1 }'
     if web.count(entry)!=1:

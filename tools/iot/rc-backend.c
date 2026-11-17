@@ -78,7 +78,7 @@ enum wr_iot_result_state wr_iot_activation_execute(const struct wr_iot_control_r
  if(initial_restart_retained()){return WR_IOT_RESULT_RECOVERY;}
  struct wr_iot_rc_mode mode={0};enum wr_iot_result_state result;
  int guard;
- if(!request)return WR_IOT_RESULT_REJECTED;
+ if(!request||request->operation!=WR_IOT_OPERATION_RUNTIME)return WR_IOT_RESULT_REJECTED;
  if(wr_iot_rc_shutdown.radio_off_owned||wr_iot_rc_shutdown.radio_on_owned)return WR_IOT_RESULT_RECOVERY;
  if(!wr_iot_rc_shutdown.active)return WR_IOT_RESULT_RECOVERY;
  /* Never let a failed new mode observation turn an already retained recovery
@@ -104,6 +104,7 @@ enum wr_iot_result_state wr_iot_activation_continue(const char *id,unsigned long
 }
 int wr_iot_rc_backend_observed(const struct wr_iot_control_result *result)
 {
+ if(result&&result->state==WR_IOT_RESULT_STORED_RAM)return wr_iot_rc_config_observed(result);
  if(initial_restart_retained()){return 0;}
  return rebind.owner?wr_iot_rebind_owner_observed(&rebind,result):
   wr_iot_activation_owner_observed(&backend,result);

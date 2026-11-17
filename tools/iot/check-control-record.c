@@ -48,6 +48,23 @@ int main(void){
  assert(!wr_iot_control_result_current(&result,record.id,119,10));
  assert(!wr_iot_control_result_current(&result,"1123456789abcdef0123456789abcdef",125,10));
  result.state=99;assert(!wr_iot_control_result_current(&result,record.id,125,10));
- puts("PASS IoT control records: bounded portable request, delimiter/overflow refusal, ID-bound fresh explicit result states");
+ memset(&record.request,0,sizeof(record.request));record.operation=WR_IOT_OPERATION_CONFIG;
+ record.request.enabled=0;strcpy(record.request.ssid,"Saved disabled IoT");
+ strcpy(record.request.password,"saved-password");strcpy(record.request.gateway,"192.168.50.1");
+ strcpy(record.request.mask,"255.255.255.0");strcpy(record.request.first,"192.168.50.20");
+ strcpy(record.request.last,"192.168.50.200");record.created=123;
+ n=wr_iot_control_encode(body,sizeof(body),&record);assert(n>0);
+ assert(!strncmp(body,"WR-IOT-CONFIG-REQUEST-1\n",24));
+ assert(wr_iot_control_decode(&decoded,body,(size_t)n));
+ assert(decoded.operation==WR_IOT_OPERATION_CONFIG&&!decoded.request.enabled&&
+  !strcmp(decoded.request.password,"saved-password")&&decoded.request.subnet.network==0xc0a83200);
+ before=decoded;assert(!wr_iot_control_decode(&decoded,body,(size_t)n-1));
+ assert(!memcmp(&decoded,&before,sizeof(decoded)));
+ record.operation=99;assert(!wr_iot_control_encode(body,sizeof(body),&record));
+ record.operation=WR_IOT_OPERATION_CONFIG;record.request.password[0]=0;
+ assert(!wr_iot_control_encode(body,sizeof(body),&record));
+ result.state=WR_IOT_RESULT_STORED_RAM;
+ assert(!strcmp(wr_iot_control_state(result.state),"stored_in_ram"));
+ puts("PASS IoT control records: runtime v1 preserved, typed complete disabled configuration, malformed/partial refusal, distinct RAM outcome");
  return 0;
 }

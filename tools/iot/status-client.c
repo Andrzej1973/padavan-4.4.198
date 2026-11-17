@@ -4,5 +4,11 @@
 #include "status-endpoint.h"
 int wr_iot_activation_result_observed(const struct wr_iot_control_result *result)
 {
- return wr_iot_status_endpoint_query(WR_IOT_CONTROL_DIRECTORY,1,0,result);
+ return result&&result->state==WR_IOT_RESULT_APPLIED&&
+  wr_iot_status_endpoint_query(WR_IOT_CONTROL_DIRECTORY,1,0,result);
+}
+int wr_iot_configuration_result_observed(const struct wr_iot_control_result *result)
+{
+ return result&&result->state==WR_IOT_RESULT_STORED_RAM&&
+  wr_iot_status_endpoint_query(WR_IOT_CONTROL_DIRECTORY,1,0,result);
 }

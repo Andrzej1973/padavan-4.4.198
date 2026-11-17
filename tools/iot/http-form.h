@@ -40,7 +40,7 @@ static int wr_iot_http_value(char *out,size_t capacity,const char *in,size_t len
  out[n]=0;return 1;
 }
 
-static int wr_iot_http_form_parse(struct wr_iot_http_form *out,const char *body,size_t length)
+static int wr_iot_http_form_parse_mode(struct wr_iot_http_form *out,const char *body,size_t length,int configuration)
 {
  static const char *names[]={"wr_iot_request_enable","wr_iot_request_ssid",
   "wr_iot_request_psk","wr_iot_request_gateway","wr_iot_request_mask",
@@ -75,9 +75,15 @@ static int wr_iot_http_form_parse(struct wr_iot_http_form *out,const char *body,
     strlen(candidate.token)!=32)return 0;
  for(i=0;i<32;i++)if(wr_iot_http_hex((unsigned char)candidate.token[i])<0)return 0;
  if(candidate.enable[0]=='1'&&candidate.present!=((1U<<WR_IOT_HTTP_FIELD_COUNT)-1))return 0;
- if(candidate.enable[0]=='0'&&candidate.present!=((1U<<0)|(1U<<7)))return 0;
+ if(configuration){
+  if(candidate.present!=((1U<<WR_IOT_HTTP_FIELD_COUNT)-1))return 0;
+ }else if(candidate.enable[0]=='0'&&candidate.present!=((1U<<0)|(1U<<7)))return 0;
  *out=candidate;return 1;
 }
+static inline int wr_iot_http_form_parse(struct wr_iot_http_form *out,const char *body,size_t length)
+{return wr_iot_http_form_parse_mode(out,body,length,0);}
+static inline int wr_iot_http_config_form_parse(struct wr_iot_http_form *out,const char *body,size_t length)
+{return wr_iot_http_form_parse_mode(out,body,length,1);}
 
 /* Adapter for wr_iot_request_read(); absent fields remain absent. */
 static const char *wr_iot_http_form_read(void *context,const char *key)

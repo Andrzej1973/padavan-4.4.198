@@ -1,3 +1,19 @@
+## Configuration transport and native capacity checkpoint — 2026-11-17
+
+Published base fc82dfe640fdcd14bca5fc74d4b27ef0a3eac6ed: standard1348,
+ABI912 and optional1349/44095004155 SUCCESS (optional freshly checked).
+Current UNCOMMITTED source binds configuration-only CGI/shared queue/RC owner/
+typed IPC to RAM storage in experimental candidate staging. Flash save and
+loaded-profile promotion remain unfinished; no main-image/device acceptance.
+
+Native generator overflow reproduced; preparer now refuses ENOSPC before rehash/
+flash. Store checks verified actual NVRAM capacity before SET. Focused host tests
+pass. Full lifecycle suite accounted 68 prefix + repaired header test +218 suffix
+=287 passed, with external actors as documented. Final early preflight PASS:71 standalone cases plus configuration/transport/native
+checks, CLOSE composition and WDS capture. Log retained under
+.scratch/config-transport-20261117/final-preflight.log. Modern paused.
+See docs/iot/WR1200JS-SAVED-CONFIGURATION.md. Preserve unrelated shared changes.
+
 ## Requested-profile private owner candidate: host verified — 2026-11-17
 
 Added complete OFF-preserving configuration codec, once-only native RAM store,

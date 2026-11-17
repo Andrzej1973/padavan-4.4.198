@@ -17,6 +17,7 @@ with tempfile.TemporaryDirectory(prefix="wr-saved-store-") as directory:
         subprocess.run([
         "gcc", "-std=gnu11", "-Wall", "-Wextra", "-Werror", "-O2",
         "-fsanitize=address,undefined", "-fno-pie", "-no-pie",
+        "-DWR_IOT_NATIVE_NVRAM_SPACE=61440", "-DWR_IOT_NATIVE_NVRAM_HEADER_BYTES=20",
         '-DWR_IOT_SERVICE_LOCK_PATH="' + str(root / "lock") + '"',
         "-DWR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED=" + str(prepared),
         "-I" + str(root), "-I" + str(here),

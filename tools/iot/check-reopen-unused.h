@@ -1,3 +1,4 @@
+#include "check-config-server-unused.h"
 /* Initial-only fixtures: every reopen adapter must stay unreachable. */
 #include "reopen-start.h"
 #include "reopen-network.h"

@@ -1,0 +1,20 @@
+{
+  "date": "2026-11-17",
+  "upstream_source": {
+    "repository": "vipshmily/padavan-4.4",
+    "revision": "c25283e915a2a00a763774dd255b14aff997285e"
+  },
+  "cause": "_nvram_generate silently breaks on tuple overflow and returns success before destructive rehash or incomplete flash staging",
+  "correction": "Return -ENOSPC before rehash/CRC/flash; preserve existing getall overflow refusal",
+  "reproduction": "check-native-config-overflow.py executes original and prepared generator with modeled table/header/rehash/flash callbacks under ASan/UBSan",
+  "native_header_sha256": "411b381cdff5d6fea5fda76510e7a5dacff591dd067ce47c3cc3e225ae42b33e",
+  "NOR_space": 61440,
+  "header_bytes": 20,
+  "store_admission": "Full coherent snapshot projected tuple bytes; replacement subtracts old tuple; checked before begin/SET; no-space refuses without SET",
+  "baseline_generator_sha256": "9af4f6a563312299a264f574da10d35bb2b1470625e1a211197adebcb28334f4",
+  "prepared_generator_sha256": "c25f6619194849e9c2897c6ea73aff9b935aaf88a52afb037a2a2069a5d3cef1",
+  "verification": "host reproduction, guarded overflow/fitting paths and store capacity passed",
+  "target_kernel_verified": false,
+  "device_verified": false,
+  "scope": "Selected baseline native NVRAM source preparer and experimental RAM store; no firmware MCU protocol changes"
+}

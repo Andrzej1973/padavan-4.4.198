@@ -98,8 +98,11 @@ static int result_read(struct wr_iot_mailbox *m,struct wr_iot_control_result *ou
   if(count==5)return -1;
   lines[count++]=buffer+start;buffer[i]=0;start=i+1;
  }
- if(count!=5||start!=n||strcmp(lines[0],"WR-IOT-RESULT-1")||
-    !wr_iot_control_id(lines[1])||strlen(lines[2])!=1||lines[2][0]<'1'||lines[2][0]>'5'||
+ if(count!=5||start!=n||
+    (strcmp(lines[0],"WR-IOT-RESULT-1")&&strcmp(lines[0],"WR-IOT-RESULT-2"))||
+    !wr_iot_control_id(lines[1])||strlen(lines[2])!=1||lines[2][0]<'1'||lines[2][0]>'6'||
+    (!strcmp(lines[0],"WR-IOT-RESULT-1")&&lines[2][0]=='6')||
+    (!strcmp(lines[0],"WR-IOT-RESULT-2")&&lines[2][0]!='6')||
     !wr_iot_control_time(lines[3],&r.created)||!wr_iot_control_time(lines[4],&r.observed)||
     r.created>r.observed)return -1;
  memcpy(r.id,lines[1],33);r.state=(enum wr_iot_result_state)(lines[2][0]-'0');
@@ -108,7 +111,8 @@ static int result_read(struct wr_iot_mailbox *m,struct wr_iot_control_result *ou
 static int result_write(struct wr_iot_mailbox *m,const struct wr_iot_control_result *r){
  char buffer[160];int n;
  if(!wr_iot_control_result_current(r,r->id,r->observed,0))return 0;
- n=snprintf(buffer,sizeof(buffer),"WR-IOT-RESULT-1\n%s\n%d\n%llu\n%llu\n",
+ n=snprintf(buffer,sizeof(buffer),"%s\n%s\n%d\n%llu\n%llu\n",
+  r->state==WR_IOT_RESULT_STORED_RAM?"WR-IOT-RESULT-2":"WR-IOT-RESULT-1",
   r->id,(int)r->state,r->created,r->observed);
  return n>0&&(size_t)n<sizeof(buffer)&&write_record(m,"result.new","result",buffer,(size_t)n);
 }
@@ -126,7 +130,8 @@ int wr_iot_mailbox_submit(struct wr_iot_mailbox *m,const struct wr_iot_control_r
  status=result_read(m,&previous);
  if(status<0||(status==1&&
     (!strcmp(previous.id,request->id)||previous.observed>request->created||
-     (previous.state!=WR_IOT_RESULT_APPLIED&&previous.state!=WR_IOT_RESULT_REJECTED))))goto fail;
+     (previous.state!=WR_IOT_RESULT_APPLIED&&previous.state!=WR_IOT_RESULT_REJECTED&&
+      previous.state!=WR_IOT_RESULT_STORED_RAM))))goto fail;
  memcpy(r.id,request->id,33);r.created=r.observed=request->created;r.state=WR_IOT_RESULT_QUEUED;
  status=write_record(m,"request.new","request",buffer,(size_t)n);
  memset(buffer,0,sizeof(buffer));
@@ -155,13 +160,17 @@ static int mailbox_finish(struct wr_iot_mailbox *m,const char *id,
  if(!wr_iot_control_id(id)||!request_read(m,&request)||strcmp(id,request.id)||
     result_read(m,&r)!=1||strcmp(r.id,id)||r.created!=request.created||now<r.observed||
     (continued_created&&r.created!=continued_created))goto fail;
+ if((next==WR_IOT_RESULT_APPLIED&&request.operation!=WR_IOT_OPERATION_RUNTIME)||
+    (next==WR_IOT_RESULT_STORED_RAM&&request.operation!=WR_IOT_OPERATION_CONFIG))goto fail;
  memset(&request,0,sizeof(request));
- if(next!=WR_IOT_RESULT_APPLIED&&next!=WR_IOT_RESULT_REJECTED&&next!=WR_IOT_RESULT_RECOVERY)return 0;
+ if(next!=WR_IOT_RESULT_APPLIED&&next!=WR_IOT_RESULT_REJECTED&&
+    next!=WR_IOT_RESULT_RECOVERY&&next!=WR_IOT_RESULT_STORED_RAM)return 0;
  if(r.state!=next){
   if(r.state!=WR_IOT_RESULT_RUNNING&&
      !(r.state==WR_IOT_RESULT_QUEUED&&next==WR_IOT_RESULT_REJECTED)&&
      !(r.state==WR_IOT_RESULT_RECOVERY&&
-       (next==WR_IOT_RESULT_REJECTED||(continued_created&&next==WR_IOT_RESULT_APPLIED))))return 0;
+       (next==WR_IOT_RESULT_REJECTED||(continued_created&&
+        (next==WR_IOT_RESULT_APPLIED||next==WR_IOT_RESULT_STORED_RAM)))))return 0;
   r.state=next;r.observed=now;
   if(!result_write(m,&r))return 0;
  }else if(next==WR_IOT_RESULT_RECOVERY){
@@ -184,7 +193,7 @@ int wr_iot_mailbox_finish_continued(struct wr_iot_mailbox *m,const char *id,
  /* unlink may have succeeded before directory fsync failed. Retry durability
   * of this exact terminal result without requiring deleted credentials. */
  if(fstatat(m->directory,"request",&st,AT_SYMLINK_NOFOLLOW)&&errno==ENOENT){
-  return (next==WR_IOT_RESULT_APPLIED||next==WR_IOT_RESULT_REJECTED)&&
+  return (next==WR_IOT_RESULT_APPLIED||next==WR_IOT_RESULT_REJECTED||next==WR_IOT_RESULT_STORED_RAM)&&
    result_read(m,&result)==1&&!strcmp(result.id,id)&&result.created==created&&
    result.state==next&&now>=result.observed&&!fsync(m->directory);
  }

@@ -5,7 +5,26 @@ struct wr_iot_rc_shutdown_admission wr_iot_rc_shutdown;
 static struct {
  char id[33];unsigned long long created;pid_t owner;
  int active,busy,terminal;enum wr_iot_result_state outcome;
+ enum wr_iot_operation operation;
 } wr_iot_continuation;
+static int wr_iot_terminal_ready(enum wr_iot_operation operation,
+ enum wr_iot_result_state outcome,const char *id,unsigned long long created)
+{
+ struct wr_iot_control_result result={0};
+ if(operation==WR_IOT_OPERATION_RUNTIME)
+  return outcome!=WR_IOT_RESULT_APPLIED||wr_iot_rc_backend_applied_route(id,created);
+ if(operation!=WR_IOT_OPERATION_CONFIG)return 0;
+ memcpy(result.id,id,sizeof(result.id));result.created=created;result.state=outcome;
+ return wr_iot_rc_config_terminal_ready(&result);
+}
+static enum wr_iot_result_state wr_iot_operation_outcome(enum wr_iot_operation operation,
+ enum wr_iot_result_state outcome)
+{
+ if(outcome==WR_IOT_RESULT_REJECTED||
+    (operation==WR_IOT_OPERATION_RUNTIME&&outcome==WR_IOT_RESULT_APPLIED)||
+    (operation==WR_IOT_OPERATION_CONFIG&&outcome==WR_IOT_RESULT_STORED_RAM))return outcome;
+ return WR_IOT_RESULT_RECOVERY;
+}
 int wr_iot_rc_dispatch(void){
  struct wr_iot_mailbox m;struct wr_iot_control_request request={0};
  struct wr_iot_control_result previous;
@@ -19,7 +38,8 @@ int wr_iot_rc_dispatch(void){
   /* Retry only credential-file cleanup after an already terminal result.
    * Never replay a RUNNING or RECOVERY operation after interruption. */
   finished=wr_iot_mailbox_result(&m,&previous)&&
-   (previous.state==WR_IOT_RESULT_APPLIED||previous.state==WR_IOT_RESULT_REJECTED)&&
+   (previous.state==WR_IOT_RESULT_APPLIED||previous.state==WR_IOT_RESULT_REJECTED||
+    previous.state==WR_IOT_RESULT_STORED_RAM)&&
    wr_iot_mailbox_finish(&m,previous.id,previous.state,now);
   wr_iot_mailbox_close(&m);goto done;
  }
@@ -27,9 +47,9 @@ int wr_iot_rc_dispatch(void){
  /* RUNNING is visible before execution and prevents replay/replacement even
   * when RC dies or its backend cannot finish recovery. Do not hold the queue
   * lock while taking the distinct activation/service guard. */
- outcome=wr_iot_activation_execute(&request);
- if(outcome!=WR_IOT_RESULT_APPLIED&&outcome!=WR_IOT_RESULT_REJECTED)
-  outcome=WR_IOT_RESULT_RECOVERY;
+ outcome=request.operation==WR_IOT_OPERATION_CONFIG?
+  wr_iot_rc_config_execute(&request):wr_iot_activation_execute(&request);
+ outcome=wr_iot_operation_outcome(request.operation,outcome);
  /* Recovery still owns resources/isolation after this request returns.
   * Do not replay a pending shutdown into the stock fatal path, which would
   * continue LAN teardown even if the Wi-Fi stop helper refuses. Only a
@@ -42,8 +62,9 @@ int wr_iot_rc_dispatch(void){
  wr_iot_continuation.owner=getpid();wr_iot_continuation.active=1;
  wr_iot_continuation.terminal=outcome!=WR_IOT_RESULT_RECOVERY;
  wr_iot_continuation.outcome=outcome;
+ wr_iot_continuation.operation=request.operation;
  terminal_ready=wr_iot_continuation.terminal&&
-  (outcome!=WR_IOT_RESULT_APPLIED||wr_iot_rc_backend_applied_route(request.id,request.created));
+  wr_iot_terminal_ready(request.operation,outcome,request.id,request.created);
  if(wr_iot_continuation.terminal&&!terminal_ready)outcome=WR_IOT_RESULT_RECOVERY;
 
  now=wr_iot_control_now();
@@ -82,15 +103,16 @@ int wr_iot_rc_continue(void){
  wr_iot_continuation.busy=1;
  if(wr_iot_continuation.terminal)outcome=wr_iot_continuation.outcome;
  else {
-  outcome=wr_iot_activation_continue(wr_iot_continuation.id,wr_iot_continuation.created);
-  if(outcome!=WR_IOT_RESULT_APPLIED&&outcome!=WR_IOT_RESULT_REJECTED)
-   outcome=WR_IOT_RESULT_RECOVERY;
+  outcome=wr_iot_continuation.operation==WR_IOT_OPERATION_CONFIG?
+   wr_iot_rc_config_continue(wr_iot_continuation.id,wr_iot_continuation.created):
+   wr_iot_activation_continue(wr_iot_continuation.id,wr_iot_continuation.created);
+  outcome=wr_iot_operation_outcome(wr_iot_continuation.operation,outcome);
   if(outcome!=WR_IOT_RESULT_RECOVERY){
    wr_iot_continuation.terminal=1;wr_iot_continuation.outcome=outcome;
   }
  }
  terminal_ready=wr_iot_continuation.terminal&&
-  (outcome!=WR_IOT_RESULT_APPLIED||wr_iot_rc_backend_applied_route(wr_iot_continuation.id,wr_iot_continuation.created));
+  wr_iot_terminal_ready(wr_iot_continuation.operation,outcome,wr_iot_continuation.id,wr_iot_continuation.created);
  if(wr_iot_continuation.terminal&&!terminal_ready)outcome=WR_IOT_RESULT_RECOVERY;
  now=wr_iot_control_now();
  if(!now||!wr_iot_mailbox_open(&m,WR_IOT_CONTROL_DIRECTORY,0)){

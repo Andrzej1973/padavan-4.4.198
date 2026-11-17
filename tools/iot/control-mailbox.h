@@ -23,8 +23,9 @@ int wr_iot_mailbox_submit_initial(struct wr_iot_mailbox *,const struct wr_iot_co
 /* Only QUEUED can be claimed. Expired requests are rejected without execution. */
 int wr_iot_mailbox_claim(struct wr_iot_mailbox *,unsigned long long now,
  struct wr_iot_control_request *);
-/* Publish observed outcome. RECOVERY may only remain RECOVERY or become REJECTED
- * after confirmed rollback. Terminal cleanup is retryable without reexecution. */
+/* Publish observed outcome. Runtime and configuration terminal kinds cannot
+ * be interchanged. Only an exact live continuation may complete RECOVERY as
+ * APPLIED or STORED_RAM. Terminal cleanup is retryable without reexecution. */
 int wr_iot_mailbox_finish(struct wr_iot_mailbox *,const char *id,
  enum wr_iot_result_state,unsigned long long now);
 /* Only the live RC continuation owner may publish its backend's retained

@@ -67,6 +67,7 @@ web = once(web, route,
            '#if defined(BOARD_WR1200JS)\n'
            '\t{ "wr_iot_token.cgi", "application/json", no_cache_IE, NULL, wr_iot_http_token_output, 1 },\n'
            '\t{ "wr_iot_apply.cgi", "application/json", no_cache_IE, wr_iot_http_apply_input, wr_iot_http_apply_output, 1 },\n'
+           '\t{ "wr_iot_config.cgi", "application/json", no_cache_IE, wr_iot_http_apply_input, wr_iot_http_config_output, 1 },\n'
            '\t{ "wr_iot_result.cgi", "application/json", no_cache_IE, NULL, wr_iot_http_result_output, 1 },\n#endif\n' + route)
 validation = root/'shared-wifi/validate.h'
 expected = (local.parent/'shared-wifi/validate.h').read_bytes()
@@ -74,7 +75,7 @@ if validation.is_symlink() or (root/'shared-wifi').is_symlink():
     raise SystemExit('Refusing linked shared Wi-Fi validation destination')
 if validation.exists() and validation.read_bytes() != expected:
     raise SystemExit('Existing shared Wi-Fi validation differs; preserve it')
-header_names = ('http-form.h','http-request.h','control-record.h',
+header_names = ('http-form.h','http-request.h','control-record.h','saved-config.h',
                 'request.h','subnet.h','types.h')
 headers = root/'wr-iot'
 if headers.is_symlink():

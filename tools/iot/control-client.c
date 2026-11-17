@@ -18,12 +18,12 @@ static int random_id(char id[33]){
  for(i=0;i<16;i++)snprintf(id+i*2,3,"%02x",bytes[i]);
  memset(bytes,0,sizeof(bytes));return 1;
 }
-int wr_iot_rc_submit(const struct wr_iot_request *request,char id[33]){
+static int wr_iot_submit_request(const struct wr_iot_request *request,enum wr_iot_operation operation,char id[33]){
  struct wr_iot_mailbox m;struct wr_iot_control_request record={0};int accepted;
  if(!request||!id)return 0;
  record.created=wr_iot_control_now();
  if(!record.created||!random_id(record.id))return 0;
- record.request=*request;wr_iot_mailbox_init(&m);
+ record.request=*request;record.operation=operation;wr_iot_mailbox_init(&m);
  if(!wr_iot_mailbox_open(&m,WR_IOT_CONTROL_DIRECTORY,1)){
   memset(&record,0,sizeof(record));return 0;
  }
@@ -35,6 +35,10 @@ int wr_iot_rc_submit(const struct wr_iot_request *request,char id[33]){
  if(accepted)WR_IOT_NOTIFY();
  return accepted;
 }
+int wr_iot_rc_submit(const struct wr_iot_request *request,char id[33])
+{return wr_iot_submit_request(request,WR_IOT_OPERATION_RUNTIME,id);}
+int wr_iot_rc_submit_config(const struct wr_iot_saved_config *config,char id[33])
+{return config?wr_iot_submit_request(&config->profile,WR_IOT_OPERATION_CONFIG,id):0;}
 int wr_iot_rc_status(const char *id,struct wr_iot_control_result *out){
  struct wr_iot_mailbox m;struct wr_iot_control_result result,current;int observed;
  if(!out||!wr_iot_control_id(id))return 0;
@@ -45,8 +49,9 @@ int wr_iot_rc_status(const char *id,struct wr_iot_control_result *out){
  /* A terminal mailbox record is historical execution evidence. It cannot
   * establish current state after a legacy/manual/scheduled network change.
   * Observe outside the mailbox lock to preserve service/queue lock ordering. */
- if(result.state==WR_IOT_RESULT_APPLIED){
-  if(wr_iot_activation_result_observed(&result)!=1)return 0;
+ if(result.state==WR_IOT_RESULT_APPLIED||result.state==WR_IOT_RESULT_STORED_RAM){
+  if((result.state==WR_IOT_RESULT_APPLIED?wr_iot_activation_result_observed(&result):
+      wr_iot_configuration_result_observed(&result))!=1)return 0;
   /* Observation released the queue lock. Reject a replaced or updated
    * transaction rather than publishing the earlier record as current. */
   if(!wr_iot_mailbox_open(&m,WR_IOT_CONTROL_DIRECTORY,0))return 0;

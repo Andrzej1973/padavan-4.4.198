@@ -5,7 +5,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <unistd.h>
-static int safe=1,post=1,calls,submit_result=1;
+static int safe=1,post=1,calls,config_calls,submit_result=1;
 static const char *mime="application/x-www-form-urlencoded";
 static char reply[256];
 static const char *requested_id="0123456789abcdef0123456789abcdef";
@@ -29,6 +29,11 @@ int wr_iot_rc_submit(const struct wr_iot_request *request,char id[33]){
  assert(request->enabled&&!strcmp(request->ssid,"IoT")&&
         !strcmp(request->password,"password123"));
  calls++;strcpy(id,"0123456789abcdef0123456789abcdef");return submit_result;
+}
+int wr_iot_rc_submit_config(const struct wr_iot_saved_config *config,char id[33]){
+ assert(!config->profile.enabled&&!strcmp(config->profile.ssid,"IoT")&&
+        !strcmp(config->profile.password,"password123"));
+ config_calls++;strcpy(id,"0123456789abcdef0123456789abcdef");return submit_result;
 }
 int wr_iot_rc_status(const char *id,struct wr_iot_control_result *result){
  status_calls++;strcpy(result->id,id);result->created=140;
@@ -85,6 +90,22 @@ int main(void){
  {int before=status_calls;
  requested_id="bad";wr_iot_http_result_output("wr_iot_result.cgi",NULL);assert(status_calls==before&&strstr(reply,"invalid_request"));
  safe=0;wr_iot_http_result_output("wr_iot_result.cgi",NULL);assert(status_calls==before&&strstr(reply,"unsafe_request"));}
- puts("PASS IoT CGI candidate: guarded POST, one-shot body, queue acceptance distinct from fresh ID-bound observed result");
+ {char disabled[1024];const char *minimal="wr_iot_request_enable=0&token=0123456789abcdef0123456789abcdef";
+  strcpy(disabled,body);strchr(disabled,'=')[1]='0';safe=1;post=1;submit_result=1;
+  strcpy(wr_iot_http_csrf,"0123456789abcdef0123456789abcdef");
+  input(disabled,(int)strlen(disabled));wr_iot_http_config_output("wr_iot_config.cgi",NULL);
+  assert(config_calls==1&&strstr(reply,"\"accepted\":true")&&!strstr(reply,"password123"));
+  assert(!strstr(reply,"applied")&&!strstr(reply,"stored_in_ram"));
+  wr_iot_http_config_output("wr_iot_config.cgi",NULL);assert(config_calls==1&&strstr(reply,"invalid_request"));
+  input(minimal,(int)strlen(minimal));wr_iot_http_config_output("wr_iot_config.cgi",NULL);assert(config_calls==1);
+  safe=0;input(disabled,(int)strlen(disabled));wr_iot_http_config_output("wr_iot_config.cgi",NULL);assert(config_calls==1);safe=1;
+  post=0;input(disabled,(int)strlen(disabled));wr_iot_http_config_output("wr_iot_config.cgi",NULL);assert(config_calls==1);post=1;
+  wr_iot_http_csrf[0]='f';input(disabled,(int)strlen(disabled));wr_iot_http_config_output("wr_iot_config.cgi",NULL);assert(config_calls==1);wr_iot_http_csrf[0]='0';
+  mime="application/json";input(disabled,(int)strlen(disabled));wr_iot_http_config_output("wr_iot_config.cgi",NULL);assert(config_calls==1);mime="application/x-www-form-urlencoded";
+  requested_id="0123456789abcdef0123456789abcdef";result_observed=145;status_available=1;
+  result_state=WR_IOT_RESULT_STORED_RAM;wr_iot_http_result_output("wr_iot_result.cgi",NULL);
+  assert(strstr(reply,"stored_in_ram")&&!strstr(reply,"applied"));
+ }
+ puts("PASS IoT CGI: guarded one-shot runtime/config POST, complete disabled provisioning, distinct queue/RAM/runtime results, no response credentials");
  return 0;
 }

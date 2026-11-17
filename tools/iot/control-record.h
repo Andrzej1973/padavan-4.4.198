@@ -4,14 +4,17 @@
 #define WR_IOT_CONTROL_RECORD_H
 #include <stdio.h>
 #include "request.h"
+#include "saved-config.h"
 #define WR_IOT_CONTROL_RECORD_MAX 512
 enum wr_iot_result_state {
  WR_IOT_RESULT_QUEUED=1,WR_IOT_RESULT_RUNNING,WR_IOT_RESULT_APPLIED,
- WR_IOT_RESULT_REJECTED,WR_IOT_RESULT_RECOVERY
+ WR_IOT_RESULT_REJECTED,WR_IOT_RESULT_RECOVERY,WR_IOT_RESULT_STORED_RAM
 };
+enum wr_iot_operation {WR_IOT_OPERATION_RUNTIME=0,WR_IOT_OPERATION_CONFIG};
 struct wr_iot_control_request {
  char id[33];unsigned long long created;
  struct wr_iot_request request;
+ enum wr_iot_operation operation;
 };
 struct wr_iot_control_result {
  char id[33];enum wr_iot_result_state state;
@@ -30,6 +33,7 @@ static inline const char *wr_iot_control_state(enum wr_iot_result_state state){
  case WR_IOT_RESULT_APPLIED:return "applied";
  case WR_IOT_RESULT_REJECTED:return "rejected";
  case WR_IOT_RESULT_RECOVERY:return "recovery_required";
+ case WR_IOT_RESULT_STORED_RAM:return "stored_in_ram";
  default:return NULL;
  }
 }
@@ -68,6 +72,16 @@ static inline int wr_iot_control_decode(struct wr_iot_control_request *out,
   if(count==10)return 0;
   lines[count++]=buffer+start;buffer[i]=0;start=i+1;
  }
+ if(count==4&&start==length&&!strcmp(lines[0],"WR-IOT-CONFIG-REQUEST-1")){
+  struct wr_iot_saved_config config={0};
+  if(!wr_iot_control_id(lines[1])||!wr_iot_control_time(lines[2],&candidate.created)||
+     !wr_iot_saved_config_decode(&config,lines[3],strlen(lines[3]))){
+   wr_iot_saved_wipe(&config,sizeof(config));wr_iot_saved_wipe(buffer,sizeof(buffer));return 0;
+  }
+  memcpy(candidate.id,lines[1],33);candidate.request=config.profile;
+  candidate.operation=WR_IOT_OPERATION_CONFIG;*out=candidate;
+  wr_iot_saved_wipe(&config,sizeof(config));wr_iot_saved_wipe(buffer,sizeof(buffer));return 1;
+ }
  if(count!=10||start!=length||strcmp(lines[0],"WR-IOT-1")||
     !wr_iot_control_id(lines[1])||!wr_iot_control_time(lines[2],&candidate.created))return 0;
  for(i=0;i<7;i++)fields.values[i]=lines[i+3];
@@ -85,6 +99,23 @@ static inline int wr_iot_control_encode(char *out,size_t capacity,
  if(!out||!record||!memchr(record->id,0,sizeof(record->id))||
     !wr_iot_control_id(record->id)||!record->created)return 0;
  r=&record->request;
+ if(record->operation==WR_IOT_OPERATION_CONFIG){
+  struct wr_iot_saved_config config={0};char encoded[WR_IOT_SAVED_CONFIG_MAX]={0};
+  config.profile=*r;
+  if(!wr_iot_saved_config_encode(encoded,sizeof(encoded),&config)){
+   wr_iot_saved_wipe(&config,sizeof(config));return 0;
+  }
+  n=snprintf(buffer,sizeof(buffer),"WR-IOT-CONFIG-REQUEST-1\n%s\n%llu\n%s\n",
+   record->id,record->created,encoded);
+  wr_iot_saved_wipe(&config,sizeof(config));wr_iot_saved_wipe(encoded,sizeof(encoded));
+  if(n<=0||(size_t)n>=sizeof(buffer)||(size_t)n+1>capacity||
+     !wr_iot_control_decode(&checked,buffer,(size_t)n)){
+   wr_iot_saved_wipe(buffer,sizeof(buffer));return 0;
+  }
+  memcpy(out,buffer,(size_t)n+1);wr_iot_saved_wipe(buffer,sizeof(buffer));
+  wr_iot_saved_wipe(&checked,sizeof(checked));return n;
+ }
+ if(record->operation!=WR_IOT_OPERATION_RUNTIME)return 0;
  if((r->enabled!=0&&r->enabled!=1)||
     !memchr(r->ssid,0,sizeof(r->ssid))||!memchr(r->password,0,sizeof(r->password))||
     !memchr(r->gateway,0,sizeof(r->gateway))||!memchr(r->mask,0,sizeof(r->mask))||

@@ -22,9 +22,10 @@ a.output.write_text(r'''#include <assert.h>
 struct wr_iot_rc_shutdown_admission wr_iot_rc_shutdown;
 #define WR_IOT_CONTROL_DIRECTORY "fixture"
 enum wr_iot_result_state {WR_IOT_RESULT_QUEUED=1,WR_IOT_RESULT_RUNNING,
- WR_IOT_RESULT_APPLIED,WR_IOT_RESULT_REJECTED,WR_IOT_RESULT_RECOVERY};
+ WR_IOT_RESULT_APPLIED,WR_IOT_RESULT_REJECTED,WR_IOT_RESULT_RECOVERY,WR_IOT_RESULT_STORED_RAM};
+enum wr_iot_operation {WR_IOT_OPERATION_RUNTIME=0,WR_IOT_OPERATION_CONFIG};
 struct wr_iot_request {int enabled;};
-struct wr_iot_control_request {char id[33];unsigned long long created;struct wr_iot_request request;};
+struct wr_iot_control_request {char id[33];unsigned long long created;struct wr_iot_request request;enum wr_iot_operation operation;};
 struct wr_iot_control_result {char id[33];enum wr_iot_result_state state;unsigned long long created,observed;};
 struct wr_iot_mailbox {int open;};
 static struct wr_iot_control_request queued;
@@ -89,6 +90,13 @@ static int wr_iot_rc_backend_applied_route(const char *id,unsigned long long cre
         !strcmp(id,queued.id)&&created==queued.created);
  applied_route_calls++;return applied_route_ready;
 }
+/* Configuration is exercised by the actual shared-server composition. */
+static enum wr_iot_result_state wr_iot_rc_config_execute(const struct wr_iot_control_request *r)
+{(void)r;assert(0);return WR_IOT_RESULT_RECOVERY;}
+static enum wr_iot_result_state wr_iot_rc_config_continue(const char *id,unsigned long long created)
+{(void)id;(void)created;assert(0);return WR_IOT_RESULT_RECOVERY;}
+static int wr_iot_rc_config_terminal_ready(const struct wr_iot_control_result *r)
+{(void)r;assert(0);return 0;}
 '''+function+r'''
 static void reset(void){
  /* Each scenario begins only after its explicit test-only recovery release. */

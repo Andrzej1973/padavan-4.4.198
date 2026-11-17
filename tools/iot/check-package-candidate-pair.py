@@ -19,7 +19,7 @@ with tempfile.TemporaryDirectory(prefix='wr-pair-check-') as d:
  runtime={'board':'WR1200JS','production_ready':False,'normal_shutdown_controller_linked':True,
   'normal_shutdown_dispatch_bound':True,'normal_shutdown_notification_bound':True,
   'normal_shutdown_initial_active_arm_bound':True,'normal_shutdown_cold_active_arm_bound':True,
-  'normal_shutdown_cold_routed_handoff_bound':True,'normal_shutdown_mailbox_active_arm_bound':True,'initial_off_admission':True,'off_reopen_admission':True}
+  'normal_shutdown_cold_routed_handoff_bound':True,'normal_shutdown_mailbox_active_arm_bound':True,'configuration_ram_control_bound':True,'configuration_snapshot_verified':True,'configuration_flash_bound':False,'configuration_loaded_promotion_bound':False,'initial_off_admission':True,'off_reopen_admission':True}
  entry={'board':'WR1200JS','production_ready':False,'private_restart_hook_bound':True,
   'initial_restart_hook_bound':True,'historical_radio_on_hook_bound':True,
   'cold_radio_on_hook_bound':True,'owned_radio_off_hook_bound':True}

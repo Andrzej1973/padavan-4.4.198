@@ -1,3 +1,4 @@
+#include "check-config-server-unused.h"
 /* Queue/owner-only fixtures inject the backend publication gate. They do not
  * implement the RC backend or claim automatic radio shutdown arming. */
 #ifndef WR_IOT_CHECK_MAILBOX_ROUTE_ACTOR_H

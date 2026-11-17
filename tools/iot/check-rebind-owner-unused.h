@@ -1,3 +1,4 @@
+#include "check-config-server-unused.h"
 /* Legacy-only backend fixtures must never enter a rebind owner. */
 #include "rebind-owner.h"
 int wr_iot_rebind_owner_begin(struct wr_iot_rebind_owner*s,const struct wr_iot_control_request*r,const struct wr_iot_physical_stop_request*p,int a,int b,int c){(void)s;(void)r;(void)p;(void)a;(void)b;(void)c;assert(0);return 0;}

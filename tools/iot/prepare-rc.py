@@ -914,6 +914,7 @@ if make.count('wr-iot-start-close.o')!=1:raise SystemExit('Startup commit object
 m.write_text(make.replace('wr-iot-start-close.o','wr-iot-start-close.o wr-iot-start-commit.o',1),encoding='utf-8')
 report['start_commit_staged']=True
 report['start_commit_runtime_bound']=False
+(headers/'saved-config.h').write_bytes((local/'saved-config.h').read_bytes())
 (headers/'control-record.h').write_bytes((local/'control-record.h').read_bytes())
 (headers/'start-runner.h').write_bytes((local/'start-runner.h').read_bytes())
 unit=(local/'start-runner.c').read_text(encoding='utf-8')

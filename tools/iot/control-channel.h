@@ -11,6 +11,7 @@ static inline unsigned long long wr_iot_control_now(void){
  return (unsigned long long)ts.tv_sec;
 }
 int wr_iot_rc_submit(const struct wr_iot_request *,char [33]);
+int wr_iot_rc_submit_config(const struct wr_iot_saved_config *,char [33]);
 int wr_iot_rc_status(const char *,struct wr_iot_control_result *);
 /* Read-only status backend: return exactly 1 only when this transaction's
  * retained expected state still matches live resources. Must serialize with
@@ -38,4 +39,10 @@ enum wr_iot_result_state wr_iot_activation_execute(const struct wr_iot_control_r
 /* Mailbox APPLIED publication gate: arm only exact fresh ACTIVE; OFF skips.
  * Failure retains the existing continuation/admission; never execute again. */
 int wr_iot_rc_backend_applied_route(const char *,unsigned long long);
+/* Configuration-only backend: never activation/APPLIED or flash durability. */
+enum wr_iot_result_state wr_iot_rc_config_execute(const struct wr_iot_control_request *);
+enum wr_iot_result_state wr_iot_rc_config_continue(const char *,unsigned long long);
+int wr_iot_rc_config_terminal_ready(const struct wr_iot_control_result *);
+int wr_iot_rc_config_observed(const struct wr_iot_control_result *);
+int wr_iot_configuration_result_observed(const struct wr_iot_control_result *);
 #endif

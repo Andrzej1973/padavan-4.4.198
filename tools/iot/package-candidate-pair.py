@@ -39,11 +39,13 @@ def build(root,revision):
   raise ValueError('Paired IAPP policy required')
  runtime=report('runtime-link/iot-runtime-source.json')
  entry=report('runtime-link/iot-restart-entry-source.json')
+ if runtime.get('configuration_flash_bound') is not False or runtime.get('configuration_loaded_promotion_bound') is not False:
+  raise ValueError('Current configuration candidate must retain flash/cold-promotion acceptance gates')
  for label,manifest,required in (
   ('runtime',runtime,('normal_shutdown_controller_linked','normal_shutdown_dispatch_bound',
     'normal_shutdown_notification_bound','normal_shutdown_initial_active_arm_bound',
     'normal_shutdown_cold_active_arm_bound','normal_shutdown_cold_routed_handoff_bound',
-    'normal_shutdown_mailbox_active_arm_bound',
+    'normal_shutdown_mailbox_active_arm_bound','configuration_ram_control_bound','configuration_snapshot_verified',
     'initial_off_admission','off_reopen_admission')),
   ('restart',entry,('private_restart_hook_bound','initial_restart_hook_bound',
     'historical_radio_on_hook_bound','cold_radio_on_hook_bound','owned_radio_off_hook_bound'))):
