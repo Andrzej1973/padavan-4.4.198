@@ -1,0 +1,13 @@
+{
+  "base_revision": "d38c5d75d9acb2b5cc6b6bb00c9915d938fb8a24",
+  "scope": "Follow-up dependency audit of the optional1370 isolated NVRAM candidate fix",
+  "source_evidence": "The IoT preparer inserts a quoted wr-nvram-flash-wire.h include, but the isolated compiler previously copied only nvram.c, nvram_linux.c and Makefile to a new directory.",
+  "fix": "Stage the required native header only when its exact include is present, and require byte identity with the reviewed source ABI. Watch the production header alongside existing kernel/source/image preservation checks.",
+  "host_test": "python3 tools/webui-preview/check_nvram_candidate_staging.py",
+  "test_exit_code": 0,
+  "coverage": ["baseline three-file staging", "exact native header staging", "missing/header-drift/symlink refusal before output", "duplicate destination refusal", "production bytes unchanged", "staged quoted include compiles and 400-byte wire layout holds"],
+  "target_reverification_required": true,
+  "router_runtime_acceptance": false,
+  "unpublished_iot_edit_draft_included": false,
+  "supersedes_d38c5d75_for_optional_dispatch": true
+}

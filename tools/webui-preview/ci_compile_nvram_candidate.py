@@ -9,6 +9,7 @@ import shutil
 import subprocess
 import tempfile
 from nvram_abi_probe import client_source, read_record
+from nvram_candidate_staging import stage
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('source', type=Path)
@@ -26,6 +27,8 @@ def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 watched = [production / 'nvram_linux.c', production / 'nvram.c', production / 'nvram_linux.o',
            kernel / '.config', kernel / 'vmlinux']
+if (production/'wr-nvram-flash-wire.h').exists():
+    watched.append(production/'wr-nvram-flash-wire.h')
 watched += list((root / 'trunk/images').glob('*.trx'))
 before = {str(p.relative_to(root)): digest(p) for p in watched}
 report = {'scope': 'Isolated NVRAM kernel TU and userspace ABI probe; not linked or installed in production',
@@ -38,8 +41,7 @@ try:
     cross = str(compiler)[:-3]
     with tempfile.TemporaryDirectory(prefix='wr-nvram-order-', dir=kernel / 'drivers') as scratch:
         target = Path(scratch)
-        for name in ('nvram.c', 'nvram_linux.c', 'Makefile'):
-            shutil.copyfile(production / name, target / name)
+        report['staged_files'] = stage(production,target)
         source = target / 'nvram_linux.c'
         source.write_text(module.transform(source.read_text()))
         report['candidate_source_sha256'] = digest(source)
