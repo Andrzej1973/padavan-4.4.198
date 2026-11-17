@@ -1,0 +1,39 @@
+{
+  "base_revision": "317d41ff1162faf36e46952f5e5c792c1c7064b1",
+  "native_input_sha256": "5bdfa51add776cfe46eabd5c328859d74822220e7772335d08e21b91750190c1",
+  "kernel_prepared_sha256": "048a2d1c7679f9713738dfb5afebffff6d87b7b8bb44f1d5c4d1db7ef6e4e906",
+  "host_checks": {
+    "actual_kernel_handler": "PASS pinned native struct/capability/fixed target/mutex/error handling/full wipe; modeled kernel syscalls and MTD",
+    "actual_user_client": "PASS capability0/1 with native layout, fixed nofollow char device/major, once-only ioctl, no fallback, error discard/full wipe; syscall actors",
+    "source_capability": "PASS exact source/header acceptance; changed/missing/symlink refusal",
+    "actual_runtime_staging": "PASS isolated headers/RC objects for snapshot0-readback0, snapshot1-readback0, snapshot1-readback1",
+    "python_and_shell_syntax": "PASS"
+  },
+  "scope": {
+    "linux_read_only_ioctl": 50,
+    "new_flash_write": false,
+    "pid1_or_runtime_caller": false,
+    "durable_receipt": false,
+    "configuration_flash_bound": false,
+    "target_or_image_verified": false,
+    "device_changed": false
+  },
+  "sha256": {
+    "tools/band-steering/prepare-source-integration.py": "7c2628212665041a384ca16e0b442dca6377d6039255379677e6c45d9070e0ea",
+    "tools/band-steering/prepare-nvram-flash-readback.py": "c9f31818557499477ffbb2913087c927ed59e2bbafa7a1df3301fbeb252b3e38",
+    "tools/iot/native-flash-wire.h": "aed6a5c48b25c25278f605f37b2b632616aec5d9001908ceed9462cb37c02ad1",
+    "tools/iot/native-flash-readback.inc": "356aef87de93e6d12f7bc333f7aa2e89a01d0caa83991f6c3251be42049a4ce8",
+    "tools/iot/native-flash-reader.h": "b0cd6e170a238f1d4a7b217b44888d342d06f2191ff3fc1ec72118c00a685ebe",
+    "tools/iot/native-flash-reader.c": "3189fb00ebdc390681c16cb7c0a7b8c70f04c11cccb21202239898d0fa9c2cfe",
+    "tools/iot/native-flash-prepared.h": "e815e027f6e1d67752ccc18b15114fe08c36f0a4d95eb278f449aa353ecc4bfa",
+    "tools/iot/native-flash-source-guard.py": "8fc93abb1894157b677c9df4bd85ef011c3eee41c250e2f3b6b6dffd0b637d52",
+    "tools/iot/check-native-flash-readback.py": "809ddb9a1fa56581e7b45479845adbf441fff278f91adf5179cd305bf876dd85",
+    "tools/iot/check-native-flash-reader.py": "1d2982f38a9ce6db9e8456773493a7eb9655bca9e13589a85de329b7ca732b02",
+    "tools/iot/check-native-flash-source.py": "803f52acae6a203bad4a6e56c35cb711ce5f0fc687a09595c617ae0fc8b58a0b",
+    "tools/iot/check-config-runtime-staging.py": "a20d1e343ab06b2657d5e0ba96ddc95d72e4936e2185983f31a0d0561cbae572",
+    "tools/iot/prepare-runtime.py": "e045f9818d879f52ef37c4abb97a88c5593dd050e97c9b503a6d4ffe8ba758e1",
+    "tools/iot/check-runtime-source.py": "5f7ead6a4cd5fe89ea9e382fea057ff10b5256c7ae1fcc8af809cf5ebf34a002",
+    "tools/iot/compile-runtime-link.sh": "c9e9f085efd56cf02b6779ade13916f5d5a8a165d3e40da636b794c84ee770e6",
+    "docs/iot/WR1200JS-FLASH-READBACK-CONTRACT.md": "9d80ba4535db9ae0483d13a1185eb8c2418f70362b01bfa91681937ea7abf408"
+  }
+}

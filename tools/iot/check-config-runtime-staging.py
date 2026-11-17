@@ -16,8 +16,9 @@ once = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name ==
 snapshot_code = text[text.index("try:\n snapshot="):text.index("\ndef once")]
 units_code = text[text.index("common=('status-channel'"):text.index("for target,data in pending.items()")]
 with tempfile.TemporaryDirectory(prefix="wr-config-stage-") as directory:
-    for prepared in (False, True):
-        root = Path(directory) / str(prepared)
+    cases=[(False,False),(True,False)]+([(True,True)] if len(sys.argv)>1 else [])
+    for prepared,flash in cases:
+        root = Path(directory) / (str(prepared)+str(flash))
         trunk = root / "trunk"
         rc, http = trunk / "user/rc", trunk / "user/httpd"
         for parent, role in ((rc, "server"), (http, "client")):
@@ -45,19 +46,25 @@ with tempfile.TemporaryDirectory(prefix="wr-config-stage-") as directory:
             (rc / "wr-band-settings-snapshot.h").write_bytes((shared / "settings-snapshot.h").read_bytes())
             subprocess.run([sys.executable, str(shared / "prepare-nvram-snapshot.py"),
                             "--kernel-root", str(kernel)], check=True)
+        if flash:
+            ordered=runpy.run_path(str(shared/'prepare-nvram-commit-order.py'))['prepare'](Path(sys.argv[1]).read_text())
+            staged=runpy.run_path(str(shared/'prepare-nvram-flash-readback.py'))['prepare'](ordered)
+            (kernel/'drivers/nvram/nvram_linux.c').write_text(staged)
+            (kernel/'drivers/nvram/wr-nvram-flash-wire.h').write_bytes((here/'native-flash-wire.h').read_bytes())
         scope = {"local": here, "rc": rc, "http": http, "runpy": runpy,
                  "a": SimpleNamespace(source=root, native_trunk=trunk if prepared else None)}
         exec(compile(ast.Module(body=[once], type_ignores=[]), "<actual once helper>", "exec"), scope)
         exec(compile(snapshot_code, "<actual snapshot preparation>", "exec"), scope)
         exec(compile(units_code, "<actual runtime units preparation>", "exec"), scope)
         assert scope["snapshot"]["verified"] is prepared
+        assert scope["flash_readback"]["verified"] is flash
         for path, content in scope["pending"].items():
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(content)
         marker = (rc / "wr-iot/config-snapshot-prepared.h").read_text()
         assert "PREPARED " + str(int(prepared)) + "\n" in marker
-        for unit in ("config-server", "config-owner", "saved-config-store", "cold-on-generation", "radio-on-generation", "restart-generation", "restart-profile", "rc-mode"):
+        for unit in ("config-server", "config-owner", "saved-config-store", "native-flash-reader", "cold-on-generation", "radio-on-generation", "restart-generation", "restart-profile", "rc-mode"):
             assert ("wr-iot-" + unit + ".o") in (rc / "Makefile").read_text()
             subprocess.run(["gcc", "-std=gnu11", "-Wall", "-Wextra", "-Werror", "-O2",
-                            "-I" + str(rc), "-fsyntax-only", str(rc / ("wr-iot-" + unit + ".c"))], check=True)
+                            "-I" + str(rc), "-I"+str(trunk/"linux-4.4.x/include/nvram"), "-fsyntax-only", str(rc / ("wr-iot-" + unit + ".c"))], check=True)
 print("PASS actual staged config units: RC object/header mappings and generated prepared0/1 capability compile with isolated includes; pinned native snapshot guard required for1; host only")

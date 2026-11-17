@@ -1,6 +1,6 @@
 # WR1200JS native flash readback contract
 
-Status: pure host-tested byte validator and exact tuple lookup implemented; no flash reader/writer installed and no device acceptance.
+Status: byte validator, typed comparison and guarded Linux flash readback are source-staged and host-tested. No new writer, durable-save receipt or device acceptance.
 
 ## Pure byte validator boundary
 
@@ -62,8 +62,8 @@ The script checks the source SHA256, compiles the actual vendor CRC table and
 function with the validator under C99/Wall/Wextra/Werror, tests 1000 valid and
 corrupted images, and checks exact-key/empty-value/absence/duplicate/refusal
 semantics. A separate ASan/UBSan executable tests allocated input sizes 0..255.
-These are host checks only. Target staging, readback acquisition, commit
-serialization and durable revision receipts remain unimplemented.
+These are host checks only. Readback source staging is described below. Target verification and durable
+revision receipts remain incomplete; host checks do not establish persistence.
 
 The typed `saved-config-flash.h` comparator validates both the expected and
 image records through the actual canonical saved-config codec. It distinguishes
@@ -90,4 +90,36 @@ exposes unguarded generation; the prepared body protects generation and passes
 generation error, read/write error, unchanged image, both allocation failures,
 and early-uninitialized paths under host sanitizers. This does not test kernel
 scheduling, MTD persistence or a concurrent device workload. The transformed
-kernel still needs target/image checks. Readback acquisition is not installed.
+kernel still needs target/image checks. Readback acquisition is now source-staged below; target/device checks remain open.
+
+## Fixed-target Linux readback source package
+
+The native-flash-readback.inc handler uses existing anvram_ioctl_t through
+new read-only Linux ioctl 50, CAP_SYS_ADMIN, Config/NVRAM_MTD_OFFSET/NVRAM_SPACE,
+and nvram_sem. It validates a copied request, rejects early-uninitialized state,
+normalizes positive MTD errors, and wipes its temporary buffer. Native APIs and
+firmware commands are unchanged. prepare-source-integration runs host checks
+before mutations and stages the handler after verified commit-order preparation.
+The source gate accepts only exact prepared SDK bytes and the matching wire
+header, refusing changed/missing/symlink inputs.
+
+native-flash-reader.c opens only nofollow /dev/nvram, validates native char-device
+major, makes one ioctl, rejects ioctl/close/corrupt readback, and wipes/frees all
+allocated bytes. It never falls back to RAM GETALL. A partial user copy on kernel
+EFAULT is discarded by this client. Capability defaults to zero and additionally
+requires the existing verified native capacity/snapshot capability.
+
+prepare-runtime stages its RC object/headers and generates a separate capability
+from native-flash-source-guard.py evidence. compile-runtime-link requires source
+capability and the reader target symbol; configuration_flash_bound remains false.
+There is no startup caller, configuration-save route or new flash write here.
+The reader observes bytes only; expected revision ownership/freshness and a durable
+save receipt still need integration outside PID1.
+
+Host checks pass for the actual handler, actual client capability0/1, exact source
+capability refusal, and actual RC staging in snapshot0/readback0,
+snapshot1/readback0 and snapshot1/readback1 combinations. Syscalls/MTD/capability
+are fixture actors; these do not constitute kernel scheduling, target or device
+verification. The exact pinned input is identified by
+WR1200JS-STANDARD1357-SOURCE-HASH-2026-11-17.json; an older local cache had an extra
+final blank line and must not be used as a whole-file source authority.
