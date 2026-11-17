@@ -1,0 +1,29 @@
+{
+  "base_revision": "089e9172f5626689929a774555fbda360d2aa188",
+  "host_checks": {
+    "vendor_crc_and_image_and_typed_config": "PASS 1000 valid/corrupted images; unaligned/bounds/duplicates/exact lookup/ON/OFF; standalone ASan UBSan bounded buffers",
+    "native_commit_order": "PASS original reproduces pre-mutex generation; prepared balances all tested exits",
+    "actual_preparer_cli": "PASS exact source write and refused second transform leaves bytes unchanged",
+    "saved_codec_and_store": "PASS actual codec and prepared0/1 store/service guard/native snapshot parser",
+    "source_preparation_preflight": "Both actual-vendor host checks now run before source mutation"
+  },
+  "scope": {
+    "native_commit_order_source_integration": true,
+    "flash_reader_installed": false,
+    "flash_writer_added": false,
+    "durable_receipt": false,
+    "target_verified": false,
+    "device_changed": false
+  },
+  "sha256": {
+    "tools/band-steering/prepare-nvram-commit-order.py": "e8fda6f355e98df8b5ed1ec186d73e59429573d8fcffa0f4e3006295c97240be",
+    "tools/band-steering/prepare-source-integration.py": "d5f90ac3fb530c4b08875ebfde7f5c5eca51dbe581d84f9ad1242e4e788b7a0e",
+    "tools/iot/flash-image.h": "af6a6f7d438b810028c3e3c8cdaff23ff94d55cc55f1ee34a00433ab439e4b26",
+    "tools/iot/saved-config-flash.h": "1b4fc638d2bf11bb50c925e0ab02c65a9fa300d50841c43b4f84067ca16e9c6b",
+    "tools/iot/check-flash-image.py": "7d64f23ed528ead36399e06ed49eae724f608be4cb577d42b202ae7f17ec3954",
+    "tools/iot/check-native-commit-order.py": "5e11e66070bb85017bc18b46ba931dec6360356a99457427dc6e3e9b361733a7",
+    "tools/iot/saved-config.h": "ab1d3a5afb8d12bd63ca5f8d54cfba1e7b2959a389f28974c7fdce59b2a2d3f8",
+    "tools/iot/saved-config-store.h": "2e3a56512cec8a38bb17328719a2d138fba23b583d99cf89c6d585d79db3529b",
+    "docs/iot/WR1200JS-FLASH-READBACK-CONTRACT.md": "fdd6978bd73a7a5c9d1cf7e75bc347f1243df323f5da082c31c6cdfa1371ea43"
+  }
+}

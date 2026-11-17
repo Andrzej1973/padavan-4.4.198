@@ -8,7 +8,6 @@
 #include <sys/types.h>
 #include <stdint.h>
 #include "saved-config.h"
-#define WR_IOT_SAVED_CONFIG_KEY "wr_iot_config_v1"
 /* A source preparer may enable this only after checking the installed native
  * dump overflow guard. Default builds must not infer absence from a dump. */
 #include "config-snapshot-prepared.h"

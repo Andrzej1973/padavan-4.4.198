@@ -40,10 +40,14 @@ def run(name, *arguments):
     report['steps'].append(name)
     save()
 save()
+# Check the exact native persistence inputs before any source mutation.
+for check in ('check-native-commit-order.py', 'check-flash-image.py'):
+    run('../iot/' + check, root/'trunk/linux-4.4.x/drivers/nvram/nvram_linux.c')
 for name in ('prepare-idle-aging.py', 'prepare-grant-readback.py',
              'prepare-wps-guards.py', 'prepare-channel-stats.py',
              'prepare-main-bss.py', 'prepare-off-ack.py',
              'prepare-uninitialized-off.py', 'prepare-nvram-snapshot.py',
+             'prepare-nvram-commit-order.py',
              'prepare-profile-integration.py', 'prepare-child-reaper.py',
              'prepare-wifi-lifecycle.py', 'prepare-profile-snapshot.py',
              'prepare-wifi-snapshot.py', 'prepare-radio-snapshot.py',

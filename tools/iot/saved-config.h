@@ -7,6 +7,7 @@
 #ifndef WR_IOT_SAVED_CONFIG_H
 #define WR_IOT_SAVED_CONFIG_H
 #include "request.h"
+#define WR_IOT_SAVED_CONFIG_KEY "wr_iot_config_v1"
 #define WR_IOT_SAVED_CONFIG_MAX 384
 #define WR_IOT_SAVED_CONFIG_VERSION "WR-IOT-CONFIG-1:"
 struct wr_iot_saved_config { struct wr_iot_request profile; };
