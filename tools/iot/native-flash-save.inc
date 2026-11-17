@@ -31,7 +31,7 @@ wr_nvram_user_save_profile(const struct wr_nvram_save_profile __user *user)
  struct wr_nvram_save_profile request;
  unsigned char *written = NULL, *readback = NULL;
  volatile unsigned char *wipe;
- const char *current, *policy;
+ const char *profile_value, *policy;
  unsigned long flags;
  size_t i;
  int ret = -EINVAL;
@@ -60,9 +60,9 @@ wr_nvram_user_save_profile(const struct wr_nvram_save_profile __user *user)
  }
  mutex_lock(&nvram_sem);
  spin_lock_irqsave(&nvram_lock, flags);
- current = _nvram_get(WR_NVRAM_PROFILE_KEY);
+ profile_value = _nvram_get(WR_NVRAM_PROFILE_KEY);
  policy = _nvram_get("nvram_manual");
- if (!current || strcmp(current, request.record))
+ if (!profile_value || strcmp(profile_value, request.record))
   ret = -ESTALE;
  else if (policy && *policy && strcmp(policy, "0") && strcmp(policy, "1"))
   ret = -EINVAL;

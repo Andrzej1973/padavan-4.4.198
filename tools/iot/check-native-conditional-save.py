@@ -92,7 +92,7 @@ int main(void){
 }
 '''
 with tempfile.TemporaryDirectory(prefix='wr-conditional-save-') as directory:
- root=Path(directory);source=root/'check.c';binary=root/'check';source.write_text(prefix+s[a:b]+suffix)
+ root=Path(directory);source=root/'check.c';binary=root/'check';source.write_text(prefix+'\n#define current ((void *)0)\n'+s[a:b]+'\n#undef current\n'+suffix)
  subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined',
  '-fno-pie','-no-pie','-I'+str(here/'fixtures'),'-I'+str(here),str(source),'-o',str(binary)],check=True)
  subprocess.run([str(binary)],check=True,timeout=15)
