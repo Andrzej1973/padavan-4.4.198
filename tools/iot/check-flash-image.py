@@ -11,7 +11,7 @@ import sys
 import tempfile
 
 vendor = pathlib.Path(sys.argv[1]).read_bytes()
-assert hashlib.sha256(vendor).hexdigest() == 'eb8ec04cf2c454dc9bc469f7f89a2540724bcb2cda2d76e310e1e29ab7c20487'
+assert hashlib.sha256(vendor).hexdigest() == '5bdfa51add776cfe46eabd5c328859d74822220e7772335d08e21b91750190c1'
 text = vendor.decode()
 table = re.search(r'static uint8_t crc8_table\[256\] = \{.*?\};', text, re.S).group()
 function = re.search(r'uint8_t\s+_hndcrc8\(.*?\n\}', text, re.S).group()
