@@ -13,6 +13,11 @@ if source.count(anchor)!=1:
     raise SystemExit('RC dispatch missing or duplicated')
 function=source[source.index('static struct {'):].strip()
 shutdown=(Path(__file__).with_name('rc-shutdown-admission.h')).read_text(encoding='utf-8')
+records=Path(__file__).with_name('control-record.h').read_text()
+declarations=records[records.index('enum wr_iot_result_state {'):records.index('struct wr_iot_control_request {')]
+channel=Path(__file__).with_name('control-channel.h').read_text()
+hook_start=channel.index('struct wr_iot_save_backend_hooks {')
+hooks=channel[hook_start:channel.index('};',hook_start)+2]
 a.output.write_text(r'''#include <assert.h>
 #include <stdio.h>
 #include <string.h>
@@ -21,12 +26,11 @@ a.output.write_text(r'''#include <assert.h>
 '''+shutdown+r'''
 struct wr_iot_rc_shutdown_admission wr_iot_rc_shutdown;
 #define WR_IOT_CONTROL_DIRECTORY "fixture"
-enum wr_iot_result_state {WR_IOT_RESULT_QUEUED=1,WR_IOT_RESULT_RUNNING,
- WR_IOT_RESULT_APPLIED,WR_IOT_RESULT_REJECTED,WR_IOT_RESULT_RECOVERY,WR_IOT_RESULT_STORED_RAM};
-enum wr_iot_operation {WR_IOT_OPERATION_RUNTIME=0,WR_IOT_OPERATION_CONFIG};
+'''+declarations+r'''
 struct wr_iot_request {int enabled;};
 struct wr_iot_control_request {char id[33];unsigned long long created;struct wr_iot_request request;enum wr_iot_operation operation;};
 struct wr_iot_control_result {char id[33];enum wr_iot_result_state state;unsigned long long created,observed;};
+'''+hooks+r'''
 struct wr_iot_mailbox {int open;};
 static struct wr_iot_control_request queued;
 static struct wr_iot_control_result result;

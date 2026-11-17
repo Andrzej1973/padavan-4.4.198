@@ -20,7 +20,7 @@ a.output.write_text(r'''#include <assert.h>
 #include <string.h>
 #define WR_IOT_CONTROL_DIRECTORY "fixture"
 enum {WR_IOT_RESULT_QUEUED=1,WR_IOT_RESULT_RUNNING,WR_IOT_RESULT_APPLIED,
- WR_IOT_RESULT_REJECTED,WR_IOT_RESULT_RECOVERY,WR_IOT_RESULT_STORED_RAM};
+ WR_IOT_RESULT_REJECTED,WR_IOT_RESULT_RECOVERY,WR_IOT_RESULT_STORED_RAM,WR_IOT_RESULT_SAVED_FLASH};
 struct wr_iot_control_result {char id[33];int state;unsigned long long created,observed;};
 struct wr_iot_mailbox {int open;};
 static struct wr_iot_control_result stored;
@@ -52,7 +52,7 @@ static int observe(const struct wr_iot_control_result *r,int expected){
 static int wr_iot_activation_result_observed(const struct wr_iot_control_result *r)
 {return observe(r,WR_IOT_RESULT_APPLIED);}
 static int wr_iot_configuration_result_observed(const struct wr_iot_control_result *r)
-{return observe(r,WR_IOT_RESULT_STORED_RAM);}
+{assert(r->state==WR_IOT_RESULT_STORED_RAM||r->state==WR_IOT_RESULT_SAVED_FLASH);return observe(r,r->state);}
 '''+function+r'''
 static void reset(void){
  memset(&stored,0,sizeof(stored));memset(stored.id,'a',32);
@@ -76,16 +76,18 @@ int main(void){
  }
  /* Configuration RAM status must use its own observer, with the same fresh
   * unlocked recheck and strict success==1 contract as runtime APPLIED. */
- reset();stored.state=WR_IOT_RESULT_STORED_RAM;
- assert(wr_iot_rc_status(id,&out)&&out.state==WR_IOT_RESULT_STORED_RAM);
+ for(int state=WR_IOT_RESULT_STORED_RAM;state<=WR_IOT_RESULT_SAVED_FLASH;state++){
+ reset();stored.state=state;
+ assert(wr_iot_rc_status(id,&out)&&out.state==state);
  assert(open_calls==2&&reads==2&&observations==1&&!locked);
- for(i=-1;i<=2;i++)if(i!=1){reset();stored.state=WR_IOT_RESULT_STORED_RAM;answer=i;
+ for(i=-1;i<=2;i++)if(i!=1){reset();stored.state=state;answer=i;
   assert(!wr_iot_rc_status(id,&out)&&!locked);}
- for(i=1;i<=4;i++){reset();stored.state=WR_IOT_RESULT_STORED_RAM;change=i;
+ for(i=1;i<=4;i++){reset();stored.state=state;change=i;
   assert(!wr_iot_rc_status(id,&out)&&reads==2&&!locked);}
  for(i=1;i<=2;i++){
-  reset();stored.state=WR_IOT_RESULT_STORED_RAM;fail_open=i;assert(!wr_iot_rc_status(id,&out)&&!locked);
-  reset();stored.state=WR_IOT_RESULT_STORED_RAM;fail_read=i;assert(!wr_iot_rc_status(id,&out)&&!locked);
+  reset();stored.state=state;fail_open=i;assert(!wr_iot_rc_status(id,&out)&&!locked);
+  reset();stored.state=state;fail_read=i;assert(!wr_iot_rc_status(id,&out)&&!locked);
+ }
  }
  reset();stored.id[0]='b';assert(!wr_iot_rc_status(id,&out)&&!observations&&!locked);
  reset();assert(!wr_iot_rc_status(NULL,&out)&&!wr_iot_rc_status(id,NULL)&&!open_calls);

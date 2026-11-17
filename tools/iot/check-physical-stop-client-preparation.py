@@ -35,9 +35,9 @@ with tempfile.TemporaryDirectory(prefix='wr-stop-client-prepared-') as d:
  subprocess.run(['python3',str(here/'prepare-runtime.py'),str(root)],check=True)
  manifest=json.loads((root/'iot-runtime-source.json').read_text())
  init=(rc/'init.c').read_text();assert init.count('wr_iot_rc_boot_arm();')==1 and init.index('init_router();')<init.index('wr_iot_rc_boot_arm();')
- start=init.index('\tinit_router();');end=init.index('#endif',start)+len('#endif')
+ start=init.index('\tinit_router();');end=init.index('#endif',init.index('wr_iot_rc_boot_arm();',start))+len('#endif')
  startup=init[start:end]
- probe='#include <assert.h>\nstatic int stage;\nvoid init_router(void){stage=1;}\nvoid wr_iot_rc_boot_arm(void){assert(stage==1);stage=2;}\nint main(void){\n'+startup+'\n#if defined(BOARD_WR1200JS) && WR_IOT_IAPP_POLICY_PREPARED\nassert(stage==2);\n#else\nassert(stage==1);\n#endif\nreturn 0;}\n'
+ probe='#include <assert.h>\nstatic int stage;\nvoid init_router(void){stage=1;}\nint wr_iot_rc_save_backend_install(void){assert(stage==1);stage=2;return 0;}\nvoid wr_iot_rc_boot_arm(void){assert(stage==2);stage=3;}\nint main(void){\n'+startup+'\n#if defined(BOARD_WR1200JS) && WR_IOT_IAPP_POLICY_PREPARED\nassert(stage==3);\n#elif defined(BOARD_WR1200JS)\nassert(stage==2);\n#else\nassert(stage==1);\n#endif\nreturn 0;}\n'
  boot_probe=root/'boot-hook.c';boot_probe.write_text(probe)
  for board in ('WR1200JS','OTHER'):
   for gate in ('0','1'):
