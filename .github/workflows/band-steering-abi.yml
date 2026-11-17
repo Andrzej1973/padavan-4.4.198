@@ -415,7 +415,10 @@ jobs:
           root = Path('source-integration')
           r = json.loads((root/'band-steering-source-integration.json').read_text())
           assert r['preparation_complete'] and not r['factory_enabled']
-          assert not r['runtime_verified'] and len(r['steps']) == 23
+          assert not r['runtime_verified']
+          import runpy
+          expected = runpy.run_path('tools/band-steering/source-integration-recipe.py')['expected_steps']()
+          assert r['steps'] == expected, 'Source preparation recipe differs in steps/order'
           assert r['steps'].count('prepare-quiet-status-log.py') == 1
           assert r['steps'].index('prepare-quiet-status-log.py') < r['steps'].index('prepare-abi-probe.py')
           files = {}

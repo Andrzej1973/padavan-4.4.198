@@ -41,14 +41,15 @@ def run(name, *arguments):
     save()
 save()
 # Check the exact native persistence inputs before any source mutation.
-for check in ('check-native-commit-order.py', 'check-flash-image.py',
+PERSISTENCE_CHECKS = ('check-native-commit-order.py', 'check-flash-image.py',
               'check-native-flash-readback.py', 'check-native-flash-source.py',
-              'check-native-conditional-save.py'):
+              'check-native-conditional-save.py')
+PERSISTENCE_ADAPTER_CHECKS = ('check-native-flash-reader.py', 'check-flash-save-native.py', 'check-flash-save-attempt.py')
+for check in PERSISTENCE_CHECKS:
     run('../iot/' + check, root/'trunk/linux-4.4.x/drivers/nvram/nvram_linux.c')
-run('../iot/check-native-flash-reader.py')
-run('../iot/check-flash-save-native.py')
-run('../iot/check-flash-save-attempt.py')
-for name in ('prepare-idle-aging.py', 'prepare-grant-readback.py',
+for check in PERSISTENCE_ADAPTER_CHECKS:
+    run('../iot/' + check)
+SOURCE_PREPARERS = ('prepare-idle-aging.py', 'prepare-grant-readback.py',
              'prepare-wps-guards.py', 'prepare-channel-stats.py',
              'prepare-main-bss.py', 'prepare-off-ack.py',
              'prepare-uninitialized-off.py', 'prepare-nvram-snapshot.py',
@@ -58,7 +59,8 @@ for name in ('prepare-idle-aging.py', 'prepare-grant-readback.py',
              'prepare-wifi-snapshot.py', 'prepare-radio-snapshot.py',
              'prepare-board-defaults.py', 'prepare-web-controls.py',
              'prepare-status-query.py', 'prepare-status-web.py',
-             'prepare-status-ui.py', 'prepare-quiet-status-log.py'):
+             'prepare-status-ui.py', 'prepare-quiet-status-log.py')
+for name in SOURCE_PREPARERS:
     run(name, root)
 run('prepare-abi-probe.py', root, '--output', abi)
 for radio in ('mt76x2', 'mt76x3'):
