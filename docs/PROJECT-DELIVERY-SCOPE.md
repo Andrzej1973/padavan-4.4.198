@@ -1,3 +1,34 @@
+## Four final WR1200JS variants before Mi Mini — owner requirement 2026-11-17
+
+Complete and verify four final Hybrid Modern images with all agreed fixes:
+
+| Variant | Hybrid Modern | Classic | CAKE/SQM |
+| --- | --- | --- | --- |
+| 1 | Included | Included | Included, factory OFF |
+| 2 | Included | Omitted | Included, factory OFF |
+| 3 | Included | Included | Omitted |
+| 4 | Included | Omitted | Omitted |
+
+Mandatory IoT, Band Steering, Zapret2, settings compatibility and router access
+remain requirements in all four. Included CAKE must support explicit enable/
+disable from the available WebUI, including the variant without Classic.
+CAKE-free images must omit the implementation and expose no working-looking
+CAKE control. Existing saved settings must be preserved across variants;
+CAKE factory OFF must not silently overwrite an owner's saved enabled choice.
+
+This supersedes the earlier two-image delivery matrix and mandatory CAKE in
+every final image. Keep CAKE included/default OFF in the current development
+baseline until explicit final variant selection is implemented. It does not
+resume paused Modern development or authorize router changes.
+
+Verify each image independently: exact revision/toolchain/configuration,
+TRX size and SHA256, ROMFS, feature inclusion/absence, complete WebUI controls,
+release gates and separately authorized physical acceptance. Compare Classic
+size at fixed CAKE selection and CAKE size at fixed Classic selection using
+matched builds. CI standard/optional lanes remain separate from release variants.
+**Only after WR1200JS acceptance, including this four-variant delivery, proceed
+to Mi Mini.** No completed images or device acceptance are claimed by this rule.
+
 ## CAKE requirement corrected by the owner — 2026-11-11
 
 CAKE/SQM must be included in WR1200JS firmware and disabled at runtime by
