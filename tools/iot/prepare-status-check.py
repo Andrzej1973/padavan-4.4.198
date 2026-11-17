@@ -20,7 +20,7 @@ a.output.write_text(r'''#include <assert.h>
 #include <string.h>
 #define WR_IOT_CONTROL_DIRECTORY "fixture"
 enum {WR_IOT_RESULT_QUEUED=1,WR_IOT_RESULT_RUNNING,WR_IOT_RESULT_APPLIED,
- WR_IOT_RESULT_REJECTED,WR_IOT_RESULT_RECOVERY};
+ WR_IOT_RESULT_REJECTED,WR_IOT_RESULT_RECOVERY,WR_IOT_RESULT_STORED_RAM};
 struct wr_iot_control_result {char id[33];int state;unsigned long long created,observed;};
 struct wr_iot_mailbox {int open;};
 static struct wr_iot_control_result stored;
@@ -39,8 +39,8 @@ static int wr_iot_mailbox_result(struct wr_iot_mailbox *m,struct wr_iot_control_
  assert(locked&&m->open);if(++reads==fail_read)return 0;
  *out=stored;return 1;
 }
-static int wr_iot_activation_result_observed(const struct wr_iot_control_result *r){
- assert(!locked&&r->state==WR_IOT_RESULT_APPLIED);observations++;
+static int observe(const struct wr_iot_control_result *r,int expected){
+ assert(!locked&&r->state==expected);observations++;
  switch(change){
  case 1:stored.id[0]='b';break;
  case 2:stored.state=WR_IOT_RESULT_QUEUED;break;
@@ -49,6 +49,10 @@ static int wr_iot_activation_result_observed(const struct wr_iot_control_result 
  }
  return answer;
 }
+static int wr_iot_activation_result_observed(const struct wr_iot_control_result *r)
+{return observe(r,WR_IOT_RESULT_APPLIED);}
+static int wr_iot_configuration_result_observed(const struct wr_iot_control_result *r)
+{return observe(r,WR_IOT_RESULT_STORED_RAM);}
 '''+function+r'''
 static void reset(void){
  memset(&stored,0,sizeof(stored));memset(stored.id,'a',32);
@@ -70,9 +74,22 @@ int main(void){
   reset();stored.state=i;assert(wr_iot_rc_status(id,&out)&&out.state==i);
   assert(!observations&&reads==1&&!locked);
  }
+ /* Configuration RAM status must use its own observer, with the same fresh
+  * unlocked recheck and strict success==1 contract as runtime APPLIED. */
+ reset();stored.state=WR_IOT_RESULT_STORED_RAM;
+ assert(wr_iot_rc_status(id,&out)&&out.state==WR_IOT_RESULT_STORED_RAM);
+ assert(open_calls==2&&reads==2&&observations==1&&!locked);
+ for(i=-1;i<=2;i++)if(i!=1){reset();stored.state=WR_IOT_RESULT_STORED_RAM;answer=i;
+  assert(!wr_iot_rc_status(id,&out)&&!locked);}
+ for(i=1;i<=4;i++){reset();stored.state=WR_IOT_RESULT_STORED_RAM;change=i;
+  assert(!wr_iot_rc_status(id,&out)&&reads==2&&!locked);}
+ for(i=1;i<=2;i++){
+  reset();stored.state=WR_IOT_RESULT_STORED_RAM;fail_open=i;assert(!wr_iot_rc_status(id,&out)&&!locked);
+  reset();stored.state=WR_IOT_RESULT_STORED_RAM;fail_read=i;assert(!wr_iot_rc_status(id,&out)&&!locked);
+ }
  reset();stored.id[0]='b';assert(!wr_iot_rc_status(id,&out)&&!observations&&!locked);
  reset();assert(!wr_iot_rc_status(NULL,&out)&&!wr_iot_rc_status(id,NULL)&&!open_calls);
- puts("PASS actual status core: observation gate, record replacement/update, read/open failures, unlocked observer; injected mailbox only");
+ puts("PASS actual typed status core: separate runtime/RAM observation gates, record replacement/update, read/open failures, unlocked observer; injected mailbox only");
  return 0;
 }
 ''',encoding='utf-8')

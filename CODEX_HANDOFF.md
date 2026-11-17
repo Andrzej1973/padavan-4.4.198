@@ -1,3 +1,13 @@
+## ABI913 test generator correction — 2026-11-17
+
+ABI913/44110010197 failed on published a396c4ce at private mailbox status
+extraction: fixture enum lacked STORED_RAM and configuration observer actor.
+Monitor44111886514/artifact14340008424 correctly captured both causal errors;
+confirmed original step log, no monitor parser change needed. Corrected generated
+fixture and added strict-C11/Werror/ASan/UBSan regression to early preflight.
+Focused test PASS. Publish this repair alone; pending local generation binding
+and unrelated shared work excluded. Standard1350 still live, do not cancel.
+
 ## Configuration transport and native capacity checkpoint — 2026-11-17
 
 Published base fc82dfe640fdcd14bca5fc74d4b27ef0a3eac6ed: standard1348,
