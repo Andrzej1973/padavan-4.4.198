@@ -9,6 +9,6 @@ int wr_iot_activation_result_observed(const struct wr_iot_control_result *result
 }
 int wr_iot_configuration_result_observed(const struct wr_iot_control_result *result)
 {
- return result&&result->state==WR_IOT_RESULT_STORED_RAM&&
+ return result&&(result->state==WR_IOT_RESULT_STORED_RAM||result->state==WR_IOT_RESULT_SAVED_FLASH)&&
   wr_iot_status_endpoint_query(WR_IOT_CONTROL_DIRECTORY,1,0,result);
 }

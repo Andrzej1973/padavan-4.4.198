@@ -13,6 +13,10 @@ static char directory[]="/tmp/iot-rc-runtime-XXXXXX";
 #define WR_IOT_CONTROL_DIRECTORY directory
 #define WR_IOT_RUNTIME_UID geteuid()
 #include "rc-runtime.c"
+static int save_observations,save_verdict;
+int wr_iot_rc_save_observed(const struct wr_iot_control_result *r)
+{assert(r->state==WR_IOT_RESULT_STORED_RAM||r->state==WR_IOT_RESULT_SAVED_FLASH);save_observations++;return save_verdict;}
+
 #ifndef WR_IOT_RUNTIME_FIXTURE_EXTERNAL_ON_RELEASE
 int wr_iot_on_shutdown_closed_current(struct wr_iot_on_restore*s,const struct wr_iot_rc_quiesce*o){(void)s;(void)o;assert(0);return 0;}
 int wr_iot_on_prehandoff_cancel_current(struct wr_iot_on_restore*s){(void)s;assert(0);return 0;}
@@ -58,6 +62,12 @@ int wr_iot_rc_continue(void){steps++;return 1;}
 int wr_iot_rc_backend_observed(const struct wr_iot_control_result *r){assert(r->state==WR_IOT_RESULT_APPLIED);observations++;return 1;}
 static void handler(int sig){assert(sig==SIGUSR1);notification=1;}
 int main(void){
+ {
+ struct wr_iot_control_result r={.state=WR_IOT_RESULT_SAVED_FLASH};
+ assert(!runtime_observed(&r)&&save_observations==1);save_verdict=1;
+ assert(runtime_observed(&r)&&save_observations==2);r.state=WR_IOT_RESULT_STORED_RAM;
+ assert(runtime_observed(&r)&&save_observations==3);save_verdict=0;
+ }
  assert(mkdtemp(directory));sigset_t empty,blocked,old,check;
  sigemptyset(&empty);sigemptyset(&blocked);sigaddset(&blocked,SIGUSR1);
  struct sigaction action={0};action.sa_handler=handler;sigemptyset(&action.sa_mask);assert(!sigaction(SIGUSR1,&action,NULL));

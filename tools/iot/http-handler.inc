@@ -11,6 +11,7 @@ extern const char *wr_iot_http_content_type(void);
  * here. Implemented separately by control-client.c, never generic Apply. */
 extern int wr_iot_rc_submit(const struct wr_iot_request *,char [33]);
 extern int wr_iot_rc_submit_config(const struct wr_iot_saved_config *,char [33]);
+extern int wr_iot_rc_submit_save(const struct wr_iot_saved_config *,int,char [33]);
 extern int wr_iot_rc_status(const char *,struct wr_iot_control_result *);
 #ifndef WR_IOT_HTTP_NOW
 static unsigned long long wr_iot_http_monotonic(void){
@@ -118,3 +119,27 @@ static void wr_iot_http_config_output(const char *url,FILE *stream)
  }
  websWrite(stream,"{\"accepted\":true,\"id\":\"%s\"}",id);
 }
+
+/* Endpoint identity determines policy; no caller-supplied mode or arbitrary
+ * operation field can upgrade automatic persistence to explicit Save. */
+static void wr_iot_http_save_output_mode(FILE *stream,int explicit_save)
+{
+ struct wr_iot_saved_config config={0};char id[33]={0};size_t length;
+ int accepted;
+ length=wr_iot_http_length;wr_iot_http_length=0;
+ accepted=wr_iot_http_config_request_read(&config,get_login_safe(),
+  wr_iot_http_is_post()?"POST":"GET",wr_iot_http_content_type(),
+  wr_iot_http_csrf,wr_iot_http_body,length);
+ wr_iot_saved_wipe(wr_iot_http_body,sizeof(wr_iot_http_body));
+ if(!accepted){websWrite(stream,"{\"error\":\"invalid_request\"}");return;}
+ accepted=wr_iot_rc_submit_save(&config,explicit_save,id);
+ wr_iot_saved_wipe(&config,sizeof(config));
+ if(accepted!=1||!memchr(id,0,sizeof(id))||!wr_iot_control_id(id)){
+  websWrite(stream,"{\"error\":\"unavailable_or_busy\"}");return;
+ }
+ websWrite(stream,"{\"accepted\":true,\"id\":\"%s\"}",id);
+}
+static void wr_iot_http_save_auto_output(const char *url,FILE *stream)
+{(void)url;wr_iot_http_save_output_mode(stream,0);}
+static void wr_iot_http_save_explicit_output(const char *url,FILE *stream)
+{(void)url;wr_iot_http_save_output_mode(stream,1);}

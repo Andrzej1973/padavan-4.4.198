@@ -39,6 +39,12 @@ int wr_iot_rc_submit(const struct wr_iot_request *request,char id[33])
 {return wr_iot_submit_request(request,WR_IOT_OPERATION_RUNTIME,id);}
 int wr_iot_rc_submit_config(const struct wr_iot_saved_config *config,char id[33])
 {return config?wr_iot_submit_request(&config->profile,WR_IOT_OPERATION_CONFIG,id):0;}
+int wr_iot_rc_submit_save(const struct wr_iot_saved_config *config,int explicit_save,char id[33])
+{
+ if(!config||(explicit_save!=0&&explicit_save!=1))return 0;
+ return wr_iot_submit_request(&config->profile,explicit_save?WR_IOT_OPERATION_CONFIG_SAVE_EXPLICIT:
+                              WR_IOT_OPERATION_CONFIG_SAVE_AUTO,id);
+}
 int wr_iot_rc_status(const char *id,struct wr_iot_control_result *out){
  struct wr_iot_mailbox m;struct wr_iot_control_result result,current;int observed;
  if(!out||!wr_iot_control_id(id))return 0;
@@ -46,10 +52,11 @@ int wr_iot_rc_status(const char *id,struct wr_iot_control_result *out){
  if(!wr_iot_mailbox_open(&m,WR_IOT_CONTROL_DIRECTORY,0))return 0;
  observed=wr_iot_mailbox_result(&m,&result);wr_iot_mailbox_close(&m);
  if(observed!=1||strcmp(result.id,id))return 0;
+
  /* A terminal mailbox record is historical execution evidence. It cannot
   * establish current state after a legacy/manual/scheduled network change.
   * Observe outside the mailbox lock to preserve service/queue lock ordering. */
- if(result.state==WR_IOT_RESULT_APPLIED||result.state==WR_IOT_RESULT_STORED_RAM){
+ if(result.state==WR_IOT_RESULT_APPLIED||result.state==WR_IOT_RESULT_STORED_RAM||result.state==WR_IOT_RESULT_SAVED_FLASH){
   if((result.state==WR_IOT_RESULT_APPLIED?wr_iot_activation_result_observed(&result):
       wr_iot_configuration_result_observed(&result))!=1)return 0;
   /* Observation released the queue lock. Reject a replaced or updated

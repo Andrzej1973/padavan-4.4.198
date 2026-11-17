@@ -5,7 +5,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <unistd.h>
-static int safe=1,post=1,calls,config_calls,submit_result=1;
+static int safe=1,post=1,calls,config_calls,save_calls,save_mode,submit_result=1;
 static const char *mime="application/x-www-form-urlencoded";
 static char reply[256];
 static const char *requested_id="0123456789abcdef0123456789abcdef";
@@ -34,6 +34,10 @@ int wr_iot_rc_submit_config(const struct wr_iot_saved_config *config,char id[33]
  assert(!config->profile.enabled&&!strcmp(config->profile.ssid,"IoT")&&
         !strcmp(config->profile.password,"password123"));
  config_calls++;strcpy(id,"0123456789abcdef0123456789abcdef");return submit_result;
+}
+int wr_iot_rc_submit_save(const struct wr_iot_saved_config *config,int explicit_save,char id[33]){
+ assert(!config->profile.enabled&&!strcmp(config->profile.ssid,"IoT")&&!strcmp(config->profile.password,"password123"));
+ save_calls++;save_mode=explicit_save;strcpy(id,"0123456789abcdef0123456789abcdef");return submit_result;
 }
 int wr_iot_rc_status(const char *id,struct wr_iot_control_result *result){
  status_calls++;strcpy(result->id,id);result->created=140;
@@ -102,7 +106,20 @@ int main(void){
   post=0;input(disabled,(int)strlen(disabled));wr_iot_http_config_output("wr_iot_config.cgi",NULL);assert(config_calls==1);post=1;
   wr_iot_http_csrf[0]='f';input(disabled,(int)strlen(disabled));wr_iot_http_config_output("wr_iot_config.cgi",NULL);assert(config_calls==1);wr_iot_http_csrf[0]='0';
   mime="application/json";input(disabled,(int)strlen(disabled));wr_iot_http_config_output("wr_iot_config.cgi",NULL);assert(config_calls==1);mime="application/x-www-form-urlencoded";
+  for(int explicit_save=0;explicit_save<=1;explicit_save++){
+   int before=save_calls;
+   input(disabled,(int)strlen(disabled));
+   if(explicit_save)wr_iot_http_save_explicit_output("wr_iot_save.cgi",NULL);
+   else wr_iot_http_save_auto_output("wr_iot_save_auto.cgi",NULL);
+   assert(save_calls==before+1&&save_mode==explicit_save&&strstr(reply,"accepted")&&!strstr(reply,"saved_in_flash"));
+   wr_iot_http_save_auto_output("wr_iot_save_auto.cgi",NULL);assert(save_calls==before+1);
+   safe=0;input(disabled,(int)strlen(disabled));wr_iot_http_save_explicit_output("",NULL);assert(save_calls==before+1);safe=1;
+   post=0;input(disabled,(int)strlen(disabled));wr_iot_http_save_auto_output("",NULL);assert(save_calls==before+1);post=1;
+   wr_iot_http_csrf[0]='f';input(disabled,(int)strlen(disabled));wr_iot_http_save_explicit_output("",NULL);assert(save_calls==before+1);wr_iot_http_csrf[0]='0';
+   input(minimal,(int)strlen(minimal));wr_iot_http_save_explicit_output("",NULL);assert(save_calls==before+1);
+  }
   requested_id="0123456789abcdef0123456789abcdef";result_observed=145;status_available=1;
+  result_state=WR_IOT_RESULT_SAVED_FLASH;wr_iot_http_result_output("wr_iot_result.cgi",NULL);assert(strstr(reply,"saved_in_flash"));
   result_state=WR_IOT_RESULT_STORED_RAM;wr_iot_http_result_output("wr_iot_result.cgi",NULL);
   assert(strstr(reply,"stored_in_ram")&&!strstr(reply,"applied"));
  }

@@ -12,6 +12,7 @@
 #include "radio-off-followup.h"
 #include "rc-shutdown-admission.h"
 #include "control-channel.h"
+#include "config-save-server.h"
 #include "rc-backend.h"
 #include "rc-physical-stop.h"
 #include "restart-scheduler.h"
@@ -68,6 +69,14 @@ static void radio_off_continue(void)
  if(!radio_off_followup.owner)(void)wr_iot_off_followup_begin(&radio_off_followup,&radio_off_owner);
  else (void)wr_iot_off_followup_step(&radio_off_followup);
 }
+static int runtime_observed(const struct wr_iot_control_result *result)
+{
+ if(result&&(result->state==WR_IOT_RESULT_SAVED_FLASH||result->state==WR_IOT_RESULT_STORED_RAM)){
+  if(wr_iot_rc_save_observed(result))return 1;
+  if(result->state==WR_IOT_RESULT_SAVED_FLASH)return 0;
+ }
+ return wr_iot_rc_backend_observed(result);
+}
 static unsigned long long runtime_ms(void)
 {struct timespec t;if(clock_gettime(CLOCK_MONOTONIC,&t)||t.tv_sec<=0)return 0;return (unsigned long long)t.tv_sec*1000+(unsigned long long)t.tv_nsec/1000000;}
 static void runtime_init(void)
@@ -116,7 +125,7 @@ void wr_iot_rc_wait(const sigset_t *wait_mask,const volatile int *notification,
  }
  (void)ppoll(fd>=0?&p:NULL,fd>=0?1:0,timeout,wait_mask);
  if((*notification||*alarm)&&!wr_iot_rc_normal_shutdown_pending())goto done;
- (void)wr_iot_status_endpoint_step(&endpoint,wr_iot_rc_backend_observed);
+ (void)wr_iot_status_endpoint_step(&endpoint,runtime_observed);
  now=runtime_ms();
  if((radio_off_redispatch||radio_off_pending()||wr_iot_cold_on_pending()||wr_iot_radio_on_pending()||wr_iot_rc_pending()||wr_iot_rc_physical_pending()||wr_iot_restart_scheduler_pending()||wr_iot_rc_normal_shutdown_pending()||wr_iot_rc_boot_pending())&&now&&now>=next_progress){
   next_progress=now+100;

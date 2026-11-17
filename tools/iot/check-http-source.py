@@ -28,6 +28,10 @@ if web.count('#if defined(BOARD_WR1200JS)\n'+handler+'\n#endif')!=1:
 route_start=web.index('\t{ "wr_iot_token.cgi",')
 assert web[:route_start].endswith('#if defined(BOARD_WR1200JS)\n')
 route_end=web.index('\n',web.index('\t{ "wr_iot_result.cgi",',route_start))
+for name,handler_name in [('wr_iot_save_auto.cgi','wr_iot_http_save_auto_output'),('wr_iot_save.cgi','wr_iot_http_save_explicit_output')]:
+    route='\t{ "'+name+'", "application/json", no_cache_IE, wr_iot_http_apply_input, '+handler_name+', 1 },'
+    assert web.count(route)==1 and route_start<web.index(route)<route_end
+
 assert web[route_end:].startswith('\n#endif\n')
 start=main.index('static int wr_iot_http_post,wr_iot_http_type_count;')
 assert main[:start].endswith('#if defined(BOARD_WR1200JS)\n')

@@ -1,5 +1,31 @@
 # WR1200JS native flash readback contract
 
+## Current package boundary — 2026-11-17
+
+The experimental source now binds dedicated authenticated AUTO/EXPLICIT Save
+POST routes through the existing single queue to the registered RC Save facade,
+retained configuration owner and nonblocking child worker. Legacy runtime and
+RAM-only routes retain their behavior. Automatic mode respects nvram_manual;
+explicit Save uses the versioned conditional native ioctl. The native handler
+checks expected profile and save policy atomically with snapshot creation and
+checks full-image flash readback. Firmware ACK, TX/DMA ownership, radio timings
+and Main/Guest restart policy are unchanged.
+
+POST reports only queue acceptance. stored_in_ram and saved_in_flash have
+separate result versions and private IPC types. saved_in_flash means a confirmed
+save operation with its retained receipt and current matching RAM identity;
+status does not synchronously reread flash in PID1. It is not proof against later
+external flash modification. Unknown COMMIT/child receipts retain recovery and
+never authorize replacement writes. Failed terminal publication retries only
+verification/publication, not SET/fork/COMMIT.
+
+Source staging and host checks are evidence only. MIPS kernel/RC/HTTP linking,
+assembled candidate image verification, main-image promotion, Classic form UX
+and physical acceptance remain open. configuration_flash_bound stays false
+until its target/image gates are reviewed; a linked API is not router acceptance.
+The sections below record design development and earlier draft boundaries;
+this current scope supersedes their unpublished/unbound statements.
+
 Status: guarded native readback and conditional save are source-staged and host-tested. RC save routing, durable receipts and device acceptance remain incomplete.
 
 ## Pure byte validator boundary
@@ -206,3 +232,92 @@ requests/results, terminal publication and status semantics in the existing
 single queue, without changing legacy runtime or RAM-only results. Host staged
 checks pass for capability0/1. Target/image and physical verification remain
 open. No router was accessed and no firmware save route was enabled.
+
+## Next local draft: typed Save transport (unpublished)
+
+control-record.h now has distinct AUTO/EXPLICIT configuration-save operation
+kinds and WR-IOT-CONFIG-SAVE-1 envelopes, without changing old request bytes.
+Mailbox flash result7 uses WR-IOT-RESULT-3 only; old result1/runtime and
+result2/RAM remain incompatible with flash success. The same single private
+queue and exact continued owner/ID/time checks apply. No new queue is added.
+
+Original codec/mailbox and new Save tests pass with the actual filesystem
+mailbox under sanitizers. While backend/status/HTTP binding is unfinished,
+control-server explicitly rejects new Save operations before activation and
+control-client refuses unsupported flash status. Actual RC/client host tests
+confirm both boundaries. These local edits are not published or target-verified.
+Next connect config-save-owner through a dedicated RC facade, extend typed
+private status observation, then add authenticated automatic/explicit endpoints
+and composed end-to-end checks before enabling any save route.
+
+Local Save-backend registration now binds a copied complete callback set to the
+current PID once, before active/shutdown/radio-owned work. Unregistered or
+fork-inherited registration cannot execute Save. Registered Save uses its own
+execute/progress/terminal callbacks under the existing single queue; old RAM and
+runtime paths retain their callbacks. Actual RC/mailbox host tests pass for
+missing callbacks, active-admission refusal, duplicate registration, one execute,
+one continuation and exact flash terminal publication. Production registration,
+private status observer and HTTP wiring remain incomplete and unpublished.
+
+Local config-save-server.c now supplies the actual execute/progress/terminal
+callbacks using the retained config-save-owner. It rejects terminal-kind mismatch,
+keeps unknown owners rather than replacing them, and rechecks receipts on every
+publication retry. Its observer distinguishes RAM_ONLY from confirmed historical
+flash save and requires current owner/RAM identity. Host tests of the actual
+facade pass with an explicit modeled owner. Startup registration, shared status
+routing and HTTP endpoints are still unbound; this draft is unpublished.
+
+Local status-channel adds WIF1 for saved_in_flash, distinct from WIC1 RAM and
+WIS1 runtime. Real fork/Unix SOCK_SEQPACKET tests pass for exact flash response,
+cross-kind response refusal and retained PID/UID/nonce/length/timeout checks.
+The wire parser derives the requested result type from the magic. This is only
+transport: production RC observer/startup registration and HTTP acceptance remain
+unbound, and the client continues to refuse flash status until that integration.
+
+Local source staging now includes config-save-server.c/h in experimental RC
+object/header closure and verifies its install/observer symbols after target
+linking. Source preflight includes Save codec/mailbox, facade and private status
+regressions. Actual staged host compilation passes in all three native capability
+combinations, alongside old CGI/transport/status regressions. No startup install
+call or HTTP Save route is present; the draft remains unpublished and
+configuration_flash_bound remains false until full routing/verification.
+
+Local startup preparation now attempts Save-backend installation once after
+init_router and before optional IoT boot arm. Actual generated-fragment tests
+cover WR/non-WR and boot-policy0/1, including refused registration without boot
+failure. Capability checks remain in install; no HTTP Save route is added.
+Source verification requires exactly one call in that order. Current preflight
+recipe has 39 unique ordered steps. The whole package remains unpublished until
+private observer/HTTP binding and composed checks complete; target verification
+of this startup change remains outstanding.
+
+Local private status observer is now routed in RC runtime: SAVED_FLASH queries
+must be accepted by the retained Save owner and cannot fall through to runtime
+activation. RAM queries may use the Save RAM_ONLY receipt or the existing RAM
+configuration observer. HTTP-side status client now sends WIF1 for flash results
+and requires the authenticated private observer roundtrip plus unchanged mailbox
+recheck before returning status. The status denotes the original confirmed save
+with current RAM identity, not fresh flash readback on each request. No HTTP
+Save submission endpoint is enabled yet. New routing remains unpublished.
+
+Local HTTP preparation now stages authenticated POST endpoints
+wr_iot_save_auto.cgi and wr_iot_save.cgi for automatic and explicit mode.
+Endpoint identity selects policy; the request body cannot upgrade it. Both use
+the existing strict complete configuration/CSRF parser and once-only body,
+return only queue acceptance/ID, and wipe configuration buffers. The client
+submits the distinct typed save operation in the same queue. Existing runtime
+and RAM-only endpoints retain their semantics. Handler auth/POST/MIME/CSRF,
+complete disabled provisioning and status rendering tests pass. Full composed
+queue->actual facade/owner->worker->terminal/status validation and assembled
+HTTP route verification remain required before publication/target claims.
+
+Local composed Save-route test now links actual client, real filesystem mailbox,
+shared RC server and registration, Save facade, owner, RAM store/parser/guard and
+fork worker. Confirmed flash, automatic manual-policy RAM-only, uncertain COMMIT
+retention/no replay and changed-RAM status invalidation pass. Native SDK/flash
+and the private observer transport boundary are explicitly modeled; private IPC
+has its separate real-process tests. Pinned assembled HTTP source also passes
+route/auth/metadata checks after actual prepare-http transformation. The current
+40-step source preflight includes this composed test. The package is still local;
+full frozen-package regressions, target/image checks and physical acceptance are
+outstanding, and configuration_flash_bound is not upgraded on host evidence.

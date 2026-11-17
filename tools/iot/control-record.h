@@ -8,9 +8,14 @@
 #define WR_IOT_CONTROL_RECORD_MAX 512
 enum wr_iot_result_state {
  WR_IOT_RESULT_QUEUED=1,WR_IOT_RESULT_RUNNING,WR_IOT_RESULT_APPLIED,
- WR_IOT_RESULT_REJECTED,WR_IOT_RESULT_RECOVERY,WR_IOT_RESULT_STORED_RAM
+ WR_IOT_RESULT_REJECTED,WR_IOT_RESULT_RECOVERY,WR_IOT_RESULT_STORED_RAM,WR_IOT_RESULT_SAVED_FLASH
 };
-enum wr_iot_operation {WR_IOT_OPERATION_RUNTIME=0,WR_IOT_OPERATION_CONFIG};
+enum wr_iot_operation {WR_IOT_OPERATION_RUNTIME=0,WR_IOT_OPERATION_CONFIG,
+ WR_IOT_OPERATION_CONFIG_SAVE_AUTO,WR_IOT_OPERATION_CONFIG_SAVE_EXPLICIT};
+static inline int wr_iot_operation_is_save(enum wr_iot_operation operation)
+{return operation==WR_IOT_OPERATION_CONFIG_SAVE_AUTO||operation==WR_IOT_OPERATION_CONFIG_SAVE_EXPLICIT;}
+static inline int wr_iot_operation_is_config(enum wr_iot_operation operation)
+{return operation==WR_IOT_OPERATION_CONFIG||wr_iot_operation_is_save(operation);}
 struct wr_iot_control_request {
  char id[33];unsigned long long created;
  struct wr_iot_request request;
@@ -34,6 +39,7 @@ static inline const char *wr_iot_control_state(enum wr_iot_result_state state){
  case WR_IOT_RESULT_REJECTED:return "rejected";
  case WR_IOT_RESULT_RECOVERY:return "recovery_required";
  case WR_IOT_RESULT_STORED_RAM:return "stored_in_ram";
+ case WR_IOT_RESULT_SAVED_FLASH:return "saved_in_flash";
  default:return NULL;
  }
 }
@@ -64,32 +70,37 @@ static inline int wr_iot_control_time(const char *text,unsigned long long *out){
 }
 static inline int wr_iot_control_decode(struct wr_iot_control_request *out,
  const char *data,size_t length){
- char buffer[WR_IOT_CONTROL_RECORD_MAX],*lines[10];size_t i,start=0,count=0;
- struct wr_iot_control_request candidate={0};struct wr_iot_control_fields fields;
+ char buffer[WR_IOT_CONTROL_RECORD_MAX],*lines[10];size_t i,start=0,count=0;int ok=0;
+ struct wr_iot_control_request candidate={0};struct wr_iot_control_fields fields={0};
+ struct wr_iot_saved_config config={0};
  if(!out||!data||!length||length>=sizeof(buffer)||memchr(data,0,length))return 0;
  memcpy(buffer,data,length);buffer[length]=0;
  for(i=0;i<length;i++)if(buffer[i]=='\n'){
-  if(count==10)return 0;
+  if(count==10)goto done;
   lines[count++]=buffer+start;buffer[i]=0;start=i+1;
  }
- if(count==4&&start==length&&!strcmp(lines[0],"WR-IOT-CONFIG-REQUEST-1")){
-  struct wr_iot_saved_config config={0};
-  if(!wr_iot_control_id(lines[1])||!wr_iot_control_time(lines[2],&candidate.created)||
-     !wr_iot_saved_config_decode(&config,lines[3],strlen(lines[3]))){
-   wr_iot_saved_wipe(&config,sizeof(config));wr_iot_saved_wipe(buffer,sizeof(buffer));return 0;
-  }
-  memcpy(candidate.id,lines[1],33);candidate.request=config.profile;
-  candidate.operation=WR_IOT_OPERATION_CONFIG;*out=candidate;
-  wr_iot_saved_wipe(&config,sizeof(config));wr_iot_saved_wipe(buffer,sizeof(buffer));return 1;
+ if(start!=length)goto done;
+ if((count==4&&!strcmp(lines[0],"WR-IOT-CONFIG-REQUEST-1"))||
+    (count==5&&!strcmp(lines[0],"WR-IOT-CONFIG-SAVE-1"))){
+  int save=count==5;
+  if(!wr_iot_control_id(lines[1])||!wr_iot_control_time(lines[2],&candidate.created))goto done;
+  if(save){
+   if(!strcmp(lines[3],"auto"))candidate.operation=WR_IOT_OPERATION_CONFIG_SAVE_AUTO;
+   else if(!strcmp(lines[3],"explicit"))candidate.operation=WR_IOT_OPERATION_CONFIG_SAVE_EXPLICIT;
+   else goto done;
+  }else candidate.operation=WR_IOT_OPERATION_CONFIG;
+  if(!wr_iot_saved_config_decode(&config,lines[save?4:3],strlen(lines[save?4:3])))goto done;
+  memcpy(candidate.id,lines[1],33);candidate.request=config.profile;*out=candidate;ok=1;goto done;
  }
- if(count!=10||start!=length||strcmp(lines[0],"WR-IOT-1")||
-    !wr_iot_control_id(lines[1])||!wr_iot_control_time(lines[2],&candidate.created))return 0;
+ if(count!=10||strcmp(lines[0],"WR-IOT-1")||
+    !wr_iot_control_id(lines[1])||!wr_iot_control_time(lines[2],&candidate.created))goto done;
  for(i=0;i<7;i++)fields.values[i]=lines[i+3];
- /* Default-OFF applies to absent persistent settings, not wire records. */
- if(strcmp(fields.values[0],"0")&&strcmp(fields.values[0],"1"))return 0;
- if(!wr_iot_request_read(&candidate.request,wr_iot_control_read,&fields,1,1,0,NULL,0))return 0;
- if(!candidate.request.enabled)for(i=1;i<7;i++)if(fields.values[i][0])return 0;
- memcpy(candidate.id,lines[1],33);*out=candidate;return 1;
+ if(strcmp(fields.values[0],"0")&&strcmp(fields.values[0],"1"))goto done;
+ if(!wr_iot_request_read(&candidate.request,wr_iot_control_read,&fields,1,1,0,NULL,0))goto done;
+ if(!candidate.request.enabled)for(i=1;i<7;i++)if(fields.values[i][0])goto done;
+ memcpy(candidate.id,lines[1],33);*out=candidate;ok=1;
+ done:wr_iot_saved_wipe(&config,sizeof(config));wr_iot_saved_wipe(&candidate,sizeof(candidate));
+ wr_iot_saved_wipe(buffer,sizeof(buffer));return ok;
 }
 static inline int wr_iot_control_encode(char *out,size_t capacity,
  const struct wr_iot_control_request *record){
@@ -99,14 +110,17 @@ static inline int wr_iot_control_encode(char *out,size_t capacity,
  if(!out||!record||!memchr(record->id,0,sizeof(record->id))||
     !wr_iot_control_id(record->id)||!record->created)return 0;
  r=&record->request;
- if(record->operation==WR_IOT_OPERATION_CONFIG){
+ if(wr_iot_operation_is_config(record->operation)){
   struct wr_iot_saved_config config={0};char encoded[WR_IOT_SAVED_CONFIG_MAX]={0};
   config.profile=*r;
   if(!wr_iot_saved_config_encode(encoded,sizeof(encoded),&config)){
    wr_iot_saved_wipe(&config,sizeof(config));return 0;
   }
-  n=snprintf(buffer,sizeof(buffer),"WR-IOT-CONFIG-REQUEST-1\n%s\n%llu\n%s\n",
-   record->id,record->created,encoded);
+  if(record->operation==WR_IOT_OPERATION_CONFIG)
+   n=snprintf(buffer,sizeof(buffer),"WR-IOT-CONFIG-REQUEST-1\n%s\n%llu\n%s\n",
+    record->id,record->created,encoded);
+  else n=snprintf(buffer,sizeof(buffer),"WR-IOT-CONFIG-SAVE-1\n%s\n%llu\n%s\n%s\n",
+    record->id,record->created,record->operation==WR_IOT_OPERATION_CONFIG_SAVE_AUTO?"auto":"explicit",encoded);
   wr_iot_saved_wipe(&config,sizeof(config));wr_iot_saved_wipe(encoded,sizeof(encoded));
   if(n<=0||(size_t)n>=sizeof(buffer)||(size_t)n+1>capacity||
      !wr_iot_control_decode(&checked,buffer,(size_t)n)){

@@ -7,12 +7,28 @@ static struct {
  int active,busy,terminal;enum wr_iot_result_state outcome;
  enum wr_iot_operation operation;
 } wr_iot_continuation;
+static struct wr_iot_save_backend_hooks save_hooks;
+static pid_t save_hooks_owner;
+int wr_iot_rc_register_save_backend(const struct wr_iot_save_backend_hooks *hooks)
+{
+ if(!hooks||!hooks->execute||!hooks->progress||!hooks->terminal||save_hooks_owner||
+    wr_iot_continuation.active||wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||
+    wr_iot_rc_shutdown.radio_on_owned||wr_iot_rc_shutdown.radio_off_owned)return 0;
+ save_hooks=*hooks;save_hooks_owner=getpid();return 1;
+}
+static int save_bound(void)
+{return save_hooks_owner==getpid()&&save_hooks.execute&&save_hooks.progress&&save_hooks.terminal;}
 static int wr_iot_terminal_ready(enum wr_iot_operation operation,
  enum wr_iot_result_state outcome,const char *id,unsigned long long created)
 {
  struct wr_iot_control_result result={0};
  if(operation==WR_IOT_OPERATION_RUNTIME)
   return outcome!=WR_IOT_RESULT_APPLIED||wr_iot_rc_backend_applied_route(id,created);
+ if(wr_iot_operation_is_save(operation)){
+  if(!save_bound())return outcome==WR_IOT_RESULT_REJECTED;
+  memcpy(result.id,id,sizeof(result.id));result.created=created;result.state=outcome;
+  return save_hooks.terminal(&result);
+ }
  if(operation!=WR_IOT_OPERATION_CONFIG)return 0;
  memcpy(result.id,id,sizeof(result.id));result.created=created;result.state=outcome;
  return wr_iot_rc_config_terminal_ready(&result);
@@ -22,7 +38,8 @@ static enum wr_iot_result_state wr_iot_operation_outcome(enum wr_iot_operation o
 {
  if(outcome==WR_IOT_RESULT_REJECTED||
     (operation==WR_IOT_OPERATION_RUNTIME&&outcome==WR_IOT_RESULT_APPLIED)||
-    (operation==WR_IOT_OPERATION_CONFIG&&outcome==WR_IOT_RESULT_STORED_RAM))return outcome;
+    (operation==WR_IOT_OPERATION_CONFIG&&outcome==WR_IOT_RESULT_STORED_RAM)||
+    (wr_iot_operation_is_save(operation)&&(outcome==WR_IOT_RESULT_STORED_RAM||outcome==WR_IOT_RESULT_SAVED_FLASH)))return outcome;
  return WR_IOT_RESULT_RECOVERY;
 }
 int wr_iot_rc_dispatch(void){
@@ -39,7 +56,7 @@ int wr_iot_rc_dispatch(void){
    * Never replay a RUNNING or RECOVERY operation after interruption. */
   finished=wr_iot_mailbox_result(&m,&previous)&&
    (previous.state==WR_IOT_RESULT_APPLIED||previous.state==WR_IOT_RESULT_REJECTED||
-    previous.state==WR_IOT_RESULT_STORED_RAM)&&
+    previous.state==WR_IOT_RESULT_STORED_RAM||previous.state==WR_IOT_RESULT_SAVED_FLASH)&&
    wr_iot_mailbox_finish(&m,previous.id,previous.state,now);
   wr_iot_mailbox_close(&m);goto done;
  }
@@ -47,8 +64,9 @@ int wr_iot_rc_dispatch(void){
  /* RUNNING is visible before execution and prevents replay/replacement even
   * when RC dies or its backend cannot finish recovery. Do not hold the queue
   * lock while taking the distinct activation/service guard. */
- outcome=request.operation==WR_IOT_OPERATION_CONFIG?
-  wr_iot_rc_config_execute(&request):wr_iot_activation_execute(&request);
+ outcome=request.operation==WR_IOT_OPERATION_CONFIG?wr_iot_rc_config_execute(&request):
+  request.operation==WR_IOT_OPERATION_RUNTIME?wr_iot_activation_execute(&request):
+  wr_iot_operation_is_save(request.operation)&&save_bound()?save_hooks.execute(&request):WR_IOT_RESULT_REJECTED;
  outcome=wr_iot_operation_outcome(request.operation,outcome);
  /* Recovery still owns resources/isolation after this request returns.
   * Do not replay a pending shutdown into the stock fatal path, which would
@@ -105,7 +123,10 @@ int wr_iot_rc_continue(void){
  else {
   outcome=wr_iot_continuation.operation==WR_IOT_OPERATION_CONFIG?
    wr_iot_rc_config_continue(wr_iot_continuation.id,wr_iot_continuation.created):
-   wr_iot_activation_continue(wr_iot_continuation.id,wr_iot_continuation.created);
+   wr_iot_continuation.operation==WR_IOT_OPERATION_RUNTIME?
+    wr_iot_activation_continue(wr_iot_continuation.id,wr_iot_continuation.created):
+    wr_iot_operation_is_save(wr_iot_continuation.operation)&&save_bound()?
+    save_hooks.progress(wr_iot_continuation.id,wr_iot_continuation.created):WR_IOT_RESULT_RECOVERY;
   outcome=wr_iot_operation_outcome(wr_iot_continuation.operation,outcome);
   if(outcome!=WR_IOT_RESULT_RECOVERY){
    wr_iot_continuation.terminal=1;wr_iot_continuation.outcome=outcome;

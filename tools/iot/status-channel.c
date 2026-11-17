@@ -28,7 +28,7 @@ static unsigned long long get_time(const unsigned char *p)
 {unsigned i;unsigned long long t=0;for(i=0;i<8;i++)t=(t<<8)|p[i];return t;}
 static int record_valid(const struct wr_iot_control_result *r,unsigned long long now)
 {
- return r&&(r->state==WR_IOT_RESULT_APPLIED||r->state==WR_IOT_RESULT_STORED_RAM)&&
+ return r&&(r->state==WR_IOT_RESULT_APPLIED||r->state==WR_IOT_RESULT_STORED_RAM||r->state==WR_IOT_RESULT_SAVED_FLASH)&&
   memchr(r->id,0,sizeof(r->id))&&
   wr_iot_control_id(r->id)&&r->created&&r->created<=r->observed&&r->observed<=now;
 }
@@ -37,7 +37,7 @@ int wr_iot_status_query(int fd,pid_t rc_pid,uid_t uid,const struct wr_iot_contro
  unsigned char query[QUERY_BYTES],reply[QUERY_BYTES+1];struct pollfd p={fd,POLLIN,0};
  unsigned long long now=status_ms(),deadline;ssize_t n;int ready;
  if(!now||rc_pid<=0||!peer(fd,rc_pid,uid)||!record_valid(r,now/1000))return 0;
- memcpy(query,r->state==WR_IOT_RESULT_STORED_RAM?"WIC1":"WIS1",4);memcpy(query+4,r->id,32);
+ memcpy(query,r->state==WR_IOT_RESULT_SAVED_FLASH?"WIF1":r->state==WR_IOT_RESULT_STORED_RAM?"WIC1":"WIS1",4);memcpy(query+4,r->id,32);
  put_time(query+36,r->created);put_time(query+44,r->observed);
  if(wr_iot_precreated_entropy(NULL,query+52,32)!=32)return 0;
  if(send(fd,query,sizeof(query),MSG_DONTWAIT|MSG_NOSIGNAL)!=(ssize_t)sizeof(query))return 0;
@@ -56,9 +56,9 @@ int wr_iot_status_serve_once(int fd,uid_t uid,int (*observe)(const struct wr_iot
  unsigned long long now=status_ms();ssize_t n;int valid;
  if(!observe||!now||!peer(fd,0,uid))return 0;
  n=recv(fd,query,sizeof(query),MSG_DONTWAIT|MSG_TRUNC);
- if(n!=(ssize_t)sizeof(query)||(memcmp(query,"WIS1",4)&&memcmp(query,"WIC1",4)))return 0;
+ if(n!=(ssize_t)sizeof(query)||(memcmp(query,"WIS1",4)&&memcmp(query,"WIC1",4)&&memcmp(query,"WIF1",4)))return 0;
  memcpy(r.id,query+4,32);r.created=get_time(query+36);r.observed=get_time(query+44);
- r.state=!memcmp(query,"WIC1",4)?WR_IOT_RESULT_STORED_RAM:WR_IOT_RESULT_APPLIED;
+ r.state=!memcmp(query,"WIF1",4)?WR_IOT_RESULT_SAVED_FLASH:!memcmp(query,"WIC1",4)?WR_IOT_RESULT_STORED_RAM:WR_IOT_RESULT_APPLIED;
  if(!record_valid(&r,now/1000))return 0;
  valid=observe(&r)==1;
  memcpy(reply,query,sizeof(query));reply[QUERY_BYTES]=(unsigned char)valid;

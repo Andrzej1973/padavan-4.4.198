@@ -12,6 +12,7 @@ static inline unsigned long long wr_iot_control_now(void){
 }
 int wr_iot_rc_submit(const struct wr_iot_request *,char [33]);
 int wr_iot_rc_submit_config(const struct wr_iot_saved_config *,char [33]);
+int wr_iot_rc_submit_save(const struct wr_iot_saved_config *,int explicit_save,char [33]);
 int wr_iot_rc_status(const char *,struct wr_iot_control_result *);
 /* Read-only status backend: return exactly 1 only when this transaction's
  * retained expected state still matches live resources. Must serialize with
@@ -19,6 +20,14 @@ int wr_iot_rc_status(const char *,struct wr_iot_control_result *);
  * missing snapshots, changed generations or incomplete recovery. Module or
  * interface presence alone is insufficient. No weak success fallback. */
 int wr_iot_activation_result_observed(const struct wr_iot_control_result *);
+struct wr_iot_save_backend_hooks {
+ enum wr_iot_result_state (*execute)(const struct wr_iot_control_request *);
+ enum wr_iot_result_state (*progress)(const char *,unsigned long long);
+ int (*terminal)(const struct wr_iot_control_result *);
+};
+/* Single-process, once-only registration before any active queue operation.
+ * Unregistered/fork-inherited callbacks never execute Save requests. */
+int wr_iot_rc_register_save_backend(const struct wr_iot_save_backend_hooks *);
 int wr_iot_rc_dispatch(void);
 /* Explicit same-process continuation; never reclaim/replay request credentials.
  * Strong backend must match retained ID+creation time to its live owner. */
