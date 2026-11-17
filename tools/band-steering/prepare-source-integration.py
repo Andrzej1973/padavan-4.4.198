@@ -44,7 +44,8 @@ save()
 PERSISTENCE_CHECKS = ('check-native-commit-order.py', 'check-flash-image.py',
               'check-native-flash-readback.py', 'check-native-flash-source.py',
               'check-native-conditional-save.py')
-PERSISTENCE_ADAPTER_CHECKS = ('check-native-flash-reader.py', 'check-flash-save-native.py', 'check-flash-save-attempt.py')
+PERSISTENCE_ADAPTER_CHECKS = ('check-native-flash-reader.py', 'check-flash-save-native.py', 'check-flash-save-attempt.py',
+                              'check-flash-worker.py', 'check-config-save-owner.py')
 for check in PERSISTENCE_CHECKS:
     run('../iot/' + check, root/'trunk/linux-4.4.x/drivers/nvram/nvram_linux.c')
 for check in PERSISTENCE_ADAPTER_CHECKS:

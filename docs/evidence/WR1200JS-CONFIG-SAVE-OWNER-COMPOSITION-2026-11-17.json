@@ -1,0 +1,33 @@
+{
+  "base_revision": "fe34baee4ec3d81224edc65715371448a76ebbe6",
+  "host_checks": {
+    "worker": "PASS actual fork/pipe, real service guard, reaper, capability0/1, shutdown drain, malformed/lost/truncated/reused endpoint, pipe/fork failure and no respawn",
+    "save_owner": "PASS actual RAM owner/store/snapshot parser/guard/fork worker composition; wrong PID/address/request, backend/RAM drift, manual/explicit/cancel, unknown SET/COMMIT and terminal retries no replay",
+    "staging": "PASS actual staged RC unit/header closure for snapshot0/readback0, snapshot1/readback0 and snapshot1/readback1",
+    "recipe": "PASS current literal ordered recipe contains 35 unique steps"
+  },
+  "scope": {
+    "source_staged": true,
+    "configuration_flash_bound": false,
+    "mailbox_or_webui_save_route": false,
+    "target_verified": false,
+    "image_verified": false,
+    "runtime_verified": false,
+    "router_changed": false
+  },
+  "sha256": {
+    "tools/iot/config-save-owner.c": "6c80e4b6ac081a82860a6b0718bb213c02dd359856953a75dd0069f456bd9ab8",
+    "tools/iot/config-save-owner.h": "58817d0fcdd0a23d6dd795bcd19cbaa6f15815fc2567ec74f117342bee9be934",
+    "tools/iot/check-config-save-owner.py": "9e4329db14733bbbe814b4f0c6d2cf1aadc0de9cbc63edb0f688fc28844f86d8",
+    "tools/iot/flash-worker.c": "5bf6ed622d6cb6b0ca255eac2fb0aeace990744f42c0d94fd988eb4fe3364d8a",
+    "tools/iot/flash-worker.h": "26fdc3addc205320c41fdbab42fcda59210c9bae199307aea095f62041477e88",
+    "tools/iot/flash-worker-wire.h": "f48b51754647d37bd4c33e9ead92e064542b02d5479925b87938ecd7c5be8b63",
+    "tools/iot/check-flash-worker.py": "b1564592bc0c61d5bdbc1167d55dd1d6b8e01b1366310f3d1c4722830d073c56",
+    "tools/iot/prepare-runtime.py": "4072c84d8282f91662098b88d5ea9301066fdc2590c4506d8439d2b22e1084c9",
+    "tools/iot/check-runtime-source.py": "1293e81a7537d5602b4ec730ce3b4ac72194e6f5192adb2b15acdbc16154beab",
+    "tools/iot/compile-runtime-link.sh": "c5b4d2be97f1dfd93096a6336f2d71b10d6c8565ec71ede33174eb8aac2a3055",
+    "tools/iot/check-config-runtime-staging.py": "421d512949d4faa314506520b3d03e572413f40e128a1c201c9c0dba5db3e466",
+    "tools/band-steering/prepare-source-integration.py": "d18376d492f9b0529a0953af15892e403a978b9faa0b1032a93f176edb096047",
+    "docs/iot/WR1200JS-FLASH-READBACK-CONTRACT.md": "8782c1f83529a5b65e95f6bcd9ca0f9175b8685ed0fe585cd7551ff8ee70b1bd"
+  }
+}

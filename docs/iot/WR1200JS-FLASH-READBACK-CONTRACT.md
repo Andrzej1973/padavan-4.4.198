@@ -164,3 +164,45 @@ and native adapters pass with sanitizer checks and the real snapshot parser.
 RC source stages both objects for target checks, but has no caller or Save route.
 Parent nonblocking child routing, lost-result ownership and final publication
 remain incomplete. A lost child result never authorizes a replacement COMMIT.
+
+## Nonblocking child worker and RC save owner
+
+flash-worker.c retains parent PID/self/request/mode/pipe identity and permits one
+fork attempt. Only the child invokes the single-attempt native save journal;
+parent begin/step never perform COMMIT, flash read or waitpid. It polls a private
+nonblocking anonymous pipe and checks inode/device/type/flags before reading.
+The 56-byte endian-explicit WFS1 receipt contains only request ID/time, child PID,
+mode and outcome flags. Native credentials are wiped before sending it.
+
+The child drops inherited parent descriptors and signal handlers; it spawns no
+command/grandchild. A valid receipt is emitted only after native calls and private
+cleanup, so the stock reaper may reap the child without consuming the receipt.
+Pending shutdown can drain existing work, never authorize a duplicate begin.
+OBSERVED and MANUAL_PENDING require exact matching receipts; known pre-submission
+failure is NOT_STORED. Missing, truncated, mismatched or uncertain results retain
+UNKNOWN and cannot retire or respawn an automatic commit. Descriptor substitution
+is refused without closing the foreign descriptor.
+
+Actual fork/pipe + real service-guard host sanitizer tests pass, including reaper,
+capability0/1, shutdown drain, blocked child proving nonblocking parent, pipe/fork
+failure, killed child, truncated receipt, copied owner, wrong request, reused fd,
+unknown/no-respawn and known-no-submission cleanup. Native flash calls are actors.
+config-save-owner.c now composes this worker with the actual RAM owner/store.
+It captures the original backend, requires fresh RAM/backend identity before
+starting and before terminal preparation, drains submitted children even during
+backend drift, and preserves decisions through publication retries. It never
+redirects a stale request to a newer desired profile. RAM_ONLY reasons distinguish
+manual policy, cancellation and known no-submission; none is a flash receipt.
+Unknown submitted work retains ownership without replay. Cleanup prepares a
+private receipt while the outer mailbox server must retain shutdown admission.
+Historical observed-save status rechecks current RAM, without pretending to do
+fresh flash I/O in PID1. The caller must map this fact accurately in the future
+public result format.
+
+The facade and worker are source-staged as experimental RC units with target
+symbol gates. No mailbox/HTTP Save route is bound; configuration_flash_bound
+remains false. The next integration must add typed automatic/explicit save
+requests/results, terminal publication and status semantics in the existing
+single queue, without changing legacy runtime or RAM-only results. Host staged
+checks pass for capability0/1. Target/image and physical verification remain
+open. No router was accessed and no firmware save route was enabled.
