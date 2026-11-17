@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 """Isolated candidate only: serialize NVRAM snapshot through flash completion."""
 import argparse
+import hashlib
 from pathlib import Path
 
 def transform(source):
     start = source.index('nvram_commit(void)\n{')
     end = source.index('\n}', start) + 2
     body = source[start:end]
+    if hashlib.sha256(body.encode()).hexdigest() == '4be6af85e186a033b8fa9d8e949c9f966342fe8252bab08a077a41e1e3c3a88d':
+        return source
     replacements = [
         ('\t/* Regenerate NVRAM */', '\t/* Serialize snapshot creation and flash persistence together. */\n\tmutex_lock(&nvram_sem);\n\n\t/* Regenerate NVRAM */'),
         ('\n\tmutex_lock(&nvram_sem);\n\n\t/* Check partition unchanged */', '\n\t/* Check partition unchanged */'),

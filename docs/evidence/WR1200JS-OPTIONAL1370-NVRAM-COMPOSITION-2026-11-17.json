@@ -1,0 +1,17 @@
+{
+  "failed_run": 44151373853,
+  "number": 1370,
+  "revision": "a63af9d80e882b8c331ceba73a92a902c3451f56",
+  "failed_step": "Compile isolated NVRAM commit ordering candidate",
+  "diagnostic": "ValueError: NVRAM commit anchor changed: mutex_lock(&nvram_sem) before Check partition unchanged",
+  "monitor": {"run": 44155044226, "artifact": 14359409406, "confirmed_failed_step_and_actionable_valueerror": true},
+  "cause": "The isolated batch candidate reapplied the old Modern mutex transform to a production NVRAM source whose commit was already serialized by the pinned IoT preparer.",
+  "fix": "Accept only the exact reviewed IoT serialized commit body unchanged; preserve the original Modern transform and drift/repeated-Modern refusal.",
+  "accepted_serialized_body_sha256": "4be6af85e186a033b8fa9d8e949c9f966342fe8252bab08a077a41e1e3c3a88d",
+  "host_test": "python3 tools/webui-preview/check_nvram_commit_composition.py .scratch/config-transport-20261117/native-linux-fresh.c",
+  "test_exit_code": 0,
+  "coverage": ["original race counterexample", "original Modern mutex repair", "pinned native mutex repair", "native flash read/save composition", "isolated batch composition preserves serialized commit and all dispatchers", "drift and repeated batch/Modern refusal", "distinct host ioctl encodings"],
+  "target_reverification_required": true,
+  "router_runtime_acceptance": false,
+  "unpublished_iot_edit_draft_included": false
+}
