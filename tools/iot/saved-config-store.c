@@ -1,3 +1,4 @@
+#include <stdio.h> /* Vendor rc.h/shared declarations use FILE. */
 #include <string.h>
 #include <unistd.h>
 #include "rc.h"
