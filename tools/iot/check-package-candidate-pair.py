@@ -25,17 +25,24 @@ with tempfile.TemporaryDirectory(prefix='wr-pair-check-') as d:
   'cold_radio_on_hook_bound':True,'owned_radio_off_hook_bound':True}
  report('runtime-link/iot-runtime-source.json',runtime)
  report('runtime-link/iot-restart-entry-source.json',entry)
+ edit={'board':'WR1200JS','edit_startup_attempt_prepared':True,'view_startup_attempt_prepared':True,
+       'native_capabilities_verified':True,'http_view_bound':True,'http_edit_bound':True,'http_bound':True,
+       'target_verified':False,'runtime_verified':False,'production_ready':False}
+ report('runtime-link/iot-edit-view-source.json',edit)
  put('ra2-no-host-module/kernel.config',b'# CONFIG_PM is not set\n')
  r=build(root,'a'*40);assert not r['trx_inclusion_verified'] and 'sbin/rc' in r['files'] and r['lifecycle_manifest_contract_verified']
  mutations=[('runtime-link/rc',elf(1)),('ra2-no-host-module/kernel.config',b'CONFIG_PM=y\n'),('runtime-link/httpd',b'bad ELF'),('runtime-link/iot-iapp-policy-source.json',b'{}'),('ra2-no-host-module/target-result.json',b'{}')]
  # Earlier packaging accepted empty lifecycle evidence. Exercise missing,
  # explicitly disabled and truthy-but-untyped bindings before any image stage.
- for n,m in [('runtime-link/iot-runtime-source.json',runtime),('runtime-link/iot-restart-entry-source.json',entry)]:
+ for n,m in [('runtime-link/iot-runtime-source.json',runtime),('runtime-link/iot-restart-entry-source.json',entry),('runtime-link/iot-edit-view-source.json',edit)]:
   mutations.append((n,b'{}'))
   for field,value in m.items():
    broken=dict(m);broken.pop(field);mutations.append((n,json.dumps(broken).encode()))
    if value is True:
     for invalid in [False,1,'true']:
+     broken=dict(m);broken[field]=invalid;mutations.append((n,json.dumps(broken).encode()))
+   if value is False:
+    for invalid in [True,0,'false']:
      broken=dict(m);broken[field]=invalid;mutations.append((n,json.dumps(broken).encode()))
  for n,blob in mutations:
   previous=(root/n).read_bytes();put(n,blob)

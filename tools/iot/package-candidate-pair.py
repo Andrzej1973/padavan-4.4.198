@@ -39,6 +39,10 @@ def build(root,revision):
   raise ValueError('Paired IAPP policy required')
  runtime=report('runtime-link/iot-runtime-source.json')
  entry=report('runtime-link/iot-restart-entry-source.json')
+ edit=report('runtime-link/iot-edit-view-source.json')
+ if edit.get('board')!='WR1200JS' or any(edit.get(name) is not True for name in
+  ('edit_startup_attempt_prepared','view_startup_attempt_prepared','native_capabilities_verified','http_view_bound','http_edit_bound','http_bound')) or any(edit.get(name) is not False for name in ('target_verified','runtime_verified','production_ready')):
+  raise ValueError('Complete prepared edit/view metadata with explicit acceptance gates required')
  if runtime.get('configuration_flash_bound') is not False or runtime.get('configuration_loaded_promotion_bound') is not False:
   raise ValueError('Current configuration candidate must retain flash/cold-promotion acceptance gates')
  for label,manifest,required in (
@@ -57,7 +61,7 @@ def build(root,revision):
  if 'CONFIG_PM=y' in kernel:raise ValueError('Unverified PCI suspend binding: CONFIG_PM=y')
  inputs=['ra2-no-host-module/kernel.config','ra2-no-host-module/source-manifest.json',
          'runtime-link/iot-runtime-source.json','runtime-link/iot-restart-entry-source.json',
-         'runtime-link/iot-iapp-policy-source.json']
+         'runtime-link/iot-iapp-policy-source.json','runtime-link/iot-edit-view-source.json']
  return {'board':'WR1200JS','source_revision':revision,'files':files,
          'input_sha256':{n:hashlib.sha256(read(n)).hexdigest() for n in inputs},
          'module_romfs_destination_verified':False,'target_pair_hashes_verified':True,'lifecycle_manifest_contract_verified':True,'production_installed':False,

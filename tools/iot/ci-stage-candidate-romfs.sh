@@ -28,6 +28,10 @@ python3 -B tools/iot/stage-candidate-romfs.py "$trunk/romfs" "$results" \
   --manifest "$results/paired-image-inputs.json" --revision "$revision" \
   --kernel-config "$trunk/linux-4.4.x/.config" \
   --output "$probe/romfs" --report "$results/isolated-romfs-stage.json"
+python3 -B tools/iot/check-classic-config-romfs.py
+python3 -B tools/iot/stage-classic-config-romfs.py "$probe/romfs" \
+  "$results/runtime-link/iot-edit-view-source.json" \
+  --report "$results/isolated-classic-config.json"
 # Use the real SDK destinations, rather than the earlier temporary RC probe path.
 python3 tools/band-steering/verify-package-closure.py "$probe/romfs" "$probe/romfs" \
   --binary sbin/rc --binary usr/sbin/httpd --readelf "${cross}readelf" \
@@ -80,6 +84,22 @@ python3 overlay/padavan-4.4/scripts/verify-wr1200js-image.py "${images[0]}" \
 python3 -B tools/iot/verify-isolated-trx.py "${images[0]}" "$probe/romfs" \
   --unsquashfs "$trunk/tools/mksquashfs_xz/unsquashfs" \
   --report "$results/isolated-trx-content.json"
+python3 - "$results" "$probe/romfs" <<'PY'
+import hashlib,json,sys
+from pathlib import Path
+root,romfs=map(Path,sys.argv[1:])
+classic=json.loads((root/'isolated-classic-config.json').read_text())
+content=json.loads((root/'isolated-trx-content.json').read_text())
+if not content.get('isolated_trx_contents_verified') or not classic.get('classic_configuration_staged'):
+ raise SystemExit('Classic candidate TRX verification missing')
+for name,digest in classic['sha256'].items():
+ path=romfs/name
+ if path.is_symlink() or not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest()!=digest:
+  raise SystemExit('Classic payload changed before image verification: '+name)
+classic['trx_verified']=True
+classic['image_sha256']=content['image_sha256']
+(root/'isolated-classic-config.json').write_text(json.dumps(classic,indent=2)+'\n')
+PY
 sha256sum -c "$results/isolated-image-baseline.sha256"
 mkdir "$results/isolated-image"
 cp "${images[0]}" "$results/isolated-image/WR1200JS-IoT-CANDIDATE-${revision:0:8}.trx"
