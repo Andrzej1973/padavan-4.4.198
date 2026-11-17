@@ -154,8 +154,8 @@ int wr_iot_rc_restart_auth_process_current(const struct wr_iot_restart_service_p
 /* Profile generation only; never the combined stop/restart helper. */
 int wr_iot_rc_restart_generate(int disable_autoscan)
 {
- if(disable_autoscan!=0)return -1;
- return gen_ralink_config_2g(0);
+ if(disable_autoscan!=0&&disable_autoscan!=1)return -1;
+ return gen_ralink_config_2g(disable_autoscan);
 }
 #endif
 
@@ -250,6 +250,10 @@ anchor='static int\ngen_ralink_config('
 if radio.count(anchor)!=1:raise SystemExit('Ralink generator anchor changed')
 include=r'''#if defined(BOARD_WR1200JS)
 #include "wr-iot/precreated-profile-request.h"
+#include "wr-iot/generation-profile.h"
+/* Strong candidate implementation supplies an admitted synchronous view. */
+__attribute__((weak)) int wr_iot_generation_profile_request(struct wr_iot_precreated_profile_request *out)
+{ (void)out; return 0; }
 #include "wr-iot/precreated-entropy.h"
 static const char *wr_iot_cold_nvram_read(void *unused,const char *key)
 {
@@ -275,7 +279,7 @@ cold=r'''\ti_mode_x = nvram_wlan_get_int(is_aband, "mode_x");
 \t * never create an open fallback BSS. MBSS_Open controls beacon emission;
 \t * net_wifi deliberately does not ifconfig ra2 up until IoT activation. */
 \tif (!is_aband && is_soc_ap && i_mode_x != 1 && i_mode_x != 3 &&
-\t    wr_iot_precreated_boot_request_read(&iot_request,
+\t    wr_iot_generation_boot_request_read(&iot_request,
 \t      wr_iot_cold_nvram_read, NULL, wr_iot_precreated_entropy, NULL)) {
 \t\ti_ssid_num = 3;
 \t\tiot_reserved = 1;
@@ -331,7 +335,7 @@ def checked_generator_tail(radio):
  if plain in radio:return radio.replace(plain,iot_generator_checked_close+'\n}\n\nint\ngen_ralink_config_2g',1)
  return radio.replace(band,iot_generator_checked_close+'\n#endif\n}\n\nint\ngen_ralink_config_2g',1)
 radio=checked_generator_tail(radio)
-for name in ('profile.h','profile-list.h','profile-line.h','profile-scan.h','profile-stream.h','profile-file.h','precreated-profile-request.h','precreated-entropy.h'):
+for name in ('profile.h','profile-list.h','profile-line.h','profile-scan.h','profile-stream.h','profile-file.h','precreated-profile-request.h','precreated-entropy.h','generation-profile.h'):
  (headers/name).write_bytes((local/name).read_bytes())
 shared=rc/'shared-wifi';shared.mkdir(exist_ok=True)
 (shared/'validate.h').write_bytes((local.parent/'shared-wifi/validate.h').read_bytes())

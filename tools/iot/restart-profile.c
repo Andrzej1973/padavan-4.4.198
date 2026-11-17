@@ -21,8 +21,8 @@ static int profile_current(const struct wr_iot_request *desired,int require_off)
  if(!desired||desired->enabled!=1||
     !memchr(desired->ssid,0,sizeof(desired->ssid))||
     !memchr(desired->password,0,sizeof(desired->password))||!profile_guard())return 0;
- if(!wr_iot_precreated_profile_request_read(&before,profile_saved_read,NULL)||
-    ((require_off==1&&before.requested_enabled!=0)||(require_off==-1&&before.requested_enabled!=1))||strcmp(before.ssid,desired->ssid)||strcmp(before.password,desired->password))goto done;
+ if(require_off!=2&&(!wr_iot_precreated_profile_request_read(&before,profile_saved_read,NULL)||
+    ((require_off==1&&before.requested_enabled!=0)||(require_off==-1&&before.requested_enabled!=1))||strcmp(before.ssid,desired->ssid)||strcmp(before.password,desired->password)))goto done;
  if(!wr_iot_saved_capture(&first,WR_IOT_RADIO_PROFILE_PATH)||!first.existed||!first.size||
     !wr_iot_profile_disable_buffer(first.data,first.size,desired->ssid,desired->password))goto done;
  /* Independent byte readback under the same caller-owned guard. The scanner
@@ -32,9 +32,9 @@ static int profile_current(const struct wr_iot_request *desired,int require_off)
     first.metadata.st_ino!=second.metadata.st_ino||
     first.metadata.st_mtime!=second.metadata.st_mtime||
     first.metadata.st_ctime!=second.metadata.st_ctime||memcmp(first.data,second.data,first.size)||
-    !wr_iot_precreated_profile_request_read(&after,profile_saved_read,NULL)||
+    (require_off!=2&&(!wr_iot_precreated_profile_request_read(&after,profile_saved_read,NULL)||
     before.requested_enabled!=after.requested_enabled||strcmp(before.ssid,after.ssid)||
-    strcmp(before.password,after.password)||!profile_guard()||
+    strcmp(before.password,after.password)))||!profile_guard()||
     lstat(WR_IOT_RADIO_PROFILE_PATH,&current)||!S_ISREG(current.st_mode)||
     current.st_dev!=second.metadata.st_dev||current.st_ino!=second.metadata.st_ino||
     current.st_size!=second.metadata.st_size||current.st_mtime!=second.metadata.st_mtime||
@@ -65,3 +65,6 @@ int wr_iot_restart_disabled_profile_current(void)
 
 int wr_iot_restart_initial_enabled_profile_current(const struct wr_iot_request *desired)
 {return profile_current(desired,-1);}
+
+int wr_iot_restart_profile_file_current(const struct wr_iot_request *profile)
+{return profile_current(profile,2);}

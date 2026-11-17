@@ -62,8 +62,14 @@ uncertain SET/cancellation, capacity boundaries, native overflow and staged
 header/object closure. Native syscalls and external SDK resources are fixture
 actors. These checks do not establish a MIPS image or physical runtime result.
 
-Next implement desired-to-loaded promotion through an owned cold-generation
-transition, preserving old loaded identity until safe retirement. Do not redirect
+The local unpublished generation package now selects the versioned desired record
+in RC, pins its revision, and supplies captured credentials synchronously to
+initial and post-RELEASE profile generation. New ON/OFF, mismatch and drift
+rollback host composition passes. Staged dependency checks pass; broad regression
+is still running. Generated-file provenance remains distinct from driver-loaded
+SSID/PMK admission. Complete loaded-generation handoff and all composed target/
+image/runtime checks before production promotion. Details and source references:
+[Desired/loaded transition](WR1200JS-DESIRED-LOADED-PROMOTION.md). Do not redirect
 legacy restart-profile or radio-off readers to newly desired credentials while
 the old generation is active. Factory CSPRNG values remain boot-only.
 
@@ -72,3 +78,29 @@ PID1, Classic configuration/read/keep-password behavior, main-image promotion
 and target/image gates. Ordinary IoT toggles must preserve Main/Guest and avoid
 physical restart/scan. Physical acceptance remains separate. MCU ACK protection,
 shared TX state machines, DMA ownership and radio timing are unchanged.
+
+## Next-generation reader prepared locally
+
+`wr_iot_saved_config_capture` reads the complete desired record under the actual
+caller-owned service guard. Proven absence sets present=0 without replacing the
+caller profile; malformed/native-error/capability-zero refuses with both outputs
+unchanged. OFF retains credentials/subnet. No runtime admission, legacy fallback,
+NVRAM mutation or radio action occurs. The prepared0/1 host fixture covers these
+boundaries using actual store/guard/snapshot code and native syscall actors.
+Cold-generation integration is still pending.
+
+The generator insertion is in prepare-rc.py at gen_ralink_config; it currently
+uses wr_iot_precreated_boot_request_read through the existing profile snapshot.
+Both restart-profile.c and radio-off-profile-check.c still prove the legacy
+loaded credentials. cold-on-generation.c calls those checks before Main startup.
+A new-generation change must move these readers together under exact generation
+ownership, retaining old provenance through OFF/recovery. A RAM save alone must
+never promote the new profile or satisfy the loaded-key comparison.
+
+Native web_ex.c nvram_commit_safe returns void and skips automatic commit when
+nvram_manual=1; asus_nvram_commit clears nvram_modified before calling it. These
+legacy callbacks cannot prove new IoT flash durability. The native kernel takes
+the cache snapshot before its flash mutex, so a successful commit syscall alone
+also cannot certify a particular concurrent desired revision without an owned
+serialization/readback contract. Preserve existing global save policy while
+adding explicit IoT outcome handling outside PID1.

@@ -139,3 +139,88 @@ int wr_iot_saved_record_current(const char *expected)
  ok=read_record(record,&present)&&present&&!strcmp(record,expected);
  wr_iot_saved_wipe(record,sizeof(record));return ok;
 }
+
+int wr_iot_saved_config_capture(struct wr_iot_saved_config *config,int *present)
+{
+ char record[WR_IOT_SAVED_CONFIG_MAX]={0};
+ struct wr_iot_saved_config candidate={0};int found=0,fd,ok=0;
+ if(!config||!present)return 0;
+ fd=wr_iot_service_guard_dup();if(fd<0||close(fd))return 0;
+ if(!read_record(record,&found))goto done;
+ if(found&&!wr_iot_saved_config_decode(&candidate,record,strlen(record)))goto done;
+ if(found)*config=candidate;
+ *present=found;ok=1;
+ done:wr_iot_saved_wipe(record,sizeof(record));
+ wr_iot_saved_wipe(&candidate,sizeof(candidate));return ok;
+}
+
+int wr_iot_generation_config_owned(const struct wr_iot_generation_config *pin)
+{
+ return pin&&pin->owner==getpid()&&pin->self==(uintptr_t)pin&&
+  (pin->present==0||pin->present==1)&&pin->created&&
+  memchr(pin->id,0,sizeof(pin->id))&&wr_iot_control_id(pin->id)&&
+  memchr(pin->record,0,sizeof(pin->record))&&
+  (pin->present?pin->record[0]!=0:pin->record[0]==0);
+}
+int wr_iot_generation_config_capture(struct wr_iot_generation_config *pin,
+ const char *id,unsigned long long created,struct wr_iot_saved_config *out)
+{
+ struct wr_iot_generation_config candidate={0};
+ struct wr_iot_saved_config config={0};int ok=0;
+ if(!pin||pin->owner||pin->self||pin->present||pin->id[0]||pin->created||
+    pin->record[0]||!id||!wr_iot_control_id(id)||!created||!out)return 0;
+ if(!wr_iot_saved_config_capture(&config,&candidate.present))goto done;
+ if(candidate.present&&!wr_iot_saved_config_encode(candidate.record,sizeof(candidate.record),&config))goto done;
+ candidate.owner=getpid();candidate.self=(uintptr_t)pin;
+ memcpy(candidate.id,id,sizeof(candidate.id));candidate.created=created;
+ *pin=candidate;if(candidate.present)*out=config;ok=1;
+ done:wr_iot_saved_wipe(&candidate,sizeof(candidate));
+ wr_iot_saved_wipe(&config,sizeof(config));return ok;
+}
+int wr_iot_generation_config_current(const struct wr_iot_generation_config *pin,
+ const char *id,unsigned long long created)
+{
+ char record[WR_IOT_SAVED_CONFIG_MAX]={0};int present=0,fd,ok=0;
+ if(!wr_iot_generation_config_owned(pin)||!id||!wr_iot_control_id(id)||
+    strcmp(pin->id,id)||pin->created!=created)return 0;
+ fd=wr_iot_service_guard_dup();if(fd<0||close(fd))return 0;
+ ok=read_record(record,&present)&&present==pin->present&&
+  (!present||!strcmp(record,pin->record));
+ wr_iot_saved_wipe(record,sizeof(record));return ok;
+}
+static const struct wr_iot_generation_config *generation_view;
+int wr_iot_generation_config_release(struct wr_iot_generation_config *pin)
+{
+ if(!wr_iot_generation_config_owned(pin)||generation_view==pin)return 0;
+ wr_iot_saved_wipe(pin,sizeof(*pin));return 1;
+}
+
+#include "generation-profile.h"
+int wr_iot_generation_profile_enter(const struct wr_iot_generation_config *pin)
+{
+ if(generation_view||!wr_iot_generation_config_owned(pin)||
+    !wr_iot_generation_config_current(pin,pin->id,pin->created))return 0;
+ generation_view=pin;return 1;
+}
+int wr_iot_generation_profile_leave(const struct wr_iot_generation_config *pin)
+{
+ if(!pin||generation_view!=pin||!wr_iot_generation_config_owned(pin))return 0;
+ generation_view=NULL;return 1;
+}
+int wr_iot_generation_profile_request(struct wr_iot_precreated_profile_request *out)
+{
+ const struct wr_iot_generation_config *pin=generation_view;
+ struct wr_iot_saved_config config={0};
+ struct wr_iot_precreated_profile_request candidate={0};int result=-1;
+ if(!pin)return 0;
+ if(!out||!wr_iot_generation_config_owned(pin)||
+    !wr_iot_generation_config_current(pin,pin->id,pin->created))goto done;
+ if(!pin->present){result=0;goto done;}
+ if(!wr_iot_saved_config_decode(&config,pin->record,strlen(pin->record)))goto done;
+ candidate.requested_enabled=config.profile.enabled;candidate.provisioned=1;
+ memcpy(candidate.ssid,config.profile.ssid,sizeof(candidate.ssid));
+ memcpy(candidate.password,config.profile.password,sizeof(candidate.password));
+ *out=candidate;result=1;
+ done:wr_iot_saved_wipe(&config,sizeof(config));
+ wr_iot_saved_wipe(&candidate,sizeof(candidate));return result;
+}

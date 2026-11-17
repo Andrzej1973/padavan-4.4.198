@@ -14,7 +14,8 @@ import tempfile
 here = Path(__file__).resolve().parent
 for name in ('check-saved-config.py', 'check-saved-config-store.py', 'check-config-owner-backend.py',
              'check-config-channel-composition.py', 'check-config-snapshot-guard.py',
-             'check-config-transport.py', 'check-native-config-overflow.py', 'check-status-core.py'):
+             'check-config-transport.py', 'check-native-config-overflow.py', 'check-status-core.py',
+             'check-cold-config-revision.py', 'check-generation-profile-staging.py', 'check-rc-desired-config.py', 'check-restart-desired-config.py', 'check-radio-on-desired-config.py', 'check-radio-on-owner-desired.py'):
     subprocess.run([sys.executable, '-B', str(here / name)], check=True)
 subprocess.run([sys.executable, '-B', str(here / 'check-start-runner-staged-includes.py')], check=True)
 text = (here / 'ci-compile-merged-candidate.sh').read_text()

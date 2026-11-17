@@ -4,7 +4,7 @@ import argparse
 from pathlib import Path
 p=argparse.ArgumentParser();p.add_argument('source',type=Path);p.add_argument('output',type=Path);a=p.parse_args()
 s=(a.source/'trunk/user/rc/ralink.c').read_text(encoding='utf-8')
-if 'wr_iot_precreated_boot_request_read' in s:
+if 'wr_iot_precreated_boot_request_read' in s or 'wr_iot_generation_boot_request_read' in s:
  reader_start=s.index('static const char *wr_iot_cold_nvram_read(')
  reader_end=s.index('\n}',reader_start)
  reader=s[reader_start:reader_end]
@@ -49,13 +49,14 @@ static void check_fields(void){
 '''
  assert r'\t' not in block, 'Generator emitted literal backslash-t into C'
  assert 'wr_iot_profile_t") == 1' not in s
- header=(Path(__file__).resolve().parent/'precreated-profile-request.h').as_posix()
+ header=(Path(__file__).resolve().parent/'generation-profile.h').as_posix()
  prefix='''#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include "'''+header+'''"
 static const char *saved_enable="0",*saved_ssid="IoT",*saved_key="password";
 static int entropy_ready=1,entropy_calls;
+int wr_iot_generation_profile_request(struct wr_iot_precreated_profile_request *out){(void)out;return 0;}
 static const char *wr_iot_cold_nvram_read(void *unused,const char *key){
  (void)unused;
  if(!strcmp(key,"wr_iot_enable"))return saved_enable;

@@ -5,6 +5,7 @@
 #include "radio-profile-state.h"
 #include "restart-profile-receipt.h"
 #include "rc-physical-stop.h"
+#include "saved-config-store.h"
 enum wr_iot_restart_generation_phase {WR_RESTART_GEN_IDLE,WR_RESTART_GEN_CAPTURED,
  WR_RESTART_GEN_UNCERTAIN,WR_RESTART_GEN_GENERATED,WR_RESTART_GEN_VERIFIED,
  WR_RESTART_GEN_RECOVERING,WR_RESTART_GEN_RESTORED,WR_RESTART_GEN_ROLLED_BACK,WR_RESTART_GEN_COMMITTED};
@@ -15,6 +16,10 @@ struct wr_iot_restart_generation {
  struct wr_iot_rc_physical_resume origin;
  struct wr_iot_radio_profile_state profile;
  struct wr_iot_restart_profile_receipt rollback_receipt;
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ struct wr_iot_generation_config config_revision;
+ struct wr_iot_saved_config provisioning;
+#endif
 };
 int wr_iot_restart_generation_begin(struct wr_iot_restart_generation *);
 /* At most one generator/restore/finish phase.1 only fresh VERIFIED, baseline

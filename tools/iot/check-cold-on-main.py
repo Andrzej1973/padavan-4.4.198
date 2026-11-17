@@ -41,6 +41,7 @@ int wr_iot_driver_initial_idle_read(const unsigned char*id,struct wr_iot_idle_re
 }
 #include "restart-main-up.h"
 enum wr_iot_restart_up_result wr_iot_restart_main_up(void){assert(down);up_calls++;down=0;return up_result;}
+#include "check-generation-config-absent.h"
 #include "cold-on-generation.c"
 #include "restart-main-bridge.h"
 static int membership=1,attaches;

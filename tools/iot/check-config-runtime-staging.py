@@ -27,7 +27,7 @@ with tempfile.TemporaryDirectory(prefix="wr-config-stage-") as directory:
                 (parent / "wr-iot" / header.name).write_bytes(header.read_bytes())
             (parent / "shared-wifi").mkdir()
             (parent / "shared-wifi/validate.h").write_bytes((here.parent / "shared-wifi/validate.h").read_bytes())
-        (rc / "rc.h").write_text("int nvram_getall(char *,int,int);\nint nvram_set(const char *,const char *);\n")
+        (rc / "rc.h").write_text("int nvram_getall(char *,int,int);\nint nvram_set(const char *,const char *);\nconst char *nvram_safe_get(const char *);\nint get_ap_mode(void);\nint get_enabled_radio_rt(void);\nint is_radio_on_rt(void);\nint get_mode_radio_rt(void);\n")
         if prepared:
             kernel = trunk / "linux-4.4.x"
             native = kernel / "drivers/nvram/nvram.c"
@@ -56,7 +56,7 @@ with tempfile.TemporaryDirectory(prefix="wr-config-stage-") as directory:
             path.write_bytes(content)
         marker = (rc / "wr-iot/config-snapshot-prepared.h").read_text()
         assert "PREPARED " + str(int(prepared)) + "\n" in marker
-        for unit in ("config-server", "config-owner", "saved-config-store"):
+        for unit in ("config-server", "config-owner", "saved-config-store", "cold-on-generation", "radio-on-generation", "restart-generation", "restart-profile", "rc-mode"):
             assert ("wr-iot-" + unit + ".o") in (rc / "Makefile").read_text()
             subprocess.run(["gcc", "-std=gnu11", "-Wall", "-Wextra", "-Werror", "-O2",
                             "-I" + str(rc), "-fsyntax-only", str(rc / ("wr-iot-" + unit + ".c"))], check=True)

@@ -33,6 +33,7 @@ int wr_iot_driver_initial_idle_read(const unsigned char*id,struct wr_iot_idle_re
  assert(depth&&id[0]==1);if(!idle_delivery)return 0;
  *out=(struct wr_iot_idle_result){2,2,++idle_serial};return 1;
 }
+#include "check-generation-config-absent.h"
 #include "cold-on-generation.c"
 int main(int argc,char**argv){
  (void)check;assert(argc==2);snprintf(profile_path,sizeof(profile_path),"%s/profile",argv[1]);

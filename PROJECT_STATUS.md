@@ -1,3 +1,18 @@
+## Desired generation source package host verified — 2026-11-17
+
+Candidate source now selects complete desired records in RC and pins revisions
+through initial/post-RELEASE/OFF-to-ON generation. Shared synchronous credentials,
+no replay on drift, generated-file identity distinct from loaded PMK; ON release
+uses captured profile and clears private data. Actual adapter forwards0/1.
+General preflight PASS71 plus focused fixtures;218 lifecycle suffix PASS, not
+all287/current-byte blanket proof. Focused new/legacy owner/rollback/staging tests
+cover subsequent deltas. Explicit native/SDK/guard/driver actors, no device proof.
+See docs/evidence/WR1200JS-DESIRED-GENERATION-PACKAGE-2026-11-17.json and promotion
+document. Target/link/image next; flash/Classic/main/device still incomplete.
+Published-base eb78 standard1353/ABI915/optional1354 SUCCESS. New source needs its
+own standard/ABI then optional; do not attribute old CI to this package.
+Modern paused; four final variants before Mi Mini recorded in863a. No router IO.
+
 ## ABI913 test generator correction — 2026-11-17
 
 ABI913/44110010197 failed on published a396c4ce at private mailbox status

@@ -26,7 +26,7 @@ int wr_iot_on_release_current(struct wr_iot_on_restore *s)
     s->wan.owner!=getpid()||s->wan.radio_on!=1||s->wan.attempted||s->wan.returned||
     s->wan.plan<WR_WAN_NONE||s->wan.plan>WR_WAN_RECONNECT)return 0;
  if(!wr_iot_generated_matches(&p->files.generated[0],p->files.paths[0])||
-    !wr_iot_restart_profile_current(&s->generation.desired)||!wr_iot_restart_main_bridge_current()||
+    !wr_iot_on_generation_profile_current(&s->generation)||!wr_iot_restart_main_bridge_current()||
     !wr_iot_rc_restart_guest_policy(&desired)||desired!=s->guest.desired||
     !wr_iot_rc_restart_guest_isolation_policy(&isolate)||isolate!=s->guest.isolate||
     !wr_iot_restart_guest_admin_state(&state)||state!=desired||

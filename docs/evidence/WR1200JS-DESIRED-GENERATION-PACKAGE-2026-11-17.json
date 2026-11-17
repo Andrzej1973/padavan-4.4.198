@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-17",
+  "base": "863a504b335ee7bb7d892dbe1b855d6425c6b180",
+  "scope": "Experimental desired profile generation integration; flash/UI/main/runtime pending",
+  "source_sha256": {
+    "tools/iot/check-cold-config-revision.py": "245130909cbe3f5eef65784027a5aa5873699a84eff2ed082347fe14bdd541e3",
+    "tools/iot/check-cold-on-generation.py": "cd9a5893e4380eab63126086619da5862724b23f664ed705a545fe3f1aa7c90c",
+    "tools/iot/check-cold-on-main.py": "f4eae97f77bbc0026c3c5b69e59c617fa654140375f15997a1d3a98a2ffa58c8",
+    "tools/iot/check-cold-on-recovery.py": "4822037cbdce9684ff362ea0610ff59ebf70628c94b8e6db6e757f1f6b7bab63",
+    "tools/iot/check-config-runtime-staging.py": "b4688bfb2b80b1fc115d0f586b71028d9d21f69bf9188ff68712ba73dede7761",
+    "tools/iot/check-generation-config-absent.h": "4a3ac605c02749b5664242eb3489f4dc88114853a7fe085023eefc60acc75a68",
+    "tools/iot/check-generation-profile-selector.c": "08e920b523864d612558895f3d5258d92720318c102da56d338d54afa7ba1875",
+    "tools/iot/check-generation-profile-staging.py": "cea11158375bfe5191e0a50e2959746ca11f758cb4856f52968930ea1c712f2c",
+    "tools/iot/check-host-compatibility.py": "481edb9134e1db4181f20739dc8c9fc0ece9aa2e2c5dcd916135f402aa1418c8",
+    "tools/iot/check-radio-on-desired-config.py": "261ac4739bebe748ce1955ceb6b3ff263db4602bdfd1ff9396b3aa05a4d6ca20",
+    "tools/iot/check-radio-on-owner-desired.py": "1dcc36b83c0c5c8800ad7a4f9d2927eda7a5657ea923fed0cb44931ea654f838",
+    "tools/iot/check-rc-desired-config.py": "8df2805ec7908a4143b7b09d8c8b999b9c29ba8591744c879da891dcdcd2ba47",
+    "tools/iot/check-restart-desired-config.py": "e3092e177daa538147800758e729b69f07c610ee0ad8dbac992868f439a3d081",
+    "tools/iot/check-restart-main-state.py": "a50d9e55d97f4f2eb616fca78545babf139dbddad168e49a5acdb5570579cc90",
+    "tools/iot/check-runtime-source.py": "367e608d03b08047ce26c566493e23f82ed613be12d6ed411d4bb201f4fbe092",
+    "tools/iot/check-saved-config-store.c": "e0bcae293a770967708ff193d61e9466406b47a3044fc9828e47584a189b121e",
+    "tools/iot/cold-on-generation.c": "c746cd06d965c2605225c005a00d4d7bfc9efdb4073781e790ebb8f6533109ab",
+    "tools/iot/cold-on-generation.h": "1b6e07abbc6b449e666ae61f78f977e1693b22eac553849ecd9e90e6d65c0da9",
+    "tools/iot/compile-runtime-link.sh": "b25fc50811375a7a4af1e619c34698c70e564260c7729cfd81f999ee5c03f36f",
+    "tools/iot/generation-profile.h": "ee9e1542f38c918bd41833e0519e16448a1a5760863a2f016dd3bfd4342ecf6b",
+    "tools/iot/prepare-profile-check.py": "34d50a8aea3ed9857841f43479d1def0570b723b9d6f5c729d107780b2c21f9e",
+    "tools/iot/prepare-rc.py": "4b4943e820da128e38e9f768e7d9ca733684fce59abd22ed4567fb8ab6d5ef1f",
+    "tools/iot/prepare-runtime.py": "a118b95c80a43a2f05bec6629a72e44b8cb8ca869633773e23736fb71ae9e288",
+    "tools/iot/radio-on-generation.c": "91ad5db4964c3aa479da3b83eb51e9ccc7e368e7e92d9085236ae1730e288425",
+    "tools/iot/radio-on-generation.h": "d563d433de067d9b9d502c0517c0cad1d453f7bb7bbc722693b813718a6a87cf",
+    "tools/iot/radio-on-release-runtime.h": "e6ba9bf8ed65b1fc6a99668a09d5fa701c0cab43494b7dbae658de2bdfc7a321",
+    "tools/iot/radio-on-release.c": "9baf1e47ce9258e4b880836ab3ce889f74f6c622318f91d91b40c669a5bc38b4",
+    "tools/iot/rc-mode.c": "e27f9e97a9ab7a5c6984bcf51f2b032340baddae4ebb1bc045cf586944ab3cd1",
+    "tools/iot/restart-generation.c": "8343394ad969f156d4560736e5f8e2fd799920f8ffb0ba74a96aad250dfdd851",
+    "tools/iot/restart-generation.h": "40693740f7201e97abe546b1c911dc0810c427226b2b219c52e34a8557f6e782",
+    "tools/iot/restart-profile.c": "659d6cd10f1347b906fc62e42beb3f11147abd0d23eeb27ea75e44ec437252db",
+    "tools/iot/restart-profile.h": "b0169ec8e9cfe4c03a67d4950854b179f74f1969ea5ee485725fb8a091facd1a",
+    "tools/iot/saved-config-store.c": "d6e8ae905bd5da2b5d953ef14dc9ef1aaf4c2fd5b8272653776b9a5f912f0c4b",
+    "tools/iot/saved-config-store.h": "5d420c2c63495ed9e9146cceaf9ea1de9eecafcd31f9d9b480d1f77921bd3d27"
+  },
+  "checks": {
+    "preflight78946": "PASS71 and focused fixtures at run source",
+    "lifecycle26430": "PASS218 existing suffix, not all287; source evolved during run",
+    "final_deltas": "ON native/new profile/owner25317, terminal rollback48674, actual adapter and staged module checks passed; explicit native/SDK/guard/driver actors",
+    "current_staging25859": "PASS prepared0/1 and legacy release"
+  },
+  "target_image_verified": false,
+  "device_verified": false,
+  "unchanged": [
+    "MCU ACK protection",
+    "shared TX state machines",
+    "DMA ownership",
+    "radio timing"
+  ],
+  "remaining": [
+    "Target/link/image validation",
+    "Complete loaded generation handoff acceptance",
+    "Native flash-save",
+    "Classic integration",
+    "Physical acceptance"
+  ]
+}

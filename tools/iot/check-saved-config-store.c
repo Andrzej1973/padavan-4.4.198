@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include "saved-config-store.h"
+#include "generation-profile.h"
 #include "rc-shutdown-admission.h"
 #include "service-guard.h"
 struct wr_iot_rc_shutdown_admission wr_iot_rc_shutdown;
@@ -66,7 +67,16 @@ int main(void)
  strcpy(other.profile.ssid,"Foreign IoT");assert(wr_iot_saved_config_encode(foreign,sizeof(foreign),&other));
 #if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED != 1
  reset();assert(!wr_iot_saved_store_begin(&s,id,1,&config)&&!reads&&!writes);empty(&s);
- puts("PASS unprepared saved store refuses before native reads or writes");return 0;
+ {
+  struct wr_iot_saved_config captured=config;int found=17;
+  struct wr_iot_generation_config pin={0};
+  assert(wr_iot_service_guard_enter(1)==1);
+  assert(!wr_iot_saved_config_capture(&captured,&found)&&found==17&&!reads&&!writes);
+  assert(!memcmp(&captured,&config,sizeof(config)));
+  assert(!wr_iot_generation_config_capture(&pin,id,1,&captured)&&!pin.owner&&!reads&&!writes);
+  wr_iot_service_guard_leave(1);
+ }
+ puts("PASS unprepared saved store/capture refuse before native reads or writes");return 0;
 #endif
  reset();wr_iot_rc_shutdown.active=0;assert(!wr_iot_saved_store_begin(&s,id,1,&config));
  wr_iot_rc_shutdown.active=1;wr_iot_rc_shutdown.pending=SIGTERM;
@@ -142,6 +152,72 @@ int main(void)
  assert(!wr_iot_saved_store_cancel(&s)&&!wr_iot_saved_store_finish(&s));
  assert(!strcmp(native_record,foreign));
  present=0;native_record[0]=0;assert(wr_iot_saved_store_cancel(&s));empty(&s);
- puts("PASS actual saved store + real service guard + existing snapshot parser: once-only native SET, unknown reads refuse, uncertain writes reobserve without replay, no-op/cancel/foreign retention, PID/address ownership; NVRAM syscall model only, no flash/driver or installed caller");
+ /* Cold provisioning needs a typed complete capture, not safe_get's
+  * conflation of absence/read failure. It does not need runtime admission. */
+ reset();
+ {
+  struct wr_iot_saved_config captured=config,before=config;int found=17;
+  assert(!wr_iot_saved_config_capture(&captured,&found)&&found==17&&!reads&&!writes);
+  assert(!memcmp(&captured,&before,sizeof(before)));
+  assert(wr_iot_service_guard_enter(1)==1);wr_iot_rc_shutdown.active=0;
+  assert(wr_iot_saved_config_capture(&captured,&found)&&!found&&!writes);
+  assert(!memcmp(&captured,&before,sizeof(before)));
+  read_error=1;found=17;
+  assert(!wr_iot_saved_config_capture(&captured,&found)&&found==17);
+  assert(!memcmp(&captured,&before,sizeof(before)));
+  read_error=0;present=1;strcpy(native_record,"malformed");
+  assert(!wr_iot_saved_config_capture(&captured,&found)&&found==17&&!writes);
+  assert(!memcmp(&captured,&before,sizeof(before)));
+  assert(wr_iot_saved_config_encode(native_record,sizeof(native_record),&config));
+  memset(&captured,0,sizeof(captured));
+  assert(wr_iot_saved_config_capture(&captured,&found)&&found==1&&!writes);
+  assert(!captured.profile.enabled&&!strcmp(captured.profile.ssid,config.profile.ssid)&&
+   !strcmp(captured.profile.password,config.profile.password)&&
+   !strcmp(captured.profile.gateway,config.profile.gateway));
+  assert(!wr_iot_saved_config_capture(NULL,&found)&&
+         !wr_iot_saved_config_capture(&captured,NULL));
+  wr_iot_saved_wipe(&captured,sizeof(captured));wr_iot_service_guard_leave(1);
+ }
+ /* Generation revision is PID/address/transaction bound and never follows
+  * a desired change; absence also has to remain absent. Memory release does
+  * not roll back native state and does not require a still-current revision. */
+ reset();
+ {
+  struct wr_iot_generation_config pin={0},copied;
+  struct wr_iot_saved_config captured=config;int status;pid_t child;
+  assert(!wr_iot_generation_config_capture(&pin,id,11,&captured));
+  assert(wr_iot_service_guard_enter(1)==1);
+  assert(wr_iot_generation_config_capture(&pin,id,11,&captured)&&!pin.present);
+  assert(wr_iot_generation_config_current(&pin,id,11)&&!writes);
+  assert(!wr_iot_generation_config_current(&pin,id,12));
+  copied=pin;assert(!wr_iot_generation_config_current(&copied,id,11)&&
+                    !wr_iot_generation_config_release(&copied));
+  child=fork();assert(child>=0);
+  if(!child){assert(!wr_iot_generation_config_current(&pin,id,11)&&
+                    !wr_iot_generation_config_release(&pin));_exit(0);}
+  assert(waitpid(child,&status,0)==child&&WIFEXITED(status)&&!WEXITSTATUS(status));
+  present=1;assert(wr_iot_saved_config_encode(native_record,sizeof(native_record),&config));
+  assert(!wr_iot_generation_config_current(&pin,id,11));
+  assert(wr_iot_generation_config_release(&pin)&&!pin.owner&&!pin.record[0]);
+  assert(wr_iot_generation_config_capture(&pin,id,12,&captured)&&pin.present);
+  assert(wr_iot_generation_config_current(&pin,id,12));
+  {
+   struct wr_iot_precreated_profile_request selected={0};
+   assert(wr_iot_generation_profile_enter(&pin));
+   assert(!wr_iot_generation_profile_enter(&pin)&&!wr_iot_generation_config_release(&pin));
+   assert(wr_iot_generation_profile_request(&selected)==1&&!strcmp(selected.ssid,config.profile.ssid));
+   read_error=1;assert(wr_iot_generation_profile_request(&selected)==-1);read_error=0;
+   assert(!wr_iot_generation_profile_leave(&copied));
+   assert(wr_iot_generation_profile_leave(&pin));
+   assert(wr_iot_generation_profile_request(&selected)==0);
+   wr_iot_saved_wipe(&selected,sizeof(selected));
+  }
+  assert(!wr_iot_generation_config_capture(&pin,id,13,&captured));
+  read_error=1;assert(!wr_iot_generation_config_current(&pin,id,12));read_error=0;
+  strcpy(native_record,foreign);assert(!wr_iot_generation_config_current(&pin,id,12));
+  assert(wr_iot_generation_config_release(&pin)&&!strcmp(native_record,foreign)&&!writes);
+  wr_iot_service_guard_leave(1);
+ }
+ puts("PASS actual saved store + real service guard + existing snapshot parser: once-only native SET, unknown reads refuse, uncertain writes reobserve without replay, no-op/cancel/foreign retention, PID/address ownership; guarded typed desired capture and immutable generation revision, absence/error/change/PID/address/transaction refusal; NVRAM syscall model only, no flash/driver acceptance");
  return 0;
 }
