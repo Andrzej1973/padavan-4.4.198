@@ -7,7 +7,7 @@
 #include <unistd.h>
 static int safe=1,post=1,calls,config_calls,save_calls,save_mode,submit_result=1;
 static const char *mime="application/x-www-form-urlencoded";
-static char reply[256];
+static char reply[1024];
 static const char *requested_id="0123456789abcdef0123456789abcdef";
 static int status_calls,status_available=1;
 static unsigned long long result_observed=145;
@@ -23,6 +23,23 @@ static int websWrite(FILE *stream,const char *format,...){
  n=vsnprintf(reply,sizeof(reply),format,args);va_end(args);return n;
 }
 #include "http-handler.inc"
+static int edit_calls;static enum wr_iot_config_edit_mode edit_mode;
+int wr_iot_rc_submit_edit(const struct wr_iot_saved_config *fields,const char *revision,
+ enum wr_iot_config_edit_mode mode,enum wr_iot_config_key_action action,char id[33]){
+ assert(!strcmp(fields->profile.ssid,"IoT")&&!fields->profile.password[0]&&action==WR_IOT_CONFIG_KEY_KEEP);
+ assert(!strcmp(revision,"ffffffffffffffffffffffffffffffff"));edit_calls++;edit_mode=mode;
+ strcpy(id,"0123456789abcdef0123456789abcdef");return submit_result;
+}
+static int view_calls,view_reply=1;
+int wr_iot_http_view_read(struct wr_iot_config_view *view,char revision[33]){
+ view_calls++;memset(view,0,sizeof(*view));memset(revision,'f',32);revision[32]=0;
+ if(view_reply==2)return 1;
+ view->key_present=1;view->enabled=0;strcpy(view->ssid,"IoT \"</script>&\\");
+ strcpy(view->gateway,"192.168.50.1");strcpy(view->mask,"255.255.255.0");
+ strcpy(view->first,"192.168.50.20");strcpy(view->last,"192.168.50.200");
+ if(view_reply==3)view->ssid[24]='x';
+ return view_reply==0?0:1;
+}
 int wr_iot_http_is_post(void){return post;}
 const char *wr_iot_http_content_type(void){return mime;}
 int wr_iot_rc_submit(const struct wr_iot_request *request,char id[33]){
@@ -123,6 +140,44 @@ int main(void){
   result_state=WR_IOT_RESULT_STORED_RAM;wr_iot_http_result_output("wr_iot_result.cgi",NULL);
   assert(strstr(reply,"stored_in_ram")&&!strstr(reply,"applied"));
  }
- puts("PASS IoT CGI: guarded one-shot runtime/config POST, complete disabled provisioning, distinct queue/RAM/runtime results, no response credentials");
+ {
+  const char *view_body="token=0123456789abcdef0123456789abcdef";
+  const char *duplicate="token=0123456789abcdef0123456789abcdef&token=0123456789abcdef0123456789abcdef";
+  strcpy(wr_iot_http_csrf,"0123456789abcdef0123456789abcdef");safe=post=1;mime="application/x-www-form-urlencoded";
+  input(view_body,(int)strlen(view_body));wr_iot_http_view_output("wr_iot_view.cgi",NULL);
+  assert(view_calls==1&&strstr(reply,"\"configured\":true")&&strstr(reply,"\"enabled\":false"));
+  assert(strstr(reply,"\\u003c")&&strstr(reply,"\\u003e")&&strstr(reply,"\\u0026")&&!strstr(reply,"</script>")&&!strstr(reply,"password123"));
+  assert(!strstr(reply,"\"password\"")&&!strstr(reply,"psk")&&!wr_iot_http_length&&!wr_iot_http_body[0]);
+  wr_iot_http_view_output("",NULL);assert(view_calls==1&&strstr(reply,"invalid_request"));
+  safe=0;input(view_body,(int)strlen(view_body));wr_iot_http_view_output("",NULL);assert(view_calls==1);safe=1;
+  post=0;input(view_body,(int)strlen(view_body));wr_iot_http_view_output("",NULL);assert(view_calls==1);post=1;
+  mime="application/json";input(view_body,(int)strlen(view_body));wr_iot_http_view_output("",NULL);assert(view_calls==1);mime="application/x-www-form-urlencoded";
+  wr_iot_http_csrf[0]='f';input(view_body,(int)strlen(view_body));wr_iot_http_view_output("",NULL);assert(view_calls==1);wr_iot_http_csrf[0]='0';
+  input(view_body,(int)strlen(view_body)-1);wr_iot_http_view_output("",NULL);assert(view_calls==1);
+  input(duplicate,(int)strlen(duplicate));wr_iot_http_view_output("",NULL);assert(view_calls==1);
+  for(int answer=0;answer<=3;answer++){
+   int before=view_calls;view_reply=answer;
+   input(view_body,(int)strlen(view_body));wr_iot_http_view_output("",NULL);
+   assert(view_calls==before+1&&!wr_iot_http_length&&!wr_iot_http_body[0]);
+   if(answer==0||answer==3)assert(strstr(reply,"unavailable_or_busy")&&!strstr(reply,"revision"));
+   if(answer==2)assert(strstr(reply,"\"configured\":false")&&strstr(reply,"\"key_present\":false")&&strstr(reply,"\"ssid\":\"\""));
+  }
+ }
+ {
+  const char *edit="wr_iot_request_enable=0&wr_iot_request_ssid=IoT&wr_iot_request_psk=&wr_iot_request_gateway=192.168.50.1&wr_iot_request_mask=255.255.255.0&wr_iot_request_start=192.168.50.20&wr_iot_request_end=192.168.50.200&token=0123456789abcdef0123456789abcdef&revision=ffffffffffffffffffffffffffffffff&key_action=keep";
+  void (*handlers[])(const char *,FILE *)={wr_iot_http_edit_ram_output,wr_iot_http_edit_auto_output,wr_iot_http_edit_save_output};
+  for(int mode=0;mode<3;mode++){
+   int before=edit_calls;submit_result=1;
+   input(edit,(int)strlen(edit));handlers[mode]("",NULL);
+   assert(edit_calls==before+1&&edit_mode==(enum wr_iot_config_edit_mode)mode&&strstr(reply,"accepted")&&!strstr(reply,"password")&&!strstr(reply,"revision"));
+   handlers[mode]("",NULL);assert(edit_calls==before+1&&strstr(reply,"invalid_request"));
+   safe=0;input(edit,(int)strlen(edit));handlers[mode]("",NULL);assert(edit_calls==before+1);safe=1;
+   post=0;input(edit,(int)strlen(edit));handlers[mode]("",NULL);assert(edit_calls==before+1);post=1;
+   wr_iot_http_csrf[0]='f';input(edit,(int)strlen(edit));handlers[mode]("",NULL);assert(edit_calls==before+1);wr_iot_http_csrf[0]='0';
+   submit_result=0;input(edit,(int)strlen(edit));handlers[mode]("",NULL);
+   assert(edit_calls==before+2&&strstr(reply,"unavailable_or_busy")&&!wr_iot_http_length&&!wr_iot_http_body[0]);
+  }
+ }
+ puts("PASS IoT CGI: runtime/config/Save/view preserved, three guarded edit POST routes with endpoint-owned modes, one-shot body, CSRF and queue-only results; native/IPC actors");
  return 0;
 }

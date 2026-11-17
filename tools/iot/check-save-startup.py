@@ -20,13 +20,15 @@ static int stage;
 static void init_router(void){assert(stage==0);stage=1;}
 #if defined(BOARD_WR1200JS)
 static int wr_iot_rc_save_backend_install(void){assert(stage==1);stage=2;return 0;}
+static int wr_iot_rc_edit_backend_install(void){assert(stage==2);stage=3;return 0;}
+static int wr_iot_rc_view_runtime_install(void){assert(stage==3);stage=4;return 0;}
 #if WR_IOT_IAPP_POLICY_PREPARED
-static void wr_iot_rc_boot_arm(void){assert(stage==2);stage=3;}
+static void wr_iot_rc_boot_arm(void){assert(stage==4);stage=5;}
 #endif
 #endif
 int main(void){
-'''+fragment+f'\nassert(stage=={3 if board and boot else 2 if board else 1});return 0;}}\n')
+'''+fragment+f'\nassert(stage=={5 if board and boot else 4 if board else 1});return 0;}}\n')
    flags=['-DWR_IOT_IAPP_POLICY_PREPARED='+str(boot)]+(['-DBOARD_WR1200JS'] if board else [])
    subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror',*flags,str(source),'-o',str(binary)],check=True)
    subprocess.run([str(binary)],check=True,timeout=5)
-print('PASS actual generated startup fragment: init then once-only Save registration then optional boot arm; non-WR path unchanged, registration refusal does not block boot')
+print('PASS actual generated startup: init then Save/edit/view registration then optional boot arm; non-WR unchanged, unavailable registration does not block boot')

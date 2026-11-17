@@ -13,6 +13,7 @@
 #include "rc-shutdown-admission.h"
 #include "control-channel.h"
 #include "config-save-server.h"
+#include "config-edit-server.h"
 #include "rc-backend.h"
 #include "rc-physical-stop.h"
 #include "restart-scheduler.h"
@@ -24,6 +25,17 @@ static struct wr_iot_status_endpoint endpoint;
 static int initialized,listening,disabled;
 static unsigned long long next_init;
 static unsigned long long next_progress;
+static struct wr_iot_rc_view_hooks view_hooks;
+static pid_t view_owner;
+static int view_bound(void)
+{return view_owner==getpid()&&view_hooks.init&&view_hooks.ready_fd&&view_hooks.delay_ms&&view_hooks.step;}
+int wr_iot_rc_runtime_register_view(const struct wr_iot_rc_view_hooks *hooks)
+{
+ if(!hooks||!hooks->init||!hooks->ready_fd||!hooks->delay_ms||!hooks->step||view_owner||initialized||
+    wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||
+    wr_iot_rc_shutdown.radio_on_owned||wr_iot_rc_shutdown.radio_off_owned)return 0;
+ view_hooks=*hooks;view_owner=getpid();return 1;
+}
 static struct wr_iot_radio_off_owner radio_off_owner;
 static int radio_off_reload,radio_off_redispatch;
 static struct wr_iot_off_followup radio_off_followup;
@@ -72,6 +84,7 @@ static void radio_off_continue(void)
 static int runtime_observed(const struct wr_iot_control_result *result)
 {
  if(result&&(result->state==WR_IOT_RESULT_SAVED_FLASH||result->state==WR_IOT_RESULT_STORED_RAM)){
+  if(wr_iot_rc_edit_observed(result))return 1;
   if(wr_iot_rc_save_observed(result))return 1;
   if(result->state==WR_IOT_RESULT_SAVED_FLASH)return 0;
  }
@@ -98,17 +111,19 @@ static void runtime_init(void)
 void wr_iot_rc_wait(const sigset_t *wait_mask,const volatile int *notification,
  const volatile int *alarm)
 {
- sigset_t blocked,previous;struct pollfd p;struct timespec delay,*timeout=NULL;
- unsigned long long now;int pending,fd;
+ sigset_t blocked,previous;struct pollfd p[2];struct timespec delay,*timeout=NULL;
+ unsigned long long now;int pending,fd;unsigned int view_delay;
  if(!wait_mask||!notification||!alarm)return;
  sigemptyset(&blocked);sigaddset(&blocked,SIGUSR1);sigaddset(&blocked,SIGALRM);
  /* Atomic flag-check/wait transition: pending signals are delivered by ppoll
   * under the vendor's supplied wait mask, not lost between test and sleep. */
  if(sigprocmask(SIG_BLOCK,&blocked,&previous))return;
  if((*notification||*alarm)&&!wr_iot_rc_normal_shutdown_pending())goto done;
- runtime_init();pending=radio_off_redispatch||radio_off_pending()||wr_iot_cold_on_pending()||wr_iot_radio_on_pending()||wr_iot_rc_pending()||wr_iot_rc_physical_pending()||wr_iot_restart_scheduler_pending()||wr_iot_rc_normal_shutdown_pending()||wr_iot_rc_boot_pending();now=runtime_ms();
+ runtime_init();if(view_bound())view_hooks.init();
+ pending=radio_off_redispatch||radio_off_pending()||wr_iot_cold_on_pending()||wr_iot_radio_on_pending()||wr_iot_rc_pending()||wr_iot_rc_physical_pending()||wr_iot_restart_scheduler_pending()||wr_iot_rc_normal_shutdown_pending()||wr_iot_rc_boot_pending();now=runtime_ms();
  fd=wr_iot_status_endpoint_ready_fd(&endpoint);
- p.fd=fd;p.events=POLLIN;p.revents=0;
+ p[0]=(struct pollfd){fd,POLLIN,0};
+ p[1]=(struct pollfd){view_bound()?view_hooks.ready_fd():-1,POLLIN,0};
  if(pending||endpoint.connection>=0){
   unsigned long long ms=100;
   if(pending&&now&&now>=next_progress)ms=0;
@@ -123,9 +138,17 @@ void wr_iot_rc_wait(const sigset_t *wait_mask,const volatile int *notification,
    delay.tv_sec=(time_t)(ms/1000);delay.tv_nsec=(long)(ms%1000)*1000000;timeout=&delay;
   }
  }
- (void)ppoll(fd>=0?&p:NULL,fd>=0?1:0,timeout,wait_mask);
+ view_delay=view_bound()?view_hooks.delay_ms():0;
+ if(view_delay){
+  if(view_delay>1000)view_delay=1000;
+  if(!timeout||(unsigned long long)delay.tv_sec*1000+(unsigned long long)delay.tv_nsec/1000000>view_delay){
+   delay.tv_sec=(time_t)(view_delay/1000);delay.tv_nsec=(long)(view_delay%1000)*1000000;timeout=&delay;
+  }
+ }
+ (void)ppoll(p,2,timeout,wait_mask);
  if((*notification||*alarm)&&!wr_iot_rc_normal_shutdown_pending())goto done;
  (void)wr_iot_status_endpoint_step(&endpoint,runtime_observed);
+ if(view_bound())view_hooks.step();
  now=runtime_ms();
  if((radio_off_redispatch||radio_off_pending()||wr_iot_cold_on_pending()||wr_iot_radio_on_pending()||wr_iot_rc_pending()||wr_iot_rc_physical_pending()||wr_iot_restart_scheduler_pending()||wr_iot_rc_normal_shutdown_pending()||wr_iot_rc_boot_pending())&&now&&now>=next_progress){
   next_progress=now+100;

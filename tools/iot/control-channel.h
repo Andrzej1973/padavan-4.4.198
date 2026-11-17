@@ -28,6 +28,9 @@ struct wr_iot_save_backend_hooks {
 /* Single-process, once-only registration before any active queue operation.
  * Unregistered/fork-inherited callbacks never execute Save requests. */
 int wr_iot_rc_register_save_backend(const struct wr_iot_save_backend_hooks *);
+int wr_iot_rc_register_edit_backend(const struct wr_iot_save_backend_hooks *);
+int wr_iot_rc_submit_edit(const struct wr_iot_saved_config *,const char *,
+ enum wr_iot_config_edit_mode,enum wr_iot_config_key_action,char[33]);
 int wr_iot_rc_dispatch(void);
 /* Explicit same-process continuation; never reclaim/replay request credentials.
  * Strong backend must match retained ID+creation time to its live owner. */

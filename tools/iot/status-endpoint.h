@@ -20,7 +20,9 @@ int wr_iot_status_endpoint_listen(struct wr_iot_status_endpoint *,const char *,u
 /* Only return a descriptor whose original socket identity is still held. */
 int wr_iot_status_endpoint_ready_fd(struct wr_iot_status_endpoint *);
 int wr_iot_status_endpoint_step(struct wr_iot_status_endpoint *,int (*)(const struct wr_iot_control_result *));
+int wr_iot_status_endpoint_step_dispatch(struct wr_iot_status_endpoint *,int (*)(int,uid_t,void *),void *);
 /* Close/remove only this process's originally bound socket inode. */
 int wr_iot_status_endpoint_close(struct wr_iot_status_endpoint *);
 int wr_iot_status_endpoint_query(const char *,pid_t,uid_t,const struct wr_iot_control_result *);
+int wr_iot_status_endpoint_query_dispatch(const char *,pid_t,uid_t,int (*)(int,pid_t,uid_t,void *),void *);
 #endif

@@ -20,6 +20,14 @@ assert report['configuration_save_startup_registered']
 startup=(rc/'init.c').read_text()
 assert startup.count('(void)wr_iot_rc_save_backend_install();')==1
 assert startup.index('init_router();')<startup.index('(void)wr_iot_rc_save_backend_install();')<startup.index('wr_iot_rc_boot_arm();')
+view_report=json.loads((a.source/'iot-edit-view-source.json').read_text())
+assert view_report['edit_startup_attempt_prepared'] and view_report['view_startup_attempt_prepared']
+assert view_report['native_capabilities_verified']==bool(report['configuration_snapshot_verified'] and report['configuration_flash_readback_verified'])
+assert view_report['http_bound'] and not view_report['target_verified'] and not view_report['runtime_verified']
+assert view_report['http_view_bound'] and view_report['http_edit_bound']
+assert startup.count('(void)wr_iot_rc_edit_backend_install();')==1
+assert startup.count('(void)wr_iot_rc_view_runtime_install();')==1
+assert startup.index('wr_iot_rc_save_backend_install();')<startup.index('wr_iot_rc_edit_backend_install();')<startup.index('wr_iot_rc_view_runtime_install();')<startup.index('wr_iot_rc_boot_arm();')
 assert not report['configuration_loaded_promotion_bound']
 flash_marker=(rc/'wr-iot/native-flash-prepared.h').read_text()
 assert flash_marker==('#ifndef WR_IOT_NATIVE_FLASH_READBACK_PREPARED\n#define WR_IOT_NATIVE_FLASH_READBACK_PREPARED '+str(int(report['configuration_flash_readback_verified']))+'\n#endif\n')
@@ -41,6 +49,7 @@ a.output.mkdir(parents=True,exist_ok=True)
 shared=a.output/'make-headers';shared.mkdir(exist_ok=True)
 for name in ['boards.mk','cflags.mk']:(shared/name).write_text('')
 for root,units in [(rc,['config-server','config-owner','saved-config-store','native-flash-reader','flash-save-attempt','flash-save-native','flash-worker','config-save-owner','config-save-server','initial-restart-select','restart-initial-parent','restart-initial-handoff','rc-backend','rc-mode','rc-runtime','physical-initial-client','physical-initial-session','rc-initial-stop','radio-off-owner','radio-off-observe','radio-on-admission','radio-on-generation','radio-on-main','radio-on-guest','radio-on-services','radio-on-multicast','radio-on-restore','radio-on-disabled','precreated-down-client','precreated-down-observe','cold-on-admission','cold-on-generation','precreated-down-recovery','cold-on-recovery','cold-on-main','cold-on-guest','cold-on-services','cold-on-multicast','cold-on-owner','cold-on-handoff','cold-on-release','cold-on-policy','cold-on-disabled','cold-on-disabled-release','cold-on-prehandoff','cold-on-shutdown','cold-on-postshutdown','cold-on-root','cold-on-root-shutdown','cold-on-root-recovery','cold-on-root-signal','cold-on-scheduler','cold-on-select','cold-on-entry','rc-boot','rc-normal-shutdown','radio-on-handoff','radio-on-release','radio-on-followup','radio-on-owner','radio-on-prehandoff','radio-on-shutdown-check','radio-on-shutdown','radio-on-aux','radio-off-profile','radio-off-profile-check','radio-off-followup','radio-off-bridge','radio-off-wan','status-channel','status-endpoint']),(http,['status-client','status-channel','status-endpoint'])]:
+ units+=['config-view-channel','config-view-endpoint']+(['config-edit-server','config-view-runtime'] if root==rc else ['config-view-client'])
  for u in units:
   expected=(local/(u+'.c')).read_text()
   if u=='rc-backend':expected+='\n'+(local/'rc-initial-restart-start.inc').read_text()+(local/'rc-initial-restart-detach.inc').read_text()+'\n#include "rc-cold-start.h"\n'+(local/'rc-cold-start.inc').read_text()+''.join((local/name).read_text() for name in ['rc-cold-detach.inc','rc-cold-release.inc','rc-cold-followup.inc','rc-cold-terminal.inc','rc-cold-completion.inc','rc-cold-disabled-release.inc','rc-cold-disabled-followup.inc','rc-cold-disabled-terminal.inc','rc-cold-disabled-completion.inc','rc-cold-prehandoff.inc','rc-cold-shutdown.inc','rc-cold-shutdown-release.inc','rc-cold-final-shutdown.inc','rc-cold-route-handoff.inc'])

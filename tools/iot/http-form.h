@@ -86,7 +86,7 @@ static inline int wr_iot_http_config_form_parse(struct wr_iot_http_form *out,con
 {return wr_iot_http_form_parse_mode(out,body,length,1);}
 
 /* Adapter for wr_iot_request_read(); absent fields remain absent. */
-static const char *wr_iot_http_form_read(void *context,const char *key)
+static inline const char *wr_iot_http_form_read(void *context,const char *key)
 {
  static const char *keys[]={"wr_iot_enable","wr_iot_ssid","wr_iot_psk",
   "wr_iot_gateway","wr_iot_mask","wr_iot_start","wr_iot_end"};

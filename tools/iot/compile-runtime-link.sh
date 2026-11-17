@@ -46,6 +46,13 @@ make -f "$probe/Makefile" iot-runtime-link ROOTDIR="$trunk" LINUXDIR=linux-4.4.x
   CC="$compiler" STRIP="${cross}strip" AR="${cross}ar" \
   2>&1 | tee "$results/build.log"
 "${cross}nm" "$probe/trunk/user/rc/wr-iot-rc-backend.o" > "$results/backend-symbols.txt"
+for entry in config-edit-server:wr_iot_rc_edit_backend_install config-edit-server:wr_iot_rc_edit_view config-edit-server:wr_iot_rc_edit_observed config-view-runtime:wr_iot_rc_view_runtime_install config-view-runtime:wr_iot_rc_view_runtime_close rc-runtime:wr_iot_rc_runtime_register_view control-server:wr_iot_rc_register_edit_backend; do
+  unit="${entry%%:*}"
+  symbol="${entry#*:}"
+  "${cross}nm" "$probe/trunk/user/rc/wr-iot-$unit.o" | grep -Eq "[[:space:]]T[[:space:]]$symbol\$"
+done
+"${cross}nm" "$probe/trunk/user/httpd/wr-iot-config-view-client.o" | grep -Eq '[[:space:]]T[[:space:]]wr_iot_http_view_read$'
+"${cross}nm" "$probe/trunk/user/httpd/wr-iot-control-client.o" | grep -Eq '[[:space:]]T[[:space:]]wr_iot_rc_submit_edit$'
 for symbol in wr_iot_rc_config_backend_capture wr_iot_rc_config_backend_current wr_iot_rc_initial_restart_start_begin wr_iot_rc_initial_restart_start_progress wr_iot_rc_initial_restart_active_current wr_iot_rc_initial_restart_cancel_progress wr_iot_rc_initial_restart_detach_commit wr_iot_rc_initial_restart_receipt wr_iot_rc_initial_restart_postrelease_current wr_iot_rc_initial_restart_postrelease_shutdown_begin wr_iot_rc_initial_restart_postrelease_shutdown_closed wr_iot_rc_restart_owned wr_iot_activation_execute wr_iot_activation_continue wr_iot_rc_backend_observed wr_iot_activation_prepare_radio_stop wr_iot_rc_quiesce_begin wr_iot_rc_quiesce_advance wr_iot_rc_rebind_begin; do
   grep -Eq "[[:space:]]T[[:space:]]$symbol\$" "$results/backend-symbols.txt"
 done
@@ -79,6 +86,7 @@ for role in rc httpd; do
     --output "$results/$role-dependency-closure.json"
 done
 cp "$probe/iot-runtime-source.json" "$results/"
+cp "$probe/iot-edit-view-source.json" "$results/"
 cp "$probe/iot-iapp-policy-source.json" "$results/"
 cp "$probe/iot-restart-entry-source.json" "$results/"
 cp "$probe/trunk/user/ralinkiappd/iappd.sh" "$results/iappd-candidate.sh"

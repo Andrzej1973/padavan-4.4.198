@@ -2,16 +2,17 @@
  * process boundary: their padding and byte order are not a wire format. */
 #ifndef WR_IOT_CONTROL_RECORD_H
 #define WR_IOT_CONTROL_RECORD_H
-#include <stdio.h>
-#include "request.h"
-#include "saved-config.h"
-#define WR_IOT_CONTROL_RECORD_MAX 512
+#include "control-record-common.h"
+#include "config-edit-record.h"
 enum wr_iot_result_state {
  WR_IOT_RESULT_QUEUED=1,WR_IOT_RESULT_RUNNING,WR_IOT_RESULT_APPLIED,
  WR_IOT_RESULT_REJECTED,WR_IOT_RESULT_RECOVERY,WR_IOT_RESULT_STORED_RAM,WR_IOT_RESULT_SAVED_FLASH
 };
 enum wr_iot_operation {WR_IOT_OPERATION_RUNTIME=0,WR_IOT_OPERATION_CONFIG,
- WR_IOT_OPERATION_CONFIG_SAVE_AUTO,WR_IOT_OPERATION_CONFIG_SAVE_EXPLICIT};
+ WR_IOT_OPERATION_CONFIG_SAVE_AUTO,WR_IOT_OPERATION_CONFIG_SAVE_EXPLICIT,
+ WR_IOT_OPERATION_CONFIG_EDIT_RAM,WR_IOT_OPERATION_CONFIG_EDIT_AUTO,WR_IOT_OPERATION_CONFIG_EDIT_EXPLICIT};
+static inline int wr_iot_operation_is_edit(enum wr_iot_operation operation)
+{return operation>=WR_IOT_OPERATION_CONFIG_EDIT_RAM&&operation<=WR_IOT_OPERATION_CONFIG_EDIT_EXPLICIT;}
 static inline int wr_iot_operation_is_save(enum wr_iot_operation operation)
 {return operation==WR_IOT_OPERATION_CONFIG_SAVE_AUTO||operation==WR_IOT_OPERATION_CONFIG_SAVE_EXPLICIT;}
 static inline int wr_iot_operation_is_config(enum wr_iot_operation operation)
@@ -20,17 +21,12 @@ struct wr_iot_control_request {
  char id[33];unsigned long long created;
  struct wr_iot_request request;
  enum wr_iot_operation operation;
+ struct wr_iot_config_edit_record edit;
 };
 struct wr_iot_control_result {
  char id[33];enum wr_iot_result_state state;
  unsigned long long created,observed;
 };
-static inline int wr_iot_control_id(const char *id){
- size_t i;if(!id||strlen(id)!=32)return 0;
- for(i=0;i<32;i++)if(!((id[i]>='0'&&id[i]<='9')||
-    (id[i]>='a'&&id[i]<='f')))return 0;
- return 1;
-}
 static inline const char *wr_iot_control_state(enum wr_iot_result_state state){
  switch(state){
  case WR_IOT_RESULT_QUEUED:return "queued";
@@ -59,21 +55,18 @@ static inline const char *wr_iot_control_read(void *context,const char *key){
  return NULL;
 }
 /* Exact decimal, no signs, whitespace, overflow or leading zeroes. */
-static inline int wr_iot_control_time(const char *text,unsigned long long *out){
- unsigned long long n=0,d;const unsigned long long limit=~0ULL;
- if(!text||!*text||*text=='0')return 0;
- for(;*text;text++){
-  if(*text<'0'||*text>'9')return 0;
-  d=(unsigned)(*text-'0');if(n>(limit-d)/10)return 0;n=n*10+d;
- }
- *out=n;return 1;
-}
 static inline int wr_iot_control_decode(struct wr_iot_control_request *out,
  const char *data,size_t length){
  char buffer[WR_IOT_CONTROL_RECORD_MAX],*lines[10];size_t i,start=0,count=0;int ok=0;
  struct wr_iot_control_request candidate={0};struct wr_iot_control_fields fields={0};
  struct wr_iot_saved_config config={0};
  if(!out||!data||!length||length>=sizeof(buffer)||memchr(data,0,length))return 0;
+ if(length>=14&&!memcmp(data,"WR-IOT-EDIT-1\n",14)){
+  if(!wr_iot_config_edit_record_decode(&candidate.edit,data,length))goto done;
+  memcpy(candidate.id,candidate.edit.id,sizeof(candidate.id));candidate.created=candidate.edit.created;
+  candidate.operation=WR_IOT_OPERATION_CONFIG_EDIT_RAM+candidate.edit.mode;
+  *out=candidate;ok=1;goto done;
+ }
  memcpy(buffer,data,length);buffer[length]=0;
  for(i=0;i<length;i++)if(buffer[i]=='\n'){
   if(count==10)goto done;
@@ -109,6 +102,12 @@ static inline int wr_iot_control_encode(char *out,size_t capacity,
  const struct wr_iot_request *r;
  if(!out||!record||!memchr(record->id,0,sizeof(record->id))||
     !wr_iot_control_id(record->id)||!record->created)return 0;
+ if(wr_iot_operation_is_edit(record->operation)){
+  if(!wr_iot_config_edit_record_valid(&record->edit)||strcmp(record->id,record->edit.id)||
+     record->created!=record->edit.created||
+     record->operation!=WR_IOT_OPERATION_CONFIG_EDIT_RAM+record->edit.mode)return 0;
+  return wr_iot_config_edit_record_encode(out,capacity,&record->edit);
+ }
  r=&record->request;
  if(wr_iot_operation_is_config(record->operation)){
   struct wr_iot_saved_config config={0};char encoded[WR_IOT_SAVED_CONFIG_MAX]={0};

@@ -18,22 +18,28 @@ static int random_id(char id[33]){
  for(i=0;i<16;i++)snprintf(id+i*2,3,"%02x",bytes[i]);
  memset(bytes,0,sizeof(bytes));return 1;
 }
-static int wr_iot_submit_request(const struct wr_iot_request *request,enum wr_iot_operation operation,char id[33]){
- struct wr_iot_mailbox m;struct wr_iot_control_request record={0};int accepted;
- if(!request||!id)return 0;
- record.created=wr_iot_control_now();
- if(!record.created||!random_id(record.id))return 0;
- record.request=*request;record.operation=operation;wr_iot_mailbox_init(&m);
- if(!wr_iot_mailbox_open(&m,WR_IOT_CONTROL_DIRECTORY,1)){
-  memset(&record,0,sizeof(record));return 0;
+static int wr_iot_submit_record(struct wr_iot_control_request *record,char id[33]){
+ struct wr_iot_mailbox m;int accepted=0;
+ if(!record||!id)return 0;
+ record->created=wr_iot_control_now();
+ if(!record->created||!random_id(record->id))goto done;
+ if(wr_iot_operation_is_edit(record->operation)){
+  memcpy(record->edit.id,record->id,sizeof(record->id));record->edit.created=record->created;
  }
- accepted=wr_iot_mailbox_submit(&m,&record);wr_iot_mailbox_close(&m);
- if(accepted)memcpy(id,record.id,33);
- memset(&record,0,sizeof(record));
+ wr_iot_mailbox_init(&m);
+ if(!wr_iot_mailbox_open(&m,WR_IOT_CONTROL_DIRECTORY,1))goto done;
+ accepted=wr_iot_mailbox_submit(&m,record);wr_iot_mailbox_close(&m);
+ if(accepted)memcpy(id,record->id,33);
+ done:wr_iot_saved_wipe(record,sizeof(*record));
  /* The queue lock is released before notifying PID 1. A lost notification
   * cannot become applied; the stored request/result remain queued or unknown. */
  if(accepted)WR_IOT_NOTIFY();
  return accepted;
+}
+static int wr_iot_submit_request(const struct wr_iot_request *request,enum wr_iot_operation operation,char id[33]){
+ struct wr_iot_control_request record={0};
+ if(!request||!id)return 0;
+ record.request=*request;record.operation=operation;return wr_iot_submit_record(&record,id);
 }
 int wr_iot_rc_submit(const struct wr_iot_request *request,char id[33])
 {return wr_iot_submit_request(request,WR_IOT_OPERATION_RUNTIME,id);}
@@ -44,6 +50,16 @@ int wr_iot_rc_submit_save(const struct wr_iot_saved_config *config,int explicit_
  if(!config||(explicit_save!=0&&explicit_save!=1))return 0;
  return wr_iot_submit_request(&config->profile,explicit_save?WR_IOT_OPERATION_CONFIG_SAVE_EXPLICIT:
                               WR_IOT_OPERATION_CONFIG_SAVE_AUTO,id);
+}
+int wr_iot_rc_submit_edit(const struct wr_iot_saved_config *fields,const char *revision,
+ enum wr_iot_config_edit_mode mode,enum wr_iot_config_key_action action,char id[33])
+{
+ struct wr_iot_control_request record={0};
+ if(!fields||!id||!wr_iot_control_id(revision)||mode<WR_IOT_EDIT_RAM||mode>WR_IOT_EDIT_EXPLICIT)return 0;
+ record.operation=WR_IOT_OPERATION_CONFIG_EDIT_RAM+mode;
+ record.edit.fields=*fields;memcpy(record.edit.revision,revision,33);
+ record.edit.mode=mode;record.edit.action=action;
+ return wr_iot_submit_record(&record,id);
 }
 int wr_iot_rc_status(const char *id,struct wr_iot_control_result *out){
  struct wr_iot_mailbox m;struct wr_iot_control_result result,current;int observed;

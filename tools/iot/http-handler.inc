@@ -2,6 +2,10 @@
  * observed activation/recovery are linked and verified. */
 #include "http-request.h"
 #include "control-record.h"
+#include "http-view-request.h"
+#include "config-view-json.h"
+#include "config-view-client.h"
+#include "http-edit-request.h"
 #include <time.h>
 extern int wr_iot_http_is_post(void);
 extern const char *wr_iot_http_content_type(void);
@@ -13,6 +17,7 @@ extern int wr_iot_rc_submit(const struct wr_iot_request *,char [33]);
 extern int wr_iot_rc_submit_config(const struct wr_iot_saved_config *,char [33]);
 extern int wr_iot_rc_submit_save(const struct wr_iot_saved_config *,int,char [33]);
 extern int wr_iot_rc_status(const char *,struct wr_iot_control_result *);
+extern int wr_iot_rc_submit_edit(const struct wr_iot_saved_config *,const char *,enum wr_iot_config_edit_mode,enum wr_iot_config_key_action,char[33]);
 #ifndef WR_IOT_HTTP_NOW
 static unsigned long long wr_iot_http_monotonic(void){
  struct timespec ts;
@@ -143,3 +148,39 @@ static void wr_iot_http_save_auto_output(const char *url,FILE *stream)
 {(void)url;wr_iot_http_save_output_mode(stream,0);}
 static void wr_iot_http_save_explicit_output(const char *url,FILE *stream)
 {(void)url;wr_iot_http_save_output_mode(stream,1);}
+static void wr_iot_http_view_output(const char *url,FILE *stream)
+{
+ struct wr_iot_config_view view={0};char revision[33]={0},json[WR_IOT_VIEW_JSON_MAX]={0};
+ size_t length=wr_iot_http_length;int allowed,ok;
+ (void)url;wr_iot_http_length=0;
+ allowed=wr_iot_http_view_request_read(get_login_safe(),wr_iot_http_is_post()?"POST":"GET",
+  wr_iot_http_content_type(),wr_iot_http_csrf,wr_iot_http_body,length);
+ wr_iot_saved_wipe(wr_iot_http_body,sizeof(wr_iot_http_body));
+ if(!allowed){websWrite(stream,"{\"error\":\"invalid_request\"}");return;}
+ ok=wr_iot_http_view_read(&view,revision)==1&&wr_iot_config_view_json(json,sizeof(json),&view,revision)>0;
+ wr_iot_saved_wipe(&view,sizeof(view));wr_iot_saved_wipe(revision,sizeof(revision));
+ if(ok)websWrite(stream,"%s",json);else websWrite(stream,"{\"error\":\"unavailable_or_busy\"}");
+ wr_iot_saved_wipe(json,sizeof(json));
+}
+static void wr_iot_http_edit_output_mode(FILE *stream,enum wr_iot_config_edit_mode mode)
+{
+ struct wr_iot_config_edit_record edit={0};char id[33]={0};
+ size_t length=wr_iot_http_length;int accepted;
+ wr_iot_http_length=0;
+ accepted=wr_iot_http_edit_request_read(&edit,get_login_safe(),wr_iot_http_is_post()?"POST":"GET",
+  wr_iot_http_content_type(),wr_iot_http_csrf,wr_iot_http_body,length,mode);
+ wr_iot_saved_wipe(wr_iot_http_body,sizeof(wr_iot_http_body));
+ if(!accepted){websWrite(stream,"{\"error\":\"invalid_request\"}");return;}
+ accepted=wr_iot_rc_submit_edit(&edit.fields,edit.revision,mode,edit.action,id);
+ wr_iot_saved_wipe(&edit,sizeof(edit));
+ if(accepted!=1||!memchr(id,0,sizeof(id))||!wr_iot_control_id(id)){
+  websWrite(stream,"{\"error\":\"unavailable_or_busy\"}");return;
+ }
+ websWrite(stream,"{\"accepted\":true,\"id\":\"%s\"}",id);
+}
+static void wr_iot_http_edit_ram_output(const char *url,FILE *stream)
+{(void)url;wr_iot_http_edit_output_mode(stream,WR_IOT_EDIT_RAM);}
+static void wr_iot_http_edit_auto_output(const char *url,FILE *stream)
+{(void)url;wr_iot_http_edit_output_mode(stream,WR_IOT_EDIT_AUTO);}
+static void wr_iot_http_edit_save_output(const char *url,FILE *stream)
+{(void)url;wr_iot_http_edit_output_mode(stream,WR_IOT_EDIT_EXPLICIT);}

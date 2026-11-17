@@ -1,6 +1,13 @@
 #ifndef WR_IOT_RC_RUNTIME_H
 #define WR_IOT_RC_RUNTIME_H
 #include <signal.h>
+struct wr_iot_rc_view_hooks {
+ void (*init)(void);
+ int (*ready_fd)(void);
+ unsigned int (*delay_ms)(void);
+ void (*step)(void);
+};
+int wr_iot_rc_runtime_register_view(const struct wr_iot_rc_view_hooks *);
 /* Called only from PID1's existing main-loop wait, never a signal handler.
  * Existing SIGUSR1/SIGALRM flag handling stays in the vendor loop. */
 struct wr_iot_control_request;

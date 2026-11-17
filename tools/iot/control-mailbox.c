@@ -162,8 +162,9 @@ static int mailbox_finish(struct wr_iot_mailbox *m,const char *id,
     result_read(m,&r)!=1||strcmp(r.id,id)||r.created!=request.created||now<r.observed||
     (continued_created&&r.created!=continued_created))goto fail;
  if((next==WR_IOT_RESULT_APPLIED&&request.operation!=WR_IOT_OPERATION_RUNTIME)||
-    (next==WR_IOT_RESULT_STORED_RAM&&!wr_iot_operation_is_config(request.operation))||
-    (next==WR_IOT_RESULT_SAVED_FLASH&&!wr_iot_operation_is_save(request.operation)))goto fail;
+    (next==WR_IOT_RESULT_STORED_RAM&&!wr_iot_operation_is_config(request.operation)&&!wr_iot_operation_is_edit(request.operation))||
+    (next==WR_IOT_RESULT_SAVED_FLASH&&!wr_iot_operation_is_save(request.operation)&&
+     request.operation!=WR_IOT_OPERATION_CONFIG_EDIT_AUTO&&request.operation!=WR_IOT_OPERATION_CONFIG_EDIT_EXPLICIT))goto fail;
  memset(&request,0,sizeof(request));
  if(next!=WR_IOT_RESULT_APPLIED&&next!=WR_IOT_RESULT_REJECTED&&
     next!=WR_IOT_RESULT_RECOVERY&&next!=WR_IOT_RESULT_STORED_RAM&&next!=WR_IOT_RESULT_SAVED_FLASH)return 0;

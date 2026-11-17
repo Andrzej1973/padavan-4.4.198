@@ -81,10 +81,10 @@ int wr_iot_status_endpoint_listen(struct wr_iot_status_endpoint *s,const char *p
  }
  return 1;
 }
-int wr_iot_status_endpoint_step(struct wr_iot_status_endpoint *s,int (*observe)(const struct wr_iot_control_result *))
+int wr_iot_status_endpoint_step_dispatch(struct wr_iot_status_endpoint *s,int (*handle)(int,uid_t,void *),void *context)
 {
  unsigned long long now;int ready,answered=0;
- if(!s||!observe||wr_iot_status_endpoint_ready_fd(s)<0)return 0;
+ if(!s||!handle||wr_iot_status_endpoint_ready_fd(s)<0)return 0;
  now=endpoint_ms();if(!now)return 0;
  if(s->connection<0){
   s->connection=accept(s->listener,NULL,NULL);if(s->connection<0)return 0;
@@ -99,9 +99,17 @@ int wr_iot_status_endpoint_step(struct wr_iot_status_endpoint *s,int (*observe)(
  }
  if(now>=s->expires){close_connection(s);return 0;}
  struct pollfd p={s->connection,POLLIN,0};ready=poll(&p,1,0);
- if(ready>0)answered=wr_iot_status_serve_once(s->connection,s->uid,observe);
+ if(ready>0)answered=handle(s->connection,s->uid,context);
  if(ready!=0||now>=s->expires){close_connection(s);}
  return answered;
+}
+struct status_serve_context {int (*observe)(const struct wr_iot_control_result *);};
+static int serve_status(int fd,uid_t uid,void *context)
+{struct status_serve_context *status=context;return wr_iot_status_serve_once(fd,uid,status->observe);}
+int wr_iot_status_endpoint_step(struct wr_iot_status_endpoint *s,int (*observe)(const struct wr_iot_control_result *))
+{
+ struct status_serve_context context={observe};
+ return observe?wr_iot_status_endpoint_step_dispatch(s,serve_status,&context):0;
 }
 int wr_iot_status_endpoint_close(struct wr_iot_status_endpoint *s)
 {
@@ -113,11 +121,12 @@ int wr_iot_status_endpoint_close(struct wr_iot_status_endpoint *s)
  if(descriptor_current(s->directory,s->directory_device,s->directory_inode,1))close(s->directory);
  wr_iot_status_endpoint_init(s);return removed;
 }
-int wr_iot_status_endpoint_query(const char *path,pid_t pid,uid_t uid,const struct wr_iot_control_result *r)
+int wr_iot_status_endpoint_query_dispatch(const char *path,pid_t pid,uid_t uid,
+ int (*query)(int,pid_t,uid_t,void *),void *context)
 {
  struct sockaddr_un address={.sun_family=AF_UNIX};struct wr_iot_status_endpoint expected;
  struct stat named;int fd,sock,ok=0;
- if(!path||pid<=0||strlen(path)>=sizeof(expected.path)||
+ if(!path||!query||pid<=0||strlen(path)>=sizeof(expected.path)||
     snprintf(address.sun_path,sizeof(address.sun_path),"%s/%s",path,STATUS_NAME)>=(int)sizeof(address.sun_path))return 0;
  fd=open(path,O_RDONLY|O_DIRECTORY|O_NOFOLLOW|O_CLOEXEC);if(fd<0)return 0;
  if(!directory_current(fd,path,uid)||fstatat(fd,STATUS_NAME,&named,AT_SYMLINK_NOFOLLOW)||
@@ -127,8 +136,17 @@ int wr_iot_status_endpoint_query(const char *path,pid_t pid,uid_t uid,const stru
  sock=socket(AF_UNIX,SOCK_SEQPACKET|SOCK_NONBLOCK|SOCK_CLOEXEC,0);
  if(sock>=0){
   if(!connect(sock,(struct sockaddr *)&address,sizeof(address))&&socket_current(&expected))
-   ok=wr_iot_status_query(sock,pid,uid,r)&&socket_current(&expected);
-  close(sock);
+   ok=query(sock,pid,uid,context)&&socket_current(&expected);
+  if(close(sock))ok=0;
  }
- close(fd);return ok;
+ if(close(fd))ok=0;
+ return ok;
+}
+struct status_query_context {const struct wr_iot_control_result *record;};
+static int query_status(int fd,pid_t pid,uid_t uid,void *context)
+{struct status_query_context *status=context;return wr_iot_status_query(fd,pid,uid,status->record);}
+int wr_iot_status_endpoint_query(const char *path,pid_t pid,uid_t uid,const struct wr_iot_control_result *record)
+{
+ struct status_query_context context={record};
+ return record?wr_iot_status_endpoint_query_dispatch(path,pid,uid,query_status,&context):0;
 }

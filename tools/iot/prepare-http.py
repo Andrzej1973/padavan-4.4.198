@@ -60,12 +60,18 @@ main = once(main, '\tquery = file;',
 handler = (local/'http-handler.inc').read_text(encoding='utf-8').replace(
     '#include "http-request.h"', '#include "wr-iot/http-request.h"', 1)
 handler = handler.replace('#include "control-record.h"','#include "wr-iot/control-record.h"',1)
+for header in ('http-view-request.h','config-view-json.h','config-view-client.h','http-edit-request.h'):
+    handler=handler.replace('#include "'+header+'"','#include "wr-iot/'+header+'"',1)
 web = once(web, 'struct mime_handler mime_handlers[] = {',
            '#if defined(BOARD_WR1200JS)\n'+handler + '\n#endif\nstruct mime_handler mime_handlers[] = {')
 route = '\t{ "update.cgi*",'
 web = once(web, route,
            '#if defined(BOARD_WR1200JS)\n'
            '\t{ "wr_iot_token.cgi", "application/json", no_cache_IE, NULL, wr_iot_http_token_output, 1 },\n'
+           '\t{ "wr_iot_view.cgi", "application/json", no_cache_IE, wr_iot_http_apply_input, wr_iot_http_view_output, 1 },\n'
+           '\t{ "wr_iot_edit_ram.cgi", "application/json", no_cache_IE, wr_iot_http_apply_input, wr_iot_http_edit_ram_output, 1 },\n'
+           '\t{ "wr_iot_edit_auto.cgi", "application/json", no_cache_IE, wr_iot_http_apply_input, wr_iot_http_edit_auto_output, 1 },\n'
+           '\t{ "wr_iot_edit_save.cgi", "application/json", no_cache_IE, wr_iot_http_apply_input, wr_iot_http_edit_save_output, 1 },\n'
            '\t{ "wr_iot_apply.cgi", "application/json", no_cache_IE, wr_iot_http_apply_input, wr_iot_http_apply_output, 1 },\n'
            '\t{ "wr_iot_config.cgi", "application/json", no_cache_IE, wr_iot_http_apply_input, wr_iot_http_config_output, 1 },\n'
            '\t{ "wr_iot_save_auto.cgi", "application/json", no_cache_IE, wr_iot_http_apply_input, wr_iot_http_save_auto_output, 1 },\n'
@@ -77,8 +83,8 @@ if validation.is_symlink() or (root/'shared-wifi').is_symlink():
     raise SystemExit('Refusing linked shared Wi-Fi validation destination')
 if validation.exists() and validation.read_bytes() != expected:
     raise SystemExit('Existing shared Wi-Fi validation differs; preserve it')
-header_names = ('http-form.h','http-request.h','control-record.h','saved-config.h',
-                'request.h','subnet.h','types.h')
+header_names = ('http-form.h','http-request.h','control-record.h','control-record-common.h','config-edit-record.h','config-edit.h','saved-config.h',
+                'request.h','subnet.h','types.h','http-view-request.h','config-view-json.h','config-view-client.h','config-view.h','http-edit-request.h')
 headers = root/'wr-iot'
 if headers.is_symlink():
     raise SystemExit('Refusing linked IoT HTTP header directory')

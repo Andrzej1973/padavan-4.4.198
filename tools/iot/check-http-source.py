@@ -21,6 +21,8 @@ for route,handler,input_handler in (
 handler=(Path(__file__).parent/'http-handler.inc').read_text(encoding='utf-8').replace(
     '#include "http-request.h"','#include "wr-iot/http-request.h"',1)
 handler=handler.replace('#include "control-record.h"','#include "wr-iot/control-record.h"',1)
+for header in ('http-view-request.h','config-view-json.h','config-view-client.h','http-edit-request.h'):
+    handler=handler.replace('#include "'+header+'"','#include "wr-iot/'+header+'"',1)
 if web.count(handler)!=1:
     raise SystemExit('Installed IoT handler differs from fixture source')
 if web.count('#if defined(BOARD_WR1200JS)\n'+handler+'\n#endif')!=1:
@@ -28,11 +30,14 @@ if web.count('#if defined(BOARD_WR1200JS)\n'+handler+'\n#endif')!=1:
 route_start=web.index('\t{ "wr_iot_token.cgi",')
 assert web[:route_start].endswith('#if defined(BOARD_WR1200JS)\n')
 route_end=web.index('\n',web.index('\t{ "wr_iot_result.cgi",',route_start))
-for name,handler_name in [('wr_iot_save_auto.cgi','wr_iot_http_save_auto_output'),('wr_iot_save.cgi','wr_iot_http_save_explicit_output')]:
+for name,handler_name in [('wr_iot_save_auto.cgi','wr_iot_http_save_auto_output'),('wr_iot_save.cgi','wr_iot_http_save_explicit_output'),('wr_iot_view.cgi','wr_iot_http_view_output')]:
     route='\t{ "'+name+'", "application/json", no_cache_IE, wr_iot_http_apply_input, '+handler_name+', 1 },'
     assert web.count(route)==1 and route_start<web.index(route)<route_end
 
 assert web[route_end:].startswith('\n#endif\n')
+for suffix in ('ram','auto','save'):
+    entry='\t{ "wr_iot_edit_'+suffix+'.cgi", "application/json", no_cache_IE, wr_iot_http_apply_input, wr_iot_http_edit_'+suffix+'_output, 1 },'
+    assert web.count(entry)==1 and route_start<web.index(entry)<route_end
 start=main.index('static int wr_iot_http_post,wr_iot_http_type_count;')
 assert main[:start].endswith('#if defined(BOARD_WR1200JS)\n')
 end=main.index('\n}\n',start)+3

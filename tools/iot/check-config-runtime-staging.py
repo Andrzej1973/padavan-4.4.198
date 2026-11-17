@@ -3,6 +3,7 @@
 from pathlib import Path
 from types import SimpleNamespace
 import ast
+import json
 import runpy
 import subprocess
 import sys
@@ -51,7 +52,7 @@ with tempfile.TemporaryDirectory(prefix="wr-config-stage-") as directory:
             staged=runpy.run_path(str(shared/'prepare-nvram-flash-readback.py'))['prepare'](ordered)
             (kernel/'drivers/nvram/nvram_linux.c').write_text(staged)
             (kernel/'drivers/nvram/wr-nvram-flash-wire.h').write_bytes((here/'native-flash-wire.h').read_bytes())
-        scope = {"local": here, "rc": rc, "http": http, "runpy": runpy,
+        scope = {"local": here, "rc": rc, "http": http, "runpy": runpy, "json": json,
                  "a": SimpleNamespace(source=root, native_trunk=trunk if prepared else None)}
         exec(compile(ast.Module(body=[once], type_ignores=[]), "<actual once helper>", "exec"), scope)
         exec(compile(snapshot_code, "<actual snapshot preparation>", "exec"), scope)
@@ -62,13 +63,20 @@ with tempfile.TemporaryDirectory(prefix="wr-config-stage-") as directory:
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(content)
         marker = (rc / "wr-iot/config-snapshot-prepared.h").read_text()
+        view_report=json.loads((root/'iot-edit-view-source.json').read_text())
+        assert view_report['native_capabilities_verified'] is bool(prepared and flash)
+        assert not view_report['http_bound'] and not view_report['target_verified']
         assert "PREPARED " + str(int(prepared)) + "\n" in marker
         for unit in ("native-flash-reader", "flash-save-native"):
             subprocess.run(["make", "-C", str(rc), "ROOTDIR=" + str(trunk),
                             "CC=gcc", "CFLAGS=-std=gnu11 -Wall -Wextra -Werror -O2 -I" + str(rc),
                             "wr-iot-" + unit + ".o"], check=True)
-        for unit in ("config-server", "config-owner", "saved-config-store", "native-flash-reader", "flash-save-attempt", "flash-save-native", "flash-worker", "config-save-owner", "config-save-server", "cold-on-generation", "radio-on-generation", "restart-generation", "restart-profile", "rc-mode"):
+        for unit in ("config-view-runtime", "config-view-channel", "config-view-endpoint", "config-edit-server", "config-server", "config-owner", "saved-config-store", "native-flash-reader", "flash-save-attempt", "flash-save-native", "flash-worker", "config-save-owner", "config-save-server", "cold-on-generation", "radio-on-generation", "restart-generation", "restart-profile", "rc-mode"):
             assert ("wr-iot-" + unit + ".o") in (rc / "Makefile").read_text()
             subprocess.run(["gcc", "-std=gnu11", "-Wall", "-Wextra", "-Werror", "-O2",
                             "-I" + str(rc), "-I"+str(trunk/"linux-4.4.x/include/nvram"), "-fsyntax-only", str(rc / ("wr-iot-" + unit + ".c"))], check=True)
+        for unit in ("config-view-client","config-view-channel","config-view-endpoint"):
+            assert ("wr-iot-"+unit+".o") in (http/'Makefile').read_text()
+            subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-O2','-I'+str(http),
+                            '-fsyntax-only',str(http/('wr-iot-'+unit+'.c'))],check=True)
 print("PASS actual staged config units: RC object/header mappings and generated prepared0/1 capability compile with isolated includes; pinned native snapshot guard required for1; host only")

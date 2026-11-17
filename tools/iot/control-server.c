@@ -9,6 +9,17 @@ static struct {
 } wr_iot_continuation;
 static struct wr_iot_save_backend_hooks save_hooks;
 static pid_t save_hooks_owner;
+static struct wr_iot_save_backend_hooks edit_hooks;
+static pid_t edit_hooks_owner;
+int wr_iot_rc_register_edit_backend(const struct wr_iot_save_backend_hooks *hooks)
+{
+ if(!hooks||!hooks->execute||!hooks->progress||!hooks->terminal||edit_hooks_owner||
+    wr_iot_continuation.active||wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||
+    wr_iot_rc_shutdown.radio_on_owned||wr_iot_rc_shutdown.radio_off_owned)return 0;
+ edit_hooks=*hooks;edit_hooks_owner=getpid();return 1;
+}
+static int edit_bound(void)
+{return edit_hooks_owner==getpid()&&edit_hooks.execute&&edit_hooks.progress&&edit_hooks.terminal;}
 int wr_iot_rc_register_save_backend(const struct wr_iot_save_backend_hooks *hooks)
 {
  if(!hooks||!hooks->execute||!hooks->progress||!hooks->terminal||save_hooks_owner||
@@ -22,6 +33,11 @@ static int wr_iot_terminal_ready(enum wr_iot_operation operation,
  enum wr_iot_result_state outcome,const char *id,unsigned long long created)
 {
  struct wr_iot_control_result result={0};
+ if(wr_iot_operation_is_edit(operation)){
+  if(!edit_bound())return outcome==WR_IOT_RESULT_REJECTED;
+  memcpy(result.id,id,sizeof(result.id));result.created=created;result.state=outcome;
+  return edit_hooks.terminal(&result);
+ }
  if(operation==WR_IOT_OPERATION_RUNTIME)
   return outcome!=WR_IOT_RESULT_APPLIED||wr_iot_rc_backend_applied_route(id,created);
  if(wr_iot_operation_is_save(operation)){
@@ -39,6 +55,8 @@ static enum wr_iot_result_state wr_iot_operation_outcome(enum wr_iot_operation o
  if(outcome==WR_IOT_RESULT_REJECTED||
     (operation==WR_IOT_OPERATION_RUNTIME&&outcome==WR_IOT_RESULT_APPLIED)||
     (operation==WR_IOT_OPERATION_CONFIG&&outcome==WR_IOT_RESULT_STORED_RAM)||
+    (wr_iot_operation_is_edit(operation)&&(outcome==WR_IOT_RESULT_STORED_RAM||
+     (operation!=WR_IOT_OPERATION_CONFIG_EDIT_RAM&&outcome==WR_IOT_RESULT_SAVED_FLASH)))||
     (wr_iot_operation_is_save(operation)&&(outcome==WR_IOT_RESULT_STORED_RAM||outcome==WR_IOT_RESULT_SAVED_FLASH)))return outcome;
  return WR_IOT_RESULT_RECOVERY;
 }
@@ -66,6 +84,7 @@ int wr_iot_rc_dispatch(void){
   * lock while taking the distinct activation/service guard. */
  outcome=request.operation==WR_IOT_OPERATION_CONFIG?wr_iot_rc_config_execute(&request):
   request.operation==WR_IOT_OPERATION_RUNTIME?wr_iot_activation_execute(&request):
+  wr_iot_operation_is_edit(request.operation)&&edit_bound()?edit_hooks.execute(&request):
   wr_iot_operation_is_save(request.operation)&&save_bound()?save_hooks.execute(&request):WR_IOT_RESULT_REJECTED;
  outcome=wr_iot_operation_outcome(request.operation,outcome);
  /* Recovery still owns resources/isolation after this request returns.
@@ -125,6 +144,8 @@ int wr_iot_rc_continue(void){
    wr_iot_rc_config_continue(wr_iot_continuation.id,wr_iot_continuation.created):
    wr_iot_continuation.operation==WR_IOT_OPERATION_RUNTIME?
     wr_iot_activation_continue(wr_iot_continuation.id,wr_iot_continuation.created):
+    wr_iot_operation_is_edit(wr_iot_continuation.operation)&&edit_bound()?
+    edit_hooks.progress(wr_iot_continuation.id,wr_iot_continuation.created):
     wr_iot_operation_is_save(wr_iot_continuation.operation)&&save_bound()?
     save_hooks.progress(wr_iot_continuation.id,wr_iot_continuation.created):WR_IOT_RESULT_RECOVERY;
   outcome=wr_iot_operation_outcome(wr_iot_continuation.operation,outcome);
