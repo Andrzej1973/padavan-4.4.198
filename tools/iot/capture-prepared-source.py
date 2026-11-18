@@ -18,7 +18,7 @@ selected = {
     'include/ra2-rekey-admission.h', 'include/rtmp.h',
     'ap/ap_assoc.c', 'ap/ap_repeater.c',
     'include/assoc-generation.h', 'include/assoc-generation-kernel.h',
-    'include/ra2-gtk-request-kernel.h', 'ap/ap_auth.c',
+    'include/ra2-gtk-request-kernel.h', 'ap/ap_auth.c', 'ap/ap_cfg.c',
     'include/ra2-association-owner.h','include/ra2-mutation-admission-kernel.h',
     'include/ra2-rekey-peer-scope.h','include/wr-iot-peer-normal-insert.inc',
 }

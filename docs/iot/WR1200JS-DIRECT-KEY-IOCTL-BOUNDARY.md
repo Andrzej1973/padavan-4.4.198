@@ -52,3 +52,17 @@ ownership until native completion; balance every early return. Existing native
 copy_from_user status/length handling must be reviewed during factoring. Do not
 introduce a second user copy as a supposedly immutable authorization snapshot.
 These are source-derived requirements, not an implemented ioctl correction.
+
+## Input-copy correction in isolated candidate
+
+The Linux API producer now applies hostapd-key-copy-composition.py to ap_cfg.c.
+Both HOSTAPD SET_KEY/DEL_KEY cases return -EFAULT through the native switch exit
+when copy_from_user reports uncopied bytes, before MacTableLookup or mutation.
+Successful requests retain the native single copy and native processing.
+The transform rejects missing/duplicate anchors and repeated installation.
+check-hostapd-key-copy.py executes the native input preludes with explicit
+payload/copy/lookup boundary actors under ASan/UBSan; null pointer, malformed
+length, partial-copy refusal and success pass for both commands. This is not a
+full HOSTAPD feature compilation or ioctl lifetime fix. Actual target feature
+flags, BSS/generation retention for successful writes and runtime remain open.
+The source snapshot now includes ap_cfg.c for independent review.

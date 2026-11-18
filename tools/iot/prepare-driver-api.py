@@ -187,6 +187,10 @@ changes['hw_ctrl/cmm_asic_mt.c']=runpy.run_path(str(local/'group-key-byte-packin
 changes['ap/ap_wpa.c']=runpy.run_path(str(local/'ra2-rekey-composition.py'))['compose'](
  changes.get('ap/ap_wpa.c',(src/'ap/ap_wpa.c').read_text()))
 changes['include/ra2-rekey-admission.h']=(local/'ra2-rekey-admission.h').read_text()
+# A failed user copy must not reach the optional direct-key writer lookup.
+# This does not substitute for BSS/generation ownership of successful requests.
+changes['ap/ap_cfg.c']=runpy.run_path(str(local/'hostapd-key-copy-composition.py'))['compose'](
+ changes.get('ap/ap_cfg.c',(src/'ap/ap_cfg.c').read_text()))
 changes=runpy.run_path(str(local/'assoc-generation-composition.py'))['compose'](changes,src,local)
 changes['common/cmm_wpa.c']=runpy.run_path(str(local/'ra2-gtk-request-composition.py'))['compose'](changes['common/cmm_wpa.c'])
 changes['include/ra2-gtk-request-kernel.h']=(local/'ra2-gtk-request-kernel.h').read_text()
