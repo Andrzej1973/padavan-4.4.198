@@ -24,7 +24,10 @@ int main(void){
  dev.running=1;enter_status=-ESTALE;assert(wr_iot_driver_close_reply(&ad,&dev,&rq,wire)==-ESTALE&&!closes&&!finishes);
  enter_status=0;finish_ok=0;assert(wr_iot_driver_close_reply(&ad,&dev,&rq,wire)==-EUCLEAN&&closes==1&&finishes==1&&!dev.running);
  /* Even a nominal dev_close success cannot bypass a refused completion. */
- dev.running=1;finish_ok=1;close_status=-EIO;assert(wr_iot_driver_close_reply(&ad,&dev,&rq,wire)==-EIO&&finishes==2);
+ dev.running=1;finish_ok=1;close_status=-EIO;assert(wr_iot_driver_close_reply(&ad,&dev,&rq,wire)==-EUCLEAN&&finishes==2);
  dev.running=1;close_status=0;assert(!wr_iot_driver_close_reply(&ad,&dev,&rq,wire)&&closes==3&&finishes==3);
+ dev.running=1;enter_status=-EBUSY;assert(wr_iot_driver_close_reply(&ad,&dev,&rq,wire)==-EBUSY&&closes==3);
+ dev.running=1;enter_status=0;close_status=-EBUSY;
+ assert(wr_iot_driver_close_reply(&ad,&dev,&rq,wire)==-EUCLEAN&&closes==4&&finishes==4);
  puts("PASS proposed CLOSE entry: strict request and current netdev, reserve refusal before close, mandatory checked finish despite admin DOWN, no retry/reopen; strong bindings injected, not installed");
 }

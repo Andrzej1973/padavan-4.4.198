@@ -241,7 +241,7 @@ int main(void){
     wr_iot_driver_close_release_submit(&input):mode==1?
     wr_iot_driver_close_progress_submit(&input):wr_iot_driver_close_submit(&input);
    enum wr_iot_driver_close_submit_result expected=fault==0?WR_IOT_DRIVER_CLOSE_CALL_COMPLETED:
-    fault<=2?WR_IOT_DRIVER_CLOSE_NOT_SUBMITTED:
+    (fault<=2||(!mode&&fault==5))?WR_IOT_DRIVER_CLOSE_NOT_SUBMITTED:
     mode&&(fault==3||fault==4)?WR_IOT_DRIVER_CLOSE_PENDING:WR_IOT_DRIVER_CLOSE_UNCERTAIN;
    assert(outcome==expected);
    assert(calls==prior_calls+((fault==1||fault==2)?0:1));

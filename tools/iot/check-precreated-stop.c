@@ -8,6 +8,7 @@
 static struct wr_iot_precreated_stop *current_stop;
 static int depth,bridge,down,attached,isolated,services,fault,closed_ok,query_ok,closes,progresses,releases,actions;
 static unsigned long long observed_serial;
+static unsigned busy_refusals,close_mutations;
 static int allow(enum wr_iot_stop_phase phase){assert(depth==2&&current_stop->phase==phase);actions++;return fault!=(int)phase;}
 int wr_iot_service_guard_enter(int enabled){assert(enabled);depth++;return 1;}
 void wr_iot_service_guard_leave(int token){assert(token==1&&depth>0);depth--;}
@@ -16,7 +17,7 @@ int wr_iot_disable_begin_precreated(struct wr_iot_disable_controller *s){assert(
 int wr_iot_disable_services_cancel(struct wr_iot_disable_services *s){assert(depth==2&&s->settings.active);s->settings.active=0;depth--;return 1;}
 int wr_iot_driver_open_recovery_read(const struct wr_iot_driver_attempt *a,struct wr_iot_driver_open_recovery_result *out){assert(depth==2&&a->request_id[0]==1);*out=(struct wr_iot_driver_open_recovery_result){1,2,3};return query_ok;}
 int wr_iot_driver_close_request_from_open(struct wr_iot_driver_close_request *out,const struct wr_iot_driver_attempt *a,const struct wr_iot_driver_open_current_result *r){memcpy(out->open_request_id,a->request_id,16);out->adapter_epoch=r->adapter_epoch;out->device_generation=r->device_generation;out->open_token=r->open_token;return 1;}
-enum wr_iot_driver_close_submit_result wr_iot_driver_close_submit(const struct wr_iot_driver_close_request *r){assert(r->open_request_id[0]==1&&r->open_token==3);closes++;down=1;return WR_IOT_DRIVER_CLOSE_UNCERTAIN;}
+enum wr_iot_driver_close_submit_result wr_iot_driver_close_submit(const struct wr_iot_driver_close_request *r){assert(r->open_request_id[0]==1&&r->open_token==3);closes++;if(busy_refusals){busy_refusals--;return WR_IOT_DRIVER_CLOSE_NOT_SUBMITTED;}close_mutations++;down=1;return WR_IOT_DRIVER_CLOSE_UNCERTAIN;}
 enum wr_iot_driver_close_submit_result wr_iot_driver_close_progress_submit(const struct wr_iot_driver_close_request *r){assert(r->open_token==3);progresses++;return WR_IOT_DRIVER_CLOSE_CALL_COMPLETED;}
 enum wr_iot_driver_close_submit_result wr_iot_driver_close_release_submit(const struct wr_iot_driver_close_request *r){assert(r->open_token==3);releases++;return releases%2?WR_IOT_DRIVER_CLOSE_PENDING:WR_IOT_DRIVER_CLOSE_CALL_COMPLETED;}
 int wr_iot_driver_attempt_closed(const struct wr_iot_driver_attempt *a,struct wr_iot_driver_closed_result *out){assert(a->request_id[0]==1&&depth==2);*out=(struct wr_iot_driver_closed_result){1,2,3,observed_serial};return closed_ok;}
@@ -58,6 +59,19 @@ int main(void)
   assert(s.phase==WR_IOT_STOP_COMPLETE&&!depth&&!bridge&&closes==1&&progresses==1&&releases==2);
   prior_actions=actions;assert(wr_iot_precreated_stop_step(&s)&&actions==prior_actions);
  }
+ {
+  struct wr_iot_precreated_stop pending={0};current_stop=&pending;
+  observed_serial=4;depth=0;bridge=attached=closed_ok=query_ok=1;
+  down=isolated=services=closes=progresses=releases=actions=fault=0;busy_refusals=2;close_mutations=0;
+  assert(wr_iot_precreated_stop_begin(&pending,&attempt));
+  for(unsigned tick=0;tick<2;tick++){
+   assert(!wr_iot_precreated_stop_step(&pending)&&pending.phase==WR_IOT_STOP_CLOSE_BEGIN);
+   assert(depth==2&&bridge&&!down&&!close_mutations&&closes==(int)tick+1);
+  }
+  assert(!wr_iot_precreated_stop_step(&pending)&&pending.phase==WR_IOT_STOP_CLOSE&&down&&close_mutations==1);
+  for(unsigned tick=0;pending.phase!=WR_IOT_STOP_COMPLETE&&tick<30;tick++)(void)wr_iot_precreated_stop_step(&pending);
+  assert(pending.phase==WR_IOT_STOP_COMPLETE&&!depth&&!bridge&&closes==3&&close_mutations==1&&progresses==1);
+ }
  struct wr_iot_precreated_stop s={0};current_stop=&s;depth=0;closes=0;
  struct wr_iot_driver_attempt invalid={0};
  assert(!wr_iot_precreated_stop_begin(&s,&invalid)&&!depth);
@@ -65,6 +79,6 @@ int main(void)
  query_ok=0;assert(!wr_iot_precreated_stop_step(&s)&&s.phase==WR_IOT_STOP_CLOSE_BEGIN&&!closes);
  assert(wr_iot_precreated_stop_cancel(&s)&&!depth&&!closes&&s.phase==WR_IOT_STOP_CANCELLED);
  assert(!wr_iot_precreated_stop_step(&s));
- puts("PASS actual experimental OFF owner plus CLOSE controller: eight network-stage failures, uncertain CLOSE once, pending release, fresh config/owner refusal, retained guard/identity, ordered teardown and pre-mutation cancellation; external resources injected, no RF/runtime claim");
+ puts("PASS actual experimental OFF owner plus CLOSE controller: eight network-stage failures, two pre-admission busy ticks retain guards then one mutation, uncertain CLOSE once, pending release, fresh config/owner refusal, ordered teardown and pre-mutation cancellation; external resources injected, no RF/runtime claim");
  return 0;
 }

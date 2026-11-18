@@ -1419,6 +1419,19 @@ jobs:
             source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3 \
             --output abi-results/vendor-group-key-host.json
 
+      - name: Check scoped ra2 GTK timer and pre-admission CLOSE deferral
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -B tools/iot/check-ra2-rekey-path.py \
+            source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3 \
+            --output abi-results/ra2-rekey-host.json
+          for fixture in check-ra2-rekey-admission check-close-busy-composition; do
+            gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -fno-pie -no-pie \
+              -Itools/iot "tools/iot/$fixture.c" -o "abi-results/$fixture"
+            "abi-results/$fixture"
+          done
+
       - name: Check IoT HTTP request boundary
         shell: bash
         run: |

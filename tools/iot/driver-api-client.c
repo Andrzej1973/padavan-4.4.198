@@ -224,6 +224,11 @@ static enum wr_iot_driver_close_submit_result wr_iot_driver_close_exchange(
  saved_error=errno;closed=close(fd);
  if(closed)return WR_IOT_DRIVER_CLOSE_UNCERTAIN;
  if(!result)return WR_IOT_DRIVER_CLOSE_CALL_COMPLETED;
+ /* Paired driver contract: request EBUSY is exclusively pre-admission;
+  * driver-api-close-entry.inc normalizes every post-admission error to
+  * EUCLEAN. Never generalize this to OPEN, progress, EAGAIN or failed close. */
+ if(operation==WR_IOT_DRIVER_CLOSE_REQUEST_OPCODE&&result==-1&&saved_error==EBUSY)
+  return WR_IOT_DRIVER_CLOSE_NOT_SUBMITTED;
  if(operation!=WR_IOT_DRIVER_CLOSE_REQUEST_OPCODE&&
     (saved_error==EAGAIN||saved_error==EINPROGRESS))
   return WR_IOT_DRIVER_CLOSE_PENDING;

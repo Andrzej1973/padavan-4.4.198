@@ -1,0 +1,47 @@
+{
+  "native_timer_sha256": "31830943b74b95311408ca51f3f1a69584e15a488c258a467a462fde0ecea5cd",
+  "wrapped_timer_sha256": "9ede69803ee20a1817b33cc67afc755dda19a57d09dbb0b5c14b0fb76623d526",
+  "native_ap_wpa_sha256": "0b502f4e25100c73b33abb166b727ba2afafb1d057afdfae23ffa9bbd7556c97",
+  "candidate_ap_wpa_sha256": "9faad5d97eb6f0c473bcfc730c99e95d4663df0409401e914712bf0c1ff2bfa2",
+  "prepared_driver_verified": false,
+  "host_contract_verified": true,
+  "target_verified": false,
+  "runtime_verified": false,
+  "date": "2026-11-18",
+  "sdk_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "source_files": {
+    "ap/ap_wpa.c": {
+      "git_blob_sha1": "90289ec9c2ca053a3333f9494546b2701e8d17f4",
+      "sha256": "0b502f4e25100c73b33abb166b727ba2afafb1d057afdfae23ffa9bbd7556c97"
+    },
+    "common/rtmp_timer.c": {
+      "git_blob_sha1": "13be80e8ebcf132adef8649fc8e0381f0a863f97",
+      "sha256": "40aae7e02a9af4954948c4913c6d0db4e27e48f5373c197fba0d3f5164eea1e3"
+    },
+    "include/rtmp_timer.h": {
+      "git_blob_sha1": "3577c5d477c383d82ebd72926f0d1221bffc8c65",
+      "sha256": "5a90cbbc486744aca96d118865136528eefb88d055ead8437f1e0d128d6b4a2e"
+    },
+    "common/rtmp_init.c": {
+      "git_blob_sha1": "a0d9eb2adbbb2ac13e8314806a5ded2f30793623",
+      "sha256": "f4bc432661900513e026c2abe05c4d861dc1982990968ad5c276ed6444fef011"
+    }
+  },
+  "github_blob_identities_verified": true,
+  "admission_cases_passed": 44,
+  "kernel_client_close_composition_passed": true,
+  "off_owner_busy_deferral_passed": true,
+  "complete_edit_view_host_suite_passed": true,
+  "runtime_source_preparation_passed": true,
+  "pair_stage_negative_cases_passed": true,
+  "source_producer_wired": true,
+  "production_installed": false,
+  "physical_runtime_verified": false,
+  "limits": [
+    "Existing live timer/adapter lifecycle is still required; the control counter is not an independent object pin or RF/DMA/IRQ completion proof.",
+    "Native GTK body executed with synthetic key/handshake/MMIO boundaries and scheduler invocations.",
+    "Actual prepared full candidate comparison runs in optional; local host report does not claim that full candidate or target compilation has completed.",
+    "Pre-admission EBUSY exception is for the coherent paired driver/client contract; admitted/uncertain CLOSE is never replayed.",
+    "No original MCU ACK fix, hot profile provisioning, main-image promotion or physical acceptance claimed."
+  ]
+}

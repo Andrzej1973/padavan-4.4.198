@@ -2,7 +2,8 @@
  * RTNL, CAP_NET_ADMIN, MT7603 and copied the fixed 64-byte request. Strong
  * enter/finish bindings must retain adapter/netdev and recovery ownership.
  * No generic success fallback. A successful result is checked reference
- * closure only; never RF/isolation acceptance. Do not automatically retry. */
+ * closure only; never RF/isolation acceptance. Do not replay an admitted or
+ * uncertain CLOSE; EBUSY is reserved for refusal before admission. */
 /* Standalone probes also compile this entry without a common dispatcher. */
 static INT __attribute__((unused)) wr_iot_driver_close_reply(RTMP_ADAPTER *ad,PNET_DEV dev,
  struct ifreq *rq,unsigned char *wire)
@@ -21,5 +22,8 @@ static INT __attribute__((unused)) wr_iot_driver_close_reply(RTMP_ADAPTER *ad,PN
   * ticket/record completion; admin DOWN and dev_close==0 are insufficient.
   * On any ambiguity retain close provenance and isolation for recovery. */
  if(!wr_iot_driver_close_finish_recover(ad,dev,current,status,&handoff))return -EUCLEAN;
- return status;
+ /* EBUSY is reserved for a refusal before CLOSE admission. Never expose it
+  * after dev_close: even a future nonzero dev_close result retains recovery
+  * ownership and cannot authorize a new submission from RC. */
+ return status?-EUCLEAN:0;
 }

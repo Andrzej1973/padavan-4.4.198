@@ -379,6 +379,13 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   python3 tools/iot/check-close-bundle-assets.py
   python3 tools/iot/check-close-probe-codegen.py > "$results/close-probe-codegen.txt"
   python3 tools/iot/prepare-driver-api.py "$merged" --install-isolated
+  python3 -B tools/iot/check-ra2-rekey-path.py "$pristine" --prepared-driver "$merged" \
+    --output "$results/ra2-rekey-host.json"
+  for fixture in check-ra2-rekey-admission check-close-busy-composition; do
+    gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -fno-pie -no-pie \
+      -Itools/iot "tools/iot/$fixture.c" -o "$results/$fixture"
+    "$results/$fixture"
+  done
   # Preserve final source even when a following host-composition check fails.
   cp "$merged.manifest.json" "$results/merged-source-manifest.json"
   python3 tools/iot/capture-prepared-source.py "$merged.manifest.json" "$merged" "$results/prepared-source"

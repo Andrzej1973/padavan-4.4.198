@@ -25,6 +25,10 @@ def build(root,revision):
    if struct.unpack('<H',blob[16:18])[0]!=expected:raise ValueError('Wrong ELF type '+source)
   files[target]={'source':source,'bytes':len(blob),'sha256':hashlib.sha256(blob).hexdigest()}
  module=report('ra2-no-host-module/target-result.json')
+ driver_source=report('ra2-no-host-module/source-manifest.json')
+ api=driver_source.get('linux_open_api',{})
+ if any(api.get(name) is not True for name in ('close_busy_pre_mutation','ra2_rekey_counted_bound')):
+  raise ValueError('Paired driver CLOSE pre-mutation busy contract/ra2 timer fence required')
  if not module.get('target_module_linked') or module.get('production_installed') is not False or module.get('runtime_verified') is not False:
   raise ValueError('Missing experimental module evidence')
  if module.get('module_sha256')!=files['driver:mt76x3_ap']['sha256']:
@@ -55,7 +59,7 @@ def build(root,revision):
   ('runtime',runtime,('normal_shutdown_controller_linked','normal_shutdown_dispatch_bound',
     'normal_shutdown_notification_bound','normal_shutdown_initial_active_arm_bound',
     'normal_shutdown_cold_active_arm_bound','normal_shutdown_cold_routed_handoff_bound',
-    'normal_shutdown_mailbox_active_arm_bound','configuration_ram_control_bound','configuration_snapshot_verified','generation_selector_strong_binding_prepared',
+    'normal_shutdown_mailbox_active_arm_bound','configuration_ram_control_bound','configuration_snapshot_verified','generation_selector_strong_binding_prepared','close_busy_pre_mutation_bound',
     'initial_off_admission','off_reopen_admission')),
   ('restart',entry,('private_restart_hook_bound','initial_restart_hook_bound',
     'historical_radio_on_hook_bound','cold_radio_on_hook_bound','owned_radio_off_hook_bound'))):
