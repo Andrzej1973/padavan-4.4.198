@@ -634,6 +634,18 @@ report = {
 if sys.argv[2] == 'peer82':
     channel = results / 'channel-target-config.json'
     report['channel_target_config_sha256'] = hashlib.sha256(channel.read_bytes()).hexdigest()
+    report['key_writer_configuration'] = {}
+    for unit in ('ap_cfg', 'ap_wpa', 'cmm_wpa'):
+        path = results / ('key-writer-' + unit + '-config.json')
+        config = json.loads(path.read_text(encoding='utf-8'))
+        if config.get('status') != 'complete':
+            raise SystemExit('Incomplete actual key-writer configuration: ' + unit)
+        report['key_writer_configuration'][unit] = {
+            'report_sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
+            'source_sha256': config['source_sha256'],
+            'command_sha256': config['command_sha256'],
+            'macros': config['macros'],
+        }
 (results / 'target-compile-result.json').write_text(
     json.dumps(report, indent=2) + '\n', encoding='utf-8')
 PY
