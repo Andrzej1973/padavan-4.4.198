@@ -92,3 +92,24 @@ admission under ASan/UBSan in direct and OS_ABL lock forms. It covers a same-MAC
 Guest entry alongside ra2, absence, generation drift, foreign-only lookup and
 duplicate ra2 entries. This helper is not yet installed or bound to ioctl native
 execution; successful-request lifetime and target verification remain open.
+
+## Prepared direct-key synchronous lifetime scope
+
+ra2-direct-key-scope.h composes existing OPEN/control admission, the shared
+exclusive key ticket and retained ra2 peer generations. It is a private linear
+stack scope, not a firmware token. Admission rolls back its own control/key
+reservation if peer admission fails. Release validates adapter/key ownership
+before touching peer reservations; foreign release poisons only the supplied
+adapter and retains the original owner's scope. Generation drift preserves
+foreign peer reservations and poisons subsequent admission. No lock is held
+across eventual user copy, native key I/O or crypto. The caller already pins
+adapter lifetime.
+
+check-ra2-direct-key-scope.py passes direct/OS_ABL ASan/UBSan host checks for
+successful release, reentry refusal, reassociation/deletion exclusion, older
+table transaction rollback, active association refusal, foreign-adapter leave
+and generation-drift cleanup. The fixture executes the actual helper contracts
+with SDK boundary actors; it does not run HOSTAPD key I/O or firmware. Neither
+new helper is installed in production or the isolated producer yet. Next step
+is factoring trusted SET/DEL payload execution and binding this scope around
+all native exit paths without a second copy_from_user.
