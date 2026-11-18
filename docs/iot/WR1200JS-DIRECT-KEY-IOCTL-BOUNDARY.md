@@ -77,3 +77,18 @@ A localized exact-BSS lookup using the existing hash/entry structures, under
 MacTabLock with explicit generation/lifetime reservation, is required unless
 the target-specific feature evidence establishes another suitable existing API.
 This corrects the earlier lookup suggestion; the ioctl lifetime gap stays open.
+
+## Prepared retained ra2 peer lookup
+
+ra2-direct-key-peer.h provides wr_ra2_direct_key_peer_locked using the existing
+MacTab.Content array; it has no WH_EZ_SETUP dependency. The caller must already
+hold MacTabLock, the exclusive ra2 key arbiter and a successful retained-peer
+scope through the eventual key operation. It validates exact ra2 wdev/type/index,
+WCID, retained generation and reservation before returning a pointer. Foreign-only
+MAC matches, duplicate ra2 MAC entries and inconsistent generations fail closed.
+No match is a distinct result and does not authorize group-key fallback.
+check-ra2-direct-key-peer.py executes the helper with existing retained-peer
+admission under ASan/UBSan in direct and OS_ABL lock forms. It covers a same-MAC
+Guest entry alongside ra2, absence, generation drift, foreign-only lookup and
+duplicate ra2 entries. This helper is not yet installed or bound to ioctl native
+execution; successful-request lifetime and target verification remain open.
