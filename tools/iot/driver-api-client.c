@@ -227,9 +227,9 @@ static enum wr_iot_driver_close_submit_result wr_iot_driver_close_exchange(
  /* Paired driver contract: request EBUSY is exclusively pre-admission;
   * driver-api-close-entry.inc normalizes every post-admission error to
   * EUCLEAN. Never generalize this to OPEN, progress, EAGAIN or failed close. */
- if(operation==WR_IOT_DRIVER_CLOSE_REQUEST_OPCODE&&result==-1&&saved_error==EBUSY)
+ if(operation==WR_IOT_DRIVER_CLOSE_DEFER_REQUEST_OPCODE&&result==-1&&saved_error==EBUSY)
   return WR_IOT_DRIVER_CLOSE_NOT_SUBMITTED;
- if(operation!=WR_IOT_DRIVER_CLOSE_REQUEST_OPCODE&&
+ if((operation==WR_IOT_DRIVER_CLOSE_PROGRESS_OPCODE||operation==WR_IOT_DRIVER_CLOSE_RELEASE_OPCODE)&&
     (saved_error==EAGAIN||saved_error==EINPROGRESS))
   return WR_IOT_DRIVER_CLOSE_PENDING;
  return WR_IOT_DRIVER_CLOSE_UNCERTAIN;
@@ -237,7 +237,7 @@ static enum wr_iot_driver_close_submit_result wr_iot_driver_close_exchange(
 enum wr_iot_driver_close_submit_result wr_iot_driver_close_submit(
  const struct wr_iot_driver_close_request *input)
 {
- return wr_iot_driver_close_exchange(input,WR_IOT_DRIVER_CLOSE_REQUEST_OPCODE);
+ return wr_iot_driver_close_exchange(input,WR_IOT_DRIVER_CLOSE_DEFER_REQUEST_OPCODE);
 }
 enum wr_iot_driver_close_submit_result wr_iot_driver_close_progress_submit(
  const struct wr_iot_driver_close_request *input)

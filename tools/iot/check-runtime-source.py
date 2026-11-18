@@ -7,8 +7,9 @@ local=Path(__file__).parent;rc=a.source/'trunk/user/rc';http=a.source/'trunk/use
 report=json.loads((a.source/'iot-runtime-source.json').read_text())
 assert report['generation_selector_strong_binding_prepared'] is True
 assert report['close_busy_pre_mutation_bound'] is True
+assert type(report['close_busy_request_opcode']) is int and report['close_busy_request_opcode']==21
 client=(rc/'wr-iot-driver-api-client.c').read_text()
-assert 'operation==WR_IOT_DRIVER_CLOSE_REQUEST_OPCODE&&result==-1&&saved_error==EBUSY' in client
+assert 'operation==WR_IOT_DRIVER_CLOSE_DEFER_REQUEST_OPCODE&&result==-1&&saved_error==EBUSY' in client
 ralink=(rc/'ralink.c').read_text()
 assert '__attribute__((weak)) int wr_iot_generation_profile_request' not in ralink
 assert ralink.count('#include "wr-iot/generation-profile.h"')==1

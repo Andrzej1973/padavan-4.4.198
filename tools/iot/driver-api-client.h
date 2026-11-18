@@ -61,8 +61,9 @@ int wr_iot_driver_open_current_read(const struct wr_iot_driver_attempt *,
 /* Fixed ra2 CLOSE transport. Input must retain the successful OPEN nonce,
  * epoch, generation and token under the serialized controller owner.
  * No automatic retry of an admitted/uncertain CLOSE. Paired-driver request
- * EBUSY is a proven pre-admission refusal (NOT_SUBMITTED); its caller may
- * attempt admission again. Progress advances the same retained operation.
+ * operation21 EBUSY is a proven pre-admission refusal (NOT_SUBMITTED); its caller may
+ * attempt admission again. Legacy modules reject operation21; there is no
+ * fallback to legacy CLOSE10. Progress advances the same retained operation.
  * CALL_COMPLETED proves kernel-call completion only. Isolation and the OPEN
  * fence remain owned until the separate lifecycle completion checks pass. */
 enum wr_iot_driver_close_submit_result {

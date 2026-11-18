@@ -20,7 +20,7 @@ static device dev;
 static int task;
 #define current (&task)
 static unsigned enters,net_closes,finishes,progresses,submissions;
-static int after_close_error,finish_ok=1,fd_close_error,progress_error,positive_reply;
+static int after_close_error,finish_ok=1,fd_close_error,progress_error,positive_reply,legacy_module;
 static int netif_running(PNET_DEV target){assert(target==&dev);return target->running;}
 static int wr_iot_driver_close_request_enter(RTMP_ADAPTER *ad,PNET_DEV target,
  const struct wr_iot_driver_close_request *request,const void *owner){
@@ -42,9 +42,11 @@ static int fixture_ioctl(int fd,unsigned long command,...){
  va_list args;va_start(args,command);struct ifreq *request=va_arg(args,struct ifreq *);va_end(args);
  assert(fd==10&&command==WR_IOT_DRIVER_IOCTL_CLOSED_CONFIG&&!strcmp(request->ifr_name,"ra2"));
  unsigned char *wire=(unsigned char *)request->ifr_data;int result;
- if(wire[4]==WR_IOT_DRIVER_CLOSE_REQUEST_OPCODE){
+ if(wire[4]==WR_IOT_DRIVER_CLOSE_REQUEST_OPCODE||wire[4]==WR_IOT_DRIVER_CLOSE_DEFER_REQUEST_OPCODE){
   submissions++;
-  result=wr_iot_driver_close_reply(&adapter,&dev,request,wire);
+  struct wr_iot_driver_close_request decoded;
+  if(legacy_module&&!wr_iot_driver_close_request_decode(&decoded,wire,64))result=-EINVAL;
+  else result=wr_iot_driver_close_reply(&adapter,&dev,request,wire);
  }else if(wire[4]==WR_IOT_DRIVER_CLOSE_PROGRESS_OPCODE){progresses++;result=-progress_error;}
  else {assert(wire[4]==WR_IOT_DRIVER_CLOSE_RELEASE_OPCODE);result=0;}
  if(positive_reply){errno=EBUSY;return 1;}
@@ -57,7 +59,7 @@ static int fixture_ioctl(int fd,unsigned long command,...){
 #include "driver-close-controller.c"
 static void reset(void){
  adapter.users=0;dev.running=1;enters=net_closes=finishes=progresses=submissions=0;
- after_close_error=fd_close_error=progress_error=positive_reply=0;finish_ok=1;
+ after_close_error=fd_close_error=progress_error=positive_reply=legacy_module=0;finish_ok=1;
 }
 int main(void){
  struct wr_iot_driver_attempt attempt={.identity={1,2},.request_id={1}};
@@ -75,14 +77,16 @@ int main(void){
  progress_error=0;assert(wr_iot_close_controller_progress(&controller));
  assert(wr_iot_close_controller_release(&controller)&&net_closes==1&&submissions==2);
  /* Any error after admission, including EBUSY, is normalized to EUCLEAN. */
- for(unsigned fault=0;fault<4;fault++){
+ for(unsigned fault=0;fault<5;fault++){
   reset();memset(&controller,0,sizeof(controller));
   if(fault==0)after_close_error=-EBUSY;
   if(fault==1){adapter.users=1;fd_close_error=1;}
   if(fault==2)finish_ok=0;
   if(fault==3)positive_reply=1;
+  if(fault==4)legacy_module=1;
   assert(!wr_iot_close_controller_begin(&controller,&attempt,&receipt));
   assert(controller.phase==WR_IOT_CLOSE_UNCERTAIN&&submissions==1);
+  if(fault==4)assert(!enters&&!net_closes&&!finishes);
   unsigned closed=net_closes;adapter.users=0;fd_close_error=0;
   assert(!wr_iot_close_controller_begin(&controller,&attempt,&receipt)&&submissions==1&&net_closes==closed);
   progress_error=EAGAIN;assert(!wr_iot_close_controller_progress(&controller)&&submissions==1&&net_closes==closed);

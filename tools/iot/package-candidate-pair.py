@@ -29,6 +29,8 @@ def build(root,revision):
  api=driver_source.get('linux_open_api',{})
  if any(api.get(name) is not True for name in ('close_busy_pre_mutation','ra2_rekey_counted_bound')):
   raise ValueError('Paired driver CLOSE pre-mutation busy contract/ra2 timer fence required')
+ if type(api.get('close_busy_request_opcode')) is not int or api['close_busy_request_opcode']!=21:
+  raise ValueError('Explicit driver CLOSE21 contract required')
  if not module.get('target_module_linked') or module.get('production_installed') is not False or module.get('runtime_verified') is not False:
   raise ValueError('Missing experimental module evidence')
  if module.get('module_sha256')!=files['driver:mt76x3_ap']['sha256']:
@@ -48,6 +50,8 @@ def build(root,revision):
  if policy.get('board')!='WR1200JS' or not policy.get('iapp_compile_gate_enabled') or policy.get('production_ready') is not False:
   raise ValueError('Paired IAPP policy required')
  runtime=report('runtime-link/iot-runtime-source.json')
+ if type(runtime.get('close_busy_request_opcode')) is not int or runtime['close_busy_request_opcode']!=21:
+  raise ValueError('Explicit RC CLOSE21 contract required')
  entry=report('runtime-link/iot-restart-entry-source.json')
  edit=report('runtime-link/iot-edit-view-source.json')
  if edit.get('board')!='WR1200JS' or any(edit.get(name) is not True for name in

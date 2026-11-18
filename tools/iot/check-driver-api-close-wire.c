@@ -32,6 +32,19 @@ int main(void){
  assert(!wr_iot_driver_closed_decode(&closed,r.open_request_id,wire,64));
  assert(!wr_iot_driver_refusal_decode(&refused,r.open_request_id,wire,64));
  assert(!wr_iot_driver_uncertain_decode(&uncertain,r.open_request_id,wire,64));
+ assert(wr_iot_driver_close_defer_encode(wire,64,&r));
+ assert(wire[4]==21&&!wr_iot_driver_close_request_decode(&out,wire,64));cleared(&out);
+ assert(wr_iot_driver_close_defer_decode(&out,wire,64)&&out.open_token==3);
+ for(unsigned i=0;i<64;i++)if(i<8||i>=48){
+  memcpy(copy,wire,64);copy[i]^=0x80;
+  assert(!wr_iot_driver_close_defer_decode(&out,copy,64));cleared(&out);
+ }
+ for(unsigned length=0;length<70;length++)if(length!=64){
+  assert(!wr_iot_driver_close_defer_decode(&out,wire,length));cleared(&out);
+ }
+ wire[4]=10;assert(!wr_iot_driver_close_defer_decode(&out,wire,64));cleared(&out);
+ assert(!wr_iot_driver_close_defer_decode(&out,NULL,0));cleared(&out);
+ assert(!wr_iot_driver_close_defer_decode(NULL,NULL,64));
  r.open_token=0;memset(wire,0xff,64);assert(!wr_iot_driver_close_request_encode(wire,64,&r));
  for(unsigned i=0;i<64;i++)assert(!wire[i]);
  puts("PASS proposed CLOSE syntax: big-endian identity, reserved/zero/length rejection, output cleared and never decoded as CLOSED/refusal/uncertainty receipt; endpoint unbound");

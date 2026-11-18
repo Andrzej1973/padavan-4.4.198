@@ -14,13 +14,14 @@ def compose(entry):
     if entry.index(copy) > entry.index(anchor):
         raise ValueError('CLOSE fixed copy must precede dispatch')
     routes = ''' if(wire[4]==WR_IOT_DRIVER_CLOSE_REQUEST_OPCODE||
+    wire[4]==WR_IOT_DRIVER_CLOSE_DEFER_REQUEST_OPCODE||
     wire[4]==WR_IOT_DRIVER_CLOSE_PROGRESS_OPCODE){
   RTMP_IRQ_LOCK(&ad->wr_iot_transition_lock,flags);
   matched=ad->ApCfg.BssidNum==3&&ad->net_dev!=dev&&
    ad->ApCfg.MBSSID[2].wdev.if_dev==dev;
   RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);
   if(!matched)return -EBUSY;
-  if(wire[4]==WR_IOT_DRIVER_CLOSE_REQUEST_OPCODE)
+  if(wire[4]==WR_IOT_DRIVER_CLOSE_REQUEST_OPCODE||wire[4]==WR_IOT_DRIVER_CLOSE_DEFER_REQUEST_OPCODE)
    return wr_iot_driver_close_reply(ad,dev,rq,wire);
   return wr_iot_driver_close_progress_reply(ad,dev,wire);
  }

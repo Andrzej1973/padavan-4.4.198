@@ -19,6 +19,7 @@ int main(void){
  unsigned char wire[64];struct wr_iot_driver_close_request request={{1},1,2,3};
  RTMP_ADAPTER ad={0};device dev={1};struct ifreq rq={wire};
  assert(wr_iot_driver_close_request_encode(wire,64,&request));
+ assert(wr_iot_driver_close_reply(&ad,&dev,&rq,NULL)==-EINVAL&&!enters&&!closes);
  wire[4]=11;assert(wr_iot_driver_close_reply(&ad,&dev,&rq,wire)==-EINVAL&&!enters&&!closes);
  wire[4]=10;dev.running=0;assert(wr_iot_driver_close_reply(&ad,&dev,&rq,wire)==-EAGAIN&&!enters&&!closes);
  dev.running=1;enter_status=-ESTALE;assert(wr_iot_driver_close_reply(&ad,&dev,&rq,wire)==-ESTALE&&!closes&&!finishes);
@@ -29,5 +30,8 @@ int main(void){
  dev.running=1;enter_status=-EBUSY;assert(wr_iot_driver_close_reply(&ad,&dev,&rq,wire)==-EBUSY&&closes==3);
  dev.running=1;enter_status=0;close_status=-EBUSY;
  assert(wr_iot_driver_close_reply(&ad,&dev,&rq,wire)==-EUCLEAN&&closes==4&&finishes==4);
+ dev.running=1;close_status=0;
+ assert(wr_iot_driver_close_defer_encode(wire,64,&request));
+ assert(!wr_iot_driver_close_reply(&ad,&dev,&rq,wire)&&closes==5&&finishes==5);
  puts("PASS proposed CLOSE entry: strict request and current netdev, reserve refusal before close, mandatory checked finish despite admin DOWN, no retry/reopen; strong bindings injected, not installed");
 }

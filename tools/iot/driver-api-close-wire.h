@@ -1,4 +1,4 @@
-/* Linux-only CLOSE request for isolated candidate operation10.
+/* Linux-only CLOSE: legacy operation10 and explicit deferral operation21.
  * Carries original successful OPEN identity only, never SSID/password.
  * Syntax acceptance cannot authorize mutation, retry or isolation release. */
 #ifndef WR_IOT_DRIVER_API_CLOSE_WIRE_H
@@ -6,6 +6,10 @@
 #include "driver-api-wire.h"
 #define WR_IOT_DRIVER_CLOSE_REQUEST_BYTES 64U
 #define WR_IOT_DRIVER_CLOSE_REQUEST_OPCODE 10U
+/* Explicit Linux-only contract: EBUSY before admission may be attempted later.
+ * Legacy operation10 is preserved and its decoder must reject this opcode.
+ * WRI2 operations19/20 are Main-DOWN observation;21 is separately reserved. */
+#define WR_IOT_DRIVER_CLOSE_DEFER_REQUEST_OPCODE 21U
 struct wr_iot_driver_close_request {
  unsigned char open_request_id[16];
  unsigned long long adapter_epoch,device_generation,open_token;
@@ -42,5 +46,23 @@ static inline int wr_iot_driver_close_request_encode(unsigned char *wire,unsigne
  wr_iot_driver_put64(wire+24,request->adapter_epoch);
  wr_iot_driver_put64(wire+32,request->device_generation);
  wr_iot_driver_put64(wire+40,request->open_token);return 1;
+}
+static inline int wr_iot_driver_close_defer_encode(unsigned char *wire,unsigned int length,
+ const struct wr_iot_driver_close_request *request)
+{
+ if(!wr_iot_driver_close_request_encode(wire,length,request))return 0;
+ wire[4]=WR_IOT_DRIVER_CLOSE_DEFER_REQUEST_OPCODE;return 1;
+}
+static inline int wr_iot_driver_close_defer_decode(struct wr_iot_driver_close_request *out,
+ const unsigned char *wire,unsigned int length)
+{
+ unsigned char copy[WR_IOT_DRIVER_CLOSE_REQUEST_BYTES];unsigned int i;
+ if(!out)return 0;
+ /* Use the old decoder's clearing contract even for null/short new input. */
+ if(!wire||length!=sizeof(copy)||wire[4]!=WR_IOT_DRIVER_CLOSE_DEFER_REQUEST_OPCODE)
+  return wr_iot_driver_close_request_decode(out,0,0);
+ for(i=0;i<sizeof(copy);i++)copy[i]=wire[i];
+ copy[4]=WR_IOT_DRIVER_CLOSE_REQUEST_OPCODE;
+ return wr_iot_driver_close_request_decode(out,copy,sizeof(copy));
 }
 #endif

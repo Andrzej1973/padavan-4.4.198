@@ -56,12 +56,13 @@ static int wr_iot_driver_close_progress(RTMP_ADAPTER *ad,PNET_DEV dev,
 '''
 source = source.replace('#include "driver-api-closed-entry.inc"', bindings + generated)
 cases = r'''
- for(unsigned mode=0;mode<2;mode++)for(unsigned fault=0;fault<17;fault++){
+ for(unsigned mode=0;mode<3;mode++)for(unsigned fault=0;fault<17;fault++){
   struct device main_dev={1},iot={1},guest={1};
   struct adapter ad={.mt7603=1,.net_dev=&main_dev,.ApCfg.BssidNum=3};
   ad.ApCfg.MBSSID[2].wdev.if_dev=&iot;
   struct wr_iot_driver_close_request request={{1},1,2,3};unsigned char wire[64];
-  assert(mode?wr_iot_driver_close_progress_encode(wire,64,&request):
+  assert(mode==2?wr_iot_driver_close_defer_encode(wire,64,&request):
+         mode==1?wr_iot_driver_close_progress_encode(wire,64,&request):
               wr_iot_driver_close_request_encode(wire,64,&request));
   struct ifreq rq={wire};PNET_DEV target=&iot;
   permitted=rtnl=1;copy_in_error=copy_out_error=0;copies_in=copies_out=0;
@@ -77,9 +78,11 @@ cases = r'''
    case 16:wire[8]=2;break;
   }
   int result=wr_iot_driver_closed_ioctl(&ad,target,&rq);
-  if(fault==0||(mode&&fault==12)){
-   assert(result==(mode?-EINPROGRESS:0));
-   assert(close_calls==!mode&&close_enters==!mode&&progress_calls==mode);
+  if(LEGACY_CLOSE_DISPATCH&&mode==2){
+   assert(result<0&&!close_calls&&!close_enters&&!progress_calls);
+  }else if(fault==0||(mode==1&&fault==12)){
+   assert(result==(mode==1?-EINPROGRESS:0));
+   assert(close_calls==(mode!=1)&&close_enters==(mode!=1)&&progress_calls==(mode==1));
   }else assert(result<0&&!close_calls&&!close_enters&&!progress_calls);
   if(fault==1||fault==2||fault==3)assert(!copies_in);
   assert(!copies_out&&!ad.wr_iot_transition_lock&&main_dev.running&&guest.running);
@@ -89,9 +92,17 @@ cases = r'''
 source = source.replace('int main(void){', 'int main(void){\n' + cases, 1)
 with tempfile.TemporaryDirectory(prefix='wr-close-dispatch-') as scratch:
     root = Path(scratch)
-    (root / 'test.c').write_text(source)
-    subprocess.run(['gcc', '-std=c11', '-Wall', '-Wextra', '-Werror',
-                    '-fsanitize=address,undefined', '-fno-pie', '-no-pie',
-                    '-I' + str(here), str(root / 'test.c'), '-o', str(root / 'test')], check=True)
-    subprocess.run([str(root / 'test')], check=True)
-print('PASS generated CLOSE/progress common routes, exact BSS, capability/copy/identity failures, progress while DOWN and legacy queries; executor/syscalls injected')
+    # Reconstruct the predecessor dispatcher by removing only CLOSE21 routes;
+    # its actual default query decoder must reject21 before the close entry.
+    legacy = generated.replace('    wire[4]==WR_IOT_DRIVER_CLOSE_DEFER_REQUEST_OPCODE||\n','').replace(
+        'if(wire[4]==WR_IOT_DRIVER_CLOSE_REQUEST_OPCODE||wire[4]==WR_IOT_DRIVER_CLOSE_DEFER_REQUEST_OPCODE)',
+        'if(wire[4]==WR_IOT_DRIVER_CLOSE_REQUEST_OPCODE)')
+    assert legacy!=generated and 'CLOSE_DEFER_REQUEST_OPCODE' not in legacy and source.count(generated)==1
+    for old in (0,1):
+        (root / 'test.c').write_text(source.replace(generated,legacy) if old else source)
+        subprocess.run(['gcc', '-std=c11', '-Wall', '-Wextra', '-Werror',
+                        '-fsanitize=address,undefined', '-fno-pie', '-no-pie',
+                        '-DLEGACY_CLOSE_DISPATCH='+str(old),
+                        '-I' + str(here), str(root / 'test.c'), '-o', str(root / 'test')], check=True)
+        subprocess.run([str(root / 'test')], check=True)
+print('PASS current CLOSE10/21/progress routes and predecessor-dispatch CLOSE21 rejection before mutation, exact BSS/capability/copy/identity gates, DOWN progress and old queries; executor/syscalls injected')

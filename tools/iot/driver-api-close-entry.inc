@@ -11,7 +11,10 @@ static INT __attribute__((unused)) wr_iot_driver_close_reply(RTMP_ADAPTER *ad,PN
  struct wr_iot_driver_close_request request;
  int status,handoff;
  (void)rq;
- if(!wr_iot_driver_close_request_decode(&request,wire,64))return -EINVAL;
+ if(!wire)return -EINVAL;
+ if(!(wire[4]==WR_IOT_DRIVER_CLOSE_DEFER_REQUEST_OPCODE?
+      wr_iot_driver_close_defer_decode(&request,wire,64):
+      wr_iot_driver_close_request_decode(&request,wire,64)))return -EINVAL;
  if(!netif_running(dev))return -EAGAIN;
  /* Atomically match nonce/epoch/generation/token and reserve one close ticket
   * under the adapter lock; MBSS ndo_stop consumes that exact task-owned ticket. */

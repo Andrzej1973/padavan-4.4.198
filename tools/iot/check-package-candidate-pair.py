@@ -21,12 +21,12 @@ with tempfile.TemporaryDirectory(prefix='wr-pair-check-') as d:
  put('runtime-link/rc-link-map.txt',('Cross Reference Table\n\nSymbol File\n'+symbol+' wr-iot-saved-config-store.o\n    ralink.o\n').encode())
  selector=module['selector_verify'](root/'runtime-link',root/'runtime-link/rc')
  report('runtime-link/generation-selector-link.json',selector)
- api={'close_busy_pre_mutation':True,'ra2_rekey_counted_bound':True}
+ api={'close_busy_pre_mutation':True,'ra2_rekey_counted_bound':True,'close_busy_request_opcode':21}
  report('ra2-no-host-module/source-manifest.json',{'linux_open_api':api})
  runtime={'board':'WR1200JS','production_ready':False,'normal_shutdown_controller_linked':True,
   'normal_shutdown_dispatch_bound':True,'normal_shutdown_notification_bound':True,
   'normal_shutdown_initial_active_arm_bound':True,'normal_shutdown_cold_active_arm_bound':True,
-  'normal_shutdown_cold_routed_handoff_bound':True,'normal_shutdown_mailbox_active_arm_bound':True,'configuration_ram_control_bound':True,'configuration_snapshot_verified':True,'generation_selector_strong_binding_prepared':True,'close_busy_pre_mutation_bound':True,'configuration_flash_bound':False,'configuration_loaded_promotion_bound':False,'initial_off_admission':True,'off_reopen_admission':True}
+  'normal_shutdown_cold_routed_handoff_bound':True,'normal_shutdown_mailbox_active_arm_bound':True,'configuration_ram_control_bound':True,'configuration_snapshot_verified':True,'generation_selector_strong_binding_prepared':True,'close_busy_pre_mutation_bound':True,'close_busy_request_opcode':21,'configuration_flash_bound':False,'configuration_loaded_promotion_bound':False,'initial_off_admission':True,'off_reopen_admission':True}
  entry={'board':'WR1200JS','production_ready':False,'private_restart_hook_bound':True,
   'initial_restart_hook_bound':True,'historical_radio_on_hook_bound':True,
   'cold_radio_on_hook_bound':True,'owned_radio_off_hook_bound':True}
@@ -40,11 +40,14 @@ with tempfile.TemporaryDirectory(prefix='wr-pair-check-') as d:
  r=build(root,'a'*40);assert not r['trx_inclusion_verified'] and 'sbin/rc' in r['files'] and r['lifecycle_manifest_contract_verified']
  mutations=[('runtime-link/rc',elf(1)),('ra2-no-host-module/kernel.config',b'CONFIG_PM=y\n'),('runtime-link/httpd',b'bad ELF'),('runtime-link/iot-iapp-policy-source.json',b'{}'),('ra2-no-host-module/target-result.json',b'{}'),('ra2-no-host-module/source-manifest.json',b'{}')]
  for field in api:
-  for value in (None,False,1,'true'):
+  for value in (None,False,1,'true',21.0,'21',20):
    wrong=dict(api)
    if value is None:wrong.pop(field)
    else:wrong[field]=value
    mutations.append(('ra2-no-host-module/source-manifest.json',json.dumps({'linux_open_api':wrong}).encode()))
+ for value in (False,21.0,'21',20):
+  wrong=dict(runtime);wrong['close_busy_request_opcode']=value
+  mutations.append(('runtime-link/iot-runtime-source.json',json.dumps(wrong).encode()))
  # Earlier packaging accepted empty lifecycle evidence. Exercise missing,
  # explicitly disabled and truthy-but-untyped bindings before any image stage.
  for n,m in [('runtime-link/iot-runtime-source.json',runtime),('runtime-link/iot-restart-entry-source.json',entry),('runtime-link/iot-edit-view-source.json',edit),('runtime-link/generation-selector-link.json',selector)]:
