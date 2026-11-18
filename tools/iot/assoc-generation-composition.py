@@ -117,7 +117,7 @@ def compose(changes, src, local):
     anchor = '\n\t\tif (Elem) \n\t\t{'
     s = one(s, anchor, anchor + '\n'
         ' if (!wr_assoc_event_current(pAd, Elem)) {\n'
-        '  Elem->Occupied = FALSE; Elem->MsgLen = 0; continue;\n }')
+        '  wr_assoc_retire_stale_elem(Elem); continue;\n }')
     anchor = 'Queue->Entry[Tail].Machine = Elem->Machine;'
     s = one(s, anchor, anchor + '\n'
         ' Queue->Entry[Tail].assoc_gen = Elem->assoc_gen;\n'

@@ -109,6 +109,14 @@ static inline void wr_assoc_publish(MLME_QUEUE_ELEM *elem,
  elem->assoc_wcid = stamp->wcid;
  COPY_MAC_ADDR(elem->assoc_addr, stamp->addr);
 }
+/* Caller owns a dequeued stale element. Publish FREE only after all writes
+ * to that old event are finished; a producer may immediately reuse the slot. */
+static inline void wr_assoc_retire_stale_elem(MLME_QUEUE_ELEM *elem)
+{
+ elem->MsgLen=0;
+ smp_wmb();
+ WRITE_ONCE(elem->Occupied,FALSE);
+}
 static inline int wr_assoc_event_current(RTMP_ADAPTER *ad, MLME_QUEUE_ELEM *elem)
 {
  struct wr_assoc_stamp observed;

@@ -1426,6 +1426,7 @@ jobs:
           python3 -B tools/iot/check-ra2-rekey-path.py \
             source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3 \
             --output abi-results/ra2-rekey-host.json
+          python3 -B tools/iot/check-assoc-stale-retirement.py > abi-results/assoc-stale-retirement.txt
           python3 -B tools/iot/check-assoc-generation.py \
             source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3 \
             --output abi-results/assoc-generation-host.json

@@ -381,6 +381,7 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   python3 tools/iot/prepare-driver-api.py "$merged" --install-isolated
   python3 -B tools/iot/check-ra2-arbitration-source.py "$pristine" --prepared-driver "$merged" \
     --output "$results/ra2-arbitration-source.json"
+  python3 -B tools/iot/check-assoc-stale-retirement.py > "$results/assoc-stale-retirement.txt"
   python3 -B tools/iot/check-hostapd-key-copy.py "$pristine"
   for fixture in check-ra2-mutation-wrappers check-ra2-mutation-admission \
     check-ra2-key-arbitration check-ra2-rekey-peer-scope check-ra2-periodic-peer-path; do

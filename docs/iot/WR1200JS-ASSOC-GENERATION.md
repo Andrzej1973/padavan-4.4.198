@@ -515,3 +515,20 @@ The combined source checker additionally records hashes read from the prepared
 files, separately from pristine-derived expected hashes. No driver behavior is
 changed by these reporting corrections. Evidence:
 WR1200JS-RA2-SUCCESSOR-REPORT-HASH-2026-11-18.json.
+
+## Stale-element retirement publication order — 2026-11-18
+
+The added stale-event rejection branch previously used the SDK cleanup order:
+Occupied=FALSE followed by MsgLen=0. A producer can reuse a free queue slot
+immediately, so this added branch must finish its writes before publishing FREE.
+It now calls wr_assoc_retire_stale_elem: clear MsgLen, smp_wmb, then WRITE_ONCE
+Occupied=FALSE, with no later access to the released element. This correction
+is confined to the new stale-event rejection path; existing queue state machines
+and native cleanup paths are unchanged.
+
+check-assoc-stale-retirement.py executes the actual helper with an immediate
+producer actor at FREE publication. The new event's metadata survives. A mutant
+that publishes FREE first is rejected. The native normal/EAP enqueue/generation
+suite also passes in both lock forms under ASan/UBSan. These are host ordering
+and ownership checks, not a MIPS memory-model proof or a physical race capture.
+Target compilation of this new helper is pending its exact revision's optional.
