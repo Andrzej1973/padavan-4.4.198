@@ -1,0 +1,20 @@
+{
+  "scope": "Linux mutation admission helper using actual receipt predicates and synthetic adapter boundary",
+  "source_sha256": {
+    "ra2-mutation-admission-kernel.h": "4b4f3df1dd7680cc6a11cc69c76a2dbc4217a498d17e3fa2a10dbd81ca6da704",
+    "check-ra2-mutation-admission.py": "430daa25a98c09782093ebae34d1987bfff140ca2342d03da7ffa6b4f599700d",
+    "ra2-mutation-binding.py": "250a9c2d42297a3314961f470b1f75f1bde9fe4d8bd380944ca4696c16e1b587"
+  },
+  "host_asan_ubsan_direct_and_os_abl": true,
+  "existing_control_users_preserved": true,
+  "owner_overflow_rolls_back_only_new_control_reference": true,
+  "closed_stale_receipt_active_writer_refused": true,
+  "foreign_ticket_preserves_both_adapter_references": true,
+  "native_wrapper_installed": false,
+  "insertion_key_writer_binding_complete": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "three_outer_wrappers_with_real_admission_host_executed": true,
+  "unified_source_composition_verified": true,
+  "native_bodies_executed": false
+}

@@ -345,3 +345,37 @@ this producer is not called by prepare-driver-api.py and its output must not be
 installed as a buildable driver. Next work is adapter initialization, consistent
 lock/lifetime admission and ra2 insertion/key-writer binding. The header and
 wrappers alone do not close the periodic peer gap.
+
+## Linux mutation admission helper prepared locally
+
+ra2-mutation-admission-kernel.h implements the wrapper admission/leave functions
+using the actual current OPEN-receipt predicate and transition lock. Exact
+queued receiver BSSID selects ra2. A validated ra2 mutation takes one existing
+control-user reference and one association arbiter ticket in the same locked
+admission span. Failure to allocate that ticket rolls back only the just-added
+control reference. Key-writer activity, closed receipts, malformed frames and
+exhaustion refuse before any native action. Main/Guest and other-chip paths
+return native pass-through. A foreign or inactive leave ticket poisons control
+admission and cannot decrement either adapter's unrelated reference.
+
+The host check uses the actual receipt/arbiter helpers and boundary adapter
+setup, in direct and OS_ABL modes. It does not execute full native mutation
+bodies. This helper remains uninstalled: adapter state initialization, native
+wrapper/header insertion, all ra2 insertion actors and both key-writer bindings
+must be composed and tested together before enabling it. Source/host evidence:
+WR1200JS-RA2-MUTATION-ADMISSION-HOST-2026-11-18.json. Target and runtime false.
+
+## Unified native mutation admission composition
+
+ra2-mutation-binding.py now composes the adapter owner field, exact native
+association/authentication outer wrappers and actual Linux admission headers
+as one pending source change set. Duplicate installation/source drift refuses.
+The native bodies remain untouched. This producer is still not called by
+prepare-driver-api.py: ra2 insertion and both key-writer actors must participate
+before the arbitration is enabled in a target candidate.
+
+check-ra2-mutation-admission.py now executes each exact generated wrapper with
+the actual receipt/control/arbiter admission, with early-return native boundary
+actors. Accepted execution releases both references; active rekey refuses
+before the native actor. Direct/OS_ABL checks pass. This verifies the combined
+wrapper/admission seam, not complete SDK body behavior or target compilation.
