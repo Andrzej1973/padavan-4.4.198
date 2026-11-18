@@ -11,6 +11,7 @@ args=parser.parse_args()
 checks=('check-initial-shutdown-headers.py','check-initial-off-header-staging.py','check-config-edit-pin.py','check-config-edit-lease.py','check-config-edit-route.py',
         'check-config-view-channel.py','check-config-view-endpoint.py','check-config-view-client.py',
         'check-config-view-runtime.py','check-http-view-json.py','check-classic-config-preparation.py',
+        'check-classic-config-romfs.py',
         'check-save-transport.py','check-config-save-server.py','check-save-route.py',
         'check-status-core.py','check-status-endpoint.py','check-rc-runtime.py',
         'check-rc-scheduler-composition.py','check-rc-view-scheduling.py','check-save-startup.py')

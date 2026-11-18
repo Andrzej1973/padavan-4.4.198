@@ -154,6 +154,11 @@ jobs:
             trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3_ap
       - name: Verify experimental physical-stop host contracts
         run: python3 tools/iot/check-physical-stop-suite.py
+      - name: Verify IoT configuration edit and private view contracts
+        run: |
+          python3 -B tools/iot/check-config-edit-suite.py \
+            --native-linux source/trunk/linux-4.4.x/drivers/nvram/nvram_linux.c \
+            --native-http source/trunk/user/httpd
       - name: Verify reviewed recovery predecessor normalization
         run: python3 tools/iot/check-reviewed-recovery-predecessor.py
       - name: Verify steering package dependency checker logic

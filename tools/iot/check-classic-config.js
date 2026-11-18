@@ -8,7 +8,8 @@ const ids = {};
 });
 const calls = [], timers = [];
 const window = {document: {getElementById: id => ids[id]}, jQuery: {ajax: call => calls.push(call)}, setTimeout: fn => timers.push(fn)};
-vm.runInNewContext(fs.readFileSync(__dirname + '/classic-config.js', 'utf8'), {window, Error});
+let now = 1000;
+vm.runInNewContext(fs.readFileSync(__dirname + '/classic-config.js', 'utf8'), {window, Error, Date: {now: () => now}});
 window.wrIotConfig.init();
 assert(ids['iot-save'].disabled && !ids['iot-refresh'].disabled);
 ids['iot-save'].onclick(); assert.strictEqual(calls.length, 0);
@@ -18,7 +19,7 @@ function load(configured = true) {
     token.success({token: 'a'.repeat(32)});
     const view = calls.shift(); assert.strictEqual(view.type, 'POST'); assert.strictEqual(view.url, '/wr_iot_view.cgi');
     view.success({revision: 'b'.repeat(32), configured, enabled: false, key_present: configured,
-        ssid: configured ? '<IoT>' : '', gateway: '192.168.50.1', mask: '255.255.255.0', first: '192.168.50.20', last: '192.168.50.200'});
+        ssid: configured ? '<IoT>' : '', gateway: configured ? '192.168.50.1' : '', mask: configured ? '255.255.255.0' : '', first: configured ? '192.168.50.20' : '', last: configured ? '192.168.50.200' : ''});
 }
 load(); assert.strictEqual(ids['iot-ssid'].value, '<IoT>');
 assert(ids['iot-password'].disabled && !ids['iot-save'].disabled);
@@ -43,4 +44,6 @@ calls.shift().success({id: 'd'.repeat(32), state: 'recovery_required'});
 assert.strictEqual(calls.length, 0);assert.strictEqual(timers.length, 0);assert(ids['iot-message'].textContent.includes('не повторюється'));
 load();ids['iot-refresh'].onclick();calls.shift().success({token: 'bad'});
 assert(ids['iot-save'].disabled && !ids['iot-refresh'].disabled);
+load();now += 110000;ids['iot-save'].onclick();assert.strictEqual(calls.length, 0);assert(ids['iot-save'].disabled);
+load();now--;ids['iot-ram'].onclick();assert.strictEqual(calls.length, 0);assert(ids['iot-ram'].disabled);
 console.log('PASS Classic config DOM: explicit reads, text/value rendering, KEEP/REPLACE, three endpoint modes, queue/result distinction, one-shot submit, no retry after uncertainty, secret field clearing; simulated network only');

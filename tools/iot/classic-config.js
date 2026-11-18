@@ -1,6 +1,6 @@
 (function (root) {
     'use strict';
-    var token = '', revision = '', busy = false, generation = 0;
+    var token = '', revision = '', busy = false, generation = 0, expires = 0, capturedAt = 0;
     function element(id) { return root.document.getElementById(id); }
     function message(text) { element('iot-message').textContent = text; }
     function lock(value) {
@@ -16,7 +16,7 @@
     }
     function refresh() {
         if (busy) { return; }
-        revision = ''; lock(true); message('Читання налаштувань…');
+        revision = ''; expires = 0; lock(true); message('Читання налаштувань…');
         root.jQuery.ajax({url: '/wr_iot_token.cgi', dataType: 'json', cache: false, timeout: 4000,
             success: function (reply) {
                 if (!reply || !/^[0-9a-f]{32}$/.test(reply.token)) { finish(); return; }
@@ -25,10 +25,13 @@
                     if (error || !view || !/^[0-9a-f]{32}$/.test(view.revision) ||
                         typeof view.configured !== 'boolean' || typeof view.enabled !== 'boolean' ||
                         typeof view.key_present !== 'boolean' || view.configured !== view.key_present ||
-                        ['ssid', 'gateway', 'mask', 'first', 'last'].some(function (key) { return typeof view[key] !== 'string'; })) {
+                        ['ssid', 'gateway', 'mask', 'first', 'last'].some(function (key) {
+                            return typeof view[key] !== 'string' || view[key].length > (key === 'ssid' ? 32 : 15);
+                        }) || (!view.configured && (view.enabled || ['ssid', 'gateway', 'mask', 'first', 'last'].some(function (key) { return view[key] !== ''; })))) {
                         finish(); return;
                     }
                     revision = view.revision;
+                    capturedAt = Date.now(); expires = capturedAt + 110000;
                     element('iot-enabled').checked = view.enabled;
                     ['ssid', 'gateway', 'mask', 'first', 'last'].forEach(function (key) { element('iot-' + key).value = view[key]; });
                     element('iot-action').value = view.key_present ? 'keep' : 'replace';
@@ -65,6 +68,9 @@
     }
     function submit(mode) {
         if (busy || !revision) { return; }
+        if (Date.now() < capturedAt || Date.now() >= expires) {
+            revision = ''; lock(false); message('Строк редагування минув. Прочитайте налаштування ще раз.'); return;
+        }
         var paths = {ram: '/wr_iot_edit_ram.cgi', auto: '/wr_iot_edit_auto.cgi', save: '/wr_iot_edit_save.cgi'};
         if (!paths[mode]) { return; }
         var data = {token: token, revision: revision, key_action: element('iot-action').value,
