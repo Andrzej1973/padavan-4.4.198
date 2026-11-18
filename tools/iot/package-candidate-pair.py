@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Describe one coherent experimental driver/userspace pair for image assembly."""
-import argparse,hashlib,json,re,struct
+import argparse,hashlib,json,re,struct,runpy
 from pathlib import Path
+selector_verify=runpy.run_path(str(Path(__file__).with_name('verify-generation-selector-link.py')))['verify']
 FILES={'sbin/rc':'runtime-link/rc','usr/sbin/httpd':'runtime-link/httpd',
        'usr/bin/iappd.sh':'runtime-link/iappd-candidate.sh',
        'driver:mt76x3_ap':'ra2-no-host-module/mt76x3_ap-ra2-no-host.ko'}
@@ -35,6 +36,11 @@ def build(root,revision):
   if closure['elf_files']['candidate:usr/sbin/'+role]['sha256']!=files['sbin/rc' if role=='rc' else 'usr/sbin/httpd']['sha256']:
    raise ValueError('Dependency report hash mismatch '+role)
  policy=report('runtime-link/iot-iapp-policy-source.json')
+ selector=report('runtime-link/generation-selector-link.json')
+ if any(selector.get(name) is not True for name in ('selector_link_provider_verified','selector_caller_relocation_verified','selector_object_strong_definition_verified')) or selector.get('rc_sha256')!=files['sbin/rc']['sha256'] or selector.get('runtime_verified') is not False or selector.get('production_installed') is not False:
+  raise ValueError('Strong generation selector link proof for this RC required')
+ if selector!=selector_verify(root/'runtime-link',root/'runtime-link/rc'):
+  raise ValueError('Selector link report differs from actual evidence/binary')
  if policy.get('board')!='WR1200JS' or not policy.get('iapp_compile_gate_enabled') or policy.get('production_ready') is not False:
   raise ValueError('Paired IAPP policy required')
  runtime=report('runtime-link/iot-runtime-source.json')
@@ -49,7 +55,7 @@ def build(root,revision):
   ('runtime',runtime,('normal_shutdown_controller_linked','normal_shutdown_dispatch_bound',
     'normal_shutdown_notification_bound','normal_shutdown_initial_active_arm_bound',
     'normal_shutdown_cold_active_arm_bound','normal_shutdown_cold_routed_handoff_bound',
-    'normal_shutdown_mailbox_active_arm_bound','configuration_ram_control_bound','configuration_snapshot_verified',
+    'normal_shutdown_mailbox_active_arm_bound','configuration_ram_control_bound','configuration_snapshot_verified','generation_selector_strong_binding_prepared',
     'initial_off_admission','off_reopen_admission')),
   ('restart',entry,('private_restart_hook_bound','initial_restart_hook_bound',
     'historical_radio_on_hook_bound','cold_radio_on_hook_bound','owned_radio_off_hook_bound'))):
@@ -61,7 +67,7 @@ def build(root,revision):
  if 'CONFIG_PM=y' in kernel:raise ValueError('Unverified PCI suspend binding: CONFIG_PM=y')
  inputs=['ra2-no-host-module/kernel.config','ra2-no-host-module/source-manifest.json',
          'runtime-link/iot-runtime-source.json','runtime-link/iot-restart-entry-source.json',
-         'runtime-link/iot-iapp-policy-source.json','runtime-link/iot-edit-view-source.json']
+         'runtime-link/iot-iapp-policy-source.json','runtime-link/iot-edit-view-source.json','runtime-link/generation-selector-link.json']
  return {'board':'WR1200JS','source_revision':revision,'files':files,
          'input_sha256':{n:hashlib.sha256(read(n)).hexdigest() for n in inputs},
          'module_romfs_destination_verified':False,'target_pair_hashes_verified':True,'lifecycle_manifest_contract_verified':True,'production_installed':False,

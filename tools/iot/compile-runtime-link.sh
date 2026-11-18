@@ -21,6 +21,7 @@ for stage in rc http control; do
   python3 "tools/iot/prepare-$stage.py" "$probe"
 done
 python3 tools/iot/prepare-runtime.py "$probe" --native-trunk "$trunk"
+printf '\nrc: override LDFLAGS += -Wl,-Map,%s,--cref\n' "$results/rc-link-map.txt" >> "$probe/trunk/user/rc/Makefile"
 python3 -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["configuration_snapshot_verified"] is True and r["configuration_ram_control_bound"] is True and r["configuration_flash_readback_verified"] is True' "$probe/iot-runtime-source.json"
 python3 tools/iot/prepare-iappd-policy-source.py "$probe"
 python3 tools/iot/check-iappd-policy-manifest.py "$probe"
@@ -40,11 +41,15 @@ iot-runtime-link:
 	$(MAKE) -C $(IOT_PROBE)/trunk/user/rc -j2 all
 	$(MAKE) -C $(IOT_PROBE)/trunk/user/httpd -j2 all
 MAKE
-make -f "$probe/Makefile" iot-runtime-link ROOTDIR="$trunk" LINUXDIR=linux-4.4.x \
+LC_ALL=C make -f "$probe/Makefile" iot-runtime-link ROOTDIR="$trunk" LINUXDIR=linux-4.4.x \
   PROJECT_CONFIG="$trunk/.config" LINUX_CONFIG="$trunk/linux-4.4.x/.config" \
   ARCH_CONFIG="$trunk/config.arch" IOT_PROBE="$probe" \
   CC="$compiler" STRIP="${cross}strip" AR="${cross}ar" \
   2>&1 | tee "$results/build.log"
+"${cross}nm" "$probe/trunk/user/rc/wr-iot-saved-config-store.o" > "$results/generation-selector-store-symbols.txt"
+"${cross}objdump" -dr "$probe/trunk/user/rc/ralink.o" > "$results/generation-selector-caller-relocations.txt"
+python3 -B tools/iot/verify-generation-selector-link.py "$results" \
+  --binary "$probe/trunk/user/rc/rc" --output "$results/generation-selector-link.json"
 "${cross}nm" "$probe/trunk/user/rc/wr-iot-rc-backend.o" > "$results/backend-symbols.txt"
 for entry in config-edit-server:wr_iot_rc_edit_backend_install config-edit-server:wr_iot_rc_edit_view config-edit-server:wr_iot_rc_edit_observed config-view-runtime:wr_iot_rc_view_runtime_install config-view-runtime:wr_iot_rc_view_runtime_close rc-runtime:wr_iot_rc_runtime_register_view control-server:wr_iot_rc_register_edit_backend; do
   unit="${entry%%:*}"

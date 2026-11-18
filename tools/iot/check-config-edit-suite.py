@@ -9,7 +9,7 @@ parser.add_argument('--native-linux',type=Path)
 parser.add_argument('--native-http',type=Path)
 parser.add_argument('--native-classic',type=Path)
 args=parser.parse_args()
-checks=('check-generation-saved-boot.py','check-initial-shutdown-headers.py','check-initial-off-header-staging.py','check-config-edit-pin.py','check-config-edit-lease.py','check-config-edit-route.py',
+checks=('check-generation-selector-link.py','check-runtime-edit-backend.py','check-generation-saved-boot.py','check-initial-shutdown-headers.py','check-initial-off-header-staging.py','check-config-edit-pin.py','check-config-edit-lease.py','check-config-edit-route.py',
         'check-config-view-channel.py','check-config-view-endpoint.py','check-config-view-client.py',
         'check-config-view-runtime.py','check-http-view-json.py','check-classic-config-preparation.py',
         'check-classic-config-romfs.py',

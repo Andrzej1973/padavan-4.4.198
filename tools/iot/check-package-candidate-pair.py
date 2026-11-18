@@ -15,11 +15,17 @@ with tempfile.TemporaryDirectory(prefix='wr-pair-check-') as d:
  for role in ('rc','httpd'):
   report('runtime-link/'+role+'-dependency-closure.json',{'dependency_closure_verified':True,'errors':[],'production_installed':False,'elf_files':{'candidate:usr/sbin/'+role:{'sha256':hashlib.sha256(elf(2)).hexdigest()}}})
  report('runtime-link/iot-iapp-policy-source.json',{'board':'WR1200JS','iapp_compile_gate_enabled':True,'production_ready':False})
+ symbol='wr_iot_generation_profile_request'
+ put('runtime-link/generation-selector-store-symbols.txt',('0000 T '+symbol+'\n').encode())
+ put('runtime-link/generation-selector-caller-relocations.txt',('0000 R_MIPS_CALL16 '+symbol+'\n').encode())
+ put('runtime-link/rc-link-map.txt',('Cross Reference Table\n\nSymbol File\n'+symbol+' wr-iot-saved-config-store.o\n    ralink.o\n').encode())
+ selector=module['selector_verify'](root/'runtime-link',root/'runtime-link/rc')
+ report('runtime-link/generation-selector-link.json',selector)
  report('ra2-no-host-module/source-manifest.json',{})
  runtime={'board':'WR1200JS','production_ready':False,'normal_shutdown_controller_linked':True,
   'normal_shutdown_dispatch_bound':True,'normal_shutdown_notification_bound':True,
   'normal_shutdown_initial_active_arm_bound':True,'normal_shutdown_cold_active_arm_bound':True,
-  'normal_shutdown_cold_routed_handoff_bound':True,'normal_shutdown_mailbox_active_arm_bound':True,'configuration_ram_control_bound':True,'configuration_snapshot_verified':True,'configuration_flash_bound':False,'configuration_loaded_promotion_bound':False,'initial_off_admission':True,'off_reopen_admission':True}
+  'normal_shutdown_cold_routed_handoff_bound':True,'normal_shutdown_mailbox_active_arm_bound':True,'configuration_ram_control_bound':True,'configuration_snapshot_verified':True,'generation_selector_strong_binding_prepared':True,'configuration_flash_bound':False,'configuration_loaded_promotion_bound':False,'initial_off_admission':True,'off_reopen_admission':True}
  entry={'board':'WR1200JS','production_ready':False,'private_restart_hook_bound':True,
   'initial_restart_hook_bound':True,'historical_radio_on_hook_bound':True,
   'cold_radio_on_hook_bound':True,'owned_radio_off_hook_bound':True}
@@ -34,7 +40,7 @@ with tempfile.TemporaryDirectory(prefix='wr-pair-check-') as d:
  mutations=[('runtime-link/rc',elf(1)),('ra2-no-host-module/kernel.config',b'CONFIG_PM=y\n'),('runtime-link/httpd',b'bad ELF'),('runtime-link/iot-iapp-policy-source.json',b'{}'),('ra2-no-host-module/target-result.json',b'{}')]
  # Earlier packaging accepted empty lifecycle evidence. Exercise missing,
  # explicitly disabled and truthy-but-untyped bindings before any image stage.
- for n,m in [('runtime-link/iot-runtime-source.json',runtime),('runtime-link/iot-restart-entry-source.json',entry),('runtime-link/iot-edit-view-source.json',edit)]:
+ for n,m in [('runtime-link/iot-runtime-source.json',runtime),('runtime-link/iot-restart-entry-source.json',entry),('runtime-link/iot-edit-view-source.json',edit),('runtime-link/generation-selector-link.json',selector)]:
   mutations.append((n,b'{}'))
   for field,value in m.items():
    broken=dict(m);broken.pop(field);mutations.append((n,json.dumps(broken).encode()))

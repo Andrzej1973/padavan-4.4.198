@@ -21,6 +21,10 @@ with tempfile.TemporaryDirectory(prefix='wr-stop-client-prepared-') as d:
 ''')
  (rc/'rc.h').write_text('const char *nvram_safe_get(const char *);\n')
  (rc/'Makefile').write_text('OBJS += wr-iot-control-mailbox.o wr-iot-control-server.o\n')
+ producer=ast.parse((here/'prepare-rc.py').read_text())
+ selector=next(ast.literal_eval(n.value) for n in producer.body if isinstance(n,ast.Assign)
+               and any(isinstance(t,ast.Name) and t.id=='include' for t in n.targets))
+ (rc/'ralink.c').write_text(selector)
  (http/'Makefile').write_text('OBJS += wr-iot-control-mailbox.o wr-iot-control-client.o\n')
  for header in ('driver-api-wire.h','radio-stop-fence.h','rc-shutdown-admission.h','service-guard.h','rc-backend.h','control-record.h','request.h','types.h','subnet.h','driver-api-client.h','driver-api-open-current-wire.h','driver-api-open-recovery-wire.h','driver-api-close-wire.h','driver-api-close-progress-wire.h','driver-api-close-release-wire.h','precreated-idle-wire.h'):
   (rc/'wr-iot'/header).write_bytes((here/header).read_bytes())
@@ -34,6 +38,8 @@ with tempfile.TemporaryDirectory(prefix='wr-stop-client-prepared-') as d:
   (rc/'wr-iot'/name).unlink()
  subprocess.run(['python3',str(here/'prepare-runtime.py'),str(root)],check=True)
  manifest=json.loads((root/'iot-runtime-source.json').read_text())
+ assert manifest['generation_selector_strong_binding_prepared'] is True
+ assert '__attribute__((weak)) int wr_iot_generation_profile_request' not in (rc/'ralink.c').read_text()
  init=(rc/'init.c').read_text();assert init.count('wr_iot_rc_boot_arm();')==1 and init.index('init_router();')<init.index('wr_iot_rc_boot_arm();')
  start=init.index('\tinit_router();');end=init.index('#endif',init.index('wr_iot_rc_boot_arm();',start))+len('#endif')
  startup=init[start:end]

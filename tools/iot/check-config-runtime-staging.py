@@ -30,6 +30,10 @@ with tempfile.TemporaryDirectory(prefix="wr-config-stage-") as directory:
             (parent / "shared-wifi").mkdir()
             (parent / "shared-wifi/validate.h").write_bytes((here.parent / "shared-wifi/validate.h").read_bytes())
         (rc / "rc.h").write_text("int nvram_getall(char *,int,int);\nint nvram_set(const char *,const char *);\nconst char *nvram_safe_get(const char *);\nint get_ap_mode(void);\nint get_enabled_radio_rt(void);\nint is_radio_on_rt(void);\nint get_mode_radio_rt(void);\n")
+        producer=ast.parse((here/'prepare-rc.py').read_text())
+        selector=next(ast.literal_eval(n.value) for n in producer.body if isinstance(n,ast.Assign)
+                      and any(isinstance(t,ast.Name) and t.id=='include' for t in n.targets))
+        (rc/'ralink.c').write_text(selector)
         if prepared:
             kernel = trunk / "linux-4.4.x"
             native = kernel / "drivers/nvram/nvram.c"

@@ -5,6 +5,10 @@ from pathlib import Path
 p=argparse.ArgumentParser();p.add_argument('source',type=Path);p.add_argument('output',type=Path);a=p.parse_args()
 local=Path(__file__).parent;rc=a.source/'trunk/user/rc';http=a.source/'trunk/user/httpd'
 report=json.loads((a.source/'iot-runtime-source.json').read_text())
+assert report['generation_selector_strong_binding_prepared'] is True
+ralink=(rc/'ralink.c').read_text()
+assert '__attribute__((weak)) int wr_iot_generation_profile_request' not in ralink
+assert ralink.count('#include "wr-iot/generation-profile.h"')==1
 assert report['radio_off_progress_bound'] and report['radio_off_profile_ram_progress_bound']
 assert report['radio_on_root_progress_bound'] and not report['radio_on_entry_bound']
 assert report['radio_on_followup_linked']
