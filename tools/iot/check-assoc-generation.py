@@ -209,11 +209,11 @@ int main(void){
 #ifdef OS_ABL_FUNC_SUPPORT
  ad.MacTabLock.pContent=NULL;assert(!wr_assoc_try_table_lock(&ad));
 #endif
- /* Replace the association at either reader barrier: no mixed stamp. */
+ /* Replace the association at each of the three reader barriers: no mixed stamp. */
  e=&ad.MacTab.Content[3];e->wcid=3;e->valid=1;COPY_MAC_ADDR(e->Addr,mac);
  ad.wr_assoc_generations[3]=1;e->assoc_gen=1;wr_assoc_publish_slot_locked(&ad,e);
  hook_adapter=&ad;
- for(hook_at=1;hook_at<=2;hook_at++){
+ for(hook_at=1;hook_at<=3;hook_at++){
   hook_count=0;read_hook=association_between_reads;
   stamp=wr_assoc_read_slot(&ad,3,mac);assert(!stamp.gen&&read_hook==NULL);
   stamp=wr_assoc_read_slot(&ad,3,mac);assert(stamp.gen==e->assoc_gen);
@@ -241,7 +241,7 @@ report = dict(host_native_enqueue_verified=True, composition_anchors_verified=Tr
     execution_lifetime_pin_verified=False, target_compiled=False, runtime_verified=False,
     prepared_driver_checked=a.prepared_driver is not None,
     native_one_shot_retry_enqueue_under_contention_verified=True,
-    publication_reader_barrier_interleavings_verified=True,
+    publication_reader_barrier_interleavings_verified=True, publication_reader_barriers_tested=3,
     output_sha256={name:hashlib.sha256(text.encode()).hexdigest() for name,text in texts.items()},
     input_sha256={name:hashlib.sha256((a.source/name).read_bytes()).hexdigest()
         for name in texts if (a.source/name).exists()})

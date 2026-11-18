@@ -11,6 +11,7 @@
   "prepared_driver_checked": false,
   "native_one_shot_retry_enqueue_under_contention_verified": true,
   "publication_reader_barrier_interleavings_verified": true,
+  "publication_reader_barriers_tested": 3,
   "output_sha256": {
     "include/rtmp.h": "46f346b38476e161fc8532aa2576685838efb4867aeba1154e46d44b5741cdea",
     "include/mlme.h": "9f741fbcdefdba7704bdf2d1c962fabb846de57c133a8ada128e1683e5956680",

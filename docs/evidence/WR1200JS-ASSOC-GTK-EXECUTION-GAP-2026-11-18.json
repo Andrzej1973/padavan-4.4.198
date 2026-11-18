@@ -1,0 +1,15 @@
+{
+  "native_group_request_body_sha256": "bd02be65e7aef1a9bfdda133ccbda3e7deb90e5c57e6c3e8e2bd0f6aeace6164",
+  "source_sha256": "4f28a6fae2799be00a24511992ad1feb745b6bf00df1fd460d53dd7396f644ac",
+  "actual_native_group_request_executed": true,
+  "reuse_after_dispatch_injected_by_host_actor": true,
+  "stale_hardware_key_write_refused": true,
+  "stale_software_gtk_mutation_witness": true,
+  "new_association_handshake_actor_called": true,
+  "execution_gap_closed": false,
+  "source_file_sha256": "f4a17a192bffdc567dba35b8eb022107655d99c90f6e82fcd6bbd8047858c638",
+  "composed_group_block_sha256": "bd02be65e7aef1a9bfdda133ccbda3e7deb90e5c57e6c3e8e2bd0f6aeace6164",
+  "crypto_timers_dma_hardware_modeled": false,
+  "target_compiled": false,
+  "runtime_verified": false
+}

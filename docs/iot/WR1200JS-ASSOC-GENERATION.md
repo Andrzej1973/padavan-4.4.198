@@ -121,6 +121,37 @@ need their own provenance; restamping cannot retrospectively identify them.
 Thus this change is not proof of complete safe OFF/reopen or original TxS
 packet ownership, and does not change those acceptance statuses to FIXED.
 
+## Native GTK request execution witness
+
+`tools/iot/check-assoc-gtk-execution-gap.py` executes the actual composed
+WpaEAPOLKeyAction AP group-key-request block, not a replacement implementation.
+A boundary actor forces same-MAC/WCID reassociation inside GenRandom, after the
+initial action check. The final generation check correctly prevents
+WPAInstallSharedKey. Nevertheless the actual earlier statements already change
+DefaultKeyId/GNonce/GTK, GTKState and retry state, and call WPAStart2WayGroupHS
+on the new association. This demonstrates why another point check immediately
+before hardware write does not prove an execution lease.
+
+The control actor without reassociation still executes the native key request
+and install. Crypto, timer and hardware operations are boundary actors; this
+is deterministic host evidence, not a reproduced router race. Evidence:
+`docs/evidence/WR1200JS-ASSOC-GTK-EXECUTION-GAP-2026-11-18.json`.
+
+The next driver binding must admit the exact ra2 association before its first
+software mutation, keep the existing CLOSE control-user fence for the complete
+operation, exclude the competing periodic rekey actor, and use the existing
+peer-table transaction/deletion admission rather than hold MacTabLock across
+native timer/send work. In-place reassociation must respect the same lifetime
+reservation. The admission/release must balance on native early returns and
+refusals. Main/Guest and non-ra2 paths retain native behavior.
+
+Do not wrap all WPA actions in a blanket deletion exclusion: the native
+WpaEAPOLTimeout calls MlmeDeAuthAction, and the EAPOL-Key MIC-failure branch
+can invoke countermeasures. A generic transaction would refuse their own
+necessary deletion. First bind and verify the bounded GTK-request operation;
+trace other actions separately. No such execution-lifetime binding is claimed
+implemented by the generation patch.
+
 ## Verification
 
 `tools/iot/check-assoc-generation.py` composes the exact pinned source, checks
@@ -132,7 +163,7 @@ or missing capture payload, stale snapshot publication, original stamp on
 requeue, unrelated events, whole table clear, counter exhaustion and wrong
 native lookup slot. The native WPARetryExec executes while MacTabLock is
 already held and still enqueues the valid event. Readers are interrupted at
-both read-barrier boundaries by an in-place reassociation and refuse the old
+all three read-barrier boundaries by an in-place reassociation and refuse the old
 snapshot. These deterministic host interleavings are not an LKMM/MIPS memory
 model proof or physical scheduling test. Composition rejects a second application.
 
