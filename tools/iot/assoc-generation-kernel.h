@@ -96,9 +96,14 @@ static inline struct wr_assoc_stamp wr_assoc_capture(RTMP_ADAPTER *ad,
  else if (len>=LENGTH_802_11) addr=((PHEADER_802_11)msg)->Addr2;
  if (!addr) return stamp;
  if (wcid!=RESERVED_WCID) return wr_assoc_read_slot(ad,wcid,addr);
+ /* MAC-only internal producers carry no BSS/WCID provenance. Never bind
+  * an ambiguous address to the first live slot from another BSS. Explicit
+  * receive WCID capture above remains exact and does not use this search. */
  for(i=1;i<MAX_LEN_OF_MAC_TABLE;i++) {
-  stamp=wr_assoc_read_slot(ad,i,addr);
-  if(stamp.gen) return stamp;
+  struct wr_assoc_stamp candidate=wr_assoc_read_slot(ad,i,addr);
+  if(!candidate.gen)continue;
+  if(stamp.gen){NdisZeroMemory(&stamp,sizeof(stamp));return stamp;}
+  stamp=candidate;
  }
  return stamp;
 }

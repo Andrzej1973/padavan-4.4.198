@@ -246,6 +246,23 @@ int main(void){
  }
  WRITE_ONCE(ad.wr_assoc_visible[3],0);
  stamp=wr_assoc_read_slot(&ad,3,mac);assert(stamp.gen==0);
+ /* Same MAC in two live slots cannot identify a MAC-only internal event. */
+ {
+  RTMP_ADAPTER duplicate={0};MAC_TABLE_ENTRY *first=&duplicate.MacTab.Content[1];
+  MAC_TABLE_ENTRY *second=&duplicate.MacTab.Content[2];
+  first->valid=second->valid=1;first->wcid=1;second->wcid=2;
+  first->assoc_gen=second->assoc_gen=1;
+  COPY_MAC_ADDR(first->Addr,mac);COPY_MAC_ADDR(second->Addr,mac);
+  wr_assoc_publish_slot_locked(&duplicate,first);wr_assoc_publish_slot_locked(&duplicate,second);
+  stamp=wr_assoc_capture(&duplicate,1,6,mac,RESERVED_WCID);assert(!stamp.gen);
+  assert(!MlmeEnqueue(&duplicate,1,2,6,mac,0)&&!duplicate.Mlme.Queue.Num);
+  assert(!EAPMlmeEnqueue(&duplicate,1,2,6,mac,0)&&!duplicate.Mlme.EAP_Queue.Num);
+  stamp=wr_assoc_capture(&duplicate,1,6,mac,1);assert(stamp.gen==1&&stamp.wcid==1);
+  stamp=wr_assoc_capture(&duplicate,1,6,mac,2);assert(stamp.gen==1&&stamp.wcid==2);
+  second->valid=0;WRITE_ONCE(duplicate.wr_assoc_visible[2],0);
+  stamp=wr_assoc_capture(&duplicate,1,6,mac,RESERVED_WCID);assert(stamp.gen==1&&stamp.wcid==1);
+  assert(MlmeEnqueue(&duplicate,1,2,6,mac,0));
+ }
  puts("native normal/EAP enqueues and generation guards: PASS");return 0;
 }
 '''
@@ -269,7 +286,7 @@ with tempfile.TemporaryDirectory(prefix='wr-assoc-gen-') as directory:
         subprocess.run([str(d/'test')],check=True)
 
 report = dict(host_native_enqueue_verified=True, composition_anchors_verified=True,
-    same_mac_wcid_reuse_rejected=True, counter_wrap_refused=True, kernel_current_macro_collision_regression_verified=True, renamed_native_insertion_stage_verified=True,
+    same_mac_wcid_reuse_rejected=True, ambiguous_mac_only_capture_refused=True, explicit_duplicate_mac_wcid_capture_verified=True, counter_wrap_refused=True, kernel_current_macro_collision_regression_verified=True, renamed_native_insertion_stage_verified=True,
     timer_enqueue_under_unrelated_table_contention_verified=True, os_abl_lock_unwrap_host_verified=True,
     execution_lifetime_pin_verified=False, target_compiled=False, runtime_verified=False,
     prepared_driver_checked=a.prepared_driver is not None,

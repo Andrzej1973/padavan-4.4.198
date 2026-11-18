@@ -532,3 +532,20 @@ that publishes FREE first is rejected. The native normal/EAP enqueue/generation
 suite also passes in both lock forms under ASan/UBSan. These are host ordering
 and ownership checks, not a MIPS memory-model proof or a physical race capture.
 Target compilation of this new helper is pending its exact revision's optional.
+
+## MAC-only producer ambiguity — 2026-11-18
+
+Internal six-byte-MAC WPA producers use RESERVED_WCID. Previously capture
+returned the first stable matching slot, which cannot distinguish equal MACs
+in separate BSS contexts. Capture now scans for one unique stable slot and
+refuses two matching live slots without enqueuing or changing a station. RX
+capture with an explicit WCID remains exact, including equal MACs in two slots.
+The native normal/EAP enqueue host fixture checks both ambiguous refusals, both
+explicit WCIDs and restoration of unique-MAC capture after the second entry is
+withdrawn. Direct/OS_ABL ASan/UBSan checks pass.
+
+This is fail-closed ambiguity handling, not recovery of provenance missing from
+the old MAC-only API. A delayed callback already stale before capture still
+needs its original association identity; scanning current entries cannot create
+that provenance. MAC-only retries are refused while the address is ambiguous;
+no reset, deauth, scan or fabricated replacement event is issued.
