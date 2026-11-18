@@ -224,3 +224,18 @@ peer; confirm newly stamped events still authenticate; ra2 OFF/reopen while
 Main/Guest associations remain stable. Race injection after the final check
 must remain a separate execution-lifetime test, not be reported as solved by
 a generation equality test. No router configuration was changed here.
+
+## Target compiler namespace regression — optional1399
+
+Optional1399 failed in the real MIPS module compiler: Linux's `current` macro
+expanded the scalar helper parameter named current. The original job shows
+both get_current/current definitions and the expansion at assoc-generation.h
+line11. The more recent adapter helper also used current as a local name.
+Both identifiers are renamed; kernel macros remain defined and unchanged.
+
+The host fixture now includes the exact two macro definitions from that target
+log, deliberately rejects a mutated old-name helper and compiles the corrected
+helpers and native callback fragments. A function-shaped current macro alone
+would not sufficiently reproduce the scalar parameter collision. This is a
+host regression check; successful target recompilation is still required.
+Evidence: docs/evidence/WR1200JS-OPTIONAL1399-CURRENT-MACRO-2026-11-18.json.

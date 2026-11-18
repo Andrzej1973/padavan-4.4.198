@@ -111,11 +111,11 @@ static inline void wr_assoc_publish(MLME_QUEUE_ELEM *elem,
 }
 static inline int wr_assoc_event_current(RTMP_ADAPTER *ad, MLME_QUEUE_ELEM *elem)
 {
- struct wr_assoc_stamp current;
+ struct wr_assoc_stamp observed;
  if (elem->Machine!=WPA_STATE_MACHINE) return 1;
- current=wr_assoc_read_slot(ad,elem->assoc_wcid,elem->assoc_addr);
- return wr_assoc_generation_matches(elem->assoc_gen,current.gen,
-  current.gen!=0,current.wcid==elem->assoc_wcid);
+ observed=wr_assoc_read_slot(ad,elem->assoc_wcid,elem->assoc_addr);
+ return wr_assoc_generation_matches(elem->assoc_gen,observed.gen,
+  observed.gen!=0,observed.wcid==elem->assoc_wcid);
 }
 /* Native action lookups must resolve to the stamped slot, not a same-MAC
  * peer in another BSS. Still a point-in-time validation, not a reference pin. */

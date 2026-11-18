@@ -8,8 +8,8 @@ static inline unsigned int wr_assoc_generation_next(unsigned int *counter)
  return ++*counter;
 }
 static inline int wr_assoc_generation_matches(unsigned int queued,
- unsigned int current, int valid, int same_mac)
+ unsigned int current_gen, int valid, int same_mac)
 {
- return valid && same_mac && queued != 0 && queued == current;
+ return valid && same_mac && queued != 0 && queued == current_gen;
 }
 #endif

@@ -76,6 +76,9 @@ prefix = r'''
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
+/* Linux current macro must stay defined while compiling the real helpers. */
+#define get_current() (current_thread_info()->task)
+#define current get_current()
 #define IN
 #define READ_ONCE(x) __atomic_load_n(&(x),__ATOMIC_RELAXED)
 #define WRITE_ONCE(x,v) __atomic_store_n(&(x),(v),__ATOMIC_RELAXED)
@@ -231,6 +234,13 @@ int main(void){
 '''
 with tempfile.TemporaryDirectory(prefix='wr-assoc-gen-') as directory:
     d = Path(directory)
+    # Reproduce the target's exact two macro definitions. A function-shaped
+    # current macro alone would miss the parameter collision under GNU C.
+    mutant=(here/'assoc-generation.h').read_text().replace('current_gen','current')
+    (d/'old-name.c').write_text('#define get_current() (current_thread_info()->task)\n'
+        '#define current get_current()\n'+mutant)
+    rejected=subprocess.run(['gcc','-std=gnu11','-Werror','-fsyntax-only',str(d/'old-name.c')],capture_output=True,text=True)
+    assert rejected.returncode and 'current' in rejected.stderr and 'error:' in rejected.stderr
     (d/'test.c').write_text(prefix+'\n'.join(functions)+retry_body+reset_body+main)
     for abi in (False, True):
         command = ['gcc','-std=gnu11','-O2','-Wall','-Wextra','-Werror',
@@ -242,7 +252,7 @@ with tempfile.TemporaryDirectory(prefix='wr-assoc-gen-') as directory:
         subprocess.run([str(d/'test')],check=True)
 
 report = dict(host_native_enqueue_verified=True, composition_anchors_verified=True,
-    same_mac_wcid_reuse_rejected=True, counter_wrap_refused=True,
+    same_mac_wcid_reuse_rejected=True, counter_wrap_refused=True, kernel_current_macro_collision_regression_verified=True,
     timer_enqueue_under_unrelated_table_contention_verified=True, os_abl_lock_unwrap_host_verified=True,
     execution_lifetime_pin_verified=False, target_compiled=False, runtime_verified=False,
     prepared_driver_checked=a.prepared_driver is not None,

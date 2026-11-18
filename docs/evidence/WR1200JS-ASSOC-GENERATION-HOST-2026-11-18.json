@@ -3,6 +3,7 @@
   "composition_anchors_verified": true,
   "same_mac_wcid_reuse_rejected": true,
   "counter_wrap_refused": true,
+  "kernel_current_macro_collision_regression_verified": true,
   "timer_enqueue_under_unrelated_table_contention_verified": true,
   "os_abl_lock_unwrap_host_verified": true,
   "execution_lifetime_pin_verified": false,
@@ -20,8 +21,8 @@
     "ap/ap_assoc.c": "597cb393944168315bdadac692ed784431ea202d212324157c2055c361d33606",
     "common/mlme.c": "c47ac1d2a0f3efe0fb07afbded7f01f4c7d31cbd3c47c499786569598fac001b",
     "common/cmm_wpa.c": "8243ad89df57377b76d9ff2e74d452ac0327ef62f68aa40e1bb5e4b17f1d4e0c",
-    "include/assoc-generation.h": "197e0273dcf42fa8c100cf9fa46a7c74705ace789f5e1b9cc963ac5147f496a5",
-    "include/assoc-generation-kernel.h": "7de37a1dcd190dd65159e267e85d346a3393f30c9531375ee596fc59739c33c7",
+    "include/assoc-generation.h": "83144035dffc9e7eecfa8b7c0fb793a894205dfba2cc7925c15ed1329ff1578a",
+    "include/assoc-generation-kernel.h": "2b50c1fa94130a7048c9226c600e22b70b977c3c124713b850dce607e0a77970",
     "ap/ap_wpa.c": "3d8a8e0f82e747399d861cbbd4417a0d26fbdc3da1ae7951b26c83d5e6350205",
     "include/ra2-gtk-request-kernel.h": "5e6f8c029f45d525d7c2c5c0f8e7a9a8936462b964820d71bd925d8400f9bd81",
     "include/ra2-rekey-admission.h": "0e34779ae7e782daaeb05d0ee8cb0f2c5cc5b88c6dac59d48cdc94b7d3841979"
