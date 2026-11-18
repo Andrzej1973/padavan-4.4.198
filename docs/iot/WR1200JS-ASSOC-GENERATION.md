@@ -239,3 +239,39 @@ helpers and native callback fragments. A function-shaped current macro alone
 would not sufficiently reproduce the scalar parameter collision. This is a
 host regression check; successful target recompilation is still required.
 Evidence: docs/evidence/WR1200JS-OPTIONAL1399-CURRENT-MACRO-2026-11-18.json.
+
+## GTK scope release fault-injection coverage
+
+The focused request fixture now corrupts four independently owned values after
+successful admission: association generation, per-WCID reservation, key-writer
+owner and peer-table transaction count. Actual leave helpers poison future
+control admission; foreign WCID/key reservations remain untouched, transaction
+underflow poisons the table, and repeated release of the now-inactive local
+scope does not decrement control users twice. An executed negative-control
+header with release poisoning removed must fail these assertions.
+
+These deterministic source/host tests exercise an invariant breach; they do
+not demonstrate that every external station mutator observes this lease.
+Evidence remains WR1200JS-RA2-GTK-REQUEST-HOST-2026-11-18.json. The production
+source is unchanged by this test addition; include it with the next coherent
+verification package rather than creating a duplicate firmware run now.
+
+## Next lifetime binding: periodic timer versus association prefix
+
+Fresh source audit confirms MlmeHandler sets bRunning under TaskLock and
+serializes AP_ASSOC_STATE_MACHINE with WPA_STATE_MACHINE. This serializes their
+normal queued actions, not the independent GREKEYPeriodicExec timer callback.
+The current timer wrapper owns control_users and the ra2 key-writer flag,
+without a peer-table transaction or per-entry reservation during its station
+loop. The native association path clears GTKState/PairwiseKey before calling
+APBuildAssociation and its later generation/reservation check. Consequently a
+late association-success check cannot by itself protect that earlier mutation
+from a concurrent timer. Do not equate the GTK-request scope with coverage of
+this periodic-timer path.
+
+Next implementation must reserve affected ra2 peers and exclude association
+mutation before its first key clear, with balanced release and no table lock
+across native timer/send work. A point check added only at SST_ASSOC is
+insufficient. Source hashes and required concurrency checks are recorded in
+WR1200JS-REKEY-PEER-LIFETIME-SOURCE-2026-11-18.json. This source audit is not a
+physical race reproduction or a completed periodic-peer lifetime fix.

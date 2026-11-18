@@ -158,6 +158,26 @@ int main(void){
  }
 #endif
 #if defined(MT7603) && defined(MT_MAC) && defined(RTMP_PCI_SUPPORT)
+ /* Release after unexpected identity/ownership drift must poison future
+  * control admission and must not clear a foreign association reservation. */
+ for(unsigned fault=0;fault<4;fault++){
+  struct wr_iot_ra2_gtk_request_scope scope;
+  setup(&ad,&event,2);
+  assert(wr_iot_ra2_gtk_request_enter(&ad,&event,&ad.MacTab.Content[1],&scope));
+  if(fault==0)ad.MacTab.Content[1].assoc_gen++;
+  if(fault==1)ad.wr_assoc_event_users[1]=2;
+  if(fault==2)ad.wr_iot_ra2_key_active=2;
+  if(fault==3)ad.wr_iot_peer_table_owner.transactions=0;
+  wr_iot_ra2_gtk_request_leave(&ad,&scope);
+  assert(!scope.active&&ad.wr_iot_control_poisoned&&!ad.wr_iot_control_users);
+  if(fault==0)assert(ad.wr_assoc_event_users[1]==1);
+  if(fault==1)assert(ad.wr_assoc_event_users[1]==2);
+  if(fault==2)assert(ad.wr_iot_ra2_key_active==2);
+  if(fault==3)assert(ad.wr_iot_peer_table_owner.poisoned);
+  /* Idempotent local cleanup must not underflow the control counter. */
+  wr_iot_ra2_gtk_request_leave(&ad,&scope);
+  assert(!ad.wr_iot_control_users);
+ }
  setup(&ad,&event,2);expect_scoped=1;force_early_return=1;
  wr_iot_ra2_group_request(&ad,&event,&ad.MacTab.Content[1]);
  assert(randoms==1&&!installs&&!ad.wr_iot_control_users&&!ad.wr_iot_ra2_key_active);
@@ -177,8 +197,23 @@ with tempfile.TemporaryDirectory(prefix='wr-ra2-gtk-scope-') as temp:
  for flags in ([],['-DMT7603','-DMT_MAC','-DRTMP_PCI_SUPPORT'],['-DMT7603','-DMT_MAC','-DRTMP_PCI_SUPPORT','-DOS_ABL_FUNC_SUPPORT=1']):
   subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-Wno-unused-function','-Wno-unused-parameter','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie',*flags,'-I'+str(here),str(d/'scope.c'),'-o',str(d/'scope')],check=True)
   subprocess.run([str(d/'scope')],check=True)
+ # Negative control: removing the release poison must make the executed
+ # fault assertions fail. Header lookup begins in this generated source dir.
+ header=(here/'ra2-gtk-request-kernel.h').read_text()
+ old='if(failed)ad->wr_iot_control_poisoned=1;'
+ assert header.count(old)==1
+ (d/'ra2-gtk-request-kernel.h').write_text(header.replace(old,'(void)failed;',1))
+ subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-Wno-unused-function',
+  '-Wno-unused-parameter','-O2','-DMT7603','-DMT_MAC','-DRTMP_PCI_SUPPORT',
+  '-I'+str(here),str(d/'scope.c'),'-o',str(d/'mutant')],check=True)
+ # Suppress core files from the expected assertion failure.
+ result=subprocess.run(['bash','-c','ulimit -c 0; exec "$1"','bash',str(d/'mutant')],
+  capture_output=True,text=True)
+ assert result.returncode!=0 and 'Assertion' in result.stderr,result.stderr
+ print('ra2 GTK release negative control: missing poison rejected')
 report={'candidate_source_sha256':hashlib.sha256(source.encode()).hexdigest(),'host_native_group_request_verified':True,
  'guarded_reassociation_and_native_delete_refused':True,'close_refused_during_request':True,
- 'competing_key_request_refused':True,'release_balanced':True,'main_guest_native_passthrough_host_checked':True,
+ 'competing_key_request_refused':True,'release_balanced':True,'release_identity_ownership_faults_poisoned':True,
+ 'foreign_reservations_preserved_on_release_fault':True,'missing_poison_mutation_rejected':True,'main_guest_native_passthrough_host_checked':True,
  'target_compiled':False,'runtime_verified':False,'all_wpa_actions_lifetime_verified':False}
 if a.output:a.output.write_text(json.dumps(report,indent=2)+'\n')
