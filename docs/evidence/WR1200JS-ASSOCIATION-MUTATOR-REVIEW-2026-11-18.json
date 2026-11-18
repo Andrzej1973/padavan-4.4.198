@@ -1,0 +1,42 @@
+{
+  "scope": "Focused vendor source follow-up; not exhaustive mutation or runtime acceptance",
+  "vendor_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "candidate_revision": "5301fd6b6232892e92f14770d0d5a532da5cc669",
+  "review": [
+    {
+      "source": "mgmt/mgmt_entrytb.c:217",
+      "function": "mgmt_tb_set_mcast_entry",
+      "finding": "SST_ASSOC assignment targets MCAST_WCID, not a unicast ra2 association; do not add station generation bump here."
+    },
+    {
+      "source": "ap/ap_apcli.c:624",
+      "finding": "SST_ASSOC follows MacTableInsertEntry or RTMPInsertRepeaterMacEntry; allocation generation is already assigned. APCLI full key lifetime remains outside ra2 AP scope."
+    },
+    {
+      "source": "ap/ap_cfg.c:HOSTAPD_OID_DEL_KEY",
+      "finding": "Direct ioctl MAC lookup and pairwise/shared key removal path exists. This is not queued MLME work and assoc_gen stamps alone do not cover it. Determine actual target feature reachability before claiming complete writer arbitration."
+    }
+  ],
+  "ci": {
+    "optional1406": {
+      "run": 44363536738,
+      "revision": "a59d9f1f3a03f4ab555205464f64254618dc06a1",
+      "result": "success",
+      "isolated_candidate_compile_step": "success",
+      "artifact_independently_inspected": false
+    },
+    "standard1407": "success",
+    "abi947": "success",
+    "optional1408": {
+      "run": 44368004374,
+      "state": "failure",
+      "job": 135028178655,
+      "monitor": 44370940726,
+      "cause": "Source checker expected pristine insertion fragment, omitting delete-execution predecessor wr_iot_peer_delete_active admission; original traceback confirms exact assertion.",
+      "correction": "Reconstruct exact predecessor fragment before arbitration source comparison; preserve runtime admission."
+    }
+  },
+  "runtime_verified": false,
+  "next_action": "Audit target HOSTAPD feature guards and direct key ioctl admission; await optional1408 exact candidate build.",
+  "hostapd_source_default": "HAS_HOSTAPD_SUPPORT=n in pinned os/linux/config.mk; actual final compiler flags still require verification"
+}

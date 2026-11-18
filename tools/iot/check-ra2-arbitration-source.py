@@ -10,7 +10,14 @@ base['common/cmm_wpa.c']=runpy.run_path(str(here/'ra2-gtk-request-composition.py
 base['ap/ap_wpa.c']=runpy.run_path(str(here/'ra2-rekey-composition.py'))['compose']((a.source/'ap/ap_wpa.c').read_text())
 for name in ('ra2-rekey-admission.h','ra2-gtk-request-kernel.h'):
  base['include/'+name]=(here/name).read_text()
-base['include/wr-iot-peer-normal-insert.inc']=(here/'peer-normal-insert.inc').read_text()
+# The delete-execution predecessor adds this admission before the Linux API
+# producer. Reproduce that exact reviewed transformation, not pristine input.
+insertion=(here/'peer-normal-insert.inc').read_text()
+anchor='entered=wr_iot_peer_close_executor_idle('
+assert insertion.count(anchor)==1
+insertion=insertion.replace(anchor,
+ 'entered=!pAd->wr_iot_peer_delete_active && wr_iot_peer_close_executor_idle(',1)
+base['include/wr-iot-peer-normal-insert.inc']=insertion
 compose=runpy.run_path(str(here/'ra2-mutation-binding.py'))['compose_all']
 expected=compose(base,a.source,here)
 assert expected['ap/ap_wpa.c'].count('wr_ra2_rekey_peers_enter(ad,&peers)')==1
