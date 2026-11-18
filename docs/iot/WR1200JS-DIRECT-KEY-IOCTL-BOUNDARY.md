@@ -66,3 +66,14 @@ length, partial-copy refusal and success pass for both commands. This is not a
 full HOSTAPD feature compilation or ioctl lifetime fix. Actual target feature
 flags, BSS/generation retention for successful writes and runtime remain open.
 The source snapshot now includes ap_cfg.c for independent review.
+
+## Lookup availability correction
+
+The vendor MacTableLookup2 definition and declaration are guarded by
+WH_EZ_SETUP. Optional1406 actual AP startup macro evidence has WH_EZ_SETUP
+disabled. This function must not be called unconditionally by the new ioctl
+code. Enabling Easy Setup solely to obtain a lookup is also inappropriate.
+A localized exact-BSS lookup using the existing hash/entry structures, under
+MacTabLock with explicit generation/lifetime reservation, is required unless
+the target-specific feature evidence establishes another suitable existing API.
+This corrects the earlier lookup suggestion; the ioctl lifetime gap stays open.
