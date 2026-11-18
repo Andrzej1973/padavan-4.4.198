@@ -113,3 +113,19 @@ with SDK boundary actors; it does not run HOSTAPD key I/O or firmware. Neither
 new helper is installed in production or the isolated producer yet. Next step
 is factoring trusted SET/DEL payload execution and binding this scope around
 all native exit paths without a second copy_from_user.
+
+## Prepared trusted-payload native execution factoring
+
+hostapd-key-execution-composition.py extracts the native SET/DEL mutation bodies
+into HOSTAPD-guarded functions taking an already copied payload, selected BSS
+and previously resolved entry. Neither helper copies user memory or performs a
+new MAC lookup. The SET branch's original captured apidx is passed unchanged;
+its now-unused local KeyIdx declaration is removed. All native mutation body
+bytes remain unchanged. The call-site copy rejection remains mandatory.
+check-hostapd-key-execution-composition.py reconstructs the exact input source
+from replacement receipts, verifies one copy for each payload and refuses
+missing copy guards or duplicate application. This is source transformation
+verification only: generated helpers have not been target-compiled or executed,
+are not installed by the producer, and still require scoped ioctl dispatch.
+Native group-delete payload semantics and bounds of successful key material
+must be resolved before activating the complete successful-request path.
