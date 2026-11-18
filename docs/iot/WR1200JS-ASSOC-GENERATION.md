@@ -478,3 +478,26 @@ client identity refuses conservatively. This completes the focused host callback
 composition check, not full optional-feature native mutator coverage, MIPS,
 image or device acceptance. Evidence:
 WR1200JS-RA2-PERIODIC-PEER-PATH-HOST-2026-11-18.json.
+
+## Isolated peer82 activation of complete arbitration package
+
+The source preparation above is now connected as one compose_all layer in
+prepare-driver-api.py after generation and GTK-request preparation and before
+manifest hashing/writes. Earlier unbound notes describe preparation history.
+This activates only the isolated peer82 driver source; it does not install a
+new router firmware or establish physical acceptance.
+
+ABI runs native-wrapper/admission, requested/periodic key arbitration, retained
+peer scope and full native periodic-callback host checks. Optional checks the
+exact final prepared fragments with check-ra2-arbitration-source.py, runs those
+same SDK boundary fixtures, preserves all predecessor checks, snapshots the new
+helpers and then invokes the existing MIPS module build. Predecessor execution
+fixtures remain explicit control-path checks; exact source validation covers
+the fully composed successor and separate fixtures execute its changed helpers.
+
+The adapter owner is zeroed by the verified fresh-adapter allocator and lives
+outside MacTab. No live reset reinitializes it. Source/host checks pass; new
+optional MIPS/image verification and separately authorized runtime remain
+required. Other direct optional-feature station mutations and the lifetime of
+all WPA/TxS/DMA/IRQ paths are not declared complete by this bounded package.
+Current delivery boundary: WR1200JS-RA2-ARBITRATION-STATUS.md.

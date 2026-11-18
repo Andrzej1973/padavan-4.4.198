@@ -47,7 +47,7 @@ int main(void){
  ad.MacTab.Content[1].assoc_gen++;
  assert(!wr_ra2_rekey_peers_leave(&ad,&scope));
  assert(ad.wr_assoc_event_users[1]==1&&ad.wr_iot_peer_table_owner.poisoned);
- puts("ra2 periodic peer retention: host PASS; full timer binding pending");return 0;
+ puts("ra2 periodic peer retention: helper host PASS; callback checked separately");return 0;
 }
 '''
 with tempfile.TemporaryDirectory(prefix='wr-ra2-rekey-peers-') as temp:

@@ -1,0 +1,26 @@
+{
+  "scope": "Complete arbitration source composition; execution fixtures run separately",
+  "expected_sha256": {
+    "include/rtmp.h": "73981815da9214359fc43f4d7de17897748f4db23a8da6c6212eb757abced78a",
+    "include/mlme.h": "9f741fbcdefdba7704bdf2d1c962fabb846de57c133a8ada128e1683e5956680",
+    "mgmt/mgmt_entrytb.c": "e3e34f3bf20e04a822460ba42ae16138587feed821b0bc2ab4a02b5cd70798fd",
+    "ap/ap_repeater.c": "5bf4f0cb49373af5de8b92314331ba8021c75e4a79e2e920d8715284df82a161",
+    "ap/ap_assoc.c": "5f15813bdeedeaff01ba7be92c78331e6f287e987f2482d890d11d10b54e5e63",
+    "common/mlme.c": "c47ac1d2a0f3efe0fb07afbded7f01f4c7d31cbd3c47c499786569598fac001b",
+    "common/cmm_wpa.c": "8243ad89df57377b76d9ff2e74d452ac0327ef62f68aa40e1bb5e4b17f1d4e0c",
+    "include/assoc-generation.h": "83144035dffc9e7eecfa8b7c0fb793a894205dfba2cc7925c15ed1329ff1578a",
+    "include/assoc-generation-kernel.h": "2b50c1fa94130a7048c9226c600e22b70b977c3c124713b850dce607e0a77970",
+    "ap/ap_wpa.c": "f80640b5c033ceedc2bf7ca538ab14d7bfa60ef766bc61e06aebace9d7e17a68",
+    "include/ra2-rekey-admission.h": "0e34779ae7e782daaeb05d0ee8cb0f2c5cc5b88c6dac59d48cdc94b7d3841979",
+    "include/ra2-gtk-request-kernel.h": "528e15a43d35d897e3cb8fd44313e7c583b51c4a32792f99921d1fc195bdeb4c",
+    "include/wr-iot-peer-normal-insert.inc": "e1de6311720055b46ec0913d7d8459eb659406b0b07057c1e57b0220d51d3d2c",
+    "ap/ap_auth.c": "5f4b991c83a302af2be4b4f0edb9bab5453e095ec57b2c776d3c0bc6a1d97b98",
+    "include/ra2-association-owner.h": "73c2642ace3bdc03cbe80fe27a62f7cfb9ca2313f3008eb7e4a6b888f661df1a",
+    "include/ra2-mutation-admission-kernel.h": "8ab0c451745fded4373293e29ef380d43382051d057f463d8b23976a8b487720",
+    "include/ra2-rekey-peer-scope.h": "ec9418c4a9c4e5c3a68e31606f9a7538769fc3aadb750ee948ada1174df49c97"
+  },
+  "prepared_source_verified": false,
+  "production_installed": false,
+  "target_compiled": false,
+  "runtime_verified": false
+}

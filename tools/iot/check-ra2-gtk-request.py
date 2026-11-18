@@ -10,7 +10,10 @@ compose=runpy.run_path(str(here/'ra2-gtk-request-composition.py'))['compose']
 source=compose(texts['common/cmm_wpa.c'])
 if a.prepared_driver:
  assert (a.prepared_driver/'common/cmm_wpa.c').read_text()==source
- assert (a.prepared_driver/'include/ra2-gtk-request-kernel.h').read_text()==(here/'ra2-gtk-request-kernel.h').read_text()
+ expected_header=(here/'ra2-gtk-request-kernel.h').read_text()
+ if (a.prepared_driver/'include/ra2-mutation-admission-kernel.h').exists():
+  expected_header=runpy.run_path(str(here/'ra2-key-arbitration-composition.py'))['request_header'](expected_header)
+ assert (a.prepared_driver/'include/ra2-gtk-request-kernel.h').read_text()==expected_header
 assert source.count('wr_iot_ra2_group_request(pAd,Elem,pEntry);')==1
 assert source.count('static VOID WpaEAPOLKeyAction(')==1
 assert 'static \n#ifdef' not in source

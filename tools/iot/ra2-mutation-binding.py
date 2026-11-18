@@ -1,7 +1,7 @@
 """Compose native ra2 mutation wrappers plus their Linux admission implementation.
 
-Preparation only: not called by the candidate installer until insertion and
-both key-writer bindings participate in the same arbitration protocol.
+Applied only by the isolated peer82 Linux API producer. Insertion and both
+key-writer bindings participate in one arbitration composition.
 """
 import runpy
 

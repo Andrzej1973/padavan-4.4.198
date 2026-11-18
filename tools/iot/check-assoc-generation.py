@@ -40,7 +40,10 @@ if a.prepared_driver:
     # Prior composition stages may modify the same SDK files. Compare our exact
     # affected bodies in CI; other predecessor modifications remain intact.
     for name in ('include/assoc-generation.h', 'include/assoc-generation-kernel.h', 'include/ra2-gtk-request-kernel.h'):
-        assert (a.prepared_driver / name).read_text() == texts[name]
+        expected_header=texts[name]
+        if name=='include/ra2-gtk-request-kernel.h' and (a.prepared_driver/'include/ra2-mutation-admission-kernel.h').exists():
+            expected_header=runpy.run_path(str(here/'ra2-key-arbitration-composition.py'))['request_header'](expected_header)
+        assert (a.prepared_driver / name).read_text() == expected_header
     for name in ('common/mlme.c', 'mgmt/mgmt_entrytb.c', 'ap/ap_assoc.c', 'ap/ap_repeater.c'):
         assert '#include "assoc-generation-kernel.h"' in (a.prepared_driver / name).read_text()
     for signature in ('BOOLEAN MlmeEnqueue(', 'BOOLEAN EAPMlmeEnqueue(', 'BOOLEAN MlmeEnqueueForRecv('):

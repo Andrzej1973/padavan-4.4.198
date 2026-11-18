@@ -114,7 +114,7 @@ int main(void){
  assert(other.wr_iot_control_users==1&&foreign.active);
  wr_ra2_mutation_leave(&other,&foreign);
  assert(!other.wr_iot_control_users);
- puts("ra2 Linux mutation admission: actual receipt/owner predicates PASS; not installed");return 0;
+ puts("ra2 Linux mutation admission: actual receipt/owner predicates host PASS; no target acceptance");return 0;
 }
 '''
 with tempfile.TemporaryDirectory(prefix='wr-ra2-mutation-admit-') as temp:

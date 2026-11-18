@@ -1,6 +1,6 @@
-"""Pending composition: both GTK writers share the ra2 association arbiter.
+"""Isolated candidate composition: both GTK writers share the ra2 arbiter.
 
-Not installed independently of native mutation and insertion bindings.
+Installed together with native mutation, insertion and periodic peer scopes.
 """
 
 

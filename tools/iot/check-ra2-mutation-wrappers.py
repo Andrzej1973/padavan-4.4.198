@@ -48,4 +48,4 @@ static void wr_ra2_mutation_leave(RTMP_ADAPTER *ad,struct wr_ra2_assoc_ticket *t
             for flags in ([],['-DMT7603','-DMT_MAC','-DRTMP_PCI_SUPPORT']):
                 subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-Wno-unused-function','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie',*flags,'-I'+str(here),str(d/'test.c'),'-o',str(d/'test')],check=True)
                 subprocess.run([str(d/'test')],check=True)
-print('Three native outer wrappers preserved and boundary returns balanced; Linux admission unbound')
+print('Three native outer wrappers preserved; boundary returns balanced; no full SDK body execution')

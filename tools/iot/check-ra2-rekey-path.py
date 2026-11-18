@@ -183,7 +183,11 @@ def check(root, prepared=None):
     compose = runpy.run_path(str(HERE / 'ra2-rekey-composition.py'))['compose']
     wrapped = compose(native)
     if prepared:
-        assert (prepared/'ap/ap_wpa.c').read_text() == compose(source)
+        prepared_expected=compose(source)
+        if (prepared/'include/ra2-mutation-admission-kernel.h').exists():
+            key=runpy.run_path(str(HERE/'ra2-key-arbitration-composition.py'))
+            prepared_expected=key['periodic_peer_scope'](key['periodic'](prepared_expected))
+        assert (prepared/'ap/ap_wpa.c').read_text() == prepared_expected
         assert (prepared/'include/ra2-rekey-admission.h').read_bytes() == (HERE/'ra2-rekey-admission.h').read_bytes()
     try:
         compose(wrapped)

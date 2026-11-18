@@ -379,6 +379,15 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   python3 tools/iot/check-close-bundle-assets.py
   python3 tools/iot/check-close-probe-codegen.py > "$results/close-probe-codegen.txt"
   python3 tools/iot/prepare-driver-api.py "$merged" --install-isolated
+  python3 -B tools/iot/check-ra2-arbitration-source.py "$pristine" --prepared-driver "$merged" \
+    --output "$results/ra2-arbitration-source.json"
+  for fixture in check-ra2-mutation-wrappers check-ra2-mutation-admission \
+    check-ra2-key-arbitration check-ra2-rekey-peer-scope check-ra2-periodic-peer-path; do
+    python3 -B "tools/iot/$fixture.py" "$pristine" > "$results/$fixture.txt"
+  done
+  gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -fno-pie -no-pie \
+    -Itools/iot tools/iot/check-ra2-association-owner.c -o "$results/check-ra2-association-owner"
+  "$results/check-ra2-association-owner" > "$results/ra2-association-owner.txt"
   python3 -B tools/iot/check-assoc-generation.py "$pristine" --prepared-driver "$merged" \
     --output "$results/assoc-generation-host.json"
   python3 -B tools/iot/check-assoc-gtk-execution-gap.py "$pristine" \

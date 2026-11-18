@@ -1441,6 +1441,20 @@ jobs:
             "abi-results/$fixture"
           done
 
+      - name: Check ra2 native mutation and GTK arbitration composition
+        shell: bash
+        run: |
+          set -euo pipefail
+          driver=source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3
+          python3 -B tools/iot/check-ra2-arbitration-source.py "$driver" --output abi-results/ra2-arbitration-source.json
+          for fixture in check-ra2-mutation-wrappers check-ra2-mutation-admission \
+            check-ra2-key-arbitration check-ra2-rekey-peer-scope check-ra2-periodic-peer-path; do
+            python3 -B "tools/iot/$fixture.py" "$driver" > "abi-results/$fixture.txt"
+          done
+          gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -fno-pie -no-pie \
+            -Itools/iot tools/iot/check-ra2-association-owner.c -o abi-results/check-ra2-association-owner
+          abi-results/check-ra2-association-owner > abi-results/ra2-association-owner.txt
+
       - name: Check IoT HTTP request boundary
         shell: bash
         run: |

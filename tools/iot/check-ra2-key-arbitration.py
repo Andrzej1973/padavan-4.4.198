@@ -60,4 +60,4 @@ with tempfile.TemporaryDirectory(prefix='wr-ra2-key-arb-') as temp:
   for flags in ([],['-DMT7603','-DMT_MAC','-DRTMP_PCI_SUPPORT']):
    subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-Wno-unused-function','-Wno-unused-parameter','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie',*flags,'-I'+str(here),str(d/(name+'.c')),'-o',str(d/name)],check=True)
    subprocess.run([str(d/name)],check=True)
-print('Both GTK writer paths share association arbitration: host PASS; integration pending')
+print('Both GTK writer paths share association arbitration: host PASS; target/runtime pending')
