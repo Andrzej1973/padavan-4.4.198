@@ -24,6 +24,18 @@ assert expected['ap/ap_wpa.c'].count('wr_ra2_rekey_peers_enter(ad,&peers)')==1
 assert expected['include/ra2-gtk-request-kernel.h'].count('&scope->key_ticket,1)')==1
 assert expected['include/wr-iot-peer-normal-insert.inc'].count('wr_ra2_mutation_enter_wdev(')==1
 assert expected['include/rtmp.h'].count('struct wr_ra2_assoc_owner wr_ra2_assoc_owner;')==1
+# Regression for optional1408: verify the full predecessor+arbiter fragment,
+# and prove neither omission of deletion admission nor a missing wrapper passes.
+def verify_insertion_fragment(actual):
+ name='include/wr-iot-peer-normal-insert.inc'
+ assert actual==expected[name],name
+fragment=expected['include/wr-iot-peer-normal-insert.inc']
+verify_insertion_fragment(fragment)
+for stale in (fragment.replace('!pAd->wr_iot_peer_delete_active && ',''),insertion):
+ assert stale!=fragment
+ try:verify_insertion_fragment(stale)
+ except AssertionError:pass
+ else:raise AssertionError('incomplete insertion admission accepted')
 try:compose(expected,a.source,here)
 except ValueError:pass
 else:raise AssertionError('duplicate binding accepted')
@@ -46,6 +58,7 @@ report={'scope':'Complete arbitration source composition; execution fixtures run
  'expected_sha256':{name:hashlib.sha256(text.encode()).hexdigest() for name,text in expected.items()},
  'prepared_file_sha256':{name:hashlib.sha256((a.prepared_driver/name).read_bytes()).hexdigest()
      for name in expected if (a.prepared_driver/name).is_file()} if a.prepared_driver else {},
+ 'insertion_predecessor_negative_controls':True,
  'prepared_source_verified':a.prepared_driver is not None,'production_installed':False,'target_compiled':False,'runtime_verified':False}
 if a.output:a.output.write_text(json.dumps(report,indent=2)+'\n')
 print('Combined arbitration source anchors and duplicate refusal: PASS')
