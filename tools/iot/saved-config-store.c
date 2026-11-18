@@ -210,17 +210,38 @@ int wr_iot_generation_profile_leave(const struct wr_iot_generation_config *pin)
 int wr_iot_generation_profile_request(struct wr_iot_precreated_profile_request *out)
 {
  const struct wr_iot_generation_config *pin=generation_view;
- struct wr_iot_saved_config config={0};
- struct wr_iot_precreated_profile_request candidate={0};int result=-1;
- if(!pin)return 0;
+ struct wr_iot_saved_config config={0},second={0};
+ struct wr_iot_precreated_profile_request candidate={0};int result=-1,token=0;
+ if(!pin){
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+  int present=0,again=0;
+  /* Initial generation has no admitted override yet. Read the same complete
+   * desired record used by RC, without writing legacy loaded-profile keys.
+   * A failed or changing snapshot must never become a legacy/factory fallback.
+   * Generated ra2 remains closed; activation still proves its loaded profile. */
+  if(!out)goto done;
+  token=wr_iot_service_guard_enter(1);if(token!=1)goto done;
+  if(!wr_iot_saved_config_capture(&config,&present)||
+     !wr_iot_saved_config_capture(&second,&again)||present!=again||
+     (present&&memcmp(&config,&second,sizeof(config))))goto done;
+  if(!present){result=0;goto done;}
+  goto selected;
+#else
+  return 0; /* Unprepared standard source preserves the weak legacy policy. */
+#endif
+ }
  if(!out||!wr_iot_generation_config_owned(pin)||
     !wr_iot_generation_config_current(pin,pin->id,pin->created))goto done;
  if(!pin->present){result=0;goto done;}
  if(!wr_iot_saved_config_decode(&config,pin->record,strlen(pin->record)))goto done;
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ selected:
+#endif
  candidate.requested_enabled=config.profile.enabled;candidate.provisioned=1;
  memcpy(candidate.ssid,config.profile.ssid,sizeof(candidate.ssid));
  memcpy(candidate.password,config.profile.password,sizeof(candidate.password));
  *out=candidate;result=1;
- done:wr_iot_saved_wipe(&config,sizeof(config));
+ done:if(token==1)wr_iot_service_guard_leave(token);
+ wr_iot_saved_wipe(&second,sizeof(second));wr_iot_saved_wipe(&config,sizeof(config));
  wr_iot_saved_wipe(&candidate,sizeof(candidate));return result;
 }

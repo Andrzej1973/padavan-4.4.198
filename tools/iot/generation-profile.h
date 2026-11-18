@@ -7,7 +7,8 @@ struct wr_iot_generation_config;
  * and keeps the pin at its stable address until leave. No nested binding. */
 int wr_iot_generation_profile_enter(const struct wr_iot_generation_config *);
 int wr_iot_generation_profile_leave(const struct wr_iot_generation_config *);
-/* 1 private admitted profile, 0 no override, -1 invalid retained context. */
+/* 1 admitted profile or coherent saved boot profile, 0 proven absence/legacy
+ * build, -1 invalid retained context or failed/changing native snapshot. */
 int wr_iot_generation_profile_request(struct wr_iot_precreated_profile_request *);
 static inline int wr_iot_generation_boot_request_read(
  struct wr_iot_precreated_profile_request *out,

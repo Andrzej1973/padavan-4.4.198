@@ -209,7 +209,7 @@ int main(void)
    read_error=1;assert(wr_iot_generation_profile_request(&selected)==-1);read_error=0;
    assert(!wr_iot_generation_profile_leave(&copied));
    assert(wr_iot_generation_profile_leave(&pin));
-   assert(wr_iot_generation_profile_request(&selected)==0);
+   assert(wr_iot_generation_profile_request(&selected)==1&&!strcmp(selected.ssid,config.profile.ssid));
    wr_iot_saved_wipe(&selected,sizeof(selected));
   }
   assert(!wr_iot_generation_config_capture(&pin,id,13,&captured));

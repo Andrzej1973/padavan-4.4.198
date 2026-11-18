@@ -63,7 +63,7 @@ int main(int argc,char **argv){
   }
   assert(wr_iot_on_generation_begin(&g,&a,&desired,1)&&a.busy);
   {struct wr_iot_precreated_profile_request unavailable={0};
-   assert(wr_iot_generation_profile_request(&unavailable)==0);}
+   assert(wr_iot_generation_profile_request(&unavailable)==(record_present?1:0));}
   assert(g.config_revision.present==record_present);
   copy=g;assert(!wr_iot_on_generation_step(&copy)&&!generator_calls);
   if(fault==3)strcpy(desired_record,"malformed");
@@ -97,7 +97,7 @@ int main(int argc,char **argv){
       !strcmp(g.provisioning.profile.ssid,"New desired IoT")&&g.provisioning.profile.password[0]);
    }
    {struct wr_iot_precreated_profile_request unavailable={0};
-    assert(wr_iot_generation_profile_request(&unavailable)==0);}
+    assert(wr_iot_generation_profile_request(&unavailable)==((fault==4||fault==5)?-1:record_present?1:0));}
   }
   record_error=0;
   /* Fixture teardown only. Production ownership stays retained until its

@@ -4,6 +4,11 @@ import argparse,hashlib,json,os,runpy,shutil,stat
 from pathlib import Path
 here=Path(__file__).resolve().parent
 pair_build=runpy.run_path(str(here/'package-candidate-pair.py'))['build']
+def file_sha256(path):
+ digest=hashlib.sha256()
+ with path.open('rb') as stream:
+  for block in iter(lambda:stream.read(1024*1024),b''):digest.update(block)
+ return digest.hexdigest()
 def snapshot(root):
  records={}
  for directory,dirs,files in os.walk(root,followlinks=False):
@@ -12,7 +17,7 @@ def snapshot(root):
    item={'mode':stat.S_IMODE(s.st_mode)}
    if stat.S_ISLNK(s.st_mode):item.update(type='link',target=os.readlink(p))
    elif stat.S_ISDIR(s.st_mode):item.update(type='directory')
-   elif stat.S_ISREG(s.st_mode):item.update(type='file',sha256=hashlib.file_digest(p.open('rb'),'sha256').hexdigest())
+   elif stat.S_ISREG(s.st_mode):item.update(type='file',sha256=file_sha256(p))
    else:raise ValueError('Unsupported ROMFS entry '+n)
    records[n]=item
  return records
