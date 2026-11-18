@@ -501,3 +501,17 @@ optional MIPS/image verification and separately authorized runtime remain
 required. Other direct optional-feature station mutations and the lifetime of
 all WPA/TxS/DMA/IRQ paths are not declared complete by this bounded package.
 Current delivery boundary: WR1200JS-RA2-ARBITRATION-STATUS.md.
+
+## Successor report hash correction
+
+The predecessor timer fixture's prepared-source assertion already accepted the
+exact new arbitration/peer-scope source, but its candidate_ap_wpa_sha256 still
+reported the predecessor composition. The report now hashes the actual checked
+successor expectation and separately names host_control_ap_wpa_sha256. It also
+states that this fixture executes the control callback while the separate
+periodic-peer fixture executes the successor. A composed-tree test checks the
+successor hash against actual file bytes and confirms that the two hashes differ.
+The combined source checker additionally records hashes read from the prepared
+files, separately from pristine-derived expected hashes. No driver behavior is
+changed by these reporting corrections. Evidence:
+WR1200JS-RA2-SUCCESSOR-REPORT-HASH-2026-11-18.json.

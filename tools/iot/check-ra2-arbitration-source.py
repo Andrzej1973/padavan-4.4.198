@@ -37,6 +37,8 @@ if a.prepared_driver:
  assert '#include "ra2-mutation-admission-kernel.h"' in (a.prepared_driver/'mgmt/mgmt_entrytb.c').read_text()
 report={'scope':'Complete arbitration source composition; execution fixtures run separately',
  'expected_sha256':{name:hashlib.sha256(text.encode()).hexdigest() for name,text in expected.items()},
+ 'prepared_file_sha256':{name:hashlib.sha256((a.prepared_driver/name).read_bytes()).hexdigest()
+     for name in expected if (a.prepared_driver/name).is_file()} if a.prepared_driver else {},
  'prepared_source_verified':a.prepared_driver is not None,'production_installed':False,'target_compiled':False,'runtime_verified':False}
 if a.output:a.output.write_text(json.dumps(report,indent=2)+'\n')
 print('Combined arbitration source anchors and duplicate refusal: PASS')

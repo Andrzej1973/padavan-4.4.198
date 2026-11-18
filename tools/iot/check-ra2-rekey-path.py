@@ -182,9 +182,11 @@ def check(root, prepared=None):
     native = source[start:source.index('\n}', start) + 2]
     compose = runpy.run_path(str(HERE / 'ra2-rekey-composition.py'))['compose']
     wrapped = compose(native)
+    prepared_expected=compose(source)
+    successor=False
     if prepared:
-        prepared_expected=compose(source)
         if (prepared/'include/ra2-mutation-admission-kernel.h').exists():
+            successor=True
             key=runpy.run_path(str(HERE/'ra2-key-arbitration-composition.py'))
             prepared_expected=key['periodic_peer_scope'](key['periodic'](prepared_expected))
         assert (prepared/'ap/ap_wpa.c').read_text() == prepared_expected
@@ -208,7 +210,10 @@ def check(root, prepared=None):
     return {'native_timer_sha256':hashlib.sha256(native.encode()).hexdigest(),
             'wrapped_timer_sha256':hashlib.sha256(wrapped.encode()).hexdigest(),
             'native_ap_wpa_sha256':hashlib.sha256(source.encode()).hexdigest(),
-            'candidate_ap_wpa_sha256':hashlib.sha256(compose(source).encode()).hexdigest(),
+            'candidate_ap_wpa_sha256':hashlib.sha256(prepared_expected.encode()).hexdigest(),
+            'host_control_ap_wpa_sha256':hashlib.sha256(compose(source).encode()).hexdigest(),
+            'prepared_successor_arbitration_verified':successor,
+            'host_execution_scope':'predecessor control callback; successor is exercised by check-ra2-periodic-peer-path.py',
             'prepared_driver_verified':bool(prepared),
             'host_contract_verified':True,'native_per_peer_branch_executed':True,
             'peer_reuse_in_nonce_boundary_actor_reaches_handshake':True,

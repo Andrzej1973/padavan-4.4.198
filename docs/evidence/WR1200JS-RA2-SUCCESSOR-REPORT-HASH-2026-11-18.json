@@ -1,0 +1,13 @@
+{
+  "scope": "Host verification-report integrity; no driver change",
+  "source_sha256": {
+    "check-ra2-rekey-path.py": "2aced2216babef68c766a554ad08e320e01ef190a374db0f3debfd56dbd0b621",
+    "check-ra2-arbitration-source.py": "412f53407301b7255a1c5018928c39434b308ba7f5318ef8a68c143e0409a4d9"
+  },
+  "successor_hash_equals_actual_checked_ap_wpa_bytes": true,
+  "successor_hash_distinct_from_predecessor_control": true,
+  "prepared_successor_arbitration_flag_verified": true,
+  "source_host_execution_distinguished": true,
+  "target_compiled": false,
+  "runtime_verified": false
+}
