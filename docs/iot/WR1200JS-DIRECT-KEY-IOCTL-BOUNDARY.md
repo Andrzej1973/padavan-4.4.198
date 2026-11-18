@@ -32,3 +32,23 @@ alone is insufficient. Do not hold table/transition spinlocks across user copy,
 crypto, timer cancellation or hardware writes. Do not globally change counted
 control admission: independent control actors and nested MCU sends depend on it.
 Queued EAPOL generation validation remains a separate implemented boundary.
+
+## Exact dispatch and cross-BSS identity follow-up
+
+`RTMP_AP_IoctlHandle` dispatches CMD_RT_PRIV_IOCTL to RTMPAPSetInformation only
+when `subcmd & OID_GET_SET_TOGGLE`; the latter switches on `cmd & 0x7FFF`.
+Any new classifier must preserve this masking and distinguish GET commands.
+Both HOSTAPD key cases currently call MacTableLookup with only the payload MAC.
+`mgmt/mgmt_entrytb.c:MacTableLookup` compares only Addr in the hash chain.
+Consequently an ioctl selected on Main/Guest cannot be assumed incapable of
+finding a ra2 station. A selector-only wrapper would leave this path unproven.
+The same SDK offers MacTableLookup2(ad,addr,wdev), with exact wdev comparison,
+but substituting a lookup alone does not pin the entry through native key I/O.
+
+Required implementation properties now identified: copy/validate the payload
+once before classification; use the same trusted payload for execution; bind
+both requested BSS and resolved peer; retain station generation and key-writer
+ownership until native completion; balance every early return. Existing native
+copy_from_user status/length handling must be reviewed during factoring. Do not
+introduce a second user copy as a supposedly immutable authorization snapshot.
+These are source-derived requirements, not an implemented ioctl correction.
