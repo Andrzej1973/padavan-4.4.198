@@ -141,3 +141,19 @@ suppression is limited to the inherited DEL comparison of an embedded address
 array to NULL, which cannot establish group-delete intent. Successful payload
 bounds, TKIP/MIC protocol semantics, complete feature compilation and physical
 key I/O remain unverified. No ioctl ownership binding is claimed by these tests.
+
+## Correction: host fixture BSS layout and dormant HOSTAPD code
+
+The original native-body host fixture supplied direct BSS DefaultKeyId and
+GroupKeyWepStatus fields for the legacy source references. Actual rtmp.h defines
+these in embedded wifi_dev, not BSS_STRUCT. Therefore the earlier host success
+proved body execution on that boundary model, not compatibility with the actual
+SDK BSS layout. It must not be cited as HOSTAPD feature compilation evidence.
+
+The corrected fixture validates those source declarations, omits the invented
+direct fields and requires the unchanged native helper compilation to fail on
+them. A separate uninstalled hostapd-key-layout-composition.py rewrites only the
+25 exact helper field references to wdev. The corrected helpers then compile
+and execute the AES/pair-delete cases under ASan/UBSan. Other HOSTAPD source
+branches have not been ported or target-built. This is a dormant optional-path
+compatibility preparation, not an IoT blocker resolution or enabled feature.

@@ -37,7 +37,8 @@ typedef unsigned long long UINT64;typedef unsigned int UINT;typedef int INT;
 #define SHAREDKEYTABLE 0
 '''+layouts+r'''
 typedef struct {CIPHER_KEY PairwiseKey;unsigned char PTK[64];unsigned int func_tb_idx,wcid,WepStatus;} MAC_TABLE_ENTRY;
-typedef struct {unsigned int DefaultKeyId,GroupKeyWepStatus;} BSS_STRUCT;
+struct wifi_dev {unsigned int DefaultKeyId,GroupKeyWepStatus;};
+typedef struct {struct wifi_dev wdev;} BSS_STRUCT;
 typedef struct {struct {BSS_STRUCT MBSSID[3];} ApCfg;CIPHER_KEY SharedKey[3][4];} RTMP_ADAPTER;
 static unsigned int writes;
 static void io(RTMP_ADAPTER *ad,...){(void)ad;writes++;}
@@ -61,19 +62,30 @@ int main(void){
  assert(!wr_iot_hostapd_set_key_native(&ad,2,&entry,key));
  assert(writes==2&&entry.PairwiseKey.KeyLen==16&&entry.PairwiseKey.CipherAlg==CIPHER_AES);
  assert(!memcmp(entry.PairwiseKey.Key,key.ik_keydata,16));
- writes=0;ad.ApCfg.MBSSID[2].GroupKeyWepStatus=Ndis802_11AESEnable;key.ik_keyix=1;
+ writes=0;ad.ApCfg.MBSSID[2].wdev.GroupKeyWepStatus=Ndis802_11AESEnable;key.ik_keyix=1;
  assert(!wr_iot_hostapd_set_key_native(&ad,2,NULL,key));
- assert(writes==2&&ad.ApCfg.MBSSID[2].DefaultKeyId==1);
+ assert(writes==2&&ad.ApCfg.MBSSID[2].wdev.DefaultKeyId==1);
  assert(!memcmp(ad.SharedKey[2][1].Key,key.ik_keydata,16));
  writes=0;assert(!wr_iot_hostapd_del_key_native(&ad,2,&entry,del));
  assert(writes==1&&!entry.PairwiseKey.KeyLen);
  writes=0;entry.wcid=0;assert(!wr_iot_hostapd_del_key_native(&ad,2,&entry,del)&&!writes);
- puts("Actual native key bodies/layouts: AES pair/group and pair delete host PASS; lifetime/MMIO/target unverified");return 0;
+ puts("Prepared wdev-layout correction: AES pair/group and pair delete host PASS; original helper layout rejected; full HOSTAPD/target unverified");return 0;
 }
 '''
 with tempfile.TemporaryDirectory(prefix='wr-hostapd-key-native-') as td:
  src=Path(td)/'check.c';exe=Path(td)/'check';src.write_text(prefix+helpers+main)
  # Native DEL tests an embedded address array against NULL. Preserve that
  # existing branch for this factoring test; protocol correction is separate.
- subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-Wno-address','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie',str(src),'-o',str(exe)],check=True)
+ command=['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-Wno-address','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie',str(src),'-o',str(exe)]
+ control=subprocess.run(command,capture_output=True,text=True)
+ assert control.returncode and 'DefaultKeyId' in control.stderr and 'GroupKeyWepStatus' in control.stderr
+ patched=runpy.run_path(str(here/'hostapd-key-layout-composition.py'))['compose'](helpers)
+ # Verify real source puts the security fields in wifi_dev, not BSS_STRUCT.
+ header=(a.source/'include/rtmp.h').read_text()
+ wifi=header[header.index('struct wifi_dev{'):header.index('struct wifi_dev{')+4000]
+ assert 'UCHAR DefaultKeyId;' in wifi and 'NDIS_802_11_WEP_STATUS GroupKeyWepStatus;' in wifi
+ bss=structure(header,'typedef struct _BSS_STRUCT {','} BSS_STRUCT;')
+ assert 'struct wifi_dev wdev;' in bss and 'DefaultKeyId;' not in bss and 'GroupKeyWepStatus;' not in bss
+ src.write_text(prefix+patched+main)
+ subprocess.run(command,check=True)
  subprocess.run([str(exe)],check=True)
