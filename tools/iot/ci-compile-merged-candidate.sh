@@ -486,6 +486,13 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
     --kernel "$kernel" --driver "$driver" --compiler "$compiler" \
     --manifest "$results/merged-source-manifest.json" \
     --output "$results/channel-target-config.json"
+  # Use each key writer's actual Kbuild command; config.mk defaults alone
+  # cannot establish whether optional ioctl/GTK mutation paths are compiled.
+  for key_unit in ap_cfg ap_wpa cmm_wpa; do
+    python3 tools/iot/check-task-config.py \
+      --kernel "$kernel" --driver "$driver" --compiler "$compiler" \
+      --unit "$key_unit" --output "$results/key-writer-$key_unit-config.json"
+  done
   python3 tools/iot/check-mlme-wsc-target-tu.py \
     --kernel "$kernel" --driver "$driver" --compiler "$compiler" \
     --output "$results/mlme-wsc-target-tu.json"
