@@ -1,0 +1,26 @@
+{
+  "scope": "Unbound adapter-local ra2 association/key arbitration helper",
+  "source_sha256": {
+    "ra2-association-owner.h": "73c2642ace3bdc03cbe80fe27a62f7cfb9ca2313f3008eb7e4a6b888f661df1a",
+    "check-ra2-association-owner.c": "4f9f62e18c1e51ea0e794b74bd869d87b1c928dde8739174bcaf9856723242e5"
+  },
+  "host_asan_ubsan_pass": true,
+  "association_then_key_exclusion": true,
+  "key_then_association_exclusion": true,
+  "independent_adapter_progress": true,
+  "serial_and_count_overflow_refused": true,
+  "native_bound": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "required_binding": [
+    "Initialize only fresh adapter",
+    "Use one consistent lock across all owner accesses",
+    "Bind assoc and reassoc before first native station/key mutation with balanced outer wrappers",
+    "Cover ra2 authentication reset and ra2 insertion before claiming complete key exclusion",
+    "Wrap both periodic and requested GTK operations",
+    "Keep MacTabLock out of native send/timer callbacks",
+    "Preserve Main/Guest fallback",
+    "Retain exact peer-generation and existing close-lifetime reservations"
+  ],
+  "ticket_contract": "Private noncopied stack tickets; this is not a replay-resistant external API"
+}

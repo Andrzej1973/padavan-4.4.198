@@ -292,3 +292,56 @@ concurrent deletion or on-device reproduction. Do not report the periodic-peer
 path verified from the fixture's existing host_contract_verified flag; its new
 periodic_peer_lifetime_verified field is explicitly false. Evidence:
 WR1200JS-RA2-PERIODIC-PEER-GAP-HOST-2026-11-18.json.
+
+## Periodic snapshot requires insertion exclusion too
+
+The actual peer-table owner permits multiple concurrent transactions, and
+peer-table-insertion-gate checks table_allows(0), which does not reject a
+nonzero transaction count. peer-normal-insert itself enters another transaction.
+An executed ASan/UBSan header check confirms both transactions are admitted
+while exclusive reset is refused. Therefore taking the existing transaction
+and reserving only current ra2 WCIDs cannot keep a periodic snapshot complete:
+a new ra2 peer can be published afterward and enter the native timer loop.
+
+A correct timer binding needs ra2 insertion and early association-mutation
+exclusion for its entire operation, in addition to exact peer reservations and
+existing CLOSE admission. Rejecting all global insertions would unnecessarily
+change Main/Guest semantics. The snapshot alone must not be marked a fix.
+Evidence: WR1200JS-REKEY-INSERTION-TRANSACTION-GAP-2026-11-18.json. No insertion
+body, concurrent target execution or hardware was run by this header witness.
+
+## Unbound ra2 association/key arbiter
+
+ra2-association-owner.h implements the local arbitration needed before binding
+periodic peer retention: association actors exclude a key writer, and the key
+writer excludes association actors. Access requires one caller-owned lock;
+tickets are private, noncopied stack objects. The helper performs no wait,
+allocation, reset or firmware command. Serial/count exhaustion refuses admission
+and changed writer ownership retains the writer and poisons future admission.
+The host fixture checks both operation orders and independent adapter progress.
+
+This helper is deliberately not included by prepare-driver-api.py yet and does
+not alter the running candidate. Completion requires balanced native wrappers
+before first key mutation, ra2 insertion/authentication reset coverage, periodic
+and requested GTK coverage, peer-generation retention and existing CLOSE
+lifetime admission. Main/Guest must bypass only after validated BSS selection.
+Host evidence: WR1200JS-RA2-ASSOCIATION-OWNER-HOST-2026-11-18.json. Native binding,
+MIPS and runtime verification are false; the periodic peer gap remains open.
+
+## Outer mutation-wrapper preparation (not installed)
+
+ra2-mutation-wrappers.py prepares outer wrappers for the common assoc/reassoc
+handler and both authentication handlers. Native function bodies remain
+byte-for-byte intact; reversible composition is checked against the pinned
+sources. The outer wrapper handles pass-through, refusal and admitted execution,
+so a return in the native body still reaches admission release. Feature-disabled
+code retains the direct native call.
+
+check-ra2-mutation-wrappers.py executes the exact generated wrappers with boundary
+actors for the untouched native bodies, for both compile-time feature modes.
+It does not execute the full authentication/association state machines. The
+required Linux wr_ra2_mutation_enter/leave functions are not yet implemented;
+this producer is not called by prepare-driver-api.py and its output must not be
+installed as a buildable driver. Next work is adapter initialization, consistent
+lock/lifetime admission and ra2 insertion/key-writer binding. The header and
+wrappers alone do not close the periodic peer gap.
