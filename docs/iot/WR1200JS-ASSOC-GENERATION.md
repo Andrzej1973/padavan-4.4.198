@@ -275,3 +275,20 @@ across native timer/send work. A point check added only at SST_ASSOC is
 insufficient. Source hashes and required concurrency checks are recorded in
 WR1200JS-REKEY-PEER-LIFETIME-SOURCE-2026-11-18.json. This source audit is not a
 physical race reproduction or a completed periodic-peer lifetime fix.
+
+## Executed periodic peer-loop coverage
+
+The existing rekey host fixture previously exercised countdown/key installation
+with zero stations; this did not cover its per-peer WPAStart2WayGroupHS branch.
+The fixture now runs the actual native callback with a secured ra2 station and
+an expired rekey interval. A control case handshakes with generation1. A second
+case replaces the station in the GenRandom boundary actor after admission and
+before the native loop; that loop mutates and handshakes with generation2.
+Both feature-enabled and feature-disabled builds execute this branch.
+
+This is an intentionally passing witness of a remaining gap, not a passing
+lifetime acceptance test. The replacement is a host actor, not a native
+concurrent deletion or on-device reproduction. Do not report the periodic-peer
+path verified from the fixture's existing host_contract_verified flag; its new
+periodic_peer_lifetime_verified field is explicitly false. Evidence:
+WR1200JS-RA2-PERIODIC-PEER-GAP-HOST-2026-11-18.json.

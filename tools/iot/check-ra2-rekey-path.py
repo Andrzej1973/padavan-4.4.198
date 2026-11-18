@@ -39,7 +39,7 @@ typedef int RALINK_TIMER_STRUCT,*PRALINK_TIMER_STRUCT;
 #define IS_MT7603(ad) ((ad)->mt)
 #define VIRTUAL_IF_NUM(ad) ((ad)->vendor_count)
 #define GET_GroupKey_WCID(ad,wcid,index) do{(void)(ad);(wcid)=100+(index);}while(0)
-typedef struct {int type,WpaState,GTKState,ReTryCounter;unsigned char func_tb_idx;} MAC_TABLE_ENTRY;
+typedef struct {int type,WpaState,GTKState,ReTryCounter;unsigned assoc_gen;unsigned char func_tb_idx;} MAC_TABLE_ENTRY;
 struct wifi_dev {unsigned AuthMode,DefaultKeyId,GroupKeyWepStatus;void *if_dev;unsigned char bssid[6];};
 typedef struct {
  int REKEYTimer;struct wifi_dev wdev;
@@ -59,12 +59,22 @@ typedef struct {
  struct {int active;} wr_iot_close_owner,wr_iot_closed_probe;
 } RTMP_ADAPTER,*PRTMP_ADAPTER;
 static unsigned locks,installs,derivations,handshakes,randoms;
-static int native_case;
+static int native_case,replace_peer_in_nonce;
+static unsigned handshake_generation;
 #define RTMP_IRQ_LOCK(lock,flags) do{(void)(lock);(void)(flags);assert(!locks);locks++;}while(0)
 #define RTMP_IRQ_UNLOCK(lock,flags) do{(void)(lock);(void)(flags);assert(locks==1);locks--;}while(0)
-static void GenRandom(RTMP_ADAPTER *ad,unsigned char *bssid,unsigned char *nonce){(void)ad;(void)bssid;assert(!locks);memset(nonce,1,32);randoms++;}
+static void GenRandom(RTMP_ADAPTER *ad,unsigned char *bssid,unsigned char *nonce){
+ (void)bssid;assert(!locks);memset(nonce,1,32);randoms++;
+ /* SDK boundary actor: emulate WCID reuse after timer admission and before
+  * its peer loop. This does not emulate a device or actual deletion code. */
+ if(replace_peer_in_nonce){
+  MAC_TABLE_ENTRY *entry=&ad->MacTab.Content[1];
+  memset(entry,0,sizeof(*entry));entry->type=1;entry->WpaState=AS_PTKINITDONE;
+  entry->func_tb_idx=2;entry->assoc_gen=2;
+ }
+}
 static void WpaDeriveGTK(unsigned char *gmk,unsigned char *nonce,unsigned char *bssid,unsigned char *gtk,unsigned length){(void)gmk;(void)nonce;(void)bssid;assert(!locks&&length==32);memset(gtk,2,length);derivations++;}
-static void WPAStart2WayGroupHS(RTMP_ADAPTER *ad,MAC_TABLE_ENTRY *entry){(void)ad;(void)entry;assert(!locks);handshakes++;}
+static void WPAStart2WayGroupHS(RTMP_ADAPTER *ad,MAC_TABLE_ENTRY *entry){(void)ad;assert(!locks);handshake_generation=entry->assoc_gen;handshakes++;}
 static void WPAInstallSharedKey(RTMP_ADAPTER *ad,unsigned cipher,unsigned bss,unsigned key,unsigned wcid,int ae,unsigned char *gtk,unsigned length){
  (void)cipher;(void)key;(void)gtk;assert(!locks&&bss<3&&wcid==100+bss&&ae==1&&length==32);installs++;
 #if defined(MT7603) && defined(MT_MAC) && defined(RTMP_PCI_SUPPORT)
@@ -84,7 +94,7 @@ CASES = r'''
 static int main_dev,iot_dev;
 static void reset(RTMP_ADAPTER *ad){
  memset(ad,0,sizeof(*ad));ad->mt=1;ad->vendor_count=2;ad->ApCfg.BssidNum=3;ad->net_dev=&main_dev;
- locks=installs=derivations=handshakes=randoms=0;
+ locks=installs=derivations=handshakes=randoms=0;replace_peer_in_nonce=0;handshake_generation=0;
  wr_iot_radio_transition_init(&ad->wr_iot_transition);ad->wr_iot_transition.phase=WR_RADIO_READY;ad->wr_iot_transition.main_ready=1;
  unsigned long sequence=0;
  struct wr_iot_interface_ref *main=wr_iot_registry_add_family(ad->wr_iot_interface_refs,WDEV_NUM_MAX+1,&sequence,&main_dev,WR_REF_FAMILY_MAIN);
@@ -134,6 +144,20 @@ int main(void){
  reset(&ad);ad.ApCfg.MBSSID[2].wdev.AuthMode=0;
  GREKEYPeriodicExec(NULL,&ad,NULL,&ad.ApCfg.MBSSID[2].REKEYTimer);
  assert(!installs&&!ad.wr_iot_control_users&&!locks);
+ /* Exercise the previously uncovered native per-peer handshake branch. */
+ for(unsigned reuse=0;reuse<2;reuse++){
+  reset(&ad);replace_peer_in_nonce=reuse;
+  BSS_STRUCT *b=&ad.ApCfg.MBSSID[2];
+  b->StaCount=1;b->REKEYCOUNTER=100;b->RekeyCountDown=0;b->wdev.DefaultKeyId=1;
+  MAC_TABLE_ENTRY *entry=&ad.MacTab.Content[1];
+  entry->type=1;entry->WpaState=AS_PTKINITDONE;entry->func_tb_idx=2;entry->assoc_gen=1;
+  GREKEYPeriodicExec(NULL,&ad,NULL,&b->REKEYTimer);
+  assert(randoms==1&&derivations==1&&handshakes==1&&!installs);
+  assert(handshake_generation==(reuse?2U:1U));
+  assert(entry->GTKState==REKEY_NEGOTIATING&&entry->ReTryCounter==GROUP_MSG1_RETRY_TIMER_CTR);
+  assert(b->wdev.DefaultKeyId==2&&b->RekeyCountDown==2);
+  assert(!ad.wr_iot_control_users&&!ad.wr_iot_ra2_key_active&&!locks);
+ }
  /* A refused tick retains countdown. A later admitted native tick progresses. */
  reset(&ad);ad.wr_iot_transition.busy=WR_RADIO_BSS_CLOSE;
  GREKEYPeriodicExec(NULL,&ad,NULL,&ad.ApCfg.MBSSID[2].REKEYTimer);
@@ -182,7 +206,9 @@ def check(root, prepared=None):
             'native_ap_wpa_sha256':hashlib.sha256(source.encode()).hexdigest(),
             'candidate_ap_wpa_sha256':hashlib.sha256(compose(source).encode()).hexdigest(),
             'prepared_driver_verified':bool(prepared),
-            'host_contract_verified':True,'target_verified':False,'runtime_verified':False}
+            'host_contract_verified':True,'native_per_peer_branch_executed':True,
+            'peer_reuse_in_nonce_boundary_actor_reaches_handshake':True,
+            'periodic_peer_lifetime_verified':False,'target_verified':False,'runtime_verified':False}
 
 
 if __name__ == '__main__':
