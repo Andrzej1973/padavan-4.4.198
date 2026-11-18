@@ -72,6 +72,7 @@ web = once(web, route,
            '\t{ "wr_iot_edit_ram.cgi", "application/json", no_cache_IE, wr_iot_http_apply_input, wr_iot_http_edit_ram_output, 1 },\n'
            '\t{ "wr_iot_edit_auto.cgi", "application/json", no_cache_IE, wr_iot_http_apply_input, wr_iot_http_edit_auto_output, 1 },\n'
            '\t{ "wr_iot_edit_save.cgi", "application/json", no_cache_IE, wr_iot_http_apply_input, wr_iot_http_edit_save_output, 1 },\n'
+           '\t{ "wr_iot_edit_runtime.cgi", "application/json", no_cache_IE, wr_iot_http_apply_input, wr_iot_http_edit_runtime_output, 1 },\n'
            '\t{ "wr_iot_apply.cgi", "application/json", no_cache_IE, wr_iot_http_apply_input, wr_iot_http_apply_output, 1 },\n'
            '\t{ "wr_iot_config.cgi", "application/json", no_cache_IE, wr_iot_http_apply_input, wr_iot_http_config_output, 1 },\n'
            '\t{ "wr_iot_save_auto.cgi", "application/json", no_cache_IE, wr_iot_http_apply_input, wr_iot_http_save_auto_output, 1 },\n'

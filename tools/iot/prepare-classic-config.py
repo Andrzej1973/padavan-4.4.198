@@ -15,10 +15,10 @@ def prepare(source):
         raise ValueError('Classic pending page differs; preserve existing work')
     metadata=json.loads((source/'iot-edit-view-source.json').read_text())
     if metadata.get('board')!='WR1200JS' or not all(metadata.get(key) is True for key in (
-            'edit_startup_attempt_prepared','view_startup_attempt_prepared','native_capabilities_verified','http_view_bound','http_edit_bound')):
+            'edit_startup_attempt_prepared','view_startup_attempt_prepared','native_capabilities_verified','http_view_bound','http_edit_bound','http_runtime_toggle_bound')):
         raise ValueError('Complete prepared IoT edit/view source required')
     http=(source/'trunk/user/httpd/web_ex.c').read_text()
-    for suffix in ('ram','auto','save'):
+    for suffix in ('ram','auto','save','runtime'):
         route='{ "wr_iot_edit_'+suffix+'.cgi", "application/json", no_cache_IE, wr_iot_http_apply_input, wr_iot_http_edit_'+suffix+'_output, 1 }'
         if http.count(route)!=1:raise ValueError('Missing authenticated edit route: '+suffix)
     text=original.decode()
@@ -28,7 +28,7 @@ def prepare(source):
     text=text.replace('show_footer(); }','show_footer(); wrIotConfig.init(); }',1)
     text=text.replace(anchor,(local/'classic-config-form.html').read_text(),1)
     pending={page:text.encode(),script:(local/'classic-config.js').read_bytes()}
-    report={'board':'WR1200JS','configuration_form_prepared':True,'activation_control':False,
+    report={'board':'WR1200JS','configuration_form_prepared':True,'activation_control':True,
             'target_verified':False,'runtime_verified':False,
             'files':{str(path.relative_to(source)):hashlib.sha256(data).hexdigest() for path,data in pending.items()}}
     for path,data in pending.items():path.write_bytes(data)

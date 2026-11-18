@@ -17,7 +17,7 @@ static inline int wr_iot_http_edit_request_read(struct wr_iot_config_edit_record
  unsigned int present=0,difference=0;size_t start,end,equal,index;int match,ok=0;
  if(!out||authenticated!=1||!method||strcmp(method,"POST")||!content_type||
     strcmp(content_type,"application/x-www-form-urlencoded")||!wr_iot_control_id(expected_token)||
-    !body||!length||length>WR_IOT_HTTP_FORM_MAX||mode<WR_IOT_EDIT_RAM||mode>WR_IOT_EDIT_EXPLICIT)goto done;
+    !body||!length||length>WR_IOT_HTTP_FORM_MAX||mode<WR_IOT_EDIT_RAM||mode>WR_IOT_EDIT_RUNTIME)goto done;
  for(start=0;start<length;start=end+1){
   for(end=start;end<length&&body[end]!='&';end++)if(!body[end])goto done;
   if(end==start)goto done;

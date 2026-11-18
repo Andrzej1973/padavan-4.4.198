@@ -27,6 +27,14 @@ int main(void)
   assert(wr_iot_config_edit_record_decode(&decoded,encoded,(size_t)length));
   assert(!strcmp(decoded.fields.profile.password,record.fields.profile.password));
  }
+ record.mode=WR_IOT_EDIT_RUNTIME;record.action=WR_IOT_CONFIG_KEY_KEEP;
+ memset(record.fields.profile.password,0,sizeof(record.fields.profile.password));
+ length=wr_iot_config_edit_record_encode(encoded,sizeof(encoded),&record);assert(length>0);
+ assert(wr_iot_control_decode(&legacy,encoded,(size_t)length)&&legacy.operation==WR_IOT_OPERATION_CONFIG_EDIT_RUNTIME);
+ record.action=WR_IOT_CONFIG_KEY_REPLACE;strcpy(record.fields.profile.password,"replacement-key");
+ assert(!wr_iot_config_edit_record_valid(&record));
+ record.mode=WR_IOT_EDIT_EXPLICIT;
+ length=wr_iot_config_edit_record_encode(encoded,sizeof(encoded),&record);assert(length>0);
  memset(&decoded,0x5a,sizeof(decoded));before=decoded;
  for(index=0;index<(size_t)length;index++){
   assert(!wr_iot_config_edit_record_decode(&decoded,encoded,index));

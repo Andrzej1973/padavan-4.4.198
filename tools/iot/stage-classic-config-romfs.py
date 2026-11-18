@@ -7,7 +7,7 @@ snapshot=runpy.run_path(str(here/'stage-candidate-romfs.py'))['snapshot']
 
 def stage(romfs,metadata):
     romfs=Path(romfs)
-    required=('edit_startup_attempt_prepared','view_startup_attempt_prepared','native_capabilities_verified','http_view_bound','http_edit_bound','http_bound')
+    required=('edit_startup_attempt_prepared','view_startup_attempt_prepared','native_capabilities_verified','http_view_bound','http_edit_bound','http_runtime_toggle_bound','http_bound')
     if metadata.get('board')!='WR1200JS' or any(metadata.get(key) is not True for key in required):
         raise ValueError('Complete edit/view source metadata required')
     before=snapshot(romfs)
@@ -47,7 +47,7 @@ def stage(romfs,metadata):
         if name not in payload and after[name]!=record:raise ValueError('Unrelated ROMFS entry changed: '+name)
         if name in payload and record['mode']!=after[name]['mode']:raise ValueError('Classic payload mode changed: '+name)
     if page in before and before[page]['mode']!=after[page]['mode']:raise ValueError('Classic page mode changed')
-    return {'board':'WR1200JS','classic_configuration_staged':True,'activation_control':False,
+    return {'board':'WR1200JS','classic_configuration_staged':True,'activation_control':True,
             'classic_navigation_staged':True,
             'sha256':{name:hashlib.sha256(data).hexdigest() for name,data in payload.items()},
             'unrelated_entries_preserved':len(before)-sum(name in before for name in payload),'runtime_verified':False,'trx_verified':False}

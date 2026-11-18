@@ -83,6 +83,7 @@ static void radio_off_continue(void)
 }
 static int runtime_observed(const struct wr_iot_control_result *result)
 {
+ if(result&&result->state==WR_IOT_RESULT_APPLIED&&wr_iot_rc_edit_observed(result))return 1;
  if(result&&(result->state==WR_IOT_RESULT_SAVED_FLASH||result->state==WR_IOT_RESULT_STORED_RAM)){
   if(wr_iot_rc_edit_observed(result))return 1;
   if(wr_iot_rc_save_observed(result))return 1;

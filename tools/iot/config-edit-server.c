@@ -3,6 +3,8 @@
 #include "config-edit-server.h"
 #include "config-edit-lease.h"
 #include "config-save-server.h"
+#include "config-runtime-request.h"
+#include "rc-backend.h"
 #include "service-guard.h"
 #include "rc-shutdown-admission.h"
 #include "native-flash-prepared.h"
@@ -58,7 +60,8 @@ static enum wr_iot_result_state execute(const struct wr_iot_control_request *req
  if(transaction.owner&&!transaction.complete)return WR_IOT_RESULT_RECOVERY;
  memset(&transaction,0,sizeof(transaction));transaction.owner=getpid();
  memcpy(transaction.id,request->id,sizeof(transaction.id));transaction.created=request->created;transaction.rejected=1;
- transaction.target=request->operation==WR_IOT_OPERATION_CONFIG_EDIT_RAM?WR_IOT_OPERATION_CONFIG:
+ transaction.target=request->operation==WR_IOT_OPERATION_CONFIG_EDIT_RUNTIME?WR_IOT_OPERATION_RUNTIME:
+  request->operation==WR_IOT_OPERATION_CONFIG_EDIT_RAM?WR_IOT_OPERATION_CONFIG:
   request->operation==WR_IOT_OPERATION_CONFIG_EDIT_AUTO?WR_IOT_OPERATION_CONFIG_SAVE_AUTO:WR_IOT_OPERATION_CONFIG_SAVE_EXPLICIT;
  if(wr_iot_rc_shutdown.active!=1||wr_iot_rc_shutdown.pending||
     wr_iot_rc_shutdown.radio_on_owned||wr_iot_rc_shutdown.radio_off_owned)goto done;
@@ -68,21 +71,27 @@ static enum wr_iot_result_state execute(const struct wr_iot_control_request *req
  if(!wr_iot_config_edit_lease_claim(&lease,request->edit.revision,now,&request->edit.fields,request->edit.action,&config))goto done;
  memcpy(converted.id,request->id,sizeof(converted.id));converted.created=request->created;
  converted.operation=transaction.target;converted.request=config.profile;
+ if(transaction.target==WR_IOT_OPERATION_RUNTIME&&
+    (!lease.pin.present||!wr_iot_config_runtime_request(&converted.request,&config,lease.pin.record)))goto done;
  transaction.attempted=1;transaction.rejected=0;
- result=transaction.target==WR_IOT_OPERATION_CONFIG?wr_iot_rc_config_execute(&converted):wr_iot_rc_save_execute(&converted);
+ result=transaction.target==WR_IOT_OPERATION_RUNTIME?wr_iot_activation_execute(&converted):
+  transaction.target==WR_IOT_OPERATION_CONFIG?wr_iot_rc_config_execute(&converted):wr_iot_rc_save_execute(&converted);
  done:if(token==1)wr_iot_service_guard_leave(token);
  wr_iot_saved_wipe(&config,sizeof(config));wr_iot_saved_wipe(&converted,sizeof(converted));return result;
 }
 static enum wr_iot_result_state progress(const char *id,unsigned long long created)
 {
  if(!identity(id,created)||!transaction.attempted||transaction.complete)return WR_IOT_RESULT_RECOVERY;
- return transaction.target==WR_IOT_OPERATION_CONFIG?wr_iot_rc_config_continue(id,created):wr_iot_rc_save_continue(id,created);
+ return transaction.target==WR_IOT_OPERATION_RUNTIME?wr_iot_activation_continue(id,created):
+  transaction.target==WR_IOT_OPERATION_CONFIG?wr_iot_rc_config_continue(id,created):wr_iot_rc_save_continue(id,created);
 }
 static int terminal(const struct wr_iot_control_result *result)
 {
  int ready;
  if(!result||!memchr(result->id,0,sizeof(result->id))||!identity(result->id,result->created))return 0;
  ready=transaction.rejected?result->state==WR_IOT_RESULT_REJECTED:
+  transaction.target==WR_IOT_OPERATION_RUNTIME?(result->state==WR_IOT_RESULT_REJECTED||
+   (result->state==WR_IOT_RESULT_APPLIED&&wr_iot_rc_backend_applied_route(result->id,result->created))):
   transaction.target==WR_IOT_OPERATION_CONFIG?wr_iot_rc_config_terminal_ready(result):wr_iot_rc_save_terminal_ready(result);
  if(!ready)return 0;
  if(transaction.owns_lease){
@@ -95,7 +104,8 @@ int wr_iot_rc_edit_observed(const struct wr_iot_control_result *result)
 {
  if(!result||!memchr(result->id,0,sizeof(result->id))||!identity(result->id,result->created)||
     !transaction.complete||transaction.rejected)return 0;
- return transaction.target==WR_IOT_OPERATION_CONFIG?wr_iot_rc_config_observed(result):wr_iot_rc_save_observed(result);
+ return transaction.target==WR_IOT_OPERATION_RUNTIME?wr_iot_rc_backend_observed(result):
+  transaction.target==WR_IOT_OPERATION_CONFIG?wr_iot_rc_config_observed(result):wr_iot_rc_save_observed(result);
 }
 int wr_iot_rc_edit_backend_install(void)
 {

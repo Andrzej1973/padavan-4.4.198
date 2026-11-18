@@ -16,7 +16,7 @@ static char directory[]="/tmp/iot-rc-runtime-XXXXXX";
 static int save_observations,save_verdict;
 static int edit_observations,edit_verdict;
 int wr_iot_rc_edit_observed(const struct wr_iot_control_result *r)
-{assert(r->state==WR_IOT_RESULT_STORED_RAM||r->state==WR_IOT_RESULT_SAVED_FLASH);edit_observations++;return edit_verdict;}
+{assert(r->state==WR_IOT_RESULT_STORED_RAM||r->state==WR_IOT_RESULT_SAVED_FLASH||r->state==WR_IOT_RESULT_APPLIED);edit_observations++;return edit_verdict;}
 int wr_iot_rc_save_observed(const struct wr_iot_control_result *r)
 {assert(r->state==WR_IOT_RESULT_STORED_RAM||r->state==WR_IOT_RESULT_SAVED_FLASH);save_observations++;return save_verdict;}
 
@@ -71,6 +71,8 @@ int main(void){
  assert(runtime_observed(&r)&&save_observations==2);r.state=WR_IOT_RESULT_STORED_RAM;
  assert(runtime_observed(&r)&&save_observations==3);save_verdict=0;
  edit_verdict=1;assert(runtime_observed(&r)&&save_observations==3&&edit_observations==4);edit_verdict=0;
+ r.state=WR_IOT_RESULT_APPLIED;edit_verdict=1;
+ assert(runtime_observed(&r)&&edit_observations==5&&save_observations==3);edit_verdict=0;
  }
  assert(mkdtemp(directory));sigset_t empty,blocked,old,check;
  sigemptyset(&empty);sigemptyset(&blocked);sigaddset(&blocked,SIGUSR1);

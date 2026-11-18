@@ -26,7 +26,7 @@ if args.native_http:
  subprocess.run([sys.executable,'-B',str(here/'check-http-view-preparation.py'),str(args.native_http.resolve())],check=True,timeout=20)
 with tempfile.TemporaryDirectory(prefix='wr-edit-suite-') as directory:
  root=Path(directory)
- for name in ('check-config-edit','check-config-view','check-config-edit-record','check-http-edit-request','check-http-handler'):
+ for name in ('check-config-runtime-request','check-config-edit','check-config-view','check-config-edit-record','check-http-edit-request','check-http-handler'):
   binary=root/name
   subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-O2',
    '-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(here),str(here/(name+'.c')),'-o',str(binary)],check=True)

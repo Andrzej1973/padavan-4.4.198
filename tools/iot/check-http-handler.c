@@ -165,8 +165,8 @@ int main(void){
  }
  {
   const char *edit="wr_iot_request_enable=0&wr_iot_request_ssid=IoT&wr_iot_request_psk=&wr_iot_request_gateway=192.168.50.1&wr_iot_request_mask=255.255.255.0&wr_iot_request_start=192.168.50.20&wr_iot_request_end=192.168.50.200&token=0123456789abcdef0123456789abcdef&revision=ffffffffffffffffffffffffffffffff&key_action=keep";
-  void (*handlers[])(const char *,FILE *)={wr_iot_http_edit_ram_output,wr_iot_http_edit_auto_output,wr_iot_http_edit_save_output};
-  for(int mode=0;mode<3;mode++){
+  void (*handlers[])(const char *,FILE *)={wr_iot_http_edit_ram_output,wr_iot_http_edit_auto_output,wr_iot_http_edit_save_output,wr_iot_http_edit_runtime_output};
+  for(int mode=0;mode<4;mode++){
    int before=edit_calls;submit_result=1;
    input(edit,(int)strlen(edit));handlers[mode]("",NULL);
    assert(edit_calls==before+1&&edit_mode==(enum wr_iot_config_edit_mode)mode&&strstr(reply,"accepted")&&!strstr(reply,"password")&&!strstr(reply,"revision"));
@@ -178,6 +178,6 @@ int main(void){
    assert(edit_calls==before+2&&strstr(reply,"unavailable_or_busy")&&!wr_iot_http_length&&!wr_iot_http_body[0]);
   }
  }
- puts("PASS IoT CGI: runtime/config/Save/view preserved, three guarded edit POST routes with endpoint-owned modes, one-shot body, CSRF and queue-only results; native/IPC actors");
+ puts("PASS IoT CGI: runtime/config/Save/view preserved, four guarded edit POST routes with endpoint-owned modes, one-shot body, CSRF and queue-only results; native/IPC actors");
  return 0;
 }

@@ -53,9 +53,9 @@ static enum wr_iot_result_state wr_iot_operation_outcome(enum wr_iot_operation o
  enum wr_iot_result_state outcome)
 {
  if(outcome==WR_IOT_RESULT_REJECTED||
-    (operation==WR_IOT_OPERATION_RUNTIME&&outcome==WR_IOT_RESULT_APPLIED)||
+    ((operation==WR_IOT_OPERATION_RUNTIME||operation==WR_IOT_OPERATION_CONFIG_EDIT_RUNTIME)&&outcome==WR_IOT_RESULT_APPLIED)||
     (operation==WR_IOT_OPERATION_CONFIG&&outcome==WR_IOT_RESULT_STORED_RAM)||
-    (wr_iot_operation_is_edit(operation)&&(outcome==WR_IOT_RESULT_STORED_RAM||
+    (wr_iot_operation_is_edit_config(operation)&&(outcome==WR_IOT_RESULT_STORED_RAM||
      (operation!=WR_IOT_OPERATION_CONFIG_EDIT_RAM&&outcome==WR_IOT_RESULT_SAVED_FLASH)))||
     (wr_iot_operation_is_save(operation)&&(outcome==WR_IOT_RESULT_STORED_RAM||outcome==WR_IOT_RESULT_SAVED_FLASH)))return outcome;
  return WR_IOT_RESULT_RECOVERY;

@@ -41,7 +41,7 @@ def build(root,revision):
  entry=report('runtime-link/iot-restart-entry-source.json')
  edit=report('runtime-link/iot-edit-view-source.json')
  if edit.get('board')!='WR1200JS' or any(edit.get(name) is not True for name in
-  ('edit_startup_attempt_prepared','view_startup_attempt_prepared','native_capabilities_verified','http_view_bound','http_edit_bound','http_bound')) or any(edit.get(name) is not False for name in ('target_verified','runtime_verified','production_ready')):
+  ('edit_startup_attempt_prepared','view_startup_attempt_prepared','native_capabilities_verified','http_view_bound','http_edit_bound','http_runtime_toggle_bound','http_bound')) or any(edit.get(name) is not False for name in ('target_verified','runtime_verified','production_ready')):
   raise ValueError('Complete prepared edit/view metadata with explicit acceptance gates required')
  if runtime.get('configuration_flash_bound') is not False or runtime.get('configuration_loaded_promotion_bound') is not False:
   raise ValueError('Current configuration candidate must retain flash/cold-promotion acceptance gates')

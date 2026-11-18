@@ -35,7 +35,7 @@ for name,handler_name in [('wr_iot_save_auto.cgi','wr_iot_http_save_auto_output'
     assert web.count(route)==1 and route_start<web.index(route)<route_end
 
 assert web[route_end:].startswith('\n#endif\n')
-for suffix in ('ram','auto','save'):
+for suffix in ('ram','auto','save','runtime'):
     entry='\t{ "wr_iot_edit_'+suffix+'.cgi", "application/json", no_cache_IE, wr_iot_http_apply_input, wr_iot_http_edit_'+suffix+'_output, 1 },'
     assert web.count(entry)==1 and route_start<web.index(entry)<route_end
 start=main.index('static int wr_iot_http_post,wr_iot_http_type_count;')

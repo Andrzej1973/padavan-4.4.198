@@ -26,7 +26,7 @@ with tempfile.TemporaryDirectory(prefix='wr-pair-check-') as d:
  report('runtime-link/iot-runtime-source.json',runtime)
  report('runtime-link/iot-restart-entry-source.json',entry)
  edit={'board':'WR1200JS','edit_startup_attempt_prepared':True,'view_startup_attempt_prepared':True,
-       'native_capabilities_verified':True,'http_view_bound':True,'http_edit_bound':True,'http_bound':True,
+       'native_capabilities_verified':True,'http_view_bound':True,'http_edit_bound':True,'http_runtime_toggle_bound':True,'http_bound':True,
        'target_verified':False,'runtime_verified':False,'production_ready':False}
  report('runtime-link/iot-edit-view-source.json',edit)
  put('ra2-no-host-module/kernel.config',b'# CONFIG_PM is not set\n')

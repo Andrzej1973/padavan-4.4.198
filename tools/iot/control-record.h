@@ -10,8 +10,11 @@ enum wr_iot_result_state {
 };
 enum wr_iot_operation {WR_IOT_OPERATION_RUNTIME=0,WR_IOT_OPERATION_CONFIG,
  WR_IOT_OPERATION_CONFIG_SAVE_AUTO,WR_IOT_OPERATION_CONFIG_SAVE_EXPLICIT,
- WR_IOT_OPERATION_CONFIG_EDIT_RAM,WR_IOT_OPERATION_CONFIG_EDIT_AUTO,WR_IOT_OPERATION_CONFIG_EDIT_EXPLICIT};
+ WR_IOT_OPERATION_CONFIG_EDIT_RAM,WR_IOT_OPERATION_CONFIG_EDIT_AUTO,WR_IOT_OPERATION_CONFIG_EDIT_EXPLICIT,
+ WR_IOT_OPERATION_CONFIG_EDIT_RUNTIME};
 static inline int wr_iot_operation_is_edit(enum wr_iot_operation operation)
+{return operation>=WR_IOT_OPERATION_CONFIG_EDIT_RAM&&operation<=WR_IOT_OPERATION_CONFIG_EDIT_RUNTIME;}
+static inline int wr_iot_operation_is_edit_config(enum wr_iot_operation operation)
 {return operation>=WR_IOT_OPERATION_CONFIG_EDIT_RAM&&operation<=WR_IOT_OPERATION_CONFIG_EDIT_EXPLICIT;}
 static inline int wr_iot_operation_is_save(enum wr_iot_operation operation)
 {return operation==WR_IOT_OPERATION_CONFIG_SAVE_AUTO||operation==WR_IOT_OPERATION_CONFIG_SAVE_EXPLICIT;}

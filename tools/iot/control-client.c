@@ -55,7 +55,7 @@ int wr_iot_rc_submit_edit(const struct wr_iot_saved_config *fields,const char *r
  enum wr_iot_config_edit_mode mode,enum wr_iot_config_key_action action,char id[33])
 {
  struct wr_iot_control_request record={0};
- if(!fields||!id||!wr_iot_control_id(revision)||mode<WR_IOT_EDIT_RAM||mode>WR_IOT_EDIT_EXPLICIT)return 0;
+ if(!fields||!id||!wr_iot_control_id(revision)||mode<WR_IOT_EDIT_RAM||mode>WR_IOT_EDIT_RUNTIME)return 0;
  record.operation=WR_IOT_OPERATION_CONFIG_EDIT_RAM+mode;
  record.edit.fields=*fields;memcpy(record.edit.revision,revision,33);
  record.edit.mode=mode;record.edit.action=action;

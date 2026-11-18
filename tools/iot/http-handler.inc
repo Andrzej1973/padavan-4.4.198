@@ -184,3 +184,5 @@ static void wr_iot_http_edit_auto_output(const char *url,FILE *stream)
 {(void)url;wr_iot_http_edit_output_mode(stream,WR_IOT_EDIT_AUTO);}
 static void wr_iot_http_edit_save_output(const char *url,FILE *stream)
 {(void)url;wr_iot_http_edit_output_mode(stream,WR_IOT_EDIT_EXPLICIT);}
+static void wr_iot_http_edit_runtime_output(const char *url,FILE *stream)
+{(void)url;wr_iot_http_edit_output_mode(stream,WR_IOT_EDIT_RUNTIME);}

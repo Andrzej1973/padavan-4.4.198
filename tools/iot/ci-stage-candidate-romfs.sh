@@ -90,7 +90,7 @@ from pathlib import Path
 root,romfs=map(Path,sys.argv[1:])
 classic=json.loads((root/'isolated-classic-config.json').read_text())
 content=json.loads((root/'isolated-trx-content.json').read_text())
-if not content.get('isolated_trx_contents_verified') or not classic.get('classic_configuration_staged') or classic.get('classic_navigation_staged') is not True:
+if not content.get('isolated_trx_contents_verified') or not classic.get('classic_configuration_staged') or classic.get('classic_navigation_staged') is not True or classic.get('activation_control') is not True:
  raise SystemExit('Classic candidate TRX verification missing')
 if set(classic['sha256'])!={'www/Advanced_IoT_Content.asp','www/classic-iot-config.js','www/state.js','www/classic-iot-navigation.js'}:
  raise SystemExit('Classic configuration/navigation payload incomplete')

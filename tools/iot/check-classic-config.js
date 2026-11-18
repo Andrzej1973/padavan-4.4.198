@@ -3,7 +3,7 @@ const assert = require('assert');
 const fs = require('fs');
 const vm = require('vm');
 const ids = {};
-['message','refresh','ram','auto','save','enabled','ssid','gateway','mask','first','last','action','password'].forEach(name => {
+['on','off','message','refresh','ram','auto','save','enabled','ssid','gateway','mask','first','last','action','password'].forEach(name => {
     ids['iot-' + name] = {value: name === 'action' ? 'keep' : '', checked: false, disabled: false, textContent: ''};
 });
 const calls = [], timers = [];
@@ -46,4 +46,14 @@ load();ids['iot-refresh'].onclick();calls.shift().success({token: 'bad'});
 assert(ids['iot-save'].disabled && !ids['iot-refresh'].disabled);
 load();now += 110000;ids['iot-save'].onclick();assert.strictEqual(calls.length, 0);assert(ids['iot-save'].disabled);
 load();now--;ids['iot-ram'].onclick();assert.strictEqual(calls.length, 0);assert(ids['iot-ram'].disabled);
+load();ids['iot-ssid'].value='Unsaved draft';ids['iot-action'].value='replace';ids['iot-password'].value='draft-password';
+ids['iot-on'].onclick();const on=calls.shift();assert.strictEqual(on.url,'/wr_iot_edit_runtime.cgi');
+assert.strictEqual(on.data.wr_iot_request_enable,'1');assert.strictEqual(on.data.wr_iot_request_ssid,'<IoT>');
+assert.strictEqual(on.data.key_action,'keep');assert.strictEqual(on.data.wr_iot_request_psk,'');
+on.success({accepted:true,id:'e'.repeat(32)});calls.shift().success({id:'e'.repeat(32),state:'applied'});
+assert(ids['iot-on'].disabled && ids['iot-message'].textContent.includes('виконано'));
+load();ids['iot-off'].onclick();const off=calls.shift();assert.strictEqual(off.data.wr_iot_request_enable,'0');
+off.success({accepted:true,id:'f'.repeat(32)});calls.shift().success({id:'f'.repeat(32),state:'stored_in_ram'});
+assert(ids['iot-message'].textContent.includes('не повторюється'));
+load(false);assert(ids['iot-on'].disabled&&ids['iot-off'].disabled);
 console.log('PASS Classic config DOM: explicit reads, text/value rendering, KEEP/REPLACE, three endpoint modes, queue/result distinction, one-shot submit, no retry after uncertainty, secret field clearing; simulated network only');

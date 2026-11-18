@@ -5,7 +5,7 @@ import runpy
 import tempfile
 here=Path(__file__).resolve().parent
 module=runpy.run_path(str(here/'stage-classic-config-romfs.py'));stage=module['stage'];snapshot=module['snapshot']
-metadata={'board':'WR1200JS',**{key:True for key in ('edit_startup_attempt_prepared','view_startup_attempt_prepared','native_capabilities_verified','http_view_bound','http_edit_bound','http_bound')}}
+metadata={'board':'WR1200JS',**{key:True for key in ('edit_startup_attempt_prepared','view_startup_attempt_prepared','native_capabilities_verified','http_view_bound','http_edit_bound','http_runtime_toggle_bound','http_bound')}}
 # ABI runs on Ubuntu22/Python3.10, which has no file_digest. Exercise that
 # environment even when the local interpreter provides the newer helper.
 if hasattr(hashlib,'file_digest'):delattr(hashlib,'file_digest')
@@ -35,7 +35,7 @@ with tempfile.TemporaryDirectory(prefix='wr-classic-romfs-') as directory:
     assert snapshot(root)==changed
     state.write_bytes(original_state)
     result=stage(root,metadata)
-    assert result['classic_configuration_staged'] and not result['activation_control']
+    assert result['classic_configuration_staged'] and result['activation_control']
     assert result['classic_navigation_staged']
     assert set(result['sha256'])=={'www/Advanced_IoT_Content.asp','www/classic-iot-config.js','www/state.js','www/classic-iot-navigation.js'}
     assert state.read_bytes().startswith(original_state) and state.stat().st_mode&0o777==0o640

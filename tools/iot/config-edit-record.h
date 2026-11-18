@@ -2,7 +2,7 @@
 #define WR_IOT_CONFIG_EDIT_RECORD_H
 #include "control-record-common.h"
 #include "config-edit.h"
-enum wr_iot_config_edit_mode {WR_IOT_EDIT_RAM=0,WR_IOT_EDIT_AUTO=1,WR_IOT_EDIT_EXPLICIT=2};
+enum wr_iot_config_edit_mode {WR_IOT_EDIT_RAM=0,WR_IOT_EDIT_AUTO=1,WR_IOT_EDIT_EXPLICIT=2,WR_IOT_EDIT_RUNTIME=3};
 struct wr_iot_config_edit_record {
  char id[33],revision[33];unsigned long long created;
  enum wr_iot_config_edit_mode mode;
@@ -15,7 +15,8 @@ static inline int wr_iot_config_edit_record_valid(const struct wr_iot_config_edi
  if(!record||!memchr(record->id,0,sizeof(record->id))||
     !memchr(record->revision,0,sizeof(record->revision))||
     !wr_iot_control_id(record->id)||!wr_iot_control_id(record->revision)||
-    !record->created||record->mode<WR_IOT_EDIT_RAM||record->mode>WR_IOT_EDIT_EXPLICIT)return 0;
+    !record->created||record->mode<WR_IOT_EDIT_RAM||record->mode>WR_IOT_EDIT_RUNTIME||
+    (record->mode==WR_IOT_EDIT_RUNTIME&&record->action!=WR_IOT_CONFIG_KEY_KEEP))return 0;
  profile=&record->fields.profile;
  if((profile->enabled!=0&&profile->enabled!=1)||
     !memchr(profile->ssid,0,sizeof(profile->ssid))||
@@ -53,6 +54,7 @@ static inline int wr_iot_config_edit_record_decode(struct wr_iot_config_edit_rec
  if(!strcmp(lines[4],"ram"))candidate.mode=WR_IOT_EDIT_RAM;
  else if(!strcmp(lines[4],"auto"))candidate.mode=WR_IOT_EDIT_AUTO;
  else if(!strcmp(lines[4],"explicit"))candidate.mode=WR_IOT_EDIT_EXPLICIT;
+ else if(!strcmp(lines[4],"runtime"))candidate.mode=WR_IOT_EDIT_RUNTIME;
  else goto done;
  if(!strcmp(lines[5],"keep"))candidate.action=WR_IOT_CONFIG_KEY_KEEP;
  else if(!strcmp(lines[5],"replace"))candidate.action=WR_IOT_CONFIG_KEY_REPLACE;
@@ -88,7 +90,7 @@ static inline int wr_iot_config_edit_record_encode(char *out,size_t capacity,
  values[4]=record->fields.profile.first;values[5]=record->fields.profile.last;
  head=snprintf(buffer,sizeof(buffer),"WR-IOT-EDIT-1\n%s\n%llu\n%s\n%s\n%s\n%d\n",
   record->id,record->created,record->revision,
-  record->mode==WR_IOT_EDIT_RAM?"ram":record->mode==WR_IOT_EDIT_AUTO?"auto":"explicit",
+  record->mode==WR_IOT_EDIT_RAM?"ram":record->mode==WR_IOT_EDIT_AUTO?"auto":record->mode==WR_IOT_EDIT_EXPLICIT?"explicit":"runtime",
   record->action==WR_IOT_CONFIG_KEY_KEEP?"keep":"replace",record->fields.profile.enabled);
  if(head<=0||(size_t)head>=sizeof(buffer))goto done;
  used=(size_t)head;
