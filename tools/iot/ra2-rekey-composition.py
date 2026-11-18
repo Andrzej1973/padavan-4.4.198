@@ -12,7 +12,7 @@ VOID GREKEYPeriodicExec(PVOID s1,PVOID context,PVOID s2,PVOID timer)
  if(ad&&IS_MT7603(ad)&&timer==&ad->ApCfg.MBSSID[2].REKEYTimer){
   ULONG flags=0;int admitted=0;
   RTMP_IRQ_LOCK(&ad->wr_iot_transition_lock,flags);
-  if(ad->ApCfg.BssidNum==3&&
+  if(!ad->wr_iot_ra2_key_active&&ad->ApCfg.BssidNum==3&&
      ad->ApCfg.BssidNum<=sizeof(ad->ApCfg.MBSSID)/sizeof(ad->ApCfg.MBSSID[0]))
    admitted=wr_iot_ra2_rekey_admit(&ad->wr_iot_driver_owner,
     &ad->wr_iot_transition,ad->wr_iot_interface_refs,WDEV_NUM_MAX+1,
@@ -20,9 +20,14 @@ VOID GREKEYPeriodicExec(PVOID s1,PVOID context,PVOID s2,PVOID timer)
     &ad->wr_iot_control_users,&ad->wr_iot_control_poisoned,
     ad->wr_iot_boot_active||ad->wr_iot_boot_failed||
     ad->wr_iot_close_owner.active||ad->wr_iot_closed_probe.active);
+  if(admitted)ad->wr_iot_ra2_key_active=1;
   RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);
   if(admitted){
    wr_iot_grekey_periodic_raw(s1,context,s2,timer);
+   RTMP_IRQ_LOCK(&ad->wr_iot_transition_lock,flags);
+   if(ad->wr_iot_ra2_key_active==1)ad->wr_iot_ra2_key_active=0;
+   else ad->wr_iot_control_poisoned=1;
+   RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);
    wr_iot_control_leave(ad);
   }
   /* Leave countdown/key state untouched on refusal. The existing repeating

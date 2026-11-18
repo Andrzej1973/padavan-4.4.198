@@ -1,0 +1,12 @@
+{
+  "candidate_source_sha256": "8243ad89df57377b76d9ff2e74d452ac0327ef62f68aa40e1bb5e4b17f1d4e0c",
+  "host_native_group_request_verified": true,
+  "guarded_reassociation_and_native_delete_refused": true,
+  "close_refused_during_request": true,
+  "competing_key_request_refused": true,
+  "release_balanced": true,
+  "main_guest_native_passthrough_host_checked": true,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "all_wpa_actions_lifetime_verified": false
+}

@@ -188,9 +188,11 @@ changes['ap/ap_wpa.c']=runpy.run_path(str(local/'ra2-rekey-composition.py'))['co
  changes.get('ap/ap_wpa.c',(src/'ap/ap_wpa.c').read_text()))
 changes['include/ra2-rekey-admission.h']=(local/'ra2-rekey-admission.h').read_text()
 changes=runpy.run_path(str(local/'assoc-generation-composition.py'))['compose'](changes,src,local)
+changes['common/cmm_wpa.c']=runpy.run_path(str(local/'ra2-gtk-request-composition.py'))['compose'](changes['common/cmm_wpa.c'])
+changes['include/ra2-gtk-request-kernel.h']=(local/'ra2-gtk-request-kernel.h').read_text()
 # All source anchors/collisions verified before the first mutation.
 for name,s in changes.items():(src/name).write_text(s)
 hashes={n:hashlib.sha256((src/n).read_bytes()).hexdigest() for n in changes}
 m['merged_driver_sha256'].update(hashes);m['candidate_driver_sha256'].update(hashes)
-m['linux_open_api']={'input_manifest_sha256':hashlib.sha256(raw).hexdigest(),'output_sha256':hashes,'ioctl_open': '0x89ff','ioctl_identity':'0x89fe','ioctl_closed_configuration':'0x89fd','close_busy_pre_mutation':True,'close_busy_request_opcode':21,'ra2_rekey_counted_bound':True,'queued_wpa_assoc_generation':True,'queued_wpa_nonblocking_snapshot':True,'wpa_execution_lifetime_pin_verified':False,'production_installed':False,'target_compiled':False,'runtime_verified':False}
+m['linux_open_api']={'input_manifest_sha256':hashlib.sha256(raw).hexdigest(),'output_sha256':hashes,'ioctl_open': '0x89ff','ioctl_identity':'0x89fe','ioctl_closed_configuration':'0x89fd','close_busy_pre_mutation':True,'close_busy_request_opcode':21,'ra2_rekey_counted_bound':True,'queued_wpa_assoc_generation':True,'queued_wpa_nonblocking_snapshot':True,'ra2_gtk_request_scoped':True,'wpa_execution_lifetime_pin_verified':False,'production_installed':False,'target_compiled':False,'runtime_verified':False}
 mp.write_text(json.dumps(m,indent=2)+'\n')

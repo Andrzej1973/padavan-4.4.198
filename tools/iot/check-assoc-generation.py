@@ -18,10 +18,14 @@ a = p.parse_args()
 here = Path(__file__).resolve().parent
 compose = runpy.run_path(str(here / 'assoc-generation-composition.py'))['compose']
 texts = compose({}, a.source, here)
+texts['common/cmm_wpa.c']=runpy.run_path(str(here/'ra2-gtk-request-composition.py'))['compose'](texts['common/cmm_wpa.c'])
+texts['ap/ap_wpa.c']=runpy.run_path(str(here/'ra2-rekey-composition.py'))['compose']((a.source/'ap/ap_wpa.c').read_text())
+texts['include/ra2-gtk-request-kernel.h']=(here/'ra2-gtk-request-kernel.h').read_text()
+texts['include/ra2-rekey-admission.h']=(here/'ra2-rekey-admission.h').read_text()
 if a.prepared_driver:
     # Prior composition stages may modify the same SDK files. Compare our exact
     # affected bodies in CI; other predecessor modifications remain intact.
-    for name in ('include/assoc-generation.h', 'include/assoc-generation-kernel.h'):
+    for name in ('include/assoc-generation.h', 'include/assoc-generation-kernel.h', 'include/ra2-gtk-request-kernel.h'):
         assert (a.prepared_driver / name).read_text() == texts[name]
     for name in ('common/mlme.c', 'mgmt/mgmt_entrytb.c', 'ap/ap_assoc.c', 'ap/ap_repeater.c'):
         assert '#include "assoc-generation-kernel.h"' in (a.prepared_driver / name).read_text()
@@ -113,14 +117,14 @@ static int spin_trylock_bh(spinlock_t *l){if(l->held)return 0;l->held=1;return 1
 static int table_held;
 static void NdisAcquireSpinLock(struct lock *l){assert(!l->held);l->held=1;}
 static void NdisReleaseSpinLock(struct lock *l){assert(l->held);l->held=0;}
-typedef struct {unsigned char pad[10],Addr2[6],rest[8];} HEADER_802_11,*PHEADER_802_11;
+typedef struct {unsigned char pad[4],Addr1[6],Addr2[6],rest[8];} HEADER_802_11,*PHEADER_802_11;
 typedef struct {unsigned assoc_gen;unsigned short assoc_wcid;unsigned char assoc_addr[6];
  unsigned char Msg[256];unsigned long Machine,MsgType,MsgLen,Priv;unsigned Wcid;int Occupied;} MLME_QUEUE_ELEM;
 typedef struct {struct lock Lock;int Tail,Num;MLME_QUEUE_ELEM Entry[4];} MLME_QUEUE,EAP_MLME_QUEUE;
 typedef struct {unsigned assoc_gen,wcid;unsigned char Addr[6];int valid;
  void *pAd;int RetryTimer,EnqueueStartForPSKTimer,MaxSupportedRate,CurrTxRate;
  struct {int KeyLen,CipherAlg;} PairwiseKey;} MAC_TABLE_ENTRY;
-typedef struct {struct lock MacTabLock;unsigned wr_assoc_generations[4],wr_assoc_visible[4];unsigned char wr_assoc_addr[4][6];
+typedef struct {struct lock MacTabLock;unsigned wr_assoc_generations[4],wr_assoc_visible[4],wr_assoc_event_users[4];unsigned char wr_assoc_addr[4][6];
  struct {MAC_TABLE_ENTRY Content[4];} MacTab;
  struct {MLME_QUEUE Queue,EAP_Queue;} Mlme;} RTMP_ADAPTER;
 static __attribute__((unused)) MAC_TABLE_ENTRY *MacTableLookup(RTMP_ADAPTER *ad,unsigned char *mac){
@@ -199,6 +203,8 @@ int main(void){
  stamp=wr_assoc_capture(&ad,1,6,mac,2);wr_assoc_publish(&old,&stamp);old.Machine=1;
  assert(wr_assoc_event_entry_current(&ad,&old,e));
  assert(!wr_assoc_event_entry_current(&ad,&old,&ad.MacTab.Content[1]));
+ ad.wr_assoc_event_users[2]=1;assert(!wr_assoc_reassociate(&ad,e));assert(e->assoc_gen==1);
+ ad.wr_assoc_event_users[2]=0;
  assert(wr_assoc_reassociate(&ad,e));assert(e->assoc_gen==2);
  wr_assoc_publish(&requeued,&stamp);requeued.Machine=1;
  assert(!wr_assoc_event_current(&ad,&requeued));

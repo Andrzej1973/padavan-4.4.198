@@ -22,6 +22,8 @@ def compose(changes, src, local):
     s = one(s, '\tMAC_TABLE MacTab;',
             ' unsigned int wr_assoc_generations[MAX_LEN_OF_MAC_TABLE];\n'
             ' unsigned int wr_assoc_visible[MAX_LEN_OF_MAC_TABLE];\n'
+            ' unsigned int wr_assoc_event_users[MAX_LEN_OF_MAC_TABLE];\n'
+            ' unsigned int wr_iot_ra2_key_active;\n'
             ' unsigned char wr_assoc_addr[MAX_LEN_OF_MAC_TABLE][6];\n\tMAC_TABLE MacTab;')
     result[name] = s
     name = 'include/mlme.h'
@@ -42,6 +44,8 @@ def compose(changes, src, local):
         ' (void)wr_assoc_advance_locked(pAd, pEntry, wcid);')
     delete_anchor='\tif (pEntry && !IS_ENTRY_NONE(pEntry))\n\t{'
     s=one(s,delete_anchor,delete_anchor+'\n'
+        ' if(pAd->wr_assoc_event_users[wcid]) {\n'
+        '  NdisReleaseSpinLock(&pAd->MacTabLock); return FALSE;\n }\n'
         ' if (MAC_ADDR_EQUAL(pEntry->Addr,pAddr)) {\n'
         '  WRITE_ONCE(pAd->wr_assoc_visible[wcid],0); smp_wmb();\n }')
     # Publish once after full insertion/hash initialization, before final unlock.

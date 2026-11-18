@@ -55,7 +55,7 @@ typedef struct {
  struct wr_iot_radio_transition wr_iot_transition;
  struct wr_iot_interface_ref wr_iot_interface_refs[WDEV_NUM_MAX+1];
  void *net_dev;
- unsigned wr_iot_control_users,wr_iot_control_poisoned,wr_iot_boot_active,wr_iot_boot_failed;
+ unsigned wr_iot_ra2_key_active,wr_iot_control_users,wr_iot_control_poisoned,wr_iot_boot_active,wr_iot_boot_failed;
  struct {int active;} wr_iot_close_owner,wr_iot_closed_probe;
 } RTMP_ADAPTER,*PRTMP_ADAPTER;
 static unsigned locks,installs,derivations,handshakes,randoms;
@@ -140,6 +140,13 @@ int main(void){
  ad.wr_iot_transition.busy=0;
  GREKEYPeriodicExec(NULL,&ad,NULL,&ad.ApCfg.MBSSID[2].REKEYTimer);
  assert(installs==1&&!ad.wr_iot_control_users&&!locks);
+#if defined(MT7603) && defined(MT_MAC) && defined(RTMP_PCI_SUPPORT)
+ reset(&ad);ad.wr_iot_ra2_key_active=1;
+ ad.ApCfg.MBSSID[2].RekeyCountDown=1;
+ GREKEYPeriodicExec(NULL,&ad,NULL,&ad.ApCfg.MBSSID[2].REKEYTimer);
+ assert(!installs&&!ad.wr_iot_control_users&&ad.ApCfg.MBSSID[2].RekeyCountDown==1);
+ assert(ad.wr_iot_ra2_key_active==1);
+#endif
  puts("PASS actual vendor GTK timer/scoped wrapper: closed countdown witness, transition/probe/identity refusal without counter mutation, admitted key install fenced against CLOSE, balanced early return, Main/Guest/other-chip passthrough and later tick progress; SDK/MMIO actors, no hardware acceptance");
 }
 '''

@@ -121,10 +121,54 @@ need their own provenance; restamping cannot retrospectively identify them.
 Thus this change is not proof of complete safe OFF/reopen or original TxS
 packet ownership, and does not change those acceptance statuses to FIXED.
 
+## Bound ra2 GROUPKEY REQUEST candidate
+
+`ra2-gtk-request-composition.py` factors the existing AP group-key-request
+block and wraps it before its first GenRandom/nonce/key/peer mutation. The
+immutable queued receiver BSSID selects ra2; classification does not rely on
+a WCID entry that could already have been reused. Main/Guest, other chips and
+the feature-disabled build retain the native block.
+
+`ra2-gtk-request-kernel.h` admits the current OPEN receipt under the transition
+lock, takes one existing control-user reference and excludes another ra2 key
+writer. It then validates the exact queued generation/MAC/WCID/wdev under
+MacTabLock, refuses an already-running deletion, enters the existing peer-table
+transaction and reserves this association in wr_assoc_event_users. No lock
+spans the native crypto, timer cancellation, send or key-install operations.
+
+The existing deletion execution wrapper refuses while the table transaction
+is held. The entry deletion body also checks the association reservation before
+any timer cancellation. Reassociation checks the same reservation under
+MacTabLock. Native timeout/MIC actions are **not** enclosed by this scope and
+can still perform their own legitimate deletion.
+
+The complete factored block runs synchronously and then releases the exact
+association, table transaction, key-writer flag and control-user reference.
+Native early return from the block still returns to the wrapper's release.
+Unexpected generation/ownership changes poison control admission rather than
+silently freeing another association's reservation. The independent ra2
+GREKEY timer uses the same key-writer exclusion and preserves its countdown
+when a request owns that exclusion; its natural repeating timer owns retry.
+
+Host fixture `check-ra2-gtk-request.py` executes the actual transformed block
+with the real admission helpers and the existing native deletion wrapper. It
+attempts reassociation, deletion, reset reservation, CLOSE and a second key
+request inside GenRandom. All are refused while the operation is held; the
+key install then uses the original current association. Release permits later
+reassociation. Stale/closed/contended/already-deleting/MAC-mismatch cases refuse
+before any native mutation. Native early-return release, Main/Guest/other-chip
+passthrough, feature-disabled and OS_ABL builds also run under ASan/UBSan.
+
+Evidence: `WR1200JS-RA2-GTK-REQUEST-HOST-2026-11-18.json`. These are guarded
+software-contract and SDK-actor tests. Target compilation, all optional direct
+station mutators, the lifetime of every WPA action, timer-station lifetime and
+physical Main/Guest/IoT acceptance remain separate requirements. This is not a
+claim that complete safe OFF/reopen or the firmware/DMA boundary is finished.
+
 ## Native GTK request execution witness
 
-`tools/iot/check-assoc-gtk-execution-gap.py` executes the actual composed
-WpaEAPOLKeyAction AP group-key-request block, not a replacement implementation.
+`tools/iot/check-assoc-gtk-execution-gap.py` executes the generation-only control
+WpaEAPOLKeyAction AP group-key-request block before the new scope binding.
 A boundary actor forces same-MAC/WCID reassociation inside GenRandom, after the
 initial action check. The final generation check correctly prevents
 WPAInstallSharedKey. Nevertheless the actual earlier statements already change
@@ -137,20 +181,18 @@ and install. Crypto, timer and hardware operations are boundary actors; this
 is deterministic host evidence, not a reproduced router race. Evidence:
 `docs/evidence/WR1200JS-ASSOC-GTK-EXECUTION-GAP-2026-11-18.json`.
 
-The next driver binding must admit the exact ra2 association before its first
-software mutation, keep the existing CLOSE control-user fence for the complete
-operation, exclude the competing periodic rekey actor, and use the existing
-peer-table transaction/deletion admission rather than hold MacTabLock across
-native timer/send work. In-place reassociation must respect the same lifetime
-reservation. The admission/release must balance on native early returns and
-refusals. Main/Guest and non-ra2 paths retain native behavior.
+The new bounded driver binding admits the exact ra2 association before its first
+software mutation and keeps the existing CLOSE control-user fence for the
+complete operation. Its source binding and focused host checks are described
+above; the control witness remains to distinguish the original gap from the
+bound candidate. Complete target/runtime acceptance is still unproven.
 
 Do not wrap all WPA actions in a blanket deletion exclusion: the native
 WpaEAPOLTimeout calls MlmeDeAuthAction, and the EAPOL-Key MIC-failure branch
 can invoke countermeasures. A generic transaction would refuse their own
-necessary deletion. First bind and verify the bounded GTK-request operation;
-trace other actions separately. No such execution-lifetime binding is claimed
-implemented by the generation patch.
+necessary deletion. The bounded GTK-request operation now has a source binding and host checks;
+trace other actions separately. No lifetime binding for all WPA actions is
+claimed by these changes.
 
 ## Verification
 

@@ -13,15 +13,18 @@
   "publication_reader_barrier_interleavings_verified": true,
   "publication_reader_barriers_tested": 3,
   "output_sha256": {
-    "include/rtmp.h": "46f346b38476e161fc8532aa2576685838efb4867aeba1154e46d44b5741cdea",
+    "include/rtmp.h": "043e73d0a1f0a1f0688fc86f8555f03bc8f1281a57aacbc834c0d39888460dc6",
     "include/mlme.h": "9f741fbcdefdba7704bdf2d1c962fabb846de57c133a8ada128e1683e5956680",
-    "mgmt/mgmt_entrytb.c": "b850c952d4e9323ec3d738b3402e060dbf0dd20c3e40bfd8c41b024a1a442ed2",
+    "mgmt/mgmt_entrytb.c": "a462105e562ccefb9528c9b36a6bc91fc353e195cdf0aaa4be5de55800dad1ff",
     "ap/ap_repeater.c": "5bf4f0cb49373af5de8b92314331ba8021c75e4a79e2e920d8715284df82a161",
     "ap/ap_assoc.c": "597cb393944168315bdadac692ed784431ea202d212324157c2055c361d33606",
     "common/mlme.c": "c47ac1d2a0f3efe0fb07afbded7f01f4c7d31cbd3c47c499786569598fac001b",
-    "common/cmm_wpa.c": "4f28a6fae2799be00a24511992ad1feb745b6bf00df1fd460d53dd7396f644ac",
+    "common/cmm_wpa.c": "8243ad89df57377b76d9ff2e74d452ac0327ef62f68aa40e1bb5e4b17f1d4e0c",
     "include/assoc-generation.h": "197e0273dcf42fa8c100cf9fa46a7c74705ace789f5e1b9cc963ac5147f496a5",
-    "include/assoc-generation-kernel.h": "16a5aa179f8762cb242c1b2189f344996fa31db63e615e29c99150054d79ab3c"
+    "include/assoc-generation-kernel.h": "7de37a1dcd190dd65159e267e85d346a3393f30c9531375ee596fc59739c33c7",
+    "ap/ap_wpa.c": "3d8a8e0f82e747399d861cbbd4417a0d26fbdc3da1ae7951b26c83d5e6350205",
+    "include/ra2-gtk-request-kernel.h": "5e6f8c029f45d525d7c2c5c0f8e7a9a8936462b964820d71bd925d8400f9bd81",
+    "include/ra2-rekey-admission.h": "0e34779ae7e782daaeb05d0ee8cb0f2c5cc5b88c6dac59d48cdc94b7d3841979"
   },
   "input_sha256": {
     "include/rtmp.h": "d3fcdacce2246a6f19f4319f851adf1f26142ce74762f411e158d6c5fe8fd45b",
@@ -30,6 +33,7 @@
     "ap/ap_repeater.c": "24e69448945f4967bff075097f42204fa0a67f29be49aaf0756a382dbdd1b2c9",
     "ap/ap_assoc.c": "9ba15488d0f27266fec2cf7e337e25253bb2c032ef0254ca9beed925b3970ca5",
     "common/mlme.c": "edc1746194fc63d579ab3f753cf8dcac2e011d97e42e40ab3911da415e435459",
-    "common/cmm_wpa.c": "f4a17a192bffdc567dba35b8eb022107655d99c90f6e82fcd6bbd8047858c638"
+    "common/cmm_wpa.c": "f4a17a192bffdc567dba35b8eb022107655d99c90f6e82fcd6bbd8047858c638",
+    "ap/ap_wpa.c": "0b502f4e25100c73b33abb166b727ba2afafb1d057afdfae23ffa9bbd7556c97"
   }
 }

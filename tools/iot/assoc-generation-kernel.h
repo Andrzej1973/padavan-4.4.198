@@ -20,7 +20,8 @@ static inline int wr_assoc_reassociate(RTMP_ADAPTER *ad, MAC_TABLE_ENTRY *entry)
 {
  unsigned int generation = 0;
  if (!wr_assoc_try_table_lock(ad)) return 0;
- if (entry && entry->wcid < MAX_LEN_OF_MAC_TABLE && !IS_ENTRY_NONE(entry)) {
+ if (entry && entry->wcid < MAX_LEN_OF_MAC_TABLE && !IS_ENTRY_NONE(entry) &&
+     !ad->wr_assoc_event_users[entry->wcid]) {
   generation = wr_assoc_generation_next(&ad->wr_assoc_generations[entry->wcid]);
   entry->assoc_gen = generation;
   wr_assoc_publish_slot_locked(ad,entry);
