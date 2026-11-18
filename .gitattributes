@@ -30,3 +30,6 @@ tools/iot/candidates/aux-remove-close-v39/** text eol=lf whitespace=-trailing-sp
 # Keep router configurations in source archives for downloads and forks.
 # Do not mark configs.build or configs.release configurations export-ignore.
 
+
+# Preserve native SDK context whitespace in the reviewed association patch.
+docs/iot/WR1200JS-ASSOC-GENERATION.patch whitespace=-trailing-space,-space-before-tab

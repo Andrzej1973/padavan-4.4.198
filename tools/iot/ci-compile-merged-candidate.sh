@@ -379,6 +379,8 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   python3 tools/iot/check-close-bundle-assets.py
   python3 tools/iot/check-close-probe-codegen.py > "$results/close-probe-codegen.txt"
   python3 tools/iot/prepare-driver-api.py "$merged" --install-isolated
+  python3 -B tools/iot/check-assoc-generation.py "$pristine" --prepared-driver "$merged" \
+    --output "$results/assoc-generation-host.json"
   python3 -B tools/iot/check-ra2-rekey-path.py "$pristine" --prepared-driver "$merged" \
     --output "$results/ra2-rekey-host.json"
   for fixture in check-ra2-rekey-admission check-close-busy-composition; do

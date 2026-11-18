@@ -15,7 +15,9 @@ selected = {
     'include/ra2-software-off.h', 'include/beacon-filter-owner-kernel.h',
     'common/mlme.c', 'common/cmm_wpa.c', 'ap/ap_wpa.c',
     'mgmt/mgmt_entrytb.c', 'include/mlme.h',
-    'include/ra2-rekey-admission.h',
+    'include/ra2-rekey-admission.h', 'include/rtmp.h',
+    'ap/ap_assoc.c', 'ap/ap_repeater.c',
+    'include/assoc-generation.h', 'include/assoc-generation-kernel.h',
 }
 captured = {}
 captured_bytes = 0
@@ -31,7 +33,8 @@ for name in sorted(selected):
     expected = manifest['merged_driver_sha256'].get(name)
     # Earlier producer stages have not installed all successor headers yet.
     if expected is None:
-        if name == 'include/ra2-rekey-admission.h':
+        if name in {'include/ra2-rekey-admission.h', 'include/assoc-generation.h',
+                    'include/assoc-generation-kernel.h'}:
             continue
         raise SystemExit('Required diagnostic source absent from manifest: ' + name)
     path = driver / name

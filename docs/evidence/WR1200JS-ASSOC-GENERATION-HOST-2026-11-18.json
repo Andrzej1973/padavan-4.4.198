@@ -1,0 +1,32 @@
+{
+  "host_native_enqueue_verified": true,
+  "composition_anchors_verified": true,
+  "same_mac_wcid_reuse_rejected": true,
+  "counter_wrap_refused": true,
+  "timer_lock_contention_refusal_verified": true,
+  "os_abl_lock_unwrap_host_verified": true,
+  "execution_lifetime_pin_verified": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "prepared_driver_checked": false,
+  "output_sha256": {
+    "include/rtmp.h": "d6ebd27f16bfb1c0fd66fff331baf8dd45f5934060e549fc7f4772419567030d",
+    "include/mlme.h": "9f741fbcdefdba7704bdf2d1c962fabb846de57c133a8ada128e1683e5956680",
+    "mgmt/mgmt_entrytb.c": "dfbf9b65cd5bab24162dd27606ce8d33e2793ff3128c1f5b9769f1fe443f5772",
+    "ap/ap_repeater.c": "feba5032028a63b78cce3a22e26dd2302b24664789dd91ecb43f49413df2adf0",
+    "ap/ap_assoc.c": "597cb393944168315bdadac692ed784431ea202d212324157c2055c361d33606",
+    "common/mlme.c": "c47ac1d2a0f3efe0fb07afbded7f01f4c7d31cbd3c47c499786569598fac001b",
+    "common/cmm_wpa.c": "4f28a6fae2799be00a24511992ad1feb745b6bf00df1fd460d53dd7396f644ac",
+    "include/assoc-generation.h": "197e0273dcf42fa8c100cf9fa46a7c74705ace789f5e1b9cc963ac5147f496a5",
+    "include/assoc-generation-kernel.h": "e2c65e5de83387f61524cedb4bdec91461819c259609a12eff71f11a75ef466c"
+  },
+  "input_sha256": {
+    "include/rtmp.h": "d3fcdacce2246a6f19f4319f851adf1f26142ce74762f411e158d6c5fe8fd45b",
+    "include/mlme.h": "f9428a0ffdc5e8b50c8a18e210a4e9ce2f5bbf0564e522c16b68672b52777bac",
+    "mgmt/mgmt_entrytb.c": "d8c38bebce1b9b4612aceead5b9c2c9acf77a1e6c3bba07dcc06e977c06ae426",
+    "ap/ap_repeater.c": "24e69448945f4967bff075097f42204fa0a67f29be49aaf0756a382dbdd1b2c9",
+    "ap/ap_assoc.c": "9ba15488d0f27266fec2cf7e337e25253bb2c032ef0254ca9beed925b3970ca5",
+    "common/mlme.c": "edc1746194fc63d579ab3f753cf8dcac2e011d97e42e40ab3911da415e435459",
+    "common/cmm_wpa.c": "f4a17a192bffdc567dba35b8eb022107655d99c90f6e82fcd6bbd8047858c638"
+  }
+}

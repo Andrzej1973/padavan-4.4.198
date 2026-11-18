@@ -1426,6 +1426,9 @@ jobs:
           python3 -B tools/iot/check-ra2-rekey-path.py \
             source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3 \
             --output abi-results/ra2-rekey-host.json
+          python3 -B tools/iot/check-assoc-generation.py \
+            source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3 \
+            --output abi-results/assoc-generation-host.json
           for fixture in check-ra2-rekey-admission check-close-busy-composition; do
             gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -fno-pie -no-pie \
               -Itools/iot "tools/iot/$fixture.c" -o "abi-results/$fixture"
