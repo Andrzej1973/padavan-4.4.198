@@ -4,6 +4,7 @@
   "same_mac_wcid_reuse_rejected": true,
   "counter_wrap_refused": true,
   "kernel_current_macro_collision_regression_verified": true,
+  "renamed_native_insertion_stage_verified": true,
   "timer_enqueue_under_unrelated_table_contention_verified": true,
   "os_abl_lock_unwrap_host_verified": true,
   "execution_lifetime_pin_verified": false,

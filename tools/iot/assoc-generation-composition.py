@@ -49,9 +49,20 @@ def compose(changes, src, local):
         ' if (MAC_ADDR_EQUAL(pEntry->Addr,pAddr)) {\n'
         '  WRITE_ONCE(pAd->wr_assoc_visible[wcid],0); smp_wmb();\n }')
     # Publish once after full insertion/hash initialization, before final unlock.
-    start=s.index('MAC_TABLE_ENTRY *MacTableInsertEntry(')
+    # Final peer producer renames the native insertion and replaces the public
+    # entry with an include. Publish in the actual private body, never in its
+    # counted outer wrapper or in an unrelated declaration.
+    signature=('static MAC_TABLE_ENTRY *wr_iot_mac_insert_entry('
+        if 'static MAC_TABLE_ENTRY *wr_iot_mac_insert_entry(' in s
+        else 'MAC_TABLE_ENTRY *MacTableInsertEntry(')
+    if s.count(signature)!=1:
+        raise ValueError('native insertion definition changed')
+    start=s.index(signature)
     end=s.index('\n}',start)+2
     body=s[start:end]
+    if ('mac_entry_reset(pAd, pEntry, CleanAll);' not in body or
+        '/* add this MAC entry into HASH table */' not in body):
+        raise ValueError('snapshot publication requires native insertion body')
     lock='NdisReleaseSpinLock(&pAd->MacTabLock);'
     at=body.rindex(lock)
     body=body[:at]+'if(pEntry) wr_assoc_publish_slot_locked(pAd,pEntry);\n\t'+body[at:]

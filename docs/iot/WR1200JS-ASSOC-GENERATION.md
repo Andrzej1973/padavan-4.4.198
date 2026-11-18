@@ -379,3 +379,16 @@ the actual receipt/control/arbiter admission, with early-return native boundary
 actors. Accepted execution releases both references; active rekey refuses
 before the native actor. Direct/OS_ABL checks pass. This verifies the combined
 wrapper/admission seam, not complete SDK body behavior or target compilation.
+
+## Final insertion-stage composition correction
+
+The final peer pipeline renames the native insertion body to
+wr_iot_mac_insert_entry and replaces public MacTableInsertEntry with the
+wr-iot-peer-normal-insert.inc outer wrapper. Snapshot publication must use the
+private body containing mac_entry_reset and hash initialization. The composition
+now selects that body explicitly when present and validates its native anchors;
+pristine-only composition still uses the original native function. A host
+fixture composes a renamed native body plus the include-based public entry and
+checks exactly one publication in the private body. Target verification of this
+correction is pending; this source-stage error is independent of current-macro
+compilation. No CI failure result is inferred from this local source witness.

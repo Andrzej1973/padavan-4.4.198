@@ -18,6 +18,20 @@ a = p.parse_args()
 here = Path(__file__).resolve().parent
 compose = runpy.run_path(str(here / 'assoc-generation-composition.py'))['compose']
 texts = compose({}, a.source, here)
+# Represent the real predecessor: the full native implementation is private;
+# the public transaction wrapper is provided by an include, not this C body.
+staged=(a.source/'mgmt/mgmt_entrytb.c').read_text().replace(
+    'MAC_TABLE_ENTRY *MacTableInsertEntry(',
+    'static MAC_TABLE_ENTRY *wr_iot_mac_insert_entry(',1)
+staged+='\n#include "wr-iot-peer-normal-insert.inc"\n'
+staged_result=compose({'mgmt/mgmt_entrytb.c':staged},a.source,here)
+staged_output=staged_result['mgmt/mgmt_entrytb.c']
+start=staged_output.index('static MAC_TABLE_ENTRY *wr_iot_mac_insert_entry(')
+end=staged_output.index('\n}',start)+2
+assert staged_output[start:end].count('if(pEntry) wr_assoc_publish_slot_locked(pAd,pEntry);')==1
+assert staged_output.count('if(pEntry) wr_assoc_publish_slot_locked(pAd,pEntry);')==1
+assert staged_output.endswith('#include "wr-iot-peer-normal-insert.inc"\n')
+
 texts['common/cmm_wpa.c']=runpy.run_path(str(here/'ra2-gtk-request-composition.py'))['compose'](texts['common/cmm_wpa.c'])
 texts['ap/ap_wpa.c']=runpy.run_path(str(here/'ra2-rekey-composition.py'))['compose']((a.source/'ap/ap_wpa.c').read_text())
 texts['include/ra2-gtk-request-kernel.h']=(here/'ra2-gtk-request-kernel.h').read_text()
@@ -252,7 +266,7 @@ with tempfile.TemporaryDirectory(prefix='wr-assoc-gen-') as directory:
         subprocess.run([str(d/'test')],check=True)
 
 report = dict(host_native_enqueue_verified=True, composition_anchors_verified=True,
-    same_mac_wcid_reuse_rejected=True, counter_wrap_refused=True, kernel_current_macro_collision_regression_verified=True,
+    same_mac_wcid_reuse_rejected=True, counter_wrap_refused=True, kernel_current_macro_collision_regression_verified=True, renamed_native_insertion_stage_verified=True,
     timer_enqueue_under_unrelated_table_contention_verified=True, os_abl_lock_unwrap_host_verified=True,
     execution_lifetime_pin_verified=False, target_compiled=False, runtime_verified=False,
     prepared_driver_checked=a.prepared_driver is not None,
