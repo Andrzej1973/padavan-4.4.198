@@ -192,5 +192,5 @@ changes=runpy.run_path(str(local/'assoc-generation-composition.py'))['compose'](
 for name,s in changes.items():(src/name).write_text(s)
 hashes={n:hashlib.sha256((src/n).read_bytes()).hexdigest() for n in changes}
 m['merged_driver_sha256'].update(hashes);m['candidate_driver_sha256'].update(hashes)
-m['linux_open_api']={'input_manifest_sha256':hashlib.sha256(raw).hexdigest(),'output_sha256':hashes,'ioctl_open': '0x89ff','ioctl_identity':'0x89fe','ioctl_closed_configuration':'0x89fd','close_busy_pre_mutation':True,'close_busy_request_opcode':21,'ra2_rekey_counted_bound':True,'queued_wpa_assoc_generation':True,'wpa_execution_lifetime_pin_verified':False,'production_installed':False,'target_compiled':False,'runtime_verified':False}
+m['linux_open_api']={'input_manifest_sha256':hashlib.sha256(raw).hexdigest(),'output_sha256':hashes,'ioctl_open': '0x89ff','ioctl_identity':'0x89fe','ioctl_closed_configuration':'0x89fd','close_busy_pre_mutation':True,'close_busy_request_opcode':21,'ra2_rekey_counted_bound':True,'queued_wpa_assoc_generation':True,'queued_wpa_nonblocking_snapshot':True,'wpa_execution_lifetime_pin_verified':False,'production_installed':False,'target_compiled':False,'runtime_verified':False}
 mp.write_text(json.dumps(m,indent=2)+'\n')

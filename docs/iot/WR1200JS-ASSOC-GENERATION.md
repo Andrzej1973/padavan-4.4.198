@@ -16,13 +16,16 @@ radio timing, new reset or scan is changed.
 
 `include/rtmp.h`: MAC_TABLE_ENTRY gains `unsigned int assoc_gen`.
 An unsigned per-WCID backing counter in RTMP_ADAPTER lives **outside MacTab**.
-All generation updates use MacTabLock. The entry is a published mirror;
+A separate visible-generation/MAC snapshot also lives outside cleared entries.
+All generation and snapshot writes use MacTabLock. The entry is a mirror;
 its counter must survive both entry memset and whole-table clears.
 
 `mgmt/mgmt_entrytb.c`:
 
 - MacTableInsertEntry advances the slot after mac_entry_reset (which clears
-  the complete entry once or twice). It skips an exhausted slot.
+  the complete entry once or twice). It skips an exhausted slot. Snapshot
+  publication happens only after complete entry/hash initialization and before
+  the final table unlock.
 - MacTableDeleteEntry's existing locked, MAC-matching body advances/invalidate
   the generation before native teardown. The composed deletion wrapper and
   reset-ownership gates remain intact.
@@ -55,9 +58,12 @@ Msg remains the first field, preserving the native alignment placement.
 
 1. MlmeEnqueue and EAPMlmeEnqueue stamp internal six-byte-MAC events.
 2. MlmeEnqueueForRecv stamps the actual receive WCID/MAC for either queue.
-3. Capture uses MacTabLock immediately before queue locking; it does not nest
-   table locking under queue locking. If reassociation occurs between capture
-   and publication, the event retains its **older** identity and is rejected.
+3. Capture reads the published per-WCID generation/MAC snapshot immediately
+   before queue locking; it acquires no table lock. A bounded reader uses
+   READ_ONCE and read barriers, checks the generation again and compares the
+   live entry mirror/validity. A concurrent change refuses the snapshot. If
+   reassociation occurs after capture, publication retains the **older** event
+   identity and execution rejects it.
 4. Requeue copies the original stamp verbatim; it never refreshes an old event
    against a new station. Non-WPA producers explicitly publish a zero stamp.
 5. A stale WPA event is discarded before the disconnected-key requeue branch
@@ -74,14 +80,26 @@ The independent GREKEYPeriodicExec timer retains its existing ra2 admission;
 it is not a queued station EAPOL event.
 
 
-New callback-side lock acquisitions use `spin_trylock_bh`, matching this SDK's
-BH lock semantics. The OS_ABL form unwraps the existing `pContent` lock exactly
-as `RtmpOsSpinLockBh` does. Contention refuses the enqueue/action/association
-without waiting, spinning or modifying counters. This is necessary because
-native deletion/entry reset cancels station timers while holding MacTabLock;
-adding a blocking acquisition in their callbacks could deadlock. Protocol
-retries retain their native ownership. The fixture exercises both direct and
-OS_ABL layouts, busy-lock refusal and a missing OS_ABL lock.
+The initial trylock-only callback version (`dd5c44de`) refused enqueue on
+unrelated MacTabLock contention. Source review identified a progress regression:
+WPARetryExec ignores MlmeEnqueue's return and its RetryTimer is one-shot.
+The revised callback capture and execution checks therefore acquire **no**
+table lock. They do not lose a valid retry merely because another station owns
+the table. They also cannot form cancel-timer/table-lock deadlock.
+
+Snapshot writers withdraw visibility with zero, issue a write barrier, copy
+MAC bytes, issue another barrier and publish the new unique generation. Readers
+compare both generation samples and the live mirror. There is no generation
+wrap/republication ABA. Withdrawal before station timer cancellation rejects
+work for a deleting station; unrelated station deletion leaves this snapshot
+readable. Whole-table clears also invalidate entry mirrors, so an old published
+snapshot cannot authorize a cleared entry. Full insertion publishes a fresh
+counter value only after all initialization.
+
+Only association-success mutation retains a nonblocking table trylock;
+contention refuses association to the existing client retry path. The OS_ABL
+form unwraps the native pContent lock as RtmpOsSpinLockBh does. No retry timer is
+rearmed from a contended callback and no new worker/reset/scan is introduced.
 
 In this PCI AP target, the queued GTK-related work is EAPOL-Key processing in
 the same MLME payload. Its AP group-key-request write receives an additional
@@ -108,11 +126,15 @@ packet ownership, and does not change those acceptance statuses to FIXED.
 `tools/iot/check-assoc-generation.py` composes the exact pinned source, checks
 all four enqueue branches and requeue/dispatch insertion points, compiles and
 executes the **native modified normal/EAP enqueue functions and native entry
-reset** with GCC ASan/UBSan, and executes the actual generation helper header.
+reset and one-shot retry callback** with GCC ASan/UBSan, and executes the actual generation helper header.
 Cases cover same-MAC/WCID reuse, reassociation, invalid entry/MAC/WCID, malformed
 or missing capture payload, stale snapshot publication, original stamp on
 requeue, unrelated events, whole table clear, counter exhaustion and wrong
-native lookup slot. Composition rejects a second application.
+native lookup slot. The native WPARetryExec executes while MacTabLock is
+already held and still enqueues the valid event. Readers are interrupted at
+both read-barrier boundaries by an in-place reassociation and refuse the old
+snapshot. These deterministic host interleavings are not an LKMM/MIPS memory
+model proof or physical scheduling test. Composition rejects a second application.
 
 The prepared-source CI check compares all three exact native enqueue bodies,
 the WPA source, helper headers and association hook counts against the final

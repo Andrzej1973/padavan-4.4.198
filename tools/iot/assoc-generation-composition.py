@@ -20,7 +20,9 @@ def compose(changes, src, local):
             'typedef struct _MAC_TABLE_ENTRY {\n unsigned int assoc_gen;')
     # Never put the backing array in MacTab, whose complete clear is native.
     s = one(s, '\tMAC_TABLE MacTab;',
-            ' unsigned int wr_assoc_generations[MAX_LEN_OF_MAC_TABLE];\n\tMAC_TABLE MacTab;')
+            ' unsigned int wr_assoc_generations[MAX_LEN_OF_MAC_TABLE];\n'
+            ' unsigned int wr_assoc_visible[MAX_LEN_OF_MAC_TABLE];\n'
+            ' unsigned char wr_assoc_addr[MAX_LEN_OF_MAC_TABLE][6];\n\tMAC_TABLE MacTab;')
     result[name] = s
     name = 'include/mlme.h'
     result[name] = one(get(name), '\tULONG Machine;',
@@ -38,6 +40,18 @@ def compose(changes, src, local):
     s = one(s, '\t\tif (MAC_ADDR_EQUAL(pEntry->Addr, pAddr))\n\t\t{',
         '\t\tif (MAC_ADDR_EQUAL(pEntry->Addr, pAddr))\n\t\t{\n'
         ' (void)wr_assoc_advance_locked(pAd, pEntry, wcid);')
+    delete_anchor='\tif (pEntry && !IS_ENTRY_NONE(pEntry))\n\t{'
+    s=one(s,delete_anchor,delete_anchor+'\n'
+        ' if (MAC_ADDR_EQUAL(pEntry->Addr,pAddr)) {\n'
+        '  WRITE_ONCE(pAd->wr_assoc_visible[wcid],0); smp_wmb();\n }')
+    # Publish once after full insertion/hash initialization, before final unlock.
+    start=s.index('MAC_TABLE_ENTRY *MacTableInsertEntry(')
+    end=s.index('\n}',start)+2
+    body=s[start:end]
+    lock='NdisReleaseSpinLock(&pAd->MacTabLock);'
+    at=body.rindex(lock)
+    body=body[:at]+'if(pEntry) wr_assoc_publish_slot_locked(pAd,pEntry);\n\t'+body[at:]
+    s=s[:start]+body+s[end:]
     result[name] = s
     name = 'ap/ap_repeater.c'
     s = get(name)
@@ -45,6 +59,12 @@ def compose(changes, src, local):
     s = one(s, anchor,
         '\n if (!wr_assoc_advance_locked(pAd, pEntry, i)) {\n'
         '  NdisReleaseSpinLock(&pAd->MacTabLock); return NULL;\n }\n' + anchor)
+    start=s.index('MAC_TABLE_ENTRY *RTMPInsertRepeaterMacEntry(')
+    end=s.index('\n}',start)+2
+    body=s[start:end]
+    at=body.rindex('NdisReleaseSpinLock(&pAd->MacTabLock);')
+    body=body[:at]+'if(pEntry) wr_assoc_publish_slot_locked(pAd,pEntry);\n\t'+body[at:]
+    s=s[:start]+body+s[end:]
     result[name] = s
     name = 'ap/ap_assoc.c'
     s = get(name)

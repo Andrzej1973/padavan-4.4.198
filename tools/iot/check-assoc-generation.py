@@ -33,6 +33,9 @@ if a.prepared_driver:
         assert body in prepared, 'prepared enqueue differs: ' + signature
     assert (a.prepared_driver/'common/cmm_wpa.c').read_text() == texts['common/cmm_wpa.c']
     assert (a.prepared_driver/'ap/ap_assoc.c').read_text().count('if (!wr_assoc_reassociate(pAd, pEntry))') == 2
+    for name in ('mgmt/mgmt_entrytb.c','ap/ap_repeater.c'):
+        assert (a.prepared_driver/name).read_text().count('if(pEntry) wr_assoc_publish_slot_locked(pAd,pEntry);') == 1
+    assert 'WRITE_ONCE(pAd->wr_assoc_visible[wcid],0); smp_wmb();' in (a.prepared_driver/'mgmt/mgmt_entrytb.c').read_text()
 if a.patch:
     patch = []
     for name, text in sorted(texts.items()):
@@ -55,6 +58,9 @@ except ValueError:
     pass
 else:
     raise AssertionError('double composition accepted')
+retry_source=(a.source/'ap/ap_wpa.c').read_text()
+retry_start=retry_source.index('VOID WPARetryExec(')
+retry_body=retry_source[retry_start:retry_source.index('\n}',retry_start)+2]
 functions = []
 reset_source = texts['mgmt/mgmt_entrytb.c']
 reset_start = reset_source.index('static INT mac_entry_reset(')
@@ -67,6 +73,12 @@ prefix = r'''
 #include <stdio.h>
 #include <string.h>
 #define IN
+#define READ_ONCE(x) __atomic_load_n(&(x),__ATOMIC_RELAXED)
+#define WRITE_ONCE(x,v) __atomic_store_n(&(x),(v),__ATOMIC_RELAXED)
+static void (*read_hook)(void);
+static void read_barrier(void){__atomic_thread_fence(__ATOMIC_ACQUIRE);if(read_hook)read_hook();}
+#define smp_rmb() read_barrier()
+#define smp_wmb() __atomic_thread_fence(__ATOMIC_RELEASE)
 #define TRUE 1
 #define FALSE 0
 #define MAC_ADDR_LEN 6
@@ -75,6 +87,7 @@ prefix = r'''
 #define MAX_LEN_OF_EAP_QUEUE 4
 #define MGMT_DMA_BUFFER_SIZE 256
 #define WPA_STATE_MACHINE 1
+#define MT2_EAPOLTIMEOUT 2
 #define RESERVED_WCID 255
 #define LENGTH_802_11 24
 #define RATE_11 11
@@ -93,6 +106,7 @@ typedef int INT,BOOLEAN;
 typedef unsigned int UINT32;
 typedef unsigned long ULONG;
 typedef void VOID;
+typedef void *PVOID;
 struct lock {int held;void *pContent;};
 typedef struct lock spinlock_t;
 static int spin_trylock_bh(spinlock_t *l){if(l->held)return 0;l->held=1;return 1;}
@@ -104,12 +118,12 @@ typedef struct {unsigned assoc_gen;unsigned short assoc_wcid;unsigned char assoc
  unsigned char Msg[256];unsigned long Machine,MsgType,MsgLen,Priv;unsigned Wcid;int Occupied;} MLME_QUEUE_ELEM;
 typedef struct {struct lock Lock;int Tail,Num;MLME_QUEUE_ELEM Entry[4];} MLME_QUEUE,EAP_MLME_QUEUE;
 typedef struct {unsigned assoc_gen,wcid;unsigned char Addr[6];int valid;
- int RetryTimer,EnqueueStartForPSKTimer,MaxSupportedRate,CurrTxRate;
+ void *pAd;int RetryTimer,EnqueueStartForPSKTimer,MaxSupportedRate,CurrTxRate;
  struct {int KeyLen,CipherAlg;} PairwiseKey;} MAC_TABLE_ENTRY;
-typedef struct {struct lock MacTabLock;unsigned wr_assoc_generations[4];
+typedef struct {struct lock MacTabLock;unsigned wr_assoc_generations[4],wr_assoc_visible[4];unsigned char wr_assoc_addr[4][6];
  struct {MAC_TABLE_ENTRY Content[4];} MacTab;
  struct {MLME_QUEUE Queue,EAP_Queue;} Mlme;} RTMP_ADAPTER;
-static MAC_TABLE_ENTRY *MacTableLookup(RTMP_ADAPTER *ad,unsigned char *mac){
+static __attribute__((unused)) MAC_TABLE_ENTRY *MacTableLookup(RTMP_ADAPTER *ad,unsigned char *mac){
  unsigned i;assert(ad->MacTabLock.held);table_held++;
  for(i=1;i<4;i++)if(ad->MacTab.Content[i].valid&&MAC_ADDR_EQUAL(ad->MacTab.Content[i].Addr,mac))return &ad->MacTab.Content[i];
  return NULL;
@@ -119,35 +133,49 @@ static int EAPMlmeQueueFull(EAP_MLME_QUEUE *q){return q->Num==4;}
 #include "assoc-generation-kernel.h"
 '''
 main = r'''
+static RTMP_ADAPTER *hook_adapter;
+static unsigned hook_at,hook_count;
+static void association_between_reads(void){
+ if(++hook_count==hook_at){
+  MAC_TABLE_ENTRY *entry=&hook_adapter->MacTab.Content[3];
+  read_hook=NULL;
+  NdisAcquireSpinLock(&hook_adapter->MacTabLock);
+  assert(wr_assoc_advance_locked(hook_adapter,entry,3));
+  wr_assoc_publish_slot_locked(hook_adapter,entry);
+  NdisReleaseSpinLock(&hook_adapter->MacTabLock);
+ }
+}
 int main(void){
  RTMP_ADAPTER ad={0};MAC_TABLE_ENTRY *e=&ad.MacTab.Content[1];
  unsigned char mac[6]={1,2,3,4,5,6};MLME_QUEUE_ELEM old,requeued;
  struct wr_assoc_stamp stamp;HEADER_802_11 frame={0};unsigned i;
  ad.MacTabLock.pContent=&ad.MacTabLock;
- e->valid=1;e->wcid=1;COPY_MAC_ADDR(e->Addr,mac);
- e->assoc_gen=wr_assoc_generation_next(&ad.wr_assoc_generations[1]);assert(e->assoc_gen==1);
+ e->valid=1;e->wcid=1;e->pAd=&ad;COPY_MAC_ADDR(e->Addr,mac);
+ e->assoc_gen=wr_assoc_generation_next(&ad.wr_assoc_generations[1]);assert(e->assoc_gen==1);wr_assoc_publish_slot_locked(&ad,e);
  assert(MlmeEnqueue(&ad,1,2,6,mac,0));old=ad.Mlme.Queue.Entry[0];
  assert(old.assoc_gen==1&&old.assoc_wcid==1&&wr_assoc_event_current(&ad,&old));
  assert(EAPMlmeEnqueue(&ad,1,2,6,mac,0));assert(ad.Mlme.EAP_Queue.Entry[0].assoc_gen==1);
- /* Timer callback refuses immediately when deletion owns the table lock. */
+ /* Unrelated table ownership must not lose a one-shot retry callback. */
  NdisAcquireSpinLock(&ad.MacTabLock);
- assert(!MlmeEnqueue(&ad,1,2,6,mac,0));assert(ad.Mlme.Queue.Num==1);
- assert(!EAPMlmeEnqueue(&ad,1,2,6,mac,0));assert(ad.Mlme.EAP_Queue.Num==1);
- assert(!wr_assoc_event_current(&ad,&old));assert(!wr_assoc_reassociate(&ad,e));
+ WPARetryExec(NULL,e,NULL,NULL);assert(ad.Mlme.Queue.Num==2);
+ assert(EAPMlmeEnqueue(&ad,1,2,6,mac,0));assert(ad.Mlme.EAP_Queue.Num==2);
+ assert(wr_assoc_event_current(&ad,&old));assert(!wr_assoc_reassociate(&ad,e));
  assert(ad.MacTabLock.held);NdisReleaseSpinLock(&ad.MacTabLock);
  /* Same address in the same slot after deletion/reset/allocation. */
  e->assoc_gen=wr_assoc_generation_next(&ad.wr_assoc_generations[1]);
  assert(mac_entry_reset(&ad,e,TRUE)==0);e->valid=1;e->wcid=1;COPY_MAC_ADDR(e->Addr,mac);
  e->assoc_gen=wr_assoc_generation_next(&ad.wr_assoc_generations[1]);
+ wr_assoc_publish_slot_locked(&ad,e);
  assert(e->assoc_gen==3&&!wr_assoc_event_current(&ad,&old));
  requeued=old;assert(!wr_assoc_event_current(&ad,&requeued));
- assert(MlmeEnqueue(&ad,1,2,6,mac,0));assert(wr_assoc_event_current(&ad,&ad.Mlme.Queue.Entry[1]));
+ assert(MlmeEnqueue(&ad,1,2,6,mac,0));assert(wr_assoc_event_current(&ad,&ad.Mlme.Queue.Entry[2]));
  /* Association in-place, wrong MAC, invalid entry, zero stamp, wrong WCID. */
  e->assoc_gen=wr_assoc_generation_next(&ad.wr_assoc_generations[1]);
- assert(!wr_assoc_event_current(&ad,&ad.Mlme.Queue.Entry[1]));
+ wr_assoc_publish_slot_locked(&ad,e);
+ assert(!wr_assoc_event_current(&ad,&ad.Mlme.Queue.Entry[2]));
  COPY_MAC_ADDR(frame.Addr2,mac);stamp=wr_assoc_capture(&ad,1,sizeof(frame),&frame,1);
  wr_assoc_publish(&old,&stamp);old.Machine=1;assert(wr_assoc_event_current(&ad,&old));
- e->Addr[0]^=1;assert(!wr_assoc_event_current(&ad,&old));e->Addr[0]^=1;
+ e->Addr[0]^=1;wr_assoc_publish_slot_locked(&ad,e);assert(!wr_assoc_event_current(&ad,&old));e->Addr[0]^=1;wr_assoc_publish_slot_locked(&ad,e);
  e->valid=0;assert(!wr_assoc_event_current(&ad,&old));e->valid=1;
  old.assoc_gen=0;assert(!wr_assoc_event_current(&ad,&old));
  old.assoc_wcid=255;assert(!wr_assoc_event_current(&ad,&old));
@@ -155,18 +183,18 @@ int main(void){
  stamp=wr_assoc_capture(&ad,1,6,mac,2);assert(stamp.gen==0);
  stamp=wr_assoc_capture(&ad,1,6,NULL,1);assert(stamp.gen==0);
  /* Stamps for unrelated events are initialized, including reused queue cells. */
- assert(MlmeEnqueue(&ad,7,2,6,mac,0));assert(ad.Mlme.Queue.Entry[2].assoc_gen==0);
- assert(wr_assoc_event_current(&ad,&ad.Mlme.Queue.Entry[2]));
+ assert(MlmeEnqueue(&ad,7,2,6,mac,0));assert(ad.Mlme.Queue.Entry[3].assoc_gen==0);
+ assert(wr_assoc_event_current(&ad,&ad.Mlme.Queue.Entry[3]));
  /* Counter survives whole MacTab clear; never wrap and admit old generation. */
  memset(&ad.MacTab,0,sizeof(ad.MacTab));assert(ad.wr_assoc_generations[1]==4);
  ad.wr_assoc_generations[1]=~0U-1U;
  assert(wr_assoc_generation_next(&ad.wr_assoc_generations[1])==~0U);
  for(i=0;i<10;i++)assert(wr_assoc_generation_next(&ad.wr_assoc_generations[1])==0);
- assert(ad.wr_assoc_generations[1]==~0U&&table_held>0);
+ assert(ad.wr_assoc_generations[1]==~0U&&table_held==0);
  /* Execute the same lock-taking helpers composed into allocation/reassociation. */
  e=&ad.MacTab.Content[2];e->wcid=2;e->valid=1;COPY_MAC_ADDR(e->Addr,mac);
  NdisAcquireSpinLock(&ad.MacTabLock);
- assert(wr_assoc_advance_locked(&ad,e,2)==1);
+ assert(wr_assoc_advance_locked(&ad,e,2)==1);wr_assoc_publish_slot_locked(&ad,e);
  NdisReleaseSpinLock(&ad.MacTabLock);
  stamp=wr_assoc_capture(&ad,1,6,mac,2);wr_assoc_publish(&old,&stamp);old.Machine=1;
  assert(wr_assoc_event_entry_current(&ad,&old,e));
@@ -181,12 +209,23 @@ int main(void){
 #ifdef OS_ABL_FUNC_SUPPORT
  ad.MacTabLock.pContent=NULL;assert(!wr_assoc_try_table_lock(&ad));
 #endif
+ /* Replace the association at either reader barrier: no mixed stamp. */
+ e=&ad.MacTab.Content[3];e->wcid=3;e->valid=1;COPY_MAC_ADDR(e->Addr,mac);
+ ad.wr_assoc_generations[3]=1;e->assoc_gen=1;wr_assoc_publish_slot_locked(&ad,e);
+ hook_adapter=&ad;
+ for(hook_at=1;hook_at<=2;hook_at++){
+  hook_count=0;read_hook=association_between_reads;
+  stamp=wr_assoc_read_slot(&ad,3,mac);assert(!stamp.gen&&read_hook==NULL);
+  stamp=wr_assoc_read_slot(&ad,3,mac);assert(stamp.gen==e->assoc_gen);
+ }
+ WRITE_ONCE(ad.wr_assoc_visible[3],0);
+ stamp=wr_assoc_read_slot(&ad,3,mac);assert(stamp.gen==0);
  puts("native normal/EAP enqueues and generation guards: PASS");return 0;
 }
 '''
 with tempfile.TemporaryDirectory(prefix='wr-assoc-gen-') as directory:
     d = Path(directory)
-    (d/'test.c').write_text(prefix+'\n'.join(functions)+reset_body+main)
+    (d/'test.c').write_text(prefix+'\n'.join(functions)+retry_body+reset_body+main)
     for abi in (False, True):
         command = ['gcc','-std=gnu11','-O2','-Wall','-Wextra','-Werror',
             '-Wno-unused-parameter','-fsanitize=address,undefined','-fno-pie','-no-pie',
@@ -198,9 +237,11 @@ with tempfile.TemporaryDirectory(prefix='wr-assoc-gen-') as directory:
 
 report = dict(host_native_enqueue_verified=True, composition_anchors_verified=True,
     same_mac_wcid_reuse_rejected=True, counter_wrap_refused=True,
-    timer_lock_contention_refusal_verified=True, os_abl_lock_unwrap_host_verified=True,
+    timer_enqueue_under_unrelated_table_contention_verified=True, os_abl_lock_unwrap_host_verified=True,
     execution_lifetime_pin_verified=False, target_compiled=False, runtime_verified=False,
     prepared_driver_checked=a.prepared_driver is not None,
+    native_one_shot_retry_enqueue_under_contention_verified=True,
+    publication_reader_barrier_interleavings_verified=True,
     output_sha256={name:hashlib.sha256(text.encode()).hexdigest() for name,text in texts.items()},
     input_sha256={name:hashlib.sha256((a.source/name).read_bytes()).hexdigest()
         for name in texts if (a.source/name).exists()})

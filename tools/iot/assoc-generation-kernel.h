@@ -13,6 +13,7 @@ static inline int wr_assoc_try_table_lock(RTMP_ADAPTER *ad)
  return spin_trylock_bh(&ad->MacTabLock);
 #endif
 }
+static inline void wr_assoc_publish_slot_locked(RTMP_ADAPTER *,MAC_TABLE_ENTRY *);
 /* Association success must invalidate an older queued handshake, even if the
  * WCID and MAC remain unchanged. Never hold this lock across WPA actions. */
 static inline int wr_assoc_reassociate(RTMP_ADAPTER *ad, MAC_TABLE_ENTRY *entry)
@@ -22,6 +23,7 @@ static inline int wr_assoc_reassociate(RTMP_ADAPTER *ad, MAC_TABLE_ENTRY *entry)
  if (entry && entry->wcid < MAX_LEN_OF_MAC_TABLE && !IS_ENTRY_NONE(entry)) {
   generation = wr_assoc_generation_next(&ad->wr_assoc_generations[entry->wcid]);
   entry->assoc_gen = generation;
+  wr_assoc_publish_slot_locked(ad,entry);
  }
  NdisReleaseSpinLock(&ad->MacTabLock);
  return generation != 0;
@@ -39,27 +41,64 @@ struct wr_assoc_stamp {
  unsigned short wcid;
  unsigned char addr[MAC_ADDR_LEN];
 };
+/* Identity publication is separate from the mutable/cleared entry. Writers
+ * own MacTabLock. Zero withdraws publication; a nonzero generation never repeats.
+ * Readers are bounded and never wait for a table owner cancelling their timer. */
+static inline void wr_assoc_publish_slot_locked(RTMP_ADAPTER *ad,
+ MAC_TABLE_ENTRY *entry)
+{
+ unsigned int i, slot=entry->wcid;
+ if (slot >= MAX_LEN_OF_MAC_TABLE) return;
+ WRITE_ONCE(ad->wr_assoc_visible[slot],0);
+ smp_wmb();
+ for(i=0;i<MAC_ADDR_LEN;i++) WRITE_ONCE(ad->wr_assoc_addr[slot][i],entry->Addr[i]);
+ smp_wmb();
+ WRITE_ONCE(ad->wr_assoc_visible[slot],entry->assoc_gen);
+}
+static inline struct wr_assoc_stamp wr_assoc_read_slot(RTMP_ADAPTER *ad,
+ unsigned int slot, const unsigned char *addr)
+{
+ struct wr_assoc_stamp stamp;
+ unsigned int generation,i;
+ NdisZeroMemory(&stamp,sizeof(stamp));
+ if (slot >= MAX_LEN_OF_MAC_TABLE) return stamp;
+ generation=READ_ONCE(ad->wr_assoc_visible[slot]);
+ if (!generation) return stamp;
+ smp_rmb();
+ for(i=0;i<MAC_ADDR_LEN;i++) stamp.addr[i]=READ_ONCE(ad->wr_assoc_addr[slot][i]);
+ smp_rmb();
+ if (generation!=READ_ONCE(ad->wr_assoc_visible[slot]) ||
+     generation!=READ_ONCE(ad->MacTab.Content[slot].assoc_gen) ||
+     IS_ENTRY_NONE(&ad->MacTab.Content[slot]) ||
+     READ_ONCE(ad->MacTab.Content[slot].wcid)!=slot ||
+     !MAC_ADDR_EQUAL(stamp.addr,addr)) {
+  NdisZeroMemory(&stamp,sizeof(stamp));return stamp;
+ }
+ for(i=0;i<MAC_ADDR_LEN;i++) if(stamp.addr[i]!=READ_ONCE(ad->MacTab.Content[slot].Addr[i])) {
+  NdisZeroMemory(&stamp,sizeof(stamp));return stamp;
+ }
+ smp_rmb();
+ if(generation!=READ_ONCE(ad->wr_assoc_visible[slot])) {
+  NdisZeroMemory(&stamp,sizeof(stamp));return stamp;
+ }
+ stamp.gen=generation;stamp.wcid=slot;return stamp;
+}
 static inline struct wr_assoc_stamp wr_assoc_capture(RTMP_ADAPTER *ad,
  unsigned long machine, unsigned long len, void *msg, unsigned int wcid)
 {
  struct wr_assoc_stamp stamp;
- MAC_TABLE_ENTRY *entry = NULL;
- unsigned char *addr = NULL;
- NdisZeroMemory(&stamp, sizeof(stamp));
- if (machine != WPA_STATE_MACHINE || !msg) return stamp;
- if (len == MAC_ADDR_LEN) addr = (unsigned char *)msg;
- else if (len >= LENGTH_802_11) addr = ((PHEADER_802_11)msg)->Addr2;
+ unsigned char *addr=NULL;
+ unsigned int i;
+ NdisZeroMemory(&stamp,sizeof(stamp));
+ if (machine!=WPA_STATE_MACHINE || !msg) return stamp;
+ if (len==MAC_ADDR_LEN) addr=(unsigned char *)msg;
+ else if (len>=LENGTH_802_11) addr=((PHEADER_802_11)msg)->Addr2;
  if (!addr) return stamp;
- if (!wr_assoc_try_table_lock(ad)) return stamp;
- if (wcid == RESERVED_WCID) entry = MacTableLookup(ad, addr);
- else if (wcid < MAX_LEN_OF_MAC_TABLE) entry = &ad->MacTab.Content[wcid];
- if (entry && !IS_ENTRY_NONE(entry) && MAC_ADDR_EQUAL(entry->Addr, addr) &&
-     entry->wcid < MAX_LEN_OF_MAC_TABLE && entry->assoc_gen) {
-  stamp.gen = entry->assoc_gen;
-  stamp.wcid = entry->wcid;
-  COPY_MAC_ADDR(stamp.addr, entry->Addr);
+ if (wcid!=RESERVED_WCID) return wr_assoc_read_slot(ad,wcid,addr);
+ for(i=1;i<MAX_LEN_OF_MAC_TABLE;i++) {
+  stamp=wr_assoc_read_slot(ad,i,addr);
+  if(stamp.gen) return stamp;
  }
- NdisReleaseSpinLock(&ad->MacTabLock);
  return stamp;
 }
 static inline void wr_assoc_publish(MLME_QUEUE_ELEM *elem,
@@ -71,17 +110,11 @@ static inline void wr_assoc_publish(MLME_QUEUE_ELEM *elem,
 }
 static inline int wr_assoc_event_current(RTMP_ADAPTER *ad, MLME_QUEUE_ELEM *elem)
 {
- MAC_TABLE_ENTRY *entry;
- int ok = 0;
- if (elem->Machine != WPA_STATE_MACHINE) return 1;
- if (elem->assoc_wcid >= MAX_LEN_OF_MAC_TABLE) return 0;
- if (!wr_assoc_try_table_lock(ad)) return 0;
- entry = &ad->MacTab.Content[elem->assoc_wcid];
- ok = wr_assoc_generation_matches(elem->assoc_gen, entry->assoc_gen,
-  !IS_ENTRY_NONE(entry) && entry->wcid == elem->assoc_wcid,
-  MAC_ADDR_EQUAL(elem->assoc_addr, entry->Addr));
- NdisReleaseSpinLock(&ad->MacTabLock);
- return ok;
+ struct wr_assoc_stamp current;
+ if (elem->Machine!=WPA_STATE_MACHINE) return 1;
+ current=wr_assoc_read_slot(ad,elem->assoc_wcid,elem->assoc_addr);
+ return wr_assoc_generation_matches(elem->assoc_gen,current.gen,
+  current.gen!=0,current.wcid==elem->assoc_wcid);
 }
 /* Native action lookups must resolve to the stamped slot, not a same-MAC
  * peer in another BSS. Still a point-in-time validation, not a reference pin. */
