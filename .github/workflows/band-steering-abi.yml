@@ -1411,6 +1411,14 @@ jobs:
           "$compiler" -std=gnu11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float -Itools/iot \
             -c tools/iot/check-request.c -o abi-results/iot-request-mips.o
 
+      - name: Check vendor AES key packing and WTBL failure boundaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -B tools/iot/check-vendor-group-key-path.py \
+            source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3 \
+            --output abi-results/vendor-group-key-host.json
+
       - name: Check IoT HTTP request boundary
         shell: bash
         run: |

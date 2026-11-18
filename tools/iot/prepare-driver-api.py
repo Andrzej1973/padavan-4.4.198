@@ -180,6 +180,10 @@ changes=runpy.run_path(str(local/'first-beacon-composition.py'))['compose'](chan
 changes['common/cmm_mac_pci.c']=runpy.run_path(str(local/'tracked-beacon-reservation.py'))['compose'](changes['common/cmm_mac_pci.c'])
 changes=runpy.run_path(str(local/'ra2-ps-composition.py'))['compose'](changes,src,local)
 changes=runpy.run_path(str(local/'ra2-software-off-composition.py'))['compose'](changes,src,local)
+# Keep native add/remove byte packing defined for broadcast/high-bit addresses.
+# No register address, producer ownership or global queue behavior changes.
+changes['hw_ctrl/cmm_asic_mt.c']=runpy.run_path(str(local/'group-key-byte-packing.py'))['compose'](
+ changes['hw_ctrl/cmm_asic_mt.c'])
 # All source anchors/collisions verified before the first mutation.
 for name,s in changes.items():(src/name).write_text(s)
 hashes={n:hashlib.sha256((src/n).read_bytes()).hexdigest() for n in changes}
