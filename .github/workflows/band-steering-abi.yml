@@ -158,7 +158,8 @@ jobs:
         run: |
           python3 -B tools/iot/check-config-edit-suite.py \
             --native-linux source/trunk/linux-4.4.x/drivers/nvram/nvram_linux.c \
-            --native-http source/trunk/user/httpd
+            --native-http source/trunk/user/httpd \
+            --native-classic source/trunk/user/www/n56u_ribbon_fixed/state.js
       - name: Verify reviewed recovery predecessor normalization
         run: python3 tools/iot/check-reviewed-recovery-predecessor.py
       - name: Verify steering package dependency checker logic

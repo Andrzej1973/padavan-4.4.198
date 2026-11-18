@@ -1,0 +1,33 @@
+{
+  "date": "2026-11-18",
+  "published_head": "746ea2cc05c9b73db8a0e51eb2441856500352e1",
+  "optional1377": {
+    "run": 44229421135,
+    "verified_revision": "13ce5dffcd952b8118ace48bc5a1c5ee7e0aa25f",
+    "conclusion": "success",
+    "independent_candidate_image_audit": "WR1200JS-OPTIONAL1377-INDEPENDENT-IMAGE-2026-11-18.json"
+  },
+  "standard1378": {
+    "run": 44230260240,
+    "revision": "2e71c4787f3729083a2f07c12911d2fdb08e3855",
+    "conclusion": "success",
+    "all_jobs_verified": true
+  },
+  "optional1380": {
+    "run": 44231991863,
+    "dispatch_revision": "746ea2cc05c9b73db8a0e51eb2441856500352e1",
+    "requested_revision": "2e71c4787f3729083a2f07c12911d2fdb08e3855",
+    "last_observed": "in_progress",
+    "result_claimed": false
+  },
+  "standard1379": {
+    "run": 44231252043,
+    "last_observed": "in_progress"
+  },
+  "abi932": {
+    "run": 44231255964,
+    "last_observed": "in_progress"
+  },
+  "local_http_rc_composition": "host PASS, unpublished test changes",
+  "device_operations": false
+}

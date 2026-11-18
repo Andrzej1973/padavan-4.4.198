@@ -7,6 +7,7 @@ here=Path(__file__).resolve().parent
 parser=argparse.ArgumentParser()
 parser.add_argument('--native-linux',type=Path)
 parser.add_argument('--native-http',type=Path)
+parser.add_argument('--native-classic',type=Path)
 args=parser.parse_args()
 checks=('check-generation-saved-boot.py','check-initial-shutdown-headers.py','check-initial-off-header-staging.py','check-config-edit-pin.py','check-config-edit-lease.py','check-config-edit-route.py',
         'check-config-view-channel.py','check-config-view-endpoint.py','check-config-view-client.py',
@@ -16,7 +17,9 @@ checks=('check-generation-saved-boot.py','check-initial-shutdown-headers.py','ch
         'check-status-core.py','check-status-endpoint.py','check-rc-runtime.py',
         'check-rc-scheduler-composition.py','check-rc-view-scheduling.py','check-save-startup.py')
 for name in checks:
- subprocess.run([sys.executable,'-B',str(here/name)],check=True,timeout=90)
+ command=[sys.executable,'-B',str(here/name)]
+ if name=='check-classic-config-romfs.py' and args.native_classic:command.append(str(args.native_classic.resolve()))
+ subprocess.run(command,check=True,timeout=90)
 subprocess.run([sys.executable,'-B',str(here/'check-config-runtime-staging.py')]+
                ([str(args.native_linux.resolve())] if args.native_linux else []),check=True,timeout=60)
 if args.native_http:

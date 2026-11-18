@@ -16,6 +16,7 @@ for declaration in (
 body=body.replace('return wr_iot_rc_save_observed(r);','return wr_iot_rc_edit_observed(r);')
 body+=r'''
 #include "config-edit-server.h"
+#include "http-edit-request.h"
 static unsigned long long edit_now=10;
 static unsigned char entropy_counter=0x5a;
 unsigned long long fixture_edit_clock(void){return edit_now;}
@@ -44,10 +45,37 @@ int main(int argc,char **argv)
  request.edit.fields=config;strcpy(request.edit.fields.profile.ssid,"Edited IoT");
  if(mode==6)strcpy(request.edit.fields.profile.password,"replacement-key");
  else memset(request.edit.fields.profile.password,0,sizeof(request.edit.fields.profile.password));
+ /* Feed the actual HTTP form parser into the actual client/queue/RC path.
+  * The server supplies mode; neither body identity nor caller transaction
+  * fields may acquire ownership. Authentication itself remains an SDK actor. */
+ struct wr_iot_config_edit_record parsed={0},untouched;
+ char form[1024],csrf[33];memset(csrf,'9',32);csrf[32]=0;
+ int length=snprintf(form,sizeof(form),
+  "wr_iot_request_enable=0&wr_iot_request_ssid=Edited+IoT&wr_iot_request_psk=%s&"
+  "wr_iot_request_gateway=%s&wr_iot_request_mask=%s&wr_iot_request_start=%s&"
+  "wr_iot_request_end=%s&token=%s&revision=%s&key_action=%s",
+  mode==6?"replacement-key":"",config.profile.gateway,config.profile.mask,
+  config.profile.first,config.profile.last,csrf,revision,mode==6?"replace":"keep");
+ assert(length>0&&(size_t)length<sizeof(form));
+ memset(&parsed,0x5a,sizeof(parsed));untouched=parsed;
+ assert(!wr_iot_http_edit_request_read(&parsed,0,"POST","application/x-www-form-urlencoded",csrf,form,(size_t)length,request.edit.mode));
+ assert(!memcmp(&parsed,&untouched,sizeof(parsed))&&!m->writes&&!m->commits&&!wr_iot_rc_pending());
+ assert(!wr_iot_http_edit_request_read(&parsed,1,"GET","application/x-www-form-urlencoded",csrf,form,(size_t)length,request.edit.mode));
+ csrf[0]='8';
+ assert(!wr_iot_http_edit_request_read(&parsed,1,"POST","application/x-www-form-urlencoded",csrf,form,(size_t)length,request.edit.mode));
+ assert(!memcmp(&parsed,&untouched,sizeof(parsed))&&!m->writes&&!m->commits);
+ csrf[0]='9';
+ assert(wr_iot_http_edit_request_read(&parsed,1,"POST","application/x-www-form-urlencoded",csrf,form,(size_t)length,request.edit.mode));
+ assert(!parsed.id[0]&&!parsed.created&&parsed.mode==request.edit.mode&&parsed.action==request.edit.action);
+ assert(parsed.fields.profile.enabled==request.edit.fields.profile.enabled&&!strcmp(parsed.revision,revision));
+#define SAME_FIELD(field) assert(!strcmp(parsed.fields.profile.field,request.edit.fields.profile.field))
+ SAME_FIELD(ssid);SAME_FIELD(password);SAME_FIELD(gateway);SAME_FIELD(mask);SAME_FIELD(first);SAME_FIELD(last);
+#undef SAME_FIELD
  if(mode==3)strcpy(m->record,"foreign");
  if(mode==5)edit_now=40;
  wr_iot_mailbox_init(&mailbox);
- assert(wr_iot_rc_submit_edit(&request.edit.fields,request.edit.revision,request.edit.mode,request.edit.action,request.id));
+ assert(wr_iot_rc_submit_edit(&parsed.fields,parsed.revision,parsed.mode,parsed.action,request.id));
+ wr_iot_saved_wipe(&parsed,sizeof(parsed));wr_iot_saved_wipe(form,sizeof(form));
  before=reaped;
  assert(wr_iot_rc_dispatch());
  if(mode==7){
@@ -110,4 +138,4 @@ with tempfile.TemporaryDirectory(prefix='wr-edit-route-') as directory:
   '-DWR_IOT_NOTIFY()=((void)0)','-I'+str(root),'-I'+str(here),str(source),
   *[str(here/(unit+'.c')) for unit in units],str(shared/'settings-snapshot.c'),'-o',str(binary)],check=True)
  for mode in range(8):subprocess.run([str(binary),str(mode)],check=True,timeout=25)
-print('PASS actual edit view/lease/pin/queue/RC/RAM/Save/worker composition: KEEP, manual RAM, flash, stale/expired rejection and unknown no-replay; native flash/SDK/clock/entropy actors, no HTTP/device acceptance')
+print('PASS actual HTTP edit parser/view/lease/pin/client/queue/RC/RAM/Save/worker composition: auth/CSRF refusal, decoded fields, KEEP/REPLACE, manual RAM, flash, stale/expired rejection and unknown no-replay; native flash/SDK/clock/entropy actors, no HTTP server/device acceptance')

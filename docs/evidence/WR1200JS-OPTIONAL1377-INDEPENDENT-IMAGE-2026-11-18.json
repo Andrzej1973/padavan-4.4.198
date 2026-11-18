@@ -1,0 +1,171 @@
+{
+  "date": "2026-11-18",
+  "run": 44229421135,
+  "artifact": 14395122815,
+  "source_revision": "13ce5dffcd952b8118ace48bc5a1c5ee7e0aa25f",
+  "verification_source": {
+    "verified_revision": "13ce5dffcd952b8118ace48bc5a1c5ee7e0aa25f",
+    "github_run": {
+      "conclusion": "success",
+      "displayTitle": "Padavan #1377 [optional] 13ce5dffcd952b8118ace48bc5a1c5ee7e0aa25f host=ubuntu-24.04 tc=source iot/peer82",
+      "headSha": "13ce5dffcd952b8118ace48bc5a1c5ee7e0aa25f",
+      "url": "https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/44229421135"
+    }
+  },
+  "github_run": {
+    "conclusion": "success",
+    "displayTitle": "Padavan #1377 [optional] 13ce5dffcd952b8118ace48bc5a1c5ee7e0aa25f host=ubuntu-24.04 tc=source iot/peer82",
+    "headSha": "13ce5dffcd952b8118ace48bc5a1c5ee7e0aa25f",
+    "url": "https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/44229421135"
+  },
+  "status": "INDEPENDENT_CANDIDATE_IMAGE_AND_LIFECYCLE_PAIR_PASS",
+  "image_sha256": "428a81116615c82e9a2de6706978bb6e3f99375a5f70635855e3396b22c9a00f",
+  "image_bytes": 14527957,
+  "remaining_partition_bytes": 1659435,
+  "header_payload_crc_verified": true,
+  "squashfs_offset": 1982240,
+  "lifecycle_pair_recomputed": true,
+  "native_snapshot_evidence": {
+    "verified": true,
+    "kernel_getall_sha256": "1328a1e4fa4f098286ce7a30561ebb51f645010e6fcb6c4b7182000bb721ef08",
+    "kernel_generate_sha256": "c25f6619194849e9c2897c6ea73aff9b935aaf88a52afb037a2a2069a5d3cef1",
+    "native_header_sha256": "411b381cdff5d6fea5fda76510e7a5dacff591dd067ce47c3cc3e225ae42b33e",
+    "nvram_space": 61440,
+    "nvram_header_bytes": 20,
+    "snapshot_c_sha256": "4f305b1bf4a647c209c4aa39550b4678ed8afbc125601eadb62fc49957388203",
+    "snapshot_h_sha256": "d31c873448a171b3d8c127ba5daedd774e756448fd6273ffa9179f0b0c856f55"
+  },
+  "configuration_ram_target_symbols": true,
+  "desired_generation_target_symbols": true,
+  "automatic_initial_shutdown_target_symbols": true,
+  "automatic_cold_shutdown_target_symbols": true,
+  "automatic_mailbox_shutdown_target_symbols": true,
+  "embedded_replacements": {
+    "sbin/rc": {
+      "bytes": 1102780,
+      "sha256": "b4fad50e6da9d0c050fb3e44bac8ce7f4af8d3639c4dc267ad79738f8985fef8",
+      "elf": "ELF32 LE MIPS"
+    },
+    "usr/sbin/httpd": {
+      "bytes": 425680,
+      "sha256": "2eb9755132d0e8c4a9e653e836de457f2d7849490c25a37acd8b39e981b08cb4",
+      "elf": "ELF32 LE MIPS"
+    },
+    "usr/bin/iappd.sh": {
+      "bytes": 1567,
+      "sha256": "020f6b714bc6c174681b2ce040a9d57ba7d9943679591f00a8b8b17ea29a62fa"
+    },
+    "lib/modules/4.4.198/kernel/drivers/net/wireless/mediatek/mt76x3_ap/mt76x3_ap.ko": {
+      "bytes": 6300076,
+      "sha256": "a28843fcd5fcdf8d7e83520fa70e667cd7acb2eb1a7f125bc5b64820de628374",
+      "elf": "ELF32 LE MIPS"
+    }
+  },
+  "embedded_classic_assets": {
+    "www/Advanced_IoT_Content.asp": {
+      "bytes": 3467,
+      "sha256": "8d52070d609aff78b1fefddfd350519d4bb8394005b23c68a9303c9428c0b552"
+    },
+    "www/classic-iot-config.js": {
+      "bytes": 6012,
+      "sha256": "caf9a1ec7780e6c4d52b956a03ce088448951b9ff975eece1416114d5d8d69f0"
+    }
+  },
+  "edit_view_target_symbols_verified": true,
+  "edit_view_source_manifest": {
+    "board": "WR1200JS",
+    "edit_startup_attempt_prepared": true,
+    "view_startup_attempt_prepared": true,
+    "native_capabilities_verified": true,
+    "http_view_bound": true,
+    "http_edit_bound": true,
+    "http_bound": true,
+    "target_verified": false,
+    "runtime_verified": false,
+    "production_ready": false
+  },
+  "dependency_closure": {
+    "runtime_verified": false,
+    "production_installed": false,
+    "dependency_closure_verified": true,
+    "elf_files": {
+      "candidate:sbin/rc": {
+        "sha256": "b4fad50e6da9d0c050fb3e44bac8ce7f4af8d3639c4dc267ad79738f8985fef8",
+        "needed": [
+          "libiw.so.30",
+          "libshared.so",
+          "libdisk.so",
+          "libc.so.0"
+        ]
+      },
+      "image:lib/libiw.so.30": {
+        "sha256": "4c09f83d824dec1e1d8fab2310e1b5e13cb2892ec7d0f978446f43363eea9fa5",
+        "needed": [
+          "libc.so.0"
+        ]
+      },
+      "image:lib/libuClibc-1.0.48.so": {
+        "sha256": "b1769b7b83ff1bdda5623741f400d593783c106626712cb1177cf5072deffe84",
+        "needed": [
+          "ld-uClibc.so.1"
+        ]
+      },
+      "image:lib/ld-uClibc-1.0.48.so": {
+        "sha256": "dacb5a7dcd79e923236975d106220c364b2b23d793879a1e153d96ddb32f10d2",
+        "needed": []
+      },
+      "image:lib/libshared.so": {
+        "sha256": "898c1ae3a482f796ebc14450669d80ae3a53a68d9e0be38467f577cb07c94fb5",
+        "needed": []
+      },
+      "image:lib/libdisk.so": {
+        "sha256": "8cc063e4b37ea073a139fa36852e44480308acd515ef76b93a3313af8bca83bd",
+        "needed": []
+      },
+      "candidate:usr/sbin/httpd": {
+        "sha256": "2eb9755132d0e8c4a9e653e836de457f2d7849490c25a37acd8b39e981b08cb4",
+        "needed": [
+          "libshared.so",
+          "libiw.so.30",
+          "libdisk.so",
+          "libssl.so.3",
+          "libcrypto.so.3",
+          "libc.so.0"
+        ]
+      },
+      "image:lib/libssl.so.3": {
+        "sha256": "3cb01582ae199b37e864e0470a2418d9c0023805e6fa11ecf6e0a3dfdcaaa938",
+        "needed": [
+          "libcrypto.so.3",
+          "libc.so.0"
+        ]
+      },
+      "image:lib/libcrypto.so.3": {
+        "sha256": "44d64afae3fe9b1fc7d6d4d76fccc1b3a299b8d6d065071c2b9e9176a214969e",
+        "needed": [
+          "libc.so.0"
+        ]
+      }
+    },
+    "errors": []
+  },
+  "board_checks": {
+    "uimage_magic": true,
+    "product_id": true,
+    "header_crc": true,
+    "declared_length": true,
+    "payload_crc": true,
+    "size_range": true,
+    "iot_hwnat_dtb": true
+  },
+  "module_vermagic_4_4_198": true,
+  "limits": [
+    "Selected embedded replacements and dependencies independently extracted; full unchanged-ROMFS proof remains CI scope",
+    "Covers13ce5dff edit/view and Classic candidate assets; excludes later lease-browser hardening and saved initial boot selector",
+    "Candidate not main-image promoted or device accepted"
+  ],
+  "runtime_verified": false,
+  "production_promoted": false,
+  "audit_script_sha256": "c9c6339dcce7153aa275ae870b20ff2e775c5ecfd5a5c8138521855a3705b7a3",
+  "downloaded_archive_sha256": "686ecf14f820308994c910e28e986999fcf98b064017b30b5c7c1c25fb06d6f9"
+}
