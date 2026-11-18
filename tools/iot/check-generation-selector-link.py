@@ -7,6 +7,7 @@ import tempfile
 here=Path(__file__).resolve().parent
 verify=runpy.run_path(str(here/'verify-generation-selector-link.py'))['verify']
 binding=runpy.run_path(str(here/'generation-selector-source.py'))
+prepare_map=runpy.run_path(str(here/'prepare-runtime-link-map.py'))['prepare']
 producer=ast.parse((here/'prepare-rc.py').read_text())
 include=next(ast.literal_eval(n.value) for n in producer.body if isinstance(n,ast.Assign)
              and any(isinstance(t,ast.Name) and t.id=='include' for t in n.targets))
@@ -22,8 +23,22 @@ with tempfile.TemporaryDirectory(prefix='wr-selector-link-') as directory:
  (root/'store.c').write_text('int '+symbol+'(void){return 7;}\n')
  for source,obj in [('ralink.c','ralink.o'),('store.c','wr-iot-saved-config-store.o')]:
   subprocess.run(['gcc','-O2','-c',str(root/source),'-o',str(root/obj)],check=True)
- (root/'Makefile').write_text('LDFLAGS = -Wl,--as-needed\nrc: ralink.o wr-iot-saved-config-store.o\n\t$(CC) -s -o $@ $^ $(LDFLAGS)\nrc: override LDFLAGS += -Wl,-Map,'+str(root/'rc-link-map.txt')+',--cref\n')
- subprocess.run(['make','-C',str(root),'CC=gcc','rc'],check=True,stdout=subprocess.DEVNULL)
+ # Match the SDK: `all` links EXEC=rc directly; there is no rc target recipe.
+ native=('EXEC = rc\nLDFLAGS = -Wl,--as-needed\nOBJS = ralink.o wr-iot-saved-config-store.o\n'
+         'all: $(OBJS) Makefile\n\t$(CC) -o $(EXEC) $(OBJS) $(LDFLAGS)\n\t$(STRIP) $(EXEC)\n')
+ makefile=root/'Makefile';output=root/'rc-link-map.txt'
+ # Reproduce optional1387: a target-specific rc flag never reaches all's link.
+ makefile.write_text(native+'\nrc: override LDFLAGS += -Wl,-Map,'+str(output)+',--cref\n')
+ subprocess.run(['make','-C',str(root),'CC=gcc','STRIP=strip','all'],check=True,stdout=subprocess.DEVNULL)
+ assert not output.exists()
+ makefile.write_text(native);prepare_map(makefile,output)
+ prepared=makefile.read_bytes()
+ try:prepare_map(makefile,output)
+ except ValueError:pass
+ else:raise AssertionError('Repeated map preparation accepted')
+ assert makefile.read_bytes()==prepared
+ linked=subprocess.check_output(['make','-C',str(root),'CC=gcc','STRIP=strip','all'],text=True)
+ assert '-Wl,--as-needed' in linked and '-Wl,-Map,' in linked and output.is_file()
  subprocess.run([str(root/'rc')],check=True)
  for name,command in [('generation-selector-store-symbols.txt',['nm',str(root/'wr-iot-saved-config-store.o')]),
                       ('generation-selector-caller-relocations.txt',['objdump','-dr',str(root/'ralink.o')])]:
@@ -40,4 +55,4 @@ with tempfile.TemporaryDirectory(prefix='wr-selector-link-') as directory:
  try:verify(root,root/'rc')
  except ValueError:pass
  else:raise AssertionError('Wrong provider accepted')
-print('PASS native executed strong override, stripped ELF, real GNU map/relocation evidence and preserved target-specific linker flags; target MIPS separately required')
+print('PASS native RC all-target recipe reproduces old missing map; corrected scoped flags preserve linker options, execute strong override and verify stripped ELF/GNU map/relocations; target MIPS separately required')

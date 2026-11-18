@@ -21,7 +21,7 @@ for stage in rc http control; do
   python3 "tools/iot/prepare-$stage.py" "$probe"
 done
 python3 tools/iot/prepare-runtime.py "$probe" --native-trunk "$trunk"
-printf '\nrc: override LDFLAGS += -Wl,-Map,%s,--cref\n' "$results/rc-link-map.txt" >> "$probe/trunk/user/rc/Makefile"
+python3 -B tools/iot/prepare-runtime-link-map.py "$probe/trunk/user/rc/Makefile" "$results/rc-link-map.txt"
 python3 -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["configuration_snapshot_verified"] is True and r["configuration_ram_control_bound"] is True and r["configuration_flash_readback_verified"] is True' "$probe/iot-runtime-source.json"
 python3 tools/iot/prepare-iappd-policy-source.py "$probe"
 python3 tools/iot/check-iappd-policy-manifest.py "$probe"
