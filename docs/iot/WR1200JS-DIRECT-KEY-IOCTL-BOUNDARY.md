@@ -129,3 +129,15 @@ verification only: generated helpers have not been target-compiled or executed,
 are not installed by the producer, and still require scoped ioctl dispatch.
 Native group-delete payload semantics and bounds of successful key material
 must be resolved before activating the complete successful-request path.
+
+## Native mutation body host execution
+
+check-hostapd-key-native.py now compiles the factored native bodies and executes
+AES pairwise/group insertion, pairwise removal and WCID-zero refusal under
+ASan/UBSan. Payload and CIPHER_KEY definitions are extracted verbatim from the
+pinned SDK; adapter/entry boundary structs expose the fields used by those
+bodies, and hardware calls are explicit counting actors. Compiler warning
+suppression is limited to the inherited DEL comparison of an embedded address
+array to NULL, which cannot establish group-delete intent. Successful payload
+bounds, TKIP/MIC protocol semantics, complete feature compilation and physical
+key I/O remain unverified. No ioctl ownership binding is claimed by these tests.
