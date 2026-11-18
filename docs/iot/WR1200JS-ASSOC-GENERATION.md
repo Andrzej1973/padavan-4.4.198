@@ -435,3 +435,46 @@ candidate. Arbitration alone does not protect a peer from deletion.
 
 Evidence: WR1200JS-RA2-COMBINED-ARBITRATION-HOST-2026-11-18.json. Full native
 station lifecycle, MIPS and runtime acceptance remain unverified.
+
+## Periodic per-peer scope prepared
+
+ra2-rekey-peer-scope.h reserves the exact generations of existing ra2 client
+entries under MacTabLock, plus one existing peer-table transaction. It refuses
+an active deletion, pending older insertion transaction, conflicting per-entry
+reservation, invalid WCID/generation/wdev or table reservation before changing
+any peer. Main/Guest entries receive no reservation. No table lock spans native
+timer cancellation/send work. Leave validates generations and identity before
+clearing each reservation; mismatches retain foreign ownership and poison the
+table. Caller must already own the ra2 key arbiter and adapter/control lifetime.
+
+Host fixture executes the real scope and existing deletion wrapper with SDK
+actors: deletion/reset/reassociation refusal, balanced release, wrong-entry
+and contention preflight remain test requirements at their exact coverage.
+The current executed cases cover two ra2 entries, reassociation/deletion/reset
+refusal through the table transaction, balanced release and feature-independent
+Linux lock layouts. This does not prove full periodic callback composition.
+
+The pending compose_all now places this scope around the arbitrated native
+periodic body. Admission refusal leaves native rekey counters untouched and
+releases key/control admission for the natural next timer tick. A failed leave
+poisons control admission. These composed callback paths require combined
+execution tests and target compilation before enabling the producer. No
+production candidate is changed by preparing this source composition.
+
+## Full periodic callback host composition
+
+check-ra2-periodic-peer-path.py now executes the actual transformed native
+GREKEYPeriodicExec with both key arbitration and retained-peer scope. At the
+GenRandom SDK boundary it attempts real guarded reassociation, the existing
+native deletion wrapper, exclusive table reset and a competing key request.
+All refuse while the scope is held. Native handshake statements update the
+original generation and all reservations release after return. The independent
+countdown-only key-install path and admission-refusal counter preservation are
+covered in the composed callback. Direct/OS_ABL ASan/UBSan checks pass.
+
+The helper uses exact ra2 wdev identity; a separate WDS/APCLI entry whose
+numeric function index is 2 does not become an ra2 client. Inconsistent ra2
+client identity refuses conservatively. This completes the focused host callback
+composition check, not full optional-feature native mutator coverage, MIPS,
+image or device acceptance. Evidence:
+WR1200JS-RA2-PERIODIC-PEER-PATH-HOST-2026-11-18.json.

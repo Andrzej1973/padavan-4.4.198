@@ -84,4 +84,6 @@ def compose_all(changes, src, local):
     result[name]=key['request_header'](result[name] if name in result else (src/name).read_text())
     name='ap/ap_wpa.c'
     result[name]=key['periodic'](result[name] if name in result else (src/name).read_text())
+    result[name]=key['periodic_peer_scope'](result[name])
+    result['include/ra2-rekey-peer-scope.h']=(local/'ra2-rekey-peer-scope.h').read_text()
     return result

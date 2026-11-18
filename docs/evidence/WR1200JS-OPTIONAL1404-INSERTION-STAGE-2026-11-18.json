@@ -1,0 +1,26 @@
+{
+  "failed_run": 44357167697,
+  "number": 1404,
+  "verification_revision": "12c9e01769cd83aa51d9fbc263fbce1cd4cd9a5f",
+  "monitor_run": 44360836729,
+  "original_job": 134988529101,
+  "failed_step": "Compile isolated merged IoT MT7603 candidate",
+  "root_cause": "prepare-driver-api invokes assoc-generation composition, which searches obsolete public native insertion name after predecessor replaced it with an include; actual body is wr_iot_mac_insert_entry",
+  "confirmed_original_error": "assoc-generation-composition.py:52 ValueError: substring not found",
+  "fixed_revision": "a59d9f1f3a03f4ab555205464f64254618dc06a1",
+  "standard_1405_success": true,
+  "abi_946_success": true,
+  "logs_sha256": {
+    "original": "67d48b0eb840f0834077fcd3475d5d3167937a271353289accd4de2b6e625d40",
+    "monitor": "fa2cfd84c8528583ce4f6e67cb1e5b84714bf746c3bcaceb048319be05314c26"
+  },
+  "monitor_artifact_download": "HTTP503 egress limit; read monitor job log instead",
+  "target_driver_compiled": false,
+  "runtime_verified": false,
+  "replacement_optional": {
+    "number": 1406,
+    "run_id": 44363536738,
+    "status": "in_progress",
+    "revision": "a59d9f1f3a03f4ab555205464f64254618dc06a1"
+  }
+}

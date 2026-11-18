@@ -47,3 +47,20 @@ def periodic(text):
                '   if(!wr_ra2_assoc_leave(&ad->wr_ra2_assoc_owner,&key_ticket))\n'
                '    ad->wr_iot_control_poisoned=1;\n'
                '   if(ad->wr_iot_ra2_key_active==1)ad->wr_iot_ra2_key_active=0;')
+
+
+def periodic_peer_scope(text):
+    """Add retained peers around the already arbitrated periodic native body."""
+    text=one(text,'#include "ra2-association-owner.h"',
+             '#include "ra2-association-owner.h"\n#include "ra2-rekey-peer-scope.h"')
+    text=one(text,'  struct wr_ra2_assoc_ticket key_ticket={0};',
+             '  struct wr_ra2_assoc_ticket key_ticket={0};\n'
+             '  struct wr_ra2_rekey_peer_scope peers;int peer_ok=0;')
+    text=one(text,'   wr_iot_grekey_periodic_raw(s1,context,s2,timer);',
+             '   if(wr_ra2_rekey_peers_enter(ad,&peers)){\n'
+             '    wr_iot_grekey_periodic_raw(s1,context,s2,timer);\n'
+             '    peer_ok=wr_ra2_rekey_peers_leave(ad,&peers);\n'
+             '   }else peer_ok=1; /* No native mutation on admission refusal. */')
+    return one(text,'   if(!wr_ra2_assoc_leave(&ad->wr_ra2_assoc_owner,&key_ticket))',
+               '   if(!peer_ok)ad->wr_iot_control_poisoned=1;\n'
+               '   if(!wr_ra2_assoc_leave(&ad->wr_ra2_assoc_owner,&key_ticket))')
