@@ -392,3 +392,46 @@ fixture composes a renamed native body plus the include-based public entry and
 checks exactly one publication in the private body. Target verification of this
 correction is pending; this source-stage error is independent of current-macro
 compilation. No CI failure result is inferred from this local source witness.
+
+## Public ra2 insertion admission prepared
+
+The pending Linux admission now has an exact embedded-wdev entry, sharing the
+same receipt/control/association reservation as queued mutation. No fabricated
+MLME event or interface-name inference is used. compose_insertion wraps the
+whole peer-normal-insert.inc public function, including its unlocked private
+insertion/tail call and original table transaction release. Result/NULL return
+passes through after releasing the outer ra2 reservation. Main/Guest use the
+native body without that reservation; active rekey refuses only ra2.
+
+The combined host test executes the exact existing public transaction body,
+new outer wrapper and real admission helpers. Its private insertion call is a
+boundary actor checking that no table lock spans the call and that control,
+association and table reservations remain held. Success and NULL both balance;
+active key ownership refuses ra2 and permits Guest. Direct/OS_ABL checks pass.
+This is not full private insertion execution, and the new producer is still
+uninstalled until requested/periodic key-writer arbitration is composed too.
+
+## Combined arbitration preview for both GTK actors
+
+ra2-key-arbitration-composition.py adds linear key tickets to the requested
+GTK scope and the existing periodic wrapper. Both take a key ticket under the
+same transition lock as mutation actors, before entering their native bodies.
+Active associations refuse a writer; a writer refuses mutation tickets.
+Failed ticket admission rolls back only the new control reference; release
+checks the exact ticket, and owner corruption poisons future control admission.
+
+check-ra2-key-arbitration.py executes both transformed native GTK paths with
+actual arbiter/receipt helpers and SDK boundary actors, in feature-on/off host
+ASan/UBSan builds. Requested-key execution refuses a nested mutation, and an
+existing association refuses periodic rekey before nonce/counter mutation.
+
+ra2-mutation-binding.compose_all builds one source preview containing the
+adapter owner, native association/auth wrappers, public insertion outer scope,
+requested-key scope and periodic-key scope. It requires the real prepared
+public insertion fragment and checks exact predecessor anchors. It is not
+called by prepare-driver-api.py yet. The outstanding periodic table transaction
+and exact peer-generation retention must be bound before publication into the
+candidate. Arbitration alone does not protect a peer from deletion.
+
+Evidence: WR1200JS-RA2-COMBINED-ARBITRATION-HOST-2026-11-18.json. Full native
+station lifecycle, MIPS and runtime acceptance remain unverified.

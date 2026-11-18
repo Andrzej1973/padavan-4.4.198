@@ -5,16 +5,12 @@
 #include "ra2-association-owner.h"
 #include "ra2-rekey-admission.h"
 /* -1 refusal; 0 native non-ra2 path; 1 caller owns a linear scope ticket. */
-static inline int wr_ra2_mutation_enter(RTMP_ADAPTER *ad,
- MLME_QUEUE_ELEM *event,struct wr_ra2_assoc_ticket *ticket)
+static inline int wr_ra2_mutation_enter_scoped(RTMP_ADAPTER *ad,
+ struct wr_ra2_assoc_ticket *ticket)
 {
  ULONG flags=0;
  int admitted=0;
- if(!ad||!event||!ticket||ticket->active)return -1;
- if(!IS_MT7603(ad))return 0;
- if(event->MsgLen<LENGTH_802_11)return -1;
- if(!MAC_ADDR_EQUAL(((PHEADER_802_11)event->Msg)->Addr1,
-    ad->ApCfg.MBSSID[2].wdev.bssid))return 0;
+ if(!ad||!ticket||ticket->active)return -1;
  RTMP_IRQ_LOCK(&ad->wr_iot_transition_lock,flags);
  if(ad->ApCfg.BssidNum==3&&!ad->wr_iot_ra2_key_active&&
     !ad->wr_ra2_assoc_owner.key_active&&!ad->wr_ra2_assoc_owner.poisoned){
@@ -33,6 +29,26 @@ static inline int wr_ra2_mutation_enter(RTMP_ADAPTER *ad,
  }
  RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);
  return admitted?1:-1;
+}
+/* Immutable queued receiver identity, never a borrowed current peer. */
+static inline int wr_ra2_mutation_enter(RTMP_ADAPTER *ad,
+ MLME_QUEUE_ELEM *event,struct wr_ra2_assoc_ticket *ticket)
+{
+ if(!ad||!event||!ticket||ticket->active)return -1;
+ if(!IS_MT7603(ad))return 0;
+ if(event->MsgLen<LENGTH_802_11)return -1;
+ if(!MAC_ADDR_EQUAL(((PHEADER_802_11)event->Msg)->Addr1,
+    ad->ApCfg.MBSSID[2].wdev.bssid))return 0;
+ return wr_ra2_mutation_enter_scoped(ad,ticket);
+}
+/* The caller already owns wdev lifetime; compare exact embedded identity.
+ * No fabricated MLME frame, interface-name parsing or borrowed WCID lookup. */
+static inline int wr_ra2_mutation_enter_wdev(RTMP_ADAPTER *ad,
+ struct wifi_dev *wdev,struct wr_ra2_assoc_ticket *ticket)
+{
+ if(!ad||!wdev||!ticket||ticket->active)return -1;
+ if(!IS_MT7603(ad)||wdev!=&ad->ApCfg.MBSSID[2].wdev)return 0;
+ return wr_ra2_mutation_enter_scoped(ad,ticket);
 }
 static inline void wr_ra2_mutation_leave(RTMP_ADAPTER *ad,
  struct wr_ra2_assoc_ticket *ticket)

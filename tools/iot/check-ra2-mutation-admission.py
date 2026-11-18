@@ -31,7 +31,22 @@ for name,sites in module['SITES'].items():
   arguments='RTMP_ADAPTER *pAd,MLME_QUEUE_ELEM *Elem'+(',BOOLEAN isReassoc' if reassoc else '')
   body='(void)pAd;(void)Elem;'+('(void)isReassoc;' if reassoc else '')+'native_mutation_calls++;return;'
   wrappers+=outer+'static VOID wr_ra2_native_'+function+'('+arguments+'){'+body+'}\n'
-unit=prefix+actors+'\n#include "ra2-mutation-admission-kernel.h"\n'+wrappers+setup+r'''
+insertion_compose=__import__('runpy').run_path(str(here/'ra2-mutation-binding.py'))['compose_insertion']
+insertion=insertion_compose((here/'peer-normal-insert.inc').read_text())
+insertion_actor=r'''
+static unsigned insert_calls;static int insert_failure;
+static MAC_TABLE_ENTRY *wr_iot_mac_insert_entry(RTMP_ADAPTER *ad,UCHAR *addr,
+ struct wifi_dev *wdev,UINT32 type,UCHAR mode,BOOLEAN clean,const void *token,unsigned long serial){
+ (void)addr;(void)type;(void)mode;(void)clean;(void)token;(void)serial;insert_calls++;
+ if(wdev==&ad->ApCfg.MBSSID[2].wdev){
+  assert(ad->wr_ra2_assoc_owner.associations==1&&ad->wr_iot_control_users==1);
+ }
+ assert(ad->wr_iot_peer_table_owner.transactions==1&&!ad->MacTabLock.held);
+ return insert_failure?NULL:&ad->MacTab.Content[1];
+}
+'''
+unit=prefix+actors+'\n#include "ra2-mutation-admission-kernel.h"\n'+wrappers+insertion_actor+insertion+setup+r'''
+
 
 int main(void){
  RTMP_ADAPTER ad,other;MLME_QUEUE_ELEM event,other_event;
@@ -49,6 +64,26 @@ int main(void){
    assert(!ad.wr_iot_control_users&&!ad.wr_ra2_assoc_owner.associations);
    assert(!ad.wr_iot_control_poisoned);
   }
+ }
+ setup(&ad,&event,2);
+ assert(wr_ra2_mutation_enter_wdev(&ad,&ad.ApCfg.MBSSID[2].wdev,&ticket)==1);
+ assert(ad.wr_ra2_assoc_owner.associations==1&&ad.wr_iot_control_users==1);
+ assert(!wr_ra2_assoc_enter(&ad.wr_ra2_assoc_owner,&key,1));
+ wr_ra2_mutation_leave(&ad,&ticket);
+ ad.wr_iot_ra2_key_active=1;
+ assert(wr_ra2_mutation_enter_wdev(&ad,&ad.ApCfg.MBSSID[2].wdev,&ticket)==-1);
+ assert(wr_ra2_mutation_enter_wdev(&ad,&ad.ApCfg.MBSSID[1].wdev,&ticket)==0);
+ assert(!ticket.active&&!ad.wr_iot_control_users);
+ for(unsigned failure=0;failure<2;failure++){
+  unsigned char addr[6]={9};setup(&ad,&event,2);insert_calls=0;insert_failure=failure;
+  MAC_TABLE_ENTRY *result=MacTableInsertEntry(&ad,addr,&ad.ApCfg.MBSSID[2].wdev,1,1,1);
+  assert(insert_calls==1&&(result!=NULL)==!failure);
+  assert(!ad.wr_ra2_assoc_owner.associations&&!ad.wr_iot_control_users&&!ad.wr_iot_peer_table_owner.transactions);
+  ad.wr_iot_ra2_key_active=1;insert_calls=0;
+  assert(!MacTableInsertEntry(&ad,addr,&ad.ApCfg.MBSSID[2].wdev,1,1,1)&&!insert_calls);
+  insert_failure=0;
+  assert(MacTableInsertEntry(&ad,addr,&ad.ApCfg.MBSSID[1].wdev,1,1,1));
+  assert(insert_calls==1&&!ad.wr_iot_control_users&&!ad.wr_ra2_assoc_owner.associations);
  }
  setup(&ad,&event,2);ad.wr_iot_control_users=3;
  assert(wr_ra2_mutation_enter(&ad,&event,&ticket)==1);

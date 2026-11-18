@@ -1,0 +1,21 @@
+{
+  "scope": "Combined pending association/auth/public insertion/GTK arbitration; peer-retention not integrated",
+  "source_sha256": {
+    "ra2-mutation-admission-kernel.h": "8ab0c451745fded4373293e29ef380d43382051d057f463d8b23976a8b487720",
+    "ra2-mutation-binding.py": "d15156c103b64e40b26d33d7198f6ef94096f6ac891d04c71683678a2f26b768",
+    "check-ra2-mutation-admission.py": "4bd7a75e7081f52e7e59e528c8c4320cb4d10e85948a8db906d05e387bff8508",
+    "ra2-key-arbitration-composition.py": "9b6608b1fc740be0c713310ecefc01b11406711f4d7a01f483360b6fb13be913",
+    "check-ra2-key-arbitration.py": "c1b5647b428c343ed6a03f107ebb2a01880db4fb6c5ae295b3d23962472343cd"
+  },
+  "actual_native_periodic_callback_host_executed": true,
+  "actual_requested_key_block_host_executed": true,
+  "association_then_key_refused": true,
+  "key_then_association_refused": true,
+  "admission_failure_control_reference_balanced": true,
+  "feature_on_off_host_asan_ubsan": true,
+  "combined_source_preview_composed": true,
+  "candidate_installed": false,
+  "periodic_peer_retention_bound": false,
+  "target_compiled": false,
+  "runtime_verified": false
+}
