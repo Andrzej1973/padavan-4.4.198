@@ -130,3 +130,14 @@ capacity64, all256 FTIE lengths, actual64-byte nested GTK copy and overflow
 refusal, plus MDID copying. Host PASS supersedes the prior fill-actor-only
 coverage for these cases. Full FT callback authentication/crypto, all optional
 header combinations, target linking and physical runtime remain unverified.
+
+## Forwarding scope correction before activation
+
+The first prepared bounds composer applied request-IE validation before the FT
+Action switch, which could reject native forwarded response payloads containing
+status bytes. It now applies outer complete-header admission globally but checks
+request IEs only in terminating BT_REQ/BT_CONFIRM branches, before MAC lookup
+or WCID borrowing. Native forwarding calls remain byte-identical. The new
+check-ft-parser-composition.py verifies this ordering, both parser lengths and
+duplicate refusal. Native vendor-fill parser tests still pass. Full action
+execution and target validation remain pending; the composer stays uninstalled.
