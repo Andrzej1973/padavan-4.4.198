@@ -41,3 +41,20 @@ native early-return actor, in target-feature and native pass-through modes.
 ASan/UBSan host checks pass. This wrapper is not producer-installed: complete
 action payload length, selected-entry BSS/provenance and generation advancement
 must still be bound before activation. The check does not execute FT crypto.
+
+## Action payload length defect and prepared bounds
+
+The actual packed FT_ACTION in include/dot11r_ft.h has14 bytes before Oct.
+FT_FtAction twice passes FtActLen-sizeof(PFT_ACTION) to FT_ReqActionParse;
+PFT_ACTION is a pointer, so this subtracts4 on MIPS instead of14, overstating
+the remaining IE bytes by10. Before using the result, validate outer MsgLen
+against buffer capacity, the complete MAC/action headers and UINT16 range.
+ft-action-bounds.h prepares bounded subtraction without narrowing or overflow;
+check-ft-action-bounds.py extracts the actual vendor layout and tests all
+outer lengths0–256, truncation, empty remainder, capacity overflow, ULONG_MAX
+and UINT16 boundaries under ASan/UBSan. Header decoding uses latin-1 because
+vendor comments contain non-UTF8 bytes; the C declaration is unchanged.
+The helper is uninstalled. FT_ReqActionParse itself reads eid_ptr->Len in its
+loop condition before checking that two IE-header bytes remain; outer bounds
+alone do not correct that parser. Full IE validation and FT ownership are still
+required before activating the complete prepared FT path.
