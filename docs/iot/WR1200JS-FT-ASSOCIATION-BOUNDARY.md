@@ -175,3 +175,23 @@ BssidNum is a count and index==count is outside the configured BSS range.
 Source-order regression checks and vendor-fill parser tests pass. These checks
 are still in the uninstalled FT composition; no full action or target/runtime
 acceptance is claimed by the source assertions.
+
+## Exact-buffer native parser regression — 2026-11-19
+
+The real vendor-fill host harness now checks every truncated length before a
+complete MDIE (3-byte body) and FTIE (82-byte fixed body), with exact heap
+allocations. It also checks zero body lengths and declared length255 with only
+the two-byte header available. Refusal must leave the complete FT_INFO zeroed,
+not partially populated. Existing valid MDIE/FTIE and GTK64 cases still pass;
+ASan/UBSan report no boundary violations. The five FT Python host checks pass.
+
+The supplied Nim run is separate evidence: its intentionally unchecked branch
+accepted oversized input, so its negative-control assertion failed and returned
+status1. That does not execute or validate the vendor C parser.
+
+Standard1421/1422/1423 and their ABI checks completed successfully. Optional1424
+(run44548591244) was dispatched for exact published revision ead99729 and was
+observed in progress. It predates the allocation/index refusal and expanded
+exact-buffer tests. No temporary FT TU result, installed FT fix, whole callback
+association ownership, or router runtime acceptance is inferred from these host
+results. The producer still leaves this FT composition uninstalled.
