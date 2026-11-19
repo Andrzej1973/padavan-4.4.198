@@ -1,0 +1,89 @@
+{
+  "revision": "c6544dd537e7e09ad2bf11bbb7716ff987e21d34",
+  "image_sha256": "f29c413b23473d48421f5581f7a9032d02b9f89d17e0578772794e93a4df4c5f",
+  "image_bytes": 14565190,
+  "remaining_partition_bytes": 1622202,
+  "header_and_payload_crc_verified": true,
+  "squashfs_offset": 1982240,
+  "selected_embedded_files": {
+    "sbin/rc": {
+      "sha256": "aa5cb772e004a82b3f63be9710ae516a597c18615459161aadf28e644c388089",
+      "bytes": 1104256,
+      "elf32_le_mips": true
+    },
+    "usr/sbin/httpd": {
+      "sha256": "a3ec65d2ec29aba7cde3004525cbfffaf06b49557cb704e0087168f2e8f50bda",
+      "bytes": 426016,
+      "elf32_le_mips": true
+    },
+    "usr/bin/iappd.sh": {
+      "sha256": "020f6b714bc6c174681b2ce040a9d57ba7d9943679591f00a8b8b17ea29a62fa",
+      "bytes": 1567
+    },
+    "lib/modules/4.4.198/kernel/drivers/net/wireless/mediatek/mt76x3_ap/mt76x3_ap.ko": {
+      "sha256": "ed59767d587e4713a556efe2c1a48b4b27c60141b483cec7f8439afd6147cd5d",
+      "bytes": 6417152,
+      "elf32_le_mips": true
+    },
+    "www/Advanced_IoT_Content.asp": {
+      "sha256": "0dc9c09a824ab751d16c76c20c4c5708d8b4a33b80037ff07c9b1ff75d89d29a",
+      "bytes": 3979
+    },
+    "www/classic-iot-config.js": {
+      "sha256": "f370bb65e836c79cb5e7cad1d4f260f74afd5862e7c361170f54d76647d27394",
+      "bytes": 7958
+    },
+    "www/state.js": {
+      "sha256": "4e91ebdc867d0176aed6a1c286f44cee857473b1462e0a5729296937b8fd338e",
+      "bytes": 53017
+    },
+    "www/classic-iot-navigation.js": {
+      "sha256": "ad088221c85749ea6582748a3fe95b58cb37df9aedc4885c9570192630b2c39c",
+      "bytes": 3716
+    }
+  },
+  "linked_pair_files_and_input_hashes_verified": true,
+  "board_checks": {
+    "scope": "Padavan uImage upload structure and embedded IoT/HWNAT DTB policy; device boot/isolation unverified",
+    "image": "WR1200JS-IoT-CANDIDATE-c6544dd5.trx",
+    "bytes": 14565190,
+    "sha256": "f29c413b23473d48421f5581f7a9032d02b9f89d17e0578772794e93a4df4c5f",
+    "declared_payload_bytes": 14565126,
+    "architecture_id": 5,
+    "compression_id": 3,
+    "checks": {
+      "uimage_magic": true,
+      "product_id": true,
+      "header_crc": true,
+      "declared_length": true,
+      "payload_crc": true,
+      "size_range": true,
+      "iot_hwnat_dtb": true
+    },
+    "iot_hwnat_dtb_policy": {
+      "scope": "Embedded DTB HNAT policy only; no packet/runtime proof",
+      "external_devices": [
+        "usb0",
+        "wwan0",
+        "rax0",
+        "ra0",
+        "rai0",
+        "apclii0",
+        "apclix0",
+        "apcli0"
+      ],
+      "lan": [
+        "eth2"
+      ],
+      "wan": [
+        "eth3"
+      ],
+      "dtb_sha256": "54899d13006b8d4854a32feba4f494c01e019f804aac16a7dd227d4c6fd6f9d0",
+      "kernel_sha256": "9e989bb1963577d8f00439833cb22cbda15f5af63da8757d6096f541329d382f",
+      "runtime_verified": false
+    }
+  },
+  "scope": "Actual selected ROMFS bytes and linked-artifact integrity; not full ROMFS/source correctness or device acceptance",
+  "production_promoted": false,
+  "runtime_verified": false
+}

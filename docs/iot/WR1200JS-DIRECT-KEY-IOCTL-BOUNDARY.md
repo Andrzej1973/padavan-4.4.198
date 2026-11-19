@@ -157,3 +157,18 @@ them. A separate uninstalled hostapd-key-layout-composition.py rewrites only the
 and execute the AES/pair-delete cases under ASan/UBSan. Other HOSTAPD source
 branches have not been ported or target-built. This is a dormant optional-path
 compatibility preparation, not an IoT blocker resolution or enabled feature.
+
+## Actual target feature evidence — optional1418, 2026-11-19
+
+Run44387982878/artifact14470698228 for c6544dd5 contains complete Kbuild-command
+preprocessing reports for ap_cfg.c, ap_wpa.c and cmm_wpa.c. All three report
+HOSTAPD_SUPPORT=false and WH_EZ_SETUP=false. HOSTAPD SET_KEY/DEL_KEY cases are
+therefore excluded in this exact candidate configuration. The unbound direct
+key preparation is not required to claim coverage of an excluded branch and
+must not cause that dormant feature to be enabled. APCLI_SUPPORT,
+MAC_REPEATER_SUPPORT,DOT1X_SUPPORT,DOT11R_FT_SUPPORT are true in all three TUs;
+those active paths retain their own lifetime/association review requirements.
+Module and prepared-source hashes were independently verified, with actual
+selected TRX contents checked separately. See OPTIONAL1418-KEY-FEATURE-AUDIT
+and OPTIONAL1418-SELECTED-IMAGE-AUDIT evidence dated2026-11-19. These results
+exclude later stale-retirement/MAC-ambiguity fixes and physical runtime.
