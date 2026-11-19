@@ -64,6 +64,24 @@ code=prefix+'\n'.join(types)+'\n#include "ft-request-ie-admission.h"\n'+body('VO
 code+='''
 int main(void){FT_INFO out;
  assert(sizeof(FT_MDIE)==3&&offsetof(FT_FTIE,Option)==82&&sizeof(out.FtIeInfo.GtkSubIE)==64);
+ /* Exact allocations make every missing byte visible to AddressSanitizer. */
+ for(unsigned kind=0;kind<2;kind++){
+  unsigned expected=kind?82:3;
+  for(unsigned available=0;available<expected+2;available++){
+   unsigned char *p=calloc(1,available?available:1);assert(p);
+   if(available)p[0]=kind?IE_FT_FTIE:IE_FT_MDIE;
+   if(available>1)p[1]=expected;
+   memset(&out,0xa5,sizeof(out));
+   FT_ReqActionParse(NULL,available,p,&out);
+   FT_INFO zero={0};assert(!memcmp(&out,&zero,sizeof(out)));free(p);
+  }
+  unsigned char invalid[]={kind?IE_FT_FTIE:IE_FT_MDIE,0};
+  FT_ReqActionParse(NULL,sizeof(invalid),invalid,&out);
+  FT_INFO zero={0};assert(!memcmp(&out,&zero,sizeof(out)));
+  invalid[1]=255;
+  FT_ReqActionParse(NULL,sizeof(invalid),invalid,&out);
+  assert(!memcmp(&out,&zero,sizeof(out)));
+ }
  for(unsigned n=0;n<=255;n++){
   unsigned char *p=calloc(1,n+2);assert(p);p[0]=IE_FT_FTIE;p[1]=n;
   FT_ReqActionParse(NULL,n+2,p,&out);
