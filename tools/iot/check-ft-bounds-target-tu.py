@@ -9,7 +9,7 @@ p=argparse.ArgumentParser(description=__doc__)
 for name in ('kernel','driver','compiler','output'):p.add_argument('--'+name,type=Path,required=True)
 a=p.parse_args();root=a.kernel.resolve();driver=a.driver.resolve();here=Path(__file__).resolve().parent
 unwrap=runpy.run_path(str(here/'kbuild-compiler.py'))['unwrap_ccache']
-report={'status':'failed','scope':'Prepared common/ft.c parser bounds target TU only','module_installed':False,'runtime_verified':False}
+report={'status':'failed','scope':'Prepared common/ft.c bounds and outer association arbitration target TU only','module_installed':False,'runtime_verified':False}
 try:
  commands=list(driver.rglob('.ft.o.cmd'))
  if len(commands)!=1:raise RuntimeError('Expected exactly one active FT Kbuild command')
@@ -32,6 +32,10 @@ try:
  if source.resolve()!=(driver/'common/ft.c').resolve():raise RuntimeError('Unexpected FT source identity')
  original=source.read_bytes()
  changed=runpy.run_path(str(here/'ft-parser-bounds-composition.py'))['compose'](original.decode())
+ changed,_=runpy.run_path(str(here/'ra2-ft-mutation-composition.py'))['compose'](changed)
+ include='#include "rt_config.h"'
+ if changed.count(include)!=1:raise RuntimeError('FT configuration include changed')
+ changed=changed.replace(include,include+'\n#if defined(MT7603) && defined(MT_MAC) && defined(RTMP_PCI_SUPPORT)\n#include "ra2-mutation-admission-kernel.h"\n#endif',1)
  with tempfile.TemporaryDirectory(prefix='wr-ft-bounds-target-') as td:
   temp=Path(td);candidate=temp/'ft.c';obj=temp/'ft.o';candidate.write_text(changed)
   for name in ('ft-action-bounds.h','ft-ie-span.h','ft-subelement-bounds.h','ft-request-ie-admission.h'):

@@ -153,3 +153,14 @@ It neither replaces ft.o nor relinks/installs the driver. The peer82 optional
 pipeline now requests this separate probe after the original module build.
 Local checks cover Python/shell syntax and CLI only; first actual target result
 is pending. Native FT association arbitration is still uninstalled/unverified.
+
+## Combined temporary FT TU probe
+
+The temporary target probe now composes the balanced outer FT mutation wrapper
+on the bounded parser and includes the existing Linux mutation admission header
+under the MT7603/MT_MAC/PCI guard. It therefore checks callback/arbiter type
+compatibility in addition to parser types, without replacing the built module.
+Combined source composition preserves the bounded native body and has exactly
+one enter/leave seam; local source/CLI syntax checks pass. BSS/provenance and
+original queued-association identity remain runtime integration requirements,
+so a successful future TU build will not authorize installation by itself.
