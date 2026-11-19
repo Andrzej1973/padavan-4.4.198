@@ -12,7 +12,8 @@ assert body.count(check)==2
 assert body.index('wr_iot_ft_action_payload_length')<body.index('os_alloc_mem')
 assert 'wr_iot_ft_request_ies_admitted' not in body[:body.index('switch(pFtAction->Action)')]
 request=body[body.index('case FT_ACTION_BT_REQ:'):body.index('case FT_ACTION_BT_CONFIRM:')]
-assert request.index(check)<request.index('MacTableLookup')<request.index('FT_AuthReqHandler')
+assert request.index(check)<request.index('NdisAcquireSpinLock')<request.index('FT_AuthReqHandler')
+assert 'MacTableLookup' not in request
 confirm=body[body.index('case FT_ACTION_BT_CONFIRM:'):]
 assert confirm.index(check)<confirm.index('if (Elem->Wcid < MAX_LEN_OF_MAC_TABLE)')<confirm.index('FT_AuthConfirmHandler')
 # Both forwarding call sites remain byte-identical; they are outside the
@@ -184,8 +185,123 @@ static ENTRY *MacTableLookup(AD *ad,PUCHAR addr){
 '''
 with tempfile.TemporaryDirectory(prefix='wr-ft-rrb-original-') as td:
  src=Path(td)/'check.c';exe=Path(td)/'check';src.write_text(base+actors+lookup+native_rrb+main)
- subprocess.run(['gcc','-std=gnu11','-O2',str(src),'-o',str(exe)],check=True)
+ subprocess.run(['gcc','-std=gnu11','-O2','-I'+str(here),str(src),'-o',str(exe)],check=True)
  def no_core():resource.setrlimit(resource.RLIMIT_CORE,(0,0))
  result=subprocess.run([str(exe)],capture_output=True,text=True,preexec_fn=no_core)
  assert result.returncode!=0 and 'queued_wcid==7' in result.stderr,result.stderr
 print('PASS | original MAC-only producer rejected by same cross-BSS regression assertions')
+
+# Execute full native action control flow, using handler/crypto/transport actors.
+action_prefix=r'''
+#include <assert.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include <string.h>
+#define IN
+#define VOID void
+#define TRUE 1
+#define FALSE 0
+#define LENGTH_802_11 24
+#define MAX_LEN_OF_MAC_TABLE 8
+#define RESERVED_WCID 0
+#define SST_AUTH 1
+#define SST_ASSOC 2
+#define AS_AUTH_OPEN 1
+#define ENTRY_CLIENT 1
+#define OPMODE_AP 1
+#define MLME_SUCCESS 0
+#define NDIS_STATUS_SUCCESS 0
+#define FT_ACTION_BT_REQ 1
+#define FT_ACTION_BT_RSP 2
+#define FT_ACTION_BT_CONFIRM 3
+#define FT_ACTION_BT_ACK 4
+#define END_OF_ARGS -1
+#define DBGPRINT(level,args) ((void)0)
+#define MAC_ADDR_EQUAL(a,b) (!memcmp(a,b,6))
+#define COPY_MAC_ADDR(a,b) memcpy(a,b,6)
+#define NdisZeroMemory(a,n) memset(a,0,n)
+#define NdisMoveMemory memcpy
+#define IS_ENTRY_CLIENT(e) ((e)->client)
+#define NdisAcquireSpinLock(p) assert(!(*(p))++)
+#define NdisReleaseSpinLock(p) assert(--(*(p))==0)
+typedef unsigned char UCHAR,*PUCHAR;
+typedef unsigned short UINT16,USHORT;
+typedef unsigned long ULONG;
+typedef int INT,BOOLEAN,NDIS_STATUS;
+typedef struct {unsigned char Addr1[6],Addr2[6],Addr3[6];struct {unsigned char ToDs,FrDs;} FC;unsigned char pad[4];} HEADER_802_11,*PHEADER_802_11;
+typedef struct __attribute__((packed)){unsigned char Category,Action,StaMac[6],TargetApAddr[6],Oct[0];} FT_ACTION,*PFT_ACTION;
+typedef int FT_MDIE_INFO;
+typedef struct {int MdIeInfo;struct {PUCHAR pRicInfo;} RicInfo;} FT_INFO,*PFT_INFO;
+typedef struct {struct {int Dot11rFtEnable;} FtCapFlag;} FT_CFG,*PFT_CFG;
+struct wifi_dev{unsigned char bssid[6];};
+typedef struct {unsigned wcid;int client,func_tb_idx,Sst,AuthState,MdIeInfo;unsigned char Addr[6];struct wifi_dev *wdev;} ENTRY,*PMAC_TABLE_ENTRY;
+typedef struct {int MacTabLock;struct {int BssidNum;struct {struct wifi_dev wdev;FT_CFG FtCfg;} MBSSID[3];} ApCfg;struct {ENTRY Content[8];} MacTab;} AD,*PRTMP_ADAPTER;
+typedef struct {ULONG MsgLen;unsigned Wcid;unsigned char Msg[256];} MLME_QUEUE_ELEM;
+#include "ft-action-bounds.h"
+/* Parser admission is an explicit actor here; real parser checked separately. */
+static int wr_iot_ft_request_ies_admitted(PUCHAR ptr,unsigned len){(void)ptr;return len==0;}
+static int allocs,frees,reqs,confirms,forwards,inserted,fail_insert;
+static int get_apidx_by_addr(AD *ad,PUCHAR addr){(void)ad;return addr[0];}
+static int os_alloc_mem(AD *ad,PUCHAR *out,unsigned n){(void)ad;*out=calloc(1,n);assert(*out);allocs++;return 0;}
+static void os_free_mem(AD *ad,void *out){(void)ad;assert(out);free(out);frees++;}
+#define MlmeAllocateMemory(ad,out) os_alloc_mem(ad,out,256)
+#define MlmeFreeMemory(ad,out) os_free_mem(ad,out)
+static ENTRY *MacTableInsertEntry(AD *ad,PUCHAR mac,struct wifi_dev *w,int type,int mode,int yes){
+ (void)type;(void)mode;(void)yes;assert(!ad->MacTabLock);inserted++;if(fail_insert)return NULL;
+ ENTRY *e=&ad->MacTab.Content[7];*e=(ENTRY){.wcid=7,.client=1,.func_tb_idx=2,.wdev=w};memcpy(e->Addr,mac,6);return e;
+}
+static void FT_ReqActionParse(AD *ad,UINT16 len,PUCHAR ptr,FT_INFO *info){(void)ad;(void)len;(void)ptr;info->MdIeInfo=123;}
+static int FT_AuthReqHandler(AD *ad,ENTRY *e,FT_INFO *in,FT_INFO *out){(void)in;(void)out;assert(!ad->MacTabLock);assert(e->func_tb_idx==2);reqs++;return MLME_SUCCESS;}
+static int FT_AuthConfirmHandler(AD *ad,ENTRY *e,FT_INFO *in,FT_INFO *out){(void)in;(void)out;assert(!ad->MacTabLock);assert(e->func_tb_idx==2);confirms++;return MLME_SUCCESS;}
+#define FT_MakeFtActFrame(...) ((void)0)
+#define FT_RrbEnqueue(...) (++forwards)
+#define MakeOutgoingFrame(...) ((void)0)
+#define MiniportMMRequest(...) (++forwards)
+'''
+action_main=r'''
+int main(void){
+ AD ad={0};ad.ApCfg.BssidNum=3;ad.ApCfg.MBSSID[2].wdev.bssid[0]=2;
+ ad.ApCfg.MBSSID[2].FtCfg.FtCapFlag.Dot11rFtEnable=1;
+ MLME_QUEUE_ELEM event={.MsgLen=38,.Wcid=7};
+ HEADER_802_11 *hdr=(void*)event.Msg;hdr->Addr1[0]=2;hdr->Addr2[0]=42;
+ FT_ACTION *act=(void*)(event.Msg+24);act->Action=FT_ACTION_BT_REQ;act->StaMac[0]=42;act->TargetApAddr[0]=2;
+ ENTRY *right=&ad.MacTab.Content[7],*wrong=&ad.MacTab.Content[3];
+ *right=(ENTRY){.wcid=7,.client=1,.func_tb_idx=2,.Sst=SST_ASSOC,.Addr={42},.wdev=&ad.ApCfg.MBSSID[2].wdev};
+ *wrong=(ENTRY){.wcid=3,.client=1,.func_tb_idx=0,.Sst=SST_ASSOC,.Addr={42},.wdev=&ad.ApCfg.MBSSID[0].wdev};
+ FT_FtAction(&ad,&event);assert(reqs==1&&!inserted&&right->Sst==SST_AUTH&&wrong->Sst==SST_ASSOC);
+ act->Action=FT_ACTION_BT_CONFIRM;FT_FtAction(&ad,&event);assert(confirms==1);
+ event.Wcid=3;FT_FtAction(&ad,&event);assert(confirms==1);
+ event.Wcid=0;FT_FtAction(&ad,&event);assert(confirms==1);
+ event.Wcid=8;FT_FtAction(&ad,&event);assert(confirms==1);event.Wcid=7;
+ for(int fault=0;fault<6;fault++){
+  ENTRY saved=*right;
+  if(fault==0)right->client=0;if(fault==1)right->func_tb_idx=0;
+  if(fault==2)right->wdev=wrong->wdev;if(fault==3)right->Sst=0;
+  if(fault==4)right->Addr[0]=43;if(fault==5)right->wcid=6;
+  FT_FtAction(&ad,&event);assert(confirms==1);*right=saved;
+ }
+ act->StaMac[0]=43;FT_FtAction(&ad,&event);assert(confirms==1);
+ act->Action=FT_ACTION_BT_REQ;FT_FtAction(&ad,&event);assert(reqs==1&&!inserted);act->StaMac[0]=42;
+ right->client=0;fail_insert=1;FT_FtAction(&ad,&event);assert(reqs==1&&inserted==1);
+ fail_insert=0;FT_FtAction(&ad,&event);assert(reqs==2&&inserted==2&&right->Sst==SST_AUTH);
+ for(int len=0;len<38;len++){event.MsgLen=len;FT_FtAction(&ad,&event);}assert(reqs==2);event.MsgLen=38;
+ int sent=forwards;act->TargetApAddr[0]=1;FT_FtAction(&ad,&event);assert(forwards==sent+1&&reqs==2);
+ assert(allocs==frees&&!ad.MacTabLock);return 0;
+}
+'''
+with tempfile.TemporaryDirectory(prefix='wr-ft-action-context-') as td:
+ src=Path(td)/'check.c';exe=Path(td)/'check';src.write_text(action_prefix+body+action_main)
+ subprocess.run(['gcc','-std=gnu11','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(here),str(src),'-o',str(exe)],check=True)
+ subprocess.run([str(exe)],check=True)
+print('PASS | complete composed FT action | BSS/wdev/MAC/WCID refusal, request-to-confirm state, insertion refusal/success, forwarding, balanced frees')
+# The original action's same-MAC lookup must fail this cross-BSS scenario.
+native_at=native.index('VOID FT_FtAction(')
+native_action=native[native_at:native.index('\n}',native_at)+2]
+with tempfile.TemporaryDirectory(prefix='wr-ft-action-original-') as td:
+ src=Path(td)/'check.c';exe=Path(td)/'check';src.write_text(action_prefix+lookup+native_action+action_main)
+ subprocess.run(['gcc','-std=gnu11','-O2','-I'+str(here),str(src),'-o',str(exe)],check=True)
+ result=subprocess.run([str(exe)],capture_output=True,text=True,preexec_fn=no_core)
+ assert result.returncode!=0 and (
+  'e->func_tb_idx==2' in result.stderr or
+  'reqs==1&&!inserted&&right->Sst==SST_AUTH&&wrong->Sst==SST_ASSOC' in result.stderr),result.stderr
+print('PASS | original FT action rejected by same cross-BSS/state assertions')

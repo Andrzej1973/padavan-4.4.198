@@ -270,3 +270,29 @@ Host report: docs/evidence/WR1200JS-FT-RRB-CONTEXT-HOST-2026-11-19.json.
 No producer installation/target compile/device acceptance for this local change.
 Next: bind FT_FtAction's selected entry to receiver BSS and original queued
 generation, with native peer lifetime arbitration, before any activation.
+
+## Prepared FT native action BSS context checked — 2026-11-19
+
+The uninstalled FT bounds composer now also scopes FT_FtAction request lookup
+under MacTabLock to a live ENTRY_CLIENT with exact MAC, slot WCID, receiver
+apidx and embedded wdev. Action StaMac must match frame Addr2 before lookup/
+insertion. A failed insertion returns without handler execution. Native initial
+SST_NOT_AUTH insertion is preserved; request success still sets SST_AUTH.
+Confirmation requires a nonreserved matching WCID, live client, exact receiver
+BSS/wdev/MAC/StaMac and SST_AUTH or SST_ASSOC before FT_AuthConfirmHandler.
+Native forwarding branches remain unchanged. Negative apidx is now refused.
+
+Existing composition regression executes the entire composed FT_FtAction with
+explicit IE-parser, crypto/handler, allocation and forwarding actors. Same-MAC
+other-BSS slot before correct slot, request -> SST_AUTH -> confirm, wrong WCID/
+BSS/wdev/MAC/state, insertion failure/success, short outer headers, forwarding
+and balanced frees PASS under ASan/UBSan. Original callback fails the same
+BSS/state assertions. Independent real vendor-fill parser regression also PASS.
+Native callback control flow is exercised, not actual crypto/MLME concurrency.
+Report: docs/evidence/WR1200JS-FT-ACTION-CONTEXT-HOST-2026-11-19.json.
+
+Compiler commands resolving local headers now pass -I<script_dir>, including
+the original-callback regression build. No FT producer activation, target build
+or device acceptance is claimed. WCID/generation capture before enqueue,
+peer lease during native mutation and correct FT generation advancement remain
+required. Current point-in-time BSS checks do not establish those properties.

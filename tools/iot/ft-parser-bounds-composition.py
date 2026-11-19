@@ -31,7 +31,38 @@ def compose(source):
     body=one(body,'if (Elem->Wcid < MAX_LEN_OF_MAC_TABLE)',
       check+'\t\t\t\tif (Elem->Wcid < MAX_LEN_OF_MAC_TABLE)')
     allocation='&pAd->ApCfg.MBSSID[apidx].wdev, ENTRY_CLIENT, OPMODE_AP, TRUE);'
-    body=one(body,allocation,allocation+'\n if(!pEntry)goto out;')
+    body=one(body,allocation,allocation+'\n if(!pEntry)goto out;'+'''
+ if(!IS_ENTRY_CLIENT(pEntry)||pEntry->func_tb_idx!=apidx||
+  pEntry->wdev!=&pAd->ApCfg.MBSSID[apidx].wdev||
+  pEntry->wcid==RESERVED_WCID||pEntry->wcid>=MAX_LEN_OF_MAC_TABLE||
+  !MAC_ADDR_EQUAL(pEntry->Addr,pHdr->Addr2))goto out;
+''')
+    # Validate the action's own station identity before lookup or insertion.
+    body=one(body,'pEntry = MacTableLookup(pAd, pHdr->Addr2);',
+      'if(!MAC_ADDR_EQUAL(pFtAction->StaMac,pHdr->Addr2))goto out;\n'
+      '\t\t\t\tpEntry = MacTableLookup(pAd, pHdr->Addr2);')
+    anchor='if (pEntry->func_tb_idx > pAd->ApCfg.BssidNum)'
+    context='''if(!IS_ENTRY_CLIENT(pEntry)||Elem->Wcid==RESERVED_WCID||
+  pEntry->wcid!=Elem->Wcid||pEntry->func_tb_idx!=apidx||
+  pEntry->wdev!=&pAd->ApCfg.MBSSID[apidx].wdev||
+  (pEntry->Sst!=SST_AUTH&&pEntry->Sst!=SST_ASSOC)||
+  !MAC_ADDR_EQUAL(pEntry->Addr,pHdr->Addr2)||
+  !MAC_ADDR_EQUAL(pFtAction->StaMac,pHdr->Addr2))goto out;
+                '''
+    body=one(body,anchor,context+anchor)
+    body=one(body,'\tINT apidx;', '\tINT apidx;\n unsigned int wr_slot;')
+    body=one(body,'pEntry = MacTableLookup(pAd, pHdr->Addr2);','''pEntry=NULL;
+ NdisAcquireSpinLock(&pAd->MacTabLock);
+ for(wr_slot=1;wr_slot<MAX_LEN_OF_MAC_TABLE;wr_slot++){
+  PMAC_TABLE_ENTRY wr_peer=&pAd->MacTab.Content[wr_slot];
+  if(IS_ENTRY_CLIENT(wr_peer)&&wr_peer->wcid==wr_slot&&
+   wr_peer->func_tb_idx==apidx&&
+   wr_peer->wdev==&pAd->ApCfg.MBSSID[apidx].wdev&&
+   MAC_ADDR_EQUAL(wr_peer->Addr,pHdr->Addr2)){pEntry=wr_peer;break;}
+ }
+ NdisReleaseSpinLock(&pAd->MacTabLock);''')
+    body=one(body,'if (apidx >= pAd->ApCfg.BssidNum)',
+      'if (apidx < 0 || apidx >= pAd->ApCfg.BssidNum)')
     body=one(body,'if (pEntry->func_tb_idx > pAd->ApCfg.BssidNum)',
       'if (pEntry->func_tb_idx >= pAd->ApCfg.BssidNum)')
     body=one(body,'(FtActLen - sizeof(PFT_ACTION))','wr_ie_length',2)

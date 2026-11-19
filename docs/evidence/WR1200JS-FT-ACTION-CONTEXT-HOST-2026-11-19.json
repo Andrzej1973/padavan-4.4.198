@@ -1,0 +1,42 @@
+{
+  "scope": "Composed complete FT action and RRB control flow with explicit parser/crypto/queue actors; independent native-fill parser regression",
+  "module_installed": false,
+  "runtime_verified": false,
+  "target_compiled": false,
+  "checks": [
+    {
+      "check": "check-ft-action-bounds.py",
+      "exit_status": 0,
+      "stdout": "Vendor FT header14: outer buffer, truncated/empty payload, UINT16 and overflow boundaries PASS; IE parser/driver binding unverified\n",
+      "stderr": ""
+    },
+    {
+      "check": "check-ft-parser-composition.py",
+      "exit_status": 0,
+      "stdout": "FT bounds composition: outer admission, terminating request/confirm validation before lookup, native forwarding preserved PASS\nPASS | composed RRB selection | active client, MAC/BSS/wdev/WCID, absent-context refusal before enqueue, truncated lengths\nPASS | complete composed RRB handler | context refusal suppresses allocation/enqueue, valid WCID, allocation failure, exact input/output capacities\nPASS | original MAC-only producer rejected by same cross-BSS regression assertions\nPASS | complete composed FT action | BSS/wdev/MAC/WCID refusal, request-to-confirm state, insertion refusal/success, forwarding, balanced frees\nPASS | original FT action rejected by same cross-BSS/state assertions\n",
+      "stderr": ""
+    },
+    {
+      "check": "check-ft-native-parser.py",
+      "exit_status": 0,
+      "stdout": "Composed native parser: exact buffers, whole-list refusal, MDIE/FTIE actors, RIC span and OUI copy PASS; full vendor fill/target unverified\n",
+      "stderr": ""
+    },
+    {
+      "check": "check-ft-vendor-fill-parser.py",
+      "exit_status": 0,
+      "stdout": "Native FT parser + real MDIE/FTIE fill and SDK type declarations: host PASS; full action/target/runtime pending\n",
+      "stderr": ""
+    },
+    {
+      "check": "check-ra2-ft-mutation-composition.py",
+      "exit_status": 0,
+      "stdout": "Prepared FT wrapper: native bytes preserved, refusal/pass-through/early-return release PASS; BSS/provenance/native body and target unverified\n",
+      "stderr": ""
+    }
+  ],
+  "source_sha256": {
+    "tools/iot/ft-parser-bounds-composition.py": "2c786a631c3bb3599e43bfc1c8bf1e7e5dc98ba533a68c61b0e87e73f935add7",
+    "tools/iot/check-ft-parser-composition.py": "b586842ac027fee39671256dad3dc21094b535ca2203cf1f0a8510668f7f91ed"
+  }
+}
