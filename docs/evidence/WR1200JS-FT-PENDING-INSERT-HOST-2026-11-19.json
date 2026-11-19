@@ -1,0 +1,64 @@
+{
+  "date": "2026-11-19",
+  "revision": "8fb2bbe6d4575e5f0c683a2087177ad8fca14bd7",
+  "status": "host-fragment-checks-passed-uninstalled",
+  "scope": "Prepared native insertion clone, adapter storage and fresh-allocation initialization; extracted admission/finish/failure/wrapper fragments executed with explicit allocation actors",
+  "source_sha256": {
+    "mgmt/mgmt_entrytb.c": "d8c38bebce1b9b4612aceead5b9c2c9acf77a1e6c3bba07dcc06e977c06ae426",
+    "include/rtmp.h": "d3fcdacce2246a6f19f4319f851adf1f26142ce74762f411e158d6c5fe8fd45b",
+    "common/rtmp_init.c": "f4bc432661900513e026c2abe05c4d861dc1982990968ad5c276ed6444fef011"
+  },
+  "helper_sha256": {
+    "tools/iot/ft-pending-insert-composition.py": "2cd0e9077ad336492f38bfa0b6037273dc8cc0011b15c5f7308cc1d72cfe777d",
+    "tools/iot/check-ft-pending-insert.py": "4a47cd63496abeb628a06cd07b0fa8264e5224957760ccc08cabfee2e742e568",
+    "tools/iot/ft-pending-identity.h": "0cd0f4c555ca93ab326a13de039edbaf7c0958955564846bb147eaf9d0930692",
+    "tools/iot/ft_pending_identity_check.nim": "f8f328e0beb2878be06d1e067bf840147c7f1de44b0fab57c8b218933eb040e5",
+    "tools/iot/ft-pending-peer-scope.h": "de7c5cf7db32ffc02063b44c04b87e7a60d2c54193c3333391fa9124771f002f"
+  },
+  "verification": [
+    {
+      "command": "python3 tools/iot/check-ft-pending-insert.py /home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3",
+      "exit_status": 0,
+      "result": [
+        "PASS | FT pending insertion gates | exact BSS+MAC, foreign-BSS duplicate, stale sibling, retry, capacity, owner and lock balance",
+        "PASS | FT pending insertion composition | pinned anchors, native bookkeeping preserved, private startup gates retained, duplicate preparation refused"
+      ],
+      "cases": [
+        "claimed pending BSS+MAC preserves legitimate first-peer insertion without requiring an active peer",
+        "foreign-BSS same-MAC entry is not adopted",
+        "reserve slot before native reset; publish exact generation before unlock",
+        "allocation and capacity failures unclaim for retry",
+        "private startup gate and native insertion bookkeeping retained",
+        "prepared composer remains uninstalled",
+        "R1KH_HARD_RETRY path initializes ack_r1kh immediately after entry reset"
+      ]
+    },
+    {
+      "command": "nim c -r --out:/tmp/ft-pending-identity-check tools/iot/ft_pending_identity_check.nim",
+      "exit_status": 0
+    },
+    {
+      "command": "python3 tools/iot/check-ft-generation-binding.py <pinned-mt76x3-c25283e>",
+      "exit_status": 0
+    },
+    {
+      "command": "python3 tools/iot/check-ft-parser-composition.py <pinned-mt76x3-c25283e>",
+      "exit_status": 0
+    }
+  ],
+  "full_native_function_compiled": false,
+  "target_compiled": false,
+  "producer_installed": false,
+  "runtime_verified": false,
+  "remaining": [
+    "wire ingress/queue ticket reservation, transfer and release across failure, dispatch, restart and destroy",
+    "bind first-peer FT callback to this new insertion wrapper",
+    "atomically hand off successful inserted peer to generation/lifetime scope before unlocked native processing",
+    "actual generated full SDK insertion TU and private predecessor compatibility target checks",
+    "FT_AUTH generation transition",
+    "matching IAPP completion identity and admission"
+  ],
+  "predecessor_test_scope": "Pinned association-generation source extended by owner field schema; private startup signature/gate modeled from the existing preparer. Complete staged predecessor not compiled.",
+  "hard_retry_completion_init_prepared": true,
+  "hard_retry_completion_target_compiled": false
+}

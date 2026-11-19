@@ -36,6 +36,8 @@ prefix=r'''
 #define SST_ASSOC 2
 #define IS_ENTRY_CLIENT(e) ((e)->client)
 #define MAC_ADDR_EQUAL(a,b) (!memcmp(a,b,6))
+#define WRITE_ONCE(location,value) ((location)=(value))
+#define smp_wmb() ((void)0)
 #define COPY_MAC_ADDR(a,b) memcpy(a,b,6)
 #define NdisMoveMemory memcpy
 #define DBGPRINT_ERR(args) ((void)0)
@@ -66,8 +68,8 @@ typedef struct {int Lock,Tail,Num;MLME_QUEUE_ELEM Entry[4];} MLME_QUEUE,EAP_MLME
 struct wifi_dev{unsigned char bssid[6];};
 typedef struct {unsigned assoc_gen,wcid,func_tb_idx;int Sst,client;unsigned char Addr[6];struct wifi_dev *wdev;} MAC_TABLE_ENTRY;
 typedef struct {struct {unsigned BssidNum;struct {struct wifi_dev wdev;} MBSSID[3];} ApCfg;
- struct {MAC_TABLE_ENTRY Content[8];} MacTab;unsigned wr_iot_peer_delete_active,wr_assoc_event_users[8];
- struct wr_iot_peer_table_owner wr_iot_peer_table_owner;
+ struct {MAC_TABLE_ENTRY Content[8];} MacTab;unsigned wr_iot_peer_delete_active,wr_assoc_event_users[8],wr_assoc_generations[8],wr_assoc_visible[8];
+ unsigned char wr_assoc_addr[8][6];struct wr_iot_peer_table_owner wr_iot_peer_table_owner;
  struct {MLME_QUEUE Queue,EAP_Queue;} Mlme;struct {int BBPCurrentBW,Channel;} CommonCfg;
  struct {int Channel;} LatchRfRegs;int dispatches;} RTMP_ADAPTER;
 #include "ft-peer-generation.h"

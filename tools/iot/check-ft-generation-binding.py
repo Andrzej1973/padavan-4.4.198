@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Execute composed RRB capture and stamped FT consumer with explicit actors."""
+"""Execute composed active-peer RRB stamps and pending first-peer FT leases."""
 import argparse,contextlib,io,runpy,subprocess,sys,tempfile
 from pathlib import Path
 p=argparse.ArgumentParser(description=__doc__);p.add_argument('source',type=Path);a=p.parse_args()
@@ -12,41 +12,130 @@ finally:sys.argv=argv
 mlme=runpy.run_path(str(here/'assoc-generation-composition.py'))['compose']({},a.source,here)['common/mlme.c']
 module=runpy.run_path(str(here/'ft-enqueue-generation-composition.py'))
 _,prototype=module['compose'](mlme)
-prepared=module['bind_ft'](data['text'],prototype)
+pending_enqueue=runpy.run_path(str(here/'ft-pending-enqueue-composition.py'))
+_,pending_prototype=pending_enqueue['compose'](mlme)
+rx_prepared=runpy.run_path(str(here/'ft-rx-generation-composition.py'))['compose'](
+ mlme,prototype,pending_prototype)
+rx_wrapper=rx_prepared[rx_prepared.index('BOOLEAN MlmeEnqueueForRecv('):]
+rx_wrapper=rx_wrapper[:rx_wrapper.index('\n}')+2]
+assert 'wr_frame->Hdr.Addr1' in rx_wrapper and 'wr_entry->func_tb_idx==wr_apidx' in rx_wrapper
+assert 'wr_entry->wdev==&pAd->ApCfg.MBSSID[wr_apidx].wdev' in rx_wrapper
+assert 'wr_action->Action==FT_ACTION_BT_REQ' in rx_wrapper
+assert 'wr_ft_mlme_enqueue_for_recv' in rx_wrapper and 'wr_ft_pending_enqueue_for_recv' in rx_wrapper
+assert rx_wrapper.index('NdisAcquireSpinLock(&pAd->MacTabLock)') < rx_wrapper.index('wr_ft_pending_reserve_locked')
+assert 'wr_ft_pending_release_locked' in rx_wrapper
+insert_prototype='''#ifdef DOT11R_FT_SUPPORT
+struct wr_ft_pending_peer_scope;
+MAC_TABLE_ENTRY *wr_ft_pending_insert(RTMP_ADAPTER *,UCHAR *,struct wifi_dev *,
+ const struct wr_ft_pending_token *,struct wr_ft_pending_peer_scope *);
+#endif'''
+prepared=module['bind_ft'](data['text'],prototype,pending_prototype,insert_prototype)
 def function(name):
  start=prepared.index('VOID '+name+'(');return prepared[start:prepared.index('\n}',start)+2]
 assert prepared.count('wr_ft_peer_capture_locked(')==1
 assert prepared.count('wr_ft_peer_enter_locked(')==1 and prepared.count('wr_ft_peer_leave_locked(')==1
+rrb_prepared=function('FT_RrbHandler')
+assert rrb_prepared.index('wr_ft_pending_reserve_locked') < rrb_prepared.index('MlmeAllocateMemory')
+assert 'wr_ft_pending_enqueue_for_recv' in rrb_prepared and 'wr_ft_mlme_enqueue_for_recv' in rrb_prepared
+request_prepared=prepared[prepared.index('case FT_ACTION_BT_REQ:'):prepared.index('case FT_ACTION_BT_CONFIRM:')]
+assert 'wr_ft_pending_insert(' in request_prepared and 'MacTableInsertEntry(' not in request_prepared
 try:module['bind_ft'](prepared,prototype)
 except ValueError:pass
 else:raise AssertionError('duplicate binding accepted')
 
 def types(text):
  text="#define MAC_ADDR_LEN 6\n"+text
- text=text.replace('#include <string.h>','#include <string.h>\n#include "peer-table-owner.h"')
+ text=text.replace('#include <string.h>','#include <string.h>\n#include "peer-table-owner.h"\n'
+  '#define MAX_LEN_OF_MAC_TABLE 8\n#define WR_FT_PENDING_CAPACITY 8\n'
+  '#define RESERVED_WCID 0\n#define SST_AUTH 1\n#define SST_ASSOC 2\n'
+  '#define WRITE_ONCE(location,value) ((location)=(value))\n#define smp_wmb() ((void)0)\n'
+  '#include "ft-pending-identity.h"\n#include "peer-close-executor.h"\n'
+  '#define IS_ENTRY_NONE(e) (!(e)->client)\n#define FT_ACTION_BT_REQ 1\n#define Action action')
+ text=text.replace('struct wifi_dev {int id;};','struct wifi_dev {unsigned char bssid[6];unsigned func_idx;};')
+ text=text.replace('struct wifi_dev{unsigned char bssid[6];};','struct wifi_dev{unsigned char bssid[6];unsigned func_idx;};')
  text=text.replace('unsigned wcid;int client','unsigned assoc_gen,wcid;int client')
  text=text.replace('unsigned int wcid;int func_tb_idx','unsigned int assoc_gen,wcid;int func_tb_idx')
  text=text.replace('typedef struct {int MacTabLock;struct',
-  'typedef struct {int MacTabLock;unsigned wr_iot_peer_delete_active,wr_assoc_event_users[8];struct wr_iot_peer_table_owner wr_iot_peer_table_owner;struct')
+  'typedef struct {int MacTabLock;unsigned wr_iot_peer_delete_active,wr_assoc_event_users[8],wr_assoc_generations[8],wr_assoc_visible[8];unsigned char wr_assoc_addr[8][6];struct wr_ft_pending_ledger wr_ft_pending;struct wr_iot_peer_close_executor wr_iot_peer_close_executor;struct wr_iot_peer_table_owner wr_iot_peer_table_owner;struct')
  text=text.replace('} AD,*PRTMP_ADAPTER;','} AD,*PRTMP_ADAPTER;\ntypedef AD RTMP_ADAPTER;typedef ENTRY MAC_TABLE_ENTRY;')
  return text
 prefix=types(data['action_prefix'])
-prefix=prefix.replace('unsigned Wcid;unsigned char Msg[256];','unsigned Wcid,assoc_gen,assoc_wcid;unsigned char assoc_addr[6],Msg[256];')
+prefix=prefix.replace('typedef struct {ULONG MsgLen;unsigned Wcid;unsigned char Msg[256];}',
+ 'typedef struct {ULONG MsgLen;unsigned Wcid,assoc_gen,assoc_wcid,ft_pending_generation,ft_pending_slot,ft_pending_bss;unsigned char assoc_addr[6],ft_pending_addr[6],Msg[256];}')
 prefix=prefix.replace('fail_insert;','fail_insert,expect_scope=1;')
 for actor in ('reqs','confirms'):
  prefix=prefix.replace(actor+'++;return MLME_SUCCESS;',
   'assert(!expect_scope||(ad->wr_assoc_event_users[e->wcid]==1&&ad->wr_iot_peer_table_owner.transactions==1));'+actor+'++;return MLME_SUCCESS;')
 prefix=prefix.replace('.wcid=7,.client=1','.assoc_gen=1,.wcid=7,.client=1')
 main=data['action_main'].replace('.MsgLen=38,.Wcid=7','.MsgLen=38,.Wcid=7,.assoc_gen=1,.assoc_wcid=7,.assoc_addr={42}')
+main=main.replace('AD ad={0};ad.ApCfg.BssidNum=3;',
+ 'AD ad={0};ad.ApCfg.BssidNum=3;ad.ApCfg.MBSSID[2].wdev.func_idx=2;wr_ft_pending_ledger_init(&ad.wr_ft_pending);')
+main=main.replace('MLME_QUEUE_ELEM event={.MsgLen=38,.Wcid=7,.assoc_gen=1,.assoc_wcid=7,.assoc_addr={42}};',
+ 'MLME_QUEUE_ELEM event={.MsgLen=38,.Wcid=7,.assoc_gen=1,.assoc_wcid=7,.assoc_addr={42}},duplicate={.MsgLen=38,.Wcid=RESERVED_WCID};')
 main=main.replace('.wcid=7,.client=1','.assoc_gen=1,.wcid=7,.client=1')
+main=main.replace('*wrong=(ENTRY){.wcid=3,.client=1,.func_tb_idx=0,.Sst=SST_ASSOC,.Addr={42},.wdev=&ad.ApCfg.MBSSID[0].wdev};',
+ '*wrong=(ENTRY){.wcid=3,.client=1,.func_tb_idx=0,.Sst=SST_ASSOC,.Addr={42},.wdev=&ad.ApCfg.MBSSID[0].wdev};\n ad.wr_assoc_generations[7]=1;ad.wr_assoc_visible[7]=1;memcpy(ad.wr_assoc_addr[7],right->Addr,6);')
 main=main.replace('act->Action=FT_ACTION_BT_CONFIRM;FT_FtAction(&ad,&event);assert(confirms==1);',
- '''act->Action=FT_ACTION_BT_CONFIRM;right->assoc_gen=2;
- FT_FtAction(&ad,&event);assert(!confirms&&!ad.wr_assoc_event_users[7]&&!ad.wr_iot_peer_table_owner.transactions);
- right->assoc_gen=1;FT_FtAction(&ad,&event);assert(confirms==1);''')
-main=main.replace('right->client=0;fail_insert=1;', 'event.assoc_gen=0;expect_scope=0;right->client=0;fail_insert=1;')
+ '''act->Action=FT_ACTION_BT_CONFIRM;FT_FtAction(&ad,&event);
+ assert(!confirms&&!ad.wr_assoc_event_users[7]&&!ad.wr_iot_peer_table_owner.transactions);
+ event.assoc_gen=2;FT_FtAction(&ad,&event);assert(confirms==1);''')
+main=main.replace('right->client=0;fail_insert=1;', '''event.assoc_gen=0;expect_scope=0;right->client=0;
+ struct wr_ft_pending_token ticket={0},sibling={0};NdisAcquireSpinLock(&ad.MacTabLock);
+ assert(wr_ft_pending_reserve_locked(&ad.wr_ft_pending,2,right->Addr,&ticket));
+ NdisReleaseSpinLock(&ad.MacTabLock);assert(wr_ft_pending_elem_publish(&event,&ticket));
+ fail_insert=1;FT_FtAction(&ad,&event);assert(reqs==1&&inserted==1);
+ assert(wr_ft_pending_elem_release(&ad,&event));
+ fail_insert=0;ticket=(struct wr_ft_pending_token){0};NdisAcquireSpinLock(&ad.MacTabLock);
+ assert(wr_ft_pending_reserve_locked(&ad.wr_ft_pending,2,right->Addr,&ticket));
+ assert(wr_ft_pending_reserve_locked(&ad.wr_ft_pending,2,right->Addr,&sibling));
+ NdisReleaseSpinLock(&ad.MacTabLock);duplicate=event;duplicate.Wcid=RESERVED_WCID;
+ assert(wr_ft_pending_elem_publish(&event,&ticket));assert(wr_ft_pending_elem_publish(&duplicate,&sibling));
+ FT_FtAction(&ad,&event);assert(inserted==2);assert(reqs==2);
+ assert(ad.wr_assoc_event_users[1]==0&&!ad.wr_iot_peer_table_owner.transactions);
+ assert(ad.MacTab.Content[1].Sst==SST_AUTH&&ad.MacTab.Content[1].assoc_gen==2);
+ assert(wr_ft_pending_elem_release(&ad,&event));
+ FT_FtAction(&ad,&duplicate);assert(reqs==2&&inserted==2);
+ assert(wr_ft_pending_elem_release(&ad,&duplicate));
+ ticket=(struct wr_ft_pending_token){0};NdisAcquireSpinLock(&ad.MacTabLock);
+ assert(wr_ft_pending_reserve_locked(&ad.wr_ft_pending,2,right->Addr,&ticket));
+ NdisReleaseSpinLock(&ad.MacTabLock);assert(wr_ft_pending_elem_publish(&event,&ticket));
+ right->client=1;right->Sst=SST_ASSOC;FT_FtAction(&ad,&event);
+ assert(reqs==2&&inserted==2);assert(wr_ft_pending_elem_release(&ad,&event));right->client=0;''')
+main=main.replace('right->client=0;FT_FtAction(&ad,&event);assert(reqs==1&&inserted==1);\n fail_insert=0;FT_FtAction(&ad,&event);assert(reqs==2&&inserted==2&&right->Sst==SST_AUTH);',
+ 'right->client=0;')
 main=main.replace('assert(allocs==frees&&!ad.MacTabLock);',
  'assert(allocs==frees&&!ad.MacTabLock&&!ad.wr_assoc_event_users[7]&&!ad.wr_iot_peer_table_owner.transactions);')
-consumer=prefix+'\n#include "ft-peer-generation.h"\n'+function('FT_FtAction')+main
+consumer=prefix+'\n#include "ft-peer-generation.h"\n#include "assoc-generation.h"\n'
+consumer+='''\n#include "ft-pending-peer-scope.h"\n#include "ft-pending-queue.h"\n'''
+consumer+='''\nstatic inline void wr_assoc_publish_slot_locked(RTMP_ADAPTER *ad,MAC_TABLE_ENTRY *entry){
+ unsigned int i,w=entry->wcid;ad->wr_assoc_visible[w]=0;
+ for(i=0;i<MAC_ADDR_LEN;i++)ad->wr_assoc_addr[w][i]=entry->Addr[i];
+ ad->wr_assoc_visible[w]=entry->assoc_gen;
+}
+static MAC_TABLE_ENTRY *wr_ft_pending_insert(RTMP_ADAPTER *ad,UCHAR *mac,
+ struct wifi_dev *wdev,const struct wr_ft_pending_token *ticket,
+ struct wr_ft_pending_peer_scope *scope){
+ MAC_TABLE_ENTRY *entry=0;unsigned int wcid;
+ inserted++;if(!ad||!mac||!wdev||!ticket||!scope||fail_insert)return 0;
+ NdisAcquireSpinLock(&ad->MacTabLock);
+ if(!wr_ft_pending_current_locked(&ad->wr_ft_pending,ticket)||
+    !wr_ft_pending_claim_locked(&ad->wr_ft_pending,ticket)){
+  NdisReleaseSpinLock(&ad->MacTabLock);return 0;
+ }
+ for(wcid=1;wcid<MAX_LEN_OF_MAC_TABLE;wcid++)
+  if(IS_ENTRY_NONE(&ad->MacTab.Content[wcid]))break;
+ if(wcid<MAX_LEN_OF_MAC_TABLE&&wr_ft_pending_peer_reserve_slot_locked(ad,wcid,wdev,ticket,scope)){
+  entry=&ad->MacTab.Content[wcid];memset(entry,0,sizeof(*entry));
+  entry->wcid=wcid;entry->client=1;entry->func_tb_idx=ticket->bss;entry->wdev=wdev;
+  memcpy(entry->Addr,mac,MAC_ADDR_LEN);
+  entry->assoc_gen=wr_assoc_generation_next(&ad->wr_assoc_generations[wcid]);
+  wr_assoc_publish_slot_locked(ad,entry);
+  if(!wr_ft_pending_peer_publish_locked(ad,entry,ticket,scope))entry=0;
+  else (void)wr_ft_pending_retire_key_locked(&ad->wr_ft_pending,ticket->bss,mac);
+ }else (void)wr_ft_pending_unclaim_locked(&ad->wr_ft_pending,ticket);
+ NdisReleaseSpinLock(&ad->MacTabLock);return entry;
+}
+'''+function('FT_FtAction')+main
 
 prefix=types(data['base'])
 prefix+='''
@@ -76,11 +165,58 @@ main=main.replace('assert(ad.MacTabLock==0);return 0;',r'''
  assert(observed_gen==5&&right->assoc_gen==6&&!replace_on_alloc);
  assert(ad.MacTabLock==0);return 0;
 ''')
-producer=prefix+actors+enqueue+function('FT_RrbHandler')+main
+prefix=types(data['base'])+'''
+typedef unsigned char UCHAR;
+#define NdisZeroMemory(a,n) memset(a,0,n)
+#include "ft-peer-generation.h"
+struct raw_rssi_info {unsigned char raw_rssi[3],raw_snr;};
+static unsigned observed_gen;static int replace_on_alloc;
+'''
+enqueue_actor=r'''
+static int pending_enqueues,fail_pending_enqueue;static struct wr_ft_pending_token queued_ticket;
+static int wr_ft_pending_enqueue_for_recv(AD *ad,ULONG wcid,struct raw_rssi_info *rssi,
+#if defined(CUSTOMER_DCC_FEATURE) || defined(NEIGHBORING_AP_STAT)
+ UCHAR snr0,UCHAR snr1,
+#endif
+ ULONG len,void *msg,UCHAR mode,struct wr_ft_pending_token *ticket){
+ (void)rssi;(void)len;(void)msg;(void)mode;assert(ad&&!wcid&&ticket&&ticket->generation);
+ if(fail_pending_enqueue)return 0;
+ queued_ticket=*ticket;wr_ft_pending_token_clear(ticket);pending_enqueues++;return 1;
+}
+'''
+rrb_main=data['main']
+rrb_main=rrb_main.replace('.wcid=7,.func_tb_idx=2','.assoc_gen=1,.wcid=7,.func_tb_idx=2')
+rrb_main=rrb_main.replace('AD ad={0};ad.ApCfg.BssidNum=3;',
+ 'AD ad={0};ad.ApCfg.BssidNum=3;ad.ApCfg.MBSSID[2].wdev.bssid[0]=2;wr_ft_pending_ledger_init(&ad.wr_ft_pending);')
+rrb_main=rrb_main.replace('((FT_ACTION*)r->Oct)->StaMac[0]=42;',
+ '((FT_ACTION*)r->Oct)->StaMac[0]=42;((FT_ACTION*)r->Oct)->Action=FT_ACTION_BT_REQ;((FT_ACTION*)r->Oct)->TargetApAddr[0]=2;')
+rrb_main=rrb_main.replace('FT_RrbHandler(&ad,packet,38);assert(enqueued==1&&queued_wcid==7&&queued_length==38);',
+ 'struct wr_ft_peer_stamp probe={0};assert(wr_ft_peer_capture_locked(&ad,7,2,right->Addr,&probe));FT_RrbHandler(&ad,packet,38);assert(enqueued==1&&queued_wcid==7&&queued_length==38);')
+rrb_main=rrb_main.replace('right->client=0;\n FT_RrbHandler(&ad,packet,38);assert(enqueued==1&&allocated==1);right->client=1;',
+ '''right->client=0;
+ FT_RrbHandler(&ad,packet,38);
+ assert(pending_enqueues==1&&queued_ticket.generation&&queued_ticket.bss==2&&queued_ticket.addr[0]==42);
+ assert(ad.wr_ft_pending.references[queued_ticket.slot]==1);
+ NdisAcquireSpinLock(&ad.MacTabLock);assert(wr_ft_pending_release_locked(&ad.wr_ft_pending,&queued_ticket));NdisReleaseSpinLock(&ad.MacTabLock);
+ assert(!ad.wr_ft_pending.references[queued_ticket.slot]);
+ fail_pending_enqueue=1;FT_RrbHandler(&ad,packet,38);
+ assert(pending_enqueues==1);for(int i=0;i<WR_FT_PENDING_CAPACITY;i++)assert(!ad.wr_ft_pending.references[i]);
+ fail_pending_enqueue=0;allocated=freed=1;
+ right->client=1;''')
+rrb_main=rrb_main.replace('right->Sst=0;FT_RrbHandler(&ad,packet,38);assert(enqueued==1&&allocated==1);right->Sst=SST_ASSOC;',
+ 'right->Sst=0;FT_RrbHandler(&ad,packet,38);assert(enqueued==1&&allocated==1&&pending_enqueues==0);right->Sst=SST_ASSOC;')
+rrb_main=rrb_main.replace('fail_alloc=1;FT_RrbHandler(&ad,packet,38);assert(enqueued==1&&allocated==1&&freed==1);fail_alloc=0;',
+ '''right->client=0;fail_alloc=1;FT_RrbHandler(&ad,packet,38);
+ assert(enqueued==1&&allocated==1&&freed==1);
+ for(int i=0;i<WR_FT_PENDING_CAPACITY;i++)assert(!ad.wr_ft_pending.references[i]);
+ fail_alloc=0;right->client=1;''')
+producer=prefix+actors+enqueue_actor+enqueue+function('FT_RrbHandler')+rrb_main
 with tempfile.TemporaryDirectory(prefix='wr-ft-generation-bind-') as td:
  for name,code in [('producer',producer),('consumer',consumer)]:
   src=Path(td)/(name+'.c');exe=Path(td)/name;src.write_text(code)
   for flags in ([],['-DCUSTOMER_DCC_FEATURE']):
    subprocess.run(['gcc','-std=gnu11','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(here),*flags,str(src),'-o',str(exe)],check=True)
    subprocess.run([str(exe)],check=True)
-print('PASS | prepared FT snapshot binding | producer preserves pre-allocation generation; stale consumer refuses before insertion/handlers; balanced live peer scope; native zero-stamp path separate')
+print('PASS | prepared FT BSS/generation binding | active RRB peer stamp; absent peer requires local-BSS BT_REQ ticket; first-peer insertion advances generation under lease')
+print('PASS | pending FT race/failure cases | enqueue/allocation failure releases ticket; failed insert retries; sibling ticket and active-peer race refuse; callback lease balances')
+print('PASS | FT callback bounds | stale generation refused; ordinary RX ingress is separately host-checked; paired enqueue-to-callback target compile remains open; prepared code stays uninstalled')

@@ -1,0 +1,93 @@
+{
+  "date": "2026-11-19",
+  "base_revision": "8fb2bbe6d4575e5f0c683a2087177ad8fca14bd7",
+  "status": "host-enqueue-and-lifecycle-composition-checked-uninstalled",
+  "vendor_revision": "c25283e",
+  "scope": "Entire cloned MlmeEnqueueForRecv runs with host classifier/queue/task-notification actors; queue token move/take helpers execute against real ledger. No FT consumer or cleanup installed.",
+  "files_sha256": {
+    "tools/iot/ft-pending-queue.h": "ba717841ecdda717b76deb9485976f0d649c57bf4512dfb2e4e585df2a1a739b",
+    "tools/iot/ft-pending-enqueue-composition.py": "14cccd2b6228467635259d365267f9b0fbdb8c112064378996cda264ff0ff107",
+    "tools/iot/check-ft-pending-enqueue.py": "c16e3b3ad2392bcdc1695a623b08421823a3764cdd41caacc7d2fea67f69c287",
+    "tools/iot/ft_pending_identity_check.nim": "f8f328e0beb2878be06d1e067bf840147c7f1de44b0fab57c8b218933eb040e5"
+  },
+  "verification": [
+    {
+      "command": "python3 tools/iot/check-ft-pending-enqueue.py <pinned-mt76x3-c25283e>",
+      "exit_status": 0,
+      "additional_lifecycle_cases": [
+        "queue ticket metadata initialized with every MLME/EAP slot",
+        "stale ticket released under MacTabLock before dispatch continue",
+        "live ticket released under MacTabLock after handler returns and before Occupied clears",
+        "restart closes ticket ingress under Queue->Lock, drains all slots, reopens only after native reset sequence",
+        "halt closes ticket ingress after task kill and drains before MlmeQueueDestroy",
+        "closed queue refuses ticket producer while retaining producer reference"
+      ],
+      "scope": "Static assertions inspect composed MlmeHandler/MlmeRestartStateMachine/MlmeHalt and actual cloned enqueue execution remains under ASan/UBSan; complete native handler/teardown functions are not compiled."
+    },
+    {
+      "command": "python3 tools/iot/check-ft-pending-enqueue.py <pinned-mt76x3-c25283e>",
+      "exit_status": 0,
+      "variants": [
+        "default",
+        "EAPOL_QUEUE_SUPPORT",
+        "CUSTOMER_DCC_FEATURE"
+      ],
+      "cases": [
+        "native original enqueue remains byte-identical",
+        "success moves single reference and clears producer token",
+        "failure retains producer token",
+        "terminating BT_REQ category/action/StaMac/TargetApAddr and receiver BSS/MAC validation",
+        "reserved WCID required",
+        "short frame, wrong BSS, full/occupied/nonempty-ticket slot refusal",
+        "one-shot consumer take refuses occupied destination",
+        "original stale ticket transported without rebinding",
+        "explicit stale reference release",
+        "duplicate composer/metadata preparation refused"
+      ]
+    },
+    {
+      "command": "nim c -r --out:/tmp/ft-pending-identity-check tools/iot/ft_pending_identity_check.nim",
+      "exit_status": 0
+    },
+    {
+      "command": "python3 tools/iot/check-ft-pending-insert.py <pinned-mt76x3-c25283e>",
+      "exit_status": 0
+    },
+    {
+      "command": "python3 tools/iot/check-ft-enqueue-generation.py <pinned-mt76x3-c25283e>",
+      "exit_status": 0
+    }
+  ],
+  "source_dispatch_observation": {
+    "include/mlme.h:1528": "RTMP_MLME_HANDLER expands to RtmpMLMEUp(&pAd->mlmeTask), not direct MlmeHandler",
+    "common/mlme.c:1097": "MlmeThread invokes MlmeHandler",
+    "limitation": "Effective OS_ABL configuration and complete task shutdown/quiescence still need checking; native RtmpOsMlmeUp source confirms asynchronous notification for this route",
+    "include/os/rt_linux_cmm.h:252": "OS_ABL indirection maps RtmpMLMEUp to RtmpOsMlmeUp",
+    "os/linux/rt_linux.c:2082-2099": "RtmpOsMlmeUp wakes kthread_q or posts taskSema; it does not call the handler synchronously"
+  },
+  "producer_installed": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "remaining": [
+    "ingress reservation/capture and explicit pending producer wiring; caller must release a retained ticket on enqueue refusal",
+    "consumer must pass queue identity to FT_FtAction, perform atomic first-peer insertion, then transfer the new station into generation/lifetime scope before native asynchronous work",
+    "same-key ticket retirement/release and transaction behavior for all consumer exits",
+    "MlmeHalt failure propagation/quiescence and producer-close scope across all native ingress during teardown",
+    "FT_AUTH generation transition and matching IAPP key-response identity/admission",
+    "compile the full staged native insertion and lifecycle functions for effective target features before producer integration"
+  ],
+  "dispatch_source_sha256": {
+    "include/os/rt_linux_cmm.h": "effa9f4e64fad8604b9f51cf5443f759d20a72c90247a4001a680d2e12a7d130",
+    "os/linux/rt_linux.c": "cd105c06fb07e7518f3f4d08efd703e9d98fbec85d47bcdc222db7fe42d08cd8"
+  },
+  "shutdown_audit": {
+    "common/mlme.c:1301-1407": "MlmeHalt calls RtmpOSTaskKill before queue destruction; prepared drain occurs after this call and before MlmeQueueDestroy.",
+    "os/linux/rt_linux.c:925-948": "KTHREAD_SUPPORT calls kthread_stop; non-kthread route sets task_killed, signals task, waits taskComplete only if signal succeeds.",
+    "os/linux/rt_linux.c:3124-3134": "OS_ABL wrapper calls __RtmpOSTaskKill then frees OS_TASK object.",
+    "known_gap": "Native MlmeHalt logs a failed RtmpOSTaskKill but continues timer/queue teardown; safe error propagation through void MlmeHalt callers is not resolved. The prepared composer does not change this behavior and remains uninstalled."
+  },
+  "shutdown_source_sha256": {
+    "common/mlme.c": "edc1746194fc63d579ab3f753cf8dcac2e011d97e42e40ab3911da415e435459",
+    "os/linux/rt_linux.c": "cd105c06fb07e7518f3f4d08efd703e9d98fbec85d47bcdc222db7fe42d08cd8"
+  }
+}

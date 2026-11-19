@@ -2,7 +2,8 @@
  * Caller owns MacTabLock on every call and adapter/BSS lifetime throughout.
  * Caller must separately hold association-vs-key/control admission over native
  * work. Scopes are private linear stack values; never copy an active scope.
- * No lock, queue operation, crypto or implicit generation advance here. */
+ * Generation advances only through the explicit success-boundary helper.
+ * No lock, queue operation or crypto runs here. */
 #ifndef WR_IOT_FT_PEER_GENERATION_H
 #define WR_IOT_FT_PEER_GENERATION_H
 #include "assoc-generation.h"
@@ -54,13 +55,52 @@ static inline int wr_ft_peer_enter_locked(RTMP_ADAPTER *ad,
  if(!wr_iot_peer_table_transaction_enter(&ad->wr_iot_peer_table_owner))return 0;
  scope->adapter=ad;scope->stamp=*stamp;scope->active=1;
  ad->wr_assoc_event_users[stamp->wcid]=1;
- return 1;
+	return 1;
+}
+/* Call at the successful native FT-auth transition while MacTabLock and this
+ * exact peer lease are still held. Earlier queued stamps become stale; the
+ * scope adopts the new generation so it can be released without rebinding.
+ */
+static inline int wr_ft_peer_advance_locked(RTMP_ADAPTER *ad,
+	MAC_TABLE_ENTRY *entry, struct wr_ft_peer_scope *scope)
+{
+	unsigned int i, wcid, generation;
+	if (!ad || !entry || !scope || !scope->active || scope->adapter != ad)
+		return 0;
+	wcid = scope->stamp.wcid;
+	if (!wr_ft_peer_current_locked(ad, &scope->stamp) ||
+		entry != &ad->MacTab.Content[wcid] ||
+		ad->wr_assoc_event_users[wcid] != 1 ||
+		!ad->wr_iot_peer_table_owner.transactions ||
+		ad->wr_assoc_generations[wcid] != scope->stamp.generation ||
+		ad->wr_assoc_visible[wcid] != scope->stamp.generation)
+		goto uncertain;
+	for (i = 0; i < MAC_ADDR_LEN; i++)
+		if (ad->wr_assoc_addr[wcid][i] != scope->stamp.addr[i])
+			goto uncertain;
+	generation = wr_assoc_generation_next(&ad->wr_assoc_generations[wcid]);
+	if (!generation)
+		goto uncertain;
+	entry->assoc_gen = generation;
+	WRITE_ONCE(ad->wr_assoc_visible[wcid], 0);
+	smp_wmb();
+	for (i = 0; i < MAC_ADDR_LEN; i++)
+		WRITE_ONCE(ad->wr_assoc_addr[wcid][i], entry->Addr[i]);
+	smp_wmb();
+	WRITE_ONCE(ad->wr_assoc_visible[wcid], generation);
+	scope->stamp.generation = generation;
+	return 1;
+
+uncertain:
+	ad->wr_iot_peer_table_owner.poisoned = 1;
+	return 0;
 }
 static inline int wr_ft_peer_leave_locked(RTMP_ADAPTER *ad,
  struct wr_ft_peer_scope *scope)
 {
  unsigned int wcid;
  if(!ad||!scope||!scope->active||scope->adapter!=ad)return 0;
+ if(ad->wr_iot_peer_table_owner.poisoned)return 0;
  wcid=scope->stamp.wcid;
  if(!wr_ft_peer_current_locked(ad,&scope->stamp)||
   ad->wr_assoc_event_users[wcid]!=1){

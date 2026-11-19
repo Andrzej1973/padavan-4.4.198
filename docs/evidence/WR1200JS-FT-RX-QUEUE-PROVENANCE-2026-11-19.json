@@ -1,0 +1,152 @@
+{
+  "date": "2026-11-19",
+  "scope": "Pinned vendor source and prepared-composer coverage audit; no firmware source was changed",
+  "vendor_revision": "c25283e",
+  "vendor_source": {
+    "common/mlme.c": {
+      "sha256": "edc1746194fc63d579ab3f753cf8dcac2e011d97e42e40ab3911da415e435459",
+      "references": {
+        "ordinary_rx_enqueue": "4874",
+        "action_machine_dispatch": "821-824",
+        "wpa_event_generation_guard": "960-963",
+        "ordinary_rx_action_classification": "4995",
+        "action_dequeue_dispatch": "817-824",
+        "restart_queue_drain": "5284-5336",
+        "queue_destroy_discards_without_adapter": "5443-5463"
+      }
+    },
+    "common/action.c": {
+      "sha256": "055bd9ce5f21d9672c7e613ff8a5fc7e87856a0b63585c63e4171c9a85379712",
+      "references": {
+        "ft_category_to_handler": "91-94"
+      }
+    },
+    "common/ft.c": {
+      "sha256": "d0adbee2fe62e783c8c2924ae5c16e03b248b613dba91ffbd6e4f8d7fcbdfd85",
+      "references": {
+        "receiver_bss": "1044-1053",
+        "ft_request_lookup_and_optional_insert": "1075-1078",
+        "successful_ft_request_state": "1088-1094",
+        "confirmation_wcid_borrow": "1129-1138"
+      }
+    },
+    "tx_rx/wdev_rx.c": {
+      "sha256": "457196980973c7351f2d2c276a2359ea49d0ed8eefe0b913ae5fe727c8126ea7",
+      "references": {
+        "ordinary_rx_action_enqueue": "1284-1301",
+        "ordinary_rx_eapol_enqueue": "1017-1037"
+      },
+      "observation": "The normal management receive path passes pRxBlk->wcid and the full frame to REPORT_MGMT_FRAME_TO_MLME. FT action provenance can therefore bind the receive WCID and Addr1-derived BSS before queueing; the queued element still needs to preserve both."
+    },
+    "common/ft_iocl.c": {
+      "sha256": "9782a93fb983f1868069428ca8296d051e01f7497338affd871e775d7ba298db",
+      "references": {
+        "over_ds_simulated_peer_insert": "846-850",
+        "over_ds_simulated_header": "861-864",
+        "over_ds_simulated_enqueue": "874-879"
+      },
+      "observation": "The native FT-over-DS simulation creates an associated peer, builds an action frame addressed to that peer BSS, and enters the same general receive enqueue with its station AID. An FT-only receive stamp must preserve this supported synthetic producer."
+    },
+    "mgmt/mgmt_entrytb.c": {
+      "sha256": "d8c38bebce1b9b4612aceead5b9c2c9acf77a1e6c3bba07dcc06e977c06ae426",
+      "references": {
+        "insert_allocates_first_free_slot": "400-429",
+        "insert_appends_to_mac_hash_without_duplicate_lookup": "709-721",
+        "insert_mac_table_lock_acquire": "422",
+        "insert_target_wdev_and_mac_assignment": "432-443",
+        "insert_normal_unlock": "768",
+        "insert_out_of_range_early_return_inside_lock": "572-573"
+      },
+      "observation": "MacTableInsertEntry does not reject a duplicate MAC before choosing a free slot; it appends the new entry to the MAC hash. The native FT BT_REQ global MacTableLookup can therefore select an unrelated-BSS duplicate. BSS-scoped lookup remains necessary even when preserving new-peer insertion. MacTableInsertEntry acquires MacTabLock internally and assigns the selected BSS/wdev and MAC under that lock; a caller-side claim followed by calling this function leaves a race window. Safe integration requires the ticket claim inside the same insertion critical section while preserving existing bookkeeping."
+    },
+    "common/rtmp_init.c": {
+      "references": {
+        "adapter_memory_allocation": "96",
+        "mac_table_zero_and_lock_init": "1498-1501"
+      },
+      "observation": "RTMPInitAdapter zeroes MacTab and initializes MacTabLock; ledger storage must be initialized exactly once at this point before queue ingress."
+    }
+  },
+  "prepared_code": {
+    "tools/iot/ft-pending-identity.h": "b8b64a626ea72988b666ae3e4b372497e559c6ee64b92a800f562f292e0179c7",
+    "tools/iot/check-ft-pending-identity.c": "19b0cd6d0dc4e8625d975b2f4f7ea00591386663f0cdb04c5688ec9d6cf48ecd",
+    "tools/iot/ft_pending_identity_check.nim": "360b0affb61a803b1860f2b39cc3a25e37ca2ee5288f1cafdebf87080635a935",
+    "tools/iot/assoc-generation-kernel.h": "29d43380f94c26a0a16b5114918a3c4397d1df8360f02b5c158241e6da437e4c",
+    "tools/iot/assoc-generation-composition.py": "3dfbb322faed0da522ee20faa7dae02bef3d9786b27e92d56eb6770d1898d339",
+    "tools/iot/ft-enqueue-generation-composition.py": "9d125f7bb46a58d8d6ed06a27df51babf146f46ff78d05109ed5a23e0bb156c6",
+    "tools/iot/ft-parser-bounds-composition.py": "2c786a631c3bb3599e43bfc1c8bf1e7e5dc98ba533a68c61b0e87e73f935add7"
+  },
+  "findings": [
+    "Native common/action.c maps FT_CATEGORY_BSS_TRANSITION to FT_FtAction; MlmeEnqueueForRecv classifies the frame and the MLME dispatcher sends ACTION_STATE_MACHINE directly to the handler.",
+    "The current association-generation capture helper returns a zero stamp for every machine except WPA_STATE_MACHINE, and its dequeue stale check likewise only validates WPA events.",
+    "The prepared explicit FT enqueue is currently called only from the FT_RrbHandler composition. Ordinary over-air FT action receive is not stamped by that composition.",
+    "The native terminating FT_ACTION_BT_REQ branch can MacTableInsertEntry after dequeue when no peer exists. The prepared RRB composition instead requires an active peer in the destination BSS and returns before allocation/enqueue when none matches. This follows the user's explicit early-return rule but its effect on first-peer and forwarded-RRB behavior remains to be resolved against product requirements.",
+    "After successful FT_AuthReqHandler, native FT_FtAction writes MdIeInfo, AuthState=AS_AUTH_OPEN and Sst=SST_AUTH. Current prepared FT binding does not advance assoc_gen at this transition or refresh its live scope stamp.",
+    "The target TU result in OPTIONAL1431 covers only the prepared RRB path and cloned explicit MLME enqueue; it does not establish ordinary RX coverage or generation advancement.",
+    "Call-site audit found three producer families for MlmeEnqueueForRecv: received management frames in wdev_rx.c, an FT_RrbHandler synthetic action, and FT_OverDs_SimReq. The latter two have different provenance origins; any ordinary-action stamping must cover both without trusting a MAC-only lookup. The real first-time/unknown-peer BT_REQ insertion path remains unresolved and must not be silently removed.",
+    "Pinned mgmt_entrytb.c MacTableInsertEntry selects the first free WCID and appends the entry to the MAC hash without a duplicate-address search. A direct FT BT_REQ with no matching target-BSS station may legitimately insert a duplicate MAC on the target BSS; the native global MacTableLookup is then ambiguous and can choose the foreign BSS entry. Safe preservation must combine target-BSS insertion with a generation/pending identity that cannot be adopted by an older queued event.",
+    "The pending identity ledger now includes a standalone one-shot claim/unclaim primitive. Pinned MacTableInsertEntry owns MacTabLock internally, so an external claim then native insert is not atomic; an in-lock insertion hook/refactor is required."
+  ],
+  "status": "incomplete",
+  "producer_installed": false,
+  "target_compile_for_ordinary_rx": false,
+  "runtime_verified": false,
+  "next": "Integrate ledger storage at adapter initialization and reserve/release tickets across exact MLME enqueue/dequeue/dispatch, restart, and destroy paths. Preserve native BT_REQ first-peer insertion through an in-lock target-BSS insertion hook that claims the ticket atomically; never use a global MAC-only fallback. Then resolve FT_AUTH generation handoff and asynchronous IAPP completion correlation before target recompilation.",
+  "host_checks": {
+    "source_revision": "c25283e",
+    "commands": [
+      {
+        "script": "tools/iot/check-ft-parser-composition.py",
+        "exit_status": 0,
+        "result": "PASS: bounded parser composition; RRB and full FT action regressions"
+      },
+      {
+        "script": "tools/iot/check-ft-generation-binding.py",
+        "exit_status": 0,
+        "result": "PASS: prepared RRB producer and stale FT consumer binding"
+      },
+      {
+        "script": "tools/iot/check-ft-enqueue-generation.py",
+        "exit_status": 0,
+        "result": "PASS: prepared explicit FT enqueue preserves immutable generation"
+      }
+    ],
+    "scope": "Host C fixtures against pinned SDK source and current preparation scripts; no target build, installed module or runtime acceptance."
+  },
+  "pending_ledger_model": {
+    "status": "standalone-tested-with-single-use-claim-not-integrated",
+    "capacity": "MAX_LEN_OF_MAC_TABLE slots",
+    "contract": [
+      "BSS+MAC key; same-key events share one ticket generation and increment references",
+      "claim is one-shot under caller-owned MacTabLock; second claim and same-key reservation while claimed fail",
+      "failed insertion may unclaim the exact current ticket for retry",
+      "successful insertion retires the exact BSS+MAC so all sibling queued tickets become stale",
+      "retirement prevents current checks while retaining the slot until every queued/active reference releases",
+      "slot reuse advances a nonzero generation; an old token cannot release or adopt the reused slot",
+      "generation overflow poisons only that slot"
+    ],
+    "verification": [
+      {
+        "command": "gcc -std=gnu89 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-pie -no-pie -Itools/iot tools/iot/check-ft-pending-identity.c -o /tmp/check-ft-pending-identity && /tmp/check-ft-pending-identity",
+        "exit_status": 0,
+        "result": "PASS | FT pending identity C helper | BSS+MAC keys, single-use claim, unclaim, retirement, stale-token refusal, safe reuse, overflow poison"
+      },
+      {
+        "command": "nim c -r --out:/tmp/ft-pending-identity-check tools/iot/ft_pending_identity_check.nim",
+        "exit_status": 0,
+        "result": "PASS | FT pending BSS+MAC ledger | single-use claim, unclaim, reference retirement, exact context, stale-token refusal, safe slot reuse, overflow poison"
+      }
+    ],
+    "integration_gaps": [
+      "Adapter storage and one-time initialization are not wired",
+      "MLME enqueue reservation and every failed-enqueue release are not wired",
+      "Queue stale-drop, dispatch completion, MlmeRestartStateMachine drain, and MlmeQueueDestroy cleanup are not wired",
+      "Atomic expected-BSS authorization and first-peer MacTableInsertEntry claim path are not wired"
+    ],
+    "files_sha256": {
+      "tools/iot/ft-pending-identity.h": "0cd0f4c555ca93ab326a13de039edbaf7c0958955564846bb147eaf9d0930692",
+      "tools/iot/check-ft-pending-identity.c": "bff9d961ad1eca997b40fc1558bdf689cc4ba9969b5cbcf250f5381eea090539",
+      "tools/iot/ft_pending_identity_check.nim": "175ea64af66a36279e2b3425aeaa0f6d97ebe84ec57db3cdb16ead13e1050c38"
+    }
+  }
+}

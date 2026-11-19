@@ -1,0 +1,64 @@
+{
+  "date": "2026-11-19",
+  "base_revision": "8fb2bbe6d4575e5f0c683a2087177ad8fca14bd7",
+  "vendor_revision": "c25283e",
+  "status": "host-composed-uninstalled",
+  "scope": "Generation-bound synchronous lease helper used by the prepared pending-insertion composer and host clone; no SDK integration is installed.",
+  "files_sha256": {
+    "tools/iot/ft-pending-peer-scope.h": "de7c5cf7db32ffc02063b44c04b87e7a60d2c54193c3333391fa9124771f002f",
+    "tools/iot/check-ft-pending-peer-scope.c": "03591dfe0ee8959b004394c510e72fc517b8cfcdb57a124f5dd36aef5e784f8b",
+    "pinned/mt76x3/common/ft.c": "d0adbee2fe62e783c8c2924ae5c16e03b248b613dba91ffbd6e4f8d7fcbdfd85",
+    "pinned/mt76x3/mgmt/mgmt_entrytb.c": "d8c38bebce1b9b4612aceead5b9c2c9acf77a1e6c3bba07dcc06e977c06ae426"
+  },
+  "verification": [
+    {
+      "command": "gcc -std=gnu11 -O2 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-pie -no-pie -Itools/iot tools/iot/check-ft-pending-peer-scope.c -o /tmp/check-ft-pending-peer-scope && /tmp/check-ft-pending-peer-scope",
+      "exit_status": 0,
+      "result": "PASS | FT pending inserted-peer scope | exact claimed identity, AUTH generation advance invalidates old stamps, lease release/exhaustion, close refusal and drift retention",
+      "cases": [
+        "claimed ticket and exact WCID/MAC/BSS/wdev match",
+        "association generation counter and visible generation match; mismatch refuses entry",
+        "fresh unauthenticated entry can be leased and leave after AUTH transition",
+        "failed FT authentication can leave the entry unauthenticated and release the lease",
+        "wrong BSS, wrong MAC and busy close executor refuse lease entry",
+        "identity/generation drift poisons table owner and retains event-user and transaction",
+        "transaction underflow retains event-user lease and poisons the table owner",
+        "successful FT auth advances the per-WCID generation and republishes its visible stamp while the lease remains held",
+        "previous queued generation no longer matches after successful FT auth",
+        "generation exhaustion poisons ownership and retains event-user and transaction"
+      ]
+    },
+    {
+      "command": "git diff --check -- tools/iot/ft-pending-peer-scope.h tools/iot/check-ft-pending-peer-scope.c docs/iot/WR1200JS-FT-ASSOCIATION-BOUNDARY.md",
+      "exit_status": 0
+    },
+    {
+      "command": "python3 tools/iot/check-ft-pending-insert.py <pinned-mt76x3-c25283e>",
+      "exit_status": 0,
+      "result": "PASS | FT pending insertion gates | exact BSS+MAC, foreign-BSS duplicate, stale sibling, retry, capacity, owner and lock balance; PASS | FT pending insertion composition | pinned anchors, native bookkeeping preserved, private startup gates retained, duplicate preparation refused",
+      "cases": [
+        "reserve WCID before native reset",
+        "publish lease generation after association-generation publication and before unlock",
+        "unclaim on native failure for retry",
+        "reject foreign-BSS same-MAC adoption",
+        "preserve new first-peer insertion through claimed pending BSS+MAC identity",
+        "scope remains candidate-only and uninstalled"
+      ]
+    }
+  ],
+  "native_ft_request_handler_is_synchronous": true,
+  "helper_wired_to_pending_insertion": false,
+  "helper_wired_to_ft_action": false,
+  "target_compiled": false,
+  "firmware_image_verified": false,
+  "runtime_verified": false,
+  "remaining": [
+    "apply the lease and generation transition from FT_FtAction at the exact success boundary and cover every callback exit",
+    "transfer inserted-peer lease through FT_FtAction and release on every callback exit",
+    "verify full native delete/reassociation arbitration and ordinary RX first-peer flow",
+    "reconcile IAPP key-response correlation and completion identity",
+    "compile complete staged target translation units before considering producer installation"
+  ],
+  "prepared_composer_reserve_publish_checked": true,
+  "producer_installed": false
+}

@@ -1,0 +1,76 @@
+{
+  "date": "2026-11-19",
+  "status": "source-audit-candidate-contract",
+  "scope": "Pinned source only: whether the fixed-size FT key event can echo a per-request identity through the existing daemon and remote R0KH path",
+  "sources": {
+    "driver": "/home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3",
+    "driver_revision": "c25283e",
+    "daemon_archive": "/home/andrzej/padavan-build/firmware-source-backup/padavan-4.4-c25283e-git-exact.tar",
+    "daemon_revision": "c25283e",
+    "sha256": {
+      "common/ft.c": "d0adbee2fe62e783c8c2924ae5c16e03b248b613dba91ffbd6e4f8d7fcbdfd85",
+      "ap/ap_ftkd.c": "19ca90564222128b0a8ef98e7799bd542e5725a71d130c2d6a3e37ffb7488e4b",
+      "include/ft.h": "95465f2a5f52e84a9663de511a5df9d47edcbbfd386dabb60863bd2d5ab67d9b",
+      "common/ft_iocl.c": "9782a93fb983f1868069428ca8296d051e01f7497338affd871e775d7ba298db",
+      "trunk/user/ralinkiappd/rtmpiapp.c": "be9150ce4240f54656b7c06b6e576b7dec78c6e336e04f78bf1232af37d842a7"
+    }
+  },
+  "references": {
+    "driver": [
+      "common/ft.c:1751 zero-initializes automatic key request; 1767 emits full key element",
+      "ap/ap_ftkd.c:506 copies full event payload; 757 emits the response key element; 824 parses element after InitVec; 888 performs MAC-only lookup; 910-913 reset counters and complete ack_r1kh",
+      "common/ft.c:1517-1572 mutates key response fields in place and does not write reserved fields",
+      "include/ft.h:85 defines KeyInfo.RSV[4]; include/ft.h:238 defines key-element RSV[3]",
+      "common/ft_iocl.c:540 zeroes KeyInfo.RSV for the separate manual ioctl request"
+    ],
+    "daemon_archive": [
+      "trunk/user/ralinkiappd/rtmpiapp.c:3464 copies complete request payload into security block",
+      "trunk/user/ralinkiappd/rtmpiapp.c:2340 copies received InitVec and full security block to request OID",
+      "trunk/user/ralinkiappd/rtmpiapp.c:3574 copies complete response payload into ACK security block",
+      "trunk/user/ralinkiappd/rtmpiapp.c:2140-2151 packages InitVec and sends response OID to all registered Wi-Fi interfaces"
+    ]
+  },
+  "round_trip": [
+    "common/ft.c zero-initializes FT_KDP_EVT_KEY_ELM and emits the full fixed-size structure for automatic KEY_REQ",
+    "FT_KDP_EventInform copies the complete event payload; daemon SecurityBlockSend copies that payload unchanged into the security block",
+    "R0KH daemon passes the received key structure to FT_KDP_KeyRequestToUs; FT_QueryKeyInfoForKDP updates response fields in place and the response event copies the full structure",
+    "daemon SecurityBlockAck copies the complete returned structure and the response OID carries it back to the R1KH driver",
+    "ap_ftkd.c parses a leading eight-byte InitVec followed by FT_KDP_EVT_KEY_ELM, but the response handler does not compare the InitVec"
+  ],
+  "available_fixed_size_identity": {
+    "fields": [
+      {
+        "field": "FT_KDP_EVT_KEY_ELM.RSV",
+        "bytes": 3
+      },
+      {
+        "field": "FT_KDP_EVT_KEY_ELM.KeyInfo.RSV",
+        "bytes": 4
+      }
+    ],
+    "total_bytes": 7,
+    "observed_writes": "No writes to either reserved field in automatic request construction, FT_QueryKeyInfoForKDP, or FT_KDP_KeyRequestToUs; the manual ioctl path zeroes KeyInfo.RSV and is separate.",
+    "candidate": "Carry an opaque per-attempt token in these seven reserved bytes, with the BSS/MAC/WCID/association-generation context retained in a local pending-request ledger. Validate the token and context before key-cache mutation or completion.",
+    "compatibility_boundary": "Exact pinned c25283e path preserves the same structure in place and sends its full size. Other or older R0KH implementations are not verified; a missing or changed token must fail closed. No wire-size or daemon ABI change is proposed."
+  },
+  "response_handler_current_behavior": [
+    "lookup is by station MAC only",
+    "cache-miss counters reset and ack_r1kh completion occur after that lookup",
+    "no token, BSS, association-generation, or request-instance validation is present",
+    "ack_r1kh is initialized nowhere in pinned source, although native insertion zeroes the entry and the R1KH_HARD_RETRY path waits/completes it"
+  ],
+  "verification": {
+    "source_hashes_checked": true,
+    "reserved_field_write_search": "Only the unrelated manual ioctl request writes KeyInfo.RSV, setting it to zero; no automatic responder write found. The same source search found no RTMP_OS_INIT_COMPLETION call for ack_r1kh; only the wait, complete and close operations exist.",
+    "driver_modified": false,
+    "daemon_modified": false,
+    "runtime_verified": false,
+    "target_compiled": false,
+    "implementation_complete": false,
+    "hard_retry_completion_init_prepared": true,
+    "hard_retry_completion_host_composition_passed": true,
+    "hard_retry_completion_target_compiled": false
+  },
+  "next": "Prototype a token ledger with single-claim, timeout/association retirement, exact BSS+MAC+WCID+generation matching, and a response-side lease that can complete while the original AUTH handler is waiting. Then compose and target-compile ap_ftkd.c and all four existing FT TUs with the hard-retry variant.",
+  "implementation_complete": false
+}
