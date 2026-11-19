@@ -100,3 +100,21 @@ unverified. The header is not producer-installed. Empty lists pass framing but
 are not authentication approval; native required-IE checks must still reject
 missing mandatory data. The minimum5-byte RSN/WPA policy is specifically for
 the native parser's unconditional OUI reads; it is not a new RSN protocol claim.
+
+## Prepared native parser bounds composition
+
+ft-parser-bounds-composition.py now prepares concrete common/ft.c changes:
+validate complete action lengths/IE framing before allocation, pass actual
+IE remainder instead of sizeof(pointer), validate the whole list before native
+field output, iterate with a remaining-byte counter and bound RIC view to the
+actual input remainder. Changed anchors and duplicate installation refuse.
+The producer still does not install this composition.
+
+check-ft-native-parser.py compiles/executes the actual composed parser body
+with explicit MDIE/FTIE fill actors and boundary layouts, not the complete SDK
+fill routines. ASan/UBSan checks exact-size buffers0–257, full-list malformed
+refusal before MDIE output, native RIC length/copy and RSN OUI copy. The native
+RIC switch intentionally falls through to descriptor copying; this inherited
+warning alone is suppressed. Complete native fill-function execution, actual
+vendor header compilation, callback BSS/provenance/generation arbitration and
+forwarded-action semantics must still be verified before candidate activation.
