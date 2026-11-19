@@ -495,6 +495,9 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
       --kernel "$kernel" --driver "$driver" --compiler "$compiler" \
       --unit "$key_unit" --output "$results/key-writer-$key_unit-config.json"
   done
+  python3 -B tools/iot/check-ft-bounds-target-tu.py \
+    --kernel "$kernel" --driver "$driver" --compiler "$compiler" \
+    --output "$results/ft-bounds-target-tu.json"
   python3 tools/iot/check-mlme-wsc-target-tu.py \
     --kernel "$kernel" --driver "$driver" --compiler "$compiler" \
     --output "$results/mlme-wsc-target-tu.json"

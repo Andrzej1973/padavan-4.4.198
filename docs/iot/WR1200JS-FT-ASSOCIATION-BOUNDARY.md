@@ -141,3 +141,15 @@ or WCID borrowing. Native forwarding calls remain byte-identical. The new
 check-ft-parser-composition.py verifies this ordering, both parser lengths and
 duplicate refusal. Native vendor-fill parser tests still pass. Full action
 execution and target validation remain pending; the composer stays uninstalled.
+
+## Optional MIPS translation-unit probe prepared
+
+check-ft-bounds-target-tu.py locates the actual single ft.o Kbuild command,
+unwraps only approved system ccache, checks exact compiler/source identity,
+and compiles a temporary transformed ft.c with copied bounds headers. It
+requires effective AP/FT/MT7603/MT_MAC/PCI macros and ELF32 LE MIPS output,
+records source/prepared/object hashes, then verifies original source unchanged.
+It neither replaces ft.o nor relinks/installs the driver. The peer82 optional
+pipeline now requests this separate probe after the original module build.
+Local checks cover Python/shell syntax and CLI only; first actual target result
+is pending. Native FT association arbitration is still uninstalled/unverified.
