@@ -118,3 +118,15 @@ RIC switch intentionally falls through to descriptor copying; this inherited
 warning alone is suppressed. Complete native fill-function execution, actual
 vendor header compilation, callback BSS/provenance/generation arbitration and
 forwarded-action semantics must still be verified before candidate activation.
+
+## Actual vendor fill routines and type declarations exercised
+
+check-ft-vendor-fill-parser.py extracts the real FT_CAP_AND_POLICY, FT_MDIE,
+FT_MIC_CTR_FIELD, FT_FTIE, FT_OPTION_FIELD and FT_*_INFO declarations from SDK
+headers, and executes unchanged FT_FillMdIeInfo/FT_FillFtIeInfo with the composed
+parser under ASan/UBSan. Byte-order/MMIO-independent SDK macros are explicit
+boundary definitions. It verifies MDIE3 bytes, FTIE Option offset82 and GTK
+capacity64, all256 FTIE lengths, actual64-byte nested GTK copy and overflow
+refusal, plus MDID copying. Host PASS supersedes the prior fill-actor-only
+coverage for these cases. Full FT callback authentication/crypto, all optional
+header combinations, target linking and physical runtime remain unverified.
