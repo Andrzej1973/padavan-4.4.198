@@ -1469,6 +1469,21 @@ jobs:
             -Itools/iot tools/iot/check-control-key-exclusion-gap.c -o abi-results/check-control-key-gap
           abi-results/check-control-key-gap > abi-results/control-key-exclusion-gap.txt
 
+      - name: Check prepared FT parsing and mutation boundaries (host only)
+        shell: bash
+        run: |
+          set -euo pipefail
+          driver=source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3
+          for fixture in check-ra2-ft-mutation-composition check-ft-action-bounds \
+            check-ft-parser-composition check-ft-native-parser check-ft-vendor-fill-parser; do
+            python3 -B "tools/iot/$fixture.py" "$driver" > "abi-results/$fixture.txt"
+          done
+          for fixture in check-ft-ie-span check-ft-subelement-bounds check-ft-request-ie-admission; do
+            gcc -std=gnu11 -Wall -Wextra -Werror -O2 -fsanitize=address,undefined -fno-pie -no-pie \
+              -Itools/iot "tools/iot/$fixture.c" -o "abi-results/$fixture"
+            "abi-results/$fixture"
+          done
+
       - name: Check IoT HTTP request boundary
         shell: bash
         run: |
