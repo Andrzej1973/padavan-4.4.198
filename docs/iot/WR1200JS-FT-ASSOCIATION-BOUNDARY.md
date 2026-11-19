@@ -70,3 +70,19 @@ The helper does not validate MDIE's3-byte body, FTIE fixed/nonces/subelement
 semantics or OUI minimum lengths. It is not installed in the native parser;
 FT_FillFtIeInfo's nested loop and its destination field capacities still need
 validation before complete action admission is enabled.
+
+## Prepared nested FTIE copy bounds
+
+FT_FillFtIeInfo reads2+16+32+32 fixed bytes before optional subelements. Its
+nested loop reads the subelement header with only RemainLen>0, and GTK copies
+Len bytes without comparing the destination capacity. ft-subelement-bounds.h
+prepares full-list framing plus R0/R1/GTK destination bounds, taking the fixed
+header offset and capacities from the eventual caller rather than assuming
+target structure sizes. It rejects zero-length subelements because the native
+parser otherwise stops before validating the remaining list. Host tests exhaust
+all256 lengths for R0/R1/GTK/unknown IDs, exact allocations and one-byte
+truncations under ASan/UBSan. The test's32-byte GTK capacity is an injected test
+parameter, not a claim about the SDK destination. Production binding must use
+sizeof(actual GtkSubIE), offsetof(FT_FTIE,Option), and existing vendor IDs.
+These helpers are still uninstalled; complete FT action/native parser execution
+and target verification remain required.
