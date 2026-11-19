@@ -1,0 +1,18 @@
+{
+  "run": 44450458607,
+  "artifact": 14495584581,
+  "revision": "1dee244f022f1363f87fa492fcd42d257499446f",
+  "module_sha256": "9e04662ea9d9eec663500d44df2152663f162be155fe70b4260913a5600e4204",
+  "module_bytes": 6093020,
+  "elf32_le_mips_verified": true,
+  "prepared_source_hashes_verified": 27,
+  "stale_retirement_order_and_call_verified": true,
+  "target_compiled": true,
+  "production_installed": false,
+  "runtime_verified": false,
+  "limits": [
+    "Excludes later73345626 MAC-only ambiguity correction",
+    "FT preparation not installed",
+    "Selected image bytes audited separately; no physical acceptance"
+  ]
+}
