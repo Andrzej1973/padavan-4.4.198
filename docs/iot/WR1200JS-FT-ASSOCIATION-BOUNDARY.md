@@ -58,3 +58,15 @@ The helper is uninstalled. FT_ReqActionParse itself reads eid_ptr->Len in its
 loop condition before checking that two IE-header bytes remain; outer bounds
 alone do not correct that parser. Full IE validation and FT ownership are still
 required before activating the complete prepared FT path.
+
+## Prepared bounded IE framing primitive
+
+ft-ie-span.h checks two header bytes before reading length, subtracts header
+space before comparing the body length, and advances only by a validated span.
+It supports outer IEs and nested FT subelements. check-ft-ie-span.c exhausts
+all256 length-byte values for remaining sizes0–257 using exact-size ASan
+allocations, plus concatenated/empty/truncated lists and null arguments.
+The helper does not validate MDIE's3-byte body, FTIE fixed/nonces/subelement
+semantics or OUI minimum lengths. It is not installed in the native parser;
+FT_FillFtIeInfo's nested loop and its destination field capacities still need
+validation before complete action admission is enabled.
