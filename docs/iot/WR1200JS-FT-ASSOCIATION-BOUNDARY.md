@@ -27,3 +27,17 @@ Hold no spinlock across native operations. Include FT daemon key-response and
 other callers of FT_AuthReqHandler/ConfirmHandler in the coverage inventory.
 Do not claim complete GTK-versus-association exclusion until this active path is
 bound and target/host checked. Do not disable FT globally to close the report.
+
+## Prepared outer boundary
+
+common/action.c:93 registers FT_FtAction for FT_CATEGORY_BSS_TRANSITION.
+Both FT_AuthReqHandler and FT_AuthConfirmHandler are also called from the
+already wrapped ap_auth.c callbacks. The separate action callback therefore
+requires its own admission. ra2-ft-mutation-composition.py prepares its outer
+wrapper using the same exact native wrapper generator; production SITES is
+unchanged. check-ra2-ft-mutation-composition.py verifies byte-for-byte native
+body preservation, duplicate refusal and generated wrapper execution with a
+native early-return actor, in target-feature and native pass-through modes.
+ASan/UBSan host checks pass. This wrapper is not producer-installed: complete
+action payload length, selected-entry BSS/provenance and generation advancement
+must still be bound before activation. The check does not execute FT crypto.
