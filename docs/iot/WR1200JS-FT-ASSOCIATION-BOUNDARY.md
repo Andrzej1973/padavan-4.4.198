@@ -86,3 +86,17 @@ parameter, not a claim about the SDK destination. Production binding must use
 sizeof(actual GtkSubIE), offsetof(FT_FTIE,Option), and existing vendor IDs.
 These helpers are still uninstalled; complete FT action/native parser execution
 and target verification remain required.
+
+## Prepared complete request-IE admission
+
+ft-request-ie-admission.h composes span/MDIE/FTIE nested bounds and native OUI
+read minimums. It derives GtkSubIE and RSN_IE capacity from caller vendor types,
+FTIE fixed bytes from offsetof, and rejects RSN output lengths exceeding UCHAR.
+The host fixture exhausts256 IDs ×256 body lengths with exact allocations and
+one-byte truncation, plus a64-byte GTK nested element and overflow refusal.
+ASan/UBSan passes. This fixture uses explicit boundary layouts, not full vendor
+headers; target type compatibility and whole native-parser execution remain
+unverified. The header is not producer-installed. Empty lists pass framing but
+are not authentication approval; native required-IE checks must still reject
+missing mandatory data. The minimum5-byte RSN/WPA policy is specifically for
+the native parser's unconditional OUI reads; it is not a new RSN protocol claim.
