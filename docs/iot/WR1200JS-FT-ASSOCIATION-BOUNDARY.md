@@ -296,3 +296,119 @@ the original-callback regression build. No FT producer activation, target build
 or device acceptance is claimed. WCID/generation capture before enqueue,
 peer lease during native mutation and correct FT generation advancement remain
 required. Current point-in-time BSS checks do not establish those properties.
+
+## Existing-peer FT generation/lease primitive prepared locally — 2026-11-19
+
+New uninstalled ft-peer-generation.h captures a value stamp under caller-owned
+MacTabLock: nonzero generation, exact WCID/MAC/BSS/wdev and AUTH/ASSOC state.
+Later validation uses that captured generation, never rebinds it to a reused
+slot. Synchronous scope uses existing wr_assoc_event_users plus peer-table
+transaction; reset is excluded until balanced release. Foreign/double leave is
+refused. If identity/users drift during the scope, owner is poisoned and the
+uncertain reference retained instead of releasing another peer's ownership.
+Caller must separately hold adapter/wdev lifetime and association-vs-key/control
+admission; the primitive acquires no locks and executes no native operations.
+
+New check-ft-peer-generation.c runs the actual primitive and existing table
+owner under ASan/UBSan. Existing full FT callback regression also runs it.
+Immutable-generation, wrong context/state, competing/reset scope, foreign/double
+leave and uncertain release cases PASS; report FT-PEER-GENERATION-HOST JSON.
+Temporary MIPS TU probe now includes/copies this header to typecheck against
+actual candidate fields on its NEXT revision. No such target result exists yet.
+These files remain local/uncommitted for the next coherent generation package.
+
+Still required: explicit snapshot transport from RRB producer into native MLME
+queue without fresh generation recapture; receiver handling of FT stamps;
+lease around actual mutation, including initial/new-peer requests; generation
+advance at validated native FT boundary; daemon response writer inventory.
+Do not replace native enqueue with an unverified custom queue implementation.
+No producer installation or physical proof. Current ABI958, standard1428 and
+prior2ff optional1427 freshly in_progress; no restarts/duplicates this turn.
+
+## Explicit FT producer snapshot enqueue prepared locally — 2026-11-19
+
+ft-enqueue-generation-composition.py creates a separately named native
+MlmeEnqueueForRecv variant from the actual association-stamped SDK candidate.
+It accepts const wr_ft_peer_stamp explicitly and copies original generation,
+WCID and MAC into native queue metadata instead of calling wr_assoc_capture.
+Ordinary receive enqueue/callers remain byte-identical. Receiver BSS/MAC/WCID
+and complete outer action header checked before native classification/queue.
+Native queue allocation, metadata, dispatch and feature guards are preserved.
+The extracted explicit prototype compiles against the complete function.
+
+check-ft-enqueue-generation.py executes the entire cloned native function with
+host queue/classifier actors under ASan/UBSan, in default/EAP/SNR variants.
+Replacing the live slot generation immediately before queue locking still
+queues the original stamp; later current-generation validation rejects it.
+Fresh capture queues new generation; wrong context, occupied/full queue and
+exact-allocation short frames refuse. Duplicate composer application refuses.
+Durable FT-EXPLICIT-ENQUEUE-HOST report records checks and source hashes.
+
+This is uninstalled preparation, not an alternative custom queue or completed
+FT identity binding. RRB producer still must capture/pass its original value;
+consumer must restore/validate it before native mutation and retain the peer
+lease. Plain RX FT/new-peer semantics and generation advancement remain open.
+No target compilation of this new enqueue variant yet; temporary FT TU header
+probe alone does not cover common/mlme.c. Keep this work local for the coherent
+producer/consumer package. Existing published CI handles unchanged this turn.
+
+## RRB snapshot capture and stamped FT consumer prepared locally — 2026-11-19
+
+New bind_ft stage in ft-enqueue-generation-composition.py captures a value
+stamp inside the existing RRB lookup lock and passes that exact value to the
+explicit native enqueue variant instead of REPORT_MGMT_FRAME_TO_MLME. It does
+not recapture a new generation after allocation. A prototype is explicitly
+shared with the FT TU. Native output buffer is still freed after enqueue.
+
+For stamped events, FT_FtAction restores immutable generation/WCID/MAC plus
+receiver BSS and acquires the existing-peer scope before switch/lookup/insertion
+or native handlers. The out path releases the scope without holding a lock
+across native work. A stale stamp cannot insert a replacement station first.
+Zero-stamp ordinary RX remains native and explicitly not covered by this step.
+Outer association-vs-key/control admission remains a separate prerequisite.
+
+check-ft-generation-binding.py reuses full callback fixtures, executes the
+complete composed producer/consumer with explicit queue/crypto/parser actors,
+and passes ASan/UBSan in default/SNR configurations. Producer allocation-time
+slot replacement still passes original generation; stale consumer refuses;
+live request/confirm balance event-users/table transactions. Real native explicit
+enqueue is separately exercised by check-ft-enqueue-generation.py. This is not
+one fully linked native MLME/FT/crypto end-to-end test. Report:
+docs/evidence/WR1200JS-FT-GENERATION-BINDING-HOST-2026-11-19.json.
+
+Uncommitted coherent generation work remains producer-uninstalled. Temporary
+FT probe currently typechecks primitive only; it does not yet compile the new
+common/mlme.c explicit enqueue or bound FT producer/consumer. Next extend exact
+MIPS temporary probes to both TUs, cover ordinary RX/new-peer capture semantics,
+review FT generation advancement and daemon key-response writers before enable.
+Current published103707fb remains unchanged; no new CI dispatch this turn.
+
+## Prepared paired FT/MLME target verification — 2026-11-19
+
+check-ft-bounds-target-tu.py now prepares BOTH common/ft.c and common/mlme.c
+using their respective original Kbuild commands and pinned compiler identity.
+The temporary FT TU includes bounds, producer/stamped consumer binding and
+outer association arbitration; temporary MLME TU contains the explicit-stamp
+native receive-enqueue variant. Both require active AP/FT/MT7603/MT_MAC/PCI
+macros and ELF32 little-endian MIPS output. readelf must show FT's undefined
+GLOBAL wr_ft_mlme_enqueue_for_recv and MLME's defined GLOBAL provider. This is
+symbol/type evidence only, not a final module link or installed producer.
+Native source hashes are checked unchanged; objects remain temporary. Report
+retains original FT fields and adds per-TU command/source/object receipts.
+Local source preparation, CLI/Python syntax, full callback/peer primitive,
+explicit native queue and producer/consumer host regressions PASS. Actual paired
+MIPS result still pending; no such coverage inferred from older FT-only probes.
+
+Optional1427/run44563426937 for exact2ff341d8 completed SUCCESS. Actual artifact
+14552535822 archive SHA256a467f62a494e48138a2d783798f0ab504aa4e165d80e53b581f355d4dbadf0dd
+and ZIP CRC independently verified; ft-bounds-target-tu.json says passed,
+module_installed false, runtime_verified false. Durable OPTIONAL1427 FT TU
+report saved; owned ZIP removed. This proves prior RRB-context FT TU only.
+Standard1428/run44564759097 all four jobs SUCCESS. Exact103707fb optional
+run44567353810 dispatched once with true/iot/peer82 after absence check; this
+predates current local generation work. ABI958 last observed in_progress.
+
+Still required before FT producer activation: ordinary RX/new-peer identity,
+correct native FT generation advancement, daemon-response writers and full
+association/control/lifetime integration review. Preserve actual crypto and
+firmware behavior; do not enable this prepared path from host evidence alone.

@@ -1,0 +1,31 @@
+{
+  "scope": "Complete cloned native receive-enqueue body with explicit producer snapshot; host queue/classifier actors",
+  "exit_status": 0,
+  "variants": [
+    "default",
+    "EAPOL_QUEUE_SUPPORT",
+    "CUSTOMER_DCC_FEATURE"
+  ],
+  "checks": [
+    "original enqueue and callers byte-identical",
+    "export prototype matches full definition",
+    "generation replacement between capture and queue lock does not rebind stamp",
+    "queued payload/machine/type/WCID/address/generation",
+    "wrong receiver BSS/MAC/WCID refused",
+    "exact allocation truncated lengths0..37 refused before native classification",
+    "occupied/full queue refusal",
+    "duplicate composition refused"
+  ],
+  "sanitizers": [
+    "address",
+    "undefined"
+  ],
+  "source_sha256": {
+    "tools/iot/ft-enqueue-generation-composition.py": "9d125f7bb46a58d8d6ed06a27df51babf146f46ff78d05109ed5a23e0bb156c6",
+    "tools/iot/check-ft-enqueue-generation.py": "b2a5c24adb7a6ce8d7d42296bdfe663cd6f4f1db300931d5893189848a9ab406"
+  },
+  "producer_installed": false,
+  "consumer_bound": false,
+  "target_compiled": false,
+  "runtime_verified": false
+}

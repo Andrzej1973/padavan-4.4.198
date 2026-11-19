@@ -1,0 +1,36 @@
+{
+  "scope": "Prepared complete native RRB producer and FT action consumer, separate explicit queue/crypto/parser actors; native enqueue separately checked",
+  "exit_status": 0,
+  "variants": [
+    "default",
+    "CUSTOMER_DCC_FEATURE"
+  ],
+  "checks": [
+    "capture under native RRB lookup lock",
+    "allocation-time generation replacement preserves original passed value",
+    "consumer validates original queued generation before insertion/native handlers",
+    "live request/confirm scope balanced",
+    "stale event has no native handler call or new insertion",
+    "unrelated entry BSS/wdev/MAC/WCID refusals retained",
+    "zero-stamp ordinary RX path remains separate",
+    "duplicate binding refused"
+  ],
+  "sanitizers": [
+    "address",
+    "undefined"
+  ],
+  "source_sha256": {
+    "tools/iot/ft-enqueue-generation-composition.py": "9d125f7bb46a58d8d6ed06a27df51babf146f46ff78d05109ed5a23e0bb156c6",
+    "tools/iot/check-ft-generation-binding.py": "8885c7f8980feb8abecf860353baad34d9d6829aa88c09483ed1e1ab103ba757"
+  },
+  "producer_installed": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "remaining": [
+    "original RX initial-peer/event identity",
+    "FT generation advance boundary",
+    "daemon key-response writers",
+    "full target MLME+FT compilation",
+    "association-vs-key/control/lifetime integration review"
+  ]
+}

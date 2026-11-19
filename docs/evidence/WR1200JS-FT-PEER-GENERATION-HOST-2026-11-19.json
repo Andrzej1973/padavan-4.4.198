@@ -1,0 +1,15 @@
+{
+  "scope": "Prepared existing-peer FT generation/lease primitive and host callback regression only; not MLME queue binding",
+  "exit_status": 0,
+  "stdout": "FT bounds composition: outer admission, terminating request/confirm validation before lookup, native forwarding preserved PASS\nPASS | composed RRB selection | active client, MAC/BSS/wdev/WCID, absent-context refusal before enqueue, truncated lengths\nPASS | complete composed RRB handler | context refusal suppresses allocation/enqueue, valid WCID, allocation failure, exact input/output capacities\nPASS | original MAC-only producer rejected by same cross-BSS regression assertions\nPASS | complete composed FT action | BSS/wdev/MAC/WCID refusal, request-to-confirm state, insertion refusal/success, forwarding, balanced frees\nPASS | original FT action rejected by same cross-BSS/state assertions\nPASS | FT peer generation primitive | immutable capture, stale/BSS/state refusal, linear lease, reset exclusion, uncertain ownership retained\n",
+  "stderr": "",
+  "module_installed": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "source_sha256": {
+    "tools/iot/ft-peer-generation.h": "792f509b080d2da77a0bc6cc4d91b4c30662936e0c70fc15ce6c0506a36a570a",
+    "tools/iot/check-ft-peer-generation.c": "458847649139394d33b0ccf5a5ca394cd61168256826179a885be9592389fee5",
+    "tools/iot/check-ft-parser-composition.py": "8dbb144e832dd2fa42737b85567fbe3f7bf63bdbcd7bc49bd269b29c61145ca9",
+    "tools/iot/check-ft-bounds-target-tu.py": "3aa9a0eec5d1698cb6398744f5f9158f017ac5030ce93ff5f702daafe9488c18"
+  }
+}

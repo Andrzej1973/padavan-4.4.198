@@ -305,3 +305,13 @@ with tempfile.TemporaryDirectory(prefix='wr-ft-action-original-') as td:
   'e->func_tb_idx==2' in result.stderr or
   'reqs==1&&!inserted&&right->Sst==SST_AUTH&&wrong->Sst==SST_ASSOC' in result.stderr),result.stderr
 print('PASS | original FT action rejected by same cross-BSS/state assertions')
+
+# Compile the real existing-peer identity/lease primitive; no queue or crypto actors.
+with tempfile.TemporaryDirectory(prefix='wr-ft-peer-generation-') as td:
+ exe=Path(td)/'check'
+ subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror',
+  '-Wno-misleading-indentation','-O2','-fsanitize=address,undefined',
+  '-fno-pie','-no-pie','-I'+str(here),str(here/'check-ft-peer-generation.c'),
+  '-o',str(exe)],check=True)
+ subprocess.run([str(exe)],check=True)
+print('PASS | FT peer generation primitive | immutable capture, stale/BSS/state refusal, linear lease, reset exclusion, uncertain ownership retained')
