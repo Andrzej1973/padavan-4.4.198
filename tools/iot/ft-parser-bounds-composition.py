@@ -37,4 +37,42 @@ def compose(source):
     body=one(body,'(FtActLen - sizeof(PFT_ACTION))','wr_ie_length',2)
     # FtActLen remains needed for native forwarding of the complete action.
     text=text[:start]+body+text[end:]
+    # Bind the RRB producer to an active client on its destination BSS.
+    # Keep only the selected WCID after releasing MacTabLock. This snapshot
+    # does not establish the queued association generation or pin a peer.
+    start=text.index('VOID FT_RrbHandler(');end=text.index('\n}',start)+2
+    body=text[start:end]
+    body=one(body,'PFT_RRB pRrb = (PFT_RRB)(pPktSrc + LENGTH_802_3);','PFT_RRB pRrb;')
+    body=one(body,'\tULONG Wcid;', '\tULONG Wcid;\n INT apidx;\n unsigned int slot;')
+    anchor='\tStatus = MlmeAllocateMemory(pAd, &pOutBuffer);'
+    admission=""" if(!pAd||!pPktSrc||PktLen<0||
+  (ULONG)PktLen<LENGTH_802_3+offsetof(FT_RRB,Oct)+offsetof(FT_ACTION,Oct))return;
+ pRrb=(PFT_RRB)(pPktSrc+LENGTH_802_3);
+ if(pRrb->FTActLen<offsetof(FT_ACTION,Oct)||
+  pRrb->FTActLen>(ULONG)PktLen-LENGTH_802_3-offsetof(FT_RRB,Oct)||
+  sizeof(HEADER_802_11)>MGMT_DMA_BUFFER_SIZE||
+  pRrb->FTActLen>MGMT_DMA_BUFFER_SIZE-sizeof(HEADER_802_11))return;
+ apidx=get_apidx_by_addr(pAd,pPktSrc);
+ if(apidx<0||apidx>=pAd->ApCfg.BssidNum)return;
+ pFtAction=(PFT_ACTION)pRrb->Oct;
+ pSA=pFtAction->StaMac;
+ Wcid=RESERVED_WCID;
+ NdisAcquireSpinLock(&pAd->MacTabLock);
+ for(slot=1;slot<MAX_LEN_OF_MAC_TABLE;slot++){
+  pEntry=&pAd->MacTab.Content[slot];
+  if(IS_ENTRY_CLIENT(pEntry)&&
+     (pEntry->Sst==SST_AUTH||pEntry->Sst==SST_ASSOC)&&
+     pEntry->wcid==slot&&pEntry->func_tb_idx==apidx&&
+     pEntry->wdev==&pAd->ApCfg.MBSSID[apidx].wdev&&
+     MAC_ADDR_EQUAL(pEntry->Addr,pSA)){
+   Wcid=slot;break;
+  }
+ }
+ NdisReleaseSpinLock(&pAd->MacTabLock);
+ if(Wcid==RESERVED_WCID)return;
+"""
+    body=one(body,anchor,admission+anchor)
+    old='\tpEntry = MacTableLookup(pAd, pSA);\n\tif (pEntry)\n\t\tWcid = pEntry->wcid;\n\telse\n\t\tWcid = RESERVED_WCID;'
+    body=one(body,old,'/* WCID selected under MacTabLock before allocation. */')
+    text=text[:start]+body+text[end:]
     return text

@@ -195,3 +195,78 @@ observed in progress. It predates the allocation/index refusal and expanded
 exact-buffer tests. No temporary FT TU result, installed FT fix, whole callback
 association ownership, or router runtime acceptance is inferred from these host
 results. The producer still leaves this FT composition uninstalled.
+
+## Optional1424 temporary FT TU independently read — 2026-11-19
+
+GitHub API confirms all four jobs of run44548591244 completed successfully,
+including isolated merged IoT compilation. Artifact14543192706 belongs to
+exact ead99729cabb692c5ecdec7e7f3216318489157e; downloaded48652581-byte archive
+SHA25674e485ac7e600b11599af68ef0cdb4265a47dbb721c760ab55c176cb24afdd47
+matches API digest; all ZIP members pass CRC. Read ft-bounds-target-tu.json:
+status passed, all AP/FT/MT7603/MT_MAC/PCI macros true, object105284 bytes,
+module_installed false, runtime_verified false. Exact report retained in
+`docs/evidence/WR1200JS-OPTIONAL1424-FT-TU-2026-11-19.json`.
+Owned downloaded archive removed after verification; no full extraction.
+This covers the temporary composed TU at ead99729, not later allocation/index
+changes or current eda5fff. No producer installation or device acceptance.
+
+Next remains FT association-generation/BSS provenance: wr_assoc_capture and
+wr_assoc_event_current protect WPA_STATE_MACHINE only. Native FT_FtAction
+request resolves Addr2 by MAC alone; confirmation borrows Elem->Wcid. Outer
+receiver classification does not validate the selected peer's BSS or original
+queued generation. Keep prepared composers uninstalled until producer/event
+identity, peer lifetime and association advancement are bound and tested.
+No duplicate CI, driver edits, router actions, commit or push during acceptance.
+
+
+## Prepared RRB lookup bound to active destination BSS — 2026-11-19
+
+At owner request, ft-parser-bounds-composition.py now changes FT_RrbHandler:
+derive apidx from the Ethernet destination (the same destination used for the
+synthetic MLME receiver), scan under MacTabLock, accept only IS_ENTRY_CLIENT,
+SST_ASSOC, exact MAC, slot WCID, func_tb_idx and embedded wdev for that BSS.
+No match returns before allocation/frame construction/REPORT_MGMT_FRAME_TO_MLME;
+RESERVED_WCID fallback is removed. Minimum complete packet headers and declared
+RRB action remainder are checked before field reads. No peer pointer is used
+after the lock; the selected WCID remains a snapshot, not a generation lease.
+This stricter rule intentionally refuses a target with no associated client.
+
+Existing source composition test executes the generated pre-allocation C
+selection with ASan/UBSan: earlier same-MAC wrong BSS/inactive slot skipped;
+wrong state/wdev/BSS/WCID/MAC, absent client, invalid destination and truncated
+lengths refused. Source ordering verifies refusal precedes MLME enqueue.
+Real vendor-fill parser regression also PASS. This is host selection coverage,
+not full native RRB/frame/MLME execution, target compilation or device proof.
+Original supplied slot_lookup_check.nim rerun unchanged: legacy PASS=false,
+strict PASS=true, stale-generation PASS=true; process exits0 because the
+helper prints booleans without failure exit logic. It does not execute C.
+
+Composer remains uninstalled; original queued generation/lifetime binding and
+FT action selected-entry BSS checks remain open before activation. Previous
+optional1424 TU report predates this change and does not cover it. No router
+changes, heavy local builds, commit or push in this change.
+
+
+## RRB full callback host regression and native FT state correction — 2026-11-19
+
+Expanded the existing FT composition check to compile and execute the entire
+composed FT_RrbHandler body with explicit allocation/framing/MLME queue actors,
+under ASan/UBSan. It observes queue suppression before allocation for wrong BSS,
+inactive/non-client and mismatched wdev; valid WCID delivery, allocation failure,
+exact heap input truncations and exact output capacity/one-byte excess refusal.
+The original MAC-only callback fails the same expected-WCID assertion. Actors
+are boundary replacements, not execution of the native MLME queue or RF path.
+MlmeAllocateMemory in both SDK rt_drv.h/rt_linux.h allocates MGMT_DMA_BUFFER_SIZE;
+composer now checks that output capacity before MakeOutgoingFrame.
+
+Corrected the earlier SST_ASSOC-only predicate: successful native FT_FtAction
+request explicitly sets Sst=SST_AUTH before confirmation. Valid active client
+states are now SST_AUTH or SST_ASSOC with exact MAC/BSS/wdev/WCID; the fixture
+executes both. SST_NOT_AUTH and non-client entries remain refused. Thus earlier
+status text requiring an associated client only is superseded by this block.
+This preserves the native request/confirmation state sequence at this boundary.
+
+Host report: docs/evidence/WR1200JS-FT-RRB-CONTEXT-HOST-2026-11-19.json.
+No producer installation/target compile/device acceptance for this local change.
+Next: bind FT_FtAction's selected entry to receiver BSS and original queued
+generation, with native peer lifetime arbitration, before any activation.
