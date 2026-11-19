@@ -21,6 +21,10 @@ for fragment in (
  'FT_RrbEnqueue(pAd, pFtAction->TargetApAddr,\n\t\t\t\t\t\t\t(PFT_ACTION)pFtAction, FtActLen, apidx);',):
  assert native.count(fragment)==text.count(fragment)>0
 assert 'sizeof(PFT_ACTION)' not in body
+assert request.index('if(!pEntry)goto out;')>request.index('MacTableInsertEntry')
+assert request.index('if(!pEntry)goto out;')<request.index('FT_ReqActionParse')
+assert 'if (pEntry->func_tb_idx >= pAd->ApCfg.BssidNum)' in confirm
+assert 'if (pEntry->func_tb_idx > pAd->ApCfg.BssidNum)' not in confirm
 try:compose(text)
 except ValueError:pass
 else:raise AssertionError('duplicate accepted')

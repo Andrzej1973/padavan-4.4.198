@@ -30,6 +30,10 @@ def compose(source):
       check+'\t\t\t\tpEntry = MacTableLookup(pAd, pHdr->Addr2);')
     body=one(body,'if (Elem->Wcid < MAX_LEN_OF_MAC_TABLE)',
       check+'\t\t\t\tif (Elem->Wcid < MAX_LEN_OF_MAC_TABLE)')
+    allocation='&pAd->ApCfg.MBSSID[apidx].wdev, ENTRY_CLIENT, OPMODE_AP, TRUE);'
+    body=one(body,allocation,allocation+'\n if(!pEntry)goto out;')
+    body=one(body,'if (pEntry->func_tb_idx > pAd->ApCfg.BssidNum)',
+      'if (pEntry->func_tb_idx >= pAd->ApCfg.BssidNum)')
     body=one(body,'(FtActLen - sizeof(PFT_ACTION))','wr_ie_length',2)
     # FtActLen remains needed for native forwarding of the complete action.
     text=text[:start]+body+text[end:]

@@ -164,3 +164,14 @@ Combined source composition preserves the bounded native body and has exactly
 one enter/leave seam; local source/CLI syntax checks pass. BSS/provenance and
 original queued-association identity remain runtime integration requirements,
 so a successful future TU build will not authorize installation by itself.
+
+## Prepared allocation/index refusal before handler execution
+
+The action composition now adds if(!pEntry)goto out after the native optional
+MacTableInsertEntry, before request parsing/FT_AuthReqHandler. Allocation or
+existing insertion-admission refusal must not become a null-entry handler call.
+The confirmation branch's func_tb_idx > BssidNum test becomes >= BssidNum;
+BssidNum is a count and index==count is outside the configured BSS range.
+Source-order regression checks and vendor-fill parser tests pass. These checks
+are still in the uninstalled FT composition; no full action or target/runtime
+acceptance is claimed by the source assertions.
