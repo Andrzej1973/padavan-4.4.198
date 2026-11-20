@@ -1,0 +1,34 @@
+{
+  "date": "2026-11-20",
+  "scope": "Uninstalled FT AUTH synchronous invocation context",
+  "source": "pinned mt76x3 c25283e",
+  "changes": [
+    "Explicit stack-owned existing/pending scope context threaded from FT_FtAction and APPeerAuthReqAtIdleAction through FT_AuthReqHandler to FT_AuthReqRsnValidation.",
+    "Handler and validation check exact current invocation scope under MacTabLock before reading entry fields. Neither stage captures replacement identity.",
+    "Stack context is never published to asynchronous IAPP consumers."
+  ],
+  "checks": [
+    {
+      "command": "python3 tools/iot/check-ft-auth-request-context.py /home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3",
+      "exit": 0,
+      "coverage": [
+        "Pinned declarations, definitions and calls agree; both source callers covered.",
+        "Missing predecessor, duplicate composition and changed validation call refused.",
+        "Real prepared over-air branch and scope helpers executed with modeled insertion and mocked crypto handler, ASan/UBSan.",
+        "Existing/first-peer context accepted; missing/dual scopes, wrong entry/adapter and stale generations refused.",
+        "Allocation/resource/rejection paths and generation-exhaustion ownership retained."
+      ]
+    }
+  ],
+  "sha256": {
+    "tools/iot/ft-auth-request-context.h": "43b158711ddcad95bd15dc08943fc6b84a1a7b77e9e8736000747923c86a57c7",
+    "tools/iot/ft-auth-request-context-composition.py": "a0ef995b4dce8d7f8a8fbc46835f7314e69b077d6eda5ba83f52d9828339965b",
+    "tools/iot/check-ft-auth-request-context.py": "47f952a0b3c492d7d70dbd09c92e37aa8849a9eb067d42220d7d5c84df45631a",
+    "tools/iot/check-ft-auth-callback.py": "a8cb7015fca98a9d8189fb7fb7626912346277027a3e0b391086ec3cd7601302"
+  },
+  "limits": [
+    "Native full RSN crypto handler/validation bodies are source checked, not executed by this fixture.",
+    "IAPP request ledger publication, per-attempt completion, response transaction and paired request cleanup still require integration.",
+    "Prepared composers are not installed. No target compilation, final image or device acceptance claimed."
+  ]
+}

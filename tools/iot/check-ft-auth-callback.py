@@ -2,13 +2,15 @@
 """Execute composed native over-air FT branch with real existing-peer scope."""
 import argparse,contextlib,io,runpy,subprocess,sys,tempfile
 from pathlib import Path
-p=argparse.ArgumentParser(description=__doc__);p.add_argument('source',type=Path);a=p.parse_args();here=Path(__file__).resolve().parent
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('source',type=Path);p.add_argument('--request-context',action='store_true');a=p.parse_args();here=Path(__file__).resolve().parent
 argv=sys.argv[:];sys.argv=[str(here/'check-ft-auth-rx-queue.py'),str(a.source)]
 try:
  with contextlib.redirect_stdout(io.StringIO()):data=runpy.run_path(sys.argv[0])
 finally:sys.argv=argv
 native=(a.source/'ap/ap_auth.c').read_text()
 composed=runpy.run_path(str(here/'ft-auth-callback-composition.py'))['compose'](native)
+if a.request_context:
+ composed=runpy.run_path(str(here/'ft-auth-request-context-composition.py'))['compose_callback'](composed)
 start=composed.index('\tpFtCfg = &pMbss->FtCfg;');end=composed.index('\n\telse\n#endif /* DOT11R_FT_SUPPORT */',start)
 branch=composed[start:end]
 prefix=data['prefix'].replace('struct wifi_dev{unsigned char bssid[6];};',
@@ -105,6 +107,37 @@ static void callback(RTMP_ADAPTER *pAd,MLME_QUEUE_ELEM *Elem){
 auth_failure:failures++;
 }
 '''
+if a.request_context:
+ actors=actors.replace('#include "ft-iapp-pending-admission.h"',
+  '#include "ft-iapp-pending-admission.h"\n#include "ft-auth-request-context.h"\nstatic int exhaust_generation;')
+ actors=actors.replace('FT_INFO *in,FT_INFO *out){',
+  'FT_INFO *in,FT_INFO *out,const struct wr_ft_auth_request_context *context){')
+ actors=actors.replace(' (void)in;(void)out;',r'''
+ struct wr_ft_auth_request_context empty={0},bad;
+ struct wr_ft_peer_scope existing={0};struct wr_ft_pending_peer_scope pending={0};
+ NdisAcquireSpinLock(&ad->MacTabLock);
+ assert(wr_ft_auth_request_current_locked(ad,entry,context));
+ assert(!wr_ft_auth_request_current_locked(ad,entry,NULL));
+ assert(!wr_ft_auth_request_current_locked(ad,entry,&empty));
+ assert(!wr_ft_auth_request_current_locked(ad,&ad->MacTab.Content[1],context));
+ if(context->existing->active){
+  existing=*context->existing;bad=(struct wr_ft_auth_request_context){&existing,&pending};
+  existing.stamp.generation++;
+  assert(!wr_ft_auth_request_current_locked(ad,entry,&bad));
+  existing=*context->existing;existing.adapter=NULL;
+  assert(!wr_ft_auth_request_current_locked(ad,entry,&bad));
+ }else{
+  pending=*context->pending;bad=(struct wr_ft_auth_request_context){&existing,&pending};
+  pending.generation++;
+  assert(!wr_ft_auth_request_current_locked(ad,entry,&bad));
+  pending=*context->pending;pending.adapter=NULL;
+  assert(!wr_ft_auth_request_current_locked(ad,entry,&bad));
+ }
+ existing.active=pending.active=1;bad=(struct wr_ft_auth_request_context){&existing,&pending};
+ assert(!wr_ft_auth_request_current_locked(ad,entry,&bad));
+ NdisReleaseSpinLock(&ad->MacTabLock);
+ if(exhaust_generation)ad->wr_assoc_generations[entry->wcid]=~0U;
+ (void)in;(void)out;''',1)
 main=r'''
 int main(void){
  for(int scenario=0;scenario<8;scenario++){
@@ -152,6 +185,9 @@ int main(void){
  return 0;
 }
 '''
+if a.request_context:
+ main=main.replace('if(scenario==3)ad.wr_assoc_generations[7]=~0U;',
+                   'exhaust_generation=(scenario==3);')
 # Required by pending-scope inline definitions, even though insertion is not executed here.
 prefix=prefix.replace('struct {MLME_QUEUE Queue,EAP_Queue;} Mlme;', 'struct wr_iot_peer_close_executor wr_iot_peer_close_executor;struct {MLME_QUEUE Queue,EAP_Queue;} Mlme;')
 prefix=prefix.replace('#include "peer-table-owner.h"','#include "peer-table-owner.h"\n#include "peer-close-executor.h"')
