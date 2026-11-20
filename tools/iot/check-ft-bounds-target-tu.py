@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Compile the prepared FT ingress/consumer/insertion pair with actual Kbuild flags.
 
-Temporary MIPS objects only. This does not install a module or replace an image.
+Diagnostic MIPS objects only. This does not install a module or replace an image.
 """
 import argparse
 import hashlib
@@ -220,12 +220,19 @@ MAC_TABLE_ENTRY *wr_ft_pending_insert(RTMP_ADAPTER *,UCHAR *,struct wifi_dev *,
                         'ndx': rows[0][6], 'type': rows[0][3],
                         'binding': rows[0][4],
                     }
+            # Retain the inspected bytes for independent artifact verification.
+            # These are diagnostic objects, never inputs to module installation.
+            objects = a.output.parent/(a.output.stem+'-objects')
+            objects.mkdir(parents=True, exist_ok=True)
+            (objects/obj.name).write_bytes(data)
+            (objects/hard_retry_obj.name).write_bytes(hard_retry_data)
             report['translation_units'][unit] = {
                 'effective_macros': effective,
                 'r1kh_hard_retry_variant': {
                     'enabled': True,
                     'object_sha256': hashlib.sha256(hard_retry_data).hexdigest(),
                     'object_bytes': len(hard_retry_data),
+                    'object_path': str(Path(objects.name)/hard_retry_obj.name),
                     'ft_symbols': hard_retry_receipts,
                 },
                 'command_sha256': hashlib.sha256(raw).hexdigest(),
@@ -233,10 +240,12 @@ MAC_TABLE_ENTRY *wr_ft_pending_insert(RTMP_ADAPTER *,UCHAR *,struct wifi_dev *,
                 'prepared_source_sha256': hashlib.sha256(changed.encode()).hexdigest(),
                 'object_sha256': hashlib.sha256(data).hexdigest(),
                 'object_bytes': len(data),
+                'object_path': str(Path(objects.name)/obj.name),
                 'ft_symbols': receipts,
             }
             a.output.parent.mkdir(parents=True, exist_ok=True)
             a.output.with_suffix('.'+unit+'.macros.txt').write_text(macros.stdout)
+            a.output.with_suffix('.'+unit+'.r1kh-hard-retry.macros.txt').write_text(hard_retry_macros.stdout)
 
         contracts = (
             ('ft', 'wr_ft_mlme_enqueue_for_recv', 'mlme'),
