@@ -295,5 +295,29 @@ int main(void)
   }
  }
  puts("PASS | FT slot retirement | WAITING token and preauth invalidated; serial and foreign slot retained; busy, CLAIMED, stale serial and foreign handle refuse atomically");
+ for(scenario=0;scenario<5;scenario++){
+  RTMP_ADAPTER ad;struct wr_ft_iapp_request_state state,saved;
+  struct wr_ft_iapp_token_handle early={0},claim={0};unsigned char wire[7],token[7]={8},mac[6]={66},bssid[6]={2};
+  unsigned long serial;
+  setup(&ad,&state,SST_NOT_AUTH,wire);
+  assert(wr_ft_iapp_token_reserve_locked(&state.ledger,token,1,1,2,mac,bssid,&early));
+  state.current[1]=early;state.detached[1]=1;
+  serial=wr_iot_peer_table_begin(&ad.wr_iot_peer_table_owner);assert(serial);
+  if(scenario==1)assert(wr_ft_iapp_token_claim_locked(&state.ledger,wire,ad.MacTab.Content[7].Addr,bssid,&claim));
+  if(scenario==2)ad.wr_assoc_event_users[7]=1;
+  if(scenario==3)state.current[7].serial++;
+  saved=state;
+  if(scenario){
+   assert(!wr_ft_iapp_table_retire_locked(&ad,&state,scenario==4?serial+1:serial));
+   assert(!memcmp(&state,&saved,sizeof(state)));
+  }else{
+   assert(wr_ft_iapp_table_retire_locked(&ad,&state,serial));
+   assert(!state.current[1].serial&&!state.current[7].serial&&!state.preauth[7].serial);
+   assert(state.ledger.next_serial==saved.ledger.next_serial);
+   assert(!memcmp(state.token_counter,saved.token_counter,7));
+   assert(!wr_ft_iapp_token_claim_locked(&state.ledger,token,mac,bssid,&claim));
+  }
+ }
+ puts("PASS | FT full-table reset retirement | exact exclusive serial; all-slot preflight before mutation; late CLAIMED/busy/stale handle refuses atomically; token sequence retained");
  return 0;
 }
