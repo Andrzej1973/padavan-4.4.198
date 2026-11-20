@@ -68,6 +68,14 @@ int main(void){
  MLME_QUEUE_ELEM *fresh=&ad.Mlme.Queue.Entry[1];
  assert(fresh->assoc_gen==10);
  NdisAcquireSpinLock(&ad.MacTabLock);
+ fresh->MsgLen=sizeof(fresh->Msg)+1;
+ assert(!wr_ft_auth_existing_enter_locked(&ad,fresh,2,frame.Hdr.Addr2,&scope,&borrowed));
+ assert(!scope.active&&!borrowed);
+ fresh->MsgLen=30;
+ fresh->ft_pending_generation=123;
+ assert(!wr_ft_auth_existing_enter_locked(&ad,fresh,2,frame.Hdr.Addr2,&scope,&borrowed));
+ assert(!scope.active&&!borrowed&&!ad.wr_assoc_event_users[7]);
+ fresh->ft_pending_generation=0;
  fresh->Machine=ACTION_STATE_MACHINE;
  assert(!wr_ft_auth_existing_enter_locked(&ad,fresh,2,frame.Hdr.Addr2,&scope,&borrowed));
  fresh->Machine=AP_AUTH_STATE_MACHINE;
@@ -90,6 +98,10 @@ int main(void){
  NdisAcquireSpinLock(&ad.MacTabLock);
  assert(!wr_ft_auth_pending_current_locked(&ad,second,0,frame.Hdr.Addr2,&observed));
  assert(!observed.generation);
+ second->assoc_wcid=7;
+ assert(!wr_ft_auth_pending_current_locked(&ad,second,2,frame.Hdr.Addr2,&observed));
+ assert(!observed.generation);
+ second->assoc_wcid=RESERVED_WCID;
  assert(wr_ft_auth_pending_current_locked(&ad,second,2,frame.Hdr.Addr2,&observed));
  assert(observed.generation==second->ft_pending_generation);
  assert(ad.wr_ft_pending.references[observed.slot]==1);

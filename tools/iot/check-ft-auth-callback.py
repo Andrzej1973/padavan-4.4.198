@@ -73,8 +73,15 @@ static MAC_TABLE_ENTRY *wr_ft_pending_insert(RTMP_ADAPTER *ad,UCHAR *mac,struct 
  assert(!wr_ft_iapp_pending_admit_locked(ad,&ledger,token,mac,wdev->bssid,scope,&request,&response));
  entry->assoc_gen--;
  assert(wr_ft_iapp_pending_admit_locked(ad,&ledger,token,mac,wdev->bssid,scope,&request,&response));
+ assert(!wr_ft_iapp_pending_request_end_locked(ad,scope,&ledger,&request));
+ assert(scope->active&&ad->wr_assoc_event_users[7]==1&&request.serial);
  assert(wr_ft_iapp_token_finish_locked(&ledger,&response));
- assert(wr_ft_iapp_token_request_end_locked(&ledger,&request));
+ assert(wr_ft_iapp_pending_request_end_locked(ad,scope,&ledger,&request));
+ token[0]=9;
+ assert(wr_ft_iapp_pending_request_begin_locked(ad,&ledger,token,scope,&request));
+ assert(wr_ft_iapp_pending_request_end_locked(ad,scope,&ledger,&request));
+ assert(!request.serial);
+ assert(!wr_ft_iapp_token_claim_locked(&ledger,token,mac,wdev->bssid,&response));
  assert(ad->wr_assoc_event_users[7]==1);
  }
 

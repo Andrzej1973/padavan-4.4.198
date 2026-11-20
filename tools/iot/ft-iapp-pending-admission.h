@@ -55,4 +55,23 @@ static inline int wr_ft_iapp_pending_admit_locked(RTMP_ADAPTER *ad,
   scope->bss,scope->wcid,scope->generation,scope->addr,
   ad->ApCfg.MBSSID[scope->bss].wdev.bssid,response);
 }
+
+static inline int wr_ft_iapp_pending_request_end_locked(RTMP_ADAPTER *ad,
+ const struct wr_ft_pending_peer_scope *scope,
+ struct wr_ft_iapp_token_ledger *ledger,
+ struct wr_ft_iapp_token_handle *request)
+{
+ const struct wr_ft_iapp_token_entry *entry;unsigned int i;
+ if(!ledger||!request||!wr_ft_iapp_pending_owned_locked(ad,scope))return 0;
+ if(request->serial){
+  if(request->slot>=WR_FT_IAPP_TOKEN_CAPACITY)return 0;
+  entry=&ledger->entry[request->slot];
+  if(entry->serial==request->serial){
+   if(entry->bss!=scope->bss||entry->wcid!=scope->wcid||
+      entry->generation!=scope->generation)return 0;
+   for(i=0;i<MAC_ADDR_LEN;i++)if(entry->mac[i]!=scope->addr[i])return 0;
+  }
+ }
+ return wr_ft_iapp_token_request_end_locked(ledger,request);
+}
 #endif

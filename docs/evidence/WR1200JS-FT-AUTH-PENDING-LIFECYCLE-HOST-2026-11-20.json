@@ -1,0 +1,31 @@
+{
+  "scope": "Prepared AUTH callback metadata refusal and pre-auth pending request lifecycle",
+  "hashes": {
+    "tools/iot/ft-auth-peer-scope.h": "abcd906393fbc7562d669feba72c4764718570e7755330b6a507420ac4ff78b0",
+    "tools/iot/check-ft-auth-rx-queue.py": "236b9fcb7f8d29d342c11b2f8646498cd4afaa3c19ffa6b7d7fabc04838453b8",
+    "tools/iot/ft-iapp-pending-admission.h": "e969c6987232d3605883172c559d53314408ce1baf4496754e9302bb98f01cfa",
+    "tools/iot/check-ft-auth-callback.py": "9f2a65da380284fd30664d4cd35d1f4986ec536f9d68701a4f245959dc4b599b"
+  },
+  "verified": [
+    "Mixed active/pending queue metadata refused without acquiring scope",
+    "MsgLen exceeding inline queue buffer refused before frame access",
+    "Pending scope state SST_NOT_AUTH matches pinned native insertion",
+    "Pending request-begin and response claim bind exact scope generation and handle serial",
+    "Claimed response blocks pending request-end; finished response permits cleanup",
+    "Waiting pending request-end cancels token and rejects delayed claim"
+  ],
+  "host_commands": [
+    "python3 tools/iot/check-ft-auth-rx-queue.py /home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3",
+    "python3 tools/iot/check-ft-auth-callback.py /home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3"
+  ],
+  "host_exit_status": 0,
+  "limitations": [
+    "Native insertion initialization modeled in callback fixture",
+    "Token lifecycle executed in helper scenario rather than native daemon round-trip",
+    "Pending request-end not yet called by actual callback before state/generation change",
+    "Native IAPP request publication, response cache/store/ACK and teardown integration incomplete"
+  ],
+  "producer_installed": false,
+  "target_compiled": false,
+  "device_accepted": false
+}
