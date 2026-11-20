@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-20",
+  "status": "source-audit-response-lease-not-implemented",
+  "scope": "IAPP response lifetime while FT AUTH owns exclusive association lease",
+  "observations": [
+    "FT_AuthReqRsnValidation emits automatic key request and may wait 30ms on ack_r1kh under R1KH_HARD_RETRY",
+    "wr_ft_peer_enter_locked rejects any existing wr_assoc_event_users for the WCID",
+    "wr_ft_peer_leave_locked and wr_ft_peer_advance_locked require exactly one event user",
+    "pending first-peer lease also requires exactly one event user at publication, advance and leave",
+    "generation retirement/deletion excludes any event users; removing AUTH exclusion while waiting would permit lifetime drift",
+    "FT_KDP_KeyResponseToUs mutates PMK-R1 cache before its MAC-only entry lookup and completes the selected entry without request provenance"
+  ],
+  "implementation_constraints": [
+    "Response claim must bind unique request token and exact BSS/MAC/WCID/generation before any cache mutation",
+    "Response lifetime protection must coexist with waiting AUTH without permitting unrelated association/key mutation",
+    "Timeout-first and response-first interleavings must balance references without poisoning legitimate AUTH exit",
+    "Response must finish cache/counter/completion operations before releasing lifetime protection; AUTH advancement and timeout exit must account for concurrent response ownership",
+    "Every delete, reassociation and adapter teardown path must preserve response-held lifetime protection"
+  ],
+  "source_sha256": {
+    "common/ft.c": "d0adbee2fe62e783c8c2924ae5c16e03b248b613dba91ffbd6e4f8d7fcbdfd85",
+    "ap/ap_ftkd.c": "19ca90564222128b0a8ef98e7799bd542e5725a71d130c2d6a3e37ffb7488e4b"
+  },
+  "helper_sha256": {
+    "tools/iot/ft-peer-generation.h": "e221e159db50ecfae9e454c7ec5a981b43406fa59794811da742f765fc3004eb",
+    "tools/iot/ft-pending-peer-scope.h": "de7c5cf7db32ffc02063b44c04b87e7a60d2c54193c3333391fa9124771f002f",
+    "tools/iot/assoc-generation-composition.py": "3dfbb322faed0da522ee20faa7dae02bef3d9786b27e92d56eb6770d1898d339"
+  },
+  "producer_installed": false,
+  "response_lease_implemented": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "cache_lifetime_audit": {
+    "scope": "Pinned native source; no concurrency execution or target fix claim",
+    "nonblocking_primitives": [
+      "os_alloc_mem uses kmalloc GFP_ATOMIC in os/linux/rt_linux.c",
+      "RTMP_SEM_LOCK uses RtmpOsSpinLockBh in include/os/rt_linux_cmm.h for the inspected non-OS_ABL branch"
+    ],
+    "observed_cache_contract": [
+      "FT_R1khEntryTabLookup releases FT_R1khEntryTabLock before returning a raw entry pointer",
+      "FT_R1KHInfoMaintenance holds cache lock while unlinking and freeing expired entries",
+      "FT_R1khEntryDelete locks after deriving HashId from the caller pointer",
+      "FT_KDP_KeyResponseToUs reads lookup pointer and conditionally deletes/replaces it through separate operations",
+      "MacTabLock alone does not exclude maintenance of the distinct PMK-R1 cache"
+    ],
+    "next_required_change": "Design cache snapshot and atomic replace semantics alongside response identity, then compose all relevant readers/writers and verify lock ordering. A response-only MacTabLock wrapper is insufficient.",
+    "source_sha256": {
+      "common/ft.c": "d0adbee2fe62e783c8c2924ae5c16e03b248b613dba91ffbd6e4f8d7fcbdfd85",
+      "ap/ap_ftkd.c": "19ca90564222128b0a8ef98e7799bd542e5725a71d130c2d6a3e37ffb7488e4b",
+      "os/linux/rt_linux.c": "cd105c06fb07e7518f3f4d08efd703e9d98fbec85d47bcdc222db7fe42d08cd8",
+      "include/os/rt_linux_cmm.h": "effa9f4e64fad8604b9f51cf5443f759d20a72c90247a4001a680d2e12a7d130"
+    }
+  }
+}
