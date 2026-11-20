@@ -1,0 +1,34 @@
+{
+  "date": "2026-11-20",
+  "scope": "Uninstalled detached soft-retry IAPP response admission",
+  "checks": [
+    {
+      "command": "python3 tools/iot/check-ft-auth-request-context.py /home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3",
+      "exit": 0
+    },
+    {
+      "command": "nim c -r --out:/tmp/wr-ft-pending-identity-check tools/iot/ft_pending_identity_check.nim",
+      "exit": 0
+    }
+  ],
+  "coverage": [
+    "Real existing/pending request scope enters, publishes and detaches a token then releases the original peer lease.",
+    "Detached response claims its own transaction/event_users lease only after exact current registry serial/slot, BSS/MAC/BSSID/WCID/generation and captured SST match.",
+    "NOT_AUTH/AUTH/ASSOC tested, each with 20 identity/state/owner refusal variants that leave adapter and registry unchanged.",
+    "Duplicate admission/replay refuses; finish retires token and balances ownership; simulated post-admission identity drift poisons and retains ownership.",
+    "GNU11 O2 Wall Wextra Werror ASan/UBSan host C fixture; no AUTH completion API invoked by helper."
+  ],
+  "sha256": {
+    "tools/iot/ft-iapp-detached-admission.h": "3ff62a6a88f7e7653965b58d279dc1346d6b7e1d691a67458adc0c4c21aa0d73",
+    "tools/iot/check-ft-iapp-detached-admission.c": "18b6a432ef262e90cc6ddacfee411753b2035efc5aec51663c548790677edc86",
+    "tools/iot/ft-iapp-request-state.h": "3492ab593f6a9b7139df0689ce50fae2447fa2e44b85129c191f16bf5db18522",
+    "tools/iot/ft-auth-request-context.h": "6078ce76fe1dd8f644f3a1c87934b72773ea8238609dcdb50269c0858729e01a",
+    "tools/iot/check-ft-auth-request-context.py": "aa915ae849ac5a23b5d1b7790904d7ca38ef7b47eaf0c7e635fea791198ba3c3"
+  },
+  "limits": [
+    "Native IAPP handler/cache/counters/ACK not connected to detached admission.",
+    "MacTabLock critical section is modeled by sequential execution; adapter/BSS lifetime remains a caller requirement.",
+    "Busy-AUTH response scheduling, detached retry replacement/expiry and generation/delete retirement remain open.",
+    "Prepared helpers/composers remain uninstalled; no target, image or device verification claimed."
+  ]
+}

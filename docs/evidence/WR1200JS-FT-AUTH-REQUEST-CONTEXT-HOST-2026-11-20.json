@@ -27,7 +27,8 @@
         "RSN actor executes real invocation begin/admit/end: double begin preserves handle, wrong token/context and aliased response refuse, claim blocks end until finish, timeout cancellation rejects delayed response; both existing and pending paths retain peer lease.",
         "Storage composer checked against pinned pending predecessor: single fresh-allocation initialization, declaration/provider copying, missing/duplicate predecessor refusal. Real registry helpers executed with existing/pending native AUTH fixture: active publication and all current-array aliases refused, claimed response retains published handle, stale invocation cannot clear serial-reused slot, serial remains monotonic after unpublish.",
         "Full-handler RSN actor tests generated-token publication and failed-publication output clearing for existing/pending contexts. Storage source checks require fresh init before RNG and seed. Independent ASan/UBSan Werror C fixture tests 1024 tokens, byte carry, one-time seeding, unchanged counter through ledger cleanup, alias refusal and terminal overflow.",
-        "Existing/pending soft-detach refuses claimed response and stale cleanup; a real existing-peer leave releases owner/event_users while exact token stays WAITING in value-only state."
+        "Existing/pending soft-detach refuses claimed response and stale cleanup; a real existing-peer leave releases owner/event_users while exact token stays WAITING in value-only state.",
+        "Integrated detached admission fixture executes independent exact-generation leases for captured NOT_AUTH/AUTH/ASSOC state; see WR1200JS-FT-DETACHED-ADMISSION-HOST-2026-11-20.json."
       ]
     },
     {
@@ -36,11 +37,11 @@
     }
   ],
   "sha256": {
-    "tools/iot/ft-auth-request-context.h": "cab6e39ab325b8b6e290a4b94f34f607047c88cf6a974b2dfa1ff425e9b43be3",
+    "tools/iot/ft-auth-request-context.h": "6078ce76fe1dd8f644f3a1c87934b72773ea8238609dcdb50269c0858729e01a",
     "tools/iot/ft-auth-request-context-composition.py": "a0ef995b4dce8d7f8a8fbc46835f7314e69b077d6eda5ba83f52d9828339965b",
-    "tools/iot/check-ft-auth-request-context.py": "0354c2d6656ba87b0ec29b8c994f639f9d02f89dd1a47d9663684deea3fb720b",
+    "tools/iot/check-ft-auth-request-context.py": "aa915ae849ac5a23b5d1b7790904d7ca38ef7b47eaf0c7e635fea791198ba3c3",
     "tools/iot/check-ft-auth-callback.py": "a8cb7015fca98a9d8189fb7fb7626912346277027a3e0b391086ec3cd7601302",
-    "tools/iot/ft-iapp-request-state.h": "fc26bc717843c77c0f00bd59dd6044965531dd37746c5aac1b4f607d20823f4a",
+    "tools/iot/ft-iapp-request-state.h": "3492ab593f6a9b7139df0689ce50fae2447fa2e44b85129c191f16bf5db18522",
     "tools/iot/ft-iapp-request-state-composition.py": "c326db3d50eceb8803ba48b82c3e90fffc3dd09cd3dc8c14f747791e205f3359",
     "tools/iot/check-ft-iapp-request-state.c": "752dc60442b8ee92ca3e463983dff69bd62ca4ef7584c6fc317c59c93b4a47b8"
   },
@@ -50,6 +51,6 @@
     "Prepared composers are not installed. No target compilation, final image or device acceptance claimed.",
     "Registry runtime tests use actor-local storage; adapter storage/initialization composition is source checked only. Native event emission, token generation, completion reinitialization and response dispatch are still not connected.",
     "Kernel RNG call is source prepared, not target compiled. Sequence and publication helpers execute on host; native KEY_REQ event emission and Linux/OS_ABL completion lifecycle remain disconnected.",
-    "Detached response admission must acquire an independent exact-generation peer lease and must never signal a later AUTH completion; it is not implemented or installed yet. Detached retry replacement/retirement also remains open."
+    "Detached response admission must acquire an independent exact-generation peer lease and must never signal a later AUTH completion; prepared admission is independently host checked but not connected to native dispatch. Detached retry replacement/retirement also remains open."
   ]
 }

@@ -290,12 +290,13 @@ with tempfile.TemporaryDirectory(prefix='ft-auth-native-handler-') as td:
                     '-fsanitize=address,undefined', '-fno-pie', '-no-pie',
                     '-I'+str(here), str(source), '-o', str(exe)], check=True)
     subprocess.run([str(exe)], check=True)
-    sequence_exe = Path(td)/'sequence'
-    subprocess.run(['gcc', '-std=gnu11', '-O2', '-Wall', '-Wextra', '-Werror',
-                    '-fsanitize=address,undefined', '-fno-pie', '-no-pie',
-                    '-I'+str(here), str(here/'check-ft-iapp-request-state.c'),
-                    '-o', str(sequence_exe)], check=True)
-    subprocess.run([str(sequence_exe)], check=True)
+    for name in ('check-ft-iapp-request-state', 'check-ft-iapp-detached-admission'):
+        helper_exe = Path(td)/name
+        subprocess.run(['gcc', '-std=gnu11', '-O2', '-Wall', '-Wextra', '-Werror',
+                        '-fsanitize=address,undefined', '-fno-pie', '-no-pie',
+                        '-I'+str(here), str(here/(name+'.c')),
+                        '-o', str(helper_exe)], check=True)
+        subprocess.run([str(helper_exe)], check=True)
 print('PASS | FT AUTH invocation context | both caller scopes threaded to native handler and RSN validation; matching declarations; drift and duplicate refusal')
 print('PASS | FT AUTH context admission | exact existing/first-peer lease; missing, dual, foreign entry, stale generation and foreign adapter refused; ASan/UBSan callback fixture')
 print('PASS | native FT AUTH handler | full composed body; existing/first-peer callback exits; null/stale/foreign context before entry access; MDIE refusal, open and RSN actor paths; ASan/UBSan')
