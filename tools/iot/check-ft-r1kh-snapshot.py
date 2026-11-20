@@ -38,15 +38,26 @@ typedef int BOOLEAN;
 #define FT_ROKH_ID_LEN 48
 #define FT_KDP_WPA_NAME_MAX_SIZE 16
 #define FT_R1KH_HASH_INDEX(name) 0
-'''+types[start:end]+r'''
+'''+types[start:end]+(a.source/'include/link_list.h').read_text()+r'''
 typedef struct {struct {struct {int FT_R1khEntryTabLock,FT_R1khEntryTabReady;
- struct {void *pHead;} FT_R1khEntryTab[1];} FtTab;} ApCfg;} RTMP_ADAPTER;
+ unsigned int FT_R1khEntryTabSize;
+ LIST_HEADER FT_R1khEntryTab[1];} FtTab;} ApCfg;} RTMP_ADAPTER;
 static FT_R1HK_ENTRY *retire_on_unlock;
 static int held;
+static int fail_alloc,allocations,frees;
+static void *private_allocation;
+#define NDIS_STATUS_SUCCESS 0
+#define FT_R1KH_ENTRY_TABLE_SIZE 2
+static int os_alloc_mem(void *ad,UCHAR **out,size_t n){
+ (void)ad;assert(!held);if(fail_alloc)return 1;
+ *out=calloc(1,n);if(!*out)return 1;
+ private_allocation=*out;allocations++;return 0;
+}
+static void os_free_mem(void *ad,void *p){(void)ad;assert(!held);free(p);frees++;}
 static void lock_cache(int *lock){assert(!*lock&&!held);*lock=held=1;}
 static void unlock_cache(int *lock){assert(*lock&&held);*lock=held=0;
  if(retire_on_unlock){free(retire_on_unlock);retire_on_unlock=NULL;}}
-static void copy_locked(void *out,const void *in,size_t n){assert(held);memcpy(out,in,n);}
+static void copy_locked(void *out,const void *in,size_t n){assert(held||out==private_allocation);memcpy(out,in,n);}
 #define RTMP_SEM_LOCK(p) lock_cache(p)
 #define RTMP_SEM_UNLOCK(p) unlock_cache(p)
 #define RTMPEqualMemory(a,b,n) (!memcmp(a,b,n))
@@ -61,7 +72,7 @@ int main(void){
  assert(first&&second);first->pNext=second;first->PmkR1Name[0]=1;
  memcpy(second->PmkR1Name,name,16);second->PmkR1Key[0]=99;
  second->R0khIdLen=48;second->R0khId[47]=42;second->KeyLifeTime=17;
- ad.ApCfg.FtTab.FT_R1khEntryTab[0].pHead=first;
+ ad.ApCfg.FtTab.FT_R1khEntryTab[0].pHead=(RT_LIST_ENTRY *)first;
  memset(&out,0x55,sizeof(out));
  assert(!wr_ft_r1kh_snapshot(&ad,name,&out));
  assert(!out.pNext&&!out.PmkR1Key[0]&&!held);
@@ -79,7 +90,33 @@ int main(void){
  assert(!wr_ft_r1kh_snapshot(&ad,NULL,&out)&&!out.PmkR1Key[0]);
  assert(!wr_ft_r1kh_snapshot(&ad,name,NULL)&&!held);
  free(first);
+ ad.ApCfg.FtTab.FT_R1khEntryTab[0]=(LIST_HEADER){0};
+ FT_R1HK_ENTRY value={0};value.PmkR1Name[0]=7;value.PmkR1Key[0]=10;
+ assert(wr_ft_r1kh_store(&ad,&value));
+ assert(ad.ApCfg.FtTab.FT_R1khEntryTabSize==1);
+ assert(wr_ft_r1kh_snapshot(&ad,name,&out)&&out.PmkR1Key[0]==10);
+ fail_alloc=1;value.PmkR1Key[0]=11;
+ assert(!wr_ft_r1kh_store(&ad,&value));
+ assert(wr_ft_r1kh_snapshot(&ad,name,&out)&&out.PmkR1Key[0]==10);
+ fail_alloc=0;assert(wr_ft_r1kh_store(&ad,&value));
+ assert(wr_ft_r1kh_snapshot(&ad,name,&out)&&out.PmkR1Key[0]==11);
+ assert(ad.ApCfg.FtTab.FT_R1khEntryTabSize==1);
+ value.PmkR1Name[0]=8;assert(wr_ft_r1kh_store(&ad,&value));
+ value.PmkR1Name[0]=9;assert(!wr_ft_r1kh_store(&ad,&value));
+ assert(ad.ApCfg.FtTab.FT_R1khEntryTabSize==2);
+ value.PmkR1Name[0]=7;value.PmkR1Key[0]=12;
+ assert(wr_ft_r1kh_store(&ad,&value)); /* replacement allowed at capacity */
+ assert(wr_ft_r1kh_snapshot(&ad,name,&out)&&out.PmkR1Key[0]==12);
+ LIST_HEADER *bucket=&ad.ApCfg.FtTab.FT_R1khEntryTab[0];
+ assert(bucket->size==2&&bucket->pHead&&bucket->pTail&&!bucket->pTail->pNext);
+ ad.ApCfg.FtTab.FT_R1khEntryTabReady=0;
+ assert(!wr_ft_r1kh_store(&ad,&value));
+ value.R0khIdLen=49;assert(!wr_ft_r1kh_store(&ad,&value));
+ assert(!wr_ft_r1kh_store(NULL,&value));assert(!wr_ft_r1kh_store(&ad,NULL));
+ while(bucket->pHead)os_free_mem(&ad,removeHeadList(bucket));
+ assert(allocations==frees&&!held);
  puts("PASS | FT R1KH snapshot | locked value copy survives immediate node retirement; miss, closed cache, invalid length and null refusal");
+ puts("PASS | FT R1KH atomic store | allocation failure preserves old value; replace at capacity, full/closed refusal, native list/count and allocation balance");
  return 0;
 }
 '''

@@ -1,0 +1,38 @@
+{
+  "date": "2026-11-20",
+  "scope": "Prepared owned snapshot and atomic store API; all native callers remain unchanged",
+  "command": "python3 tools/iot/check-ft-r1kh-snapshot.py /home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3",
+  "exit_status": 0,
+  "sanitizers": [
+    "address",
+    "undefined"
+  ],
+  "checks": [
+    "use pinned native cache entry and link_list.h implementations",
+    "allocate replacement before taking cache lock; allocation failure preserves old entry",
+    "lookup, unlink, append and count update under one cache lock",
+    "replace existing key at capacity; refuse new key at capacity",
+    "closed-cache and invalid input refusal",
+    "retire replaced entry after unlock; balance allocation/free",
+    "snapshot remains owned after immediate matched-node retirement"
+  ],
+  "helper_sha256": {
+    "tools/iot/ft-r1kh-snapshot-composition.py": "e8a9b0cf85e522d958b7e22b20536f9bef1e9a5500ac411c67202dc9b193baf6",
+    "tools/iot/check-ft-r1kh-snapshot.py": "e58614bb62b2d99260059cfad537a6d8bb20941e6ed46cef75844019b8771554"
+  },
+  "target_compiled": false,
+  "native_callers_converted": false,
+  "producer_installed": false,
+  "runtime_verified": false,
+  "preconditions": [
+    "adapter/cache-lock lifetime held by caller",
+    "caller supplies owned input values and separately validates request identity",
+    "all cache readers must use owned values before this store API is installed"
+  ],
+  "remaining": [
+    "convert applicable native readers/writers",
+    "key-based deletion without raw-pointer ownership",
+    "cache shutdown/maintenance admission",
+    "IAPP token/completion integration and paired target checks"
+  ]
+}
