@@ -205,7 +205,7 @@ if a.retry:
   'struct wr_ft_iapp_request_state wr_ft_iapp_requests;int MacTabLock,OpMode;')
  actors=actors.replace('#include "ft-iapp-pending-admission.h"',
   '#include "ft-iapp-pending-admission.h"\n#include "ft-auth-retry-peer-scope.h"')
- main=main.replace('scenario<8','scenario<12')
+ main=main.replace('scenario<8','scenario<13')
  main=main.replace('if(scenario>=5){','if(scenario>=5&&scenario<8){')
  main=main.replace(' allocation_fail=',r'''
  if(scenario>=8){
@@ -214,12 +214,19 @@ if a.retry:
   ad.wr_ft_iapp_requests.preauth[7]=identity;
   assert(wr_ft_preauth_elem_publish(&event,&identity));
   if(scenario==11)ad.wr_ft_iapp_requests.preauth[7].serial++;
+  if(scenario==12)ad.wr_ft_iapp_requests.current[7].serial=91;
  }
  allocation_fail=''')
  main=main.replace('scenario==2||scenario==7','scenario==2||scenario==7||scenario==10')
  main=main.replace('scenario==1||scenario==6','scenario==1||scenario==6||scenario==9')
  main=main.replace(' callback(&ad,&event);',r'''
  callback(&ad,&event);
+ if(scenario==12){
+  assert(auth_calls==1&&!replies&&allocations==frees);
+  assert(ad.wr_iot_peer_table_owner.poisoned&&ad.wr_iot_peer_table_owner.transactions==1);
+  assert(ad.wr_assoc_event_users[7]==1&&!ad.MacTabLock&&e->Sst==SST_NOT_AUTH&&e->assoc_gen==1);
+  continue;
+ }
  if(scenario==11){
   assert(!auth_calls&&!replies&&!failures&&!allocations);
   assert(!ad.wr_assoc_event_users[7]&&!ad.wr_iot_peer_table_owner.transactions&&!ad.MacTabLock);
@@ -228,6 +235,10 @@ if a.retry:
 ''')
  main=main.replace('scenario==0||scenario==4||scenario==5','scenario==0||scenario==4||scenario==5||scenario==8')
  main=main.replace('scenario==0||scenario==5','scenario==0||scenario==5||scenario==8')
+ main=main.replace(' assert(e->assoc_gen==',
+  ' if(scenario==8)assert(!ad.wr_ft_iapp_requests.preauth[7].serial);\n'
+  ' if(scenario==9||scenario==10)assert(ad.wr_ft_iapp_requests.preauth[7].serial==9);\n'
+  ' assert(e->assoc_gen==')
  main=main.replace(' return 0;',' puts("PASS | native AUTH retry branch | successful retry, resource/allocation exits, stale serial before handler, pending lease and generation balance");\n return 0;')
 prefix=prefix.replace('struct {MLME_QUEUE Queue,EAP_Queue;} Mlme;', 'struct wr_iot_peer_close_executor wr_iot_peer_close_executor;struct {MLME_QUEUE Queue,EAP_Queue;} Mlme;')
 prefix=prefix.replace('#include "peer-table-owner.h"','#include "peer-table-owner.h"\n#include "peer-close-executor.h"')

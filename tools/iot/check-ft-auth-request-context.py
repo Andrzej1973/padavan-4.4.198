@@ -176,6 +176,7 @@ static USHORT FT_AuthReqRsnValidation(PRTMP_ADAPTER ad,PMAC_TABLE_ENTRY entry,
  assert(wr_ft_auth_request_admit_locked(ad,entry,context,&state.ledger,token,
   entry->Addr,entry->wdev->bssid,&state.current[entry->wcid],&claim));
  assert(!wr_ft_auth_request_unpublish_locked(ad,entry,context,&state,&active));
+ assert(!wr_ft_auth_request_success_prepare_locked(ad,entry,context,&state));
  assert(active.serial&&state.current[entry->wcid].serial==active.serial);
  assert(wr_ft_iapp_token_finish_locked(&state.ledger,&claim));
  assert(wr_ft_auth_request_unpublish_locked(ad,entry,context,&state,&active));

@@ -97,4 +97,24 @@ def compose_retry(text):
    }
    NdisReleaseSpinLock(&pAd->MacTabLock);
   }else if(Elem->assoc_gen){'''
-    return text.replace(old,new,1)
+    text=text.replace(old,new,1)
+    include='#include "ft-auth-retry-peer-scope.h"'
+    text=text.replace(include,include+'\n#include "ft-auth-request-context.h"',1)
+    start=text.index('\tpFtCfg = &pMbss->FtCfg;')
+    end=text.index('\n\telse\n#endif /* DOT11R_FT_SUPPORT */',start)
+    before,body,after=text[:start],text[start:end],text[end:]
+    success='pEntry->Sst = SST_AUTH;'
+    if body.count(success)!=1:raise ValueError('FT retry success anchor changed')
+    return before+body.replace(success,'''{
+      struct wr_ft_auth_request_context wr_ft_success_context={
+       &wr_ft_air_scope,&wr_ft_air_pending_scope};
+      NdisAcquireSpinLock(&pAd->MacTabLock);
+      if(!wr_ft_auth_request_success_prepare_locked(pAd,pEntry,&wr_ft_success_context,
+          &pAd->wr_ft_iapp_requests)){
+       pAd->wr_iot_peer_table_owner.poisoned=1;
+       NdisReleaseSpinLock(&pAd->MacTabLock);
+       os_free_mem(NULL,pFtInfoBuf);return;
+      }
+      pEntry->Sst = SST_AUTH;
+      NdisReleaseSpinLock(&pAd->MacTabLock);
+     }''',1)+after

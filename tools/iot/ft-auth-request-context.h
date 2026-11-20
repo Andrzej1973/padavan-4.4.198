@@ -168,6 +168,32 @@ static inline int wr_ft_auth_request_retire_detached_locked(RTMP_ADAPTER *ad,
  state->detached[w]=state->detached_sst[w]=0;
  return 1;
 }
+/* Before publishing SST_AUTH/generation, retire a detached predecessor and
+ * clear first-peer provenance under the same table lock and live AUTH lease.
+ * A synchronous outstanding request must use its own unpublish boundary. */
+static inline int wr_ft_auth_request_success_prepare_locked(RTMP_ADAPTER *ad,
+ MAC_TABLE_ENTRY *entry,const struct wr_ft_auth_request_context *context,
+ struct wr_ft_iapp_request_state *state)
+{
+ unsigned int w,i;struct wr_ft_iapp_token_handle previous;
+ const struct wr_ft_preauth_identity *identity;
+ if(!state||!wr_ft_auth_request_current_locked(ad,entry,context))return 0;
+ w=entry->wcid;
+ if(w>=WR_FT_IAPP_TOKEN_CAPACITY)return 0;
+ identity=&state->preauth[w];
+ if(identity->serial){
+  if(identity->wcid!=w||identity->bss!=entry->func_tb_idx||
+     identity->generation!=entry->assoc_gen)return 0;
+  for(i=0;i<6;i++)
+   if(identity->mac[i]!=entry->Addr[i]||identity->bssid[i]!=entry->wdev->bssid[i])return 0;
+ }
+ if(state->current[w].serial){
+  previous=state->current[w];
+  if(!wr_ft_auth_request_retire_detached_locked(ad,entry,context,state,&previous))return 0;
+ }else if(state->detached[w])return 0;
+ state->preauth[w]=(struct wr_ft_preauth_identity){0};
+ return 1;
+}
 /* Return a wire token only after its request handle is published. Failed
  * publication consumes sequence space but never exposes an unowned token. */
 static inline int wr_ft_auth_request_publish_next_locked(RTMP_ADAPTER *ad,
