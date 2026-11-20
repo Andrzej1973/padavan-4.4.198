@@ -6,6 +6,7 @@
 struct wr_ft_iapp_request_state {
  struct wr_ft_iapp_token_ledger ledger;
  struct wr_ft_iapp_token_handle current[WR_FT_IAPP_TOKEN_CAPACITY];
+ unsigned int detached[WR_FT_IAPP_TOKEN_CAPACITY];
  unsigned char token_counter[WR_FT_IAPP_TOKEN_BYTES];
  unsigned int token_seeded,token_exhausted;
 };
@@ -16,8 +17,10 @@ static inline void wr_ft_iapp_request_state_init(struct wr_ft_iapp_request_state
  wr_ft_iapp_token_ledger_init(&state->ledger);
  state->token_seeded=state->token_exhausted=0;
  for(i=0;i<WR_FT_IAPP_TOKEN_BYTES;i++)state->token_counter[i]=0;
- for(i=0;i<WR_FT_IAPP_TOKEN_CAPACITY;i++)
+ for(i=0;i<WR_FT_IAPP_TOKEN_CAPACITY;i++){
   wr_ft_iapp_token_clear(&state->current[i]);
+  state->detached[i]=0;
+ }
 }
 /* Seed only during fresh allocation, before publishing the adapter. */
 static inline int wr_ft_iapp_request_state_seed(struct wr_ft_iapp_request_state *state,

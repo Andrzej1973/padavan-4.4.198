@@ -199,6 +199,23 @@ static USHORT FT_AuthReqRsnValidation(PRTMP_ADAPTER ad,PMAC_TABLE_ENTRY entry,
  assert(wr_ft_auth_request_publish_next_locked(ad,entry,context,&state,&active,wire));
  assert(memcmp(wire,first_wire,7)>0);
  assert(wr_ft_auth_request_unpublish_locked(ad,entry,context,&state,&active));
+ assert(wr_ft_auth_request_publish_next_locked(ad,entry,context,&state,&active,wire));
+ old=active;
+ assert(wr_ft_auth_request_admit_locked(ad,entry,context,&state.ledger,wire,
+  entry->Addr,entry->wdev->bssid,&active,&claim));
+ assert(!wr_ft_auth_request_detach_locked(ad,entry,context,&state,&active));
+ assert(active.serial==old.serial&&!state.detached[entry->wcid]);
+ assert(wr_ft_iapp_token_finish_locked(&state.ledger,&claim));
+ assert(wr_ft_auth_request_unpublish_locked(ad,entry,context,&state,&active));
+ assert(wr_ft_auth_request_publish_next_locked(ad,entry,context,&state,&active,wire));
+ old=active;
+ assert(wr_ft_auth_request_detach_locked(ad,entry,context,&state,&active));
+ assert(!active.serial&&state.detached[entry->wcid]);
+ assert(state.current[entry->wcid].serial==old.serial);
+ assert(!wr_ft_auth_request_unpublish_locked(ad,entry,context,&state,&old));
+ assert(!wr_ft_auth_request_publish_next_locked(ad,entry,context,&state,&other,wire));
+ assert(!wr_ft_iapp_token_nonzero(wire));
+ assert(ad->wr_assoc_event_users[entry->wcid]==1);
  }
  }
  NdisReleaseSpinLock(&ad->MacTabLock);
@@ -243,10 +260,24 @@ static void native_handler_refusals(void){
  in.RSNIE_Len=1;auth_result=55;
  assert(FT_AuthReqHandler(&ad,entry,&in,&out,&context)==55);
  assert(auth_calls==1&&!ad.MacTabLock&&ad.wr_assoc_event_users[7]==1);
+ {
+ struct wr_ft_iapp_request_state state;
+ struct wr_ft_iapp_token_handle request={0},saved;
+ unsigned char seed[7]={0},wire[7];
+ wr_ft_iapp_request_state_init(&state);
+ assert(wr_ft_iapp_request_state_seed(&state,seed));
  NdisAcquireSpinLock(&ad.MacTabLock);
+ assert(wr_ft_auth_request_publish_next_locked(&ad,entry,&context,&state,&request,wire));
+ saved=request;
+ assert(wr_ft_auth_request_detach_locked(&ad,entry,&context,&state,&request));
  assert(wr_ft_peer_leave_locked(&ad,&scope));
  NdisReleaseSpinLock(&ad.MacTabLock);
- assert(!ad.wr_iot_peer_table_owner.transactions);
+ assert(!ad.wr_iot_peer_table_owner.transactions&&!ad.wr_assoc_event_users[7]);
+ assert(!scope.active&&!request.serial&&state.detached[7]);
+ assert(state.current[7].serial==saved.serial);
+ assert(state.ledger.entry[saved.slot].state==WR_FT_IAPP_TOKEN_WAITING);
+ assert(wr_ft_iapp_token_equal(state.ledger.entry[saved.slot].token,wire));
+ }
 }
 int main(void){int result=callback_cases();native_handler_refusals();return result;}
 '''
@@ -271,3 +302,4 @@ print('PASS | native FT AUTH handler | full composed body; existing/first-peer c
 print('PASS | FT invocation request lifecycle | existing/pending begin-admit-end; active handle preserved; claimed response blocks end; timeout cancels delayed response; no peer lease release')
 print('PASS | FT adapter request registry | fresh-allocation init only; value handles; active/aliased publication refused; claimed response blocks unpublish; stale invocation cannot clear reused slot; serial retained')
 print('PASS | FT wire token publication | seeded sequence; output only after handle publication; failed publication clears wire output; retry never reuses token')
+print('PASS | FT soft-retry detach | existing/pending value-handle transfer; claimed response blocks detach; stale cleanup cannot cancel detached request; peer lease releases while exact-generation token remains waiting')

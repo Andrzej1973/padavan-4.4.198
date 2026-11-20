@@ -77,7 +77,7 @@ static inline int wr_ft_auth_request_publish_locked(RTMP_ADAPTER *ad,
  if(!state||!request||request->serial||
     !wr_ft_auth_request_current_locked(ad,entry,context))return 0;
  w=entry->wcid;
- if(w>=WR_FT_IAPP_TOKEN_CAPACITY||state->current[w].serial)return 0;
+ if(w>=WR_FT_IAPP_TOKEN_CAPACITY||state->current[w].serial||state->detached[w])return 0;
  for(i=0;i<WR_FT_IAPP_TOKEN_CAPACITY;i++)
   if(request==&state->current[i])return 0;
  if(!wr_ft_auth_request_begin_locked(ad,entry,context,&state->ledger,token,request))return 0;
@@ -91,13 +91,42 @@ static inline int wr_ft_auth_request_unpublish_locked(RTMP_ADAPTER *ad,
  unsigned int w,i;
  if(!state||!request||!wr_ft_auth_request_current_locked(ad,entry,context))return 0;
  w=entry->wcid;
- if(w>=WR_FT_IAPP_TOKEN_CAPACITY)return 0;
+ if(w>=WR_FT_IAPP_TOKEN_CAPACITY||state->detached[w])return 0;
  for(i=0;i<WR_FT_IAPP_TOKEN_CAPACITY;i++)
   if(request==&state->current[i])return 0;
  if(state->current[w].serial!=request->serial||
     (request->serial&&state->current[w].slot!=request->slot))return 0;
  if(!wr_ft_auth_request_end_locked(ad,entry,context,&state->ledger,request))return 0;
  wr_ft_iapp_token_clear(&state->current[w]);
+ return 1;
+}
+/* Soft retry returns before IAPP delivery. Transfer only the published value
+ * handle to the adapter; caller still leaves its peer scope separately. A
+ * detached response must acquire its own exact-generation lease and must not
+ * signal a later AUTH invocation's completion. */
+static inline int wr_ft_auth_request_detach_locked(RTMP_ADAPTER *ad,
+ MAC_TABLE_ENTRY *entry,const struct wr_ft_auth_request_context *context,
+ struct wr_ft_iapp_request_state *state,struct wr_ft_iapp_token_handle *request)
+{
+ unsigned int w,i;const struct wr_ft_iapp_token_entry *pending;
+ if(!state||!request||!request->serial||
+    !wr_ft_auth_request_current_locked(ad,entry,context))return 0;
+ w=entry->wcid;
+ if(w>=WR_FT_IAPP_TOKEN_CAPACITY||state->detached[w]||
+    request->slot>=WR_FT_IAPP_TOKEN_CAPACITY)return 0;
+ for(i=0;i<WR_FT_IAPP_TOKEN_CAPACITY;i++)
+  if(request==&state->current[i])return 0;
+ if(state->current[w].serial!=request->serial||
+    state->current[w].slot!=request->slot)return 0;
+ pending=&state->ledger.entry[request->slot];
+ if(pending->state!=WR_FT_IAPP_TOKEN_WAITING||pending->invalidated||
+    pending->serial!=request->serial||state->ledger.poisoned||
+    pending->wcid!=w||pending->bss!=entry->func_tb_idx||
+    pending->generation!=entry->assoc_gen)return 0;
+ for(i=0;i<MAC_ADDR_LEN;i++)
+  if(pending->mac[i]!=entry->Addr[i]||pending->bssid[i]!=entry->wdev->bssid[i])return 0;
+ state->detached[w]=1;
+ wr_ft_iapp_token_clear(request);
  return 1;
 }
 /* Return a wire token only after its request handle is published. Failed
