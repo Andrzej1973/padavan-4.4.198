@@ -1,0 +1,31 @@
+{
+  "date": "2026-11-20",
+  "scope": "Prepared native close table-clear FT retirement",
+  "changes": [
+    "Under existing close serial and MacTabLock, full FT registry retirement gates MacTab memset.",
+    "Refusal preserves close reservation/table for caller failure propagation; successful clear preserves adapter token counter and permits normal close seal."
+  ],
+  "checks": [
+    {
+      "command": "python3 tools/iot/check-ft-close-retirement.py /home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3",
+      "exit": 0,
+      "coverage": "Actual composed close hold/clear/finish fragment with real FT helpers and modeled adapter/table/lock; Werror ASan/UBSan. WAITING retirement succeeds; CLAIMED/busy leave marker table, registry and reservation unchanged; seed/serial survive clear. Reset integration prerequisite fixture also passes."
+    },
+    {
+      "command": "nim c -r --out:/tmp/wr-ft-pending-identity-check tools/iot/ft_pending_identity_check.nim",
+      "exit": 0
+    }
+  ],
+  "sha256": {
+    "tools/iot/ft-iapp-delete-composition.py": "9196cc8b5d25d687fe5320b676c3ac8cd79cf8bf47faf0dfe2427c6bd3f0dbaf",
+    "tools/iot/check-ft-close-retirement.py": "aa77ea2667611b1ea42c39f5b39f654569b33fff81fc834620b44ad35386327b",
+    "tools/iot/peer-close-table.inc": "4c2fb06921876f43ef7f04cfdfe0ba101350e1a2ffb712338f8ec74e65d2397b",
+    "tools/iot/ft-iapp-slot-retirement.h": "cf8a69b1409f05d4e50d47f4fecd52677b3326fb3e714ddfbb31e403c0b758c5"
+  },
+  "limits": [
+    "Native close tasklet/DMA/IRQ/timer teardown body is not executed; no hardware retirement proof.",
+    "Native init clears MacTab before allocating MacTabLock, so lock-based close/reset hook is not applicable there; fresh allocation versus reopen init ownership remains to verify.",
+    "Complete pipeline and target TUs remain unverified; composers stay uninstalled.",
+    "IAPP/cache/completion and image/device acceptance remain incomplete."
+  ]
+}

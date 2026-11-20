@@ -69,3 +69,23 @@ def compose_reset(changes,src,local):
     result[name]='#ifdef DOT11R_FT_SUPPORT\n#include "ft-iapp-slot-retirement.h"\n#endif\n'+owner
     result['include/ft-iapp-slot-retirement.h']=(local/'ft-iapp-slot-retirement.h').read_text()
     return result
+
+
+def compose_close(changes,src,local):
+    result=dict(changes)
+    if 'struct wr_ft_iapp_request_state wr_ft_iapp_requests;' not in result.get('include/rtmp.h',''):
+        raise ValueError('FT close retirement requires adapter request registry')
+    name='include/wr-iot-peer-close-table.inc'
+    close=result.get(name,'')
+    if 'wr_ft_iapp_table_retire_locked' in close:
+        raise ValueError('FT close retirement already prepared')
+    anchor=' if(valid)NdisZeroMemory(&pAd->MacTab,sizeof(MAC_TABLE));'
+    if close.count(anchor)!=1:raise ValueError('FT close clear anchor changed')
+    close=close.replace(anchor,'''#ifdef DOT11R_FT_SUPPORT
+ if(valid)valid=wr_ft_iapp_table_retire_locked(pAd,&pAd->wr_ft_iapp_requests,
+   pAd->wr_iot_peer_close_serial);
+#endif
+'''+anchor,1)
+    result[name]='#ifdef DOT11R_FT_SUPPORT\n#include "ft-iapp-slot-retirement.h"\n#endif\n'+close
+    result['include/ft-iapp-slot-retirement.h']=(local/'ft-iapp-slot-retirement.h').read_text()
+    return result
