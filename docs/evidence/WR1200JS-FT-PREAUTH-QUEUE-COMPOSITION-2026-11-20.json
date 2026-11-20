@@ -1,0 +1,30 @@
+{
+  "date": "2026-11-20",
+  "scope": "Uninstalled native MLME preauth retry sidecar lifecycle composition",
+  "changes": [
+    "Feature guarded MLME element fields for exact retry serial/generation/WCID/BSS/MAC/BSSID.",
+    "Queue init clears retry fields before publishing free slots. Association stamp publication clears sidecar for every ordinary and generated producer using wr_assoc_publish.",
+    "Native delayed requeue copies all retry identity fields alongside association metadata."
+  ],
+  "checks": [
+    {
+      "command": "python3 tools/iot/check-ft-preauth-queue-composition.py /home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3",
+      "exit": 0,
+      "coverage": "Pinned composition schema/init/clear/copy anchors and order, predecessor/duplicate refusal; standalone real helper host fixture GNU11 O2 Wall Wextra Werror ASan/UBSan."
+    },
+    {
+      "command": "nim c -r --out:/tmp/wr-ft-pending-identity-check tools/iot/ft_pending_identity_check.nim",
+      "exit": 0
+    }
+  ],
+  "sha256": {
+    "tools/iot/ft-preauth-queue-composition.py": "f45d742b4afaae81da6082d7bea6747a3a3f7da200e79b834966c1c9b7f5456e",
+    "tools/iot/check-ft-preauth-queue-composition.py": "432cd6af16a475aecd8116eb54a37c2a0989128e98e2086e546a02a747103da9",
+    "tools/iot/ft-preauth-queue.h": "8f11ff100bb1e0519dcd14751137579c0349157aaca86066e71567d1d3d77a43"
+  },
+  "limits": [
+    "Native MLME function bodies and full feature TUs are source checked, not compiled or executed by this test.",
+    "Retry RX/enqueue producer and AUTH callback dispatch remain unconnected. Prepared composer is not installed.",
+    "Native IAPP producer/consumer/completion integration, target/image/device verification remain open."
+  ]
+}
