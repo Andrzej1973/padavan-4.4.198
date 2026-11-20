@@ -127,6 +127,14 @@ static inline int wr_ft_auth_request_detach_locked(RTMP_ADAPTER *ad,
   if(pending->mac[i]!=entry->Addr[i]||pending->bssid[i]!=entry->wdev->bssid[i])return 0;
  state->detached[w]=1;
  state->detached_sst[w]=entry->Sst;
+ if(context->pending&&context->pending->active){
+  struct wr_ft_preauth_identity *identity=&state->preauth[w];
+  identity->serial=request->serial;identity->generation=entry->assoc_gen;
+  identity->bss=entry->func_tb_idx;identity->wcid=w;
+  for(i=0;i<MAC_ADDR_LEN;i++){
+   identity->mac[i]=entry->Addr[i];identity->bssid[i]=entry->wdev->bssid[i];
+  }
+ }
  wr_ft_iapp_token_clear(request);
  return 1;
 }

@@ -34,6 +34,7 @@ static inline void wr_assoc_publish_slot_locked(RTMP_ADAPTER *ad,MAC_TABLE_ENTRY
 }
 #include "ft-auth-request-context.h"
 #include "ft-iapp-detached-admission.h"
+#include "ft-preauth-retry.h"
 /* Every helper below runs in a single modeled MacTabLock critical section. */
 static void setup(RTMP_ADAPTER *ad,struct wr_ft_iapp_request_state *state,
  unsigned int sst,unsigned char *wire)
@@ -72,6 +73,19 @@ int main(void)
   struct wr_ft_iapp_detached_scope scope={0},other={0};
   MAC_TABLE_ENTRY *out=NULL,*entry;unsigned char wire[7],mac[6]={42},bssid[6]={2};
   setup(&ad,&state,sst,wire);entry=&ad.MacTab.Content[7];
+  {
+   struct wr_ft_preauth_identity captured={0};
+   assert(wr_ft_preauth_retry_capture_locked(&ad,&state,7,2,entry->Addr,&captured)==(sst==SST_NOT_AUTH));
+   if(sst==SST_NOT_AUTH){
+    assert(captured.generation==3&&captured.serial);
+    assert(!wr_ft_preauth_retry_capture_locked(&ad,&state,7,1,entry->Addr,&captured));
+    assert(!captured.serial);
+    entry->assoc_gen++;
+    assert(!wr_ft_preauth_retry_capture_locked(&ad,&state,7,2,entry->Addr,&captured));
+    entry->assoc_gen--;
+    assert(!wr_ft_preauth_retry_capture_locked(&ad,&state,7,2,entry->Addr,&state.preauth[7]));
+   }
+  }
   switch(scenario){
    case 1:mac[0]++;break;
    case 2:bssid[0]++;break;
@@ -116,8 +130,18 @@ int main(void)
   assert(wr_ft_iapp_detached_finish_locked(&ad,&state,&scope));
   assert(!scope.active&&!state.current[7].serial&&!state.detached[7]);
   assert(!ad.wr_assoc_event_users[7]&&!ad.wr_iot_peer_table_owner.transactions);
+  {
+   struct wr_ft_preauth_identity captured={0};
+   assert(wr_ft_preauth_retry_capture_locked(&ad,&state,7,2,entry->Addr,&captured)==(sst==SST_NOT_AUTH));
+   if(sst==SST_NOT_AUTH){
+    state.preauth[7].serial=0;
+    assert(!wr_ft_preauth_retry_capture_locked(&ad,&state,7,2,entry->Addr,&captured));
+    assert(!captured.serial);
+   }
+  }
   assert(!wr_ft_iapp_detached_enter_locked(&ad,&state,wire,mac,bssid,&other,&out));
  }
  puts("PASS | FT detached response lease | NOT_AUTH/AUTH/ASSOC exact published token; 20 identity/state/owner refusals; one independent lease; replay refused; balanced finish; uncertain identity retains poisoned ownership");
+ puts("PASS | FT preauth retry provenance | pending-origin identity only; exact BSS/MAC/WCID/generation; retained after response finish; generic inactive, wrong BSS, stale generation and output alias refused");
  return 0;
 }

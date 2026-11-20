@@ -38,11 +38,11 @@
     }
   ],
   "sha256": {
-    "tools/iot/ft-auth-request-context.h": "b6cacfede7fac1f22e9491d90b4aad130a5715e59afc4eb1eb2d60e83d508ac0",
+    "tools/iot/ft-auth-request-context.h": "cd431da22b9c2f6c4e920f74fb2070e091290869668f18347c91fb20cc417014",
     "tools/iot/ft-auth-request-context-composition.py": "a0ef995b4dce8d7f8a8fbc46835f7314e69b077d6eda5ba83f52d9828339965b",
     "tools/iot/check-ft-auth-request-context.py": "b4e71a375cbe4b2e13c97fe47d62d52e420c71b01079c4955f3db14428ae96af",
     "tools/iot/check-ft-auth-callback.py": "a8cb7015fca98a9d8189fb7fb7626912346277027a3e0b391086ec3cd7601302",
-    "tools/iot/ft-iapp-request-state.h": "3492ab593f6a9b7139df0689ce50fae2447fa2e44b85129c191f16bf5db18522",
+    "tools/iot/ft-iapp-request-state.h": "ab05e4f07568f7db1e72d0f99269d392cd51e5e2445f5a9f5fb953ec3a7f9a55",
     "tools/iot/ft-iapp-request-state-composition.py": "c326db3d50eceb8803ba48b82c3e90fffc3dd09cd3dc8c14f747791e205f3359",
     "tools/iot/check-ft-iapp-request-state.c": "752dc60442b8ee92ca3e463983dff69bd62ca4ef7584c6fc317c59c93b4a47b8"
   },
