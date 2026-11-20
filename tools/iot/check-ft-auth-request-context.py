@@ -99,9 +99,38 @@ validation_actor = r'''
 static USHORT FT_AuthReqRsnValidation(PRTMP_ADAPTER ad,PMAC_TABLE_ENTRY entry,
  PFT_CFG cfg,PFT_INFO in,PFT_INFO out,
  const struct wr_ft_auth_request_context *context){
+ struct wr_ft_iapp_token_ledger ledger;
+ struct wr_ft_iapp_token_handle request={0},response={0},saved;
+ unsigned char token[7]={1,2,3,4,5,6,7},wrong[7]={9};
  (void)cfg;(void)in;(void)out;
  NdisAcquireSpinLock(&ad->MacTabLock);
  assert(wr_ft_auth_request_current_locked(ad,entry,context));
+ wr_ft_iapp_token_ledger_init(&ledger);
+ assert(wr_ft_auth_request_begin_locked(ad,entry,context,&ledger,token,&request));
+ saved=request;
+ assert(!wr_ft_auth_request_begin_locked(ad,entry,context,&ledger,wrong,&request));
+ assert(request.serial==saved.serial&&request.slot==saved.slot);
+ assert(!wr_ft_auth_request_admit_locked(ad,entry,context,&ledger,wrong,
+  entry->Addr,entry->wdev->bssid,&request,&response));
+ assert(!response.serial);
+ assert(!wr_ft_auth_request_admit_locked(ad,entry,NULL,&ledger,token,
+  entry->Addr,entry->wdev->bssid,&request,&response));
+ assert(!wr_ft_auth_request_admit_locked(ad,entry,context,&ledger,token,
+  entry->Addr,entry->wdev->bssid,&request,&request));
+ assert(request.serial==saved.serial);
+ assert(wr_ft_auth_request_admit_locked(ad,entry,context,&ledger,token,
+  entry->Addr,entry->wdev->bssid,&request,&response));
+ assert(!wr_ft_auth_request_end_locked(ad,entry,context,&ledger,&request));
+ assert(request.serial==saved.serial&&ad->wr_assoc_event_users[entry->wcid]==1);
+ assert(wr_ft_iapp_token_finish_locked(&ledger,&response));
+ assert(wr_ft_auth_request_end_locked(ad,entry,context,&ledger,&request));
+ assert(!request.serial);
+ token[0]++;
+ assert(wr_ft_auth_request_begin_locked(ad,entry,context,&ledger,token,&request));
+ assert(wr_ft_auth_request_end_locked(ad,entry,context,&ledger,&request));
+ assert(!wr_ft_auth_request_admit_locked(ad,entry,context,&ledger,token,
+  entry->Addr,entry->wdev->bssid,&request,&response));
+ assert(!response.serial&&ad->wr_assoc_event_users[entry->wcid]==1);
  NdisReleaseSpinLock(&ad->MacTabLock);
  auth_calls++;
  if(exhaust_generation)ad->wr_assoc_generations[entry->wcid]=~0U;
@@ -163,3 +192,4 @@ with tempfile.TemporaryDirectory(prefix='ft-auth-native-handler-') as td:
 print('PASS | FT AUTH invocation context | both caller scopes threaded to native handler and RSN validation; matching declarations; drift and duplicate refusal')
 print('PASS | FT AUTH context admission | exact existing/first-peer lease; missing, dual, foreign entry, stale generation and foreign adapter refused; ASan/UBSan callback fixture')
 print('PASS | native FT AUTH handler | full composed body; existing/first-peer callback exits; null/stale/foreign context before entry access; MDIE refusal, open and RSN actor paths; ASan/UBSan')
+print('PASS | FT invocation request lifecycle | existing/pending begin-admit-end; active handle preserved; claimed response blocks end; timeout cancels delayed response; no peer lease release')

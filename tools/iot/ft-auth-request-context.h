@@ -25,4 +25,44 @@ static inline int wr_ft_auth_request_current_locked(RTMP_ADAPTER *ad,
  return wr_ft_iapp_pending_owned_locked(ad,context->pending)&&
   entry==&ad->MacTab.Content[context->pending->wcid];
 }
+/* Request handles are explicit invocation inputs, never inferred by MAC/WCID.
+ * The caller owns ledger lifetime and holds MacTabLock through each operation. */
+static inline int wr_ft_auth_request_begin_locked(RTMP_ADAPTER *ad,
+ MAC_TABLE_ENTRY *entry,const struct wr_ft_auth_request_context *context,
+ struct wr_ft_iapp_token_ledger *ledger,const unsigned char *token,
+ struct wr_ft_iapp_token_handle *request)
+{
+ if(!wr_ft_auth_request_current_locked(ad,entry,context))return 0;
+ if(context->existing&&context->existing->active)
+  return wr_ft_iapp_peer_request_begin_locked(ad,ledger,token,
+   &context->existing->stamp,request);
+ return wr_ft_iapp_pending_request_begin_locked(ad,ledger,token,
+  context->pending,request);
+}
+static inline int wr_ft_auth_request_admit_locked(RTMP_ADAPTER *ad,
+ MAC_TABLE_ENTRY *entry,const struct wr_ft_auth_request_context *context,
+ struct wr_ft_iapp_token_ledger *ledger,const unsigned char *token,
+ const unsigned char *mac,const unsigned char *bssid,
+ const struct wr_ft_iapp_token_handle *request,
+ struct wr_ft_iapp_token_handle *response)
+{
+ if(response&&response==request)return 0;
+ wr_ft_iapp_token_clear(response);
+ if(!wr_ft_auth_request_current_locked(ad,entry,context))return 0;
+ if(context->existing&&context->existing->active)
+  return wr_ft_iapp_peer_admit_locked(ad,ledger,token,mac,bssid,
+   &context->existing->stamp,request,response);
+ return wr_ft_iapp_pending_admit_locked(ad,ledger,token,mac,bssid,
+  context->pending,request,response);
+}
+static inline int wr_ft_auth_request_end_locked(RTMP_ADAPTER *ad,
+ MAC_TABLE_ENTRY *entry,const struct wr_ft_auth_request_context *context,
+ struct wr_ft_iapp_token_ledger *ledger,
+ struct wr_ft_iapp_token_handle *request)
+{
+ if(!wr_ft_auth_request_current_locked(ad,entry,context))return 0;
+ if(context->existing&&context->existing->active)
+  return wr_ft_iapp_peer_request_end_locked(ad,context->existing,ledger,request);
+ return wr_ft_iapp_pending_request_end_locked(ad,context->pending,ledger,request);
+}
 #endif

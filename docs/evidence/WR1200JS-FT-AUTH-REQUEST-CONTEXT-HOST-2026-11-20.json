@@ -5,7 +5,8 @@
   "changes": [
     "Explicit stack-owned existing/pending scope context threaded from FT_FtAction and APPeerAuthReqAtIdleAction through FT_AuthReqHandler to FT_AuthReqRsnValidation.",
     "Handler and validation check exact current invocation scope under MacTabLock before reading entry fields. Neither stage captures replacement identity.",
-    "Stack context is never published to asynchronous IAPP consumers."
+    "Stack context is never published to asynchronous IAPP consumers.",
+    "Prepared invocation begin/admit/end dispatches through the exact existing or pending scope, with explicit ledger and request handles; no asynchronous stack pointer publication."
   ],
   "checks": [
     {
@@ -19,19 +20,21 @@
         "Allocation/resource/rejection paths and generation-exhaustion ownership retained.",
         "Entire composed native FT_AuthReqHandler executed together with actual prepared over-air callback; only FT_AuthReqRsnValidation is an explicit crypto actor.",
         "Native handler refuses NULL adapter/entry/context, foreign entry and stale generation before entry use; MDIE refusal, OPEN success and RSN actor result propagation executed.",
-        "Native handler fixture compiled with GNU11 O2 Wall Wextra Werror and address/undefined sanitizers; default existing/first-peer success, resource/allocation failures and generation exhaustion pass."
+        "Native handler fixture compiled with GNU11 O2 Wall Wextra Werror and address/undefined sanitizers; default existing/first-peer success, resource/allocation failures and generation exhaustion pass.",
+        "RSN actor executes real invocation begin/admit/end: double begin preserves handle, wrong token/context and aliased response refuse, claim blocks end until finish, timeout cancellation rejects delayed response; both existing and pending paths retain peer lease."
       ]
     }
   ],
   "sha256": {
-    "tools/iot/ft-auth-request-context.h": "43b158711ddcad95bd15dc08943fc6b84a1a7b77e9e8736000747923c86a57c7",
+    "tools/iot/ft-auth-request-context.h": "ffb755286da7486642636141068df6e6c16ede6895466bd723bc710e0d86b7a2",
     "tools/iot/ft-auth-request-context-composition.py": "a0ef995b4dce8d7f8a8fbc46835f7314e69b077d6eda5ba83f52d9828339965b",
-    "tools/iot/check-ft-auth-request-context.py": "93ee125065d5d34db0d2d2ec9025755684c2f80d4913bcf428c4aff179d6629c",
+    "tools/iot/check-ft-auth-request-context.py": "95dfd18cc6ec9e8313c3533725f71a26432322cbe3558f29178a365fed52940f",
     "tools/iot/check-ft-auth-callback.py": "a8cb7015fca98a9d8189fb7fb7626912346277027a3e0b391086ec3cd7601302"
   },
   "limits": [
     "Native FT_AuthReqHandler body is executed; full FT_AuthReqRsnValidation crypto body is source checked and represented by an explicit actor. Entry initialization remains modeled.",
     "IAPP request ledger publication, per-attempt completion, response transaction and paired request cleanup still require integration.",
-    "Prepared composers are not installed. No target compilation, final image or device acceptance claimed."
+    "Prepared composers are not installed. No target compilation, final image or device acceptance claimed.",
+    "Invocation lifecycle uses an actor-local ledger in the host fixture; native adapter ledger storage, event token emission and completion initialization are not connected."
   ]
 }
