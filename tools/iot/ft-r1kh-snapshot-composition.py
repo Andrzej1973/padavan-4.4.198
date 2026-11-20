@@ -171,6 +171,24 @@ def compose_related(sources):
     signature='VOID TYPE_FUNC FT_KDP_KeyResponseToUs('
     if ap.count(signature)!=1:raise ValueError('FT KDP response handler changed')
     start=ap.index(signature);end=ap.index('\n}',start)+2;body=ap[start:end]
+    declaration='FT_KDP_EVT_KEY_ELM *pEvtKeyRsp;'
+    if body.count(declaration)!=1:raise ValueError('FT KDP response declaration changed')
+    body=body.replace(declaration,declaration+'\n\tFT_KDP_EVT_KEY_ELM wr_owned_response;',1)
+    parse='IAPP_DAEMON_CMD_PARSE(pInfo, InfoLen, PeerIP, pData, DataLen);'
+    if body.count(parse)!=1:raise ValueError('FT KDP response parse anchor changed')
+    body=body.replace(parse,
+      'if (!pInfo || InfoLen < 0 || (UINT32)InfoLen < '+
+      'FT_IP_ADDRESS_SIZE + FT_NONCE_SIZE + sizeof(wr_owned_response)) return;\n\t'+parse,1)
+    borrow='pEvtKeyRsp = (FT_KDP_EVT_KEY_ELM *)(pNonce + FT_NONCE_SIZE);'
+    if body.count(borrow)!=1:raise ValueError('FT KDP response payload anchor changed')
+    body=body.replace(borrow,
+      'NdisMoveMemory(&wr_owned_response, pNonce + FT_NONCE_SIZE, sizeof(wr_owned_response));\n'
+      '\tpEvtKeyRsp = &wr_owned_response;\n'
+      '\tif (pEvtKeyRsp->KeyInfo.R0KHIDLen > sizeof(pEvtKeyRsp->KeyInfo.R0KHID)) return;',1)
+    format_check='(pEvtKeyRsp->ElmId == FT_KDP_ELM_ID_PRI) &&'
+    if body.count(format_check)!=1:raise ValueError('FT KDP response format anchor changed')
+    body=body.replace(format_check,format_check+'\n\t\t(pEvtKeyRsp->ElmLen == FT_KDP_ELM_PRI_LEN) &&',1)
+
     body,n=re.subn(r'PFT_R1HK_ENTRY\s+pR1hkEntry;',
       'FT_R1HK_ENTRY r1khSnapshot;\\n\\t\\tPFT_R1HK_ENTRY pR1hkEntry = &r1khSnapshot;',body,count=1)
     if n!=1:raise ValueError('FT KDP response cache local changed')

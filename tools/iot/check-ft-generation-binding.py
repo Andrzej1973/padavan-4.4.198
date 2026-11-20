@@ -105,7 +105,64 @@ main=main.replace('right->client=0;FT_FtAction(&ad,&event);assert(reqs==1&&inser
  'right->client=0;')
 main=main.replace('assert(allocs==frees&&!ad.MacTabLock);',
  'assert(allocs==frees&&!ad.MacTabLock&&!ad.wr_assoc_event_users[7]&&!ad.wr_iot_peer_table_owner.transactions);')
+
+probe_anchor='ad.wr_assoc_generations[7]=1;ad.wr_assoc_visible[7]=1;memcpy(ad.wr_assoc_addr[7],right->Addr,6);'
+assert main.count(probe_anchor)==1
+main=main.replace(probe_anchor,probe_anchor+r"""
+ {
+ struct wr_ft_iapp_token_ledger ledger;
+ struct wr_ft_iapp_token_handle pending={0},reply={0};
+ struct wr_ft_peer_stamp stamp={0};struct wr_ft_peer_scope scope={0};
+ unsigned char token[7]={1,2,3,4,5,6,7};
+ wr_ft_iapp_token_ledger_init(&ledger);
+ NdisAcquireSpinLock(&ad.MacTabLock);
+ assert(wr_ft_peer_capture_locked(&ad,7,2,right->Addr,&stamp));
+ assert(wr_ft_iapp_token_reserve_locked(&ledger,token,2,7,1,right->Addr,
+  ad.ApCfg.MBSSID[2].wdev.bssid,&pending));
+ assert(!wr_ft_iapp_peer_admit_locked(&ad,&ledger,token,right->Addr,
+  ad.ApCfg.MBSSID[2].wdev.bssid,&stamp,&pending,&reply));
+ assert(wr_ft_peer_enter_locked(&ad,&stamp,&scope));
+ {
+ struct wr_ft_iapp_token_handle stale=pending;
+ stale.serial++;
+ assert(!wr_ft_iapp_peer_admit_locked(&ad,&ledger,token,right->Addr,
+  ad.ApCfg.MBSSID[2].wdev.bssid,&stamp,&stale,&reply));
+ assert(!reply.serial&&ledger.entry[pending.slot].state==WR_FT_IAPP_TOKEN_WAITING);
+ }
+
+ for(unsigned fault=0;fault<6;fault++){
+  if(fault==0)right->assoc_gen=2;
+  if(fault==1)right->func_tb_idx=0;
+  if(fault==2)ad.wr_iot_peer_table_owner.poisoned=1;
+  if(fault==3)ad.wr_assoc_visible[7]=0;
+  if(fault==4)right->wdev=&ad.ApCfg.MBSSID[0].wdev;
+  if(fault==5)ad.wr_assoc_addr[7][0]^=1;
+  assert(!wr_ft_iapp_peer_admit_locked(&ad,&ledger,token,right->Addr,
+   ad.ApCfg.MBSSID[2].wdev.bssid,&stamp,&pending,&reply));
+  assert(!reply.serial&&ledger.entry[pending.slot].state==WR_FT_IAPP_TOKEN_WAITING);
+  assert(ad.wr_assoc_event_users[7]==1&&ad.wr_iot_peer_table_owner.transactions==1);
+  right->assoc_gen=1;right->func_tb_idx=2;
+  right->wdev=&ad.ApCfg.MBSSID[2].wdev;
+  memcpy(ad.wr_assoc_addr[7],right->Addr,6);
+  ad.wr_iot_peer_table_owner.poisoned=0;ad.wr_assoc_visible[7]=1;
+ }
+ assert(wr_ft_iapp_peer_admit_locked(&ad,&ledger,token,right->Addr,
+  ad.ApCfg.MBSSID[2].wdev.bssid,&stamp,&pending,&reply));
+ assert(ad.wr_assoc_event_users[7]==1&&ad.wr_iot_peer_table_owner.transactions==1);
+ {
+ struct wr_ft_iapp_token_handle duplicate={0};
+ assert(!wr_ft_iapp_peer_admit_locked(&ad,&ledger,token,right->Addr,
+  ad.ApCfg.MBSSID[2].wdev.bssid,&stamp,&pending,&duplicate));
+ assert(!duplicate.serial);
+ }
+ assert(wr_ft_iapp_token_finish_locked(&ledger,&reply));
+ assert(wr_ft_peer_leave_locked(&ad,&scope));
+ NdisReleaseSpinLock(&ad.MacTabLock);
+ }
+""")
+
 consumer=prefix+'\n#include "ft-peer-generation.h"\n#include "assoc-generation.h"\n'
+consumer+='\n#include "ft-iapp-peer-admission.h"\n'
 consumer+='''\n#include "ft-pending-peer-scope.h"\n#include "ft-pending-queue.h"\n'''
 consumer+='''\nstatic inline void wr_assoc_publish_slot_locked(RTMP_ADAPTER *ad,MAC_TABLE_ENTRY *entry){
  unsigned int i,w=entry->wcid;ad->wr_assoc_visible[w]=0;

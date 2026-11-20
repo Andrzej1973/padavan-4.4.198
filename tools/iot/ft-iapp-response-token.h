@@ -310,4 +310,26 @@ static inline int wr_ft_iapp_token_finish_locked(
 	return 1;
 }
 
+
+/* Caller holds one lock across this admission and every resulting mutation.
+ * Live peer ownership must be validated separately under that same lock.
+ * A matching token with stale context is retired, never left claimed. */
+static inline int wr_ft_iapp_token_claim_context_locked(
+ struct wr_ft_iapp_token_ledger *ledger, const unsigned char *token,
+ const unsigned char *response_mac, const unsigned char *response_r1khid,
+ unsigned int bss, unsigned int wcid, unsigned int generation,
+ const unsigned char *live_mac, const unsigned char *live_bssid,
+ struct wr_ft_iapp_token_handle *handle)
+{
+ if (!wr_ft_iapp_token_claim_locked(ledger,token,response_mac,
+     response_r1khid,handle))
+  return 0;
+ if (wr_ft_iapp_token_context_matches_locked(ledger,handle,bss,wcid,
+     generation,live_mac,live_bssid))
+  return 1;
+ (void)wr_ft_iapp_token_finish_locked(ledger,handle);
+ wr_ft_iapp_token_clear(handle);
+ return 0;
+}
+
 #endif

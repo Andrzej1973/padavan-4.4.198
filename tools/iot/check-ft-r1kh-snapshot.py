@@ -35,6 +35,10 @@ assert 'FT_R1khEntryInsert(pAd,' in related['ap/ap_ftkd.c']
 response=related['ap/ap_ftkd.c']
 response=response[response.index('VOID TYPE_FUNC FT_KDP_KeyResponseToUs('):]
 response=response[:response.index('\n}')+2]
+assert response.index('InfoLen < 0') < response.index('IAPP_DAEMON_CMD_PARSE(pInfo,')
+assert 'pEvtKeyRsp = &wr_owned_response;' in response
+assert 'pEvtKeyRsp = (FT_KDP_EVT_KEY_ELM *)' not in response
+assert response.index('KeyInfo.R0KHIDLen > sizeof') < response.index('wr_ft_r1kh_snapshot(')
 store_start=response.index('if (FT_R1khEntryInsert(pAd,')
 refusal=response.index('< 0) return;',store_start)
 assert refusal < response.index('pEntry->FT_R1kh_CacheMiss_Times = 0;')

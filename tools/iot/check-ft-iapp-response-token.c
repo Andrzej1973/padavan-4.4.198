@@ -166,5 +166,22 @@ int main(void)
 	assert(wr_ft_iapp_token_finish_locked(&ledger,&response));
 	assert(!wr_ft_iapp_token_finish_locked(&ledger,&response));
 	puts("PASS | FT IAPP poisoned claim | context admission refused while exact claimed cleanup remains single-use");
+
+	wr_ft_iapp_token_ledger_init(&ledger);
+	set_token(token,240);
+	assert(wr_ft_iapp_token_reserve_locked(&ledger,token,2,7,99,
+		mac,bssid,&pending));
+	assert(!wr_ft_iapp_token_claim_context_locked(&ledger,token,mac,bssid,
+		2,7,100,mac,bssid,&response));
+	assert(!response.serial);
+	assert(ledger.entry[pending.slot].state==WR_FT_IAPP_TOKEN_FREE);
+	assert(!wr_ft_iapp_token_claim_locked(&ledger,token,mac,bssid,&response));
+	set_token(token,241);
+	assert(wr_ft_iapp_token_reserve_locked(&ledger,token,2,7,100,
+		mac,bssid,&pending));
+	assert(wr_ft_iapp_token_claim_context_locked(&ledger,token,mac,bssid,
+		2,7,100,mac,bssid,&response));
+	assert(wr_ft_iapp_token_finish_locked(&ledger,&response));
+	puts("PASS | FT IAPP combined admission | stale context retires token without claim leak; exact current context admitted");
 	return 0;
 }
