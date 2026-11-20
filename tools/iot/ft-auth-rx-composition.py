@@ -42,3 +42,32 @@ def compose(text,active_prototype,pending_prototype):
     renamed=native.replace(signature,'static BOOLEAN wr_ft_auth_native_mlme_enqueue_for_recv(',1)
     includes='\n#ifdef DOT11R_FT_SUPPORT\n#include "ft-peer-generation.h"\n#include "ft-pending-queue.h"\n'+active_prototype+'\n'+pending_prototype+'\n#endif\n'
     return text[:start]+renamed+includes+wrapper+text[end:]
+
+
+def compose_retry(text,retry_prototype):
+    if 'wr_ft_rx_retry' in text or 'wr_ft_auth_rx_pending' not in text:
+        raise ValueError('FT retry RX requires AUTH predecessor once')
+    def one(old,new):
+        nonlocal text
+        if text.count(old)!=1:raise ValueError('FT retry RX anchor changed: '+old[:80])
+        text=text.replace(old,new,1)
+    one('#include "ft-pending-queue.h"',
+        '#include "ft-pending-queue.h"\n#include "ft-preauth-retry.h"\n'+retry_prototype)
+    one('  struct wr_ft_pending_token wr_ft_auth_rx_pending={0};',
+        '  struct wr_ft_pending_token wr_ft_auth_rx_pending={0};\n'
+        '  struct wr_ft_preauth_identity wr_ft_rx_retry={0};')
+    one('if(wr_seen){wr_active=0;break;}',
+        'if(wr_seen){wr_active=0;wr_ft_rx_retry.serial=0;break;}')
+    one('     wr_active=1;', '''     wr_active=1;
+    else if(wr_entry->Sst==SST_NOT_AUTH)
+     (void)wr_ft_preauth_retry_capture_locked(pAd,&pAd->wr_ft_iapp_requests,
+       wr_wcid,wr_apidx,wr_frame->Hdr.Addr2,&wr_ft_rx_retry);''')
+    one('  if(wr_active)\n', '''  if(wr_ft_rx_retry.serial)
+   return wr_ft_auth_retry_enqueue_for_recv(pAd,wr_ft_rx_retry.wcid,rssi_info,
+#if defined(CUSTOMER_DCC_FEATURE) || defined(NEIGHBORING_AP_STAT)
+    Snr0,Snr1,
+#endif
+    MsgLen,Msg,OpMode,&wr_ft_rx_retry);
+  if(wr_active)
+''')
+    return text

@@ -1,0 +1,28 @@
+{
+  "date": "2026-11-20",
+  "scope": "Prepared AUTH retry RX selector through native enqueue to callback lease",
+  "checks": [
+    {
+      "command": "python3 tools/iot/check-ft-auth-retry-rx.py /home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3",
+      "exit": 0,
+      "coverage": [
+        "Actual prepared RX wrapper and generated native active/pending/retry enqueue bodies executed together with real retry callback admission helper.",
+        "Default EAPOL_QUEUE_SUPPORT and CUSTOMER_DCC_FEATURE host ASan/UBSan.",
+        "Matching preauth identity enqueues serial/generation and enters/leaves retry lease.",
+        "Missing provenance, stale generation, foreign interface, duplicate inactive peer, busy peer and full queue refuse.",
+        "Peer-generation mutation at queue lock preserves old captured metadata; callback rejects stale event.",
+        "Duplicate RX composer refused."
+      ]
+    }
+  ],
+  "sha256": {
+    "tools/iot/ft-auth-rx-composition.py": "8595b64631c9b03d0ee46ee8754043493a0eae4fd5cfe346a525bd7dab943154",
+    "tools/iot/check-ft-auth-retry-rx.py": "d911d157489b30569809c4b31e22f8cd8ea2e063d5b244a1a6a07b7d58c7109c"
+  },
+  "limits": [
+    "Native full AUTH branch with crypto is not executed in this combined RX fixture; callback branch has separate host evidence.",
+    "Host adapter/MLME/locks are modeled; target feature TUs uncompiled.",
+    "Pipeline does not install composers; token publication, IAPP response/cache transaction, completion and retirement remain incomplete.",
+    "No final image or device acceptance."
+  ]
+}
