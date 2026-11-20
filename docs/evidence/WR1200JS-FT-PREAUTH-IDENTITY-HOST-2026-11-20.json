@@ -4,13 +4,14 @@
   "implementation": [
     "Only a live pending first-peer scope can publish preauth identity during detach.",
     "Identity contains original request serial and exact BSS/MAC/BSSID/WCID/generation; adapter-owned value record survives response finish.",
-    "Capture requires current SST_NOT_AUTH plus visible/table generation, exact interface/MAC, idle close owner and no current event lease. Generic inactive entries without provenance refuse."
+    "Capture requires current SST_NOT_AUTH plus visible/table generation, exact interface/MAC, idle close owner and no current event lease. Generic inactive entries without provenance refuse.",
+    "Callback-side helper compares original captured serial/generation/MAC/BSSID/BSS with current provenance before acquiring one transaction/event_users lease and adopting a pending-peer scope; no MAC-only recapture."
   ],
   "checks": [
     {
       "command": "python3 tools/iot/check-ft-auth-request-context.py /home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3",
       "exit": 0,
-      "coverage": "GNU11 O2 Werror ASan/UBSan; pending vs existing origin; retained identity after detached response finish; missing provenance/wrong BSS/stale generation/output alias refusal."
+      "coverage": "GNU11 O2 Werror ASan/UBSan; pending vs existing origin; retained identity after detached response finish; missing provenance/wrong BSS/stale generation/output alias refusal. Retry lease: original identity accepted, changed serial/generation/BSSID/MAC/BSS and changed current publication refused; double enter refuses and standard pending leave balances ownership."
     },
     {
       "command": "nim c -r --out:/tmp/wr-ft-pending-identity-check tools/iot/ft_pending_identity_check.nim",
@@ -18,13 +19,13 @@
     }
   ],
   "sha256": {
-    "tools/iot/ft-preauth-retry.h": "09df3838c7f7ba3a5a456d9c55b242b3096f97b7f79609acf357e24a4ab53ed1",
+    "tools/iot/ft-preauth-retry.h": "dc3c9f961c5a06c1111063cc8d4485c384ccbbcdfed6d8c5318ef65b6e0d83b4",
     "tools/iot/ft-iapp-request-state.h": "ab05e4f07568f7db1e72d0f99269d392cd51e5e2445f5a9f5fb953ec3a7f9a55",
     "tools/iot/ft-auth-request-context.h": "cd431da22b9c2f6c4e920f74fb2070e091290869668f18347c91fb20cc417014",
-    "tools/iot/check-ft-iapp-detached-admission.c": "ca5c5642c930aa1aaeddec35895475ecc561d75ad85321b753fd94166a98177c"
+    "tools/iot/check-ft-iapp-detached-admission.c": "78bf5e6c32e3a1498ee12a89be68633e2055e16c651b84cbde05d7f7a6fd5bc4"
   },
   "limits": [
-    "RX queue stamping and callback revalidation/lease adoption of preauth retry identity remain unimplemented.",
+    "Native RX queue stamping and callback invocation remain unimplemented; independent callback-side retry lease helper is host verified.",
     "Delete/generation retirement and successful AUTH clearing of provenance still require integration.",
     "Native token/event/completion/cache transaction not connected. Prepared composers remain uninstalled; no target/image/device verification."
   ]

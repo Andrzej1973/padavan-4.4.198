@@ -143,5 +143,35 @@ int main(void)
  }
  puts("PASS | FT detached response lease | NOT_AUTH/AUTH/ASSOC exact published token; 20 identity/state/owner refusals; one independent lease; replay refused; balanced finish; uncertain identity retains poisoned ownership");
  puts("PASS | FT preauth retry provenance | pending-origin identity only; exact BSS/MAC/WCID/generation; retained after response finish; generic inactive, wrong BSS, stale generation and output alias refused");
+ for(scenario=0;scenario<8;scenario++){
+  RTMP_ADAPTER ad;struct wr_ft_iapp_request_state state;
+  struct wr_ft_preauth_identity stamp={0};
+  struct wr_ft_pending_peer_scope scope={0};MAC_TABLE_ENTRY *entry=NULL;
+  unsigned char wire[7];
+  setup(&ad,&state,SST_NOT_AUTH,wire);
+  assert(wr_ft_preauth_retry_capture_locked(&ad,&state,7,2,ad.MacTab.Content[7].Addr,&stamp));
+  switch(scenario){
+   case 1:stamp.serial++;break;
+   case 2:stamp.generation++;break;
+   case 3:stamp.bssid[0]++;break;
+   case 4:stamp.mac[0]++;break;
+   case 5:stamp.bss=0;break;
+   case 6:state.preauth[7].serial++;break;
+   case 7:ad.MacTab.Content[7].assoc_gen++;break;
+  }
+  if(scenario){
+   assert(!wr_ft_preauth_retry_enter_locked(&ad,&state,&stamp,&scope,&entry));
+   assert(!entry&&!scope.active&&!ad.wr_assoc_event_users[7]&&!ad.wr_iot_peer_table_owner.transactions);
+  }else{
+   assert(wr_ft_preauth_retry_enter_locked(&ad,&state,&stamp,&scope,&entry));
+   assert(entry==&ad.MacTab.Content[7]&&scope.generation==stamp.generation);
+   assert(wr_ft_iapp_pending_owned_locked(&ad,&scope));
+   assert(!wr_ft_preauth_retry_enter_locked(&ad,&state,&stamp,&scope,&entry));
+   assert(scope.active&&!entry);
+   assert(wr_ft_pending_peer_leave_locked(&ad,&scope));
+   assert(!ad.wr_assoc_event_users[7]&&!ad.wr_iot_peer_table_owner.transactions);
+  }
+ }
+ puts("PASS | FT preauth retry lease | captured serial/generation/MAC/BSSID/BSS revalidated; changed publication refused; pending AUTH context adopted once and balanced leave");
  return 0;
 }
