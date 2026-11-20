@@ -216,6 +216,29 @@ static USHORT FT_AuthReqRsnValidation(PRTMP_ADAPTER ad,PMAC_TABLE_ENTRY entry,
  assert(!wr_ft_auth_request_publish_next_locked(ad,entry,context,&state,&other,wire));
  assert(!wr_ft_iapp_token_nonzero(wire));
  assert(ad->wr_assoc_event_users[entry->wcid]==1);
+ {
+ struct wr_ft_iapp_token_handle stale=old,detached;
+ unsigned char previous[7];
+ memcpy(previous,state.ledger.entry[old.slot].token,7);
+ assert(!wr_ft_auth_request_retire_detached_locked(ad,entry,NULL,&state,&old));
+ assert(!wr_ft_auth_request_retire_detached_locked(ad,entry,context,&state,&state.current[entry->wcid]));
+ old.serial++;
+ assert(!wr_ft_auth_request_retire_detached_locked(ad,entry,context,&state,&old));
+ old=stale;
+ assert(wr_ft_auth_request_retire_detached_locked(ad,entry,context,&state,&old));
+ assert(!state.detached[entry->wcid]&&!state.current[entry->wcid].serial);
+ assert(!wr_ft_iapp_token_claim_locked(&state.ledger,previous,entry->Addr,entry->wdev->bssid,&claim));
+ assert(wr_ft_auth_request_publish_next_locked(ad,entry,context,&state,&active,wire));
+ assert(memcmp(wire,previous,7)>0);
+ assert(wr_ft_auth_request_detach_locked(ad,entry,context,&state,&active));
+ detached=state.current[entry->wcid];
+ assert(!wr_ft_auth_request_retire_detached_locked(ad,entry,context,&state,&stale));
+ assert(state.current[entry->wcid].serial==detached.serial);
+ assert(wr_ft_iapp_token_claim_locked(&state.ledger,wire,entry->Addr,entry->wdev->bssid,&claim));
+ assert(!wr_ft_auth_request_retire_detached_locked(ad,entry,context,&state,&detached));
+ assert(state.current[entry->wcid].serial==detached.serial);
+ assert(wr_ft_iapp_token_finish_locked(&state.ledger,&claim));
+ }
  }
  }
  NdisReleaseSpinLock(&ad->MacTabLock);
@@ -304,3 +327,4 @@ print('PASS | FT invocation request lifecycle | existing/pending begin-admit-end
 print('PASS | FT adapter request registry | fresh-allocation init only; value handles; active/aliased publication refused; claimed response blocks unpublish; stale invocation cannot clear reused slot; serial retained')
 print('PASS | FT wire token publication | seeded sequence; output only after handle publication; failed publication clears wire output; retry never reuses token')
 print('PASS | FT soft-retry detach | existing/pending value-handle transfer; claimed response blocks detach; stale cleanup cannot cancel detached request; peer lease releases while exact-generation token remains waiting')
+print('PASS | FT detached retry retirement | exact owning context and copied serial required; WAITING cancellation rejects old response; fresh token advances; stale serial and CLAIMED response preserved')

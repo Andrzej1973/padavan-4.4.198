@@ -19,11 +19,11 @@
     "GNU11 O2 Wall Wextra Werror ASan/UBSan host C fixture; no AUTH completion API invoked by helper."
   ],
   "sha256": {
-    "tools/iot/ft-iapp-detached-admission.h": "3ff62a6a88f7e7653965b58d279dc1346d6b7e1d691a67458adc0c4c21aa0d73",
+    "tools/iot/ft-iapp-detached-admission.h": "a63297966f6bf4e994c1befc3b4f7aaf5b1295aa442ec26bbb21b3fe62b8a96d",
     "tools/iot/check-ft-iapp-detached-admission.c": "18b6a432ef262e90cc6ddacfee411753b2035efc5aec51663c548790677edc86",
     "tools/iot/ft-iapp-request-state.h": "3492ab593f6a9b7139df0689ce50fae2447fa2e44b85129c191f16bf5db18522",
-    "tools/iot/ft-auth-request-context.h": "6078ce76fe1dd8f644f3a1c87934b72773ea8238609dcdb50269c0858729e01a",
-    "tools/iot/check-ft-auth-request-context.py": "aa915ae849ac5a23b5d1b7790904d7ca38ef7b47eaf0c7e635fea791198ba3c3"
+    "tools/iot/ft-auth-request-context.h": "b6cacfede7fac1f22e9491d90b4aad130a5715e59afc4eb1eb2d60e83d508ac0",
+    "tools/iot/check-ft-auth-request-context.py": "b4e71a375cbe4b2e13c97fe47d62d52e420c71b01079c4955f3db14428ae96af"
   },
   "limits": [
     "Native IAPP handler/cache/counters/ACK not connected to detached admission.",

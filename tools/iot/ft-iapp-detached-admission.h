@@ -23,7 +23,7 @@ static inline int wr_ft_iapp_detached_identity_locked(RTMP_ADAPTER *ad,
     b>=sizeof(ad->ApCfg.MBSSID)/sizeof(ad->ApCfg.MBSSID[0]))return 0;
  entry=&ad->MacTab.Content[w];
  if(!IS_ENTRY_CLIENT(entry)||entry->wcid!=w||entry->func_tb_idx!=b||
-    entry->wdev!=&ad->ApCfg.MBSSID[b].wdev||entry->Sst!=sst||
+    entry->wdev!=&ad->ApCfg.MBSSID[b].wdev||(unsigned int)entry->Sst!=sst||
     (sst!=SST_NOT_AUTH&&sst!=SST_AUTH&&sst!=SST_ASSOC)||
     entry->assoc_gen!=request->generation||
     ad->wr_assoc_generations[w]!=request->generation||

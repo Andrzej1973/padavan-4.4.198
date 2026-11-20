@@ -1,0 +1,21 @@
+{
+  "date": "2026-11-20",
+  "scope": "First-peer FT soft retry re-entry gap",
+  "confirmed": [
+    "Native first-peer insertion initializes SST_NOT_AUTH.",
+    "Default native cache miss emits KEY_REQ and returns without successful authentication.",
+    "Prepared first-peer AUTH failure leaves the generation lease and does not set SST_AUTH.",
+    "Generic prepared existing-peer RX/callback admission requires SST_AUTH or SST_ASSOC; ordinary inactive same-context entries are intentionally refused."
+  ],
+  "required_next": "Add explicit first-peer retry provenance from retained adapter-owned FT identity, matching exact BSS/MAC/WCID/generation and request state before enqueue and callback ownership. Do not admit arbitrary SST_NOT_AUTH entries or use MAC-only lookup.",
+  "implemented_this_turn": "Existing/pending owned context can retire only an exact copied WAITING detached handle before publishing a fresh token. Stale serial/CLAIMED response refuse.",
+  "sha256": {
+    "tools/iot/ft-peer-generation.h": "e221e159db50ecfae9e454c7ec5a981b43406fa59794811da742f765fc3004eb",
+    "tools/iot/ft-rx-generation-composition.py": "634732ebcda52e0c43d198d941523a5b27f746b74e6b672bf1d4a9541e3deaac",
+    "tools/iot/ft-auth-callback-composition.py": "a763a9fa7a15272859b0410d57d5d298a03fdec908c25e0e5fed5e1d6e38ee59",
+    "tools/iot/ft-auth-request-context.h": "b6cacfede7fac1f22e9491d90b4aad130a5715e59afc4eb1eb2d60e83d508ac0"
+  },
+  "native_integration_complete": false,
+  "target_verified": false,
+  "device_verified": false
+}

@@ -130,6 +130,36 @@ static inline int wr_ft_auth_request_detach_locked(RTMP_ADAPTER *ad,
  wr_ft_iapp_token_clear(request);
  return 1;
 }
+/* A new synchronous AUTH owner may cancel its exact detached predecessor
+ * before retry publication. An old serial or a claimed response is immutable
+ * here; delete/generation retirement requires its own owner boundary. */
+static inline int wr_ft_auth_request_retire_detached_locked(RTMP_ADAPTER *ad,
+ MAC_TABLE_ENTRY *entry,const struct wr_ft_auth_request_context *context,
+ struct wr_ft_iapp_request_state *state,
+ const struct wr_ft_iapp_token_handle *expected)
+{
+ unsigned int w,i;const struct wr_ft_iapp_token_entry *pending;
+ if(!state||!expected||!expected->serial||
+    !wr_ft_auth_request_current_locked(ad,entry,context))return 0;
+ w=entry->wcid;
+ if(w>=WR_FT_IAPP_TOKEN_CAPACITY||!state->detached[w]||
+    expected->slot>=WR_FT_IAPP_TOKEN_CAPACITY||
+    state->current[w].serial!=expected->serial||
+    state->current[w].slot!=expected->slot||
+    state->detached_sst[w]!=(unsigned int)entry->Sst)return 0;
+ for(i=0;i<WR_FT_IAPP_TOKEN_CAPACITY;i++)
+  if(expected==&state->current[i])return 0;
+ pending=&state->ledger.entry[expected->slot];
+ if(pending->state!=WR_FT_IAPP_TOKEN_WAITING||pending->invalidated||
+    pending->serial!=expected->serial||pending->wcid!=w||
+    pending->bss!=entry->func_tb_idx||pending->generation!=entry->assoc_gen)return 0;
+ for(i=0;i<MAC_ADDR_LEN;i++)
+  if(pending->mac[i]!=entry->Addr[i]||pending->bssid[i]!=entry->wdev->bssid[i])return 0;
+ if(!wr_ft_iapp_token_cancel_waiting_locked(&state->ledger,expected))return 0;
+ wr_ft_iapp_token_clear(&state->current[w]);
+ state->detached[w]=state->detached_sst[w]=0;
+ return 1;
+}
 /* Return a wire token only after its request handle is published. Failed
  * publication consumes sequence space but never exposes an unowned token. */
 static inline int wr_ft_auth_request_publish_next_locked(RTMP_ADAPTER *ad,
