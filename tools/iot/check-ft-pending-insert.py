@@ -34,6 +34,28 @@ except ValueError:
     pass
 else:
     raise AssertionError('duplicate preparation accepted')
+# Target candidates can add a second guarded failure (for example, a BSS index
+# check) after FT has claimed its ticket. Every locked return must funnel
+# through the same cleanup label, including repeated release/return anchors.
+multi = dict(base)
+locked_failure = ('\t\t\t\t\t\tNdisReleaseSpinLock(&pAd->MacTabLock);\n'
+                 '\t\t\t\t\t\treturn NULL;\n')
+insert_at = '\tfor (i = FirstWcid;'
+native_source = multi['mgmt/mgmt_entrytb.c']
+if native_source.count(insert_at) != 1 or native_source.count(locked_failure) != 1:
+    raise AssertionError('pinned insertion failure anchors changed')
+multi['mgmt/mgmt_entrytb.c'] = native_source.replace(
+    insert_at, locked_failure + insert_at, 1)
+multi_changed = compose(multi, a.source, here)
+multi_source = multi_changed['mgmt/mgmt_entrytb.c']
+multi_start = multi_source.index('static MAC_TABLE_ENTRY *wr_ft_pending_native_insert(')
+multi_end = multi_source.index('\n}', multi_start)+2
+multi_clone = multi_source[multi_start:multi_end]
+multi_failure_start = multi_clone.index('\tfor (i = FirstWcid;')
+multi_failure_end = multi_clone.index('/* add this MAC entry into HASH table */')
+multi_failure_region = multi_clone[multi_failure_start:multi_failure_end]
+assert multi_failure_region.count('goto wr_ft_pending_failure;') >= 2
+assert 'return NULL;' not in multi_failure_region
 s = changed['mgmt/mgmt_entrytb.c']
 start = s.index('static MAC_TABLE_ENTRY *wr_ft_pending_native_insert(')
 end = s.index('\n}', start)+2

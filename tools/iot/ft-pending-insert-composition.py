@@ -108,8 +108,15 @@ MAC_TABLE_ENTRY *wr_ft_pending_insert(RTMP_ADAPTER *pAd,UCHAR *pAddr,
     pos = clone.index('\tfor (i = FirstWcid;')
     before, after = clone[:pos], clone[pos:]
     fail = '\t\t\t\t\t\tNdisReleaseSpinLock(&pAd->MacTabLock);\n\t\t\t\t\t\treturn NULL;'
-    after = one(after, fail, '\t\t\t\t\t\tgoto wr_ft_pending_failure;')
-    after = one(after, '\t\t\t\t\t\treturn NULL;', '\t\t\t\t\t\tgoto wr_ft_pending_failure;')
+    if fail not in after:
+        raise ValueError('FT pending insertion requires a locked post-claim failure exit')
+    # The upstream candidate may contain multiple guarded failure exits (for
+    # example, both client-capacity and BSS-index checks). All occur after the
+    # ticket claim and while MacTabLock is held, so each must use the balanced
+    # cleanup label rather than unlock/return independently.
+    after = after.replace(fail, '\t\t\t\t\t\tgoto wr_ft_pending_failure;')
+    after = after.replace('\t\t\t\t\t\treturn NULL;',
+                          '\t\t\t\t\t\tgoto wr_ft_pending_failure;')
     clone = before + after
     unlock = 'NdisReleaseSpinLock(&pAd->MacTabLock);'
     pos = clone.rindex(unlock)
