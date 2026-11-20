@@ -47,3 +47,25 @@ def compose_reassociate(changes,src,local):
     result['include/assoc-generation-kernel.h']=kernel
     result['include/ft-iapp-slot-retirement.h']=(local/'ft-iapp-slot-retirement.h').read_text()
     return result
+
+
+def compose_reset(changes,src,local):
+    result=dict(changes)
+    if 'struct wr_ft_iapp_request_state wr_ft_iapp_requests;' not in result.get('include/rtmp.h',''):
+        raise ValueError('FT reset retirement requires adapter request registry')
+    name='include/wr-iot-peer-table-reset-owner.inc'
+    owner=result.get(name,'')
+    if 'wr_ft_iapp_table_retire_locked' in owner:
+        raise ValueError('FT reset retirement already prepared')
+    anchor=' serial=wr_iot_peer_table_begin(&pAd->wr_iot_peer_table_owner);'
+    if owner.count(anchor)!=1:raise ValueError('FT reset owner anchor changed')
+    owner=owner.replace(anchor,anchor+'''
+#ifdef DOT11R_FT_SUPPORT
+ if(serial&&!scope&&!wr_ft_iapp_table_retire_locked(pAd,&pAd->wr_ft_iapp_requests,serial)){
+  (void)wr_iot_peer_table_finish(&pAd->wr_iot_peer_table_owner,serial,1);
+  serial=0;
+ }
+#endif''',1)
+    result[name]='#ifdef DOT11R_FT_SUPPORT\n#include "ft-iapp-slot-retirement.h"\n#endif\n'+owner
+    result['include/ft-iapp-slot-retirement.h']=(local/'ft-iapp-slot-retirement.h').read_text()
+    return result

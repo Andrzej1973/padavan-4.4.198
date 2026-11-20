@@ -1,0 +1,31 @@
+{
+  "date": "2026-11-20",
+  "scope": "Uninstalled full-table FT retirement in prepared native reset reservation",
+  "changes": [
+    "Under existing reset-owner MacTabLock, reserve exclusive serial then retire all FT request state for full-table reset before unlocking.",
+    "If FT preflight refuses before native reset work, finish the untouched reservation successfully and return zero.",
+    "Scoped reset does not perform full registry retirement; per-entry native delete composer handles selected entries."
+  ],
+  "checks": [
+    {
+      "command": "python3 tools/iot/check-ft-reset-retirement.py /home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3",
+      "exit": 0,
+      "coverage": "Actual prepared reset-owner begin/finish fragment executed with modeled table/lock schema and real FT helpers; GNU11 O2 Wall Wextra Werror ASan/UBSan. Full success, CLAIMED and busy slot refusal with complete registry unchanged/reservation rolled back, scoped preservation and native failed-setup gate. Missing/duplicate prerequisites refuse."
+    },
+    {
+      "command": "nim c -r --out:/tmp/wr-ft-pending-identity-check tools/iot/ft_pending_identity_check.nim",
+      "exit": 0
+    }
+  ],
+  "sha256": {
+    "tools/iot/ft-iapp-delete-composition.py": "56619cf0eb3a9a7e594143e24a03c6de38ae6a4327e2fae6eebd33a5cf9c08e9",
+    "tools/iot/check-ft-reset-retirement.py": "98a0076f80dde93b9cc8ea3725a008d4b6811564410f5acbf9d6bed2022a9d05",
+    "tools/iot/peer-table-reset-owner.inc": "ecf2d81abfc653e93b9158b8066067500c2ccbd247a3ea75b5bdc0b11491afe7",
+    "tools/iot/ft-iapp-slot-retirement.h": "cf8a69b1409f05d4e50d47f4fecd52677b3326fb3e714ddfbb31e403c0b758c5"
+  },
+  "limits": [
+    "Reset registry schema prerequisite is an explicit stand-in; complete reset-body/producer preparation and target feature TUs not compiled here.",
+    "Init/close direct table clears bypassing reset reservation still require adapter/BSS lifetime integration.",
+    "IAPP/cache/completion integration remains open; composers uninstalled, no final image/device acceptance claimed."
+  ]
+}
