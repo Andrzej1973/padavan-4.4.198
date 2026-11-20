@@ -123,7 +123,9 @@ static void wr_ft_pending_queue_discard_all(RTMP_ADAPTER *pAd,MLME_QUEUE *queue,
  NdisReleaseSpinLock(&queue->Lock);
 }
 '''
-    at=text.index('\nVOID MlmeHalt(')
+    # The handler and a candidate's shared halt body both use these helpers.
+    # Define them immediately after the queue header, before either caller.
+    at=text.index('#include "ft-pending-queue.h"')+len('#include "ft-pending-queue.h"')
     text=text[:at]+'\n#ifdef DOT11R_FT_SUPPORT\n'+discard+'\n#endif\n'+text[at:]
 
     # A pending ticket stays in Elem through the FT handler. Validate before

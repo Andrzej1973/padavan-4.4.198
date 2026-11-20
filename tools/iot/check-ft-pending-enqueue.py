@@ -28,6 +28,8 @@ assert 'wr_assoc_capture(' not in body and 'MacTabLock' not in body
 added='\n#ifdef DOT11R_FT_SUPPORT\n#include "ft-pending-queue.h"\n'+prototype+'\n'+body+'\n#endif\n'
 assert changed.replace(added,'',1)==prepared['common/mlme.c']
 life=api['lifecycle'](changed)
+assert life.index('static inline int wr_ft_pending_elem_current_locked(') < life.index('VOID MlmeHandler(')
+assert life.index('static void wr_ft_pending_queue_discard_all(') < life.index('VOID MlmeHandler(')
 handler=life[life.index('VOID MlmeHandler('):life.index('\n}',life.index('VOID MlmeHandler('))+2]
 assert handler.index('wr_ft_pending_elem_current_locked(pAd,Elem)') < handler.index('switch (Elem->Machine)')
 assert handler.index('switch (Elem->Machine)') < handler.index('wr_ft_pending_elem_release(pAd,Elem)') < handler.rindex('Elem->Occupied = FALSE;')
