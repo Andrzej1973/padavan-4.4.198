@@ -33,6 +33,16 @@ storage_input = runpy.run_path(str(here/'ft-pending-insert-composition.py'))['co
     storage_input, a.source, here)
 storage_compose = runpy.run_path(str(here/'ft-iapp-request-state-composition.py'))['compose']
 storage = storage_compose(storage_input, a.source, here)
+delete_compose=runpy.run_path(str(here/'ft-iapp-delete-composition.py'))['compose']
+delete_prepared=delete_compose(storage,a.source,here)
+delete_source=delete_prepared['mgmt/mgmt_entrytb.c']
+gate=delete_source.index('if(!wr_ft_iapp_slot_retire_locked(')
+assert gate<delete_source.index('WRITE_ONCE(pAd->wr_assoc_visible[wcid],0);',gate)
+assert gate<delete_source.index('(void)wr_assoc_advance_locked(pAd, pEntry, wcid);',gate)
+for invalid in ({},delete_prepared):
+    try:delete_compose(invalid,a.source,here)
+    except ValueError:pass
+    else:raise AssertionError('missing delete predecessor or duplicate accepted')
 init = storage['common/rtmp_init.c']
 init_call = ' wr_ft_iapp_request_state_init(&pAd->wr_ft_iapp_requests);'
 assert init.count(init_call) == 1

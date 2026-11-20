@@ -55,6 +55,7 @@ static void NdisReleaseSpinLock(int *lock){assert(*lock);*lock=0;}
 typedef struct {struct {struct {unsigned char Type,SubType;} FC;
  unsigned char duration[2],Addr1[6],Addr2[6],rest[8];} Hdr;} FRAME_802_11;
 #include "ft-auth-retry-peer-scope.h"
+#include "ft-iapp-slot-retirement.h"
 /* Every helper below runs in a single modeled MacTabLock critical section. */
 static void setup(RTMP_ADAPTER *ad,struct wr_ft_iapp_request_state *state,
  unsigned int sst,unsigned char *wire)
@@ -273,5 +274,26 @@ int main(void)
  assert(wr_ft_pending_peer_leave_locked(&ad,&scope));
  }
  puts("PASS | FT AUTH success retirement | WAITING predecessor cancelled before state transition; preauth provenance cleared; claimed/unfinished response blocks success; current lease retained");
+ for(scenario=0;scenario<5;scenario++){
+  RTMP_ADAPTER ad;struct wr_ft_iapp_request_state state,saved;
+  struct wr_ft_iapp_token_handle other={0},claim={0};unsigned char wire[7],foreign[7]={9},mac[6]={66},bssid[6]={2};
+  setup(&ad,&state,SST_NOT_AUTH,wire);
+  assert(wr_ft_iapp_token_reserve_locked(&state.ledger,foreign,2,6,1,mac,bssid,&other));
+  if(scenario==1)ad.wr_assoc_event_users[7]=1;
+  if(scenario==2)assert(wr_ft_iapp_token_claim_locked(&state.ledger,wire,ad.MacTab.Content[7].Addr,bssid,&claim));
+  if(scenario==3)state.current[7].serial++;
+  if(scenario==4)state.current[7].slot=other.slot;
+  saved=state;
+  if(scenario){assert(!wr_ft_iapp_slot_retire_locked(&ad,&state,7));assert(!memcmp(&state,&saved,sizeof(state)));}
+  else{
+   unsigned serial=state.ledger.next_serial;
+   assert(wr_ft_iapp_slot_retire_locked(&ad,&state,7));
+   assert(!state.current[7].serial&&!state.detached[7]&&!state.preauth[7].serial);
+   assert(state.ledger.next_serial==serial);
+   assert(!memcmp(&state.ledger.entry[other.slot],&saved.ledger.entry[other.slot],sizeof(state.ledger.entry[0])));
+   assert(!wr_ft_iapp_token_claim_locked(&state.ledger,wire,ad.MacTab.Content[7].Addr,bssid,&claim));
+  }
+ }
+ puts("PASS | FT slot retirement | WAITING token and preauth invalidated; serial and foreign slot retained; busy, CLAIMED, stale serial and foreign handle refuse atomically");
  return 0;
 }
