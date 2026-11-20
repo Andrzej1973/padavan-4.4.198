@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compile the prepared FT ingress/consumer/insertion pair with actual Kbuild flags.
+"""Compile the prepared FT ingress/consumer/AUTH/insertion pair with actual Kbuild flags.
 
 Diagnostic MIPS objects only. This does not install a module or replace an image.
 """
@@ -25,13 +25,14 @@ here = Path(__file__).resolve().parent
 unwrap = runpy.run_path(str(here/'kbuild-compiler.py'))['unwrap_ccache']
 source_rel = {
     'ft': Path('common/ft.c'),
+    'ap_auth': Path('ap/ap_auth.c'),
     'mlme': Path('common/mlme.c'),
     'mgmt_entrytb': Path('mgmt/mgmt_entrytb.c'),
     'rtmp_init': Path('common/rtmp_init.c'),
 }
 report = {
     'status': 'failed',
-    'scope': 'Prepared FT RRB and ordinary-RX ingress, FT action consumer, and scoped first-peer insertion temporary TUs only',
+    'scope': 'Prepared FT RRB/ordinary-RX provenance, FT action/AUTH request-context caller pair, and scoped first-peer insertion temporary TUs only',
     'module_installed': False,
     'firmware_image_verified': False,
     'runtime_verified': False,
@@ -91,11 +92,28 @@ try:
     commands = {unit: command(unit) for unit in source_rel}
     originals = {unit: item[3].read_bytes() for unit, item in commands.items()}
 
+    # This composer changes a shared FT AUTH prototype. Guard the complete
+    # pinned caller set so a future caller cannot escape the paired TU check.
+    auth_callers = {}
+    for path in driver.rglob('*.c'):
+        count = len(re.findall(r'\bFT_AuthReqHandler\s*\(',
+                               path.read_text(encoding='latin1')))
+        if count:
+            auth_callers[str(path.relative_to(driver))] = count
+    expected_auth_callers = {'common/ft.c': 2, 'ap/ap_auth.c': 1}
+    if auth_callers != expected_auth_callers:
+        raise RuntimeError('FT_AuthReqHandler caller inventory changed: '
+                           +repr(auth_callers))
+    report['auth_caller_inventory'] = auth_callers
+
     # The candidate driver already contains the association-generation and peer
     # owner predecessors. Add the pending BSS+MAC storage and insertion clone on
     # top of that exact candidate, and shadow both native structure headers.
     insert_compose = runpy.run_path(str(here/'ft-pending-insert-composition.py'))['compose']
     pending_changes = insert_compose({}, driver, here)
+    request_state_compose = runpy.run_path(
+        str(here/'ft-iapp-request-state-composition.py'))['compose']
+    request_state_changes = request_state_compose(pending_changes, driver, here)
     pending_enqueue = runpy.run_path(str(here/'ft-pending-enqueue-composition.py'))
     mlme_header = (driver/'include/mlme.h').read_text()
     mlme_header = pending_enqueue['queue_fields'](mlme_header)
@@ -116,6 +134,9 @@ MAC_TABLE_ENTRY *wr_ft_pending_insert(RTMP_ADAPTER *,UCHAR *,struct wifi_dev *,
     ft = runpy.run_path(str(here/'ft-parser-bounds-composition.py'))['compose'](
         originals['ft'].decode())
     ft = enqueue['bind_ft'](ft, active_prototype, pending_prototype, insert_prototype)
+    auth_context = runpy.run_path(str(here/'ft-auth-request-context-composition.py'))
+    ft, ft_header = auth_context['compose_ft'](
+        ft, (driver/'include/ft.h').read_text())
     ft, _ = runpy.run_path(str(here/'ra2-ft-mutation-composition.py'))['compose'](ft)
     include = '#include "rt_config.h"'
     if ft.count(include) != 1:
@@ -124,11 +145,16 @@ MAC_TABLE_ENTRY *wr_ft_pending_insert(RTMP_ADAPTER *,UCHAR *,struct wifi_dev *,
         '\n#if defined(MT7603) && defined(MT_MAC) && defined(RTMP_PCI_SUPPORT)\n'
         '#include "ra2-mutation-admission-kernel.h"\n#endif', 1)
 
+    ap_auth = originals['ap_auth'].decode()
+    ap_auth = runpy.run_path(str(here/'ft-auth-callback-composition.py'))['compose'](ap_auth)
+    ap_auth = auth_context['compose_callback'](ap_auth)
+
     prepared = {
         'ft': ft,
+        'ap_auth': ap_auth,
         'mlme': mlme,
         'mgmt_entrytb': pending_changes['mgmt/mgmt_entrytb.c'],
-        'rtmp_init': pending_changes['common/rtmp_init.c'],
+        'rtmp_init': request_state_changes['common/rtmp_init.c'],
     }
     with tempfile.TemporaryDirectory(prefix='wr-ft-generation-target-') as td:
         temp = Path(td)
@@ -137,8 +163,9 @@ MAC_TABLE_ENTRY *wr_ft_pending_insert(RTMP_ADAPTER *,UCHAR *,struct wifi_dev *,
         # to the exact original Kbuild include directories.
         for name, data in (
             ('rt_config.h', (driver/'include/rt_config.h').read_bytes()),
-            ('rtmp.h', pending_changes['include/rtmp.h'].encode()),
+            ('rtmp.h', request_state_changes['include/rtmp.h'].encode()),
             ('mlme.h', mlme_header.encode()),
+            ('ft.h', ft_header.encode()),
         ):
             (temp/name).write_bytes(data)
         for name in (
@@ -148,6 +175,9 @@ MAC_TABLE_ENTRY *wr_ft_pending_insert(RTMP_ADAPTER *,UCHAR *,struct wifi_dev *,
             'ft-pending-queue.h', 'assoc-generation.h',
             'assoc-generation-kernel.h', 'peer-table-owner.h',
             'peer-close-executor.h', 'ra2-mutation-admission-kernel.h',
+            'ft-auth-peer-scope.h', 'ft-auth-request-context.h',
+            'ft-iapp-peer-admission.h', 'ft-iapp-pending-admission.h',
+            'ft-iapp-request-state.h', 'ft-iapp-response-token.h',
         ):
             shutil.copyfile(here/name, temp/name)
 
@@ -251,6 +281,7 @@ MAC_TABLE_ENTRY *wr_ft_pending_insert(RTMP_ADAPTER *,UCHAR *,struct wifi_dev *,
             ('ft', 'wr_ft_mlme_enqueue_for_recv', 'mlme'),
             ('ft', 'wr_ft_pending_enqueue_for_recv', 'mlme'),
             ('ft', 'wr_ft_pending_insert', 'mgmt_entrytb'),
+            ('ap_auth', 'FT_AuthReqHandler', 'ft'),
         )
         for consumer, name, provider in contracts:
             for variant in ('ft_symbols', 'r1kh_hard_retry_variant'):

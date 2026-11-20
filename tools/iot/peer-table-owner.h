@@ -27,6 +27,16 @@ static inline int wr_iot_peer_table_finish(struct wr_iot_peer_table_owner *s,
  else s->retained=1;
  return 1;
 }
+/* Resume only the exact retained reservation. The caller must authenticate
+ * its AP-stop operation identity and table serial under this same lock before
+ * calling; this function is not a general writer-admission path. Ordinary
+ * begin/transaction callers remain blocked while the reservation is active. */
+static inline int wr_iot_peer_table_resume_retained(
+ struct wr_iot_peer_table_owner *s,unsigned long serial){
+ if(!s||!serial||!s->active||!s->retained||s->poisoned||s->closed||
+    s->transactions||s->serial!=serial)return 0;
+ s->retained=0;return 1;
+}
 /* Reopen alone can consume a completed-close seal. Caller checks table empty
  * and physical admission in the same lock/lifetime transaction. */
 static inline unsigned long wr_iot_peer_table_begin_open(struct wr_iot_peer_table_owner *s){

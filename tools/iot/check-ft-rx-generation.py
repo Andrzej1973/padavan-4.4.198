@@ -22,6 +22,20 @@ mlme, active_proto = runpy.run_path(
 mlme, pending_proto = pending_enqueue['compose'](mlme)
 prepared = runpy.run_path(
     str(here/'ft-rx-generation-composition.py'))['compose'](mlme, active_proto, pending_proto)
+queue_source = changes['common/mlme.c']
+queue_dispatch = queue_source[queue_source.index('VOID MlmeHandler('):]
+queue_dispatch = queue_dispatch[:queue_dispatch.index('\n}', queue_dispatch.index('{')) + 2]
+for field in ('assoc_gen', 'assoc_wcid', 'assoc_addr'):
+    if queue_source.count('Queue->Entry[Tail].' + field) != 1:
+        raise AssertionError('stamped MLME requeue lost field: ' + field)
+if 'wr_assoc_event_current(pAd, Elem)' not in queue_source:
+    raise AssertionError('stale MLME event guard missing')
+if 'case WPA_STATE_MACHINE:' not in queue_dispatch or 'StateMachinePerformAction' not in queue_dispatch:
+    raise AssertionError('native MLME dispatch body not found')
+if queue_dispatch.index('wr_assoc_event_current(pAd, Elem)') > queue_dispatch.index('StateMachinePerformAction'):
+    raise AssertionError('stale event guard occurs after native MLME dispatch')
+if 'Machine == WPA_STATE_MACHINE && !wr_stamp.gen' not in queue_source:
+    raise AssertionError('association generation capture admission changed')
 start = prepared.index('BOOLEAN MlmeEnqueueForRecv(')
 end = prepared.index('\n}', start) + 2
 wrapper = prepared[start:end]
@@ -31,6 +45,15 @@ assert 'wr_ft_pending_enqueue_for_recv' in wrapper
 assert wrapper.index('NdisAcquireSpinLock(&pAd->MacTabLock)') < wrapper.index('wr_ft_peer_capture_locked')
 assert wrapper.index('wr_ft_peer_capture_locked') < wrapper.index('NdisReleaseSpinLock(&pAd->MacTabLock)')
 assert wrapper.index('wr_ft_pending_enqueue_for_recv') < wrapper.index('wr_ft_pending_release_locked')
+ordinary_rx_source = (src/'tx_rx/wdev_rx.c').read_text()
+if 'REPORT_MGMT_FRAME_TO_MLME(pAd, pRxBlk->wcid,' not in ordinary_rx_source:
+    raise AssertionError('ordinary RX hardware WCID handoff missing from pinned producer')
+over_ds = (src/'common/ft_iocl.c').read_text()
+over_ds_call = over_ds[over_ds.index('REPORT_MGMT_FRAME_TO_MLME'):]
+over_ds_call = over_ds_call[:over_ds_call.index(';') + 1]
+if ('FT_OverDs_SimReq' not in over_ds or 'FtEntry->Aid' not in over_ds_call or
+        'FtEntry->func_tb_idx' not in over_ds):
+    raise AssertionError('FT-over-DS synthetic enqueue producer not covered')
 
 prefix = r'''#include <assert.h>
 #include <stddef.h>
@@ -299,3 +322,4 @@ with tempfile.TemporaryDirectory(prefix='ft-rx-generation-') as td:
             raise RuntimeError(result.stderr or result.stdout)
         print(result.stdout, end='')
 print('PASS | ordinary FT RX composition | pinned native enqueue wrapper, exact context lookup and duplicate preparation guard')
+print('PASS | FT association generation provenance | queue copy/requeue, stale-before-dispatch gate and three pinned RX producer families')

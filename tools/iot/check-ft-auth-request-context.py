@@ -18,8 +18,11 @@ native = (a.source/'common/ft.c').read_text()
 header = (a.source/'include/ft.h').read_text()
 schema = runpy.run_path(str(here/'assoc-generation-composition.py'))['compose']({}, a.source, here)
 enqueue = runpy.run_path(str(here/'ft-enqueue-generation-composition.py'))
-_, proto = enqueue['compose'](schema['common/mlme.c'])
-_, pending_proto = runpy.run_path(str(here/'ft-pending-enqueue-composition.py'))['compose'](schema['common/mlme.c'])
+mlme, proto = enqueue['compose'](schema['common/mlme.c'])
+pending_enqueue = runpy.run_path(str(here/'ft-pending-enqueue-composition.py'))
+mlme, pending_proto = pending_enqueue['compose'](mlme)
+ordinary_rx = runpy.run_path(str(here/'ft-rx-generation-composition.py'))['compose'](
+    mlme, proto, pending_proto)
 bounded = runpy.run_path(str(here/'ft-parser-bounds-composition.py'))['compose'](native)
 prepared = enqueue['bind_ft'](bounded, proto, pending_proto)
 module = runpy.run_path(str(here/'ft-auth-request-context-composition.py'))
@@ -70,11 +73,27 @@ def signatures(text, name):
 assert signatures(composed, 'FT_AuthReqHandler') == signatures(composed_header, 'FT_AuthReqHandler')
 validation = signatures(composed, 'FT_AuthReqRsnValidation')
 assert len(validation) == 2 and validation[0] == validation[1]
+assert validation[0].endswith(
+    'conststructwr_ft_auth_request_context*wr_ft_request_context)')
 assert composed.count('pFtInfoBuf,wr_ft_request_context);') == 1
 assert composed.count('pFtInfoBuf, &wr_ft_request)') == 1
 action_start=composed.index('VOID FT_FtAction(')
 action=composed[action_start:composed.index('\n}',action_start)+2]
 assert action.index('wr_ft_auth_request_success_prepare_locked(')<action.index('pEntry->Sst = SST_AUTH;')<action.index('wr_ft_pending_peer_advance_locked(')
+# Check the producer/consumer provenance as one composed source contract:
+# ordinary RX captures the same BSS+MAC identity that FT_FtAction later claims.
+assert ordinary_rx.count('wr_ft_rx_pending') >= 3
+assert 'wr_ft_peer_capture_locked(pAd,wr_wcid,wr_apidx,wr_frame->Hdr.Addr2,&wr_stamp)' in ordinary_rx
+assert 'wr_ft_pending_reserve_locked(&pAd->wr_ft_pending,wr_apidx' in ordinary_rx
+assert 'return FALSE;\n }\n#endif\n return wr_ft_native_mlme_enqueue_for_recv' in ordinary_rx
+assert action.index('if(Elem->assoc_gen)') < action.index('wr_ft_peer_enter_locked(') < action.index('FT_AuthReqHandler(')
+assert 'Elem->Wcid!=Elem->assoc_wcid' in action
+assert 'wr_ft_expected.bss=apidx' in action
+request=action[action.index('case FT_ACTION_BT_REQ:'):action.index('case FT_ACTION_BT_CONFIRM:')]
+assert request.index('wr_ft_ticket.bss!=apidx') < request.index('wr_ft_pending_current_locked(')
+assert request.index('wr_ft_pending_current_locked(') < request.index('wr_ft_pending_insert(') < request.index('FT_AuthReqHandler(')
+assert 'MacTableLookup' not in request and 'MacTableInsertEntry' not in request
+assert action.index('wr_ft_pending_peer_advance_locked(') < action.index('FT_RrbEnqueue(')
 for name in ('USHORT FT_AuthReqHandler(', 'UINT16\tFT_AuthReqRsnValidation('):
     start = composed.rindex(name)
     body = composed[start:composed.index('\n}', start)+2]

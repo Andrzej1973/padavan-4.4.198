@@ -40,6 +40,29 @@ def compose_ft(text, header):
     header = extend_handler(header)
     header = one(header, 'USHORT FT_AuthReqHandler(',
                  'struct wr_ft_auth_request_context;\nUSHORT FT_AuthReqHandler(')
+    validation_signature = 'UINT16\tFT_AuthReqRsnValidation('
+
+    def extend_validation(source, expected):
+        starts = []
+        offset = 0
+        while True:
+            at = source.find(validation_signature, offset)
+            if at < 0:
+                break
+            starts.append(at)
+            offset = at + len(validation_signature)
+        if len(starts) != expected:
+            raise ValueError('FT AUTH validation declaration count changed')
+        for at in reversed(starts):
+            close = source.find(')', at)
+            if close < 0:
+                raise ValueError('FT AUTH validation signature is incomplete')
+            source = (source[:close] + ',\n'
+                      ' const struct wr_ft_auth_request_context *wr_ft_request_context' +
+                      source[close:])
+        return source
+
+    text = extend_validation(text, 2)
     text = one(text, ' struct wr_ft_pending_peer_scope wr_ft_pending_scope={0};',
                ' struct wr_ft_pending_peer_scope wr_ft_pending_scope={0};\n'
                ' struct wr_ft_auth_request_context wr_ft_request={\n'
@@ -61,7 +84,8 @@ def compose_ft(text, header):
 '''
     body = one(body, '\tFT_CAP_AND_POLICY FtCapPlc;',
                '\tFT_CAP_AND_POLICY FtCapPlc;\n'+guard+' ApIdx=pEntry->func_tb_idx;')
-    body = one(body, 'pFtInfoBuf);', 'pFtInfoBuf,wr_ft_request_context);')
+    body = one(body, 'pFtInfoBuf);',
+               'pFtInfoBuf,wr_ft_request_context);')
     text = text[:start]+body+text[end:]
     start = text.index('UINT16\tFT_AuthReqRsnValidation(',
                        text.index('UINT16\tFT_AuthReqRsnValidation(')+1)
