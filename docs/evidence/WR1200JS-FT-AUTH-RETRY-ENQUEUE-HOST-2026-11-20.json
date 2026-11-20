@@ -1,0 +1,27 @@
+{
+  "date": "2026-11-20",
+  "scope": "Uninstalled native FT AUTH retry enqueue clone",
+  "checks": [
+    {
+      "command": "python3 tools/iot/check-ft-auth-retry-enqueue.py /home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3",
+      "exit": 0,
+      "coverage": [
+        "Actual generated native receive-enqueue body with explicit host queue/classifier/lock actors, ASan/UBSan.",
+        "Default, EAPOL_QUEUE_SUPPORT and CUSTOMER_DCC_FEATURE shapes compile and execute.",
+        "Captured serial/generation survives mutation of peer slot before queue lock. Both association stamp and retry sidecar retain captured values.",
+        "Null/short/wrong AUTH, zero serial, wrong BSSID/BSS/MAC/WCID, occupied/full queue refuse; duplicate composer refuses."
+      ]
+    }
+  ],
+  "sha256": {
+    "tools/iot/ft-auth-enqueue-composition.py": "c99ff69c3b46d7672d595cf70967b53559a01c0491847b98297d9056470e98dc",
+    "tools/iot/check-ft-auth-retry-enqueue.py": "d4be9df83c9636f0e0f9c3db43daa0584684c746b797aa11ae877ac7103061ef",
+    "tools/iot/ft-preauth-queue.h": "8f11ff100bb1e0519dcd14751137579c0349157aaca86066e71567d1d3d77a43"
+  },
+  "limits": [
+    "Retry RX selector and AUTH callback dispatch are not connected.",
+    "Fixture models MLME metadata schema and queue/locking actors; no target feature TUs compiled.",
+    "Native IAPP request publication/cache/completion integration remains open; prepared composers stay uninstalled.",
+    "No final image or device acceptance claimed."
+  ]
+}

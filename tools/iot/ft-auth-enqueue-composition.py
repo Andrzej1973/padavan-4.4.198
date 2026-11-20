@@ -36,6 +36,37 @@ def compose(text):
     return text[:end]+addition+text[end:],prototype
 
 
+def compose_retry(text):
+    """Clone native AUTH enqueue with immutable preauth retry identity."""
+    name='wr_ft_auth_retry_enqueue_for_recv'
+    if name in text:raise ValueError('FT AUTH retry enqueue already prepared')
+    preview,_=compose(text)
+    start=preview.rindex('BOOLEAN wr_ft_auth_mlme_enqueue_for_recv(')
+    body=preview[start:preview.index('\n}',start)+2]
+    body=body.replace('wr_ft_auth_mlme_enqueue_for_recv',name)
+    body=body.replace('const struct wr_ft_peer_stamp *wr_expected',
+                      'const struct wr_ft_preauth_identity *wr_expected')
+    body=body.replace('wr_expected->addr','wr_expected->mac')
+    body=body.replace('!wr_expected->generation||',
+                      '!wr_expected->generation||!wr_expected->serial||',1)
+    for queue in ('Queue','EAP_Queue'):
+        anchor='wr_assoc_publish(&'+queue+'->Entry[Tail], &wr_stamp);'
+        if anchor in body:
+            # Slot ownership checked by native code before this point. The
+            # stamp is prevalidated; clear old sidecar before exact publication.
+            body=body.replace(anchor,anchor+'\n'
+              ' wr_ft_preauth_elem_clear(&'+queue+'->Entry[Tail]);\n'
+              ' (void)wr_ft_preauth_elem_publish(&'+queue+'->Entry[Tail],wr_expected);')
+    check='!MAC_ADDR_EQUAL(pFrame->Hdr.Addr1,pAd->ApCfg.MBSSID[wr_expected->bss].wdev.bssid)'
+    if body.count(check)!=2:raise ValueError('FT AUTH retry BSSID anchors changed')
+    body=body.replace(check,check+'||\n'
+      '  !MAC_ADDR_EQUAL(pFrame->Hdr.Addr1,wr_expected->bssid)')
+    prototype=body[:body.index('{')].rstrip()+';'
+    addition='\n#ifdef DOT11R_FT_SUPPORT\n#include "ft-preauth-queue.h"\n'+prototype+'\n'+body+'\n#endif\n'
+    start=text.index('BOOLEAN MlmeEnqueueForRecv(');end=text.index('\n}',start)+2
+    return text[:end]+addition+text[end:],prototype
+
+
 def compose_pending(text):
     name='wr_ft_auth_pending_enqueue_for_recv'
     if name in text:raise ValueError('FT AUTH pending enqueue already prepared')
