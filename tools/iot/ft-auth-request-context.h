@@ -100,4 +100,20 @@ static inline int wr_ft_auth_request_unpublish_locked(RTMP_ADAPTER *ad,
  wr_ft_iapp_token_clear(&state->current[w]);
  return 1;
 }
+/* Return a wire token only after its request handle is published. Failed
+ * publication consumes sequence space but never exposes an unowned token. */
+static inline int wr_ft_auth_request_publish_next_locked(RTMP_ADAPTER *ad,
+ MAC_TABLE_ENTRY *entry,const struct wr_ft_auth_request_context *context,
+ struct wr_ft_iapp_request_state *state,
+ struct wr_ft_iapp_token_handle *request,unsigned char *token)
+{
+ unsigned char next[WR_FT_IAPP_TOKEN_BYTES];unsigned int i;
+ if(!token||(state&&token==state->token_counter))return 0;
+ for(i=0;i<WR_FT_IAPP_TOKEN_BYTES;i++)token[i]=0;
+ if(!wr_ft_auth_request_current_locked(ad,entry,context)||
+    !wr_ft_iapp_request_next_token_locked(state,next))return 0;
+ if(!wr_ft_auth_request_publish_locked(ad,entry,context,state,next,request))return 0;
+ for(i=0;i<WR_FT_IAPP_TOKEN_BYTES;i++)token[i]=next[i];
+ return 1;
+}
 #endif

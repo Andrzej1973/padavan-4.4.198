@@ -22,7 +22,14 @@ def compose(changes, src, local):
                  ' struct wr_ft_iapp_request_state wr_ft_iapp_requests;')
     init = one(init, ' wr_ft_pending_ledger_init(&pAd->wr_ft_pending);',
                ' wr_ft_pending_ledger_init(&pAd->wr_ft_pending);\n'
-               ' wr_ft_iapp_request_state_init(&pAd->wr_ft_iapp_requests);')
+               ' { unsigned char wr_ft_seed[WR_FT_IAPP_TOKEN_BYTES];\n'
+               ' wr_ft_iapp_request_state_init(&pAd->wr_ft_iapp_requests);\n'
+               ' get_random_bytes(wr_ft_seed,sizeof(wr_ft_seed));\n'
+               ' (void)wr_ft_iapp_request_state_seed(&pAd->wr_ft_iapp_requests,wr_ft_seed);\n'
+               ' NdisZeroMemory(wr_ft_seed,sizeof(wr_ft_seed));\n }')
+    init = one(init, '#include\t"rt_config.h"',
+               '#include\t"rt_config.h"\n#ifdef DOT11R_FT_SUPPORT\n'
+               '#include <linux/random.h>\n#endif')
     result['include/rtmp.h'] = header
     result['common/rtmp_init.c'] = init
     for name in ('ft-iapp-request-state.h', 'ft-iapp-response-token.h'):

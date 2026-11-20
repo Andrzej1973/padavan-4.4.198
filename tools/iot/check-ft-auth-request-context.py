@@ -39,6 +39,8 @@ assert init.count(init_call) == 1
 alloc_start = init.index('NDIS_STATUS RTMPAllocAdapterBlock(')
 alloc_end = init.index('\n}', alloc_start)
 assert alloc_start < init.index(init_call) < init.index('pAd->OS_Cookie = handle;', alloc_start) < alloc_end
+assert init.count('get_random_bytes(wr_ft_seed,sizeof(wr_ft_seed));') == 1
+assert init.index(init_call) < init.index('get_random_bytes(wr_ft_seed,') < init.index('wr_ft_iapp_request_state_seed(') < alloc_end
 assert storage['include/rtmp.h'].count('struct wr_ft_iapp_request_state wr_ft_iapp_requests;') == 1
 assert storage['include/ft-iapp-request-state.h'] == (here/'ft-iapp-request-state.h').read_text()
 for invalid in ({}, storage):
@@ -185,6 +187,19 @@ static USHORT FT_AuthReqRsnValidation(PRTMP_ADAPTER ad,PMAC_TABLE_ENTRY entry,
  assert(state.current[entry->wcid].serial==active.serial);
  assert(wr_ft_auth_request_unpublish_locked(ad,entry,context,&state,&active));
  assert(state.ledger.next_serial>serial);
+ {
+ unsigned char seed[7]={0},wire[7],first_wire[7];
+ assert(wr_ft_iapp_request_state_seed(&state,seed));
+ assert(wr_ft_auth_request_publish_next_locked(ad,entry,context,&state,&active,wire));
+ assert(wr_ft_iapp_token_nonzero(wire));memcpy(first_wire,wire,7);
+ assert(wr_ft_iapp_token_equal(state.ledger.entry[active.slot].token,wire));
+ assert(!wr_ft_auth_request_publish_next_locked(ad,entry,context,&state,&other,wire));
+ assert(!wr_ft_iapp_token_nonzero(wire)&&!other.serial);
+ assert(wr_ft_auth_request_unpublish_locked(ad,entry,context,&state,&active));
+ assert(wr_ft_auth_request_publish_next_locked(ad,entry,context,&state,&active,wire));
+ assert(memcmp(wire,first_wire,7)>0);
+ assert(wr_ft_auth_request_unpublish_locked(ad,entry,context,&state,&active));
+ }
  }
  NdisReleaseSpinLock(&ad->MacTabLock);
  auth_calls++;
@@ -244,8 +259,15 @@ with tempfile.TemporaryDirectory(prefix='ft-auth-native-handler-') as td:
                     '-fsanitize=address,undefined', '-fno-pie', '-no-pie',
                     '-I'+str(here), str(source), '-o', str(exe)], check=True)
     subprocess.run([str(exe)], check=True)
+    sequence_exe = Path(td)/'sequence'
+    subprocess.run(['gcc', '-std=gnu11', '-O2', '-Wall', '-Wextra', '-Werror',
+                    '-fsanitize=address,undefined', '-fno-pie', '-no-pie',
+                    '-I'+str(here), str(here/'check-ft-iapp-request-state.c'),
+                    '-o', str(sequence_exe)], check=True)
+    subprocess.run([str(sequence_exe)], check=True)
 print('PASS | FT AUTH invocation context | both caller scopes threaded to native handler and RSN validation; matching declarations; drift and duplicate refusal')
 print('PASS | FT AUTH context admission | exact existing/first-peer lease; missing, dual, foreign entry, stale generation and foreign adapter refused; ASan/UBSan callback fixture')
 print('PASS | native FT AUTH handler | full composed body; existing/first-peer callback exits; null/stale/foreign context before entry access; MDIE refusal, open and RSN actor paths; ASan/UBSan')
 print('PASS | FT invocation request lifecycle | existing/pending begin-admit-end; active handle preserved; claimed response blocks end; timeout cancels delayed response; no peer lease release')
 print('PASS | FT adapter request registry | fresh-allocation init only; value handles; active/aliased publication refused; claimed response blocks unpublish; stale invocation cannot clear reused slot; serial retained')
+print('PASS | FT wire token publication | seeded sequence; output only after handle publication; failed publication clears wire output; retry never reuses token')
