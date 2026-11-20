@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-20",
+  "revision": "85b3c8c420bb8465feb11935ebd48b923a22c601",
+  "scope": "Prepared FT insertion/queue composition repair; not installed in production driver",
+  "failures": [
+    {
+      "run": 44624852321,
+      "reason": "two locked insertion failure exits invalidated a single-occurrence anchor"
+    },
+    {
+      "run": 44666374322,
+      "reason": "queue destroy moved into shared checked/legacy halt body"
+    },
+    {
+      "run": 44669162676,
+      "reason": "FT queue helpers defined below MlmeHandler and shared halt callers; implicit declarations rejected by MIPS compiler"
+    }
+  ],
+  "fixes": [
+    "route post-claim insertion failures through balanced cleanup",
+    "drain pending queue inside shared halt body before queue destruction",
+    "define queue helpers immediately after ft-pending-queue.h before all callers"
+  ],
+  "host_checks": {
+    "pending_insert": 0,
+    "pending_enqueue": 0,
+    "ci_snapshot_composition": 0,
+    "nim_pending_identity": {
+      "command": "nim c -r --out:/tmp/ft-pending-identity-check tools/iot/ft_pending_identity_check.nim",
+      "exit_status": 0,
+      "covers": [
+        "BSS+MAC ledger single-use claim, reference retirement, exact context and overflow",
+        "pending queue ownership transfer and stale drop",
+        "close before drain, late producer refusal and restart reopen"
+      ]
+    }
+  },
+  "source_sha256": {
+    "tools/iot/ft-pending-insert-composition.py": "ce9d63a1b781d7ec4a46885c71ae9cabb33455501d6988bed95032a8f4202569",
+    "tools/iot/check-ft-pending-insert.py": "de469908a31be036520e53455ed7a9be9d6d46996fb7837b14e2321acced8cc7",
+    "tools/iot/ft-pending-enqueue-composition.py": "c7e4682939800e9b08c3044ea4dea36eb92d10df514d9729a8ec199eaec5adc6",
+    "tools/iot/check-ft-pending-enqueue.py": "c9046ea4b02611d45e0c80189beada9ae39b80b6eda42d0e2b4b85ce8286b8a1"
+  },
+  "target_retry": {
+    "run": 44672305132,
+    "status_at_dispatch": "queued",
+    "verified_success": false,
+    "status_last_observed": "in_progress",
+    "active_step_last_observed": "Install build dependencies"
+  },
+  "target_compiled": false,
+  "producer_installed": false,
+  "runtime_verified": false
+}
