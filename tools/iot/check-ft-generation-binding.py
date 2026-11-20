@@ -64,6 +64,7 @@ def types(text):
  return text
 prefix=types(data['action_prefix'])
 if a.success_context:
+ prefix='#include <stdio.h>\n'+prefix
  prefix=prefix.replace('#define SST_AUTH 1',
   '#define SST_NOT_AUTH 0\n#define SST_AUTH 1\n#include "ft-iapp-request-state.h"')
  prefix=prefix.replace('typedef struct {int MacTabLock;',
@@ -217,6 +218,47 @@ main=main.replace(probe_anchor,probe_anchor+r"""
  }
 """)
 
+if a.success_context:
+ extra=r'''
+ for(unsigned mode=0;mode<3;mode++){
+  AD trial={0};trial.ApCfg.BssidNum=3;
+  trial.ApCfg.MBSSID[2].wdev.bssid[0]=2;
+  trial.ApCfg.MBSSID[2].FtCfg.FtCapFlag.Dot11rFtEnable=1;
+  ENTRY *peer=&trial.MacTab.Content[7];
+  *peer=(ENTRY){.assoc_gen=5,.wcid=7,.client=1,.func_tb_idx=2,.Sst=SST_ASSOC,
+   .Addr={42},.wdev=&trial.ApCfg.MBSSID[2].wdev};
+  trial.wr_assoc_generations[7]=trial.wr_assoc_visible[7]=5;
+  memcpy(trial.wr_assoc_addr[7],peer->Addr,6);
+  MLME_QUEUE_ELEM queued={.MsgLen=38,.Wcid=7,.assoc_gen=5,.assoc_wcid=7,.assoc_addr={42}};
+  HEADER_802_11 *header=(void *)queued.Msg;header->Addr1[0]=2;header->Addr2[0]=42;
+  FT_ACTION *request=(void *)(queued.Msg+24);request->Action=FT_ACTION_BT_REQ;
+  request->StaMac[0]=42;request->TargetApAddr[0]=2;
+  struct wr_ft_iapp_request_state *state=&trial.wr_ft_iapp_requests;
+  struct wr_ft_iapp_token_handle handle={0},claim={0};unsigned char token[7]={1};
+  wr_ft_iapp_request_state_init(state);
+  assert(wr_ft_iapp_token_reserve_locked(&state->ledger,token,2,7,5,
+   peer->Addr,peer->wdev->bssid,&handle));
+  state->current[7]=handle;state->detached[7]=(mode!=2);state->detached_sst[7]=SST_ASSOC;
+  if(mode==1)assert(wr_ft_iapp_token_claim_locked(&state->ledger,token,
+   peer->Addr,peer->wdev->bssid,&claim));
+  int old_reqs=reqs,old_forwards=forwards;expect_scope=1;
+  FT_FtAction(&trial,&queued);
+  assert(reqs==old_reqs+1&&allocs==frees&&!trial.MacTabLock);
+  if(mode==0){
+   assert(peer->Sst==SST_AUTH&&peer->assoc_gen==6);
+   assert(!state->current[7].serial&&!state->detached[7]);
+   assert(!trial.wr_assoc_event_users[7]&&!trial.wr_iot_peer_table_owner.transactions);
+  }else{
+   assert(peer->Sst==SST_ASSOC&&peer->assoc_gen==5&&forwards==old_forwards);
+   assert(trial.wr_iot_peer_table_owner.poisoned&&trial.wr_iot_peer_table_owner.transactions==1);
+   assert(trial.wr_assoc_event_users[7]==1&&state->current[7].serial==handle.serial);
+   assert(state->ledger.entry[handle.slot].state==(mode==1?WR_FT_IAPP_TOKEN_CLAIMED:WR_FT_IAPP_TOKEN_WAITING));
+  }
+ }
+ puts("PASS | native FT Action success retirement | detached WAITING cancelled before state/generation; CLAIMED and synchronous request block reply/transition, retain poisoned lease; buffers balanced");
+'''
+ at=main.rindex('return 0;')
+ main=main[:at]+extra+main[at:]
 consumer=prefix+'\n#include "ft-peer-generation.h"\n#include "assoc-generation.h"\n'
 consumer+='\n#include "ft-iapp-peer-admission.h"\n'
 consumer+='''\n#include "ft-pending-peer-scope.h"\n#include "ft-pending-queue.h"\n'''
