@@ -34,10 +34,23 @@ assert handler.index('switch (Elem->Machine)') < handler.index('wr_ft_pending_el
 restart=life[life.index('VOID MlmeRestartStateMachine('):life.index('\n}',life.index('VOID MlmeRestartStateMachine('))+2]
 assert restart.index('pAd->Mlme.bRunning = TRUE;') < restart.index('wr_ft_pending_closed=1') < restart.index('wr_ft_pending_queue_discard_all')
 assert restart.index('wr_ft_pending_queue_discard_all') < restart.index('wr_ft_pending_closed=0') < restart.index('pAd->Mlme.bRunning = FALSE;')
-halt=life[life.index('VOID MlmeHalt('):life.index('\n}',life.index('VOID MlmeHalt('))+2]
+halt_signature=('static BOOLEAN wr_iot_mlme_halt_body(' if
+                'static BOOLEAN wr_iot_mlme_halt_body(' in life else 'VOID MlmeHalt(')
+halt=life[life.index(halt_signature):life.index('\n}',life.index(halt_signature))+2]
 assert halt.index('RtmpOSTaskKill(pTask)') < halt.index('wr_ft_pending_closed=1') < halt.index('wr_ft_pending_queue_discard_all') < halt.index('MlmeQueueDestroy(')
 assert 'wr_ft_pending_elem_init(&Queue->Entry[i]);' in life
 assert 'wr_ft_pending_closed=0;' in life
+# Candidate preparation can add indentation to this native call. Keep the
+# lifecycle anchor tied to the guarded destroy block, not one whitespace form.
+eap_destroy='\tMlmeQueueDestroy(&pAd->Mlme.EAP_Queue, &pAd->Mlme.Queue);'
+if eap_destroy not in changed:
+    raise AssertionError('pinned EAP queue destroy indentation changed')
+indented=changed.replace(eap_destroy, '\t\tMlmeQueueDestroy(&pAd->Mlme.EAP_Queue, &pAd->Mlme.Queue);', 1)
+indented_life=api['lifecycle'](indented)
+indented_signature=('static BOOLEAN wr_iot_mlme_halt_body(' if
+                    'static BOOLEAN wr_iot_mlme_halt_body(' in indented_life else 'VOID MlmeHalt(')
+indented_halt=indented_life[indented_life.index(indented_signature):indented_life.index('\n}',indented_life.index(indented_signature))+2]
+assert indented_halt.index('wr_ft_pending_queue_discard_all') < indented_halt.index('MlmeQueueDestroy(')
 # Reuse the existing native queue/classifier actors, with new metadata fields.
 tree=ast.parse((here/'check-ft-enqueue-generation.py').read_text())
 prefix=next(ast.literal_eval(n.value) for n in tree.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='prefix' for t in n.targets))

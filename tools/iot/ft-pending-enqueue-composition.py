@@ -182,19 +182,28 @@ static void wr_ft_pending_queue_discard_all(RTMP_ADAPTER *pAd,MLME_QUEUE *queue,
     body=one(body,tail,tail+'\n'+reopen)
     text=text[:start]+body+text[end:]
 
-    # Halt joins/stops the MLME worker before this drain and lock destruction.
-    start=text.index('VOID MlmeHalt(');end=text.index('\n}',start)+2
+    # Some candidate predecessors split the checked and legacy wrappers from
+    # their shared halt body. Drain inside that body, after task stop and before
+    # queue/lock destruction, so both entry paths receive the same lifecycle.
+    halt_signature=('static BOOLEAN wr_iot_mlme_halt_body('
+        if 'static BOOLEAN wr_iot_mlme_halt_body(' in text else 'VOID MlmeHalt(')
+    start=text.index(halt_signature);end=text.index('\n}',start)+2
     body=text[start:end]
-    anchor='#ifdef EAPOL_QUEUE_SUPPORT\n\tMlmeQueueDestroy(&pAd->Mlme.EAP_Queue, &pAd->Mlme.Queue);'
+    destroy='MlmeQueueDestroy(&pAd->Mlme.EAP_Queue, &pAd->Mlme.Queue);'
+    if body.count(destroy)!=1:
+        raise ValueError('FT pending enqueue requires one EAP queue destroy call')
+    destroy_at=body.index(destroy)
+    anchor_at=body.rfind('#ifdef EAPOL_QUEUE_SUPPORT',0,destroy_at)
+    if anchor_at<0 or body.find('#else',anchor_at,destroy_at)>=0:
+        raise ValueError('FT pending enqueue requires the guarded EAP queue destroy block')
     drain='''#ifdef DOT11R_FT_SUPPORT
  NdisAcquireSpinLock(&pAd->Mlme.Queue.Lock);
  pAd->Mlme.Queue.wr_ft_pending_closed=1;
  NdisReleaseSpinLock(&pAd->Mlme.Queue.Lock);
  wr_ft_pending_queue_discard_all(pAd,&pAd->Mlme.Queue,MAX_LEN_OF_MLME_QUEUE);
 #endif
-#ifdef EAPOL_QUEUE_SUPPORT
-\tMlmeQueueDestroy(&pAd->Mlme.EAP_Queue, &pAd->Mlme.Queue);'''
-    body=one(body,anchor,drain)
+'''
+    body=body[:anchor_at]+drain+body[anchor_at:]
     text=text[:start]+body+text[end:]
     return text
 
