@@ -61,7 +61,7 @@ start = s.index('static MAC_TABLE_ENTRY *wr_ft_pending_native_insert(')
 end = s.index('\n}', start)+2
 clone = s[start:end]
 gate = clone[clone.index(' if(!wr_ticket'):clone.index('\tfor (i = FirstWcid;')]
-finish = clone[clone.index('if(pEntry)(void)wr_ft_pending_peer_publish_locked'):clone.rindex('NdisReleaseSpinLock(&pAd->MacTabLock);', 0, clone.index('wr_ft_pending_failure:\n'))]
+finish = clone[clone.index('if(pEntry && !wr_ft_pending_peer_publish_locked'):clone.rindex('NdisReleaseSpinLock(&pAd->MacTabLock);', 0, clone.index('wr_ft_pending_failure:\n'))]
 failure = clone[clone.index('wr_ft_pending_failure:\n'):clone.rindex('\n}')]
 start = s.index('MAC_TABLE_ENTRY *wr_ft_pending_insert(')
 wrapper = s[start:s.index('\n}', start)+2]
@@ -142,7 +142,7 @@ static inline void wr_assoc_publish_slot_locked(RTMP_ADAPTER *ad,MAC_TABLE_ENTRY
  ad->wr_assoc_visible[wcid]=entry->assoc_gen;
 }
 #include "ft-pending-peer-scope.h"
-static int fail_insert,tail_calls;
+static int fail_insert,fail_publish,tail_calls;
 static void NdisAcquireSpinLock(int *lock){assert(!*lock);*lock=1;}
 static void NdisReleaseSpinLock(int *lock){assert(*lock);*lock=0;}
 static MAC_TABLE_ENTRY *wr_ft_pending_native_insert(RTMP_ADAPTER *pAd,UCHAR *pAddr,
@@ -172,6 +172,7 @@ actor = r'''
    assert(!memcmp(pEntry->Addr,wr_ticket->addr,MAC_ADDR_LEN));
    assert(wr_scope->adapter==pAd&&wr_scope->generation==0&&wr_scope->active);
    assert(!memcmp(wr_scope->addr,wr_ticket->addr,MAC_ADDR_LEN));
+   if(fail_publish)pEntry->wdev=&pAd->ApCfg.MBSSID[0].wdev;
    break;
 '''
 actor += r'''
@@ -211,6 +212,14 @@ int main(void){
  fail_insert=0;
  entry=wr_ft_pending_insert(&ad,mac,&ad.ApCfg.MBSSID[2].wdev,&first,&scope);
  assert(entry==&ad.MacTab.Content[2]&&entry->func_tb_idx==2&&tail_calls==1&&scope.generation==entry->assoc_gen);
+ /* A second invocation cannot erase an outstanding insertion lease. */
+ {
+ struct wr_ft_pending_peer_scope saved=scope;
+ unsigned users=ad.wr_assoc_event_users[2],owners=ad.wr_iot_peer_table_owner.transactions;
+ assert(!wr_ft_pending_insert(&ad,mac,&ad.ApCfg.MBSSID[2].wdev,&first,&scope));
+ assert(!memcmp(&saved,&scope,sizeof(scope)));
+ assert(ad.wr_assoc_event_users[2]==users&&ad.wr_iot_peer_table_owner.transactions==owners);
+ }
  leave_scope(&ad,&scope);
  assert(!wr_ft_pending_current_locked(&ad.wr_ft_pending,&sibling));
  assert(!wr_ft_pending_insert(&ad,mac,&ad.ApCfg.MBSSID[2].wdev,&sibling,&scope));
@@ -234,7 +243,25 @@ int main(void){
  assert(wr_ft_pending_current_locked(&ad.wr_ft_pending,&first));
  assert(wr_ft_pending_release_locked(&ad.wr_ft_pending,&first));
  assert(!ad.MacTabLock&&!ad.wr_iot_peer_table_owner.transactions);
+ /* Publication failure retains the slot lease, retires the ticket and
+  * stops before native post-unlock side effects or AUTH delivery. */
+ {
+ RTMP_ADAPTER broken={0};struct wr_ft_pending_peer_scope held={0};
+ struct wr_ft_pending_token ticket={0};int before=tail_calls;
+ broken.ApCfg.BssidNum=3;broken.ApCfg.MBSSID[2].wdev.func_idx=2;
+ assert(wr_ft_pending_reserve_locked(&broken.wr_ft_pending,2,mac,&ticket));
+ fail_publish=1;
+ assert(!wr_ft_pending_insert(&broken,mac,&broken.ApCfg.MBSSID[2].wdev,&ticket,&held));
+ fail_publish=0;
+ assert(tail_calls==before&&!broken.MacTabLock);
+ assert(broken.wr_iot_peer_table_owner.poisoned&&held.active&&!held.generation);
+ assert(broken.wr_assoc_event_users[1]==1&&broken.wr_iot_peer_table_owner.transactions==1);
+ assert(!wr_ft_pending_current_locked(&broken.wr_ft_pending,&ticket));
+ assert(wr_ft_pending_release_locked(&broken.wr_ft_pending,&ticket));
+ assert(!wr_ft_pending_peer_leave_locked(&broken,&held));
+ }
  puts("PASS | FT pending insertion gates | exact BSS+MAC, foreign-BSS duplicate, stale sibling, retry, capacity, owner and lock balance");
+ puts("PASS | FT pending insertion failure | active scope preserved; publication failure retains ownership and prevents AUTH delivery and native tail");
  return 0;
 }
 '''

@@ -120,7 +120,11 @@ MAC_TABLE_ENTRY *wr_ft_pending_insert(RTMP_ADAPTER *pAd,UCHAR *pAddr,
     clone = before + after
     unlock = 'NdisReleaseSpinLock(&pAd->MacTabLock);'
     pos = clone.rindex(unlock)
-    clone = clone[:pos] + '''if(pEntry)(void)wr_ft_pending_peer_publish_locked(pAd,pEntry,wr_ticket,wr_scope);
+    clone = clone[:pos] + '''if(pEntry && !wr_ft_pending_peer_publish_locked(pAd,pEntry,wr_ticket,wr_scope)){
+  wr_ft_pending_retire_key_locked(&pAd->wr_ft_pending,wr_ticket->bss,pAddr);
+  NdisReleaseSpinLock(&pAd->MacTabLock);
+  return NULL;
+ }
  if(pEntry)wr_ft_pending_retire_key_locked(&pAd->wr_ft_pending,wr_ticket->bss,pAddr);
  else if(wr_claimed)(void)wr_ft_pending_unclaim_locked(&pAd->wr_ft_pending,wr_ticket);
  ''' + clone[pos:]
@@ -146,7 +150,7 @@ MAC_TABLE_ENTRY *wr_ft_pending_insert(RTMP_ADAPTER *pAd,UCHAR *pAddr,
  struct wr_ft_pending_peer_scope *scope)
 {
  MAC_TABLE_ENTRY *result;int entered,ended;
- if(!pAd||!pAddr||!wdev||!ticket||!scope)return NULL;
+ if(!pAd||!pAddr||!wdev||!ticket||!scope||scope->active)return NULL;
  NdisZeroMemory(scope,sizeof(*scope));
  NdisAcquireSpinLock(&pAd->MacTabLock);
  entered=wr_iot_peer_close_executor_idle(&pAd->wr_iot_peer_close_executor) &&
