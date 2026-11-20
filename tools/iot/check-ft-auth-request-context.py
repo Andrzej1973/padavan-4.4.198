@@ -24,6 +24,30 @@ bounded = runpy.run_path(str(here/'ft-parser-bounds-composition.py'))['compose']
 prepared = enqueue['bind_ft'](bounded, proto, pending_proto)
 module = runpy.run_path(str(here/'ft-auth-request-context-composition.py'))
 composed, composed_header = module['compose_ft'](prepared, header)
+storage_input = dict(schema)
+storage_input['include/rtmp.h'] = storage_input['include/rtmp.h'].replace(
+    '\tMAC_TABLE MacTab;',
+    ' struct wr_iot_peer_table_owner wr_iot_peer_table_owner;\n'
+    ' struct wr_iot_peer_close_executor wr_iot_peer_close_executor;\n\tMAC_TABLE MacTab;', 1)
+storage_input = runpy.run_path(str(here/'ft-pending-insert-composition.py'))['compose'](
+    storage_input, a.source, here)
+storage_compose = runpy.run_path(str(here/'ft-iapp-request-state-composition.py'))['compose']
+storage = storage_compose(storage_input, a.source, here)
+init = storage['common/rtmp_init.c']
+init_call = ' wr_ft_iapp_request_state_init(&pAd->wr_ft_iapp_requests);'
+assert init.count(init_call) == 1
+alloc_start = init.index('NDIS_STATUS RTMPAllocAdapterBlock(')
+alloc_end = init.index('\n}', alloc_start)
+assert alloc_start < init.index(init_call) < init.index('pAd->OS_Cookie = handle;', alloc_start) < alloc_end
+assert storage['include/rtmp.h'].count('struct wr_ft_iapp_request_state wr_ft_iapp_requests;') == 1
+assert storage['include/ft-iapp-request-state.h'] == (here/'ft-iapp-request-state.h').read_text()
+for invalid in ({}, storage):
+    try:
+        storage_compose(invalid, a.source, here)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError('missing storage predecessor or duplicate accepted')
 
 
 def signatures(text, name):
@@ -131,6 +155,37 @@ static USHORT FT_AuthReqRsnValidation(PRTMP_ADAPTER ad,PMAC_TABLE_ENTRY entry,
  assert(!wr_ft_auth_request_admit_locked(ad,entry,context,&ledger,token,
   entry->Addr,entry->wdev->bssid,&request,&response));
  assert(!response.serial&&ad->wr_assoc_event_users[entry->wcid]==1);
+ {
+ struct wr_ft_iapp_request_state state;
+ struct wr_ft_iapp_token_handle active={0},old={0},other={0},claim={0};
+ unsigned int serial;
+ memset(&state,0xa5,sizeof(state));wr_ft_iapp_request_state_init(&state);
+ assert(!state.ledger.next_serial&&!state.ledger.poisoned);
+ for(unsigned int w=0;w<WR_FT_IAPP_TOKEN_CAPACITY;w++)assert(!state.current[w].serial);
+ assert(!wr_ft_auth_request_publish_locked(ad,entry,context,&state,token,&state.current[1]));
+ assert(!state.ledger.next_serial&&!state.current[1].serial);
+ assert(wr_ft_auth_request_publish_locked(ad,entry,context,&state,token,&active));
+ old=active;serial=state.ledger.next_serial;
+ assert(!wr_ft_auth_request_unpublish_locked(ad,entry,context,&state,&state.current[1]));
+ assert(!wr_ft_auth_request_publish_locked(ad,entry,context,&state,wrong,&other));
+ assert(!other.serial&&state.ledger.next_serial==serial);
+ assert(!wr_ft_auth_request_publish_locked(ad,entry,context,&state,wrong,&state.current[entry->wcid]));
+ assert(state.current[entry->wcid].serial==active.serial);
+ assert(wr_ft_auth_request_admit_locked(ad,entry,context,&state.ledger,token,
+  entry->Addr,entry->wdev->bssid,&state.current[entry->wcid],&claim));
+ assert(!wr_ft_auth_request_unpublish_locked(ad,entry,context,&state,&active));
+ assert(active.serial&&state.current[entry->wcid].serial==active.serial);
+ assert(wr_ft_iapp_token_finish_locked(&state.ledger,&claim));
+ assert(wr_ft_auth_request_unpublish_locked(ad,entry,context,&state,&active));
+ assert(!active.serial&&!state.current[entry->wcid].serial);
+ token[0]++;
+ assert(wr_ft_auth_request_publish_locked(ad,entry,context,&state,token,&active));
+ assert(active.serial>old.serial&&state.ledger.next_serial>serial);
+ assert(!wr_ft_auth_request_unpublish_locked(ad,entry,context,&state,&old));
+ assert(state.current[entry->wcid].serial==active.serial);
+ assert(wr_ft_auth_request_unpublish_locked(ad,entry,context,&state,&active));
+ assert(state.ledger.next_serial>serial);
+ }
  NdisReleaseSpinLock(&ad->MacTabLock);
  auth_calls++;
  if(exhaust_generation)ad->wr_assoc_generations[entry->wcid]=~0U;
@@ -193,3 +248,4 @@ print('PASS | FT AUTH invocation context | both caller scopes threaded to native
 print('PASS | FT AUTH context admission | exact existing/first-peer lease; missing, dual, foreign entry, stale generation and foreign adapter refused; ASan/UBSan callback fixture')
 print('PASS | native FT AUTH handler | full composed body; existing/first-peer callback exits; null/stale/foreign context before entry access; MDIE refusal, open and RSN actor paths; ASan/UBSan')
 print('PASS | FT invocation request lifecycle | existing/pending begin-admit-end; active handle preserved; claimed response blocks end; timeout cancels delayed response; no peer lease release')
+print('PASS | FT adapter request registry | fresh-allocation init only; value handles; active/aliased publication refused; claimed response blocks unpublish; stale invocation cannot clear reused slot; serial retained')

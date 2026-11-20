@@ -5,6 +5,7 @@
 #define WR_FT_AUTH_REQUEST_CONTEXT_H
 #include "ft-iapp-peer-admission.h"
 #include "ft-iapp-pending-admission.h"
+#include "ft-iapp-request-state.h"
 struct wr_ft_auth_request_context {
  struct wr_ft_peer_scope *existing;
  struct wr_ft_pending_peer_scope *pending;
@@ -64,5 +65,39 @@ static inline int wr_ft_auth_request_end_locked(RTMP_ADAPTER *ad,
  if(context->existing&&context->existing->active)
   return wr_ft_iapp_peer_request_end_locked(ad,context->existing,ledger,request);
  return wr_ft_iapp_pending_request_end_locked(ad,context->pending,ledger,request);
+}
+/* Publish only value handles. A stale invocation cannot end a later request,
+ * even when the same WCID and ledger slot have both been reused. */
+static inline int wr_ft_auth_request_publish_locked(RTMP_ADAPTER *ad,
+ MAC_TABLE_ENTRY *entry,const struct wr_ft_auth_request_context *context,
+ struct wr_ft_iapp_request_state *state,const unsigned char *token,
+ struct wr_ft_iapp_token_handle *request)
+{
+ unsigned int w,i;
+ if(!state||!request||request->serial||
+    !wr_ft_auth_request_current_locked(ad,entry,context))return 0;
+ w=entry->wcid;
+ if(w>=WR_FT_IAPP_TOKEN_CAPACITY||state->current[w].serial)return 0;
+ for(i=0;i<WR_FT_IAPP_TOKEN_CAPACITY;i++)
+  if(request==&state->current[i])return 0;
+ if(!wr_ft_auth_request_begin_locked(ad,entry,context,&state->ledger,token,request))return 0;
+ state->current[w]=*request;
+ return 1;
+}
+static inline int wr_ft_auth_request_unpublish_locked(RTMP_ADAPTER *ad,
+ MAC_TABLE_ENTRY *entry,const struct wr_ft_auth_request_context *context,
+ struct wr_ft_iapp_request_state *state,struct wr_ft_iapp_token_handle *request)
+{
+ unsigned int w,i;
+ if(!state||!request||!wr_ft_auth_request_current_locked(ad,entry,context))return 0;
+ w=entry->wcid;
+ if(w>=WR_FT_IAPP_TOKEN_CAPACITY)return 0;
+ for(i=0;i<WR_FT_IAPP_TOKEN_CAPACITY;i++)
+  if(request==&state->current[i])return 0;
+ if(state->current[w].serial!=request->serial||
+    (request->serial&&state->current[w].slot!=request->slot))return 0;
+ if(!wr_ft_auth_request_end_locked(ad,entry,context,&state->ledger,request))return 0;
+ wr_ft_iapp_token_clear(&state->current[w]);
+ return 1;
 }
 #endif
