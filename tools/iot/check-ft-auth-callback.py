@@ -2,13 +2,19 @@
 """Execute composed native over-air FT branch with real existing-peer scope."""
 import argparse,contextlib,io,runpy,subprocess,sys,tempfile
 from pathlib import Path
-p=argparse.ArgumentParser(description=__doc__);p.add_argument('source',type=Path);p.add_argument('--request-context',action='store_true');a=p.parse_args();here=Path(__file__).resolve().parent
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('source',type=Path);p.add_argument('--request-context',action='store_true');p.add_argument('--retry',action='store_true');a=p.parse_args();here=Path(__file__).resolve().parent
 argv=sys.argv[:];sys.argv=[str(here/'check-ft-auth-rx-queue.py'),str(a.source)]
 try:
  with contextlib.redirect_stdout(io.StringIO()):data=runpy.run_path(sys.argv[0])
 finally:sys.argv=argv
 native=(a.source/'ap/ap_auth.c').read_text()
 composed=runpy.run_path(str(here/'ft-auth-callback-composition.py'))['compose'](native)
+if a.retry:
+ retry_compose=runpy.run_path(str(here/'ft-auth-callback-composition.py'))['compose_retry']
+ composed=retry_compose(composed)
+ try:retry_compose(composed)
+ except ValueError:pass
+ else:raise AssertionError('duplicate retry callback accepted')
 if a.request_context:
  composed=runpy.run_path(str(here/'ft-auth-request-context-composition.py'))['compose_callback'](composed)
 start=composed.index('\tpFtCfg = &pMbss->FtCfg;');end=composed.index('\n\telse\n#endif /* DOT11R_FT_SUPPORT */',start)
@@ -189,6 +195,40 @@ if a.request_context:
  main=main.replace('if(scenario==3)ad.wr_assoc_generations[7]=~0U;',
                    'exhaust_generation=(scenario==3);')
 # Required by pending-scope inline definitions, even though insertion is not executed here.
+if a.retry:
+ prefix=prefix.replace('typedef struct {unsigned ft_pending_generation,',
+  'typedef struct {unsigned ft_preauth_serial,ft_preauth_generation,ft_preauth_wcid,ft_preauth_bss;unsigned char ft_preauth_mac[6],ft_preauth_bssid[6];unsigned ft_pending_generation,',1)
+ # Registry is a value-only adapter member in the real prepared schema too.
+ prefix=prefix.replace('#include "peer-table-owner.h"',
+  '#include "peer-table-owner.h"\n#include "ft-iapp-request-state.h"')
+ prefix=prefix.replace('int MacTabLock,OpMode;',
+  'struct wr_ft_iapp_request_state wr_ft_iapp_requests;int MacTabLock,OpMode;')
+ actors=actors.replace('#include "ft-iapp-pending-admission.h"',
+  '#include "ft-iapp-pending-admission.h"\n#include "ft-auth-retry-peer-scope.h"')
+ main=main.replace('scenario<8','scenario<12')
+ main=main.replace('if(scenario>=5){','if(scenario>=5&&scenario<8){')
+ main=main.replace(' allocation_fail=',r'''
+ if(scenario>=8){
+  struct wr_ft_preauth_identity identity={.serial=9,.generation=1,.wcid=7,.bss=2,.mac={42},.bssid={2}};
+  e->Sst=SST_NOT_AUTH;
+  ad.wr_ft_iapp_requests.preauth[7]=identity;
+  assert(wr_ft_preauth_elem_publish(&event,&identity));
+  if(scenario==11)ad.wr_ft_iapp_requests.preauth[7].serial++;
+ }
+ allocation_fail=''')
+ main=main.replace('scenario==2||scenario==7','scenario==2||scenario==7||scenario==10')
+ main=main.replace('scenario==1||scenario==6','scenario==1||scenario==6||scenario==9')
+ main=main.replace(' callback(&ad,&event);',r'''
+ callback(&ad,&event);
+ if(scenario==11){
+  assert(!auth_calls&&!replies&&!failures&&!allocations);
+  assert(!ad.wr_assoc_event_users[7]&&!ad.wr_iot_peer_table_owner.transactions&&!ad.MacTabLock);
+  continue;
+ }
+''')
+ main=main.replace('scenario==0||scenario==4||scenario==5','scenario==0||scenario==4||scenario==5||scenario==8')
+ main=main.replace('scenario==0||scenario==5','scenario==0||scenario==5||scenario==8')
+ main=main.replace(' return 0;',' puts("PASS | native AUTH retry branch | successful retry, resource/allocation exits, stale serial before handler, pending lease and generation balance");\n return 0;')
 prefix=prefix.replace('struct {MLME_QUEUE Queue,EAP_Queue;} Mlme;', 'struct wr_iot_peer_close_executor wr_iot_peer_close_executor;struct {MLME_QUEUE Queue,EAP_Queue;} Mlme;')
 prefix=prefix.replace('#include "peer-table-owner.h"','#include "peer-table-owner.h"\n#include "peer-close-executor.h"')
 with tempfile.TemporaryDirectory(prefix='ft-auth-callback-') as td:

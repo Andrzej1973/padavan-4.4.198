@@ -80,3 +80,21 @@ wr_ft_air_done:
   return;
  }'''
     return text[:start]+body+text[end:]
+
+
+def compose_retry(text):
+    if 'wr_ft_auth_retry_enter_locked' in text or 'wr_ft_air_scope' not in text:
+        raise ValueError('FT retry callback requires prepared native callback once')
+    old='#include "ft-auth-peer-scope.h"'
+    if text.count(old)!=1:raise ValueError('FT retry callback include changed')
+    text=text.replace(old,old+'\n#include "ft-auth-retry-peer-scope.h"',1)
+    old='  if(Elem->assoc_gen){'
+    if text.count(old)!=1:raise ValueError('FT retry callback admission changed')
+    new='''  if(Elem->ft_preauth_serial){
+   if(!wr_ft_auth_retry_enter_locked(pAd,&pAd->wr_ft_iapp_requests,Elem,
+       apidx,auth_info.addr2,&wr_ft_air_pending_scope,&pEntry)){
+    NdisReleaseSpinLock(&pAd->MacTabLock);return;
+   }
+   NdisReleaseSpinLock(&pAd->MacTabLock);
+  }else if(Elem->assoc_gen){'''
+    return text.replace(old,new,1)
