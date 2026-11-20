@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """Check pinned FT ownership argument threading; execute AUTH callback fixture."""
 import argparse
+import contextlib
+import io
 import re
 import runpy
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 p = argparse.ArgumentParser(description=__doc__)
@@ -53,7 +56,110 @@ except ValueError:
     pass
 else:
     raise AssertionError('validation call drift accepted')
-subprocess.run([sys.executable, str(here/'check-ft-auth-callback.py'), str(a.source),
-                '--request-context'], check=True)
+argv = sys.argv[:]
+sys.argv = [str(here/'check-ft-auth-callback.py'), str(a.source), '--request-context']
+try:
+    with contextlib.redirect_stdout(io.StringIO()) as output:
+        fixture = runpy.run_path(sys.argv[0])
+finally:
+    sys.argv = argv
+print(output.getvalue(), end='')
+# Execute the entire generated native handler too. RSN cryptography remains
+# an explicit actor; callback, handler, identity checks and exits are real.
+prefix = fixture['prefix'].replace(
+    'typedef struct {unsigned char value[8];} FT_MDIE_INFO;', '''
+typedef union {struct {unsigned FtOverDs:1,RsrReqCap:1;} field;unsigned word;} FT_CAP_AND_POLICY;
+typedef struct {unsigned char Len,MdId[2];FT_CAP_AND_POLICY FtCapPlc;} FT_MDIE_INFO;
+''').replace('struct {int Dot11rFtEnable;} FtCapFlag;',
+             'unsigned char FtMdId[2];struct {int Dot11rFtEnable,FtOverDs,RsrReqCap;} FtCapFlag;')
+prefix += '''
+typedef RTMP_ADAPTER *PRTMP_ADAPTER;
+typedef FT_INFO *PFT_INFO;
+#ifndef DBGPRINT
+#define DBGPRINT(a,b) ((void)0)
+#endif
+#ifndef DBGPRINT_ERR
+#define DBGPRINT_ERR(a) ((void)0)
+#endif
+#define OUT
+#define FT_MDID_EQU(a,b) (!memcmp(a,b,2))
+#define FT_SET_MDID(a,b) memcpy(a,b,2)
+#define MLME_UNSPECIFY_FAIL 56
+#define FT_STATUS_CODE_INVALID_MDIE 54
+#ifndef NdisZeroMemory
+#define NdisZeroMemory(a,n) memset(a,0,n)
+#endif
+'''
+start = composed.index('USHORT FT_AuthReqHandler(')
+handler = composed[start:composed.index('\n}', start)+2]
+actors = fixture['actors']
+start = actors.index('static USHORT FT_AuthReqHandler(')
+end = actors.index('\n}', start)+2
+validation_actor = r'''
+static USHORT FT_AuthReqRsnValidation(PRTMP_ADAPTER ad,PMAC_TABLE_ENTRY entry,
+ PFT_CFG cfg,PFT_INFO in,PFT_INFO out,
+ const struct wr_ft_auth_request_context *context){
+ (void)cfg;(void)in;(void)out;
+ NdisAcquireSpinLock(&ad->MacTabLock);
+ assert(wr_ft_auth_request_current_locked(ad,entry,context));
+ NdisReleaseSpinLock(&ad->MacTabLock);
+ auth_calls++;
+ if(exhaust_generation)ad->wr_assoc_generations[entry->wcid]=~0U;
+ return auth_result;
+}
+'''
+actors = actors[:start]+validation_actor+handler+actors[end:]
+actors = actors.replace('auth_info={.auth_alg=AUTH_MODE_FT};',
+    'auth_info={.auth_alg=AUTH_MODE_FT,.FtInfo={.MdIeInfo={.Len=3},.RSNIE_Len=1}};')
+extra = r'''
+static void native_handler_refusals(void){
+ (void)fallback_calls;(void)APMsgTypeSubst;(void)EAPMlmeQueueFull;
+ (void)MlmeQueueFull;(void)wr_assoc_publish;
+ RTMP_ADAPTER ad={0};FT_INFO in={0},out={0};
+ struct wr_ft_peer_scope scope={0};struct wr_ft_peer_stamp stamp={0};
+ struct wr_ft_auth_request_context context={&scope,NULL};
+ MAC_TABLE_ENTRY *entry=&ad.MacTab.Content[7];
+ ad.ApCfg.BssidNum=3;
+ *entry=(MAC_TABLE_ENTRY){.assoc_gen=1,.wcid=7,.func_tb_idx=2,.Sst=SST_ASSOC,
+  .client=1,.Addr={42},.wdev=&ad.ApCfg.MBSSID[2].wdev};
+ ad.wr_assoc_generations[7]=ad.wr_assoc_visible[7]=1;ad.wr_assoc_addr[7][0]=42;
+ stamp=(struct wr_ft_peer_stamp){.generation=1,.wcid=7,.bss=2,.addr={42}};
+ NdisAcquireSpinLock(&ad.MacTabLock);
+ assert(wr_ft_peer_enter_locked(&ad,&stamp,&scope));
+ NdisReleaseSpinLock(&ad.MacTabLock);
+ auth_calls=0;exhaust_generation=0;
+ assert(FT_AuthReqHandler(NULL,entry,&in,&out,&context)==MLME_FAIL_NO_RESOURCE);
+ assert(FT_AuthReqHandler(&ad,NULL,&in,&out,&context)==MLME_FAIL_NO_RESOURCE);
+ assert(FT_AuthReqHandler(&ad,entry,&in,&out,NULL)==MLME_FAIL_NO_RESOURCE);
+ assert(FT_AuthReqHandler(&ad,&ad.MacTab.Content[1],&in,&out,&context)==MLME_FAIL_NO_RESOURCE);
+ scope.stamp.generation++;
+ assert(FT_AuthReqHandler(&ad,entry,&in,&out,&context)==MLME_FAIL_NO_RESOURCE);
+ scope.stamp.generation--;
+ assert(!auth_calls&&!ad.MacTabLock&&entry->assoc_gen==1);
+ assert(FT_AuthReqHandler(&ad,entry,&in,&out,&context)==FT_STATUS_CODE_INVALID_MDIE);
+ assert(!auth_calls);
+ in.MdIeInfo.Len=3;
+ assert(FT_AuthReqHandler(&ad,entry,&in,&out,&context)==MLME_SUCCESS);
+ assert(!auth_calls&&out.MdIeInfo.Len==3);
+ in.RSNIE_Len=1;auth_result=55;
+ assert(FT_AuthReqHandler(&ad,entry,&in,&out,&context)==55);
+ assert(auth_calls==1&&!ad.MacTabLock&&ad.wr_assoc_event_users[7]==1);
+ NdisAcquireSpinLock(&ad.MacTabLock);
+ assert(wr_ft_peer_leave_locked(&ad,&scope));
+ NdisReleaseSpinLock(&ad.MacTabLock);
+ assert(!ad.wr_iot_peer_table_owner.transactions);
+}
+int main(void){int result=callback_cases();native_handler_refusals();return result;}
+'''
+with tempfile.TemporaryDirectory(prefix='ft-auth-native-handler-') as td:
+    source = Path(td)/'check.c'
+    exe = Path(td)/'check'
+    source.write_text(prefix+actors+fixture['main'].replace('int main(void)',
+                     'static int callback_cases(void)')+extra)
+    subprocess.run(['gcc', '-std=gnu11', '-O2', '-Wall', '-Wextra', '-Werror',
+                    '-fsanitize=address,undefined', '-fno-pie', '-no-pie',
+                    '-I'+str(here), str(source), '-o', str(exe)], check=True)
+    subprocess.run([str(exe)], check=True)
 print('PASS | FT AUTH invocation context | both caller scopes threaded to native handler and RSN validation; matching declarations; drift and duplicate refusal')
 print('PASS | FT AUTH context admission | exact existing/first-peer lease; missing, dual, foreign entry, stale generation and foreign adapter refused; ASan/UBSan callback fixture')
+print('PASS | native FT AUTH handler | full composed body; existing/first-peer callback exits; null/stale/foreign context before entry access; MDIE refusal, open and RSN actor paths; ASan/UBSan')

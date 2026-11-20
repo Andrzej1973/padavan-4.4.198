@@ -16,18 +16,21 @@
         "Missing predecessor, duplicate composition and changed validation call refused.",
         "Real prepared over-air branch and scope helpers executed with modeled insertion and mocked crypto handler, ASan/UBSan.",
         "Existing/first-peer context accepted; missing/dual scopes, wrong entry/adapter and stale generations refused.",
-        "Allocation/resource/rejection paths and generation-exhaustion ownership retained."
+        "Allocation/resource/rejection paths and generation-exhaustion ownership retained.",
+        "Entire composed native FT_AuthReqHandler executed together with actual prepared over-air callback; only FT_AuthReqRsnValidation is an explicit crypto actor.",
+        "Native handler refuses NULL adapter/entry/context, foreign entry and stale generation before entry use; MDIE refusal, OPEN success and RSN actor result propagation executed.",
+        "Native handler fixture compiled with GNU11 O2 Wall Wextra Werror and address/undefined sanitizers; default existing/first-peer success, resource/allocation failures and generation exhaustion pass."
       ]
     }
   ],
   "sha256": {
     "tools/iot/ft-auth-request-context.h": "43b158711ddcad95bd15dc08943fc6b84a1a7b77e9e8736000747923c86a57c7",
     "tools/iot/ft-auth-request-context-composition.py": "a0ef995b4dce8d7f8a8fbc46835f7314e69b077d6eda5ba83f52d9828339965b",
-    "tools/iot/check-ft-auth-request-context.py": "47f952a0b3c492d7d70dbd09c92e37aa8849a9eb067d42220d7d5c84df45631a",
+    "tools/iot/check-ft-auth-request-context.py": "93ee125065d5d34db0d2d2ec9025755684c2f80d4913bcf428c4aff179d6629c",
     "tools/iot/check-ft-auth-callback.py": "a8cb7015fca98a9d8189fb7fb7626912346277027a3e0b391086ec3cd7601302"
   },
   "limits": [
-    "Native full RSN crypto handler/validation bodies are source checked, not executed by this fixture.",
+    "Native FT_AuthReqHandler body is executed; full FT_AuthReqRsnValidation crypto body is source checked and represented by an explicit actor. Entry initialization remains modeled.",
     "IAPP request ledger publication, per-attempt completion, response transaction and paired request cleanup still require integration.",
     "Prepared composers are not installed. No target compilation, final image or device acceptance claimed."
   ]
