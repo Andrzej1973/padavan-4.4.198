@@ -332,4 +332,28 @@ static inline int wr_ft_iapp_token_claim_context_locked(
  return 0;
 }
 
+
+/* AUTH return/timeout boundary, serialized with response transaction.
+ * A claimed response must finish cache/counters/ACK before AUTH releases its
+ * peer owner. Return false without changing that claim or invocation handle. */
+static inline int wr_ft_iapp_token_request_end_locked(
+ struct wr_ft_iapp_token_ledger *ledger,
+ struct wr_ft_iapp_token_handle *request)
+{
+ struct wr_ft_iapp_token_entry *entry;
+ if(!ledger||!request)return 0;
+ if(!request->serial)return 1;
+ if(request->slot>=WR_FT_IAPP_TOKEN_CAPACITY)return 0;
+ entry=&ledger->entry[request->slot];
+ if(entry->serial==request->serial){
+  if(entry->state==WR_FT_IAPP_TOKEN_CLAIMED)return 0;
+  if(entry->state==WR_FT_IAPP_TOKEN_WAITING &&
+     !wr_ft_iapp_token_cancel_waiting_locked(ledger,request))return 0;
+  if(entry->state!=WR_FT_IAPP_TOKEN_FREE)return 0;
+ }
+ /* A reused serial denotes another request; never cancel that slot. */
+ wr_ft_iapp_token_clear(request);
+ return 1;
+}
+
 #endif

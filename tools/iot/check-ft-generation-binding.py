@@ -123,6 +123,14 @@ main=main.replace(probe_anchor,probe_anchor+r"""
   ad.ApCfg.MBSSID[2].wdev.bssid,&stamp,&pending,&reply));
  assert(wr_ft_peer_enter_locked(&ad,&stamp,&scope));
  {
+ unsigned saved_serial=pending.serial;
+ assert(!wr_ft_iapp_peer_admit_locked(&ad,&ledger,token,right->Addr,
+  ad.ApCfg.MBSSID[2].wdev.bssid,&stamp,&pending,&pending));
+ assert(pending.serial==saved_serial);
+ assert(ledger.entry[pending.slot].state==WR_FT_IAPP_TOKEN_WAITING);
+ }
+
+ {
  struct wr_ft_iapp_token_handle stale=pending;
  stale.serial++;
  assert(!wr_ft_iapp_peer_admit_locked(&ad,&ledger,token,right->Addr,
@@ -155,8 +163,44 @@ main=main.replace(probe_anchor,probe_anchor+r"""
   ad.ApCfg.MBSSID[2].wdev.bssid,&stamp,&pending,&duplicate));
  assert(!duplicate.serial);
  }
+ {
+ struct wr_ft_iapp_token_handle unrelated={0};
+ unsigned char other_token[7]={8,9,10,11,12,13,14};
+ unsigned char other_mac[6]={43};
+ assert(wr_ft_iapp_token_reserve_locked(&ledger,other_token,0,3,9,
+  other_mac,ad.ApCfg.MBSSID[0].wdev.bssid,&unrelated));
+ assert(!wr_ft_iapp_peer_leave_locked(&ad,&scope,&ledger,&unrelated));
+ assert(scope.active&&ledger.entry[unrelated.slot].state==WR_FT_IAPP_TOKEN_WAITING);
+ assert(wr_ft_iapp_token_request_end_locked(&ledger,&unrelated));
+ }
+ assert(!wr_ft_iapp_peer_advance_locked(&ad,right,&scope,&ledger,&pending));
+ assert(right->assoc_gen==1&&scope.stamp.generation==1);
+ assert(!wr_ft_iapp_peer_leave_locked(&ad,&scope,&ledger,&pending));
+ assert(scope.active&&pending.serial);
+ assert(ad.wr_assoc_event_users[7]==1&&ad.wr_iot_peer_table_owner.transactions==1);
  assert(wr_ft_iapp_token_finish_locked(&ledger,&reply));
- assert(wr_ft_peer_leave_locked(&ad,&scope));
+ assert(wr_ft_iapp_token_request_end_locked(&ledger,&pending));
+ token[0]=99;
+ assert(wr_ft_iapp_peer_request_begin_locked(&ad,&ledger,token,&stamp,&pending));
+ {
+ unsigned saved_serial=pending.serial;
+ assert(!wr_ft_iapp_peer_request_begin_locked(&ad,&ledger,token,&stamp,&pending));
+ assert(pending.serial==saved_serial);
+ }
+ assert(wr_ft_iapp_peer_leave_locked(&ad,&scope,&ledger,&pending));
+ assert(!scope.active&&!pending.serial&&!ad.wr_assoc_event_users[7]);
+ /* Fresh protocol scenario, then restore the pre-existing callback fixture seed. */
+ assert(wr_ft_peer_capture_locked(&ad,7,2,right->Addr,&stamp));
+ assert(wr_ft_peer_enter_locked(&ad,&stamp,&scope));
+ token[0]=100;
+ assert(wr_ft_iapp_peer_request_begin_locked(&ad,&ledger,token,&stamp,&pending));
+ assert(wr_ft_iapp_peer_advance_locked(&ad,right,&scope,&ledger,&pending));
+ assert(!pending.serial&&right->assoc_gen==2&&scope.stamp.generation==2);
+ assert(!wr_ft_iapp_token_claim_locked(&ledger,token,right->Addr,
+  ad.ApCfg.MBSSID[2].wdev.bssid,&reply));
+ assert(wr_ft_iapp_peer_leave_locked(&ad,&scope,&ledger,&pending));
+ right->assoc_gen=1;ad.wr_assoc_generations[7]=1;ad.wr_assoc_visible[7]=1;
+
  NdisReleaseSpinLock(&ad.MacTabLock);
  }
 """)

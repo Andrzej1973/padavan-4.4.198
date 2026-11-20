@@ -183,5 +183,20 @@ int main(void)
 		2,7,100,mac,bssid,&response));
 	assert(wr_ft_iapp_token_finish_locked(&ledger,&response));
 	puts("PASS | FT IAPP combined admission | stale context retires token without claim leak; exact current context admitted");
+
+	wr_ft_iapp_token_ledger_init(&ledger);set_token(token,250);
+	assert(wr_ft_iapp_token_reserve_locked(&ledger,token,2,7,100,mac,bssid,&pending));
+	assert(wr_ft_iapp_token_request_end_locked(&ledger,&pending));
+	assert(!pending.serial);
+	assert(!wr_ft_iapp_token_claim_locked(&ledger,token,mac,bssid,&response));
+	set_token(token,251);
+	assert(wr_ft_iapp_token_reserve_locked(&ledger,token,2,7,100,mac,bssid,&pending));
+	assert(wr_ft_iapp_token_claim_locked(&ledger,token,mac,bssid,&response));
+	assert(!wr_ft_iapp_token_request_end_locked(&ledger,&pending));
+	assert(pending.serial==response.serial);
+	assert(wr_ft_iapp_token_finish_locked(&ledger,&response));
+	assert(wr_ft_iapp_token_request_end_locked(&ledger,&pending));
+	assert(!pending.serial);
+	puts("PASS | FT IAPP AUTH end | waiting request cancelled; claimed response blocks owner exit until response finish");
 	return 0;
 }

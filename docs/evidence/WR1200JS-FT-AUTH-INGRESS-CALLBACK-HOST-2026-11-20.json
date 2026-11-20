@@ -1,0 +1,40 @@
+{
+  "scope": "Prepared AUTH ingress and callback admission plus IAPP request lifecycle helpers",
+  "base_head": "88ecd1f82a68caff1279915b03a08ff267a1a9f0",
+  "hashes": {
+    "tools/iot/ft-auth-enqueue-composition.py": "1182e0df9e3d5657d0f03161cbbcd8670cc137540b12f6da14e270a09221aa5c",
+    "tools/iot/ft-auth-rx-composition.py": "f3fdec11beaba45dd6aba9ba9899885ad427467d20f457c13e888389acad6ce2",
+    "tools/iot/ft-auth-peer-scope.h": "50fec42e54ae6cbc3ff21b22370b8f2cb0dd546df090f73211c6b53ed472e851",
+    "tools/iot/check-ft-auth-enqueue.py": "021c4e50f8c18c6f96006cc6dccaedcf8ca16b760bf3d374b8015507204731e2",
+    "tools/iot/check-ft-auth-pending-enqueue.py": "71a3d4a5793669eaea752232a2b33c3a3e103cbe879bf90704c918d16fa0523c",
+    "tools/iot/check-ft-auth-rx.py": "0f926df5c1e767e3e8e051e20e172d30bcd3f0dcbf0871c79f0eaa2481b0fb77",
+    "tools/iot/check-ft-auth-rx-queue.py": "be2e92134368c83b1117b4c86661a85e86debb3e0fe395c2af91fe9e6b498527",
+    "tools/iot/ft-iapp-peer-admission.h": "0bfe35179aa3ecf879cb97f8f8799975d86db0bcc28229afc810c7c090bbc608",
+    "tools/iot/ft-iapp-response-token.h": "432a59edfb147ae32eb996a8f444eb92b31e7c20cb07d9389ce4e0254ac6e0a4",
+    "tools/iot/check-ft-generation-binding.py": "c1e310ae1df2669a2850b051317c1e10a20684ccd419a5046672120caf4e2993",
+    "tools/iot/check-ft-iapp-response-token.c": "66c262dababa76a11ab21baee8ff4a62e32e5a9387095f1ad0c89faef4cafd8a"
+  },
+  "verified_host": [
+    "Generated active AUTH enqueue body preserves exact captured stamp across slot reuse",
+    "Generated pending AUTH enqueue moves one ticket reference into queue metadata",
+    "AUTH RX wrapper and both generated queue bodies execute together under ASan/UBSan default/EAP/SNR",
+    "Queued stale generation refuses existing-peer callback scope; fresh queued event enters/leaves scope with balanced ownership",
+    "Callback validates machine/type, AUTH algorithm/sequence, BSS and MAC",
+    "First-peer callback validates queue-owned ticket against live ledger; retirement rejects it without losing release reference",
+    "IAPP request-end refuses claimed response, cancels waiting request and clears ended handle",
+    "Paired FT scope leave and generation advance run request-end before releasing/changing peer identity"
+  ],
+  "remaining_native_work": [
+    "Use helpers inside the actual ap_auth.c FT branch and all success/failure exits",
+    "Bind absent-peer ticket to native pending insertion scope",
+    "Publish current AUTH invocation request handle before daemon notification",
+    "Integrate response token admission, cache store, same-key ACK and timeout cleanup",
+    "Finish maintenance/teardown/diagnostic cache lifetime and lock-order verification",
+    "Target feature compilation and independent final-image checks",
+    "Device acceptance requires separate owner authorization"
+  ],
+  "producer_installed": false,
+  "target_compiled": false,
+  "image_verified": false,
+  "device_accepted": false
+}
