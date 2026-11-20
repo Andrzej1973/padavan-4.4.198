@@ -1,0 +1,29 @@
+{
+  "date": "2026-11-20",
+  "scope": "Uninstalled FT request retirement at reassociation generation boundary",
+  "changes": [
+    "Prepared wr_assoc_reassociate validates actual MacTab entry pointer and retires WCID request/preauth state before generation change under native table lock.",
+    "Retirement refusal unlocks and returns false without changing generation/publication."
+  ],
+  "checks": [
+    {
+      "command": "python3 tools/iot/check-ft-reassociate-retirement.py /home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3",
+      "exit": 0,
+      "coverage": "Whole composed reassociation helper executes with real FT registry/retirement helpers and modeled adapter/lock/publication. GNU11 O2 Wall Wextra Werror ASan/UBSan. WAITING/preauth retirement succeeds; busy event, CLAIMED, stale handle, busy lock, foreign pointer refuse without registry/generation mutation. Old token cannot claim. Missing/duplicate prerequisite refusal."
+    },
+    {
+      "command": "nim c -r --out:/tmp/wr-ft-pending-identity-check tools/iot/ft_pending_identity_check.nim",
+      "exit": 0
+    }
+  ],
+  "sha256": {
+    "tools/iot/ft-iapp-delete-composition.py": "9a91f57be79279f5e49a983de970476c43b1bef1a01cc99974051f7eaa55c70c",
+    "tools/iot/check-ft-reassociate-retirement.py": "a9d04110050c8edb1090569d44cd727a82b5d286fe13f4604ee931f65391fa32",
+    "tools/iot/ft-iapp-slot-retirement.h": "b9ee61f83fc46add0295dae4d85e6e530b0eab617a572198d3757411280f52f6"
+  },
+  "limits": [
+    "Host trylock/publication actors do not prove native locking or feature target compilation.",
+    "Reset/clear paths bypassing native deletion/reassociation still require coverage.",
+    "Native KEY_REQ/IAPP/cache/completion integration remains incomplete; composer not installed; no final image/device acceptance."
+  ]
+}
