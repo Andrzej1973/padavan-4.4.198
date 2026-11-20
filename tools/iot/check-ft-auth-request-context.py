@@ -62,6 +62,9 @@ validation = signatures(composed, 'FT_AuthReqRsnValidation')
 assert len(validation) == 2 and validation[0] == validation[1]
 assert composed.count('pFtInfoBuf,wr_ft_request_context);') == 1
 assert composed.count('pFtInfoBuf, &wr_ft_request)') == 1
+action_start=composed.index('VOID FT_FtAction(')
+action=composed[action_start:composed.index('\n}',action_start)+2]
+assert action.index('wr_ft_auth_request_success_prepare_locked(')<action.index('pEntry->Sst = SST_AUTH;')<action.index('wr_ft_pending_peer_advance_locked(')
 for name in ('USHORT FT_AuthReqHandler(', 'UINT16\tFT_AuthReqRsnValidation('):
     start = composed.rindex(name)
     body = composed[start:composed.index('\n}', start)+2]

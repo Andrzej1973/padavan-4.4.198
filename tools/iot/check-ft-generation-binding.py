@@ -2,7 +2,7 @@
 """Execute composed active-peer RRB stamps and pending first-peer FT leases."""
 import argparse,contextlib,io,runpy,subprocess,sys,tempfile
 from pathlib import Path
-p=argparse.ArgumentParser(description=__doc__);p.add_argument('source',type=Path);a=p.parse_args()
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('source',type=Path);p.add_argument('--success-context',action='store_true');a=p.parse_args()
 here=Path(__file__).resolve().parent
 # Reuse the established full native callback fixtures and all their assertions.
 argv=sys.argv[:];sys.argv=[str(here/'check-ft-parser-composition.py'),str(a.source)]
@@ -30,6 +30,9 @@ MAC_TABLE_ENTRY *wr_ft_pending_insert(RTMP_ADAPTER *,UCHAR *,struct wifi_dev *,
  const struct wr_ft_pending_token *,struct wr_ft_pending_peer_scope *);
 #endif'''
 prepared=module['bind_ft'](data['text'],prototype,pending_prototype,insert_prototype)
+if a.success_context:
+ prepared,_=runpy.run_path(str(here/'ft-auth-request-context-composition.py'))['compose_ft'](
+  prepared,(a.source/'include/ft.h').read_text())
 def function(name):
  start=prepared.index('VOID '+name+'(');return prepared[start:prepared.index('\n}',start)+2]
 assert prepared.count('wr_ft_peer_capture_locked(')==1
@@ -60,6 +63,15 @@ def types(text):
  text=text.replace('} AD,*PRTMP_ADAPTER;','} AD,*PRTMP_ADAPTER;\ntypedef AD RTMP_ADAPTER;typedef ENTRY MAC_TABLE_ENTRY;')
  return text
 prefix=types(data['action_prefix'])
+if a.success_context:
+ prefix=prefix.replace('#define SST_AUTH 1',
+  '#define SST_NOT_AUTH 0\n#define SST_AUTH 1\n#include "ft-iapp-request-state.h"')
+ prefix=prefix.replace('typedef struct {int MacTabLock;',
+  'typedef struct {struct wr_ft_iapp_request_state wr_ft_iapp_requests;int MacTabLock;')
+ prefix=prefix.replace('typedef ENTRY MAC_TABLE_ENTRY;',
+  'typedef ENTRY MAC_TABLE_ENTRY;\n#include "ft-auth-request-context.h"')
+ prefix=prefix.replace('FT_AuthReqHandler(AD *ad,ENTRY *e,FT_INFO *in,FT_INFO *out){',
+  'FT_AuthReqHandler(AD *ad,ENTRY *e,FT_INFO *in,FT_INFO *out,const struct wr_ft_auth_request_context *context){(void)context;')
 prefix=prefix.replace('typedef struct {ULONG MsgLen;unsigned Wcid;unsigned char Msg[256];}',
  'typedef struct {ULONG MsgLen;unsigned Wcid,assoc_gen,assoc_wcid,ft_pending_generation,ft_pending_slot,ft_pending_bss;unsigned char assoc_addr[6],ft_pending_addr[6],Msg[256];}')
 prefix=prefix.replace('fail_insert;','fail_insert,expect_scope=1;')

@@ -68,4 +68,15 @@ def compose_ft(text, header):
     end = text.index('\n}', start)+2
     body = text[start:end]
     body = one(body, '\tULONG temp_len = 0;', '\tULONG temp_len = 0;\n'+guard)
+    text=text[:start]+body+text[end:]
+    start=text.index('VOID FT_FtAction(');end=text.index('\n}',start)+2
+    body=text[start:end]
+    body=one(body,'pEntry->Sst = SST_AUTH;', '''NdisAcquireSpinLock(&pAd->MacTabLock);
+ if(!wr_ft_auth_request_success_prepare_locked(pAd,pEntry,&wr_ft_request,
+     &pAd->wr_ft_iapp_requests)){
+  pAd->wr_iot_peer_table_owner.poisoned=1;
+  NdisReleaseSpinLock(&pAd->MacTabLock);goto out;
+ }
+ pEntry->Sst = SST_AUTH;
+ NdisReleaseSpinLock(&pAd->MacTabLock);''')
     return text[:start]+body+text[end:], header
