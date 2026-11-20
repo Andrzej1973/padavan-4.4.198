@@ -19,6 +19,7 @@ struct wifi_dev {unsigned char bssid[6];unsigned int func_idx;};
 typedef struct {unsigned int wcid,func_tb_idx,assoc_gen,client,Sst;
  unsigned char Addr[6];struct wifi_dev *wdev;} MAC_TABLE_ENTRY;
 typedef struct {
+ int MacTabLock;
  struct {unsigned int BssidNum;struct {struct wifi_dev wdev;} MBSSID[3];} ApCfg;
  struct {MAC_TABLE_ENTRY Content[8];} MacTab;
  struct wr_ft_pending_ledger wr_ft_pending;
@@ -38,8 +39,22 @@ static inline void wr_assoc_publish_slot_locked(RTMP_ADAPTER *ad,MAC_TABLE_ENTRY
 typedef struct {
  unsigned int ft_preauth_serial,ft_preauth_generation,ft_preauth_wcid,ft_preauth_bss;
  unsigned char ft_preauth_mac[6],ft_preauth_bssid[6];
+ unsigned int Machine,MsgType,MsgLen,Wcid,assoc_gen,assoc_wcid;
+ unsigned char assoc_addr[6],Msg[1600];
+ unsigned int ft_pending_generation,ft_pending_slot,ft_pending_bss;
+ unsigned char ft_pending_addr[6];
 } MLME_QUEUE_ELEM;
 #include "ft-preauth-queue.h"
+#define AP_AUTH_STATE_MACHINE 8
+#define APMT2_PEER_AUTH_REQ 9
+#define LENGTH_802_11 24
+#define FC_TYPE_MGMT 0
+#define SUBTYPE_AUTH 11
+static void NdisAcquireSpinLock(int *lock){assert(!*lock);*lock=1;}
+static void NdisReleaseSpinLock(int *lock){assert(*lock);*lock=0;}
+typedef struct {struct {struct {unsigned char Type,SubType;} FC;
+ unsigned char duration[2],Addr1[6],Addr2[6],rest[8];} Hdr;} FRAME_802_11;
+#include "ft-auth-retry-peer-scope.h"
 /* Every helper below runs in a single modeled MacTabLock critical section. */
 static void setup(RTMP_ADAPTER *ad,struct wr_ft_iapp_request_state *state,
  unsigned int sst,unsigned char *wire)
@@ -193,5 +208,43 @@ int main(void)
  }
  puts("PASS | FT preauth retry lease | captured serial/generation/MAC/BSSID/BSS revalidated; changed publication refused; pending AUTH context adopted once and balanced leave");
  puts("PASS | FT preauth queue sidecar | exact serial and identity transfer; occupied metadata preserved; snapshot read-only; cleared reuse refuses stale identity; transferred stamp revalidated before lease");
+ for(scenario=0;scenario<15;scenario++){
+  RTMP_ADAPTER ad;struct wr_ft_iapp_request_state state;
+  struct wr_ft_preauth_identity stamp={0};MLME_QUEUE_ELEM event={0};
+  struct wr_ft_pending_peer_scope scope={0};MAC_TABLE_ENTRY *entry=NULL;
+  unsigned char wire[7],mac[6]={42};FRAME_802_11 *frame=(FRAME_802_11 *)event.Msg;
+  setup(&ad,&state,SST_NOT_AUTH,wire);
+  assert(wr_ft_preauth_retry_capture_locked(&ad,&state,7,2,mac,&stamp));
+  assert(wr_ft_preauth_elem_publish(&event,&stamp));
+  event.Machine=AP_AUTH_STATE_MACHINE;event.MsgType=APMT2_PEER_AUTH_REQ;
+  event.MsgLen=30;event.Wcid=event.assoc_wcid=7;event.assoc_gen=3;event.assoc_addr[0]=42;
+  frame->Hdr.FC.SubType=SUBTYPE_AUTH;frame->Hdr.Addr1[0]=2;frame->Hdr.Addr2[0]=42;
+  event.Msg[24]=2;event.Msg[26]=1;
+  switch(scenario){
+   case 1:event.ft_pending_generation=1;break;
+   case 2:event.assoc_gen++;break;
+   case 3:event.assoc_wcid=1;break;
+   case 4:event.Wcid=1;break;
+   case 5:event.assoc_addr[0]++;break;
+   case 6:event.ft_preauth_serial++;break;
+   case 7:event.ft_preauth_bssid[0]++;break;
+   case 8:event.MsgLen=29;break;
+   case 9:event.MsgLen=1601;break;
+   case 10:event.Msg[26]=2;break;
+   case 11:frame->Hdr.Addr1[0]++;break;
+   case 12:frame->Hdr.Addr2[0]++;break;
+   case 13:ad.wr_assoc_generations[7]++;break;
+   case 14:ad.MacTab.Content[7].Sst=SST_AUTH;break;
+  }
+  if(scenario){
+   assert(!wr_ft_auth_retry_enter_locked(&ad,&state,&event,2,mac,&scope,&entry));
+   assert(!entry&&!scope.active&&!ad.wr_assoc_event_users[7]&&!ad.wr_iot_peer_table_owner.transactions);
+  }else{
+   assert(wr_ft_auth_retry_enter_locked(&ad,&state,&event,2,mac,&scope,&entry));
+   assert(entry==&ad.MacTab.Content[7]&&wr_ft_iapp_pending_owned_locked(&ad,&scope));
+   assert(wr_ft_pending_peer_leave_locked(&ad,&scope));
+  }
+ }
+ puts("PASS | FT AUTH retry callback | frame plus queued association and retry provenance match before lease; mixed pending metadata, stale serial/generation, wrong frame/interface and bounds refused");
  return 0;
 }

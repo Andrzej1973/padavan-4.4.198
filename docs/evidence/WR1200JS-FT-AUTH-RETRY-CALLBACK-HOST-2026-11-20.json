@@ -1,0 +1,30 @@
+{
+  "date": "2026-11-20",
+  "scope": "Prepared over-air FT AUTH retry callback admission helper",
+  "checks": [
+    {
+      "command": "gcc -std=gnu11 -O2 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-pie -no-pie -Itools/iot tools/iot/check-ft-iapp-detached-admission.c -o /tmp/wr-ft-iapp-detached-check; /tmp/wr-ft-iapp-detached-check",
+      "exit": 0,
+      "coverage": [
+        "Real AUTH event matcher, retry snapshot/current-identity helpers and pending lease acquisition execute against host frame/MLME/adapter schemas.",
+        "Matching AUTH frame and both queued stamps obtain one pending-scope lease; leave balances ownership.",
+        "Fourteen refusal scenarios: pending metadata mixed in, association generation/WCID/addr disagreement, retry serial/BSSID mismatch, short/oversized frame, wrong transaction/address, changed published generation/state."
+      ]
+    },
+    {
+      "command": "nim c -r --out:/tmp/wr-ft-pending-identity-check tools/iot/ft_pending_identity_check.nim",
+      "exit": 0
+    }
+  ],
+  "sha256": {
+    "tools/iot/ft-auth-retry-peer-scope.h": "7ab15dfd395c9b00d627e5c600a1bd5876be6c4fdeecae021e02727316284cac",
+    "tools/iot/check-ft-iapp-detached-admission.c": "dbde32493f97aed9f3f4c7d67da1210660f7d49ee9367b0d29f7c8415895055a",
+    "tools/iot/ft-auth-peer-scope.h": "abcd906393fbc7562d669feba72c4764718570e7755330b6a507420ac4ff78b0",
+    "tools/iot/ft-preauth-retry.h": "dc3c9f961c5a06c1111063cc8d4485c384ccbbcdfed6d8c5318ef65b6e0d83b4"
+  },
+  "limits": [
+    "Native APPeerAuthReqAtIdleAction dispatch and RX selector are not yet composed with retry helper.",
+    "MLME/frame schema and MacTabLock precondition use explicit host actors; no full target TUs compiled.",
+    "Prepared code remains uninstalled; IAPP/native completion integration, final image and device acceptance remain open."
+  ]
+}
