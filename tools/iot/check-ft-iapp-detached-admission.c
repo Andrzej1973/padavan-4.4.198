@@ -35,6 +35,11 @@ static inline void wr_assoc_publish_slot_locked(RTMP_ADAPTER *ad,MAC_TABLE_ENTRY
 #include "ft-auth-request-context.h"
 #include "ft-iapp-detached-admission.h"
 #include "ft-preauth-retry.h"
+typedef struct {
+ unsigned int ft_preauth_serial,ft_preauth_generation,ft_preauth_wcid,ft_preauth_bss;
+ unsigned char ft_preauth_mac[6],ft_preauth_bssid[6];
+} MLME_QUEUE_ELEM;
+#include "ft-preauth-queue.h"
 /* Every helper below runs in a single modeled MacTabLock critical section. */
 static void setup(RTMP_ADAPTER *ad,struct wr_ft_iapp_request_state *state,
  unsigned int sst,unsigned char *wire)
@@ -150,6 +155,20 @@ int main(void)
   unsigned char wire[7];
   setup(&ad,&state,SST_NOT_AUTH,wire);
   assert(wr_ft_preauth_retry_capture_locked(&ad,&state,7,2,ad.MacTab.Content[7].Addr,&stamp));
+  {
+   MLME_QUEUE_ELEM event={0},saved;
+   struct wr_ft_preauth_identity snapshot={0};
+   assert(wr_ft_preauth_elem_publish(&event,&stamp));saved=event;
+   assert(!wr_ft_preauth_elem_publish(&event,&stamp));
+   assert(!memcmp(&event,&saved,sizeof(event)));
+   assert(wr_ft_preauth_elem_snapshot(&event,&snapshot));
+   assert(snapshot.serial==stamp.serial&&snapshot.generation==stamp.generation);
+   assert(!memcmp(snapshot.mac,stamp.mac,6)&&!memcmp(snapshot.bssid,stamp.bssid,6));
+   wr_ft_preauth_elem_clear(&event);
+   assert(!wr_ft_preauth_elem_snapshot(&event,&snapshot)&&!snapshot.serial);
+   assert(wr_ft_preauth_elem_publish(&event,&stamp));
+   assert(wr_ft_preauth_elem_snapshot(&event,&stamp));
+  }
   switch(scenario){
    case 1:stamp.serial++;break;
    case 2:stamp.generation++;break;
@@ -173,5 +192,6 @@ int main(void)
   }
  }
  puts("PASS | FT preauth retry lease | captured serial/generation/MAC/BSSID/BSS revalidated; changed publication refused; pending AUTH context adopted once and balanced leave");
+ puts("PASS | FT preauth queue sidecar | exact serial and identity transfer; occupied metadata preserved; snapshot read-only; cleared reuse refuses stale identity; transferred stamp revalidated before lease");
  return 0;
 }

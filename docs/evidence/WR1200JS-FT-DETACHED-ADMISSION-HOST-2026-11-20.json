@@ -20,7 +20,7 @@
   ],
   "sha256": {
     "tools/iot/ft-iapp-detached-admission.h": "a63297966f6bf4e994c1befc3b4f7aaf5b1295aa442ec26bbb21b3fe62b8a96d",
-    "tools/iot/check-ft-iapp-detached-admission.c": "78bf5e6c32e3a1498ee12a89be68633e2055e16c651b84cbde05d7f7a6fd5bc4",
+    "tools/iot/check-ft-iapp-detached-admission.c": "b92b0c02b48ef281b322607391942dcf249e224ebbd2b32fd365ca01d8990c66",
     "tools/iot/ft-iapp-request-state.h": "ab05e4f07568f7db1e72d0f99269d392cd51e5e2445f5a9f5fb953ec3a7f9a55",
     "tools/iot/ft-auth-request-context.h": "cd431da22b9c2f6c4e920f74fb2070e091290869668f18347c91fb20cc417014",
     "tools/iot/check-ft-auth-request-context.py": "b4e71a375cbe4b2e13c97fe47d62d52e420c71b01079c4955f3db14428ae96af"

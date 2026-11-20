@@ -5,7 +5,8 @@
     "Only a live pending first-peer scope can publish preauth identity during detach.",
     "Identity contains original request serial and exact BSS/MAC/BSSID/WCID/generation; adapter-owned value record survives response finish.",
     "Capture requires current SST_NOT_AUTH plus visible/table generation, exact interface/MAC, idle close owner and no current event lease. Generic inactive entries without provenance refuse.",
-    "Callback-side helper compares original captured serial/generation/MAC/BSSID/BSS with current provenance before acquiring one transaction/event_users lease and adopting a pending-peer scope; no MAC-only recapture."
+    "Callback-side helper compares original captured serial/generation/MAC/BSSID/BSS with current provenance before acquiring one transaction/event_users lease and adopting a pending-peer scope; no MAC-only recapture.",
+    "Prepared value-only MLME sidecar transports captured serial/generation/WCID/BSS/MAC/BSSID; occupied sidecar refuses overwrite and snapshot never recaptures live identity."
   ],
   "checks": [
     {
@@ -16,17 +17,24 @@
     {
       "command": "nim c -r --out:/tmp/wr-ft-pending-identity-check tools/iot/ft_pending_identity_check.nim",
       "exit": 0
+    },
+    {
+      "command": "gcc -std=gnu11 -O2 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-pie -no-pie -Itools/iot tools/iot/check-ft-iapp-detached-admission.c -o /tmp/wr-ft-iapp-detached-check; /tmp/wr-ft-iapp-detached-check",
+      "exit": 0,
+      "coverage": "Sidecar publication/snapshot/clear/reuse and transferred-stamp lease validation, including altered serial/generation/current publication cases. MLME element schema is an explicit host stand-in."
     }
   ],
   "sha256": {
     "tools/iot/ft-preauth-retry.h": "dc3c9f961c5a06c1111063cc8d4485c384ccbbcdfed6d8c5318ef65b6e0d83b4",
     "tools/iot/ft-iapp-request-state.h": "ab05e4f07568f7db1e72d0f99269d392cd51e5e2445f5a9f5fb953ec3a7f9a55",
     "tools/iot/ft-auth-request-context.h": "cd431da22b9c2f6c4e920f74fb2070e091290869668f18347c91fb20cc417014",
-    "tools/iot/check-ft-iapp-detached-admission.c": "78bf5e6c32e3a1498ee12a89be68633e2055e16c651b84cbde05d7f7a6fd5bc4"
+    "tools/iot/check-ft-iapp-detached-admission.c": "b92b0c02b48ef281b322607391942dcf249e224ebbd2b32fd365ca01d8990c66",
+    "tools/iot/ft-preauth-queue.h": "8f11ff100bb1e0519dcd14751137579c0349157aaca86066e71567d1d3d77a43"
   },
   "limits": [
     "Native RX queue stamping and callback invocation remain unimplemented; independent callback-side retry lease helper is host verified.",
     "Delete/generation retirement and successful AUTH clearing of provenance still require integration.",
-    "Native token/event/completion/cache transaction not connected. Prepared composers remain uninstalled; no target/image/device verification."
+    "Native token/event/completion/cache transaction not connected. Prepared composers remain uninstalled; no target/image/device verification.",
+    "Native MLME field schema, queue init/copy/reuse hooks and producer/callback dispatch for retry sidecar remain unconnected; helper host result does not prove native queue integration."
   ]
 }
