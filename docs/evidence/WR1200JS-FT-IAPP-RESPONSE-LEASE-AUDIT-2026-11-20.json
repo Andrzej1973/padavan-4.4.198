@@ -1,7 +1,7 @@
 {
-  "date": "2026-11-20",
-  "status": "source-audit-response-lease-not-implemented",
-  "scope": "IAPP response lifetime while FT AUTH owns exclusive association lease",
+  "date": "2026-11-21",
+  "status": "prepared-claimed-owner-transfer-host-verified-native-response-integration-open",
+  "scope": "IAPP response lifetime under prepared FT Action ownership; over-air AUTH per-WCID ownership is not established by this audit",
   "observations": [
     "FT_AuthReqRsnValidation emits automatic key request and may wait 30ms on ack_r1kh under R1KH_HARD_RETRY",
     "wr_ft_peer_enter_locked rejects any existing wr_assoc_event_users for the WCID",
@@ -15,7 +15,8 @@
     "Response lifetime protection must coexist with waiting AUTH without permitting unrelated association/key mutation",
     "Timeout-first and response-first interleavings must balance references without poisoning legitimate AUTH exit",
     "Response must finish cache/counter/completion operations before releasing lifetime protection; AUTH advancement and timeout exit must account for concurrent response ownership",
-    "Every delete, reassociation and adapter teardown path must preserve response-held lifetime protection"
+    "Every delete, reassociation and adapter teardown path must preserve response-held lifetime protection",
+    "A transient cache-store failure must return the response claim to WAITING without ACK/counter changes, permitting retry or timeout while the AUTH peer lease remains held."
   ],
   "source_sha256": {
     "common/ft.c": "d0adbee2fe62e783c8c2924ae5c16e03b248b613dba91ffbd6e4f8d7fcbdfd85",
@@ -43,12 +44,177 @@
       "FT_KDP_KeyResponseToUs reads lookup pointer and conditionally deletes/replaces it through separate operations",
       "MacTabLock alone does not exclude maintenance of the distinct PMK-R1 cache"
     ],
-    "next_required_change": "Design cache snapshot and atomic replace semantics alongside response identity, then compose all relevant readers/writers and verify lock ordering. A response-only MacTabLock wrapper is insufficient.",
+    "next_required_change": "Replace pointer-returning lookup/delete use with locked value snapshots and key-based atomic mutation; cover every cache reader/writer with adapter-wide admission, then close/drain all holders before FT_R1khEntryTabDestroy frees the lock. Do not hold a spinlock across the 30 ms AUTH wait or nest MacTabLock and FT_R1khEntryTabLock without a proven order.",
     "source_sha256": {
       "common/ft.c": "d0adbee2fe62e783c8c2924ae5c16e03b248b613dba91ffbd6e4f8d7fcbdfd85",
       "ap/ap_ftkd.c": "19ca90564222128b0a8ef98e7799bd542e5725a71d130c2d6a3e37ffb7488e4b",
       "os/linux/rt_linux.c": "cd105c06fb07e7518f3f4d08efd703e9d98fbec85d47bcdc222db7fe42d08cd8",
       "include/os/rt_linux_cmm.h": "effa9f4e64fad8604b9f51cf5443f759d20a72c90247a4001a680d2e12a7d130"
+    },
+    "reader_inventory": {
+      "scope": "Exact lookup callsites in pinned c25283e common/ft.c and ap/ap_ftkd.c; all consume the returned entry after FT_R1khEntryTabLock has been released.",
+      "callers": [
+        {
+          "source": "common/ft.c:1548",
+          "consumer": "FT_KDP_KeyReq",
+          "fields": "PairwisChipher and AkmSuite copied from entry into outgoing response"
+        },
+        {
+          "source": "common/ft.c:1693,1718",
+          "consumer": "FT_AuthReqRsnValidation",
+          "fields": "previous-entry delete via raw pointer; subsequent lookup result retained"
+        },
+        {
+          "source": "common/ft.c:1741",
+          "consumer": "FT_AuthReqRsnValidation",
+          "fields": "PmkR1Name compare; request construction and 30 ms completion wait occur in this routine"
+        },
+        {
+          "source": "common/ft.c:1985,2081",
+          "consumer": "FT_AuthConfirmHandler variants",
+          "fields": "AkmSuite, R0khId, R0khIdLen read during validation"
+        },
+        {
+          "source": "ap/ap_ftkd.c:872",
+          "consumer": "FT_KDP_KeyResponseToUs",
+          "fields": "PmkR1Key compare and conditional raw-pointer delete; station MAC lookup/counter/ACK follow"
+        }
+      ],
+      "lifecycle": "FT_Init initializes the table; FT_Release reaches FT_R1khEntryTabDestroy from both APStop and APStopBssOnly. Destroy clears Ready before taking the cache lock, frees all entries while holding it, then unlocks and frees the spinlock. The Ready check is not a lifetime lease."
     }
+  },
+  "caller_coverage_correction": {
+    "reason": "Prepared FT Action scope and outer ra2 association arbitration are different ownership mechanisms",
+    "verified_sources": [
+      "tools/iot/ra2-mutation-binding.py",
+      "tools/iot/ra2-mutation-admission-kernel.h",
+      "tools/iot/assoc-generation-composition.py"
+    ],
+    "over_air_auth": "ap/ap_auth.c invokes FT_AuthReqHandler after optional native insertion; the reviewed predecessor composers do not add a per-WCID FT scope around this call",
+    "required": "Add and verify exact ownership for existing and absent peers in over-air FT AUTH before requiring response admission from both caller classes",
+    "not_proven": "No claim that native over-air AUTH already holds the prepared FT peer lease"
+  },
+  "response_transaction_model": {
+    "prepared_host_fixture": "PASS under ASan/UBSan: claim response token under MacTabLock, release it for cache-phase model, reacquire for exact peer/token check and completion; timeout-first and response-first arbitration covered.",
+    "native_integration": false,
+    "cache_pointer_lifetime_proven": false,
+    "adapter_cache_admission_installed": false,
+    "target_compiled": false,
+    "final_image_verified": false,
+    "device_runtime_verified": false
+  },
+  "response_retry_arbitration": {
+    "prepared_behavior": "A timeout attempt during a CLAIMED response cannot release the AUTH owner. Failed cache work unclaims the exact token, preserving its serial; the same request may be retried or timeout may then cancel it.",
+    "host_result": "PASS under ASan/UBSan in check-ft-iapp-auth-response-admission.c and check-ft-iapp-response-token.c",
+    "native_integration": false,
+    "target_compiled": false
+  },
+  "request_response_boundary": {
+    "prepared_host_checks": [
+      {
+        "command": "python3 tools/iot/check-ft-auth-callback.py <pinned-mt76x3>",
+        "result": "PASS: native over-air FT AUTH branch composed with existing/first-peer lease; existing/pending exits and generation publication modeled"
+      },
+      {
+        "command": "python3 tools/iot/check-ft-auth-request-context.py <pinned-mt76x3>",
+        "result": "PASS: handler and RSN validation invocation context, publication/lifecycle helpers, and exact peer admission fixtures"
+      },
+      {
+        "command": "ASan/UBSan check-ft-iapp-auth-response-admission.c and check-ft-iapp-response-token.c",
+        "result": "PASS: active response claim, transient cache failure unclaim/retry/timeout, token identity and cancellation"
+      }
+    ],
+    "native_producer_gap": {
+      "source": "common/ft.c:1767 and include/ft.h:159,355",
+      "fact": "FT_AuthReqRsnValidation calls FT_KDP_EVENT_INFORM for KEY_REQ_AUTO without publishing a request token or packing FT_KDP_EVT_KEY_ELM reserved bytes. FT_KDP_EVENT_INFORM invokes a VOID function that can return early for KDP-not-ready, invalid IAPP PID, full event queue, or allocation failure.",
+      "consequence": "No native end-to-end response can currently claim the prepared BSS/MAC/WCID/generation token; silent enqueue refusal must still be covered by AUTH timeout cleanup.",
+      "required": "Compose token publication and wire packing at each automatic query/retry, retain exact AUTH ownership through response/timeout arbitration, and pair every return with finish/unclaim/cancel behavior before native target compilation."
+    },
+    "source_sha256": {
+      "common/ft.c": "d0adbee2fe62e783c8c2924ae5c16e03b248b613dba91ffbd6e4f8d7fcbdfd85",
+      "ap/ap_ftkd.c": "19ca90564222128b0a8ef98e7799bd542e5725a71d130c2d6a3e37ffb7488e4b",
+      "ap/ap_auth.c": "eba4dd8dfb4b3ae1e737e6162f7acc66412a9f6d403586e28a0377b6271870c5",
+      "include/ft.h": "95465f2a5f52e84a9663de511a5df9d47edcbbfd386dabb60863bd2d5ab67d9b"
+    },
+    "native_token_producer_integrated": false,
+    "end_to_end_response_arbitration_proven": false,
+    "target_compiled": false,
+    "prepared_token_reuse": {
+      "host_result": "PASS: same token is reused for WAITING retry; CLAIMED response yields a wait disposition without token bytes; stale association generation refuses.",
+      "native_callsite_composed": false,
+      "next": "Compose this helper into each native automatic key query, pack reserved bytes, and bind request cleanup to response/timeout/return ownership.",
+      "sha256": {
+        "tools/iot/ft-auth-request-context.h": "5db4615dfd7e8cbad4e6bfac57a53c7ad185d858409bd4ed0273cc67cc4ebdfc",
+        "tools/iot/check-ft-auth-request-context.py": "9a8fc0beb548e100a716a62f35f22b3ee19fc6126f8ed13fc3f35db3eeab4e4c"
+      }
+    }
+  },
+  "auth_exit_ownership_gap": {
+    "status": "prepared-transfer-composed-host-verified-native-producer-open",
+    "observed_contract": [
+      "wr_ft_iapp_token_request_end_locked still refuses CLAIMED without clearing the invocation handle",
+      "prepared AUTH cleanup now distinguishes a matching CLAIMED request: it transfers the exact BSS/MAC/WCID/generation owner into adapter state, or poisons and retains the stack lease if validation fails",
+      "response admission validates either the live AUTH lease or its exact adapter-owned transfer; finish releases a transferred reference once, while retry unclaims into the existing detached-WAITING state and releases once",
+      "first-peer SST_NOT_AUTH and established AUTH/ASSOC scopes share the transfer; pending retry also records exact preauth identity",
+      "the transfer remains a prepared host composition; native IAPP producer/reply/timeout callsites are not installed"
+    ],
+    "verification": "PASS under ASan/UBSan: response fixture covers existing-peer finish and pending first-peer retry after owner transfer; combined check-ft-generation-binding.py --success-context composes the FT BSS/generation binding and host transfer; full check-ft-auth-request-context.py, Nim pending identity lifecycle, token transport audit, and response-copy fixture pass. These are prepared host/source checks only.",
+    "required_next": "Integrate identity-only request publication and seven-byte token packing into FT_AuthReqRsnValidation automatic key request; bind FT_KDP_KeyResponseToUs token claim before cache mutation and complete cache/counter/ACK atomically for exact peer context; compose hard/soft retries, timeout, response-finish/unclaim, all exits, and teardown. Then run paired exact-SDK target TU gate on the resulting composition before any installation.",
+    "producer_installed": false,
+    "target_compiled": false,
+    "runtime_verified": false,
+    "source_sha256": {
+      "tools/iot/ft-iapp-request-state.h": "9ffe8d3fb5f75f5424ccf162e748d9f1845e319f9414c773470f83ca20227f71",
+      "tools/iot/ft-iapp-auth-owner-transfer.h": "45651f26ba8f3b44522531d39a8ae5e0d4137f6db411a16b53470e98427247ad",
+      "tools/iot/ft-iapp-auth-response-admission.h": "ea271d87b047c5d7e73f6fe219daa85ced8d66339ea5f2c43a2a862a727797ac",
+      "tools/iot/check-ft-iapp-auth-response-admission.c": "622ccb7370f076e4de4732f7a237e5c863bb4807e80cadeb3f87ef4788b4516a",
+      "tools/iot/ft-auth-request-context-composition.py": "708c6acd85c6a050e6a468db75fdeca23d50adf1a3adbc21c3ebbf3293ffc4ae",
+      "tools/iot/check-ft-generation-binding.py": "ad4236efd536e1c2a0de6820b17e7fa5024ff0bc2634101a0d5caf1099ceeef3"
+    }
+  },
+  "prepared_retry_token_reuse": {
+    "helper": "tools/iot/ft-auth-request-context.h:wr_ft_auth_request_wire_token_locked",
+    "tested_by": "tools/iot/check-ft-auth-request-context.py against pinned c25283e sources",
+    "behavior": [
+      "publishes one nonzero token only with a successfully published exact request handle",
+      "reuses the same token for WAITING hard retry",
+      "reports CLAIMED without returning a wire token so caller can wait rather than enqueue a duplicate",
+      "refuses changed association generation and clears output"
+    ],
+    "test_result": "PASS; native FT AUTH host composition and ASan/UBSan callback fixture passed; nim c -r tools/iot/ft_pending_identity_check.nim passed",
+    "native_token_producer_integrated": false,
+    "target_compiled": false,
+    "sha256": {
+      "tools/iot/ft-auth-request-context.h": "5db4615dfd7e8cbad4e6bfac57a53c7ad185d858409bd4ed0273cc67cc4ebdfc",
+      "tools/iot/check-ft-auth-request-context.py": "9a8fc0beb548e100a716a62f35f22b3ee19fc6126f8ed13fc3f35db3eeab4e4c"
+    }
+  },
+  "merge_audit_2026_11_21": {
+    "revision": "423b857d08d14fdffd4210b07d04bcb9e1157f77",
+    "historical_helper_hashes_no_longer_current": [
+      "tools/iot/ft-iapp-auth-response-admission.h",
+      "tools/iot/check-ft-iapp-auth-response-admission.c",
+      "tools/iot/ft-auth-request-context-composition.py",
+      "tools/iot/ft-auth-request-context.h",
+      "tools/iot/check-ft-auth-request-context.py"
+    ],
+    "current_helper_sha256": {
+      "tools/iot/check-ft-auth-request-context.py": "ea930707ac8bee8e336730732fc27128fd074e4d535a3751bbf9138be1dec45b",
+      "tools/iot/check-ft-generation-binding.py": "ad4236efd536e1c2a0de6820b17e7fa5024ff0bc2634101a0d5caf1099ceeef3",
+      "tools/iot/check-ft-iapp-auth-response-admission.c": "3846c7f1bda57bce9e59906d98dda3d9580f5e862cf01d0f049a8905e72d9926",
+      "tools/iot/ft-auth-request-context-composition.py": "98f4a885db309fb0739c4a8119d96a50342e8c1b0e8d6afdc0bb06d4912ab720",
+      "tools/iot/ft-auth-request-context.h": "0c098edfdacb89eb84726417aa59a5489e16996031012d94bdd45b28cff52aff",
+      "tools/iot/ft-iapp-auth-owner-transfer.h": "45651f26ba8f3b44522531d39a8ae5e0d4137f6db411a16b53470e98427247ad",
+      "tools/iot/ft-iapp-auth-response-admission.h": "7cf907ef4f7bc097707a1ce51d47268eb2958969b71582f72063808dcb20c16c",
+      "tools/iot/ft-iapp-request-state.h": "9ffe8d3fb5f75f5424ccf162e748d9f1845e319f9414c773470f83ca20227f71"
+    },
+    "checks": [
+      "check-ft-auth-request-context.py against pinned mt76x3 passed",
+      "check-ft-iapp-auth-response-admission.c and check-ft-iapp-response-token.c compiled with strict warnings and ASan/UBSan, executed successfully"
+    ],
+    "exit_status": 0,
+    "retry_distinction": "wire_token_locked reuses one WAITING request token for native hard retries; publishing a new request uses a fresh monotonic token. Detached soft-retry retirement and supersession are separate operations.",
+    "scope": "Prepared source/host composition only; native IAPP request producer, complete target module, image and device acceptance remain unverified. Original hash blocks retain their historical meaning.",
+    "scratch": "Temporary compiler output removed by TemporaryDirectory; no original evidence removed."
   }
 }
