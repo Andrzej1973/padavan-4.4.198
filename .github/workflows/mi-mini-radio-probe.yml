@@ -10,6 +10,9 @@ permissions:
   contents: read
 jobs:
   compile-radio:
+    # Owner priority: Mi Mini resumes only after WR1200JS four-variant acceptance.
+    # Remove this gate only when that stage is explicitly resumed.
+    if: ${{ false }}
     runs-on: ubuntu-22.04
     timeout-minutes: 40
     defaults:
