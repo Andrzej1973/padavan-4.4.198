@@ -9,7 +9,8 @@
     "three strict host fixtures PASS",
     "eight owner/transition fault cases reject capture without changing output ticket",
     "exact release_for_ticket positive and five wrong-request refusals",
-    "reviewed predecessor normalization regression PASS"
+    "reviewed predecessor normalization regression PASS",
+    "wrong expected Main generation and OPEN token refused; three sanitizer regressions PASS"
   ],
   "remaining": [
     "ioctl ARM/submission binding",
@@ -17,5 +18,16 @@
     "hardware and physical runtime acceptance"
   ],
   "target_compiled": false,
-  "runtime_verified": false
+  "runtime_verified": false,
+  "local_followup": "capture additionally requires ARM-time expected Main generation and OPEN token, rejecting a different newer Main owner",
+  "merge_audit_2026_11_21": {
+    "reviewed_checkout_revision": "11beabae751d5f63f0d8e82c5d425aa2daf08228",
+    "checks": [
+      "check-main-open-recovery-owner.c compiled with -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined and executed successfully",
+      "check-reviewed-recovery-predecessor.py passed"
+    ],
+    "exit_status": 0,
+    "scope": "Only the listed checks were repeated during merge audit; original dated observations remain historical. No target module, final image or device acceptance.",
+    "scratch": "Temporary native fixture binary removed with its TemporaryDirectory; no source or evidence deleted."
+  }
 }

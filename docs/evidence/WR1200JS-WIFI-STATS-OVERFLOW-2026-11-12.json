@@ -39,5 +39,24 @@
     ],
     "target_compiled": false,
     "runtime_verified": false
+  },
+  "kernel_link_contract": {
+    "symbol": "div64_u64",
+    "export_verified": true,
+    "files_sha256": {
+      "trunk/linux-4.4.x/lib/div64.c": "af4ad62aac0b712bf84413072b2ccc954c27eac6fba9e695553bc207a1dbe833",
+      "trunk/linux-4.4.x/include/linux/math64.h": "dd91d18945532b22a394dac9d959565ea24c1cc243e193bf11135218549e3e32"
+    },
+    "scope": "Exact pinned Linux4.4 source exports helper required by32-bit module. Actual target module linkage still pending."
+  },
+  "merge_audit_2026_11_21": {
+    "reviewed_checkout_revision": "11beabae751d5f63f0d8e82c5d425aa2daf08228",
+    "checks": [
+      "Both recorded Linux 4.4 source hashes match git objects at c25283e915a2a00a763774dd255b14aff997285e",
+      "lib/div64.c contains EXPORT_SYMBOL(div64_u64); this is source evidence, not module linkage"
+    ],
+    "exit_status": 0,
+    "scope": "Only the listed checks were repeated during merge audit; original dated observations remain historical. No target module, final image or device acceptance.",
+    "scratch": "Temporary native fixture binary removed with its TemporaryDirectory; no source or evidence deleted."
   }
 }

@@ -16,5 +16,15 @@
     "remaining": "Full actual-resource composition, rollback owner, staging/native/MIPS build and activation dispatch still pending"
   },
   "actual_composition": "PASS check-start-network-composition.py actual sequencer plus source-extracted request matcher/network gate writer:7 operation faults and pending shutdown, correct gate ordering, no replay. External NVRAM/bridge/DNS/firewall observations injected.",
-  "full_preflight": "PASS early host compatibility: 68 existing standalone fixtures, CLOSE composition and WDS producer capture; actual driver binding checked later"
+  "full_preflight": "PASS early host compatibility: 68 existing standalone fixtures, CLOSE composition and WDS producer capture; actual driver binding checked later",
+  "rollback_provenance": "Local sequencer now records attempted-operation bits BEFORE each resource call, preserving DNS preparation attempt even when it fails. Actual sequencer and matcher/gate composition verify exact attempt masks across all7 failure phases and shutdown-before-DNS. Target pending for this follow-up.",
+  "merge_audit_2026_11_21": {
+    "reviewed_checkout_revision": "11beabae751d5f63f0d8e82c5d425aa2daf08228",
+    "checks": [
+      "check-start-network-composition.py passed with seven ordered operation faults and pending shutdown; external resource adapters injected"
+    ],
+    "exit_status": 0,
+    "scope": "Only the listed checks were repeated during merge audit; original dated observations remain historical. No target module, final image or device acceptance.",
+    "scratch": "Temporary native fixture binary removed with its TemporaryDirectory; no source or evidence deleted."
+  }
 }
