@@ -1,0 +1,32 @@
+{
+  "scope": "prepared adapter storage and fresh-allocation fragment execution",
+  "exit_code": 0,
+  "checks": [
+    "AP owner outside MacTab",
+    "fresh-only zero initialization before publication",
+    "direct/OS_ABL storage fixture",
+    "actual owner predecessor source map"
+  ],
+  "sha256": {
+    "tools/iot/ft-cache-storage-composition.py": "c3239811b09c350c3c2b60750272ee98f72f8e93a06b12df1d4569e49806b1e2",
+    "tools/iot/check-ft-cache-storage.py": "33edddf0a98fa75f0cbb6180f4dc704840436bdb048a64bfe108dde648edec11"
+  },
+  "remaining": [
+    "AP entry/phase/native binding",
+    "verified operation identity and device generation",
+    "all KDP user/release admission",
+    "target/image/device"
+  ],
+  "producer_installed": false,
+  "target_compiled": false,
+  "merge_audit_2026_11_21": {
+    "revision": "e63d1005ef1bbeca10026d91895cf9d7f7caf1b9",
+    "checks": [
+      "check-ft-cache-storage.py against pinned mt76x3; direct and OS_ABL source/storage branches"
+    ],
+    "recorded_source_hashes_match": true,
+    "exit_status": 0,
+    "scope": "Only listed source/host checks repeated; historical statements retain original scope. No native AP caller installation, target image or device acceptance.",
+    "cleanup": "TemporaryDirectory fixture outputs removed; no original data deleted."
+  }
+}

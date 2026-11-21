@@ -1,0 +1,32 @@
+{
+  "scope": "prepared AP checkpoint bound to exact cache completion state; native AP phase mapping pending",
+  "exit_code": 0,
+  "checks": [
+    "reserved/claimed destroy cannot advance AP cache checkpoint",
+    "exact cold/closed completed serial advances once",
+    "wrong serial and poisoned state refused",
+    "ASan/UBSan and actual owner map composition"
+  ],
+  "sha256": {
+    "tools/iot/ft-ap-cache-reservation.h": "427773594035d6b124d480d9c8a153e8b34d0f058106ee3afd35b57933ccf543",
+    "tools/iot/check-ft-ap-cache-reservation.c": "48eb66c0335ceff5efe0daaf48e341c6f6080692449ef63a14ac3fc440fc4161"
+  },
+  "remaining": [
+    "actual AP phase/caller binding",
+    "operation provenance",
+    "KDP release",
+    "target/image/device"
+  ],
+  "producer_installed": false,
+  "target_compiled": false,
+  "merge_audit_2026_11_21": {
+    "revision": "e63d1005ef1bbeca10026d91895cf9d7f7caf1b9",
+    "checks": [
+      "check-ft-ap-cache-reservation.c strict ASan/UBSan"
+    ],
+    "recorded_source_hashes_match": true,
+    "exit_status": 0,
+    "scope": "Only listed source/host checks repeated; historical statements retain original scope. No native AP caller installation, target image or device acceptance.",
+    "cleanup": "TemporaryDirectory fixture outputs removed; no original data deleted."
+  }
+}

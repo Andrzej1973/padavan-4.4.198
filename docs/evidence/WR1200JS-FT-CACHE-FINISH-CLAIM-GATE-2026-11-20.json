@@ -1,0 +1,28 @@
+{
+  "scope": "prepared destroy completion state invariant, host only",
+  "exit_code": 0,
+  "change": "destroy_finish accepts FREEING only, rejecting reserved-but-unclaimed ticket",
+  "checks": [
+    "premature finish with correct serial rejected",
+    "claim then native finish succeeds",
+    "direct/OS_ABL lifecycle regressions ASan/UBSan"
+  ],
+  "sha256": {
+    "tools/iot/ft-cache-lifetime.h": "dc7792bf979dacf6a0845d3829be8be9f82cc2e65067ac94a40f8dda785964e2",
+    "tools/iot/check-ft-cache-lifetime.c": "0bce6f1d06530be33f19e5f1376ca0a71bfaee514a4c182586a20fe5e068d80a",
+    "tools/iot/check-ft-cache-api-lifetime.py": "f2fc9612a4297e49125fb6b6c8ba7df36db140724678d77a7c8ae019b1a15626"
+  },
+  "producer_installed": false,
+  "target_compiled": false,
+  "merge_audit_2026_11_21": {
+    "revision": "e63d1005ef1bbeca10026d91895cf9d7f7caf1b9",
+    "checks": [
+      "check-ft-cache-lifetime.c strict ASan/UBSan",
+      "check-ft-cache-api-lifetime.py against pinned mt76x3"
+    ],
+    "recorded_source_hashes_match": true,
+    "exit_status": 0,
+    "scope": "Only listed source/host checks repeated; historical statements retain original scope. No native AP caller installation, target image or device acceptance.",
+    "cleanup": "TemporaryDirectory fixture outputs removed; no original data deleted."
+  }
+}
