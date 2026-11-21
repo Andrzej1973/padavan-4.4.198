@@ -1,0 +1,19 @@
+{
+  "scope": "native source lifecycle audit; not a concurrency or target test",
+  "source_sha256": {
+    "common/ft.c": "d0adbee2fe62e783c8c2924ae5c16e03b248b613dba91ffbd6e4f8d7fcbdfd85",
+    "ap/ap.c": "307783d34cbec74860ba6bb770b88e84eb88ef3da633b1d973fd7538b4a60aad",
+    "common/cmm_cfg.c": "8ba11a6c5fb2fb2494c3b3d79a79cd91297ccbdb6512be9da59b264616b5c154"
+  },
+  "constraints": [
+    "APStopBssOnly reaches adapter-wide FT_Release; BSS-only admission cannot protect the shared cache lifetime",
+    "FT_Init and FT_Release are conditional on FT_R1KH_KEEP and FT_RadioOff",
+    "Set_RadioOn_Proc changes FT_RadioOff after the synchronous radio calls; callback ordering must be traced rather than inferred from final flag",
+    "Destroy clears Ready before cache locking and frees the lock after unlocking",
+    "Maintenance tests Ready before locking; that check alone does not retain cache lock lifetime",
+    "Maintenance performs MacTableLookup and MlmeEnqueue while cache lock is held; introducing MacTabLock-to-cache nesting requires full reverse-order review"
+  ],
+  "required_before_install": "adapter-lifetime admission for every cache caller and init/destroy, close/drain ordering, paired lock-order verification and target compilation",
+  "producer_installed": false,
+  "runtime_verified": false
+}

@@ -1,0 +1,25 @@
+{
+  "date": "2026-11-21",
+  "checkout_revision": "b68f9098b6621907e514acd8a8e9bdb3ec7b995f",
+  "pinned_driver_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "records": [
+    {
+      "generator": "tools/iot/inspect-ft-cache-lifecycle.py",
+      "generator_sha256": "52b63b1c939851e0f96111cb8b434dc8ae1733a144457fe1de4a26f682bed697",
+      "report": "docs/evidence/WR1200JS-FT-CACHE-LIFECYCLE-AUDIT-2026-11-20.json",
+      "report_sha256": "4759532a8139837c4cddbe50794e9230f4ad8f94b3713bf4409ff0f3cab0b257",
+      "exact_json_match": true,
+      "exit_status": 0
+    },
+    {
+      "generator": "tools/iot/inspect-ft-kdp-lifecycle.py",
+      "generator_sha256": "26c7ad1e97ec6edc4c84df2bafa74b41d735d6b94e1d1a81ff569c874cf973b9",
+      "report": "docs/evidence/WR1200JS-FT-KDP-CALL-ADMISSION-AUDIT-2026-11-20.json",
+      "report_sha256": "d4a5d7eed8091ae044f8354360555caf15d09774a3ca340a942743a93638c0c3",
+      "exact_json_match": true,
+      "exit_status": 0
+    }
+  ],
+  "scope": "Pinned-source lexical/lifecycle audits only; no concurrency, effective target macro, firmware image or physical runtime acceptance.",
+  "cleanup": "Temporary generated reports removed; original evidence and pinned source unchanged."
+}

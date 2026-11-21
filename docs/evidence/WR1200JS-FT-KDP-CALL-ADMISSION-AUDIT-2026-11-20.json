@@ -1,0 +1,438 @@
+{
+  "scope": "source inventory; not runtime concurrency or effective target macro evidence",
+  "sha256": {
+    "ap/ap_ftkd.c": "19ca90564222128b0a8ef98e7799bd542e5725a71d130c2d6a3e37ffb7488e4b",
+    "include/ft_cmm.h": "7af0481ba05e85d3da97e340d0e85ae9325eae070432e52089c0ee4d4bd6ad93"
+  },
+  "control_block_users": [
+    {
+      "function": "FT_KDP_Init",
+      "line": 147,
+      "accesses": [
+        {
+          "symbol": "FlgIsFtKdpInit",
+          "line": 151
+        },
+        {
+          "symbol": "pFT_KDP_Ctrl_BK",
+          "line": 157
+        },
+        {
+          "symbol": "pFT_KDP_Ctrl_BK",
+          "line": 158
+        },
+        {
+          "symbol": "FT_KdpLock",
+          "line": 164
+        },
+        {
+          "symbol": "FT_KDP_CB",
+          "line": 168
+        },
+        {
+          "symbol": "FT_KDP_CB",
+          "line": 173
+        },
+        {
+          "symbol": "FT_KDP_CB",
+          "line": 174
+        },
+        {
+          "symbol": "FT_KDP_CB",
+          "line": 175
+        },
+        {
+          "symbol": "FT_KDP_CB",
+          "line": 179
+        },
+        {
+          "symbol": "FT_KDP_CB",
+          "line": 182
+        },
+        {
+          "symbol": "FlgIsFtKdpInit",
+          "line": 186
+        }
+      ]
+    },
+    {
+      "function": "FT_KDP_Release",
+      "line": 204,
+      "accesses": [
+        {
+          "symbol": "FlgIsFtKdpInit",
+          "line": 212
+        },
+        {
+          "symbol": "FT_KDP_CB",
+          "line": 219
+        },
+        {
+          "symbol": "FT_KDP_CB",
+          "line": 224
+        },
+        {
+          "symbol": "pFT_KDP_Ctrl_BK",
+          "line": 234
+        },
+        {
+          "symbol": "pFT_KDP_Ctrl_BK",
+          "line": 236
+        },
+        {
+          "symbol": "pFT_KDP_Ctrl_BK",
+          "line": 237
+        },
+        {
+          "symbol": "FT_KDP_CB",
+          "line": 243
+        },
+        {
+          "symbol": "FT_KdpLock",
+          "line": 248
+        },
+        {
+          "symbol": "FlgIsFtKdpInit",
+          "line": 251
+        }
+      ]
+    },
+    {
+      "function": "FT_KDP_EventInform",
+      "line": 284,
+      "accesses": [
+        {
+          "symbol": "FlgIsFtKdpInit",
+          "line": 301
+        },
+        {
+          "symbol": "FT_KDP_CB",
+          "line": 316
+        },
+        {
+          "symbol": "FT_KDP_CB",
+          "line": 516
+        }
+      ]
+    },
+    {
+      "function": "FT_KDP_EventGet",
+      "line": 625,
+      "accesses": [
+        {
+          "symbol": "FlgIsFtKdpInit",
+          "line": 633
+        },
+        {
+          "symbol": "FT_KDP_CB",
+          "line": 641
+        },
+        {
+          "symbol": "FT_KDP_CB",
+          "line": 651
+        }
+      ]
+    },
+    {
+      "function": "FT_KDP_KeyRequestToUs",
+      "line": 679,
+      "accesses": [
+        {
+          "symbol": "FlgIsFtKdpInit",
+          "line": 694
+        }
+      ]
+    },
+    {
+      "function": "FT_KDP_KeyResponseToUs",
+      "line": 799,
+      "accesses": [
+        {
+          "symbol": "FlgIsFtKdpInit",
+          "line": 811
+        }
+      ]
+    },
+    {
+      "function": "FT_KDP_StationInform",
+      "line": 951,
+      "accesses": [
+        {
+          "symbol": "FlgIsFtKdpInit",
+          "line": 964
+        }
+      ]
+    },
+    {
+      "function": "FT_KDP_CryptKeySet",
+      "line": 1061,
+      "accesses": [
+        {
+          "symbol": "FlgIsFtKdpInit",
+          "line": 1069
+        },
+        {
+          "symbol": "FT_KDP_CB",
+          "line": 1093
+        }
+      ]
+    },
+    {
+      "function": "FT_KDP_DataEncrypt",
+      "line": 1114,
+      "accesses": [
+        {
+          "symbol": "FlgIsFtKdpInit",
+          "line": 1123
+        },
+        {
+          "symbol": "FT_KDP_CB",
+          "line": 1140
+        }
+      ]
+    },
+    {
+      "function": "FT_KDP_DataDecrypt",
+      "line": 1167,
+      "accesses": [
+        {
+          "symbol": "FlgIsFtKdpInit",
+          "line": 1176
+        },
+        {
+          "symbol": "FT_KDP_CB",
+          "line": 1199
+        }
+      ]
+    },
+    {
+      "function": "FT_KDP_R0KH_InfoAdd",
+      "line": 1229,
+      "accesses": [
+        {
+          "symbol": "FlgIsFtKdpInit",
+          "line": 1239
+        },
+        {
+          "symbol": "FT_KDP_CB",
+          "line": 1247
+        },
+        {
+          "symbol": "FT_KdpLock",
+          "line": 1253
+        },
+        {
+          "symbol": "FT_KDP_CB",
+          "line": 1257
+        },
+        {
+          "symbol": "FT_KdpLock",
+          "line": 1280
+        },
+        {
+          "symbol": "FT_KDP_CB",
+          "line": 1297
+        },
+        {
+          "symbol": "FT_KDP_CB",
+          "line": 1299
+        },
+        {
+          "symbol": "FT_KDP_CB",
+          "line": 1300
+        },
+        {
+          "symbol": "FT_KDP_CB",
+          "line": 1304
+        },
+        {
+          "symbol": "FT_KDP_CB",
+          "line": 1305
+        },
+        {
+          "symbol": "FT_KDP_CB",
+          "line": 1308
+        },
+        {
+          "symbol": "FT_KdpLock",
+          "line": 1311
+        }
+      ]
+    },
+    {
+      "function": "FT_KDP_R0KH_InfoDel",
+      "line": 1336,
+      "accesses": [
+        {
+          "symbol": "FlgIsFtKdpInit",
+          "line": 1347
+        },
+        {
+          "symbol": "FT_KdpLock",
+          "line": 1359
+        },
+        {
+          "symbol": "FT_KDP_CB",
+          "line": 1362
+        },
+        {
+          "symbol": "FT_KdpLock",
+          "line": 1365
+        },
+        {
+          "symbol": "FT_KDP_CB",
+          "line": 1419
+        },
+        {
+          "symbol": "FT_KDP_CB",
+          "line": 1421
+        },
+        {
+          "symbol": "FT_KDP_CB",
+          "line": 1424
+        },
+        {
+          "symbol": "FT_KDP_CB",
+          "line": 1425
+        },
+        {
+          "symbol": "FT_KDP_CB",
+          "line": 1432
+        },
+        {
+          "symbol": "FT_KdpLock",
+          "line": 1446
+        }
+      ]
+    },
+    {
+      "function": "FT_KDP_R0KH_InfoGet",
+      "line": 1474,
+      "accesses": [
+        {
+          "symbol": "FlgIsFtKdpInit",
+          "line": 1483
+        },
+        {
+          "symbol": "FT_KdpLock",
+          "line": 1490
+        },
+        {
+          "symbol": "FT_KDP_CB",
+          "line": 1492
+        },
+        {
+          "symbol": "FT_KdpLock",
+          "line": 1515
+        },
+        {
+          "symbol": "FT_KdpLock",
+          "line": 1519
+        }
+      ]
+    },
+    {
+      "function": "FT_KDP_InfoBroadcast",
+      "line": 1546,
+      "accesses": [
+        {
+          "symbol": "FlgIsFtKdpInit",
+          "line": 1557
+        }
+      ]
+    },
+    {
+      "function": "FT_KDP_NeighborReportHandle",
+      "line": 1595,
+      "accesses": [
+        {
+          "symbol": "FlgIsFtKdpInit",
+          "line": 1605
+        }
+      ]
+    },
+    {
+      "function": "FT_KDP_NeighborRequestHandle",
+      "line": 1644,
+      "accesses": [
+        {
+          "symbol": "FlgIsFtKdpInit",
+          "line": 1655
+        }
+      ]
+    },
+    {
+      "function": "FT_KDP_NeighborResponseHandle",
+      "line": 1703,
+      "accesses": [
+        {
+          "symbol": "FlgIsFtKdpInit",
+          "line": 1712
+        }
+      ]
+    },
+    {
+      "function": "FT_RRB_ActionHandle",
+      "line": 1756,
+      "accesses": [
+        {
+          "symbol": "FlgIsFtKdpInit",
+          "line": 1762
+        }
+      ]
+    }
+  ],
+  "unclassified_accesses": 0,
+  "constraints": [
+    "Cache API leases do not cover all KDP entry points; KDP release needs whole-operation lifetime admission before control block and FT_KdpLock release",
+    "Native FT_KDP_Init is void and may return on control block allocation failure; the caller must not assume successful KDP initialization",
+    "Native FT_KDP_Init ignores OS_ABL FT_KdpLock allocation return; FlgIsFtKdpInit alone is insufficient evidence of valid allocated lock",
+    "APStop and APStopBssOnly already mutate AP state before late FT_Release call; FT drain reservation must precede first AP side effects and failure must reach callers",
+    "Under FT_KDP_FUNC_INFO_BROADCAST native release sets control block NULL before evaluating its TimerReport member for cancel",
+    "Broadcast define is commented out in pinned header; effective target command-line definitions remain unverified",
+    "Timer cancel/release task-queue quiescence and all control-block users must be verified before native KDP free"
+  ],
+  "next_required": "Bind KDP whole-operation users and a pre-side-effect AP release reservation; then compose KDP/RIC/cache release under that reservation and verify FT_R1KH_KEEP transitions",
+  "producer_installed": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "internal_potential_call_edges": [
+    {
+      "caller": "FT_KDP_EventInform",
+      "callee": "FT_KDP_R0KH_InfoGet",
+      "line": 400
+    },
+    {
+      "caller": "FT_KDP_EventInform",
+      "callee": "FT_KDP_R0KH_InfoGet",
+      "line": 425
+    },
+    {
+      "caller": "FT_KDP_KeyRequestToUs",
+      "callee": "FT_KDP_EventInform",
+      "line": 767
+    },
+    {
+      "caller": "FT_KDP_KeyResponseToUs",
+      "callee": "FT_KDP_R0KH_InfoAdd",
+      "line": 920
+    },
+    {
+      "caller": "FT_KDP_StationInform",
+      "callee": "FT_KDP_EventInform",
+      "line": 1031
+    },
+    {
+      "caller": "FT_KDP_R0KH_InfoAdd",
+      "callee": "FT_KDP_R0KH_InfoDel",
+      "line": 1250
+    },
+    {
+      "caller": "FT_KDP_InfoBroadcast",
+      "callee": "FT_KDP_EventInform",
+      "line": 1570
+    }
+  ],
+  "admission_constraint": "Outer admitted calls must invoke internal implementations using their existing lease; independently re-admitting nested calls after close may partially execute the outer operation. No global or per-adapter bypass flag may substitute for exact caller ownership.",
+  "callgraph_limitations": "Lexical direct FT calls in ap_ftkd.c only; macros, indirect callbacks, other translation units and effective feature selection require separate inventory."
+}
