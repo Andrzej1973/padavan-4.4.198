@@ -1,0 +1,57 @@
+{
+  "scope": "disabled cold canonical profile through parent cleanup/followup and final INITIAL_OFF predicate",
+  "base_revision": "bcb207719b4985feaea63dcf92600fd7703d9244",
+  "source_sha256": {
+    "cold-on-disabled.c": "452ca8bef86014e62ae8b99a7bcac0864aa493a0cf168e7015776df3b87b56f6",
+    "rc-cold-disabled-followup.inc": "3a1f986fdeb9df889a9c6974f009aabc8250529324608f9b8c52434271b4d729",
+    "rc-cold-final-shutdown.inc": "1bd5656791d0c393d57816491aefd57c3d5d58197816c6e52538dfb3b8d008f9",
+    "check-rc-cold-disabled-followup.py": "76ae657325f36544df6ecd45ded7e244197f52f8e5a1c62c904ce9bdae84a851"
+  },
+  "checks": [
+    {
+      "command": "python3 tools/iot/check-cold-on-disabled.py",
+      "exit_status": 0,
+      "sanitizers": [
+        "ASan",
+        "UBSan"
+      ]
+    },
+    {
+      "command": "python3 tools/iot/check-rc-cold-disabled-followup.py",
+      "exit_status": 0,
+      "sanitizers": [
+        "ASan",
+        "UBSan"
+      ]
+    },
+    {
+      "command": "python3 tools/iot/check-cold-config-revision.py",
+      "exit_status": 0,
+      "sanitizers": [
+        "ASan",
+        "UBSan"
+      ]
+    },
+    {
+      "command": "python3 tools/iot/check-rc-cold-final-shutdown.py",
+      "exit_status": 0,
+      "sanitizers": [
+        "ASan",
+        "UBSan"
+      ]
+    }
+  ],
+  "prepared_cases": [
+    "native desired disabled B; legacy A unchanged",
+    "generation -> disabled -> failed-unmask retention -> cleanup -> later desired C -> followup",
+    "three WAN plans exactly once",
+    "actual final INITIAL_OFF predicate rejects foreign epoch and changed file"
+  ],
+  "limits": [
+    "NVRAM syscall, driver, SDK and service actors injected",
+    "Prepared final predicate tested within composed followup; full final-shutdown helper uses existing default preparation",
+    "OFF reload0 and complete loaded-key provenance unresolved",
+    "No new target, production-image or physical acceptance"
+  ],
+  "scratch_retained": false
+}

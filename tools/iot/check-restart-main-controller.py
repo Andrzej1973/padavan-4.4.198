@@ -12,6 +12,7 @@ struct wr_iot_rc_shutdown_admission wr_iot_rc_shutdown;
 static int calls,probe_ok=1,profile_ok=1;static unsigned long long epoch=2;
 static enum wr_iot_restart_up_result outcome;
 int wr_iot_service_guard_dup(void){return open("/dev/null",O_RDONLY);}
+int wr_iot_restart_generation_profile_current(const struct wr_iot_restart_generation *g){assert(g&&g->owner==getpid());return profile_ok;}
 int wr_iot_restart_generation_origin_current(const struct wr_iot_restart_generation*g){return g->owner==getpid();}
 int wr_iot_restart_generation_step(struct wr_iot_restart_generation*g){assert(!g->main_may_have_started);return 1;}
 enum wr_iot_restart_up_result wr_iot_restart_main_up(void){calls++;return outcome;}

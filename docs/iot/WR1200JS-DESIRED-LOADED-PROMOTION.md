@@ -1,3 +1,62 @@
+## Disabled cold desired profile survives cleanup — 2026-11-21
+
+Disabled cold parent now uses its owned generation observer instead of legacy
+credentials. After parent cleanup, snapshot-prepared followup and final INITIAL_OFF
+shutdown predicate require the already validated exact file receipt, backend
+ID/time/epoch/generation and existing idle/policy observations; no live desired
+or legacy reread can retarget that historical generation. Unprepared followup
+and shutdown preserve their old legacy gate. No ACTIVE proof is invented.
+
+Extended existing followup helper composes actual native desired snapshot,
+generation, disabled admission, cleanup, file receipt and followup: B remains
+valid with unchanged legacy A and later desired C; all three WAN plans run once;
+wrong epoch/foreign profile refuse. It directly exercises final INITIAL_OFF
+shutdown predicate too. Native NVRAM/driver/SDK actors are injected; production
+installation and physical acceptance are not claimed. Existing default-mode
+cases and separate complete final-shutdown fixture also pass ASan/UBSan exit0.
+Cold disabled and native generation helpers passed in the preceding local phase.
+Initial prepared fixture lacked generation-profile.h; corrected before passing.
+
+OPTIONAL1456-LINK receipt records verified ZIP digest/CRC and inspected link
+reports for602ac017 only, with explicit independent-ELF-verification limits.
+The reload0 lifecycle map is retained as the next implementation guide; this
+package fixes disabled generation/followup, not full OFF reload0 provenance.
+No router changes. Helper trees removed automatically, no archives retained.
+One coherent publication; newer exact-SHA target/image gates remain pending.
+
+## reload0 origin retention map — source audit 2026-11-21
+
+The remaining no-reload path cannot obtain provenance from live desired keys.
+Specific lifetime boundaries now traced:
+
+* rc-cold-release.inc:wr_iot_cold_parent_cleanup wipes parent generation and
+  profile after detach; rc-cold-followup.inc still checks release.profile plus
+  exact backend ID/time/epoch/generation and actual activation observation.
+* rc-cold-terminal.inc:wr_iot_cold_terminal_retire rechecks that ACTIVE followup
+  then wipes the release (including its nonsecret file receipt). ACTIVE backend
+  survives. This checked boundary is a candidate for retaining file provenance
+  beside the existing backend, before the terminal/root memory is retired.
+* rc-cold-disabled-release.inc keeps only backend.initial_off; its corresponding
+  terminal retirement also wipes release state. Disabled origin needs its own
+  receipt and never an invented ACTIVE proof.
+* radio-on-release-runtime.h captures a profile receipt before wiping generation;
+  radio-on-owner.c eventually retires its completed root. Both successful ON
+  intents need the same explicit retained-profile handoff contract.
+* rc-initial-restart-detach.inc retains ACTIVE input but clears the borrowed
+  INITIAL parent; rc-physical-stop.c:wr_iot_rc_physical_resume_finish performs
+  final predicates before fenced cleanup. INITIAL enabled/disabled and CLOSE
+  restart origins must participate before a common reload0 observer is enabled.
+
+Implementation next: define one private stable RC receipt owner with origin,
+backend request identity and exact generation binding; publish only at proven
+completion boundaries, invalidate/replace on actual next lifecycle transition,
+and retain uncertainty. Capture expected file identity before physical OFF and
+carry it through the exact RELEASE; do not bind a current desired B to loaded A.
+Handle absent historical proof as refusal, with an explicit bootstrap path for
+never-opened INITIAL. File receipt proves file continuity only: loaded-PMK and
+DMA/physical shutdown authority remain the existing independent contracts.
+This is a source audit, not completed reload0 integration or runtime evidence.
+
 ## Restart consumers use the captured generation profile — 2026-11-21
 
 Source trace found that prepared restart generation could create desired B,

@@ -110,10 +110,56 @@ static int disabled_mask(int how,const sigset_t *set,sigset_t *old){if(how==SIG_
 #undef sigprocmask
 ''')
 
+# Reuse the native snapshot provider from the existing desired-generation helper.
+import ast
+parsed=ast.parse((here/'check-cold-config-revision.py').read_text())
+provider=next(ast.literal_eval(n.value) for n in parsed.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='provider' for t in n.targets))
+prepared_body=body.replace('#include "check-generation-config-absent.h"',provider)
+prepared_body=prepared_body.replace('#include "cold-on-generation.h"','#include "cold-on-generation.h"\n#include "generation-profile.h"',1)
+anchor='make_profile();return 0;}\n#include "cold-on-admission.c"'
+assert anchor in prepared_body
+prepared_body=prepared_body.replace(anchor,r'''struct wr_iot_precreated_profile_request selected={0};
+ assert(wr_iot_generation_profile_request(&selected)==1);
+ FILE *in=tmpfile(),*out=fopen(profile_path,"w");assert(in&&out&&fputs(baseline,in)>=0);rewind(in);
+ assert(wr_iot_precreated_profile(in,out,selected.ssid,selected.password,0));
+ assert(!fclose(in)&&!fclose(out));return 0;}
+#include "cold-on-admission.c"''')
+anchor=' assert(wr_iot_cold_owner_begin(&owner,&input,1));'
+assert anchor in prepared_body
+prepared_body=prepared_body.replace(anchor,r'''
+ struct wr_iot_saved_config config={.profile={.enabled=0,.ssid="IoT-B",.password="password-B",
+  .gateway="192.168.50.1",.mask="255.255.255.0",.first="192.168.50.10",.last="192.168.50.30"}};
+ record_present=1;assert(wr_iot_saved_config_encode(desired_record,sizeof(desired_record),&config));
+'''+anchor)
+prepared_body=prepared_body.replace('strcpy(saved_enabled,"1");assert(!wr_iot_cold_disabled_current(&disabled));',
+ 'strcpy(saved_enabled,"1");assert(wr_iot_cold_disabled_current(&disabled));')
+prepared_body=prepared_body.replace('strcpy(saved_enabled,"1");assert(!wr_iot_cold_disabled_followup_current(&release));',
+ 'strcpy(saved_enabled,"1");assert(wr_iot_cold_disabled_followup_current(&release));')
+anchor=' assert(wr_iot_cold_disabled_followup_current(&release)&&!depth);'
+assert anchor in prepared_body
+prepared_body=prepared_body.replace(anchor,r'''
+ strcpy(config.profile.ssid,"IoT-C");
+ assert(wr_iot_saved_config_encode(desired_record,sizeof(desired_record),&config));
+ assert(!wr_iot_restart_disabled_profile_current()); /* Legacy A is deliberately unchanged. */
+'''+anchor)
+final_source=(here/'rc-cold-final-shutdown.inc').read_text()
+final_predicate=final_source[final_source.index('static int cold_final_initial_off('):final_source.index('static void cold_final_cleanup(')]
+prepared_body=prepared_body.replace('int main(int argc,char**argv){',final_predicate+'\nint main(int argc,char**argv){')
+anchor=' wr_iot_rc_shutdown.radio_on_owned=0;assert(!unlink(profile_path));'
+assert anchor in prepared_body
+prepared_body=prepared_body.replace(anchor,r'''
+ assert(cold_final_initial_off(&release));
+ release.identity.adapter_epoch++;assert(!cold_final_initial_off(&release));release.identity.adapter_epoch--;
+ make_profile();assert(!wr_iot_cold_disabled_followup_current(&release)&&!cold_final_initial_off(&release));
+'''+anchor)
 with tempfile.TemporaryDirectory(prefix='wr-cold-owner-') as d:
- root=Path(d);(root/'rc.h').write_text('const char *nvram_safe_get(const char *);\n')
- p=root/'check.c';p.write_text(body);b=root/'check'
- subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+d,'-I'+str(here),str(p),'-o',str(b)],check=True)
- for plan in ['0','1','2']:
-  subprocess.run([str(b),d,plan],check=True,timeout=20)
-print('PASS cold disabled postrelease observation/WAN: fresh new READY never-opened ra2, epoch/generation/envelope/pending/Guest/saved-policy drift refuse; active backend excluded, failed unmask retains, cleanup wipes profile/credentials/guard and publishes inert INITIAL_OFF; exact initial-OFF/profile/policy recheck, all WAN plans once despite post-call observation loss, no OPEN')
+ root=Path(d);(root/'rc.h').write_text('const char *nvram_safe_get(const char *);\nint nvram_getall(char *,int,int);\nint nvram_set(const char *,const char *);\n')
+ (root/'wr-band-settings-snapshot.h').write_bytes((here.parent/'band-steering/settings-snapshot.h').read_bytes())
+ p=root/'check.c';b=root/'check'
+ for prepared,unit in ((0,body),(1,prepared_body)):
+  p.write_text(unit)
+  extra=[str(here.parent/'band-steering/settings-snapshot.c')] if prepared else []
+  subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-DWR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED='+str(prepared),'-DWR_IOT_NATIVE_NVRAM_SPACE=61440','-DWR_IOT_NATIVE_NVRAM_HEADER_BYTES=20','-I'+d,'-I'+str(here),str(p),*extra,'-o',str(b)],check=True)
+  for plan in ['0','1','2']:
+   subprocess.run([str(b),d,plan],check=True,timeout=20)
+print('PASS disabled cold native desired B -> generation/initial-OFF/cleanup/followup with legacy A and later C, three WAN plans; final shutdown predicate, epoch and foreign file refusal; default legacy regression; SDK/driver actors injected')

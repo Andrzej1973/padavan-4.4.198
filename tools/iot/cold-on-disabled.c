@@ -10,7 +10,7 @@ static int cold_disabled_parent(struct wr_iot_cold_owner *p)
   !p->generation.desired.password[0]&&!p->generation.desired.gateway[0]&&
   !p->generation.desired.mask[0]&&!p->generation.desired.first[0]&&!p->generation.desired.last[0]&&
   wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.pending&&wr_iot_cold_owner_step(p)&&
-  wr_iot_restart_disabled_profile_current();
+  wr_iot_cold_generation_profile_current(&p->generation);
 }
 int wr_iot_cold_disabled_current(struct wr_iot_cold_disabled *s)
 {

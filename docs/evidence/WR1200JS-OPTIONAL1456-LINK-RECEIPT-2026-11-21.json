@@ -1,0 +1,37 @@
+{
+  "run": 44925218732,
+  "source_revision": "602ac01739a0e5c6551eeb4fd669f0899a113e4c",
+  "workflow_conclusion": "success",
+  "artifact": 14715587800,
+  "artifact_sha256": "867a37dfc5e3408fe7aa029812766f5a3ee89cf516159a2ec936d6fd52dfb52e",
+  "zip_digest_verified": true,
+  "zip_crc_verified": true,
+  "inspected_reports": {
+    "runtime-link/generation-selector-link.json": {
+      "selector_link_provider_verified": true,
+      "selector_caller_relocation_verified": true,
+      "selector_object_strong_definition_verified": true,
+      "reported_rc_sha256": "a018ccb21cebeb687131daea2d3381c568157dcef052c27031e16681953da5e1"
+    },
+    "runtime-link/rc-dependency-closure.json": {
+      "dependency_closure_verified": true,
+      "errors": []
+    },
+    "runtime-link/httpd-dependency-closure.json": {
+      "dependency_closure_verified": true,
+      "errors": []
+    },
+    "runtime-link/iot-runtime-source.json": {
+      "configuration_flash_bound": false,
+      "configuration_loaded_promotion_bound": false,
+      "production_ready": false,
+      "runtime_verified": false
+    }
+  },
+  "limits": [
+    "Report claims inspected; ELF hash and dependency files not independently rehashed in this audit",
+    "Source applies to602ac017 only, not later observer/rollback packages",
+    "Prepared candidate link evidence; no production installation, four final variant or physical acceptance"
+  ],
+  "local_archives_retained": false
+}

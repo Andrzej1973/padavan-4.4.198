@@ -1,0 +1,119 @@
+{
+  "base_revision": "bcb207719b4985feaea63dcf92600fd7703d9244",
+  "scope": "related local IoT disabled cold/revision/ON/restart/INITIAL/RC regression batch",
+  "checks": [
+    {
+      "helper": "check-rc-cold-disabled-followup.py",
+      "sha256": "76ae657325f36544df6ecd45ded7e244197f52f8e5a1c62c904ce9bdae84a851",
+      "exit_status": 0
+    },
+    {
+      "helper": "check-rc-cold-disabled-terminal.py",
+      "sha256": "65f5b254520aa1b9a01283c1e54671d0c575cd97157ff1bbcece3d3c437ae37a",
+      "exit_status": 0
+    },
+    {
+      "helper": "check-rc-cold-disabled-signal.py",
+      "sha256": "509ee3d4891f9147e52b05a844b7542ac16f3b4960a39f81ccc1ab966c7c56c4",
+      "exit_status": 0
+    },
+    {
+      "helper": "check-rc-cold-final-shutdown.py",
+      "sha256": "de4b89d2eff797571ee8fd1c83c8bcbe5e645b95f9576133fec920e245d720bb",
+      "exit_status": 0
+    },
+    {
+      "helper": "check-cold-on-root.py",
+      "sha256": "6aa0d745c263ba00a967b1122e74671c5ce6663640339ea9b288b404413f65c1",
+      "exit_status": 0
+    },
+    {
+      "helper": "check-cold-on-root-shutdown.py",
+      "sha256": "9a4fdf99745464a37d1de4bce7b77cf7027ba10e41e5e27747876c20f14360cd",
+      "exit_status": 0
+    },
+    {
+      "helper": "check-cold-on-root-recovery.py",
+      "sha256": "8adcee2a58d6b7d0ba4b04108fb2d443fb04424bdb79365a260f1284b33ef219",
+      "exit_status": 0
+    },
+    {
+      "helper": "check-cold-config-revision.py",
+      "sha256": "37a8bc80524660297fed4f54a88164ba037c4b736525265d0cd94ffcf931b984",
+      "exit_status": 0
+    },
+    {
+      "helper": "check-radio-on-owner-desired.py",
+      "sha256": "b086518e6979cf4ea9d5d22d12523c3e91bfe6f7837d9f75b4585b6f260b97dc",
+      "exit_status": 0
+    },
+    {
+      "helper": "check-restart-desired-config.py",
+      "sha256": "7467996428e365e9ee2e98c2fc7758ff47b5c2e4516f5f7caaa51049ed3ed731",
+      "exit_status": 0
+    },
+    {
+      "helper": "check-initial-auto-shutdown.py",
+      "sha256": "9d4cfcd1e8589aeaea36558303898ffc1ce75bcc6286cafd54c4f64412760e67",
+      "exit_status": 0
+    },
+    {
+      "helper": "check-rc-radio-off-composition.py",
+      "sha256": "17557c9879f0d00d1f388afd8593017732eb5cc7ced14d8deacf8347a342f4fd",
+      "exit_status": 0
+    },
+    {
+      "helper": "check-restart-main-controller.py",
+      "sha256": "79ad75e0608f1143dc7f6d1eaaf38c3c87f67fb235a070c61d52ab55e04fad34",
+      "exit_status": 0
+    },
+    {
+      "helper": "check-restart-main-lan.py",
+      "sha256": "b763e64b0e2a2384f085c1389f4f91f79bf8601c1784d850b6e0103eda1cecad",
+      "exit_status": 0
+    },
+    {
+      "helper": "check-restart-main-lan-composition.py",
+      "sha256": "e1a9e538dbe381d8f6d9ae57d37c4b8939c849aabd3d681843d8d44fbc0458aa",
+      "exit_status": 0
+    }
+  ],
+  "resource_measurements": [
+    {
+      "count": 12,
+      "elapsed_seconds": 166.67,
+      "peak_rss_KiB": 143584,
+      "exit_status": 0
+    },
+    {
+      "count": 3,
+      "elapsed_seconds": 2.79,
+      "peak_rss_KiB": 42540,
+      "exit_status": 0
+    }
+  ],
+  "compiler_lanes": 1,
+  "sanitizers": [
+    "ASan",
+    "UBSan"
+  ],
+  "ci_triage": {
+    "run": 44928955728,
+    "job": 136921149299,
+    "step": "Verify experimental physical-stop host contracts",
+    "cause": "isolated Main-controller fixture missing new generation profile observer",
+    "monitor_run": 44929638852,
+    "artifact": 14717111615,
+    "sha256": "22a4819f6f0ae74eceadebba8a0466f997e37050525abcee250c1b3b4206abbb",
+    "zip_crc_verified": true,
+    "original_log_confirmed": true,
+    "monitor_parser_change_needed": false
+  },
+  "limits": [
+    "Host fixtures with modeled SDK/driver/native actors",
+    "Main-controller fixture intentionally injects generation observer; actual observer checked by native desired fixture",
+    "Not a full physical-stop suite or firmware/kernel/module build",
+    "No new target,image,loaded-key or physical acceptance"
+  ],
+  "scratch_retained": false
+}

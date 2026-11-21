@@ -1,3 +1,49 @@
+## Broader local IoT package verification — owner direction 2026-11-21
+
+Owner requested more related lightweight local checks and larger coherent pushes.
+AGENTS now requires consumer coverage for shared fixtures and measured single-lane
+local batches, retaining heavy firmware/kernel/module work on GitHub.
+15 related helpers passed ASan/UBSan exit0:12 in166.67s with peak143584KiB,
+three Main fixtures in2.79s with peak42540KiB. Existing temporary helpers cleaned
+their outputs; no archive or persistent scratch retained. Evidence:
+docs/evidence/WR1200JS-IOT-LOCAL-BATCH-2026-11-21.json.
+
+ABI972/run44928955728 exposed missing wr_iot_restart_generation_profile_current
+in the isolated Main-controller actor. Added the explicit existing profile_ok
+boundary and checked both LAN consumers in the same local package. Actual native
+desired-generation observer is covered separately, not inferred from this mock.
+Monitor44929638852/artifact14717111615 digest/CRC and original job136921149299
+confirm the cause; monitor useful, no parser edit. Broader local package includes
+the disabled cold correction, composed B/A/C tests, lifecycle map and earlier
+optional1456 link receipt. No intermediate push. Full reload0/loaded provenance,
+new exact-SHA target/image and physical acceptance remain open.
+
+## Disabled cold desired profile survives cleanup — 2026-11-21
+
+Disabled cold parent now uses its owned generation observer instead of legacy
+credentials. After parent cleanup, snapshot-prepared followup and final INITIAL_OFF
+shutdown predicate require the already validated exact file receipt, backend
+ID/time/epoch/generation and existing idle/policy observations; no live desired
+or legacy reread can retarget that historical generation. Unprepared followup
+and shutdown preserve their old legacy gate. No ACTIVE proof is invented.
+
+Extended existing followup helper composes actual native desired snapshot,
+generation, disabled admission, cleanup, file receipt and followup: B remains
+valid with unchanged legacy A and later desired C; all three WAN plans run once;
+wrong epoch/foreign profile refuse. It directly exercises final INITIAL_OFF
+shutdown predicate too. Native NVRAM/driver/SDK actors are injected; production
+installation and physical acceptance are not claimed. Existing default-mode
+cases and separate complete final-shutdown fixture also pass ASan/UBSan exit0.
+Cold disabled and native generation helpers passed in the preceding local phase.
+Initial prepared fixture lacked generation-profile.h; corrected before passing.
+
+OPTIONAL1456-LINK receipt records verified ZIP digest/CRC and inspected link
+reports for602ac017 only, with explicit independent-ELF-verification limits.
+The reload0 lifecycle map is retained as the next implementation guide; this
+package fixes disabled generation/followup, not full OFF reload0 provenance.
+No router changes. Helper trees removed automatically, no archives retained.
+One coherent publication; newer exact-SHA target/image gates remain pending.
+
 ## ABI971 composed INITIAL fixture corrected — 2026-11-21
 
 ABI971/run44927032442 failed in check-initial-auto-shutdown.py because the

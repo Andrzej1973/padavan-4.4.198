@@ -235,6 +235,13 @@ Pushes in this repository trigger firmware and service runs automatically, so
 batch work instead of publishing every small edit:
 
 - Commit locally as needed and push once per coherent change set.
+- Owner reaffirmed2026-11-21: before pushing an IoT package, run the broader
+  related lightweight host/composition checks locally, including consumers of
+  changed shared fixtures. Start with one compiler lane and record elapsed time
+  and peak memory; expand coverage while WSL resources remain comfortable.
+  Batch related implementation and fixture fixes into one locally verified
+  publication. Keep full firmware/kernel/module builds on GitHub, preserve
+  exact-SHA lane evidence, and do not combine unrelated packages merely for size.
 - Publish sequentially, not all accumulated local packages at once. For every
   agent/account: finish and verify one coherent package, push that package,
   confirm its exact remote SHA and CI runs, then continue preparing the next
