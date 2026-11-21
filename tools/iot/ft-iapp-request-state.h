@@ -7,12 +7,20 @@ struct wr_ft_preauth_identity {
  unsigned int serial,generation,bss,wcid;
  unsigned char mac[6],bssid[6];
 };
+/* Adapter-owned replacement for an AUTH stack scope while a response owns
+ * the request. Contains identity only; it never stores a stack pointer. */
+struct wr_ft_iapp_auth_owner_hold {
+ struct wr_ft_iapp_token_handle request;
+ unsigned int active,pending,generation,bss,wcid;
+ unsigned char mac[6];
+};
 struct wr_ft_iapp_request_state {
  struct wr_ft_iapp_token_ledger ledger;
  struct wr_ft_iapp_token_handle current[WR_FT_IAPP_TOKEN_CAPACITY];
  unsigned int detached[WR_FT_IAPP_TOKEN_CAPACITY];
  unsigned int detached_sst[WR_FT_IAPP_TOKEN_CAPACITY];
  struct wr_ft_preauth_identity preauth[WR_FT_IAPP_TOKEN_CAPACITY];
+ struct wr_ft_iapp_auth_owner_hold auth_hold[WR_FT_IAPP_TOKEN_CAPACITY];
  unsigned char token_counter[WR_FT_IAPP_TOKEN_BYTES];
  unsigned int token_seeded,token_exhausted;
 };
@@ -28,6 +36,7 @@ static inline void wr_ft_iapp_request_state_init(struct wr_ft_iapp_request_state
   state->detached[i]=0;
   state->detached_sst[i]=0;
   state->preauth[i]=(struct wr_ft_preauth_identity){0};
+  state->auth_hold[i]=(struct wr_ft_iapp_auth_owner_hold){0};
  }
 }
 /* Seed only during fresh allocation, before publishing the adapter. */

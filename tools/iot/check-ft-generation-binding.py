@@ -70,7 +70,8 @@ if a.success_context:
  prefix=prefix.replace('typedef struct {int MacTabLock;',
   'typedef struct {struct wr_ft_iapp_request_state wr_ft_iapp_requests;int MacTabLock;')
  prefix=prefix.replace('typedef ENTRY MAC_TABLE_ENTRY;',
-  'typedef ENTRY MAC_TABLE_ENTRY;\n#include "ft-auth-request-context.h"')
+  'typedef ENTRY MAC_TABLE_ENTRY;\n#include "ft-auth-request-context.h"\n'
+  '#include "ft-iapp-auth-owner-transfer.h"')
  prefix=prefix.replace('FT_AuthReqHandler(AD *ad,ENTRY *e,FT_INFO *in,FT_INFO *out){',
   'FT_AuthReqHandler(AD *ad,ENTRY *e,FT_INFO *in,FT_INFO *out,const struct wr_ft_auth_request_context *context){(void)context;')
 prefix=prefix.replace('typedef struct {ULONG MsgLen;unsigned Wcid;unsigned char Msg[256];}',
@@ -238,7 +239,7 @@ if a.success_context:
   wr_ft_iapp_request_state_init(state);
   assert(wr_ft_iapp_token_reserve_locked(&state->ledger,token,2,7,5,
    peer->Addr,peer->wdev->bssid,&handle));
-  state->current[7]=handle;state->detached[7]=(mode!=2);state->detached_sst[7]=SST_ASSOC;
+  state->current[7]=handle;state->detached[7]=(mode==0);state->detached_sst[7]=SST_ASSOC;
   if(mode==1)assert(wr_ft_iapp_token_claim_locked(&state->ledger,token,
    peer->Addr,peer->wdev->bssid,&claim));
   int old_reqs=reqs,old_forwards=forwards;expect_scope=1;
@@ -248,14 +249,24 @@ if a.success_context:
    assert(peer->Sst==SST_AUTH&&peer->assoc_gen==6);
    assert(!state->current[7].serial&&!state->detached[7]);
    assert(!trial.wr_assoc_event_users[7]&&!trial.wr_iot_peer_table_owner.transactions);
+  }else if(mode==1){
+   assert(peer->Sst==SST_ASSOC&&peer->assoc_gen==5&&forwards==old_forwards);
+   assert(!trial.wr_iot_peer_table_owner.poisoned&&trial.wr_iot_peer_table_owner.transactions==1);
+   assert(trial.wr_assoc_event_users[7]==1&&state->auth_hold[7].active);
+   assert(state->current[7].serial==handle.serial&&
+    state->ledger.entry[handle.slot].state==WR_FT_IAPP_TOKEN_CLAIMED);
+   assert(wr_ft_iapp_token_finish_locked(&state->ledger,&claim));
+   assert(wr_ft_iapp_auth_hold_release_locked(&trial,state,7));
+   wr_ft_iapp_token_clear(&state->current[7]);
+   assert(!trial.wr_assoc_event_users[7]&&!trial.wr_iot_peer_table_owner.transactions);
   }else{
    assert(peer->Sst==SST_ASSOC&&peer->assoc_gen==5&&forwards==old_forwards);
    assert(trial.wr_iot_peer_table_owner.poisoned&&trial.wr_iot_peer_table_owner.transactions==1);
    assert(trial.wr_assoc_event_users[7]==1&&state->current[7].serial==handle.serial);
-   assert(state->ledger.entry[handle.slot].state==(mode==1?WR_FT_IAPP_TOKEN_CLAIMED:WR_FT_IAPP_TOKEN_WAITING));
+   assert(state->ledger.entry[handle.slot].state==WR_FT_IAPP_TOKEN_WAITING);
   }
  }
- puts("PASS | native FT Action success retirement | detached WAITING cancelled before state/generation; CLAIMED and synchronous request block reply/transition, retain poisoned lease; buffers balanced");
+ puts("PASS | native FT Action success retirement | detached WAITING cancelled before state/generation; CLAIMED response transfers exact AUTH lease; synchronous WAITING blocks transition; buffers balanced");
 '''
  at=main.rindex('return 0;')
  main=main[:at]+extra+main[at:]

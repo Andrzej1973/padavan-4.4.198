@@ -220,3 +220,175 @@ queueDrain(pendingQueue, ledger)
 pendingQueue.closed = false
 doAssert not pendingQueue.closed and pendingQueue.count == 0
 echo "PASS | FT pending queue lifecycle | close before drain, reject late producer, release queued refs, restart reopen"
+
+# AP-stop/reset resume contract: one adapter/scope/table serial owns every
+# teardown phase. Retry keeps its cursor and exact WDS identity; ambiguous WCID
+# outcomes remain retained and cannot be replayed.
+type
+  StopPhase = enum
+    spIdle, spPrepared, spWdsDrain, spTableClear, spComplete, spRetained
+  StopFailure = enum
+    sfNone, sfAllocation, sfWdsNotWritten, sfWdsPartial, sfWdsUnknown
+  StopTicket = object
+    adapter, scope, serial: uint64
+  WdsIdentity = object
+    device, generation, serial: uint64
+    index, wcid: uint16
+    mac: array[6, uint8]
+  StopOwner = object
+    nextSerial, serial, adapter, scope: uint64
+    phase, resumePhase: StopPhase
+    failure: StopFailure
+    cursor: uint16
+    hasWds: bool
+    wds: WdsIdentity
+
+proc ticketCurrent(owner: StopOwner, ticket: StopTicket): bool =
+  ticket.serial != 0 and owner.serial == ticket.serial and
+    owner.adapter == ticket.adapter and owner.scope == ticket.scope and
+    owner.phase != spIdle
+
+proc start(owner: var StopOwner, adapter, scope: uint64,
+           ticket: var StopTicket): bool =
+  if adapter == 0 or owner.phase != spIdle or
+     owner.nextSerial == high(uint64):
+    return false
+  inc owner.nextSerial
+  owner.serial = owner.nextSerial
+  owner.adapter = adapter
+  owner.scope = scope
+  owner.phase = spPrepared
+  owner.resumePhase = spIdle
+  owner.failure = sfNone
+  owner.cursor = 0
+  owner.hasWds = false
+  owner.wds = default(WdsIdentity)
+  ticket = StopTicket(adapter: adapter, scope: scope, serial: owner.serial)
+  true
+
+proc advance(owner: var StopOwner, ticket: StopTicket,
+             phase: StopPhase, cursor: uint16): bool =
+  let phaseIsNext = ord(phase) == ord(owner.phase) + 1
+  if not ticketCurrent(owner, ticket) or owner.phase == spRetained or
+     phase in {spIdle, spRetained} or
+     (phase != owner.phase and not phaseIsNext) or
+     (phase == owner.phase and cursor < owner.cursor) or
+     (phase == spComplete and owner.hasWds):
+    return false
+  owner.phase = phase
+  owner.cursor = cursor
+  true
+
+proc saveWds(owner: var StopOwner, ticket: StopTicket,
+             identity: WdsIdentity): bool =
+  if not ticketCurrent(owner, ticket) or owner.phase != spWdsDrain or
+     owner.hasWds or identity.device == 0 or identity.generation == 0 or
+     identity.serial == 0 or identity.wcid == 0:
+    return false
+  owner.wds = identity
+  owner.hasWds = true
+  true
+
+proc clearWds(owner: var StopOwner, ticket: StopTicket,
+              identity: WdsIdentity): bool =
+  if not ticketCurrent(owner, ticket) or not owner.hasWds or
+     owner.wds != identity:
+    return false
+  owner.hasWds = false
+  owner.wds = default(WdsIdentity)
+  true
+
+proc retain(owner: var StopOwner, ticket: StopTicket,
+            failure: StopFailure): bool =
+  if not ticketCurrent(owner, ticket) or failure == sfNone or
+     ((failure in {sfWdsNotWritten, sfWdsPartial, sfWdsUnknown}) != owner.hasWds) or
+     (failure == sfAllocation and owner.phase != spTableClear) or
+     (failure in {sfWdsNotWritten, sfWdsPartial, sfWdsUnknown} and
+      owner.phase notin {spWdsDrain, spTableClear}):
+    return false
+  owner.resumePhase = owner.phase
+  owner.failure = failure
+  owner.phase = spRetained
+  true
+
+proc resume(owner: var StopOwner, ticket: StopTicket,
+            identity: WdsIdentity): bool =
+  if not ticketCurrent(owner, ticket) or owner.phase != spRetained:
+    return false
+  case owner.failure
+  of sfAllocation:
+    if owner.hasWds or identity != default(WdsIdentity):
+      return false
+  of sfWdsNotWritten:
+    if not owner.hasWds or owner.wds != identity:
+      return false
+  of sfNone, sfWdsPartial, sfWdsUnknown:
+    return false
+  owner.phase = owner.resumePhase
+  owner.failure = sfNone
+  true
+
+proc finish(owner: var StopOwner, ticket: StopTicket): bool =
+  if not ticketCurrent(owner, ticket) or owner.phase != spComplete or
+     owner.hasWds:
+    return false
+  owner.serial = 0
+  owner.adapter = 0
+  owner.scope = 0
+  owner.phase = spIdle
+  owner.resumePhase = spIdle
+  owner.cursor = 0
+  true
+
+proc ordinaryAdmission(owner: StopOwner): bool = owner.phase == spIdle
+
+let wdsIdentity = WdsIdentity(device: 20, generation: 3, serial: 7,
+  index: 2, wcid: 9, mac: macA)
+var stopOwner: StopOwner
+var stopTicket, wrongScope, staleTicket, nextStopTicket: StopTicket
+doAssert start(stopOwner, 10, 0, stopTicket)
+doAssert not ordinaryAdmission(stopOwner)
+staleTicket = stopTicket
+inc staleTicket.serial
+doAssert not advance(stopOwner, staleTicket, spPrepared, 0)
+doAssert not advance(stopOwner, stopTicket, spTableClear, 0)
+doAssert advance(stopOwner, stopTicket, spWdsDrain, 0)
+doAssert saveWds(stopOwner, stopTicket, wdsIdentity)
+doAssert retain(stopOwner, stopTicket, sfWdsNotWritten)
+wrongScope = stopTicket
+wrongScope.scope = 4
+doAssert not resume(stopOwner, wrongScope, wdsIdentity)
+var wrongWds = wdsIdentity
+wrongWds.mac[5] = 99
+doAssert not resume(stopOwner, stopTicket, wrongWds)
+doAssert resume(stopOwner, stopTicket, wdsIdentity)
+doAssert not ordinaryAdmission(stopOwner)
+doAssert clearWds(stopOwner, stopTicket, wdsIdentity)
+doAssert advance(stopOwner, stopTicket, spWdsDrain, 1)
+doAssert not advance(stopOwner, stopTicket, spWdsDrain, 0)
+doAssert advance(stopOwner, stopTicket, spTableClear, 8)
+doAssert retain(stopOwner, stopTicket, sfAllocation)
+doAssert not resume(stopOwner, stopTicket, wdsIdentity)
+doAssert resume(stopOwner, stopTicket, default(WdsIdentity))
+doAssert stopOwner.cursor == 8
+doAssert advance(stopOwner, stopTicket, spTableClear, 9)
+doAssert advance(stopOwner, stopTicket, spComplete, 9)
+doAssert finish(stopOwner, stopTicket) and ordinaryAdmission(stopOwner)
+doAssert not finish(stopOwner, stopTicket)
+doAssert start(stopOwner, 10, 0, nextStopTicket)
+doAssert nextStopTicket.serial != stopTicket.serial
+doAssert not advance(stopOwner, stopTicket, spPrepared, 0)
+doAssert advance(stopOwner, nextStopTicket, spWdsDrain, 0)
+doAssert advance(stopOwner, nextStopTicket, spTableClear, 0)
+doAssert advance(stopOwner, nextStopTicket, spComplete, 0)
+doAssert finish(stopOwner, nextStopTicket)
+
+var uncertainOwner: StopOwner
+var uncertainTicket: StopTicket
+doAssert start(uncertainOwner, 11, 5, uncertainTicket)
+doAssert advance(uncertainOwner, uncertainTicket, spWdsDrain, 1)
+doAssert saveWds(uncertainOwner, uncertainTicket, wdsIdentity)
+doAssert retain(uncertainOwner, uncertainTicket, sfWdsPartial)
+doAssert not resume(uncertainOwner, uncertainTicket, wdsIdentity)
+doAssert not ordinaryAdmission(uncertainOwner)
+echo "PASS | AP-stop resume contract | exact adapter/scope/serial, preserved WCID cursor, WDS NOT_WRITTEN-only replay, ambiguous-result retention, admission fence"

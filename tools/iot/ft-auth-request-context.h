@@ -138,6 +138,43 @@ static inline int wr_ft_auth_request_detach_locked(RTMP_ADAPTER *ad,
  wr_ft_iapp_token_clear(request);
  return 1;
 }
+/* AUTH exit retires a completed response handle or detaches an unanswered
+ * request. CLAIMED remains exclusively owned by response transfer. */
+static inline int wr_ft_auth_request_exit_locked(RTMP_ADAPTER *ad,
+ MAC_TABLE_ENTRY *entry,const struct wr_ft_auth_request_context *context,
+ struct wr_ft_iapp_request_state *state)
+{
+ unsigned int w,i;struct wr_ft_iapp_token_handle request;
+ struct wr_ft_iapp_token_entry *item;
+ unsigned int existing,pending;
+ if(!ad||!state||!context)return 0;
+ existing=context->existing&&context->existing->active;
+ pending=context->pending&&context->pending->active;
+ if(existing==pending)return 0;
+ w=existing?context->existing->stamp.wcid:context->pending->wcid;
+ if(w>=WR_FT_IAPP_TOKEN_CAPACITY||w>=MAX_LEN_OF_MAC_TABLE)return 0;
+ /* Successful AUTH can retire its request before exit cleanup runs. In that
+  * case there is no request-owned state to inspect, and the pinned peer scope
+  * remains responsible for its own release. Do not dereference entry until a
+  * live request requires full invocation validation. */
+ if(!state->current[w].serial)return 1;
+ if(!wr_ft_auth_request_current_locked(ad,entry,context))return 0;
+ request=state->current[w];
+ if(request.slot>=WR_FT_IAPP_TOKEN_CAPACITY)return 0;
+ item=&state->ledger.entry[request.slot];
+ if(item->serial!=request.serial||item->wcid!=w||
+    item->bss!=entry->func_tb_idx||item->generation!=entry->assoc_gen)return 0;
+ for(i=0;i<MAC_ADDR_LEN;i++)
+  if(item->mac[i]!=entry->Addr[i]||item->bssid[i]!=entry->wdev->bssid[i])return 0;
+ if(item->state==WR_FT_IAPP_TOKEN_CLAIMED)return 0;
+ if(item->state==WR_FT_IAPP_TOKEN_WAITING)
+  return wr_ft_auth_request_detach_locked(ad,entry,context,state,&request);
+ if(item->state==WR_FT_IAPP_TOKEN_FREE&&item->invalidated){
+  wr_ft_iapp_token_clear(&state->current[w]);
+  return 1;
+ }
+ return 0;
+}
 /* A new synchronous AUTH owner may cancel its exact detached predecessor
  * before retry publication. An old serial or a claimed response is immutable
  * here; delete/generation retirement requires its own owner boundary. */
@@ -175,11 +212,32 @@ static inline int wr_ft_auth_request_success_prepare_locked(RTMP_ADAPTER *ad,
  MAC_TABLE_ENTRY *entry,const struct wr_ft_auth_request_context *context,
  struct wr_ft_iapp_request_state *state)
 {
- unsigned int w,i;struct wr_ft_iapp_token_handle previous;
+ unsigned int w,i;struct wr_ft_iapp_token_handle previous,current;
  const struct wr_ft_preauth_identity *identity;
  if(!state||!wr_ft_auth_request_current_locked(ad,entry,context))return 0;
  w=entry->wcid;
  if(w>=WR_FT_IAPP_TOKEN_CAPACITY)return 0;
+ if(state->current[w].serial){
+  const struct wr_ft_iapp_token_entry *item;
+  current=state->current[w];
+  if(current.slot>=WR_FT_IAPP_TOKEN_CAPACITY)return 0;
+  item=&state->ledger.entry[current.slot];
+  if(item->serial!=current.serial||
+     (item->invalidated&&item->state!=WR_FT_IAPP_TOKEN_FREE)||
+     item->wcid!=w||item->bss!=entry->func_tb_idx||
+     item->generation!=entry->assoc_gen)return 0;
+  for(i=0;i<MAC_ADDR_LEN;i++)
+   if(item->mac[i]!=entry->Addr[i]||item->bssid[i]!=entry->wdev->bssid[i])return 0;
+  if(item->state==WR_FT_IAPP_TOKEN_CLAIMED)return 0;
+  if(item->state==WR_FT_IAPP_TOKEN_WAITING &&
+     (!state->detached[w]||
+      !wr_ft_iapp_token_cancel_waiting_locked(&state->ledger,&current)))return 0;
+  else if(item->state!=WR_FT_IAPP_TOKEN_FREE &&
+          item->state!=WR_FT_IAPP_TOKEN_WAITING)return 0;
+  if(item->state==WR_FT_IAPP_TOKEN_FREE&&item->invalidated&&state->detached[w])
+   state->detached[w]=state->detached_sst[w]=0;
+  wr_ft_iapp_token_clear(&state->current[w]);
+ }
  identity=&state->preauth[w];
  if(identity->serial){
   if(identity->wcid!=w||identity->bss!=entry->func_tb_idx||
@@ -208,6 +266,42 @@ static inline int wr_ft_auth_request_publish_next_locked(RTMP_ADAPTER *ad,
     !wr_ft_iapp_request_next_token_locked(state,next))return 0;
  if(!wr_ft_auth_request_publish_locked(ad,entry,context,state,next,request))return 0;
  for(i=0;i<WR_FT_IAPP_TOKEN_BYTES;i++)token[i]=next[i];
+ return 1;
+}
+/* Reuse the same request token for native hard retries. A concurrent response
+ * claim is reported separately so the caller waits without re-enqueueing it. */
+static inline int wr_ft_auth_request_wire_token_locked(RTMP_ADAPTER *ad,
+ MAC_TABLE_ENTRY *entry,const struct wr_ft_auth_request_context *context,
+ struct wr_ft_iapp_request_state *state,
+ struct wr_ft_iapp_token_handle *request,unsigned char *token,
+ unsigned int *response_claimed)
+{
+ unsigned int i,w;struct wr_ft_iapp_token_entry *item;
+ if(response_claimed)*response_claimed=0;
+ if(!token||(state&&token==state->token_counter))return 0;
+ for(i=0;i<WR_FT_IAPP_TOKEN_BYTES;i++)token[i]=0;
+ if(!ad||!entry||!context||!state||!request||
+    !wr_ft_auth_request_current_locked(ad,entry,context))return 0;
+ if(!request->serial)
+  return wr_ft_auth_request_publish_next_locked(ad,entry,context,state,
+   request,token);
+ w=entry->wcid;
+ if(w>=WR_FT_IAPP_TOKEN_CAPACITY||request->slot>=WR_FT_IAPP_TOKEN_CAPACITY||
+    state->current[w].serial!=request->serial||
+    state->current[w].slot!=request->slot)return 0;
+ item=&state->ledger.entry[request->slot];
+ if(item->serial!=request->serial||item->bss!=entry->func_tb_idx||
+    item->wcid!=w||item->generation!=entry->assoc_gen||item->invalidated||
+    !wr_ft_iapp_token_nonzero(item->token))
+  return 0;
+ for(i=0;i<MAC_ADDR_LEN;i++)
+  if(item->mac[i]!=entry->Addr[i]||item->bssid[i]!=entry->wdev->bssid[i])return 0;
+ if(item->state==WR_FT_IAPP_TOKEN_CLAIMED){
+  if(response_claimed)*response_claimed=1;
+  return 1;
+ }
+ if(item->state!=WR_FT_IAPP_TOKEN_WAITING)return 0;
+ for(i=0;i<WR_FT_IAPP_TOKEN_BYTES;i++)token[i]=item->token[i];
  return 1;
 }
 #endif

@@ -33,4 +33,10 @@ with tempfile.TemporaryDirectory(prefix='wr-edit-suite-') as directory:
   subprocess.run([str(binary)],check=True,timeout=15)
 for name in ('check-classic-config.js','check-classic-navigation.js'):
  subprocess.run(['node',str(here/name)],check=True,timeout=15)
-print('PASS complete edit/view focused host suite; target firmware, assembled Classic and physical acceptance remain required')
+# Modern consumes the same IoT protocol; keep its request/response checks in
+# the backend regression gate without installing the candidate into firmware.
+modern=here.parent/'webui-preview'
+for name in ('check_modern_iot_staging.py','check_modern_iot_native_requests.py',
+             'check_modern_iot_native_handlers.py'):
+ subprocess.run([sys.executable,'-B',str(modern/name)],check=True,timeout=30)
+print('PASS complete edit/view focused host suite including Modern IoT; target firmware, assembled UI and physical acceptance remain required')

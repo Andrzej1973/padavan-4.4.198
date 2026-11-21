@@ -92,15 +92,69 @@ def compose_ft(text, header):
     end = text.index('\n}', start)+2
     body = text[start:end]
     body = one(body, '\tULONG temp_len = 0;', '\tULONG temp_len = 0;\n'+guard)
+    body = one(body, '\tULONG temp_len = 0;\n'+guard,
+               '\tULONG temp_len = 0;\n'+guard+
+               ' struct wr_ft_iapp_token_handle wr_ft_local_request={0};\n'
+               ' UCHAR wr_ft_wire_token[WR_FT_IAPP_TOKEN_BYTES]={0};\n'
+               ' unsigned int wr_ft_response_claimed=0;\n')
+    request_zero = 'NdisZeroMemory(&EvtKeyReq, sizeof(FT_KDP_EVT_KEY_ELM));'
+    body = one(body, request_zero, request_zero+'''
+ NdisAcquireSpinLock(&pAd->MacTabLock);
+ if(!wr_ft_local_request.serial &&
+    pAd->wr_ft_iapp_requests.current[pEntry->wcid].serial)
+  wr_ft_local_request=pAd->wr_ft_iapp_requests.current[pEntry->wcid];
+ if(!wr_ft_auth_request_wire_token_locked(pAd,pEntry,wr_ft_request_context,
+     &pAd->wr_ft_iapp_requests,&wr_ft_local_request,wr_ft_wire_token,
+     &wr_ft_response_claimed)){
+  NdisReleaseSpinLock(&pAd->MacTabLock);return MLME_FAIL_NO_RESOURCE;
+ }
+ NdisReleaseSpinLock(&pAd->MacTabLock);
+ if(!wr_ft_response_claimed &&
+    !wr_ft_iapp_token_pack_reserved(EvtKeyReq.RSV,EvtKeyReq.KeyInfo.RSV,
+     wr_ft_wire_token))return MLME_FAIL_NO_RESOURCE;''')
+    request_send = '''FT_KDP_EVENT_INFORM(pAd, pEntry->func_tb_idx, FT_KDP_SIG_KEY_REQ_AUTO,
+								&EvtKeyReq, sizeof(FT_KDP_EVT_KEY_ELM), NULL);'''
+    body = one(body, request_send, 'if(!wr_ft_response_claimed){\n '+request_send+'\n }')
     text=text[:start]+body+text[end:]
     start=text.index('VOID FT_FtAction(');end=text.index('\n}',start)+2
     body=text[start:end]
     body=one(body,'pEntry->Sst = SST_AUTH;', '''NdisAcquireSpinLock(&pAd->MacTabLock);
  if(!wr_ft_auth_request_success_prepare_locked(pAd,pEntry,&wr_ft_request,
      &pAd->wr_ft_iapp_requests)){
-  pAd->wr_iot_peer_table_owner.poisoned=1;
+  if(!wr_ft_iapp_auth_scope_claimed_locked(pAd,&wr_ft_request,
+      &pAd->wr_ft_iapp_requests))
+   pAd->wr_iot_peer_table_owner.poisoned=1;
   NdisReleaseSpinLock(&pAd->MacTabLock);goto out;
  }
  pEntry->Sst = SST_AUTH;
  NdisReleaseSpinLock(&pAd->MacTabLock);''')
+    text = one(text, '#include "ft-auth-request-context.h"',
+               '#include "ft-auth-request-context.h"\n'
+               '#include "ft-iapp-auth-owner-transfer.h"')
+    cleanup = ''' if(wr_ft_scope.active||wr_ft_pending_scope.active){
+ NdisAcquireSpinLock(&pAd->MacTabLock);
+ if(wr_ft_scope.active)(void)wr_ft_peer_leave_locked(pAd,&wr_ft_scope);
+ if(wr_ft_pending_scope.active)(void)wr_ft_pending_peer_leave_locked(pAd,&wr_ft_pending_scope);
+ NdisReleaseSpinLock(&pAd->MacTabLock);
+ }'''
+    retained = ''' if(wr_ft_scope.active||wr_ft_pending_scope.active){
+ NdisAcquireSpinLock(&pAd->MacTabLock);
+ if(wr_ft_iapp_auth_scope_claimed_locked(pAd,&wr_ft_request,
+     &pAd->wr_ft_iapp_requests)){
+  if(!wr_ft_iapp_auth_hold_claimed_locked(pAd,pEntry,&wr_ft_request,
+      &pAd->wr_ft_iapp_requests))
+   pAd->wr_iot_peer_table_owner.poisoned=1;
+ }else{
+  if(wr_ft_scope.active)(void)wr_ft_peer_leave_locked(pAd,&wr_ft_scope);
+  if(wr_ft_pending_scope.active)(void)wr_ft_pending_peer_leave_locked(pAd,&wr_ft_pending_scope);
+ }
+ NdisReleaseSpinLock(&pAd->MacTabLock);
+ }'''
+    retained = retained.replace(''' }else{
+  if(wr_ft_scope.active)(void)wr_ft_peer_leave_locked(pAd,&wr_ft_scope);''', ''' }else{
+  if(!wr_ft_auth_request_exit_locked(pAd,pEntry,&wr_ft_request,
+      &pAd->wr_ft_iapp_requests))
+   pAd->wr_iot_peer_table_owner.poisoned=1;
+  if(wr_ft_scope.active)(void)wr_ft_peer_leave_locked(pAd,&wr_ft_scope);''')
+    body = one(body, cleanup, retained)
     return text[:start]+body+text[end:], header

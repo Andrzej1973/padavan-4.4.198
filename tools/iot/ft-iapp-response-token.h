@@ -310,6 +310,24 @@ static inline int wr_ft_iapp_token_finish_locked(
 	return 1;
 }
 
+/* A transient response-side failure releases only the claim. The request
+ * remains WAITING so the AUTH retry can receive another response or timeout. */
+static inline int wr_ft_iapp_token_unclaim_locked(
+	struct wr_ft_iapp_token_ledger *ledger,
+	const struct wr_ft_iapp_token_handle *handle)
+{
+	struct wr_ft_iapp_token_entry *entry;
+	if (!ledger || !handle || handle->slot >= WR_FT_IAPP_TOKEN_CAPACITY ||
+		!handle->serial)
+		return 0;
+	entry = &ledger->entry[handle->slot];
+	if (entry->state != WR_FT_IAPP_TOKEN_CLAIMED ||
+		entry->serial != handle->serial || entry->invalidated)
+		return 0;
+	entry->state = WR_FT_IAPP_TOKEN_WAITING;
+	return 1;
+}
+
 
 /* Caller holds one lock across this admission and every resulting mutation.
  * Live peer ownership must be validated separately under that same lock.

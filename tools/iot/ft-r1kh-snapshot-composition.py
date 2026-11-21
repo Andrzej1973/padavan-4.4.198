@@ -12,7 +12,9 @@ BOOLEAN wr_ft_r1kh_store(RTMP_ADAPTER *pAd,
  const FT_R1HK_ENTRY *value);
 BOOLEAN wr_ft_r1kh_delete(RTMP_ADAPTER *pAd, const UCHAR *name);
 INT wr_ft_r1kh_store_fields(RTMP_ADAPTER *, PUINT8, PUINT8, PUINT8,
- PUINT8, PUINT8, UINT32, UINT32, PUINT8, UINT8, PUINT8);'''
+ PUINT8, PUINT8, UINT32, UINT32, PUINT8, UINT8, PUINT8);
+/* -1 failed, 0 same PMK-R1 key already present, 1 inserted/replaced. */
+INT wr_ft_r1kh_response_store(RTMP_ADAPTER *, const FT_R1HK_ENTRY *);'''
 
 FUNCTION = '''BOOLEAN wr_ft_r1kh_snapshot(RTMP_ADAPTER *pAd,
  const UCHAR *name, FT_R1HK_ENTRY *snapshot)
@@ -128,6 +130,46 @@ INT wr_ft_r1kh_store_fields(RTMP_ADAPTER *pAd, PUINT8 pPmkR0Name,
  if(pPmkR1Key)NdisMoveMemory(value.PmkR1Key,pPmkR1Key,32);
  value.KeyLifeTime=KeyLifeTime;value.RassocDeadline=RassocDeadline;
  return wr_ft_r1kh_store(pAd,&value)?0:-1;
+}
+
+/* Compare and replace by PMKR1Name in one cache-lock transaction. No raw
+ * entry pointer escapes, and a same-key response is distinguishable from a
+ * failed store so its caller can complete the exact matching AUTH waiter. */
+INT wr_ft_r1kh_response_store(RTMP_ADAPTER *pAd, const FT_R1HK_ENTRY *value)
+{
+ PFT_R1HK_ENTRY fresh=NULL,old=NULL,entry;
+ LIST_HEADER *bucket;
+ UINT8 hash;
+ INT result=-1;
+ if(!pAd||!value||value->R0khIdLen>sizeof(value->R0khId)-1)return -1;
+ if(os_alloc_mem(pAd,(UCHAR **)&fresh,sizeof(*fresh))!=NDIS_STATUS_SUCCESS)
+  return -1;
+ NdisMoveMemory(fresh,value,sizeof(*fresh));
+ fresh->pNext=NULL;
+ hash=FT_R1KH_HASH_INDEX(fresh->PmkR1Name);
+ RTMP_SEM_LOCK(&pAd->ApCfg.FtTab.FT_R1khEntryTabLock);
+ bucket=&pAd->ApCfg.FtTab.FT_R1khEntryTab[hash];
+ if(pAd->ApCfg.FtTab.FT_R1khEntryTabReady){
+  entry=(PFT_R1HK_ENTRY)bucket->pHead;
+  while(entry){
+   if(RTMPEqualMemory(fresh->PmkR1Name,entry->PmkR1Name,FT_KDP_WPA_NAME_MAX_SIZE)){
+    old=entry;break;
+   }
+   entry=entry->pNext;
+  }
+  if(old&&RTMPEqualMemory(old->PmkR1Key,fresh->PmkR1Key,LEN_PMK))
+   result=0;
+  else if(old||pAd->ApCfg.FtTab.FT_R1khEntryTabSize<FT_R1KH_ENTRY_TABLE_SIZE){
+   if(old)delEntryList(bucket,(RT_LIST_ENTRY *)old);
+   else pAd->ApCfg.FtTab.FT_R1khEntryTabSize++;
+   insertTailList(bucket,(RT_LIST_ENTRY *)fresh);
+   result=1;
+  }
+ }
+ RTMP_SEM_UNLOCK(&pAd->ApCfg.FtTab.FT_R1khEntryTabLock);
+ if(old&&result==1)os_free_mem(pAd,old);
+ if(result!=1)os_free_mem(pAd,fresh);
+ return result;
 }'''
 
 

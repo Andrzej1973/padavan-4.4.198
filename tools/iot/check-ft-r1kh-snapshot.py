@@ -101,6 +101,7 @@ typedef int BOOLEAN;
 #define FT_KDP_WPA_NAME_MAX_SIZE 16
 #define FT_R1KH_HASH_INDEX(name) 0
 #define MAC_ADDR_LEN 6
+#define LEN_PMK 32
 '''+types[start:end]+(a.source/'include/link_list.h').read_text()+r'''
 typedef struct {struct {struct {int FT_R1khEntryTabLock,FT_R1khEntryTabReady;
  unsigned int FT_R1khEntryTabSize;
@@ -177,9 +178,21 @@ int main(void){
  assert(wr_ft_r1kh_store_fields(&ad,NULL,name,key,cipher,akm,50,20,r0,2,mac)==0);
  assert(wr_ft_r1kh_snapshot(&ad,name,&out)&&out.PmkR1Key[0]==21&&out.PairwisChipher[3]==4&&out.AkmSuite[0]==5&&out.R0khIdLen==2&&out.StaMac[5]==7&&out.KeyLifeTime==50);
  assert(wr_ft_r1kh_store_fields(&ad,NULL,NULL,key,cipher,akm,50,20,r0,2,mac)==-1);
+ FT_R1HK_ENTRY response_value={0};memcpy(response_value.PmkR1Name,name,16);
+ response_value.PmkR1Key[0]=21;response_value.KeyLifeTime=99;
+ assert(wr_ft_r1kh_response_store(&ad,&response_value)==0);
+ assert(wr_ft_r1kh_snapshot(&ad,name,&out)&&out.PmkR1Key[0]==21&&out.KeyLifeTime==50);
+ response_value.PmkR1Key[0]=22;
+ assert(wr_ft_r1kh_response_store(&ad,&response_value)==1);
+ assert(ad.ApCfg.FtTab.FT_R1khEntryTabSize==1);
+ assert(wr_ft_r1kh_snapshot(&ad,name,&out)&&out.PmkR1Key[0]==22);
+ fail_alloc=1;response_value.PmkR1Key[0]=23;
+ assert(wr_ft_r1kh_response_store(&ad,&response_value)==-1);
+ assert(wr_ft_r1kh_snapshot(&ad,name,&out)&&out.PmkR1Key[0]==22);
+ fail_alloc=0;
  fail_alloc=1;value.PmkR1Key[0]=11;
  assert(!wr_ft_r1kh_store(&ad,&value));
- assert(wr_ft_r1kh_snapshot(&ad,name,&out)&&out.PmkR1Key[0]==21);
+ assert(wr_ft_r1kh_snapshot(&ad,name,&out)&&out.PmkR1Key[0]==22);
  fail_alloc=0;assert(wr_ft_r1kh_store(&ad,&value));
  assert(wr_ft_r1kh_snapshot(&ad,name,&out)&&out.PmkR1Key[0]==11);
  assert(ad.ApCfg.FtTab.FT_R1khEntryTabSize==1);
@@ -203,6 +216,7 @@ int main(void){
  assert(allocations==frees&&!held);
  puts("PASS | FT AUTH cache miss | actual composed lookup and native predicate preserve miss request admission and cached hit");
  puts("PASS | FT R1KH snapshot | locked value copy survives immediate node retirement; miss, closed cache, invalid length and null refusal");
+ puts("PASS | FT response cache transaction | atomic unchanged/update results, capacity invariant and allocation-failure preservation");
  puts("PASS | FT R1KH atomic store/delete | fields create owned entry; allocation failure preserves prior value; replace/full refusal, key delete and allocation balance");
  return 0;
 }

@@ -39,8 +39,11 @@ blocks = []
 for offset, count in [(0, 3), (0x230, 85), (0x11f70, 9), (0xd0, 88),
                       (0x3e0c, 37), (0x5ea4, 37), (0x775c, 28),
                       (0x6f90, 126), (0x71f8, 88), (0x6154, 37),
-                      (0x433c, 31), (0x8da4, 12)]:
-    data = image[offset:offset + 512]
+                      (0x433c, 31), (0x8da4, 12), (0x69f0, 360),
+                      (0x15a4, 182), (0x9480, 5), (0x10054, 58),
+                      (0xff30, 73), (0xe4f8, 31), (0x106b8, 12),
+                      (0xcb8, 141)]:
+    data = image[offset:offset + count * 4 + 16]
     decoded = context.disassemble(data, base_address=base + offset,
                                   max_instructions=count)
     blocks.append({'file_offset': offset, 'instructions': [
@@ -126,12 +129,136 @@ for offset in range(0, len(image) - 40, 2):
         target = base + offset + signed(word & 0xffffff, 24) * 2
         if target == base + 0x6154:
             raw_result_call_candidates.append(base + offset)
+reviewed_functions = {}
+for start in [0x6f90, 0x69f0, 0x15a4, 0x9480, 0x10054, 0xff30]:
+    block = next(x for x in blocks if x['file_offset'] == start)
+    direct = [{'site': i['address'], 'target': int(i['operands'], 16)}
+              for i in block['instructions'] if i['mnemonic'] == 'jal']
+    indirect = [i['address'] for i in block['instructions']
+                if i['mnemonic'] in ('jral', 'jralnez')]
+    first = base + start
+    end = block['instructions'][-1]['address'] + block['instructions'][-1]['length']
+    external_branches = []
+    for instruction in block['instructions']:
+        if instruction['mnemonic'] not in ('j', 'beq', 'bne', 'beqz', 'bnez',
+                'bltz', 'bgez', 'bgtz', 'blez', 'jr', 'jrnez'):
+            continue
+        operand = instruction['operands'].split(',')[-1].strip()
+        if not operand.startswith('0x') or not first <= int(operand, 16) < end:
+            external_branches.append(instruction)
+    reviewed_functions[hex(base + start)] = {
+        'start': base + start,
+        'last_decoded_address': block['instructions'][-1]['address'],
+        'direct_calls': direct, 'indirect_call_sites': indirect,
+        'external_or_unresolved_noncall_branches': external_branches,
+    }
+assert {x['target'] for x in reviewed_functions['0x1069f0']['direct_calls']} == {0x109480, 0x1015a4}
+for leaf in ['0x1015a4', '0x109480']:
+    assert not reviewed_functions[leaf]['direct_calls']
+    assert not reviewed_functions[leaf]['indirect_call_sites']
+assert not reviewed_functions['0x1069f0']['indirect_call_sites']
+for function in ['0x1069f0', '0x1015a4', '0x109480']:
+    assert not reviewed_functions[function]['external_or_unresolved_noncall_branches']
+# A direct GP-relative store initializes the callback count to2 on one
+# observed initialization path. This does not prove that path precedes every
+# channel request, nor exclude writes through aliases/ROM.
+count_store_offset = 0x106d8
+count_word = int.from_bytes(image[count_store_offset:count_store_offset + 4], 'big')
+assert count_word >> 25 == 0x1e and (count_word >> 17) & 7 == 7
+assert (count_word >> 20) & 31 == 4
+initializer_block = next(x for x in blocks if x['file_offset'] == 0x106b8)
+count_value_instruction = next(i for i in initializer_block['instructions']
+                               if i['address'] == 0x1106cc)
+assert count_value_instruction['mnemonic'] == 'movi'
+assert count_value_instruction['operands'] == 'a4, 0x2'
+count_address = gp_candidate + signed(count_word & 0x1ffff, 17) * 4
+assert count_address == 0x11242c
+callback_offset = 0x100c4
+callback_address = gp_candidate + gp_displacement(callback_offset)
+assert callback_address == 0x10e4f8
+callback_block = next(x for x in blocks if x['file_offset'] == callback_address - base)
+callback_calls = [int(i['operands'], 16) for i in callback_block['instructions']
+                  if i['mnemonic'] == 'jal']
+assert callback_calls == [0x10de74, 0x10bdc4, 0x10c224, 0x10d228,
+                          0x10bdc4, 0x10c4c4, 0x10c06c]
+# Evaluate only the straight-line patch initializer against a private host
+# dictionary. No firmware code, MMIO, device memory or callbacks are executed.
+patch_block = next(x for x in blocks if x['file_offset'] == 0xcb8)
+registers = {'sp': 0x70000000, 'gp': gp_candidate}
+private_memory = {}
+patch_writes = []
+def static_value(operand):
+    return int(operand, 0) if operand.startswith(('0x', '-0x')) else registers[operand]
+for instruction in patch_block['instructions']:
+    mnemonic = instruction['mnemonic']
+    if mnemonic.startswith('smw.') or mnemonic.startswith('lmw.'):
+        continue  # prologue/epilogue saved registers are not initializer inputs
+    if mnemonic == 'ret':
+        break
+    fields = [x.strip() for x in instruction['operands'].split(',')]
+    if mnemonic == 'addi.gp':
+        offset = instruction['address'] - base
+        word = int.from_bytes(image[offset:offset + 4], 'big')
+        register_number = (word >> 20) & 31
+        names = ['a0', 'a1', 'a2', 'a3', 'a4', 'a5',
+                 's0', 's1', 's2', 's3', 's4', 's5', 's6', 's7', 's8',
+                 'ta', 't0', 't1', 't2', 't3', 't4', 't5', 't6',
+                 't7', 't8', 't9', 'p0', 'p1', 'fp', 'gp', 'lp', 'sp']
+        registers[names[register_number]] = (gp_candidate + gp_displacement(offset)) & 0xffffffff
+    elif mnemonic in ('sethi', 'movi'):
+        registers[fields[0]] = (int(fields[1], 0) * (4096 if mnemonic == 'sethi' else 1)) & 0xffffffff
+    elif mnemonic in ('ori', 'sub', 'srai', 'addi'):
+        left, right = static_value(fields[1]), static_value(fields[2])
+        if mnemonic == 'ori': result = left | right
+        elif mnemonic == 'sub': result = left - right
+        elif mnemonic == 'addi': result = left + right
+        else: result = signed(left, 32) >> right
+        registers[fields[0]] = result & 0xffffffff
+    elif mnemonic in ('lwi', 'swi'):
+        match = re.fullmatch(r'\[(\w+) \+ (0x[0-9a-f]+)\]', fields[1])
+        assert match
+        address = (registers[match.group(1)] + int(match.group(2), 16)) & 0xffffffff
+        if mnemonic == 'lwi':
+            registers[fields[0]] = private_memory[address]
+        else:
+            private_memory[address] = static_value(fields[0])
+            if not 0x6ffff000 <= address < 0x70001000:
+                patch_writes.append({'site': instruction['address'], 'address': address,
+                                     'value': private_memory[address]})
+    else:
+        raise AssertionError('Unreviewed initializer instruction: ' + mnemonic)
+assert len(patch_writes) == 17
+assert patch_writes[-1]['address'] == 0x02000000 and patch_writes[-1]['value'] == 0xff
+patch_pairs = []
+for index in range(8):
+    source = private_memory[0x02000020 + index * 8]
+    relative_halfwords = private_memory[0x02000024 + index * 8]
+    patch_pairs.append({'source_value': source, 'relative_halfwords': relative_halfwords,
+                        'target_candidate': (source + 2 * relative_halfwords) & 0xffffffff})
+assert all(base <= x['target_candidate'] < payload_end for x in patch_pairs)
+assert 0x3540 not in {x['source_value'] for x in patch_pairs}
 print(json.dumps({
     'image_sha256': identity, 'header_sha256': hashlib.sha256(raw).hexdigest(),
     'load_base': base, 'payload_end': payload_end, 'blocks': blocks,
     'gp_related_pcode': lifted,
     'gp_candidate': gp_candidate,
+    'patch_initializer_evaluation': {
+        'writes': patch_writes, 'pairs': patch_pairs,
+        'limits': 'Private arithmetic/memory model only. Pair redirection semantics '
+                  'inferred without controller documentation; excludes no other '
+                  'patch mechanism. ROM3540 absent from these eight source values.'},
+    'channel_callback_review': {
+        'callback_address_candidate': callback_address,
+        'direct_calls': callback_calls,
+        'count_address_candidate': count_address,
+        'count_store_site': base + count_store_offset,
+        'count_store_instruction': count_word,
+        'observed_initializer_value': 2,
+        'limits': 'Count initialization observed on one path only. '
+                  'Other writes/aliases, initializer reachability and descendant '
+                  'effects unresolved; no fixed global loop bound claimed.'},
     'result_sequence_byte_copy': echo_instructions,
+    'reviewed_function_calls': reviewed_functions,
     'raw_result_call_candidates': raw_result_call_candidates,
     'sequence_scope': 'Full byte load/store in common result helper only; not end-to-end high-ID acceptance. Raw call candidates may include non-code and omit indirect/tail calls. No domain expansion or reuse enabled.',
     'independent_field_checks': crosschecks,

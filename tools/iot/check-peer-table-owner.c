@@ -1,5 +1,6 @@
 #include "peer-table-owner.h"
 #include <assert.h>
+#include <stdio.h>
 int main(void){
  struct wr_iot_peer_table_owner s;unsigned long first,second;
  wr_iot_peer_table_owner_init(&s);
@@ -19,6 +20,16 @@ int main(void){
  assert(!wr_iot_peer_table_allows(&s,second));
  assert(!wr_iot_peer_table_finish(&s,second,1));
  assert(!wr_iot_peer_table_begin(&s));
+ assert(!wr_iot_peer_table_resume_retained(&s,second+1));
+ assert(wr_iot_peer_table_resume_retained(&s,second));
+ assert(!s.retained&&s.active&&wr_iot_peer_table_allows(&s,second));
+ assert(!wr_iot_peer_table_allows(&s,0));
+ assert(!wr_iot_peer_table_transaction_enter(&s));
+ assert(!wr_iot_peer_table_resume_retained(&s,second));
+ assert(wr_iot_peer_table_finish(&s,second,0));
+ assert(!wr_iot_peer_table_allows(&s,second));
+ assert(wr_iot_peer_table_resume_retained(&s,second));
+ assert(wr_iot_peer_table_finish(&s,second,1));
  wr_iot_peer_table_owner_init(&s);s.serial=~0UL;
  assert(!wr_iot_peer_table_begin(&s)&&s.poisoned);
  assert(!wr_iot_peer_table_allows(&s,0));
@@ -37,5 +48,6 @@ int main(void){
  assert(!wr_iot_peer_table_begin_open(&s));
  assert(!wr_iot_peer_table_begin(0));
  assert(!wr_iot_peer_table_finish(0,1,1));
+ puts("PASS | peer table owner | retained exact-serial resume, ordinary admission blocked, retry can retain/resume, close seal preserved");
  return 0;
 }

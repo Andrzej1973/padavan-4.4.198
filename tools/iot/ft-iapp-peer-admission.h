@@ -1,7 +1,8 @@
-/* Prepared only. Caller holds MacTabLock from admission through cache update,
- * counter/completion changes and token finish; adapter/BSS lifetime is external.
- * auth_request must be the current invocation handle published by AUTH.
- * This borrows the existing AUTH owner and never increments event_users. */
+/* Prepared only. Claim/finish run under MacTabLock; the caller drops it around
+ * native cache work while retaining this exact AUTH peer lease, then reacquires
+ * it for owner revalidation and completion. Adapter/BSS lifetime is external.
+ * auth_request is the current invocation handle published by AUTH. This borrows
+ * the existing AUTH owner and never increments event_users. */
 #ifndef WR_FT_IAPP_PEER_ADMISSION_H
 #define WR_FT_IAPP_PEER_ADMISSION_H
 #include "ft-peer-generation.h"

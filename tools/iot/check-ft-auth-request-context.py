@@ -99,7 +99,12 @@ for name in ('USHORT FT_AuthReqHandler(', 'UINT16\tFT_AuthReqRsnValidation('):
     body = composed[start:composed.index('\n}', start)+2]
     assert body.index('wr_ft_auth_request_current_locked(') < body.index('pEntry->')
     assert body.index('NdisAcquireSpinLock(') < body.index('wr_ft_auth_request_current_locked(')
-    assert body.count('NdisReleaseSpinLock(') == 2
+    assert body.count('NdisAcquireSpinLock(') >= 1
+    assert body.count('NdisReleaseSpinLock(') >= 1
+    if name.startswith('UINT16'):
+        assert 'wr_ft_auth_request_wire_token_locked(' in body
+        assert 'wr_ft_iapp_token_pack_reserved(EvtKeyReq.RSV,EvtKeyReq.KeyInfo.RSV,' in body
+        assert body.index('wr_ft_iapp_token_pack_reserved(') < body.index('FT_KDP_EVENT_INFORM(pAd, pEntry->func_tb_idx')
 for invalid in (native, composed):
     try:
         module['compose_ft'](invalid, header)
@@ -221,11 +226,19 @@ static USHORT FT_AuthReqRsnValidation(PRTMP_ADAPTER ad,PMAC_TABLE_ENTRY entry,
  assert(wr_ft_auth_request_unpublish_locked(ad,entry,context,&state,&active));
  assert(state.ledger.next_serial>serial);
  {
- unsigned char seed[7]={0},wire[7],first_wire[7];
+ unsigned char seed[7]={0},wire[7],first_wire[7];unsigned int response_claimed;
  assert(wr_ft_iapp_request_state_seed(&state,seed));
  assert(wr_ft_auth_request_publish_next_locked(ad,entry,context,&state,&active,wire));
  assert(wr_ft_iapp_token_nonzero(wire));memcpy(first_wire,wire,7);
  assert(wr_ft_iapp_token_equal(state.ledger.entry[active.slot].token,wire));
+ assert(wr_ft_auth_request_wire_token_locked(ad,entry,context,&state,&active,
+  wire,&response_claimed));
+ assert(!response_claimed&&wr_ft_iapp_token_equal(first_wire,wire));
+ entry->assoc_gen++;
+ assert(!wr_ft_auth_request_wire_token_locked(ad,entry,context,&state,&active,
+  wire,&response_claimed));
+ assert(!wr_ft_iapp_token_nonzero(wire));
+ entry->assoc_gen--;
  assert(!wr_ft_auth_request_publish_next_locked(ad,entry,context,&state,&other,wire));
  assert(!wr_ft_iapp_token_nonzero(wire)&&!other.serial);
  assert(wr_ft_auth_request_unpublish_locked(ad,entry,context,&state,&active));
@@ -236,6 +249,9 @@ static USHORT FT_AuthReqRsnValidation(PRTMP_ADAPTER ad,PMAC_TABLE_ENTRY entry,
  old=active;
  assert(wr_ft_auth_request_admit_locked(ad,entry,context,&state.ledger,wire,
   entry->Addr,entry->wdev->bssid,&active,&claim));
+ assert(wr_ft_auth_request_wire_token_locked(ad,entry,context,&state,&active,
+  wire,&response_claimed));
+ assert(response_claimed&&!wr_ft_iapp_token_nonzero(wire));
  assert(!wr_ft_auth_request_detach_locked(ad,entry,context,&state,&active));
  assert(active.serial==old.serial&&!state.detached[entry->wcid]);
  assert(wr_ft_iapp_token_finish_locked(&state.ledger,&claim));

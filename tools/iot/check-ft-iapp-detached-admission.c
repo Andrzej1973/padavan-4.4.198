@@ -256,13 +256,11 @@ int main(void)
  assert(wr_ft_preauth_retry_capture_locked(&ad,&state,7,2,ad.MacTab.Content[7].Addr,&stamp));
  assert(wr_ft_preauth_retry_enter_locked(&ad,&state,&stamp,&scope,&entry));
  assert(wr_ft_iapp_token_claim_locked(&state.ledger,wire,entry->Addr,entry->wdev->bssid,&claim));
- assert(!wr_ft_auth_request_success_prepare_locked(&ad,entry,&context,&state));
- assert(state.preauth[7].serial&&state.current[7].serial&&scope.active);
- assert(wr_ft_iapp_token_finish_locked(&state.ledger,&claim));
- /* A finished record still needs its response cleanup; do not clear it as WAITING. */
- assert(!wr_ft_auth_request_success_prepare_locked(&ad,entry,&context,&state));
- wr_ft_iapp_token_clear(&state.current[7]);state.detached[7]=state.detached_sst[7]=0;
- assert(wr_ft_auth_request_success_prepare_locked(&ad,entry,&context,&state));
+	assert(!wr_ft_auth_request_success_prepare_locked(&ad,entry,&context,&state));
+	assert(state.preauth[7].serial&&state.current[7].serial&&scope.active);
+	assert(wr_ft_iapp_token_finish_locked(&state.ledger,&claim));
+	/* A finished response is retired by its exact current serial at success. */
+	assert(wr_ft_auth_request_success_prepare_locked(&ad,entry,&context,&state));
  assert(!state.preauth[7].serial&&scope.active);
  assert(wr_ft_pending_peer_leave_locked(&ad,&scope));
  setup(&ad,&state,SST_NOT_AUTH,wire);scope=(struct wr_ft_pending_peer_scope){0};
