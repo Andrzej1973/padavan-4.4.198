@@ -214,7 +214,7 @@ if a.retry:
   ad.wr_ft_iapp_requests.preauth[7]=identity;
   assert(wr_ft_preauth_elem_publish(&event,&identity));
   if(scenario==11)ad.wr_ft_iapp_requests.preauth[7].serial++;
-  if(scenario==12)ad.wr_ft_iapp_requests.current[7].serial=91;
+  if(scenario==12)ad.wr_ft_iapp_requests.request_by_wcid[7].serial=91;
  }
  allocation_fail=''')
  main=main.replace('scenario==2||scenario==7','scenario==2||scenario==7||scenario==10')
@@ -242,6 +242,8 @@ if a.retry:
  main=main.replace(' return 0;',' puts("PASS | native AUTH retry branch | successful retry, resource/allocation exits, stale serial before handler, pending lease and generation balance");\n return 0;')
 prefix=prefix.replace('struct {MLME_QUEUE Queue,EAP_Queue;} Mlme;', 'struct wr_iot_peer_close_executor wr_iot_peer_close_executor;struct {MLME_QUEUE Queue,EAP_Queue;} Mlme;')
 prefix=prefix.replace('#include "peer-table-owner.h"','#include "peer-table-owner.h"\n#include "peer-close-executor.h"')
+# Model Linux's reserved current macro throughout the composed headers.
+prefix = '#define current (wr_kernel_current_task())\n' + prefix
 with tempfile.TemporaryDirectory(prefix='ft-auth-callback-') as td:
  c=Path(td)/'check.c';exe=Path(td)/'check';c.write_text(prefix+actors+main)
  subprocess.run(['gcc','-std=gnu11','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(here),str(c),'-o',str(exe)],check=True)

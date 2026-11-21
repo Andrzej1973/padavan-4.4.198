@@ -16,7 +16,7 @@ struct wr_ft_iapp_auth_owner_hold {
 };
 struct wr_ft_iapp_request_state {
  struct wr_ft_iapp_token_ledger ledger;
- struct wr_ft_iapp_token_handle current[WR_FT_IAPP_TOKEN_CAPACITY];
+ struct wr_ft_iapp_token_handle request_by_wcid[WR_FT_IAPP_TOKEN_CAPACITY];
  unsigned int detached[WR_FT_IAPP_TOKEN_CAPACITY];
  unsigned int detached_sst[WR_FT_IAPP_TOKEN_CAPACITY];
  struct wr_ft_preauth_identity preauth[WR_FT_IAPP_TOKEN_CAPACITY];
@@ -32,7 +32,7 @@ static inline void wr_ft_iapp_request_state_init(struct wr_ft_iapp_request_state
  state->token_seeded=state->token_exhausted=0;
  for(i=0;i<WR_FT_IAPP_TOKEN_BYTES;i++)state->token_counter[i]=0;
  for(i=0;i<WR_FT_IAPP_TOKEN_CAPACITY;i++){
-  wr_ft_iapp_token_clear(&state->current[i]);
+  wr_ft_iapp_token_clear(&state->request_by_wcid[i]);
   state->detached[i]=0;
   state->detached_sst[i]=0;
   state->preauth[i]=(struct wr_ft_preauth_identity){0};

@@ -121,13 +121,13 @@ int main(void)
    case 11:ad.wr_iot_peer_delete_active=1;break;
    case 12:ad.wr_iot_peer_table_owner.closed=1;break;
    case 13:ad.wr_iot_peer_close_executor.running=1;break;
-   case 14:state.current[7].serial++;break;
+   case 14:state.request_by_wcid[7].serial++;break;
    case 15:state.detached[7]=0;break;
    case 16:entry->Sst=(sst+1)%3;break;
    case 17:ad.wr_assoc_addr[7][0]++;break;
    case 18:entry->wdev->bssid[0]++;break;
-   case 19:state.current[7].slot++;break;
-   case 20:state.ledger.entry[state.current[7].slot].invalidated=1;break;
+   case 19:state.request_by_wcid[7].slot++;break;
+   case 20:state.ledger.entry[state.request_by_wcid[7].slot].invalidated=1;break;
   }
   before=ad;saved=state;
   if(scenario&&scenario!=21){
@@ -149,7 +149,7 @@ int main(void)
    continue;
   }
   assert(wr_ft_iapp_detached_finish_locked(&ad,&state,&scope));
-  assert(!scope.active&&!state.current[7].serial&&!state.detached[7]);
+  assert(!scope.active&&!state.request_by_wcid[7].serial&&!state.detached[7]);
   assert(!ad.wr_assoc_event_users[7]&&!ad.wr_iot_peer_table_owner.transactions);
   {
    struct wr_ft_preauth_identity captured={0};
@@ -257,7 +257,7 @@ int main(void)
  assert(wr_ft_preauth_retry_enter_locked(&ad,&state,&stamp,&scope,&entry));
  assert(wr_ft_iapp_token_claim_locked(&state.ledger,wire,entry->Addr,entry->wdev->bssid,&claim));
 	assert(!wr_ft_auth_request_success_prepare_locked(&ad,entry,&context,&state));
-	assert(state.preauth[7].serial&&state.current[7].serial&&scope.active);
+	assert(state.preauth[7].serial&&state.request_by_wcid[7].serial&&scope.active);
 	assert(wr_ft_iapp_token_finish_locked(&state.ledger,&claim));
 	/* A finished response is retired by its exact current serial at success. */
 	assert(wr_ft_auth_request_success_prepare_locked(&ad,entry,&context,&state));
@@ -267,7 +267,7 @@ int main(void)
  assert(wr_ft_preauth_retry_capture_locked(&ad,&state,7,2,ad.MacTab.Content[7].Addr,&stamp));
  assert(wr_ft_preauth_retry_enter_locked(&ad,&state,&stamp,&scope,&entry));
  assert(wr_ft_auth_request_success_prepare_locked(&ad,entry,&context,&state));
- assert(!state.current[7].serial&&!state.detached[7]&&!state.preauth[7].serial);
+ assert(!state.request_by_wcid[7].serial&&!state.detached[7]&&!state.preauth[7].serial);
  assert(!wr_ft_iapp_token_claim_locked(&state.ledger,wire,entry->Addr,entry->wdev->bssid,&claim));
  assert(wr_ft_pending_peer_leave_locked(&ad,&scope));
  }
@@ -279,14 +279,14 @@ int main(void)
   assert(wr_ft_iapp_token_reserve_locked(&state.ledger,foreign,2,6,1,mac,bssid,&other));
   if(scenario==1)ad.wr_assoc_event_users[7]=1;
   if(scenario==2)assert(wr_ft_iapp_token_claim_locked(&state.ledger,wire,ad.MacTab.Content[7].Addr,bssid,&claim));
-  if(scenario==3)state.current[7].serial++;
-  if(scenario==4)state.current[7].slot=other.slot;
+  if(scenario==3)state.request_by_wcid[7].serial++;
+  if(scenario==4)state.request_by_wcid[7].slot=other.slot;
   saved=state;
   if(scenario){assert(!wr_ft_iapp_slot_retire_locked(&ad,&state,7));assert(!memcmp(&state,&saved,sizeof(state)));}
   else{
    unsigned serial=state.ledger.next_serial;
    assert(wr_ft_iapp_slot_retire_locked(&ad,&state,7));
-   assert(!state.current[7].serial&&!state.detached[7]&&!state.preauth[7].serial);
+   assert(!state.request_by_wcid[7].serial&&!state.detached[7]&&!state.preauth[7].serial);
    assert(state.ledger.next_serial==serial);
    assert(!memcmp(&state.ledger.entry[other.slot],&saved.ledger.entry[other.slot],sizeof(state.ledger.entry[0])));
    assert(!wr_ft_iapp_token_claim_locked(&state.ledger,wire,ad.MacTab.Content[7].Addr,bssid,&claim));
@@ -299,18 +299,18 @@ int main(void)
   unsigned long serial;
   setup(&ad,&state,SST_NOT_AUTH,wire);
   assert(wr_ft_iapp_token_reserve_locked(&state.ledger,token,1,1,2,mac,bssid,&early));
-  state.current[1]=early;state.detached[1]=1;
+  state.request_by_wcid[1]=early;state.detached[1]=1;
   serial=wr_iot_peer_table_begin(&ad.wr_iot_peer_table_owner);assert(serial);
   if(scenario==1)assert(wr_ft_iapp_token_claim_locked(&state.ledger,wire,ad.MacTab.Content[7].Addr,bssid,&claim));
   if(scenario==2)ad.wr_assoc_event_users[7]=1;
-  if(scenario==3)state.current[7].serial++;
+  if(scenario==3)state.request_by_wcid[7].serial++;
   saved=state;
   if(scenario){
    assert(!wr_ft_iapp_table_retire_locked(&ad,&state,scenario==4?serial+1:serial));
    assert(!memcmp(&state,&saved,sizeof(state)));
   }else{
    assert(wr_ft_iapp_table_retire_locked(&ad,&state,serial));
-   assert(!state.current[1].serial&&!state.current[7].serial&&!state.preauth[7].serial);
+   assert(!state.request_by_wcid[1].serial&&!state.request_by_wcid[7].serial&&!state.preauth[7].serial);
    assert(state.ledger.next_serial==saved.ledger.next_serial);
    assert(!memcmp(state.token_counter,saved.token_counter,7));
    assert(!wr_ft_iapp_token_claim_locked(&state.ledger,token,mac,bssid,&claim));

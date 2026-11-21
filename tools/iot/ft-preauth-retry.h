@@ -36,15 +36,15 @@ static inline int wr_ft_preauth_retry_enter_locked(RTMP_ADAPTER *ad,
  const struct wr_ft_preauth_identity *expected,
  struct wr_ft_pending_peer_scope *scope,MAC_TABLE_ENTRY **out)
 {
- struct wr_ft_preauth_identity current={0};unsigned int i,w;
+ struct wr_ft_preauth_identity observed_identity={0};unsigned int i,w;
  if(out)*out=NULL;
  if(!expected||!scope||scope->active||!out)return 0;
  if(!wr_ft_preauth_retry_capture_locked(ad,state,expected->wcid,
-     expected->bss,expected->mac,&current))return 0;
- if(current.serial!=expected->serial||current.generation!=expected->generation||
-    current.wcid!=expected->wcid||current.bss!=expected->bss)return 0;
+     expected->bss,expected->mac,&observed_identity))return 0;
+ if(observed_identity.serial!=expected->serial||observed_identity.generation!=expected->generation||
+    observed_identity.wcid!=expected->wcid||observed_identity.bss!=expected->bss)return 0;
  for(i=0;i<6;i++)
-  if(current.mac[i]!=expected->mac[i]||current.bssid[i]!=expected->bssid[i])return 0;
+  if(observed_identity.mac[i]!=expected->mac[i]||observed_identity.bssid[i]!=expected->bssid[i])return 0;
  if(!wr_iot_peer_table_transaction_enter(&ad->wr_iot_peer_table_owner))return 0;
  w=expected->wcid;ad->wr_assoc_event_users[w]=1;
  scope->adapter=ad;scope->wcid=w;scope->bss=expected->bss;

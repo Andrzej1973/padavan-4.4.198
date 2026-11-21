@@ -1,0 +1,37 @@
+{
+  "run": 44906887469,
+  "number": 1444,
+  "source": "052c7eb00312d3b6279d88bd9d918be94a5a068b",
+  "conclusion": "failure",
+  "failed_job": 136854335753,
+  "failed_step": "Compile isolated merged IoT MT7603 candidate",
+  "diagnostic_artifact": 14708398582,
+  "diagnostic_zip_sha256": "78a588d426910818ce8358e92d3890bc8c6284dbbbed8ba01ce6eb00a2d60e2d",
+  "monitor_run": 44908308970,
+  "monitor_artifact": 14708981274,
+  "monitor_zip_sha256": "9992f5743d9407e8521111994805a8239ca55118b3a4bfec17334086a67947ae",
+  "verification_source_artifact": 14707934057,
+  "verification_source_zip_sha256": "da3b37896e3e3da7990a9c80647988b2bc505c9b32088415500c36917965111c",
+  "artifact_digest_crc_checked": true,
+  "dispatch_requested_verified_source_equal": true,
+  "original_job_log_confirms_errors": true,
+  "causes": [
+    "FT registry member and local identifiers named current collide with Linux current macro",
+    "FT_AuthReqRsnValidation context extended twice in declaration/definition, once at call",
+    "Validation guard statements precede newly injected local declarations; C90 declaration-after-statement error"
+  ],
+  "corrections": [
+    "Rename prepared FT registry member to request_by_wcid and local handles to observed_request/observed_identity, update all helper/fixture references",
+    "Keep original exact-count signature transform only; remove duplicate extension",
+    "Insert all new declarations before guard statements"
+  ],
+  "verification": [
+    "Existing full host FT request/context checker PASS exit0 with kernel-style current macro enabled in callback composition",
+    "Old composer negative control gives parameter counts2/2 and declarations after statements; corrected1/1 and declarations before statements",
+    "Header closure regression retained; Python syntax and whitespace checked"
+  ],
+  "monitor_assessment": "Correct run/job/step; compiler duplicate-parameter, too-few-arguments and C90 errors present. Original diagnostic also identifies current expansion. No speculative parser change.",
+  "translation_units": {},
+  "limits": "Target compile correction pending CI. Source/host result does not install driver or prove image/device acceptance.",
+  "cleanup": "Artifacts and original log read in memory; temporary host fixture outputs automatically removed."
+}

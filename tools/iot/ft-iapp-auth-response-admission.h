@@ -40,8 +40,8 @@ static inline int wr_ft_iapp_auth_request_owner_locked(RTMP_ADAPTER *ad,
 	w = state->ledger.entry[request->slot].wcid;
 	if (w == RESERVED_WCID || w >= WR_FT_IAPP_TOKEN_CAPACITY ||
 	    w >= MAX_LEN_OF_MAC_TABLE || state->detached[w] ||
-	    state->current[w].serial != request->serial ||
-	    state->current[w].slot != request->slot ||
+	    state->request_by_wcid[w].serial != request->serial ||
+	    state->request_by_wcid[w].slot != request->slot ||
 	    ad->wr_assoc_event_users[w] != 1)
 		return 0;
 	if (state->auth_hold[w].active)
@@ -93,8 +93,8 @@ static inline int wr_ft_iapp_auth_response_enter_locked(RTMP_ADAPTER *ad,
 		w = request->wcid;
 		if (w == RESERVED_WCID || w >= WR_FT_IAPP_TOKEN_CAPACITY ||
 		    w >= MAX_LEN_OF_MAC_TABLE || state->detached[w] ||
-		    state->current[w].serial != request->serial ||
-		    state->current[w].slot != i)
+		    state->request_by_wcid[w].serial != request->serial ||
+		    state->request_by_wcid[w].slot != i)
 			return 0;
 		stamp.wcid = w;
 		stamp.bss = request->bss;
@@ -102,7 +102,7 @@ static inline int wr_ft_iapp_auth_response_enter_locked(RTMP_ADAPTER *ad,
 		for (j = 0; j < MAC_ADDR_LEN; j++)
 			stamp.addr[j] = request->mac[j];
 		if (!wr_ft_iapp_auth_request_owner_locked(ad, state,
-				&state->current[w]) ||
+				&state->request_by_wcid[w]) ||
 		    !wr_ft_iapp_token_claim_context_locked(&state->ledger, token,
 				mac, bssid, stamp.bss, stamp.wcid, stamp.generation,
 				stamp.addr, ad->ApCfg.MBSSID[stamp.bss].wdev.bssid,
@@ -111,7 +111,7 @@ static inline int wr_ft_iapp_auth_response_enter_locked(RTMP_ADAPTER *ad,
 		owner->adapter = ad;
 		owner->state = state;
 		owner->peer = stamp;
-		owner->request = state->current[w];
+		owner->request = state->request_by_wcid[w];
 		owner->response = claimed;
 		owner->active = 1;
 		return 1;
@@ -167,8 +167,8 @@ static inline int wr_ft_iapp_auth_response_finish_locked(RTMP_ADAPTER *ad,
 	if (w >= WR_FT_IAPP_TOKEN_CAPACITY || w >= MAX_LEN_OF_MAC_TABLE ||
 	    !wr_ft_iapp_auth_request_owner_locked(ad, owner->state,
 			&owner->request) ||
-	    ad->wr_ft_iapp_requests.current[w].serial != owner->request.serial ||
-	    ad->wr_ft_iapp_requests.current[w].slot != owner->request.slot ||
+	    ad->wr_ft_iapp_requests.request_by_wcid[w].serial != owner->request.serial ||
+	    ad->wr_ft_iapp_requests.request_by_wcid[w].slot != owner->request.slot ||
 	    owner->response.slot >= WR_FT_IAPP_TOKEN_CAPACITY)
 		return 0;
 	response = &owner->state->ledger.entry[owner->response.slot];
@@ -184,7 +184,7 @@ static inline int wr_ft_iapp_auth_response_finish_locked(RTMP_ADAPTER *ad,
 	if (owner->state->auth_hold[w].active) {
 		if (!wr_ft_iapp_auth_hold_release_locked(ad, owner->state, w))
 			return 0;
-		wr_ft_iapp_token_clear(&owner->state->current[w]);
+		wr_ft_iapp_token_clear(&owner->state->request_by_wcid[w]);
 	}
 	owner->active = 0;
 	owner->adapter = NULL;
@@ -209,8 +209,8 @@ static inline int wr_ft_iapp_auth_response_retry_locked(RTMP_ADAPTER *ad,
 	    owner->peer.bss >= ad->ApCfg.BssidNum ||
 	    !wr_ft_iapp_auth_request_owner_locked(ad, owner->state,
 			&owner->request) ||
-	    ad->wr_ft_iapp_requests.current[w].serial != owner->request.serial ||
-	    ad->wr_ft_iapp_requests.current[w].slot != owner->request.slot ||
+	    ad->wr_ft_iapp_requests.request_by_wcid[w].serial != owner->request.serial ||
+	    ad->wr_ft_iapp_requests.request_by_wcid[w].slot != owner->request.slot ||
 	    owner->response.slot >= WR_FT_IAPP_TOKEN_CAPACITY)
 		return 0;
 	response = &owner->state->ledger.entry[owner->response.slot];

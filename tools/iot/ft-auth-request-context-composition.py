@@ -40,29 +40,6 @@ def compose_ft(text, header):
     header = extend_handler(header)
     header = one(header, 'USHORT FT_AuthReqHandler(',
                  'struct wr_ft_auth_request_context;\nUSHORT FT_AuthReqHandler(')
-    validation_signature = 'UINT16\tFT_AuthReqRsnValidation('
-
-    def extend_validation(source, expected):
-        starts = []
-        offset = 0
-        while True:
-            at = source.find(validation_signature, offset)
-            if at < 0:
-                break
-            starts.append(at)
-            offset = at + len(validation_signature)
-        if len(starts) != expected:
-            raise ValueError('FT AUTH validation declaration count changed')
-        for at in reversed(starts):
-            close = source.find(')', at)
-            if close < 0:
-                raise ValueError('FT AUTH validation signature is incomplete')
-            source = (source[:close] + ',\n'
-                      ' const struct wr_ft_auth_request_context *wr_ft_request_context' +
-                      source[close:])
-        return source
-
-    text = extend_validation(text, 2)
     text = one(text, ' struct wr_ft_pending_peer_scope wr_ft_pending_scope={0};',
                ' struct wr_ft_pending_peer_scope wr_ft_pending_scope={0};\n'
                ' struct wr_ft_auth_request_context wr_ft_request={\n'
@@ -91,18 +68,17 @@ def compose_ft(text, header):
                        text.index('UINT16\tFT_AuthReqRsnValidation(')+1)
     end = text.index('\n}', start)+2
     body = text[start:end]
-    body = one(body, '\tULONG temp_len = 0;', '\tULONG temp_len = 0;\n'+guard)
-    body = one(body, '\tULONG temp_len = 0;\n'+guard,
-               '\tULONG temp_len = 0;\n'+guard+
+    body = one(body, '\tULONG temp_len = 0;',
+               '\tULONG temp_len = 0;\n'
                ' struct wr_ft_iapp_token_handle wr_ft_local_request={0};\n'
                ' UCHAR wr_ft_wire_token[WR_FT_IAPP_TOKEN_BYTES]={0};\n'
-               ' unsigned int wr_ft_response_claimed=0;\n')
+               ' unsigned int wr_ft_response_claimed=0;\n'+guard)
     request_zero = 'NdisZeroMemory(&EvtKeyReq, sizeof(FT_KDP_EVT_KEY_ELM));'
     body = one(body, request_zero, request_zero+'''
  NdisAcquireSpinLock(&pAd->MacTabLock);
  if(!wr_ft_local_request.serial &&
-    pAd->wr_ft_iapp_requests.current[pEntry->wcid].serial)
-  wr_ft_local_request=pAd->wr_ft_iapp_requests.current[pEntry->wcid];
+    pAd->wr_ft_iapp_requests.request_by_wcid[pEntry->wcid].serial)
+  wr_ft_local_request=pAd->wr_ft_iapp_requests.request_by_wcid[pEntry->wcid];
  if(!wr_ft_auth_request_wire_token_locked(pAd,pEntry,wr_ft_request_context,
      &pAd->wr_ft_iapp_requests,&wr_ft_local_request,wr_ft_wire_token,
      &wr_ft_response_claimed)){

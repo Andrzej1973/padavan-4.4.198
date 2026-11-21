@@ -26,7 +26,7 @@ static inline int wr_ft_iapp_auth_scope_claimed_locked(RTMP_ADAPTER *ad,
 	w = existing && existing->active ? existing->stamp.wcid : pending->wcid;
 	if (w == RESERVED_WCID || w >= WR_FT_IAPP_TOKEN_CAPACITY ||
 	    w >= MAX_LEN_OF_MAC_TABLE) return 0;
-	request = &state->current[w];
+	request = &state->request_by_wcid[w];
 	if (!request->serial) return 0;
 	if (request->slot >= WR_FT_IAPP_TOKEN_CAPACITY) return 1;
 	item = &state->ledger.entry[request->slot];
@@ -49,8 +49,8 @@ static inline int wr_ft_iapp_auth_hold_identity_locked(RTMP_ADAPTER *ad,
 	    hold->bss >= ad->ApCfg.BssidNum ||
 	    hold->bss >= sizeof(ad->ApCfg.MBSSID) / sizeof(ad->ApCfg.MBSSID[0]) ||
 	    !hold->request.serial || hold->request.slot >= WR_FT_IAPP_TOKEN_CAPACITY ||
-	    state->current[w].serial != hold->request.serial ||
-	    state->current[w].slot != hold->request.slot ||
+	    state->request_by_wcid[w].serial != hold->request.serial ||
+	    state->request_by_wcid[w].slot != hold->request.slot ||
 	    ad->wr_iot_peer_delete_active || ad->wr_iot_peer_table_owner.poisoned ||
 	    !ad->wr_iot_peer_table_owner.transactions ||
 	    ad->wr_assoc_event_users[w] != 1)
@@ -97,8 +97,8 @@ static inline int wr_ft_iapp_auth_hold_detach_locked(RTMP_ADAPTER *ad,
 	item = &state->ledger.entry[hold->request.slot];
 	entry = &ad->MacTab.Content[w];
 	if (item->state != WR_FT_IAPP_TOKEN_WAITING || item->invalidated ||
-	    state->detached[w] || state->current[w].serial != hold->request.serial ||
-	    state->current[w].slot != hold->request.slot)
+	    state->detached[w] || state->request_by_wcid[w].serial != hold->request.serial ||
+	    state->request_by_wcid[w].slot != hold->request.slot)
 		return 0;
 	state->detached[w] = 1;
 	state->detached_sst[w] = entry->Sst;
@@ -142,10 +142,10 @@ static inline int wr_ft_iapp_auth_hold_claimed_locked(RTMP_ADAPTER *ad,
 	w = entry->wcid;
 	if (w == RESERVED_WCID || w >= WR_FT_IAPP_TOKEN_CAPACITY ||
 	    w >= MAX_LEN_OF_MAC_TABLE || state->detached[w] ||
-	    state->auth_hold[w].active || !state->current[w].serial ||
-	    state->current[w].slot >= WR_FT_IAPP_TOKEN_CAPACITY)
+	    state->auth_hold[w].active || !state->request_by_wcid[w].serial ||
+	    state->request_by_wcid[w].slot >= WR_FT_IAPP_TOKEN_CAPACITY)
 		return 0;
-	request = state->current[w];
+	request = state->request_by_wcid[w];
 	item = &state->ledger.entry[request.slot];
 	if (item->state != WR_FT_IAPP_TOKEN_CLAIMED || item->invalidated ||
 	    item->serial != request.serial || item->wcid != w ||

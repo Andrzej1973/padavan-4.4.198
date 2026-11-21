@@ -40,7 +40,7 @@ int main(void){
   assert(!ad.MacTabLock);
   if(scenario==0){
    assert(serial&&ad.wr_iot_peer_table_owner.active);
-   assert(!state->current[7].serial&&!state->preauth[7].serial);
+   assert(!state->request_by_wcid[7].serial&&!state->preauth[7].serial);
    assert(state->ledger.next_serial==saved.ledger.next_serial);
    assert(wr_iot_peer_reset_finish(&ad,serial,1));
   }else if(scenario==3){

@@ -239,7 +239,7 @@ if a.success_context:
   wr_ft_iapp_request_state_init(state);
   assert(wr_ft_iapp_token_reserve_locked(&state->ledger,token,2,7,5,
    peer->Addr,peer->wdev->bssid,&handle));
-  state->current[7]=handle;state->detached[7]=(mode==0);state->detached_sst[7]=SST_ASSOC;
+  state->request_by_wcid[7]=handle;state->detached[7]=(mode==0);state->detached_sst[7]=SST_ASSOC;
   if(mode==1)assert(wr_ft_iapp_token_claim_locked(&state->ledger,token,
    peer->Addr,peer->wdev->bssid,&claim));
   int old_reqs=reqs,old_forwards=forwards;expect_scope=1;
@@ -247,22 +247,22 @@ if a.success_context:
   assert(reqs==old_reqs+1&&allocs==frees&&!trial.MacTabLock);
   if(mode==0){
    assert(peer->Sst==SST_AUTH&&peer->assoc_gen==6);
-   assert(!state->current[7].serial&&!state->detached[7]);
+   assert(!state->request_by_wcid[7].serial&&!state->detached[7]);
    assert(!trial.wr_assoc_event_users[7]&&!trial.wr_iot_peer_table_owner.transactions);
   }else if(mode==1){
    assert(peer->Sst==SST_ASSOC&&peer->assoc_gen==5&&forwards==old_forwards);
    assert(!trial.wr_iot_peer_table_owner.poisoned&&trial.wr_iot_peer_table_owner.transactions==1);
    assert(trial.wr_assoc_event_users[7]==1&&state->auth_hold[7].active);
-   assert(state->current[7].serial==handle.serial&&
+   assert(state->request_by_wcid[7].serial==handle.serial&&
     state->ledger.entry[handle.slot].state==WR_FT_IAPP_TOKEN_CLAIMED);
    assert(wr_ft_iapp_token_finish_locked(&state->ledger,&claim));
    assert(wr_ft_iapp_auth_hold_release_locked(&trial,state,7));
-   wr_ft_iapp_token_clear(&state->current[7]);
+   wr_ft_iapp_token_clear(&state->request_by_wcid[7]);
    assert(!trial.wr_assoc_event_users[7]&&!trial.wr_iot_peer_table_owner.transactions);
   }else{
    assert(peer->Sst==SST_ASSOC&&peer->assoc_gen==5&&forwards==old_forwards);
    assert(trial.wr_iot_peer_table_owner.poisoned&&trial.wr_iot_peer_table_owner.transactions==1);
-   assert(trial.wr_assoc_event_users[7]==1&&state->current[7].serial==handle.serial);
+   assert(trial.wr_assoc_event_users[7]==1&&state->request_by_wcid[7].serial==handle.serial);
    assert(state->ledger.entry[handle.slot].state==WR_FT_IAPP_TOKEN_WAITING);
   }
  }

@@ -95,7 +95,7 @@ static void setup(struct fixture *f)
 	assert(wr_ft_peer_enter_locked(ad, &stamp, &f->peer));
 	assert(wr_ft_iapp_peer_request_begin_locked(ad, &ad->wr_ft_iapp_requests.ledger,
 		k_token, &stamp, &f->request));
-	ad->wr_ft_iapp_requests.current[3] = f->request;
+	ad->wr_ft_iapp_requests.request_by_wcid[3] = f->request;
 }
 
 static void setup_pending(struct fixture *f)
@@ -120,7 +120,7 @@ static void setup_pending(struct fixture *f)
 	ad->wr_assoc_event_users[3] = 1; /* owned by the pending AUTH scope */
 	assert(wr_ft_iapp_token_reserve_locked(&ad->wr_ft_iapp_requests.ledger,
 		k_token, 1, 3, 5, k_mac, k_bssid, &f->request));
-	ad->wr_ft_iapp_requests.current[3] = f->request;
+	ad->wr_ft_iapp_requests.request_by_wcid[3] = f->request;
 }
 
 static void release_peer(struct fixture *f)
@@ -134,7 +134,7 @@ static void release_peer(struct fixture *f)
 static void release_pending(struct fixture *f)
 {
 	assert(f->ad.MacTabLock);
-	wr_ft_iapp_token_clear(&f->ad.wr_ft_iapp_requests.current[3]);
+	wr_ft_iapp_token_clear(&f->ad.wr_ft_iapp_requests.request_by_wcid[3]);
 	wr_ft_iapp_token_clear(&f->request);
 	f->ad.wr_assoc_event_users[3] = 0;
 	assert(wr_iot_peer_table_transaction_leave(&f->ad.wr_iot_peer_table_owner));
@@ -207,7 +207,7 @@ static void test_response_token_derives_bss(void)
 				sizeof(f.ad.wr_ft_iapp_requests.ledger.entry[4]));
 		assert(wr_ft_iapp_peer_request_end_locked(&f.ad, &f.peer,
 			&f.ad.wr_ft_iapp_requests.ledger, &f.request));
-		wr_ft_iapp_token_clear(&f.ad.wr_ft_iapp_requests.current[3]);
+		wr_ft_iapp_token_clear(&f.ad.wr_ft_iapp_requests.request_by_wcid[3]);
 		release_peer(&f);
 	}
 }
@@ -233,7 +233,7 @@ static void test_claimed_auth_owner_transfer_finish(void)
 		&f.ad.wr_ft_iapp_requests, &f.request));
 	assert(wr_ft_iapp_auth_response_finish_locked(&f.ad, &owner));
 	assert(!owner.active && !f.ad.wr_ft_iapp_requests.auth_hold[3].active);
-	assert(!f.ad.wr_ft_iapp_requests.current[3].serial);
+	assert(!f.ad.wr_ft_iapp_requests.request_by_wcid[3].serial);
 	assert(!f.ad.wr_assoc_event_users[3]);
 	assert(!f.ad.wr_iot_peer_table_owner.transactions);
 	NdisReleaseSpinLock(&f.ad.MacTabLock);
@@ -333,7 +333,7 @@ static void test_response_first_and_ack_order(void)
 	assert(!owner.active && !f.ad.wr_ft_iapp_requests.ledger.entry[claimed_slot].state);
 	assert(wr_ft_iapp_peer_request_end_locked(&f.ad, &f.peer,
 		&f.ad.wr_ft_iapp_requests.ledger, &f.request));
-	wr_ft_iapp_token_clear(&f.ad.wr_ft_iapp_requests.current[3]);
+	wr_ft_iapp_token_clear(&f.ad.wr_ft_iapp_requests.request_by_wcid[3]);
 	assert(cache_updates == 1 && retry_updates == 1 && ack_completions == 1);
 	release_peer(&f);
 }
@@ -345,7 +345,7 @@ static void test_timeout_first(void)
 	setup(&f);
 	assert(wr_ft_iapp_peer_request_end_locked(&f.ad, &f.peer,
 		&f.ad.wr_ft_iapp_requests.ledger, &f.request));
-	wr_ft_iapp_token_clear(&f.ad.wr_ft_iapp_requests.current[3]);
+	wr_ft_iapp_token_clear(&f.ad.wr_ft_iapp_requests.request_by_wcid[3]);
 	assert(!wr_ft_iapp_auth_response_enter_locked(&f.ad, &f.ad.wr_ft_iapp_requests,
 		k_token, k_mac, k_bssid, &owner));
 	assert(!owner.active && f.ad.wr_assoc_event_users[3] == 1);
@@ -364,7 +364,7 @@ static void test_refusals(void)
 		unsigned char mac[MAC_ADDR_LEN], bssid[MAC_ADDR_LEN];
 		setup(&f);
 		original_entry = f.ad.MacTab.Content[3];
-		original_current = f.ad.wr_ft_iapp_requests.current[3];
+		original_current = f.ad.wr_ft_iapp_requests.request_by_wcid[3];
 		memcpy(token, k_token, sizeof(token));
 		memcpy(mac, k_mac, sizeof(mac));
 		memcpy(bssid, k_bssid, sizeof(bssid));
@@ -375,7 +375,7 @@ static void test_refusals(void)
 		case 3: f.ad.wr_ft_iapp_requests.detached[3] = 1; break;
 		case 4: f.ad.MacTab.Content[3].assoc_gen++; break;
 		case 5: f.ad.MacTab.Content[3].func_tb_idx = 0; break;
-		case 6: f.ad.wr_ft_iapp_requests.current[3].serial++; break;
+		case 6: f.ad.wr_ft_iapp_requests.request_by_wcid[3].serial++; break;
 		case 7: f.ad.MacTab.Content[3].Sst = 3; break;
 		}
 		assert(!wr_ft_iapp_auth_response_enter_locked(&f.ad,
@@ -384,7 +384,7 @@ static void test_refusals(void)
 		assert(f.ad.wr_assoc_event_users[3] == 1);
 		assert(f.ad.wr_iot_peer_table_owner.transactions == 1);
 		f.ad.MacTab.Content[3] = original_entry;
-		f.ad.wr_ft_iapp_requests.current[3] = original_current;
+		f.ad.wr_ft_iapp_requests.request_by_wcid[3] = original_current;
 		f.ad.wr_ft_iapp_requests.detached[3] = 0;
 		release_peer(&f);
 	}
@@ -449,7 +449,7 @@ static void test_cache_failure_does_not_ack(void)
 	assert(cache_updates == 1 && retry_updates == 1 && ack_completions == 1);
 	assert(wr_ft_iapp_peer_request_end_locked(&f.ad, &f.peer,
 		&f.ad.wr_ft_iapp_requests.ledger, &f.request));
-	wr_ft_iapp_token_clear(&f.ad.wr_ft_iapp_requests.current[3]);
+	wr_ft_iapp_token_clear(&f.ad.wr_ft_iapp_requests.request_by_wcid[3]);
 	release_peer(&f);
 }
 
@@ -471,7 +471,7 @@ static void test_cache_failure_then_timeout(void)
 	assert(wr_ft_iapp_auth_response_retry_locked(&f.ad, &owner));
 	assert(wr_ft_iapp_peer_request_end_locked(&f.ad, &f.peer,
 		&f.ad.wr_ft_iapp_requests.ledger, &f.request));
-	wr_ft_iapp_token_clear(&f.ad.wr_ft_iapp_requests.current[3]);
+	wr_ft_iapp_token_clear(&f.ad.wr_ft_iapp_requests.request_by_wcid[3]);
 	release_peer(&f);
 }
 

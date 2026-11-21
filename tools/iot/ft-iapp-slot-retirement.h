@@ -7,15 +7,15 @@
 static inline int wr_ft_iapp_slot_can_retire_locked(RTMP_ADAPTER *ad,
  struct wr_ft_iapp_request_state *state,unsigned int w)
 {
- unsigned int i;const struct wr_ft_iapp_token_handle *current;
+ unsigned int i;const struct wr_ft_iapp_token_handle *observed_request;
  if(!ad||!state||w==RESERVED_WCID||w>=MAX_LEN_OF_MAC_TABLE||
     w>=WR_FT_IAPP_TOKEN_CAPACITY||ad->wr_assoc_event_users[w])return 0;
- current=&state->current[w];
- if(current->serial){
+ observed_request=&state->request_by_wcid[w];
+ if(observed_request->serial){
   const struct wr_ft_iapp_token_entry *request;
-  if(current->slot>=WR_FT_IAPP_TOKEN_CAPACITY)return 0;
-  request=&state->ledger.entry[current->slot];
-  if(request->serial!=current->serial||request->wcid!=w)return 0;
+  if(observed_request->slot>=WR_FT_IAPP_TOKEN_CAPACITY)return 0;
+  request=&state->ledger.entry[observed_request->slot];
+  if(request->serial!=observed_request->serial||request->wcid!=w)return 0;
  }else if(state->detached[w])return 0;
  for(i=0;i<WR_FT_IAPP_TOKEN_CAPACITY;i++){
   const struct wr_ft_iapp_token_entry *request=&state->ledger.entry[i];
@@ -35,7 +35,7 @@ static inline int wr_ft_iapp_slot_retire_locked(RTMP_ADAPTER *ad,
    request->state=WR_FT_IAPP_TOKEN_FREE;request->invalidated=1;
   }
  }
- wr_ft_iapp_token_clear(&state->current[w]);
+ wr_ft_iapp_token_clear(&state->request_by_wcid[w]);
  state->detached[w]=state->detached_sst[w]=0;
  state->preauth[w]=(struct wr_ft_preauth_identity){0};
  return 1;
@@ -49,7 +49,7 @@ static inline int wr_ft_iapp_table_retire_locked(RTMP_ADAPTER *ad,
  if(!ad||!state||!serial||!ad->wr_iot_peer_table_owner.active||
     ad->wr_iot_peer_table_owner.transactions||
     !wr_iot_peer_table_allows(&ad->wr_iot_peer_table_owner,serial))return 0;
- if(state->current[0].serial||state->detached[0]||state->preauth[0].serial)return 0;
+ if(state->request_by_wcid[0].serial||state->detached[0]||state->preauth[0].serial)return 0;
  for(i=0;i<WR_FT_IAPP_TOKEN_CAPACITY;i++)
   if(state->ledger.entry[i].state!=WR_FT_IAPP_TOKEN_FREE&&
      (state->ledger.entry[i].wcid==RESERVED_WCID||

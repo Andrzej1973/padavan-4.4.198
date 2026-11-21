@@ -36,6 +36,14 @@ assert len(wrapper_receipts) == 1
 wrapper, original_definition = wrapper_receipts[0]
 assert wrapped.replace(wrapper, original_definition, 1) == composed
 assert '\nVOID FT_FtAction(' in composed
+# Both native validation declarations receive exactly one context parameter.
+validation_signatures = re.findall(r'UINT16\s+FT_AuthReqRsnValidation\([^)]*\)', composed)
+assert len(validation_signatures) == 2
+for signature in validation_signatures:
+    assert signature.count('wr_ft_request_context') == 1
+validation_start = composed.rindex('UINT16\tFT_AuthReqRsnValidation(')
+validation_body = composed[validation_start:composed.index('\n}', validation_start)]
+assert validation_body.index('unsigned int wr_ft_response_claimed=0;') < validation_body.index('if(!pAd)')
 # Validate the target probe's exact copied local-header closure, including
 # nested includes. Vendor headers continue to resolve through native Kbuild.
 probe_tree = ast.parse((here/'check-ft-bounds-target-tu.py').read_text())
@@ -229,29 +237,29 @@ static USHORT FT_AuthReqRsnValidation(PRTMP_ADAPTER ad,PMAC_TABLE_ENTRY entry,
  unsigned int serial;
  memset(&state,0xa5,sizeof(state));wr_ft_iapp_request_state_init(&state);
  assert(!state.ledger.next_serial&&!state.ledger.poisoned);
- for(unsigned int w=0;w<WR_FT_IAPP_TOKEN_CAPACITY;w++)assert(!state.current[w].serial);
- assert(!wr_ft_auth_request_publish_locked(ad,entry,context,&state,token,&state.current[1]));
- assert(!state.ledger.next_serial&&!state.current[1].serial);
+ for(unsigned int w=0;w<WR_FT_IAPP_TOKEN_CAPACITY;w++)assert(!state.request_by_wcid[w].serial);
+ assert(!wr_ft_auth_request_publish_locked(ad,entry,context,&state,token,&state.request_by_wcid[1]));
+ assert(!state.ledger.next_serial&&!state.request_by_wcid[1].serial);
  assert(wr_ft_auth_request_publish_locked(ad,entry,context,&state,token,&active));
  old=active;serial=state.ledger.next_serial;
- assert(!wr_ft_auth_request_unpublish_locked(ad,entry,context,&state,&state.current[1]));
+ assert(!wr_ft_auth_request_unpublish_locked(ad,entry,context,&state,&state.request_by_wcid[1]));
  assert(!wr_ft_auth_request_publish_locked(ad,entry,context,&state,wrong,&other));
  assert(!other.serial&&state.ledger.next_serial==serial);
- assert(!wr_ft_auth_request_publish_locked(ad,entry,context,&state,wrong,&state.current[entry->wcid]));
- assert(state.current[entry->wcid].serial==active.serial);
+ assert(!wr_ft_auth_request_publish_locked(ad,entry,context,&state,wrong,&state.request_by_wcid[entry->wcid]));
+ assert(state.request_by_wcid[entry->wcid].serial==active.serial);
  assert(wr_ft_auth_request_admit_locked(ad,entry,context,&state.ledger,token,
-  entry->Addr,entry->wdev->bssid,&state.current[entry->wcid],&claim));
+  entry->Addr,entry->wdev->bssid,&state.request_by_wcid[entry->wcid],&claim));
  assert(!wr_ft_auth_request_unpublish_locked(ad,entry,context,&state,&active));
  assert(!wr_ft_auth_request_success_prepare_locked(ad,entry,context,&state));
- assert(active.serial&&state.current[entry->wcid].serial==active.serial);
+ assert(active.serial&&state.request_by_wcid[entry->wcid].serial==active.serial);
  assert(wr_ft_iapp_token_finish_locked(&state.ledger,&claim));
  assert(wr_ft_auth_request_unpublish_locked(ad,entry,context,&state,&active));
- assert(!active.serial&&!state.current[entry->wcid].serial);
+ assert(!active.serial&&!state.request_by_wcid[entry->wcid].serial);
  token[0]++;
  assert(wr_ft_auth_request_publish_locked(ad,entry,context,&state,token,&active));
  assert(active.serial>old.serial&&state.ledger.next_serial>serial);
  assert(!wr_ft_auth_request_unpublish_locked(ad,entry,context,&state,&old));
- assert(state.current[entry->wcid].serial==active.serial);
+ assert(state.request_by_wcid[entry->wcid].serial==active.serial);
  assert(wr_ft_auth_request_unpublish_locked(ad,entry,context,&state,&active));
  assert(state.ledger.next_serial>serial);
  {
@@ -289,7 +297,7 @@ static USHORT FT_AuthReqRsnValidation(PRTMP_ADAPTER ad,PMAC_TABLE_ENTRY entry,
  old=active;
  assert(wr_ft_auth_request_detach_locked(ad,entry,context,&state,&active));
  assert(!active.serial&&state.detached[entry->wcid]);
- assert(state.current[entry->wcid].serial==old.serial);
+ assert(state.request_by_wcid[entry->wcid].serial==old.serial);
  assert(!wr_ft_auth_request_unpublish_locked(ad,entry,context,&state,&old));
  assert(!wr_ft_auth_request_publish_next_locked(ad,entry,context,&state,&other,wire));
  assert(!wr_ft_iapp_token_nonzero(wire));
@@ -299,22 +307,22 @@ static USHORT FT_AuthReqRsnValidation(PRTMP_ADAPTER ad,PMAC_TABLE_ENTRY entry,
  unsigned char previous[7];
  memcpy(previous,state.ledger.entry[old.slot].token,7);
  assert(!wr_ft_auth_request_retire_detached_locked(ad,entry,NULL,&state,&old));
- assert(!wr_ft_auth_request_retire_detached_locked(ad,entry,context,&state,&state.current[entry->wcid]));
+ assert(!wr_ft_auth_request_retire_detached_locked(ad,entry,context,&state,&state.request_by_wcid[entry->wcid]));
  old.serial++;
  assert(!wr_ft_auth_request_retire_detached_locked(ad,entry,context,&state,&old));
  old=stale;
  assert(wr_ft_auth_request_retire_detached_locked(ad,entry,context,&state,&old));
- assert(!state.detached[entry->wcid]&&!state.current[entry->wcid].serial);
+ assert(!state.detached[entry->wcid]&&!state.request_by_wcid[entry->wcid].serial);
  assert(!wr_ft_iapp_token_claim_locked(&state.ledger,previous,entry->Addr,entry->wdev->bssid,&claim));
  assert(wr_ft_auth_request_publish_next_locked(ad,entry,context,&state,&active,wire));
  assert(memcmp(wire,previous,7)>0);
  assert(wr_ft_auth_request_detach_locked(ad,entry,context,&state,&active));
- detached=state.current[entry->wcid];
+ detached=state.request_by_wcid[entry->wcid];
  assert(!wr_ft_auth_request_retire_detached_locked(ad,entry,context,&state,&stale));
- assert(state.current[entry->wcid].serial==detached.serial);
+ assert(state.request_by_wcid[entry->wcid].serial==detached.serial);
  assert(wr_ft_iapp_token_claim_locked(&state.ledger,wire,entry->Addr,entry->wdev->bssid,&claim));
  assert(!wr_ft_auth_request_retire_detached_locked(ad,entry,context,&state,&detached));
- assert(state.current[entry->wcid].serial==detached.serial);
+ assert(state.request_by_wcid[entry->wcid].serial==detached.serial);
  assert(wr_ft_iapp_token_finish_locked(&state.ledger,&claim));
  }
  }
@@ -375,7 +383,7 @@ static void native_handler_refusals(void){
  NdisReleaseSpinLock(&ad.MacTabLock);
  assert(!ad.wr_iot_peer_table_owner.transactions&&!ad.wr_assoc_event_users[7]);
  assert(!scope.active&&!request.serial&&state.detached[7]);
- assert(state.current[7].serial==saved.serial);
+ assert(state.request_by_wcid[7].serial==saved.serial);
  assert(state.ledger.entry[saved.slot].state==WR_FT_IAPP_TOKEN_WAITING);
  assert(wr_ft_iapp_token_equal(state.ledger.entry[saved.slot].token,wire));
  }

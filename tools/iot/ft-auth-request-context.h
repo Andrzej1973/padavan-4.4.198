@@ -77,11 +77,11 @@ static inline int wr_ft_auth_request_publish_locked(RTMP_ADAPTER *ad,
  if(!state||!request||request->serial||
     !wr_ft_auth_request_current_locked(ad,entry,context))return 0;
  w=entry->wcid;
- if(w>=WR_FT_IAPP_TOKEN_CAPACITY||state->current[w].serial||state->detached[w])return 0;
+ if(w>=WR_FT_IAPP_TOKEN_CAPACITY||state->request_by_wcid[w].serial||state->detached[w])return 0;
  for(i=0;i<WR_FT_IAPP_TOKEN_CAPACITY;i++)
-  if(request==&state->current[i])return 0;
+  if(request==&state->request_by_wcid[i])return 0;
  if(!wr_ft_auth_request_begin_locked(ad,entry,context,&state->ledger,token,request))return 0;
- state->current[w]=*request;
+ state->request_by_wcid[w]=*request;
  return 1;
 }
 static inline int wr_ft_auth_request_unpublish_locked(RTMP_ADAPTER *ad,
@@ -93,11 +93,11 @@ static inline int wr_ft_auth_request_unpublish_locked(RTMP_ADAPTER *ad,
  w=entry->wcid;
  if(w>=WR_FT_IAPP_TOKEN_CAPACITY||state->detached[w])return 0;
  for(i=0;i<WR_FT_IAPP_TOKEN_CAPACITY;i++)
-  if(request==&state->current[i])return 0;
- if(state->current[w].serial!=request->serial||
-    (request->serial&&state->current[w].slot!=request->slot))return 0;
+  if(request==&state->request_by_wcid[i])return 0;
+ if(state->request_by_wcid[w].serial!=request->serial||
+    (request->serial&&state->request_by_wcid[w].slot!=request->slot))return 0;
  if(!wr_ft_auth_request_end_locked(ad,entry,context,&state->ledger,request))return 0;
- wr_ft_iapp_token_clear(&state->current[w]);
+ wr_ft_iapp_token_clear(&state->request_by_wcid[w]);
  return 1;
 }
 /* Soft retry returns before IAPP delivery. Transfer only the published value
@@ -115,9 +115,9 @@ static inline int wr_ft_auth_request_detach_locked(RTMP_ADAPTER *ad,
  if(w>=WR_FT_IAPP_TOKEN_CAPACITY||state->detached[w]||
     request->slot>=WR_FT_IAPP_TOKEN_CAPACITY)return 0;
  for(i=0;i<WR_FT_IAPP_TOKEN_CAPACITY;i++)
-  if(request==&state->current[i])return 0;
- if(state->current[w].serial!=request->serial||
-    state->current[w].slot!=request->slot)return 0;
+  if(request==&state->request_by_wcid[i])return 0;
+ if(state->request_by_wcid[w].serial!=request->serial||
+    state->request_by_wcid[w].slot!=request->slot)return 0;
  pending=&state->ledger.entry[request->slot];
  if(pending->state!=WR_FT_IAPP_TOKEN_WAITING||pending->invalidated||
     pending->serial!=request->serial||state->ledger.poisoned||
@@ -157,9 +157,9 @@ static inline int wr_ft_auth_request_exit_locked(RTMP_ADAPTER *ad,
   * case there is no request-owned state to inspect, and the pinned peer scope
   * remains responsible for its own release. Do not dereference entry until a
   * live request requires full invocation validation. */
- if(!state->current[w].serial)return 1;
+ if(!state->request_by_wcid[w].serial)return 1;
  if(!wr_ft_auth_request_current_locked(ad,entry,context))return 0;
- request=state->current[w];
+ request=state->request_by_wcid[w];
  if(request.slot>=WR_FT_IAPP_TOKEN_CAPACITY)return 0;
  item=&state->ledger.entry[request.slot];
  if(item->serial!=request.serial||item->wcid!=w||
@@ -170,7 +170,7 @@ static inline int wr_ft_auth_request_exit_locked(RTMP_ADAPTER *ad,
  if(item->state==WR_FT_IAPP_TOKEN_WAITING)
   return wr_ft_auth_request_detach_locked(ad,entry,context,state,&request);
  if(item->state==WR_FT_IAPP_TOKEN_FREE&&item->invalidated){
-  wr_ft_iapp_token_clear(&state->current[w]);
+  wr_ft_iapp_token_clear(&state->request_by_wcid[w]);
   return 1;
  }
  return 0;
@@ -189,11 +189,11 @@ static inline int wr_ft_auth_request_retire_detached_locked(RTMP_ADAPTER *ad,
  w=entry->wcid;
  if(w>=WR_FT_IAPP_TOKEN_CAPACITY||!state->detached[w]||
     expected->slot>=WR_FT_IAPP_TOKEN_CAPACITY||
-    state->current[w].serial!=expected->serial||
-    state->current[w].slot!=expected->slot||
+    state->request_by_wcid[w].serial!=expected->serial||
+    state->request_by_wcid[w].slot!=expected->slot||
     state->detached_sst[w]!=(unsigned int)entry->Sst)return 0;
  for(i=0;i<WR_FT_IAPP_TOKEN_CAPACITY;i++)
-  if(expected==&state->current[i])return 0;
+  if(expected==&state->request_by_wcid[i])return 0;
  pending=&state->ledger.entry[expected->slot];
  if(pending->state!=WR_FT_IAPP_TOKEN_WAITING||pending->invalidated||
     pending->serial!=expected->serial||pending->wcid!=w||
@@ -201,7 +201,7 @@ static inline int wr_ft_auth_request_retire_detached_locked(RTMP_ADAPTER *ad,
  for(i=0;i<MAC_ADDR_LEN;i++)
   if(pending->mac[i]!=entry->Addr[i]||pending->bssid[i]!=entry->wdev->bssid[i])return 0;
  if(!wr_ft_iapp_token_cancel_waiting_locked(&state->ledger,expected))return 0;
- wr_ft_iapp_token_clear(&state->current[w]);
+ wr_ft_iapp_token_clear(&state->request_by_wcid[w]);
  state->detached[w]=state->detached_sst[w]=0;
  return 1;
 }
@@ -212,17 +212,17 @@ static inline int wr_ft_auth_request_success_prepare_locked(RTMP_ADAPTER *ad,
  MAC_TABLE_ENTRY *entry,const struct wr_ft_auth_request_context *context,
  struct wr_ft_iapp_request_state *state)
 {
- unsigned int w,i;struct wr_ft_iapp_token_handle previous,current;
+ unsigned int w,i;struct wr_ft_iapp_token_handle previous,observed_request;
  const struct wr_ft_preauth_identity *identity;
  if(!state||!wr_ft_auth_request_current_locked(ad,entry,context))return 0;
  w=entry->wcid;
  if(w>=WR_FT_IAPP_TOKEN_CAPACITY)return 0;
- if(state->current[w].serial){
+ if(state->request_by_wcid[w].serial){
   const struct wr_ft_iapp_token_entry *item;
-  current=state->current[w];
-  if(current.slot>=WR_FT_IAPP_TOKEN_CAPACITY)return 0;
-  item=&state->ledger.entry[current.slot];
-  if(item->serial!=current.serial||
+  observed_request=state->request_by_wcid[w];
+  if(observed_request.slot>=WR_FT_IAPP_TOKEN_CAPACITY)return 0;
+  item=&state->ledger.entry[observed_request.slot];
+  if(item->serial!=observed_request.serial||
      (item->invalidated&&item->state!=WR_FT_IAPP_TOKEN_FREE)||
      item->wcid!=w||item->bss!=entry->func_tb_idx||
      item->generation!=entry->assoc_gen)return 0;
@@ -231,12 +231,12 @@ static inline int wr_ft_auth_request_success_prepare_locked(RTMP_ADAPTER *ad,
   if(item->state==WR_FT_IAPP_TOKEN_CLAIMED)return 0;
   if(item->state==WR_FT_IAPP_TOKEN_WAITING &&
      (!state->detached[w]||
-      !wr_ft_iapp_token_cancel_waiting_locked(&state->ledger,&current)))return 0;
+      !wr_ft_iapp_token_cancel_waiting_locked(&state->ledger,&observed_request)))return 0;
   else if(item->state!=WR_FT_IAPP_TOKEN_FREE &&
           item->state!=WR_FT_IAPP_TOKEN_WAITING)return 0;
   if(item->state==WR_FT_IAPP_TOKEN_FREE&&item->invalidated&&state->detached[w])
    state->detached[w]=state->detached_sst[w]=0;
-  wr_ft_iapp_token_clear(&state->current[w]);
+  wr_ft_iapp_token_clear(&state->request_by_wcid[w]);
  }
  identity=&state->preauth[w];
  if(identity->serial){
@@ -245,8 +245,8 @@ static inline int wr_ft_auth_request_success_prepare_locked(RTMP_ADAPTER *ad,
   for(i=0;i<6;i++)
    if(identity->mac[i]!=entry->Addr[i]||identity->bssid[i]!=entry->wdev->bssid[i])return 0;
  }
- if(state->current[w].serial){
-  previous=state->current[w];
+ if(state->request_by_wcid[w].serial){
+  previous=state->request_by_wcid[w];
   if(!wr_ft_auth_request_retire_detached_locked(ad,entry,context,state,&previous))return 0;
  }else if(state->detached[w])return 0;
  state->preauth[w]=(struct wr_ft_preauth_identity){0};
@@ -287,8 +287,8 @@ static inline int wr_ft_auth_request_wire_token_locked(RTMP_ADAPTER *ad,
    request,token);
  w=entry->wcid;
  if(w>=WR_FT_IAPP_TOKEN_CAPACITY||request->slot>=WR_FT_IAPP_TOKEN_CAPACITY||
-    state->current[w].serial!=request->serial||
-    state->current[w].slot!=request->slot)return 0;
+    state->request_by_wcid[w].serial!=request->serial||
+    state->request_by_wcid[w].slot!=request->slot)return 0;
  item=&state->ledger.entry[request->slot];
  if(item->serial!=request->serial||item->bss!=entry->func_tb_idx||
     item->wcid!=w||item->generation!=entry->assoc_gen||item->invalidated||

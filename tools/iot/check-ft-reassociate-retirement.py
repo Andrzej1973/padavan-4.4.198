@@ -40,7 +40,7 @@ int main(void){
   struct wr_ft_iapp_request_state *state=&ad.wr_ft_iapp_requests,saved;
   if(scenario==1)ad.wr_assoc_event_users[7]=1;
   if(scenario==2)assert(wr_ft_iapp_token_claim_locked(&state->ledger,wire,entry->Addr,entry->wdev->bssid,&response));
-  if(scenario==3)state->current[7].serial++;
+  if(scenario==3)state->request_by_wcid[7].serial++;
   if(scenario==4)ad.MacTabLock=1;
   MAC_TABLE_ENTRY foreign=*entry;if(scenario==5)entry=&foreign;
   saved=*state;
@@ -51,7 +51,7 @@ int main(void){
    assert(ad.MacTabLock==(scenario==4));
   }else{
    assert(result&&entry->assoc_gen==4&&ad.wr_assoc_visible[7]==4);
-   assert(!state->current[7].serial&&!state->preauth[7].serial&&!state->detached[7]);
+   assert(!state->request_by_wcid[7].serial&&!state->preauth[7].serial&&!state->detached[7]);
    assert(!wr_ft_iapp_token_claim_locked(&state->ledger,wire,entry->Addr,entry->wdev->bssid,&response));
    assert(!ad.MacTabLock);
   }

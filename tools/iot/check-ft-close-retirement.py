@@ -44,7 +44,7 @@ int main(void){
    assert(!memcmp(&saved,&ad.wr_ft_iapp_requests,sizeof(saved)));
   }else{
    assert(wr_iot_peer_close_clear(&ad));
-   assert(!ad.MacTab.Size&&!ad.wr_ft_iapp_requests.current[7].serial&&!ad.wr_ft_iapp_requests.preauth[7].serial);
+   assert(!ad.MacTab.Size&&!ad.wr_ft_iapp_requests.request_by_wcid[7].serial&&!ad.wr_ft_iapp_requests.preauth[7].serial);
    assert(ad.wr_ft_iapp_requests.token_seeded&&ad.wr_ft_iapp_requests.ledger.next_serial==1);
    assert(wr_iot_peer_close_finish(&ad)&&ad.wr_iot_peer_table_owner.closed);
   }

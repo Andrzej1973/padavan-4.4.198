@@ -1,3 +1,26 @@
+## Optional1444 FT compile corrections — 2026-11-21
+
+Optional1444/run44906887469 verified exact052c7eb0 but failed temporary FT
+compilation. Diagnostic14708398582 and original job136854335753 confirm Linux
+current-macro collisions, duplicate validation context parameter and declarations
+after guard statements. Monitor44908308970 correctly reports the run/step and
+compiler failures; no parser change was needed.
+
+Prepared FT registry/member references now use request_by_wcid, local handles
+observed_request/observed_identity. All helper/fixture references were updated.
+The redundant signature extension was removed; the original exact-count
+transform remains. New validation declarations precede guard statements.
+The full host checker passes with Linux-style current macro enabled; negative
+controls show original duplicate parameters and declaration ordering, corrected
+signatures contain one context each. Header closure regression remains active.
+Receipt: docs/evidence/WR1200JS-OPTIONAL1444-FT-COMPILE-CORRECTION-2026-11-21.json.
+
+These are prepared source/host corrections, not installed module/image/device
+acceptance. Target verification must cover the next published exact SHA.
+Keep the standard1443 result and these fixes in one outgoing push. No router
+changes or full local build. CI ZIP/log data were read in memory and temporary
+host build/fixture directories automatically removed.
+
 ## Standard1443 / ABI962 success; optional1444 active — 2026-11-21
 
 Standard1443/run44905596073 and ABI962/run44905573916 succeeded for exact

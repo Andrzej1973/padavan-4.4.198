@@ -52,7 +52,7 @@ static inline int wr_ft_iapp_detached_enter_locked(RTMP_ADAPTER *ad,
      __builtin_memcmp(request->mac,mac,6)||__builtin_memcmp(request->bssid,bssid,6))continue;
   w=request->wcid;
   if(w>=WR_FT_IAPP_TOKEN_CAPACITY||!state->detached[w]||
-     state->current[w].serial!=request->serial||state->current[w].slot!=i||
+     state->request_by_wcid[w].serial!=request->serial||state->request_by_wcid[w].slot!=i||
      !wr_ft_iapp_detached_identity_locked(ad,request,state->detached_sst[w])||
      ad->wr_assoc_event_users[w])return 0;
   if(!wr_iot_peer_table_transaction_enter(&ad->wr_iot_peer_table_owner))return 0;
@@ -84,8 +84,8 @@ static inline int wr_ft_iapp_detached_finish_locked(RTMP_ADAPTER *ad,
     !wr_iot_peer_close_executor_idle(&ad->wr_iot_peer_close_executor)||
     ad->wr_assoc_event_users[w]!=1||
     !state->detached[w]||state->detached_sst[w]!=scope->sst||
-    state->current[w].slot!=scope->response.slot||
-    state->current[w].serial!=scope->response.serial)goto uncertain;
+    state->request_by_wcid[w].slot!=scope->response.slot||
+    state->request_by_wcid[w].serial!=scope->response.serial)goto uncertain;
  request=&state->ledger.entry[scope->response.slot];
  if(request->state!=WR_FT_IAPP_TOKEN_CLAIMED||request->invalidated||
     request->serial!=scope->response.serial||request->wcid!=w||
@@ -93,7 +93,7 @@ static inline int wr_ft_iapp_detached_finish_locked(RTMP_ADAPTER *ad,
     !wr_ft_iapp_detached_identity_locked(ad,request,scope->sst))goto uncertain;
  for(i=0;i<MAC_ADDR_LEN;i++)if(request->mac[i]!=scope->stamp.addr[i])goto uncertain;
  if(!wr_ft_iapp_token_finish_locked(&state->ledger,&scope->response))goto uncertain;
- wr_ft_iapp_token_clear(&state->current[w]);
+ wr_ft_iapp_token_clear(&state->request_by_wcid[w]);
  state->detached[w]=state->detached_sst[w]=0;
  ad->wr_assoc_event_users[w]=0;
  scope->active=0;scope->adapter=NULL;scope->state=NULL;
