@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-21",
+  "base_revision": "ea2867d76a5044c737ce6e7c08059e35e3b87300",
+  "scope": "Coherent local cold/ON/restart profile history, frozen OFF and next ON integration package",
+  "implementation": [
+    "Common nonsecret file receipt bound to freshly observed backend kind/request ID/time/epoch/generation.",
+    "Cold enabled/disabled and historical ON retirement producers; disabled ON adopts inert new idle with exact old RELEASE.",
+    "Pre-quiesce history survives old request wipe and exact physical session terminal take; prepared OFF reload0 refuses absent/drifted proof without legacy fallback.",
+    "Next ON uses exact runtime receipt: same A reload0 does not generate; B over A refuses pre-UP, then distinct fresh reload1 applies B once; C does not retarget B.",
+    "Restart prepare validates file/backend/INITIAL parent or fresh disabled idle. Separate successful fence callback commits only after unmask; cancel discards candidate. Terminal cleanup wipes config revision/provisioning.",
+    "Prepared source composition/report and required strong target symbols updated;14 actual host lifecycle objects compiled per prepared0/1 staging check."
+  ],
+  "source_sha256": {
+    "tools/iot/check-config-runtime-staging.py": "53c61d7f780778b7f6162ff262535a992db1b601dc1d8c6bff02e54c5d311383",
+    "tools/iot/check-radio-off-composition.py": "4af89f4384c9f8c16feecc34829940a0ab1fd9150fa3d7aceb9fc86e3e788ae1",
+    "tools/iot/check-radio-off-profile.py": "9d217ba61a33a48ebb2110054434bcf838ac3c87891e797eb7a9fb80b66fa19f",
+    "tools/iot/check-radio-on-owner-desired.py": "1f60166e5c03bdc3cf68045da9a66be340a56ea5d5be8b484bb8c6cfc2a10ab2",
+    "tools/iot/check-radio-on-owner.py": "6faa75cd8d74abd01115ba55ca3d25384658644015b6bb12f65228230ca3a32b",
+    "tools/iot/check-rc-cold-disabled-followup.py": "6760211c541dff19bbd39241938587071ea955c9c4c7bedc7090b100317f6ccd",
+    "tools/iot/check-rc-quiesce.py": "1ec5a6985d7e6e66c5378813f2ecb002bda99cfae4b8706fa24e29c0de0bdaf3",
+    "tools/iot/check-rc-radio-off-composition.py": "a85d7b00893117e20508877f3b93fb4f924a50595242f4d7afd23501b1f6c626",
+    "tools/iot/check-rc-resume-finish.py": "005f145ba5c943f3f27d9d29bf0ec8c4c18d8a82b8e3f915620af077c964468d",
+    "tools/iot/check-runtime-source.py": "5928de0adc230220fa00563619ed0d424d88641f653dd8b1caef6ab4419fbb37",
+    "tools/iot/compile-runtime-link.sh": "e1997723618b97a6f20e2c00f21d3ea3ed3e11c062f1db55422fe4f6b347b053",
+    "tools/iot/prepare-runtime.py": "87dfd9d7dc96bd6709c58623df053cd97e843b1e7964d32e219e683dd049d393",
+    "tools/iot/radio-off-owner.c": "6d3ec061999d2e324aeabf9b0433b7b8d0c4599dc8cc07817bb362800bf08cee",
+    "tools/iot/radio-off-owner.h": "2db340d20198349ee0dc7a3daf68dea3973b8a4cf171cb5138fb345db75f9aab",
+    "tools/iot/radio-off-profile-check.c": "03d39b48f1cb31387eab90189347edddf0a8f12e4839718c538dbab3ab9367de",
+    "tools/iot/radio-off-profile.c": "ffed46886791d204aaf934c22fcfd0b3bfd9c3a6a23e3de472b588f1e990f8b4",
+    "tools/iot/radio-off-profile.h": "c3a454611c4b95ed3367e55312cfe1e190acb645cfa8b88158792192128f672b",
+    "tools/iot/radio-on-disabled.c": "56e38e508b0c4b9c5fe83b66c16cc5bd69bc1f1dead4a01eadc72557707cf6a9",
+    "tools/iot/radio-on-owner.c": "a7514d28ae35a4bddc64c09f16f727a2e22ed0f61d8bcbfbb3b372633c7c0445",
+    "tools/iot/radio-on-release-runtime.h": "1ac96ec77512ee792f64f49d992f118ae07c88f6b2af2cd61f66c464d66879dc",
+    "tools/iot/radio-on-restore.h": "abfad4c88d9bdf7043945a829131eaa63a0dcc7241a2b23e058cee8118453f1a",
+    "tools/iot/rc-backend.c": "b11a606ee4e0ae25e944d21e35d3ada55774ac59e82f1b9a7b6ed8494d74a601",
+    "tools/iot/rc-backend.h": "3a70752f388f11745503c9a75d3c3be04c961d9652f38c47aae7df9c133ec0f6",
+    "tools/iot/rc-cold-disabled-terminal.inc": "964a2fba509c7a0033af409494b18bc55e8b0f45afb6fddd03c585438f216f82",
+    "tools/iot/rc-cold-terminal.inc": "10683d3ae04a536c2cb78be28f79a1e77e8b64dcff7041669717d8ddbc1d0c1a",
+    "tools/iot/rc-physical-stop.c": "9d1ca9df47bfa9cecc8af2d73eadbbf252af4a488d3314cf85ad4071598f9492",
+    "tools/iot/rc-physical-stop.h": "15b9ed7e05885becf33c8a972113623211be8036479d725ee6be1afe6ed496e6",
+    "tools/iot/rc-quiesce.h": "2c3bc38624bb23ca91b309ef84b3d71cffc67ba16889ce35f512d8c8a00af967",
+    "tools/iot/profile-history.h": "50b7b5bbbd175669c1af870e3c48c479b4fa1557dbc01ddd8b20599261d30262",
+    "tools/iot/rc-profile-history.inc": "c6e760c2e3d760b93924dc6999e9f22bf1e2429cd593f57ab7a7eb4baac22949",
+    "tools/iot/rc-on-disabled-retire.inc": "87a8938a39153f7b8bf442c9d87f72643306c291f8296e3953232949e2d6d951",
+    "tools/iot/restart-profile-history.h": "46925c39cfaa656fa50cc72706e5475999bab5ea8774047a6d300e9b354317c0",
+    "tools/iot/rc-restart-profile-history.inc": "d63a9011cfa4d6c0fa662d11ea254ebd96ccc78fc324747001cd474991c084bc"
+  },
+  "final_batch": {
+    "helpers": [
+      "check-rc-resume-finish.py",
+      "check-physical-parent-backend-composed.py",
+      "check-rc-resume-cancel.py",
+      "check-rc-premain-cancel.py",
+      "check-restart-resume-retire.py",
+      "check-radio-off-composition.py",
+      "check-rc-quiesce.py",
+      "check-rc-cold-disabled-followup.py",
+      "check-config-runtime-staging.py",
+      "check-radio-on-owner-desired.py"
+    ],
+    "exit_status": 0,
+    "elapsed_seconds": 162.42,
+    "peak_kib": 158816,
+    "compiler_lanes": 1,
+    "individual_seconds": [
+      4.9,
+      27.65,
+      2.25,
+      2.1,
+      0.6,
+      5.39,
+      26.27,
+      14.92,
+      14.84,
+      63.51
+    ],
+    "sanitizers": "ASan/UBSan behavior helpers; strict host gcc object/syntax staging uses no sanitizer runtime.",
+    "native_modes": [
+      "absent",
+      "configured",
+      "disabled-configured",
+      "disabled-foreign",
+      "disabled-backend-handoff",
+      "disabled-rebind-handoff",
+      "reload0-next-reload1",
+      "reload0-same-profile"
+    ],
+    "restart_cases": [
+      "preflight refusal retains root",
+      "failed unmask retains inert candidate and live resources",
+      "success commits once before root cleanup",
+      "queued TERM requires cancel, commits zero times",
+      "cancel failed unmask retains root then clears candidate before signal replay",
+      "CLOSE, enabled INITIAL and disabled INITIAL backend preflight/commit exercised with injected finish/driver observations",
+      "canonical revision/provisioning zero after finish and cancel"
+    ]
+  },
+  "additional_checks": [
+    "git diff --check exit0",
+    "bash -n tools/iot/compile-runtime-link.sh exit0",
+    "Python AST parse of five modified preparer/helper files exit0",
+    "Four intermediate evidence JSON documents parse"
+  ],
+  "intermediate_local_failures": [
+    "Finish helper initially had an escaped-newline Python syntax error; corrected.",
+    "Prepared finish fixture needed explicit unused guard-dup actor for new physical export; corrected.",
+    "Earlier RC fixture missed new physical API and next-ON fixture missed admission flag; all corrected and rerun locally before publication."
+  ],
+  "limits": [
+    "Host compositions inject driver/network/SDK/transport/finish observations as documented in each helper. These are not physical acceptance.",
+    "Prepared enabled cold retirement exact function uses synthetic terminal bookkeeping; complete default cold and native disabled cold are covered separately.",
+    "Source/history stage is integrated locally; target full link, installed production entries, desired/loaded PMK/RF/DMA/IRQ assurance, final images and physical acceptance remain open.",
+    "INITIAL typed physical origin stays separate from ordinary CLOSE receipt.",
+    "Restart commit is an infallible private cleanup primitive, valid only after successful preflight and fence callback."
+  ],
+  "ci_base": {
+    "revision": "ea2867d76a5044c737ce6e7c08059e35e3b87300",
+    "standard1462": "success",
+    "ABI973": "success",
+    "optional1465": {
+      "id": 44931890550,
+      "last_observed": "in_progress"
+    },
+    "optional1464": {
+      "id": 44930917715,
+      "revision": "bcb207719b4985feaea63dcf92600fd7703d9244",
+      "conclusion": "success"
+    },
+    "qualification": "Published base results do not verify this new package; inspect its exact SHA runs after the one push."
+  },
+  "publication_plan": "One coherent commit/push after local verification; intermediate evidence publication=false fields describe their creation phase.",
+  "scratch": {
+    "persistent_outputs_retained": false,
+    "manual_deletion": false,
+    "note": "TemporaryDirectory removed behavior/staging/object trees; no archives or top-level core retained. Historical/private untracked data untouched."
+  }
+}

@@ -1,0 +1,114 @@
+{
+  "date": "2026-11-21",
+  "base_revision": "ea2867d76a5044c737ce6e7c08059e35e3b87300",
+  "scope": "Unpublished historical disabled ON backend retirement within larger integrated lifecycle package",
+  "changes": [
+    "Retain exact physical profile_origin across release and credential cleanup; retries compare all encoded RELEASE fields.",
+    "Require final disabled root request ID/time/nonce and current profile/idle identity.",
+    "RC-private completed OFF/rebind OFF preflight refuses live snapshots, guards, file buffers and startup recovery owners.",
+    "After fresh DONE/profile/idle observations transfer inert INITIAL_OFF plus nonsecret file receipt, wipe completed old backend/rebind contexts; no borrowed root pointer retained.",
+    "Idempotent same-idle transfer; preserve routed TERM/QUIT so completed root can retire and release exclusion to normal shutdown. Missing route/invalid signal/replay refuses.",
+    "Append private implementation to prepared RC backend; require strong exported symbol in target link; compile prepared0/1 backend/root/runtime locally."
+  ],
+  "sha256": {
+    "tools/iot/rc-on-disabled-retire.inc": "14548de02e30b1e41f89d068f0066836d8fa01923af1e6d9e8cb4f822ca0ece0",
+    "tools/iot/rc-backend.h": "3a70752f388f11745503c9a75d3c3be04c961d9652f38c47aae7df9c133ec0f6",
+    "tools/iot/radio-on-owner.c": "d5efd170a07fc90a86ac00c81f57ade790e6d29602e174b14e9e8cf1b12097ae",
+    "tools/iot/radio-on-restore.h": "abfad4c88d9bdf7043945a829131eaa63a0dcc7241a2b23e058cee8118453f1a",
+    "tools/iot/radio-on-release-runtime.h": "1ac96ec77512ee792f64f49d992f118ae07c88f6b2af2cd61f66c464d66879dc",
+    "tools/iot/prepare-runtime.py": "2fa6730c671e6bb99bfa8ce8b166cbc19cfc7e37b9c3509de97d5cb9fc1054de",
+    "tools/iot/check-runtime-source.py": "46334a8fea62b6936fda400a95ec45e965d24aed1b7e7eeb65da466b1da0329a",
+    "tools/iot/compile-runtime-link.sh": "2210167843b942196a86b9b5ccdbcbfeafe1751600094505a9be4caf0e37f706",
+    "tools/iot/check-config-runtime-staging.py": "833f24aaf0f8f58b84e2aa0362d5348850f8ea675829be68bcecce55d3027b08",
+    "tools/iot/check-radio-on-owner.py": "ddc00e249eab71b606b1f41ff61227b710b6781b7cb1db8f08e943a8708c7159",
+    "tools/iot/check-radio-on-owner-desired.py": "00947f860cbc498cdb117db99cbf0d286eb57b896a57e22e8ec0b37db6f19efc"
+  },
+  "verification": {
+    "compiler_lanes": 1,
+    "native_six_modes": {
+      "command": "python3 tools/iot/check-radio-on-owner-desired.py",
+      "exit_status": 0,
+      "elapsed_seconds": 52.96,
+      "peak_kib": 146856,
+      "qualification": "Before final startup-resource/queued-route refinement; final handoff cases rerun below. Existing four modes unaffected by that private refinement."
+    },
+    "related_batch": {
+      "helpers": [
+        "check-config-runtime-staging.py",
+        "check-radio-on-owner.py",
+        "check-radio-on-disabled-owner.py",
+        "check-radio-on-entry-root.py",
+        "check-radio-on-disabled-postup-cancel.py",
+        "check-radio-on-cancel.py",
+        "check-radio-on-failure-recover.py",
+        "check-radio-on-release.py",
+        "check-radio-on-disabled-release.py",
+        "check-radio-on-followup.py",
+        "check-radio-on-disabled-followup.py",
+        "check-rc-runtime.py"
+      ],
+      "exit_status": 0,
+      "elapsed_seconds": 95.62,
+      "peak_kib": 126120,
+      "scope": "Behavior helpers use ASan/UBSan; staged compilation uses strict gcc syntax and selected actual objects, not sanitizers."
+    },
+    "final_refinement_batch": {
+      "commands": [
+        "python3 tools/iot/check-radio-on-owner-desired.py --handoff-only",
+        "python3 tools/iot/check-config-runtime-staging.py"
+      ],
+      "exit_status": 0,
+      "elapsed_seconds": 21.25,
+      "peak_kib": 147512,
+      "handoff_seconds": 15.18,
+      "staging_seconds": 6.07,
+      "cases": [
+        "actual native generation/release/WAN/IAPP/root for injected old OFF and rebind OFF origins",
+        "full nonce/attempt and old close serial refusal",
+        "missing normal route/invalid queued signal refusal",
+        "wrong request ID/time/epoch/generation or file refusal",
+        "live snapshot/startup stop/close/rollback owner refusal",
+        "same handoff repeated before actual root retirement",
+        "queued SIGTERM survives transfer and exclusion release",
+        "actual wr_iot_rc_boot_idle eligibility after root wipe",
+        "prepared0/1 generated RC backend, ON root and runtime compilation"
+      ]
+    },
+    "intermediate_failure": "One interim native test run used the older mock idle without ID/time after root validation was tightened. Updated the explicit actor; final runs pass. A required-symbol edit anchor was corrected locally before verification."
+  },
+  "limits": [
+    "Old completed backend setup, driver idle and SDK actors are injected; actual private handoff and root code execute.",
+    "Boot-idle eligibility is not a completed next cold generation, physical reopen or runtime acceptance.",
+    "Cold enabled/disabled and restart-origin file retention, pre-quiesce capture and OFF reload0 consumers remain unfinished.",
+    "Public entry installation and production/image/device acceptance remain false/unverified."
+  ],
+  "ci": {
+    "standard1462": {
+      "id": 44930055224,
+      "revision": "ea2867d76a5044c737ce6e7c08059e35e3b87300",
+      "conclusion": "success"
+    },
+    "optional1465": {
+      "id": 44931890550,
+      "verification_revision": "ea2867d76a5044c737ce6e7c08059e35e3b87300",
+      "dispatch_head": "ea2867d76a5044c737ce6e7c08059e35e3b87300",
+      "scope": "iot",
+      "variant": "peer82",
+      "host": "ubuntu-24.04",
+      "toolchain": "source",
+      "observed_status": "pending",
+      "duplicate_checked": true
+    },
+    "qualification": "These runs cover the published base, not these local modifications; no artifact verification claimed."
+  },
+  "publication": {
+    "committed": false,
+    "pushed": false,
+    "reason": "Finish complete related lifecycle stage before one push."
+  },
+  "scratch": {
+    "retained": false,
+    "manual_deletion": false,
+    "note": "TemporaryDirectory removed helper/staging outputs. No archive retained; no top-level core file found. Historical scratch untouched."
+  }
+}

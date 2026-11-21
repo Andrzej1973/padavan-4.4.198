@@ -1,0 +1,164 @@
+{
+  "date": "2026-11-21",
+  "base_revision": "ea2867d76a5044c737ce6e7c08059e35e3b87300",
+  "scope": "Unpublished pre-quiesce frozen profile -> ordinary physical RELEASE -> OFF reload0 file continuity -> next ON candidate",
+  "sha256": {
+    "tools/iot/rc-quiesce.h": "2c3bc38624bb23ca91b309ef84b3d71cffc67ba16889ce35f512d8c8a00af967",
+    "tools/iot/rc-backend.c": "b11a606ee4e0ae25e944d21e35d3ada55774ac59e82f1b9a7b6ed8494d74a601",
+    "tools/iot/rc-physical-stop.h": "15b9ed7e05885becf33c8a972113623211be8036479d725ee6be1afe6ed496e6",
+    "tools/iot/rc-physical-stop.c": "88ae54680d7392cf18a80e2db790625b7c3d2c4a6b46ebcbd9b5c90b3cdfe005",
+    "tools/iot/radio-off-owner.h": "2db340d20198349ee0dc7a3daf68dea3973b8a4cf171cb5138fb345db75f9aab",
+    "tools/iot/radio-off-owner.c": "6d3ec061999d2e324aeabf9b0433b7b8d0c4599dc8cc07817bb362800bf08cee",
+    "tools/iot/radio-off-profile.h": "c3a454611c4b95ed3367e55312cfe1e190acb645cfa8b88158792192128f672b",
+    "tools/iot/radio-off-profile.c": "ffed46886791d204aaf934c22fcfd0b3bfd9c3a6a23e3de472b588f1e990f8b4",
+    "tools/iot/radio-off-profile-check.c": "03d39b48f1cb31387eab90189347edddf0a8f12e4839718c538dbab3ab9367de",
+    "tools/iot/check-rc-quiesce.py": "1ec5a6985d7e6e66c5378813f2ecb002bda99cfae4b8706fa24e29c0de0bdaf3",
+    "tools/iot/check-radio-off-composition.py": "4af89f4384c9f8c16feecc34829940a0ab1fd9150fa3d7aceb9fc86e3e788ae1",
+    "tools/iot/check-radio-off-profile.py": "cc1b51ee5cc1b10e82e8ec5e9744aa1d1f54eac55159de93a1122c7452a6c836",
+    "tools/iot/check-rc-radio-off-composition.py": "a85d7b00893117e20508877f3b93fb4f924a50595242f4d7afd23501b1f6c626",
+    "tools/iot/check-radio-on-owner-desired.py": "99af08fc0fa6e2c39c5773ecd743db5ae4347f4673e8c55e588cf04651d255bf",
+    "tools/iot/check-config-runtime-staging.py": "53c61d7f780778b7f6162ff262535a992db1b601dc1d8c6bff02e54c5d311383",
+    "tools/iot/compile-runtime-link.sh": "acc0ba84979016232e469343c1a19a3463a70a7f1ec03583adb846f5572bff50",
+    "tools/iot/prepare-runtime.py": "585948e20d5636a1a30c4e786493239fe686c746f2562401a5217b5f2dd75d3d",
+    "tools/iot/check-runtime-source.py": "b60b82d38e3d504ca913e8b40291b7e5848d4eb028dae408f9cfb3d4d40ac22e"
+  },
+  "implementation": [
+    "Prepared ordinary ACTIVE/rebind quiesce copies nonsecret history under the retained guard before OFF clears the loaded request. Missing history never blocks safe physical OFF or routed shutdown.",
+    "Exact OFF-envelope/completed private physical session exports frozen history only for matching encoded RELEASE including nonce/attempt, old epoch/generation and current file. OFF owner copies before terminal take clears physical storage.",
+    "Prepared reload0 requires the frozen receipt before and after baseline capture; current owned file observation uses it rather than legacy desired keys. Missing/changed proof refuses. Reload1 and unprepared legacy behavior preserved.",
+    "Actual runtime next-ON receipt observer and native config generation exercised: reload0 A succeeds unchanged; desired B over A refuses pre-UP and keeps original receipt; fresh request reload1 generates B once; later C does not retarget B."
+  ],
+  "verification": {
+    "compiler_lanes": 1,
+    "preliminary_transport_batch": {
+      "helpers": [
+        "check-rc-quiesce.py",
+        "check-radio-off-composition.py",
+        "check-config-runtime-staging.py"
+      ],
+      "exit_status": 0,
+      "elapsed_seconds": 31.07,
+      "peak_kib": 81168
+    },
+    "related_checks": {
+      "passed": [
+        {
+          "helper": "check-config-runtime-staging.py",
+          "seconds": 10.43
+        },
+        {
+          "helper": "check-radio-off-owner.py",
+          "seconds": 1.08
+        },
+        {
+          "helper": "check-radio-off-profile.py",
+          "seconds": 9.44
+        },
+        {
+          "helper": "check-radio-off-followup.py",
+          "seconds": 4.66
+        },
+        {
+          "helper": "check-radio-off-composition.py",
+          "seconds": 7.28
+        },
+        {
+          "helper": "check-rc-physical-stop.py",
+          "seconds": 5.01
+        },
+        {
+          "helper": "check-rc-quiesce.py",
+          "seconds": 29.72
+        }
+      ],
+      "qualification": "Initial broad batch then stopped at prepared RC fixture link failure; final two helpers rerun after adding its explicit physical-boundary mock."
+    },
+    "final_rc_native_batch": {
+      "helpers": [
+        "check-rc-radio-off-composition.py",
+        "check-radio-on-owner-desired.py"
+      ],
+      "exit_status": 0,
+      "elapsed_seconds": 82.64,
+      "peak_kib": 153744,
+      "helper_seconds": [
+        16.96,
+        65.68
+      ],
+      "qualification": "Seven native owner modes before final fresh-ID/same-profile refinement below."
+    },
+    "final_reload_cases": {
+      "command": "python3 tools/iot/check-radio-on-owner-desired.py --reload-sequence-only",
+      "exit_status": 0,
+      "elapsed_seconds": 20.81,
+      "peak_kib": 141984,
+      "modes": [
+        "reload0-next-reload1",
+        "reload0-same-profile"
+      ],
+      "cases": [
+        "wrong runtime OFF nonce refuses",
+        "B over A reload0 refuses before generator/Main UP, original receipt survives root cleanup",
+        "reload1 uses distinct fresh request ID/time, B generator/Main/WAN/IAPP once",
+        "later C saved after release does not retarget B",
+        "matching A reload0 completes owner with no generator and unchanged inode/mtime/ctime including nsec",
+        "consumed OFF receipt cannot admit another ON"
+      ]
+    },
+    "final_object_compile": {
+      "command": "python3 tools/iot/check-config-runtime-staging.py",
+      "exit_status": 0,
+      "elapsed_seconds": 15.58,
+      "peak_kib": 58340,
+      "objects_per_mode": [
+        "rc-backend",
+        "rc-physical-stop",
+        "radio-off-owner",
+        "radio-off-profile",
+        "radio-off-profile-check",
+        "radio-on-owner",
+        "rc-runtime"
+      ],
+      "modes": [
+        0,
+        1
+      ],
+      "qualification": "14 actual host lifecycle objects, selected native flash objects and other strict syntax checks. Not MIPS or firmware/image verification."
+    },
+    "sanitizers": "Behavior helpers use ASan/UBSan; staged native object/syntax compilation uses strict gcc -O2."
+  },
+  "intermediate_failures": [
+    "Prepared isolated RC dispatcher fixture lacked new physical history API. Added an explicit absent-history boundary for its reload1 case; actual transfer covered separately by physical composition.",
+    "New reload-sequence fixture initially left rebind admission actor disabled; initialized the existing actor and verified both paths. These were local fixture issues, no intermediate push."
+  ],
+  "limits": [
+    "Ordinary CLOSE origin only; never-opened INITIAL physical transport remains distinct.",
+    "Backend/driver/session transport/SDK actors are injected at documented boundaries. Actual quiesce, userland physical session/fence/owner and file consumer code execute in their respective compositions.",
+    "Next-ON helper injects completed OFF transport and uses the exact runtime file-receipt observer. These tests are not one fully installed hardware lifecycle.",
+    "Restart successful-finish-only publication remains unfinished. A restart lacking matching history yields absent proof, not a legacy fallback.",
+    "Prepared public entries, target/image/device acceptance remain false/unverified."
+  ],
+  "ci": {
+    "optional1464": {
+      "id": 44930917715,
+      "verification_revision": "bcb207719b4985feaea63dcf92600fd7703d9244",
+      "conclusion": "success"
+    },
+    "optional1465": {
+      "id": 44931890550,
+      "verification_revision": "ea2867d76a5044c737ce6e7c08059e35e3b87300",
+      "observed_status": "in_progress"
+    },
+    "qualification": "Old published sources only, not these local changes; no new dispatch or artifact audit."
+  },
+  "publication": {
+    "committed": false,
+    "pushed": false,
+    "reason": "Keep the coherent lifecycle stage local until restart completion and related recovery integration are verified."
+  },
+  "scratch": {
+    "persistent_output_retained": false,
+    "manual_deletion": false,
+    "note": "TemporaryDirectory removed behavior/staging/object outputs; no archives or top-level core found. Existing historical scratch preserved."
+  }
+}

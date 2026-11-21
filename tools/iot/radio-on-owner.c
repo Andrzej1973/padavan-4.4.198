@@ -6,6 +6,8 @@
 #include "radio-on-followup.h"
 #include "rc-shutdown-admission.h"
 #include "rc-runtime.h"
+#include "rc-backend.h"
+#include "profile-history.h"
 #include "radio-on-rollback-state.h"
 #include "radio-off-observe.h"
 #include "radio-on-shutdown.h"
@@ -228,12 +230,28 @@ int wr_iot_radio_on_retire(void)
     r->terminal.owner!=getpid()||!r->terminal.attempted||r->terminal.fence.owner||r->terminal.fence.level||r->terminal.result!=1||
     !wr_iot_iapp_child_closed(&r->child)||r->child.result!=1)return 0;
  if((on_owner.iot_enabled?r->handoff_created!=on_owner.input.created:
-    (r->handoff_created||on_owner.disabled.owner!=getpid()||on_owner.disabled.restore!=r||on_owner.disabled.busy))||
+    (r->handoff_created||on_owner.disabled.owner!=getpid()||on_owner.disabled.restore!=r||on_owner.disabled.busy||
+     on_owner.disabled.idle.created!=on_owner.input.created||
+     !memchr(on_owner.disabled.idle.id,0,sizeof(on_owner.disabled.idle.id))||
+     strcmp(on_owner.disabled.idle.id,on_owner.input.id)||memcmp(on_owner.disabled.idle.nonce,on_owner.nonce,16)))||
     memcmp(r->open_id,on_owner.nonce,16)||wr_iot_rc_radio_off_receipt(&receipt))return 0;
  for(i=0;i<sizeof(on_owner.input.request);i++)if(((unsigned char*)&on_owner.input.request)[i])return 0;
  for(i=0;i<sizeof(r->generation.desired);i++)if(((unsigned char*)&r->generation.desired)[i])return 0;
  for(i=0;i<WR_IOT_BUNDLE_MAX;i++)if(a->profile.files.saved[i].data)return 0;
  on_owner.busy=1;
  if(!(on_owner.iot_enabled?wr_iot_on_followup_step(r):wr_iot_on_disabled_followup(&on_owner.disabled))){on_owner.busy=0;return 0;}
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ if(on_owner.iot_enabled){
+  struct wr_iot_profile_binding binding={.kind=WR_PROFILE_BACKEND_REBIND_ACTIVE};int guard,remembered;
+  memcpy(binding.id,on_owner.input.id,sizeof(binding.id));binding.created=on_owner.input.created;
+  binding.identity=r->main.identity;
+  guard=wr_iot_service_guard_enter(1);if(guard!=1){on_owner.busy=0;return 0;}
+  remembered=wr_iot_on_followup_step(r)&&wr_iot_rc_profile_history_remember(&binding,&r->profile_receipt);
+  wr_iot_service_guard_leave(guard);if(!remembered){on_owner.busy=0;return 0;}
+ }
+#endif
+ if(!on_owner.iot_enabled&&!wr_iot_rc_on_disabled_backend_retire(&on_owner.disabled,&a->released)){
+  on_owner.busy=0;return 0;
+ }
  on_owner_wipe(&on_owner,sizeof(on_owner));wr_iot_rc_shutdown.radio_on_owned=0;return 1;
 }

@@ -1,3 +1,23 @@
+## Restart completion joins the local lifecycle package — 2026-11-21
+
+Prepared restart finish now preflights an inert profile-history candidate against
+its exact file and backend/new idle, then commits only in a separate successful
+fence-cleanup callback. Failed unmask retains the candidate and all live root
+resources for revalidation; cancellation discards it without history publication.
+Shared terminal cleanup wipes canonical config revision/provisioning credentials.
+CLOSE uses actual rebind binding; enabled INITIAL checks its exact retained parent
+and backend before detach; disabled INITIAL adopts a fresh inert idle proof.
+No ACTIVE token is invented for disabled INITIAL. Readback still requires fresh
+existing backend observation plus matching file identity under guard.
+
+The source stage now covers cold/ON/restart producers, ordinary pre-quiesce
+capture, exact physical RELEASE transfer, reload0 consumers and next ON/recovery.
+Earlier sections that call these items unimplemented describe intermediate work.
+Existing host compositions exercise these paths at their stated actor boundaries;
+public production entry installation, exact target/full link, final image and
+physical runtime acceptance remain separate and open. Passing metadata tests
+never substitutes for loaded-key, DMA, IRQ, RF or device evidence.
+
 ## Disabled cold desired profile survives cleanup — 2026-11-21
 
 Disabled cold parent now uses its owned generation observer instead of legacy
@@ -23,6 +43,127 @@ The reload0 lifecycle map is retained as the next implementation guide; this
 package fixes disabled generation/followup, not full OFF reload0 provenance.
 No router changes. Helper trees removed automatically, no archives retained.
 One coherent publication; newer exact-SHA target/image gates remain pending.
+
+## Historical disabled ON followup corrected locally — 2026-11-21
+
+Prepared `radio-on-disabled.c` followup now uses the already captured exact file
+receipt and existing fresh idle identity instead of rereading legacy credentials
+after generation cleanup. Unprepared builds retain the legacy check. The shared
+followup parent still checks file, bridge, Guest, multicast and service policy
+before/after the injected idle observer. No ACTIVE or loaded-key proof is added.
+
+Extended `check-radio-on-owner-desired.py` composes native desired capture with
+actual disabled generation, release, WAN/IAPP and root retirement. It covers
+legacy A versus disabled B, later desired C, failed unmask/idle retry, credential
+wipe, wrong epoch/generation, foreign file and exact successful retirement.
+`--prove-legacy-regression` reinstates only the historical legacy predicate in
+a temporary include and requires the specific failed completion assertion;
+core dumps are disabled. This confirms the old gate rejects the same B/C case.
+
+Local source now adds that inert transfer in `rc-on-disabled-retire.inc`,
+composed into prepared RC backend. Final root checks request ID/time/nonce;
+release retains encoded physical origin after the runtime OFF receipt is
+consumed. The handoff verifies completed old OFF/rebind OFF, absence of all live
+snapshots/guards/file buffers/startup recovery, exact historical RELEASE and
+fresh new idle/file/DONE before replacing backend state. Same completed transfer
+is idempotent. Old private contexts are wiped; only new inert idle and nonsecret
+file receipt survive root retirement. No driver pointer or live owner is copied.
+
+A queued routed TERM/QUIT is preserved through transfer and retirement, releasing
+the root exclusion for its normal consumer. Refusing a valid queued signal here
+would deadlock normal shutdown behind the completed root. Missing route, invalid
+signal, replay or pending active admission refuses. Native composition executes
+both old backend/rebind origins and actual root retirement with injected prior
+origin/SDK actors. Actual boot_idle then admits initial-origin eligibility only.
+Prepared0/1 generated backend/root/runtime compile locally; target link requires
+the new strong symbol. See evidence/WR1200JS-DISABLED-ON-BACKEND-2026-11-21.json.
+
+Cold/restart-origin retention, common receipt consumption before OFF, complete
+reload0/next ON and actual production installation remain unfinished in this
+larger local package. These host checks do not prove those remaining transfers
+or physical runtime acceptance.
+
+## Shared cold/ON profile history implemented locally — 2026-11-21
+
+`rc-profile-history.inc`, composed once in the RC backend, binds nonsecret file
+receipt to actual ACTIVE/rebind ACTIVE/INITIAL_OFF kind, request ID/time and
+adapter epoch/device generation. Read and publication reobserve the existing
+private backend on both sides of exact current file identity under guard.
+Absent/stale/foreign/empty proof refuses; no saved-key fallback or driver pointer
+is retained. File continuity remains separate from driver-loaded credentials.
+
+Prepared cold enabled/disabled terminal retirement publishes before release
+wipe. Historical enabled ON publishes at final retirement; disabled adoption and
+idempotent retry use this same store. Source/report preparation and required
+strong symbols are wired. Native disabled cold B/A/C extends through terminal
+retirement/history; enabled cold tests extract the exact retirement producer
+with synthetic completed bookkeeping and followup actor. Actual history tests
+cover all three backend kinds and refusal on changed identity/file/live proof.
+These distinctions are recorded in WR1200JS-PROFILE-HISTORY evidence. No complete
+prepared enabled cold activation, new target image or physical acceptance is
+inferred. The old separate disabled receipt has been replaced by the shared slot.
+
+Restart still needs successful-finish-only publication without placing success
+in shared cancellation cleanup. The subsequent local OFF section records the
+now implemented pre-quiesce/ordinary RELEASE/reload0 consumers and next-ON host
+checks. Missing proof still retains/refuses. Keep the larger package local until
+restart and its linked recovery contracts are complete.
+
+## Ordinary OFF frozen continuity and next ON checked locally — 2026-11-21
+
+`quiesce_begin` freezes matching nonsecret history before the old ON input can
+be cleared. A missing receipt never blocks safe physical OFF. The completed
+physical owner exports metadata before take only for the exact ordinary OFF
+envelope/encoded RELEASE (including nonce/attempt), matching old epoch/generation
+and current file. OFF owner carries this copy after physical memory is retired.
+Prepared reload0 checks it before/after baseline capture and throughout owned
+followup; it no longer rereads legacy keys. Missing or changed proof refuses.
+Unprepared legacy and reload1 behavior remain. INITIAL typed physical receipts
+are not silently converted into this ordinary CLOSE path.
+
+Existing native helpers now verify actual backend quiesce capture, actual
+physical session/fence/owner transfer, no-proof/drift refusal, profile reload0
+without generation/inode writes, and exact runtime next-ON receipt consumption.
+Next-ON A reload0 finishes with no generator and unchanged inode/timestamps; B
+on historical A reload0 refuses before UP and preserves original OFF receipt;
+a separate fresh reload1 request generates B once. Later C cannot retarget B.
+SDK/transport actors remain explicit. These separate compositions are not a
+fully installed hardware lifecycle. Seven prepared lifecycle units emit actual
+host objects in modes0/1; target/image/device verification remains separate.
+See evidence/WR1200JS-OFF-FROZEN-PROFILE-2026-11-21.json.
+
+Restart finish still needs preflight/infallible successful cleanup publication,
+with no success published by cancellation and with unmask retries retaining the
+same context. Keep this broader related package local until that origin and its
+recovery contracts join the shared history. Public entries remain uninstalled.
+
+## Integrated lifecycle package boundary — owner clarification 2026-11-21
+
+The next publication must implement the linked lifecycle stage, including its
+consumers and recovery. Additional fixture coverage alone is insufficient.
+Intermediate changes remain local until the stage is integrated and checked.
+
+Further source audit establishes these constraints for that implementation:
+
+| Boundary | Confirmed current source | Required implementation |
+| --- | --- | --- |
+| Before normal OFF | `radio-off-owner.c` calls physical begin before its separate reload policy preparation; `rc-physical-stop.c:physical_begin` retains guard/fence then calls quiesce | Capture historical file/backend continuity before quiesce can mutate the loaded owner. Carry it independently of the later reload choice. Do not require new desired credentials to authorize shutdown. |
+| Backend observation | `rc-backend.c:wr_iot_rc_config_backend_capture` requires neither radio exclusion and returns only kind/ID/time | Do not reuse this configuration-only API inside cold/ON completion: their exclusions are intentionally held. A dedicated backend-private publication check must bind actual epoch/generation and existing live/idle proof. |
+| Successful cold retirement | Both cold terminal retire functions observe their exact release immediately before wiping it | Transfer nonsecret file receipt and matching backend identity before destroying release memory. Enabled and disabled paths retain different actual backend proofs. |
+| Successful historical ON | `radio-on-release-runtime.h` captures file receipt before fenced cleanup and clears the previous OFF receipt | Transfer the new profile only on successful release; retained unmask failure must not expose it as completed. Include enabled and disabled release and later root retirement. |
+| Restart finish versus cancel | `rc-physical-stop.c:resume_cleanup` is called by both finish and `resume_cancel_cleanup` | A generic cleanup hook cannot publish success. Prepare/commit the retained identity only on verified finish; cancellation and pending shutdown require their own continuity decision. |
+| OFF without generation | `radio-off-profile.c` captures its baseline only after physical RELEASE; `radio-off-profile-check.c` falls back to legacy keys for reload0 | That late baseline cannot prove what was loaded before OFF. Require the earlier carried receipt plus exact RELEASE identity, then verify the owned baseline against it. |
+| Retry/rollback | Runtime stores an exact physical OFF receipt and refreshes file identity only after exact original-byte restoration | Preserve historical authority across a pre-UP rollback; reject a foreign nonce, epoch, generation or file. Post-UP shutdown must keep current generated bytes rather than restoring the earlier baseline. |
+
+Required composed checks for the whole stage: generated/loaded A with saved B;
+OFF reload0 preserving A; next ON selecting B; later saved C cannot retarget B;
+cold enabled/disabled and restart INITIAL/CLOSE producers; replaced file;
+foreign epoch/generation/nonce; repeated unmask failure; pre-UP restoration;
+post-UP shutdown; absent historical proof and never-opened INITIAL bootstrap.
+Keep actual loaded-key/driver observations independent of file identity.
+
+Audit performed against ea2867d76a5044c737ce6e7c08059e35e3b87300. This section
+records integration requirements, not implementation or runtime acceptance.
 
 ## reload0 origin retention map — source audit 2026-11-21
 

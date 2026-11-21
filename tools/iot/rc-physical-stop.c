@@ -11,6 +11,8 @@
 #include "initial-restart-select.h"
 #include "radio-stop-contract.h"
 #include "rc-backend.h"
+#include "profile-history.h"
+#include "restart-profile-history.h"
 #include "restart-scheduler.h"
 #include "restart-restore.h"
 #include "rc-quiesce.h"
@@ -38,6 +40,9 @@ static struct {
  unsigned char nonce[16];
  struct wr_iot_auth_stop auth;
  int guard,finishing,result;
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ struct wr_iot_restart_profile_history finish_profile;
+#endif
 } physical;
 static int physical_begin(const struct wr_iot_rc_physical_intent *intent,
  const struct wr_iot_control_request *off,int routed)
@@ -308,6 +313,35 @@ int wr_iot_rc_physical_off_read(const char *id,unsigned long long created,
     !physical.quiesce.complete||physical.quiesce.active||physical.quiesce.busy)return 0;
  *out=physical.session.request;out->action=WR_STOP_RELEASE;return 1;
 }
+int wr_iot_rc_physical_off_profile(const char *id,unsigned long long created,
+ const struct wr_iot_physical_stop_request *expected,struct wr_iot_profile_binding *binding,
+ struct wr_iot_restart_profile_receipt *profile)
+{
+ if(!binding||!profile)return 0;
+ memset(binding,0,sizeof(*binding));memset(profile,0,sizeof(*profile));
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ {
+  struct wr_iot_physical_stop_request released={0};unsigned char a[64],b[64];int guard,ok;
+  const struct wr_iot_profile_binding *history=&physical.quiesce.profile_binding;
+  if(!wr_iot_rc_physical_off_read(id,created,&released)||
+     !wr_iot_physical_stop_request_encode(a,sizeof(a),expected)||
+     !wr_iot_physical_stop_request_encode(b,sizeof(b),&released)||memcmp(a,b,sizeof(a))||
+     (history->kind!=WR_PROFILE_BACKEND_ACTIVE&&history->kind!=WR_PROFILE_BACKEND_REBIND_ACTIVE)||
+     !history->created||!memchr(history->id,0,sizeof(history->id))||!wr_iot_control_id(history->id)||
+     history->identity.adapter_epoch!=released.epoch||history->identity.device_generation!=released.generation)return 0;
+  guard=wr_iot_service_guard_enter(1);if(guard!=1)return 0;
+  ok=physical.quiesce.profile_receipt.file.existed==1&&
+   physical.quiesce.profile_receipt.file.metadata.st_size>0&&
+   wr_iot_restart_profile_receipt_current(&physical.quiesce.profile_receipt)&&
+   wr_iot_rc_physical_off_read(id,created,&released)&&
+   wr_iot_physical_stop_request_encode(b,sizeof(b),&released)&&!memcmp(a,b,sizeof(a));
+  if(ok){*binding=*history;*profile=physical.quiesce.profile_receipt;}
+  wr_iot_service_guard_leave(guard);return ok;
+ }
+#else
+ (void)id;(void)created;(void)expected;return 0;
+#endif
+}
 /* Final process-context handoff. Restore the mask while routing is still
  * armed, so failed unmask or a newly delivered signal cannot lose the owner.
  * All fallible validation precedes retirement; no driver work is replayed. */
@@ -421,6 +455,12 @@ static void resume_cleanup(void *context)
  wr_iot_bundle_release(&s->generation.profile.files);
  resume_wipe(&s->generation.profile,sizeof(s->generation.profile));
  resume_wipe(&s->generation.origin.desired,sizeof(s->generation.origin.desired));
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ /* Every generator borrow ended synchronously before finish/cancel preflight.
+  * Retain no canonical credential record after terminal cleanup. */
+ resume_wipe(&s->generation.config_revision,sizeof(s->generation.config_revision));
+ resume_wipe(&s->generation.provisioning,sizeof(s->generation.provisioning));
+#endif
  resume_wipe(&physical.quiesce.desired,sizeof(physical.quiesce.desired));
  resume_wipe(&physical.initial_desired,sizeof(physical.initial_desired));physical.initial_saved=0;
  s->generation.phase=WR_RESTART_GEN_COMMITTED;
@@ -429,6 +469,16 @@ static void resume_cleanup(void *context)
  s->phase=WR_RESTORE_FINISHED;s->busy=0;
  physical.result=1;
  wr_iot_service_guard_leave(1);physical.guard=0;
+}
+/* Separate successful callback: shared cancellation cleanup never publishes
+ * the preflight candidate. Failed unmask leaves it inert in physical owner. */
+static void resume_success_cleanup(void *context)
+{
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ wr_iot_rc_restart_profile_commit(&physical.finish_profile);
+ memset(&physical.finish_profile,0,sizeof(physical.finish_profile));
+#endif
+ resume_cleanup(context);
 }
 int wr_iot_rc_physical_resume_finish(struct wr_iot_restart_restore *s)
 {
@@ -446,8 +496,11 @@ int wr_iot_rc_physical_resume_finish(struct wr_iot_restart_restore *s)
     !wr_iot_restart_restore_finish_check(s))return 0;
  if(s->generation.origin.origin==WR_PHYSICAL_ORIGIN_INITIAL&&
     s->generation.origin.desired.enabled&&!wr_iot_rc_normal_shutdown_arm_ready())return 0;
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ if(!wr_iot_rc_restart_profile_prepare(s,&physical.finish_profile))return 0;
+#endif
  s->busy=1;
- finished=wr_iot_radio_stop_fence_end_cleanup_unless_shutdown(&physical.fence,resume_cleanup,s);
+ finished=wr_iot_radio_stop_fence_end_cleanup_unless_shutdown(&physical.fence,resume_success_cleanup,s);
  if(!finished)s->busy=0;
  return finished;
 }
@@ -455,6 +508,9 @@ int wr_iot_rc_physical_resume_finish(struct wr_iot_restart_restore *s)
 static void resume_cancel_cleanup(void *context)
 {
  struct wr_iot_restart_restore *s=context;
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ memset(&physical.finish_profile,0,sizeof(physical.finish_profile));
+#endif
  resume_cleanup(s);
  s->phase=WR_RESTORE_CANCELLED;physical.result=-1;
 }

@@ -186,6 +186,10 @@ static int quiesce_begin(struct wr_iot_rc_quiesce *s,
     (rebind.owner?rebind.owner:backend.owner)!=getpid()||off->request.enabled!=0||!off->created||
     !memchr(off->id,0,sizeof(off->id))||!wr_iot_control_id(off->id))return 0;
  guard=wr_iot_service_guard_enter(1);if(guard!=1)return 0;
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ memset(&s->profile_binding,0,sizeof(s->profile_binding));
+ memset(&s->profile_receipt,0,sizeof(s->profile_receipt));
+#endif
  if(rebind.owner){
   if(rebind.owner!=getpid()||rebind.busy)goto done;
   if(rebind.phase==WR_REBIND_OWNER_OFF){
@@ -199,6 +203,11 @@ static int quiesce_begin(struct wr_iot_rc_quiesce *s,
   memcpy(observed.id,rebind.start.input.id,sizeof(observed.id));
   observed.created=rebind.start.input.created;observed.state=WR_IOT_RESULT_APPLIED;
   if(!wr_iot_rebind_owner_observed(&rebind,&observed))goto done;
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ /* Missing file history must not prevent safe OFF/shutdown. It remains absent
+  * and the later no-reload consumer refuses without a legacy-key fallback. */
+ if(!shutdown)(void)wr_iot_rc_profile_history_read(&s->profile_binding,&s->profile_receipt);
+#endif
   desired=rebind.start.input.request;
   (void)wr_iot_rebind_owner_execute(&rebind,off);
   if(rebind.phase!=WR_REBIND_OWNER_STOP)goto done;
@@ -220,6 +229,11 @@ static int quiesce_begin(struct wr_iot_rc_quiesce *s,
  /* Snapshot before OFF can clear the runner's original request. This is the
   * desired configuration for later explicit resume, not a startup baseline
   * to restore while the driver/network are still uncertain. */
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ /* Missing file history must not prevent safe OFF/shutdown. It remains absent
+  * and the later no-reload consumer refuses without a legacy-key fallback. */
+ if(!shutdown)(void)wr_iot_rc_profile_history_read(&s->profile_binding,&s->profile_receipt);
+#endif
  desired=backend.start.input.request;
  (void)wr_iot_activation_owner_execute(&backend,off,0,0,0);
  if(backend.phase!=WR_IOT_OWNER_STOP)goto done;

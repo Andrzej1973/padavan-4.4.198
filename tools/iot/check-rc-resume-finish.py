@@ -59,7 +59,52 @@ int main(int argc,char **argv){
  puts("PASS actual physical resume/fence cleanup: failed proof/mask retains baseline and guard, normal finish without signal; queued TERM retains until cancellation proof, failed cancel unmask retains, retry wipes credentials before replay, terminal take once; finish evidence/driver/resource actors injected");
 }
 '''
+prepared=code
+anchor='static int fail_mask;'
+assert prepared.count(anchor)==1
+prepared=prepared.replace(anchor,r'''
+int wr_iot_service_guard_dup(void){assert(0);return -1;}
+static int history_ready=1,history_prepares,history_commits;
+int wr_iot_rc_restart_profile_prepare(struct wr_iot_restart_restore*s,struct wr_iot_restart_profile_history*out){
+ assert(s&&s->owner==getpid()&&!s->busy&&depth==1&&wr_iot_rc_shutdown.active&&s->generation.profile.active);
+ history_prepares++;memset(out,0,sizeof(*out));if(!history_ready)return 0;
+ out->binding.kind=WR_PROFILE_BACKEND_REBIND_ACTIVE;out->binding.created=9;return 1;
+}
+void wr_iot_rc_restart_profile_commit(const struct wr_iot_restart_profile_history*s){
+ assert(depth==1&&wr_iot_rc_shutdown.active&&s==&physical.finish_profile&&s->binding.created==9);
+ history_commits++;
+}
+'''+anchor)
+prepared=prepared.replace(' strcpy(root.generation.origin.desired.password,"secret");',r'''
+ strcpy(root.generation.origin.desired.password,"secret");
+ memset(&root.generation.config_revision,0x33,sizeof(root.generation.config_revision));
+ memset(&root.generation.provisioning,0x44,sizeof(root.generation.provisioning));
+''')
+prepared=prepared.replace(' assert(!root.main.generation&&!root.guest.main&&!root.services.main);',r'''
+ struct wr_iot_generation_config empty={0};struct wr_iot_saved_config clear={0};
+ assert(!memcmp(&root.generation.config_revision,&empty,sizeof(empty))&&
+  !memcmp(&root.generation.provisioning,&clear,sizeof(clear)));
+ assert(!root.main.generation&&!root.guest.main&&!root.services.main);
+''')
+anchor=' proof_ok=1;fail_mask=1;'
+assert prepared.count(anchor)==1
+prepared=prepared.replace(anchor,r'''
+ proof_ok=1;history_ready=0;
+ assert(!wr_iot_rc_physical_resume_finish(&root)&&root.generation.profile.active&&!history_commits&&depth==1);
+ history_ready=1;
+'''+anchor)
+anchor=' fail_mask=0;\n root.iapp='
+assert prepared.count(anchor)==1
+prepared=prepared.replace(anchor,' assert(!history_commits&&history_prepares>=2&&physical.finish_profile.binding.created==9);\n'+anchor)
+anchor=' assert(shutdowns==cancel_mode&&root.phase=='
+assert prepared.count(anchor)==1
+prepared=prepared.replace(anchor,' assert(history_commits==!cancel_mode&&!physical.finish_profile.binding.kind);\n'+anchor)
+
 with tempfile.TemporaryDirectory(prefix='wr-resume-finish-') as d:
- p=Path(d)/'test.c';p.write_text(code);b=Path(d)/'test'
- subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(here),str(p),str(here/'physical-stop-session.c'),'-o',str(b)],check=True)
- for args in [[],["cancel"]]:subprocess.run([str(b)]+args,check=True,timeout=15)
+ p=Path(d)/'test.c';b=Path(d)/'test'
+ for mode,source in [(0,code),(1,prepared)]:
+  p.write_text(source)
+  subprocess.run(['gcc','-DWR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED='+str(mode),'-std=gnu11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(here),str(p),str(here/'physical-stop-session.c'),'-o',str(b)],check=True)
+  for args in [[],["cancel"]]:subprocess.run([str(b)]+args,check=True,timeout=15)
+
+print('PASS prepared restart publication: preflight/unmask failure holds inert candidate; success commits once; pending TERM cancels without commit; credential revisions wiped in both terminal cleanups')

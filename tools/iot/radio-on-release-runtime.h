@@ -35,12 +35,18 @@ static void rc_on_release_cleanup(void *context)
 static int rc_on_release_capture_profile(struct wr_iot_on_restore *s)
 {
  struct wr_iot_restart_profile_receipt r={0};struct wr_iot_radio_profile_state *p=&s->generation.admission->profile;size_t n;
- if(s->profile_receipt.valid)return wr_iot_restart_profile_receipt_current(&s->profile_receipt);
+ unsigned char before[64],after[64];struct wr_iot_physical_stop_request empty={0};
+ const struct wr_iot_physical_stop_request *origin=&s->generation.admission->released;
+ if(origin->action!=WR_STOP_RELEASE||!wr_iot_physical_stop_request_encode(before,sizeof(before),origin))return 0;
+ if(s->profile_receipt.valid)return
+  wr_iot_physical_stop_request_encode(after,sizeof(after),&s->profile_origin)&&
+  !memcmp(before,after,sizeof(before))&&wr_iot_restart_profile_receipt_current(&s->profile_receipt);
+ if(memcmp(&s->profile_origin,&empty,sizeof(empty)))return 0;
  if(!memchr(p->files.paths[0],0,sizeof(p->files.paths[0])))return 0;
  n=strlen(p->files.paths[0]);if(!n||n>=sizeof(r.path))return 0;
  memcpy(r.path,p->files.paths[0],n+1);r.file=p->files.generated[0];r.owner=getpid();r.valid=1;
  if(!wr_iot_restart_profile_receipt_current(&r))return 0;
- s->profile_receipt=r;return 1;
+ s->profile_receipt=r;s->profile_origin=*origin;return 1;
 }
 int wr_iot_rc_radio_on_release(struct wr_iot_on_restore *s)
 {

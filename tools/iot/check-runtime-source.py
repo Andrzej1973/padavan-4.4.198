@@ -16,6 +16,10 @@ assert ralink.count('#include "wr-iot/generation-profile.h"')==1
 assert report['radio_off_progress_bound'] and report['radio_off_profile_ram_progress_bound']
 assert report['radio_on_root_progress_bound'] and not report['radio_on_entry_bound']
 assert report['radio_on_followup_linked']
+assert report['radio_on_disabled_backend_handoff_linked']
+assert report['completed_profile_history_linked']
+assert report['restart_finish_profile_history_linked']
+assert report['radio_off_frozen_profile_history_linked']
 assert report['radio_on_parent_release_linked']
 assert report['radio_on_handoff_linked']
 assert report['radio_on_restore_linked'] and report['radio_on_aux_observer_linked'] and report['radio_on_multicast_linked']
@@ -60,7 +64,7 @@ for root,units in [(rc,['config-server','config-owner','saved-config-store','nat
  units+=['config-view-channel','config-view-endpoint']+(['config-edit-server','config-view-runtime'] if root==rc else ['config-view-client'])
  for u in units:
   expected=(local/(u+'.c')).read_text()
-  if u=='rc-backend':expected+='\n'+(local/'rc-initial-restart-start.inc').read_text()+(local/'rc-initial-restart-detach.inc').read_text()+'\n#include "rc-cold-start.h"\n'+(local/'rc-cold-start.inc').read_text()+''.join((local/name).read_text() for name in ['rc-cold-detach.inc','rc-cold-release.inc','rc-cold-followup.inc','rc-cold-terminal.inc','rc-cold-completion.inc','rc-cold-disabled-release.inc','rc-cold-disabled-followup.inc','rc-cold-disabled-terminal.inc','rc-cold-disabled-completion.inc','rc-cold-prehandoff.inc','rc-cold-shutdown.inc','rc-cold-shutdown-release.inc','rc-cold-final-shutdown.inc','rc-cold-route-handoff.inc'])
+  if u=='rc-backend':expected+='\n'+(local/'rc-initial-restart-start.inc').read_text()+(local/'rc-initial-restart-detach.inc').read_text()+(local/'rc-profile-history.inc').read_text()+'\n#include "rc-cold-start.h"\n'+(local/'rc-cold-start.inc').read_text()+''.join((local/name).read_text() for name in ['rc-cold-detach.inc','rc-cold-release.inc','rc-cold-followup.inc','rc-cold-terminal.inc','rc-cold-completion.inc','rc-cold-disabled-release.inc','rc-cold-disabled-followup.inc','rc-cold-disabled-terminal.inc','rc-cold-disabled-completion.inc','rc-cold-prehandoff.inc','rc-cold-shutdown.inc','rc-cold-shutdown-release.inc','rc-cold-final-shutdown.inc','rc-cold-route-handoff.inc','rc-on-disabled-retire.inc','rc-restart-profile-history.inc'])
   for h in local.glob('*.h'):expected=expected.replace('#include "'+h.name+'"','#include "wr-iot/'+h.name+'"')
   assert (root/('wr-iot-'+u+'.c')).read_text()==expected,u
  for flag,enabled in [('-DBOARD_WR1200JS',True),('-DBOARD_OTHER',False),('',False)]:

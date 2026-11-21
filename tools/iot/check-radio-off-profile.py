@@ -61,6 +61,16 @@ int main(int argc,char**argv){
   make_profile();FILE*f=fopen(profile_path,"a");assert(f&&fputs("# baseline\n",f)>=0&&!fclose(f));
   char before[4096];f=fopen(profile_path,"r");assert(f);size_t n=fread(before,1,sizeof(before),f);assert(!fclose(f));
   struct stat st;assert(!stat(profile_path,&st));
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+  if(!fault){
+   off.profile_binding.kind=WR_PROFILE_BACKEND_ACTIVE;strcpy(off.profile_binding.id,"01000000000000000000000000000000");
+   off.profile_binding.created=1;off.profile_binding.identity=(struct wr_iot_driver_identity){1,2};
+   assert(!wr_iot_off_profile_begin(&s,&off)&&!s.baseline.active); /* Missing proof. */
+   strcpy(off.profile_receipt.path,profile_path);off.profile_receipt.owner=getpid();off.profile_receipt.valid=1;
+   assert(wr_iot_generated_capture(&off.profile_receipt.file,profile_path));
+   off.profile_binding.identity.adapter_epoch++;assert(!wr_iot_off_profile_begin(&s,&off));off.profile_binding.identity.adapter_epoch--;
+  }
+#endif
   assert(wr_iot_off_profile_begin(&s,&off)&&s.baseline.active&&!depth);
   assert(!wr_iot_off_profile_begin(&s,&off));
   /* A copied owner must not enter the generator or touch shared journal data. */
@@ -130,6 +140,26 @@ assert(!unlink(profile_path));
  assert(wr_iot_restart_profile_file_current(&next));
  assert(!strcmp(saved_ssid,"IoT")&&!strcmp(saved_password,"iot-password"));
  assert(!wr_iot_rc_off_profile_current());
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ {struct wr_iot_radio_off_owner off={.owner=getpid(),.result=1,.policy_ready=1,.policy={.reload=0},
+   .released={WR_STOP_RELEASE,1,2,3,4,5,{1}}};
+  struct wr_iot_off_profile s={0};
+  off.profile_binding.kind=WR_PROFILE_BACKEND_REBIND_ACTIVE;strcpy(off.profile_binding.id,"02000000000000000000000000000000");
+  off.profile_binding.created=2;off.profile_binding.identity=(struct wr_iot_driver_identity){1,2};
+  off.profile_receipt.valid=1;off.profile_receipt.owner=getpid();strcpy(off.profile_receipt.path,profile_path);
+  assert(wr_iot_generated_capture(&off.profile_receipt.file,profile_path));
+  int before=generator_calls;assert(wr_iot_off_profile_begin(&s,&off));
+  assert(!wr_iot_off_profile_step(&s)&&wr_iot_off_profile_step(&s)==1&&generator_calls==before);
+  assert(wr_iot_off_profile_current(&s)); /* Historical file, legacy A differs. */
+  s.history_binding.identity.device_generation++;assert(!wr_iot_off_profile_current(&s));s.history_binding.identity.device_generation--;
+  assert(wr_iot_off_profile_current(&s));
+  FILE*f=fopen(profile_path,"a");assert(f&&fputs("# changed after capture\n",f)>=0&&!fclose(f));
+  assert(!wr_iot_off_profile_current(&s));wr_iot_bundle_release(&s.baseline.files);
+  /* Fixture restores original text only for the independent scanner check. */
+  FILE *in=tmpfile(),*out=fopen(profile_path,"w");assert(in&&out&&fputs(baseline,in)>=0);rewind(in);
+  assert(wr_iot_precreated_profile(in,out,next.ssid,next.password,0));assert(!fclose(in)&&!fclose(out));
+ }
+#endif
  assert(wr_iot_restart_profile_file_current(&next));
  assert(!unlink(profile_path));
 }
@@ -142,8 +172,8 @@ with tempfile.TemporaryDirectory(prefix='wr-off-profile-') as d:
   subprocess.run([str(b),d],check=True,timeout=15)
 print('PASS OFF profile actual snapshot/journal: copied owner refused, reload0 no generation/inode writes, generate once, retained verified baseline, partial restores bytes, foreign inode retained/no replay; SDK and DOWN actors injected, unbound')
 
-print('PASS source-gap reproduction: new desired file valid; unchanged legacy OFF observer refuses; loaded handoff remains unbound')
+print('PASS legacy scanner separation: historical file differs from saved keys; prepared reload0 uses frozen receipt, loaded-key evidence separate')
 
-print('PASS OFF revision binding prepared0/1: injected capture failure and drift refuse generation; borrow ends before verification; legacy observer gap remains')
+print('PASS OFF revision binding prepared0/1: capture/drift refuse generation; frozen reload0 missing/epoch/file proof refuses; no legacy fallback')
 
 print('PASS owned OFF observer: generated disabled B accepted with unchanged legacy A; later desired C does not retarget B; copy and foreign file refused')

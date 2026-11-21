@@ -1,0 +1,95 @@
+{
+  "date": "2026-11-21",
+  "base_revision": "ea2867d76a5044c737ce6e7c08059e35e3b87300",
+  "scope": "Unpublished common RC profile history and cold/ON completion producers",
+  "sha256": {
+    "tools/iot/profile-history.h": "50b7b5bbbd175669c1af870e3c48c479b4fa1557dbc01ddd8b20599261d30262",
+    "tools/iot/rc-profile-history.inc": "c6e760c2e3d760b93924dc6999e9f22bf1e2429cd593f57ab7a7eb4baac22949",
+    "tools/iot/rc-on-disabled-retire.inc": "87a8938a39153f7b8bf442c9d87f72643306c291f8296e3953232949e2d6d951",
+    "tools/iot/rc-cold-terminal.inc": "10683d3ae04a536c2cb78be28f79a1e77e8b64dcff7041669717d8ddbc1d0c1a",
+    "tools/iot/rc-cold-disabled-terminal.inc": "964a2fba509c7a0033af409494b18bc55e8b0f45afb6fddd03c585438f216f82",
+    "tools/iot/radio-on-owner.c": "a7514d28ae35a4bddc64c09f16f727a2e22ed0f61d8bcbfbb3b372633c7c0445",
+    "tools/iot/check-radio-on-owner.py": "6faa75cd8d74abd01115ba55ca3d25384658644015b6bb12f65228230ca3a32b",
+    "tools/iot/check-radio-on-owner-desired.py": "b7c4665f9178f797cc29c4ad2f8a7792803748dbafbe315b59ff1316c9db0f44",
+    "tools/iot/check-rc-cold-disabled-followup.py": "6760211c541dff19bbd39241938587071ea955c9c4c7bedc7090b100317f6ccd",
+    "tools/iot/prepare-runtime.py": "bd41df248b0d800c3b63d69f82d09089d903e148ae1cf85a2ea42acd4d4687e6",
+    "tools/iot/check-runtime-source.py": "e40397620803d68f609b2f2a4ca2f923d3c3148f131073081e9ef2a2cab88c2c",
+    "tools/iot/compile-runtime-link.sh": "731de5a865d6f2b4e05fcda4a1cd58dd8078502d6faadb4e8df424da87aca13a"
+  },
+  "implementation": [
+    "One RC-private nonsecret file receipt plus backend kind/ID/time/adapter epoch/device generation. No credentials or borrowed owner pointers.",
+    "Publication and read reobserve actual private ACTIVE/rebind ACTIVE/INITIAL_OFF owner on both sides of exact file identity. No absent-file or desired-key fallback.",
+    "Prepared cold enabled/disabled terminal retirement publishes before wiping release; failure retains terminal. Historical enabled ON root publishes before retirement; disabled ON adoption commits the same shared store.",
+    "Disabled handoff idempotence now checks shared history against current backend rather than a separate file slot.",
+    "Prepared runtime composes history once; exact source/report and strong-symbol requirements include both exported APIs. Public production gates remain false."
+  ],
+  "verification": {
+    "compiler_lanes": 1,
+    "cold_related_batch": {
+      "commands": [
+        "python3 tools/iot/check-rc-cold-disabled-followup.py",
+        "python3 tools/iot/check-config-runtime-staging.py",
+        "python3 tools/iot/check-rc-cold-terminal.py",
+        "python3 tools/iot/check-rc-cold-disabled-terminal.py"
+      ],
+      "exit_status": 0,
+      "elapsed_seconds": 45.99,
+      "peak_kib": 137208,
+      "scope": "Actual native disabled cold B/A/C generation through parent release/WAN/IAPP/terminal retirement and shared history, three WAN plans; default terminal regressions and prepared0/1 compilation."
+    },
+    "history_handoff_cases": {
+      "command": "python3 tools/iot/check-radio-on-owner-desired.py --handoff-only",
+      "exit_status": 0,
+      "elapsed_seconds": 18.74,
+      "peak_kib": 153604,
+      "scope": "Actual shared history with initial-OFF, ACTIVE and rebind ACTIVE bindings; exact enabled cold retirement function with synthetic completed bookkeeping and followup actor; mismatch/changed file/live observation refusal."
+    },
+    "final_batch": {
+      "commands": [
+        "python3 tools/iot/check-radio-on-owner-desired.py",
+        "python3 tools/iot/check-config-runtime-staging.py"
+      ],
+      "exit_status": 0,
+      "elapsed_seconds": 53.72,
+      "peak_kib": 153820,
+      "native_elapsed_seconds": 47.77,
+      "staging_elapsed_seconds": 5.95,
+      "scope": "Six native owner modes plus shared history checks and actual generated backend/root/runtime prepared0/1 compilation. Standalone enabled ON history publication is an explicit injected RC boundary; actual history implementation tested separately in handoff variants."
+    },
+    "sanitizers": "Native behavior uses ASan/UBSan; generated syntax/object checks use strict gcc without sanitizer runtime."
+  },
+  "limits": [
+    "Backend observer SDK actors are injected in native ON/history tests; actual source observers remain required in production.",
+    "Enabled cold terminal producer tested via exact extracted retirement function with synthetic completion, plus full default-mode cold terminal regression. No complete prepared enabled cold activation claimed.",
+    "Restart completion publication, pre-quiesce frozen provenance and OFF reload0/next ON consumers remain unimplemented.",
+    "No new target/image/device evidence; history proves file continuity only, not loaded keys, RF, DMA or physical acceptance."
+  ],
+  "ci": {
+    "optional1463": {
+      "id": 44930387959,
+      "verification_revision": "38ccdef75d0104174162b90e05a1d91c61f86580",
+      "conclusion": "success"
+    },
+    "optional1464": {
+      "id": 44930917715,
+      "verification_revision": "bcb207719b4985feaea63dcf92600fd7703d9244",
+      "observed_status": "in_progress"
+    },
+    "optional1465": {
+      "id": 44931890550,
+      "verification_revision": "ea2867d76a5044c737ce6e7c08059e35e3b87300",
+      "observed_status": "pending"
+    },
+    "qualification": "Workflow observations cover old published revisions. No new dispatch, local push or artifact acceptance in this phase."
+  },
+  "publication": {
+    "committed": false,
+    "pushed": false,
+    "reason": "Finish whole related lifecycle stage before one publication."
+  },
+  "scratch": {
+    "persistent_outputs_retained": false,
+    "manual_deletion": false,
+    "note": "TemporaryDirectory removed compiler/staging outputs; no archives. Existing historical scratch untouched."
+  }
+}

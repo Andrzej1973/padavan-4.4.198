@@ -1,3 +1,4 @@
+#include "profile-history.h"
 /* Uncomposed private RC completion owner. Include after cold followup observer.
  * IAPP gate must be the paired source policy, never a request-controlled bit. */
 #include "restart-terminal-iapp.h"
@@ -58,6 +59,15 @@ static int wr_iot_cold_disabled_terminal_retire(struct wr_iot_cold_disabled_term
  parent_release=s->parent_release;r=parent_release->release;
  if(!parent_release->released||parent_release->busy||!r||
     !r->wan.attempted||!r->wan.returned||!wr_iot_cold_disabled_followup_current(r))return 0;
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ {
+  struct wr_iot_profile_binding binding={.kind=WR_PROFILE_BACKEND_INITIAL_OFF};int guard,remembered;
+  memcpy(binding.id,r->id,sizeof(binding.id));binding.created=r->created;binding.identity=r->identity;
+  guard=wr_iot_service_guard_enter(1);if(guard!=1)return 0;
+  remembered=wr_iot_cold_disabled_followup_current(r)&&wr_iot_rc_profile_history_remember(&binding,&r->profile);
+  wr_iot_service_guard_leave(guard);if(!remembered)return 0;
+ }
+#endif
  wr_iot_cold_disabled_wipe(r,sizeof(*r));
  wr_iot_cold_disabled_wipe(parent_release,sizeof(*parent_release));
  wr_iot_cold_disabled_wipe(s,sizeof(*s));

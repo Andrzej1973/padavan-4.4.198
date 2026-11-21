@@ -71,6 +71,18 @@ prepared_code=('#define _GNU_SOURCE\nstatic char rollback_profile_path[128];\n#d
  'static int receipt_guard;\nint wr_iot_service_guard_enter(int on){assert(on==1&&!receipt_guard);receipt_guard=1;return 1;}\nint wr_iot_service_guard_dup(void){return receipt_guard?open("/dev/null",O_RDONLY):-1;}')
 prepared_code=prepared_code.replace('void wr_iot_service_guard_leave(int token){(void)token;assert(0);}',
  'void wr_iot_service_guard_leave(int token){assert(token==1&&receipt_guard);receipt_guard=0;}')
+# This RC dispatcher fixture injects completed physical OFF. Its reload1
+# followup generates/captures a new file, so the pre-quiesce boundary is absent
+# here; actual frozen transport is covered by check-radio-off-composition.py.
+prepared_code=prepared_code.replace('#include "radio-off-owner.c"',r'''
+int wr_iot_rc_physical_off_profile(const char *id,unsigned long long created,
+ const struct wr_iot_physical_stop_request *r,struct wr_iot_profile_binding *b,
+ struct wr_iot_restart_profile_receipt *p){
+ assert(id&&created==7&&r->action==WR_STOP_RELEASE&&off_terminal==1);
+ memset(b,0,sizeof(*b));memset(p,0,sizeof(*p));return 0;
+}
+#include "radio-off-owner.c"
+''')
 prepared_code+='\nint wr_iot_generation_config_owned(const struct wr_iot_generation_config *p){return p&&p->owner==getpid()&&p->self==(uintptr_t)p&&p->created;}\nint wr_iot_generation_config_release(struct wr_iot_generation_config *p){(void)p;assert(0);return 0;}\n'
 prepared_code=prepared_code.replace('int main(void){',r'''
 static int rollback_partial(int mode){

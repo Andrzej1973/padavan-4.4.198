@@ -51,4 +51,9 @@ int wr_iot_rc_rebind_shutdown_closed(const struct wr_iot_control_result *,
 /* Completed pre-OPEN rejection only; not an OFF/CLOSED token or reopen lease. */
 int wr_iot_rc_rebind_preopen_rejected(const struct wr_iot_control_result *,
  const struct wr_iot_physical_stop_request *,const struct wr_iot_driver_identity *);
+struct wr_iot_on_disabled;
+/* Complete historical disabled ON only: adopt fresh inert idle after exact
+ * retained old RELEASE and final followup. No live owner or root is copied. */
+int wr_iot_rc_on_disabled_backend_retire(struct wr_iot_on_disabled *,
+ const struct wr_iot_physical_stop_request *);
 #endif

@@ -91,4 +91,11 @@ int wr_iot_rc_physical_preresume_cancel(void);
 int wr_iot_rc_physical_prearm_cancel(void);
 int wr_iot_rc_physical_premain_cancel(struct wr_iot_restart_restore *);
 int wr_iot_rc_physical_prehandoff_cancel(struct wr_iot_restart_restore *);
+struct wr_iot_profile_binding;
+struct wr_iot_restart_profile_receipt;
+/* Nonsecret pre-quiesce history for this exact completed ordinary OFF. Read
+ * before terminal take clears physical owner; absence is never reconstructed. */
+int wr_iot_rc_physical_off_profile(const char *,unsigned long long,
+ const struct wr_iot_physical_stop_request *,struct wr_iot_profile_binding *,
+ struct wr_iot_restart_profile_receipt *);
 #endif

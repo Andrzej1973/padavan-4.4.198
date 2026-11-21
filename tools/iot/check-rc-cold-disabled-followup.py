@@ -152,6 +152,51 @@ prepared_body=prepared_body.replace(anchor,r'''
  release.identity.adapter_epoch++;assert(!cold_final_initial_off(&release));release.identity.adapter_epoch--;
  make_profile();assert(!wr_iot_cold_disabled_followup_current(&release)&&!cold_final_initial_off(&release));
 '''+anchor)
+# Extend this existing native B/A/C composition through actual terminal
+# retirement and the shared backend-bound nonsecret profile history.
+prepared_body=prepared_body.replace('static struct {pid_t owner;} rebind;',
+ '#include "rebind-owner.h"\nstatic struct wr_iot_rebind_owner rebind;')
+terminal=r'''
+int wr_iot_activation_owner_observed(const struct wr_iot_activation_owner*s,const struct wr_iot_control_result*r){
+ assert(s==&backend&&depth&&s->phase==WR_IOT_OWNER_INITIAL_OFF);
+ return r->state==WR_IOT_RESULT_APPLIED&&r->created==s->initial_off.created&&
+  !strcmp(r->id,s->initial_off.id)&&wr_iot_initial_off_observed(&s->initial_off);
+}
+int wr_iot_rebind_owner_observed(const struct wr_iot_rebind_owner*s,const struct wr_iot_control_result*r){(void)s;(void)r;assert(0);return 0;}
+#include "rc-profile-history.inc"
+static int history_leds,history_children;
+int wr_iot_rc_restart_led_on(void){history_leds++;return 1;}
+int wr_iot_iapp_child_begin(struct wr_iot_iapp_child*s){history_children++;s->owner=getpid();s->attempted=1;s->fd=9;return 1;}
+int wr_iot_iapp_child_step(struct wr_iot_iapp_child*s){s->fd=-1;s->result=1;return 1;}
+#include "restart-terminal-iapp.c"
+#include "restart-iapp-policy.h"
+#undef WR_IOT_IAPP_POLICY_PREPARED
+#define WR_IOT_IAPP_POLICY_PREPARED 1
+#include "rc-cold-disabled-terminal.inc"
+'''
+prepared_body=prepared_body.replace('int main(int argc,char**argv){',terminal+'\nint main(int argc,char**argv){')
+anchor=' make_profile();assert(!wr_iot_cold_disabled_followup_current(&release)&&!cold_final_initial_off(&release));'
+assert prepared_body.count(anchor)==1
+prepared_body=prepared_body.replace(anchor,r'''
+ struct wr_iot_cold_disabled_terminal terminal={0};
+ struct wr_iot_profile_binding observed={0};struct wr_iot_restart_profile_receipt receipt={0};
+ assert(wr_iot_cold_disabled_terminal_begin(&terminal,&parent_release));
+ int finished=0;for(int i=0;i<12&&!finished;i++)finished=wr_iot_cold_disabled_terminal_step(&terminal);
+ assert(finished&&history_leds==1&&history_children==1);
+ {int g=wr_iot_service_guard_enter(1);assert(!wr_iot_rc_profile_history_read(&observed,&receipt));wr_iot_service_guard_leave(g);}
+ release.identity.device_generation++;assert(!wr_iot_cold_disabled_terminal_retire(&terminal));release.identity.device_generation--;
+ assert(wr_iot_cold_disabled_terminal_retire(&terminal)&&!release.owner&&!terminal.owner&&!parent_release.release);
+ assert(!wr_iot_rc_shutdown.radio_on_owned);
+ {int g=wr_iot_service_guard_enter(1);
+  assert(wr_iot_rc_profile_history_read(&observed,&receipt)&&observed.kind==WR_PROFILE_BACKEND_INITIAL_OFF);
+  assert(observed.created==backend.initial_off.created&&observed.identity.adapter_epoch==backend.initial_off.idle.epoch);
+  backend.initial_off.created++;assert(!wr_iot_rc_profile_history_read(&observed,&receipt)&&!receipt.valid);backend.initial_off.created--;
+  assert(wr_iot_rc_profile_history_read(&observed,&receipt));
+  make_profile();assert(!wr_iot_rc_profile_history_read(&observed,&receipt));
+  wr_iot_service_guard_leave(g);
+ }
+''')
+
 with tempfile.TemporaryDirectory(prefix='wr-cold-owner-') as d:
  root=Path(d);(root/'rc.h').write_text('const char *nvram_safe_get(const char *);\nint nvram_getall(char *,int,int);\nint nvram_set(const char *,const char *);\n')
  (root/'wr-band-settings-snapshot.h').write_bytes((here.parent/'band-steering/settings-snapshot.h').read_bytes())

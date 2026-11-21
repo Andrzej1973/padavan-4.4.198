@@ -1,0 +1,84 @@
+{
+  "date": "2026-11-21",
+  "base_revision": "ea2867d76a5044c737ce6e7c08059e35e3b87300",
+  "scope": "Local unpublished portion of the integrated OFF/ON lifecycle package: historical disabled ON followup",
+  "implementation": "Prepared followup observes retained exact file receipt plus fresh idle identity; default retains legacy predicate. No loaded-key assertion.",
+  "sources_sha256": {
+    "tools/iot/radio-on-disabled.c": "56e38e508b0c4b9c5fe83b66c16cc5bd69bc1f1dead4a01eadc72557707cf6a9",
+    "tools/iot/check-radio-on-owner-desired.py": "dd7b3108ea552e45aa5c32f0b24b33a912468cb67b7fececcd9ed4e92128cfae",
+    "tools/iot/check-radio-on-disabled-owner.py": "a1dcb4ba3d727570f7a6f8ccb216fb6554f969cc5f46e740ed5850a74ebbd20f",
+    "tools/iot/check-radio-on-disabled-followup.py": "c778621ff4a0317fb44e66d46fd9d57735d42535b41fabf55e47629ceabd9ffe",
+    "tools/iot/check-radio-on-disabled-release.py": "2e6862ab686f1e693c27035b570962f1f376dbae4a3ee931c04fde75422ba764",
+    "tools/iot/check-radio-on-disabled-postup-cancel.py": "e40ced186d86575cc8e5ef3cf1bc6f50542e0f9c62193a509724bedf8732c3f8",
+    "tools/iot/check-radio-on-desired-config.py": "0a84b3f974afaef6d5e533b082088f141da092725d7ea46067e9b2885a0b0636",
+    "tools/iot/check-radio-on-failure-recover.py": "9f6b6daf31377d94c9d62842fef5b4f34a27ef00e3ecddf9d2b3783d065f501f",
+    "tools/iot/check-radio-on-cancel.py": "485e78a2765ce9f857c3cc708f82b0f0bcf0d092e28408c6ead6baa20fc2094e"
+  },
+  "verification": {
+    "sanitizers": [
+      "address",
+      "undefined"
+    ],
+    "compiler_lane_count": 1,
+    "related_batch": {
+      "helpers": [
+        "check-radio-on-owner-desired.py",
+        "check-radio-on-disabled-owner.py",
+        "check-radio-on-disabled-followup.py",
+        "check-radio-on-disabled-release.py",
+        "check-radio-on-disabled-postup-cancel.py",
+        "check-radio-on-desired-config.py",
+        "check-radio-on-failure-recover.py",
+        "check-radio-on-cancel.py"
+      ],
+      "exit_status": 0,
+      "elapsed_seconds": 88.75,
+      "peak_kib": 142128,
+      "qualification": "Native helper was further extended after this batch; final current version verified independently below. Other seven helper files unchanged."
+    },
+    "final_native_composition": {
+      "command": "python3 tools/iot/check-radio-on-owner-desired.py",
+      "modes": [
+        "absent",
+        "configured",
+        "disabled-configured",
+        "disabled-foreign"
+      ],
+      "exit_status": 0,
+      "elapsed_seconds": 42.02,
+      "peak_kib": 141876,
+      "cases": [
+        "legacy A unchanged, desired disabled B captured",
+        "failed unmask retains same generation and guard",
+        "lost idle refuses retry",
+        "later desired C before successful release cannot retarget B",
+        "release clears credential-bearing revision/provisioning",
+        "one generator/Main UP/WAN/IAPP",
+        "wrong epoch/generation refuse retirement",
+        "replaced file and renamed original refuse retirement",
+        "exact B receipt and idle permit actual root retirement"
+      ]
+    },
+    "negative_control": {
+      "command": "python3 tools/iot/check-radio-on-owner-desired.py --prove-legacy-regression",
+      "exit_status": 0,
+      "elapsed_seconds": 10.02,
+      "peak_kib": 142496,
+      "expectation": "Temporary include with historical legacy predicate must abort at the exact done/released/mask_retry assertion; core dumps disabled. No repository source replacement."
+    }
+  },
+  "limits": [
+    "NVRAM and actual file/generation/release/owner logic are composed; driver/idle/backend SDK actors remain injected.",
+    "Persistent backend profile/idle handoff and OFF reload0/next ON across all origins are unfinished.",
+    "No new target compilation, installed production image or device acceptance."
+  ],
+  "publication": {
+    "committed": false,
+    "pushed": false,
+    "reason": "Retain locally until larger related lifecycle stage is integrated and verified."
+  },
+  "scratch": {
+    "persistent_output_retained": false,
+    "disposal": "TemporaryDirectory removed helper trees on exit; no archives/core dumps retained; historical scratch untouched."
+  }
+}

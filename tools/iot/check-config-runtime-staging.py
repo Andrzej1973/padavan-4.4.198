@@ -75,10 +75,16 @@ with tempfile.TemporaryDirectory(prefix="wr-config-stage-") as directory:
             subprocess.run(["make", "-C", str(rc), "ROOTDIR=" + str(trunk),
                             "CC=gcc", "CFLAGS=-std=gnu11 -Wall -Wextra -Werror -O2 -I" + str(rc),
                             "wr-iot-" + unit + ".o"], check=True)
-        for unit in ("config-view-runtime", "config-view-channel", "config-view-endpoint", "config-edit-server", "config-server", "config-owner", "saved-config-store", "native-flash-reader", "flash-save-attempt", "flash-save-native", "flash-worker", "config-save-owner", "config-save-server", "cold-on-generation", "radio-on-generation", "restart-generation", "restart-profile", "rc-mode"):
+        for unit in ("config-view-runtime", "config-view-channel", "config-view-endpoint", "config-edit-server", "config-server", "config-owner", "saved-config-store", "native-flash-reader", "flash-save-attempt", "flash-save-native", "flash-worker", "config-save-owner", "config-save-server", "cold-on-generation", "radio-on-generation", "restart-generation", "restart-profile", "rc-mode", "rc-backend", "radio-on-owner", "rc-runtime", "rc-physical-stop", "radio-off-owner", "radio-off-profile", "radio-off-profile-check"):
             assert ("wr-iot-" + unit + ".o") in (rc / "Makefile").read_text()
+            # Changed lifecycle units also emit actual host objects. Keep the
+            # compiler lane serial; these isolated trees are removed on exit.
+            objects=("rc-backend", "rc-physical-stop", "radio-off-owner", "radio-off-profile",
+                     "radio-off-profile-check", "radio-on-owner", "rc-runtime")
+            mode=["-c", "-o", str(rc / ("wr-iot-" + unit + ".o"))] if unit in objects else ["-fsyntax-only"]
             subprocess.run(["gcc", "-std=gnu11", "-Wall", "-Wextra", "-Werror", "-O2",
-                            "-I" + str(rc), "-I"+str(trunk/"linux-4.4.x/include/nvram"), "-fsyntax-only", str(rc / ("wr-iot-" + unit + ".c"))], check=True)
+                            "-I" + str(rc), "-I"+str(trunk/"linux-4.4.x/include/nvram"), *mode,
+                            str(rc / ("wr-iot-" + unit + ".c"))], check=True)
         for unit in ("config-view-client","config-view-channel","config-view-endpoint"):
             assert ("wr-iot-"+unit+".o") in (http/'Makefile').read_text()
             subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-O2','-I'+str(http),

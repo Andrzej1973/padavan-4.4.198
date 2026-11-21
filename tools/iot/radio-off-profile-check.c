@@ -32,6 +32,12 @@ int wr_iot_off_profile_current(const struct wr_iot_off_profile *s)
     s->baseline.owner!=getpid()||s->baseline.files.count!=1||
     !wr_iot_generated_matches(&s->baseline.files.generated[0],s->baseline.files.paths[0]))return 0;
 #if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ if(!s->reload)return
+  (s->history_binding.kind==WR_PROFILE_BACKEND_ACTIVE||s->history_binding.kind==WR_PROFILE_BACKEND_REBIND_ACTIVE)&&
+  s->history_binding.identity.adapter_epoch==s->released.epoch&&
+  s->history_binding.identity.device_generation==s->released.generation&&
+  wr_iot_restart_profile_receipt_current(&s->history_profile)&&
+  !strcmp(s->history_profile.path,s->baseline.files.paths[0]);
  if(s->reload){
   struct wr_iot_saved_config config={0};int ok=0;
   if(!wr_iot_generation_config_owned(&s->config_revision))return 0;

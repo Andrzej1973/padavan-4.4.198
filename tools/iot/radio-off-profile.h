@@ -8,6 +8,8 @@ enum wr_iot_off_profile_phase {WR_OFF_PROFILE_IDLE,WR_OFF_PROFILE_CAPTURED,WR_OF
 struct wr_iot_off_profile {const struct wr_iot_off_profile *self;pid_t owner;int busy,reload,attempted;enum wr_iot_off_profile_phase phase;struct wr_iot_physical_stop_request released;struct wr_iot_radio_profile_state baseline;
 #if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
  struct wr_iot_generation_config config_revision;
+ struct wr_iot_profile_binding history_binding;
+ struct wr_iot_restart_profile_receipt history_profile;
 #endif
 };
 int wr_iot_off_profile_begin(struct wr_iot_off_profile *,const struct wr_iot_radio_off_owner *);

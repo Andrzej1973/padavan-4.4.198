@@ -5,6 +5,10 @@
 #ifndef WR_IOT_RC_QUIESCE_H
 #define WR_IOT_RC_QUIESCE_H
 #include <sys/types.h>
+#include "config-snapshot-prepared.h"
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+#include "profile-history.h"
+#endif
 #include "control-record.h"
 #include "driver-api-wire.h"
 struct wr_iot_rc_quiesce {
@@ -12,6 +16,11 @@ struct wr_iot_rc_quiesce {
  int active,complete,busy,resume_needed;
  char id[33];unsigned long long created;
  struct wr_iot_request desired;
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ /* Frozen before normal OFF can clear the loaded request. Nonsecret only. */
+ struct wr_iot_profile_binding profile_binding;
+ struct wr_iot_restart_profile_receipt profile_receipt;
+#endif
 };
 /* Begins normal owned OFF only for a freshly observed ACTIVE backend, or
  * accepts an already owned/fresh OFF without inventing a prior ON request.

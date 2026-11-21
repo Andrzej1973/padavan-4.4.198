@@ -14,6 +14,15 @@ int wr_iot_off_profile_begin(struct wr_iot_off_profile *s,const struct wr_iot_ra
  s->busy=1;token=wr_iot_service_guard_enter(1);if(token!=1){s->busy=0;return 0;}
 #if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
  if(s->config_revision.owner||s->config_revision.self)goto done;
+ if(!off->policy.reload){
+  if((off->profile_binding.kind!=WR_PROFILE_BACKEND_ACTIVE&&off->profile_binding.kind!=WR_PROFILE_BACKEND_REBIND_ACTIVE)||
+     off->profile_binding.identity.adapter_epoch!=off->released.epoch||
+     off->profile_binding.identity.device_generation!=off->released.generation||
+     !off->profile_binding.created||!memchr(off->profile_binding.id,0,sizeof(off->profile_binding.id))||
+     !wr_iot_control_id(off->profile_binding.id)||off->profile_receipt.file.existed!=1||
+     off->profile_receipt.file.metadata.st_size<=0||
+     !wr_iot_restart_profile_receipt_current(&off->profile_receipt))goto done;
+ }
  if(off->policy.reload){
   struct wr_iot_saved_config provisioning={0};char id[33]={0};unsigned i;
   static const char hex[]="0123456789abcdef";int captured;
@@ -26,6 +35,14 @@ int wr_iot_off_profile_begin(struct wr_iot_off_profile *s,const struct wr_iot_ra
  }
 #endif
  if(wr_iot_radio_off_observed(&off->released)&&wr_iot_radio_profile_take(&s->baseline)){
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+  if(!off->policy.reload){
+   if(!wr_iot_restart_profile_receipt_current(&off->profile_receipt)){
+    (void)wr_iot_radio_profile_cancel(&s->baseline);goto done;
+   }
+   s->history_binding=off->profile_binding;s->history_profile=off->profile_receipt;
+  }
+#endif
   s->self=s;s->owner=getpid();s->reload=off->policy.reload;s->released=off->released;
   s->phase=WR_OFF_PROFILE_CAPTURED;claimed=1;
  }

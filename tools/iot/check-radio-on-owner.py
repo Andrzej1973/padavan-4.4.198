@@ -23,10 +23,23 @@ int wr_iot_on_shutdown_begin(struct wr_iot_on_shutdown*s,struct wr_iot_on_restor
 int wr_iot_on_shutdown_step(struct wr_iot_on_shutdown*s){(void)s;assert(0);return 0;}
 #endif
 #include "radio-on-disabled.h"
-int wr_iot_initial_off_begin(struct wr_iot_initial_off*s,const struct wr_iot_control_request*r){assert(!r->request.enabled);s->owner=getpid();s->ready=1;s->idle.epoch=2;s->idle.generation=2;return network_current;}
+int wr_iot_initial_off_begin(struct wr_iot_initial_off*s,const struct wr_iot_control_request*r){assert(!r->request.enabled);s->owner=getpid();s->ready=1;s->created=r->created;memcpy(s->id,r->id,sizeof(s->id));s->nonce[0]=1;s->idle.epoch=2;s->idle.generation=2;s->idle.serial=9;return network_current;}
 int wr_iot_initial_off_restarted_observed(const struct wr_iot_initial_off*s,const struct wr_iot_physical_stop_request*r,const struct wr_iot_driver_identity*m){assert(s->ready&&r->action==WR_STOP_RELEASE&&m->adapter_epoch==2);return network_current;}
 int wr_iot_initial_off_observed(const struct wr_iot_initial_off*s){assert(depth&&s->ready);return network_current;}
 #include "radio-on-disabled.c"
+#include "profile-history.h"
+#ifndef WR_IOT_FIXTURE_REAL_DISABLED_RETIRE
+/* Standalone owner fixture injects the RC-private history boundary. Actual
+ * backend-bound history is composed in the native handoff variants. */
+int wr_iot_rc_profile_history_remember(const struct wr_iot_profile_binding*b,const struct wr_iot_restart_profile_receipt*p){
+ assert(depth&&b&&b->kind==WR_PROFILE_BACKEND_REBIND_ACTIVE&&b->created==10&&
+  !strcmp(b->id,"01000000000000000000000000000000")&&wr_iot_restart_profile_receipt_current(p));return network_current;
+}
+int wr_iot_rc_on_disabled_backend_retire(struct wr_iot_on_disabled*s,const struct wr_iot_physical_stop_request*p){
+ assert(s&&s->owner==getpid()&&s->restore&&s->restore->phase==WR_ON_RESTORE_DONE&&
+  p&&p->action==WR_STOP_RELEASE);return network_current;
+}
+#endif
 #include "radio-on-owner.c"
 int main(int argc,char**argv){
  (void)check;assert(argc==2);snprintf(profile_path,sizeof(profile_path),"%s/profile",argv[1]);

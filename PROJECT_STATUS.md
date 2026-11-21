@@ -1,3 +1,133 @@
+## Profile lifecycle package locally verified — 2026-11-21
+
+Completed this coherent source stage: common nonsecret backend-bound file
+history; cold/ON/restart completion producers; disabled ON inert backend transfer;
+pre-quiesce freeze through exact physical RELEASE/take; prepared OFF reload0
+consumer; same-profile reload0 and fresh next reload1; cancel/unmask/recovery
+retention. Restart publication occurs only in a separate successful fence
+callback after preflight. Cancel never publishes it. Terminal cleanup wipes
+canonical credential revision/provisioning. Earlier pending statements below
+record intermediate local preparation and are superseded for this source stage.
+
+Final10 related helpers pass ASan/UBSan/strict object checks exit0 in162.42s,
+peak158816KiB, one compiler lane. Eight native owner modes pass. Staging emits
+14 lifecycle host objects (7 units x prepared0/1). Actual physical/fence finish
+checks verify preflight/unmask refusal, successful commit once, cancellation
+zero commits and cleared credentials; backend preflight checks cover CLOSE,
+enabled INITIAL and disabled INITIAL with documented SDK/finish actors.
+Evidence: docs/evidence/WR1200JS-PROFILE-LIFECYCLE-PACKAGE-2026-11-21.json.
+
+Publish this entire reviewed related set once from main, base ea2867d7; no
+unpushed ancestor commits exist. Preserve all pre-existing untracked/private
+material. Source stage completion is not production entry installation, target
+link/image/device acceptance. Those gates remain open. Next: verify the exact
+new remote SHA and automatic standard/ABI, inspect failures through monitor plus
+original log, then queue required exact-SHA optional after standard succeeds.
+Continue production integration from the remaining documented acceptance gaps.
+No flash/reboot/router mutation authorized.
+
+Scratch checked: helper/staging objects disposed automatically, no persistent
+archive/core/output; no manual historical scratch deletion or claimed reclaimed
+space. Earlier evidence publication=false means it was created locally before
+this combined publication. All prior source and unique evidence preserved.
+
+## Integrated lifecycle package in preparation — 2026-11-21
+
+Owner requires a whole related implementation stage with consumers/recovery/
+integration and local checks before one push. AGENTS records the clarification.
+Package remains local on main/ea2867d7; historical untracked material preserved.
+
+Implemented the historical disabled ON followup correction: prepared builds
+use retained exact file receipt plus fresh idle instead of legacy credential
+reread after generation wipe. Default legacy gate remains. Extended the existing
+native owner helper through B/A/C, failed unmask, failed idle retry, release,
+WAN/IAPP, credential wipe, epoch/generation/file refusal and actual retirement.
+Eight related ASan/UBSan helpers passed in88.75s peak142128KiB. Final refined
+native helper four modes passed in42.02s peak141876KiB; negative control using
+the old legacy predicate fails the precise completion assertion as expected,
+helper exit0 in10.02s peak142496KiB. Evidence:
+docs/evidence/WR1200JS-DISABLED-ON-PROFILE-2026-11-21.json.
+
+Implemented local RC-private historical disabled ON handoff: release retains
+exact physical profile_origin; final root checks ID/time/nonce; transfer accepts
+only completed resource-free OFF/rebind OFF plus fresh exact DONE/file/new idle.
+It adopts inert INITIAL_OFF and a nonsecret profile receipt, wiping completed
+old backend/rebind contexts before root retirement. No root pointer retained.
+Queued TERM/QUIT survives transfer/root retirement so normal shutdown can proceed;
+missing route, invalid signal/replay and live startup recovery refuse.
+
+Extended actual native helper with old backend/rebind origins, idempotent retry,
+wrong nonce/attempt/serial, ID/time, pending route and resource refusal. Actual
+boot_idle eligibility succeeds after root retirement; this is not a next ON
+completion. Prepared0/1 syntax compilation now covers actual generated backend,
+ON root and runtime. Required target symbol and exact source/report checks wired.
+12 related helpers pass in95.62s peak126120KiB. Final handoff/staging refinement
+passes in21.25s peak147512KiB. SDK/old-origin actors remain injected. Evidence:
+docs/evidence/WR1200JS-DISABLED-ON-BACKEND-2026-11-21.json.
+An interim fixture lacked newly required idle ID/time; corrected before passing.
+
+Common RC profile history now retains file metadata plus kind/ID/time/epoch/
+generation, reobserving the actual backend and exact file twice under guard.
+It stores no credentials or borrowed controller pointer and refuses stale,
+missing/empty or foreign proof without a desired-key fallback. Prepared cold
+terminal retirement publishes before wiping release; historical enabled ON
+publishes at final root retirement. Disabled ON uses the shared slot rather
+than its earlier separate receipt. Exact source/report and target-symbol gates
+include the new APIs. Runtime/public-entry acceptance remains false.
+
+Existing native helpers cover disabled cold B/A/C through actual terminal
+retirement and post-wipe history read for all three WAN plans; exact enabled
+cold retirement uses synthetic completion/followup actors in history cases.
+Native shared-history tests cover INITIAL_OFF/ACTIVE/rebind ACTIVE and changed
+ID/time/epoch/file/live observations. Final six owner modes and prepared0/1
+backend/root/runtime compile pass in53.72s peak153820KiB. Cold-related four
+helpers passed in45.99s peak137208KiB. Standalone enabled ON publication injects
+the RC history boundary; actual shared history is checked separately. Evidence:
+docs/evidence/WR1200JS-PROFILE-HISTORY-2026-11-21.json.
+
+Prepared ordinary quiesce now freezes nonsecret profile history before OFF
+clears the loaded request. Exact completed physical OFF exports it only for the
+same encoded RELEASE/envelope and old epoch/generation/current file; OFF owner
+copies it before terminal take. Missing history does not prevent safe physical
+OFF/shutdown. Prepared reload0 instead refuses missing/changed proof, and uses
+frozen file continuity rather than legacy keys. Unprepared/reload1 paths retain
+their existing semantics. Never-opened INITIAL physical transport is separate.
+
+Native next-ON checks use the actual runtime receipt observer: A reload0 finishes
+with no generation and unchanged inode/timestamps; B over A reload0 refuses
+pre-UP and preserves original OFF receipt. A distinct fresh reload1 request
+creates B once, later C cannot retarget it. Actual transport, native quiesce and
+profile helpers pass prepared0/1 at their documented injected SDK boundaries.
+Final RC/native batch passed82.64s peak153744KiB; final refined two reload cases
+passed20.81s peak141984KiB. Staging now emits14 actual lifecycle host objects
+(7 units x prepared0/1), passed15.58s peak58340KiB. Target/image/device separate.
+Evidence: docs/evidence/WR1200JS-OFF-FROZEN-PROFILE-2026-11-21.json.
+
+Local broad checks exposed a missing new API in the isolated prepared RC
+fixture; added its explicit absent-history mock for reload1 and reran RC/native
+checks. The new sequence actor also needed its rebind-admission flag enabled.
+No intermediate publication. Actual physical history export is checked in its
+separate session/owner composition, not inferred from that mock.
+
+Remaining before one coherent push: successful restart-finish-only publication
+and its INITIAL/CLOSE/disabled/cancel/unmask recovery contracts. Do not publish
+success from shared cancellation cleanup. Public installation and all new exact
+SHA target/image/device gates remain open. No router changes or new dispatch.
+
+CI refresh: optional1464/run44930917715 succeeded for bcb20771; optional1465/
+44931890550 for published ea2867d7 is running. These do not verify local changes.
+
+Published base ea2867d7: standard1462/run44930055224 and ABI973 succeeded.
+Optional1463 for38ccdef7 and1464/run44930917715 for bcb20771 succeeded;
+optional1465/run44931890550 for exact ea2867d76a5044c737ce6e7c08059e35e3b87300
+is running, iot/peer82 Ubuntu24/source, same dispatch HEAD. No duplicate/new
+workflow dispatch this phase; no artifact/image conclusions from these statuses.
+
+No commit/push, router action, archive or persistent helper output. Temporary
+helper/staging trees removed automatically; no top-level core found. No manual
+scratch deletion; pre-existing untracked/private data preserved. Continue full
+retained-profile lifecycle integration in this same checkout.
+
 ## Broader local IoT package verification — owner direction 2026-11-21
 
 Owner requested more related lightweight local checks and larger coherent pushes.

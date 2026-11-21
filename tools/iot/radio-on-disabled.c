@@ -84,7 +84,14 @@ static int disabled_followup_observe(struct wr_iot_on_restore *r,void *context)
  return s&&s->owner==getpid()&&s->restore==r&&!r->handoff_created&&
   s->idle.idle.epoch==r->main.identity.adapter_epoch&&
   s->idle.idle.generation==r->main.identity.device_generation&&
-  wr_iot_restart_disabled_profile_current()&&wr_iot_initial_off_observed(&s->idle);
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED != 1
+  wr_iot_restart_disabled_profile_current()&&
+#endif
+  /* Release retained the exact generated file before wiping its credential
+   * generation. Followup's guarded parent verifies that receipt on both sides
+   * of this idle observation; later saved/legacy keys cannot retarget it. */
+  wr_iot_restart_profile_receipt_current(&r->profile_receipt)&&
+  wr_iot_initial_off_observed(&s->idle);
 }
 int wr_iot_on_disabled_followup(struct wr_iot_on_disabled *s)
 {

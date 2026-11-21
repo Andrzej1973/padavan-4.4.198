@@ -13,6 +13,8 @@ struct wr_iot_on_restore {
  struct wr_iot_on_generation generation;
  struct wr_iot_on_main main;struct wr_iot_on_guest guest;
  struct wr_iot_restart_profile_receipt profile_receipt;
+ /* Exact consumed physical origin retained through final root retirement. */
+ struct wr_iot_physical_stop_request profile_origin;
  struct wr_iot_wan_followup_state wan;
  struct wr_iot_terminal_iapp terminal;struct wr_iot_iapp_child child;
  struct wr_iot_on_services services;struct wr_iot_on_multicast multicast;

@@ -235,6 +235,12 @@ Pushes in this repository trigger firmware and service runs automatically, so
 batch work instead of publishing every small edit:
 
 - Commit locally as needed and push once per coherent change set.
+- Owner clarified2026-11-21: complete a broader related implementation stage
+  before publication, including its consumers, recovery and integration. More
+  tests alone do not satisfy this batching requirement. Compile related small
+  native/target units locally when observed time and memory remain comfortable;
+  fix findings locally and publish the completed coherent stage with one push.
+  Do not publish each intermediate source/fixture/document correction.
 - Owner reaffirmed2026-11-21: before pushing an IoT package, run the broader
   related lightweight host/composition checks locally, including consumers of
   changed shared fixtures. Start with one compiler lane and record elapsed time

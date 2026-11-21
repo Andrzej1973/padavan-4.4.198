@@ -32,13 +32,23 @@ int wr_iot_radio_off_prepare(struct wr_iot_radio_off_owner *s,int reload)
 int wr_iot_radio_off_poll(struct wr_iot_radio_off_owner *s)
 {
  int result,read;struct wr_iot_physical_stop_request released={0};
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ struct wr_iot_profile_binding binding={0};struct wr_iot_restart_profile_receipt profile={0};
+#endif
  if(!s||s->owner!=getpid()||s->busy)return 0;
  if(s->result)return s->result;
  s->busy=1;read=wr_iot_rc_physical_off_read(s->id,s->created,&released);
  read=read==1&&released.action==WR_STOP_RELEASE&&wr_iot_physical_stop_request_valid(&released);
  if(!read&&!wr_iot_rc_physical_off_failed(s->id,s->created)){s->busy=0;return 0;}
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ if(read)(void)wr_iot_rc_physical_off_profile(s->id,s->created,&released,&binding,&profile);
+#endif
  result=wr_iot_rc_physical_take_off(s->id,s->created);
- if(result==1&&read)s->released=released;
+ if(result==1&&read){s->released=released;
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+  s->profile_binding=binding;s->profile_receipt=profile;
+#endif
+ }
  if(result==1||result==-1)s->result=result;
  s->busy=0;return s->result;
 }
