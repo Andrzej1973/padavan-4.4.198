@@ -1,0 +1,82 @@
+{
+  "artifacts": [
+    {
+      "run": 44908880935,
+      "source": "1a272b79a36b00873e9e8b78d13d84b78b262e67",
+      "artifact": 14709317230,
+      "zip_sha256": "11e560465aafab7590ad9f338ae141e3e24cd187560b3106461b91e7d5abff6a",
+      "crc_checked": true,
+      "files": [
+        {
+          "path": "SETUP_WR1200JS.txt",
+          "bytes": 44755,
+          "sha256": "da0d71566fb7595173bdec420df158575c808dda8da2bb7fe98c696cf2a61faa"
+        },
+        {
+          "path": "WR1200JS_4.4.198.9-1445_1a272b79.trx",
+          "bytes": 13127220,
+          "sha256": "355dd4d6314ead035cb4987c3111e1258d596a1b91126affb5e3fba80f36f730"
+        },
+        {
+          "path": "wr1200js.config",
+          "bytes": 11600,
+          "sha256": "635cb4bc006a66215ea2ed7026e1ced0a5f35c929de03f1277432407bd5b1ca5"
+        }
+      ]
+    },
+    {
+      "run": 44909407049,
+      "source": "b5f910c2d3223a90fd4e127de281a6d02ef56b94",
+      "artifact": 14709503013,
+      "zip_sha256": "315ca12b6be0b126ee7bd788b77e961543ca07c93f13100506f7aaa3bf6ae129",
+      "crc_checked": true,
+      "files": [
+        {
+          "path": "wr1200js.config",
+          "bytes": 11600,
+          "sha256": "635cb4bc006a66215ea2ed7026e1ced0a5f35c929de03f1277432407bd5b1ca5"
+        },
+        {
+          "path": "WR1200JS_4.4.198.9-1446_b5f910c2.trx",
+          "bytes": 13126860,
+          "sha256": "9c24a72329fedf3e09b686a23de6ea0e910801cc2da01cdc1c09ff56f4d72bb4"
+        },
+        {
+          "path": "SETUP_WR1200JS.txt",
+          "bytes": 44755,
+          "sha256": "e1a6bdacd62e7f0243e7330e0ea7c0434e6638905362c43490c661e9538762a7"
+        }
+      ]
+    },
+    {
+      "run": 44910756121,
+      "source": "1a272b79a36b00873e9e8b78d13d84b78b262e67",
+      "artifact": 14709542513,
+      "zip_sha256": "ef1164686520694780247e4bc1845225ebb9f64e9a9543281ae0bf08fcef9f97",
+      "crc_checked": true,
+      "files": [
+        {
+          "path": "verification-source.json",
+          "bytes": 234,
+          "sha256": "772ff4a2de78cb2811e5e3af63c81b7a111c3b1bf5edc6524f47f0717f7a5e8f"
+        }
+      ],
+      "source_receipt": {
+        "dispatch_revision": "b5f910c2d3223a90fd4e127de281a6d02ef56b94",
+        "requested_revision": "1a272b79a36b00873e9e8b78d13d84b78b262e67",
+        "verified_revision": "1a272b79a36b00873e9e8b78d13d84b78b262e67",
+        "runtime_verified": false
+      }
+    }
+  ],
+  "standard_conclusions": {
+    "1445": "success",
+    "1446": "success"
+  },
+  "abi_conclusions": {
+    "963": "success",
+    "964": "success"
+  },
+  "limits": "ZIP identity/CRC and hashes only; optional1447 failed its FT target probe, not image/device acceptance.",
+  "cleanup": "All ZIPs read in memory; no archive/extraction retained."
+}

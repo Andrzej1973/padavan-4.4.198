@@ -58,6 +58,36 @@ header_sets = [
             and call.func.value.id == 'shutil' and call.func.attr == 'copyfile'
             for call in ast.walk(node))]
 assert len(header_sets) == 1
+# Execute the target probe's real source selector without its CLI/build body.
+selector_node = next(node for node in probe_tree.body
+                     if isinstance(node, ast.FunctionDef)
+                     and node.name == 'probe_header_source')
+selector_scope = {}
+exec(compile(ast.Module(body=[selector_node], type_ignores=[]),
+             'probe-header-selector', 'exec'), selector_scope)
+select_header = selector_scope['probe_header_source']
+with tempfile.TemporaryDirectory(prefix='ft-probe-header-source-') as td:
+    driver = Path(td)/'driver'
+    (driver/'include').mkdir(parents=True)
+    live = driver/'include/radio-transition.h'
+    live.write_bytes((here/'radio-transition-api.h').read_bytes())
+    chosen = select_header(here, driver, live.name)
+    assert chosen == live and chosen.read_bytes() == live.read_bytes()
+    assert chosen.read_bytes() != (here/live.name).read_bytes()
+    probe = Path(td)/'probe.c'
+    probe.write_text('#include "radio-transition.h"\nint probe(void){return WR_RADIO_BSS_OBSERVE;}\n')
+    command = ['gcc', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsyntax-only']
+    subprocess.run([*command, '-I'+str(chosen.parent), str(probe)], check=True)
+    frozen = subprocess.run([*command, '-I'+str(here), str(probe)],
+                            capture_output=True, text=True)
+    assert frozen.returncode != 0 and 'WR_RADIO_BSS_OBSERVE' in frozen.stderr
+    assert select_header(here, driver, 'ft-auth-request-context.h') == here/'ft-auth-request-context.h'
+    try:
+        select_header(here, driver, 'radio-transition-api.h')
+    except ValueError:
+        pass
+    else:
+        raise AssertionError('missing prepared header silently replaced by frozen base')
 probe_headers = header_sets[0]
 for text in [composed, composed_header, *[(here/name).read_text()
                                         for name in sorted(probe_headers)]]:

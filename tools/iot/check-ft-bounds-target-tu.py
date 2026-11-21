@@ -14,6 +14,21 @@ import subprocess
 import tempfile
 from pathlib import Path
 
+def probe_header_source(here, driver, name):
+    # These belong to the already prepared driver. In particular the transition
+    # API contains accumulated BSS_OBSERVE additions absent from the frozen base.
+    native = {
+        'driver-api-owner.h', 'driver-api-wire.h', 'interface-reference.h',
+        'interface-registry.h', 'ra2-association-owner.h',
+        'ra2-rekey-admission.h', 'radio-transition-api.h',
+        'radio-transition.h', 'virtual-open-claim.h',
+    }
+    source = driver/'include'/name if name in native else here/name
+    if not source.is_file():
+        raise ValueError('Missing exact probe header source: '+str(source))
+    return source
+
+
 p = argparse.ArgumentParser(description=__doc__)
 for name in ('kernel', 'driver', 'compiler', 'output'):
     p.add_argument('--'+name, type=Path, required=True)
@@ -189,7 +204,12 @@ MAC_TABLE_ENTRY *wr_ft_pending_insert(RTMP_ADAPTER *,UCHAR *,struct wifi_dev *,
             'ft-iapp-peer-admission.h', 'ft-iapp-pending-admission.h',
             'ft-iapp-request-state.h', 'ft-iapp-response-token.h',
         ):
-            shutil.copyfile(here/name, temp/name)
+            source = probe_header_source(here, driver, name)
+            shutil.copyfile(source, temp/name)
+            report.setdefault('probe_headers', {})[name] = {
+                'source': 'prepared-driver' if source.parent == driver/'include' else 'probe-helper',
+                'sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
+            }
 
         for unit, changed in prepared.items():
             raw, tool, filtered, _source = commands[unit]

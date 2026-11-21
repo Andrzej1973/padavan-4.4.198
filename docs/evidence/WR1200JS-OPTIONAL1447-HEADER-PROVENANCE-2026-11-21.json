@@ -1,0 +1,26 @@
+{
+  "run": 44910756121,
+  "number": 1447,
+  "source": "1a272b79a36b00873e9e8b78d13d84b78b262e67",
+  "dispatch_revision": "b5f910c2d3223a90fd4e127de281a6d02ef56b94",
+  "failed_job": 136865921329,
+  "failed_step": "Compile isolated merged IoT MT7603 candidate",
+  "diagnostic_artifact": 14710302292,
+  "diagnostic_zip_sha256": "cd1859bedebfc84e31e31e0d69ab5b4109d7a563e7dffaba111ce9c8d9800197",
+  "monitor_run": 44911983617,
+  "monitor_artifact": 14710018396,
+  "monitor_zip_sha256": "bbf7a57e46cf3de0285ac16134e586acfdb6269bb873ff0ca18d3e15c3d4b5bc",
+  "artifact_digest_crc_checked": true,
+  "original_job_log_confirms_error": true,
+  "cause": "Probe copied frozen base radio-transition headers ahead of prepared driver headers, hiding accumulated WR_RADIO_BSS_OBSERVE API.",
+  "correction": "Nine driver-owned dependency headers come from exact prepared driver/include; FT probe-owned headers remain current helper sources. No fallback to frozen driver header. Report source kind and content SHA256 per copied header.",
+  "checks": [
+    "Full existing FT AUTH request/context host checker PASS exit0",
+    "Actual header source selector regression: prepared observation API syntax compile PASS; frozen header negative control fails with WR_RADIO_BSS_OBSERVE missing",
+    "Missing prepared header fails closed; current FT helper is selected from helper source",
+    "Original monitor excerpt contains both missing operation and missing end function; no monitor change"
+  ],
+  "translation_units": {},
+  "limits": "Corrected target compilation remains pending. Standard1445/1446 and ABI963/964 success do not replace optional target evidence.",
+  "cleanup": "CI artifacts/log read in memory, temporary host fixtures removed automatically; no copies/archives retained."
+}

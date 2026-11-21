@@ -1,3 +1,26 @@
+## Optional1447 exact prepared-header provenance correction — 2026-11-21
+
+Standard1445/ABI963 succeeded for1a272b79; standard1446/ABI964 succeeded for
+b5f910c2 (workflow cleanup). Optional1447/run44910756121 dispatched onb5f910c2
+verified source1a272b79 and failed temporary FT compilation: frozen base
+radio-transition headers shadowed the candidate's accumulated BSS_OBSERVE API.
+Original job136865921329, diagnostic14710302292 and monitor44911983617 agree.
+The monitor includes the causal diagnostic and requires no parser change.
+
+Probe source selection now takes nine driver-owned dependency headers from
+exact prepared driver/include and fails on absent inputs. FT probe-owned
+headers remain current helpers. Reports record source kind and SHA256 per
+header. The real selector regression compiles the observation API through the
+prepared header and rejects the frozen base. Full host checker passes exit0;
+missing prepared input refusal and exact helper selection also pass.
+Receipts: WR1200JS-OPTIONAL1447-HEADER-PROVENANCE-2026-11-21.json and
+WR1200JS-STANDARD1445-1446-RESULTS-2026-11-21.json in docs/evidence.
+
+No target success or image/device acceptance is claimed. Publish related
+results and correction once, then verify the new exact SHA through standard
+and optional. Do not dispatch the known-failing older FT probe merely because
+its standard passed. ZIPs/logs read in memory; temporary fixtures removed.
+
 ## Optional workflow historical-tail cleanup — 2026-11-21
 
 Owner requested removing unused historical workflow material after reviewing
