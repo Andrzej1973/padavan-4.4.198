@@ -1,3 +1,14 @@
+## Standard push trigger repaired — 2026-11-21
+
+The main push filter listed only older individual tools/iot paths. Changes to
+radio-off-profile.c/.h therefore triggered ABI but not standard. Replaced that
+partial list with tools/iot/**, covering current and future IoT dependencies.
+Main branch selection, PR/manual triggers and separate queued lanes preserved.
+Standard1452/run44920344948 and ABI/run44920298530 succeeded for066ed97c;
+standard1452 was manually dispatched, not evidence of automatic triggering.
+This workflow correction is one publication; verify the resulting push-event
+standard run at its exact SHA. No router changes or scratch outputs.
+
 ## OFF profile context copy refused — 2026-11-21
 
 Private radio-off-profile context now binds self at successful capture and
