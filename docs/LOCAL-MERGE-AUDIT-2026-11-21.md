@@ -38,13 +38,23 @@ Read-only `git apply --reverse --check` succeeds for
 present in the current source. Preserve these historical patches without
 applying them again. Both forward and reverse checks fail for
 `WR1200JS-MAILBOX-ACTIVE-SHUTDOWN-CANDIDATE.patch`; its context has diverged.
-The current backend defines `wr_iot_rc_backend_applied_route`, but that symbol
-alone does not prove the entire patch is implemented. Compare its remaining
-hunks before deciding disposition. No patch was applied by this audit.
+Follow-up traced its logic to commit `1b13d68f`: the backend arm function and
+normal shutdown readiness body remain present. Its declaration was published
+in control-channel.h instead of rc-backend.h. Commit `a396c4ce` generalized the
+control-server dispatch/continuation checks through `wr_iot_terminal_ready`,
+whose runtime branch retains the same backend route. Thus this patch is
+historical input, not a patch to apply again. No patch was applied by this audit.
+
+The current `check-mailbox-active-normal-shutdown.py` passes all five host
+modes with exit 0: ordinary ACTIVE publication, unavailable consumer, queued
+signal, both together, and identity drift. It executes prepared host composition
+with modeled external actors; it does not establish final image or hardware
+shutdown acceptance. Its temporary build tree is managed by TemporaryDirectory.
 
 The dated close/reopen plan contains historical next steps subsequently
 implemented at least in part; preserve it as historical input pending a full
-call-site reconciliation. The image-gates document's Modern pause statement
+call-site reconciliation. Both plans now explicitly identify their historical
+scope. The image-gates document's Modern pause statement
 is corrected to the owner's 2026-11-20 settings/apply resumption.
 
 ## Verification and remaining work
