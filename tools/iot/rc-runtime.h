@@ -17,6 +17,10 @@ int wr_iot_rc_radio_off_receipt(struct wr_iot_physical_stop_request *);
 /* Snapshot-prepared OFF profile file receipt, tied to exact physical receipt.
  * Caller retains service guard; no loaded-PMK or current DOWN assertion. */
 int wr_iot_rc_radio_off_profile_current(const struct wr_iot_physical_stop_request *);
+struct wr_iot_on_generation;
+/* Pre-UP rollback only: caller has just proved fresh DOWN and RAM OFF under
+ * the retained admission/guard. No physical receipt or loaded-key mutation. */
+int wr_iot_rc_radio_on_rollback_receipt(const struct wr_iot_on_generation *);
 /* Private process-context admission only; no stock/UI OFF entry binding.
  * Terminal owner retained for the future verified SDK follow-up consumer. */
 int wr_iot_rc_radio_off_begin(const struct wr_iot_control_request *,int);

@@ -54,6 +54,24 @@ int wr_iot_rc_radio_off_profile_current(const struct wr_iot_physical_stop_reques
 }
 #endif
 #include "radio-on-release-runtime.h"
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+int wr_iot_rc_radio_on_rollback_receipt(const struct wr_iot_on_generation *g)
+{
+ const struct wr_iot_on_admission *a;unsigned char before[64],after[64];
+ if(!g||g->owner!=getpid()||g->busy||g->main_may_have_started||
+    g->phase!=WR_ON_GEN_RESTORED||!g->admission||!radio_off_receipt_valid||
+    !wr_iot_generation_config_owned(&g->config_revision)||
+    !wr_iot_rc_shutdown.active||!wr_iot_rc_shutdown.radio_off_owned||
+    !wr_iot_rc_shutdown.radio_on_owned)return 0;
+ a=g->admission;
+ if(a->owner!=getpid()||a->busy!=1||a->guard!=1||a->phase!=WR_ON_ADMISSION_CAPTURED||
+    a->fence.owner!=getpid()||a->fence.level!=1||
+    !wr_iot_physical_stop_request_encode(before,sizeof(before),&a->released)||
+    !wr_iot_physical_stop_request_encode(after,sizeof(after),&radio_off_receipt)||
+    memcmp(before,after,sizeof(before)))return 0;
+ return wr_iot_restart_profile_receipt_restored(&radio_off_profile_receipt,&a->profile);
+}
+#endif
 int wr_iot_rc_radio_off_receipt(struct wr_iot_physical_stop_request *out)
 {
  if(!out)return 0;

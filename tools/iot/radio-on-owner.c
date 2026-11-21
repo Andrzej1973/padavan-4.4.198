@@ -113,6 +113,9 @@ static int on_cancelled_finish(void)
     !wr_iot_physical_stop_request_encode(after,sizeof(after),&receipt)||memcmp(before,after,sizeof(before))||
     !wr_iot_rc_radio_on_rollback_current(&a->released)||
     !wr_iot_radio_recovery_down_observed(&a->released))return 0;
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ if(!wr_iot_rc_radio_on_rollback_receipt(g))return 0;
+#endif
  return wr_iot_radio_stop_fence_end_cleanup(&a->fence,on_cancelled_cleanup,NULL);
 }
 static void on_postup_root_cleanup(void *context)

@@ -1,3 +1,32 @@
+## Pre-UP rollback refreshes the OFF file receipt — 2026-11-21
+
+ON cancellation after actual restoration now refreshes the retained nonsecret
+OFF file identity before root cleanup. The caller still proves RAM OFF/fresh
+DOWN and exact physical RELEASE under its retained fence/guard. RC additionally
+requires the same stable generation pin, no Main-start, RESTORED phase and the
+same physical receipt. The receipt helper checks original snapshot metadata,
+independently rereads restored bytes and rechecks the new inode. Invalid proof
+leaves receipt/ownership unchanged; same guarded retry is idempotent. Temporary
+credential-bearing readback is wiped before free. No driver identity is changed.
+
+Standard1457/run44925761390 failed in check-radio-on-desired-config.py: missing
+fixture definition of the new RC profile observer. Monitor44925929766 artifact
+14715955653 matches original job136911441732 log; its causal excerpt was useful,
+so no monitor parser change. Two isolated prepared fixtures now explicitly model
+the RC boundary. Reload1 generation's unused observer refuses all calls; owner
+rollback mock validates restored pre-UP context. Actual receipt storage/refresh
+is tested separately in the RC composition fixture, not certified by that mock.
+
+Local RC prepared0/1, actual root failure recovery, capture refusal, native ON
+desired generation and native ON desired owner absent/configured checks pass
+ASan/UBSan exit0. Negative cases cover copied generation, Main-start, nonce,
+original metadata and byte mismatch. Initial fixture failures (wrong fixed-path
+binding and overstrict unused rollback mock) were corrected and rerun.
+Optional1456/run44925218732 still verifies602ac017, not this package. New exact
+SHA target/image acceptance pending. reload0/loaded-profile provenance remains
+open. Temporary directories removed automatically; no core file at checkout
+root, no persistent scratch output, no router changes.
+
 ## OFF reload profile receipt reaches ON admission — 2026-11-21
 
 Snapshot-prepared OFF reload now observes its own canonical pinned profile,

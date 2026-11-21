@@ -67,14 +67,21 @@ code=code.replace(a,r'''
  pending=resume_pending=0;notification=1;wr_iot_rc_wait(&empty,&notification,&alarm_flag);
  assert(physical_steps==off_base+1&&policy_reads==2);notification=0;
 '''+a)
-prepared_code=code.replace('int wr_iot_service_guard_dup(void){assert(0);return -1;}',
+prepared_code=('#define _GNU_SOURCE\nstatic char rollback_profile_path[128];\n#define WR_IOT_RADIO_PROFILE_PATH rollback_profile_path\n'+code).replace('int wr_iot_service_guard_dup(void){assert(0);return -1;}',
  'static int receipt_guard;\nint wr_iot_service_guard_enter(int on){assert(on==1&&!receipt_guard);receipt_guard=1;return 1;}\nint wr_iot_service_guard_dup(void){return receipt_guard?open("/dev/null",O_RDONLY):-1;}')
 prepared_code=prepared_code.replace('void wr_iot_service_guard_leave(int token){(void)token;assert(0);}',
  'void wr_iot_service_guard_leave(int token){assert(token==1&&receipt_guard);receipt_guard=0;}')
-prepared_code+='\nint wr_iot_generation_config_release(struct wr_iot_generation_config *p){(void)p;assert(0);return 0;}\n'
+prepared_code+='\nint wr_iot_generation_config_owned(const struct wr_iot_generation_config *p){return p&&p->owner==getpid()&&p->self==(uintptr_t)p&&p->created;}\nint wr_iot_generation_config_release(struct wr_iot_generation_config *p){(void)p;assert(0);return 0;}\n'
+prepared_code=prepared_code.replace('int main(void){',r'''
+static int rollback_partial(int mode){
+ assert(mode==0&&receipt_guard);FILE *f=fopen(radio_off_profile_receipt.path,"w");
+ assert(f&&fputs("partial generation\n",f)>=0&&!fclose(f));return -1;
+}
+int main(void){''')
 needle='s->phase=WR_OFF_FOLLOWUP_DONE;wr_iot_rc_shutdown.radio_off_owned=0;return 1;'
 assert needle in prepared_code
 prepared_code=prepared_code.replace(needle, r'''snprintf(s->profile_receipt.path,sizeof(s->profile_receipt.path),"%s/profile",directory);
+ strcpy(rollback_profile_path,s->profile_receipt.path);
  FILE *profile=fopen(s->profile_receipt.path,"w");assert(profile&&fputs("owned profile\n",profile)>=0&&!fclose(profile));
  assert(wr_iot_generated_capture(&s->profile_receipt.file,s->profile_receipt.path));
  s->profile_receipt.owner=getpid();s->profile_receipt.valid=1;
@@ -86,6 +93,27 @@ prepared_code=prepared_code.replace(needle,needle+r'''
  assert(wr_iot_service_guard_enter(1)==1&&wr_iot_rc_radio_off_profile_current(&receipt));
  struct wr_iot_physical_stop_request foreign=receipt;foreign.nonce[0]++;
  assert(!wr_iot_rc_radio_off_profile_current(&foreign));
+ struct wr_iot_on_admission rollback={.owner=getpid(),.busy=1,.guard=1,
+  .phase=WR_ON_ADMISSION_CAPTURED,.fence={.owner=getpid(),.level=1},.released=receipt};
+ struct wr_iot_on_generation generation={.owner=getpid(),.phase=WR_ON_GEN_RESTORED,.admission=&rollback};
+ generation.config_revision.owner=getpid();generation.config_revision.self=(uintptr_t)&generation.config_revision;
+ generation.config_revision.created=receipt.closed_serial;
+ strcpy(generation.config_revision.id,"11111111111111111111111111111111");
+ assert(wr_iot_radio_profile_take(&rollback.profile));
+ assert(!wr_iot_radio_profile_generate(&rollback.profile,rollback_partial));
+ assert(wr_iot_radio_profile_restore(&rollback.profile));
+ assert(!wr_iot_rc_radio_off_profile_current(&receipt)); /* Restore uses a new inode. */
+ wr_iot_rc_shutdown.active=wr_iot_rc_shutdown.radio_on_owned=wr_iot_rc_shutdown.radio_off_owned=1;
+ struct wr_iot_on_generation copied_generation=generation;
+ assert(!wr_iot_rc_radio_on_rollback_receipt(&copied_generation));
+ generation.main_may_have_started=1;assert(!wr_iot_rc_radio_on_rollback_receipt(&generation));generation.main_may_have_started=0;
+ rollback.released.nonce[0]++;assert(!wr_iot_rc_radio_on_rollback_receipt(&generation));rollback.released.nonce[0]--;
+ rollback.profile.files.saved[0].metadata.st_ino++;assert(!wr_iot_rc_radio_on_rollback_receipt(&generation));rollback.profile.files.saved[0].metadata.st_ino--;
+ rollback.profile.files.saved[0].data[0]^=1;assert(!wr_iot_rc_radio_on_rollback_receipt(&generation));rollback.profile.files.saved[0].data[0]^=1;
+ assert(wr_iot_rc_radio_on_rollback_receipt(&generation)&&wr_iot_rc_radio_off_profile_current(&receipt));
+ assert(wr_iot_rc_radio_on_rollback_receipt(&generation)); /* Same guarded retry. */
+ wr_iot_bundle_release(&rollback.profile.files);
+ wr_iot_rc_shutdown.active=wr_iot_rc_shutdown.radio_on_owned=wr_iot_rc_shutdown.radio_off_owned=0;
  assert(!unlink(radio_off_profile_receipt.path));
  assert(!wr_iot_rc_radio_off_profile_current(&receipt));
  wr_iot_service_guard_leave(1);
@@ -97,3 +125,5 @@ with tempfile.TemporaryDirectory(prefix='wr-rc-off-') as d:
   subprocess.run(['gcc','-DWR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED='+str(prepared),'-std=gnu11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(here),str(p),str(here/'control-mailbox.c'),str(here/'status-endpoint.c'),str(here/'status-channel.c'),'-o',str(b)],check=True)
   subprocess.run([str(b)],check=True,timeout=15)
 print('PASS actual RC ppoll/OFF consumer prepared0/1: guarded profile receipt survives cleanup, wrong physical nonce/absent file/absent guard refused; policy and terminal ownership retained; SDK/physical/final actors injected')
+
+print('PASS prepared RC rollback receipt: actual partial generation/rename restoration refreshes identity once; Main-start, wrong nonce, foreign baseline and mismatched bytes refuse; guarded retry idempotent')

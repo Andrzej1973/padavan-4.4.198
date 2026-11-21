@@ -1,0 +1,74 @@
+{
+  "scope": "pre-UP restored file receipt and prepared host fixture wiring",
+  "base_revision": "b0cb1809467d8751bd948e8a2e36ac80cc8bef30",
+  "source_sha256": {
+    "restart-profile-receipt.h": "38721885bc5b17c4b506fedf9fe46937efdb54ca3b81657d79be9465951599d2",
+    "rc-runtime.c": "a1b3a18acc5ec2bfa2043c264f8b969b587afff3c8c1630190b3331ad431a77a",
+    "rc-runtime.h": "4fddfaba1af07588da20da9b4187a9e7202eef91755c54d6a561b6707c9ce67b",
+    "radio-on-owner.c": "e930bda840232638ce342440424a24afcc3cebdee9dad4b5e10577cbd69f9e1a",
+    "check-rc-radio-off-composition.py": "17557c9879f0d00d1f388afd8593017732eb5cc7ced14d8deacf8347a342f4fd",
+    "check-radio-on-desired-config.py": "0a84b3f974afaef6d5e533b082088f141da092725d7ea46067e9b2885a0b0636",
+    "check-radio-on-owner-desired.py": "b086518e6979cf4ea9d5d22d12523c3e91bfe6f7837d9f75b4585b6f260b97dc"
+  },
+  "checks": [
+    {
+      "command": "python3 tools/iot/check-rc-radio-off-composition.py",
+      "exit_status": 0,
+      "sanitizers": [
+        "ASan",
+        "UBSan"
+      ]
+    },
+    {
+      "command": "python3 tools/iot/check-radio-on-failure-recover.py",
+      "exit_status": 0,
+      "sanitizers": [
+        "ASan",
+        "UBSan"
+      ]
+    },
+    {
+      "command": "python3 tools/iot/check-radio-on-capture-refusal.py",
+      "exit_status": 0,
+      "sanitizers": [
+        "ASan",
+        "UBSan"
+      ]
+    },
+    {
+      "command": "python3 tools/iot/check-radio-on-desired-config.py",
+      "exit_status": 0,
+      "sanitizers": [
+        "ASan",
+        "UBSan"
+      ]
+    },
+    {
+      "command": "python3 tools/iot/check-radio-on-owner-desired.py",
+      "exit_status": 0,
+      "sanitizers": [
+        "ASan",
+        "UBSan"
+      ]
+    }
+  ],
+  "ci_failure": {
+    "run": 44925761390,
+    "job": 136911441732,
+    "step": "Check IoT host compiler compatibility early",
+    "cause": "isolated prepared desired-generation fixture missing wr_iot_rc_radio_off_profile_current",
+    "monitor_run": 44925929766,
+    "artifact": 14715955653,
+    "artifact_sha256": "5df87779ad248fac0c268e87be24af1392f95fc299249c9916cec860e14b30f4",
+    "zip_crc_verified": true,
+    "original_log_confirmed": true,
+    "monitor_parser_change_needed": false
+  },
+  "limits": [
+    "RC storage/refresh executes actual code with modeled pre-UP caller state and physical actors",
+    "Owner desired fixture validates an injected RC rollback boundary",
+    "reload0 and loaded-profile provenance remain open",
+    "New target, image and physical acceptance unverified"
+  ],
+  "scratch_retained": false
+}

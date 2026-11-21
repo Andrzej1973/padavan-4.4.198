@@ -11,6 +11,19 @@ provider=next(ast.literal_eval(n.value) for n in tree.body if isinstance(n,ast.A
 provider=provider.replace('#include "saved-config-store.c"','#define admitted wr_saved_fixture_admitted\n#include "saved-config-store.c"\n#undef admitted')
 body=ns['body'];anchor='#include "radio-on-generation.c"';assert body.count(anchor)==1
 body=body.replace(anchor,provider+'\n'+anchor)
+# RC receipt storage is outside this isolated owner fixture. All entries use
+# reload1; its historical file observer must stay unused. Rollback receipt
+# publication is a validated injected boundary, exercised in RC composition.
+body=body.replace('#include "radio-on-release-runtime.h"',r'''
+static struct wr_iot_restart_profile_receipt radio_off_profile_receipt;
+int wr_iot_rc_radio_off_profile_current(const struct wr_iot_physical_stop_request *r){(void)r;assert(0);return 0;}
+int wr_iot_rc_radio_on_rollback_receipt(const struct wr_iot_on_generation *g){
+ assert(depth==1&&g&&g->owner==getpid()&&!g->busy&&!g->main_may_have_started&&
+  g->phase==WR_ON_GEN_RESTORED&&g->admission&&g->admission->profile.recovered);
+ return 1;
+}
+#include "radio-on-release-runtime.h"
+''')
 configured=body
 anchor='struct wr_iot_control_request r={.id="01000000000000000000000000000000",.created=10,.request=desired},wrong=r;'
 assert configured.count(anchor)==1

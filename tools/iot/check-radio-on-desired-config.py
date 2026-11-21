@@ -25,6 +25,12 @@ int nvram_getall(char *out,int size,int temporary){
 int nvram_set(const char *key,const char *value){(void)key;(void)value;assert(0);return -1;}
 #include "saved-config-store.c"
 '''
+# This isolated reload1 fixture never consumes RC's historical file receipt.
+provider+=r'''
+int wr_iot_rc_radio_off_profile_current(const struct wr_iot_physical_stop_request *r){
+ (void)r;assert(0);return 0;
+}
+'''
 body=body.replace('#include "radio-on-generation.c"',provider+'\n#include "radio-on-generation.c"')
 body=body.replace('#include "radio-on-generation.h"','#include "radio-on-generation.h"\n#include "generation-profile.h"',1)
 body=body.replace('int wr_iot_rc_off_profile_current(void){return wr_iot_restart_profile_current(&desired);}',
