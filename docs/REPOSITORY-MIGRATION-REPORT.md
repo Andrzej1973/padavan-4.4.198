@@ -1,12 +1,15 @@
 # Repository Phase 1 report — 2026-11-08 (reviewed 2026-11-21)
 
-Status as of 2026-11-21: Phase 1 is committed locally at
+Status as of 2026-11-21: Phase 1 was committed at
 `db0d7f02086a4e7c8b6d9e214925e340bcf87dcb`. The detailed baseline inventory
 remains outside Git because it records untracked owner/workspace paths. The
 separate Phase 1A call-site inventory remains a follow-up artifact; no Phase 1A
-source extraction has started. This commit is not published. Exact-SHA GitHub
-validation and full WR1200JS image checks require a separately authorized push.
-No image or device acceptance is claimed.
+source extraction has started. The owner subsequently authorized push, and
+Phase 1 is published as an ancestor of main `03f5170407203e0317958fa1835920f992841dbf`.
+That exact source has successful ABI, service and Zapret2 runs; standard1438
+run `44898285630` remains in progress at the latest observation. No completed
+image or device acceptance is claimed. See the current
+[merge audit](LOCAL-MERGE-AUDIT-2026-11-21.md) for publication and preservation.
 
 ## Audit and decision
 
@@ -72,9 +75,9 @@ failed. Later missing EoIP/StrongSwan artifacts are consequences, not the cause.
 No matching monitor run was observed: the deployed main workflow does not yet
 watch compiler comparison, although the branch list does. See the
 [exact CI evidence](evidence/REPOSITORY-PHASE1-CI-2026-11-08.json).
-It cannot cover this unpublished Phase 1 package. After authorized publication,
-require selected-board validation and full WR1200JS image checks at the exact
-new SHA. No physical acceptance is claimed; runtime acceptance requires
+It does not cover the Phase 1 package. Its authorized publication is now
+complete; selected-board validation passed locally and the exact merged-source
+standard run is being observed for image checks. No physical acceptance is claimed; runtime acceptance requires
 separate authorization and evidence.
 
 ## Residual work and Phase 1A recommendations
@@ -83,8 +86,8 @@ separate authorization and evidence.
    with a regression fixture, then rebuild/retest A/B before any compiler
    promotion. Do not disable the extraction safety filter. This is a separate
    toolchain fix, not grounds for risky repository migration.
-2. Review and authorize publication of this coherent local package, then check
-   exact-SHA CI/image evidence. Local acceptance is not full build acceptance.
+2. Publication is complete. Finish exact-SHA standard/optional and image evidence
+   review; local acceptance is not full build acceptance.
 3. For a later Phase 1A, inventory ordered source transformations and their
    callers before extracting any proven common board logic. Avoid a second
    board schema; extend current profiles/capability manifests when evidence exists.
